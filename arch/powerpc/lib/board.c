@@ -75,10 +75,6 @@
 extern int update_flash_size(int flash_size);
 #endif
 
-#if defined(CONFIG_SC3)
-extern void sc3_read_eeprom(void);
-#endif
-
 #if defined(CONFIG_CMD_DOC)
 void doc_init(void);
 #endif
@@ -791,10 +787,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif /* CONFIG_405GP, CONFIG_405EP */
 #endif /* CONFIG_SYS_EXTBDINFO */
 
-#if defined(CONFIG_SC3)
-	sc3_read_eeprom();
-#endif
-
 #if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
 	mac_read_from_eeprom();
 #endif
@@ -890,7 +882,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #if defined(CONFIG_CMD_NET)
 	WATCHDOG_RESET();
 	puts("Net:   ");
-	eth_initialize(bd);
+	eth_initialize();
 #endif
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_RESET_PHY_R)

@@ -536,6 +536,9 @@ struct dwc2_core_regs {
 #define DWC2_HPRT0_PRTPWR_OFFSET			12
 #define DWC2_HPRT0_PRTTSTCTL_MASK			(0xF << 13)
 #define DWC2_HPRT0_PRTTSTCTL_OFFSET			13
+#define DWC2_HPRT0_PRTSPD_HIGH				(0 << 17)
+#define DWC2_HPRT0_PRTSPD_FULL				(1 << 17)
+#define DWC2_HPRT0_PRTSPD_LOW				(2 << 17)
 #define DWC2_HPRT0_PRTSPD_MASK				(0x3 << 17)
 #define DWC2_HPRT0_PRTSPD_OFFSET			17
 #define DWC2_HAINT_CH0					(1 << 0)
@@ -729,6 +732,7 @@ struct dwc2_core_regs {
 #define DWC2_PCGCCTL_DEEP_SLEEP				(1 << 7)
 #define DWC2_PCGCCTL_DEEP_SLEEP_OFFSET			7
 #define DWC2_SNPSID_DEVID_VER_2xx			(0x4f542 << 12)
+#define DWC2_SNPSID_DEVID_VER_3xx			(0x4f543 << 12)
 #define DWC2_SNPSID_DEVID_MASK				(0xfffff << 12)
 #define DWC2_SNPSID_DEVID_OFFSET			12
 

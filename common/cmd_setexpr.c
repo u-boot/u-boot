@@ -12,23 +12,37 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
+#include <mapmem.h>
 
 static ulong get_arg(char *s, int w)
 {
-	ulong *p;
-
 	/*
-	 * if the parameter starts with a '*' then assume
-	 * it is a pointer to the value we want
+	 * If the parameter starts with a '*' then assume it is a pointer to
+	 * the value we want.
 	 */
-
 	if (s[0] == '*') {
-		p = (ulong *)simple_strtoul(&s[1], NULL, 16);
+		ulong *p;
+		ulong addr;
+		ulong val;
+
+		addr = simple_strtoul(&s[1], NULL, 16);
 		switch (w) {
-		case 1: return((ulong)(*(uchar *)p));
-		case 2: return((ulong)(*(ushort *)p));
+		case 1:
+			p = map_sysmem(addr, sizeof(uchar));
+			val = (ulong)*(uchar *)p;
+			unmap_sysmem(p);
+			return val;
+		case 2:
+			p = map_sysmem(addr, sizeof(ushort));
+			val = (ulong)*(ushort *)p;
+			unmap_sysmem(p);
+			return val;
 		case 4:
-		default: return(*p);
+		default:
+			p = map_sysmem(addr, sizeof(ulong));
+			val = *p;
+			unmap_sysmem(p);
+			return val;
 		}
 	} else {
 		return simple_strtoul(s, NULL, 16);

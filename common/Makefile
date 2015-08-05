@@ -74,6 +74,7 @@ obj-$(CONFIG_CMD_CBFS) += cmd_cbfs.o
 obj-$(CONFIG_CMD_CLK) += cmd_clk.o
 obj-$(CONFIG_CMD_CONSOLE) += cmd_console.o
 obj-$(CONFIG_CMD_CPLBINFO) += cmd_cplbinfo.o
+obj-$(CONFIG_CMD_CPU) += cmd_cpu.o
 obj-$(CONFIG_DATAFLASH_MMC_SELECT) += cmd_dataflash_mmc_mux.o
 obj-$(CONFIG_CMD_DATE) += cmd_date.o
 obj-$(CONFIG_CMD_DEMO) += cmd_demo.o
@@ -152,7 +153,7 @@ obj-$(CONFIG_CMD_PXE) += cmd_pxe.o
 obj-$(CONFIG_CMD_READ) += cmd_read.o
 obj-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
 obj-$(CONFIG_CMD_REISER) += cmd_reiser.o
-obj-$(CONFIG_SANDBOX) += cmd_sandbox.o
+obj-$(CONFIG_SANDBOX) += cmd_host.o
 obj-$(CONFIG_CMD_SATA) += cmd_sata.o
 obj-$(CONFIG_CMD_SF) += cmd_sf.o
 obj-$(CONFIG_CMD_SCSI) += cmd_scsi.o
@@ -202,6 +203,7 @@ obj-$(CONFIG_KALLSYMS) += kallsyms.o
 obj-y += splash.o
 obj-$(CONFIG_SPLASH_SOURCE) += splash_source.o
 obj-$(CONFIG_LCD) += lcd.o lcd_console.o
+obj-$(CONFIG_LCD_ROTATION) += lcd_console_rotation.o
 obj-$(CONFIG_LCD_DT_SIMPLEFB) += lcd_simplefb.o
 obj-$(CONFIG_LYNXKDI) += lynxkdi.o
 obj-$(CONFIG_MENU) += menu.o
@@ -210,6 +212,10 @@ obj-$(CONFIG_UPDATE_TFTP) += update.o
 obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 obj-$(CONFIG_CMD_DFU) += cmd_dfu.o
 obj-$(CONFIG_CMD_GPT) += cmd_gpt.o
+
+# Power
+obj-$(CONFIG_CMD_PMIC) += cmd_pmic.o
+obj-$(CONFIG_CMD_REGULATOR) += cmd_regulator.o
 endif
 
 ifdef CONFIG_SPL_BUILD

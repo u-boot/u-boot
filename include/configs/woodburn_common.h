@@ -47,6 +47,7 @@
  */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO
@@ -81,9 +82,6 @@
 /*
  * Command definition
  */
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -97,7 +95,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 #define CONFIG_CMD_MMC
 #define CONFIG_DOS_PARTITION

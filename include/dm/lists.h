@@ -73,4 +73,20 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 int device_bind_driver(struct udevice *parent, const char *drv_name,
 		       const char *dev_name, struct udevice **devp);
 
+/**
+ * device_bind_driver_to_node() - bind a device to a driver for a node
+ *
+ * This binds a new device to a driver for a given device tree node. This
+ * should only be needed if the node lacks a compatible strings.
+ *
+ * @parent:	Parent device
+ * @drv_name:	Name of driver to attach to this parent
+ * @dev_name:	Name of the new device thus created
+ * @node:	Device tree node
+ * @devp:	Returns the newly bound device
+ */
+int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
+			       const char *dev_name, int node,
+			       struct udevice **devp);
+
 #endif

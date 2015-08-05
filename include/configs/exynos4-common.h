@@ -22,17 +22,10 @@
 #define CONFIG_MMC_SDMA
 #define CONFIG_MMC_DEFAULT_DEV	0
 
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_XIMG
 #undef CONFIG_CMD_ONENAND
 #undef CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
-#define CONFIG_CMD_PMIC
-#define CONFIG_CMD_SETEXPR
 
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USBDOWNLOAD_GADGET

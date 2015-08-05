@@ -28,7 +28,7 @@ void get_sys_info(sys_info_t *sys_info)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_FSL_IFC
-	struct fsl_ifc *ifc_regs = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
 #ifdef CONFIG_FSL_CORENET
@@ -73,7 +73,8 @@ void get_sys_info(sys_info_t *sys_info)
 		[14] = 4,	/* CC4 PPL / 4 */
 	};
 	uint i, freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
-#if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
+#if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV) || \
+	defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)
 	uint rcw_tmp;
 #endif
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
@@ -453,6 +454,48 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 #endif
 
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
+#if defined(CONFIG_PPC_T2080)
+#define ESDHC_CLK_SEL	0x00000007
+#define ESDHC_CLK_SHIFT	0
+#define ESDHC_CLK_RCWSR	15
+#else	/* Support T1040 T1024 by now */
+#define ESDHC_CLK_SEL	0xe0000000
+#define ESDHC_CLK_SHIFT	29
+#define ESDHC_CLK_RCWSR	7
+#endif
+	rcw_tmp = in_be32(&gur->rcwsr[ESDHC_CLK_RCWSR]);
+	switch ((rcw_tmp & ESDHC_CLK_SEL) >> ESDHC_CLK_SHIFT) {
+	case 1:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK];
+		break;
+	case 2:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 2;
+		break;
+	case 3:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 3;
+		break;
+#if defined(CONFIG_SYS_SDHC_CLK_2_PLL)
+	case 4:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 4;
+		break;
+#if defined(CONFIG_PPC_T2080)
+	case 5:
+		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK];
+		break;
+#endif
+	case 6:
+		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK] / 2;
+		break;
+	case 7:
+		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK] / 3;
+		break;
+#endif
+	default:
+		sys_info->freq_sdhc = 0;
+		printf("Error: Unknown SDHC peripheral clock select!\n");
+	}
+#endif
 #else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
@@ -597,7 +640,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = ifc_in32(&ifc_regs->ifc_ccr);
+	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
 	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
 
 	sys_info->freq_localbus = sys_info->freq_systembus / ccr;
@@ -660,11 +703,15 @@ int get_clocks (void)
 	gd->arch.i2c2_clk = gd->arch.i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
+	gd->arch.sdhc_clk = sys_info.freq_sdhc / 2;
+#else
 #if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
        defined(CONFIG_P1014)
 	gd->arch.sdhc_clk = gd->bus_clk;
 #else
 	gd->arch.sdhc_clk = gd->bus_clk / 2;
+#endif
 #endif
 #endif /* defined(CONFIG_FSL_ESDHC) */
 

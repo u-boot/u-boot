@@ -38,6 +38,7 @@
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_CLK_OFFSET	I2C2_CLK_OFFSET
 
 #define CONFIG_MXC_UART
@@ -51,9 +52,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C

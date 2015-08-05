@@ -68,13 +68,14 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
+#define CONFIG_ZYNQ_SDHCI0
+
 /* Command line configuration */
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_MEMORY
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_ELF
 #define CONFIG_MP
@@ -169,7 +170,7 @@
 
 #define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
 				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"
-#define CONFIG_PREBOOT		"run bootargs; run sata_root"
+#define CONFIG_PREBOOT		"run bootargs; run sata_root; run setup"
 #define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	5
 

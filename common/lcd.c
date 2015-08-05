@@ -15,6 +15,7 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <lcd.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <asm/unaligned.h>
 #include <splash.h>
@@ -167,7 +168,6 @@ int drv_lcd_init(void)
 
 void lcd_clear(void)
 {
-	short console_rows, console_cols;
 	int bg_color;
 	char *s;
 	ulong addr;
@@ -211,16 +211,14 @@ void lcd_clear(void)
 	}
 #endif
 #endif
+	/* setup text-console */
+	debug("[LCD] setting up console...\n");
+	lcd_init_console(lcd_base,
+			 panel_info.vl_col,
+			 panel_info.vl_row,
+			 panel_info.vl_rot);
 	/* Paint the logo and retrieve LCD base address */
 	debug("[LCD] Drawing the logo...\n");
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-	console_rows = (panel_info.vl_row - BMP_LOGO_HEIGHT);
-	console_rows /= VIDEO_FONT_HEIGHT;
-#else
-	console_rows = panel_info.vl_row / VIDEO_FONT_HEIGHT;
-#endif
-	console_cols = panel_info.vl_col / VIDEO_FONT_WIDTH;
-	lcd_init_console(lcd_base, console_rows, console_cols);
 	if (do_splash) {
 		s = getenv("splashimage");
 		if (s) {
@@ -236,7 +234,8 @@ void lcd_clear(void)
 	lcd_logo();
 #if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
 	addr = (ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length;
-	lcd_init_console((void *)addr, console_rows, console_cols);
+	lcd_init_console((void *)addr, panel_info.vl_row,
+			 panel_info.vl_col, panel_info.vl_rot);
 #endif
 	lcd_sync();
 }
@@ -449,8 +448,8 @@ static void draw_encoded_bitmap(ushort **fbp, ushort c, int cnt)
 /*
  * Do not call this function directly, must be called from lcd_display_bitmap.
  */
-static void lcd_display_rle8_bitmap(bmp_image_t *bmp, ushort *cmap, uchar *fb,
-				    int x_off, int y_off)
+static void lcd_display_rle8_bitmap(struct bmp_image *bmp, ushort *cmap,
+				    uchar *fb, int x_off, int y_off)
 {
 	uchar *bmap;
 	ulong width, height;
@@ -549,10 +548,10 @@ __weak void fb_put_word(uchar **fb, uchar **from)
 }
 #endif /* CONFIG_BMP_16BPP */
 
-__weak void lcd_set_cmap(bmp_image_t *bmp, unsigned colors)
+__weak void lcd_set_cmap(struct bmp_image *bmp, unsigned colors)
 {
 	int i;
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 	ushort *cmap = configuration_get_cmap();
 
 	for (i = 0; i < colors; ++i) {
@@ -573,12 +572,14 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	ushort *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
-	bmp_image_t *bmp = (bmp_image_t *)map_sysmem(bmp_image, 0);
+	struct bmp_image *bmp = (struct bmp_image *)map_sysmem(bmp_image, 0);
 	uchar *bmap;
 	ushort padded_width;
 	unsigned long width, height, byte_width;
 	unsigned long pwidth = panel_info.vl_col;
 	unsigned colors, bpix, bmp_bpix;
+	int hdr_size;
+	struct bmp_color_table_entry *palette = bmp->color_table;
 
 	if (!bmp || !(bmp->header.signature[0] == 'B' &&
 		bmp->header.signature[1] == 'M')) {
@@ -590,6 +591,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	width = get_unaligned_le32(&bmp->header.width);
 	height = get_unaligned_le32(&bmp->header.height);
 	bmp_bpix = get_unaligned_le16(&bmp->header.bit_count);
+	hdr_size = get_unaligned_le16(&bmp->header.size);
+	debug("hdr_size=%d, bmp_bpix=%d\n", hdr_size, bmp_bpix);
 
 	colors = 1 << bmp_bpix;
 
@@ -614,8 +617,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		return 1;
 	}
 
-	debug("Display-bmp: %d x %d  with %d colors\n",
-		(int)width, (int)height, (int)colors);
+	debug("Display-bmp: %d x %d  with %d colors, display %d\n",
+	      (int)width, (int)height, (int)colors, 1 << bpix);
 
 	if (bmp_bpix == 8)
 		lcd_set_cmap(bmp, colors);
@@ -642,6 +645,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		cmap_base = configuration_get_cmap();
 #ifdef CONFIG_LCD_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
+		debug("compressed %d %d\n", compression, BMP_BI_RLE8);
 		if (compression == BMP_BI_RLE8) {
 			if (bpix != 16) {
 				/* TODO implement render code for bpix != 16 */
@@ -664,7 +668,19 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 				if (bpix != 16) {
 					fb_put_byte(&fb, &bmap);
 				} else {
-					*(uint16_t *)fb = cmap_base[*(bmap++)];
+					struct bmp_color_table_entry *entry;
+					uint val;
+
+					if (cmap_base) {
+						val = cmap_base[*bmap];
+					} else {
+						entry = &palette[*bmap];
+						val = entry->blue >> 3 |
+							entry->green >> 2 << 5 |
+							entry->red >> 3 << 11;
+					}
+					*(uint16_t *)fb = val;
+					bmap++;
 					fb += sizeof(uint16_t) / sizeof(*fb);
 				}
 			}

@@ -15,7 +15,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC
-#define CONFIG_SPI_FLASH
 #define CONFIG_USB_EHCI
 #if defined(CONFIG_PPC_T2080)
 #define CONFIG_T2080QDS
@@ -575,6 +574,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCIE2		/* PCIE controler 2 */
 #define CONFIG_PCIE3		/* PCIE controler 3 */
 #define CONFIG_PCIE4		/* PCIE controler 4 */
+#define CONFIG_FSL_PCIE_RESET
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */
@@ -619,7 +619,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_FSL_PCIE_RESET	   /* need PCIe reset errata */
-#define CONFIG_NET_MULTI
 #define CONFIG_E1000
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
@@ -756,6 +755,7 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
+#define define CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
@@ -763,6 +763,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#define CONFIG_FSL_ESDHC_ADAPTER_IDENT
 #endif
 
 
@@ -791,8 +792,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
@@ -801,13 +800,10 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_BDI
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /* Hash command with SHA acceleration supported in hardware */

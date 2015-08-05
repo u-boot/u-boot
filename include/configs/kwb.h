@@ -3,7 +3,7 @@
  *
  * specific parts for B&R KWB Motherboard
  *
- * Copyright (C) 2013 Hannes Petermaier <oe5hpm@oevsv.at> -
+ * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at> -
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:        GPL-2.0+
@@ -19,6 +19,14 @@
 #define CONFIG_LCD_NOSTDOUT
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
+
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(1366*767*4)
+#define CONFIG_CMD_UNZIP
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_24BMP
+#define CONFIG_BMP_32BPP
+
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -72,10 +80,6 @@ BUR_COMMON_ENV \
 	"run loadromfs; " \
 	"tftp ${loadaddr} arimg && go ${loadaddr}; " \
 	"puts 'networkboot failed!';\0" \
-"usbupdate=echo updating u-boot from usb ...; " \
-	"usb start; " \
-	"fatload usb 0 0x80000000 updateubootusb.img && source; " \
-	"puts 'usbupdate failed!'\0" \
 "netscript=echo running script from network (tftp) ...; " \
 	"tftp 0x80000000 netscript.img && source; " \
 	"puts 'netscript load failed!'\0" \
@@ -93,7 +97,7 @@ BUR_COMMON_ENV \
 #endif /* !CONFIG_SPL_BUILD*/
 
 #define CONFIG_BOOTCOMMAND \
-	"run usbupdate;"
+	"run usbscript;"
 #define CONFIG_BOOTDELAY		0
 
 /* undefine command which we not need here */

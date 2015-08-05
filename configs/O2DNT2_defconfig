@@ -1,3 +1,7 @@
 CONFIG_PPC=y
 CONFIG_MPC5xxx=y
 CONFIG_TARGET_O2DNT2=y
+CONFIG_AUTOBOOT_KEYED=y
+CONFIG_AUTOBOOT_PROMPT="Autobooting in %d seconds, press password to stop\n"
+CONFIG_AUTOBOOT_STOP_STR="++++++++++"
+# CONFIG_CMD_SETEXPR is not set

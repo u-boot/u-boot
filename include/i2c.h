@@ -54,6 +54,7 @@ struct dm_i2c_chip {
 	uint flags;
 #ifdef CONFIG_SANDBOX
 	struct udevice *emul;
+	bool test_mode;
 #endif
 };
 
@@ -64,8 +65,8 @@ struct dm_i2c_chip {
  * bus can operate at different speeds (measured in Hz, typically 100KHz
  * or 400KHz).
  *
- * To obtain this structure, use bus->uclass_priv where bus is the I2C
- * bus udevice.
+ * To obtain this structure, use dev_get_uclass_priv(bus) where bus is the
+ * I2C bus udevice.
  *
  * @speed_hz: Bus speed in hertz (typically 100000)
  */
@@ -124,6 +125,27 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
 		 struct udevice **devp);
 
 /**
+ * dm_i2c_reg_read() - Read a value from an I2C register
+ *
+ * This reads a single value from the given address in an I2C chip
+ *
+ * @addr:	Address to read from
+ * @return value read, or -ve on error
+ */
+int dm_i2c_reg_read(struct udevice *dev, uint offset);
+
+/**
+ * dm_i2c_reg_write() - Write a value to an I2C register
+ *
+ * This writes a single value to the given address in an I2C chip
+ *
+ * @addr:	Address to write to
+ * @val:	Value to write (normally a byte)
+ * @return 0 on success, -ve on error
+ */
+int dm_i2c_reg_write(struct udevice *dev, uint offset, unsigned int val);
+
+/**
  * dm_i2c_set_bus_speed() - set the speed of a bus
  *
  * @bus:	Bus to adjust
@@ -171,8 +193,15 @@ int i2c_get_chip_flags(struct udevice *dev, uint *flagsp);
  *
  * @offset_len:	New offset length value (typically 1 or 2)
  */
-
 int i2c_set_chip_offset_len(struct udevice *dev, uint offset_len);
+
+/**
+ * i2c_get_offset_len() - get the offset length for a chip
+ *
+ * @return:	Current offset length value (typically 1 or 2)
+ */
+int i2c_get_chip_offset_len(struct udevice *dev);
+
 /**
  * i2c_deblock() - recover a bus that is in an unknown state
  *
@@ -254,6 +283,12 @@ void i2c_init(int speed, int slaveaddr);
  * @return the number of I2C bus
  */
 void board_i2c_init(const void *blob);
+
+/*
+ * Compatibility functions for driver model.
+ */
+uint8_t i2c_reg_read(uint8_t addr, uint8_t reg);
+void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val);
 
 #endif
 
@@ -340,7 +375,7 @@ struct dm_i2c_ops {
 	 * The bus speed value will be updated by the uclass if this function
 	 * does not return an error. This method is optional - if it is not
 	 * provided then the driver can read the speed from
-	 * bus->uclass_priv->speed_hz
+	 * dev_get_uclass_priv(bus)->speed_hz
 	 *
 	 * @bus:	Bus to adjust
 	 * @speed:	Requested speed in Hz
@@ -354,7 +389,7 @@ struct dm_i2c_ops {
 	 * Normally this can be provided by the uclass, but if you want your
 	 * driver to check the bus speed by looking at the hardware, you can
 	 * implement that here. This method is optional. This method would
-	 * normally be expected to return bus->uclass_priv->speed_hz.
+	 * normally be expected to return dev_get_uclass_priv(bus)->speed_hz.
 	 *
 	 * @bus:	Bus to check
 	 * @return speed of selected I2C bus in Hz, -ve on error

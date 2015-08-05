@@ -150,7 +150,7 @@ endif
 boot.bin: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkimage)
 
-ALL-y	+= $(obj)/$(SPL_BIN).bin
+ALL-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).cfg
 
 ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
@@ -165,6 +165,13 @@ ALL-y	+= boot.bin
 endif
 
 all:	$(ALL-y)
+
+quiet_cmd_cpp_cfg = CFG     $@
+cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
+	-DDO_DEPS_ONLY -D__ASSEMBLY__ -x assembler-with-cpp -P -dM -E -o $@ $<
+
+$(obj)/$(SPL_BIN).cfg:	include/config.h
+	$(call if_changed,cpp_cfg)
 
 ifdef CONFIG_SAMSUNG
 ifdef CONFIG_VAR_SIZE_SPL

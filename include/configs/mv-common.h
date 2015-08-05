@@ -57,6 +57,9 @@
 					  115200,230400, 460800, 921600 }
 /* auto boot */
 #define CONFIG_BOOTDELAY	3	/* default enable autoboot */
+#define CONFIG_PREBOOT
+
+#define CONFIG_OF_LIBFDT		/* Device tree support */
 
 /*
  * For booting Linux, the board info and command line data
@@ -120,7 +123,6 @@
  * Common SPI Flash configuration
  */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH		1
 #define CONFIG_SPI_FLASH_MACRONIX	1
 #endif
 

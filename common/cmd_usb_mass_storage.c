@@ -137,7 +137,7 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	while (1) {
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(controller_index);
 
 		rc = fsg_main_thread(NULL);
 		if (rc) {
@@ -154,11 +154,12 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	}
 exit:
 	g_dnl_unregister();
+	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
 	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(ums, 4, 1, do_usb_mass_storage,
-	"Use the UMS [User Mass Storage]",
+	"Use the UMS [USB Mass Storage]",
 	"<USB_controller> [<devtype>] <devnum>  e.g. ums 0 mmc 0\n"
 	"    devtype defaults to mmc"
 );

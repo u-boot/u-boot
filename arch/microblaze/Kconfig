@@ -6,6 +6,7 @@ config SYS_ARCH
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_MICROBLAZE_GENERIC
 	bool "Support microblaze-generic"

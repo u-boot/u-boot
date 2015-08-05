@@ -29,17 +29,11 @@
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #undef CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
@@ -75,13 +69,10 @@
 #		endif
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 
-#	define CONFIG_ETHADDR	00:e0:0c:bc:e5:60
-#	define CONFIG_ETH1ADDR	00:e0:0c:bc:e5:61
 #	define CONFIG_IPADDR	192.162.1.2
 #	define CONFIG_NETMASK	255.255.255.0
 #	define CONFIG_SERVERIP	192.162.1.1
 #	define CONFIG_GATEWAYIP	192.162.1.1
-#	define CONFIG_OVERWRITE_ETHADDR_ONCE
 
 #endif
 
@@ -135,12 +126,10 @@
 #define CONFIG_UDP_CHECKSUM
 
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_ETHADDR	00:e0:0c:bc:e5:60
 #	define CONFIG_IPADDR	192.162.1.2
 #	define CONFIG_NETMASK	255.255.255.0
 #	define CONFIG_SERVERIP	192.162.1.1
 #	define CONFIG_GATEWAYIP	192.162.1.1
-#	define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif				/* FEC_ENET */
 
 #define CONFIG_HOSTNAME		M547xEVB

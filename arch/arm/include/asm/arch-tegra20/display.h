@@ -8,7 +8,7 @@
 #ifndef __ASM_ARCH_TEGRA_DISPLAY_H
 #define __ASM_ARCH_TEGRA_DISPLAY_H
 
-#include <asm/arch/dc.h>
+#include <asm/arch-tegra/dc.h>
 #include <fdtdec.h>
 #include <asm/gpio.h>
 

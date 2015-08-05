@@ -25,6 +25,8 @@
 #endif
 #include <linux/compiler.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Memory lay-out:
  *
@@ -40,15 +42,28 @@
 
 #define COMMAND_LINE_SIZE	2048
 
-unsigned generic_install_e820_map(unsigned max_entries,
-				  struct e820entry *entries)
+/*
+ * Install a default e820 table with 3 entries as follows:
+ *
+ *	0x000000-0x0a0000	Useable RAM
+ *	0x0a0000-0x100000	Reserved for ISA
+ *	0x100000-gd->ram_size	Useable RAM
+ */
+__weak unsigned install_e820_map(unsigned max_entries,
+				 struct e820entry *entries)
 {
-	return 0;
-}
+	entries[0].addr = 0;
+	entries[0].size = ISA_START_ADDRESS;
+	entries[0].type = E820_RAM;
+	entries[1].addr = ISA_START_ADDRESS;
+	entries[1].size = ISA_END_ADDRESS - ISA_START_ADDRESS;
+	entries[1].type = E820_RESERVED;
+	entries[2].addr = ISA_END_ADDRESS;
+	entries[2].size = gd->ram_size - ISA_END_ADDRESS;
+	entries[2].type = E820_RAM;
 
-unsigned install_e820_map(unsigned max_entries,
-			  struct e820entry *entries)
-	__attribute__((weak, alias("generic_install_e820_map")));
+	return 3;
+}
 
 static void build_command_line(char *command_line, int auto_boot)
 {

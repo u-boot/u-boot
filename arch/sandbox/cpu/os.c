@@ -24,6 +24,7 @@
 #include <asm/sections.h>
 #include <asm/state.h>
 #include <os.h>
+#include <rtc_def.h>
 
 /* Operating System Interface */
 
@@ -106,10 +107,12 @@ void os_exit(int exit_code)
 static struct termios orig_term;
 static bool term_setup;
 
-static void os_fd_restore(void)
+void os_fd_restore(void)
 {
-	if (term_setup)
+	if (term_setup) {
 		tcsetattr(0, TCSANOW, &orig_term);
+		term_setup = false;
+	}
 }
 
 /* Put tty into raw mode so <tab> and <ctrl+c> work */
@@ -119,7 +122,6 @@ void os_tty_raw(int fd, bool allow_sigs)
 
 	if (term_setup)
 		return;
-	term_setup = true;
 
 	/* If not a tty, don't complain */
 	if (tcgetattr(fd, &orig_term))
@@ -133,6 +135,7 @@ void os_tty_raw(int fd, bool allow_sigs)
 	if (tcsetattr(fd, TCSANOW, &term))
 		return;
 
+	term_setup = true;
 	atexit(os_fd_restore);
 }
 
@@ -536,4 +539,21 @@ int os_jump_to_image(const void *dest, int size)
 		return err;
 
 	return unlink(fname);
+}
+
+void os_localtime(struct rtc_time *rt)
+{
+	time_t t = time(NULL);
+	struct tm *tm;
+
+	tm = localtime(&t);
+	rt->tm_sec = tm->tm_sec;
+	rt->tm_min = tm->tm_min;
+	rt->tm_hour = tm->tm_hour;
+	rt->tm_mday = tm->tm_mday;
+	rt->tm_mon = tm->tm_mon + 1;
+	rt->tm_year = tm->tm_year + 1900;
+	rt->tm_wday = tm->tm_wday;
+	rt->tm_yday = tm->tm_yday;
+	rt->tm_isdst = tm->tm_isdst;
 }

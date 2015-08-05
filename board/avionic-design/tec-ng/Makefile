@@ -6,5 +6,3 @@
 #
 
 obj-y	:= ../common/tamonten-ng.o
-
-include $(srctree)/board/nvidia/common/common.mk

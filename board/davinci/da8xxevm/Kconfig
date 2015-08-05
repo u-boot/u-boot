@@ -23,3 +23,16 @@ config SYS_CONFIG_NAME
 	default "da850evm"
 
 endif
+
+if TARGET_OMAPL138_LCDK
+
+config SYS_BOARD
+	default "da8xxevm"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "omapl138_lcdk"
+
+endif

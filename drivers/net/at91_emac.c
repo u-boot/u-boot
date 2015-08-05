@@ -352,7 +352,7 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 
 	/* Init Ethernet buffers */
 	for (i = 0; i < RBF_FRAMEMAX; i++) {
-		dev->rbfdt[i].addr = (unsigned long) NetRxPackets[i];
+		dev->rbfdt[i].addr = (unsigned long) net_rx_packets[i];
 		dev->rbfdt[i].size = 0;
 	}
 	dev->rbfdt[RBF_FRAMEMAX - 1].addr |= RBF_WRAP;
@@ -420,7 +420,7 @@ static int at91emac_recv(struct eth_device *netdev)
 	rbfp = &dev->rbfdt[dev->rbindex];
 	while (rbfp->addr & RBF_OWNER)	{
 		size = rbfp->size & RBF_SIZE;
-		NetReceive(NetRxPackets[dev->rbindex], size);
+		net_process_received_packet(net_rx_packets[dev->rbindex], size);
 
 		debug_cond(DEBUG_AT91EMAC, "Recv[%ld]: %d bytes @ %lx\n",
 			dev->rbindex, size, rbfp->addr);

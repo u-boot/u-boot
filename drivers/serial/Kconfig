@@ -66,8 +66,39 @@ config DEBUG_UART_CLOCK
 	  A default should be provided by your board, but if not you will need
 	  to use the correct value here.
 
+config DEBUG_UART_SHIFT
+	int "UART register shift"
+	depends on DEBUG_UART
+	default 0 if DEBUG_UART
+	help
+	  Some UARTs (notably ns16550) support different register layouts
+	  where the registers are spaced either as bytes, words or some other
+	  value. Use this value to specify the shift to use, where 0=byte
+	  registers, 2=32-bit word registers, etc.
+
+config SANDBOX_SERIAL
+	bool "Sandbox UART support"
+	depends on SANDBOX && DM
+	help
+	  Select this to enable a seral UART for sandbox. This is required to
+	  operate correctly, otherwise you will see no serial output from
+	  sandbox. The emulated UART will display to the console and console
+	  input will be fed into the UART. This allows you to interact with
+	  U-Boot.
+
+	  The operation of the console is controlled by the -t command-line
+	  flag. In raw mode, U-Boot sees all characters from the terminal
+	  before they are processed, including Ctrl-C. In cooked mode, Ctrl-C
+	  is processed by the terminal, and terminates U-Boot. Valid options
+	  are:
+
+	     -t raw-with-sigs	Raw mode, Ctrl-C will terminate U-Boot
+	     -t raw		Raw mode, Ctrl-C is processed by U-Boot
+	     -t cooked		Cooked mode, Ctrl-C terminates
+
 config UNIPHIER_SERIAL
-	bool "UniPhier on-chip UART support"
+	bool "Support for UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER && DM_SERIAL
 	help
-	  Support for the on-chip UARTs on the Panasonic UniPhier platform.
+	  If you have a UniPhier based board and want to use the on-chip
+	  serial ports, say Y to this option. If unsure, say N.

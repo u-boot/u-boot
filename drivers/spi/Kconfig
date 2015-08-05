@@ -1,3 +1,5 @@
+menu "SPI Support"
+
 config DM_SPI
 	bool "Enable Driver Model for SPI drivers"
 	depends on DM
@@ -10,3 +12,130 @@ config DM_SPI
 	  as 'parent data' to every slave on each bus. Slaves
 	  typically use driver-private data instead of extending the
 	  spi_slave structure.
+
+if DM_SPI
+
+config CADENCE_QSPI
+	bool "Cadence QSPI driver"
+	help
+	  Enable the Cadence Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Cadence IP core.
+
+config DESIGNWARE_SPI
+	bool "Designware SPI driver"
+	help
+	  Enable the Designware SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Designware
+	  IP core.
+
+config EXYNOS_SPI
+	bool "Samsung Exynos SPI driver"
+	help
+	  Enable the Samsung Exynos SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Samsung
+	  Exynos IP core.
+
+config FSL_DSPI
+	bool "Freescale DSPI driver"
+	help
+	  Enable the Freescale DSPI driver. This driver can be used to
+	  access the SPI NOR flash and SPI Data flash on platforms embedding
+	  this Freescale DSPI IP core. LS102xA and Colibri VF50/VF61 platforms
+	  use this driver.
+
+config FSL_QSPI
+	bool "Freescale QSPI driver"
+	help
+	  Enable the Freescale Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Freescale IP core.
+
+config ICH_SPI
+	bool "Intel ICH SPI driver"
+	help
+	  Enable the Intel ICH SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Intel
+	  ICH IP core.
+
+config SANDBOX_SPI
+	bool "Sandbox SPI driver"
+	depends on SANDBOX && DM
+	help
+	  Enable SPI support for sandbox. This is an emulation of a real SPI
+	  bus. Devices can be attached to the bus using the device tree
+	  which specifies the driver to use. As an example, see this device
+	  tree fragment from sandbox.dts. It shows that the SPI bus has a
+	  single flash device on chip select 0 which is emulated by the driver
+	  for "sandbox,spi-flash", which is in drivers/mtd/spi/sandbox.c.
+
+	  spi@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,spi";
+		cs-gpios = <0>, <&gpio_a 0>;
+		flash@0 {
+			reg = <0>;
+			compatible = "spansion,m25p16", "sandbox,spi-flash";
+			spi-max-frequency = <40000000>;
+			sandbox,filename = "spi.bin";
+		};
+	  };
+
+config TEGRA114_SPI
+	bool "nVidia Tegra114 SPI driver"
+	help
+	  Enable the nVidia Tegra114 SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this nVidia Tegra114
+	  IP core.
+
+	  This controller is different than the older SoCs SPI controller and
+	  also register interface get changed with this controller.
+
+config TEGRA20_SFLASH
+	bool "nVidia Tegra20 Serial Flash controller driver"
+	help
+	  Enable the nVidia Tegra20 Serial Flash controller driver. This driver
+	  can be used to access the SPI NOR flash on platforms embedding this
+	  nVidia Tegra20 IP core.
+
+config TEGRA20_SLINK
+	bool "nVidia Tegra20/Tegra30 SLINK driver"
+	help
+	  Enable the nVidia Tegra20/Tegra30 SLINK driver. This driver can
+	  be used to access the SPI NOR flash on platforms embedding this
+	  nVidia Tegra20/Tegra30 IP cores.
+
+config XILINX_SPI
+	bool "Xilinx SPI driver"
+	help
+	  Enable the Xilinx SPI driver from the Xilinx EDK. This SPI
+	  controller support 8 bit SPI transfers only, with or w/o FIFO.
+	  For more info on Xilinx SPI Register Definitions and Overview
+	  see driver file - drivers/spi/xilinx_spi.c
+
+config ZYNQ_SPI
+	bool "Zynq SPI driver"
+	depends on ARCH_ZYNQ || TARGET_XILINX_ZYNQMP
+	help
+	  Enable the Zynq SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Zynq
+	  SPI IP core.
+
+endif # if DM_SPI
+
+config FSL_ESPI
+	bool "Freescale eSPI driver"
+	help
+	  Enable the Freescale eSPI driver. This driver can be used to
+	  access the SPI interface and SPI NOR flash on platforms embedding
+	  this Freescale eSPI IP core.
+
+config TI_QSPI
+	bool "TI QSPI driver"
+	help
+	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
+	  This driver support spi flash single, quad and memory reads.
+
+endmenu # menu "SPI Support"

@@ -20,6 +20,7 @@
 #endif
 #include <hash.h>
 #include <inttypes.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
@@ -35,9 +36,9 @@ static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
  */
-static uint	dp_last_addr, dp_last_size;
-static uint	dp_last_length = 0x40;
-static uint	mm_last_addr, mm_last_size;
+static ulong	dp_last_addr, dp_last_size;
+static ulong	dp_last_length = 0x40;
+static ulong	mm_last_addr, mm_last_size;
 
 static	ulong	base_address = 0;
 
@@ -165,7 +166,7 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	ulong	addr, count;
 	int	size;
-	void *buf;
+	void *buf, *start;
 	ulong bytes;
 
 	if ((argc < 3) || (argc > 4))
@@ -197,7 +198,8 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	bytes = size * count;
-	buf = map_sysmem(addr, bytes);
+	start = map_sysmem(addr, bytes);
+	buf = start;
 	while (count-- > 0) {
 		if (size == 4)
 			*((u32 *)buf) = (u32)writeval;
@@ -211,7 +213,7 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			*((u8 *)buf) = (u8)writeval;
 		buf += size;
 	}
-	unmap_sysmem(buf);
+	unmap_sysmem(start);
 	return 0;
 }
 
@@ -1225,7 +1227,7 @@ static int do_mem_crc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ac = argc - 1;
 #ifdef CONFIG_HASH_VERIFY
 	if (strcmp(*av, "-v") == 0) {
-		flags |= HASH_FLAG_VERIFY;
+		flags |= HASH_FLAG_VERIFY | HASH_FLAG_ENV;
 		av++;
 		ac--;
 	}
@@ -1301,7 +1303,7 @@ U_BOOT_CMD(
 
 #ifdef CONFIG_CMD_CRC32
 
-#ifndef CONFIG_CRC32_VERIFY
+#ifndef CONFIG_HASH_VERIFY
 
 U_BOOT_CMD(
 	crc32,	4,	1,	do_mem_crc,
@@ -1309,7 +1311,7 @@ U_BOOT_CMD(
 	"address count [addr]\n    - compute CRC32 checksum [save at addr]"
 );
 
-#else	/* CONFIG_CRC32_VERIFY */
+#else	/* CONFIG_HASH_VERIFY */
 
 U_BOOT_CMD(
 	crc32,	5,	1,	do_mem_crc,
@@ -1318,12 +1320,12 @@ U_BOOT_CMD(
 	"-v address count crc\n    - verify crc of memory area"
 );
 
-#endif	/* CONFIG_CRC32_VERIFY */
+#endif	/* CONFIG_HASH_VERIFY */
 
 #endif
 
 #ifdef CONFIG_CMD_MEMINFO
-__weak void board_show_dram(ulong size)
+__weak void board_show_dram(phys_size_t size)
 {
 	puts("DRAM:  ");
 	print_size(size, "\n");

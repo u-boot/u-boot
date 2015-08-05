@@ -5,8 +5,17 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifneq ($(CONFIG_DM_PCI),)
+obj-$(CONFIG_PCI) += pci-uclass.o pci_compat.o
+obj-$(CONFIG_PCI_SANDBOX) += pci_sandbox.o
+obj-$(CONFIG_SANDBOX) += pci-emul-uclass.o
+obj-$(CONFIG_X86) += pci_x86.o
+else
+obj-$(CONFIG_PCI) += pci.o
+endif
+obj-$(CONFIG_PCI) += pci_common.o pci_auto.o pci_rom.o
+
 obj-$(CONFIG_FSL_PCI_INIT) += fsl_pci_init.o
-obj-$(CONFIG_PCI) += pci.o pci_auto.o pci_rom.o
 obj-$(CONFIG_PCI_INDIRECT_BRIDGE) += pci_indirect.o
 obj-$(CONFIG_PCI_GT64120) += pci_gt64120.o
 obj-$(CONFIG_PCI_MSC01) += pci_msc01.o

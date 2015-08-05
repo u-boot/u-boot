@@ -1,4 +1,6 @@
-CONFIG_SPL=y
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/denx/m53evk/imximage.cfg"
 CONFIG_ARM=y
 CONFIG_TARGET_M53EVK=y
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/denx/m53evk/imximage.cfg"
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_FLASH is not set

@@ -173,21 +173,95 @@ U-Boot sandbox supports these emulations:
 - Chrome OS EC
 - GPIO
 - Host filesystem (access files on the host from within U-Boot)
+- I2C
 - Keyboard (Chrome OS)
 - LCD
+- Network
 - Serial (for console only)
 - Sound (incomplete - see sandbox_sdl_sound_init() for details)
 - SPI
 - SPI flash
 - TPM (Trusted Platform Module)
 
-Notable omissions are networking and I2C.
-
 A wide range of commands is implemented. Filesystems which use a block
 device are supported.
 
 Also sandbox uses generic board (CONFIG_SYS_GENERIC_BOARD) and supports
 driver model (CONFIG_DM) and associated commands.
+
+
+Linux RAW Networking Bridge
+---------------------------
+
+The sandbox_eth_raw driver bridges traffic between the bottom of the network
+stack and the RAW sockets API in Linux. This allows much of the U-Boot network
+functionality to be tested in sandbox against real network traffic.
+
+For Ethernet network adapters, the bridge utilizes the RAW AF_PACKET API.  This
+is needed to get access to the lowest level of the network stack in Linux. This
+means that all of the Ethernet frame is included. This allows the U-Boot network
+stack to be fully used. In other words, nothing about the Linux network stack is
+involved in forming the packets that end up on the wire. To receive the
+responses to packets sent from U-Boot the network interface has to be set to
+promiscuous mode so that the network card won't filter out packets not destined
+for its configured (on Linux) MAC address.
+
+The RAW sockets Ethernet API requires elevated privileges in Linux. You can
+either run as root, or you can add the capability needed like so:
+
+sudo /sbin/setcap "CAP_NET_RAW+ep" /path/to/u-boot
+
+The default device tree for sandbox includes an entry for eth0 on the sandbox
+host machine whose alias is "eth1". The following are a few examples of network
+operations being tested on the eth0 interface.
+
+sudo /path/to/u-boot -D
+
+DHCP
+....
+
+set autoload no
+set ethact eth1
+dhcp
+
+PING
+....
+
+set autoload no
+set ethact eth1
+dhcp
+ping $gatewayip
+
+TFTP
+....
+
+set autoload no
+set ethact eth1
+dhcp
+set serverip WWW.XXX.YYY.ZZZ
+tftpboot u-boot.bin
+
+The bridge also support (to a lesser extent) the localhost inderface, 'lo'.
+
+The 'lo' interface cannot use the RAW AF_PACKET API because the lo interface
+doesn't support Ethernet-level traffic. It is a higher-level interface that is
+expected only to be used at the AF_INET level of the API. As such, the most raw
+we can get on that interface is the RAW AF_INET API on UDP. This allows us to
+set the IP_HDRINCL option to include everything except the Ethernet header in
+the packets we send and receive.
+
+Because only UDP is supported, ICMP traffic will not work, so expect that ping
+commands will time out.
+
+The default device tree for sandbox includes an entry for lo on the sandbox
+host machine whose alias is "eth5". The following is an example of a network
+operation being tested on the lo interface.
+
+TFTP
+....
+
+set ethact eth5
+tftpboot u-boot.bin
 
 
 SPI Emulation

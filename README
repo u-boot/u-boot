@@ -690,6 +690,14 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
+		COUNTER_FREQUENCY
+		Generic timer clock source frequency.
+
+		COUNTER_FREQUENCY_REAL
+		Generic timer clock source frequency if the real clock is
+		different from COUNTER_FREQUENCY, and can only be determined
+		at run time.
+
 		NOTE: The following can be machine specific errata. These
 		do have ability to provide rudimentary version and machine
 		specific checks, but expect no product checks.
@@ -940,6 +948,9 @@ The following options need to be configured:
 		bytes are output before the console is initialised, the
 		earlier bytes are discarded.
 
+		Note that when printing the buffer a copy is made on the
+		stack so CONFIG_PRE_CON_BUF_SZ must fit on the stack.
+
 		'Sane' compilers will generate smaller code if
 		CONFIG_PRE_CON_BUF_SZ is a power of 2
 
@@ -966,8 +977,6 @@ The following options need to be configured:
 		CONFIG_AUTOBOOT_PROMPT
 		CONFIG_AUTOBOOT_DELAY_STR
 		CONFIG_AUTOBOOT_STOP_STR
-		CONFIG_AUTOBOOT_DELAY_STR2
-		CONFIG_AUTOBOOT_STOP_STR2
 		CONFIG_ZERO_BOOTDELAY_CHECK
 		CONFIG_RESET_TO_RETRY
 
@@ -1039,9 +1048,7 @@ The following options need to be configured:
 		Monitor commands can be included or excluded
 		from the build by using the #include files
 		<config_cmd_all.h> and #undef'ing unwanted
-		commands, or using <config_cmd_default.h>
-		and augmenting with additional #define's
-		for wanted commands.
+		commands, or adding #define's for wanted commands.
 
 		The default command configuration includes all commands
 		except those marked below with a "*".
@@ -1868,12 +1875,6 @@ CBFS (Coreboot Filesystem) support
 		boot.  See the documentation file README.video for a
 		description of this variable.
 
-		CONFIG_VIDEO_VGA
-
-		Enable the VGA video / BIOS for x86. The alternative if you
-		are using coreboot is to use the coreboot frame buffer
-		driver.
-
 
 - Keyboard Support:
 		CONFIG_KEYBOARD
@@ -1949,6 +1950,26 @@ CBFS (Coreboot Filesystem) support
 		lines to scroll by. It defaults to 1. Increasing this makes
 		the console jump but can help speed up operation when scrolling
 		is slow.
+
+		CONFIG_LCD_ROTATION
+
+		Sometimes, for example if the display is mounted in portrait
+		mode or even if it's mounted landscape but rotated by 180degree,
+		we need to rotate our content of the display relative to the
+		framebuffer, so that user can read the messages which are
+		printed out.
+		Once CONFIG_LCD_ROTATION is defined, the lcd_console will be
+		initialized with a given rotation from "vl_rot" out of
+		"vidinfo_t" which is provided by the board specific code.
+		The value for vl_rot is coded as following (matching to
+		fbcon=rotate:<n> linux-kernel commandline):
+		0 = no rotation respectively 0 degree
+		1 = 90 degree rotation
+		2 = 180 degree rotation
+		3 = 270 degree rotation
+
+		If CONFIG_LCD_ROTATION is not defined, the console will be
+		initialized with 0degree rotation.
 
 		CONFIG_LCD_BMP_RLE8
 
@@ -2087,18 +2108,6 @@ CBFS (Coreboot Filesystem) support
 
 		Some PHY like Intel LXT971A need extra delay after
 		command issued before MII status register can be read
-
-- Ethernet address:
-		CONFIG_ETHADDR
-		CONFIG_ETH1ADDR
-		CONFIG_ETH2ADDR
-		CONFIG_ETH3ADDR
-		CONFIG_ETH4ADDR
-		CONFIG_ETH5ADDR
-
-		Define a default value for Ethernet address to use
-		for the respective Ethernet interface, in case this
-		is not determined automatically.
 
 - IP address:
 		CONFIG_IPADDR
@@ -2378,6 +2387,8 @@ CBFS (Coreboot Filesystem) support
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
 		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
+		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
+		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 
 		- drivers/i2c/rcar_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_RCAR
@@ -2852,8 +2863,8 @@ CBFS (Coreboot Filesystem) support
 		completely disabled. Anybody can change or delete
 		these parameters.
 
-		Alternatively, if you #define _both_ CONFIG_ETHADDR
-		_and_ CONFIG_OVERWRITE_ETHADDR_ONCE, a default
+		Alternatively, if you define _both_ an ethaddr in the
+		default env _and_ CONFIG_OVERWRITE_ETHADDR_ONCE, a default
 		Ethernet address is installed in the environment,
 		which can be changed exactly ONCE by the user. [The
 		serial# is unaffected by this, i. e. it remains
@@ -3027,6 +3038,19 @@ CBFS (Coreboot Filesystem) support
 		this is instead controlled by the value of
 		/config/load-environment.
 
+- Parallel Flash support:
+		CONFIG_SYS_NO_FLASH
+
+		Traditionally U-boot was run on systems with parallel NOR
+		flash. This option is used to disable support for parallel NOR
+		flash. This option should be defined if the board does not have
+		parallel flash.
+
+		If this option is not defined one of the generic flash drivers
+		(e.g.  CONFIG_FLASH_CFI_DRIVER or CONFIG_ST_SMI) must be
+		selected or the board must provide an implementation of the
+		flash API (see include/flash.h).
+
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 
@@ -3058,27 +3082,11 @@ CBFS (Coreboot Filesystem) support
 		Define this option to include a destructive SPI flash
 		test ('sf test').
 
-		CONFIG_SPI_FLASH_BAR		Ban/Extended Addr Reg
-
-		Define this option to use the Bank addr/Extended addr
-		support on SPI flashes which has size > 16Mbytes.
-
 		CONFIG_SF_DUAL_FLASH		Dual flash memories
 
 		Define this option to use dual flash support where two flash
 		memories can be connected with a given cs line.
 		Currently Xilinx Zynq qspi supports these type of connections.
-
-		CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
-		enable the W#/Vpp signal to disable writing to the status
-		register on ST MICRON flashes like the N25Q128.
-		The status register write enable/disable bit, combined with
-		the W#/VPP signal provides hardware data protection for the
-		device as follows: When the enable/disable bit is set to 1,
-		and the W#/VPP signal is driven LOW, the status register
-		nonvolatile bits become read-only and the WRITE STATUS REGISTER
-		operation will not execute. The only way to exit this
-		hardware-protected mode is to drive W#/VPP HIGH.
 
 - SystemACE Support:
 		CONFIG_SYSTEMACE
@@ -3201,55 +3209,6 @@ CBFS (Coreboot Filesystem) support
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
-- Detailed boot stage timing
-		CONFIG_BOOTSTAGE
-		Define this option to get detailed timing of each stage
-		of the boot process.
-
-		CONFIG_BOOTSTAGE_USER_COUNT
-		This is the number of available user bootstage records.
-		Each time you call bootstage_mark(BOOTSTAGE_ID_ALLOC, ...)
-		a new ID will be allocated from this stash. If you exceed
-		the limit, recording will stop.
-
-		CONFIG_BOOTSTAGE_REPORT
-		Define this to print a report before boot, similar to this:
-
-		Timer summary in microseconds:
-		       Mark    Elapsed  Stage
-			  0          0  reset
-		  3,575,678  3,575,678  board_init_f start
-		  3,575,695         17  arch_cpu_init A9
-		  3,575,777         82  arch_cpu_init done
-		  3,659,598     83,821  board_init_r start
-		  3,910,375    250,777  main_loop
-		 29,916,167 26,005,792  bootm_start
-		 30,361,327    445,160  start_kernel
-
-		CONFIG_CMD_BOOTSTAGE
-		Add a 'bootstage' command which supports printing a report
-		and un/stashing of bootstage data.
-
-		CONFIG_BOOTSTAGE_FDT
-		Stash the bootstage information in the FDT. A root 'bootstage'
-		node is created with each bootstage id as a child. Each child
-		has a 'name' property and either 'mark' containing the
-		mark time in microsecond, or 'accum' containing the
-		accumulated time for that bootstage id in microseconds.
-		For example:
-
-		bootstage {
-			154 {
-				name = "board_init_f";
-				mark = <3575678>;
-			};
-			170 {
-				name = "lcd";
-				accum = <33482>;
-			};
-		};
-
-		Code in the Linux kernel can find this in /proc/devicetree.
 
 Legacy uImage format:
 
@@ -3343,9 +3302,9 @@ Legacy uImage format:
    65	net/eth.c		Ethernet found.
 
   -80	common/cmd_net.c	usage wrong
-   80	common/cmd_net.c	before calling NetLoop()
-  -81	common/cmd_net.c	some error in NetLoop() occurred
-   81	common/cmd_net.c	NetLoop() back without error
+   80	common/cmd_net.c	before calling net_loop()
+  -81	common/cmd_net.c	some error in net_loop() occurred
+   81	common/cmd_net.c	net_loop() back without error
   -82	common/cmd_net.c	size == 0 (File with size 0 loaded)
    82	common/cmd_net.c	trying automatic boot
    83	common/cmd_net.c	running "source" command
@@ -4190,6 +4149,10 @@ Configuration Settings:
 		list, simply add an entry for the same variable name to the
 		".flags" variable.
 
+	If CONFIG_REGEX is defined, the variable_name above is evaluated as a
+	regular expression. This allows multiple variables to define the same
+	flags without explicitly listing them for each variable.
+
 - CONFIG_ENV_ACCESS_IGNORE_FORCE
 	If defined, don't allow the -f switch to env set override variable
 	access flags.
@@ -4914,6 +4877,9 @@ Low Level (hardware related) configuration options:
 - CONFIG_FSL_DDR_SYNC_REFRESH
 		Enable sync of refresh for multiple controllers.
 
+- CONFIG_FSL_DDR_BIST
+		Enable built-in memory test for Freescale DDR controllers.
+
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should
 		be configured using CS0 and CS1 instead of CS2 and CS3.
@@ -5509,7 +5475,7 @@ loaded to, and "Flash Location" gives the image's address in NOR
 flash or offset in NAND flash.
 
 *Note* - these variables don't have to be defined for all boards, some
-boards currenlty use other variables for these purposes, and some
+boards currently use other variables for these purposes, and some
 boards use these variables for other purposes.
 
 Image		    File Name	     RAM Address       Flash Location
@@ -5585,6 +5551,10 @@ override any association in the static list. You can define
 CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
 ".callbacks" environment variable in the default or embedded environment.
 
+If CONFIG_REGEX is defined, the variable_name above is evaluated as a
+regular expression. This allows multiple variables to be connected to
+the same callback without explicitly listing them all out.
+
 
 Command Line Parsing:
 =====================
@@ -5659,7 +5629,8 @@ o If both the SROM and the environment contain a MAC address, and the
   warning is printed.
 
 o If neither SROM nor the environment contain a MAC address, an error
-  is raised.
+  is raised. If CONFIG_NET_RANDOM_ETHADDR is defined, then in this case
+  a random, locally-assigned MAC is used.
 
 If Ethernet drivers implement the 'write_hwaddr' function, valid MAC addresses
 will be programmed into hardware as part of the initialization process.	 This

@@ -32,7 +32,6 @@
 
 /* Undef unneeded configs */
 #undef CONFIG_SYS_SDRAM_BASE
-#undef CONFIG_OF_LIBFDT
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #undef CONFIG_BOARD_LATE_INIT
 #undef CONFIG_FPGA
@@ -55,7 +54,6 @@
 #undef CONFIG_CMD_SPL
 
 /* Define needed configs */
-#define CONFIG_CMD_MEMORY
 #define CONFIG_BOOTDELAY	-1 /* -1 to Disable autoboot */
 #define CONFIG_SYS_MALLOC_LEN	0x4000
 

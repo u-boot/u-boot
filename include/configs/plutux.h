@@ -46,7 +46,6 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 /* support the new (FDT-based) image format */

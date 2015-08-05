@@ -91,11 +91,6 @@
 #undef CONFIG_USE_IRQ				/* Don't need IRQ/FIQ */
 
 /* Monitor configuration */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_XIMG
-
 #undef CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_JFFS2
@@ -142,7 +137,6 @@
 #define CONFIG_MII_SUPPRESS_PREAMBLE
 #define CONFIG_MII
 #define CONFIG_PHY_ADDR		1
-#define CONFIG_NET_MULTI
 #undef CONFIG_NETCONSOLE
 
 /* SDRAM configuration */

@@ -221,8 +221,6 @@
 #define CONFIG_BOOTDELAY          0
 #define CONFIG_ZERO_BOOTDELAY_CHECK   /* check for keypress on bootdelay==0 */
 #define CONFIG_BOOT_RETRY_TIME    60  /* continue boot after 60 s inactivity */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_DELAY_STR "\x0d" /* press ENTER to interrupt BOOT */
 #define CONFIG_RESET_TO_RETRY
 
 /*
@@ -313,7 +311,6 @@
 /*
  * U-Boot commands
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
@@ -321,11 +318,9 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_GPIO
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_MII
 #undef CONFIG_CMD_PING

@@ -244,7 +244,7 @@ static int fec_recv(struct eth_device *dev)
 	struct fec_info_dma *info = dev->priv;
 	volatile fecdma_t *fecp = (fecdma_t *) (info->iobase);
 
-	cbd_t *pRbd = &info->rxbd[info->rxIdx];
+	cbd_t *prbd = &info->rxbd[info->rxIdx];
 	u32 ievent;
 	int frame_length, len = 0;
 
@@ -276,26 +276,27 @@ static int fec_recv(struct eth_device *dev)
 		}
 	}
 
-	if (!(pRbd->cbd_sc & BD_ENET_RX_EMPTY)) {
-		if ((pRbd->cbd_sc & BD_ENET_RX_LAST)
-		    && !(pRbd->cbd_sc & BD_ENET_RX_ERR)
-		    && ((pRbd->cbd_datlen - 4) > 14)) {
+	if (!(prbd->cbd_sc & BD_ENET_RX_EMPTY)) {
+		if ((prbd->cbd_sc & BD_ENET_RX_LAST) &&
+		    !(prbd->cbd_sc & BD_ENET_RX_ERR) &&
+		    ((prbd->cbd_datlen - 4) > 14)) {
 
 			/* Get buffer address and size */
-			frame_length = pRbd->cbd_datlen - 4;
+			frame_length = prbd->cbd_datlen - 4;
 
 			/* Fill the buffer and pass it to upper layers */
-			NetReceive((uchar *)pRbd->cbd_bufaddr, frame_length);
+			net_process_received_packet((uchar *)prbd->cbd_bufaddr,
+						    frame_length);
 			len = frame_length;
 		}
 
 		/* Reset buffer descriptor as empty */
 		if ((info->rxIdx) == (PKTBUFSRX - 1))
-			pRbd->cbd_sc = (BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
+			prbd->cbd_sc = (BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
 		else
-			pRbd->cbd_sc = BD_ENET_RX_EMPTY;
+			prbd->cbd_sc = BD_ENET_RX_EMPTY;
 
-		pRbd->cbd_datlen = PKTSIZE_ALIGN;
+		prbd->cbd_datlen = PKTSIZE_ALIGN;
 
 		/* Now, we have an empty RxBD, restart the DMA receive task */
 		MCD_continDma(info->rxTask);
@@ -399,7 +400,7 @@ static int fec_init(struct eth_device *dev, bd_t * bd)
 	for (i = 0; i < PKTBUFSRX; i++) {
 		info->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
 		info->rxbd[i].cbd_datlen = PKTSIZE_ALIGN;
-		info->rxbd[i].cbd_bufaddr = (uint) NetRxPackets[i];
+		info->rxbd[i].cbd_bufaddr = (uint) net_rx_packets[i];
 	}
 	info->rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
 

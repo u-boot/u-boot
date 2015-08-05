@@ -1,6 +1,8 @@
+menu "SPI Flash Support"
+
 config DM_SPI_FLASH
 	bool "Enable Driver Model for SPI flash"
-	depends on DM && SPI
+	depends on DM && DM_SPI
 	help
 	  Enable driver model for SPI flash. This SPI flash interface
 	  (spi_flash_probe(), spi_flash_write(), etc.) is then
@@ -12,3 +14,59 @@ config DM_SPI_FLASH
 	  during the transition parent. SPI and SPI flash must be
 	  enabled together (it is not possible to use driver model
 	  for one and not the other).
+
+config SPI_FLASH_SANDBOX
+	bool "Support sandbox SPI flash device"
+	depends on SANDBOX && DM_SPI_FLASH
+	help
+	  Since sandbox cannot access real devices, an emulation mechanism is
+	  provided instead. Drivers can be connected up to the sandbox SPI
+	  bus (see CONFIG_SANDBOX_SPI) and SPI traffic will be routed to this
+	  device. Typically the contents of the emulated SPI flash device is
+	  stored in a file on the host filesystem.
+
+config SPI_FLASH
+	bool "Legacy SPI Flash Interface support"
+	help
+	  Enable the legacy SPI flash support. This will include basic
+	  standard support for things like probing, read / write, and
+	  erasing through cmd_sf interface.
+
+	  If unsure, say N
+
+config SPI_FLASH_BAR
+	bool "SPI flash Bank/Extended address register support"
+	depends on SPI_FLASH
+	help
+	  Enable the SPI flash Bank/Extended address register support.
+	  Bank/Extended address registers are used to access the flash
+	  which has size > 16MiB in 3-byte addressing.
+
+config SPI_FLASH_DATAFLASH
+	bool "AT45xxx DataFlash support"
+	depends on SPI_FLASH && DM_SPI_FLASH
+	help
+	  Enable the access for SPI-flash-based AT45xxx DataFlash chips.
+	  DataFlash is a kind of SPI flash. Most AT45 chips have two buffers
+	  in each chip, which may be used for double buffered I/O; but this
+	  driver doesn't (yet) use these for any kind of i/o overlap or prefetching.
+
+	  Sometimes DataFlash is packaged in MMC-format cards, although the
+	  MMC stack can't (yet?) distinguish between MMC and DataFlash
+	  protocols during enumeration.
+
+	  If unsure, say N
+
+config SPI_FLASH_MTD
+	bool "SPI Flash MTD support"
+	depends on SPI_FLASH
+	help
+          Enable the MTD support for spi flash layer, this adapter is for
+	  translating mtd_read/mtd_write commands into spi_flash_read/write
+	  commands. It is not intended to use it within sf_cmd or the SPI
+	  flash subsystem. Such an adapter is needed for subsystems like
+	  UBI which can only operate on top of the MTD layer.
+
+	  If unsure, say N
+
+endmenu # menu "SPI Flash Support"

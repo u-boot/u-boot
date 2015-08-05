@@ -43,15 +43,7 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_JFFS2
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_XIMG
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOTARGS	"root=/dev/hda1 console=ttySA0,19200n8 console=tty1"

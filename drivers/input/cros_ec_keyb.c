@@ -198,7 +198,7 @@ static int cros_ec_keyb_decode_fdt(const void *blob, int node,
 		return -1;
 	}
 	config->ghost_filter = fdtdec_get_bool(blob, node,
-					       "google,ghost-filter");
+					       "google,needs-ghost-filter");
 	return 0;
 }
 

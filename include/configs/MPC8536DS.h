@@ -50,7 +50,6 @@
 #define CONFIG_MPC8536DS	1
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
-#define CONFIG_SPI_FLASH	1	/* Has SPI Flash */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* Enable PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
@@ -636,20 +635,16 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
@@ -720,13 +715,9 @@
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR	00:E0:0C:02:00:FD
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR	00:E0:0C:02:01:FD
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR	00:E0:0C:02:02:FD
 #define CONFIG_HAS_ETH3
-#define CONFIG_ETH3ADDR	00:E0:0C:02:03:FD
 #endif
 
 #define CONFIG_IPADDR		192.168.1.254

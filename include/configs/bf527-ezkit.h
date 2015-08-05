@@ -83,9 +83,6 @@
 #define CONFIG_NETCONSOLE	1
 #endif
 #define CONFIG_HOSTNAME		bf527-ezkit
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings
@@ -104,7 +101,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
 

@@ -44,10 +44,7 @@ U_BOOT_CMD(
 #ifdef CONFIG_CMD_TFTPPUT
 int do_tftpput(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int ret;
-
-	ret = netboot_common(TFTPPUT, cmdtp, argc, argv);
-	return ret;
+	return netboot_common(TFTPPUT, cmdtp, argc, argv);
 }
 
 U_BOOT_CMD(
@@ -117,24 +114,24 @@ static void netboot_update_env(void)
 {
 	char tmp[22];
 
-	if (NetOurGatewayIP) {
-		ip_to_string(NetOurGatewayIP, tmp);
+	if (net_gateway.s_addr) {
+		ip_to_string(net_gateway, tmp);
 		setenv("gatewayip", tmp);
 	}
 
-	if (NetOurSubnetMask) {
-		ip_to_string(NetOurSubnetMask, tmp);
+	if (net_netmask.s_addr) {
+		ip_to_string(net_netmask, tmp);
 		setenv("netmask", tmp);
 	}
 
-	if (NetOurHostName[0])
-		setenv("hostname", NetOurHostName);
+	if (net_hostname[0])
+		setenv("hostname", net_hostname);
 
-	if (NetOurRootPath[0])
-		setenv("rootpath", NetOurRootPath);
+	if (net_root_path[0])
+		setenv("rootpath", net_root_path);
 
-	if (NetOurIP) {
-		ip_to_string(NetOurIP, tmp);
+	if (net_ip.s_addr) {
+		ip_to_string(net_ip, tmp);
 		setenv("ipaddr", tmp);
 	}
 #if !defined(CONFIG_BOOTP_SERVERIP)
@@ -142,35 +139,33 @@ static void netboot_update_env(void)
 	 * Only attempt to change serverip if net/bootp.c:BootpCopyNetParams()
 	 * could have set it
 	 */
-	if (NetServerIP) {
-		ip_to_string(NetServerIP, tmp);
+	if (net_server_ip.s_addr) {
+		ip_to_string(net_server_ip, tmp);
 		setenv("serverip", tmp);
 	}
 #endif
-	if (NetOurDNSIP) {
-		ip_to_string(NetOurDNSIP, tmp);
+	if (net_dns_server.s_addr) {
+		ip_to_string(net_dns_server, tmp);
 		setenv("dnsip", tmp);
 	}
 #if defined(CONFIG_BOOTP_DNS2)
-	if (NetOurDNS2IP) {
-		ip_to_string(NetOurDNS2IP, tmp);
+	if (net_dns_server2.s_addr) {
+		ip_to_string(net_dns_server2, tmp);
 		setenv("dnsip2", tmp);
 	}
 #endif
-	if (NetOurNISDomain[0])
-		setenv("domain", NetOurNISDomain);
+	if (net_nis_domain[0])
+		setenv("domain", net_nis_domain);
 
-#if defined(CONFIG_CMD_SNTP) \
-    && defined(CONFIG_BOOTP_TIMEOFFSET)
-	if (NetTimeOffset) {
-		sprintf(tmp, "%d", NetTimeOffset);
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
+	if (net_ntp_time_offset) {
+		sprintf(tmp, "%d", net_ntp_time_offset);
 		setenv("timeoffset", tmp);
 	}
 #endif
-#if defined(CONFIG_CMD_SNTP) \
-    && defined(CONFIG_BOOTP_NTPSERVER)
-	if (NetNtpServerIP) {
-		ip_to_string(NetNtpServerIP, tmp);
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
+	if (net_ntp_server.s_addr) {
+		ip_to_string(net_ntp_server, tmp);
 		setenv("ntpserverip", tmp);
 	}
 #endif
@@ -186,9 +181,9 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	ulong addr;
 
 	/* pre-set load_addr */
-	if ((s = getenv("loadaddr")) != NULL) {
+	s = getenv("loadaddr");
+	if (s != NULL)
 		load_addr = simple_strtoul(s, NULL, 16);
-	}
 
 	switch (argc) {
 	case 1:
@@ -204,22 +199,26 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 		if (end == (argv[1] + strlen(argv[1])))
 			load_addr = addr;
 		else
-			copy_filename(BootFile, argv[1], sizeof(BootFile));
+			copy_filename(net_boot_file_name, argv[1],
+				      sizeof(net_boot_file_name));
 		break;
 
-	case 3:	load_addr = simple_strtoul(argv[1], NULL, 16);
-		copy_filename(BootFile, argv[2], sizeof(BootFile));
+	case 3:
+		load_addr = simple_strtoul(argv[1], NULL, 16);
+		copy_filename(net_boot_file_name, argv[2],
+			      sizeof(net_boot_file_name));
 
 		break;
 
 #ifdef CONFIG_CMD_TFTPPUT
 	case 4:
 		if (strict_strtoul(argv[1], 16, &save_addr) < 0 ||
-			strict_strtoul(argv[2], 16, &save_size) < 0) {
+		    strict_strtoul(argv[2], 16, &save_size) < 0) {
 			printf("Invalid address/size\n");
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
-		copy_filename(BootFile, argv[3], sizeof(BootFile));
+		copy_filename(net_boot_file_name, argv[3],
+			      sizeof(net_boot_file_name));
 		break;
 #endif
 	default:
@@ -228,19 +227,20 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	}
 	bootstage_mark(BOOTSTAGE_ID_NET_START);
 
-	if ((size = NetLoop(proto)) < 0) {
+	size = net_loop(proto);
+	if (size < 0) {
 		bootstage_error(BOOTSTAGE_ID_NET_NETLOOP_OK);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 	bootstage_mark(BOOTSTAGE_ID_NET_NETLOOP_OK);
 
-	/* NetLoop ok, update environment */
+	/* net_loop ok, update environment */
 	netboot_update_env();
 
 	/* done if no file was loaded (no errors though) */
 	if (size == 0) {
 		bootstage_error(BOOTSTAGE_ID_NET_LOADED);
-		return 0;
+		return CMD_RET_SUCCESS;
 	}
 
 	/* flush cache */
@@ -250,10 +250,10 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 
 	rcode = bootm_maybe_autostart(cmdtp, argv[0]);
 
-	if (rcode < 0)
-		bootstage_error(BOOTSTAGE_ID_NET_DONE_ERR);
-	else
+	if (rcode == CMD_RET_SUCCESS)
 		bootstage_mark(BOOTSTAGE_ID_NET_DONE);
+	else
+		bootstage_error(BOOTSTAGE_ID_NET_DONE_ERR);
 	return rcode;
 }
 
@@ -261,20 +261,20 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 static int do_ping(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
-		return -1;
-
-	NetPingIP = string_to_ip(argv[1]);
-	if (NetPingIP == 0)
 		return CMD_RET_USAGE;
 
-	if (NetLoop(PING) < 0) {
+	net_ping_ip = string_to_ip(argv[1]);
+	if (net_ping_ip.s_addr == 0)
+		return CMD_RET_USAGE;
+
+	if (net_loop(PING) < 0) {
 		printf("ping failed; host %s is not alive\n", argv[1]);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	printf("host %s is alive\n", argv[1]);
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -290,35 +290,35 @@ static void cdp_update_env(void)
 {
 	char tmp[16];
 
-	if (CDPApplianceVLAN != htons(-1)) {
-		printf("CDP offered appliance VLAN %d\n", ntohs(CDPApplianceVLAN));
-		VLAN_to_string(CDPApplianceVLAN, tmp);
+	if (cdp_appliance_vlan != htons(-1)) {
+		printf("CDP offered appliance VLAN %d\n",
+		       ntohs(cdp_appliance_vlan));
+		vlan_to_string(cdp_appliance_vlan, tmp);
 		setenv("vlan", tmp);
-		NetOurVLAN = CDPApplianceVLAN;
+		net_our_vlan = cdp_appliance_vlan;
 	}
 
-	if (CDPNativeVLAN != htons(-1)) {
-		printf("CDP offered native VLAN %d\n", ntohs(CDPNativeVLAN));
-		VLAN_to_string(CDPNativeVLAN, tmp);
+	if (cdp_native_vlan != htons(-1)) {
+		printf("CDP offered native VLAN %d\n", ntohs(cdp_native_vlan));
+		vlan_to_string(cdp_native_vlan, tmp);
 		setenv("nvlan", tmp);
-		NetOurNativeVLAN = CDPNativeVLAN;
+		net_native_vlan = cdp_native_vlan;
 	}
-
 }
 
 int do_cdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int r;
 
-	r = NetLoop(CDP);
+	r = net_loop(CDP);
 	if (r < 0) {
 		printf("cdp failed; perhaps not a CISCO switch?\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	cdp_update_env();
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -334,32 +334,32 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *toff;
 
 	if (argc < 2) {
-		NetNtpServerIP = getenv_IPaddr("ntpserverip");
-		if (NetNtpServerIP == 0) {
+		net_ntp_server = getenv_ip("ntpserverip");
+		if (net_ntp_server.s_addr == 0) {
 			printf("ntpserverip not set\n");
-			return (1);
+			return CMD_RET_FAILURE;
 		}
 	} else {
-		NetNtpServerIP = string_to_ip(argv[1]);
-		if (NetNtpServerIP == 0) {
+		net_ntp_server = string_to_ip(argv[1]);
+		if (net_ntp_server.s_addr == 0) {
 			printf("Bad NTP server IP address\n");
-			return (1);
+			return CMD_RET_FAILURE;
 		}
 	}
 
 	toff = getenv("timeoffset");
 	if (toff == NULL)
-		NetTimeOffset = 0;
+		net_ntp_time_offset = 0;
 	else
-		NetTimeOffset = simple_strtol(toff, NULL, 10);
+		net_ntp_time_offset = simple_strtol(toff, NULL, 10);
 
-	if (NetLoop(SNTP) < 0) {
+	if (net_loop(SNTP) < 0) {
 		printf("SNTP failed: host %pI4 not responding\n",
-			&NetNtpServerIP);
-		return 1;
+		       &net_ntp_server);
+		return CMD_RET_FAILURE;
 	}
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -389,22 +389,22 @@ int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	if (strlen(argv[1]) >= 255) {
 		printf("dns error: hostname too long\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
-	NetDNSResolve = argv[1];
+	net_dns_resolve = argv[1];
 
 	if (argc == 3)
-		NetDNSenvvar = argv[2];
+		net_dns_env_var = argv[2];
 	else
-		NetDNSenvvar = NULL;
+		net_dns_env_var = NULL;
 
-	if (NetLoop(DNS) < 0) {
+	if (net_loop(DNS) < 0) {
 		printf("dns lookup of %s failed, check setup\n", argv[1]);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -421,21 +421,21 @@ static int do_link_local(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	char tmp[22];
 
-	if (NetLoop(LINKLOCAL) < 0)
-		return 1;
+	if (net_loop(LINKLOCAL) < 0)
+		return CMD_RET_FAILURE;
 
-	NetOurGatewayIP = 0;
-	ip_to_string(NetOurGatewayIP, tmp);
+	net_gateway.s_addr = 0;
+	ip_to_string(net_gateway, tmp);
 	setenv("gatewayip", tmp);
 
-	ip_to_string(NetOurSubnetMask, tmp);
+	ip_to_string(net_netmask, tmp);
 	setenv("netmask", tmp);
 
-	ip_to_string(NetOurIP, tmp);
+	ip_to_string(net_ip, tmp);
 	setenv("ipaddr", tmp);
 	setenv("llipaddr", tmp); /* store this for next time */
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(

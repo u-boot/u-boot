@@ -71,7 +71,6 @@
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
 
 /* No mtest functions as recommended */
-#undef CONFIG_CMD_MEMORY
 
 /*
  * This is the initial SP which is used only briefly for relocating the u-boot
@@ -124,7 +123,6 @@
 #define CONFIG_BOOTCOMMAND		""
 
 /* Commands */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_FAT
@@ -134,7 +132,5 @@
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_FAT_WRITE
 
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 
 #endif /* __BCM28155_AP_H */

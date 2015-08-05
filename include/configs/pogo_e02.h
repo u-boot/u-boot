@@ -34,7 +34,6 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#include <config_cmd_default.h>
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_MII

@@ -90,7 +90,8 @@ int dram_init(void)
 		struct memrange *memrange = &lib_sysinfo.memrange[i];
 		unsigned long long end = memrange->base + memrange->size;
 
-		if (memrange->type == CB_MEM_RAM && end > ram_size)
+		if (memrange->type == CB_MEM_RAM && end > ram_size &&
+		    memrange->base < (1ULL << 32))
 			ram_size = end;
 	}
 	gd->ram_size = ram_size;
@@ -108,7 +109,8 @@ void dram_init_banksize(void)
 		for (i = 0, j = 0; i < lib_sysinfo.n_memranges; i++) {
 			struct memrange *memrange = &lib_sysinfo.memrange[i];
 
-			if (memrange->type == CB_MEM_RAM) {
+			if (memrange->type == CB_MEM_RAM &&
+			    memrange->base < (1ULL << 32)) {
 				gd->bd->bi_dram[j].start = memrange->base;
 				gd->bd->bi_dram[j].size = memrange->size;
 				j++;

@@ -86,8 +86,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_I2C
@@ -102,7 +100,6 @@
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
 
-#define CONFIG_ETHADDR	DE:AD:BE:EF:01:01	/* Ethernet address	*/
 #define CONFIG_IPADDR		192.168.193.102
 #define CONFIG_NETMASK		255.255.255.224
 #define CONFIG_SERVERIP		192.168.193.119

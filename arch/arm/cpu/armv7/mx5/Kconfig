@@ -12,6 +12,7 @@ config MX53
 
 choice
 	prompt "MX5 board select"
+	optional
 
 config TARGET_USBARMORY
 	bool "Support USB armory"

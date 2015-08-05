@@ -1,0 +1,43 @@
+config DM_PMIC
+	bool "Enable Driver Model for PMIC drivers (UCLASS_PMIC)"
+	depends on DM
+	---help---
+	This config enables the driver-model PMIC support.
+	UCLASS_PMIC - designed to provide an I/O interface for PMIC devices.
+	For the multi-function PMIC devices, this can be used as parent I/O
+	device for each IC's interface. Then, each children uses its parent
+	for read/write. For detailed description, please refer to the files:
+	- 'drivers/power/pmic/pmic-uclass.c'
+	- 'include/power/pmic.h'
+
+config DM_PMIC_MAX77686
+	bool "Enable Driver Model for PMIC MAX77686"
+	depends on DM_PMIC
+	---help---
+	This config enables implementation of driver-model pmic uclass features
+	for PMIC MAX77686. The driver implements read/write operations.
+
+config DM_PMIC_SANDBOX
+	bool "Enable Driver Model for emulated Sandbox PMIC "
+	depends on DM_PMIC
+	---help---
+	Enable the driver for Sandbox PMIC emulation. The emulated PMIC device
+	depends on two drivers:
+	- sandbox PMIC I/O driver - implements dm pmic operations
+	- sandbox PMIC i2c emul driver - emulates the PMIC's I2C transmission
+
+	A detailed information can be found in header: '<power/sandbox_pmic.h>'
+
+	The Sandbox PMIC info:
+	* I/O interface:
+	  - I2C chip address:       0x40
+	  - first register address: 0x0
+	  - register count:         0x10
+	* Adjustable outputs:
+	  - 2x LDO
+	  - 2x BUCK
+	  - Each, with a different operating conditions (header).
+	* Reset values:
+	  - set by i2c emul driver's probe() (defaults in header)
+
+	Driver binding info: doc/device-tree-bindings/pmic/sandbox.txt

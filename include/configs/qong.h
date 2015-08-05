@@ -111,17 +111,12 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_UNZIP
 

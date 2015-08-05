@@ -11,40 +11,16 @@
 #ifndef __CONFIG_CM_FX6_H
 #define __CONFIG_CM_FX6_H
 
-#include <asm/arch/imx-regs.h>
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 /* Machine config */
-#define CONFIG_MX6
 #define CONFIG_SYS_LITTLE_ENDIAN
 #define CONFIG_MACH_TYPE		4273
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_CMD_GPIO
-#endif
-
-/* Display information on boot */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_TIMESTAMP
-
 /* CMD */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_GREPENV
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_XIMG
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMLS
 
 /* MMC */
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
@@ -70,14 +46,10 @@
 
 /* Shell */
 #define CONFIG_SYS_PROMPT	"CM-FX6 # "
-#define CONFIG_SYS_CBSIZE	1024
-#define CONFIG_SYS_MAXARGS	16
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* SPI flash */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
@@ -85,7 +57,6 @@
 #define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 
 /* Environment */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
@@ -192,7 +163,6 @@
 /* SPI */
 #define CONFIG_SPI
 #define CONFIG_MXC_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ATMEL
 #define CONFIG_SPI_FLASH_EON
 #define CONFIG_SPI_FLASH_GIGADEVICE
@@ -245,6 +215,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_MXC_I2C3_SPEED	400000
 
@@ -261,22 +232,11 @@
 #define CONFIG_DWC_AHSATA_PORT_ID	0
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 
-/* GPIO */
-#define CONFIG_MXC_GPIO
-
 /* Boot */
-#define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_LOADADDR			0x10800000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SYS_BOOTMAPSZ	        (8 << 20)
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
 #define CONFIG_SERIAL_TAG
 
 /* misc */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_STACKSIZE			(128 * 1024)
 #define CONFIG_SYS_MALLOC_LEN			(10 * 1024 * 1024)
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */

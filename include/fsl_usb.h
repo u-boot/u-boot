@@ -87,6 +87,33 @@ struct ccsr_usb_phy {
 
 /* USB Erratum Checking code */
 #ifdef CONFIG_PPC
+static inline bool has_dual_phy(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_T1023:
+	case SVR_T1024:
+	case SVR_T1013:
+	case SVR_T1014:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_T1040:
+	case SVR_T1042:
+	case SVR_T1020:
+	case SVR_T1022:
+	case SVR_T2080:
+	case SVR_T2081:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	case SVR_T4240:
+	case SVR_T4160:
+	case SVR_T4080:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	}
+
+	return false;
+}
+
 static inline bool has_erratum_a006261(void)
 {
 	u32 svr = get_svr();
@@ -155,8 +182,13 @@ static inline bool has_erratum_a007792(void)
 	case SVR_T4240:
 	case SVR_T4160:
 		return IS_SVR_REV(svr, 2, 0);
-	case SVR_T1040:
+	case SVR_T1024:
+	case SVR_T1023:
 		return IS_SVR_REV(svr, 1, 0);
+	case SVR_T1040:
+	case SVR_T1042:
+	case SVR_T1020:
+	case SVR_T1022:
 	case SVR_T2080:
 	case SVR_T2081:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
@@ -164,7 +196,49 @@ static inline bool has_erratum_a007792(void)
 	return false;
 }
 
+static inline bool has_erratum_a005697(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_9131:
+	case SVR_9132:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	}
+	return false;
+}
+
+static inline bool has_erratum_a004477(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_P1010:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_P1022:
+	case SVR_9131:
+	case SVR_9132:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	case SVR_P2020:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0) ||
+			IS_SVR_REV(svr, 2, 1);
+	case SVR_B4860:
+	case SVR_B4420:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_P4080:
+		return IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 3, 0);
+	}
+
+	return false;
+}
 #else
+static inline bool has_dual_phy(void)
+{
+	return false;
+}
+
 static inline bool has_erratum_a006261(void)
 {
 	return false;
@@ -181,6 +255,16 @@ static inline bool has_erratum_a007798(void)
 }
 
 static inline bool has_erratum_a007792(void)
+{
+	return false;
+}
+
+static inline bool has_erratum_a005697(void)
+{
+	return false;
+}
+
+static inline bool has_erratum_a004477(void)
 {
 	return false;
 }

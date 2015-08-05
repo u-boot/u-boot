@@ -21,6 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct gpio_regs *const gpioa_regs =
 		(struct gpio_regs *) GPIOA_BASE_ADDR;
 
+#ifndef CONFIG_OF_CONTROL
 static const struct pl01x_serial_platdata serial_platdata = {
 	.base = 0x80406000,
 	.type = TYPE_PL011,
@@ -31,6 +32,7 @@ U_BOOT_DEVICE(stv09911_serials) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+#endif
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 void show_boot_progress(int progress)
@@ -94,7 +96,7 @@ int board_eth_init(bd_t *bis)
 {
 	int ret = 0;
 
-#if defined(CONFIG_DESIGNWARE_ETH)
+#if defined(CONFIG_ETH_DESIGNWARE)
 	u32 interface = PHY_INTERFACE_MODE_MII;
 	if (designware_initialize(GMAC_BASE_ADDR, interface) >= 0)
 		ret++;

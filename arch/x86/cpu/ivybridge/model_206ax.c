@@ -435,8 +435,8 @@ static int intel_cores_init(struct x86_cpu_priv *cpu)
 
 		debug("CPU: %u has core %u\n", cpu->apic_id, new_cpu->apic_id);
 
-#if CONFIG_SMP && CONFIG_MAX_CPUS > 1
-		/* Start the new cpu */
+#if 0 && CONFIG_SMP && CONFIG_MAX_CPUS > 1
+		/* TODO(sjg@chromium.org): Start the new cpu */
 		if (!start_cpu(new_cpu)) {
 			/* Record the error in cpu? */
 			printk(BIOS_ERR, "CPU %u would not start!\n",

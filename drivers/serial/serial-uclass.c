@@ -30,49 +30,55 @@ static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 static void serial_find_console_or_panic(void)
 {
 	struct udevice *dev;
-
-#ifdef CONFIG_OF_CONTROL
 	int node;
 
-	/* Check for a chosen console */
-	node = fdtdec_get_chosen_node(gd->fdt_blob, "stdout-path");
-	if (node < 0)
-		node = fdt_path_offset(gd->fdt_blob, "console");
-	if (!uclass_get_device_by_of_offset(UCLASS_SERIAL, node, &dev)) {
-		gd->cur_serial_dev = dev;
-		return;
-	}
-
-	/*
-	 * If the console is not marked to be bound before relocation, bind
-	 * it anyway.
-	 */
-	if (node > 0 &&
-	    !lists_bind_fdt(gd->dm_root, gd->fdt_blob, node, &dev)) {
-		if (!device_probe(dev)) {
+	if (OF_CONTROL && gd->fdt_blob) {
+		/* Check for a chosen console */
+		node = fdtdec_get_chosen_node(gd->fdt_blob, "stdout-path");
+		if (node < 0)
+			node = fdt_path_offset(gd->fdt_blob, "console");
+		if (!uclass_get_device_by_of_offset(UCLASS_SERIAL, node,
+						    &dev)) {
 			gd->cur_serial_dev = dev;
 			return;
 		}
+
+		/*
+		* If the console is not marked to be bound before relocation,
+		* bind it anyway.
+		*/
+		if (node > 0 &&
+		    !lists_bind_fdt(gd->dm_root, gd->fdt_blob, node, &dev)) {
+			if (!device_probe(dev)) {
+				gd->cur_serial_dev = dev;
+				return;
+			}
+		}
 	}
-#endif
-	/*
-	 * Try to use CONFIG_CONS_INDEX if available (it is numbered from 1!).
-	 *
-	 * Failing that, get the device with sequence number 0, or in extremis
-	 * just the first serial device we can find. But we insist on having
-	 * a console (even if it is silent).
-	 */
+	if (!SPL_BUILD || !OF_CONTROL || !gd->fdt_blob) {
+		/*
+		* Try to use CONFIG_CONS_INDEX if available (it is numbered
+		* from 1!).
+		*
+		* Failing that, get the device with sequence number 0, or in
+		* extremis just the first serial device we can find. But we
+		* insist on having a console (even if it is silent).
+		*/
 #ifdef CONFIG_CONS_INDEX
 #define INDEX (CONFIG_CONS_INDEX - 1)
 #else
 #define INDEX 0
 #endif
-	if (uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) &&
-	    uclass_get_device(UCLASS_SERIAL, INDEX, &dev) &&
-	    (uclass_first_device(UCLASS_SERIAL, &dev) || !dev))
-		panic("No serial driver found");
+		if (!uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) ||
+		    !uclass_get_device(UCLASS_SERIAL, INDEX, &dev) ||
+		    (!uclass_first_device(UCLASS_SERIAL, &dev) || dev)) {
+			gd->cur_serial_dev = dev;
+			return;
+		}
 #undef INDEX
-	gd->cur_serial_dev = dev;
+	}
+
+	panic_str("No serial driver found");
 }
 
 /* Called prior to relocation */
@@ -251,7 +257,7 @@ static int serial_post_probe(struct udevice *dev)
 {
 	struct dm_serial_ops *ops = serial_get_ops(dev);
 #ifdef CONFIG_DM_STDIO
-	struct serial_dev_priv *upriv = dev->uclass_priv;
+	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 	struct stdio_dev sdev;
 #endif
 	int ret;
@@ -299,7 +305,7 @@ static int serial_post_probe(struct udevice *dev)
 static int serial_pre_remove(struct udevice *dev)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	struct serial_dev_priv *upriv = dev->uclass_priv;
+	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 
 	if (stdio_deregister_dev(upriv->sdev, 0))
 		return -EPERM;

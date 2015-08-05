@@ -13,6 +13,7 @@ menu "vct board options"
 
 choice
 	prompt "Board variant"
+	optional
 
 config VCT_PLATINUM
 	bool "Enable VCT_PLATINUM"

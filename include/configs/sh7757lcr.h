@@ -17,18 +17,12 @@
 #define CONFIG_SYS_TEXT_BASE	0x8ef80000
 #define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7757lcr/u-boot.lds"
 
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SF
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_MD5SUM
 #define CONFIG_MD5
-#define CONFIG_CMD_LOADS
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
@@ -104,7 +98,6 @@
 /* SPI */
 #define CONFIG_SH_SPI			1
 #define CONFIG_SH_SPI_BASE		0xfe002000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO	1
 
 /* MMCIF */

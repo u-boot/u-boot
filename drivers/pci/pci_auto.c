@@ -14,14 +14,11 @@
 #include <errno.h>
 #include <pci.h>
 
-#undef DEBUG
 #ifdef DEBUG
 #define DEBUGF(x...) printf(x)
 #else
 #define DEBUGF(x...)
 #endif /* DEBUG */
-
-#define	PCIAUTO_IDE_MODE_MASK		0x05
 
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
 #ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE
@@ -425,20 +422,26 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 {
 	unsigned int sub_bus = PCI_BUS(dev);
 	unsigned short class;
-	unsigned char prg_iface;
 	int n;
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
 	switch (class) {
 	case PCI_CLASS_BRIDGE_PCI:
-		hose->current_busno++;
+		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n",
+		       PCI_DEV(dev));
+
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem,
 			hose->pci_prefetch, hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
-
+#ifdef CONFIG_DM_PCI
+		n = dm_pci_hose_probe_bus(hose, dev);
+		if (n < 0)
+			return n;
+		sub_bus = (unsigned int)n;
+#else
 		/* Passing in current_busno allows for sibling P2P bridges */
+		hose->current_busno++;
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
 		/*
 		 * need to figure out if this is a subordinate bridge on the bus
@@ -451,17 +454,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		pciauto_postscan_setup_bridge(hose, dev, sub_bus);
 
 		sub_bus = hose->current_busno;
-		break;
-
-	case PCI_CLASS_STORAGE_IDE:
-		pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prg_iface);
-		if (!(prg_iface & PCIAUTO_IDE_MODE_MASK)) {
-			DEBUGF("PCI Autoconfig: Skipping legacy mode IDE controller\n");
-			return sub_bus;
-		}
-
-		pciauto_setup_device(hose, dev, 6, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
+#endif
 		break;
 
 	case PCI_CLASS_BRIDGE_CARDBUS:
@@ -475,7 +468,9 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
 			PCI_DEV(dev));
 
+#ifndef CONFIG_DM_PCI
 		hose->current_busno++;
+#endif
 		break;
 
 #if defined(CONFIG_PCIAUTO_SKIP_HOST_BRIDGE)

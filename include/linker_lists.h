@@ -103,6 +103,16 @@
  */
 
 /**
+ * ll_sym() - Access a linker-generated array entry
+ * @_type:	Data type of the entry
+ * @_name:	Name of the entry
+ * @_list:	name of the list. Should contain only characters allowed
+ *		in a C variable name!
+ */
+#define llsym(_type, _name, _list) \
+		((_type *)&_u_boot_list_2_##_list##_2_##_name)
+
+/**
  * ll_entry_declare() - Declare linker-generated array entry
  * @_type:	Data type of the entry
  * @_name:	Name of the entry

@@ -10,12 +10,12 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/state.h>
-#include <dm/ut.h>
 #include <dm/test.h>
 #include <dm/util.h>
+#include <test/ut.h>
 
 /* Test that sandbox SPI flash works correctly */
-static int dm_test_spi_flash(struct dm_test_state *dms)
+static int dm_test_spi_flash(struct unit_test_state *uts)
 {
 	/*
 	 * Create an empty test file and run the SPI flash tests. This is a

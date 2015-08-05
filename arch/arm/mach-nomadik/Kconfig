@@ -2,6 +2,7 @@ if ARCH_NOMADIK
 
 choice
 	prompt "Nomadik board select"
+	optional
 
 config NOMADIK_NHK8815
 	bool "ST 8815 Nomadik Hardware Kit"

@@ -600,7 +600,7 @@ static int mcs7830_recv(struct eth_device *eth)
 
 	if (sts == STAT_RX_FRAME_CORRECT) {
 		debug("%s() got a frame, len=%d\n", __func__, gotlen);
-		NetReceive(buf, gotlen);
+		net_process_received_packet(buf, gotlen);
 		return 0;
 	}
 

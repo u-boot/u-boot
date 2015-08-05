@@ -14,6 +14,7 @@
 #include <linux/compiler.h>
 #include <fsl_sec.h>
 #include <asm/arch/clock.h>
+#include <mapmem.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

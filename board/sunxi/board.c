@@ -28,7 +28,8 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
-#include <asm/arch/usbc.h>
+#include <asm/arch/usb_phy.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <linux/usb/musb.h>
 #include <net.h>
@@ -37,6 +38,41 @@
 /* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
 int soft_i2c_gpio_sda;
 int soft_i2c_gpio_scl;
+
+static int soft_i2c_board_init(void)
+{
+	int ret;
+
+	soft_i2c_gpio_sda = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SDA);
+	if (soft_i2c_gpio_sda < 0) {
+		printf("Error invalid soft i2c sda pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SDA, soft_i2c_gpio_sda);
+		return soft_i2c_gpio_sda;
+	}
+	ret = gpio_request(soft_i2c_gpio_sda, "soft-i2c-sda");
+	if (ret) {
+		printf("Error requesting soft i2c sda pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SDA, ret);
+		return ret;
+	}
+
+	soft_i2c_gpio_scl = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SCL);
+	if (soft_i2c_gpio_scl < 0) {
+		printf("Error invalid soft i2c scl pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SCL, soft_i2c_gpio_scl);
+		return soft_i2c_gpio_scl;
+	}
+	ret = gpio_request(soft_i2c_gpio_scl, "soft-i2c-scl");
+	if (ret) {
+		printf("Error requesting soft i2c scl pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SCL, ret);
+		return ret;
+	}
+
+	return 0;
+}
+#else
+static int soft_i2c_board_init(void) { return 0; }
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -44,7 +80,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* add board specific code here */
 int board_init(void)
 {
-	int id_pfr1;
+	int id_pfr1, ret;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -57,7 +93,12 @@ int board_init(void)
 		asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r"(24000000));
 	}
 
-	return 0;
+	ret = axp_gpio_init();
+	if (ret)
+		return ret;
+
+	/* Uses dm gpio code so do this here and not in i2c_init_board() */
+	return soft_i2c_board_init();
 }
 
 int dram_init(void)
@@ -71,42 +112,163 @@ int dram_init(void)
 static void mmc_pinmux_setup(int sdc)
 {
 	unsigned int pin;
+	__maybe_unused int pins;
 
 	switch (sdc) {
 	case 0:
-		/* D1-PF0, D0-PF1, CLK-PF2, CMD-PF3, D3-PF4, D4-PF5 */
+		/* SDC0: PF0-PF5 */
 		for (pin = SUNXI_GPF(0); pin <= SUNXI_GPF(5); pin++) {
-			sunxi_gpio_set_cfgpin(pin, SUNXI_GPF0_SDC0);
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPF_SDC0);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
 		break;
 
 	case 1:
-		/* CMD-PG3, CLK-PG4, D0~D3-PG5-8 */
+		pins = sunxi_name_to_gpio_bank(CONFIG_MMC1_PINS);
+
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+		if (pins == SUNXI_GPIO_H) {
+			/* SDC1: PH22-PH-27 */
+			for (pin = SUNXI_GPH(22); pin <= SUNXI_GPH(27); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN4I_GPH_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC1: PG0-PG5 */
+			for (pin = SUNXI_GPG(0); pin <= SUNXI_GPG(5); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN4I_GPG_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		}
+#elif defined(CONFIG_MACH_SUN5I)
+		/* SDC1: PG3-PG8 */
 		for (pin = SUNXI_GPG(3); pin <= SUNXI_GPG(8); pin++) {
-			sunxi_gpio_set_cfgpin(pin, SUN5I_GPG3_SDC1);
+			sunxi_gpio_set_cfgpin(pin, SUN5I_GPG_SDC1);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#elif defined(CONFIG_MACH_SUN6I)
+		/* SDC1: PG0-PG5 */
+		for (pin = SUNXI_GPG(0); pin <= SUNXI_GPG(5); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUN6I_GPG_SDC1);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+#elif defined(CONFIG_MACH_SUN8I)
+		if (pins == SUNXI_GPIO_D) {
+			/* SDC1: PD2-PD7 */
+			for (pin = SUNXI_GPD(2); pin <= SUNXI_GPD(7); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN8I_GPD_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC1: PG0-PG5 */
+			for (pin = SUNXI_GPG(0); pin <= SUNXI_GPG(5); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN8I_GPG_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		}
+#endif
 		break;
 
 	case 2:
-		/* CMD-PC6, CLK-PC7, D0-PC8, D1-PC9, D2-PC10, D3-PC11 */
+		pins = sunxi_name_to_gpio_bank(CONFIG_MMC2_PINS);
+
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+		/* SDC2: PC6-PC11 */
 		for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(11); pin++) {
-			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC6_SDC2);
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#elif defined(CONFIG_MACH_SUN5I)
+		if (pins == SUNXI_GPIO_E) {
+			/* SDC2: PE4-PE9 */
+			for (pin = SUNXI_GPE(4); pin <= SUNXI_GPD(9); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN5I_GPE_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC2: PC6-PC15 */
+			for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		}
+#elif defined(CONFIG_MACH_SUN6I)
+		if (pins == SUNXI_GPIO_A) {
+			/* SDC2: PA9-PA14 */
+			for (pin = SUNXI_GPA(9); pin <= SUNXI_GPA(14); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC2: PC6-PC15, PC24 */
+			for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+
+			sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
+		}
+#elif defined(CONFIG_MACH_SUN8I)
+		/* SDC2: PC5-PC6, PC8-PC16 */
+		for (pin = SUNXI_GPC(5); pin <= SUNXI_GPC(6); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+
+		for (pin = SUNXI_GPC(8); pin <= SUNXI_GPC(16); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+#endif
 		break;
 
 	case 3:
-		/* CMD-PI4, CLK-PI5, D0~D3-PI6~9 : 2 */
+		pins = sunxi_name_to_gpio_bank(CONFIG_MMC3_PINS);
+
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+		/* SDC3: PI4-PI9 */
 		for (pin = SUNXI_GPI(4); pin <= SUNXI_GPI(9); pin++) {
-			sunxi_gpio_set_cfgpin(pin, SUN4I_GPI4_SDC3);
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPI_SDC3);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#elif defined(CONFIG_MACH_SUN6I)
+		if (pins == SUNXI_GPIO_A) {
+			/* SDC3: PA9-PA14 */
+			for (pin = SUNXI_GPA(9); pin <= SUNXI_GPA(14); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_SDC3);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC3: PC6-PC15, PC24 */
+			for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN6I_GPC_SDC3);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+
+			sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUN6I_GPC_SDC3);
+			sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
+		}
+#endif
 		break;
 
 	default:
@@ -155,12 +317,80 @@ int board_mmc_init(bd_t *bis)
 
 void i2c_init_board(void)
 {
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUNXI_GPB0_TWI0);
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUNXI_GPB0_TWI0);
+#ifdef CONFIG_I2C0_ENABLE
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUN4I_GPB_TWI0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUN4I_GPB_TWI0);
 	clock_twi_onoff(0, 1);
-#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
-	soft_i2c_gpio_sda = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SDA);
-	soft_i2c_gpio_scl = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SCL);
+#elif defined(CONFIG_MACH_SUN6I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(14), SUN6I_GPH_TWI0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(15), SUN6I_GPH_TWI0);
+	clock_twi_onoff(0, 1);
+#elif defined(CONFIG_MACH_SUN8I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(2), SUN8I_GPH_TWI0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(3), SUN8I_GPH_TWI0);
+	clock_twi_onoff(0, 1);
+#endif
+#endif
+
+#ifdef CONFIG_I2C1_ENABLE
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(18), SUN4I_GPB_TWI1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(19), SUN4I_GPB_TWI1);
+	clock_twi_onoff(1, 1);
+#elif defined(CONFIG_MACH_SUN5I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(15), SUN5I_GPB_TWI1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(16), SUN5I_GPB_TWI1);
+	clock_twi_onoff(1, 1);
+#elif defined(CONFIG_MACH_SUN6I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(16), SUN6I_GPH_TWI1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(17), SUN6I_GPH_TWI1);
+	clock_twi_onoff(1, 1);
+#elif defined(CONFIG_MACH_SUN8I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(4), SUN8I_GPH_TWI1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(5), SUN8I_GPH_TWI1);
+	clock_twi_onoff(1, 1);
+#endif
+#endif
+
+#ifdef CONFIG_I2C2_ENABLE
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(20), SUN4I_GPB_TWI2);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(21), SUN4I_GPB_TWI2);
+	clock_twi_onoff(2, 1);
+#elif defined(CONFIG_MACH_SUN5I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(17), SUN5I_GPB_TWI2);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(18), SUN5I_GPB_TWI2);
+	clock_twi_onoff(2, 1);
+#elif defined(CONFIG_MACH_SUN6I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(18), SUN6I_GPH_TWI2);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(19), SUN6I_GPH_TWI2);
+	clock_twi_onoff(2, 1);
+#elif defined(CONFIG_MACH_SUN8I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPE(12), SUN8I_GPE_TWI2);
+	sunxi_gpio_set_cfgpin(SUNXI_GPE(13), SUN8I_GPE_TWI2);
+	clock_twi_onoff(2, 1);
+#endif
+#endif
+
+#ifdef CONFIG_I2C3_ENABLE
+#if defined(CONFIG_MACH_SUN6I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPG(10), SUN6I_GPG_TWI3);
+	sunxi_gpio_set_cfgpin(SUNXI_GPG(11), SUN6I_GPG_TWI3);
+	clock_twi_onoff(3, 1);
+#elif defined(CONFIG_MACH_SUN7I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPI(0), SUN7I_GPI_TWI3);
+	sunxi_gpio_set_cfgpin(SUNXI_GPI(1), SUN7I_GPI_TWI3);
+	clock_twi_onoff(3, 1);
+#endif
+#endif
+
+#ifdef CONFIG_I2C4_ENABLE
+#if defined(CONFIG_MACH_SUN7I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPI(2), SUN7I_GPI_TWI4);
+	sunxi_gpio_set_cfgpin(SUNXI_GPI(3), SUN7I_GPI_TWI4);
+	clock_twi_onoff(4, 1);
+#endif
 #endif
 }
 
@@ -222,6 +452,8 @@ void sunxi_board_init(void)
 #endif
 
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
+extern const struct musb_platform_ops sunxi_musb_ops;
+
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,
 	.dyn_fifo       = 1,
@@ -241,25 +473,68 @@ static struct musb_hdrc_platform_data musb_plat = {
 };
 #endif
 
+#ifdef CONFIG_USB_GADGET
+int g_dnl_board_usb_cable_connected(void)
+{
+	return sunxi_usb_phy_vbus_detect(0);
+}
+#endif
+
+#ifdef CONFIG_SERIAL_TAG
+void get_board_serial(struct tag_serialnr *serialnr)
+{
+	char *serial_string;
+	unsigned long long serial;
+
+	serial_string = getenv("serial#");
+
+	if (serial_string) {
+		serial = simple_strtoull(serial_string, NULL, 16);
+
+		serialnr->high = (unsigned int) (serial >> 32);
+		serialnr->low = (unsigned int) (serial & 0xffffffff);
+	} else {
+		serialnr->high = 0;
+		serialnr->low = 0;
+	}
+}
+#endif
+
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+	char serial_string[17] = { 0 };
 	unsigned int sid[4];
+	uint8_t mac_addr[6];
+	int ret;
 
-	if (!getenv("ethaddr") && sunxi_get_sid(sid) == 0 &&
-			sid[0] != 0 && sid[3] != 0) {
-		uint8_t mac_addr[6];
+	ret = sunxi_get_sid(sid);
+	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {
+		if (!getenv("ethaddr")) {
+			/* Non OUI / registered MAC address */
+			mac_addr[0] = 0x02;
+			mac_addr[1] = (sid[0] >>  0) & 0xff;
+			mac_addr[2] = (sid[3] >> 24) & 0xff;
+			mac_addr[3] = (sid[3] >> 16) & 0xff;
+			mac_addr[4] = (sid[3] >>  8) & 0xff;
+			mac_addr[5] = (sid[3] >>  0) & 0xff;
 
-		mac_addr[0] = 0x02; /* Non OUI / registered MAC address */
-		mac_addr[1] = (sid[0] >>  0) & 0xff;
-		mac_addr[2] = (sid[3] >> 24) & 0xff;
-		mac_addr[3] = (sid[3] >> 16) & 0xff;
-		mac_addr[4] = (sid[3] >>  8) & 0xff;
-		mac_addr[5] = (sid[3] >>  0) & 0xff;
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		}
 
-		eth_setenv_enetaddr("ethaddr", mac_addr);
+		if (!getenv("serial#")) {
+			snprintf(serial_string, sizeof(serial_string),
+				"%08x%08x", sid[0], sid[3]);
+
+			setenv("serial#", serial_string);
+		}
 	}
 
+#ifndef CONFIG_MACH_SUN9I
+	ret = sunxi_usb_phy_probe();
+	if (ret)
+		return ret;
+#endif
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
 	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
 #endif

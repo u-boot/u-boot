@@ -1,0 +1,22 @@
+menu "PCI"
+
+config DM_PCI
+	bool "Enable driver mode for PCI"
+	depends on DM
+	help
+	  Use driver model for PCI. Driver model is the new method for
+	  orgnising devices in U-Boot. For PCI, driver model keeps track of
+	  available PCI devices, allows scanning of PCI buses and provides
+	  device configuration support.
+
+config PCI_SANDBOX
+	bool "Sandbox PCI support"
+	depends on SANDBOX && DM_PCI
+	help
+	  Support PCI on sandbox, as an emulated bus. This permits testing of
+	  PCI feature such as bus scanning, device configuration and device
+	  access. The available (emulated) devices are defined statically in
+	  the device tree but the normal PCI scan technique is used to find
+	  then.
+
+endmenu

@@ -1,3 +1,4 @@
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx53ard/imximage_dd3.cfg"
 CONFIG_ARM=y
 CONFIG_TARGET_MX53ARD=y
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx53ard/imximage_dd3.cfg"
+# CONFIG_CMD_IMLS is not set

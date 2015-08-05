@@ -10,7 +10,28 @@
 #include <malloc.h>
 #include <errno.h>
 
+#define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
+
 static char andr_tmp_str[ANDR_BOOT_ARGS_SIZE + 1];
+
+static ulong android_image_get_kernel_addr(const struct andr_img_hdr *hdr)
+{
+	/*
+	 * All the Android tools that generate a boot.img use this
+	 * address as the default.
+	 *
+	 * Even though it doesn't really make a lot of sense, and it
+	 * might be valid on some platforms, we treat that adress as
+	 * the default value for this field, and try to execute the
+	 * kernel in place in such a case.
+	 *
+	 * Otherwise, we will return the actual value set by the user.
+	 */
+	if (hdr->kernel_addr == ANDROID_IMAGE_DEFAULT_KERNEL_ADDR)
+		return (ulong)hdr + hdr->page_size;
+
+	return hdr->kernel_addr;
+}
 
 /**
  * android_image_get_kernel() - processes kernel part of Android boot images
@@ -30,6 +51,8 @@ static char andr_tmp_str[ANDR_BOOT_ARGS_SIZE + 1];
 int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 			     ulong *os_data, ulong *os_len)
 {
+	u32 kernel_addr = android_image_get_kernel_addr(hdr);
+
 	/*
 	 * Not all Android tools use the id field for signing the image with
 	 * sha1 (or anything) so we don't check it. It is not obvious that the
@@ -41,7 +64,7 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 		printf("Android's image name: %s\n", andr_tmp_str);
 
 	printf("Kernel load addr 0x%08x size %u KiB\n",
-	       hdr->kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
+	       kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
 
 	int len = 0;
 	if (*hdr->cmdline) {
@@ -101,7 +124,7 @@ ulong android_image_get_end(const struct andr_img_hdr *hdr)
 
 ulong android_image_get_kload(const struct andr_img_hdr *hdr)
 {
-	return hdr->kernel_addr;
+	return android_image_get_kernel_addr(hdr);
 }
 
 int android_image_get_ramdisk(const struct andr_img_hdr *hdr,

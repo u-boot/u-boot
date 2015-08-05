@@ -78,10 +78,6 @@
 #define CONFIG_USB_TTY			1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
-/* Per-Soc commands */
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-
 /*
  * Environment setup
  */
@@ -166,9 +162,6 @@
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
-
-/* SPL: Allow to use an EXT partition */
-#define CONFIG_SPL_EXT_SUPPORT
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */

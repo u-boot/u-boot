@@ -347,14 +347,14 @@ static int macb_recv(struct eth_device *netdev)
 				headlen = 128 * (MACB_RX_RING_SIZE
 						 - macb->rx_tail);
 				taillen = length - headlen;
-				memcpy((void *)NetRxPackets[0],
+				memcpy((void *)net_rx_packets[0],
 				       buffer, headlen);
-				memcpy((void *)NetRxPackets[0] + headlen,
+				memcpy((void *)net_rx_packets[0] + headlen,
 				       macb->rx_buffer, taillen);
-				buffer = (void *)NetRxPackets[0];
+				buffer = (void *)net_rx_packets[0];
 			}
 
-			NetReceive(buffer, length);
+			net_process_received_packet(buffer, length);
 			if (++rx_tail >= MACB_RX_RING_SIZE)
 				rx_tail = 0;
 			reclaim_rx_buffers(macb, rx_tail);
@@ -525,7 +525,6 @@ static int macb_phy_init(struct macb_device *macb)
 	return 1;
 }
 
-static int macb_write_hwaddr(struct eth_device *dev);
 static int macb_init(struct eth_device *netdev, bd_t *bd)
 {
 	struct macb_device *macb = to_macb(netdev);
@@ -592,14 +591,6 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, USRIO, MACB_BIT(MII));
 #endif
 #endif /* CONFIG_RMII */
-	}
-
-	/* update the ethaddr */
-	if (is_valid_ether_addr(netdev->enetaddr)) {
-		macb_write_hwaddr(netdev);
-	} else {
-		printf("%s: mac address is not valid\n", netdev->name);
-		return -1;
 	}
 
 	if (!macb_phy_init(macb))

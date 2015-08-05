@@ -45,8 +45,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_MII
@@ -60,7 +58,6 @@
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_NET_RETRY_COUNT 3
 #define CONFIG_CMD_LINK_LOCAL
-#define CONFIG_LIB_RAND
 #define CONFIG_NETCONSOLE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_CMD_PING

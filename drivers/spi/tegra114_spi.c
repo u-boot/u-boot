@@ -143,23 +143,30 @@ static int tegra114_spi_probe(struct udevice *bus)
 {
 	struct tegra_spi_platdata *plat = dev_get_platdata(bus);
 	struct tegra114_spi_priv *priv = dev_get_priv(bus);
+	struct spi_regs *regs;
+	ulong rate;
 
 	priv->regs = (struct spi_regs *)plat->base;
+	regs = priv->regs;
 
 	priv->last_transaction_us = timer_get_us();
 	priv->freq = plat->frequency;
 	priv->periph_id = plat->periph_id;
 
-	return 0;
-}
-
-static int tegra114_spi_claim_bus(struct udevice *bus)
-{
-	struct tegra114_spi_priv *priv = dev_get_priv(bus);
-	struct spi_regs *regs = priv->regs;
-
-	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
-	clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH, priv->freq);
+	/*
+	 * Change SPI clock to correct frequency, PLLP_OUT0 source, falling
+	 * back to the oscillator if that is too fast.
+	 */
+	rate = clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH,
+				      priv->freq);
+	if (rate > priv->freq + 100000) {
+		rate = clock_start_periph_pll(priv->periph_id, CLOCK_ID_OSC,
+					      priv->freq);
+		if (rate != priv->freq) {
+			printf("Warning: SPI '%s' requested clock %u, actual clock %lu\n",
+			       bus->name, priv->freq, rate);
+		}
+	}
 
 	/* Clear stale status here */
 	setbits_le32(&regs->fifo_status,
@@ -174,9 +181,8 @@ static int tegra114_spi_claim_bus(struct udevice *bus)
 		     SPI_FIFO_STS_RX_FIFO_EMPTY);
 	debug("%s: FIFO STATUS = %08x\n", __func__, readl(&regs->fifo_status));
 
-	/* Set master mode and sw controlled CS */
-	setbits_le32(&regs->command1, SPI_CMD1_M_S | SPI_CMD1_CS_SW_HW |
-		     (priv->mode << SPI_CMD1_MODE_SHIFT));
+	setbits_le32(&priv->regs->command1, SPI_CMD1_M_S | SPI_CMD1_CS_SW_HW |
+		     (priv->mode << SPI_CMD1_MODE_SHIFT) | SPI_CMD1_CS_SW_VAL);
 	debug("%s: COMMAND1 = %08x\n", __func__, readl(&regs->command1));
 
 	return 0;
@@ -248,6 +254,9 @@ static int tegra114_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	ret = 0;
 
+	if (flags & SPI_XFER_BEGIN)
+		spi_cs_activate(dev);
+
 	/* clear all error status bits */
 	reg = readl(&regs->fifo_status);
 	writel(reg, &regs->fifo_status);
@@ -258,9 +267,6 @@ static int tegra114_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* set xfer size to 1 block (32 bits) */
 	writel(0, &regs->dma_blk);
-
-	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(dev);
 
 	/* handle data in 32-bit chunks */
 	while (num_bytes > 0) {
@@ -384,7 +390,6 @@ static int tegra114_spi_set_mode(struct udevice *bus, uint mode)
 }
 
 static const struct dm_spi_ops tegra114_spi_ops = {
-	.claim_bus	= tegra114_spi_claim_bus,
 	.xfer		= tegra114_spi_xfer,
 	.set_speed	= tegra114_spi_set_speed,
 	.set_mode	= tegra114_spi_set_mode,

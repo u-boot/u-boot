@@ -149,8 +149,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_EXT2			/* EXT2 Support */
 #define CONFIG_CMD_FAT			/* FAT support */
 #define CONFIG_CMD_I2C			/* I2C serial bus support */
@@ -162,10 +160,6 @@
 #define CONFIG_CMD_UBIFS		/* UBIFS commands */
 #define CONFIG_LZO			/* LZO is needed for UBIFS */
 
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_FPGA			/* FPGA configuration Support */
-#undef CONFIG_CMD_IMI			/* iminfo */
 #undef CONFIG_CMD_JFFS2			/* JFFS2 Support */
 
 /* needed for ubi */

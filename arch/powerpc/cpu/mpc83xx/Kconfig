@@ -6,6 +6,7 @@ config SYS_CPU
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_MPC8308_P1M
 	bool "Support mpc8308_p1m"
@@ -49,6 +50,7 @@ config TARGET_MPC837XERDB
 
 config TARGET_IDS8313
 	bool "Support ids8313"
+	select DM
 
 config TARGET_KM8360
 	bool "Support km8360"

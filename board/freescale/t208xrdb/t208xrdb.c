@@ -19,6 +19,7 @@
 #include <fm_eth.h>
 #include "t208xrdb.h"
 #include "cpld.h"
+#include "../common/vid.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -85,6 +86,12 @@ int board_early_init_r(void)
 	setup_portals();
 #endif
 
+	/*
+	 * Adjust core voltage according to voltage ID
+	 * This function changes I2C mux to channel 2.
+	 */
+	if (adjust_vdd(0))
+		printf("Warning: Adjusting core voltage failed.\n");
 	return 0;
 }
 
@@ -100,6 +107,13 @@ unsigned long get_board_ddr_clk(void)
 
 int misc_init_r(void)
 {
+	u8 reg;
+
+	/* Reset CS4315 PHY */
+	reg = CPLD_READ(reset_ctl);
+	reg |= CPLD_RSTCON_EDC_RST;
+	CPLD_WRITE(reset_ctl, reg);
+
 	return 0;
 }
 

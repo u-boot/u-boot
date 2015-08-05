@@ -679,6 +679,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	if (priv->bank >= MAX_BANKS) {
 		printf("fsl_elbc_nand: address did not match any "
 		       "chip selects\n");
+		kfree(priv);
 		return -ENODEV;
 	}
 

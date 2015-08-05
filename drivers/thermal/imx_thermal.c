@@ -12,15 +12,15 @@
 #include <fuse.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <thermal.h>
 #include <imx_thermal.h>
 
-#define TEMPERATURE_MIN		-40
-#define TEMPERATURE_HOT		80
-#define TEMPERATURE_MAX		125
+/* board will busyloop until this many degrees C below CPU max temperature */
+#define TEMPERATURE_HOT_DELTA   5 /* CPU maxT - 5C */
 #define FACTOR0			10000000
 #define FACTOR1			15976
 #define FACTOR2			4297157
@@ -34,14 +34,21 @@
 #define MISC0_REFTOP_SELBIASOFF		(1 << 3)
 #define TEMPSENSE1_MEASURE_FREQ		0xffff
 
+struct thermal_data {
+	unsigned int fuse;
+	int critical;
+	int minc;
+	int maxc;
+};
+
 static int read_cpu_temperature(struct udevice *dev)
 {
 	int temperature;
 	unsigned int reg, n_meas;
 	const struct imx_thermal_plat *pdata = dev_get_platdata(dev);
 	struct anatop_regs *anatop = (struct anatop_regs *)pdata->regs;
-	unsigned int *priv = dev_get_priv(dev);
-	u32 fuse = *priv;
+	struct thermal_data *priv = dev_get_priv(dev);
+	u32 fuse = priv->fuse;
 	int t1, n1;
 	u32 c1, c2;
 	u64 temp64;
@@ -119,13 +126,15 @@ static int read_cpu_temperature(struct udevice *dev)
 
 int imx_thermal_get_temp(struct udevice *dev, int *temp)
 {
+	struct thermal_data *priv = dev_get_priv(dev);
 	int cpu_tmp = 0;
 
 	cpu_tmp = read_cpu_temperature(dev);
-	while (cpu_tmp > TEMPERATURE_MIN && cpu_tmp < TEMPERATURE_MAX) {
-		if (cpu_tmp >= TEMPERATURE_HOT) {
-			printf("CPU Temperature is %d C, too hot to boot, waiting...\n",
-			       cpu_tmp);
+	while (cpu_tmp > priv->minc && cpu_tmp < priv->maxc) {
+		if (cpu_tmp >= priv->critical) {
+			printf("CPU Temperature (%dC) too close to max (%dC)",
+			       cpu_tmp, priv->maxc);
+			puts(" waiting...\n");
 			udelay(5000000);
 			cpu_tmp = read_cpu_temperature(dev);
 		} else {
@@ -147,7 +156,7 @@ static int imx_thermal_probe(struct udevice *dev)
 	unsigned int fuse = ~0;
 
 	const struct imx_thermal_plat *pdata = dev_get_platdata(dev);
-	unsigned int *priv = dev_get_priv(dev);
+	struct thermal_data *priv = dev_get_priv(dev);
 
 	/* Read Temperature calibration data fuse */
 	fuse_read(pdata->fuse_bank, pdata->fuse_word, &fuse);
@@ -158,7 +167,10 @@ static int imx_thermal_probe(struct udevice *dev)
 		return -EPERM;
 	}
 
-	*priv = fuse;
+	/* set critical cooling temp */
+	get_cpu_temp_grade(&priv->minc, &priv->maxc);
+	priv->critical = priv->maxc - TEMPERATURE_HOT_DELTA;
+	priv->fuse = fuse;
 
 	enable_thermal_clk();
 
@@ -170,6 +182,6 @@ U_BOOT_DRIVER(imx_thermal) = {
 	.id	= UCLASS_THERMAL,
 	.ops	= &imx_thermal_ops,
 	.probe	= imx_thermal_probe,
-	.priv_auto_alloc_size = sizeof(unsigned int),
+	.priv_auto_alloc_size = sizeof(struct thermal_data),
 	.flags  = DM_FLAG_PRE_RELOC,
 };

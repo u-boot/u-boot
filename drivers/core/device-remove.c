@@ -66,7 +66,7 @@ static int device_chld_remove(struct udevice *dev)
 
 int device_unbind(struct udevice *dev)
 {
-	struct driver *drv;
+	const struct driver *drv;
 	int ret;
 
 	if (!dev)
@@ -91,6 +91,10 @@ int device_unbind(struct udevice *dev)
 	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
 		free(dev->platdata);
 		dev->platdata = NULL;
+	}
+	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
+		free(dev->uclass_platdata);
+		dev->uclass_platdata = NULL;
 	}
 	if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
 		free(dev->parent_platdata);
@@ -139,7 +143,7 @@ void device_free(struct udevice *dev)
 
 int device_remove(struct udevice *dev)
 {
-	struct driver *drv;
+	const struct driver *drv;
 	int ret;
 
 	if (!dev)

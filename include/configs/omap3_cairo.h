@@ -60,15 +60,7 @@
 #define CONFIG_NAND
 
 /* commands to include */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
-
-/* Disable some commands */
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 
 /*
  * TWL4030
@@ -90,7 +82,6 @@
 	"machid=ffffffff\0" \
 	"fdt_high=0x87000000\0" \
 	"baudrate=115200\0" \
-	"ethaddr=00:50:C2:7E:90:F0\0" \
 	"fec_addr=00:50:C2:7E:90:F0\0" \
 	"netmask=255.255.255.0\0" \
 	"ipaddr=192.168.2.9\0" \

@@ -11,6 +11,22 @@
 #include <dm/device-internal.h>
 #include "sf_internal.h"
 
+int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len, void *buf)
+{
+	return sf_get_ops(dev)->read(dev, offset, len, buf);
+}
+
+int spi_flash_write_dm(struct udevice *dev, u32 offset, size_t len,
+		       const void *buf)
+{
+	return sf_get_ops(dev)->write(dev, offset, len, buf);
+}
+
+int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len)
+{
+	return sf_get_ops(dev)->erase(dev, offset, len);
+}
+
 /*
  * TODO(sjg@chromium.org): This is an old-style function. We should remove
  * it when all SPI flash drivers use dm
@@ -23,7 +39,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	if (spi_flash_probe_bus_cs(bus, cs, max_hz, spi_mode, &dev))
 		return NULL;
 
-	return dev->uclass_priv;
+	return dev_get_uclass_priv(dev);
 }
 
 void spi_flash_free(struct spi_flash *flash)
@@ -37,10 +53,10 @@ int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 {
 	struct spi_slave *slave;
 	struct udevice *bus;
-	char name[20], *str;
+	char name[30], *str;
 	int ret;
 
-	snprintf(name, sizeof(name), "%d:%d", busnum, cs);
+	snprintf(name, sizeof(name), "spi_flash@%d:%d", busnum, cs);
 	str = strdup(name);
 	ret = spi_get_bus_and_cs(busnum, cs, max_hz, spi_mode,
 				  "spi_flash_std", str, &bus, &slave);

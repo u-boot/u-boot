@@ -172,8 +172,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_RGMII) {
 		if (port == FM1_DTSEC3) {
 			fdt_set_phy_handle(fdt, compat, addr, "rgmii_phy2");
-			fdt_setprop(fdt, offset, "phy-connection-type",
-				    "rgmii", 5);
+			fdt_setprop_string(fdt, offset, "phy-connection-type",
+					   "rgmii");
 			fdt_status_okay_by_alias(fdt, "emi1_rgmii1");
 		}
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
@@ -207,7 +207,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 			break;
 		}
 		fdt_delprop(fdt, offset, "phy-connection-type");
-		fdt_setprop(fdt, offset, "phy-connection-type", "qsgmii", 6);
+		fdt_setprop_string(fdt, offset, "phy-connection-type",
+				   "qsgmii");
 		fdt_status_okay_by_alias(fdt, "emi1_slot2");
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII) {
 		/* XFI interface */
@@ -219,7 +220,7 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 		/* no PHY for XFI */
 		fdt_delprop(fdt, offset, "phy-handle");
 		fdt_setprop(fdt, offset, "fixed-link", &f_link, sizeof(f_link));
-		fdt_setprop(fdt, offset, "phy-connection-type", "xgmii", 5);
+		fdt_setprop_string(fdt, offset, "phy-connection-type", "xgmii");
 	}
 }
 

@@ -9,9 +9,6 @@
 #ifndef __MX6QSABRESD_CONFIG_H
 #define __MX6QSABRESD_CONFIG_H
 
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
@@ -52,6 +49,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		  100000
 
 /* PMIC */

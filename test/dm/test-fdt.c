@@ -12,9 +12,9 @@
 #include <asm/io.h>
 #include <dm/test.h>
 #include <dm/root.h>
-#include <dm/ut.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -99,7 +99,7 @@ UCLASS_DRIVER(testfdt) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
-int dm_check_devices(struct dm_test_state *dms, int num_devices)
+int dm_check_devices(struct unit_test_state *uts, int num_devices)
 {
 	struct udevice *dev;
 	int ret;
@@ -126,7 +126,7 @@ int dm_check_devices(struct dm_test_state *dms, int num_devices)
 		debug("dev=%d, base=%d: %s\n", i, base,
 		      fdt_get_name(gd->fdt_blob, dev->of_offset, NULL));
 
-		ut_assert(!dm_check_operations(dms, dev, base,
+		ut_assert(!dm_check_operations(uts, dev, base,
 					       dev_get_priv(dev)));
 	}
 
@@ -134,7 +134,7 @@ int dm_check_devices(struct dm_test_state *dms, int num_devices)
 }
 
 /* Test that FDT-based binding works correctly */
-static int dm_test_fdt(struct dm_test_state *dms)
+static int dm_test_fdt(struct unit_test_state *uts)
 {
 	const int num_devices = 6;
 	struct udevice *dev;
@@ -159,13 +159,13 @@ static int dm_test_fdt(struct dm_test_state *dms)
 		ut_assert(dev->platdata);
 	}
 
-	ut_assertok(dm_check_devices(dms, num_devices));
+	ut_assertok(dm_check_devices(uts, num_devices));
 
 	return 0;
 }
 DM_TEST(dm_test_fdt, 0);
 
-static int dm_test_fdt_pre_reloc(struct dm_test_state *dms)
+static int dm_test_fdt_pre_reloc(struct unit_test_state *uts)
 {
 	struct uclass *uc;
 	int ret;
@@ -184,7 +184,7 @@ static int dm_test_fdt_pre_reloc(struct dm_test_state *dms)
 DM_TEST(dm_test_fdt_pre_reloc, 0);
 
 /* Test that sequence numbers are allocated properly */
-static int dm_test_fdt_uclass_seq(struct dm_test_state *dms)
+static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
@@ -239,7 +239,7 @@ static int dm_test_fdt_uclass_seq(struct dm_test_state *dms)
 DM_TEST(dm_test_fdt_uclass_seq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that we can find a device by device tree offset */
-static int dm_test_fdt_offset(struct dm_test_state *dms)
+static int dm_test_fdt_offset(struct unit_test_state *uts)
 {
 	const void *blob = gd->fdt_blob;
 	struct udevice *dev;

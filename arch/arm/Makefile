@@ -48,13 +48,16 @@ machine-$(CONFIG_ARCH_HIGHBANK)		+= highbank
 machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
 # TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
+machine-$(CONFIG_ARMADA_XP)		+= mvebu
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
 machine-$(CONFIG_ARCH_NOMADIK)		+= nomadik
 # TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
 machine-$(CONFIG_ORION5X)		+= orion5x
+machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
 machine-$(CONFIG_TEGRA)			+= tegra
 machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
 machine-$(CONFIG_ARCH_VERSATILE)	+= versatile
+machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 
@@ -84,8 +87,8 @@ libs-y += arch/arm/imx-common/
 endif
 endif
 
-ifneq (,$(filter $(SOC), armada-xp kirkwood))
-libs-y += arch/arm/mvebu-common/
+ifneq (,$(filter $(SOC), kirkwood))
+libs-y += arch/arm/mach-mvebu/
 endif
 
 # deprecated

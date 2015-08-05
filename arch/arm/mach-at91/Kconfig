@@ -2,6 +2,7 @@ if ARCH_AT91
 
 choice
 	prompt "Atmel AT91 board select"
+	optional
 
 config TARGET_AT91RM9200EK
 	bool "Atmel AT91RM9200 evaluation kit"
@@ -23,17 +24,12 @@ config TARGET_ETHERNUT5
 	bool "Ethernut5 board"
 	select CPU_ARM926EJS
 
-config TARGET_TNY_A9260
-	bool "Caloa TNY A9260 board"
-	select CPU_ARM926EJS
-
 config TARGET_SNAPPER9260
 	bool "Support snapper9260"
 	select CPU_ARM926EJS
-
-config TARGET_AFEB9260
-	bool "Support afeb9260"
-	select CPU_ARM926EJS
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AT91SAM9261EK
 	bool "Atmel at91sam9261 reference board"
@@ -53,10 +49,6 @@ config TARGET_USB_A9263
 
 config TARGET_PM9263
 	bool "Ronetix pm9263 board"
-	select CPU_ARM926EJS
-
-config TARGET_SBC35_A9G20
-	bool "Support sbc35_a9g20"
 	select CPU_ARM926EJS
 
 config TARGET_STAMP9G20
@@ -151,11 +143,8 @@ source "board/atmel/sama5d4_xplained/Kconfig"
 source "board/atmel/sama5d4ek/Kconfig"
 source "board/BuS/eb_cpux9k2/Kconfig"
 source "board/eukrea/cpuat91/Kconfig"
-source "board/afeb9260/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"
 source "board/BuS/vl_ma2sc/Kconfig"
-source "board/calao/sbc35_a9g20/Kconfig"
-source "board/calao/tny_a9260/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"

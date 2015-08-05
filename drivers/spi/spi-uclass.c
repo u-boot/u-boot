@@ -50,7 +50,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	struct udevice *dev = slave->dev;
 	struct udevice *bus = dev->parent;
 	struct dm_spi_ops *ops = spi_get_ops(bus);
-	struct dm_spi_bus *spi = bus->uclass_priv;
+	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 	int speed;
 	int ret;
 
@@ -63,11 +63,14 @@ int spi_claim_bus(struct spi_slave *slave)
 	}
 	if (!speed)
 		speed = 100000;
-	ret = spi_set_speed_mode(bus, speed, slave->mode);
-	if (ret)
-		return ret;
+	if (speed != slave->speed) {
+		ret = spi_set_speed_mode(bus, speed, slave->mode);
+		if (ret)
+			return ret;
+		slave->speed = speed;
+	}
 
-	return ops->claim_bus ? ops->claim_bus(bus) : 0;
+	return ops->claim_bus ? ops->claim_bus(dev) : 0;
 }
 
 void spi_release_bus(struct spi_slave *slave)
@@ -77,7 +80,7 @@ void spi_release_bus(struct spi_slave *slave)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 
 	if (ops->release_bus)
-		ops->release_bus(bus);
+		ops->release_bus(dev);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
@@ -110,7 +113,7 @@ int spi_child_post_bind(struct udevice *dev)
 
 int spi_post_probe(struct udevice *bus)
 {
-	struct dm_spi_bus *spi = bus->uclass_priv;
+	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
 	spi->max_hz = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
 				     "spi-max-frequency", 0);

@@ -17,11 +17,13 @@
 /* Tegra SoC common clock control functions */
 
 #include <common.h>
+#include <errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/timer.h>
 #include <div64.h>
 #include <fdtdec.h>
@@ -81,7 +83,16 @@ static struct clk_pll *get_pll(enum clock_id clkid)
 			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 
 	assert(clock_id_is_pll(clkid));
+	if (clkid >= (enum clock_id)TEGRA_CLK_PLLS) {
+		debug("%s: Invalid PLL %d\n", __func__, clkid);
+		return NULL;
+	}
 	return &clkrst->crc_pll[clkid];
+}
+
+__weak struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid)
+{
+	return NULL;
 }
 
 int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
@@ -109,8 +120,11 @@ int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
 unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon)
 {
-	struct clk_pll *pll = get_pll(clkid);
-	u32 data;
+	struct clk_pll *pll = NULL;
+	u32 misc_data, data;
+
+	if (clkid < (enum clock_id)TEGRA_CLK_PLLS)
+		pll = get_pll(clkid);
 
 	/*
 	 * We cheat by treating all PLL (except PLLU) in the same fashion.
@@ -119,8 +133,7 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 	 * - DCCON is always 0, doesn't conflict
 	 * - M,N, P of PLLP values are ignored for PLLP
 	 */
-	data = (cpcon << PLL_CPCON_SHIFT) | (lfcon << PLL_LFCON_SHIFT);
-	writel(data, &pll->pll_misc);
+	misc_data = (cpcon << PLL_CPCON_SHIFT) | (lfcon << PLL_LFCON_SHIFT);
 
 	data = (divm << PLL_DIVM_SHIFT) | (divn << PLL_DIVN_SHIFT) |
 			(0 << PLL_BYPASS_SHIFT) | (1 << PLL_ENABLE_SHIFT);
@@ -129,7 +142,19 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		data |= divp << PLLU_VCO_FREQ_SHIFT;
 	else
 		data |= divp << PLL_DIVP_SHIFT;
-	writel(data, &pll->pll_base);
+	if (pll) {
+		writel(misc_data, &pll->pll_misc);
+		writel(data, &pll->pll_base);
+	} else {
+		struct clk_pll_simple *pll = clock_get_simple_pll(clkid);
+
+		if (!pll) {
+			debug("%s: Uknown simple PLL %d\n", __func__, clkid);
+			return 0;
+		}
+		writel(misc_data, &pll->pll_misc);
+		writel(data, &pll->pll_base);
+	}
 
 	/* calculate the stable time */
 	return timer_get_us() + CLOCK_PLL_STABLE_DELAY_US;
@@ -152,12 +177,37 @@ void clock_ll_set_source_divisor(enum periph_id periph_id, unsigned source,
 	writel(value, reg);
 }
 
-void clock_ll_set_source(enum periph_id periph_id, unsigned source)
+int clock_ll_set_source_bits(enum periph_id periph_id, int mux_bits,
+			     unsigned source)
 {
 	u32 *reg = get_periph_source_reg(periph_id);
 
-	clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
-			source << OUT_CLK_SOURCE_31_30_SHIFT);
+	switch (mux_bits) {
+	case MASK_BITS_31_30:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
+				source << OUT_CLK_SOURCE_31_30_SHIFT);
+		break;
+
+	case MASK_BITS_31_29:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_29_MASK,
+				source << OUT_CLK_SOURCE_31_29_SHIFT);
+		break;
+
+	case MASK_BITS_31_28:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_28_MASK,
+				source << OUT_CLK_SOURCE_31_28_SHIFT);
+		break;
+
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+
+void clock_ll_set_source(enum periph_id periph_id, unsigned source)
+{
+	clock_ll_set_source_bits(periph_id, MASK_BITS_31_30, source);
 }
 
 /**
@@ -306,25 +356,7 @@ static int adjust_periph_pll(enum periph_id periph_id, int source,
 	if (source < 0)
 		return -1;
 
-	switch (mux_bits) {
-	case MASK_BITS_31_30:
-		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
-				source << OUT_CLK_SOURCE_31_30_SHIFT);
-		break;
-
-	case MASK_BITS_31_29:
-		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_29_MASK,
-				source << OUT_CLK_SOURCE_31_29_SHIFT);
-		break;
-
-	case MASK_BITS_31_28:
-		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_28_MASK,
-				source << OUT_CLK_SOURCE_31_28_SHIFT);
-		break;
-
-	default:
-		return -1;
-	}
+	clock_ll_set_source_bits(periph_id, mux_bits, source);
 
 	udelay(2);
 	return 0;
@@ -431,6 +463,8 @@ unsigned clock_get_rate(enum clock_id clkid)
 		return parent_rate;
 
 	pll = get_pll(clkid);
+	if (!pll)
+		return 0;
 	base = readl(&pll->pll_base);
 
 	/* Oh for bf_unpack()... */
@@ -564,6 +598,7 @@ void clock_init(void)
 	pll_rate[CLOCK_ID_MEMORY] = clock_get_rate(CLOCK_ID_MEMORY);
 	pll_rate[CLOCK_ID_PERIPH] = clock_get_rate(CLOCK_ID_PERIPH);
 	pll_rate[CLOCK_ID_CGENERAL] = clock_get_rate(CLOCK_ID_CGENERAL);
+	pll_rate[CLOCK_ID_DISPLAY] = clock_get_rate(CLOCK_ID_DISPLAY);
 	pll_rate[CLOCK_ID_OSC] = clock_get_rate(CLOCK_ID_OSC);
 	pll_rate[CLOCK_ID_SFROM32KHZ] = 32768;
 	pll_rate[CLOCK_ID_XCPU] = clock_get_rate(CLOCK_ID_XCPU);
@@ -571,6 +606,7 @@ void clock_init(void)
 	debug("PLLM = %d\n", pll_rate[CLOCK_ID_MEMORY]);
 	debug("PLLP = %d\n", pll_rate[CLOCK_ID_PERIPH]);
 	debug("PLLC = %d\n", pll_rate[CLOCK_ID_CGENERAL]);
+	debug("PLLD = %d\n", pll_rate[CLOCK_ID_DISPLAY]);
 	debug("PLLX = %d\n", pll_rate[CLOCK_ID_XCPU]);
 
 	/* Do any special system timer/TSC setup */
@@ -670,4 +706,19 @@ void tegra30_set_up_pllp(void)
 	writel(reg, &clkrst->crc_pll[CLOCK_ID_PERIPH].pll_out[1]);
 
 	set_avp_clock_source(SCLK_SOURCE_PLLP_OUT4);
+}
+
+int clock_external_output(int clk_id)
+{
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+
+	if (clk_id >= 1 && clk_id <= 3) {
+		setbits_le32(&pmc->pmc_clk_out_cntrl,
+			     1 << (2 + (clk_id - 1) * 8));
+	} else {
+		printf("%s: Unknown output clock id %d\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	return 0;
 }

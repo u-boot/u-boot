@@ -18,13 +18,14 @@ config ARC
 
 config ARM
 	bool "ARM architecture"
-	select HAVE_PRIVATE_LIBGCC
+	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select HAVE_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config AVR32
 	bool "AVR32 architecture"
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config BLACKFIN
 	bool "Blackfin architecture"
@@ -70,6 +71,12 @@ config SANDBOX
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_I2C
+	select DM_SPI
+	select DM_GPIO
 
 config SH
 	bool "SuperH architecture"
@@ -84,6 +91,11 @@ config X86
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_SPI
+	select DM_SPI_FLASH
 
 endchoice
 

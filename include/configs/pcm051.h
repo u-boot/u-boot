@@ -97,7 +97,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START \
 					+ (8 * 1024 * 1024))
 
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		24000000
@@ -163,10 +162,6 @@
 #define CONFIG_USB_ETH_RNDIS
 #endif /* CONFIG_MUSB_GADGET */
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC

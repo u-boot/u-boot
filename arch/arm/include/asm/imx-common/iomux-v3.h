@@ -187,6 +187,12 @@ void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 */
 void imx_iomux_set_gpr_register(int group, int start_bit,
 					 int num_bits, int value);
+#ifdef CONFIG_IOMUX_SHARE_CONF_REG
+void imx_iomux_gpio_set_direction(unsigned int gpio,
+				unsigned int direction);
+void imx_iomux_gpio_get_function(unsigned int gpio,
+				u32 *gpio_state);
+#endif
 
 /* macros for declaring and using pinmux array */
 #if defined(CONFIG_MX6QDL)

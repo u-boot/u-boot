@@ -271,17 +271,13 @@ extern unsigned long get_clock_freq(void);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*

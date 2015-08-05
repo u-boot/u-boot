@@ -85,8 +85,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
@@ -148,7 +146,6 @@
 	"netmask=255.255.0.0\0"						\
 	"ipaddr=192.168.160.18\0"					\
 	"serverip=192.168.1.1\0"					\
-	"ethaddr=00:e0:ee:00:05:2e\0"					\
 	"bootfile=/tftpboot/v38b/uImage\0"				\
 	"u-boot=/tftpboot/v38b/u-boot.bin\0"				\
 	""

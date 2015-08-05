@@ -141,8 +141,9 @@ static int tegra30_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int tegra30_spi_claim_bus(struct udevice *bus)
+static int tegra30_spi_claim_bus(struct udevice *dev)
 {
+	struct udevice *bus = dev->parent;
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 	struct spi_regs *regs = priv->regs;
 	u32 reg;

@@ -57,7 +57,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 /* USB Configs */
 #define CONFIG_CMD_USB
@@ -76,6 +75,7 @@
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /* PMIC Controller */
 #define CONFIG_POWER
@@ -92,11 +92,8 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
-
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY	1
 

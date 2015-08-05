@@ -475,7 +475,7 @@ static int asix_send(struct eth_device *eth, void *packet, int length)
 				length + sizeof(packet_len),
 				&actual_len,
 				USB_BULK_SEND_TIMEOUT);
-	debug("Tx: len = %u, actual = %u, err = %d\n",
+	debug("Tx: len = %zu, actual = %u, err = %d\n",
 			length + sizeof(packet_len), actual_len, err);
 
 	return err;
@@ -534,7 +534,8 @@ static int asix_recv(struct eth_device *eth)
 		}
 
 		/* Notify net stack */
-		NetReceive(buf_ptr + sizeof(packet_len), packet_len);
+		net_process_received_packet(buf_ptr + sizeof(packet_len),
+					    packet_len);
 
 		/* Adjust for next iteration. Packets are padded to 16-bits */
 		if (packet_len & 1)

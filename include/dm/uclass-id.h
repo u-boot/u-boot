@@ -20,20 +20,36 @@ enum uclass_id {
 	UCLASS_TEST_BUS,
 	UCLASS_SPI_EMUL,	/* sandbox SPI device emulator */
 	UCLASS_I2C_EMUL,	/* sandbox I2C device emulator */
-	UCLASS_SIMPLE_BUS,
+	UCLASS_PCI_EMUL,	/* sandbox PCI device emulator */
+	UCLASS_USB_EMUL,	/* sandbox USB bus device emulator */
+	UCLASS_SIMPLE_BUS,	/* bus with child devices */
 
-	/* U-Boot uclasses start here */
+	/* U-Boot uclasses start here - in alphabetical order */
+	UCLASS_CPU,		/* CPU, typically part of an SoC */
+	UCLASS_CROS_EC,		/* Chrome OS EC */
+	UCLASS_DISPLAY_PORT,	/* Display port video */
+	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
+	UCLASS_I2C,		/* I2C bus */
+	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
+	UCLASS_I2C_GENERIC,	/* Generic I2C device */
+	UCLASS_LPC,		/* x86 'low pin count' interface */
+	UCLASS_MASS_STORAGE,	/* Mass storage device */
+	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
+	UCLASS_PCH,		/* x86 platform controller hub */
+	UCLASS_PCI,		/* PCI bus */
+	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
+	UCLASS_PMIC,		/* PMIC I/O device */
+	UCLASS_REGULATOR,	/* Regulator device */
+	UCLASS_RTC,		/* Real time clock device */
 	UCLASS_SERIAL,		/* Serial UART */
 	UCLASS_SPI,		/* SPI bus */
-	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SPI_FLASH,	/* SPI flash */
-	UCLASS_CROS_EC,	/* Chrome OS EC */
+	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_THERMAL,		/* Thermal sensor */
-	UCLASS_I2C,		/* I2C bus */
-	UCLASS_I2C_GENERIC,	/* Generic I2C device */
-	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
-	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
+	UCLASS_USB,		/* USB bus */
+	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
+	UCLASS_USB_HUB,		/* USB hub */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

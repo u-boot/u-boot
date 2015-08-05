@@ -142,7 +142,6 @@
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 
 #define CONFIG_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_CMD_SF
@@ -294,7 +293,6 @@
 /*
  * U-Boot commands
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
@@ -302,22 +300,18 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_MEMORY
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_MII
 #undef CONFIG_CMD_PING
 #endif
 
 #ifdef CONFIG_USE_NAND
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_NAND
 
 #define CONFIG_CMD_MTDPARTS
@@ -330,10 +324,7 @@
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_FLASH
 #define CONFIG_CMD_SPI
-#define CONFIG_CMD_SAVEENV
 #endif
 
 #if !defined(CONFIG_USE_NAND) && \
@@ -342,7 +333,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE		(16 << 10)
-#undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_ENV
 #endif
 

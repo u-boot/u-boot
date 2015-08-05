@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
@@ -20,6 +21,8 @@
 
 #include "ehci.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define USB1_ADDR_MASK	0xFFFF0000
 
 #define HOSTPC1_DEVLC	0x84
@@ -31,10 +34,6 @@
 		define CONFIG_USB_ULPI_VIEWPORT"
 	#endif
 #endif
-
-enum {
-	USB_PORTS_MAX	= 3,		/* Maximum ports we allow */
-};
 
 /* Parameters we need for USB */
 enum {
@@ -61,25 +60,29 @@ enum dr_mode {
 	DR_MODE_OTG,		/* supports both */
 };
 
+enum usb_ctlr_type {
+	USB_CTLR_T20,
+	USB_CTLR_T30,
+	USB_CTLR_T114,
+
+	USB_CTRL_COUNT,
+};
+
 /* Information about a USB port */
 struct fdt_usb {
+	struct ehci_ctrl ehci;
 	struct usb_ctlr *reg;	/* address of registers in physical memory */
 	unsigned utmi:1;	/* 1 if port has external tranceiver, else 0 */
 	unsigned ulpi:1;	/* 1 if port has external ULPI transceiver */
 	unsigned enabled:1;	/* 1 to enable, 0 to disable */
 	unsigned has_legacy_mode:1; /* 1 if this port has legacy mode */
-	unsigned initialized:1; /* has this port already been initialized? */
+	enum usb_ctlr_type type;
 	enum usb_init_type init_type;
 	enum dr_mode dr_mode;	/* dual role mode */
 	enum periph_id periph_id;/* peripheral id */
 	struct gpio_desc vbus_gpio;	/* GPIO for vbus enable */
 	struct gpio_desc phy_reset_gpio; /* GPIO to reset ULPI phy */
 };
-
-static struct fdt_usb port[USB_PORTS_MAX];	/* List of valid USB ports */
-static unsigned port_count;			/* Number of available ports */
-/* Port that needs to clear CSC after Port Reset */
-static u32 port_addr_clear_csc;
 
 /*
  * This table has USB timing parameters for each Oscillator frequency we
@@ -156,64 +159,56 @@ static const u8 utmip_elastic_limit = 16;
 static const u8 utmip_hs_sync_start_delay = 9;
 
 struct fdt_usb_controller {
-	int compat;
 	/* flag to determine whether controller supports hostpc register */
 	u32 has_hostpc:1;
 	const unsigned *pll_parameter;
 };
 
-static struct fdt_usb_controller fdt_usb_controllers[] = {
+static struct fdt_usb_controller fdt_usb_controllers[USB_CTRL_COUNT] = {
 	{
-		.compat		= COMPAT_NVIDIA_TEGRA20_USB,
 		.has_hostpc	= 0,
 		.pll_parameter	= (const unsigned *)T20_usb_pll,
 	},
 	{
-		.compat		= COMPAT_NVIDIA_TEGRA30_USB,
 		.has_hostpc	= 1,
 		.pll_parameter	= (const unsigned *)T30_usb_pll,
 	},
 	{
-		.compat		= COMPAT_NVIDIA_TEGRA114_USB,
 		.has_hostpc	= 1,
 		.pll_parameter	= (const unsigned *)T114_usb_pll,
 	},
 };
 
-static struct fdt_usb_controller *controller;
-
 /*
  * A known hardware issue where Connect Status Change bit of PORTSC register
  * of USB1 controller will be set after Port Reset.
  * We have to clear it in order for later device enumeration to proceed.
- * This ehci_powerup_fixup overrides the weak function ehci_powerup_fixup
- * in "ehci-hcd.c".
  */
-void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+static void tegra_ehci_powerup_fixup(struct ehci_ctrl *ctrl,
+				     uint32_t *status_reg, uint32_t *reg)
 {
+	struct fdt_usb *config = ctrl->priv;
+	struct fdt_usb_controller *controller;
+
+	controller = &fdt_usb_controllers[config->type];
 	mdelay(50);
 	/* This is to avoid PORT_ENABLE bit to be cleared in "ehci-hcd.c". */
 	if (controller->has_hostpc)
 		*reg |= EHCI_PS_PE;
 
-	if (((u32)status_reg & TEGRA_USB_ADDR_MASK) != port_addr_clear_csc)
+	if (!config->has_legacy_mode)
 		return;
 	/* For EHCI_PS_CSC to be cleared in ehci_hcd.c */
 	if (ehci_readl(status_reg) & EHCI_PS_CSC)
 		*reg |= EHCI_PS_CSC;
 }
 
-/*
- * This ehci_set_usbmode overrides the weak function ehci_set_usbmode
- * in "ehci-hcd.c".
- */
-void ehci_set_usbmode(int index)
+static void tegra_ehci_set_usbmode(struct ehci_ctrl *ctrl)
 {
-	struct fdt_usb *config;
+	struct fdt_usb *config = ctrl->priv;
 	struct usb_ctlr *usbctlr;
 	uint32_t tmp;
 
-	config = &port[index];
 	usbctlr = config->reg;
 
 	tmp = ehci_readl(&usbctlr->usb_mode);
@@ -221,17 +216,17 @@ void ehci_set_usbmode(int index)
 	ehci_writel(&usbctlr->usb_mode, tmp);
 }
 
-/*
- * This ehci_get_port_speed overrides the weak function ehci_get_port_speed
- * in "ehci-hcd.c".
- */
-int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+static int tegra_ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
+	struct fdt_usb *config = ctrl->priv;
+	struct fdt_usb_controller *controller;
 	uint32_t tmp;
 	uint32_t *reg_ptr;
 
+	controller = &fdt_usb_controllers[config->type];
 	if (controller->has_hostpc) {
-		reg_ptr = (uint32_t *)((u8 *)&hcor->or_usbcmd + HOSTPC1_DEVLC);
+		reg_ptr = (uint32_t *)((u8 *)&ctrl->hcor->or_usbcmd +
+				HOSTPC1_DEVLC);
 		tmp = ehci_readl(reg_ptr);
 		return HOSTPC1_PSPD(tmp);
 	} else
@@ -263,7 +258,8 @@ static void set_up_vbus(struct fdt_usb *config, enum usb_init_type init)
 	}
 }
 
-void usbf_reset_controller(struct fdt_usb *config, struct usb_ctlr *usbctlr)
+static void usbf_reset_controller(struct fdt_usb *config,
+				  struct usb_ctlr *usbctlr)
 {
 	/* Reset the USB controller with 2us delay */
 	reset_periph(config->periph_id, 2);
@@ -283,7 +279,7 @@ void usbf_reset_controller(struct fdt_usb *config, struct usb_ctlr *usbctlr)
 		setbits_le32(&usbctlr->susp_ctrl, UTMIP_PHY_ENB);
 }
 
-static const unsigned *get_pll_timing(void)
+static const unsigned *get_pll_timing(struct fdt_usb_controller *controller)
 {
 	const unsigned *timing;
 
@@ -330,6 +326,7 @@ static void init_phy_mux(struct fdt_usb *config, uint pts,
 static int init_utmi_usb_controller(struct fdt_usb *config,
 				    enum usb_init_type init)
 {
+	struct fdt_usb_controller *controller;
 	u32 b_sess_valid_mask, val;
 	int loop_count;
 	const unsigned *timing;
@@ -362,11 +359,14 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 			VBUS_SENSE_CTL_MASK,
 			VBUS_SENSE_CTL_A_SESS_VLD << VBUS_SENSE_CTL_SHIFT);
 
+	controller = &fdt_usb_controllers[config->type];
+	debug("controller=%p, type=%d\n", controller, config->type);
+
 	/*
 	 * PLL Delay CONFIGURATION settings. The following parameters control
 	 * the bring up of the plls.
 	 */
-	timing = get_pll_timing();
+	timing = get_pll_timing(controller);
 
 	if (!controller->has_hostpc) {
 		val = readl(&usbctlr->utmip_misc_cfg1);
@@ -434,7 +434,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 			reset_set_enable(PERIPH_ID_USBD, 0);
 		}
 		usb1ctlr = (struct usb_ctlr *)
-			((u32)config->reg & USB1_ADDR_MASK);
+			((unsigned long)config->reg & USB1_ADDR_MASK);
 		val = readl(&usb1ctlr->utmip_bias_cfg0);
 		setbits_le32(&val, UTMIP_HSDISCON_LEVEL_MSB);
 		clrsetbits_le32(&val, UTMIP_HSDISCON_LEVEL_MASK,
@@ -517,7 +517,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 		udelay(1);
 	}
 	if (!loop_count)
-		return -1;
+		return -ETIMEDOUT;
 
 	/* Disable ICUSB FS/LS transceiver */
 	clrbits_le32(&usbctlr->icusb_ctrl, IC_ENB1);
@@ -537,7 +537,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 		 * controllers and can be controlled from USB1 only.
 		 */
 		usb1ctlr = (struct usb_ctlr *)
-			((u32)config->reg & USB1_ADDR_MASK);
+			((unsigned long)config->reg & USB1_ADDR_MASK);
 		clrbits_le32(&usb1ctlr->utmip_bias_cfg0, UTMIP_BIASPD);
 		udelay(25);
 		clrbits_le32(&usb1ctlr->utmip_bias_cfg1,
@@ -560,6 +560,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 	int loop_count;
 	struct ulpi_viewport ulpi_vp;
 	struct usb_ctlr *usbctlr = config->reg;
+	int ret;
 
 	/* set up ULPI reference clock on pllp_out4 */
 	clock_enable(PERIPH_ID_DEV2_OUT);
@@ -605,9 +606,10 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 	ulpi_vp.port_num = 0;
 	ulpi_vp.viewport_addr = (u32)&usbctlr->ulpi_viewport;
 
-	if (ulpi_init(&ulpi_vp)) {
+	ret = ulpi_init(&ulpi_vp);
+	if (ret) {
 		printf("Tegra ULPI viewport init failed\n");
-		return -1;
+		return ret;
 	}
 
 	ulpi_set_vbus(&ulpi_vp, 1, 1);
@@ -624,7 +626,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 		udelay(1);
 	}
 	if (!loop_count)
-		return -1;
+		return -ETIMEDOUT;
 	clrbits_le32(&usbctlr->susp_ctrl, USB_SUSP_CLR);
 
 	return 0;
@@ -635,7 +637,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 {
 	printf("No code to set up ULPI controller, please enable"
 			"CONFIG_USB_ULPI and CONFIG_USB_ULPI_VIEWPORT");
-	return -1;
+	return -ENOSYS;
 }
 #endif
 
@@ -662,7 +664,7 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 		else {
 			debug("%s: Cannot decode dr_mode '%s'\n", __func__,
 			      mode);
-			return -FDT_ERR_NOTFOUND;
+			return -EINVAL;
 		}
 	} else {
 		config->dr_mode = DR_MODE_HOST;
@@ -674,12 +676,10 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 	config->enabled = fdtdec_get_is_enabled(blob, node);
 	config->has_legacy_mode = fdtdec_get_bool(blob, node,
 						  "nvidia,has-legacy-mode");
-	if (config->has_legacy_mode)
-		port_addr_clear_csc = (u32) config->reg;
 	config->periph_id = clock_decode_periph_id(blob, node);
 	if (config->periph_id == PERIPH_ID_NONE) {
 		debug("%s: Missing/invalid peripheral ID\n", __func__);
-		return -FDT_ERR_NOTFOUND;
+		return -EINVAL;
 	}
 	gpio_request_by_name_nodev(blob, node, "nvidia,vbus-gpio", 0,
 				   &config->vbus_gpio, GPIOD_IS_OUT);
@@ -695,96 +695,9 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 	return 0;
 }
 
-/*
- * process_usb_nodes() - Process a list of USB nodes, adding them to our list
- *			of USB ports.
- * @blob:	fdt blob
- * @node_list:	list of nodes to process (any <=0 are ignored)
- * @count:	number of nodes to process
- *
- * Return:	0 - ok, -1 - error
- */
-static int process_usb_nodes(const void *blob, int node_list[], int count)
+int usb_common_init(struct fdt_usb *config, enum usb_init_type init)
 {
-	struct fdt_usb config;
-	int node, i;
-	int clk_done = 0;
-
-	port_count = 0;
-	for (i = 0; i < count; i++) {
-		if (port_count == USB_PORTS_MAX) {
-			printf("tegrausb: Cannot register more than %d ports\n",
-				USB_PORTS_MAX);
-			return -1;
-		}
-
-		debug("USB %d: ", i);
-		node = node_list[i];
-		if (!node)
-			continue;
-		if (fdt_decode_usb(blob, node, &config)) {
-			debug("Cannot decode USB node %s\n",
-			      fdt_get_name(blob, node, NULL));
-			return -1;
-		}
-		if (!clk_done) {
-			config_clock(get_pll_timing());
-			clk_done = 1;
-		}
-		config.initialized = 0;
-
-		/* add new USB port to the list of available ports */
-		port[port_count++] = config;
-	}
-
-	return 0;
-}
-
-int usb_process_devicetree(const void *blob)
-{
-	int node_list[USB_PORTS_MAX];
-	int count, err = 0;
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(fdt_usb_controllers); i++) {
-		controller = &fdt_usb_controllers[i];
-
-		count = fdtdec_find_aliases_for_id(blob, "usb",
-			controller->compat, node_list, USB_PORTS_MAX);
-		if (count) {
-			err = process_usb_nodes(blob, node_list, count);
-			if (err)
-				printf("%s: Error processing USB node!\n",
-				       __func__);
-			return err;
-		}
-	}
-	if (i == ARRAY_SIZE(fdt_usb_controllers))
-		controller = NULL;
-
-	return err;
-}
-
-/**
- * Start up the given port number (ports are numbered from 0 on each board).
- * This returns values for the appropriate hccr and hcor addresses to use for
- * USB EHCI operations.
- *
- * @param index	port number to start
- * @param hccr		returns start address of EHCI HCCR registers
- * @param hcor		returns start address of EHCI HCOR registers
- * @return 0 if ok, -1 on error (generally invalid port number)
- */
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	struct fdt_usb *config;
-	struct usb_ctlr *usbctlr;
-
-	if (index >= port_count)
-		return -1;
-
-	config = &port[index];
+	int ret = 0;
 
 	switch (init) {
 	case USB_INIT_HOST:
@@ -822,41 +735,26 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		return -1;
 	}
 
-	/* skip init, if the port is already initialized */
-	if (config->initialized && config->init_type == init)
-		goto success;
-
-	if (config->utmi && init_utmi_usb_controller(config, init)) {
-		printf("tegrausb: Cannot init port %d\n", index);
-		return -1;
-	}
-
-	if (config->ulpi && init_ulpi_usb_controller(config, init)) {
-		printf("tegrausb: Cannot init port %d\n", index);
-		return -1;
-	}
+	debug("%d, %d\n", config->utmi, config->ulpi);
+	if (config->utmi)
+		ret = init_utmi_usb_controller(config, init);
+	else if (config->ulpi)
+		ret = init_ulpi_usb_controller(config, init);
+	if (ret)
+		return ret;
 
 	set_up_vbus(config, init);
 
-	config->initialized = 1;
 	config->init_type = init;
-
-success:
-	usbctlr = config->reg;
-	*hccr = (struct ehci_hccr *)&usbctlr->cap_length;
-	*hcor = (struct ehci_hcor *)&usbctlr->usb_cmd;
 
 	return 0;
 }
 
-/*
- * Bring down the specified USB controller
- */
-int ehci_hcd_stop(int index)
+void usb_common_uninit(struct fdt_usb *priv)
 {
 	struct usb_ctlr *usbctlr;
 
-	usbctlr = port[index].reg;
+	usbctlr = priv->reg;
 
 	/* Stop controller */
 	writel(0, &usbctlr->usb_cmd);
@@ -865,8 +763,78 @@ int ehci_hcd_stop(int index)
 	/* Initiate controller reset */
 	writel(2, &usbctlr->usb_cmd);
 	udelay(1000);
+}
 
-	port[index].initialized = 0;
+static const struct ehci_ops tegra_ehci_ops = {
+	.set_usb_mode		= tegra_ehci_set_usbmode,
+	.get_port_speed		= tegra_ehci_get_port_speed,
+	.powerup_fixup		= tegra_ehci_powerup_fixup,
+};
+
+static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct fdt_usb *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = fdt_decode_usb(gd->fdt_blob, dev->of_offset, priv);
+	if (ret)
+		return ret;
+
+	priv->type = dev_get_driver_data(dev);
 
 	return 0;
 }
+
+static int ehci_usb_probe(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct fdt_usb *priv = dev_get_priv(dev);
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
+	static bool clk_done;
+	int ret;
+
+	ret = usb_common_init(priv, plat->init_type);
+	if (ret)
+		return ret;
+	hccr = (struct ehci_hccr *)&priv->reg->cap_length;
+	hcor = (struct ehci_hcor *)&priv->reg->usb_cmd;
+	if (!clk_done) {
+		config_clock(get_pll_timing(&fdt_usb_controllers[priv->type]));
+		clk_done = true;
+	}
+
+	return ehci_register(dev, hccr, hcor, &tegra_ehci_ops, 0,
+			     plat->init_type);
+}
+
+static int ehci_usb_remove(struct udevice *dev)
+{
+	int ret;
+
+	ret = ehci_deregister(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct udevice_id ehci_usb_ids[] = {
+	{ .compatible = "nvidia,tegra20-ehci", .data = USB_CTLR_T20 },
+	{ .compatible = "nvidia,tegra30-ehci", .data = USB_CTLR_T30 },
+	{ .compatible = "nvidia,tegra114-ehci", .data = USB_CTLR_T114 },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_ehci) = {
+	.name	= "ehci_tegra",
+	.id	= UCLASS_USB,
+	.of_match = ehci_usb_ids,
+	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.probe = ehci_usb_probe,
+	.remove = ehci_usb_remove,
+	.ops	= &ehci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct fdt_usb),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};

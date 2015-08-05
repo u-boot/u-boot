@@ -36,7 +36,7 @@
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	0
 #endif
 #define	MXS_NAND_METADATA_SIZE			10
-
+#define	MXS_NAND_BITS_PER_ECC_LEVEL		13
 #define	MXS_NAND_COMMAND_BUFFER_SIZE		32
 
 #define	MXS_NAND_BCH_TIMEOUT			10000
@@ -135,7 +135,7 @@ static uint32_t mxs_nand_ecc_chunk_cnt(uint32_t page_data_size)
 
 static uint32_t mxs_nand_ecc_size_in_bits(uint32_t ecc_strength)
 {
-	return ecc_strength * 13;
+	return ecc_strength * MXS_NAND_BITS_PER_ECC_LEVEL;
 }
 
 static uint32_t mxs_nand_aux_status_offset(void)
@@ -146,26 +146,21 @@ static uint32_t mxs_nand_aux_status_offset(void)
 static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 						uint32_t page_oob_size)
 {
-	if (page_data_size == 2048) {
-		if (page_oob_size == 64)
-			return 8;
+	int ecc_strength;
 
-		if (page_oob_size == 112)
-			return 14;
-	}
+	/*
+	 * Determine the ECC layout with the formula:
+	 *	ECC bits per chunk = (total page spare data bits) /
+	 *		(bits per ECC level) / (chunks per page)
+	 * where:
+	 *	total page spare data bits =
+	 *		(page oob size - meta data size) * (bits per byte)
+	 */
+	ecc_strength = ((page_oob_size - MXS_NAND_METADATA_SIZE) * 8)
+			/ (MXS_NAND_BITS_PER_ECC_LEVEL *
+				mxs_nand_ecc_chunk_cnt(page_data_size));
 
-	if (page_data_size == 4096) {
-		if (page_oob_size == 128)
-			return 8;
-
-		if (page_oob_size == 218)
-			return 16;
-
-		if (page_oob_size == 224)
-			return 16;
-	}
-
-	return 0;
+	return round_down(ecc_strength, 2);
 }
 
 static inline uint32_t mxs_nand_get_mark_offset(uint32_t page_data_size,

@@ -444,6 +444,21 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 			ltssm = (in_be32(&pci->pex_csr0)
 				& PEX_CSR0_LTSSM_MASK) >> PEX_CSR0_LTSSM_SHIFT;
 			enabled = (ltssm == 0x11) ? 1 : 0;
+#ifdef CONFIG_FSL_PCIE_RESET
+			int i;
+			/* assert PCIe reset */
+			setbits_be32(&pci->pdb_stat, 0x08000000);
+			(void) in_be32(&pci->pdb_stat);
+			udelay(1000);
+			/* clear PCIe reset */
+			clrbits_be32(&pci->pdb_stat, 0x08000000);
+			asm("sync;isync");
+			for (i = 0; i < 100 && ltssm < PCI_LTSSM_L0; i++) {
+				pci_hose_read_config_word(hose, dev, PCI_LTSSM,
+							  &ltssm);
+				udelay(1000);
+			}
+#endif
 		} else {
 		/* pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm); */
 		/* enabled = ltssm >= PCI_LTSSM_L0; */
@@ -682,8 +697,14 @@ void fsl_pci_config_unlock(struct pci_controller *hose)
 	pcie_cap_pos = pci_hose_find_capability(hose, dev, PCI_CAP_ID_EXP);
 	pci_hose_read_config_byte(hose, dev, pcie_cap_pos, &pcie_cap);
 	if (pcie_cap != 0x0) {
+		ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)hose->cfg_addr;
+		u32 block_rev = in_be32(&pci->block_rev1);
 		/* PCIe - set CFG_READY bit of Configuration Ready Register */
-		pci_hose_write_config_byte(hose, dev, FSL_PCIE_CFG_RDY, 0x1);
+		if (block_rev >= PEX_IP_BLK_REV_3_0)
+			setbits_be32(&pci->config, FSL_PCIE_V3_CFG_RDY);
+		else
+			pci_hose_write_config_byte(hose, dev,
+						   FSL_PCIE_CFG_RDY, 0x1);
 	} else {
 		/* PCI - clear ACL bit of PBFR */
 		pci_hose_read_config_word(hose, dev, FSL_PCI_PBFR, &pbfr);

@@ -22,7 +22,7 @@ compute_cas_latency(const unsigned int ctrl_num,
 	unsigned int common_caslat;
 	unsigned int caslat_actual;
 	unsigned int retry = 16;
-	unsigned int tmp;
+	unsigned int tmp = ~0;
 	const unsigned int mclk_ps = get_memory_clk_period_ps(ctrl_num);
 #ifdef CONFIG_SYS_FSL_DDR3
 	const unsigned int taamax = 20000;
@@ -31,8 +31,7 @@ compute_cas_latency(const unsigned int ctrl_num,
 #endif
 
 	/* compute the common CAS latency supported between slots */
-	tmp = dimm_params[0].caslat_x;
-	for (i = 1; i < number_of_dimms; i++) {
+	for (i = 0; i < number_of_dimms; i++) {
 		if (dimm_params[i].n_ranks)
 			tmp &= dimm_params[i].caslat_x;
 	}

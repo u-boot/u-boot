@@ -135,7 +135,82 @@ found:
 	/* for DDR bus 32bit test on T1024 */
 	popts->data_bus_width = DDR_DATA_BUS_WIDTH_32;
 #endif
+
+#ifdef CONFIG_T1023RDB
+	popts->wrlvl_ctl_2 = 0x07070606;
+	popts->half_strength_driver_enable = 1;
+#endif
 }
+
+#ifdef CONFIG_SYS_DDR_RAW_TIMING
+/* 2GB discrete DDR4 MT40A512M8HX on T1023RDB */
+dimm_params_t ddr_raw_timing = {
+	.n_ranks = 1,
+	.rank_density = 0x80000000,
+	.capacity = 0x80000000,
+	.primary_sdram_width = 32,
+	.ec_sdram_width = 8,
+	.registered_dimm = 0,
+	.mirrored_dimm = 0,
+	.n_row_addr = 15,
+	.n_col_addr = 10,
+	.bank_addr_bits = 2,
+	.bank_group_bits = 2,
+	.edc_config = 0,
+	.burst_lengths_bitmask = 0x0c,
+	.tckmin_x_ps = 938,
+	.tckmax_ps = 1500,
+	.caslat_x = 0x000DFA00,
+	.taa_ps = 13500,
+	.trcd_ps = 13500,
+	.trp_ps = 13500,
+	.tras_ps = 33000,
+	.trc_ps = 46500,
+	.trfc1_ps = 260000,
+	.trfc2_ps = 160000,
+	.trfc4_ps = 110000,
+	.tfaw_ps = 25000,
+	.trrds_ps = 3700,
+	.trrdl_ps = 5300,
+	.tccdl_ps = 5355,
+	.refresh_rate_ps = 7800000,
+	.dq_mapping[0] = 0x0,
+	.dq_mapping[1] = 0x0,
+	.dq_mapping[2] = 0x0,
+	.dq_mapping[3] = 0x0,
+	.dq_mapping[4] = 0x0,
+	.dq_mapping[5] = 0x0,
+	.dq_mapping[6] = 0x0,
+	.dq_mapping[7] = 0x0,
+	.dq_mapping[8] = 0x0,
+	.dq_mapping[9] = 0x0,
+	.dq_mapping[10] = 0x0,
+	.dq_mapping[11] = 0x0,
+	.dq_mapping[12] = 0x0,
+	.dq_mapping[13] = 0x0,
+	.dq_mapping[14] = 0x0,
+	.dq_mapping[15] = 0x0,
+	.dq_mapping[16] = 0x0,
+	.dq_mapping[17] = 0x0,
+	.dq_mapping_ors = 1,
+};
+
+int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
+		unsigned int controller_number,
+		unsigned int dimm_number)
+{
+	const char dimm_model[] = "Fixed DDR4 on board";
+
+	if (((controller_number == 0) && (dimm_number == 0)) ||
+	    ((controller_number == 1) && (dimm_number == 0))) {
+		memcpy(pdimm, &ddr_raw_timing, sizeof(dimm_params_t));
+		memset(pdimm->mpart, 0, sizeof(pdimm->mpart));
+		memcpy(pdimm->mpart, dimm_model, sizeof(dimm_model) - 1);
+	}
+
+	return 0;
+}
+#endif
 
 #if defined(CONFIG_DEEP_SLEEP)
 void board_mem_sleep_setup(void)
@@ -155,8 +230,9 @@ phys_size_t initdram(int board_type)
 	phys_size_t dram_size;
 
 #if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
+#ifndef CONFIG_SYS_DDR_RAW_TIMING
 	puts("Initializing....using SPD\n");
-
+#endif
 	dram_size = fsl_ddr_sdram();
 	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
 	dram_size *= 0x100000;

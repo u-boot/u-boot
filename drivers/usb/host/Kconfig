@@ -18,12 +18,11 @@ config USB_XHCI
 if USB_XHCI_HCD
 
 config USB_XHCI_UNIPHIER
-	bool "Support for Panasonic UniPhier on-chip xHCI USB controller"
+	bool "Support for UniPhier on-chip xHCI USB controller"
 	depends on ARCH_UNIPHIER
 	default y
 	---help---
-	  Enables support for the on-chip xHCI controller on Panasonic
-	  UniPhier SoCs.
+	  Enables support for the on-chip xHCI controller on UniPhier SoCs.
 
 endif
 
@@ -54,11 +53,10 @@ config USB_EHCI
 if USB_EHCI_HCD
 
 config USB_EHCI_UNIPHIER
-	bool "Support for Panasonic UniPhier on-chip EHCI USB controller"
+	bool "Support for UniPhier on-chip EHCI USB controller"
 	depends on ARCH_UNIPHIER && OF_CONTROL
 	default y
 	---help---
-	  Enables support for the on-chip EHCI controller on Panasonic
-	  UniPhier SoCs.
+	  Enables support for the on-chip EHCI controller on UniPhier SoCs.
 
 endif

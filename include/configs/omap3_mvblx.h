@@ -114,21 +114,14 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
-#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_FPGA
 #define CONFIG_CMD_FPGA_LOADMK
 
 #define CONFIG_SYS_I2C
@@ -145,8 +138,6 @@
 #undef CONFIG_ENV_OVERWRITE	/* disallow overwriting serial# and ethaddr */
 #define CONFIG_BOOTDELAY		0
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR "S"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"silent=true\0" \

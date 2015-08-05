@@ -72,7 +72,6 @@
 
 /* SPI Configuration */
 #define CONFIG_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_CMD_SPI
@@ -98,7 +97,6 @@
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		32
-#define CONFIG_NET_MULTI
 #define CONFIG_SYS_SGMII_REFCLK_MHZ	312
 #define CONFIG_SYS_SGMII_LINERATE_MHZ	1250
 #define CONFIG_SYS_SGMII_RATESCALE	2
@@ -210,7 +208,6 @@
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
 /* U-Boot command configuration */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C

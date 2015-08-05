@@ -13,6 +13,7 @@ obj-$(CONFIG_CROS_EC_LPC) += cros_ec_lpc.o
 obj-$(CONFIG_CROS_EC_I2C) += cros_ec_i2c.o
 obj-$(CONFIG_CROS_EC_SANDBOX) += cros_ec_sandbox.o
 obj-$(CONFIG_CROS_EC_SPI) += cros_ec_spi.o
+obj-$(CONFIG_FSL_DEBUG_SERVER) += fsl_debug_server.o
 obj-$(CONFIG_FSL_IIM) += fsl_iim.o
 obj-$(CONFIG_GPIO_LED) += gpio_led.o
 obj-$(CONFIG_I2C_EEPROM) += i2c_eeprom.o
@@ -26,6 +27,8 @@ obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
 endif
 obj-$(CONFIG_SMSC_LPC47M) += smsc_lpc47m.o
 obj-$(CONFIG_STATUS_LED) += status_led.o
+obj-$(CONFIG_SANDBOX) += swap_case.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
 obj-$(CONFIG_FSL_SEC_MON) += fsl_sec_mon.o
+obj-$(CONFIG_PCA9551_LED) += pca9551_led.o

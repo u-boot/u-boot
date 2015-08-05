@@ -17,6 +17,7 @@
 #ifndef HOST_XHCI_H_
 #define HOST_XHCI_H_
 
+#include <asm/types.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <linux/list.h>
@@ -1108,20 +1109,28 @@ static inline void xhci_writel(uint32_t volatile *regs, const unsigned int val)
  */
 static inline u64 xhci_readq(__le64 volatile *regs)
 {
+#if BITS_PER_LONG == 64
+	return readq(regs);
+#else
 	__u32 *ptr = (__u32 *)regs;
 	u64 val_lo = readl(ptr);
 	u64 val_hi = readl(ptr + 1);
 	return val_lo + (val_hi << 32);
+#endif
 }
 
 static inline void xhci_writeq(__le64 volatile *regs, const u64 val)
 {
+#if BITS_PER_LONG == 64
+	writeq(val, regs);
+#else
 	__u32 *ptr = (__u32 *)regs;
 	u32 val_lo = lower_32_bits(val);
 	/* FIXME */
 	u32 val_hi = upper_32_bits(val);
 	writel(val_lo, ptr);
 	writel(val_hi, ptr + 1);
+#endif
 }
 
 int xhci_hcd_init(int index, struct xhci_hccr **ret_hccr,
@@ -1200,6 +1209,9 @@ void xhci_hcd_stop(int index);
 #define XHCI_STS_CNR		(1 << 11)
 
 struct xhci_ctrl {
+#ifdef CONFIG_DM_USB
+	struct udevice *dev;
+#endif
 	struct xhci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct xhci_hcor *hcor;
 	struct xhci_doorbell_array *dba;
@@ -1232,7 +1244,8 @@ void xhci_endpoint_copy(struct xhci_ctrl *ctrl,
 void xhci_slot_copy(struct xhci_ctrl *ctrl,
 		    struct xhci_container_ctx *in_ctx,
 		    struct xhci_container_ctx *out_ctx);
-void xhci_setup_addressable_virt_dev(struct usb_device *udev);
+void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
+				     int speed, int hop_portnr);
 void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr,
 			u32 slot_id, u32 ep_index, trb_type cmd);
 void xhci_acknowledge_event(struct xhci_ctrl *ctrl);
@@ -1242,12 +1255,35 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		 struct devrequest *req, int length, void *buffer);
 int xhci_check_maxpacket(struct usb_device *udev);
-void xhci_flush_cache(uint32_t addr, u32 type_len);
-void xhci_inval_cache(uint32_t addr, u32 type_len);
+void xhci_flush_cache(uintptr_t addr, u32 type_len);
+void xhci_inval_cache(uintptr_t addr, u32 type_len);
 void xhci_cleanup(struct xhci_ctrl *ctrl);
 struct xhci_ring *xhci_ring_alloc(unsigned int num_segs, bool link_trbs);
-int xhci_alloc_virt_device(struct usb_device *udev);
+int xhci_alloc_virt_device(struct xhci_ctrl *ctrl, unsigned int slot_id);
 int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 		  struct xhci_hcor *hcor);
+
+/**
+ * xhci_deregister() - Unregister an XHCI controller
+ *
+ * @dev:	Controller device
+ * @return 0 if registered, -ve on error
+ */
+int xhci_deregister(struct udevice *dev);
+
+/**
+ * xhci_register() - Register a new XHCI controller
+ *
+ * @dev:	Controller device
+ * @hccr:	Host controller control registers
+ * @hcor:	Not sure what this means
+ * @return 0 if registered, -ve on error
+ */
+int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
+		  struct xhci_hcor *hcor);
+
+extern struct dm_usb_ops xhci_usb_ops;
+
+struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev);
 
 #endif /* HOST_XHCI_H_ */

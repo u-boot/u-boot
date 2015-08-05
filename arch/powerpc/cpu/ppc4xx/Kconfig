@@ -6,6 +6,7 @@ config SYS_CPU
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_CSB272
 	bool "Support csb272"
@@ -22,9 +23,6 @@ config TARGET_PCS440EP
 
 config TARGET_SBC405
 	bool "Support sbc405"
-
-config TARGET_SC3
-	bool "Support sc3"
 
 config TARGET_T3CORP
 	bool "Support t3corp"
@@ -43,6 +41,8 @@ config TARGET_BUBINGA
 
 config TARGET_CANYONLANDS
 	bool "Support canyonlands"
+	select DM
+	select DM_SERIAL
 
 config TARGET_EBONY
 	bool "Support ebony"
@@ -200,7 +200,6 @@ source "board/pcs440ep/Kconfig"
 source "board/prodrive/alpr/Kconfig"
 source "board/prodrive/p3p440/Kconfig"
 source "board/sbc405/Kconfig"
-source "board/sc3/Kconfig"
 source "board/t3corp/Kconfig"
 source "board/xes/xpedite1000/Kconfig"
 source "board/xilinx/ml507/Kconfig"

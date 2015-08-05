@@ -31,6 +31,6 @@ struct header {
 	unsigned char	data[1];	/* Data, variable length */
 };
 
-extern void DnsStart(void);		/* Begin DNS */
+void dns_start(void);		/* Begin DNS */
 
 #endif

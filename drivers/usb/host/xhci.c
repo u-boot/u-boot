@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/byteorder.h>
 #include <usb.h>
 #include <malloc.h>
@@ -108,7 +109,25 @@ static struct descriptor {
 	},
 };
 
+#ifndef CONFIG_DM_USB
 static struct xhci_ctrl xhcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
+#endif
+
+struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev)
+{
+#ifdef CONFIG_DM_USB
+	struct udevice *dev;
+
+	/* Find the USB controller */
+	for (dev = udev->dev;
+	     device_get_uclass_id(dev) != UCLASS_USB;
+	     dev = dev->parent)
+		;
+	return dev_get_priv(dev);
+#else
+	return udev->controller;
+#endif
+}
 
 /**
  * Waits for as per specified amount of time
@@ -250,13 +269,13 @@ static int xhci_configure_endpoints(struct usb_device *udev, bool ctx_change)
 {
 	struct xhci_container_ctx *in_ctx;
 	struct xhci_virt_device *virt_dev;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	union xhci_trb *event;
 
 	virt_dev = ctrl->devs[udev->slot_id];
 	in_ctx = virt_dev->in_ctx;
 
-	xhci_flush_cache((uint32_t)in_ctx->bytes, in_ctx->size);
+	xhci_flush_cache((uintptr_t)in_ctx->bytes, in_ctx->size);
 	xhci_queue_command(ctrl, in_ctx->bytes, udev->slot_id, 0,
 			   ctx_change ? TRB_EVAL_CONTEXT : TRB_CONFIG_EP);
 	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
@@ -298,7 +317,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 	int ep_index;
 	unsigned int dir;
 	unsigned int ep_type;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int num_of_ep;
 	int ep_flag = 0;
 	u64 trb_64 = 0;
@@ -325,7 +344,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 			max_ep_flag = ep_flag;
 	}
 
-	xhci_inval_cache((uint32_t)out_ctx->bytes, out_ctx->size);
+	xhci_inval_cache((uintptr_t)out_ctx->bytes, out_ctx->size);
 
 	/* slot context */
 	xhci_slot_copy(ctrl, in_ctx, out_ctx);
@@ -379,10 +398,10 @@ static int xhci_set_configuration(struct usb_device *udev)
  * @param udev pointer to the Device Data Structure
  * @return 0 if successful else error code on failure
  */
-static int xhci_address_device(struct usb_device *udev)
+static int xhci_address_device(struct usb_device *udev, int root_portnr)
 {
 	int ret = 0;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	struct xhci_slot_ctx *slot_ctx;
 	struct xhci_input_control_ctx *ctrl_ctx;
 	struct xhci_virt_device *virt_dev;
@@ -395,8 +414,9 @@ static int xhci_address_device(struct usb_device *udev)
 	 * This is the first Set Address since device plug-in
 	 * so setting up the slot context.
 	 */
-	debug("Setting up addressable devices\n");
-	xhci_setup_addressable_virt_dev(udev);
+	debug("Setting up addressable devices %p\n", ctrl->dcbaa);
+	xhci_setup_addressable_virt_dev(ctrl, udev->slot_id, udev->speed,
+					root_portnr);
 
 	ctrl_ctx = xhci_get_input_control_ctx(virt_dev->in_ctx);
 	ctrl_ctx->add_flags = cpu_to_le32(SLOT_FLAG | EP0_FLAG);
@@ -442,8 +462,8 @@ static int xhci_address_device(struct usb_device *udev)
 		 */
 		return ret;
 
-	xhci_inval_cache((uint32_t)virt_dev->out_ctx->bytes,
-				virt_dev->out_ctx->size);
+	xhci_inval_cache((uintptr_t)virt_dev->out_ctx->bytes,
+			 virt_dev->out_ctx->size);
 	slot_ctx = xhci_get_slot_ctx(ctrl, virt_dev->out_ctx);
 
 	debug("xHC internal address is: %d\n",
@@ -461,10 +481,10 @@ static int xhci_address_device(struct usb_device *udev)
  * @param udev	pointer to the Device Data Structure
  * @return Returns 0 on succes else return error code on failure
  */
-int usb_alloc_device(struct usb_device *udev)
+int _xhci_alloc_device(struct usb_device *udev)
 {
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	union xhci_trb *event;
-	struct xhci_ctrl *ctrl = udev->controller;
 	int ret;
 
 	/*
@@ -486,7 +506,7 @@ int usb_alloc_device(struct usb_device *udev)
 
 	xhci_acknowledge_event(ctrl);
 
-	ret = xhci_alloc_virt_device(udev);
+	ret = xhci_alloc_virt_device(ctrl, udev->slot_id);
 	if (ret < 0) {
 		/*
 		 * TODO: Unsuccessful Address Device command shall leave
@@ -499,6 +519,13 @@ int usb_alloc_device(struct usb_device *udev)
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
+int usb_alloc_device(struct usb_device *udev)
+{
+	return _xhci_alloc_device(udev);
+}
+#endif
+
 /*
  * Full speed devices may have a max packet size greater than 8 bytes, but the
  * USB core doesn't know that until it reads the first 8 bytes of the
@@ -510,7 +537,7 @@ int usb_alloc_device(struct usb_device *udev)
  */
 int xhci_check_maxpacket(struct usb_device *udev)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	unsigned int slot_id = udev->slot_id;
 	int ep_index = 0;	/* control endpoint */
 	struct xhci_container_ctx *in_ctx;
@@ -525,7 +552,7 @@ int xhci_check_maxpacket(struct usb_device *udev)
 	ifdesc = &udev->config.if_desc[0];
 
 	out_ctx = ctrl->devs[slot_id]->out_ctx;
-	xhci_inval_cache((uint32_t)out_ctx->bytes, out_ctx->size);
+	xhci_inval_cache((uintptr_t)out_ctx->bytes, out_ctx->size);
 
 	ep_ctx = xhci_get_ep_ctx(ctrl, out_ctx, ep_index);
 	hw_max_packet_size = MAX_PACKET_DECODED(le32_to_cpu(ep_ctx->ep_info2));
@@ -640,7 +667,7 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 	int len, srclen;
 	uint32_t reg;
 	volatile uint32_t *status_reg;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	struct xhci_hcor *hcor = ctrl->hcor;
 
 	if ((req->requesttype & USB_RT_PORT) &&
@@ -677,7 +704,7 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 				srclen = 4;
 				break;
 			case 1:	/* Vendor String  */
-				srcptr = "\16\3u\0-\0b\0o\0o\0t\0";
+				srcptr = "\16\3U\0-\0B\0o\0o\0t\0";
 				srclen = 14;
 				break;
 			case 2:	/* Product Name */
@@ -858,9 +885,8 @@ unknown:
  * @param interval	interval of the interrupt
  * @return 0
  */
-int
-submit_int_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
-						int length, int interval)
+static int _xhci_submit_int_msg(struct usb_device *udev, unsigned long pipe,
+				void *buffer, int length, int interval)
 {
 	/*
 	 * TODO: Not addressing any interrupt type transfer requests
@@ -878,9 +904,8 @@ submit_int_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
  * @param length	length of the buffer
  * @return returns 0 if successful else -1 on failure
  */
-int
-submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
-								int length)
+static int _xhci_submit_bulk_msg(struct usb_device *udev, unsigned long pipe,
+				 void *buffer, int length)
 {
 	if (usb_pipetype(pipe) != PIPE_BULK) {
 		printf("non-bulk pipe (type=%lu)", usb_pipetype(pipe));
@@ -898,13 +923,14 @@ submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
  * @param buffer	buffer to be read/written based on the request
  * @param length	length of the buffer
  * @param setup		Request type
+ * @param root_portnr	Root port number that this device is on
  * @return returns 0 if successful else -1 on failure
  */
-int
-submit_control_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
-					int length, struct devrequest *setup)
+static int _xhci_submit_control_msg(struct usb_device *udev, unsigned long pipe,
+				    void *buffer, int length,
+				    struct devrequest *setup, int root_portnr)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int ret = 0;
 
 	if (usb_pipetype(pipe) != PIPE_CONTROL) {
@@ -916,7 +942,7 @@ submit_control_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
 		return xhci_submit_root(udev, pipe, buffer, setup);
 
 	if (setup->request == USB_REQ_SET_ADDRESS)
-		return xhci_address_device(udev);
+		return xhci_address_device(udev, root_portnr);
 
 	if (setup->request == USB_REQ_SET_CONFIGURATION) {
 		ret = xhci_set_configuration(udev);
@@ -929,33 +955,16 @@ submit_control_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
 	return xhci_ctrl_tx(udev, pipe, setup, length, buffer);
 }
 
-/**
- * Intialises the XHCI host controller
- * and allocates the necessary data structures
- *
- * @param index	index to the host controller data structure
- * @return pointer to the intialised controller
- */
-int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 {
+	struct xhci_hccr *hccr;
+	struct xhci_hcor *hcor;
 	uint32_t val;
 	uint32_t val2;
 	uint32_t reg;
-	struct xhci_hccr *hccr;
-	struct xhci_hcor *hcor;
-	struct xhci_ctrl *ctrl;
 
-	if (xhci_hcd_init(index, &hccr, (struct xhci_hcor **)&hcor) != 0)
-		return -ENODEV;
-
-	if (xhci_reset(hcor) != 0)
-		return -ENODEV;
-
-	ctrl = &xhcic[index];
-
-	ctrl->hccr = hccr;
-	ctrl->hcor = hcor;
-
+	hccr = ctrl->hccr;
+	hcor = ctrl->hcor;
 	/*
 	 * Program the Number of Device Slots Enabled field in the CONFIG
 	 * register with the max value of slots the HC can handle.
@@ -997,9 +1006,80 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	reg = HC_VERSION(xhci_readl(&hccr->cr_capbase));
 	printf("USB XHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
-	*controller = &xhcic[index];
+	return 0;
+}
+
+static int xhci_lowlevel_stop(struct xhci_ctrl *ctrl)
+{
+	u32 temp;
+
+	xhci_reset(ctrl->hcor);
+
+	debug("// Disabling event ring interrupts\n");
+	temp = xhci_readl(&ctrl->hcor->or_usbsts);
+	xhci_writel(&ctrl->hcor->or_usbsts, temp & ~STS_EINT);
+	temp = xhci_readl(&ctrl->ir_set->irq_pending);
+	xhci_writel(&ctrl->ir_set->irq_pending, ER_IRQ_DISABLE(temp));
 
 	return 0;
+}
+
+#ifndef CONFIG_DM_USB
+int submit_control_msg(struct usb_device *udev, unsigned long pipe,
+		       void *buffer, int length, struct devrequest *setup)
+{
+	struct usb_device *hop = udev;
+
+	if (hop->parent)
+		while (hop->parent->parent)
+			hop = hop->parent;
+
+	return _xhci_submit_control_msg(udev, pipe, buffer, length, setup,
+					hop->portnr);
+}
+
+int submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
+		    int length)
+{
+	return _xhci_submit_bulk_msg(udev, pipe, buffer, length);
+}
+
+int submit_int_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
+		   int length, int interval)
+{
+	return _xhci_submit_int_msg(udev, pipe, buffer, length, interval);
+}
+
+/**
+ * Intialises the XHCI host controller
+ * and allocates the necessary data structures
+ *
+ * @param index	index to the host controller data structure
+ * @return pointer to the intialised controller
+ */
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+{
+	struct xhci_hccr *hccr;
+	struct xhci_hcor *hcor;
+	struct xhci_ctrl *ctrl;
+	int ret;
+
+	if (xhci_hcd_init(index, &hccr, (struct xhci_hcor **)&hcor) != 0)
+		return -ENODEV;
+
+	if (xhci_reset(hcor) != 0)
+		return -ENODEV;
+
+	ctrl = &xhcic[index];
+
+	ctrl->hccr = hccr;
+	ctrl->hcor = hcor;
+
+	ret = xhci_lowlevel_init(ctrl);
+
+	*controller = &xhcic[index];
+
+	return ret;
 }
 
 /**
@@ -1012,19 +1092,143 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 int usb_lowlevel_stop(int index)
 {
 	struct xhci_ctrl *ctrl = (xhcic + index);
-	u32 temp;
 
-	xhci_reset(ctrl->hcor);
-
-	debug("// Disabling event ring interrupts\n");
-	temp = xhci_readl(&ctrl->hcor->or_usbsts);
-	xhci_writel(&ctrl->hcor->or_usbsts, temp & ~STS_EINT);
-	temp = xhci_readl(&ctrl->ir_set->irq_pending);
-	xhci_writel(&ctrl->ir_set->irq_pending, ER_IRQ_DISABLE(temp));
-
+	xhci_lowlevel_stop(ctrl);
 	xhci_hcd_stop(index);
-
 	xhci_cleanup(ctrl);
 
 	return 0;
 }
+#endif /* CONFIG_DM_USB */
+
+#ifdef CONFIG_DM_USB
+/*
+static struct usb_device *get_usb_device(struct udevice *dev)
+{
+	struct usb_device *udev;
+
+	if (device_get_uclass_id(dev) == UCLASS_USB)
+		udev = dev_get_uclass_priv(dev);
+	else
+		udev = dev_get_parentdata(dev);
+
+	return udev;
+}
+*/
+static bool is_root_hub(struct udevice *dev)
+{
+	if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB)
+		return true;
+
+	return false;
+}
+
+static int xhci_submit_control_msg(struct udevice *dev, struct usb_device *udev,
+				   unsigned long pipe, void *buffer, int length,
+				   struct devrequest *setup)
+{
+	struct usb_device *uhop;
+	struct udevice *hub;
+	int root_portnr = 0;
+
+	debug("%s: dev='%s', udev=%p, udev->dev='%s', portnr=%d\n", __func__,
+	      dev->name, udev, udev->dev->name, udev->portnr);
+	hub = udev->dev;
+	if (device_get_uclass_id(hub) == UCLASS_USB_HUB) {
+		/* Figure out our port number on the root hub */
+		if (is_root_hub(hub)) {
+			root_portnr = udev->portnr;
+		} else {
+			while (!is_root_hub(hub->parent))
+				hub = hub->parent;
+			uhop = dev_get_parentdata(hub);
+			root_portnr = uhop->portnr;
+		}
+	}
+/*
+	struct usb_device *hop = udev;
+
+	if (hop->parent)
+		while (hop->parent->parent)
+			hop = hop->parent;
+*/
+	return _xhci_submit_control_msg(udev, pipe, buffer, length, setup,
+					root_portnr);
+}
+
+static int xhci_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
+				unsigned long pipe, void *buffer, int length)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _xhci_submit_bulk_msg(udev, pipe, buffer, length);
+}
+
+static int xhci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
+			       unsigned long pipe, void *buffer, int length,
+			       int interval)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _xhci_submit_int_msg(udev, pipe, buffer, length, interval);
+}
+
+static int xhci_alloc_device(struct udevice *dev, struct usb_device *udev)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _xhci_alloc_device(udev);
+}
+
+int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
+		  struct xhci_hcor *hcor)
+{
+	struct xhci_ctrl *ctrl = dev_get_priv(dev);
+	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	debug("%s: dev='%s', ctrl=%p, hccr=%p, hcor=%p\n", __func__, dev->name,
+	      ctrl, hccr, hcor);
+
+	ctrl->dev = dev;
+
+	/*
+	 * XHCI needs to issue a Address device command to setup
+	 * proper device context structures, before it can interact
+	 * with the device. So a get_descriptor will fail before any
+	 * of that is done for XHCI unlike EHCI.
+	 */
+	priv->desc_before_addr = false;
+
+	ret = xhci_reset(hcor);
+	if (ret)
+		goto err;
+
+	ctrl->hccr = hccr;
+	ctrl->hcor = hcor;
+	ret = xhci_lowlevel_init(ctrl);
+	if (ret)
+		goto err;
+
+	return 0;
+err:
+	free(ctrl);
+	debug("%s: failed, ret=%d\n", __func__, ret);
+	return ret;
+}
+
+int xhci_deregister(struct udevice *dev)
+{
+	struct xhci_ctrl *ctrl = dev_get_priv(dev);
+
+	xhci_lowlevel_stop(ctrl);
+	xhci_cleanup(ctrl);
+
+	return 0;
+}
+
+struct dm_usb_ops xhci_usb_ops = {
+	.control = xhci_submit_control_msg,
+	.bulk = xhci_submit_bulk_msg,
+	.interrupt = xhci_submit_int_msg,
+	.alloc_device = xhci_alloc_device,
+};
+
+#endif

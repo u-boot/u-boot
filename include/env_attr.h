@@ -16,13 +16,14 @@
  *	attributes = [^,:\s]*
  *	entry = name[:attributes]
  *	list = entry[,list]
- * It will call the "callback" function with the "name" and attribute as "value"
+ * It will call the "callback" function with the "name" and "attributes"
  * The callback may return a non-0 to abort the list walk.
  * This return value will be passed through to the caller.
  * 0 is returned on success.
  */
-extern int env_attr_walk(const char *attr_list,
-	int (*callback)(const char *name, const char *value));
+int env_attr_walk(const char *attr_list,
+	int (*callback)(const char *name, const char *attributes, void *priv),
+	void *priv);
 
 /*
  * env_attr_lookup takes as input an "attr_list" with the same form as above.
@@ -33,7 +34,6 @@ extern int env_attr_walk(const char *attr_list,
  * "attr_list" is NULL.
  * Returns 0 on success.
  */
-extern int env_attr_lookup(const char *attr_list, const char *name,
-	char *attributes);
+int env_attr_lookup(const char *attr_list, const char *name, char *attributes);
 
 #endif /* __ENV_ATTR_H__ */

@@ -13,7 +13,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#include <config_cmd_default.h>
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 #define CONFIG_HW_WATCHDOG
@@ -26,18 +25,14 @@
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_FPGA
 #define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_USB_MASS_STORAGE
 
-#define CONFIG_REGEX			/* Enable regular expression support */
 
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SoCDK */

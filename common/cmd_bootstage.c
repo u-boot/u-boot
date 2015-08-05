@@ -6,11 +6,6 @@
 
 #include <common.h>
 
-#ifndef CONFIG_BOOTSTAGE_STASH
-#define CONFIG_BOOTSTAGE_STASH		-1UL
-#define CONFIG_BOOTSTAGE_STASH_SIZE	-1
-#endif
-
 static int do_bootstage_report(cmd_tbl_t *cmdtp, int flag, int argc,
 			       char * const argv[])
 {
@@ -24,7 +19,7 @@ static int get_base_size(int argc, char * const argv[], ulong *basep,
 {
 	char *endp;
 
-	*basep = CONFIG_BOOTSTAGE_STASH;
+	*basep = CONFIG_BOOTSTAGE_STASH_ADDR;
 	*sizep = CONFIG_BOOTSTAGE_STASH_SIZE;
 	if (argc < 2)
 		return 0;

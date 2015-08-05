@@ -265,24 +265,40 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	u16 tdllk = 0x1ff; /* DLL locking time: 512 cycles (JEDEC DDR3) */
 	u8 coladdr;
 	int clkper; /* clock period in picoseconds */
-	int clock; /* clock freq in mHz */
+	int clock; /* clock freq in MHz */
 	int cs;
+	u16 mem_speed = ddr3_cfg->mem_speed;
 
 	mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
 #ifndef CONFIG_MX6SX
 	mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
 #endif
 
-	/* MX6D/MX6Q: 1066 MHz memory clock, clkper = 1.894ns = 1894ps */
+	/* Limit mem_speed for MX6D/MX6Q */
 	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
-		clock = 528;
+		if (mem_speed > 1066)
+			mem_speed = 1066; /* 1066 MT/s */
+
 		tcwl = 4;
 	}
-	/* MX6S/MX6DL: 800 MHz memory clock, clkper = 2.5ns = 2500ps */
+	/* Limit mem_speed for MX6S/MX6DL */
 	else {
-		clock = 400;
+		if (mem_speed > 800)
+			mem_speed = 800;  /* 800 MT/s */
+
 		tcwl = 3;
 	}
+
+	clock = mem_speed / 2;
+	/*
+	 * Data rate of 1066 MT/s requires 533 MHz DDR3 clock, but MX6D/Q supports
+	 * up to 528 MHz, so reduce the clock to fit chip specs
+	 */
+	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
+		if (clock > 528)
+			clock = 528; /* 528 MHz */
+	}
+
 	clkper = (1000 * 1000) / clock; /* pico seconds */
 	todtlon = tcwl;
 	taxpd = tcwl;
@@ -313,7 +329,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	}
 	txpr = txs;
 
-	switch (ddr3_cfg->mem_speed) {
+	switch (mem_speed) {
 	case 800:
 		txp = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
 		tcke = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
@@ -334,28 +350,6 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		} else {
 			tfaw = DIV_ROUND_UP(50000, clkper) - 1;
 			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
-		}
-		break;
-	case 1333:
-		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
-		tcke = DIV_ROUND_UP(max(3 * clkper, 5625), clkper) - 1;
-		if (ddr3_cfg->pagesz == 1) {
-			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
-		} else {
-			tfaw = DIV_ROUND_UP(45000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
-		}
-		break;
-	case 1600:
-		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
-		tcke = DIV_ROUND_UP(max(3 * clkper, 5000), clkper) - 1;
-		if (ddr3_cfg->pagesz == 1) {
-			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
-		} else {
-			tfaw = DIV_ROUND_UP(40000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
 		}
 		break;
 	default:
@@ -382,7 +376,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	debug("density:%d Gb (%d Gb per chip)\n",
 	      sysinfo->cs_density, ddr3_cfg->density);
 	debug("clock: %dMHz (%d ps)\n", clock, clkper);
-	debug("memspd:%d\n", ddr3_cfg->mem_speed);
+	debug("memspd:%d\n", mem_speed);
 	debug("tcke=%d\n", tcke);
 	debug("tcksrx=%d\n", tcksrx);
 	debug("tcksre=%d\n", tcksre);
@@ -514,17 +508,22 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		/* MR2 */
 		val = (sysinfo->rtt_wr & 3) << 9 | (ddr3_cfg->SRT & 1) << 7 |
 		      ((tcwl - 3) & 3) << 3;
+		debug("MR2 CS%d: 0x%08x\n", cs, (u32)MR(val, 2, 3, cs));
 		mmdc0->mdscr = MR(val, 2, 3, cs);
 		/* MR3 */
+		debug("MR3 CS%d: 0x%08x\n", cs, (u32)MR(0, 3, 3, cs));
 		mmdc0->mdscr = MR(0, 3, 3, cs);
 		/* MR1 */
 		val = ((sysinfo->rtt_nom & 1) ? 1 : 0) << 2 |
 		      ((sysinfo->rtt_nom & 2) ? 1 : 0) << 6;
+		debug("MR1 CS%d: 0x%08x\n", cs, (u32)MR(val, 1, 3, cs));
 		mmdc0->mdscr = MR(val, 1, 3, cs);
 		/* MR0 */
 		val = ((tcl - 1) << 4) |	/* CAS */
 		      (1 << 8)   |		/* DLL Reset */
-		      ((twr - 3) << 9);		/* Write Recovery */
+		      ((twr - 3) << 9) |	/* Write Recovery */
+		      (sysinfo->pd_fast_exit << 12); /* Precharge PD PLL on */
+		debug("MR0 CS%d: 0x%08x\n", cs, (u32)MR(val, 0, 3, cs));
 		mmdc0->mdscr = MR(val, 0, 3, cs);
 		/* ZQ calibration */
 		val = (1 << 10);
@@ -535,10 +534,11 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	mmdc0->mdpdc = (tcke & 0x7) << 16 |
 			5            << 12 |  /* PWDT_1: 256 cycles */
 			5            <<  8 |  /* PWDT_0: 256 cycles */
-			1            <<  7 |  /* SLOW_PD */
 			1            <<  6 |  /* BOTH_CS_PD */
 			(tcksrx & 0x7) << 3 |
 			(tcksre & 0x7);
+	if (!sysinfo->pd_fast_exit)
+		mmdc0->mdpdc |= (1 << 7); /* SLOW_PD */
 	mmdc0->mapsr = 0x00001006; /* ADOPT power down enabled */
 
 	/* Step 11: Configure ZQ calibration: one-time and periodic 1ms */

@@ -1,5 +1,4 @@
-menu "Panasonic UniPhier platform"
-	depends on ARCH_UNIPHIER
+if ARCH_UNIPHIER
 
 config SYS_CONFIG_NAME
 	default "uniphier"
@@ -9,6 +8,7 @@ config UNIPHIER_SMP
 
 choice
 	prompt "UniPhier SoC select"
+	default MACH_PH1_PRO4
 
 config MACH_PH1_PRO4
 	bool "PH1-Pro4"
@@ -77,4 +77,4 @@ config DDR_FREQ
 	default 1333 if DDR_FREQ_1333
 	default 1600 if DDR_FREQ_1600
 
-endmenu
+endif

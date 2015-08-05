@@ -155,6 +155,8 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 #define MD_CNTL_CKE_CNTL_HIGH	0x00200000
 #define MD_CNTL_WRCW		0x00080000
 #define MD_CNTL_MD_VALUE(x)	(x & 0x0000FFFF)
+#define MD_CNTL_CS_SEL(x)	(((x) & 0x7) << 28)
+#define MD_CNTL_MD_SEL(x)	(((x) & 0xf) << 24)
 
 /* DDR_CDR1 */
 #define DDR_CDR1_DHC_EN	0x80000000
@@ -165,6 +167,7 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 #define DDR_CDR2_ODT(x) (x & DDR_CDR2_ODT_MASK)
 #define DDR_CDR2_VREF_OVRD(x)	(0x00008080 | ((((x) - 37) & 0x3F) << 8))
 #define DDR_CDR2_VREF_TRAIN_EN	0x00000080
+#define DDR_CDR2_VREF_RANGE_2	0x00000040
 
 #if (defined(CONFIG_SYS_FSL_DDR_VER) && \
 	(CONFIG_SYS_FSL_DDR_VER >= FSL_DDR_VER_4_7))

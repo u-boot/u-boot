@@ -4,77 +4,39 @@ menu "x86 architecture"
 config SYS_ARCH
 	default "x86"
 
-config USE_PRIVATE_LIBGCC
-	default y
-
 choice
-	prompt "Target select"
+	prompt "Mainboard vendor"
+	default VENDOR_EMULATION
 
-config TARGET_COREBOOT
-	bool "Support coreboot"
-	help
-	  This target is used for running U-Boot on top of Coreboot. In
-	  this case Coreboot does the early inititalisation, and U-Boot
-	  takes over once the RAM, video and CPU are fully running.
-	  U-Boot is loaded as a fallback payload from Coreboot, in
-	  Coreboot terminology. This method was used for the Chromebook
-	  Pixel when launched.
+config VENDOR_COREBOOT
+	bool "coreboot"
 
-config TARGET_CHROMEBOOK_LINK
-	bool "Support Chromebook link"
-	help
-	  This is the Chromebook Pixel released in 2013. It uses an Intel
-	  i5 Ivybridge which is a die-shrink of Sandybridge, with 4GB of
-	  SDRAM. It has a Panther Point platform controller hub, PCIe
-	  WiFi and Bluetooth. It also includes a 720p webcam, USB SD
-	  reader, microphone and speakers, display port and 32GB SATA
-	  solid state drive. There is a Chrome OS EC connected on LPC,
-	  and it provides a 2560x1700 high resolution touch-enabled LCD
-	  display.
+config VENDOR_EMULATION
+	bool "emulation"
 
-config TARGET_CROWNBAY
-	bool "Support Intel Crown Bay CRB"
-	help
-	  This is the Intel Crown Bay Customer Reference Board. It contains
-	  the Intel Atom Processor E6xx populated on the COM Express module
-	  with 1GB DDR2 soldered down memory and a carrier board with the
-	  Intel Platform Controller Hub EG20T, other system components and
-	  peripheral connectors for PCIe/SATA/USB/LAN/SD/UART/Audio/LVDS.
+config VENDOR_GOOGLE
+	bool "Google"
 
-config TARGET_MINNOWMAX
-	bool "Support Intel Minnowboard MAX"
-	help
-	  This is the Intel Minnowboard MAX. It contains an Atom E3800
-	  processor in a small form factor with Ethernet, micro-SD, USB 2,
-	  USB 3, SATA, serial console, some GPIOs and HDMI 1.3 video out.
-	  It requires some binary blobs - see README.x86 for details.
-
-	  Note that PCIE_ECAM_BASE is set up by the FSP so the value used
-	  by U-Boot matches that value.
-
-config TARGET_GALILEO
-	bool "Support Intel Galileo"
-	help
-	  This is the Intel Galileo board, which is the first in a family of
-	  Arduino-certified development and prototyping boards based on Intel
-	  architecture. It includes an Intel Quark SoC X1000 processor, a 32-bit
-	  single-core, single-thread, Intel Pentium processor instrunction set
-	  architecture (ISA) compatible, operating at speeds up to 400Mhz,
-	  along with 256MB DDR3 memory. It supports a wide range of industry
-	  standard I/O interfaces, including a full-sized mini-PCIe slot,
-	  one 100Mb Ethernet port, a microSD card slot, a USB host port and
-	  a USB client port.
+config VENDOR_INTEL
+	bool "Intel"
 
 endchoice
 
-config DM
-	default y
+# board-specific options below
+source "board/coreboot/Kconfig"
+source "board/emulation/Kconfig"
+source "board/google/Kconfig"
+source "board/intel/Kconfig"
 
-config DM_GPIO
-	default y
+# platform-specific options below
+source "arch/x86/cpu/baytrail/Kconfig"
+source "arch/x86/cpu/coreboot/Kconfig"
+source "arch/x86/cpu/ivybridge/Kconfig"
+source "arch/x86/cpu/qemu/Kconfig"
+source "arch/x86/cpu/quark/Kconfig"
+source "arch/x86/cpu/queensbay/Kconfig"
 
-config DM_SERIAL
-	default y
+# architecture-specific options below
 
 config SYS_MALLOC_F_LEN
 	default 0x800
@@ -212,153 +174,12 @@ config X86_RAMTEST
 	  detecting obvious failures.
 
 config MARK_GRAPHICS_MEM_WRCOMB
-	bool "Mark graphics memory as write-combining."
+	bool "Mark graphics memory as write-combining"
 	default n
 	help
-	 The graphics performance may increase if the graphics
-	 memory is set as write-combining cache type. This option
-	 enables marking the graphics memory as write-combining.
-
-menu "Display"
-
-config FRAMEBUFFER_SET_VESA_MODE
-	prompt "Set framebuffer graphics resolution"
-	bool
-	help
-	  Set VESA/native framebuffer mode (needed for bootsplash and graphical framebuffer console)
-
-choice
-	prompt "framebuffer graphics resolution"
-	default FRAMEBUFFER_VESA_MODE_117
-	depends on FRAMEBUFFER_SET_VESA_MODE
-	help
-	  This option sets the resolution used for the coreboot framebuffer (and
-	  bootsplash screen).
-
-config FRAMEBUFFER_VESA_MODE_100
-	bool "640x400 256-color"
-
-config FRAMEBUFFER_VESA_MODE_101
-	bool "640x480 256-color"
-
-config FRAMEBUFFER_VESA_MODE_102
-	bool "800x600 16-color"
-
-config FRAMEBUFFER_VESA_MODE_103
-	bool "800x600 256-color"
-
-config FRAMEBUFFER_VESA_MODE_104
-	bool "1024x768 16-color"
-
-config FRAMEBUFFER_VESA_MODE_105
-	bool "1024x7686 256-color"
-
-config FRAMEBUFFER_VESA_MODE_106
-	bool "1280x1024 16-color"
-
-config FRAMEBUFFER_VESA_MODE_107
-	bool "1280x1024 256-color"
-
-config FRAMEBUFFER_VESA_MODE_108
-	bool "80x60 text"
-
-config FRAMEBUFFER_VESA_MODE_109
-	bool "132x25 text"
-
-config FRAMEBUFFER_VESA_MODE_10A
-	bool "132x43 text"
-
-config FRAMEBUFFER_VESA_MODE_10B
-	bool "132x50 text"
-
-config FRAMEBUFFER_VESA_MODE_10C
-	bool "132x60 text"
-
-config FRAMEBUFFER_VESA_MODE_10D
-	bool "320x200 32k-color (1:5:5:5)"
-
-config FRAMEBUFFER_VESA_MODE_10E
-	bool "320x200 64k-color (5:6:5)"
-
-config FRAMEBUFFER_VESA_MODE_10F
-	bool "320x200 16.8M-color (8:8:8)"
-
-config FRAMEBUFFER_VESA_MODE_110
-	bool "640x480 32k-color (1:5:5:5)"
-
-config FRAMEBUFFER_VESA_MODE_111
-	bool "640x480 64k-color (5:6:5)"
-
-config FRAMEBUFFER_VESA_MODE_112
-	bool "640x480 16.8M-color (8:8:8)"
-
-config FRAMEBUFFER_VESA_MODE_113
-	bool "800x600 32k-color (1:5:5:5)"
-
-config FRAMEBUFFER_VESA_MODE_114
-	bool "800x600 64k-color (5:6:5)"
-
-config FRAMEBUFFER_VESA_MODE_115
-	bool "800x600 16.8M-color (8:8:8)"
-
-config FRAMEBUFFER_VESA_MODE_116
-	bool "1024x768 32k-color (1:5:5:5)"
-
-config FRAMEBUFFER_VESA_MODE_117
-	bool "1024x768 64k-color (5:6:5)"
-
-config FRAMEBUFFER_VESA_MODE_118
-	bool "1024x768 16.8M-color (8:8:8)"
-
-config FRAMEBUFFER_VESA_MODE_119
-	bool "1280x1024 32k-color (1:5:5:5)"
-
-config FRAMEBUFFER_VESA_MODE_11A
-	bool "1280x1024 64k-color (5:6:5)"
-
-config FRAMEBUFFER_VESA_MODE_11B
-	bool "1280x1024 16.8M-color (8:8:8)"
-
-config FRAMEBUFFER_VESA_MODE_USER
-	bool "Manually select VESA mode"
-
-endchoice
-
-# Map the config names to an integer (KB).
-config FRAMEBUFFER_VESA_MODE
-	prompt "VESA mode" if FRAMEBUFFER_VESA_MODE_USER
-	hex
-	default 0x100 if FRAMEBUFFER_VESA_MODE_100
-	default 0x101 if FRAMEBUFFER_VESA_MODE_101
-	default 0x102 if FRAMEBUFFER_VESA_MODE_102
-	default 0x103 if FRAMEBUFFER_VESA_MODE_103
-	default 0x104 if FRAMEBUFFER_VESA_MODE_104
-	default 0x105 if FRAMEBUFFER_VESA_MODE_105
-	default 0x106 if FRAMEBUFFER_VESA_MODE_106
-	default 0x107 if FRAMEBUFFER_VESA_MODE_107
-	default 0x108 if FRAMEBUFFER_VESA_MODE_108
-	default 0x109 if FRAMEBUFFER_VESA_MODE_109
-	default 0x10A if FRAMEBUFFER_VESA_MODE_10A
-	default 0x10B if FRAMEBUFFER_VESA_MODE_10B
-	default 0x10C if FRAMEBUFFER_VESA_MODE_10C
-	default 0x10D if FRAMEBUFFER_VESA_MODE_10D
-	default 0x10E if FRAMEBUFFER_VESA_MODE_10E
-	default 0x10F if FRAMEBUFFER_VESA_MODE_10F
-	default 0x110 if FRAMEBUFFER_VESA_MODE_110
-	default 0x111 if FRAMEBUFFER_VESA_MODE_111
-	default 0x112 if FRAMEBUFFER_VESA_MODE_112
-	default 0x113 if FRAMEBUFFER_VESA_MODE_113
-	default 0x114 if FRAMEBUFFER_VESA_MODE_114
-	default 0x115 if FRAMEBUFFER_VESA_MODE_115
-	default 0x116 if FRAMEBUFFER_VESA_MODE_116
-	default 0x117 if FRAMEBUFFER_VESA_MODE_117
-	default 0x118 if FRAMEBUFFER_VESA_MODE_118
-	default 0x119 if FRAMEBUFFER_VESA_MODE_119
-	default 0x11A if FRAMEBUFFER_VESA_MODE_11A
-	default 0x11B if FRAMEBUFFER_VESA_MODE_11B
-	default 0x117 if FRAMEBUFFER_VESA_MODE_USER
-
-endmenu
+	  The graphics performance may increase if the graphics
+	  memory is set as write-combining cache type. This option
+	  enables marking the graphics memory as write-combining.
 
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
@@ -393,20 +214,41 @@ config FSP_ADDR
 
 config FSP_TEMP_RAM_ADDR
 	hex
+	depends on HAVE_FSP
 	default 0x2000000
 	help
 	  Stack top address which is used in FspInit after DRAM is ready and
 	  CAR is disabled.
 
-source "arch/x86/cpu/baytrail/Kconfig"
+config MAX_CPUS
+        int "Maximum number of CPUs permitted"
+        default 4
+        help
+          When using multi-CPU chips it is possible for U-Boot to start up
+          more than one CPU. The stack memory used by all of these CPUs is
+          pre-allocated so at present U-Boot wants to know the maximum
+          number of CPUs that may be present. Set this to at least as high
+          as the number of CPUs in your system (it uses about 4KB of RAM for
+          each CPU).
 
-source "arch/x86/cpu/coreboot/Kconfig"
+config SMP
+	bool "Enable Symmetric Multiprocessing"
+	default n
+	help
+	  Enable use of more than one CPU in U-Boot and the Operating System
+	  when loaded. Each CPU will be started up and information can be
+	  obtained using the 'cpu' command. If this option is disabled, then
+	  only one CPU will be enabled regardless of the number of CPUs
+	  available.
 
-source "arch/x86/cpu/ivybridge/Kconfig"
-
-source "arch/x86/cpu/quark/Kconfig"
-
-source "arch/x86/cpu/queensbay/Kconfig"
+config AP_STACK_SIZE
+	hex
+	default 0x1000
+	help
+	  Each additional CPU started by U-Boot requires its own stack. This
+	  option sets the stack size used by each CPU and directly affects
+	  the memory used by this initialisation process. Typically 4KB is
+	  enough space.
 
 config TSC_CALIBRATION_BYPASS
 	bool "Bypass Time-Stamp Counter (TSC) calibration"
@@ -428,15 +270,50 @@ config TSC_FREQ_IN_MHZ
 	help
 	  The running frequency in MHz of Time-Stamp Counter (TSC).
 
-source "board/coreboot/coreboot/Kconfig"
+menu "System tables"
 
-source "board/google/chromebook_link/Kconfig"
+config GENERATE_PIRQ_TABLE
+	bool "Generate a PIRQ table"
+	default n
+	help
+	  Generate a PIRQ routing table for this board. The PIRQ routing table
+	  is generated by U-Boot in the system memory from 0xf0000 to 0xfffff
+	  at every 16-byte boundary with a PCI IRQ routing signature ("$PIR").
+	  It specifies the interrupt router information as well how all the PCI
+	  devices' interrupt pins are wired to PIRQs.
 
-source "board/intel/crownbay/Kconfig"
+config GENERATE_SFI_TABLE
+	bool "Generate a SFI (Simple Firmware Interface) table"
+	help
+	  The Simple Firmware Interface (SFI) provides a lightweight method
+	  for platform firmware to pass information to the operating system
+	  via static tables in memory.  Kernel SFI support is required to
+	  boot on SFI-only platforms.  If you have ACPI tables then these are
+	  used instead.
 
-source "board/intel/minnowmax/Kconfig"
+	  U-Boot writes this table in write_sfi_table() just before booting
+	  the OS.
 
-source "board/intel/galileo/Kconfig"
+	  For more information, see http://simplefirmware.org
+
+endmenu
+
+config MAX_PIRQ_LINKS
+	int
+	default 8
+	help
+	  This variable specifies the number of PIRQ interrupt links which are
+	  routable. On most older chipsets, this is 4, PIRQA through PIRQD.
+	  Some newer chipsets offer more than four links, commonly up to PIRQH.
+
+config IRQ_SLOT_COUNT
+	int
+	default 128
+	help
+	  U-Boot can support up to 254 IRQ slot info in the PIRQ routing table
+	  which in turns forms a table of exact 4KiB. The default value 128
+	  should be enough for most boards. If this does not fit your board,
+	  change it according to your needs.
 
 config PCIE_ECAM_BASE
 	hex

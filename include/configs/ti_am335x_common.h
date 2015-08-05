@@ -34,7 +34,6 @@
 #define CONFIG_SYS_NS16550_CLK		48000000
 
 /* Network defines. */
-#define CONFIG_CMD_NET			/* 'bootp' and 'tftp' */
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */

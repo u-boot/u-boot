@@ -25,10 +25,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"\nEnter password - autoboot in %d seconds...\n", CONFIG_BOOTDELAY
-#define CONFIG_AUTOBOOT_DELAY_STR	"ids"
 #define CONFIG_BOOT_RETRY_TIME		900
 #define CONFIG_BOOT_RETRY_MIN		30
 #define CONFIG_BOOTDELAY		1
@@ -171,7 +167,6 @@
 #define CONFIG_TSEC1
 #define CONFIG_TSEC2
 #define CONFIG_TSEC_ENET
-#define CONFIG_NET_MULTI
 #define CONFIG_HARD_SPI
 #define CONFIG_HARD_I2C
 
@@ -423,18 +418,13 @@
 /*
  * U-Boot environment setup
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_CMD_EDITENV
 #define CONFIG_CMD_JFFS2
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY

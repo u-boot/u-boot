@@ -23,12 +23,34 @@
 
 #define ULL_8FS 0xFFFFFFFFULL
 
-u32 fsl_ddr_get_version(void)
+u32 fsl_ddr_get_version(unsigned int ctrl_num)
 {
 	struct ccsr_ddr __iomem *ddr;
 	u32 ver_major_minor_errata;
 
-	ddr = (void *)_DDR_ADDR;
+	switch (ctrl_num) {
+	case 0:
+		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+		break;
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+	case 1:
+		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+		break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+	case 2:
+		ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+		break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+	case 3:
+		ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
+		break;
+#endif
+	default:
+		printf("%s unexpected ctrl_num = %u\n", __func__, ctrl_num);
+		return 0;
+	}
 	ver_major_minor_errata = (ddr_in32(&ddr->ip_rev1) & 0xFFFF) << 8;
 	ver_major_minor_errata |= (ddr_in32(&ddr->ip_rev2) & 0xFF00) >> 8;
 
@@ -212,7 +234,7 @@ void print_ddr_info(unsigned int start_ctrl)
 
 	/* Calculate CAS latency based on timing cfg values */
 	cas_lat = ((ddr_in32(&ddr->timing_cfg_1) >> 16) & 0xf);
-	if (fsl_ddr_get_version() <= 0x40400)
+	if (fsl_ddr_get_version(0) <= 0x40400)
 		cas_lat += 1;
 	else
 		cas_lat += 2;

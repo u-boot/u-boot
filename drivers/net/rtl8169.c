@@ -55,7 +55,7 @@
 #define drv_version "v1.5"
 #define drv_date "01-17-2004"
 
-static u32 ioaddr;
+static unsigned long ioaddr;
 
 /* Condensed operations for readability. */
 #define currticks()	get_timer(0)
@@ -92,19 +92,21 @@ static int media[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #define TX_TIMEOUT  (6*HZ)
 
 /* write/read MMIO register. Notice: {read,write}[wl] do the necessary swapping */
-#define RTL_W8(reg, val8)	writeb ((val8), ioaddr + (reg))
-#define RTL_W16(reg, val16)	writew ((val16), ioaddr + (reg))
-#define RTL_W32(reg, val32)	writel ((val32), ioaddr + (reg))
-#define RTL_R8(reg)		readb (ioaddr + (reg))
-#define RTL_R16(reg)		readw (ioaddr + (reg))
-#define RTL_R32(reg)		((unsigned long) readl (ioaddr + (reg)))
+#define RTL_W8(reg, val8)	writeb((val8), ioaddr + (reg))
+#define RTL_W16(reg, val16)	writew((val16), ioaddr + (reg))
+#define RTL_W32(reg, val32)	writel((val32), ioaddr + (reg))
+#define RTL_R8(reg)		readb(ioaddr + (reg))
+#define RTL_R16(reg)		readw(ioaddr + (reg))
+#define RTL_R32(reg)		readl(ioaddr + (reg))
 
 #define ETH_FRAME_LEN	MAX_ETH_FRAME_SIZE
 #define ETH_ALEN	MAC_ADDR_LEN
 #define ETH_ZLEN	60
 
-#define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)dev->priv, (pci_addr_t)a)
-#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, (phys_addr_t)a)
+#define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)(unsigned long)dev->priv, \
+	(pci_addr_t)(unsigned long)a)
+#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)(unsigned long)dev->priv, \
+	(phys_addr_t)a)
 
 enum RTL8169_registers {
 	MAC0 = 0,		/* Ethernet hardware address. */
@@ -538,7 +540,7 @@ static int rtl_recv(struct eth_device *dev)
 				cpu_to_le32(bus_to_phys(tpc->RxBufferRing[cur_rx]));
 			rtl_flush_rx_desc(&tpc->RxDescArray[cur_rx]);
 
-			NetReceive(rxdata, length);
+			net_process_received_packet(rxdata, length);
 		} else {
 			puts("Error Rx");
 		}
@@ -852,7 +854,7 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 
 #ifdef DEBUG_RTL8169
 	/* Print out some hardware info */
-	printf("%s: at ioaddr 0x%x\n", dev->name, ioaddr);
+	printf("%s: at ioaddr 0x%lx\n", dev->name, ioaddr);
 #endif
 
 	/* if TBI is not endbled */
@@ -1004,7 +1006,7 @@ int rtl8169_initialize(bd_t *bis)
 		memset(dev, 0, sizeof(*dev));
 		sprintf (dev->name, "RTL8169#%d", card_number);
 
-		dev->priv = (void *) devno;
+		dev->priv = (void *)(unsigned long)devno;
 		dev->iobase = (int)pci_mem_to_phys(devno, iobase);
 
 		dev->init = rtl_reset;

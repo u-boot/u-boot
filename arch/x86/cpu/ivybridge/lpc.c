@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <rtc.h>
@@ -29,7 +30,7 @@ static int pch_enable_apic(pci_dev_t dev)
 	int i;
 
 	/* Enable ACPI I/O and power management. Set SCI IRQ to IRQ9 */
-	pci_write_config8(dev, ACPI_CNTL, 0x80);
+	x86_pci_write_config8(dev, ACPI_CNTL, 0x80);
 
 	writel(0, IO_APIC_INDEX);
 	writel(1 << 25, IO_APIC_DATA);
@@ -72,9 +73,9 @@ static void pch_enable_serial_irqs(pci_dev_t dev)
 	/* Set packet length and toggle silent mode bit for one frame. */
 	value = (1 << 7) | (1 << 6) | ((21 - 17) << 2) | (0 << 0);
 #ifdef CONFIG_SERIRQ_CONTINUOUS_MODE
-	pci_write_config8(dev, SERIRQ_CNTL, value);
+	x86_pci_write_config8(dev, SERIRQ_CNTL, value);
 #else
-	pci_write_config8(dev, SERIRQ_CNTL, value | (1 << 6));
+	x86_pci_write_config8(dev, SERIRQ_CNTL, value | (1 << 6));
 #endif
 }
 
@@ -86,15 +87,15 @@ static int pch_pirq_init(const void *blob, int node, pci_dev_t dev)
 				  sizeof(route)))
 		return -EINVAL;
 	ptr = route;
-	pci_write_config8(dev, PIRQA_ROUT, *ptr++);
-	pci_write_config8(dev, PIRQB_ROUT, *ptr++);
-	pci_write_config8(dev, PIRQC_ROUT, *ptr++);
-	pci_write_config8(dev, PIRQD_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQA_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQB_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQC_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQD_ROUT, *ptr++);
 
-	pci_write_config8(dev, PIRQE_ROUT, *ptr++);
-	pci_write_config8(dev, PIRQF_ROUT, *ptr++);
-	pci_write_config8(dev, PIRQG_ROUT, *ptr++);
-	pci_write_config8(dev, PIRQH_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQE_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQF_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQG_ROUT, *ptr++);
+	x86_pci_write_config8(dev, PIRQH_ROUT, *ptr++);
 
 	/*
 	 * TODO(sjg@chromium.org): U-Boot does not set up the interrupts
@@ -116,7 +117,7 @@ static int pch_gpi_routing(const void *blob, int node, pci_dev_t dev)
 	for (reg = 0, gpi = 0; gpi < ARRAY_SIZE(route); gpi++)
 		reg |= route[gpi] << (gpi * 2);
 
-	pci_write_config32(dev, 0xb8, reg);
+	x86_pci_write_config32(dev, 0xb8, reg);
 
 	return 0;
 }
@@ -141,7 +142,7 @@ static int pch_power_options(const void *blob, int node, pci_dev_t dev)
 	 */
 	pwr_on = MAINBOARD_POWER_ON;
 
-	reg16 = pci_read_config16(dev, GEN_PMCON_3);
+	reg16 = x86_pci_read_config16(dev, GEN_PMCON_3);
 	reg16 &= 0xfffe;
 	switch (pwr_on) {
 	case MAINBOARD_POWER_OFF:
@@ -168,7 +169,7 @@ static int pch_power_options(const void *blob, int node, pci_dev_t dev)
 
 	reg16 |= (1 << 12);	/* Disable SLP stretch after SUS well */
 
-	pci_write_config16(dev, GEN_PMCON_3, reg16);
+	x86_pci_write_config16(dev, GEN_PMCON_3, reg16);
 	debug("Set power %s after power failure.\n", state);
 
 	/* Set up NMI on errors. */
@@ -192,21 +193,21 @@ static int pch_power_options(const void *blob, int node, pci_dev_t dev)
 	outb(reg8, 0x70);
 
 	/* Enable CPU_SLP# and Intel Speedstep, set SMI# rate down */
-	reg16 = pci_read_config16(dev, GEN_PMCON_1);
+	reg16 = x86_pci_read_config16(dev, GEN_PMCON_1);
 	reg16 &= ~(3 << 0);	/* SMI# rate 1 minute */
 	reg16 &= ~(1 << 10);	/* Disable BIOS_PCI_EXP_EN for native PME */
 #if DEBUG_PERIODIC_SMIS
 	/* Set DEBUG_PERIODIC_SMIS in pch.h to debug using periodic SMIs */
 	reg16 |= (3 << 0);	/* Periodic SMI every 8s */
 #endif
-	pci_write_config16(dev, GEN_PMCON_1, reg16);
+	x86_pci_write_config16(dev, GEN_PMCON_1, reg16);
 
 	/* Set the board's GPI routing. */
 	ret = pch_gpi_routing(blob, node, dev);
 	if (ret)
 		return ret;
 
-	pmbase = pci_read_config16(dev, 0x40) & 0xfffe;
+	pmbase = x86_pci_read_config16(dev, 0x40) & 0xfffe;
 
 	writel(pmbase + GPE0_EN, fdtdec_get_int(blob, node,
 						"intel,gpe0-enable", 0));
@@ -231,11 +232,11 @@ static void pch_rtc_init(pci_dev_t dev)
 	int rtc_failed;
 	u8 reg8;
 
-	reg8 = pci_read_config8(dev, GEN_PMCON_3);
+	reg8 = x86_pci_read_config8(dev, GEN_PMCON_3);
 	rtc_failed = reg8 & RTC_BATTERY_DEAD;
 	if (rtc_failed) {
 		reg8 &= ~RTC_BATTERY_DEAD;
-		pci_write_config8(dev, GEN_PMCON_3, reg8);
+		x86_pci_write_config8(dev, GEN_PMCON_3, reg8);
 	}
 	debug("rtc_failed = 0x%x\n", rtc_failed);
 
@@ -258,7 +259,7 @@ static void pch_rtc_init(pci_dev_t dev)
 static void cpt_pm_init(pci_dev_t dev)
 {
 	debug("CougarPoint PM init\n");
-	pci_write_config8(dev, 0xa9, 0x47);
+	x86_pci_write_config8(dev, 0xa9, 0x47);
 	setbits_le32(RCB_REG(0x2238), (1 << 6) | (1 << 0));
 
 	setbits_le32(RCB_REG(0x228c), 1 << 0);
@@ -302,7 +303,7 @@ static void cpt_pm_init(pci_dev_t dev)
 static void ppt_pm_init(pci_dev_t dev)
 {
 	debug("PantherPoint PM init\n");
-	pci_write_config8(dev, 0xa9, 0x47);
+	x86_pci_write_config8(dev, 0xa9, 0x47);
 	setbits_le32(RCB_REG(0x2238), 1 << 0);
 	setbits_le32(RCB_REG(0x228c), 1 << 0);
 	setbits_le16(RCB_REG(0x1100), (1 << 13) | (1 << 14));
@@ -356,9 +357,9 @@ static void enable_clock_gating(pci_dev_t dev)
 
 	setbits_le32(RCB_REG(0x2234), 0xf);
 
-	reg16 = pci_read_config16(dev, GEN_PMCON_1);
+	reg16 = x86_pci_read_config16(dev, GEN_PMCON_1);
 	reg16 |= (1 << 2) | (1 << 11);
-	pci_write_config16(dev, GEN_PMCON_1, reg16);
+	x86_pci_write_config16(dev, GEN_PMCON_1, reg16);
 
 	pch_iobp_update(0xEB007F07, ~0UL, (1 << 31));
 	pch_iobp_update(0xEB004000, ~0UL, (1 << 7));
@@ -412,15 +413,15 @@ static void pch_lock_smm(pci_dev_t dev)
 #if TEST_SMM_FLASH_LOCKDOWN
 	/* Now try this: */
 	debug("Locking BIOS to RO... ");
-	reg8 = pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
+	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
 	debug(" BLE: %s; BWE: %s\n", (reg8 & 2) ? "on" : "off",
 	      (reg8 & 1) ? "rw" : "ro");
 	reg8 &= ~(1 << 0);			/* clear BIOSWE */
-	pci_write_config8(dev, 0xdc, reg8);
+	x86_pci_write_config8(dev, 0xdc, reg8);
 	reg8 |= (1 << 1);			/* set BLE */
-	pci_write_config8(dev, 0xdc, reg8);
+	x86_pci_write_config8(dev, 0xdc, reg8);
 	debug("ok.\n");
-	reg8 = pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
+	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
 	debug(" BLE: %s; BWE: %s\n", (reg8 & 2) ? "on" : "off",
 	      (reg8 & 1) ? "rw" : "ro");
 
@@ -428,9 +429,9 @@ static void pch_lock_smm(pci_dev_t dev)
 	writeb(0, 0xfff00000);
 	debug("Testing:\n");
 	reg8 |= (1 << 0);			/* set BIOSWE */
-	pci_write_config8(dev, 0xdc, reg8);
+	x86_pci_write_config8(dev, 0xdc, reg8);
 
-	reg8 = pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
+	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
 	debug(" BLE: %s; BWE: %s\n", (reg8 & 2) ? "on" : "off",
 	      (reg8 & 1) ? "rw" : "ro");
 	debug("Done.\n");
@@ -443,9 +444,9 @@ static void pch_disable_smm_only_flashing(pci_dev_t dev)
 	u8 reg8;
 
 	debug("Enabling BIOS updates outside of SMM... ");
-	reg8 = pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
+	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
 	reg8 &= ~(1 << 5);
-	pci_write_config8(dev, 0xdc, reg8);
+	x86_pci_write_config8(dev, 0xdc, reg8);
 }
 
 static void pch_fixups(pci_dev_t dev)
@@ -453,9 +454,9 @@ static void pch_fixups(pci_dev_t dev)
 	u8 gen_pmcon_2;
 
 	/* Indicate DRAM init done for MRC S3 to know it can resume */
-	gen_pmcon_2 = pci_read_config8(dev, GEN_PMCON_2);
+	gen_pmcon_2 = x86_pci_read_config8(dev, GEN_PMCON_2);
 	gen_pmcon_2 |= (1 << 7);
-	pci_write_config8(dev, GEN_PMCON_2, gen_pmcon_2);
+	x86_pci_write_config8(dev, GEN_PMCON_2, gen_pmcon_2);
 
 	/* Enable DMI ASPM in the PCH */
 	clrbits_le32(RCB_REG(0x2304), 1 << 10);
@@ -478,10 +479,10 @@ int lpc_early_init(const void *blob, int node, pci_dev_t dev)
 		return -EINVAL;
 
 	/* Set COM1/COM2 decode range */
-	pci_write_config16(dev, LPC_IO_DEC, 0x0010);
+	x86_pci_write_config16(dev, LPC_IO_DEC, 0x0010);
 
 	/* Enable PS/2 Keyboard/Mouse, EC areas and COM1 */
-	pci_write_config16(dev, LPC_EN, KBC_LPC_EN | MC_LPC_EN |
+	x86_pci_write_config16(dev, LPC_EN, KBC_LPC_EN | MC_LPC_EN |
 			   GAMEL_LPC_EN | COMA_LPC_EN);
 
 	/* Write all registers but use 0 if we run out of data */
@@ -491,7 +492,7 @@ int lpc_early_init(const void *blob, int node, pci_dev_t dev)
 
 		if (i < count)
 			reg = ptr->base | PCI_COMMAND_IO | (ptr->size << 16);
-		pci_write_config32(dev, LPC_GENX_DEC(i), reg);
+		x86_pci_write_config32(dev, LPC_GENX_DEC(i), reg);
 	}
 
 	return 0;
@@ -509,12 +510,12 @@ int lpc_init(struct pci_controller *hose, pci_dev_t dev)
 	pci_write_bar32(hose, dev, 3, 0x800);
 	pci_write_bar32(hose, dev, 4, 0x900);
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_LPC);
+	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_PCH);
 	if (node < 0)
 		return -ENOENT;
 
 	/* Set the value for PCI command register. */
-	pci_write_config16(dev, PCI_COMMAND, 0x000f);
+	x86_pci_write_config16(dev, PCI_COMMAND, 0x000f);
 
 	/* IO APIC initialization. */
 	pch_enable_apic(dev);
@@ -567,3 +568,14 @@ void lpc_enable(pci_dev_t dev)
 	writew(0x0010, RCB_REG(DISPBDF));
 	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
 }
+
+static const struct udevice_id bd82x6x_lpc_ids[] = {
+	{ .compatible = "intel,bd82x6x-lpc" },
+	{ }
+};
+
+U_BOOT_DRIVER(bd82x6x_lpc_drv) = {
+	.name		= "lpc",
+	.id		= UCLASS_LPC,
+	.of_match	= bd82x6x_lpc_ids,
+};

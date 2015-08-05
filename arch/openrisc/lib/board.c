@@ -128,7 +128,7 @@ void board_init(void)
 
 #if defined(CONFIG_CMD_NET)
 	puts("NET:   ");
-	eth_initialize(bd);
+	eth_initialize();
 #endif
 
 	/* main_loop */

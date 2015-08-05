@@ -60,7 +60,7 @@ static struct module_pin_mux nand_pin_mux[] = {
 
 static struct module_pin_mux gpios_pin_mux[] = {
 	/* DFU button GPIO0_27*/
-	{OFFSET(gpmc_ad11), (MODE(7) | PULLUDEN | RXACTIVE)},
+	{OFFSET(gpmc_ad11), (MODE(7) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	{OFFSET(gpmc_csn3), MODE(7) },			/* LED0 GPIO2_0 */
 	{OFFSET(emu0), MODE(7)},			/* LED1 GPIO3_7 */
 	/* Triacs in HW Rev 2 */
@@ -222,7 +222,7 @@ static struct module_pin_mux gpios_pin_mux[] = {
 	{OFFSET(vrefp), MODE(7) | RXACTIVE | PULLUDDIS},
 	{OFFSET(vrefn), MODE(7) | RXACTIVE | PULLUDDIS},
 	/* nRST for SMSC LAN9303 switch - GPIO2_24 */
-	{OFFSET(lcd_pclk), MODE(7) },			/* LAN9303 nRST */
+	{OFFSET(lcd_pclk), MODE(7) | PULLUDEN | PULLUP_EN }, /* LAN9303 nRST */
 	{-1},
 };
 

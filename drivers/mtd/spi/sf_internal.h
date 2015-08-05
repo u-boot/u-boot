@@ -31,9 +31,9 @@ enum spi_read_cmds {
 };
 
 /* Normal - Extended - Full command set */
-#define RD_NORM	(ARRAY_SLOW | ARRAY_FAST)
-#define RD_EXTN	(RD_NORM | DUAL_OUTPUT_FAST | DUAL_IO_FAST)
-#define RD_FULL	(RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST)
+#define RD_NORM		(ARRAY_SLOW | ARRAY_FAST)
+#define RD_EXTN		(RD_NORM | DUAL_OUTPUT_FAST | DUAL_IO_FAST)
+#define RD_FULL		(RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST)
 
 /* sf param flags */
 enum {
@@ -70,12 +70,12 @@ enum {
 #define CMD_WRITE_STATUS		0x01
 #define CMD_PAGE_PROGRAM		0x02
 #define CMD_WRITE_DISABLE		0x04
-#define CMD_READ_STATUS		0x05
+#define CMD_READ_STATUS			0x05
 #define CMD_QUAD_PAGE_PROGRAM		0x32
 #define CMD_READ_STATUS1		0x35
 #define CMD_WRITE_ENABLE		0x06
-#define CMD_READ_CONFIG		0x35
-#define CMD_FLAG_STATUS		0x70
+#define CMD_READ_CONFIG			0x35
+#define CMD_FLAG_STATUS			0x70
 
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
@@ -100,19 +100,15 @@ enum {
 #define STATUS_QEB_MXIC		(1 << 6)
 #define STATUS_PEC			(1 << 7)
 
-#ifdef CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
-#define STATUS_SRWD			(1 << 7) /* SR write protect */
-#endif
-
 /* Flash timeout values */
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
-#define SPI_FLASH_PAGE_ERASE_TIMEOUT		(5 * CONFIG_SYS_HZ)
+#define SPI_FLASH_PAGE_ERASE_TIMEOUT	(5 * CONFIG_SYS_HZ)
 #define SPI_FLASH_SECTOR_ERASE_TIMEOUT	(10 * CONFIG_SYS_HZ)
 
 /* SST specific */
 #ifdef CONFIG_SPI_FLASH_SST
 # define CMD_SST_BP		0x02    /* Byte Program */
-# define CMD_SST_AAI_WP	0xAD	/* Auto Address Incr Word Program */
+# define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
 
 int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf);
@@ -126,8 +122,9 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
  * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
  * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
  * @ext_jedec:		Device ext_jedec ID
- * @sector_size:	Sector size of this device
- * @nr_sectors:	No.of sectors on this device
+ * @sector_size:	Isn't necessarily a sector size from vendor,
+ *			the size listed here is what works with CMD_ERASE_64K
+ * @nr_sectors:		No.of sectors on this device
  * @e_rd_cmd:		Enum list for read commands
  * @flags:		Important param, for flash specific behaviour
  */
@@ -223,5 +220,10 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 /* Flash read operation, support all possible read commands */
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data);
+
+#ifdef CONFIG_SPI_FLASH_MTD
+int spi_flash_mtd_register(struct spi_flash *flash);
+void spi_flash_mtd_unregister(void);
+#endif
 
 #endif /* _SF_INTERNAL_H_ */

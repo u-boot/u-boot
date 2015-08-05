@@ -12,11 +12,11 @@
 #include <errno.h>
 #include <malloc.h>
 #include <dm/test.h>
-#include <dm/ut.h>
+#include <test/ut.h>
 #include <asm/io.h>
 
 int dm_testdrv_op_count[DM_TEST_OP_COUNT];
-static struct dm_test_state *dms = &global_test_state;
+static struct unit_test_state *uts = &global_dm_test_state;
 
 static int testdrv_ping(struct udevice *dev, int pingval, int *pingret)
 {
@@ -114,6 +114,8 @@ static int test_manual_bind(struct udevice *dev)
 
 static int test_manual_probe(struct udevice *dev)
 {
+	struct dm_test_state *dms = uts->priv;
+
 	dm_testdrv_op_count[DM_TEST_OP_PROBE]++;
 	if (!dms->force_fail_alloc)
 		dev->priv = calloc(1, sizeof(struct dm_test_priv));

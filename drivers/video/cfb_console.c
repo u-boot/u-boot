@@ -87,6 +87,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <version.h>
 #include <malloc.h>
 #include <linux/compiler.h>
@@ -1294,7 +1295,7 @@ static void draw_bitmap(uchar **fb, uchar *bm, struct palette *p,
 	*fb = (uchar *) addr;	/* return modified address */
 }
 
-static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
+static int display_rle8_bitmap(struct bmp_image *img, int xoff, int yoff,
 			       int width, int height)
 {
 	unsigned char *bm;
@@ -1303,7 +1304,7 @@ static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
 	int decode = 1;
 	int x, y, bpp, i, ncolors;
 	struct palette p[256];
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 	int green_shift, red_off;
 	int limit = VIDEO_COLS * VIDEO_ROWS;
 	int pixels = 0;
@@ -1446,13 +1447,13 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 {
 	ushort xcount, ycount;
 	uchar *fb;
-	bmp_image_t *bmp = (bmp_image_t *) bmp_image;
+	struct bmp_image *bmp = (struct bmp_image *)bmp_image;
 	uchar *bmap;
 	ushort padded_line;
 	unsigned long width, height, bpp;
 	unsigned colors;
 	unsigned long compression;
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 
 #ifdef CONFIG_VIDEO_BMP_GZIP
 	unsigned char *dst = NULL;
@@ -1494,7 +1495,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		/*
 		 * Set addr to decompressed image
 		 */
-		bmp = (bmp_image_t *)(dst+2);
+		bmp = (struct bmp_image *)(dst+2);
 
 		if (!((bmp->header.signature[0] == 'B') &&
 		      (bmp->header.signature[1] == 'M'))) {
@@ -2251,6 +2252,7 @@ int drv_video_init(void)
 {
 	int skip_dev_init;
 	struct stdio_dev console_dev;
+	bool have_keyboard;
 
 	/* Check if video initialization should be skipped */
 	if (board_video_skip())
@@ -2262,11 +2264,20 @@ int drv_video_init(void)
 	if (board_cfb_skip())
 		return 0;
 
-#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	debug("KBD: Keyboard init ...\n");
-	skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
+#if defined(CONFIG_VGA_AS_SINGLE_DEVICE)
+	have_keyboard = false;
+#elif defined(CONFIG_OF_CONTROL)
+	have_keyboard = !fdtdec_get_config_bool(gd->fdt_blob,
+						"u-boot,no-keyboard");
+#else
+	have_keyboard = true;
 #endif
-
+	if (have_keyboard) {
+		debug("KBD: Keyboard init ...\n");
+#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
+		skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
+#endif
+	}
 	if (skip_dev_init)
 		return 0;
 
@@ -2279,11 +2290,13 @@ int drv_video_init(void)
 	console_dev.puts = video_puts;	/* 'puts' function */
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	/* Also init console device */
-	console_dev.flags |= DEV_FLAGS_INPUT;
-	console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
-	console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
-#endif /* CONFIG_VGA_AS_SINGLE_DEVICE */
+	if (have_keyboard) {
+		/* Also init console device */
+		console_dev.flags |= DEV_FLAGS_INPUT;
+		console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
+		console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
+	}
+#endif
 
 	if (stdio_register(&console_dev) != 0)
 		return 0;

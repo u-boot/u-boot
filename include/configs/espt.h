@@ -18,14 +18,9 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_SAVEENV
 
 #define CONFIG_BOOTDELAY        -1
 #define CONFIG_BOOTARGS         "console=ttySC0,115200 root=1f01"

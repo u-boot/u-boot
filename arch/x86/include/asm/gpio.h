@@ -147,6 +147,7 @@ struct pch_gpio_map {
 	} set3;
 };
 
+int gpio_ich6_pinctrl_init(void);
 void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio);
 void ich_gpio_set_gpio_map(const struct pch_gpio_map *map);
 

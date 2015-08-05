@@ -22,7 +22,6 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_I2C
@@ -35,7 +34,7 @@
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
-#define CONFIG_I2C_MVTWSI_BASE		MVEBU_TWSI_BASE
+#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 #define CONFIG_SYS_I2C_SLAVE		0x0
 #define CONFIG_SYS_I2C_SPEED		100000
 
@@ -44,7 +43,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_BAR
 
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -53,7 +51,7 @@
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
-#define CONFIG_PHY_BASE_ADDR	0x0
+#define CONFIG_PHY_ADDR			{ 0x0, 0x1, 0x2, 0x3 }
 #define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_SGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 #define CONFIG_RESET_PHY_R
@@ -100,7 +98,6 @@
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mvebu-common/u-boot-spl.lds"
 
 /* SPL related SPI defines */
 #define CONFIG_SPL_SPI_SUPPORT

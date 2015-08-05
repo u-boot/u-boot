@@ -232,7 +232,6 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_E1000
 
@@ -274,8 +273,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
@@ -284,11 +281,9 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SETEXPR
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*

@@ -528,7 +528,7 @@ static const struct mmc_ops tegra_mmc_ops = {
 	.getcd		= tegra_mmc_getcd,
 };
 
-static int do_mmc_init(int dev_index)
+static int do_mmc_init(int dev_index, bool removable)
 {
 	struct mmc_host *host;
 	struct mmc *mmc;
@@ -559,7 +559,7 @@ static int do_mmc_init(int dev_index)
 		host->cfg.host_caps |= MMC_MODE_8BIT;
 	if (host->width >= 4)
 		host->cfg.host_caps |= MMC_MODE_4BIT;
-	host->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
+	host->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	/*
 	 * min freq is for card identification, and is the highest
@@ -573,6 +573,7 @@ static int do_mmc_init(int dev_index)
 	host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	mmc = mmc_create(&host->cfg, host);
+	mmc->block_dev.removable = removable;
 	if (mmc == NULL)
 		return -1;
 
@@ -586,7 +587,8 @@ static int do_mmc_init(int dev_index)
  * @param node		Device index (0-3)
  * @param host		Structure to fill in (reg, width, mmc_id)
  */
-static int mmc_get_config(const void *blob, int node, struct mmc_host *host)
+static int mmc_get_config(const void *blob, int node, struct mmc_host *host,
+			  bool *removablep)
 {
 	debug("%s: node = %d\n", __func__, node);
 
@@ -619,6 +621,7 @@ static int mmc_get_config(const void *blob, int node, struct mmc_host *host)
 				   GPIOD_IS_IN);
 	gpio_request_by_name_nodev(blob, node, "power-gpios", 0,
 				   &host->pwr_gpio, GPIOD_IS_OUT);
+	*removablep = !fdtdec_get_bool(blob, node, "non-removable");
 
 	debug("%s: found controller at %p, width = %d, periph_id = %d\n",
 		__func__, host->reg, host->width, host->mmc_id);
@@ -636,6 +639,7 @@ static int mmc_get_config(const void *blob, int node, struct mmc_host *host)
 static int process_nodes(const void *blob, int node_list[], int count)
 {
 	struct mmc_host *host;
+	bool removable;
 	int i, node;
 
 	debug("%s: count = %d\n", __func__, count);
@@ -649,11 +653,11 @@ static int process_nodes(const void *blob, int node_list[], int count)
 		host = &mmc_host[i];
 		host->id = i;
 
-		if (mmc_get_config(blob, node, host)) {
+		if (mmc_get_config(blob, node, host, &removable)) {
 			printf("%s: failed to decode dev %d\n",	__func__, i);
 			return -1;
 		}
-		do_mmc_init(i);
+		do_mmc_init(i, removable);
 	}
 	return 0;
 }

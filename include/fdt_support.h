@@ -16,8 +16,35 @@ u32 fdt_getprop_u32_default_node(const void *fdt, int off, int cell,
 				const char *prop, const u32 dflt);
 u32 fdt_getprop_u32_default(const void *fdt, const char *path,
 				const char *prop, const u32 dflt);
+
+/**
+ * Add data to the root of the FDT before booting the OS.
+ *
+ * See doc/device-tree-bindings/root.txt
+ *
+ * @param fdt		FDT address in memory
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
+int fdt_root(void *fdt);
+
+/**
+ * Add chosen data the FDT before booting the OS.
+ *
+ * In particular, this adds the kernel command line (bootargs) to the FDT.
+ *
+ * @param fdt		FDT address in memory
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
 int fdt_chosen(void *fdt);
+
+/**
+ * Add initrd information to the FDT before booting the OS.
+ *
+ * @param fdt		FDT address in memory
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end);
+
 void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 		      const void *val, int len, int create);
 void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
@@ -46,6 +73,19 @@ void fdt_fixup_ethernet(void *fdt);
 int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 			 const void *val, int len, int create);
 void fdt_fixup_qe_firmware(void *fdt);
+
+/**
+ * Update native-mode property of display-timings node to the phandle
+ * of the timings matching a display by name (case insensitive).
+ *
+ * see kernel Documentation/devicetree/bindings/video/display-timing.txt
+ *
+ * @param blob		FDT blob to update
+ * @param path		path within dt
+ * @param display	name of display timing to match
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
+int fdt_fixup_display(void *blob, const char *path, const char *display);
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
 void fdt_fixup_dr_usb(void *blob, bd_t *bd);

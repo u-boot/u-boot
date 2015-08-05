@@ -194,6 +194,31 @@ static inline int fdt_setprop_uxx(void *fdt, int nodeoffset, const char *name,
 		return fdt_setprop_u32(fdt, nodeoffset, name, (uint32_t)val);
 }
 
+int fdt_root(void *fdt)
+{
+	char *serial;
+	int err;
+
+	err = fdt_check_header(fdt);
+	if (err < 0) {
+		printf("fdt_root: %s\n", fdt_strerror(err));
+		return err;
+	}
+
+	serial = getenv("serial#");
+	if (serial) {
+		err = fdt_setprop(fdt, 0, "serial-number", serial,
+				  strlen(serial) + 1);
+
+		if (err < 0) {
+			printf("WARNING: could not set serial-number %s.\n",
+			       fdt_strerror(err));
+			return err;
+		}
+	}
+
+	return 0;
+}
 
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 {
@@ -1533,7 +1558,7 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 	if (ret < 0)
 		return ret;
 
-	snprintf(name, sizeof(name), "framebuffer@%llx", base_address);
+	snprintf(name, sizeof(name), "framebuffer@%" PRIx64, base_address);
 	ret = fdt_set_name(fdt, node, name);
 	if (ret < 0)
 		return ret;
@@ -1559,4 +1584,33 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 		return ret;
 
 	return 0;
+}
+
+/*
+ * Update native-mode in display-timings from display environment variable.
+ * The node to update are specified by path.
+ */
+int fdt_fixup_display(void *blob, const char *path, const char *display)
+{
+	int off, toff;
+
+	if (!display || !path)
+		return -FDT_ERR_NOTFOUND;
+
+	toff = fdt_path_offset(blob, path);
+	if (toff >= 0)
+		toff = fdt_subnode_offset(blob, toff, "display-timings");
+	if (toff < 0)
+		return toff;
+
+	for (off = fdt_first_subnode(blob, toff);
+	     off >= 0;
+	     off = fdt_next_subnode(blob, off)) {
+		uint32_t h = fdt_get_phandle(blob, off);
+		debug("%s:0x%x\n", fdt_get_name(blob, off, NULL),
+		      fdt32_to_cpu(h));
+		if (strcasecmp(fdt_get_name(blob, off, NULL), display) == 0)
+			return fdt_setprop_u32(blob, toff, "native-mode", h);
+	}
+	return toff;
 }

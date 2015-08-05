@@ -296,8 +296,9 @@ static int exynos_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int exynos_spi_claim_bus(struct udevice *bus)
+static int exynos_spi_claim_bus(struct udevice *dev)
 {
+	struct udevice *bus = dev->parent;
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	exynos_pinmux_config(priv->periph_id, PINMUX_FLAG_NONE);
@@ -308,8 +309,9 @@ static int exynos_spi_claim_bus(struct udevice *bus)
 	return 0;
 }
 
-static int exynos_spi_release_bus(struct udevice *bus)
+static int exynos_spi_release_bus(struct udevice *dev)
 {
+	struct udevice *bus = dev->parent;
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	spi_flush_fifo(priv->regs);

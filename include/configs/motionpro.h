@@ -33,8 +33,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_DATE
@@ -48,7 +46,6 @@
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
@@ -73,20 +70,12 @@
  * Autobooting
  */
 #define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR	"\x1b\x1b"
-#define DEBUG_BOOTKEYS		0
-#undef CONFIG_AUTOBOOT_DELAY_STR
 #undef CONFIG_BOOTARGS
-#define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, "		\
-				"press \"<Esc><Esc>\" to stop\n", bootdelay
 
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define CONFIG_ETHADDR		00:50:C2:40:10:00
-#define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 #define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
 
 /*

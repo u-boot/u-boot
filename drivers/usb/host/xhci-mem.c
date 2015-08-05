@@ -15,6 +15,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/byteorder.h>
 #include <usb.h>
 #include <malloc.h>
@@ -31,7 +32,7 @@
  * @param len	the length of the cache line to be flushed
  * @return none
  */
-void xhci_flush_cache(uint32_t addr, u32 len)
+void xhci_flush_cache(uintptr_t addr, u32 len)
 {
 	BUG_ON((void *)addr == NULL || len == 0);
 
@@ -46,7 +47,7 @@ void xhci_flush_cache(uint32_t addr, u32 len)
  * @param len	the length of the cache line to be invalidated
  * @return none
  */
-void xhci_inval_cache(uint32_t addr, u32 len)
+void xhci_inval_cache(uintptr_t addr, u32 len)
 {
 	BUG_ON((void *)addr == NULL || len == 0);
 
@@ -175,7 +176,7 @@ static void *xhci_malloc(unsigned int size)
 	BUG_ON(!ptr);
 	memset(ptr, '\0', size);
 
-	xhci_flush_cache((uint32_t)ptr, size);
+	xhci_flush_cache((uintptr_t)ptr, size);
 
 	return ptr;
 }
@@ -352,12 +353,10 @@ static struct xhci_container_ctx
  * @param udev	pointer to USB deivce structure
  * @return 0 on success else -1 on failure
  */
-int xhci_alloc_virt_device(struct usb_device *udev)
+int xhci_alloc_virt_device(struct xhci_ctrl *ctrl, unsigned int slot_id)
 {
 	u64 byte_64 = 0;
-	unsigned int slot_id = udev->slot_id;
 	struct xhci_virt_device *virt_dev;
-	struct xhci_ctrl *ctrl = udev->controller;
 
 	/* Slot ID 0 is reserved */
 	if (ctrl->devs[slot_id]) {
@@ -400,8 +399,8 @@ int xhci_alloc_virt_device(struct usb_device *udev)
 	/* Point to output device context in dcbaa. */
 	ctrl->dcbaa->dev_context_ptrs[slot_id] = byte_64;
 
-	xhci_flush_cache((uint32_t)&ctrl->dcbaa->dev_context_ptrs[slot_id],
-							sizeof(__le64));
+	xhci_flush_cache((uintptr_t)&ctrl->dcbaa->dev_context_ptrs[slot_id],
+			 sizeof(__le64));
 	return 0;
 }
 
@@ -478,8 +477,8 @@ int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 		entry->rsvd = 0;
 		seg = seg->next;
 	}
-	xhci_flush_cache((uint32_t)ctrl->erst.entries,
-			ERST_NUM_SEGS * sizeof(struct xhci_erst_entry));
+	xhci_flush_cache((uintptr_t)ctrl->erst.entries,
+			 ERST_NUM_SEGS * sizeof(struct xhci_erst_entry));
 
 	deq = (unsigned long)ctrl->event_ring->dequeue;
 
@@ -496,7 +495,7 @@ int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 	/* this is the event ring segment table pointer */
 	val_64 = xhci_readq(&ctrl->ir_set->erst_base);
 	val_64 &= ERST_PTR_MASK;
-	val_64 |= ((u32)(ctrl->erst.entries) & ~ERST_PTR_MASK);
+	val_64 |= ((uintptr_t)(ctrl->erst.entries) & ~ERST_PTR_MASK);
 
 	xhci_writeq(&ctrl->ir_set->erst_base, val_64);
 
@@ -627,17 +626,16 @@ void xhci_slot_copy(struct xhci_ctrl *ctrl, struct xhci_container_ctx *in_ctx,
  * @param udev pointer to the Device Data Structure
  * @return returns negative value on failure else 0 on success
  */
-void xhci_setup_addressable_virt_dev(struct usb_device *udev)
+void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
+				     int speed, int hop_portnr)
 {
-	struct usb_device *hop = udev;
 	struct xhci_virt_device *virt_dev;
 	struct xhci_ep_ctx *ep0_ctx;
 	struct xhci_slot_ctx *slot_ctx;
 	u32 port_num = 0;
 	u64 trb_64 = 0;
-	struct xhci_ctrl *ctrl = udev->controller;
 
-	virt_dev = ctrl->devs[udev->slot_id];
+	virt_dev = ctrl->devs[slot_id];
 
 	BUG_ON(!virt_dev);
 
@@ -648,7 +646,7 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 	/* Only the control endpoint is valid - one endpoint context */
 	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(1) | 0);
 
-	switch (udev->speed) {
+	switch (speed) {
 	case USB_SPEED_SUPER:
 		slot_ctx->dev_info |= cpu_to_le32(SLOT_SPEED_SS);
 		break;
@@ -666,11 +664,7 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 		BUG();
 	}
 
-	/* Extract the root hub port number */
-	if (hop->parent)
-		while (hop->parent->parent)
-			hop = hop->parent;
-	port_num = hop->portnr;
+	port_num = hop_portnr;
 	debug("port_num = %d\n", port_num);
 
 	slot_ctx->dev_info2 |=
@@ -680,9 +674,9 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 	/* Step 4 - ring already allocated */
 	/* Step 5 */
 	ep0_ctx->ep_info2 = cpu_to_le32(CTRL_EP << EP_TYPE_SHIFT);
-	debug("SPEED = %d\n", udev->speed);
+	debug("SPEED = %d\n", speed);
 
-	switch (udev->speed) {
+	switch (speed) {
 	case USB_SPEED_SUPER:
 		ep0_ctx->ep_info2 |= cpu_to_le32(((512 & MAX_PACKET_MASK) <<
 					MAX_PACKET_SHIFT));
@@ -715,6 +709,6 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 
 	/* Steps 7 and 8 were done in xhci_alloc_virt_device() */
 
-	xhci_flush_cache((uint32_t)ep0_ctx, sizeof(struct xhci_ep_ctx));
-	xhci_flush_cache((uint32_t)slot_ctx, sizeof(struct xhci_slot_ctx));
+	xhci_flush_cache((uintptr_t)ep0_ctx, sizeof(struct xhci_ep_ctx));
+	xhci_flush_cache((uintptr_t)slot_ctx, sizeof(struct xhci_slot_ctx));
 }

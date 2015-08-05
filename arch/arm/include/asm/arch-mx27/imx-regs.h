@@ -138,16 +138,6 @@ struct gpt_regs {
 	u32 gpt_tstat;
 };
 
-/*
- *  GPIO Module and I/O Multiplexer
- */
-#define PORTA 0
-#define PORTB 1
-#define PORTC 2
-#define PORTD 3
-#define PORTE 4
-#define PORTF 5
-
 /* IIM Control Registers */
 struct iim_regs {
 	u32 iim_stat;
@@ -194,13 +184,13 @@ struct fuse_bank0_regs {
 #define UART2_BASE		(0x0b000 + IMX_IO_BASE)
 #define UART3_BASE		(0x0c000 + IMX_IO_BASE)
 #define UART4_BASE		(0x0d000 + IMX_IO_BASE)
-#define IMX_I2C1_BASE		(0x12000 + IMX_IO_BASE)
+#define I2C1_BASE_ADDR		(0x12000 + IMX_IO_BASE)
 #define IMX_GPIO_BASE		(0x15000 + IMX_IO_BASE)
 #define IMX_TIM4_BASE		(0x19000 + IMX_IO_BASE)
 #define IMX_TIM5_BASE		(0x1a000 + IMX_IO_BASE)
 #define IMX_UART5_BASE		(0x1b000 + IMX_IO_BASE)
 #define IMX_UART6_BASE		(0x1c000 + IMX_IO_BASE)
-#define IMX_I2C2_BASE		(0x1D000 + IMX_IO_BASE)
+#define I2C2_BASE_ADDR		(0x1D000 + IMX_IO_BASE)
 #define IMX_TIM6_BASE		(0x1f000 + IMX_IO_BASE)
 #define IMX_AIPI2_BASE		(0x20000 + IMX_IO_BASE)
 #define IMX_PLL_BASE		(0x27000 + IMX_IO_BASE)
@@ -448,18 +438,6 @@ struct fuse_bank0_regs {
 #define GPIO4_BASE_ADDR 0x10015300
 #define GPIO5_BASE_ADDR 0x10015400
 #define GPIO6_BASE_ADDR 0x10015500
-
-#define GPIO_PIN_MASK	0x1f
-
-#define GPIO_PORT_SHIFT	5
-#define GPIO_PORT_MASK	(0x7 << GPIO_PORT_SHIFT)
-
-#define GPIO_PORTA	(PORTA << GPIO_PORT_SHIFT)
-#define GPIO_PORTB	(PORTB << GPIO_PORT_SHIFT)
-#define GPIO_PORTC	(PORTC << GPIO_PORT_SHIFT)
-#define GPIO_PORTD	(PORTD << GPIO_PORT_SHIFT)
-#define GPIO_PORTE	(PORTE << GPIO_PORT_SHIFT)
-#define GPIO_PORTF	(PORTF << GPIO_PORT_SHIFT)
 
 #define GPIO_OUT	(1 << 8)
 #define GPIO_IN		(0 << 8)

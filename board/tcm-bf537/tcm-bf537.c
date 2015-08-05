@@ -23,18 +23,6 @@ int checkboard(void)
 	return 0;
 }
 
-static void board_init_enetaddr(char *var)
-{
-	uchar enetaddr[6];
-
-	if (eth_getenv_enetaddr(var, enetaddr))
-		return;
-
-	printf("Warning: %s: generating 'random' MAC address\n", var);
-	eth_random_addr(enetaddr);
-	eth_setenv_enetaddr(var, enetaddr);
-}
-
 #ifndef CONFIG_BFIN_MAC
 # define bfin_EMAC_initialize(x) 1
 #endif
@@ -50,9 +38,6 @@ int board_eth_init(bd_t *bis)
 
 int misc_init_r(void)
 {
-	board_init_enetaddr("ethaddr");
-	board_init_enetaddr("eth1addr");
-
 	gpio_cfi_flash_init();
 
 	return 0;

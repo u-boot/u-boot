@@ -119,13 +119,6 @@
 /*
  * Commands
  */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_NFS
-
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF

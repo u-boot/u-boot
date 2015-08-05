@@ -372,7 +372,6 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC512x_FEC		1
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR			0x1F
 #define CONFIG_MII			1	/* MII PHY management */
 #define CONFIG_FEC_AN_TIMEOUT		1
@@ -395,8 +394,6 @@
 #define CONFIG_LOADS_ECHO		1
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
@@ -406,7 +403,6 @@
 #undef CONFIG_CMD_EXT2
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 

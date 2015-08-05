@@ -1,0 +1,23 @@
+/*
+ * Avnet PicoZed board DTS
+ *
+ * Copyright (C) 2015 Xilinx, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+/dts-v1/;
+#include "zynq-7000.dtsi"
+
+/ {
+	model = "Zynq PicoZed Board";
+	compatible = "xlnx,zynq-picozed", "xlnx,zynq-7000";
+
+	aliases {
+		serial0 = &uart1;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0 0x40000000>;
+	};
+};

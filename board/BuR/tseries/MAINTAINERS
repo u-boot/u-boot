@@ -1,5 +1,5 @@
 TSERIES BOARD
-M:	Hannes Petermaier <hannes.petermaier@br-automation.com>
+M:	Hannes Schmelzer <hannes.schmelzer@br-automation.com>
 S:	Maintained
 F:	board/BuR/tseries/
 F:	include/configs/tseries.h

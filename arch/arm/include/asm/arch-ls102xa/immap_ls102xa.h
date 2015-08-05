@@ -17,6 +17,9 @@
 #define SOC_VER_LS1021		0x11
 #define SOC_VER_LS1022		0x12
 
+#define SOC_MAJOR_VER_1_0	0x1
+#define SOC_MAJOR_VER_2_0	0x2
+
 #define CCSR_BRR_OFFSET		0xe4
 #define CCSR_SCRATCHRW1_OFFSET	0x200
 
@@ -343,152 +346,6 @@ struct ccsr_serdes {
 		u32	tcsr3;
 	} lane[4];	/* Lane A, B, C, D, E, F, G, H */
 	u8	res_a00[0x1000-0xa00];	/* from 0xa00 to 0xfff */
-};
-
-#define DDR_SDRAM_CFG			0x470c0008
-#define DDR_CS0_BNDS			0x008000bf
-#define DDR_CS0_CONFIG			0x80014302
-#define DDR_TIMING_CFG_0		0x50550004
-#define DDR_TIMING_CFG_1		0xbcb38c56
-#define DDR_TIMING_CFG_2		0x0040d120
-#define DDR_TIMING_CFG_3		0x010e1000
-#define DDR_TIMING_CFG_4		0x00000001
-#define DDR_TIMING_CFG_5		0x03401400
-#define DDR_SDRAM_CFG_2			0x00401010
-#define DDR_SDRAM_MODE			0x00061c60
-#define DDR_SDRAM_MODE_2		0x00180000
-#define DDR_SDRAM_INTERVAL		0x18600618
-#define DDR_DDR_WRLVL_CNTL		0x8655f605
-#define DDR_DDR_WRLVL_CNTL_2		0x05060607
-#define DDR_DDR_WRLVL_CNTL_3		0x05050505
-#define DDR_DDR_CDR1			0x80040000
-#define DDR_DDR_CDR2			0x00000001
-#define DDR_SDRAM_CLK_CNTL		0x02000000
-#define DDR_DDR_ZQ_CNTL			0x89080600
-#define DDR_CS0_CONFIG_2		0
-#define DDR_SDRAM_CFG_MEM_EN		0x80000000
-
-/* DDR memory controller registers */
-struct ccsr_ddr {
-	u32 cs0_bnds;			/* Chip Select 0 Memory Bounds */
-	u32 resv1[1];
-	u32 cs1_bnds;			/* Chip Select 1 Memory Bounds */
-	u32 resv2[1];
-	u32 cs2_bnds;			/* Chip Select 2 Memory Bounds */
-	u32 resv3[1];
-	u32 cs3_bnds;			/* Chip Select 3 Memory Bounds */
-	u32 resv4[25];
-	u32 cs0_config;			/* Chip Select Configuration */
-	u32 cs1_config;			/* Chip Select Configuration */
-	u32 cs2_config;			/* Chip Select Configuration */
-	u32 cs3_config;			/* Chip Select Configuration */
-	u32 resv5[12];
-	u32 cs0_config_2;		/* Chip Select Configuration 2 */
-	u32 cs1_config_2;		/* Chip Select Configuration 2 */
-	u32 cs2_config_2;		/* Chip Select Configuration 2 */
-	u32 cs3_config_2;		/* Chip Select Configuration 2 */
-	u32 resv6[12];
-	u32 timing_cfg_3;		/* SDRAM Timing Configuration 3 */
-	u32 timing_cfg_0;		/* SDRAM Timing Configuration 0 */
-	u32 timing_cfg_1;		/* SDRAM Timing Configuration 1 */
-	u32 timing_cfg_2;		/* SDRAM Timing Configuration 2 */
-	u32 sdram_cfg;			/* SDRAM Control Configuration */
-	u32 sdram_cfg_2;		/* SDRAM Control Configuration 2 */
-	u32 sdram_mode;			/* SDRAM Mode Configuration */
-	u32 sdram_mode_2;		/* SDRAM Mode Configuration 2 */
-	u32 sdram_md_cntl;		/* SDRAM Mode Control */
-	u32 sdram_interval;		/* SDRAM Interval Configuration */
-	u32 sdram_data_init;		/* SDRAM Data initialization */
-	u32 resv7[1];
-	u32 sdram_clk_cntl;		/* SDRAM Clock Control */
-	u32 resv8[5];
-	u32 init_addr;			/* training init addr */
-	u32 init_ext_addr;		/* training init extended addr */
-	u32 resv9[4];
-	u32 timing_cfg_4;		/* SDRAM Timing Configuration 4 */
-	u32 timing_cfg_5;		/* SDRAM Timing Configuration 5 */
-	u32 timing_cfg_6;		/* SDRAM Timing Configuration 6 */
-	u32 timing_cfg_7;		/* SDRAM Timing Configuration 7 */
-	u32 ddr_zq_cntl;		/* ZQ calibration control*/
-	u32 ddr_wrlvl_cntl;		/* write leveling control*/
-	u32 resv10[1];
-	u32 ddr_sr_cntr;		/* self refresvh counter */
-	u32 ddr_sdram_rcw_1;		/* Control Words 1 */
-	u32 ddr_sdram_rcw_2;		/* Control Words 2 */
-	u32 resv11[2];
-	u32 ddr_wrlvl_cntl_2;		/* write leveling control 2 */
-	u32 ddr_wrlvl_cntl_3;		/* write leveling control 3 */
-	u32 resv12[2];
-	u32 ddr_sdram_rcw_3;		/* Control Words 3 */
-	u32 ddr_sdram_rcw_4;		/* Control Words 4 */
-	u32 ddr_sdram_rcw_5;		/* Control Words 5 */
-	u32 ddr_sdram_rcw_6;		/* Control Words 6 */
-	u32 resv13[20];
-	u32 sdram_mode_3;		/* SDRAM Mode Configuration 3 */
-	u32 sdram_mode_4;		/* SDRAM Mode Configuration 4 */
-	u32 sdram_mode_5;		/* SDRAM Mode Configuration 5 */
-	u32 sdram_mode_6;		/* SDRAM Mode Configuration 6 */
-	u32 sdram_mode_7;		/* SDRAM Mode Configuration 7 */
-	u32 sdram_mode_8;		/* SDRAM Mode Configuration 8 */
-	u32 sdram_mode_9;		/* SDRAM Mode Configuration 9 */
-	u32 sdram_mode_10;		/* SDRAM Mode Configuration 10 */
-	u32 sdram_mode_11;		/* SDRAM Mode Configuration 11 */
-	u32 sdram_mode_12;		/* SDRAM Mode Configuration 12 */
-	u32 sdram_mode_13;		/* SDRAM Mode Configuration 13 */
-	u32 sdram_mode_14;		/* SDRAM Mode Configuration 14 */
-	u32 sdram_mode_15;		/* SDRAM Mode Configuration 15 */
-	u32 sdram_mode_16;		/* SDRAM Mode Configuration 16 */
-	u32 resv14[4];
-	u32 timing_cfg_8;		/* SDRAM Timing Configuration 8 */
-	u32 timing_cfg_9;		/* SDRAM Timing Configuration 9 */
-	u32 resv15[2];
-	u32 sdram_cfg_3;		/* SDRAM Control Configuration 3 */
-	u32 resv16[15];
-	u32 deskew_cntl;		/* SDRAM Deskew Control */
-	u32 resv17[545];
-	u32 ddr_dsr1;			/* Debug Status 1 */
-	u32 ddr_dsr2;			/* Debug Status 2 */
-	u32 ddr_cdr1;			/* Control Driver 1 */
-	u32 ddr_cdr2;			/* Control Driver 2 */
-	u32 resv18[50];
-	u32 ip_rev1;			/* IP Block Revision 1 */
-	u32 ip_rev2;			/* IP Block Revision 2 */
-	u32 eor;			/* Enhanced Optimization Register */
-	u32 resv19[63];
-	u32 mtcr;			/* Memory Test Control Register */
-	u32 resv20[7];
-	u32 mtp1;			/* Memory Test Pattern 1 */
-	u32 mtp2;			/* Memory Test Pattern 2 */
-	u32 mtp3;			/* Memory Test Pattern 3 */
-	u32 mtp4;			/* Memory Test Pattern 4 */
-	u32 mtp5;			/* Memory Test Pattern 5 */
-	u32 mtp6;			/* Memory Test Pattern 6 */
-	u32 mtp7;			/* Memory Test Pattern 7 */
-	u32 mtp8;			/* Memory Test Pattern 8 */
-	u32 mtp9;			/* Memory Test Pattern 9 */
-	u32 mtp10;			/* Memory Test Pattern 10 */
-	u32 resv21[6];
-	u32 ddr_mt_st_ext_addr;		/* Memory Test Start Extended Address */
-	u32 ddr_mt_st_addr;		/* Memory Test Start Address */
-	u32 ddr_mt_end_ext_addr;	/* Memory Test End Extended Address */
-	u32 ddr_mt_end_addr;		/* Memory Test End Address */
-	u32 resv22[36];
-	u32 data_err_inject_hi;		/* Data Path Err Injection Mask High */
-	u32 data_err_inject_lo;		/* Data Path Err Injection Mask Low */
-	u32 ecc_err_inject;		/* Data Path Err Injection Mask ECC */
-	u32 resv23[5];
-	u32 capture_data_hi;		/* Data Path Read Capture High */
-	u32 capture_data_lo;		/* Data Path Read Capture Low */
-	u32 capture_ecc;		/* Data Path Read Capture ECC */
-	u32 resv24[5];
-	u32 err_detect;			/* Error Detect */
-	u32 err_disable;		/* Error Disable */
-	u32 err_int_en;
-	u32 capture_attributes;		/* Error Attrs Capture */
-	u32 capture_address;		/* Error Addr Capture */
-	u32 capture_ext_address;	/* Error Extended Addr Capture */
-	u32 err_sbe;			/* Single-Bit ECC Error Management */
-	u32 resv25[105];
 };
 
 #define CCI400_CTRLORD_TERM_BARRIER	0x00000008

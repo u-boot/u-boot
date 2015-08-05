@@ -70,14 +70,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_SOURCE
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
@@ -139,7 +131,6 @@
 #define CONFIG_SPI
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_ATMEL_SPI
 #define CONFIG_SPI_FLASH_STMICRO
 #define TAURUS_SPI_MASK (1 << 4)

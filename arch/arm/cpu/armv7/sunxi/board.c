@@ -12,8 +12,6 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <netdev.h>
-#include <miiphy.h>
 #include <serial.h>
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
@@ -46,28 +44,45 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUNXI_GPIO_INPUT);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUNXI_GPIO_INPUT);
 #endif
-	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUNXI_GPF2_UART0_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF4_UART0_RX);
+#if defined(CONFIG_MACH_SUN8I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUN8I_GPF_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUN8I_GPF_UART0);
+#else
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUNXI_GPF_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF_UART0);
+#endif
 	sunxi_gpio_set_pull(SUNXI_GPF(4), 1);
 #elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I))
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUN4I_GPB22_UART0_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUN4I_GPB23_UART0_RX);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUN4I_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUN4I_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(23), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN5I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(19), SUN5I_GPB19_UART0_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(20), SUN5I_GPB20_UART0_RX);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(19), SUN5I_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(20), SUN5I_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(20), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN6I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPH(20), SUN6I_GPH20_UART0_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPH(21), SUN6I_GPH21_UART0_RX);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(20), SUN6I_GPH_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(21), SUN6I_GPH_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPH(21), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_A33)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUN8I_A33_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUN8I_A33_GPB_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPB(1), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN9I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(12), SUN9I_GPH_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(13), SUN9I_GPH_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPH(13), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPG(3), SUN5I_GPG3_UART1_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPG(4), SUN5I_GPG4_UART1_RX);
+	sunxi_gpio_set_cfgpin(SUNXI_GPG(3), SUN5I_GPG_UART1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPG(4), SUN5I_GPG_UART1);
 	sunxi_gpio_set_pull(SUNXI_GPG(4), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 3 && defined(CONFIG_MACH_SUN8I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUN8I_GPB_UART2);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUN8I_GPB_UART2);
+	sunxi_gpio_set_pull(SUNXI_GPB(1), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPL(2), SUN8I_GPL2_R_UART_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPL(3), SUN8I_GPL3_R_UART_RX);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(2), SUN8I_GPL_R_UART);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(3), SUN8I_GPL_R_UART);
 	sunxi_gpio_set_pull(SUNXI_GPL(3), SUNXI_GPIO_PULL_UP);
 #else
 #error Unsupported console port number. Please fix pin mux settings in board.c
@@ -84,13 +99,14 @@ void spl_board_load_image(void)
 
 void s_init(void)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_A23
 	/* Magic (undocmented) value taken from boot0, without this DRAM
 	 * access gets messed up (seems cache related) */
 	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
 #endif
-#if !defined CONFIG_SPL_BUILD && (defined CONFIG_MACH_SUN7I || \
-		defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
+#if defined CONFIG_MACH_SUN6I || \
+    defined CONFIG_MACH_SUN7I || \
+    defined CONFIG_MACH_SUN8I
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"
@@ -112,13 +128,6 @@ void s_init(void)
  */
 u32 spl_boot_device(void)
 {
-#ifdef CONFIG_SPL_FEL
-	/*
-	 * This is the legacy compile time configuration for a special FEL
-	 * enabled build. It has many restrictions and can only boot over USB.
-	 */
-	return BOOT_DEVICE_BOARD;
-#else
 	/*
 	 * When booting from the SD card, the "eGON.BT0" signature is expected
 	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
@@ -139,7 +148,6 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_MMC1;
 	else
 		return BOOT_DEVICE_BOARD;
-#endif
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */
@@ -167,7 +175,7 @@ void board_init_f(ulong dummy)
 
 void reset_cpu(ulong addr)
 {
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
+#ifdef CONFIG_SUNXI_GEN_SUN4I
 	static const struct sunxi_wdog *wdog =
 		 &((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -179,7 +187,8 @@ void reset_cpu(ulong addr)
 		/* sun5i sometimes gets stuck without this */
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
-#else /* CONFIG_MACH_SUN6I || CONFIG_MACH_SUN8I || .. */
+#endif
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	static const struct sunxi_wdog *wdog =
 		 ((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -187,6 +196,7 @@ void reset_cpu(ulong addr)
 	writel(WDT_CFG_RESET, &wdog->cfg);
 	writel(WDT_MODE_EN, &wdog->mode);
 	writel(WDT_CTRL_KEY | WDT_CTRL_RESTART, &wdog->ctl);
+	while (1) { }
 #endif
 }
 
@@ -208,16 +218,9 @@ int cpu_eth_init(bd_t *bis)
 	__maybe_unused int rc;
 
 #ifdef CONFIG_MACPWR
+	gpio_request(CONFIG_MACPWR, "macpwr");
 	gpio_direction_output(CONFIG_MACPWR, 1);
 	mdelay(200);
-#endif
-
-#ifdef CONFIG_SUNXI_EMAC
-	rc = sunxi_emac_initialize(bis);
-	if (rc < 0) {
-		printf("sunxi: failed to initialize emac\n");
-		return rc;
-	}
 #endif
 
 #ifdef CONFIG_SUNXI_GMAC

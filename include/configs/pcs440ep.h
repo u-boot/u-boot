@@ -248,7 +248,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
@@ -260,8 +259,6 @@
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO

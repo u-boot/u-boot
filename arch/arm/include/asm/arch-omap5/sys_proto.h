@@ -18,6 +18,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Structure for Iodelay configuration registers.
+ * Theoretical max for g_delay is 21560 ps.
+ * Theoretical max for a_delay is 1/3rd of g_delay max.
+ * So using u16 for both a/g_delay.
+ */
+struct iodelay_cfg_entry {
+	u16 offset;
+	u16 a_delay;
+	u16 g_delay;
+};
+
 struct pad_conf_entry {
 	u32 offset;
 	u32 val;
@@ -32,6 +44,7 @@ void gpmc_init(void);
 void watchdog_init(void);
 u32 get_device_type(void);
 void do_set_mux(u32 base, struct pad_conf_entry const *array, int size);
+void do_set_mux32(u32 base, struct pad_conf_entry const *array, int size);
 void set_muxconf_regs_essential(void);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);

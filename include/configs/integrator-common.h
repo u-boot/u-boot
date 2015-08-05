@@ -7,8 +7,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#define CONFIG_INTEGRATOR
-
 #define CONFIG_SYS_TEXT_BASE		0x01000000
 #define CONFIG_SYS_MEMTEST_START	0x100000
 #define CONFIG_SYS_MEMTEST_END		0x10000000
@@ -96,7 +94,6 @@
  * - SIB block
  * - U-Boot environment
  */
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_ARMFLASH
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1

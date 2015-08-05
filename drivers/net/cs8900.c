@@ -188,14 +188,13 @@ static int cs8900_recv(struct eth_device *dev)
 
 	if (rxlen > PKTSIZE_ALIGN + PKTALIGN)
 		debug("packet too big!\n");
-	for (addr = (u16 *) NetRxPackets[0], i = rxlen >> 1; i > 0;
-		 i--)
+	for (addr = (u16 *)net_rx_packets[0], i = rxlen >> 1; i > 0; i--)
 		*addr++ = REG_READ(&priv->regs->rtdata);
 	if (rxlen & 1)
 		*addr++ = REG_READ(&priv->regs->rtdata);
 
 	/* Pass the packet up to the protocol layers. */
-	NetReceive (NetRxPackets[0], rxlen);
+	net_process_received_packet(net_rx_packets[0], rxlen);
 	return rxlen;
 }
 

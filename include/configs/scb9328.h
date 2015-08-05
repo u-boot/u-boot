@@ -30,15 +30,8 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-
-#undef CONFIG_CMD_CONSOLE
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_SOURCE
 
 /*
  * Boot options. Setting delay to -1 stops autostart count down.
@@ -50,7 +43,6 @@
 #define CONFIG_BOOTARGS	   "console=ttySMX0,115200n8 root=/dev/mtdblock3 rootfstype=jffs2 mtdparts=scb9328_flash:128k(U-boot)ro,128k(U-boot_env),1m(kernel),4m(root),4m(fs) eval_board=evk9328"
 #define CONFIG_BOOTCOMMAND "bootm 10040000"
 #define CONFIG_SHOW_BOOT_PROGRESS
-#define CONFIG_ETHADDR		80:81:82:83:84:85
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		10.10.10.9
 #define CONFIG_SERVERIP		10.10.10.10

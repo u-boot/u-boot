@@ -2,6 +2,7 @@ if KIRKWOOD
 
 choice
 	prompt "Marvell Kirkwood board select"
+	optional
 
 config TARGET_OPENRD
 	bool "Marvell OpenRD Board"

@@ -44,33 +44,40 @@ struct ich6_bank_priv {
 	uint16_t lvl;
 };
 
+#define GPIO_USESEL_OFFSET(x)	(x)
+#define GPIO_IOSEL_OFFSET(x)	(x + 4)
+#define GPIO_LVL_OFFSET(x)	(x + 8)
+
+#define IOPAD_MODE_MASK				0x7
+#define IOPAD_PULL_ASSIGN_SHIFT		7
+#define IOPAD_PULL_ASSIGN_MASK		(0x3 << IOPAD_PULL_ASSIGN_SHIFT)
+#define IOPAD_PULL_STRENGTH_SHIFT	9
+#define IOPAD_PULL_STRENGTH_MASK	(0x3 << IOPAD_PULL_STRENGTH_SHIFT)
+
 /* TODO: Move this to device tree, or platform data */
 void ich_gpio_set_gpio_map(const struct pch_gpio_map *map)
 {
 	gd->arch.gpio_map = map;
 }
 
-static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
+static int gpio_ich6_get_base(unsigned long base)
 {
-	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
 	pci_dev_t pci_dev;			/* handle for 0:1f:0 */
 	u8 tmpbyte;
 	u16 tmpword;
 	u32 tmplong;
-	u16 gpiobase;
-	int offset;
 
 	/* Where should it be? */
 	pci_dev = PCI_BDF(0, 0x1f, 0);
 
 	/* Is the device present? */
-	tmpword = pci_read_config16(pci_dev, PCI_VENDOR_ID);
+	tmpword = x86_pci_read_config16(pci_dev, PCI_VENDOR_ID);
 	if (tmpword != PCI_VENDOR_ID_INTEL) {
 		debug("%s: wrong VendorID\n", __func__);
 		return -ENODEV;
 	}
 
-	tmpword = pci_read_config16(pci_dev, PCI_DEVICE_ID);
+	tmpword = x86_pci_read_config16(pci_dev, PCI_DEVICE_ID);
 	debug("Found %04x:%04x\n", PCI_VENDOR_ID_INTEL, tmpword);
 	/*
 	 * We'd like to validate the Device ID too, but pretty much any
@@ -80,34 +87,34 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	 */
 
 	/* I/O should already be enabled (it's a RO bit). */
-	tmpword = pci_read_config16(pci_dev, PCI_COMMAND);
+	tmpword = x86_pci_read_config16(pci_dev, PCI_COMMAND);
 	if (!(tmpword & PCI_COMMAND_IO)) {
 		debug("%s: device IO not enabled\n", __func__);
 		return -ENODEV;
 	}
 
 	/* Header Type must be normal (bits 6-0 only; see spec.) */
-	tmpbyte = pci_read_config8(pci_dev, PCI_HEADER_TYPE);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_HEADER_TYPE);
 	if ((tmpbyte & 0x7f) != PCI_HEADER_TYPE_NORMAL) {
 		debug("%s: invalid Header type\n", __func__);
 		return -ENODEV;
 	}
 
 	/* Base Class must be a bridge device */
-	tmpbyte = pci_read_config8(pci_dev, PCI_CLASS_CODE);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_CODE);
 	if (tmpbyte != PCI_CLASS_CODE_BRIDGE) {
 		debug("%s: invalid class\n", __func__);
 		return -ENODEV;
 	}
 	/* Sub Class must be ISA */
-	tmpbyte = pci_read_config8(pci_dev, PCI_CLASS_SUB_CODE);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_SUB_CODE);
 	if (tmpbyte != PCI_CLASS_SUB_CODE_BRIDGE_ISA) {
 		debug("%s: invalid subclass\n", __func__);
 		return -ENODEV;
 	}
 
 	/* Programming Interface must be 0x00 (no others exist) */
-	tmpbyte = pci_read_config8(pci_dev, PCI_CLASS_PROG);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_PROG);
 	if (tmpbyte != 0x00) {
 		debug("%s: invalid interface type\n", __func__);
 		return -ENODEV;
@@ -123,9 +130,9 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	 * while on the Ivybridge the bit0 is used to indicate it is an
 	 * I/O space.
 	 */
-	tmplong = pci_read_config32(pci_dev, PCI_CFG_GPIOBASE);
+	tmplong = x86_pci_read_config32(pci_dev, base);
 	if (tmplong == 0x00000000 || tmplong == 0xffffffff) {
-		debug("%s: unexpected GPIOBASE value\n", __func__);
+		debug("%s: unexpected BASE value\n", __func__);
 		return -ENODEV;
 	}
 
@@ -135,7 +142,215 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	 * at the offset that we just read. Bit 0 indicates that it's
 	 * an I/O address, not a memory address, so mask that off.
 	 */
-	gpiobase = tmplong & 0xfffe;
+	return tmplong & 0xfffc;
+}
+
+static int _ich6_gpio_set_value(uint16_t base, unsigned offset, int value)
+{
+	u32 val;
+
+	val = inl(base);
+	if (value)
+		val |= (1UL << offset);
+	else
+		val &= ~(1UL << offset);
+	outl(val, base);
+
+	return 0;
+}
+
+static int _ich6_gpio_set_function(uint16_t base, unsigned offset, int func)
+{
+	u32 val;
+
+	if (func) {
+		val = inl(base);
+		val |= (1UL << offset);
+		outl(val, base);
+	} else {
+		val = inl(base);
+		val &= ~(1UL << offset);
+		outl(val, base);
+	}
+
+	return 0;
+}
+
+static int _ich6_gpio_set_direction(uint16_t base, unsigned offset, int dir)
+{
+	u32 val;
+
+	if (!dir) {
+		val = inl(base);
+		val |= (1UL << offset);
+		outl(val, base);
+	} else {
+		val = inl(base);
+		val &= ~(1UL << offset);
+		outl(val, base);
+	}
+
+	return 0;
+}
+
+static int _gpio_ich6_pinctrl_cfg_pin(s32 gpiobase, s32 iobase, int pin_node)
+{
+	u32 gpio_offset[2];
+	int pad_offset;
+	int val;
+	int ret;
+	const void *prop;
+
+	/*
+	 * GPIO node is not mandatory, so we only do the
+	 * pinmuxing if the node exist.
+	 */
+	ret = fdtdec_get_int_array(gd->fdt_blob, pin_node, "gpio-offset",
+			     gpio_offset, 2);
+	if (!ret) {
+		/* Do we want to force the GPIO mode? */
+		prop = fdt_getprop(gd->fdt_blob, pin_node, "mode-gpio",
+				      NULL);
+		if (prop)
+			_ich6_gpio_set_function(GPIO_USESEL_OFFSET
+						(gpiobase) +
+						gpio_offset[0],
+						gpio_offset[1], 1);
+
+		val =
+		    fdtdec_get_int(gd->fdt_blob, pin_node, "direction", -1);
+		if (val != -1)
+			_ich6_gpio_set_direction(GPIO_IOSEL_OFFSET
+						 (gpiobase) +
+						 gpio_offset[0],
+						 gpio_offset[1], val);
+
+		val =
+		    fdtdec_get_int(gd->fdt_blob, pin_node, "output-value", -1);
+		if (val != -1)
+			_ich6_gpio_set_value(GPIO_LVL_OFFSET(gpiobase)
+					     + gpio_offset[0],
+					     gpio_offset[1], val);
+	}
+
+	/* if iobase is present, let's configure the pad */
+	if (iobase != -1) {
+		int iobase_addr;
+
+		/*
+		 * The offset for the same pin for the IOBASE and GPIOBASE are
+		 * different, so instead of maintaining a lookup table,
+		 * the device tree should provide directly the correct
+		 * value for both mapping.
+		 */
+		pad_offset =
+		    fdtdec_get_int(gd->fdt_blob, pin_node, "pad-offset", -1);
+		if (pad_offset == -1) {
+			debug("%s: Invalid register io offset %d\n",
+			      __func__, pad_offset);
+			return -EINVAL;
+		}
+
+		/* compute the absolute pad address */
+		iobase_addr = iobase + pad_offset;
+
+		/*
+		 * Do we need to set a specific function mode?
+		 * If someone put also 'mode-gpio', this option will
+		 * be just ignored by the controller
+		 */
+		val = fdtdec_get_int(gd->fdt_blob, pin_node, "mode-func", -1);
+		if (val != -1)
+			clrsetbits_le32(iobase_addr, IOPAD_MODE_MASK, val);
+
+		/* Configure the pull-up/down if needed */
+		val = fdtdec_get_int(gd->fdt_blob, pin_node, "pull-assign", -1);
+		if (val != -1)
+			clrsetbits_le32(iobase_addr,
+					IOPAD_PULL_ASSIGN_MASK,
+					val << IOPAD_PULL_ASSIGN_SHIFT);
+
+		val =
+		    fdtdec_get_int(gd->fdt_blob, pin_node, "pull-strength", -1);
+		if (val != -1)
+			clrsetbits_le32(iobase_addr,
+					IOPAD_PULL_STRENGTH_MASK,
+					val << IOPAD_PULL_STRENGTH_SHIFT);
+
+		debug("%s: pad cfg [0x%x]: %08x\n", __func__, pad_offset,
+		      readl(iobase_addr));
+	}
+
+	return 0;
+}
+
+int gpio_ich6_pinctrl_init(void)
+{
+	int pin_node;
+	int node;
+	int ret;
+	int gpiobase;
+	int iobase_offset;
+	int iobase = -1;
+
+	/*
+	 * Get the memory/io base address to configure every pins.
+	 * IOBASE is used to configure the mode/pads
+	 * GPIOBASE is used to configure the direction and default value
+	 */
+	gpiobase = gpio_ich6_get_base(PCI_CFG_GPIOBASE);
+	if (gpiobase < 0) {
+		debug("%s: invalid GPIOBASE address (%08x)\n", __func__,
+		      gpiobase);
+		return -EINVAL;
+	}
+
+	/* This is not an error to not have a pinctrl node */
+	node =
+	    fdtdec_next_compatible(gd->fdt_blob, 0, COMPAT_INTEL_X86_PINCTRL);
+	if (node <= 0) {
+		debug("%s: no pinctrl node\n", __func__);
+		return 0;
+	}
+
+	/*
+	 * Get the IOBASE, this is not mandatory as this is not
+	 * supported by all the CPU
+	 */
+	iobase_offset = fdtdec_get_int(gd->fdt_blob, node, "io-base", -1);
+	if (iobase_offset == -1) {
+		debug("%s: io-base offset not present\n", __func__);
+	} else {
+		iobase = gpio_ich6_get_base(iobase_offset);
+		if (iobase < 0) {
+			debug("%s: invalid IOBASE address (%08x)\n", __func__,
+			      iobase);
+			return -EINVAL;
+		}
+	}
+
+	for (pin_node = fdt_first_subnode(gd->fdt_blob, node);
+	     pin_node > 0;
+	     pin_node = fdt_next_subnode(gd->fdt_blob, pin_node)) {
+		/* Configure the pin */
+		ret = _gpio_ich6_pinctrl_cfg_pin(gpiobase, iobase, pin_node);
+		if (ret != 0) {
+			debug("%s: invalid configuration for the pin %d\n",
+			      __func__, pin_node);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
+	u16 gpiobase;
+	int offset;
+
+	gpiobase = gpio_ich6_get_base(PCI_CFG_GPIOBASE);
 	offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
 	if (offset == -1) {
 		debug("%s: Invalid register offset %d\n", __func__, offset);
@@ -151,7 +366,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 static int ich6_gpio_probe(struct udevice *dev)
 {
 	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 
 	if (gd->arch.gpio_map) {
@@ -192,30 +407,24 @@ static int ich6_gpio_request(struct udevice *dev, unsigned offset,
 static int ich6_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
-	u32 tmplong;
 
-	tmplong = inl(bank->io_sel);
-	tmplong |= (1UL << offset);
-	outl(bank->io_sel, tmplong);
-	return 0;
+	return _ich6_gpio_set_direction(inl(bank->io_sel), offset, 0);
 }
 
 static int ich6_gpio_direction_output(struct udevice *dev, unsigned offset,
 				       int value)
 {
+	int ret;
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
-	u32 tmplong;
 
-	gpio_set_value(offset, value);
+	ret = _ich6_gpio_set_direction(inl(bank->io_sel), offset, 1);
+	if (ret)
+		return ret;
 
-	tmplong = inl(bank->io_sel);
-	tmplong &= ~(1UL << offset);
-	outl(bank->io_sel, tmplong);
-	return 0;
+	return _ich6_gpio_set_value(bank->lvl, offset, value);
 }
 
 static int ich6_gpio_get_value(struct udevice *dev, unsigned offset)
-
 {
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 	u32 tmplong;
@@ -230,15 +439,7 @@ static int ich6_gpio_set_value(struct udevice *dev, unsigned offset,
 			       int value)
 {
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
-	u32 tmplong;
-
-	tmplong = inl(bank->lvl);
-	if (value)
-		tmplong |= (1UL << offset);
-	else
-		tmplong &= ~(1UL << offset);
-	outl(bank->lvl, tmplong);
-	return 0;
+	return _ich6_gpio_set_value(bank->lvl, offset, value);
 }
 
 static int ich6_gpio_get_function(struct udevice *dev, unsigned offset)

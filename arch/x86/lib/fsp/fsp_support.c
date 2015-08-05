@@ -279,7 +279,7 @@ u64 fsp_get_usable_highmem_top(const void *hob_list)
 			res_desc = (struct hob_res_desc *)hdr;
 			if (res_desc->type == RES_SYS_MEM) {
 				phys_start = res_desc->phys_start;
-				/* Need memory above 1MB to be collected here */
+				/* Need memory above 4GB to be collected here */
 				if (phys_start >= (phys_addr_t)FSP_HIGHMEM_BASE)
 					top += (u32)(res_desc->len);
 			}

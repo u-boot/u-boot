@@ -40,17 +40,6 @@
 /*
  * Bootloader Components Configuration
  */
-#include <config_cmd_default.h>
-#undef  CONFIG_CMD_FPGA
-#undef  CONFIG_CMD_LOADS
-#undef  CONFIG_CMD_NET
-#undef  CONFIG_CMD_NFS
-#undef  CONFIG_CMD_IMLS
-#undef  CONFIG_CMD_FLASH
-#undef  CONFIG_CMD_SETGETDCR
-#undef  CONFIG_CMD_SOURCE
-#undef  CONFIG_CMD_XIMG
-
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND

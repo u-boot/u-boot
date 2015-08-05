@@ -27,6 +27,29 @@ config SYS_HZ
 	  get_timer() must operate in milliseconds and this option must be
 	  set to 1000.
 
+config SYS_VSNPRINTF
+	bool "Enable safe version of sprintf()"
+	help
+	  Since sprintf() can overflow its buffer, it is common to use
+	  snprintf() instead, which knows the buffer size and can avoid
+	  overflow. However, this does increase code size slightly (for
+	  Thumb-2, about 420 bytes). Enable this option for safety when
+	  using sprintf() with data you do not control.
+
+config REGEX
+	bool "Enable regular expression support"
+	default y if NET
+	help
+	  If this variable is defined, U-Boot is linked against the
+	  SLRE (Super Light Regular Expression) library, which adds
+	  regex support to some commands, for example "env grep" and
+	  "setexpr".
+
+config LIB_RAND
+	bool "Pseudo-random library support "
+	help
+	  This library provides pseudo-random number generator functions.
+
 source lib/rsa/Kconfig
 
 menu "Hashing Support"
@@ -64,5 +87,13 @@ config SHA_PROG_HW_ACCEL
 	  Data can be streamed in a block at a time and the hashing
 	  is performed in hardware.
 endmenu
+
+config ERRNO_STR
+	bool "Enable function for getting errno-related string message"
+	help
+	  The function errno_str(int errno), returns a pointer to the errno
+	  corresponding text message:
+	  - if errno is null or positive number - a pointer to "Success" message
+	  - if errno is negative - a pointer to errno related message
 
 endmenu

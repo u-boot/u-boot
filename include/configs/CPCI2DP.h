@@ -53,8 +53,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ELF
@@ -62,8 +60,6 @@
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_EEPROM
 
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 

@@ -38,31 +38,20 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_CACHE
 #undef CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
-#undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_UBI
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
 #undef CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
-#undef CONFIG_CMD_IMLS
 
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_LOADS
 
 /*
  * NAND FLASH
@@ -79,7 +68,6 @@
 /* Network configuration */
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
-#define CONFIG_NET_MULTI		1
 #define CONFIG_MII			1
 #define CONFIG_MII_INIT		1
 #define CONFIG_SYS_DISCOVER_PHY
@@ -113,15 +101,12 @@
 				"::eth0:off:rw console=ttyS0,115200"
 #endif
 
-#define CONFIG_ETHADDR		00:e0:0c:bc:e5:60
-#define CONFIG_ETH1ADDR	00:e0:0c:bc:e5:61
 #define CONFIG_ETHPRIME	"FEC0"
 #define CONFIG_IPADDR		192.168.1.2
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_SERVERIP	192.168.1.1
 #define CONFIG_GATEWAYIP	192.168.1.1
 
-#define CONFIG_OVERWRITE_ETHADDR_ONCE
 #define CONFIG_SYS_FEC_BUF_USE_SRAM
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #ifndef CONFIG_SYS_DISCOVER_PHY
@@ -209,7 +194,6 @@
 #define CONFIG_HARD_SPI
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 #ifdef CONFIG_CMD_SPI
-#	define CONFIG_SPI_FLASH
 #	define CONFIG_SPI_FLASH_ATMEL
 
 #	define CONFIG_SYS_DSPI_CTAR0	(DSPI_CTAR_TRSZ(7) | \

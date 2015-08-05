@@ -17,19 +17,107 @@ config SYS_HUSH_PARSER
 	help
 	  Backward compatibility.
 
+menu "Autoboot options"
+
+config AUTOBOOT_KEYED
+	bool "Stop autobooting via specific input key / string"
+	default n
+	help
+	  This option enables stopping (aborting) of the automatic
+	  boot feature only by issuing a specific input key or
+	  string. If not enabled, any input key will abort the
+	  U-Boot automatic booting process and bring the device
+	  to the U-Boot prompt for user input.
+
+config AUTOBOOT_PROMPT
+	string "Autoboot stop prompt"
+	depends on AUTOBOOT_KEYED
+	default "Autoboot in %d seconds\\n"
+	help
+	  This string is displayed before the boot delay selected by
+	  CONFIG_BOOTDELAY starts. If it is not defined	there is no
+	  output indicating that autoboot is in progress.
+
+	  Note that this define is used as the (only) argument to a
+	  printf() call, so it may contain '%' format specifications,
+	  provided that it also includes, sepearated by commas exactly
+	  like in a printf statement, the required arguments. It is
+	  the responsibility of the user to select only such arguments
+	  that are valid in the given context.
+
+config AUTOBOOT_ENCRYPTION
+	bool "Enable encryption in autoboot stopping"
+	depends on AUTOBOOT_KEYED
+	default n
+
+config AUTOBOOT_DELAY_STR
+	string "Delay autobooting via specific input key / string"
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	help
+	  This option delays the automatic boot feature by issuing
+	  a specific input key or string. If CONFIG_AUTOBOOT_DELAY_STR
+	  or the environment variable "bootdelaykey" is specified
+	  and this string is received from console input before
+	  autoboot starts booting, U-Boot gives a command prompt. The
+	  U-Boot prompt will time out if CONFIG_BOOT_RETRY_TIME is
+	  used, otherwise it never times out.
+
+config AUTOBOOT_STOP_STR
+	string "Stop autobooting via specific input key / string"
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	help
+	  This option enables stopping (aborting) of the automatic
+	  boot feature only by issuing a specific input key or
+	  string. If CONFIG_AUTOBOOT_STOP_STR or the environment
+	  variable "bootstopkey" is specified and this string is
+	  received from console input before autoboot starts booting,
+	  U-Boot gives a command prompt. The U-Boot prompt never
+	  times out, even if CONFIG_BOOT_RETRY_TIME is used.
+
+config AUTOBOOT_KEYED_CTRLC
+	bool "Enable Ctrl-C autoboot interruption"
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	default n
+	help
+	  This option allows for the boot sequence to be interrupted
+	  by ctrl-c, in addition to the "bootdelaykey" and "bootstopkey".
+	  Setting this variable	provides an escape sequence from the
+	  limited "password" strings.
+
+config AUTOBOOT_STOP_STR_SHA256
+	string "Stop autobooting via SHA256 encrypted password"
+	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	help
+	  This option adds the feature to only stop the autobooting,
+	  and therefore boot into the U-Boot prompt, when the input
+	  string / password matches a values that is encypted via
+	  a SHA256 hash and saved in the environment.
+
+endmenu
+
 comment "Commands"
 
 menu "Info commands"
 
 config CMD_BDI
 	bool "bdinfo"
+	default y
 	help
 	  Print board info
 
 config CMD_CONSOLE
 	bool "coninfo"
+	default y
 	help
 	  Print console devices and information.
+
+config CMD_CPU
+	bool "cpu"
+	help
+	  Print information about available CPUs. This normally shows the
+	  number of CPUs, type (e.g. manufacturer, architecture, product or
+	  internal name) and clock frequency. Other information may be
+	  available depending on the CPU driver.
 
 config CMD_LICENSE
 	bool "license"
@@ -42,6 +130,7 @@ menu "Boot commands"
 
 config CMD_BOOTD
 	bool "bootd"
+	default y
 	help
 	  Run the command stored in the environment "bootcmd", i.e.
 	  "bootd" does the same thing as "run bootcmd".
@@ -60,21 +149,25 @@ config CMD_GO
 
 config CMD_RUN
 	bool "run"
+	default y
 	help
 	  Run the command in the given environment variable.
 
 config CMD_IMI
 	bool "iminfo"
+	default y
 	help
 	  Print header information for application image.
 
 config CMD_IMLS
 	bool "imls"
+	default y
 	help
 	  List all images found in flash
 
 config CMD_XIMG
 	bool "imxtract"
+	default y
 	help
 	  Extract a part of a multi-image.
 
@@ -96,13 +189,23 @@ config CMD_IMPORTENV
 
 config CMD_EDITENV
 	bool "editenv"
+	default y
 	help
 	  Edit environment variable.
 
 config CMD_SAVEENV
 	bool "saveenv"
+	default y
 	help
-	  Run the command in the given environment variable.
+	  Save all environment variables into the compiled-in persistent
+	  storage.
+
+config CMD_ENV_EXISTS
+	bool "env exists"
+	default y
+	help
+	  Check if a variable is defined in the environment for use in
+	  shell scripting.
 
 endmenu
 
@@ -110,6 +213,7 @@ menu "Memory commands"
 
 config CMD_MEMORY
 	bool "md, mm, nm, mw, cp, cmp, base, loop"
+	default y
 	help
 	  Memeory commands.
 	    md - memory display
@@ -177,16 +281,19 @@ config CMD_DEMO
 
 config CMD_LOADB
 	bool "loadb"
+	default y
 	help
 	  Load a binary file over serial line.
 
 config CMD_LOADS
 	bool "loads"
+	default y
 	help
 	  Load an S-Record file over serial line
 
 config CMD_FLASH
 	bool "flinfo, erase, protect"
+	default y
 	help
 	  NOR flash support.
 	    flinfo - print FLASH memory information
@@ -203,6 +310,11 @@ config CMD_NAND
 	bool "nand"
 	help
 	  NAND support.
+
+config CMD_SF
+	bool "sf"
+	help
+	  SPI Flash support
 
 config CMD_SPI
 	bool "sspi"
@@ -221,6 +333,7 @@ config CMD_USB
 
 config CMD_FPGA
 	bool "fpga"
+	default y
 	help
 	  FPGA support.
 
@@ -231,18 +344,30 @@ menu "Shell scripting commands"
 
 config CMD_ECHO
 	bool "echo"
+	default y
 	help
 	  Echo args to console
 
 config CMD_ITEST
 	bool "itest"
+	default y
 	help
 	  Return true/false on integer compare.
 
 config CMD_SOURCE
 	bool "source"
+	default y
 	help
 	  Run script from memory
+
+config CMD_SETEXPR
+	bool "setexpr"
+	default y
+	help
+	  Evaluate boolean and math expressions and store the result in an env
+	    variable.
+	  Also supports loading the value at a memory location into a variable.
+	  If CONFIG_REGEX is enabled, setexpr also supports a gsub function.
 
 endmenu
 
@@ -250,6 +375,8 @@ menu "Network commands"
 
 config CMD_NET
 	bool "bootp, tftpboot"
+        select NET
+	default y
 	help
 	  Network commands.
 	  bootp - boot image via network using BOOTP/TFTP protocol
@@ -277,6 +404,7 @@ config CMD_DHCP
 
 config CMD_NFS
 	bool "nfs"
+	default y
 	help
 	  Boot image via network using NFS protocol.
 
@@ -300,11 +428,6 @@ config CMD_DNS
 	help
 	  Lookup the IP of a hostname
 
-config CMD_DNS
-	bool "dns"
-	help
-	  Lookup the IP of a hostname
-
 config CMD_LINK_LOCAL
 	bool "linklocal"
 	help
@@ -322,6 +445,7 @@ config CMD_TIME
 # TODO: rename to CMD_SLEEP
 config CMD_MISC
 	bool "sleep"
+	default y
 	help
 	  Delay execution for some time
 
@@ -333,6 +457,7 @@ config CMD_TIMER
 config CMD_SETGETDCR
 	bool "getdcr, setdcr, getidcr, setidcr"
 	depends on 4xx
+	default y
 	help
 	  getdcr - Get an AMCC PPC 4xx DCR's value
 	  setdcr - Set an AMCC PPC 4xx DCR's value
@@ -343,6 +468,158 @@ config CMD_ZYNQ_RSA
 	bool "Zynq RSA"
 	help
 	  Verifies the authenticated and encrypted zynq images.
+
+config CMD_SOUND
+	bool "sound"
+	depends on SOUND
+	help
+	  This provides basic access to the U-Boot's sound support. The main
+	  feature is to play a beep.
+
+	     sound init   - set up sound system
+	     sound play   - play a sound
+
+endmenu
+
+menu "Boot timing"
+
+config BOOTSTAGE
+	bool "Boot timing and reporting"
+	help
+	  Enable recording of boot time while booting. To use it, insert
+	  calls to bootstage_mark() with a suitable BOOTSTAGE_ID from
+	  bootstage.h. Only a single entry is recorded for each ID. You can
+	  give the entry a name with bootstage_mark_name(). You can also
+	  record elapsed time in a particular stage using bootstage_start()
+	  before starting and bootstage_accum() when finished. Bootstage will
+	  add up all the accumated time and report it.
+
+	  Normally, IDs are defined in bootstage.h but a small number of
+	  additional 'user' IDs can be used but passing BOOTSTAGE_ID_ALLOC
+	  as the ID.
+
+	  Calls to show_boot_progress() wil also result in log entries but
+	  these will not have names.
+
+config BOOTSTAGE_REPORT
+	bool "Display a detailed boot timing report before booting the OS"
+	depends on BOOTSTAGE
+	help
+	  Enable output of a boot time report just before the OS is booted.
+	  This shows how long it took U-Boot to go through each stage of the
+	  boot process. The report looks something like this:
+
+		Timer summary in microseconds:
+		       Mark    Elapsed  Stage
+			  0          0  reset
+		  3,575,678  3,575,678  board_init_f start
+		  3,575,695         17  arch_cpu_init A9
+		  3,575,777         82  arch_cpu_init done
+		  3,659,598     83,821  board_init_r start
+		  3,910,375    250,777  main_loop
+		 29,916,167 26,005,792  bootm_start
+		 30,361,327    445,160  start_kernel
+
+config BOOTSTAGE_USER_COUNT
+	hex "Number of boot ID numbers available for user use"
+	default 20
+	help
+	  This is the number of available user bootstage records.
+	  Each time you call bootstage_mark(BOOTSTAGE_ID_ALLOC, ...)
+	  a new ID will be allocated from this stash. If you exceed
+	  the limit, recording will stop.
+
+config CMD_BOOTSTAGE
+	bool "Enable the 'bootstage' command"
+	depends on BOOTSTAGE
+	help
+	  Add a 'bootstage' command which supports printing a report
+	  and un/stashing of bootstage data.
+
+config BOOTSTAGE_FDT
+	bool "Store boot timing information in the OS device tree"
+	depends on BOOTSTAGE
+	help
+	  Stash the bootstage information in the FDT. A root 'bootstage'
+	  node is created with each bootstage id as a child. Each child
+	  has a 'name' property and either 'mark' containing the
+	  mark time in microsecond, or 'accum' containing the
+	  accumulated time for that bootstage id in microseconds.
+	  For example:
+
+		bootstage {
+			154 {
+				name = "board_init_f";
+				mark = <3575678>;
+			};
+			170 {
+				name = "lcd";
+				accum = <33482>;
+			};
+		};
+
+	  Code in the Linux kernel can find this in /proc/devicetree.
+
+config BOOTSTAGE_STASH
+	bool "Stash the boot timing information in memory before booting OS"
+	depends on BOOTSTAGE
+	help
+	  Some OSes do not support device tree. Bootstage can instead write
+	  the boot timing information in a binary format at a given address.
+	  This happens through a call to bootstage_stash(), typically in
+	  the CPU's cleanup_before_linux() function. You can use the
+	  'bootstage stash' and 'bootstage unstash' commands to do this on
+	  the command line.
+
+config BOOTSTAGE_STASH_ADDR
+	hex "Address to stash boot timing information"
+	default 0
+	help
+	  Provide an address which will not be overwritten by the OS when it
+	  starts, so that it can read this information when ready.
+
+config BOOTSTAGE_STASH_SIZE
+	hex "Size of boot timing stash region"
+	default 4096
+	help
+	  This should be large enough to hold the bootstage stash. A value of
+	  4096 (4KiB) is normally plenty.
+
+endmenu
+
+menu "Power commands"
+config CMD_PMIC
+	bool "Enable Driver Model PMIC command"
+	depends on DM_PMIC
+	help
+	  This is the pmic command, based on a driver model pmic's API.
+	  Command features are unchanged:
+	  - list               - list pmic devices
+	  - pmic dev <id>      - show or [set] operating pmic device (NEW)
+	  - pmic dump          - dump registers
+	  - pmic read address  - read byte of register at address
+	  - pmic write address - write byte to register at address
+	  The only one change for this command is 'dev' subcommand.
+
+config CMD_REGULATOR
+	bool "Enable Driver Model REGULATOR command"
+	depends on DM_REGULATOR
+	help
+	  This command is based on driver model regulator's API.
+	  User interface features:
+	  - list               - list regulator devices
+	  - regulator dev <id> - show or [set] operating regulator device
+	  - regulator info     - print constraints info
+	  - regulator status   - print operating status
+	  - regulator value <val] <-f> - print/[set] voltage value [uV]
+	  - regulator current <val>    - print/[set] current value [uA]
+	  - regulator mode <id>        - print/[set] operating mode id
+	  - regulator enable           - enable the regulator output
+	  - regulator disable          - disable the regulator output
+
+	  The '-f' (force) option can be used for set the value which exceeds
+	  the limits, which are found in device-tree and are kept in regulator's
+	  uclass platdata structure.
 
 endmenu
 

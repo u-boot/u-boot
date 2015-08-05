@@ -44,6 +44,8 @@
 #define EMIF_REG_DUAL_CLK_MODE_MASK			(1 << 30)
 #define EMIF_REG_FAST_INIT_SHIFT			29
 #define EMIF_REG_FAST_INIT_MASK			(1 << 29)
+#define EMIF_REG_LEVLING_TO_SHIFT		4
+#define EMIF_REG_LEVELING_TO_MASK		(7 << 4)
 #define EMIF_REG_PHY_DLL_READY_SHIFT		2
 #define EMIF_REG_PHY_DLL_READY_MASK			(1 << 2)
 
@@ -508,6 +510,13 @@
 /*EMIF_READ_WRITE_LEVELING_RAMP_WINDOW*/
 #define EMIF_REG_RDWRLVLINC_RMP_WIN_SHIFT	0
 #define EMIF_REG_RDWRLVLINC_RMP_WIN_MASK	(0x1FFF << 0)
+
+/* EMIF_PHY_CTRL_36 */
+#define EMIF_REG_PHY_FIFO_WE_IN_MISALINED_CLR	(1 << 8)
+
+#define PHY_RDDQS_RATIO_REGS		5
+#define PHY_FIFO_WE_SLAVE_RATIO_REGS	5
+#define PHY_REG_WR_DQ_SLAVE_RATIO_REGS	10
 
 /*Leveling Fields */
 #define DDR3_WR_LVL_INT		0x73
@@ -1200,12 +1209,10 @@ static inline u32 get_emif_rev(u32 base)
  * which is typically the case. So it is sufficient to get
  * SDRAM type from EMIF1.
  */
-static inline u32 emif_sdram_type(void)
+static inline u32 emif_sdram_type(u32 sdram_config)
 {
-	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
-
-	return (readl(&emif->emif_sdram_config) &
-		EMIF_REG_SDRAM_TYPE_MASK) >> EMIF_REG_SDRAM_TYPE_SHIFT;
+	return (sdram_config & EMIF_REG_SDRAM_TYPE_MASK)
+	       >> EMIF_REG_SDRAM_TYPE_SHIFT;
 }
 
 /* assert macros */
@@ -1235,6 +1242,5 @@ extern u32 *const T_den;
 #endif
 
 void config_data_eye_leveling_samples(u32 emif_base);
-u32 emif_sdram_type(void);
 const struct read_write_regs *get_bug_regs(u32 *iterations);
 #endif

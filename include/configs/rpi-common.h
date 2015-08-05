@@ -8,12 +8,18 @@
 #define _RPI_COMMON_H_
 
 #include <linux/sizes.h>
+#include <asm/arch/timer.h>
 
 /* Architecture, CPU, etc.*/
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_BCM2835
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_DCACHE_OFF
+
+#define CONFIG_SYS_TIMER_RATE		1000000
+#define CONFIG_SYS_TIMER_COUNTER	\
+	(&((struct bcm2835_timer_regs *)BCM2835_TIMER_PHYSADDR)->clo)
+
 /*
  * 2835 is a SKU in a series for which the 2708 is the first or primary SoC,
  * so 2708 has historically been used rather than a dedicated 2835 ID.
@@ -114,7 +120,6 @@
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MMC
 #define CONFIG_PARTITION_UUIDS
@@ -128,9 +133,6 @@
 #define CONFIG_INITRD_TAG
 
 #include <config_distro_defaults.h>
-
-/* Some things don't make sense on this HW or yet */
-#undef CONFIG_CMD_FPGA
 
 /* Environment */
 #define ENV_DEVICE_SETTINGS \

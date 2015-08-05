@@ -1,0 +1,14 @@
+/*
+ * Xilinx CSE NAND board DTS
+ *
+ * Copyright (C) 2015 Xilinx, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+/dts-v1/;
+#include "zynq-7000.dtsi"
+
+/ {
+	model = "Zynq CSE NAND Board";
+	compatible = "xlnx,zynq-cse-nand", "xlnx,zynq-7000";
+};

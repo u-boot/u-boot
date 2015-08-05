@@ -67,6 +67,7 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	struct pci_rom_data *rom_data;
 	u16 vendor, device;
 	u16 rom_vendor, rom_device;
+	u32 rom_class;
 	u32 vendev;
 	u32 mapped_vendev;
 	u32 rom_address;
@@ -125,20 +126,20 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 		/* Continue anyway */
 	}
 
-	debug("PCI ROM image, Class Code %04x%02x, Code Type %02x\n",
-	      rom_data->class_hi, rom_data->class_lo, rom_data->type);
+	rom_class = (le16_to_cpu(rom_data->class_hi) << 8) | rom_data->class_lo;
+	debug("PCI ROM image, Class Code %06x, Code Type %02x\n",
+	      rom_class, rom_data->type);
 
-	if (class != ((rom_data->class_hi << 8) | rom_data->class_lo)) {
-		debug("Class Code mismatch ROM %08x, dev %08x\n",
-		      (rom_data->class_hi << 8) | rom_data->class_lo,
-		      class);
+	if (class != rom_class) {
+		debug("Class Code mismatch ROM %06x, dev %06x\n",
+		      rom_class, class);
 	}
 	*hdrp = rom_header;
 
 	return 0;
 }
 
-int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
+int pci_rom_load(struct pci_rom_header *rom_header,
 		 struct pci_rom_header **ram_headerp)
 {
 	struct pci_rom_data *rom_data;
@@ -232,17 +233,18 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), int exec_method)
 {
 	struct pci_rom_header *rom, *ram;
 	int vesa_mode = -1;
-	uint16_t class;
+	uint class;
 	bool emulate;
 	int ret;
 
 	/* Only execute VGA ROMs */
-	pci_read_config_word(dev, PCI_CLASS_DEVICE, &class);
-	if ((class ^ PCI_CLASS_DISPLAY_VGA) & 0xff00) {
+	pci_read_config_dword(dev, PCI_REVISION_ID, &class);
+	if (((class >> 16) ^ PCI_CLASS_DISPLAY_VGA) & 0xff00) {
 		debug("%s: Class %#x, should be %#x\n", __func__, class,
 		      PCI_CLASS_DISPLAY_VGA);
 		return -ENODEV;
 	}
+	class >>= 8;
 
 	if (!should_load_oprom(dev))
 		return -ENXIO;
@@ -251,7 +253,7 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), int exec_method)
 	if (ret)
 		return ret;
 
-	ret = pci_rom_load(class, rom, &ram);
+	ret = pci_rom_load(rom, &ram);
 	if (ret)
 		return ret;
 

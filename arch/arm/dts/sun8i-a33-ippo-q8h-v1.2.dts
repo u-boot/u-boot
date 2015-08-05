@@ -1,0 +1,29 @@
+/*
+ * Copyright 2015 Hans de Goede <hdegoede@redhat.com>
+ *
+ * Minimal dts file for the Ippo Q8H V1.2 (A33, 1024x600) for u-boot only
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ */
+
+/dts-v1/;
+#include "sun8i-a33.dtsi"
+
+/ {
+	model = "Ippo Q8H V1.2 (A33, 1024x600)";
+	compatible = "ippo,q8h-v1.2-a33-lcd1024x600", "allwinner,sun8i-a23";
+
+	aliases {
+		serial0 = &r_uart;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&r_uart {
+	pinctrl-names = "default";
+	pinctrl-0 = <&r_uart_pins_a>;
+	status = "okay";
+};

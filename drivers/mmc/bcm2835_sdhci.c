@@ -69,11 +69,11 @@ static inline void bcm2835_sdhci_raw_writel(struct sdhci_host *host, u32 val,
 	 * (Which is just as well - otherwise we'd have to nobble the DMA engine
 	 * too)
 	 */
-	while (get_timer_us(bcm_host->last_write) < bcm_host->twoticks_delay)
+	while (timer_get_us() - bcm_host->last_write < bcm_host->twoticks_delay)
 		;
 
 	writel(val, host->ioaddr + reg);
-	bcm_host->last_write = get_timer_us(0);
+	bcm_host->last_write = timer_get_us();
 }
 
 static inline u32 bcm2835_sdhci_raw_readl(struct sdhci_host *host, int reg)
@@ -154,9 +154,9 @@ int bcm2835_sdhci_init(u32 regbase, u32 emmc_freq)
 	struct bcm2835_sdhci_host *bcm_host;
 	struct sdhci_host *host;
 
-	bcm_host = malloc(sizeof(*bcm_host));
+	bcm_host = calloc(1, sizeof(*bcm_host));
 	if (!bcm_host) {
-		printf("sdhci_host malloc fail!\n");
+		printf("sdhci_host calloc fail!\n");
 		return 1;
 	}
 

@@ -62,15 +62,12 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_DESIGNWARE_ETH
 #define ETH0_BASE_ADDRESS		0xFE100000
 #define ETH1_BASE_ADDRESS		0xFE110000
 
 /*
  * Command line configuration
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_PING

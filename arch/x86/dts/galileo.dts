@@ -7,12 +7,17 @@
 /dts-v1/;
 
 #include <dt-bindings/mrc/quark.h>
+#include <dt-bindings/interrupt-router/intel-irq.h>
 
 /include/ "skeleton.dtsi"
 
 / {
 	model = "Intel Galileo";
 	compatible = "intel,galileo", "intel,quark";
+
+	aliases {
+		spi0 = "/spi";
+	};
 
 	config {
 		silent_console = <0>;
@@ -62,6 +67,27 @@
 			reg-shift = <2>;
 			clock-frequency = <44236800>;
 			current-speed = <115200>;
+		};
+
+		irq-router@1f,0 {
+			reg = <0x0000f800 0 0 0 0>;
+			compatible = "intel,irq-router";
+			intel,pirq-config = "pci";
+			intel,pirq-link = <0x60 8>;
+			intel,pirq-mask = <0xdef8>;
+			intel,pirq-routing = <
+				PCI_BDF(0, 20, 0) INTA PIRQE
+				PCI_BDF(0, 20, 1) INTB PIRQF
+				PCI_BDF(0, 20, 2) INTC PIRQG
+				PCI_BDF(0, 20, 3) INTD PIRQH
+				PCI_BDF(0, 20, 4) INTA PIRQE
+				PCI_BDF(0, 20, 5) INTB PIRQF
+				PCI_BDF(0, 20, 6) INTC PIRQG
+				PCI_BDF(0, 20, 7) INTD PIRQH
+				PCI_BDF(0, 21, 0) INTA PIRQE
+				PCI_BDF(0, 21, 1) INTB PIRQF
+				PCI_BDF(0, 21, 2) INTC PIRQG
+			>;
 		};
 	};
 

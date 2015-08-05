@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/gp_padctrl.h>
+#include <asm/arch/mc.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/clock.h>
 #include <asm/arch-tegra/fuse.h>
@@ -154,6 +155,57 @@ static void init_pmc_scratch(void)
 	writel(odmdata, &pmc->pmc_scratch20);
 }
 
+#ifdef CONFIG_ARMV7_SECURE_RESERVE_SIZE
+void protect_secure_section(void)
+{
+	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
+
+	/* Must be MB aligned */
+	BUILD_BUG_ON(CONFIG_ARMV7_SECURE_BASE & 0xFFFFF);
+	BUILD_BUG_ON(CONFIG_ARMV7_SECURE_RESERVE_SIZE & 0xFFFFF);
+
+	writel(CONFIG_ARMV7_SECURE_BASE, &mc->mc_security_cfg0);
+	writel(CONFIG_ARMV7_SECURE_RESERVE_SIZE >> 20, &mc->mc_security_cfg1);
+}
+#endif
+
+#if defined(CONFIG_ARMV7_NONSEC)
+static void smmu_flush(struct mc_ctlr *mc)
+{
+	(void)readl(&mc->mc_smmu_config);
+}
+
+static void smmu_enable(void)
+{
+	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
+	u32 value;
+
+	/*
+	 * Enable translation for all clients since access to this register
+	 * is restricted to TrustZone-secured requestors. The kernel will use
+	 * the per-SWGROUP enable bits to enable or disable translations.
+	 */
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_0);
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_1);
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_2);
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_3);
+
+	/*
+	 * Enable SMMU globally since access to this register is restricted
+	 * to TrustZone-secured requestors.
+	 */
+	value = readl(&mc->mc_smmu_config);
+	value |= TEGRA_MC_SMMU_CONFIG_ENABLE;
+	writel(value, &mc->mc_smmu_config);
+
+	smmu_flush(mc);
+}
+#else
+static void smmu_enable(void)
+{
+}
+#endif
+
 void s_init(void)
 {
 	/* Init PMC scratch memory */
@@ -163,6 +215,9 @@ void s_init(void)
 
 	/* init the cache */
 	config_cache();
+
+	/* enable SMMU */
+	smmu_enable();
 
 	/* init vpr */
 	config_vpr();

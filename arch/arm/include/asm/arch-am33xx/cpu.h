@@ -230,7 +230,11 @@ struct prm_device_inst {
 struct cm_wkuppll {
 	unsigned int resv0[136];
 	unsigned int wkl4wkclkctrl;	/* offset 0x220 */
-	unsigned int resv1[55];
+	unsigned int resv1[7];
+	unsigned int usbphy0clkctrl;	/* offset 0x240 */
+	unsigned int resv112;
+	unsigned int usbphy1clkctrl;	/* offset 0x248 */
+	unsigned int resv113[45];
 	unsigned int wkclkstctrl;	/* offset 0x300 */
 	unsigned int resv2[15];
 	unsigned int wkup_i2c0ctrl;	/* offset 0x340 */
@@ -289,7 +293,7 @@ struct cm_perpll {
 	unsigned int l3clkstctrl;	/* offset 0x00 */
 	unsigned int resv0[7];
 	unsigned int l3clkctrl;		/* Offset 0x20 */
-	unsigned int resv1[7];
+	unsigned int resv112[7];
 	unsigned int l3instrclkctrl;	/* offset 0x40 */
 	unsigned int resv2[3];
 	unsigned int ocmcramclkctrl;	/* offset 0x50 */
@@ -316,7 +320,9 @@ struct cm_perpll {
 	unsigned int qspiclkctrl;       /* offset 0x258 */
 	unsigned int resv121;
 	unsigned int usb0clkctrl;	/* offset 0x260 */
-	unsigned int resv13[103];
+	unsigned int resv122;
+	unsigned int usb1clkctrl;	/* offset 0x268 */
+	unsigned int resv13[101];
 	unsigned int l4lsclkstctrl;	/* offset 0x400 */
 	unsigned int resv14[7];
 	unsigned int l4lsclkctrl;	/* offset 0x420 */
@@ -370,10 +376,14 @@ struct cm_perpll {
 	unsigned int uart4clkctrl;	/* offset 0x598 */
 	unsigned int resv35;
 	unsigned int uart5clkctrl;	/* offset 0x5A0 */
-	unsigned int resv36[87];
+	unsigned int resv36[5];
+	unsigned int usbphyocp2scp0clkctrl;	/* offset 0x5B8 */
+	unsigned int resv361;
+	unsigned int usbphyocp2scp1clkctrl;	/* offset 0x5C0 */
+	unsigned int resv3611[79];
 
 	unsigned int emifclkstctrl;	/* offset 0x700 */
-	unsigned int resv361[7];
+	unsigned int resv362[7];
 	unsigned int emifclkctrl;	/* offset 0x720 */
 	unsigned int resv37[3];
 	unsigned int emiffwclkctrl;	/* offset 0x730 */

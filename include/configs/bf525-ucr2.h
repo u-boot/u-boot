@@ -67,7 +67,6 @@
 
 /* support for serial flash */
 #define CONFIG_BFIN_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_HZ	30000000
 #define CONFIG_SPI_FLASH_EON
@@ -93,11 +92,5 @@
 	"sfboot=sf probe 1;" \
 		"sf read 0x1000000 0x20000 0x300000;" \
 		"bootm 0x1000000\0"
-
-/* this sets up the default list of enabled commands */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_NET	/* bootp, tftpboot, rarpboot */
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_IMLS
 
 #endif

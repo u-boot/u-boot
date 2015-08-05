@@ -228,8 +228,9 @@ struct dw_eth_dev {
 
 	struct eth_mac_regs *mac_regs_p;
 	struct eth_dma_regs *dma_regs_p;
-
+#ifndef CONFIG_DM_ETH
 	struct eth_device *dev;
+#endif
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };

@@ -42,6 +42,7 @@ struct sandbox_spi_info {
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
 	bool interactive;		/* Enable cmdline after execute */
+	bool run_distro_boot;		/* Automatically run distro bootcommands */
 	const char *fdt_fname;		/* Filename of FDT binary */
 	const char *parse_err;		/* Error to report from parsing */
 	int argc;			/* Program arguments */

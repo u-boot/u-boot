@@ -12,7 +12,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
@@ -23,7 +22,6 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_LED
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_USB
 
 /* Memory configuration */

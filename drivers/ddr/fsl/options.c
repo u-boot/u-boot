@@ -728,7 +728,12 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 
 	/* Choose ddr controller address mirror mode */
 #if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
-	popts->mirrored_dimm = pdimm[0].mirrored_dimm;
+	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
+		if (pdimm[i].n_ranks) {
+			popts->mirrored_dimm = pdimm[i].mirrored_dimm;
+			break;
+		}
+	}
 #endif
 
 	/* Global Timing Parameters. */

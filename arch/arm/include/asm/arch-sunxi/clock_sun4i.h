@@ -39,7 +39,7 @@ struct sunxi_ccm_reg {
 	u32 apb0_gate;		/* 0x68 apb0 module clock gating */
 	u32 apb1_gate;		/* 0x6c apb1 module clock gating */
 	u8 res4[0x10];
-	u32 nand_sclk_cfg;	/* 0x80 nand sub clock control */
+	u32 nand0_clk_cfg;	/* 0x80 nand sub clock control */
 	u32 ms_sclk_cfg;	/* 0x84 memory stick sub clock control */
 	u32 sd0_clk_cfg;	/* 0x88 sd0 clock control */
 	u32 sd1_clk_cfg;	/* 0x8c sd1 clock control */
@@ -177,7 +177,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_ACE		16
 #define AHB_GATE_OFFSET_DLL		15
 #define AHB_GATE_OFFSET_SDRAM		14
-#define AHB_GATE_OFFSET_NAND		13
+#define AHB_GATE_OFFSET_NAND0		13
 #define AHB_GATE_OFFSET_MS		12
 #define AHB_GATE_OFFSET_MMC3		11
 #define AHB_GATE_OFFSET_MMC2		10
@@ -320,6 +320,8 @@ struct sunxi_ccm_reg {
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
 #define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
+#define CCM_USB_CTRL_OHCI0_CLK (0x1 << 6)
+#define CCM_USB_CTRL_OHCI1_CLK (0x1 << 7)
 #define CCM_USB_CTRL_PHYGATE (0x1 << 8)
 /* These 3 are sun6i only, define them as 0 on sun4i */
 #define CCM_USB_CTRL_PHY0_CLK 0

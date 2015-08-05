@@ -11,6 +11,7 @@
 #include <linux/linux_string.h>
 #else
 #include <common.h>
+#include <slre.h>
 #endif
 
 #include <env_attr.h>
@@ -26,7 +27,8 @@
  *	list = entry[,list]
  */
 int env_attr_walk(const char *attr_list,
-	int (*callback)(const char *name, const char *attributes))
+	int (*callback)(const char *name, const char *attributes, void *priv),
+	void *priv)
 {
 	const char *entry, *entry_end;
 	char *name, *attributes;
@@ -93,7 +95,7 @@ int env_attr_walk(const char *attr_list,
 			if (strlen(name) != 0) {
 				int retval = 0;
 
-				retval = callback(name, attributes);
+				retval = callback(name, attributes, priv);
 				if (retval) {
 					free(entry_cpy);
 					return retval;
@@ -108,34 +110,143 @@ int env_attr_walk(const char *attr_list,
 	return 0;
 }
 
-/*
- * Search for the last matching string in another string with the option to
- * start looking at a certain point (i.e. ignore anything beyond that point).
- */
-static char *reverse_strstr(const char *searched, const char *search_for,
-	const char *searched_start)
+#if defined(CONFIG_REGEX)
+struct regex_callback_priv {
+	const char *searched_for;
+	char *regex;
+	char *attributes;
+};
+
+static int regex_callback(const char *name, const char *attributes, void *priv)
 {
-	char *result = NULL;
+	int retval = 0;
+	struct regex_callback_priv *cbp = (struct regex_callback_priv *)priv;
+	struct slre slre;
+	char regex[strlen(name) + 3];
 
-	if (*search_for == '\0')
-		return (char *)searched;
+	/* Require the whole string to be described by the regex */
+	sprintf(regex, "^%s$", name);
+	if (slre_compile(&slre, regex)) {
+		struct cap caps[slre.num_caps + 2];
 
-	for (;;) {
-		char *match = strstr(searched, search_for);
+		if (slre_match(&slre, cbp->searched_for,
+			       strlen(cbp->searched_for), caps)) {
+			free(cbp->regex);
+			cbp->regex = malloc(strlen(regex) + 1);
+			if (cbp->regex) {
+				strcpy(cbp->regex, regex);
+			} else {
+				retval = -ENOMEM;
+				goto done;
+			}
 
-		/*
-		 * Stop looking if no new match is found or looking past the
-		 * searched_start pointer
-		 */
-		if (match == NULL || (searched_start != NULL &&
-		    match + strlen(search_for) > searched_start))
-			break;
+			free(cbp->attributes);
+			cbp->attributes = malloc(strlen(attributes) + 1);
+			if (cbp->attributes) {
+				strcpy(cbp->attributes, attributes);
+			} else {
+				retval = -ENOMEM;
+				free(cbp->regex);
+				cbp->regex = NULL;
+				goto done;
+			}
+		}
+	} else {
+		printf("Error compiling regex: %s\n", slre.err_str);
+		retval = EINVAL;
+	}
+done:
+	return retval;
+}
 
-		result = match;
-		searched = match + 1;
+/*
+ * Retrieve the attributes string associated with a single name in the list
+ * There is no protection on attributes being too small for the value
+ */
+int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
+{
+	if (!attributes)
+		/* bad parameter */
+		return -EINVAL;
+	if (!attr_list)
+		/* list not found */
+		return -EINVAL;
+
+	struct regex_callback_priv priv;
+	int retval;
+
+	priv.searched_for = name;
+	priv.regex = NULL;
+	priv.attributes = NULL;
+	retval = env_attr_walk(attr_list, regex_callback, &priv);
+	if (retval)
+		return retval; /* error */
+
+	if (priv.regex) {
+		strcpy(attributes, priv.attributes);
+		free(priv.attributes);
+		free(priv.regex);
+		/* success */
+		return 0;
+	}
+	return -ENOENT; /* not found in list */
+}
+#else
+
+/*
+ * Search for the last exactly matching name in an attribute list
+ */
+static int reverse_name_search(const char *searched, const char *search_for,
+	const char **result)
+{
+	int result_size = 0;
+	const char *cur_searched = searched;
+
+	if (result)
+		*result = NULL;
+
+	if (*search_for == '\0') {
+		if (result)
+			*result = searched;
+		return strlen(searched);
 	}
 
-	return result;
+	for (;;) {
+		const char *match = strstr(cur_searched, search_for);
+		const char *prevch;
+		const char *nextch;
+
+		/* Stop looking if no new match is found */
+		if (match == NULL)
+			break;
+
+		prevch = match - 1;
+		nextch = match + strlen(search_for);
+
+		/* Skip spaces */
+		while (*prevch == ' ' && prevch >= searched)
+			prevch--;
+		while (*nextch == ' ')
+			nextch++;
+
+		/* Start looking past the current match so last is found */
+		cur_searched = match + 1;
+		/* Check for an exact match */
+		if (match != searched &&
+		    *prevch != ENV_ATTR_LIST_DELIM &&
+		    prevch != searched - 1)
+			continue;
+		if (*nextch != ENV_ATTR_SEP &&
+		    *nextch != ENV_ATTR_LIST_DELIM &&
+		    *nextch != '\0')
+			continue;
+
+		if (result)
+			*result = match;
+		result_size = strlen(search_for);
+	}
+
+	return result_size;
 }
 
 /*
@@ -145,40 +256,21 @@ static char *reverse_strstr(const char *searched, const char *search_for,
 int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
 {
 	const char *entry = NULL;
+	int entry_len;
 
 	if (!attributes)
 		/* bad parameter */
-		return -1;
+		return -EINVAL;
 	if (!attr_list)
 		/* list not found */
-		return 1;
+		return -EINVAL;
 
-	entry = reverse_strstr(attr_list, name, NULL);
-	while (entry != NULL) {
-		const char *prevch = entry - 1;
-		const char *nextch = entry + strlen(name);
-
-		/* Skip spaces */
-		while (*prevch == ' ')
-			prevch--;
-		while (*nextch == ' ')
-			nextch++;
-
-		/* check for an exact match */
-		if ((entry == attr_list ||
-		     *prevch == ENV_ATTR_LIST_DELIM) &&
-		    (*nextch == ENV_ATTR_SEP ||
-		     *nextch == ENV_ATTR_LIST_DELIM ||
-		     *nextch == '\0'))
-			break;
-
-		entry = reverse_strstr(attr_list, name, entry);
-	}
+	entry_len = reverse_name_search(attr_list, name, &entry);
 	if (entry != NULL) {
 		int len;
 
 		/* skip the name */
-		entry += strlen(name);
+		entry += entry_len;
 		/* skip spaces */
 		while (*entry == ' ')
 			entry++;
@@ -209,5 +301,6 @@ int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
 	}
 
 	/* not found in list */
-	return 2;
+	return -ENOENT;
 }
+#endif

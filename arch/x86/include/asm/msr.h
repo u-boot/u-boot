@@ -128,6 +128,34 @@ static inline void wrmsr(unsigned msr, unsigned low, unsigned high)
 #define wrmsrl(msr, val)						\
 	native_write_msr((msr), (u32)((u64)(val)), (u32)((u64)(val) >> 32))
 
+static inline void msr_clrsetbits_64(unsigned msr, u64 clear, u64 set)
+{
+	u64 val;
+
+	val = native_read_msr(msr);
+	val &= ~clear;
+	val |= set;
+	wrmsrl(msr, val);
+}
+
+static inline void msr_setbits_64(unsigned msr, u64 set)
+{
+	u64 val;
+
+	val = native_read_msr(msr);
+	val |= set;
+	wrmsrl(msr, val);
+}
+
+static inline void msr_clrbits_64(unsigned msr, u64 clear)
+{
+	u64 val;
+
+	val = native_read_msr(msr);
+	val &= ~clear;
+	wrmsrl(msr, val);
+}
+
 /* rdmsr with exception handling */
 #define rdmsr_safe(msr, p1, p2)					\
 ({								\

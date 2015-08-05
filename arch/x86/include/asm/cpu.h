@@ -151,6 +151,11 @@ static inline int flag_is_changeable_p(uint32_t flag)
 	return ((f1^f2) & flag) != 0;
 }
 
+static inline void mfence(void)
+{
+	__asm__ __volatile__("mfence" : : : "memory");
+}
+
 /**
  * cpu_enable_paging_pae() - Enable PAE-paging
  *
@@ -190,6 +195,20 @@ const char *cpu_vendor_name(int vendor);
  * \0 terminator
  */
 char *cpu_get_name(char *name);
+
+/**
+ *
+* x86_cpu_get_desc() - Get a description string for an x86 CPU
+*
+* This uses cpu_get_name() and is suitable to use as the get_desc() method for
+* the CPU uclass.
+*
+* @dev:		Device to check (UCLASS_CPU)
+* @buf:		Buffer to place string
+* @size:	Size of string space
+* @return 0 if OK, -ENOSPC if buffer is too small, other -ve on error
+*/
+int x86_cpu_get_desc(struct udevice *dev, char *buf, int size);
 
 /**
  * cpu_call64() - Jump to a 64-bit Linux kernel (internal function)

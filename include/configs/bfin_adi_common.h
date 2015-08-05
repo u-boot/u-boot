@@ -9,7 +9,6 @@
  * Command Settings
  */
 #ifndef _CONFIG_CMD_DEFAULT_H
-# include <config_cmd_default.h>
 # ifdef ADI_CMDS_NETWORK
 #  define CONFIG_CMD_DHCP
 #  define CONFIG_BOOTP_SUBNETMASK
@@ -17,17 +16,12 @@
 #  define CONFIG_BOOTP_DNS
 #  define CONFIG_BOOTP_NTPSERVER
 #  define CONFIG_BOOTP_RANDOM_DELAY
-#  define CONFIG_LIB_RAND
 #  define CONFIG_KEEP_SERVERADDR
 #  define CONFIG_CMD_DNS
 #  define CONFIG_CMD_PING
 #  ifdef CONFIG_BFIN_MAC
 #   define CONFIG_CMD_MII
 #  endif
-# else
-#  undef CONFIG_CMD_BOOTD
-#  undef CONFIG_CMD_NET
-#  undef CONFIG_CMD_NFS
 # endif
 # ifdef CONFIG_LIBATA
 #  define CONFIG_CMD_FAT
@@ -77,10 +71,7 @@
 #  define CONFIG_CMD_I2C
 #  define CONFIG_SOFT_I2C_READ_REPEATED_START
 # endif
-# ifdef CONFIG_SYS_NO_FLASH
-#  undef CONFIG_CMD_FLASH
-#  undef CONFIG_CMD_IMLS
-# else
+# ifndef CONFIG_SYS_NO_FLASH
 #  define CONFIG_CMD_JFFS2
 # endif
 # ifdef CONFIG_CMD_JFFS2

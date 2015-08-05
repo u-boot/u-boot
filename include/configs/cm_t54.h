@@ -57,7 +57,6 @@
 #define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KB */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_CMD_SAVEENV
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT
@@ -90,7 +89,6 @@
 
 /* Enabled commands */
 #define CONFIG_CMD_DHCP		/* DHCP Support			*/
-#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #define CONFIG_CMD_PING
 
 /* USB Networking options */

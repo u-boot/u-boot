@@ -156,6 +156,17 @@ void reset_cmplx_set_enable(int cpu, int which, int reset);
 void clock_ll_set_source(enum periph_id periph_id, unsigned source);
 
 /**
+ * This function is similar to clock_ll_set_source() except that it can be
+ * used for clocks with more than 2 mux bits.
+ *
+ * @param periph_id	peripheral to adjust
+ * @param mux_bits	number of mux bits for the clock
+ * @param source	source clock (0-15 depending on mux_bits)
+ */
+int clock_ll_set_source_bits(enum periph_id periph_id, int mux_bits,
+			     unsigned source);
+
+/**
  * Set the source and divisor for a peripheral clock. This sets the
  * clock rate. You need to look up the datasheet to see the meaning of the
  * source parameter as it changes for each peripheral.
@@ -265,6 +276,9 @@ void clock_early_init(void);
 /* Returns a pointer to the clock source register for a peripheral */
 u32 *get_periph_source_reg(enum periph_id periph_id);
 
+/* Returns a pointer to the given 'simple' PLL */
+struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid);
+
 /**
  * Given a peripheral ID and the required source clock, this returns which
  * value should be programmed into the source mux for that peripheral.
@@ -321,5 +335,13 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon);
 void arch_timer_init(void);
 
 void tegra30_set_up_pllp(void);
+
+/**
+ * Enable output clock for external peripherals
+ *
+ * @param clk_id	Clock ID to output (1, 2 or 3)
+ * @return 0 if OK. -ve on error
+ */
+int clock_external_output(int clk_id);
 
 #endif  /* _TEGRA_CLOCK_H_ */

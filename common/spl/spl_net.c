@@ -21,14 +21,14 @@ void spl_net_load_image(const char *device)
 	env_relocate();
 	setenv("autoload", "yes");
 	load_addr = CONFIG_SYS_TEXT_BASE - sizeof(struct image_header);
-	rv = eth_initialize(gd->bd);
+	rv = eth_initialize();
 	if (rv == 0) {
 		printf("No Ethernet devices found\n");
 		hang();
 	}
 	if (device)
 		setenv("ethact", device);
-	rv = NetLoop(BOOTP);
+	rv = net_loop(BOOTP);
 	if (rv < 0) {
 		printf("Problem booting with BOOTP\n");
 		hang();

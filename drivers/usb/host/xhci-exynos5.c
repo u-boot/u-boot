@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <libfdt.h>
 #include <malloc.h>
@@ -32,48 +33,42 @@
 /* Declare global data pointer */
 DECLARE_GLOBAL_DATA_PTR;
 
+struct exynos_xhci_platdata {
+	fdt_addr_t hcd_base;
+	fdt_addr_t phy_base;
+	struct gpio_desc vbus_gpio;
+};
+
 /**
  * Contains pointers to register base addresses
  * for the usb controller.
  */
 struct exynos_xhci {
+	struct usb_platdata usb_plat;
+	struct xhci_ctrl ctrl;
 	struct exynos_usb3_phy *usb3_phy;
 	struct xhci_hccr *hcd;
 	struct dwc3 *dwc3_reg;
-	struct gpio_desc vbus_gpio;
 };
 
-static struct exynos_xhci exynos;
-
-#ifdef CONFIG_OF_CONTROL
-static int exynos_usb3_parse_dt(const void *blob, struct exynos_xhci *exynos)
+static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 {
-	fdt_addr_t addr;
+	struct exynos_xhci_platdata *plat = dev_get_platdata(dev);
+	const void *blob = gd->fdt_blob;
 	unsigned int node;
 	int depth;
-
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS5_XHCI);
-	if (node <= 0) {
-		debug("XHCI: Can't get device node for xhci\n");
-		return -ENODEV;
-	}
 
 	/*
 	 * Get the base address for XHCI controller from the device node
 	 */
-	addr = fdtdec_get_addr(blob, node, "reg");
-	if (addr == FDT_ADDR_T_NONE) {
+	plat->hcd_base = fdtdec_get_addr(blob, dev->of_offset, "reg");
+	if (plat->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the XHCI register base address\n");
 		return -ENXIO;
 	}
-	exynos->hcd = (struct xhci_hccr *)addr;
-
-	/* Vbus gpio */
-	gpio_request_by_name_nodev(blob, node, "samsung,vbus-gpio", 0,
-				   &exynos->vbus_gpio, GPIOD_IS_OUT);
 
 	depth = 0;
-	node = fdtdec_next_compatible_subnode(blob, node,
+	node = fdtdec_next_compatible_subnode(blob, dev->of_offset,
 				COMPAT_SAMSUNG_EXYNOS5_USB3_PHY, &depth);
 	if (node <= 0) {
 		debug("XHCI: Can't get device node for usb3-phy controller\n");
@@ -83,16 +78,18 @@ static int exynos_usb3_parse_dt(const void *blob, struct exynos_xhci *exynos)
 	/*
 	 * Get the base address for usbphy from the device node
 	 */
-	exynos->usb3_phy = (struct exynos_usb3_phy *)fdtdec_get_addr(blob, node,
-								"reg");
-	if (exynos->usb3_phy == NULL) {
+	plat->phy_base = fdtdec_get_addr(blob, node, "reg");
+	if (plat->phy_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the usbphy register address\n");
 		return -ENXIO;
 	}
 
+	/* Vbus gpio */
+	gpio_request_by_name(dev, "samsung,vbus-gpio", 0,
+			     &plat->vbus_gpio, GPIOD_IS_OUT);
+
 	return 0;
 }
-#endif
 
 static void exynos5_usb3_phy_init(struct exynos_usb3_phy *phy)
 {
@@ -283,25 +280,22 @@ static void exynos_xhci_core_exit(struct exynos_xhci *exynos)
 	exynos5_usb3_phy_exit(exynos->usb3_phy);
 }
 
-int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
+static int xhci_usb_probe(struct udevice *dev)
 {
-	struct exynos_xhci *ctx = &exynos;
+	struct exynos_xhci_platdata *plat = dev_get_platdata(dev);
+	struct exynos_xhci *ctx = dev_get_priv(dev);
+	struct xhci_hcor *hcor;
 	int ret;
 
-#ifdef CONFIG_OF_CONTROL
-	exynos_usb3_parse_dt(gd->fdt_blob, ctx);
-#else
-	ctx->usb3_phy = (struct exynos_usb3_phy *)samsung_get_base_usb3_phy();
-	ctx->hcd = (struct xhci_hccr *)samsung_get_base_usb_xhci();
-#endif
-
+	ctx->hcd = (struct xhci_hccr *)plat->hcd_base;
+	ctx->usb3_phy = (struct exynos_usb3_phy *)plat->phy_base;
 	ctx->dwc3_reg = (struct dwc3 *)((char *)(ctx->hcd) + DWC3_REG_OFFSET);
+	hcor = (struct xhci_hcor *)((uint32_t)ctx->hcd +
+			HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase)));
 
-#ifdef CONFIG_OF_CONTROL
 	/* setup the Vbus gpio here */
-	if (dm_gpio_is_valid(&ctx->vbus_gpio))
-		dm_gpio_set_value(&ctx->vbus_gpio, 1);
-#endif
+	if (dm_gpio_is_valid(&plat->vbus_gpio))
+		dm_gpio_set_value(&plat->vbus_gpio, 1);
 
 	ret = exynos_xhci_core_init(ctx);
 	if (ret) {
@@ -309,20 +303,36 @@ int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
 		return -EINVAL;
 	}
 
-	*hccr = (ctx->hcd);
-	*hcor = (struct xhci_hcor *)((uint32_t) *hccr
-				+ HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase)));
+	return xhci_register(dev, ctx->hcd, hcor);
+}
 
-	debug("Exynos5-xhci: init hccr %x and hcor %x hc_length %d\n",
-		(uint32_t)*hccr, (uint32_t)*hcor,
-		(uint32_t)HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase)));
+static int xhci_usb_remove(struct udevice *dev)
+{
+	struct exynos_xhci *ctx = dev_get_priv(dev);
+	int ret;
+
+	ret = xhci_deregister(dev);
+	if (ret)
+		return ret;
+	exynos_xhci_core_exit(ctx);
 
 	return 0;
 }
 
-void xhci_hcd_stop(int index)
-{
-	struct exynos_xhci *ctx = &exynos;
+static const struct udevice_id xhci_usb_ids[] = {
+	{ .compatible = "samsung,exynos5250-xhci" },
+	{ }
+};
 
-	exynos_xhci_core_exit(ctx);
-}
+U_BOOT_DRIVER(usb_xhci) = {
+	.name	= "xhci_exynos",
+	.id	= UCLASS_USB,
+	.of_match = xhci_usb_ids,
+	.ofdata_to_platdata = xhci_usb_ofdata_to_platdata,
+	.probe = xhci_usb_probe,
+	.remove = xhci_usb_remove,
+	.ops	= &xhci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct exynos_xhci_platdata),
+	.priv_auto_alloc_size = sizeof(struct exynos_xhci),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};

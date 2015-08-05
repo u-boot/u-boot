@@ -54,13 +54,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* U-Boot command configuration */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C

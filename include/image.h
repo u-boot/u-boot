@@ -23,6 +23,7 @@
 struct lmb;
 
 #ifdef USE_HOSTCC
+#include <sys/types.h>
 
 /* new uImage format support enabled on host */
 #define CONFIG_FIT		1
@@ -243,6 +244,7 @@ struct lmb;
 #define IH_TYPE_SOCFPGAIMAGE	19	/* Altera SOCFPGA Preloader	*/
 #define IH_TYPE_X86_SETUP	20	/* x86 setup.bin Image		*/
 #define IH_TYPE_LPC32XXIMAGE	21	/* x86 setup.bin Image		*/
+#define IH_TYPE_LOADABLE	22	/* A list of typeless images	*/
 
 /*
  * Compression Types
@@ -454,7 +456,31 @@ ulong genimg_get_image(ulong img_addr);
 
 int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
-#endif
+
+/**
+ * boot_get_loadable - routine to load a list of binaries to memory
+ * @argc: Ignored Argument
+ * @argv: Ignored Argument
+ * @images: pointer to the bootm images structure
+ * @arch: expected architecture for the image
+ * @ld_start: Ignored Argument
+ * @ld_len: Ignored Argument
+ *
+ * boot_get_loadable() will take the given FIT configuration, and look
+ * for a field named "loadables".  Loadables, is a list of elements in
+ * the FIT given as strings.  exe:
+ *   loadables = "linux_kernel@1", "fdt@2";
+ * this function will attempt to parse each string, and load the
+ * corresponding element from the FIT into memory.  Once placed,
+ * no aditional actions are taken.
+ *
+ * @return:
+ *     0, if only valid images or no images are found
+ *     error code, if an error occurs during fit_image_load
+ */
+int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
+		uint8_t arch, const ulong *ld_start, ulong * const ld_len);
+#endif /* !USE_HOSTCC */
 
 int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
 		       ulong *setup_start, ulong *setup_len);
@@ -741,6 +767,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_KERNEL_PROP		"kernel"
 #define FIT_RAMDISK_PROP	"ramdisk"
 #define FIT_FDT_PROP		"fdt"
+#define FIT_LOADABLE_PROP	"loadables"
 #define FIT_DEFAULT_PROP	"default"
 #define FIT_SETUP_PROP		"setup"
 

@@ -50,6 +50,15 @@ buffer should be as large as possible for a platform. The location of the
 buffer and size are set with CONFIG_USB_FASTBOOT_BUF_ADDR and
 CONFIG_USB_FASTBOOT_BUF_SIZE.
 
+Fastboot partition aliases can also be defined for devices where GPT
+limitations prevent user-friendly partition names such as "boot", "system"
+and "cache".  Or, where the actual partition name doesn't match a standard
+partition name used commonly with fastboot.  Current implentation checks
+aliases when accessing partitions by name (flash_write and erase functions).
+To define a partition alias add an environment variable similar to:
+fastboot_partition_alias_<alias partition name>=<actual partition name>
+Example: fastboot_partition_alias_boot=LNX
+
 In Action
 =========
 Enter into fastboot by executing the fastboot command in u-boot and you

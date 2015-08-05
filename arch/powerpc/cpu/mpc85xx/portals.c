@@ -249,8 +249,13 @@ void fdt_fixup_qportals(void *blob)
 #ifdef CONFIG_FSL_CORENET
 		u32 liodns[2];
 #endif
-		const int *ci = fdt_getprop(blob, off, "cell-index", NULL);
-		int i = *ci;
+		const int *ci = fdt_getprop(blob, off, "cell-index", &err);
+		int i;
+
+		if (!ci)
+			goto err;
+
+		i = *ci;
 #ifdef CONFIG_SYS_DPAA_FMAN
 		int j;
 #endif

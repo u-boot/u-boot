@@ -129,7 +129,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 		}
 	}
 	if (cs == -1) {
-		printf("Error: Unknown chip select for device '%s'",
+		printf("Error: Unknown chip select for device '%s'\n",
 		       dev->name);
 		return -EINVAL;
 	}

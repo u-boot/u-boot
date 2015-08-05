@@ -38,4 +38,6 @@ extern char exception_stack[];
  */
 void configure_irq_trigger(int int_num, bool is_level_triggered);
 
+void *x86_get_idt(void);
+
 #endif

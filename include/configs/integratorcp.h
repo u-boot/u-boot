@@ -18,7 +18,6 @@
 #include "integrator-common.h"
 
 /* Integrator CP-specific configuration */
-#define CONFIG_ARCH_CINTEGRATOR
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer 1 is clocked at 1Mhz */
 
 /*
@@ -41,8 +40,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS	"root=/dev/mtdblock0 console=ttyAMA0 console=tty ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0"
 #define CONFIG_BOOTCOMMAND "tftpboot ; bootm"

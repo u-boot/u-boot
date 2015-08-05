@@ -25,6 +25,10 @@
 		 * to be added to the gmac1 device tree blob.
 		 */
 		ethernet0 = &gmac1;
+
+		spi0 = "/spi@ff705000";		/* QSPI */
+		spi1 = "/spi@fff00000";
+		spi2 = "/spi@fff01000";
 	};
 
 	regulator_3_3v: 3-3-v-regulator {
@@ -76,4 +80,24 @@
 
 &usb1 {
 	status = "okay";
+};
+
+&qspi {
+	status = "okay";
+
+	flash0: n25q00@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "n25q00";
+		reg = <0>;      /* chip select */
+		spi-max-frequency = <50000000>;
+		m25p,fast-read;
+		page-size = <256>;
+		block-size = <16>; /* 2^16, 64KB */
+		read-delay = <4>;  /* delay value in read data capture register */
+		tshsl-ns = <50>;
+		tsd2d-ns = <50>;
+		tchsh-ns = <4>;
+		tslch-ns = <4>;
+	};
 };

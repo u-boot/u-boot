@@ -14,3 +14,31 @@ config LPC32XX_GPIO
 	default n
 	help
 	  Support for the LPC32XX GPIO driver.
+
+config SANDBOX_GPIO
+	bool "Enable sandbox GPIO driver"
+	depends on SANDBOX && DM && DM_GPIO
+	help
+	  This driver supports some simulated GPIOs which can be adjusted
+	  using 'back door' functions like sandbox_gpio_set_value(). Then the
+	  GPIOs can be inspected through the normal get_get_value()
+	  interface. The purpose of this is to allow GPIOs to be used as
+	  normal in sandbox, perhaps with test code actually driving the
+	  behaviour of those GPIOs.
+
+config SANDBOX_GPIO_COUNT
+	int "Number of sandbox GPIOs"
+	depends on SANDBOX_GPIO
+	default 128
+	help
+	  The sandbox driver can support any number of GPIOs. Generally these
+	  are specified using the device tree. But you can also have a number
+	  of 'anonymous' GPIOs that do not belong to any device or bank.
+	  Select a suitable value depending on your needs.
+
+config VYBRID_GPIO
+	bool "Vybrid GPIO driver"
+	depends on DM
+	default n
+	help
+	  Say yes here to support Vybrid vf610 GPIOs.

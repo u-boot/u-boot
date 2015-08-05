@@ -6,6 +6,8 @@
 
 /dts-v1/;
 
+#include <dt-bindings/gpio/x86-gpio.h>
+
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
 
@@ -15,23 +17,107 @@
 
 	aliases {
 		serial0 = &serial;
+		spi0 = "/spi";
 	};
 
 	config {
 		silent_console = <0>;
 	};
 
+	pch_pinctrl {
+		compatible = "intel,x86-pinctrl";
+		io-base = <0x4c>;
+
+		pin_usb_host_en0@0 {
+			gpio-offset = <0x80 8>;
+			pad-offset = <0x260>;
+			mode-gpio;
+			output-value = <1>;
+			direction = <PIN_OUTPUT>;
+		};
+
+		pin_usb_host_en1@0 {
+			gpio-offset = <0x80 9>;
+			pad-offset = <0x258>;
+			mode-gpio;
+			output-value = <1>;
+			direction = <PIN_OUTPUT>;
+		};
+	};
+
+	gpioa {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0 0x20>;
+		bank-name = "A";
+	};
+
+	gpiob {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x20 0x20>;
+		bank-name = "B";
+	};
+
+	gpioc {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x40 0x20>;
+		bank-name = "C";
+	};
+
+	gpiod {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x60 0x20>;
+		bank-name = "D";
+	};
+
+	gpioe {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x80 0x20>;
+		bank-name = "E";
+	};
+
+	gpiof {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0xA0 0x20>;
+		bank-name = "F";
+	};
+
 	chosen {
 		stdout-path = "/serial";
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <1>;
+			intel,apic-id = <4>;
+		};
+
 	};
 
 	spi {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "intel,ich";
+		compatible = "intel,ich-spi";
 		spi-flash@0 {
 			reg = <0>;
-			compatible = "sst,25vf016b", "spi-flash";
+			compatible = "stmicro,n25q064a", "spi-flash";
 			memory-map = <0xff800000 0x00800000>;
 		};
 	};

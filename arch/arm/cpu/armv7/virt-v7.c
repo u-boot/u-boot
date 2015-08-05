@@ -46,6 +46,10 @@ static unsigned long get_gicd_base_address(void)
 #endif
 }
 
+/* Define a specific version of this function to enable any available
+ * hardware protections for the reserved region */
+void __weak protect_secure_section(void) {}
+
 static void relocate_secure_section(void)
 {
 #ifdef CONFIG_ARMV7_SECURE_BASE
@@ -54,6 +58,7 @@ static void relocate_secure_section(void)
 	memcpy((void *)CONFIG_ARMV7_SECURE_BASE, __secure_start, sz);
 	flush_dcache_range(CONFIG_ARMV7_SECURE_BASE,
 			   CONFIG_ARMV7_SECURE_BASE + sz + 1);
+	protect_secure_section();
 	invalidate_icache_all();
 #endif
 }
@@ -73,6 +78,10 @@ void __weak smp_kick_all_cpus(void)
 		return;
 
 	kick_secondary_cpus_gic(gic_dist_addr);
+}
+
+__weak void psci_board_init(void)
+{
 }
 
 int armv7_init_nonsec(void)
@@ -111,6 +120,8 @@ int armv7_init_nonsec(void)
 	 */
 	for (i = 1; i <= itlinesnr; i++)
 		writel((unsigned)-1, gic_dist_addr + GICD_IGROUPRn + 4 * i);
+
+	psci_board_init();
 
 	/*
 	 * Relocate secure section before any cpu runs in secure ram.

@@ -671,7 +671,7 @@ static int sleep_thread(struct fsg_common *common)
 		if (common->thread_wakeup_needed)
 			break;
 
-		if (++i == 50000) {
+		if (++i == 20000) {
 			busy_indicator();
 			i = 0;
 			k++;
@@ -689,7 +689,7 @@ static int sleep_thread(struct fsg_common *common)
 			k = 0;
 		}
 
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 	}
 	common->thread_wakeup_needed = 0;
 	return rc;
@@ -973,7 +973,7 @@ static int do_write(struct fsg_common *common)
 
 			/* If an error occurred, report it and its position */
 			if (nwritten < amount) {
-				printf("nwritten:%d amount:%d\n", nwritten,
+				printf("nwritten:%zd amount:%u\n", nwritten,
 				       amount);
 				curlun->sense_data = SS_WRITE_ERROR;
 				curlun->info_valid = 1;

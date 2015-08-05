@@ -42,6 +42,10 @@
 #define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
+#define LDS_BOARD_TEXT \
+        . = DEFINED(env_offset) ? env_offset : .; \
+        common/env_embedded.o (.text);
+
 /*
  * BOOTP options
  */
@@ -51,20 +55,13 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Available command configuration */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_DHCP
 
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC

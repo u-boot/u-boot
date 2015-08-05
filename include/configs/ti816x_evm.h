@@ -32,8 +32,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG		/* required for ramdisk support */
 
-#include <config_cmd_default.h>		/* u-boot default commands */
-
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_DISPLAY_CPUINFO
 
@@ -61,7 +59,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
 #define CONFIG_CMD_ASKEN
-#define CONFIG_CMD_ECHO
 #define CONFIG_OMAP_GPIO
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC

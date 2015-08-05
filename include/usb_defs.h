@@ -165,18 +165,29 @@
 #define USB_TEST_MODE_FORCE_ENABLE  0x05
 
 
-/* "pipe" definitions */
-
-#define PIPE_ISOCHRONOUS    0
-#define PIPE_INTERRUPT      1
-#define PIPE_CONTROL        2
-#define PIPE_BULK           3
+/*
+ * "pipe" definitions, use unsigned so we can compare reliably, since this
+ * value is shifted up to bits 30/31.
+ */
+#define PIPE_ISOCHRONOUS    0U
+#define PIPE_INTERRUPT      1U
+#define PIPE_CONTROL        2U
+#define PIPE_BULK           3U
 #define PIPE_DEVEP_MASK     0x0007ff00
 
 #define USB_ISOCHRONOUS    0
 #define USB_INTERRUPT      1
 #define USB_CONTROL        2
 #define USB_BULK           3
+
+#define USB_PIPE_TYPE_SHIFT	30
+#define USB_PIPE_TYPE_MASK	(3 << USB_PIPE_TYPE_SHIFT)
+
+#define USB_PIPE_DEV_SHIFT	8
+#define USB_PIPE_DEV_MASK	(0x7f << USB_PIPE_DEV_SHIFT)
+
+#define USB_PIPE_EP_SHIFT	15
+#define USB_PIPE_EP_MASK	(0xf << USB_PIPE_EP_SHIFT)
 
 /* USB-status codes: */
 #define USB_ST_ACTIVE           0x1		/* TD is active */
@@ -285,5 +296,50 @@
 
 #define HUB_CHANGE_LOCAL_POWER	0x0001
 #define HUB_CHANGE_OVERCURRENT	0x0002
+
+/* Mask for wIndex in get/set port feature */
+#define USB_HUB_PORT_MASK	0xf
+
+/*
+ * CBI style
+ */
+
+#define US_CBI_ADSC		0
+
+/* Command Block Wrapper */
+struct umass_bbb_cbw {
+	__u32		dCBWSignature;
+#	define CBWSIGNATURE	0x43425355
+	__u32		dCBWTag;
+	__u32		dCBWDataTransferLength;
+	__u8		bCBWFlags;
+#	define CBWFLAGS_OUT	0x00
+#	define CBWFLAGS_IN	0x80
+#	define CBWFLAGS_SBZ	0x7f
+	__u8		bCBWLUN;
+	__u8		bCDBLength;
+#	define CBWCDBLENGTH	16
+	__u8		CBWCDB[CBWCDBLENGTH];
+};
+#define UMASS_BBB_CBW_SIZE	31
+
+/* Command Status Wrapper */
+struct umass_bbb_csw {
+	__u32		dCSWSignature;
+#	define CSWSIGNATURE	0x53425355
+	__u32		dCSWTag;
+	__u32		dCSWDataResidue;
+	__u8		bCSWStatus;
+#	define CSWSTATUS_GOOD	0x0
+#	define CSWSTATUS_FAILED 0x1
+#	define CSWSTATUS_PHASE	0x2
+};
+#define UMASS_BBB_CSW_SIZE	13
+
+/*
+ * BULK only
+ */
+#define US_BBB_RESET		0xff
+#define US_BBB_GET_MAX_LUN	0xfe
 
 #endif /*_USB_DEFS_H_ */

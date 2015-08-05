@@ -76,9 +76,6 @@
 #define CONFIG_HOSTNAME		blackstamp
 #define CONFIG_ROOTPATH		"/checkout/uClinux-dist/romfs"
 #define CONFIG_SYS_AUTOLOAD		"no"
-
-/* To remove hardcoding and enable MAC storage in EEPROM  */
-/* #define CONFIG_ETHADDR		02:80:ad:20:31:b8 */
 #endif
 
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -105,13 +102,10 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_ENV_OVERWRITE	1
 
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_SMC91111
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
 #else
-# undef CONFIG_CMD_NET
 #endif
 
 #ifdef CONFIG_SYS_I2C_SOFT
@@ -223,7 +217,6 @@
 /* For the M25P64 SCK Should be Kept < 15Mhz */
 #define CONFIG_ENV_SPI_MAX_HZ	15000000
 #define CONFIG_SF_DEFAULT_SPEED	15000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
 /*
@@ -241,8 +234,6 @@
  * hardware don't support Parallel Flash at all.
  */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_JFFS2
-#undef CONFIG_CMD_FLASH
 
 #endif

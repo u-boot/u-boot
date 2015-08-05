@@ -21,9 +21,11 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/system.h>
-#include <power/pmic.h>
 #include <asm/arch/sromc.h>
 #include <lcd.h>
+#include <i2c.h>
+#include <usb.h>
+#include <dwc3-uboot.h>
 #include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -168,7 +170,7 @@ int board_early_init_f(void)
 }
 #endif
 
-#if defined(CONFIG_POWER)
+#if defined(CONFIG_POWER) || defined(CONFIG_DM_PMIC)
 int power_init_board(void)
 {
 	set_ps_hold_ctrl();
@@ -329,18 +331,6 @@ int board_late_init(void)
 }
 #endif
 
-int arch_early_init_r(void)
-{
-#ifdef CONFIG_CROS_EC
-	if (cros_ec_board_init()) {
-		printf("%s: Failed to init EC\n", __func__);
-		return 0;
-	}
-#endif
-
-	return 0;
-}
-
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
@@ -385,4 +375,12 @@ void reset_misc(void)
 		mdelay(10);
 		dm_gpio_set_value(&gpio, 1);
 	}
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+#ifdef CONFIG_USB_DWC3
+	dwc3_uboot_exit(index);
+#endif
+	return 0;
 }

@@ -48,6 +48,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -67,7 +68,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -75,11 +75,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_IMLS
-#define CONFIG_CMD_SETEXPR
-
 #define CONFIG_BOOTDELAY	3
 
 #define CONFIG_ETHPRIME		"smc911x"

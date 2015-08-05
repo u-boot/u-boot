@@ -2,12 +2,15 @@ if TEGRA124
 
 choice
 	prompt "Tegra124 board select"
+	optional
 
 config TARGET_JETSON_TK1
 	bool "NVIDIA Tegra124 Jetson TK1 board"
+	select CPU_V7_HAS_NONSEC if !SPL_BUILD
+	select CPU_V7_HAS_VIRT if !SPL_BUILD
 
 config TARGET_NYAN_BIG
-	bool "Google/NVIDIA Nyan-big Chrombook"
+	bool "Google/NVIDIA Nyan-big Chromebook"
 	help
 	  Nyan Big is a Tegra124 clamshell board that is very similar
 	  to venice2, but it has a different panel, the sdcard CD and WP

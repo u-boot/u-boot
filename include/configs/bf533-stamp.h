@@ -68,8 +68,6 @@
 		SSYNC(); \
 	} while (0)
 #define CONFIG_HOSTNAME		bf533-stamp
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:b8 */
 
 
 /* I2C */
@@ -100,7 +98,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 /*
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ALL
 */
 

@@ -15,8 +15,7 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 #define CONFIG_BOARD_EARLY_INIT_F
-
-#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_ARCH_EARLY_INIT_R
 
 #define CONFIG_X86_SERIAL
 #define CONFIG_SMSC_LPC47M
@@ -42,7 +41,7 @@
 
 #define CONFIG_SCSI_DEV_LIST            \
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VALLEYVIEW_SATA}
-#define CONFIG_SPI_FLASH_SST
+#define CONFIG_SPI_FLASH_STMICRO
 
 #define CONFIG_MMC
 #define CONFIG_SDHCI
@@ -56,9 +55,6 @@
 #define CONFIG_X86_OPTION_ROM_FILE		vga.bin
 #define CONFIG_X86_OPTION_ROM_ADDR		0xfff90000
 
-#ifndef CONFIG_SYS_COREBOOT
-#define CONFIG_VIDEO_VESA
-#endif
 #define VIDEO_IO_OFFSET				0
 #define CONFIG_X86EMU_RAW_IO
 #define CONFIG_VGA_AS_SINGLE_DEVICE
@@ -68,5 +64,9 @@
 
 /* Avoid a warning in the Realtek Ethernet driver */
 #define CONFIG_SYS_CACHELINE_SIZE 16
+
+/* Environment in SPI flash is unsupported for now */
+#undef CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_IS_NOWHERE
 
 #endif	/* __CONFIG_H */

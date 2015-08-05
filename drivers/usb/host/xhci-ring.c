@@ -122,8 +122,8 @@ static void inc_enq(struct xhci_ctrl *ctrl, struct xhci_ring *ring,
 			next->link.control |= cpu_to_le32(chain);
 
 			next->link.control ^= cpu_to_le32(TRB_CYCLE);
-			xhci_flush_cache((uint32_t)next,
-						sizeof(union xhci_trb));
+			xhci_flush_cache((uintptr_t)next,
+					 sizeof(union xhci_trb));
 		}
 		/* Toggle the cycle bit after the last ring segment. */
 		if (last_trb_on_last_seg(ctrl, ring,
@@ -191,7 +191,7 @@ static struct xhci_generic_trb *queue_trb(struct xhci_ctrl *ctrl,
 	for (i = 0; i < 4; i++)
 		trb->field[i] = cpu_to_le32(trb_fields[i]);
 
-	xhci_flush_cache((uint32_t)trb, sizeof(struct xhci_generic_trb));
+	xhci_flush_cache((uintptr_t)trb, sizeof(struct xhci_generic_trb));
 
 	inc_enq(ctrl, ring, more_trbs_coming);
 
@@ -244,7 +244,7 @@ static int prepare_ring(struct xhci_ctrl *ctrl, struct xhci_ring *ep_ring,
 
 		next->link.control ^= cpu_to_le32(TRB_CYCLE);
 
-		xhci_flush_cache((uint32_t)next, sizeof(union xhci_trb));
+		xhci_flush_cache((uintptr_t)next, sizeof(union xhci_trb));
 
 		/* Toggle the cycle bit after the last ring segment. */
 		if (last_trb_on_last_seg(ctrl, ep_ring,
@@ -353,7 +353,7 @@ static void giveback_first_trb(struct usb_device *udev, int ep_index,
 				int start_cycle,
 				struct xhci_generic_trb *start_trb)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 
 	/*
 	 * Pass all the TRBs to the hardware at once and make sure this write
@@ -364,7 +364,7 @@ static void giveback_first_trb(struct usb_device *udev, int ep_index,
 	else
 		start_trb->field[3] &= cpu_to_le32(~TRB_CYCLE);
 
-	xhci_flush_cache((uint32_t)start_trb, sizeof(struct xhci_generic_trb));
+	xhci_flush_cache((uintptr_t)start_trb, sizeof(struct xhci_generic_trb));
 
 	/* Ringing EP doorbell here */
 	xhci_writel(&ctrl->dba->doorbell[udev->slot_id],
@@ -403,8 +403,8 @@ static int event_ready(struct xhci_ctrl *ctrl)
 {
 	union xhci_trb *event;
 
-	xhci_inval_cache((uint32_t)ctrl->event_ring->dequeue,
-					sizeof(union xhci_trb));
+	xhci_inval_cache((uintptr_t)ctrl->event_ring->dequeue,
+			 sizeof(union xhci_trb));
 
 	event = ctrl->event_ring->dequeue;
 
@@ -477,7 +477,7 @@ union xhci_trb *xhci_wait_for_event(struct xhci_ctrl *ctrl, trb_type expected)
  */
 static void abort_td(struct usb_device *udev, int ep_index)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	struct xhci_ring *ring =  ctrl->devs[udev->slot_id]->eps[ep_index].ring;
 	union xhci_trb *event;
 	u32 field;
@@ -554,7 +554,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	int start_cycle;
 	u32 field = 0;
 	u32 length_field = 0;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int slot_id = udev->slot_id;
 	int ep_index;
 	struct xhci_virt_device *virt_dev;
@@ -576,8 +576,8 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	ep_index = usb_pipe_ep_index(pipe);
 	virt_dev = ctrl->devs[slot_id];
 
-	xhci_inval_cache((uint32_t)virt_dev->out_ctx->bytes,
-					virt_dev->out_ctx->size);
+	xhci_inval_cache((uintptr_t)virt_dev->out_ctx->bytes,
+			 virt_dev->out_ctx->size);
 
 	ep_ctx = xhci_get_ep_ctx(ctrl, virt_dev->out_ctx, ep_index);
 
@@ -644,7 +644,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	first_trb = true;
 
 	/* flush the buffer before use */
-	xhci_flush_cache((uint32_t)buffer, length);
+	xhci_flush_cache((uintptr_t)buffer, length);
 
 	/* Queue the first TRB, even if it's zero-length */
 	do {
@@ -722,7 +722,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 
 	record_transfer_result(udev, event, length);
 	xhci_acknowledge_event(ctrl);
-	xhci_inval_cache((uint32_t)buffer, length);
+	xhci_inval_cache((uintptr_t)buffer, length);
 
 	return (udev->status != USB_ST_NOT_PROC) ? 0 : -1;
 }
@@ -748,7 +748,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	u32 length_field;
 	u64 buf_64 = 0;
 	struct xhci_generic_trb *start_trb;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int slot_id = udev->slot_id;
 	int ep_index;
 	u32 trb_fields[4];
@@ -776,8 +776,8 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 			return ret;
 	}
 
-	xhci_inval_cache((uint32_t)virt_dev->out_ctx->bytes,
-				virt_dev->out_ctx->size);
+	xhci_inval_cache((uintptr_t)virt_dev->out_ctx->bytes,
+			 virt_dev->out_ctx->size);
 
 	struct xhci_ep_ctx *ep_ctx = NULL;
 	ep_ctx = xhci_get_ep_ctx(ctrl, virt_dev->out_ctx, ep_index);
@@ -874,7 +874,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		trb_fields[2] = length_field;
 		trb_fields[3] = field | ep_ring->cycle_state;
 
-		xhci_flush_cache((uint32_t)buffer, length);
+		xhci_flush_cache((uintptr_t)buffer, length);
 		queue_trb(ctrl, ep_ring, true, trb_fields);
 	}
 
@@ -915,7 +915,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 
 	/* Invalidate buffer to make it available to usb-core */
 	if (length > 0)
-		xhci_inval_cache((uint32_t)buffer, length);
+		xhci_inval_cache((uintptr_t)buffer, length);
 
 	if (GET_COMP_CODE(le32_to_cpu(event->trans_event.transfer_len))
 			== COMP_SHORT_TX) {

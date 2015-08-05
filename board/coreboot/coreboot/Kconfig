@@ -9,25 +9,28 @@ config SYS_VENDOR
 config SYS_SOC
 	default "coreboot"
 
+config SYS_TEXT_BASE
+	default 0x01110000
+
 comment "coreboot-specific options"
 
 config SYS_CONFIG_NAME
 	string "Board configuration file"
-	default "chromebook_link"
+	default "qemu-x86"
 	help
 	  This option selects the board configuration file in include/configs/
 	  directory to be used to build U-Boot for coreboot.
 
 config DEFAULT_DEVICE_TREE
 	string "Board Device Tree Source (dts) file"
-	default "chromebook_link"
+	default "qemu-x86_i440fx"
 	help
 	  This option selects the board Device Tree Source (dts) file in
 	  arch/x86/dts/ directory to be used to build U-Boot for coreboot.
 
 config SYS_CAR_ADDR
 	hex "Board specific Cache-As-RAM (CAR) address"
-	default 0x19200000
+	default 0x01920000
 	help
 	  This option specifies the board specific Cache-As-RAM (CAR) address.
 

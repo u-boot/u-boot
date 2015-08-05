@@ -11,6 +11,12 @@
 #define CONFIG_NAND
 
 #include <configs/ti_omap3_common.h>
+#undef CONFIG_SPL_MAX_SIZE
+#define CONFIG_SPL_MAX_SIZE	(64*1024)
+#undef CONFIG_SPL_TEXT_BASE
+#define CONFIG_SPL_TEXT_BASE	0x40200000
+
+#define CONFIG_BCH
 
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO
@@ -52,9 +58,6 @@
 /* commands to include */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_USB
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_NFS		/* NFS support			*/
 
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */
@@ -134,6 +137,8 @@
 		"bootm ${loadaddr}\0" \
 	"loadzimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"loadfdt=load mmc ${mmcdev}:2 ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadubizimage=ubifsload ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadubifdt=ubifsload ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcbootfdt=echo Booting with DT from mmc ...; " \
 		"run mmcargs; " \
 		"bootz ${loadaddr} - ${fdtaddr}\0" \
@@ -142,6 +147,13 @@
 		"if nand read ${loadaddr} linux; then " \
 			"bootm ${loadaddr};" \
 		"fi;\0" \
+	"nanddtsboot=echo Booting from nand with DTS...; " \
+		"run nandargs; " \
+		"ubi part rootfs; "\
+		"ubifsmount ubi0:rootfs; "\
+		"run loadubifdt; "\
+		"run loadubizimage; "\
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -169,6 +181,10 @@
 		"fi;" \
 	"fi;" \
 	"run nandboot; " \
+	"if test -z \"${fdtfile}\"; then "\
+		"setenv fdtfile omap3-${boardname}-${expansionname}.dtb;" \
+	"fi;" \
+	"run nanddtsboot; " \
 
 /*
  * Miscellaneous configurable options
@@ -212,17 +228,22 @@
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT	16
+#define CONFIG_SYS_NAND_MAX_ECCPOS  56
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
-#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
-						10, 11, 12, 13}
+#define CONFIG_SYS_NAND_ECCPOS      {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, \
+					13, 14, 16, 17, 18, 19, 20, 21, 22, \
+					23, 24, 25, 26, 27, 28, 30, 31, 32, \
+					33, 34, 35, 36, 37, 38, 39, 40, 41, \
+					42, 44, 45, 46, 47, 48, 49, 50, 51, \
+					52, 53, 54, 55, 56}
 #define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
+#define CONFIG_SYS_NAND_ECCBYTES	13
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 /* NAND: SPL falcon mode configs */

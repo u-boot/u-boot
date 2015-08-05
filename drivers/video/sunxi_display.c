@@ -84,7 +84,7 @@ static int sunxi_hdmi_hpd_detect(int hpd_delay)
 			CCM_HDMI_CTRL_PLL3);
 
 	/* Set ahb gating to pass */
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
@@ -113,7 +113,7 @@ static void sunxi_hdmi_shutdown(void)
 	clrbits_le32(&hdmi->ctrl, SUNXI_HDMI_CTRL_ENABLE);
 	clrbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_GATE);
 	clrbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	clrbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	clock_set_pll3(0);
@@ -404,7 +404,7 @@ static void sunxi_composer_init(void)
 
 	sunxi_frontend_init();
 
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	/* Reset off */
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DE_BE0);
 #endif
@@ -549,7 +549,7 @@ static void sunxi_lcdc_init(void)
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 
 	/* Reset off */
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_LCD0);
 #else
 	setbits_le32(&ccm->lcd0_ch0_clk_cfg, CCM_LCD_CH0_CTRL_RST);
@@ -558,7 +558,11 @@ static void sunxi_lcdc_init(void)
 	/* Clock on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_LCD0);
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	setbits_le32(&ccm->ahb_reset2_cfg, 1 << AHB_RESET_OFFSET_LVDS);
+#else
 	setbits_le32(&ccm->lvds_clk_cfg, CCM_LVDS_CTRL_RST);
+#endif
 #endif
 
 	/* Init lcdc */
@@ -582,12 +586,23 @@ static void sunxi_lcdc_enable(void)
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
 	setbits_le32(&lcdc->tcon0_lvds_intf, SUNXI_LCDC_TCON0_LVDS_INTF_ENABLE);
 	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	udelay(2); /* delay at least 1200 ns */
+	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_EN_MB);
+	udelay(2); /* delay at least 1200 ns */
+	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVC);
+	if (sunxi_display.depth == 18)
+		setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVD(0x7));
+	else
+		setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVD(0xf));
+#else
 	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
 	udelay(2); /* delay at least 1200 ns */
 	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT1);
 	udelay(1); /* delay at least 120 ns */
 	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT2);
 	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
+#endif
 #endif
 }
 
@@ -600,19 +615,19 @@ static void sunxi_lcdc_panel_enable(void)
 	 * white while the lcd inits.
 	 */
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_EN);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_backlight_enable");
 		gpio_direction_output(pin, 0);
 	}
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_backlight_pwm");
 		gpio_direction_output(pin, PWM_OFF);
 	}
 
 	reset_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_RESET);
-	if (reset_pin != -1) {
+	if (reset_pin >= 0) {
 		gpio_request(reset_pin, "lcd_reset");
 		gpio_direction_output(reset_pin, 0); /* Assert reset */
 	}
@@ -620,12 +635,12 @@ static void sunxi_lcdc_panel_enable(void)
 	/* Give the backlight some time to turn off and power up the panel. */
 	mdelay(40);
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_POWER);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_power");
 		gpio_direction_output(pin, 1);
 	}
 
-	if (reset_pin != -1)
+	if (reset_pin >= 0)
 		gpio_direction_output(reset_pin, 1); /* De-assert reset */
 }
 
@@ -640,11 +655,11 @@ static void sunxi_lcdc_backlight_enable(void)
 	mdelay(40);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_EN);
-	if (pin != -1)
+	if (pin >= 0)
 		gpio_direction_output(pin, 1);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1)
+	if (pin >= 0)
 		gpio_direction_output(pin, PWM_ON);
 }
 
@@ -665,10 +680,10 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 
 	for (pin = SUNXI_GPD(0); pin <= SUNXI_GPD(27); pin++)
 #ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
-		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD0_LCD0);
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD_LCD0);
 #endif
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
-		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD0_LVDS0);
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD_LVDS0);
 #endif
 
 	sunxi_lcdc_pll_set(0, mode->pixclock_khz, &clk_div, &clk_double);
@@ -706,7 +721,8 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 #endif
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
 	val = (sunxi_display.depth == 18) ? 1 : 0;
-	writel(SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(val), &lcdc->tcon0_lvds_intf);
+	writel(SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(val) |
+	       SUNXI_LCDC_TCON0_LVDS_CLK_SEL_TCON0, &lcdc->tcon0_lvds_intf);
 #endif
 
 	if (sunxi_display.depth == 18 || sunxi_display.depth == 16) {
@@ -779,8 +795,8 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	       &lcdc->tcon1_timing_sync);
 
 	if (use_portd_hvsync) {
-		sunxi_gpio_set_cfgpin(SUNXI_GPD(26), SUNXI_GPD0_LCD0);
-		sunxi_gpio_set_cfgpin(SUNXI_GPD(27), SUNXI_GPD0_LCD0);
+		sunxi_gpio_set_cfgpin(SUNXI_GPD(26), SUNXI_GPD_LCD0);
+		sunxi_gpio_set_cfgpin(SUNXI_GPD(27), SUNXI_GPD_LCD0);
 
 		val = 0;
 		if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
@@ -942,11 +958,14 @@ static void sunxi_vga_enable(void)
 
 static void sunxi_drc_init(void)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	/* On sun6i the drc must be clocked even when in pass-through mode */
+#ifdef CONFIG_MACH_SUN8I_A33
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_SAT);
+#endif
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DRC0);
 	clock_set_de_mod_clock(&ccm->iep_drc0_clk_cfg, 300000000);
 #endif
@@ -958,7 +977,7 @@ static void sunxi_vga_external_dac_enable(void)
 	int pin;
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_VGA_EXTERNAL_DAC_EN);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "vga_enable");
 		gpio_direction_output(pin, 1);
 	}

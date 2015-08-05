@@ -59,18 +59,14 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP
 
 #undef CONFIG_CMD_DTT
 
 
-#define CONFIG_ETHADDR		08:00:3e:26:0a:5b
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		192.168.68.201
 #define CONFIG_SERVERIP		192.168.68.62

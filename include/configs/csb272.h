@@ -71,8 +71,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_ELF

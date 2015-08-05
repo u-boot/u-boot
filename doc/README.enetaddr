@@ -15,7 +15,7 @@ Here are the places where MAC addresses might be stored:
  - board-specific location (eeprom, dedicated flash, ...)
 	Note: only used when mandatory due to hardware design etc...
 
- - environment ("ethaddr", "eth1addr", ...) (see CONFIG_ETHADDR)
+ - environment ("ethaddr", "eth1addr", ...)
 	Note: this is the preferred way to permanently store MAC addresses
 
  - ethernet data (struct eth_device -> enetaddr)
@@ -37,6 +37,8 @@ Correct flow of setting up the MAC address (summarized):
    environment variable will be used unchanged.
    If the environment variable is not set, it will be initialized from
    eth_device->enetaddr, and a warning will be printed.
+   If both are invalid and CONFIG_NET_RANDOM_ETHADDR is defined, a random,
+   locally-assigned MAC is written to eth_device->enetaddr.
 4. Program the address into hardware if the following conditions are met:
 	a) The relevant driver has a 'write_addr' function
 	b) The user hasn't set an 'ethmacskip' environment variable
@@ -87,7 +89,7 @@ eth_parse_enetaddr(addr, enetaddr);
 Look up an environment variable and convert the stored address.  If the address
 is valid, then the function returns 1.  Otherwise, the function returns 0.  In
 all cases, the enetaddr memory is initialized.  If the env var is not found,
-then it is set to all zeros.  The common function is_valid_ether_addr() is used
+then it is set to all zeros.  The common function is_valid_ethaddr() is used
 to determine address validity.
 uchar enetaddr[6];
 if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {

@@ -25,7 +25,7 @@
 /*
  * Enable the call to miscellaneous platform dependent initialization.
  */
-#define CONFIG_SYS_NO_FLASH	/* to be define before <config_cmd_default.h> */
+#define CONFIG_SYS_NO_FLASH
 
 /*
  * Board display option
@@ -65,8 +65,6 @@
 /*
  * U-Boot Commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
 #define CONFIG_CMD_CACHE	/* icache, dcache		*/
@@ -84,9 +82,7 @@
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_PING		/* ping support			*/
-#define CONFIG_CMD_SETEXPR	/* setexpr support		*/
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 

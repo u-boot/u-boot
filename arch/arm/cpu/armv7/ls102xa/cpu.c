@@ -329,7 +329,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 /* Set the address at which the secondary core starts from.*/
 void smp_set_core_boot_addr(unsigned long addr, int corenr)
 {

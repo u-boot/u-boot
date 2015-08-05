@@ -1,0 +1,28 @@
+Summary
+=======
+This README assumes you have read README.da850.  It contains some additional
+information specific to building the omapl138-lcdk.  The AIS file as generated
+by the build is, currently, not useable due to differences in the flash
+available on this board, as compared to the da850evm boards.
+
+Flash Differences
+=================
+Refer to the discussion in [1] for more detail - basically the da850evm uses
+SPI flash whereas the lcdk uses NAND flash to store the bootloader, and
+the support isn't there in the SPL code.
+
+It should be possible to add the support in the SPL code should someone be
+sufficiently motivated.
+
+Using the built image
+=====================
+The output image to use is u-boot.bin.  This needs to be converted to an
+AIS file as described in [1] and then flashed using the utitilty linked to
+there and also described in README.da850.  You _may_ be able to write using
+u-boot itself, but the commands in README.da850 won't work as they write to
+SPI rather than NAND.
+
+Links
+=====
+[1]
+ http://e2e.ti.com/support/dsp/omap_applications_processors/f/42/t/386829

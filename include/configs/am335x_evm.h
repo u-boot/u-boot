@@ -54,12 +54,12 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"nandroot=ubi0:rootfs rw ubi.mtd=9,2048\0" \
+	"nandroot=ubi0:rootfs rw ubi.mtd=NAND.file-system,2048\0" \
 	"nandrootfstype=ubifs rootwait=1\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${fdtaddr} u-boot-spl-os; " \
-		"nand read ${loadaddr} kernel; " \
+		"nand read ${fdtaddr} NAND.u-boot-spl-os; " \
+		"nand read ${loadaddr} NAND.kernel; " \
 		"bootz ${loadaddr} - ${fdtaddr}\0"
 #else
 #define NANDARGS ""
@@ -83,10 +83,6 @@
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
-	"rootpath=/export/rootfs\0" \
-	"nfsopts=nolock\0" \
-	"static_ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}" \
-		"::off\0" \
 	"ramroot=/dev/ram0 rw\0" \
 	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
@@ -102,11 +98,6 @@
 		"${optargs} " \
 		"root=${spiroot} " \
 		"rootfstype=${spirootfstype}\0" \
-	"netargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=/dev/nfs " \
-		"nfsroot=${serverip}:${rootpath},${nfsopts} rw " \
-		"ip=dhcp\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
@@ -159,13 +150,6 @@
 		"sf probe ${spibusno}:0; " \
 		"sf read ${loadaddr} ${spisrcaddr} ${spiimgsize}; " \
 		"bootz ${loadaddr}\0" \
-	"netboot=echo Booting from network ...; " \
-		"setenv autoload no; " \
-		"dhcp; " \
-		"tftp ${loadaddr} ${bootfile}; " \
-		"tftp ${fdtaddr} ${fdtfile}; " \
-		"run netargs; " \
-		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
 		"bootz ${loadaddr} ${rdaddr} ${fdtaddr}\0" \
@@ -181,6 +165,7 @@
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	NANDARGS \
+	NETARGS \
 	DFUARGS
 #endif
 
@@ -263,7 +248,7 @@
 					"128k(NAND.u-boot-env)," \
 					"128k(NAND.u-boot-env.backup1)," \
 					"8m(NAND.kernel)," \
-					"-(NAND.rootfs)"
+					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_NAND
@@ -444,7 +429,6 @@
 
 /* SPI flash. */
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
@@ -467,7 +451,6 @@
  */
 #if defined(CONFIG_NOR)
 #undef CONFIG_SYS_NO_FLASH
-#define CONFIG_CMD_FLASH
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_FLASH_CFI

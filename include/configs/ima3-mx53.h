@@ -46,7 +46,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* Ethernet on FEC */
-#define CONFIG_NET_MULTI
 #define CONFIG_MII
 
 #define CONFIG_FEC_MXC
@@ -64,7 +63,6 @@
 #define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_0
 
 /* SPI FLASH - not used for environment */
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		25000000
@@ -75,7 +73,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII

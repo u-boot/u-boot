@@ -1,7 +1,7 @@
 #include <common.h>
 #include <watchdog.h>
 #ifdef CONFIG_ARCH_SUNXI
-#include <asm/arch/usbc.h>
+#include <asm/arch/usb_phy.h>
 #endif
 #include <asm/errno.h>
 #include <linux/usb/ch9.h>
@@ -180,7 +180,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 	return NULL; /* URB still pending */
 }
 
-void usb_reset_root_port(void)
+int usb_reset_root_port(void)
 {
 	void *mbase = host->mregs;
 	u8 power;
@@ -195,12 +195,12 @@ void usb_reset_root_port(void)
 	 * when clearing reset on low-speed devices, temporary disable
 	 * squelch detection to work around this.
 	 */
-	sunxi_usbc_enable_squelch_detect(0, 0);
+	sunxi_usb_phy_enable_squelch_detect(0, 0);
 #endif
 	power = musb_readb(mbase, MUSB_POWER);
 	musb_writeb(mbase, MUSB_POWER, ~MUSB_POWER_RESET & power);
 #ifdef CONFIG_ARCH_SUNXI
-	sunxi_usbc_enable_squelch_detect(0, 1);
+	sunxi_usb_phy_enable_squelch_detect(0, 1);
 #endif
 	host->isr(0, host);
 	host_speed = (musb_readb(mbase, MUSB_POWER) & MUSB_POWER_HSMODE) ?
@@ -208,6 +208,8 @@ void usb_reset_root_port(void)
 			(musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_FSDEV) ?
 			USB_SPEED_FULL : USB_SPEED_LOW;
 	mdelay((host_speed == USB_SPEED_LOW) ? 200 : 50);
+
+	return 0;
 }
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
@@ -252,7 +254,7 @@ int usb_lowlevel_stop(int index)
 #ifdef CONFIG_MUSB_GADGET
 static struct musb *gadget;
 
-int usb_gadget_handle_interrupts(void)
+int usb_gadget_handle_interrupts(int index)
 {
 	WATCHDOG_RESET();
 	if (!gadget || !gadget->isr)

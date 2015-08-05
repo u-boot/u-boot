@@ -388,7 +388,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 					ZYNQ_GEM_BASEADDR0, clk_rate);
 
 	/* set hardware address because of ... */
-	if (!is_valid_ether_addr(dev->enetaddr)) {
+	if (!is_valid_ethaddr(dev->enetaddr)) {
 		printf("%s: mac address is not valid\n", dev->name);
 		return -1;
 	}
@@ -463,7 +463,7 @@ static int zynq_gem_recv(struct eth_device *dev)
 		u32 addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
 		addr &= ~(ARCH_DMA_MINALIGN - 1);
 
-		NetReceive((u8 *)addr, frame_len);
+		net_process_received_packet((u8 *)addr, frame_len);
 
 		if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK)
 			priv->rx_first_buf = priv->rxbd_current;

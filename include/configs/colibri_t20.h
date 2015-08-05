@@ -41,7 +41,6 @@
 #define CONFIG_USB_ETHER_ASIX
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 /* NAND support */
@@ -56,11 +55,9 @@
 #define CONFIG_ENV_SIZE                (SZ_64K)
 
 /* Debug commands */
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_CACHE
 
 /* Miscellaneous commands */
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_FAT_WRITE
 
 /* Increase console I/O buffer size */

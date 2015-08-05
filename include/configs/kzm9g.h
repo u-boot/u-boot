@@ -24,7 +24,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_OF_LIBFDT
 
-#include <config_cmd_default.h>
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -127,7 +126,6 @@
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 
 /* Ether */
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_SMC911X

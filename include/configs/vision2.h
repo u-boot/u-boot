@@ -50,7 +50,6 @@
 #define CONFIG_FSL_SF
 #define CONFIG_CMD_SF
 
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
 /*
@@ -114,7 +113,6 @@
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -125,10 +123,7 @@
  * Command definition
  ***********************************************************/
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_SPI
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY        3
 

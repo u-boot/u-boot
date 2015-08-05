@@ -321,8 +321,8 @@ static void ks_rcv(struct eth_device *dev, uchar **pv_data)
 			/* read data block including CRC 4 bytes */
 			ks_read_qmu(dev, (u16 *)(*pv_data), frame_hdr->len);
 
-			/* NetRxPackets buffer size is ok (*pv_data pointer) */
-			NetReceive(*pv_data, frame_hdr->len);
+			/* net_rx_packets buffer size is ok (*pv_data) */
+			net_process_received_packet(*pv_data, frame_hdr->len);
 			pv_data++;
 		} else {
 			ks_wrreg16(dev, KS_RXQCR, (ks->rc_rxqcr | RXQCR_RRXEF));
@@ -573,7 +573,7 @@ static int ks8851_mll_recv(struct eth_device *dev)
 	ks_wrreg16(dev, KS_ISR, status);
 
 	if ((status & IRQ_RXI))
-		ks_rcv(dev, (uchar **)NetRxPackets);
+		ks_rcv(dev, (uchar **)net_rx_packets);
 
 	if ((status & IRQ_LDI)) {
 		u16 pmecr = ks_rdreg16(dev, KS_PMECR);

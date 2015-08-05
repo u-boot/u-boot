@@ -1,12 +1,149 @@
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
-	depends on X86
 	default n
 	help
 	  Turn on this option to enable a very simple driver which uses vesa
 	  to discover the video mode and then provides a frame buffer for use
 	  by U-Boot. This can in principle be used with any platform that
 	  supports PCI and video cards that support VESA BIOS Extension (VBE).
+
+config FRAMEBUFFER_SET_VESA_MODE
+	bool "Set framebuffer graphics resolution"
+	depends on VIDEO_VESA
+	help
+	  Set VESA/native framebuffer mode (needed for bootsplash and graphical
+	  framebuffer console)
+
+choice
+	prompt "framebuffer graphics resolution"
+	default FRAMEBUFFER_VESA_MODE_117
+	depends on FRAMEBUFFER_SET_VESA_MODE
+	help
+	  This option sets the resolution used for the U-Boot framebuffer (and
+	  bootsplash screen).
+
+config FRAMEBUFFER_VESA_MODE_100
+	bool "640x400 256-color"
+
+config FRAMEBUFFER_VESA_MODE_101
+	bool "640x480 256-color"
+
+config FRAMEBUFFER_VESA_MODE_102
+	bool "800x600 16-color"
+
+config FRAMEBUFFER_VESA_MODE_103
+	bool "800x600 256-color"
+
+config FRAMEBUFFER_VESA_MODE_104
+	bool "1024x768 16-color"
+
+config FRAMEBUFFER_VESA_MODE_105
+	bool "1024x7686 256-color"
+
+config FRAMEBUFFER_VESA_MODE_106
+	bool "1280x1024 16-color"
+
+config FRAMEBUFFER_VESA_MODE_107
+	bool "1280x1024 256-color"
+
+config FRAMEBUFFER_VESA_MODE_108
+	bool "80x60 text"
+
+config FRAMEBUFFER_VESA_MODE_109
+	bool "132x25 text"
+
+config FRAMEBUFFER_VESA_MODE_10A
+	bool "132x43 text"
+
+config FRAMEBUFFER_VESA_MODE_10B
+	bool "132x50 text"
+
+config FRAMEBUFFER_VESA_MODE_10C
+	bool "132x60 text"
+
+config FRAMEBUFFER_VESA_MODE_10D
+	bool "320x200 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_10E
+	bool "320x200 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_10F
+	bool "320x200 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_110
+	bool "640x480 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_111
+	bool "640x480 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_112
+	bool "640x480 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_113
+	bool "800x600 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_114
+	bool "800x600 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_115
+	bool "800x600 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_116
+	bool "1024x768 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_117
+	bool "1024x768 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_118
+	bool "1024x768 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_119
+	bool "1280x1024 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_11A
+	bool "1280x1024 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_11B
+	bool "1280x1024 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_USER
+	bool "Manually select VESA mode"
+
+endchoice
+
+# Map the config names to an integer (KB).
+config FRAMEBUFFER_VESA_MODE
+	prompt "VESA mode" if FRAMEBUFFER_VESA_MODE_USER
+	hex
+	default 0x100 if FRAMEBUFFER_VESA_MODE_100
+	default 0x101 if FRAMEBUFFER_VESA_MODE_101
+	default 0x102 if FRAMEBUFFER_VESA_MODE_102
+	default 0x103 if FRAMEBUFFER_VESA_MODE_103
+	default 0x104 if FRAMEBUFFER_VESA_MODE_104
+	default 0x105 if FRAMEBUFFER_VESA_MODE_105
+	default 0x106 if FRAMEBUFFER_VESA_MODE_106
+	default 0x107 if FRAMEBUFFER_VESA_MODE_107
+	default 0x108 if FRAMEBUFFER_VESA_MODE_108
+	default 0x109 if FRAMEBUFFER_VESA_MODE_109
+	default 0x10A if FRAMEBUFFER_VESA_MODE_10A
+	default 0x10B if FRAMEBUFFER_VESA_MODE_10B
+	default 0x10C if FRAMEBUFFER_VESA_MODE_10C
+	default 0x10D if FRAMEBUFFER_VESA_MODE_10D
+	default 0x10E if FRAMEBUFFER_VESA_MODE_10E
+	default 0x10F if FRAMEBUFFER_VESA_MODE_10F
+	default 0x110 if FRAMEBUFFER_VESA_MODE_110
+	default 0x111 if FRAMEBUFFER_VESA_MODE_111
+	default 0x112 if FRAMEBUFFER_VESA_MODE_112
+	default 0x113 if FRAMEBUFFER_VESA_MODE_113
+	default 0x114 if FRAMEBUFFER_VESA_MODE_114
+	default 0x115 if FRAMEBUFFER_VESA_MODE_115
+	default 0x116 if FRAMEBUFFER_VESA_MODE_116
+	default 0x117 if FRAMEBUFFER_VESA_MODE_117
+	default 0x118 if FRAMEBUFFER_VESA_MODE_118
+	default 0x119 if FRAMEBUFFER_VESA_MODE_119
+	default 0x11A if FRAMEBUFFER_VESA_MODE_11A
+	default 0x11B if FRAMEBUFFER_VESA_MODE_11B
+	default 0x117 if FRAMEBUFFER_VESA_MODE_USER
 
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
@@ -88,3 +225,18 @@ config VIDEO_LCD_SPI_MISO
 	hardware and LCD panel id retrieval (if the panel can report it). The
 	option takes a string in the format understood by 'name_to_gpio'
 	function, e.g. PH1 for pin 1 of port H.
+
+config DISPLAY_PORT
+	bool "Enable DisplayPort support"
+	help
+	   eDP (Embedded DisplayPort) is a standard widely used in laptops
+	   to drive LCD panels. This framework provides support for enabling
+	   these displays where supported by the video hardware.
+
+config VIDEO_TEGRA124
+	bool "Enable video support on Tegra124"
+	help
+	   Tegra124 supports many video output options including eDP and
+	   HDMI. At present only eDP is supported by U-Boot. This option
+	   enables this support which can be used on devices which
+	   have an eDP display connected.

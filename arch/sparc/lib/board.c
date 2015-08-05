@@ -351,7 +351,7 @@ void board_init_f(ulong bootflag)
 #if defined(CONFIG_CMD_NET)
 	WATCHDOG_RESET();
 	puts("Net:   ");
-	eth_initialize(bd);
+	eth_initialize();
 #endif
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_RESET_PHY_R)

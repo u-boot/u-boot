@@ -1,3 +1,9 @@
+menu "Power"
+
+source "drivers/power/pmic/Kconfig"
+
+source "drivers/power/regulator/Kconfig"
+
 config AXP221_POWER
 	boolean "axp221 / axp223 pmic support"
 	depends on MACH_SUN6I || MACH_SUN8I
@@ -73,3 +79,5 @@ config AXP221_ELDO3_VOLT
 	disable eldo3. On some A31(s) tablets it might be used to supply
 	1.2V for the SSD2828 chip (converter of parallel LCD interface
 	into MIPI DSI).
+
+endmenu

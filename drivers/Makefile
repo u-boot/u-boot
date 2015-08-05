@@ -3,6 +3,7 @@ obj-$(CONFIG_DM_DEMO) += demo/
 obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/
 obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
+obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
 obj-$(CONFIG_FPGA) += fpga/
 obj-y += hwmon/

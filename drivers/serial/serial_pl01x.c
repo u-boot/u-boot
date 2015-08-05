@@ -20,6 +20,9 @@
 #include <dm/platform_data/serial_pl01x.h>
 #include <linux/compiler.h>
 #include "serial_pl01x_internal.h"
+#include <fdtdec.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_DM_SERIAL
 
@@ -28,7 +31,6 @@ static enum pl01x_type pl01x_type __attribute__ ((section(".data")));
 static struct pl01x_regs *base_regs __attribute__ ((section(".data")));
 #define NUM_PORTS (sizeof(port)/sizeof(port[0]))
 
-DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 static int pl01x_putc(struct pl01x_regs *regs, char c)
@@ -95,7 +97,7 @@ static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 	return 0;
 }
 
-static int set_line_control(struct pl01x_regs *regs)
+static int pl011_set_line_control(struct pl01x_regs *regs)
 {
 	unsigned int lcr;
 	/*
@@ -129,6 +131,9 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 	case TYPE_PL010: {
 		unsigned int divisor;
 
+		/* disable everything */
+		writel(0, &regs->pl010_cr);
+
 		switch (baudrate) {
 		case 9600:
 			divisor = UART_PL010_BAUD_9600;
@@ -152,6 +157,12 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 		writel((divisor & 0xf00) >> 8, &regs->pl010_lcrm);
 		writel(divisor & 0xff, &regs->pl010_lcrl);
 
+		/*
+		 * Set line control for the PL010 to be 8 bits, 1 stop bit,
+		 * no parity, fifo enabled
+		 */
+		writel(UART_PL010_LCRH_WLEN_8 | UART_PL010_LCRH_FEN,
+		       &regs->pl010_lcrh);
 		/* Finally, enable the UART */
 		writel(UART_PL010_CR_UARTEN, &regs->pl010_cr);
 		break;
@@ -178,7 +189,7 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 		writel(divider, &regs->pl011_ibrd);
 		writel(fraction, &regs->pl011_fbrd);
 
-		set_line_control(regs);
+		pl011_set_line_control(regs);
 		/* Finally, enable the UART */
 		writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE |
 		       UART_PL011_CR_RXE | UART_PL011_CR_RTS, &regs->pl011_cr);
@@ -342,9 +353,35 @@ static const struct dm_serial_ops pl01x_serial_ops = {
 	.setbrg = pl01x_serial_setbrg,
 };
 
+#ifdef CONFIG_OF_CONTROL
+static const struct udevice_id pl01x_serial_id[] ={
+	{.compatible = "arm,pl011", .data = TYPE_PL011},
+	{.compatible = "arm,pl010", .data = TYPE_PL010},
+	{}
+};
+
+static int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
+{
+	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t addr;
+
+	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->base = addr;
+	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "clock", 1);
+	plat->type = dev_get_driver_data(dev);
+	return 0;
+}
+#endif
+
 U_BOOT_DRIVER(serial_pl01x) = {
 	.name	= "serial_pl01x",
 	.id	= UCLASS_SERIAL,
+	.of_match = of_match_ptr(pl01x_serial_id),
+	.ofdata_to_platdata = of_match_ptr(pl01x_serial_ofdata_to_platdata),
+	.platdata_auto_alloc_size = sizeof(struct pl01x_serial_platdata),
 	.probe = pl01x_serial_probe,
 	.ops	= &pl01x_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,

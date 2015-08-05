@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y  := wandboard.o
+obj-y  := wandboard.o spl.o

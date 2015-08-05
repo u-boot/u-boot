@@ -60,3 +60,16 @@ void __weak usb_fake_mac_from_die_id(u32 *id)
 		eth_setenv_enetaddr("usbethaddr", device_mac);
 	}
 }
+
+void __weak usb_set_serial_num_from_die_id(u32 *id)
+{
+	char serialno[72];
+	uint32_t serialno_lo, serialno_hi;
+
+	if (!getenv("serial#")) {
+		serialno_hi = id[0];
+		serialno_lo = id[1];
+		sprintf(serialno, "%08x%08x", serialno_hi, serialno_lo);
+		setenv("serial#", serialno);
+	}
+}

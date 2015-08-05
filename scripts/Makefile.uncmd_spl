@@ -3,7 +3,9 @@
 # TODO: Invent a better way
 
 ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_DISABLE_OF_CONTROL
 CONFIG_OF_CONTROL=
+endif
 
 ifndef CONFIG_SPL_DM
 CONFIG_DM_SERIAL=

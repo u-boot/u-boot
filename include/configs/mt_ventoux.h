@@ -48,7 +48,6 @@
 /*
  * FPGA
  */
-#define CONFIG_CMD_FPGA
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_FPGA
 #define CONFIG_FPGA_XILINX

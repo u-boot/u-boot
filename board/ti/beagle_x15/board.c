@@ -14,7 +14,10 @@
 #include <usb.h>
 #include <asm/omap_common.h>
 #include <asm/emif.h>
+#include <asm/gpio.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/dra7xx_iodelay.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sata.h>
@@ -28,6 +31,9 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* GPIO 7_11 */
+#define GPIO_DDR_VTT_EN 203
 
 const struct omap_sysinfo sysinfo = {
 	"Board: BeagleBoard x15\n"
@@ -52,23 +58,29 @@ static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
 	.sdram_tim1		= 0xceef266b,
 	.sdram_tim2		= 0x328f7fda,
 	.sdram_tim3		= 0x027f88a8,
-	.read_idle_ctrl		= 0x00050001,
+	.read_idle_ctrl		= 0x00050000,
 	.zq_config		= 0x0007190b,
 	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0e24400a,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400a,
+	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
+	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
 	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
 	.emif_ddr_ext_phy_ctrl_2 = 0x00740074,
 	.emif_ddr_ext_phy_ctrl_3 = 0x00780078,
 	.emif_ddr_ext_phy_ctrl_4 = 0x007c007c,
 	.emif_ddr_ext_phy_ctrl_5 = 0x007b007b,
 	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
 	.emif_rd_wr_lvl_ctl	= 0x00000000,
 	.emif_rd_wr_exec_thresh	= 0x00000305
 };
 
+/* Ext phy ctrl regs 1-35 */
 static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
+	0x10040100,
+	0x00740074,
+	0x00780078,
+	0x007c007c,
+	0x007b007b,
 	0x00800080,
 	0x00360036,
 	0x00340034,
@@ -90,14 +102,19 @@ static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
 
 	0x00000000,
 	0x00600020,
-	0x40010080,
+	0x40011080,
 	0x08102040,
 
 	0x00400040,
 	0x00400040,
 	0x00400040,
 	0x00400040,
-	0x00400040
+	0x00400040,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
+	0x0
 };
 
 static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
@@ -109,23 +126,28 @@ static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
 	.sdram_tim1		= 0xceef266b,
 	.sdram_tim2		= 0x328f7fda,
 	.sdram_tim3		= 0x027f88a8,
-	.read_idle_ctrl		= 0x00050001,
+	.read_idle_ctrl		= 0x00050000,
 	.zq_config		= 0x0007190b,
 	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0e24400a,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400a,
+	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
+	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
 	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
 	.emif_ddr_ext_phy_ctrl_2 = 0x00820082,
 	.emif_ddr_ext_phy_ctrl_3 = 0x008b008b,
 	.emif_ddr_ext_phy_ctrl_4 = 0x00800080,
 	.emif_ddr_ext_phy_ctrl_5 = 0x007e007e,
 	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
 	.emif_rd_wr_lvl_ctl	= 0x00000000,
 	.emif_rd_wr_exec_thresh	= 0x00000305
 };
 
 static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
+	0x10040100,
+	0x00820082,
+	0x008b008b,
+	0x00800080,
+	0x007e007e,
 	0x00800080,
 	0x00370037,
 	0x00390039,
@@ -145,14 +167,19 @@ static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
 
 	0x00000000,
 	0x00600020,
-	0x40010080,
+	0x40011080,
 	0x08102040,
 
 	0x00400040,
 	0x00400040,
 	0x00400040,
 	0x00400040,
-	0x00400040
+	0x00400040,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
+	0x0
 };
 
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
@@ -240,23 +267,20 @@ int board_late_init(void)
 	return 0;
 }
 
-static void do_set_mux32(u32 base,
-			 struct pad_conf_entry const *array, int size)
-{
-	int i;
-	struct pad_conf_entry *pad = (struct pad_conf_entry *)array;
-
-	for (i = 0; i < size; i++, pad++)
-		writel(pad->val, base + pad->offset);
-}
-
 void set_muxconf_regs_essential(void)
 {
 	do_set_mux32((*ctrl)->control_padconf_core_base,
-		     core_padconf_array_essential,
-		     sizeof(core_padconf_array_essential) /
-		     sizeof(struct pad_conf_entry));
+		     early_padconf, ARRAY_SIZE(early_padconf));
 }
+
+#ifdef CONFIG_IODELAY_RECALIBRATION
+void recalibrate_iodelay(void)
+{
+	__recalibrate_iodelay(core_padconf_array_essential,
+			      ARRAY_SIZE(core_padconf_array_essential),
+			      iodelay_cfg_array, ARRAY_SIZE(iodelay_cfg_array));
+}
+#endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
 int board_mmc_init(bd_t *bis)
@@ -356,7 +380,7 @@ int board_eth_init(bd_t *bis)
 	if (!getenv("ethaddr")) {
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
@@ -370,7 +394,7 @@ int board_eth_init(bd_t *bis)
 	mac_addr[5] = mac_lo & 0xFF;
 
 	if (!getenv("eth1addr")) {
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("eth1addr", mac_addr);
 	}
 
@@ -386,12 +410,20 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_USB_XHCI_OMAP
-int board_usb_init(int index, enum usb_init_type init)
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+/* VTT regulator enable */
+static inline void vtt_regulator_enable(void)
 {
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss_clkctrl,
-			OTG_SS_CLKCTRL_MODULEMODE_HW | OPTFCLKEN_REFCLK960M);
+	if (omap_hw_init_context() == OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)
+		return;
 
+	gpio_request(GPIO_DDR_VTT_EN, "ddr_vtt_en");
+	gpio_direction_output(GPIO_DDR_VTT_EN, 1);
+}
+
+int board_early_init_f(void)
+{
+	vtt_regulator_enable();
 	return 0;
 }
 #endif

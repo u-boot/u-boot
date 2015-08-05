@@ -45,7 +45,6 @@
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_NET
 
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT

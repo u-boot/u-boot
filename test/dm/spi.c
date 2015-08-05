@@ -9,15 +9,15 @@
 #include <fdtdec.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <asm/state.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
-#include <dm/ut.h>
 #include <dm/util.h>
-#include <asm/state.h>
+#include <test/ut.h>
 
 /* Test that we can find buses and chip-selects */
-static int dm_test_spi_find(struct dm_test_state *dms)
+static int dm_test_spi_find(struct unit_test_state *uts)
 {
 	struct sandbox_state *state = state_get_current();
 	struct spi_slave *slave;
@@ -95,7 +95,7 @@ static int dm_test_spi_find(struct dm_test_state *dms)
 DM_TEST(dm_test_spi_find, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that sandbox SPI works correctly */
-static int dm_test_spi_xfer(struct dm_test_state *dms)
+static int dm_test_spi_xfer(struct unit_test_state *uts)
 {
 	struct spi_slave *slave;
 	struct udevice *bus;

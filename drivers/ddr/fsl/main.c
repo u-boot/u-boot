@@ -453,7 +453,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 				retval = compute_dimm_parameters(
 							i, spd, pdimm, j);
 #ifdef CONFIG_SYS_DDR_RAW_TIMING
-				if (!i && !j && retval) {
+				if (!j && retval) {
 					printf("SPD error on controller %d! "
 					"Trying fallback to raw timing "
 					"calculation\n", i);

@@ -83,12 +83,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_LOADS
-
 #define CONFIG_CMD_BMP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -325,7 +319,6 @@
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_RMII
-#define CONFIG_NET_MULTI
 #define CONFIG_NET_RETRY_COUNT		5
 #define CONFIG_AT91_WANTS_COMMON_PHY
 

@@ -153,19 +153,12 @@
 #define CONFIG_SYS_SERIAL1		V2M_UART1
 
 /* Command line configuration */
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PXE
 #define CONFIG_MENU
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_RUN
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 
@@ -293,7 +286,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
-#define CONFIG_CMD_SOURCE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_SYS_MAXARGS		16	/* max command args */

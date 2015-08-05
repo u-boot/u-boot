@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -21,6 +22,20 @@ void *malloc_simple(size_t bytes)
 	if (new_ptr > gd->malloc_limit)
 		return NULL;
 	ptr = map_sysmem(gd->malloc_base + gd->malloc_ptr, bytes);
+	gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
+	return ptr;
+}
+
+void *memalign_simple(size_t align, size_t bytes)
+{
+	ulong addr, new_ptr;
+	void *ptr;
+
+	addr = ALIGN(gd->malloc_base + gd->malloc_ptr, bytes);
+	new_ptr = addr + bytes;
+	if (new_ptr > gd->malloc_limit)
+		return NULL;
+	ptr = map_sysmem(addr, bytes);
 	gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
 	return ptr;
 }

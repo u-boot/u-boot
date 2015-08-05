@@ -6,6 +6,7 @@ config SYS_ARCH
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_NIOS2_GENERIC
 	bool "Support nios2-generic"

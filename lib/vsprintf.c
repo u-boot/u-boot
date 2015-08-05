@@ -842,13 +842,11 @@ int sprintf(char *buf, const char *fmt, ...)
 	return i;
 }
 
-void panic(const char *fmt, ...)
+static void panic_finish(void) __attribute__ ((noreturn));
+
+static void panic_finish(void)
 {
-	va_list args;
-	va_start(args, fmt);
-	vprintf(fmt, args);
 	putc('\n');
-	va_end(args);
 #if defined(CONFIG_PANIC_HANG)
 	hang();
 #else
@@ -857,6 +855,21 @@ void panic(const char *fmt, ...)
 #endif
 	while (1)
 		;
+}
+
+void panic_str(const char *str)
+{
+	puts(str);
+	panic_finish();
+}
+
+void panic(const char *fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
+	panic_finish();
 }
 
 void __assert_fail(const char *assertion, const char *file, unsigned line,
@@ -895,4 +908,20 @@ void print_grouped_ull(unsigned long long int_val, int digits)
 		printf("%.*s", grab, s);
 		grab = 3;
 	}
+}
+
+bool str2off(const char *p, loff_t *num)
+{
+	char *endptr;
+
+	*num = simple_strtoull(p, &endptr, 16);
+	return *p != '\0' && *endptr == '\0';
+}
+
+bool str2long(const char *p, ulong *num)
+{
+	char *endptr;
+
+	*num = simple_strtoul(p, &endptr, 16);
+	return *p != '\0' && *endptr == '\0';
 }

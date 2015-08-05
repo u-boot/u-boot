@@ -52,6 +52,7 @@
  */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_SPD_BUS_NUM		2 /* I2C3 */
 #define CONFIG_SYS_MXC_I2C3_SLAVE	0xfe
 #define CONFIG_MXC_SPI
@@ -71,9 +72,6 @@
 /*
  * Command definition
  */
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SUBNETMASK
@@ -86,7 +84,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_NET_RETRY_COUNT	100
 
 #define CONFIG_BOOTDELAY	3

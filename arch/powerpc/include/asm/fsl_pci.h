@@ -19,6 +19,7 @@
 #define FSL_PCI_PBFR		0x44
 
 #define FSL_PCIE_CFG_RDY	0x4b0
+#define FSL_PCIE_V3_CFG_RDY	0x1
 #define FSL_PROG_IF_AGENT	0x1
 
 #define PCI_LTSSM	0x404   /* PCIe Link Training, Status State Machine */

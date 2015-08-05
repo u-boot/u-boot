@@ -54,17 +54,12 @@
 
 #define CONFIG_MII
 #define CONFIG_PHYLIB
-#define CONFIG_CMD_NET
-#define CONFIG_DESIGNWARE_ETH
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_PHY_MICREL
 
 /* Command support defines */
 #define CONFIG_CMD_PING
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-
-#include "config_cmd_default.h"
-#undef CONFIG_CMD_SAVEENV
 
 #define CONFIG_SYS_MEMTEST_START               0x0000
 #define CONFIG_SYS_MEMTEST_END                 1024*1024
@@ -76,9 +71,8 @@
 
 #define CONFIG_BOOTDELAY                       3
 #define CONFIG_BOOTCOMMAND                     "go 0x40040000"
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR               " "
-#define CONFIG_AUTOBOOT_PROMPT                 \
-	"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
 
+#define CONFIG_OF_SEPARATE
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_LIBFDT
 #endif /* __CONFIG_H */

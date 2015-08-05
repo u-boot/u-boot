@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <image.h>
 #include <libfdt.h>
+#include <mapmem.h>
 #include <asm/io.h>
 
 #ifndef CONFIG_SYS_FDT_PAD
@@ -470,6 +471,10 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 	int ret = -EPERM;
 	int fdt_ret;
 
+	if (fdt_root(blob) < 0) {
+		printf("ERROR: root node setup failed\n");
+		goto err;
+	}
 	if (fdt_chosen(blob) < 0) {
 		printf("ERROR: /chosen node create failed\n");
 		goto err;

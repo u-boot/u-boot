@@ -89,8 +89,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
@@ -106,15 +104,8 @@
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-#define CONFIG_CMD_NET      /* bootp, tftpboot, rarpboot    */
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
-
-#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 #define CONFIG_SYS_NO_FLASH
 

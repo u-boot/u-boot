@@ -71,7 +71,6 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
-#define CONFIG_CMD_NET
 
 /* Flash & Environment */
 #define CONFIG_SYS_NO_FLASH
@@ -113,7 +112,6 @@ extern unsigned int davinci_arm_clk_get(void);
 					"root=/dev/hda1 rw noinitrd ip=dhcp"
 
 /* U-Boot commands */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_I2C
@@ -122,12 +120,7 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
 #ifdef CONFIG_SYS_USE_NAND
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_NAND
 #endif
 

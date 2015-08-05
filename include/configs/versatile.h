@@ -81,14 +81,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SAVEENV
 
 /*
  * BOOTP options

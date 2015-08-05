@@ -46,7 +46,6 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_FAT
@@ -73,7 +72,6 @@
 #endif
 
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH		1
 #define CONFIG_HARD_SPI			1
 #define CONFIG_KIRKWOOD_SPI		1
 #define CONFIG_SPI_FLASH_MACRONIX	1

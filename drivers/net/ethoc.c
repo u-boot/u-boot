@@ -267,7 +267,7 @@ static int ethoc_init_ring(struct eth_device *dev)
 	bd.stat = RX_BD_EMPTY | RX_BD_IRQ;
 
 	for (i = 0; i < priv->num_rx; i++) {
-		bd.addr = (u32)NetRxPackets[i];
+		bd.addr = (u32)net_rx_packets[i];
 		if (i == priv->num_rx - 1)
 			bd.stat |= RX_BD_WRAP;
 
@@ -372,7 +372,7 @@ static int ethoc_rx(struct eth_device *dev, int limit)
 		if (ethoc_update_rx_stats(&bd) == 0) {
 			int size = bd.stat >> 16;
 			size -= 4;	/* strip the CRC */
-			NetReceive((void *)bd.addr, size);
+			net_process_received_packet((void *)bd.addr, size);
 		}
 
 		/* clear the buffer descriptor so it can be reused */

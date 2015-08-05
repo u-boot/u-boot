@@ -3,7 +3,7 @@
  *
  * Pinmux Setting for B&R LEIT Board(s)
  *
- * Copyright (C) 2013 Hannes Petermaier <oe5hpm@oevsv.at>
+ * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -17,8 +17,10 @@
 #include <i2c.h>
 
 static struct module_pin_mux uart0_pin_mux[] = {
+	/* UART0_RTS */
+	{OFFSET(uart0_rtsn), (MODE(0) | PULLUDEN)},
 	/* UART0_CTS */
-	{OFFSET(uart0_ctsn), (MODE(7) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	{OFFSET(uart0_ctsn), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	/* UART0_RXD */
 	{OFFSET(uart0_rxd), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	/* UART0_TXD */
@@ -26,9 +28,13 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{-1},
 };
 static struct module_pin_mux uart1_pin_mux[] = {
-	/* UART0_RXD */
+	/* UART1_RTS as I2C2-SCL */
+	{OFFSET(uart1_rtsn), (MODE(3) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	/* UART1_CTS as I2C2-SDA */
+	{OFFSET(uart1_ctsn), (MODE(3) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	/* UART1_RXD */
 	{OFFSET(uart1_rxd), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
-	/* UART0_TXD */
+	/* UART1_TXD */
 	{OFFSET(uart1_txd), (MODE(0) | PULLUDEN)},
 	{-1},
 };
@@ -123,7 +129,7 @@ static struct module_pin_mux nand_pin_mux[] = {
 	{OFFSET(gpmc_ad5), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD5 */
 	{OFFSET(gpmc_ad6), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD6 */
 	{OFFSET(gpmc_ad7), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD7 */
-	{OFFSET(gpmc_wait0), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* NAND WAIT */
+	{OFFSET(gpmc_clk), (MODE(2) | RXACTIVE | PULLUP_EN)},	/* NAND WAIT */
 	{OFFSET(gpmc_wpn), (MODE(7) | PULLUP_EN | RXACTIVE)},	/* NAND_WPN */
 	{OFFSET(gpmc_csn0), (MODE(0) | PULLUDEN)},	/* NAND_CS0 */
 	{OFFSET(gpmc_advn_ale), (MODE(0) | PULLUDEN)},	/* NAND_ADV_ALE */

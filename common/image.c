@@ -27,6 +27,7 @@
 
 #include <environment.h>
 #include <image.h>
+#include <mapmem.h>
 
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -461,7 +462,7 @@ phys_size_t getenv_bootm_size(void)
 		tmp = 0;
 
 
-#if defined(CONFIG_ARM)
+#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
 	return gd->bd->bi_dram[0].size - tmp;
 #else
 	return gd->bd->bi_memsize - tmp;
@@ -532,7 +533,7 @@ void genimg_print_time(time_t timestamp)
 #ifndef USE_HOSTCC
 	struct rtc_time tm;
 
-	to_tm(timestamp, &tm);
+	rtc_to_tm(timestamp, &tm);
 	printf("%4d-%02d-%02d  %2d:%02d:%02d UTC\n",
 			tm.tm_year, tm.tm_mon, tm.tm_mday,
 			tm.tm_hour, tm.tm_min, tm.tm_sec);
@@ -1163,6 +1164,77 @@ int boot_get_setup(bootm_headers_t *images, uint8_t arch,
 	return -ENOENT;
 #endif
 }
+
+#if defined(CONFIG_FIT)
+int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
+		uint8_t arch, const ulong *ld_start, ulong * const ld_len)
+{
+	/*
+	 * These variables are used to hold the current image location
+	 * in system memory.
+	 */
+	ulong tmp_img_addr;
+	/*
+	 * These two variables are requirements for fit_image_load, but
+	 * their values are not used
+	 */
+	ulong img_data, img_len;
+	void *buf;
+	int loadables_index;
+	int conf_noffset;
+	int fit_img_result;
+	char *uname;
+
+	/* Check to see if the images struct has a FIT configuration */
+	if (!genimg_has_config(images)) {
+		debug("## FIT configuration was not specified\n");
+		return 0;
+	}
+
+	/*
+	 * Obtain the os FIT header from the images struct
+	 * copy from dataflash if needed
+	 */
+	tmp_img_addr = map_to_sysmem(images->fit_hdr_os);
+	tmp_img_addr = genimg_get_image(tmp_img_addr);
+	buf = map_sysmem(tmp_img_addr, 0);
+	/*
+	 * Check image type. For FIT images get FIT node
+	 * and attempt to locate a generic binary.
+	 */
+	switch (genimg_get_format(buf)) {
+	case IMAGE_FORMAT_FIT:
+		conf_noffset = fit_conf_get_node(buf, images->fit_uname_cfg);
+
+		for (loadables_index = 0;
+		     !fdt_get_string_index(buf, conf_noffset,
+				FIT_LOADABLE_PROP,
+				loadables_index,
+				(const char **)&uname) > 0;
+		     loadables_index++)
+		{
+			fit_img_result = fit_image_load(images,
+				tmp_img_addr,
+				(const char **)&uname,
+				&(images->fit_uname_cfg), arch,
+				IH_TYPE_LOADABLE,
+				BOOTSTAGE_ID_FIT_LOADABLE_START,
+				FIT_LOAD_OPTIONAL_NON_ZERO,
+				&img_data, &img_len);
+			if (fit_img_result < 0) {
+				/* Something went wrong! */
+				return fit_img_result;
+			}
+		}
+		break;
+	default:
+		printf("The given image format is not supported (corrupt?)\n");
+		return 1;
+	}
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 /**

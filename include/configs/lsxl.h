@@ -37,8 +37,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_SHOW_BOOT_PROGRESS
 
-#define CONFIG_RANDOM_MACADDR
-#define CONFIG_LIB_RAND
 #define CONFIG_KIRKWOOD_GPIO
 #define CONFIG_OF_LIBFDT
 
@@ -55,7 +53,6 @@
 /*
  * Commands configuration
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF

@@ -14,7 +14,7 @@
  * SBC8641D board configuration file
  *
  * Make sure you change the MAC address and other network params first,
- * search for CONFIG_ETHADDR, CONFIG_SERVERIP, etc in this file.
+ * search for CONFIG_SERVERIP, etc in this file.
  */
 
 #ifndef __CONFIG_H
@@ -479,10 +479,9 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#include <config_cmd_default.h>
-    #define CONFIG_CMD_PING
-    #define CONFIG_CMD_I2C
-    #define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
@@ -527,14 +526,6 @@
 /*
  * Environment Configuration
  */
-
-/* The mac addresses for all ethernet interface */
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_ETHADDR   02:E0:0C:00:00:01
-#define CONFIG_ETH1ADDR  02:E0:0C:00:01:FD
-#define CONFIG_ETH2ADDR  02:E0:0C:00:02:FD
-#define CONFIG_ETH3ADDR  02:E0:0C:00:03:FD
-#endif
 
 #define CONFIG_HAS_ETH0		1
 #define CONFIG_HAS_ETH1		1

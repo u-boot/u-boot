@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <hw_sha.h>
 #include <asm/io.h>
 #include <asm/errno.h>
@@ -226,6 +227,26 @@ int hash_progressive_lookup_algo(const char *algo_name,
 }
 
 #ifndef USE_HOSTCC
+int hash_parse_string(const char *algo_name, const char *str, uint8_t *result)
+{
+	struct hash_algo *algo;
+	int ret;
+	int i;
+
+	ret = hash_lookup_algo(algo_name, &algo);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < algo->digest_size; i++) {
+		char chr[3];
+
+		strncpy(chr, &str[i * 2], 2);
+		result[i] = simple_strtoul(chr, NULL, 16);
+	}
+
+	return 0;
+}
+
 /**
  * store_result: Store the resulting sum to an address or variable
  *
@@ -314,7 +335,6 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
 		buf = map_sysmem(addr, algo->digest_size);
 		memcpy(vsum, buf, algo->digest_size);
 	} else {
-		unsigned int i;
 		char *vsum_str;
 		int digits = algo->digest_size * 2;
 
@@ -334,14 +354,7 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
 			}
 		}
 
-		for (i = 0; i < algo->digest_size; i++) {
-			char *nullp = vsum_str + (i + 1) * 2;
-			char end = *nullp;
-
-			*nullp = '\0';
-			vsum[i] = simple_strtoul(vsum_str + (i * 2), NULL, 16);
-			*nullp = end;
-		}
+		hash_parse_string(algo->name, vsum_str, vsum);
 	}
 	return 0;
 }

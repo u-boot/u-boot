@@ -74,6 +74,13 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only)
 int device_bind_driver(struct udevice *parent, const char *drv_name,
 		       const char *dev_name, struct udevice **devp)
 {
+	return device_bind_driver_to_node(parent, drv_name, dev_name, -1, devp);
+}
+
+int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
+			       const char *dev_name, int node,
+			       struct udevice **devp)
+{
 	struct driver *drv;
 	int ret;
 
@@ -82,7 +89,7 @@ int device_bind_driver(struct udevice *parent, const char *drv_name,
 		printf("Cannot find driver '%s'\n", drv_name);
 		return -ENOENT;
 	}
-	ret = device_bind(parent, drv, dev_name, NULL, -1, devp);
+	ret = device_bind(parent, drv, dev_name, NULL, node, devp);
 	if (ret) {
 		printf("Cannot create device named '%s' (err=%d)\n",
 		       dev_name, ret);
@@ -168,7 +175,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 			dm_warn("Error binding driver '%s'\n", entry->name);
 			return ret;
 		} else {
-			dev->of_id = id;
+			dev->driver_data = id->data;
 			found = true;
 			if (devp)
 				*devp = dev;

@@ -206,3 +206,8 @@ int misc_init_r(void)
 	return 0;
 }
 #endif
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
+}

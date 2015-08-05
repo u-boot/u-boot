@@ -58,17 +58,8 @@
 /* PWM */
 #define CONFIG_PWM			1
 
-/* It should define before config_cmd_default.h */
 #define CONFIG_SYS_NO_FLASH		1
 
-/* Command definition */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_XIMG
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND

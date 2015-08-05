@@ -277,6 +277,7 @@
 #define UART3_BASE                  (AIPS2_OFF_BASE_ADDR + 0x6C000)
 #define UART4_BASE                  (AIPS2_OFF_BASE_ADDR + 0x70000)
 #define UART5_BASE                  (AIPS2_OFF_BASE_ADDR + 0x74000)
+#define I2C4_BASE_ADDR              (AIPS2_OFF_BASE_ADDR + 0x78000)
 #define IP2APB_USBPHY1_BASE_ADDR    (AIPS2_OFF_BASE_ADDR + 0x78000)
 #define IP2APB_USBPHY2_BASE_ADDR    (AIPS2_OFF_BASE_ADDR + 0x7C000)
 
@@ -311,6 +312,7 @@
 #define CHIP_REV_1_0                 0x10
 #define CHIP_REV_1_2                 0x12
 #define CHIP_REV_1_5                 0x15
+#define CHIP_REV_2_0                 0x20
 #ifndef CONFIG_MX6SX
 #define IRAM_SIZE                    0x00040000
 #else
@@ -637,6 +639,25 @@ struct fuse_bank0_regs {
 	u32	cfg5;
 	u32	rsvd6[3];
 	u32	cfg6;
+	u32	rsvd7[3];
+};
+
+struct fuse_bank1_regs {
+	u32	mem0;
+	u32	rsvd0[3];
+	u32	mem1;
+	u32	rsvd1[3];
+	u32	mem2;
+	u32	rsvd2[3];
+	u32	mem3;
+	u32	rsvd3[3];
+	u32	mem4;
+	u32	rsvd4[3];
+	u32	ana0;
+	u32	rsvd5[3];
+	u32	ana1;
+	u32	rsvd6[3];
+	u32	ana2;
 	u32	rsvd7[3];
 };
 

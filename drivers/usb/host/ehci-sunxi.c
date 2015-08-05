@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2014 Roman Byshko
+ * Sunxi ehci glue
  *
- * Roman Byshko <rbyshko@gmail.com>
+ * Copyright (C) 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2014 Roman Byshko <rbyshko@gmail.com>
  *
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
@@ -9,38 +10,92 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/arch/usbc.h>
 #include <common.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/usb_phy.h>
+#include <asm/io.h>
+#include <dm.h>
 #include "ehci.h"
 
-int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
-		struct ehci_hcor **hcor)
+struct ehci_sunxi_priv {
+	struct ehci_ctrl ehci;
+	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
+	int phy_index;     /* Index of the usb-phy attached to this hcd */
+};
+
+static int ehci_usb_probe(struct udevice *dev)
 {
-	int err;
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct ehci_sunxi_priv *priv = dev_get_priv(dev);
+	struct ehci_hccr *hccr = (struct ehci_hccr *)dev_get_addr(dev);
+	struct ehci_hcor *hcor;
 
-	err = sunxi_usbc_request_resources(index + 1);
-	if (err)
-		return err;
+	/*
+	 * This should go away once we've moved to the driver model for
+	 * clocks resp. phys.
+	 */
+	if (hccr == (void *)SUNXI_USB1_BASE) {
+		priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
+		priv->phy_index = 1;
+	} else {
+		priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI1;
+		priv->phy_index = 2;
+	}
 
-	sunxi_usbc_enable(index + 1);
-	sunxi_usbc_vbus_enable(index + 1);
+	setbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	setbits_le32(&ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
+#endif
 
-	*hccr = sunxi_usbc_get_io_base(index + 1);
+	sunxi_usb_phy_init(priv->phy_index);
+	sunxi_usb_phy_power_on(priv->phy_index);
 
-	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
-				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+	hcor = (struct ehci_hcor *)((uint32_t)hccr +
+				    HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	debug("sunxi-ehci: init hccr %x and hcor %x hc_length %d\n",
-	      (uint32_t)*hccr, (uint32_t)*hcor,
-	      (uint32_t)HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+	return ehci_register(dev, hccr, hcor, NULL, 0, plat->init_type);
+}
+
+static int ehci_usb_remove(struct udevice *dev)
+{
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct ehci_sunxi_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = ehci_deregister(dev);
+	if (ret)
+		return ret;
+
+	sunxi_usb_phy_power_off(priv->phy_index);
+	sunxi_usb_phy_exit(priv->phy_index);
+
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	clrbits_le32(&ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
+#endif
+	clrbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
 
 	return 0;
 }
 
-int ehci_hcd_stop(int index)
-{
-	sunxi_usbc_vbus_disable(index + 1);
-	sunxi_usbc_disable(index + 1);
+static const struct udevice_id ehci_usb_ids[] = {
+	{ .compatible = "allwinner,sun4i-a10-ehci", },
+	{ .compatible = "allwinner,sun5i-a13-ehci", },
+	{ .compatible = "allwinner,sun6i-a31-ehci", },
+	{ .compatible = "allwinner,sun7i-a20-ehci", },
+	{ .compatible = "allwinner,sun8i-a23-ehci", },
+	{ .compatible = "allwinner,sun9i-a80-ehci", },
+	{ }
+};
 
-	return sunxi_usbc_free_resources(index + 1);
-}
+U_BOOT_DRIVER(usb_ehci) = {
+	.name	= "ehci_sunxi",
+	.id	= UCLASS_USB,
+	.of_match = ehci_usb_ids,
+	.probe = ehci_usb_probe,
+	.remove = ehci_usb_remove,
+	.ops	= &ehci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct ehci_sunxi_priv),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};

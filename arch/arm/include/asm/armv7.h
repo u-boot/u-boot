@@ -70,6 +70,16 @@
 #define CP15DSB	asm volatile ("mcr     p15, 0, %0, c7, c10, 4" : : "r" (0))
 #define CP15DMB	asm volatile ("mcr     p15, 0, %0, c7, c10, 5" : : "r" (0))
 
+#ifdef __ARM_ARCH_7A__
+#define ISB	asm volatile ("isb" : : : "memory")
+#define DSB	asm volatile ("dsb" : : : "memory")
+#define DMB	asm volatile ("dmb" : : : "memory")
+#else
+#define ISB	CP15ISB
+#define DSB	CP15DSB
+#define DMB	CP15DMB
+#endif
+
 /*
  * Workaround for ARM errata # 798870
  * Set L2ACTLR[7] to reissue any memory transaction in the L2 that has been
@@ -121,9 +131,10 @@ void v7_outer_cache_inval_all(void);
 void v7_outer_cache_flush_range(u32 start, u32 end);
 void v7_outer_cache_inval_range(u32 start, u32 end);
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 
 int armv7_init_nonsec(void);
+int armv7_apply_memory_carveout(u64 *start, u64 *size);
 bool armv7_boot_nonsec(void);
 
 /* defined in assembly file */
@@ -135,7 +146,7 @@ void _smp_pen(void);
 extern char __secure_start[];
 extern char __secure_end[];
 
-#endif /* CONFIG_ARMV7_NONSEC || CONFIG_ARMV7_VIRT */
+#endif /* CONFIG_ARMV7_NONSEC */
 
 void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
 				 u32 cpu_rev_comb, u32 cpu_variant,

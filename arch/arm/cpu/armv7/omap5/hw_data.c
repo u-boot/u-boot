@@ -460,6 +460,10 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio6_clkctrl,
 		(*prcm)->cm_l4per_gpio7_clkctrl,
 		(*prcm)->cm_l4per_gpio8_clkctrl,
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
+		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
+		(*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+#endif
 		0
 	};
 
@@ -491,6 +495,16 @@ void enable_basic_clocks(void)
 	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
+	/* Enable 960 MHz clock for dwc3 */
+	setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+		     OPTFCLKEN_REFCLK960M);
+
+	/* Enable 32 KHz clock for dwc3 */
+	setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+		     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+#endif
+
 	/* Set the correct clock dividers for mmc */
 	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
@@ -520,6 +534,9 @@ void enable_basic_clocks(void)
 void enable_basic_uboot_clocks(void)
 {
 	u32 const clk_domains_essential[] = {
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+		(*prcm)->cm_ipu_clkstctrl,
+#endif
 		0
 	};
 
@@ -533,7 +550,11 @@ void enable_basic_uboot_clocks(void)
 		(*prcm)->cm_l4per_i2c2_clkctrl,
 		(*prcm)->cm_l4per_i2c3_clkctrl,
 		(*prcm)->cm_l4per_i2c4_clkctrl,
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+		(*prcm)->cm_ipu_i2c5_clkctrl,
+#else
 		(*prcm)->cm_l4per_i2c5_clkctrl,
+#endif
 		(*prcm)->cm_l3init_hsusbhost_clkctrl,
 		(*prcm)->cm_l3init_fsusb_clkctrl,
 		0
@@ -578,8 +599,8 @@ const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddrch = 0x40404040,
 	.ctrl_lpddr2ch = 0x40404040,
 	.ctrl_ddr3ch = 0x80808080,
-	.ctrl_ddrio_0 = 0xA2084210,
-	.ctrl_ddrio_1 = 0x84210840,
+	.ctrl_ddrio_0 = 0x00094A40,
+	.ctrl_ddrio_1 = 0x04A52000,
 	.ctrl_ddrio_2 = 0x84210000,
 	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
 	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
@@ -590,8 +611,8 @@ const struct ctrl_ioregs ioregs_dra72x_es1 = {
 	.ctrl_ddrch = 0x40404040,
 	.ctrl_lpddr2ch = 0x40404040,
 	.ctrl_ddr3ch = 0x60606080,
-	.ctrl_ddrio_0 = 0xA2084210,
-	.ctrl_ddrio_1 = 0x84210840,
+	.ctrl_ddrio_0 = 0x00094A40,
+	.ctrl_ddrio_1 = 0x04A52000,
 	.ctrl_ddrio_2 = 0x84210000,
 	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
 	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,

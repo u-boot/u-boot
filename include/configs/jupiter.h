@@ -85,9 +85,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
 
 #if defined(CONFIG_PCI)

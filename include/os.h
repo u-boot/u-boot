@@ -13,6 +13,7 @@
 
 #include <linux/types.h>
 
+struct rtc_time;
 struct sandbox_state;
 
 /**
@@ -64,7 +65,7 @@ off_t os_lseek(int fd, off_t offset, int whence);
  * Access to the OS open() system call
  *
  * \param pathname	Pathname of file to open
- * \param flags		Flags, like O_RDONLY, O_RDWR
+ * \param flags		Flags, like OS_O_RDONLY, OS_O_RDWR
  * \return file descriptor, or -1 on error
  */
 int os_open(const char *pathname, int flags);
@@ -109,6 +110,14 @@ void os_exit(int exit_code) __attribute__((noreturn));
  *			be handled by U-Boot
  */
 void os_tty_raw(int fd, bool allow_sigs);
+
+/**
+ * Restore the tty to its original mode
+ *
+ * Call this to restore the original terminal mode, after it has been changed
+ * by os_tty_raw(). This is an internal function.
+ */
+void os_fd_restore(void);
 
 /**
  * Acquires some memory from the underlying os.
@@ -276,5 +285,15 @@ int os_read_ram_buf(const char *fname);
  * @param size		Size of buffer
  */
 int os_jump_to_image(const void *dest, int size);
+
+/**
+ * Read the current system time
+ *
+ * This reads the current Local Time and places it into the provided
+ * structure.
+ *
+ * @param rt		Place to put system time
+ */
+void os_localtime(struct rtc_time *rt);
 
 #endif

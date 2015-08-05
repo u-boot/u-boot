@@ -42,6 +42,7 @@ enum clock_type_id {
 	CLOCK_TYPE_ASPTE,
 	CLOCK_TYPE_PMDACD2T,
 	CLOCK_TYPE_PCST,
+	CLOCK_TYPE_DP,
 
 	CLOCK_TYPE_PC2CC3M,
 	CLOCK_TYPE_PC2CC3S_T,
@@ -99,6 +100,10 @@ static enum clock_id clock_source[CLOCK_TYPE_COUNT][CLOCK_MAX_MUX+1] = {
 		CLK(CGENERAL),	CLK(DISPLAY2),	CLK(OSC),	CLK(NONE),
 		MASK_BITS_31_29},
 	{ CLK(PERIPH),	CLK(CGENERAL),	CLK(SFROM32KHZ),	CLK(OSC),
+		CLK(NONE),	CLK(NONE),	CLK(NONE),	CLK(NONE),
+		MASK_BITS_31_28},
+	/* CLOCK_TYPE_DP */
+	{ CLK(NONE),	CLK(NONE),	CLK(NONE),	CLK(NONE),
 		CLK(NONE),	CLK(NONE),	CLK(NONE),	CLK(NONE),
 		MASK_BITS_31_28},
 
@@ -259,7 +264,7 @@ static enum clock_type_id clock_periph_type[PERIPHC_COUNT] = {
 
 	/* 0x58 */
 	TYPE(PERIPHC_58h,	CLOCK_TYPE_NONE),
-	TYPE(PERIPHC_59h,	CLOCK_TYPE_NONE),
+	TYPE(PERIPHC_SOR,	CLOCK_TYPE_NONE),
 	TYPE(PERIPHC_5ah,	CLOCK_TYPE_NONE),
 	TYPE(PERIPHC_5bh,	CLOCK_TYPE_NONE),
 	TYPE(PERIPHC_SATAOOB,	CLOCK_TYPE_PCMT),
@@ -470,7 +475,7 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 	PERIPHC_ACTMON,
 
 	/* 120 */
-	NONE(EXTPERIPH1),
+	PERIPHC_EXTPERIPH1,
 	NONE(EXTPERIPH2),
 	NONE(EXTPERIPH3),
 	NONE(OOB),
@@ -546,7 +551,7 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 	NONE(X_RESERVED19),
 	NONE(ADX1),
 	NONE(DPAUX),
-	NONE(SOR0),
+	PERIPHC_SOR,
 	NONE(X_RESERVED23),
 
 	/* 184 */
@@ -594,7 +599,10 @@ u32 *get_periph_source_reg(enum periph_id periph_id)
 	assert(periph_id >= PERIPH_ID_FIRST && periph_id < PERIPH_ID_COUNT);
 	internal_id = periph_id_to_internal_id[periph_id];
 	assert(internal_id != -1);
-	if (internal_id >= PERIPHC_VW_FIRST) {
+	if (internal_id >= PERIPHC_X_FIRST) {
+		internal_id -= PERIPHC_X_FIRST;
+		return &clkrst->crc_clk_src_x[internal_id];
+	} else if (internal_id >= PERIPHC_VW_FIRST) {
 		internal_id -= PERIPHC_VW_FIRST;
 		return &clkrst->crc_clk_src_vw[internal_id];
 	} else {
@@ -657,8 +665,10 @@ void clock_set_enable(enum periph_id periph_id, int enable)
 	assert(clock_periph_id_isvalid(periph_id));
 	if ((int)periph_id < (int)PERIPH_ID_VW_FIRST)
 		clk = &clkrst->crc_clk_out_enb[PERIPH_REG(periph_id)];
-	else
+	else if ((int)periph_id < PERIPH_ID_X_FIRST)
 		clk = &clkrst->crc_clk_out_enb_vw[PERIPH_REG(periph_id)];
+	else
+		clk = &clkrst->crc_clk_out_enb_x;
 	reg = readl(clk);
 	if (enable)
 		reg |= PERIPH_MASK(periph_id);
@@ -678,8 +688,10 @@ void reset_set_enable(enum periph_id periph_id, int enable)
 	assert(clock_periph_id_isvalid(periph_id));
 	if (periph_id < PERIPH_ID_VW_FIRST)
 		reset = &clkrst->crc_rst_dev[PERIPH_REG(periph_id)];
-	else
+	else if ((int)periph_id < PERIPH_ID_X_FIRST)
 		reset = &clkrst->crc_rst_dev_vw[PERIPH_REG(periph_id)];
+	else
+		reset = &clkrst->crc_rst_devices_x;
 	reg = readl(reset);
 	if (enable)
 		reg |= PERIPH_MASK(periph_id);
@@ -932,4 +944,123 @@ int tegra_plle_enable(void)
 	udelay(1);
 
 	return 0;
+}
+
+void clock_sor_enable_edp_clock(void)
+{
+	u32 *reg;
+
+	/* uses PLLP, has a non-standard bit layout. */
+	reg = get_periph_source_reg(PERIPH_ID_SOR0);
+	setbits_le32(reg, SOR0_CLK_SEL0);
+}
+
+u32 clock_set_display_rate(u32 frequency)
+{
+	/**
+	 * plld (fo) = vco >> p, where 500MHz < vco < 1000MHz
+	 *           = (cf * n) >> p, where 1MHz < cf < 6MHz
+	 *           = ((ref / m) * n) >> p
+	 *
+	 * Iterate the possible values of p (3 bits, 2^7) to find out a minimum
+	 * safe vco, then find best (m, n). since m has only 5 bits, we can
+	 * iterate all possible values.  Note Tegra 124 supports 11 bits for n,
+	 * but our pll_fields has only 10 bits for n.
+	 *
+	 * Note values undershoot or overshoot target output frequency may not
+	 * work if the values are not in "safe" range by panel specification.
+	 */
+	u32 ref = clock_get_rate(CLOCK_ID_OSC);
+	u32 divm, divn, divp, cpcon;
+	u32 cf, vco, rounded_rate = frequency;
+	u32 diff, best_diff, best_m = 0, best_n = 0, best_p;
+	const u32 max_m = 1 << 5, max_n = 1 << 10, max_p = 1 << 3,
+		  mhz = 1000 * 1000, min_vco = 500 * mhz, max_vco = 1000 * mhz,
+		  min_cf = 1 * mhz, max_cf = 6 * mhz;
+	int mux_bits, divider_bits, source;
+
+	for (divp = 0, vco = frequency; vco < min_vco && divp < max_p; divp++)
+		vco <<= 1;
+
+	if (vco < min_vco || vco > max_vco) {
+		printf("%s: Cannot find out a supported VCO for Frequency (%u)\n",
+		       __func__, frequency);
+		return 0;
+	}
+
+	best_p = divp;
+	best_diff = vco;
+
+	for (divm = 1; divm < max_m && best_diff; divm++) {
+		cf = ref / divm;
+		if (cf < min_cf)
+			break;
+		if (cf > max_cf)
+			continue;
+
+		divn = vco / cf;
+		if (divn >= max_n)
+			continue;
+
+		diff = vco - divn * cf;
+		if (divn + 1 < max_n && diff > cf / 2) {
+			divn++;
+			diff = cf - diff;
+		}
+
+		if (diff >= best_diff)
+			continue;
+
+		best_diff = diff;
+		best_m = divm;
+		best_n = divn;
+	}
+
+	if (best_n < 50)
+		cpcon = 2;
+	else if (best_n < 300)
+		cpcon = 3;
+	else if (best_n < 600)
+		cpcon = 8;
+	else
+		cpcon = 12;
+
+	if (best_diff) {
+		printf("%s: Failed to match output frequency %u, best difference is %u\n",
+		       __func__, frequency, best_diff);
+		rounded_rate = (ref / best_m * best_n) >> best_p;
+	}
+
+	debug("%s: PLLD=%u ref=%u, m/n/p/cpcon=%u/%u/%u/%u\n",
+	      __func__, rounded_rate, ref, best_m, best_n, best_p, cpcon);
+
+	source = get_periph_clock_source(PERIPH_ID_DISP1, CLOCK_ID_DISPLAY,
+					 &mux_bits, &divider_bits);
+	clock_ll_set_source_bits(PERIPH_ID_DISP1, mux_bits, source);
+	clock_set_rate(CLOCK_ID_DISPLAY, best_n, best_m, best_p, cpcon);
+
+	return rounded_rate;
+}
+
+void clock_set_up_plldp(void)
+{
+	struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 value;
+
+	value = PLLDP_SS_CFG_UNDOCUMENTED | PLLDP_SS_CFG_DITHER;
+	writel(value | PLLDP_SS_CFG_CLAMP, &clkrst->crc_plldp_ss_cfg);
+	clock_start_pll(CLOCK_ID_DP, 1, 90, 3, 0, 0);
+	writel(value, &clkrst->crc_plldp_ss_cfg);
+}
+
+struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid)
+{
+	struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+
+	if (clkid == CLOCK_ID_DP)
+		return &clkrst->plldp;
+
+	return NULL;
 }

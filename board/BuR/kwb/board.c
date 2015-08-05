@@ -3,7 +3,7 @@
  *
  * Board functions for B&R KWB Board
  *
- * Copyright (C) 2013 Hannes Petermaier <oe5hpm@oevsv.at>
+ * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -214,8 +214,8 @@ int board_late_init(void)
 			    gpio_get_value(PUSH_KEY) && 1 == cnt) {
 				lcd_position_cursor(1, 8);
 				lcd_puts(
-				"updating U-BOOT from USB ...           ");
-				setenv("bootcmd", "run usbupdate");
+				"starting u-boot script from USB ...    ");
+				setenv("bootcmd", "run usbscript");
 				cnt = 4;
 				break;
 			} else if ((!gpio_get_value(ESC_KEY) &&

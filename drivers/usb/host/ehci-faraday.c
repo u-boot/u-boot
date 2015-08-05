@@ -29,6 +29,59 @@ static inline int ehci_is_fotg2xx(union ehci_faraday_regs *regs)
 	return !readl(&regs->usb.easstr);
 }
 
+void faraday_ehci_set_usbmode(struct ehci_ctrl *ctrl)
+{
+	/* nothing needs to be done */
+}
+
+int faraday_ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
+{
+	int spd, ret = PORTSC_PSPD_HS;
+	union ehci_faraday_regs *regs;
+
+	ret = (void __iomem *)((ulong)ctrl->hcor - 0x10);
+	if (ehci_is_fotg2xx(regs))
+		spd = OTGCSR_SPD(readl(&regs->otg.otgcsr));
+	else
+		spd = BMCSR_SPD(readl(&regs->usb.bmcsr));
+
+	switch (spd) {
+	case 0:    /* full speed */
+		ret = PORTSC_PSPD_FS;
+		break;
+	case 1:    /* low  speed */
+		ret = PORTSC_PSPD_LS;
+		break;
+	case 2:    /* high speed */
+		ret = PORTSC_PSPD_HS;
+		break;
+	default:
+		printf("ehci-faraday: invalid device speed\n");
+		break;
+	}
+
+	return ret;
+}
+
+uint32_t *faraday_ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port)
+{
+	/* Faraday EHCI has one and only one portsc register */
+	if (port) {
+		/* Printing the message would cause a scan failure! */
+		debug("The request port(%d) is not configured\n", port);
+		return NULL;
+	}
+
+	/* Faraday EHCI PORTSC register offset is 0x20 from hcor */
+	return (uint32_t *)((uint8_t *)ctrl->hcor + 0x20);
+}
+
+static const struct ehci_ops faraday_ehci_ops = {
+	.set_usb_mode		= faraday_ehci_set_usbmode,
+	.get_port_speed		= faraday_ehci_get_port_speed,
+	.get_portsc_register	= faraday_ehci_get_portsc_register,
+};
+
 /*
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
@@ -43,6 +96,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	if (index < 0 || index >= ARRAY_SIZE(base_list))
 		return -1;
+	ehci_set_controller_priv(index, NULL, &faraday_ehci_ops);
 	regs = (void __iomem *)base_list[index];
 	hccr = (struct ehci_hccr *)&regs->usb.hccr;
 	hcor = (struct ehci_hcor *)&regs->usb.hcor;
@@ -86,62 +140,4 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 int ehci_hcd_stop(int index)
 {
 	return 0;
-}
-
-/*
- * This ehci_set_usbmode() overrides the weak function
- * in "ehci-hcd.c".
- */
-void ehci_set_usbmode(int index)
-{
-	/* nothing needs to be done */
-}
-
-/*
- * This ehci_get_port_speed() overrides the weak function
- * in "ehci-hcd.c".
- */
-int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
-{
-	int spd, ret = PORTSC_PSPD_HS;
-	union ehci_faraday_regs *regs = (void __iomem *)((ulong)hcor - 0x10);
-
-	if (ehci_is_fotg2xx(regs))
-		spd = OTGCSR_SPD(readl(&regs->otg.otgcsr));
-	else
-		spd = BMCSR_SPD(readl(&regs->usb.bmcsr));
-
-	switch (spd) {
-	case 0:    /* full speed */
-		ret = PORTSC_PSPD_FS;
-		break;
-	case 1:    /* low  speed */
-		ret = PORTSC_PSPD_LS;
-		break;
-	case 2:    /* high speed */
-		ret = PORTSC_PSPD_HS;
-		break;
-	default:
-		printf("ehci-faraday: invalid device speed\n");
-		break;
-	}
-
-	return ret;
-}
-
-/*
- * This ehci_get_portsc_register() overrides the weak function
- * in "ehci-hcd.c".
- */
-uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
-{
-	/* Faraday EHCI has one and only one portsc register */
-	if (port) {
-		/* Printing the message would cause a scan failure! */
-		debug("The request port(%d) is not configured\n", port);
-		return NULL;
-	}
-
-	/* Faraday EHCI PORTSC register offset is 0x20 from hcor */
-	return (uint32_t *)((uint8_t *)hcor + 0x20);
 }

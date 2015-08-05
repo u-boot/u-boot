@@ -21,6 +21,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <asm/control_regs.h>
@@ -29,6 +31,7 @@
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
+#include <asm/tables.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -132,6 +135,7 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 
 void setup_gdt(gd_t *id, u64 *gdt_addr)
 {
+	id->arch.gdt = gdt_addr;
 	/* CS: code, read/execute, 4 GB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff);
 
@@ -163,7 +167,7 @@ void setup_gdt(gd_t *id, u64 *gdt_addr)
 int __weak x86_cleanup_before_linux(void)
 {
 #ifdef CONFIG_BOOTSTAGE_STASH
-	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH,
+	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			CONFIG_BOOTSTAGE_STASH_SIZE);
 #endif
 
@@ -379,21 +383,17 @@ void  flush_cache(unsigned long dummy1, unsigned long dummy2)
 	asm("wbinvd\n");
 }
 
-void __attribute__ ((regparm(0))) generate_gpf(void);
-
-/* segment 0x70 is an arbitrary segment which does not exist */
-asm(".globl generate_gpf\n"
-	".hidden generate_gpf\n"
-	".type generate_gpf, @function\n"
-	"generate_gpf:\n"
-	"ljmp   $0x70, $0x47114711\n");
-
 __weak void reset_cpu(ulong addr)
 {
-	printf("Resetting using x86 Triple Fault\n");
-	set_vector(13, generate_gpf);	/* general protection fault handler */
-	set_vector(8, generate_gpf);	/* double fault handler */
-	generate_gpf();			/* start the show */
+	/* Do a hard reset through the chipset's reset control register */
+	outb(SYS_RST | RST_CPU, PORT_RESET);
+	for (;;)
+		cpu_hlt();
+}
+
+void x86_full_reset(void)
+{
+	outb(FULL_RST | SYS_RST | RST_CPU, PORT_RESET);
 }
 
 int dcache_status(void)
@@ -520,6 +520,16 @@ char *cpu_get_name(char *name)
 	return ptr;
 }
 
+int x86_cpu_get_desc(struct udevice *dev, char *buf, int size)
+{
+	if (size < CPU_MAX_NAME_LEN)
+		return -ENOSPC;
+
+	cpu_get_name(buf);
+
+	return 0;
+}
+
 int default_print_cpuinfo(void)
 {
 	printf("CPU: %s, vendor %s, device %xh\n",
@@ -593,3 +603,38 @@ void show_boot_progress(int val)
 #endif
 	outb(val, POST_PORT);
 }
+
+#ifndef CONFIG_SYS_COREBOOT
+int last_stage_init(void)
+{
+	write_tables();
+
+	return 0;
+}
+#endif
+
+__weak int x86_init_cpus(void)
+{
+	return 0;
+}
+
+int cpu_init_r(void)
+{
+	return x86_init_cpus();
+}
+
+static const struct cpu_ops cpu_x86_ops = {
+	.get_desc	= x86_cpu_get_desc,
+};
+
+static const struct udevice_id cpu_x86_ids[] = {
+	{ .compatible = "cpu-x86" },
+	{ }
+};
+
+U_BOOT_DRIVER(cpu_x86_drv) = {
+	.name		= "cpu_x86",
+	.id		= UCLASS_CPU,
+	.of_match	= cpu_x86_ids,
+	.ops		= &cpu_x86_ops,
+};

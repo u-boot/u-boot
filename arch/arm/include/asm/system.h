@@ -83,6 +83,7 @@ void armv8_switch_to_el1(void);
 void gic_init(void);
 void gic_send_sgi(unsigned long sgino);
 void wait_for_wakeup(void);
+void protect_secure_region(void);
 void smp_kick_all_cpus(void);
 
 void flush_l3_cache(void);
@@ -164,6 +165,22 @@ void flush_l3_cache(void);
  * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3);
  */
 
+/**
+ * save_boot_params_ret() - Return from save_boot_params()
+ *
+ * If you provide save_boot_params(), then you should jump back to this
+ * function when done. Try to preserve all registers.
+ *
+ * If your implementation of save_boot_params() is in C then it is acceptable
+ * to simply call save_boot_params_ret() at the end of your function. Since
+ * there is no link register set up, you cannot just exit the function. U-Boot
+ * will return to the (initialised) value of lr, and likely crash/hang.
+ *
+ * If your implementation of save_boot_params() is in assembler then you
+ * should use 'b' or 'bx' to return to save_boot_params_ret.
+ */
+void save_boot_params_ret(void);
+
 #define isb() __asm__ __volatile__ ("" : : : "memory")
 
 #define nop() __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t");
@@ -202,6 +219,28 @@ static inline void set_dacr(unsigned int val)
 	isb();
 }
 
+#ifdef CONFIG_ARMV7
+/* Short-Descriptor Translation Table Level 1 Bits */
+#define TTB_SECT_NS_MASK	(1 << 19)
+#define TTB_SECT_NG_MASK	(1 << 17)
+#define TTB_SECT_S_MASK		(1 << 16)
+/* Note: TTB AP bits are set elsewhere */
+#define TTB_SECT_TEX(x)		((x & 0x7) << 12)
+#define TTB_SECT_DOMAIN(x)	((x & 0xf) << 5)
+#define TTB_SECT_XN_MASK	(1 << 4)
+#define TTB_SECT_C_MASK		(1 << 3)
+#define TTB_SECT_B_MASK		(1 << 2)
+#define TTB_SECT			(2 << 0)
+
+/* options available for data cache on each page */
+enum dcache_option {
+	DCACHE_OFF = TTB_SECT_S_MASK | TTB_SECT_DOMAIN(0) |
+					TTB_SECT_XN_MASK | TTB_SECT,
+	DCACHE_WRITETHROUGH = DCACHE_OFF | TTB_SECT_C_MASK,
+	DCACHE_WRITEBACK = DCACHE_WRITETHROUGH | TTB_SECT_B_MASK,
+	DCACHE_WRITEALLOC = DCACHE_WRITEBACK | TTB_SECT_TEX(1),
+};
+#else
 /* options available for data cache on each page */
 enum dcache_option {
 	DCACHE_OFF = 0x12,
@@ -209,12 +248,27 @@ enum dcache_option {
 	DCACHE_WRITEBACK = 0x1e,
 	DCACHE_WRITEALLOC = 0x16,
 };
+#endif
 
 /* Size of an MMU section */
 enum {
 	MMU_SECTION_SHIFT	= 20,
 	MMU_SECTION_SIZE	= 1 << MMU_SECTION_SHIFT,
 };
+
+#ifdef CONFIG_ARMV7
+/* TTBR0 bits */
+#define TTBR0_BASE_ADDR_MASK	0xFFFFC000
+#define TTBR0_RGN_NC			(0 << 3)
+#define TTBR0_RGN_WBWA			(1 << 3)
+#define TTBR0_RGN_WT			(2 << 3)
+#define TTBR0_RGN_WB			(3 << 3)
+/* TTBR0[6] is IRGN[0] and TTBR[0] is IRGN[1] */
+#define TTBR0_IRGN_NC			(0 << 0 | 0 << 6)
+#define TTBR0_IRGN_WBWA			(0 << 0 | 1 << 6)
+#define TTBR0_IRGN_WT			(1 << 0 | 0 << 6)
+#define TTBR0_IRGN_WB			(1 << 0 | 1 << 6)
+#endif
 
 /**
  * Register an update to the page tables, and flush the TLB

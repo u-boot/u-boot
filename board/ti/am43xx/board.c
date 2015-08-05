@@ -12,6 +12,7 @@
 #include <i2c.h>
 #include <asm/errno.h>
 #include <spl.h>
+#include <usb.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mux.h>
@@ -24,6 +25,10 @@
 #include <power/tps62362.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/usb/gadget.h>
+#include <dwc3-uboot.h>
+#include <dwc3-omap-uboot.h>
+#include <ti-usb-phy-uboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -141,6 +146,29 @@ const struct dpll_params gp_evm_dpll_ddr = {
 
 static const struct dpll_params idk_dpll_ddr = {
 	400, 23, 1, -1, 2, -1, -1
+};
+
+static const u32 ext_phy_ctrl_const_base_lpddr2[] = {
+	0x00500050,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x40001000,
+	0x08102040
 };
 
 const struct ctrl_ioregs ioregs_lpddr2 = {
@@ -312,6 +340,16 @@ static const struct emif_regs ddr3_idk_emif_regs_400Mhz = {
 	.emif_connect_id_serv_2_map	= 0x00000000,
 	.emif_cos_config		= 0x00ffffff
 };
+
+void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
+{
+	if (board_is_eposevm()) {
+		*regs = ext_phy_ctrl_const_base_lpddr2;
+		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_lpddr2);
+	}
+
+	return;
+}
 
 /*
  * get_sys_clk_index : returns the index of the sys_clk read from
@@ -636,6 +674,109 @@ int board_late_init(void)
 }
 #endif
 
+#ifdef CONFIG_USB_DWC3
+static struct dwc3_device usb_otg_ss1 = {
+	.maximum_speed = USB_SPEED_HIGH,
+	.base = USB_OTG_SS1_BASE,
+	.tx_fifo_resize = false,
+	.index = 0,
+};
+
+static struct dwc3_omap_device usb_otg_ss1_glue = {
+	.base = (void *)USB_OTG_SS1_GLUE_BASE,
+	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
+	.vbus_id_status = OMAP_DWC3_VBUS_VALID,
+	.index = 0,
+};
+
+static struct ti_usb_phy_device usb_phy1_device = {
+	.usb2_phy_power = (void *)USB2_PHY1_POWER,
+	.index = 0,
+};
+
+static struct dwc3_device usb_otg_ss2 = {
+	.maximum_speed = USB_SPEED_HIGH,
+	.base = USB_OTG_SS2_BASE,
+	.tx_fifo_resize = false,
+	.index = 1,
+};
+
+static struct dwc3_omap_device usb_otg_ss2_glue = {
+	.base = (void *)USB_OTG_SS2_GLUE_BASE,
+	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
+	.vbus_id_status = OMAP_DWC3_VBUS_VALID,
+	.index = 1,
+};
+
+static struct ti_usb_phy_device usb_phy2_device = {
+	.usb2_phy_power = (void *)USB2_PHY2_POWER,
+	.index = 1,
+};
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	switch (index) {
+	case 0:
+		if (init == USB_INIT_DEVICE) {
+			usb_otg_ss1.dr_mode = USB_DR_MODE_PERIPHERAL;
+			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+		} else {
+			usb_otg_ss1.dr_mode = USB_DR_MODE_HOST;
+			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
+		}
+
+		dwc3_omap_uboot_init(&usb_otg_ss1_glue);
+		ti_usb_phy_uboot_init(&usb_phy1_device);
+		dwc3_uboot_init(&usb_otg_ss1);
+		break;
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
+			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+		} else {
+			usb_otg_ss2.dr_mode = USB_DR_MODE_HOST;
+			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
+		}
+
+		ti_usb_phy_uboot_init(&usb_phy2_device);
+		dwc3_omap_uboot_init(&usb_otg_ss2_glue);
+		dwc3_uboot_init(&usb_otg_ss2);
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	switch (index) {
+	case 0:
+	case 1:
+		ti_usb_phy_uboot_exit(index);
+		dwc3_uboot_exit(index);
+		dwc3_omap_uboot_exit(index);
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+
+	return 0;
+}
+
+int usb_gadget_handle_interrupts(int index)
+{
+	u32 status;
+
+	status = dwc3_omap_uboot_interrupt_status(index);
+	if (status)
+		dwc3_uboot_handle_interrupt(index);
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_DRIVER_TI_CPSW
 
 static void cpsw_control(int enabled)
@@ -694,7 +835,7 @@ int board_eth_init(bd_t *bis)
 
 	if (!getenv("ethaddr")) {
 		puts("<ethaddr> not set. Validating first E-fuse MAC\n");
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
@@ -708,7 +849,7 @@ int board_eth_init(bd_t *bis)
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
 	if (!getenv("eth1addr")) {
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("eth1addr", mac_addr);
 	}
 

@@ -27,9 +27,14 @@ config MX6SX
 
 choice
 	prompt "MX6 board select"
+	optional
 
 config TARGET_SECOMX6
 	bool "Support secomx6 boards"
+	select CPU_V7
+
+config TARGET_TQMA6
+	bool "TQ Systems TQMa6 board"
 	select CPU_V7
 
 endchoice
@@ -38,5 +43,6 @@ config SYS_SOC
 	default "mx6"
 
 source "board/seco/Kconfig"
+source "board/tqc/tqma6/Kconfig"
 
 endif

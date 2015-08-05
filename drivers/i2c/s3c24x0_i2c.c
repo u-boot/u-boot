@@ -165,7 +165,7 @@ static int GetI2CSDA(void)
 {
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
 
-#ifdef CONFIG_S3C2410
+#if defined(CONFIG_S3C2410) || defined(CONFIG_S3C2440)
 	return (readl(&gpio->gpedat) & 0x8000) >> 15;
 #endif
 #ifdef CONFIG_S3C2400
@@ -177,7 +177,7 @@ static void SetI2CSCL(int x)
 {
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
 
-#ifdef CONFIG_S3C2410
+#if defined(CONFIG_S3C2410) || defined(CONFIG_S3C2440)
 	writel((readl(&gpio->gpedat) & ~0x4000) |
 					(x & 1) << 14, &gpio->gpedat);
 #endif
@@ -443,7 +443,7 @@ static void s3c24x0_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 	int i;
 
 	if ((readl(&i2c->iicstat) & I2CSTAT_BSY) || GetI2CSDA() == 0) {
-#ifdef CONFIG_S3C2410
+#if defined(CONFIG_S3C2410) || defined(CONFIG_S3C2440)
 		ulong old_gpecon = readl(&gpio->gpecon);
 #endif
 #ifdef CONFIG_S3C2400
@@ -452,7 +452,7 @@ static void s3c24x0_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 		/* bus still busy probably by (most) previously interrupted
 		   transfer */
 
-#ifdef CONFIG_S3C2410
+#if defined(CONFIG_S3C2410) || defined(CONFIG_S3C2440)
 		/* set I2CSDA and I2CSCL (GPE15, GPE14) to GPIO */
 		writel((readl(&gpio->gpecon) & ~0xF0000000) | 0x10000000,
 		       &gpio->gpecon);
@@ -478,7 +478,7 @@ static void s3c24x0_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 		udelay(1000);
 
 		/* restore pin functions */
-#ifdef CONFIG_S3C2410
+#if defined(CONFIG_S3C2410) || defined(CONFIG_S3C2440)
 		writel(old_gpecon, &gpio->gpecon);
 #endif
 #ifdef CONFIG_S3C2400
@@ -1035,7 +1035,7 @@ static void process_nodes(const void *blob, int node_list[], int count,
 						CONFIG_SYS_I2C_S3C24X0_SPEED);
 		bus->node = node;
 		bus->bus_num = i;
-		exynos_pinmux_config(PERIPH_ID_I2C0 + bus->id, flags);
+		exynos_pinmux_config(bus->id, flags);
 
 		/* Mark position as used */
 		node_list[i] = -1;
@@ -1348,7 +1348,7 @@ static int s3c_i2c_ofdata_to_platdata(struct udevice *dev)
 	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
 	int node, flags;
 
-	i2c_bus->is_highspeed = dev->of_id->data;
+	i2c_bus->is_highspeed = dev_get_driver_data(dev);
 	node = dev->of_offset;
 
 	if (i2c_bus->is_highspeed) {

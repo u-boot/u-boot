@@ -135,9 +135,8 @@
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
 		+sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */
 /*
- * Commands configuration - using default command set for now
+ * Commands configuration
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_USB
@@ -208,7 +207,7 @@
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
-#define CONFIG_I2C_MVTWSI_BASE		ORION5X_TWSI_BASE
+#define CONFIG_I2C_MVTWSI_BASE0		ORION5X_TWSI_BASE
 #define CONFIG_SYS_I2C_SLAVE		0x0
 #define CONFIG_SYS_I2C_SPEED		100000
 #endif

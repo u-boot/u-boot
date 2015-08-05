@@ -124,8 +124,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_EXT2			/* EXT2 Support */
 #define CONFIG_CMD_EXT4			/* EXT4 Support */
 #define CONFIG_CMD_FAT			/* FAT support */
@@ -151,14 +149,6 @@
 #endif
 
 #endif
-
-/* commands not needed from config_cmd_default.h */
-#undef CONFIG_CMD_FPGA			/* FPGA configuration Support */
-#undef CONFIG_CMD_IMI			/* iminfo */
-#undef CONFIG_CMD_NET			/* bootp, tftpboot, rarpboot */
-#undef CONFIG_CMD_NFS			/* NFS support */
-#undef CONFIG_CMD_SAVEENV		/* saveenv */
-#undef CONFIG_CMD_SETGETDCR		/* DCR support on 4xx */
 
 #define CONFIG_OMAP3_SPI
 #define CONFIG_SYS_I2C
@@ -397,7 +387,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"echo"
 
 #define CONFIG_BOOTDELAY 30
-#define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_MENU
 #define CONFIG_MENU_SHOW
 

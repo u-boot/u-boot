@@ -1,7 +1,7 @@
 /*
  * board/renesas/alt/alt.c
  *
- * Copyright (C) 2014 Renesas Electronics Corporation
+ * Copyright (C) 2014, 2015 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0
  */
@@ -94,6 +94,20 @@ int board_init(void)
 	r8a7794_pinmux_init();
 
 	/* Ether Enable */
+#if defined(CONFIG_R8A7794_ETHERNET_B)
+	gpio_request(GPIO_FN_ETH_CRS_DV_B, NULL);
+	gpio_request(GPIO_FN_ETH_RX_ER_B, NULL);
+	gpio_request(GPIO_FN_ETH_RXD0_B, NULL);
+	gpio_request(GPIO_FN_ETH_RXD1_B, NULL);
+	gpio_request(GPIO_FN_ETH_LINK_B, NULL);
+	gpio_request(GPIO_FN_ETH_REFCLK_B, NULL);
+	gpio_request(GPIO_FN_ETH_MDIO_B, NULL);
+	gpio_request(GPIO_FN_ETH_TXD1_B, NULL);
+	gpio_request(GPIO_FN_ETH_TX_EN_B, NULL);
+	gpio_request(GPIO_FN_ETH_MAGIC_B, NULL);
+	gpio_request(GPIO_FN_ETH_TXD0_B, NULL);
+	gpio_request(GPIO_FN_ETH_MDC_B, NULL);
+#else
 	gpio_request(GPIO_FN_ETH_CRS_DV, NULL);
 	gpio_request(GPIO_FN_ETH_RX_ER, NULL);
 	gpio_request(GPIO_FN_ETH_RXD0, NULL);
@@ -106,6 +120,7 @@ int board_init(void)
 	gpio_request(GPIO_FN_ETH_MAGIC, NULL);
 	gpio_request(GPIO_FN_ETH_TXD0, NULL);
 	gpio_request(GPIO_FN_ETH_MDC, NULL);
+#endif
 	gpio_request(GPIO_FN_IRQ8, NULL);
 
 	/* PHY reset */

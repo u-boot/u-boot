@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2013-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2013-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/sg-regs.h>
 
 int print_cpuinfo(void)
@@ -34,6 +33,15 @@ int print_cpuinfo(void)
 		break;
 	case 0x29:
 		puts("PH1-sLD8 (MN2WS0270)");
+		break;
+	case 0x2A:
+		puts("PH1-Pro5 (MN2WS0300)");
+		break;
+	case 0x2E:
+		puts("ProXstream2 (MN2WS0310)");
+		break;
+	case 0x2F:
+		puts("PH1-LD6b (MN2WS0320)");
 		break;
 	default:
 		printf("Unknown Processor ID (0x%x)\n", revision);

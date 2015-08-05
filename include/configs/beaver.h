@@ -55,7 +55,6 @@
 /* SPI */
 #define CONFIG_TEGRA20_SLINK
 #define CONFIG_TEGRA_SLINK_CTRLS       6
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_MODE         SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED        24000000
@@ -85,7 +84,6 @@
 #define CONFIG_RTL8169
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 #include "tegra-common-usb-gadget.h"

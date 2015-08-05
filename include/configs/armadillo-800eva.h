@@ -16,16 +16,11 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_BOOTZ
 
 #define CONFIG_OF_LIBFDT
@@ -121,7 +116,6 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SECT_SIZE)
 
 /* SH Ether */
-#define	CONFIG_NET_MULTI
 #define CONFIG_SH_ETHER
 #define CONFIG_SH_ETHER_USE_PORT	0
 #define CONFIG_SH_ETHER_PHY_ADDR	0x0

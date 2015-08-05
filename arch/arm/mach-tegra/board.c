@@ -98,14 +98,6 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_DISPLAY_BOARDINFO
-int checkboard(void)
-{
-	printf("Board: %s\n", sysinfo.board_string);
-	return 0;
-}
-#endif	/* CONFIG_DISPLAY_BOARDINFO */
-
 static int uart_configs[] = {
 #if defined(CONFIG_TEGRA20)
  #if defined(CONFIG_TEGRA_UARTA_UAA_UAB)

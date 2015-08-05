@@ -1,2 +1,8 @@
 CONFIG_ARM=y
 CONFIG_ARCH_HIGHBANK=y
+CONFIG_AUTOBOOT_KEYED=y
+CONFIG_AUTOBOOT_PROMPT="Autobooting in %d seconds...\nPress <s> to stop or <d> to delay\n"
+CONFIG_AUTOBOOT_KEYED_CTRLC=y
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_SETEXPR is not set

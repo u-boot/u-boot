@@ -1,0 +1,63 @@
+config DM_REGULATOR
+	bool "Enable Driver Model for REGULATOR drivers (UCLASS_REGULATOR)"
+	depends on DM
+	---help---
+	This config enables the driver model regulator support.
+	UCLASS_REGULATOR - designed to provide a common API for basic regulator's
+	functions, like get/set Voltage or Current value, enable state, etc...
+	Note:
+	When enabling this, please read the description, found in the files:
+	- 'include/power/pmic.h'
+	- 'include/power/regulator.h'
+	- 'drivers/power/pmic/pmic-uclass.c'
+	- 'drivers/power/pmic/regulator-uclass.c'
+	It's important to call the device_bind() with the proper node offset,
+	when binding the regulator devices. The pmic_bind_childs() can be used
+	for this purpose if PMIC I/O driver is implemented or dm_scan_fdt_node()
+	otherwise. Detailed information can be found in the header file.
+
+config DM_REGULATOR_MAX77686
+	bool "Enable Driver Model for REGULATOR MAX77686"
+	depends on DM_REGULATOR && DM_PMIC_MAX77686
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for REGULATOR MAX77686. The driver implements get/set api for:
+	value, enable and mode.
+
+config DM_REGULATOR_FIXED
+	bool "Enable Driver Model for REGULATOR Fixed value"
+	depends on DM_REGULATOR
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for fixed value regulators. The driver implements get/set api
+	for enable and get only for voltage value.
+
+config DM_REGULATOR_SANDBOX
+	bool "Enable Driver Model for Sandbox PMIC regulator"
+	depends on DM_REGULATOR && DM_PMIC_SANDBOX
+	---help---
+	Enable the regulator driver for emulated Sandbox PMIC.
+	The emulated PMIC device depends on two drivers:
+	- sandbox PMIC I/O driver - implements dm pmic operations
+	- sandbox PMIC regulator driver - implements dm regulator operations
+	- sandbox PMIC i2c emul driver - emulates the PMIC's I2C transmission
+
+	The regulator driver provides uclass operations for sandbox PMIC's
+	regulators. The driver implements get/set api for: voltage, current,
+	operation mode and enable state.
+	The driver supports LDO and BUCK regulators.
+
+	The Sandbox PMIC info:
+	* I/O interface:
+	  - I2C chip address:       0x40
+	  - first register address: 0x0
+	  - register count:         0x10
+	* Adjustable outputs:
+	  - 2x LDO
+	  - 2x BUCK
+	  - Each, with a different operating conditions (header).
+	* Reset values:
+	  - set by i2c emul driver's probe() (defaults in header)
+
+	A detailed information can be found in header: '<power/sandbox_pmic.h>'
+	Binding info: 'doc/device-tree-bindings/pmic/max77686.txt'

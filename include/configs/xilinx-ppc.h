@@ -11,6 +11,9 @@
 
 #ifndef __CONFIG_XLX_H
 #define __CONFIG_XLX_H
+
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
 #define DEBUG
 #define ET_DEBUG
@@ -23,7 +26,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 
 /*Cmd*/
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DIAG
@@ -35,12 +37,9 @@
 #undef CONFIG_CMD_SPI
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_DTT
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_PING
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_NFS
 
 /*Misc*/
 #define CONFIG_BOOTDELAY		5/* autoboot after 5 seconds     */

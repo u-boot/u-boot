@@ -39,7 +39,7 @@ void board_pci_setup_hose(struct pci_controller *hose)
 	pci_set_region(hose->regions + 3,
 		       0,
 		       0,
-		       gd->ram_size,
+		       gd->ram_size < 0x80000000 ? gd->ram_size : 0x80000000,
 		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	hose->region_count = 4;

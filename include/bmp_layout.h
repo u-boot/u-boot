@@ -11,17 +11,17 @@
 #ifndef _BMP_H_
 #define _BMP_H_
 
-typedef struct bmp_color_table_entry {
+struct __packed bmp_color_table_entry {
 	__u8	blue;
 	__u8	green;
 	__u8	red;
 	__u8	reserved;
-} __attribute__ ((packed)) bmp_color_table_entry_t;
+};
 
 /* When accessing these fields, remember that they are stored in little
    endian format, so use linux macros, e.g. le32_to_cpu(width)          */
 
-typedef struct bmp_header {
+struct __packed bmp_header {
 	/* Header */
 	char signature[2];
 	__u32	file_size;
@@ -40,15 +40,14 @@ typedef struct bmp_header {
 	__u32	colors_used;
 	__u32	colors_important;
 	/* ColorTable */
+};
 
-} __attribute__ ((packed)) bmp_header_t;
-
-typedef struct bmp_image {
-	bmp_header_t header;
+struct bmp_image {
+	struct bmp_header header;
 	/* We use a zero sized array just as a placeholder for variable
 	   sized array */
-	bmp_color_table_entry_t color_table[0];
-} bmp_image_t;
+	struct bmp_color_table_entry color_table[0];
+};
 
 /* Data in the bmp_image is aligned to this length */
 #define BMP_DATA_ALIGN	4

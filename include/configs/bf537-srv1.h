@@ -86,9 +86,6 @@
 
 #define CONFIG_SYS_AUTOLOAD	"no"
 #define CONFIG_ROOTPATH		"/romfs"
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:42 */
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings
@@ -103,7 +100,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
 
@@ -132,7 +128,6 @@
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_ENV_OVERWRITE	1
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_UART_CONSOLE	0
@@ -149,23 +144,16 @@
 # define CONFIG_BOOTDELAY	5
 #endif
 
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_BFIN_MAC
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
-#else
-# undef CONFIG_CMD_NET
-# undef CONFIG_CMD_NFS
 #endif
 
 #define CONFIG_CMD_BOOTLDR
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
-#undef CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_SF
 
 #define CONFIG_BOOTCOMMAND	"run flashboot"

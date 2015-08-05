@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/synopsys/axs101/
 F:	include/configs/axs101.h
 F:	configs/axs101_defconfig
+F:	configs/axs103_defconfig

@@ -1,3 +1,6 @@
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx6qarm2/imximage.cfg,MX6Q,DDR_MB=2048"
 CONFIG_ARM=y
 CONFIG_TARGET_MX6QARM2=y
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx6qarm2/imximage.cfg,MX6Q,DDR_MB=2048"
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_SETEXPR is not set

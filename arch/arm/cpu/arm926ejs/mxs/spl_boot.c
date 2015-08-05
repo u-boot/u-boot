@@ -49,13 +49,6 @@ static const iomux_cfg_t iomux_boot[] = {
 	MX23_PAD_LCD_D03__GPIO_1_3 | MUX_CONFIG_BOOTMODE_PAD,
 	MX23_PAD_LCD_D04__GPIO_1_4 | MUX_CONFIG_BOOTMODE_PAD,
 	MX23_PAD_LCD_D05__GPIO_1_5 | MUX_CONFIG_BOOTMODE_PAD,
-#elif defined(CONFIG_MX28)
-	MX28_PAD_LCD_D00__GPIO_1_0 | MUX_CONFIG_BOOTMODE_PAD,
-	MX28_PAD_LCD_D01__GPIO_1_1 | MUX_CONFIG_BOOTMODE_PAD,
-	MX28_PAD_LCD_D02__GPIO_1_2 | MUX_CONFIG_BOOTMODE_PAD,
-	MX28_PAD_LCD_D03__GPIO_1_3 | MUX_CONFIG_BOOTMODE_PAD,
-	MX28_PAD_LCD_D04__GPIO_1_4 | MUX_CONFIG_BOOTMODE_PAD,
-	MX28_PAD_LCD_D05__GPIO_1_5 | MUX_CONFIG_BOOTMODE_PAD,
 #endif
 };
 
@@ -65,10 +58,10 @@ static uint8_t mxs_get_bootmode_index(void)
 	int i;
 	uint8_t masked;
 
+#if defined(CONFIG_MX23)
 	/* Setup IOMUX of bootmode pads to GPIO */
 	mxs_iomux_setup_multiple_pads(iomux_boot, ARRAY_SIZE(iomux_boot));
 
-#if defined(CONFIG_MX23)
 	/* Setup bootmode pins as GPIO input */
 	gpio_direction_input(MX23_PAD_LCD_D00__GPIO_1_0);
 	gpio_direction_input(MX23_PAD_LCD_D01__GPIO_1_1);
@@ -83,21 +76,11 @@ static uint8_t mxs_get_bootmode_index(void)
 	bootmode |= (gpio_get_value(MX23_PAD_LCD_D03__GPIO_1_3) ? 1 : 0) << 3;
 	bootmode |= (gpio_get_value(MX23_PAD_LCD_D05__GPIO_1_5) ? 1 : 0) << 5;
 #elif defined(CONFIG_MX28)
-	/* Setup bootmode pins as GPIO input */
-	gpio_direction_input(MX28_PAD_LCD_D00__GPIO_1_0);
-	gpio_direction_input(MX28_PAD_LCD_D01__GPIO_1_1);
-	gpio_direction_input(MX28_PAD_LCD_D02__GPIO_1_2);
-	gpio_direction_input(MX28_PAD_LCD_D03__GPIO_1_3);
-	gpio_direction_input(MX28_PAD_LCD_D04__GPIO_1_4);
-	gpio_direction_input(MX28_PAD_LCD_D05__GPIO_1_5);
-
-	/* Read bootmode pads */
-	bootmode |= (gpio_get_value(MX28_PAD_LCD_D00__GPIO_1_0) ? 1 : 0) << 0;
-	bootmode |= (gpio_get_value(MX28_PAD_LCD_D01__GPIO_1_1) ? 1 : 0) << 1;
-	bootmode |= (gpio_get_value(MX28_PAD_LCD_D02__GPIO_1_2) ? 1 : 0) << 2;
-	bootmode |= (gpio_get_value(MX28_PAD_LCD_D03__GPIO_1_3) ? 1 : 0) << 3;
-	bootmode |= (gpio_get_value(MX28_PAD_LCD_D04__GPIO_1_4) ? 1 : 0) << 4;
-	bootmode |= (gpio_get_value(MX28_PAD_LCD_D05__GPIO_1_5) ? 1 : 0) << 5;
+	/* The global boot mode will be detected by ROM code and its value
+	 * is stored at the fixed address 0x00019BF0 in OCRAM.
+	 */
+#define GLOBAL_BOOT_MODE_ADDR 0x00019BF0
+	bootmode = __raw_readl(GLOBAL_BOOT_MODE_ADDR);
 #endif
 
 	for (i = 0; i < ARRAY_SIZE(mxs_boot_modes); i++) {

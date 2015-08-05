@@ -10,7 +10,7 @@
  * MPC8641HPCN board configuration file
  *
  * Make sure you change the MAC address and other network params first,
- * search for CONFIG_ETHADDR, CONFIG_SERVERIP, etc in this file.
+ * search for CONFIG_SERVERIP, etc. in this file.
  */
 
 #ifndef __CONFIG_H
@@ -255,7 +255,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)	 /* Reserved for malloc */
 
 /* Serial Port */
@@ -602,7 +602,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #ifndef CONFIG_SYS_RAMBOOT
     #define CONFIG_ENV_IS_IN_FLASH	1
-    #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x60000)
+    #define CONFIG_ENV_ADDR		\
+			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
     #define CONFIG_ENV_SECT_SIZE		0x10000	/* 64K(one sector) for env */
 #else
     #define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
@@ -626,15 +627,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_SYS_RAMBOOT)
-    #undef CONFIG_CMD_SAVEENV
-#endif
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
@@ -677,14 +672,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Environment Configuration
  */
-
-/* The mac addresses for all ethernet interface */
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_ETHADDR	 00:E0:0C:00:00:01
-#define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
-#define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
-#define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
-#endif
 
 #define CONFIG_HAS_ETH0		1
 #define CONFIG_HAS_ETH1		1

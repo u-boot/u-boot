@@ -558,7 +558,7 @@ static int asix_recv(struct eth_device *eth)
 
 		frame_pos += 2;
 
-		NetReceive(recv_buf + frame_pos, pkt_len);
+		net_process_received_packet(recv_buf + frame_pos, pkt_len);
 
 		pkt_hdr++;
 		frame_pos += ((pkt_len + 7) & 0xFFF8)-2;

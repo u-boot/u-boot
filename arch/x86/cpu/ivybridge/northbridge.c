@@ -30,7 +30,7 @@ int bridge_silicon_revision(void)
 		result = cpuid(1);
 		stepping = result.eax & 0xf;
 		dev = PCI_BDF(0, 0, 0);
-		bridge_id = pci_read_config16(dev, PCI_DEVICE_ID) & 0xf0;
+		bridge_id = x86_pci_read_config16(dev, PCI_DEVICE_ID) & 0xf0;
 		bridge_revision_id = bridge_id | stepping;
 	}
 
@@ -55,7 +55,7 @@ static int get_pcie_bar(u32 *base, u32 *len)
 	*base = 0;
 	*len = 0;
 
-	pciexbar_reg = pci_read_config32(dev, PCIEXBAR);
+	pciexbar_reg = x86_pci_read_config32(dev, PCIEXBAR);
 
 	if (!(pciexbar_reg & (1 << 0)))
 		return 0;
@@ -170,7 +170,7 @@ void northbridge_init(pci_dev_t dev)
 void northbridge_enable(pci_dev_t dev)
 {
 #if CONFIG_HAVE_ACPI_RESUME
-	switch (pci_read_config32(dev, SKPAD)) {
+	switch (x86_pci_read_config32(dev, SKPAD)) {
 	case 0xcafebabe:
 		debug("Normal boot.\n");
 		apci_set_slp_type(0);

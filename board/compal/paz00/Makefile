@@ -15,5 +15,3 @@
 #
 
 obj-y	:= paz00.o
-
-include $(srctree)/board/nvidia/common/common.mk

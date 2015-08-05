@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2012-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -200,16 +198,10 @@
 
 #define CONFIG_BOOTDELAY			3
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_AUTOBOOT_KEYED			1
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
-#define CONFIG_AUTOBOOT_DELAY_STR		"d"
-#define CONFIG_AUTOBOOT_STOP_STR		" "
 
 /*
  * Network Configuration
  */
-#define CONFIG_ETHADDR			00:21:83:24:00:00
 #define CONFIG_SERVERIP			192.168.11.1
 #define CONFIG_IPADDR			192.168.11.10
 #define CONFIG_GATEWAYIP		192.168.11.1
@@ -266,8 +258,6 @@
 #define CONFIG_NR_DRAM_BANKS		2
 #define CONFIG_SYS_SDRAM_SIZE	(CONFIG_SDRAM0_SIZE)
 #endif
-
-#define CONFIG_SYS_TEXT_BASE		0x84000000
 
 #if defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
 #define CONFIG_SPL_TEXT_BASE		0x00040000

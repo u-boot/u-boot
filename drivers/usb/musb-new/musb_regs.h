@@ -458,8 +458,13 @@ static inline u8 musb_read_ulpi_buscontrol(void __iomem *mbase)
 
 static inline u8 musb_read_configdata(void __iomem *mbase)
 {
+#ifdef CONFIG_MACH_SUN8I_A33
+	/* <Sigh> allwinner saves a reg, and we need to hardcode this */
+	return 0xde;
+#else
 	musb_writeb(mbase, MUSB_INDEX, 0);
 	return musb_readb(mbase, 0x10 + MUSB_CONFIGDATA);
+#endif
 }
 
 static inline u16 musb_read_hwvers(void __iomem *mbase)

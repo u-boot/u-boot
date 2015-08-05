@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2011-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/sg-regs.h>
 
 void pin_init(void)

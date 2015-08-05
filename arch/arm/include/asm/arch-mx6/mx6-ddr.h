@@ -250,6 +250,7 @@ struct mx6_ddr_sysinfo {
 	u8 mif3_mode;	/* Command prediction working mode */
 	u8 rst_to_cke;	/* Time from SDE enable to CKE rise */
 	u8 sde_to_rst;	/* Time from SDE enable until DDR reset# is high */
+	u8 pd_fast_exit;/* enable precharge powerdown fast-exit */
 };
 
 /*

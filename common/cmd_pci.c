@@ -48,6 +48,7 @@ void pciinfo(int BusNum, int ShortPCIListing)
 	unsigned char HeaderType;
 	unsigned short VendorID;
 	pci_dev_t dev;
+	int ret;
 
 	if (!hose)
 		return;
@@ -74,7 +75,10 @@ void pciinfo(int BusNum, int ShortPCIListing)
 			if (pci_skip_dev(hose, dev))
 				continue;
 
-			pci_read_config_word(dev, PCI_VENDOR_ID, &VendorID);
+			ret = pci_read_config_word(dev, PCI_VENDOR_ID,
+						   &VendorID);
+			if (ret)
+				goto error;
 			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))
 				continue;
 
@@ -91,8 +95,12 @@ void pciinfo(int BusNum, int ShortPCIListing)
 				       BusNum, Device, Function);
 				pci_header_show(dev);
 			}
-	    }
-    }
+		}
+	}
+
+	return;
+error:
+	printf("Cannot read bus configuration: %d\n", ret);
 }
 
 

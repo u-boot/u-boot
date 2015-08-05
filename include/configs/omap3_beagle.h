@@ -95,8 +95,6 @@
 #define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 
 #define CONFIG_CMD_CACHE
@@ -109,7 +107,6 @@
 #define CONFIG_USB_STORAGE	/* USB storage support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_LED		/* LED support			*/
-#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
 #define CONFIG_CMD_GPIO     /* Enable gpio command */
 #define CONFIG_CMD_DHCP
 

@@ -67,7 +67,6 @@
 #undef CONFIG_CMD_ELF
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
-#undef CONFIG_CMD_NFS
 
 /*
  * SDRAM configuration (please see cpu/ppc/sdram.[ch])

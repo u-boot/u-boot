@@ -12,10 +12,12 @@
 #ifndef __CONFIG_OMAP5_EVM_H
 #define __CONFIG_OMAP5_EVM_H
 
+#ifndef CONFIG_SPL_BUILD
 /* Define the default GPT table for eMMC */
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
+#endif
 
 #include <configs/ti_omap5_common.h>
 
@@ -31,7 +33,6 @@
 #define CONFIG_ENV_OFFSET		0xE0000
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_CMD_SAVEENV
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
@@ -59,8 +60,6 @@
 
 /* Enabled commands */
 #define CONFIG_CMD_DHCP		/* DHCP Support			*/
-#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#define CONFIG_CMD_NFS		/* NFS support			*/
 
 /* USB Networking options */
 #define CONFIG_USB_HOST_ETHER

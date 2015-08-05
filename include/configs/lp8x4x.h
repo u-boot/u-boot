@@ -44,11 +44,7 @@
 /*
  * Bootloader Components Configuration
  */
-#include <config_cmd_default.h>
-
-#define	CONFIG_CMD_NET
 #define	CONFIG_CMD_ENV
-#undef	CONFIG_CMD_IMLS
 #define	CONFIG_CMD_MMC
 #define	CONFIG_CMD_USB
 #undef	CONFIG_LCD

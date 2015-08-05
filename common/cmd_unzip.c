@@ -39,3 +39,50 @@ U_BOOT_CMD(
 	"unzip a memory region",
 	"srcaddr dstaddr [dstsize]"
 );
+
+static int do_gzwrite(cmd_tbl_t *cmdtp, int flag,
+		      int argc, char * const argv[])
+{
+	block_dev_desc_t *bdev;
+	int ret;
+	unsigned char *addr;
+	unsigned long length;
+	unsigned long writebuf = 1<<20;
+	u64 startoffs = 0;
+	u64 szexpected = 0;
+
+	if (argc < 5)
+		return CMD_RET_USAGE;
+	ret = get_device(argv[1], argv[2], &bdev);
+	if (ret < 0)
+		return CMD_RET_FAILURE;
+
+	addr = (unsigned char *)simple_strtoul(argv[3], NULL, 16);
+	length = simple_strtoul(argv[4], NULL, 16);
+
+	if (5 < argc) {
+		writebuf = simple_strtoul(argv[5], NULL, 16);
+		if (6 < argc) {
+			startoffs = simple_strtoull(argv[6], NULL, 16);
+			if (7 < argc)
+				szexpected = simple_strtoull(argv[7],
+							     NULL, 16);
+		}
+	}
+
+	ret = gzwrite(addr, length, bdev, writebuf, startoffs, szexpected);
+
+	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(
+	gzwrite, 8, 0, do_gzwrite,
+	"unzip and write memory to block device",
+	"<interface> <dev> <addr> length [wbuf=1M [offs=0 [outsize=0]]]\n"
+	"\twbuf is the size in bytes (hex) of write buffer\n"
+	"\t\tand should be padded to erase size for SSDs\n"
+	"\toffs is the output start offset in bytes (hex)\n"
+	"\toutsize is the size of the expected output (hex bytes)\n"
+	"\t\tand is required for files with uncompressed lengths\n"
+	"\t\t4 GiB or larger\n"
+);

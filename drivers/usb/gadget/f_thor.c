@@ -547,7 +547,7 @@ static int thor_rx_data(void)
 		}
 
 		while (!dev->rxdata) {
-			usb_gadget_handle_interrupts();
+			usb_gadget_handle_interrupts(0);
 			if (ctrlc())
 				return -1;
 		}
@@ -581,7 +581,7 @@ static void thor_tx_data(unsigned char *data, int len)
 
 	/* Wait until tx interrupt received */
 	while (!dev->txdata)
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 
 	dev->txdata = 0;
 }
@@ -698,7 +698,7 @@ int thor_init(void)
 	/* Wait for a device enumeration and configuration settings */
 	debug("THOR enumeration/configuration setting....\n");
 	while (!dev->configuration_done)
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 
 	thor_set_dma(thor_rx_data_buf, strlen("THOR"));
 	/* detect the download request from Host PC */
@@ -814,6 +814,7 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 	}
 
 	dev->in_ep = ep; /* Store IN EP for enabling @ setup */
+	ep->driver_data = dev;
 
 	ep = usb_ep_autoconfig(gadget, &fs_out_desc);
 	if (!ep) {
@@ -826,6 +827,7 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 				fs_out_desc.bEndpointAddress;
 
 	dev->out_ep = ep; /* Store OUT EP for enabling @ setup */
+	ep->driver_data = dev;
 
 	ep = usb_ep_autoconfig(gadget, &fs_int_desc);
 	if (!ep) {
@@ -834,6 +836,7 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 	}
 
 	dev->int_ep = ep;
+	ep->driver_data = dev;
 
 	if (gadget_is_dualspeed(gadget)) {
 		hs_int_desc.bEndpointAddress =

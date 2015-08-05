@@ -31,7 +31,7 @@ struct sunxi_ccm_reg {
 	u32 mipi_pll_cfg;	/* 0x40 MIPI pll control */
 	u32 pll9_cfg;		/* 0x44 pll9 control */
 	u32 pll10_cfg;		/* 0x48 pll10 control */
-	u32 reserved8;
+	u32 pll11_cfg;		/* 0x4c pll11 (ddr1) control (A33 only) */
 	u32 cpu_axi_cfg;	/* 0x50 CPU/AXI divide ratio */
 	u32 ahb1_apb1_div;	/* 0x54 AHB1/APB1 divide ratio */
 	u32 apb2_div;		/* 0x58 APB2 divide ratio */
@@ -63,7 +63,8 @@ struct sunxi_ccm_reg {
 	u32 reserved12[7];
 	u32 mdfs_clk_cfg;	/* 0xf0 MDFS clock control */
 	u32 dram_clk_cfg;	/* 0xf4 DRAM configuration clock control */
-	u32 reserved13[2];
+	u32 dram_pll_cfg;	/* 0xf8 PLL_DDR cfg register, A33 only */
+	u32 mbus_reset;		/* 0xfc MBUS reset control, A33 only */
 	u32 dram_clk_gate;	/* 0x100 DRAM module gating */
 	u32 be0_clk_cfg;	/* 0x104 BE0 module clock */
 	u32 be1_clk_cfg;	/* 0x108 BE1 module clock */
@@ -126,7 +127,9 @@ struct sunxi_ccm_reg {
 	u32 mipi_pattern_cfg;	/* 0x2a0 MIPI Pattern config */
 	u32 pll9_pattern_cfg;	/* 0x2a4 PLL9 Pattern config */
 	u32 pll10_pattern_cfg;	/* 0x2a8 PLL10 Pattern config */
-	u32 reserved22[5];
+	u32 pll11_pattern_cfg0; /* 0x2ac PLL11 Pattern config0, A33 only */
+	u32 pll11_pattern_cfg1; /* 0x2b0 PLL11 Pattern config0, A33 only */
+	u32 reserved22[3];
 	u32 ahb_reset0_cfg;	/* 0x2c0 AHB1 Reset 0 config */
 	u32 ahb_reset1_cfg;	/* 0x2c4 AHB1 Reset 1 config */
 	u32 ahb_reset2_cfg;	/* 0x2c8 AHB1 Reset 2 config */
@@ -195,6 +198,11 @@ struct sunxi_ccm_reg {
 #define CCM_PLL6_CTRL_K_SHIFT		4
 #define CCM_PLL6_CTRL_K_MASK		(0x3 << CCM_PLL6_CTRL_K_SHIFT)
 
+#define CCM_PLL11_CTRL_N(n)		((((n) - 1) & 0x3f) << 8)
+#define CCM_PLL11_CTRL_SIGMA_DELTA_EN	(0x1 << 24)
+#define CCM_PLL11_CTRL_UPD		(0x1 << 30)
+#define CCM_PLL11_CTRL_EN		(0x1 << 31)
+
 #define AHB1_ABP1_DIV_DEFAULT		0x00002020
 
 #define AXI_GATE_OFFSET_DRAM		0
@@ -207,15 +215,19 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_USB0		24
 #define AHB_GATE_OFFSET_MCTL		14
 #define AHB_GATE_OFFSET_GMAC		17
+#define AHB_GATE_OFFSET_NAND0		13
+#define AHB_GATE_OFFSET_NAND1		12
 #define AHB_GATE_OFFSET_MMC3		11
 #define AHB_GATE_OFFSET_MMC2		10
 #define AHB_GATE_OFFSET_MMC1		9
 #define AHB_GATE_OFFSET_MMC0		8
 #define AHB_GATE_OFFSET_MMC(n)		(AHB_GATE_OFFSET_MMC0 + (n))
+#define AHB_GATE_OFFSET_DMA		6
 #define AHB_GATE_OFFSET_SS		5
 
 /* ahb_gate1 offsets */
 #define AHB_GATE_OFFSET_DRC0		25
+#define AHB_GATE_OFFSET_DE_FE0		14
 #define AHB_GATE_OFFSET_DE_BE0		12
 #define AHB_GATE_OFFSET_HDMI		11
 #define AHB_GATE_OFFSET_LCD1		5
@@ -237,6 +249,8 @@ struct sunxi_ccm_reg {
 #define CCM_USB_CTRL_PHY0_CLK (0x1 << 8)
 #define CCM_USB_CTRL_PHY1_CLK (0x1 << 9)
 #define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
+#define CCM_USB_CTRL_OHCI0_CLK (0x1 << 16)
+#define CCM_USB_CTRL_OHCI1_CLK (0x1 << 17)
 
 #define CCM_GMAC_CTRL_TX_CLK_SRC_MII	0x0
 #define CCM_GMAC_CTRL_TX_CLK_SRC_EXT_RGMII 0x1
@@ -248,12 +262,23 @@ struct sunxi_ccm_reg {
 
 #define MDFS_CLK_DEFAULT		0x81000002 /* PLL6 / 3 */
 
+#define CCM_DRAMCLK_CFG_DIV(x)		((x - 1) << 0)
+#define CCM_DRAMCLK_CFG_DIV_MASK	(0xf << 0)
 #define CCM_DRAMCLK_CFG_DIV0(x)		((x - 1) << 8)
 #define CCM_DRAMCLK_CFG_DIV0_MASK	(0xf << 8)
 #define CCM_DRAMCLK_CFG_UPD		(0x1 << 16)
 #define CCM_DRAMCLK_CFG_RST		(0x1 << 31)
 
+#define CCM_DRAMPLL_CFG_SRC_PLL5	(0x0 << 16) /* Select PLL5 (DDR0) */
+#define CCM_DRAMPLL_CFG_SRC_PLL11	(0x1 << 16) /* Select PLL11 (DDR1) */
+#define CCM_DRAMPLL_CFG_SRC_MASK	(0x1 << 16)
+
+#define CCM_MBUS_RESET_RESET		(0x1 << 31)
+
+#define CCM_DRAM_GATE_OFFSET_DE_FE0	24
+#define CCM_DRAM_GATE_OFFSET_DE_FE1	25
 #define CCM_DRAM_GATE_OFFSET_DE_BE0	26
+#define CCM_DRAM_GATE_OFFSET_DE_BE1	27
 
 #define CCM_LCD_CH0_CTRL_PLL3		(0 << 24)
 #define CCM_LCD_CH0_CTRL_PLL7		(1 << 24)
@@ -285,8 +310,10 @@ struct sunxi_ccm_reg {
 #else
 #define MBUS_CLK_DEFAULT		0x81000003 /* PLL6 / 4 */
 #endif
+#define MBUS_CLK_GATE			(0x1 << 31)
 
 #define CCM_PLL5_PATTERN		0xd1303333
+#define CCM_PLL11_PATTERN		0xf5860000
 
 /* ahb_reset0 offsets */
 #define AHB_RESET_OFFSET_GMAC		17
@@ -299,11 +326,16 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_SS		5
 
 /* ahb_reset1 offsets */
+#define AHB_RESET_OFFSET_SAT		26
 #define AHB_RESET_OFFSET_DRC0		25
+#define AHB_RESET_OFFSET_DE_FE0		14
 #define AHB_RESET_OFFSET_DE_BE0		12
 #define AHB_RESET_OFFSET_HDMI		11
 #define AHB_RESET_OFFSET_LCD1		5
 #define AHB_RESET_OFFSET_LCD0		4
+
+/* ahb_reset2 offsets */
+#define AHB_RESET_OFFSET_LVDS		0
 
 /* apb2 reset */
 #define APB2_RESET_UART_SHIFT		(16)
@@ -326,6 +358,7 @@ struct sunxi_ccm_reg {
 void clock_set_pll1(unsigned int hz);
 void clock_set_pll3(unsigned int hz);
 void clock_set_pll5(unsigned int clk, bool sigma_delta_enable);
+void clock_set_pll11(unsigned int clk, bool sigma_delta_enable);
 unsigned int clock_get_pll6(void);
 #endif
 

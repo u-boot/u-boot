@@ -1,12 +1,12 @@
 /*
- * Copyright (C) 2014 Panasonic Corporation
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
 #include <linux/types.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/ddrphy-regs.h>
 
 void ddrphy_init(struct ddrphy __iomem *phy, int freq, int size)

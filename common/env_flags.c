@@ -435,7 +435,7 @@ static int clear_flags(ENTRY *entry)
 /*
  * Call for each element in the list that defines flags for a variable
  */
-static int set_flags(const char *name, const char *value)
+static int set_flags(const char *name, const char *value, void *priv)
 {
 	ENTRY e, *ep;
 
@@ -463,9 +463,9 @@ static int on_flags(const char *name, const char *value, enum env_op op,
 	hwalk_r(&env_htab, clear_flags);
 
 	/* configure any static flags */
-	env_attr_walk(ENV_FLAGS_LIST_STATIC, set_flags);
+	env_attr_walk(ENV_FLAGS_LIST_STATIC, set_flags, NULL);
 	/* configure any dynamic flags */
-	env_attr_walk(value, set_flags);
+	env_attr_walk(value, set_flags, NULL);
 
 	return 0;
 }

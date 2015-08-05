@@ -15,6 +15,9 @@
 
 #include <linux/types.h>
 
+/* Size of the EDID data */
+#define EDID_SIZE	128
+
 #define GET_BIT(_x, _pos) \
 	(((_x) >> (_pos)) & 1)
 #define GET_BITS(_x, _pos_msb, _pos_lsb) \
@@ -286,5 +289,21 @@ int edid_check_checksum(u8 *edid_block);
 int edid_get_ranges(struct edid1_info *edid, unsigned int *hmin,
 		    unsigned int *hmax, unsigned int *vmin,
 		    unsigned int *vmax);
+
+struct display_timing;
+
+/**
+ * edid_get_timing() - Get basic digital display parameters
+ *
+ * @param buf		Buffer containing EDID data
+ * @param buf_size	Size of buffer in bytes
+ * @param timing	Place to put preferring timing information
+ * @param panel_bits_per_colourp	Place to put the number of bits per
+ *			colour supported by the panel. This will be set to
+ *			-1 if not available
+ * @return 0 if timings are OK, -ve on error
+ */
+int edid_get_timing(u8 *buf, int buf_size, struct display_timing *timing,
+		    int *panel_bits_per_colourp);
 
 #endif /* __EDID_H_ */

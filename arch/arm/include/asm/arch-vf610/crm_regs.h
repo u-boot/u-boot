@@ -189,6 +189,9 @@ struct anadig_reg {
 #define CCM_REG_CTRL_MASK			0xffffffff
 #define CCM_CCGR0_UART0_CTRL_MASK               (0x3 << 14)
 #define CCM_CCGR0_UART1_CTRL_MASK		(0x3 << 16)
+#define CCM_CCGR0_DSPI0_CTRL_MASK		(0x3 << 24)
+#define CCM_CCGR0_DSPI1_CTRL_MASK		(0x3 << 26)
+#define CCM_CCGR1_USBC0_CTRL_MASK       (0x3 << 8)
 #define CCM_CCGR1_PIT_CTRL_MASK			(0x3 << 14)
 #define CCM_CCGR1_WDOGA5_CTRL_MASK		(0x3 << 28)
 #define CCM_CCGR2_QSPI0_CTRL_MASK		(0x3 << 8)
@@ -199,21 +202,33 @@ struct anadig_reg {
 #define CCM_CCGR2_PORTD_CTRL_MASK		(0x3 << 24)
 #define CCM_CCGR2_PORTE_CTRL_MASK		(0x3 << 26)
 #define CCM_CCGR3_ANADIG_CTRL_MASK		0x3
+#define CCM_CCGR3_SCSC_CTRL_MASK        (0x3 << 4)
 #define CCM_CCGR4_WKUP_CTRL_MASK		(0x3 << 20)
 #define CCM_CCGR4_CCM_CTRL_MASK			(0x3 << 22)
 #define CCM_CCGR4_GPC_CTRL_MASK			(0x3 << 24)
 #define CCM_CCGR4_I2C0_CTRL_MASK		(0x3 << 12)
 #define CCM_CCGR6_OCOTP_CTRL_MASK		(0x3 << 10)
+#define CCM_CCGR6_DSPI2_CTRL_MASK		(0x3 << 24)
+#define CCM_CCGR6_DSPI3_CTRL_MASK		(0x3 << 26)
 #define CCM_CCGR6_DDRMC_CTRL_MASK		(0x3 << 28)
 #define CCM_CCGR7_SDHC1_CTRL_MASK		(0x3 << 4)
+#define CCM_CCGR7_USBC1_CTRL_MASK       (0x3 << 8)
 #define CCM_CCGR9_FEC0_CTRL_MASK		0x3
 #define CCM_CCGR9_FEC1_CTRL_MASK		(0x3 << 2)
 #define CCM_CCGR10_NFC_CTRL_MASK		0x3
 
+#define ANADIG_PLL7_CTRL_BYPASS         (1 << 16)
+#define ANADIG_PLL7_CTRL_ENABLE         (1 << 13)
+#define ANADIG_PLL7_CTRL_POWERDOWN      (1 << 12)
+#define ANADIG_PLL7_CTRL_DIV_SELECT     (1 << 1)
 #define ANADIG_PLL5_CTRL_BYPASS                 (1 << 16)
 #define ANADIG_PLL5_CTRL_ENABLE                 (1 << 13)
 #define ANADIG_PLL5_CTRL_POWERDOWN              (1 << 12)
 #define ANADIG_PLL5_CTRL_DIV_SELECT		1
+#define ANADIG_PLL3_CTRL_BYPASS         (1 << 16)
+#define ANADIG_PLL3_CTRL_ENABLE         (1 << 13)
+#define ANADIG_PLL3_CTRL_POWERDOWN      (1 << 12)
+#define ANADIG_PLL3_CTRL_DIV_SELECT     (1 << 1)
 #define ANADIG_PLL2_CTRL_ENABLE			(1 << 13)
 #define ANADIG_PLL2_CTRL_POWERDOWN		(1 << 12)
 #define ANADIG_PLL2_CTRL_DIV_SELECT		1

@@ -10,6 +10,7 @@ F:	configs/Cubieboard_defconfig
 F:	configs/Hyundai_A7HD_defconfig
 F:	configs/jesurun_q5_defconfig
 F:	configs/Mele_A1000_defconfig
+F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M3_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/mk802_defconfig
@@ -37,19 +38,26 @@ F:	configs/Orangepi_mini_defconfig
 F:	configs/qt840a_defconfig
 F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
+F:	configs/ga10h_v1_1_defconfig
 F:	configs/Ippo_q8h_v1_2_defconfig
+F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
+F:	include/configs/sun9i.h
+F:	configs/Merrii_A80_Optimus_defconfig
 
 A20-OLINUXINO-LIME BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
-F:	board/sunxi/dram_a20_olinuxino_l.c
 F:	configs/A20-OLinuXino-Lime_defconfig
 
 A20-OLINUXINO-LIME2 BOARD
 M:	Iain Paton <ipaton0@gmail.com>
 S:	Maintained
-F:	board/sunxi/dram_a20_olinuxino_l2.c
 F:	configs/A20-OLinuXino-Lime2_defconfig
+
+AINOL AW1 BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/Ainol_AW1_defconfig
 
 AMPE A76 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
@@ -69,6 +77,11 @@ F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
 F:	configs/Cubietruck_defconfig
 
+ET Q8 V1.6 Tablet BOARD
+M:	VishnuPatekar <vishnupatekar0510@gmail.com>
+S:	Maintained
+F:	configs/Et_q8_v1_6_defconfig
+
 FORFUN-Q88DB TABLET
 M:	Jens Lucius <info@jenslucius.com>
 S:	Maintained
@@ -84,11 +97,20 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Hummingbird_A31_defconfig
 
-INET-86VS BOARD
+INET 3F BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/iNet_3F_defconfig
+
+INET 3W BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/iNet_3W_defconfig
+
+INET 86VS BOARD
 M:	Michal Suchanek <hramrach@gmail.com>
 S:	Maintained
-F:	board/sunxi/dram_inet_86vs.c
-F:	configs/Inet_86VS_defconfig
+F:	configs/iNet_86VS_defconfig
 
 IPPO-Q8H-V5 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
@@ -120,6 +142,11 @@ M:	Ian Campbell <ijc@hellion.org.uk>
 S:	Maintained
 F:	configs/Mele_M5_defconfig
 
+MIXTILE-LOFTQ BOARD
+M:  Phil Han <pengphei@sina.com>
+S:  Maintained
+F:  configs/mixtile_loftq_defconfig
+
 MK808C BOARD
 M:	Marcus Cooper <codekipper@gmail.com>
 S:	Maintained
@@ -135,6 +162,12 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
+SINLINX SINA33 BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Sinlinx_SinA33_defconfig
+W:	http://linux-sunxi.org/Sinlinx_SinA33
+
 TZX-Q8-713B7 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
@@ -144,3 +177,8 @@ WEXLER-TAB7200 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
 F:	configs/Wexler_TAB7200_defconfig
+
+YONES TOPTECH BD1078 BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/Yones_Toptech_BD1078_defconfig

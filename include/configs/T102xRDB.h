@@ -11,6 +11,12 @@
 #ifndef __T1024RDB_H
 #define __T1024RDB_H
 
+#if defined(CONFIG_T1023RDB)
+#ifdef CONFIG_SPL
+#define CONFIG_SYS_NO_FLASH
+#endif
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
@@ -35,7 +41,9 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* support deep sleep */
+#ifdef CONFIG_PPC_T1024
 #define CONFIG_DEEP_SLEEP
+#endif
 #if defined(CONFIG_DEEP_SLEEP)
 #define CONFIG_SILENT_CONSOLE
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -43,7 +51,11 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xrdb/t1024_pbi.cfg
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_rcw.cfg
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_rcw.cfg
+#endif
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -177,7 +189,11 @@
 #define CONFIG_ENV_SPI_MODE		0
 #define CONFIG_ENV_SIZE			0x2000		/* 8KB */
 #define CONFIG_ENV_OFFSET		0x100000	/* 1MB */
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_ENV_SECT_SIZE		0x10000
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_ENV_SECT_SIZE		0x40000
+#endif
 #elif defined(CONFIG_SDCARD)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_MMC
@@ -188,7 +204,11 @@
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			0x2000
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_ENV_OFFSET		(2 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_ENV_OFFSET		(10 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#endif
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_IN_REMOTE
 #define CONFIG_ENV_ADDR		0xffe20000
@@ -209,7 +229,7 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	100000000
-#define CONFIG_DDR_CLK_FREQ	66660000
+#define CONFIG_DDR_CLK_FREQ	100000000
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -224,6 +244,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
+#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x00200000 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_SYS_ALT_MEMTEST
@@ -265,13 +286,18 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
+#define CONFIG_FSL_DDR_INTERACTIVE
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_FSL_DDR3
-
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
-
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_SYS_FSL_DDR4
+#define CONFIG_SYS_DDR_RAW_TIMING
+#define CONFIG_SYS_SDRAM_SIZE   2048
+#endif
 
 /*
  * IFC Definitions
@@ -291,7 +317,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NOR_AMASK	IFC_AMASK(128*1024*1024)
 
 /* NOR Flash Timing Params */
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_NOR_CSOR	CSOR_NAND_TRHZ_80
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_SYS_NOR_CSOR    (CSOR_NOR_ADM_SHIFT(4) | \
+				CSOR_NAND_TRHZ_80 | CSOR_NOR_ADM_SHFT_MODE_EN)
+#endif
 #define CONFIG_SYS_NOR_FTIM0	(FTIM0_NOR_TACSE(0x4) | \
 				FTIM0_NOR_TEADC(0x5) | \
 				FTIM0_NOR_TEAHC(0x5))
@@ -315,6 +346,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
 
+#ifdef CONFIG_T1024RDB
 /* CPLD on IFC */
 #define CONFIG_SYS_CPLD_BASE		0xffdf0000
 #define CONFIG_SYS_CPLD_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_CPLD_BASE)
@@ -336,6 +368,7 @@ unsigned long get_board_ddr_clk(void);
 						FTIM2_GPCM_TCH(0x8) | \
 						FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS2_FTIM3		0x0
+#endif
 
 /* NAND Flash on IFC */
 #define CONFIG_NAND_FSL_IFC
@@ -352,6 +385,7 @@ unsigned long get_board_ddr_clk(void);
 				| CSPR_V)
 #define CONFIG_SYS_NAND_AMASK	IFC_AMASK(64*1024)
 
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_ECC_ENC_EN	/* ECC on encode */ \
 				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
 				| CSOR_NAND_ECC_MODE_4  /* 4-bit ECC */ \
@@ -359,9 +393,17 @@ unsigned long get_board_ddr_clk(void);
 				| CSOR_NAND_PGS_4K	/* Page Size = 4K */ \
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_RAL_3	/* RAL 3Bytes */ \
+				| CSOR_NAND_RAL_3	/* RAL 3Bytes */ \
+				| CSOR_NAND_PGS_2K	/* Page Size = 2K */ \
+				| CSOR_NAND_SPRZ_128	/* Spare size = 128 */ \
+				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#endif
 
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x07) | \
 					FTIM0_NAND_TWP(0x18)   | \
@@ -380,8 +422,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_CMD_NAND
-
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 
 #if defined(CONFIG_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
@@ -535,8 +575,11 @@ unsigned long get_board_ddr_clk(void);
  * eSPI - Enhanced SPI
  */
 #define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_SPI_FLASH_STMICRO
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_SPI_FLASH_SPANSION
+#endif
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DEFAULT_SPEED	10000000
@@ -736,8 +779,13 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_QE_FW_ADDR		(512 * 0x920)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
+#if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_SYS_QE_FW_ADDR		(4 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#elif defined(CONFIG_T1023RDB)
+#define CONFIG_SYS_FMAN_FW_ADDR		(11 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_QE_FW_ADDR		(12 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#endif
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
@@ -762,10 +810,16 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_REALTEK
 #define CONFIG_PHY_AQUANTIA
+#if defined(CONFIG_T1024RDB)
 #define RGMII_PHY1_ADDR		0x2
 #define RGMII_PHY2_ADDR		0x6
-#define SGMII_PHY1_ADDR		0x2
+#define SGMII_AQR_PHY_ADDR	0x2
 #define FM1_10GEC1_PHY_ADDR	0x1
+#elif defined(CONFIG_T1023RDB)
+#define RGMII_PHY1_ADDR		0x1
+#define SGMII_RTK_PHY_ADDR	0x3
+#define SGMII_AQR_PHY_ADDR	0x2
+#endif
 #endif
 
 #ifdef CONFIG_FMAN_ENET
@@ -799,8 +853,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
@@ -811,14 +863,10 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SETEXPR
-#define CONFIG_CMD_BDI
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*
@@ -855,21 +903,23 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_UBOOTPATH	"u-boot.bin" /* U-Boot image on TFTP server */
+#define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 #define CONFIG_LOADADDR		1000000 /* default location for tftp, bootm */
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 #define __USB_PHY_TYPE		utmi
 
 #ifdef CONFIG_PPC_T1024
-#define CONFIG_BOARDNAME "t1024rdb"
+#define CONFIG_BOARDNAME t1024rdb
+#define BANK_INTLV cs0_cs1
 #else
-#define CONFIG_BOARDNAME "t1023rdb"
+#define CONFIG_BOARDNAME t1023rdb
+#define BANK_INTLV  null
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
-	"bank_intlv=cs0_cs1\0"					\
+	"bank_intlv=" __stringify(BANK_INTLV) "\0"		\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"  \
 	"ramdiskfile=" __stringify(CONFIG_BOARDNAME) "/ramdisk.uboot\0" \
 	"fdtfile=" __stringify(CONFIG_BOARDNAME) "/"		\

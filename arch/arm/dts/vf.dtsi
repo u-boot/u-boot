@@ -1,0 +1,100 @@
+/*
+ * Copyright 2013 Freescale Semiconductor, Inc.
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
+/include/ "skeleton.dtsi"
+
+/ {
+	aliases {
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		spi0 = &dspi0;
+		spi1 = &dspi1;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		aips0: aips-bus@40000000 {
+			compatible = "fsl,aips-bus", "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+
+			dspi0: dspi0@4002c000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-dspi";
+				reg = <0x4002c000 0x1000>;
+				num-cs = <5>;
+				status = "disabled";
+			};
+
+			dspi1: dspi1@4002d000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-dspi";
+				reg = <0x4002d000 0x1000>;
+				num-cs = <5>;
+				status = "disabled";
+			};
+
+			qspi0: quadspi@40044000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-qspi";
+				reg = <0x40044000 0x1000>;
+				status = "disabled";
+			};
+
+			gpio0: gpio@40049000 {
+				compatible = "fsl,vf610-gpio";
+				reg = <0x400ff000 0x40>;
+				#gpio-cells = <2>;
+			};
+
+			gpio1: gpio@4004a000 {
+				compatible = "fsl,vf610-gpio";
+				reg = <0x400ff040 0x40>;
+				#gpio-cells = <2>;
+			};
+
+			gpio2: gpio@4004b000 {
+				compatible = "fsl,vf610-gpio";
+				reg = <0x400ff080 0x40>;
+				#gpio-cells = <2>;
+			};
+
+			gpio3: gpio@4004c000 {
+				compatible = "fsl,vf610-gpio";
+				reg = <0x400ff0c0 0x40>;
+				#gpio-cells = <2>;
+			};
+
+			gpio4: gpio@4004d000 {
+				compatible = "fsl,vf610-gpio";
+				reg = <0x400ff100 0x40>;
+				#gpio-cells = <2>;
+			};
+		};
+
+		aips1: aips-bus@40080000 {
+			compatible = "fsl,aips-bus", "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+		};
+	};
+};

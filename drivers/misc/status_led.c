@@ -53,6 +53,20 @@ led_dev_t led_dev[] = {
 	0,
     },
 #endif
+#if defined(STATUS_LED_BIT4)
+    {	STATUS_LED_BIT4,
+	STATUS_LED_STATE4,
+	STATUS_LED_PERIOD4,
+	0,
+    },
+#endif
+#if defined(STATUS_LED_BIT5)
+    {	STATUS_LED_BIT5,
+	STATUS_LED_STATE5,
+	STATUS_LED_PERIOD5,
+	0,
+    },
+#endif
 };
 
 #define MAX_LED_DEV	(sizeof(led_dev)/sizeof(led_dev_t))

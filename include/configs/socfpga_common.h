@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_THUMB_BUILD
 
-#define CONFIG_SOCFPGA
-
 /*
  * High level configuration
  */
@@ -40,7 +38,7 @@
 #define CONFIG_SYS_MEMTEST_END		PHYS_SDRAM_1_SIZE
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
-#define CONFIG_SYS_INIT_RAM_SIZE	(0x10000 - 0x100)
+#define CONFIG_SYS_INIT_RAM_SIZE	(0x10000 - CONFIG_SYS_SPL_MALLOC_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR					\
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE -	\
 	GENERATED_GBL_DATA_SIZE)
@@ -83,7 +81,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 /*
@@ -99,8 +96,6 @@
  * Ethernet on SoC (EMAC)
  */
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
-#define CONFIG_DESIGNWARE_ETH
-#define CONFIG_NET_MULTI
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_MII
 #define CONFIG_AUTONEG_TIMEOUT		(15 * CONFIG_SYS_HZ)
@@ -191,7 +186,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 #ifdef CONFIG_OF_CONTROL	/* QSPI is controlled via DT */
 #define CONFIG_CADENCE_QSPI
 /* Enable multiple SPI NOR flash manufacturers */
-#define CONFIG_SPI_FLASH		/* SPI flash subsystem */
 #define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
 #define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
 #define CONFIG_SPI_FLASH_MTD
@@ -293,17 +287,23 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SYS_SPL_MALLOC_SIZE	(5 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(64 * 1024)
 
 #define CHUNKSZ_CRC32			(1 * 1024)	/* FIXME: ewww */
 #define CONFIG_CRC32_VERIFY
 
 /* Linker script for SPL */
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/socfpga/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-socfpga/u-boot-spl.lds"
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_WATCHDOG_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
+
+/*
+ * Stack setup
+ */
+#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_PARTITIONS

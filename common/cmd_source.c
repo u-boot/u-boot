@@ -19,6 +19,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/byteorder.h>
 #include <asm/io.h>
 #if defined(CONFIG_8xx)

@@ -83,8 +83,6 @@
 /*
  * Commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_EEPROM
@@ -97,9 +95,6 @@
 	!defined(CONFIG_VCT_SMALL_IMAGE)
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
-#else
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 #endif
 
 /*
@@ -128,11 +123,6 @@
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET /* re-init HCD after CMD_RESET */
 #endif /* CONFIG_CMD_USB */
-
-#if !defined(CONFIG_VCT_NOR)
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
-#endif
 
 #if defined(CONFIG_VCT_NAND)
 #define CONFIG_CMD_NAND
@@ -294,10 +284,8 @@ int vct_gpio_get(int pin);
  */
 #if defined(CONFIG_VCT_SMALL_IMAGE)
 #undef CONFIG_CMD_ASKENV
-#undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_BEDBUG
 #undef CONFIG_CMD_CACHE
-#undef CONFIG_CMD_CONSOLE
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_EEPROM
@@ -306,17 +294,11 @@ int vct_gpio_get(int pin);
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
-#undef CONFIG_CMD_ITEST
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_LOADY
 #undef CONFIG_CMD_MII
-#undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_PING
 #undef CONFIG_CMD_REGINFO
 #undef CONFIG_CMD_SNTP
-#undef CONFIG_CMD_SOURCE
 #undef CONFIG_CMD_STRINGS
 #undef CONFIG_CMD_TERMINAL
 #undef CONFIG_CMD_USB

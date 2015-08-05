@@ -70,7 +70,7 @@ static int cam_enc_4xx_check_network(void)
 	if (!s)
 		return -EINVAL;
 
-	if (!is_valid_ether_addr((const u8 *)s))
+	if (!is_valid_ethaddr((const u8 *)s))
 		return -EINVAL;
 
 	s = getenv("ipaddr");

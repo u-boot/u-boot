@@ -10,8 +10,8 @@
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
-#include <dm/ut.h>
 #include <dm/util.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -104,7 +104,7 @@ UCLASS_DRIVER(testbus) = {
 };
 
 /* Test that we can probe for children */
-static int dm_test_bus_children(struct dm_test_state *dms)
+static int dm_test_bus_children(struct unit_test_state *uts)
 {
 	int num_devices = 6;
 	struct udevice *bus;
@@ -120,14 +120,14 @@ static int dm_test_bus_children(struct dm_test_state *dms)
 	ut_assertok(uclass_get(UCLASS_TEST_FDT, &uc));
 	ut_asserteq(num_devices, list_count_items(&uc->dev_head));
 
-	ut_assert(!dm_check_devices(dms, num_devices));
+	ut_assert(!dm_check_devices(uts, num_devices));
 
 	return 0;
 }
 DM_TEST(dm_test_bus_children, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test our functions for accessing children */
-static int dm_test_bus_children_funcs(struct dm_test_state *dms)
+static int dm_test_bus_children_funcs(struct unit_test_state *uts)
 {
 	const void *blob = gd->fdt_blob;
 	struct udevice *bus, *dev;
@@ -173,7 +173,7 @@ static int dm_test_bus_children_funcs(struct dm_test_state *dms)
 DM_TEST(dm_test_bus_children_funcs, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that we can iterate through children */
-static int dm_test_bus_children_iterators(struct dm_test_state *dms)
+static int dm_test_bus_children_iterators(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev, *child;
 
@@ -204,7 +204,7 @@ DM_TEST(dm_test_bus_children_iterators,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that the bus can store data about each child */
-static int test_bus_parent_data(struct dm_test_state *dms)
+static int test_bus_parent_data(struct unit_test_state *uts)
 {
 	struct dm_test_parent_data *parent_data;
 	struct udevice *bus, *dev;
@@ -264,29 +264,31 @@ static int test_bus_parent_data(struct dm_test_state *dms)
 	return 0;
 }
 /* Test that the bus can store data about each child */
-static int dm_test_bus_parent_data(struct dm_test_state *dms)
+static int dm_test_bus_parent_data(struct unit_test_state *uts)
 {
-	return test_bus_parent_data(dms);
+	return test_bus_parent_data(uts);
 }
 DM_TEST(dm_test_bus_parent_data, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* As above but the size is controlled by the uclass */
-static int dm_test_bus_parent_data_uclass(struct dm_test_state *dms)
+static int dm_test_bus_parent_data_uclass(struct unit_test_state *uts)
 {
+	struct driver *drv;
 	struct udevice *bus;
 	int size;
 	int ret;
 
 	/* Set the driver size to 0 so that the uclass size is used */
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
-	size = bus->driver->per_child_auto_alloc_size;
+	drv = (struct driver *)bus->driver;
+	size = drv->per_child_auto_alloc_size;
 	bus->uclass->uc_drv->per_child_auto_alloc_size = size;
-	bus->driver->per_child_auto_alloc_size = 0;
-	ret = test_bus_parent_data(dms);
+	drv->per_child_auto_alloc_size = 0;
+	ret = test_bus_parent_data(uts);
 	if (ret)
 		return ret;
 	bus->uclass->uc_drv->per_child_auto_alloc_size = 0;
-	bus->driver->per_child_auto_alloc_size = size;
+	drv->per_child_auto_alloc_size = size;
 
 	return 0;
 }
@@ -294,9 +296,10 @@ DM_TEST(dm_test_bus_parent_data_uclass,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that the bus ops are called when a child is probed/removed */
-static int dm_test_bus_parent_ops(struct dm_test_state *dms)
+static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 {
 	struct dm_test_parent_data *parent_data;
+	struct dm_test_state *dms = uts->priv;
 	struct udevice *bus, *dev;
 	struct uclass *uc;
 
@@ -331,7 +334,7 @@ static int dm_test_bus_parent_ops(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_bus_parent_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int test_bus_parent_platdata(struct dm_test_state *dms)
+static int test_bus_parent_platdata(struct unit_test_state *uts)
 {
 	struct dm_test_parent_platdata *plat;
 	struct udevice *bus, *dev;
@@ -404,29 +407,31 @@ static int test_bus_parent_platdata(struct dm_test_state *dms)
 }
 
 /* Test that the bus can store platform data about each child */
-static int dm_test_bus_parent_platdata(struct dm_test_state *dms)
+static int dm_test_bus_parent_platdata(struct unit_test_state *uts)
 {
-	return test_bus_parent_platdata(dms);
+	return test_bus_parent_platdata(uts);
 }
 DM_TEST(dm_test_bus_parent_platdata, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* As above but the size is controlled by the uclass */
-static int dm_test_bus_parent_platdata_uclass(struct dm_test_state *dms)
+static int dm_test_bus_parent_platdata_uclass(struct unit_test_state *uts)
 {
 	struct udevice *bus;
+	struct driver *drv;
 	int size;
 	int ret;
 
 	/* Set the driver size to 0 so that the uclass size is used */
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
-	size = bus->driver->per_child_platdata_auto_alloc_size;
+	drv = (struct driver *)bus->driver;
+	size = drv->per_child_platdata_auto_alloc_size;
 	bus->uclass->uc_drv->per_child_platdata_auto_alloc_size = size;
-	bus->driver->per_child_platdata_auto_alloc_size = 0;
-	ret = test_bus_parent_platdata(dms);
+	drv->per_child_platdata_auto_alloc_size = 0;
+	ret = test_bus_parent_platdata(uts);
 	if (ret)
 		return ret;
 	bus->uclass->uc_drv->per_child_platdata_auto_alloc_size = 0;
-	bus->driver->per_child_platdata_auto_alloc_size = size;
+	drv->per_child_platdata_auto_alloc_size = size;
 
 	return 0;
 }
@@ -434,7 +439,7 @@ DM_TEST(dm_test_bus_parent_platdata_uclass,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that the child post_bind method is called */
-static int dm_test_bus_child_post_bind(struct dm_test_state *dms)
+static int dm_test_bus_child_post_bind(struct unit_test_state *uts)
 {
 	struct dm_test_parent_platdata *plat;
 	struct udevice *bus, *dev;
@@ -457,7 +462,7 @@ static int dm_test_bus_child_post_bind(struct dm_test_state *dms)
 DM_TEST(dm_test_bus_child_post_bind, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that the child post_bind method is called */
-static int dm_test_bus_child_post_bind_uclass(struct dm_test_state *dms)
+static int dm_test_bus_child_post_bind_uclass(struct unit_test_state *uts)
 {
 	struct dm_test_parent_platdata *plat;
 	struct udevice *bus, *dev;
@@ -484,7 +489,7 @@ DM_TEST(dm_test_bus_child_post_bind_uclass,
  * Test that the bus' uclass' child_pre_probe() is called before the
  * device's probe() method
  */
-static int dm_test_bus_child_pre_probe_uclass(struct dm_test_state *dms)
+static int dm_test_bus_child_pre_probe_uclass(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	int child_count;

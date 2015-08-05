@@ -9,8 +9,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MX6
-
+#include <linux/kconfig.h>
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
 
@@ -24,10 +23,14 @@
 
 /* #endif */
 
+/* place code in last 4 MiB of RAM */
+#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
+#define CONFIG_SYS_TEXT_BASE		0x2fc00000
+#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
+#define CONFIG_SYS_TEXT_BASE		0x4fc00000
+#endif
+
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-#include <linux/sizes.h>
 
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #define PHYS_SDRAM_SIZE			(512u * SZ_1M)
@@ -35,29 +38,9 @@
 #define PHYS_SDRAM_SIZE			(1024u * SZ_1M)
 #endif
 
-#if defined(CONFIG_MBA6)
-
-#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
-#define CONFIG_DEFAULT_FDT_FILE		"imx6dl-mba6x.dtb"
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6Q)
-#define CONFIG_DEFAULT_FDT_FILE		"imx6q-mba6x.dtb"
-#endif
-
-#endif
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_SYS_GENERIC_BOARD
-
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_MXC_GPIO
 #define CONFIG_MXC_UART
 
 /* SPI */
@@ -65,7 +48,6 @@
 #define CONFIG_MXC_SPI
 
 /* SPI Flash */
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
 #define TQMA6_SPI_FLASH_SECTOR_SIZE	SZ_64K
@@ -80,16 +62,12 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* I2C SYSMON (LM75) */
 #define CONFIG_DTT_LM75
-#if defined(CONFIG_MBA6)
-#define CONFIG_DTT_SENSORS		{ 0, 1 }
-#else
-#define CONFIG_DTT_SENSORS		{ 0 }
-#endif
 #define CONFIG_DTT_MAX_TEMP		70
 #define CONFIG_DTT_MIN_TEMP		-30
 #define CONFIG_DTT_HYSTERESIS	3
@@ -109,14 +87,7 @@
 #define TQMA6_PFUZE100_I2C_BUS		2
 
 /* MMC Configs */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
-
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
 
 /* USB Configs */
 #define CONFIG_CMD_USB
@@ -125,42 +96,22 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 
 /* Fuses */
 #define CONFIG_MXC_OCOTP
 #define CONFIG_CMD_FUSE
 
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_PHYLIB
 #define CONFIG_MII
-
-#if defined(CONFIG_MBA6)
-
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-
-#define CONFIG_FEC_MXC_PHYADDR		0x03
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_KSZ9031
-
-#else
-
-#error "define PHY to use for your baseboard"
-
-#endif
 
 #define CONFIG_ARP_TIMEOUT		200UL
 /* Network config - Allow larger/faster download for TFTP/NFS */
@@ -168,41 +119,8 @@
 #define CONFIG_TFTP_BLOCKSIZE	4096
 #define CONFIG_NFS_READ_SIZE	4096
 
-#if defined(CONFIG_MBA6)
-
-#define CONFIG_MXC_UART_BASE		UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc1"
-
-#else
-
-#error "define baseboard specific things (uart, number of SD-card slots)"
-
-#endif
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
-
 /* Command definition */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_ITEST
-#define CONFIG_CMD_SETEXPR
-#undef CONFIG_CMD_IMLS
-
-#define CONFIG_BOOTDELAY		3
-
-#define CONFIG_LOADADDR			0x12000000
-
-/* place code in last 4 MiB of RAM */
-#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
-#define CONFIG_SYS_TEXT_BASE		0x2fc00000
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
-#define CONFIG_SYS_TEXT_BASE		0x4fc00000
-#endif
 
 #define CONFIG_ENV_SIZE			(SZ_8K)
 /* Size of malloc() pool */
@@ -448,23 +366,6 @@
 	"panicboot=echo No boot device !!! reset\0"                            \
 	TQMA6_EXTRA_BOOTDEV_ENV_SETTINGS                                      \
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		512
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE		(128u * SZ_1K)
 
 /* Physical Memory Map */
@@ -480,16 +381,25 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
+/*
+ * All the defines above are for the TQMa6 SoM
+ *
+ * Now include the baseboard specific configuration
+ */
+#ifdef CONFIG_MBA6
+#include "tqma6_mba6.h"
+#else
+#error "No baseboard for the TQMa6 defined!"
+#endif
+
+/* Support at least the sensor on TQMa6 SOM */
+#if !defined(CONFIG_DTT_SENSORS)
+#define CONFIG_DTT_SENSORS		{ 0 }
 #endif
 
 #endif /* __CONFIG_H */

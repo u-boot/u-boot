@@ -271,7 +271,7 @@ static int factoryset_mac_setenv(void)
 	uint8_t mac_addr[6];
 
 	debug("FactorySet: Set mac address\n");
-	if (is_valid_ether_addr(factory_dat.mac)) {
+	if (is_valid_ethaddr(factory_dat.mac)) {
 		memcpy(mac_addr, factory_dat.mac, 6);
 	} else {
 		uint32_t mac_hi, mac_lo;
@@ -286,7 +286,7 @@ static int factoryset_mac_setenv(void)
 		mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
 		mac_addr[4] = mac_lo & 0xFF;
 		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-		if (!is_valid_ether_addr(mac_addr)) {
+		if (!is_valid_ethaddr(mac_addr)) {
 			printf("Warning: ethaddr not set by FactorySet or E-fuse. Set <ethaddr> variable to overcome this.\n");
 			return -1;
 		}

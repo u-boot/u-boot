@@ -13,8 +13,6 @@
 
 #include "gsc.h"
 
-#define MINMAX(n, percent)	((n)*(100-percent)/100), ((n)*(100+percent)/100)
-
 /*
  * The Gateworks System Controller will fail to ACK a master transaction if
  * it is busy, which can occur during its 1HZ timer tick while reading ADC's.
@@ -61,9 +59,7 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	return ret;
 }
 
-#ifdef CONFIG_CMD_GSC
-static void read_hwmon(const char *name, uint reg, uint size, uint low,
-		       uint high)
+static void read_hwmon(const char *name, uint reg, uint size)
 {
 	unsigned char buf[3];
 	uint ui;
@@ -75,59 +71,148 @@ static void read_hwmon(const char *name, uint reg, uint size, uint low,
 	} else {
 		ui = buf[0] | (buf[1]<<8) | (buf[2]<<16);
 		if (ui == 0xffffff)
-			printf("invalid");
-		else if (ui < low)
-			printf("%d Failed - Low", ui);
-		else if (ui > high)
-			printf("%d Failed - High", ui);
+			puts("invalid\n");
 		else
-			printf("%d", ui);
+			printf("%d\n", ui);
 	}
-	puts("\n");
 }
 
-int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int gsc_info(int verbose)
 {
 	const char *model = getenv("model");
+	unsigned char buf[16];
 
 	i2c_set_bus_num(0);
-	read_hwmon("Temp",     GSC_HWMON_TEMP, 2, 0, 9000);
-	read_hwmon("VIN",      GSC_HWMON_VIN, 3, 8000, 60000);
-	read_hwmon("VBATT",    GSC_HWMON_VBATT, 3, 1800, 3500);
-	read_hwmon("VDD_3P3",  GSC_HWMON_VDD_3P3, 3, MINMAX(3300, 10));
-	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3, MINMAX(3000, 10));
-	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3, MINMAX(1500, 10));
-	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3, MINMAX(5000, 10));
-	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3, MINMAX(2500, 10));
-	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3, MINMAX(1800, 10));
+	if (gsc_i2c_read(GSC_SC_ADDR, 0, 1, buf, 16))
+		return CMD_RET_FAILURE;
 
+	printf("GSC:   v%d", buf[GSC_SC_FWVER]);
+	printf(" 0x%04x", buf[GSC_SC_FWCRC] | buf[GSC_SC_FWCRC+1]<<8);
+	printf(" WDT:%sabled", (buf[GSC_SC_CTRL1] & (1<<GSC_SC_CTRL1_WDEN))
+		? "en" : "dis");
+	if (buf[GSC_SC_STATUS] & (1 << GSC_SC_IRQ_WATCHDOG)) {
+		buf[GSC_SC_STATUS] &= ~(1 << GSC_SC_IRQ_WATCHDOG);
+		puts(" WDT_RESET");
+		gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1,
+			      &buf[GSC_SC_STATUS], 1);
+	}
+	puts("\n");
+	if (!verbose)
+		return CMD_RET_SUCCESS;
+
+	read_hwmon("Temp",     GSC_HWMON_TEMP, 2);
+	read_hwmon("VIN",      GSC_HWMON_VIN, 3);
+	read_hwmon("VBATT",    GSC_HWMON_VBATT, 3);
+	read_hwmon("VDD_3P3",  GSC_HWMON_VDD_3P3, 3);
+	read_hwmon("VDD_ARM",  GSC_HWMON_VDD_CORE, 3);
+	read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
+	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3);
+	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3);
+	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3);
+	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
+	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3);
+	read_hwmon("VDD_IO2",  GSC_HWMON_VDD_IO2, 3);
 	switch (model[3]) {
 	case '1': /* GW51xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1175, 10));
+		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
 		break;
 	case '2': /* GW52xx */
+		break;
 	case '3': /* GW53xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3, MINMAX(1000, 10));
+		read_hwmon("VDD_IO4",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
+		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
 		break;
 	case '4': /* GW54xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1375, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1375, 10));
-		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3, MINMAX(1000, 10));
+		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
+		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
 		break;
 	case '5': /* GW55xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1175, 10));
 		break;
 	}
 	return 0;
 }
 
-U_BOOT_CMD(gsc, 1, 1, do_gsc,
-	   "GSC test",
-	   ""
-);
+/*
+ *  The Gateworks System Controller implements a boot
+ *  watchdog (always enabled) as a workaround for IMX6 boot related
+ *  errata such as:
+ *    ERR005768 - no fix scheduled
+ *    ERR006282 - fixed in silicon r1.2
+ *    ERR007117 - fixed in silicon r1.3
+ *    ERR007220 - fixed in silicon r1.3
+ *    ERR007926 - no fix scheduled
+ *  see http://cache.freescale.com/files/32bit/doc/errata/IMX6DQCE.pdf
+ *
+ * Disable the boot watchdog
+ */
+int gsc_boot_wd_disable(void)
+{
+	u8 reg;
+
+	i2c_set_bus_num(CONFIG_I2C_GSC);
+	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1)) {
+		reg |= (1 << GSC_SC_CTRL1_WDDIS);
+		if (!gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return 0;
+	}
+	puts("Error: could not disable GSC Watchdog\n");
+	return 1;
+}
+
+#ifdef CONFIG_CMD_GSC
+static int do_gsc_wd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned char reg;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (strcasecmp(argv[1], "enable") == 0) {
+		int timeout = 0;
+
+		if (argc > 2)
+			timeout = simple_strtoul(argv[2], NULL, 10);
+		i2c_set_bus_num(0);
+		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		reg &= ~((1 << GSC_SC_CTRL1_WDEN) | (1 << GSC_SC_CTRL1_WDTIME));
+		if (timeout == 60)
+			reg |= (1 << GSC_SC_CTRL1_WDTIME);
+		else
+			timeout = 30;
+		reg |= (1 << GSC_SC_CTRL1_WDEN);
+		if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		printf("GSC Watchdog enabled with timeout=%d seconds\n",
+		       timeout);
+	} else if (strcasecmp(argv[1], "disable") == 0) {
+		i2c_set_bus_num(0);
+		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		reg &= ~((1 << GSC_SC_CTRL1_WDEN) | (1 << GSC_SC_CTRL1_WDTIME));
+		if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		printf("GSC Watchdog disabled\n");
+	} else {
+		return CMD_RET_USAGE;
+	}
+	return CMD_RET_SUCCESS;
+}
+
+static int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc < 2)
+		return gsc_info(1);
+
+	if (strcasecmp(argv[1], "wd") == 0)
+		return do_gsc_wd(cmdtp, flag, --argc, ++argv);
+
+	return CMD_RET_USAGE;
+}
+
+U_BOOT_CMD(
+	gsc, 4, 1, do_gsc, "GSC configuration",
+	"[wd enable [30|60]]|[wd disable]\n"
+	);
 
 #endif /* CONFIG_CMD_GSC */

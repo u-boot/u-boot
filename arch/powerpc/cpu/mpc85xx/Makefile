@@ -114,7 +114,4 @@ endif
 obj-y	+= tlb.o
 obj-y	+= traps.o
 
-# Stub implementations of cache management functions for USB
-obj-y += cache.o
-
 endif # not minimal

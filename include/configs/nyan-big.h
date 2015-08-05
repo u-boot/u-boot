@@ -21,6 +21,8 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
+#define CONFIG_DISPLAY_BOARDINFO_LATE
+
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 #define CONFIG_CMD_I2C
@@ -37,10 +39,22 @@
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
+#define CONFIG_I2C_EDID
+
+/* LCD support */
+#define CONFIG_LCD
+#define CONFIG_PWM_TEGRA
+#define CONFIG_AS3722_POWER
+#define LCD_BPP				LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CMD_BMP
+
+/* Align LCD to 1MB boundary */
+#define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
+
 /* SPI */
 #define CONFIG_TEGRA114_SPI		/* Compatible w/ Tegra114 SPI */
 #define CONFIG_TEGRA114_SPI_CTRLS	6
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_MODE         SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED        24000000
@@ -60,11 +74,16 @@
 #define CONFIG_USB_ETHER_ASIX
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 #define CONFIG_FIT
+#define CONFIG_FIT_BEST_MATCH
 #define CONFIG_OF_LIBFDT
+
+#define CONFIG_KEYBOARD
+
+#undef CONFIG_LOADADDR
+#define CONFIG_LOADADDR		0x82408000
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"

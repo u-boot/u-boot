@@ -172,28 +172,28 @@ int int1a_handler(void)
 		}
 		switch (func) {
 		case 0xb108: /* Read Config Byte */
-			byte = pci_read_config8(dev, reg);
+			byte = x86_pci_read_config8(dev, reg);
 			M.x86.R_ECX = byte;
 			break;
 		case 0xb109: /* Read Config Word */
-			word = pci_read_config16(dev, reg);
+			word = x86_pci_read_config16(dev, reg);
 			M.x86.R_ECX = word;
 			break;
 		case 0xb10a: /* Read Config Dword */
-			dword = pci_read_config32(dev, reg);
+			dword = x86_pci_read_config32(dev, reg);
 			M.x86.R_ECX = dword;
 			break;
 		case 0xb10b: /* Write Config Byte */
 			byte = M.x86.R_ECX;
-			pci_write_config8(dev, reg, byte);
+			x86_pci_write_config8(dev, reg, byte);
 			break;
 		case 0xb10c: /* Write Config Word */
 			word = M.x86.R_ECX;
-			pci_write_config16(dev, reg, word);
+			x86_pci_write_config16(dev, reg, word);
 			break;
 		case 0xb10d: /* Write Config Dword */
 			dword = M.x86.R_ECX;
-			pci_write_config32(dev, reg, dword);
+			x86_pci_write_config32(dev, reg, dword);
 			break;
 		}
 

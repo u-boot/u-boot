@@ -7,44 +7,8 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <asm/arch/gpio.h>
 #include <axp209.h>
-
-enum axp209_reg {
-	AXP209_POWER_STATUS = 0x00,
-	AXP209_CHIP_VERSION = 0x03,
-	AXP209_DCDC2_VOLTAGE = 0x23,
-	AXP209_DCDC3_VOLTAGE = 0x27,
-	AXP209_LDO24_VOLTAGE = 0x28,
-	AXP209_LDO3_VOLTAGE = 0x29,
-	AXP209_IRQ_ENABLE1 = 0x40,
-	AXP209_IRQ_ENABLE2 = 0x41,
-	AXP209_IRQ_ENABLE3 = 0x42,
-	AXP209_IRQ_ENABLE4 = 0x43,
-	AXP209_IRQ_ENABLE5 = 0x44,
-	AXP209_IRQ_STATUS5 = 0x4c,
-	AXP209_SHUTDOWN = 0x32,
-	AXP209_GPIO0_CTRL = 0x90,
-	AXP209_GPIO1_CTRL = 0x92,
-	AXP209_GPIO2_CTRL = 0x93,
-	AXP209_GPIO_STATE = 0x94,
-	AXP209_GPIO3_CTRL = 0x95,
-};
-
-#define AXP209_POWER_STATUS_ON_BY_DC	(1 << 0)
-
-#define AXP209_IRQ5_PEK_UP		(1 << 6)
-#define AXP209_IRQ5_PEK_DOWN		(1 << 5)
-
-#define AXP209_POWEROFF			(1 << 7)
-
-#define AXP209_GPIO_OUTPUT_LOW		0x00 /* Drive pin low */
-#define AXP209_GPIO_OUTPUT_HIGH		0x01 /* Drive pin high */
-#define AXP209_GPIO_INPUT		0x02 /* Float pin */
-
-/* GPIO3 is different from the others */
-#define AXP209_GPIO3_OUTPUT_LOW		0x00 /* Drive pin low, Output mode */
-#define AXP209_GPIO3_OUTPUT_HIGH	0x02 /* Float pin, Output mode */
-#define AXP209_GPIO3_INPUT		0x06 /* Float pin, Input mode */
 
 static int axp209_write(enum axp209_reg reg, u8 val)
 {
@@ -190,62 +154,4 @@ int axp209_power_button(void)
 	axp209_write(AXP209_IRQ_STATUS5, AXP209_IRQ5_PEK_DOWN);
 
 	return v & AXP209_IRQ5_PEK_DOWN;
-}
-
-static u8 axp209_get_gpio_ctrl_reg(unsigned int pin)
-{
-	switch (pin) {
-	case 0: return AXP209_GPIO0_CTRL;
-	case 1: return AXP209_GPIO1_CTRL;
-	case 2: return AXP209_GPIO2_CTRL;
-	case 3: return AXP209_GPIO3_CTRL;
-	}
-	return 0;
-}
-
-int axp_gpio_direction_input(unsigned int pin)
-{
-	u8 reg = axp209_get_gpio_ctrl_reg(pin);
-	/* GPIO3 is "special" */
-	u8 val = (pin == 3) ? AXP209_GPIO3_INPUT : AXP209_GPIO_INPUT;
-
-	return axp209_write(reg, val);
-}
-
-int axp_gpio_direction_output(unsigned int pin, unsigned int val)
-{
-	u8 reg = axp209_get_gpio_ctrl_reg(pin);
-
-	if (val) {
-		val = (pin == 3) ? AXP209_GPIO3_OUTPUT_HIGH :
-				   AXP209_GPIO_OUTPUT_HIGH;
-	} else {
-		val = (pin == 3) ? AXP209_GPIO3_OUTPUT_LOW :
-				   AXP209_GPIO_OUTPUT_LOW;
-	}
-
-	return axp209_write(reg, val);
-}
-
-int axp_gpio_get_value(unsigned int pin)
-{
-	u8 val, mask;
-	int rc;
-
-	if (pin == 3) {
-		rc = axp209_read(AXP209_GPIO3_CTRL, &val);
-		mask = 1;
-	} else {
-		rc = axp209_read(AXP209_GPIO_STATE, &val);
-		mask = 1 << (pin + 4);
-	}
-	if (rc)
-		return rc;
-
-	return (val & mask) ? 1 : 0;
-}
-
-int axp_gpio_set_value(unsigned int pin, unsigned int val)
-{
-	return axp_gpio_direction_output(pin, val);
 }

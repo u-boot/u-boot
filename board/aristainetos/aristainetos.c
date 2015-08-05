@@ -58,6 +58,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ECSPI4_CS1		IMX_GPIO_NR(5, 2)
 
+#if (CONFIG_SYS_BOARD_VERSION == 1)
+#include "./aristainetos-v1.c"
+#elif (CONFIG_SYS_BOARD_VERSION == 2)
+#include "./aristainetos-v2.c"
+#endif
+
+
 struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | PC,
@@ -84,89 +91,6 @@ struct i2c_pads_info i2c_pad_info2 = {
 	}
 };
 
-struct i2c_pads_info i2c_pad_info3 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_EIM_D17__I2C3_SCL | PC,
-		.gpio_mode = MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
-		.gp = IMX_GPIO_NR(3, 17)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_EIM_D18__I2C3_SDA | PC,
-		.gpio_mode = MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
-		.gp = IMX_GPIO_NR(3, 18)
-	}
-};
-
-int dram_init(void)
-{
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
-
-	return 0;
-}
-
-iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_CSI0_DAT10__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_CSI0_DAT11__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const uart5_pads[] = {
-	MX6_PAD_CSI0_DAT14__UART5_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_CSI0_DAT15__UART5_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const gpio_pads[] = {
-	/* LED enable */
-	MX6_PAD_SD4_DAT5__GPIO2_IO13 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* spi flash WP protect */
-	MX6_PAD_SD4_DAT7__GPIO2_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* backlight enable */
-	MX6_PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LED yellow */
-	MX6_PAD_GPIO_3__GPIO1_IO03 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LED red */
-	MX6_PAD_GPIO_4__GPIO1_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LED green */
-	MX6_PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LED blue */
-	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* i2c4 scl */
-	MX6_PAD_GPIO_7__GPIO1_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* i2c4 sda */
-	MX6_PAD_GPIO_8__GPIO1_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* spi CS 1 */
-	MX6_PAD_EIM_A25__GPIO5_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const misc_pads[] = {
-	MX6_PAD_GPIO_1__USB_OTG_ID		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* OTG Power enable */
-	MX6_PAD_EIM_D31__GPIO3_IO31		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_KEY_ROW4__GPIO4_IO15		| MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const enet_pads[] = {
-	MX6_PAD_GPIO_16__ENET_REF_CLK	| MUX_PAD_CTRL(0x4001b0a8),
-	MX6_PAD_ENET_MDIO__ENET_MDIO	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_MDC__ENET_MDC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_TXD0__ENET_TX_DATA0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_TXD1__ENET_TX_DATA1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_TX_EN__ENET_TX_EN	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_RX_ER__ENET_RX_ER	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_RXD0__ENET_RX_DATA0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_RXD1__ENET_RX_DATA1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_CRS_DV__ENET_RX_EN	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-};
-
-static void setup_iomux_enet(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
-
-	/* set GPIO_16 as ENET_REF_CLK_OUT */
-	setbits_le32(&iomux->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
-}
-
 iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD1_CMD__SD1_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -176,86 +100,11 @@ iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_DAT3__SD1_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_SD2_CLK__SD2_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_CMD__SD2_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT0__SD2_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT1__SD2_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT2__SD2_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const ecspi4_pads[] = {
-	MX6_PAD_EIM_D21__ECSPI4_SCLK | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_EIM_D22__ECSPI4_MISO | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_EIM_D28__ECSPI4_MOSI | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_EIM_D20__GPIO3_IO20 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const display_pads[] = {
-	MX6_PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK | MUX_PAD_CTRL(DISP_PAD_CTRL),
-	MX6_PAD_DI0_PIN15__IPU1_DI0_PIN15,
-	MX6_PAD_DI0_PIN2__IPU1_DI0_PIN02,
-	MX6_PAD_DI0_PIN3__IPU1_DI0_PIN03,
-	MX6_PAD_DI0_PIN4__GPIO4_IO20,
-	MX6_PAD_DISP0_DAT0__IPU1_DISP0_DATA00,
-	MX6_PAD_DISP0_DAT1__IPU1_DISP0_DATA01,
-	MX6_PAD_DISP0_DAT2__IPU1_DISP0_DATA02,
-	MX6_PAD_DISP0_DAT3__IPU1_DISP0_DATA03,
-	MX6_PAD_DISP0_DAT4__IPU1_DISP0_DATA04,
-	MX6_PAD_DISP0_DAT5__IPU1_DISP0_DATA05,
-	MX6_PAD_DISP0_DAT6__IPU1_DISP0_DATA06,
-	MX6_PAD_DISP0_DAT7__IPU1_DISP0_DATA07,
-	MX6_PAD_DISP0_DAT8__IPU1_DISP0_DATA08,
-	MX6_PAD_DISP0_DAT9__IPU1_DISP0_DATA09,
-	MX6_PAD_DISP0_DAT10__IPU1_DISP0_DATA10,
-	MX6_PAD_DISP0_DAT11__IPU1_DISP0_DATA11,
-	MX6_PAD_DISP0_DAT12__IPU1_DISP0_DATA12,
-	MX6_PAD_DISP0_DAT13__IPU1_DISP0_DATA13,
-	MX6_PAD_DISP0_DAT14__IPU1_DISP0_DATA14,
-	MX6_PAD_DISP0_DAT15__IPU1_DISP0_DATA15,
-	MX6_PAD_DISP0_DAT16__IPU1_DISP0_DATA16,
-	MX6_PAD_DISP0_DAT17__IPU1_DISP0_DATA17,
-	MX6_PAD_DISP0_DAT18__IPU1_DISP0_DATA18,
-	MX6_PAD_DISP0_DAT19__IPU1_DISP0_DATA19,
-	MX6_PAD_DISP0_DAT20__IPU1_DISP0_DATA20,
-	MX6_PAD_DISP0_DAT21__IPU1_DISP0_DATA21,
-	MX6_PAD_DISP0_DAT22__IPU1_DISP0_DATA22,
-	MX6_PAD_DISP0_DAT23__IPU1_DISP0_DATA23,
-};
-
-static iomux_v3_cfg_t const backlight_pads[] = {
-	MX6_PAD_GPIO_9__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_SD4_DAT1__PWM3_OUT | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-int board_spi_cs_gpio(unsigned bus, unsigned cs)
+int dram_init(void)
 {
-	return (bus == CONFIG_SF_DEFAULT_BUS && cs == CONFIG_SF_DEFAULT_CS)
-		? (IMX_GPIO_NR(3, 20)) : -1;
-}
+	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
-static void setup_spi(void)
-{
-	int i;
-
-	imx_iomux_v3_setup_multiple_pads(ecspi4_pads, ARRAY_SIZE(ecspi4_pads));
-	for (i = 0; i < 3; i++)
-		enable_spi_clk(true, i);
-
-	/* set cs1 to high */
-	gpio_direction_output(ECSPI4_CS1, 1);
-}
-
-static void setup_iomux_gpio(void)
-{
-	imx_iomux_v3_setup_multiple_pads(gpio_pads, ARRAY_SIZE(gpio_pads));
-}
-
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart5_pads, ARRAY_SIZE(uart5_pads));
+	return 0;
 }
 
 #ifdef CONFIG_FSL_ESDHC
@@ -272,13 +121,24 @@ int board_mmc_getcd(struct mmc *mmc)
 int board_mmc_init(bd_t *bis)
 {
 	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-
 	imx_iomux_v3_setup_multiple_pads(usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
-	imx_iomux_v3_setup_multiple_pads(usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]) |
-		fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
+#if (CONFIG_SYS_BOARD_VERSION == 2)
+	/*
+	 * usdhc2 has a levelshifter on the carrier board Rev. DV1,
+	 * that will automatically detect the driving direction.
+	 * During initialisation this isn't working correctly,
+	 * which causes DAT3 to be driven low towards the SD-card.
+	 * This causes a SD-card enetring the SPI-Mode
+	 * and therefore getting inaccessible until next power cycle.
+	 * As workaround we drive the DAT3 line as GPIO and set it high.
+	 * This makes usdhc2 unusable in u-boot, but works for the
+	 * initialisation in Linux
+	 */
+	imx_iomux_v3_setup_pad(MX6_PAD_SD2_DAT3__GPIO1_IO12 |
+			       MUX_PAD_CTRL(NO_PAD_CTRL));
+	gpio_direction_output(IMX_GPIO_NR(1, 12) , 1);
+#endif
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 #endif
 
@@ -289,48 +149,6 @@ int board_mmc_init(bd_t *bis)
 int overwrite_console(void)
 {
 	return 1;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	struct iomuxc *iomuxc_regs =
-				(struct iomuxc *)IOMUXC_BASE_ADDR;
-	int ret;
-
-	setup_iomux_enet();
-	/* clear gpr1[14], gpr1[18:17] to select anatop clock */
-	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC_MASK, 0);
-
-	ret = enable_fec_anatop_clock(ENET_50MHZ);
-	if (ret)
-		return ret;
-
-	return cpu_eth_init(bis);
-}
-#if defined(CONFIG_VIDEO_IPUV3)
-
-static void enable_lvds(struct display_info_t const *dev)
-{
-	imx_iomux_v3_setup_multiple_pads(
-		display_pads,
-		 ARRAY_SIZE(display_pads));
-	imx_iomux_v3_setup_multiple_pads(
-		backlight_pads,
-		 ARRAY_SIZE(backlight_pads));
-
-	/* enable backlight PWM 3 */
-	if (pwm_init(2, 0, 0))
-		goto error;
-	/* duty cycle 500ns, period: 3000ns */
-	if (pwm_config(2, 500, 3000))
-		goto error;
-	if (pwm_enable(2))
-		goto error;
-	return;
-
-error:
-	puts("error init pwm for backlight\n");
-	return;
 }
 
 struct display_info_t const displays[] = {
@@ -356,42 +174,38 @@ struct display_info_t const displays[] = {
 			.vmode          = FB_VMODE_NONINTERLACED
 		}
 	}
+#if (CONFIG_SYS_BOARD_VERSION == 2)
+	, {
+		.bus	= -1,
+		.addr	= 0,
+		.pixfmt	= IPU_PIX_FMT_RGB24,
+		.detect	= NULL,
+		.enable	= enable_spi_display,
+		.mode	= {
+			.name           = "lg4573",
+			.refresh        = 60,
+			.xres           = 480,
+			.yres           = 800,
+			.pixclock       = 37037,
+			.left_margin    = 59,
+			.right_margin   = 10,
+			.upper_margin   = 15,
+			.lower_margin   = 15,
+			.hsync_len      = 10,
+			.vsync_len      = 15,
+			.sync           = FB_SYNC_EXT | FB_SYNC_HOR_HIGH_ACT |
+					  FB_SYNC_VERT_HIGH_ACT,
+			.vmode          = FB_VMODE_NONINTERLACED
+		}
+	}
+#endif
 };
 size_t display_count = ARRAY_SIZE(displays);
-
-static void setup_display(void)
-{
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	int reg;
-
-	enable_ipu_clock();
-
-	reg = readl(&mxc_ccm->cs2cdr);
-	/* select pll 5 clock */
-	reg &= MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK;
-	reg &= MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK;
-	writel(reg, &mxc_ccm->cs2cdr);
-
-	imx_iomux_v3_setup_multiple_pads(backlight_pads,
-					 ARRAY_SIZE(backlight_pads));
-}
 
 /* no console on this board */
 int board_cfb_skip(void)
 {
 	return 1;
-}
-#endif
-
-int board_early_init_f(void)
-{
-	setup_iomux_uart();
-	setup_iomux_gpio();
-
-#if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
-#endif
-	return 0;
 }
 
 iomux_v3_cfg_t nfc_pads[] = {
@@ -424,6 +238,9 @@ static void setup_gpmi_nand(void)
 	imx_iomux_v3_setup_multiple_pads(nfc_pads,
 					 ARRAY_SIZE(nfc_pads));
 
+	/* gate ENFC_CLK_ROOT clock first,before clk source switch */
+	clrbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
+
 	/* config gpmi and bch clock to 100 MHz */
 	clrsetbits_le32(&mxc_ccm->cs2cdr,
 			MXC_CCM_CS2CDR_ENFC_CLK_PODF_MASK |
@@ -432,6 +249,9 @@ static void setup_gpmi_nand(void)
 			MXC_CCM_CS2CDR_ENFC_CLK_PODF(0) |
 			MXC_CCM_CS2CDR_ENFC_CLK_PRED(3) |
 			MXC_CCM_CS2CDR_ENFC_CLK_SEL(3));
+
+	/* enable ENFC_CLK_ROOT clock */
+	setbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
 
 	/* enable gpmi and bch clock gating */
 	setbits_le32(&mxc_ccm->CCGR4,
@@ -460,43 +280,26 @@ int board_init(void)
 		  &i2c_pad_info2);
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
 		  &i2c_pad_info3);
-
-	/* i2c4 not used, set it to gpio input */
-	gpio_request(IMX_GPIO_NR(1, 7), "i2c4_scl");
-	gpio_direction_input(IMX_GPIO_NR(1, 7));
-	gpio_request(IMX_GPIO_NR(1, 8), "i2c4_sda");
-	gpio_direction_input(IMX_GPIO_NR(1, 8));
+	setup_i2c4();
 
 	/* SPI NOR Flash read only */
 	gpio_request(CONFIG_GPIO_ENABLE_SPI_FLASH, "ena_spi_nor");
 	gpio_direction_output(CONFIG_GPIO_ENABLE_SPI_FLASH, 0);
 	gpio_free(CONFIG_GPIO_ENABLE_SPI_FLASH);
 
-	/* enable LED */
-	gpio_request(IMX_GPIO_NR(2, 13), "LED ena");
-	gpio_direction_output(IMX_GPIO_NR(2, 13), 0);
-
-	gpio_request(IMX_GPIO_NR(1, 3), "LED yellow");
-	gpio_direction_output(IMX_GPIO_NR(1, 3), 1);
-	gpio_request(IMX_GPIO_NR(1, 4), "LED red");
-	gpio_direction_output(IMX_GPIO_NR(1, 4), 1);
-	gpio_request(IMX_GPIO_NR(1, 5), "LED green");
-	gpio_direction_output(IMX_GPIO_NR(1, 5), 1);
-	gpio_request(IMX_GPIO_NR(1, 6), "LED blue");
-	gpio_direction_output(IMX_GPIO_NR(1, 6), 1);
-
+	setup_board_gpio();
 	setup_gpmi_nand();
+	setup_board_spi();
 
 	/* GPIO_1 for USB_OTG_ID */
-	setbits_le32(&iomux->gpr[1], IOMUXC_GPR1_USB_OTG_ID_SEL_MASK);
+	clrsetbits_le32(&iomux->gpr[1], IOMUXC_GPR1_USB_OTG_ID_SEL_MASK, 0);
 	imx_iomux_v3_setup_multiple_pads(misc_pads, ARRAY_SIZE(misc_pads));
-
 	return 0;
 }
 
 int checkboard(void)
 {
-	puts("Board: aristaitenos\n");
+	printf("Board: %s\n", CONFIG_BOARDNAME);
 	return 0;
 }
 

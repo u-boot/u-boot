@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cros_ec.h>
+#include <dm.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/pci.h>
@@ -13,8 +14,13 @@
 
 int arch_early_init_r(void)
 {
-	if (cros_ec_board_init())
-		return -1;
+	struct udevice *dev;
+	int ret;
+
+	/* Make sure the platform controller hub is up and running */
+	ret = uclass_get_device(UCLASS_PCH, 0, &dev);
+	if (ret)
+		return ret;
 
 	return 0;
 }

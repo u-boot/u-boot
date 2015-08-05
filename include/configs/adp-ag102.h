@@ -81,7 +81,6 @@
 /*
  * Ethernet
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_MAX_ADDR	32	/* this comes from <linux/phy.h> */
 #define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_FTGMAC100
@@ -105,8 +104,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PING
@@ -114,8 +111,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_ELF
 
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 
 /*
  * PCI

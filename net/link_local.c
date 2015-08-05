@@ -49,7 +49,7 @@ static enum ll_state_t {
 	DISABLED
 } state = DISABLED;
 
-static IPaddr_t ip;
+static struct in_addr ip;
 static int timeout_ms = -1;
 static unsigned deadline_ms;
 static unsigned conflicts;
@@ -64,14 +64,16 @@ static void link_local_timeout(void);
  * Pick a random link local IP address on 169.254/16, except that
  * the first and last 256 addresses are reserved.
  */
-static IPaddr_t pick(void)
+static struct in_addr pick(void)
 {
 	unsigned tmp;
+	struct in_addr ip;
 
 	do {
 		tmp = rand_r(&seed) & IN_CLASSB_HOST;
 	} while (tmp > (IN_CLASSB_HOST - 0x0200));
-	return (IPaddr_t) htonl((LINKLOCAL_ADDR + 0x0100) + tmp);
+	ip.s_addr = htonl((LINKLOCAL_ADDR + 0x0100) + tmp);
+	return ip;
 }
 
 /**
@@ -95,23 +97,24 @@ static void configure_wait(void)
 	deadline_ms = MONOTONIC_MS() + timeout_ms;
 
 	debug_cond(DEBUG_DEV_PKT, "...wait %d %s nprobes=%u, nclaims=%u\n",
-			timeout_ms, eth_get_name(), nprobes, nclaims);
+		   timeout_ms, eth_get_name(), nprobes, nclaims);
 
-	NetSetTimeout(timeout_ms, link_local_timeout);
+	net_set_timeout_handler(timeout_ms, link_local_timeout);
 }
 
 void link_local_start(void)
 {
-	ip = getenv_IPaddr("llipaddr");
-	if (ip != 0 && (ntohl(ip) & IN_CLASSB_NET) != LINKLOCAL_ADDR) {
+	ip = getenv_ip("llipaddr");
+	if (ip.s_addr != 0 &&
+	    (ntohl(ip.s_addr) & IN_CLASSB_NET) != LINKLOCAL_ADDR) {
 		puts("invalid link address");
 		net_set_state(NETLOOP_FAIL);
 		return;
 	}
-	NetOurSubnetMask = IN_CLASSB_NET;
+	net_netmask.s_addr = IN_CLASSB_NET;
 
 	seed = seed_mac();
-	if (ip == 0)
+	if (ip.s_addr == 0)
 		ip = pick();
 
 	state = PROBE;
@@ -131,10 +134,12 @@ static void link_local_timeout(void)
 		/* timeouts in the PROBE state mean no conflicting ARP packets
 		   have been received, so we can progress through the states */
 		if (nprobes < PROBE_NUM) {
+			struct in_addr zero_ip = {.s_addr = 0};
+
 			nprobes++;
 			debug_cond(DEBUG_LL_STATE, "probe/%u %s@%pI4\n",
-					nprobes, eth_get_name(), &ip);
-			arp_raw_request(0, NetEtherNullAddr, ip);
+				   nprobes, eth_get_name(), &ip);
+			arp_raw_request(zero_ip, net_null_ethaddr, ip);
 			timeout_ms = PROBE_MIN * 1000;
 			timeout_ms += random_delay_ms(PROBE_MAX - PROBE_MIN);
 		} else {
@@ -142,8 +147,8 @@ static void link_local_timeout(void)
 			state = ANNOUNCE;
 			nclaims = 0;
 			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
-					nclaims, eth_get_name(), &ip);
-			arp_raw_request(ip, NetOurEther, ip);
+				   nclaims, eth_get_name(), &ip);
+			arp_raw_request(ip, net_ethaddr, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		}
 		break;
@@ -154,8 +159,8 @@ static void link_local_timeout(void)
 		state = ANNOUNCE;
 		nclaims = 0;
 		debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
-				nclaims, eth_get_name(), &ip);
-		arp_raw_request(ip, NetOurEther, ip);
+			   nclaims, eth_get_name(), &ip);
+		arp_raw_request(ip, net_ethaddr, ip);
 		timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		break;
 	case ANNOUNCE:
@@ -165,19 +170,19 @@ static void link_local_timeout(void)
 		if (nclaims < ANNOUNCE_NUM) {
 			nclaims++;
 			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
-					nclaims, eth_get_name(), &ip);
-			arp_raw_request(ip, NetOurEther, ip);
+				   nclaims, eth_get_name(), &ip);
+			arp_raw_request(ip, net_ethaddr, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		} else {
 			/* Switch to monitor state */
 			state = MONITOR;
 			printf("Successfully assigned %pI4\n", &ip);
-			NetCopyIP(&NetOurIP, &ip);
+			net_copy_ip(&net_ip, &ip);
 			ready = 1;
 			conflicts = 0;
 			timeout_ms = -1;
 			/* Never timeout in the monitor state */
-			NetSetTimeout(0, NULL);
+			net_set_timeout_handler(0, NULL);
 
 			/* NOTE: all other exit paths should deconfig ... */
 			net_set_state(NETLOOP_SUCCESS);
@@ -206,7 +211,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 {
 	int source_ip_conflict;
 	int target_ip_conflict;
-	IPaddr_t null_ip = 0;
+	struct in_addr null_ip = {.s_addr = 0};
 
 	if (state == DISABLED)
 		return;
@@ -219,7 +224,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			/* Current time is greater than the expected timeout
 			   time. This should never happen */
 			debug_cond(DEBUG_LL_STATE,
-				"missed an expected timeout\n");
+				   "missed an expected timeout\n");
 			timeout_ms = 0;
 		} else {
 			debug_cond(DEBUG_INT_STATE, "adjusting timeout\n");
@@ -234,9 +239,8 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			 * FIXME: links routinely go down;
 			 */
 			bb_error_msg("iface %s is down", eth_get_name());
-			if (ready) {
+			if (ready)
 				run(argv, "deconfig", &ip);
-			}
 			return EXIT_FAILURE;
 		}
 		continue;
@@ -244,18 +248,17 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 #endif
 
 	debug_cond(DEBUG_INT_STATE, "%s recv arp type=%d, op=%d,\n",
-		eth_get_name(), ntohs(arp->ar_pro),
-		ntohs(arp->ar_op));
+		   eth_get_name(), ntohs(arp->ar_pro),
+		   ntohs(arp->ar_op));
 	debug_cond(DEBUG_INT_STATE, "\tsource=%pM %pI4\n",
-		&arp->ar_sha,
-		&arp->ar_spa);
+		   &arp->ar_sha,
+		   &arp->ar_spa);
 	debug_cond(DEBUG_INT_STATE, "\ttarget=%pM %pI4\n",
-		&arp->ar_tha,
-		&arp->ar_tpa);
+		   &arp->ar_tha,
+		   &arp->ar_tpa);
 
-	if (arp->ar_op != htons(ARPOP_REQUEST)
-	 && arp->ar_op != htons(ARPOP_REPLY)
-	) {
+	if (arp->ar_op != htons(ARPOP_REQUEST) &&
+	    arp->ar_op != htons(ARPOP_REPLY)) {
 		configure_wait();
 		return;
 	}
@@ -263,11 +266,9 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 	source_ip_conflict = 0;
 	target_ip_conflict = 0;
 
-	if (memcmp(&arp->ar_spa, &ip, ARP_PLEN) == 0
-	 && memcmp(&arp->ar_sha, NetOurEther, ARP_HLEN) != 0
-	) {
+	if (memcmp(&arp->ar_spa, &ip, ARP_PLEN) == 0 &&
+	    memcmp(&arp->ar_sha, net_ethaddr, ARP_HLEN) != 0)
 		source_ip_conflict = 1;
-	}
 
 	/*
 	 * According to RFC 3927, section 2.2.1:
@@ -279,13 +280,13 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 	if (arp->ar_op == htons(ARPOP_REQUEST) &&
 	    memcmp(&arp->ar_spa, &null_ip, ARP_PLEN) == 0 &&
 	    memcmp(&arp->ar_tpa, &ip, ARP_PLEN) == 0 &&
-	    memcmp(&arp->ar_sha, NetOurEther, ARP_HLEN) != 0) {
+	    memcmp(&arp->ar_sha, net_ethaddr, ARP_HLEN) != 0) {
 		target_ip_conflict = 1;
 	}
 
 	debug_cond(DEBUG_NET_PKT,
-		"state = %d, source ip conflict = %d, target ip conflict = "
-		"%d\n", state, source_ip_conflict, target_ip_conflict);
+		   "state = %d, source ip conflict = %d, target ip conflict = "
+		   "%d\n", state, source_ip_conflict, target_ip_conflict);
 	switch (state) {
 	case PROBE:
 	case ANNOUNCE:
@@ -313,7 +314,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			debug("monitor conflict -- defending\n");
 			state = DEFEND;
 			timeout_ms = DEFEND_INTERVAL * 1000;
-			arp_raw_request(ip, NetOurEther, ip);
+			arp_raw_request(ip, net_ethaddr, ip);
 		}
 		break;
 	case DEFEND:
@@ -322,7 +323,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			state = PROBE;
 			debug("defend conflict -- starting over\n");
 			ready = 0;
-			NetOurIP = 0;
+			net_ip.s_addr = 0;
 
 			/* restart the whole protocol */
 			ip = pick();

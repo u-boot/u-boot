@@ -1,0 +1,80 @@
+if ARCH_ZYNQ
+
+config ZYNQ_CUSTOM_INIT
+	bool "Use custom ps7_init provided by Xilinx tool"
+	help
+	  U-Boot includes ps7_init_gpl.[ch] for some Zynq board variants.
+	  If you want to override them with customized ones
+	  or ps7_init code for your board is missing, please say Y here
+	  and add ones into board/xilinx/zynq/custom_hw_platform/ directory.
+
+choice
+	prompt "Xilinx Zynq board select"
+	optional
+
+config TARGET_ZYNQ_ZED
+	bool "Zynq ZedBoard"
+
+config TARGET_ZYNQ_MICROZED
+	bool "Zynq MicroZed"
+
+config TARGET_ZYNQ_PICOZED
+	bool "Zynq PicoZed"
+
+config TARGET_ZYNQ_ZC70X
+	bool "Zynq ZC702/ZC706 Board (deprecated)"
+	select ZYNQ_CUSTOM_INIT
+	help
+	  This option is deprecated.  Use TARGET_ZYNQ_ZC702
+	  or TARGET_ZYNQ_706.
+
+config TARGET_ZYNQ_ZC702
+	bool "Zynq ZC702 Board"
+
+config TARGET_ZYNQ_ZC706
+	bool "Zynq ZC706 Board"
+
+config TARGET_ZYNQ_ZC770
+	bool "Zynq ZC770 Board"
+	select ZYNQ_CUSTOM_INIT
+
+config TARGET_ZYNQ_ZYBO
+	bool "Zynq Zybo Board"
+	select ZYNQ_CUSTOM_INIT
+
+config TARGET_ZYNQ_AFX
+	bool "Zynq AFX Board"
+	select ZYNQ_CUSTOM_INIT
+
+config TARGET_ZYNQ_CSE
+	bool "Zynq CSE Board"
+	select ZYNQ_CUSTOM_INIT
+
+config TARGET_ZYNQ_CC108
+	bool "Zynq CC108 Board"
+	select ZYNQ_CUSTOM_INIT
+
+endchoice
+
+config SYS_BOARD
+	default "zynq"
+
+config SYS_VENDOR
+	default "xilinx"
+
+config SYS_SOC
+	default "zynq"
+
+config SYS_CONFIG_NAME
+	default "zynq_zed" if TARGET_ZYNQ_ZED
+	default "zynq_microzed" if TARGET_ZYNQ_MICROZED
+	default "zynq_picozed" if TARGET_ZYNQ_PICOZED
+	default "zynq_zc70x" if TARGET_ZYNQ_ZC702 || TARGET_ZYNQ_ZC706 \
+			        || TARGET_ZYNQ_ZC70X
+	default "zynq_zc770" if TARGET_ZYNQ_ZC770
+	default "zynq_zybo" if TARGET_ZYNQ_ZYBO
+	default "zynq_cse" if TARGET_ZYNQ_CSE
+	default "zynq_afx" if TARGET_ZYNQ_AFX
+	default "zynq_cc108" if TARGET_ZYNQ_CC108
+
+endif

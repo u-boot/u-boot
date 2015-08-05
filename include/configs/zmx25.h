@@ -77,8 +77,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_CACHE
 
 /*
@@ -151,10 +149,6 @@
 #define CONFIG_PREBOOT  ""
 
 #define CONFIG_BOOTDELAY	5
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT "boot in %d s\n", bootdelay
-#define CONFIG_AUTOBOOT_DELAY_STR	"delaygs"
-#define CONFIG_AUTOBOOT_STOP_STR	"stopgs"
 
 /*
  * Size of malloc() pool

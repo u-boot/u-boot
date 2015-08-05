@@ -82,7 +82,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* U-Boot commands */
-#include <config_cmd_default.h>
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_CACHE
@@ -94,7 +93,6 @@
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0x1f
 #define CONFIG_MII
-#define CONFIG_CMD_NET
 #define CONFIG_ENV_OVERWRITE
 
 /* ESDHC driver */
@@ -127,7 +125,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 #define CONFIG_BOOTDELAY	1
 

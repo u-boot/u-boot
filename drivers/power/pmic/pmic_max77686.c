@@ -295,7 +295,7 @@ int pmic_init(unsigned char bus)
 
 	p->name = name;
 	p->interface = PMIC_I2C;
-	p->number_of_regs = PMIC_NUM_OF_REGS;
+	p->number_of_regs = MAX77686_NUM_OF_REGS;
 	p->hw.i2c.tx_num = 1;
 
 	puts("Board PMIC init\n");

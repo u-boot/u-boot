@@ -83,5 +83,5 @@ void scsi_init(void)
 	if (sunxi_ahci_phy_init(SUNXI_SATA_BASE) < 0)
 		return;
 
-	ahci_init(SUNXI_SATA_BASE);
+	ahci_init((void __iomem *)SUNXI_SATA_BASE);
 }

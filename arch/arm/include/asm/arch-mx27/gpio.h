@@ -36,4 +36,24 @@ struct gpio_port_regs {
 	struct gpio_regs port[6];
 };
 
+/*
+ *  GPIO Module and I/O Multiplexer
+ */
+#define PORTA 0
+#define PORTB 1
+#define PORTC 2
+#define PORTD 3
+#define PORTE 4
+#define PORTF 5
+
+#define GPIO_PIN_MASK		0x1f
+#define GPIO_PORT_SHIFT		5
+#define GPIO_PORT_MASK		(0x7 << GPIO_PORT_SHIFT)
+#define GPIO_PORTA		(PORTA << GPIO_PORT_SHIFT)
+#define GPIO_PORTB		(PORTB << GPIO_PORT_SHIFT)
+#define GPIO_PORTC		(PORTC << GPIO_PORT_SHIFT)
+#define GPIO_PORTD		(PORTD << GPIO_PORT_SHIFT)
+#define GPIO_PORTE		(PORTE << GPIO_PORT_SHIFT)
+#define GPIO_PORTF		(PORTF << GPIO_PORT_SHIFT)
+
 #endif

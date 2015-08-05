@@ -10,7 +10,6 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
-#include <config_cmd_default.h>
 
 #define CONFIG_VF610
 
@@ -43,17 +42,13 @@
 #define CONFIG_SYS_UART_PORT		(1)
 #define CONFIG_BAUDRATE			115200
 
-#undef CONFIG_CMD_IMLS
-
 /* NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
+#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_VF610_NFC
-#define CONFIG_SYS_NAND_SELF_INIT
 #define CONFIG_USE_ARCH_MEMCPY
-#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
 
@@ -92,7 +87,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -106,7 +100,6 @@
 
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2

@@ -31,7 +31,9 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_SIEMENS_MACH_TYPE
 #define CONFIG_MACH_TYPE		CONFIG_SIEMENS_MACH_TYPE
+#endif
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -40,11 +42,9 @@
 #define CONFIG_SYS_CACHELINE_SIZE       64
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_TIME
 
 #define CONFIG_SYS_GENERIC_BOARD
 
@@ -69,7 +69,7 @@
 #define CONFIG_SYS_MAXARGS		32
 
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		512
+#define CONFIG_SYS_CBSIZE		1024
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \
@@ -99,7 +99,6 @@
 #define CONFIG_SPI
 #define CONFIG_OMAP3_SPI
 #define CONFIG_MTD_DEVICE
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		(75000000)
@@ -290,7 +289,6 @@
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
 
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
 #define CONFIG_DRIVER_TI_CPSW
@@ -305,28 +303,92 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
-#define CONFIG_NET_MULTI
 
 #define CONFIG_NAND
 /* NAND support */
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_MTDPARTS
 
-#define MTDIDS_NAME_STR		"omap2-nand.0"
-#define MTDIDS_DEFAULT		"nand0=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"128k(spl),"		\
-					"128k(spl.backup1),"	\
-					"128k(spl.backup2),"	\
-					"128k(spl.backup3),"	\
-					"1920k(u-boot),"	\
-					"128k(uboot.env),"	\
-					"5120k(kernel_a),"	\
-					"5120k(kernel_b),"	\
-					"8192k(mtdoops),"	\
-					"-(rootfs)"
+/* UBI Support */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_MTD_DEVICE
+#define CONFIG_RBTREE
+#define CONFIG_LZO
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#endif
+
+/* Commen environment */
+#define CONFIG_PREBOOT
+#define COMMON_ENV_DFU_ARGS	"dfu_args=run bootargs_defaults;" \
+				"setenv bootargs ${bootargs};" \
+				"mtdparts default;" \
+				"draco_led 1;" \
+				"dfu 0 nand 0;" \
+				"draco_led 0;\0" \
+
+#define COMMON_ENV_NAND_BOOT \
+		"nand_boot=echo Booting from nand; " \
+		"if test ${upgrade_available} -eq 1; then " \
+			"if test ${bootcount} -gt ${bootlimit}; " \
+				"then " \
+				"setenv upgrade_available 0;" \
+				"setenv ${partitionset_active} true;" \
+				"if test -n ${A}; then " \
+					"setenv partitionset_active B; " \
+					"env delete A; " \
+				"fi;" \
+				"if test -n ${B}; then " \
+					"setenv partitionset_active A; " \
+					"env delete B; " \
+				"fi;" \
+				"saveenv; " \
+			"fi;" \
+		"fi;" \
+		"echo set ${partitionset_active}...;" \
+		"run nand_args; "
+
+#define COMMON_ENV_NAND_CMDS	"flash_self=run nand_boot\0" \
+				"flash_self_test=setenv testargs test; " \
+					"run nand_boot\0" \
+				"dfu_start=echo Preparing for dfu mode ...; " \
+				"run dfu_args; \0"
+
+#define COMMON_ENV_SETTINGS \
+	"verify=no \0" \
+	"project_dir=targetdir\0" \
+	"upgrade_available=0\0" \
+	"altbootcmd=run bootcmd\0" \
+	"bootlimit=3\0" \
+	"partitionset_active=A\0" \
+	"loadaddr=0x82000000\0" \
+	"kloadaddr=0x81000000\0" \
+	"script_addr=0x81900000\0" \
+	"console=console=ttyMTD,mtdoops console=ttyO0,115200n8 panic=5\0" \
+	"nfsopts=nolock rw\0" \
+	"ip_method=none\0" \
+	"bootenv=uEnv.txt\0" \
+	"bootargs_defaults=setenv bootargs " \
+		"console=${console} " \
+		"${testargs} " \
+		"${optargs}\0" \
+	"siemens_help=echo; "\
+		"echo Type 'run flash_self' to use kernel and root " \
+		"filesystem on memory; echo Type 'run flash_self_test' to " \
+		"use kernel and root filesystem on memory, boot in test " \
+		"mode; echo Not ready yet: 'run flash_nfs' to use kernel " \
+		"from memory and root filesystem over NFS; echo Type " \
+		"'run net_nfs' to get Kernel over TFTP and mount root " \
+		"filesystem over NFS; " \
+		"echo Set partitionset_active variable to 'A' " \
+		"or 'B' to select kernel and rootfs partition; " \
+		"echo" \
+		"\0"
+
 /*
+ * Variant 1 partition layout
  * chip-size = 256MiB
  *|         name |        size |           address area |
  *-------------------------------------------------------
@@ -342,8 +404,21 @@
  *|       rootfs | 235.500 MiB | 0x 1480000..0x fffffff |
  *-------------------------------------------------------
  */
+#define MTDIDS_NAME_STR		"omap2-nand.0"
+#define MTDIDS_DEFAULT		"nand0=" MTDIDS_NAME_STR
+#define MTDPARTS_DEFAULT_V1	"mtdparts=" MTDIDS_NAME_STR ":" \
+					"128k(spl),"		\
+					"128k(spl.backup1),"	\
+					"128k(spl.backup2),"	\
+					"128k(spl.backup3),"	\
+					"1920k(u-boot),"	\
+					"128k(uboot.env),"	\
+					"5120k(kernel_a),"	\
+					"5120k(kernel_b),"	\
+					"8192k(mtdoops),"	\
+					"-(rootfs)"
 
-#define DFU_ALT_INFO_NAND \
+#define DFU_ALT_INFO_NAND_V1 \
 	"spl part 0 1;" \
 	"spl.backup1 part 0 2;" \
 	"spl.backup2 part 0 3;" \
@@ -354,17 +429,7 @@
 	"kernel_b part 0 8;" \
 	"rootfs partubi 0 10"
 
-#define CONFIG_COMMON_ENV_SETTINGS \
-	"verify=no \0" \
-	"project_dir=targetdir\0" \
-	"upgrade_available=0\0" \
-	"altbootcmd=run bootcmd\0" \
-	"bootlimit=3\0" \
-	"partitionset_active=A\0" \
-	"loadaddr=0x82000000\0" \
-	"kloadaddr=0x81000000\0" \
-	"script_addr=0x81900000\0" \
-	"console=console=ttyMTD,mtdoops console=ttyO0,115200n8 panic=5\0" \
+#define CONFIG_ENV_SETTINGS_NAND_V1 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"nand_active_ubi_vol_A=rootfs_a\0" \
 	"nand_active_ubi_vol_B=rootfs_b\0" \
@@ -372,13 +437,6 @@
 	"nand_src_addr=0x280000\0" \
 	"nand_src_addr_A=0x280000\0" \
 	"nand_src_addr_B=0x780000\0" \
-	"nfsopts=nolock rw mem=128M\0" \
-	"ip_method=none\0" \
-	"bootenv=uEnv.txt\0" \
-	"bootargs_defaults=setenv bootargs " \
-		"console=${console} " \
-		"${testargs} " \
-		"${optargs}\0" \
 	"nand_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv ${partitionset_active} true;" \
@@ -397,15 +455,15 @@
 		"rootfstype=${nand_root_fs_type} ip=${ip_method} " \
 		"console=ttyMTD,mtdoops console=ttyO0,115200n8 mtdoops.mtddev" \
 		"=mtdoops\0" \
-	"dfu_args=run bootargs_defaults;" \
-		"setenv bootargs ${bootargs} ;" \
-		"mtdparts default; " \
-		"led dfu 1;" \
-		"led stat 0;" \
-		"dfu 0 nand 0;" \
-		"led dfu 0;" \
-		"led stat 1;\0" \
-		"dfu_alt_info=" DFU_ALT_INFO_NAND "\0" \
+	COMMON_ENV_DFU_ARGS \
+		"dfu_alt_info=" DFU_ALT_INFO_NAND_V1 "\0" \
+	COMMON_ENV_NAND_BOOT \
+		"nand read.i ${kloadaddr} ${nand_src_addr} " \
+		"${nand_img_size}; bootm ${kloadaddr}\0" \
+	COMMON_ENV_NAND_CMDS
+
+#define CONFIG_ENV_SETTINGS_V1 \
+		COMMON_ENV_SETTINGS \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv bootfile ${project_dir}/kernel/uImage;" \
@@ -415,48 +473,132 @@
 		"nfsroot=${serverip}:${rootpath},${nfsopts} " \
 		"ip=${ipaddr}:${serverip}:" \
 		"${gatewayip}:${netmask}:${hostname}:eth0:off\0" \
-	"nand_boot=echo Booting from nand; " \
-		"if test ${upgrade_available} -eq 1; then " \
-			"if test ${bootcount} -gt ${bootlimit}; " \
-				"then " \
-				"setenv upgrade_available 0;" \
-				"setenv ${partitionset_active} true;" \
-				"if test -n ${A}; then " \
-					"setenv partitionset_active B; " \
-					"env delete A; " \
-				"fi;" \
-				"if test -n ${B}; then " \
-					"setenv partitionset_active A; " \
-					"env delete B; " \
-				"fi;" \
-				"saveenv; " \
-			"fi;" \
-		"fi;" \
-		"echo set ${partitionset_active}...;" \
-		"run nand_args; " \
-		"nand read.i ${kloadaddr} ${nand_src_addr} " \
-		"${nand_img_size}; bootm ${kloadaddr}\0" \
 	"net_nfs=echo Booting from network ...; " \
 		"run net_args; " \
 		"tftpboot ${kloadaddr} ${serverip}:${bootfile}; " \
-		"bootm ${kloadaddr}\0" \
-	"flash_self=run nand_boot\0" \
-	"flash_self_test=setenv testargs test; " \
-		"run nand_boot\0" \
-	"dfu_start=echo Preparing for dfu mode ...; " \
-		"run dfu_args; \0" \
-	"preboot=echo; "\
-		"echo Type 'run flash_self' to use kernel and root " \
-		"filesystem on memory; echo Type 'run flash_self_test' to " \
-		"use kernel and root filesystem on memory, boot in test " \
-		"mode; echo Not ready yet: 'run flash_nfs' to use kernel " \
-		"from memory and root filesystem over NFS; echo Type " \
-		"'run net_nfs' to get Kernel over TFTP and mount root " \
-		"filesystem over NFS; " \
-		"echo Set partitionset_active variable to 'A' " \
-		"or 'B' to select kernel and rootfs partition; " \
-		"echo" \
-		"\0"
+		"bootm ${kloadaddr}\0"
+
+/*
+ * Variant 2 partition layout
+ * chip-size = 256MiB or 512 MiB
+ *|         name |        size |           address area |
+ *-------------------------------------------------------
+ *|          spl | 128.000 KiB | 0x       0..0x   1ffff |
+ *|  spl.backup1 | 128.000 KiB | 0x   20000..0x   3ffff |
+ *|  spl.backup2 | 128.000 KiB | 0x   40000..0x   5ffff |
+ *|  spl.backup3 | 128.000 KiB | 0x   60000..0x   7ffff |
+ *|       u-boot |   1.875 MiB | 0x   80000..0x  25ffff |
+ *|   uboot.env0 | 512.000 KiB | 0x  260000..0x  2Dffff |
+ *|   uboot.env1 | 512.000 KiB | 0x  2E0000..0x  35ffff |
+ *|      mtdoops | 512.000 KiB | 0x  360000..0x  3dffff |
+ *| (256) rootfs | 252.125 MiB | 0x  3E0000..0x fffffff |
+ *| (512) rootfs | 508.125 MiB | 0x  3E0000..0x1fffffff |
+ *-------------------------------------------------------
+ */
+
+#define MTDPARTS_DEFAULT_V2	"mtdparts=" MTDIDS_NAME_STR ":" \
+					"128k(spl)," \
+					"128k(spl.backup1)," \
+					"128k(spl.backup2)," \
+					"128k(spl.backup3)," \
+					"1920k(u-boot)," \
+					"512k(u-boot.env0)," \
+					"512k(u-boot.env1)," \
+					"512k(mtdoops)," \
+					"-(rootfs)"
+
+
+#define DFU_ALT_INFO_NAND_V2 \
+	"spl part 0 1;" \
+	"spl.backup1 part 0 2;" \
+	"spl.backup2 part 0 3;" \
+	"spl.backup3 part 0 4;" \
+	"u-boot part 0 5;" \
+	"u-boot.env0 part 0 6;" \
+	"u-boot.env1 part 0 7;" \
+	"rootfs partubi 0 9" \
+
+#define CONFIG_ENV_SETTINGS_NAND_V2 \
+	"nand_active_ubi_vol=rootfs_a\0" \
+	"rootfs_name=rootfs\0" \
+	"kernel_name=uImage\0"\
+	"nand_root_fs_type=ubifs rootwait=1\0" \
+	"nand_args=run bootargs_defaults;" \
+		"mtdparts default;" \
+		"setenv ${partitionset_active} true;" \
+		"if test -n ${A}; then " \
+			"setenv nand_active_ubi_vol ${rootfs_name}_a;" \
+		"fi;" \
+		"if test -n ${B}; then " \
+			"setenv nand_active_ubi_vol ${rootfs_name}_b;" \
+		"fi;" \
+		"setenv nand_root ubi0:${nand_active_ubi_vol} rw " \
+		"ubi.mtd=rootfs,2048;" \
+		"setenv bootargs ${bootargs} " \
+		"root=${nand_root} noinitrd ${mtdparts} " \
+		"rootfstype=${nand_root_fs_type} ip=${ip_method} " \
+		"console=ttyMTD,mtdoops console=ttyO0,115200n8 mtdoops.mtddev" \
+		"=mtdoops\0" \
+	COMMON_ENV_DFU_ARGS \
+		"dfu_alt_info=" DFU_ALT_INFO_NAND_V2 "\0" \
+	COMMON_ENV_NAND_BOOT \
+		"ubi part rootfs 2048;" \
+		"ubifsmount ubi0:${nand_active_ubi_vol};" \
+		"ubifsload ${kloadaddr} boot/${kernel_name};" \
+		"ubifsload ${loadaddr} boot/${dtb_name}.dtb;" \
+		"bootm ${kloadaddr} - ${loadaddr}\0" \
+	"nand_boot_backup=ubifsload ${loadaddr} boot/am335x-draco.dtb;" \
+		"bootm ${kloadaddr} - ${loadaddr}\0" \
+	COMMON_ENV_NAND_CMDS
+
+#define CONFIG_ENV_SETTINGS_V2 \
+		COMMON_ENV_SETTINGS \
+	"net_args=run bootargs_defaults;" \
+		"mtdparts default;" \
+		"setenv bootfile ${project_dir}/kernel/uImage;" \
+		"setenv bootdtb ${project_dir}/kernel/dtb;" \
+		"setenv rootpath /home/projects/${project_dir}/rootfs;" \
+		"setenv bootargs ${bootargs} " \
+		"root=/dev/nfs ${mtdparts} " \
+		"nfsroot=${serverip}:${rootpath},${nfsopts} " \
+		"ip=${ipaddr}:${serverip}:" \
+		"${gatewayip}:${netmask}:${hostname}:eth0:off\0" \
+	"net_nfs=echo Booting from network ...; " \
+		"run net_args; " \
+		"tftpboot ${kloadaddr} ${serverip}:${bootfile}; " \
+		"tftpboot ${loadaddr} ${serverip}:${bootdtb}; " \
+		"bootm ${kloadaddr} - ${loadaddr}\0"
+
+/*
+ * Variant 3 partition layout
+ * chip-size = 512MiB
+ *|         name |        size |           address area |
+ *-------------------------------------------------------
+ *|          spl | 128.000 KiB | 0x       0..0x   1ffff |
+ *|  spl.backup1 | 128.000 KiB | 0x   20000..0x   3ffff |
+ *|  spl.backup2 | 128.000 KiB | 0x   40000..0x   5ffff |
+ *|  spl.backup3 | 128.000 KiB | 0x   60000..0x   7ffff |
+ *|       u-boot |   1.875 MiB | 0x   80000..0x  25ffff |
+ *|   uboot.env0 | 512.000 KiB | 0x  260000..0x  2Dffff |
+ *|   uboot.env1 | 512.000 KiB | 0x  2E0000..0x  35ffff |
+ *|       rootfs | 300.000 MiB | 0x  360000..0x12f5ffff |
+ *|      mtdoops | 512.000 KiB | 0x12f60000..0x12fdffff |
+ *|configuration | 104.125 MiB | 0x12fe0000..0x1fffffff |
+ *-------------------------------------------------------
+ */
+
+#define MTDPARTS_DEFAULT_V3	"mtdparts=" MTDIDS_NAME_STR ":" \
+					"128k(spl),"		\
+					"128k(spl.backup1),"	\
+					"128k(spl.backup2),"	\
+					"128k(spl.backup3),"	\
+					"1920k(u-boot),"	\
+					"512k(u-boot.env0),"	\
+					"512k(u-boot.env1),"	\
+					"300m(rootfs),"		\
+					"512k(mtdoops),"	\
+					"-(configuration)"
+
 
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_ELM
@@ -475,14 +617,11 @@
 
 #define CONFIG_OMAP_GPIO
 
+/* Gpio cmd support */
+#define CONFIG_CMD_GPIO
+
 /* Watchdog */
 #define CONFIG_HW_WATCHDOG
-
-/* Stop autoboot with ESC ESC key detected */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR	"\x1b\x1b"
-#define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, "		\
-				"press \"<Esc><Esc>\" to stop\n", bootdelay
 
 /* Reboot after 60 sec if bootcmd fails */
 #define CONFIG_RESET_TO_RETRY

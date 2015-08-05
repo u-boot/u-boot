@@ -2,6 +2,7 @@ if OMAP54XX
 
 choice
 	prompt "OMAP5 board select"
+	optional
 
 config TARGET_CM_T54
 	bool "CompuLab CM-T54"

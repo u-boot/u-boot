@@ -103,7 +103,7 @@ static int bcm_sf2_eth_send(struct eth_device *dev, void *packet, int length)
 static int bcm_sf2_eth_receive(struct eth_device *dev)
 {
 	struct eth_dma *dma = &(((struct eth_info *)(dev->priv))->dma);
-	uint8_t *buf = (uint8_t *)NetRxPackets[0];
+	uint8_t *buf = (uint8_t *)net_rx_packets[0];
 	int rcvlen;
 	int rc = 0;
 	int i = 0;
@@ -124,11 +124,11 @@ static int bcm_sf2_eth_receive(struct eth_device *dev)
 			debug("recieved\n");
 
 			/* Forward received packet to uboot network handler */
-			NetReceive(buf, rcvlen);
+			net_process_received_packet(buf, rcvlen);
 
 			if (++i >= PKTBUFSRX)
 				i = 0;
-			buf = NetRxPackets[i];
+			buf = net_rx_packets[i];
 		}
 	}
 
@@ -153,12 +153,6 @@ static int bcm_sf2_eth_open(struct eth_device *dev, bd_t *bt)
 	int i;
 
 	debug("Enabling BCM SF2 Ethernet.\n");
-
-	/* Set MAC address from env */
-	if (bcm_sf2_eth_write_hwaddr(dev) != 0) {
-		error("%s: MAC set error when opening !\n", __func__);
-		return -1;
-	}
 
 	eth->enable_mac();
 

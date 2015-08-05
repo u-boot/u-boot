@@ -355,7 +355,7 @@ static int smsc95xx_init_mac_address(struct eth_device *eth,
 	/* try reading mac address from EEPROM */
 	if (smsc95xx_read_eeprom(dev, EEPROM_MAC_OFFSET, ETH_ALEN,
 			eth->enetaddr) == 0) {
-		if (is_valid_ether_addr(eth->enetaddr)) {
+		if (is_valid_ethaddr(eth->enetaddr)) {
 			/* eeprom values are valid so use them */
 			debug("MAC address read from EEPROM\n");
 			return 0;
@@ -760,7 +760,8 @@ static int smsc95xx_recv(struct eth_device *eth)
 		}
 
 		/* Notify net stack */
-		NetReceive(buf_ptr + sizeof(packet_len), packet_len - 4);
+		net_process_received_packet(buf_ptr + sizeof(packet_len),
+					    packet_len - 4);
 
 		/* Adjust for next iteration */
 		actual_len -= sizeof(packet_len) + packet_len;

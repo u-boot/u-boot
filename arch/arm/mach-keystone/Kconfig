@@ -2,6 +2,7 @@ if ARCH_KEYSTONE
 
 choice
 	prompt "TI Keystone board select"
+	optional
 
 config TARGET_K2HK_EVM
 	bool "TI Keystone 2 Kepler/Hawking EVM"

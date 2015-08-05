@@ -1,0 +1,50 @@
+config DM_ETH
+	bool "Enable Driver Model for Ethernet drivers"
+	depends on DM
+	help
+	  Enable driver model for Ethernet.
+
+	  The eth_*() interface will be implemented by the UC_ETH class
+	  This is currently implemented in net/eth.c
+	  Look in include/net.h for details.
+
+menuconfig NETDEVICES
+	bool "Network device support"
+	depends on NET
+	default y if DM_ETH
+	help
+	  You must select Y to enable any network device support
+	  Generally if you have any networking support this is a given
+
+	  If unsure, say Y
+
+if NETDEVICES
+
+config ETH_SANDBOX
+	depends on DM_ETH && SANDBOX
+	default y
+	bool "Sandbox: Mocked Ethernet driver"
+	help
+	  This driver simply responds with fake ARP replies and ping
+	  replies that are used to verify network stack functionality
+
+	  This driver is particularly useful in the test/dm/eth.c tests
+
+config ETH_SANDBOX_RAW
+	depends on DM_ETH && SANDBOX
+	default y
+	bool "Sandbox: Bridge to Linux Raw Sockets"
+	help
+	  This driver is a bridge from the bottom of the network stack
+	  in U-Boot to the RAW AF_PACKET API in Linux. This allows real
+	  network traffic to be tested from within sandbox. See
+	  board/sandbox/README.sandbox for more details.
+
+config ETH_DESIGNWARE
+	bool "Synopsys Designware Ethernet MAC"
+	help
+	  This MAC is present in SoCs from various vendors. It supports
+	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
+	  provide the PHY (physical media interface).
+
+endif # NETDEVICES

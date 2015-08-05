@@ -232,12 +232,6 @@
 		"bootm 22000000"
 
 /* Command line & features configuration */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_LOADS
-
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
@@ -246,10 +240,6 @@
 #ifdef CONFIG_MACB
 # define CONFIG_CMD_PING
 # define CONFIG_CMD_DHCP
-#else
-# undef CONFIG_CMD_BOOTD
-# undef CONFIG_CMD_NET
-# undef CONFIG_CMD_NFS
 #endif /* CONFIG_MACB */
 
 #endif /* __CONFIG_H */

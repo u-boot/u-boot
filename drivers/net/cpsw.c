@@ -289,7 +289,7 @@ static inline void cpsw_ale_get_addr(u32 *ale_entry, u8 *addr)
 		addr[i] = cpsw_ale_get_field(ale_entry, 40 - 8*i, 8);
 }
 
-static inline void cpsw_ale_set_addr(u32 *ale_entry, u8 *addr)
+static inline void cpsw_ale_set_addr(u32 *ale_entry, const u8 *addr)
 {
 	int i;
 
@@ -321,7 +321,7 @@ static int cpsw_ale_write(struct cpsw_priv *priv, int idx, u32 *ale_entry)
 	return idx;
 }
 
-static int cpsw_ale_match_addr(struct cpsw_priv *priv, u8* addr)
+static int cpsw_ale_match_addr(struct cpsw_priv *priv, const u8 *addr)
 {
 	u32 ale_entry[ALE_ENTRY_WORDS];
 	int type, idx;
@@ -374,7 +374,7 @@ static int cpsw_ale_find_ageable(struct cpsw_priv *priv)
 	return -ENOENT;
 }
 
-static int cpsw_ale_add_ucast(struct cpsw_priv *priv, u8 *addr,
+static int cpsw_ale_add_ucast(struct cpsw_priv *priv, const u8 *addr,
 			      int port, int flags)
 {
 	u32 ale_entry[ALE_ENTRY_WORDS] = {0, 0, 0};
@@ -399,7 +399,8 @@ static int cpsw_ale_add_ucast(struct cpsw_priv *priv, u8 *addr,
 	return 0;
 }
 
-static int cpsw_ale_add_mcast(struct cpsw_priv *priv, u8 *addr, int port_mask)
+static int cpsw_ale_add_mcast(struct cpsw_priv *priv, const u8 *addr,
+			      int port_mask)
 {
 	u32 ale_entry[ALE_ENTRY_WORDS] = {0, 0, 0};
 	int idx, mask;
@@ -644,7 +645,7 @@ static void cpsw_slave_init(struct cpsw_slave *slave, struct cpsw_priv *priv)
 	slave_port = cpsw_get_slave_port(priv, slave->slave_num);
 	cpsw_ale_port_state(priv, slave_port, ALE_PORT_STATE_FORWARD);
 
-	cpsw_ale_add_mcast(priv, NetBcastAddr, 1 << slave_port);
+	cpsw_ale_add_mcast(priv, net_bcast_ethaddr, 1 << slave_port);
 
 	priv->phy_mask |= 1 << slave->data->phy_addr;
 }
@@ -773,7 +774,7 @@ static int cpsw_init(struct eth_device *dev, bd_t *bis)
 
 	cpsw_ale_add_ucast(priv, priv->dev->enetaddr, priv->host_port,
 			   ALE_SECURE);
-	cpsw_ale_add_mcast(priv, NetBcastAddr, 1 << priv->host_port);
+	cpsw_ale_add_mcast(priv, net_bcast_ethaddr, 1 << priv->host_port);
 
 	for_active_slave(slave, priv)
 		cpsw_slave_init(slave, priv);
@@ -845,7 +846,7 @@ static int cpsw_init(struct eth_device *dev, bd_t *bis)
 
 	/* submit rx descs */
 	for (i = 0; i < PKTBUFSRX; i++) {
-		ret = cpdma_submit(priv, &priv->rx_chan, NetRxPackets[i],
+		ret = cpdma_submit(priv, &priv->rx_chan, net_rx_packets[i],
 				   PKTSIZE);
 		if (ret < 0) {
 			printf("error %d submitting rx desc\n", ret);
@@ -904,7 +905,7 @@ static int cpsw_recv(struct eth_device *dev)
 	while (cpdma_process(priv, &priv->rx_chan, &buffer, &len) >= 0) {
 		invalidate_dcache_range((unsigned long)buffer,
 					(unsigned long)buffer + PKTSIZE_ALIGN);
-		NetReceive(buffer, len);
+		net_process_received_packet(buffer, len);
 		cpdma_submit(priv, &priv->rx_chan, buffer, PKTSIZE);
 	}
 

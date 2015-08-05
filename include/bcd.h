@@ -10,14 +10,12 @@
 #ifndef _BCD_H
 #define _BCD_H
 
-#include <linux/types.h>
-
-static inline unsigned int bcd2bin(u8 val)
+static inline unsigned int bcd2bin(unsigned int val)
 {
-	return ((val) & 0x0f) + ((val) >> 4) * 10;
+	return ((val) & 0x0f) + ((val & 0xff) >> 4) * 10;
 }
 
-static inline u8 bin2bcd (unsigned int val)
+static inline unsigned int bin2bcd(unsigned int val)
 {
 	return (((val / 10) << 4) | (val % 10));
 }

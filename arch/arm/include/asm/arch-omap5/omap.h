@@ -33,6 +33,18 @@
 #define CONTROL_ID_CODE		CONTROL_CORE_ID_CODE
 #endif
 
+#ifdef CONFIG_DRA7XX
+#define DRA7_USB_OTG_SS1_BASE		0x48890000
+#define DRA7_USB_OTG_SS1_GLUE_BASE	0x48880000
+#define DRA7_USB3_PHY1_PLL_CTRL		0x4A084C00
+#define DRA7_USB3_PHY1_POWER		0x4A002370
+#define DRA7_USB2_PHY1_POWER		0x4A002300
+
+#define DRA7_USB_OTG_SS2_BASE		0x488D0000
+#define DRA7_USB_OTG_SS2_GLUE_BASE	0x488C0000
+#define DRA7_USB2_PHY2_POWER		0x4A002E74
+#endif
+
 /* To be verified */
 #define OMAP5430_CONTROL_ID_CODE_ES1_0		0x0B94202F
 #define OMAP5430_CONTROL_ID_CODE_ES2_0          0x1B94202F
@@ -204,27 +216,6 @@ struct s32ktimer {
 #define OMAP5_ABB_LDOVBBMPU_MUX_CTRL_MASK	(0x1 << 10)
 #define OMAP5_ABB_LDOVBBMPU_VSET_OUT_MASK	(0x1f << 0)
 
-/* IO Delay module defines */
-#define CFG_IO_DELAY_BASE		0x4844A000
-#define CFG_IO_DELAY_LOCK		(CFG_IO_DELAY_BASE + 0x02C)
-
-/* CPSW IO Delay registers*/
-#define CFG_RGMII0_TXCTL		(CFG_IO_DELAY_BASE + 0x74C)
-#define CFG_RGMII0_TXD0			(CFG_IO_DELAY_BASE + 0x758)
-#define CFG_RGMII0_TXD1			(CFG_IO_DELAY_BASE + 0x764)
-#define CFG_RGMII0_TXD2			(CFG_IO_DELAY_BASE + 0x770)
-#define CFG_RGMII0_TXD3			(CFG_IO_DELAY_BASE + 0x77C)
-#define CFG_VIN2A_D13			(CFG_IO_DELAY_BASE + 0xA7C)
-#define CFG_VIN2A_D17			(CFG_IO_DELAY_BASE + 0xAAC)
-#define CFG_VIN2A_D16			(CFG_IO_DELAY_BASE + 0xAA0)
-#define CFG_VIN2A_D15			(CFG_IO_DELAY_BASE + 0xA94)
-#define CFG_VIN2A_D14			(CFG_IO_DELAY_BASE + 0xA88)
-
-#define CFG_IO_DELAY_UNLOCK_KEY		0x0000AAAA
-#define CFG_IO_DELAY_LOCK_KEY		0x0000AAAB
-#define CFG_IO_DELAY_ACCESS_PATTERN	0x00029000
-#define CFG_IO_DELAY_LOCK_MASK		0x400
-
 #ifndef __ASSEMBLY__
 struct srcomp_params {
 	s8 divide_factor;
@@ -243,9 +234,5 @@ struct ctrl_ioregs {
 	u32 ctrl_ddr_ctrl_ext_0;
 };
 
-struct io_delay {
-	u32 addr;
-	u32 dly;
-};
 #endif /* __ASSEMBLY__ */
 #endif

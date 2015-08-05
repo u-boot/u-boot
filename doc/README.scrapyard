@@ -12,14 +12,25 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-korat            powerpc     ppc4xx         -           -           Larry Johnson <lrj@acm.org>
-galaxy5200       powerpc     mpc5xxx        -           -           Eric Millbrandt <emillbrandt@dekaresearch.com>
-W7OLMC           powerpc     ppc4xx         -           -           Erik Theisen <etheisen@mindspring.com>
-W7OLMG           powerpc     ppc4xx         -           -           Erik Theisen <etheisen@mindspring.com>
-aev              powerpc     mpc5xxx        -           -
-TB5200           powerpc     mpc5xxx        -           -
-JSE              powerpc     ppc4xx         -           -           Stephen Williams <steve@icarus.com>
-BC3450           powerpc     mpc5xxx        -           -
+atstk1003        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+atstk1004        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+atstk1006        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+mimc200          avr32       -              c62d2f8f    2015-06-10  Mark Jackson <mpfj@mimc.co.uk>
+hammerhead       avr32       -              e3693076    2015-06-10  Alex Raimondi <alex.raimondi@miromico.ch>
+favr-32-ezkit    avr32       -              9eb45aab    2015-06-10  Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+afeb9260         arm         arm926ejs      f6b42c14    2015-05-13  Sergey Lapin <slapin@ossfans.org>
+tny_a9260        arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>
+sbc35_a9g20      arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>
+sc3              powerpc     ppc4xx         27e72156    2015-05-10  Heiko Schocher <hs@denx.de>
+T4240EMU         powerpc     mpc85xx        7fc63cca    2015-05-05  York Sun <yorksun@freescale.com>
+korat            powerpc     ppc4xx         5043045d    2015-03-17  Larry Johnson <lrj@acm.org>
+galaxy5200       powerpc     mpc5xxx        41eb4e5c    2015-03-17  Eric Millbrandt <emillbrandt@dekaresearch.com>
+W7OLMC           powerpc     ppc4xx         6beecd5d    2015-03-17  Erik Theisen <etheisen@mindspring.com>
+W7OLMG           powerpc     ppc4xx         6beecd5d    2015-03-17  Erik Theisen <etheisen@mindspring.com>
+aev              powerpc     mpc5xxx        470ee8b1    2015-03-17
+TB5200           powerpc     mpc5xxx        470ee8b1    2015-03-17
+JSE              powerpc     ppc4xx         2da8137b    2015-03-17  Stephen Williams <steve@icarus.com>
+BC3450           powerpc     mpc5xxx        f8296d69    2015-03-17
 hawkboard        arm         arm926ejs      cb957cda    2015-02-24  Syed Mohammed Khasim <sm.khasim@gmail.com>:Sughosh Ganu <urwithsughosh@gmail.com>
 tnetv107x        arm         arm1176        50b82c4b    2015-02-24  Chan-Taek Park <c-park@ti.com>
 a320evb          arm         arm920t        29fc6f24    2015-02-24  Po-Yu Chuang <ratbert@faraday-tech.com>

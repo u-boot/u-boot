@@ -9,6 +9,7 @@
 #include <netdev.h>
 #include <phy.h>
 #include <asm/io.h>
+#include <asm/irq.h>
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
@@ -30,9 +31,9 @@ static void unprotect_spi_flash(void)
 {
 	u32 bc;
 
-	bc = pci_read_config32(QUARK_LEGACY_BRIDGE, 0xd8);
+	bc = x86_pci_read_config32(QUARK_LEGACY_BRIDGE, 0xd8);
 	bc |= 0x1;	/* unprotect the flash */
-	pci_write_config32(QUARK_LEGACY_BRIDGE, 0xd8, bc);
+	x86_pci_write_config32(QUARK_LEGACY_BRIDGE, 0xd8, bc);
 }
 
 static void quark_setup_bars(void)
@@ -72,6 +73,15 @@ static void quark_setup_bars(void)
 		       CONFIG_PCIE_ECAM_BASE | MEM_BAR_EN);
 }
 
+static void quark_enable_legacy_seg(void)
+{
+	u32 hmisc2;
+
+	hmisc2 = msg_port_read(MSG_PORT_HOST_BRIDGE, HMISC2);
+	hmisc2 |= (HMISC2_SEGE | HMISC2_SEGF | HMISC2_SEGAB);
+	msg_port_write(MSG_PORT_HOST_BRIDGE, HMISC2, hmisc2);
+}
+
 int arch_cpu_init(void)
 {
 	struct pci_controller *hose;
@@ -96,6 +106,9 @@ int arch_cpu_init(void)
 	 */
 	quark_setup_bars();
 
+	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
+	quark_enable_legacy_seg();
+
 	unprotect_spi_flash();
 
 	return 0;
@@ -110,7 +123,7 @@ int print_cpuinfo(void)
 void reset_cpu(ulong addr)
 {
 	/* cold reset */
-	outb(0x08, PORT_RESET);
+	x86_full_reset();
 }
 
 int cpu_mmc_init(bd_t *bis)
@@ -134,4 +147,34 @@ int cpu_eth_init(bd_t *bis)
 		return -1;
 	else
 		return 0;
+}
+
+void cpu_irq_init(void)
+{
+	struct quark_rcba *rcba;
+	u32 base;
+
+	base = x86_pci_read_config32(QUARK_LEGACY_BRIDGE, LB_RCBA);
+	base &= ~MEM_BAR_EN;
+	rcba = (struct quark_rcba *)base;
+
+	/*
+	 * Route Quark PCI device interrupt pin to PIRQ
+	 *
+	 * Route device#23's INTA/B/C/D to PIRQA/B/C/D
+	 * Route device#20,21's INTA/B/C/D to PIRQE/F/G/H
+	 */
+	writew(PIRQC, &rcba->rmu_ir);
+	writew(PIRQA | (PIRQB << 4) | (PIRQC << 8) | (PIRQD << 12),
+	       &rcba->d23_ir);
+	writew(PIRQD, &rcba->core_ir);
+	writew(PIRQE | (PIRQF << 4) | (PIRQG << 8) | (PIRQH << 12),
+	       &rcba->d20d21_ir);
+}
+
+int arch_misc_init(void)
+{
+	pirq_init();
+
+	return 0;
 }

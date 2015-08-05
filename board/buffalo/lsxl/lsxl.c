@@ -227,19 +227,7 @@ static void erase_environment(void)
 
 static void rescue_mode(void)
 {
-	uchar enetaddr[6];
-
 	printf("Entering rescue mode..\n");
-#ifdef CONFIG_RANDOM_MACADDR
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
-		eth_random_addr(enetaddr);
-		if (eth_setenv_enetaddr("ethaddr", enetaddr)) {
-			printf("Failed to set ethernet address\n");
-				set_led(LED_ALARM_BLINKING);
-			return;
-		}
-	}
-#endif
 	setenv("bootsource", "rescue");
 }
 

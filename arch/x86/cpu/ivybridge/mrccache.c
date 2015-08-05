@@ -105,7 +105,7 @@ static struct mrc_data_container *find_next_mrc_cache(struct fmap_entry *entry,
 	return cache;
 }
 
-int mrccache_update(struct spi_flash *sf, struct fmap_entry *entry,
+int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 		    struct mrc_data_container *cur)
 {
 	struct mrc_data_container *cache;
@@ -135,7 +135,7 @@ int mrccache_update(struct spi_flash *sf, struct fmap_entry *entry,
 		debug("Erasing the MRC cache region of %x bytes at %x\n",
 		      entry->length, entry->offset);
 
-		ret = spi_flash_erase(sf, entry->offset, entry->length);
+		ret = spi_flash_erase_dm(sf, entry->offset, entry->length);
 		if (ret) {
 			debug("Failed to erase flash region\n");
 			return ret;
@@ -146,7 +146,8 @@ int mrccache_update(struct spi_flash *sf, struct fmap_entry *entry,
 	/* Write the data out */
 	offset = (ulong)cache - base_addr + entry->offset;
 	debug("Write MRC cache update to flash at %lx\n", offset);
-	ret = spi_flash_write(sf, offset, cur->data_size + sizeof(*cur), cur);
+	ret = spi_flash_write_dm(sf, offset, cur->data_size + sizeof(*cur),
+				 cur);
 	if (ret) {
 		debug("Failed to write to SPI flash\n");
 		return ret;

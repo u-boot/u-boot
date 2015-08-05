@@ -3,7 +3,7 @@
  *
  * specific parts for B&R T-Series Motherboard
  *
- * Copyright (C) 2013 Hannes Petermaier <oe5hpm@oevsv.at> -
+ * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at> -
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:        GPL-2.0+
@@ -16,13 +16,16 @@
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
 #define CONFIG_LCD
-#define CONFIG_LCD_NOSTDOUT
+#define CONFIG_LCD_ROTATION
+#define CONFIG_LCD_DT_SIMPLEFB
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
 
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_OMAP_WATCHDOG
 #define CONFIG_SPL_WATCHDOG_SUPPORT
+
+#define CONFIG_SPL_GPIO_SUPPORT
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 #define CONFIG_BOOTCOUNT_LIMIT
@@ -103,15 +106,18 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
-		"root=${nandroot} " \
-		"rootfstype=${nandrootfstype}\0" \
-	"nandroot=ubi0:rootfs rw ubi.mtd=8,2048\0" \
-	"nandrootfstype=ubifs rootwait=1\0" \
-	"nandimgsize=0x500000\0" \
-	"nandboot=echo Booting from nand ...; " \
+		"${optargs_rot} " \
+		"root=mtd6 " \
+		"rootfstype=jffs2\0" \
+	"kernelsize=0x400000\0" \
+	"nandboot=echo booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} kernel ${nandimgsize}; " \
-		"bootz ${loadaddr}\0"
+		"nand read ${loadaddr} kernel ${kernelsize}; " \
+		"bootz ${loadaddr} - ${dtbaddr}\0" \
+	"defboot=run nandboot\0" \
+	"bootlimit=1\0" \
+	"simplefb=1\0 " \
+	"altbootcmd=run usbscript\0"
 #else
 #define NANDARGS ""
 #endif /* CONFIG_NAND */
@@ -120,27 +126,23 @@
 #define MMCARGS \
 "dtbdev=mmc\0" \
 "dtbpart=0:1\0" \
-"logo0=ext4load mmc 0:3 ${loadaddr} /PPTLogo.bmp.gz && " \
-	"bmp display ${loadaddr} 0 0\0" \
-"logo1=ext4load mmc 0:1 ${loadaddr} /PPTLogo.bmp.gz && " \
-	"bmp display ${loadaddr} 0 0\0" \
-"mmcroot0=setenv bootargs ${optargs} console=${console}\0" \
-"mmcroot1=setenv bootargs ${optargs} console=${console} root=/dev/mmcblk0p2 " \
-	"rootfstype=ext4\0" \
+"mmcroot0=setenv bootargs ${optargs_rot} ${optargs} console=${console}\0" \
+"mmcroot1=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
+	"root=/dev/mmcblk0p2 rootfstype=ext4\0" \
 "mmcboot0=echo booting Updatesystem from mmc (ext4-fs) ...; " \
+	"setenv simplefb 1; " \
 	"ext4load mmc 0:1 ${loadaddr} /${kernel}; " \
 	"ext4load mmc 0:1 ${ramaddr} /${ramdisk}; " \
 	"run mmcroot0; bootz ${loadaddr} ${ramaddr} ${dtbaddr};\0" \
 "mmcboot1=echo booting PPT-OS from mmc (ext4-fs) ...; " \
+	"setenv simplefb 0; " \
 	"ext4load mmc 0:2 ${loadaddr} /boot/${kernel}; " \
 	"run mmcroot1; bootz ${loadaddr} - ${dtbaddr};\0" \
-"defboot=run logo0 || run logo1; " \
-	"ext4load mmc 0:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
+"defboot=ext4load mmc 0:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
 	"ext4load mmc 0:1 ${dtbaddr} /$dtb && run mmcboot0; " \
-	"run ramboot; run usbupdate;\0" \
+	"run ramboot; run usbscript;\0" \
 "bootlimit=1\0" \
-"altbootcmd=run logo0 || run logo1; " \
-	"run mmcboot0;\0" \
+"altbootcmd=run mmcboot0;\0" \
 "upduboot=dhcp; " \
 	"tftp ${loadaddr} MLO && mmc write ${loadaddr} 100 100; " \
 	"tftp ${loadaddr} u-boot.img && mmc write ${loadaddr} 300 400;\0"
@@ -160,7 +162,7 @@ BUR_COMMON_ENV \
 "kernel=zImage\0" \
 "ramdisk=rootfs.cpio.uboot\0" \
 "console=ttyO0,115200n8\0" \
-"optargs=consoleblank=0 quiet lpj=1191936 panic=2\0" \
+"optargs=consoleblank=0 quiet panic=2\0" \
 "nfsroot=/tftpboot/tseries/rootfs-small\0" \
 "nfsopts=nolock\0" \
 "ramargs=setenv bootargs ${optargs} console=${console} root=/dev/ram0\0" \
@@ -183,8 +185,6 @@ BUR_COMMON_ENV \
 	"then; else tftp ${dtbaddr} ${dtb}; fi;" \
 	"run mmcroot0; " \
 	"bootz ${loadaddr} ${ramaddr} ${dtbaddr}; fi;\0" \
-"usbupdate=echo Updating UBOOT from USB-Stick ...; " \
-	"usb start && fatload usb 0 0x80000000 updateubootusb.img && source\0" \
 "netupdate=echo Updating UBOOT from Network (TFTP) ...; " \
 	"setenv autoload 0; " \
 	"dhcp && tftp 0x80000000 updateUBOOT.img && source;\0" \
@@ -231,15 +231,15 @@ MMCARGS
 
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:" \
-					"128k(SPL)," \
-					"128k(SPL.backup1)," \
-					"128k(SPL.backup2)," \
-					"128k(SPL.backup3)," \
-					"512k(u-boot)," \
-					"128k(u-boot-spl-os)," \
+					"128k(MLO)," \
+					"128k(MLO.backup)," \
+					"128k(dtb)," \
 					"128k(u-boot-env)," \
-					"5m(kernel),"\
-					"-(rootfs)"
+					"512k(u-boot)," \
+					"4m(kernel),"\
+					"128m(rootfs),"\
+					"-(user)"
+#define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_NAND */
 
 /* USB configuration */
@@ -266,7 +266,6 @@ MMCARGS
 #define CONFIG_OMAP3_SPI
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
@@ -298,7 +297,7 @@ MMCARGS
 #else
 #define CONFIG_ENV_IS_IN_NAND
 #endif
-#define CONFIG_ENV_OFFSET		0x120000 /* TODO: Adresse definieren */
+#define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #else
 #error "no storage for Environment defined!"

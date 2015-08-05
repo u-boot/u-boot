@@ -15,6 +15,7 @@
 #include <asm/msr-index.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
+#include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/arch/microcode.h>
 

@@ -247,21 +247,21 @@ static int fec_recv (struct eth_device *dev)
 				rtx->rxbd[rxIdx].cbd_sc);
 #endif
 		} else {
-			uchar *rx = NetRxPackets[rxIdx];
+			uchar *rx = net_rx_packets[rxIdx];
 
 			length -= 4;
 
 #if defined(CONFIG_CMD_CDP)
-			if ((rx[0] & 1) != 0
-			    && memcmp ((uchar *) rx, NetBcastAddr, 6) != 0
-			    && !is_cdp_packet((uchar *)rx))
+			if ((rx[0] & 1) != 0 &&
+			    memcmp((uchar *)rx, net_bcast_ethaddr, 6) != 0 &&
+			    !is_cdp_packet((uchar *)rx))
 				rx = NULL;
 #endif
 			/*
 			 * Pass the packet up to the protocol layers.
 			 */
 			if (rx != NULL)
-				NetReceive (rx, length);
+				net_process_received_packet(rx, length);
 		}
 
 		/* Give the buffer back to the FEC. */
@@ -576,7 +576,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	for (i = 0; i < PKTBUFSRX; i++) {
 		rtx->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
 		rtx->rxbd[i].cbd_datlen = 0;	/* Reset */
-		rtx->rxbd[i].cbd_bufaddr = (uint) NetRxPackets[i];
+		rtx->rxbd[i].cbd_bufaddr = (uint) net_rx_packets[i];
 	}
 	rtx->rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
 

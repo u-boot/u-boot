@@ -29,6 +29,10 @@
 #else
 #define CONFIG_BOOTP_VCI_STRING         "U-boot.arm"
 #endif
+#elif defined(__i386__)
+#define CONFIG_BOOTP_PXE_CLIENTARCH     0x0
+#elif defined(__x86_64__)
+#define CONFIG_BOOTP_PXE_CLIENTARCH     0x9
 #endif
 
 #define CONFIG_OF_LIBFDT
@@ -45,7 +49,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_PXE
 

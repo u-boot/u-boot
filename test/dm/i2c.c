@@ -10,19 +10,19 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <asm/state.h>
+#include <asm/test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
-#include <dm/ut.h>
 #include <dm/util.h>
-#include <asm/state.h>
-#include <asm/test.h>
+#include <test/ut.h>
 
 static const int busnum;
 static const int chip = 0x2c;
 
 /* Test that we can find buses and chips */
-static int dm_test_i2c_find(struct dm_test_state *dms)
+static int dm_test_i2c_find(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	const int no_chip = 0x10;
@@ -43,7 +43,7 @@ static int dm_test_i2c_find(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_find, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_read_write(struct dm_test_state *dms)
+static int dm_test_i2c_read_write(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	uint8_t buf[5];
@@ -60,12 +60,15 @@ static int dm_test_i2c_read_write(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_read_write, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_speed(struct dm_test_state *dms)
+static int dm_test_i2c_speed(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
+
+	/* Use test mode so we create the required errors for invalid speeds */
+	sandbox_i2c_set_test_mode(bus, true);
 	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
 	ut_assertok(dm_i2c_set_bus_speed(bus, 100000));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
@@ -73,12 +76,13 @@ static int dm_test_i2c_speed(struct dm_test_state *dms)
 	ut_asserteq(400000, dm_i2c_get_bus_speed(bus));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_asserteq(-EINVAL, dm_i2c_write(dev, 0, buf, 5));
+	sandbox_i2c_set_test_mode(bus, false);
 
 	return 0;
 }
 DM_TEST(dm_test_i2c_speed, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_offset_len(struct dm_test_state *dms)
+static int dm_test_i2c_offset_len(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	uint8_t buf[5];
@@ -95,18 +99,22 @@ static int dm_test_i2c_offset_len(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_offset_len, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_probe_empty(struct dm_test_state *dms)
+static int dm_test_i2c_probe_empty(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
+
+	/* Use test mode so that this chip address will always probe */
+	sandbox_i2c_set_test_mode(bus, true);
 	ut_assertok(dm_i2c_probe(bus, SANDBOX_I2C_TEST_ADDR, 0, &dev));
+	sandbox_i2c_set_test_mode(bus, false);
 
 	return 0;
 }
 DM_TEST(dm_test_i2c_probe_empty, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_bytewise(struct dm_test_state *dms)
+static int dm_test_i2c_bytewise(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	struct udevice *eeprom;
@@ -161,7 +169,7 @@ static int dm_test_i2c_bytewise(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_bytewise, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_offset(struct dm_test_state *dms)
+static int dm_test_i2c_offset(struct unit_test_state *uts)
 {
 	struct udevice *eeprom;
 	struct udevice *dev;

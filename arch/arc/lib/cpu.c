@@ -23,6 +23,8 @@ int arch_cpu_init(void)
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
+	cache_init();
+
 	return 0;
 }
 

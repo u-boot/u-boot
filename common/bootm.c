@@ -13,6 +13,7 @@
 #include <fdt_support.h>
 #include <lmb.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/io.h>
 #include <linux/lzo.h>
 #include <lzma/LzmaTypes.h>
@@ -205,7 +206,23 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int bootm_find_ramdisk(int flag, int argc, char * const argv[])
+/**
+ * bootm_find_images - wrapper to find and locate various images
+ * @flag: Ignored Argument
+ * @argc: command argument count
+ * @argv: command argument list
+ *
+ * boot_find_images() will attempt to load an available ramdisk,
+ * flattened device tree, as well as specifically marked
+ * "loadable" images (loadables are FIT only)
+ *
+ * Note: bootm_find_images will skip an image if it is not found
+ *
+ * @return:
+ *     0, if all existing images were loaded correctly
+ *     1, if an image is found but corrupted, or invalid
+ */
+int bootm_find_images(int flag, int argc, char * const argv[])
 {
 	int ret;
 
@@ -217,14 +234,7 @@ static int bootm_find_ramdisk(int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	return 0;
-}
-
 #if defined(CONFIG_OF_LIBFDT)
-static int bootm_find_fdt(int flag, int argc, char * const argv[])
-{
-	int ret;
-
 	/* find flattened device tree */
 	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
 			   &images.ft_addr, &images.ft_len);
@@ -232,21 +242,17 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 		puts("Could not find a valid device tree\n");
 		return 1;
 	}
-
 	set_working_fdt_addr((ulong)images.ft_addr);
-
-	return 0;
-}
 #endif
 
-int bootm_find_ramdisk_fdt(int flag, int argc, char * const argv[])
-{
-	if (bootm_find_ramdisk(flag, argc, argv))
+#if defined(CONFIG_FIT)
+	/* find all of the loadables */
+	ret = boot_get_loadable(argc, argv, &images, IH_ARCH_DEFAULT,
+			       NULL, NULL);
+	if (ret) {
+		printf("Loadable(s) is corrupt or invalid\n");
 		return 1;
-
-#if defined(CONFIG_OF_LIBFDT)
-	if (bootm_find_fdt(flag, argc, argv))
-		return 1;
+	}
 #endif
 
 	return 0;
@@ -260,7 +266,7 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 	     (images.os.type == IH_TYPE_MULTI)) &&
 	    (images.os.os == IH_OS_LINUX ||
 		 images.os.os == IH_OS_VXWORKS))
-		return bootm_find_ramdisk_fdt(flag, argc, argv);
+		return bootm_find_images(flag, argc, argv);
 
 	return 0;
 }

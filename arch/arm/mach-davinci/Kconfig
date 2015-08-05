@@ -2,6 +2,7 @@ if ARCH_DAVINCI
 
 choice
 	prompt "DaVinci board select"
+	optional
 
 config TARGET_ENBW_CMC
 	bool "EnBW CMC board"
@@ -19,6 +20,10 @@ config TARGET_DA850EVM
 
 config TARGET_CAM_ENC_4XX
 	bool "CAM ENC 4xx board"
+	select SUPPORT_SPL
+
+config TARGET_OMAPL138_LCDK
+	bool "OMAPL138 LCDK"
 	select SUPPORT_SPL
 
 config TARGET_DAVINCI_DM355EVM

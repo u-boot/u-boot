@@ -122,11 +122,17 @@ enum {
 	MAX77686_REG_PMIC_BBAT		= 0x7e,
 	MAX77686_REG_PMIC_32KHZ,
 
-	PMIC_NUM_OF_REGS,
+	MAX77686_NUM_OF_REGS,
 };
 
 /* I2C device address for pmic max77686 */
-#define MAX77686_I2C_ADDR (0x12 >> 1)
+#define MAX77686_I2C_ADDR	(0x12 >> 1)
+#define MAX77686_LDO_NUM	26
+#define MAX77686_BUCK_NUM	9
+
+/* Drivers name */
+#define MAX77686_LDO_DRIVER	"max77686_ldo"
+#define MAX77686_BUCK_DRIVER	"max77686_buck"
 
 enum {
 	REG_DISABLE = 0,
@@ -143,23 +149,29 @@ enum {
 
 enum {
 	OPMODE_OFF = 0,
-	OPMODE_STANDBY,
 	OPMODE_LPM,
+	OPMODE_STANDBY,
+	OPMODE_STANDBY_LPM,
 	OPMODE_ON,
 };
 
+#ifdef CONFIG_POWER
 int max77686_set_ldo_voltage(struct pmic *p, int ldo, ulong uV);
 int max77686_set_ldo_mode(struct pmic *p, int ldo, char opmode);
 int max77686_set_buck_voltage(struct pmic *p, int buck, ulong uV);
 int max77686_set_buck_mode(struct pmic *p, int buck, char opmode);
+#endif
 
 #define MAX77686_LDO_VOLT_MAX_HEX	0x3f
 #define MAX77686_LDO_VOLT_MASK		0x3f
 #define MAX77686_LDO_MODE_MASK		0xc0
 #define MAX77686_LDO_MODE_OFF		(0x00 << 0x06)
+#define MAX77686_LDO_MODE_LPM		(0x01 << 0x06)
 #define MAX77686_LDO_MODE_STANDBY	(0x01 << 0x06)
-#define MAX77686_LDO_MODE_LPM		(0x02 << 0x06)
+#define MAX77686_LDO_MODE_STANDBY_LPM	(0x02 << 0x06)
 #define MAX77686_LDO_MODE_ON		(0x03 << 0x06)
+#define MAX77686_BUCK234_VOLT_MAX_HEX	0xff
+#define MAX77686_BUCK234_VOLT_MASK	0xff
 #define MAX77686_BUCK_VOLT_MAX_HEX	0x3f
 #define MAX77686_BUCK_VOLT_MASK		0x3f
 #define MAX77686_BUCK_MODE_MASK		0x03
@@ -169,6 +181,15 @@ int max77686_set_buck_mode(struct pmic *p, int buck, char opmode);
 #define MAX77686_BUCK_MODE_STANDBY	0x01
 #define MAX77686_BUCK_MODE_LPM		0x02
 #define MAX77686_BUCK_MODE_ON		0x03
+
+/* For regulator hex<->volt conversion */
+#define MAX77686_LDO_UV_MIN		800000 /* Minimum LDO uV value */
+#define MAX77686_LDO_UV_LSTEP		25000 /* uV lower value step */
+#define MAX77686_LDO_UV_HSTEP		50000 /* uV higher value step */
+#define MAX77686_BUCK_UV_LMIN		600000 /* Lower minimun BUCK value */
+#define MAX77686_BUCK_UV_HMIN		750000 /* Higher minimun BUCK value */
+#define MAX77686_BUCK_UV_LSTEP		12500  /* uV lower value step */
+#define MAX77686_BUCK_UV_HSTEP		50000  /* uV higher value step */
 
 /* Buck1 1 volt value */
 #define MAX77686_BUCK1OUT_1V	0x5

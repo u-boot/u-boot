@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= highbank.o
+obj-y	:= highbank.o ahci.o

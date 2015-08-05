@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <asm/io.h>
@@ -37,7 +38,7 @@ static int sunxi_mmc_getcd_gpio(int sdc_no)
 	case 2: return sunxi_name_to_gpio(CONFIG_MMC2_CD_PIN);
 	case 3: return sunxi_name_to_gpio(CONFIG_MMC3_CD_PIN);
 	}
-	return -1;
+	return -EINVAL;
 }
 
 static int mmc_resource_init(int sdc_no)
@@ -72,10 +73,12 @@ static int mmc_resource_init(int sdc_no)
 	mmchost->mmc_no = sdc_no;
 
 	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
-	if (cd_pin != -1) {
+	if (cd_pin >= 0) {
 		ret = gpio_request(cd_pin, "mmc_cd");
-		if (!ret)
+		if (!ret) {
+			sunxi_gpio_set_pull(cd_pin, SUNXI_GPIO_PULL_UP);
 			ret = gpio_direction_input(cd_pin);
+		}
 	}
 
 	return ret;
@@ -151,8 +154,7 @@ static int mmc_clk_io_on(int sdc_no)
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
-    defined(CONFIG_MACH_SUN9I)
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	/* unassert reset */
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
 #endif
@@ -425,7 +427,7 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 	int cd_pin;
 
 	cd_pin = sunxi_mmc_getcd_gpio(mmchost->mmc_no);
-	if (cd_pin == -1)
+	if (cd_pin < 0)
 		return 1;
 
 	return !gpio_get_value(cd_pin);
@@ -449,7 +451,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
-	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
+	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	cfg->f_min = 400000;

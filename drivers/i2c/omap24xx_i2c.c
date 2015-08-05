@@ -33,7 +33,7 @@
  *   (except for OMAP243X and OMAP34XX).
  * - Driver now supports up to I2C5 (OMAP5).
  *
- * Copyright (c) 2014 Hannes Petermaier <oe5hpm@oevsv.at>, B&R
+ * Copyright (c) 2014 Hannes Schmelzer <oe5hpm@oevsv.at>, B&R
  * - Added support for set_speed
  *
  */

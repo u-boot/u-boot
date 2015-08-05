@@ -44,7 +44,7 @@ int rtc_get (struct rtc_time *tmp)
 	} while (tim!=tim2);
 	off = readl(&gpbr->reg[AT91_GPBR_INDEX_TIMEOFF]);
 	/* off==0 means time is invalid, but we ignore that */
-	to_tm (tim+off, tmp);
+	rtc_to_tm(tim+off, tmp);
 	return 0;
 }
 
@@ -54,8 +54,7 @@ int rtc_set (struct rtc_time *tmp)
 	at91_gpbr_t *gpbr = (at91_gpbr_t *) ATMEL_BASE_GPBR;
 	ulong tim;
 
-	tim = mktime (tmp->tm_year, tmp->tm_mon, tmp->tm_mday,
-		      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	tim = rtc_mktime(tmp);
 
 	/* clear alarm, set prescaler to 32768, clear counter */
 	writel(32768+AT91_RTT_RTTRST, &rtt->mr);

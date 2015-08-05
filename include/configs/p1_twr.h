@@ -302,21 +302,15 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc00000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	/* do pci plug-and-play */
 #define CONFIG_E1000	/* Defind e1000 pci Ethernet card*/
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI
-#endif
 
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_TSEC1
@@ -428,14 +422,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 
 /*

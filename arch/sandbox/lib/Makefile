@@ -7,5 +7,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-
 obj-y	+= interrupts.o
+obj-$(CONFIG_PCI)	+= pci_io.o
+obj-$(CONFIG_CMD_BOOTM) += bootm.o

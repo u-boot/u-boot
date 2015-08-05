@@ -18,6 +18,7 @@
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 #include <libfdt.h>
+#include <mapmem.h>
 #include <fdt_support.h>
 #include <asm/bootm.h>
 #include <asm/secure.h>
@@ -25,7 +26,7 @@
 #include <bootm.h>
 #include <vxworks.h>
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 #include <asm/armv7.h>
 #endif
 
@@ -237,7 +238,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 	}
 }
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 bool armv7_boot_nonsec(void)
 {
 	char *s = getenv("bootm_boot_mode");
@@ -304,7 +305,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		r2 = gd->bd->bi_boot_params;
 
 	if (!fake) {
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 		if (armv7_boot_nonsec()) {
 			armv7_init_nonsec();
 			secure_ram_addr(_do_nonsec_entry)(kernel_entry,

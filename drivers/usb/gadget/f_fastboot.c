@@ -123,6 +123,7 @@ static struct usb_gadget_strings *fastboot_strings[] = {
 };
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
+static int strcmp_l1(const char *s1, const char *s2);
 
 static void fastboot_complete(struct usb_ep *ep, struct usb_request *req)
 {
@@ -326,8 +327,20 @@ static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 	do_reset(NULL, 0, 0, NULL);
 }
 
+int __weak fb_set_reboot_flag(void)
+{
+	return -ENOSYS;
+}
+
 static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
 {
+	char *cmd = req->buf;
+	if (!strcmp_l1("reboot-bootloader", cmd)) {
+		if (fb_set_reboot_flag()) {
+			fastboot_tx_write_str("FAILCannot set reboot flag");
+			return;
+		}
+	}
 	fastboot_func->in_req->complete = compl_do_reset;
 	fastboot_tx_write_str("OKAY");
 }

@@ -294,13 +294,11 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#define CONFIG_CMD_NET
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_CMD_REGINFO
 
 #define CONFIG_ULI526X
 #ifdef CONFIG_ULI526X
-#define CONFIG_ETHADDR   00:E0:0C:00:00:01
 #endif
 
 /************************************************************
@@ -469,15 +467,9 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-
-#if defined(CONFIG_SYS_RAMBOOT)
-#undef CONFIG_CMD_SAVEENV
-#endif
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI

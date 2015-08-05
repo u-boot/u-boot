@@ -15,8 +15,7 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 #define CONFIG_BOARD_EARLY_INIT_F
-
-#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_ARCH_MISC_INIT
 
 #define CONFIG_X86_SERIAL
 #define CONFIG_SMSC_LPC47M
@@ -61,10 +60,6 @@
 #undef CONFIG_CFB_CONSOLE
 
 /* Environment configuration */
-#undef CONFIG_ENV_IS_NOWHERE
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OFFSET		0
 

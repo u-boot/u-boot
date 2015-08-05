@@ -33,6 +33,28 @@ void fastboot_okay(const char *s)
 	strncat(response_str, s, RESPONSE_LEN - 4 - 1);
 }
 
+static int get_partition_info_efi_by_name_or_alias(block_dev_desc_t *dev_desc,
+		const char *name, disk_partition_t *info)
+{
+	int ret;
+
+	ret = get_partition_info_efi_by_name(dev_desc, name, info);
+	if (ret) {
+		/* strlen("fastboot_partition_alias_") + 32(part_name) + 1 */
+		char env_alias_name[25 + 32 + 1];
+		char *aliased_part_name;
+
+		/* check for alias */
+		strcpy(env_alias_name, "fastboot_partition_alias_");
+		strncat(env_alias_name, name, 32);
+		aliased_part_name = getenv(env_alias_name);
+		if (aliased_part_name != NULL)
+			ret = get_partition_info_efi_by_name(dev_desc,
+					aliased_part_name, info);
+	}
+	return ret;
+}
+
 static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
 		const char *part_name, void *buffer,
 		unsigned int download_bytes)
@@ -98,7 +120,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		printf("........ success\n");
 		fastboot_okay("");
 		return;
-	} else if (get_partition_info_efi_by_name(dev_desc, cmd, &info)) {
+	} else if (get_partition_info_efi_by_name_or_alias(dev_desc, cmd, &info)) {
 		error("cannot find partition: '%s'\n", cmd);
 		fastboot_fail("cannot find partition");
 		return;
@@ -136,7 +158,7 @@ void fb_mmc_erase(const char *cmd, char *response)
 		return;
 	}
 
-	ret = get_partition_info_efi_by_name(dev_desc, cmd, &info);
+	ret = get_partition_info_efi_by_name_or_alias(dev_desc, cmd, &info);
 	if (ret) {
 		error("cannot find partition: '%s'", cmd);
 		fastboot_fail("cannot find partition");

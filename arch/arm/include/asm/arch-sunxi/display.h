@@ -363,6 +363,11 @@ struct sunxi_tve_reg {
 #define SUNXI_LCDC_TCON0_TIMING_H_TOTAL(n)	(((n) - 1) << 16)
 #define SUNXI_LCDC_TCON0_TIMING_V_BP(n)		(((n) - 1) << 0)
 #define SUNXI_LCDC_TCON0_TIMING_V_TOTAL(n)	(((n) * 2) << 16)
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+#define SUNXI_LCDC_TCON0_LVDS_CLK_SEL_TCON0	(1 << 20)
+#else
+#define SUNXI_LCDC_TCON0_LVDS_CLK_SEL_TCON0	0 /* NA */
+#endif
 #define SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(n)	((n) << 26)
 #define SUNXI_LCDC_TCON0_LVDS_INTF_ENABLE	(1 << 31)
 #define SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE(x)	((x) << 28)
@@ -372,8 +377,15 @@ struct sunxi_tve_reg {
 #define SUNXI_LCDC_TCON1_TIMING_H_TOTAL(n)	(((n) - 1) << 16)
 #define SUNXI_LCDC_TCON1_TIMING_V_BP(n)		(((n) - 1) << 0)
 #define SUNXI_LCDC_TCON1_TIMING_V_TOTAL(n)	(((n) * 2) << 16)
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+#define SUNXI_LCDC_LVDS_ANA0			0x40040320
+#define SUNXI_LCDC_LVDS_ANA0_EN_MB		(1 << 31)
+#define SUNXI_LCDC_LVDS_ANA0_DRVC		(1 << 24)
+#define SUNXI_LCDC_LVDS_ANA0_DRVD(x)		((x) << 20)
+#else
 #define SUNXI_LCDC_LVDS_ANA0			0x3f310000
 #define SUNXI_LCDC_LVDS_ANA0_UPDATE		(1 << 22)
+#endif
 #define SUNXI_LCDC_LVDS_ANA1_INIT1		(0x1f << 26 | 0x1f << 10)
 #define SUNXI_LCDC_LVDS_ANA1_INIT2		(0x1f << 16 | 0x1f << 00)
 

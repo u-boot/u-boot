@@ -34,7 +34,7 @@ struct udevice;
  * @devp: Returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
-int device_bind(struct udevice *parent, struct driver *drv,
+int device_bind(struct udevice *parent, const struct driver *drv,
 		const char *name, void *platdata, int of_offset,
 		struct udevice **devp);
 

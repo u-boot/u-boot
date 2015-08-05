@@ -116,15 +116,11 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_DESIGNWARE_ETH
 #define CONFIG_DW_AUTONEG
-#define CONFIG_NET_MULTI
 
 /*
  * Command line configuration
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF

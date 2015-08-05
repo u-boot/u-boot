@@ -33,6 +33,7 @@
 #endif
 #include <logbuff.h>
 #include <malloc.h>
+#include <mapmem.h>
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
 #endif
@@ -230,7 +231,9 @@ static int initr_unlock_ram_in_cache(void)
 #ifdef CONFIG_PCI
 static int initr_pci(void)
 {
+#ifndef CONFIG_DM_PCI
 	pci_init();
+#endif
 
 	return 0;
 }
@@ -477,17 +480,6 @@ static int initr_malloc_bootparams(void)
 }
 #endif
 
-#ifdef CONFIG_SC3
-/* TODO: with new initcalls, move this into the driver */
-extern void sc3_read_eeprom(void);
-
-static int initr_sc3_read_eeprom(void)
-{
-	sc3_read_eeprom();
-	return 0;
-}
-#endif
-
 static int initr_jumptable(void)
 {
 	jumptable_init();
@@ -587,7 +579,7 @@ static int initr_bbmii(void)
 static int initr_net(void)
 {
 	puts("Net:   ");
-	eth_initialize(gd->bd);
+	eth_initialize();
 #if defined(CONFIG_RESET_PHY_R)
 	debug("Reset Ethernet PHY\n");
 	reset_phy();
@@ -699,6 +691,12 @@ init_fnc_t init_sequence_r[] = {
 	/* TODO: could x86/PPC have this also perhaps? */
 #ifdef CONFIG_ARM
 	initr_caches,
+	/* Note: For Freescale LS2 SoCs, new MMU table is created in DDR.
+	 *	 A temporary mapping of IFC high region is since removed,
+	 *	 so environmental variables in NOR flash is not availble
+	 *	 until board_init() is called below to remap IFC to high
+	 *	 region.
+	 */
 #endif
 	initr_reloc_global_data,
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
@@ -770,15 +768,12 @@ init_fnc_t init_sequence_r[] = {
 	initr_flash,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
 #endif
 #ifdef CONFIG_PPC
 	initr_spi,
-#endif
-#if defined(CONFIG_X86) && defined(CONFIG_SPI)
-	init_func_spi,
 #endif
 #ifdef CONFIG_CMD_NAND
 	initr_nand,
@@ -798,9 +793,6 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	initr_secondary_cpu,
-#ifdef CONFIG_SC3
-	initr_sc3_read_eeprom,
-#endif
 #if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
 	mac_read_from_eeprom,
 #endif

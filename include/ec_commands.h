@@ -1555,6 +1555,21 @@ struct ec_params_sb_wr_block {
 	uint16_t data[32];
 } __packed;
 
+/*
+ * Entering Verified Boot Mode Command
+ * Default mode is VBOOT_MODE_NORMAL if EC did not receive this command.
+ * Valid Modes are: normal, developer, and recovery.
+ */
+#define EC_CMD_ENTERING_MODE 0xb6
+
+struct ec_params_entering_mode {
+	int vboot_mode;
+} __packed;
+
+#define VBOOT_MODE_NORMAL    0
+#define VBOOT_MODE_DEVELOPER 1
+#define VBOOT_MODE_RECOVERY  2
+
 /*****************************************************************************/
 /* System commands */
 

@@ -17,13 +17,6 @@ int print_cpuinfo(void)
 	return default_print_cpuinfo();
 }
 
-void reset_cpu(ulong addr)
-{
-	/* cold reset */
-	outb(0x06, PORT_RESET);
-}
-
-
 int board_pci_post_scan(struct pci_controller *hose)
 {
 	u32 status;

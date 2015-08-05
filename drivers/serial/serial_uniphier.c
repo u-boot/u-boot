@@ -1,16 +1,15 @@
 /*
- * Copyright (C) 2012-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <linux/io.h>
 #include <linux/serial_reg.h>
-#include <asm/io.h>
 #include <asm/errno.h>
 #include <dm/device.h>
 #include <dm/platform_data/serial-uniphier.h>
+#include <mapmem.h>
 #include <serial.h>
 #include <fdtdec.h>
 

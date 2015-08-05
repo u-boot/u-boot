@@ -41,6 +41,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /* PMIC Configs */
 #define CONFIG_POWER
@@ -71,7 +72,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DATE
 
 /* Miscellaneous commands */
@@ -83,10 +83,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_BOOTDELAY	3
 
 #define CONFIG_ETHPRIME		"FEC0"

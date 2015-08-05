@@ -51,7 +51,7 @@ static int state_read_file(struct sandbox_state *state, const char *fname)
 	ret = os_get_filesize(fname, &size);
 	if (ret < 0) {
 		printf("Cannot find sandbox state file '%s'\n", fname);
-		return ret;
+		return -ENOENT;
 	}
 	state->state_fdt = os_malloc(size);
 	if (!state->state_fdt) {

@@ -10,6 +10,7 @@
 #include <bootm.h>
 #include <command.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/io.h>
 
 #include <u-boot/zlib.h>

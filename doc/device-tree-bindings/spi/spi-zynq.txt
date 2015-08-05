@@ -1,0 +1,29 @@
+Zynq SPI controller Device Tree Bindings
+----------------------------------------
+
+Required properties:
+- compatible		: Should be "xlnx,spi-zynq".
+- reg			: Physical base address and size of SPI registers map.
+- status		: Status will be disabled in dtsi and enabled in required dts.
+- interrupt-parent	: Must be core interrupt controller.
+- interrupts		: Property with a value describing the interrupt
+			  number.
+- clocks		: Clock phandles (see clock bindings for details).
+- clock-names		: List of input clock names - "ref_clk", "pclk"
+			  (See clock bindings for details).
+- spi-max-frequency	: Maximum SPI clocking speed of device in Hz
+
+Example:
+
+	spi@e0006000 {
+		compatible = "xlnx,zynq-spi";
+		reg = <0xe0006000 0x1000>;
+		status = "disabled";
+		interrupt-parent = <&intc>;
+		interrupts = <0 26 4>;
+		clocks = <&clkc 25>, <&clkc 34>;
+		clock-names = "ref_clk", "pclk";
+		spi-max-frequency = <166666700>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	} ;

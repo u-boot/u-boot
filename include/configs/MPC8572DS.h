@@ -593,20 +593,16 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_EXT2
 #endif
@@ -658,17 +654,11 @@
 /*
  * Environment Configuration
  */
-
-/* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR	00:E0:0C:02:00:FD
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR	00:E0:0C:02:01:FD
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR	00:E0:0C:02:02:FD
 #define CONFIG_HAS_ETH3
-#define CONFIG_ETH3ADDR	00:E0:0C:02:03:FD
 #endif
 
 #define CONFIG_IPADDR		192.168.1.254

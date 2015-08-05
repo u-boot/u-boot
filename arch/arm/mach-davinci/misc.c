@@ -49,7 +49,7 @@ int dvevm_read_mac_address(uint8_t *buf)
 		goto i2cerr;
 
 	/* Check that MAC address is valid. */
-	if (!is_valid_ether_addr(buf))
+	if (!is_valid_ethaddr(buf))
 		goto err;
 
 	return 1; /* Found */

@@ -12,8 +12,6 @@
 #define CONFIG_PLATINUM_PROJECT			"picon"
 #define CONFIG_PLATINUM_CPU			"imx6dl"
 
-#define CONFIG_MX6
-
 #include <configs/platinum.h>
 
 #define CONFIG_FEC_XCV_TYPE			RMII

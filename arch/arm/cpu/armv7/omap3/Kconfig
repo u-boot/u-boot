@@ -2,6 +2,7 @@ if OMAP34XX
 
 choice
 	prompt "OMAP3 board select"
+	optional
 
 config TARGET_AM3517_EVM
 	bool "AM3517 EVM"
@@ -17,6 +18,9 @@ config TARGET_OMAP3_SDP3430
 config TARGET_OMAP3_BEAGLE
 	bool "TI OMAP3 BeagleBoard"
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_CM_T35
 	bool "CompuLab CM-T3530 and CM-T3730 boards"
@@ -28,6 +32,9 @@ config TARGET_CM_T3517
 config TARGET_DEVKIT8000
 	bool "TimLL OMAP3 Devkit8000"
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_OMAP3_EVM
 	bool "TI OMAP3 EVM"
@@ -44,13 +51,22 @@ config TARGET_OMAP3_EVM_QUICK_NAND
 config TARGET_OMAP3_IGEP00X0
 	bool "IGEP"
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_OMAP3_OVERO
 	bool "OMAP35xx Gumstix Overo"
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_OMAP3_ZOOM1
 	bool "TI Zoom1"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AM3517_CRANE
 	bool "am3517_crane"
@@ -94,17 +110,11 @@ config TARGET_TWISTER
 config TARGET_OMAP3_CAIRO
 	bool "QUIPOS CAIRO"
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 endchoice
-
-config DM
-	default y
-
-config DM_GPIO
-	default y if DM
-
-config DM_SERIAL
-	default y if DM
 
 config SYS_SOC
 	default "omap3"

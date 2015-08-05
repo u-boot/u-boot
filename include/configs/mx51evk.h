@@ -92,7 +92,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 /* USB Configs */
 #define CONFIG_CMD_USB
@@ -129,10 +128,7 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-
-#include <config_cmd_default.h>
 #define CONFIG_CMD_BOOTZ
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_CMD_DATE
 

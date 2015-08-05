@@ -27,29 +27,6 @@ To find out who has a MAC address, or to purchase MAC addresses, goto
 the IEEE, at:
 http://standards.ieee.org/regauth/oui/index.shtml
 
-To change your MAC address, there can not be a MAC address predefined in
-U-Boot. To ensure that this does not occur, check your
-include/configs/<board_name>.h file, and check to see that the following
-settings are _not_ or commented out there.
-
-#define HARDCODE_MAC			1
-#define CONFIG_ETHADDR			02:80:ad:20:31:b8
-
-The purpose of HARDCODE_MAC is to hardcode the MAC address in software,
-(not what we want), or to preset it to 02:80:ad:20:31:b8 (not what we
-want either).
-
-You can check this in a running U-Boot, by doing a power cycle, then
-before U-Boot tries to do any networking, running the 'printenv' command
-
-  BOOT> printenv
-
-  ethaddr=02:80:ad:20:31:b8
-
-If you see the 'ethaddr' variable show up, like the above, you need to
-recompile U-Boot, with the above settings commented out of the
-include/configs/<board_name>.h file.
-
 2. Running the smc91111_eeprom program
 ---------------------------------------------------------------------
 

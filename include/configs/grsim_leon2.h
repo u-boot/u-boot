@@ -46,22 +46,10 @@
 /*
  * Supported commands
  */
-#define CONFIG_CMD_BDI		/* bdinfo			*/
-#define CONFIG_CMD_CONSOLE	/* coninfo			*/
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_ECHO		/* echo arguments		*/
-#define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_ITEST	/* Integer (and string) test	*/
-#define CONFIG_CMD_LOADB	/* loadb			*/
-#define CONFIG_CMD_LOADS	/* loads			*/
-#define CONFIG_CMD_MISC		/* Misc functions like sleep etc */
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_RUN		/* run command in env variable	*/
-#define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
-#define CONFIG_CMD_SOURCE	/* "source" command support	*/
-#define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
 
 /*
  * Autobooting
@@ -91,7 +79,6 @@
 	"rootpath=/export/roofs\0"					\
 	"scratch=40000000\0"					\
 	"getkernel=tftpboot $(scratch) $(bootfile)\0" \
-	"ethaddr=00:00:7A:CC:00:12\0" \
 	"bootargs=console=ttyS0,38400" \
 	""
 #define CONFIG_NETMASK 255.255.255.0
@@ -240,16 +227,6 @@
  * Ethernet configuration
  */
 /*#define CONFIG_GRETH	1*/
-
-/* Default HARDWARE address */
-#define GRETH_HWADDR_0 0x00
-#define GRETH_HWADDR_1 0x00
-#define GRETH_HWADDR_2 0x7A
-#define GRETH_HWADDR_3 0xcc
-#define GRETH_HWADDR_4 0x00
-#define GRETH_HWADDR_5 0x12
-
-#define CONFIG_ETHADDR   00:00:7a:cc:00:12
 
 /*
  * Define CONFIG_GRETH_10MBIT to force GRETH at 10Mb/s

@@ -10,64 +10,34 @@
 #define __CONFIG_H
 
 /* System configurations */
-#define CONFIG_MX6
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DOS_PARTITION
-#define CONFIG_FAT_WRITE
 #define CONFIG_FIT
 #define CONFIG_KEYBOARD
-#define CONFIG_MXC_GPIO
-#define CONFIG_OF_LIBFDT
-#define CONFIG_REGEX
-#define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_SYS_NO_FLASH
 
-#include "configs/mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-#include <config_cmd_default.h>
+#include "mx6_common.h"
 
 /* U-Boot Commands */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C
+#define CONFIG_FAT_WRITE
 #define CONFIG_CMD_FUSE
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_TIME
 #define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 
 /* U-Boot general configurations */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
-#define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 #define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
-#define CONFIG_AUTO_COMPLETE			/* Command auto complete */
-#define CONFIG_CMDLINE_EDITING			/* Command history etc */
-#define CONFIG_SYS_HUSH_PARSER
 
 /* U-Boot environment */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_SIZE			(16 * 1024)
 /*
  * Environment is on MMC, starting at offset 512KiB from start of the card.
@@ -87,12 +57,9 @@
 #endif
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY		5
 #define CONFIG_BOOTFILE			"fitImage"
 #define CONFIG_BOOTARGS			"console=ttymxc1,115200 "
 #define CONFIG_BOOTCOMMAND		"run net_nfs"
-#define CONFIG_LOADADDR			0x18000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_HOSTNAME			novena
 
 /* Physical Memory Map */
@@ -119,11 +86,6 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 /* Ethernet Configuration */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
@@ -141,6 +103,7 @@
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -152,15 +115,8 @@
 #endif
 
 /* MMC Configs */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-#endif
 
 /* OCOTP Configs */
 #ifdef CONFIG_CMD_FUSE
@@ -196,8 +152,6 @@
 /* UART */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_CONS_INDEX		1
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB

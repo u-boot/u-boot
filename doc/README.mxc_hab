@@ -1,7 +1,13 @@
 High Assurance Boot (HAB) for i.MX6 CPUs
 
-To authenticate U-Boot only by the CPU there is no code required in
-U-Boot itself. However, the U-Boot image to be programmed into the
+To enable the authenticated or encrypted boot mode of U-Boot, it is
+required to set the proper configuration for the target board. This
+is done by adding the following configuration in in the proper config
+file (e.g. include/configs/mx6qarm2.h)
+
+#define CONFIG_SECURE_BOOT
+
+In addition, the U-Boot image to be programmed into the
 boot media needs to be properly constructed, i.e. it must contain a
 proper Command Sequence File (CSF).
 
@@ -69,7 +75,7 @@ CONFIG_SECURE_BOOT
 CONFIG_SYS_FSL_SEC_COMPAT    4 /* HAB version */
 CONFIG_FSL_CAAM
 CONFIG_CMD_DEKBLOB
-CONFIG_SYS_FSL_LE
+CONFIG_SYS_FSL_SEC_LE
 
 Note: The encrypted boot feature is only supported by HABv4 or
 greater.

@@ -148,9 +148,6 @@
 #define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_ENV_SECT_SIZE)
 /*--------------------------------------------------------------------------*/
 
-/* commands to include */
-#include <config_cmd_default.h>
-
 /* Enabled commands */
 #define CONFIG_CMD_DHCP		/* DHCP Support			*/
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
@@ -158,11 +155,6 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NET
-
-/* Disabled commands */
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 /*--------------------------------------------------------------------------*/
 /*

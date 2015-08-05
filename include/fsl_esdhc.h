@@ -16,6 +16,10 @@
 /* needed for the mmc_cfg definition */
 #include <mmc.h>
 
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+#include "../board/freescale/common/qixis.h"
+#endif
+
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000
@@ -74,6 +78,9 @@
 #define IRQSTATEN_TC		(0x00000002)
 #define IRQSTATEN_CC		(0x00000001)
 
+#define ESDHCCTL		0x0002e40c
+#define ESDHCCTL_PCS		(0x00080000)
+
 #define PRSSTAT			0x0002e024
 #define PRSSTAT_DAT0		(0x01000000)
 #define PRSSTAT_CLSL		(0x00800000)
@@ -82,6 +89,7 @@
 #define PRSSTAT_CINS		(0x00010000)
 #define PRSSTAT_BREN		(0x00000800)
 #define PRSSTAT_BWEN		(0x00000400)
+#define PRSSTAT_SDSTB		(0X00000008)
 #define PRSSTAT_DLA		(0x00000004)
 #define PRSSTAT_CICHB		(0x00000002)
 #define PRSSTAT_CIDHB		(0x00000001)
@@ -158,7 +166,11 @@
 #define ESDHC_VENDORSPEC_VSELECT 0x00000002 /* Use 1.8V */
 
 struct fsl_esdhc_cfg {
+#ifdef CONFIG_LS2085A
+	u64	esdhc_base;
+#else
 	u32	esdhc_base;
+#endif
 	u32	sdhc_clk;
 	u8	max_bus_width;
 	struct mmc_config cfg;

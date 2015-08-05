@@ -197,13 +197,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING		1
 #define CONFIG_CMD_DHCP		1
@@ -339,7 +332,6 @@
 
 #define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_ROOTPATH			"/ronetix/rootfs"
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds\n", bootdelay
 
 #define CONFIG_CON_ROT			"fbcon=rotate:3 "
 #define CONFIG_BOOTARGS			"root=/dev/mtdblock4 rootfstype=jffs2 "\

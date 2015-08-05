@@ -3,7 +3,7 @@
  *
  * Board functions for B&R LEIT Board
  *
- * Copyright (C) 2013 Hannes Petermaier <oe5hpm@oevsv.at>
+ * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -128,6 +128,9 @@ void am33xx_spl_board_init(void)
 	i2c_set_bus_num(0);
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 	pmicsetup(0);
+
+	gpio_direction_output(64+29, 1); /* switch NAND_RnB to GPMC_WAIT1 */
+	gpio_direction_output(64+28, 1); /* switch MII2_CRS to GPMC_WAIT0 */
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)

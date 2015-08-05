@@ -187,8 +187,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 /* FIXME: hack for zynq */
 #define CONFIG_CMD_IRQ

@@ -2,6 +2,7 @@ if TEGRA30
 
 choice
 	prompt "Tegra30 board select"
+	optional
 
 config TARGET_APALIS_T30
 	bool "Toradex Apalis T30 board"

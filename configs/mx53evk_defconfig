@@ -1,3 +1,5 @@
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx53evk/imximage.cfg"
 CONFIG_ARM=y
 CONFIG_TARGET_MX53EVK=y
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx53evk/imximage.cfg"
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_SETEXPR is not set

@@ -15,6 +15,15 @@
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
+	/* Add fully-coherent masters to DVM domain */
+	ldr	x1, =CCI_MN_BASE
+	ldr	x2, [x1, #CCI_MN_RNF_NODEID_LIST]
+	str	x2, [x1, #CCI_MN_DVM_DOMAIN_CTL_SET]
+1:	ldr	x3, [x1, #CCI_MN_DVM_DOMAIN_CTL_SET]
+	mvn	x0, x3
+	tst	x0, x3		/* Wait for domain addition to complete */
+	b.ne	1b
+
 	/* Set the SMMU page size in the sACR register */
 	ldr	x1, =SMMU_BASE
 	ldr	w0, [x1, #0x10]
@@ -224,6 +233,9 @@ ENTRY(secondary_boot_func)
 	/* physical address of this cpus spin table element */
 	add	x11, x1, x0
 
+	ldr	x0, =__real_cntfrq
+	ldr	x0, [x0]
+	msr	cntfrq_el0, x0	/* set with real frequency */
 	str	x9, [x11, #16]	/* LPID */
 	mov	x4, #1
 	str	x4, [x11, #8]	/* STATUS */
@@ -275,6 +287,9 @@ ENDPROC(secondary_switch_to_el1)
 
 	/* 64 bit alignment for elements accessed as data */
 	.align 4
+	.global __real_cntfrq
+__real_cntfrq:
+	.quad COUNTER_FREQUENCY
 	.globl __secondary_boot_code_size
 	.type __secondary_boot_code_size, %object
 	/* Secondary Boot Code ends here */

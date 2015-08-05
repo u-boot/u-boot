@@ -34,7 +34,7 @@ Then U-boot should start and its messages will appear in the console program.
 Use the default environment variables:
 
 => env default -f -a
-=> save
+=> saveenv
 
 Run the DFU command:
 => dfu 0 mmc 0
@@ -43,8 +43,8 @@ Transfer u-boot.imx that will be flashed into the eMMC:
 
 $ sudo dfu-util -D u-boot.imx -a boot
 
-Then on the U-boot prompt the following message should be seen after a succesful
-upgrade:
+Then on the U-boot prompt the following message should be seen after a
+successful upgrade:
 
 #DOWNLOAD ... OK
 Ctrl+C to exit ...

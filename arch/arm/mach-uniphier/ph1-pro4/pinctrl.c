@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2011-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/sg-regs.h>
 
 void pin_init(void)
@@ -28,6 +27,8 @@ void pin_init(void)
 	sg_set_pinsel(52, 0);	/* XNFWP  -> XNFWP */
 	sg_set_pinsel(53, 0);	/* XNFCE0 -> XNFCE0 */
 	sg_set_pinsel(54, 0);	/* NRYBY0 -> NRYBY0 */
+	/* sg_set_pinsel(131, 1); */	/* RXD2   -> NRYBY1 */
+	/* sg_set_pinsel(132, 1); */	/* TXD2   -> XNFCE1 */
 #endif
 
 #ifdef CONFIG_USB_XHCI_UNIPHIER

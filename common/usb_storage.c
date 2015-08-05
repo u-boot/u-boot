@@ -9,6 +9,8 @@
  *
  * Adapted for U-Boot:
  *   (C) Copyright 2001 Denis Peter, MPL AG Switzerland
+ * Driver model conversion:
+ *   (C) Copyright 2015 Google, Inc
  *
  * For BBB support (C) Copyright 2003
  * Gary Jennejohn, DENX Software Engineering <garyj@denx.de>
@@ -33,9 +35,13 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
+#include <errno.h>
 #include <inttypes.h>
+#include <mapmem.h>
 #include <asm/byteorder.h>
 #include <asm/processor.h>
+#include <dm/device-internal.h>
 
 #include <part.h>
 #include <usb.h>
@@ -56,48 +62,7 @@ static const unsigned char us_direction[256/8] = {
 #define US_DIRECTION(x) ((us_direction[x>>3] >> (x & 7)) & 1)
 
 static ccb usb_ccb __attribute__((aligned(ARCH_DMA_MINALIGN)));
-
-/*
- * CBI style
- */
-
-#define US_CBI_ADSC		0
-
-/*
- * BULK only
- */
-#define US_BBB_RESET		0xff
-#define US_BBB_GET_MAX_LUN	0xfe
-
-/* Command Block Wrapper */
-typedef struct {
-	__u32		dCBWSignature;
-#	define CBWSIGNATURE	0x43425355
-	__u32		dCBWTag;
-	__u32		dCBWDataTransferLength;
-	__u8		bCBWFlags;
-#	define CBWFLAGS_OUT	0x00
-#	define CBWFLAGS_IN	0x80
-	__u8		bCBWLUN;
-	__u8		bCDBLength;
-#	define CBWCDBLENGTH	16
-	__u8		CBWCDB[CBWCDBLENGTH];
-} umass_bbb_cbw_t;
-#define UMASS_BBB_CBW_SIZE	31
 static __u32 CBWTag;
-
-/* Command Status Wrapper */
-typedef struct {
-	__u32		dCSWSignature;
-#	define CSWSIGNATURE	0x53425355
-	__u32		dCSWTag;
-	__u32		dCSWDataResidue;
-	__u8		bCSWStatus;
-#	define CSWSTATUS_GOOD	0x0
-#	define CSWSTATUS_FAILED 0x1
-#	define CSWSTATUS_PHASE	0x2
-} umass_bbb_csw_t;
-#define UMASS_BBB_CSW_SIZE	13
 
 #define USB_MAX_STOR_DEV 5
 static int usb_max_devs; /* number of highest available usb device */
@@ -145,7 +110,6 @@ struct us_data {
 
 static struct us_data usb_stor[USB_MAX_STOR_DEV];
 
-
 #define USB_STOR_TRANSPORT_GOOD	   0
 #define USB_STOR_TRANSPORT_FAILED -1
 #define USB_STOR_TRANSPORT_ERROR  -2
@@ -158,7 +122,6 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 			    lbaint_t blkcnt, void *buffer);
 unsigned long usb_stor_write(int device, lbaint_t blknr,
 			     lbaint_t blkcnt, const void *buffer);
-struct usb_device * usb_get_dev_index(int index);
 void uhci_show_temp_int_td(void);
 
 #ifdef CONFIG_PARTITIONS
@@ -208,6 +171,61 @@ static unsigned int usb_get_max_lun(struct us_data *us)
 	return (len > 0) ? *result : 0;
 }
 
+static int usb_stor_probe_device(struct usb_device *dev)
+{
+	if (dev == NULL)
+		return -ENOENT; /* no more devices available */
+
+	debug("\n\nProbing for storage\n");
+	if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
+		/* OK, it's a storage device.  Iterate over its LUNs
+			* and populate `usb_dev_desc'.
+			*/
+		int lun, max_lun, start = usb_max_devs;
+
+		max_lun = usb_get_max_lun(&usb_stor[usb_max_devs]);
+		for (lun = 0;
+			lun <= max_lun && usb_max_devs < USB_MAX_STOR_DEV;
+			lun++) {
+			struct block_dev_desc *blkdev;
+
+			blkdev = &usb_dev_desc[usb_max_devs];
+			memset(blkdev, '\0', sizeof(block_dev_desc_t));
+			blkdev->if_type = IF_TYPE_USB;
+			blkdev->dev = usb_max_devs;
+			blkdev->part_type = PART_TYPE_UNKNOWN;
+			blkdev->target = 0xff;
+			blkdev->type = DEV_TYPE_UNKNOWN;
+			blkdev->block_read = usb_stor_read;
+			blkdev->block_write = usb_stor_write;
+			blkdev->lun = lun;
+			blkdev->priv = dev;
+
+			if (usb_stor_get_info(dev, &usb_stor[start],
+					      &usb_dev_desc[usb_max_devs]) ==
+					      1) {
+				usb_max_devs++;
+				debug("%s: Found device %p\n", __func__, dev);
+			}
+		}
+	}
+
+	/* if storage device */
+	if (usb_max_devs == USB_MAX_STOR_DEV) {
+		printf("max USB Storage Device reached: %d stopping\n",
+		       usb_max_devs);
+		return -ENOSPC;
+	}
+
+	return 0;
+}
+
+void usb_stor_reset(void)
+{
+	usb_max_devs = 0;
+}
+
+#ifndef CONFIG_DM_USB
 /*******************************************************************************
  * scan the usb and reports device info
  * to the user if mode = 1
@@ -216,54 +234,20 @@ static unsigned int usb_get_max_lun(struct us_data *us)
 int usb_stor_scan(int mode)
 {
 	unsigned char i;
-	struct usb_device *dev;
 
 	if (mode == 1)
 		printf("       scanning usb for storage devices... ");
 
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 
-	for (i = 0; i < USB_MAX_STOR_DEV; i++) {
-		memset(&usb_dev_desc[i], 0, sizeof(block_dev_desc_t));
-		usb_dev_desc[i].if_type = IF_TYPE_USB;
-		usb_dev_desc[i].dev = i;
-		usb_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
-		usb_dev_desc[i].target = 0xff;
-		usb_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		usb_dev_desc[i].block_read = usb_stor_read;
-		usb_dev_desc[i].block_write = usb_stor_write;
-	}
-
-	usb_max_devs = 0;
+	usb_stor_reset();
 	for (i = 0; i < USB_MAX_DEVICE; i++) {
+		struct usb_device *dev;
+
 		dev = usb_get_dev_index(i); /* get device */
 		debug("i=%d\n", i);
-		if (dev == NULL)
-			break; /* no more devices available */
-
-		if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
-			/* OK, it's a storage device.  Iterate over its LUNs
-			 * and populate `usb_dev_desc'.
-			 */
-			int lun, max_lun, start = usb_max_devs;
-
-			max_lun = usb_get_max_lun(&usb_stor[usb_max_devs]);
-			for (lun = 0;
-			     lun <= max_lun && usb_max_devs < USB_MAX_STOR_DEV;
-			     lun++) {
-				usb_dev_desc[usb_max_devs].lun = lun;
-				if (usb_stor_get_info(dev, &usb_stor[start],
-				    &usb_dev_desc[usb_max_devs]) == 1) {
-					usb_max_devs++;
-				}
-			}
-		}
-		/* if storage device */
-		if (usb_max_devs == USB_MAX_STOR_DEV) {
-			printf("max USB Storage Device reached: %d stopping\n",
-				usb_max_devs);
+		if (usb_stor_probe_device(dev))
 			break;
-		}
 	} /* for */
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
@@ -272,6 +256,7 @@ int usb_stor_scan(int mode)
 		return 0;
 	return -1;
 }
+#endif
 
 static int usb_stor_irq(struct usb_device *dev)
 {
@@ -336,8 +321,9 @@ static int us_one_transfer(struct us_data *us, int pipe, char *buf, int length)
 		/* set up the transfer loop */
 		do {
 			/* transfer the data */
-			debug("Bulk xfer 0x%x(%d) try #%d\n",
-			      (unsigned int)buf, this_xfer, 11 - maxtry);
+			debug("Bulk xfer 0x%lx(%d) try #%d\n",
+			      (ulong)map_to_sysmem(buf), this_xfer,
+			      11 - maxtry);
 			result = usb_bulk_msg(us->pusb_dev, pipe, buf,
 					      this_xfer, &partial,
 					      USB_CNTL_TIMEOUT * 5);
@@ -483,7 +469,7 @@ static int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 	int actlen;
 	int dir_in;
 	unsigned int pipe;
-	ALLOC_CACHE_ALIGN_BUFFER(umass_bbb_cbw_t, cbw, 1);
+	ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_cbw, cbw, 1);
 
 	dir_in = US_DIRECTION(srb->cmd[0]);
 
@@ -514,6 +500,7 @@ static int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 	cbw->bCDBLength = srb->cmdlen;
 	/* copy the command data into the CBW command data buffer */
 	/* DST SRC LEN!!! */
+
 	memcpy(cbw->CBWCDB, srb->cmd, srb->cmdlen);
 	result = usb_bulk_msg(us->pusb_dev, pipe, cbw, UMASS_BBB_CBW_SIZE,
 			      &actlen, USB_CNTL_TIMEOUT * 5);
@@ -603,7 +590,7 @@ static int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 			(void *) &us->ip_data, us->irqmaxp, us->irqinterval);
 	timeout = 1000;
 	while (timeout--) {
-		if ((volatile int *) us->ip_wanted == NULL)
+		if (us->ip_wanted == 0)
 			break;
 		mdelay(10);
 	}
@@ -658,7 +645,7 @@ static int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 	int dir_in;
 	int actlen, data_actlen;
 	unsigned int pipe, pipein, pipeout;
-	ALLOC_CACHE_ALIGN_BUFFER(umass_bbb_csw_t, csw, 1);
+	ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_csw, csw, 1);
 #ifdef BBB_XPORT_TRACE
 	unsigned char *ptr;
 	int index;
@@ -689,6 +676,7 @@ static int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 		pipe = pipein;
 	else
 		pipe = pipeout;
+
 	result = usb_bulk_msg(us->pusb_dev, pipe, srb->pdata, srb->datalen,
 			      &data_actlen, USB_CNTL_TIMEOUT * 5);
 	/* special handling of STALL in DATA phase */
@@ -1046,7 +1034,7 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 	unsigned short smallblks;
 	struct usb_device *dev;
 	struct us_data *ss;
-	int retry, i;
+	int retry;
 	ccb *srb = &usb_ccb;
 
 	if (blkcnt == 0)
@@ -1054,20 +1042,17 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 
 	device &= 0xff;
 	/* Setup  device */
-	debug("\nusb_read: dev %d \n", device);
-	dev = NULL;
-	for (i = 0; i < USB_MAX_DEVICE; i++) {
-		dev = usb_get_dev_index(i);
-		if (dev == NULL)
-			return 0;
-		if (dev->devnum == usb_dev_desc[device].target)
-			break;
+	debug("\nusb_read: dev %d\n", device);
+	dev = usb_dev_desc[device].priv;
+	if (!dev) {
+		debug("%s: No device\n", __func__);
+		return 0;
 	}
 	ss = (struct us_data *)dev->privptr;
 
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 	srb->lun = usb_dev_desc[device].lun;
-	buf_addr = (unsigned long)buffer;
+	buf_addr = (uintptr_t)buffer;
 	start = blknr;
 	blks = blkcnt;
 
@@ -1119,7 +1104,7 @@ unsigned long usb_stor_write(int device, lbaint_t blknr,
 	unsigned short smallblks;
 	struct usb_device *dev;
 	struct us_data *ss;
-	int retry, i;
+	int retry;
 	ccb *srb = &usb_ccb;
 
 	if (blkcnt == 0)
@@ -1127,21 +1112,16 @@ unsigned long usb_stor_write(int device, lbaint_t blknr,
 
 	device &= 0xff;
 	/* Setup  device */
-	debug("\nusb_write: dev %d \n", device);
-	dev = NULL;
-	for (i = 0; i < USB_MAX_DEVICE; i++) {
-		dev = usb_get_dev_index(i);
-		if (dev == NULL)
-			return 0;
-		if (dev->devnum == usb_dev_desc[device].target)
-			break;
-	}
+	debug("\nusb_write: dev %d\n", device);
+	dev = usb_dev_desc[device].priv;
+	if (!dev)
+		return 0;
 	ss = (struct us_data *)dev->privptr;
 
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 
 	srb->lun = usb_dev_desc[device].lun;
-	buf_addr = (unsigned long)buffer;
+	buf_addr = (uintptr_t)buffer;
 	start = blknr;
 	blks = blkcnt;
 
@@ -1219,6 +1199,7 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 			iface->desc.bInterfaceClass != USB_CLASS_MASS_STORAGE ||
 			iface->desc.bInterfaceSubClass < US_SC_MIN ||
 			iface->desc.bInterfaceSubClass > US_SC_MAX) {
+		debug("Not mass storage\n");
 		/* if it's not a mass storage, we go no further */
 		return 0;
 	}
@@ -1334,9 +1315,9 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		      block_dev_desc_t *dev_desc)
 {
 	unsigned char perq, modi;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned long, cap, 2);
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, usb_stor_buf, 36);
-	unsigned long *capacity, *blksz;
+	ALLOC_CACHE_ALIGN_BUFFER(u32, cap, 2);
+	ALLOC_CACHE_ALIGN_BUFFER(u8, usb_stor_buf, 36);
+	u32 capacity, blksz;
 	ccb *pccb = &usb_ccb;
 
 	pccb->pdata = usb_stor_buf;
@@ -1345,8 +1326,10 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	pccb->lun = dev_desc->lun;
 	debug(" address %d\n", dev_desc->target);
 
-	if (usb_inquiry(pccb, ss))
+	if (usb_inquiry(pccb, ss)) {
+		debug("%s: usb_inquiry() failed\n", __func__);
 		return -1;
+	}
 
 	perq = usb_stor_buf[0];
 	modi = usb_stor_buf[1];
@@ -1356,15 +1339,16 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	 * they would not respond to test_unit_ready .
 	 */
 	if (((perq & 0x1f) == 0x1f) || ((perq & 0x1f) == 0x0d)) {
+		debug("%s: unknown/unsupported device\n", __func__);
 		return 0;
 	}
 	if ((modi&0x80) == 0x80) {
 		/* drive is removable */
 		dev_desc->removable = 1;
 	}
-	memcpy(&dev_desc->vendor[0], (const void *) &usb_stor_buf[8], 8);
-	memcpy(&dev_desc->product[0], (const void *) &usb_stor_buf[16], 16);
-	memcpy(&dev_desc->revision[0], (const void *) &usb_stor_buf[32], 4);
+	memcpy(dev_desc->vendor, (const void *)&usb_stor_buf[8], 8);
+	memcpy(dev_desc->product, (const void *)&usb_stor_buf[16], 16);
+	memcpy(dev_desc->revision, (const void *)&usb_stor_buf[32], 4);
 	dev_desc->vendor[8] = 0;
 	dev_desc->product[16] = 0;
 	dev_desc->revision[4] = 0;
@@ -1385,7 +1369,7 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		}
 		return 0;
 	}
-	pccb->pdata = (unsigned char *)&cap[0];
+	pccb->pdata = (unsigned char *)cap;
 	memset(pccb->pdata, 0, 8);
 	if (usb_read_capacity(pccb, ss) != 0) {
 		printf("READ_CAP ERROR\n");
@@ -1393,21 +1377,21 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		cap[1] = 0x200;
 	}
 	ss->flags &= ~USB_READY;
-	debug("Read Capacity returns: 0x%lx, 0x%lx\n", cap[0], cap[1]);
+	debug("Read Capacity returns: 0x%08x, 0x%08x\n", cap[0], cap[1]);
 #if 0
 	if (cap[0] > (0x200000 * 10)) /* greater than 10 GByte */
 		cap[0] >>= 16;
-#endif
+
 	cap[0] = cpu_to_be32(cap[0]);
 	cap[1] = cpu_to_be32(cap[1]);
+#endif
 
-	/* this assumes bigendian! */
-	cap[0] += 1;
-	capacity = &cap[0];
-	blksz = &cap[1];
-	debug("Capacity = 0x%lx, blocksz = 0x%lx\n", *capacity, *blksz);
-	dev_desc->lba = *capacity;
-	dev_desc->blksz = *blksz;
+	capacity = be32_to_cpu(cap[0]) + 1;
+	blksz = be32_to_cpu(cap[1]);
+
+	debug("Capacity = 0x%08x, blocksz = 0x%08x\n", capacity, blksz);
+	dev_desc->lba = capacity;
+	dev_desc->blksz = blksz;
 	dev_desc->log2blksz = LOG2(dev_desc->blksz);
 	dev_desc->type = perq;
 	debug(" address %d\n", dev_desc->target);
@@ -1418,3 +1402,46 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	debug("partype: %d\n", dev_desc->part_type);
 	return 1;
 }
+
+#ifdef CONFIG_DM_USB
+
+static int usb_mass_storage_probe(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parentdata(dev);
+	int ret;
+
+	usb_disable_asynch(1); /* asynch transfer not allowed */
+	ret = usb_stor_probe_device(udev);
+	usb_disable_asynch(0); /* asynch transfer allowed */
+
+	return ret;
+}
+
+static const struct udevice_id usb_mass_storage_ids[] = {
+	{ .compatible = "usb-mass-storage" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_mass_storage) = {
+	.name	= "usb_mass_storage",
+	.id	= UCLASS_MASS_STORAGE,
+	.of_match = usb_mass_storage_ids,
+	.probe = usb_mass_storage_probe,
+};
+
+UCLASS_DRIVER(usb_mass_storage) = {
+	.id		= UCLASS_MASS_STORAGE,
+	.name		= "usb_mass_storage",
+};
+
+static const struct usb_device_id mass_storage_id_table[] = {
+	{
+		.match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
+		.bInterfaceClass = USB_CLASS_MASS_STORAGE
+	},
+	{ }		/* Terminating entry */
+};
+
+USB_DEVICE(usb_mass_storage, mass_storage_id_table);
+
+#endif

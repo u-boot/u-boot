@@ -328,10 +328,11 @@ T:	git git://git.denx.de/u-boot-ppc4xx.git
 F:	arch/powerpc/cpu/ppc4xx/
 
 NETWORK
-M:	Joe Hershberger <joe.hershberger@gmail.com>
+M:	Joe Hershberger <joe.hershberger@ni.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-net.git
 F:	drivers/net/
+F:	net/
 
 NAND FLASH
 M:	Scott Wood <scottwood@freescale.com>
@@ -375,17 +376,12 @@ T:	git git://git.denx.de/u-boot-sparc.git
 F:	arch/sparc/
 
 SPI
-M:	Jagannadha Sutradharudu Teki <jagannadh.teki@gmail.com>
+M:	Jagan Teki <jteki@openedev.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-spi.git
 F:	drivers/mtd/spi/
 F:	drivers/spi/
 F:	include/spi*
-
-TESTING
-M:	Detlev Zundel <dzu@denx.de>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-testing.git
 
 TQ GROUP
 M:	Martin Krause <martin.krause@tq-systems.de>

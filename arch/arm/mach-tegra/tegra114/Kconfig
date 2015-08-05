@@ -2,6 +2,7 @@ if TEGRA114
 
 choice
 	prompt "Tegra114 board select"
+	optional
 
 config TARGET_DALMORE
 	bool "NVIDIA Tegra114 Dalmore evaluation board"

@@ -7,8 +7,6 @@
 #ifndef __PLATINUM_CONFIG_H__
 #define __PLATINUM_CONFIG_H__
 
-#define CONFIG_SYS_GENERIC_BOARD
-
 /* SPL */
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
@@ -18,28 +16,19 @@
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 /*
  * Console configuration
  */
 
-#include <config_cmd_default.h>
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_FUSE
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
-#undef  CONFIG_CMD_IMLS
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_TIME
 #define CONFIG_CMD_UBI
@@ -50,29 +39,19 @@
  * Hardware configuration
  */
 
-/* GPIO config */
-#define CONFIG_MXC_GPIO
-
 /* UART config */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE			UART1_BASE
-#define CONFIG_BAUDRATE				115200
-#define CONFIG_CONS_INDEX			1
 
 /* I2C config */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED			100000
 
 /* MMC config */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR		0
 #define CONFIG_SYS_FSL_USDHC_NUM		1
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
-#define CONFIG_DOS_PARTITION
 
 /* Ethernet config */
 #define CONFIG_FEC_MXC
@@ -106,9 +85,6 @@
 						 CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_SYS_MALLOC_LEN			(16 * 1024 * 1024)
-
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
 
 #ifdef CONFIG_CMD_NAND
 
@@ -152,53 +128,22 @@
  * U-Boot configuration
  */
 
-/* Console boot messages */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
-/* Tag config */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 /* Board startup config */
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
-/* Device tree support */
-#define CONFIG_OF_LIBFDT
-
-#define CONFIG_LOADADDR				0x12000000
-#define CONFIG_SYS_TEXT_BASE			0x17800000
 
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + \
 						 PHYS_SDRAM_SIZE - (12 << 20))
 
-#define CONFIG_BOOTDELAY			3
 #define CONFIG_BOOTCOMMAND			"run bootubi_scr"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
-
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_PREBOOT
-
-#define CONFIG_SYS_CBSIZE			256
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
 						 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS			16
-#define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
-
-#define CONFIG_SYS_LOAD_ADDR			CONFIG_LOADADDR
 
 /* MTD/UBI/UBIFS config */
 #define CONFIG_LZO
@@ -216,10 +161,6 @@
 				"512k(env1),512k(env2),495M(ubi0)," \
 				"14M(res0),2M(res1)," \
 				"512k(res2),512k(res3),-(ubi1)"
-#endif
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
 #endif
 
 /*

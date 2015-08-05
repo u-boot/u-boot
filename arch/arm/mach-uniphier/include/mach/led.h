@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -77,7 +76,7 @@
 
 #else /* __ASSEMBLY__ */
 
-#include <asm/io.h>
+#include <linux/io.h>
 
 #define led_write(C0, C1, C2, C3)		\
 do {						\

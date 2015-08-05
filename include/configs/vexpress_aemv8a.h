@@ -8,9 +8,7 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
-#define CONFIG_DM
-
-/* We use generic board for v8 Versatile Express */
+/* We use generic board and device manager for v8 Versatile Express */
 #define CONFIG_SYS_GENERIC_BOARD
 
 #ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
@@ -114,11 +112,7 @@
 #endif
 #endif /* !CONFIG_GICV3 */
 
-#define CONFIG_SYS_MEMTEST_START	V2M_BASE
-#define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)
-
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_F_LEN		0x2000
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
 /* Ethernet Configuration */
@@ -135,48 +129,26 @@
 
 /* PL011 Serial Configuration */
 #define CONFIG_BAUDRATE			115200
-#ifdef CONFIG_DM
-#define CONFIG_DM_SERIAL
-#define CONFIG_PL01X_SERIAL
-#else
-#define CONFIG_SYS_SERIAL0		V2M_UART0
-#define CONFIG_SYS_SERIAL1		V2M_UART1
 #define CONFIG_CONS_INDEX		0
+#define CONFIG_PL01X_SERIAL
 #define CONFIG_PL011_SERIAL
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_PL011_CLOCK		7273800
 #else
 #define CONFIG_PL011_CLOCK		24000000
 #endif
-#define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
-					 (void *)CONFIG_SYS_SERIAL1}
-#endif
-
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_SERIAL0		V2M_UART0
-#define CONFIG_SYS_SERIAL1		V2M_UART1
 
 /* Command line configuration */
 #define CONFIG_MENU
 /*#define CONFIG_MENU_SHOW*/
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_UNZIP
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PXE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_BOOTD
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_SOURCE
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
@@ -194,8 +166,15 @@
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE		0x80000000	/* 2048 MB */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+/* Top 16MB reserved for secure world use */
+#define DRAM_SEC_SIZE		0x01000000
+#define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+
+/* Enable memtest */
+#define CONFIG_CMD_MEMTEST
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
+#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE)
 
 /* Initial environment variables */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
@@ -214,6 +193,7 @@
 /* Assume we boot with root on the first partition of a USB stick */
 #define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 " \
 				"root=/dev/sda1 rw " \
+				"rootwait "\
 				"earlyprintk=pl011,0x7ff80000 debug user_debug=31 "\
 				"loglevel=9"
 
@@ -227,7 +207,7 @@
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-				"kernel_name=uImage\0"		\
+				"kernel_name=Image\0"		\
 				"kernel_addr=0x80000000\0"	\
 				"initrd_name=ramdisk.img\0"	\
 				"initrd_addr=0x88000000\0"	\
@@ -241,11 +221,11 @@
 				"loglevel=9"
 
 #define CONFIG_BOOTCOMMAND	"smhload ${kernel_name} ${kernel_addr}; " \
-				"smhload ${fdt_name} $fdt_addr; " \
-				"smhload ${initrd_name} $initrd_addr initrd_end; " \
-				"fdt addr $fdt_addr; fdt resize; " \
-				"fdt chosen $initrd_addr $initrd_end; " \
-				"bootm $kernel_addr - $fdt_addr"
+				"smhload ${fdt_name} ${fdt_addr}; " \
+				"smhload ${initrd_name} ${initrd_addr} initrd_end; " \
+				"fdt addr ${fdt_addr}; fdt resize; " \
+				"fdt chosen ${initrd_addr} ${initrd_end}; " \
+				"booti $kernel_addr - $fdt_addr"
 
 #define CONFIG_BOOTDELAY		1
 
@@ -272,10 +252,10 @@
 #ifndef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_SYS_NO_FLASH
 #else
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_ARMFLASH
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 #define CONFIG_SYS_FLASH_SIZE		0x04000000 /* 64 MiB */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
