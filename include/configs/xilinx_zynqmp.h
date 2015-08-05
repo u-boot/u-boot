@@ -51,7 +51,7 @@
 #define COUNTER_FREQUENCY		4000000
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x800000)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x2000000)
 
 /* Serial setup */
 #if defined(CONFIG_ZYNQ_DCC)
@@ -137,6 +137,42 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
+#if defined(CONFIG_ZYNQMP_USB)
+# define CONFIG_USB_DWC3
+# define CONFIG_USB_DWC3_GADGET
+
+# define CONFIG_USB_GADGET
+# define CONFIG_USB_GADGET_DUALSPEED
+# define CONFIG_USB_GADGET_VBUS_DRAW	2
+# define CONFIG_USBDOWNLOAD_GADGET
+# define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
+# define DFU_DEFAULT_POLL_TIMEOUT	300
+# define CONFIG_DFU_FUNCTION
+# define CONFIG_DFU_RAM
+# define CONFIG_G_DNL_VENDOR_NUM	0x03FD
+# define CONFIG_G_DNL_PRODUCT_NUM	0x0300
+# define CONFIG_G_DNL_MANUFACTURER	"Xilinx"
+# define CONFIG_USB_CABLE_CHECK
+# define CONFIG_CMD_DFU
+# define CONFIG_CMD_THOR_DOWNLOAD
+# define CONFIG_THOR_FUNCTION
+# define CONFIG_THOR_RESET_OFF
+# define DFU_ALT_INFO_RAM \
+	"dfu_ram_info=" \
+	"set dfu_alt_info " \
+	"Image ram 0x200000 0x1800000\\\\;" \
+	"system.dtb ram 0x7000000 0x40000\0" \
+	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
+	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
+
+# define DFU_ALT_INFO  \
+		DFU_ALT_INFO_RAM
+#endif
+
+#if !defined(DFU_ALT_INFO)
+# define DFU_ALT_INFO
+#endif
+
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"ethaddr=00:0a:35:00:01:22\0" \
@@ -166,7 +202,10 @@
 		"tftpb 0x80000 Image && " \
 		"fdt set /chosen/dom0 reg <0x80000 0x$filesize> && "\
 		"tftpb 6000000 xen.ub && bootm 6000000 - $fdt_addr\0" \
-	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
+	"jtagboot=tftpboot 10000000 image.ub && bootm\0" \
+		"load mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0" \
+	DFU_ALT_INFO
+
 
 #define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
 				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"

@@ -34,4 +34,7 @@ config ZYNQMP_QSPI
 config NAND_ARASAN
 	bool "Configure Arasan Nand"
 
+config ZYNQMP_USB
+	bool "Configure ZynqMP USB"
+
 endif
