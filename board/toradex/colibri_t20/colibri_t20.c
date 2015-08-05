@@ -13,9 +13,44 @@
 #include <asm/arch-tegra/tegra.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <i2c.h>
+
+#define PMU_I2C_ADDRESS		0x34
+#define MAX_I2C_RETRY		3
+#define PMU_SUPPLYENE		0x14
+#define PMU_SUPPLYENE_SYSINEN	(1<<5)
+#define PMU_SUPPLYENE_EXITSLREQ	(1<<1)
 
 int arch_misc_init(void)
 {
+	/* Disable PMIC sleep mode on low supply voltage */
+	struct udevice *dev;
+	u8 addr, data[1];
+	int err;
+
+	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, 1, &dev);
+	if (err) {
+		debug("%s: Cannot find PMIC I2C chip\n", __func__);
+		return err;
+	}
+
+	addr = PMU_SUPPLYENE;
+
+	err = dm_i2c_read(dev, addr, data, 1);
+	if (err) {
+		debug("failed to get PMU_SUPPLYENE\n");
+		return err;
+	}
+
+	data[0] &= ~PMU_SUPPLYENE_SYSINEN;
+	data[0] |= PMU_SUPPLYENE_EXITSLREQ;
+
+	err = dm_i2c_write(dev, addr, data, 1);
+	if (err) {
+		debug("failed to set PMU_SUPPLYENE\n");
+		return err;
+	}
+
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)
 		printf("USB recovery mode\n");
