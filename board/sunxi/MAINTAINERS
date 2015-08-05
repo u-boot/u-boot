@@ -19,6 +19,7 @@ F:	include/configs/sun5i.h
 F:	configs/A10s-OLinuXino-M_defconfig
 F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
+F:	configs/Auxtek-T003_defconfig
 F:	configs/Auxtek-T004_defconfig
 F:	configs/mk802_a10s_defconfig
 F:	configs/r7-tv-dongle_defconfig
