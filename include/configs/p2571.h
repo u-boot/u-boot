@@ -10,9 +10,6 @@
 
 #include <linux/sizes.h>
 
-/* enable PMIC */
-#define CONFIG_MAX77620_POWER
-
 #include "tegra210-common.h"
 
 /* High-level configuration options */
