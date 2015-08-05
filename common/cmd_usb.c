@@ -530,13 +530,16 @@ static void do_usb_start(void)
 	/* try to recognize storage devices immediately */
 	usb_stor_curr_dev = usb_stor_scan(1);
 #endif
+#endif
 #ifdef CONFIG_USB_HOST_ETHER
 # ifdef CONFIG_DM_ETH
-#  error "You must use CONFIG_DM_USB if you want to use CONFIG_USB_HOST_ETHER with CONFIG_DM_ETH"
-# endif
+#  ifndef CONFIG_DM_USB
+#   error "You must use CONFIG_DM_USB if you want to use CONFIG_USB_HOST_ETHER with CONFIG_DM_ETH"
+#  endif
+# else
 	/* try to recognize ethernet devices immediately */
 	usb_ether_curr_dev = usb_host_eth_scan(1);
-#endif
+# endif
 #endif
 #ifdef CONFIG_USB_KEYBOARD
 	drv_usb_kbd_init();
