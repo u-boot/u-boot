@@ -9,6 +9,8 @@
 
 #include "tegra20-common.h"
 
+#define CONFIG_ARCH_MISC_INIT
+
 /* High-level configuration options */
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T20"
 
