@@ -79,6 +79,14 @@
 #undef  CONFIG_ENV_SIZE /* undef size from tegra20-common.h */
 #define CONFIG_ENV_SIZE                (SZ_64K)
 
+/* UBI */
+#define CONFIG_CMD_BOOTZ
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
+#define CONFIG_LZO
+#define CONFIG_MTD_UBI_FASTMAP
+#define CONFIG_RBTREE
+
 /* Debug commands */
 #define CONFIG_CMD_CACHE
 
