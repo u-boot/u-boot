@@ -3,6 +3,13 @@ if TEGRA210
 choice
 	prompt "Tegra210 board select"
 
+config TARGET_E2220_1170
+	bool "NVIDIA Tegra210 E2220-1170 board"
+	help
+	  E2220-1170 is a Tegra210 bringup board with onboard SoC, DRAM,
+	  eMMC, SD card slot, HDMI, USB micro-B port, and sockets for various
+	  expansion modules.
+
 config TARGET_P2571
 	bool "NVIDIA Tegra210 P2571 base board"
 	help
@@ -13,6 +20,7 @@ endchoice
 config SYS_SOC
 	default "tegra210"
 
+source "board/nvidia/e2220-1170/Kconfig"
 source "board/nvidia/p2571/Kconfig"
 
 endif
