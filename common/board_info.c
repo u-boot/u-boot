@@ -17,7 +17,7 @@ int __weak checkboard(void)
  */
 int show_board_info(void)
 {
-#ifdef CONFIG_OF_CONTROL
+#if defined(CONFIG_OF_CONTROL) && !defined(CONFIG_CUSTOM_BOARDINFO)
 	DECLARE_GLOBAL_DATA_PTR;
 	const char *model;
 
