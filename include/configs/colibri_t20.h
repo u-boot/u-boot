@@ -43,6 +43,16 @@
 /* General networking support */
 #define CONFIG_CMD_DHCP
 
+/* LCD support */
+#define CONFIG_LCD
+#define CONFIG_PWM_TEGRA
+#define CONFIG_VIDEO_TEGRA
+#define LCD_BPP				LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CONSOLE_SCROLL_LINES	10
+#define CONFIG_CMD_BMP
+#define CONFIG_LCD_LOGO
+
 /* NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND

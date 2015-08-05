@@ -17,6 +17,17 @@
 		sdhci0 = "/sdhci@c8000600";
 	};
 
+	host1x {
+		status = "okay";
+		dc@54200000 {
+			status = "okay";
+			rgb {
+				status = "okay";
+				nvidia,panel = <&lcd_panel>;
+			};
+		};
+	};
+
 	usb@c5000000 {
 		dr_mode = "otg";
 	};
@@ -45,5 +56,23 @@
 		status = "okay";
 		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
 		bus-width = <4>;
+	};
+
+	lcd_panel: panel {
+		clock = <25175000>;
+		xres = <640>;
+		yres = <480>;
+		left-margin = <48>;	/* horizontal back porch */
+		right-margin = <16>;	/* horizontal front porch */
+		hsync-len = <96>;
+		lower-margin = <11>;	/* vertical front porch */
+		upper-margin = <31>;	/* vertical back porch */
+		vsync-len = <2>;
+		hsync-active-high;
+		vsync-active-high;
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 0 0>;
+		nvidia,backlight-enable-gpios = <&gpio TEGRA_GPIO(T, 4) GPIO_ACTIVE_HIGH>;
+		nvidia,panel-timings = <0 0 0 0>;
 	};
 };

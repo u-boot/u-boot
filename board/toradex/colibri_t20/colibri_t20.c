@@ -75,3 +75,21 @@ void pin_mux_usb(void)
 	pinmux_tristate_disable(PMUX_PINGRP_SPIG);
 }
 #endif
+
+#ifdef CONFIG_VIDEO_TEGRA
+/*
+ * Routine: pin_mux_display
+ * Description: setup the pin muxes/tristate values for the LCD interface)
+ */
+void pin_mux_display(void)
+{
+	/*
+	 * Manually untristate BL_ON (PT4 - SODIMM 71) as specified through
+	 * device-tree
+	 */
+	pinmux_tristate_disable(PMUX_PINGRP_DTA);
+
+	pinmux_set_func(PMUX_PINGRP_SDC, PMUX_FUNC_PWM);
+	pinmux_tristate_disable(PMUX_PINGRP_SDC);
+}
+#endif
