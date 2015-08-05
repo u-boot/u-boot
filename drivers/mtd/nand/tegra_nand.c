@@ -86,16 +86,6 @@ struct fdt_nand {
 
 struct nand_drv {
 	struct nand_ctlr *reg;
-
-	/*
-	* When running in PIO mode to get READ ID bytes from register
-	* RESP_0, we need this variable as an index to know which byte in
-	* register RESP_0 should be read.
-	* Because common code in nand_base.c invokes read_byte function two
-	* times for NAND_CMD_READID.
-	* And our controller returns 4 bytes at once in register RESP_0.
-	*/
-	int pio_byte_index;
 	struct fdt_nand config;
 };
 
@@ -181,25 +171,16 @@ static int nand_waitfor_cmd_completion(struct nand_ctlr *reg)
 static uint8_t read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd->priv;
-	u32 dword_read;
 	struct nand_drv *info;
 
 	info = (struct nand_drv *)chip->priv;
 
-	/* In PIO mode, only 4 bytes can be transferred with single CMD_GO. */
-	if (info->pio_byte_index > 3) {
-		info->pio_byte_index = 0;
-		writel(CMD_GO | CMD_PIO
-			| CMD_RX | CMD_CE0,
-			&info->reg->command);
-		if (!nand_waitfor_cmd_completion(info->reg))
-			printf("Command timeout\n");
-	}
+	writel(CMD_GO | CMD_PIO | CMD_RX | CMD_CE0 | CMD_A_VALID,
+	       &info->reg->command);
+	if (!nand_waitfor_cmd_completion(info->reg))
+		printf("Command timeout\n");
 
-	dword_read = readl(&info->reg->resp);
-	dword_read = dword_read >> (8 * info->pio_byte_index);
-	info->pio_byte_index++;
-	return (uint8_t)dword_read;
+	return (uint8_t)readl(&info->reg->resp);
 }
 
 /**
@@ -330,12 +311,8 @@ static void nand_command(struct mtd_info *mtd, unsigned int command,
 	case NAND_CMD_READID:
 		writel(NAND_CMD_READID, &info->reg->cmd_reg1);
 		writel(column & 0xFF, &info->reg->addr_reg1);
-		writel(CMD_GO | CMD_CLE | CMD_ALE | CMD_PIO
-			| CMD_RX |
-			((4 - 1) << CMD_TRANS_SIZE_SHIFT)
-			| CMD_CE0,
-			&info->reg->command);
-		info->pio_byte_index = 0;
+		writel(CMD_GO | CMD_CLE | CMD_ALE | CMD_CE0,
+		       &info->reg->command);
 		break;
 	case NAND_CMD_PARAM:
 		writel(NAND_CMD_PARAM, &info->reg->cmd_reg1);
@@ -376,7 +353,6 @@ static void nand_command(struct mtd_info *mtd, unsigned int command,
 			| ((1 - 0) << CMD_TRANS_SIZE_SHIFT)
 			| CMD_CE0,
 			&info->reg->command);
-		info->pio_byte_index = 0;
 		break;
 	case NAND_CMD_RESET:
 		writel(NAND_CMD_RESET, &info->reg->cmd_reg1);
