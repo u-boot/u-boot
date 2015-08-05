@@ -45,6 +45,8 @@ static void set_max_freq(void)
 
 static int cpu_x86_baytrail_probe(struct udevice *dev)
 {
+	if (!ll_boot_init())
+		return 0;
 	debug("Init BayTrail core\n");
 
 	/*

@@ -10,6 +10,14 @@ choice
 	prompt "Mainboard model"
 	optional
 
+config TARGET_BAYLEYBAY
+	bool "Bayley Bay"
+	help
+	  This is the Intel Bayley Bay Customer Reference Board. It contains an
+	  Intel quad-core Atom Processor E3800 with dual-channel DDR3L SODIMM
+	  4GB memory, HDMI/DP/VGA display, HD audio, SATA, USB2, USB3, SD, eMMC,
+	  PCIe and some other sensor interfaces.
+
 config TARGET_CROWNBAY
 	bool "Crown Bay"
 	help
@@ -45,6 +53,7 @@ config TARGET_MINNOWMAX
 
 endchoice
 
+source "board/intel/bayleybay/Kconfig"
 source "board/intel/crownbay/Kconfig"
 source "board/intel/galileo/Kconfig"
 source "board/intel/minnowmax/Kconfig"

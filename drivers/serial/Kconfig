@@ -44,6 +44,15 @@ config DEBUG_UART_NS16550
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_EFI_CONSOLE
+	bool "EFI"
+	depends on EFI_APP
+	help
+	  Select this to enable a debug console which calls back to EFI to
+	  output to the console. This can be useful for early debugging of
+	  U-Boot when running on top of EFI (Extensive Firmware Interface).
+	  This is a type of BIOS used by PCs.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -102,3 +111,13 @@ config UNIPHIER_SERIAL
 	help
 	  If you have a UniPhier based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
+
+config X86_SERIAL
+	bool "Support for 16550 serial port on x86 machines"
+	depends on X86
+	default y
+	help
+	  Most x86 machines have a ns16550 UART or compatible. This can be
+	  enabled in the device tree with the correct input clock frequency
+	  provided (default 1843200). Enable this to obtain serial console
+	  output.

@@ -269,7 +269,8 @@ int pci_hose_config_device(struct pci_controller *hose,
 	/* Disable interrupt line, if device says it wants to use interrupts */
 	pci_hose_read_config_byte(hose, dev, PCI_INTERRUPT_PIN, &pin);
 	if (pin != 0) {
-		pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, 0xff);
+		pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE,
+					   PCI_INTERRUPT_LINE_DISABLE);
 	}
 
 	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &old_command);

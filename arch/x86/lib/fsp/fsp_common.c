@@ -11,6 +11,8 @@
 #include <asm/processor.h>
 #include <asm/fsp/fsp_support.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int print_cpuinfo(void)
 {
 	post_code(POST_CPU_INFO);

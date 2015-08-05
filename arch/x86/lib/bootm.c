@@ -22,6 +22,8 @@
 #include <asm/arch/timestamp.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define COMMAND_LINE_OFFSET 0x9000
 
 /*
@@ -162,7 +164,11 @@ int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
 		* the data segments are 0x18, 4GB flat, and read/write.
 		* U-boot is setting them up that way for itself in
 		* arch/i386/cpu/cpu.c.
+		*
+		* Note that we cannot currently boot a kernel while running as
+		* an EFI application. Please use the payload option for that.
 		*/
+#ifndef CONFIG_EFI_APP
 		__asm__ __volatile__ (
 		"movl $0, %%ebp\n"
 		"cli\n"
@@ -171,6 +177,7 @@ int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
 		[boot_params] "S"(setup_base),
 		"b"(0), "D"(0)
 		);
+#endif
 	}
 
 	/* We can't get to here */

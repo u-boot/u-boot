@@ -27,6 +27,24 @@ enum {
 	X86_VENDOR_UNKNOWN = 0xff
 };
 
+/* Global descriptor table (GDT) bits */
+enum {
+	GDT_4KB			= 1ULL << 55,
+	GDT_32BIT		= 1ULL << 54,
+	GDT_LONG		= 1ULL << 53,
+	GDT_PRESENT		= 1ULL << 47,
+	GDT_NOTSYS		= 1ULL << 44,
+	GDT_CODE		= 1ULL << 43,
+	GDT_LIMIT_LOW_SHIFT	= 0,
+	GDT_LIMIT_LOW_MASK	= 0xffff,
+	GDT_LIMIT_HIGH_SHIFT	= 48,
+	GDT_LIMIT_HIGH_MASK	= 0xf,
+	GDT_BASE_LOW_SHIFT	= 16,
+	GDT_BASE_LOW_MASK	= 0xffff,
+	GDT_BASE_HIGH_SHIFT	= 56,
+	GDT_BASE_HIGH_MASK	= 0xf,
+};
+
 struct cpuid_result {
 	uint32_t eax;
 	uint32_t ebx;
@@ -210,6 +228,15 @@ char *cpu_get_name(char *name);
  * @target:	Pointer to the start of the kernel image
  */
 void cpu_call64(ulong pgtable, ulong setup_base, ulong target);
+
+/**
+ * cpu_call32() - Jump to a 32-bit entry point
+ *
+ * @code_seg32:	32-bit code segment to use (GDT offset, e.g. 0x20)
+ * @target:	Pointer to the start of the 32-bit U-Boot image/entry point
+ * @table:	Pointer to start of info table to pass to U-Boot
+ */
+void cpu_call32(ulong code_seg32, ulong target, ulong table);
 
 /**
  * cpu_jump_to_64bit() - Jump to a 64-bit Linux kernel

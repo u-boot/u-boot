@@ -98,4 +98,6 @@ config ERRNO_STR
 	  - if errno is null or positive number - a pointer to "Success" message
 	  - if errno is negative - a pointer to errno related message
 
+source lib/efi/Kconfig
+
 endmenu

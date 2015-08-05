@@ -90,6 +90,7 @@ obj-$(CONFIG_CMD_DTT) += cmd_dtt.o
 obj-$(CONFIG_CMD_ECHO) += cmd_echo.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += cmd_eeprom.o
 obj-$(CONFIG_CMD_EEPROM) += cmd_eeprom.o
+obj-$(CONFIG_EFI_STUB) += cmd_efi.o
 obj-$(CONFIG_CMD_ELF) += cmd_elf.o
 obj-$(CONFIG_SYS_HUSH_PARSER) += cmd_exit.o
 obj-$(CONFIG_CMD_EXT4) += cmd_ext4.o
