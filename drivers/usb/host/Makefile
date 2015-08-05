@@ -57,6 +57,7 @@ obj-$(CONFIG_USB_XHCI_EXYNOS) += xhci-exynos5.o
 obj-$(CONFIG_USB_XHCI_OMAP) += xhci-omap.o
 obj-$(CONFIG_USB_XHCI_PCI) += xhci-pci.o
 obj-$(CONFIG_USB_XHCI_UNIPHIER) += xhci-uniphier.o
+obj-$(CONFIG_USB_XHCI_ZYNQMP) += xhci-zynqmp.o
 
 # designware
 obj-$(CONFIG_USB_DWC2) += dwc2.o
