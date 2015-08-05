@@ -10,6 +10,14 @@ config TARGET_E2220_1170
 	  eMMC, SD card slot, HDMI, USB micro-B port, and sockets for various
 	  expansion modules.
 
+config TARGET_P2371_0000
+	bool "NVIDIA Tegra210 P2371-0000 board"
+	help
+	  P2371-0000 is a P2581 or P2530 CPU board married to a P2595 I/O
+	  board. The combination contains SoC, DRAM, eMMC, SD card slot,
+	  HDMI, USB micro-B port, Ethernet via USB3, USB3 host port, SATA,
+	  a GPIO expansion header, and an analog audio jack.
+
 config TARGET_P2571
 	bool "NVIDIA Tegra210 P2571 base board"
 	help
@@ -21,6 +29,7 @@ config SYS_SOC
 	default "tegra210"
 
 source "board/nvidia/e2220-1170/Kconfig"
+source "board/nvidia/p2371-0000/Kconfig"
 source "board/nvidia/p2571/Kconfig"
 
 endif
