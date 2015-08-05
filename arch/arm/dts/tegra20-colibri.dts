@@ -4,7 +4,7 @@
 
 / {
 	model = "Toradex Colibri T20";
-	compatible = "toradex,t20", "nvidia,tegra20";
+	compatible = "toradex,colibri_t20", "nvidia,tegra20";
 
 	chosen {
 		stdout-path = &uarta;
