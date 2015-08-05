@@ -463,7 +463,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x11C600)
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
-#define CONFIG_SERIAL_MULTI		/* Enable both serial ports */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
 #endif

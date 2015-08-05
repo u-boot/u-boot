@@ -388,7 +388,6 @@
 #define CONFIG_NS16550_MIN_FUNCTIONS
 #endif
 
-#define CONFIG_SERIAL_MULTI		/* Enable both serial ports */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define CONFIG_SYS_BAUDRATE_TABLE	\

@@ -16,7 +16,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T30"
 
 /* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
