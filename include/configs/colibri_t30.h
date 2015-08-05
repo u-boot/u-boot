@@ -51,6 +51,9 @@
 
 /* General networking support */
 #define CONFIG_CMD_DHCP
+#define CONFIG_IP_DEFRAG
+#define CONFIG_TFTP_BLOCKSIZE		16384
+#define CONFIG_TFTP_TSIZE
 
 /* Miscellaneous commands */
 #define CONFIG_FAT_WRITE
