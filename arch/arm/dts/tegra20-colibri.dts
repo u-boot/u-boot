@@ -11,6 +11,9 @@
 	};
 
 	aliases {
+		i2c0 = "/i2c@7000d000";
+		i2c1 = "/i2c@7000c000";
+		i2c2 = "/i2c@7000c400";
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
 		usb2 = "/usb@c5004000";
@@ -50,6 +53,31 @@
 			reg = <0>;
 			compatible = "nand-flash";
 		};
+	};
+
+	/*
+	 * GEN1_I2C: I2C_SDA/SCL on SODIMM pin 194/196 (e.g. RTC on carrier
+	 * board)
+	 */
+	i2c@7000c000 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/* GEN2_I2C: unused */
+
+	/* DDC_CLOCK/DATA on X3 pin 15/16 (e.g. display EDID) */
+	i2c@7000c400 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/*
+	 * PWR_I2C: power I2C to PMIC and temperature sensor
+	 */
+	i2c@7000d000 {
+		status = "okay";
+		clock-frequency = <100000>;
 	};
 
 	sdhci@c8000600 {

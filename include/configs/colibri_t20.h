@@ -21,6 +21,10 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_T20
 
+/* I2C */
+#define CONFIG_SYS_I2C_TEGRA
+#define CONFIG_CMD_I2C
+
 /* SD/MMC support */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
