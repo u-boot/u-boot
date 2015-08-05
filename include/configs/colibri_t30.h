@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 2013-2015 Stefan Agner
  *
+ * Configuration settings for the Toradex Colibri T30 modules.
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -26,7 +28,7 @@
 #define CONFIG_SYS_I2C_TEGRA
 #define CONFIG_CMD_I2C
 
-/* SD/MMC */
+/* SD/MMC support */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
@@ -38,10 +40,10 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
 
-/* USB Host support */
+/* USB host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	3
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 

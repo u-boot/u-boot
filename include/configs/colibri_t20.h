@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2012 Lucas Stach
  *
+ * Configuration settings for the Toradex Colibri T20 modules.
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -36,7 +38,7 @@
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_ULPI
 #define CONFIG_USB_ULPI_VIEWPORT
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	3
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
@@ -63,7 +65,7 @@
 /* NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND
-#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS	/* Enable 'mtdparts' command line support */
@@ -78,9 +80,9 @@
 
 /* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
 #define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET              (SZ_2M)
-#undef  CONFIG_ENV_SIZE /* undef size from tegra20-common.h */
-#define CONFIG_ENV_SIZE                (SZ_64K)
+#define CONFIG_ENV_OFFSET		(SZ_2M)
+#undef CONFIG_ENV_SIZE		/* undef size from tegra20-common.h */
+#define CONFIG_ENV_SIZE			(SZ_64K)
 
 /* UBI */
 #define CONFIG_CMD_BOOTZ

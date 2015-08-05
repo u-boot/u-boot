@@ -36,11 +36,13 @@
 	};
 
 	usb@c5004000 {
+		/* VBUS_LAN */
 		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
 	};
 
 	usb@c5008000 {
+		/* USBH_PEN */
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
 
@@ -82,8 +84,8 @@
 
 	sdhci@c8000600 {
 		status = "okay";
-		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
 		bus-width = <4>;
+		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
 	};
 
 	lcd_panel: panel {
