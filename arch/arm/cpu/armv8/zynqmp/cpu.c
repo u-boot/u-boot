@@ -191,4 +191,9 @@ void enable_caches(void)
 
 	set_sctlr(get_sctlr() | CR_C);
 }
+
+u64 *arch_get_page_table(void)
+{
+	return (u64 *)(gd->arch.tlb_addr + 0x3000);
+}
 #endif
