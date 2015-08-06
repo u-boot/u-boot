@@ -13,10 +13,12 @@
 #include <asm/arch/soc.h>
 
 #ifdef CONFIG_SYS_MVEBU_DDR_A38X
-#include "../../../drivers/ddr/marvell/a38x/ddr3_init.h"
+#include "../../../drivers/ddr/marvell/axp/xor.h"
+#include "../../../drivers/ddr/marvell/axp/xor_regs.h"
 #endif
 #ifdef CONFIG_SYS_MVEBU_DDR_AXP
-#include "../../../drivers/ddr/marvell/axp/ddr3_init.h"
+#include "../../../drivers/ddr/marvell/axp/xor.h"
+#include "../../../drivers/ddr/marvell/axp/xor_regs.h"
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -36,6 +38,14 @@ struct sdram_addr_dec {
 #define REG_CPUCS_WIN_SIZE(x)		(((x) & 0xff) << 24)
 
 #define SDRAM_SIZE_MAX			0xc0000000
+
+#define SCRUB_MAGIC		0xbeefdead
+
+#define SCRB_XOR_UNIT		0
+#define SCRB_XOR_CHAN		1
+#define SCRB_XOR_WIN		0
+
+#define XEBARX_BASE_OFFS	16
 
 /*
  * mvebu_sdram_bar - reads SDRAM Base Address Register
@@ -102,6 +112,124 @@ void mvebu_sdram_size_adjust(enum memory_bank bank)
 	mvebu_sdram_bs_set(bank, size);
 }
 
+#if defined(CONFIG_SYS_MVEBU_DDR_A38X) || defined(CONFIG_SYS_MVEBU_DDR_AXP)
+static u32 xor_ctrl_save;
+static u32 xor_base_save;
+static u32 xor_mask_save;
+
+static void mv_xor_init2(u32 cs)
+{
+	u32 reg, base, size, base2;
+	u32 bank_attr[4] = { 0xe00, 0xd00, 0xb00, 0x700 };
+
+	xor_ctrl_save = reg_read(XOR_WINDOW_CTRL_REG(SCRB_XOR_UNIT,
+						     SCRB_XOR_CHAN));
+	xor_base_save = reg_read(XOR_BASE_ADDR_REG(SCRB_XOR_UNIT,
+						   SCRB_XOR_WIN));
+	xor_mask_save = reg_read(XOR_SIZE_MASK_REG(SCRB_XOR_UNIT,
+						   SCRB_XOR_WIN));
+
+	/* Enable Window x for each CS */
+	reg = 0x1;
+	reg |= (0x3 << 16);
+	reg_write(XOR_WINDOW_CTRL_REG(SCRB_XOR_UNIT, SCRB_XOR_CHAN), reg);
+
+	base = 0;
+	size = mvebu_sdram_bs(cs) - 1;
+	if (size) {
+		base2 = ((base / (64 << 10)) << XEBARX_BASE_OFFS) |
+			bank_attr[cs];
+		reg_write(XOR_BASE_ADDR_REG(SCRB_XOR_UNIT, SCRB_XOR_WIN),
+			  base2);
+
+		base += size + 1;
+		size = (size / (64 << 10)) << 16;
+		/* Window x - size - 256 MB */
+		reg_write(XOR_SIZE_MASK_REG(SCRB_XOR_UNIT, SCRB_XOR_WIN), size);
+	}
+
+	mv_xor_hal_init(0);
+
+	return;
+}
+
+static void mv_xor_finish2(void)
+{
+	reg_write(XOR_WINDOW_CTRL_REG(SCRB_XOR_UNIT, SCRB_XOR_CHAN),
+		  xor_ctrl_save);
+	reg_write(XOR_BASE_ADDR_REG(SCRB_XOR_UNIT, SCRB_XOR_WIN),
+		  xor_base_save);
+	reg_write(XOR_SIZE_MASK_REG(SCRB_XOR_UNIT, SCRB_XOR_WIN),
+		  xor_mask_save);
+}
+
+static void dram_ecc_scrubbing(void)
+{
+	int cs;
+	u32 size, temp;
+	u32 total_mem = 0;
+	u64 total;
+	u32 start_addr;
+
+	/*
+	 * The DDR training code from the bin_hdr / SPL already
+	 * scrubbed the DDR till 0x1000000. And the main U-Boot
+	 * is loaded to an address < 0x1000000. So we need to
+	 * skip this range to not re-scrub this area again.
+	 */
+	temp = reg_read(REG_SDRAM_CONFIG_ADDR);
+	temp |= (1 << REG_SDRAM_CONFIG_IERR_OFFS);
+	reg_write(REG_SDRAM_CONFIG_ADDR, temp);
+
+	for (cs = 0; cs < CONFIG_NR_DRAM_BANKS; cs++) {
+		size = mvebu_sdram_bs(cs) - 1;
+		if (size == 0)
+			continue;
+
+		total = (u64)size + 1;
+		total_mem += (u32)(total / (1 << 30));
+		start_addr = 0;
+		mv_xor_init2(cs);
+
+		/* Skip first 16 MiB */
+		if (0 == cs) {
+			start_addr = 0x1000000;
+			size -= start_addr;
+		}
+
+		mv_xor_mem_init(SCRB_XOR_CHAN, start_addr, size,
+				SCRUB_MAGIC, SCRUB_MAGIC);
+
+		/* Wait for previous transfer completion */
+		while (mv_xor_state_get(SCRB_XOR_CHAN) != MV_IDLE)
+			;
+
+		mv_xor_finish2();
+	}
+
+	temp = reg_read(REG_SDRAM_CONFIG_ADDR);
+	temp &= ~(1 << REG_SDRAM_CONFIG_IERR_OFFS);
+	reg_write(REG_SDRAM_CONFIG_ADDR, temp);
+}
+
+static int ecc_enabled(void)
+{
+	if (reg_read(REG_SDRAM_CONFIG_ADDR) & (1 << REG_SDRAM_CONFIG_ECC_OFFS))
+		return 1;
+
+	return 0;
+}
+#else
+static void dram_ecc_scrubbing(void)
+{
+}
+
+static int ecc_enabled(void)
+{
+	return 0;
+}
+#endif
+
 int dram_init(void)
 {
 	u64 size = 0;
@@ -135,6 +263,10 @@ int dram_init(void)
 		gd->bd->bi_dram[i].size = 0;
 	}
 
+
+	if (ecc_enabled())
+		dram_ecc_scrubbing();
+
 	gd->ram_size = size;
 
 	return 0;
@@ -162,10 +294,7 @@ void dram_init_banksize(void)
 
 void board_add_ram_info(int use_default)
 {
-	u32 reg;
-
-	reg = reg_read(REG_SDRAM_CONFIG_ADDR);
-	if (reg & (1 << REG_SDRAM_CONFIG_ECC_OFFS))
+	if (ecc_enabled())
 		printf(" (ECC");
 	else
 		printf(" (ECC not");
