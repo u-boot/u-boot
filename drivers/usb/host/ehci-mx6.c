@@ -45,7 +45,10 @@
 #define ANADIG_USB2_PLL_480_CTRL_POWER		0x00001000
 #define ANADIG_USB2_PLL_480_CTRL_EN_USB_CLKS	0x00000040
 
-
+#define USBNC_OFFSET		0x200
+#define USBNC_PHYSTATUS_ID_DIG	(1 << 4) /* otg_id status */
+#define USBNC_PHYCFG2_ACAENB	(1 << 4) /* otg_id detection enable */
+#define UCTRL_PM                (1 << 9) /* OTG Power Mask */
 #define UCTRL_OVER_CUR_POL	(1 << 8) /* OTG Polarity of Overcurrent */
 #define UCTRL_OVER_CUR_DIS	(1 << 7) /* Disable OTG Overcurrent Detection */
 
@@ -53,6 +56,7 @@
 #define UCMD_RUN_STOP           (1 << 0) /* controller run/stop */
 #define UCMD_RESET		(1 << 1) /* controller reset */
 
+#if defined(CONFIG_MX6)
 static const unsigned phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
 	USB_PHY1_BASE_ADDR,
@@ -153,31 +157,6 @@ static int usb_phy_enable(int index, struct usb_ehci *ehci)
 	return 0;
 }
 
-/* Base address for this IP block is 0x02184800 */
-struct usbnc_regs {
-	u32	ctrl[4];	/* otg/host1-3 */
-	u32	uh2_hsic_ctrl;
-	u32	uh3_hsic_ctrl;
-	u32	otg_phy_ctrl_0;
-	u32	uh1_phy_ctrl_0;
-};
-
-static void usb_oc_config(int index)
-{
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
-			USB_OTHERREGS_OFFSET);
-	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
-
-#if CONFIG_MACH_TYPE == MACH_TYPE_MX6Q_ARM2
-	/* mx6qarm2 seems to required a different setting*/
-	clrbits_le32(ctrl, UCTRL_OVER_CUR_POL);
-#else
-	setbits_le32(ctrl, UCTRL_OVER_CUR_POL);
-#endif
-
-	setbits_le32(ctrl, UCTRL_OVER_CUR_DIS);
-}
-
 int usb_phy_mode(int port)
 {
 	void __iomem *phy_reg;
@@ -193,6 +172,80 @@ int usb_phy_mode(int port)
 		return USB_INIT_DEVICE;
 	else
 		return USB_INIT_HOST;
+}
+
+/* Base address for this IP block is 0x02184800 */
+struct usbnc_regs {
+	u32	ctrl[4];	/* otg/host1-3 */
+	u32	uh2_hsic_ctrl;
+	u32	uh3_hsic_ctrl;
+	u32	otg_phy_ctrl_0;
+	u32	uh1_phy_ctrl_0;
+};
+#elif defined(CONFIG_MX7)
+struct usbnc_regs {
+	u32 ctrl1;
+	u32 ctrl2;
+	u32 reserve1[10];
+	u32 phy_cfg1;
+	u32 phy_cfg2;
+	u32 phy_status;
+	u32 reserve2[4];
+	u32 adp_cfg1;
+	u32 adp_cfg2;
+	u32 adp_status;
+};
+
+static void usb_power_config(int index)
+{
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+			(0x10000 * index) + USBNC_OFFSET);
+	void __iomem *phy_cfg2 = (void __iomem *)(&usbnc->phy_cfg2);
+
+	/* Enable usb_otg_id detection */
+	setbits_le32(phy_cfg2, USBNC_PHYCFG2_ACAENB);
+}
+
+int usb_phy_mode(int port)
+{
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+			(0x10000 * port) + USBNC_OFFSET);
+	void __iomem *status = (void __iomem *)(&usbnc->phy_status);
+	u32 val;
+
+	val = readl(status);
+
+	if (val & USBNC_PHYSTATUS_ID_DIG)
+		return USB_INIT_DEVICE;
+	else
+		return USB_INIT_HOST;
+}
+#endif
+
+static void usb_oc_config(int index)
+{
+#if defined(CONFIG_MX6)
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+			USB_OTHERREGS_OFFSET);
+	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
+#elif defined(CONFIG_MX7)
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+			(0x10000 * index) + USBNC_OFFSET);
+	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl1);
+#endif
+
+#if CONFIG_MACH_TYPE == MACH_TYPE_MX6Q_ARM2
+	/* mx6qarm2 seems to required a different setting*/
+	clrbits_le32(ctrl, UCTRL_OVER_CUR_POL);
+#else
+	setbits_le32(ctrl, UCTRL_OVER_CUR_POL);
+#endif
+
+#if defined(CONFIG_MX6)
+	setbits_le32(ctrl, UCTRL_OVER_CUR_DIS);
+#elif defined(CONFIG_MX7)
+	setbits_le32(ctrl, UCTRL_OVER_CUR_DIS | UCTRL_PM);
+#endif
 }
 
 /**
@@ -245,8 +298,13 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	enum usb_init_type type;
+#if defined(CONFIG_MX6)
+	u32 controller_spacing = 0x200;
+#elif defined(CONFIG_MX7)
+	u32 controller_spacing = 0x10000;
+#endif
 	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
-		(0x200 * index));
+		(controller_spacing * index));
 
 	if (index > 3)
 		return -EINVAL;
@@ -258,8 +316,11 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	usb_power_config(index);
 	usb_oc_config(index);
+
+#if defined(CONFIG_MX6)
 	usb_internal_phy_clock_gate(index, 1);
 	usb_phy_enable(index, ehci);
+#endif
 	type = board_usb_phy_mode(index);
 
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
@@ -272,6 +333,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		return -ENODEV;
 	if (type == USB_INIT_DEVICE)
 		return 0;
+
 	setbits_le32(&ehci->usbmode, CM_HOST);
 	writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
 	setbits_le32(&ehci->portsc, USB_EN);
