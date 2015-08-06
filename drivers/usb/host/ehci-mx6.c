@@ -117,12 +117,39 @@ static void usb_power_config(int index)
 		     pll_480_ctrl_set);
 }
 
+static int wait_for_bit(u32 *reg, const u32 mask, bool set)
+{
+	u32 val;
+	const unsigned int timeout = 10000;
+	unsigned long start = get_timer(0);
+
+	while(1) {
+		val = readl(reg);
+		if (!set)
+			val = ~val;
+
+		if ((val & mask) == mask)
+			return 0;
+
+		if (get_timer(start) > timeout)
+			break;
+
+		udelay(1);
+	}
+
+	debug("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
+			__func__, reg, mask, set);
+
+	return -ETIMEDOUT;
+}
+
 /* Return 0 : host node, <>0 : device mode */
 static int usb_phy_enable(int index, struct usb_ehci *ehci)
 {
 	void __iomem *phy_reg;
 	void __iomem *phy_ctrl;
 	void __iomem *usb_cmd;
+	int ret;
 
 	if (index >= ARRAY_SIZE(phy_bases))
 		return 0;
@@ -133,12 +160,14 @@ static int usb_phy_enable(int index, struct usb_ehci *ehci)
 
 	/* Stop then Reset */
 	clrbits_le32(usb_cmd, UCMD_RUN_STOP);
-	while (readl(usb_cmd) & UCMD_RUN_STOP)
-		;
+	ret = wait_for_bit(usb_cmd, UCMD_RUN_STOP, 0);
+	if (ret)
+		return ret;
 
 	setbits_le32(usb_cmd, UCMD_RESET);
-	while (readl(usb_cmd) & UCMD_RESET)
-		;
+	ret = wait_for_bit(usb_cmd, UCMD_RESET, 0);
+	if (ret)
+		return ret;
 
 	/* Reset USBPHY module */
 	setbits_le32(phy_ctrl, USBPHY_CTRL_SFTRST);
