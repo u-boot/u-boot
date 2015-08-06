@@ -295,10 +295,90 @@ int fdtdec_next_compatible(const void *blob, int node,
 int fdtdec_next_compatible_subnode(const void *blob, int node,
 		enum fdt_compat_id id, int *depthp);
 
-/**
- * Look up an address property in a node and return it as an address.
- * The property must hold either one address with no trailing data or
- * one address with a length. This is only tested on 32-bit machines.
+/*
+ * Look up an address property in a node and return the parsed address, and
+ * optionally the parsed size.
+ *
+ * This variant assumes a known and fixed number of cells are used to
+ * represent the address and size.
+ *
+ * You probably don't want to use this function directly except to parse
+ * non-standard properties, and never to parse the "reg" property. Instead,
+ * use one of the "auto" variants below, which automatically honor the
+ * #address-cells and #size-cells properties in the parent node.
+ *
+ * @param blob	FDT blob
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @param index	which address to retrieve from a list of addresses. Often 0.
+ * @param na	the number of cells used to represent an address
+ * @param ns	the number of cells used to represent a size
+ * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @return address, if found, or FDT_ADDR_T_NONE if not
+ */
+fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
+		const char *prop_name, int index, int na, int ns,
+		fdt_size_t *sizep);
+
+/*
+ * Look up an address property in a node and return the parsed address, and
+ * optionally the parsed size.
+ *
+ * This variant automatically determines the number of cells used to represent
+ * the address and size by parsing the provided parent node's #address-cells
+ * and #size-cells properties.
+ *
+ * @param blob	FDT blob
+ * @param parent	parent node of @node
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @param index	which address to retrieve from a list of addresses. Often 0.
+ * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @return address, if found, or FDT_ADDR_T_NONE if not
+ */
+fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
+		int node, const char *prop_name, int index, fdt_size_t *sizep);
+
+/*
+ * Look up an address property in a node and return the parsed address, and
+ * optionally the parsed size.
+ *
+ * This variant automatically determines the number of cells used to represent
+ * the address and size by parsing the parent node's #address-cells
+ * and #size-cells properties. The parent node is automatically found.
+ *
+ * The automatic parent lookup implemented by this function is slow.
+ * Consequently, fdtdec_get_addr_size_auto_parent() should be used where
+ * possible.
+ *
+ * @param blob	FDT blob
+ * @param parent	parent node of @node
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @param index	which address to retrieve from a list of addresses. Often 0.
+ * @param sizep	a pointer to store the size into. Use NULL if not required
+ * @return address, if found, or FDT_ADDR_T_NONE if not
+ */
+fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
+		const char *prop_name, int index, fdt_size_t *sizep);
+
+/*
+ * Look up an address property in a node and return the parsed address.
+ *
+ * This variant hard-codes the number of cells used to represent the address
+ * and size based on sizeof(fdt_addr_t) and sizeof(fdt_size_t). It also
+ * always returns the first address value in the property (index 0).
+ *
+ * Use of this function is not recommended due to the hard-coding of cell
+ * counts. There is no programmatic validation that these hard-coded values
+ * actually match the device tree content in any way at all. This assumption
+ * can be satisfied by manually ensuring CONFIG_PHYS_64BIT is appropriately
+ * set in the U-Boot build and exercising strict control over DT content to
+ * ensure use of matching #address-cells/#size-cells properties. However, this
+ * approach is error-prone; those familiar with DT will not expect the
+ * assumption to exist, and could easily invalidate it. If the assumption is
+ * invalidated, this function will not report the issue, and debugging will
+ * be required. Instead, use fdtdec_get_addr_size_auto_parent().
  *
  * @param blob	FDT blob
  * @param node	node to examine
@@ -308,14 +388,29 @@ int fdtdec_next_compatible_subnode(const void *blob, int node,
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,
 		const char *prop_name);
 
-/**
- * Look up an address property in a node and return it as an address.
- * The property must hold one address with a length. This is only tested
- * on 32-bit machines.
+/*
+ * Look up an address property in a node and return the parsed address, and
+ * optionally the parsed size.
+ *
+ * This variant hard-codes the number of cells used to represent the address
+ * and size based on sizeof(fdt_addr_t) and sizeof(fdt_size_t). It also
+ * always returns the first address value in the property (index 0).
+ *
+ * Use of this function is not recommended due to the hard-coding of cell
+ * counts. There is no programmatic validation that these hard-coded values
+ * actually match the device tree content in any way at all. This assumption
+ * can be satisfied by manually ensuring CONFIG_PHYS_64BIT is appropriately
+ * set in the U-Boot build and exercising strict control over DT content to
+ * ensure use of matching #address-cells/#size-cells properties. However, this
+ * approach is error-prone; those familiar with DT will not expect the
+ * assumption to exist, and could easily invalidate it. If the assumption is
+ * invalidated, this function will not report the issue, and debugging will
+ * be required. Instead, use fdtdec_get_addr_size_auto_parent().
  *
  * @param blob	FDT blob
  * @param node	node to examine
  * @param prop_name	name of property to find
+ * @param sizep	a pointer to store the size into. Use NULL if not required
  * @return address, if found, or FDT_ADDR_T_NONE if not
  */
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
