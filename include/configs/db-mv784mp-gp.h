@@ -17,7 +17,12 @@
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
-#define	CONFIG_SYS_TEXT_BASE	0x04000000
+/*
+ * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
+ * for DDR ECC byte filling in the SPL before loading the main
+ * U-Boot into it.
+ */
+#define	CONFIG_SYS_TEXT_BASE	0x00800000
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*
