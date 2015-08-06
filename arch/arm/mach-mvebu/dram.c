@@ -93,7 +93,6 @@ void mvebu_sdram_size_adjust(enum memory_bank bank)
 	mvebu_sdram_bs_set(bank, size);
 }
 
-#ifndef CONFIG_SYS_BOARD_DRAM_INIT
 int dram_init(void)
 {
 	int i;
@@ -141,4 +140,3 @@ void dram_init_banksize(void)
 {
 	dram_init();
 }
-#endif /* CONFIG_SYS_BOARD_DRAM_INIT */
