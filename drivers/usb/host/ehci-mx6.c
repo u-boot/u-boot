@@ -67,7 +67,7 @@ static void usb_internal_phy_clock_gate(int index, int on)
 
 	phy_reg = (void __iomem *)phy_bases[index];
 	phy_reg += on ? USBPHY_CTRL_CLR : USBPHY_CTRL_SET;
-	__raw_writel(USBPHY_CTRL_CLKGATE, phy_reg);
+	writel(USBPHY_CTRL_CLKGATE, phy_reg);
 }
 
 static void usb_power_config(int index)
@@ -100,14 +100,14 @@ static void usb_power_config(int index)
 	 * is totally controlled by IC, so the Software only needs
 	 * to enable them at initializtion.
 	 */
-	__raw_writel(ANADIG_USB2_CHRG_DETECT_EN_B |
+	writel(ANADIG_USB2_CHRG_DETECT_EN_B |
 		     ANADIG_USB2_CHRG_DETECT_CHK_CHRG_B,
 		     chrg_detect);
 
-	__raw_writel(ANADIG_USB2_PLL_480_CTRL_BYPASS,
+	writel(ANADIG_USB2_PLL_480_CTRL_BYPASS,
 		     pll_480_ctrl_clr);
 
-	__raw_writel(ANADIG_USB2_PLL_480_CTRL_ENABLE |
+	writel(ANADIG_USB2_PLL_480_CTRL_ENABLE |
 		     ANADIG_USB2_PLL_480_CTRL_POWER |
 		     ANADIG_USB2_PLL_480_CTRL_EN_USB_CLKS,
 		     pll_480_ctrl_set);
@@ -119,7 +119,6 @@ static int usb_phy_enable(int index, struct usb_ehci *ehci)
 	void __iomem *phy_reg;
 	void __iomem *phy_ctrl;
 	void __iomem *usb_cmd;
-	u32 val;
 
 	if (index >= ARRAY_SIZE(phy_bases))
 		return 0;
@@ -129,36 +128,27 @@ static int usb_phy_enable(int index, struct usb_ehci *ehci)
 	usb_cmd = (void __iomem *)&ehci->usbcmd;
 
 	/* Stop then Reset */
-	val = __raw_readl(usb_cmd);
-	val &= ~UCMD_RUN_STOP;
-	__raw_writel(val, usb_cmd);
-	while (__raw_readl(usb_cmd) & UCMD_RUN_STOP)
+	clrbits_le32(usb_cmd, UCMD_RUN_STOP);
+	while (readl(usb_cmd) & UCMD_RUN_STOP)
 		;
 
-	val = __raw_readl(usb_cmd);
-	val |= UCMD_RESET;
-	__raw_writel(val, usb_cmd);
-	while (__raw_readl(usb_cmd) & UCMD_RESET)
+	setbits_le32(usb_cmd, UCMD_RESET);
+	while (readl(usb_cmd) & UCMD_RESET)
 		;
 
 	/* Reset USBPHY module */
-	val = __raw_readl(phy_ctrl);
-	val |= USBPHY_CTRL_SFTRST;
-	__raw_writel(val, phy_ctrl);
+	setbits_le32(phy_ctrl, USBPHY_CTRL_SFTRST);
 	udelay(10);
 
 	/* Remove CLKGATE and SFTRST */
-	val = __raw_readl(phy_ctrl);
-	val &= ~(USBPHY_CTRL_CLKGATE | USBPHY_CTRL_SFTRST);
-	__raw_writel(val, phy_ctrl);
+	clrbits_le32(phy_ctrl, USBPHY_CTRL_CLKGATE | USBPHY_CTRL_SFTRST);
 	udelay(10);
 
 	/* Power up the PHY */
-	__raw_writel(0, phy_reg + USBPHY_PWD);
+	writel(0, phy_reg + USBPHY_PWD);
 	/* enable FS/LS device */
-	val = __raw_readl(phy_ctrl);
-	val |= (USBPHY_CTRL_ENUTMILEVEL2 | USBPHY_CTRL_ENUTMILEVEL3);
-	__raw_writel(val, phy_ctrl);
+	setbits_le32(phy_ctrl, USBPHY_CTRL_ENUTMILEVEL2 |
+			USBPHY_CTRL_ENUTMILEVEL3);
 
 	return 0;
 }
@@ -177,20 +167,15 @@ static void usb_oc_config(int index)
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
 			USB_OTHERREGS_OFFSET);
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
-	u32 val;
 
-	val = __raw_readl(ctrl);
 #if CONFIG_MACH_TYPE == MACH_TYPE_MX6Q_ARM2
 	/* mx6qarm2 seems to required a different setting*/
-	val &= ~UCTRL_OVER_CUR_POL;
+	clrbits_le32(ctrl, UCTRL_OVER_CUR_POL);
 #else
-	val |= UCTRL_OVER_CUR_POL;
+	setbits_le32(ctrl, UCTRL_OVER_CUR_POL);
 #endif
-	__raw_writel(val, ctrl);
 
-	val = __raw_readl(ctrl);
-	val |= UCTRL_OVER_CUR_DIS;
-	__raw_writel(val, ctrl);
+	setbits_le32(ctrl, UCTRL_OVER_CUR_DIS);
 }
 
 int usb_phy_mode(int port)
@@ -202,7 +187,7 @@ int usb_phy_mode(int port)
 	phy_reg = (void __iomem *)phy_bases[port];
 	phy_ctrl = (void __iomem *)(phy_reg + USBPHY_CTRL);
 
-	val = __raw_readl(phy_ctrl);
+	val = readl(phy_ctrl);
 
 	if (val & USBPHY_CTRL_OTG_ID)
 		return USB_INIT_DEVICE;
@@ -257,7 +242,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	if (type == USB_INIT_DEVICE)
 		return 0;
 	setbits_le32(&ehci->usbmode, CM_HOST);
-	__raw_writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
+	writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
 	setbits_le32(&ehci->portsc, USB_EN);
 
 	mdelay(10);
