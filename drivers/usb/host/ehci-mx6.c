@@ -195,16 +195,47 @@ int usb_phy_mode(int port)
 		return USB_INIT_HOST;
 }
 
+/**
+ * board_ehci_hcd_init - override usb phy mode
+ * @port:	usb host/otg port
+ *
+ * Target board specific, override usb_phy_mode.
+ * When usb-otg is used as usb host port, iomux pad usb_otg_id can be
+ * left disconnected in this case usb_phy_mode will not be able to identify
+ * the phy mode that usb port is used.
+ * Machine file overrides board_usb_phy_mode.
+ *
+ * Return: USB_INIT_DEVICE or USB_INIT_HOST
+ */
 int __weak board_usb_phy_mode(int port)
 {
 	return usb_phy_mode(port);
 }
 
+/**
+ * board_ehci_hcd_init - set usb vbus voltage
+ * @port:      usb otg port
+ *
+ * Target board specific, setup iomux pad to setup supply vbus voltage
+ * for usb otg port. Machine board file overrides board_ehci_hcd_init
+ *
+ * Return: 0 Success
+ */
 int __weak board_ehci_hcd_init(int port)
 {
 	return 0;
 }
 
+/**
+ * board_ehci_power - enables/disables usb vbus voltage
+ * @port:      usb otg port
+ * @on:        on/off vbus voltage
+ *
+ * Enables/disables supply vbus voltage for usb otg port.
+ * Machine board file overrides board_ehci_power
+ *
+ * Return: 0 Success
+ */
 int __weak board_ehci_power(int port, int on)
 {
 	return 0;
