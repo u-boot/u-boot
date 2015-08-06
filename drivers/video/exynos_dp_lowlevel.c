@@ -823,7 +823,7 @@ int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
 			reg = readl(&dp_regs->aux_rx_comm);
 			if (reg == AUX_RX_COMM_AUX_DEFER ||
 				reg == AUX_RX_COMM_I2C_DEFER) {
-				printf("DP Defer: %d\n\n", reg);
+				printf("DP Defer: %d\n", reg);
 				defer = 1;
 			}
 		}

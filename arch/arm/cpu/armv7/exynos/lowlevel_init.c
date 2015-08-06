@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <debug_uart.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/dmc.h>
 #include <asm/arch/power.h>
@@ -216,6 +217,10 @@ int do_lowlevel_init(void)
 
 	if (actions & DO_CLOCKS) {
 		system_clock_init();
+#ifdef CONFIG_DEBUG_UART
+		exynos_pinmux_config(PERIPH_ID_UART3, PINMUX_FLAG_NONE);
+		debug_uart_init();
+#endif
 		mem_ctrl_init(actions & DO_MEM_RESET);
 		tzpc_init();
 	}

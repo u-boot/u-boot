@@ -350,7 +350,7 @@ int cros_ec_read_build_info(struct cros_ec_dev *dev, char **strp);
  * @param state		new state of the LDO/FET : EC_LDO_STATE_ON|OFF
  * @return 0 if ok, -1 on error
  */
-int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state);
+int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state);
 
 /**
  * Read back a LDO / FET current state.
@@ -360,7 +360,7 @@ int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state);
  * @param state		current state of the LDO/FET : EC_LDO_STATE_ON|OFF
  * @return 0 if ok, -1 on error
  */
-int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state);
+int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state);
 
 /**
  * Get access to the error reported when cros_ec_board_init() was called
@@ -390,18 +390,14 @@ int cros_ec_decode_ec_flash(const void *blob, int node,
  */
 void cros_ec_check_keyboard(struct cros_ec_dev *dev);
 
+struct i2c_msg;
 /*
  * Tunnel an I2C transfer to the EC
  *
  * @param dev		CROS-EC device
- * @param chip		Chip address (7-bit I2C address)
- * @param addr		Register address to read/write
- * @param alen		Length of register address in bytes
- * @param buffer	Buffer containing data to read/write
- * @param len		Length of buffer
- * @param is_read	1 if this is a read, 0 if this is a write
+ * @param msg		List of messages to transfer
+ * @param nmsgs		Number of messages to transfer
  */
-int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
-		     int alen, uchar *buffer, int len, int is_read);
+int cros_ec_i2c_tunnel(struct udevice *dev, struct i2c_msg *msg, int nmsgs);
 
 #endif

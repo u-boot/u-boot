@@ -32,6 +32,15 @@ config DM_REGULATOR_FIXED
 	features for fixed value regulators. The driver implements get/set api
 	for enable and get only for voltage value.
 
+config REGULATOR_S5M8767
+	bool "Enable support for S5M8767 regulator"
+	depends on DM_REGULATOR && PMIC_S5M8767
+	---help---
+	This enables the regulator features of the S5M8767, allowing voltages
+	to be set, etc. The driver is not fully complete but supports most
+	common requirements, including all LDOs and BUCKs. This allows many
+	supplies to be set automatically using the device tree values.
+
 config DM_REGULATOR_SANDBOX
 	bool "Enable Driver Model for Sandbox PMIC regulator"
 	depends on DM_REGULATOR && DM_PMIC_SANDBOX
@@ -61,3 +70,13 @@ config DM_REGULATOR_SANDBOX
 
 	A detailed information can be found in header: '<power/sandbox_pmic.h>'
 	Binding info: 'doc/device-tree-bindings/pmic/max77686.txt'
+
+config REGULATOR_TPS65090
+	bool "Enable driver for TPS65090 PMIC regulators"
+	depends on PMIC_TPS65090
+	---help---
+	The TPS65090 provides several FETs (Field-effect Transistors,
+	effectively switches) which are supported by this driver as
+	regulators, one for each FET. The standard regulator interface is
+	supported, but it is only possible to turn the regulators on or off.
+	There is no voltage/current control.

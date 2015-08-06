@@ -59,3 +59,46 @@ config DM_SEQ_ALIAS
 	  Most boards will have a '/aliases' node containing the path to
 	  numbered devices (e.g. serial0 = &serial0). This feature can be
 	  disabled if it is not required, to save code space in SPL.
+
+config REGMAP
+	bool "Support register maps"
+	depends on DM
+	help
+	  Hardware peripherals tend to have one or more sets of registers
+	  which can be accessed to control the hardware. A register map
+	  models this with a simple read/write interface. It can in principle
+	  support any bus type (I2C, SPI) but so far this only supports
+	  direct memory access.
+
+config SYSCON
+	bool "Support system controllers"
+	depends on REGMAP
+	help
+	  Many SoCs have a number of system controllers which are dealt with
+	  as a group by a single driver. Some common functionality is provided
+	  by this uclass, including accessing registers via regmap and
+	  assigning a unique number to each.
+
+config DEVRES
+	bool "Managed device resources"
+	depends on DM
+	help
+	  This option enables the Managed device resources core support.
+	  Device resources managed by the devres framework are automatically
+	  released whether initialization fails half-way or the device gets
+	  detached.
+
+	  If this option is disabled, devres functions fall back to
+	  non-managed variants.  For example, devres_alloc() to kzalloc(),
+	  devm_kmalloc() to kmalloc(), etc.
+
+config DEBUG_DEVRES
+	bool "Managed device resources debugging functions"
+	depends on DEVRES
+	help
+	  If this option is enabled, devres debug messages are printed.
+	  Also, a function is available to dump a list of device resources.
+	  Select this if you are having a problem with devres or want to
+	  debug resource management for a managed device.
+
+	  If you are unsure about this, Say N here.

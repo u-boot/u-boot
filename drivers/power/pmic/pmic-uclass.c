@@ -142,7 +142,7 @@ int pmic_reg_write(struct udevice *dev, uint reg, uint value)
 	u8 byte = value;
 
 	debug("%s: reg=%x, value=%x\n", __func__, reg, value);
-	return pmic_read(dev, reg, &byte, 1);
+	return pmic_write(dev, reg, &byte, 1);
 }
 
 int pmic_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)

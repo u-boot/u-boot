@@ -11,4 +11,5 @@ obj-$(CONFIG_MISC_COMMON) += misc.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_BOARD_COMMON)	+= board.o
+obj-$(CONFIG_EXYNOS5_DT)	+= exynos5-dt.o
 endif

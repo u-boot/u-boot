@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device-internal.h>
+#include <dm/root.h>
 #include <dm/uclass-internal.h>
 
 #ifdef DEBUG_TRACE
@@ -930,31 +931,32 @@ int cros_ec_write_vbnvcontext(struct cros_ec_dev *dev, const uint8_t *block)
 	return 0;
 }
 
-int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state)
+int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_ldo_set params;
 
 	params.index = index;
 	params.state = state;
 
-	if (ec_command_inptr(dev, EC_CMD_LDO_SET, 0,
-		       &params, sizeof(params),
-		       NULL, 0))
+	if (ec_command_inptr(cdev, EC_CMD_LDO_SET, 0, &params, sizeof(params),
+			     NULL, 0))
 		return -1;
 
 	return 0;
 }
 
-int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state)
+int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_ldo_get params;
 	struct ec_response_ldo_get *resp;
 
 	params.index = index;
 
-	if (ec_command_inptr(dev, EC_CMD_LDO_GET, 0,
-		       &params, sizeof(params),
-		       (uint8_t **)&resp, sizeof(*resp)) != sizeof(*resp))
+	if (ec_command_inptr(cdev, EC_CMD_LDO_GET, 0, &params, sizeof(params),
+			     (uint8_t **)&resp, sizeof(*resp)) !=
+			     sizeof(*resp))
 		return -1;
 
 	*state = resp->state;
@@ -1053,9 +1055,9 @@ int cros_ec_decode_ec_flash(const void *blob, int node,
 	return 0;
 }
 
-int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
-		     int alen, uchar *buffer, int len, int is_read)
+int cros_ec_i2c_tunnel(struct udevice *dev, struct i2c_msg *in, int nmsgs)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	union {
 		struct ec_params_i2c_passthru p;
 		uint8_t outbuf[EC_PROTO2_MAX_PARAM_SIZE];
@@ -1066,53 +1068,46 @@ int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
 	} response;
 	struct ec_params_i2c_passthru *p = &params.p;
 	struct ec_response_i2c_passthru *r = &response.r;
-	struct ec_params_i2c_passthru_msg *msg = p->msg;
-	uint8_t *pdata;
-	int read_len, write_len;
+	struct ec_params_i2c_passthru_msg *msg;
+	uint8_t *pdata, *read_ptr = NULL;
+	int read_len;
 	int size;
 	int rv;
+	int i;
 
 	p->port = 0;
 
-	if (alen != 1) {
-		printf("Unsupported address length %d\n", alen);
-		return -1;
-	}
-	if (is_read) {
-		read_len = len;
-		write_len = alen;
-		p->num_msgs = 2;
-	} else {
-		read_len = 0;
-		write_len = alen + len;
-		p->num_msgs = 1;
-	}
-
+	p->num_msgs = nmsgs;
 	size = sizeof(*p) + p->num_msgs * sizeof(*msg);
-	if (size + write_len > sizeof(params)) {
-		puts("Params too large for buffer\n");
-		return -1;
-	}
-	if (sizeof(*r) + read_len > sizeof(response)) {
-		puts("Read length too big for buffer\n");
-		return -1;
-	}
 
 	/* Create a message to write the register address and optional data */
 	pdata = (uint8_t *)p + size;
-	msg->addr_flags = chip;
-	msg->len = write_len;
-	pdata[0] = addr;
-	if (!is_read)
-		memcpy(pdata + 1, buffer, len);
-	msg++;
 
-	if (read_len) {
-		msg->addr_flags = chip | EC_I2C_FLAG_READ;
-		msg->len = read_len;
+	read_len = 0;
+	for (i = 0, msg = p->msg; i < nmsgs; i++, msg++, in++) {
+		bool is_read = in->flags & I2C_M_RD;
+
+		msg->addr_flags = in->addr;
+		msg->len = in->len;
+		if (is_read) {
+			msg->addr_flags |= EC_I2C_FLAG_READ;
+			read_len += in->len;
+			read_ptr = in->buf;
+			if (sizeof(*r) + read_len > sizeof(response)) {
+				puts("Read length too big for buffer\n");
+				return -1;
+			}
+		} else {
+			if (pdata - (uint8_t *)p + in->len > sizeof(params)) {
+				puts("Params too large for buffer\n");
+				return -1;
+			}
+			memcpy(pdata, in->buf, in->len);
+			pdata += in->len;
+		}
 	}
 
-	rv = ec_command(dev, EC_CMD_I2C_PASSTHRU, 0, p, size + write_len,
+	rv = ec_command(cdev, EC_CMD_I2C_PASSTHRU, 0, p, pdata - (uint8_t *)p,
 			r, sizeof(*r) + read_len);
 	if (rv < 0)
 		return rv;
@@ -1128,8 +1123,9 @@ int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
 		return -1;
 	}
 
+	/* We only support a single read message for each transfer */
 	if (read_len)
-		memcpy(buffer, r->data, read_len);
+		memcpy(read_ptr, r->data, read_len);
 
 	return 0;
 }
@@ -1185,187 +1181,6 @@ static int do_read_write(struct cros_ec_dev *dev, int is_write, int argc,
 		      is_write ? "write" : "read");
 		return ret;
 	}
-
-	return 0;
-}
-
-/**
- * get_alen() - Small parser helper function to get address length
- *
- * Returns the address length.
- */
-static uint get_alen(char *arg)
-{
-	int	j;
-	int	alen;
-
-	alen = 1;
-	for (j = 0; j < 8; j++) {
-		if (arg[j] == '.') {
-			alen = arg[j+1] - '0';
-			break;
-		} else if (arg[j] == '\0') {
-			break;
-		}
-	}
-	return alen;
-}
-
-#define DISP_LINE_LEN	16
-
-/*
- * TODO(sjg@chromium.org): This code copied almost verbatim from cmd_i2c.c
- * so we can remove it later.
- */
-static int cros_ec_i2c_md(struct cros_ec_dev *dev, int flag, int argc,
-			  char * const argv[])
-{
-	u_char	chip;
-	uint	addr, alen, length = 0x10;
-	int	j, nbytes, linebytes;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	if (1 || (flag & CMD_FLAG_REPEAT) == 0) {
-		/*
-		 * New command specified.
-		 */
-
-		/*
-		 * I2C chip address
-		 */
-		chip = simple_strtoul(argv[0], NULL, 16);
-
-		/*
-		 * I2C data address within the chip.  This can be 1 or
-		 * 2 bytes long.  Some day it might be 3 bytes long :-).
-		 */
-		addr = simple_strtoul(argv[1], NULL, 16);
-		alen = get_alen(argv[1]);
-		if (alen > 3)
-			return CMD_RET_USAGE;
-
-		/*
-		 * If another parameter, it is the length to display.
-		 * Length is the number of objects, not number of bytes.
-		 */
-		if (argc > 2)
-			length = simple_strtoul(argv[2], NULL, 16);
-	}
-
-	/*
-	 * Print the lines.
-	 *
-	 * We buffer all read data, so we can make sure data is read only
-	 * once.
-	 */
-	nbytes = length;
-	do {
-		unsigned char	linebuf[DISP_LINE_LEN];
-		unsigned char	*cp;
-
-		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
-
-		if (cros_ec_i2c_xfer(dev, chip, addr, alen, linebuf, linebytes,
-				     1))
-			puts("Error reading the chip.\n");
-		else {
-			printf("%04x:", addr);
-			cp = linebuf;
-			for (j = 0; j < linebytes; j++) {
-				printf(" %02x", *cp++);
-				addr++;
-			}
-			puts("    ");
-			cp = linebuf;
-			for (j = 0; j < linebytes; j++) {
-				if ((*cp < 0x20) || (*cp > 0x7e))
-					puts(".");
-				else
-					printf("%c", *cp);
-				cp++;
-			}
-			putc('\n');
-		}
-		nbytes -= linebytes;
-	} while (nbytes > 0);
-
-	return 0;
-}
-
-static int cros_ec_i2c_mw(struct cros_ec_dev *dev, int flag, int argc,
-			  char * const argv[])
-{
-	uchar	chip;
-	ulong	addr;
-	uint	alen;
-	uchar	byte;
-	int	count;
-
-	if ((argc < 3) || (argc > 4))
-		return CMD_RET_USAGE;
-
-	/*
-	 * Chip is always specified.
-	 */
-	chip = simple_strtoul(argv[0], NULL, 16);
-
-	/*
-	 * Address is always specified.
-	 */
-	addr = simple_strtoul(argv[1], NULL, 16);
-	alen = get_alen(argv[1]);
-	if (alen > 3)
-		return CMD_RET_USAGE;
-
-	/*
-	 * Value to write is always specified.
-	 */
-	byte = simple_strtoul(argv[2], NULL, 16);
-
-	/*
-	 * Optional count
-	 */
-	if (argc == 4)
-		count = simple_strtoul(argv[3], NULL, 16);
-	else
-		count = 1;
-
-	while (count-- > 0) {
-		if (cros_ec_i2c_xfer(dev, chip, addr++, alen, &byte, 1, 0))
-			puts("Error writing the chip.\n");
-		/*
-		 * Wait for the write to complete.  The write can take
-		 * up to 10mSec (we allow a little more time).
-		 */
-/*
- * No write delay with FRAM devices.
- */
-#if !defined(CONFIG_SYS_I2C_FRAM)
-		udelay(11000);
-#endif
-	}
-
-	return 0;
-}
-
-/* Temporary code until we have driver model and can use the i2c command */
-static int cros_ec_i2c_passthrough(struct cros_ec_dev *dev, int flag,
-				   int argc, char * const argv[])
-{
-	const char *cmd;
-
-	if (argc < 1)
-		return CMD_RET_USAGE;
-	cmd = *argv++;
-	argc--;
-	if (0 == strcmp("md", cmd))
-		cros_ec_i2c_md(dev, flag, argc, argv);
-	else if (0 == strcmp("mw", cmd))
-		cros_ec_i2c_mw(dev, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
 
 	return 0;
 }
@@ -1605,9 +1420,9 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			state = simple_strtoul(argv[3], &endp, 10);
 			if (*argv[3] == 0 || *endp != 0)
 				return CMD_RET_USAGE;
-			ret = cros_ec_set_ldo(dev, index, state);
+			ret = cros_ec_set_ldo(udev, index, state);
 		} else {
-			ret = cros_ec_get_ldo(dev, index, &state);
+			ret = cros_ec_get_ldo(udev, index, &state);
 			if (!ret) {
 				printf("LDO%d: %s\n", index,
 					state == EC_LDO_STATE_ON ?
@@ -1619,8 +1434,6 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			debug("%s: Could not access LDO%d\n", __func__, index);
 			return ret;
 		}
-	} else if (0 == strcmp("i2c", cmd)) {
-		ret = cros_ec_i2c_passthrough(dev, flag, argc - 2, argv + 2);
 	} else {
 		return CMD_RET_USAGE;
 	}
@@ -1631,6 +1444,12 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	return ret;
+}
+
+int cros_ec_post_bind(struct udevice *dev)
+{
+	/* Scan for available EC devices (e.g. I2C tunnel) */
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
 }
 
 U_BOOT_CMD(
@@ -1651,9 +1470,7 @@ U_BOOT_CMD(
 	"crosec vbnvcontext [hexstring]        Read [write] VbNvContext from EC\n"
 	"crosec ldo <idx> [<state>] Switch/Read LDO state\n"
 	"crosec test                run tests on cros_ec\n"
-	"crosec version             Read CROS-EC version\n"
-	"crosec i2c md chip address[.0, .1, .2] [# of objects] - read from I2C passthru\n"
-	"crosec i2c mw chip address[.0, .1, .2] value [count] - write to I2C passthru (fill)"
+	"crosec version             Read CROS-EC version"
 );
 #endif
 
@@ -1661,4 +1478,5 @@ UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros_ec",
 	.per_device_auto_alloc_size = sizeof(struct cros_ec_dev),
+	.post_bind	= cros_ec_post_bind,
 };

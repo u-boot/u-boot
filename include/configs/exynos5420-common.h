@@ -13,7 +13,7 @@
 /* A variant of Exynos5420 (Exynos5 Family) */
 #define CONFIG_EXYNOS5800
 
-#include <configs/exynos5-common.h>
+#define CONFIG_EXYNOS5_DT
 
 #define MACH_TYPE_SMDK5420	8002
 #define CONFIG_MACH_TYPE	MACH_TYPE_SMDK5420
@@ -32,10 +32,6 @@
 #define CONFIG_DEVICE_TREE_LIST "exynos5800-peach-pi"	\
 				"exynos5420-peach-pit exynos5420-smdk5420"
 
-#define CONFIG_MAX_I2C_NUM	11
-
-#define CONFIG_BOARD_REV_GPIO_COUNT	2
-
 #define CONFIG_PHY_IRAM_BASE		0x02020000
 
 /* Address for relocating helper code (Last 4 KB of IRAM) */
@@ -51,5 +47,8 @@
  * Number of CPUs available
  */
 #define CONFIG_CORE_COUNT		0x8
+
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_EXYNOS
 
 #endif	/* __CONFIG_EXYNOS5420_H */

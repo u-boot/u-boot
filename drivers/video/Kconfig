@@ -240,3 +240,5 @@ config VIDEO_TEGRA124
 	   HDMI. At present only eDP is supported by U-Boot. This option
 	   enables this support which can be used on devices which
 	   have an eDP display connected.
+
+source "drivers/video/bridge/Kconfig"

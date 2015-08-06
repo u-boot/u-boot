@@ -319,8 +319,10 @@ int regulators_enable_boot_on(bool verbose)
 	     dev && !ret;
 	     uclass_next_device(&dev)) {
 		ret = regulator_autoset(dev);
-		if (ret == -EMEDIUMTYPE)
+		if (ret == -EMEDIUMTYPE) {
+			ret = 0;
 			continue;
+		}
 		if (verbose)
 			regulator_show(dev, ret);
 	}

@@ -273,6 +273,37 @@ static int uclass_find_device_by_of_offset(enum uclass_id id, int node,
 	return -ENODEV;
 }
 
+static int uclass_find_device_by_phandle(enum uclass_id id,
+					 struct udevice *parent,
+					 const char *name,
+					 struct udevice **devp)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int find_phandle;
+	int ret;
+
+	*devp = NULL;
+	find_phandle = fdtdec_get_int(gd->fdt_blob, parent->of_offset, name,
+				      -1);
+	if (find_phandle <= 0)
+		return -ENOENT;
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		uint phandle = fdt_get_phandle(gd->fdt_blob, dev->of_offset);
+
+		if (phandle == find_phandle) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 int uclass_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)
 {
@@ -335,6 +366,17 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 
 	*devp = NULL;
 	ret = uclass_find_device_by_of_offset(id, node, &dev);
+	return uclass_get_device_tail(dev, ret, devp);
+}
+
+int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				 const char *name, struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_find_device_by_phandle(id, parent, name, &dev);
 	return uclass_get_device_tail(dev, ret, devp);
 }
 

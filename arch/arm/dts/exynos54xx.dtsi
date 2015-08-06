@@ -14,17 +14,17 @@
 	};
 
 	aliases {
-		i2c0 = "/i2c@12c60000";
-		i2c1 = "/i2c@12c70000";
-		i2c2 = "/i2c@12c80000";
-		i2c3 = "/i2c@12c90000";
-		i2c4 = "/i2c@12ca0000";
-		i2c5 = "/i2c@12cb0000";
-		i2c6 = "/i2c@12cc0000";
-		i2c7 = "/i2c@12cd0000";
-		i2c8 = "/i2c@12e00000";
-		i2c9 = "/i2c@12e10000";
-		i2c10 = "/i2c@12e20000";
+		i2c0 = "/i2c@12C60000";
+		i2c1 = "/i2c@12C70000";
+		i2c2 = "/i2c@12C80000";
+		i2c3 = "/i2c@12C90000";
+		i2c4 = "/i2c@12CA0000";
+		i2c5 = "/i2c@12CB0000";
+		i2c6 = "/i2c@12CC0000";
+		i2c7 = "/i2c@12CD0000";
+		i2c8 = "/i2c@12E00000";
+		i2c9 = "/i2c@12E10000";
+		i2c10 = "/i2c@12E20000";
 		pinctrl0 = &pinctrl_0;
 		pinctrl1 = &pinctrl_1;
 		pinctrl2 = &pinctrl_2;
@@ -42,7 +42,7 @@
 		xhci1 = "/xhci@12400000";
 	};
 
-	i2c@12ca0000 {
+	i2c@12CA0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,exynos5-hsi2c";
@@ -50,7 +50,7 @@
 		interrupts = <0 60 0>;
 	};
 
-	i2c@12cb0000 {
+	i2c@12CB0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,exynos5-hsi2c";
@@ -58,7 +58,7 @@
 		interrupts = <0 61 0>;
 	};
 
-	i2c@12cc0000 {
+	i2c@12CC0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,exynos5-hsi2c";
@@ -66,7 +66,7 @@
 		interrupts = <0 62 0>;
 	};
 
-	i2c@12cd0000 {
+	i2c@12CD0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,exynos5-hsi2c";
@@ -74,7 +74,7 @@
 		interrupts = <0 63 0>;
 	};
 
-	i2c@12e00000 {
+	i2c@12E00000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,exynos5-hsi2c";
@@ -82,7 +82,7 @@
 		interrupts = <0 87 0>;
 	};
 
-	i2c@12e10000 {
+	i2c@12E10000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,exynos5-hsi2c";
@@ -90,7 +90,7 @@
 		interrupts = <0 88 0>;
 	};
 
-	i2c@12e20000 {
+	i2c@12E20000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,exynos5-hsi2c";

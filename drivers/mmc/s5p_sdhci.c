@@ -202,6 +202,6 @@ int exynos_mmc_init(const void *blob)
 
 	process_nodes(blob, node_list, count);
 
-	return 1;
+	return 0;
 }
 #endif

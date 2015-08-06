@@ -139,8 +139,52 @@ void device_free(struct udevice *dev);
 static inline void device_free(struct udevice *dev) {}
 #endif
 
+/**
+ * simple_bus_translate() - translate a bus address to a system address
+ *
+ * This handles the 'ranges' property in a simple bus. It translates the
+ * device address @addr to a system address using this property.
+ *
+ * @dev:	Simple bus device (parent of target device)
+ * @addr:	Address to translate
+ * @return new address
+ */
+fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr);
+
 /* Cast away any volatile pointer */
 #define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)
 #define DM_UCLASS_ROOT_NON_CONST	(((gd_t *)gd)->uclass_root)
 
+/* device resource management */
+#ifdef CONFIG_DEVRES
+
+/**
+ * devres_release_probe - Release managed resources allocated after probing
+ * @dev: Device to release resources for
+ *
+ * Release all resources allocated for @dev when it was probed or later.
+ * This function is called on driver removal.
+ */
+void devres_release_probe(struct udevice *dev);
+
+/**
+ * devres_release_all - Release all managed resources
+ * @dev: Device to release resources for
+ *
+ * Release all resources associated with @dev.  This function is
+ * called on driver unbinding.
+ */
+void devres_release_all(struct udevice *dev);
+
+#else /* ! CONFIG_DEVRES */
+
+static inline void devres_release_probe(struct udevice *dev)
+{
+}
+
+static inline void devres_release_all(struct udevice *dev)
+{
+}
+
+#endif /* ! CONFIG_DEVRES */
 #endif

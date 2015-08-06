@@ -1,0 +1,17 @@
+config I2C_MUX
+	bool "Suport I2C multiplexers"
+	depends on DM_I2C
+	help
+	  This enables I2C buses to be multiplexed, so that you can select
+	  one of several buses using some sort of control mechanism. The
+	  bus select is handled automatically when that bus is accessed,
+	  using a suitable I2C MUX driver.
+
+config I2C_ARB_GPIO_CHALLENGE
+        bool "GPIO-based I2C arbitration"
+        depends on I2C_MUX
+        help
+          If you say yes to this option, support will be included for an
+          I2C multimaster arbitration scheme using GPIOs and a challenge &
+          response mechanism where masters have to claim the bus by asserting
+          a GPIO.

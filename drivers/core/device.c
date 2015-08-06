@@ -47,6 +47,9 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	INIT_LIST_HEAD(&dev->sibling_node);
 	INIT_LIST_HEAD(&dev->child_head);
 	INIT_LIST_HEAD(&dev->uclass_node);
+#ifdef CONFIG_DEVRES
+	INIT_LIST_HEAD(&dev->devres_head);
+#endif
 	dev->platdata = platdata;
 	dev->name = name;
 	dev->of_offset = of_offset;
@@ -132,6 +135,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
 	*devp = dev;
 
+	dev->flags |= DM_FLAG_BOUND;
+
 	return 0;
 
 fail_child_post_bind:
@@ -168,6 +173,8 @@ fail_alloc2:
 		dev->platdata = NULL;
 	}
 fail_alloc1:
+	devres_release_all(dev);
+
 	free(dev);
 
 	return ret;
@@ -552,17 +559,22 @@ const char *dev_get_uclass_name(struct udevice *dev)
 	return dev->uclass->uc_drv->name;
 }
 
+fdt_addr_t dev_get_addr(struct udevice *dev)
+{
 #ifdef CONFIG_OF_CONTROL
-fdt_addr_t dev_get_addr(struct udevice *dev)
-{
-	return fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
-}
+	fdt_addr_t addr;
+
+	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	if (addr != FDT_ADDR_T_NONE) {
+		if (device_get_uclass_id(dev->parent) == UCLASS_SIMPLE_BUS)
+			addr = simple_bus_translate(dev->parent, addr);
+	}
+
+	return addr;
 #else
-fdt_addr_t dev_get_addr(struct udevice *dev)
-{
 	return FDT_ADDR_T_NONE;
-}
 #endif
+}
 
 bool device_has_children(struct udevice *dev)
 {
@@ -590,4 +602,14 @@ bool device_is_last_sibling(struct udevice *dev)
 	if (!parent)
 		return false;
 	return list_is_last(&dev->sibling_node, &parent->child_head);
+}
+
+int device_set_name(struct udevice *dev, const char *name)
+{
+	name = strdup(name);
+	if (!name)
+		return -ENOMEM;
+	dev->name = name;
+
+	return 0;
 }

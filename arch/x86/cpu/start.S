@@ -128,6 +128,15 @@ car_init_ret:
 	andl	$0xfffffff0, %esp
 	post_code(POST_START_STACK)
 
+	/*
+	 * Debug UART is available here although it may not be plumbed out
+	 * to pins depending on the board. To use it:
+	 *
+	 * call  debug_uart_init
+	 * mov   $'a', %eax
+	 * call  printch
+	 */
+
 	/* Zero the global data since it won't happen later */
 	xorl	%eax, %eax
 	movl	$GENERATED_GBL_DATA_SIZE, %ecx
