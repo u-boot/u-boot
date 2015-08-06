@@ -485,7 +485,9 @@ static void sunxi_composer_mode_set(const struct ctfb_res_modes *mode,
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_LAYER0_ENABLE);
 	if (mode->vmode == FB_VMODE_INTERLACED)
 		setbits_le32(&de_be->mode,
+#ifndef CONFIG_MACH_SUN5I
 			     SUNXI_DE_BE_MODE_DEFLICKER_ENABLE |
+#endif
 			     SUNXI_DE_BE_MODE_INTERLACE_ENABLE);
 
 	if (sunxi_is_composite()) {
@@ -874,6 +876,13 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 			     SUNXI_LCDC_TCON_VSYNC_MASK |
 			     SUNXI_LCDC_TCON_HSYNC_MASK);
 	}
+
+#ifdef CONFIG_MACH_SUN5I
+	if (sunxi_is_composite())
+		clrsetbits_le32(&lcdc->mux_ctrl, SUNXI_LCDC_MUX_CTRL_SRC0_MASK,
+				SUNXI_LCDC_MUX_CTRL_SRC0(1));
+#endif
+
 	sunxi_lcdc_pll_set(1, mode->pixclock_khz, clk_div, clk_double);
 }
 #endif /* CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA || CONFIG_VIDEO_COMPOSITE */
@@ -999,6 +1008,8 @@ static void sunxi_tvencoder_mode_set(void)
 	struct sunxi_tve_reg * const tve =
 		(struct sunxi_tve_reg *)SUNXI_TVE0_BASE;
 
+	/* Reset off */
+	setbits_le32(&ccm->lcd0_ch0_clk_cfg, CCM_LCD_CH0_CTRL_TVE_RST);
 	/* Clock on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_TVE0);
 

@@ -196,7 +196,9 @@ struct sunxi_lcdc_reg {
 	u8 res3[0x44];			/* 0xac */
 	u32 tcon1_io_polarity;		/* 0xf0 */
 	u32 tcon1_io_tristate;		/* 0xf4 */
-	u8 res4[0x128];			/* 0xf8 */
+	u8 res4[0x108];			/* 0xf8 */
+	u32 mux_ctrl;			/* 0x200 */
+	u8 res5[0x1c];			/* 0x204 */
 	u32 lvds_ana0;			/* 0x220 */
 	u32 lvds_ana1;			/* 0x224 */
 };
@@ -385,6 +387,10 @@ struct sunxi_tve_reg {
 #define SUNXI_LCDC_TCON1_TIMING_H_TOTAL(n)	(((n) - 1) << 16)
 #define SUNXI_LCDC_TCON1_TIMING_V_BP(n)		(((n) - 1) << 0)
 #define SUNXI_LCDC_TCON1_TIMING_V_TOTAL(n)	((n) << 16)
+#define SUNXI_LCDC_MUX_CTRL_SRC0_MASK		(0xf << 0)
+#define SUNXI_LCDC_MUX_CTRL_SRC0(x)		((x) << 0)
+#define SUNXI_LCDC_MUX_CTRL_SRC1_MASK		(0xf << 4)
+#define SUNXI_LCDC_MUX_CTRL_SRC1(x)		((x) << 4)
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 #define SUNXI_LCDC_LVDS_ANA0			0x40040320
 #define SUNXI_LCDC_LVDS_ANA0_EN_MB		(1 << 31)
@@ -506,7 +512,11 @@ struct sunxi_tve_reg {
 #define SUNXI_TVE_CFG0_PAL			0x07030001
 #define SUNXI_TVE_CFG0_NTSC			0x07030000
 #define SUNXI_TVE_DAC_CFG0_VGA			0x403e1ac7
+#ifdef CONFIG_MACH_SUN5I
+#define SUNXI_TVE_DAC_CFG0_COMPOSITE		0x433f0009
+#else
 #define SUNXI_TVE_DAC_CFG0_COMPOSITE		0x403f0008
+#endif
 #define SUNXI_TVE_FILTER_COMPOSITE		0x00000120
 #define SUNXI_TVE_CHROMA_FREQ_PAL_M		0x21e6efe3
 #define SUNXI_TVE_CHROMA_FREQ_PAL_NC		0x21f69446
