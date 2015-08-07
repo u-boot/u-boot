@@ -218,6 +218,7 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 
