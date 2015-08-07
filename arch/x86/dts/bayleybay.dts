@@ -188,6 +188,44 @@
 		};
 	};
 
+	fsp {
+		compatible = "intel,baytrail-fsp";
+		fsp,mrc-init-tseg-size = <0>;
+		fsp,mrc-init-mmio-size = <0x800>;
+		fsp,mrc-init-spd-addr1 = <0xa0>;
+		fsp,mrc-init-spd-addr2 = <0xa2>;
+		fsp,emmc-boot-mode = <2>;
+		fsp,enable-sdio;
+		fsp,enable-sdcard;
+		fsp,enable-hsuart1;
+		fsp,enable-spi;
+		fsp,enable-sata;
+		fsp,sata-mode = <1>;
+		fsp,enable-lpe;
+		fsp,lpss-sio-enable-pci-mode;
+		fsp,enable-dma0;
+		fsp,enable-dma1;
+		fsp,enable-i2c0;
+		fsp,enable-i2c1;
+		fsp,enable-i2c2;
+		fsp,enable-i2c3;
+		fsp,enable-i2c4;
+		fsp,enable-i2c5;
+		fsp,enable-i2c6;
+		fsp,enable-pwm0;
+		fsp,enable-pwm1;
+		fsp,igd-dvmt50-pre-alloc = <2>;
+		fsp,aperture-size = <2>;
+		fsp,gtt-size = <2>;
+		fsp,serial-debug-port-address = <0x3f8>;
+		fsp,serial-debug-port-type = <1>;
+		fsp,scc-enable-pci-mode;
+		fsp,os-selection = <4>;
+		fsp,emmc45-ddr50-enabled;
+		fsp,emmc45-retune-timer-value = <8>;
+		fsp,enable-igd;
+	};
+
 	microcode {
 		update@0 {
 #include "microcode/m0230671117.dtsi"

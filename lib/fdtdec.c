@@ -76,6 +76,8 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
 	COMPAT(COMPAT_INTEL_IRQ_ROUTER, "intel,irq-router"),
 	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),
+	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP, "intel,baytrail-fsp"),
+	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP_MDP, "intel,baytrail-fsp-mdp"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
