@@ -256,7 +256,9 @@ static int regulator_post_bind(struct udevice *dev)
 	if (!uc_pdata->name) {
 		debug("%s: dev: %s has no property 'regulator-name'\n",
 		      __func__, dev->name);
-		return -EINVAL;
+		uc_pdata->name = fdt_get_name(blob, offset, NULL);
+		if (!uc_pdata->name)
+			return -EINVAL;
 	}
 
 	if (regulator_name_is_unique(dev, uc_pdata->name))
