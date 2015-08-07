@@ -57,6 +57,13 @@ enum {
 	PMIC_NUM_OF_REGS	= 0x7f,
 };
 
+/* Registor offset based on VOLT register */
+#define PFUZE100_VOL_OFFSET	0
+#define PFUZE100_STBY_OFFSET	1
+#define PFUZE100_OFF_OFFSET	2
+#define PFUZE100_MODE_OFFSET	3
+#define PFUZE100_CONF_OFFSET	4
+
 /*
  * Buck Regulators
  */
@@ -133,6 +140,9 @@ enum {
 #define SW1x_STBY_MASK    0x3f
 #define SW1x_OFF_MASK     0x3f
 
+#define SW_MODE_MASK	0xf
+#define SW_MODE_SHIFT	0
+
 #define SW1xCONF_DVSSPEED_MASK 0xc0
 #define SW1xCONF_DVSSPEED_2US  0x00
 #define SW1xCONF_DVSSPEED_4US  0x40
@@ -181,7 +191,12 @@ enum {
 
 #define LDO_VOL_MASK	0xf
 #define LDO_EN		(1 << 4)
+#define LDO_MODE_SHIFT	4
+#define LDO_MODE_MASK	(1 << 4)
+#define LDO_MODE_OFF	0
+#define LDO_MODE_ON	1
 
+#define VREFDDRCON_EN	(1 << 4)
 /*
  * Boost Regulator
  */
@@ -194,10 +209,11 @@ enum {
 
 #define SWBST_VOL_MASK	0x3
 #define SWBST_MODE_MASK	0xC
-#define SWBST_MODE_OFF	(0 << 2)
-#define SWBST_MODE_PFM	(1 << 2)
-#define SWBST_MODE_AUTO	(2 << 2)
-#define SWBST_MODE_APS	(3 << 2)
+#define SWBST_MODE_SHIFT 0x2
+#define SWBST_MODE_OFF	0
+#define SWBST_MODE_PFM	1
+#define SWBST_MODE_AUTO	2
+#define SWBST_MODE_APS	3
 
 /*
  * Regulator Mode Control
