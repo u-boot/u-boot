@@ -347,6 +347,16 @@ static struct phy_driver VSC8514_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver VSC8584_driver = {
+	.name = "Vitesse VSC8584",
+	.uid = 0x707c0,
+	.mask = 0xffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &vsc8574_config,
+	.startup = &vitesse_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 static struct phy_driver VSC8601_driver = {
 	.name = "Vitesse VSC8601",
 	.uid = 0x70420,
@@ -417,6 +427,7 @@ int phy_vitesse_init(void)
 	phy_register(&VSC8211_driver);
 	phy_register(&VSC8221_driver);
 	phy_register(&VSC8574_driver);
+	phy_register(&VSC8584_driver);
 	phy_register(&VSC8514_driver);
 	phy_register(&VSC8662_driver);
 	phy_register(&VSC8664_driver);
