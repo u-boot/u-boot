@@ -193,11 +193,11 @@ enum {
 #define SWBST_5_15V	3
 
 #define SWBST_VOL_MASK	0x3
-#define SWBST_MODE_MASK	0x6
-#define SWBST_MODE_OFF	(2 << 0)
-#define SWBST_MODE_PFM	(2 << 1)
+#define SWBST_MODE_MASK	0xC
+#define SWBST_MODE_OFF	(0 << 2)
+#define SWBST_MODE_PFM	(1 << 2)
 #define SWBST_MODE_AUTO	(2 << 2)
-#define SWBST_MODE_APS	(2 << 3)
+#define SWBST_MODE_APS	(3 << 2)
 
 /*
  * Regulator Mode Control
