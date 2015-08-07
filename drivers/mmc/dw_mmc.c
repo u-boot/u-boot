@@ -8,6 +8,7 @@
 
 #include <bouncebuf.h>
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <dwmmc.h>
@@ -119,7 +120,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	while (dwmci_readl(host, DWMCI_STATUS) & DWMCI_BUSY) {
 		if (get_timer(start) > timeout) {
-			printf("%s: Timeout on data busy\n", __func__);
+			debug("%s: Timeout on data busy\n", __func__);
 			return TIMEOUT;
 		}
 	}
@@ -178,7 +179,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (i == retry) {
-		printf("%s: Timeout.\n", __func__);
+		debug("%s: Timeout.\n", __func__);
 		return TIMEOUT;
 	}
 
@@ -194,8 +195,8 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		debug("%s: Response Timeout.\n", __func__);
 		return TIMEOUT;
 	} else if (mask & DWMCI_INTMSK_RE) {
-		printf("%s: Response Error.\n", __func__);
-		return -1;
+		debug("%s: Response Error.\n", __func__);
+		return -EIO;
 	}
 
 
@@ -217,7 +218,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			mask = dwmci_readl(host, DWMCI_RINTSTS);
 			/* Error during data transfer. */
 			if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
-				printf("%s: DATA ERROR!\n", __func__);
+				debug("%s: DATA ERROR!\n", __func__);
 				ret = -EINVAL;
 				break;
 			}
@@ -230,7 +231,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 			/* Check for timeout. */
 			if (get_timer(start) > timeout) {
-				printf("%s: Timeout waiting for data!\n",
+				debug("%s: Timeout waiting for data!\n",
 				       __func__);
 				ret = TIMEOUT;
 				break;
@@ -269,7 +270,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	else if (host->bus_hz)
 		sclk = host->bus_hz;
 	else {
-		printf("%s: Didn't get source clock value.\n", __func__);
+		debug("%s: Didn't get source clock value.\n", __func__);
 		return -EINVAL;
 	}
 
@@ -288,7 +289,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	do {
 		status = dwmci_readl(host, DWMCI_CMD);
 		if (timeout-- < 0) {
-			printf("%s: Timeout!\n", __func__);
+			debug("%s: Timeout!\n", __func__);
 			return -ETIMEDOUT;
 		}
 	} while (status & DWMCI_CMD_START);
@@ -303,7 +304,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	do {
 		status = dwmci_readl(host, DWMCI_CMD);
 		if (timeout-- < 0) {
-			printf("%s: Timeout!\n", __func__);
+			debug("%s: Timeout!\n", __func__);
 			return -ETIMEDOUT;
 		}
 	} while (status & DWMCI_CMD_START);
@@ -357,8 +358,8 @@ static int dwmci_init(struct mmc *mmc)
 	dwmci_writel(host, DWMCI_PWREN, 1);
 
 	if (!dwmci_wait_reset(host, DWMCI_RESET_ALL)) {
-		printf("%s[%d] Fail-reset!!\n", __func__, __LINE__);
-		return -1;
+		debug("%s[%d] Fail-reset!!\n", __func__, __LINE__);
+		return -EIO;
 	}
 
 	/* Enumerate at 400KHz */
