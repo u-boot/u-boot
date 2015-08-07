@@ -66,10 +66,11 @@ bool tegra_cpu_is_non_secure(void)
 #endif
 
 /* Read the RAM size directly from the memory controller */
-unsigned int query_sdram_size(void)
+static phys_size_t query_sdram_size(void)
 {
 	struct mc_ctlr *const mc = (struct mc_ctlr *)NV_PA_MC_BASE;
-	u32 emem_cfg, size_bytes;
+	u32 emem_cfg;
+	phys_size_t size_bytes;
 
 	emem_cfg = readl(&mc->mc_emem_cfg);
 #if defined(CONFIG_TEGRA20)
@@ -77,6 +78,7 @@ unsigned int query_sdram_size(void)
 	size_bytes = get_ram_size((void *)PHYS_SDRAM_1, emem_cfg * 1024);
 #else
 	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", emem_cfg);
+#ifndef CONFIG_PHYS_64BIT
 	/*
 	 * If >=4GB RAM is present, the byte RAM size won't fit into 32-bits
 	 * and will wrap. Clip the reported size to the maximum that a 32-bit
@@ -84,9 +86,12 @@ unsigned int query_sdram_size(void)
 	 */
 	if (emem_cfg >= 4096) {
 		size_bytes = U32_MAX & ~(0x1000 - 1);
-	} else {
+	} else
+#endif
+	{
 		/* RAM size EMC is programmed to. */
-		size_bytes = emem_cfg * 1024 * 1024;
+		size_bytes = (phys_size_t)emem_cfg * 1024 * 1024;
+#ifndef CONFIG_ARM64
 		/*
 		 * If all RAM fits within 32-bits, it can be accessed without
 		 * LPAE, so go test the RAM size. Otherwise, we can't access
@@ -97,6 +102,7 @@ unsigned int query_sdram_size(void)
 		if (emem_cfg <= (0 - PHYS_SDRAM_1) / (1024 * 1024))
 			size_bytes = get_ram_size((void *)PHYS_SDRAM_1,
 						  size_bytes);
+#endif
 	}
 #endif
 
