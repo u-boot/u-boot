@@ -46,6 +46,7 @@
  * Note: For the proper operation, at least name constraint is needed, since
  * it can be used when calling regulator_get_by_platname(). And the mandatory
  * rule for this name is, that it must be globally unique for the single dts.
+ * If regulator-name property is not provided, node name will be chosen.
  *
  * Regulator bind:
  * For each regulator device, the device_bind() should be called with passed
