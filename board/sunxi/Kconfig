@@ -526,7 +526,16 @@ config VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
 	select VIDEO_LCD_SSD2828
 	select VIDEO_LCD_IF_PARALLEL
 	---help---
-	 7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+	7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+
+config VIDEO_LCD_PANEL_EDP_4_LANE_1620M_VIA_ANX9804
+	bool "eDP 4-lane, 1.62G LCD panel via ANX9804 bridge chip"
+	select VIDEO_LCD_ANX9804
+	select VIDEO_LCD_IF_PARALLEL
+	select VIDEO_LCD_PANEL_I2C
+	---help---
+	Select this for eDP LCD panels with 4 lanes running at 1.62G,
+	connected via an ANX9804 bridge chip.
 
 config VIDEO_LCD_PANEL_HITACHI_TX18D42VM
 	bool "Hitachi tx18d42vm LCD panel"
