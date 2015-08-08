@@ -289,6 +289,7 @@ struct sunxi_ccm_reg {
 #define CCM_LCD_CH0_CTRL_PLL7		(1 << 24)
 #define CCM_LCD_CH0_CTRL_PLL3_2X	(2 << 24)
 #define CCM_LCD_CH0_CTRL_PLL7_2X	(3 << 24)
+#define CCM_LCD_CH0_CTRL_MIPI_PLL	0 /* No mipi pll on sun4i/5i/7i */
 #ifdef CONFIG_MACH_SUN5I
 #define CCM_LCD_CH0_CTRL_TVE_RST	(0x1 << 29)
 #else
