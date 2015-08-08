@@ -78,7 +78,9 @@ static void serial_find_console_or_panic(void)
 #undef INDEX
 	}
 
+#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 	panic_str("No serial driver found");
+#endif
 }
 
 /* Called prior to relocation */
@@ -140,28 +142,40 @@ static int _serial_tstc(struct udevice *dev)
 
 void serial_putc(char ch)
 {
-	_serial_putc(gd->cur_serial_dev, ch);
+	if (gd->cur_serial_dev)
+		_serial_putc(gd->cur_serial_dev, ch);
 }
 
 void serial_puts(const char *str)
 {
-	_serial_puts(gd->cur_serial_dev, str);
+	if (gd->cur_serial_dev)
+		_serial_puts(gd->cur_serial_dev, str);
 }
 
 int serial_getc(void)
 {
+	if (!gd->cur_serial_dev)
+		return 0;
+
 	return _serial_getc(gd->cur_serial_dev);
 }
 
 int serial_tstc(void)
 {
+	if (!gd->cur_serial_dev)
+		return 0;
+
 	return _serial_tstc(gd->cur_serial_dev);
 }
 
 void serial_setbrg(void)
 {
-	struct dm_serial_ops *ops = serial_get_ops(gd->cur_serial_dev);
+	struct dm_serial_ops *ops;
 
+	if (!gd->cur_serial_dev)
+		return;
+
+	ops = serial_get_ops(gd->cur_serial_dev);
 	if (ops->setbrg)
 		ops->setbrg(gd->cur_serial_dev, gd->baudrate);
 }
