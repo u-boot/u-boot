@@ -521,6 +521,7 @@ static void sunxi_lcdc_pll_set(int tcon, int dotclock,
 	int value, n, m, min_m, max_m, diff;
 	int best_n = 0, best_m = 0, best_diff = 0x0FFFFFFF;
 	int best_double = 0;
+	bool use_mipi_pll = false;
 
 	if (tcon == 0) {
 #ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
@@ -571,16 +572,42 @@ static void sunxi_lcdc_pll_set(int tcon, int dotclock,
 		}
 	}
 
-	debug("dotclock: %dkHz = %dkHz: (%d * 3MHz * %d) / %d\n",
-	      dotclock, (best_double + 1) * 3000 * best_n / best_m,
-	      best_double + 1, best_n, best_m);
+#ifdef CONFIG_MACH_SUN6I
+	/*
+	 * Use the MIPI pll if we've been unable to find any matching setting
+	 * for PLL3, this happens with high dotclocks because of min_m = 6.
+	 */
+	if (tcon == 0 && best_n == 0) {
+		use_mipi_pll = true;
+		best_m = 6;  /* Minimum m for tcon0 */
+	}
 
-	clock_set_pll3(best_n * 3000000);
+	if (use_mipi_pll) {
+		clock_set_pll3(297000000); /* Fix the video pll at 297 MHz */
+		clock_set_mipi_pll(best_m * dotclock * 1000);
+		debug("dotclock: %dkHz = %dkHz via mipi pll\n",
+		      dotclock, clock_get_mipi_pll() / best_m / 1000);
+	} else
+#endif
+	{
+		clock_set_pll3(best_n * 3000000);
+		debug("dotclock: %dkHz = %dkHz: (%d * 3MHz * %d) / %d\n",
+		      dotclock,
+		      (best_double + 1) * clock_get_pll3() / best_m / 1000,
+		      best_double + 1, best_n, best_m);
+	}
 
 	if (tcon == 0) {
-		writel(CCM_LCD_CH0_CTRL_GATE | CCM_LCD_CH0_CTRL_RST |
-		       (best_double ? CCM_LCD_CH0_CTRL_PLL3_2X :
-				      CCM_LCD_CH0_CTRL_PLL3),
+		u32 pll;
+
+		if (use_mipi_pll)
+			pll = CCM_LCD_CH0_CTRL_MIPI_PLL;
+		else if (best_double)
+			pll = CCM_LCD_CH0_CTRL_PLL3_2X;
+		else
+			pll = CCM_LCD_CH0_CTRL_PLL3;
+
+		writel(CCM_LCD_CH0_CTRL_GATE | CCM_LCD_CH0_CTRL_RST | pll,
 		       &ccm->lcd0_ch0_clk_cfg);
 	} else {
 		writel(CCM_LCD_CH1_CTRL_GATE |
