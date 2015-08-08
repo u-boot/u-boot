@@ -188,6 +188,18 @@ void clock_set_pll11(unsigned int clk, bool sigma_delta_enable)
 }
 #endif
 
+unsigned int clock_get_pll3(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	uint32_t rval = readl(&ccm->pll3_cfg);
+	int n = ((rval & CCM_PLL3_CTRL_N_MASK) >> CCM_PLL3_CTRL_N_SHIFT) + 1;
+	int m = ((rval & CCM_PLL3_CTRL_M_MASK) >> CCM_PLL3_CTRL_M_SHIFT) + 1;
+
+	/* Multiply by 1000 after dividing by m to avoid integer overflows */
+	return (24000 * n / m) * 1000;
+}
+
 unsigned int clock_get_pll6(void)
 {
 	struct sunxi_ccm_reg *const ccm =

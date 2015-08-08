@@ -208,6 +208,8 @@ struct sunxi_ccm_reg {
 #define CCM_AHB_GATE_DLL (0x1 << 15)
 #define CCM_AHB_GATE_ACE (0x1 << 16)
 
+#define CCM_PLL3_CTRL_M_SHIFT		0
+#define CCM_PLL3_CTRL_M_MASK		(0x7f << CCM_PLL3_CTRL_M_SHIFT)
 #define CCM_PLL3_CTRL_M(n)		(((n) & 0x7f) << 0)
 #define CCM_PLL3_CTRL_INTEGER_MODE	(0x1 << 15)
 #define CCM_PLL3_CTRL_EN		(0x1 << 31)
@@ -347,6 +349,7 @@ struct sunxi_ccm_reg {
 #ifndef __ASSEMBLY__
 void clock_set_pll1(unsigned int hz);
 void clock_set_pll3(unsigned int hz);
+unsigned int clock_get_pll3(void);
 unsigned int clock_get_pll5p(void);
 unsigned int clock_get_pll6(void);
 #endif

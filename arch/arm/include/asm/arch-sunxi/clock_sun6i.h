@@ -179,7 +179,11 @@ struct sunxi_ccm_reg {
 #define CCM_PLL1_CTRL_P(n)		(((n) & 0x3) << 16)
 #define CCM_PLL1_CTRL_EN		(0x1 << 31)
 
+#define CCM_PLL3_CTRL_M_SHIFT		0
+#define CCM_PLL3_CTRL_M_MASK		(0xf << CCM_PLL3_CTRL_M_SHIFT)
 #define CCM_PLL3_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_PLL3_CTRL_N_SHIFT		8
+#define CCM_PLL3_CTRL_N_MASK		(0x7f << CCM_PLL3_CTRL_N_SHIFT)
 #define CCM_PLL3_CTRL_N(n)		((((n) - 1) & 0x7f) << 8)
 #define CCM_PLL3_CTRL_INTEGER_MODE	(0x1 << 24)
 #define CCM_PLL3_CTRL_EN		(0x1 << 31)
@@ -360,6 +364,7 @@ void clock_set_pll1(unsigned int hz);
 void clock_set_pll3(unsigned int hz);
 void clock_set_pll5(unsigned int clk, bool sigma_delta_enable);
 void clock_set_pll11(unsigned int clk, bool sigma_delta_enable);
+unsigned int clock_get_pll3(void);
 unsigned int clock_get_pll6(void);
 #endif
 
