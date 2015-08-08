@@ -35,7 +35,6 @@ struct __packed upd_region {
 };
 
 #define VPD_IMAGE_ID	0x445056574F4E4E4D	/* 'MNNOWVPD' */
-#define VPD_IMAGE_REV	0x00000301
 
 struct __packed vpd_region {
 	u64	sign;			/* Offset 0x0000 */

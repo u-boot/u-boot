@@ -82,7 +82,6 @@ struct __packed upd_region {
 };
 
 #define VPD_IMAGE_ID		0x3157454956594C56	/* 'VLYVIEW1' */
-#define VPD_IMAGE_REV		0x00000303
 
 struct __packed vpd_region {
 	uint64_t sign;				/* Offset 0x0000 */
