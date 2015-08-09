@@ -107,6 +107,28 @@ int dram_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_SPL_NAND_SUNXI) && defined(CONFIG_SPL_BUILD)
+static void nand_pinmux_setup(void)
+{
+	unsigned int pin;
+	for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(6); pin++)
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_NAND);
+
+	for (pin = SUNXI_GPC(8); pin <= SUNXI_GPC(22); pin++)
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_NAND);
+
+	sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUNXI_GPC_NAND);
+}
+
+static void nand_clock_setup(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	setbits_le32(&ccm->ahb_gate0, (CLK_GATE_OPEN << AHB_GATE_OFFSET_NAND0));
+	setbits_le32(&ccm->nand0_clk_cfg, CCM_NAND_CTRL_ENABLE | AHB_DIV_1);
+}
+#endif
+
 #ifdef CONFIG_GENERIC_MMC
 static void mmc_pinmux_setup(int sdc)
 {
@@ -429,6 +451,11 @@ void sunxi_board_init(void)
 	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
 	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
 	power_failed |= axp221_set_eldo(3, CONFIG_AXP221_ELDO3_VOLT);
+#endif
+
+#ifdef CONFIG_SPL_NAND_SUNXI
+	nand_pinmux_setup();
+	nand_clock_setup();
 #endif
 
 	printf("DRAM:");

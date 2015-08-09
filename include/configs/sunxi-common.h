@@ -139,6 +139,16 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SERIAL_TAG
 
+#if defined(CONFIG_SPL_NAND_SUNXI)
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_SUPPORT
+
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x280000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS 0x008000
+
+#endif
+
+
 /* mmc config */
 #if !defined(CONFIG_UART0_PORT_F)
 #define CONFIG_MMC
@@ -252,6 +262,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_CONS_INDEX              1       /* UART0 */
 #endif
 
+#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 #if CONFIG_CONS_INDEX == 1
 #ifdef CONFIG_MACH_SUN9I
 #define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
@@ -267,6 +278,7 @@ extern int soft_i2c_gpio_scl;
 #else
 #error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
 #endif
+#endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
 
 /* GPIO */
 #define CONFIG_SUNXI_GPIO

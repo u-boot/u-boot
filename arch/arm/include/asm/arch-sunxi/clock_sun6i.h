@@ -290,6 +290,7 @@ struct sunxi_ccm_reg {
 #define CCM_LCD_CH0_CTRL_GATE		(0x1 << 31)
 
 #define CCM_LCD_CH1_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_LCD_CH1_CTRL_HALF_SCLK1	0 /* no seperate sclk1 & 2 on sun6i */
 #define CCM_LCD_CH1_CTRL_PLL3		(0 << 24)
 #define CCM_LCD_CH1_CTRL_PLL7		(1 << 24)
 #define CCM_LCD_CH1_CTRL_PLL3_2X	(2 << 24)

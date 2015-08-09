@@ -410,6 +410,13 @@ config VIDEO_VGA_EXTERNAL_DAC_EN
 	Set the enable pin for the external VGA DAC. This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config VIDEO_COMPOSITE
+	boolean "Composite video output support"
+	depends on VIDEO && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
+	default n
+	---help---
+	Say Y here to add support for outputting composite video.
+
 config VIDEO_LCD_MODE
 	string "LCD panel timing details"
 	depends on VIDEO

@@ -267,6 +267,8 @@ struct sunxi_ccm_reg {
 #define CCM_MBUS_CTRL_CLK_SRC_PLL5 0x2
 #define CCM_MBUS_CTRL_GATE (0x1 << 31)
 
+#define CCM_NAND_CTRL_ENABLE		(0x1 << 31)
+
 #define CCM_MMC_CTRL_M(x)		((x) - 1)
 #define CCM_MMC_CTRL_OCLK_DLY(x)	((x) << 8)
 #define CCM_MMC_CTRL_N(x)		((x) << 16)
@@ -289,7 +291,7 @@ struct sunxi_ccm_reg {
 #define CCM_LCD_CH0_CTRL_GATE		(0x1 << 31)
 
 #define CCM_LCD_CH1_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
-/* We leave bit 11 set to 0, so sclk1 == sclk2 */
+#define CCM_LCD_CH1_CTRL_HALF_SCLK1	(1 << 11)
 #define CCM_LCD_CH1_CTRL_PLL3		(0 << 24)
 #define CCM_LCD_CH1_CTRL_PLL7		(1 << 24)
 #define CCM_LCD_CH1_CTRL_PLL3_2X	(2 << 24)

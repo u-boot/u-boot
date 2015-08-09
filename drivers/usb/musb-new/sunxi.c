@@ -196,8 +196,6 @@ static bool enabled = false;
 
 static int sunxi_musb_enable(struct musb *musb)
 {
-	int ret;
-
 	pr_debug("%s():\n", __func__);
 
 	musb_ep_select(musb->mregs, 0);
@@ -210,17 +208,26 @@ static int sunxi_musb_enable(struct musb *musb)
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
 	if (is_host_enabled(musb)) {
-		ret = sunxi_usb_phy_vbus_detect(0);
-		if (ret == 1) {
-			printf("A charger is plugged into the OTG: ");
-			return -ENODEV;
+		int id = sunxi_usb_phy_id_detect(0);
+
+		if (id == 1 && sunxi_usb_phy_power_is_on(0))
+			sunxi_usb_phy_power_off(0);
+
+		if (!sunxi_usb_phy_power_is_on(0)) {
+			int vbus = sunxi_usb_phy_vbus_detect(0);
+			if (vbus == 1) {
+				printf("A charger is plugged into the OTG: ");
+				return -ENODEV;
+			}
 		}
-		ret = sunxi_usb_phy_id_detect(0);
-		if (ret == 1) {
+
+		if (id == 1) {
 			printf("No host cable detected: ");
 			return -ENODEV;
 		}
-		sunxi_usb_phy_power_on(0); /* port power on */
+
+		if (!sunxi_usb_phy_power_is_on(0))
+			sunxi_usb_phy_power_on(0);
 	}
 
 	USBC_ForceVbusValidToHigh(musb->mregs);
@@ -235,9 +242,6 @@ static void sunxi_musb_disable(struct musb *musb)
 
 	if (!enabled)
 		return;
-
-	if (is_host_enabled(musb))
-		sunxi_usb_phy_power_off(0); /* port power off */
 
 	USBC_ForceVbusValidToLow(musb->mregs);
 	mdelay(200); /* Wait for the current session to timeout */
