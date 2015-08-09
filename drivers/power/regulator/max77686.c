@@ -87,8 +87,8 @@ static int max77686_buck_volt2hex(int buck, int uV)
 		 * hex = (uV - 750000) / 50000. We assume that dynamic voltage
 		 * scaling via GPIOs is not enabled and don't support that.
 		 * If this is enabled then the driver will need to take that
-		 * into account anrd check different registers depending on
-		 * the current setting See the datasheet for details.
+		 * into account and check different registers depending on
+		 * the current setting. See the datasheet for details.
 		 */
 		hex = (uV - MAX77686_BUCK_UV_HMIN) / MAX77686_BUCK_UV_HSTEP;
 		hex_max = MAX77686_BUCK_VOLT_MAX_HEX;
