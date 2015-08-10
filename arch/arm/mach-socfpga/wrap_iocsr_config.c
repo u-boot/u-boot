@@ -7,10 +7,9 @@
 #include <common.h>
 #include <errno.h>
 #include <asm/arch/clock_manager.h>
-/*
- * Yes, dear reader, we're including a C file here, this is no mistake :-)
- */
-#include <qts/iocsr_config.c>
+
+/* Board-specific header. */
+#include <qts/iocsr_config.h>
 
 int iocsr_get_config_table(const unsigned int chain_id,
 			   const unsigned long **table,
