@@ -91,6 +91,16 @@
 #define USBOTGSS_IRQMISC_DISCHRGVBUS_FALL		(1 << 3)
 #define USBOTGSS_IRQMISC_IDPULLUP_FALL		(1 << 0)
 
+#define USBOTGSS_INTERRUPTS (USBOTGSS_IRQMISC_OEVT | \
+			     USBOTGSS_IRQMISC_DRVVBUS_RISE | \
+			     USBOTGSS_IRQMISC_CHRGVBUS_RISE | \
+			     USBOTGSS_IRQMISC_DISCHRGVBUS_RISE | \
+			     USBOTGSS_IRQMISC_IDPULLUP_RISE | \
+			     USBOTGSS_IRQMISC_DRVVBUS_FALL | \
+			     USBOTGSS_IRQMISC_CHRGVBUS_FALL | \
+			     USBOTGSS_IRQMISC_DISCHRGVBUS_FALL | \
+			     USBOTGSS_IRQMISC_IDPULLUP_FALL)
+
 /* UTMI_OTG_CTRL REGISTER */
 #define USBOTGSS_UTMI_OTG_CTRL_DRVVBUS		(1 << 5)
 #define USBOTGSS_UTMI_OTG_CTRL_CHRGVBUS		(1 << 4)
@@ -184,6 +194,18 @@ static void dwc3_omap_write_irqmisc_set(struct dwc3_omap *omap, u32 value)
 static void dwc3_omap_write_irq0_set(struct dwc3_omap *omap, u32 value)
 {
 	dwc3_omap_writel(omap->base, USBOTGSS_IRQENABLE_SET_0 -
+						omap->irq0_offset, value);
+}
+
+static void dwc3_omap_write_irqmisc_clr(struct dwc3_omap *omap, u32 value)
+{
+	dwc3_omap_writel(omap->base, USBOTGSS_IRQENABLE_CLR_MISC +
+						omap->irqmisc_offset, value);
+}
+
+static void dwc3_omap_write_irq0_clr(struct dwc3_omap *omap, u32 value)
+{
+	dwc3_omap_writel(omap->base, USBOTGSS_IRQENABLE_CLR_0 -
 						omap->irq0_offset, value);
 }
 
@@ -285,30 +307,18 @@ static irqreturn_t dwc3_omap_interrupt(int irq, void *_omap)
 
 static void dwc3_omap_enable_irqs(struct dwc3_omap *omap)
 {
-	u32			reg;
-
 	/* enable all IRQs */
-	reg = USBOTGSS_IRQO_COREIRQ_ST;
-	dwc3_omap_write_irq0_set(omap, reg);
+	dwc3_omap_write_irq0_set(omap, USBOTGSS_IRQO_COREIRQ_ST);
 
-	reg = (USBOTGSS_IRQMISC_OEVT |
-			USBOTGSS_IRQMISC_DRVVBUS_RISE |
-			USBOTGSS_IRQMISC_CHRGVBUS_RISE |
-			USBOTGSS_IRQMISC_DISCHRGVBUS_RISE |
-			USBOTGSS_IRQMISC_IDPULLUP_RISE |
-			USBOTGSS_IRQMISC_DRVVBUS_FALL |
-			USBOTGSS_IRQMISC_CHRGVBUS_FALL |
-			USBOTGSS_IRQMISC_DISCHRGVBUS_FALL |
-			USBOTGSS_IRQMISC_IDPULLUP_FALL);
-
-	dwc3_omap_write_irqmisc_set(omap, reg);
+	dwc3_omap_write_irqmisc_set(omap, USBOTGSS_INTERRUPTS);
 }
 
 static void dwc3_omap_disable_irqs(struct dwc3_omap *omap)
 {
 	/* disable all IRQs */
-	dwc3_omap_write_irqmisc_set(omap, 0x00);
-	dwc3_omap_write_irq0_set(omap, 0x00);
+	dwc3_omap_write_irq0_clr(omap, USBOTGSS_IRQO_COREIRQ_ST);
+
+	dwc3_omap_write_irqmisc_clr(omap, USBOTGSS_INTERRUPTS);
 }
 
 static void dwc3_omap_map_offset(struct dwc3_omap *omap)
