@@ -19,19 +19,24 @@ int print_cpuinfo(void)
 	return default_print_cpuinfo();
 }
 
-int board_pci_post_scan(struct pci_controller *hose)
+int fsp_init_phase_pci(void)
 {
 	u32 status;
 
 	/* call into FspNotify */
 	debug("Calling into FSP (notify phase INIT_PHASE_PCI): ");
 	status = fsp_notify(NULL, INIT_PHASE_PCI);
-	if (status != FSP_SUCCESS)
+	if (status)
 		debug("fail, error code %x\n", status);
 	else
 		debug("OK\n");
 
-	return 0;
+	return status ? -EPERM : 0;
+}
+
+int board_pci_post_scan(struct pci_controller *hose)
+{
+	return fsp_init_phase_pci();
 }
 
 void board_final_cleanup(void)
