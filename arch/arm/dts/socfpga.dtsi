@@ -549,6 +549,7 @@
 
 			porta: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
+				bank-name = "porta";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <29>;
@@ -569,6 +570,7 @@
 
 			portb: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
+				bank-name = "portb";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <29>;
@@ -589,6 +591,7 @@
 
 			portc: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
+				bank-name = "portc";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <27>;
