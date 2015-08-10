@@ -10,6 +10,7 @@
 #include <asm/arch/emc.h>
 
 void lpc32xx_uart_init(unsigned int uart_id);
+void lpc32xx_dma_init(void);
 void lpc32xx_mac_init(void);
 void lpc32xx_mlc_nand_init(void);
 void lpc32xx_slc_nand_init(void);
