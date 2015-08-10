@@ -775,6 +775,66 @@ static int pci_bridge_write_config(struct udevice *bus, pci_dev_t bdf,
 	return pci_bus_write_config(hose->ctlr, bdf, offset, value, size);
 }
 
+static int skip_to_next_device(struct udevice *bus, struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret = 0;
+
+	/*
+	 * Scan through all the PCI controllers. On x86 there will only be one
+	 * but that is not necessarily true on other hardware.
+	 */
+	do {
+		device_find_first_child(bus, &dev);
+		if (dev) {
+			*devp = dev;
+			return 0;
+		}
+		ret = uclass_next_device(&bus);
+		if (ret)
+			return ret;
+	} while (bus);
+
+	return 0;
+}
+
+int pci_find_next_device(struct udevice **devp)
+{
+	struct udevice *child = *devp;
+	struct udevice *bus = child->parent;
+	int ret;
+
+	/* First try all the siblings */
+	*devp = NULL;
+	while (child) {
+		device_find_next_child(&child);
+		if (child) {
+			*devp = child;
+			return 0;
+		}
+	}
+
+	/* We ran out of siblings. Try the next bus */
+	ret = uclass_next_device(&bus);
+	if (ret)
+		return ret;
+
+	return bus ? skip_to_next_device(bus, devp) : 0;
+}
+
+int pci_find_first_device(struct udevice **devp)
+{
+	struct udevice *bus;
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_first_device(UCLASS_PCI, &bus);
+	if (ret)
+		return ret;
+
+	return skip_to_next_device(bus, devp);
+}
+
 UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",

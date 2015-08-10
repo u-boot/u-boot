@@ -910,6 +910,31 @@ int pci_bus_find_devfn(struct udevice *bus, pci_dev_t find_devfn,
 		       struct udevice **devp);
 
 /**
+ * pci_find_first_device() - return the first available PCI device
+ *
+ * This function and pci_find_first_device() allow iteration through all
+ * available PCI devices on all buses. Assuming there are any, this will
+ * return the first one.
+ *
+ * @devp:	Set to the first available device, or NULL if no more are left
+ *		or we got an error
+ * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ */
+int pci_find_first_device(struct udevice **devp);
+
+/**
+ * pci_find_next_device() - return the next available PCI device
+ *
+ * Finds the next available PCI device after the one supplied, or sets @devp
+ * to NULL if there are no more.
+ *
+ * @devp:	On entry, the last device returned. Set to the next available
+ *		device, or NULL if no more are left or we got an error
+ * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ */
+int pci_find_next_device(struct udevice **devp);
+
+/**
  * pci_get_ff() - Returns a mask for the given access size
  *
  * @size:	Access size
