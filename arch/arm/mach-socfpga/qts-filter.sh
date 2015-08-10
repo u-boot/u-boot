@@ -66,7 +66,7 @@ process_pinmux_config() {
 EOF
 
 	# Retrieve the pinmux config and zap the ad-hoc length encoding
-	sed -n '/^unsigned/ !b; :next {/^unsigned/ s/\[.*\]/[]/;p;n;b next}' \
+	sed -n '/^unsigned/ !b; :next {/^unsigned/ {s/\[.*\]/[]/;s/unsigned long/const u8/};p;n;b next}' \
 		${in_dir}/generated/pinmux_config_${soc}.c
 
 	cat << EOF

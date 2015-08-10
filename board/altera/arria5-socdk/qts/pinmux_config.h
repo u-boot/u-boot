@@ -7,7 +7,7 @@
 #ifndef __SOCFPGA_PINMUX_CONFIG_H__
 #define __SOCFPGA_PINMUX_CONFIG_H__
 
-unsigned long sys_mgr_init_table[] = {
+const u8 sys_mgr_init_table[] = {
 	0, /* EMACIO0 */
 	2, /* EMACIO1 */
 	2, /* EMACIO2 */
