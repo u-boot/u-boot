@@ -125,10 +125,10 @@ static int create_pirq_routing_table(void)
 			return -EINVAL;
 	}
 
-	ret = fdtdec_get_int_array(blob, node, "intel,pirq-link",
-				   &irq_router.link_base, 1);
-	if (ret)
+	ret = fdtdec_get_int(blob, node, "intel,pirq-link", -1);
+	if (ret == -1)
 		return ret;
+	irq_router.link_base = ret;
 
 	irq_router.irq_mask = fdtdec_get_int(blob, node,
 					     "intel,pirq-mask", PIRQ_BITMAP);
@@ -156,18 +156,13 @@ static int create_pirq_routing_table(void)
 	}
 
 	cell = fdt_getprop(blob, node, "intel,pirq-routing", &len);
-	if (!cell)
+	if (!cell || len % sizeof(struct pirq_routing))
 		return -EINVAL;
+	count = len / sizeof(struct pirq_routing);
 
-	if ((len % sizeof(struct pirq_routing)) == 0)
-		count = len / sizeof(struct pirq_routing);
-	else
-		return -EINVAL;
-
-	rt = malloc(sizeof(struct irq_routing_table));
+	rt = calloc(1, sizeof(struct irq_routing_table));
 	if (!rt)
 		return -ENOMEM;
-	memset((char *)rt, 0, sizeof(struct irq_routing_table));
 
 	/* Populate the PIRQ table fields */
 	rt->signature = PIRQ_SIGNATURE;
@@ -181,7 +176,8 @@ static int create_pirq_routing_table(void)
 	slot_base = rt->slots;
 
 	/* Now fill in the irq_info entries in the PIRQ table */
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < count;
+	     i++, cell += sizeof(struct pirq_routing) / sizeof(u32)) {
 		struct pirq_routing pr;
 
 		pr.bdf = fdt_addr_to_cpu(cell[0]);
@@ -212,25 +208,14 @@ static int create_pirq_routing_table(void)
 				if (slot->irq[pr.pin - 1].link !=
 					LINK_N2V(pr.pirq, irq_router.link_base))
 					debug("WARNING: Inconsistent PIRQ routing information\n");
-
-				cell += sizeof(struct pirq_routing) /
-					sizeof(u32);
-				continue;
-			} else {
-				debug("writing INT%c\n", 'A' + pr.pin - 1);
-				fill_irq_info(slot, PCI_BUS(pr.bdf),
-					      PCI_DEV(pr.bdf), pr.pin, pr.pirq);
-				cell += sizeof(struct pirq_routing) /
-					sizeof(u32);
 				continue;
 			}
+		} else {
+			slot = slot_base + irq_entries++;
 		}
-
-		slot = slot_base + irq_entries;
-		fill_irq_info(slot, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf),
-			      pr.pin, pr.pirq);
-		irq_entries++;
-		cell += sizeof(struct pirq_routing) / sizeof(u32);
+		debug("writing INT%c\n", 'A' + pr.pin - 1);
+		fill_irq_info(slot, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf), pr.pin,
+			      pr.pirq);
 	}
 
 	rt->size = irq_entries * sizeof(struct irq_info) + 32;
