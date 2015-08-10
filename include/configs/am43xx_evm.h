@@ -292,6 +292,8 @@
 				"bootz ${loadaddr} - ${fdtaddr}; " \
 			"fi;" \
 		"fi\0" \
+		"fi;" \
+		"usb stop ${usbdev};\0" \
 	"findfdt="\
 		"if test $board_name = AM43EPOS; then " \
 			"setenv fdtfile am43x-epos-evm.dtb; fi; " \
