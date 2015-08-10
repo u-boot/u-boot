@@ -210,6 +210,17 @@ int pci_write_config(pci_dev_t bdf, int offset, unsigned long value,
 	return pci_bus_write_config(bus, bdf, offset, value, size);
 }
 
+int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
+			enum pci_size_t size)
+{
+	struct udevice *bus;
+
+	for (bus = dev; device_get_uclass_id(bus->parent) == UCLASS_PCI;)
+		bus = bus->parent;
+	return pci_bus_write_config(bus, pci_get_bdf(dev), offset, value, size);
+}
+
+
 int pci_write_config32(pci_dev_t bdf, int offset, u32 value)
 {
 	return pci_write_config(bdf, offset, value, PCI_SIZE_32);
@@ -223,6 +234,21 @@ int pci_write_config16(pci_dev_t bdf, int offset, u16 value)
 int pci_write_config8(pci_dev_t bdf, int offset, u8 value)
 {
 	return pci_write_config(bdf, offset, value, PCI_SIZE_8);
+}
+
+int dm_pci_write_config8(struct udevice *dev, int offset, u8 value)
+{
+	return dm_pci_write_config(dev, offset, value, PCI_SIZE_8);
+}
+
+int dm_pci_write_config16(struct udevice *dev, int offset, u16 value)
+{
+	return dm_pci_write_config(dev, offset, value, PCI_SIZE_16);
+}
+
+int dm_pci_write_config32(struct udevice *dev, int offset, u32 value)
+{
+	return dm_pci_write_config(dev, offset, value, PCI_SIZE_32);
 }
 
 int pci_bus_read_config(struct udevice *bus, pci_dev_t bdf, int offset,
@@ -247,6 +273,17 @@ int pci_read_config(pci_dev_t bdf, int offset, unsigned long *valuep,
 		return ret;
 
 	return pci_bus_read_config(bus, bdf, offset, valuep, size);
+}
+
+int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
+		       enum pci_size_t size)
+{
+	struct udevice *bus;
+
+	for (bus = dev; device_get_uclass_id(bus->parent) == UCLASS_PCI;)
+		bus = bus->parent;
+	return pci_bus_read_config(bus, pci_get_bdf(dev), offset, valuep,
+				   size);
 }
 
 int pci_read_config32(pci_dev_t bdf, int offset, u32 *valuep)
@@ -281,6 +318,45 @@ int pci_read_config8(pci_dev_t bdf, int offset, u8 *valuep)
 	int ret;
 
 	ret = pci_read_config(bdf, offset, &value, PCI_SIZE_8);
+	if (ret)
+		return ret;
+	*valuep = value;
+
+	return 0;
+}
+
+int dm_pci_read_config8(struct udevice *dev, int offset, u8 *valuep)
+{
+	unsigned long value;
+	int ret;
+
+	ret = dm_pci_read_config(dev, offset, &value, PCI_SIZE_8);
+	if (ret)
+		return ret;
+	*valuep = value;
+
+	return 0;
+}
+
+int dm_pci_read_config16(struct udevice *dev, int offset, u16 *valuep)
+{
+	unsigned long value;
+	int ret;
+
+	ret = dm_pci_read_config(dev, offset, &value, PCI_SIZE_16);
+	if (ret)
+		return ret;
+	*valuep = value;
+
+	return 0;
+}
+
+int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep)
+{
+	unsigned long value;
+	int ret;
+
+	ret = dm_pci_read_config(dev, offset, &value, PCI_SIZE_32);
 	if (ret)
 		return ret;
 	*valuep = value;

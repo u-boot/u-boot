@@ -988,6 +988,24 @@ int pci_bus_read_config(struct udevice *bus, pci_dev_t bdf, int offset,
 int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size);
 
+/**
+ * Driver model PCI config access functions. Use these in preference to others
+ * when you have a valid device
+ */
+int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
+		       enum pci_size_t size);
+
+int dm_pci_read_config8(struct udevice *dev, int offset, u8 *valuep);
+int dm_pci_read_config16(struct udevice *dev, int offset, u16 *valuep);
+int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep);
+
+int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
+			enum pci_size_t size);
+
+int dm_pci_write_config8(struct udevice *dev, int offset, u8 value);
+int dm_pci_write_config16(struct udevice *dev, int offset, u16 value);
+int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
+
 /*
  * The following functions provide access to the above without needing the
  * size parameter. We are trying to encourage the use of the 8/16/32-style
