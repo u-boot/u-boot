@@ -811,6 +811,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_clkmode_dpll_gmac			= 0x4a0052a8,
 	.cm_coreaon_usb_phy1_core_clkctrl	= 0x4a008640,
 	.cm_coreaon_usb_phy2_core_clkctrl	= 0x4a008688,
+	.cm_coreaon_l3init_60m_gfclk_clkctrl	= 0x4a0086c0,
 
 	/* cm1.mpu */
 	.cm_mpu_mpu_clkctrl			= 0x4a005320,
@@ -921,6 +922,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_l3init_ocp2scp1_clkctrl		= 0x4a0093e0,
 	.cm_l3init_ocp2scp3_clkctrl		= 0x4a0093e8,
 	.cm_l3init_usb_otg_ss1_clkctrl		= 0x4a0093f0,
+	.cm_l3init_usb_otg_ss2_clkctrl		= 0x4a009340,
 
 	/* cm2.l4per */
 	.cm_l4per_clkstctrl			= 0x4a009700,

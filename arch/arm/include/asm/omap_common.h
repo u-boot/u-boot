@@ -145,6 +145,7 @@ struct prcm_regs {
 	u32 cm_ssc_modfreqdiv_dpll_unipro;
 	u32 cm_coreaon_usb_phy1_core_clkctrl;
 	u32 cm_coreaon_usb_phy2_core_clkctrl;
+	u32 cm_coreaon_l3init_60m_gfclk_clkctrl;
 
 	/* cm2.core */
 	u32 cm_coreaon_bandgap_clkctrl;
@@ -231,6 +232,7 @@ struct prcm_regs {
 	u32 cm_l3init_ocp2scp1_clkctrl;
 	u32 cm_l3init_ocp2scp3_clkctrl;
 	u32 cm_l3init_usb_otg_ss1_clkctrl;
+	u32 cm_l3init_usb_otg_ss2_clkctrl;
 
 	u32 prm_irqstatus_mpu_2;
 
