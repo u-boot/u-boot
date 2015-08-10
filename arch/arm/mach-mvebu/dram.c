@@ -35,6 +35,8 @@ struct sdram_addr_dec {
 #define REG_CPUCS_WIN_WIN0_CS(x)	(((x) & 0x3) << 2)
 #define REG_CPUCS_WIN_SIZE(x)		(((x) & 0xff) << 24)
 
+#define SDRAM_SIZE_MAX			0xc0000000
+
 /*
  * mvebu_sdram_bar - reads SDRAM Base Address Register
  */
@@ -102,29 +104,26 @@ void mvebu_sdram_size_adjust(enum memory_bank bank)
 
 int dram_init(void)
 {
+	u64 size = 0;
 	int i;
 
-	gd->ram_size = 0;
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = mvebu_sdram_bar(i);
-		gd->bd->bi_dram[i].size = mvebu_sdram_bs(i);
 		/*
 		 * It is assumed that all memory banks are consecutive
 		 * and without gaps.
 		 * If the gap is found, ram_size will be reported for
 		 * consecutive memory only
 		 */
-		if (gd->bd->bi_dram[i].start != gd->ram_size)
+		if (mvebu_sdram_bar(i) != size)
 			break;
 
 		/*
 		 * Don't report more than 3GiB of SDRAM, otherwise there is no
 		 * address space left for the internal registers etc.
 		 */
-		if ((gd->ram_size + gd->bd->bi_dram[i].size != 0) &&
-		    (gd->ram_size + gd->bd->bi_dram[i].size <= (3 << 30)))
-			gd->ram_size += gd->bd->bi_dram[i].size;
-
+		size += mvebu_sdram_bs(i);
+		if (size > SDRAM_SIZE_MAX)
+			size = SDRAM_SIZE_MAX;
 	}
 
 	for (; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -136,6 +135,8 @@ int dram_init(void)
 		gd->bd->bi_dram[i].size = 0;
 	}
 
+	gd->ram_size = size;
+
 	return 0;
 }
 
@@ -145,7 +146,18 @@ int dram_init(void)
  */
 void dram_init_banksize(void)
 {
-	dram_init();
+	u64 size = 0;
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		gd->bd->bi_dram[i].start = mvebu_sdram_bar(i);
+		gd->bd->bi_dram[i].size = mvebu_sdram_bs(i);
+
+		/* Clip the banksize to 1GiB if it exceeds the max size */
+		size += gd->bd->bi_dram[i].size;
+		if (size > SDRAM_SIZE_MAX)
+			mvebu_sdram_bs_set(i, 0x40000000);
+	}
 }
 
 void board_add_ram_info(int use_default)
