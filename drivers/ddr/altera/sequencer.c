@@ -3247,7 +3247,7 @@ static void mem_skip_calibrate(void)
 			 *    (1.25 * iocfg->dll_chain_length - 2)
 			 */
 			scc_mgr_set_dqdqs_output_phase(i,
-				       1.25 * iocfg->dll_chain_length - 2);
+				       ((125 * iocfg->dll_chain_length) / 100) - 2);
 		}
 		writel(0xff, &sdr_scc_mgr->dqs_ena);
 		writel(0xff, &sdr_scc_mgr->dqs_io_ena);
