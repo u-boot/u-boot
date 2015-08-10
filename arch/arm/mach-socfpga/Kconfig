@@ -21,8 +21,8 @@ config TARGET_SOCFPGA_CYCLONE5_SOCDK
 endchoice
 
 config SYS_BOARD
-	default "socfpga" if TARGET_SOCFPGA_ARRIA5_SOCDK
-	default "socfpga" if TARGET_SOCFPGA_CYCLONE5_SOCDK
+	default "arria5-socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "cyclone5-socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 
 config SYS_VENDOR
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
