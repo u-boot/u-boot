@@ -42,6 +42,7 @@ enum clock_type_id {
 	CLOCK_TYPE_ASPTE,
 	CLOCK_TYPE_PMDACD2T,
 	CLOCK_TYPE_PCST,
+	CLOCK_TYPE_DP,
 
 	CLOCK_TYPE_PC2CC3M,
 	CLOCK_TYPE_PC2CC3S_T,
@@ -100,6 +101,10 @@ static enum clock_id clock_source[CLOCK_TYPE_COUNT][CLOCK_MAX_MUX+1] = {
 		CLK(CGENERAL),	CLK(DISPLAY2),	CLK(OSC),	CLK(NONE),
 		MASK_BITS_31_29},
 	{ CLK(PERIPH),	CLK(CGENERAL),	CLK(SFROM32KHZ),	CLK(OSC),
+		CLK(NONE),	CLK(NONE),	CLK(NONE),	CLK(NONE),
+		MASK_BITS_31_28},
+	/* CLOCK_TYPE_DP */
+	{ CLK(NONE),	CLK(NONE),	CLK(NONE),	CLK(NONE),
 		CLK(NONE),	CLK(NONE),	CLK(NONE),	CLK(NONE),
 		MASK_BITS_31_28},
 
@@ -656,6 +661,8 @@ struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
 	  .lock_ena = 9,  .lock_det = 11, .kcp_shift = 6, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLE */
 	{ .m_shift = 0, .m_mask = 0, .n_shift = 0, .n_mask = 0, .p_shift = 0, .p_mask = 0,
 	  .lock_ena = 0, .lock_det = 0, .kcp_shift = 0, .kcp_mask = 0, .kvco_shift = 0, .kvco_mask = 0 },	/* PLLS (gone)*/
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 19,  .p_mask = 0x1F,
+	  .lock_ena = 30, .lock_det = 27, .kcp_shift = 25, .kcp_mask = 3, .kvco_shift = 24, .kvco_mask = 1 },	/* PLLDP */
 };
 
 /*

@@ -126,19 +126,34 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 {
 	struct clk_pll *pll = NULL;
 	struct clk_pll_info *pllinfo = &tegra_pll_info_table[clkid];
+	struct clk_pll_simple *simple_pll = NULL;
 	u32 misc_data, data;
 
-	if (clkid < (enum clock_id)TEGRA_CLK_PLLS)
+	if (clkid < (enum clock_id)TEGRA_CLK_PLLS) {
 		pll = get_pll(clkid);
+	} else {
+		simple_pll = clock_get_simple_pll(clkid);
+		if (!simple_pll) {
+			debug("%s: Uknown simple PLL %d\n", __func__, clkid);
+			return 0;
+		}
+	}
 
 	/*
 	 * pllinfo has the m/n/p and kcp/kvco mask and shift
 	 * values for all of the PLLs used in U-Boot, with any
 	 * SoC differences accounted for.
+	 *
+	 * Preserve EN_LOCKDET, etc.
 	 */
-	misc_data = readl(&pll->pll_misc);	/* preserve EN_LOCKDET, etc. */
-	misc_data &= ~(pllinfo->kcp_mask << pllinfo->kcp_shift) | (cpcon << pllinfo->kcp_shift);
-	misc_data &= ~(pllinfo->kvco_mask << pllinfo->kvco_shift) | (lfcon << pllinfo->kvco_shift);
+	if (pll)
+		misc_data = readl(&pll->pll_misc);
+	else
+		misc_data = readl(&simple_pll->pll_misc);
+	misc_data &= ~(pllinfo->kcp_mask << pllinfo->kcp_shift);
+	misc_data |= cpcon << pllinfo->kcp_shift;
+	misc_data &= ~(pllinfo->kvco_mask << pllinfo->kvco_shift);
+	misc_data |= lfcon << pllinfo->kvco_shift;
 
 	data = (divm << pllinfo->m_shift) | (divn << pllinfo->n_shift);
 	data |= divp << pllinfo->p_shift;
@@ -148,14 +163,8 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		writel(misc_data, &pll->pll_misc);
 		writel(data, &pll->pll_base);
 	} else {
-		struct clk_pll_simple *pll = clock_get_simple_pll(clkid);
-
-		if (!pll) {
-			debug("%s: Uknown simple PLL %d\n", __func__, clkid);
-			return 0;
-		}
-		writel(misc_data, &pll->pll_misc);
-		writel(data, &pll->pll_base);
+		writel(misc_data, &simple_pll->pll_misc);
+		writel(data, &simple_pll->pll_base);
 	}
 
 	/* calculate the stable time */
