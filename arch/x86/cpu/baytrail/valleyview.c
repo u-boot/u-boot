@@ -43,6 +43,8 @@ int arch_misc_init(void)
 {
 	int ret;
 
+	if (!ll_boot_init())
+		return 0;
 	ret = pirq_init();
 	if (ret)
 		return ret;
