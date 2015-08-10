@@ -287,7 +287,7 @@ static const struct dm_spi_ops xilinx_spi_ops = {
 };
 
 static const struct udevice_id xilinx_spi_ids[] = {
-	{ .compatible = "xlnx,xilinx-spi" },
+	{ .compatible = "xlnx,xps-spi-2.00.a" },
 	{ }
 };
 
