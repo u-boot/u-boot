@@ -1800,7 +1800,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	u32 d, p, i;
 	u32 dtaps_per_ptap;
 	u32 work_bgn, work_end;
-	u32 found_passing_read, found_failing_read, initial_failing_dtap;
+	u32 found_passing_read, found_failing_read = 0, initial_failing_dtap;
 	int ret;
 
 	debug("%s:%d %u\n", __func__, __LINE__, grp);
