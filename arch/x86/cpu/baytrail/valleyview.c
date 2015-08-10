@@ -9,6 +9,7 @@
 #include <pci_ids.h>
 #include <asm/irq.h>
 #include <asm/post.h>
+#include <asm/fsp/fsp_support.h>
 
 static struct pci_device_id mmc_supported[] = {
 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VALLEYVIEW_SDIO },
@@ -40,6 +41,12 @@ int arch_cpu_init(void)
 
 int arch_misc_init(void)
 {
-	return pirq_init();
+	int ret;
+
+	ret = pirq_init();
+	if (ret)
+		return ret;
+
+	return fsp_init_phase_pci();
 }
 #endif
