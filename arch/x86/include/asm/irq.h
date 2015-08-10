@@ -70,7 +70,9 @@ void cpu_irq_init(void);
  *
  * This initializes the PIRQ routing on the platform and configures all PCI
  * devices' interrupt line register to a working IRQ number on the 8259 PIC.
+ *
+ * @return 0 if OK, -ve on error
  */
-void pirq_init(void);
+int pirq_init(void);
 
 #endif /* _ARCH_IRQ_H_ */

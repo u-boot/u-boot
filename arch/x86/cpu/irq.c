@@ -225,17 +225,22 @@ static int create_pirq_routing_table(void)
 	return 0;
 }
 
-void pirq_init(void)
+int pirq_init(void)
 {
+	int ret;
+
 	cpu_irq_init();
 
-	if (create_pirq_routing_table()) {
+	ret = create_pirq_routing_table();
+	if (ret) {
 		debug("Failed to create pirq routing table\n");
-	} else {
-		/* Route PIRQ */
-		pirq_route_irqs(pirq_routing_table->slots,
-				get_irq_slot_count(pirq_routing_table));
+		return ret;
 	}
+	/* Route PIRQ */
+	pirq_route_irqs(pirq_routing_table->slots,
+			get_irq_slot_count(pirq_routing_table));
+
+	return 0;
 }
 
 u32 write_pirq_routing_table(u32 addr)

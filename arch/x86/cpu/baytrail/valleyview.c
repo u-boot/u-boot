@@ -40,8 +40,6 @@ int arch_cpu_init(void)
 
 int arch_misc_init(void)
 {
-	pirq_init();
-
-	return 0;
+	return pirq_init();
 }
 #endif

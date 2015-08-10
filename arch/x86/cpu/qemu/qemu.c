@@ -41,7 +41,5 @@ void reset_cpu(ulong addr)
 
 int arch_misc_init(void)
 {
-	pirq_init();
-
-	return 0;
+	return pirq_init();
 }
