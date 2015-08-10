@@ -133,7 +133,6 @@ static struct dwc3_device usb_otg_ss1 = {
 static struct dwc3_omap_device usb_otg_ss1_glue = {
 	.base = (void *)DRA7_USB_OTG_SS1_GLUE_BASE,
 	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
-	.vbus_id_status = OMAP_DWC3_VBUS_VALID,
 	.index = 0,
 };
 
@@ -154,7 +153,6 @@ static struct dwc3_device usb_otg_ss2 = {
 static struct dwc3_omap_device usb_otg_ss2_glue = {
 	.base = (void *)DRA7_USB_OTG_SS2_GLUE_BASE,
 	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
-	.vbus_id_status = OMAP_DWC3_VBUS_VALID,
 	.index = 1,
 };
 
