@@ -193,8 +193,11 @@ void ti_usb2_phy_power(struct ti_usb_phy *phy, int on)
 	val = readl(phy->usb2_phy_power);
 
 	if (on) {
-#ifdef CONFIG_DRA7XX
-		val &= ~OMAP_CTRL_DEV_PHY_PD;
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+		if (phy->index == 1)
+			val &= ~OMAP_CTRL_USB2_PHY_PD;
+		else
+			val &= ~OMAP_CTRL_DEV_PHY_PD;
 #elif defined(CONFIG_AM43XX)
 		val &= ~(AM437X_CTRL_USB2_PHY_PD |
 			 AM437X_CTRL_USB2_OTG_PD);
@@ -202,8 +205,12 @@ void ti_usb2_phy_power(struct ti_usb_phy *phy, int on)
 			AM437X_CTRL_USB2_OTGSESSEND_EN);
 #endif
 	} else {
-#ifdef CONFIG_DRA7XX
-		val |= OMAP_CTRL_DEV_PHY_PD;
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+		if (phy->index == 1)
+			val |= OMAP_CTRL_USB2_PHY_PD;
+		else
+			val |= OMAP_CTRL_DEV_PHY_PD;
+
 #elif defined(CONFIG_AM43XX)
 		val &= ~(AM437X_CTRL_USB2_OTGVDET_EN |
 			 AM437X_CTRL_USB2_OTGSESSEND_EN);
