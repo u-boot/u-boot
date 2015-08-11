@@ -1555,9 +1555,8 @@ error_enable:
 static int tegra_dp_ofdata_to_platdata(struct udevice *dev)
 {
 	struct tegra_dp_plat *plat = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
 
-	plat->base = fdtdec_get_addr(blob, dev->of_offset, "reg");
+	plat->base = dev_get_addr(dev);
 
 	return 0;
 }

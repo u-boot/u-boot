@@ -255,7 +255,7 @@ static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 
-	plat->regs = (struct exynos_spi *)fdtdec_get_addr(blob, node, "reg");
+	plat->regs = (struct exynos_spi *)dev_get_addr(bus);
 	plat->periph_id = pinmux_decode_periph_id(blob, node);
 
 	if (plat->periph_id == PERIPH_ID_NONE) {
