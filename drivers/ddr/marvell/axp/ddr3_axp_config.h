@@ -44,7 +44,7 @@
  * DDR3_TRAINING_DEBUG - Debug prints of internal code
  */
 #define DDR_TARGET_FABRIC			5
-#define DRAM_ECC				0
+#define DRAM_ECC				1
 
 #ifdef MV_DDR_32BIT
 #define BUS_WIDTH                               32
