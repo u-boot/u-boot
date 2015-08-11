@@ -499,6 +499,7 @@ static int setup_machine(void)
 static int reserve_global_data(void)
 {
 	gd->start_addr_sp -= sizeof(gd_t);
+	gd->start_addr_sp &= ~0xf;
 	gd->new_gd = (gd_t *)map_sysmem(gd->start_addr_sp, sizeof(gd_t));
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
 			sizeof(gd_t), gd->start_addr_sp);
