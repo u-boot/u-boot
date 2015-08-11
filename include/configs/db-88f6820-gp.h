@@ -41,6 +41,7 @@
 #define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_SF
@@ -105,6 +106,13 @@
 #define CONFIG_PHY_ADDR			{ 1, 0 }
 #define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
+
+/* PCIe support */
+#define CONFIG_PCI
+#define CONFIG_PCI_MVEBU
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_E1000	/* enable Intel E1000 support for testing */
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST

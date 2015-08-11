@@ -7,6 +7,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <miiphy.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -129,4 +130,10 @@ int checkboard(void)
 	puts("Board: Marvell DB-88F6820-GP\n");
 
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in controller(s) come first */
+	return pci_eth_init(bis);
 }
