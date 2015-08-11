@@ -10,6 +10,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <asm/processor.h>
+
 enum pei_boot_mode_t {
 	PEI_BOOT_NONE = 0,
 	PEI_BOOT_SOFT_RESET,
@@ -44,6 +46,7 @@ struct mtrr_request {
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	u64 gdt[X86_GDT_NUM_ENTRIES] __aligned(16);
 	struct global_data *gd_addr;	/* Location of Global Data */
 	uint8_t x86;			/* CPU family */
 	uint8_t x86_vendor;		/* CPU vendor */
@@ -68,7 +71,6 @@ struct arch_global_data {
 	/* MRC training data to save for the next boot */
 	char *mrc_output;
 	unsigned int mrc_output_len;
-	void *gdt;			/* Global descriptor table */
 	ulong table;			/* Table pointer from previous loader */
 };
 

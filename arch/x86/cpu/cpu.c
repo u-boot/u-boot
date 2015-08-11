@@ -136,9 +136,10 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 	asm volatile("lgdtl %0\n" : : "m" (gdt));
 }
 
-void setup_gdt(gd_t *id, u64 *gdt_addr)
+void setup_gdt(gd_t *new_gd, u64 *gdt_addr)
 {
-	id->arch.gdt = gdt_addr;
+	gdt_addr = new_gd->arch.gdt;
+
 	/* CS: code, read/execute, 4 GB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff);
 
@@ -146,9 +147,9 @@ void setup_gdt(gd_t *id, u64 *gdt_addr)
 	gdt_addr[X86_GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff);
 
 	/* FS: data, read/write, 4 GB, base (Global Data Pointer) */
-	id->arch.gd_addr = id;
+	new_gd->arch.gd_addr = new_gd;
 	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0xc093,
-		     (ulong)&id->arch.gd_addr, 0xfffff);
+		     (ulong)&new_gd->arch.gd_addr, 0xfffff);
 
 	/* 16-bit CS: code, read/execute, 64 kB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x009b, 0, 0x0ffff);
