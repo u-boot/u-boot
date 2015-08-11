@@ -32,7 +32,6 @@
 #endif
 
 #undef CONFIG_DM_WARN
-#undef CONFIG_DM_DEVICE_REMOVE
 #undef CONFIG_DM_SEQ_ALIAS
 #undef CONFIG_DM_STDIO
 

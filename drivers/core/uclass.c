@@ -435,7 +435,7 @@ err:
 	return ret;
 }
 
-#ifdef CONFIG_DM_DEVICE_REMOVE
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int uclass_unbind_device(struct udevice *dev)
 {
 	struct uclass *uc;
@@ -515,7 +515,7 @@ int uclass_post_probe_device(struct udevice *dev)
 	return 0;
 }
 
-#ifdef CONFIG_DM_DEVICE_REMOVE
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int uclass_pre_remove_device(struct udevice *dev)
 {
 	struct uclass_driver *uc_drv;
