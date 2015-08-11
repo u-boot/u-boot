@@ -8,7 +8,7 @@ config CLK
 	  feed into other clocks in a tree structure, with multiplexers to
 	  choose the source for each clock.
 
-config SPL_CLK_SUPPORT
+config SPL_CLK
 	bool "Enable clock support in SPL"
 	depends on CLK
 	help

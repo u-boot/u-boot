@@ -2,7 +2,7 @@ obj-$(CONFIG_$(SPL_)DM)		+= core/
 
 ifdef CONFIG_SPL_BUILD
 
-obj-$(CONFIG_SPL_CLK_SUPPORT) += clk/
+obj-$(CONFIG_SPL_CLK) += clk/
 obj-$(CONFIG_SPL_I2C_SUPPORT) += i2c/
 obj-$(CONFIG_SPL_GPIO_SUPPORT) += gpio/
 obj-$(CONFIG_SPL_MMC_SUPPORT) += mmc/
