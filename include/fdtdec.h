@@ -46,7 +46,7 @@ struct fdt_memory {
 #endif
 
 #ifdef CONFIG_OF_CONTROL
-# if defined(CONFIG_SPL_BUILD) && defined(SPL_DISABLE_OF_CONTROL)
+# if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DISABLE_OF_CONTROL)
 #  define OF_CONTROL 0
 # else
 #  define OF_CONTROL 1
