@@ -25,8 +25,21 @@
 #define BM_CTRL_ERROR			0x00000200
 #define BM_CTRL_BUSY			0x00000100
 #define BO_CTRL_ADDR			0
+#ifdef CONFIG_MX7
+#define BM_CTRL_ADDR                    0x0000000f
+#define BM_CTRL_RELOAD                  0x00000400
+#else
 #define BM_CTRL_ADDR			0x0000007f
+#endif
 
+#ifdef CONFIG_MX7
+#define BO_TIMING_FSOURCE               12
+#define BM_TIMING_FSOURCE               0x0007f000
+#define BV_TIMING_FSOURCE_NS            1001
+#define BO_TIMING_PROG                  0
+#define BM_TIMING_PROG                  0x00000fff
+#define BV_TIMING_PROG_US               10
+#else
 #define BO_TIMING_STROBE_READ		16
 #define BM_TIMING_STROBE_READ		0x003f0000
 #define BV_TIMING_STROBE_READ_NS	37
@@ -36,6 +49,7 @@
 #define BO_TIMING_STROBE_PROG		0
 #define BM_TIMING_STROBE_PROG		0x00000fff
 #define BV_TIMING_STROBE_PROG_US	10
+#endif
 
 #define BM_READ_CTRL_READ_FUSE		0x00000001
 
@@ -109,6 +123,25 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 	return finish_access(regs, __func__);
 }
 
+#ifdef CONFIG_MX7
+static void set_timing(struct ocotp_regs *regs)
+{
+	u32 ipg_clk;
+	u32 fsource, prog;
+	u32 timing;
+
+	ipg_clk = mxc_get_clock(MXC_IPG_CLK);
+
+	fsource = DIV_ROUND_UP((ipg_clk / 1000) * BV_TIMING_FSOURCE_NS,
+			+       1000000) + 1;
+	prog = DIV_ROUND_CLOSEST(ipg_clk * BV_TIMING_PROG_US, 1000000) + 1;
+
+	timing = BF(fsource, TIMING_FSOURCE) | BF(prog, TIMING_PROG);
+
+	clrsetbits_le32(&regs->timing, BM_TIMING_FSOURCE | BM_TIMING_PROG,
+			timing);
+}
+#else
 static void set_timing(struct ocotp_regs *regs)
 {
 	u32 ipg_clk;
@@ -130,12 +163,17 @@ static void set_timing(struct ocotp_regs *regs)
 	clrsetbits_le32(&regs->timing, BM_TIMING_STROBE_READ | BM_TIMING_RELAX |
 			BM_TIMING_STROBE_PROG, timing);
 }
+#endif
 
 static void setup_direct_access(struct ocotp_regs *regs, u32 bank, u32 word,
 				int write)
 {
 	u32 wr_unlock = write ? BV_CTRL_WR_UNLOCK_KEY : 0;
+#ifdef CONFIG_MX7
+	u32 addr = bank;
+#else
 	u32 addr = bank << 3 | word;
+#endif
 
 	set_timing(regs);
 	clrsetbits_le32(&regs->ctrl, BM_CTRL_WR_UNLOCK | BM_CTRL_ADDR,
@@ -155,7 +193,11 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 	setup_direct_access(regs, bank, word, false);
 	writel(BM_READ_CTRL_READ_FUSE, &regs->read_ctrl);
 	wait_busy(regs, 1);
+#ifdef CONFIG_MX7
+	*val = readl((&regs->read_fuse_data0) + (word << 2));
+#else
 	*val = readl(&regs->read_fuse_data);
+#endif
 
 	return finish_access(regs, __func__);
 }
@@ -176,8 +218,38 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 		return ret;
 
 	setup_direct_access(regs, bank, word, true);
+#ifdef CONFIG_MX7
+	switch (word) {
+	case 0:
+		writel(0, &regs->data1);
+		writel(0, &regs->data2);
+		writel(0, &regs->data3);
+		writel(val, &regs->data0);
+		break;
+	case 1:
+		writel(val, &regs->data1);
+		writel(0, &regs->data2);
+		writel(0, &regs->data3);
+		writel(0, &regs->data0);
+		break;
+	case 2:
+		writel(0, &regs->data1);
+		writel(val, &regs->data2);
+		writel(0, &regs->data3);
+		writel(0, &regs->data0);
+		break;
+	case 3:
+		writel(0, &regs->data1);
+		writel(0, &regs->data2);
+		writel(val, &regs->data3);
+		writel(0, &regs->data0);
+		break;
+	}
+	wait_busy(regs, BV_TIMING_PROG_US);
+#else
 	writel(val, &regs->data);
 	wait_busy(regs, BV_TIMING_STROBE_PROG_US);
+#endif
 	udelay(WRITE_POSTAMBLE_US);
 
 	return finish_access(regs, __func__);
