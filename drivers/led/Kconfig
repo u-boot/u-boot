@@ -9,7 +9,7 @@ config LED
 	  can provide access to board-specific LEDs. Use of the device tree
 	  for configuration is encouraged.
 
-config SPL_LED_SUPPORT
+config SPL_LED
 	bool "Enable LED support in SPL"
 	depends on LED
 	help
