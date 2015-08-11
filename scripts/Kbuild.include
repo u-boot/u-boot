@@ -309,3 +309,9 @@ why =                                                                        \
 
 echo-why = $(call escsq, $(strip $(why)))
 endif
+
+ifdef CONFIG_SPL_BUILD
+SPL_ := SPL_
+else
+SPL_ :=
+endif
