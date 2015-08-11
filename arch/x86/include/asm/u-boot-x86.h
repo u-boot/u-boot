@@ -14,7 +14,6 @@ extern char gdt_rom[];
 int arch_cpu_init(void);
 int x86_cpu_init_f(void);
 int cpu_init_f(void);
-void init_gd(gd_t *id, u64 *gdt_addr);
 void setup_gdt(gd_t *id, u64 *gdt_addr);
 /*
  * Setup FSP execution environment GDT to use the one we used in
