@@ -33,6 +33,7 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
+#define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
@@ -101,6 +102,13 @@
 
 #define CONFIG_DOS_PARTITION
 #endif /* CONFIG_CMD_IDE */
+
+/* PCIe support */
+#define CONFIG_PCI
+#define CONFIG_PCI_MVEBU
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_E1000	/* enable Intel E1000 support for testing */
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
