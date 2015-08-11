@@ -8,7 +8,7 @@ config RAM
 	  the RAM size can either be statically defined or dynamically
 	  detected.
 
-config SPL_RAM_SUPPORT
+config SPL_RAM
 	bool "Enable RAM support in SPL"
 	depends on RAM
 	help
