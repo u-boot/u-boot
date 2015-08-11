@@ -158,7 +158,7 @@ int spl_init(void)
 	gd->malloc_ptr = 0;
 #endif
 	if (IS_ENABLED(CONFIG_OF_CONTROL) &&
-			!IS_ENABLED(CONFIG_SPL_DISABLE_OF_CONTROL)) {
+			IS_ENABLED(CONFIG_SPL_OF_CONTROL)) {
 		ret = fdtdec_setup();
 		if (ret) {
 			debug("fdtdec_setup() returned error %d\n", ret);

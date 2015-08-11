@@ -658,7 +658,6 @@ config ARCH_SUNXI
 	select DM_USB
 	select OF_CONTROL
 	select OF_SEPARATE
-	select SPL_DISABLE_OF_CONTROL
 	select USB
 	select USB_STORAGE
 	select USB_KEYBOARD
@@ -684,7 +683,6 @@ config ARCH_ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 	select OF_CONTROL
-	select SPL_DISABLE_OF_CONTROL
 	select DM
 	select DM_SPI
 	select DM_SPI_FLASH
@@ -821,7 +819,6 @@ config ARCH_UNIPHIER
 	select DM
 	select DM_SERIAL
 	select DM_I2C
-	select SPL_DISABLE_OF_CONTROL
 	help
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)

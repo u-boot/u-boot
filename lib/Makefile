@@ -49,7 +49,13 @@ obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o
 endif
 
-ifndef CONFIG_SPL_DISABLE_OF_CONTROL
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_OF_LIBFDT) += libfdt/
+obj-$(CONFIG_OF_CONTROL) += fdtdec_common.o
+obj-$(CONFIG_OF_CONTROL) += fdtdec.o
+endif
+
+ifdef CONFIG_SPL_OF_CONTROL
 obj-$(CONFIG_OF_LIBFDT) += libfdt/
 obj-$(CONFIG_OF_CONTROL) += fdtdec_common.o
 obj-$(CONFIG_OF_CONTROL) += fdtdec.o

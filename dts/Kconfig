@@ -14,9 +14,9 @@ config OF_CONTROL
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.
 
-config SPL_DISABLE_OF_CONTROL
-	bool "Disable run-time configuration via Device Tree in SPL"
-	depends on OF_CONTROL
+config SPL_OF_CONTROL
+	bool "Enable run-time configuration via Device Tree in SPL"
+	depends on SPL && OF_CONTROL
 	help
 	  Some boards use device tree in U-Boot but only have 4KB of SRAM
 	  which is not enough to support device tree. Enable this option to

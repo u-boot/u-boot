@@ -5,7 +5,6 @@ config TEGRA_ARMV7_COMMON
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
-	select SPL_DISABLE_OF_CONTROL
 	select CPU_V7
 	select DM
 	select DM_SPI_FLASH
