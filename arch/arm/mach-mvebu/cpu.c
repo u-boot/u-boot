@@ -18,14 +18,6 @@
 #define DDR_SIZE_CS_OFF(n)	(0x0004 + ((n) << 3))
 
 static struct mbus_win windows[] = {
-	/* PCIE MEM address space */
-	{ MBUS_PCI_MEM_BASE, MBUS_PCI_MEM_SIZE,
-	  CPU_TARGET_PCIE13, CPU_ATTR_PCIE_MEM },
-
-	/* PCIE IO address space */
-	{ MBUS_PCI_IO_BASE, MBUS_PCI_IO_SIZE,
-	  CPU_TARGET_PCIE13, CPU_ATTR_PCIE_IO },
-
 	/* SPI */
 	{ MBUS_SPI_BASE, MBUS_SPI_SIZE,
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPIFLASH },
