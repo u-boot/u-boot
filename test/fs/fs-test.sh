@@ -485,9 +485,9 @@ function test_fs_nonfs() {
 	echo "Creating files in $fs image if not already present."
 	create_files $IMAGE $MD5_FILE_FS
 
-	OUT_FILE="${OUT}.fs.${fs}.out"
+	OUT_FILE="${OUT}.$1.${fs}.out"
 	test_image $IMAGE $fs $SMALL_FILE $BIG_FILE $1 "" \
-		> ${OUT_FILE}
+		> ${OUT_FILE} 2>&1
 	check_results $OUT_FILE $MD5_FILE_FS $SMALL_FILE $BIG_FILE \
 		$WRITE_FILE
 	TOTAL_FAIL=$((TOTAL_FAIL + FAIL))
@@ -535,7 +535,7 @@ for fs in ext4 fat; do
 
 	OUT_FILE="${OUT}.sb.${fs}.out"
 	test_image $IMAGE $fs $SMALL_FILE $BIG_FILE sb `pwd`/$MOUNT_DIR \
-		> ${OUT_FILE}
+		> ${OUT_FILE} 2>&1
 	sudo umount "$MOUNT_DIR"
 	rmdir "$MOUNT_DIR"
 
