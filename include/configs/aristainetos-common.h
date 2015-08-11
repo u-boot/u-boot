@@ -106,7 +106,7 @@
 	"ubiboot=echo Booting from ubi ...; " \
 		"run ubiargs addmtd addmisc set_fit_default;" \
 		"bootm ${fit_addr_r}\0" \
-	"ubifs_load_fit=sf probe;ubi part ubi 2048;ubifsmount ubi:rootfs;" \
+	"ubifs_load_fit=sf probe;ubi part ubi 4096;ubifsmount ubi:rootfs;" \
 		"ubifsload ${fit_addr_r} /boot/system.itb; " \
 		"imi ${fit_addr_r}\0 " \
 	"rescueargs=setenv bootargs console=${console},${baudrate} " \
