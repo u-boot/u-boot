@@ -123,6 +123,7 @@
 char *target;
 char *depfile;
 char *cmdline;
+int is_spl_build = 0; /* hack for U-boot */
 
 static void usage(void)
 {
@@ -239,6 +240,7 @@ static void parse_config_file(const char *map, size_t len)
 	/* start at +1, so that p can never be < map */
 	const int *m   = (const int *) map + 1;
 	const char *p, *q;
+	char tmp_buf[256] = "SPL_"; /* hack for U-Boot */
 
 	for (; m < end; m++) {
 		if (*m == INT_CONF) { p = (char *) m  ; goto conf; }
@@ -263,6 +265,26 @@ static void parse_config_file(const char *map, size_t len)
 			q -= 7;
 		if (q - p < 0)
 			continue;
+
+		/* U-Boot also handles CONFIG_IS_{ENABLED/BUILTIN/MODULE} */
+		if ((q - p == 10 && !memcmp(p, "IS_ENABLED(", 11)) ||
+		    (q - p == 10 && !memcmp(p, "IS_BUILTIN(", 11)) ||
+		    (q - p == 9 && !memcmp(p, "IS_MODULE(", 10))) {
+			p = q + 1;
+			for (q = p; q < map + len; q++)
+				if (*q == ')')
+					goto found2;
+			continue;
+
+		found2:
+			if (is_spl_build) {
+				memcpy(tmp_buf + 4, p, q - p);
+				q = tmp_buf + 4 + (q - p);
+				p = tmp_buf;
+			}
+		}
+		/* end U-Boot hack */
+
 		use_config(p, q - p);
 	}
 }
@@ -455,6 +477,10 @@ int main(int argc, char *argv[])
 	depfile = argv[1];
 	target = argv[2];
 	cmdline = argv[3];
+
+	/* hack for U-boot */
+	if (!strncmp(target, "spl/", 4) || !strncmp(target, "tpl/", 4))
+		is_spl_build = 1;
 
 	print_cmdline();
 	print_deps();

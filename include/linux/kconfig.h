@@ -43,4 +43,52 @@
  */
 #define IS_MODULE(option) config_enabled(option##_MODULE)
 
+/*
+ * U-Boot add-on: Helper macros to reference to different macros
+ * (CONFIG_ or CONFIG_SPL_ prefixed), depending on the build context.
+ */
+#ifdef CONFIG_SPL_BUILD
+#define _IS_SPL 1
+#endif
+
+#define config_val(cfg) _config_val(_IS_SPL, cfg)
+#define _config_val(x, cfg) __config_val(x, cfg)
+#define __config_val(x, cfg) ___config_val(__ARG_PLACEHOLDER_##x, cfg)
+#define ___config_val(arg1_or_junk, cfg)  \
+	____config_val(arg1_or_junk CONFIG_SPL_##cfg, CONFIG_##cfg)
+#define ____config_val(__ignored, val, ...) val
+
+/*
+ * CONFIG_VAL(FOO) evaluates to the value of
+ *  CONFIG_FOO if CONFIG_SPL_BUILD is undefined,
+ *  CONFIG_SPL_FOO if CONFIG_SPL_BUILD is defined.
+ */
+#define CONFIG_VAL(option)  config_val(option)
+
+/*
+ * CONFIG_IS_ENABLED(FOO) evaluates to
+ *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'y' or 'm',
+ *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'y' or 'm',
+ *  0 otherwise.
+ */
+#define CONFIG_IS_ENABLED(option) \
+	(config_enabled(CONFIG_VAL(option)) ||		\
+	 config_enabled(CONFIG_VAL(option##_MODULE)))
+
+/*
+ * CONFIG_IS_BUILTIN(FOO) evaluates to
+ *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'y',
+ *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'y',
+ *  0 otherwise.
+ */
+#define CONFIG_IS_BUILTIN(option) config_enabled(CONFIG_VAL(option))
+
+/*
+ * CONFIG_IS_MODULE(FOO) evaluates to
+ *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'm',
+ *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'm',
+ *  0 otherwise.
+ */
+#define CONFIG_IS_MODULE(option) config_enabled(CONFIG_VAL(option##_MODULE))
+
 #endif /* __LINUX_KCONFIG_H */
