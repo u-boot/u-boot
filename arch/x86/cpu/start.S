@@ -104,8 +104,7 @@ car_init_ret:
 	 *
 	 * top-> CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE
 	 *	MRC area
-	 *	global_data
-	 *	x86 global descriptor table
+	 *	global_data with x86 global descriptor table
 	 *	early malloc area
 	 *	stack
 	 * bottom-> CONFIG_SYS_CAR_ADDR
@@ -120,13 +119,10 @@ car_init_ret:
 	 * and esi holds the HOB list address returned by the FSP.
 	 */
 #endif
-
-	/* Reserve space on stack for global data */
-	subl	$GENERATED_GBL_DATA_SIZE, %esp
-
-	/* Align global data to 16-byte boundary */
-	andl	$0xfffffff0, %esp
-	post_code(POST_START_STACK)
+	/* Set up global data */
+	mov	%esp, %eax
+	call	board_init_f_mem
+	mov	%eax, %esp
 
 	/*
 	 * Debug UART is available here although it may not be plumbed out
@@ -137,56 +133,21 @@ car_init_ret:
 	 * call  printch
 	 */
 
-	/* Zero the global data since it won't happen later */
-	xorl	%eax, %eax
-	movl	$GENERATED_GBL_DATA_SIZE, %ecx
-	movl	%esp, %edi
-	rep	stosb
-
+	/* Get address of global_data */
+	mov	%fs:0, %edx
 #ifdef CONFIG_HAVE_FSP
+	/* Store the HOB list if we have one */
 	test	%esi, %esi
 	jz	skip_hob
-
-	/* Store HOB list */
-	movl	%esp, %edx
-	addl	$GD_HOB_LIST, %edx
-	movl	%esi, (%edx)
+	movl	%esi, GD_HOB_LIST(%edx)
 
 skip_hob:
 #else
 	/* Store table pointer */
-	movl	%esp, %edx
-	addl	$GD_TABLE, %edx
-	movl	%esi, (%edx)
+	movl	%esi, GD_TABLE(%edx)
 #endif
-
-	/* Setup first parameter to setup_gdt, pointer to global_data */
-	movl	%esp, %eax
-
-	/* Reserve space for global descriptor table */
-	subl	$X86_GDT_SIZE, %esp
-
-	/* Align temporary global descriptor table to 16-byte boundary */
-	andl	$0xfffffff0, %esp
-	movl	%esp, %ecx
-
-#if defined(CONFIG_SYS_MALLOC_F_LEN)
-	/* Set up the pre-relocation malloc pool */
-	subl	$CONFIG_SYS_MALLOC_F_LEN, %esp
-	movl	%eax, %edx
-	addl	$GD_MALLOC_BASE, %edx
-	movl	%esp, (%edx)
-#endif
-	/* Store BIST into global_data */
-	movl	%eax, %edx
-	addl	$GD_BIST, %edx
-	movl	%ebp, (%edx)
-
-	/* Set second parameter to setup_gdt() */
-	movl	%ecx, %edx
-
-	/* Setup global descriptor table so gd->xyz works */
-	call	setup_gdt
+	/* Store BIST */
+	movl	%ebp, GD_BIST(%edx)
 
 	/* Set parameter to board_init_f() to boot flags */
 	post_code(POST_START_DONE)
@@ -213,37 +174,7 @@ board_init_f_r_trampoline:
 	/* Stack grows down from top of SDRAM */
 	movl	%eax, %esp
 
-	/* Reserve space on stack for global data */
-	subl	$GENERATED_GBL_DATA_SIZE, %esp
-
-	/* Align global data to 16-byte boundary */
-	andl	$0xfffffff0, %esp
-
-	/* Setup first parameter to memcpy() and setup_gdt() */
-	movl	%esp, %eax
-
-	/* Setup second parameter to memcpy() */
-	fs movl 0, %edx
-
-	/* Set third parameter to memcpy() */
-	movl	$GENERATED_GBL_DATA_SIZE, %ecx
-
-	/* Copy global data from CAR to SDRAM stack */
-	call	memcpy
-
-	/* Reserve space for global descriptor table */
-	subl	$X86_GDT_SIZE, %esp
-
-	/* Align global descriptor table to 16-byte boundary */
-	andl	$0xfffffff0, %esp
-
-	/* Set second parameter to setup_gdt() */
-	movl	%esp, %edx
-
-	/* Setup global descriptor table so gd->xyz works */
-	call	setup_gdt
-
-	/* Set if we need to disable CAR */
+	/* See if we need to disable CAR */
 .weak	car_uninit
 	movl	$car_uninit, %eax
 	cmpl	$0, %eax

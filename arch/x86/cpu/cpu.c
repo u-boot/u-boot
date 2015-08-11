@@ -136,8 +136,10 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 	asm volatile("lgdtl %0\n" : : "m" (gdt));
 }
 
-void setup_gdt(gd_t *new_gd, u64 *gdt_addr)
+void arch_setup_gd(gd_t *new_gd)
 {
+	u64 *gdt_addr;
+
 	gdt_addr = new_gd->arch.gdt;
 
 	/* CS: code, read/execute, 4 GB, base 0 */

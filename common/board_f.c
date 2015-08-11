@@ -715,6 +715,7 @@ static int jump_to_copy(void)
 	 * with the stack in SDRAM and Global Data in temporary memory
 	 * (CPU cache)
 	 */
+	arch_setup_gd(gd->new_gd);
 	board_init_f_r_trampoline(gd->start_addr_sp);
 #else
 	relocate_code(gd->start_addr_sp, gd->new_gd, gd->relocaddr);
@@ -1033,6 +1034,7 @@ __weak void arch_setup_gd(struct global_data *gd_ptr)
 {
 	gd = gd_ptr;
 }
+#endif /* !CONFIG_X86 */
 
 ulong board_init_f_mem(ulong top)
 {
@@ -1054,4 +1056,3 @@ ulong board_init_f_mem(ulong top)
 
 	return top;
 }
-#endif /* !CONFIG_X86 */
