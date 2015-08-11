@@ -158,7 +158,7 @@ int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 	return exynos_dwmci_core_init(host, index);
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
 
 static int do_dwmci_init(struct dwmci_host *host)

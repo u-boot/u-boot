@@ -562,7 +562,7 @@ void reset_set_enable(enum periph_id periph_id, int enable)
 	writel(reg, reset);
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 /*
  * Convert a device tree clock ID to our peripheral ID. They are mostly
  * the same but we are very cautious so we check that a valid clock ID is
@@ -600,7 +600,7 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 		return clk_id;
 	}
 }
-#endif /* CONFIG_OF_CONTROL */
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 void clock_early_init(void)
 {

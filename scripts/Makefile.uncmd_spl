@@ -3,9 +3,6 @@
 # TODO: Invent a better way
 
 ifdef CONFIG_SPL_BUILD
-ifndef CONFIG_SPL_OF_CONTROL
-CONFIG_OF_CONTROL=
-endif
 
 ifndef CONFIG_SPL_DM
 CONFIG_DM_SERIAL=

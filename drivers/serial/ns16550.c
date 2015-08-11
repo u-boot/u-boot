@@ -357,7 +357,7 @@ int ns16550_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ns16550_platdata *plat = dev->platdata;

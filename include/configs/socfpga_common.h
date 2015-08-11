@@ -214,7 +214,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPI_FLASH_BAR
 #endif
 
-#ifdef CONFIG_OF_CONTROL	/* DW SPI is controlled via DT */
+#if CONFIG_IS_ENABLED(OF_CONTROL)	/* DW SPI is controlled via DT */
 #define CONFIG_DESIGNWARE_SPI
 #define CONFIG_CMD_SPI
 #endif

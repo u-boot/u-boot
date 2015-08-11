@@ -28,7 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned int panel_width, panel_height;
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 vidinfo_t panel_info  = {
 	/*
 	 * Insert a value here so that we don't end up in the BSS
@@ -126,7 +126,7 @@ static void lcd_panel_on(vidinfo_t *vid)
 
 	exynos_backlight_on(1);
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	node = fdtdec_next_compatible(gd->fdt_blob, 0,
 						COMPAT_SAMSUNG_EXYNOS_FIMD);
 	if (node <= 0) {
@@ -150,7 +150,7 @@ static void lcd_panel_on(vidinfo_t *vid)
 		exynos_mipi_dsi_init();
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int exynos_lcd_early_init(const void *blob)
 {
 	unsigned int node;
@@ -295,7 +295,7 @@ void lcd_ctrl_init(void *lcdbase)
 	set_system_display_ctrl();
 	set_lcd_clk();
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 #ifdef CONFIG_EXYNOS_MIPI_DSIM
 	exynos_init_dsim_platform_data(&panel_info);
 #endif

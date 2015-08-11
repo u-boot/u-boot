@@ -99,7 +99,7 @@ int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 /**
  * driver_check_compatible() - Check if a driver is compatible with this node
  *

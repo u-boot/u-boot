@@ -59,7 +59,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	dev->seq = -1;
 	dev->req_seq = -1;
-	if (IS_ENABLED(CONFIG_OF_CONTROL) && IS_ENABLED(CONFIG_DM_SEQ_ALIAS)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && IS_ENABLED(CONFIG_DM_SEQ_ALIAS)) {
 		/*
 		* Some devices, such as a SPI bus, I2C bus and serial ports
 		* are numbered using aliases.
@@ -561,7 +561,7 @@ const char *dev_get_uclass_name(struct udevice *dev)
 
 fdt_addr_t dev_get_addr(struct udevice *dev)
 {
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr;
 
 	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");

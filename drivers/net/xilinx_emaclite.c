@@ -361,7 +361,7 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 	return 1;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int xilinx_emaclite_of_init(const void *blob)
 {
 	int offset = 0;

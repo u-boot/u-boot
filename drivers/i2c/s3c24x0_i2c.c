@@ -1002,7 +1002,7 @@ static int s3c24x0_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	}
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static void process_nodes(const void *blob, int node_list[], int count,
 			 int is_highspeed)
 {
@@ -1101,7 +1101,7 @@ int i2c_reset_port_fdt(const void *blob, int node)
 
 	return 0;
 }
-#endif /* CONFIG_OF_CONTROL */
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 #ifdef CONFIG_EXYNOS5
 static void exynos_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)

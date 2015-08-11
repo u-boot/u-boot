@@ -45,16 +45,6 @@ struct fdt_memory {
 #define SPL_BUILD	0
 #endif
 
-#ifdef CONFIG_OF_CONTROL
-# if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_OF_CONTROL)
-#  define OF_CONTROL 0
-# else
-#  define OF_CONTROL 1
-# endif
-#else
-# define OF_CONTROL 0
-#endif
-
 /*
  * Information about a resource. start is the first address of the resource
  * and end is the last address (inclusive). The length of the resource will

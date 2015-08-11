@@ -874,7 +874,7 @@ int exynos_pinmux_config(int peripheral, int flags)
 	return -1;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static int exynos4_pinmux_decode_periph_id(const void *blob, int node)
 {
 	int err;

@@ -22,7 +22,7 @@ struct exynos_dp *dp_regs;
 
 void exynos_dp_set_base_addr(void)
 {
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	unsigned int node = fdtdec_next_compatible(gd->fdt_blob,
 					0, COMPAT_SAMSUNG_EXYNOS5_DP);
 	if (node <= 0)

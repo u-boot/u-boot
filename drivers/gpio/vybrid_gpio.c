@@ -135,7 +135,7 @@ static int vybrid_gpio_bind(struct udevice *dev)
 	return 0;
 }
 
-#ifndef CONFIG_OF_CONTROL
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct vybrid_gpio_platdata vybrid_gpio[] = {
 	{0, GPIO0_BASE_ADDR, "GPIO0 "},
 	{1, GPIO1_BASE_ADDR, "GPIO1 "},

@@ -96,7 +96,7 @@ int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 	return s5p_sdhci_core_init(host);
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 struct sdhci_host sdhci_host[SDHCI_MAX_HOSTS];
 
 static int do_sdhci_init(struct sdhci_host *host)

@@ -113,7 +113,7 @@ static int uniphier_serial_remove(struct udevice *dev)
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id uniphier_uart_of_match[] = {
 	{ .compatible = "socionext,uniphier-uart" },
 	{ /* sentinel */ }

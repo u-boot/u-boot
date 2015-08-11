@@ -7,7 +7,7 @@
 obj-y	+= device.o lists.o root.o uclass.o util.o
 obj-$(CONFIG_DEVRES) += devres.o
 ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_OF_CONTROL) += simple-bus.o
+obj-$(CONFIG_$(SPL_)OF_CONTROL) += simple-bus.o
 endif
 obj-$(CONFIG_$(SPL_)DM_DEVICE_REMOVE)	+= device-remove.o
 obj-$(CONFIG_DM)	+= dump.o

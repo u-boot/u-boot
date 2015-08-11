@@ -27,7 +27,5 @@
 #define DWMCI_DIVRATIO_BIT		24
 #define DWMCI_DIVRATIO_MASK		0x7
 
-#ifdef CONFIG_OF_CONTROL
 int exynos_dwmmc_init(const void *blob);
-#endif
 int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel);

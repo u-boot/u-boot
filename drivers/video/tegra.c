@@ -49,7 +49,7 @@ vidinfo_t panel_info = {
 	.vl_col = -1,
 };
 
-#ifndef CONFIG_OF_CONTROL
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 #error "You must enable CONFIG_OF_CONTROL to get Tegra LCD support"
 #endif
 

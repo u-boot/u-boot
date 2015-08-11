@@ -256,7 +256,7 @@ int pmic_init(unsigned char bus)
 {
 	static const char name[] = "MAX77686_PMIC";
 	struct pmic *p = pmic_alloc();
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	const void *blob = gd->fdt_blob;
 	int node, parent, tmp;
 #endif
@@ -266,7 +266,7 @@ int pmic_init(unsigned char bus)
 		return -ENOMEM;
 	}
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	node = fdtdec_next_compatible(blob, 0, COMPAT_MAXIM_MAX77686_PMIC);
 	if (node < 0) {
 		debug("PMIC: No node for PMIC Chip in device tree\n");

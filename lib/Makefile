@@ -26,8 +26,8 @@ obj-y += crc8.o
 obj-y += crc16.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-$(CONFIG_FIT) += fdtdec_common.o
-obj-$(CONFIG_OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_OF_CONTROL) += fdtdec.o
+obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec_common.o
+obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec.o
 obj-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
 obj-$(CONFIG_GZIP) += gunzip.o
 obj-$(CONFIG_GZIP_COMPRESSED) += gzip.o
@@ -51,15 +51,12 @@ endif
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_OF_LIBFDT) += libfdt/
-obj-$(CONFIG_OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_OF_CONTROL) += fdtdec.o
 endif
-
 ifdef CONFIG_SPL_OF_CONTROL
 obj-$(CONFIG_OF_LIBFDT) += libfdt/
-obj-$(CONFIG_OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_OF_CONTROL) += fdtdec.o
 endif
+obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec_common.o
+obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o

@@ -585,7 +585,7 @@ static struct tpm_vendor_specific tpm_tis_i2c = {
 
 static enum i2c_chip_type tpm_vendor_chip_type(void)
 {
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	const void *blob = gd->fdt_blob;
 
 	if (fdtdec_next_compatible(blob, 0, COMPAT_INFINEON_SLB9645_TPM) >= 0)

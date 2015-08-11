@@ -266,7 +266,7 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 {
 	fdt_addr_t addr;
@@ -292,7 +292,7 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 
 	return 0;
 }
-#endif /* CONFIG_OF_CONTROL */
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 /**
  * spi_flash_probe_slave() - Probe for a SPI flash device on a bus
@@ -347,7 +347,7 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 		}
 	}
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {
 		debug("SF: FDT decode error\n");
 		ret = -EINVAL;

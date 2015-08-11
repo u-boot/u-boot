@@ -1140,7 +1140,7 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 
 int fdtdec_setup(void)
 {
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 # ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
 	gd->fdt_blob = __dtb_dt_begin;

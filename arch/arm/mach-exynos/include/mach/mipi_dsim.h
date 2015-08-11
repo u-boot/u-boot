@@ -374,7 +374,5 @@ void exynos_init_dsim_platform_data(vidinfo_t *vid);
 /* panel driver init based on mipi dsi interface */
 void s6e8ax0_init(void);
 
-#ifdef CONFIG_OF_CONTROL
 extern int mipi_power(void);
-#endif
 #endif /* _DSIM_H */

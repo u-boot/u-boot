@@ -295,7 +295,7 @@ static int init_tegra_keyboard(struct stdio_dev *dev)
 	if (config.created)
 		return 0;
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	int	node;
 
 	node = fdtdec_next_compatible(gd->fdt_blob, 0,

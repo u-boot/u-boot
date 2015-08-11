@@ -106,7 +106,8 @@
 # define CONFIG_XILINX_TB_WATCHDOG
 #endif
 
-#ifndef CONFIG_OF_CONTROL
+#if !defined(CONFIG_OF_CONTROL) || \
+	(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_OF_CONTROL))
 /* ddr sdram - main memory */
 # define CONFIG_SYS_SDRAM_BASE	XILINX_RAM_START
 # define CONFIG_SYS_SDRAM_SIZE	XILINX_RAM_SIZE

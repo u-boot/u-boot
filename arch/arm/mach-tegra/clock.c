@@ -573,7 +573,7 @@ void clock_ll_start_uart(enum periph_id periph_id)
 	reset_set_enable(periph_id, 0);
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int clock_decode_periph_id(const void *blob, int node)
 {
 	enum periph_id id;
@@ -588,7 +588,7 @@ int clock_decode_periph_id(const void *blob, int node)
 	assert(clock_periph_id_isvalid(id));
 	return id;
 }
-#endif /* CONFIG_OF_CONTROL */
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 int clock_verify(void)
 {

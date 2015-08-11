@@ -33,7 +33,7 @@ int zynq_sdhci_init(phys_addr_t regbase)
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int zynq_sdhci_of_init(const void *blob)
 {
 	int offset = 0;
