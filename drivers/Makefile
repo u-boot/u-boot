@@ -1,8 +1,8 @@
 obj-$(CONFIG_$(SPL_)DM)		+= core/
+obj-$(CONFIG_$(SPL_)CLK)	+= clk/
 
 ifdef CONFIG_SPL_BUILD
 
-obj-$(CONFIG_SPL_CLK) += clk/
 obj-$(CONFIG_SPL_I2C_SUPPORT) += i2c/
 obj-$(CONFIG_SPL_GPIO_SUPPORT) += gpio/
 obj-$(CONFIG_SPL_MMC_SUPPORT) += mmc/
@@ -34,7 +34,6 @@ obj-$(CONFIG_SPL_SATA_SUPPORT) += block/
 
 else
 
-obj-$(CONFIG_CLK) += clk/
 obj-$(CONFIG_DM_DEMO) += demo/
 obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/
