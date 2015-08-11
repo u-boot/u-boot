@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <asm/gpio.h>
-#include <netdev.h>
 
 int arch_early_init_r(void)
 {
@@ -19,9 +18,4 @@ int arch_early_init_r(void)
 void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio)
 {
 	return;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
 }
