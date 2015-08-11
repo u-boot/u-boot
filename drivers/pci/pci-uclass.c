@@ -717,6 +717,10 @@ static int pci_uclass_post_probe(struct udevice *bus)
 {
 	int ret;
 
+	/* Don't scan buses before relocation */
+	if (!(gd->flags & GD_FLG_RELOC))
+		return 0;
+
 	debug("%s: probing bus %d\n", __func__, bus->seq);
 	ret = pci_bind_bus_devices(bus);
 	if (ret)
