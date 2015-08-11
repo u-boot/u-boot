@@ -1,5 +1,6 @@
 obj-$(CONFIG_$(SPL_)DM)		+= core/
 obj-$(CONFIG_$(SPL_)CLK)	+= clk/
+obj-$(CONFIG_$(SPL_)LED)	+= led/
 obj-$(CONFIG_$(SPL_)RAM)	+= ram/
 
 ifdef CONFIG_SPL_BUILD
@@ -14,7 +15,6 @@ obj-$(CONFIG_ALTERA_SDRAM) += ddr/altera/
 obj-$(CONFIG_SPL_SERIAL_SUPPORT) += serial/
 obj-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += mtd/spi/
 obj-$(CONFIG_SPL_SPI_SUPPORT) += spi/
-obj-$(CONFIG_SPL_LED) += led/
 obj-$(CONFIG_SPL_POWER_SUPPORT) += power/ power/pmic/
 obj-$(CONFIG_SPL_POWER_SUPPORT) += power/regulator/
 obj-$(CONFIG_SPL_MTD_SUPPORT) += mtd/
@@ -42,7 +42,6 @@ obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
 obj-$(CONFIG_FPGA) += fpga/
 obj-y += hwmon/
-obj-$(CONFIG_LED) += led/
 obj-y += misc/
 obj-y += pcmcia/
 obj-y += dfu/
