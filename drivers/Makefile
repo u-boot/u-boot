@@ -1,5 +1,6 @@
 obj-$(CONFIG_$(SPL_)DM)		+= core/
 obj-$(CONFIG_$(SPL_)CLK)	+= clk/
+obj-$(CONFIG_$(SPL_)RAM)	+= ram/
 
 ifdef CONFIG_SPL_BUILD
 
@@ -24,7 +25,6 @@ obj-$(CONFIG_SPL_DMA_SUPPORT) += dma/
 obj-$(CONFIG_SPL_ETH_SUPPORT) += net/
 obj-$(CONFIG_SPL_ETH_SUPPORT) += net/phy/
 obj-$(CONFIG_SPL_USBETH_SUPPORT) += net/phy/
-obj-$(CONFIG_SPL_RAM) += ram/
 obj-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += usb/musb-new/
 obj-$(CONFIG_SPL_USBETH_SUPPORT) += usb/gadget/
 obj-$(CONFIG_SPL_WATCHDOG_SUPPORT) += watchdog/
@@ -46,7 +46,6 @@ obj-$(CONFIG_LED) += led/
 obj-y += misc/
 obj-y += pcmcia/
 obj-y += dfu/
-obj-$(CONFIG_RAM) += ram/
 obj-y += rtc/
 obj-y += sound/
 obj-y += tpm/
