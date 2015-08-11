@@ -4017,7 +4017,7 @@ e1000_wait_autoneg(struct e1000_hw *hw)
 	DEBUGFUNC();
 	DEBUGOUT("Waiting for Auto-Neg to complete.\n");
 
-	/* We will wait for autoneg to complete or 4.5 seconds to expire. */
+	/* We will wait for autoneg to complete or timeout to expire. */
 	for (i = PHY_AUTO_NEG_TIME; i > 0; i--) {
 		/* Read the MII Status Register and wait for Auto-Neg
 		 * Complete bit to be set.

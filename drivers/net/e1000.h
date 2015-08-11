@@ -2460,7 +2460,7 @@ struct e1000_hw {
 #define MII_CR_SPEED_100		0x2000
 #define MII_CR_SPEED_10		0x0000
 #define E1000_PHY_ADDRESS		0x01
-#define PHY_AUTO_NEG_TIME		45	/* 4.5 Seconds */
+#define PHY_AUTO_NEG_TIME		80	/* 8.0 Seconds */
 #define PHY_FORCE_TIME			20	/* 2.0 Seconds */
 #define PHY_REVISION_MASK		0xFFFFFFF0
 #define DEVICE_SPEED_MASK		0x00000300	/* Device Ctrl Reg Speed Mask */
