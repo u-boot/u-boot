@@ -41,6 +41,7 @@
 
 #define MIIM_RTL8211F_PAGE_SELECT      0x1f
 #define MIIM_RTL8211F_TX_DELAY		0x100
+#define MIIM_RTL8211F_LCR		0x10
 
 /* RealTek RTL8211x */
 static int rtl8211x_config(struct phy_device *phydev)
@@ -78,6 +79,13 @@ static int rtl8211f_config(struct phy_device *phydev)
 		phy_write(phydev, MDIO_DEVAD_NONE,
 			  MIIM_RTL8211F_PAGE_SELECT, 0x0);
 	}
+
+	/* Set green LED for Link, yellow LED for Active */
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MIIM_RTL8211F_PAGE_SELECT, 0xd04);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x10, 0x617f);
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MIIM_RTL8211F_PAGE_SELECT, 0x0);
 
 	genphy_config_aneg(phydev);
 

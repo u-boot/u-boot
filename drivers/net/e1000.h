@@ -2460,7 +2460,7 @@ struct e1000_hw {
 #define MII_CR_SPEED_100		0x2000
 #define MII_CR_SPEED_10		0x0000
 #define E1000_PHY_ADDRESS		0x01
-#define PHY_AUTO_NEG_TIME		45	/* 4.5 Seconds */
+#define PHY_AUTO_NEG_TIME		80	/* 8.0 Seconds */
 #define PHY_FORCE_TIME			20	/* 2.0 Seconds */
 #define PHY_REVISION_MASK		0xFFFFFFF0
 #define DEVICE_SPEED_MASK		0x00000300	/* Device Ctrl Reg Speed Mask */
@@ -2496,7 +2496,6 @@ struct e1000_hw {
 #define ICH_GFPREG_BASE_MASK       0x1FFF
 #define ICH_FLASH_LINEAR_ADDR_MASK 0x00FFFFFF
 
-#define E1000_I210_SW_FW_SYNC 0x5B50 /* Software-Firmware Synchronization - RW */
 #define E1000_SW_FW_SYNC 0x05B5C /* Software-Firmware Synchronization - RW */
 
 /* SPI EEPROM Status Register */
