@@ -164,7 +164,7 @@ int board_eth_init(bd_t *bis)
 	struct mii_dev *bus;
 	struct phy_device *phydev;
 
-	int ret = enable_fec_anatop_clock(ENET_25MHZ);
+	int ret = enable_fec_anatop_clock(0, ENET_25MHZ);
 	if (ret)
 		return ret;
 

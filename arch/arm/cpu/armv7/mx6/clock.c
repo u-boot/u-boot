@@ -524,7 +524,7 @@ void enable_qspi_clk(int qspi_num)
 #endif
 
 #ifdef CONFIG_FEC_MXC
-int enable_fec_anatop_clock(enum enet_freq freq)
+int enable_fec_anatop_clock(int fec_id, enum enet_freq freq)
 {
 	u32 reg = 0;
 	s32 timeout = 100000;
@@ -535,9 +535,19 @@ int enable_fec_anatop_clock(enum enet_freq freq)
 	if (freq < ENET_25MHZ || freq > ENET_125MHZ)
 		return -EINVAL;
 
-	reg = readl(&anatop->pll_enet);
-	reg &= ~BM_ANADIG_PLL_ENET_DIV_SELECT;
-	reg |= freq;
+	if (fec_id == 0) {
+		reg &= ~BM_ANADIG_PLL_ENET_DIV_SELECT;
+		reg |= BF_ANADIG_PLL_ENET_DIV_SELECT(freq);
+	} else if (fec_id == 1) {
+		/* Only i.MX6SX/UL support ENET2 */
+		if (!(is_cpu_type(MXC_CPU_MX6SX) ||
+		      is_cpu_type(MXC_CPU_MX6UL)))
+			return -EINVAL;
+		reg &= ~BM_ANADIG_PLL_ENET2_DIV_SELECT;
+		reg |= BF_ANADIG_PLL_ENET2_DIV_SELECT(freq);
+	} else {
+		return -EINVAL;
+	}
 
 	if ((reg & BM_ANADIG_PLL_ENET_POWERDOWN) ||
 	    (!(reg & BM_ANADIG_PLL_ENET_LOCK))) {
@@ -552,7 +562,10 @@ int enable_fec_anatop_clock(enum enet_freq freq)
 	}
 
 	/* Enable FEC clock */
-	reg |= BM_ANADIG_PLL_ENET_ENABLE;
+	if (fec_id == 0)
+		reg |= BM_ANADIG_PLL_ENET_ENABLE;
+	else
+		reg |= BM_ANADIG_PLL_ENET2_ENABLE;
 	reg &= ~BM_ANADIG_PLL_ENET_BYPASS;
 	writel(reg, &anatop->pll_enet);
 

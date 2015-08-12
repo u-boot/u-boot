@@ -361,7 +361,7 @@ static void setup_fec(void)
 		 * select ENET MAC0 TX clock from PLL
 		 */
 		imx_iomux_set_gpr_register(5, 9, 1, 1);
-		enable_fec_anatop_clock(ENET_125MHZ);
+		enable_fec_anatop_clock(0, ENET_125MHZ);
 	}
 
 	setup_iomux_enet();

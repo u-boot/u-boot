@@ -170,7 +170,7 @@ static int setup_fec(void)
 	reg |= BM_ANADIG_PLL_ENET_REF_25M_ENABLE;
 	writel(reg, &anatop->pll_enet);
 
-	return enable_fec_anatop_clock(ENET_125MHZ);
+	return enable_fec_anatop_clock(0, ENET_125MHZ);
 }
 
 int board_eth_init(bd_t *bis)
