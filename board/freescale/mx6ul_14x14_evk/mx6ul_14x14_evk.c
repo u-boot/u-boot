@@ -19,8 +19,10 @@
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
+#include <miiphy.h>
 #include <linux/sizes.h>
 #include <mmc.h>
+#include <netdev.h>
 #include <usb.h>
 #include <usb/ehci-fsl.h>
 
@@ -42,6 +44,18 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
 	PAD_CTL_DSE_40ohm | PAD_CTL_HYS |			\
 	PAD_CTL_ODE)
+
+#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |     \
+	PAD_CTL_SPEED_HIGH   |                                  \
+	PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST)
+
+#define MDIO_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |     \
+	PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST | PAD_CTL_ODE)
+
+#define ENET_CLK_PAD_CTRL  (PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST)
+
+#define ENET_RX_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |          \
+	PAD_CTL_SPEED_HIGH   | PAD_CTL_SRE_FAST)
 
 #define IOX_SDI IMX_GPIO_NR(5, 10)
 #define IOX_STCP IMX_GPIO_NR(5, 7)
@@ -457,6 +471,98 @@ int board_ehci_hcd_init(int port)
 }
 #endif
 
+#ifdef CONFIG_FEC_MXC
+/*
+ * pin conflicts for fec1 and fec2, GPIO1_IO06 and GPIO1_IO07 can only
+ * be used for ENET1 or ENET2, cannot be used for both.
+ */
+static iomux_v3_cfg_t const fec1_pads[] = {
+	MX6_PAD_GPIO1_IO06__ENET1_MDIO | MUX_PAD_CTRL(MDIO_PAD_CTRL),
+	MX6_PAD_GPIO1_IO07__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_TX_DATA0__ENET1_TDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_TX_DATA1__ENET1_TDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_TX_EN__ENET1_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_TX_CLK__ENET1_REF_CLK1 | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
+	MX6_PAD_ENET1_RX_DATA0__ENET1_RDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_RX_DATA1__ENET1_RDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_RX_ER__ENET1_RX_ER | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_RX_EN__ENET1_RX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const fec2_pads[] = {
+	MX6_PAD_GPIO1_IO06__ENET2_MDIO | MUX_PAD_CTRL(MDIO_PAD_CTRL),
+	MX6_PAD_GPIO1_IO07__ENET2_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+
+	MX6_PAD_ENET2_TX_DATA0__ENET2_TDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET2_TX_DATA1__ENET2_TDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET2_TX_CLK__ENET2_REF_CLK2 | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
+	MX6_PAD_ENET2_TX_EN__ENET2_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
+
+	MX6_PAD_ENET2_RX_DATA0__ENET2_RDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET2_RX_DATA1__ENET2_RDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET2_RX_EN__ENET2_RX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET2_RX_ER__ENET2_RX_ER | MUX_PAD_CTRL(ENET_PAD_CTRL),
+};
+
+static void setup_iomux_fec(int fec_id)
+{
+	if (fec_id == 0)
+		imx_iomux_v3_setup_multiple_pads(fec1_pads,
+						 ARRAY_SIZE(fec1_pads));
+	else
+		imx_iomux_v3_setup_multiple_pads(fec2_pads,
+						 ARRAY_SIZE(fec2_pads));
+}
+
+int board_eth_init(bd_t *bis)
+{
+	setup_iomux_fec(CONFIG_FEC_ENET_DEV);
+
+	return fecmxc_initialize_multi(bis, CONFIG_FEC_ENET_DEV,
+				       CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
+}
+
+static int setup_fec(int fec_id)
+{
+	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	int ret;
+
+	if (fec_id == 0) {
+		/*
+		 * Use 50M anatop loopback REF_CLK1 for ENET1,
+		 * clear gpr1[13], set gpr1[17].
+		 */
+		clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC1_MASK,
+				IOMUX_GPR1_FEC1_CLOCK_MUX1_SEL_MASK);
+	} else {
+		/*
+		 * Use 50M anatop loopback REF_CLK2 for ENET2,
+		 * clear gpr1[14], set gpr1[18].
+		 */
+		clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_MASK,
+				IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
+	}
+
+	ret = enable_fec_anatop_clock(fec_id, ENET_50MHZ);
+	if (ret)
+		return ret;
+
+	enable_enet_clk(1);
+
+	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1f, 0x8190);
+
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+
+	return 0;
+}
+#endif
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -475,6 +581,10 @@ int board_init(void)
 
 #ifdef CONFIG_SYS_I2C_MXC
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+#endif
+
+#ifdef	CONFIG_FEC_MXC
+	setup_fec(CONFIG_FEC_ENET_DEV);
 #endif
 
 #ifdef CONFIG_USB_EHCI_MX6
