@@ -69,20 +69,20 @@ static unsigned int lpc32xx_i2c_set_bus_speed(struct i2c_adapter *adap,
 			unsigned int speed)
 {
 	int half_period;
-	int clk_rate;
 
 	if (speed == 0)
 		return -EINVAL;
 
-	if (adap->hwadapnr == 2)
-		/* OTG I2C clock source is different. */
-		clk_rate = get_periph_clk_rate();
-	else
-		clk_rate = get_hclk_clk_rate();
-	half_period = (clk_rate / speed) / 2;
-
-	if ((half_period > 255) || (half_period < 0))
-		return -EINVAL;
+	/* OTG I2C clock source and CLK registers are different */
+	if (adap->hwadapnr == 2) {
+		half_period = (get_periph_clk_rate() / speed) / 2;
+		if (half_period > 0xFF)
+			return -EINVAL;
+	} else {
+		half_period = (get_hclk_clk_rate() / speed) / 2;
+		if (half_period > 0x3FF)
+			return -EINVAL;
+	}
 
 	writel(half_period, &lpc32xx_i2c[adap->hwadapnr]->clk_hi);
 	writel(half_period, &lpc32xx_i2c[adap->hwadapnr]->clk_lo);
@@ -97,7 +97,7 @@ static void _i2c_init(struct i2c_adapter *adap,
 
 	/* soft reset (auto-clears) */
 	writel(LPC32XX_I2C_SOFT_RESET, &i2c->ctrl);
-	/* set HI and LO periods for about 350 kHz */
+	/* set HI and LO periods for half of the default speed */
 	lpc32xx_i2c_set_bus_speed(adap, requested_speed);
 }
 
