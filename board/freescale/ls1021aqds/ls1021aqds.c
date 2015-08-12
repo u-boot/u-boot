@@ -280,7 +280,8 @@ int board_early_init_f(void)
 	unsigned int major;
 
 #ifdef CONFIG_TSEC_ENET
-	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
+	/* clear BD & FR bits for BE BD's and frame data */
+	clrbits_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
 #endif
 
 #ifdef CONFIG_FSL_IFC
