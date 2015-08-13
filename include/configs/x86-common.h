@@ -192,6 +192,7 @@
  * PCI configuration
  */
 #define CONFIG_PCI
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /*-----------------------------------------------------------------------
  * USB configuration
