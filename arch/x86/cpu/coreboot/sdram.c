@@ -22,9 +22,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 {
+	unsigned num_entries;
 	int i;
 
-	unsigned num_entries = min((unsigned)lib_sysinfo.n_memranges, max_entries);
+	num_entries = min((unsigned)lib_sysinfo.n_memranges, max_entries);
 	if (num_entries < lib_sysinfo.n_memranges) {
 		printf("Warning: Limiting e820 map to %d entries.\n",
 			num_entries);
@@ -34,8 +35,18 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 
 		entries[i].addr = memrange->base;
 		entries[i].size = memrange->size;
-		entries[i].type = memrange->type;
+
+		/*
+		 * coreboot has some extensions (type 6 & 16) to the E820 types.
+		 * When we detect this, mark it as E820_RESERVED.
+		 */
+		if (memrange->type == CB_MEM_VENDOR_RSVD ||
+		    memrange->type == CB_MEM_TABLE)
+			entries[i].type = E820_RESERVED;
+		else
+			entries[i].type = memrange->type;
 	}
+
 	return num_entries;
 }
 
