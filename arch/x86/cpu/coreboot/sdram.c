@@ -7,14 +7,7 @@
  */
 
 #include <common.h>
-#include <malloc.h>
 #include <asm/e820.h>
-#include <asm/u-boot-x86.h>
-#include <asm/global_data.h>
-#include <asm/init_helpers.h>
-#include <asm/processor.h>
-#include <asm/sections.h>
-#include <asm/zimage.h>
 #include <asm/arch/sysinfo.h>
 #include <asm/arch/tables.h>
 
@@ -109,7 +102,7 @@ int dram_init(void)
 	if (ram_size == 0)
 		return -1;
 
-	return calculate_relocation_address();
+	return 0;
 }
 
 void dram_init_banksize(void)
