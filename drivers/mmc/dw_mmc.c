@@ -8,6 +8,7 @@
 
 #include <bouncebuf.h>
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <dwmmc.h>
@@ -110,7 +111,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	struct dwmci_host *host = mmc->priv;
 	ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac, cur_idmac,
 				 data ? DIV_ROUND_UP(data->blocks, 8) : 0);
-	int flags = 0, i;
+	int ret = 0, flags = 0, i;
 	unsigned int timeout = 100000;
 	u32 retry = 10000;
 	u32 mask, ctrl;
@@ -119,7 +120,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	while (dwmci_readl(host, DWMCI_STATUS) & DWMCI_BUSY) {
 		if (get_timer(start) > timeout) {
-			printf("%s: Timeout on data busy\n", __func__);
+			debug("%s: Timeout on data busy\n", __func__);
 			return TIMEOUT;
 		}
 	}
@@ -178,7 +179,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (i == retry) {
-		printf("%s: Timeout.\n", __func__);
+		debug("%s: Timeout.\n", __func__);
 		return TIMEOUT;
 	}
 
@@ -194,8 +195,8 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		debug("%s: Response Timeout.\n", __func__);
 		return TIMEOUT;
 	} else if (mask & DWMCI_INTMSK_RE) {
-		printf("%s: Response Error.\n", __func__);
-		return -1;
+		debug("%s: Response Error.\n", __func__);
+		return -EIO;
 	}
 
 
@@ -211,13 +212,31 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (data) {
-		do {
+		start = get_timer(0);
+		timeout = 1000;
+		for (;;) {
 			mask = dwmci_readl(host, DWMCI_RINTSTS);
+			/* Error during data transfer. */
 			if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
-				printf("%s: DATA ERROR!\n", __func__);
-				return -1;
+				debug("%s: DATA ERROR!\n", __func__);
+				ret = -EINVAL;
+				break;
 			}
-		} while (!(mask & DWMCI_INTMSK_DTO));
+
+			/* Data arrived correctly. */
+			if (mask & DWMCI_INTMSK_DTO) {
+				ret = 0;
+				break;
+			}
+
+			/* Check for timeout. */
+			if (get_timer(start) > timeout) {
+				debug("%s: Timeout waiting for data!\n",
+				       __func__);
+				ret = TIMEOUT;
+				break;
+			}
+		}
 
 		dwmci_writel(host, DWMCI_RINTSTS, mask);
 
@@ -230,7 +249,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	udelay(100);
 
-	return 0;
+	return ret;
 }
 
 static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
@@ -251,7 +270,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	else if (host->bus_hz)
 		sclk = host->bus_hz;
 	else {
-		printf("%s: Didn't get source clock value.\n", __func__);
+		debug("%s: Didn't get source clock value.\n", __func__);
 		return -EINVAL;
 	}
 
@@ -270,7 +289,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	do {
 		status = dwmci_readl(host, DWMCI_CMD);
 		if (timeout-- < 0) {
-			printf("%s: Timeout!\n", __func__);
+			debug("%s: Timeout!\n", __func__);
 			return -ETIMEDOUT;
 		}
 	} while (status & DWMCI_CMD_START);
@@ -285,7 +304,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	do {
 		status = dwmci_readl(host, DWMCI_CMD);
 		if (timeout-- < 0) {
-			printf("%s: Timeout!\n", __func__);
+			debug("%s: Timeout!\n", __func__);
 			return -ETIMEDOUT;
 		}
 	} while (status & DWMCI_CMD_START);
@@ -339,8 +358,8 @@ static int dwmci_init(struct mmc *mmc)
 	dwmci_writel(host, DWMCI_PWREN, 1);
 
 	if (!dwmci_wait_reset(host, DWMCI_RESET_ALL)) {
-		printf("%s[%d] Fail-reset!!\n", __func__, __LINE__);
-		return -1;
+		debug("%s[%d] Fail-reset!!\n", __func__, __LINE__);
+		return -EIO;
 	}
 
 	/* Enumerate at 400KHz */
@@ -354,9 +373,15 @@ static int dwmci_init(struct mmc *mmc)
 	dwmci_writel(host, DWMCI_IDINTEN, 0);
 	dwmci_writel(host, DWMCI_BMOD, 1);
 
-	if (host->fifoth_val) {
-		dwmci_writel(host, DWMCI_FIFOTH, host->fifoth_val);
+	if (!host->fifoth_val) {
+		uint32_t fifo_size;
+
+		fifo_size = dwmci_readl(host, DWMCI_FIFOTH);
+		fifo_size = ((fifo_size & RX_WMARK_MASK) >> RX_WMARK_SHIFT) + 1;
+		host->fifoth_val = MSIZE(0x2) | RX_WMARK(fifo_size / 2 - 1) |
+				TX_WMARK(fifo_size / 2);
 	}
+	dwmci_writel(host, DWMCI_FIFOTH, host->fifoth_val);
 
 	dwmci_writel(host, DWMCI_CLKENA, 0);
 	dwmci_writel(host, DWMCI_CLKSRC, 0);
