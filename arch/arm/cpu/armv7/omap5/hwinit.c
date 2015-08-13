@@ -367,6 +367,9 @@ void init_omap_revision(void)
 	case DRA752_CONTROL_ID_CODE_ES1_1:
 		*omap_si_rev = DRA752_ES1_1;
 		break;
+	case DRA752_CONTROL_ID_CODE_ES2_0:
+		*omap_si_rev = DRA752_ES2_0;
+		break;
 	case DRA722_CONTROL_ID_CODE_ES1_0:
 		*omap_si_rev = DRA722_ES1_0;
 		break;
