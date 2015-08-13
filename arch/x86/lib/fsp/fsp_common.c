@@ -46,7 +46,7 @@ void board_final_cleanup(void)
 	/* call into FspNotify */
 	debug("Calling into FSP (notify phase INIT_PHASE_BOOT): ");
 	status = fsp_notify(NULL, INIT_PHASE_BOOT);
-	if (status != FSP_SUCCESS)
+	if (status)
 		debug("fail, error code %x\n", status);
 	else
 		debug("OK\n");
