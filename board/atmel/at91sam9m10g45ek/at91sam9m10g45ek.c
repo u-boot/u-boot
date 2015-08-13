@@ -136,7 +136,7 @@ void mem_init(void)
 	ddr2_conf(&ddr2);
 
 	/* enable DDR2 clock */
-	writel(0x4, &pmc->scer);
+	writel(AT91_PMC_DDR, &pmc->scer);
 
 	/* DDRAM2 Controller initialize */
 	ddr2_init(ATMEL_BASE_DDRSDRC0, ATMEL_BASE_CS6, &ddr2);
