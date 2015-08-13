@@ -75,6 +75,19 @@ struct lpc32xx_nand_slc_regs {
 #define TAC_R_HOLD(n)		(max_t(uint32_t, (n), 0xF) << 4)
 #define TAC_R_SETUP(n)		(max_t(uint32_t, (n), 0xF) << 0)
 
+/* NAND ECC Layout for small page NAND devices
+ * Note: For large page devices, the default layouts are used. */
+static struct nand_ecclayout lpc32xx_nand_oob_16 = {
+	.eccbytes = 6,
+	.eccpos = {10, 11, 12, 13, 14, 15},
+	.oobfree = {
+		{.offset = 0,
+		 . length = 4},
+		{.offset = 6,
+		 . length = 4}
+		}
+};
+
 #if defined(CONFIG_DMA_LPC32XX)
 #define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
 
@@ -563,12 +576,15 @@ int board_nand_init(struct nand_chip *lpc32xx_chip)
 #endif
 
 	/*
-	 * Use default ECC layout, but these values are predefined
+	 * These values are predefined
 	 * for both small and large page NAND flash devices.
 	 */
 	lpc32xx_chip->ecc.size     = CONFIG_SYS_NAND_ECCSIZE;
 	lpc32xx_chip->ecc.bytes    = CONFIG_SYS_NAND_ECCBYTES;
 	lpc32xx_chip->ecc.strength = 1;
+
+	if (CONFIG_SYS_NAND_PAGE_SIZE != NAND_LARGE_BLOCK_PAGE_SIZE)
+		lpc32xx_chip->ecc.layout = &lpc32xx_nand_oob_16;
 
 #if defined(CONFIG_SYS_NAND_USE_FLASH_BBT)
 	lpc32xx_chip->bbt_options |= NAND_BBT_USE_FLASH;
