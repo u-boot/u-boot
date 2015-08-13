@@ -20,6 +20,7 @@ obj-$(CONFIG_USB_SL811HS) += sl811-hcd.o
 obj-$(CONFIG_USB_OHCI_S3C24XX) += ohci-s3c24xx.o
 obj-$(CONFIG_USB_OHCI_EP93XX) += ohci-ep93xx.o
 obj-$(CONFIG_USB_OHCI_SUNXI) += ohci-sunxi.o
+obj-$(CONFIG_USB_OHCI_LPC32XX) += ohci-lpc32xx.o
 
 # echi
 obj-$(CONFIG_USB_EHCI) += ehci-hcd.o
