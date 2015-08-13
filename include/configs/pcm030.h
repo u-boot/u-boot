@@ -15,6 +15,7 @@
 #define __CONFIG_H
 
 #define CONFIG_BOARDINFO	 "phyCORE-MPC5200B-tiny"
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*-----------------------------------------------------------------------------
 High Level Configuration Options
