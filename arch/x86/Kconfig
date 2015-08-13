@@ -307,7 +307,7 @@ config VGA_BIOS_ADDR
 	  0x90000 from the beginning of a 1MB flash device.
 
 menu "System tables"
-	depends on !EFI
+	depends on !EFI && !SYS_COREBOOT
 
 config GENERATE_PIRQ_TABLE
 	bool "Generate a PIRQ table"
