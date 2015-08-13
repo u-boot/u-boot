@@ -232,7 +232,6 @@ int vbe_get_video_info(struct graphic_device *gdev)
 
 void setup_video(struct screen_info *screen_info)
 {
-#ifdef CONFIG_FRAMEBUFFER_SET_VESA_MODE
 	struct vesa_mode_info *vesa = &mode_info.vesa;
 
 	/* Sanity test on VESA parameters */
@@ -258,7 +257,6 @@ void setup_video(struct screen_info *screen_info)
 	screen_info->blue_pos = vesa->blue_mask_pos;
 	screen_info->rsvd_size = vesa->reserved_mask_size;
 	screen_info->rsvd_pos = vesa->reserved_mask_pos;
-#endif
 }
 
 int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), int exec_method)
