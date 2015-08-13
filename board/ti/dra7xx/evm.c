@@ -104,6 +104,9 @@ void recalibrate_iodelay(void)
 		npads = ARRAY_SIZE(dra74x_core_padconf_array);
 		iodelay = dra742_es2_0_iodelay_cfg_array;
 		niodelays = ARRAY_SIZE(dra742_es2_0_iodelay_cfg_array);
+		/* Setup port1 and port2 for rgmii with 'no-id' mode */
+		clrset_spare_register(1, 0, RGMII2_ID_MODE_N_MASK |
+				      RGMII1_ID_MODE_N_MASK);
 		break;
 	}
 	__recalibrate_iodelay(pads, npads, iodelay, niodelays);

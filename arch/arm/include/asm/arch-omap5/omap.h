@@ -235,6 +235,8 @@ struct ctrl_ioregs {
 	u32 ctrl_ddr_ctrl_ext_0;
 };
 
+void clrset_spare_register(u8 spare_type, u32 clear_bits, u32 set_bits);
+
 #endif /* __ASSEMBLY__ */
 
 /* Boot parameters */

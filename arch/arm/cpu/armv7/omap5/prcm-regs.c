@@ -11,6 +11,7 @@
  */
 
 #include <asm/omap_common.h>
+#include <asm/io.h>
 
 struct prcm_regs const omap5_es1_prcm = {
 	/* cm1.ckgen */
@@ -379,6 +380,7 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_phy_power_usb			= 0x4A002370,
 	.control_phy_power_sata			= 0x4A002374,
 	.ctrl_core_sma_sw_0			= 0x4A0023FC,
+	.ctrl_core_sma_sw_1			= 0x4A002534,
 	.control_core_mac_id_0_lo		= 0x4A002514,
 	.control_core_mac_id_0_hi		= 0x4A002518,
 	.control_core_mac_id_1_lo		= 0x4A00251C,
@@ -994,3 +996,10 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_l3main1_tptc1_clkctrl               = 0x4a008778,
 	.cm_l3main1_tptc2_clkctrl               = 0x4a008780,
 };
+
+void clrset_spare_register(u8 spare_type, u32 clear_bits, u32 set_bits)
+{
+	u32 reg = spare_type ? (*ctrl)->ctrl_core_sma_sw_1 :
+		(*ctrl)->ctrl_core_sma_sw_0;
+	clrsetbits_le32(reg, clear_bits, set_bits);
+}

@@ -466,6 +466,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_padconf_wkup_base;
 	u32 iodelay_config_base;
 	u32 ctrl_core_sma_sw_0;
+	u32 ctrl_core_sma_sw_1;
 };
 
 struct dpll_params {
