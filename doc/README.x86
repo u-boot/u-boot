@@ -18,15 +18,16 @@ U-Boot supports running as a coreboot [1] payload on x86. So far only Link
 work with minimal adjustments on other x86 boards since coreboot deals with
 most of the low-level details.
 
-U-Boot also supports booting directly from x86 reset vector without coreboot,
-aka raw support or bare support. Currently Link, QEMU x86 targets and all
-Intel boards support running U-Boot 'bare metal'.
+U-Boot also supports booting directly from x86 reset vector, without coreboot.
+In this case, known as bare mode, from the fact that it runs on the
+'bare metal', U-Boot acts like a BIOS replacement. Currently Link, QEMU x86
+targets and all Intel boards support running U-Boot 'bare metal'.
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
 
-Build Instructions
-------------------
+Build Instructions for U-Boot as coreboot payload
+-------------------------------------------------
 Building U-Boot as a coreboot payload is just like building U-Boot for targets
 on other architectures, like below:
 
@@ -48,6 +49,8 @@ Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
 to point to a new board. You can also change the Cache-As-RAM (CAR) related
 settings here if the default values do not fit your new board.
 
+Build Instructions for U-Boot as BIOS replacement (bare mode)
+-------------------------------------------------------------
 Building a ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
 shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
@@ -58,7 +61,9 @@ $ export BUILD_ROM=y
 
 This tells the Makefile to build u-boot.rom as a target.
 
-Link-specific instructions:
+---
+
+Chromebook Link specific instructions for bare mode:
 
 First, you need the following binary blobs:
 
@@ -87,7 +92,9 @@ Now you can build U-Boot and obtain u-boot.rom:
 $ make chromebook_link_defconfig
 $ make all
 
-Intel Crown Bay specific instructions:
+---
+
+Intel Crown Bay specific instructions for bare mode:
 
 U-Boot support of Intel Crown Bay board [4] relies on a binary blob called
 Firmware Support Package [5] to perform all the necessary initialization steps
@@ -122,7 +129,9 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make crownbay_defconfig
 $ make all
 
-Intel Minnowboard Max instructions:
+---
+
+Intel Minnowboard Max instructions for bare mode:
 
 This uses as FSP as with Crown Bay, except it is for the Atom E3800 series.
 Download this and get the .fd file (BAYTRAIL_FSP_GOLD_003_16-SEP-2014.fd at
@@ -188,8 +197,9 @@ Offset   Description         Controlling config
 
 Overall ROM image size is controlled by CONFIG_ROM_SIZE.
 
+---
 
-Intel Galileo instructions:
+Intel Galileo instructions for bare mode:
 
 Only one binary blob is needed for Remote Management Unit (RMU) within Intel
 Quark SoC. Not like FSP, U-Boot does not call into the binary. The binary is
@@ -252,8 +262,8 @@ At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
 works correctly for link though.
 
-Test with QEMU
---------------
+Test with QEMU for bare mode
+----------------------------
 QEMU is a fancy emulator that can enable us to test U-Boot without access to
 a real x86 board. Please make sure your QEMU version is 2.3.0 or above test
 U-Boot. To launch QEMU with u-boot.rom, call QEMU as follows:
