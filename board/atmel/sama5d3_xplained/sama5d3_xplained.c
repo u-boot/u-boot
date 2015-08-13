@@ -194,7 +194,7 @@ void mem_init(void)
 	writel(0x4, &pmc->scer);
 
 	/* DDRAM2 Controller initialize */
-	ddr2_init(ATMEL_BASE_DDRCS, &ddr2);
+	ddr2_init(ATMEL_BASE_MPDDRC, ATMEL_BASE_DDRCS, &ddr2);
 }
 
 void at91_pmc_init(void)

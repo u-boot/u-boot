@@ -147,7 +147,7 @@ void mem_init(void)
 	writel(csa, &mat->ebicsa);
 
 	/* DDRAM2 Controller initialize */
-	ddr2_init(ATMEL_BASE_CS6, &ddr2);
+	ddr2_init(ATMEL_BASE_DDRSDRC0, ATMEL_BASE_CS6, &ddr2);
 }
 #endif
 

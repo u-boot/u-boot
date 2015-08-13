@@ -261,8 +261,6 @@
 #define CONFIG_SYS_MCKR			0x1301
 #define CONFIG_SYS_MCKR_CSS		0x1302
 
-#define ATMEL_BASE_MPDDRC		ATMEL_BASE_DDRSDRC
-
 #ifdef CONFIG_SYS_USE_MMC
 #define CONFIG_SPL_LDSCRIPT		arch/arm/mach-at91/arm926ejs/u-boot-spl.lds
 #define CONFIG_SPL_MMC_SUPPORT
