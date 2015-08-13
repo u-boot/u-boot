@@ -8,6 +8,8 @@
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
 
+#include "../arch-imx/cpu.h"
+
 struct mxc_weimcs {
 	u32 upper;
 	u32 lower;
