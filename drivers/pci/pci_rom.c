@@ -187,7 +187,7 @@ int pci_rom_load(struct pci_rom_header *rom_header,
 	return 0;
 }
 
-static struct vbe_mode_info mode_info;
+struct vbe_mode_info mode_info;
 
 int vbe_get_video_info(struct graphic_device *gdev)
 {

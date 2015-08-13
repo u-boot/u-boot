@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/arch/tables.h>
 #include <asm/arch/sysinfo.h>
+#include <vbe.h>
 #include <video_fb.h>
 #include "videomodes.h"
 
@@ -16,6 +17,26 @@
  * The Graphic Device
  */
 GraphicDevice ctfb;
+
+static void save_vesa_mode(void)
+{
+	struct vesa_mode_info *vesa = &mode_info.vesa;
+	struct cb_framebuffer *fb = lib_sysinfo.framebuffer;
+
+	vesa->x_resolution = fb->x_resolution;
+	vesa->y_resolution = fb->y_resolution;
+	vesa->bits_per_pixel = fb->bits_per_pixel;
+	vesa->bytes_per_scanline = fb->bytes_per_line;
+	vesa->phys_base_ptr = fb->physical_address;
+	vesa->red_mask_size = fb->red_mask_size;
+	vesa->red_mask_pos = fb->red_mask_pos;
+	vesa->green_mask_size = fb->green_mask_size;
+	vesa->green_mask_pos = fb->green_mask_pos;
+	vesa->blue_mask_size = fb->blue_mask_size;
+	vesa->blue_mask_pos = fb->blue_mask_pos;
+	vesa->reserved_mask_size = fb->reserved_mask_size;
+	vesa->reserved_mask_pos = fb->reserved_mask_pos;
+}
 
 static int parse_coreboot_table_fb(GraphicDevice *gdev)
 {
@@ -80,6 +101,9 @@ void *video_hw_init(void)
 
 	memset((void *)gdev->pciBase, 0,
 		gdev->winSizeX * gdev->winSizeY * gdev->gdfBytesPP);
+
+	/* Initialize vesa_mode_info structure */
+	save_vesa_mode();
 
 	return (void *)gdev;
 }
