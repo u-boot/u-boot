@@ -718,6 +718,21 @@ allocation and assignment will be done by U-Boot automatically. Now you can
 enable CONFIG_GENERATE_PIRQ_TABLE for testing Linux kernel using i8259 PIC and
 CONFIG_GENERATE_MP_TABLE for testing Linux kernel using local APIC and I/O APIC.
 
+This script might be useful. If you feed it the output of 'pci long' from
+U-Boot then it will generate a device tree fragment with the interrupt
+configuration for each device (note it needs gawk 4.0.0):
+
+   $ cat console_output |awk '/PCI/ {device=$4} /interrupt line/ {line=$4} \
+	/interrupt pin/ {pin = $4; if (pin != "0x00" && pin != "0xff") \
+	{patsplit(device, bdf, "[0-9a-f]+"); \
+	printf "PCI_BDF(%d, %d, %d) INT%c PIRQ%c\n", strtonum("0x" bdf[1]), \
+	strtonum("0x" bdf[2]), bdf[3], strtonum(pin) + 64, 64 + strtonum(pin)}}'
+
+Example output:
+   PCI_BDF(0, 2, 0) INTA PIRQA
+   PCI_BDF(0, 3, 0) INTA PIRQA
+...
+
 TODO List
 ---------
 - Audio
