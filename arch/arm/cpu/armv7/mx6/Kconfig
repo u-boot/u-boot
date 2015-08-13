@@ -129,7 +129,7 @@ config TARGET_SECOMX6
 	bool "secomx6 boards"
 
 config TARGET_TBS2910
-	bool "tbs2910"
+	bool "TBS2910 Matrix ARM mini PC"
 	select CPU_V7
 
 config TARGET_TITANIUM
