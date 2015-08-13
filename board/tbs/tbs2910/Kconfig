@@ -12,4 +12,10 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "tbs2910"
 
+config MX6Q
+	default y
+
+config IMX_CONFIG
+	default "board/boundary/nitrogen6x/nitrogen6q2g.cfg"
+
 endif
