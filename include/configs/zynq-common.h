@@ -75,6 +75,9 @@
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
 # define CONFIG_SPI_FLASH_SST
+#endif
+
+#if defined(CONFIG_ZYNQ_SPI) || defined(CONFIG_ZYNQ_QSPI)
 # define CONFIG_CMD_SPI
 # define CONFIG_CMD_SF
 #endif
@@ -184,8 +187,6 @@
 # define CONFIG_SPI_FLASH_STMICRO
 # define CONFIG_SPI_FLASH_WINBOND
 # define CONFIG_SPI_FLASH_ISSI
-# define CONFIG_CMD_SPI
-# define CONFIG_CMD_SF
 # define CONFIG_SF_DUAL_FLASH
 #endif
 
