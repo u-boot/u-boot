@@ -134,6 +134,7 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-yones-toptech-bd1078.dtb
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
 	sun8i-a23-evb.dtb \
+	sun8i-a23-gt90h-v4.dtb \
 	sun8i-a23-ippo-q8h-v5.dtb \
 	sun8i-a23-ippo-q8h-v1.2.dtb
 dtb-$(CONFIG_MACH_SUN8I_A33) += \
