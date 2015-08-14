@@ -24,6 +24,9 @@
 #define	SPI_SLAVE	0x40			/* slave mode */
 #define	SPI_PREAMBLE	0x80			/* Skip preamble bytes */
 
+#define SPI_3BYTE_MODE	0x0
+#define SPI_4BYTE_MODE	0x1
+
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
 #define SPI_XFER_END		0x02	/* Deassert CS after transfer */
@@ -137,6 +140,7 @@ struct spi_slave {
 	u8 option;
 	u8 dio;
 	u32 flags;
+	u32 bytemode;
 };
 
 /**

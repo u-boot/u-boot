@@ -214,8 +214,15 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	 * in case of warm bootup, the chip was set to 4-byte mode in kernel.
 	 */
 	if (flash->size > SPI_FLASH_16MB_BOUN) {
-		if (spi_flash_cmd_4B_addr_switch(flash, false, idcode[0]) < 0)
-			debug("SF: enter 3B address mode failed\n");
+		if (flash->spi->bytemode == SPI_4BYTE_MODE) {
+			if (spi_flash_cmd_4B_addr_switch(flash, true,
+			    idcode[0]) < 0)
+				debug("SF: enter 4B address mode failed\n");
+		} else {
+			if (spi_flash_cmd_4B_addr_switch(flash, false,
+			    idcode[0]) < 0)
+				debug("SF: enter 3B address mode failed\n");
+		}
 	}
 
 #ifdef CONFIG_SF_DUAL_FLASH

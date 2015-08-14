@@ -17,12 +17,19 @@
 
 #include "sf_internal.h"
 
-static void spi_flash_addr(u32 addr, u8 *cmd)
+static void spi_flash_addr(u32 addr, u8 *cmd, u8 four_byte)
 {
 	/* cmd[0] is actual command */
-	cmd[1] = addr >> 16;
-	cmd[2] = addr >> 8;
-	cmd[3] = addr >> 0;
+	if (four_byte) {
+		cmd[1] = addr >> 24;
+		cmd[2] = addr >> 16;
+		cmd[3] = addr >> 8;
+		cmd[4] = addr >> 0;
+	} else {
+		cmd[1] = addr >> 16;
+		cmd[2] = addr >> 8;
+		cmd[3] = addr >> 0;
+	}
 }
 
 int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
@@ -384,7 +391,8 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 erase_size, erase_addr, bank_addr;
-	u8 cmd[SPI_FLASH_CMD_LEN];
+	u8 cmd[SPI_FLASH_CMD_LEN + 1];
+	u32 cmdlen;
 	int ret = -1;
 
 	erase_size = flash->erase_size;
@@ -404,12 +412,19 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 		if (flash->dual_flash == SF_DUAL_STACKED_FLASH)
 			bank_addr = erase_addr;
 #endif
+
+		if (flash->spi->bytemode != SPI_4BYTE_MODE) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, bank_addr);
-		if (ret < 0)
-			return ret;
+			ret = spi_flash_bank(flash, bank_addr);
+			if (ret < 0)
+				return ret;
 #endif
-		spi_flash_addr(erase_addr, cmd);
+			spi_flash_addr(erase_addr, cmd, 0);
+			cmdlen = SPI_FLASH_CMD_LEN;
+		} else {
+			spi_flash_addr(erase_addr, cmd, 1);
+			cmdlen = SPI_FLASH_CMD_LEN + 1;
+		}
 
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
 		      cmd[2], cmd[3], erase_addr);
@@ -419,7 +434,7 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 			flash->spi->flags |= SPI_XFER_STRIPE;
 #endif
 
-		ret = spi_flash_write_common(flash, cmd, sizeof(cmd), NULL, 0);
+		ret = spi_flash_write_common(flash, cmd, cmdlen, NULL, 0);
 		if (ret < 0) {
 			debug("SF: erase failed\n");
 			break;
@@ -438,8 +453,9 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 	unsigned long byte_addr, page_size;
 	u32 write_addr, bank_addr;
 	size_t chunk_len, actual;
-	u8 cmd[SPI_FLASH_CMD_LEN];
+	u8 cmd[SPI_FLASH_CMD_LEN + 1];
 	int ret = -1;
+	u32 cmdlen;
 
 	page_size = flash->page_size;
 
@@ -454,11 +470,15 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		if (flash->dual_flash == SF_DUAL_STACKED_FLASH)
 			bank_addr = write_addr;
 #endif
+
+		if (flash->spi->bytemode != SPI_4BYTE_MODE) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, bank_addr);
-		if (ret < 0)
-			return ret;
+			ret = spi_flash_bank(flash, bank_addr);
+			if (ret < 0)
+				return ret;
 #endif
+		}
+
 		byte_addr = offset % page_size;
 		chunk_len = min(len - actual, (size_t)(page_size - byte_addr));
 
@@ -466,7 +486,13 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 			chunk_len = min(chunk_len,
 					(size_t)flash->spi->max_write_size);
 
-		spi_flash_addr(write_addr, cmd);
+		if (flash->spi->bytemode == SPI_4BYTE_MODE) {
+			spi_flash_addr(write_addr, cmd, 1);
+			cmdlen = SPI_FLASH_CMD_LEN + 1;
+		} else {
+			spi_flash_addr(write_addr, cmd, 0);
+			cmdlen = SPI_FLASH_CMD_LEN;
+		}
 
 		debug("SF: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
 		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
@@ -475,7 +501,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH)
 			flash->spi->flags |= SPI_XFER_STRIPE;
 #endif
-		ret = spi_flash_write_common(flash, cmd, sizeof(cmd),
+		ret = spi_flash_write_common(flash, cmd, cmdlen,
 					buf + actual, chunk_len);
 		if (ret < 0) {
 			debug("SF: write failed\n");
@@ -534,6 +560,10 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	}
 
 	cmdsz = SPI_FLASH_CMD_LEN + flash->dummy_byte;
+
+	if (flash->spi->bytemode == SPI_4BYTE_MODE)
+		cmdsz += 1;
+
 	cmd = calloc(1, cmdsz);
 	if (!cmd) {
 		debug("SF: Failed to allocate cmd\n");
@@ -551,23 +581,32 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		if (flash->dual_flash == SF_DUAL_STACKED_FLASH)
 			bank_addr = read_addr;
 #endif
+		if (flash->spi->bytemode != SPI_4BYTE_MODE) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		bank_sel = spi_flash_bank(flash, bank_addr);
-		if (bank_sel < 0)
-			return ret;
-		if ((flash->dual_flash == SF_DUAL_STACKED_FLASH) &&
-		    (flash->spi->flags & SPI_XFER_U_PAGE))
-			bank_sel += (flash->size >> 1)/SPI_FLASH_16MB_BOUN;
+			bank_sel = spi_flash_bank(flash, bank_addr);
+			if (bank_sel < 0)
+				return ret;
+			if ((flash->dual_flash == SF_DUAL_STACKED_FLASH) &&
+			    (flash->spi->flags & SPI_XFER_U_PAGE))
+				bank_sel += (flash->size >> 1)/
+					     SPI_FLASH_16MB_BOUN;
 #endif
-		remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
-				(bank_sel + 1)) - offset;
-		if (len < remain_len)
+			remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
+					(bank_sel + 1)) - offset;
+			if (len < remain_len)
+				read_len = len;
+			else
+				read_len = remain_len;
+		} else {
 			read_len = len;
+		}
+
+		if (flash->spi->bytemode == SPI_4BYTE_MODE)
+			spi_flash_addr(read_addr, cmd, 1);
 		else
-			read_len = remain_len;
+			spi_flash_addr(read_addr, cmd, 0);
 
-		spi_flash_addr(read_addr, cmd);
-
+		debug("%s: Byte Mode:0x%x\n",__func__,  flash->spi->bytemode);
 #ifdef CONFIG_SPI_GENERIC
 		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH)
 			flash->spi->flags |= SPI_XFER_STRIPE;
