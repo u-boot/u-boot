@@ -182,6 +182,8 @@ enum fdt_compat_id {
 	COMPAT_INTEL_PCH,		/* Intel PCH */
 	COMPAT_INTEL_IRQ_ROUTER,	/* Intel Interrupt Router */
 	COMPAT_ALTERA_SOCFPGA_DWMAC,	/* SoCFPGA Ethernet controller */
+	COMPAT_INTEL_BAYTRAIL_FSP,	/* Intel Bay Trail FSP */
+	COMPAT_INTEL_BAYTRAIL_FSP_MDP,	/* Intel FSP memory-down params */
 
 	COMPAT_COUNT,
 };

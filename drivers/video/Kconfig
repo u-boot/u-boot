@@ -44,7 +44,7 @@ config FRAMEBUFFER_VESA_MODE_104
 	bool "1024x768 16-color"
 
 config FRAMEBUFFER_VESA_MODE_105
-	bool "1024x7686 256-color"
+	bool "1024x768 256-color"
 
 config FRAMEBUFFER_VESA_MODE_106
 	bool "1280x1024 16-color"

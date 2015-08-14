@@ -206,7 +206,8 @@ static int show_dram_config(void)
 	debug("\nRAM Configuration:\n");
 	for (i = size = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size += gd->bd->bi_dram[i].size;
-		debug("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
+		debug("Bank #%d: %llx ", i,
+		      (unsigned long long)(gd->bd->bi_dram[i].start));
 #ifdef DEBUG
 		print_size(gd->bd->bi_dram[i].size, "\n");
 #endif
@@ -498,6 +499,7 @@ static int setup_machine(void)
 static int reserve_global_data(void)
 {
 	gd->start_addr_sp -= sizeof(gd_t);
+	gd->start_addr_sp &= ~0xf;
 	gd->new_gd = (gd_t *)map_sysmem(gd->start_addr_sp, sizeof(gd_t));
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
 			sizeof(gd_t), gd->start_addr_sp);
@@ -713,6 +715,7 @@ static int jump_to_copy(void)
 	 * with the stack in SDRAM and Global Data in temporary memory
 	 * (CPU cache)
 	 */
+	arch_setup_gd(gd->new_gd);
 	board_init_f_r_trampoline(gd->start_addr_sp);
 #else
 	relocate_code(gd->start_addr_sp, gd->new_gd, gd->relocaddr);
@@ -1025,16 +1028,26 @@ void board_init_f_r(void)
 }
 #endif /* CONFIG_X86 */
 
+/* Unfortunately x86 can't compile this code as gd cannot be assigned */
 #ifndef CONFIG_X86
+__weak void arch_setup_gd(struct global_data *gd_ptr)
+{
+	gd = gd_ptr;
+}
+#endif /* !CONFIG_X86 */
+
 ulong board_init_f_mem(ulong top)
 {
+	struct global_data *gd_ptr;
+
 	/* Leave space for the stack we are running with now */
 	top -= 0x40;
 
 	top -= sizeof(struct global_data);
 	top = ALIGN(top, 16);
-	gd = (struct global_data *)top;
-	memset((void *)gd, '\0', sizeof(*gd));
+	gd_ptr = (struct global_data *)top;
+	memset(gd_ptr, '\0', sizeof(*gd));
+	arch_setup_gd(gd_ptr);
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	top -= CONFIG_SYS_MALLOC_F_LEN;
@@ -1043,4 +1056,3 @@ ulong board_init_f_mem(ulong top)
 
 	return top;
 }
-#endif /* !CONFIG_X86 */

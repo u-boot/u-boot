@@ -76,7 +76,8 @@ unsigned int x86_pci_read_config8(pci_dev_t dev, unsigned where)
 {
 	uint8_t value;
 
-	pci_hose_read_config_byte(get_hose(), dev, where, &value);
+	if (pci_hose_read_config_byte(get_hose(), dev, where, &value))
+		return -1U;
 
 	return value;
 }
@@ -85,7 +86,8 @@ unsigned int x86_pci_read_config16(pci_dev_t dev, unsigned where)
 {
 	uint16_t value;
 
-	pci_hose_read_config_word(get_hose(), dev, where, &value);
+	if (pci_hose_read_config_word(get_hose(), dev, where, &value))
+		return -1U;
 
 	return value;
 }
@@ -94,7 +96,8 @@ unsigned int x86_pci_read_config32(pci_dev_t dev, unsigned where)
 {
 	uint32_t value;
 
-	pci_hose_read_config_dword(get_hose(), dev, where, &value);
+	if (pci_hose_read_config_dword(get_hose(), dev, where, &value))
+		return -1U;
 
 	return value;
 }

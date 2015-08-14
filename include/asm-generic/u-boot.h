@@ -130,8 +130,8 @@ typedef struct bd_info {
 	ulong	        bi_boot_params;	/* where this board expects params */
 #ifdef CONFIG_NR_DRAM_BANKS
 	struct {			/* RAM configuration */
-		ulong start;
-		ulong size;
+		phys_addr_t start;
+		phys_size_t size;
 	} bi_dram[CONFIG_NR_DRAM_BANKS];
 #endif /* CONFIG_NR_DRAM_BANKS */
 } bd_t;

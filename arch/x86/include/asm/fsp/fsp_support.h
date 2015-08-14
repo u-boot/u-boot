@@ -207,4 +207,11 @@ void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
  */
 void update_fsp_upd(struct upd_region *fsp_upd);
 
+/**
+ * fsp_init_phase_pci() - Tell the FSP that we have completed PCI init
+ *
+ * @return 0 if OK, -EPERM if the FSP gave an error.
+ */
+int fsp_init_phase_pci(void);
+
 #endif

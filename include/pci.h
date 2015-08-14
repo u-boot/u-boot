@@ -910,6 +910,31 @@ int pci_bus_find_devfn(struct udevice *bus, pci_dev_t find_devfn,
 		       struct udevice **devp);
 
 /**
+ * pci_find_first_device() - return the first available PCI device
+ *
+ * This function and pci_find_first_device() allow iteration through all
+ * available PCI devices on all buses. Assuming there are any, this will
+ * return the first one.
+ *
+ * @devp:	Set to the first available device, or NULL if no more are left
+ *		or we got an error
+ * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ */
+int pci_find_first_device(struct udevice **devp);
+
+/**
+ * pci_find_next_device() - return the next available PCI device
+ *
+ * Finds the next available PCI device after the one supplied, or sets @devp
+ * to NULL if there are no more.
+ *
+ * @devp:	On entry, the last device returned. Set to the next available
+ *		device, or NULL if no more are left or we got an error
+ * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ */
+int pci_find_next_device(struct udevice **devp);
+
+/**
  * pci_get_ff() - Returns a mask for the given access size
  *
  * @size:	Access size
@@ -987,6 +1012,24 @@ int pci_bus_read_config(struct udevice *bus, pci_dev_t bdf, int offset,
  */
 int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size);
+
+/**
+ * Driver model PCI config access functions. Use these in preference to others
+ * when you have a valid device
+ */
+int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
+		       enum pci_size_t size);
+
+int dm_pci_read_config8(struct udevice *dev, int offset, u8 *valuep);
+int dm_pci_read_config16(struct udevice *dev, int offset, u16 *valuep);
+int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep);
+
+int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
+			enum pci_size_t size);
+
+int dm_pci_write_config8(struct udevice *dev, int offset, u8 value);
+int dm_pci_write_config16(struct udevice *dev, int offset, u16 value);
+int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
 
 /*
  * The following functions provide access to the above without needing the

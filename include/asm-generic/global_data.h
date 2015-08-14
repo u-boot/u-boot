@@ -99,7 +99,8 @@ typedef struct global_data {
 	int pcidelay_done;
 #endif
 	struct udevice *cur_serial_dev;	/* current serial device */
-	struct arch_global_data arch;	/* architecture-specific data */
+	/* arch-specific data */
+	struct arch_global_data arch __attribute__((aligned(16)));
 } gd_t;
 #endif
 
