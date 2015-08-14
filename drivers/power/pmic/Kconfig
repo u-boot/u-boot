@@ -10,6 +10,13 @@ config DM_PMIC
 	- 'drivers/power/pmic/pmic-uclass.c'
 	- 'include/power/pmic.h'
 
+config DM_PMIC_PFUZE100
+	bool "Enable Driver Model for PMIC PFUZE100"
+	depends on DM_PMIC
+	---help---
+	This config enables implementation of driver-model pmic uclass features
+	for PMIC PFUZE100. The driver implements read/write operations.
+
 config DM_PMIC_MAX77686
 	bool "Enable Driver Model for PMIC MAX77686"
 	depends on DM_PMIC

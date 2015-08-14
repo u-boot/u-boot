@@ -8,6 +8,11 @@
 #ifndef __PFUZE100_PMIC_H_
 #define __PFUZE100_PMIC_H_
 
+/* Device ID */
+enum {PFUZE100 = 0x10, PFUZE200 = 0x11, PFUZE3000 = 0x30};
+
+#define PFUZE100_REGULATOR_DRIVER	"pfuze100_regulator"
+
 /* PFUZE100 registers */
 enum {
 	PFUZE100_DEVICEID	= 0x00,
@@ -54,7 +59,7 @@ enum {
 	PFUZE100_VGEN5VOL	= 0x70,
 	PFUZE100_VGEN6VOL	= 0x71,
 
-	PMIC_NUM_OF_REGS	= 0x7f,
+	PFUZE100_NUM_OF_REGS	= 0x7f,
 };
 
 /* Registor offset based on VOLT register */
