@@ -207,6 +207,17 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	flash->page_size <<= flash->shift;
 	flash->sector_size = params->sector_size << flash->shift;
 	flash->size = flash->sector_size * params->nr_sectors;
+
+	/*
+	 * So far, the 4-byte address mode haven't been supported in U-Boot,
+	 * and make sure the chip (> 16MiB) in default 3-byte address mode,
+	 * in case of warm bootup, the chip was set to 4-byte mode in kernel.
+	 */
+	if (flash->size > SPI_FLASH_16MB_BOUN) {
+		if (spi_flash_cmd_4B_addr_switch(flash, false, idcode[0]) < 0)
+			debug("SF: enter 3B address mode failed\n");
+	}
+
 #ifdef CONFIG_SF_DUAL_FLASH
 	if (flash->dual_flash & SF_DUAL_STACKED_FLASH)
 		flash->size <<= 1;
