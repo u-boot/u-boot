@@ -162,6 +162,16 @@ void nand_init(void)
 				 NFC_CTL_RESET, MAX_RETRIES)) {
 		printf("Couldn't initialize nand\n");
 	}
+
+	/* reset NAND */
+	writel(NFC_SEND_CMD1 | NFC_WAIT_FLAG | NAND_CMD_RESET,
+	       SUNXI_NFC_BASE + NFC_CMD);
+
+	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_CMD_INT_FLAG,
+			 MAX_RETRIES)) {
+		printf("Error timeout waiting for nand reset\n");
+		return;
+	}
 }
 
 static void nand_read_page(unsigned int real_addr, dma_addr_t dst,
@@ -220,16 +230,6 @@ static void nand_read_page(unsigned int real_addr, dma_addr_t dst,
 	if (ecc_off == 0) {
 		printf("Unsupported ECC strength (%d)!\n",
 		       CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH);
-		return;
-	}
-
-	/* set CMD  */
-	writel(NFC_SEND_CMD1 | NFC_WAIT_FLAG | NAND_CMD_RESET,
-	       SUNXI_NFC_BASE + NFC_CMD);
-
-	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_CMD_INT_FLAG,
-			 MAX_RETRIES)) {
-		printf("Error while initilizing command interrupt\n");
 		return;
 	}
 
