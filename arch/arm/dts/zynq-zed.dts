@@ -16,6 +16,7 @@
 	aliases {
 		ethernet0 = &gem0;
 		serial0 = &uart1;
+		spi0 = &qspi;
 	};
 
 	memory {
@@ -53,6 +54,10 @@
 };
 
 &uart1 {
+	status = "okay";
+};
+
+&qspi {
 	status = "okay";
 };
 
