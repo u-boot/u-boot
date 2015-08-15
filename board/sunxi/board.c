@@ -112,13 +112,19 @@ int dram_init(void)
 static void nand_pinmux_setup(void)
 {
 	unsigned int pin;
-	for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(6); pin++)
+
+	for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(19); pin++)
 		sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_NAND);
 
-	for (pin = SUNXI_GPC(8); pin <= SUNXI_GPC(22); pin++)
+#if defined CONFIG_MACH_SUN4I || defined CONFIG_MACH_SUN7I
+	for (pin = SUNXI_GPC(20); pin <= SUNXI_GPC(22); pin++)
 		sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_NAND);
-
+#endif
+	/* sun4i / sun7i do have a PC23, but it is not used for nand,
+	 * only sun7i has a PC24 */
+#ifdef CONFIG_MACH_SUN7I
 	sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUNXI_GPC_NAND);
+#endif
 }
 
 static void nand_clock_setup(void)

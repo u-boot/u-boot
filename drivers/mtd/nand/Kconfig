@@ -93,8 +93,8 @@ config SPL_NAND_DENALI
 	  for use on SPL.
 
 config SPL_NAND_SUNXI
-	bool "Support for NAND on Allwinner A20 in SPL"
-	depends on MACH_SUN7I
+	bool "Support for NAND on Allwinner SoCs in SPL"
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	select SYS_NAND_SELF_INIT
 	---help---
 	Enable support for NAND. This option allows SPL to read from
