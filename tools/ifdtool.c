@@ -746,6 +746,82 @@ static int write_data(char *image, int size, unsigned int addr,
 	return write_size;
 }
 
+static int scan_ucode(const void *blob, char *ucode_base, int *countp,
+		      const char **datap, int *data_sizep)
+{
+	const char *data = NULL;
+	int node, count;
+	int data_size;
+	char *ucode;
+
+	for (node = 0, count = 0, ucode = ucode_base; node >= 0; count++) {
+		node = fdt_node_offset_by_compatible(blob, node,
+						     "intel,microcode");
+		if (node < 0)
+			break;
+
+		data = fdt_getprop(blob, node, "data", &data_size);
+		if (!data) {
+			debug("Missing microcode data in FDT '%s': %s\n",
+			      fdt_get_name(blob, node, NULL),
+			      fdt_strerror(data_size));
+			return -ENOENT;
+		}
+
+		ucode += data_size;
+	}
+
+	if (countp)
+		*countp = count;
+	if (datap)
+		*datap = data;
+	if (data_sizep)
+		*data_sizep = data_size;
+
+	return ucode - ucode_base;
+}
+
+static int write_ucode(char *image, int size, struct input_file *fdt,
+		       int fdt_size, unsigned int ucode_ptr)
+{
+	const char *data = NULL;
+	const void *blob;
+	uint32_t *ptr;
+	int ucode_size;
+	int data_size;
+	int offset;
+	int count;
+
+	blob = (void *)image + (uint32_t)(fdt->addr + size);
+
+	debug("DTB at %lx\n", (char *)blob - image);
+
+	/* Find out about the micrcode we have */
+	ucode_size = scan_ucode(blob, NULL, &count, &data, &data_size);
+	if (ucode_size < 0)
+		return ucode_size;
+	if (!count) {
+		debug("No microcode found in FDT\n");
+		return -ENOENT;
+	}
+
+	if (count > 1) {
+		fprintf(stderr,
+			"Cannot handle multiple microcode blocks\n");
+		return -EMLINK;
+	}
+
+	offset = (uint32_t)(ucode_ptr + size);
+	ptr = (void *)image + offset;
+
+	ptr[0] = (data - image) - size;
+	ptr[1] = data_size;
+	debug("Wrote microcode pointer at %x: addr=%x, size=%x\n", ucode_ptr,
+	      ptr[0], ptr[1]);
+
+	return 0;
+}
+
 /**
  * write_uboot() - Write U-Boot, device tree and microcode pointer
  *
@@ -764,12 +840,7 @@ static int write_uboot(char *image, int size, struct input_file *uboot,
 		       struct input_file *fdt, unsigned int ucode_ptr)
 {
 	const void *blob;
-	const char *data;
 	int uboot_size, fdt_size;
-	uint32_t *ptr;
-	int data_size;
-	int offset;
-	int node;
 
 	uboot_size = write_data(image, size, uboot->addr, uboot->fname, 0);
 	if (uboot_size < 0)
@@ -781,28 +852,8 @@ static int write_uboot(char *image, int size, struct input_file *uboot,
 		return fdt_size;
 	blob = (void *)image + (uint32_t)(fdt->addr + size);
 
-	if (ucode_ptr) {
-		debug("DTB at %lx\n", (char *)blob - image);
-		node = fdt_node_offset_by_compatible(blob, 0,
-						     "intel,microcode");
-		if (node < 0) {
-			debug("No microcode found in FDT: %s\n",
-			      fdt_strerror(node));
-			return -ENOENT;
-		}
-		data = fdt_getprop(blob, node, "data", &data_size);
-		if (!data) {
-			debug("No microcode data found in FDT: %s\n",
-			      fdt_strerror(data_size));
-			return -ENOENT;
-		}
-		offset = (uint32_t)(ucode_ptr + size);
-		ptr = (void *)image + offset;
-		ptr[0] = (data - image) - size;
-		ptr[1] = data_size;
-		debug("Wrote microcode pointer at %x: addr=%x, size=%x\n",
-		      ucode_ptr, ptr[0], ptr[1]);
-	}
+	if (ucode_ptr)
+		return write_ucode(image, size, fdt, fdt_size, ucode_ptr);
 
 	return ((char *)blob + fdt_size) - image;
 }
