@@ -783,6 +783,47 @@ static int scan_ucode(const void *blob, char *ucode_base, int *countp,
 	return ucode - ucode_base;
 }
 
+static int remove_ucode(char *blob)
+{
+	int node, count;
+	int ret;
+
+	/* Keep going until we find no more microcode to remove */
+	do {
+		for (node = 0, count = 0; node >= 0;) {
+			int ret;
+
+			node = fdt_node_offset_by_compatible(blob, node,
+							     "intel,microcode");
+			if (node < 0)
+				break;
+
+			ret = fdt_delprop(blob, node, "data");
+
+			/*
+			 * -FDT_ERR_NOTFOUND means we already removed the
+			 * data for this one, so we just continue.
+			 * 0 means we did remove it, so offsets may have
+			 * changed and we need to restart our scan.
+			 * Anything else indicates an error we should report.
+			 */
+			if (ret == -FDT_ERR_NOTFOUND)
+				continue;
+			else if (!ret)
+				node = 0;
+			else
+				return ret;
+		}
+	} while (count);
+
+	/* Pack down to remove excees space */
+	ret = fdt_pack(blob);
+	if (ret)
+		return ret;
+
+	return fdt_totalsize(blob);
+}
+
 static int write_ucode(char *image, int size, struct input_file *fdt,
 		       int fdt_size, unsigned int ucode_ptr,
 		       int collate_ucode)
@@ -818,8 +859,8 @@ static int write_ucode(char *image, int size, struct input_file *fdt,
 	}
 
 	/*
-	 * Collect the microcode into a buffer and place it immediately above
-	 * the device tree.
+	 * Collect the microcode into a buffer, remove it from the device
+	 * tree and place it immediately above the (now smaller) device tree.
 	 */
 	if (collate_ucode && count > 1) {
 		ucode_buf = malloc(ucode_size);
@@ -833,7 +874,17 @@ static int write_ucode(char *image, int size, struct input_file *fdt,
 		if (ret < 0)
 			return ret;
 
+		/* Remove the microcode from the device tree */
+		ret = remove_ucode((char *)blob);
+		if (ret < 0) {
+			debug("Could not remove FDT microcode: %s\n",
+			      fdt_strerror(ret));
+			return -EINVAL;
+		}
 		debug("Collated %d microcode block(s)\n", count);
+		debug("Device tree reduced from %x to %x bytes\n",
+		      fdt_size, ret);
+		fdt_size = ret;
 
 		/*
 		 * Place microcode area immediately above the FDT, aligned
