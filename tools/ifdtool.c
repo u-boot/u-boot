@@ -768,6 +768,8 @@ static int scan_ucode(const void *blob, char *ucode_base, int *countp,
 			return -ENOENT;
 		}
 
+		if (ucode_base)
+			memcpy(ucode, data, data_size);
 		ucode += data_size;
 	}
 
@@ -782,15 +784,19 @@ static int scan_ucode(const void *blob, char *ucode_base, int *countp,
 }
 
 static int write_ucode(char *image, int size, struct input_file *fdt,
-		       int fdt_size, unsigned int ucode_ptr)
+		       int fdt_size, unsigned int ucode_ptr,
+		       int collate_ucode)
 {
 	const char *data = NULL;
+	char *ucode_buf;
 	const void *blob;
+	char *ucode_base;
 	uint32_t *ptr;
 	int ucode_size;
 	int data_size;
 	int offset;
 	int count;
+	int ret;
 
 	blob = (void *)image + (uint32_t)(fdt->addr + size);
 
@@ -805,10 +811,41 @@ static int write_ucode(char *image, int size, struct input_file *fdt,
 		return -ENOENT;
 	}
 
-	if (count > 1) {
+	if (count > 1 && !collate_ucode) {
 		fprintf(stderr,
-			"Cannot handle multiple microcode blocks\n");
+			"Cannot handle multiple microcode blocks - please use -C flag to collate them\n");
 		return -EMLINK;
+	}
+
+	/*
+	 * Collect the microcode into a buffer and place it immediately above
+	 * the device tree.
+	 */
+	if (collate_ucode && count > 1) {
+		ucode_buf = malloc(ucode_size);
+		if (!ucode_buf) {
+			fprintf(stderr,
+				"Out of memory for microcode (%d bytes)\n",
+				ucode_size);
+			return -ENOMEM;
+		}
+		ret = scan_ucode(blob, ucode_buf, NULL, NULL, NULL);
+		if (ret < 0)
+			return ret;
+
+		debug("Collated %d microcode block(s)\n", count);
+
+		/*
+		 * Place microcode area immediately above the FDT, aligned
+		 * to a 16-byte boundary.
+		 */
+		ucode_base = (char *)(((unsigned long)blob + fdt_size + 15) &
+				~15);
+
+		data = ucode_base;
+		data_size = ucode_size;
+		memcpy(ucode_base, ucode_buf, ucode_size);
+		free(ucode_buf);
 	}
 
 	offset = (uint32_t)(ucode_ptr + size);
@@ -819,7 +856,8 @@ static int write_ucode(char *image, int size, struct input_file *fdt,
 	debug("Wrote microcode pointer at %x: addr=%x, size=%x\n", ucode_ptr,
 	      ptr[0], ptr[1]);
 
-	return 0;
+	return (collate_ucode ? data + data_size : (char *)blob + fdt_size) -
+			image;
 }
 
 /**
@@ -837,7 +875,8 @@ static int write_ucode(char *image, int size, struct input_file *fdt,
  * @return 0 if OK, -ve on error
  */
 static int write_uboot(char *image, int size, struct input_file *uboot,
-		       struct input_file *fdt, unsigned int ucode_ptr)
+		       struct input_file *fdt, unsigned int ucode_ptr,
+		       int collate_ucode)
 {
 	const void *blob;
 	int uboot_size, fdt_size;
@@ -852,8 +891,10 @@ static int write_uboot(char *image, int size, struct input_file *uboot,
 		return fdt_size;
 	blob = (void *)image + (uint32_t)(fdt->addr + size);
 
-	if (ucode_ptr)
-		return write_ucode(image, size, fdt, fdt_size, ucode_ptr);
+	if (ucode_ptr) {
+		return write_ucode(image, size, fdt, fdt_size, ucode_ptr,
+				   collate_ucode);
+	}
 
 	return ((char *)blob + fdt_size) - image;
 }
@@ -919,7 +960,7 @@ int main(int argc, char *argv[])
 	int mode_dump = 0, mode_extract = 0, mode_inject = 0;
 	int mode_spifreq = 0, mode_em100 = 0, mode_locked = 0;
 	int mode_unlocked = 0, mode_write = 0, mode_write_descriptor = 0;
-	int create = 0;
+	int create = 0, collate_ucode = 0;
 	char *region_type_string = NULL, *inject_fname = NULL;
 	char *desc_fname = NULL, *addr_str = NULL;
 	int region_type = -1, inputfreq = 0;
@@ -939,6 +980,7 @@ int main(int argc, char *argv[])
 	int ret;
 	static struct option long_options[] = {
 		{"create", 0, NULL, 'c'},
+		{"collate-microcode", 0, NULL, 'C'},
 		{"dump", 0, NULL, 'd'},
 		{"descriptor", 1, NULL, 'D'},
 		{"em100", 0, NULL, 'e'},
@@ -957,11 +999,14 @@ int main(int argc, char *argv[])
 		{0, 0, 0, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "cdD:ef:hi:lm:r:s:uU:vw:x?",
+	while ((opt = getopt_long(argc, argv, "cCdD:ef:hi:lm:r:s:uU:vw:x?",
 				  long_options, &option_index)) != EOF) {
 		switch (opt) {
 		case 'c':
 			create = 1;
+			break;
+		case 'C':
+			collate_ucode = 1;
 			break;
 		case 'd':
 			mode_dump = 1;
@@ -1186,7 +1231,7 @@ int main(int argc, char *argv[])
 				continue;
 			} else if (ifile->type == IF_uboot) {
 				ret = write_uboot(image, size, ifile, fdt,
-						  ucode_ptr);
+						  ucode_ptr, collate_ucode);
 				offset_uboot_top = ret;
 			} else {
 				ret = write_data(image, size, ifile->addr,
