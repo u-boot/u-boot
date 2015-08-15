@@ -99,8 +99,6 @@ config SPL_NAND_SUNXI
 	---help---
 	Enable support for NAND. This option allows SPL to read from
 	sunxi NAND using DMA transfers.
-	Depending on the NAND chip, values like ECC strength and page sizes
-	have to be configured.
 
 config NAND_SUNXI_SPL_SYNDROME_PARTITIONS_END
 	hex "Size of syndrome partitions in sunxi NAND"
@@ -110,29 +108,6 @@ config NAND_SUNXI_SPL_SYNDROME_PARTITIONS_END
 	End address for boot partitions on NAND. Those partitions have a
 	different random seed that has to match the sunxi BROM setting.
 
-config NAND_SUNXI_SPL_ECC_STRENGTH
-	int "ECC Strength for sunxi NAND"
-	default 40
-	depends on SPL_NAND_SUNXI
-	---help---
-	ECC strength used by the sunxi NAND SPL driver. This is specific to the
-	chosen NAND chip and has to match the value used by the sunxi BROM.
-
-config NAND_SUNXI_SPL_ECC_PAGE_SIZE
-	hex "ECC page size for sunxi NAND"
-	default 0x400
-	depends on SPL_NAND_SUNXI
-	---help---
-	ECC page size used by the sunxi NAND SPL driver for syndrome partitions.
-	This setting has to match the value used by the sunxi BROM.
-
-config NAND_SUNXI_SPL_PAGE_SIZE
-	hex "Page size for sunxi NAND"
-	default 0x2000
-	depends on SPL_NAND_SUNXI
-	---help---
-	Page size of the NAND flash used by the sunxi NAND SPL driver. This is
-	specific to the chosen NAND chip.
 endif
 
 endmenu

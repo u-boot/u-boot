@@ -307,10 +307,45 @@ static int nand_read_ecc(int page_size, int ecc_strength, int ecc_page_size,
 static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest,
 			    int syndrome)
 {
-	return nand_read_ecc(CONFIG_NAND_SUNXI_SPL_PAGE_SIZE,
-			     CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH,
-			     CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE,
-			     5, offs, size, dest, syndrome);
+	const struct {
+		int page_size;
+		int ecc_strength;
+		int ecc_page_size;
+		int addr_cycles;
+	} nand_configs[] = {
+		{  8192, 40, 1024, 5 },
+		{ 16384, 56, 1024, 5 },
+		{  8192, 24, 1024, 5 },
+	};
+	static int nand_config = -1;
+	int i;
+
+	if (nand_config == -1) {
+		for (i = 0; i < ARRAY_SIZE(nand_configs); i++) {
+			debug("nand: trying page %d ecc %d / %d addr %d: ",
+			      nand_configs[i].page_size,
+			      nand_configs[i].ecc_strength,
+			      nand_configs[i].ecc_page_size,
+			      nand_configs[i].addr_cycles);
+			if (nand_read_ecc(nand_configs[i].page_size,
+					  nand_configs[i].ecc_strength,
+					  nand_configs[i].ecc_page_size,
+					  nand_configs[i].addr_cycles,
+					  offs, size, dest, syndrome) == 0) {
+				debug("success\n");
+				nand_config = i;
+				return 0;
+			}
+			debug("failed\n");
+		}
+		return -1;
+	}
+
+	return nand_read_ecc(nand_configs[nand_config].page_size,
+			     nand_configs[nand_config].ecc_strength,
+			     nand_configs[nand_config].ecc_page_size,
+			     nand_configs[nand_config].addr_cycles,
+			     offs, size, dest, syndrome);
 }
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
