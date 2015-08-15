@@ -266,6 +266,10 @@ static void nand_read_page(unsigned int real_addr, dma_addr_t dst,
 		writel(oob_offset, SUNXI_NFC_BASE + NFC_SPARE_AREA);
 	}
 
+	flush_dcache_range(dst,
+			   ALIGN(dst + CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE,
+				 ARCH_DMA_MINALIGN));
+
 	/* SUNXI_DMA */
 	writel(0x0, SUNXI_DMA_BASE + SUNXI_DMA_CFG_REG0); /* clr dma cmd */
 	/* read from REG_IO_DATA */
@@ -310,6 +314,10 @@ static void nand_read_page(unsigned int real_addr, dma_addr_t dst,
 		printf("Error while waiting for dma transfer to finish\n");
 		return;
 	}
+
+	invalidate_dcache_range(dst,
+			ALIGN(dst + CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE,
+			      ARCH_DMA_MINALIGN));
 
 	if (readl(SUNXI_NFC_BASE + NFC_ECC_ST))
 		(*ecc_errors)++;
