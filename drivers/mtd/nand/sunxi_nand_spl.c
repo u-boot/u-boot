@@ -256,10 +256,7 @@ static void nand_read_page(unsigned int real_addr, dma_addr_t dst,
 	val = readl(SUNXI_NFC_BASE + NFC_CTL);
 	writel(val | NFC_CTL_RAM_METHOD, SUNXI_NFC_BASE + NFC_CTL);
 
-	if (syndrome) {
-		writel(CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE,
-		       SUNXI_NFC_BASE + NFC_SPARE_AREA);
-	} else {
+	if (!syndrome) {
 		oob_offset = CONFIG_NAND_SUNXI_SPL_PAGE_SIZE
 			+ (column / CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE)
 			* ecc_off;
