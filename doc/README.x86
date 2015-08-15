@@ -654,13 +654,13 @@ Use the device tree for configuration where possible.
 For the microcode you can create a suitable device tree file using the
 microcode tool:
 
-  ./tools/microcode-tool -d microcode.dat create <model>
+  ./tools/microcode-tool -d microcode.dat -m <model> create
 
 or if you only have header files and not the full Intel microcode.dat database:
 
   ./tools/microcode-tool -H BAY_TRAIL_FSP_KIT/Microcode/M0130673322.h \
 	-H BAY_TRAIL_FSP_KIT/Microcode/M0130679901.h \
-	create all
+	-m all create
 
 These are written to arch/x86/dts/microcode/ by default.
 
