@@ -85,6 +85,7 @@
 
 #define SUNXI_DMA_DDMA_CFG_REG_LOADING  (1 << 31)
 #define SUNXI_DMA_DDMA_CFG_REG_DMA_DEST_DATA_WIDTH_32 (2 << 25)
+#define SUNXI_DMA_DDMA_CFG_REG_DDMA_DST_DRQ_TYPE_DRAM (1 << 16)
 #define SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_DATA_WIDTH_32 (2 << 9)
 #define SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_ADDR_MODE_IO (1 << 5)
 #define SUNXI_DMA_DDMA_CFG_REG_DDMA_SRC_DRQ_TYPE_NFC (3 << 0)
@@ -93,10 +94,6 @@
 #define SUNXI_DMA_DDMA_PARA_REG_SRC_BLK_SIZE (0x7F << 8)
 
 /* minimal "boot0" style NAND support for Allwinner A20 */
-
-/* temporary buffer in internal ram */
-unsigned char temp_buf[CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE]
-	__aligned(0x10) __section(".text#");
 
 /* random seed used by linux */
 const uint16_t random_seed[128] = {
@@ -167,8 +164,8 @@ void nand_init(void)
 	}
 }
 
-static void nand_read_page(unsigned int real_addr, int syndrome,
-			   uint32_t *ecc_errors)
+static void nand_read_page(unsigned int real_addr, dma_addr_t dst,
+			   int syndrome, uint32_t *ecc_errors)
 {
 	uint32_t val;
 	int ecc_off = 0;
@@ -226,9 +223,6 @@ static void nand_read_page(unsigned int real_addr, int syndrome,
 		return;
 	}
 
-	/* clear temp_buf */
-	memset(temp_buf, 0, CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE);
-
 	/* set CMD  */
 	writel(NFC_SEND_CMD1 | NFC_WAIT_FLAG | NAND_CMD_RESET,
 	       SUNXI_NFC_BASE + NFC_CMD);
@@ -278,8 +272,7 @@ static void nand_read_page(unsigned int real_addr, int syndrome,
 	writel(SUNXI_NFC_BASE + NFC_IO_DATA,
 	       SUNXI_DMA_BASE + SUNXI_DMA_SRC_START_ADDR_REG0);
 	/* read to RAM */
-	writel((uint32_t)temp_buf,
-	       SUNXI_DMA_BASE + SUNXI_DMA_DEST_START_ADDRR_REG0);
+	writel(dst, SUNXI_DMA_BASE + SUNXI_DMA_DEST_START_ADDRR_REG0);
 	writel(SUNXI_DMA_DDMA_PARA_REG_SRC_WAIT_CYC
 			| SUNXI_DMA_DDMA_PARA_REG_SRC_BLK_SIZE,
 			SUNXI_DMA_BASE + SUNXI_DMA_DDMA_PARA_REG0);
@@ -287,6 +280,7 @@ static void nand_read_page(unsigned int real_addr, int syndrome,
 	       SUNXI_DMA_BASE + SUNXI_DMA_DDMA_BC_REG0); /* 1kB */
 	writel(SUNXI_DMA_DDMA_CFG_REG_LOADING
 		| SUNXI_DMA_DDMA_CFG_REG_DMA_DEST_DATA_WIDTH_32
+		| SUNXI_DMA_DDMA_CFG_REG_DDMA_DST_DRQ_TYPE_DRAM
 		| SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_DATA_WIDTH_32
 		| SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_ADDR_MODE_IO
 		| SUNXI_DMA_DDMA_CFG_REG_DDMA_SRC_DRQ_TYPE_NFC,
@@ -324,27 +318,14 @@ static void nand_read_page(unsigned int real_addr, int syndrome,
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 {
 	void *current_dest;
-	uint32_t count;
-	uint32_t current_count;
 	uint32_t ecc_errors = 0;
 
-	memset(dest, 0x0, size); /* clean destination memory */
 	for (current_dest = dest;
 			current_dest < (dest + size);
 			current_dest += CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE) {
-		nand_read_page(offs, offs
-				< CONFIG_NAND_SUNXI_SPL_SYNDROME_PARTITIONS_END,
-			       &ecc_errors);
-		count = current_dest - dest;
-
-		if (size - count > CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE)
-			current_count = CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE;
-		else
-			current_count = size - count;
-
-		memcpy(current_dest,
-		       temp_buf,
-		       current_count);
+		nand_read_page(offs, (dma_addr_t)current_dest,
+			offs < CONFIG_NAND_SUNXI_SPL_SYNDROME_PARTITIONS_END,
+			&ecc_errors);
 		offs += CONFIG_NAND_SUNXI_SPL_ECC_PAGE_SIZE;
 	}
 	return ecc_errors ? -1 : 0;
