@@ -125,7 +125,13 @@ static void nand_clock_setup(void)
 {
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
 	setbits_le32(&ccm->ahb_gate0, (CLK_GATE_OPEN << AHB_GATE_OFFSET_NAND0));
+#ifdef CONFIG_MACH_SUN9I
+	setbits_le32(&ccm->ahb_gate1, (1 << AHB_GATE_OFFSET_DMA));
+#else
+	setbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_DMA));
+#endif
 	setbits_le32(&ccm->nand0_clk_cfg, CCM_NAND_CTRL_ENABLE | AHB_DIV_1);
 }
 
