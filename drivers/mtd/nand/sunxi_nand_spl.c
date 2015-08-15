@@ -5,9 +5,10 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
+#include <asm/arch/clock.h>
+#include <asm/io.h>
 #include <common.h>
 #include <config.h>
-#include <asm/io.h>
 #include <nand.h>
 
 /* registers */
@@ -330,4 +331,16 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 	return ecc_errors ? -1 : 0;
 }
 
-void nand_deselect(void) {}
+void nand_deselect(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	clrbits_le32(&ccm->ahb_gate0, (CLK_GATE_OPEN << AHB_GATE_OFFSET_NAND0));
+#ifdef CONFIG_MACH_SUN9I
+	clrbits_le32(&ccm->ahb_gate1, (1 << AHB_GATE_OFFSET_DMA));
+#else
+	clrbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_DMA));
+#endif
+	clrbits_le32(&ccm->nand0_clk_cfg, CCM_NAND_CTRL_ENABLE | AHB_DIV_1);
+}
