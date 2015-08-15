@@ -153,6 +153,8 @@ void nand_init(void)
 {
 	uint32_t val;
 
+	board_nand_init();
+
 	val = readl(SUNXI_NFC_BASE + NFC_CTL);
 	/* enable and reset CTL */
 	writel(val | NFC_CTL_EN | NFC_CTL_RESET,

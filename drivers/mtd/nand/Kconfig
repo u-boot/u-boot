@@ -95,6 +95,7 @@ config SPL_NAND_DENALI
 config SPL_NAND_SUNXI
 	bool "Support for NAND on Allwinner A20 in SPL"
 	depends on MACH_SUN7I
+	select SYS_NAND_SELF_INIT
 	---help---
 	Enable support for NAND. This option allows SPL to read from
 	sunxi NAND using DMA transfers.
