@@ -706,10 +706,11 @@ int inject_region(char *image, int size, int region_type, char *region_fname)
  *			0xffffffff so use an address relative to that. For an
  *			8MB ROM the start address is 0xfff80000.
  * @write_fname:	Filename to add to the image
+ * @offset_uboot_top:	Offset of the top of U-Boot
  * @return number of bytes written if OK, -ve on error
  */
 static int write_data(char *image, int size, unsigned int addr,
-		      const char *write_fname)
+		      const char *write_fname, int offset_uboot_top)
 {
 	int write_fd, write_size;
 	int offset;
@@ -719,6 +720,14 @@ static int write_data(char *image, int size, unsigned int addr,
 		return write_fd;
 
 	offset = (uint32_t)(addr + size);
+	if (offset_uboot_top && offset_uboot_top >= offset) {
+		fprintf(stderr, "U-Boot image overlaps with region '%s'\n",
+			write_fname);
+		fprintf(stderr,
+			"U-Boot finishes at offset %x, file starts at %x\n",
+			offset_uboot_top, offset);
+		return -EXDEV;
+	}
 	debug("Writing %s to offset %#x\n", write_fname, offset);
 
 	if (offset < 0 || offset + write_size > size) {
@@ -756,24 +765,23 @@ static int write_uboot(char *image, int size, struct input_file *uboot,
 {
 	const void *blob;
 	const char *data;
-	int uboot_size;
+	int uboot_size, fdt_size;
 	uint32_t *ptr;
 	int data_size;
 	int offset;
 	int node;
-	int ret;
 
-	uboot_size = write_data(image, size, uboot->addr, uboot->fname);
+	uboot_size = write_data(image, size, uboot->addr, uboot->fname, 0);
 	if (uboot_size < 0)
 		return uboot_size;
 	fdt->addr = uboot->addr + uboot_size;
 	debug("U-Boot size %#x, FDT at %#x\n", uboot_size, fdt->addr);
-	ret = write_data(image, size, fdt->addr, fdt->fname);
-	if (ret < 0)
-		return ret;
+	fdt_size = write_data(image, size, fdt->addr, fdt->fname, 0);
+	if (fdt_size < 0)
+		return fdt_size;
+	blob = (void *)image + (uint32_t)(fdt->addr + size);
 
 	if (ucode_ptr) {
-		blob = (void *)image + (uint32_t)(fdt->addr + size);
 		debug("DTB at %lx\n", (char *)blob - image);
 		node = fdt_node_offset_by_compatible(blob, 0,
 						     "intel,microcode");
@@ -796,7 +804,7 @@ static int write_uboot(char *image, int size, struct input_file *uboot,
 		      ucode_ptr, ptr[0], ptr[1]);
 	}
 
-	return 0;
+	return ((char *)blob + fdt_size) - image;
 }
 
 static void print_version(void)
@@ -1113,12 +1121,14 @@ int main(int argc, char *argv[])
 	}
 
 	if (mode_write_descriptor)
-		ret = write_data(image, size, -size, desc_fname);
+		ret = write_data(image, size, -size, desc_fname, 0);
 
 	if (mode_inject)
 		ret = inject_region(image, size, region_type, inject_fname);
 
 	if (mode_write) {
+		int offset_uboot_top = 0;
+
 		for (wr_idx = 0; wr_idx < wr_num; wr_idx++) {
 			ifile = &input_file[wr_idx];
 			if (ifile->type == IF_fdt) {
@@ -1126,9 +1136,10 @@ int main(int argc, char *argv[])
 			} else if (ifile->type == IF_uboot) {
 				ret = write_uboot(image, size, ifile, fdt,
 						  ucode_ptr);
+				offset_uboot_top = ret;
 			} else {
 				ret = write_data(image, size, ifile->addr,
-					 ifile->fname);
+					 ifile->fname, offset_uboot_top);
 			}
 			if (ret < 0)
 				break;
