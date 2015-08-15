@@ -42,6 +42,8 @@
 #define NFC_CTL_EN                 (1 << 0)
 #define NFC_CTL_RESET              (1 << 1)
 #define NFC_CTL_RAM_METHOD         (1 << 14)
+#define NFC_CTL_PAGE_SIZE_MASK     (0xf << 8)
+#define NFC_CTL_PAGE_SIZE(a)       ((fls(a) - 11) << 8)
 
 
 #define NFC_ECC_EN                 (1 << 0)
@@ -293,6 +295,9 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 {
 	void *current_dest;
 	uint32_t ecc_errors = 0;
+
+	clrsetbits_le32(SUNXI_NFC_BASE + NFC_CTL, NFC_CTL_PAGE_SIZE_MASK,
+			NFC_CTL_PAGE_SIZE(CONFIG_NAND_SUNXI_SPL_PAGE_SIZE));
 
 	for (current_dest = dest;
 			current_dest < (dest + size);
