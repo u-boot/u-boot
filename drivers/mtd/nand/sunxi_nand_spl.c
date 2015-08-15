@@ -181,60 +181,26 @@ static void nand_read_page(unsigned int real_addr, dma_addr_t dst,
 			   int syndrome, uint32_t *ecc_errors)
 {
 	uint32_t val;
-	int ecc_off = 0;
+	int i, ecc_off = 0;
 	uint16_t ecc_mode = 0;
 	uint16_t rand_seed;
 	uint32_t page;
 	uint16_t column;
 	uint32_t oob_offset;
+	static const u8 strengths[] = { 16, 24, 28, 32, 40, 48, 56, 60, 64 };
 
-	switch (CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH) {
-	case 16:
-		ecc_mode = 0;
-		ecc_off = 0x20;
-		break;
-	case 24:
-		ecc_mode = 1;
-		ecc_off = 0x2e;
-		break;
-	case 28:
-		ecc_mode = 2;
-		ecc_off = 0x32;
-		break;
-	case 32:
-		ecc_mode = 3;
-		ecc_off = 0x3c;
-		break;
-	case 40:
-		ecc_mode = 4;
-		ecc_off = 0x4a;
-		break;
-	case 48:
-		ecc_mode = 4;
-		ecc_off = 0x52;
-		break;
-	case 56:
-		ecc_mode = 4;
-		ecc_off = 0x60;
-		break;
-	case 60:
-		ecc_mode = 4;
-		ecc_off = 0x0;
-		break;
-	case 64:
-		ecc_mode = 4;
-		ecc_off = 0x0;
-		break;
-	default:
-		ecc_mode = 0;
-		ecc_off = 0;
+	for (i = 0; i < ARRAY_SIZE(strengths); i++) {
+		if (CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH == strengths[i]) {
+			ecc_mode = i;
+			break;
+		}
 	}
 
-	if (ecc_off == 0) {
-		printf("Unsupported ECC strength (%d)!\n",
-		       CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH);
-		return;
-	}
+	/* HW ECC always request ECC bytes for 1024 bytes blocks */
+	ecc_off = DIV_ROUND_UP(CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH * fls(8 * 1024), 8);
+	/* HW ECC always work with even numbers of ECC bytes */
+	ecc_off += (ecc_off & 1);
+	ecc_off += 4; /* prepad */
 
 	page = real_addr / CONFIG_NAND_SUNXI_SPL_PAGE_SIZE;
 	column = real_addr % CONFIG_NAND_SUNXI_SPL_PAGE_SIZE;
