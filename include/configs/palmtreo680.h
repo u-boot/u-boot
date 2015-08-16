@@ -67,7 +67,6 @@
 #define CONFIG_PXA_LCD
 #define CONFIG_ACX544AKN
 #define CONFIG_LCD_LOGO
-#define CONFIG_SYS_LCD_PXA_NO_L_BIAS /* don't configure GPIO77 as L_BIAS */
 #define LCD_BPP LCD_COLOR16
 #define CONFIG_FB_ADDR 0x5c000000    /* internal SRAM */
 #define CONFIG_CMD_BMP
