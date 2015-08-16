@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/io.h>
 #include <common.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
