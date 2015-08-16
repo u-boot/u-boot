@@ -425,6 +425,7 @@ config VIDEO_LCD_MODE
 	LCD panel timing details string, leave empty if there is no LCD panel.
 	This is in drivers/video/videomodes.c: video_get_params() format, e.g.
 	x:800,y:480,depth:18,pclk_khz:33000,le:16,ri:209,up:22,lo:22,hs:30,vs:1,sync:0,vmode:0
+	Also see: http://linux-sunxi.org/LCD
 
 config VIDEO_LCD_DCLK_PHASE
 	int "LCD panel display clock phase"
