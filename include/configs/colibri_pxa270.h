@@ -19,6 +19,9 @@
 /* Avoid overwriting factory configuration block */
 #define CONFIG_BOARD_SIZE_LIMIT		0x40000
 
+/* We will never enable dcache because we have to setup MMU first */
+#define CONFIG_SYS_DCACHE_OFF
+
 /*
  * Environment settings
  */
@@ -55,6 +58,16 @@
 #define	CONFIG_CMD_ENV
 #define	CONFIG_CMD_MMC
 #define	CONFIG_CMD_USB
+
+/* LCD support */
+#ifdef CONFIG_LCD
+#define CONFIG_PXA_LCD
+#define CONFIG_PXA_VGA
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CONSOLE_SCROLL_LINES	10
+#define CONFIG_CMD_BMP
+#define CONFIG_LCD_LOGO
+#endif
 
 /*
  * Networking Configuration
