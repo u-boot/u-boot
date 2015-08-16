@@ -21,8 +21,6 @@ config USB_MUSB_SUNXI
 	default y
 	---help---
 	Say y here to enable support for the sunxi OTG / DRC USB controller
-	used on almost all sunxi boards. Note currently u-boot can only have
-	one usb host controller enabled at a time, so enabling this on boards
-	which also use the ehci host controller will result in build errors.
+	used on almost all sunxi boards.
 
 endif
