@@ -414,6 +414,8 @@ struct mx6_mmdc_calibration {
 	/* write delay */
 	u32 p0_mpwrdlctl;
 	u32 p1_mpwrdlctl;
+	/* lpddr2 zq hw calibration */
+	u32 mpzqlp2ctl;
 };
 
 /* configure iomux (pinctl/padctl) */
