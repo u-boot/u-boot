@@ -575,6 +575,10 @@ void do_enable_clocks(u32 const *clk_domains,
 		      u32 const *clk_modules_explicit_en,
 		      u8 wait_for_enable);
 
+void do_disable_clocks(u32 const *clk_domains,
+		       u32 const *clk_modules_disable,
+		       u8 wait_for_disable);
+
 void setup_post_dividers(u32 const base,
 			const struct dpll_params *params);
 u32 omap_ddr_clk(void);
