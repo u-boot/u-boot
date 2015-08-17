@@ -65,6 +65,7 @@ struct zynq_spi_platdata {
 /* zynq spi priv */
 struct zynq_spi_priv {
 	struct zynq_spi_regs *regs;
+	u8 cs;
 	u8 mode;
 	u8 fifo_depth;
 	u32 freq;		/* required frequency */
@@ -132,7 +133,7 @@ static int zynq_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static void spi_cs_activate(struct udevice *dev, uint cs)
+static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
@@ -147,7 +148,7 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 	 * xx01	- cs1
 	 * x011 - cs2
 	 */
-	cr |= (~(0x1 << cs) << ZYNQ_SPI_CR_SS_SHIFT) & ZYNQ_SPI_CR_CS_MASK;
+	cr |= (~(1 << priv->cs) << ZYNQ_SPI_CR_SS_SHIFT) & ZYNQ_SPI_CR_CS_MASK;
 	writel(cr, &regs->cr);
 }
 
@@ -203,8 +204,9 @@ static int zynq_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		return -1;
 	}
 
+	priv->cs = slave_plat->cs;
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(dev, slave_plat->cs);
+		spi_cs_activate(dev);
 
 	while (rx_len > 0) {
 		/* Write the data into TX FIFO - tx threshold is fifo_depth */
