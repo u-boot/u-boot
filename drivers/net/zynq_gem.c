@@ -432,8 +432,6 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_STARTTX_MASK);
 
 	/* Read TX BD status */
-	if (priv->tx_bd->status & ZYNQ_GEM_TXBUF_UNDERRUN)
-		printf("TX underrun\n");
 	if (priv->tx_bd->status & ZYNQ_GEM_TXBUF_EXHAUSTED)
 		printf("TX buffers exhausted in mid frame\n");
 
