@@ -23,6 +23,7 @@
 #include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm-generic/errno.h>
 
 #if !defined(CONFIG_PHYLIB)
 # error XILINX_GEM_ETHERNET requires PHYLIB
@@ -85,6 +86,8 @@
 					ZYNQ_GEM_DMACR_RXSIZE | \
 					ZYNQ_GEM_DMACR_TXSIZE | \
 					ZYNQ_GEM_DMACR_RXBUF)
+
+#define ZYNQ_GEM_TSR_DONE		0x00000020 /* Tx done mask */
 
 /* Use MII register 1 (MII status register) to detect PHY */
 #define PHY_DETECT_REG  1
@@ -427,6 +430,33 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	return 0;
 }
 
+static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
+			bool set, unsigned int timeout)
+{
+	u32 val;
+	unsigned long start = get_timer(0);
+
+	while (1) {
+		val = readl(reg);
+
+		if (!set)
+			val = ~val;
+
+		if ((val & mask) == mask)
+			return 0;
+
+		if (get_timer(start) > timeout)
+			break;
+
+		udelay(1);
+	}
+
+	debug("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
+	      func, reg, mask, set);
+
+	return -ETIMEDOUT;
+}
+
 static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 {
 	u32 addr, size;
@@ -467,7 +497,8 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	if (priv->tx_bd->status & ZYNQ_GEM_TXBUF_EXHAUSTED)
 		printf("TX buffers exhausted in mid frame\n");
 
-	return 0;
+	return wait_for_bit(__func__, &regs->txsr, ZYNQ_GEM_TSR_DONE,
+			    true, 20000);
 }
 
 /* Do not check frame_recd flag in rx_status register 0x20 - just poll BD */
