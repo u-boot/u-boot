@@ -565,6 +565,47 @@ void enable_basic_uboot_clocks(void)
 			 1);
 }
 
+#ifdef CONFIG_TI_EDMA3
+void enable_edma3_clocks(void)
+{
+	u32 const clk_domains_edma3[] = {
+		0
+	};
+
+	u32 const clk_modules_hw_auto_edma3[] = {
+		(*prcm)->cm_l3main1_tptc1_clkctrl,
+		(*prcm)->cm_l3main1_tptc2_clkctrl,
+		0
+	};
+
+	u32 const clk_modules_explicit_en_edma3[] = {
+		0
+	};
+
+	do_enable_clocks(clk_domains_edma3,
+			 clk_modules_hw_auto_edma3,
+			 clk_modules_explicit_en_edma3,
+			 1);
+}
+
+void disable_edma3_clocks(void)
+{
+	u32 const clk_domains_edma3[] = {
+		0
+	};
+
+	u32 const clk_modules_disable_edma3[] = {
+		(*prcm)->cm_l3main1_tptc1_clkctrl,
+		(*prcm)->cm_l3main1_tptc2_clkctrl,
+		0
+	};
+
+	do_disable_clocks(clk_domains_edma3,
+			  clk_modules_disable_edma3,
+			  1);
+}
+#endif
+
 const struct ctrl_ioregs ioregs_omap5430 = {
 	.ctrl_ddrch = DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
 	.ctrl_lpddr2ch = DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,

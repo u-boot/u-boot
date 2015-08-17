@@ -989,4 +989,8 @@ struct prcm_regs const dra7xx_prcm = {
 
 	.prm_abbldo_mpu_setup			= 0x4AE07DDC,
 	.prm_abbldo_mpu_ctrl			= 0x4AE07DE0,
+
+	/*l3main1 edma*/
+	.cm_l3main1_tptc1_clkctrl               = 0x4a008778,
+	.cm_l3main1_tptc2_clkctrl               = 0x4a008780,
 };
