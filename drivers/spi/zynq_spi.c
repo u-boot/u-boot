@@ -32,6 +32,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_SPI_IXR_ALL_MASK		0x7F		/* All IXR bits */
 #define ZYNQ_SPI_ENR_SPI_EN_MASK	(1 << 0)	/* SPI Enable */
 
+#define ZYNQ_SPI_CR_BAUD_MAX		8	/* Baud rate divisor max val */
+#define ZYNQ_SPI_CR_BAUD_SHIFT		3	/* Baud rate divisor shift */
+#define ZYNQ_SPI_CR_SS_SHIFT		10	/* Slave select shift */
+
 #define ZYNQ_SPI_FIFO_DEPTH		128
 #ifndef CONFIG_SYS_ZYNQ_SPI_WAIT
 #define CONFIG_SYS_ZYNQ_SPI_WAIT	(CONFIG_SYS_HZ/100)	/* 10 ms */
@@ -143,7 +147,7 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 	 * xx01	- cs1
 	 * x011 - cs2
 	 */
-	cr |= (~(0x1 << cs) << 10) & ZYNQ_SPI_CR_CS_MASK;
+	cr |= (~(0x1 << cs) << ZYNQ_SPI_CR_SS_SHIFT) & ZYNQ_SPI_CR_CS_MASK;
 	writel(cr, &regs->cr);
 }
 
@@ -260,14 +264,14 @@ static int zynq_spi_set_speed(struct udevice *bus, uint speed)
 		/* Set baudrate x8, if the freq is 0 */
 		baud_rate_val = 0x2;
 	} else if (plat->speed_hz != speed) {
-		while ((baud_rate_val < 8) &&
+		while ((baud_rate_val < ZYNQ_SPI_CR_BAUD_MAX) &&
 				((plat->frequency /
 				(2 << baud_rate_val)) > speed))
 			baud_rate_val++;
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
 	confr &= ~ZYNQ_SPI_CR_BRD_MASK;
-	confr |= (baud_rate_val << 3);
+	confr |= (baud_rate_val << ZYNQ_SPI_CR_BAUD_SHIFT);
 
 	writel(confr, &regs->cr);
 	priv->freq = speed;
