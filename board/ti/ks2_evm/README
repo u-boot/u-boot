@@ -56,10 +56,11 @@ configs/k2l_evm_defconfig
 Supported boot modes:
  - SPI NOR boot
  - AEMIF NAND boot
+ - UART boot
 
 Supported image formats:
  - u-boot.bin: for loading and running u-boot.bin through Texas instruments
-               code composure studio (CCS)
+               code composure studio (CCS) and for UART boot.
  - u-boot-spi.gph: gpimage for programming SPI NOR flash for SPI NOR boot
  - MLO: gpimage for programming AEMIF NAND flash for NAND boot
 
@@ -68,17 +69,9 @@ Build instructions:
 Examples for k2hk, for k2e and k2l just replace k2hk prefix accordingly.
 Don't forget to add ARCH=arm and CROSS_COMPILE.
 
-To build u-boot.bin
+To build u-boot.bin, u-boot-spi.gph, MLO:
   >make k2hk_evm_defconfig
-  >make u-boot.bin
-
-To build u-boot-spi.gph
-  >make k2hk_evm_defconfig
-  >make u-boot-spi.gph
-
-To build MLO
-  >make k2hk_evm_defconfig
-  >make MLO
+  >make
 
 Load and Run U-Boot on keystone EVMs using CCS
 =========================================
@@ -168,3 +161,14 @@ instructions:
    to "ARM NAND Boot mode" as per instruction at
    http://processors.wiki.ti.com/index.php/*_Hardware_Setup.
 6. Power ON the EVM. The EVM now boots with u-boot image on the NAND flash.
+
+Load and Run U-Boot on keystone EVMs using UART download
+========================================================
+
+Open BMC and regular UART terminals.
+
+1. On the regular UART port start xmodem transfer of the u-boot.bin
+2. Using BMC terminal set the ARM-UART bootmode and reboot the EVM
+   BMC> bootmode #4
+   MBC> reboot
+3. When xmodem is complete you should see the u-boot starts on the UART port
