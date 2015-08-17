@@ -288,7 +288,8 @@ void mx6sdl_dram_iocfg(unsigned width,
 #define MR(val, ba, cmd, cs1) \
 	((val << 16) | (1 << 15) | (cmd << 4) | (cs1 << 3) | ba)
 #define MMDC1(entry, value) do {					  \
-	if (!is_cpu_type(MXC_CPU_MX6SX) && !is_cpu_type(MXC_CPU_MX6UL))	  \
+	if (!is_cpu_type(MXC_CPU_MX6SX) && !is_cpu_type(MXC_CPU_MX6UL) && \
+	    !is_cpu_type(MXC_CPU_MX6SL))				  \
 		mmdc1->entry = value;					  \
 	} while (0)
 
@@ -312,7 +313,8 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	u16 mem_speed = ddr3_cfg->mem_speed;
 
 	mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
-	if (!is_cpu_type(MXC_CPU_MX6SX) && !is_cpu_type(MXC_CPU_MX6UL))
+	if (!is_cpu_type(MXC_CPU_MX6SX) && !is_cpu_type(MXC_CPU_MX6UL) &&
+	    !is_cpu_type(MXC_CPU_MX6SL))
 		mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
 
 	/* Limit mem_speed for MX6D/MX6Q */
