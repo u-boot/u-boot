@@ -12,12 +12,14 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
+#include <asm/arch/ls102xa_devdis.h>
 #include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
 #include <spl.h>
+#include <fsl_devdis.h>
 
 #include "../common/sleep.h"
 #include "../common/qixis.h"
@@ -531,6 +533,9 @@ int misc_init_r(void)
 	else if (hwconfig("sdhc"))
 		config_board_mux(MUX_TYPE_SDHC);
 
+#ifdef CONFIG_FSL_DEVICE_DISABLE
+	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
+#endif
 #ifdef CONFIG_FSL_CAAM
 	return sec_init();
 #endif

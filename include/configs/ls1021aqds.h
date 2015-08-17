@@ -566,7 +566,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_TIMER_CLK_FREQ		12500000
 
 #define CONFIG_HWCONFIG
-#define HWCONFIG_BUFFER_SIZE		128
+#define HWCONFIG_BUFFER_SIZE		256
+
+#define CONFIG_FSL_DEVICE_DISABLE
 
 #define CONFIG_BOOTDELAY		3
 
