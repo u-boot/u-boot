@@ -64,6 +64,11 @@ config TARGET_PM9G45
 	bool "Ronetix pm9g45 board"
 	select CPU_ARM926EJS
 
+config TARGET_PICOSAM9G45
+	bool "Mini-box picosam9g45 board"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
 config TARGET_AT91SAM9N12EK
 	bool "Atmel AT91SAM9N12-EK board"
 	select CPU_ARM926EJS
@@ -155,6 +160,7 @@ source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
 source "board/esd/otc570/Kconfig"
 source "board/eukrea/cpu9260/Kconfig"
+source "board/mini-box/picosam9g45/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"
