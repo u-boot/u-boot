@@ -377,6 +377,21 @@ struct mx6_ddr3_cfg {
 	u8 SRT;		/* self-refresh temperature: 0=normal, 1=extended */
 };
 
+/* Device Information: Varies per LPDDR2 part number and speed grade */
+struct mx6_lpddr2_cfg {
+	u16 mem_speed;	/* ie 800 for LPDDR2-800 */
+	u8 density;	/* chip density (Gb) (1,2,4,8) */
+	u8 width;	/* bus width (bits) (4,8,16) */
+	u8 banks;	/* number of banks */
+	u8 rowaddr;	/* row address bits (11-16)*/
+	u8 coladdr;	/* col address bits (9-12) */
+	u16 trcd_lp;
+	u16 trppb_lp;
+	u16 trpab_lp;
+	u16 trcmin;	/* tRC min (ns*100) */
+	u16 trasmin;	/* tRAS min (ns*100) */
+};
+
 /* System Information: Varies per board design, layout, and term choices */
 struct mx6_ddr_sysinfo {
 	u8 dsize;	/* size of bus (in dwords: 0=16bit,1=32bit,2=64bit) */
