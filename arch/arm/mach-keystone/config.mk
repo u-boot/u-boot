@@ -5,6 +5,10 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
+ifndef CONFIG_SPL_BUILD
+ALL-y += MLO
+endif
+
 MKIMAGEFLAGS_u-boot-spl.gph = -A $(ARCH) -T gpimage -C none \
 	-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n SPL
 spl/u-boot-spl.gph: spl/u-boot-spl.bin FORCE
