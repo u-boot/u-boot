@@ -46,6 +46,7 @@
 /* Wrap bit, last descriptor */
 #define ZYNQ_GEM_TXBUF_WRAP_MASK	0x40000000
 #define ZYNQ_GEM_TXBUF_LAST_MASK	0x00008000 /* Last buffer */
+#define ZYNQ_GEM_TXBUF_USED_MASK	0x80000000 /* Used by Hw */
 
 #define ZYNQ_GEM_NWCTRL_TXEN_MASK	0x00000008 /* Enable transmit */
 #define ZYNQ_GEM_NWCTRL_RXEN_MASK	0x00000004 /* Enable receive */
@@ -405,14 +406,19 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	u32 addr, size;
 	struct zynq_gem_priv *priv = dev->priv;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
+	struct emac_bd *current_bd = &priv->tx_bd[1];
 
 	/* Setup Tx BD */
 	memset(priv->tx_bd, 0, sizeof(struct emac_bd));
 
 	priv->tx_bd->addr = (ulong)ptr;
 	priv->tx_bd->status = (len & ZYNQ_GEM_TXBUF_FRMLEN_MASK) |
-			       ZYNQ_GEM_TXBUF_LAST_MASK |
-			       ZYNQ_GEM_TXBUF_WRAP_MASK;
+			       ZYNQ_GEM_TXBUF_LAST_MASK;
+	/* Dummy descriptor to mark it as the last in descriptor chain */
+	current_bd->addr = 0x0;
+	current_bd->status = ZYNQ_GEM_TXBUF_WRAP_MASK |
+			     ZYNQ_GEM_TXBUF_LAST_MASK|
+			     ZYNQ_GEM_TXBUF_USED_MASK;
 
 	/* setup BD */
 	writel((ulong)priv->tx_bd, &regs->txqbase);
