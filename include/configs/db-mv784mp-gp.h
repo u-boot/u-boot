@@ -17,7 +17,12 @@
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
-#define	CONFIG_SYS_TEXT_BASE	0x04000000
+/*
+ * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
+ * for DDR ECC byte filling in the SPL before loading the main
+ * U-Boot into it.
+ */
+#define	CONFIG_SYS_TEXT_BASE	0x00800000
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*
@@ -28,11 +33,13 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
+#define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_TFTPPUT
 #define CONFIG_CMD_TIME
+#define CONFIG_CMD_USB
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -40,6 +47,13 @@
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 #define CONFIG_SYS_I2C_SLAVE		0x0
 #define CONFIG_SYS_I2C_SPEED		100000
+
+/* USB/EHCI configuration */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_EHCI_MARVELL
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		1000000
@@ -89,6 +103,13 @@
 #define CONFIG_DOS_PARTITION
 #endif /* CONFIG_CMD_IDE */
 
+/* PCIe support */
+#define CONFIG_PCI
+#define CONFIG_PCI_MVEBU
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_E1000	/* enable Intel E1000 support for testing */
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
@@ -136,6 +157,7 @@
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
 #define CONFIG_SYS_MVEBU_DDR_AXP

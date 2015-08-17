@@ -6,13 +6,12 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define BIT(nr)				(1UL << (nr))
 
 #define ETH_PHY_CTRL_REG		0
 #define ETH_PHY_CTRL_POWER_DOWN_BIT	11
@@ -80,6 +79,12 @@ int checkboard(void)
 	puts("Board: Marvell DB-MV784MP-GP\n");
 
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in controller(s) come first */
+	return pci_eth_init(bis);
 }
 
 #ifdef CONFIG_RESET_PHY_R

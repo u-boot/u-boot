@@ -21,6 +21,7 @@ obj-$(CONFIG_PCI_GT64120) += pci_gt64120.o
 obj-$(CONFIG_PCI_MSC01) += pci_msc01.o
 obj-$(CONFIG_PCIE_IMX) += pcie_imx.o
 obj-$(CONFIG_FTPCI100) += pci_ftpci100.o
+obj-$(CONFIG_PCI_MVEBU) += pci_mvebu.o
 obj-$(CONFIG_SH4_PCI) += pci_sh4.o
 obj-$(CONFIG_SH7751_PCI) +=pci_sh7751.o
 obj-$(CONFIG_SH7780_PCI) +=pci_sh7780.o

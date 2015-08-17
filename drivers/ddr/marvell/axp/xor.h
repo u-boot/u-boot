@@ -60,6 +60,7 @@ struct crc_dma_desc {
 	u32 src_addr1;		/* Mode: Source Block address pointer */
 } __packed;
 
+void mv_xor_hal_init(u32 chan_num);
 int mv_xor_state_get(u32 chan);
 void mv_sys_xor_init(MV_DRAM_INFO *dram_info);
 void mv_sys_xor_finish(void);

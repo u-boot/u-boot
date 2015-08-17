@@ -72,7 +72,6 @@ u32 armd1_sdram_size(int chip_sel)
 	}
 }
 
-#ifndef CONFIG_SYS_BOARD_DRAM_INIT
 int dram_init(void)
 {
 	int i;
@@ -113,4 +112,3 @@ void dram_init_banksize(void)
 {
 	dram_init();
 }
-#endif /* CONFIG_SYS_BOARD_DRAM_INIT */

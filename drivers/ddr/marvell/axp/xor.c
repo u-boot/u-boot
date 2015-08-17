@@ -18,7 +18,6 @@ static u32 xor_regs_ctrl_backup;
 static u32 xor_regs_base_backup[MAX_CS];
 static u32 xor_regs_mask_backup[MAX_CS];
 
-static void mv_xor_hal_init(u32 chan_num);
 static int mv_xor_cmd_set(u32 chan, int command);
 static int mv_xor_ctrl_set(u32 chan, u32 xor_ctrl);
 
@@ -110,7 +109,7 @@ void mv_sys_xor_finish(void)
  * RETURN:
  *       MV_BAD_PARAM if parameters to function invalid, MV_OK otherwise.
  */
-static void mv_xor_hal_init(u32 chan_num)
+void mv_xor_hal_init(u32 chan_num)
 {
 	u32 i;
 
