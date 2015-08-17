@@ -30,6 +30,11 @@
 #endif	/* CONFIG_MX6Q */
 #else
 
+enum {
+	DDR_TYPE_DDR3,
+	DDR_TYPE_LPDDR2,
+};
+
 /* MMDC P0/P1 Registers */
 struct mmdc_p_regs {
 	u32 mdctl;
@@ -387,6 +392,7 @@ struct mx6_ddr_sysinfo {
 	u8 rst_to_cke;	/* Time from SDE enable to CKE rise */
 	u8 sde_to_rst;	/* Time from SDE enable until DDR reset# is high */
 	u8 pd_fast_exit;/* enable precharge powerdown fast-exit */
+	u8 ddr_type;	/* DDR type: DDR3(0) or LPDDR2(1) */
 };
 
 /*
