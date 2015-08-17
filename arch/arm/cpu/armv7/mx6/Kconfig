@@ -91,6 +91,7 @@ config TARGET_MX6SABRESD
 config TARGET_MX6SLEVK
 	bool "mx6slevk"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_MX6SXSABRESD
 	bool "mx6sxsabresd"
