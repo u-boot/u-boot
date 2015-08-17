@@ -145,7 +145,7 @@ struct emac_bd {
  */
 #define BD_SPACE	0x100000
 /* BD separation space */
-#define BD_SEPRN_SPACE	64
+#define BD_SEPRN_SPACE	(RX_BUF * sizeof(struct emac_bd))
 
 /* Initialized, rxbd_current, rx_first_buf must be 0 after init */
 struct zynq_gem_priv {
