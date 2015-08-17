@@ -40,7 +40,7 @@
 
 /* k2l DEV supports 800, 1000, 1200 MHz */
 #define DEV_SUPPORTED_SPEEDS	0x383
-/* k2l ARM supportd 800, 1000, 1200, MHz */
-#define ARM_SUPPORTED_SPEEDS	0x383
+/* k2l ARM supportd 800, 1000, 1200, 1350, 1400 MHz */
+#define ARM_SUPPORTED_SPEEDS	0x3ef
 
 #endif

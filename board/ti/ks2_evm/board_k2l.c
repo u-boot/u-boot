@@ -25,7 +25,7 @@ unsigned int external_clk[ext_clk_count] = {
 static struct pll_init_data core_pll_config[NUM_SPDS] = {
 	[SPD800]	= CORE_PLL_799,
 	[SPD1000]	= CORE_PLL_1000,
-	[SPD800]	= CORE_PLL_1198,
+	[SPD1200]	= CORE_PLL_1198,
 };
 
 s16 divn_val[16] = {
