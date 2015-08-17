@@ -407,9 +407,6 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	struct zynq_gem_priv *priv = dev->priv;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 
-	/* setup BD */
-	writel((u32)priv->tx_bd, &regs->txqbase);
-
 	/* Setup Tx BD */
 	memset(priv->tx_bd, 0, sizeof(struct emac_bd));
 
@@ -417,6 +414,9 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	priv->tx_bd->status = (len & ZYNQ_GEM_TXBUF_FRMLEN_MASK) |
 			       ZYNQ_GEM_TXBUF_LAST_MASK |
 			       ZYNQ_GEM_TXBUF_WRAP_MASK;
+
+	/* setup BD */
+	writel((u32)priv->tx_bd, &regs->txqbase);
 
 	addr = (u32) ptr;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
