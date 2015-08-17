@@ -23,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_SPI_CR_MSA_MASK		(1 << 15)	/* Manual start enb */
 #define ZYNQ_SPI_CR_MCS_MASK		(1 << 14)	/* Manual chip select */
 #define ZYNQ_SPI_CR_CS_MASK		(0xF << 10)	/* Chip select */
-#define ZYNQ_SPI_CR_BRD_MASK		(0x7 << 3)	/* Baud rate div */
+#define ZYNQ_SPI_CR_BAUD_MASK		(0x7 << 3)	/* Baud rate div */
 #define ZYNQ_SPI_CR_CPHA_MASK		(1 << 2)	/* Clock phase */
 #define ZYNQ_SPI_CR_CPOL_MASK		(1 << 1)	/* Clock polarity */
 #define ZYNQ_SPI_CR_MSTREN_MASK		(1 << 0)	/* Mode select */
@@ -270,7 +270,7 @@ static int zynq_spi_set_speed(struct udevice *bus, uint speed)
 			baud_rate_val++;
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
-	confr &= ~ZYNQ_SPI_CR_BRD_MASK;
+	confr &= ~ZYNQ_SPI_CR_BAUD_MASK;
 	confr |= (baud_rate_val << ZYNQ_SPI_CR_BAUD_SHIFT);
 
 	writel(confr, &regs->cr);
