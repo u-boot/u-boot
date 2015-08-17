@@ -115,6 +115,61 @@ void mx6ul_dram_iocfg(unsigned width,
 }
 #endif
 
+#if defined(CONFIG_MX6SL)
+void mx6sl_dram_iocfg(unsigned width,
+		      const struct mx6sl_iomux_ddr_regs *ddr,
+		      const struct mx6sl_iomux_grp_regs *grp)
+{
+	struct mx6sl_iomux_ddr_regs *mx6_ddr_iomux;
+	struct mx6sl_iomux_grp_regs *mx6_grp_iomux;
+
+	mx6_ddr_iomux = (struct mx6sl_iomux_ddr_regs *)MX6SL_IOM_DDR_BASE;
+	mx6_grp_iomux = (struct mx6sl_iomux_grp_regs *)MX6SL_IOM_GRP_BASE;
+
+	/* DDR IO TYPE */
+	mx6_grp_iomux->grp_ddr_type = grp->grp_ddr_type;
+	mx6_grp_iomux->grp_ddrpke = grp->grp_ddrpke;
+
+	/* CLOCK */
+	mx6_ddr_iomux->dram_sdclk_0 = ddr->dram_sdclk_0;
+
+	/* ADDRESS */
+	mx6_ddr_iomux->dram_cas = ddr->dram_cas;
+	mx6_ddr_iomux->dram_ras = ddr->dram_ras;
+	mx6_grp_iomux->grp_addds = grp->grp_addds;
+
+	/* Control */
+	mx6_ddr_iomux->dram_reset = ddr->dram_reset;
+	mx6_ddr_iomux->dram_sdba2 = ddr->dram_sdba2;
+	mx6_grp_iomux->grp_ctlds = grp->grp_ctlds;
+
+	/* Data Strobes */
+	mx6_grp_iomux->grp_ddrmode_ctl = grp->grp_ddrmode_ctl;
+	mx6_ddr_iomux->dram_sdqs0 = ddr->dram_sdqs0;
+	mx6_ddr_iomux->dram_sdqs1 = ddr->dram_sdqs1;
+	if (width >= 32) {
+		mx6_ddr_iomux->dram_sdqs2 = ddr->dram_sdqs2;
+		mx6_ddr_iomux->dram_sdqs3 = ddr->dram_sdqs3;
+	}
+
+	/* Data */
+	mx6_grp_iomux->grp_ddrmode = grp->grp_ddrmode;
+	mx6_grp_iomux->grp_b0ds = grp->grp_b0ds;
+	mx6_grp_iomux->grp_b1ds = grp->grp_b1ds;
+	if (width >= 32) {
+		mx6_grp_iomux->grp_b2ds = grp->grp_b2ds;
+		mx6_grp_iomux->grp_b3ds = grp->grp_b3ds;
+	}
+
+	mx6_ddr_iomux->dram_dqm0 = ddr->dram_dqm0;
+	mx6_ddr_iomux->dram_dqm1 = ddr->dram_dqm1;
+	if (width >= 32) {
+		mx6_ddr_iomux->dram_dqm2 = ddr->dram_dqm2;
+		mx6_ddr_iomux->dram_dqm3 = ddr->dram_dqm3;
+	}
+}
+#endif
+
 #if defined(CONFIG_MX6QDL) || defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
 /* Configure MX6DQ mmdc iomux */
 void mx6dq_dram_iocfg(unsigned width,
