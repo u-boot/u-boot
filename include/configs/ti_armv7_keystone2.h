@@ -20,7 +20,7 @@
 /* SoC Configuration */
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_ARCH_TIMER
-#define CONFIG_SYS_TEXT_BASE		0x0c001000
+#define CONFIG_SYS_TEXT_BASE		0x0c000000
 #define CONFIG_SPL_TARGET		"u-boot-spi.gph"
 #define CONFIG_SYS_DCACHE_OFF
 
@@ -29,7 +29,7 @@
 #define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000
 #define CONFIG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
 #define CONFIG_STACKSIZE		(512 << 10)     /* 512 KiB */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - \
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SPL_TEXT_BASE - \
 					GENERATED_GBL_DATA_SIZE)
 
 /* SPL SPI Loader Configuration */
