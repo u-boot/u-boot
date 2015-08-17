@@ -444,7 +444,7 @@ void mx6sl_dram_iocfg(unsigned width,
 /* configure mx6 mmdc registers */
 void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,
 		  const struct mx6_mmdc_calibration *,
-		  const struct mx6_ddr3_cfg *);
+		  const void *);
 
 #endif /* CONFIG_SPL_BUILD */
 

@@ -348,7 +348,7 @@ void mx6sdl_dram_iocfg(unsigned width,
 		mmdc1->entry = value;					  \
 	} while (0)
 
-void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
+void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		  const struct mx6_mmdc_calibration *calib,
 		  const struct mx6_ddr3_cfg *ddr3_cfg)
 {
@@ -654,4 +654,16 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 
 	/* wait for auto-ZQ calibration to complete */
 	mdelay(1);
+}
+
+void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
+		  const struct mx6_mmdc_calibration *calib,
+		  const void *ddr_cfg)
+{
+	if (sysinfo->ddr_type == DDR_TYPE_DDR3) {
+		mx6_ddr3_cfg(sysinfo, calib, ddr_cfg);
+	} else {
+		puts("Unsupported ddr type\n");
+		hang();
+	}
 }
