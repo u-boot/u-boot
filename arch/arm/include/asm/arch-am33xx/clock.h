@@ -112,5 +112,6 @@ void do_setup_dpll(const struct dpll_regs *, const struct dpll_params *);
 void prcm_init(void);
 void enable_basic_clocks(void);
 void do_enable_clocks(u32 *const *, u32 *const *, u8);
+void do_disable_clocks(u32 *const *, u32 *const *, u8);
 
 #endif
