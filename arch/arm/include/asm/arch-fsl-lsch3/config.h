@@ -19,6 +19,7 @@
 
 #define CONFIG_MP
 #define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000	/* initial RAM */
+#define CONFIG_SYS_FSL_OCRAM_SIZE	0x00200000	/* 2M */
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 

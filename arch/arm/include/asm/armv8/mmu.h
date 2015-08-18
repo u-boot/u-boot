@@ -65,6 +65,7 @@
 /*
  * Section
  */
+#define PMD_SECT_NON_SHARE	(0 << 8)
 #define PMD_SECT_OUTER_SHARE	(2 << 8)
 #define PMD_SECT_INNER_SHARE	(3 << 8)
 #define PMD_SECT_AF		(1 << 10)
@@ -110,8 +111,13 @@
 				TCR_T0SZ(VA_BITS))
 
 #ifndef __ASSEMBLY__
+
 void set_pgtable_section(u64 *page_table, u64 index,
-			 u64 section, u64 memory_type);
+			 u64 section, u64 memory_type,
+			 u64 share);
+void set_pgtable_table(u64 *page_table, u64 index,
+		       u64 *table_addr);
+
 static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
 {
 	asm volatile("dsb sy");
