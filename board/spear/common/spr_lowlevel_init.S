@@ -14,11 +14,6 @@
  */
 .globl lowlevel_init
 lowlevel_init:
-	/* By default, U-Boot switches CPU to low-vector */
-	/* Revert this as we work in high vector even in U-Boot */
-	mrc	p15, 0, r0, c1, c0, 0
-	orr	r0, r0, #0x00002000
-	mcr	p15, 0, r0, c1, c0, 0
 	mov	pc, lr
 
 /* void setfreq(unsigned int device, unsigned int frequency) */
