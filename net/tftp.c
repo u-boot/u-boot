@@ -19,10 +19,10 @@
 /* Well known TFTP port # */
 #define WELL_KNOWN_PORT	69
 /* Millisecs to timeout for lost pkt */
-#define TIMEOUT		5000UL
+#define TIMEOUT		100UL
 #ifndef	CONFIG_NET_RETRY_COUNT
 /* # of timeouts before giving up */
-# define TIMEOUT_COUNT	10
+# define TIMEOUT_COUNT	1000
 #else
 # define TIMEOUT_COUNT  (CONFIG_NET_RETRY_COUNT * 2)
 #endif
@@ -711,10 +711,10 @@ void tftp_start(enum proto_t protocol)
 	if (ep != NULL)
 		timeout_ms = simple_strtol(ep, NULL, 10);
 
-	if (timeout_ms < 1000) {
-		printf("TFTP timeout (%ld ms) too low, set min = 1000 ms\n",
+	if (timeout_ms < 10) {
+		printf("TFTP timeout (%ld ms) too low, set min = 10 ms\n",
 		       timeout_ms);
-		timeout_ms = 1000;
+		timeout_ms = 10;
 	}
 
 	debug("TFTP blocksize = %i, timeout = %ld ms\n",
