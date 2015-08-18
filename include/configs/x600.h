@@ -2,7 +2,7 @@
  * (C) Copyright 2009
  * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
  *
- * Copyright (C) 2012 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2012, 2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -162,7 +162,8 @@
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
 #define CONFIG_BOOTCOUNT_LIMIT
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0xd2801ff8
+#define CONFIG_SYS_BOOTCOUNT_ADDR		(CONFIG_SRAM_BASE + \
+						 CONFIG_SRAM_SIZE)
 
 #define CONFIG_HOSTNAME				x600
 #define CONFIG_UBI_PART				ubi0
@@ -248,8 +249,11 @@
 #define PHYS_SDRAM_1_MAXSIZE			0x40000000
 
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_ADDR		0xD2800000
-#define CONFIG_SYS_INIT_RAM_SIZE		0x2000
+#define CONFIG_SRAM_BASE			0xd2800000
+/* Preserve the last 2 lwords for the boot-counter */
+#define CONFIG_SRAM_SIZE			((8 << 10) - 0x8)
+#define CONFIG_SYS_INIT_RAM_ADDR		CONFIG_SRAM_BASE
+#define CONFIG_SYS_INIT_RAM_SIZE		CONFIG_SRAM_SIZE
 
 #define CONFIG_SYS_INIT_SP_OFFSET		\
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
@@ -260,10 +264,13 @@
 /*
  * SPL related defines
  */
-#define CONFIG_SPL_TEXT_BASE	0xd2800b00
+#define CONFIG_SPL_TEXT_BASE		0xd2800b00
+#define CONFIG_SPL_MAX_SIZE		(CONFIG_SRAM_SIZE - 0xb00)
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/spear/u-boot-spl.lds"
 
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */

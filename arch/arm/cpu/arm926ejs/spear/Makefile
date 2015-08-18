@@ -10,7 +10,7 @@ obj-y	:= cpu.o \
 	   timer.o
 
 ifdef CONFIG_SPL_BUILD
-obj-y	+= spl.o spl_boot.o
+obj-y	+= spl.o
 obj-$(CONFIG_SPEAR600) += spear600.o
 obj-$(CONFIG_DDR_MT47H64M16) += spr600_mt47h64m16_3_333_cl5_psync.o
 obj-$(CONFIG_DDR_MT47H32M16) += spr600_mt47h32m16_333_cl5_psync.o

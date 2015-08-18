@@ -8,12 +8,14 @@
  */
 
 #include <common.h>
+#include <spl.h>
 #include <version.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_defs.h>
 #include <asm/arch/spr_misc.h>
 #include <asm/arch/spr_syscntl.h>
+#include <linux/mtd/st_smi.h>
 
 static void ddr_clock_init(void)
 {
@@ -205,55 +207,51 @@ int get_socrev(void)
 #endif
 }
 
-void lowlevel_init(void)
+/*
+ * SNOR (Serial NOR flash) related functions
+ */
+static void snor_init(void)
+{
+	struct smi_regs *const smicntl =
+		(struct smi_regs * const)CONFIG_SYS_SMI_BASE;
+
+	/* Setting the fast mode values. SMI working at 166/4 = 41.5 MHz */
+	writel(HOLD1 | FAST_MODE | BANK_EN | DSEL_TIME | PRESCAL4,
+	       &smicntl->smi_cr1);
+}
+
+u32 spl_boot_device(void)
+{
+	u32 mode;
+
+	/* Currently only SNOR is supported as the only */
+	if (snor_boot_selected()) {
+		/* SNOR-SMI initialization */
+		snor_init();
+
+		mode = BOOT_DEVICE_NOR;
+	}
+
+	return mode;
+}
+
+void board_init_f(ulong dummy)
 {
 	struct misc_regs *misc_p = (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
-	const char *u_boot_rev = U_BOOT_VERSION;
 
 	/* Initialize PLLs */
 	sys_init();
 
-	/* Initialize UART */
-	serial_init();
-
-	/* Print U-Boot SPL version string */
-	serial_puts("\nU-Boot SPL ");
-	/* Avoid a second "U-Boot" coming from this string */
-	u_boot_rev = &u_boot_rev[7];
-	serial_puts(u_boot_rev);
-	serial_puts(" (");
-	serial_puts(U_BOOT_DATE);
-	serial_puts(" - ");
-	serial_puts(U_BOOT_TIME);
-	serial_puts(")\n");
-
-#if defined(CONFIG_OS_BOOT)
-	writel(readl(&misc_p->periph1_clken) | PERIPH_UART1,
-			&misc_p->periph1_clken);
-#endif
+	preloader_console_init();
+	arch_cpu_init();
 
 	/* Enable IPs (release reset) */
 	writel(PERIPH_RST_ALL, &misc_p->periph1_rst);
 
 	/* Initialize MPMC */
-	serial_puts("Configure DDR\n");
+	puts("Configure DDR\n");
 	mpmc_init();
+	spear_late_init();
 
-	/* SoC specific initialization */
-	soc_init();
-}
-
-void spear_late_init(void)
-{
-	struct misc_regs *misc_p = (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
-
-	writel(0x80000007, &misc_p->arb_icm_ml1);
-	writel(0x80000007, &misc_p->arb_icm_ml2);
-	writel(0x80000007, &misc_p->arb_icm_ml3);
-	writel(0x80000007, &misc_p->arb_icm_ml4);
-	writel(0x80000007, &misc_p->arb_icm_ml5);
-	writel(0x80000007, &misc_p->arb_icm_ml6);
-	writel(0x80000007, &misc_p->arb_icm_ml7);
-	writel(0x80000007, &misc_p->arb_icm_ml8);
-	writel(0x80000007, &misc_p->arb_icm_ml9);
+	board_init_r(NULL, 0);
 }
