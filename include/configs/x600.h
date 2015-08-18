@@ -30,6 +30,7 @@
 #define CONFIG_SYS_SPL_LEN			CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_UBOOT_BASE			(CONFIG_SYS_FLASH_BASE + \
 						 CONFIG_SYS_SPL_LEN)
+#define CONFIG_SYS_UBOOT_START			CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN			0x60000
 
@@ -98,6 +99,12 @@
 #define CONFIG_FPGA_SPARTAN3
 #define CONFIG_FPGA_COUNT	1
 
+/* USB EHCI options */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_SPEAR
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+
 /*
  * Command support defines
  */
@@ -105,7 +112,9 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_FPGA_LOADMK
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
@@ -115,7 +124,12 @@
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+#define CONFIG_CMD_USB
 #define CONFIG_LZO
+
+/* Filesystem support (for USB key) */
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_DOS_PARTITION
 
 #define CONFIG_BOOTDELAY			3
 
@@ -148,10 +162,11 @@
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
-#define CONFIG_SYS_MALLOC_LEN			(1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN			(8 << 20)
 #define CONFIG_IDENT_STRING			"-SPEAr"
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
 						 sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -240,9 +255,6 @@
 	"bootcmd=run nand_ubifs\0"					\
 	"\0"
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE			(512 * 1024)
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000
@@ -274,7 +286,6 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
-#define CONFIG_SPL_NO_PRINTF
 
 /*
  * Please select/define only one of the following
