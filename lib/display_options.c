@@ -26,9 +26,6 @@ int display_options (void)
 void print_freq(uint64_t freq, const char *s)
 {
 	unsigned long m = 0;
-#if defined(CONFIG_SPL_SERIAL_SUPPORT)
-	unsigned long n;
-#endif
 	uint32_t f;
 	static const char names[] = {'G', 'M', 'K'};
 	unsigned long d = 1e9;
@@ -48,9 +45,6 @@ void print_freq(uint64_t freq, const char *s)
 	}
 
 	f = do_div(freq, d);
-#if defined(CONFIG_SPL_SERIAL_SUPPORT)
-	n = freq;
-#endif
 
 	/* If there's a remainder, show the first few digits */
 	if (f) {
@@ -63,9 +57,7 @@ void print_freq(uint64_t freq, const char *s)
 			m = (m / 10) + (m % 100 >= 50);
 	}
 
-#if defined(CONFIG_SPL_SERIAL_SUPPORT)
-	printf("%lu", n);
-#endif
+	printf("%lu", (unsigned long) freq);
 	if (m)
 		printf(".%ld", m);
 	printf(" %cHz%s", c, s);
