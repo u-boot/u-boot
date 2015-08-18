@@ -264,7 +264,7 @@ def CreatePatches(start, count, series):
     """
     if series.get('version'):
         version = '%s ' % series['version']
-    cmd = ['git', 'format-patch', '-M', '--signoff']
+    cmd = ['git', 'format-patch', '-D', '-M', '--signoff']
     if series.get('cover'):
         cmd.append('--cover-letter')
     prefix = series.GetPatchPrefix()
