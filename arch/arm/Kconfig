@@ -838,7 +838,7 @@ source "arch/arm/mach-bcm283x/Kconfig"
 
 source "arch/arm/mach-davinci/Kconfig"
 
-source "arch/arm/cpu/armv7/exynos/Kconfig"
+source "arch/arm/mach-exynos/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
 

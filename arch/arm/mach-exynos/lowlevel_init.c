@@ -175,7 +175,7 @@ int do_lowlevel_init(void)
 
 	arch_cpu_init();
 
-#ifndef CONFIG_SYS_L2CACHE_OFF
+#if !defined(CONFIG_SYS_L2CACHE_OFF) && defined(CONFIG_EXYNOS5420)
 	/*
 	 * Init L2 cache parameters here for use by boot and resume
 	 *
@@ -188,9 +188,7 @@ int do_lowlevel_init(void)
 	configure_l2_actlr();
 	dsb();
 	isb();
-#endif
 
-#ifdef CONFIG_EXYNOS5420
 	relocate_wait_code();
 
 	/* Reconfigure secondary cores */

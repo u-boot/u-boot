@@ -7,7 +7,7 @@
 #ifndef __ASM_ARCH_EXYNOS_SPL_H__
 #define __ASM_ARCH_EXYNOS_SPL_H__
 
-#include <asm/arch-exynos/dmc.h>
+#include <asm/arch/dmc.h>
 #include <asm/arch/power.h>
 
 #ifndef __ASSEMBLY__
