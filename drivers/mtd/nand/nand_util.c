@@ -839,7 +839,7 @@ int nand_torture(nand_info_t *nand, loff_t offset)
 
 	patt_count = ARRAY_SIZE(patterns);
 
-	buf = malloc(nand->erasesize);
+	buf = malloc_cache_aligned(nand->erasesize);
 	if (buf == NULL) {
 		puts("Out of memory for erase block buffer\n");
 		return -ENOMEM;

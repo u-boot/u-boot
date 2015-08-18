@@ -57,7 +57,8 @@ struct inode *iget_locked(struct super_block *sb, unsigned long ino)
 {
 	struct inode *inode;
 
-	inode = (struct inode *)malloc(sizeof(struct ubifs_inode));
+	inode = (struct inode *)malloc_cache_aligned(
+			sizeof(struct ubifs_inode));
 	if (inode) {
 		inode->i_ino = ino;
 		inode->i_sb = sb;
@@ -104,7 +105,7 @@ void iput(struct inode *inode)
 	/*
 	 * Allocate and use new inode
 	 */
-	ino = (struct inode *)malloc(sizeof(struct ubifs_inode));
+	ino = (struct inode *)malloc_cache_aligned(sizeof(struct ubifs_inode));
 	memcpy(ino, inode, sizeof(struct ubifs_inode));
 
 	/*

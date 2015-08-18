@@ -25,7 +25,7 @@ static void *zalloc(void *x, unsigned items, unsigned size)
 	size *= items;
 	size = (size + ZALLOC_ALIGNMENT - 1) & ~(ZALLOC_ALIGNMENT - 1);
 
-	p = malloc (size);
+	p = malloc_cache_aligned(size);
 
 	return (p);
 }
