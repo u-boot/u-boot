@@ -349,6 +349,10 @@ struct prcm_regs {
 	/* IPU */
 	u32 cm_ipu_clkstctrl;
 	u32 cm_ipu_i2c5_clkctrl;
+
+	/*l3main1 edma*/
+	u32 cm_l3main1_tptc1_clkctrl;
+	u32 cm_l3main1_tptc2_clkctrl;
 };
 
 struct omap_sys_ctrl_regs {
@@ -575,6 +579,10 @@ void do_enable_clocks(u32 const *clk_domains,
 		      u32 const *clk_modules_explicit_en,
 		      u8 wait_for_enable);
 
+void do_disable_clocks(u32 const *clk_domains,
+		       u32 const *clk_modules_disable,
+		       u8 wait_for_disable);
+
 void setup_post_dividers(u32 const base,
 			const struct dpll_params *params);
 u32 omap_ddr_clk(void);
@@ -593,6 +601,9 @@ void usb_set_serial_num_from_die_id(u32 *id);
 void recalibrate_iodelay(void);
 
 void omap_smc1(u32 service, u32 val);
+
+void enable_edma3_clocks(void);
+void disable_edma3_clocks(void);
 
 /* ABB */
 #define OMAP_ABB_NOMINAL_OPP		0

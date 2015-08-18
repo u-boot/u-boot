@@ -86,6 +86,21 @@ config SPI_FLASH_WINBOND
 
 endif
 
+config SPI_FLASH_USE_4K_SECTORS
+	bool "Use small 4096 B erase sectors"
+	depends on SPI_FLASH
+	default y
+	help
+	  Many flash memories support erasing small (4096 B) sectors. Depending
+	  on the usage this feature may provide performance gain in comparison
+	  to erasing whole blocks (32/64 KiB).
+	  Changing a small part of the flash's contents is usually faster with
+	  small sectors. On the other hand erasing should be faster when using
+	  64 KiB block instead of 16 × 4 KiB sectors.
+
+	  Please note that some tools/drivers/filesystems may not work with
+	  4096 B erase size (e.g. UBIFS requires 15 KiB as a minimum).
+
 config SPI_FLASH_DATAFLASH
 	bool "AT45xxx DataFlash support"
 	depends on SPI_FLASH && DM_SPI_FLASH

@@ -648,6 +648,14 @@ static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)
 	debug("Enable clock domain - %x\n", clkctrl_reg);
 }
 
+static inline void disable_clock_domain(u32 const clkctrl_reg)
+{
+	clrsetbits_le32(clkctrl_reg, CD_CLKCTRL_CLKTRCTRL_MASK,
+			CD_CLKCTRL_CLKTRCTRL_SW_SLEEP <<
+			CD_CLKCTRL_CLKTRCTRL_SHIFT);
+	debug("Disable clock domain - %x\n", clkctrl_reg);
+}
+
 static inline void wait_for_clk_enable(u32 clkctrl_addr)
 {
 	u32 clkctrl, idlest = MODULE_CLKCTRL_IDLEST_DISABLED;
@@ -675,6 +683,34 @@ static inline void enable_clock_module(u32 const clkctrl_addr, u32 enable_mode,
 	debug("Enable clock module - %x\n", clkctrl_addr);
 	if (wait_for_enable)
 		wait_for_clk_enable(clkctrl_addr);
+}
+
+static inline void wait_for_clk_disable(u32 clkctrl_addr)
+{
+	u32 clkctrl, idlest = MODULE_CLKCTRL_IDLEST_FULLY_FUNCTIONAL;
+	u32 bound = LDELAY;
+
+	while ((idlest != MODULE_CLKCTRL_IDLEST_DISABLED)) {
+		clkctrl = readl(clkctrl_addr);
+		idlest = (clkctrl & MODULE_CLKCTRL_IDLEST_MASK) >>
+			 MODULE_CLKCTRL_IDLEST_SHIFT;
+		if (--bound == 0) {
+			printf("Clock disable failed for 0x%x idlest 0x%x\n",
+			       clkctrl_addr, clkctrl);
+			return;
+		}
+	}
+}
+
+static inline void disable_clock_module(u32 const clkctrl_addr,
+					u32 wait_for_disable)
+{
+	clrsetbits_le32(clkctrl_addr, MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_DISABLE <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+	debug("Disable clock module - %x\n", clkctrl_addr);
+	if (wait_for_disable)
+		wait_for_clk_disable(clkctrl_addr);
 }
 
 void freq_update_core(void)
@@ -798,6 +834,23 @@ void do_enable_clocks(u32 const *clk_domains,
 		enable_clock_domain(clk_domains[i],
 				    CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
 	}
+}
+
+void do_disable_clocks(u32 const *clk_domains,
+			    u32 const *clk_modules_disable,
+			    u8 wait_for_disable)
+{
+	u32 i, max = 100;
+
+
+	/* Clock modules that need to be put in SW_DISABLE */
+	for (i = 0; (i < max) && clk_modules_disable[i]; i++)
+		disable_clock_module(clk_modules_disable[i],
+				     wait_for_disable);
+
+	/* Put the clock domains in SW_SLEEP mode */
+	for (i = 0; (i < max) && clk_domains[i]; i++)
+		disable_clock_domain(clk_domains[i]);
 }
 
 void prcm_init(void)

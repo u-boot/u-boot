@@ -14,6 +14,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <watchdog.h>
+#include <linux/compiler.h>
 
 #include "sf_internal.h"
 
@@ -378,6 +379,11 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	return ret;
 }
 
+void __weak spi_flash_copy_mmap(void *data, void *offset, size_t len)
+{
+	memcpy(data, offset, len);
+}
+
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
@@ -394,7 +400,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 			return ret;
 		}
 		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP);
-		memcpy(data, flash->memory_map + offset, len);
+		spi_flash_copy_mmap(data, flash->memory_map + offset, len);
 		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
 		spi_release_bus(flash->spi);
 		return 0;

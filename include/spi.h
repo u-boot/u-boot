@@ -272,6 +272,9 @@ int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen);
 int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags);
 
+/* Copy memory mapped data */
+void spi_flash_copy_mmap(void *data, void *offset, size_t len);
+
 /**
  * Determine if a SPI chipselect is valid.
  * This function is provided by the board if the low-level SPI driver

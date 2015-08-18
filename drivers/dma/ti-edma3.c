@@ -382,3 +382,81 @@ void qedma3_stop(u32 base, struct edma3_channel_config *cfg)
 	/* Clear the channel map */
 	__raw_writel(0, base + EDMA3_QCHMAP(cfg->chnum));
 }
+
+void edma3_transfer(unsigned long edma3_base_addr, unsigned int
+		    edma_slot_num, void *dst, void *src, size_t len)
+{
+	struct edma3_slot_config        slot;
+	struct edma3_channel_config     edma_channel;
+	int                             b_cnt_value = 1;
+	int                             rem_bytes  = 0;
+	int                             a_cnt_value = len;
+	unsigned int                    addr = (unsigned int) (dst);
+	unsigned int                    max_acnt  = 0x7FFFU;
+
+	if (len > max_acnt) {
+		b_cnt_value = (len / max_acnt);
+		rem_bytes  = (len % max_acnt);
+		a_cnt_value = max_acnt;
+	}
+
+	slot.opt        = 0;
+	slot.src        = ((unsigned int) src);
+	slot.acnt       = a_cnt_value;
+	slot.bcnt       = b_cnt_value;
+	slot.ccnt       = 1;
+	slot.src_bidx   = a_cnt_value;
+	slot.dst_bidx   = a_cnt_value;
+	slot.src_cidx   = 0;
+	slot.dst_cidx   = 0;
+	slot.link       = EDMA3_PARSET_NULL_LINK;
+	slot.bcntrld    = 0;
+	slot.opt        = EDMA3_SLOPT_TRANS_COMP_INT_ENB |
+			  EDMA3_SLOPT_COMP_CODE(0) |
+			  EDMA3_SLOPT_STATIC | EDMA3_SLOPT_AB_SYNC;
+
+	edma3_slot_configure(edma3_base_addr, edma_slot_num, &slot);
+	edma_channel.slot = edma_slot_num;
+	edma_channel.chnum = 0;
+	edma_channel.complete_code = 0;
+	 /* set event trigger to dst update */
+	edma_channel.trigger_slot_word = EDMA3_TWORD(dst);
+
+	qedma3_start(edma3_base_addr, &edma_channel);
+	edma3_set_dest_addr(edma3_base_addr, edma_channel.slot, addr);
+
+	while (edma3_check_for_transfer(edma3_base_addr, &edma_channel))
+		;
+	qedma3_stop(edma3_base_addr, &edma_channel);
+
+	if (rem_bytes != 0) {
+		slot.opt        = 0;
+		slot.src        =
+			(b_cnt_value * max_acnt) + ((unsigned int) src);
+		slot.acnt       = rem_bytes;
+		slot.bcnt       = 1;
+		slot.ccnt       = 1;
+		slot.src_bidx   = rem_bytes;
+		slot.dst_bidx   = rem_bytes;
+		slot.src_cidx   = 0;
+		slot.dst_cidx   = 0;
+		slot.link       = EDMA3_PARSET_NULL_LINK;
+		slot.bcntrld    = 0;
+		slot.opt        = EDMA3_SLOPT_TRANS_COMP_INT_ENB |
+				  EDMA3_SLOPT_COMP_CODE(0) |
+				  EDMA3_SLOPT_STATIC | EDMA3_SLOPT_AB_SYNC;
+		edma3_slot_configure(edma3_base_addr, edma_slot_num, &slot);
+		edma_channel.slot = edma_slot_num;
+		edma_channel.chnum = 0;
+		edma_channel.complete_code = 0;
+		/* set event trigger to dst update */
+		edma_channel.trigger_slot_word = EDMA3_TWORD(dst);
+
+		qedma3_start(edma3_base_addr, &edma_channel);
+		edma3_set_dest_addr(edma3_base_addr, edma_channel.slot, addr +
+				    (max_acnt * b_cnt_value));
+		while (edma3_check_for_transfer(edma3_base_addr, &edma_channel))
+			;
+		qedma3_stop(edma3_base_addr, &edma_channel);
+	}
+}

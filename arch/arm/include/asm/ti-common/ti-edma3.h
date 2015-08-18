@@ -117,5 +117,7 @@ void edma3_set_src_addr(u32 base, int slot, u32 src);
 void edma3_set_transfer_params(u32 base, int slot, int acnt,
 			       int bcnt, int ccnt, u16 bcnt_rld,
 			       enum edma3_sync_dimension sync_mode);
+void edma3_transfer(unsigned long edma3_base_addr, unsigned int
+		edma_slot_num, void *dst, void *src, size_t len);
 
 #endif

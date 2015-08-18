@@ -13,6 +13,8 @@
 #include <spi.h>
 #include <asm/gpio.h>
 #include <asm/omap_gpio.h>
+#include <asm/omap_common.h>
+#include <asm/ti-common/ti-edma3.h>
 
 /* ti qpsi register bit masks */
 #define QSPI_TIMEOUT                    2000000
@@ -106,7 +108,6 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 	slave->memory_map = (void *)MMAP_START_ADDR_DRA;
 #else
 	slave->memory_map = (void *)MMAP_START_ADDR_AM43x;
-	slave->op_mode_rx = 8;
 #endif
 
 #ifdef CONFIG_QSPI_QUAD_SUPPORT
@@ -114,6 +115,7 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 			QSPI_SETUP0_NUM_D_BYTES_8_BITS |
 			QSPI_SETUP0_READ_QUAD | QSPI_CMD_WRITE |
 			QSPI_NUM_DUMMY_BITS);
+	slave->op_mode_rx = SPI_OPM_RX_QOF;
 #else
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
 			QSPI_SETUP0_NUM_D_BYTES_NO_BITS |
@@ -347,3 +349,26 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	return 0;
 }
+
+/* TODO: control from sf layer to here through dm-spi */
+#ifdef CONFIG_TI_EDMA3
+void spi_flash_copy_mmap(void *data, void *offset, size_t len)
+{
+	unsigned int			addr = (unsigned int) (data);
+	unsigned int			edma_slot_num = 1;
+
+	/* Invalidate the area, so no writeback into the RAM races with DMA */
+	invalidate_dcache_range(addr, addr + roundup(len, ARCH_DMA_MINALIGN));
+
+	/* enable edma3 clocks */
+	enable_edma3_clocks();
+
+	/* Call edma3 api to do actual DMA transfer	*/
+	edma3_transfer(EDMA3_BASE, edma_slot_num, data, offset, len);
+
+	/* disable edma3 clocks */
+	disable_edma3_clocks();
+
+	*((unsigned int *)offset) += len;
+}
+#endif

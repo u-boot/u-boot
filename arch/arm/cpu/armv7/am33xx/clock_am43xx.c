@@ -135,3 +135,39 @@ void enable_basic_clocks(void)
 	/* For OPP100 the mac clock should be /5. */
 	writel(0x4, &cmdpll->clkselmacclk);
 }
+
+#ifdef CONFIG_TI_EDMA3
+void enable_edma3_clocks(void)
+{
+	u32 *const clk_domains_edma3[] = {
+		0
+	};
+
+	u32 *const clk_modules_explicit_en_edma3[] = {
+		&cmper->tpccclkctrl,
+		&cmper->tptc0clkctrl,
+		0
+	};
+
+	do_enable_clocks(clk_domains_edma3,
+			 clk_modules_explicit_en_edma3,
+			 1);
+}
+
+void disable_edma3_clocks(void)
+{
+	u32 *const clk_domains_edma3[] = {
+		0
+	};
+
+	u32 *const clk_modules_disable_edma3[] = {
+		&cmper->tpccclkctrl,
+		&cmper->tptc0clkctrl,
+		0
+	};
+
+	do_disable_clocks(clk_domains_edma3,
+			  clk_modules_disable_edma3,
+			  1);
+}
+#endif
