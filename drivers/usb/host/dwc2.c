@@ -1113,11 +1113,12 @@ struct dm_usb_ops dwc2_usb_ops = {
 
 static const struct udevice_id dwc2_usb_ids[] = {
 	{ .compatible = "brcm,bcm2835-usb" },
+	{ .compatible = "snps,dwc2" },
 	{ }
 };
 
 U_BOOT_DRIVER(usb_dwc2) = {
-	.name	= "dwc2_exynos",
+	.name	= "dwc2_usb",
 	.id	= UCLASS_USB,
 	.of_match = dwc2_usb_ids,
 	.ofdata_to_platdata = dwc2_usb_ofdata_to_platdata,
