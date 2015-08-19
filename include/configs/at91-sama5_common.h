@@ -61,7 +61,10 @@
 #define FAT_ENV_FILE		"uboot.env"
 #define CONFIG_ENV_SIZE		0x4000
 
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91-${board_name}.dtb; " \
+#define CONFIG_BOOTCOMMAND	"if test ! -n ${dtb_name}; then "	\
+				    "setenv dtb_name at91-${board_name}.dtb; " \
+				"fi; "					\
+				"fatload mmc 0:1 0x21000000 ${dtb_name}; " \
 				"fatload mmc 0:1 0x22000000 zImage; "	\
 				"bootz 0x22000000 - 0x21000000"
 #define CONFIG_BOOTARGS							\

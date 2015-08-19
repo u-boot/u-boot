@@ -19,6 +19,9 @@
  */
 #include "at91-sama5_common.h"
 
+#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 /* serial console */
 #define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU

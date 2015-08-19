@@ -15,6 +15,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
+#include <linux/ctype.h>
 #include <atmel_hlcdc.h>
 #include <atmel_mci.h>
 #include <phy.h>
@@ -368,6 +369,25 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	}
 }
 #endif /* CONFIG_ATMEL_SPI */
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	const int MAX_STR_LEN = 32;
+	char name[MAX_STR_LEN], *p;
+	int i;
+
+	strncpy(name, get_cpu_name(), MAX_STR_LEN);
+	for (i = 0, p = name; (*p) && (i < MAX_STR_LEN); p++, i++)
+		*p = tolower(*p);
+
+	strcat(name, "ek.dtb");
+	setenv("dtb_name", name);
+#endif
+	return 0;
+}
+#endif
 
 /* SPL */
 #ifdef CONFIG_SPL_BUILD
