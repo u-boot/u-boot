@@ -62,6 +62,12 @@ config SEMIHOSTING
 	  the hosted environment to call out to the emulator to
 	  retrieve files from the host machine.
 
+config SYS_L2CACHE_OFF
+	bool "L2cache off"
+	help
+	  If SoC does not support L2CACHE or one do not want to enable
+	  L2CACHE, choose this option.
+
 choice
 	prompt "Target select"
 	default ARCH_VERSATILE
