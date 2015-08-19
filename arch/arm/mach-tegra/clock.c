@@ -483,7 +483,16 @@ unsigned clock_get_rate(enum clock_id clkid)
 	 * PLLU uses p_mask/p_shift for VCO on all but T210,
 	 * T210 uses normal DIVP. Handled in pllinfo table.
 	 */
-	divm <<= (base >> pllinfo->p_shift) & pllinfo->p_mask;
+#ifdef CONFIG_TEGRA210
+	/*
+	 * PLLP's primary output (pllP_out0) on T210 is the VCO, and divp is
+	 * not applied. pllP_out2 does have divp applied. All other pllP_outN
+	 * are divided down from pllP_out0. We only support pllP_out0 in
+	 * U-Boot at the time of writing this comment.
+	 */
+	if (clkid != CLOCK_ID_PERIPH)
+#endif
+		divm <<= (base >> pllinfo->p_shift) & pllinfo->p_mask;
 	do_div(rate, divm);
 	return rate;
 }
