@@ -1221,13 +1221,6 @@ e1000_read_mac_addr(struct e1000_hw *hw, unsigned char enetaddr[6])
 	if (e1000_is_second_port(hw))
 		enetaddr[5] ^= 1;
 
-#ifdef CONFIG_E1000_FALLBACK_MAC
-	if (!is_valid_ethaddr(nic->enetaddr)) {
-		unsigned char fb_mac[NODE_ADDRESS_SIZE] = CONFIG_E1000_FALLBACK_MAC;
-
-		memcpy(enetaddr, fb_mac, NODE_ADDRESS_SIZE);
-	}
-#endif
 	return 0;
 }
 #endif
