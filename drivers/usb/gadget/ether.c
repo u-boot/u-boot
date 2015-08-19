@@ -15,6 +15,7 @@
 #include <linux/usb/cdc.h>
 #include <linux/usb/gadget.h>
 #include <net.h>
+#include <usb.h>
 #include <malloc.h>
 #include <linux/ctype.h>
 
@@ -2312,6 +2313,8 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 		goto fail;
 	}
 
+	board_usb_init(0, USB_INIT_DEVICE);
+
 	/* Configure default mac-addresses for the USB ethernet device */
 #ifdef CONFIG_USBNET_DEV_ADDR
 	strlcpy(dev_addr, CONFIG_USBNET_DEV_ADDR, sizeof(dev_addr));
@@ -2492,6 +2495,7 @@ void usb_eth_halt(struct eth_device *netdev)
 	}
 
 	usb_gadget_unregister_driver(&eth_driver);
+	board_usb_cleanup(0, USB_INIT_DEVICE);
 }
 
 static struct usb_gadget_driver eth_driver = {
