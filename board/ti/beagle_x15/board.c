@@ -356,10 +356,12 @@ static struct ti_usb_phy_device usb_phy2_device = {
 
 int board_usb_init(int index, enum usb_init_type init)
 {
+	enable_usb_clocks(index);
 	switch (index) {
 	case 0:
 		if (init == USB_INIT_DEVICE) {
 			printf("port %d can't be used as device\n", index);
+			disable_usb_clocks(index);
 			return -EINVAL;
 		} else {
 			usb_otg_ss1.dr_mode = USB_DR_MODE_HOST;
@@ -379,6 +381,7 @@ int board_usb_init(int index, enum usb_init_type init)
 			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
 		} else {
 			printf("port %d can't be used as host\n", index);
+			disable_usb_clocks(index);
 			return -EINVAL;
 		}
 
@@ -405,6 +408,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	default:
 		printf("Invalid Controller Index\n");
 	}
+	disable_usb_clocks(index);
 	return 0;
 }
 

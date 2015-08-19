@@ -163,6 +163,7 @@ static struct ti_usb_phy_device usb_phy2_device = {
 
 int board_usb_init(int index, enum usb_init_type init)
 {
+	enable_usb_clocks(index);
 	switch (index) {
 	case 0:
 		if (init == USB_INIT_DEVICE) {
@@ -209,6 +210,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	default:
 		printf("Invalid Controller Index\n");
 	}
+	disable_usb_clocks(index);
 	return 0;
 }
 

@@ -95,6 +95,7 @@ int board_usb_init(int index, enum usb_init_type init)
 		usb_otg_ss_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
 	}
 
+	enable_usb_clocks(index);
 	ti_usb_phy_uboot_init(&usb_phy_device);
 	dwc3_omap_uboot_init(&usb_otg_ss_glue);
 	dwc3_uboot_init(&usb_otg_ss);
@@ -112,6 +113,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	ti_usb_phy_uboot_exit(index);
 	dwc3_uboot_exit(index);
 	dwc3_omap_uboot_exit(index);
+	disable_usb_clocks(index);
 
 	return 0;
 }
