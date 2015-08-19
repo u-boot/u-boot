@@ -1071,6 +1071,7 @@ typedef enum {
 
 /* Structure containing variables used by the shared code (e1000_hw.c) */
 struct e1000_hw {
+	const char *name;
 	struct list_head list_node;
 	struct eth_device *nic;
 #ifdef CONFIG_E1000_SPI
