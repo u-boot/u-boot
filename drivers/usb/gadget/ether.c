@@ -2505,6 +2505,7 @@ static struct usb_gadget_driver eth_driver = {
 	.unbind		= eth_unbind,
 
 	.setup		= eth_setup,
+	.reset		= eth_disconnect,
 	.disconnect	= eth_disconnect,
 
 	.suspend	= eth_suspend,
