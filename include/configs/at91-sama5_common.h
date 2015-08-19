@@ -77,6 +77,18 @@
 	"256K(env),256k(env_redundent),256k(spare),"			\
 	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
 	"rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs"
+
+#ifdef CONFIG_SYS_USE_NANDFLASH
+/* u-boot env in nand flash */
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		0xc0000
+#define CONFIG_ENV_OFFSET_REDUND	0x100000
+#define CONFIG_ENV_SIZE			0x20000
+#define CONFIG_BOOTCOMMAND		"nand read 0x21000000 0x180000 0x80000;"	\
+					"nand read 0x22000000 0x200000 0x600000;"	\
+					"bootz 0x22000000 - 0x21000000"
+#endif
+
 #endif
 
 #define CONFIG_BAUDRATE			115200
