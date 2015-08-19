@@ -186,7 +186,6 @@
 
 #define CONFIG_CMD_PCI
 
-#define CONFIG_E1000			/*  E1000 pci Ethernet card*/
 
 /*
  * PCI Windows

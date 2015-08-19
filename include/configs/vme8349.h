@@ -298,7 +298,6 @@
  * TSEC configuration
  */
 #ifdef VME_CADDY2
-#define CONFIG_E1000
 #else
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
 #endif
