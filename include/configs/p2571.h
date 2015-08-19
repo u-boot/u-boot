@@ -61,7 +61,8 @@
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
-#define COUNTER_FREQUENCY	38400000
+/* Crystal is 38.4MHz. clk_m runs at half that rate */
+#define COUNTER_FREQUENCY	19200000
 #define CONFIG_OF_BOARD_SETUP
 
 #endif /* _P2571_H */
