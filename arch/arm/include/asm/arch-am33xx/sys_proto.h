@@ -42,3 +42,6 @@ void am33xx_spl_board_init(void);
 int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev);
 int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency);
 #endif
+
+void enable_usb_clocks(int index);
+void disable_usb_clocks(int index);
