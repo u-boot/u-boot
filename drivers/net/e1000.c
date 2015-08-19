@@ -30,6 +30,7 @@ tested on both gig copper and gig fiber boards
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <pci.h>
 #include "e1000.h"
@@ -47,12 +48,21 @@ tested on both gig copper and gig fiber boards
 /* Intel i210 needs the DMA descriptor rings aligned to 128b */
 #define E1000_BUFFER_ALIGN	128
 
+/*
+ * TODO(sjg@chromium.org): Even with driver model we share these buffers.
+ * Concurrent receiving on multiple active Ethernet devices will not work.
+ * Normally U-Boot does not support this anyway. To fix it in this driver,
+ * move these buffers and the tx/rx pointers to struct e1000_hw.
+ */
 DEFINE_ALIGN_BUFFER(struct e1000_tx_desc, tx_base, 16, E1000_BUFFER_ALIGN);
 DEFINE_ALIGN_BUFFER(struct e1000_rx_desc, rx_base, 16, E1000_BUFFER_ALIGN);
 DEFINE_ALIGN_BUFFER(unsigned char, packet, 4096, E1000_BUFFER_ALIGN);
 
 static int tx_tail;
 static int rx_tail, rx_last;
+#ifdef CONFIG_DM_ETH
+static int num_cards;	/* Number of E1000 devices seen so far */
+#endif
 
 static struct pci_device_id e1000_supported[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82542) },
@@ -5295,8 +5305,10 @@ void e1000_get_bus_type(struct e1000_hw *hw)
 	}
 }
 
+#ifndef CONFIG_DM_ETH
 /* A list of all registered e1000 devices */
 static LIST_HEAD(e1000_hw_list);
+#endif
 
 static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 			  unsigned char enetaddr[6])
@@ -5383,6 +5395,7 @@ static void e1000_name(char *str, int cardnum)
 	sprintf(str, "e1000#%u", cardnum);
 }
 
+#ifndef CONFIG_DM_ETH
 /**************************************************************************
 TRANSMIT - Transmit a frame
 ***************************************************************************/
@@ -5495,13 +5508,22 @@ struct e1000_hw *e1000_find_card(unsigned int cardnum)
 
 	return NULL;
 }
+#endif /* !CONFIG_DM_ETH */
 
 #ifdef CONFIG_CMD_E1000
 static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
 	unsigned char *mac = NULL;
+#ifdef CONFIG_DM_ETH
+	struct eth_pdata *plat;
+	struct udevice *dev;
+	char name[30];
+	int ret;
+#else
 	struct e1000_hw *hw;
+#endif
+	int cardnum;
 
 	if (argc < 3) {
 		cmd_usage(cmdtp);
@@ -5510,9 +5532,18 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
 
 	/* Make sure we can find the requested e1000 card */
 	cardnum = simple_strtoul(argv[1], NULL, 10);
+#ifdef CONFIG_DM_ETH
+	e1000_name(name, cardnum);
+	ret = uclass_get_device_by_name(UCLASS_ETH, name, &dev);
+	if (!ret) {
+		plat = dev_get_platdata(dev);
+		mac = plat->enetaddr;
+	}
+#else
 	hw = e1000_find_card(cardnum);
 	if (hw)
 		mac = hw->nic->enetaddr;
+#endif
 	if (!mac) {
 		printf("e1000: ERROR: No such device: e1000#%s\n", argv[1]);
 		return 1;
@@ -5547,3 +5578,109 @@ U_BOOT_CMD(
 	"       - Manage the Intel E1000 PCI device"
 );
 #endif /* not CONFIG_CMD_E1000 */
+
+#ifdef CONFIG_DM_ETH
+static int e1000_eth_start(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct e1000_hw *hw = dev_get_priv(dev);
+
+	return _e1000_init(hw, plat->enetaddr);
+}
+
+static void e1000_eth_stop(struct udevice *dev)
+{
+	struct e1000_hw *hw = dev_get_priv(dev);
+
+	_e1000_disable(hw);
+}
+
+static int e1000_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct e1000_hw *hw = dev_get_priv(dev);
+	int ret;
+
+	ret = _e1000_transmit(hw, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int e1000_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct e1000_hw *hw = dev_get_priv(dev);
+	int len;
+
+	len = _e1000_poll(hw);
+	if (len)
+		*packetp = packet;
+
+	return len ? len : -EAGAIN;
+}
+
+static int e1000_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct e1000_hw *hw = dev_get_priv(dev);
+
+	fill_rx(hw);
+
+	return 0;
+}
+
+static int e1000_eth_probe(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct e1000_hw *hw = dev_get_priv(dev);
+	int ret;
+
+	hw->name = dev->name;
+	ret = e1000_init_one(hw, trailing_strtol(dev->name), pci_get_bdf(dev),
+			     plat->enetaddr);
+	if (ret < 0) {
+		printf(pr_fmt("failed to initialize card: %d\n"), ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int e1000_eth_bind(struct udevice *dev)
+{
+	char name[20];
+
+	/*
+	 * A simple way to number the devices. When device tree is used this
+	 * is unnecessary, but when the device is just discovered on the PCI
+	 * bus we need a name. We could instead have the uclass figure out
+	 * which devices are different and number them.
+	 */
+	e1000_name(name, num_cards++);
+
+	return device_set_name(dev, name);
+}
+
+static const struct eth_ops e1000_eth_ops = {
+	.start	= e1000_eth_start,
+	.send	= e1000_eth_send,
+	.recv	= e1000_eth_recv,
+	.stop	= e1000_eth_stop,
+	.free_pkt = e1000_free_pkt,
+};
+
+static const struct udevice_id e1000_eth_ids[] = {
+	{ .compatible = "intel,e1000" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_e1000) = {
+	.name	= "eth_e1000",
+	.id	= UCLASS_ETH,
+	.of_match = e1000_eth_ids,
+	.bind	= e1000_eth_bind,
+	.probe	= e1000_eth_probe,
+	.ops	= &e1000_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct e1000_hw),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+U_BOOT_PCI_DEVICE(eth_e1000, e1000_supported);
+#endif
