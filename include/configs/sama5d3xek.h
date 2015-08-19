@@ -171,15 +171,7 @@
 				"nand read 0x22000000 0x200000 0x600000;" \
 				"bootm 0x22000000 - 0x21000000"
 #elif CONFIG_SYS_USE_MMC
-/* bootstrap + u-boot + env in sd card */
-#define CONFIG_ENV_IS_IN_FAT
-#define FAT_ENV_INTERFACE	"mmc"
-#define FAT_ENV_FILE		"uboot.env"
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define CONFIG_ENV_SIZE		0x4000
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 dtb; " \
-				"fatload mmc 0:1 0x22000000 uImage; " \
-				"bootm 0x22000000 - 0x21000000"
+/* override the bootcmd, bootargs and other configuration for sd/mmc env */
 #else
 #define CONFIG_ENV_IS_NOWHERE
 #endif

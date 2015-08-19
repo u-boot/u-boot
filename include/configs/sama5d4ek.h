@@ -136,21 +136,7 @@
 				"nand read 0x22000000 0x200000 0x600000;" \
 				"bootz 0x22000000 - 0x21000000"
 #elif CONFIG_SYS_USE_MMC
-/* bootstrap + u-boot + env in sd card */
-#define CONFIG_ENV_IS_IN_FAT
-#define CONFIG_FAT_WRITE
-#define FAT_ENV_INTERFACE	"mmc"
-/*
- * We don't specify the part number, if device 0 has partition table, it means
- * the first partition; it no partition table, then take whole device as a
- * FAT file system.
- */
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define FAT_ENV_FILE		"uboot.env"
-#define CONFIG_ENV_SIZE		0x4000
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 sama5d4ek.dtb; " \
-				"fatload mmc 0:1 0x22000000 zImage; " \
-				"bootz 0x22000000 - 0x21000000"
+/* override the bootcmd, bootargs and other configuration for sd/mmc env */
 #endif
 
 /* SPL */

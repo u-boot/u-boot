@@ -27,6 +27,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
 
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_OF_LIBFDT		/* Device Tree support */
 
@@ -52,6 +53,17 @@
 #define CONFIG_CMD_DHCP
 
 #ifdef CONFIG_SYS_USE_MMC
+/* u-boot env in sd/mmc card */
+#define CONFIG_ENV_IS_IN_FAT
+#define CONFIG_FAT_WRITE
+#define FAT_ENV_INTERFACE	"mmc"
+#define FAT_ENV_DEVICE_AND_PART	"0"
+#define FAT_ENV_FILE		"uboot.env"
+#define CONFIG_ENV_SIZE		0x4000
+
+#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91-${board_name}.dtb; " \
+				"fatload mmc 0:1 0x22000000 zImage; "	\
+				"bootz 0x22000000 - 0x21000000"
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0,115200 earlyprintk "				\
 	"root=/dev/mmcblk0p2 rw rootwait"
