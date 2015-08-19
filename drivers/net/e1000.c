@@ -29,6 +29,7 @@ tested on both gig copper and gig fiber boards
  *  Copyright 2011 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include "e1000.h"
 
 #define TOUT_LOOP   100000
