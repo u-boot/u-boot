@@ -622,6 +622,103 @@ void disable_edma3_clocks(void)
 }
 #endif
 
+#ifdef CONFIG_USB_DWC3
+void enable_usb_clocks(int index)
+{
+	u32 cm_l3init_usb_otg_ss_clkctrl = 0;
+
+	if (index == 0) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss1_clkctrl;
+		/* Enable 960 MHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Enable 32 KHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+	} else if (index == 1) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
+		/* Enable 960 MHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_l3init_usb_otg_ss2_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Enable 32 KHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_coreaon_usb_phy2_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Enable 60 MHz clock for USB2PHY2 */
+		setbits_le32((*prcm)->cm_coreaon_l3init_60m_gfclk_clkctrl,
+			     L3INIT_CLKCTRL_OPTFCLKEN_60M_GFCLK);
+	}
+
+	u32 const clk_domains_usb[] = {
+		0
+	};
+
+	u32 const clk_modules_hw_auto_usb[] = {
+		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
+		cm_l3init_usb_otg_ss_clkctrl,
+		0
+	};
+
+	u32 const clk_modules_explicit_en_usb[] = {
+		0
+	};
+
+	do_enable_clocks(clk_domains_usb,
+			 clk_modules_hw_auto_usb,
+			 clk_modules_explicit_en_usb,
+			 1);
+}
+
+void disable_usb_clocks(int index)
+{
+	u32 cm_l3init_usb_otg_ss_clkctrl = 0;
+
+	if (index == 0) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss1_clkctrl;
+		/* Disable 960 MHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Disable 32 KHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+	} else if (index == 1) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
+		/* Disable 960 MHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_l3init_usb_otg_ss2_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Disable 32 KHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_coreaon_usb_phy2_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Disable 60 MHz clock for USB2PHY2 */
+		clrbits_le32((*prcm)->cm_coreaon_l3init_60m_gfclk_clkctrl,
+			     L3INIT_CLKCTRL_OPTFCLKEN_60M_GFCLK);
+	}
+
+	u32 const clk_domains_usb[] = {
+		0
+	};
+
+	u32 const clk_modules_disable[] = {
+		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
+		cm_l3init_usb_otg_ss_clkctrl,
+		0
+	};
+
+	do_disable_clocks(clk_domains_usb,
+			  clk_modules_disable,
+			  1);
+}
+#endif
+
 const struct ctrl_ioregs ioregs_omap5430 = {
 	.ctrl_ddrch = DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
 	.ctrl_lpddr2ch = DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
