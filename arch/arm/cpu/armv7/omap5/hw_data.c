@@ -460,13 +460,6 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio6_clkctrl,
 		(*prcm)->cm_l4per_gpio7_clkctrl,
 		(*prcm)->cm_l4per_gpio8_clkctrl,
-#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
-		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
-		(*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
-		(*prcm)->cm_l3init_usb_otg_ss2_clkctrl,
-#endif
-#endif
 		0
 	};
 
@@ -497,29 +490,6 @@ void enable_basic_clocks(void)
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
-
-#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
-	/* Enable 960 MHz clock for dwc3 */
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-		     OPTFCLKEN_REFCLK960M);
-
-	/* Enable 32 KHz clock for dwc3 */
-	setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
-		     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
-	/* Enable 960 MHz clock for dwc3 */
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss2_clkctrl,
-		     OPTFCLKEN_REFCLK960M);
-
-	/* Enable 32 KHz clock for dwc3 */
-	setbits_le32((*prcm)->cm_coreaon_usb_phy2_core_clkctrl,
-		     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
-
-	/* Enable 60 MHz clock for USB2PHY2 */
-	setbits_le32((*prcm)->cm_coreaon_l3init_60m_gfclk_clkctrl,
-		     L3INIT_CLKCTRL_OPTFCLKEN_60M_GFCLK);
-#endif
-#endif
 
 	/* Set the correct clock dividers for mmc */
 	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
