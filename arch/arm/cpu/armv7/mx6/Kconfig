@@ -102,6 +102,7 @@ config TARGET_MX6SXSABRESD
 
 config TARGET_MX6UL_14X14_EVK
 	bool "mx6ul_14x14_evk"
+	select MX6UL
 	select CPU_V7
 	select DM
 	select DM_THERMAL
