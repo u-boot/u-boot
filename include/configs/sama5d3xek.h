@@ -156,14 +156,7 @@
 #define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
 
 #ifdef CONFIG_SYS_USE_SERIALFLASH
-/* bootstrap + u-boot + env + linux in serial flash */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET       0x5000
-#define CONFIG_ENV_SIZE         0x3000
-#define CONFIG_ENV_SECT_SIZE    0x1000
-#define CONFIG_BOOTCOMMAND      "sf probe 0; " \
-				"sf read 0x22000000 0x42000 0x300000; " \
-				"bootm 0x22000000"
+/* override the bootcmd, bootargs and other configuration for spi flash env*/
 #elif CONFIG_SYS_USE_NANDFLASH
 /* override the bootcmd, bootargs and other configuration nandflash env */
 #elif CONFIG_SYS_USE_MMC
@@ -216,7 +209,7 @@
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
 
 #endif
 
