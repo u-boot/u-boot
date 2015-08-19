@@ -95,10 +95,10 @@ static void boot_setup_fdt(bootm_headers_t *images)
 
 	debug("## setup FDT\n");
 
-	fdt_chosen(images->ft_addr, 1);
+	fdt_chosen(images->ft_addr);
 	fdt_fixup_memory_banks(images->ft_addr, &mem_start, &mem_size, 1);
 	fdt_fixup_ethernet(images->ft_addr);
-	fdt_initrd(images->ft_addr, images->initrd_start, images->initrd_end, 1);
+	fdt_initrd(images->ft_addr, images->initrd_start, images->initrd_end);
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 	ft_board_setup(images->ft_addr, gd->bd);
