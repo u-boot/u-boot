@@ -1215,10 +1215,10 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 		conf_noffset = fit_conf_get_node(buf, images->fit_uname_cfg);
 
 		for (loadables_index = 0;
-		     !fdt_get_string_index(buf, conf_noffset,
+		     fdt_get_string_index(buf, conf_noffset,
 				FIT_LOADABLE_PROP,
 				loadables_index,
-				(const char **)&uname) > 0;
+				(const char **)&uname) == 0;
 		     loadables_index++)
 		{
 			fit_img_result = fit_image_load(images,
