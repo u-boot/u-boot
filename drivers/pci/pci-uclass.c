@@ -794,8 +794,8 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 		if (ret != -ENOENT)
 			return -EINVAL;
 	} else {
-		/* extract the bdf from fdt_pci_addr */
-		pplat->devfn = addr.phys_hi & 0xffff00;
+		/* extract the devfn from fdt_pci_addr */
+		pplat->devfn = addr.phys_hi & 0xff00;
 	}
 
 	return 0;
