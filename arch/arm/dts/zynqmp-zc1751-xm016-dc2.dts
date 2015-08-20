@@ -1,0 +1,268 @@
+/*
+ * dts file for Xilinx ZynqMP
+ *
+ * (C) Copyright 2015, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+/include/ "zynqmp.dtsi"
+/ {
+	model = "ZynqMP zc1751-xm016-dc2 RevA";
+	compatible = "xlnx,zynqmp-zc1751", "xlnx,zynqmp";
+
+	aliases {
+		can0 = &can0;
+		can1 = &can1;
+		ethernet0 = &gem2;
+		gpio0 = &gpio;
+		i2c0 = &i2c0;
+		rtc0 = &rtc;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		spi0 = &spi0;
+		spi1 = &spi1;
+		usb0 = &usb1;
+	};
+
+	chosen {
+		bootargs = "earlycon=cdns,mmio,0xff000000,115200n8";
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x80000000>, <0x8 0x00000000 0x80000000>; /* 4GB DIMM modules where 2GB are below 4GB (DDR_LOW) and the rest at DDR_HIGH */
+		/* PL address space - also with PL DDR 2GB-3GB, 16GB-24GB */
+	};
+	/* FIXME - there is also PL DDR - based on presentation 64GB */
+};
+
+&amba {
+	/* clock for uart, can, nand, i2c */
+	clk100: clk100 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
+	/* Gems */
+	clk125: clk125 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <125000000>;
+	};
+
+	/* clock for sd/emmc */
+	clk200: clk200 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+	};
+
+	/* clock for usb */
+	clk250: clk250 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <250000000>;
+	};
+
+	/* clock for qspi */
+	clk300: clk300 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <300000000>;
+	};
+};
+
+&can0 {
+	status = "okay";
+	clocks = <&clk100 &clk100>;
+};
+
+&can1 {
+	status = "okay";
+	clocks = <&clk100 &clk100>;
+};
+
+/* fpd_dma clk 667MHz, lpd_dma 500MHz */
+&fpd_dma_chan1 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+	xlnx,overfetch; /* for testing purpose */
+	xlnx,ratectrl = <0>; /* for testing purpose */
+	xlnx,src-issue = <31>;
+};
+
+&fpd_dma_chan2 {
+	status = "okay";
+	xlnx,ratectrl = <100>; /* for testing purpose */
+	xlnx,src-issue = <4>; /* for testing purpose */
+};
+
+&fpd_dma_chan3 {
+	status = "okay";
+};
+
+&fpd_dma_chan4 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&fpd_dma_chan5 {
+	status = "okay";
+};
+
+&fpd_dma_chan6 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&fpd_dma_chan7 {
+	status = "okay";
+};
+
+&fpd_dma_chan8 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&gem2 {
+	status = "okay";
+	clocks = <&clk125>, <&clk125>, <&clk125>;
+	local-mac-address = [00 0a 35 00 02 90];
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	phy0: phy@0{ /* DP83867 http://www.ti.com/lit/ds/symlink/dp83867ir.pdf ID 0x2000a231 */
+		reg = <0>; /* FIXME not quite sure about this one */
+		/* max-speed = <100>; */ /* FIXME here for sure */
+                ti,rx-internal-delay = <0x8>; /* FIXME DP83867_RGMIIDCTL_2_25_NS */
+                ti,tx-internal-delay = <0xa>; /* FIXME DP83867_RGMIIDCTL_2_75_NS */
+                ti,fifo-depth = <0x1>; /* default setup DP83867_PHYCR_FIFO_DEPTH_4_B_NIB */
+	};
+};
+
+&gpio {
+	status = "okay";
+	clocks = <&clk100>; /* FIXME - can't find in the table */
+};
+
+/*
+&gpu {
+	status = "okay";
+};
+*/
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	clocks = <&clk100>;
+
+	rtc@68 { /* FIXME address */
+		compatible = "dallas,ds1339"; /* http://datasheets.maximintegrated.com/en/ds/DS1339-DS1339U.pdf */
+		reg = <0x68>;
+	};
+
+
+/* This eeprom is connected on FMC to be detactable from SW point of view
+   address depends on FMC connector where it is plugged
+	eeprom@52 {
+		compatible = "at,24c02";
+		reg = <0x50>; // FIXME 0b10100xx
+	};
+
+	sw1@20 { // FMC address unknown
+		compatible = "nxp,pca9534"; // 8 gpios configurated as input
+		reg = <0x20>; // FIXME
+	};
+
+
+*/
+};
+
+&nand0 { /* CLK 100, Micron SLC family device MT29F32G08ABCDB - 2 cs  - flashes in parralel */
+	status = "okay";
+	arasan,has-mdma;
+	partition@0 {	/* for testing purpose */
+		label = "nand-fsbl-uboot";
+		reg = <0x0 0x400000>;
+	};
+	partition@1 {	/* for testing purpose */
+		label = "nand-linux";
+		reg = <0x400000 0x1400000>;
+	};
+	partition@2 {	/* for testing purpose */
+		label = "nand-device-tree";
+		reg = <0x1800000 0x400000>;
+	};
+	partition@3 {	/* for testing purpose */
+		label = "nand-rootfs";
+		reg = <0x1C00000 0x1400000>;
+	};
+	partition@4 {	/* for testing purpose */
+		label = "nand-bitstream";
+		reg = <0x3000000 0x400000>;
+	};
+};
+
+&rtc {
+	status = "okay";
+};
+
+&spi0 {
+	status = "okay";
+	num-cs = <1>;
+	clocks = <&clk200 &clk200>;
+	spi0_flash0: spi0_flash0@0 {
+		compatible = "m25p80"; /* FIXME SST25WF080 */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+
+		spi0_flash0@00000000 {
+			label = "spi0_flash0";
+			reg = <0x0 0x100000>;
+		};
+	};
+};
+
+&spi1 {
+	status = "okay";
+	num-cs = <1>;
+	clocks = <&clk200 &clk200>;
+	spi1_flash0: spi1_flash0@0 {
+		compatible = "m25p80"; /* AT45DB041E 4Mbit */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <85000000>; /* Adesto datasheet http://www.adestotech.com/wp-content/uploads/doc8783.pdf */
+		reg = <0>;
+
+		spi1_flash0@00000000 {
+			label = "spi1_flash0";
+			reg = <0x0 0x400000>;
+		};
+	};
+};
+
+/* ULPI SMSC USB3320 */
+&usb1 {
+	status = "okay";
+	dr_mode = "peripheral";
+	maximum-speed = "high-speed";
+	clocks = <&clk250>, <&clk250>;
+};
+
+&uart0 {
+	status = "okay";
+	clocks = <&clk100 &clk100>;
+};
+
+&uart1 {
+	status = "okay";
+	clocks = <&clk100 &clk100>;
+};
