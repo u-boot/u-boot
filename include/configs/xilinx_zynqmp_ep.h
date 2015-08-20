@@ -1,7 +1,5 @@
 /*
- * Configuration for Xilinx ZynqMP emulation
- * platforms. See zynqmp-common.h for ZynqMP
- * common configs
+ * Configuration for Xilinx ZynqMP emulation platforms
  *
  * (C) Copyright 2014 - 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
