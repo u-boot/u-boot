@@ -998,6 +998,17 @@ void clock_early_init(void)
 	udelay(2);
 }
 
+unsigned int clk_m_get_rate(unsigned parent_rate)
+{
+	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 value, div;
+
+	value = readl(&clkrst->crc_spare_reg0);
+	div = ((value >> 2) & 0x3) + 1;
+
+	return parent_rate / div;
+}
+
 void arch_timer_init(void)
 {
 	struct sysctr_ctlr *sysctr = (struct sysctr_ctlr *)NV_PA_TSC_BASE;
