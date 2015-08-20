@@ -21,9 +21,11 @@ unsigned long get_uart_clk(int dev_id)
 		return 48000;
 	case ZYNQMP_CSU_VERSION_EP108:
 		return 25000000;
+	case ZYNQMP_CSU_VERSION_QEMU:
+		return 133000000;
 	}
 
-	return 133000000;
+	return 100000000;
 }
 
 unsigned long zynqmp_get_system_timer_freq(void)

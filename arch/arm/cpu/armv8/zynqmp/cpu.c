@@ -38,9 +38,11 @@ unsigned int zynqmp_get_silicon_version(void)
 		return ZYNQMP_CSU_VERSION_VELOCE;
 	case 50000000:
 		return ZYNQMP_CSU_VERSION_QEMU;
+	case 4000000:
+		return ZYNQMP_CSU_VERSION_EP108;
 	}
 
-	return ZYNQMP_CSU_VERSION_EP108;
+	return ZYNQMP_CSU_VERSION_SILICON;
 }
 
 #ifndef CONFIG_SYS_DCACHE_OFF
