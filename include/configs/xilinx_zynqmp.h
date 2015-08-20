@@ -210,6 +210,7 @@
 		"tftpb 6000000 xen.ub && bootm 6000000 - $fdt_addr\0" \
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0" \
 		"load mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0" \
+	"nosmp=setenv bootargs $bootargs maxcpus=1\0" \
 	DFU_ALT_INFO
 
 
