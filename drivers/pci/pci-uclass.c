@@ -14,6 +14,9 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
+#if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
+#include <asm/fsp/fsp_support.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -747,6 +750,24 @@ static int pci_uclass_post_probe(struct udevice *bus)
 
 #ifdef CONFIG_PCI_PNP
 	ret = pci_auto_config_devices(bus);
+#endif
+
+#if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
+	/*
+	 * Per Intel FSP specification, we should call FSP notify API to
+	 * inform FSP that PCI enumeration has been done so that FSP will
+	 * do any necessary initialization as required by the chipset's
+	 * BIOS Writer's Guide (BWG).
+	 *
+	 * Unfortunately we have to put this call here as with driver model,
+	 * the enumeration is all done on a lazy basis as needed, so until
+	 * something is touched on PCI it won't happen.
+	 *
+	 * Note we only call this 1) after U-Boot is relocated, and 2)
+	 * root bus has finished probing.
+	 */
+	if ((gd->flags & GD_FLG_RELOC) && (bus->seq == 0))
+		ret = fsp_init_phase_pci();
 #endif
 
 	return ret < 0 ? ret : 0;
