@@ -13,7 +13,6 @@
 #include "tegra210-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra210 (E2220-1170) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA E2220-1170"
 
 /* Board-specific serial config */
