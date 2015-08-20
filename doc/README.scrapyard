@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+cam_enc_4xx      arm         arm926ejs      -           -           Heiko Schocher <hs@denx.de>
 atstk1003        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 atstk1004        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 atstk1006        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>

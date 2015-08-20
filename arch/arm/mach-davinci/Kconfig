@@ -18,10 +18,6 @@ config TARGET_DA850EVM
 	bool "DA850 EVM board"
 	select SUPPORT_SPL
 
-config TARGET_CAM_ENC_4XX
-	bool "CAM ENC 4xx board"
-	select SUPPORT_SPL
-
 config TARGET_OMAPL138_LCDK
 	bool "OMAPL138 LCDK"
 	select SUPPORT_SPL
@@ -62,7 +58,6 @@ config SYS_SOC
 	default "davinci"
 
 source "board/enbw/enbw_cmc/Kconfig"
-source "board/ait/cam_enc_4xx/Kconfig"
 source "board/Barix/ipam390/Kconfig"
 source "board/davinci/da8xxevm/Kconfig"
 source "board/davinci/dm355evm/Kconfig"
