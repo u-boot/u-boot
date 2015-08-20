@@ -115,8 +115,10 @@ car_init_ret:
 #endif
 #else
 	/*
-	 * When we get here after car_init(), esp points to a temporary stack
-	 * and esi holds the HOB list address returned by the FSP.
+	 * U-Boot enters here twice. For the first time it comes from
+	 * car_init_done() with esp points to a temporary stack and esi
+	 * set to zero. For the second time it comes from fsp_init_done()
+	 * with esi holding the HOB list address returned by the FSP.
 	 */
 #endif
 	/* Set up global data */

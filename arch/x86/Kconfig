@@ -229,7 +229,7 @@ config FSP_TEMP_RAM_ADDR
 	depends on HAVE_FSP
 	default 0x2000000
 	help
-	  Stack top address which is used in FspInit after DRAM is ready and
+	  Stack top address which is used in fsp_init() after DRAM is ready and
 	  CAR is disabled.
 
 config FSP_SYS_MALLOC_F_LEN
