@@ -461,6 +461,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	int n_ents;
 	int ret;
 	char name[30], *str;
+	bool bridge;
 
 	*devp = NULL;
 
@@ -480,6 +481,17 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 				continue;
 
 			drv = entry->driver;
+
+			/*
+			 * In the pre-relocation phase, we only bind devices
+			 * whose driver has the DM_FLAG_PRE_RELOC set, to save
+			 * precious memory space as on some platforms as that
+			 * space is pretty limited (ie: using Cache As RAM).
+			 */
+			if (!(gd->flags & GD_FLG_RELOC) &&
+			    !(drv->flags & DM_FLAG_PRE_RELOC))
+				return 0;
+
 			/*
 			 * We could pass the descriptor to the driver as
 			 * platdata (instead of NULL) and allow its bind()
@@ -499,14 +511,23 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 		}
 	}
 
+	bridge = (find_id->class >> 8) == PCI_CLASS_BRIDGE_PCI;
+	/*
+	 * In the pre-relocation phase, we only bind bridge devices to save
+	 * precious memory space as on some platforms as that space is pretty
+	 * limited (ie: using Cache As RAM).
+	 */
+	if (!(gd->flags & GD_FLG_RELOC) && !bridge)
+		return 0;
+
 	/* Bind a generic driver so that the device can be used */
 	sprintf(name, "pci_%x:%x.%x", parent->seq, PCI_DEV(bdf),
 		PCI_FUNC(bdf));
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	drv = (find_id->class >> 8) == PCI_CLASS_BRIDGE_PCI ? "pci_bridge_drv" :
-			"pci_generic_drv";
+	drv = bridge ? "pci_bridge_drv" : "pci_generic_drv";
+
 	ret = device_bind_driver(parent, drv, str, devp);
 	if (ret) {
 		debug("%s: Failed to bind generic driver: %d", __func__, ret);
@@ -589,11 +610,13 @@ int pci_bind_bus_devices(struct udevice *bus)
 			return ret;
 
 		/* Update the platform data */
-		pplat = dev_get_parent_platdata(dev);
-		pplat->devfn = PCI_MASK_BUS(bdf);
-		pplat->vendor = vendor;
-		pplat->device = device;
-		pplat->class = class;
+		if (dev) {
+			pplat = dev_get_parent_platdata(dev);
+			pplat->devfn = PCI_MASK_BUS(bdf);
+			pplat->vendor = vendor;
+			pplat->device = device;
+			pplat->class = class;
+		}
 	}
 
 	return 0;
@@ -716,10 +739,6 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 static int pci_uclass_post_probe(struct udevice *bus)
 {
 	int ret;
-
-	/* Don't scan buses before relocation */
-	if (!(gd->flags & GD_FLG_RELOC))
-		return 0;
 
 	debug("%s: probing bus %d\n", __func__, bus->seq);
 	ret = pci_bind_bus_devices(bus);
