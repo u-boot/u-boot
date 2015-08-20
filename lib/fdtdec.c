@@ -207,9 +207,8 @@ int fdtdec_get_pci_vendev(const void *blob, int node, u16 *vendor, u16 *device)
 
 				return 0;
 			}
-		} else {
-			list += (len + 1);
 		}
+		list += (len + 1);
 	}
 
 	return -ENOENT;
