@@ -141,6 +141,14 @@ car_init_ret:
 	jz	skip_hob
 	movl	%esi, GD_HOB_LIST(%edx)
 
+	/*
+	 * After fsp_init() returns, the stack has already been switched to a
+	 * place within system memory as defined by CONFIG_FSP_TEMP_RAM_ADDR.
+	 * Enlarge the size of malloc() pool before relocation since we have
+	 * plenty of memory now.
+	 */
+	subl	$CONFIG_FSP_SYS_MALLOC_F_LEN, %esp
+	movl	%esp, GD_MALLOC_BASE(%edx)
 skip_hob:
 #else
 	/* Store table pointer */

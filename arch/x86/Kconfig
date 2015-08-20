@@ -232,6 +232,13 @@ config FSP_TEMP_RAM_ADDR
 	  Stack top address which is used in FspInit after DRAM is ready and
 	  CAR is disabled.
 
+config FSP_SYS_MALLOC_F_LEN
+	hex
+	depends on HAVE_FSP
+	default 0x100000
+	help
+	  Additional size of malloc() pool before relocation.
+
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
