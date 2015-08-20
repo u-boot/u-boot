@@ -110,6 +110,10 @@
 				TCR_IRGN_WBWA |		\
 				TCR_T0SZ(VA_BITS))
 
+#define TCR_EL1_RSVD		(1 << 31)
+#define TCR_EL2_RSVD		(1 << 31 | 1 << 23)
+#define TCR_EL3_RSVD		(1 << 31 | 1 << 23)
+
 #ifndef __ASSEMBLY__
 
 void set_pgtable_section(u64 *page_table, u64 index,
