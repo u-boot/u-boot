@@ -679,8 +679,8 @@ void arch_timer_init(void)
 	struct sysctr_ctlr *sysctr = (struct sysctr_ctlr *)NV_PA_TSC_BASE;
 	u32 freq, val;
 
-	freq = clock_get_rate(CLOCK_ID_OSC);
-	debug("%s: osc freq is %dHz [0x%08X]\n", __func__, freq, freq);
+	freq = clock_get_rate(CLOCK_ID_CLK_M);
+	debug("%s: clk_m freq is %dHz [0x%08X]\n", __func__, freq, freq);
 
 	/* ARM CNTFRQ */
 	asm("mcr p15, 0, %0, c14, c0, 0\n" : : "r" (freq));
