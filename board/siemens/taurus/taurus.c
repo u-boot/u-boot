@@ -99,7 +99,7 @@ static int at91_is_recovery(void)
 }
 #endif
 
-void at91_spl_board_init(void)
+void spl_board_init(void)
 {
 	taurus_nand_hw_init();
 	at91_spi0_hw_init(TAURUS_SPI_MASK);
@@ -124,13 +124,13 @@ void at91_spl_board_init(void)
 	if (at91_is_recovery() == 1) {
 		struct spi_flash *flash;
 
-		debug("Recovery button pressed\n");
+		puts("Recovery button pressed\n");
 		nand_init();
 		spl_nand_erase_one(0, 0);
 		flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
 					0,
 					CONFIG_SF_DEFAULT_SPEED,
-					SPI_MODE_3);
+					CONFIG_SF_DEFAULT_MODE);
 		if (!flash) {
 			puts("no flash\n");
 		} else {
