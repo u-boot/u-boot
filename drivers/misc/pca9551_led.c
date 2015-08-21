@@ -116,8 +116,12 @@ static int pca9551_led_set_blink_rate(int idx, struct pca9551_blink_rate rate)
 }
 
 /*
- * Functions referenced by cmd_led.c
+ * Functions referenced by cmd_led.c or status_led.c
  */
+void __led_init(led_id_t id, int state)
+{
+}
+
 void __led_set(led_id_t mask, int state)
 {
 	if (state == STATUS_LED_OFF)

@@ -544,11 +544,14 @@ static int initr_kgdb(void)
 }
 #endif
 
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+#if defined(CONFIG_STATUS_LED)
 static int initr_status_led(void)
 {
+#if defined(STATUS_LED_BOOT)
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
-
+#else
+	status_led_init();
+#endif
 	return 0;
 }
 #endif
@@ -835,7 +838,7 @@ init_fnc_t init_sequence_r[] = {
 	|| defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
 #endif
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+#if defined(CONFIG_STATUS_LED)
 	initr_status_led,
 #endif
 	/* PPC has a udelay(20) here dating from 2002. Why? */
