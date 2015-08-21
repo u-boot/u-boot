@@ -565,6 +565,7 @@ restart:
 			/* include a debug print as well incase the debug
 			   messages are directed to stderr */
 			debug_cond(DEBUG_INT_STATE, "--- net_loop Abort!\n");
+			ret = -EINTR;
 			goto done;
 		}
 
