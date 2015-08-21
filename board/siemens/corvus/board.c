@@ -73,7 +73,7 @@ static void corvus_nand_hw_init(void)
 #include <spl.h>
 #include <nand.h>
 
-void at91_spl_board_init(void)
+void spl_board_init(void)
 {
 	/*
 	 * For on the sam9m10g45ek board, the chip wm9711 stay in the test
