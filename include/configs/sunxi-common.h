@@ -139,7 +139,6 @@
 
 #ifdef CONFIG_NAND_SUNXI
 #define CONFIG_SPL_NAND_SUPPORT 1
-#define CONFIG_SYS_NAND_U_BOOT_OFFS 0x008000
 #endif
 
 /* mmc config */
