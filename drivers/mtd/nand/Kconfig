@@ -100,14 +100,6 @@ config SPL_NAND_DENALI
 	  This is a small implementation of the Denali NAND controller
 	  for use on SPL.
 
-config NAND_SUNXI_SPL_SYNDROME_PARTITIONS_END
-	hex "Size of syndrome partitions in sunxi NAND"
-	default 0x400000
-	depends on NAND_SUNXI
-	---help---
-	End address for boot partitions on NAND. Those partitions have a
-	different random seed that has to match the sunxi BROM setting.
-
 endif
 
 endmenu

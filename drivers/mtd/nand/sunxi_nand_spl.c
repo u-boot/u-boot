@@ -356,8 +356,12 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 		2 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
 		4 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
 	};
-	int syndrome = offs < CONFIG_NAND_SUNXI_SPL_SYNDROME_PARTITIONS_END;
-	int i;
+	int i, syndrome;
+
+	if (CONFIG_SYS_NAND_U_BOOT_OFFS == CONFIG_SPL_PAD_TO)
+		syndrome = 1; /* u-boot-dtb.bin appended to SPL */
+	else
+		syndrome = 0; /* u-boot-dtb.bin on its own partition */
 
 	if (offs == CONFIG_SYS_NAND_U_BOOT_OFFS) {
 		for (i = 0; i < ARRAY_SIZE(boot_offsets); i++) {
