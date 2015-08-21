@@ -20,6 +20,7 @@
  * In this case SoC is defined in boards.cfg.
  */
 #include <asm/hardware.h>
+#include <linux/sizes.h>
 
 #define CONFIG_SYS_GENERIC_BOARD
 
@@ -158,12 +159,75 @@
 #define CONFIG_ENV_OFFSET_REDUND	0x180000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x300000; bootm"
-#define CONFIG_BOOTARGS							\
+
+#if defined(CONFIG_BOARD_TAURUS)
+#define	CONFIG_BOOTARGS_TAURUS						\
 	"console=ttyS0,115200 earlyprintk "				\
 	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
 	"256k(env),256k(env_redundant),256k(spare),"			\
 	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
 	"root=/dev/mtdblock7 rw rootfstype=jffs2"
+#endif
+
+#if defined(CONFIG_BOARD_AXM)
+#define CONFIG_BOOTARGS_AXM						\
+	"\0"	\
+	"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:"	\
+	"${gatewayip}:${netmask}:${hostname}:${netdev}::off\0"		\
+	"addtest=setenv bootargs ${bootargs} loglevel=4 test\0"		\
+	"baudrate=115200\0"						\
+	"boot_file=setenv bootfile /${project_dir}/kernel/uImage\0"	\
+	"boot_retries=0\0"						\
+	"bootcmd=run flash_self\0"					\
+	"bootdelay=3\0"							\
+	"ethact=macb0\0"						\
+	"flash_nfs=run nand_kernel;run nfsargs;run addip;upgrade_available;"\
+	"bootm ${kernel_ram};reset\0"					\
+	"flash_self=run nand_kernel;run setbootargs;upgrade_available;" \
+	"bootm ${kernel_ram};reset\0"					\
+	"flash_self_test=run nand_kernel;run setbootargs addtest; "	\
+	"upgrade_available;bootm ${kernel_ram};reset\0"			\
+	"hostname=systemone\0"						\
+	"kernel_Off=0x00200000\0"					\
+	"kernel_Off_fallback=0x03800000\0"				\
+	"kernel_ram=0x21500000\0"					\
+	"kernel_size=0x00400000\0"					\
+	"kernel_size_fallback=0x00400000\0"				\
+	"loads_echo=1\0"						\
+	"nand_kernel=nand read.e ${kernel_ram} ${kernel_Off} "		\
+		"${kernel_size}\0"					\
+	"net_nfs=run boot_file;tftp ${kernel_ram} ${bootfile};"		\
+	"run nfsargs;run addip;upgrade_available;bootm "		\
+		"${kernel_ram};reset\0"					\
+	"netdev=eth0\0"							\
+	"nfsargs=run root_path;setenv bootargs ${bootargs} "		\
+	"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "		\
+	"at91sam9_wdt.wdt_timeout=16\0"					\
+	"partitionset_active=A\0"					\
+	"preboot=echo;echo Type 'run flash_self' to use kernel and root "\
+	"filesystem on memory;echo Type 'run flash_nfs' to use kernel "	\
+	"from memory and root filesystem over NFS;echo Type 'run net_nfs' "\
+	"to get Kernel over TFTP and mount root filesystem over NFS;echo\0"\
+	"project_dir=systemone\0"					\
+	"root_path=setenv rootpath /home/projects/${project_dir}/rootfs\0"\
+	"rootfs=/dev/mtdblock5\0"					\
+	"rootfs_fallback=/dev/mtdblock7\0"				\
+	"setbootargs=setenv bootargs ${bootargs} console=ttyMTD,mtdoops "\
+		"root=${rootfs} rootfstype=jffs2 panic=7 "		\
+		"at91sam9_wdt.wdt_timeout=16\0"				\
+	"stderr=serial\0"						\
+	"stdin=serial\0"						\
+	"stdout=serial\0"						\
+	"upgrade_available=0\0"
+#endif
+
+#if defined(CONFIG_BOARD_TAURUS)
+#define CONFIG_BOOTARGS		CONFIG_BOOTARGS_TAURUS
+#endif
+
+#if defined(CONFIG_BOARD_AXM)
+#define CONFIG_BOOTARGS		CONFIG_BOOTARGS_AXM
+#endif
 
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
@@ -182,8 +246,8 @@
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x0
-#define CONFIG_SPL_MAX_SIZE		(14 * 1024)
-#define CONFIG_SPL_STACK		(16 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(31 * SZ_512)
+#define	CONFIG_SPL_STACK		(ATMEL_BASE_SRAM1 + SZ_16K)
 #define CONFIG_SYS_SPL_MALLOC_START     (CONFIG_SYS_TEXT_BASE - \
 					CONFIG_SYS_MALLOC_LEN)
 #define CONFIG_SYS_SPL_MALLOC_SIZE      CONFIG_SYS_MALLOC_LEN
@@ -232,4 +296,5 @@
 #define CONFIG_SYS_MCKR			0x1300
 #define CONFIG_SYS_MCKR_CSS		(0x02 | CONFIG_SYS_MCKR)
 #define CONFIG_SYS_AT91_PLLB		0x10193F05
+
 #endif
