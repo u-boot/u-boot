@@ -29,6 +29,10 @@
 #include <netdev.h>
 #include <spi.h>
 
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+#include <asm/arch/atmel_usba_udc.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static void corvus_nand_hw_init(void)
@@ -202,6 +206,19 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+/* from ./arch/arm/mach-at91/armv7/sama5d3_devices.c */
+void at91_udp_hw_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	/* Enable UPLL clock */
+	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	/* Enable UDPHS clock */
+	at91_periph_clk_enable(ATMEL_ID_UDPHS);
+}
+#endif
+
 int board_init(void)
 {
 	/* address of boot parameters */
@@ -221,6 +238,10 @@ int board_init(void)
 #endif
 #ifdef CONFIG_CMD_USB
 	taurus_usb_hw_init();
+#endif
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	at91_udp_hw_init();
+	usba_udc_probe(&pdata);
 #endif
 	return 0;
 }
