@@ -60,8 +60,6 @@ source "drivers/crypto/Kconfig"
 
 source "drivers/thermal/Kconfig"
 
-endmenu
-
 config PHYS_TO_BUS
 	bool "Custom physical to bus address mapping"
 	help
@@ -69,3 +67,5 @@ config PHYS_TO_BUS
 	  peripheral DMA master accesses. If yours does, select this option in
 	  your platform's Kconfig, and implement the appropriate mapping
 	  functions in your platform's support code.
+
+endmenu
