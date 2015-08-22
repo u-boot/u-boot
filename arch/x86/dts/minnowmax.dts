@@ -30,6 +30,33 @@
 		compatible = "intel,x86-pinctrl";
 		io-base = <0x4c>;
 
+		/* GPIO E0 */
+		soc_gpio_s5_0@0 {
+			gpio-offset = <0x80 0>;
+			pad-offset = <0x1d0>;
+			mode-gpio;
+			output-value = <0>;
+			direction = <PIN_OUTPUT>;
+		};
+
+		/* GPIO E1 */
+		soc_gpio_s5_1@0 {
+			gpio-offset = <0x80 1>;
+			pad-offset = <0x210>;
+			mode-gpio;
+			output-value = <0>;
+			direction = <PIN_OUTPUT>;
+		};
+
+		/* GPIO E2 */
+		soc_gpio_s5_2@0 {
+			gpio-offset = <0x80 2>;
+			pad-offset = <0x1e0>;
+			mode-gpio;
+			output-value = <0>;
+			direction = <PIN_OUTPUT>;
+		};
+
 		pin_usb_host_en0@0 {
 			gpio-offset = <0x80 8>;
 			pad-offset = <0x260>;
