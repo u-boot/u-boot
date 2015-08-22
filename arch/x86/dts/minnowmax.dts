@@ -67,7 +67,7 @@
 
 		pin_usb_host_en1@0 {
 			gpio-offset = <0x80 9>;
-			pad-offset = <0x258>;
+			pad-offset = <0x250>;
 			mode-gpio;
 			output-value = <1>;
 			direction = <PIN_OUTPUT>;
