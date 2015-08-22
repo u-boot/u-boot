@@ -410,7 +410,7 @@ static int ich6_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 
-	return _ich6_gpio_set_direction(inl(bank->io_sel), offset, 0);
+	return _ich6_gpio_set_direction(bank->io_sel, offset, 0);
 }
 
 static int ich6_gpio_direction_output(struct udevice *dev, unsigned offset,
@@ -419,7 +419,7 @@ static int ich6_gpio_direction_output(struct udevice *dev, unsigned offset,
 	int ret;
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 
-	ret = _ich6_gpio_set_direction(inl(bank->io_sel), offset, 1);
+	ret = _ich6_gpio_set_direction(bank->io_sel, offset, 1);
 	if (ret)
 		return ret;
 
