@@ -297,6 +297,17 @@ $(obj)/%.dtb: $(src)/%.dts FORCE
 
 dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
 
+# ACPI
+# ---------------------------------------------------------------------------
+quiet_cmd_acpi_c_asl= ASL     $@
+cmd_acpi_c_asl=         \
+	$(CPP) -x assembler-with-cpp -P -o $<.tmp $<; \
+	iasl -p $< -tc -va $<.tmp; \
+	mv $(patsubst %.asl,%.hex,$<) $@
+
+$(obj)/%.c:    $(src)/%.asl
+	$(call cmd,acpi_c_asl)
+
 # Bzip2
 # ---------------------------------------------------------------------------
 
