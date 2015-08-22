@@ -163,10 +163,10 @@
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
 #define ENV_MEM_LAYOUT_SETTINGS \
-	"scriptaddr=0x00000000\0" \
+	"fdt_addr_r=0x00000100\0" \
 	"pxefile_addr_r=0x00100000\0" \
 	"kernel_addr_r=0x01000000\0" \
-	"fdt_addr_r=0x02000000\0" \
+	"scriptaddr=0x02000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \
