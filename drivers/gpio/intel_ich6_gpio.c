@@ -75,7 +75,7 @@ static int gpio_ich6_get_base(unsigned long base)
 	/* Is the device present? */
 	tmpword = x86_pci_read_config16(pci_dev, PCI_VENDOR_ID);
 	if (tmpword != PCI_VENDOR_ID_INTEL) {
-		debug("%s: wrong VendorID\n", __func__);
+		debug("%s: wrong VendorID %x\n", __func__, tmpword);
 		return -ENODEV;
 	}
 
@@ -144,7 +144,7 @@ static int gpio_ich6_get_base(unsigned long base)
 	 * at the offset that we just read. Bit 0 indicates that it's
 	 * an I/O address, not a memory address, so mask that off.
 	 */
-	return tmplong & 0xfffc;
+	return tmplong & 1 ? tmplong & ~3 : tmplong & ~15;
 }
 
 static int _ich6_gpio_set_value(uint16_t base, unsigned offset, int value)
@@ -324,7 +324,7 @@ int gpio_ich6_pinctrl_init(void)
 		debug("%s: io-base offset not present\n", __func__);
 	} else {
 		iobase = gpio_ich6_get_base(iobase_offset);
-		if (iobase < 0) {
+		if (IS_ERR_VALUE(iobase)) {
 			debug("%s: invalid IOBASE address (%08x)\n", __func__,
 			      iobase);
 			return -EINVAL;
