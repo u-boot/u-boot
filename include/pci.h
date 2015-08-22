@@ -653,6 +653,7 @@ extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
 #define pci_io_to_virt(dev, addr, len, map_flags) \
 	pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
+/* For driver model these are defined in macros in pci_compat.c */
 extern int pci_hose_read_config_byte(struct pci_controller *hose,
 				     pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word(struct pci_controller *hose,
