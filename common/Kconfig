@@ -635,6 +635,16 @@ config CMD_TPM
 	  command requires a suitable TPM on your board and the correct driver
 	  must be enabled.
 
+config CMD_TPM_TEST
+	bool "Enable the 'tpm test' command"
+	depends on CMD_TPM
+	help
+	  This provides a a series of tests to confirm that the TPM is working
+	  correctly. The tests cover initialisation, non-volatile RAM, extend,
+	  global lock and checking that timing is within expectations. The
+	  tests pass correctly on Infineon TPMs but may need to be adjusted
+	  for other devices.
+
 endmenu
 
 endmenu
