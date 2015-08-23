@@ -608,27 +608,6 @@ out:
 	return rc;
 }
 
-static int tpm_open_dev(struct udevice *dev)
-{
-	int rc;
-
-	debug("%s: start\n", __func__);
-	if (g_chip.is_open)
-		return -EBUSY;
-	rc = tpm_tis_i2c_init(dev);
-	if (rc < 0)
-		g_chip.is_open = 0;
-	return rc;
-}
-
-static void tpm_close(void)
-{
-	if (g_chip.is_open) {
-		release_locality(&g_chip, g_chip.locality, 1);
-		g_chip.is_open = 0;
-	}
-}
-
 /**
  * Decode TPM configuration.
  *
@@ -712,7 +691,12 @@ int tis_open(void)
 	if (!g_chip.inited)
 		return -1;
 
-	rc = tpm_open_dev(g_chip.dev);
+	debug("%s: start\n", __func__);
+	if (g_chip.is_open)
+		return -EBUSY;
+	rc = tpm_tis_i2c_init(g_chip.dev);
+	if (rc < 0)
+		g_chip.is_open = 0;
 
 	return rc;
 }
@@ -722,7 +706,10 @@ int tis_close(void)
 	if (!g_chip.inited)
 		return -1;
 
-	tpm_close();
+	if (g_chip.is_open) {
+		release_locality(&g_chip, g_chip.locality, 1);
+		g_chip.is_open = 0;
+	}
 
 	return 0;
 }
