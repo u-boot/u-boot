@@ -37,9 +37,6 @@ enum tpm_timeout {
 #define TPM_RSP_SIZE_BYTE	2
 #define TPM_RSP_RC_BYTE		6
 
-/* Max buffer size supported by our tpm */
-#define TPM_DEV_BUFSIZE		1260
-
 enum i2c_chip_type {
 	SLB9635,
 	SLB9645,
@@ -47,17 +44,10 @@ enum i2c_chip_type {
 };
 
 struct tpm_chip {
-	bool inited;
 	int is_open;
-	u8 req_complete_mask;
-	u8 req_complete_val;
-	u8 req_canceled;
-	int irq;
 	int locality;
+	u32 vend_dev;
 	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
-	unsigned long duration[3];  /* msec */
-	struct udevice *dev;
-	u8 buf[TPM_DEV_BUFSIZE + sizeof(u8)];  /* Max buffer size + addr */
 	enum i2c_chip_type chip_type;
 };
 
@@ -129,8 +119,6 @@ struct tpm_cmd_t {
  */
 #define MAX_COUNT_LONG		50
 
-#define TPM_HEADER_SIZE		10
-
 enum tis_access {
 	TPM_ACCESS_VALID		= 0x80,
 	TPM_ACCESS_ACTIVE_LOCALITY	= 0x20,
@@ -154,11 +142,5 @@ enum tis_status {
 #define	TPM_STS(l)			(0x0001 | ((l) << 4))
 #define	TPM_DATA_FIFO(l)		(0x0005 | ((l) << 4))
 #define	TPM_DID_VID(l)			(0x0006 | ((l) << 4))
-
-/* Extended error numbers from linux (see errno.h) */
-#define ECANCELED	125	/* Operation Canceled */
-
-/* Timer frequency. Corresponds to msec timer resolution */
-#define HZ		1000
 
 #endif

@@ -58,8 +58,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(MAXIM_MAX77686_PMIC, "maxim,max77686"),
 	COMPAT(GENERIC_SPI_FLASH, "spi-flash"),
 	COMPAT(MAXIM_98095_CODEC, "maxim,max98095-codec"),
-	COMPAT(INFINEON_SLB9635_TPM, "infineon,slb9635-tpm"),
-	COMPAT(INFINEON_SLB9645_TPM, "infineon,slb9645tt"),
 	COMPAT(SAMSUNG_EXYNOS5_I2C, "samsung,exynos5-hsi2c"),
 	COMPAT(SANDBOX_LCD_SDL, "sandbox,lcd-sdl"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
