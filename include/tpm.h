@@ -49,6 +49,15 @@ enum tpm_nv_index {
 	TPM_NV_INDEX_DIR	= 0x10000001,
 };
 
+#define TPM_NV_PER_GLOBALLOCK		(1U << 15)
+#define TPM_NV_PER_PPWRITE		(1U << 0)
+#define TPM_NV_PER_READ_STCLEAR		(1U << 31)
+#define TPM_NV_PER_WRITE_STCLEAR	(1U << 14)
+
+enum {
+	TPM_PUBEK_SIZE			= 256,
+};
+
 /**
  * TPM return codes as defined in the TCG Main specification
  * (TPM Main Part 2 Structures; Specification version 1.2)
@@ -162,6 +171,30 @@ enum tpm_return_code {
 	TPM_DOING_SELFTEST	= TPM_BASE + TPM_NON_FATAL + 2,
 	TPM_DEFEND_LOCK_RUNNING	= TPM_BASE + TPM_NON_FATAL + 3,
 };
+
+struct tpm_permanent_flags {
+	__be16	tag;
+	u8	disable;
+	u8	ownership;
+	u8	deactivated;
+	u8	read_pubek;
+	u8	disable_owner_clear;
+	u8	allow_maintenance;
+	u8	physical_presence_lifetime_lock;
+	u8	physical_presence_hw_enable;
+	u8	physical_presence_cmd_enable;
+	u8	cekp_used;
+	u8	tpm_post;
+	u8	tpm_post_lock;
+	u8	fips;
+	u8	operator;
+	u8	enable_revoke_ek;
+	u8	nv_locked;
+	u8	read_srk_pub;
+	u8	tpm_established;
+	u8	maintenance_done;
+	u8	disable_full_da_logic_info;
+} __packed;
 
 #ifdef CONFIG_DM_TPM
 
@@ -550,5 +583,21 @@ uint32_t tpm_load_key2_oiap(uint32_t parent_handle,
  */
 uint32_t tpm_get_pub_key_oiap(uint32_t key_handle, const void *usage_auth,
 		void *pubkey, size_t *pubkey_len);
+
+/**
+ * Get the TPM permanent flags value
+ *
+ * @param pflags	Place to put permanent flags
+ * @return return code of the operation
+ */
+uint32_t tpm_get_permanent_flags(struct tpm_permanent_flags *pflags);
+
+/**
+ * Get the TPM permissions
+ *
+ * @param perm		Returns permissions value
+ * @return return code of the operation
+ */
+uint32_t tpm_get_permissions(uint32_t index, uint32_t *perm);
 
 #endif /* __TPM_H */
