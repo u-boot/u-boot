@@ -59,6 +59,14 @@
 					 <&gpy4 2 0>;
 	};
 
+	i2c@12C90000 {
+		clock-frequency = <100000>;
+		tpm@20 {
+			reg = <0x20>;
+			compatible = "infineon,slb9645tt";
+		};
+	};
+
 	mmc@12200000 {
 		samsung,bus-width = <8>;
 		samsung,timing = <1 3 3>;
