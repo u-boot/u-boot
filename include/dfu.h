@@ -207,5 +207,31 @@ static inline int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr,
 }
 #endif
 
+/**
+ * dfu_tftp_write - Write TFTP data to DFU medium
+ *
+ * This function is storing data received via TFTP on DFU supported medium.
+ *
+ * @param dfu_entity_name - name of DFU entity to write
+ * @param addr - address of data buffer to write
+ * @param len - number of bytes
+ * @param interface - destination DFU medium (e.g. "mmc")
+ * @param devstring - instance number of destination DFU medium (e.g. "1")
+ *
+ * @return 0 on success, otherwise error code
+ */
+#ifdef CONFIG_DFU_TFTP
+int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
+		   char *interface, char *devstring);
+#else
+static inline int dfu_tftp_write(char *dfu_entity_name, unsigned int addr,
+				 unsigned int len, char *interface,
+				 char *devstring)
+{
+	puts("TFTP write support for DFU not available!\n");
+	return -ENOSYS;
+}
+#endif
+
 int dfu_add(struct usb_configuration *c);
 #endif /* __DFU_ENTITY_H_ */
