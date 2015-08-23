@@ -80,17 +80,19 @@ static void *parse_byte_string(char *bytes, uint8_t *data, size_t *count_ptr)
 }
 
 /**
- * Convert TPM command return code to U-Boot command error codes.
+ * report_return_code() - Report any error and return failure or success
  *
  * @param return_code	TPM command return code
  * @return value of enum command_ret_t
  */
-static int convert_return_code(uint32_t return_code)
+static int report_return_code(int return_code)
 {
-	if (return_code)
+	if (return_code) {
+		printf("Error: %d\n", return_code);
 		return CMD_RET_FAILURE;
-	else
+	} else {
 		return CMD_RET_SUCCESS;
+	}
 }
 
 /**
@@ -252,7 +254,7 @@ static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	return convert_return_code(tpm_startup(mode));
+	return report_return_code(tpm_startup(mode));
 }
 
 static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag,
@@ -266,7 +268,7 @@ static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag,
 	perm = simple_strtoul(argv[2], NULL, 0);
 	size = simple_strtoul(argv[3], NULL, 0);
 
-	return convert_return_code(tpm_nv_define_space(index, perm, size));
+	return report_return_code(tpm_nv_define_space(index, perm, size));
 }
 
 static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag,
@@ -287,7 +289,7 @@ static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag,
 		print_byte_string(data, count);
 	}
 
-	return convert_return_code(rc);
+	return report_return_code(rc);
 }
 
 static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag,
@@ -309,7 +311,7 @@ static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag,
 	rc = tpm_nv_write_value(index, data, count);
 	free(data);
 
-	return convert_return_code(rc);
+	return report_return_code(rc);
 }
 
 static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag,
@@ -332,7 +334,7 @@ static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag,
 		print_byte_string(out_digest, sizeof(out_digest));
 	}
 
-	return convert_return_code(rc);
+	return report_return_code(rc);
 }
 
 static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag,
@@ -353,7 +355,7 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag,
 		print_byte_string(data, count);
 	}
 
-	return convert_return_code(rc);
+	return report_return_code(rc);
 }
 
 static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag,
@@ -365,7 +367,7 @@ static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 	presence = (uint16_t)simple_strtoul(argv[1], NULL, 0);
 
-	return convert_return_code(tpm_tsc_physical_presence(presence));
+	return report_return_code(tpm_tsc_physical_presence(presence));
 }
 
 static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag,
@@ -385,7 +387,7 @@ static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag,
 		print_byte_string(data, count);
 	}
 
-	return convert_return_code(rc);
+	return report_return_code(rc);
 }
 
 static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag,
@@ -397,7 +399,7 @@ static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 	state = (uint8_t)simple_strtoul(argv[1], NULL, 0);
 
-	return convert_return_code(tpm_physical_set_deactivated(state));
+	return report_return_code(tpm_physical_set_deactivated(state));
 }
 
 static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag,
@@ -420,7 +422,7 @@ static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag,
 		print_byte_string(cap, count);
 	}
 
-	return convert_return_code(rc);
+	return report_return_code(rc);
 }
 
 #define TPM_COMMAND_NO_ARG(cmd)				\
@@ -429,7 +431,7 @@ static int do_##cmd(cmd_tbl_t *cmdtp, int flag,		\
 {							\
 	if (argc != 1)					\
 		return CMD_RET_USAGE;			\
-	return convert_return_code(cmd());		\
+	return report_return_code(cmd());		\
 }
 
 TPM_COMMAND_NO_ARG(tpm_init)
@@ -485,7 +487,7 @@ static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
 		print_byte_string(response, response_length);
 	}
 
-	return convert_return_code(rc);
+	return report_return_code(rc);
 }
 
 static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag,
@@ -503,7 +505,7 @@ static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag,
 	index = simple_strtoul(argv[2], NULL, 0);
 	perm = simple_strtoul(argv[3], NULL, 0);
 
-	return convert_return_code(tpm_nv_define_space(index, perm, size));
+	return report_return_code(tpm_nv_define_space(index, perm, size));
 }
 
 static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag,
@@ -532,7 +534,7 @@ static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag,
 	}
 	free(data);
 
-	return convert_return_code(err);
+	return report_return_code(err);
 }
 
 static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag,
@@ -560,7 +562,7 @@ static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag,
 	err = tpm_nv_write_value(index, data, count);
 	free(data);
 
-	return convert_return_code(err);
+	return report_return_code(err);
 }
 
 #ifdef CONFIG_TPM_AUTH_SESSIONS
@@ -572,7 +574,7 @@ static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag,
 
 	err = tpm_oiap(&auth_handle);
 
-	return convert_return_code(err);
+	return report_return_code(err);
 }
 
 static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag,
@@ -597,7 +599,7 @@ static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag,
 	if (!err)
 		printf("Key handle is 0x%x\n", key_handle);
 
-	return convert_return_code(err);
+	return report_return_code(err);
 }
 
 static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag,
@@ -622,7 +624,7 @@ static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag,
 		printf("dump of received pub key structure:\n");
 		print_byte_string(pub_key_buffer, pub_key_len);
 	}
-	return convert_return_code(err);
+	return report_return_code(err);
 }
 
 TPM_COMMAND_NO_ARG(tpm_end_oiap)
