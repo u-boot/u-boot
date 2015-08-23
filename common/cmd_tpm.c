@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <malloc.h>
 #include <tpm.h>
 #include <asm/unaligned.h>
@@ -438,6 +439,21 @@ TPM_COMMAND_NO_ARG(tpm_force_clear)
 TPM_COMMAND_NO_ARG(tpm_physical_enable)
 TPM_COMMAND_NO_ARG(tpm_physical_disable)
 
+#ifdef CONFIG_DM_TPM
+static int get_tpm(struct udevice **devp)
+{
+	int rc;
+
+	rc = uclass_first_device(UCLASS_TPM, devp);
+	if (rc) {
+		printf("Could not find TPM (ret=%d)\n", rc);
+		return CMD_RET_FAILURE;
+	}
+
+	return 0;
+}
+#endif
+
 static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
@@ -452,7 +468,17 @@ static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
+#ifdef CONFIG_DM_TPM
+	struct udevice *dev;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
+
+	rc = tpm_xfer(dev, command, count, response, &response_length);
+#else
 	rc = tis_sendrecv(command, count, response, &response_length);
+#endif
 	free(command);
 	if (!rc) {
 		puts("tpm response:\n");

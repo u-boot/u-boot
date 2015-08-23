@@ -349,7 +349,7 @@ int tpm_xfer(struct udevice *dev, const uint8_t *sendbuf, size_t send_size,
  *
  * @return 0 on success, non-0 on error.
  */
-uint32_t tpm_init(void);
+int tpm_init(void);
 
 /**
  * Issue a TPM_Startup command.

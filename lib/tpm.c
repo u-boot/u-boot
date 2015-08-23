@@ -6,10 +6,11 @@
  */
 
 #include <common.h>
-#include <stdarg.h>
-#include <u-boot/sha1.h>
+#include <dm.h>
+#include <tis.h>
 #include <tpm.h>
 #include <asm/unaligned.h>
+#include <u-boot/sha1.h>
 
 /* Internal error of TPM command library */
 #define TPM_LIB_ERROR	((uint32_t)~0u)
@@ -240,9 +241,20 @@ static uint32_t tpm_sendrecv_command(const void *command,
 		response = response_buffer;
 		response_length = sizeof(response_buffer);
 	}
+#ifdef CONFIG_DM_TPM
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_TPM, &dev);
+	if (ret)
+		return ret;
+	err = tpm_xfer(dev, command, tpm_command_size(command),
+		       response, &response_length);
+#else
 	err = tis_sendrecv(command, tpm_command_size(command),
 			response, &response_length);
-	if (err)
+#endif
+	if (err < 0)
 		return TPM_LIB_ERROR;
 	if (size_ptr)
 		*size_ptr = response_length;
@@ -250,15 +262,24 @@ static uint32_t tpm_sendrecv_command(const void *command,
 	return tpm_return_code(response);
 }
 
-uint32_t tpm_init(void)
+int tpm_init(void)
 {
-	uint32_t err;
+	int err;
 
+#ifdef CONFIG_DM_TPM
+	struct udevice *dev;
+
+	err = uclass_first_device(UCLASS_TPM, &dev);
+	if (err)
+		return err;
+	return tpm_open(dev);
+#else
 	err = tis_init();
 	if (err)
 		return err;
 
 	return tis_open();
+#endif
 }
 
 uint32_t tpm_startup(enum tpm_startup_type mode)
