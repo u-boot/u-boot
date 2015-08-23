@@ -68,7 +68,7 @@ static int tpm_tis_i2c_read(u8 addr, u8 *buffer, size_t len)
 			rc = dm_i2c_write(g_chip.dev, 0, (uchar *)&addrbuf, 1);
 			if (rc == 0)
 				break;  /* Success, break to skip sleep */
-			udelay(SLEEP_DURATION);
+			udelay(SLEEP_DURATION_US);
 		}
 		if (rc)
 			return -rc;
@@ -78,7 +78,7 @@ static int tpm_tis_i2c_read(u8 addr, u8 *buffer, size_t len)
 		 * retrieving the data
 		 */
 		for (count = 0; count < MAX_COUNT; count++) {
-			udelay(SLEEP_DURATION);
+			udelay(SLEEP_DURATION_US);
 			rc = dm_i2c_read(g_chip.dev, 0, buffer, len);
 			if (rc == 0)
 				break;  /* success, break to skip sleep */
@@ -95,12 +95,12 @@ static int tpm_tis_i2c_read(u8 addr, u8 *buffer, size_t len)
 			rc = dm_i2c_read(g_chip.dev, addr, buffer, len);
 			if (rc == 0)
 				break;  /* break here to skip sleep */
-			udelay(SLEEP_DURATION);
+			udelay(SLEEP_DURATION_US);
 		}
 	}
 
 	/* Take care of 'guard time' */
-	udelay(SLEEP_DURATION);
+	udelay(SLEEP_DURATION_US);
 	if (rc)
 		return -rc;
 
@@ -108,7 +108,7 @@ static int tpm_tis_i2c_read(u8 addr, u8 *buffer, size_t len)
 }
 
 static int tpm_tis_i2c_write_generic(u8 addr, u8 *buffer, size_t len,
-				     unsigned int sleep_time, u8 max_count)
+				     unsigned int sleep_time_us, u8 max_count)
 {
 	int rc = 0;
 	int count;
@@ -117,11 +117,11 @@ static int tpm_tis_i2c_write_generic(u8 addr, u8 *buffer, size_t len,
 		rc = dm_i2c_write(g_chip.dev, addr, buffer, len);
 		if (rc == 0)
 			break;  /* Success, break to skip sleep */
-		udelay(sleep_time);
+		udelay(sleep_time_us);
 	}
 
 	/* take care of 'guard time' */
-	udelay(sleep_time);
+	udelay(sleep_time_us);
 	if (rc)
 		return -rc;
 
@@ -146,8 +146,8 @@ static int tpm_tis_i2c_write_generic(u8 addr, u8 *buffer, size_t len,
  */
 static int tpm_tis_i2c_write(u8 addr, u8 *buffer, size_t len)
 {
-	return tpm_tis_i2c_write_generic(addr, buffer, len, SLEEP_DURATION,
-			MAX_COUNT);
+	return tpm_tis_i2c_write_generic(addr, buffer, len, SLEEP_DURATION_US,
+					 MAX_COUNT);
 }
 
 /*
@@ -156,8 +156,9 @@ static int tpm_tis_i2c_write(u8 addr, u8 *buffer, size_t len)
  */
 static int tpm_tis_i2c_write_long(u8 addr, u8 *buffer, size_t len)
 {
-	return tpm_tis_i2c_write_generic(addr, buffer, len, SLEEP_DURATION_LONG,
-			MAX_COUNT_LONG);
+	return tpm_tis_i2c_write_generic(addr, buffer, len,
+					 SLEEP_DURATION_LONG_US,
+					 MAX_COUNT_LONG);
 }
 
 static int tpm_tis_i2c_check_locality(struct tpm_chip *chip, int loc)
@@ -212,7 +213,7 @@ static int tpm_tis_i2c_request_locality(struct tpm_chip *chip, int loc)
 	do {
 		if (tpm_tis_i2c_check_locality(chip, loc) >= 0)
 			return loc;
-		udelay(TPM_TIMEOUT * 1000);
+		mdelay(TPM_TIMEOUT_MS);
 	} while (get_timer(start) < stop);
 
 	return -1;
@@ -262,7 +263,7 @@ static ssize_t tpm_tis_i2c_get_burstcount(struct tpm_chip *chip)
 
 		if (burstcnt)
 			return burstcnt;
-		udelay(TPM_TIMEOUT * 1000);
+		mdelay(TPM_TIMEOUT_MS);
 	} while (get_timer(start) < stop);
 
 	return -EBUSY;
@@ -281,7 +282,7 @@ static int tpm_tis_i2c_wait_for_stat(struct tpm_chip *chip, u8 mask,
 	start = get_timer(0);
 	stop = timeout;
 	do {
-		udelay(TPM_TIMEOUT * 1000);
+		mdelay(TPM_TIMEOUT_MS);
 		*status = tpm_tis_i2c_status(chip);
 		if ((*status & mask) == mask)
 			return 0;
@@ -363,7 +364,7 @@ out:
 	 * The TPM needs some time to clean up here,
 	 * so we sleep rather than keeping the bus busy
 	 */
-	udelay(2000);
+	mdelay(2);
 	tpm_tis_i2c_release_locality(chip, chip->locality, 0);
 
 	return size;
@@ -446,7 +447,7 @@ out_err:
 	 * The TPM needs some time to clean up here,
 	 * so we sleep rather than keeping the bus busy
 	 */
-	udelay(2000);
+	mdelay(2);
 	tpm_tis_i2c_release_locality(chip, chip->locality, 0);
 
 	return rc;
@@ -480,10 +481,10 @@ static int tpm_tis_i2c_init(struct udevice *dev)
 	chip->irq = 0;
 
 	/* Default timeouts - these could move to the device tree */
-	chip->timeout_a = TIS_SHORT_TIMEOUT;
-	chip->timeout_b = TIS_LONG_TIMEOUT;
-	chip->timeout_c = TIS_SHORT_TIMEOUT;
-	chip->timeout_d = TIS_SHORT_TIMEOUT;
+	chip->timeout_a = TIS_SHORT_TIMEOUT_MS;
+	chip->timeout_b = TIS_LONG_TIMEOUT_MS;
+	chip->timeout_c = TIS_SHORT_TIMEOUT_MS;
+	chip->timeout_d = TIS_SHORT_TIMEOUT_MS;
 	chip->req_complete_mask = TPM_STS_DATA_AVAIL | TPM_STS_VALID;
 	chip->req_complete_val = TPM_STS_DATA_AVAIL | TPM_STS_VALID;
 	chip->req_canceled = TPM_STS_COMMAND_READY;
@@ -593,7 +594,7 @@ static ssize_t tpm_tis_i2c_transmit(const unsigned char *buf, size_t bufsiz)
 			rc = -ECANCELED;
 			goto out;
 		}
-		udelay(TPM_TIMEOUT * 1000);
+		mdelay(TPM_TIMEOUT_MS);
 	} while (get_timer(start) < stop);
 
 	tpm_tis_i2c_ready(chip);

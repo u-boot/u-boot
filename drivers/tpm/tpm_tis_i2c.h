@@ -23,7 +23,11 @@
 #include <linux/types.h>
 
 enum tpm_timeout {
-	TPM_TIMEOUT = 5,	/* msecs */
+	TPM_TIMEOUT_MS			= 5,
+	TIS_SHORT_TIMEOUT_MS		= 750,
+	TIS_LONG_TIMEOUT_MS		= 2000,
+	SLEEP_DURATION_US		= 60,
+	SLEEP_DURATION_LONG_US		= 210,
 };
 
 /* Size of external transmit buffer (used in tpm_transmit)*/
@@ -125,9 +129,6 @@ struct tpm_cmd_t {
  */
 #define MAX_COUNT_LONG		50
 
-#define SLEEP_DURATION		60	/* in usec */
-#define SLEEP_DURATION_LONG	210	/* in usec */
-
 #define TPM_HEADER_SIZE		10
 
 enum tis_access {
@@ -143,11 +144,6 @@ enum tis_status {
 	TPM_STS_GO			= 0x20,
 	TPM_STS_DATA_AVAIL		= 0x10,
 	TPM_STS_DATA_EXPECT		= 0x08,
-};
-
-enum tis_defaults {
-	TIS_SHORT_TIMEOUT		= 750,	/* ms */
-	TIS_LONG_TIMEOUT		= 2000,	/* ms */
 };
 
 /* expected value for DIDVID register */
@@ -169,7 +165,7 @@ enum tpm_duration {
 /* Extended error numbers from linux (see errno.h) */
 #define ECANCELED	125	/* Operation Canceled */
 
-/* Timer frequency. Corresponds to msec timer resolution*/
+/* Timer frequency. Corresponds to msec timer resolution */
 #define HZ		1000
 
 #define TPM_MAX_ORDINAL			243
