@@ -456,6 +456,26 @@ static int get_tpm(struct udevice **devp)
 
 	return 0;
 }
+
+static int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char *const argv[])
+{
+	struct udevice *dev;
+	char buf[80];
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
+	rc = tpm_get_desc(dev, buf, sizeof(buf));
+	if (rc < 0) {
+		printf("Couldn't get TPM info (%d)\n", rc);
+		return CMD_RET_FAILURE;
+	}
+	printf("%s\n", buf);
+
+	return 0;
+}
 #endif
 
 static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
@@ -637,6 +657,9 @@ TPM_COMMAND_NO_ARG(tpm_end_oiap)
 	U_BOOT_CMD_MKENT(cmd, 0, 1, do_tpm_ ## cmd, "", "")
 
 static cmd_tbl_t tpm_commands[] = {
+#ifdef CONFIG_DM_TPM
+	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(init, 0, 1,
 			do_tpm_init, "", ""),
 	U_BOOT_CMD_MKENT(startup, 0, 1,
@@ -707,6 +730,9 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "cmd args...\n"
 "    - Issue TPM command <cmd> with arguments <args...>.\n"
 "Admin Startup and State Commands:\n"
+#ifdef CONFIG_DM_TPM
+"  info - Show information about the TPM\n"
+#endif
 "  init\n"
 "    - Put TPM into a state where it waits for 'startup' command.\n"
 "  startup mode\n"
