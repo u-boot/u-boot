@@ -23,7 +23,7 @@ static int do_fitupd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc == 2)
 		addr = simple_strtoul(argv[1], NULL, 16);
 
-	return update_tftp(addr);
+	return update_tftp(addr, NULL, NULL);
 }
 
 U_BOOT_CMD(fitupd, 2, 0, do_fitupd,
