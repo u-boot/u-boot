@@ -531,7 +531,7 @@ static int check_locality(struct tpm_chip *chip, int loc)
 		return rc;
 
 	if ((buf & mask) == mask) {
-		chip->vendor.locality = loc;
+		chip->locality = loc;
 		return loc;
 	}
 
@@ -567,7 +567,7 @@ static int request_locality(struct tpm_chip *chip, int loc)
 
 	/* Wait for burstcount */
 	start = get_timer(0);
-	stop = chip->vendor.timeout_a;
+	stop = chip->timeout_a;
 	do {
 		if (check_locality(chip, loc) >= 0)
 			return loc;
@@ -582,7 +582,7 @@ static u8 tpm_tis_i2c_status(struct tpm_chip *chip)
 	/* NOTE: Since i2c read may fail, return 0 in this case --> time-out */
 	u8 buf;
 
-	if (iic_tpm_read(TPM_STS(chip->vendor.locality), &buf, 1) < 0)
+	if (iic_tpm_read(TPM_STS(chip->locality), &buf, 1) < 0)
 		return 0;
 	else
 		return buf;
@@ -596,7 +596,7 @@ static void tpm_tis_i2c_ready(struct tpm_chip *chip)
 	u8 buf = TPM_STS_COMMAND_READY;
 
 	debug("%s\n", __func__);
-	rc = iic_tpm_write_long(TPM_STS(chip->vendor.locality), &buf, 1);
+	rc = iic_tpm_write_long(TPM_STS(chip->locality), &buf, 1);
 	if (rc)
 		debug("%s: rc=%d\n", __func__, rc);
 }
@@ -610,10 +610,10 @@ static ssize_t get_burstcount(struct tpm_chip *chip)
 	/* Wait for burstcount */
 	/* XXX: Which timeout value? Spec has 2 answers (c & d) */
 	start = get_timer(0);
-	stop = chip->vendor.timeout_d;
+	stop = chip->timeout_d;
 	do {
 		/* Note: STS is little endian */
-		addr = TPM_STS(chip->vendor.locality) + 1;
+		addr = TPM_STS(chip->locality) + 1;
 		if (iic_tpm_read(addr, buf, 3) < 0)
 			burstcnt = 0;
 		else
@@ -666,7 +666,7 @@ static int recv_data(struct tpm_chip *chip, u8 *buf, size_t count)
 		if (burstcnt > (count - size))
 			burstcnt = count - size;
 
-		rc = iic_tpm_read(TPM_DATA_FIFO(chip->vendor.locality),
+		rc = iic_tpm_read(TPM_DATA_FIFO(chip->locality),
 				&(buf[size]), burstcnt);
 		if (rc == 0)
 			size += burstcnt;
@@ -708,7 +708,7 @@ static int tpm_tis_i2c_recv(struct tpm_chip *chip, u8 *buf, size_t count)
 		goto out;
 	}
 
-	wait_for_stat(chip, TPM_STS_VALID, chip->vendor.timeout_c, &status);
+	wait_for_stat(chip, TPM_STS_VALID, chip->timeout_c, &status);
 	if (status & TPM_STS_DATA_AVAIL) {  /* Retry? */
 		error("Error left over data\n");
 		size = -EIO;
@@ -722,7 +722,7 @@ out:
 	 * so we sleep rather than keeping the bus busy
 	 */
 	udelay(2000);
-	release_locality(chip, chip->vendor.locality, 0);
+	release_locality(chip, chip->locality, 0);
 
 	return size;
 }
@@ -746,7 +746,7 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 	if ((status & TPM_STS_COMMAND_READY) == 0) {
 		tpm_tis_i2c_ready(chip);
 		if (wait_for_stat(chip, TPM_STS_COMMAND_READY,
-				  chip->vendor.timeout_b, &status) < 0) {
+				  chip->timeout_b, &status) < 0) {
 			rc = -ETIME;
 			goto out_err;
 		}
@@ -768,7 +768,7 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 			burstcnt = CONFIG_TPM_TIS_I2C_BURST_LIMITATION;
 #endif /* CONFIG_TPM_TIS_I2C_BURST_LIMITATION */
 
-		rc = iic_tpm_write(TPM_DATA_FIFO(chip->vendor.locality),
+		rc = iic_tpm_write(TPM_DATA_FIFO(chip->locality),
 				&(buf[count]), burstcnt);
 		if (rc == 0)
 			count += burstcnt;
@@ -779,7 +779,7 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 				goto out_err;
 			}
 			rc = wait_for_stat(chip, TPM_STS_VALID,
-					   chip->vendor.timeout_c, &status);
+					   chip->timeout_c, &status);
 			if (rc)
 				goto out_err;
 
@@ -791,7 +791,7 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 	}
 
 	/* Go and do it */
-	iic_tpm_write(TPM_STS(chip->vendor.locality), &sts, 1);
+	iic_tpm_write(TPM_STS(chip->locality), &sts, 1);
 	debug("done\n");
 
 	return len;
@@ -804,17 +804,10 @@ out_err:
 	 * so we sleep rather than keeping the bus busy
 	 */
 	udelay(2000);
-	release_locality(chip, chip->vendor.locality, 0);
+	release_locality(chip, chip->locality, 0);
 
 	return rc;
 }
-
-static struct tpm_vendor_specific tpm_tis_i2c = {
-	.req_complete_mask = TPM_STS_DATA_AVAIL | TPM_STS_VALID,
-	.req_complete_val = TPM_STS_DATA_AVAIL | TPM_STS_VALID,
-	.req_canceled = TPM_STS_COMMAND_READY,
-};
-
 
 static enum i2c_chip_type tpm_vendor_chip_type(void)
 {
@@ -832,25 +825,25 @@ static enum i2c_chip_type tpm_vendor_chip_type(void)
 
 int tpm_vendor_init(struct udevice *dev)
 {
-	struct tpm_chip *chip;
+	struct tpm_chip *chip = &g_chip;
 	u32 vendor;
 	u32 expected_did_vid;
 
 	tpm_dev.dev = dev;
 	tpm_dev.chip_type = tpm_vendor_chip_type();
-
-	chip = tpm_register_hardware(&tpm_tis_i2c);
-	if (chip < 0)
-		return -ENODEV;
+	chip->is_open = 1;
 
 	/* Disable interrupts (not supported) */
-	chip->vendor.irq = 0;
+	chip->irq = 0;
 
 	/* Default timeouts */
-	chip->vendor.timeout_a = TIS_SHORT_TIMEOUT;
-	chip->vendor.timeout_b = TIS_LONG_TIMEOUT;
-	chip->vendor.timeout_c = TIS_SHORT_TIMEOUT;
-	chip->vendor.timeout_d = TIS_SHORT_TIMEOUT;
+	chip->timeout_a = TIS_SHORT_TIMEOUT;
+	chip->timeout_b = TIS_LONG_TIMEOUT;
+	chip->timeout_c = TIS_SHORT_TIMEOUT;
+	chip->timeout_d = TIS_SHORT_TIMEOUT;
+	chip->req_complete_mask = TPM_STS_DATA_AVAIL | TPM_STS_VALID;
+	chip->req_complete_val = TPM_STS_DATA_AVAIL | TPM_STS_VALID;
+	chip->req_canceled = TPM_STS_COMMAND_READY;
 
 	if (request_locality(chip, 0) < 0)
 		return  -ENODEV;
@@ -887,7 +880,7 @@ int tpm_vendor_init(struct udevice *dev)
 
 void tpm_vendor_cleanup(struct tpm_chip *chip)
 {
-	release_locality(chip, chip->vendor.locality, 1);
+	release_locality(chip, chip->locality, 1);
 }
 
 /* Returns max number of milliseconds to wait */
@@ -906,7 +899,7 @@ static unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip,
 	}
 
 	if (duration_idx != TPM_UNDEFINED)
-		duration = chip->vendor.duration[duration_idx];
+		duration = chip->duration[duration_idx];
 
 	if (duration <= 0)
 		return 2 * 60 * HZ; /* Two minutes timeout */
@@ -943,7 +936,7 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 		goto out;
 	}
 
-	if (chip->vendor.irq)
+	if (chip->irq)
 		goto out_recv;
 
 	start = get_timer(0);
@@ -951,13 +944,13 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 	do {
 		debug("waiting for status... %ld %ld\n", start, stop);
 		u8 status = tpm_tis_i2c_status(chip);
-		if ((status & chip->vendor.req_complete_mask) ==
-		    chip->vendor.req_complete_val) {
+		if ((status & chip->req_complete_mask) ==
+		    chip->req_complete_val) {
 			debug("...got it;\n");
 			goto out_recv;
 		}
 
-		if (status == chip->vendor.req_canceled) {
+		if (status == chip->req_canceled) {
 			error("Operation Canceled\n");
 			rc = -ECANCELED;
 			goto out;
@@ -1060,18 +1053,6 @@ static int tpm_decode_config(struct tpm *dev)
 	}
 
 	return 0;
-}
-
-struct tpm_chip *tpm_register_hardware(const struct tpm_vendor_specific *entry)
-{
-	struct tpm_chip *chip;
-
-	/* Driver specific per-device data */
-	chip = &g_chip;
-	memcpy(&chip->vendor, entry, sizeof(struct tpm_vendor_specific));
-	chip->is_open = 1;
-
-	return chip;
 }
 
 int tis_init(void)

@@ -35,19 +35,15 @@ enum tpm_timeout {
 
 struct tpm_chip;
 
-struct tpm_vendor_specific {
-	const u8 req_complete_mask;
-	const u8 req_complete_val;
-	const u8 req_canceled;
+struct tpm_chip {
+	int is_open;
+	u8 req_complete_mask;
+	u8 req_complete_val;
+	u8 req_canceled;
 	int irq;
 	int locality;
 	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
 	unsigned long duration[3];  /* msec */
-};
-
-struct tpm_chip {
-	int is_open;
-	struct tpm_vendor_specific vendor;
 };
 
 struct tpm_input_header {
@@ -105,8 +101,6 @@ struct tpm_cmd_t {
 	union tpm_cmd_header header;
 	union tpm_cmd_params params;
 } __packed;
-
-struct tpm_chip *tpm_register_hardware(const struct tpm_vendor_specific *);
 
 struct udevice;
 int tpm_vendor_init(struct udevice *dev);
