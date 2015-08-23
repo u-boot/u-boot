@@ -58,6 +58,8 @@ static void *parse_byte_string(char *bytes, uint8_t *data, size_t *count_ptr)
 	size_t count, length;
 	int i;
 
+	if (!bytes)
+		return NULL;
 	length = strlen(bytes);
 	count = length / 2;
 
