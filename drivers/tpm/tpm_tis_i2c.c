@@ -375,12 +375,6 @@ static const u8 tpm_ordinal_duration[TPM_MAX_ORDINAL] = {
 	TPM_MEDIUM,
 };
 
-/* TPM configuration */
-struct tpm {
-	struct udevice *dev;
-	char inited;
-} tpm;
-
 static struct tpm_chip g_chip;
 
 /*
@@ -976,7 +970,7 @@ static void tpm_close(void)
  * @param dev	Returns a configuration of TPM device
  * @return 0 if ok, -1 on error
  */
-static int tpm_decode_config(struct tpm *dev)
+static int tpm_decode_config(struct tpm_chip *chip)
 {
 	const void *blob = gd->fdt_blob;
 	struct udevice *bus;
@@ -1021,7 +1015,7 @@ static int tpm_decode_config(struct tpm *dev)
 	 * TODO(sjg@chromium.org): Older TPMs will need to use the older method
 	 * in iic_tpm_read() so the offset length needs to be 0 here.
 	 */
-	ret = i2c_get_chip(bus, chip_addr, 1, &dev->dev);
+	ret = i2c_get_chip(bus, chip_addr, 1, &chip->dev);
 	if (ret) {
 		debug("Cannot find device for node '%s: ret=%d'\n",
 		      fdt_get_name(blob, node, NULL), ret);
@@ -1033,15 +1027,15 @@ static int tpm_decode_config(struct tpm *dev)
 
 int tis_init(void)
 {
-	if (tpm.inited)
+	if (g_chip.inited)
 		return 0;
 
-	if (tpm_decode_config(&tpm))
+	if (tpm_decode_config(&g_chip))
 		return -1;
 
 	debug("%s: done\n", __func__);
 
-	tpm.inited = 1;
+	g_chip.inited = 1;
 
 	return 0;
 }
@@ -1050,17 +1044,17 @@ int tis_open(void)
 {
 	int rc;
 
-	if (!tpm.inited)
+	if (!g_chip.inited)
 		return -1;
 
-	rc = tpm_open_dev(tpm.dev);
+	rc = tpm_open_dev(g_chip.dev);
 
 	return rc;
 }
 
 int tis_close(void)
 {
-	if (!tpm.inited)
+	if (!g_chip.inited)
 		return -1;
 
 	tpm_close();
@@ -1074,7 +1068,7 @@ int tis_sendrecv(const uint8_t *sendbuf, size_t sbuf_size,
 	int len;
 	uint8_t buf[4096];
 
-	if (!tpm.inited)
+	if (!g_chip.inited)
 		return -1;
 
 	if (sizeof(buf) < sbuf_size)

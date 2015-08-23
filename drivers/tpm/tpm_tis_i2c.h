@@ -43,6 +43,7 @@ enum i2c_chip_type {
 };
 
 struct tpm_chip {
+	bool inited;
 	int is_open;
 	u8 req_complete_mask;
 	u8 req_complete_val;
