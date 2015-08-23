@@ -568,3 +568,40 @@ int dfu_get_alt(char *name)
 
 	return -ENODEV;
 }
+
+int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size)
+{
+	unsigned long dfu_buf_size, write, left = size;
+	int i, ret = 0;
+	void *dp = buf;
+
+	/*
+	 * Here we must call dfu_get_buf(dfu) first to be sure that dfu_buf_size
+	 * has been properly initialized - e.g. if "dfu_bufsiz" has been taken
+	 * into account.
+	 */
+	dfu_get_buf(dfu);
+	dfu_buf_size = dfu_get_buf_size();
+	debug("%s: dfu buf size: %lu\n", __func__, dfu_buf_size);
+
+	for (i = 0; left > 0; i++) {
+		write = min(dfu_buf_size, left);
+
+		debug("%s: dp: 0x%p left: %lu write: %lu\n", __func__,
+		      dp, left, write);
+		ret = dfu_write(dfu, dp, write, i);
+		if (ret) {
+			error("DFU write failed\n");
+			return ret;
+		}
+
+		dp += write;
+		left -= write;
+	}
+
+	ret = dfu_flush(dfu, NULL, 0, i);
+	if (ret)
+		error("DFU flush failed!");
+
+	return ret;
+}
