@@ -226,14 +226,7 @@
 #define CONFIG_SF_DEFAULT_MODE		0
 #endif
 
-/*
- * TPM
- */
-#define CONFIG_TPM_ATMEL_TWI
-#define CONFIG_TPM
-#define CONFIG_TPM_AUTH_SESSIONS
 #define CONFIG_SHA1
-#define CONFIG_CMD_TPM
 
 /*
  * MMC
