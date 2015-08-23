@@ -43,7 +43,7 @@ static const char * const chip_name[] = {
 static struct tpm_chip g_chip;
 
 /*
- * iic_tpm_read() - read from TPM register
+ * tpm_tis_i2c_read() - read from TPM register
  * @addr: register address to read from
  * @buffer: provided by caller
  * @len: number of bytes to read
@@ -56,7 +56,7 @@ static struct tpm_chip g_chip;
  *
  * Return -EIO on error, 0 on success.
  */
-static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
+static int tpm_tis_i2c_read(u8 addr, u8 *buffer, size_t len)
 {
 	int rc;
 	int count;
@@ -107,8 +107,8 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 	return 0;
 }
 
-static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
-		unsigned int sleep_time, u8 max_count)
+static int tpm_tis_i2c_write_generic(u8 addr, u8 *buffer, size_t len,
+				     unsigned int sleep_time, u8 max_count)
 {
 	int rc = 0;
 	int count;
@@ -129,7 +129,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
 }
 
 /*
- * iic_tpm_write() - write to TPM register
+ * tpm_tis_i2c_write() - write to TPM register
  * @addr: register address to write to
  * @buffer: containing data to be written
  * @len: number of bytes to write
@@ -140,13 +140,13 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
  * NOTE: TPM is big-endian for multi-byte values. Multi-byte
  * values have to be swapped.
  *
- * NOTE: use this function instead of the iic_tpm_write_generic function.
+ * NOTE: use this function instead of the tpm_tis_i2c_write_generic function.
  *
  * Return -EIO on error, 0 on success
  */
-static int iic_tpm_write(u8 addr, u8 *buffer, size_t len)
+static int tpm_tis_i2c_write(u8 addr, u8 *buffer, size_t len)
 {
-	return iic_tpm_write_generic(addr, buffer, len, SLEEP_DURATION,
+	return tpm_tis_i2c_write_generic(addr, buffer, len, SLEEP_DURATION,
 			MAX_COUNT);
 }
 
@@ -154,19 +154,19 @@ static int iic_tpm_write(u8 addr, u8 *buffer, size_t len)
  * This function is needed especially for the cleanup situation after
  * sending TPM_READY
  */
-static int iic_tpm_write_long(u8 addr, u8 *buffer, size_t len)
+static int tpm_tis_i2c_write_long(u8 addr, u8 *buffer, size_t len)
 {
-	return iic_tpm_write_generic(addr, buffer, len, SLEEP_DURATION_LONG,
+	return tpm_tis_i2c_write_generic(addr, buffer, len, SLEEP_DURATION_LONG,
 			MAX_COUNT_LONG);
 }
 
-static int check_locality(struct tpm_chip *chip, int loc)
+static int tpm_tis_i2c_check_locality(struct tpm_chip *chip, int loc)
 {
 	const u8 mask = TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID;
 	u8 buf;
 	int rc;
 
-	rc = iic_tpm_read(TPM_ACCESS(loc), &buf, 1);
+	rc = tpm_tis_i2c_read(TPM_ACCESS(loc), &buf, 1);
 	if (rc < 0)
 		return rc;
 
@@ -178,30 +178,31 @@ static int check_locality(struct tpm_chip *chip, int loc)
 	return -1;
 }
 
-static void release_locality(struct tpm_chip *chip, int loc, int force)
+static void tpm_tis_i2c_release_locality(struct tpm_chip *chip, int loc,
+					 int force)
 {
 	const u8 mask = TPM_ACCESS_REQUEST_PENDING | TPM_ACCESS_VALID;
 	u8 buf;
 
-	if (iic_tpm_read(TPM_ACCESS(loc), &buf, 1) < 0)
+	if (tpm_tis_i2c_read(TPM_ACCESS(loc), &buf, 1) < 0)
 		return;
 
 	if (force || (buf & mask) == mask) {
 		buf = TPM_ACCESS_ACTIVE_LOCALITY;
-		iic_tpm_write(TPM_ACCESS(loc), &buf, 1);
+		tpm_tis_i2c_write(TPM_ACCESS(loc), &buf, 1);
 	}
 }
 
-static int request_locality(struct tpm_chip *chip, int loc)
+static int tpm_tis_i2c_request_locality(struct tpm_chip *chip, int loc)
 {
 	unsigned long start, stop;
 	u8 buf = TPM_ACCESS_REQUEST_USE;
 	int rc;
 
-	if (check_locality(chip, loc) >= 0)
+	if (tpm_tis_i2c_check_locality(chip, loc) >= 0)
 		return loc;  /* We already have the locality */
 
-	rc = iic_tpm_write(TPM_ACCESS(loc), &buf, 1);
+	rc = tpm_tis_i2c_write(TPM_ACCESS(loc), &buf, 1);
 	if (rc)
 		return rc;
 
@@ -209,7 +210,7 @@ static int request_locality(struct tpm_chip *chip, int loc)
 	start = get_timer(0);
 	stop = chip->timeout_a;
 	do {
-		if (check_locality(chip, loc) >= 0)
+		if (tpm_tis_i2c_check_locality(chip, loc) >= 0)
 			return loc;
 		udelay(TPM_TIMEOUT * 1000);
 	} while (get_timer(start) < stop);
@@ -222,7 +223,7 @@ static u8 tpm_tis_i2c_status(struct tpm_chip *chip)
 	/* NOTE: Since i2c read may fail, return 0 in this case --> time-out */
 	u8 buf;
 
-	if (iic_tpm_read(TPM_STS(chip->locality), &buf, 1) < 0)
+	if (tpm_tis_i2c_read(TPM_STS(chip->locality), &buf, 1) < 0)
 		return 0;
 	else
 		return buf;
@@ -236,12 +237,12 @@ static void tpm_tis_i2c_ready(struct tpm_chip *chip)
 	u8 buf = TPM_STS_COMMAND_READY;
 
 	debug("%s\n", __func__);
-	rc = iic_tpm_write_long(TPM_STS(chip->locality), &buf, 1);
+	rc = tpm_tis_i2c_write_long(TPM_STS(chip->locality), &buf, 1);
 	if (rc)
 		debug("%s: rc=%d\n", __func__, rc);
 }
 
-static ssize_t get_burstcount(struct tpm_chip *chip)
+static ssize_t tpm_tis_i2c_get_burstcount(struct tpm_chip *chip)
 {
 	unsigned long start, stop;
 	ssize_t burstcnt;
@@ -254,7 +255,7 @@ static ssize_t get_burstcount(struct tpm_chip *chip)
 	do {
 		/* Note: STS is little endian */
 		addr = TPM_STS(chip->locality) + 1;
-		if (iic_tpm_read(addr, buf, 3) < 0)
+		if (tpm_tis_i2c_read(addr, buf, 3) < 0)
 			burstcnt = 0;
 		else
 			burstcnt = (buf[2] << 16) + (buf[1] << 8) + buf[0];
@@ -267,8 +268,8 @@ static ssize_t get_burstcount(struct tpm_chip *chip)
 	return -EBUSY;
 }
 
-static int wait_for_stat(struct tpm_chip *chip, u8 mask, unsigned long timeout,
-		int *status)
+static int tpm_tis_i2c_wait_for_stat(struct tpm_chip *chip, u8 mask,
+				     unsigned long timeout, int *status)
 {
 	unsigned long start, stop;
 
@@ -289,14 +290,14 @@ static int wait_for_stat(struct tpm_chip *chip, u8 mask, unsigned long timeout,
 	return -ETIME;
 }
 
-static int recv_data(struct tpm_chip *chip, u8 *buf, size_t count)
+static int tpm_tis_i2c_recv_data(struct tpm_chip *chip, u8 *buf, size_t count)
 {
 	size_t size = 0;
 	ssize_t burstcnt;
 	int rc;
 
 	while (size < count) {
-		burstcnt = get_burstcount(chip);
+		burstcnt = tpm_tis_i2c_get_burstcount(chip);
 
 		/* burstcount < 0 -> tpm is busy */
 		if (burstcnt < 0)
@@ -306,7 +307,7 @@ static int recv_data(struct tpm_chip *chip, u8 *buf, size_t count)
 		if (burstcnt > (count - size))
 			burstcnt = count - size;
 
-		rc = iic_tpm_read(TPM_DATA_FIFO(chip->locality),
+		rc = tpm_tis_i2c_read(TPM_DATA_FIFO(chip->locality),
 				&(buf[size]), burstcnt);
 		if (rc == 0)
 			size += burstcnt;
@@ -326,7 +327,7 @@ static int tpm_tis_i2c_recv(struct tpm_chip *chip, u8 *buf, size_t count)
 	}
 
 	/* Read first 10 bytes, including tag, paramsize, and result */
-	size = recv_data(chip, buf, TPM_HEADER_SIZE);
+	size = tpm_tis_i2c_recv_data(chip, buf, TPM_HEADER_SIZE);
 	if (size < TPM_HEADER_SIZE) {
 		error("Unable to read header\n");
 		goto out;
@@ -340,15 +341,16 @@ static int tpm_tis_i2c_recv(struct tpm_chip *chip, u8 *buf, size_t count)
 		goto out;
 	}
 
-	size += recv_data(chip, &buf[TPM_HEADER_SIZE],
-			expected - TPM_HEADER_SIZE);
+	size += tpm_tis_i2c_recv_data(chip, &buf[TPM_HEADER_SIZE],
+				      expected - TPM_HEADER_SIZE);
 	if (size < expected) {
 		error("Unable to read remainder of result\n");
 		size = -ETIME;
 		goto out;
 	}
 
-	wait_for_stat(chip, TPM_STS_VALID, chip->timeout_c, &status);
+	tpm_tis_i2c_wait_for_stat(chip, TPM_STS_VALID, chip->timeout_c,
+				  &status);
 	if (status & TPM_STS_DATA_AVAIL) {  /* Retry? */
 		error("Error left over data\n");
 		size = -EIO;
@@ -362,7 +364,7 @@ out:
 	 * so we sleep rather than keeping the bus busy
 	 */
 	udelay(2000);
-	release_locality(chip, chip->locality, 0);
+	tpm_tis_i2c_release_locality(chip, chip->locality, 0);
 
 	return size;
 }
@@ -379,20 +381,20 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 	if (len > TPM_DEV_BUFSIZE)
 		return -E2BIG;  /* Command is too long for our tpm, sorry */
 
-	if (request_locality(chip, 0) < 0)
+	if (tpm_tis_i2c_request_locality(chip, 0) < 0)
 		return -EBUSY;
 
 	status = tpm_tis_i2c_status(chip);
 	if ((status & TPM_STS_COMMAND_READY) == 0) {
 		tpm_tis_i2c_ready(chip);
-		if (wait_for_stat(chip, TPM_STS_COMMAND_READY,
-				  chip->timeout_b, &status) < 0) {
+		if (tpm_tis_i2c_wait_for_stat(chip, TPM_STS_COMMAND_READY,
+					      chip->timeout_b, &status) < 0) {
 			rc = -ETIME;
 			goto out_err;
 		}
 	}
 
-	burstcnt = get_burstcount(chip);
+	burstcnt = tpm_tis_i2c_get_burstcount(chip);
 
 	/* burstcount < 0 -> tpm is busy */
 	if (burstcnt < 0)
@@ -408,7 +410,7 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 			burstcnt = CONFIG_TPM_TIS_I2C_BURST_LIMITATION;
 #endif /* CONFIG_TPM_TIS_I2C_BURST_LIMITATION */
 
-		rc = iic_tpm_write(TPM_DATA_FIFO(chip->locality),
+		rc = tpm_tis_i2c_write(TPM_DATA_FIFO(chip->locality),
 				&(buf[count]), burstcnt);
 		if (rc == 0)
 			count += burstcnt;
@@ -418,8 +420,9 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 				rc = -EIO;
 				goto out_err;
 			}
-			rc = wait_for_stat(chip, TPM_STS_VALID,
-					   chip->timeout_c, &status);
+			rc = tpm_tis_i2c_wait_for_stat(chip, TPM_STS_VALID,
+						       chip->timeout_c,
+						       &status);
 			if (rc)
 				goto out_err;
 
@@ -431,7 +434,7 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
 	}
 
 	/* Go and do it */
-	iic_tpm_write(TPM_STS(chip->locality), &sts, 1);
+	tpm_tis_i2c_write(TPM_STS(chip->locality), &sts, 1);
 	debug("done\n");
 
 	return len;
@@ -444,7 +447,7 @@ out_err:
 	 * so we sleep rather than keeping the bus busy
 	 */
 	udelay(2000);
-	release_locality(chip, chip->locality, 0);
+	tpm_tis_i2c_release_locality(chip, chip->locality, 0);
 
 	return rc;
 }
@@ -476,7 +479,7 @@ static int tpm_tis_i2c_init(struct udevice *dev)
 	/* Disable interrupts (not supported) */
 	chip->irq = 0;
 
-	/* Default timeouts */
+	/* Default timeouts - these could move to the device tree */
 	chip->timeout_a = TIS_SHORT_TIMEOUT;
 	chip->timeout_b = TIS_LONG_TIMEOUT;
 	chip->timeout_c = TIS_SHORT_TIMEOUT;
@@ -485,12 +488,12 @@ static int tpm_tis_i2c_init(struct udevice *dev)
 	chip->req_complete_val = TPM_STS_DATA_AVAIL | TPM_STS_VALID;
 	chip->req_canceled = TPM_STS_COMMAND_READY;
 
-	if (request_locality(chip, 0) < 0)
+	if (tpm_tis_i2c_request_locality(chip, 0) < 0)
 		return  -ENODEV;
 
 	/* Read four bytes from DID_VID register */
-	if (iic_tpm_read(TPM_DID_VID(0), (uchar *)&vendor, 4) < 0) {
-		release_locality(chip, 0, 1);
+	if (tpm_tis_i2c_read(TPM_DID_VID(0), (uchar *)&vendor, 4) < 0) {
+		tpm_tis_i2c_release_locality(chip, 0, 1);
 		return -EIO;
 	}
 
@@ -519,8 +522,8 @@ static int tpm_tis_i2c_init(struct udevice *dev)
 }
 
 /* Returns max number of milliseconds to wait */
-static unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip,
-		u32 ordinal)
+static unsigned long tpm_tis_i2c_calc_ordinal_duration(struct tpm_chip *chip,
+						       u32 ordinal)
 {
 	int duration_idx = TPM_UNDEFINED;
 	int duration = 0;
@@ -542,7 +545,7 @@ static unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip,
 		return duration;
 }
 
-static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
+static ssize_t tpm_tis_i2c_transmit(const unsigned char *buf, size_t bufsiz)
 {
 	int rc;
 	u32 count, ordinal;
@@ -575,7 +578,7 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 		goto out_recv;
 
 	start = get_timer(0);
-	stop = tpm_calc_ordinal_duration(chip, ordinal);
+	stop = tpm_tis_i2c_calc_ordinal_duration(chip, ordinal);
 	do {
 		debug("waiting for status... %ld %ld\n", start, stop);
 		u8 status = tpm_tis_i2c_status(chip);
@@ -614,7 +617,7 @@ out:
  * @param dev	Returns a configuration of TPM device
  * @return 0 if ok, -1 on error
  */
-static int tpm_decode_config(struct tpm_chip *chip)
+static int tpm_tis_i2c_decode_config(struct tpm_chip *chip)
 {
 	const void *blob = gd->fdt_blob;
 	struct udevice *bus;
@@ -657,7 +660,7 @@ static int tpm_decode_config(struct tpm_chip *chip)
 	}
 	/*
 	 * TODO(sjg@chromium.org): Older TPMs will need to use the older method
-	 * in iic_tpm_read() so the offset length needs to be 0 here.
+	 * in tpm_tis_i2c_read() so the offset length needs to be 0 here.
 	 */
 	ret = i2c_get_chip(bus, chip_addr, 1, &chip->dev);
 	if (ret) {
@@ -674,7 +677,7 @@ int tis_init(void)
 	if (g_chip.inited)
 		return 0;
 
-	if (tpm_decode_config(&g_chip))
+	if (tpm_tis_i2c_decode_config(&g_chip))
 		return -1;
 
 	debug("%s: done\n", __func__);
@@ -707,7 +710,7 @@ int tis_close(void)
 		return -1;
 
 	if (g_chip.is_open) {
-		release_locality(&g_chip, g_chip.locality, 1);
+		tpm_tis_i2c_release_locality(&g_chip, g_chip.locality, 1);
 		g_chip.is_open = 0;
 	}
 
@@ -728,7 +731,7 @@ int tis_sendrecv(const uint8_t *sendbuf, size_t sbuf_size,
 
 	memcpy(buf, sendbuf, sbuf_size);
 
-	len = tpm_transmit(buf, sbuf_size);
+	len = tpm_tis_i2c_transmit(buf, sbuf_size);
 
 	if (len < 10) {
 		*rbuf_len = 0;
