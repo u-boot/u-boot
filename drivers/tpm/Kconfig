@@ -4,6 +4,15 @@
 
 menu "TPM support"
 
+config DM_TPM
+	bool "Enable driver model for Trusted Platform Module drivers"
+	depends on DM && TPM
+	help
+          Enable driver model for TPMs. The TIS interface (tis_open(),
+	  tis_sendrecv(), etc.) is then implemented by the TPM uclass. Note
+	  that even with driver model only a single TPM is currently
+	  supported, since the tpm library assumes this.
+
 config TPM_TIS_SANDBOX
 	bool "Enable sandbox TPM driver"
 	depends on SANDBOX

@@ -54,6 +54,7 @@ enum uclass_id {
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SYSCON,		/* System configuration device */
 	UCLASS_THERMAL,		/* Thermal sensor */
+	UCLASS_TPM,		/* Trusted Platform Module TIS interface */
 	UCLASS_USB,		/* USB bus */
 	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
 	UCLASS_USB_HUB,		/* USB hub */

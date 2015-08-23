@@ -25,12 +25,14 @@
 #include <fdtdec.h>
 #include <linux/compiler.h>
 #include <i2c.h>
+#include <tis.h>
 #include <tpm.h>
 #include <asm-generic/errno.h>
 #include <linux/types.h>
 #include <linux/unaligned/be_byteshift.h>
 
 #include "tpm_tis_i2c.h"
+#include "tpm_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <tis.h>
 #include <tpm.h>
 
 #define PREFIX "lpc_tpm: "
@@ -425,9 +426,6 @@ static u32 tis_readresponse(u8 *buffer, u32 *len)
 int tis_open(void)
 {
 	u8 locality = 0; /* we use locality zero for everything. */
-
-	if (tis_close())
-		return TPM_DRIVER_ERR;
 
 	/* now request access to locality. */
 	tpm_write_word(TIS_ACCESS_REQUEST_USE, &lpc_tpm_dev[locality].access);
