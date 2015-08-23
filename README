@@ -1494,12 +1494,6 @@ The following options need to be configured:
 		Support for i2c bus TPM devices. Only one device
 		per system is supported at this time.
 
-			CONFIG_TPM_TIS_I2C_BUS_NUMBER
-			Define the the i2c bus number for the TPM device
-
-			CONFIG_TPM_TIS_I2C_SLAVE_ADDRESS
-			Define the TPM's address on the i2c bus
-
 			CONFIG_TPM_TIS_I2C_BURST_LIMITATION
 			Define the burst count bytes upper limit
 
