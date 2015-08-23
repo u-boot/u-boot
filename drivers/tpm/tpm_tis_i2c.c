@@ -50,9 +50,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Address of the TPM on the I2C bus */
-#define TPM_I2C_ADDR		0x20
-
 /* Max buffer size supported by our tpm */
 #define TPM_DEV_BUFSIZE		1260
 
@@ -72,13 +69,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SLEEP_DURATION_LONG	210	/* in usec */
 
 #define TPM_HEADER_SIZE		10
-
-/*
- * Expected value for DIDVID register
- *
- * The only device the system knows about at this moment is Infineon slb9635.
- */
-#define TPM_TIS_I2C_DID_VID	0x000b15d1L
 
 enum tis_access {
 	TPM_ACCESS_VALID		= 0x80,
@@ -123,19 +113,9 @@ static const char * const chip_name[] = {
 
 /* Structure to store I2C TPM specific stuff */
 struct tpm_dev {
-#ifdef CONFIG_DM_I2C
 	struct udevice *dev;
-#else
-	uint addr;
-#endif
 	u8 buf[TPM_DEV_BUFSIZE + sizeof(u8)];  /* Max buffer size + addr */
 	enum i2c_chip_type chip_type;
-};
-
-static struct tpm_dev tpm_dev = {
-#ifndef CONFIG_DM_I2C
-	.addr = TPM_I2C_ADDR
-#endif
 };
 
 static struct tpm_dev tpm_dev;
@@ -163,12 +143,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 	if ((tpm_dev.chip_type == SLB9635) || (tpm_dev.chip_type == UNKNOWN)) {
 		/* slb9635 protocol should work in both cases */
 		for (count = 0; count < MAX_COUNT; count++) {
-#ifdef CONFIG_DM_I2C
 			rc = dm_i2c_write(tpm_dev.dev, 0, (uchar *)&addrbuf, 1);
-#else
-			rc = i2c_write(tpm_dev.addr, 0, 0,
-				       (uchar *)&addrbuf, 1);
-#endif
 			if (rc == 0)
 				break;  /* Success, break to skip sleep */
 			udelay(SLEEP_DURATION);
@@ -182,11 +157,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 		 */
 		for (count = 0; count < MAX_COUNT; count++) {
 			udelay(SLEEP_DURATION);
-#ifdef CONFIG_DM_I2C
 			rc = dm_i2c_read(tpm_dev.dev, 0, buffer, len);
-#else
-			rc = i2c_read(tpm_dev.addr, 0, 0, buffer, len);
-#endif
 			if (rc == 0)
 				break;  /* success, break to skip sleep */
 		}
@@ -199,11 +170,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 		 * be safe on the safe side.
 		 */
 		for (count = 0; count < MAX_COUNT; count++) {
-#ifdef CONFIG_DM_I2C
 			rc = dm_i2c_read(tpm_dev.dev, addr, buffer, len);
-#else
-			rc = i2c_read(tpm_dev.addr, addr, 1, buffer, len);
-#endif
 			if (rc == 0)
 				break;  /* break here to skip sleep */
 			udelay(SLEEP_DURATION);
@@ -224,20 +191,8 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
 	int rc = 0;
 	int count;
 
-	/* Prepare send buffer */
-#ifndef CONFIG_DM_I2C
-	tpm_dev.buf[0] = addr;
-	memcpy(&(tpm_dev.buf[1]), buffer, len);
-	buffer = tpm_dev.buf;
-	len++;
-#endif
-
 	for (count = 0; count < max_count; count++) {
-#ifdef CONFIG_DM_I2C
 		rc = dm_i2c_write(tpm_dev.dev, addr, buffer, len);
-#else
-		rc = i2c_write(tpm_dev.addr, 0, 0, buffer, len);
-#endif
 		if (rc == 0)
 			break;  /* Success, break to skip sleep */
 		udelay(sleep_time);
@@ -597,12 +552,13 @@ static enum i2c_chip_type tpm_vendor_chip_type(void)
 	return UNKNOWN;
 }
 
-static int tpm_vendor_init_common(void)
+int tpm_vendor_init(struct udevice *dev)
 {
 	struct tpm_chip *chip;
 	u32 vendor;
 	u32 expected_did_vid;
 
+	tpm_dev.dev = dev;
 	tpm_dev.chip_type = tpm_vendor_chip_type();
 
 	chip = tpm_register_hardware(&tpm_tis_i2c);
@@ -650,32 +606,6 @@ static int tpm_vendor_init_common(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_DM_I2C
-/* Initialisation of i2c tpm */
-int tpm_vendor_init_dev(struct udevice *dev)
-{
-	tpm_dev.dev = dev;
-	return tpm_vendor_init_common();
-}
-#else
-/* Initialisation of i2c tpm */
-int tpm_vendor_init(uint32_t dev_addr)
-{
-	uint old_addr;
-	int rc = 0;
-
-	old_addr = tpm_dev.addr;
-	if (dev_addr != 0)
-		tpm_dev.addr = dev_addr;
-
-	rc = tpm_vendor_init_common();
-	if (rc)
-		tpm_dev.addr = old_addr;
-
-	return rc;
-}
-#endif
 
 void tpm_vendor_cleanup(struct tpm_chip *chip)
 {

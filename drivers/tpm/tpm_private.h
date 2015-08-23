@@ -129,10 +129,8 @@ struct tpm_cmd_t {
 
 struct tpm_chip *tpm_register_hardware(const struct tpm_vendor_specific *);
 
-int tpm_vendor_init(uint32_t dev_addr);
-
 struct udevice;
-int tpm_vendor_init_dev(struct udevice *dev);
+int tpm_vendor_init(struct udevice *dev);
 
 void tpm_vendor_cleanup(struct tpm_chip *chip);
 
