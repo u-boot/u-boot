@@ -34,9 +34,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Max buffer size supported by our tpm */
-#define TPM_DEV_BUFSIZE		1260
-
 /* Max number of iterations after i2c NAK */
 #define MAX_COUNT		3
 
@@ -77,12 +74,6 @@ enum tis_defaults {
 /* expected value for DIDVID register */
 #define TPM_TIS_I2C_DID_VID_9635 0x000b15d1L
 #define TPM_TIS_I2C_DID_VID_9645 0x001a15d1L
-
-enum i2c_chip_type {
-	SLB9635,
-	SLB9645,
-	UNKNOWN,
-};
 
 static const char * const chip_name[] = {
 	[SLB9635] = "slb9635tt",
@@ -390,17 +381,7 @@ struct tpm {
 	char inited;
 } tpm;
 
-/* Global structure for tpm chip data */
 static struct tpm_chip g_chip;
-
-/* Structure to store I2C TPM specific stuff */
-struct tpm_dev {
-	struct udevice *dev;
-	u8 buf[TPM_DEV_BUFSIZE + sizeof(u8)];  /* Max buffer size + addr */
-	enum i2c_chip_type chip_type;
-};
-
-static struct tpm_dev tpm_dev;
 
 /*
  * iic_tpm_read() - read from TPM register
@@ -422,10 +403,10 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 	int count;
 	uint32_t addrbuf = addr;
 
-	if ((tpm_dev.chip_type == SLB9635) || (tpm_dev.chip_type == UNKNOWN)) {
+	if ((g_chip.chip_type == SLB9635) || (g_chip.chip_type == UNKNOWN)) {
 		/* slb9635 protocol should work in both cases */
 		for (count = 0; count < MAX_COUNT; count++) {
-			rc = dm_i2c_write(tpm_dev.dev, 0, (uchar *)&addrbuf, 1);
+			rc = dm_i2c_write(g_chip.dev, 0, (uchar *)&addrbuf, 1);
 			if (rc == 0)
 				break;  /* Success, break to skip sleep */
 			udelay(SLEEP_DURATION);
@@ -439,7 +420,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 		 */
 		for (count = 0; count < MAX_COUNT; count++) {
 			udelay(SLEEP_DURATION);
-			rc = dm_i2c_read(tpm_dev.dev, 0, buffer, len);
+			rc = dm_i2c_read(g_chip.dev, 0, buffer, len);
 			if (rc == 0)
 				break;  /* success, break to skip sleep */
 		}
@@ -452,7 +433,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 		 * be safe on the safe side.
 		 */
 		for (count = 0; count < MAX_COUNT; count++) {
-			rc = dm_i2c_read(tpm_dev.dev, addr, buffer, len);
+			rc = dm_i2c_read(g_chip.dev, addr, buffer, len);
 			if (rc == 0)
 				break;  /* break here to skip sleep */
 			udelay(SLEEP_DURATION);
@@ -474,7 +455,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
 	int count;
 
 	for (count = 0; count < max_count; count++) {
-		rc = dm_i2c_write(tpm_dev.dev, addr, buffer, len);
+		rc = dm_i2c_write(g_chip.dev, addr, buffer, len);
 		if (rc == 0)
 			break;  /* Success, break to skip sleep */
 		udelay(sleep_time);
@@ -809,7 +790,7 @@ out_err:
 	return rc;
 }
 
-static enum i2c_chip_type tpm_vendor_chip_type(void)
+static enum i2c_chip_type tpm_tis_i2c_chip_type(void)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	const void *blob = gd->fdt_blob;
@@ -823,14 +804,14 @@ static enum i2c_chip_type tpm_vendor_chip_type(void)
 	return UNKNOWN;
 }
 
-int tpm_vendor_init(struct udevice *dev)
+static int tpm_tis_i2c_init(struct udevice *dev)
 {
 	struct tpm_chip *chip = &g_chip;
 	u32 vendor;
 	u32 expected_did_vid;
 
-	tpm_dev.dev = dev;
-	tpm_dev.chip_type = tpm_vendor_chip_type();
+	g_chip.dev = dev;
+	g_chip.chip_type = tpm_tis_i2c_chip_type();
 	chip->is_open = 1;
 
 	/* Disable interrupts (not supported) */
@@ -854,7 +835,7 @@ int tpm_vendor_init(struct udevice *dev)
 		return -EIO;
 	}
 
-	if (tpm_dev.chip_type == SLB9635) {
+	if (g_chip.chip_type == SLB9635) {
 		vendor = be32_to_cpu(vendor);
 		expected_did_vid = TPM_TIS_I2C_DID_VID_9635;
 	} else {
@@ -862,13 +843,13 @@ int tpm_vendor_init(struct udevice *dev)
 		expected_did_vid = TPM_TIS_I2C_DID_VID_9645;
 	}
 
-	if (tpm_dev.chip_type != UNKNOWN && vendor != expected_did_vid) {
+	if (g_chip.chip_type != UNKNOWN && vendor != expected_did_vid) {
 		error("Vendor id did not match! ID was %08x\n", vendor);
 		return -ENODEV;
 	}
 
 	debug("1.2 TPM (chip type %s device-id 0x%X)\n",
-	      chip_name[tpm_dev.chip_type], vendor >> 16);
+	      chip_name[g_chip.chip_type], vendor >> 16);
 
 	/*
 	 * A timeout query to TPM can be placed here.
@@ -876,11 +857,6 @@ int tpm_vendor_init(struct udevice *dev)
 	 */
 
 	return 0;
-}
-
-void tpm_vendor_cleanup(struct tpm_chip *chip)
-{
-	release_locality(chip, chip->locality, 1);
 }
 
 /* Returns max number of milliseconds to wait */
@@ -980,7 +956,7 @@ static int tpm_open_dev(struct udevice *dev)
 	debug("%s: start\n", __func__);
 	if (g_chip.is_open)
 		return -EBUSY;
-	rc = tpm_vendor_init(dev);
+	rc = tpm_tis_i2c_init(dev);
 	if (rc < 0)
 		g_chip.is_open = 0;
 	return rc;
@@ -989,7 +965,7 @@ static int tpm_open_dev(struct udevice *dev)
 static void tpm_close(void)
 {
 	if (g_chip.is_open) {
-		tpm_vendor_cleanup(&g_chip);
+		release_locality(&g_chip, g_chip.locality, 1);
 		g_chip.is_open = 0;
 	}
 }

@@ -33,7 +33,14 @@ enum tpm_timeout {
 #define TPM_RSP_SIZE_BYTE	2
 #define TPM_RSP_RC_BYTE		6
 
-struct tpm_chip;
+/* Max buffer size supported by our tpm */
+#define TPM_DEV_BUFSIZE		1260
+
+enum i2c_chip_type {
+	SLB9635,
+	SLB9645,
+	UNKNOWN,
+};
 
 struct tpm_chip {
 	int is_open;
@@ -44,6 +51,9 @@ struct tpm_chip {
 	int locality;
 	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
 	unsigned long duration[3];  /* msec */
+	struct udevice *dev;
+	u8 buf[TPM_DEV_BUFSIZE + sizeof(u8)];  /* Max buffer size + addr */
+	enum i2c_chip_type chip_type;
 };
 
 struct tpm_input_header {
@@ -101,10 +111,5 @@ struct tpm_cmd_t {
 	union tpm_cmd_header header;
 	union tpm_cmd_params params;
 } __packed;
-
-struct udevice;
-int tpm_vendor_init(struct udevice *dev);
-
-void tpm_vendor_cleanup(struct tpm_chip *chip);
 
 #endif
