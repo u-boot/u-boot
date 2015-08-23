@@ -156,6 +156,10 @@
 		sides = <4>;
 	};
 
+	tpm {
+		compatible = "google,sandbox-tpm";
+	};
+
 	triangle {
 		compatible = "demo-shape";
 		colour = "cyan";
