@@ -13,28 +13,11 @@
  * It is based on the Linux kernel driver tpm.c from Leendert van
  * Dorn, Dave Safford, Reiner Sailer, and Kyleen Hall.
  *
- *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, version 2 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
-#ifndef _TPM_PRIVATE_H_
-#define _TPM_PRIVATE_H_
+#ifndef _TPM_TIS_I2C_H
+#define _TPM_TIS_I2C_H
 
 #include <linux/compiler.h>
 #include <linux/types.h>
@@ -133,6 +116,5 @@ struct udevice;
 int tpm_vendor_init(struct udevice *dev);
 
 void tpm_vendor_cleanup(struct tpm_chip *chip);
-
 
 #endif
