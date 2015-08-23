@@ -810,10 +810,6 @@ out_err:
 }
 
 static struct tpm_vendor_specific tpm_tis_i2c = {
-	.status = tpm_tis_i2c_status,
-	.recv = tpm_tis_i2c_recv,
-	.send = tpm_tis_i2c_send,
-	.cancel = tpm_tis_i2c_ready,
 	.req_complete_mask = TPM_STS_DATA_AVAIL | TPM_STS_VALID,
 	.req_complete_val = TPM_STS_DATA_AVAIL | TPM_STS_VALID,
 	.req_canceled = TPM_STS_COMMAND_READY,
@@ -940,7 +936,7 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 	}
 
 	debug("Calling send\n");
-	rc = chip->vendor.send(chip, (u8 *)buf, count);
+	rc = tpm_tis_i2c_send(chip, (u8 *)buf, count);
 	debug("   ... done calling send\n");
 	if (rc < 0) {
 		error("tpm_transmit: tpm_send: error %d\n", rc);
@@ -954,7 +950,7 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 	stop = tpm_calc_ordinal_duration(chip, ordinal);
 	do {
 		debug("waiting for status... %ld %ld\n", start, stop);
-		u8 status = chip->vendor.status(chip);
+		u8 status = tpm_tis_i2c_status(chip);
 		if ((status & chip->vendor.req_complete_mask) ==
 		    chip->vendor.req_complete_val) {
 			debug("...got it;\n");
@@ -969,14 +965,14 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 		udelay(TPM_TIMEOUT * 1000);
 	} while (get_timer(start) < stop);
 
-	chip->vendor.cancel(chip);
+	tpm_tis_i2c_ready(chip);
 	error("Operation Timed out\n");
 	rc = -ETIME;
 	goto out;
 
 out_recv:
 	debug("out_recv: reading response...\n");
-	rc = chip->vendor.recv(chip, (u8 *)buf, TPM_BUFSIZE);
+	rc = tpm_tis_i2c_recv(chip, (u8 *)buf, TPM_BUFSIZE);
 	if (rc < 0)
 		error("tpm_transmit: tpm_recv: error %d\n", rc);
 
