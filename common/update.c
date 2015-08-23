@@ -13,10 +13,6 @@
 #error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
 #endif
 
-#if defined(CONFIG_SYS_NO_FLASH)
-#error "CONFIG_SYS_NO_FLASH defined, but FLASH is required for auto-update feature"
-#endif
-
 #include <command.h>
 #include <flash.h>
 #include <net.h>
@@ -41,11 +37,11 @@
 
 extern ulong tftp_timeout_ms;
 extern int tftp_timeout_count_max;
-extern flash_info_t flash_info[];
 extern ulong load_addr;
-
+#ifndef CONFIG_SYS_NO_FLASH
+extern flash_info_t flash_info[];
 static uchar *saved_prot_info;
-
+#endif
 static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 {
 	int size, rv;
@@ -94,6 +90,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	return rv;
 }
 
+#ifndef CONFIG_SYS_NO_FLASH
 static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 {
 	uchar *sp_info_ptr;
@@ -165,9 +162,11 @@ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 
 	return 0;
 }
+#endif
 
 static int update_flash(ulong addr_source, ulong addr_first, ulong size)
 {
+#ifndef CONFIG_SYS_NO_FLASH
 	ulong addr_last = addr_first + size - 1;
 
 	/* round last address to the sector boundary */
@@ -203,7 +202,7 @@ static int update_flash(ulong addr_source, ulong addr_first, ulong size)
 		printf("Error: could not protect flash sectors\n");
 		return 1;
 	}
-
+#endif
 	return 0;
 }
 
