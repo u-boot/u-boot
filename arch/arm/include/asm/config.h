@@ -19,7 +19,10 @@
 #include <asm/arch-fsl-lsch3/config.h>
 #endif
 
-#ifdef CONFIG_LS102XA
+#if defined(CONFIG_LS102XA) || \
+	defined(CONFIG_CPU_PXA27X) || \
+	defined(CONFIG_CPU_MONAHANS) || \
+	defined(CONFIG_CPU_PXA25X)
 #include <asm/arch/config.h>
 #endif
 
