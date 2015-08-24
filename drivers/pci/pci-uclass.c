@@ -632,6 +632,13 @@ error:
 static int pci_uclass_post_bind(struct udevice *bus)
 {
 	/*
+	 * If there is no pci device listed in the device tree,
+	 * don't bother scanning the device tree.
+	 */
+	if (bus->of_offset == -1)
+		return 0;
+
+	/*
 	 * Scan the device tree for devices. This does not probe the PCI bus,
 	 * as this is not permitted while binding. It just finds devices
 	 * mentioned in the device tree.
