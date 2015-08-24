@@ -91,7 +91,6 @@
 		#address-cells = <3>;
 		#size-cells = <2>;
 		compatible = "pci-x86";
-		device_type = "pci";
 		u-boot,dm-pre-reloc;
 		ranges = <0x02000000 0x0 0x40000000 0x40000000 0 0x80000000
 			  0x42000000 0x0 0xc0000000 0xc0000000 0 0x20000000
@@ -100,14 +99,16 @@
 		pcie@17,0 {
 			#address-cells = <3>;
 			#size-cells = <2>;
-			compatible = "intel,pci";
-			device_type = "pci";
+			compatible = "pci-bridge";
+			u-boot,dm-pre-reloc;
+			reg = <0x0000b800 0x0 0x0 0x0 0x0>;
 
 			topcliff@0,0 {
 				#address-cells = <3>;
 				#size-cells = <2>;
-				compatible = "intel,pci";
-				device_type = "pci";
+				compatible = "pci-bridge";
+				u-boot,dm-pre-reloc;
+				reg = <0x00010000 0x0 0x0 0x0 0x0>;
 
 				pciuart0: uart@a,1 {
 					compatible = "pci8086,8811.00",
@@ -115,6 +116,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025100 0x0 0x0 0x0 0x0
 					       0x01025110 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
@@ -128,6 +130,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025200 0x0 0x0 0x0 0x0
 					       0x01025210 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
@@ -141,6 +144,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025300 0x0 0x0 0x0 0x0
 					       0x01025310 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
@@ -154,6 +158,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025400 0x0 0x0 0x0 0x0
 					       0x01025410 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
