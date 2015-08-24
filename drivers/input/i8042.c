@@ -27,18 +27,6 @@ static int  kbd_mapping	 = KBD_US;	/* default US keyboard */
 static int  kbd_flags	 = NORMAL;	/* after reset */
 static int  kbd_state;			/* unshift code */
 
-static void kbd_conv_char(unsigned char scan_code);
-static void kbd_led_set(void);
-static void kbd_normal(unsigned char scan_code);
-static void kbd_shift(unsigned char scan_code);
-static void kbd_ctrl(unsigned char scan_code);
-static void kbd_num(unsigned char scan_code);
-static void kbd_caps(unsigned char scan_code);
-static void kbd_scroll(unsigned char scan_code);
-static void kbd_alt(unsigned char scan_code);
-static int  kbd_input_empty(void);
-static int  kbd_reset(void);
-
 static unsigned char kbd_fct_map[144] = {
 	/* kbd_fct_map table for scan code */
 	 0,  AS,  AS,  AS,  AS,  AS,  AS,  AS, /* scan  0- 7 */
@@ -288,7 +276,229 @@ static unsigned char ext_key_map[] = {
 	0x00  /* map end */
 	};
 
+static int kbd_input_empty(void)
+{
+	int kbdTimeout = KBD_TIMEOUT * 1000;
+
+	while ((in8(I8042_STATUS_REG) & I8042_STATUS_IN_DATA) && kbdTimeout--)
+		udelay(1);
+
+	return kbdTimeout != -1;
+}
+
+static int wait_until_kbd_output_full(void)
+{
+	int kbdTimeout = KBD_TIMEOUT * 1000;
+
+	while (((in8(I8042_STATUS_REG) & 0x01) == 0) && kbdTimeout--)
+		udelay(1);
+
+	return kbdTimeout != -1;
+}
+
+static void kbd_led_set(void)
+{
+	kbd_input_empty();
+	out8(I8042_DATA_REG, 0xed);    /* SET LED command */
+	kbd_input_empty();
+	out8(I8042_DATA_REG, (kbd_flags & 0x7));    /* LED bits only */
+}
+
+static void kbd_normal(unsigned char scan_code)
+{
+	unsigned char chr;
+
+	if ((kbd_flags & BRK) == NORMAL) {
+		chr = kbd_key_map[kbd_mapping][kbd_state][scan_code];
+		if ((chr == 0xff) || (chr == 0x00))
+			return;
+
+		/* if caps lock convert upper to lower */
+		if (((kbd_flags & CAPS) == CAPS) &&
+				(chr >= 'a' && chr <= 'z')) {
+			chr -= 'a' - 'A';
+		}
+		kbd_input = chr;
+	}
+}
+
+static void kbd_shift(unsigned char scan_code)
+{
+	if ((kbd_flags & BRK) == BRK) {
+		kbd_state = AS;
+		kbd_flags &= (~SHIFT);
+	} else {
+		kbd_state = SH;
+		kbd_flags |= SHIFT;
+	}
+}
+
+static void kbd_ctrl(unsigned char scan_code)
+{
+	if ((kbd_flags & BRK) == BRK) {
+		kbd_state = AS;
+		kbd_flags &= (~CTRL);
+	} else {
+		kbd_state = CN;
+		kbd_flags |= CTRL;
+	}
+}
+
+static void kbd_num(unsigned char scan_code)
+{
+	if ((kbd_flags & BRK) == NORMAL) {
+		kbd_flags ^= NUM;
+		kbd_state = (kbd_flags & NUM) ? AS : NM;
+		kbd_led_set();    /* update keyboard LED */
+	}
+}
+
+static void kbd_alt(unsigned char scan_code)
+{
+	if ((kbd_flags & BRK) == BRK) {
+		kbd_state = AS;
+		kbd_flags &= (~ALT);
+	} else {
+		kbd_state = AK;
+		kbd_flags &= ALT;
+	}
+}
+
+static void kbd_caps(unsigned char scan_code)
+{
+	if ((kbd_flags & BRK) == NORMAL) {
+		kbd_flags ^= CAPS;
+		kbd_led_set();    /* update keyboard LED */
+	}
+}
+
+static void kbd_scroll(unsigned char scan_code)
+{
+	if ((kbd_flags & BRK) == NORMAL) {
+		kbd_flags ^= STP;
+		kbd_led_set();    /* update keyboard LED */
+		if (kbd_flags & STP)
+			kbd_input = 0x13;
+		else
+			kbd_input = 0x11;
+	}
+}
+
+static void kbd_conv_char(unsigned char scan_code)
+{
+	if (scan_code == 0xe0) {
+		kbd_flags |= EXT;
+		return;
+	}
+
+	/* if high bit of scan_code, set break flag */
+	if (scan_code & 0x80)
+		kbd_flags |=  BRK;
+	else
+		kbd_flags &= ~BRK;
+
+	if ((scan_code == 0xe1) || (kbd_flags & E1)) {
+		if (scan_code == 0xe1) {
+			kbd_flags ^= BRK;    /* reset the break flag */
+			kbd_flags ^= E1;     /* bitwise EXOR with E1 flag */
+		}
+		return;
+	}
+
+	scan_code &= 0x7f;
+
+	if (kbd_flags & EXT) {
+		int i;
+
+		kbd_flags ^= EXT;
+		for (i = 0; ext_key_map[i]; i++) {
+			if (ext_key_map[i] == scan_code) {
+				scan_code = 0x80 + i;
+				break;
+			}
+		}
+		/* not found ? */
+		if (!ext_key_map[i])
+			return;
+	}
+
+	switch (kbd_fct_map[scan_code]) {
+	case AS:
+		kbd_normal(scan_code);
+		break;
+	case SH:
+		kbd_shift(scan_code);
+		break;
+	case CN:
+		kbd_ctrl(scan_code);
+		break;
+	case NM:
+		kbd_num(scan_code);
+		break;
+	case AK:
+		kbd_alt(scan_code);
+		break;
+	case CP:
+		kbd_caps(scan_code);
+		break;
+	case ST:
+		kbd_scroll(scan_code);
+		break;
+	}
+	return;
+}
+
 /******************************************************************************/
+
+static int kbd_reset(void)
+{
+	/* KB Reset */
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	out8(I8042_DATA_REG, 0xff);
+
+	if (wait_until_kbd_output_full() == 0)
+		return -1;
+
+	if (in8(I8042_DATA_REG) != 0xfa) /* ACK */
+		return -1;
+
+	if (wait_until_kbd_output_full() == 0)
+		return -1;
+
+	if (in8(I8042_DATA_REG) != 0xaa) /* Test Pass*/
+		return -1;
+
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	/* Set KBC mode */
+	out8(I8042_COMMAND_REG, 0x60);
+
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	out8(I8042_DATA_REG, 0x45);
+
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	/* Enable Keyboard */
+	out8(I8042_COMMAND_REG, 0xae);
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	out8(I8042_COMMAND_REG, 0x60);
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	out8(I8042_DATA_REG, 0xf4);
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	return 0;
+}
 
 static int kbd_controller_present(void)
 {
@@ -341,7 +551,6 @@ int i8042_disable(void)
 
 	return 0;
 }
-
 
 /*******************************************************************************
  *
@@ -438,259 +647,4 @@ int i8042_getc(struct stdio_dev *dev)
 	ret_chr = kbd_input;
 	kbd_input = -1;
 	return ret_chr;
-}
-
-
-/******************************************************************************/
-
-static void kbd_conv_char(unsigned char scan_code)
-{
-	if (scan_code == 0xe0) {
-		kbd_flags |= EXT;
-		return;
-	}
-
-	/* if high bit of scan_code, set break flag */
-	if (scan_code & 0x80)
-		kbd_flags |=  BRK;
-	else
-		kbd_flags &= ~BRK;
-
-	if ((scan_code == 0xe1) || (kbd_flags & E1)) {
-		if (scan_code == 0xe1) {
-			kbd_flags ^= BRK;    /* reset the break flag */
-			kbd_flags ^= E1;     /* bitwise EXOR with E1 flag */
-		}
-		return;
-	}
-
-	scan_code &= 0x7f;
-
-	if (kbd_flags & EXT) {
-		int i;
-
-		kbd_flags ^= EXT;
-		for (i = 0; ext_key_map[i]; i++) {
-			if (ext_key_map[i] == scan_code) {
-				scan_code = 0x80 + i;
-				break;
-			}
-		}
-		/* not found ? */
-		if (!ext_key_map[i])
-			return;
-	}
-
-	switch (kbd_fct_map[scan_code]) {
-	case AS:
-		kbd_normal(scan_code);
-		break;
-	case SH:
-		kbd_shift(scan_code);
-		break;
-	case CN:
-		kbd_ctrl(scan_code);
-		break;
-	case NM:
-		kbd_num(scan_code);
-		break;
-	case CP:
-		kbd_caps(scan_code);
-		break;
-	case ST:
-		kbd_scroll(scan_code);
-		break;
-	case AK:
-		kbd_alt(scan_code);
-		break;
-	}
-	return;
-}
-
-
-/******************************************************************************/
-
-static void kbd_normal(unsigned char scan_code)
-{
-	unsigned char chr;
-
-	if ((kbd_flags & BRK) == NORMAL) {
-		chr = kbd_key_map[kbd_mapping][kbd_state][scan_code];
-		if ((chr == 0xff) || (chr == 0x00))
-			return;
-
-		/* if caps lock convert upper to lower */
-		if (((kbd_flags & CAPS) == CAPS) &&
-				(chr >= 'a' && chr <= 'z')) {
-			chr -= 'a' - 'A';
-		}
-		kbd_input = chr;
-	}
-}
-
-
-/******************************************************************************/
-
-static void kbd_shift(unsigned char scan_code)
-{
-	if ((kbd_flags & BRK) == BRK) {
-		kbd_state = AS;
-		kbd_flags &= (~SHIFT);
-	} else {
-		kbd_state = SH;
-		kbd_flags |= SHIFT;
-	}
-}
-
-
-/******************************************************************************/
-
-static void kbd_ctrl(unsigned char scan_code)
-{
-	if ((kbd_flags & BRK) == BRK) {
-		kbd_state = AS;
-		kbd_flags &= (~CTRL);
-	} else {
-		kbd_state = CN;
-		kbd_flags |= CTRL;
-	}
-}
-
-
-/******************************************************************************/
-
-static void kbd_caps(unsigned char scan_code)
-{
-	if ((kbd_flags & BRK) == NORMAL) {
-		kbd_flags ^= CAPS;
-		kbd_led_set();    /* update keyboard LED */
-	}
-}
-
-
-/******************************************************************************/
-
-static void kbd_num(unsigned char scan_code)
-{
-	if ((kbd_flags & BRK) == NORMAL) {
-		kbd_flags ^= NUM;
-		kbd_state = (kbd_flags & NUM) ? AS : NM;
-		kbd_led_set();    /* update keyboard LED */
-	}
-}
-
-
-/******************************************************************************/
-
-static void kbd_scroll(unsigned char scan_code)
-{
-	if ((kbd_flags & BRK) == NORMAL) {
-		kbd_flags ^= STP;
-		kbd_led_set();    /* update keyboard LED */
-		if (kbd_flags & STP)
-			kbd_input = 0x13;
-		else
-			kbd_input = 0x11;
-	}
-}
-
-/******************************************************************************/
-
-static void kbd_alt(unsigned char scan_code)
-{
-	if ((kbd_flags & BRK) == BRK) {
-		kbd_state = AS;
-		kbd_flags &= (~ALT);
-	} else {
-		kbd_state = AK;
-		kbd_flags &= ALT;
-	}
-}
-
-
-/******************************************************************************/
-
-static void kbd_led_set(void)
-{
-	kbd_input_empty();
-	out8(I8042_DATA_REG, 0xed);    /* SET LED command */
-	kbd_input_empty();
-	out8(I8042_DATA_REG, (kbd_flags & 0x7));    /* LED bits only */
-}
-
-
-/******************************************************************************/
-
-static int kbd_input_empty(void)
-{
-	int kbdTimeout = KBD_TIMEOUT * 1000;
-
-	while ((in8(I8042_STATUS_REG) & I8042_STATUS_IN_DATA) && kbdTimeout--)
-		udelay(1);
-
-	return kbdTimeout != -1;
-}
-
-/******************************************************************************/
-
-static int wait_until_kbd_output_full(void)
-{
-	int kbdTimeout = KBD_TIMEOUT * 1000;
-
-	while (((in8(I8042_STATUS_REG) & 0x01) == 0) && kbdTimeout--)
-		udelay(1);
-
-	return kbdTimeout != -1;
-}
-
-/******************************************************************************/
-
-static int kbd_reset(void)
-{
-	/* KB Reset */
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	out8(I8042_DATA_REG, 0xff);
-
-	if (wait_until_kbd_output_full() == 0)
-		return -1;
-
-	if (in8(I8042_DATA_REG) != 0xfa) /* ACK */
-		return -1;
-
-	if (wait_until_kbd_output_full() == 0)
-		return -1;
-
-	if (in8(I8042_DATA_REG) != 0xaa) /* Test Pass*/
-		return -1;
-
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	/* Set KBC mode */
-	out8(I8042_COMMAND_REG, 0x60);
-
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	out8(I8042_DATA_REG, 0x45);
-
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	/* Enable Keyboard */
-	out8(I8042_COMMAND_REG, 0xae);
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	out8(I8042_COMMAND_REG, 0x60);
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	out8(I8042_DATA_REG, 0xf4);
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	return 0;
 }
