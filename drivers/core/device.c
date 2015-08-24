@@ -226,17 +226,17 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	drv = dev->driver;
 	assert(drv);
 
-	/* Allocate private data if requested */
-	if (drv->priv_auto_alloc_size) {
+	/* Allocate private data if requested and not reentered */
+	if (drv->priv_auto_alloc_size && !dev->priv) {
 		dev->priv = alloc_priv(drv->priv_auto_alloc_size, drv->flags);
 		if (!dev->priv) {
 			ret = -ENOMEM;
 			goto fail;
 		}
 	}
-	/* Allocate private data if requested */
+	/* Allocate private data if requested and not reentered */
 	size = dev->uclass->uc_drv->per_device_auto_alloc_size;
-	if (size) {
+	if (size && !dev->uclass_priv) {
 		dev->uclass_priv = calloc(1, size);
 		if (!dev->uclass_priv) {
 			ret = -ENOMEM;
@@ -251,7 +251,7 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 			size = dev->parent->uclass->uc_drv->
 					per_child_auto_alloc_size;
 		}
-		if (size) {
+		if (size && !dev->parent_priv) {
 			dev->parent_priv = alloc_priv(size, drv->flags);
 			if (!dev->parent_priv) {
 				ret = -ENOMEM;
@@ -264,6 +264,15 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 		ret = device_probe(dev->parent);
 		if (ret)
 			goto fail;
+
+		/*
+		 * The device might have already been probed during
+		 * the call to device_probe() on its parent device
+		 * (e.g. PCI bridge devices). Test the flags again
+		 * so that we don't mess up the device.
+		 */
+		if (dev->flags & DM_FLAG_ACTIVATED)
+			return 0;
 	}
 
 	seq = uclass_resolve_seq(dev);
