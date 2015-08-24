@@ -55,7 +55,6 @@
 #define CONFIG_CMD_PCI_ENUM
 
 /* PCI networking support */
-#define CONFIG_E1000
 #define CONFIG_E1000_NO_NVM
 
 /* General networking support */

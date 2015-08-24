@@ -34,7 +34,6 @@
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 #define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_PCI_PNP
-#define CONFIG_E1000
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,vga,usbkbd\0" \
 					"stdout=serial,vga\0" \

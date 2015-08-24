@@ -605,7 +605,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #endif
 
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
-#define CONFIG_E1000
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION

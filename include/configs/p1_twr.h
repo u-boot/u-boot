@@ -303,7 +303,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 #define CONFIG_PCI_PNP	/* do pci plug-and-play */
-#define CONFIG_E1000	/* Defind e1000 pci Ethernet card*/
 #define CONFIG_CMD_PCI
 
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */

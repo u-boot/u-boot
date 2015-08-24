@@ -101,7 +101,6 @@
 
 #define CONFIG_CMD_PCI
 
-#define CONFIG_E1000
 
 /*
  * PCI Windows

@@ -423,7 +423,6 @@ extern unsigned long get_clock_freq(void);
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
-#define CONFIG_E1000			/* Define e1000 pci Ethernet card */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
