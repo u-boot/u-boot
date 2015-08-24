@@ -45,7 +45,6 @@
 #define CONFIG_SPI_FLASH_MTD
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_MXC_SPI
-#define CONFIG_SF_DEFAULT_BUS		3
 #define CONFIG_SF_DEFAULT_SPEED		20000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
@@ -106,9 +105,6 @@
 	"ubiboot=echo Booting from ubi ...; " \
 		"run ubiargs addmtd addmisc set_fit_default;" \
 		"bootm ${fit_addr_r}\0" \
-	"ubifs_load_fit=sf probe;ubi part ubi 4096;ubifsmount ubi:rootfs;" \
-		"ubifsload ${fit_addr_r} /boot/system.itb; " \
-		"imi ${fit_addr_r}\0 " \
 	"rescueargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/ram rw\0 " \
 	"rescueboot=echo Booting rescue system from NOR ...; " \

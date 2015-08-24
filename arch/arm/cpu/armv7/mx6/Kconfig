@@ -41,6 +41,10 @@ config TARGET_ARISTAINETOS2
 	bool "aristainetos2"
 	select CPU_V7
 
+config TARGET_ARISTAINETOS2B
+	bool "Support aristainetos2-revB"
+	select CPU_V7
+
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
 	select CPU_V7

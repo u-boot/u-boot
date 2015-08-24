@@ -60,7 +60,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if (CONFIG_SYS_BOARD_VERSION == 1)
 #include "./aristainetos-v1.c"
-#elif (CONFIG_SYS_BOARD_VERSION == 2)
+#elif ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
 #include "./aristainetos-v2.c"
 #endif
 
@@ -174,7 +174,7 @@ struct display_info_t const displays[] = {
 			.vmode          = FB_VMODE_NONINTERLACED
 		}
 	}
-#if (CONFIG_SYS_BOARD_VERSION == 2)
+#if ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
 	, {
 		.bus	= -1,
 		.addr	= 0,
