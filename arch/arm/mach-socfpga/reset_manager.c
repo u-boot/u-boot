@@ -7,13 +7,16 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/reset_manager.h>
 #include <asm/arch/fpga_manager.h>
+#include <asm/arch/reset_manager.h>
+#include <asm/arch/system_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct socfpga_reset_manager *reset_manager_base =
 		(void *)SOCFPGA_RSTMGR_ADDRESS;
+static struct socfpga_system_manager *sysmgr_regs =
+	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
 /* Assert or de-assert SoCFPGA reset manager reset. */
 void socfpga_per_reset(u32 reset, int set)
@@ -97,6 +100,9 @@ void socfpga_bridges_reset(int enable)
 		/* brdmodrst */
 		writel(0xffffffff, &reset_manager_base->brg_mod_reset);
 	} else {
+		writel(0, &sysmgr_regs->iswgrp_handoff[0]);
+		writel(l3mask, &sysmgr_regs->iswgrp_handoff[1]);
+
 		/* Check signal from FPGA. */
 		if (!fpgamgr_test_fpga_ready()) {
 			/* FPGA not ready, do nothing. */
