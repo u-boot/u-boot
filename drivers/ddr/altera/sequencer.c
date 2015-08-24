@@ -1800,7 +1800,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	u32 d, p, i;
 	u32 dtaps_per_ptap;
 	u32 work_bgn, work_end;
-	u32 found_passing_read, found_failing_read, initial_failing_dtap;
+	u32 found_passing_read, found_failing_read = 0, initial_failing_dtap;
 	int ret;
 
 	debug("%s:%d %u\n", __func__, __LINE__, grp);
@@ -3247,7 +3247,7 @@ static void mem_skip_calibrate(void)
 			 *    (1.25 * iocfg->dll_chain_length - 2)
 			 */
 			scc_mgr_set_dqdqs_output_phase(i,
-				       1.25 * iocfg->dll_chain_length - 2);
+				       ((125 * iocfg->dll_chain_length) / 100) - 2);
 		}
 		writel(0xff, &sdr_scc_mgr->dqs_ena);
 		writel(0xff, &sdr_scc_mgr->dqs_io_ena);

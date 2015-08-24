@@ -90,7 +90,7 @@ static void cm_write_with_phase(uint32_t value,
 
 void cm_basic_init(const struct cm_config * const cfg)
 {
-	uint32_t start, timeout;
+	unsigned long end;
 
 	/* Start by being paranoid and gate all sw managed clocks */
 
@@ -159,12 +159,10 @@ void cm_basic_init(const struct cm_config * const cfg)
 	writel(cfg->sdram_vco_base, &clock_manager_base->sdr_pll.vco);
 
 	/*
-	 * Time starts here
-	 * must wait 7 us from BGPWRDN_SET(0) to VCO_ENABLE_SET(1)
+	 * Time starts here. Must wait 7 us from
+	 * BGPWRDN_SET(0) to VCO_ENABLE_SET(1).
 	 */
-	start = get_timer(0);
-	/* timeout in unit of us as CONFIG_SYS_HZ = 1000*1000 */
-	timeout = 7;
+	end = timer_get_us() + 7;
 
 	/* main mpu */
 	writel(cfg->mpuclk, &clock_manager_base->main_pll.mpuclk);
@@ -204,7 +202,7 @@ void cm_basic_init(const struct cm_config * const cfg)
 	writel(cfg->s2fuser1clk, &clock_manager_base->per_pll.s2fuser1clk);
 
 	/* 7 us must have elapsed before we can enable the VCO */
-	while (get_timer(start) < timeout)
+	while (timer_get_us() < end)
 		;
 
 	/* Enable vco */

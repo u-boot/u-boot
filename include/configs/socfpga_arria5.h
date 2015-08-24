@@ -23,13 +23,13 @@
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_USB_MASS_STORAGE
-
 
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SoCDK */

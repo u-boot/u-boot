@@ -57,7 +57,7 @@ static void populate_sysmgr_fpgaintf_module(void)
 void sysmgr_pinmux_init(void)
 {
 	uint32_t regs = (uint32_t)&sysmgr_regs->emacio[0];
-	const unsigned long *sys_mgr_init_table;
+	const u8 *sys_mgr_init_table;
 	unsigned int len;
 	int i;
 

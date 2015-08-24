@@ -7,8 +7,8 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/clock_manager.h>
 #include <asm/arch/freeze_controller.h>
-#include <asm/arch/timer.h>
 #include <asm/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -112,6 +112,7 @@ void sys_mgr_frzctrl_thaw_req(void)
 	u32 reg_cfg_mask;
 	u32 reg_value;
 	u32 channel_id;
+	unsigned long eosc1_freq;
 
 	/* select software FSM */
 	writel(SYSMGR_FRZCTRL_SRC_VIO1_ENUM_SW,	&freeze_controller_base->src);
@@ -162,12 +163,9 @@ void sys_mgr_frzctrl_thaw_req(void)
 	setbits_le32(&freeze_controller_base->hioctrl,
 		SYSMGR_FRZCTRL_HIOCTRL_OCT_CFGEN_CALSTART_MASK);
 
-	/*
-	 * Delay 1000 intosc. intosc is based on eosc1
-	 * Use worst case which is fatest eosc1=50MHz, delay required
-	 * is 1/50MHz * 1000 = 20us
-	 */
-	udelay(20);
+	/* Delay 1000 intosc cycles. The intosc is based on eosc1. */
+	eosc1_freq = cm_get_osc_clk_hz(1) / 1000;	/* kHz */
+	udelay(DIV_ROUND_UP(1000000, eosc1_freq));
 
 	/*
 	 * de-assert active low bhniotri signals,

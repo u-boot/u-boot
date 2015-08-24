@@ -12,8 +12,7 @@
 void sysmgr_pinmux_init(void);
 void sysmgr_config_warmrstcfgio(int enable);
 
-void sysmgr_get_pinmux_table(const unsigned long **table,
-			     unsigned int *table_len);
+void sysmgr_get_pinmux_table(const u8 **table, unsigned int *table_len);
 #endif
 
 struct socfpga_system_manager {
