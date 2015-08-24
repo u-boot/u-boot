@@ -45,6 +45,8 @@
 /* Framebuffer */
 #define CONFIG_SYS_LDB_CLOCK 33246000
 #define CONFIG_LG4573
+#define CONFIG_LG4573_BUS 0
+#define CONFIG_LG4573_CS 0
 
 #define CONFIG_CMD_BMP
 
