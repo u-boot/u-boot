@@ -168,7 +168,7 @@
 			compatible = "intel,irq-router";
 			intel,pirq-config = "pci";
 			intel,pirq-link = <0x60 8>;
-			intel,pirq-mask = <0xdee0>;
+			intel,pirq-mask = <0xcee0>;
 			intel,pirq-routing = <
 				/* TunnelCreek PCI devices */
 				PCI_BDF(0, 2, 0) INTA PIRQE

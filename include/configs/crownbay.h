@@ -53,9 +53,6 @@
 #define CONFIG_PCH_GBE
 #define CONFIG_PHYLIB
 
-/* TunnelCreek IGD support */
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OFFSET		0
