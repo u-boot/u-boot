@@ -129,7 +129,7 @@ config ARC_CACHE_LINE_SHIFT
 
 choice
 	prompt "Target select"
-	optional
+	default TARGET_AXS101
 
 config TARGET_TB100
 	bool "Support tb100"
