@@ -454,51 +454,50 @@ static void kbd_conv_char(unsigned char scan_code)
 
 static int kbd_reset(void)
 {
-	/* KB Reset */
+	u8 config;
+
+	/* controller self test */
 	if (kbd_input_empty() == 0)
 		return -1;
-
-	out8(I8042_DATA_REG, CMD_RESET_KBD);
-
+	out8(I8042_CMD_REG, CMD_SELF_TEST);
 	if (kbd_output_full() == 0)
 		return -1;
+	if (in8(I8042_DATA_REG) != KBC_TEST_OK)
+		return -1;
 
+	/* keyboard reset */
+	if (kbd_input_empty() == 0)
+		return -1;
+	out8(I8042_DATA_REG, CMD_RESET_KBD);
+	if (kbd_output_full() == 0)
+		return -1;
 	if (in8(I8042_DATA_REG) != KBD_ACK)
 		return -1;
-
 	if (kbd_output_full() == 0)
 		return -1;
-
 	if (in8(I8042_DATA_REG) != KBD_POR)
 		return -1;
 
+	/* set AT translation and disable irq */
 	if (kbd_input_empty() == 0)
 		return -1;
-
-	/* Set KBC mode */
+	out8(I8042_CMD_REG, CMD_RD_CONFIG);
+	if (kbd_output_full() == 0)
+		return -1;
+	config = in8(I8042_DATA_REG);
+	config |= CONFIG_AT_TRANS;
+	config &= ~(CONFIG_KIRQ_EN | CONFIG_MIRQ_EN);
+	if (kbd_input_empty() == 0)
+		return -1;
 	out8(I8042_CMD_REG, CMD_WR_CONFIG);
-
 	if (kbd_input_empty() == 0)
 		return -1;
+	out8(I8042_DATA_REG, config);
 
-	out8(I8042_DATA_REG,
-	     CONFIG_AT_TRANS | CONFIG_SET_BIST | CONFIG_KIRQ_EN);
-
+	/* enable keyboard */
 	if (kbd_input_empty() == 0)
 		return -1;
-
-	/* Enable Keyboard */
 	out8(I8042_CMD_REG, CMD_KBD_EN);
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	out8(I8042_CMD_REG, CMD_WR_CONFIG);
-	if (kbd_input_empty() == 0)
-		return -1;
-
-	out8(I8042_DATA_REG,
-	     CONFIG_AT_TRANS | CONFIG_MCLK_DIS |
-	     CONFIG_KCLK_DIS | CONFIG_SET_BIST);
 	if (kbd_input_empty() == 0)
 		return -1;
 
