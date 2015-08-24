@@ -35,6 +35,10 @@ int GIE_STATUS(void)
 
 #ifdef CONFIG_USE_INTERRUPT
 
+int interrupt_init(void)
+{
+	return 0;
+}
 /* enable interrupts */
 void enable_interrupts(void)
 {

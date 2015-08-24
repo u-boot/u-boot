@@ -28,7 +28,6 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_ADPAG101P;
 	gd->bd->bi_boot_params = PHYS_SDRAM_0 + 0x400;
 
-	ftsmc020_init();	/* initialize Flash */
 	return 0;
 }
 

@@ -445,7 +445,7 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
 		ulong addr;
 
 		addr = (ulong)(cmdtp->cmd) + gd->reloc_off;
-#if DEBUG_COMMANDS
+#ifdef DEBUG_COMMANDS
 		printf("Command \"%s\": 0x%08lx => 0x%08lx\n",
 		       cmdtp->name, (ulong)(cmdtp->cmd), addr);
 #endif

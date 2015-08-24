@@ -56,6 +56,8 @@ config MIPS
 
 config NDS32
 	bool "NDS32 architecture"
+	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config NIOS2
 	bool "Nios II architecture"
