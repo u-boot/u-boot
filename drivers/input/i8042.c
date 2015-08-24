@@ -10,16 +10,6 @@
 /* includes */
 
 #include <common.h>
-#include <linux/compiler.h>
-
-#ifdef CONFIG_USE_CPCIDVI
-extern u8 gt_cpcidvi_in8(u32 offset);
-extern void gt_cpcidvi_out8(u32 offset, u8 data);
-
-#define in8(a)	   gt_cpcidvi_in8(a)
-#define out8(a, b) gt_cpcidvi_out8(a, b)
-#endif
-
 #include <i8042.h>
 
 /* defines */
@@ -365,13 +355,6 @@ int i8042_kbd_init(void)
 	if (!kbd_controller_present() || board_i8042_skip())
 		return -1;
 
-#ifdef CONFIG_USE_CPCIDVI
-	penv = getenv("console");
-	if (penv != NULL) {
-		if (strncmp(penv, "serial", 7) == 0)
-			return -1;
-	}
-#endif
 	/* Init keyboard device (default US layout) */
 	keymap = KBD_US;
 	penv = getenv("keymap");
