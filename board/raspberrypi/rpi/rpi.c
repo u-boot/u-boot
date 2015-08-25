@@ -242,10 +242,23 @@ static void set_usbethaddr(void)
 	return;
 }
 
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+static void set_board_info(void)
+{
+	char str_rev[11];
+	sprintf(str_rev, "0x%X", rpi_board_rev);
+	setenv("board_rev", str_rev);
+	setenv("board_name", models[rpi_board_rev].name);
+}
+#endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
+
 int misc_init_r(void)
 {
 	set_fdtfile();
 	set_usbethaddr();
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
 	return 0;
 }
 
