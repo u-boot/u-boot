@@ -498,7 +498,9 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	}
 #endif
 
-#ifdef CONFIG_BOOTP_VCI_STRING
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
+	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
+#elif defined(CONFIG_BOOTP_VCI_STRING)
 	put_vci(e, CONFIG_BOOTP_VCI_STRING);
 #endif
 
