@@ -16,7 +16,9 @@
 
 #define CONFIG_SYS_L2_PL310
 
+#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
+#endif
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
