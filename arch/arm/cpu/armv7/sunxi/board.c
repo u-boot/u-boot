@@ -23,6 +23,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
+#include <asm/arch/tzpc.h>
 #include <asm/arch/mmc.h>
 
 #include <linux/compiler.h>
@@ -114,6 +115,10 @@ void s_init(void)
 		"mrc p15, 0, r0, c1, c0, 1\n"
 		"orr r0, r0, #1 << 6\n"
 		"mcr p15, 0, r0, c1, c0, 1\n");
+#endif
+#if defined CONFIG_MACH_SUN6I
+	/* Enable non-secure access to the RTC */
+	tzpc_init();
 #endif
 
 	clock_init();
