@@ -349,7 +349,7 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	/*
 	 *	Got a good BOOTP reply.	 Copy the data into our variables.
 	 */
-#ifdef CONFIG_STATUS_LED
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
 #endif
 
