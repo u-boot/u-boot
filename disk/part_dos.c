@@ -26,7 +26,7 @@
 
 /* Convert char[4] in little endian format to the host format integer
  */
-static inline int le32_to_int(unsigned char *le32)
+static inline unsigned int le32_to_int(unsigned char *le32)
 {
     return ((le32[3] << 24) +
 	    (le32[2] << 16) +
@@ -47,13 +47,14 @@ static inline int is_bootable(dos_partition_t *p)
 	return p->boot_ind == 0x80;
 }
 
-static void print_one_part(dos_partition_t *p, int ext_part_sector,
+static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
 			   int part_num, unsigned int disksig)
 {
-	int lba_start = ext_part_sector + le32_to_int (p->start4);
-	int lba_size  = le32_to_int (p->size4);
+	lbaint_t lba_start = ext_part_sector + le32_to_int (p->start4);
+	lbaint_t lba_size  = le32_to_int (p->size4);
 
-	printf("%3d\t%-10d\t%-10d\t%08x-%02x\t%02x%s%s\n",
+	printf("%3d\t%-10" LBAFlength "u\t%-10" LBAFlength
+		"u\t%08x-%02x\t%02x%s%s\n",
 		part_num, lba_start, lba_size, disksig, part_num, p->sys_ind,
 		(is_extended(p->sys_ind) ? " Extd" : ""),
 		(is_bootable(p) ? " Boot" : ""));
@@ -102,7 +103,8 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 /*  Print a partition that is relative to its Extended partition table
  */
 static void print_partition_extended(block_dev_desc_t *dev_desc,
-				     int ext_part_sector, int relative,
+				     lbaint_t ext_part_sector,
+				     lbaint_t relative,
 				     int part_num, unsigned int disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
@@ -110,7 +112,7 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 	int i;
 
 	if (dev_desc->block_read(dev_desc->dev, ext_part_sector, 1, (ulong *) buffer) != 1) {
-		printf ("** Can't read partition table on %d:%d **\n",
+		printf ("** Can't read partition table on %d:" LBAFU " **\n",
 			dev_desc->dev, ext_part_sector);
 		return;
 	}
@@ -149,7 +151,8 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
-			int lba_start = le32_to_int (pt->start4) + relative;
+			lbaint_t lba_start
+				= le32_to_int (pt->start4) + relative;
 
 			print_partition_extended(dev_desc, lba_start,
 				ext_part_sector == 0  ? lba_start : relative,
@@ -163,8 +166,9 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 
 /*  Print a partition that is relative to its Extended partition table
  */
-static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part_sector,
-				 int relative, int part_num,
+static int get_partition_info_extended (block_dev_desc_t *dev_desc,
+				 lbaint_t ext_part_sector,
+				 lbaint_t relative, int part_num,
 				 int which_part, disk_partition_t *info,
 				 unsigned int disksig)
 {
@@ -174,7 +178,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 	int dos_type;
 
 	if (dev_desc->block_read (dev_desc->dev, ext_part_sector, 1, (ulong *) buffer) != 1) {
-		printf ("** Can't read partition table on %d:%d **\n",
+		printf ("** Can't read partition table on %d:" LBAFU " **\n",
 			dev_desc->dev, ext_part_sector);
 		return -1;
 	}
@@ -250,7 +254,8 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
-			int lba_start = le32_to_int (pt->start4) + relative;
+			lbaint_t lba_start
+				= le32_to_int (pt->start4) + relative;
 
 			return get_partition_info_extended (dev_desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,

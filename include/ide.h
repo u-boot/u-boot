@@ -28,13 +28,13 @@ void ide_led(uchar led, uchar status);
 
 #ifdef CONFIG_SYS_64BIT_LBA
 typedef uint64_t lbaint_t;
-#define LBAF "%llx"
-#define LBAFU "%llu"
+#define LBAFlength "ll"
 #else
 typedef ulong lbaint_t;
-#define LBAF "%lx"
-#define LBAFU "%lu"
+#define LBAFlength "l"
 #endif
+#define LBAF "%" LBAFlength "x"
+#define LBAFU "%" LBAFlength "u"
 
 /*
  * Function Prototypes
