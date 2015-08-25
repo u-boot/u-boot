@@ -105,18 +105,8 @@ config KIRKWOOD
 	bool "Marvell Kirkwood"
 	select CPU_ARM926EJS
 
-config TARGET_DB_88F6820_GP
-	bool "Support DB-88F6820-GP"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_DB_MV784MP_GP
-	bool "Support db-mv784mp-gp"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_MAXBCM
-	bool "Support maxbcm"
+config ARCH_MVEBU
+	bool "Marvell MVEBU family (Armada XP/38x)"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -683,6 +673,8 @@ source "arch/arm/mach-integrator/Kconfig"
 source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
+
+source "arch/arm/mach-mvebu/Kconfig"
 
 source "arch/arm/cpu/armv7/mx7/Kconfig"
 
