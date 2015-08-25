@@ -22,6 +22,7 @@ F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T003_defconfig
 F:	configs/Auxtek-T004_defconfig
+F:	configs/inet98v_rev2_defconfig
 F:	configs/mk802_a10s_defconfig
 F:	configs/r7-tv-dongle_defconfig
 F:	configs/UTOO_P66_defconfig
