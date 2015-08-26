@@ -48,6 +48,11 @@ F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
 F:	include/configs/sun9i.h
 F:	configs/Merrii_A80_Optimus_defconfig
 
+A20-OLIMEX-SOM-EVB BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/A20-Olimex-SOM-EVB_defconfig
+
 A20-OLINUXINO-LIME BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
