@@ -103,6 +103,24 @@ CONFIG_FILENAMES = [
     'u-boot.cfg', 'u-boot-spl.cfg', 'u-boot-tpl.cfg'
 ]
 
+class Config:
+    """Holds information about configuration settings for a board."""
+    def __init__(self, target):
+        self.target = target
+        self.config = {}
+        for fname in CONFIG_FILENAMES:
+            self.config[fname] = {}
+
+    def Add(self, fname, key, value):
+        self.config[fname][key] = value
+
+    def __hash__(self):
+        val = 0
+        for fname in self.config:
+            for key, value in self.config[fname].iteritems():
+                print key, value
+                val = val ^ hash(key) & hash(value)
+        return val
 
 class Builder:
     """Class for building U-Boot for a particular commit.
@@ -659,7 +677,8 @@ class Builder:
                 List containing a summary of warning lines
                 Dict keyed by error line, containing a list of the Board
                     objects with that warning
-                Dictionary keyed by filename - e.g. '.config'. Each
+                Dictionary keyed by board.target. Each value is a dictionary:
+                    key: filename - e.g. '.config'
                     value is itself a dictionary:
                         key: config name
                         value: config value
@@ -678,8 +697,6 @@ class Builder:
         warn_lines_summary = []
         warn_lines_boards = {}
         config = {}
-        for fname in CONFIG_FILENAMES:
-            config[fname] = {}
 
         for board in boards_selected.itervalues():
             outcome = self.GetBuildOutcome(commit_upto, board.target,
@@ -709,11 +726,12 @@ class Builder:
                                     line, board)
                         last_was_warning = is_warning
                         last_func = None
+            tconfig = Config(board.target)
             for fname in CONFIG_FILENAMES:
-                config[fname] = {}
                 if outcome.config:
                     for key, value in outcome.config[fname].iteritems():
-                        config[fname][key] = value
+                        tconfig.Add(fname, key, value)
+            config[board.target] = tconfig
 
         return (board_dict, err_lines_summary, err_lines_boards,
                 warn_lines_summary, warn_lines_boards, config)
@@ -774,9 +792,7 @@ class Builder:
         self._base_warn_lines = []
         self._base_err_line_boards = {}
         self._base_warn_line_boards = {}
-        self._base_config = {}
-        for fname in CONFIG_FILENAMES:
-            self._base_config[fname] = {}
+        self._base_config = None
 
     def PrintFuncSizeDetail(self, fname, old, new):
         grow, shrink, add, remove, up, down = 0, 0, 0, 0, 0, 0
@@ -1051,12 +1067,14 @@ class Builder:
             out = ''
             for key in sorted(config.keys()):
                 out += '%s=%s ' % (key, config[key])
-            return '%5s %s: %s' % (delta, name, out)
+            return '%s %s: %s' % (delta, name, out)
 
-        def _ShowConfig(name, config_plus, config_minus, config_change):
-            """Show changes in configuration
+        def _AddConfig(lines, name, config_plus, config_minus, config_change):
+            """Add changes in configuration to a list
 
             Args:
+                lines: list to add to
+                name: config file name
                 config_plus: configurations added, dictionary
                     key: config name
                     value: config value
@@ -1068,14 +1086,24 @@ class Builder:
                     value: config value
             """
             if config_plus:
-                Print(_CalcConfig('+', name, config_plus),
-                      colour=self.col.GREEN)
+                lines.append(_CalcConfig('+', name, config_plus))
             if config_minus:
-                Print(_CalcConfig('-', name, config_minus),
-                      colour=self.col.RED)
+                lines.append(_CalcConfig('-', name, config_minus))
             if config_change:
-                Print(_CalcConfig('+/-', name, config_change),
-                      colour=self.col.YELLOW)
+                lines.append(_CalcConfig('c', name, config_change))
+
+        def _OutputConfigInfo(lines):
+            for line in lines:
+                if not line:
+                    continue
+                if line[0] == '+':
+                    col = self.col.GREEN
+                elif line[0] == '-':
+                    col = self.col.RED
+                elif line[0] == 'c':
+                    col = self.col.YELLOW
+                Print('   ' + line, newline=True, colour=col)
+
 
         better = []     # List of boards fixed since last commit
         worse = []      # List of new broken boards since last commit
@@ -1137,34 +1165,104 @@ class Builder:
             self.PrintSizeSummary(board_selected, board_dict, show_detail,
                                   show_bloat)
 
-        if show_config:
-            all_config_plus = {}
-            all_config_minus = {}
-            all_config_change = {}
-            for name in CONFIG_FILENAMES:
-                if not config[name]:
+        if show_config and self._base_config:
+            summary = {}
+            arch_config_plus = {}
+            arch_config_minus = {}
+            arch_config_change = {}
+            arch_list = []
+
+            for target in board_dict:
+                if target not in board_selected:
                     continue
-                config_plus = {}
-                config_minus = {}
-                config_change = {}
-                base = self._base_config[name]
-                for key, value in config[name].iteritems():
-                    if key not in base:
-                        config_plus[key] = value
-                        all_config_plus[key] = value
-                for key, value in base.iteritems():
-                    if key not in config[name]:
-                        config_minus[key] = value
-                        all_config_minus[key] = value
-                for key, value in base.iteritems():
-                    new_value = base[key]
-                    if key in config[name] and value != new_value:
-                        desc = '%s -> %s' % (value, new_value)
-                        config_change[key] = desc
-                        all_config_change[key] = desc
-                _ShowConfig(name, config_plus, config_minus, config_change)
-            _ShowConfig('all', all_config_plus, all_config_minus,
-                        all_config_change)
+                arch = board_selected[target].arch
+                if arch not in arch_list:
+                    arch_list.append(arch)
+
+            for arch in arch_list:
+                arch_config_plus[arch] = {}
+                arch_config_minus[arch] = {}
+                arch_config_change[arch] = {}
+                for name in CONFIG_FILENAMES:
+                    arch_config_plus[arch][name] = {}
+                    arch_config_minus[arch][name] = {}
+                    arch_config_change[arch][name] = {}
+
+            for target in board_dict:
+                if target not in board_selected:
+                    continue
+
+                arch = board_selected[target].arch
+
+                all_config_plus = {}
+                all_config_minus = {}
+                all_config_change = {}
+                tbase = self._base_config[target]
+                tconfig = config[target]
+                lines = []
+                for name in CONFIG_FILENAMES:
+                    if not tconfig.config[name]:
+                        continue
+                    config_plus = {}
+                    config_minus = {}
+                    config_change = {}
+                    base = tbase.config[name]
+                    for key, value in tconfig.config[name].iteritems():
+                        if key not in base:
+                            config_plus[key] = value
+                            all_config_plus[key] = value
+                    for key, value in base.iteritems():
+                        if key not in tconfig.config[name]:
+                            config_minus[key] = value
+                            all_config_minus[key] = value
+                    for key, value in base.iteritems():
+                        new_value = tconfig.config.get(key)
+                        if new_value and value != new_value:
+                            desc = '%s -> %s' % (value, new_value)
+                            config_change[key] = desc
+                            all_config_change[key] = desc
+
+                    arch_config_plus[arch][name].update(config_plus)
+                    arch_config_minus[arch][name].update(config_minus)
+                    arch_config_change[arch][name].update(config_change)
+
+                    _AddConfig(lines, name, config_plus, config_minus,
+                               config_change)
+                _AddConfig(lines, 'all', all_config_plus, all_config_minus,
+                           all_config_change)
+                summary[target] = '\n'.join(lines)
+
+            lines_by_target = {}
+            for target, lines in summary.iteritems():
+                if lines in lines_by_target:
+                    lines_by_target[lines].append(target)
+                else:
+                    lines_by_target[lines] = [target]
+
+            for arch in arch_list:
+                lines = []
+                all_plus = {}
+                all_minus = {}
+                all_change = {}
+                for name in CONFIG_FILENAMES:
+                    all_plus.update(arch_config_plus[arch][name])
+                    all_minus.update(arch_config_minus[arch][name])
+                    all_change.update(arch_config_change[arch][name])
+                    _AddConfig(lines, name, arch_config_plus[arch][name],
+                               arch_config_minus[arch][name],
+                               arch_config_change[arch][name])
+                _AddConfig(lines, 'all', all_plus, all_minus, all_change)
+                #arch_summary[target] = '\n'.join(lines)
+                if lines:
+                    Print('%s:' % arch)
+                    _OutputConfigInfo(lines)
+
+            for lines, targets in lines_by_target.iteritems():
+                if not lines:
+                    continue
+                Print('%s :' % ' '.join(sorted(targets)))
+                _OutputConfigInfo(lines.split('\n'))
+
 
         # Save our updated information for the next call to this function
         self._base_board_dict = board_dict
