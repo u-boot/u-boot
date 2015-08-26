@@ -73,13 +73,8 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /*
- * Command line configuration.
+ * FDT options
  */
-#ifdef CONFIG_CMD_NET
-# define CONFIG_CMD_DHCP
-# define CONFIG_CMD_PING
-#endif
-
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_LMB
@@ -129,7 +124,5 @@
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_INIT_SP - 0x20000)
 #define CONFIG_CMDLINE_EDITING
-
-#define CONFIG_SYS_HUSH_PARSER
 
 #endif /* __CONFIG_H */
