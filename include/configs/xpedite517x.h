@@ -138,7 +138,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_NAND_ACTL_CLE 	(1 << 15)	/* C_LA15 */
 #define CONFIG_SYS_NAND_ACTL_NCE	0		/* NCE not controlled by ADDR */
 #define CONFIG_SYS_NAND_ACTL_DELAY	25
-#define CONFIG_SYS_NAND_QUIET_TEST
 #define CONFIG_JFFS2_NAND
 
 /*

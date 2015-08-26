@@ -70,7 +70,6 @@
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_QUIET_TEST	1
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
