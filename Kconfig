@@ -146,7 +146,7 @@ config FIT
 	  Flattened Image Tree.  FIT is formally a FDT, which can include
 	  images of various types (kernel, FDT blob, ramdisk, etc.)
 	  in a single blob.  To boot this new uImage structure,
-	  pass the the address of the blob to the "bootm" command.
+	  pass the address of the blob to the "bootm" command.
 
 config FIT_VERBOSE
 	bool "Display verbose messages on FIT boot"
