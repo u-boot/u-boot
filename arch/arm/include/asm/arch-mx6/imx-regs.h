@@ -630,9 +630,10 @@ struct ocotp_regs {
 	u32     version;
 	u32     rsvd7[0xdb];
 
+	/* fuse banks */
 	struct fuse_bank {
 		u32	fuse_regs[0x20];
-	} bank[16];
+	} bank[0];
 };
 
 struct fuse_bank0_regs {

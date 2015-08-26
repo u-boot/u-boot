@@ -57,6 +57,68 @@
 
 #define WRITE_POSTAMBLE_US		2
 
+#if defined(CONFIG_MX6) || defined(CONFIG_VF610)
+#define FUSE_BANK_SIZE	0x80
+#ifdef CONFIG_MX6SL
+#define FUSE_BANKS	8
+#else
+#define FUSE_BANKS	16
+#endif
+#elif defined CONFIG_MX7
+#define FUSE_BANK_SIZE	0x40
+#define FUSE_BANKS	16
+#else
+#error "Unsupported architecture\n"
+#endif
+
+#if defined(CONFIG_MX6)
+#include <asm/arch/sys_proto.h>
+
+/*
+ * There is a hole in shadow registers address map of size 0x100
+ * between bank 5 and bank 6 on iMX6QP, iMX6DQ, iMX6SDL, iMX6SX and iMX6UL.
+ * Bank 5 ends at 0x6F0 and Bank 6 starts at 0x800. When reading the fuses,
+ * we should account for this hole in address space.
+ *
+ * Similar hole exists between bank 14 and bank 15 of size
+ * 0x80 on iMX6QP, iMX6DQ, iMX6SDL and iMX6SX.
+ * Note: iMX6SL has only 0-7 banks and there is no hole.
+ * Note: iMX6UL doesn't have this one.
+ *
+ * This function is to covert user input to physical bank index.
+ * Only needed when read fuse, because we use register offset, so
+ * need to calculate real register offset.
+ * When write, no need to consider hole, always use the bank/word
+ * index from fuse map.
+ */
+u32 fuse_bank_physical(int index)
+{
+	u32 phy_index;
+
+	if (is_cpu_type(MXC_CPU_MX6SL)) {
+		phy_index = index;
+	} else if (is_cpu_type(MXC_CPU_MX6UL)) {
+		if (index >= 6)
+			phy_index = fuse_bank_physical(5) + (index - 6) + 3;
+		else
+			phy_index = index;
+	} else {
+		if (index >= 15)
+			phy_index = fuse_bank_physical(14) + (index - 15) + 2;
+		else if (index >= 6)
+			phy_index = fuse_bank_physical(5) + (index - 6) + 3;
+		else
+			phy_index = index;
+	}
+	return phy_index;
+}
+#else
+u32 fuse_bank_physical(int index)
+{
+	return index;
+}
+#endif
+
 static void wait_busy(struct ocotp_regs *regs, unsigned int delay_us)
 {
 	while (readl(&regs->ctrl) & BM_CTRL_BUSY)
@@ -73,9 +135,9 @@ static int prepare_access(struct ocotp_regs **regs, u32 bank, u32 word,
 {
 	*regs = (struct ocotp_regs *)OCOTP_BASE_ADDR;
 
-	if (bank >= ARRAY_SIZE((*regs)->bank) ||
-			word >= ARRAY_SIZE((*regs)->bank[0].fuse_regs) >> 2 ||
-			!assert) {
+	if (bank >= FUSE_BANKS ||
+	    word >= ARRAY_SIZE((*regs)->bank[0].fuse_regs) >> 2 ||
+	    !assert) {
 		printf("mxc_ocotp %s(): Invalid argument\n", caller);
 		return -EINVAL;
 	}
@@ -113,12 +175,15 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 {
 	struct ocotp_regs *regs;
 	int ret;
+	u32 phy_bank;
 
 	ret = prepare_read(&regs, bank, word, val, __func__);
 	if (ret)
 		return ret;
 
-	*val = readl(&regs->bank[bank].fuse_regs[word << 2]);
+	phy_bank = fuse_bank_physical(bank);
+
+	*val = readl(&regs->bank[phy_bank].fuse_regs[word << 2]);
 
 	return finish_access(regs, __func__);
 }
@@ -259,12 +324,15 @@ int fuse_override(u32 bank, u32 word, u32 val)
 {
 	struct ocotp_regs *regs;
 	int ret;
+	u32 phy_bank;
 
 	ret = prepare_write(&regs, bank, word, __func__);
 	if (ret)
 		return ret;
 
-	writel(val, &regs->bank[bank].fuse_regs[word << 2]);
+	phy_bank = fuse_bank_physical(bank);
+
+	writel(val, &regs->bank[phy_bank].fuse_regs[word << 2]);
 
 	return finish_access(regs, __func__);
 }
