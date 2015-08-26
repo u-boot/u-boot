@@ -229,8 +229,15 @@ config FSP_TEMP_RAM_ADDR
 	depends on HAVE_FSP
 	default 0x2000000
 	help
-	  Stack top address which is used in FspInit after DRAM is ready and
+	  Stack top address which is used in fsp_init() after DRAM is ready and
 	  CAR is disabled.
+
+config FSP_SYS_MALLOC_F_LEN
+	hex
+	depends on HAVE_FSP
+	default 0x100000
+	help
+	  Additional size of malloc() pool before relocation.
 
 config SMP
 	bool "Enable Symmetric Multiprocessing"
@@ -307,10 +314,10 @@ config VGA_BIOS_ADDR
 	  0x90000 from the beginning of a 1MB flash device.
 
 menu "System tables"
+	depends on !EFI && !SYS_COREBOOT
 
 config GENERATE_PIRQ_TABLE
 	bool "Generate a PIRQ table"
-	depends on !EFI
 	default n
 	help
 	  Generate a PIRQ routing table for this board. The PIRQ routing table
@@ -321,7 +328,6 @@ config GENERATE_PIRQ_TABLE
 
 config GENERATE_SFI_TABLE
 	bool "Generate a SFI (Simple Firmware Interface) table"
-	depends on !EFI
 	help
 	  The Simple Firmware Interface (SFI) provides a lightweight method
 	  for platform firmware to pass information to the operating system
@@ -336,13 +342,21 @@ config GENERATE_SFI_TABLE
 
 config GENERATE_MP_TABLE
 	bool "Generate an MP (Multi-Processor) table"
-	depends on !EFI
 	default n
 	help
 	  Generate an MP (Multi-Processor) table for this board. The MP table
 	  provides a way for the operating system to support for symmetric
 	  multiprocessing as well as symmetric I/O interrupt handling with
 	  the local APIC and I/O APIC.
+
+config GENERATE_ACPI_TABLE
+	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
+	default n
+	help
+	  The Advanced Configuration and Power Interface (ACPI) specification
+	  provides an open standard for device configuration and management
+	  by the operating system. It defines platform-independent interfaces
+	  for configuration and power management monitoring.
 
 endmenu
 

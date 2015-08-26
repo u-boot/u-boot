@@ -4978,8 +4978,8 @@ e1000_configure_tx(struct e1000_hw *hw)
 	unsigned long tipg, tarc;
 	uint32_t ipgr1, ipgr2;
 
-	E1000_WRITE_REG(hw, TDBAL, (unsigned long)tx_base & 0xffffffff);
-	E1000_WRITE_REG(hw, TDBAH, (unsigned long)tx_base >> 32);
+	E1000_WRITE_REG(hw, TDBAL, lower_32_bits((unsigned long)tx_base));
+	E1000_WRITE_REG(hw, TDBAH, upper_32_bits((unsigned long)tx_base));
 
 	E1000_WRITE_REG(hw, TDLEN, 128);
 
@@ -5103,6 +5103,7 @@ e1000_configure_rx(struct e1000_hw *hw)
 {
 	unsigned long rctl, ctrl_ext;
 	rx_tail = 0;
+
 	/* make sure receives are disabled while setting up the descriptors */
 	rctl = E1000_READ_REG(hw, RCTL);
 	E1000_WRITE_REG(hw, RCTL, rctl & ~E1000_RCTL_EN);
@@ -5122,8 +5123,8 @@ e1000_configure_rx(struct e1000_hw *hw)
 		E1000_WRITE_FLUSH(hw);
 	}
 	/* Setup the Base and Length of the Rx Descriptor Ring */
-	E1000_WRITE_REG(hw, RDBAL, (unsigned long)rx_base & 0xffffffff);
-	E1000_WRITE_REG(hw, RDBAH, (unsigned long)rx_base >> 32);
+	E1000_WRITE_REG(hw, RDBAL, lower_32_bits((unsigned long)rx_base));
+	E1000_WRITE_REG(hw, RDBAH, upper_32_bits((unsigned long)rx_base));
 
 	E1000_WRITE_REG(hw, RDLEN, 128);
 

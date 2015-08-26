@@ -30,6 +30,7 @@ obj-y += physmem.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o
 obj-y += sfi.o
 obj-y	+= string.o
+obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 obj-y	+= tables.o
 obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o

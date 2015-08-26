@@ -56,8 +56,22 @@ void board_final_cleanup(void)
 
 int x86_fsp_init(void)
 {
-	if (!gd->arch.hob_list)
+	if (!gd->arch.hob_list) {
+		/*
+		 * The first time we enter here, call fsp_init().
+		 * Note the execution does not return to this function,
+		 * instead it jumps to fsp_continue().
+		 */
 		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, BOOT_FULL_CONFIG, NULL);
+	} else {
+		/*
+		 * The second time we enter here, adjust the size of malloc()
+		 * pool before relocation. Given gd->malloc_base was adjusted
+		 * after the call to board_init_f_mem() in arch/x86/cpu/start.S,
+		 * we should fix up gd->malloc_limit here.
+		 */
+		gd->malloc_limit += CONFIG_FSP_SYS_MALLOC_F_LEN;
+	}
 
 	return 0;
 }

@@ -14,6 +14,9 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
+#if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
+#include <asm/fsp/fsp_support.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -461,6 +464,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	int n_ents;
 	int ret;
 	char name[30], *str;
+	bool bridge;
 
 	*devp = NULL;
 
@@ -480,6 +484,17 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 				continue;
 
 			drv = entry->driver;
+
+			/*
+			 * In the pre-relocation phase, we only bind devices
+			 * whose driver has the DM_FLAG_PRE_RELOC set, to save
+			 * precious memory space as on some platforms as that
+			 * space is pretty limited (ie: using Cache As RAM).
+			 */
+			if (!(gd->flags & GD_FLG_RELOC) &&
+			    !(drv->flags & DM_FLAG_PRE_RELOC))
+				return 0;
+
 			/*
 			 * We could pass the descriptor to the driver as
 			 * platdata (instead of NULL) and allow its bind()
@@ -499,14 +514,23 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 		}
 	}
 
+	bridge = (find_id->class >> 8) == PCI_CLASS_BRIDGE_PCI;
+	/*
+	 * In the pre-relocation phase, we only bind bridge devices to save
+	 * precious memory space as on some platforms as that space is pretty
+	 * limited (ie: using Cache As RAM).
+	 */
+	if (!(gd->flags & GD_FLG_RELOC) && !bridge)
+		return 0;
+
 	/* Bind a generic driver so that the device can be used */
 	sprintf(name, "pci_%x:%x.%x", parent->seq, PCI_DEV(bdf),
 		PCI_FUNC(bdf));
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	drv = (find_id->class >> 8) == PCI_CLASS_BRIDGE_PCI ? "pci_bridge_drv" :
-			"pci_generic_drv";
+	drv = bridge ? "pci_bridge_drv" : "pci_generic_drv";
+
 	ret = device_bind_driver(parent, drv, str, devp);
 	if (ret) {
 		debug("%s: Failed to bind generic driver: %d", __func__, ret);
@@ -589,11 +613,13 @@ int pci_bind_bus_devices(struct udevice *bus)
 			return ret;
 
 		/* Update the platform data */
-		pplat = dev_get_parent_platdata(dev);
-		pplat->devfn = PCI_MASK_BUS(bdf);
-		pplat->vendor = vendor;
-		pplat->device = device;
-		pplat->class = class;
+		if (dev) {
+			pplat = dev_get_parent_platdata(dev);
+			pplat->devfn = PCI_MASK_BUS(bdf);
+			pplat->vendor = vendor;
+			pplat->device = device;
+			pplat->class = class;
+		}
 	}
 
 	return 0;
@@ -605,6 +631,13 @@ error:
 
 static int pci_uclass_post_bind(struct udevice *bus)
 {
+	/*
+	 * If there is no pci device listed in the device tree,
+	 * don't bother scanning the device tree.
+	 */
+	if (bus->of_offset == -1)
+		return 0;
+
 	/*
 	 * Scan the device tree for devices. This does not probe the PCI bus,
 	 * as this is not permitted while binding. It just finds devices
@@ -717,10 +750,6 @@ static int pci_uclass_post_probe(struct udevice *bus)
 {
 	int ret;
 
-	/* Don't scan buses before relocation */
-	if (!(gd->flags & GD_FLG_RELOC))
-		return 0;
-
 	debug("%s: probing bus %d\n", __func__, bus->seq);
 	ret = pci_bind_bus_devices(bus);
 	if (ret)
@@ -728,6 +757,24 @@ static int pci_uclass_post_probe(struct udevice *bus)
 
 #ifdef CONFIG_PCI_PNP
 	ret = pci_auto_config_devices(bus);
+#endif
+
+#if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
+	/*
+	 * Per Intel FSP specification, we should call FSP notify API to
+	 * inform FSP that PCI enumeration has been done so that FSP will
+	 * do any necessary initialization as required by the chipset's
+	 * BIOS Writer's Guide (BWG).
+	 *
+	 * Unfortunately we have to put this call here as with driver model,
+	 * the enumeration is all done on a lazy basis as needed, so until
+	 * something is touched on PCI it won't happen.
+	 *
+	 * Note we only call this 1) after U-Boot is relocated, and 2)
+	 * root bus has finished probing.
+	 */
+	if ((gd->flags & GD_FLG_RELOC) && (bus->seq == 0))
+		ret = fsp_init_phase_pci();
 #endif
 
 	return ret < 0 ? ret : 0;
@@ -754,8 +801,8 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 		if (ret != -ENOENT)
 			return -EINVAL;
 	} else {
-		/* extract the bdf from fdt_pci_addr */
-		pplat->devfn = addr.phys_hi & 0xffff00;
+		/* extract the devfn from fdt_pci_addr */
+		pplat->devfn = addr.phys_hi & 0xff00;
 	}
 
 	return 0;

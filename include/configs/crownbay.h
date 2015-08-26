@@ -31,7 +31,6 @@
 #define CONFIG_PCI_IO_PHYS		CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE		0xe000
 
-#define CONFIG_PCI_CONFIG_HOST_BRIDGE
 #define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_PCI_PNP
 
@@ -53,9 +52,6 @@
 /* Topcliff Gigabit Ethernet */
 #define CONFIG_PCH_GBE
 #define CONFIG_PHYLIB
-
-/* TunnelCreek IGD support */
-#define CONFIG_VGA_AS_SINGLE_DEVICE
 
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000

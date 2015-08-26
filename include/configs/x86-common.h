@@ -87,7 +87,9 @@
 #define CONFIG_ISO_PARTITION		/* Experimental */
 
 #define CONFIG_CMD_PART
+#ifdef CONFIG_SYS_COREBOOT
 #define CONFIG_CMD_CBFS
+#endif
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_PARTITION_UUIDS
@@ -190,6 +192,7 @@
  * PCI configuration
  */
 #define CONFIG_PCI
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /*-----------------------------------------------------------------------
  * USB configuration

@@ -115,8 +115,10 @@ car_init_ret:
 #endif
 #else
 	/*
-	 * When we get here after car_init(), esp points to a temporary stack
-	 * and esi holds the HOB list address returned by the FSP.
+	 * U-Boot enters here twice. For the first time it comes from
+	 * car_init_done() with esp points to a temporary stack and esi
+	 * set to zero. For the second time it comes from fsp_init_done()
+	 * with esi holding the HOB list address returned by the FSP.
 	 */
 #endif
 	/* Set up global data */
@@ -141,6 +143,14 @@ car_init_ret:
 	jz	skip_hob
 	movl	%esi, GD_HOB_LIST(%edx)
 
+	/*
+	 * After fsp_init() returns, the stack has already been switched to a
+	 * place within system memory as defined by CONFIG_FSP_TEMP_RAM_ADDR.
+	 * Enlarge the size of malloc() pool before relocation since we have
+	 * plenty of memory now.
+	 */
+	subl	$CONFIG_FSP_SYS_MALLOC_F_LEN, %esp
+	movl	%esp, GD_MALLOC_BASE(%edx)
 skip_hob:
 #else
 	/* Store table pointer */

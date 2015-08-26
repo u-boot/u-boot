@@ -10,11 +10,12 @@
 #include <netdev.h>
 #include <smsc_lpc47m.h>
 
-#define SERIAL_DEV PNP_DEV(0x2e, 4)
-
 int board_early_init_f(void)
 {
-	lpc47m_enable_serial(SERIAL_DEV, UART0_BASE, UART0_IRQ);
+	lpc47m_enable_serial(PNP_DEV(LPC47M_IO_PORT, LPC47M_SP1),
+			     UART0_BASE, UART0_IRQ);
+	lpc47m_enable_kbc(PNP_DEV(LPC47M_IO_PORT, LPC47M_KBC),
+			  KBD_IRQ, MSE_IRQ);
 
 	return 0;
 }

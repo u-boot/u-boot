@@ -102,6 +102,8 @@ struct vbe_ddc_info {
 #define VESA_SET_MODE		0x4f02
 #define VESA_GET_CUR_MODE	0x4f03
 
+extern struct vbe_mode_info mode_info;
+
 struct graphic_device;
 int vbe_get_video_info(struct graphic_device *gdev);
 

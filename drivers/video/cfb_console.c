@@ -2247,16 +2247,17 @@ __weak int board_video_skip(void)
 
 int drv_video_init(void)
 {
-	int skip_dev_init;
 	struct stdio_dev console_dev;
 	bool have_keyboard;
+	bool __maybe_unused keyboard_ok = false;
 
 	/* Check if video initialization should be skipped */
 	if (board_video_skip())
 		return 0;
 
 	/* Init video chip - returns with framebuffer cleared */
-	skip_dev_init = (video_init() == -1);
+	if (video_init() == -1)
+		return 0;
 
 	if (board_cfb_skip())
 		return 0;
@@ -2272,11 +2273,9 @@ int drv_video_init(void)
 	if (have_keyboard) {
 		debug("KBD: Keyboard init ...\n");
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-		skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
+		keyboard_ok = !(VIDEO_KBD_INIT_FCT == -1);
 #endif
 	}
-	if (skip_dev_init)
-		return 0;
 
 	/* Init vga device */
 	memset(&console_dev, 0, sizeof(console_dev));
@@ -2287,7 +2286,7 @@ int drv_video_init(void)
 	console_dev.puts = video_puts;	/* 'puts' function */
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	if (have_keyboard) {
+	if (have_keyboard && keyboard_ok) {
 		/* Also init console device */
 		console_dev.flags |= DEV_FLAGS_INPUT;
 		console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */

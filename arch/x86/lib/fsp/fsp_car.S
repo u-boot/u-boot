@@ -64,7 +64,7 @@ temp_ram_init_ret:
 .global fsp_init_done
 fsp_init_done:
 	/*
-	 * We come here from FspInit with eax pointing to the HOB list.
+	 * We come here from fsp_continue() with eax pointing to the HOB list.
 	 * Save eax to esi temporarily.
 	 */
 	movl	%eax, %esi
