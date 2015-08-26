@@ -34,6 +34,7 @@ obj-y += nand_ids.o
 obj-y += nand_util.o
 obj-y += nand_ecc.o
 obj-y += nand_base.o
+obj-y += nand_timings.o
 
 endif # not spl
 
@@ -61,6 +62,7 @@ obj-$(CONFIG_NAND_MXC) += mxc_nand.o
 obj-$(CONFIG_NAND_MXS) += mxs_nand.o
 obj-$(CONFIG_NAND_NDFC) += ndfc.o
 obj-$(CONFIG_NAND_NOMADIK) += nomadik.o
+obj-$(CONFIG_NAND_PXA3XX) += pxa3xx_nand.o
 obj-$(CONFIG_NAND_S3C2410) += s3c2410_nand.o
 obj-$(CONFIG_NAND_SPEAR) += spr_nand.o
 obj-$(CONFIG_TEGRA_NAND) += tegra_nand.o

@@ -621,6 +621,19 @@ static int fsl_elbc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 static struct fsl_elbc_ctrl *elbc_ctrl;
 
+/* ECC will be calculated automatically, and errors will be detected in
+ * waitfunc.
+ */
+static int fsl_elbc_write_subpage(struct mtd_info *mtd, struct nand_chip *chip,
+				uint32_t offset, uint32_t data_len,
+				const uint8_t *buf, int oob_required)
+{
+	fsl_elbc_write_buf(mtd, buf, mtd->writesize);
+	fsl_elbc_write_buf(mtd, chip->oob_poi, mtd->oobsize);
+
+	return 0;
+}
+
 static void fsl_elbc_ctrl_init(void)
 {
 	elbc_ctrl = kzalloc(sizeof(*elbc_ctrl), GFP_KERNEL);
@@ -710,6 +723,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 
 	nand->ecc.read_page = fsl_elbc_read_page;
 	nand->ecc.write_page = fsl_elbc_write_page;
+	nand->ecc.write_subpage = fsl_elbc_write_subpage;
 
 	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
 
