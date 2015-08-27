@@ -96,6 +96,14 @@ config SPL_PINCONF
 
 if PINCTRL || SPL_PINCTRL
 
+config PINCTRL_SANDBOX
+	bool "Sandbox pinctrl driver"
+	depends on SANDBOX
+	help
+	  This enables pinctrl driver for sandbox.  Currently, this driver
+	  actually does nothing but print debug messages when pinctrl
+	  operations are invoked.
+
 endif
 
 endmenu
