@@ -32,7 +32,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	struct uclass *uc;
 	int size, ret = 0;
 
-	*devp = NULL;
+	if (devp)
+		*devp = NULL;
 	if (!name)
 		return -EINVAL;
 
@@ -133,7 +134,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	if (parent)
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
-	*devp = dev;
+	if (devp)
+		*devp = dev;
 
 	dev->flags |= DM_FLAG_BOUND;
 
