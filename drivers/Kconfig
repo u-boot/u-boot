@@ -40,6 +40,8 @@ source "drivers/pci/Kconfig"
 
 source "drivers/pcmcia/Kconfig"
 
+source "drivers/pinctrl/Kconfig"
+
 source "drivers/power/Kconfig"
 
 source "drivers/ram/Kconfig"

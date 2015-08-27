@@ -15,6 +15,7 @@
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <dm/pinctrl.h>
 #include <dm/platdata.h>
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
@@ -285,6 +286,9 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	dev->seq = seq;
 
 	dev->flags |= DM_FLAG_ACTIVATED;
+
+	/* continue regardless of the result of pinctrl */
+	pinctrl_select_state(dev, "default");
 
 	ret = uclass_pre_probe_device(dev);
 	if (ret)

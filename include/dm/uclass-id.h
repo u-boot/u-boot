@@ -44,6 +44,8 @@ enum uclass_id {
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */
 	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
+	UCLASS_PINCTRL,		/* Pinctrl (pin muxing/configuration) device */
+	UCLASS_PINCONFIG,	/* Pin configuration node device */
 	UCLASS_PMIC,		/* PMIC I/O device */
 	UCLASS_REGULATOR,	/* Regulator device */
 	UCLASS_RESET,		/* Reset device */
