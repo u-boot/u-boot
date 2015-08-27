@@ -711,7 +711,11 @@ void bootp_request(void)
 	bp->bp_htype = HWT_ETHER;
 	bp->bp_hlen = HWL_ETHER;
 	bp->bp_hops = 0;
-	bp->bp_secs = htons(get_timer(0) / 1000);
+	/*
+	 * according to RFC1542, should be 0 on first request, secs since
+	 * first request otherwise
+	 */
+	bp->bp_secs = htons(get_timer(bootp_start) / 1000);
 	zero_ip.s_addr = 0;
 	net_write_ip(&bp->bp_ciaddr, zero_ip);
 	net_write_ip(&bp->bp_yiaddr, zero_ip);
@@ -905,7 +909,7 @@ static void dhcp_send_request_packet(struct bootp_hdr *bp_offer)
 	bp->bp_htype = HWT_ETHER;
 	bp->bp_hlen = HWL_ETHER;
 	bp->bp_hops = 0;
-	bp->bp_secs = htons(get_timer(0) / 1000);
+	bp->bp_secs = htons(get_timer(bootp_start) / 1000);
 	/* Do not set the client IP, your IP, or server IP yet, since it
 	 * hasn't been ACK'ed by the server yet */
 
