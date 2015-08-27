@@ -605,6 +605,7 @@ s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
 void omap_die_id_serial(void);
 void omap_die_id_usbethaddr(void);
+void omap_die_id_display(void);
 
 void recalibrate_iodelay(void);
 

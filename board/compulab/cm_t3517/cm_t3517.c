@@ -101,7 +101,7 @@ int board_init(void)
 int misc_init_r(void)
 {
 	cl_print_pcb_info();
-	dieid_num_r();
+	omap_die_id_display();
 
 	return 0;
 }

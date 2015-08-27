@@ -83,3 +83,13 @@ void omap_die_id_usbethaddr(void)
 		eth_setenv_enetaddr("usbethaddr", mac);
 	}
 }
+
+void omap_die_id_display(void)
+{
+	unsigned int die_id[4] = { 0 };
+
+	omap_die_id(die_id);
+
+	printf("OMAP die ID: %08x%08x%08x%08x", die_id[0], die_id[1], die_id[2],
+		die_id[3]);
+}

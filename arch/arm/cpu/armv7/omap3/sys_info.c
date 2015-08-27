@@ -52,28 +52,6 @@ void omap_die_id(unsigned int *die_id)
 	die_id[3] = readl(&id_base->die_id_3);
 }
 
-/*****************************************************************
- * dieid_num_r(void) - read and set die ID
- *****************************************************************/
-void dieid_num_r(void)
-{
-	char *uid_s, die_id[34];
-	u32 id[4];
-
-	memset(die_id, 0, sizeof(die_id));
-
-	uid_s = getenv("dieid#");
-
-	if (uid_s == NULL) {
-		omap_die_id(id);
-		sprintf(die_id, "%08x%08x%08x%08x", id[0], id[1], id[2], id[3]);
-		setenv("dieid#", die_id);
-		uid_s = die_id;
-	}
-
-	printf("Die ID #%s\n", uid_s);
-}
-
 /******************************************
  * get_cpu_type(void) - extract cpu info
  ******************************************/

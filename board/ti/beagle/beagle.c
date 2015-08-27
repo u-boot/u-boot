@@ -494,7 +494,7 @@ int misc_init_r(void)
 	writel(~(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
 		GPIO15 | GPIO14 | GPIO13 | GPIO12), &gpio5_base->oe);
 
-	dieid_num_r();
+	omap_die_id_display();
 
 #ifdef CONFIG_VIDEO_OMAP3
 	beagle_dvi_pup();
