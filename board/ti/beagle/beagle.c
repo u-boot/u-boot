@@ -507,10 +507,10 @@ int misc_init_r(void)
 #endif
 
 	if (generate_fake_mac) {
-		u32 id[4];
+		unsigned int die_id[4] = { 0 };
 
-		get_dieid(id);
-		usb_fake_mac_from_die_id(id);
+		omap_die_id(die_id);
+		usb_fake_mac_from_die_id(die_id);
 	}
 
 	return 0;
