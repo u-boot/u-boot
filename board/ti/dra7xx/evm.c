@@ -57,15 +57,12 @@ int board_init(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	unsigned int die_id[4] = { 0 };
-
 	if (omap_revision() == DRA722_ES1_0)
 		setenv("board_name", "dra72x");
 	else
 		setenv("board_name", "dra7xx");
 
-	omap_die_id(die_id);
-	usb_set_serial_num_from_die_id(die_id);
+	omap_die_id_serial();
 #endif
 	return 0;
 }

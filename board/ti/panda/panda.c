@@ -209,7 +209,6 @@ int misc_init_r(void)
 {
 	int phy_type;
 	u32 auxclk, altclksrc;
-	unsigned int die_id[4] = { 0 };
 
 	/* EHCI is not supported on ES1.0 */
 	if (omap_revision() == OMAP4430_ES1_0)
@@ -263,8 +262,7 @@ int misc_init_r(void)
 
 	writel(altclksrc, &scrm->altclksrc);
 
-	omap_die_id(die_id);
-	usb_fake_mac_from_die_id(die_id);
+	omap_die_id_usbethaddr();
 
 	return 0;
 }

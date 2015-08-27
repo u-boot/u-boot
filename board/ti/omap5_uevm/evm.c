@@ -189,14 +189,11 @@ static void enable_host_clocks(void)
  */
 int misc_init_r(void)
 {
-	unsigned int die_id[4] = { 0 };
-
 #ifdef CONFIG_PALMAS_POWER
 	palmas_init_settings();
 #endif
 
-	omap_die_id(die_id);
-	usb_fake_mac_from_die_id(die_id);
+	omap_die_id_usbethaddr();
 
 	return 0;
 }

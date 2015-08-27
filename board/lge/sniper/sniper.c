@@ -92,8 +92,6 @@ int board_init(void)
 int misc_init_r(void)
 {
 	unsigned char keypad_matrix[64] = { 0 };
-	unsigned int die_id[4] = { 0 };
-	char serial_string[17] = { 0 };
 	char reboot_mode[2] = { 0 };
 	unsigned char keys[3];
 	unsigned char data = 0;
@@ -140,14 +138,7 @@ int misc_init_r(void)
 
 	/* Serial number */
 
-	omap_die_id(die_id);
-
-	if (!getenv("serial#")) {
-		snprintf(serial_string, sizeof(serial_string),
-			"%08x%08x", die_id[0], die_id[3]);
-
-		setenv("serial#", serial_string);
-	}
+	omap_die_id_serial();
 
 	/* MUSB */
 

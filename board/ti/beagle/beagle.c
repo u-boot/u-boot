@@ -506,12 +506,8 @@ int misc_init_r(void)
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
 #endif
 
-	if (generate_fake_mac) {
-		unsigned int die_id[4] = { 0 };
-
-		omap_die_id(die_id);
-		usb_fake_mac_from_die_id(die_id);
-	}
+	if (generate_fake_mac)
+		omap_die_id_usbethaddr();
 
 	return 0;
 }

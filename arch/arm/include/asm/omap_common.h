@@ -603,8 +603,9 @@ void abb_setup(u32 fuse, u32 ldovbb, u32 setup, u32 control,
 	       u32 txdone, u32 txdone_mask, u32 opp);
 s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
-void usb_fake_mac_from_die_id(u32 *id);
-void usb_set_serial_num_from_die_id(u32 *id);
+void omap_die_id_serial(void);
+void omap_die_id_usbethaddr(void);
+
 void recalibrate_iodelay(void);
 
 void omap_smc1(u32 service, u32 val);
