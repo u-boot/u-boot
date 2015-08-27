@@ -612,6 +612,8 @@ void omap_smc1(u32 service, u32 val);
 void enable_edma3_clocks(void);
 void disable_edma3_clocks(void);
 
+void omap_die_id(unsigned int *die_id);
+
 /* ABB */
 #define OMAP_ABB_NOMINAL_OPP		0
 #define OMAP_ABB_FAST_OPP		1

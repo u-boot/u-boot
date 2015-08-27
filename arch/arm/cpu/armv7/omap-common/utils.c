@@ -41,6 +41,11 @@ void cancel_out(u32 *num, u32 *den, u32 den_limit)
 	}
 }
 
+__weak void omap_die_id(unsigned int *die_id)
+{
+	die_id[0] = die_id[1] = die_id[2] = die_id[3] = 0;
+}
+
 void __weak usb_fake_mac_from_die_id(u32 *id)
 {
 	uint8_t device_mac[6];
