@@ -44,8 +44,7 @@ void lpc32xx_uart_init(unsigned int uart_id)
 void lpc32xx_dma_init(void)
 {
 	/* Enable DMA interface */
-	writel(DMA_CLK_ENABLE, &clk->dmaclk_ctrl);
-
+	writel(CLK_DMA_ENABLE, &clk->dmaclk_ctrl);
 }
 
 void lpc32xx_mac_init(void)
