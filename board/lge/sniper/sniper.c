@@ -149,20 +149,7 @@ int misc_init_r(void)
 
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	char *serial_string;
-	unsigned long long serial;
-
-	serial_string = getenv("serial#");
-
-	if (serial_string) {
-		serial = simple_strtoull(serial_string, NULL, 16);
-
-		serialnr->high = (unsigned int) (serial >> 32);
-		serialnr->low = (unsigned int) (serial & 0xffffffff);
-	} else {
-		serialnr->high = 0;
-		serialnr->low = 0;
-	}
+	omap_die_id_get_board_serial(serialnr);
 }
 
 void reset_misc(void)
