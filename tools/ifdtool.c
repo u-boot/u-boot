@@ -707,10 +707,12 @@ int inject_region(char *image, int size, int region_type, char *region_fname)
  *			8MB ROM the start address is 0xfff80000.
  * @write_fname:	Filename to add to the image
  * @offset_uboot_top:	Offset of the top of U-Boot
+ * @offset_uboot_start:	Offset of the start of U-Boot
  * @return number of bytes written if OK, -ve on error
  */
 static int write_data(char *image, int size, unsigned int addr,
-		      const char *write_fname, int offset_uboot_top)
+		      const char *write_fname, int offset_uboot_top,
+		      int offset_uboot_start)
 {
 	int write_fd, write_size;
 	int offset;
@@ -720,13 +722,25 @@ static int write_data(char *image, int size, unsigned int addr,
 		return write_fd;
 
 	offset = (uint32_t)(addr + size);
-	if (offset_uboot_top && offset_uboot_top >= offset) {
-		fprintf(stderr, "U-Boot image overlaps with region '%s'\n",
-			write_fname);
-		fprintf(stderr,
-			"U-Boot finishes at offset %x, file starts at %x\n",
-			offset_uboot_top, offset);
-		return -EXDEV;
+	if (offset_uboot_top) {
+		if (offset_uboot_start < offset &&
+		    offset_uboot_top >= offset) {
+			fprintf(stderr, "U-Boot image overlaps with region '%s'\n",
+				write_fname);
+			fprintf(stderr,
+				"U-Boot finishes at offset %x, file starts at %x\n",
+				offset_uboot_top, offset);
+			return -EXDEV;
+		}
+		if (offset_uboot_start > offset &&
+		    offset_uboot_start <= offset + write_size) {
+			fprintf(stderr, "U-Boot image overlaps with region '%s'\n",
+				write_fname);
+			fprintf(stderr,
+				"U-Boot starts at offset %x, file finishes at %x\n",
+				offset_uboot_start, offset + write_size);
+			return -EXDEV;
+		}
 	}
 	debug("Writing %s to offset %#x\n", write_fname, offset);
 
@@ -927,27 +941,36 @@ static int write_ucode(char *image, int size, struct input_file *fdt,
  */
 static int write_uboot(char *image, int size, struct input_file *uboot,
 		       struct input_file *fdt, unsigned int ucode_ptr,
-		       int collate_ucode)
+		       int collate_ucode, int *offset_uboot_top,
+		       int *offset_uboot_start)
 {
-	const void *blob;
 	int uboot_size, fdt_size;
+	int uboot_top;
 
-	uboot_size = write_data(image, size, uboot->addr, uboot->fname, 0);
+	uboot_size = write_data(image, size, uboot->addr, uboot->fname, 0, 0);
 	if (uboot_size < 0)
 		return uboot_size;
 	fdt->addr = uboot->addr + uboot_size;
 	debug("U-Boot size %#x, FDT at %#x\n", uboot_size, fdt->addr);
-	fdt_size = write_data(image, size, fdt->addr, fdt->fname, 0);
+	fdt_size = write_data(image, size, fdt->addr, fdt->fname, 0, 0);
 	if (fdt_size < 0)
 		return fdt_size;
-	blob = (void *)image + (uint32_t)(fdt->addr + size);
+
+	uboot_top = (uint32_t)(fdt->addr + size) + fdt_size;
 
 	if (ucode_ptr) {
-		return write_ucode(image, size, fdt, fdt_size, ucode_ptr,
-				   collate_ucode);
+		uboot_top = write_ucode(image, size, fdt, fdt_size, ucode_ptr,
+					collate_ucode);
+		if (uboot_top < 0)
+			return uboot_top;
 	}
 
-	return ((char *)blob + fdt_size) - image;
+	if (offset_uboot_top && offset_uboot_start) {
+		*offset_uboot_top = uboot_top;
+		*offset_uboot_start = (uint32_t)(uboot->addr + size);
+	}
+
+	return 0;
 }
 
 static void print_version(void)
@@ -1268,13 +1291,14 @@ int main(int argc, char *argv[])
 	}
 
 	if (mode_write_descriptor)
-		ret = write_data(image, size, -size, desc_fname, 0);
+		ret = write_data(image, size, -size, desc_fname, 0, 0);
 
 	if (mode_inject)
 		ret = inject_region(image, size, region_type, inject_fname);
 
 	if (mode_write) {
 		int offset_uboot_top = 0;
+		int offset_uboot_start = 0;
 
 		for (wr_idx = 0; wr_idx < wr_num; wr_idx++) {
 			ifile = &input_file[wr_idx];
@@ -1282,11 +1306,13 @@ int main(int argc, char *argv[])
 				continue;
 			} else if (ifile->type == IF_uboot) {
 				ret = write_uboot(image, size, ifile, fdt,
-						  ucode_ptr, collate_ucode);
-				offset_uboot_top = ret;
+						  ucode_ptr, collate_ucode,
+						  &offset_uboot_top,
+						  &offset_uboot_start);
 			} else {
 				ret = write_data(image, size, ifile->addr,
-					 ifile->fname, offset_uboot_top);
+						 ifile->fname, offset_uboot_top,
+						 offset_uboot_start);
 			}
 			if (ret < 0)
 				break;
