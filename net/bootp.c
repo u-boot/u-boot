@@ -109,7 +109,8 @@ static bool bootp_match_id(ulong id)
 	return false;
 }
 
-static int check_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
+static int check_reply_packet(uchar *pkt, unsigned dest, unsigned src,
+			      unsigned len)
 {
 	struct bootp_hdr *bp = (struct bootp_hdr *)pkt;
 	int retval = 0;
@@ -118,11 +119,7 @@ static int check_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		retval = -1;
 	else if (len < sizeof(struct bootp_hdr) - OPT_FIELD_SIZE)
 		retval = -2;
-	else if (bp->bp_op != OP_BOOTREQUEST &&
-			bp->bp_op != OP_BOOTREPLY &&
-			bp->bp_op != DHCP_OFFER &&
-			bp->bp_op != DHCP_ACK &&
-			bp->bp_op != DHCP_NAK)
+	else if (bp->bp_op != OP_BOOTREPLY)
 		retval = -3;
 	else if (bp->bp_htype != HWT_ETHER)
 		retval = -4;
@@ -343,7 +340,7 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	bp = (struct bootp_hdr *)pkt;
 
 	/* Filter out pkts we don't want */
-	if (check_packet(pkt, dest, src, len))
+	if (check_reply_packet(pkt, dest, src, len))
 		return;
 
 	/*
@@ -960,7 +957,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	      src, dest, len, dhcp_state);
 
 	/* Filter out pkts we don't want */
-	if (check_packet(pkt, dest, src, len))
+	if (check_reply_packet(pkt, dest, src, len))
 		return;
 
 	debug("DHCPHandler: got DHCP packet: (src=%d, dst=%d, len=%d) state: "
