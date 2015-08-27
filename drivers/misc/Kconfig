@@ -83,6 +83,13 @@ config FSL_SEC_MON
 	  Security Monitor can be transitioned on any security failures,
 	  like software violations or hardware security violations.
 
+config MXC_OCOTP
+	bool "Enable MXC OCOTP Driver"
+	help
+	  If you say Y here, you will get support for the One Time
+	  Programmable memory pages that are stored on the some
+	  Freescale i.MX processors.
+
 config PCA9551_LED
 	bool "Enable PCA9551 LED driver"
 	help
