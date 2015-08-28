@@ -13,6 +13,7 @@
 #include <asm/arch/rmobile.h>
 
 #define CONFIG_REMAKE_ELF
+#define CONFIG_BUILD_TARGET	"u-boot-elf.srec"
 
 /* boot option */
 
