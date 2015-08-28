@@ -35,7 +35,9 @@
 /* Cache Definitions */
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
-#define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
+#if !defined(CONFIG_IDENT_STRING)
+# define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
+#endif
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
