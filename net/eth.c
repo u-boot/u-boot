@@ -107,7 +107,9 @@ static void eth_common_init(void)
 		if (cpu_eth_init(gd->bd) < 0)
 			printf("CPU Net Initialization Failed\n");
 	} else {
+#ifndef CONFIG_DM_ETH
 		printf("Net Initialization Skipped\n");
+#endif
 	}
 }
 
