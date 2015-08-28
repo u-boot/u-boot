@@ -776,6 +776,9 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 	while (popt < end && *popt != 0xff) {
 		oplen = *(popt + 1);
 		switch (*popt) {
+		case 0:
+			oplen = -1; /* Pad omits len byte */
+			break;
 		case 1:
 			net_copy_ip(&net_netmask, (popt + 2));
 			break;
@@ -879,7 +882,13 @@ static int dhcp_message_type(unsigned char *popt)
 	while (*popt != 0xff) {
 		if (*popt == 53)	/* DHCP Message Type */
 			return *(popt + 2);
-		popt += *(popt + 1) + 2;	/* Scan through all options */
+		if (*popt == 0)	{
+			/* Pad */
+			popt += 1;
+		} else {
+			/* Scan through all options */
+			popt += *(popt + 1) + 2;
+		}
 	}
 	return -1;
 }
