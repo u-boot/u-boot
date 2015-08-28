@@ -20,15 +20,15 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyPS0,115200 earlyprintk";
-		stdout-path = &uart0;
+		bootargs = "console=ttyS0,115200";
+		stdout-path = &serial0;
 	};
 
 	aliases {
-		serial0 = &uart0;
-		serial1 = &uart1;
-		serial2 = &uart2;
-		serial3 = &uart3;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -39,11 +39,15 @@
 	};
 };
 
-&uart0 {
+&serial0 {
 	status = "okay";
 };
 
-&uart1 {
+&serial1 {
+	status = "okay";
+};
+
+&serial2 {
 	status = "okay";
 };
 
@@ -55,7 +59,15 @@
 	status = "okay";
 };
 
+&usb2 {
+	status = "okay";
+};
+
+&usb3 {
+	status = "okay";
+};
+
 /* for U-boot only */
-&uart0 {
+&serial0 {
        u-boot,dm-pre-reloc;
 };
