@@ -111,7 +111,7 @@ config DEBUG_UART_SHIFT
 
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"
-	depends on SANDBOX && DM
+	depends on SANDBOX
 	help
 	  Select this to enable a seral UART for sandbox. This is required to
 	  operate correctly, otherwise you will see no serial output from
@@ -131,7 +131,7 @@ config SANDBOX_SERIAL
 
 config UNIPHIER_SERIAL
 	bool "Support for UniPhier on-chip UART"
-	depends on ARCH_UNIPHIER && DM_SERIAL
+	depends on ARCH_UNIPHIER
 	help
 	  If you have a UniPhier based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
