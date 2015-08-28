@@ -87,6 +87,7 @@ static int ci_ep_enable(struct usb_ep *ep,
 static int ci_ep_disable(struct usb_ep *ep);
 static int ci_ep_queue(struct usb_ep *ep,
 		struct usb_request *req, gfp_t gfp_flags);
+static int ci_ep_dequeue(struct usb_ep *ep, struct usb_request *req);
 static struct usb_request *
 ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags);
 static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *_req);
@@ -99,6 +100,7 @@ static struct usb_ep_ops ci_ep_ops = {
 	.enable         = ci_ep_enable,
 	.disable        = ci_ep_disable,
 	.queue          = ci_ep_queue,
+	.dequeue	= ci_ep_dequeue,
 	.alloc_request  = ci_ep_alloc_request,
 	.free_request   = ci_ep_free_request,
 };
@@ -523,6 +525,30 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 		bit = EPT_RX(num);
 
 	writel(bit, &udc->epprime);
+}
+
+static int ci_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+{
+	struct ci_ep *ci_ep = container_of(_ep, struct ci_ep, ep);
+	struct ci_req *ci_req;
+
+	list_for_each_entry(ci_req, &ci_ep->queue, queue) {
+		if (&ci_req->req == _req)
+			break;
+	}
+
+	if (&ci_req->req != _req)
+		return -EINVAL;
+
+	list_del_init(&ci_req->queue);
+
+	if (ci_req->req.status == -EINPROGRESS) {
+		ci_req->req.status = -ECONNRESET;
+		if (ci_req->req.complete)
+			ci_req->req.complete(_ep, _req);
+	}
+
+	return 0;
 }
 
 static int ci_ep_queue(struct usb_ep *ep,
