@@ -816,6 +816,7 @@ config ARCH_UNIPHIER
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
+	select SPL_OF_CONTROL
 	select DM
 	select SPL_DM
 	select DM_SERIAL

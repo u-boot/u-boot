@@ -288,7 +288,7 @@
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
-		"tftpboot u-boot-spl.bin &&"			\
+		"tftpboot u-boot-spl-dtb.bin &&"		\
 		"nand write $loadaddr 0 0x00010000 &&"		\
 		"tftpboot u-boot-dtb.img &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
