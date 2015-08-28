@@ -13,6 +13,7 @@
 #include <asm/processor.h>
 #include <linux/ctype.h>
 #include <asm/io.h>
+#include <asm/fsl_fdt.h>
 #include <asm/fsl_portals.h>
 #include <hwconfig.h>
 #ifdef CONFIG_FSL_ESDHC
@@ -942,4 +943,14 @@ int ft_verify_fdt(void *fdt)
 #endif
 
 	return 1;
+}
+
+void fdt_del_diu(void *blob)
+{
+	int nodeoff = 0;
+
+	while ((nodeoff = fdt_node_offset_by_compatible(blob, 0,
+				"fsl,diu")) >= 0) {
+		fdt_del_node(blob, nodeoff);
+	}
 }
