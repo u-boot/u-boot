@@ -7,7 +7,6 @@
 #include <common.h>
 #include <asm/ibmpc.h>
 #include <asm/pnp_def.h>
-#include <netdev.h>
 #include <smsc_lpc47m.h>
 
 int board_early_init_f(void)
@@ -23,9 +22,4 @@ int board_early_init_f(void)
 void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio)
 {
 	return;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
 }

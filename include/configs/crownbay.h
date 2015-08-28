@@ -50,7 +50,6 @@
 #define CONFIG_CMD_MMC
 
 /* Topcliff Gigabit Ethernet */
-#define CONFIG_PCH_GBE
 #define CONFIG_PHYLIB
 
 /* Environment configuration */
