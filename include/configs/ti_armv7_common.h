@@ -58,6 +58,14 @@
 	"ramdisk_addr_r=0x88080000\0" \
 	"bootm_size=0x10000000\0"
 
+#define DEFAULT_MMC_TI_ARGS \
+	"mmcdev=0\0" \
+	"mmcrootfstype=ext4 rootwait\0" \
+	"args_mmc=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0"
+
 /*
  * Default to a quick boot delay.
  */
