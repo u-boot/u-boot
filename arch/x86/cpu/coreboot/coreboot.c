@@ -8,7 +8,6 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <netdev.h>
 #include <asm/io.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -46,11 +45,6 @@ int last_stage_init(void)
 		timestamp_add_to_bootstage();
 
 	return 0;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
 }
 
 void board_final_cleanup(void)
