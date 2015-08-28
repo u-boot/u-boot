@@ -10,6 +10,8 @@
 #include <mach/bcu-regs.h>
 #include <mach/sc-regs.h>
 #include <mach/sg-regs.h>
+
+#define UART_CLK		36864000
 #include <mach/debug-uart.S>
 
 ENTRY(setup_lowlevel_debug)
