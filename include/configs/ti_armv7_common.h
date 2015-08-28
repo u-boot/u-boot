@@ -61,9 +61,10 @@
 #define DEFAULT_MMC_TI_ARGS \
 	"mmcdev=0\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
-	"args_mmc=setenv bootargs console=${console} " \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
+	"args_mmc=run finduuid;setenv bootargs console=${console} " \
 		"${optargs} " \
-		"root=${mmcroot} " \
+		"root=PARTUUID=${uuid} rw " \
 		"rootfstype=${mmcrootfstype}\0"
 
 /*
