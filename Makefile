@@ -1263,12 +1263,24 @@ define filechk_version.h
 	echo \#define LD_VERSION_STRING \"$$($(LD) --version | head -n 1)\"; )
 endef
 
+# The SOURCE_DATE_EPOCH mechanism requires a date that behaves like GNU date.
+# The BSD date on the other hand behaves different and would produce errors
+# with the misused '-d' switch.  Respect that and search a working date with
+# well known pre- and suffixes for the GNU variant of date.
 define filechk_timestamp.h
 	(if test -n "$${SOURCE_DATE_EPOCH}"; then \
 		SOURCE_DATE="@$${SOURCE_DATE_EPOCH}"; \
-		LC_ALL=C date -u -d "$${SOURCE_DATE}" +'#define U_BOOT_DATE "%b %d %C%y"'; \
-		LC_ALL=C date -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TIME "%T"'; \
-		LC_ALL=C date -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TZ "%z"'; \
+		DATE=""; \
+		for date in gdate date.gnu date; do \
+			$${date} -u -d "$${SOURCE_DATE}" >/dev/null 2>&1 && DATE="$${date}"; \
+		done; \
+		if test -n "$${DATE}"; then \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_DATE "%b %d %C%y"'; \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TIME "%T"'; \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TZ "%z"'; \
+		else \
+			return 42; \
+		fi; \
 	else \
 		LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"'; \
 		LC_ALL=C date +'#define U_BOOT_TIME "%T"'; \
