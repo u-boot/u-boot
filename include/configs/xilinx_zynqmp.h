@@ -38,7 +38,9 @@
 /* Cache Definitions */
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
+#ifndef CONFIG_IDENT_STRING
 #define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
+#endif
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.Xilinx_ZynqMP"
 
 /* Text base on 16MB for now - 0 doesn't work */
