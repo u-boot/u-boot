@@ -817,6 +817,7 @@ config ARCH_UNIPHIER
 	select SPL
 	select OF_CONTROL
 	select DM
+	select SPL_DM
 	select DM_SERIAL
 	select DM_I2C
 	help
