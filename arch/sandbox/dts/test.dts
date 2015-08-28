@@ -9,6 +9,7 @@
 	aliases {
 		console = &uart0;
 		eth0 = "/eth@10002000";
+		eth3 = &eth_3;
 		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
 		pci0 = &pci;
@@ -119,6 +120,12 @@
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
 		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x11>;
+	};
+
+	eth_3: sbe5 {
+		compatible = "sandbox,eth";
+		reg = <0x10005000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x33>;
 	};
 
 	eth@10004000 {
