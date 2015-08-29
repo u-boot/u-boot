@@ -257,9 +257,11 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 	const uint32_t status_bit = reading ? SUNXI_MMC_STATUS_FIFO_EMPTY :
 					      SUNXI_MMC_STATUS_FIFO_FULL;
 	unsigned i;
-	unsigned byte_cnt = data->blocksize * data->blocks;
-	unsigned timeout_msecs = 2000;
 	unsigned *buff = (unsigned int *)(reading ? data->dest : data->src);
+	unsigned byte_cnt = data->blocksize * data->blocks;
+	unsigned timeout_msecs = byte_cnt >> 8;
+	if (timeout_msecs < 2000)
+		timeout_msecs = 2000;
 
 	/* Always read / write data through the CPU */
 	setbits_le32(&mmchost->reg->gctrl, SUNXI_MMC_GCTRL_ACCESS_BY_AHB);
