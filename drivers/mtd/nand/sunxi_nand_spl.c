@@ -67,7 +67,8 @@
 #define NFC_SEND_CMD3              (1 << 28)
 #define NFC_SEND_CMD4              (1 << 29)
 
-#define NFC_CMD_INT_FLAG           (1 << 1)
+#define NFC_ST_CMD_INT_FLAG        (1 << 1)
+#define NFC_ST_DMA_INT_FLAG        (1 << 2)
 
 #define NFC_READ_CMD_OFFSET         0
 #define NFC_RANDOM_READ_CMD0_OFFSET 8
@@ -169,14 +170,16 @@ void nand_init(void)
 	}
 
 	/* reset NAND */
+	writel(NFC_ST_CMD_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 	writel(NFC_SEND_CMD1 | NFC_WAIT_FLAG | NAND_CMD_RESET,
 	       SUNXI_NFC_BASE + NFC_CMD);
 
-	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_CMD_INT_FLAG,
+	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
 			 MAX_RETRIES)) {
 		printf("Error timeout waiting for nand reset\n");
 		return;
 	}
+	writel(NFC_ST_CMD_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 }
 
 static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
@@ -259,17 +262,19 @@ static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
 	writel(((page & 0xFFFF) << 16) | column,
 	       SUNXI_NFC_BASE + NFC_ADDR_LOW);
 	writel((page >> 16) & 0xFF, SUNXI_NFC_BASE + NFC_ADDR_HIGH);
+	writel(NFC_ST_DMA_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 	writel(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_DATA_TRANS |
 		NFC_PAGE_CMD | NFC_WAIT_FLAG |
 		((addr_cycles - 1) << NFC_ADDR_NUM_OFFSET) |
 		NFC_SEND_ADR | NFC_DATA_SWAP_METHOD | (syndrome ? NFC_SEQ : 0),
 		SUNXI_NFC_BASE + NFC_CMD);
 
-	if (!check_value(SUNXI_NFC_BASE + NFC_ST, (1 << 2),
+	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_DMA_INT_FLAG,
 			 MAX_RETRIES)) {
 		printf("Error while initializing dma interrupt\n");
 		return -1;
 	}
+	writel(NFC_ST_DMA_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 
 	if (!check_value_negated(SUNXI_DMA_BASE + SUNXI_DMA_CFG_REG0,
 				 SUNXI_DMA_DDMA_CFG_REG_LOADING, MAX_RETRIES)) {
