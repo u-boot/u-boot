@@ -47,7 +47,9 @@ obj-y	+= interrupts_64.o
 else
 obj-y	+= interrupts.o
 endif
+ifndef CONFIG_RESET
 obj-y	+= reset.o
+endif
 
 obj-y	+= cache.o
 ifndef CONFIG_ARM64
