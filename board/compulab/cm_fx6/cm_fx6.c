@@ -626,6 +626,13 @@ int checkboard(void)
 	return 0;
 }
 
+int misc_init_r(void)
+{
+	cl_print_pcb_info();
+
+	return 0;
+}
+
 void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
