@@ -11,7 +11,7 @@ config LED
 
 config SPL_LED
 	bool "Enable LED support in SPL"
-	depends on LED
+	depends on SPL && SPL_DM
 	help
 	  The LED subsystem adds a small amount of overhead to the image.
 	  If this is acceptable and you have a need to use LEDs in SPL,
@@ -26,5 +26,12 @@ config LED_GPIO
 	  GPIOs may be on the SoC or some other device which provides GPIOs.
 	  The GPIO driver must used driver model. LEDs are configured using
 	  the device tree.
+
+config SPL_LED_GPIO
+	bool "LED support for GPIO-connected LEDs in SPL"
+        depends on SPL_LED && DM_GPIO
+	help
+	  This option is an SPL-variant of the LED_GPIO option.
+	  See the help of LED_GPIO for details.
 
 endmenu
