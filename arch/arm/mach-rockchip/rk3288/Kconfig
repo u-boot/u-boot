@@ -1,0 +1,6 @@
+if ROCKCHIP_RK3288
+
+config SYS_SOC
+	default "rockchip"
+
+endif

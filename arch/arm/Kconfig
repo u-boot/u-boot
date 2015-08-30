@@ -829,6 +829,14 @@ config TARGET_STM32F429_DISCOVERY
 	bool "Support STM32F429 Discovery"
 	select CPU_V7M
 
+config ARCH_ROCKCHIP
+	bool "Support Rockchip SoCs"
+	select SUPPORT_SPL
+	select SPL
+	select OF_CONTROL
+	select CPU_V7
+	select DM
+
 endchoice
 
 source "arch/arm/mach-at91/Kconfig"
@@ -862,6 +870,8 @@ source "arch/arm/cpu/armv7/omap5/Kconfig"
 source "arch/arm/mach-orion5x/Kconfig"
 
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
+
+source "arch/arm/mach-rockchip/Kconfig"
 
 source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
 
