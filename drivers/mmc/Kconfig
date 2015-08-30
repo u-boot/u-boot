@@ -10,6 +10,15 @@ config DM_MMC
 	  appear as block devices in U-Boot and can support filesystems such
 	  as EXT4 and FAT.
 
+config ROCKCHIP_DWMMC
+	bool "Rockchip SD/MMC controller support"
+	depends on DM_MMC && OF_CONTROL
+	help
+	  This enables support for the Rockchip SD/MMM controller, which is
+	  based on Designware IP. The device is compatible with at least
+	  SD 3.0, SDIO 3.0 and MMC 4.5 and supports common eMMC chips as well
+	  as removeable SD and micro-SD cards.
+
 config SH_SDHI
 	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"
 	depends on RMOBILE
