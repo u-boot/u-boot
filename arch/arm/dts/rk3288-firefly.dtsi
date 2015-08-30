@@ -386,7 +386,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdio0_bus4>, <&sdio0_cmd>, <&sdio0_clk>;
 	vmmc-supply = <&vcc_18>;
-	status = "okay";
+	status = "disabled";
 };
 
 &sdmmc {
