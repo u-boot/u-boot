@@ -92,6 +92,27 @@
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
+
+#define ENV_MEM_LAYOUT_SETTINGS \
+	"scriptaddr=0x00000000\0" \
+	"pxefile_addr_r=0x00100000\0" \
+	"fdt_addr_r=0x01f00000\0" \
+	"kernel_addr_r=0x02000000\0" \
+	"ramdisk_addr_r=0x04000000\0"
+
+/* First try to boot from SD (index 0), then eMMC (index 1 */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1)
+
+#include <config_distro_bootcmd.h>
+
+/* Linux fails to load the fdt if it's loaded above 512M on a Rock 2 board, so
+ * limit the fdt reallocation to that */
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdt_high=0x1fffffff\0" \
+	ENV_MEM_LAYOUT_SETTINGS \
+	BOOTENV
 #endif
 
 #endif
