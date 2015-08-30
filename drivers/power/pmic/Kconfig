@@ -10,6 +10,15 @@ config DM_PMIC
 	- 'drivers/power/pmic/pmic-uclass.c'
 	- 'include/power/pmic.h'
 
+config PMIC_ACT8846
+	bool "Enable support for the active-semi 8846 PMIC"
+	depends on DM_PMIC && DM_I2C
+	---help---
+	This PMIC includes 4 DC/DC step-down buck regulators and 8 low-dropout
+	regulators (LDOs). It also provides some GPIO, reset and battery
+	functions. It uses an I2C interface and is designed for use with
+	tablets and smartphones.
+
 config DM_PMIC_PFUZE100
 	bool "Enable Driver Model for PMIC PFUZE100"
 	depends on DM_PMIC
