@@ -163,7 +163,7 @@ Example
 -------
 Here's a couple of example files to show how this works.
 
-------------/tftpboot/pxelinux.cfg/menus/linux.list----------
+------------/tftpboot/pxelinux.cfg/menus/base.menu-----------
 menu title Linux selections
 
 # This is the default label
