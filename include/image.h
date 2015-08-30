@@ -246,8 +246,9 @@ struct lmb;
 #define IH_TYPE_LPC32XXIMAGE	21	/* x86 setup.bin Image		*/
 #define IH_TYPE_LOADABLE	22	/* A list of typeless images	*/
 #define IH_TYPE_RKIMAGE		23	/* Rockchip Boot Image		*/
+#define IH_TYPE_RKSD		24	/* Rockchip SD card		*/
 
-#define IH_TYPE_COUNT		24	/* Number of image types */
+#define IH_TYPE_COUNT		25	/* Number of image types */
 
 /*
  * Compression Types
