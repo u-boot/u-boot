@@ -569,7 +569,9 @@ restart:
 			goto done;
 		}
 
-		arp_timeout_check();
+		if (arp_timeout_check() > 0) {
+		    time_start = get_timer(0);
+		}
 
 		/*
 		 *	Check for a timeout, and run the timeout handler
