@@ -14,6 +14,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <errno.h>
+#include <usb.h>
 #include <fdt_support.h>
 #include <sata.h>
 #include <splash.h>
@@ -328,6 +329,11 @@ static int cm_fx6_setup_usb_otg(void)
 	clrbits_le32(&iomux->gpr[1], IOMUXC_GPR1_OTG_ID_MASK);
 	/* disable ext. charger detect, or it'll affect signal quality at dp. */
 	return gpio_direction_output(SB_FX6_USB_OTG_PWR, 0);
+}
+
+int board_usb_phy_mode(int port)
+{
+	return USB_INIT_HOST;
 }
 
 int board_ehci_hcd_init(int port)
