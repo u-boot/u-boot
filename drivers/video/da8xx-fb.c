@@ -1035,16 +1035,6 @@ err_release_fb:
 	return NULL;
 }
 
-void video_set_lut(unsigned int index,	/* color number */
-		    unsigned char r,	/* red */
-		    unsigned char g,	/* green */
-		    unsigned char b	/* blue */
-		    )
-{
-
-	return;
-}
-
 void da8xx_video_init(const struct da8xx_panel *panel,
 		      const struct lcd_ctrl_config *lcd_cfg, int bits_pixel)
 {
