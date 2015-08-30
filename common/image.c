@@ -157,6 +157,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_LPC32XXIMAGE, "lpc32xximage",  "LPC32XX Boot Image", },
 	{	IH_TYPE_RKIMAGE,    "rkimage",    "Rockchip Boot Image" },
 	{	IH_TYPE_RKSD,       "rksd",       "Rockchip SD Boot Image" },
+	{	IH_TYPE_RKSPI,      "rkspi",      "Rockchip SPI Boot Image" },
 	{	-1,		    "",		  "",			},
 };
 
