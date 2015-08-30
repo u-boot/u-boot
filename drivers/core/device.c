@@ -39,8 +39,10 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 		return -EINVAL;
 
 	ret = uclass_get(drv->id, &uc);
-	if (ret)
+	if (ret) {
+		debug("Missing uclass for driver %s\n", drv->name);
 		return ret;
+	}
 
 	dev = calloc(1, sizeof(struct udevice));
 	if (!dev)
