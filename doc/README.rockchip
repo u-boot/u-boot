@@ -161,7 +161,6 @@ Future work
 
 Immediate priorities are:
 
-- MMC support (in U-Boot itself)
 - GPIO (driver exists but is lightly tested)
 - I2C (driver exists but is non-functional)
 - USB host
