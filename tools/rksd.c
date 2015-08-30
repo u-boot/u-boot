@@ -14,9 +14,7 @@
 #include "rkcommon.h"
 
 enum {
-	RKSD_HEADER0_START	= 64 * RK_BLK_SIZE,
-	RKSD_SPL_HDR_START	= RKSD_HEADER0_START +
-					RK_CODE1_OFFSET * RK_BLK_SIZE,
+	RKSD_SPL_HDR_START	= RK_CODE1_OFFSET * RK_BLK_SIZE,
 	RKSD_SPL_START		= RKSD_SPL_HDR_START + 4,
 	RKSD_HEADER_LEN		= RKSD_SPL_START,
 };
@@ -44,11 +42,8 @@ static void rksd_set_header(void *buf,  struct stat *sbuf,  int ifd,
 	unsigned int size;
 	int ret;
 
-	/* Zero the whole header. The first 32KB is empty */
-	memset(buf,  '\0',  RKSD_HEADER0_START);
-
 	size = params->file_size - RKSD_SPL_HDR_START;
-	ret = rkcommon_set_header(buf + RKSD_HEADER0_START, size);
+	ret = rkcommon_set_header(buf, size);
 	if (ret) {
 		/* TODO(sjg@chromium.org): This method should return an error */
 		printf("Warning: SPL image is too large (size %#x) and will not boot\n",

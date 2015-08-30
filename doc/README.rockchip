@@ -90,7 +90,7 @@ Booting from an SD card
 To write an image that boots from an SD card (assumed to be /dev/sdc):
 
    ./firefly-rk3288/tools/mkimage -T rksd -d firefly-rk3288/spl/u-boot-spl-dtb.bin out
-   sudo dd if=out of=/dev/sdc
+   sudo dd if=out of=/dev/sdc seek=64
    sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=256
 
 This puts the Rockchip header and SPL image first and then places the U-Boot
