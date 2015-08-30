@@ -1,0 +1,6 @@
+CHROMEBOOK JERRY BOARD
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	board/google/chromebook_jerry/
+F:	include/configs/chromebook_jerry.h
+F:	configs/chromebook_jerry_defconfig
