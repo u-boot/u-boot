@@ -40,6 +40,7 @@ obj-$(CONFIG_ZYNQ_SERIAL) += serial_zynq.o
 obj-$(CONFIG_BFIN_SERIAL) += serial_bfin.o
 obj-$(CONFIG_FSL_LPUART) += serial_lpuart.o
 obj-$(CONFIG_MXS_AUART) += mxs_auart.o
+obj-$(CONFIG_ROCKCHIP_SERIAL) += serial_rockchip.o
 obj-$(CONFIG_ARC_SERIAL) += serial_arc.o
 obj-$(CONFIG_TEGRA_SERIAL) += serial_tegra.o
 obj-$(CONFIG_UNIPHIER_SERIAL) += serial_uniphier.o
