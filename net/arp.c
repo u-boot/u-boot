@@ -112,7 +112,7 @@ void arp_timeout_check(void)
 		if (arp_wait_try >= ARP_TIMEOUT_COUNT) {
 			puts("\nARP Retry count exceeded; starting again\n");
 			arp_wait_try = 0;
-			net_start_again();
+			net_set_state(NETLOOP_FAIL);
 		} else {
 			arp_wait_timer_start = t;
 			arp_request();
