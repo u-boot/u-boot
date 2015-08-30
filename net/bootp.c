@@ -1018,6 +1018,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			dhcp_state = BOUND;
 			printf("DHCP client bound to address %pI4 (%lu ms)\n",
 			       &net_ip, get_timer(bootp_start));
+			net_set_timeout_handler(0, (thand_f *)0);
 			bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP,
 					    "bootp_stop");
 
