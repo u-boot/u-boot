@@ -47,7 +47,10 @@ config PINMUX
 	default y
 	help
 	  This option enables pin multiplexing through the generic pinctrl
-	  framework.
+	  framework. Most SoCs have their own own multiplexing arrangement
+	  where a single pin can be used for several functions. An SoC pinctrl
+	  driver allows the required function to be selected for each pin.
+	  The driver is typically controlled by the device tree.
 
 config PINCONF
 	bool "Support pin configuration controllers"
@@ -86,6 +89,12 @@ config SPL_PINMUX
 	help
 	  This option is an SPL-variant of the PINMUX option.
 	  See the help of PINMUX for details.
+	  The pinctrl subsystem can add a substantial overhead to the SPL
+	  image since it typically requires quite a few tables either in the
+	  driver or in the device tree. If this is acceptable and you need
+	  to adjust pin multiplexing in SPL in order to boot into U-Boot,
+	  enable this option. You will need to enable device tree in SPL
+	  for this to work.
 
 config SPL_PINCONF
 	bool "Support pin configuration controllers in SPL"
