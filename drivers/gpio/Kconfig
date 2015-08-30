@@ -28,6 +28,15 @@ config LPC32XX_GPIO
 	help
 	  Support for the LPC32XX GPIO driver.
 
+config ROCKCHIP_GPIO
+	bool "Rockchip GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support GPIO access on Rockchip SoCs. The GPIOs are arranged into
+	  a number of banks (different for each SoC type) each with 32 GPIOs.
+	  The GPIOs for a device are defined in the device tree with one node
+	  for each bank.
+
 config SANDBOX_GPIO
 	bool "Enable sandbox GPIO driver"
 	depends on SANDBOX && DM && DM_GPIO

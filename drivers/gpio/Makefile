@@ -21,6 +21,7 @@ obj-$(CONFIG_MXC_GPIO)	+= mxc_gpio.o
 obj-$(CONFIG_MXS_GPIO)	+= mxs_gpio.o
 obj-$(CONFIG_PCA953X)		+= pca953x.o
 obj-$(CONFIG_PCA9698)		+= pca9698.o
+obj-$(CONFIG_ROCKCHIP_GPIO)	+= rk_gpio.o
 obj-$(CONFIG_S5P)		+= s5p_gpio.o
 obj-$(CONFIG_SANDBOX_GPIO)	+= sandbox.o
 obj-$(CONFIG_SPEAR_GPIO)	+= spear_gpio.o
