@@ -67,7 +67,8 @@ Connect your board's OTG port to your computer.
 
 To create a suitable image and write it to the board:
 
-   ./firefly-rk3288/tools/mkimage -T rkimage -d ./firefly-rk3288/spl/u-boot-spl-dtb.bin out
+   ./firefly-rk3288/tools/mkimage -T rkimage -d \
+	./firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
    cat out | openssl rc4 -K 7c4e0304550509072d2c7b38170d1711 | rkflashtool l
 
 If all goes well you should something like:
@@ -89,8 +90,9 @@ Booting from an SD card
 
 To write an image that boots from an SD card (assumed to be /dev/sdc):
 
-   ./firefly-rk3288/tools/mkimage -T rksd -d firefly-rk3288/spl/u-boot-spl-dtb.bin out
-   sudo dd if=out of=/dev/sdc seek=64
+   ./firefly-rk3288/tools/mkimage -T rksd -d \
+	firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
+   sudo dd if=out of=/dev/sdc seek=64 && \
    sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=256
 
 This puts the Rockchip header and SPL image first and then places the U-Boot
