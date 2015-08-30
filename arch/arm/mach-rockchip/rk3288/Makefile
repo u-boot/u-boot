@@ -5,4 +5,5 @@
 #
 
 obj-y += reset_rk3288.o
+obj-y += sdram_rk3288.o
 obj-y += syscon_rk3288.o
