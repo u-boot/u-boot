@@ -25,9 +25,6 @@ config TARGET_DNS325
 config TARGET_ICONNECT
 	bool "iconnect Board"
 
-config TARGET_TK71
-	bool "TK71 Board"
-
 config TARGET_KM_KIRKWOOD
 	bool "KM_KIRKWOOD Board"
 
@@ -64,7 +61,6 @@ source "board/buffalo/lsxl/Kconfig"
 source "board/cloudengines/pogo_e02/Kconfig"
 source "board/d-link/dns325/Kconfig"
 source "board/iomega/iconnect/Kconfig"
-source "board/karo/tk71/Kconfig"
 source "board/keymile/km_arm/Kconfig"
 source "board/LaCie/net2big_v2/Kconfig"
 source "board/LaCie/netspace_v2/Kconfig"
