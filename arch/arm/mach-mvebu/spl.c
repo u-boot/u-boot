@@ -78,6 +78,4 @@ void board_init_f(ulong dummy)
 	 */
 	return_to_bootrom();
 #endif
-
-	board_init_r(NULL, 0);
 }
