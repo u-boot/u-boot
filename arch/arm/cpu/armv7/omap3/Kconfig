@@ -93,9 +93,6 @@ config TARGET_OMAP3_LOGIC
 	select DM_SERIAL
 	select DM_GPIO
 
-config TARGET_OMAP3_MVBLX
-	bool "OMAP3 MVBLX"
-
 config TARGET_NOKIA_RX51
 	bool "Nokia RX51"
 
@@ -143,7 +140,6 @@ source "board/8dtech/eco5pk/Kconfig"
 source "board/corscience/tricorder/Kconfig"
 source "board/htkw/mcx/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
-source "board/matrix_vision/mvblx/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
 source "board/technexion/twister/Kconfig"
