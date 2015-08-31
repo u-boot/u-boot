@@ -63,6 +63,14 @@ config NAND_PXA3XX
 	  This enables the driver for the NAND flash device found on
 	  PXA3xx processors (NFCv1) and also on Armada 370/XP (NFCv2).
 
+config NAND_SUNXI
+	bool "Support for NAND on Allwinner SoCs in SPL"
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	select SYS_NAND_SELF_INIT
+	---help---
+	Enable support for NAND. This option allows SPL to read from
+	sunxi NAND using DMA transfers.
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config
@@ -84,6 +92,15 @@ config SYS_NAND_BUSWIDTH_16BIT
 	    not available while configuring controller. So a static CONFIG_NAND_xx
 	    is needed to know the device's bus-width in advance.
 
+# Enhance depends when converting drivers to Kconfig which use this config
+config SYS_NAND_U_BOOT_OFFS
+	hex "Location in NAND to read U-Boot from"
+	default 0x8000 if NAND_SUNXI
+	depends on NAND_SUNXI
+	help
+	Set the offset from the start of the nand where u-boot should be
+	loaded from.
+
 if SPL
 
 config SPL_NAND_DENALI
@@ -92,46 +109,6 @@ config SPL_NAND_DENALI
 	  This is a small implementation of the Denali NAND controller
 	  for use on SPL.
 
-config SPL_NAND_SUNXI
-	bool "Support for NAND on Allwinner A20 in SPL"
-	depends on MACH_SUN7I
-	---help---
-	Enable support for NAND. This option allows SPL to read from
-	sunxi NAND using DMA transfers.
-	Depending on the NAND chip, values like ECC strength and page sizes
-	have to be configured.
-
-config NAND_SUNXI_SPL_SYNDROME_PARTITIONS_END
-	hex "Size of syndrome partitions in sunxi NAND"
-	default 0x400000
-	depends on SPL_NAND_SUNXI
-	---help---
-	End address for boot partitions on NAND. Those partitions have a
-	different random seed that has to match the sunxi BROM setting.
-
-config NAND_SUNXI_SPL_ECC_STRENGTH
-	int "ECC Strength for sunxi NAND"
-	default 40
-	depends on SPL_NAND_SUNXI
-	---help---
-	ECC strength used by the sunxi NAND SPL driver. This is specific to the
-	chosen NAND chip and has to match the value used by the sunxi BROM.
-
-config NAND_SUNXI_SPL_ECC_PAGE_SIZE
-	hex "ECC page size for sunxi NAND"
-	default 0x400
-	depends on SPL_NAND_SUNXI
-	---help---
-	ECC page size used by the sunxi NAND SPL driver for syndrome partitions.
-	This setting has to match the value used by the sunxi BROM.
-
-config NAND_SUNXI_SPL_PAGE_SIZE
-	hex "Page size for sunxi NAND"
-	default 0x2000
-	depends on SPL_NAND_SUNXI
-	---help---
-	Page size of the NAND flash used by the sunxi NAND SPL driver. This is
-	specific to the chosen NAND chip.
 endif
 
 endmenu

@@ -31,6 +31,7 @@
 #include <asm/arch/usb_phy.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <nand.h>
 #include <net.h>
 
 #if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
@@ -107,25 +108,43 @@ int dram_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_NAND_SUNXI) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NAND_SUNXI) && defined(CONFIG_SPL_BUILD)
 static void nand_pinmux_setup(void)
 {
 	unsigned int pin;
-	for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(6); pin++)
+
+	for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(19); pin++)
 		sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_NAND);
 
-	for (pin = SUNXI_GPC(8); pin <= SUNXI_GPC(22); pin++)
+#if defined CONFIG_MACH_SUN4I || defined CONFIG_MACH_SUN7I
+	for (pin = SUNXI_GPC(20); pin <= SUNXI_GPC(22); pin++)
 		sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_NAND);
-
+#endif
+	/* sun4i / sun7i do have a PC23, but it is not used for nand,
+	 * only sun7i has a PC24 */
+#ifdef CONFIG_MACH_SUN7I
 	sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUNXI_GPC_NAND);
+#endif
 }
 
 static void nand_clock_setup(void)
 {
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
 	setbits_le32(&ccm->ahb_gate0, (CLK_GATE_OPEN << AHB_GATE_OFFSET_NAND0));
+#ifdef CONFIG_MACH_SUN9I
+	setbits_le32(&ccm->ahb_gate1, (1 << AHB_GATE_OFFSET_DMA));
+#else
+	setbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_DMA));
+#endif
 	setbits_le32(&ccm->nand0_clk_cfg, CCM_NAND_CTRL_ENABLE | AHB_DIV_1);
+}
+
+void board_nand_init(void)
+{
+	nand_pinmux_setup();
+	nand_clock_setup();
 }
 #endif
 
@@ -437,7 +456,7 @@ void sunxi_board_init(void)
 #ifdef CONFIG_AXP221_POWER
 	power_failed = axp221_init();
 	power_failed |= axp221_set_dcdc1(CONFIG_AXP221_DCDC1_VOLT);
-	power_failed |= axp221_set_dcdc2(1200); /* A31:VDD-GPU, A23:VDD-SYS */
+	power_failed |= axp221_set_dcdc2(CONFIG_AXP221_DCDC2_VOLT);
 	power_failed |= axp221_set_dcdc3(1200); /* VDD-CPU */
 #ifdef CONFIG_MACH_SUN6I
 	power_failed |= axp221_set_dcdc4(1200); /* A31:VDD-SYS */
@@ -451,11 +470,6 @@ void sunxi_board_init(void)
 	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
 	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
 	power_failed |= axp221_set_eldo(3, CONFIG_AXP221_ELDO3_VOLT);
-#endif
-
-#ifdef CONFIG_SPL_NAND_SUNXI
-	nand_pinmux_setup();
-	nand_clock_setup();
 #endif
 
 	printf("DRAM:");

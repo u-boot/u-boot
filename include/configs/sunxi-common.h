@@ -137,15 +137,9 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SERIAL_TAG
 
-#if defined(CONFIG_SPL_NAND_SUNXI)
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_SUPPORT
-
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x280000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS 0x008000
-
+#ifdef CONFIG_NAND_SUNXI
+#define CONFIG_SPL_NAND_SUPPORT 1
 #endif
-
 
 /* mmc config */
 #if !defined(CONFIG_UART0_PORT_F)
@@ -185,7 +179,7 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_SYS_MONITOR_LEN		(512 << 10)	/* 512 KiB */
+#define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
 #define CONFIG_IDENT_STRING		" Allwinner Technology"
 
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
