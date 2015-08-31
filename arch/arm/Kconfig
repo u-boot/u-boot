@@ -643,10 +643,6 @@ config TARGET_PXA255_IDP
 	bool "Support pxa255_idp"
 	select CPU_PXA
 
-config TARGET_TRIZEPSIV
-	bool "Support trizepsiv"
-	select CPU_PXA
-
 config TARGET_VPAC270
 	bool "Support vpac270"
 	select CPU_PXA
@@ -822,7 +818,6 @@ source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
-source "board/trizepsiv/Kconfig"
 source "board/technologic/ts4800/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
 source "board/vpac270/Kconfig"
