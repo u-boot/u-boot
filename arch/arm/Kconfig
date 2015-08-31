@@ -634,10 +634,6 @@ config TARGET_H2200
 	bool "Support h2200"
 	select CPU_PXA
 
-config TARGET_PALMLD
-	bool "Support palmld"
-	select CPU_PXA
-
 config TARGET_PALMTC
 	bool "Support palmtc"
 	select CPU_PXA
@@ -801,7 +797,6 @@ source "board/karo/tx25/Kconfig"
 source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
-source "board/palmld/Kconfig"
 source "board/palmtc/Kconfig"
 source "board/palmtreo680/Kconfig"
 source "board/phytec/pcm051/Kconfig"
