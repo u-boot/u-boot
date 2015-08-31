@@ -12,9 +12,6 @@ config TARGET_MT_VENTOUX
 	bool "TeeJet Mt.Ventoux"
 	select SUPPORT_SPL
 
-config TARGET_OMAP3_SDP3430
-	bool "TI OMAP3430 SDP"
-
 config TARGET_OMAP3_BEAGLE
 	bool "TI OMAP3 BeagleBoard"
 	select SUPPORT_SPL
@@ -125,7 +122,6 @@ config SYS_SOC
 
 source "board/logicpd/am3517evm/Kconfig"
 source "board/teejet/mt_ventoux/Kconfig"
-source "board/ti/sdp3430/Kconfig"
 source "board/ti/beagle/Kconfig"
 source "board/compulab/cm_t35/Kconfig"
 source "board/compulab/cm_t3517/Kconfig"
