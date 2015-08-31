@@ -619,10 +619,6 @@ config TARGET_PALMTREO680
 	select CPU_PXA
 	select SUPPORT_SPL
 
-config TARGET_XAENIAX
-	bool "Support xaeniax"
-	select CPU_PXA
-
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
 	select CPU_PXA
@@ -783,7 +779,6 @@ source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
-source "board/xaeniax/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 
