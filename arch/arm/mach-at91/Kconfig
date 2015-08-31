@@ -103,10 +103,6 @@ config TARGET_MEESC
 	bool "Support meesc"
 	select CPU_ARM926EJS
 
-config TARGET_OTC570
-	bool "Support otc570"
-	select CPU_ARM926EJS
-
 config TARGET_CORVUS
 	bool "Support corvus"
 	select CPU_ARM926EJS
@@ -144,7 +140,6 @@ source "board/BuS/vl_ma2sc/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
-source "board/esd/otc570/Kconfig"
 source "board/mini-box/picosam9g45/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
