@@ -7,9 +7,6 @@ choice
 config TARGET_OPENRD
 	bool "Marvell OpenRD Board"
 
-config TARGET_MV88F6281GTW_GE
-	bool "MV88f6281GTW_GE Board"
-
 config TARGET_RD6281A
 	bool "RD6281A Board"
 
@@ -67,7 +64,6 @@ config SYS_SOC
 	default "kirkwood"
 
 source "board/Marvell/openrd/Kconfig"
-source "board/Marvell/mv88f6281gtw_ge/Kconfig"
 source "board/Marvell/rd6281a/Kconfig"
 source "board/Marvell/dreamplug/Kconfig"
 source "board/Marvell/guruplug/Kconfig"
