@@ -356,18 +356,32 @@ static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest,
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 {
+#if CONFIG_SYS_NAND_U_BOOT_OFFS == CONFIG_SPL_PAD_TO
+	/*
+	 * u-boot-dtb.bin appended to SPL, use syndrome (like the BROM does)
+	 * and try different erase block sizes to find the backup.
+	 */
 	const uint32_t boot_offsets[] = {
 		0 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
 		1 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
 		2 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
 		4 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
 	};
-	int i, syndrome;
-
-	if (CONFIG_SYS_NAND_U_BOOT_OFFS == CONFIG_SPL_PAD_TO)
-		syndrome = 1; /* u-boot-dtb.bin appended to SPL */
-	else
-		syndrome = 0; /* u-boot-dtb.bin on its own partition */
+	const int syndrome = 1;
+#else
+	/*
+	 * u-boot-dtb.bin on its own partition, do not use syndrome, u-boot
+	 * partition sits after 2 eraseblocks (spl, spl-backup), look for
+	 * backup u-boot 1 erase block further.
+	 */
+	const uint32_t eraseblock_size = CONFIG_SYS_NAND_U_BOOT_OFFS / 2;
+	const uint32_t boot_offsets[] = {
+		CONFIG_SYS_NAND_U_BOOT_OFFS,
+		CONFIG_SYS_NAND_U_BOOT_OFFS + eraseblock_size,
+	};
+	const int syndrome = 0;
+#endif
+	int i;
 
 	if (offs == CONFIG_SYS_NAND_U_BOOT_OFFS) {
 		for (i = 0; i < ARRAY_SIZE(boot_offsets); i++) {
