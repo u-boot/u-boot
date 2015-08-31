@@ -662,10 +662,6 @@ config TARGET_LS1021ATWR
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_BALLOON3
-	bool "Support balloon3"
-	select CPU_PXA
-
 config TARGET_H2200
 	bool "Support h2200"
 	select CPU_PXA
@@ -809,7 +805,6 @@ source "board/Marvell/gplugd/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
-source "board/balloon3/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"

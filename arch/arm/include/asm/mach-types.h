@@ -197,7 +197,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_SMDK2412             1009
 #define MACH_TYPE_SMDK2413             1022
 #define MACH_TYPE_AML_M5900            1024
-#define MACH_TYPE_BALLOON3             1029
 #define MACH_TYPE_ECBAT91              1072
 #define MACH_TYPE_ONEARM               1075
 #define MACH_TYPE_SMDK2443             1084
@@ -3330,18 +3329,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_aml_m5900()	(machine_arch_type == MACH_TYPE_AML_M5900)
 #else
 # define machine_is_aml_m5900()	(0)
-#endif
-
-#ifdef CONFIG_MACH_BALLOON3
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_BALLOON3
-# endif
-# define machine_is_balloon3()	(machine_arch_type == MACH_TYPE_BALLOON3)
-#else
-# define machine_is_balloon3()	(0)
 #endif
 
 #ifdef CONFIG_MACH_ECBAT91
