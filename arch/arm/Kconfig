@@ -473,10 +473,6 @@ config TARGET_MX53SMD
 	bool "Support mx53smd"
 	select CPU_V7
 
-config TARGET_VISION2
-	bool "Support vision2"
-	select CPU_V7
-
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select CPU_V7
@@ -789,7 +785,6 @@ source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
 source "board/technologic/ts4800/Kconfig"
-source "board/ttcontrol/vision2/Kconfig"
 source "board/vpac270/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
