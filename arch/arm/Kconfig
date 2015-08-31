@@ -70,7 +70,7 @@ config SYS_L2CACHE_OFF
 
 choice
 	prompt "Target select"
-	default ARCH_VERSATILE
+	default TARGET_HIKEY
 
 config ARCH_AT91
 	bool "Atmel AT91"
@@ -226,10 +226,6 @@ config TARGET_X600
 	bool "Support x600"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
-
-config ARCH_VERSATILE
-	bool "ARM Ltd. Versatile family"
-	select CPU_ARM926EJS
 
 config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore"
@@ -708,8 +704,6 @@ source "arch/arm/mach-socfpga/Kconfig"
 source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/mach-uniphier/Kconfig"
-
-source "arch/arm/mach-versatile/Kconfig"
 
 source "arch/arm/mach-zynq/Kconfig"
 
