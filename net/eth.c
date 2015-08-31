@@ -691,6 +691,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 				memset(dev->enetaddr, 0, 6);
 			}
 		}
+		dev = dev->next;
 	} while (dev != eth_devices);
 
 	return 0;
