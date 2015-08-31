@@ -260,10 +260,6 @@ config TARGET_TT01
 	bool "Support tt01"
 	select CPU_ARM1136
 
-config TARGET_IMX31_LITEKIT
-	bool "Support imx31_litekit"
-	select CPU_ARM1136
-
 config TARGET_WOODBURN
 	bool "Support woodburn"
 	select CPU_ARM1136
@@ -823,7 +819,6 @@ source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
 source "board/jornada/Kconfig"
 source "board/karo/tx25/Kconfig"
-source "board/logicpd/imx31_litekit/Kconfig"
 source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
