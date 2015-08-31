@@ -639,10 +639,6 @@ config TARGET_PALMTREO680
 	select CPU_PXA
 	select SUPPORT_SPL
 
-config TARGET_PXA255_IDP
-	bool "Support pxa255_idp"
-	select CPU_PXA
-
 config TARGET_VPAC270
 	bool "Support vpac270"
 	select CPU_PXA
@@ -650,10 +646,6 @@ config TARGET_VPAC270
 
 config TARGET_XAENIAX
 	bool "Support xaeniax"
-	select CPU_PXA
-
-config TARGET_ZIPITZ2
-	bool "Support zipitz2"
 	select CPU_PXA
 
 config TARGET_COLIBRI_PXA270
@@ -792,7 +784,6 @@ source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/palmtreo680/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
-source "board/pxa255_idp/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/scb9328/Kconfig"
@@ -825,7 +816,6 @@ source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
 source "board/xaeniax/Kconfig"
-source "board/zipitz2/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 
