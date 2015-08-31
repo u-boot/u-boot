@@ -493,10 +493,6 @@ config TARGET_MX53SMD
 	bool "Support mx53smd"
 	select CPU_V7
 
-config TARGET_MX51_EFIKAMX
-	bool "Support mx51_efikamx"
-	select CPU_V7
-
 config TARGET_VISION2
 	bool "Support vision2"
 	select CPU_V7
@@ -801,7 +797,6 @@ source "board/freescale/mx53evk/Kconfig"
 source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
 source "board/freescale/vf610twr/Kconfig"
-source "board/genesi/mx51_efikamx/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hale/tt01/Kconfig"
