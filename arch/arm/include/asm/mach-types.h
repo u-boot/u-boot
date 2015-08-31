@@ -150,7 +150,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_INTELMOTE2           775
 #define MACH_TYPE_TRIZEPS4             776
 #define MACH_TYPE_PNX4008              782
-#define MACH_TYPE_CPUAT91              787
 #define MACH_TYPE_IQ81340SC            799
 #define MACH_TYPE_IQ81340MC            801
 #define MACH_TYPE_MICRO9               811
@@ -2767,18 +2766,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_pnx4008()	(0)
 #endif
 
-#ifdef CONFIG_MACH_CPUAT91
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_CPUAT91
-# endif
-# define machine_is_cpuat91()	(machine_arch_type == MACH_TYPE_CPUAT91)
-#else
-# define machine_is_cpuat91()	(0)
-#endif
-
 #ifdef CONFIG_MACH_IQ81340SC
 # ifdef machine_arch_type
 #  undef machine_arch_type
@@ -5033,30 +5020,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_omap_zoom2()	(machine_arch_type == MACH_TYPE_OMAP_ZOOM2)
 #else
 # define machine_is_omap_zoom2()	(0)
-#endif
-
-#ifdef CONFIG_MACH_CPUAT9260
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_CPUAT9260
-# endif
-# define machine_is_cpuat9260()	(machine_arch_type == MACH_TYPE_CPUAT9260)
-#else
-# define machine_is_cpuat9260()	(0)
-#endif
-
-#ifdef CONFIG_MACH_EUKREA_CPUIMX27
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_EUKREA_CPUIMX27
-# endif
-# define machine_is_eukrea_cpuimx27()	(machine_arch_type == MACH_TYPE_EUKREA_CPUIMX27)
-#else
-# define machine_is_eukrea_cpuimx27()	(0)
 #endif
 
 #ifdef CONFIG_MACH_ACS5K
