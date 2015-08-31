@@ -485,10 +485,6 @@ config TARGET_M53EVK
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_IMA3_MX53
-	bool "Support ima3-mx53"
-	select CPU_V7
-
 config TARGET_MX51EVK
 	bool "Support mx51evk"
 	select CPU_V7
@@ -808,7 +804,6 @@ source "board/creative/xfi3/Kconfig"
 source "board/davedenx/qong/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
-source "board/esg/ima3-mx53/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
 source "board/freescale/ls2085aqds/Kconfig"
 source "board/freescale/ls2085ardb/Kconfig"
