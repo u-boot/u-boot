@@ -43,10 +43,6 @@ config TARGET_PM9263
 	bool "Ronetix pm9263 board"
 	select CPU_ARM926EJS
 
-config TARGET_STAMP9G20
-	bool "Support stamp9g20"
-	select CPU_ARM926EJS
-
 config TARGET_AT91SAM9M10G45EK
 	bool "Atmel AT91SAM9M10G45-EK board"
 	select CPU_ARM926EJS
@@ -147,6 +143,5 @@ source "board/ronetix/pm9g45/Kconfig"
 source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
 source "board/siemens/smartweb/Kconfig"
-source "board/taskit/stamp9g20/Kconfig"
 
 endif
