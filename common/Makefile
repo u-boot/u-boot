@@ -169,6 +169,7 @@ obj-$(CONFIG_CMD_TIME) += cmd_time.o
 obj-$(CONFIG_CMD_TRACE) += cmd_trace.o
 obj-$(CONFIG_SYS_HUSH_PARSER) += cmd_test.o
 obj-$(CONFIG_CMD_TPM) += cmd_tpm.o
+obj-$(CONFIG_CMD_TPM_TEST) += cmd_tpm_test.o
 obj-$(CONFIG_CMD_TSI148) += cmd_tsi148.o
 obj-$(CONFIG_CMD_UBI) += cmd_ubi.o
 obj-$(CONFIG_CMD_UBIFS) += cmd_ubifs.o

@@ -327,8 +327,7 @@ static int gpio_exynos_bind(struct udevice *parent)
 	if (plat)
 		return 0;
 
-	base = (struct s5p_gpio_bank *)fdtdec_get_addr(gd->fdt_blob,
-						   parent->of_offset, "reg");
+	base = (struct s5p_gpio_bank *)dev_get_addr(parent);
 	for (node = fdt_first_subnode(blob, parent->of_offset), bank = base;
 	     node > 0;
 	     node = fdt_next_subnode(blob, node), bank++) {

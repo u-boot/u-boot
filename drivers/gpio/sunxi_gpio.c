@@ -285,8 +285,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 		no_banks = SUNXI_GPIO_BANKS;
 	}
 
-	ctlr = (struct sunxi_gpio_reg *)fdtdec_get_addr(gd->fdt_blob,
-						   parent->of_offset, "reg");
+	ctlr = (struct sunxi_gpio_reg *)dev_get_addr(parent);
 	for (bank = 0; bank < no_banks; bank++) {
 		struct sunxi_gpio_platdata *plat;
 		struct udevice *dev;

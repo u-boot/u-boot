@@ -54,6 +54,16 @@ source lib/dhry/Kconfig
 
 source lib/rsa/Kconfig
 
+config TPM
+	bool "Trusted Platform Module (TPM) Support"
+	help
+	  This enables support for TPMs which can be used to provide security
+	  features for your board. The TPM can be connected via LPC or I2C
+	  and a sandbox TPM is provided for testing purposes. Use the 'tpm'
+	  command to interactive the TPM. Driver model support is provided
+	  for the low-level TPM interface, but only one TPM is supported at
+	  a time by the TPM library.
+
 menu "Hashing Support"
 
 config SHA1

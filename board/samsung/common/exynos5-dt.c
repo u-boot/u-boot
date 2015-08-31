@@ -121,11 +121,12 @@ int exynos_power_init(void)
 		return ret;
 
 	/*
-	 * This would normally be 1.3V, but since we are running slowly 1V
+	 * This would normally be 1.3V, but since we are running slowly 1.1V
 	 * is enough. For spring it helps reduce CPU temperature and avoid
-	 * hangs with the case open.
+	 * hangs with the case open. 1.1V is minimum voltage borderline for
+	 * chained bootloaders.
 	 */
-	ret = exynos_set_regulator("vdd_arm", 1000000);
+	ret = exynos_set_regulator("vdd_arm", 1100000);
 	if (ret)
 		return ret;
 	ret = exynos_set_regulator("vdd_int", 1012500);

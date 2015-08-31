@@ -1397,12 +1397,10 @@ static int s3c_i2c_ofdata_to_platdata(struct udevice *dev)
 
 	if (i2c_bus->is_highspeed) {
 		flags = PINMUX_FLAG_HS_MODE;
-		i2c_bus->hsregs = (struct exynos5_hsi2c *)
-				fdtdec_get_addr(blob, node, "reg");
+		i2c_bus->hsregs = (struct exynos5_hsi2c *)dev_get_addr(dev);
 	} else {
 		flags = 0;
-		i2c_bus->regs = (struct s3c24x0_i2c *)
-				fdtdec_get_addr(blob, node, "reg");
+		i2c_bus->regs = (struct s3c24x0_i2c *)dev_get_addr(dev);
 	}
 
 	i2c_bus->id = pinmux_decode_periph_id(blob, node);

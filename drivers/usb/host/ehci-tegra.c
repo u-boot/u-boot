@@ -684,11 +684,13 @@ static void config_clock(const u32 timing[])
 		timing[PARAM_CPCON], timing[PARAM_LFCON]);
 }
 
-static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
+static int fdt_decode_usb(struct udevice *dev, struct fdt_usb *config)
 {
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
 	const char *phy, *mode;
 
-	config->reg = (struct usb_ctlr *)fdtdec_get_addr(blob, node, "reg");
+	config->reg = (struct usb_ctlr *)dev_get_addr(dev);
 	mode = fdt_getprop(blob, node, "dr_mode", NULL);
 	if (mode) {
 		if (0 == strcmp(mode, "host"))
@@ -812,7 +814,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	struct fdt_usb *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = fdt_decode_usb(gd->fdt_blob, dev->of_offset, priv);
+	ret = fdt_decode_usb(dev, priv);
 	if (ret)
 		return ret;
 

@@ -72,7 +72,7 @@ static int zynq_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 
-	plat->regs = (struct zynq_spi_regs *)fdtdec_get_addr(blob, node, "reg");
+	plat->regs = (struct zynq_spi_regs *)dev_get_addr(bus);
 
 	/* FIXME: Use 250MHz as a suitable default */
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",

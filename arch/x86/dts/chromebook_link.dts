@@ -237,6 +237,11 @@
 		};
 	};
 
+	tpm {
+		reg = <0xfed40000 0x5000>;
+		compatible = "infineon,slb9635lpc";
+	};
+
 	microcode {
 		update@0 {
 #include "microcode/m12306a9_0000001b.dtsi"

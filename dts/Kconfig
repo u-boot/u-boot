@@ -58,7 +58,7 @@ config DEFAULT_DEVICE_TREE
 
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"
-	depends on OF_CONTROL && SPL
+	depends on SPL_OF_CONTROL
 	default "pinctrl-0 pinctrl-names clocks clock-names interrupt-parent"
 	help
 	  Since SPL normally runs in a reduced memory space, the device tree

@@ -625,4 +625,26 @@ config CMD_REGULATOR
 
 endmenu
 
+menu "Security commands"
+config CMD_TPM
+	bool "Enable the 'tpm' command"
+	depends on TPM
+	help
+	  This provides a means to talk to a TPM from the command line. A wide
+	  range of commands if provided - see 'tpm help' for details. The
+	  command requires a suitable TPM on your board and the correct driver
+	  must be enabled.
+
+config CMD_TPM_TEST
+	bool "Enable the 'tpm test' command"
+	depends on CMD_TPM
+	help
+	  This provides a a series of tests to confirm that the TPM is working
+	  correctly. The tests cover initialisation, non-volatile RAM, extend,
+	  global lock and checking that timing is within expectations. The
+	  tests pass correctly on Infineon TPMs but may need to be adjusted
+	  for other devices.
+
+endmenu
+
 endmenu

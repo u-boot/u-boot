@@ -134,7 +134,7 @@ static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 
-	plat->regs = (struct dw_spi *)fdtdec_get_addr(blob, node, "reg");
+	plat->regs = (struct dw_spi *)dev_get_addr(bus);
 
 	/* Use 500KHz as a suitable default */
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",

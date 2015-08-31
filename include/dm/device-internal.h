@@ -31,7 +31,7 @@ struct udevice;
  * devices which use device tree.
  * @of_offset: Offset of device tree node for this device. This is -1 for
  * devices which don't use device tree.
- * @devp: Returns a pointer to the bound device
+ * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
 int device_bind(struct udevice *parent, const struct driver *drv,
@@ -48,7 +48,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
  * @pre_reloc_only: If true, bind the driver only if its DM_INIT_F flag is set.
  * If false bind the driver always.
  * @info: Name and platdata for this device
- * @devp: Returns a pointer to the bound device
+ * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
 int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,

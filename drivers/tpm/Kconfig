@@ -1,7 +1,76 @@
+#
+# TPM subsystem configuration
+#
+
+menu "TPM support"
+
+config DM_TPM
+	bool "Enable driver model for Trusted Platform Module drivers"
+	depends on DM && TPM
+	help
+          Enable driver model for TPMs. The TIS interface (tis_open(),
+	  tis_sendrecv(), etc.) is then implemented by the TPM uclass. Note
+	  that even with driver model only a single TPM is currently
+	  supported, since the tpm library assumes this.
+
 config TPM_TIS_SANDBOX
 	bool "Enable sandbox TPM driver"
+	depends on SANDBOX
 	help
 	  This driver emulates a TPM, providing access to base functions
 	  such as reading and writing TPM private data. This is enough to
 	  support Chrome OS verified boot. Extend functionality is not
 	  implemented.
+
+config TPM_ATMEL_TWI
+	bool "Enable Atmel TWI TPM device driver"
+	depends on TPM
+	help
+	  This driver supports an Atmel TPM device connected on the I2C bus.
+	  The usual tpm operations and the 'tpm' command can be used to talk
+	  to the device using the standard TPM Interface Specification (TIS)
+	  protocol
+
+config TPM_TIS_I2C
+	bool "Enable support for Infineon SLB9635/45 TPMs on I2C"
+	depends on TPM && DM_I2C
+	help
+	  This driver supports Infineon TPM devices connected on the I2C bus.
+	  The usual tpm operations and the 'tpm' command can be used to talk
+	  to the device using the standard TPM Interface Specification (TIS)
+	  protocol
+
+config TPM_TIS_I2C_BURST_LIMITATION
+	bool "Enable I2C burst length limitation"
+	depends on TPM_TIS_I2C
+	help
+	  Some broken TPMs have a limitation on the number of bytes they can
+	  receive in one message. Enable this option to allow you to set this
+	  option. The can allow a broken TPM to be used by splitting messages
+	  into separate pieces.
+
+config TPM_TIS_I2C_BURST_LIMITATION_LEN
+	int "Length"
+	depends on TPM_TIS_I2C_BURST_LIMITATION
+	help
+	  Use this to set the burst limitation length
+
+config TPM_TIS_LPC
+	bool "Enable support for Infineon SLB9635/45 TPMs on LPC"
+	depends on TPM && X86
+	help
+	  This driver supports Infineon TPM devices connected on the I2C bus.
+	  The usual tpm operations and the 'tpm' command can be used to talk
+	  to the device using the standard TPM Interface Specification (TIS)
+	  protocol
+
+config TPM_AUTH_SESSIONS
+	bool "Enable TPM authentication session support"
+	depends on TPM
+	help
+	  Enable support for authorised (AUTH1) commands as specified in the
+	  TCG Main Specification 1.2. OIAP-authorised versions of the commands
+	  TPM_LoadKey2 and TPM_GetPubKey are provided. Both features are
+	  available using the 'tpm' command, too.
+
+endmenu

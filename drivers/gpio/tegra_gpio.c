@@ -343,8 +343,7 @@ static int gpio_tegra_bind(struct udevice *parent)
 	if (!fdt_getprop(gd->fdt_blob, parent->of_offset, "interrupts", &len))
 		return -EINVAL;
 	bank_count = len / 3 / sizeof(u32);
-	ctlr = (struct gpio_ctlr *)fdtdec_get_addr(gd->fdt_blob,
-						   parent->of_offset, "reg");
+	ctlr = (struct gpio_ctlr *)dev_get_addr(parent);
 	}
 #endif
 	for (bank = 0; bank < bank_count; bank++) {

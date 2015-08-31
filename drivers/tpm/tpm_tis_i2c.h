@@ -13,34 +13,21 @@
  * It is based on the Linux kernel driver tpm.c from Leendert van
  * Dorn, Dave Safford, Reiner Sailer, and Kyleen Hall.
  *
- *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, version 2 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
-#ifndef _TPM_PRIVATE_H_
-#define _TPM_PRIVATE_H_
+#ifndef _TPM_TIS_I2C_H
+#define _TPM_TIS_I2C_H
 
 #include <linux/compiler.h>
 #include <linux/types.h>
 
 enum tpm_timeout {
-	TPM_TIMEOUT = 5,	/* msecs */
+	TPM_TIMEOUT_MS			= 5,
+	TIS_SHORT_TIMEOUT_MS		= 750,
+	TIS_LONG_TIMEOUT_MS		= 2000,
+	SLEEP_DURATION_US		= 60,
+	SLEEP_DURATION_LONG_US		= 210,
 };
 
 /* Size of external transmit buffer (used in tpm_transmit)*/
@@ -50,25 +37,18 @@ enum tpm_timeout {
 #define TPM_RSP_SIZE_BYTE	2
 #define TPM_RSP_RC_BYTE		6
 
-struct tpm_chip;
-
-struct tpm_vendor_specific {
-	const u8 req_complete_mask;
-	const u8 req_complete_val;
-	const u8 req_canceled;
-	int irq;
-	int (*recv) (struct tpm_chip *, u8 *, size_t);
-	int (*send) (struct tpm_chip *, u8 *, size_t);
-	void (*cancel) (struct tpm_chip *);
-	u8(*status) (struct tpm_chip *);
-	int locality;
-	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
-	unsigned long duration[3];  /* msec */
+enum i2c_chip_type {
+	SLB9635,
+	SLB9645,
+	UNKNOWN,
 };
 
 struct tpm_chip {
 	int is_open;
-	struct tpm_vendor_specific vendor;
+	int locality;
+	u32 vend_dev;
+	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
+	enum i2c_chip_type chip_type;
 };
 
 struct tpm_input_header {
@@ -127,14 +107,40 @@ struct tpm_cmd_t {
 	union tpm_cmd_params params;
 } __packed;
 
-struct tpm_chip *tpm_register_hardware(const struct tpm_vendor_specific *);
+/* Max number of iterations after i2c NAK */
+#define MAX_COUNT		3
 
-int tpm_vendor_init(uint32_t dev_addr);
+/*
+ * Max number of iterations after i2c NAK for 'long' commands
+ *
+ * We need this especially for sending TPM_READY, since the cleanup after the
+ * transtion to the ready state may take some time, but it is unpredictable
+ * how long it will take.
+ */
+#define MAX_COUNT_LONG		50
 
-struct udevice;
-int tpm_vendor_init_dev(struct udevice *dev);
+enum tis_access {
+	TPM_ACCESS_VALID		= 0x80,
+	TPM_ACCESS_ACTIVE_LOCALITY	= 0x20,
+	TPM_ACCESS_REQUEST_PENDING	= 0x04,
+	TPM_ACCESS_REQUEST_USE		= 0x02,
+};
 
-void tpm_vendor_cleanup(struct tpm_chip *chip);
+enum tis_status {
+	TPM_STS_VALID			= 0x80,
+	TPM_STS_COMMAND_READY		= 0x40,
+	TPM_STS_GO			= 0x20,
+	TPM_STS_DATA_AVAIL		= 0x10,
+	TPM_STS_DATA_EXPECT		= 0x08,
+};
 
+/* expected value for DIDVID register */
+#define TPM_TIS_I2C_DID_VID_9635 0x000b15d1L
+#define TPM_TIS_I2C_DID_VID_9645 0x001a15d1L
+
+#define	TPM_ACCESS(l)			(0x0000 | ((l) << 4))
+#define	TPM_STS(l)			(0x0001 | ((l) << 4))
+#define	TPM_DATA_FIFO(l)		(0x0005 | ((l) << 4))
+#define	TPM_DID_VID(l)			(0x0006 | ((l) << 4))
 
 #endif

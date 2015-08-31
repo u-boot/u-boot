@@ -240,12 +240,7 @@ int uclass_resolve_seq(struct udevice *dev);
  * are no more devices.
  * @uc: uclass to scan
  */
-#define uclass_foreach_dev(pos, uc)					\
-	for (pos = list_entry((&(uc)->dev_head)->next, typeof(*pos),	\
-			uclass_node);					\
-	     prefetch(pos->uclass_node.next),				\
-			&pos->uclass_node != (&(uc)->dev_head);		\
-	     pos = list_entry(pos->uclass_node.next, typeof(*pos),	\
-			uclass_node))
+#define uclass_foreach_dev(pos, uc)	\
+	list_for_each_entry(pos, &uc->dev_head, uclass_node)
 
 #endif

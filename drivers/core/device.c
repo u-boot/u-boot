@@ -15,6 +15,7 @@
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <dm/pinctrl.h>
 #include <dm/platdata.h>
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
@@ -32,7 +33,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	struct uclass *uc;
 	int size, ret = 0;
 
-	*devp = NULL;
+	if (devp)
+		*devp = NULL;
 	if (!name)
 		return -EINVAL;
 
@@ -133,7 +135,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	if (parent)
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
-	*devp = dev;
+	if (devp)
+		*devp = dev;
 
 	dev->flags |= DM_FLAG_BOUND;
 
@@ -283,6 +286,9 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	dev->seq = seq;
 
 	dev->flags |= DM_FLAG_ACTIVATED;
+
+	/* continue regardless of the result of pinctrl */
+	pinctrl_select_state(dev, "default");
 
 	ret = uclass_pre_probe_device(dev);
 	if (ret)
@@ -574,7 +580,7 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 	fdt_addr_t addr;
 
 	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
-	if (addr != FDT_ADDR_T_NONE) {
+	if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
 		if (device_get_uclass_id(dev->parent) == UCLASS_SIMPLE_BUS)
 			addr = simple_bus_translate(dev->parent, addr);
 	}
