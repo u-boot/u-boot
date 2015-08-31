@@ -4,9 +4,6 @@ choice
 	prompt "DaVinci board select"
 	optional
 
-config TARGET_ENBW_CMC
-	bool "EnBW CMC board"
-
 config TARGET_IPAM390
 	bool "IPAM390 board"
 	select SUPPORT_SPL
@@ -33,7 +30,6 @@ endchoice
 config SYS_SOC
 	default "davinci"
 
-source "board/enbw/enbw_cmc/Kconfig"
 source "board/Barix/ipam390/Kconfig"
 source "board/davinci/da8xxevm/Kconfig"
 source "board/davinci/ea20/Kconfig"
