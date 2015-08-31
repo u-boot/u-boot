@@ -152,14 +152,6 @@ config TARGET_APF27
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config TARGET_IMX27LITE
-	bool "Support imx27lite"
-	select CPU_ARM926EJS
-
-config TARGET_MAGNESIUM
-	bool "Support magnesium"
-	select CPU_ARM926EJS
-
 config TARGET_APX4DEVKIT
 	bool "Support apx4devkit"
 	select CPU_ARM926EJS
@@ -831,7 +823,6 @@ source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
 source "board/jornada/Kconfig"
 source "board/karo/tx25/Kconfig"
-source "board/logicpd/imx27lite/Kconfig"
 source "board/logicpd/imx31_litekit/Kconfig"
 source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
