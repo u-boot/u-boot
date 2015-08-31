@@ -4,9 +4,6 @@ choice
 	prompt "Marvell Kirkwood board select"
 	optional
 
-config TARGET_RD6281A
-	bool "RD6281A Board"
-
 config TARGET_DREAMPLUG
 	bool "DreamPlug Board"
 
@@ -60,7 +57,6 @@ endchoice
 config SYS_SOC
 	default "kirkwood"
 
-source "board/Marvell/rd6281a/Kconfig"
 source "board/Marvell/dreamplug/Kconfig"
 source "board/Marvell/guruplug/Kconfig"
 source "board/Marvell/sheevaplug/Kconfig"
