@@ -79,9 +79,6 @@ config TARGET_ECO5PK
 	bool "ECO5PK"
 	select SUPPORT_SPL
 
-config TARGET_DIG297
-	bool "DIG297"
-
 config TARGET_TRICORDER
 	bool "Tricorder"
 	select SUPPORT_SPL
@@ -143,7 +140,6 @@ source "board/logicpd/zoom1/Kconfig"
 source "board/ti/am3517crane/Kconfig"
 source "board/pandora/Kconfig"
 source "board/8dtech/eco5pk/Kconfig"
-source "board/comelit/dig297/Kconfig"
 source "board/corscience/tricorder/Kconfig"
 source "board/htkw/mcx/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
