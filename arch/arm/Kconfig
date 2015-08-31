@@ -239,10 +239,6 @@ config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore"
 	select CPU_ARM1136
 
-config TARGET_QONG
-	bool "Support qong"
-	select CPU_ARM1136
-
 config TARGET_MX31ADS
 	bool "Support mx31ads"
 	select CPU_ARM1136
@@ -751,7 +747,6 @@ source "board/cirrus/edb93xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
 source "board/compulab/cm_t43/Kconfig"
 source "board/creative/xfi3/Kconfig"
-source "board/davedenx/qong/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
