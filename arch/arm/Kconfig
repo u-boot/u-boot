@@ -197,10 +197,6 @@ config TARGET_SC_SPS_1
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config ARCH_NOMADIK
-	bool "ST-Ericsson Nomadik"
-	select CPU_ARM926EJS
-
 config ORION5X
 	bool "Marvell Orion"
 	select CPU_ARM926EJS
@@ -724,8 +720,6 @@ source "arch/arm/mach-kirkwood/Kconfig"
 source "arch/arm/cpu/armv7/mx6/Kconfig"
 
 source "arch/arm/cpu/armv7/mx5/Kconfig"
-
-source "arch/arm/mach-nomadik/Kconfig"
 
 source "arch/arm/cpu/armv7/omap3/Kconfig"
 
