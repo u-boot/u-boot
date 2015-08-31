@@ -564,16 +564,8 @@ config ARCH_SUNXI
 	select USB_STORAGE
 	select USB_KEYBOARD
 
-config TARGET_SNOWBALL
-	bool "Support snowball"
-	select CPU_V7
-
 config TARGET_TS4800
 	bool "Support TS4800"
-	select CPU_V7
-
-config TARGET_U8500_HREF
-	bool "Support u8500_href"
 	select CPU_V7
 
 config TARGET_VF610TWR
@@ -868,8 +860,6 @@ source "board/spear/spear310/Kconfig"
 source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
-source "board/st-ericsson/snowball/Kconfig"
-source "board/st-ericsson/u8500/Kconfig"
 source "board/st/stm32f429-discovery/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"

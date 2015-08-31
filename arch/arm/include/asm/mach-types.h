@@ -402,7 +402,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_IGEP0020             2344
 #define MACH_TYPE_NUC932EVB            2356
 #define MACH_TYPE_OPENRD_CLIENT        2361
-#define MACH_TYPE_U8500                2368
 #define MACH_TYPE_MX51_EFIKASB         2370
 #define MACH_TYPE_MARVELL_JASPER       2382
 #define MACH_TYPE_FLINT                2383
@@ -974,7 +973,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_RHINO                3360
 #define MACH_TYPE_ARMLEX4210           3361
 #define MACH_TYPE_SWARCOEXTMODEM       3362
-#define MACH_TYPE_SNOWBALL             3363
 #define MACH_TYPE_PCM049               3364
 #define MACH_TYPE_VIGOR                3365
 #define MACH_TYPE_OSLO_AMUNDSEN        3366
@@ -5752,18 +5750,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_openrd_client()	(machine_arch_type == MACH_TYPE_OPENRD_CLIENT)
 #else
 # define machine_is_openrd_client()	(0)
-#endif
-
-#ifdef CONFIG_MACH_U8500
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_U8500
-# endif
-# define machine_is_u8500()	(machine_arch_type == MACH_TYPE_U8500)
-#else
-# define machine_is_u8500()	(0)
 #endif
 
 #ifdef CONFIG_MACH_MX51_EFIKASB
@@ -12616,18 +12602,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_swarcoextmodem()	(machine_arch_type == MACH_TYPE_SWARCOEXTMODEM)
 #else
 # define machine_is_swarcoextmodem()	(0)
-#endif
-
-#ifdef CONFIG_MACH_SNOWBALL
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_SNOWBALL
-# endif
-# define machine_is_snowball()	(machine_arch_type == MACH_TYPE_SNOWBALL)
-#else
-# define machine_is_snowball()	(0)
 #endif
 
 #ifdef CONFIG_MACH_PCM049
