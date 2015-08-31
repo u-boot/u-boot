@@ -676,10 +676,6 @@ config TARGET_ZIPITZ2
 	bool "Support zipitz2"
 	select CPU_PXA
 
-config TARGET_LP8X4X
-	bool "Support lp8x4x"
-	select CPU_PXA
-
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
 	select CPU_PXA
@@ -810,7 +806,6 @@ source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hale/tt01/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
-source "board/icpdas/lp8x4x/Kconfig"
 source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
 source "board/karo/tx25/Kconfig"
