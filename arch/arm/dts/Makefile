@@ -41,6 +41,11 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p2371-0000.dtb \
 	tegra210-p2371-2180.dtb \
 	tegra210-p2571.dtb
+
+dtb-$(CONFIG_ARCH_MVEBU) +=			\
+	armada-388-gp.dtb			\
+	armada-xp-gp.dtb
+
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
 	uniphier-ph1-ld4-ref.dtb \
 	uniphier-ph1-ld6b-ref.dtb \
