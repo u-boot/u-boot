@@ -134,11 +134,6 @@ config TARGET_MX25PDK
 	bool "Support mx25pdk"
 	select CPU_ARM926EJS
 
-config TARGET_TX25
-	bool "Support tx25"
-	select CPU_ARM926EJS
-	select SUPPORT_SPL
-
 config TARGET_ZMX25
 	bool "Support zmx25"
 	select CPU_ARM926EJS
@@ -739,7 +734,6 @@ source "board/h2200/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
 source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
-source "board/karo/tx25/Kconfig"
 source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
