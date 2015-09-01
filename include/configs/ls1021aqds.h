@@ -658,6 +658,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
+#define CONFIG_OF_STDOUT_VIA_ALIAS
 #define CONFIG_CMD_BOOTZ
 
 #define CONFIG_MISC_INIT_R
