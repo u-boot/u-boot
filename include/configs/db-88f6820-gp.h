@@ -50,7 +50,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_TFTPPUT
 #define CONFIG_CMD_TIME
-#define CONFIG_CMD_USB
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -93,9 +92,6 @@
 #define CONFIG_SUPPORT_VFAT
 
 /* USB/EHCI configuration */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_STORAGE
-#define CONFIG_USB_EHCI_MARVELL
 #define CONFIG_EHCI_IS_TDI
 
 /* Environment in SPI NOR flash */
