@@ -9,6 +9,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/imx-common/sys_proto.h>
 #include <netdev.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
@@ -265,6 +266,11 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 	mac[5] = value;
 }
 #endif
+
+u32 get_cpu_rev(void)
+{
+	return MXC_CPU_VF610 << 12;
+}
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 static char *get_reset_cause(void)
