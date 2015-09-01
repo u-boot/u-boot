@@ -915,10 +915,10 @@ u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
 # U-Boot image. So we need to combine SPL and u-boot.bin instead of
 # u-boot.img in this case.
 ifdef CONFIG_MVEBU_BOOTROM_UARTBOOT
-u-boot-spl.kwb: u-boot.bin spl/u-boot-spl.bin FORCE
+u-boot-spl.kwb: u-boot-dtb.bin spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 else
-u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
+u-boot-spl.kwb: u-boot-dtb.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 endif
 

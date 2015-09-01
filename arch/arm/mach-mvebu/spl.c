@@ -31,9 +31,6 @@ u32 spl_boot_mode(void)
 
 void board_init_f(ulong dummy)
 {
-	/* Set global data pointer */
-	gd = &gdata;
-
 #ifndef CONFIG_MVEBU_BOOTROM_UARTBOOT
 	/*
 	 * Only call arch_cpu_init() when not returning to the
