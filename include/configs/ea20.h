@@ -24,6 +24,8 @@
 #define CONFIG_VIDEO
 #define CONFIG_PREBOOT
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * SoC Configuration
  */
