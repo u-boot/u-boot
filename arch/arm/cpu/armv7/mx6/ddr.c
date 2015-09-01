@@ -702,8 +702,8 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		txs = DIV_ROUND_UP(170000, clkper) - 1;
 		break;
 	case 4: /* 4Gb per chip */
-		trfc = DIV_ROUND_UP(300000, clkper) - 1;
-		txs = DIV_ROUND_UP(310000, clkper) - 1;
+		trfc = DIV_ROUND_UP(260000, clkper) - 1;
+		txs = DIV_ROUND_UP(270000, clkper) - 1;
 		break;
 	case 8: /* 8Gb per chip */
 		trfc = DIV_ROUND_UP(350000, clkper) - 1;
