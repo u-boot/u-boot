@@ -31,13 +31,13 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 	}
 }
 
-int eth_getenv_enetaddr(char *name, uchar *enetaddr)
+int eth_getenv_enetaddr(const char *name, uchar *enetaddr)
 {
 	eth_parse_enetaddr(getenv(name), enetaddr);
 	return is_valid_ethaddr(enetaddr);
 }
 
-int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
+int eth_setenv_enetaddr(const char *name, const uchar *enetaddr)
 {
 	char buf[20];
 

@@ -233,8 +233,8 @@ void eth_set_current(void);		/* set nterface to ethcur var */
 
 int eth_get_dev_index(void);		/* get the device index */
 void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
-int eth_getenv_enetaddr(char *name, uchar *enetaddr);
-int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
+int eth_getenv_enetaddr(const char *name, uchar *enetaddr);
+int eth_setenv_enetaddr(const char *name, const uchar *enetaddr);
 
 /*
  * Get the hardware address for an ethernet interface .
