@@ -20,16 +20,36 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static int pci_get_bus(int busnum, struct udevice **busp)
+{
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, busp);
+
+	/* Since buses may not be numbered yet try a little harder with bus 0 */
+	if (ret == -ENODEV) {
+		ret = uclass_first_device(UCLASS_PCI, busp);
+		if (ret)
+			return ret;
+		else if (!*busp)
+			return -ENODEV;
+		ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, busp);
+	}
+
+	return ret;
+}
+
 struct pci_controller *pci_bus_to_hose(int busnum)
 {
 	struct udevice *bus;
 	int ret;
 
-	ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus);
+	ret = pci_get_bus(busnum, &bus);
 	if (ret) {
 		debug("%s: Cannot get bus %d: ret=%d\n", __func__, busnum, ret);
 		return NULL;
 	}
+
 	return dev_get_uclass_priv(bus);
 }
 
@@ -128,7 +148,7 @@ int pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp)
 	struct udevice *bus;
 	int ret;
 
-	ret = uclass_get_device_by_seq(UCLASS_PCI, PCI_BUS(bdf), &bus);
+	ret = pci_get_bus(PCI_BUS(bdf), &bus);
 	if (ret)
 		return ret;
 	return pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), devp);
@@ -206,7 +226,7 @@ int pci_write_config(pci_dev_t bdf, int offset, unsigned long value,
 	struct udevice *bus;
 	int ret;
 
-	ret = uclass_get_device_by_seq(UCLASS_PCI, PCI_BUS(bdf), &bus);
+	ret = pci_get_bus(PCI_BUS(bdf), &bus);
 	if (ret)
 		return ret;
 
@@ -271,7 +291,7 @@ int pci_read_config(pci_dev_t bdf, int offset, unsigned long *valuep,
 	struct udevice *bus;
 	int ret;
 
-	ret = uclass_get_device_by_seq(UCLASS_PCI, PCI_BUS(bdf), &bus);
+	ret = pci_get_bus(PCI_BUS(bdf), &bus);
 	if (ret)
 		return ret;
 
