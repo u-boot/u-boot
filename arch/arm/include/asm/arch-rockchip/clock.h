@@ -36,6 +36,26 @@ static inline int rk_pll_id(enum rk_clk_id clk_id)
 }
 
 /**
+ * clk_get_divisor() - Calculate the required clock divisior
+ *
+ * Given an input rate and a required output_rate, calculate the Rockchip
+ * divisor needed to achieve this.
+ *
+ * @input_rate:		Input clock rate in Hz
+ * @output_rate:	Output clock rate in Hz
+ * @return divisor register value to use
+ */
+static inline u32 clk_get_divisor(ulong input_rate, uint output_rate)
+{
+	uint clk_div;
+
+	clk_div = input_rate / output_rate;
+	clk_div = (clk_div + 1) & 0xfffe;
+
+	return clk_div;
+}
+
+/**
  * rockchip_get_cru() - get a pointer to the clock/reset unit registers
  *
  * @return pointer to registers, or -ve error on error
