@@ -12,6 +12,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <netdev.h>
 #include <flash.h>
 #include <nand.h>
@@ -33,6 +35,18 @@ DECLARE_GLOBAL_DATA_PTR;
  * machine IDs; row it selected based on CPU column is slected based
  * on hsusb0_data5 pin having a pulldown resistor
  */
+
+static const struct ns16550_platdata omap3logic_serial = {
+	OMAP34XX_UART1,
+	2,
+	V_NS16550_CLK
+};
+
+U_BOOT_DEVICE(omap3logic_uart) = {
+	"serial_omap",
+	&omap3logic_serial
+};
+
 static struct board_id {
 	char *name;
 	int machine_id;

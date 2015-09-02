@@ -92,6 +92,9 @@ config TARGET_MCX
 
 config TARGET_OMAP3_LOGIC
 	bool "OMAP3 Logic"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_OMAP3_MVBLX
 	bool "OMAP3 MVBLX"
