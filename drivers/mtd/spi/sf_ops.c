@@ -102,7 +102,7 @@ static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 
 	if (flash->bank_curr == bank_sel) {
 		debug("SF: not require to enable bank%d\n", bank_sel);
-		return 0;
+		return bank_sel;
 	}
 
 	cmd = flash->bank_write_cmd;
