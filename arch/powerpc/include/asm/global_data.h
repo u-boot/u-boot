@@ -106,12 +106,6 @@ struct arch_global_data {
 #ifdef CONFIG_SYS_FPGA_COUNT
 	unsigned fpga_state[CONFIG_SYS_FPGA_COUNT];
 #endif
-#if defined(CONFIG_WD_MAX_RATE)
-	unsigned long long wdt_last;	/* trace watch-dog triggering rate */
-#endif
-#if defined(CONFIG_LWMON5)
-	unsigned long kbd_status;
-#endif
 };
 
 #include <asm-generic/global_data.h>
