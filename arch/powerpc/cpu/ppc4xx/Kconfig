@@ -8,12 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_CSB272
-	bool "Support csb272"
-
-config TARGET_CSB472
-	bool "Support csb472"
-
 config TARGET_LWMON5
 	bool "Support lwmon5"
 	select SUPPORT_SPL
@@ -176,8 +170,6 @@ source "board/amcc/yosemite/Kconfig"
 source "board/amcc/yucca/Kconfig"
 source "board/avnet/fx12mm/Kconfig"
 source "board/avnet/v5fx30teval/Kconfig"
-source "board/csb272/Kconfig"
-source "board/csb472/Kconfig"
 source "board/esd/cpci2dp/Kconfig"
 source "board/esd/cpci405/Kconfig"
 source "board/esd/plu405/Kconfig"
