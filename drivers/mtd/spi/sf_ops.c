@@ -95,15 +95,14 @@ int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
 #endif
 
 #ifdef CONFIG_SPI_FLASH_BAR
-static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
+static int spi_flash_write_bank(struct spi_flash *flash, u32 offset)
 {
-	u8 cmd;
+	u8 cmd, bank_sel;
 	int ret;
 
-	if (flash->bank_curr == bank_sel) {
-		debug("SF: not require to enable bank%d\n", bank_sel);
-		return bank_sel;
-	}
+	bank_sel = offset / (SPI_FLASH_16MB_BOUN << flash->shift);
+	if (bank_sel == flash->bank_curr)
+		goto bar_end;
 
 	cmd = flash->bank_write_cmd;
 	ret = spi_flash_write_common(flash, &cmd, 1, &bank_sel, 1);
@@ -111,25 +110,10 @@ static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 		debug("SF: fail to write bank register\n");
 		return ret;
 	}
+
+bar_end:
 	flash->bank_curr = bank_sel;
-
-	return 0;
-}
-
-static int spi_flash_bank(struct spi_flash *flash, u32 offset)
-{
-	u8 bank_sel;
-	int ret;
-
-	bank_sel = offset / (SPI_FLASH_16MB_BOUN << flash->shift);
-
-	ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
-	if (ret) {
-		debug("SF: fail to set bank%d\n", bank_sel);
-		return ret;
-	}
-
-	return bank_sel;
+	return flash->bank_curr;
 }
 #endif
 
@@ -285,7 +269,7 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 			spi_flash_dual_flash(flash, &erase_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, erase_addr);
+		ret = spi_flash_write_bank(flash, erase_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -327,7 +311,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 			spi_flash_dual_flash(flash, &write_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, write_addr);
+		ret = spi_flash_write_bank(flash, write_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -422,9 +406,10 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 			spi_flash_dual_flash(flash, &read_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		bank_sel = spi_flash_bank(flash, read_addr);
-		if (bank_sel < 0)
+		ret = spi_flash_write_bank(flash, read_addr);
+		if (ret < 0)
 			return ret;
+		bank_sel = flash->bank_curr;
 #endif
 		remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
 				(bank_sel + 1)) - offset;
