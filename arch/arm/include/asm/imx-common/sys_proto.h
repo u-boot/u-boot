@@ -35,6 +35,9 @@ u32 imx_ddr_size(void);
 void sdelay(unsigned long);
 void set_chipselect_size(int const);
 
+void init_aips(void);
+void init_src(void);
+
 /*
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()

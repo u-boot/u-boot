@@ -183,65 +183,6 @@ u32 __weak get_board_rev(void)
 }
 #endif
 
-void init_aips(void)
-{
-	struct aipstz_regs *aips1, *aips2;
-#ifdef CONFIG_MX6SX
-	struct aipstz_regs *aips3;
-#endif
-
-	aips1 = (struct aipstz_regs *)AIPS1_BASE_ADDR;
-	aips2 = (struct aipstz_regs *)AIPS2_BASE_ADDR;
-#ifdef CONFIG_MX6SX
-	aips3 = (struct aipstz_regs *)AIPS3_CONFIG_BASE_ADDR;
-#endif
-
-	/*
-	 * Set all MPROTx to be non-bufferable, trusted for R/W,
-	 * not forced to user-mode.
-	 */
-	writel(0x77777777, &aips1->mprot0);
-	writel(0x77777777, &aips1->mprot1);
-	writel(0x77777777, &aips2->mprot0);
-	writel(0x77777777, &aips2->mprot1);
-
-	/*
-	 * Set all OPACRx to be non-bufferable, not require
-	 * supervisor privilege level for access,allow for
-	 * write access and untrusted master access.
-	 */
-	writel(0x00000000, &aips1->opacr0);
-	writel(0x00000000, &aips1->opacr1);
-	writel(0x00000000, &aips1->opacr2);
-	writel(0x00000000, &aips1->opacr3);
-	writel(0x00000000, &aips1->opacr4);
-	writel(0x00000000, &aips2->opacr0);
-	writel(0x00000000, &aips2->opacr1);
-	writel(0x00000000, &aips2->opacr2);
-	writel(0x00000000, &aips2->opacr3);
-	writel(0x00000000, &aips2->opacr4);
-
-#ifdef CONFIG_MX6SX
-	/*
-	 * Set all MPROTx to be non-bufferable, trusted for R/W,
-	 * not forced to user-mode.
-	 */
-	writel(0x77777777, &aips3->mprot0);
-	writel(0x77777777, &aips3->mprot1);
-
-	/*
-	 * Set all OPACRx to be non-bufferable, not require
-	 * supervisor privilege level for access,allow for
-	 * write access and untrusted master access.
-	 */
-	writel(0x00000000, &aips3->opacr0);
-	writel(0x00000000, &aips3->opacr1);
-	writel(0x00000000, &aips3->opacr2);
-	writel(0x00000000, &aips3->opacr3);
-	writel(0x00000000, &aips3->opacr4);
-#endif
-}
-
 static void clear_ldo_ramp(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
@@ -375,22 +316,6 @@ static void set_preclk_from_osc(void)
 }
 #endif
 
-#define SRC_SCR_WARM_RESET_ENABLE	0
-
-static void init_src(void)
-{
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-	u32 val;
-
-	/*
-	 * force warm reset sources to generate cold reset
-	 * for a more reliable restart
-	 */
-	val = readl(&src_regs->scr);
-	val &= ~(1 << SRC_SCR_WARM_RESET_ENABLE);
-	writel(val, &src_regs->scr);
-}
-
 int arch_cpu_init(void)
 {
 	init_aips();
@@ -458,18 +383,6 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
-void boot_mode_apply(unsigned cfg_val)
-{
-	unsigned reg;
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	writel(cfg_val, &psrc->gpr9);
-	reg = readl(&psrc->gpr10);
-	if (cfg_val)
-		reg |= 1 << 28;
-	else
-		reg &= ~(1 << 28);
-	writel(reg, &psrc->gpr10);
-}
 /*
  * cfg_val will be used for
  * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
