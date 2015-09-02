@@ -14,7 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <exports.h>
-
+#include <memalign.h>
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <linux/mtd/mtd.h>

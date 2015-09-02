@@ -23,6 +23,8 @@
  *          Adrian Hunter
  */
 
+#include <common.h>
+#include <memalign.h>
 #include "ubifs.h"
 #include <u-boot/zlib.h>
 

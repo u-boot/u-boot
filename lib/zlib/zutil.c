@@ -43,7 +43,9 @@ void z_error (m)
  */
 #ifndef MY_ZCALLOC /* Any system without a special alloc function */
 
-#ifndef __UBOOT__
+#ifdef __UBOOT__
+#include <malloc.h>
+#else
 #ifndef STDC
 extern voidp    malloc OF((uInt size));
 extern voidp    calloc OF((uInt items, uInt size));
