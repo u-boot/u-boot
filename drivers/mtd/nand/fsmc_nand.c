@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
+#include <linux/mtd/nand_bch.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/fsmc_nand.h>
 #include <asm/arch/hardware.h>
@@ -389,6 +390,45 @@ static int fsmc_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
 
 	return 0;
 }
+
+#ifndef CONFIG_SPL_BUILD
+/*
+ * fsmc_nand_switch_ecc - switch the ECC operation between different engines
+ *
+ * @eccstrength		- the number of bits that could be corrected
+ *			  (1 - HW, 4 - SW BCH4)
+ */
+int __maybe_unused fsmc_nand_switch_ecc(uint32_t eccstrength)
+{
+	struct nand_chip *nand;
+	struct mtd_info *mtd;
+	int err;
+
+	mtd = &nand_info[nand_curr_device];
+	nand = mtd->priv;
+
+	/* Setup the ecc configurations again */
+	if (eccstrength == 1) {
+		nand->ecc.mode = NAND_ECC_HW;
+		nand->ecc.bytes = 3;
+		nand->ecc.strength = 1;
+		nand->ecc.layout = &fsmc_ecc1_layout;
+		nand->ecc.correct = nand_correct_data;
+	} else {
+		nand->ecc.mode = NAND_ECC_SOFT_BCH;
+		nand->ecc.calculate = nand_bch_calculate_ecc;
+		nand->ecc.correct = nand_bch_correct_data;
+		nand->ecc.bytes = 7;
+		nand->ecc.strength = 4;
+		nand->ecc.layout = NULL;
+	}
+
+	/* Update NAND handling after ECC mode switch */
+	err = nand_scan_tail(mtd);
+
+	return err;
+}
+#endif /* CONFIG_SPL_BUILD */
 
 int fsmc_nand_init(struct nand_chip *nand)
 {
