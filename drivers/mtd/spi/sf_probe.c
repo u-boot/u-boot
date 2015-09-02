@@ -99,6 +99,37 @@ static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
 	}
 }
 
+#ifdef CONFIG_SPI_FLASH_BAR
+static int spi_flash_read_bank(struct spi_flash *flash, u8 idcode0)
+{
+	u8 curr_bank = 0;
+	int ret;
+
+	if (flash->size <= SPI_FLASH_16MB_BOUN)
+		goto bank_end;
+
+	switch (idcode0) {
+	case SPI_FLASH_CFI_MFR_SPANSION:
+		flash->bank_read_cmd = CMD_BANKADDR_BRRD;
+		flash->bank_write_cmd = CMD_BANKADDR_BRWR;
+	default:
+		flash->bank_read_cmd = CMD_EXTNADDR_RDEAR;
+		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
+	}
+
+	ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
+				    &curr_bank, 1);
+	if (ret) {
+		debug("SF: fail to read bank addr register\n");
+		return ret;
+	}
+
+bank_end:
+	flash->bank_curr = curr_bank;
+	return 0;
+}
+#endif
+
 static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 				     struct spi_flash *flash)
 {
@@ -235,25 +266,9 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 
 	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
-	u8 curr_bank = 0;
-	if (flash->size > SPI_FLASH_16MB_BOUN) {
-		int ret;
-
-		flash->bank_read_cmd = (idcode[0] == 0x01) ?
-					CMD_BANKADDR_BRRD : CMD_EXTNADDR_RDEAR;
-		flash->bank_write_cmd = (idcode[0] == 0x01) ?
-					CMD_BANKADDR_BRWR : CMD_EXTNADDR_WREAR;
-
-		ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
-					    &curr_bank, 1);
-		if (ret) {
-			debug("SF: fail to read bank addr register\n");
-			return ret;
-		}
-		flash->bank_curr = curr_bank;
-	} else {
-		flash->bank_curr = curr_bank;
-	}
+	int ret = spi_flash_read_bank(flash, idcode[0]);
+	if (ret < 0)
+		return ret;
 #endif
 
 	/* Flash powers up read-only, so clear BP# bits */
