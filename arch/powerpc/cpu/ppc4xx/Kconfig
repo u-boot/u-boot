@@ -140,9 +140,6 @@ config TARGET_MIP405
 config TARGET_PIP405
 	bool "Support PIP405"
 
-config TARGET_ALPR
-	bool "Support alpr"
-
 config TARGET_P3P440
 	bool "Support p3p440"
 
@@ -197,7 +194,6 @@ source "board/mosaixtech/icon/Kconfig"
 source "board/mpl/mip405/Kconfig"
 source "board/mpl/pip405/Kconfig"
 source "board/pcs440ep/Kconfig"
-source "board/prodrive/alpr/Kconfig"
 source "board/prodrive/p3p440/Kconfig"
 source "board/sbc405/Kconfig"
 source "board/t3corp/Kconfig"
