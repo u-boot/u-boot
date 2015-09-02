@@ -17,6 +17,7 @@
 #define CONFIG_SPEAR600				/* SPEAr600 SoC */
 #define CONFIG_X600				/* on X600 board */
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SYS_THUMB_BUILD
 
 #include <asm/arch/hardware.h>
 
