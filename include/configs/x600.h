@@ -67,6 +67,8 @@
 #define CONFIG_MTD_ECC_SOFT
 #define CONFIG_SYS_FSMC_NAND_8BIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_ECC_BCH
+#define CONFIG_BCH
 
 /* UBI/UBI config options */
 #define CONFIG_MTD_DEVICE
