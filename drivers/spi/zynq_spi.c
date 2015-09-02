@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2013 Inc.
+ * (C) Copyright 2013 Xilinx, Inc.
  * (C) Copyright 2015 Jagan Teki <jteki@openedev.com>
  *
  * Xilinx Zynq PS SPI controller driver (master mode only)
@@ -7,15 +7,11 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
-#include <config.h>
 #include <common.h>
 #include <dm.h>
-#include <errno.h>
 #include <malloc.h>
 #include <spi.h>
-#include <fdtdec.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
