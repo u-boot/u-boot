@@ -11,9 +11,6 @@ choice
 config TARGET_T3CORP
 	bool "Support t3corp"
 
-config TARGET_ZEUS
-	bool "Support zeus"
-
 config TARGET_ACADIA
 	bool "Support acadia"
 
@@ -176,6 +173,5 @@ source "board/xes/xpedite1000/Kconfig"
 source "board/xilinx/ml507/Kconfig"
 source "board/xilinx/ppc405-generic/Kconfig"
 source "board/xilinx/ppc440-generic/Kconfig"
-source "board/zeus/Kconfig"
 
 endmenu

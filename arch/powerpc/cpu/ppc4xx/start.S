@@ -1805,21 +1805,6 @@ ppc405ep_init:
 	bne	_pci_66mhz
 #endif /* CONFIG_TAIHU */
 
-#if defined(CONFIG_ZEUS)
-	mfdcr	r4, CPC0_BOOT
-	andi.	r5, r4, CPC0_BOOT_SEP@l
-	bne	strap_1			/* serial eeprom present */
-	lis	r3,0x0000
-	addi	r3,r3,0x3030
-	lis	r4,0x8042
-	addi	r4,r4,0x223e
-	b	1f
-strap_1:
-	mfdcr	r3, CPC0_PLLMR0
-	mfdcr	r4, CPC0_PLLMR1
-	b	1f
-#endif
-
 	addis	r3,0,PLLMR0_DEFAULT@h	/* PLLMR0 default value */
 	ori	r3,r3,PLLMR0_DEFAULT@l	/* */
 	addis	r4,0,PLLMR1_DEFAULT@h	/* PLLMR1 default value */
