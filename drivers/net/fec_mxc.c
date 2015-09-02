@@ -17,6 +17,7 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/imx-common/sys_proto.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <linux/compiler.h>
@@ -551,12 +552,15 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	writel(0x00000000, &fec->eth->gaddr2);
 
 
-	/* clear MIB RAM */
-	for (i = mib_ptr; i <= mib_ptr + 0xfc; i += 4)
-		writel(0, i);
+	/* Do not access reserved register for i.MX6UL */
+	if (!is_cpu_type(MXC_CPU_MX6UL)) {
+		/* clear MIB RAM */
+		for (i = mib_ptr; i <= mib_ptr + 0xfc; i += 4)
+			writel(0, i);
 
-	/* FIFO receive start register */
-	writel(0x520, &fec->eth->r_fstart);
+		/* FIFO receive start register */
+		writel(0x520, &fec->eth->r_fstart);
+	}
 
 	/* size and address of each buffer */
 	writel(FEC_MAX_PKT_SIZE, &fec->eth->emrbr);

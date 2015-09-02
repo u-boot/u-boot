@@ -170,7 +170,7 @@ static int setup_fec(void)
 	reg |= BM_ANADIG_PLL_ENET_REF_25M_ENABLE;
 	writel(reg, &anatop->pll_enet);
 
-	return enable_fec_anatop_clock(ENET_125MHZ);
+	return enable_fec_anatop_clock(0, ENET_125MHZ);
 }
 
 int board_eth_init(bd_t *bis)
@@ -566,6 +566,7 @@ static void spl_dram_init(void)
 		.bi_on = 1,		/* Bank interleaving enabled */
 		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
+		.ddr_type = DDR_TYPE_DDR3,
 	};
 
 	mx6sx_dram_iocfg(mem_ddr.width, &mx6_ddr_ioregs, &mx6_grp_ioregs);

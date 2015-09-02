@@ -27,6 +27,10 @@
 #include <power/pfuze100_pmic.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
+#include <malloc.h>
+#include <miiphy.h>
+#include <netdev.h>
+#include <micrel.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,6 +46,11 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
 #define MX6Q_QMX6_PFUZE_MUX		IMX_GPIO_NR(6, 9)
+
+
+#define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
+	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
 
 int dram_init(void)
 {
@@ -96,6 +105,51 @@ static iomux_v3_cfg_t const usdhc4_pads[] = {
 static iomux_v3_cfg_t const usb_otg_pads[] = {
 	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t enet_pads_ksz9031[] = {
+	MX6_PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RXC__GPIO6_IO30 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_RGMII_RD0__GPIO6_IO25 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_RGMII_RD1__GPIO6_IO27 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_RGMII_RD2__GPIO6_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_RGMII_RD3__GPIO6_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_RGMII_RX_CTL__GPIO6_IO24 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t enet_pads_final_ksz9031[] = {
+	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t enet_pads_ar8035[] = {
+	MX6_PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
 };
 
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
@@ -166,6 +220,159 @@ int power_init_board(void)
 				return ret;
 		}
 	}
+
+	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	struct phy_device *phydev;
+	struct mii_dev *bus;
+	unsigned short id1, id2;
+	int ret;
+
+	iomux_v3_cfg_t enet_reset = MX6_PAD_EIM_D23__GPIO3_IO23 |
+				    MUX_PAD_CTRL(NO_PAD_CTRL);
+
+	/* check whether KSZ9031 or AR8035 has to be configured */
+	imx_iomux_v3_setup_multiple_pads(enet_pads_ar8035,
+					 ARRAY_SIZE(enet_pads_ar8035));
+	imx_iomux_v3_setup_pad(enet_reset);
+
+	/* phy reset */
+	gpio_direction_output(IMX_GPIO_NR(3, 23), 0);
+	udelay(2000);
+	gpio_set_value(IMX_GPIO_NR(3, 23), 1);
+	udelay(500);
+
+	bus = fec_get_miibus(IMX_FEC_BASE, -1);
+	if (!bus)
+		return -EINVAL;
+	phydev = phy_find_by_mask(bus, (0xf << 4), PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		printf("Error: phy device not found.\n");
+		ret = -ENODEV;
+		goto free_bus;
+	}
+
+	/* get the PHY id */
+	id1 = phy_read(phydev, MDIO_DEVAD_NONE, 2);
+	id2 = phy_read(phydev, MDIO_DEVAD_NONE, 3);
+
+	if ((id1 == 0x22) && ((id2 & 0xFFF0) == 0x1620)) {
+		/* re-configure for Micrel KSZ9031 */
+		printf("configure Micrel KSZ9031 Ethernet Phy at address %d\n",
+		       phydev->addr);
+
+		/* phy reset: gpio3-23 */
+		gpio_set_value(IMX_GPIO_NR(3, 23), 0);
+		gpio_set_value(IMX_GPIO_NR(6, 30), (phydev->addr >> 2));
+		gpio_set_value(IMX_GPIO_NR(6, 25), 1);
+		gpio_set_value(IMX_GPIO_NR(6, 27), 1);
+		gpio_set_value(IMX_GPIO_NR(6, 28), 1);
+		gpio_set_value(IMX_GPIO_NR(6, 29), 1);
+		imx_iomux_v3_setup_multiple_pads(enet_pads_ksz9031,
+						 ARRAY_SIZE(enet_pads_ksz9031));
+		gpio_set_value(IMX_GPIO_NR(6, 24), 1);
+		udelay(500);
+		gpio_set_value(IMX_GPIO_NR(3, 23), 1);
+		imx_iomux_v3_setup_multiple_pads(enet_pads_final_ksz9031,
+						 ARRAY_SIZE(enet_pads_final_ksz9031));
+	} else if ((id1 == 0x004d) && (id2 == 0xd072)) {
+		/* configure Atheros AR8035 - actually nothing to do */
+		printf("configure Atheros AR8035 Ethernet Phy at address %d\n",
+		       phydev->addr);
+	} else {
+		printf("Unknown Ethernet-Phy: 0x%04x 0x%04x\n", id1, id2);
+		ret = -EINVAL;
+		goto free_phydev;
+	}
+
+	ret = fec_probe(bis, -1, IMX_FEC_BASE, bus, phydev);
+	if (ret)
+		goto free_phydev;
+
+	return 0;
+
+free_phydev:
+	free(phydev);
+free_bus:
+	free(bus);
+	return ret;
+}
+
+int mx6_rgmii_rework(struct phy_device *phydev)
+{
+	unsigned short id1, id2;
+	unsigned short val;
+
+	/* check whether KSZ9031 or AR8035 has to be configured */
+	id1 = phy_read(phydev, MDIO_DEVAD_NONE, 2);
+	id2 = phy_read(phydev, MDIO_DEVAD_NONE, 3);
+
+	if ((id1 == 0x22) && ((id2 & 0xFFF0) == 0x1620)) {
+		/* finalize phy configuration for Micrel KSZ9031 */
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, 2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 4);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_DATA_POST_INC_W | 0x2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 0x0000);
+
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, 2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 5);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_DATA_POST_INC_W | 0x2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, MII_KSZ9031_MOD_REG);
+
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, 2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 6);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_DATA_POST_INC_W | 0x2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 0xFFFF);
+
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, 2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 8);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_DATA_POST_INC_W | 0x2);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 0x3FFF);
+
+		/* fix KSZ9031 link up issue */
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, 0x0);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 0x4);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_DATA_NO_POST_INC);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 0x6);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_REG);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 0x3);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_DATA_NO_POST_INC);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, 0x1A80);
+	}
+
+	if ((id1 == 0x004d) && (id2 == 0xd072)) {
+		/* enable AR8035 ouput a 125MHz clk from CLK_25M */
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, 0x7);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, MII_KSZ9031_MOD_DATA_POST_INC_RW | 0x16);
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_CONTROL, MII_KSZ9031_MOD_DATA_NO_POST_INC | 0x7);
+		val = phy_read(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA);
+		val &= 0xfe63;
+		val |= 0x18;
+		phy_write(phydev, MDIO_DEVAD_NONE, MMD_ACCESS_REG_DATA, val);
+
+		/* introduce tx clock delay */
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
+		val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
+		val |= 0x0100;
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
+
+		/* disable hibernation */
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0xb);
+		val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3c40);
+	}
+	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	mx6_rgmii_rework(phydev);
+
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
 
 	return 0;
 }

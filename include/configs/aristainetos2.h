@@ -24,6 +24,7 @@
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_PHY_MICREL_KSZ9031
 
+#define CONFIG_SF_DEFAULT_BUS		3
 #define CONFIG_SF_DEFAULT_CS		1
 
 #define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
@@ -34,7 +35,10 @@
 		"-(rescue-system);gpmi-nand:-(ubi)\0" \
 	"addmisc=setenv bootargs ${bootargs} net.ifnames=0 consoleblank=0\0" \
 	"ubiargs=setenv bootargs console=${console},${baudrate} " \
-		"ubi.mtd=0,4096 root=ubi0:rootfs rootfstype=ubifs\0 "
+		"ubi.mtd=0,4096 root=ubi0:rootfs rootfstype=ubifs\0 " \
+	"ubifs_load_fit=sf probe;ubi part ubi 4096;ubifsmount ubi:rootfs;" \
+		"ubifsload ${fit_addr_r} /boot/system.itb; " \
+		"imi ${fit_addr_r}\0 "
 
 #define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
 
@@ -45,6 +49,8 @@
 /* Framebuffer */
 #define CONFIG_SYS_LDB_CLOCK 33246000
 #define CONFIG_LG4573
+#define CONFIG_LG4573_BUS 0
+#define CONFIG_LG4573_CS 0
 
 #define CONFIG_CMD_BMP
 

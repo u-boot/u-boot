@@ -62,6 +62,12 @@ config SEMIHOSTING
 	  the hosted environment to call out to the emulator to
 	  retrieve files from the host machine.
 
+config SYS_L2CACHE_OFF
+	bool "L2cache off"
+	help
+	  If SoC does not support L2CACHE or one do not want to enable
+	  L2CACHE, choose this option.
+
 choice
 	prompt "Target select"
 	default ARCH_VERSATILE
@@ -511,112 +517,6 @@ config TARGET_VISION2
 	bool "Support vision2"
 	select CPU_V7
 
-config TARGET_UDOO
-	bool "Support udoo"
-	select CPU_V7
-
-config TARGET_WANDBOARD
-	bool "Support wandboard"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_WARP
-	bool "Support WaRP"
-	select CPU_V7
-
-config TARGET_TITANIUM
-	bool "Support titanium"
-	select CPU_V7
-
-config TARGET_NITROGEN6X
-	bool "Support nitrogen6x"
-	select CPU_V7
-
-config TARGET_CGTQMX6EVAL
-	bool "Support cgtqmx6eval"
-	select CPU_V7
-
-config TARGET_EMBESTMX6BOARDS
-	bool "Support embestmx6boards"
-	select CPU_V7
-
-config TARGET_ARISTAINETOS
-	bool "Support aristainetos"
-	select CPU_V7
-
-config TARGET_ARISTAINETOS2
-	bool "Support aristainetos2"
-	select CPU_V7
-
-config TARGET_MX6QARM2
-	bool "Support mx6qarm2"
-	select CPU_V7
-
-config TARGET_MX6QSABREAUTO
-	bool "Support mx6qsabreauto"
-	select CPU_V7
-	select DM
-	select DM_THERMAL
-
-config TARGET_MX6SABRESD
-	bool "Support mx6sabresd"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_THERMAL
-
-config TARGET_MX6CUBOXI
-	bool "Support Solid-run mx6 boards"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_MX6SLEVK
-	bool "Support mx6slevk"
-	select CPU_V7
-
-config TARGET_MX6SXSABRESD
-	bool "Support mx6sxsabresd"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_THERMAL
-
-config TARGET_MX6UL_14X14_EVK
-	bool "Support mx6ul_14x14_evk"
-	select CPU_V7
-	select DM
-	select DM_THERMAL
-	select SUPPORT_SPL
-
-config TARGET_GW_VENTANA
-	bool "Support gw_ventana"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_KOSAGI_NOVENA
-	bool "Support Kosagi Novena"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_TBS2910
-	bool "Support tbs2910"
-	select CPU_V7
-
-config TARGET_OT1200
-	bool "Bachmann OT1200"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_PLATINUM_PICON
-	bool "Support platinum-picon"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_PLATINUM_TITANIUM
-	bool "Support platinum-titanium"
-	select CPU_V7
-	select SUPPORT_SPL
-
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select CPU_V7
@@ -664,6 +564,10 @@ config ARCH_SUNXI
 
 config TARGET_SNOWBALL
 	bool "Support snowball"
+	select CPU_V7
+
+config TARGET_TS4800
+	bool "Support TS4800"
 	select CPU_V7
 
 config TARGET_U8500_HREF
@@ -883,7 +787,6 @@ source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/imx-common/Kconfig"
 
-source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
@@ -894,26 +797,17 @@ source "board/Marvell/gplugd/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
-source "board/hisilicon/hikey/Kconfig"
-source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
-source "board/barco/platinum/Kconfig"
-source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
-source "board/boundary/nitrogen6x/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
-source "board/compulab/cm_t43/Kconfig"
-source "board/compulab/cm_fx6/Kconfig"
-source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/davedenx/qong/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
-source "board/embest/mx6boards/Kconfig"
 source "board/esg/ima3-mx53/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
 source "board/freescale/ls2085aqds/Kconfig"
@@ -931,14 +825,7 @@ source "board/freescale/mx53ard/Kconfig"
 source "board/freescale/mx53evk/Kconfig"
 source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
-source "board/freescale/mx6qarm2/Kconfig"
-source "board/freescale/mx6qsabreauto/Kconfig"
-source "board/freescale/mx6sabresd/Kconfig"
-source "board/freescale/mx6slevk/Kconfig"
-source "board/freescale/mx6sxsabresd/Kconfig"
-source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/vf610twr/Kconfig"
-source "board/gateworks/gw_ventana/Kconfig"
 source "board/genesi/mx51_efikamx/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
@@ -948,7 +835,6 @@ source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
 source "board/jornada/Kconfig"
 source "board/karo/tx25/Kconfig"
-source "board/kosagi/novena/Kconfig"
 source "board/logicpd/imx27lite/Kconfig"
 source "board/logicpd/imx31_litekit/Kconfig"
 source "board/maxbcm/Kconfig"
@@ -968,7 +854,6 @@ source "board/siemens/draco/Kconfig"
 source "board/siemens/pxm2/Kconfig"
 source "board/siemens/rut/Kconfig"
 source "board/silica/pengwyn/Kconfig"
-source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
 source "board/spear/spear320/Kconfig"
@@ -980,7 +865,6 @@ source "board/st/stm32f429-discovery/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/zmx25/Kconfig"
-source "board/tbs/tbs2910/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
 source "board/birdland/bav335x/Kconfig"
@@ -990,12 +874,10 @@ source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
 source "board/trizepsiv/Kconfig"
+source "board/technologic/ts4800/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
-source "board/udoo/Kconfig"
 source "board/vpac270/Kconfig"
 source "board/vscom/baltos/Kconfig"
-source "board/wandboard/Kconfig"
-source "board/warp/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
 source "board/xaeniax/Kconfig"

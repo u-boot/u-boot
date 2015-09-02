@@ -1,7 +1,8 @@
 U-boot config options used in fec_mxc.c
 
 CONFIG_FEC_MXC
-	Selects fec_mxc.c to be compiled into u-boot.
+	Selects fec_mxc.c to be compiled into u-boot. Can read out the
+	ethaddr from the SoC eFuses (see below).
 
 CONFIG_MII
 	Must be defined if CONFIG_FEC_MXC is defined.
@@ -25,3 +26,9 @@ CONFIG_FEC_MXC_NO_ANEG
 CONFIG_FEC_MXC_PHYADDR
 	Optional, selects the exact phy address that should be connected
 	and function fecmxc_initialize will try to initialize it.
+
+
+Reading the ethaddr from the SoC eFuses:
+if CONFIG_FEC_MXC is defined and the U-Boot environment does not contain the
+ethaddr variable, then its value gets read from the corresponding eFuses in
+the SoC. See the README files of the specific SoC for details.

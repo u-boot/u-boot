@@ -224,6 +224,7 @@
 #define CONFIG_SYS_MALLOC_LEN			(10 * 1024 * 1024)
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
 #define CONFIG_OF_BOARD_SETUP
+#define CONFIG_MISC_INIT_R
 
 /* SPL */
 #include "imx6_spl.h"

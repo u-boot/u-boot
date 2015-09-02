@@ -271,23 +271,10 @@ static struct mx28_nand_fcb *mx28_nand_get_fcb(uint32_t size)
 	fcb->ecc_block_0_size =		512;
 	fcb->ecc_block_n_size =		512;
 	fcb->metadata_bytes =		10;
-
-	if (nand_writesize == 2048) {
-		fcb->ecc_block_n_ecc_type =		4;
-		fcb->ecc_block_0_ecc_type =		4;
-	} else if (nand_writesize == 4096) {
-		if (nand_oobsize == 128) {
-			fcb->ecc_block_n_ecc_type =	4;
-			fcb->ecc_block_0_ecc_type =	4;
-		} else if (nand_oobsize == 218) {
-			fcb->ecc_block_n_ecc_type =	8;
-			fcb->ecc_block_0_ecc_type =	8;
-		} else if (nand_oobsize == 224) {
-			fcb->ecc_block_n_ecc_type =	8;
-			fcb->ecc_block_0_ecc_type =	8;
-		}
-	}
-
+	fcb->ecc_block_n_ecc_type = mx28_nand_get_ecc_strength(
+					nand_writesize, nand_oobsize) >> 1;
+	fcb->ecc_block_0_ecc_type = mx28_nand_get_ecc_strength(
+					nand_writesize, nand_oobsize) >> 1;
 	if (fcb->ecc_block_n_ecc_type == 0) {
 		printf("MX28 NAND: Unsupported NAND geometry\n");
 		goto err;

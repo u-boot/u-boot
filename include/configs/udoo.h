@@ -11,6 +11,10 @@
 
 #include "mx6_common.h"
 
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#include "imx6_spl.h"
+
 #define MACH_TYPE_UDOO		4800
 #define CONFIG_MACH_TYPE	MACH_TYPE_UDOO
 
@@ -18,6 +22,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(2 * SZ_1M)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
@@ -58,7 +63,7 @@
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_DEFAULT_FDT_FILE		"imx6q-udoo.dtb"
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
@@ -67,7 +72,7 @@
 	"splashpos=m,m\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"fdt_file=undefined\0" \
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
@@ -134,9 +139,17 @@
 			"fi; " \
 		"else " \
 			"bootz; " \
-		"fi;\0"
+		"fi;\0" \
+		"findfdt=" \
+			"if test $board_rev = MX6Q ; then " \
+				"setenv fdt_file imx6q-udoo.dtb; fi; " \
+			"if test $board_rev = MX6DL ; then " \
+				"setenv fdt_file imx6dl-udoo.dtb; fi; " \
+			"if test $fdt_file = undefined; then " \
+				"echo WARNING: Could not determine dtb to use; fi; \0"
 
 #define CONFIG_BOOTCOMMAND \
+	   "run findfdt; " \
 	   "mmc dev ${mmcdev}; if mmc rescan; then " \
 		   "if run loadbootscript; then " \
 			   "run bootscript; " \

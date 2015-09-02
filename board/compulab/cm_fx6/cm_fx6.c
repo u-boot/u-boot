@@ -14,6 +14,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <errno.h>
+#include <usb.h>
 #include <fdt_support.h>
 #include <sata.h>
 #include <splash.h>
@@ -330,6 +331,11 @@ static int cm_fx6_setup_usb_otg(void)
 	return gpio_direction_output(SB_FX6_USB_OTG_PWR, 0);
 }
 
+int board_usb_phy_mode(int port)
+{
+	return USB_INIT_HOST;
+}
+
 int board_ehci_hcd_init(int port)
 {
 	int ret;
@@ -617,6 +623,13 @@ int board_init(void)
 int checkboard(void)
 {
 	puts("Board: CM-FX6\n");
+	return 0;
+}
+
+int misc_init_r(void)
+{
+	cl_print_pcb_info();
+
 	return 0;
 }
 

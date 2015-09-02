@@ -60,7 +60,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if (CONFIG_SYS_BOARD_VERSION == 1)
 #include "./aristainetos-v1.c"
-#elif (CONFIG_SYS_BOARD_VERSION == 2)
+#elif ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
 #include "./aristainetos-v2.c"
 #endif
 
@@ -163,18 +163,18 @@ struct display_info_t const displays[] = {
 			.refresh        = 60,
 			.xres           = 800,
 			.yres           = 480,
-			.pixclock       = 33246,
+			.pixclock       = 30066,
 			.left_margin    = 88,
 			.right_margin   = 88,
-			.upper_margin   = 10,
-			.lower_margin   = 10,
+			.upper_margin   = 20,
+			.lower_margin   = 20,
 			.hsync_len      = 80,
-			.vsync_len      = 25,
-			.sync           = 0,
+			.vsync_len      = 5,
+			.sync           = FB_SYNC_EXT,
 			.vmode          = FB_VMODE_NONINTERLACED
 		}
 	}
-#if (CONFIG_SYS_BOARD_VERSION == 2)
+#if ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
 	, {
 		.bus	= -1,
 		.addr	= 0,
@@ -183,7 +183,7 @@ struct display_info_t const displays[] = {
 		.enable	= enable_spi_display,
 		.mode	= {
 			.name           = "lg4573",
-			.refresh        = 60,
+			.refresh        = 57,
 			.xres           = 480,
 			.yres           = 800,
 			.pixclock       = 37037,
@@ -214,9 +214,6 @@ iomux_v3_cfg_t nfc_pads[] = {
 	MX6_PAD_NANDF_WP_B__NAND_WP_B	| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_RB0__NAND_READY_B	| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_CS0__NAND_CE0_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_CS1__NAND_CE1_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_CS2__NAND_CE2_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_NANDF_CS3__NAND_CE3_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_SD4_CMD__NAND_RE_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_SD4_CLK__NAND_WE_B		| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_D0__NAND_DATA00		| MUX_PAD_CTRL(NO_PAD_CTRL),

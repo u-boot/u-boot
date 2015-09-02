@@ -4,6 +4,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#define MXC_CPU_MX23		0x23
+#define MXC_CPU_MX25		0x25
+#define MXC_CPU_MX27		0x27
+#define MXC_CPU_MX28		0x28
+#define MXC_CPU_MX31		0x31
+#define MXC_CPU_MX35		0x35
 #define MXC_CPU_MX51		0x51
 #define MXC_CPU_MX53		0x53
 #define MXC_CPU_MX6SL		0x60
@@ -15,6 +21,7 @@
 #define MXC_CPU_MX6D		0x67
 #define MXC_CPU_MX6DP		0x68
 #define MXC_CPU_MX6QP		0x69
+#define MXC_CPU_VF610		0xF6 /* dummy ID */
 
 #define CS0_128					0
 #define CS0_64M_CS1_64M				1

@@ -42,8 +42,16 @@
 #define USDHC2_PAD_CTRL (PAD_CTL_SPEED_LOW |			\
 	PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
-#define ECSPI1_CS0		IMX_GPIO_NR(4, 9)   /* 4.3 display controller */
-#define ECSPI4_CS0		IMX_GPIO_NR(3, 29)
+#if (CONFIG_SYS_BOARD_VERSION == 2)
+	/* 4.3 display controller */
+	#define ECSPI1_CS0		IMX_GPIO_NR(4, 9)
+	#define ECSPI4_CS0		IMX_GPIO_NR(3, 29)
+#elif (CONFIG_SYS_BOARD_VERSION == 3)
+	#define ECSPI1_CS0		IMX_GPIO_NR(2, 30)   /* NOR flash */
+	/* 4.3 display controller */
+	#define ECSPI1_CS1		IMX_GPIO_NR(4, 10)
+#endif
+
 #define SOFT_RESET_GPIO		IMX_GPIO_NR(7, 13)
 #define SD2_DRIVER_ENABLE	IMX_GPIO_NR(7, 8)
 
@@ -103,7 +111,11 @@ iomux_v3_cfg_t const gpio_pads[] = {
 	/* LED yellow */
 	MX6_PAD_NANDF_CS3__GPIO6_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	/* LED red */
+#if (CONFIG_SYS_BOARD_VERSION == 2)
 	MX6_PAD_EIM_EB0__GPIO2_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
+#elif (CONFIG_SYS_BOARD_VERSION == 3)
+	MX6_PAD_EIM_WAIT__GPIO5_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL),
+#endif
 	/* LED green */
 	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	/* LED blue */
@@ -170,7 +182,12 @@ static iomux_v3_cfg_t const ecspi1_pads[] = {
 	MX6_PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
 	MX6_PAD_EIM_D17__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
 	MX6_PAD_EIM_D18__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
+#if (CONFIG_SYS_BOARD_VERSION == 2)
 	MX6_PAD_KEY_ROW1__GPIO4_IO09 | MUX_PAD_CTRL(SPI_PAD_CTRL),
+#elif (CONFIG_SYS_BOARD_VERSION == 3)
+	MX6_PAD_EIM_EB2__GPIO2_IO30  | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_KEY_COL2__GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+#endif
 };
 
 static void setup_iomux_enet(void)
@@ -178,6 +195,7 @@ static void setup_iomux_enet(void)
 	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
 }
 
+#if (CONFIG_SYS_BOARD_VERSION == 2)
 iomux_v3_cfg_t const ecspi4_pads[] = {
 	MX6_PAD_EIM_D21__ECSPI4_SCLK | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_D22__ECSPI4_MISO | MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -185,13 +203,13 @@ iomux_v3_cfg_t const ecspi4_pads[] = {
 	MX6_PAD_EIM_A25__GPIO5_IO02  | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_D29__GPIO3_IO29  | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
+#endif
 
 static iomux_v3_cfg_t const display_pads[] = {
 	MX6_PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK | MUX_PAD_CTRL(DISP_PAD_CTRL),
 	MX6_PAD_DI0_PIN15__IPU1_DI0_PIN15,
 	MX6_PAD_DI0_PIN2__IPU1_DI0_PIN02,
 	MX6_PAD_DI0_PIN3__IPU1_DI0_PIN03,
-	MX6_PAD_DI0_PIN4__GPIO4_IO20,
 	MX6_PAD_DISP0_DAT0__IPU1_DISP0_DATA00,
 	MX6_PAD_DISP0_DAT1__IPU1_DISP0_DATA01,
 	MX6_PAD_DISP0_DAT2__IPU1_DISP0_DATA02,
@@ -221,11 +239,17 @@ static iomux_v3_cfg_t const display_pads[] = {
 int board_spi_cs_gpio(unsigned bus, unsigned cs)
 {
 	if (bus == CONFIG_SF_DEFAULT_BUS && cs == CONFIG_SF_DEFAULT_CS)
+#if (CONFIG_SYS_BOARD_VERSION == 2)
 		return IMX_GPIO_NR(5, 2);
 
 	if (bus == 0 && cs == 0)
 		return IMX_GPIO_NR(4, 9);
+#elif (CONFIG_SYS_BOARD_VERSION == 3)
+		return ECSPI1_CS0;
 
+	if (bus == 0 && cs == 1)
+		return ECSPI1_CS1;
+#endif
 	return -1;
 }
 
@@ -234,15 +258,22 @@ static void setup_spi(void)
 	int i;
 
 	imx_iomux_v3_setup_multiple_pads(ecspi1_pads, ARRAY_SIZE(ecspi1_pads));
+
+#if (CONFIG_SYS_BOARD_VERSION == 2)
 	imx_iomux_v3_setup_multiple_pads(ecspi4_pads, ARRAY_SIZE(ecspi4_pads));
+#endif
+
 	for (i = 0; i < 4; i++)
 		enable_spi_clk(true, i);
 
 	gpio_direction_output(ECSPI1_CS0, 1);
+#if (CONFIG_SYS_BOARD_VERSION == 2)
 	gpio_direction_output(ECSPI4_CS1, 0);
-
 	/* set cs0 to high (second device on spi bus #4) */
 	gpio_direction_output(ECSPI4_CS0, 1);
+#elif (CONFIG_SYS_BOARD_VERSION == 3)
+	gpio_direction_output(ECSPI1_CS1, 1);
+#endif
 }
 
 static void setup_iomux_uart(void)
@@ -573,6 +604,7 @@ static void setup_board_gpio(void)
 	gpio_direction_output(IMX_GPIO_NR(1, 25), 0);
 
 	/* switch off Status LEDs */
+#if (CONFIG_SYS_BOARD_VERSION == 2)
 	gpio_request(IMX_GPIO_NR(6, 16), "LED yellow"); /* 176 */
 	gpio_direction_output(IMX_GPIO_NR(6, 16), 1);
 	gpio_request(IMX_GPIO_NR(2, 28), "LED red"); /* 60 */
@@ -581,11 +613,21 @@ static void setup_board_gpio(void)
 	gpio_direction_output(IMX_GPIO_NR(5, 4), 1);
 	gpio_request(IMX_GPIO_NR(2, 29), "LED blue"); /* 61 */
 	gpio_direction_output(IMX_GPIO_NR(2, 29), 1);
+#elif (CONFIG_SYS_BOARD_VERSION == 3)
+	gpio_request(IMX_GPIO_NR(6, 16), "LED yellow"); /* 176 */
+	gpio_direction_output(IMX_GPIO_NR(6, 16), 0);
+	gpio_request(IMX_GPIO_NR(5, 0), "LED red"); /* 128 */
+	gpio_direction_output(IMX_GPIO_NR(5, 0), 0);
+	gpio_request(IMX_GPIO_NR(5, 4), "LED green"); /* 132 */
+	gpio_direction_output(IMX_GPIO_NR(5, 4), 0);
+	gpio_request(IMX_GPIO_NR(2, 29), "LED blue"); /* 61 */
+	gpio_direction_output(IMX_GPIO_NR(2, 29), 0);
+#endif
 }
 
 static void setup_board_spi(void)
 {
-	/* enable spi bus #2 SS drivers */
+	/* enable spi bus #2 SS drivers (and spi bus #4 SS1 for rev2b) */
 	gpio_direction_output(IMX_GPIO_NR(6, 6), 1);
 }
 
@@ -620,8 +662,9 @@ int board_late_init(void)
 	/* if we have the lg panel, we can initialze it now */
 	if (panel)
 		if (!strcmp(panel, displays[1].mode.name))
-			lg4573_spi_startup(0, 0, 10000000, SPI_MODE_0);
+			lg4573_spi_startup(CONFIG_LG4573_BUS,
+					   CONFIG_LG4573_CS,
+					   10000000, SPI_MODE_0);
 
 	return 0;
 }
-
