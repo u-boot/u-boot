@@ -17,9 +17,12 @@
 
 /* returns MXC_CPU_ value */
 #define cpu_type(rev) (((rev) >> 12) & 0xff)
+#define soc_type(rev) (((rev) >> 12) & 0xf0)
 /* both macros return/take MXC_CPU_ constants */
 #define get_cpu_type() (cpu_type(get_cpu_rev()))
+#define get_soc_type() (soc_type(get_cpu_rev()))
 #define is_cpu_type(cpu) (get_cpu_type() == cpu)
+#define is_soc_type(soc) (get_soc_type() == soc)
 
 #define is_mx6dqp() (is_cpu_type(MXC_CPU_MX6QP) || is_cpu_type(MXC_CPU_MX6DP))
 

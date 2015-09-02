@@ -23,6 +23,8 @@
 #define MXC_CPU_MX6QP		0x69
 #define MXC_CPU_VF610		0xF6 /* dummy ID */
 
+#define MXC_SOC_MX6		0x60
+
 #define CS0_128					0
 #define CS0_64M_CS1_64M				1
 #define CS0_64M_CS1_32M_CS2_32M			2
