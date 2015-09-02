@@ -9,6 +9,27 @@
 #define MAKE_CFGVAL(cfg1, cfg2, cfg3, cfg4) \
 	((cfg4) << 24) | ((cfg3) << 16) | ((cfg2) << 8) | (cfg1)
 
+enum boot_device {
+	WEIM_NOR_BOOT,
+	ONE_NAND_BOOT,
+	PATA_BOOT,
+	SATA_BOOT,
+	I2C_BOOT,
+	SPI_NOR_BOOT,
+	SD1_BOOT,
+	SD2_BOOT,
+	SD3_BOOT,
+	SD4_BOOT,
+	MMC1_BOOT,
+	MMC2_BOOT,
+	MMC3_BOOT,
+	MMC4_BOOT,
+	NAND_BOOT,
+	QSPI_BOOT,
+	UNKNOWN_BOOT,
+	BOOT_DEV_NUM = UNKNOWN_BOOT,
+};
+
 struct boot_mode {
 	const char *name;
 	unsigned cfg_val;
