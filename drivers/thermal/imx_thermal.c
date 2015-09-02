@@ -25,6 +25,9 @@
 #define FACTOR1			15976
 #define FACTOR2			4297157
 #define MEASURE_FREQ		327
+#define TEMPERATURE_MIN         -40
+#define TEMPERATURE_HOT         85
+#define TEMPERATURE_MAX         125
 
 #define TEMPSENSE0_TEMP_CNT_SHIFT	8
 #define TEMPSENSE0_TEMP_CNT_MASK	(0xfff << TEMPSENSE0_TEMP_CNT_SHIFT)
@@ -41,7 +44,8 @@ struct thermal_data {
 	int maxc;
 };
 
-static int read_cpu_temperature_mx6(struct udevice *dev)
+#if defined(CONFIG_MX6)
+static int read_cpu_temperature(struct udevice *dev)
 {
 	int temperature;
 	unsigned int reg, n_meas;
@@ -123,21 +127,87 @@ static int read_cpu_temperature_mx6(struct udevice *dev)
 
 	return temperature;
 }
+#elif defined(CONFIG_MX7)
+static int read_cpu_temperature(struct udevice *dev)
+{
+	unsigned int reg, tmp, start;
+	unsigned int raw_25c, te1;
+	int temperature;
+	unsigned int *priv = dev_get_priv(dev);
+	u32 fuse = *priv;
+	struct mxc_ccm_anatop_reg *ccm_anatop = (struct mxc_ccm_anatop_reg *)
+						 ANATOP_BASE_ADDR;
+	/*
+	 * fuse data layout:
+	 * [31:21] sensor value @ 25C
+	 * [20:18] hot temperature value
+	 * [17:9] sensor value of room
+	 * [8:0] sensor value of hot
+	 */
+
+	raw_25c = fuse >> 21;
+	if (raw_25c == 0)
+		raw_25c = 25;
+
+	te1 = (fuse >> 9) & 0x1ff;
+
+	/*
+	 * now we only use single measure, every time we read
+	 * the temperature, we will power on/down anadig thermal
+	 * module
+	 */
+	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_POWER_DOWN_MASK, &ccm_anatop->tempsense1_clr);
+	writel(PMU_REF_REFTOP_SELFBIASOFF_MASK, &ccm_anatop->ref_set);
+
+	/* write measure freq */
+	reg = readl(&ccm_anatop->tempsense1);
+	reg &= ~TEMPMON_HW_ANADIG_TEMPSENSE1_MEASURE_FREQ_MASK;
+	reg |= TEMPMON_HW_ANADIG_TEMPSENSE1_MEASURE_FREQ(MEASURE_FREQ);
+	writel(reg, &ccm_anatop->tempsense1);
+
+	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_MEASURE_TEMP_MASK, &ccm_anatop->tempsense1_clr);
+	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_FINISHED_MASK, &ccm_anatop->tempsense1_clr);
+	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_MEASURE_TEMP_MASK, &ccm_anatop->tempsense1_set);
+
+	start = get_timer(0);
+	/* Wait max 100ms */
+	do {
+		/*
+		 * Since we can not rely on finish bit, use 1ms delay to get
+		 * temperature. From RM, 17us is enough to get data, but
+		 * to gurantee to get the data, delay 100ms here.
+		 */
+		reg = readl(&ccm_anatop->tempsense1);
+		tmp = (reg & TEMPMON_HW_ANADIG_TEMPSENSE1_TEMP_VALUE_MASK)
+		       >> TEMPMON_HW_ANADIG_TEMPSENSE1_TEMP_VALUE_SHIFT;
+	} while (get_timer(0) < (start + 100));
+
+	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_FINISHED_MASK, &ccm_anatop->tempsense1_clr);
+
+	/* power down anatop thermal sensor */
+	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_POWER_DOWN_MASK, &ccm_anatop->tempsense1_set);
+	writel(PMU_REF_REFTOP_SELFBIASOFF_MASK, &ccm_anatop->ref_clr);
+
+	/* Single point */
+	temperature = tmp - (te1 - raw_25c);
+
+	return temperature;
+}
+#endif
 
 int imx_thermal_get_temp(struct udevice *dev, int *temp)
 {
 	struct thermal_data *priv = dev_get_priv(dev);
 	int cpu_tmp = 0;
 
-	if (is_soc_type(MXC_SOC_MX6))
-		cpu_tmp = read_cpu_temperature_mx6(dev);
+	cpu_tmp = read_cpu_temperature(dev);
+
 	while (cpu_tmp >= priv->critical) {
 		printf("CPU Temperature (%dC) too close to max (%dC)",
 		       cpu_tmp, priv->maxc);
 		puts(" waiting...\n");
 		udelay(5000000);
-		if (is_soc_type(MXC_SOC_MX6))
-			cpu_tmp = read_cpu_temperature_mx6(dev);
+		cpu_tmp = read_cpu_temperature(dev);
 	}
 
 	*temp = cpu_tmp;
@@ -162,9 +232,17 @@ static int imx_thermal_probe(struct udevice *dev)
 	if (is_soc_type(MXC_SOC_MX6)) {
 		/* Check for valid fuse */
 		if (fuse == 0 || fuse == ~0) {
-			printf("CPU:   Thermal invalid data, fuse: 0x%x\n", fuse);
+			printf("CPU:   Thermal invalid data, fuse: 0x%x\n",
+				fuse);
 			return -EPERM;
 		}
+	} else if (is_soc_type(MXC_SOC_MX7)) {
+		/* No Calibration data in FUSE? */
+		if ((fuse & 0x3ffff) == 0)
+			return -EPERM;
+		/* We do not support 105C TE2 */
+		if (((fuse & 0x1c0000) >> 18) == 0x6)
+			return -EPERM;
 	}
 
 	/* set critical cooling temp */
