@@ -66,6 +66,27 @@ void init_aips(void)
 	}
 }
 
+void imx_set_wdog_powerdown(bool enable)
+{
+	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
+	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
+	struct wdog_regs *wdog3 = (struct wdog_regs *)WDOG3_BASE_ADDR;
+#ifdef CONFIG_MX7D
+	struct wdog_regs *wdog4 = (struct wdog_regs *)WDOG4_BASE_ADDR;
+#endif
+
+	/* Write to the PDE (Power Down Enable) bit */
+	writew(enable, &wdog1->wmcr);
+	writew(enable, &wdog2->wmcr);
+
+	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL) ||
+			is_soc_type(MXC_SOC_MX7))
+		writew(enable, &wdog3->wmcr);
+#ifdef CONFIG_MX7D
+	writew(enable, &wdog4->wmcr);
+#endif
+}
+
 #define SRC_SCR_WARM_RESET_ENABLE	0
 
 void init_src(void)

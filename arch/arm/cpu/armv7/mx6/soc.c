@@ -250,20 +250,6 @@ static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 	return 0;
 }
 
-static void imx_set_wdog_powerdown(bool enable)
-{
-	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
-	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
-	struct wdog_regs *wdog3 = (struct wdog_regs *)WDOG3_BASE_ADDR;
-
-	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL))
-		writew(enable, &wdog3->wmcr);
-
-	/* Write to the PDE (Power Down Enable) bit */
-	writew(enable, &wdog1->wmcr);
-	writew(enable, &wdog2->wmcr);
-}
-
 static void set_ahb_rate(u32 val)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
