@@ -12,6 +12,8 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+stxgp3           powerpc     mpc85xx        -           -           Dan Malek <dan@embeddedalley.com>
+stxssa           powerpc     mpc85xx        -           -           Dan Malek <dan@embeddedalley.com>
 cmi_mpc5xx       powerpc     mpc5xx         -           -
 zeus             powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
 sbc405           powerpc     ppc4xx         -           -
