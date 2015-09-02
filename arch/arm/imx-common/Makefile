@@ -19,6 +19,7 @@ obj-y	+= misc.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx6))
+obj-y 	+= cache.o
 obj-$(CONFIG_CMD_SATA) += sata.o
 obj-$(CONFIG_IMX_VIDEO_SKIP) += video.o
 endif
