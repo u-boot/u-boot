@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+sbc405           powerpc     ppc4xx         -           -
 pcs440ep         powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
 p3p440           powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
 lwmon5           powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>

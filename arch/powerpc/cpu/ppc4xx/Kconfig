@@ -8,9 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_SBC405
-	bool "Support sbc405"
-
 config TARGET_T3CORP
 	bool "Support t3corp"
 
@@ -174,7 +171,6 @@ source "board/gdsys/intip/Kconfig"
 source "board/mosaixtech/icon/Kconfig"
 source "board/mpl/mip405/Kconfig"
 source "board/mpl/pip405/Kconfig"
-source "board/sbc405/Kconfig"
 source "board/t3corp/Kconfig"
 source "board/xes/xpedite1000/Kconfig"
 source "board/xilinx/ml507/Kconfig"
