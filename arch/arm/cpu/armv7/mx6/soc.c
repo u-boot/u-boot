@@ -38,7 +38,7 @@ struct scu_regs {
 	u32	fpga_rev;
 };
 
-#if defined(CONFIG_IMX6_THERMAL)
+#if defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx6_thermal_plat = {
 	.regs = (void *)ANATOP_BASE_ADDR,
 	.fuse_bank = 1,

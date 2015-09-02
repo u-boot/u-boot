@@ -41,7 +41,7 @@ struct thermal_data {
 	int maxc;
 };
 
-static int read_cpu_temperature(struct udevice *dev)
+static int read_cpu_temperature_mx6(struct udevice *dev)
 {
 	int temperature;
 	unsigned int reg, n_meas;
@@ -129,13 +129,15 @@ int imx_thermal_get_temp(struct udevice *dev, int *temp)
 	struct thermal_data *priv = dev_get_priv(dev);
 	int cpu_tmp = 0;
 
-	cpu_tmp = read_cpu_temperature(dev);
+	if (is_soc_type(MXC_SOC_MX6))
+		cpu_tmp = read_cpu_temperature_mx6(dev);
 	while (cpu_tmp >= priv->critical) {
 		printf("CPU Temperature (%dC) too close to max (%dC)",
 		       cpu_tmp, priv->maxc);
 		puts(" waiting...\n");
 		udelay(5000000);
-		cpu_tmp = read_cpu_temperature(dev);
+		if (is_soc_type(MXC_SOC_MX6))
+			cpu_tmp = read_cpu_temperature_mx6(dev);
 	}
 
 	*temp = cpu_tmp;
@@ -157,10 +159,12 @@ static int imx_thermal_probe(struct udevice *dev)
 	/* Read Temperature calibration data fuse */
 	fuse_read(pdata->fuse_bank, pdata->fuse_word, &fuse);
 
-	/* Check for valid fuse */
-	if (fuse == 0 || fuse == ~0) {
-		printf("CPU:   Thermal invalid data, fuse: 0x%x\n", fuse);
-		return -EPERM;
+	if (is_soc_type(MXC_SOC_MX6)) {
+		/* Check for valid fuse */
+		if (fuse == 0 || fuse == ~0) {
+			printf("CPU:   Thermal invalid data, fuse: 0x%x\n", fuse);
+			return -EPERM;
+		}
 	}
 
 	/* set critical cooling temp */

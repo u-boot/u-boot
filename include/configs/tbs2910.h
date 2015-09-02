@@ -20,7 +20,7 @@
 
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_IMX6_THERMAL
+#define CONFIG_IMX_THERMAL
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1

@@ -241,6 +241,6 @@
 #define CONFIG_FEC_DMA_MINALIGN		64
 #endif
 
-#define CONFIG_IMX6_THERMAL
+#define CONFIG_IMX_THERMAL
 
 #endif

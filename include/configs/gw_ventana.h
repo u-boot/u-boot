@@ -57,7 +57,7 @@
 #define CONFIG_CMD_GPIO
 
 /* Thermal */
-#define CONFIG_IMX6_THERMAL
+#define CONFIG_IMX_THERMAL
 
 /* Serial */
 #define CONFIG_MXC_UART

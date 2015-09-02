@@ -6,4 +6,4 @@
 #
 
 obj-$(CONFIG_DM_THERMAL) += thermal-uclass.o
-obj-$(CONFIG_IMX6_THERMAL) += imx_thermal.o
+obj-$(CONFIG_IMX_THERMAL) += imx_thermal.o

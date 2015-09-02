@@ -19,7 +19,7 @@
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
-#define CONFIG_IMX6_THERMAL
+#define CONFIG_IMX_THERMAL
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
