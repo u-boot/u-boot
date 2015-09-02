@@ -8,9 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_PCS440EP
-	bool "Support pcs440ep"
-
 config TARGET_SBC405
 	bool "Support sbc405"
 
@@ -177,7 +174,6 @@ source "board/gdsys/intip/Kconfig"
 source "board/mosaixtech/icon/Kconfig"
 source "board/mpl/mip405/Kconfig"
 source "board/mpl/pip405/Kconfig"
-source "board/pcs440ep/Kconfig"
 source "board/sbc405/Kconfig"
 source "board/t3corp/Kconfig"
 source "board/xes/xpedite1000/Kconfig"
