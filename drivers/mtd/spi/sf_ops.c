@@ -139,72 +139,27 @@ static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
 }
 #endif
 
-static int spi_flash_poll_status(struct spi_slave *spi, unsigned long timeout,
-				 u8 cmd, u8 poll_bit)
-{
-	unsigned long timebase;
-	unsigned long flags = SPI_XFER_BEGIN;
-	int ret;
-	u8 status;
-	u8 check_status = 0x0;
-
-	if (cmd == CMD_FLAG_STATUS)
-		check_status = poll_bit;
-
-#ifdef CONFIG_SF_DUAL_FLASH
-	if (spi->flags & SPI_XFER_U_PAGE)
-		flags |= SPI_XFER_U_PAGE;
-#endif
-	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
-	if (ret) {
-		debug("SF: fail to read %s status register\n",
-		      cmd == CMD_READ_STATUS ? "read" : "flag");
-		return ret;
-	}
-
-	timebase = get_timer(0);
-	do {
-		WATCHDOG_RESET();
-
-		ret = spi_xfer(spi, 8, NULL, &status, 0);
-		if (ret)
-			return -1;
-
-		if ((status & poll_bit) == check_status)
-			break;
-
-	} while (get_timer(timebase) < timeout);
-
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
-
-	if ((status & poll_bit) == check_status)
-		return 0;
-
-	/* Timed out */
-	debug("SF: time out!\n");
-	return -1;
-}
-
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
-	struct spi_slave *spi = flash->spi;
-	int ret;
-	u8 poll_bit = STATUS_WIP;
-	u8 cmd = CMD_READ_STATUS;
+	u8 sr;
+	int timebase, ret;
 
-	ret = spi_flash_poll_status(spi, timeout, cmd, poll_bit);
-	if (ret < 0)
-		return ret;
+	timebase = get_timer(0);
 
-	if (flash->poll_cmd == CMD_FLAG_STATUS) {
-		poll_bit = STATUS_PEC;
-		cmd = CMD_FLAG_STATUS;
-		ret = spi_flash_poll_status(spi, timeout, cmd, poll_bit);
+	while (get_timer(timebase) < timeout) {
+		ret = spi_flash_cmd_read_status(flash, &sr);
 		if (ret < 0)
 			return ret;
+
+		if (!(sr & STATUS_WIP))
+			return 0;
+		else
+			break;
 	}
 
-	return 0;
+	printf("SF: Timeout!\n");
+
+	return -ETIMEDOUT;
 }
 
 int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
