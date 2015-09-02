@@ -41,6 +41,7 @@
 #endif
 
 #include <malloc.h>
+#include <memalign.h>
 #include <usb.h>
 
 #include "ohci.h"

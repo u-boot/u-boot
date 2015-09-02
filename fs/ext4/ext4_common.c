@@ -24,6 +24,7 @@
 #include <ext4fs.h>
 #include <inttypes.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <stddef.h>
 #include <linux/stat.h>
 #include <linux/time.h>

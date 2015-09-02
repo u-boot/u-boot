@@ -12,6 +12,7 @@
 #include <linux/mii.h>
 #include "usb_ether.h"
 #include <malloc.h>
+#include <memalign.h>
 #include <errno.h>
 
 /* ASIX AX88179 based USB 3.0 Ethernet Devices */

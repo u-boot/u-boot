@@ -16,6 +16,7 @@
 #include <asm/byteorder.h>
 #include <part.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 

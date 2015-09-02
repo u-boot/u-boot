@@ -10,6 +10,7 @@
 #include <common.h>
 #include <errno.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <dwmmc.h>
 #include <asm-generic/errno.h>

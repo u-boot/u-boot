@@ -29,6 +29,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <memalign.h>
 #include <asm/processor.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>

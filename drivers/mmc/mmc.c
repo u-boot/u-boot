@@ -16,6 +16,7 @@
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <linux/list.h>
 #include <div64.h>
 #include "mmc_private.h"

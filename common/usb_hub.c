@@ -26,6 +26,7 @@
 #include <command.h>
 #include <dm.h>
 #include <errno.h>
+#include <memalign.h>
 #include <asm/processor.h>
 #include <asm/unaligned.h>
 #include <linux/ctype.h>

@@ -44,6 +44,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <net.h>
 #ifndef CONFIG_DM_ETH
 #include <netdev.h>

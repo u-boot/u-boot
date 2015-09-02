@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
