@@ -31,32 +31,32 @@ static void unprotect_spi_flash(void)
 {
 	u32 bc;
 
-	bc = x86_pci_read_config32(QUARK_LEGACY_BRIDGE, 0xd8);
+	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, &bc);
 	bc |= 0x1;	/* unprotect the flash */
-	x86_pci_write_config32(QUARK_LEGACY_BRIDGE, 0xd8, bc);
+	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, bc);
 }
 
 static void quark_setup_bars(void)
 {
 	/* GPIO - D31:F0:R44h */
-	pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_GBA,
-			       CONFIG_GPIO_BASE | IO_BAR_EN);
+	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_GBA,
+				   CONFIG_GPIO_BASE | IO_BAR_EN);
 
 	/* ACPI PM1 Block - D31:F0:R48h */
-	pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_PM1BLK,
-			       CONFIG_ACPI_PM1_BASE | IO_BAR_EN);
+	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_PM1BLK,
+				   CONFIG_ACPI_PM1_BASE | IO_BAR_EN);
 
 	/* GPE0 - D31:F0:R4Ch */
-	pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_GPE0BLK,
-			       CONFIG_ACPI_GPE0_BASE | IO_BAR_EN);
+	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_GPE0BLK,
+				   CONFIG_ACPI_GPE0_BASE | IO_BAR_EN);
 
 	/* WDT - D31:F0:R84h */
-	pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_WDTBA,
-			       CONFIG_WDT_BASE | IO_BAR_EN);
+	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_WDTBA,
+				   CONFIG_WDT_BASE | IO_BAR_EN);
 
 	/* RCBA - D31:F0:RF0h */
-	pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_RCBA,
-			       CONFIG_RCBA_BASE | MEM_BAR_EN);
+	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, LB_RCBA,
+				   CONFIG_RCBA_BASE | MEM_BAR_EN);
 
 	/* ACPI P Block - Msg Port 04:R70h */
 	msg_port_write(MSG_PORT_RMU, PBLK_BA,
@@ -137,10 +137,10 @@ int cpu_eth_init(bd_t *bis)
 	u32 base;
 	int ret0, ret1;
 
-	pci_read_config_dword(QUARK_EMAC0, PCI_BASE_ADDRESS_0, &base);
+	qrk_pci_read_config_dword(QUARK_EMAC0, PCI_BASE_ADDRESS_0, &base);
 	ret0 = designware_initialize(base, PHY_INTERFACE_MODE_RMII);
 
-	pci_read_config_dword(QUARK_EMAC1, PCI_BASE_ADDRESS_0, &base);
+	qrk_pci_read_config_dword(QUARK_EMAC1, PCI_BASE_ADDRESS_0, &base);
 	ret1 = designware_initialize(base, PHY_INTERFACE_MODE_RMII);
 
 	if (ret0 < 0 && ret1 < 0)
@@ -154,7 +154,7 @@ void cpu_irq_init(void)
 	struct quark_rcba *rcba;
 	u32 base;
 
-	base = x86_pci_read_config32(QUARK_LEGACY_BRIDGE, LB_RCBA);
+	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, LB_RCBA, &base);
 	base &= ~MEM_BAR_EN;
 	rcba = (struct quark_rcba *)base;
 
