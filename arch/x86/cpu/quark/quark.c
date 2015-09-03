@@ -125,6 +125,44 @@ static void quark_pcie_early_init(void)
 	msg_port_io_write(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1, pcie_cfg);
 }
 
+static void quark_usb_early_init(void)
+{
+	u32 usb;
+
+	/* The sequence below comes from Quark firmware writer guide */
+
+	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT);
+	usb &= ~(1 << 1);
+	usb |= ((1 << 6) | (1 << 7));
+	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT, usb);
+
+	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_COMPBG);
+	usb &= ~((1 << 8) | (1 << 9));
+	usb |= ((1 << 7) | (1 << 10));
+	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_COMPBG, usb);
+
+	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
+	usb |= (1 << 29);
+	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+
+	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL1);
+	usb |= (1 << 1);
+	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL1, usb);
+
+	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL1);
+	usb &= ~((1 << 3) | (1 << 4) | (1 << 5));
+	usb |= (1 << 6);
+	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL1, usb);
+
+	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
+	usb &= ~(1 << 29);
+	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+
+	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
+	usb |= (1 << 24);
+	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+}
+
 static void quark_enable_legacy_seg(void)
 {
 	u32 hmisc2;
@@ -163,6 +201,9 @@ int arch_cpu_init(void)
 	 * system hang while it is held in reset.
 	 */
 	quark_pcie_early_init();
+
+	/* Initialize USB2 PHY */
+	quark_usb_early_init();
 
 	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
 	quark_enable_legacy_seg();

@@ -12,6 +12,7 @@
 #define MSG_PORT_HOST_BRIDGE	0x03
 #define MSG_PORT_RMU		0x04
 #define MSG_PORT_MEM_MGR	0x05
+#define MSG_PORT_USB_AFE	0x14
 #define MSG_PORT_PCIE_AFE	0x16
 #define MSG_PORT_SOC_UNIT	0x31
 
@@ -48,6 +49,13 @@
 /* eSRAM Block Page Control */
 #define ESRAM_BLK_CTRL		0x82
 #define ESRAM_BLOCK_MODE	0x10000000
+
+/* Port 0x14: USB2 AFE Unit Port Registers */
+
+#define USB2_GLOBAL_PORT	0x4001
+#define USB2_PLL1		0x7f02
+#define USB2_PLL2		0x7f03
+#define USB2_COMPBG		0x7f04
 
 /* Port 0x16: PCIe AFE Unit Port Registers */
 
