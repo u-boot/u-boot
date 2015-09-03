@@ -562,12 +562,12 @@ static int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
+	u32 iobase = pdata->iobase;
 	int ret;
 
-	debug("%s, iobase=%lx, priv=%p\n", __func__, pdata->iobase, priv);
-	priv->mac_regs_p = (struct eth_mac_regs *)pdata->iobase;
-	priv->dma_regs_p = (struct eth_dma_regs *)(pdata->iobase +
-			DW_DMA_BASE_OFFSET);
+	debug("%s, iobase=%x, priv=%p\n", __func__, iobase, priv);
+	priv->mac_regs_p = (struct eth_mac_regs *)iobase;
+	priv->dma_regs_p = (struct eth_dma_regs *)(iobase + DW_DMA_BASE_OFFSET);
 	priv->interface = pdata->phy_interface;
 
 	dw_mdio_init(dev->name, priv->mac_regs_p);
