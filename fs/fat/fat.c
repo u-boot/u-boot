@@ -46,11 +46,18 @@ static disk_partition_t cur_part_info;
 
 static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 {
+	ulong ret;
+
 	if (!cur_dev || !cur_dev->block_read)
 		return -1;
 
-	return cur_dev->block_read(cur_dev->dev,
-			cur_part_info.start + block, nr_blocks, buf);
+	ret = cur_dev->block_read(cur_dev->dev,
+				  cur_part_info.start + block, nr_blocks, buf);
+
+	if (nr_blocks && ret == 0)
+		return -1;
+
+	return ret;
 }
 
 int fat_set_blk_dev(block_dev_desc_t *dev_desc, disk_partition_t *info)

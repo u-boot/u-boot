@@ -30,6 +30,8 @@ static void uppercase(char *str, int len)
 static int total_sector;
 static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 {
+	ulong ret;
+
 	if (!cur_dev || !cur_dev->block_write)
 		return -1;
 
@@ -39,8 +41,13 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 		return -1;
 	}
 
-	return cur_dev->block_write(cur_dev->dev,
-			cur_part_info.start + block, nr_blocks,	buf);
+	ret = cur_dev->block_write(cur_dev->dev,
+				   cur_part_info.start + block,
+				   nr_blocks, buf);
+	if (nr_blocks && ret == 0)
+		return -1;
+
+	return ret;
 }
 
 /*
