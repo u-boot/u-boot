@@ -89,6 +89,41 @@ struct quark_rcba {
 	u16	d20d21_ir;
 };
 
+#include <asm/io.h>
+#include <asm/pci.h>
+
+/**
+ * qrk_pci_read_config_dword() - Read a configuration value
+ *
+ * @dev:	PCI device address: bus, device and function
+ * @offset:	Dword offset within the device's configuration space
+ * @valuep:	Place to put the returned value
+ *
+ * Note: This routine is inlined to provide better performance on Quark
+ */
+static inline void qrk_pci_read_config_dword(pci_dev_t dev, int offset,
+					     u32 *valuep)
+{
+	outl(dev | offset | PCI_CFG_EN, PCI_REG_ADDR);
+	*valuep = inl(PCI_REG_DATA);
+}
+
+/**
+ * qrk_pci_write_config_dword() - Write a PCI configuration value
+ *
+ * @dev:	PCI device address: bus, device and function
+ * @offset:	Dword offset within the device's configuration space
+ * @value:	Value to write
+ *
+ * Note: This routine is inlined to provide better performance on Quark
+ */
+static inline void qrk_pci_write_config_dword(pci_dev_t dev, int offset,
+					      u32 value)
+{
+	outl(dev | offset | PCI_CFG_EN, PCI_REG_ADDR);
+	outl(value, PCI_REG_DATA);
+}
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* _QUARK_H_ */
