@@ -773,14 +773,12 @@ void bootp_request(void)
 }
 
 #if defined(CONFIG_CMD_DHCP)
-static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
+static void dhcp_process_options(uchar *popt, uchar *end)
 {
-	uchar *end = popt + BOOTP_HDR_SIZE;
 	int oplen, size;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 	int *to_ptr;
 #endif
-	dhcp_option_overload = 0;
 
 	while (popt < end && *popt != 0xff) {
 		oplen = *(popt + 1);
@@ -862,6 +860,35 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 			break;
 		}
 		popt += oplen + 2;	/* Process next option */
+	}
+}
+
+static void dhcp_packet_process_options(struct bootp_hdr *bp)
+{
+	uchar *popt = (uchar *)&bp->bp_vend[4];
+	uchar *end = popt + BOOTP_HDR_SIZE;
+
+	if (net_read_u32((u32 *)&bp->bp_vend[0]) != htonl(BOOTP_VENDOR_MAGIC))
+		return;
+
+	dhcp_option_overload = 0;
+
+	/*
+	 * The 'options' field MUST be interpreted first, 'file' next,
+	 * 'sname' last.
+	 */
+	dhcp_process_options(popt, end);
+
+	if (dhcp_option_overload & OVERLOAD_FILE) {
+		popt = (uchar *)bp->bp_file;
+		end = popt + sizeof(bp->bp_file);
+		dhcp_process_options(popt, end);
+	}
+
+	if (dhcp_option_overload & OVERLOAD_SNAME) {
+		popt = (uchar *)bp->bp_sname;
+		end = popt + sizeof(bp->bp_sname);
+		dhcp_process_options(popt, end);
 	}
 }
 
@@ -982,13 +1009,10 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			    CONFIG_SYS_BOOTFILE_PREFIX,
 			    strlen(CONFIG_SYS_BOOTFILE_PREFIX)) == 0) {
 #endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
+			dhcp_packet_process_options(bp);
 
 			debug("TRANSITIONING TO REQUESTING STATE\n");
 			dhcp_state = REQUESTING;
-
-			if (net_read_u32((u32 *)&bp->bp_vend[0]) ==
-						htonl(BOOTP_VENDOR_MAGIC))
-				dhcp_process_options((u8 *)&bp->bp_vend[4], bp);
 
 			net_set_timeout_handler(5000, bootp_timeout_handler);
 			dhcp_send_request_packet(bp);
@@ -1002,9 +1026,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		debug("DHCP State: REQUESTING\n");
 
 		if (dhcp_message_type((u8 *)bp->bp_vend) == DHCP_ACK) {
-			if (net_read_u32((u32 *)&bp->bp_vend[0]) ==
-						htonl(BOOTP_VENDOR_MAGIC))
-				dhcp_process_options((u8 *)&bp->bp_vend[4], bp);
+			dhcp_packet_process_options(bp);
 			/* Store net params from reply */
 			store_net_params(bp);
 			dhcp_state = BOUND;
