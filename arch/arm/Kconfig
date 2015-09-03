@@ -442,6 +442,10 @@ config ARCH_KEYSTONE
 	select CPU_V7
 	select SUPPORT_SPL
 
+config ARCH_MX7
+	bool "Freescale MX7"
+	select CPU_V7
+
 config ARCH_MX6
 	bool "Freescale MX6"
 	select CPU_V7
@@ -664,6 +668,8 @@ source "arch/arm/mach-integrator/Kconfig"
 source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
+
+source "arch/arm/cpu/armv7/mx7/Kconfig"
 
 source "arch/arm/cpu/armv7/mx6/Kconfig"
 
