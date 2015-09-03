@@ -21,6 +21,7 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
 #include <asm/arch/omap.h>
 
