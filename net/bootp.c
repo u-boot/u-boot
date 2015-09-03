@@ -64,6 +64,9 @@ char net_root_path[64] = {0,}; /* Our bootpath */
 static dhcp_state_t dhcp_state = INIT;
 static u32 dhcp_leasetime;
 static struct in_addr dhcp_server_ip;
+static u8 dhcp_option_overload;
+#define OVERLOAD_FILE 1
+#define OVERLOAD_SNAME 2
 static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			unsigned src, unsigned len);
 
@@ -146,9 +149,14 @@ static void store_net_params(struct bootp_hdr *bp)
 		net_copy_ip(&net_server_ip, &bp->bp_siaddr);
 	memcpy(net_server_ethaddr,
 	       ((struct ethernet_hdr *)net_rx_packet)->et_src, 6);
-	if (strlen(bp->bp_file) > 0)
+	if (
+#if defined(CONFIG_CMD_DHCP)
+	    !(dhcp_option_overload & OVERLOAD_FILE) &&
+#endif
+	    (strlen(bp->bp_file) > 0)) {
 		copy_filename(net_boot_file_name, bp->bp_file,
 			      sizeof(net_boot_file_name));
+	}
 
 	debug("net_boot_file_name: %s\n", net_boot_file_name);
 
@@ -772,6 +780,7 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 	int *to_ptr;
 #endif
+	dhcp_option_overload = 0;
 
 	while (popt < end && *popt != 0xff) {
 		oplen = *(popt + 1);
@@ -823,6 +832,9 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 		case 51:
 			net_copy_u32(&dhcp_leasetime, (u32 *)(popt + 2));
 			break;
+		case 52:
+			dhcp_option_overload = popt[2];
+			break;
 		case 53:	/* Ignore Message Type Option */
 			break;
 		case 54:
@@ -834,31 +846,11 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 			break;
 		case 66:	/* Ignore TFTP server name */
 			break;
-		case 67:	/* vendor opt bootfile */
-			/*
-			 * I can't use dhcp_vendorex_proc here because I need
-			 * to write into the bootp packet - even then I had to
-			 * pass the bootp packet pointer into here as the
-			 * second arg
-			 */
-			size = truncate_sz("Opt Boot File",
-					    sizeof(bp->bp_file),
-					    oplen);
-			if (bp->bp_file[0] == '\0' && size > 0) {
-				/*
-				 * only use vendor boot file if we didn't
-				 * receive a boot file in the main non-vendor
-				 * part of the packet - god only knows why
-				 * some vendors chose not to use this perfectly
-				 * good spot to store the boot file (join on
-				 * Tru64 Unix) it seems mind bogglingly crazy
-				 * to me
-				 */
-				printf("*** WARNING: using vendor "
-				       "optional boot file\n");
-				memcpy(bp->bp_file, popt + 2, size);
-				bp->bp_file[size] = '\0';
-			}
+		case 67:	/* Bootfile option */
+			size = truncate_sz("Bootfile",
+					   sizeof(net_boot_file_name), oplen);
+			memcpy(&net_boot_file_name, popt + 2, size);
+			net_boot_file_name[size] = 0;
 			break;
 		default:
 #if defined(CONFIG_BOOTP_VENDOREX)
