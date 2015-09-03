@@ -41,7 +41,7 @@
 #define timestamp			gd->arch.tbl
 #define lastdec				gd->arch.lastinc
 
-static int init_done;
+static int init_done __attribute__((section(".data"))) = 0;
 
 /* Timer reload and current value registers */
 struct kwtmr_val {
