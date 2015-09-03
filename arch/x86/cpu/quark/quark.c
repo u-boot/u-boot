@@ -73,6 +73,58 @@ static void quark_setup_bars(void)
 		       CONFIG_PCIE_ECAM_BASE | MEM_BAR_EN);
 }
 
+static void quark_pcie_early_init(void)
+{
+	u32 pcie_cfg;
+
+	/*
+	 * Step1: Assert PCIe signal PERST#
+	 *
+	 * The CPU interface to the PERST# signal is platform dependent.
+	 * Call the board-specific codes to perform this task.
+	 */
+	board_assert_perst();
+
+	/* Step2: PHY common lane reset */
+	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
+	pcie_cfg |= PCIE_PHY_LANE_RST;
+	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	/* wait 1 ms for PHY common lane reset */
+	mdelay(1);
+
+	/* Step3: PHY sideband interface reset and controller main reset */
+	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
+	pcie_cfg |= (PCIE_PHY_SB_RST | PCIE_CTLR_MAIN_RST);
+	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	/* wait 80ms for PLL to lock */
+	mdelay(80);
+
+	/* Step4: Controller sideband interface reset */
+	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
+	pcie_cfg |= PCIE_CTLR_SB_RST;
+	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	/* wait 20ms for controller sideband interface reset */
+	mdelay(20);
+
+	/* Step5: De-assert PERST# */
+	board_deassert_perst();
+
+	/* Step6: Controller primary interface reset */
+	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
+	pcie_cfg |= PCIE_CTLR_PRI_RST;
+	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+
+	/* Mixer Load Lane 0 */
+	pcie_cfg = msg_port_io_read(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0);
+	pcie_cfg &= ~((1 << 6) | (1 << 7));
+	msg_port_io_write(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0, pcie_cfg);
+
+	/* Mixer Load Lane 1 */
+	pcie_cfg = msg_port_io_read(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1);
+	pcie_cfg &= ~((1 << 6) | (1 << 7));
+	msg_port_io_write(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1, pcie_cfg);
+}
+
 static void quark_enable_legacy_seg(void)
 {
 	u32 hmisc2;
@@ -105,6 +157,17 @@ int arch_cpu_init(void)
 	 * which need be initialized with suggested values
 	 */
 	quark_setup_bars();
+
+	/*
+	 * Initialize PCIe controller
+	 *
+	 * Quark SoC holds the PCIe controller in reset following a power on.
+	 * U-Boot needs to release the PCIe controller from reset. The PCIe
+	 * controller (D23:F0/F1) will not be visible in PCI configuration
+	 * space and any access to its PCI configuration registers will cause
+	 * system hang while it is held in reset.
+	 */
+	quark_pcie_early_init();
 
 	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
 	quark_enable_legacy_seg();

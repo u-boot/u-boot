@@ -12,6 +12,7 @@
 #define MSG_PORT_HOST_BRIDGE	0x03
 #define MSG_PORT_RMU		0x04
 #define MSG_PORT_MEM_MGR	0x05
+#define MSG_PORT_PCIE_AFE	0x16
 #define MSG_PORT_SOC_UNIT	0x31
 
 /* Port 0x00: Memory Arbiter Message Port Registers */
@@ -47,6 +48,21 @@
 /* eSRAM Block Page Control */
 #define ESRAM_BLK_CTRL		0x82
 #define ESRAM_BLOCK_MODE	0x10000000
+
+/* Port 0x16: PCIe AFE Unit Port Registers */
+
+#define PCIE_RXPICTRL0_L0	0x2080
+#define PCIE_RXPICTRL0_L1	0x2180
+
+/* Port 0x31: SoC Unit Port Registers */
+
+/* PCIe Controller Config */
+#define PCIE_CFG		0x36
+#define PCIE_CTLR_PRI_RST	0x00010000
+#define PCIE_PHY_SB_RST		0x00020000
+#define PCIE_CTLR_SB_RST	0x00040000
+#define PCIE_PHY_LANE_RST	0x00090000
+#define PCIE_CTLR_MAIN_RST	0x00100000
 
 /* DRAM */
 #define DRAM_BASE		0x00000000
@@ -123,6 +139,32 @@ static inline void qrk_pci_write_config_dword(pci_dev_t dev, int offset,
 	outl(dev | offset | PCI_CFG_EN, PCI_REG_ADDR);
 	outl(value, PCI_REG_DATA);
 }
+
+/**
+ * board_assert_perst() - Assert the PERST# pin
+ *
+ * The CPU interface to the PERST# signal on Quark is platform dependent.
+ * Board-specific codes need supply this routine to assert PCIe slot reset.
+ *
+ * The tricky part in this routine is that any APIs that may trigger PCI
+ * enumeration process are strictly forbidden, as any access to PCIe root
+ * port's configuration registers will cause system hang while it is held
+ * in reset.
+ */
+void board_assert_perst(void);
+
+/**
+ * board_deassert_perst() - De-assert the PERST# pin
+ *
+ * The CPU interface to the PERST# signal on Quark is platform dependent.
+ * Board-specific codes need supply this routine to de-assert PCIe slot reset.
+ *
+ * The tricky part in this routine is that any APIs that may trigger PCI
+ * enumeration process are strictly forbidden, as any access to PCIe root
+ * port's configuration registers will cause system hang while it is held
+ * in reset.
+ */
+void board_deassert_perst(void);
 
 #endif /* __ASSEMBLY__ */
 
