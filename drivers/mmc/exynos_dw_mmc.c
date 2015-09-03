@@ -39,7 +39,7 @@ static void exynos_dwmci_clksel(struct dwmci_host *host)
 	dwmci_writel(host, DWMCI_CLKSEL, priv->sdr_timing);
 }
 
-unsigned int exynos_dwmci_get_clk(struct dwmci_host *host)
+unsigned int exynos_dwmci_get_clk(struct dwmci_host *host, uint freq)
 {
 	unsigned long sclk;
 	int8_t clk_div;

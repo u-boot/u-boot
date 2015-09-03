@@ -5,5 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_LED) += led-uclass.o
-obj-$(CONFIG_LED_GPIO) += led_gpio.o
+obj-y += led-uclass.o
+obj-$(CONFIG_$(SPL_)LED_GPIO) += led_gpio.o

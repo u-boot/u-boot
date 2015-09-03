@@ -1,0 +1,41 @@
+if ARCH_ROCKCHIP
+
+config ROCKCHIP_RK3288
+	bool "Support Rockchip RK3288"
+	help
+	  The Rockchip RK3288 is a ARM-based SoC with a quad-core Cortex-A17
+	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
+	  video interfaces supporting HDMI and eDP, several DDR3 options
+	  and video codec support. Peripherals include Gigabit Ethernet,
+	  USB2 host and OTG, SDIO, I2S, UART,s, SPI, I2C and PWMs.
+
+config SYS_MALLOC_F
+	default y
+
+config SYS_MALLOC_F_LEN
+	default 0x800
+
+config SPL_DM
+	default y
+
+config DM_SERIAL
+	default y
+
+config DM_SPI
+	default y
+
+config DM_SPI_FLASH
+	default y
+
+config DM_I2C
+	default y
+
+config DM_GPIO
+	default y
+
+config ROCKCHIP_SERIAL
+	default y
+
+source "arch/arm/mach-rockchip/rk3288/Kconfig"
+
+endif

@@ -1,0 +1,26 @@
+if ROCKCHIP_RK3288
+
+config TARGET_FIREFLY_RK3288
+	bool "Firefly-RK3288"
+	help
+	  Firefly is a RK3288-based development board with 2 USB ports,
+	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
+	  also includes on-board eMMC and 1GB of SDRAM. Expansion connectors
+	  provide access to display pins, I2C, SPI, UART and GPIOs.
+
+config TARGET_CHROMEBOOK_JERRY
+	bool "Google/Rockchip Veyron-Jerry Chromebook"
+	help
+	  Jerry is a RK3288-based clamshell device with 2 USB 3.0 ports,
+	  HDMI, an 11.9 inch EDP display, micro-SD card, touchpad and
+	  WiFi. It includes a Chrome OS EC (Cortex-M3) to provide access to
+	  the keyboard and battery functions.
+
+config SYS_SOC
+	default "rockchip"
+
+source "board/google/chromebook_jerry/Kconfig"
+
+source "board/firefly/firefly-rk3288/Kconfig"
+
+endif

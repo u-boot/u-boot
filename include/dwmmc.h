@@ -163,7 +163,21 @@ struct dwmci_host {
 
 	void (*clksel)(struct dwmci_host *host);
 	void (*board_init)(struct dwmci_host *host);
-	unsigned int (*get_mmc_clk)(struct dwmci_host *host);
+
+	/**
+	 * Get / set a particular MMC clock frequency
+	 *
+	 * This is used to request the current clock frequency of the clock
+	 * that drives the DWMMC peripheral. The caller will then use this
+	 * information to work out the divider it needs to achieve the
+	 * required MMC bus clock frequency. If you want to handle the
+	 * clock external to DWMMC, use @freq to select the frequency and
+	 * return that value too. Then DWMMC will put itself in bypass mode.
+	 *
+	 * @host:	DWMMC host
+	 * @freq:	Frequency the host is trying to achieve
+	 */
+	unsigned int (*get_mmc_clk)(struct dwmci_host *host, uint freq);
 
 	struct mmc_config cfg;
 };

@@ -58,7 +58,12 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 	if (!uc_drv) {
 		debug("Cannot find uclass for id %d: please add the UCLASS_DRIVER() declaration for this UCLASS_... id\n",
 		      id);
-		return -ENOENT;
+		/*
+		 * Use a strange error to make this case easier to find. When
+		 * a uclass is not available it can prevent driver model from
+		 * starting up and this failure is otherwise hard to debug.
+		 */
+		return -EPFNOSUPPORT;
 	}
 	uc = calloc(1, sizeof(*uc));
 	if (!uc)
