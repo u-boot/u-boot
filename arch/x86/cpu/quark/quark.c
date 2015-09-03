@@ -136,7 +136,6 @@ static void quark_enable_legacy_seg(void)
 
 int arch_cpu_init(void)
 {
-	struct pci_controller *hose;
 	int ret;
 
 	post_code(POST_CPU_INIT);
@@ -145,10 +144,6 @@ int arch_cpu_init(void)
 #endif
 
 	ret = x86_cpu_init_f();
-	if (ret)
-		return ret;
-
-	ret = pci_early_init_hose(&hose);
 	if (ret)
 		return ret;
 
