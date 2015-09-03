@@ -210,7 +210,6 @@
 		"fdt set /chosen/dom0 reg <0x80000 0x$filesize> && "\
 		"tftpb 6000000 xen.ub && bootm 6000000 - $fdt_addr\0" \
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0" \
-		"load mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0" \
 	"nosmp=setenv bootargs $bootargs maxcpus=1\0" \
 	"nfsroot=setenv bootargs $bootargs root=/dev/nfs nfsroot=$serverip:/mnt/sata,tcp ip=$ipaddr:$serverip:$serverip:255.255.255.0:zynqmp:eth0:off rw\0" \
 	"sdroot=setenv bootargs $bootargs root=/dev/mmcblk0p2 rw rootwait\0" \
