@@ -63,6 +63,7 @@ config NIOS2
 	bool "Nios II architecture"
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
+	select SUPPORT_OF_CONTROL
 
 config OPENRISC
 	bool "OpenRISC architecture"
