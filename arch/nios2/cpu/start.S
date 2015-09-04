@@ -73,8 +73,9 @@ _cur:	movhi	r5, %hi(_cur - _start)
 	ori	r5, r5, %lo(_start)	/* r5 <- linked _start */
 	beq	r4, r5, 3f
 
-	movhi	r6, %hi(_edata)
-	ori	r6, r6, %lo(_edata)
+	movhi	r6, %hi(CONFIG_SYS_MONITOR_LEN)
+	ori	r6, r6, %lo(CONFIG_SYS_MONITOR_LEN)
+	add	r6, r6, r5
 2:	ldwio	r7, 0(r4)
 	addi	r4, r4, 4
 	stwio	r7, 0(r5)
