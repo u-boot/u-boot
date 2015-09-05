@@ -948,6 +948,7 @@ static void composite_unbind(struct usb_gadget *gadget)
 			debug("unbind config '%s'/%p\n", c->label, c);
 			c->unbind(c);
 		}
+		free(c);
 	}
 	if (composite->unbind)
 		composite->unbind(cdev);
