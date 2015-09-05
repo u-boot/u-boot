@@ -338,17 +338,6 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		dfu->r_left = dfu->get_medium_size(dfu);
 		if (dfu->r_left < 0)
 			return dfu->r_left;
-		switch (dfu->layout) {
-		case DFU_RAW_ADDR:
-		case DFU_RAM_ADDR:
-			break;
-		default:
-			if (dfu->r_left > dfu_buf_size) {
-				printf("%s: File too big for buffer\n",
-				       __func__);
-				return -EOVERFLOW;
-			}
-		}
 
 		debug("%s: %s %ld [B]\n", __func__, dfu->name, dfu->r_left);
 
