@@ -39,6 +39,7 @@
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_DFU_SF
 #endif
+#define CONFIG_DFU_RAM
 #endif
 
 #endif /* _TEGRA_COMMON_USB_GADGET_H_ */
