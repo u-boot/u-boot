@@ -615,8 +615,7 @@ static int parse_path(char **arr, char *dirname)
 	arr[i] = zalloc(strlen("/") + 1);
 	if (!arr[i])
 		return -ENOMEM;
-
-	arr[i++] = "/";
+	memcpy(arr[i++], "/", strlen("/"));
 
 	/* add each path entry after root */
 	while (token != NULL) {
@@ -746,6 +745,11 @@ end:
 fail:
 	free(depth_dirname);
 	free(parse_dirname);
+	for (i = 0; i < depth; i++) {
+		if (!ptr[i])
+			break;
+		free(ptr[i]);
+	}
 	free(ptr);
 	free(parent_inode);
 	free(first_inode);
