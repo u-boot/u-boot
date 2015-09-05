@@ -15,6 +15,7 @@ F:	configs/Mele_M3_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/mk802_defconfig
 F:	configs/mk802ii_defconfig
+F:	configs/pov_protab2_ips9_defconfig
 F:	include/configs/sun5i.h
 F:	configs/A10s-OLinuXino-M_defconfig
 F:	configs/A13-OLinuXino_defconfig
