@@ -12,8 +12,9 @@
  * Size of malloc() pool
  */
 #ifdef CONFIG_USB_FUNCTION_DFU
-#define CONFIG_SYS_MALLOC_LEN		((4 << 20) + \
-						CONFIG_SYS_DFU_DATA_BUF_SIZE)
+#define CONFIG_SYS_MALLOC_LEN	(SZ_4M + \
+					CONFIG_SYS_DFU_DATA_BUF_SIZE + \
+					CONFIG_SYS_DFU_MAX_FILE_SIZE)
 #else
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
 #endif
