@@ -770,6 +770,7 @@ static int check_filename(char *filename, unsigned int blknr)
 	struct ext2_dirent *previous_dir = NULL;
 	char *ptr = NULL;
 	struct ext_filesystem *fs = get_fs();
+	int ret = -1;
 
 	/* get the first block of root */
 	first_block_no_of_root = blknr;
@@ -823,12 +824,12 @@ static int check_filename(char *filename, unsigned int blknr)
 		if (ext4fs_put_metadata(root_first_block_addr,
 					first_block_no_of_root))
 			goto fail;
-		return inodeno;
+		ret = inodeno;
 	}
 fail:
 	free(root_first_block_buffer);
 
-	return -1;
+	return ret;
 }
 
 int ext4fs_filename_check(char *filename)
