@@ -37,20 +37,6 @@
 #define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
 
 /*
- * Size of malloc() pool
- */
-#ifdef CONFIG_DFU_MMC
-#define CONFIG_SYS_MALLOC_LEN		((4 << 20) + \
-					CONFIG_SYS_DFU_DATA_BUF_SIZE)
-#else
-#define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
-#endif
-
-#ifndef CONFIG_ARM64
-#define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)       /* 1 MiB */
-#endif
-
-/*
  * NS16550 Configuration
  */
 #define CONFIG_TEGRA_SERIAL

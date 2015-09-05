@@ -8,6 +8,20 @@
 #ifndef __TEGRA_COMMON_POST_H
 #define __TEGRA_COMMON_POST_H
 
+/*
+ * Size of malloc() pool
+ */
+#ifdef CONFIG_USB_FUNCTION_DFU
+#define CONFIG_SYS_MALLOC_LEN		((4 << 20) + \
+						CONFIG_SYS_DFU_DATA_BUF_SIZE)
+#else
+#define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
+#endif
+
+#ifndef CONFIG_ARM64
+#define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)	/* 1 MiB */
+#endif
+
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
