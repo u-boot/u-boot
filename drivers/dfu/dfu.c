@@ -164,7 +164,6 @@ static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 void dfu_write_transaction_cleanup(struct dfu_entity *dfu)
 {
 	/* clear everything */
-	dfu_free_buf();
 	dfu->crc = 0;
 	dfu->offset = 0;
 	dfu->i_blk_seq_num = 0;
@@ -385,7 +384,6 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 			      dfu_hash_algo->name, dfu->crc);
 		puts("\nUPLOAD ... done\nCtrl+C to exit ...\n");
 
-		dfu_free_buf();
 		dfu->i_blk_seq_num = 0;
 		dfu->crc = 0;
 		dfu->offset = 0;
@@ -433,6 +431,7 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 		       __func__,  interface);
 		return -1;
 	}
+	dfu_get_buf(dfu);
 
 	return 0;
 }
@@ -441,6 +440,7 @@ void dfu_free_entities(void)
 {
 	struct dfu_entity *dfu, *p, *t = NULL;
 
+	dfu_free_buf();
 	list_for_each_entry_safe_reverse(dfu, p, &dfu_list, list) {
 		list_del(&dfu->list);
 		if (dfu->free_entity)
