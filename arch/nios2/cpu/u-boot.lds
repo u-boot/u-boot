@@ -50,9 +50,11 @@ SECTIONS
 	  *(.gnu.linkonce.d*)
 	}
 
-	. = ALIGN(16);
-	_gp = .;			/* Global pointer addr */
-	PROVIDE (gp = .);
+	/*
+	 * gp - Since we don't use gp for small data with option "-G0",
+	 * we will use gp as global data pointer. The _gp location is
+	 * not needed.
+	 */
 
 	.sdata :
 	{
