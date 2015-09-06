@@ -689,7 +689,7 @@ int dram_init(void)
 
 u32 get_board_rev(void)
 {
-	return cl_eeprom_get_board_rev();
+	return cl_eeprom_get_board_rev(CONFIG_SYS_I2C_EEPROM_BUS);
 }
 
 static struct mxc_serial_platdata cm_fx6_mxc_serial_plat = {

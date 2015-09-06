@@ -121,7 +121,7 @@ static u32 board_rev;
  * Routine: cl_eeprom_get_board_rev
  * Description: read system revision from eeprom
  */
-u32 cl_eeprom_get_board_rev(void)
+u32 cl_eeprom_get_board_rev(uint eeprom_bus)
 {
 	char str[5]; /* Legacy representation can contain at most 4 digits */
 	uint offset = BOARD_REV_OFFSET_LEGACY;
@@ -129,7 +129,7 @@ u32 cl_eeprom_get_board_rev(void)
 	if (board_rev)
 		return board_rev;
 
-	if (cl_eeprom_setup(CONFIG_SYS_I2C_EEPROM_BUS))
+	if (cl_eeprom_setup(eeprom_bus))
 		return 0;
 
 	if (cl_eeprom_layout != LAYOUT_LEGACY)
