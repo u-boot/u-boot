@@ -561,9 +561,14 @@ int cm_fx6_setup_ecspi(void) { return 0; }
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
+#define USDHC3_PATH	"/soc/aips-bus@02100000/usdhc@02198000/"
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	u32 baseboard_rev;
+	int nodeoffset;
 	uint8_t enetaddr[6];
+	char baseboard_name[16];
+	int err;
 
 	/* MAC addr */
 	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
@@ -575,6 +580,21 @@ int ft_board_setup(void *blob, bd_t *bd)
 	if (eth_getenv_enetaddr("eth1addr", enetaddr)) {
 		fdt_find_and_setprop(blob, "/eth@pcie", "local-mac-address",
 				     enetaddr, 6, 1);
+	}
+
+	baseboard_rev = cl_eeprom_get_board_rev(0);
+	err = cl_eeprom_get_product_name((uchar *)baseboard_name, 0);
+	if (err || baseboard_rev == 0)
+		return 0; /* Assume not an early revision SB-FX6m baseboard */
+
+	if (!strncmp("SB-FX6m", baseboard_name, 7) && baseboard_rev <= 120) {
+		fdt_shrink_to_minimum(blob); /* Make room for new properties */
+		nodeoffset = fdt_path_offset(blob, USDHC3_PATH);
+		fdt_delprop(blob, nodeoffset, "cd-gpios");
+		fdt_find_and_setprop(blob, USDHC3_PATH, "non-removable",
+				     NULL, 0, 1);
+		fdt_find_and_setprop(blob, USDHC3_PATH, "keep-power-in-suspend",
+				     NULL, 0, 1);
 	}
 
 	return 0;
