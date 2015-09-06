@@ -535,6 +535,8 @@ int enable_fec_anatop_clock(int fec_id, enum enet_freq freq)
 	if (freq < ENET_25MHZ || freq > ENET_125MHZ)
 		return -EINVAL;
 
+	reg = readl(&anatop->pll_enet);
+
 	if (fec_id == 0) {
 		reg &= ~BM_ANADIG_PLL_ENET_DIV_SELECT;
 		reg |= BF_ANADIG_PLL_ENET_DIV_SELECT(freq);
