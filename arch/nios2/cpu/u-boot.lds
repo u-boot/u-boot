@@ -67,6 +67,12 @@ SECTIONS
 	_edata = .;
 	PROVIDE (edata = .);
 
+	/*
+	 * _end - This is end of u-boot.bin image.
+	 * dtb will be appended here to make u-boot-dtb.bin
+	 */
+	_end = .;
+
 	/* UNINIT DATA - Small uninitialized data is first so it's
 	 * adjacent to sdata and can be referenced via gp. The normal
 	 * bss follows. We keep it adjacent to simplify init code.
