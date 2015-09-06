@@ -14,11 +14,15 @@
 #include "mx6_common.h"
 #include <asm/imx-common/gpio.h>
 
+#define is_mx6ul_9x9_evk()	CONFIG_IS_ENABLED(TARGET_MX6UL_9X9_EVK)
+
 /* SPL options */
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
 #include "imx6_spl.h"
+
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #define CONFIG_ROM_UNIFIED_SECTIONS
 #define CONFIG_SYS_GENERIC_BOARD
@@ -61,9 +65,13 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
-#endif
 
-#define PHYS_SDRAM_SIZE			SZ_512M
+/* PMIC only for 9X9 EVK */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_PFUZE3000
+#define CONFIG_POWER_PFUZE3000_I2C_ADDR  0x08
+#endif
 
 #undef CONFIG_CMD_IMLS
 
@@ -75,7 +83,7 @@
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=imx6ul-14x14-evk.dtb\0" \
+	"fdt_file=undefined\0" \
 	"fdt_addr=0x83000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
@@ -129,9 +137,19 @@
 			"fi; " \
 		"else " \
 			"bootz; " \
-		"fi;\0"
+		"fi;\0" \
+		"findfdt="\
+			"if test $fdt_file = undefined; then " \
+				"if test $board_name = EVK && test $board_rev = 9X9; then " \
+					"setenv fdt_file imx6ul-9x9-evk.dtb; fi; " \
+				"if test $board_name = EVK && test $board_rev = 14X14; then " \
+					"setenv fdt_file imx6ul-14x14-evk.dtb; fi; " \
+				"if test $fdt_file = undefined; then " \
+					"echo WARNING: Could not determine dtb to use; fi; " \
+			"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
+	   "run findfdt;" \
 	   "mmc dev ${mmcdev};" \
 	   "mmc dev ${mmcdev}; if mmc rescan; then " \
 		   "if run loadbootscript; then " \
