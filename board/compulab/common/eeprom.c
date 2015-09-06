@@ -105,9 +105,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
 int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
 {
 	uint offset;
+	int err;
 
-	if (cl_eeprom_setup(eeprom_bus))
-		return 0;
+	err = cl_eeprom_setup(eeprom_bus);
+	if (err)
+		return err;
 
 	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
 			MAC_ADDR_OFFSET : MAC_ADDR_OFFSET_LEGACY;
