@@ -2046,7 +2046,7 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 		status = ext4fs_read_file(diro, 0,
 					   __le32_to_cpu(diro->inode.size),
 					   symlink, &actread);
-		if (status == 0) {
+		if ((status < 0) || (actread == 0)) {
 			free(symlink);
 			return 0;
 		}
