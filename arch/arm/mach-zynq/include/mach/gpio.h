@@ -71,6 +71,4 @@
 /* GPIO upper 16 bit mask */
 #define ZYNQ_GPIO_UPPER_MASK 0xFFFF0000
 
-#define BIT(x) (1<<x)
-
 #endif /* _ZYNQ_GPIO_H */

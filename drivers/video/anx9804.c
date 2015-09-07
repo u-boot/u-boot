@@ -14,8 +14,6 @@
 #include <i2c.h>
 #include "anx9804.h"
 
-#define BIT(x) (1 << (x))
-
 /* Registers at i2c address 0x38 */
 
 #define ANX9804_HDCP_CONTROL_0_REG				0x01

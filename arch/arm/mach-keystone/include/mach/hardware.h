@@ -24,8 +24,6 @@ typedef volatile unsigned int   *dv_reg_p;
 
 #endif
 
-#define		BIT(x)	(1 << (x))
-
 #define KS2_DDRPHY_PIR_OFFSET           0x04
 #define KS2_DDRPHY_PGCR0_OFFSET         0x08
 #define KS2_DDRPHY_PGCR1_OFFSET         0x0C

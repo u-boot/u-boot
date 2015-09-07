@@ -11,8 +11,6 @@
 #define HI6220_GPIO_BASE(bank)	(((bank < 4) ? 0xf8011000 : \
 				0xf7020000 - 0x4000) + (0x1000 * bank))
 
-#define BIT(x)			(1 << (x))
-
 #define HI6220_GPIO_PER_BANK	8
 #define HI6220_GPIO_DIR		0x400
 

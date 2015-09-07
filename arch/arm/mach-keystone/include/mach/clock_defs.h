@@ -11,8 +11,6 @@
 
 #include <asm/arch/hardware.h>
 
-#define BIT(x)			(1 << (x))
-
 /* PLL Control Registers */
 struct pllctl_regs {
 	u32	ctl;		/* 00 */

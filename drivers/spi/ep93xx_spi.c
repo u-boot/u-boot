@@ -16,8 +16,6 @@
 
 #include <asm/arch/ep93xx.h>
 
-
-#define BIT(x)			(1<<(x))
 #define SSPBASE			SPI_BASE
 
 #define SSPCR0			0x0000
