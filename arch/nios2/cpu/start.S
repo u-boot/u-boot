@@ -82,20 +82,6 @@ _cur:	movhi	r5, %hi(_cur - _start)
 	bne	r5, r6, 2b
 3:
 
-	/* ZERO BSS/SBSS -- bss and sbss are assumed to be adjacent
-	 * and between __bss_start and __bss_end.
-	 */
-	 movhi	r5, %hi(__bss_start)
-	 ori	r5, r5, %lo(__bss_start)
-	 movhi	r6, %hi(__bss_end)
-	 ori	r6, r6, %lo(__bss_end)
-	 beq	r5, r6, 5f
-
-4:	stwio	r0, 0(r5)
-	 addi	r5, r5, 4
-	 bne	r5, r6, 4b
-5:
-
 	/* JUMP TO RELOC ADDR */
 	movhi	r4, %hi(_reloc)
 	ori	r4, r4, %lo(_reloc)
@@ -167,6 +153,22 @@ _reloc:
 relocate_code:
 	mov	sp, r4		/* Set the new sp */
 	mov	r4, r5
+
+	/*
+	 * ZERO BSS/SBSS -- bss and sbss are assumed to be adjacent
+	 * and between __bss_start and __bss_end.
+	 */
+	movhi	r5, %hi(__bss_start)
+	ori	r5, r5, %lo(__bss_start)
+	movhi	r6, %hi(__bss_end)
+	ori	r6, r6, %lo(__bss_end)
+	beq	r5, r6, 5f
+
+4:	stwio	r0, 0(r5)
+	addi	r5, r5, 4
+	bne	r5, r6, 4b
+5:
+
 	movhi	r8, %hi(board_init_r@h)
 	ori	r8, r8, %lo(board_init_r@h)
 	callr	r8
