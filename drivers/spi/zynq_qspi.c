@@ -569,7 +569,8 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 	writel(confr, &regs->cr);
 	priv->freq = speed;
 
-	debug("zynq_spi_set_speed: regs=%p, mode=%d\n", priv->regs, priv->freq);
+	debug("zynq_spi_set_speed: regs=%p, speed=%d\n",
+	      priv->regs, priv->freq);
 
 	return 0;
 }
@@ -584,9 +585,9 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 	confr = readl(&regs->cr);
 	confr &= ~(ZYNQ_QSPI_CR_CPHA_MASK | ZYNQ_QSPI_CR_CPOL_MASK);
 
-	if (priv->mode & SPI_CPHA)
+	if (mode & SPI_CPHA)
 		confr |= ZYNQ_QSPI_CR_CPHA_MASK;
-	if (priv->mode & SPI_CPOL)
+	if (mode & SPI_CPOL)
 		confr |= ZYNQ_QSPI_CR_CPOL_MASK;
 
 	writel(confr, &regs->cr);
