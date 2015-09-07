@@ -745,9 +745,8 @@ static int cpdma_process(struct cpsw_priv *priv, struct cpdma_chan *chan,
 	return 0;
 }
 
-static int cpsw_init(struct eth_device *dev, bd_t *bis)
+static int _cpsw_init(struct cpsw_priv *priv, u8 *enetaddr)
 {
-	struct cpsw_priv	*priv = dev->priv;
 	struct cpsw_slave	*slave;
 	int i, ret;
 
@@ -772,8 +771,7 @@ static int cpsw_init(struct eth_device *dev, bd_t *bis)
 
 	cpsw_ale_port_state(priv, priv->host_port, ALE_PORT_STATE_FORWARD);
 
-	cpsw_ale_add_ucast(priv, priv->dev->enetaddr, priv->host_port,
-			   ALE_SECURE);
+	cpsw_ale_add_ucast(priv, enetaddr, priv->host_port, ALE_SECURE);
 	cpsw_ale_add_mcast(priv, net_bcast_ethaddr, 1 << priv->host_port);
 
 	for_active_slave(slave, priv)
@@ -857,10 +855,8 @@ static int cpsw_init(struct eth_device *dev, bd_t *bis)
 	return 0;
 }
 
-static void cpsw_halt(struct eth_device *dev)
+static void _cpsw_halt(struct cpsw_priv *priv)
 {
-	struct cpsw_priv	*priv = dev->priv;
-
 	writel(0, priv->dma_regs + CPDMA_TXCONTROL);
 	writel(0, priv->dma_regs + CPDMA_RXCONTROL);
 
@@ -870,12 +866,10 @@ static void cpsw_halt(struct eth_device *dev)
 	/* clear dma state */
 	setbit_and_wait_for_clear32(priv->dma_regs + CPDMA_SOFTRESET);
 
-	priv->data.control(0);
 }
 
-static int cpsw_send(struct eth_device *dev, void *packet, int length)
+static int _cpsw_send(struct cpsw_priv *priv, void *packet, int length)
 {
-	struct cpsw_priv	*priv = dev->priv;
 	void *buffer;
 	int len;
 	int timeout = CPDMA_TIMEOUT;
@@ -896,20 +890,21 @@ static int cpsw_send(struct eth_device *dev, void *packet, int length)
 	return cpdma_submit(priv, &priv->tx_chan, packet, length);
 }
 
-static int cpsw_recv(struct eth_device *dev)
+static int _cpsw_recv(struct cpsw_priv *priv, uchar **pkt)
 {
-	struct cpsw_priv	*priv = dev->priv;
 	void *buffer;
 	int len;
+	int ret = -EAGAIN;
 
-	while (cpdma_process(priv, &priv->rx_chan, &buffer, &len) >= 0) {
-		invalidate_dcache_range((unsigned long)buffer,
-					(unsigned long)buffer + PKTSIZE_ALIGN);
-		net_process_received_packet(buffer, len);
-		cpdma_submit(priv, &priv->rx_chan, buffer, PKTSIZE);
-	}
+	ret = cpdma_process(priv, &priv->rx_chan, &buffer, &len);
+	if (ret < 0)
+		return ret;
 
-	return 0;
+	invalidate_dcache_range((unsigned long)buffer,
+				(unsigned long)buffer + PKTSIZE_ALIGN);
+	*pkt = buffer;
+
+	return len;
 }
 
 static void cpsw_slave_setup(struct cpsw_slave *slave, int slave_num,
@@ -923,15 +918,14 @@ static void cpsw_slave_setup(struct cpsw_slave *slave, int slave_num,
 	slave->sliver	= regs + data->sliver_reg_ofs;
 }
 
-static int cpsw_phy_init(struct eth_device *dev, struct cpsw_slave *slave)
+static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 {
-	struct cpsw_priv *priv = (struct cpsw_priv *)dev->priv;
 	struct phy_device *phydev;
 	u32 supported = PHY_GBIT_FEATURES;
 
 	phydev = phy_connect(priv->bus,
 			slave->data->phy_addr,
-			dev,
+			priv->dev,
 			slave->data->phy_if);
 
 	if (!phydev)
@@ -946,30 +940,14 @@ static int cpsw_phy_init(struct eth_device *dev, struct cpsw_slave *slave)
 	return 1;
 }
 
-int cpsw_register(struct cpsw_platform_data *data)
+int _cpsw_register(struct cpsw_priv *priv)
 {
-	struct cpsw_priv	*priv;
 	struct cpsw_slave	*slave;
+	struct cpsw_platform_data *data = &priv->data;
 	void			*regs = (void *)data->cpsw_base;
-	struct eth_device	*dev;
-
-	dev = calloc(sizeof(*dev), 1);
-	if (!dev)
-		return -ENOMEM;
-
-	priv = calloc(sizeof(*priv), 1);
-	if (!priv) {
-		free(dev);
-		return -ENOMEM;
-	}
-
-	priv->data = *data;
-	priv->dev = dev;
 
 	priv->slaves = malloc(sizeof(struct cpsw_slave) * data->slaves);
 	if (!priv->slaves) {
-		free(dev);
-		free(priv);
 		return -ENOMEM;
 	}
 
@@ -987,6 +965,70 @@ int cpsw_register(struct cpsw_platform_data *data)
 		idx = idx + 1;
 	}
 
+	cpsw_mdio_init(priv->dev->name, data->mdio_base, data->mdio_div);
+	priv->bus = miiphy_get_dev_by_name(priv->dev->name);
+	for_active_slave(slave, priv)
+		cpsw_phy_init(priv, slave);
+
+	return 0;
+}
+
+static int cpsw_init(struct eth_device *dev, bd_t *bis)
+{
+	struct cpsw_priv	*priv = dev->priv;
+
+	return _cpsw_init(priv, dev->enetaddr);
+}
+
+static void cpsw_halt(struct eth_device *dev)
+{
+	struct cpsw_priv *priv = dev->priv;
+
+	return _cpsw_halt(priv);
+}
+
+static int cpsw_send(struct eth_device *dev, void *packet, int length)
+{
+	struct cpsw_priv	*priv = dev->priv;
+
+	return _cpsw_send(priv, packet, length);
+}
+
+static int cpsw_recv(struct eth_device *dev)
+{
+	struct cpsw_priv *priv = dev->priv;
+	uchar *pkt = NULL;
+	int len;
+
+	len = _cpsw_recv(priv, &pkt);
+
+	if (len > 0) {
+		net_process_received_packet(pkt, len);
+		cpdma_submit(priv, &priv->rx_chan, pkt, PKTSIZE);
+	}
+
+	return len;
+}
+
+int cpsw_register(struct cpsw_platform_data *data)
+{
+	struct cpsw_priv	*priv;
+	struct eth_device	*dev;
+	int ret;
+
+	dev = calloc(sizeof(*dev), 1);
+	if (!dev)
+		return -ENOMEM;
+
+	priv = calloc(sizeof(*priv), 1);
+	if (!priv) {
+		free(dev);
+		return -ENOMEM;
+	}
+
+	priv->dev = dev;
+	priv->data = *data;
+
 	strcpy(dev->name, "cpsw");
 	dev->iobase	= 0;
 	dev->init	= cpsw_init;
@@ -997,10 +1039,13 @@ int cpsw_register(struct cpsw_platform_data *data)
 
 	eth_register(dev);
 
-	cpsw_mdio_init(dev->name, data->mdio_base, data->mdio_div);
-	priv->bus = miiphy_get_dev_by_name(dev->name);
-	for_active_slave(slave, priv)
-		cpsw_phy_init(dev, slave);
+	ret = _cpsw_register(priv);
+	if (ret < 0) {
+		eth_unregister(dev);
+		free(dev);
+		free(priv);
+		return ret;
+	}
 
 	return 1;
 }
