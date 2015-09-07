@@ -338,9 +338,12 @@
 #endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
+/* Removing USB gadget and can be enabled adter adding support usb DM */
+#ifndef CONFIG_DM_ETH
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
+#endif /* CONFIG_DM_ETH */
 
 /* USB TI's IDs */
 #define CONFIG_G_DNL_VENDOR_NUM 0x0451
