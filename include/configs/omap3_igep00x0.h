@@ -19,6 +19,8 @@
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>
 
+#undef CONFIG_BOOTDELAY
+
 /*
  * Display CPU and Board information
  */
@@ -81,74 +83,33 @@
 
 /*#undef CONFIG_ENV_IS_NOWHERE*/
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"usbtty=cdc_acm\0" \
-	"loadaddr=0x82000000\0" \
-	"dtbaddr=0x81600000\0" \
-	"bootdir=/boot\0" \
-	"bootfile=zImage\0" \
-	"usbtty=cdc_acm\0" \
-	"console=ttyO2,115200n8\0" \
-	"mpurate=auto\0" \
-	"vram=12M\0" \
-	"dvimode=1024x768MR-16@60\0" \
-	"defaultdisplay=dvi\0" \
-	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
-	"mmcrootfstype=ext4 rootwait\0" \
-	"nandroot=/dev/mtdblock4 rw\0" \
-	"nandrootfstype=jffs2\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"mpurate=${mpurate} " \
-		"vram=${vram} " \
-		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
-		"omapdss.def_disp=${defaultdisplay} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
-	"nandargs=setenv bootargs console=${console} " \
-		"mpurate=${mpurate} " \
-		"vram=${vram} " \
-		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
-		"omapdss.def_disp=${defaultdisplay} " \
-		"root=${nandroot} " \
-		"rootfstype=${nandrootfstype}\0" \
-	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
-	"importbootenv=echo Importing environment from mmc ...; " \
-		"env import -t $loadaddr $filesize\0" \
-	"loadzimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load mmc ${mmcdev}:2 ${dtbaddr} ${bootdir}/${dtbfile}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"bootz ${loadaddr}\0" \
-	"mmcbootfdt=echo Booting with DT from mmc ...; " \
-		"bootz ${loadaddr} - ${dtbaddr}\0" \
-	"nandboot=echo Booting from onenand ...; " \
-		"run nandargs; " \
-		"onenand read ${loadaddr} 280000 400000; " \
-		"bootz ${loadaddr}\0" \
+#ifndef CONFIG_SPL_BUILD
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"echo SD/MMC found on device ${mmcdev};" \
-		"if run loadbootenv; then " \
-			"run importbootenv;" \
-		"fi;" \
-		"if test -n $uenvcmd; then " \
-			"echo Running uenvcmd ...;" \
-			"run uenvcmd;" \
-		"fi;" \
-		"if run loadzimage; then " \
-			"if test -n $dtbfile; then " \
-				"if run loadfdt; then " \
-					"run mmcbootfdt;" \
-				"fi;" \
-			"fi;" \
-			"run mmcboot;" \
-		"fi;" \
-	"fi;" \
-	"run nandboot;" \
+#include <config_distro_defaults.h>
+
+/* Environment */
+#define ENV_DEVICE_SETTINGS \
+	"stdin=serial\0" \
+	"stdout=serial\0" \
+	"stderr=serial\0"
+
+#define MEM_LAYOUT_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
+	"scriptaddr=0x87E00000\0" \
+	"pxefile_addr_r=0x87F00000\0"
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0)
+
+#include <config_distro_bootcmd.h>
+
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	ENV_DEVICE_SETTINGS \
+	MEM_LAYOUT_SETTINGS \
+	BOOTENV
+
+#endif
 
 /*
  * FLASH and environment organization
