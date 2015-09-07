@@ -167,8 +167,8 @@
 # define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
 	"set dfu_alt_info " \
-	"Image ram 0x200000 0x1800000\\\\;" \
-	"system.dtb ram 0x7000000 0x40000\0" \
+	"Image ram $kernel_addr $kernel_size\\\\;" \
+	"system.dtb ram $fdt_addr $fdt_size\0" \
 	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
 	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
 
@@ -188,6 +188,10 @@
 	"initrd_size=0x2000000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
+	"kernel_offset=0x400000\0" \
+	"fdt_offset=0x2400000\0" \
+	"kernel_size=0x2000000\0" \
+	"fdt_size=0x80000\0" \
 	"sata_root=if test $scsidevs -gt 0; then setenv bootargs $bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
 	"veloce=fdt addr f000000 && " \
 		"fdt set /amba/misc_clk clock-frequency <48000> && "\
@@ -196,14 +200,14 @@
 		"booti 80000 - f000000\0" \
 	"netboot=tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
 		 "booti 80000 - $fdt_addr\0" \
-	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr 100000 40000 && " \
-		  "sf read $kernel_addr 140000 1800000 && " \
+	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr $fdt_offset $fdt_size && " \
+		  "sf read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
 	"sdboot=mmcinfo && load mmc 0:$partid $fdt_addr system.dtb && " \
 		"load mmc 0:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
-	"nandboot=nand info && nand read $fdt_addr 100000 40000 && " \
-		  "nand read $kernel_addr 140000 1800000 && " \
+	"nandboot=nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
+		  "nand read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
 	"xen=tftpb $fdt_addr system.dtb && fdt addr $fdt_addr && fdt resize && " \
 		"tftpb 0x80000 Image && " \
