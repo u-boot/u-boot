@@ -1,0 +1,5 @@
+SOCFPGA ATLAS BOARD
+M:	Dinh Nguyen <dinguyen@opensource.altera.com>
+S:	Maintained
+F:	include/configs/socfpga_de0_nano_soc.h
+F:	configs/socfpga_de0_nano_soc_defconfig

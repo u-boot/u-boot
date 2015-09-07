@@ -60,7 +60,10 @@ dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-evm.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
+	socfpga_cyclone5_mcvevk.dtb			\
 	socfpga_cyclone5_socdk.dtb			\
+	socfpga_cyclone5_de0_nano_soc.dtb			\
+	socfpga_cyclone5_sockit.dtb			\
 	socfpga_cyclone5_socrates.dtb
 dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb
 dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb

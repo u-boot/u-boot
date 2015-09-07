@@ -192,7 +192,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 /*
  * QSPI support
  */
-#ifdef CONFIG_OF_CONTROL	/* QSPI is controlled via DT */
 #define CONFIG_CADENCE_QSPI
 /* Enable multiple SPI NOR flash manufacturers */
 #define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
@@ -212,12 +211,12 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_CQSPI_DECODER		0
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH_BAR
-#endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)	/* DW SPI is controlled via DT */
+/*
+ * Designware SPI support
+ */
 #define CONFIG_DESIGNWARE_SPI
 #define CONFIG_CMD_SPI
-#endif
 
 /*
  * Serial Driver
