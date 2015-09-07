@@ -6,9 +6,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "compulab"
 
-config SYS_SOC
-	default "mx6"
-
 config SYS_CONFIG_NAME
 	default "cm_fx6"
 
