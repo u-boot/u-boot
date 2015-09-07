@@ -10,7 +10,7 @@
 #include <command.h>
 #include <mapmem.h>
 #include <net.h>
-#include "tftp.h"
+#include <net/tftp.h>
 #include "bootp.h"
 #ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
 #include <flash.h>

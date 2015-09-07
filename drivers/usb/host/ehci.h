@@ -242,6 +242,7 @@ struct ehci_ops {
 };
 
 struct ehci_ctrl {
+	enum usb_init_type init;
 	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct ehci_hcor *hcor;
 	int rootdev;

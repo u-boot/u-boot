@@ -1,6 +1,9 @@
 /*
  * cmd_dfu.c -- dfu command
  *
+ * Copyright (C) 2015
+ * Lukasz Majewski <l.majewski@majess.pl>
+ *
  * Copyright (C) 2012 Samsung Electronics
  * authors: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
  *	    Lukasz Majewski <l.majewski@samsung.com>
@@ -13,6 +16,7 @@
 #include <dfu.h>
 #include <g_dnl.h>
 #include <usb.h>
+#include <net.h>
 
 static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -26,6 +30,15 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *devstring = argv[3];
 
 	int ret, i = 0;
+#ifdef CONFIG_DFU_TFTP
+	unsigned long addr = 0;
+	if (!strcmp(argv[1], "tftp")) {
+		if (argc == 5)
+			addr = simple_strtoul(argv[4], NULL, 0);
+
+		return update_tftp(addr, interface, devstring);
+	}
+#endif
 
 	ret = dfu_init_env_entities(interface, devstring);
 	if (ret)
@@ -89,4 +102,11 @@ U_BOOT_CMD(dfu, CONFIG_SYS_MAXARGS, 1, do_dfu,
 	"    on device <dev>, attached to interface\n"
 	"    <interface>\n"
 	"    [list] - list available alt settings\n"
+#ifdef CONFIG_DFU_TFTP
+	"dfu tftp <interface> <dev> [<addr>]\n"
+	"  - device firmware upgrade via TFTP\n"
+	"    on device <dev>, attached to interface\n"
+	"    <interface>\n"
+	"    [<addr>] - address where FIT image has been stored\n"
+#endif
 );

@@ -162,6 +162,21 @@ bool dfu_usb_get_reset(void);
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
+
+/**
+ * dfu_write_from_mem_addr - write data from memory to DFU managed medium
+ *
+ * This function adds support for writing data starting from fixed memory
+ * address (like $loadaddr) to dfu managed medium (e.g. NAND, MMC, file system)
+ *
+ * @param dfu - dfu entity to which we want to store data
+ * @param buf - fixed memory addres from where data starts
+ * @param size - number of bytes to write
+ *
+ * @return - 0 on success, other value on failure
+ */
+int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size);
+
 /* Device specific */
 #ifdef CONFIG_DFU_MMC
 extern int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s);
@@ -204,6 +219,32 @@ static inline int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr,
 {
 	puts("SF support not available!\n");
 	return -1;
+}
+#endif
+
+/**
+ * dfu_tftp_write - Write TFTP data to DFU medium
+ *
+ * This function is storing data received via TFTP on DFU supported medium.
+ *
+ * @param dfu_entity_name - name of DFU entity to write
+ * @param addr - address of data buffer to write
+ * @param len - number of bytes
+ * @param interface - destination DFU medium (e.g. "mmc")
+ * @param devstring - instance number of destination DFU medium (e.g. "1")
+ *
+ * @return 0 on success, otherwise error code
+ */
+#ifdef CONFIG_DFU_TFTP
+int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
+		   char *interface, char *devstring);
+#else
+static inline int dfu_tftp_write(char *dfu_entity_name, unsigned int addr,
+				 unsigned int len, char *interface,
+				 char *devstring)
+{
+	puts("TFTP write support for DFU not available!\n");
+	return -ENOSYS;
 }
 #endif
 

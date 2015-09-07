@@ -45,18 +45,18 @@ dfu_test_file () {
     printf "$COLOUR_GREEN ========================================================================================= $COLOUR_DEFAULT\n"
     printf "File:$COLOUR_GREEN %s $COLOUR_DEFAULT\n" $1
 
-    dfu-util -D $1 -a $TARGET_ALT_SETTING >> $LOG_FILE 2>&1 || die $?
+    dfu-util $USB_DEV -D $1 -a $TARGET_ALT_SETTING >> $LOG_FILE 2>&1 || die $?
 
     echo -n "TX: "
     calculate_md5sum $1
 
     MD5_TX=$MD5SUM
 
-    dfu-util -D ${DIR}/dfudummy.bin -a $TARGET_ALT_SETTING_B >> $LOG_FILE 2>&1 || die $?
+    dfu-util $USB_DEV -D ${DIR}/dfudummy.bin -a $TARGET_ALT_SETTING_B >> $LOG_FILE 2>&1 || die $?
 
     N_FILE=$DIR$RCV_DIR${1:2}"_rcv"
 
-    dfu-util -U $N_FILE -a $TARGET_ALT_SETTING >> $LOG_FILE 2>&1 || die $?
+    dfu-util $USB_DEV -U $N_FILE -a $TARGET_ALT_SETTING >> $LOG_FILE 2>&1 || die $?
 
     echo -n "RX: "
     calculate_md5sum $N_FILE
@@ -89,13 +89,17 @@ fi
 TARGET_ALT_SETTING=$1
 TARGET_ALT_SETTING_B=$2
 
-if [ -n "$3" ]
+file=$3
+[[ $3 == *':'* ]] && USB_DEV="-d $3" && file=""
+[ $# -eq 4 ] && USB_DEV="-d $4"
+
+if [ -n "$file" ]
 then
-	dfu_test_file $3
+	dfu_test_file $file
 else
-	for file in $DIR*.$SUFFIX
+	for f in $DIR*.$SUFFIX
 	do
-	    dfu_test_file $file
+	    dfu_test_file $f
 	done
 fi
 

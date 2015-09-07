@@ -93,3 +93,10 @@ Example .its files
   An example containing three updates. It can be used to update Linux kernel,
   ramdisk and FDT blob stored in Flash. The procedure for preparing the update
   file is similar to the example above.
+
+TFTP update via DFU
+-------------------
+
+- It is now possible to update firmware (bootloader, kernel, rootfs, etc.) via
+  TFTP by using DFU (Device Firmware Upgrade). More information can be found in
+  ./doc/README.dfutftp documentation entry.
