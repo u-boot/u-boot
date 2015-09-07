@@ -25,6 +25,9 @@
 #include <asm/io.h>
 #include <phy.h>
 #include <asm/arch/cpu.h>
+#include <dm.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define BITMASK(bits)		(BIT(bits) - 1)
 #define PHY_REG_MASK		0x1f
@@ -36,6 +39,23 @@
 #define GIGABITEN		BIT(7)
 #define FULLDUPLEXEN		BIT(0)
 #define MIIEN			BIT(15)
+
+/* reg offset */
+#define CPSW_HOST_PORT_OFFSET	0x108
+#define CPSW_SLAVE0_OFFSET	0x208
+#define CPSW_SLAVE1_OFFSET	0x308
+#define CPSW_SLAVE_SIZE		0x100
+#define CPSW_CPDMA_OFFSET	0x800
+#define CPSW_HW_STATS		0x900
+#define CPSW_STATERAM_OFFSET	0xa00
+#define CPSW_CPTS_OFFSET	0xc00
+#define CPSW_ALE_OFFSET		0xd00
+#define CPSW_SLIVER0_OFFSET	0xd80
+#define CPSW_SLIVER1_OFFSET	0xdc0
+#define CPSW_BD_OFFSET		0x2000
+#define CPSW_MDIO_DIV		0xff
+
+#define AM335X_GMII_SEL_OFFSET	0x630
 
 /* DMA Registers */
 #define CPDMA_TXCONTROL		0x004
@@ -218,7 +238,11 @@ struct cpdma_chan {
 				(priv)->data.slaves; slave++)
 
 struct cpsw_priv {
+#ifdef CONFIG_DM_ETH
+	struct udevice			*dev;
+#else
 	struct eth_device		*dev;
+#endif
 	struct cpsw_platform_data	data;
 	int				host_port;
 
@@ -522,7 +546,7 @@ static int cpsw_mdio_write(struct mii_dev *bus, int phy_id, int dev_addr,
 	return 0;
 }
 
-static void cpsw_mdio_init(char *name, u32 mdio_base, u32 div)
+static void cpsw_mdio_init(const char *name, u32 mdio_base, u32 div)
 {
 	struct mii_dev *bus = mdio_alloc();
 
@@ -563,8 +587,15 @@ static inline void setbit_and_wait_for_clear32(void *addr)
 static void cpsw_set_slave_mac(struct cpsw_slave *slave,
 			       struct cpsw_priv *priv)
 {
+#ifdef CONFIG_DM_ETH
+	struct eth_pdata *pdata = dev_get_platdata(priv->dev);
+
+	writel(mac_hi(pdata->enetaddr), &slave->regs->sa_hi);
+	writel(mac_lo(pdata->enetaddr), &slave->regs->sa_lo);
+#else
 	__raw_writel(mac_hi(priv->dev->enetaddr), &slave->regs->sa_hi);
 	__raw_writel(mac_lo(priv->dev->enetaddr), &slave->regs->sa_lo);
+#endif
 }
 
 static void cpsw_slave_update_link(struct cpsw_slave *slave,
@@ -973,6 +1004,7 @@ int _cpsw_register(struct cpsw_priv *priv)
 	return 0;
 }
 
+#ifndef CONFIG_DM_ETH
 static int cpsw_init(struct eth_device *dev, bd_t *bis)
 {
 	struct cpsw_priv	*priv = dev->priv;
@@ -1049,3 +1081,214 @@ int cpsw_register(struct cpsw_platform_data *data)
 
 	return 1;
 }
+#else
+static int cpsw_eth_start(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct cpsw_priv *priv = dev_get_priv(dev);
+
+	return _cpsw_init(priv, pdata->enetaddr);
+}
+
+static int cpsw_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct cpsw_priv *priv = dev_get_priv(dev);
+
+	return _cpsw_send(priv, packet, length);
+}
+
+static int cpsw_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct cpsw_priv *priv = dev_get_priv(dev);
+
+	return _cpsw_recv(priv, packetp);
+}
+
+static int cpsw_eth_free_pkt(struct udevice *dev, uchar *packet,
+				   int length)
+{
+	struct cpsw_priv *priv = dev_get_priv(dev);
+
+	return cpdma_submit(priv, &priv->rx_chan, packet, PKTSIZE);
+}
+
+static void cpsw_eth_stop(struct udevice *dev)
+{
+	struct cpsw_priv *priv = dev_get_priv(dev);
+
+	return _cpsw_halt(priv);
+}
+
+
+static int cpsw_eth_probe(struct udevice *dev)
+{
+	struct cpsw_priv *priv = dev_get_priv(dev);
+
+	priv->dev = dev;
+
+	return _cpsw_register(priv);
+}
+
+static const struct eth_ops cpsw_eth_ops = {
+	.start		= cpsw_eth_start,
+	.send		= cpsw_eth_send,
+	.recv		= cpsw_eth_recv,
+	.free_pkt	= cpsw_eth_free_pkt,
+	.stop		= cpsw_eth_stop,
+};
+
+static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct cpsw_priv *priv = dev_get_priv(dev);
+	const char *phy_mode;
+	const void *fdt = gd->fdt_blob;
+	int node = dev->of_offset;
+	int subnode;
+	int slave_index = 0;
+	uint32_t mac_hi, mac_lo;
+	fdt32_t gmii = 0;
+	int active_slave;
+
+	pdata->iobase = dev_get_addr(dev);
+	priv->data.version = CPSW_CTRL_VERSION_2;
+	priv->data.bd_ram_ofs = CPSW_BD_OFFSET;
+	priv->data.ale_reg_ofs = CPSW_ALE_OFFSET;
+	priv->data.cpdma_reg_ofs = CPSW_CPDMA_OFFSET;
+	priv->data.mdio_div = CPSW_MDIO_DIV;
+	priv->data.host_port_reg_ofs = CPSW_HOST_PORT_OFFSET,
+
+	pdata->phy_interface = -1;
+
+	priv->data.cpsw_base = pdata->iobase;
+	priv->data.channels = fdtdec_get_int(fdt, node, "cpdma_channels", -1);
+	if (priv->data.channels <= 0) {
+		printf("error: cpdma_channels not found in dt\n");
+		return -ENOENT;
+	}
+
+	priv->data.slaves = fdtdec_get_int(fdt, node, "slaves", -1);
+	if (priv->data.slaves <= 0) {
+		printf("error: slaves not found in dt\n");
+		return -ENOENT;
+	}
+	priv->data.slave_data = malloc(sizeof(struct cpsw_slave_data) *
+				       priv->data.slaves);
+
+	priv->data.ale_entries = fdtdec_get_int(fdt, node, "ale_entries", -1);
+	if (priv->data.ale_entries <= 0) {
+		printf("error: ale_entries not found in dt\n");
+		return -ENOENT;
+	}
+
+	priv->data.bd_ram_ofs = fdtdec_get_int(fdt, node, "bd_ram_size", -1);
+	if (priv->data.bd_ram_ofs <= 0) {
+		printf("error: bd_ram_size not found in dt\n");
+		return -ENOENT;
+	}
+
+	priv->data.mac_control = fdtdec_get_int(fdt, node, "mac_control", -1);
+	if (priv->data.mac_control <= 0) {
+		printf("error: ale_entries not found in dt\n");
+		return -ENOENT;
+	}
+
+	active_slave = fdtdec_get_int(fdt, node, "active_slave", 0);
+	priv->data.active_slave = active_slave;
+
+	fdt_for_each_subnode(fdt, subnode, node) {
+		int len;
+		const char *name;
+
+		name = fdt_get_name(fdt, subnode, &len);
+		if (!strncmp(name, "mdio", 4)) {
+			priv->data.mdio_base = fdtdec_get_addr(fdt, subnode,
+							       "reg");
+		}
+
+		if (!strncmp(name, "slave", 5)) {
+			u32 phy_id[2];
+
+			if (slave_index >= priv->data.slaves) {
+				printf("error: num slaves and slave nodes did not match\n");
+				return -EINVAL;
+			}
+			phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
+			if (phy_mode)
+				priv->data.slave_data[slave_index].phy_if =
+					phy_get_interface_by_name(phy_mode);
+			fdtdec_get_int_array(fdt, subnode, "phy_id", phy_id, 2);
+			priv->data.slave_data[slave_index].phy_addr = phy_id[1];
+			slave_index++;
+		}
+
+		if (!strncmp(name, "cpsw-phy-sel", 12)) {
+			priv->data.gmii_sel = fdtdec_get_addr(fdt, subnode,
+							      "reg");
+		}
+	}
+
+	priv->data.slave_data[0].slave_reg_ofs = CPSW_SLAVE0_OFFSET;
+	priv->data.slave_data[0].sliver_reg_ofs = CPSW_SLIVER0_OFFSET;
+
+	if (priv->data.slaves == 2) {
+		priv->data.slave_data[1].slave_reg_ofs = CPSW_SLAVE1_OFFSET;
+		priv->data.slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
+	}
+
+	subnode = fdtdec_lookup_phandle(fdt, node, "syscon");
+	priv->data.mac_id = fdt_translate_address((void *)fdt, subnode, &gmii);
+	priv->data.mac_id += AM335X_GMII_SEL_OFFSET;
+	priv->data.mac_id += active_slave * 8;
+
+	/* try reading mac address from efuse */
+	mac_lo = readl(priv->data.mac_id);
+	mac_hi = readl(priv->data.mac_id + 4);
+	pdata->enetaddr[0] = mac_hi & 0xFF;
+	pdata->enetaddr[1] = (mac_hi & 0xFF00) >> 8;
+	pdata->enetaddr[2] = (mac_hi & 0xFF0000) >> 16;
+	pdata->enetaddr[3] = (mac_hi & 0xFF000000) >> 24;
+	pdata->enetaddr[4] = mac_lo & 0xFF;
+	pdata->enetaddr[5] = (mac_lo & 0xFF00) >> 8;
+
+	pdata->phy_interface = priv->data.slave_data[active_slave].phy_if;
+	if (pdata->phy_interface == -1) {
+		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		return -EINVAL;
+	}
+	switch (pdata->phy_interface) {
+	case PHY_INTERFACE_MODE_MII:
+		writel(MII_MODE_ENABLE, priv->data.gmii_sel);
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		writel(RMII_MODE_ENABLE, priv->data.gmii_sel);
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		writel(RGMII_MODE_ENABLE, priv->data.gmii_sel);
+		break;
+	}
+	return 0;
+}
+
+
+static const struct udevice_id cpsw_eth_ids[] = {
+	{ .compatible = "ti,cpsw" },
+	{ .compatible = "ti,am335x-cpsw" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_cpsw) = {
+	.name	= "eth_cpsw",
+	.id	= UCLASS_ETH,
+	.of_match = cpsw_eth_ids,
+	.ofdata_to_platdata = cpsw_eth_ofdata_to_platdata,
+	.probe	= cpsw_eth_probe,
+	.ops	= &cpsw_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct cpsw_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif /* CONFIG_DM_ETH */
