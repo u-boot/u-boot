@@ -140,8 +140,8 @@
 #define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
 	"set dfu_alt_info " \
-	"Image ram 0x200000 0x1800000\\\\;" \
-	"system.dtb ram 0x7000000 0x40000\0" \
+	"Image ram $kernel_addr $kernel_size\\\\;" \
+	"system.dtb ram $fdt_addr $fdt_size\0" \
 	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
 	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
 
@@ -158,6 +158,8 @@
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
+	"kernel_size=0x2000000\0" \
+	"fdt_size=0x80000\0" \
 	"sdbootdev=0\0"\
 	"sdboot=mmc dev $sdbootdev && mmcinfo && load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
