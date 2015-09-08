@@ -405,8 +405,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	return 0;
 }
 
-static inline int wait_for_bit(char *func, u32 *reg, const u32 mask, bool set,
-			       unsigned int timeout)
+static inline int wait_for_bit(const char *func, u32 *reg, const u32 mask,
+			       bool set, unsigned int timeout)
 {
 	u32 val;
 	unsigned long start = get_timer(0);
