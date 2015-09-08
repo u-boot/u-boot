@@ -35,8 +35,4 @@ typedef struct at91_dbu {
 #define AT91_DBU_CID_ARCH_9xx		0x01900000
 #define AT91_DBU_CID_ARCH_9XExx	0x02900000
 
-#define AT91_DBU_CIDR_MASK		0x1f
-#define AT91_DBU_CIDR			0x40
-#define AT91_DBU_EXID			0x44
-
 #endif
