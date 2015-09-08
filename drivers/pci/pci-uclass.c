@@ -401,9 +401,13 @@ int pci_auto_config_devices(struct udevice *bus)
 	     !ret && dev;
 	     ret = device_find_next_child(&dev)) {
 		unsigned int max_bus;
+		int ret;
 
 		debug("%s: device %s\n", __func__, dev->name);
-		max_bus = pciauto_config_device(hose, pci_get_bdf(dev));
+		ret = pciauto_config_device(hose, pci_get_bdf(dev));
+		if (ret < 0)
+			return ret;
+		max_bus = ret;
 		sub_bus = max(sub_bus, max_bus);
 	}
 	debug("%s: done\n", __func__);
@@ -777,6 +781,8 @@ static int pci_uclass_post_probe(struct udevice *bus)
 
 #ifdef CONFIG_PCI_PNP
 	ret = pci_auto_config_devices(bus);
+	if (ret < 0)
+		return ret;
 #endif
 
 #if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
@@ -793,11 +799,14 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	 * Note we only call this 1) after U-Boot is relocated, and 2)
 	 * root bus has finished probing.
 	 */
-	if ((gd->flags & GD_FLG_RELOC) && (bus->seq == 0))
+	if ((gd->flags & GD_FLG_RELOC) && (bus->seq == 0)) {
 		ret = fsp_init_phase_pci();
+		if (ret)
+			return ret;
+	}
 #endif
 
-	return ret < 0 ? ret : 0;
+	return 0;
 }
 
 static int pci_uclass_child_post_bind(struct udevice *dev)
