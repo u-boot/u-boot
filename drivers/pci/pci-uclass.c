@@ -438,7 +438,7 @@ int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf)
 
 	ret = device_probe(bus);
 	if (ret) {
-		debug("%s: Cannot probe bus bus %s: %d\n", __func__, bus->name,
+		debug("%s: Cannot probe bus %s: %d\n", __func__, bus->name,
 		      ret);
 		return ret;
 	}
@@ -557,7 +557,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 
 	ret = device_bind_driver(parent, drv, str, devp);
 	if (ret) {
-		debug("%s: Failed to bind generic driver: %d", __func__, ret);
+		debug("%s: Failed to bind generic driver: %d\n", __func__, ret);
 		return ret;
 	}
 	debug("%s: No match found: bound generic driver instead\n", __func__);
