@@ -478,10 +478,17 @@ static bool pci_match_one_id(const struct pci_device_id *id,
  * pci_find_and_bind_driver() - Find and bind the right PCI driver
  *
  * This only looks at certain fields in the descriptor.
+ *
+ * @parent:	Parent bus
+ * @find_id:	Specification of the driver to find
+ * @bdf:	Bus/device/function addreess - see PCI_BDF()
+ * @devp:	Returns a pointer to the device created
+ * @return 0 if OK, -EPERM if the device is not needed before relocation and
+ *	   therefore was not created, other -ve value on error
  */
 static int pci_find_and_bind_driver(struct udevice *parent,
-				    struct pci_device_id *find_id, pci_dev_t bdf,
-				    struct udevice **devp)
+				    struct pci_device_id *find_id,
+				    pci_dev_t bdf, struct udevice **devp)
 {
 	struct pci_driver_entry *start, *entry;
 	const char *drv;
@@ -517,7 +524,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 			 */
 			if (!(gd->flags & GD_FLG_RELOC) &&
 			    !(drv->flags & DM_FLAG_PRE_RELOC))
-				return 0;
+				return -EPERM;
 
 			/*
 			 * We could pass the descriptor to the driver as
@@ -545,7 +552,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	 * limited (ie: using Cache As RAM).
 	 */
 	if (!(gd->flags & GD_FLG_RELOC) && !bridge)
-		return 0;
+		return -EPERM;
 
 	/* Bind a generic driver so that the device can be used */
 	sprintf(name, "pci_%x:%x.%x", parent->seq, PCI_DEV(bdf),
@@ -633,17 +640,17 @@ int pci_bind_bus_devices(struct udevice *bus)
 			ret = pci_find_and_bind_driver(bus, &find_id, bdf,
 						       &dev);
 		}
-		if (ret)
+		if (ret == -EPERM)
+			continue;
+		else if (ret)
 			return ret;
 
 		/* Update the platform data */
-		if (dev) {
-			pplat = dev_get_parent_platdata(dev);
-			pplat->devfn = PCI_MASK_BUS(bdf);
-			pplat->vendor = vendor;
-			pplat->device = device;
-			pplat->class = class;
-		}
+		pplat = dev_get_parent_platdata(dev);
+		pplat->devfn = PCI_MASK_BUS(bdf);
+		pplat->vendor = vendor;
+		pplat->device = device;
+		pplat->class = class;
 	}
 
 	return 0;
