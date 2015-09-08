@@ -170,6 +170,7 @@
 	"loadaddr=0x82000000\0" \
 	"baudrate=115200\0" \
 	"console=ttyO2,115200n8\0" \
+	"netretry=yes\0" \
 	"mpurate=auto\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
@@ -274,6 +275,8 @@
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT
 #define CONFIG_SMC911X_BASE	(0x2C000000 + (16 << 20))
+#define CONFIG_ARP_TIMEOUT		200UL
+#define CONFIG_NET_RETRY_COUNT		5
 #endif /* CONFIG_CMD_NET */
 
 /* additions for new relocation code, must be added to all boards */
