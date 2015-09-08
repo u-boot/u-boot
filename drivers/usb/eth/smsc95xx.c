@@ -530,22 +530,6 @@ static int smsc95xx_init_common(struct usb_device *udev, struct ueth_data *dev,
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
-	if (ret < 0)
-		return ret;
-	debug("Read Value from HW_CFG : 0x%08x\n", read_buf);
-
-	read_buf |= HW_CFG_BIR_;
-	ret = smsc95xx_write_reg(udev, HW_CFG, read_buf);
-	if (ret < 0)
-		return ret;
-
-	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
-	if (ret < 0)
-		return ret;
-	debug("Read Value from HW_CFG after writing "
-		"HW_CFG_BIR_: 0x%08x\n", read_buf);
-
 #ifdef TURBO_MODE
 	if (dev->pusb_dev->speed == USB_SPEED_HIGH) {
 		burst_cap = DEFAULT_HS_BURST_CAP_SIZE / HS_USB_PKT_SIZE;
