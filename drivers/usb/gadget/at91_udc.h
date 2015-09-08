@@ -128,18 +128,14 @@ struct at91_udc {
 	unsigned			req_pending:1;
 	unsigned			wait_for_addr_ack:1;
 	unsigned			wait_for_config_ack:1;
+	unsigned			selfpowered:1;
 	unsigned			active_suspend:1;
 	u8				addr;
 	struct at91_udc_data		board;
-	struct clk			*iclk, *fclk;
-	struct platform_device		*pdev;
-	struct proc_dir_entry		*pde;
 	void __iomem			*udp_baseaddr;
 	int				udp_irq;
 	spinlock_t			lock;
-	struct timer_list		vbus_timer;
-	struct work_struct		vbus_timer_work;
-	struct regmap			*matrix;
+	struct at91_matrix		*matrix;
 };
 
 static inline struct at91_udc *to_udc(struct usb_gadget *g)
@@ -166,10 +162,10 @@ struct at91_request {
 #    define PACKET(stuff...)	do{}while(0)
 #endif
 
-#define ERR(stuff...)		pr_err("udc: " stuff)
-#define WARNING(stuff...)	pr_warning("udc: " stuff)
-#define INFO(stuff...)		pr_info("udc: " stuff)
-#define DBG(stuff...)		pr_debug("udc: " stuff)
+#define ERR(stuff...)		debug("udc: " stuff)
+#define WARNING(stuff...)	debug("udc: " stuff)
+#define INFO(stuff...)		debug("udc: " stuff)
+#define DBG(stuff...)		debug("udc: " stuff)
 
 #endif
 
