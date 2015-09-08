@@ -61,7 +61,7 @@
 #ifdef CONFIG_ARM64
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0001C0000 /* Div pclk by 224, 540MHz */
 #else
-#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000080000 /* Div pclk by 32, 80MHz */
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0000c0000 /* Div pclk by 48, max 120MHz */
 #endif
 
 #ifdef CONFIG_ARM64
