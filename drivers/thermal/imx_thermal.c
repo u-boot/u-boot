@@ -232,7 +232,7 @@ static int imx_thermal_probe(struct udevice *dev)
 	if (is_soc_type(MXC_SOC_MX6)) {
 		/* Check for valid fuse */
 		if (fuse == 0 || fuse == ~0) {
-			printf("CPU:   Thermal invalid data, fuse: 0x%x\n",
+			debug("CPU:   Thermal invalid data, fuse: 0x%x\n",
 				fuse);
 			return -EPERM;
 		}
