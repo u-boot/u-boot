@@ -285,6 +285,29 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	at91_set_gpio_value(TAURUS_SPI_CS_PIN, 1);
 }
 
+#ifdef CONFIG_USB_GADGET_AT91
+#include <linux/usb/at91_udc.h>
+
+void at91_udp_hw_init(void)
+{
+	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
+
+	/* Enable PLLB */
+	writel(get_pllb_init(), &pmc->pllbr);
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB)
+		;
+
+	/* Enable UDPCK clock, MCK is enabled in at91_clock_init() */
+	at91_periph_clk_enable(ATMEL_ID_UDP);
+
+	writel(AT91SAM926x_PMC_UDP, &pmc->scer);
+}
+
+struct at91_udc_data board_udc_data  = {
+	.baseaddr = ATMEL_BASE_UDP0,
+};
+#endif
+
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -297,6 +320,10 @@ int board_init(void)
 	taurus_macb_hw_init();
 #endif
 	at91_spi0_hw_init(TAURUS_SPI_MASK);
+#ifdef CONFIG_USB_GADGET_AT91
+	at91_udp_hw_init();
+	at91_udc_probe(&board_udc_data);
+#endif
 
 	return 0;
 }
