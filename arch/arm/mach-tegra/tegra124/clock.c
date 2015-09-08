@@ -809,6 +809,11 @@ void clock_early_init(void)
 
 	tegra30_set_up_pllp();
 
+	/* clear IDDQ before accessing any other PLLC registers */
+	pllinfo = &tegra_pll_info_table[CLOCK_ID_CGENERAL];
+	clrbits_le32(&clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_misc, PLLC_IDDQ);
+	udelay(2);
+
 	/*
 	 * PLLC output frequency set to 600Mhz
 	 * PLLD output frequency set to 925Mhz
