@@ -410,8 +410,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		clk_rate = ZYNQ_GEM_FREQUENCY_1000;
 		break;
 	case SPEED_100:
-		clrsetbits_le32(&regs->nwcfg, ZYNQ_GEM_NWCFG_SPEED1000,
-				ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
+		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100,
+		       &regs->nwcfg);
 		clk_rate = ZYNQ_GEM_FREQUENCY_100;
 		break;
 	case SPEED_10:
