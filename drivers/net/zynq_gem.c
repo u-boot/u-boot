@@ -57,7 +57,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
 #define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
+#ifdef CONFIG_ARM64
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000100000 /* Div pclk by 64, max 160MHz */
+#else
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0000c0000 /* Div pclk by 48, max 120MHz */
+#endif
 
 #ifdef CONFIG_ARM64
 # define ZYNQ_GEM_DBUS_WIDTH	(1 << 21) /* 64 bit bus */
