@@ -399,7 +399,7 @@ static int usb_kbd_getc(struct stdio_dev *sdev)
 }
 
 /* probes the USB device dev for keyboard type. */
-static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
+static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 {
 	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
@@ -496,7 +496,7 @@ static int probe_usb_keyboard(struct usb_device *dev)
 	int error;
 
 	/* Try probing the keyboard */
-	if (usb_kbd_probe(dev, 0) != 1)
+	if (usb_kbd_probe_dev(dev, 0) != 1)
 		return -ENOENT;
 
 	/* Register the keyboard */
@@ -533,6 +533,7 @@ static int probe_usb_keyboard(struct usb_device *dev)
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
 /* Search for keyboard and register it if found. */
 int drv_usb_kbd_init(void)
 {
@@ -591,6 +592,7 @@ int drv_usb_kbd_init(void)
 	/* No USB Keyboard found */
 	return -1;
 }
+#endif
 
 /* Deregister the keyboard. */
 int usb_kbd_deregister(int force)
@@ -622,3 +624,49 @@ int usb_kbd_deregister(int force)
 	return 1;
 #endif
 }
+
+#ifdef CONFIG_DM_USB
+
+static int usb_kbd_probe(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+	int ret;
+
+	ret = probe_usb_keyboard(udev);
+
+	return ret;
+}
+
+static const struct udevice_id usb_kbd_ids[] = {
+	{ .compatible = "usb-keyboard" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_kbd) = {
+	.name	= "usb_kbd",
+	.id	= UCLASS_KEYBOARD,
+	.of_match = usb_kbd_ids,
+	.probe = usb_kbd_probe,
+};
+
+/* TODO(sjg@chromium.org): Move this into a common location */
+UCLASS_DRIVER(keyboard) = {
+	.id		= UCLASS_KEYBOARD,
+	.name		= "keyboard",
+};
+
+static const struct usb_device_id kbd_id_table[] = {
+	{
+		.match_flags = USB_DEVICE_ID_MATCH_INT_CLASS |
+			USB_DEVICE_ID_MATCH_INT_SUBCLASS |
+			USB_DEVICE_ID_MATCH_INT_PROTOCOL,
+		.bInterfaceClass = USB_CLASS_HID,
+		.bInterfaceSubClass = 1,
+		.bInterfaceProtocol = 1,
+	},
+	{ }		/* Terminating entry */
+};
+
+U_BOOT_USB_DEVICE(usb_kbd, kbd_id_table);
+
+#endif
