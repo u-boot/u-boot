@@ -12,6 +12,7 @@
 #define __CONFIG_H
 
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_FSL_CLK
 #include "../board/freescale/common/ics307_clk.h"
 
 #ifdef CONFIG_36BIT

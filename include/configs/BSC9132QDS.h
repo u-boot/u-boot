@@ -17,6 +17,7 @@
 #define CONFIG_BSC9132
 #endif
 
+#define CONFIG_FSL_CLK
 #define CONFIG_MISC_INIT_R
 
 #ifdef CONFIG_SDCARD

@@ -23,6 +23,7 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+#define CONFIG_FSL_CLK
 
 #define CONFIG_OF_LIBFDT
 

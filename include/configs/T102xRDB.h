@@ -20,6 +20,7 @@
 #define CONFIG_MP			/* support multiple processors */
 #define CONFIG_PHYS_64BIT
 #define CONFIG_ENABLE_36BIT_PHYS
+#define CONFIG_FSL_CLK
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_ADDR_MAP		1

@@ -11,6 +11,7 @@
 #define __CONFIG_H
 
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_FSL_CLK
 
 #ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT

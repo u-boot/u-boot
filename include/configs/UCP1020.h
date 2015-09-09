@@ -15,6 +15,7 @@
 #define __CONFIG_H
 
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_FSL_CLK
 
 #define CONFIG_FSL_ELBC
 #define CONFIG_PCI
