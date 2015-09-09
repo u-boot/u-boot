@@ -25,6 +25,8 @@
 #error "no board defined"
 #endif
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* Initial environment and monitor configuration options. */
 #define CONFIG_BOOTDELAY		2
 #define CONFIG_CMDLINE_TAG		1
