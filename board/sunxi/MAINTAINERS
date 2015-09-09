@@ -8,6 +8,7 @@ F:	configs/ba10_tv_box_defconfig
 F:	configs/Chuwi_V7_CW0825_defconfig
 F:	configs/Cubieboard_defconfig
 F:	configs/Hyundai_A7HD_defconfig
+F:	configs/inet1_defconfig
 F:	configs/inet97fv2_defconfig
 F:	configs/inet9f_rev03_defconfig
 F:	configs/jesurun_q5_defconfig
