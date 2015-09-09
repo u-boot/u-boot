@@ -22,7 +22,7 @@
  *   read on another one.
 *
  * In order to keep this code simple, GPIOS are considered here as
- * homogeneous and linear, from 0 to 127.
+ * homogeneous and linear, from 0 to 159.
  *
  *	** WARNING #1 **
  *
@@ -35,7 +35,7 @@
  * Please read NOTE in description of lpc32xx_gpio_get_function().
  */
 
-#define LPC32XX_GPIOS 128
+#define LPC32XX_GPIOS 160
 
 struct lpc32xx_gpio_priv {
 	struct gpio_regs *regs;
@@ -45,11 +45,18 @@ struct lpc32xx_gpio_priv {
 
 /**
  * We have 4 GPIO ports of 32 bits each
+ *
+ * Port mapping offset (32 bits each):
+ * - Port 0: 0
+ * - Port 1: 32
+ * - Port 2: 64
+ * - Port 3: GPO / GPIO (output): 96
+ * - Port 3: GPI: 128
  */
 
-#define MAX_GPIO 128
+#define MAX_GPIO 160
 
-#define GPIO_TO_PORT(gpio) ((gpio / 32) & 3)
+#define GPIO_TO_PORT(gpio) ((gpio / 32) & 7)
 #define GPIO_TO_RANK(gpio) (gpio % 32)
 #define GPIO_TO_MASK(gpio) (1 << (gpio % 32))
 
@@ -75,8 +82,15 @@ static int lpc32xx_gpio_direction_input(struct udevice *dev, unsigned offset)
 		break;
 	case 2:
 		/* ports 2 and 3 share a common direction */
-	case 3:
 		writel(mask, &regs->p2_p3_dir_clr);
+		break;
+	case 3:
+		/* Setup direction only for GPIO_xx. */
+		if ((mask >= 25) && (mask <= 30))
+			writel(mask, &regs->p2_p3_dir_clr);
+		break;
+	case 4:
+		/* GPI_xx; nothing to do. */
 		break;
 	default:
 		return -1;
@@ -111,6 +125,11 @@ static int lpc32xx_gpio_get_value(struct udevice *dev, unsigned offset)
 		value = readl(&regs->p2_inp_state);
 		break;
 	case 3:
+		/* Read GPO_xx and GPIO_xx (as output) using p3_outp_state. */
+		value = readl(&regs->p3_outp_state);
+		break;
+	case 4:
+		/* Read GPI_xx and GPIO_xx (as input) using p3_inp_state. */
 		value = readl(&regs->p3_inp_state);
 		break;
 	default:
@@ -149,6 +168,8 @@ static int gpio_set(struct udevice *dev, unsigned gpio)
 	case 3:
 		writel(mask, &regs->p3_outp_set);
 		break;
+	case 4:
+		/* GPI_xx; invalid. */
 	default:
 		return -1;
 	}
@@ -181,6 +202,8 @@ static int gpio_clr(struct udevice *dev, unsigned gpio)
 	case 3:
 		writel(mask, &regs->p3_outp_clr);
 		break;
+	case 4:
+		/* GPI_xx; invalid. */
 	default:
 		return -1;
 	}
@@ -223,9 +246,15 @@ static int lpc32xx_gpio_direction_output(struct udevice *dev, unsigned offset,
 		break;
 	case 2:
 		/* ports 2 and 3 share a common direction */
-	case 3:
 		writel(mask, &regs->p2_p3_dir_set);
 		break;
+	case 3:
+		/* Setup direction only for GPIO_xx. */
+		if ((mask >= 25) && (mask <= 30))
+			writel(mask, &regs->p2_p3_dir_set);
+		break;
+	case 4:
+		/* GPI_xx; invalid. */
 	default:
 		return -1;
 	}

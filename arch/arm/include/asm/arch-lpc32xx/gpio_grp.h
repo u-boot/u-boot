@@ -12,7 +12,7 @@
 
 /*
  * Macro to map the pin for the lpc32xx_gpio driver.
- * Note: - GPIOS are considered here as homogeneous and linear, from 0 to 127;
+ * Note: - GPIOS are considered here as homogeneous and linear from 0 to 159;
  *         mapping is done per register, as group of 32.
  *         (see drivers/gpio/lpc32xx_gpio.c for details).
  *       - macros can be use with the following pins:
@@ -26,9 +26,9 @@
 #define LPC32XX_GPIO_P0_GRP 0
 #define LPC32XX_GPIO_P1_GRP 32
 #define LPC32XX_GPIO_P2_GRP 64
-#define LPC32XX_GPI_P3_GRP  96
 #define LPC32XX_GPO_P3_GRP  96
 #define LPC32XX_GPIO_P3_GRP (LPC32XX_GPO_P3_GRP + 25)
+#define LPC32XX_GPI_P3_GRP  128
 
 /*
  * A specific GPIO can be selected with this macro
