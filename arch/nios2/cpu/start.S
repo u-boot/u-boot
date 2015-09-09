@@ -174,9 +174,3 @@ relocate_code:
 	ori	r8, r8, %lo(board_init_r@h)
 	callr	r8
 	ret
-
-	.data
-	.globl	version_string
-
-version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
