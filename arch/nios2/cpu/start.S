@@ -175,39 +175,6 @@ relocate_code:
 	callr	r8
 	ret
 
-/*
- * dly_clks -- Nios2 (like Nios1) doesn't have a timebase in
- * the core. For simple delay loops, we do our best by counting
- * instruction cycles.
- *
- * Instruction performance varies based on the core. For cores
- * with icache and static/dynamic branch prediction (II/f, II/s):
- *
- *	Normal ALU (e.g. add, cmp, etc):	1 cycle
- *	Branch (correctly predicted, taken):	2 cycles
- *	Negative offset is predicted (II/s).
- *
- * For cores without icache and no branch prediction (II/e):
- *
- *	Normal ALU (e.g. add, cmp, etc):	6 cycles
- *	Branch (no prediction):			6 cycles
- *
- * For simplicity, if an instruction cache is implemented we
- * assume II/f or II/s. Otherwise, we use the II/e.
- *
- */
-	.globl dly_clks
-
-dly_clks:
-
-#if (CONFIG_SYS_ICACHE_SIZE > 0)
-	subi	r4, r4, 3		/* 3 clocks/loop	*/
-#else
-	subi	r4, r4, 12		/* 12 clocks/loop	*/
-#endif
-	bge	r4, r0, dly_clks
-	ret
-
 	.data
 	.globl	version_string
 
