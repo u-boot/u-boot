@@ -783,6 +783,389 @@ static int vsc9953_port_learn_mode_get(int port_no, enum port_learn_mode *mode)
 	return 0;
 }
 
+/* wait for FDB to become available */
+static int vsc9953_mac_table_poll_idle(void)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+	u32 timeout;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	timeout = 50000;
+	while (((in_le32(&l2ana_reg->ana_tables.mac_access) &
+			 VSC9953_MAC_CMD_MASK) !=
+		VSC9953_MAC_CMD_IDLE) && --timeout)
+		udelay(1);
+
+	return timeout ? 0 : -EBUSY;
+}
+
+/* enum describing available commands for the MAC table */
+enum mac_table_cmd {
+	MAC_TABLE_READ,
+	MAC_TABLE_LOOKUP,
+	MAC_TABLE_WRITE,
+	MAC_TABLE_LEARN,
+	MAC_TABLE_FORGET,
+	MAC_TABLE_GET_NEXT,
+	MAC_TABLE_AGE,
+};
+
+/* Issues a command to the FDB table */
+static int vsc9953_mac_table_cmd(enum mac_table_cmd cmd)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	switch (cmd) {
+	case MAC_TABLE_READ:
+		clrsetbits_le32(&l2ana_reg->ana_tables.mac_access,
+				VSC9953_MAC_CMD_MASK | VSC9953_MAC_CMD_VALID,
+				VSC9953_MAC_CMD_READ);
+		break;
+	case MAC_TABLE_LOOKUP:
+		clrsetbits_le32(&l2ana_reg->ana_tables.mac_access,
+				VSC9953_MAC_CMD_MASK, VSC9953_MAC_CMD_READ |
+				VSC9953_MAC_CMD_VALID);
+		break;
+	case MAC_TABLE_WRITE:
+		clrsetbits_le32(&l2ana_reg->ana_tables.mac_access,
+				VSC9953_MAC_CMD_MASK |
+				VSC9953_MAC_ENTRYTYPE_MASK,
+				VSC9953_MAC_CMD_WRITE |
+				VSC9953_MAC_ENTRYTYPE_LOCKED);
+		break;
+	case MAC_TABLE_LEARN:
+		clrsetbits_le32(&l2ana_reg->ana_tables.mac_access,
+				VSC9953_MAC_CMD_MASK |
+				VSC9953_MAC_ENTRYTYPE_MASK,
+				VSC9953_MAC_CMD_LEARN |
+				VSC9953_MAC_ENTRYTYPE_LOCKED |
+				VSC9953_MAC_CMD_VALID);
+		break;
+	case MAC_TABLE_FORGET:
+		clrsetbits_le32(&l2ana_reg->ana_tables.mac_access,
+				VSC9953_MAC_CMD_MASK |
+				VSC9953_MAC_ENTRYTYPE_MASK,
+				VSC9953_MAC_CMD_FORGET);
+		break;
+	case MAC_TABLE_GET_NEXT:
+		clrsetbits_le32(&l2ana_reg->ana_tables.mac_access,
+				VSC9953_MAC_CMD_MASK |
+				VSC9953_MAC_ENTRYTYPE_MASK,
+				VSC9953_MAC_CMD_NEXT);
+		break;
+	case MAC_TABLE_AGE:
+		clrsetbits_le32(&l2ana_reg->ana_tables.mac_access,
+				VSC9953_MAC_CMD_MASK |
+				VSC9953_MAC_ENTRYTYPE_MASK,
+				VSC9953_MAC_CMD_AGE);
+		break;
+	default:
+		printf("Unknown MAC table command\n");
+	}
+
+	if (vsc9953_mac_table_poll_idle() < 0) {
+		debug("MAC table timeout\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+/* show the FDB entries that correspond to a port and a VLAN */
+static void vsc9953_mac_table_show(int port_no, int vid)
+{
+	int rc[VSC9953_MAX_PORTS];
+	enum port_learn_mode mode[VSC9953_MAX_PORTS];
+	int i;
+	u32 val;
+	u32 vlan;
+	u32 mach;
+	u32 macl;
+	u32 dest_indx;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	/* disable auto learning */
+	if (port_no == ETHSW_CMD_PORT_ALL) {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			rc[i] = vsc9953_port_learn_mode_get(i, &mode[i]);
+			if (!rc[i] && mode[i] != PORT_LEARN_NONE)
+				vsc9953_port_learn_mode_set(i, PORT_LEARN_NONE);
+		}
+	} else {
+		rc[port_no] = vsc9953_port_learn_mode_get(port_no,
+							  &mode[port_no]);
+		if (!rc[port_no] && mode[port_no] != PORT_LEARN_NONE)
+			vsc9953_port_learn_mode_set(port_no, PORT_LEARN_NONE);
+	}
+
+	/* write port and vid to get selected FDB entries */
+	val = in_le32(&l2ana_reg->ana.anag_efil);
+	if (port_no != ETHSW_CMD_PORT_ALL) {
+		val = bitfield_replace_by_mask(val, VSC9953_AGE_PORT_MASK,
+					       port_no) | VSC9953_AGE_PORT_EN;
+	}
+	if (vid != ETHSW_CMD_VLAN_ALL) {
+		val = bitfield_replace_by_mask(val, VSC9953_AGE_VID_MASK,
+					       vid) | VSC9953_AGE_VID_EN;
+	}
+	out_le32(&l2ana_reg->ana.anag_efil, val);
+
+	/* set MAC and VLAN to 0 to look from beginning */
+	clrbits_le32(&l2ana_reg->ana_tables.mach_data,
+		     VSC9953_MAC_VID_MASK | VSC9953_MAC_MACH_MASK);
+	out_le32(&l2ana_reg->ana_tables.macl_data, 0);
+
+	/* get entries */
+	printf("%10s %17s %5s %4s\n", "EntryType", "MAC", "PORT", "VID");
+	do {
+		if (vsc9953_mac_table_cmd(MAC_TABLE_GET_NEXT) < 0) {
+			debug("GET NEXT MAC table command failed\n");
+			break;
+		}
+
+		val = in_le32(&l2ana_reg->ana_tables.mac_access);
+
+		/* get out when an invalid entry is found */
+		if (!(val & VSC9953_MAC_CMD_VALID))
+			break;
+
+		switch (val & VSC9953_MAC_ENTRYTYPE_MASK) {
+		case VSC9953_MAC_ENTRYTYPE_NORMAL:
+			printf("%10s ", "Dynamic");
+			break;
+		case VSC9953_MAC_ENTRYTYPE_LOCKED:
+			printf("%10s ", "Static");
+			break;
+		case VSC9953_MAC_ENTRYTYPE_IPV4MCAST:
+			printf("%10s ", "IPv4 Mcast");
+			break;
+		case VSC9953_MAC_ENTRYTYPE_IPV6MCAST:
+			printf("%10s ", "IPv6 Mcast");
+			break;
+		default:
+			printf("%10s ", "Unknown");
+		}
+
+		dest_indx = bitfield_extract_by_mask(val,
+						     VSC9953_MAC_DESTIDX_MASK);
+
+		val = in_le32(&l2ana_reg->ana_tables.mach_data);
+		vlan = bitfield_extract_by_mask(val, VSC9953_MAC_VID_MASK);
+		mach = bitfield_extract_by_mask(val, VSC9953_MAC_MACH_MASK);
+		macl = in_le32(&l2ana_reg->ana_tables.macl_data);
+
+		printf("%02x:%02x:%02x:%02x:%02x:%02x ", (mach >> 8) & 0xff,
+		       mach & 0xff, (macl >> 24) & 0xff, (macl >> 16) & 0xff,
+		       (macl >> 8) & 0xff, macl & 0xff);
+		printf("%5d ", dest_indx);
+		printf("%4d\n", vlan);
+	} while (1);
+
+	/* set learning mode to previous value */
+	if (port_no == ETHSW_CMD_PORT_ALL) {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			if (!rc[i] && mode[i] != PORT_LEARN_NONE)
+				vsc9953_port_learn_mode_set(i, mode[i]);
+		}
+	} else {
+		/* If administrative down, skip */
+		if (!rc[port_no] && mode[port_no] != PORT_LEARN_NONE)
+			vsc9953_port_learn_mode_set(port_no, mode[port_no]);
+	}
+
+	/* reset FDB port and VLAN FDB selection */
+	clrbits_le32(&l2ana_reg->ana.anag_efil, VSC9953_AGE_PORT_EN |
+		     VSC9953_AGE_PORT_MASK | VSC9953_AGE_VID_EN |
+		     VSC9953_AGE_VID_MASK);
+}
+
+/* Add a static FDB entry */
+static int vsc9953_mac_table_add(u8 port_no, uchar mac[6], int vid)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	val = in_le32(&l2ana_reg->ana_tables.mach_data);
+	val = bitfield_replace_by_mask(val, VSC9953_MACHDATA_VID_MASK, vid) |
+	      (mac[0] << 8) | (mac[1] << 0);
+	out_le32(&l2ana_reg->ana_tables.mach_data, val);
+
+	out_le32(&l2ana_reg->ana_tables.macl_data,
+		 (mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) |
+		 (mac[5] << 0));
+
+	/* set on which port is the MAC address added */
+	val = in_le32(&l2ana_reg->ana_tables.mac_access);
+	val = bitfield_replace_by_mask(val, VSC9953_MAC_DESTIDX_MASK, port_no);
+	out_le32(&l2ana_reg->ana_tables.mac_access, val);
+
+	if (vsc9953_mac_table_cmd(MAC_TABLE_LEARN) < 0)
+		return -1;
+
+	/* check if the MAC address was indeed added */
+	val = in_le32(&l2ana_reg->ana_tables.mach_data);
+	val = bitfield_replace_by_mask(val, VSC9953_MACHDATA_VID_MASK, vid) |
+	      (mac[0] << 8) | (mac[1] << 0);
+	out_le32(&l2ana_reg->ana_tables.mach_data, val);
+
+	out_le32(&l2ana_reg->ana_tables.macl_data,
+		 (mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) |
+		 (mac[5] << 0));
+
+	if (vsc9953_mac_table_cmd(MAC_TABLE_READ) < 0)
+		return -1;
+
+	val = in_le32(&l2ana_reg->ana_tables.mac_access);
+
+	if ((port_no != bitfield_extract_by_mask(val,
+						 VSC9953_MAC_DESTIDX_MASK))) {
+		printf("Failed to add MAC address\n");
+		return -1;
+	}
+	return 0;
+}
+
+/* Delete a FDB entry */
+static int vsc9953_mac_table_del(uchar mac[6], u16 vid)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	/* check first if MAC entry is present */
+	val = in_le32(&l2ana_reg->ana_tables.mach_data);
+	val = bitfield_replace_by_mask(val, VSC9953_MACHDATA_VID_MASK, vid) |
+	      (mac[0] << 8) | (mac[1] << 0);
+	out_le32(&l2ana_reg->ana_tables.mach_data, val);
+
+	out_le32(&l2ana_reg->ana_tables.macl_data,
+		 (mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) |
+		 (mac[5] << 0));
+
+	if (vsc9953_mac_table_cmd(MAC_TABLE_LOOKUP) < 0) {
+		debug("Lookup in the MAC table failed\n");
+		return -1;
+	}
+
+	if (!(in_le32(&l2ana_reg->ana_tables.mac_access) &
+	      VSC9953_MAC_CMD_VALID)) {
+		printf("The MAC address: %02x:%02x:%02x:%02x:%02x:%02x ",
+		       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		printf("VLAN: %d does not exist.\n", vid);
+		return -1;
+	}
+
+	/* FDB entry found, proceed to delete */
+	val = in_le32(&l2ana_reg->ana_tables.mach_data);
+	val = bitfield_replace_by_mask(val, VSC9953_MACHDATA_VID_MASK, vid) |
+	      (mac[0] << 8) | (mac[1] << 0);
+	out_le32(&l2ana_reg->ana_tables.mach_data, val);
+
+	out_le32(&l2ana_reg->ana_tables.macl_data, (mac[2] << 24) |
+		 (mac[3] << 16) | (mac[4] << 8) | (mac[5] << 0));
+
+	if (vsc9953_mac_table_cmd(MAC_TABLE_FORGET) < 0)
+		return -1;
+
+	/* check if the MAC entry is still in FDB */
+	val = in_le32(&l2ana_reg->ana_tables.mach_data);
+	val = bitfield_replace_by_mask(val, VSC9953_MACHDATA_VID_MASK, vid) |
+	      (mac[0] << 8) | (mac[1] << 0);
+	out_le32(&l2ana_reg->ana_tables.mach_data, val);
+
+	out_le32(&l2ana_reg->ana_tables.macl_data, (mac[2] << 24) |
+		 (mac[3] << 16) | (mac[4] << 8) | (mac[5] << 0));
+
+	if (vsc9953_mac_table_cmd(MAC_TABLE_LOOKUP) < 0) {
+		debug("Lookup in the MAC table failed\n");
+		return -1;
+	}
+	if (in_le32(&l2ana_reg->ana_tables.mac_access) &
+	    VSC9953_MAC_CMD_VALID) {
+		printf("Failed to delete MAC address\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+/* age the unlocked entries in FDB */
+static void vsc9953_mac_table_age(int port_no, int vid)
+{
+	int rc[VSC9953_MAX_PORTS];
+	enum port_learn_mode mode[VSC9953_MAX_PORTS];
+	u32 val;
+	int i;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	/* set port and VID for selective aging */
+	val = in_le32(&l2ana_reg->ana.anag_efil);
+	if (port_no != ETHSW_CMD_PORT_ALL) {
+		/* disable auto learning */
+		rc[port_no] = vsc9953_port_learn_mode_get(port_no,
+							  &mode[port_no]);
+		if (!rc[port_no] && mode[port_no] != PORT_LEARN_NONE)
+			vsc9953_port_learn_mode_set(port_no, PORT_LEARN_NONE);
+
+		val = bitfield_replace_by_mask(val, VSC9953_AGE_PORT_MASK,
+					       port_no) | VSC9953_AGE_PORT_EN;
+	} else {
+		/* disable auto learning on all ports */
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			rc[i] = vsc9953_port_learn_mode_get(i, &mode[i]);
+			if (!rc[i] && mode[i] != PORT_LEARN_NONE)
+				vsc9953_port_learn_mode_set(i, PORT_LEARN_NONE);
+		}
+	}
+
+	if (vid != ETHSW_CMD_VLAN_ALL) {
+		val = bitfield_replace_by_mask(val, VSC9953_AGE_VID_MASK, vid) |
+		      VSC9953_AGE_VID_EN;
+	}
+	out_le32(&l2ana_reg->ana.anag_efil, val);
+
+	/* age the dynamic FDB entries */
+	vsc9953_mac_table_cmd(MAC_TABLE_AGE);
+
+	/* clear previously set port and VID */
+	clrbits_le32(&l2ana_reg->ana.anag_efil, VSC9953_AGE_PORT_EN |
+		     VSC9953_AGE_PORT_MASK | VSC9953_AGE_VID_EN |
+		     VSC9953_AGE_VID_MASK);
+
+	if (port_no != ETHSW_CMD_PORT_ALL) {
+		if (!rc[port_no] && mode[port_no] != PORT_LEARN_NONE)
+			vsc9953_port_learn_mode_set(port_no, mode[port_no]);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			if (!rc[i] && mode[i] != PORT_LEARN_NONE)
+				vsc9953_port_learn_mode_set(i, mode[i]);
+		}
+	}
+}
+
+/* Delete all the dynamic FDB entries */
+static void vsc9953_mac_table_flush(int port, int vid)
+{
+	vsc9953_mac_table_age(port, vid);
+	vsc9953_mac_table_age(port, vid);
+}
+
 static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -949,6 +1332,91 @@ static int vsc9953_learn_set_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+static int vsc9953_fdb_show_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL &&
+	    !VSC9953_PORT_CHECK(parsed_cmd->port)) {
+		printf("Invalid port number: %d\n", parsed_cmd->port);
+		return CMD_RET_FAILURE;
+	}
+
+	if (parsed_cmd->vid != ETHSW_CMD_VLAN_ALL &&
+	    !VSC9953_VLAN_CHECK(parsed_cmd->vid)) {
+		printf("Invalid VID number: %d\n", parsed_cmd->vid);
+		return CMD_RET_FAILURE;
+	}
+
+	vsc9953_mac_table_show(parsed_cmd->port, parsed_cmd->vid);
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_fdb_flush_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL &&
+	    !VSC9953_PORT_CHECK(parsed_cmd->port)) {
+		printf("Invalid port number: %d\n", parsed_cmd->port);
+		return CMD_RET_FAILURE;
+	}
+
+	if (parsed_cmd->vid != ETHSW_CMD_VLAN_ALL &&
+	    !VSC9953_VLAN_CHECK(parsed_cmd->vid)) {
+		printf("Invalid VID number: %d\n", parsed_cmd->vid);
+		return CMD_RET_FAILURE;
+	}
+
+	vsc9953_mac_table_flush(parsed_cmd->port, parsed_cmd->vid);
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_fdb_entry_add_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int vid;
+
+	/* a port number must be present */
+	if (parsed_cmd->port == ETHSW_CMD_PORT_ALL) {
+		printf("Please specify a port\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+		printf("Invalid port number: %d\n", parsed_cmd->port);
+		return CMD_RET_FAILURE;
+	}
+
+	/* Use VLAN 1 if VID is not set */
+	vid = (parsed_cmd->vid == ETHSW_CMD_VLAN_ALL ? 1 : parsed_cmd->vid);
+
+	if (!VSC9953_VLAN_CHECK(vid)) {
+		printf("Invalid VID number: %d\n", vid);
+		return CMD_RET_FAILURE;
+	}
+
+	if (vsc9953_mac_table_add(parsed_cmd->port, parsed_cmd->ethaddr, vid))
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_fdb_entry_del_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int vid;
+
+	/* Use VLAN 1 if VID is not set */
+	vid = (parsed_cmd->vid == ETHSW_CMD_VLAN_ALL ? 1 : parsed_cmd->vid);
+
+	if (!VSC9953_VLAN_CHECK(vid)) {
+		printf("Invalid VID number: %d\n", vid);
+		return CMD_RET_FAILURE;
+	}
+
+	if (vsc9953_mac_table_del(parsed_cmd->ethaddr, vid))
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct ethsw_command_func vsc9953_cmd_func = {
 		.ethsw_name = "L2 Switch VSC9953",
 		.port_enable = &vsc9953_port_status_key_func,
@@ -958,6 +1426,10 @@ static struct ethsw_command_func vsc9953_cmd_func = {
 		.port_stats_clear = &vsc9953_port_stats_clear_key_func,
 		.port_learn = &vsc9953_learn_set_key_func,
 		.port_learn_show = &vsc9953_learn_show_key_func,
+		.fdb_show = &vsc9953_fdb_show_key_func,
+		.fdb_flush = &vsc9953_fdb_flush_key_func,
+		.fdb_entry_add = &vsc9953_fdb_entry_add_key_func,
+		.fdb_entry_del = &vsc9953_fdb_entry_del_key_func,
 };
 
 #endif /* CONFIG_CMD_ETHSW */

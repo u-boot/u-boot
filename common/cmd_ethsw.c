@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <errno.h>
+#include <env_flags.h>
 #include <ethsw.h>
 
 static const char *ethsw_name;
@@ -30,6 +31,18 @@ static int ethsw_port_stats_help_key_func(struct ethsw_command_def *parsed_cmd)
 static int ethsw_learn_help_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	printf(ETHSW_LEARN_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
+#define ETHSW_FDB_HELP "ethsw [port <port_no>] [vlan <vid>] fdb " \
+"{ [help] | show | flush | { add | del } <mac> } " \
+"- Add/delete a mac entry in FDB; use show to see FDB entries; " \
+"if vlan <vid> is missing, VID 1 will be used"
+
+static int ethsw_fdb_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_FDB_HELP"\n");
 
 	return CMD_RET_SUCCESS;
 }
@@ -130,6 +143,59 @@ static struct keywords_to_function {
 			.cmd_func_offset = offsetof(struct ethsw_command_func,
 						    port_learn),
 			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_fdb,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_fdb_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_fdb,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_fdb_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_fdb,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    fdb_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_fdb,
+					ethsw_id_flush,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    fdb_flush),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_fdb,
+					ethsw_id_add,
+					ethsw_id_add_del_mac,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    fdb_entry_add),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_fdb,
+					ethsw_id_del,
+					ethsw_id_add_del_mac,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    fdb_entry_del),
+			.keyword_function = NULL,
 		},
 };
 
@@ -142,6 +208,20 @@ struct keywords_optional {
 						ethsw_id_port_no,
 						ethsw_id_key_end,
 				},
+		}, {
+				.cmd_keyword = {
+						ethsw_id_vlan,
+						ethsw_id_vlan_no,
+						ethsw_id_key_end,
+				},
+		}, {
+				.cmd_keyword = {
+						ethsw_id_port,
+						ethsw_id_port_no,
+						ethsw_id_vlan,
+						ethsw_id_vlan_no,
+						ethsw_id_key_end,
+				},
 		},
 };
 
@@ -151,6 +231,12 @@ static int keyword_match_gen(enum ethsw_keyword_id key_id, int argc, char
 static int keyword_match_port(enum ethsw_keyword_id key_id, int argc,
 			      char *const argv[], int *argc_nr,
 			      struct ethsw_command_def *parsed_cmd);
+static int keyword_match_vlan(enum ethsw_keyword_id key_id, int argc,
+			      char *const argv[], int *argc_nr,
+			      struct ethsw_command_def *parsed_cmd);
+static int keyword_match_mac_addr(enum ethsw_keyword_id key_id, int argc,
+				  char *const argv[], int *argc_nr,
+				  struct ethsw_command_def *parsed_cmd);
 
 /*
  * Define properties for each keyword;
@@ -187,6 +273,21 @@ struct keyword_def {
 				.match = &keyword_match_gen,
 		}, {
 				.keyword_name = "auto",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "vlan",
+				.match = &keyword_match_vlan,
+		}, {
+				.keyword_name = "fdb",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "add",
+				.match = &keyword_match_mac_addr,
+		}, {
+				.keyword_name = "del",
+				.match = &keyword_match_mac_addr,
+		}, {
+				.keyword_name = "flush",
 				.match = &keyword_match_gen,
 		},
 };
@@ -257,6 +358,78 @@ static int keyword_match_port(enum ethsw_keyword_id key_id, int argc,
 	}
 
 	return 0;
+}
+
+/* Function used to match the command's vlan */
+static int keyword_match_vlan(enum ethsw_keyword_id key_id, int argc,
+			      char *const argv[], int *argc_nr,
+			      struct ethsw_command_def *parsed_cmd)
+{
+	unsigned long val;
+	int aux;
+
+	if (!keyword_match_gen(key_id, argc, argv, argc_nr, parsed_cmd))
+		return 0;
+
+	if (*argc_nr + 1 >= argc)
+		return 0;
+
+	if (strict_strtoul(argv[*argc_nr + 1], 10, &val) != -EINVAL) {
+		parsed_cmd->vid = val;
+		(*argc_nr)++;
+		parsed_cmd->cmd_to_keywords[*argc_nr] = ethsw_id_vlan_no;
+		return 1;
+	}
+
+	aux = *argc_nr + 1;
+
+	if (keyword_match_gen(ethsw_id_add, argc, argv, &aux, parsed_cmd))
+		parsed_cmd->cmd_to_keywords[*argc_nr + 1] = ethsw_id_add;
+	else if (keyword_match_gen(ethsw_id_del, argc, argv, &aux, parsed_cmd))
+		parsed_cmd->cmd_to_keywords[*argc_nr + 1] = ethsw_id_del;
+	else
+		return 0;
+
+	if (*argc_nr + 2 >= argc)
+		return 0;
+
+	if (strict_strtoul(argv[*argc_nr + 2], 10, &val) != -EINVAL) {
+		parsed_cmd->vid = val;
+		(*argc_nr) += 2;
+		parsed_cmd->cmd_to_keywords[*argc_nr] = ethsw_id_add_del_no;
+		return 1;
+	}
+
+	return 0;
+}
+
+/* Function used to match the command's MAC address */
+static int keyword_match_mac_addr(enum ethsw_keyword_id key_id, int argc,
+				     char *const argv[], int *argc_nr,
+				     struct ethsw_command_def *parsed_cmd)
+{
+	if (!keyword_match_gen(key_id, argc, argv, argc_nr, parsed_cmd))
+		return 0;
+
+	if ((*argc_nr + 1 >= argc) ||
+	    !is_broadcast_ethaddr(parsed_cmd->ethaddr))
+		return 1;
+
+	if (eth_validate_ethaddr_str(argv[*argc_nr + 1])) {
+		printf("Invalid MAC address: %s\n", argv[*argc_nr + 1]);
+		return 0;
+	}
+
+	eth_parse_enetaddr(argv[*argc_nr + 1], parsed_cmd->ethaddr);
+
+	if (is_broadcast_ethaddr(parsed_cmd->ethaddr)) {
+		memset(parsed_cmd->ethaddr, 0xFF, sizeof(parsed_cmd->ethaddr));
+		return 0;
+	}
+
+	parsed_cmd->cmd_to_keywords[*argc_nr + 1] = ethsw_id_add_del_mac;
+
+	return 1;
 }
 
 /* Finds optional keywords and modifies *argc_va to skip them */
@@ -416,7 +589,11 @@ static void command_def_init(struct ethsw_command_def *parsed_cmd)
 		parsed_cmd->cmd_to_keywords[i] = ethsw_id_key_end;
 
 	parsed_cmd->port = ETHSW_CMD_PORT_ALL;
+	parsed_cmd->vid = ETHSW_CMD_VLAN_ALL;
 	parsed_cmd->cmd_function = NULL;
+
+	/* We initialize the MAC address with the Broadcast address */
+	memset(parsed_cmd->ethaddr, 0xff, sizeof(parsed_cmd->ethaddr));
 }
 
 /* function to interpret commands starting with "ethsw " */
@@ -446,4 +623,5 @@ U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   ETHSW_PORT_CONF_HELP"\n"
 	   ETHSW_PORT_STATS_HELP"\n"
 	   ETHSW_LEARN_HELP"\n"
+	   ETHSW_FDB_HELP"\n"
 );
