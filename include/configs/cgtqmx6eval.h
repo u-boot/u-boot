@@ -35,11 +35,6 @@
 /* Thermal support */
 #define CONFIG_IMX_THERMAL
 
-#define CONFIG_CMD_FUSE
-#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX_THERMAL)
-#define CONFIG_MXC_OCOTP
-#endif
-
 /* I2C Configs */
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
