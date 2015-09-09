@@ -36,6 +36,8 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 
+#define CONFIG_MACH_TYPE                MACH_TYPE_CM_T3517
+
 /*
  * Display CPU and Board information
  */
