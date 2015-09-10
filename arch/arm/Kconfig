@@ -604,6 +604,7 @@ config TARGET_HIKEY
 	select ARM64
 	select DM
 	select DM_GPIO
+	select DM_SERIAL
 	  help
 	  Support for HiKey 96boards platform. It features a HI6220
 	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.
@@ -612,7 +613,6 @@ config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
 	select SUPPORT_SPL
-
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7

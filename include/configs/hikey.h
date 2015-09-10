@@ -31,6 +31,8 @@
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 
+#define CONFIG_BOARD_EARLY_INIT_F
+
 /* Physical Memory Map */
 
 /* CONFIG_SYS_TEXT_BASE needs to align with where ATF loads bl33.bin */
@@ -59,13 +61,8 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
 
-/* PL011 Serial Configuration */
-#define CONFIG_PL011_SERIAL
-
-#define CONFIG_PL011_CLOCK		19200000
-#define CONFIG_PL01x_PORTS		{(void *)0xF8015000}
-#define CONFIG_CONS_INDEX		0
-
+/* Serial port PL010/PL011 through the device model */
+#define CONFIG_PL01X_SERIAL
 #define CONFIG_BAUDRATE			115200
 
 #define CONFIG_CMD_USB
