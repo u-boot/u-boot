@@ -42,8 +42,16 @@
 /* ACPI PBLK Base Address Register */
 #define PBLK_BA			0x70
 
+/* Control Register */
+#define RMU_CTRL		0x71
+
 /* SPI DMA Base Address Register */
 #define SPI_DMA_BA		0x7a
+
+/* Thermal Sensor Register */
+#define TS_MODE			0xb0
+#define TS_TEMP			0xb1
+#define TS_TRIP			0xb2
 
 /* Port 0x05: Memory Manager Message Port Registers */
 
@@ -64,6 +72,12 @@
 #define PCIE_RXPICTRL0_L1	0x2180
 
 /* Port 0x31: SoC Unit Port Registers */
+
+/* Thermal Sensor Config */
+#define TS_CFG1			0x31
+#define TS_CFG2			0x32
+#define TS_CFG3			0x33
+#define TS_CFG4			0x34
 
 /* PCIe Controller Config */
 #define PCIE_CFG		0x36

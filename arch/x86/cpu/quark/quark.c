@@ -134,6 +134,43 @@ static void quark_usb_early_init(void)
 	msg_port_alt_setbits(MSG_PORT_USB_AFE, USB2_PLL2, 1 << 24);
 }
 
+static void quark_thermal_early_init(void)
+{
+	/* The sequence below comes from Quark firmware writer guide */
+
+	/* thermal sensor mode config */
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG1,
+				(1 << 3) | (1 << 4) | (1 << 5), 1 << 5);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG1,
+				(1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) |
+				(1 << 12), 1 << 9);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, TS_CFG1, 1 << 14);
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG1, 1 << 17);
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG1, 1 << 18);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG2, 0xffff, 0x011f);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG3, 0xff, 0x17);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG3,
+				(1 << 8) | (1 << 9), 1 << 8);
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG3, 0xff000000);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG4,
+				0x7ff800, 0xc8 << 11);
+
+	/* thermal monitor catastrophic trip set point (105 celsius) */
+	msg_port_clrsetbits(MSG_PORT_RMU, TS_TRIP, 0xff, 155);
+
+	/* thermal monitor catastrophic trip clear point (0 celsius) */
+	msg_port_clrsetbits(MSG_PORT_RMU, TS_TRIP, 0xff0000, 50 << 16);
+
+	/* take thermal sensor out of reset */
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG4, 1 << 0);
+
+	/* enable thermal monitor */
+	msg_port_setbits(MSG_PORT_RMU, TS_MODE, 1 << 15);
+
+	/* lock all thermal configuration */
+	msg_port_setbits(MSG_PORT_RMU, RMU_CTRL, (1 << 5) | (1 << 6));
+}
+
 static void quark_enable_legacy_seg(void)
 {
 	msg_port_setbits(MSG_PORT_HOST_BRIDGE, HMISC2,
@@ -172,6 +209,9 @@ int arch_cpu_init(void)
 
 	/* Initialize USB2 PHY */
 	quark_usb_early_init();
+
+	/* Initialize thermal sensor */
+	quark_thermal_early_init();
 
 	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
 	quark_enable_legacy_seg();
