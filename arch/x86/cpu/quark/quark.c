@@ -288,5 +288,8 @@ void board_final_cleanup(void)
 	val &= ~0xff0000;
 	writel(val, &rcba->esd);
 
+	/* Lock HMBOUND for security */
+	msg_port_setbits(MSG_PORT_HOST_BRIDGE, HM_BOUND, HM_BOUND_LOCK);
+
 	return;
 }

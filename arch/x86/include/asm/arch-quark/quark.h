@@ -32,6 +32,7 @@
 
 /* Host Memory I/O Boundary */
 #define HM_BOUND		0x08
+#define HM_BOUND_LOCK		0x00000001
 
 /* Extended Configuration Space */
 #define HEC_REG			0x09
