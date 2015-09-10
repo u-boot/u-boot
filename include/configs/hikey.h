@@ -12,6 +12,8 @@
 #ifndef __HIKEY_H
 #define __HIKEY_H
 
+#include <linux/sizes.h>
+
 /* We use generic board for hikey */
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_POWER
@@ -55,7 +57,7 @@
 #define GICC_BASE			0xf6802000
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
 
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_SERIAL
