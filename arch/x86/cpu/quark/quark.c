@@ -73,8 +73,6 @@ static void quark_setup_bars(void)
 
 static void quark_pcie_early_init(void)
 {
-	u32 pcie_cfg;
-
 	/*
 	 * Step1: Assert PCIe signal PERST#
 	 *
@@ -84,23 +82,18 @@ static void quark_pcie_early_init(void)
 	board_assert_perst();
 
 	/* Step2: PHY common lane reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= PCIE_PHY_LANE_RST;
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG, PCIE_PHY_LANE_RST);
 	/* wait 1 ms for PHY common lane reset */
 	mdelay(1);
 
 	/* Step3: PHY sideband interface reset and controller main reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= (PCIE_PHY_SB_RST | PCIE_CTLR_MAIN_RST);
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG,
+			     PCIE_PHY_SB_RST | PCIE_CTLR_MAIN_RST);
 	/* wait 80ms for PLL to lock */
 	mdelay(80);
 
 	/* Step4: Controller sideband interface reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= PCIE_CTLR_SB_RST;
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG, PCIE_CTLR_SB_RST);
 	/* wait 20ms for controller sideband interface reset */
 	mdelay(20);
 
@@ -108,66 +101,43 @@ static void quark_pcie_early_init(void)
 	board_deassert_perst();
 
 	/* Step6: Controller primary interface reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= PCIE_CTLR_PRI_RST;
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG, PCIE_CTLR_PRI_RST);
 
 	/* Mixer Load Lane 0 */
-	pcie_cfg = msg_port_io_read(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0);
-	pcie_cfg &= ~((1 << 6) | (1 << 7));
-	msg_port_io_write(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0, pcie_cfg);
+	msg_port_io_clrbits(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0,
+			    (1 << 6) | (1 << 7));
 
 	/* Mixer Load Lane 1 */
-	pcie_cfg = msg_port_io_read(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1);
-	pcie_cfg &= ~((1 << 6) | (1 << 7));
-	msg_port_io_write(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1, pcie_cfg);
+	msg_port_io_clrbits(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1,
+			    (1 << 6) | (1 << 7));
 }
 
 static void quark_usb_early_init(void)
 {
-	u32 usb;
-
 	/* The sequence below comes from Quark firmware writer guide */
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT);
-	usb &= ~(1 << 1);
-	usb |= ((1 << 6) | (1 << 7));
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT, usb);
+	msg_port_alt_clrsetbits(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT,
+				1 << 1, (1 << 6) | (1 << 7));
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_COMPBG);
-	usb &= ~((1 << 8) | (1 << 9));
-	usb |= ((1 << 7) | (1 << 10));
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_COMPBG, usb);
+	msg_port_alt_clrsetbits(MSG_PORT_USB_AFE, USB2_COMPBG,
+				(1 << 8) | (1 << 9), (1 << 7) | (1 << 10));
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
-	usb |= (1 << 29);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+	msg_port_alt_setbits(MSG_PORT_USB_AFE, USB2_PLL2, 1 << 29);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL1);
-	usb |= (1 << 1);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL1, usb);
+	msg_port_alt_setbits(MSG_PORT_USB_AFE, USB2_PLL1, 1 << 1);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL1);
-	usb &= ~((1 << 3) | (1 << 4) | (1 << 5));
-	usb |= (1 << 6);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL1, usb);
+	msg_port_alt_clrsetbits(MSG_PORT_USB_AFE, USB2_PLL1,
+				(1 << 3) | (1 << 4) | (1 << 5), 1 << 6);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
-	usb &= ~(1 << 29);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+	msg_port_alt_clrbits(MSG_PORT_USB_AFE, USB2_PLL2, 1 << 29);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
-	usb |= (1 << 24);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+	msg_port_alt_setbits(MSG_PORT_USB_AFE, USB2_PLL2, 1 << 24);
 }
 
 static void quark_enable_legacy_seg(void)
 {
-	u32 hmisc2;
-
-	hmisc2 = msg_port_read(MSG_PORT_HOST_BRIDGE, HMISC2);
-	hmisc2 |= (HMISC2_SEGE | HMISC2_SEGF | HMISC2_SEGAB);
-	msg_port_write(MSG_PORT_HOST_BRIDGE, HMISC2, hmisc2);
+	msg_port_setbits(MSG_PORT_HOST_BRIDGE, HMISC2,
+			 HMISC2_SEGE | HMISC2_SEGF | HMISC2_SEGAB);
 }
 
 int arch_cpu_init(void)
