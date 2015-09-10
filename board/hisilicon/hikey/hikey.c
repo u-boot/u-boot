@@ -269,8 +269,6 @@ int misc_init_r(void)
 
 int board_init(void)
 {
-	gd->flags = 0;
-
 	return 0;
 }
 
