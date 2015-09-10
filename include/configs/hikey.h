@@ -42,7 +42,8 @@
 #define PHYS_SDRAM_1			0x00000000
 
 /* 1008 MB (the last 16Mb are secured for TrustZone by ATF*/
-#define PHYS_SDRAM_1_SIZE		0x3f000000
+#define PHYS_SDRAM_1_SIZE		0x3EFFFFFF
+
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
