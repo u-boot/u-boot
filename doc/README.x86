@@ -733,6 +733,30 @@ Example output:
    PCI_BDF(0, 3, 0) INTA PIRQA
 ...
 
+Porting Hints
+-------------
+
+Quark-specific considerations:
+
+To port U-Boot to other boards based on the Intel Quark SoC, a few things need
+to be taken care of. The first important part is the Memory Reference Code (MRC)
+parameters. Quark MRC supports memory-down configuration only. All these MRC
+parameters are supplied via the board device tree. To get started, first copy
+the MRC section of arch/x86/dts/galileo.dts to your board's device tree, then
+change these values by consulting board manuals or your hardware vendor.
+Available MRC parameter values are listed in include/dt-bindings/mrc/quark.h.
+The other tricky part is with PCIe. Quark SoC integrates two PCIe root ports,
+but by default they are held in reset after power on. In U-Boot, PCIe
+initialization is properly handled as per Quark's firmware writer guide.
+In your board support codes, you need provide two routines to aid PCIe
+initialization, which are board_assert_perst() and board_deassert_perst().
+The two routines need implement a board-specific mechanism to assert/deassert
+PCIe PERST# pin. Care must be taken that in those routines that any APIs that
+may trigger PCI enumeration process are strictly forbidden, as any access to
+PCIe root port's configuration registers will cause system hang while it is
+held in reset. For more details, check how they are implemented by the Intel
+Galileo board support codes in board/intel/galileo/galileo.c.
+
 TODO List
 ---------
 - Audio
