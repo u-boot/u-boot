@@ -53,24 +53,6 @@
 /* Pin Control */
 #define SG_PINCTRL_BASE			(SG_CTRL_BASE | 0x1000)
 
-#if defined(CONFIG_MACH_PH1_PRO4)
-# define SG_PINCTRL(n)			(SG_PINCTRL_BASE + (n) * 8)
-#elif defined(CONFIG_MACH_PH1_SLD3) || defined(CONFIG_MACH_PH1_LD4) || \
-	defined(CONFIG_MACH_PH1_SLD8)
-# define SG_PINCTRL(n)			(SG_PINCTRL_BASE + (n) * 4)
-#endif
-
-#if defined(CONFIG_MACH_PH1_SLD3) || defined(CONFIG_MACH_PH1_PRO4)
-#define SG_PINSELBITS			4
-#elif defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
-#define SG_PINSELBITS			8
-#endif
-
-#define SG_PINSEL_ADDR(n)		(SG_PINCTRL((n) * (SG_PINSELBITS) / 32))
-#define SG_PINSEL_MASK(n)		(~(((1 << (SG_PINSELBITS)) - 1) << \
-						((n) * (SG_PINSELBITS) % 32)))
-#define SG_PINSEL_MODE(n, mode)		((mode) << ((n) * (SG_PINSELBITS) % 32))
-
 /* Only for PH1-Pro4 */
 #define SG_LOADPINCTRL			(SG_CTRL_BASE | 0x1700)
 
@@ -98,11 +80,11 @@
 
 #ifdef __ASSEMBLY__
 
-	.macro	set_pinsel, n, value, ra, rd
-	ldr	\ra, =SG_PINSEL_ADDR(\n)
+	.macro	sg_set_pinsel, pin, muxval, mux_bits, reg_stride, ra, rd
+	ldr	\ra, =(SG_PINCTRL_BASE + \pin * \mux_bits / 32 * \reg_stride)
 	ldr	\rd, [\ra]
-	and	\rd, \rd, #SG_PINSEL_MASK(\n)
-	orr	\rd, \rd, #SG_PINSEL_MODE(\n, \value)
+	and	\rd, \rd, #~(((1 << \mux_bits) - 1) << (\pin * \mux_bits % 32))
+	orr	\rd, \rd, #(\muxval << (\pin * \mux_bits % 32))
 	str	\rd, [\ra]
 	.endm
 
@@ -111,10 +93,18 @@
 #include <linux/types.h>
 #include <linux/io.h>
 
-static inline void sg_set_pinsel(int n, int value)
+static inline void sg_set_pinsel(unsigned pin, unsigned muxval,
+				 unsigned mux_bits, unsigned reg_stride)
 {
-	writel((readl(SG_PINSEL_ADDR(n)) & SG_PINSEL_MASK(n))
-	       | SG_PINSEL_MODE(n, value), SG_PINSEL_ADDR(n));
+	unsigned shift = pin * mux_bits % 32;
+	unsigned reg = SG_PINCTRL_BASE + pin * mux_bits / 32 * reg_stride;
+	u32 mask = (1U << mux_bits) - 1;
+	u32 tmp;
+
+	tmp = readl(reg);
+	tmp &= ~(mask << shift);
+	tmp |= (mask & muxval) << shift;
+	writel(tmp, reg);
 }
 
 #endif /* __ASSEMBLY__ */

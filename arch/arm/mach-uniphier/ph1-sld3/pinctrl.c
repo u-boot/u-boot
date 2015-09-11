@@ -9,16 +9,16 @@
 void pin_init(void)
 {
 #ifdef CONFIG_USB_EHCI_UNIPHIER
-	sg_set_pinsel(13, 0);	/* USB0OC */
-	sg_set_pinsel(14, 1);	/* USB0VBUS */
+	sg_set_pinsel(13, 0, 4, 4);	/* USB0OC */
+	sg_set_pinsel(14, 1, 4, 4);	/* USB0VBUS */
 
-	sg_set_pinsel(15, 0);	/* USB1OC */
-	sg_set_pinsel(16, 1);	/* USB1VBUS */
+	sg_set_pinsel(15, 0, 4, 4);	/* USB1OC */
+	sg_set_pinsel(16, 1, 4, 4);	/* USB1VBUS */
 
-	sg_set_pinsel(17, 0);	/* USB2OC */
-	sg_set_pinsel(18, 1);	/* USB2VBUS */
+	sg_set_pinsel(17, 0, 4, 4);	/* USB2OC */
+	sg_set_pinsel(18, 1, 4, 4);	/* USB2VBUS */
 
-	sg_set_pinsel(19, 0);	/* USB3OC */
-	sg_set_pinsel(20, 1);	/* USB3VBUS */
+	sg_set_pinsel(19, 0, 4, 4);	/* USB3OC */
+	sg_set_pinsel(20, 1, 4, 4);	/* USB3VBUS */
 #endif
 }

@@ -41,5 +41,5 @@ void sbc_init(void)
 		writel(0x0200be01, SBBASE1);
 	}
 
-	sg_set_pinsel(99, 1);	/* GPIO26 -> EA24 */
+	sg_set_pinsel(99, 1, 4, 4);	/* GPIO26 -> EA24 */
 }

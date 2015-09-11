@@ -23,8 +23,8 @@ ENTRY(setup_lowlevel_debug)
 		init_debug_uart	r0, r1, r2
 
 		/* UART Port 0 */
-		set_pinsel	127, 0, r0, r1
-		set_pinsel	128, 0, r0, r1
+		sg_set_pinsel	127, 0, 4, 8, r0, r1
+		sg_set_pinsel	128, 0, 4, 8, r0, r1
 
 		ldr		r0, =SG_LOADPINCTRL
 		mov		r1, #1

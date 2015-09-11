@@ -26,8 +26,8 @@ ENTRY(setup_lowlevel_debug)
 
 		init_debug_uart	r0, r1, r2
 
-		set_pinsel	63, 0, r0, r1
-		set_pinsel	64, 1, r0, r1
+		sg_set_pinsel	63, 0, 4, 4, r0, r1
+		sg_set_pinsel	64, 1, 4, 4, r0, r1
 
 		mov		pc, lr
 ENDPROC(setup_lowlevel_debug)

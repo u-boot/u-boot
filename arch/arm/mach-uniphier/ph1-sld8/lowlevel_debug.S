@@ -17,8 +17,8 @@ ENTRY(setup_lowlevel_debug)
 		init_debug_uart	r0, r1, r2
 
 		/* UART Port 0 */
-		set_pinsel	70, 3, r0, r1
-		set_pinsel	71, 3, r0, r1
+		sg_set_pinsel	70, 3, 8, 4, r0, r1
+		sg_set_pinsel	71, 3, 8, 4, r0, r1
 
 		ldr		r0, =SG_IECTRL
 		ldr		r1, [r0]
