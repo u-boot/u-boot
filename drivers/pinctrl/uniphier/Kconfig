@@ -21,4 +21,10 @@ config PINCTRL_UNIPHIER_PH1_SLD8
 	default y
 	select PINCTRL_UNIPHIER_CORE
 
+config PINCTRL_UNIPHIER_PH1_PRO5
+	bool "UniPhier PH1-Pro5 SoC pinctrl driver"
+	depends on MACH_PH1_PRO5
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
 endif
