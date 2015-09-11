@@ -139,7 +139,7 @@
 #define CONFIG_THOR_RESET_OFF
 #define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
-	"set dfu_alt_info " \
+	"setenv dfu_alt_info " \
 	"Image ram $kernel_addr $kernel_size\\\\;" \
 	"system.dtb ram $fdt_addr $fdt_size\0" \
 	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
