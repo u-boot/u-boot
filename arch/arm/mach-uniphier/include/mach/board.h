@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -8,8 +7,7 @@
 #ifndef ARCH_BOARD_H
 #define ARCH_BOARD_H
 
-#if defined(CONFIG_PFC_MICRO_SUPPORT_CARD) || \
-	defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
+#if defined(CONFIG_MICRO_SUPPORT_CARD)
 void support_card_reset(void);
 void support_card_init(void);
 void support_card_late_init(void);
