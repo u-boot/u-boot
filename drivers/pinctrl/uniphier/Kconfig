@@ -33,4 +33,10 @@ config PINCTRL_UNIPHIER_PROXSTREAM2
 	default y
 	select PINCTRL_UNIPHIER_CORE
 
+config PINCTRL_UNIPHIER_PH1_LD6B
+	bool "UniPhier PH1-LD6b SoC pinctrl driver"
+	depends on MACH_PH1_LD6B
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
 endif
