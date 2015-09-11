@@ -30,18 +30,18 @@ void sbc_init(void)
 	if (boot_is_swapped()) {
 		/*
 		 * Boot Swap On: boot from external NOR/SRAM
-		 * 0x02000000-0x03ffffff is a mirror of 0x00000000-0x01ffffff.
+		 * 0x42000000-0x43ffffff is a mirror of 0x40000000-0x41ffffff.
 		 *
-		 * 0x00000000-0x01efffff, 0x02000000-0x03efffff: memory bank
-		 * 0x01f00000-0x01ffffff, 0x03f00000-0x03ffffff: peripherals
+		 * 0x40000000-0x41efffff, 0x42000000-0x43efffff: memory bank
+		 * 0x41f00000-0x41ffffff, 0x43f00000-0x43ffffff: peripherals
 		 */
 		writel(0x0000bc01, SBBASE0);
 	} else {
 		/*
 		 * Boot Swap Off: boot from mask ROM
-		 * 0x00000000-0x01ffffff: mask ROM
-		 * 0x02000000-0x03efffff: memory bank (31MB)
-		 * 0x03f00000-0x03ffffff: peripherals (1MB)
+		 * 0x40000000-0x41ffffff: mask ROM
+		 * 0x42000000-0x43efffff: memory bank (31MB)
+		 * 0x43f00000-0x43ffffff: peripherals (1MB)
 		 */
 		writel(0x0000be01, SBBASE0); /* dummy */
 		writel(0x0200be01, SBBASE1);

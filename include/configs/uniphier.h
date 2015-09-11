@@ -62,7 +62,7 @@
 /*
  * Support card address map
  */
-#define CONFIG_SUPPORT_CARD_BASE	0x03f00000
+#define CONFIG_SUPPORT_CARD_BASE	0x43f00000
 #define CONFIG_SUPPORT_CARD_ETHER_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x00000000)
 #define CONFIG_SUPPORT_CARD_LED_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x00090000)
 #define CONFIG_SUPPORT_CARD_UART_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x000b0000)
@@ -240,6 +240,7 @@
 	"fit_addr_r=0x84100000\0" \
 	"fit_size=0x00f00000\0" \
 	"norboot=run add_default_bootargs &&" \
+		"setexpr fit_addr $nor_base + $fit_addr &&" \
 		"bootm $fit_addr\0" \
 	"nandboot=run add_default_bootargs &&" \
 		"nand read $fit_addr_r $fit_addr $fit_size &&" \
@@ -262,6 +263,9 @@
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"norboot=run add_default_bootargs &&" \
+		"setexpr kernel_addr $nor_base + $kernel_addr &&" \
+		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
+		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
 		"bootm $kernel_addr $ramdisk_addr $fdt_addr\0" \
 	"nandboot=run add_default_bootargs &&" \
 		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
@@ -278,6 +282,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
+	"norbase=0x42000000\0"					\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl-dtb.bin &&"		\
 		"nand write $loadaddr 0 0x00010000 &&"		\

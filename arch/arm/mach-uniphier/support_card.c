@@ -103,7 +103,7 @@ static int mem_is_flash(const struct memory_bank *mem)
 
 /* {address, size} */
 static const struct memory_bank memory_banks[] = {
-	{0x02000000, 0x01f00000},
+	{0x42000000, 0x01f00000},
 };
 
 static const struct memory_bank
