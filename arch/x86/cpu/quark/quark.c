@@ -223,6 +223,53 @@ void reset_cpu(ulong addr)
 	x86_full_reset();
 }
 
+static void quark_pcie_init(void)
+{
+	u32 val;
+
+	/* PCIe upstream non-posted & posted request size */
+	qrk_pci_write_config_dword(QUARK_PCIE0, PCIE_RP_CCFG,
+				   CCFG_UPRS | CCFG_UNRS);
+	qrk_pci_write_config_dword(QUARK_PCIE1, PCIE_RP_CCFG,
+				   CCFG_UPRS | CCFG_UNRS);
+
+	/* PCIe packet fast transmit mode (IPF) */
+	qrk_pci_write_config_dword(QUARK_PCIE0, PCIE_RP_MPC2, MPC2_IPF);
+	qrk_pci_write_config_dword(QUARK_PCIE1, PCIE_RP_MPC2, MPC2_IPF);
+
+	/* PCIe message bus idle counter (SBIC) */
+	qrk_pci_read_config_dword(QUARK_PCIE0, PCIE_RP_MBC, &val);
+	val |= MBC_SBIC;
+	qrk_pci_write_config_dword(QUARK_PCIE0, PCIE_RP_MBC, val);
+	qrk_pci_read_config_dword(QUARK_PCIE1, PCIE_RP_MBC, &val);
+	val |= MBC_SBIC;
+	qrk_pci_write_config_dword(QUARK_PCIE1, PCIE_RP_MBC, val);
+}
+
+static void quark_usb_init(void)
+{
+	u32 bar;
+
+	/* Change USB EHCI packet buffer OUT/IN threshold */
+	qrk_pci_read_config_dword(QUARK_USB_EHCI, PCI_BASE_ADDRESS_0, &bar);
+	writel((0x7f << 16) | 0x7f, bar + EHCI_INSNREG01);
+
+	/* Disable USB device interrupts */
+	qrk_pci_read_config_dword(QUARK_USB_DEVICE, PCI_BASE_ADDRESS_0, &bar);
+	writel(0x7f, bar + USBD_INT_MASK);
+	writel((0xf << 16) | 0xf, bar + USBD_EP_INT_MASK);
+	writel((0xf << 16) | 0xf, bar + USBD_EP_INT_STS);
+}
+
+int arch_early_init_r(void)
+{
+	quark_pcie_init();
+
+	quark_usb_init();
+
+	return 0;
+}
+
 int cpu_mmc_init(bd_t *bis)
 {
 	return pci_mmc_init("Quark SDHCI", mmc_supported,
@@ -255,4 +302,21 @@ void cpu_irq_init(void)
 int arch_misc_init(void)
 {
 	return pirq_init();
+}
+
+void board_final_cleanup(void)
+{
+	struct quark_rcba *rcba;
+	u32 base, val;
+
+	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, LB_RCBA, &base);
+	base &= ~MEM_BAR_EN;
+	rcba = (struct quark_rcba *)base;
+
+	/* Initialize 'Component ID' to zero */
+	val = readl(&rcba->esd);
+	val &= ~0xff0000;
+	writel(val, &rcba->esd);
+
+	return;
 }

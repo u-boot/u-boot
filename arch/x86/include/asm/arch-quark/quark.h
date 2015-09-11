@@ -88,6 +88,20 @@
 /* 64KiB of RMU binary in flash */
 #define RMU_BINARY_SIZE		0x10000
 
+/* PCIe Root Port Configuration Registers */
+
+#define PCIE_RP_CCFG		0xd0
+#define CCFG_UPRS		(1 << 14)
+#define CCFG_UNRS		(1 << 15)
+#define CCFG_UNSD		(1 << 23)
+#define CCFG_UPSD		(1 << 24)
+
+#define PCIE_RP_MPC2		0xd4
+#define MPC2_IPF		(1 << 11)
+
+#define PCIE_RP_MBC		0xf4
+#define MBC_SBIC		(3 << 16)
+
 /* Legacy Bridge PCI Configuration Registers */
 #define LB_GBA			0x44
 #define LB_PM1BLK		0x48
@@ -99,6 +113,14 @@
 #define LB_BCE			0xd4
 #define LB_BC			0xd8
 #define LB_RCBA			0xf0
+
+/* USB EHCI memory-mapped registers */
+#define EHCI_INSNREG01		0x94
+
+/* USB device memory-mapped registers */
+#define USBD_INT_MASK		0x410
+#define USBD_EP_INT_STS		0x414
+#define USBD_EP_INT_MASK	0x418
 
 #ifndef __ASSEMBLY__
 
