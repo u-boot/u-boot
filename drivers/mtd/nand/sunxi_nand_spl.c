@@ -321,6 +321,7 @@ static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest,
 		{  8192, 40, 1024, 5 },
 		{ 16384, 56, 1024, 5 },
 		{  8192, 24, 1024, 5 },
+		{  4096, 24, 1024, 5 },
 	};
 	static int nand_config = -1;
 	int i;

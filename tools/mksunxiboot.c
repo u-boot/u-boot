@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	memset(img.pad, 0, BLOCK_SIZE);
+	memset(&img, 0, sizeof(img));
 
 	/* get input file size */
 	file_size = lseek(fd_in, 0, SEEK_END);
