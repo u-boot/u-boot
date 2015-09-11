@@ -426,7 +426,7 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	int bit, num, len, in;
 	struct ci_req *ci_req;
 	u8 *buf;
-	uint32_t length, actlen;
+	uint32_t len_left, len_this_dtd;
 	struct ept_queue_item *dtd, *qtd;
 
 	ci_ep->req_primed = true;
@@ -444,25 +444,23 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 
 	ci_req->dtd_count = 0;
 	buf = ci_req->hw_buf;
-	actlen = 0;
+	len_left = len;
 	dtd = item;
 
 	do {
-		length = min(ci_req->req.length - actlen,
-			     (unsigned)EP_MAX_LENGTH_TRANSFER);
+		len_this_dtd = min(len_left, (unsigned)EP_MAX_LENGTH_TRANSFER);
 
-		dtd->info = INFO_BYTES(length) | INFO_ACTIVE;
+		dtd->info = INFO_BYTES(len_this_dtd) | INFO_ACTIVE;
 		dtd->page0 = (unsigned long)buf;
 		dtd->page1 = ((unsigned long)buf & 0xfffff000) + 0x1000;
 		dtd->page2 = ((unsigned long)buf & 0xfffff000) + 0x2000;
 		dtd->page3 = ((unsigned long)buf & 0xfffff000) + 0x3000;
 		dtd->page4 = ((unsigned long)buf & 0xfffff000) + 0x4000;
 
-		len -= length;
-		actlen += length;
-		buf += length;
+		len_left -= len_this_dtd;
+		buf += len_this_dtd;
 
-		if (len) {
+		if (len_left) {
 			qtd = (struct ept_queue_item *)
 			       memalign(ILIST_ALIGN, ILIST_ENT_SZ);
 			dtd->next = (unsigned long)qtd;
@@ -471,7 +469,7 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 		}
 
 		ci_req->dtd_count++;
-	} while (len);
+	} while (len_left);
 
 	item = dtd;
 	/*
