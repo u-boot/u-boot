@@ -221,6 +221,9 @@
 	"nosmp=setenv bootargs $bootargs maxcpus=1\0" \
 	"nfsroot=setenv bootargs $bootargs root=/dev/nfs nfsroot=$serverip:/mnt/sata,tcp ip=$ipaddr:$serverip:$serverip:255.255.255.0:zynqmp:eth0:off rw\0" \
 	"sdroot=setenv bootargs $bootargs root=/dev/mmcblk0p2 rw rootwait\0" \
+	"usbhostboot=usb start && load usb 0 $fdt_addr system.dtb && " \
+		     "load usb 0 $kernel_addr Image && " \
+		     "booti $kernel_addr - $fdt_addr\0" \
 	DFU_ALT_INFO
 
 #define CONFIG_PREBOOT		"run bootargs; run sata_root; run setup"
