@@ -27,4 +27,10 @@ config PINCTRL_UNIPHIER_PH1_PRO5
 	default y
 	select PINCTRL_UNIPHIER_CORE
 
+config PINCTRL_UNIPHIER_PROXSTREAM2
+	bool "UniPhier ProXstream2 SoC pinctrl driver"
+	depends on MACH_PROXSTREAM2
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
 endif
