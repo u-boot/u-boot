@@ -64,7 +64,7 @@
 #else
 # if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
 #  define CONFIG_ZYNQ_SERIAL
-#  define CONFIG_BOOTARGS	"setenv bootargs console=ttyPS0,${baudrate}" \
+#  define CONFIG_BOOTARGS	"setenv bootargs console=ttyPS0,${baudrate} " \
 				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"
 # endif
 #endif
