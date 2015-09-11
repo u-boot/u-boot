@@ -191,23 +191,26 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_FEC_MXC
 	bus = fec_get_miibus(base, -1);
 	if (!bus)
-		return 0;
+		return -EINVAL;
 	/* scan phy 4,5,6,7 */
 	phydev = phy_find_by_mask(bus, (0xf << 4), PHY_INTERFACE_MODE_RGMII);
 
 	if (!phydev) {
-		free(bus);
-		return 0;
+		ret = -EINVAL;
+		goto free_bus;
 	}
 	printf("using phy at %d\n", phydev->addr);
 	ret  = fec_probe(bis, -1, base, bus, phydev);
-	if (ret) {
-		printf("FEC MXC: %s:failed\n", __func__);
-		free(phydev);
-		free(bus);
-	}
+	if (ret)
+		goto free_phydev;
 #endif
 	return 0;
+
+free_phydev:
+	free(phydev);
+free_bus:
+	free(bus);
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)
