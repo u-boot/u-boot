@@ -15,6 +15,11 @@
 void __weak bcu_init(void)
 {
 };
+
+void __weak early_pin_init(void)
+{
+};
+
 void sbc_init(void);
 void sg_init(void);
 void pll_init(void);
