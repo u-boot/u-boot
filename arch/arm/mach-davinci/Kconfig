@@ -8,9 +8,6 @@ config TARGET_IPAM390
 	bool "IPAM390 board"
 	select SUPPORT_SPL
 
-config TARGET_DA830EVM
-	bool "DA830 EVM board"
-
 config TARGET_DA850EVM
 	bool "DA850 EVM board"
 	select SUPPORT_SPL
