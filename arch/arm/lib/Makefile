@@ -22,9 +22,6 @@ obj-y	+= relocate_64.o
 else
 obj-y	+= relocate.o
 endif
-ifndef CONFIG_SYS_GENERIC_BOARD
-obj-y	+= board.o
-endif
 
 obj-$(CONFIG_CPU_V7M) += cmd_boot.o
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
