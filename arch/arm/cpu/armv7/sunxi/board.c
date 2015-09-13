@@ -192,6 +192,7 @@ u32 spl_boot_mode(void)
 
 void board_init_f(ulong dummy)
 {
+	spl_init();
 	preloader_console_init();
 
 #ifdef CONFIG_SPL_I2C_SUPPORT

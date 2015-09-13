@@ -523,6 +523,7 @@ config ARCH_SUNXI
 	select OF_CONTROL
 	select OF_SEPARATE
 	select SPL_STACK_R if !MACH_SUN9I
+	select SPL_SYS_MALLOC_SIMPLE if !MACH_SUN9I
 	select USB
 	select USB_STORAGE
 	select USB_KEYBOARD
