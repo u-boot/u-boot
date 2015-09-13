@@ -24,6 +24,7 @@
 #include <i2c.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/arch/crm_regs.h>
+#include <usb/ehci-fsl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
