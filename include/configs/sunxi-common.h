@@ -145,8 +145,8 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
 #endif
 
-/* 4MB of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
+/* 64MB of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (64 << 20))
 
 /*
  * Miscellaneous configurable options
@@ -275,11 +275,7 @@ extern int soft_i2c_gpio_scl;
  * The amount of RAM to keep free at the top of RAM when relocating u-boot,
  * to use as framebuffer. This must be a multiple of 4096.
  */
-#ifdef CONFIG_VIDEO_LCD_PANEL_EDP_4_LANE_1620M_VIA_ANX9804
-#define CONFIG_SUNXI_MAX_FB_SIZE (12 << 20)
-#else
-#define CONFIG_SUNXI_MAX_FB_SIZE (9 << 20)
-#endif
+#define CONFIG_SUNXI_MAX_FB_SIZE (16 << 20)
 
 /* Do we want to initialize a simple FB? */
 #define CONFIG_VIDEO_DT_SIMPLEFB
@@ -386,12 +382,12 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PRE_CON_BUF_SZ		4096 /* Aprox 2 80*25 screens */
 
 /*
- * 240M RAM (256M minimum minus space for the framebuffer),
+ * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
  * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
  * 1M script, 1M pxe and the ramdisk at the end.
  */
 #define MEM_LAYOUT_ENV_SETTINGS \
-	"bootm_size=0xf000000\0" \
+	"bootm_size=0xa000000\0" \
 	"kernel_addr_r=" __stringify(SDRAM_OFFSET(2000000)) "\0" \
 	"fdt_addr_r=" __stringify(SDRAM_OFFSET(3000000)) "\0" \
 	"scriptaddr=" __stringify(SDRAM_OFFSET(3100000)) "\0" \
