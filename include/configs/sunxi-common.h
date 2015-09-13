@@ -73,6 +73,10 @@
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x2a000000
 #define CONFIG_PRE_CON_BUF_ADDR		0x2f000000
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+ * since it needs to fit in with the other values. By also #defining it
+ * we get warnings if the Kconfig value mismatches. */
+#define CONFIG_SPL_STACK_R_ADDR		0x2fe00000
 #define CONFIG_SYS_SPL_MALLOC_START	0x2ff00000
 #define CONFIG_SPL_BSS_START_ADDR	0x2ff80000
 #else
@@ -81,6 +85,10 @@
 #define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x4a000000
 #define CONFIG_PRE_CON_BUF_ADDR		0x4f000000
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+ * since it needs to fit in with the other values. By also #defining it
+ * we get warnings if the Kconfig value mismatches. */
+#define CONFIG_SPL_STACK_R_ADDR		0x4fe00000
 #define CONFIG_SYS_SPL_MALLOC_START	0x4ff00000
 #define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
 #endif

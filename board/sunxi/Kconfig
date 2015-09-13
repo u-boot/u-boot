@@ -562,4 +562,8 @@ config GMAC_TX_DELAY
 	---help---
 	Set the GMAC Transmit Clock Delay Chain value.
 
+config SPL_STACK_R_ADDR
+	default 0x4fe00000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN7I || MACH_SUN8I
+	default 0x2fe00000 if MACH_SUN9I
+
 endif
