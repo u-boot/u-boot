@@ -789,12 +789,13 @@ int himport_r(struct hsearch_data *htab,
 	}
 
 	/* we allocate new space to make sure we can write to the array */
-	if ((data = malloc(size)) == NULL) {
-		debug("himport_r: can't malloc %zu bytes\n", size);
+	if ((data = malloc(size + 1)) == NULL) {
+		debug("himport_r: can't malloc %zu bytes\n", size + 1);
 		__set_errno(ENOMEM);
 		return 0;
 	}
 	memcpy(data, env, size);
+	data[size] = '\0';
 	dp = data;
 
 	/* make a local copy of the list of variables */
