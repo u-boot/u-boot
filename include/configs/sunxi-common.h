@@ -13,6 +13,7 @@
 #ifndef _SUNXI_COMMON_CONFIG_H
 #define _SUNXI_COMMON_CONFIG_H
 
+#include <asm/arch/cpu.h>
 #include <linux/stringify.h>
 
 #ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
@@ -39,23 +40,14 @@
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
 #endif
 
-#include <asm/arch/cpu.h>	/* get chip and board defs */
-
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DM_SERIAL)
-# define CONFIG_DW_SERIAL
-#endif
-
-/*
- * Display CPU information
- */
-#define CONFIG_DISPLAY_CPUINFO
-
 /* Serial & console */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
 #define CONFIG_SYS_NS16550_CLK		24000000
-#ifndef CONFIG_DM_SERIAL
+#ifdef CONFIG_DM_SERIAL
+# define CONFIG_DW_SERIAL
+#else
 # define CONFIG_SYS_NS16550_REG_SIZE	-4
 # define CONFIG_SYS_NS16550_COM1		SUNXI_UART0_BASE
 # define CONFIG_SYS_NS16550_COM2		SUNXI_UART1_BASE
@@ -65,6 +57,7 @@
 #endif
 
 /* CPU */
+#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
 /*
