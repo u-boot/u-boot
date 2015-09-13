@@ -842,8 +842,10 @@ int himport_r(struct hsearch_data *htab,
 		}
 	}
 
-	if(!size)
+	if (!size) {
+		free(data);
 		return 1;		/* everything OK */
+	}
 	if(crlf_is_lf) {
 		/* Remove Carriage Returns in front of Line Feeds */
 		unsigned ignored_crs = 0;
@@ -907,6 +909,7 @@ int himport_r(struct hsearch_data *htab,
 		if (*name == 0) {
 			debug("INSERT: unable to use an empty key\n");
 			__set_errno(EINVAL);
+			free(data);
 			return 0;
 		}
 
