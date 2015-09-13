@@ -114,6 +114,16 @@ config SPL
 	help
 	  If you want to build SPL as well as the normal image, say Y.
 
+config SPL_SYS_MALLOC_SIMPLE
+	bool
+	depends on SPL
+	prompt "Only use malloc_simple functions in the spl"
+	help
+	  Say Y here to only use the *_simple malloc functions from
+	  malloc_simple.c, rather then using the versions from dlmalloc.c
+	  this will make the SPL binary smaller at the cost of more heap
+	  usage as the *_simple malloc functions do not re-use free-ed mem.
+
 config SPL_STACK_R
 	depends on SPL
 	bool "Enable SDRAM location for SPL stack"
