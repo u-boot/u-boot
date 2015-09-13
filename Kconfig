@@ -142,6 +142,16 @@ config SPL_STACK_R_ADDR
 	  Specify the address in SDRAM for the SPL stack. This will be set up
 	  before board_init_r() is called.
 
+config SPL_STACK_R_MALLOC_SIMPLE_LEN
+	depends on SPL_STACK_R && SPL_SYS_MALLOC_SIMPLE
+	hex "Size of malloc_simple heap after switching to DRAM SPL stack"
+	default 0x100000
+	help
+	  Specify the amount of the stack to use as memory pool for
+	  malloc_simple after switching the stack to DRAM. This may be set
+	  to give board_init_r() a larger heap then the initial heap in
+	  SRAM which is limited to SYS_MALLOC_F_LEN bytes.
+
 config TPL
 	bool
 	depends on SPL && SUPPORT_TPL
