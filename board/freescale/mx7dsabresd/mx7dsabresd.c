@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SYS_I2C_MXC
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 /* I2C1 for PMIC */
-struct i2c_pads_info i2c_pad_info1 = {
+static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX7D_PAD_I2C1_SCL__I2C1_SCL | PC,
 		.gpio_mode = MX7D_PAD_I2C1_SCL__GPIO4_IO8 | PC,
@@ -156,7 +156,7 @@ static enum qn_func qn_output[8] = {
 	qn_enable
 };
 
-void iox74lv_init(void)
+static void iox74lv_init(void)
 {
 	int i;
 
@@ -535,11 +535,11 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_USB_EHCI_MX7
-iomux_v3_cfg_t const usb_otg1_pads[] = {
+static iomux_v3_cfg_t const usb_otg1_pads[] = {
 	MX7D_PAD_GPIO1_IO05__USB_OTG1_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const usb_otg2_pads[] = {
+static iomux_v3_cfg_t const usb_otg2_pads[] = {
 	MX7D_PAD_UART3_CTS_B__USB_OTG2_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
