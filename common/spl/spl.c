@@ -347,9 +347,6 @@ ulong spl_relocate_stack_gd(void)
 	memcpy(new_gd, (void *)gd, sizeof(gd_t));
 	gd = new_gd;
 
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
 	return ptr;
 #else
 	return 0;
