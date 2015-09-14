@@ -13,7 +13,6 @@ choice
 
 config TARGET_MX7DSABRESD
 	bool "mx7dsabresd"
-	select CPU_V7
 	select DM
 	select DM_THERMAL
 
