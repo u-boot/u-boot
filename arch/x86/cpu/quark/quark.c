@@ -8,6 +8,7 @@
 #include <mmc.h>
 #include <asm/io.h>
 #include <asm/irq.h>
+#include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
@@ -32,6 +33,55 @@ static void unprotect_spi_flash(void)
 	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, &bc);
 	bc |= 0x1;	/* unprotect the flash */
 	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, bc);
+}
+
+static void quark_setup_mtrr(void)
+{
+	u32 base, mask;
+	int i;
+
+	disable_caches();
+
+	/* mark the VGA RAM area as uncacheable */
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_A0000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_UNCACHEABLE));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_B0000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_UNCACHEABLE));
+
+	/* mark other fixed range areas as cacheable */
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_64K_00000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_64K_40000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_80000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_90000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	for (i = MTRR_FIX_4K_C0000; i <= MTRR_FIX_4K_FC000; i++)
+		msg_port_write(MSG_PORT_HOST_BRIDGE, i,
+			       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+
+	/* variable range MTRR#0: ROM area */
+	mask = ~(CONFIG_SYS_MONITOR_LEN - 1);
+	base = CONFIG_SYS_TEXT_BASE & mask;
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYBASE(MTRR_VAR_ROM),
+		       base | MTRR_TYPE_WRBACK);
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYMASK(MTRR_VAR_ROM),
+		       mask | MTRR_PHYS_MASK_VALID);
+
+	/* variable range MTRR#1: eSRAM area */
+	mask = ~(ESRAM_SIZE - 1);
+	base = CONFIG_ESRAM_BASE & mask;
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYBASE(MTRR_VAR_ESRAM),
+		       base | MTRR_TYPE_WRBACK);
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYMASK(MTRR_VAR_ESRAM),
+		       mask | MTRR_PHYS_MASK_VALID);
+
+	/* enable both variable and fixed range MTRRs */
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_DEF_TYPE,
+		       MTRR_DEF_TYPE_EN | MTRR_DEF_TYPE_FIX_EN);
+
+	enable_caches();
 }
 
 static void quark_setup_bars(void)
@@ -189,6 +239,13 @@ int arch_cpu_init(void)
 	ret = x86_cpu_init_f();
 	if (ret)
 		return ret;
+
+	/*
+	 * Quark SoC does not support MSR MTRRs. Fixed and variable range MTRRs
+	 * are accessed indirectly via the message port and not the traditional
+	 * MSR mechanism. Only UC, WT and WB cache types are supported.
+	 */
+	quark_setup_mtrr();
 
 	/*
 	 * Quark SoC has some non-standard BARs (excluding PCI standard BARs)
