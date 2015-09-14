@@ -840,18 +840,6 @@ The following options need to be configured:
 		define this to a list of base addresses for each (supported)
 		port. See e.g. include/configs/versatile.h
 
-		CONFIG_PL011_SERIAL_RLCR
-
-		Some vendor versions of PL011 serial ports (e.g. ST-Ericsson U8500)
-		have separate receive and transmit line control registers.  Set
-		this variable to initialize the extra register.
-
-		CONFIG_PL011_SERIAL_FLUSH_ON_INIT
-
-		On some platforms (e.g. U8500) U-Boot is loaded by a second stage
-		boot loader that has already initialized the UART.  Define this
-		variable to flush the UART at init time.
-
 		CONFIG_SERIAL_HW_FLOW_CONTROL
 
 		Define this variable to enable hw flow control in serial driver.

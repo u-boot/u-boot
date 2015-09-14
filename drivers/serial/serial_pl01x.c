@@ -80,13 +80,6 @@ static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 		writel(0, &regs->pl010_cr);
 		break;
 	case TYPE_PL011:
-#ifdef CONFIG_PL011_SERIAL_FLUSH_ON_INIT
-		/* Empty RX fifo if necessary */
-		if (readl(&regs->pl011_cr) & UART_PL011_CR_UARTEN) {
-			while (!(readl(&regs->fr) & UART_PL01x_FR_RXFE))
-				readl(&regs->dr);
-		}
-#endif
 		/* disable everything */
 		writel(0, &regs->pl011_cr);
 		break;
@@ -105,21 +98,6 @@ static int pl011_set_line_control(struct pl01x_regs *regs)
 	 * control register write
 	 */
 	lcr = UART_PL011_LCRH_WLEN_8 | UART_PL011_LCRH_FEN;
-#ifdef CONFIG_PL011_SERIAL_RLCR
-	{
-		int i;
-
-		/*
-		 * Program receive line control register after waiting
-		 * 10 bus cycles.  Delay be writing to readonly register
-		 * 10 times
-		 */
-		for (i = 0; i < 10; i++)
-			writel(lcr, &regs->fr);
-
-		writel(lcr, &regs->pl011_rlcr);
-	}
-#endif
 	writel(lcr, &regs->pl011_lcrh);
 	return 0;
 }
