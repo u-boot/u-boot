@@ -158,7 +158,7 @@ static void iox74lv_init(void)
 #ifdef CONFIG_SYS_I2C_MXC
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 /* I2C1 for PMIC and EEPROM */
-struct i2c_pads_info i2c_pad_info1 = {
+static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode =  MX6_PAD_UART4_TX_DATA__I2C1_SCL | PC,
 		.gpio_mode = MX6_PAD_UART4_TX_DATA__GPIO1_IO28 | PC,
@@ -313,7 +313,7 @@ static iomux_v3_cfg_t const quadspi_pads[] = {
 	MX6_PAD_NAND_DQS__QSPI_A_SS0_B | MUX_PAD_CTRL(QSPI_PAD_CTRL1),
 };
 
-int board_qspi_init(void)
+static int board_qspi_init(void)
 {
 	/* Set the iomux */
 	imx_iomux_v3_setup_multiple_pads(quadspi_pads,
