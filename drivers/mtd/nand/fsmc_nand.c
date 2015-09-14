@@ -13,7 +13,6 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
-#include <linux/mtd/nand_bch.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/fsmc_nand.h>
 #include <asm/arch/hardware.h>
@@ -398,12 +397,18 @@ static int fsmc_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
  * @eccstrength		- the number of bits that could be corrected
  *			  (1 - HW, 4 - SW BCH4)
  */
-int __maybe_unused fsmc_nand_switch_ecc(uint32_t eccstrength)
+int fsmc_nand_switch_ecc(uint32_t eccstrength)
 {
 	struct nand_chip *nand;
 	struct mtd_info *mtd;
 	int err;
 
+	/*
+	 * This functions is only called on SPEAr600 platforms, supporting
+	 * 1 bit HW ECC. The BCH8 HW ECC (FSMC_VER8) from the ST-Ericsson
+	 * Nomadik SoC is currently supporting this fsmc_nand_switch_ecc()
+	 * function, as it doesn't need to switch to a different ECC layout.
+	 */
 	mtd = &nand_info[nand_curr_device];
 	nand = mtd->priv;
 
@@ -413,14 +418,18 @@ int __maybe_unused fsmc_nand_switch_ecc(uint32_t eccstrength)
 		nand->ecc.bytes = 3;
 		nand->ecc.strength = 1;
 		nand->ecc.layout = &fsmc_ecc1_layout;
+		nand->ecc.calculate = fsmc_read_hwecc;
 		nand->ecc.correct = nand_correct_data;
-	} else {
+	} else if (eccstrength == 4) {
+		/*
+		 * .calculate .correct and .bytes will be set in
+		 * nand_scan_tail()
+		 */
 		nand->ecc.mode = NAND_ECC_SOFT_BCH;
-		nand->ecc.calculate = nand_bch_calculate_ecc;
-		nand->ecc.correct = nand_bch_correct_data;
-		nand->ecc.bytes = 7;
 		nand->ecc.strength = 4;
 		nand->ecc.layout = NULL;
+	} else {
+		printf("Error: ECC strength %d not supported!\n", eccstrength);
 	}
 
 	/* Update NAND handling after ECC mode switch */
