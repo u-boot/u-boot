@@ -53,8 +53,7 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 	}
 #endif
 
-	if (mux_ctrl_ofs)
-		__raw_writel(mux_mode, base + mux_ctrl_ofs);
+	__raw_writel(mux_mode, base + mux_ctrl_ofs);
 
 	if (sel_input_ofs)
 		__raw_writel(sel_input, base + sel_input_ofs);
