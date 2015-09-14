@@ -51,7 +51,6 @@ machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
 machine-$(CONFIG_ARMADA_XP)		+= mvebu
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
-machine-$(CONFIG_ARCH_NOMADIK)		+= nomadik
 # TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
 machine-$(CONFIG_ORION5X)		+= orion5x
 machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
