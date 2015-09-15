@@ -103,6 +103,7 @@ void init_src(void)
 	writel(val, &src_regs->scr);
 }
 
+#ifdef CONFIG_CMD_BMODE
 void boot_mode_apply(unsigned cfg_val)
 {
 	unsigned reg;
@@ -115,3 +116,4 @@ void boot_mode_apply(unsigned cfg_val)
 		reg &= ~(1 << 28);
 	writel(reg, &psrc->gpr10);
 }
+#endif
