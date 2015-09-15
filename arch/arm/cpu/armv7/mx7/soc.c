@@ -79,7 +79,7 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 	val &= 0x3;
 
 	if (minc && maxc) {
-		if ( val == TEMP_AUTOMOTIVE) {
+		if (val == TEMP_AUTOMOTIVE) {
 			*minc = -40;
 			*maxc = 125;
 		} else if (val == TEMP_INDUSTRIAL) {
