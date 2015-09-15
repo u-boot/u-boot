@@ -23,6 +23,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"AT45DB321D",	   0x1f2700, 0x0,	64 * 1024,    64, RD_NORM,		    SECT_4K},
 	{"AT45DB641D",	   0x1f2800, 0x0,	64 * 1024,   128, RD_NORM,		    SECT_4K},
 	{"AT25DF321",      0x1f4701, 0x0,	64 * 1024,    64, RD_NORM,		    SECT_4K},
+	{"AT26DF081A",     0x1f4501, 0x0,	64 * 1024,    16, RD_NORM,		    SECT_4K},
 #endif
 #ifdef CONFIG_SPI_FLASH_EON		/* EON */
 	{"EN25Q32B",	   0x1c3016, 0x0,	64 * 1024,    64, RD_NORM,			  0},
