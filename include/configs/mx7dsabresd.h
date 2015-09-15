@@ -174,8 +174,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
 
-#define CONFIG_CMD_BMODE
-
 /* USB Configs */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI

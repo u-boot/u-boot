@@ -10,7 +10,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
@@ -421,15 +420,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_CMD_BMODE
-static const struct boot_mode board_boot_modes[] = {
-	/* 4 bit bus width */
-	{"sd1", MAKE_CFGVAL(0x10, 0x10, 0x00, 0x00)},
-	{"emmc", MAKE_CFGVAL(0x10, 0x2a, 0x00, 0x00)},
-	{NULL,   0},
-};
-#endif
-
 #ifdef CONFIG_POWER
 #define I2C_PMIC	0
 int power_init_board(void)
@@ -463,10 +453,6 @@ int power_init_board(void)
 int board_late_init(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
-#ifdef CONFIG_CMD_BMODE
-	add_board_boot_modes(board_boot_modes);
-#endif
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 	mmc_late_init();
