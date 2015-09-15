@@ -15,8 +15,6 @@
 #include <dm.h>
 #include <imx_thermal.h>
 
-struct src *src_reg = (struct src *)SRC_BASE_ADDR;
-
 #if defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx7_thermal_plat = {
 	.regs = (void *)ANATOP_BASE_ADDR,
