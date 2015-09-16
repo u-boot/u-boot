@@ -478,7 +478,7 @@
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
 #endif
 
-#define CONFIG_SYS_QE_FW_ADDR     0x67f40000
+#define CONFIG_SYS_QE_FW_ADDR     0x600c0000
 
 /*
  * Environment

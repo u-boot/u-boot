@@ -574,7 +574,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_BOOTDELAY		3
 
-#define CONFIG_SYS_QE_FW_ADDR     0x67f40000
+#define CONFIG_SYS_QE_FW_ADDR     0x600c0000
 
 #ifdef CONFIG_LPUART
 #define CONFIG_EXTRA_ENV_SETTINGS       \
