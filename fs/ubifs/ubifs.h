@@ -34,6 +34,7 @@
 #include <asm/atomic.h>
 #include <asm-generic/atomic-long.h>
 #include <ubi_uboot.h>
+#include <ubifs_uboot.h>
 
 #include <linux/ctype.h>
 #include <linux/time.h>
@@ -2379,11 +2380,6 @@ int ubifs_decompress(const void *buf, int len, void *out, int *out_len,
 #include "key.h"
 
 #ifdef __UBOOT__
-/* these are used in cmd_ubifs.c */
-int ubifs_init(void);
-int uboot_ubifs_mount(char *vol_name);
 void ubifs_umount(struct ubifs_info *c);
-int ubifs_ls(char *dir_name);
-int ubifs_load(char *filename, u32 addr, u32 size);
 #endif
 #endif /* !__UBIFS_H__ */

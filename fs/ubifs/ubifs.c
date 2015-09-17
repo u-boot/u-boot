@@ -570,7 +570,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 	return 0;
 }
 
-int ubifs_ls(char *filename)
+int ubifs_ls(const char *filename)
 {
 	struct ubifs_info *c = ubifs_sb->s_fs_info;
 	struct file *file;
@@ -581,7 +581,7 @@ int ubifs_ls(char *filename)
 	int ret = 0;
 
 	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
-	inum = ubifs_findfile(ubifs_sb, filename);
+	inum = ubifs_findfile(ubifs_sb, (char *)filename);
 	if (!inum) {
 		ret = -1;
 		goto out;
@@ -787,7 +787,8 @@ error:
 	return err;
 }
 
-int ubifs_load(char *filename, u32 addr, u32 size)
+int ubifs_read(const char *filename, void *buf, loff_t offset,
+	       loff_t size, loff_t *actread)
 {
 	struct ubifs_info *c = ubifs_sb->s_fs_info;
 	unsigned long inum;
@@ -798,10 +799,18 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 	int count;
 	int last_block_size = 0;
 
+	*actread = 0;
+
+	if (offset & (PAGE_SIZE - 1)) {
+		printf("ubifs: Error offset must be a multple of %d\n",
+		       PAGE_SIZE);
+		return -1;
+	}
+
 	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
 	/* ubifs_findfile will resolve symlinks, so we know that we get
 	 * the real file here */
-	inum = ubifs_findfile(ubifs_sb, filename);
+	inum = ubifs_findfile(ubifs_sb, (char *)filename);
 	if (!inum) {
 		err = -1;
 		goto out;
@@ -817,19 +826,24 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 		goto out;
 	}
 
+	if (offset > inode->i_size) {
+		printf("ubifs: Error offset (%lld) > file-size (%lld)\n",
+		       offset, size);
+		err = -1;
+		goto put_inode;
+	}
+
 	/*
 	 * If no size was specified or if size bigger than filesize
 	 * set size to filesize
 	 */
-	if ((size == 0) || (size > inode->i_size))
-		size = inode->i_size;
+	if ((size == 0) || (size > (inode->i_size - offset)))
+		size = inode->i_size - offset;
 
 	count = (size + UBIFS_BLOCK_SIZE - 1) >> UBIFS_BLOCK_SHIFT;
-	printf("Loading file '%s' to addr 0x%08x with size %d (0x%08x)...\n",
-	       filename, addr, size, size);
 
-	page.addr = (void *)addr;
-	page.index = 0;
+	page.addr = buf;
+	page.index = offset / PAGE_SIZE;
 	page.inode = inode;
 	for (i = 0; i < count; i++) {
 		/*
@@ -846,16 +860,44 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 		page.index++;
 	}
 
-	if (err)
+	if (err) {
 		printf("Error reading file '%s'\n", filename);
-	else {
-		setenv_hex("filesize", size);
-		printf("Done\n");
+		*actread = i * PAGE_SIZE;
+	} else {
+		*actread = size;
 	}
 
+put_inode:
 	ubifs_iput(inode);
 
 out:
 	ubi_close_volume(c->ubi);
 	return err;
+}
+
+/* Compat wrappers for common/cmd_ubifs.c */
+int ubifs_load(char *filename, u32 addr, u32 size)
+{
+	loff_t actread;
+	int err;
+
+	printf("Loading file '%s' to addr 0x%08x...\n", filename, addr);
+
+	err = ubifs_read(filename, (void *)addr, 0, size, &actread);
+	if (err == 0) {
+		setenv_hex("filesize", actread);
+		printf("Done\n");
+	}
+
+	return err;
+}
+
+void uboot_ubifs_umount(void)
+{
+	if (ubifs_sb) {
+		printf("Unmounting UBIFS volume %s!\n",
+		       ((struct ubifs_info *)(ubifs_sb->s_fs_info))->vi.name);
+		ubifs_umount(ubifs_sb->s_fs_info);
+		ubifs_sb = NULL;
+	}
 }
