@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/spl.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/tzpc.h>
@@ -152,7 +153,7 @@ u32 spl_boot_device(void)
 	 * binary over USB. If it is found, it determines where SPL was
 	 * read from.
 	 */
-	if (readl(4) != 0x4E4F4765 || readl(8) != 0x3054422E) /* eGON.BT0 */
+	if (!is_boot0_magic(SPL_ADDR + 4)) /* eGON.BT0 */
 		return BOOT_DEVICE_BOARD;
 
 	/* The BROM will try to boot from mmc0 first, so try that first. */

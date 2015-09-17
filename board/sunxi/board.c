@@ -516,6 +516,31 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif
 
+#if !defined(CONFIG_SPL_BUILD)
+#include <asm/arch/spl.h>
+
+/*
+ * Check the SPL header for the "sunxi" variant. If found: parse values
+ * that might have been passed by the loader ("fel" utility), and update
+ * the environment accordingly.
+ */
+static void parse_spl_header(const uint32_t spl_addr)
+{
+	struct boot_file_head *spl = (void *)spl_addr;
+	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) == 0) {
+		uint8_t spl_header_version = spl->spl_signature[3];
+		if (spl_header_version == SPL_HEADER_VERSION) {
+			if (spl->fel_script_address)
+				setenv_hex("fel_scriptaddr",
+					   spl->fel_script_address);
+			return;
+		}
+		printf("sunxi SPL version mismatch: expected %u, got %u\n",
+		       SPL_HEADER_VERSION, spl_header_version);
+	}
+}
+#endif
+
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
@@ -523,6 +548,16 @@ int misc_init_r(void)
 	unsigned int sid[4];
 	uint8_t mac_addr[6];
 	int ret;
+
+#if !defined(CONFIG_SPL_BUILD)
+	setenv("fel_booted", NULL);
+	setenv("fel_scriptaddr", NULL);
+	/* determine if we are running in FEL mode */
+	if (!is_boot0_magic(SPL_ADDR + 4)) { /* eGON.BT0 */
+		setenv("fel_booted", "1");
+		parse_spl_header(SPL_ADDR);
+	}
+#endif
 
 	ret = sunxi_get_sid(sid);
 	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {

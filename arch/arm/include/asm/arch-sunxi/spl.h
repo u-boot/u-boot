@@ -12,6 +12,9 @@
 #define SPL_SIGNATURE		"SPL" /* marks "sunxi" SPL header */
 #define SPL_HEADER_VERSION	1
 
+/* Note: A80 will require special handling here: SPL_ADDR 0x10000 */
+#define SPL_ADDR		0x0
+
 /* boot head definition from sun4i boot code */
 struct boot_file_head {
 	uint32_t b_instruction;	/* one intruction jumping to real code */
@@ -41,5 +44,7 @@ struct boot_file_head {
 	uint32_t fel_script_address;
 	uint32_t reserved;		/* padding, align to 32 bytes */
 };
+
+#define is_boot0_magic(addr)	(memcmp((void *)addr, BOOT0_MAGIC, 8) == 0)
 
 #endif
