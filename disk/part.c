@@ -511,6 +511,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	int part;
 	disk_partition_t tmpinfo;
 
+#ifdef CONFIG_SANDBOX
 	/*
 	 * Special-case a pseudo block device "hostfs", to allow access to the
 	 * host's own filesystem.
@@ -529,6 +530,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 
 		return 0;
 	}
+#endif
 
 	/* If no dev_part_str, use bootdevice environment variable */
 	if (!dev_part_str || !strlen(dev_part_str) ||
