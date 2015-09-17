@@ -412,7 +412,18 @@ extern int soft_i2c_gpio_scl;
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+/* FEL boot support, auto-execute boot.scr if a script address was provided */
+#define BOOTENV_DEV_FEL(devtypeu, devtypel, instance) \
+	"bootcmd_fel=" \
+		"if test -n ${fel_booted} && test -n ${fel_scriptaddr}; then " \
+			"echo '(FEL boot)'; " \
+			"source ${fel_scriptaddr}; " \
+		"fi\0"
+#define BOOTENV_DEV_NAME_FEL(devtypeu, devtypel, instance) \
+	"fel "
+
 #define BOOT_TARGET_DEVICES(func) \
+	func(FEL, fel, na) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
