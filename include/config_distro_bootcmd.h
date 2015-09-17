@@ -72,6 +72,24 @@
 	BOOT_TARGET_DEVICES_references_MMC_without_CONFIG_CMD_MMC
 #endif
 
+#ifdef CONFIG_CMD_UBIFS
+#define BOOTENV_SHARED_UBIFS \
+	"ubifs_boot=" \
+		"if ubi part UBI && ubifsmount ubi${devnum}:boot; then "  \
+			"setenv devtype ubi; "                            \
+			"setenv bootpart 0; "                             \
+			"run scan_dev_for_boot; "                         \
+		"fi\0"
+#define BOOTENV_DEV_UBIFS	BOOTENV_DEV_BLKDEV
+#define BOOTENV_DEV_NAME_UBIFS	BOOTENV_DEV_NAME_BLKDEV
+#else
+#define BOOTENV_SHARED_UBIFS
+#define BOOTENV_DEV_UBIFS \
+	BOOT_TARGET_DEVICES_references_UBIFS_without_CONFIG_CMD_UBIFS
+#define BOOTENV_DEV_NAME_UBIFS \
+	BOOT_TARGET_DEVICES_references_UBIFS_without_CONFIG_CMD_UBIFS
+#endif
+
 #ifdef CONFIG_CMD_SATA
 #define BOOTENV_SHARED_SATA	BOOTENV_SHARED_BLKDEV(sata)
 #define BOOTENV_DEV_SATA	BOOTENV_DEV_BLKDEV
@@ -185,6 +203,7 @@
 	BOOTENV_SHARED_SATA \
 	BOOTENV_SHARED_SCSI \
 	BOOTENV_SHARED_IDE \
+	BOOTENV_SHARED_UBIFS \
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
 	"boot_script_dhcp=boot.scr.uimg\0" \
