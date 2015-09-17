@@ -598,6 +598,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#define CONFIG_FSL_ESDHC_ADAPTER_IDENT
 #endif
 
 /* Qman/Bman */
