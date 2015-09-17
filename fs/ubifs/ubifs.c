@@ -570,6 +570,25 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 	return 0;
 }
 
+int ubifs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
+{
+	if (rbdd) {
+		debug("UBIFS cannot be used with normal block devices\n");
+		return -1;
+	}
+
+	/*
+	 * Should never happen since get_device_and_partition() already checks
+	 * this, but better safe then sorry.
+	 */
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 int ubifs_ls(const char *filename)
 {
 	struct ubifs_info *c = ubifs_sb->s_fs_info;
@@ -616,6 +635,48 @@ out_mem:
 out:
 	ubi_close_volume(c->ubi);
 	return ret;
+}
+
+int ubifs_exists(const char *filename)
+{
+	struct ubifs_info *c = ubifs_sb->s_fs_info;
+	unsigned long inum;
+
+	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
+	inum = ubifs_findfile(ubifs_sb, (char *)filename);
+	ubi_close_volume(c->ubi);
+
+	return inum != 0;
+}
+
+int ubifs_size(const char *filename, loff_t *size)
+{
+	struct ubifs_info *c = ubifs_sb->s_fs_info;
+	unsigned long inum;
+	struct inode *inode;
+	int err = 0;
+
+	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
+
+	inum = ubifs_findfile(ubifs_sb, (char *)filename);
+	if (!inum) {
+		err = -1;
+		goto out;
+	}
+
+	inode = ubifs_iget(ubifs_sb, inum);
+	if (IS_ERR(inode)) {
+		printf("%s: Error reading inode %ld!\n", __func__, inum);
+		err = PTR_ERR(inode);
+		goto out;
+	}
+
+	*size = inode->i_size;
+
+	ubifs_iput(inode);
+out:
+	ubi_close_volume(c->ubi);
+	return err;
 }
 
 /*
@@ -873,6 +934,10 @@ put_inode:
 out:
 	ubi_close_volume(c->ubi);
 	return err;
+}
+
+void ubifs_close(void)
+{
 }
 
 /* Compat wrappers for common/cmd_ubifs.c */
