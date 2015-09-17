@@ -350,6 +350,11 @@ config CMD_FPGA
 	help
 	  FPGA support.
 
+config CMD_REMOTEPROC
+	bool "remoteproc"
+	depends on REMOTEPROC
+	help
+	  Support for Remote Processor control
 endmenu
 
 

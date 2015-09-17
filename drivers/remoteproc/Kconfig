@@ -1,0 +1,15 @@
+#
+# (C) Copyright 2015
+# Texas Instruments Incorporated - http://www.ti.com/
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+menu "Remote Processor drivers"
+
+# REMOTEPROC gets selected by drivers as needed
+# All users should depend on DM
+config REMOTEPROC
+	bool
+	depends on DM
+
+endmenu
