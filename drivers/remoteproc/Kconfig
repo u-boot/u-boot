@@ -12,4 +12,13 @@ config REMOTEPROC
 	bool
 	depends on DM
 
+# Please keep the configuration alphabetically sorted.
+config REMOTEPROC_SANDBOX
+	bool "Support for Test processor for Sandbox"
+	select REMOTEPROC
+	depends on DM
+	depends on SANDBOX
+	help
+	  Say 'y' here to add support for test processor which does dummy
+	  operations for sandbox platform.
 endmenu
