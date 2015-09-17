@@ -6,10 +6,9 @@
 
 #include <common.h>
 #include <mmc.h>
-#include <netdev.h>
-#include <phy.h>
 #include <asm/io.h>
 #include <asm/irq.h>
+#include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
@@ -34,6 +33,55 @@ static void unprotect_spi_flash(void)
 	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, &bc);
 	bc |= 0x1;	/* unprotect the flash */
 	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, bc);
+}
+
+static void quark_setup_mtrr(void)
+{
+	u32 base, mask;
+	int i;
+
+	disable_caches();
+
+	/* mark the VGA RAM area as uncacheable */
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_A0000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_UNCACHEABLE));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_B0000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_UNCACHEABLE));
+
+	/* mark other fixed range areas as cacheable */
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_64K_00000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_64K_40000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_80000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_FIX_16K_90000,
+		       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+	for (i = MTRR_FIX_4K_C0000; i <= MTRR_FIX_4K_FC000; i++)
+		msg_port_write(MSG_PORT_HOST_BRIDGE, i,
+			       MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+
+	/* variable range MTRR#0: ROM area */
+	mask = ~(CONFIG_SYS_MONITOR_LEN - 1);
+	base = CONFIG_SYS_TEXT_BASE & mask;
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYBASE(MTRR_VAR_ROM),
+		       base | MTRR_TYPE_WRBACK);
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYMASK(MTRR_VAR_ROM),
+		       mask | MTRR_PHYS_MASK_VALID);
+
+	/* variable range MTRR#1: eSRAM area */
+	mask = ~(ESRAM_SIZE - 1);
+	base = CONFIG_ESRAM_BASE & mask;
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYBASE(MTRR_VAR_ESRAM),
+		       base | MTRR_TYPE_WRBACK);
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYMASK(MTRR_VAR_ESRAM),
+		       mask | MTRR_PHYS_MASK_VALID);
+
+	/* enable both variable and fixed range MTRRs */
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_DEF_TYPE,
+		       MTRR_DEF_TYPE_EN | MTRR_DEF_TYPE_FIX_EN);
+
+	enable_caches();
 }
 
 static void quark_setup_bars(void)
@@ -75,8 +123,6 @@ static void quark_setup_bars(void)
 
 static void quark_pcie_early_init(void)
 {
-	u32 pcie_cfg;
-
 	/*
 	 * Step1: Assert PCIe signal PERST#
 	 *
@@ -86,23 +132,18 @@ static void quark_pcie_early_init(void)
 	board_assert_perst();
 
 	/* Step2: PHY common lane reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= PCIE_PHY_LANE_RST;
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG, PCIE_PHY_LANE_RST);
 	/* wait 1 ms for PHY common lane reset */
 	mdelay(1);
 
 	/* Step3: PHY sideband interface reset and controller main reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= (PCIE_PHY_SB_RST | PCIE_CTLR_MAIN_RST);
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG,
+			     PCIE_PHY_SB_RST | PCIE_CTLR_MAIN_RST);
 	/* wait 80ms for PLL to lock */
 	mdelay(80);
 
 	/* Step4: Controller sideband interface reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= PCIE_CTLR_SB_RST;
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG, PCIE_CTLR_SB_RST);
 	/* wait 20ms for controller sideband interface reset */
 	mdelay(20);
 
@@ -110,66 +151,80 @@ static void quark_pcie_early_init(void)
 	board_deassert_perst();
 
 	/* Step6: Controller primary interface reset */
-	pcie_cfg = msg_port_alt_read(MSG_PORT_SOC_UNIT, PCIE_CFG);
-	pcie_cfg |= PCIE_CTLR_PRI_RST;
-	msg_port_alt_write(MSG_PORT_SOC_UNIT, PCIE_CFG, pcie_cfg);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, PCIE_CFG, PCIE_CTLR_PRI_RST);
 
 	/* Mixer Load Lane 0 */
-	pcie_cfg = msg_port_io_read(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0);
-	pcie_cfg &= ~((1 << 6) | (1 << 7));
-	msg_port_io_write(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0, pcie_cfg);
+	msg_port_io_clrbits(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L0,
+			    (1 << 6) | (1 << 7));
 
 	/* Mixer Load Lane 1 */
-	pcie_cfg = msg_port_io_read(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1);
-	pcie_cfg &= ~((1 << 6) | (1 << 7));
-	msg_port_io_write(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1, pcie_cfg);
+	msg_port_io_clrbits(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1,
+			    (1 << 6) | (1 << 7));
 }
 
 static void quark_usb_early_init(void)
 {
-	u32 usb;
-
 	/* The sequence below comes from Quark firmware writer guide */
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT);
-	usb &= ~(1 << 1);
-	usb |= ((1 << 6) | (1 << 7));
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT, usb);
+	msg_port_alt_clrsetbits(MSG_PORT_USB_AFE, USB2_GLOBAL_PORT,
+				1 << 1, (1 << 6) | (1 << 7));
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_COMPBG);
-	usb &= ~((1 << 8) | (1 << 9));
-	usb |= ((1 << 7) | (1 << 10));
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_COMPBG, usb);
+	msg_port_alt_clrsetbits(MSG_PORT_USB_AFE, USB2_COMPBG,
+				(1 << 8) | (1 << 9), (1 << 7) | (1 << 10));
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
-	usb |= (1 << 29);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+	msg_port_alt_setbits(MSG_PORT_USB_AFE, USB2_PLL2, 1 << 29);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL1);
-	usb |= (1 << 1);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL1, usb);
+	msg_port_alt_setbits(MSG_PORT_USB_AFE, USB2_PLL1, 1 << 1);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL1);
-	usb &= ~((1 << 3) | (1 << 4) | (1 << 5));
-	usb |= (1 << 6);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL1, usb);
+	msg_port_alt_clrsetbits(MSG_PORT_USB_AFE, USB2_PLL1,
+				(1 << 3) | (1 << 4) | (1 << 5), 1 << 6);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
-	usb &= ~(1 << 29);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+	msg_port_alt_clrbits(MSG_PORT_USB_AFE, USB2_PLL2, 1 << 29);
 
-	usb = msg_port_alt_read(MSG_PORT_USB_AFE, USB2_PLL2);
-	usb |= (1 << 24);
-	msg_port_alt_write(MSG_PORT_USB_AFE, USB2_PLL2, usb);
+	msg_port_alt_setbits(MSG_PORT_USB_AFE, USB2_PLL2, 1 << 24);
+}
+
+static void quark_thermal_early_init(void)
+{
+	/* The sequence below comes from Quark firmware writer guide */
+
+	/* thermal sensor mode config */
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG1,
+				(1 << 3) | (1 << 4) | (1 << 5), 1 << 5);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG1,
+				(1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) |
+				(1 << 12), 1 << 9);
+	msg_port_alt_setbits(MSG_PORT_SOC_UNIT, TS_CFG1, 1 << 14);
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG1, 1 << 17);
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG1, 1 << 18);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG2, 0xffff, 0x011f);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG3, 0xff, 0x17);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG3,
+				(1 << 8) | (1 << 9), 1 << 8);
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG3, 0xff000000);
+	msg_port_alt_clrsetbits(MSG_PORT_SOC_UNIT, TS_CFG4,
+				0x7ff800, 0xc8 << 11);
+
+	/* thermal monitor catastrophic trip set point (105 celsius) */
+	msg_port_clrsetbits(MSG_PORT_RMU, TS_TRIP, 0xff, 155);
+
+	/* thermal monitor catastrophic trip clear point (0 celsius) */
+	msg_port_clrsetbits(MSG_PORT_RMU, TS_TRIP, 0xff0000, 50 << 16);
+
+	/* take thermal sensor out of reset */
+	msg_port_alt_clrbits(MSG_PORT_SOC_UNIT, TS_CFG4, 1 << 0);
+
+	/* enable thermal monitor */
+	msg_port_setbits(MSG_PORT_RMU, TS_MODE, 1 << 15);
+
+	/* lock all thermal configuration */
+	msg_port_setbits(MSG_PORT_RMU, RMU_CTRL, (1 << 5) | (1 << 6));
 }
 
 static void quark_enable_legacy_seg(void)
 {
-	u32 hmisc2;
-
-	hmisc2 = msg_port_read(MSG_PORT_HOST_BRIDGE, HMISC2);
-	hmisc2 |= (HMISC2_SEGE | HMISC2_SEGF | HMISC2_SEGAB);
-	msg_port_write(MSG_PORT_HOST_BRIDGE, HMISC2, hmisc2);
+	msg_port_setbits(MSG_PORT_HOST_BRIDGE, HMISC2,
+			 HMISC2_SEGE | HMISC2_SEGF | HMISC2_SEGAB);
 }
 
 int arch_cpu_init(void)
@@ -184,6 +239,13 @@ int arch_cpu_init(void)
 	ret = x86_cpu_init_f();
 	if (ret)
 		return ret;
+
+	/*
+	 * Quark SoC does not support MSR MTRRs. Fixed and variable range MTRRs
+	 * are accessed indirectly via the message port and not the traditional
+	 * MSR mechanism. Only UC, WT and WB cache types are supported.
+	 */
+	quark_setup_mtrr();
 
 	/*
 	 * Quark SoC has some non-standard BARs (excluding PCI standard BARs)
@@ -205,6 +267,9 @@ int arch_cpu_init(void)
 	/* Initialize USB2 PHY */
 	quark_usb_early_init();
 
+	/* Initialize thermal sensor */
+	quark_thermal_early_init();
+
 	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
 	quark_enable_legacy_seg();
 
@@ -225,27 +290,57 @@ void reset_cpu(ulong addr)
 	x86_full_reset();
 }
 
+static void quark_pcie_init(void)
+{
+	u32 val;
+
+	/* PCIe upstream non-posted & posted request size */
+	qrk_pci_write_config_dword(QUARK_PCIE0, PCIE_RP_CCFG,
+				   CCFG_UPRS | CCFG_UNRS);
+	qrk_pci_write_config_dword(QUARK_PCIE1, PCIE_RP_CCFG,
+				   CCFG_UPRS | CCFG_UNRS);
+
+	/* PCIe packet fast transmit mode (IPF) */
+	qrk_pci_write_config_dword(QUARK_PCIE0, PCIE_RP_MPC2, MPC2_IPF);
+	qrk_pci_write_config_dword(QUARK_PCIE1, PCIE_RP_MPC2, MPC2_IPF);
+
+	/* PCIe message bus idle counter (SBIC) */
+	qrk_pci_read_config_dword(QUARK_PCIE0, PCIE_RP_MBC, &val);
+	val |= MBC_SBIC;
+	qrk_pci_write_config_dword(QUARK_PCIE0, PCIE_RP_MBC, val);
+	qrk_pci_read_config_dword(QUARK_PCIE1, PCIE_RP_MBC, &val);
+	val |= MBC_SBIC;
+	qrk_pci_write_config_dword(QUARK_PCIE1, PCIE_RP_MBC, val);
+}
+
+static void quark_usb_init(void)
+{
+	u32 bar;
+
+	/* Change USB EHCI packet buffer OUT/IN threshold */
+	qrk_pci_read_config_dword(QUARK_USB_EHCI, PCI_BASE_ADDRESS_0, &bar);
+	writel((0x7f << 16) | 0x7f, bar + EHCI_INSNREG01);
+
+	/* Disable USB device interrupts */
+	qrk_pci_read_config_dword(QUARK_USB_DEVICE, PCI_BASE_ADDRESS_0, &bar);
+	writel(0x7f, bar + USBD_INT_MASK);
+	writel((0xf << 16) | 0xf, bar + USBD_EP_INT_MASK);
+	writel((0xf << 16) | 0xf, bar + USBD_EP_INT_STS);
+}
+
+int arch_early_init_r(void)
+{
+	quark_pcie_init();
+
+	quark_usb_init();
+
+	return 0;
+}
+
 int cpu_mmc_init(bd_t *bis)
 {
 	return pci_mmc_init("Quark SDHCI", mmc_supported,
 			    ARRAY_SIZE(mmc_supported));
-}
-
-int cpu_eth_init(bd_t *bis)
-{
-	u32 base;
-	int ret0, ret1;
-
-	qrk_pci_read_config_dword(QUARK_EMAC0, PCI_BASE_ADDRESS_0, &base);
-	ret0 = designware_initialize(base, PHY_INTERFACE_MODE_RMII);
-
-	qrk_pci_read_config_dword(QUARK_EMAC1, PCI_BASE_ADDRESS_0, &base);
-	ret1 = designware_initialize(base, PHY_INTERFACE_MODE_RMII);
-
-	if (ret0 < 0 && ret1 < 0)
-		return -1;
-	else
-		return 0;
 }
 
 void cpu_irq_init(void)
@@ -274,4 +369,24 @@ void cpu_irq_init(void)
 int arch_misc_init(void)
 {
 	return pirq_init();
+}
+
+void board_final_cleanup(void)
+{
+	struct quark_rcba *rcba;
+	u32 base, val;
+
+	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, LB_RCBA, &base);
+	base &= ~MEM_BAR_EN;
+	rcba = (struct quark_rcba *)base;
+
+	/* Initialize 'Component ID' to zero */
+	val = readl(&rcba->esd);
+	val &= ~0xff0000;
+	writel(val, &rcba->esd);
+
+	/* Lock HMBOUND for security */
+	msg_port_setbits(MSG_PORT_HOST_BRIDGE, HM_BOUND, HM_BOUND_LOCK);
+
+	return;
 }

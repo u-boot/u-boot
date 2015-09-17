@@ -238,7 +238,7 @@ int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
 {
 	struct udevice *bus;
 
-	for (bus = dev; device_get_uclass_id(bus->parent) == UCLASS_PCI;)
+	for (bus = dev; device_is_on_pci_bus(bus);)
 		bus = bus->parent;
 	return pci_bus_write_config(bus, pci_get_bdf(dev), offset, value, size);
 }
@@ -303,7 +303,7 @@ int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
 {
 	struct udevice *bus;
 
-	for (bus = dev; device_get_uclass_id(bus->parent) == UCLASS_PCI;)
+	for (bus = dev; device_is_on_pci_bus(bus);)
 		bus = bus->parent;
 	return pci_bus_read_config(bus, pci_get_bdf(dev), offset, valuep,
 				   size);
