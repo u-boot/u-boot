@@ -9,6 +9,8 @@
 #define	_ASM_ARCH_SPL_H_
 
 #define BOOT0_MAGIC		"eGON.BT0"
+#define SPL_SIGNATURE		"SPL" /* marks "sunxi" SPL header */
+#define SPL_HEADER_VERSION	1
 
 /* boot head definition from sun4i boot code */
 struct boot_file_head {
@@ -21,8 +23,23 @@ struct boot_file_head {
 	 * by the boot ROM. To be compatible with Allwinner tools we
 	 * would need to implement the proper fields here instead of
 	 * padding.
+	 *
+	 * Actually we want the ability to recognize our "sunxi" variant
+	 * of the SPL. To do so, let's place a special signature into the
+	 * "pub_head_size" field. We can reasonably expect Allwinner's
+	 * boot0 to always have the upper 16 bits of this set to 0 (after
+	 * all the value shouldn't be larger than the limit imposed by
+	 * SRAM size).
+	 * If the signature is present (at 0x14), then we know it's safe
+	 * to use the remaining 8 bytes (at 0x18) for our own purposes.
+	 * (E.g. sunxi-tools "fel" utility can pass information there.)
 	 */
-	uint8_t pad[12];		/* align to 32 bytes */
+	union {
+		uint32_t pub_head_size;
+		uint8_t spl_signature[4];
+	};
+	uint32_t fel_script_address;
+	uint32_t reserved;		/* padding, align to 32 bytes */
 };
 
 #endif

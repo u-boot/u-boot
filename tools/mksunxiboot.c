@@ -118,6 +118,10 @@ int main(int argc, char *argv[])
 		ALIGN(file_size + sizeof(struct boot_file_head), BLOCK_SIZE);
 	img.header.b_instruction = cpu_to_le32(img.header.b_instruction);
 	img.header.length = cpu_to_le32(img.header.length);
+
+	memcpy(img.header.spl_signature, SPL_SIGNATURE, 3); /* "sunxi" marker */
+	img.header.spl_signature[3] = SPL_HEADER_VERSION;
+
 	gen_check_sum(&img.header);
 
 	count = write(fd_out, &img, le32_to_cpu(img.header.length));
