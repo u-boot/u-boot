@@ -127,6 +127,8 @@ void qixis_write_i2c(unsigned int reg, u8 value);
 #define QIXIS_ESDHC_NO_ADAPTER                  0x7	/* No Card is Present*/
 #define QIXIS_SDCLKIN		0x08
 #define QIXIS_SDCLKOUT		0x02
+#define QIXIS_DAT5_6_7		0X02
+#define QIXIS_DAT4		0X01
 #endif
 
 #endif

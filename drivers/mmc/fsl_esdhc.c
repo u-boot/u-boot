@@ -748,6 +748,9 @@ void mmc_adapter_card_type_ident(void)
 
 	switch (card_id) {
 	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC45:
+		value = QIXIS_READ(brdcfg[5]);
+		value |= (QIXIS_DAT4 | QIXIS_DAT5_6_7);
+		QIXIS_WRITE(brdcfg[5], value);
 		break;
 	case QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY:
 		break;
