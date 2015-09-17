@@ -753,6 +753,9 @@ void mmc_adapter_card_type_ident(void)
 		QIXIS_WRITE(brdcfg[5], value);
 		break;
 	case QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY:
+		value = QIXIS_READ(pwr_ctl[1]);
+		value |= QIXIS_EVDD_BY_SDHC_VS;
+		QIXIS_WRITE(pwr_ctl[1], value);
 		break;
 	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC44:
 		value = QIXIS_READ(brdcfg[5]);
