@@ -10,6 +10,7 @@
 #include <ide.h>
 #include <malloc.h>
 #include <part.h>
+#include <ubifs_uboot.h>
 
 #undef	PART_DEBUG
 
@@ -511,6 +512,10 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	int part;
 	disk_partition_t tmpinfo;
 
+#if defined CONFIG_SANDBOX && defined CONFIG_CMD_UBIFS
+#error Only one of CONFIG_SANDBOX and CONFIG_CMD_UBIFS may be selected
+#endif
+
 #ifdef CONFIG_SANDBOX
 	/*
 	 * Special-case a pseudo block device "hostfs", to allow access to the
@@ -528,6 +533,28 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 		info->uuid[0] = 0;
 #endif
 
+		return 0;
+	}
+#endif
+
+#ifdef CONFIG_CMD_UBIFS
+	/*
+	 * Special-case ubi, ubi goes through a mtd, rathen then through
+	 * a regular block device.
+	 */
+	if (0 == strcmp(ifname, "ubi")) {
+		if (!ubifs_is_mounted()) {
+			printf("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+			return -1;
+		}
+
+		*dev_desc = NULL;
+		memset(info, 0, sizeof(*info));
+		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->name, "UBI");
+#ifdef CONFIG_PARTITION_UUIDS
+		info->uuid[0] = 0;
+#endif
 		return 0;
 	}
 #endif
