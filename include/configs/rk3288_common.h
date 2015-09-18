@@ -108,6 +108,7 @@
  * limit the fdt reallocation to that */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0x1fffffff\0" \
+	"initrd_high=0x1fffffff\0" \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 #endif
