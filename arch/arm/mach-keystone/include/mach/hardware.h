@@ -52,6 +52,10 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_DDRPHY_ZQ2CR1_OFFSET        0x1A4
 #define KS2_DDRPHY_ZQ3CR1_OFFSET        0x1B4
 
+#define KS2_DDRPHY_DATX8_4_OFFSET       0x2C0
+#define KS2_DDRPHY_DATX8_5_OFFSET       0x300
+#define KS2_DDRPHY_DATX8_6_OFFSET       0x340
+#define KS2_DDRPHY_DATX8_7_OFFSET       0x380
 #define KS2_DDRPHY_DATX8_8_OFFSET       0x3C0
 
 #define IODDRM_MASK                     0x00000180
