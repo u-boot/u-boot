@@ -36,3 +36,16 @@ config SYS_CONFIG_NAME
 	default "k2l_evm"
 
 endif
+
+if TARGET_K2G_EVM
+
+config SYS_BOARD
+	default "ks2_evm"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_CONFIG_NAME
+	default "k2g_evm"
+
+endif
