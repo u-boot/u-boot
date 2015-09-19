@@ -11,6 +11,7 @@
 #define _KEYSTONE_NET_H_
 
 #include <asm/io.h>
+#include <phy.h>
 
 /* EMAC */
 #ifdef CONFIG_KSNET_NETCP_V1_0
@@ -243,6 +244,7 @@ struct eth_priv_t {
 	int phy_addr;
 	int slave_port;
 	int sgmii_link_type;
+	phy_interface_t phy_if;
 	struct phy_device *phy_dev;
 };
 

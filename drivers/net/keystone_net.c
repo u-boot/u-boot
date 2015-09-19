@@ -569,11 +569,11 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 	/* Create phy device and bind it with driver */
 #ifdef CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
 	phy_dev = phy_connect(mdio_bus, eth_priv->phy_addr,
-			      dev, PHY_INTERFACE_MODE_SGMII);
+			      dev, eth_priv->phy_if);
 	phy_config(phy_dev);
 #else
 	phy_dev = phy_find_by_mask(mdio_bus, 1 << eth_priv->phy_addr,
-				   PHY_INTERFACE_MODE_SGMII);
+				   eth_priv->phy_if);
 	phy_dev->dev = dev;
 #endif
 	eth_priv->phy_dev = phy_dev;
