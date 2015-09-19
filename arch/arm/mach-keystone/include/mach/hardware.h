@@ -270,6 +270,10 @@ typedef volatile unsigned int   *dv_reg_p;
 #include <asm/arch/hardware-k2l.h>
 #endif
 
+#ifdef CONFIG_SOC_K2G
+#include <asm/arch/hardware-k2g.h>
+#endif
+
 #ifndef __ASSEMBLY__
 
 static inline u16 get_part_number(void)
