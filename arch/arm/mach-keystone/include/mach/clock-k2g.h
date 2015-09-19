@@ -15,4 +15,6 @@
 #define DEV_SUPPORTED_SPEEDS	0xfff
 #define ARM_SUPPORTED_SPEEDS	0xfff
 
+#define KS2_CLK1_6 sys_clk0_6_clk
+
 #endif

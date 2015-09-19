@@ -68,8 +68,13 @@
 #endif
 #define CONFIG_SYS_NS16550_COM1		KS2_UART0_BASE
 #define CONFIG_SYS_NS16550_COM2		KS2_UART1_BASE
-#define CONFIG_SYS_NS16550_CLK		clk_get_rate(KS2_CLK1_6)
 #define CONFIG_CONS_INDEX		1
+
+#ifndef CONFIG_SOC_K2G
+#define CONFIG_SYS_NS16550_CLK		clk_get_rate(KS2_CLK1_6)
+#else
+#define CONFIG_SYS_NS16550_CLK		clk_get_rate(uart_pll_clk) / 2
+#endif
 
 /* SPI Configuration */
 #define CONFIG_SPI_FLASH_STMICRO
@@ -302,6 +307,10 @@
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
+#ifndef CONFIG_SOC_K2G
 #define CONFIG_SYS_HZ_CLOCK		clk_get_rate(KS2_CLK1_6)
+#else
+#define CONFIG_SYS_HZ_CLOCK		external_clk[sys_clk]
+#endif
 
 #endif /* __CONFIG_KS2_EVM_H */

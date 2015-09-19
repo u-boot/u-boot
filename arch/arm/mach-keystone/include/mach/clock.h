@@ -53,7 +53,8 @@
 	CLK(17, sys_clk1_6_clk)\
 	CLK(18, sys_clk1_12_clk)\
 	CLK(19, sys_clk2_clk)\
-	CLK(20, sys_clk3_clk)
+	CLK(20, sys_clk3_clk)\
+	CLK(21, uart_pll_clk)
 
 #include <asm/types.h>
 
@@ -91,6 +92,7 @@ enum ext_clk_e {
 	tetris_clk,
 	ddr3a_clk,
 	ddr3b_clk,
+	uart_clk,
 	ext_clk_count /* number of external clocks */
 };
 

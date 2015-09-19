@@ -360,6 +360,10 @@ unsigned long clk_get_rate(unsigned int clk)
 		if (cpu_is_k2hk())
 			freq = pll_freq_get(DDR3B_PLL);
 		break;
+	case uart_pll_clk:
+		if (cpu_is_k2g())
+			freq = pll_freq_get(UART_PLL);
+		break;
 	case sys_clk0_1_clk:
 	case sys_clk0_clk:
 		freq = pll_freq_get(CORE_PLL) / pll0div_read(1);

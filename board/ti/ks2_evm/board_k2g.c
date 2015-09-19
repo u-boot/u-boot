@@ -9,6 +9,16 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 
+#define SYS_CLK		24000000
+
+unsigned int external_clk[ext_clk_count] = {
+	[sys_clk]	=	SYS_CLK,
+	[pa_clk]	=	SYS_CLK,
+	[tetris_clk]	=	SYS_CLK,
+	[ddr3a_clk]	=	SYS_CLK,
+	[uart_clk]	=	SYS_CLK,
+};
+
 static struct pll_init_data main_pll_config = {MAIN_PLL, 100, 1, 4};
 static struct pll_init_data tetris_pll_config = {TETRIS_PLL, 100, 1, 4};
 static struct pll_init_data uart_pll_config = {UART_PLL, 64, 1, 4};
