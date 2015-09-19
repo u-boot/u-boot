@@ -42,7 +42,9 @@ struct rx_buff_desc net_rx_buffs = {
 	.rx_flow	= 22,
 };
 
+#ifndef CONFIG_SOC_K2G
 static void keystone2_net_serdes_setup(void);
+#endif
 
 int keystone2_eth_read_mac_addr(struct eth_device *dev)
 {
@@ -171,6 +173,37 @@ int keystone_sgmii_link_status(int port)
 	       (status & SGMII_REG_STATUS_LINK);
 }
 
+#ifdef CONFIG_SOC_K2G
+int keystone_rgmii_config(struct phy_device *phy_dev)
+{
+	unsigned int i, status;
+
+	i = 0;
+	do {
+		if (i > SGMII_ANEG_TIMEOUT) {
+			puts(" TIMEOUT !\n");
+			phy_dev->link = 0;
+			return 0;
+		}
+
+		if (ctrlc()) {
+			puts("user interrupt!\n");
+			phy_dev->link = 0;
+			return -EINTR;
+		}
+
+		if ((i++ % 500) == 0)
+			printf(".");
+
+		udelay(1000);   /* 1 ms */
+		status = readl(RGMII_STATUS_REG);
+	} while (!(status & RGMII_REG_STATUS_LINK));
+
+	puts(" done\n");
+
+	return 0;
+}
+#else
 int keystone_sgmii_config(struct phy_device *phy_dev, int port, int interface)
 {
 	unsigned int i, status, mask;
@@ -264,6 +297,7 @@ int keystone_sgmii_config(struct phy_device *phy_dev, int port, int interface)
 
 	return 0;
 }
+#endif
 
 int mac_sl_reset(u32 port)
 {
@@ -315,7 +349,7 @@ int mac_sl_config(u_int16_t port, struct mac_sl_cfg *cfg)
 	writel(cfg->max_rx_len, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_MAXLEN);
 	writel(cfg->ctl, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_CTL);
 
-#if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
+#ifndef CONFIG_SOC_K2HK
 	/* Map RX packet flow priority to 0 */
 	writel(0, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_RX_PRI_MAP);
 #endif
@@ -401,8 +435,12 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	if (sys_has_mdio)
 		keystone2_mdio_reset(mdio_bus);
 
+#ifdef CONFIG_SOC_K2G
+	keystone_rgmii_config(phy_dev);
+#else
 	keystone_sgmii_config(phy_dev, eth_priv->slave_port - 1,
 			      eth_priv->sgmii_link_type);
+#endif
 
 	udelay(10000);
 
@@ -564,7 +602,9 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 			return res;
 	}
 
+#ifndef CONFIG_SOC_K2G
 	keystone2_net_serdes_setup();
+#endif
 
 	/* Create phy device and bind it with driver */
 #ifdef CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
@@ -589,6 +629,7 @@ struct ks2_serdes ks2_serdes_sgmii_156p25mhz = {
 	.loopback = 0,
 };
 
+#ifndef CONFIG_SOC_K2G
 static void keystone2_net_serdes_setup(void)
 {
 	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII_BASE,
@@ -604,3 +645,4 @@ static void keystone2_net_serdes_setup(void)
 	/* wait till setup */
 	udelay(5000);
 }
+#endif
