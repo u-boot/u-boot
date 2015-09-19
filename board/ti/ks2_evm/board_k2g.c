@@ -8,6 +8,7 @@
  */
 #include <common.h>
 #include <asm/arch/clock.h>
+#include "mux-k2g.h"
 
 #define SYS_CLK		24000000
 
@@ -60,6 +61,8 @@ s16 divn_val[16] = {
 int board_early_init_f(void)
 {
 	init_plls();
+
+	k2g_mux_config();
 
 	return 0;
 }
