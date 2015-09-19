@@ -31,10 +31,12 @@
 #include <twl4030.h>
 #include <twl6030.h>
 #include <palmas.h>
-#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
+#if !defined(CONFIG_SOC_KEYSTONE)
+#include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
+#endif
 
 /* simplify defines to OMAP_HSMMC_USE_GPIO */
 #if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_SPL_BUILD)) || \
@@ -662,7 +664,8 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
 #if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
 	defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX) || \
-	defined(CONFIG_AM43XX)) && defined(CONFIG_HSMMC2_8BIT)
+	defined(CONFIG_AM43XX) || defined(CONFIG_SOC_KEYSTONE)) && \
+		defined(CONFIG_HSMMC2_8BIT)
 		/* Enable 8-bit interface for eMMC on OMAP4/5 or DRA7XX */
 		host_caps_val |= MMC_MODE_8BIT;
 #endif

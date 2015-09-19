@@ -9,6 +9,8 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/ti-common/keystone_net.h>
+#include <asm/arch/psc_defs.h>
+#include <asm/arch/mmc_host_def.h>
 #include "mux-k2g.h"
 
 #define SYS_CLK		24000000
@@ -57,6 +59,20 @@ struct pll_init_data *get_pll_init_data(int pll)
 s16 divn_val[16] = {
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
+int board_mmc_init(bd_t *bis)
+{
+	if (psc_enable_module(KS2_LPSC_MMC)) {
+		printf("%s module enabled failed\n", __func__);
+		return -1;
+	}
+
+	omap_mmc_init(0, 0, 0, -1, -1);
+	omap_mmc_init(1, 0, 0, -1, -1);
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
