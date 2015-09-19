@@ -13,8 +13,8 @@
 
 / {
 	model = "Texas Instruments Keystone 2 SoC";
-	#address-cells = <2>;
-	#size-cells = <2>;
+	#address-cells = <1>;
+	#size-cells = <1>;
 	interrupt-parent = <&gic>;
 
 	aliases {
@@ -22,17 +22,17 @@
 	};
 
 	memory {
-		reg = <0x00000000 0x80000000 0x00000000 0x40000000>;
+		reg = <0x80000000 0x40000000>;
 	};
 
 	gic: interrupt-controller {
 		compatible = "arm,cortex-a15-gic";
 		#interrupt-cells = <3>;
 		interrupt-controller;
-		reg = <0x0 0x02561000 0x0 0x1000>,
-		      <0x0 0x02562000 0x0 0x2000>,
-		      <0x0 0x02564000 0x0 0x1000>,
-		      <0x0 0x02566000 0x0 0x2000>;
+		reg = <0x02561000 0x1000>,
+		      <0x02562000 0x2000>,
+		      <0x02564000 0x1000>,
+		      <0x02566000 0x2000>;
 		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) |
 				IRQ_TYPE_LEVEL_HIGH)>;
 	};
@@ -63,8 +63,7 @@
 		#size-cells = <1>;
 		compatible = "ti,keystone","simple-bus";
 		interrupt-parent = <&gic>;
-		ranges = <0x0 0x0 0x0 0xc0000000>;
-		dma-ranges = <0x80000000 0x8 0x00000000 0x80000000>;
+		ranges;
 
 		pllctrl: pll-controller@02310000 {
 			compatible = "ti,keystone-pllctrl", "syscon";
