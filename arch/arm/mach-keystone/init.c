@@ -169,6 +169,9 @@ int print_cpuinfo(void)
 	case CPU_66AK2Ex:
 		puts("66AK2Ex SR");
 		break;
+	case CPU_66AK2Gx:
+		puts("66AK2Gx SR");
+		break;
 	default:
 		puts("Unknown\n");
 	}
