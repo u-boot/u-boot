@@ -75,9 +75,14 @@ int board_eth_init(bd_t *bis)
 	int port_num;
 	char link_type_name[32];
 
+	if (cpu_is_k2g())
+		writel(KS2_ETHERNET_RGMII, KS2_ETHERNET_CFG);
+
 	/* By default, select PA PLL clock as PA clock source */
+#ifndef CONFIG_SOC_K2G
 	if (psc_enable_module(KS2_LPSC_PA))
 		return -1;
+#endif
 	if (psc_enable_module(KS2_LPSC_CPGMAC))
 		return -1;
 	if (psc_enable_module(KS2_LPSC_CRYPTO))

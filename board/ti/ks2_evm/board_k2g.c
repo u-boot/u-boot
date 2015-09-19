@@ -8,6 +8,7 @@
  */
 #include <common.h>
 #include <asm/arch/clock.h>
+#include <asm/ti-common/keystone_net.h>
 #include "mux-k2g.h"
 
 #define SYS_CLK		24000000
@@ -72,5 +73,23 @@ int board_early_init_f(void)
 void spl_init_keystone_plls(void)
 {
 	init_plls();
+}
+#endif
+
+#ifdef CONFIG_DRIVER_TI_KEYSTONE_NET
+struct eth_priv_t eth_priv_cfg[] = {
+	{
+		.int_name	= "K2G_EMAC",
+		.rx_flow	= 0,
+		.phy_addr	= 0,
+		.slave_port	= 1,
+		.sgmii_link_type = SGMII_LINK_MAC_PHY,
+		.phy_if          = PHY_INTERFACE_MODE_RGMII,
+	},
+};
+
+int get_num_eth_ports(void)
+{
+	return sizeof(eth_priv_cfg) / sizeof(struct eth_priv_t);
 }
 #endif
