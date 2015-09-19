@@ -163,16 +163,6 @@ static void  __attribute__((unused))
 	       DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) + CPGMACSL_REG_CTL);
 }
 
-int keystone_sgmii_link_status(int port)
-{
-	u32 status = 0;
-
-	status = __raw_readl(SGMII_STATUS_REG(port));
-
-	return (status & SGMII_REG_STATUS_LOCK) &&
-	       (status & SGMII_REG_STATUS_LINK);
-}
-
 #ifdef CONFIG_SOC_K2G
 int keystone_rgmii_config(struct phy_device *phy_dev)
 {
