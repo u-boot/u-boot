@@ -103,7 +103,9 @@ int arch_cpu_init(void)
 
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_TETRIS);
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_NETCP);
+#ifdef KS2_MSMC_SEGMENT_QM_PDSP
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_QM_PDSP);
+#endif
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE0);
 
 	/* Initialize the PCIe-0 to work as Root Complex */

@@ -147,6 +147,8 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_JTAG_ID_REG			(KS2_DEVICE_STATE_CTRL_BASE + 0x18)
 #define KS2_DEVSTAT			(KS2_DEVICE_STATE_CTRL_BASE + 0x20)
 #define KS2_DEVCFG			(KS2_DEVICE_STATE_CTRL_BASE + 0x14c)
+#define KS2_ETHERNET_CFG		(KS2_DEVICE_STATE_CTRL_BASE + 0xe20)
+#define KS2_ETHERNET_RGMII		2
 
 /* PSC */
 #define KS2_PSC_BASE			0x02350000
@@ -185,10 +187,17 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_RSTYPE_PLL_SOFT		BIT(13)
 
 /* SPI */
+#ifdef CONFIG_SOC_K2G
+#define KS2_SPI0_BASE			0x21805400
+#define KS2_SPI1_BASE			0x21805800
+#define KS2_SPI2_BASE			0x21805c00
+#define KS2_SPI3_BASE			0x21806000
+#else
 #define KS2_SPI0_BASE			0x21000400
 #define KS2_SPI1_BASE			0x21000600
 #define KS2_SPI2_BASE			0x21000800
 #define KS2_SPI_BASE			KS2_SPI0_BASE
+#endif
 
 /* AEMIF */
 #define KS2_AEMIF_CNTRL_BASE       	0x21000a00
@@ -200,10 +209,16 @@ typedef volatile unsigned int   *dv_reg_p;
 /* MSMC control */
 #define KS2_MSMC_CTRL_BASE		0x0bc00000
 #define KS2_MSMC_DATA_BASE		0x0c000000
+#ifndef CONFIG_SOC_K2G
 #define KS2_MSMC_SEGMENT_TETRIS		8
 #define KS2_MSMC_SEGMENT_NETCP		9
 #define KS2_MSMC_SEGMENT_QM_PDSP	10
 #define KS2_MSMC_SEGMENT_PCIE0		11
+#else
+#define KS2_MSMC_SEGMENT_TETRIS		1
+#define KS2_MSMC_SEGMENT_NETCP		4
+#define KS2_MSMC_SEGMENT_PCIE0		5
+#endif
 
 /* MSMC segment size shift bits */
 #define KS2_MSMC_SEG_SIZE_SHIFT		12
@@ -217,6 +232,22 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_MISC_CTRL			(KS2_DEVICE_STATE_CTRL_BASE + 0xc7c)
 
 /* Queue manager */
+#ifdef CONFIG_SOC_K2G
+#define KS2_QM_BASE_ADDRESS		0x040C0000
+#define KS2_QM_CONF_BASE		0x04040000
+#define KS2_QM_DESC_SETUP_BASE		0x04080000
+#define KS2_QM_STATUS_RAM_BASE		0x0 /* K2G doesn't have it */
+#define KS2_QM_INTD_CONF_BASE		0x0
+#define KS2_QM_PDSP1_CMD_BASE		0x0
+#define KS2_QM_PDSP1_CTRL_BASE		0x0
+#define KS2_QM_PDSP1_IRAM_BASE		0x0
+#define KS2_QM_MANAGER_QUEUES_BASE	0x040c0000
+#define KS2_QM_MANAGER_Q_PROXY_BASE	0x04040200
+#define KS2_QM_QUEUE_STATUS_BASE	0x04100000
+#define KS2_QM_LINK_RAM_BASE		0x04020000
+#define KS2_QM_REGION_NUM		8
+#define KS2_QM_QPOOL_NUM		112
+#else
 #define KS2_QM_BASE_ADDRESS		0x23a80000
 #define KS2_QM_CONF_BASE		0x02a02000
 #define KS2_QM_DESC_SETUP_BASE		0x02a03000
@@ -231,6 +262,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_QM_LINK_RAM_BASE		0x00100000
 #define KS2_QM_REGION_NUM		64
 #define KS2_QM_QPOOL_NUM		4000
+#endif
 
 /* USB */
 #define KS2_USB_SS_BASE			0x02680000
