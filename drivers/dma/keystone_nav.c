@@ -54,7 +54,7 @@ int _qm_init(struct qm_config *cfg)
 	qm_cfg = cfg;
 
 	qm_cfg->mngr_cfg->link_ram_base0	= qm_cfg->i_lram;
-	qm_cfg->mngr_cfg->link_ram_size0	= HDESC_NUM * 8;
+	qm_cfg->mngr_cfg->link_ram_size0	= HDESC_NUM * 8 - 1;
 	qm_cfg->mngr_cfg->link_ram_base1	= 0;
 	qm_cfg->mngr_cfg->link_ram_size1	= 0;
 	qm_cfg->mngr_cfg->link_ram_base2	= 0;
