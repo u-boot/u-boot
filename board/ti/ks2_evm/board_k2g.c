@@ -81,6 +81,12 @@ int board_early_init_f(void)
 
 	k2g_mux_config();
 
+	/* deassert FLASH_HOLD */
+	clrbits_le32(K2G_GPIO1_BANK2_BASE + K2G_GPIO_DIR_OFFSET,
+		     BIT(9));
+	setbits_le32(K2G_GPIO1_BANK2_BASE + K2G_GPIO_SETDATA_OFFSET,
+		     BIT(9));
+
 	return 0;
 }
 #endif
