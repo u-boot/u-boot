@@ -171,7 +171,8 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 
 dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
 	k2l-evm.dtb \
-	k2e-evm.dtb
+	k2e-evm.dtb \
+	k2g-evm.dtb
 
 targets += $(dtb-y)
 
