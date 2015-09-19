@@ -125,8 +125,13 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_EDMA_PARAM_1(x)		(0x4020 + (4 * x))
 
 /* NETCP pktdma */
+#ifdef CONFIG_SOC_K2G
+#define KS2_NETCP_PDMA_RX_FREE_QUEUE	113
+#define KS2_NETCP_PDMA_RX_RCV_QUEUE	114
+#else
 #define KS2_NETCP_PDMA_RX_FREE_QUEUE	4001
 #define KS2_NETCP_PDMA_RX_RCV_QUEUE	4002
+#endif
 
 /* Chip Interrupt Controller */
 #define KS2_CIC2_BASE			0x02608000
