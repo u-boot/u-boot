@@ -82,22 +82,28 @@ int board_late_init(void)
 	reg = readl(&crlapb_base->boot_mode);
 	bootmode = reg & BOOT_MODES_MASK;
 
+	puts("Bootmode: ");
 	switch (bootmode) {
 	case JTAG_MODE:
-		setenv("modeboot", "netboot");
+		puts("JTAG_MODE\n");
+		setenv("modeboot", "jtagboot");
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		setenv("modeboot", "qspiboot");
+		puts("QSPI_MODE\n");
 		break;
 	case SD_MODE:
 	case EMMC_MODE:
+		puts("SD_MODE\n");
 		setenv("modeboot", "sdboot");
 		break;
 	case SD_MODE1:
+		puts("SD_MODE1\n");
 		setenv("modeboot", "sdboot1");
 		break;
 	case NAND_MODE:
+		puts("NAND_MODE\n");
 		setenv("modeboot", "nandboot");
 		break;
 	default:
