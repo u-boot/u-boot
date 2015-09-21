@@ -224,22 +224,17 @@
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \
 	"tftpboot; bootm;"
 
-#define CONFIG_BOOTARGS		" earlyprintk loglevel=8"
-
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
 #define LINUXBOOT_ENV_SETTINGS \
 	"fit_addr=0x00100000\0" \
 	"fit_addr_r=0x84100000\0" \
 	"fit_size=0x00f00000\0" \
-	"norboot=run add_default_bootargs &&" \
-		"setexpr fit_addr $nor_base + $fit_addr &&" \
+	"norboot=setexpr fit_addr $nor_base + $fit_addr &&" \
 		"bootm $fit_addr\0" \
-	"nandboot=run add_default_bootargs &&" \
-		"nand read $fit_addr_r $fit_addr $fit_size &&" \
+	"nandboot=nand read $fit_addr_r $fit_addr $fit_size &&" \
 		"bootm $fit_addr_r\0" \
-	"tftpboot=run add_default_bootargs &&" \
-		"tftpboot $fit_addr_r $bootfile &&" \
+	"tftpboot=tftpboot $fit_addr_r $bootfile &&" \
 		"bootm $fit_addr_r\0"
 #else
 #define CONFIG_BOOTFILE			"uImage"
@@ -255,18 +250,15 @@
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
-	"norboot=run add_default_bootargs &&" \
-		"setexpr kernel_addr $nor_base + $kernel_addr &&" \
+	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
 		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
 		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
 		"bootm $kernel_addr $ramdisk_addr $fdt_addr\0" \
-	"nandboot=run add_default_bootargs &&" \
-		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
+	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
 		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
-	"tftpboot=run add_default_bootargs &&" \
-		"tftpboot $kernel_addr_r $bootfile &&" \
+	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
@@ -281,8 +273,6 @@
 		"nand write $loadaddr 0 0x00010000 &&"		\
 		"tftpboot u-boot-dtb.img &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
-	"add_default_bootargs=setenv bootargs $bootargs"	\
-		" console=ttyS0,$baudrate\0"			\
 	LINUXBOOT_ENV_SETTINGS
 
 /* Open Firmware flat tree */
