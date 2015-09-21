@@ -30,10 +30,5 @@ ENTRY(setup_lowlevel_debug)
 		mov		r1, #1
 		str		r1, [r0]
 
-		ldr		r0, =SG_IECTRL
-		ldr		r1, [r0]
-		orr		r1, r1, #1
-		str		r1, [r0]
-
 		mov		pc, lr
 ENDPROC(setup_lowlevel_debug)
