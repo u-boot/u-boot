@@ -612,16 +612,22 @@ static u32 mxc_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
 /*
  * Register mxc i2c adapters
  */
+#ifdef CONFIG_SYS_I2C_MXC_I2C1
 U_BOOT_I2C_ADAP_COMPLETE(mxc0, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_read, mxc_i2c_write,
 			 mxc_i2c_set_bus_speed,
 			 CONFIG_SYS_MXC_I2C1_SPEED,
 			 CONFIG_SYS_MXC_I2C1_SLAVE, 0)
+#endif
+
+#ifdef CONFIG_SYS_I2C_MXC_I2C2
 U_BOOT_I2C_ADAP_COMPLETE(mxc1, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_read, mxc_i2c_write,
 			 mxc_i2c_set_bus_speed,
 			 CONFIG_SYS_MXC_I2C2_SPEED,
 			 CONFIG_SYS_MXC_I2C2_SLAVE, 1)
+#endif
+
 #ifdef CONFIG_SYS_I2C_MXC_I2C3
 U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_read, mxc_i2c_write,
