@@ -15,6 +15,9 @@
 #include <mach/debug-uart.S>
 
 ENTRY(setup_lowlevel_debug)
+		sg_set_pinsel	63, 0, 4, 4, r0, r1
+		sg_set_pinsel	64, 1, 4, 4, r0, r1
+
 		ldr		r0, =BCSCR5
 		ldr		r1, =0x24440000
 		str		r1, [r0]
@@ -25,9 +28,6 @@ ENTRY(setup_lowlevel_debug)
 		str		r1, [r0]
 
 		init_debug_uart	r0, r1, r2
-
-		sg_set_pinsel	63, 0, 4, 4, r0, r1
-		sg_set_pinsel	64, 1, 4, 4, r0, r1
 
 		mov		pc, lr
 ENDPROC(setup_lowlevel_debug)

@@ -14,16 +14,16 @@
 #include <mach/debug-uart.S>
 
 ENTRY(setup_lowlevel_debug)
-		init_debug_uart	r0, r1, r2
+		ldr		r0, =SG_IECTRL
+		ldr		r1, [r0]
+		orr		r1, r1, #1
+		str		r1, [r0]
 
 		/* UART Port 0 */
 		sg_set_pinsel	70, 3, 8, 4, r0, r1
 		sg_set_pinsel	71, 3, 8, 4, r0, r1
 
-		ldr		r0, =SG_IECTRL
-		ldr		r1, [r0]
-		orr		r1, r1, #1
-		str		r1, [r0]
+		init_debug_uart	r0, r1, r2
 
 		mov		pc, lr
 ENDPROC(setup_lowlevel_debug)
