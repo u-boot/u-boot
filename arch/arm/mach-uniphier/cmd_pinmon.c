@@ -33,6 +33,13 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		ph1_pro5_boot_mode_show();
 		break;
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2) || \
+	defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+	case SOC_UNIPHIER_PROXSTREAM2:
+	case SOC_UNIPHIER_PH1_LD6B:
+		proxstream2_boot_mode_show();
+		break;
+#endif
 	default:
 		break;
 	}

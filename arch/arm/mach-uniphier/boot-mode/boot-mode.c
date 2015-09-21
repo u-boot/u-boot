@@ -33,6 +33,12 @@ u32 spl_boot_device(void)
 	case SOC_UNIPHIER_PH1_PRO5:
 		return ph1_pro5_boot_device();
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2) || \
+	defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+	case SOC_UNIPHIER_PROXSTREAM2:
+	case SOC_UNIPHIER_PH1_LD6B:
+		return proxstream2_boot_device();
+#endif
 	default:
 		return BOOT_DEVICE_NONE;
 	}

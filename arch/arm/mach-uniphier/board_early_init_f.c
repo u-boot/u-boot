@@ -48,6 +48,20 @@ int board_early_init_f(void)
 		ph1_pro5_clk_init();
 		break;
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)
+	case SOC_UNIPHIER_PROXSTREAM2:
+		proxstream2_pin_init();
+		led_puts("U1");
+		proxstream2_clk_init();
+		break;
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+	case SOC_UNIPHIER_PH1_LD6B:
+		ph1_ld6b_pin_init();
+		led_puts("U1");
+		proxstream2_clk_init();
+		break;
+#endif
 	default:
 		break;
 	}

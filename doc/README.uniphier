@@ -48,6 +48,14 @@ PH1-Pro5:
     $ make ph1_pro5_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
+ProXstream2:
+    $ make pxs2_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
+PH1-LD6b:
+    $ make ph1_ld6b_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
 You may wish to change the "CROSS_COMPILE=arm-linux-gnueabi-"
 to use your favorite compiler.
 

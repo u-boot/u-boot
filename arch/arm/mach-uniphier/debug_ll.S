@@ -125,6 +125,55 @@ ph1_sld8_end:
 	b		init_uart
 ph1_pro5_end:
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)
+#define PROXSTREAM2_UART_CLK		88900000
+	cmp		r1, #0x2E
+	bne		proxstream2_end
+
+	ldr		r0, =SG_IECTRL
+	ldr		r1, [r0]
+	orr		r1, r1, #1
+	str		r1, [r0]
+
+	sg_set_pinsel	217, 8, 8, 4, r0, r1	@ TXD0 -> TXD0
+	sg_set_pinsel	115, 8, 8, 4, r0, r1	@ TXD1 -> TXD1
+	sg_set_pinsel	113, 8, 8, 4, r0, r1	@ TXD2 -> TXD2
+	sg_set_pinsel	219, 8, 8, 4, r0, r1	@ TXD3 -> TXD3
+
+	ldr		r0, =SC_CLKCTRL
+	ldr		r1, [r0]
+	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
+	str		r1, [r0]
+
+	ldr		r3, =DIV_ROUND(PROXSTREAM2_UART_CLK, 16 * BAUDRATE)
+
+	b		init_uart
+proxstream2_end:
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+#define PH1_LD6B_UART_CLK		88900000
+	cmp		r1, #0x2F
+	bne		ph1_ld6b_end
+
+	ldr		r0, =SG_IECTRL
+	ldr		r1, [r0]
+	orr		r1, r1, #1
+	str		r1, [r0]
+
+	sg_set_pinsel	135, 3, 8, 4, r0, r1	@ PORT10 -> TXD0
+	sg_set_pinsel	115, 0, 8, 4, r0, r1	@ TXD1 -> TXD1
+	sg_set_pinsel	113, 2, 8, 4, r0, r1	@ SBO0 -> TXD2
+
+	ldr		r0, =SC_CLKCTRL
+	ldr		r1, [r0]
+	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
+	str		r1, [r0]
+
+	ldr		r3, =DIV_ROUND(PH1_LD6B_UART_CLK, 16 * BAUDRATE)
+
+	b		init_uart
+ph1_ld6b_end:
+#endif
 
 init_uart:
 	addruart	r0, r1, r2

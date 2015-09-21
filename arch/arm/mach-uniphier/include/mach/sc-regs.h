@@ -64,6 +64,7 @@
 #define SC_RSTCTRL4_NRST_UMCA2		(0x1 << 10)	/* UMC ch2 standby */
 #define SC_RSTCTRL4_NRST_UMCA1		(0x1 <<  9)	/* UMC ch1 standby */
 #define SC_RSTCTRL4_NRST_UMCA0		(0x1 <<  8)	/* UMC ch0 standby */
+#define SC_RSTCTRL4_NRST_UMC32		(0x1 <<  6)	/* UMC ch2 */
 #define SC_RSTCTRL4_NRST_UMC31		(0x1 <<  5)	/* UMC ch1 */
 #define SC_RSTCTRL4_NRST_UMC30		(0x1 <<  4)	/* UMC ch0 */
 
@@ -83,6 +84,7 @@
 /* Pro5 or newer */
 #define SC_CLKCTRL4			(SC_BASE_ADDR | 0x210c)
 #define SC_CLKCTRL4_CEN_UMCSB		(0x1 << 12)	/* UMC system bus */
+#define SC_CLKCTRL4_CEN_UMC2		(0x1 <<  2)	/* UMC ch2 */
 #define SC_CLKCTRL4_CEN_UMC1		(0x1 <<  1)	/* UMC ch1 */
 #define SC_CLKCTRL4_CEN_UMC0		(0x1 <<  0)	/* UMC ch0 */
 

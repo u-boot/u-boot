@@ -1,5 +1,5 @@
 /*
- * Device Tree Source for UniPhier PH1-LD6b Reference Board
+ * Device Tree Source for UniPhier ProXstream2 Vodka Board
  *
  * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
@@ -7,12 +7,11 @@
  */
 
 /dts-v1/;
-/include/ "uniphier-ph1-ld6b.dtsi"
-/include/ "uniphier-ref-daughter.dtsi"
+/include/ "uniphier-proxstream2.dtsi"
 
 / {
-	model = "UniPhier PH1-LD6b Reference Board";
-	compatible = "socionext,ph1-ld6b-ref", "socionext,ph1-ld6b";
+	model = "UniPhier ProXstream2 Vodka Board";
+	compatible = "socionext,proxstream2-vodka", "socionext,proxstream2";
 
 	memory {
 		device_type = "memory";
@@ -20,8 +19,8 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200";
-		stdout-path = &serial0;
+		bootargs = "console=ttyS2,115200";
+		stdout-path = &serial2;
 	};
 
 	aliases {
@@ -29,21 +28,10 @@
 		serial1 = &serial1;
 		serial2 = &serial2;
 		i2c0 = &i2c0;
-		i2c1 = &i2c1;
-		i2c2 = &i2c2;
-		i2c3 = &i2c3;
 		i2c4 = &i2c4;
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
 	};
-};
-
-&serial0 {
-	status = "okay";
-};
-
-&serial1 {
-	status = "okay";
 };
 
 &serial2 {
@@ -61,7 +49,7 @@
 	};
 };
 
-&serial0 {
+&serial2 {
 	u-boot,dm-pre-reloc;
 };
 
@@ -69,6 +57,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pinctrl_uart0 {
+&pinctrl_uart2 {
 	u-boot,dm-pre-reloc;
 };
