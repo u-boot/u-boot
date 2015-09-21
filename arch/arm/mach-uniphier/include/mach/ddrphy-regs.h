@@ -168,7 +168,9 @@ struct ddrphy {
 #define DDRPHY_BASE(ch, phy)	(0x5bc01000 + 0x200000 * (ch) + 0x1000 * (phy))
 
 #ifndef __ASSEMBLY__
-void ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
+int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
+int ph1_pro4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
+int ph1_sld8_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank);
 int ddrphy_training(struct ddrphy __iomem *phy);
 #endif

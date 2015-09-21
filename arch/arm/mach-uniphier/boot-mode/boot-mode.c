@@ -1,23 +1,25 @@
 /*
- * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <spl.h>
+#include <linux/io.h>
 #include <mach/boot-device.h>
 #include <mach/sbc-regs.h>
 #include <mach/soc_info.h>
 
-static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+u32 spl_boot_device(void)
 {
-	printf("Boot Swap: %s\n\n", boot_is_swapped() ? "ON" : "OFF");
+	if (boot_is_swapped())
+		return BOOT_DEVICE_NOR;
 
 	switch (uniphier_get_soc_type()) {
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
 	case SOC_UNIPHIER_PH1_SLD3:
-		ph1_sld3_boot_mode_show();
-		break;
+		return ph1_sld3_boot_device();
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_LD4) || \
 	defined(CONFIG_ARCH_UNIPHIER_PH1_PRO4) || \
@@ -25,18 +27,9 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case SOC_UNIPHIER_PH1_LD4:
 	case SOC_UNIPHIER_PH1_PRO4:
 	case SOC_UNIPHIER_PH1_SLD8:
-		ph1_ld4_boot_mode_show();
-		break;
+		return ph1_ld4_boot_device();
 #endif
 	default:
-		break;
+		return BOOT_DEVICE_NONE;
 	}
-
-	return 0;
 }
-
-U_BOOT_CMD(
-	pinmon,	1,	1,	do_pinmon,
-	"pin monitor",
-	""
-);
