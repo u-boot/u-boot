@@ -7,8 +7,7 @@
 #include <common.h>
 #include <spl.h>
 #include <linux/compiler.h>
-#include <mach/led.h>
-#include <mach/board.h>
+#include <mach/micro-support-card.h>
 
 void __weak bcu_init(void)
 {
@@ -46,25 +45,25 @@ void spl_board_init(void)
 
 	support_card_init();
 
-	led_write(L, 0, , );
+	led_puts("L0");
 
 	memconf_init();
 
-	led_write(L, 1, , );
+	led_puts("L1");
 
 	early_clkrst_init();
 
-	led_write(L, 2, , );
+	led_puts("L2");
 
 	early_pin_init();
 
-	led_write(L, 3, , );
+	led_puts("L3");
 
 #ifdef CONFIG_SPL_SERIAL_SUPPORT
 	preloader_console_init();
 #endif
 
-	led_write(L, 4, , );
+	led_puts("L4");
 
 	{
 		int res;
@@ -75,9 +74,10 @@ void spl_board_init(void)
 				;
 		}
 	}
-	led_write(L, 5, , );
+
+	led_puts("L5");
 
 	enable_dpll_ssc();
 
-	led_write(L, 6, , );
+	led_puts("L6");
 }

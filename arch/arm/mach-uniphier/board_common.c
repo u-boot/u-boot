@@ -1,20 +1,15 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <mach/led.h>
+#include <mach/micro-support-card.h>
 
-/*
- * Routine: board_init
- * Description: Early hardware init.
- */
 int board_init(void)
 {
-	led_write(U, B, O, O);
+	led_puts("Uboo");
 
 	return 0;
 }
