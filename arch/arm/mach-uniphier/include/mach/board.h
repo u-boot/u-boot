@@ -13,28 +13,22 @@ void support_card_init(void);
 void support_card_late_init(void);
 int check_support_card(void);
 #else
-#define support_card_reset() do {} while (0)
-#define support_card_init()  do {} while (0)
-#define support_card_late_init()  do {} while (0)
+static inline void support_card_reset(void)
+{
+}
+
+static inline void support_card_init(void)
+{
+}
+
+static inline void support_card_late_init(void)
+{
+}
+
 static inline int check_support_card(void)
 {
 	return 0;
 }
 #endif
-
-static inline void uniphier_board_reset(void)
-{
-	support_card_reset();
-}
-
-static inline void uniphier_board_init(void)
-{
-	support_card_init();
-}
-
-static inline void uniphier_board_late_init(void)
-{
-	support_card_late_init();
-}
 
 #endif /* ARCH_BOARD_H */

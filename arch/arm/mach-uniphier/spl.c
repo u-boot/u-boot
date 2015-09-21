@@ -40,11 +40,11 @@ void spl_board_init(void)
 
 	sg_init();
 
-	uniphier_board_reset();
+	support_card_reset();
 
 	pll_init();
 
-	uniphier_board_init();
+	support_card_init();
 
 	led_write(L, 0, , );
 
