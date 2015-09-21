@@ -538,6 +538,10 @@ config TARGET_COLIBRI_VF
 	bool "Support Colibri VF50/61"
 	select CPU_V7
 
+config TARGET_PCM052
+	bool "Support pcm-052"
+	select CPU_V7
+
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
@@ -753,6 +757,7 @@ source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/phytec/pcm051/Kconfig"
+source "board/phytec/pcm052/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
