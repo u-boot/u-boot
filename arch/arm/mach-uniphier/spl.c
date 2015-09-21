@@ -13,6 +13,10 @@ void __weak bcu_init(void)
 {
 };
 
+void __weak sbc_init(void)
+{
+};
+
 void __weak sg_init(void)
 {
 };
