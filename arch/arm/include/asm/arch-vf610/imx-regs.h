@@ -148,7 +148,7 @@
 #define DDRMC_CR18_TCKE(v)				((v) & 0x7)
 #define DDRMC_CR20_AP_EN				(1 << 24)
 #define DDRMC_CR21_TRCD_INT(v)				(((v) & 0xff) << 16)
-#define DDRMC_CR21_TRAS_LOCKOUT				(1 << 8)
+#define DDRMC_CR21_TRAS_LOCKOUT(v)			((v) << 8)
 #define DDRMC_CR21_CCMAP_EN				1
 #define DDRMC_CR22_TDAL(v)				(((v) & 0x3f) << 16)
 #define DDRMC_CR23_BSTLEN(v)				(((v) & 0x7) << 24)
@@ -200,8 +200,8 @@
 #define DDRMC_CR78_BUR_ON_FLY_BIT(v)			((v) & 0xf)
 #define DDRMC_CR79_CTLUPD_AREF(v)			(((v) & 0x1) << 24)
 #define DDRMC_CR82_INT_MASK				0x10000000
-#define DDRMC_CR87_ODT_WR_MAPCS0			(1 << 24)
-#define DDRMC_CR87_ODT_RD_MAPCS0			(1 << 16)
+#define DDRMC_CR87_ODT_WR_MAPCS0(v)			((v) << 24)
+#define DDRMC_CR87_ODT_RD_MAPCS0(v)			((v) << 16)
 #define DDRMC_CR88_TODTL_CMD(v)				(((v) & 0x1f) << 16)
 #define DDRMC_CR89_AODT_RWSMCS(v)			((v) & 0xf)
 #define DDRMC_CR91_R2W_SMCSDL(v)			(((v) & 0x7) << 16)
