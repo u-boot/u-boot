@@ -41,6 +41,13 @@ int board_early_init_f(void)
 		ph1_ld4_clk_init();
 		break;
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+	case SOC_UNIPHIER_PH1_PRO5:
+		ph1_pro5_pin_init();
+		led_puts("U1");
+		ph1_pro5_clk_init();
+		break;
+#endif
 	default:
 		break;
 	}

@@ -33,6 +33,15 @@ config ARCH_UNIPHIER_PH1_SLD8
 	help
 	  This enables support for UniPhier PH1-sLD8 SoC.
 
+config ARCH_UNIPHIER_PH1_PRO5
+	bool "UniPhier PH1-Pro5 SoC"
+	select UNIPHIER_SMP
+	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
+		   !ARCH_UNIPHIER_PH1_LD4 && \
+		   !ARCH_UNIPHIER_PH1_SLD8
+	help
+	  This enables support for UniPhier PH1-Pro5 SoC.
+
 config MICRO_SUPPORT_CARD
 	bool "Use Micro Support Card"
 	help

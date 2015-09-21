@@ -59,6 +59,18 @@ static const struct uniphier_board_data ph1_sld8_data = {
 };
 #endif
 
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+static const struct uniphier_board_data ph1_pro5_data = {
+	.dram_ch0_base  = 0x80000000,
+	.dram_ch0_size  = 0x20000000,
+	.dram_ch0_width = 32,
+	.dram_ch1_base  = 0xa0000000,
+	.dram_ch1_size  = 0x20000000,
+	.dram_ch1_width = 32,
+	.dram_freq      = 1866,
+};
+#endif
+
 struct uniphier_board_id {
 	const char *compatible;
 	const struct uniphier_board_data *param;
@@ -76,6 +88,9 @@ static const struct uniphier_board_id uniphier_boards[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
 	{ "socionext,ph1-sld8", &ph1_sld8_data, },
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+	{ "socionext,ph1-pro5", &ph1_pro5_data, },
 #endif
 };
 

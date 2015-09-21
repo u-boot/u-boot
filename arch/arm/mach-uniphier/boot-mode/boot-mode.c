@@ -29,6 +29,10 @@ u32 spl_boot_device(void)
 	case SOC_UNIPHIER_PH1_SLD8:
 		return ph1_ld4_boot_device();
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+	case SOC_UNIPHIER_PH1_PRO5:
+		return ph1_pro5_boot_device();
+#endif
 	default:
 		return BOOT_DEVICE_NONE;
 	}

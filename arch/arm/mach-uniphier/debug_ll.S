@@ -101,6 +101,30 @@ ph1_pro4_end:
 	b		init_uart
 ph1_sld8_end:
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+#define PH1_PRO5_UART_CLK		73728000
+	cmp		r1, #0x2A
+	bne		ph1_pro5_end
+
+	sg_set_pinsel	47, 0, 4, 8, r0, r1	@ TXD0 -> TXD0
+	sg_set_pinsel	49, 0, 4, 8, r0, r1	@ TXD1 -> TXD1
+	sg_set_pinsel	51, 0, 4, 8, r0, r1	@ TXD2 -> TXD2
+	sg_set_pinsel	53, 0, 4, 8, r0, r1	@ TXD3 -> TXD3
+
+	ldr		r0, =SG_LOADPINCTRL
+	mov		r1, #1
+	str		r1, [r0]
+
+	ldr		r0, =SC_CLKCTRL
+	ldr		r1, [r0]
+	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
+	str		r1, [r0]
+
+	ldr		r3, =DIV_ROUND(PH1_PRO5_UART_CLK, 16 * BAUDRATE)
+
+	b		init_uart
+ph1_pro5_end:
+#endif
 
 init_uart:
 	addruart	r0, r1, r2

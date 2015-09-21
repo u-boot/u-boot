@@ -26,6 +26,7 @@ int ph1_sld3_init(const struct uniphier_board_data *bd);
 int ph1_ld4_init(const struct uniphier_board_data *bd);
 int ph1_pro4_init(const struct uniphier_board_data *bd);
 int ph1_sld8_init(const struct uniphier_board_data *bd);
+int ph1_pro5_init(const struct uniphier_board_data *bd);
 
 #if defined(CONFIG_MICRO_SUPPORT_CARD)
 int ph1_sld3_sbc_init(const struct uniphier_board_data *bd);
@@ -63,6 +64,7 @@ int ph1_sld3_enable_dpll_ssc(const struct uniphier_board_data *bd);
 int ph1_ld4_enable_dpll_ssc(const struct uniphier_board_data *bd);
 
 int ph1_ld4_early_clk_init(const struct uniphier_board_data *bd);
+int ph1_pro5_early_clk_init(const struct uniphier_board_data *bd);
 
 int ph1_sld3_early_pin_init(const struct uniphier_board_data *bd);
 
@@ -74,9 +76,11 @@ void ph1_sld3_pin_init(void);
 void ph1_ld4_pin_init(void);
 void ph1_pro4_pin_init(void);
 void ph1_sld8_pin_init(void);
+void ph1_pro5_pin_init(void);
 
 void ph1_ld4_clk_init(void);
 void ph1_pro4_clk_init(void);
+void ph1_pro5_clk_init(void);
 
 #define pr_err(fmt, args...)	printf(fmt, ##args)
 

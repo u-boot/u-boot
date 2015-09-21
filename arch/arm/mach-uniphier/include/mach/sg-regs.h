@@ -59,7 +59,7 @@
 /* Pin Control */
 #define SG_PINCTRL_BASE			(SG_CTRL_BASE | 0x1000)
 
-/* Only for PH1-Pro4 */
+/* PH1-Pro4, PH1-Pro5 */
 #define SG_LOADPINCTRL			(SG_CTRL_BASE | 0x1700)
 
 /* Input Enable */

@@ -14,8 +14,10 @@ struct boot_device_info {
 
 u32 ph1_sld3_boot_device(void);
 u32 ph1_ld4_boot_device(void);
+u32 ph1_pro5_boot_device(void);
 
 void ph1_sld3_boot_mode_show(void);
 void ph1_ld4_boot_mode_show(void);
+void ph1_pro5_boot_mode_show(void);
 
 #endif /* _ASM_BOOT_DEVICE_H_ */

@@ -40,6 +40,11 @@ void spl_board_init(void)
 		ph1_sld8_init(param);
 		break;
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+	case SOC_UNIPHIER_PH1_PRO5:
+		ph1_pro5_init(param);
+		break;
+#endif
 	default:
 		break;
 	}

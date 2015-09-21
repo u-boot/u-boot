@@ -28,6 +28,11 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		ph1_ld4_boot_mode_show();
 		break;
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+	case SOC_UNIPHIER_PH1_PRO5:
+		ph1_pro5_boot_mode_show();
+		break;
+#endif
 	default:
 		break;
 	}
