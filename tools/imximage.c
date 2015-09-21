@@ -361,8 +361,8 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 	dcd_v2_t *dcd_v2 = &hdr_v2->dcd_table;
 	uint32_t size, version;
 
-	size = be16_to_cpu(dcd_v2->header.length) - 8;
-	if (size > (MAX_HW_CFG_SIZE_V2 * sizeof(dcd_addr_data_t))) {
+	size = be16_to_cpu(dcd_v2->header.length);
+	if (size > (MAX_HW_CFG_SIZE_V2 * sizeof(dcd_addr_data_t)) + 8) {
 		fprintf(stderr,
 			"Error: Image corrupt DCD size %d exceed maximum %d\n",
 			(uint32_t)(size / sizeof(dcd_addr_data_t)),
