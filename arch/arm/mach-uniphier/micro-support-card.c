@@ -9,10 +9,13 @@
 #include <linux/io.h>
 #include <mach/micro-support-card.h>
 
-#define MICRO_SUPPORT_CARD_RESET	\
-				((CONFIG_SUPPORT_CARD_BASE) + 0x000D0034)
-#define MICRO_SUPPORT_CARD_REVISION	\
-				((CONFIG_SUPPORT_CARD_BASE) + 0x000D00E0)
+#define MICRO_SUPPORT_CARD_BASE		0x43f00000
+#define SMC911X_BASE			((MICRO_SUPPORT_CARD_BASE) + 0x00000)
+#define LED_BASE			((MICRO_SUPPORT_CARD_BASE) + 0x90000)
+#define NS16550A_BASE			((MICRO_SUPPORT_CARD_BASE) + 0xb0000)
+#define MICRO_SUPPORT_CARD_RESET	((MICRO_SUPPORT_CARD_BASE) + 0xd0034)
+#define MICRO_SUPPORT_CARD_REVISION	((MICRO_SUPPORT_CARD_BASE) + 0xd00E0)
+
 /*
  * 0: reset deassert, 1: reset
  *
@@ -60,7 +63,7 @@ void support_card_init(void)
 
 int board_eth_init(bd_t *bis)
 {
-	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+	return smc911x_initialize(0, SMC911X_BASE);
 }
 #endif
 
@@ -224,5 +227,5 @@ void led_puts(const char *s)
 			s++;
 	}
 
-	writel(~val, CONFIG_SUPPORT_CARD_LED_BASE);
+	writel(~val, LED_BASE);
 }
