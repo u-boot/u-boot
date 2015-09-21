@@ -54,12 +54,10 @@ static void vpll_init(void)
 	tmp = readl(SG_PINMON0);
 	clk_mode_axosel = tmp & SG_PINMON0_CLK_MODE_AXOSEL_MASK;
 
-#if defined(CONFIG_MACH_PH1_PRO4)
 	/* 25MHz or 6.25MHz is default for Pro4R, no need to set VPLLA/B */
 	if (clk_mode_axosel == SG_PINMON0_CLK_MODE_AXOSEL_25000KHZ ||
 	    clk_mode_axosel == SG_PINMON0_CLK_MODE_AXOSEL_6250KHZ)
 		return;
-#endif
 
 	/* Disable write protect of VPLL27ACTRL[2-7]*, VPLL27BCTRL[2-8] */
 	tmp = readl(SC_VPLL27ACTRL);
