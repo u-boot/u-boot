@@ -10,6 +10,8 @@ obj-y += spl.o
 obj-y += memconf.o
 obj-y += ddrphy_training.o
 
+obj-$(CONFIG_DEBUG_LL) += debug_ll.o
+
 else
 
 obj-y += late_lowlevel_init.o
