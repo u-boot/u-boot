@@ -258,6 +258,7 @@
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 # define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
+# define CONFIG_PHY_NATSEMI
 #endif
 
 /* I2C */
