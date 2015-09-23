@@ -120,17 +120,27 @@ static int mmc_set_mod_clk(struct sunxi_mmc_host *mmchost, unsigned int hz)
 	/* determine delays */
 	if (hz <= 400000) {
 		oclk_dly = 0;
-		sclk_dly = 7;
+		sclk_dly = 0;
 	} else if (hz <= 25000000) {
 		oclk_dly = 0;
 		sclk_dly = 5;
+#ifdef CONFIG_MACH_SUN9I
 	} else if (hz <= 50000000) {
-		oclk_dly = 3;
-		sclk_dly = 5;
+		oclk_dly = 5;
+		sclk_dly = 4;
 	} else {
 		/* hz > 50000000 */
 		oclk_dly = 2;
 		sclk_dly = 4;
+#else
+	} else if (hz <= 50000000) {
+		oclk_dly = 3;
+		sclk_dly = 4;
+	} else {
+		/* hz > 50000000 */
+		oclk_dly = 1;
+		sclk_dly = 4;
+#endif
 	}
 
 	writel(CCM_MMC_CTRL_ENABLE | pll | CCM_MMC_CTRL_SCLK_DLY(sclk_dly) |
