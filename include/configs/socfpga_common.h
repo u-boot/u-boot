@@ -281,7 +281,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_SYS_CONSOLE_ENV_OVERWRITE
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			4096
 
 /*
