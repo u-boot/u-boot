@@ -136,17 +136,6 @@ static void set_level(unsigned gpio, int high)
  * Generic_GPIO primitives.
  */
 
-static int tegra_gpio_request(struct udevice *dev, unsigned offset,
-			      const char *label)
-{
-	struct tegra_port_info *state = dev_get_priv(dev);
-
-	/* Configure as a GPIO */
-	set_config(state->base_gpio + offset, 1);
-
-	return 0;
-}
-
 /* set GPIO pin 'gpio' as an input */
 static int tegra_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
@@ -154,6 +143,9 @@ static int tegra_gpio_direction_input(struct udevice *dev, unsigned offset)
 
 	/* Configure GPIO direction as input. */
 	set_direction(state->base_gpio + offset, 0);
+
+	/* Enable the pin as a GPIO */
+	set_config(state->base_gpio + offset, 1);
 
 	return 0;
 }
@@ -170,6 +162,9 @@ static int tegra_gpio_direction_output(struct udevice *dev, unsigned offset,
 
 	/* Configure GPIO direction as output. */
 	set_direction(gpio, 1);
+
+	/* Enable the pin as a GPIO */
+	set_config(state->base_gpio + offset, 1);
 
 	return 0;
 }
@@ -256,7 +251,6 @@ static int tegra_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 }
 
 static const struct dm_gpio_ops gpio_tegra_ops = {
-	.request		= tegra_gpio_request,
 	.direction_input	= tegra_gpio_direction_input,
 	.direction_output	= tegra_gpio_direction_output,
 	.get_value		= tegra_gpio_get_value,
