@@ -149,6 +149,13 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 						uint32_t page_oob_size)
 {
 	int ecc_strength;
+	int max_ecc_strength_supported;
+
+	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		max_ecc_strength_supported = 62;
+	else
+		max_ecc_strength_supported = 40;
 
 	/*
 	 * Determine the ECC layout with the formula:
@@ -162,7 +169,7 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 			/ (galois_field *
 			   mxs_nand_ecc_chunk_cnt(page_data_size));
 
-	return round_down(ecc_strength, 2);
+	return min(round_down(ecc_strength, 2), max_ecc_strength_supported);
 }
 
 static inline uint32_t mxs_nand_get_mark_offset(uint32_t page_data_size,

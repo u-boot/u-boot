@@ -24,7 +24,6 @@
 
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_BROADCOM
-#define CONFIG_FEC_DMA_MINALIGN		64
 /* ENET1 */
 #define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
 
@@ -174,8 +173,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC1 */
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
-
-#define CONFIG_CMD_BMODE
 
 /* USB Configs */
 #define CONFIG_CMD_USB

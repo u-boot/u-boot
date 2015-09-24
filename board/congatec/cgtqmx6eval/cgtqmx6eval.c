@@ -212,8 +212,7 @@ int power_init_board(void)
 
 	for (i = 0; i < ARRAY_SIZE(mipi_levels); i++) {
 		if (!strcmp(mipi_levels[i].name, lv_mipi)) {
-			printf("set MIPI level %s\n",
-			       mipi_levels[i].name);
+			printf("set MIPI level %s\n", mipi_levels[i].name);
 			ret = pmic_reg_write(p, PFUZE100_VGEN4VOL,
 					     mipi_levels[i].value);
 			if (ret)

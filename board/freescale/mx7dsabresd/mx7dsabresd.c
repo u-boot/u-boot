@@ -10,7 +10,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
@@ -24,6 +23,7 @@
 #include <i2c.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/arch/crm_regs.h>
+#include <usb/ehci-fsl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SYS_I2C_MXC
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 /* I2C1 for PMIC */
-struct i2c_pads_info i2c_pad_info1 = {
+static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX7D_PAD_I2C1_SCL__I2C1_SCL | PC,
 		.gpio_mode = MX7D_PAD_I2C1_SCL__GPIO4_IO8 | PC,
@@ -156,7 +156,7 @@ static enum qn_func qn_output[8] = {
 	qn_enable
 };
 
-void iox74lv_init(void)
+static void iox74lv_init(void)
 {
 	int i;
 
@@ -182,44 +182,6 @@ void iox74lv_init(void)
 		gpio_direction_output(IOX_SHCP, 1);
 		udelay(500);
 	}
-	gpio_direction_output(IOX_STCP, 0);
-	udelay(500);
-	/*
-	  * shift register will be output to pins
-	  */
-	gpio_direction_output(IOX_STCP, 1);
-};
-
-void iox74lv_set(int index)
-{
-	int i;
-	for (i = 7; i >= 0; i--) {
-		gpio_direction_output(IOX_SHCP, 0);
-
-		if (i == index)
-			gpio_direction_output(IOX_SDI, seq[qn_output[i]][0]);
-		else
-			gpio_direction_output(IOX_SDI, seq[qn_output[i]][1]);
-		udelay(500);
-		gpio_direction_output(IOX_SHCP, 1);
-		udelay(500);
-	}
-
-	gpio_direction_output(IOX_STCP, 0);
-	udelay(500);
-	/*
-	  * shift register will be output to pins
-	  */
-	gpio_direction_output(IOX_STCP, 1);
-
-	for (i = 7; i >= 0; i--) {
-		gpio_direction_output(IOX_SHCP, 0);
-		gpio_direction_output(IOX_SDI, seq[qn_output[i]][1]);
-		udelay(500);
-		gpio_direction_output(IOX_SHCP, 1);
-		udelay(500);
-	}
-
 	gpio_direction_output(IOX_STCP, 0);
 	udelay(500);
 	/*
@@ -458,15 +420,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_CMD_BMODE
-static const struct boot_mode board_boot_modes[] = {
-	/* 4 bit bus width */
-	{"sd1", MAKE_CFGVAL(0x10, 0x10, 0x00, 0x00)},
-	{"emmc", MAKE_CFGVAL(0x10, 0x2a, 0x00, 0x00)},
-	{NULL,   0},
-};
-#endif
-
 #ifdef CONFIG_POWER
 #define I2C_PMIC	0
 int power_init_board(void)
@@ -499,9 +452,7 @@ int power_init_board(void)
 
 int board_late_init(void)
 {
-#ifdef CONFIG_CMD_BMODE
-	add_board_boot_modes(board_boot_modes);
-#endif
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 	mmc_late_init();
@@ -509,14 +460,15 @@ int board_late_init(void)
 
 	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
 
-	set_wdog_reset((struct wdog_regs *)WDOG1_BASE_ADDR);
+	set_wdog_reset(wdog);
+
+	/*
+	 * Do not assert internal WDOG_RESET_B_DEB(controlled by bit 4),
+	 * since we use PMIC_PWRON to reset the board.
+	 */
+	clrsetbits_le16(&wdog->wcr, 0, 0x10);
 
 	return 0;
-}
-
-u32 get_board_rev(void)
-{
-	return get_cpu_rev();
 }
 
 int checkboard(void)
@@ -527,11 +479,11 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_USB_EHCI_MX7
-iomux_v3_cfg_t const usb_otg1_pads[] = {
+static iomux_v3_cfg_t const usb_otg1_pads[] = {
 	MX7D_PAD_GPIO1_IO05__USB_OTG1_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const usb_otg2_pads[] = {
+static iomux_v3_cfg_t const usb_otg2_pads[] = {
 	MX7D_PAD_UART3_CTS_B__USB_OTG2_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 

@@ -44,8 +44,7 @@ void init_aips(void)
 	writel(0x00000000, &aips2->opacr3);
 	writel(0x00000000, &aips2->opacr4);
 
-	if (is_cpu_type(MXC_CPU_MX6SX) || is_soc_type(MXC_SOC_MX7))
-	{
+	if (is_cpu_type(MXC_CPU_MX6SX) || is_soc_type(MXC_SOC_MX7)) {
 		/*
 		 * Set all MPROTx to be non-bufferable, trusted for R/W,
 		 * not forced to user-mode.
@@ -103,6 +102,7 @@ void init_src(void)
 	writel(val, &src_regs->scr);
 }
 
+#ifdef CONFIG_CMD_BMODE
 void boot_mode_apply(unsigned cfg_val)
 {
 	unsigned reg;
@@ -115,3 +115,4 @@ void boot_mode_apply(unsigned cfg_val)
 		reg &= ~(1 << 28);
 	writel(reg, &psrc->gpr10);
 }
+#endif
