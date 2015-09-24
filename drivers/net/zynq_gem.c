@@ -14,6 +14,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <config.h>
+#include <console.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <phy.h>
@@ -468,6 +469,11 @@ static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
 
 		if (get_timer(start) > timeout)
 			break;
+
+		if (ctrlc()) {
+			puts("Abort\n");
+			return -EINTR;
+		}
 
 		udelay(1);
 	}
