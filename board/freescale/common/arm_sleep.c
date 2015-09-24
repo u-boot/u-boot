@@ -12,7 +12,6 @@
 #include <asm/secure.h>
 #endif
 #include <asm/armv7.h>
-#include <asm/cache.h>
 
 #if defined(CONFIG_LS102XA)
 #include <asm/arch/immap_ls102xa.h>
@@ -65,8 +64,6 @@ static void dp_ddr_restore(void)
 
 	for (i = 0; i < DDR_BUFF_LEN / 8; i++)
 		*dst++ = *src++;
-
-	flush_dcache_all();
 }
 
 static void dp_resume_prepare(void)
@@ -74,7 +71,6 @@ static void dp_resume_prepare(void)
 	dp_ddr_restore();
 	board_sleep_prepare();
 	armv7_init_nonsec();
-	cleanup_before_linux();
 #ifdef CONFIG_U_QE
 	u_qe_resume();
 #endif

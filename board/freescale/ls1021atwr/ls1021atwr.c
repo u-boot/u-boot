@@ -436,8 +436,10 @@ int board_early_init_f(void)
 	}
 
 #if defined(CONFIG_DEEP_SLEEP)
-	if (is_warm_boot())
-		fsl_dp_disable_console();
+	if (is_warm_boot()) {
+		timer_init();
+		dram_init();
+	}
 #endif
 
 	return 0;
@@ -446,6 +448,8 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
+	void (*second_uboot)(void);
+
 	/* Clear the BSS */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
@@ -465,6 +469,17 @@ void board_init_f(ulong dummy)
 	enable_layerscape_ns_access();
 	enable_layerscape_ns_access();
 #endif
+
+	/*
+	 * if it is woken up from deep sleep, then jump to second
+	 * stage uboot and continue executing without recopying
+	 * it from SD since it has already been reserved in memeory
+	 * in last boot.
+	 */
+	if (is_warm_boot()) {
+		second_uboot = (void (*)(void))CONFIG_SYS_TEXT_BASE;
+		second_uboot();
+	}
 
 	board_init_r(NULL, 0);
 }
