@@ -43,6 +43,12 @@
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
+/* Environment is in MMC */
+#define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
+#define CONFIG_ENV_OFFSET		512	/* just after the MBR */
+
 /* USB */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
