@@ -331,6 +331,7 @@ unsigned long get_board_sys_clk(void);
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_AQUANTIA
 #define CONFIG_PHY_CORTINA
 #define CONFIG_PHYLIB
 #define	CONFIG_SYS_CORTINA_FW_IN_NOR
