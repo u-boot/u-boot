@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
@@ -54,6 +55,20 @@
 };
 
 /* for U-boot only */
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+};
+
 &serial0 {
-       u-boot,dm-pre-reloc;
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart0 {
+	u-boot,dm-pre-reloc;
 };

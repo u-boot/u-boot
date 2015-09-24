@@ -1,0 +1,64 @@
+/*
+ * Device Tree Source for UniPhier PH1-Pro5 4KBOX Board (EVB-Pro5-4KBOX-M-V0)
+ *
+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+/include/ "uniphier-ph1-pro5.dtsi"
+
+/ {
+	model = "UniPhier PH1-Pro5 4KBOX Board";
+	compatible = "socionext,ph1-pro5-4kbox", "socionext,ph1-pro5";
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x40000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyS1,115200";
+		stdout-path = &serial1;
+	};
+
+	aliases {
+		serial1 = &serial1;
+		serial2 = &serial2;
+		i2c0 = &i2c0;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+	};
+};
+
+&serial1 {
+	status = "okay";
+};
+
+&serial2 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+/* for U-boot only */
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&serial1 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart1 {
+	u-boot,dm-pre-reloc;
+};

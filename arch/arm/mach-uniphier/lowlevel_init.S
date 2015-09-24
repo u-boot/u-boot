@@ -8,7 +8,6 @@
 #include <linux/linkage.h>
 #include <linux/sizes.h>
 #include <asm/system.h>
-#include <mach/led.h>
 #include <mach/arm-mpcore.h>
 #include <mach/sbc-regs.h>
 #include <mach/ssc-regs.h>
@@ -28,7 +27,7 @@ ENTRY(lowlevel_init)
 	mcr	p15, 0, r0, c1, c0, 0
 
 #ifdef CONFIG_DEBUG_LL
-	bl	setup_lowlevel_debug
+	bl	debug_ll_init
 #endif
 
 	/*
