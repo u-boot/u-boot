@@ -422,6 +422,12 @@ static inline int wait_for_bit(const char *func, u32 *reg, const u32 mask,
 		if (get_timer(start) > timeout)
 			break;
 
+		if (ctrlc()) {
+			puts("Abort\n");
+			return -1;
+		}
+
+
 		udelay(1);
 	}
 
