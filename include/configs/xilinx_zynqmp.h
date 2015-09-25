@@ -74,8 +74,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_ZYNQ_SDHCI0
-
 /* Command line configuration */
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
