@@ -180,10 +180,11 @@ fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 		const char *prop_name, fdt_size_t *sizep)
 {
+	int ns = sizep ? (sizeof(fdt_size_t) / sizeof(fdt32_t)) : 0;
+
 	return fdtdec_get_addr_size_fixed(blob, node, prop_name, 0,
 					  sizeof(fdt_addr_t) / sizeof(fdt32_t),
-					  sizeof(fdt_size_t) / sizeof(fdt32_t),
-					  sizep);
+					  ns, sizep);
 }
 
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,
