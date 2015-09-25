@@ -25,13 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-enum {
-	TEGRA_CMD_INFO,
-	TEGRA_CMD_PORT,
-	TEGRA_CMD_OUTPUT,
-	TEGRA_CMD_INPUT,
-};
-
 struct tegra_gpio_platdata {
 	struct gpio_ctlr_bank *bank;
 	const char *port_name;	/* Name of port, e.g. "B" */
