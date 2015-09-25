@@ -1,6 +1,6 @@
 /*
  * NVIDIA Tegra20 GPIO handling.
- *  (C) Copyright 2010-2012
+ *  (C) Copyright 2010-2012,2015
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -25,6 +25,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static const int CONFIG_SFIO = 0;
+static const int CONFIG_GPIO = 1;
+static const int DIRECTION_INPUT = 0;
+static const int DIRECTION_OUTPUT = 1;
+
 struct tegra_gpio_platdata {
 	struct gpio_ctlr_bank *bank;
 	const char *port_name;	/* Name of port, e.g. "B" */
@@ -37,7 +42,7 @@ struct tegra_port_info {
 	int base_gpio;		/* Port number for this port (0, 1,.., n-1) */
 };
 
-/* Return config of pin 'gpio' as GPIO (1) or SFPIO (0) */
+/* Return config of pin 'gpio' as GPIO (1) or SFIO (0) */
 static int get_config(unsigned gpio)
 {
 	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
@@ -46,15 +51,15 @@ static int get_config(unsigned gpio)
 	int type;
 
 	u = readl(&bank->gpio_config[GPIO_PORT(gpio)]);
-	type =  (u >> GPIO_BIT(gpio)) & 1;
+	type = (u >> GPIO_BIT(gpio)) & 1;
 
 	debug("get_config: port = %d, bit = %d is %s\n",
 		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), type ? "GPIO" : "SFPIO");
 
-	return type;
+	return type ? CONFIG_GPIO : CONFIG_SFIO;
 }
 
-/* Config pin 'gpio' as GPIO or SFPIO, based on 'type' */
+/* Config pin 'gpio' as GPIO or SFIO, based on 'type' */
 static void set_config(unsigned gpio, int type)
 {
 	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
@@ -65,7 +70,7 @@ static void set_config(unsigned gpio, int type)
 		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), type ? "GPIO" : "SFPIO");
 
 	u = readl(&bank->gpio_config[GPIO_PORT(gpio)]);
-	if (type)				/* GPIO */
+	if (type != CONFIG_SFIO)
 		u |= 1 << GPIO_BIT(gpio);
 	else
 		u &= ~(1 << GPIO_BIT(gpio));
@@ -86,7 +91,7 @@ static int get_direction(unsigned gpio)
 	debug("get_direction: port = %d, bit = %d, %s\n",
 		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), dir ? "OUT" : "IN");
 
-	return dir;
+	return dir ? DIRECTION_OUTPUT : DIRECTION_INPUT;
 }
 
 /* Config GPIO pin 'gpio' as input or output (OE) as per 'output' */
@@ -100,7 +105,7 @@ static void set_direction(unsigned gpio, int output)
 		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), output ? "OUT" : "IN");
 
 	u = readl(&bank->gpio_dir_out[GPIO_PORT(gpio)]);
-	if (output)
+	if (output != DIRECTION_INPUT)
 		u |= 1 << GPIO_BIT(gpio);
 	else
 		u &= ~(1 << GPIO_BIT(gpio));
@@ -135,7 +140,7 @@ static int tegra_gpio_direction_input(struct udevice *dev, unsigned offset)
 	struct tegra_port_info *state = dev_get_priv(dev);
 
 	/* Configure GPIO direction as input. */
-	set_direction(state->base_gpio + offset, 0);
+	set_direction(state->base_gpio + offset, DIRECTION_INPUT);
 
 	/* Enable the pin as a GPIO */
 	set_config(state->base_gpio + offset, 1);
@@ -154,7 +159,7 @@ static int tegra_gpio_direction_output(struct udevice *dev, unsigned offset,
 	set_level(gpio, value);
 
 	/* Configure GPIO direction as output. */
-	set_direction(gpio, 1);
+	set_direction(gpio, DIRECTION_OUTPUT);
 
 	/* Enable the pin as a GPIO */
 	set_config(state->base_gpio + offset, 1);
@@ -199,18 +204,18 @@ void gpio_config_table(const struct tegra_gpio_config *config, int len)
 	for (i = 0; i < len; i++) {
 		switch (config[i].init) {
 		case TEGRA_GPIO_INIT_IN:
-			set_direction(config[i].gpio, 0);
+			set_direction(config[i].gpio, DIRECTION_INPUT);
 			break;
 		case TEGRA_GPIO_INIT_OUT0:
 			set_level(config[i].gpio, 0);
-			set_direction(config[i].gpio, 1);
+			set_direction(config[i].gpio, DIRECTION_OUTPUT);
 			break;
 		case TEGRA_GPIO_INIT_OUT1:
 			set_level(config[i].gpio, 1);
-			set_direction(config[i].gpio, 1);
+			set_direction(config[i].gpio, DIRECTION_OUTPUT);
 			break;
 		}
-		set_config(config[i].gpio, 1);
+		set_config(config[i].gpio, CONFIG_GPIO);
 	}
 }
 
