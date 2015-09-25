@@ -134,7 +134,7 @@ int board_late_init(void)
 
 	switch (bootmode) {
 	case JTAG_MODE:
-		setenv("modeboot", "netboot");
+		setenv("modeboot", "jtagboot");
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
