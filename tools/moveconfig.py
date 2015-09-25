@@ -181,7 +181,7 @@ SLEEP_TIME=0.03
 # (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the followings:
 # arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases
 # blackfin: http://sourceforge.net/projects/adi-toolchain/files/
-# nds32: http://osdk.andestech.com/packages/
+# nds32: http://osdk.andestech.com/packages/nds32le-linux-glibc-v1.tgz
 # nios2: https://sourcery.mentor.com/GNUToolchain/subscription42545
 # sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu
 CROSS_COMPILE = {
