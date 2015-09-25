@@ -214,7 +214,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	if (data) {
 		start = get_timer(0);
-		timeout = 1000;
+		timeout = 240000;
 		for (;;) {
 			mask = dwmci_readl(host, DWMCI_RINTSTS);
 			/* Error during data transfer. */
