@@ -580,6 +580,21 @@ static void setup_iomux_gpio(void)
 	imx_iomux_v3_setup_multiple_pads(gpio_pads, ARRAY_SIZE(gpio_pads));
 }
 
+static void set_gpr_register(void)
+{
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	writel(IOMUXC_GPR1_APP_CLK_REQ_N | IOMUXC_GPR1_PCIE_RDY_L23 |
+	       IOMUXC_GPR1_EXC_MON_SLVE |
+	       (2 << IOMUXC_GPR1_ADDRS0_OFFSET) |
+	       IOMUXC_GPR1_ACT_CS0,
+	       &iomuxc_regs->gpr[1]);
+	writel(0x0, &iomuxc_regs->gpr[8]);
+	writel(IOMUXC_GPR12_ARMP_IPG_CLK_EN | IOMUXC_GPR12_ARMP_AHB_CLK_EN |
+	       IOMUXC_GPR12_ARMP_ATB_CLK_EN | IOMUXC_GPR12_ARMP_APB_CLK_EN,
+	       &iomuxc_regs->gpr[12]);
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -588,6 +603,7 @@ int board_early_init_f(void)
 	gpio_direction_output(SOFT_RESET_GPIO, 1);
 	gpio_direction_output(SD2_DRIVER_ENABLE, 1);
 	setup_display();
+	set_gpr_register();
 	return 0;
 }
 
