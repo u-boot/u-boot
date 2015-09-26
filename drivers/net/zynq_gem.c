@@ -132,6 +132,10 @@ struct zynq_gem_regs {
 	u32 reserved6[18];
 #define STAT_SIZE	44
 	u32 stat[STAT_SIZE]; /* 0x100 - Octects transmitted Low reg */
+	u32 reserved7[164];
+	u32 transmit_q1_ptr; /* 0x440 - Transmit priority queue 1 */
+	u32 reserved8[15];
+	u32 receive_q1_ptr; /* 0x480 - Receive priority queue 1 */
 };
 
 /* BD descriptors */
@@ -147,6 +151,9 @@ struct emac_bd {
 #define BD_SPACE	0x100000
 /* BD separation space */
 #define BD_SEPRN_SPACE	(RX_BUF * sizeof(struct emac_bd))
+
+/* Setup the first free TX descriptor */
+#define TX_FREE_DESC	2
 
 /* Initialized, rxbd_current, rx_first_buf must be 0 after init */
 struct zynq_gem_priv {
@@ -305,6 +312,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	struct phy_device *phydev;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	struct zynq_gem_priv *priv = dev->priv;
+	struct emac_bd *dummy_tx_bd = &priv->tx_bd[TX_FREE_DESC];
+	struct emac_bd *dummy_rx_bd = &priv->tx_bd[TX_FREE_DESC + 2];
 	const u32 supported = SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
@@ -352,6 +361,23 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 
 		/* Setup for Network Control register, MDIO, Rx and Tx enable */
 		setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK);
+
+		/* Disable the second priority queue */
+		dummy_tx_bd->addr = 0;
+		dummy_tx_bd->status = ZYNQ_GEM_TXBUF_WRAP_MASK |
+				ZYNQ_GEM_TXBUF_LAST_MASK|
+				ZYNQ_GEM_TXBUF_USED_MASK;
+
+		dummy_rx_bd->addr = ZYNQ_GEM_RXBUF_WRAP_MASK |
+				ZYNQ_GEM_RXBUF_NEW_MASK;
+		dummy_rx_bd->status = 0;
+		flush_dcache_range((ulong)&dummy_tx_bd, (ulong)&dummy_tx_bd +
+				   sizeof(dummy_tx_bd));
+		flush_dcache_range((ulong)&dummy_rx_bd, (ulong)&dummy_rx_bd +
+				   sizeof(dummy_rx_bd));
+
+		writel((ulong)dummy_tx_bd, &regs->transmit_q1_ptr);
+		writel((ulong)dummy_rx_bd, &regs->receive_q1_ptr);
 
 		priv->init++;
 	}
