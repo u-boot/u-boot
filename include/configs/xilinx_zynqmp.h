@@ -259,6 +259,7 @@
 # define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
 # define CONFIG_PHY_NATSEMI
+# define CONFIG_PHY_TI
 # define CONFIG_PHY_GIGE
 #endif
 
