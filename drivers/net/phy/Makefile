@@ -24,4 +24,5 @@ obj-$(CONFIG_PHY_NATSEMI) += natsemi.o
 obj-$(CONFIG_PHY_REALTEK) += realtek.o
 obj-$(CONFIG_PHY_SMSC) += smsc.o
 obj-$(CONFIG_PHY_TERANETICS) += teranetics.o
+obj-$(CONFIG_PHY_TI) += ti.o
 obj-$(CONFIG_PHY_VITESSE) += vitesse.o
