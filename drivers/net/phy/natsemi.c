@@ -110,57 +110,10 @@ static struct phy_driver DP83865_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-int dp83867_config(struct phy_device *phydev)
-{
-	/* FIXME - describe this sequence in better way */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x10, 0x5048);
-
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x1F);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0E, 0x86);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x401F);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0E, 0xA8);
-
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x1F);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0E, 0x86);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x401F);
-
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x1F);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0E, 0x32);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x401F);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0E, 0xD3);
-
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x1F);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0E, 0x32);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x0D, 0x401F);
-
-	genphy_config_aneg(phydev);
-
-	return 0;
-}
-
-int dp83867_startup(struct phy_device *phydev)
-{
-	genphy_update_link(phydev);
-	genphy_parse_link(phydev);
-
-	return 0;
-}
-
-static struct phy_driver DP83867_driver = {
-	.name = "NatSemi DP83867",
-	.uid = 0x2000a231,
-	.mask = 0xfffffff0,
-	.features = PHY_GBIT_FEATURES,
-	.config = &dp83867_config,
-	.startup = &dp83867_startup,
-	.shutdown = &genphy_shutdown,
-};
-
 int phy_natsemi_init(void)
 {
 	phy_register(&DP83630_driver);
 	phy_register(&DP83865_driver);
-	phy_register(&DP83867_driver);
 
 	return 0;
 }
