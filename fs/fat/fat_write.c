@@ -721,7 +721,7 @@ set_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 				goto getit;
 
 			if (CHECK_CLUST(newclust, mydata->fatsize)) {
-				debug("curclust: 0x%x\n", newclust);
+				debug("newclust: 0x%x\n", newclust);
 				debug("Invalid FAT entry\n");
 				return 0;
 			}
@@ -754,8 +754,8 @@ getit:
 		filesize -= actsize;
 		buffer += actsize;
 
-		if (CHECK_CLUST(curclust, mydata->fatsize)) {
-			debug("curclust: 0x%x\n", curclust);
+		if (CHECK_CLUST(newclust, mydata->fatsize)) {
+			debug("newclust: 0x%x\n", newclust);
 			debug("Invalid FAT entry\n");
 			return 0;
 		}
