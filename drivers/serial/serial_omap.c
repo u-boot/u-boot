@@ -16,8 +16,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id omap_serial_ids[] = {
+	{ .compatible = "ti,omap2-uart" },
 	{ .compatible = "ti,omap3-uart" },
 	{ .compatible = "ti,omap4-uart" },
+	{ .compatible = "ti,am3352-uart" },
+	{ .compatible = "ti,am4372-uart" },
+	{ .compatible = "ti,dra742-uart" },
 	{ }
 };
 
