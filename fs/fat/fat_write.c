@@ -555,8 +555,9 @@ static int
 set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
 	     unsigned long size)
 {
-	int idx = 0;
+	__u32 idx = 0;
 	__u32 startsect;
+	int ret;
 
 	if (clustnum > 0)
 		startsect = mydata->data_begin +
@@ -566,26 +567,45 @@ set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
 
 	debug("clustnum: %d, startsect: %d\n", clustnum, startsect);
 
-	if ((size / mydata->sect_size) > 0) {
-		if (disk_write(startsect, size / mydata->sect_size, buffer) < 0) {
-			debug("Error writing data\n");
+	if ((unsigned long)buffer & (ARCH_DMA_MINALIGN - 1)) {
+		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
+
+		printf("FAT: Misaligned buffer address (%p)\n", buffer);
+
+		while (size >= mydata->sect_size) {
+			memcpy(tmpbuf, buffer, mydata->sect_size);
+			ret = disk_write(startsect++, 1, tmpbuf);
+			if (ret != 1) {
+				debug("Error writing data (got %d)\n", ret);
+				return -1;
+			}
+
+			buffer += mydata->sect_size;
+			size -= mydata->sect_size;
+		}
+	} else if (size >= mydata->sect_size) {
+		idx = size / mydata->sect_size;
+		ret = disk_write(startsect, idx, buffer);
+		if (ret != idx) {
+			debug("Error writing data (got %d)\n", ret);
 			return -1;
 		}
+
+		startsect += idx;
+		idx *= mydata->sect_size;
+		buffer += idx;
+		size -= idx;
 	}
 
-	if (size % mydata->sect_size) {
-		__u8 tmpbuf[mydata->sect_size];
+	if (size) {
+		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
 
-		idx = size / mydata->sect_size;
-		buffer += idx * mydata->sect_size;
-		memcpy(tmpbuf, buffer, size % mydata->sect_size);
-
-		if (disk_write(startsect + idx, 1, tmpbuf) < 0) {
-			debug("Error writing data\n");
+		memcpy(tmpbuf, buffer, size);
+		ret = disk_write(startsect, 1, tmpbuf);
+		if (ret != 1) {
+			debug("Error writing data (got %d)\n", ret);
 			return -1;
 		}
-
-		return 0;
 	}
 
 	return 0;
