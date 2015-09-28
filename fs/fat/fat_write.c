@@ -710,6 +710,14 @@ set_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 
 	debug("%llu bytes\n", filesize);
 
+	if (!curclust) {
+		if (filesize) {
+			debug("error: nonempty clusterless file!\n");
+			return -1;
+		}
+		return 0;
+	}
+
 	actsize = bytesperclust;
 	endclust = curclust;
 	do {
@@ -765,15 +773,24 @@ getit:
 }
 
 /*
- * Fill dir_entry
+ * Set start cluster in directory entry
  */
-static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
-	const char *filename, __u32 start_cluster, __u32 size, __u8 attr)
+static void set_start_cluster(const fsdata *mydata, dir_entry *dentptr,
+				__u32 start_cluster)
 {
 	if (mydata->fatsize == 32)
 		dentptr->starthi =
 			cpu_to_le16((start_cluster & 0xffff0000) >> 16);
 	dentptr->start = cpu_to_le16(start_cluster & 0xffff);
+}
+
+/*
+ * Fill dir_entry
+ */
+static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
+	const char *filename, __u32 start_cluster, __u32 size, __u8 attr)
+{
+	set_start_cluster(mydata, dentptr, start_cluster);
 	dentptr->size = cpu_to_le32(size);
 
 	dentptr->attr = attr;
@@ -1030,32 +1047,58 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 		retdent->size = cpu_to_le32(size);
 		start_cluster = START(retdent);
 
-		ret = check_overflow(mydata, start_cluster, size);
-		if (ret) {
-			printf("Error: %llu overflow\n", size);
-			goto exit;
-		}
+		if (start_cluster) {
+			if (size) {
+				ret = check_overflow(mydata, start_cluster,
+							size);
+				if (ret) {
+					printf("Error: %llu overflow\n", size);
+					goto exit;
+				}
+			}
 
-		ret = clear_fatent(mydata, start_cluster);
-		if (ret) {
-			printf("Error: clearing FAT entries\n");
-			goto exit;
+			ret = clear_fatent(mydata, start_cluster);
+			if (ret) {
+				printf("Error: clearing FAT entries\n");
+				goto exit;
+			}
+
+			if (!size)
+				set_start_cluster(mydata, retdent, 0);
+		} else if (size) {
+			ret = start_cluster = find_empty_cluster(mydata);
+			if (ret < 0) {
+				printf("Error: finding empty cluster\n");
+				goto exit;
+			}
+
+			ret = check_overflow(mydata, start_cluster, size);
+			if (ret) {
+				printf("Error: %llu overflow\n", size);
+				goto exit;
+			}
+
+			set_start_cluster(mydata, retdent, start_cluster);
 		}
 	} else {
 		/* Set short name to set alias checksum field in dir_slot */
 		set_name(empty_dentptr, filename);
 		fill_dir_slot(mydata, &empty_dentptr, filename);
 
-		ret = start_cluster = find_empty_cluster(mydata);
-		if (ret < 0) {
-			printf("Error: finding empty cluster\n");
-			goto exit;
-		}
+		if (size) {
+			ret = start_cluster = find_empty_cluster(mydata);
+			if (ret < 0) {
+				printf("Error: finding empty cluster\n");
+				goto exit;
+			}
 
-		ret = check_overflow(mydata, start_cluster, size);
-		if (ret) {
-			printf("Error: %llu overflow\n", size);
-			goto exit;
+			ret = check_overflow(mydata, start_cluster, size);
+			if (ret) {
+				printf("Error: %llu overflow\n", size);
+				goto exit;
+			}
+		} else {
+			start_cluster = 0;
 		}
 
 		/* Set attribute as archieve for regular file */
