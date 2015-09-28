@@ -140,6 +140,14 @@
 #define CONFIG_USB_GADGET_DUALSPEED
 #endif
 
+/*
+ * Disable MMC DM for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_MMC
+#endif
+
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
