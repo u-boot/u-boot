@@ -23,9 +23,13 @@
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550
+#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
 #define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000
+#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#else
+#define CONFIG_OMAP_SERIAL
+#endif
 
 /* I2C Configuration */
 #define CONFIG_CMD_EEPROM
