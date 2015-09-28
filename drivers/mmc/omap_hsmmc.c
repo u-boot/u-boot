@@ -37,6 +37,9 @@
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #endif
+#include <dm.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* simplify defines to OMAP_HSMMC_USE_GPIO */
 #if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_SPL_BUILD)) || \
@@ -54,8 +57,14 @@ struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
 	struct mmc_config cfg;
 #ifdef OMAP_HSMMC_USE_GPIO
+#ifdef CONFIG_DM_MMC
+	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
+	struct gpio_desc wp_gpio;	/* Write Protect GPIO */
+	bool cd_inverted;
+#else
 	int cd_gpio;
 	int wp_gpio;
+#endif
 #endif
 };
 
@@ -66,7 +75,7 @@ static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
 static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			unsigned int siz);
 
-#ifdef OMAP_HSMMC_USE_GPIO
+#if defined(OMAP_HSMMC_USE_GPIO) && !defined(CONFIG_DM_MMC)
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 {
 	int ret;
@@ -602,6 +611,34 @@ static void omap_hsmmc_set_ios(struct mmc *mmc)
 }
 
 #ifdef OMAP_HSMMC_USE_GPIO
+#ifdef CONFIG_DM_MMC
+static int omap_hsmmc_getcd(struct mmc *mmc)
+{
+	struct omap_hsmmc_data *priv = mmc->priv;
+	int value;
+
+	value = dm_gpio_get_value(&priv->cd_gpio);
+	/* if no CD return as 1 */
+	if (value < 0)
+		return 1;
+
+	if (priv->cd_inverted)
+		return !value;
+	return value;
+}
+
+static int omap_hsmmc_getwp(struct mmc *mmc)
+{
+	struct omap_hsmmc_data *priv = mmc->priv;
+	int value;
+
+	value = dm_gpio_get_value(&priv->wp_gpio);
+	/* if no WP return as 0 */
+	if (value < 0)
+		return 0;
+	return value;
+}
+#else
 static int omap_hsmmc_getcd(struct mmc *mmc)
 {
 	struct omap_hsmmc_data *priv_data = mmc->priv;
@@ -630,6 +667,7 @@ static int omap_hsmmc_getwp(struct mmc *mmc)
 	return gpio_get_value(wp_gpio);
 }
 #endif
+#endif
 
 static const struct mmc_ops omap_hsmmc_ops = {
 	.send_cmd	= omap_hsmmc_send_cmd,
@@ -641,6 +679,7 @@ static const struct mmc_ops omap_hsmmc_ops = {
 #endif
 };
 
+#ifndef CONFIG_DM_MMC
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio)
 {
@@ -727,3 +766,79 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 
 	return 0;
 }
+#else
+static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
+{
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
+	const void *fdt = gd->fdt_blob;
+	int node = dev->of_offset;
+	struct mmc_config *cfg;
+	int val;
+
+	priv->base_addr = (struct hsmmc *)dev_get_addr(dev);
+	cfg = &priv->cfg;
+
+	cfg->host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	val = fdtdec_get_int(fdt, node, "bus-width", -1);
+	if (val < 0) {
+		printf("error: bus-width property missing\n");
+		return -ENOENT;
+	}
+
+	switch (val) {
+	case 0x8:
+		cfg->host_caps |= MMC_MODE_8BIT;
+	case 0x4:
+		cfg->host_caps |= MMC_MODE_4BIT;
+		break;
+	default:
+		printf("error: invalid bus-width property\n");
+		return -ENOENT;
+	}
+
+	cfg->f_min = 400000;
+	cfg->f_max = fdtdec_get_int(fdt, node, "max-frequency", 52000000);
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+
+	priv->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
+
+	return 0;
+}
+
+static int omap_hsmmc_probe(struct udevice *dev)
+{
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
+	struct mmc_config *cfg;
+	struct mmc *mmc;
+
+	cfg = &priv->cfg;
+	cfg->name = "OMAP SD/MMC";
+	cfg->ops = &omap_hsmmc_ops;
+
+	mmc = mmc_create(cfg, priv);
+	if (mmc == NULL)
+		return -1;
+
+	upriv->mmc = mmc;
+
+	return 0;
+}
+
+static const struct udevice_id omap_hsmmc_ids[] = {
+	{ .compatible = "ti,omap3-hsmmc" },
+	{ .compatible = "ti,omap4-hsmmc" },
+	{ .compatible = "ti,am33xx-hsmmc" },
+	{ }
+};
+
+U_BOOT_DRIVER(omap_hsmmc) = {
+	.name	= "omap_hsmmc",
+	.id	= UCLASS_MMC,
+	.of_match = omap_hsmmc_ids,
+	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
+	.probe	= omap_hsmmc_probe,
+	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
+};
+#endif
