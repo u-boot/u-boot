@@ -1028,10 +1028,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 	if (retdent) {
 		/* Update file size and start_cluster in a directory entry */
 		retdent->size = cpu_to_le32(size);
-		start_cluster = FAT2CPU16(retdent->start);
-		if (mydata->fatsize == 32)
-			start_cluster |=
-				(FAT2CPU16(retdent->starthi) << 16);
+		start_cluster = START(retdent);
 
 		ret = check_overflow(mydata, start_cluster, size);
 		if (ret) {
@@ -1042,29 +1039,6 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 		ret = clear_fatent(mydata, start_cluster);
 		if (ret) {
 			printf("Error: clearing FAT entries\n");
-			goto exit;
-		}
-
-		ret = set_contents(mydata, retdent, buffer, size, actwrite);
-		if (ret < 0) {
-			printf("Error: writing contents\n");
-			goto exit;
-		}
-		debug("attempt to write 0x%llx bytes\n", *actwrite);
-
-		/* Flush fat buffer */
-		ret = flush_fat_buffer(mydata);
-		if (ret) {
-			printf("Error: flush fat buffer\n");
-			goto exit;
-		}
-
-		/* Write directory table to device */
-		ret = set_cluster(mydata, dir_curclust,
-			    get_dentfromdir_block,
-			    mydata->clust_size * mydata->sect_size);
-		if (ret) {
-			printf("Error: writing directory entry\n");
 			goto exit;
 		}
 	} else {
@@ -1088,30 +1062,28 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 		fill_dentry(mydata, empty_dentptr, filename,
 			start_cluster, size, 0x20);
 
-		ret = set_contents(mydata, empty_dentptr, buffer, size,
-				   actwrite);
-		if (ret < 0) {
-			printf("Error: writing contents\n");
-			goto exit;
-		}
-		debug("attempt to write 0x%llx bytes\n", *actwrite);
-
-		/* Flush fat buffer */
-		ret = flush_fat_buffer(mydata);
-		if (ret) {
-			printf("Error: flush fat buffer\n");
-			goto exit;
-		}
-
-		/* Write directory table to device */
-		ret = set_cluster(mydata, dir_curclust,
-			    get_dentfromdir_block,
-			    mydata->clust_size * mydata->sect_size);
-		if (ret) {
-			printf("Error: writing directory entry\n");
-			goto exit;
-		}
+		retdent = empty_dentptr;
 	}
+
+	ret = set_contents(mydata, retdent, buffer, size, actwrite);
+	if (ret < 0) {
+		printf("Error: writing contents\n");
+		goto exit;
+	}
+	debug("attempt to write 0x%llx bytes\n", *actwrite);
+
+	/* Flush fat buffer */
+	ret = flush_fat_buffer(mydata);
+	if (ret) {
+		printf("Error: flush fat buffer\n");
+		goto exit;
+	}
+
+	/* Write directory table to device */
+	ret = set_cluster(mydata, dir_curclust, get_dentfromdir_block,
+			mydata->clust_size * mydata->sect_size);
+	if (ret)
+		printf("Error: writing directory entry\n");
 
 exit:
 	free(mydata->fatbuf);
