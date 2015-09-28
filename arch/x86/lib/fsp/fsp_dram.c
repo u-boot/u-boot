@@ -72,9 +72,10 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 				entries[num_entries].type = E820_RAM;
 			else if (res_desc->type == RES_MEM_RESERVED)
 				entries[num_entries].type = E820_RESERVED;
+
+			num_entries++;
 		}
 		hdr = get_next_hob(hdr);
-		num_entries++;
 	}
 
 	/* Mark PCIe ECAM address range as reserved */
