@@ -12,6 +12,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define DEFAULT_CLK_SPEED 48000000 /* 48Mhz */
+
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id omap_serial_ids[] = {
 	{ .compatible = "ti,omap3-uart" },
@@ -28,7 +30,7 @@ static int omap_serial_ofdata_to_platdata(struct udevice *dev)
 	if (ret)
 		return ret;
 	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-				     "clock-frequency", -1);
+				     "clock-frequency", DEFAULT_CLK_SPEED);
 	plat->reg_shift = 2;
 
 	return 0;
