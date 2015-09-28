@@ -94,6 +94,9 @@
 # define CONFIG_SDHCI
 # define CONFIG_ZYNQ_SDHCI
 # define CONFIG_CMD_MMC
+# ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
+#  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
+# endif
 #endif
 
 #if defined(CONFIG_ZYNQ_SDHCI)
