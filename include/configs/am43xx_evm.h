@@ -329,6 +329,7 @@
 
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_PHYLIB
+#define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
 
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_NET_VCI_STRING	"AM43xx U-Boot SPL"
