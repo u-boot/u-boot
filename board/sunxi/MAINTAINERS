@@ -48,8 +48,6 @@ F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
-F:	configs/Ippo_q8h_v1_2_defconfig
-F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
 F:	configs/q8_a23_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_1024x600_defconfig
@@ -94,16 +92,6 @@ F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
 F:	configs/Cubietruck_defconfig
 
-ET Q8 V1.6 Tablet BOARD
-M:	VishnuPatekar <vishnupatekar0510@gmail.com>
-S:	Maintained
-F:	configs/Et_q8_v1_6_defconfig
-
-FORFUN-Q88DB TABLET
-M:	Jens Lucius <info@jenslucius.com>
-S:	Maintained
-F:	configs/forfun_q88db_defconfig
-
 GEMEI-G9 TABLET
 M:	Priit Laes <plaes@plaes.org>
 S:	Maintained
@@ -128,11 +116,6 @@ INET 86VS BOARD
 M:	Michal Suchanek <hramrach@gmail.com>
 S:	Maintained
 F:	configs/iNet_86VS_defconfig
-
-IPPO-Q8H-V5 BOARD
-M:	Chen-Yu Tsai <wens@csie.org>
-S:	Maintained
-F:	configs/Ippo_q8h_v5_defconfig
 
 LINKSPRITE-PCDUINO BOARD
 M:	Zoltan Herpai <wigyori@uid0.hu>
@@ -184,11 +167,6 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Sinlinx_SinA33_defconfig
 W:	http://linux-sunxi.org/Sinlinx_SinA33
-
-TZX-Q8-713B7 BOARD
-M:	Paul Kocialkowski <contact@paulk.fr>
-S:	Maintained
-F:	configs/TZX-Q8-713B7_defconfig
 
 WEXLER-TAB7200 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
