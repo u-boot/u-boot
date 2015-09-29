@@ -233,18 +233,18 @@ void *dev_get_parent_platdata(struct udevice *dev);
 void *dev_get_uclass_platdata(struct udevice *dev);
 
 /**
- * dev_get_parentdata() - Get the parent data for a device
+ * dev_get_parent_priv() - Get the parent private data for a device
  *
- * The parent data is data stored in the device but owned by the parent.
- * For example, a USB device may have parent data which contains information
- * about how to talk to the device over USB.
+ * The parent private data is data stored in the device but owned by the
+ * parent. For example, a USB device may have parent data which contains
+ * information about how to talk to the device over USB.
  *
  * This checks that dev is not NULL, but no other checks for now
  *
  * @dev		Device to check
  * @return parent data, or NULL if none
  */
-void *dev_get_parentdata(struct udevice *dev);
+void *dev_get_parent_priv(struct udevice *dev);
 
 /**
  * dev_get_priv() - Get the private data for a device

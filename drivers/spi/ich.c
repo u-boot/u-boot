@@ -740,7 +740,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	struct udevice *bus = dev_get_parent(dev);
 	struct ich_spi_platdata *plat = dev_get_platdata(bus);
 	struct ich_spi_priv *priv = dev_get_priv(bus);
-	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	/*
 	 * Yes this controller can only write a small number of bytes at

@@ -797,7 +797,7 @@ struct udevice;
  *
  * Every device on a PCI bus has this per-child data.
  *
- * It can be accessed using dev_get_parentdata(dev) if dev->parent is a
+ * It can be accessed using dev_get_parent_priv(dev) if dev->parent is a
  * PCI bus (i.e. UCLASS_PCI)
  *
  * @devfn:	Encoded device and function index - see PCI_DEVFN()
