@@ -62,6 +62,22 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
 	return 0;
 }
 
+#if defined(CONFIG_SPI_FLASH_SST)
+int spi_flash_cmd_bp_unlock(struct spi_flash *flash)
+{
+	u8 cmd = CMD_BLOCK_PROTECT_UNLOCK;
+	int ret;
+
+	ret = spi_flash_read_common(flash, &cmd, 1, NULL, 0);
+	if (ret < 0) {
+		debug("SF: fail to unlock block protect\n");
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
 int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
 {

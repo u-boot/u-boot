@@ -43,6 +43,7 @@ enum {
 	SST_BP		= 1 << 3,
 	SST_WP		= 1 << 4,
 	WR_QPP		= 1 << 5,
+	SST_LOCKBP	= 1 << 6,
 };
 
 #define SST_WR		(SST_BP | SST_WP)
@@ -112,6 +113,7 @@ enum {
 #ifdef CONFIG_SPI_FLASH_SST
 # define CMD_SST_BP		0x02    /* Byte Program */
 # define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
+# define CMD_BLOCK_PROTECT_UNLOCK	0x98
 
 int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf);
