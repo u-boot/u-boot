@@ -170,10 +170,6 @@ struct udevice_id {
  * @per_child_auto_alloc_size: Each device can hold private data owned by
  * its parent. If required this will be automatically allocated if this
  * value is non-zero.
- * TODO(sjg@chromium.org): I'm considering dropping this, and just having
- * device_probe_child() pass it in. So far the use case for allocating it
- * is SPI, but I found that unsatisfactory. Since it is here I will leave it
- * until things are clearer.
  * @per_child_platdata_auto_alloc_size: A bus likes to store information about
  * its children. If non-zero this is the size of this data, to be allocated
  * in the child's parent_platdata pointer.
