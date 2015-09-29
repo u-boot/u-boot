@@ -130,13 +130,42 @@ bank_end:
 }
 #endif
 
-static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
-				     struct spi_flash *flash)
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
+{
+	fdt_addr_t addr;
+	fdt_size_t size;
+	int node;
+
+	/* If there is no node, do nothing */
+	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
+	if (node < 0)
+		return 0;
+
+	addr = fdtdec_get_addr_size(blob, node, "memory-map", &size);
+	if (addr == FDT_ADDR_T_NONE) {
+		debug("%s: Cannot decode address\n", __func__);
+		return 0;
+	}
+
+	if (flash->size != size) {
+		debug("%s: Memory map must cover entire device\n", __func__);
+		return -1;
+	}
+	flash->memory_map = map_sysmem(addr, size);
+
+	return 0;
+}
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
+
+static int spi_flash_scan(struct spi_slave *spi, u8 *idcode,
+			  struct spi_flash *flash)
 {
 	const struct spi_flash_params *params;
 	u8 cmd;
 	u16 jedec = idcode[1] << 8 | idcode[2];
 	u16 ext_jedec = idcode[3] << 8 | idcode[4];
+	int ret;
 
 	/* Validate params from spi_flash_params table */
 	params = spi_flash_params_table;
@@ -157,6 +186,13 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 		       idcode[0], jedec, ext_jedec);
 		return -EPROTONOSUPPORT;
 	}
+
+	/* Flash powers up read-only, so clear BP# bits */
+#if defined(CONFIG_SPI_FLASH_ATMEL) || \
+	defined(CONFIG_SPI_FLASH_MACRONIX) || \
+	defined(CONFIG_SPI_FLASH_SST)
+		spi_flash_cmd_write_status(flash, 0);
+#endif
 
 	/* Assign spi data */
 	flash->spi = spi;
@@ -253,6 +289,17 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 		/* Go for default supported write cmd */
 		flash->write_cmd = CMD_PAGE_PROGRAM;
 
+	/* Set the quad enable bit - only for quad commands */
+	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
+	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
+	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
+		ret = spi_flash_set_qeb(flash, idcode[0]);
+		if (ret) {
+			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
+			return -EINVAL;
+		}
+	}
+
 	/* Read dummy_byte: dummy byte is determined based on the
 	 * dummy cycles of a particular command.
 	 * Fast commands - dummy_byte = dummy_cycles/8
@@ -279,48 +326,41 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 
 	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
-	int ret = spi_flash_read_bank(flash, idcode[0]);
+	ret = spi_flash_read_bank(flash, idcode[0]);
 	if (ret < 0)
 		return ret;
 #endif
 
-	/* Flash powers up read-only, so clear BP# bits */
-#if defined(CONFIG_SPI_FLASH_ATMEL) || \
-	defined(CONFIG_SPI_FLASH_MACRONIX) || \
-	defined(CONFIG_SPI_FLASH_SST)
-		spi_flash_cmd_write_status(flash, 0);
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	ret = spi_flash_decode_fdt(gd->fdt_blob, flash);
+	if (ret) {
+		debug("SF: FDT decode error\n");
+		return -EINVAL;
+	}
 #endif
 
-	return 0;
-}
+#ifndef CONFIG_SPL_BUILD
+	printf("SF: Detected %s with page size ", flash->name);
+	print_size(flash->page_size, ", erase size ");
+	print_size(flash->erase_size, ", total ");
+	print_size(flash->size, "");
+	if (flash->memory_map)
+		printf(", mapped at %p", flash->memory_map);
+	puts("\n");
+#endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
-{
-	fdt_addr_t addr;
-	fdt_size_t size;
-	int node;
-
-	/* If there is no node, do nothing */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
-	if (node < 0)
-		return 0;
-
-	addr = fdtdec_get_addr_size(blob, node, "memory-map", &size);
-	if (addr == FDT_ADDR_T_NONE) {
-		debug("%s: Cannot decode address\n", __func__);
-		return 0;
+#ifndef CONFIG_SPI_FLASH_BAR
+	if (((flash->dual_flash == SF_SINGLE_FLASH) &&
+	     (flash->size > SPI_FLASH_16MB_BOUN)) ||
+	     ((flash->dual_flash > SF_SINGLE_FLASH) &&
+	     (flash->size > SPI_FLASH_16MB_BOUN << 1))) {
+		puts("SF: Warning - Only lower 16MiB accessible,");
+		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
 	}
+#endif
 
-	if (flash->size != size) {
-		debug("%s: Memory map must cover entire device\n", __func__);
-		return -1;
-	}
-	flash->memory_map = map_sysmem(addr, size);
-
-	return 0;
+	return ret;
 }
-#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 /**
  * spi_flash_probe_slave() - Probe for a SPI flash device on a bus
@@ -359,47 +399,12 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 	print_buffer(0, idcode, 1, sizeof(idcode), 0);
 #endif
 
-	if (spi_flash_validate_params(spi, idcode, flash)) {
+	ret = spi_flash_scan(spi, idcode, flash);
+	if (ret) {
 		ret = -EINVAL;
 		goto err_read_id;
 	}
 
-	/* Set the quad enable bit - only for quad commands */
-	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
-	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
-	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
-		if (spi_flash_set_qeb(flash, idcode[0])) {
-			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
-			ret = -EINVAL;
-			goto err_read_id;
-		}
-	}
-
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {
-		debug("SF: FDT decode error\n");
-		ret = -EINVAL;
-		goto err_read_id;
-	}
-#endif
-#ifndef CONFIG_SPL_BUILD
-	printf("SF: Detected %s with page size ", flash->name);
-	print_size(flash->page_size, ", erase size ");
-	print_size(flash->erase_size, ", total ");
-	print_size(flash->size, "");
-	if (flash->memory_map)
-		printf(", mapped at %p", flash->memory_map);
-	puts("\n");
-#endif
-#ifndef CONFIG_SPI_FLASH_BAR
-	if (((flash->dual_flash == SF_SINGLE_FLASH) &&
-	     (flash->size > SPI_FLASH_16MB_BOUN)) ||
-	     ((flash->dual_flash > SF_SINGLE_FLASH) &&
-	     (flash->size > SPI_FLASH_16MB_BOUN << 1))) {
-		puts("SF: Warning - Only lower 16MiB accessible,");
-		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
-	}
-#endif
 #ifdef CONFIG_SPI_FLASH_MTD
 	ret = spi_flash_mtd_register(flash);
 #endif
