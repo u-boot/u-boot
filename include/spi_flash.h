@@ -38,10 +38,10 @@ struct spi_slave;
  *
  * @spi:		SPI slave
  * @dev:		SPI flash device
- * @flags:		Indication of spi flash flags
  * @name:		Name of SPI flash
  * @dual_flash:		Indicates dual flash memories - dual stacked, parallel
  * @shift:		Flash shift useful in dual parallel
+ * @flags:		Indication of spi flash flags
  * @size:		Total flash size
  * @page_size:		Write (page) size
  * @sector_size:	Sector size
@@ -67,11 +67,11 @@ struct spi_flash {
 	struct spi_slave *spi;
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *dev;
-	u16 flags;
 #endif
 	const char *name;
 	u8 dual_flash;
 	u8 shift;
+	u16 flags;
 
 	u32 size;
 	u32 page_size;

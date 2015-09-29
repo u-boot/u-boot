@@ -51,6 +51,10 @@ enum {
 
 #define SST_WR		(SST_BP | SST_WP)
 
+enum spi_nor_option_flags {
+	SNOR_F_SST_WR		= (1 << 0),
+};
+
 #define SPI_FLASH_3B_ADDR_LEN		3
 #define SPI_FLASH_CMD_LEN		(1 + SPI_FLASH_3B_ADDR_LEN)
 #define SPI_FLASH_16MB_BOUN		0x1000000
