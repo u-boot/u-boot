@@ -278,13 +278,26 @@ struct udevice *dev_get_parent(struct udevice *child);
  * dev_get_driver_data() - get the driver data used to bind a device
  *
  * When a device is bound using a device tree node, it matches a
- * particular compatible string as in struct udevice_id. This function
+ * particular compatible string in struct udevice_id. This function
  * returns the associated data value for that compatible string. This is
  * the 'data' field in struct udevice_id.
+ *
+ * As an example, consider this structure:
+ * static const struct udevice_id tegra_i2c_ids[] = {
+ *	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+ *	{ .compatible = "nvidia,tegra20-i2c", .data = TYPE_STD },
+ *	{ .compatible = "nvidia,tegra20-i2c-dvc", .data = TYPE_DVC },
+ *	{ }
+ * };
+ *
+ * When driver model finds a driver for this it will store the 'data' value
+ * corresponding to the compatible string it matches. This function returns
+ * that value. This allows the driver to handle several variants of a device.
  *
  * For USB devices, this is the driver_info field in struct usb_device_id.
  *
  * @dev:	Device to check
+ * @return driver data (0 if none is provided)
  */
 ulong dev_get_driver_data(struct udevice *dev);
 
@@ -299,7 +312,7 @@ ulong dev_get_driver_data(struct udevice *dev);
  */
 const void *dev_get_driver_ops(struct udevice *dev);
 
-/*
+/**
  * device_get_uclass_id() - return the uclass ID of a device
  *
  * @dev:	Device to check
@@ -307,7 +320,7 @@ const void *dev_get_driver_ops(struct udevice *dev);
  */
 enum uclass_id device_get_uclass_id(struct udevice *dev);
 
-/*
+/**
  * dev_get_uclass_name() - return the uclass name of a device
  *
  * This checks that dev is not NULL.
