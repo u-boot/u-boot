@@ -40,7 +40,7 @@ static u8 spi_read_cmds_array[] = {
 	CMD_READ_QUAD_IO_FAST,
 };
 
-static int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
+static int read_sr(struct spi_flash *flash, u8 *rs)
 {
 	int ret;
 	u8 cmd;
@@ -69,7 +69,7 @@ static int read_fsr(struct spi_flash *flash, u8 *fsr)
 	return 0;
 }
 
-static int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
+static int write_sr(struct spi_flash *flash, u8 ws)
 {
 	u8 cmd;
 	int ret;
@@ -85,7 +85,7 @@ static int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
 }
 
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
-static int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
+static int read_cr(struct spi_flash *flash, u8 *rc)
 {
 	int ret;
 	u8 cmd;
@@ -100,13 +100,13 @@ static int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
 	return 0;
 }
 
-static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
+static int write_cr(struct spi_flash *flash, u8 wc)
 {
 	u8 data[2];
 	u8 cmd;
 	int ret;
 
-	ret = spi_flash_cmd_read_status(flash, &data[0]);
+	ret = read_sr(flash, &data[0]);
 	if (ret < 0)
 		return ret;
 
@@ -123,7 +123,7 @@ static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
 #endif
 
 #ifdef CONFIG_SPI_FLASH_BAR
-static int spi_flash_write_bank(struct spi_flash *flash, u32 offset)
+static int spi_flash_write_bar(struct spi_flash *flash, u32 offset)
 {
 	u8 cmd, bank_sel;
 	int ret;
@@ -144,7 +144,7 @@ bar_end:
 	return flash->bank_curr;
 }
 
-static int spi_flash_read_bank(struct spi_flash *flash, u8 idcode0)
+static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 {
 	u8 curr_bank = 0;
 	int ret;
@@ -175,7 +175,7 @@ bank_end:
 #endif
 
 #ifdef CONFIG_SF_DUAL_FLASH
-static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
+static void spi_flash_dual(struct spi_flash *flash, u32 *addr)
 {
 	switch (flash->dual_flash) {
 	case SF_DUAL_STACKED_FLASH:
@@ -201,7 +201,7 @@ static int spi_flash_sr_ready(struct spi_flash *flash)
 	u8 sr;
 	int ret;
 
-	ret = spi_flash_cmd_read_status(flash, &sr);
+	ret = read_sr(flash, &sr);
 	if (ret < 0)
 		return ret;
 
@@ -325,10 +325,10 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 
 #ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
-			spi_flash_dual_flash(flash, &erase_addr);
+			spi_flash_dual(flash, &erase_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_write_bank(flash, erase_addr);
+		ret = spi_flash_write_bar(flash, erase_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -375,10 +375,10 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 #ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
-			spi_flash_dual_flash(flash, &write_addr);
+			spi_flash_dual(flash, &write_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_write_bank(flash, write_addr);
+		ret = spi_flash_write_bar(flash, write_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -470,10 +470,10 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 #ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
-			spi_flash_dual_flash(flash, &read_addr);
+			spi_flash_dual(flash, &read_addr);
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_write_bank(flash, read_addr);
+		ret = spi_flash_write_bar(flash, read_addr);
 		if (ret < 0)
 			return ret;
 		bank_sel = flash->bank_curr;
@@ -671,7 +671,7 @@ int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len)
 	int status;
 	u8 sr;
 
-	status = spi_flash_cmd_read_status(flash, &sr);
+	status = read_sr(flash, &sr);
 	if (status < 0)
 		return status;
 
@@ -708,7 +708,7 @@ int stm_lock(struct spi_flash *flash, u32 ofs, size_t len)
 	u8 shift = ffs(mask) - 1, pow, val;
 	int ret;
 
-	ret = spi_flash_cmd_read_status(flash, &status_old);
+	ret = read_sr(flash, &status_old);
 	if (ret < 0)
 		return ret;
 
@@ -745,7 +745,7 @@ int stm_lock(struct spi_flash *flash, u32 ofs, size_t len)
 	if ((status_new & mask) <= (status_old & mask))
 		return -EINVAL;
 
-	spi_flash_cmd_write_status(flash, status_new);
+	write_sr(flash, status_new);
 
 	return 0;
 }
@@ -762,7 +762,7 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 	u8 shift = ffs(mask) - 1, pow, val;
 	int ret;
 
-	ret = spi_flash_cmd_read_status(flash, &status_old);
+	ret = read_sr(flash, &status_old);
 	if (ret < 0)
 		return ret;
 
@@ -795,7 +795,7 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 	if ((status_new & mask) >= (status_old & mask))
 		return -EINVAL;
 
-	spi_flash_cmd_write_status(flash, status_new);
+	write_sr(flash, status_new);
 
 	return 0;
 }
@@ -808,14 +808,14 @@ static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
 	u8 qeb_status;
 	int ret;
 
-	ret = spi_flash_cmd_read_status(flash, &qeb_status);
+	ret = read_sr(flash, &qeb_status);
 	if (ret < 0)
 		return ret;
 
 	if (qeb_status & STATUS_QEB_MXIC) {
 		debug("SF: mxic: QEB is already set\n");
 	} else {
-		ret = spi_flash_cmd_write_status(flash, STATUS_QEB_MXIC);
+		ret = write_sr(flash, STATUS_QEB_MXIC);
 		if (ret < 0)
 			return ret;
 	}
@@ -830,14 +830,14 @@ static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
 	u8 qeb_status;
 	int ret;
 
-	ret = spi_flash_cmd_read_config(flash, &qeb_status);
+	ret = read_cr(flash, &qeb_status);
 	if (ret < 0)
 		return ret;
 
 	if (qeb_status & STATUS_QEB_WINSPAN) {
 		debug("SF: winspan: QEB is already set\n");
 	} else {
-		ret = spi_flash_cmd_write_config(flash, STATUS_QEB_WINSPAN);
+		ret = write_cr(flash, STATUS_QEB_WINSPAN);
 		if (ret < 0)
 			return ret;
 	}
@@ -944,7 +944,7 @@ int spi_flash_scan(struct spi_slave *spi, struct spi_flash *flash)
 #if defined(CONFIG_SPI_FLASH_ATMEL) || \
 	defined(CONFIG_SPI_FLASH_MACRONIX) || \
 	defined(CONFIG_SPI_FLASH_SST)
-		spi_flash_cmd_write_status(flash, 0);
+		write_sr(flash, 0);
 #endif
 
 	/* Assign spi data */
@@ -1079,7 +1079,7 @@ int spi_flash_scan(struct spi_slave *spi, struct spi_flash *flash)
 
 	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = spi_flash_read_bank(flash, idcode[0]);
+	ret = spi_flash_read_bar(flash, idcode[0]);
 	if (ret < 0)
 		return ret;
 #endif
