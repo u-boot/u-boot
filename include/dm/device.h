@@ -233,6 +233,16 @@ void *dev_get_parent_platdata(struct udevice *dev);
 void *dev_get_uclass_platdata(struct udevice *dev);
 
 /**
+ * dev_get_priv() - Get the private data for a device
+ *
+ * This checks that dev is not NULL, but no other checks for now
+ *
+ * @dev		Device to check
+ * @return private data, or NULL if none
+ */
+void *dev_get_priv(struct udevice *dev);
+
+/**
  * dev_get_parent_priv() - Get the parent private data for a device
  *
  * The parent private data is data stored in the device but owned by the
@@ -247,24 +257,6 @@ void *dev_get_uclass_platdata(struct udevice *dev);
 void *dev_get_parent_priv(struct udevice *dev);
 
 /**
- * dev_get_priv() - Get the private data for a device
- *
- * This checks that dev is not NULL, but no other checks for now
- *
- * @dev		Device to check
- * @return private data, or NULL if none
- */
-void *dev_get_priv(struct udevice *dev);
-
-/**
- * struct dev_get_parent() - Get the parent of a device
- *
- * @child:	Child to check
- * @return parent of child, or NULL if this is the root device
- */
-struct udevice *dev_get_parent(struct udevice *child);
-
-/**
  * dev_get_uclass_priv() - Get the private uclass data for a device
  *
  * This checks that dev is not NULL, but no other checks for now
@@ -273,6 +265,14 @@ struct udevice *dev_get_parent(struct udevice *child);
  * @return private uclass data for this device, or NULL if none
  */
 void *dev_get_uclass_priv(struct udevice *dev);
+
+/**
+ * struct dev_get_parent() - Get the parent of a device
+ *
+ * @child:	Child to check
+ * @return parent of child, or NULL if this is the root device
+ */
+struct udevice *dev_get_parent(struct udevice *child);
 
 /**
  * dev_get_driver_data() - get the driver data used to bind a device
