@@ -161,4 +161,12 @@
 #define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
 #endif
 
+/*
+ * Disable MMC DM for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_MMC
+#endif
+
 #endif /* __CONFIG_TI_OMAP5_COMMON_H */
