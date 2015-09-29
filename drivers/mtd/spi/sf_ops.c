@@ -941,11 +941,10 @@ int spi_flash_scan(struct spi_slave *spi, struct spi_flash *flash)
 	}
 
 	/* Flash powers up read-only, so clear BP# bits */
-#if defined(CONFIG_SPI_FLASH_ATMEL) || \
-	defined(CONFIG_SPI_FLASH_MACRONIX) || \
-	defined(CONFIG_SPI_FLASH_SST)
+	if (idcode[0] == SPI_FLASH_CFI_MFR_ATMEL ||
+	    idcode[0] == SPI_FLASH_CFI_MFR_MACRONIX ||
+	    idcode[0] == SPI_FLASH_CFI_MFR_SST)
 		write_sr(flash, 0);
-#endif
 
 	/* Assign spi data */
 	flash->spi = spi;
