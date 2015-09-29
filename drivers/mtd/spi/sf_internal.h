@@ -171,12 +171,6 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 /* Flash erase(sectors) operation, support all possible erase commands */
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 
-/* Read the status register */
-int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs);
-
-/* Program the status register */
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws);
-
 /* Lock stmicro spi flash region */
 int stm_lock(struct spi_flash *flash, u32 ofs, size_t len);
 
@@ -185,12 +179,6 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len);
 
 /* Check if a stmicro spi flash region is completely locked */
 int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len);
-
-/* Read the config register */
-int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc);
-
-/* Program the config register */
-int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc);
 
 /* Enable writing on the SPI flash */
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
@@ -203,12 +191,6 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 {
 	return spi_flash_cmd(flash->spi, CMD_WRITE_DISABLE, NULL, 0);
 }
-
-/*
- * Send the read status command to the device and wait for the wip
- * (write-in-progress) bit to clear itself.
- */
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout);
 
 /*
  * Used for spi_flash write operation

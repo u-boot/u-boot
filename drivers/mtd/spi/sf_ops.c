@@ -40,7 +40,7 @@ static u8 spi_read_cmds_array[] = {
 	CMD_READ_QUAD_IO_FAST,
 };
 
-int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
+static int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
 {
 	int ret;
 	u8 cmd;
@@ -69,7 +69,7 @@ static int read_fsr(struct spi_flash *flash, u8 *fsr)
 	return 0;
 }
 
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
+static int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
 {
 	u8 cmd;
 	int ret;
@@ -85,7 +85,7 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
 }
 
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
-int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
+static int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
 {
 	int ret;
 	u8 cmd;
@@ -100,7 +100,7 @@ int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
 	return 0;
 }
 
-int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
+static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
 {
 	u8 data[2];
 	u8 cmd;
@@ -238,7 +238,8 @@ static int spi_flash_ready(struct spi_flash *flash)
 	return sr && fsr;
 }
 
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+static int spi_flash_cmd_wait_ready(struct spi_flash *flash,
+					unsigned long timeout)
 {
 	int timebase, ret;
 
