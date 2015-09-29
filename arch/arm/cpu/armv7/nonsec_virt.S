@@ -53,6 +53,20 @@ _secure_monitor:
 	bl	psci_arch_init
 #endif
 
+#ifdef CONFIG_ARM_ERRATA_773022
+	mrc	p15, 0, r5, c1, c0, 1
+	orr	r5, r5, #(1 << 1)
+	mcr	p15, 0, r5, c1, c0, 1
+	isb
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_774769
+	mrc	p15, 0, r5, c1, c0, 1
+	orr	r5, r5, #(1 << 25)
+	mcr	p15, 0, r5, c1, c0, 1
+	isb
+#endif
+
 	mrc	p15, 0, r5, c1, c1, 0		@ read SCR
 	bic	r5, r5, #0x4a			@ clear IRQ, EA, nET bits
 	orr	r5, r5, #0x31			@ enable NS, AW, FW bits
