@@ -41,6 +41,20 @@ int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
 	return 0;
 }
 
+static int read_fsr(struct spi_flash *flash, u8 *fsr)
+{
+	int ret;
+	const u8 cmd = CMD_FLAG_STATUS;
+
+	ret = spi_flash_read_common(flash, &cmd, 1, fsr, 1);
+	if (ret < 0) {
+		debug("SF: fail to read flag status register\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
 {
 	u8 cmd;
@@ -139,22 +153,60 @@ static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
 }
 #endif
 
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+static int spi_flash_sr_ready(struct spi_flash *flash)
 {
 	u8 sr;
+	int ret;
+
+	ret = spi_flash_cmd_read_status(flash, &sr);
+	if (ret < 0)
+		return ret;
+
+	return !(sr & STATUS_WIP);
+}
+
+static int spi_flash_fsr_ready(struct spi_flash *flash)
+{
+	u8 fsr;
+	int ret;
+
+	ret = read_fsr(flash, &fsr);
+	if (ret < 0)
+		return ret;
+
+	return fsr & STATUS_PEC;
+}
+
+static int spi_flash_ready(struct spi_flash *flash)
+{
+	int sr, fsr;
+
+	sr = spi_flash_sr_ready(flash);
+	if (sr < 0)
+		return sr;
+
+	fsr = 1;
+	if (flash->flags & SNOR_F_USE_FSR) {
+		fsr = spi_flash_fsr_ready(flash);
+		if (fsr < 0)
+			return fsr;
+	}
+
+	return sr && fsr;
+}
+
+int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+{
 	int timebase, ret;
 
 	timebase = get_timer(0);
 
 	while (get_timer(timebase) < timeout) {
-		ret = spi_flash_cmd_read_status(flash, &sr);
+		ret = spi_flash_ready(flash);
 		if (ret < 0)
 			return ret;
-
-		if (!(sr & STATUS_WIP))
+		if (ret)
 			return 0;
-		else
-			break;
 	}
 
 	printf("SF: Timeout!\n");

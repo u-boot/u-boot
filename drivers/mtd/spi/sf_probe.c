@@ -257,11 +257,9 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 		flash->dummy_byte = 1;
 	}
 
-	/* Poll cmd selection */
-	flash->poll_cmd = CMD_READ_STATUS;
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	if (params->flags & E_FSR)
-		flash->poll_cmd = CMD_FLAG_STATUS;
+		flash->flags |= SNOR_F_USE_FSR;
 #endif
 
 	/* Configure the BAR - discover bank cmds and read current bank */

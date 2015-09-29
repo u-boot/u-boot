@@ -53,6 +53,7 @@ enum {
 
 enum spi_nor_option_flags {
 	SNOR_F_SST_WR		= (1 << 0),
+	SNOR_F_USE_FSR		= (1 << 1),
 };
 
 #define SPI_FLASH_3B_ADDR_LEN		3

@@ -49,7 +49,6 @@ struct spi_slave;
  * @bank_read_cmd:	Bank read cmd
  * @bank_write_cmd:	Bank write cmd
  * @bank_curr:		Current flash bank
- * @poll_cmd:		Poll cmd - for flash erase/program
  * @erase_cmd:		Erase cmd 4K, 32K, 64K
  * @read_cmd:		Read cmd - Array Fast, Extn read and quad read.
  * @write_cmd:		Write cmd - page and quad program.
@@ -82,7 +81,6 @@ struct spi_flash {
 	u8 bank_write_cmd;
 	u8 bank_curr;
 #endif
-	u8 poll_cmd;
 	u8 erase_cmd;
 	u8 read_cmd;
 	u8 write_cmd;
