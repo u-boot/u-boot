@@ -29,7 +29,6 @@
  */
 int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 {
-	u8 idcode[5];
 	int ret;
 
 	/* Setup spi_slave */
@@ -45,19 +44,7 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 		return ret;
 	}
 
-	/* Read the ID codes */
-	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
-	if (ret) {
-		printf("SF: Failed to get idcodes\n");
-		goto err_read_id;
-	}
-
-#ifdef DEBUG
-	printf("SF: Got idcodes\n");
-	print_buffer(0, idcode, 1, sizeof(idcode), 0);
-#endif
-
-	ret = spi_flash_scan(spi, idcode, flash);
+	ret = spi_flash_scan(spi, flash);
 	if (ret) {
 		ret = -EINVAL;
 		goto err_read_id;

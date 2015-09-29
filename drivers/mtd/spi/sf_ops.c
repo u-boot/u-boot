@@ -898,13 +898,28 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 }
 #endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
-int spi_flash_scan(struct spi_slave *spi, u8 *idcode, struct spi_flash *flash)
+int spi_flash_scan(struct spi_slave *spi, struct spi_flash *flash)
 {
 	const struct spi_flash_params *params;
+	u16 jedec, ext_jedec;
+	u8 idcode[5];
 	u8 cmd;
-	u16 jedec = idcode[1] << 8 | idcode[2];
-	u16 ext_jedec = idcode[3] << 8 | idcode[4];
 	int ret;
+
+	/* Read the ID codes */
+	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
+	if (ret) {
+		printf("SF: Failed to get idcodes\n");
+		return -EINVAL;
+	}
+
+#ifdef DEBUG
+	printf("SF: Got idcodes\n");
+	print_buffer(0, idcode, 1, sizeof(idcode), 0);
+#endif
+
+	jedec = idcode[1] << 8 | idcode[2];
+	ext_jedec = idcode[3] << 8 | idcode[4];
 
 	/* Validate params from spi_flash_params table */
 	params = spi_flash_params_table;
