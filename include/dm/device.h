@@ -78,6 +78,10 @@ struct driver_info;
  * @req_seq: Requested sequence number for this device (-1 = any)
  * @seq: Allocated sequence number for this device (-1 = none). This is set up
  * when the device is probed and will be unique within the device's uclass.
+ * @devres_head: List of memory allocations associated with this device.
+ *		When CONFIG_DEVRES is enabled, devm_kmalloc() and friends will
+ *		add to this list. Memory so-allocated will be freed
+ *		automatically when the device is removed / unbound
  */
 struct udevice {
 	const struct driver *driver;
@@ -512,7 +516,7 @@ void *_devres_alloc(dr_release_t release, size_t size, gfp_t gfp);
 #endif
 
 /**
- * devres_alloc - Allocate device resource data
+ * devres_alloc() - Allocate device resource data
  * @release: Release function devres will be associated with
  * @size: Allocation size
  * @gfp: Allocation flags
@@ -528,7 +532,7 @@ void *_devres_alloc(dr_release_t release, size_t size, gfp_t gfp);
 	_devres_alloc(release, size, gfp | __GFP_ZERO)
 
 /**
- * devres_free - Free device resource data
+ * devres_free() - Free device resource data
  * @res: Pointer to devres data to free
  *
  * Free devres created with devres_alloc().
@@ -536,7 +540,7 @@ void *_devres_alloc(dr_release_t release, size_t size, gfp_t gfp);
 void devres_free(void *res);
 
 /**
- * devres_add - Register device resource
+ * devres_add() - Register device resource
  * @dev: Device to add resource to
  * @res: Resource to register
  *
@@ -547,7 +551,7 @@ void devres_free(void *res);
 void devres_add(struct udevice *dev, void *res);
 
 /**
- * devres_find - Find device resource
+ * devres_find() - Find device resource
  * @dev: Device to lookup resource from
  * @release: Look for resources associated with this release function
  * @match: Match function (optional)
@@ -557,14 +561,13 @@ void devres_add(struct udevice *dev, void *res);
  * and for which @match returns 1.  If @match is NULL, it's considered
  * to match all.
  *
- * RETURNS:
- * Pointer to found devres, NULL if not found.
+ * @return pointer to found devres, NULL if not found.
  */
 void *devres_find(struct udevice *dev, dr_release_t release,
 		  dr_match_t match, void *match_data);
 
 /**
- * devres_get - Find devres, if non-existent, add one atomically
+ * devres_get() - Find devres, if non-existent, add one atomically
  * @dev: Device to lookup or add devres for
  * @new_res: Pointer to new initialized devres to add if not found
  * @match: Match function (optional)
@@ -574,14 +577,13 @@ void *devres_find(struct udevice *dev, dr_release_t release,
  * as @new_res and for which @match return 1.  If found, @new_res is
  * freed; otherwise, @new_res is added atomically.
  *
- * RETURNS:
- * Pointer to found or added devres.
+ * @return ointer to found or added devres.
  */
 void *devres_get(struct udevice *dev, void *new_res,
 		 dr_match_t match, void *match_data);
 
 /**
- * devres_remove - Find a device resource and remove it
+ * devres_remove() - Find a device resource and remove it
  * @dev: Device to find resource from
  * @release: Look for resources associated with this release function
  * @match: Match function (optional)
@@ -592,14 +594,13 @@ void *devres_get(struct udevice *dev, void *new_res,
  * match all.  If found, the resource is removed atomically and
  * returned.
  *
- * RETURNS:
- * Pointer to removed devres on success, NULL if not found.
+ * @return ointer to removed devres on success, NULL if not found.
  */
 void *devres_remove(struct udevice *dev, dr_release_t release,
 		    dr_match_t match, void *match_data);
 
 /**
- * devres_destroy - Find a device resource and destroy it
+ * devres_destroy() - Find a device resource and destroy it
  * @dev: Device to find resource from
  * @release: Look for resources associated with this release function
  * @match: Match function (optional)
@@ -613,14 +614,13 @@ void *devres_remove(struct udevice *dev, dr_release_t release,
  * only the devres-allocated data will be freed.  The caller becomes
  * responsible for freeing any other data.
  *
- * RETURNS:
- * 0 if devres is found and freed, -ENOENT if not found.
+ * @return 0 if devres is found and freed, -ENOENT if not found.
  */
 int devres_destroy(struct udevice *dev, dr_release_t release,
 		   dr_match_t match, void *match_data);
 
 /**
- * devres_release - Find a device resource and destroy it, calling release
+ * devres_release() - Find a device resource and destroy it, calling release
  * @dev: Device to find resource from
  * @release: Look for resources associated with this release function
  * @match: Match function (optional)
@@ -631,15 +631,14 @@ int devres_destroy(struct udevice *dev, dr_release_t release,
  * match all.  If found, the resource is removed atomically, the
  * release function called and the resource freed.
  *
- * RETURNS:
- * 0 if devres is found and freed, -ENOENT if not found.
+ * @return 0 if devres is found and freed, -ENOENT if not found.
  */
 int devres_release(struct udevice *dev, dr_release_t release,
 		   dr_match_t match, void *match_data);
 
 /* managed devm_k.alloc/kfree for device drivers */
 /**
- * devm_kmalloc - Resource-managed kmalloc
+ * devm_kmalloc() - Resource-managed kmalloc
  * @dev: Device to allocate memory for
  * @size: Allocation size
  * @gfp: Allocation gfp flags
@@ -648,8 +647,7 @@ int devres_release(struct udevice *dev, dr_release_t release,
  * automatically freed on driver detach.  Like all other devres
  * resources, guaranteed alignment is unsigned long long.
  *
- * RETURNS:
- * Pointer to allocated memory on success, NULL on failure.
+ * @return pointer to allocated memory on success, NULL on failure.
  */
 void *devm_kmalloc(struct udevice *dev, size_t size, gfp_t gfp);
 static inline void *devm_kzalloc(struct udevice *dev, size_t size, gfp_t gfp)
@@ -670,13 +668,13 @@ static inline void *devm_kcalloc(struct udevice *dev,
 }
 
 /**
- * devm_kfree - Resource-managed kfree
+ * devm_kfree() - Resource-managed kfree
  * @dev: Device this memory belongs to
- * @p: Memory to free
+ * @ptr: Memory to free
  *
  * Free memory allocated with devm_kmalloc().
  */
-void devm_kfree(struct udevice *dev, void *p);
+void devm_kfree(struct udevice *dev, void *ptr);
 
 #else /* ! CONFIG_DEVRES */
 
@@ -750,9 +748,9 @@ static inline void *devm_kcalloc(struct udevice *dev,
 	return kmalloc(n * size, flags | __GFP_ZERO);
 }
 
-static inline void devm_kfree(struct udevice *dev, void *p)
+static inline void devm_kfree(struct udevice *dev, void *ptr)
 {
-	kfree(p);
+	kfree(ptr);
 }
 
 #endif /* ! CONFIG_DEVRES */
