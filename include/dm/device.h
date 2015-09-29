@@ -21,13 +21,13 @@
 struct driver_info;
 
 /* Driver is active (probed). Cleared when it is removed */
-#define DM_FLAG_ACTIVATED	(1 << 0)
+#define DM_FLAG_ACTIVATED		(1 << 0)
 
 /* DM is responsible for allocating and freeing platdata */
-#define DM_FLAG_ALLOC_PDATA	(1 << 1)
+#define DM_FLAG_ALLOC_PDATA		(1 << 1)
 
 /* DM should init this device prior to relocation */
-#define DM_FLAG_PRE_RELOC	(1 << 2)
+#define DM_FLAG_PRE_RELOC		(1 << 2)
 
 /* DM is responsible for allocating and freeing parent_platdata */
 #define DM_FLAG_ALLOC_PARENT_PDATA	(1 << 3)
@@ -36,10 +36,10 @@ struct driver_info;
 #define DM_FLAG_ALLOC_UCLASS_PDATA	(1 << 4)
 
 /* Allocate driver private data on a DMA boundary */
-#define DM_FLAG_ALLOC_PRIV_DMA	(1 << 5)
+#define DM_FLAG_ALLOC_PRIV_DMA		(1 << 5)
 
 /* Device is bound */
-#define DM_FLAG_BOUND	(1 << 6)
+#define DM_FLAG_BOUND			(1 << 6)
 
 /**
  * struct udevice - An instance of a driver
