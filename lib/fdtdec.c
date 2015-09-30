@@ -149,7 +149,7 @@ fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
 	}
 
 	ns = fdt_size_cells(blob, parent);
-	if (ns < 1) {
+	if (ns < 0) {
 		debug("(bad #size-cells)\n");
 		return FDT_ADDR_T_NONE;
 	}
