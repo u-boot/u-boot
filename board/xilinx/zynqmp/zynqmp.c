@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
 #include <asm/arch/clk.h>
@@ -185,6 +186,9 @@ void reset_cpu(ulong addr)
 #ifdef CONFIG_SCSI_AHCI_PLAT
 void scsi_init(void)
 {
+#if defined(CONFIG_SATA_CEVA)
+	init_sata(0);
+#endif
 	ahci_init((void __iomem *)ZYNQMP_SATA_BASEADDR);
 	scsi_scan(1);
 }
