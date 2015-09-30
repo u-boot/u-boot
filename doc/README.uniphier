@@ -129,10 +129,10 @@ as follows:
 
  BKSZ    Description              RAM slot            Peripherals
  --------------------------------------------------------------------
- 0b00   15MB RAM / 1MB Peri    00000000-0effffff    0f000000-0fffffff
- 0b01   31MB RAM / 1MB Peri    00000000-1effffff    1f000000-1fffffff
- 0b10   64MB RAM / 1MB Peri    00000000-3effffff    3f000000-3fffffff
- 0b11  127MB RAM / 1MB Peri    00000000-7effffff    7f000000-7fffffff
+ 0b00   15MB RAM / 1MB Peri    00000000-00efffff    00f00000-00ffffff
+ 0b01   31MB RAM / 1MB Peri    00000000-01efffff    01f00000-01ffffff
+ 0b10   64MB RAM / 1MB Peri    00000000-03efffff    03f00000-03ffffff
+ 0b11  127MB RAM / 1MB Peri    00000000-07efffff    07f00000-07ffffff
 
 Set BSKZ[1:0] to 0b01 for U-Boot.
 This mode is the most handy because EA[24] is always supported by the save pin
