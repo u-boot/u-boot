@@ -440,36 +440,36 @@ void sunxi_board_init(void)
 
 #ifdef CONFIG_AXP152_POWER
 	power_failed = axp152_init();
-	power_failed |= axp152_set_dcdc2(1400);
-	power_failed |= axp152_set_dcdc3(1500);
-	power_failed |= axp152_set_dcdc4(1250);
-	power_failed |= axp152_set_ldo2(3000);
+	power_failed |= axp152_set_dcdc2(CONFIG_AXP_DCDC2_VOLT);
+	power_failed |= axp152_set_dcdc3(CONFIG_AXP_DCDC3_VOLT);
+	power_failed |= axp152_set_dcdc4(CONFIG_AXP_DCDC4_VOLT);
+	power_failed |= axp152_set_ldo2(CONFIG_AXP_ALDO2_VOLT);
 #endif
 #ifdef CONFIG_AXP209_POWER
 	power_failed |= axp209_init();
-	power_failed |= axp209_set_dcdc2(1400);
-	power_failed |= axp209_set_dcdc3(1250);
-	power_failed |= axp209_set_ldo2(3000);
-	power_failed |= axp209_set_ldo3(2800);
-	power_failed |= axp209_set_ldo4(2800);
+	power_failed |= axp209_set_dcdc2(CONFIG_AXP_DCDC2_VOLT);
+	power_failed |= axp209_set_dcdc3(CONFIG_AXP_DCDC3_VOLT);
+	power_failed |= axp209_set_ldo2(CONFIG_AXP_ALDO2_VOLT);
+	power_failed |= axp209_set_ldo3(CONFIG_AXP_ALDO3_VOLT);
+	power_failed |= axp209_set_ldo4(CONFIG_AXP_ALDO4_VOLT);
 #endif
 #ifdef CONFIG_AXP221_POWER
 	power_failed = axp221_init();
-	power_failed |= axp221_set_dcdc1(CONFIG_AXP221_DCDC1_VOLT);
-	power_failed |= axp221_set_dcdc2(CONFIG_AXP221_DCDC2_VOLT);
-	power_failed |= axp221_set_dcdc3(1200); /* VDD-CPU */
-#ifdef CONFIG_MACH_SUN6I
-	power_failed |= axp221_set_dcdc4(1200); /* A31:VDD-SYS */
-#else
-	power_failed |= axp221_set_dcdc4(0);    /* A23:unused */
-#endif
-	power_failed |= axp221_set_dcdc5(1500); /* VCC-DRAM */
-	power_failed |= axp221_set_dldo1(CONFIG_AXP221_DLDO1_VOLT);
-	power_failed |= axp221_set_dldo4(CONFIG_AXP221_DLDO4_VOLT);
-	power_failed |= axp221_set_aldo1(CONFIG_AXP221_ALDO1_VOLT);
-	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
-	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
-	power_failed |= axp221_set_eldo(3, CONFIG_AXP221_ELDO3_VOLT);
+	power_failed |= axp221_set_dcdc1(CONFIG_AXP_DCDC1_VOLT);
+	power_failed |= axp221_set_dcdc2(CONFIG_AXP_DCDC2_VOLT);
+	power_failed |= axp221_set_dcdc3(CONFIG_AXP_DCDC3_VOLT);
+	power_failed |= axp221_set_dcdc4(CONFIG_AXP_DCDC4_VOLT);
+	power_failed |= axp221_set_dcdc5(CONFIG_AXP_DCDC5_VOLT);
+	power_failed |= axp221_set_aldo1(CONFIG_AXP_ALDO1_VOLT);
+	power_failed |= axp221_set_aldo2(CONFIG_AXP_ALDO2_VOLT);
+	power_failed |= axp221_set_aldo3(CONFIG_AXP_ALDO3_VOLT);
+	power_failed |= axp221_set_dldo1(CONFIG_AXP_DLDO1_VOLT);
+	power_failed |= axp221_set_dldo2(CONFIG_AXP_DLDO2_VOLT);
+	power_failed |= axp221_set_dldo3(CONFIG_AXP_DLDO3_VOLT);
+	power_failed |= axp221_set_dldo4(CONFIG_AXP_DLDO4_VOLT);
+	power_failed |= axp221_set_eldo(1, CONFIG_AXP_ELDO1_VOLT);
+	power_failed |= axp221_set_eldo(2, CONFIG_AXP_ELDO2_VOLT);
+	power_failed |= axp221_set_eldo(3, CONFIG_AXP_ELDO3_VOLT);
 #endif
 
 	printf("DRAM:");
