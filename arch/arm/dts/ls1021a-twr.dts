@@ -17,6 +17,7 @@
 		enet0_sgmii_phy = &sgmii_phy2;
 		enet1_sgmii_phy = &sgmii_phy0;
 		spi0 = &qspi;
+		spi1 = &dspi1;
 	};
 };
 
@@ -29,6 +30,21 @@
 		#size-cells = <1>;
 		compatible = "spi-flash";
 		spi-max-frequency = <20000000>;
+		reg = <0>;
+	};
+};
+
+&dspi1 {
+	bus-num = <0>;
+	status = "okay";
+
+	dspiflash: at26df081a@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <16000000>;
+		spi-cpol;
+		spi-cpha;
 		reg = <0>;
 	};
 };
