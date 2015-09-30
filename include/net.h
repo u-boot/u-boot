@@ -516,7 +516,7 @@ enum proto_t {
 	TFTPSRV, TFTPPUT, LINKLOCAL
 };
 
-extern char	net_boot_file_name[128];/* Boot File name */
+extern char	net_boot_file_name[1024];/* Boot File name */
 /* The actual transferred size of the bootfile (in bytes) */
 extern u32	net_boot_file_size;
 /* Boot file size in blocks as reported by the DHCP server */
