@@ -4,13 +4,39 @@ source "drivers/power/pmic/Kconfig"
 
 source "drivers/power/regulator/Kconfig"
 
+choice
+	prompt "Select Sunxi PMIC Variant"
+	depends on ARCH_SUNXI
+	default AXP209_POWER if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I
+
+config SUNXI_NO_PMIC
+	boolean "board without a pmic"
+	---help---
+	Select this for boards which do not use a PMIC.
+
+config AXP152_POWER
+	boolean "axp152 pmic support"
+	depends on MACH_SUN5I
+	---help---
+	Select this to enable support for the axp152 pmic found on most
+	A10s boards.
+
+config AXP209_POWER
+	boolean "axp209 pmic support"
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	---help---
+	Select this to enable support for the axp209 pmic found on most
+	A10, A13 and A20 boards.
+
 config AXP221_POWER
 	boolean "axp221 / axp223 pmic support"
 	depends on MACH_SUN6I || MACH_SUN8I
-	default y
 	---help---
-	Say y here to enable support for the axp221 / axp223 pmic found on most
-	sun6i (A31) / sun8i (A23) boards.
+	Select this to enable support for the axp221/axp223 pmic found on most
+	A23 and A31 boards.
+
+endchoice
 
 config AXP221_DCDC1_VOLT
 	int "axp221 dcdc1 voltage"
