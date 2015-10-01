@@ -85,30 +85,7 @@ static int pci_get_bus_max(void)
 
 int pci_last_busno(void)
 {
-	struct pci_controller *hose;
-	struct udevice *bus;
-	struct uclass *uc;
-	int ret;
-
-	debug("pci_last_busno\n");
-	ret = uclass_get(UCLASS_PCI, &uc);
-	if (ret || list_empty(&uc->dev_head))
-		return -1;
-
-	/* Probe the last bus */
-	bus = list_entry(uc->dev_head.prev, struct udevice, uclass_node);
-	debug("bus = %p, %s\n", bus, bus->name);
-	assert(bus);
-	ret = device_probe(bus);
-	if (ret)
-		return ret;
-
-	/* If that bus has bridges, we may have new buses now. Get the last */
-	bus = list_entry(uc->dev_head.prev, struct udevice, uclass_node);
-	hose = dev_get_uclass_priv(bus);
-	debug("bus = %s, hose = %p\n", bus->name, hose);
-
-	return hose->last_busno;
+	return pci_get_bus_max();
 }
 
 int pci_get_ff(enum pci_size_t size)
