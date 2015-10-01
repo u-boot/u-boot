@@ -364,9 +364,23 @@ int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep)
 	return 0;
 }
 
+static void set_vga_bridge_bits(struct udevice *dev)
+{
+	struct udevice *parent = dev->parent;
+	u16 bc;
+
+	while (parent->seq != 0) {
+		dm_pci_read_config16(parent, PCI_BRIDGE_CONTROL, &bc);
+		bc |= PCI_BRIDGE_CTL_VGA;
+		dm_pci_write_config16(parent, PCI_BRIDGE_CONTROL, bc);
+		parent = parent->parent;
+	}
+}
+
 int pci_auto_config_devices(struct udevice *bus)
 {
 	struct pci_controller *hose = bus->uclass_priv;
+	struct pci_child_platdata *pplat;
 	unsigned int sub_bus;
 	struct udevice *dev;
 	int ret;
@@ -386,6 +400,10 @@ int pci_auto_config_devices(struct udevice *bus)
 			return ret;
 		max_bus = ret;
 		sub_bus = max(sub_bus, max_bus);
+
+		pplat = dev_get_parent_platdata(dev);
+		if (pplat->class == (PCI_CLASS_DISPLAY_VGA << 8))
+			set_vga_bridge_bits(dev);
 	}
 	debug("%s: done\n", __func__);
 
