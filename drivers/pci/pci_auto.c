@@ -89,6 +89,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 	struct pci_region *bar_res;
 	int found_mem64 = 0;
 #endif
+	u16 class;
 
 	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
 	cmdstat = (cmdstat & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) | PCI_COMMAND_MASTER;
@@ -205,6 +206,11 @@ void pciauto_setup_device(struct pci_controller *hose,
 		}
 	}
 #endif
+
+	/* PCI_COMMAND_IO must be set for VGA device */
+	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
+	if (class == PCI_CLASS_DISPLAY_VGA)
+		cmdstat |= PCI_COMMAND_IO;
 
 	pci_hose_write_config_word(hose, dev, PCI_COMMAND, cmdstat);
 	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE,
