@@ -23,6 +23,16 @@ static void unprotect_spi_flash(void)
 	x86_pci_write_config32(TNC_LPC, 0xd8, bc);
 }
 
+static void __maybe_unused disable_igd(void)
+{
+	u32 gc;
+
+	gc = x86_pci_read_config32(TNC_IGD, IGD_GC);
+	gc &= ~GMS_MASK;
+	gc |= VGA_DISABLE;
+	x86_pci_write_config32(TNC_IGD, IGD_GC, gc);
+}
+
 int arch_cpu_init(void)
 {
 	int ret;
@@ -35,6 +45,15 @@ int arch_cpu_init(void)
 	ret = x86_cpu_init_f();
 	if (ret)
 		return ret;
+
+	return 0;
+}
+
+int arch_early_init_r(void)
+{
+#ifdef CONFIG_DISABLE_IGD
+	disable_igd();
+#endif
 
 	return 0;
 }
