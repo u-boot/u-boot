@@ -2359,16 +2359,20 @@ CBFS (Coreboot Filesystem) support
 
 		- drivers/i2c/i2c_mxc.c
 		  - activate this driver with CONFIG_SYS_I2C_MXC
+		  - enable bus 1 with CONFIG_SYS_I2C_MXC_I2C1
+		  - enable bus 2 with CONFIG_SYS_I2C_MXC_I2C2
+		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
+		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 		  - define speed for bus 1 with CONFIG_SYS_MXC_I2C1_SPEED
 		  - define slave for bus 1 with CONFIG_SYS_MXC_I2C1_SLAVE
 		  - define speed for bus 2 with CONFIG_SYS_MXC_I2C2_SPEED
 		  - define slave for bus 2 with CONFIG_SYS_MXC_I2C2_SLAVE
 		  - define speed for bus 3 with CONFIG_SYS_MXC_I2C3_SPEED
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
+		  - define speed for bus 4 with CONFIG_SYS_MXC_I2C4_SPEED
+		  - define slave for bus 4 with CONFIG_SYS_MXC_I2C4_SLAVE
 		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
-		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
-		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 
 		- drivers/i2c/rcar_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_RCAR
