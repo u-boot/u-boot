@@ -10,7 +10,6 @@ choice
 
 config TARGET_LWMON5
 	bool "Support lwmon5"
-	select SUPPORT_SPL
 
 config TARGET_T3CORP
 	bool "Support t3corp"

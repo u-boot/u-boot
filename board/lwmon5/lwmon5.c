@@ -187,11 +187,9 @@ int misc_init_r(void)
 	u32 pbcr;
 	int size_val = 0;
 	u32 reg;
-#ifndef CONFIG_LCD4_LWMON5
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1, sdr0_srst;
-#endif
 
 	/*
 	 * FLASH stuff...
@@ -222,7 +220,6 @@ int misc_init_r(void)
 		      CONFIG_ENV_ADDR_REDUND + 2 * CONFIG_ENV_SECT_SIZE - 1,
 		      &flash_info[cfi_flash_num_flash_banks - 1]);
 
-#ifndef CONFIG_LCD4_LWMON5
 	/*
 	 * USB suff...
 	 */
@@ -296,7 +293,6 @@ int misc_init_r(void)
 	/* 7. Reassert internal PHY reset: */
 	mtsdr(SDR0_SRST1, SDR0_SRST1_USB20PHY);
 	udelay(1000);
-#endif
 
 	/*
 	 * Clear resets
@@ -304,9 +300,7 @@ int misc_init_r(void)
 	mtsdr(SDR0_SRST1, 0x00000000);
 	mtsdr(SDR0_SRST0, 0x00000000);
 
-#ifndef CONFIG_LCD4_LWMON5
 	printf("USB:   Host(int phy) Device(ext phy)\n");
-#endif
 
 	/*
 	 * Clear PLB4A0_ACR[WRP]
@@ -316,12 +310,10 @@ int misc_init_r(void)
 	reg = mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_WRP_MASK;
 	mtdcr(PLB4A0_ACR, reg);
 
-#ifndef CONFIG_LCD4_LWMON5
 	/*
 	 * Init matrix keyboard
 	 */
 	misc_init_r_kbd();
-#endif
 
 	return 0;
 }
