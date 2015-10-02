@@ -23,6 +23,8 @@
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
 #define CONFIG_440		1		/* ... PPC440 family	*/
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #ifdef CONFIG_LCD4_LWMON5
 #define	CONFIG_SYS_TEXT_BASE	0x01000000 /* SPL U-Boot TEXT_BASE */
 #define CONFIG_HOSTNAME		lcd4_lwmon5
