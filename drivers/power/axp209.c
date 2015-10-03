@@ -7,8 +7,7 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/arch/gpio.h>
-#include <axp209.h>
+#include <axp_pmic.h>
 
 static int axp209_write(enum axp209_reg reg, u8 val)
 {
@@ -30,7 +29,7 @@ static u8 axp209_mvolt_to_cfg(int mvolt, int min, int max, int div)
 	return (mvolt - min) / div;
 }
 
-int axp209_set_dcdc2(int mvolt)
+int axp_set_dcdc2(unsigned int mvolt)
 {
 	int rc;
 	u8 cfg, current;
@@ -53,14 +52,14 @@ int axp209_set_dcdc2(int mvolt)
 	return rc;
 }
 
-int axp209_set_dcdc3(int mvolt)
+int axp_set_dcdc3(unsigned int mvolt)
 {
 	u8 cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
 
 	return axp209_write(AXP209_DCDC3_VOLTAGE, cfg);
 }
 
-int axp209_set_ldo2(int mvolt)
+int axp_set_aldo2(unsigned int mvolt)
 {
 	int rc;
 	u8 cfg, reg;
@@ -76,7 +75,7 @@ int axp209_set_ldo2(int mvolt)
 	return axp209_write(AXP209_LDO24_VOLTAGE, reg);
 }
 
-int axp209_set_ldo3(int mvolt)
+int axp_set_aldo3(unsigned int mvolt)
 {
 	u8 cfg;
 
@@ -88,10 +87,10 @@ int axp209_set_ldo3(int mvolt)
 	return axp209_write(AXP209_LDO3_VOLTAGE, cfg);
 }
 
-int axp209_set_ldo4(int mvolt)
+int axp_set_aldo4(unsigned int mvolt)
 {
 	int rc;
-	static const int vindex[] = {
+	static const unsigned int vindex[] = {
 		1250, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500,
 		2700, 2800, 3000, 3100, 3200, 3300
 	};
@@ -109,7 +108,7 @@ int axp209_set_ldo4(int mvolt)
 	return axp209_write(AXP209_LDO24_VOLTAGE, reg);
 }
 
-int axp209_init(void)
+int axp_init(void)
 {
 	u8 ver;
 	int i, rc;
@@ -132,26 +131,4 @@ int axp209_init(void)
 	}
 
 	return 0;
-}
-
-int axp209_poweron_by_dc(void)
-{
-	u8 v;
-
-	if (axp209_read(AXP209_POWER_STATUS, &v))
-		return 0;
-
-	return (v & AXP209_POWER_STATUS_ON_BY_DC);
-}
-
-int axp209_power_button(void)
-{
-	u8 v;
-
-	if (axp209_read(AXP209_IRQ_STATUS5, &v))
-		return 0;
-
-	axp209_write(AXP209_IRQ_STATUS5, AXP209_IRQ5_PEK_DOWN);
-
-	return v & AXP209_IRQ5_PEK_DOWN;
 }

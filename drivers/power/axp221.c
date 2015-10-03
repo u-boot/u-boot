@@ -12,9 +12,8 @@
 
 #include <common.h>
 #include <errno.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/pmic_bus.h>
-#include <axp221.h>
+#include <axp_pmic.h>
 
 static u8 axp221_mvolt_to_cfg(int mvolt, int min, int max, int div)
 {
@@ -26,7 +25,7 @@ static u8 axp221_mvolt_to_cfg(int mvolt, int min, int max, int div)
 	return (mvolt - min) / div;
 }
 
-int axp221_set_dcdc1(unsigned int mvolt)
+int axp_set_dcdc1(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 1600, 3400, 100);
@@ -48,7 +47,7 @@ int axp221_set_dcdc1(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_DCDC1_EN);
 }
 
-int axp221_set_dcdc2(unsigned int mvolt)
+int axp_set_dcdc2(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 600, 1540, 20);
@@ -65,7 +64,7 @@ int axp221_set_dcdc2(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_DCDC2_EN);
 }
 
-int axp221_set_dcdc3(unsigned int mvolt)
+int axp_set_dcdc3(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 600, 1860, 20);
@@ -82,7 +81,7 @@ int axp221_set_dcdc3(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_DCDC3_EN);
 }
 
-int axp221_set_dcdc4(unsigned int mvolt)
+int axp_set_dcdc4(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 600, 1540, 20);
@@ -99,7 +98,7 @@ int axp221_set_dcdc4(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_DCDC4_EN);
 }
 
-int axp221_set_dcdc5(unsigned int mvolt)
+int axp_set_dcdc5(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 1000, 2550, 50);
@@ -116,7 +115,7 @@ int axp221_set_dcdc5(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_DCDC5_EN);
 }
 
-int axp221_set_dldo1(unsigned int mvolt)
+int axp_set_dldo1(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -133,7 +132,7 @@ int axp221_set_dldo1(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL2_DLDO1_EN);
 }
 
-int axp221_set_dldo2(unsigned int mvolt)
+int axp_set_dldo2(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -150,7 +149,7 @@ int axp221_set_dldo2(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL2_DLDO2_EN);
 }
 
-int axp221_set_dldo3(unsigned int mvolt)
+int axp_set_dldo3(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -167,7 +166,7 @@ int axp221_set_dldo3(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL2_DLDO3_EN);
 }
 
-int axp221_set_dldo4(unsigned int mvolt)
+int axp_set_dldo4(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -184,7 +183,7 @@ int axp221_set_dldo4(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL2_DLDO4_EN);
 }
 
-int axp221_set_aldo1(unsigned int mvolt)
+int axp_set_aldo1(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -201,7 +200,7 @@ int axp221_set_aldo1(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_ALDO1_EN);
 }
 
-int axp221_set_aldo2(unsigned int mvolt)
+int axp_set_aldo2(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -218,7 +217,7 @@ int axp221_set_aldo2(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_ALDO2_EN);
 }
 
-int axp221_set_aldo3(unsigned int mvolt)
+int axp_set_aldo3(unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -235,7 +234,7 @@ int axp221_set_aldo3(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL3_ALDO3_EN);
 }
 
-int axp221_set_eldo(int eldo_num, unsigned int mvolt)
+int axp_set_eldo(int eldo_num, unsigned int mvolt)
 {
 	int ret;
 	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
@@ -268,7 +267,7 @@ int axp221_set_eldo(int eldo_num, unsigned int mvolt)
 	return pmic_bus_setbits(AXP221_OUTPUT_CTRL2, bits);
 }
 
-int axp221_init(void)
+int axp_init(void)
 {
 	/* This cannot be 0 because it is used in SPL before BSS is ready */
 	static int needs_init = 1;
@@ -293,12 +292,12 @@ int axp221_init(void)
 	return 0;
 }
 
-int axp221_get_sid(unsigned int *sid)
+int axp_get_sid(unsigned int *sid)
 {
 	u8 *dest = (u8 *)sid;
 	int i, ret;
 
-	ret = axp221_init();
+	ret = pmic_bus_init();
 	if (ret)
 		return ret;
 

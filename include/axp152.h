@@ -25,9 +25,3 @@ enum axp152_reg {
 #define AXP_GPIO_CTRL_INPUT			0x02 /* Input */
 #define AXP_GPIO_STATE			0x97
 #define AXP_GPIO_STATE_OFFSET			0
-
-int axp152_set_dcdc2(int mvolt);
-int axp152_set_dcdc3(int mvolt);
-int axp152_set_dcdc4(int mvolt);
-int axp152_set_ldo2(int mvolt);
-int axp152_init(void);

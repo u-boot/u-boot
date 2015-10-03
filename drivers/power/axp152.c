@@ -6,7 +6,7 @@
  */
 #include <common.h>
 #include <i2c.h>
-#include <axp152.h>
+#include <axp_pmic.h>
 
 static int axp152_write(enum axp152_reg reg, u8 val)
 {
@@ -28,7 +28,7 @@ static u8 axp152_mvolt_to_target(int mvolt, int min, int max, int div)
 	return (mvolt - min) / div;
 }
 
-int axp152_set_dcdc2(int mvolt)
+int axp_set_dcdc2(unsigned int mvolt)
 {
 	int rc;
 	u8 current, target;
@@ -49,28 +49,28 @@ int axp152_set_dcdc2(int mvolt)
 	return rc;
 }
 
-int axp152_set_dcdc3(int mvolt)
+int axp_set_dcdc3(unsigned int mvolt)
 {
 	u8 target = axp152_mvolt_to_target(mvolt, 700, 3500, 50);
 
 	return axp152_write(AXP152_DCDC3_VOLTAGE, target);
 }
 
-int axp152_set_dcdc4(int mvolt)
+int axp_set_dcdc4(unsigned int mvolt)
 {
 	u8 target = axp152_mvolt_to_target(mvolt, 700, 3500, 25);
 
 	return axp152_write(AXP152_DCDC4_VOLTAGE, target);
 }
 
-int axp152_set_ldo2(int mvolt)
+int axp_set_aldo2(unsigned int mvolt)
 {
 	u8 target = axp152_mvolt_to_target(mvolt, 700, 3500, 100);
 
 	return axp152_write(AXP152_LDO2_VOLTAGE, target);
 }
 
-int axp152_init(void)
+int axp_init(void)
 {
 	u8 ver;
 	int rc;
