@@ -126,7 +126,7 @@ config AXP_ALDO2_VOLT
 config AXP_ALDO3_VOLT
 	int "axp pmic (a)ldo3 voltage"
 	depends on AXP209_POWER || AXP221_POWER
-	default 2800 if AXP209_POWER
+	default 0 if AXP209_POWER
 	default 3000 if MACH_SUN6I || MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic aldo3 at, set to 0 to
@@ -137,7 +137,7 @@ config AXP_ALDO3_VOLT
 config AXP_ALDO4_VOLT
 	int "axp pmic (a)ldo4 voltage"
 	depends on AXP209_POWER
-	default 2800 if AXP209_POWER
+	default 0 if AXP209_POWER
 	---help---
 	Set the voltage (mV) to program the axp pmic aldo4 at, set to 0 to
 	disable aldo4.
