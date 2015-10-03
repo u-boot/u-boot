@@ -42,6 +42,11 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
 	return (phys_addr_t)(vaddr);
 }
 
+static inline void *ioremap(unsigned long physaddr, unsigned long size)
+{
+	return (void *)(IO_REGION_BASE | physaddr);
+}
+
 extern unsigned char inb (unsigned char *port);
 extern unsigned short inw (unsigned short *port);
 extern unsigned inl (unsigned port);

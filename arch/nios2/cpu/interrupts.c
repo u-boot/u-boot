@@ -8,12 +8,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <common.h>
+#include <command.h>
 #include <asm/nios2.h>
 #include <asm/types.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
-#include <common.h>
-#include <command.h>
 
 /*************************************************************************/
 struct	irq_action {
