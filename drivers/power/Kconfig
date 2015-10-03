@@ -53,13 +53,14 @@ config AXP_DCDC2_VOLT
 	int "axp pmic dcdc2 voltage"
 	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER
 	default 1400 if AXP152_POWER || AXP209_POWER
-	default 1200 if MACH_SUN6I || MACH_SUN8I
+	default 1200 if MACH_SUN6I
+	default 1100 if MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc2 at, set to 0 to
 	disable dcdc2.
 	On A10(s) / A13 / A20 boards dcdc2 is VDD-CPU and should be 1.4V.
 	On A31 boards dcdc2 is used for VDD-GPU and should be 1.2V.
-	On A23/A33 boards dcdc2 is used for VDD-SYS and should be 1.2V.
+	On A23/A33 boards dcdc2 is used for VDD-SYS and should be 1.1V.
 
 config AXP_DCDC3_VOLT
 	int "axp pmic dcdc3 voltage"
