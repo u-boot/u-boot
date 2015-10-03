@@ -269,13 +269,8 @@ int axp_set_eldo(int eldo_num, unsigned int mvolt)
 
 int axp_init(void)
 {
-	/* This cannot be 0 because it is used in SPL before BSS is ready */
-	static int needs_init = 1;
 	u8 axp_chip_id;
 	int ret;
-
-	if (!needs_init)
-		return 0;
 
 	ret = pmic_bus_init();
 	if (ret)
@@ -288,7 +283,6 @@ int axp_init(void)
 	if (!(axp_chip_id == 0x6 || axp_chip_id == 0x7 || axp_chip_id == 0x17))
 		return -ENODEV;
 
-	needs_init = 0;
 	return 0;
 }
 
