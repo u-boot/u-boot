@@ -101,7 +101,8 @@ config AXP_DCDC5_VOLT
 config AXP_ALDO1_VOLT
 	int "axp pmic (a)ldo1 voltage"
 	depends on AXP221_POWER
-	default 0
+	default 0 if MACH_SUN6I
+	default 3000 if MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic aldo1 at, set to 0 to
 	disable aldo1.
