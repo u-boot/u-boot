@@ -1661,6 +1661,9 @@ unsigned long get_mmc_clk(int dev_index)
 {
 	enum periph_id id;
 
+	if (cpu_is_exynos4())
+		return exynos4_get_mmc_clk(dev_index);
+
 	switch (dev_index) {
 	case 0:
 		id = PERIPH_ID_SDMMC0;
@@ -1679,12 +1682,7 @@ unsigned long get_mmc_clk(int dev_index)
 		return -1;
 	}
 
-	if (cpu_is_exynos5())
-		return clock_get_periph_rate(id);
-	else if (cpu_is_exynos4())
-		return exynos4_get_mmc_clk(dev_index);
-
-	return 0;
+	return clock_get_periph_rate(id);
 }
 
 void set_mmc_clk(int dev_index, unsigned int div)
