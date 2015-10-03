@@ -8,19 +8,7 @@
 #include <asm/io.h>
 #include <watchdog.h>
 #include <asm/arch/imx-regs.h>
-
-struct watchdog_regs {
-	u16	wcr;	/* Control */
-	u16	wsr;	/* Service */
-	u16	wrsr;	/* Reset Status */
-};
-
-#define WCR_WDZST	0x01
-#define WCR_WDBG	0x02
-#define WCR_WDE		0x04	/* WDOG enable */
-#define WCR_WDT		0x08
-#define WCR_SRS		0x10
-#define SET_WCR_WT(x)	(x << 8)
+#include <fsl_wdog.h>
 
 #ifdef CONFIG_IMX_WATCHDOG
 void hw_watchdog_reset(void)
