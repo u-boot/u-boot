@@ -15,6 +15,9 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
+#include <mapmem.h>
+
+#include <asm/io.h>
 
 #define EQ	0
 #define NE	1
@@ -49,16 +52,24 @@ static const op_tbl_t op_table [] = {
 static long evalexp(char *s, int w)
 {
 	long l = 0;
-	long *p;
+	unsigned long addr;
+	void *buf;
 
 	/* if the parameter starts with a * then assume is a pointer to the value we want */
 	if (s[0] == '*') {
-		p = (long *)simple_strtoul(&s[1], NULL, 16);
-		switch (w) {
-		case 1: return((long)(*(unsigned char *)p));
-		case 2: return((long)(*(unsigned short *)p));
-		case 4: return(*p);
+		addr = simple_strtoul(&s[1], NULL, 16);
+		buf = map_physmem(addr, w, MAP_WRBACK);
+		if (!buf) {
+			puts("Failed to map physical memory\n");
+			return 0;
 		}
+		switch (w) {
+		case 1: l = (long)(*(unsigned char *)buf);
+		case 2: l = (long)(*(unsigned short *)buf);
+		case 4: l = (long)(*(unsigned long *)buf);
+		}
+		unmap_physmem(buf, w);
+		return l;
 	} else {
 		l = simple_strtoul(s, NULL, 16);
 	}
