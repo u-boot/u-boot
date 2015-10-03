@@ -6,18 +6,8 @@
  */
 
 #include <common.h>
-#include <i2c.h>
+#include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
-
-static int axp209_write(enum axp209_reg reg, u8 val)
-{
-	return i2c_write(0x34, reg, 1, &val, 1);
-}
-
-static int axp209_read(enum axp209_reg reg, u8 *val)
-{
-	return i2c_read(0x34, reg, 1, val, 1);
-}
 
 static u8 axp209_mvolt_to_cfg(int mvolt, int min, int max, int div)
 {
@@ -37,14 +27,14 @@ int axp_set_dcdc2(unsigned int mvolt)
 	cfg = axp209_mvolt_to_cfg(mvolt, 700, 2275, 25);
 
 	/* Do we really need to be this gentle? It has built-in voltage slope */
-	while ((rc = axp209_read(AXP209_DCDC2_VOLTAGE, &current)) == 0 &&
+	while ((rc = pmic_bus_read(AXP209_DCDC2_VOLTAGE, &current)) == 0 &&
 	       current != cfg) {
 		if (current < cfg)
 			current++;
 		else
 			current--;
 
-		rc = axp209_write(AXP209_DCDC2_VOLTAGE, current);
+		rc = pmic_bus_write(AXP209_DCDC2_VOLTAGE, current);
 		if (rc)
 			break;
 	}
@@ -56,7 +46,7 @@ int axp_set_dcdc3(unsigned int mvolt)
 {
 	u8 cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
 
-	return axp209_write(AXP209_DCDC3_VOLTAGE, cfg);
+	return pmic_bus_write(AXP209_DCDC3_VOLTAGE, cfg);
 }
 
 int axp_set_aldo2(unsigned int mvolt)
@@ -66,13 +56,13 @@ int axp_set_aldo2(unsigned int mvolt)
 
 	cfg = axp209_mvolt_to_cfg(mvolt, 1800, 3300, 100);
 
-	rc = axp209_read(AXP209_LDO24_VOLTAGE, &reg);
+	rc = pmic_bus_read(AXP209_LDO24_VOLTAGE, &reg);
 	if (rc)
 		return rc;
 
 	/* LDO2 configuration is in upper 4 bits */
 	reg = (reg & 0x0f) | (cfg << 4);
-	return axp209_write(AXP209_LDO24_VOLTAGE, reg);
+	return pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
 }
 
 int axp_set_aldo3(unsigned int mvolt)
@@ -84,7 +74,7 @@ int axp_set_aldo3(unsigned int mvolt)
 	else
 		cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
 
-	return axp209_write(AXP209_LDO3_VOLTAGE, cfg);
+	return pmic_bus_write(AXP209_LDO3_VOLTAGE, cfg);
 }
 
 int axp_set_aldo4(unsigned int mvolt)
@@ -99,13 +89,13 @@ int axp_set_aldo4(unsigned int mvolt)
 	/* Translate mvolt to register cfg value, requested <= selected */
 	for (cfg = 15; vindex[cfg] > mvolt && cfg > 0; cfg--);
 
-	rc = axp209_read(AXP209_LDO24_VOLTAGE, &reg);
+	rc = pmic_bus_read(AXP209_LDO24_VOLTAGE, &reg);
 	if (rc)
 		return rc;
 
 	/* LDO4 configuration is in lower 4 bits */
 	reg = (reg & 0xf0) | (cfg << 0);
-	return axp209_write(AXP209_LDO24_VOLTAGE, reg);
+	return pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
 }
 
 int axp_init(void)
@@ -113,7 +103,11 @@ int axp_init(void)
 	u8 ver;
 	int i, rc;
 
-	rc = axp209_read(AXP209_CHIP_VERSION, &ver);
+	rc = pmic_bus_init();
+	if (rc)
+		return rc;
+
+	rc = pmic_bus_read(AXP209_CHIP_VERSION, &ver);
 	if (rc)
 		return rc;
 
@@ -125,7 +119,7 @@ int axp_init(void)
 
 	/* Mask all interrupts */
 	for (i = AXP209_IRQ_ENABLE1; i <= AXP209_IRQ_ENABLE5; i++) {
-		rc = axp209_write(i, 0);
+		rc = pmic_bus_write(i, 0);
 		if (rc)
 			return rc;
 	}
