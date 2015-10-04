@@ -24,6 +24,14 @@ int axp_set_dcdc2(unsigned int mvolt)
 	int rc;
 	u8 cfg, current;
 
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
+					AXP209_OUTPUT_CTRL_DCDC2);
+
+	rc = pmic_bus_setbits(AXP209_OUTPUT_CTRL, AXP209_OUTPUT_CTRL_DCDC2);
+	if (rc)
+		return rc;
+
 	cfg = axp209_mvolt_to_cfg(mvolt, 700, 2275, 25);
 
 	/* Do we really need to be this gentle? It has built-in voltage slope */
@@ -45,14 +53,27 @@ int axp_set_dcdc2(unsigned int mvolt)
 int axp_set_dcdc3(unsigned int mvolt)
 {
 	u8 cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
+	int rc;
 
-	return pmic_bus_write(AXP209_DCDC3_VOLTAGE, cfg);
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
+					AXP209_OUTPUT_CTRL_DCDC3);
+
+	rc = pmic_bus_write(AXP209_DCDC3_VOLTAGE, cfg);
+	if (rc)
+		return rc;
+
+	return pmic_bus_setbits(AXP209_OUTPUT_CTRL, AXP209_OUTPUT_CTRL_DCDC3);
 }
 
 int axp_set_aldo2(unsigned int mvolt)
 {
 	int rc;
 	u8 cfg, reg;
+
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
+					AXP209_OUTPUT_CTRL_LDO2);
 
 	cfg = axp209_mvolt_to_cfg(mvolt, 1800, 3300, 100);
 
@@ -62,19 +83,32 @@ int axp_set_aldo2(unsigned int mvolt)
 
 	/* LDO2 configuration is in upper 4 bits */
 	reg = (reg & 0x0f) | (cfg << 4);
-	return pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
+	rc = pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
+	if (rc)
+		return rc;
+
+	return pmic_bus_setbits(AXP209_OUTPUT_CTRL, AXP209_OUTPUT_CTRL_LDO2);
 }
 
 int axp_set_aldo3(unsigned int mvolt)
 {
 	u8 cfg;
+	int rc;
+
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
+					AXP209_OUTPUT_CTRL_LDO3);
 
 	if (mvolt == -1)
 		cfg = 0x80;	/* determined by LDO3IN pin */
 	else
 		cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
 
-	return pmic_bus_write(AXP209_LDO3_VOLTAGE, cfg);
+	rc = pmic_bus_write(AXP209_LDO3_VOLTAGE, cfg);
+	if (rc)
+		return rc;
+
+	return pmic_bus_setbits(AXP209_OUTPUT_CTRL, AXP209_OUTPUT_CTRL_LDO3);
 }
 
 int axp_set_aldo4(unsigned int mvolt)
@@ -86,6 +120,10 @@ int axp_set_aldo4(unsigned int mvolt)
 	};
 	u8 cfg, reg;
 
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
+					AXP209_OUTPUT_CTRL_LDO4);
+
 	/* Translate mvolt to register cfg value, requested <= selected */
 	for (cfg = 15; vindex[cfg] > mvolt && cfg > 0; cfg--);
 
@@ -95,7 +133,11 @@ int axp_set_aldo4(unsigned int mvolt)
 
 	/* LDO4 configuration is in lower 4 bits */
 	reg = (reg & 0xf0) | (cfg << 0);
-	return pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
+	rc = pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
+	if (rc)
+		return rc;
+
+	return pmic_bus_setbits(AXP209_OUTPUT_CTRL, AXP209_OUTPUT_CTRL_LDO4);
 }
 
 int axp_init(void)
