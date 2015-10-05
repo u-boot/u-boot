@@ -22,6 +22,11 @@
 
 #define CONFIG_IDENT_STRING	" Xilinx ZynqMP ZC1751 xm015 dc1"
 
+/* Physical Memory Map */
+#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_SYS_SDRAM_BASE		0
+#define CONFIG_SYS_SDRAM_SIZE		0x80000000
+
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZC1751_XM015_DC1_H */

@@ -23,6 +23,11 @@
 #define CONFIG_ZYNQ_EEPROM
 #define CONFIG_AHCI
 
+/* Physical Memory Map */
+#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_SYS_SDRAM_BASE		0
+#define CONFIG_SYS_SDRAM_SIZE		0x40000000
+
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_EP_H */
