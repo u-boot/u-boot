@@ -129,7 +129,8 @@ struct zynq_gem_regs {
 	u32 laddr[4][LADDR_HIGH + 1]; /* 0x8c - Specific1 addr low/high reg */
 	u32 match[4]; /* 0xa8 - Type ID1 Match reg */
 	u32 reserved6[18];
-	u32 stat[44]; /* 0x100 - Octects transmitted Low reg - stat start */
+#define STAT_SIZE	44
+	u32 stat[STAT_SIZE]; /* 0x100 - Octects transmitted Low reg */
 };
 
 /* BD descriptors */
@@ -301,8 +302,6 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	u32 i;
 	unsigned long clk_rate = 0;
 	struct phy_device *phydev;
-	const u32 stat_size = (sizeof(struct zynq_gem_regs) -
-				offsetof(struct zynq_gem_regs, stat)) / 4;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	struct zynq_gem_priv *priv = dev->priv;
 	const u32 supported = SUPPORTED_10baseT_Half |
@@ -330,7 +329,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		writel(0x0, &regs->hashh);
 
 		/* Clear all counters */
-		for (i = 0; i <= stat_size; i++)
+		for (i = 0; i < STAT_SIZE; i++)
 			readl(&regs->stat[i]);
 
 		/* Setup RxBD space */
