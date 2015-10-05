@@ -170,7 +170,7 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 static int process_nodes(const void *blob, int node_list[], int count)
 {
 	struct sdhci_host *host;
-	int i, node;
+	int i, node, ret;
 	int failed = 0;
 
 	debug("%s: count = %d\n", __func__, count);
@@ -183,14 +183,16 @@ static int process_nodes(const void *blob, int node_list[], int count)
 
 		host = &sdhci_host[i];
 
-		if (sdhci_get_config(blob, node, host)) {
-			printf("%s: failed to decode dev %d\n",	__func__, i);
+		ret = sdhci_get_config(blob, node, host);
+		if (ret) {
+			printf("%s: failed to decode dev %d (%d)\n",	__func__, i, ret);
 			failed++;
 			continue;
 		}
 
-		if (do_sdhci_init(host)) {
-			printf("%s: failed to initialize dev %d\n", __func__, i);
+		ret = do_sdhci_init(host);
+		if (ret) {
+			printf("%s: failed to initialize dev %d (%d)\n", __func__, i, ret);
 			failed++;
 		}
 	}
