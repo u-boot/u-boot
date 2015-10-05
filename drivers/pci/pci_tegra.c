@@ -166,6 +166,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RP_VEND_XP	0x00000F00
 #define  RP_VEND_XP_DL_UP	(1 << 30)
 
+#define RP_VEND_CTL2				0x00000FA8
+#define  RP_VEND_CTL2_PCA_ENABLE		(1 << 7)
+
 #define RP_PRIV_MISC	0x00000FE0
 #define  RP_PRIV_MISC_PRSNT_MAP_EP_PRSNT (0xE << 0)
 #define  RP_PRIV_MISC_PRSNT_MAP_EP_ABSNT (0xF << 0)
@@ -194,6 +197,7 @@ struct tegra_pcie_soc {
 	bool has_pex_bias_ctrl;
 	bool has_cml_clk;
 	bool has_gen2;
+	bool force_pca_enable;
 };
 
 struct tegra_pcie {
@@ -887,6 +891,7 @@ static void tegra_pcie_port_reset(struct tegra_pcie_port *port)
 
 static void tegra_pcie_port_enable(struct tegra_pcie_port *port)
 {
+	const struct tegra_pcie_soc *soc = port->pcie->soc;
 	unsigned long ctrl = tegra_pcie_port_get_pex_ctrl(port);
 	unsigned long value;
 
@@ -902,6 +907,12 @@ static void tegra_pcie_port_enable(struct tegra_pcie_port *port)
 	afi_writel(port->pcie, value, ctrl);
 
 	tegra_pcie_port_reset(port);
+
+	if (soc->force_pca_enable) {
+		value = rp_readl(port, RP_VEND_CTL2);
+		value |= RP_VEND_CTL2_PCA_ENABLE;
+		rp_writel(port, value, RP_VEND_CTL2);
+	}
 }
 
 static bool tegra_pcie_port_check_link(struct tegra_pcie_port *port)
@@ -999,6 +1010,7 @@ static const struct tegra_pcie_soc tegra20_pcie_soc = {
 	.has_pex_bias_ctrl = false,
 	.has_cml_clk = false,
 	.has_gen2 = false,
+	.force_pca_enable = false,
 };
 
 static const struct tegra_pcie_soc tegra30_pcie_soc = {
@@ -1009,6 +1021,7 @@ static const struct tegra_pcie_soc tegra30_pcie_soc = {
 	.has_pex_bias_ctrl = true,
 	.has_cml_clk = true,
 	.has_gen2 = false,
+	.force_pca_enable = false,
 };
 
 static const struct tegra_pcie_soc tegra124_pcie_soc = {
@@ -1019,6 +1032,7 @@ static const struct tegra_pcie_soc tegra124_pcie_soc = {
 	.has_pex_bias_ctrl = true,
 	.has_cml_clk = true,
 	.has_gen2 = true,
+	.force_pca_enable = false,
 };
 
 static int process_nodes(const void *fdt, int nodes[], unsigned int count)
