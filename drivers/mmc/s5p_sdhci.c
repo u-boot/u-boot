@@ -171,6 +171,7 @@ static int process_nodes(const void *blob, int node_list[], int count)
 {
 	struct sdhci_host *host;
 	int i, node;
+	int failed = 0;
 
 	debug("%s: count = %d\n", __func__, count);
 
@@ -184,11 +185,18 @@ static int process_nodes(const void *blob, int node_list[], int count)
 
 		if (sdhci_get_config(blob, node, host)) {
 			printf("%s: failed to decode dev %d\n",	__func__, i);
-			return -1;
+			failed++;
+			continue;
 		}
-		do_sdhci_init(host);
+
+		if (do_sdhci_init(host)) {
+			printf("%s: failed to initialize dev %d\n", __func__, i);
+			failed++;
+		}
 	}
-	return 0;
+
+	/* we only consider it an error when all nodes fail */
+	return (failed == count ? -1 : 0);
 }
 
 int exynos_mmc_init(const void *blob)
@@ -200,8 +208,6 @@ int exynos_mmc_init(const void *blob)
 			COMPAT_SAMSUNG_EXYNOS_MMC, node_list,
 			SDHCI_MAX_HOSTS);
 
-	process_nodes(blob, node_list, count);
-
-	return 0;
+	return process_nodes(blob, node_list, count);
 }
 #endif
