@@ -387,6 +387,7 @@ static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
 		break;
 
 	case COMPAT_NVIDIA_TEGRA124_PCIE:
+	case COMPAT_NVIDIA_TEGRA210_PCIE:
 		switch (lanes) {
 		case 0x0000104:
 			debug("4x1, 1x1 configuration\n");
@@ -1033,6 +1034,17 @@ static const struct tegra_pcie_soc tegra124_pcie_soc = {
 	.force_pca_enable = false,
 };
 
+static const struct tegra_pcie_soc tegra210_pcie_soc = {
+	.num_ports = 2,
+	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
+	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
+	.has_pex_clkreq_en = true,
+	.has_pex_bias_ctrl = true,
+	.has_cml_clk = true,
+	.has_gen2 = true,
+	.force_pca_enable = true,
+};
+
 static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 {
 	unsigned int i;
@@ -1066,6 +1078,10 @@ static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 
 		case COMPAT_NVIDIA_TEGRA124_PCIE:
 			soc = &tegra124_pcie_soc;
+			break;
+
+		case COMPAT_NVIDIA_TEGRA210_PCIE:
+			soc = &tegra210_pcie_soc;
 			break;
 
 		default:
@@ -1163,6 +1179,12 @@ void pci_init_board(void)
 	int count, nodes[1];
 
 	tegra_pcie_board_init();
+
+	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
+					   COMPAT_NVIDIA_TEGRA210_PCIE,
+					   nodes, ARRAY_SIZE(nodes));
+	if (process_nodes(fdt, nodes, count))
+		return;
 
 	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
 					   COMPAT_NVIDIA_TEGRA124_PCIE,
