@@ -618,8 +618,6 @@ static int tegra_pcie_power_on(struct tegra_pcie *pcie)
 		return err;
 	}
 
-	tegra_pcie_board_init();
-
 	err = tegra_powergate_sequence_power_up(TEGRA_POWERGATE_PCIE,
 						PERIPH_ID_PCIE);
 	if (err < 0) {
@@ -1163,6 +1161,8 @@ void pci_init_board(void)
 {
 	const void *fdt = gd->fdt_blob;
 	int count, nodes[1];
+
+	tegra_pcie_board_init();
 
 	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
 					   COMPAT_NVIDIA_TEGRA124_PCIE,
