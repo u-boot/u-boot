@@ -997,6 +997,14 @@ static const struct tegra_pcie_soc tegra124_pcie_soc = {
 static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 {
 	unsigned int i;
+	uint64_t dram_end;
+	uint32_t pci_dram_size;
+
+	/* Clip PCI-accessible DRAM to 32-bits */
+	dram_end = ((uint64_t)NV_PA_SDRAM_BASE) + gd->ram_size;
+	if (dram_end > 0x100000000)
+		dram_end = 0x100000000;
+	pci_dram_size = dram_end - NV_PA_SDRAM_BASE;
 
 	for (i = 0; i < count; i++) {
 		const struct tegra_pcie_soc *soc;
@@ -1069,7 +1077,7 @@ static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 		pcie->hose.last_busno = 0;
 
 		pci_set_region(&pcie->hose.regions[0], NV_PA_SDRAM_BASE,
-			       NV_PA_SDRAM_BASE, gd->ram_size,
+			       NV_PA_SDRAM_BASE, pci_dram_size,
 			       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 		pci_set_region(&pcie->hose.regions[1], pcie->io.start,
