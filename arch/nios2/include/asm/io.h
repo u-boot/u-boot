@@ -44,12 +44,9 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
 
 static inline void *ioremap(unsigned long physaddr, unsigned long size)
 {
-	return (void *)(IO_REGION_BASE | physaddr);
+	DECLARE_GLOBAL_DATA_PTR;
+	return (void *)(gd->arch.io_region_base | physaddr);
 }
-
-extern unsigned char inb (unsigned char *port);
-extern unsigned short inw (unsigned short *port);
-extern unsigned inl (unsigned port);
 
 #define __raw_writeb(v,a)       (*(volatile unsigned char  *)(a) = (v))
 #define __raw_writew(v,a)       (*(volatile unsigned short *)(a) = (v))
