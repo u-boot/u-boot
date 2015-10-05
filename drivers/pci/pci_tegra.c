@@ -406,8 +406,33 @@ static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
 static int tegra_pcie_parse_dt_ranges(const void *fdt, int node,
 				      struct tegra_pcie *pcie)
 {
+	int parent, na_parent, na_pcie, ns_pcie;
 	const u32 *ptr, *end;
 	int len;
+
+	parent = fdt_parent_offset(fdt, node);
+	if (parent < 0) {
+		error("Can't find PCI parent node\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	na_parent = fdt_address_cells(fdt, parent);
+	if (na_parent < 1) {
+		error("bad #address-cells for PCIE parent\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	na_pcie = fdt_address_cells(fdt, node);
+	if (na_pcie < 1) {
+		error("bad #address-cells for PCIE\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	ns_pcie = fdt_size_cells(fdt, node);
+	if (ns_pcie < 1) {
+		error("bad #size-cells for PCIE\n");
+		return -FDT_ERR_NOTFOUND;
+	}
 
 	ptr = fdt_getprop(fdt, node, "ranges", &len);
 	if (!ptr) {
@@ -437,11 +462,13 @@ static int tegra_pcie_parse_dt_ranges(const void *fdt, int node,
 		}
 
 		if (res) {
-			res->start = fdt32_to_cpu(ptr[3]);
-			res->end = res->start + fdt32_to_cpu(ptr[5]);
+			int start_low = na_pcie + (na_parent - 1);
+			int size_low = na_pcie + na_parent + (ns_pcie - 1);
+			res->start = fdt32_to_cpu(ptr[start_low]);
+			res->end = res->start + fdt32_to_cpu(ptr[size_low]);
 		}
 
-		ptr += 3 + 1 + 2;
+		ptr += na_pcie + na_parent + ns_pcie;
 	}
 
 	debug("PCI regions:\n");
