@@ -208,6 +208,9 @@
 	"sdboot=mmcinfo && load mmc 0:$partid $fdt_addr system.dtb && " \
 		"load mmc 0:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
+	"sdboot1=mmc dev 1 && mmcinfo && load mmc 1:$partid $fdt_addr system.dtb && " \
+		"load mmc 1:$partid $kernel_addr Image && " \
+		"booti $kernel_addr - $fdt_addr\0" \
 	"nandboot=nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
 		  "nand read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
