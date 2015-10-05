@@ -108,28 +108,28 @@
 
 /* Device registers */
 struct zynq_gem_regs {
-	u32 nwctrl; /* Network Control reg */
-	u32 nwcfg; /* Network Config reg */
-	u32 nwsr; /* Network Status reg */
+	u32 nwctrl; /* 0x0 - Network Control reg */
+	u32 nwcfg; /* 0x4 - Network Config reg */
+	u32 nwsr; /* 0x8 - Network Status reg */
 	u32 reserved1;
-	u32 dmacr; /* DMA Control reg */
-	u32 txsr; /* TX Status reg */
-	u32 rxqbase; /* RX Q Base address reg */
-	u32 txqbase; /* TX Q Base address reg */
-	u32 rxsr; /* RX Status reg */
+	u32 dmacr; /* 0x10 - DMA Control reg */
+	u32 txsr; /* 0x14 - TX Status reg */
+	u32 rxqbase; /* 0x18 - RX Q Base address reg */
+	u32 txqbase; /* 0x1c - TX Q Base address reg */
+	u32 rxsr; /* 0x20 - RX Status reg */
 	u32 reserved2[2];
-	u32 idr; /* Interrupt Disable reg */
+	u32 idr; /* 0x2c - Interrupt Disable reg */
 	u32 reserved3;
-	u32 phymntnc; /* Phy Maintaince reg */
+	u32 phymntnc; /* 0x34 - Phy Maintaince reg */
 	u32 reserved4[18];
-	u32 hashl; /* Hash Low address reg */
-	u32 hashh; /* Hash High address reg */
+	u32 hashl; /* 0x80 - Hash Low address reg */
+	u32 hashh; /* 0x84 - Hash High address reg */
 #define LADDR_LOW	0
 #define LADDR_HIGH	1
-	u32 laddr[4][LADDR_HIGH + 1]; /* Specific1 addr low/high reg */
-	u32 match[4]; /* Type ID1 Match reg */
+	u32 laddr[4][LADDR_HIGH + 1]; /* 0x8c - Specific1 addr low/high reg */
+	u32 match[4]; /* 0xa8 - Type ID1 Match reg */
 	u32 reserved6[18];
-	u32 stat[44]; /* Octects transmitted Low reg - stat start */
+	u32 stat[44]; /* 0x100 - Octects transmitted Low reg - stat start */
 };
 
 /* BD descriptors */
