@@ -84,9 +84,9 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 
 int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 {
-	struct sdhci_host *host = malloc(sizeof(struct sdhci_host));
+	struct sdhci_host *host = calloc(1, sizeof(struct sdhci_host));
 	if (!host) {
-		printf("sdhci__host malloc fail!\n");
+		printf("sdhci__host allocation fail!\n");
 		return 1;
 	}
 	host->ioaddr = (void *)regbase;
