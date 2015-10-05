@@ -101,29 +101,31 @@ struct sdhci_host sdhci_host[SDHCI_MAX_HOSTS];
 
 static int do_sdhci_init(struct sdhci_host *host)
 {
-	int dev_id, flag;
-	int err = 0;
+	int dev_id, flag, ret;
 
 	flag = host->bus_width == 8 ? PINMUX_FLAG_8BIT_MODE : PINMUX_FLAG_NONE;
 	dev_id = host->index + PERIPH_ID_SDMMC0;
 
 	if (dm_gpio_is_valid(&host->pwr_gpio)) {
 		dm_gpio_set_value(&host->pwr_gpio, 1);
-		err = exynos_pinmux_config(dev_id, flag);
-		if (err) {
+		ret = exynos_pinmux_config(dev_id, flag);
+		if (ret) {
 			debug("MMC not configured\n");
-			return err;
+			return ret;
 		}
 	}
 
 	if (dm_gpio_is_valid(&host->cd_gpio)) {
-		if (dm_gpio_get_value(&host->cd_gpio))
+		ret = dm_gpio_get_value(&host->cd_gpio);
+		if (ret) {
+			debug("no SD card detected (%d)\n", ret);
 			return -ENODEV;
+		}
 
-		err = exynos_pinmux_config(dev_id, flag);
-		if (err) {
+		ret = exynos_pinmux_config(dev_id, flag);
+		if (ret) {
 			printf("external SD not configured\n");
-			return err;
+			return ret;
 		}
 	}
 
