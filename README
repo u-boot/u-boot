@@ -1472,8 +1472,8 @@ The following options need to be configured:
 		CONFIG_TPM
 		Support TPM devices.
 
-		CONFIG_TPM_TIS_I2C
-		Support for i2c bus TPM devices. Only one device
+		CONFIG_TPM_TIS_INFINEON
+		Support for Infineon i2c bus TPM devices. Only one device
 		per system is supported at this time.
 
 			CONFIG_TPM_TIS_I2C_BURST_LIMITATION

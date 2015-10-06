@@ -31,7 +31,7 @@ config TPM_ATMEL_TWI
 	  to the device using the standard TPM Interface Specification (TIS)
 	  protocol
 
-config TPM_TIS_I2C
+config TPM_TIS_INFINEON
 	bool "Enable support for Infineon SLB9635/45 TPMs on I2C"
 	depends on TPM && DM_I2C
 	help
@@ -42,7 +42,7 @@ config TPM_TIS_I2C
 
 config TPM_TIS_I2C_BURST_LIMITATION
 	bool "Enable I2C burst length limitation"
-	depends on TPM_TIS_I2C
+	depends on TPM_TIS_INFINEON
 	help
 	  Some broken TPMs have a limitation on the number of bytes they can
 	  receive in one message. Enable this option to allow you to set this

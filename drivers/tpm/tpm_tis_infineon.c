@@ -31,7 +31,7 @@
 #include <linux/types.h>
 #include <linux/unaligned/be_byteshift.h>
 
-#include "tpm_tis_i2c.h"
+#include "tpm_tis_infineon.h"
 #include "tpm_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -614,7 +614,7 @@ static const struct udevice_id tpm_tis_i2c_ids[] = {
 };
 
 U_BOOT_DRIVER(tpm_tis_i2c) = {
-	.name   = "tpm_tis_i2c",
+	.name   = "tpm_tis_infineon",
 	.id     = UCLASS_TPM,
 	.of_match = tpm_tis_i2c_ids,
 	.ops    = &tpm_tis_i2c_ops,
