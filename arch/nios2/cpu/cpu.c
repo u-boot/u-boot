@@ -29,6 +29,27 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+/*
+ * COPY EXCEPTION TRAMPOLINE -- copy the tramp to the
+ * exception address. Define CONFIG_ROM_STUBS to prevent
+ * the copy (e.g. exception in flash or in other
+ * softare/firmware component).
+ */
+#ifndef CONFIG_ROM_STUBS
+static void copy_exception_trampoline(void)
+{
+	extern int _except_start, _except_end;
+	void *except_target = (void *)gd->arch.exception_addr;
+
+	if (&_except_start != except_target) {
+		memcpy(except_target, &_except_start,
+		       &_except_end - &_except_start);
+		flush_cache(gd->arch.exception_addr,
+			    &_except_end - &_except_start);
+	}
+}
+#endif
+
 int arch_cpu_init_dm(void)
 {
 	struct udevice *dev;
@@ -41,6 +62,9 @@ int arch_cpu_init_dm(void)
 		return -ENODEV;
 
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+#ifndef CONFIG_ROM_STUBS
+	copy_exception_trampoline();
+#endif
 
 	return 0;
 }

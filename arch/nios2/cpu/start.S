@@ -20,7 +20,7 @@
 
 	/* RESTART */
 	.text
-	.global _start
+	.global _start, _except_start, _except_end
 
 _start:
 	wrctl	status, r0		/* Disable interrupts */
@@ -98,29 +98,6 @@ _cur:	movhi	r5, %hi(_cur - _start)
 	ori	r4, r4, %lo(_reloc)
 	jmp	r4
 _reloc:
-
-	/*
-	 * COPY EXCEPTION TRAMPOLINE -- copy the tramp to the
-	 * exception address. Define CONFIG_ROM_STUBS to prevent
-	 * the copy (e.g. exception in flash or in other
-	 * softare/firmware component).
-	 */
-#if !defined(CONFIG_ROM_STUBS)
-	movhi	r4, %hi(_except_start)
-	ori	r4, r4, %lo(_except_start)
-	movhi	r5, %hi(_except_end)
-	ori	r5, r5, %lo(_except_end)
-	movhi	r6, %hi(CONFIG_SYS_EXCEPTION_ADDR)
-	ori	r6, r6, %lo(CONFIG_SYS_EXCEPTION_ADDR)
-	beq	r4, r6, 7f	/* Skip if at proper addr */
-
-6:	ldwio	r7, 0(r4)
-	stwio	r7, 0(r6)
-	addi	r4, r4, 4
-	addi	r6, r6, 4
-	bne	r4, r5, 6b
-7:
-#endif
 
 	/* STACK INIT -- zero top two words for call back chain. */
 	movhi	sp, %hi(CONFIG_SYS_INIT_SP)
