@@ -9,16 +9,14 @@
 #include <config.h>
 #include <version.h>
 
-/*************************************************************************
- * RESTART
- ************************************************************************/
-
+	/* RESTART */
 	.text
 	.global _start
 
 _start:
 	wrctl	status, r0		/* Disable interrupts */
-	/* ICACHE INIT -- only the icache line at the reset address
+	/*
+	 * ICACHE INIT -- only the icache line at the reset address
 	 * is invalidated at reset. So the init must stay within
 	 * the cache line size (8 words). If GERMS is used, we'll
 	 * just be invalidating the cache a second time. If cache
@@ -32,7 +30,8 @@ _start:
 	bgt	r5, r0, 0b
 	br	_except_end	/* Skip the tramp */
 
-	/* EXCEPTION TRAMPOLINE -- the following gets copied
+	/*
+	 * EXCEPTION TRAMPOLINE -- the following gets copied
 	 * to the exception address (below), but is otherwise at the
 	 * default exception vector offset (0x0020).
 	 */
@@ -42,12 +41,14 @@ _except_start:
 	jmp	et
 _except_end:
 
-	/* INTERRUPTS -- for now, all interrupts masked and globally
+	/*
+	 * INTERRUPTS -- for now, all interrupts masked and globally
 	 * disabled.
 	 */
 	wrctl	ienable, r0		/* All disabled	*/
 
-	/* DCACHE INIT -- if dcache not implemented, initd behaves as
+	/*
+	 * DCACHE INIT -- if dcache not implemented, initd behaves as
 	 * nop.
 	 */
 	movhi	r4, %hi(CONFIG_SYS_DCACHELINE_SIZE)
@@ -59,7 +60,8 @@ _except_end:
 	add	r6, r6, r4
 	bltu	r6, r5, 1b
 
-	/* RELOCATE CODE, DATA & COMMAND TABLE -- the following code
+	/*
+	 * RELOCATE CODE, DATA & COMMAND TABLE -- the following code
 	 * assumes code, data and the command table are all
 	 * contiguous. This lets us relocate everything as a single
 	 * block. Make sure the linker script matches this ;-)
@@ -89,7 +91,8 @@ _cur:	movhi	r5, %hi(_cur - _start)
 	jmp	r4
 _reloc:
 
-	/* COPY EXCEPTION TRAMPOLINE -- copy the tramp to the
+	/*
+	 * COPY EXCEPTION TRAMPOLINE -- copy the tramp to the
 	 * exception address. Define CONFIG_ROM_STUBS to prevent
 	 * the copy (e.g. exception in flash or in other
 	 * softare/firmware component).
@@ -111,8 +114,7 @@ _reloc:
 7:
 #endif
 
-	/* STACK INIT -- zero top two words for call back chain.
-	 */
+	/* STACK INIT -- zero top two words for call back chain. */
 	movhi	sp, %hi(CONFIG_SYS_INIT_SP)
 	ori	sp, sp, %lo(CONFIG_SYS_INIT_SP)
 	addi	sp, sp, -8
@@ -130,34 +132,31 @@ _reloc:
 	mov	sp, r2
 	mov	fp, sp
 
-	/*
-	 * Call board_init_f -- never returns
-	 */
+	/* Call board_init_f -- never returns */
 	mov	r4, r0
 	movhi	r2, %hi(board_init_f@h)
 	ori	r2, r2, %lo(board_init_f@h)
 	callr	r2
 
-	/* NEVER RETURNS -- but branch to the _start just
+	/*
+	 * NEVER RETURNS -- but branch to the _start just
 	 * in case ;-)
 	 */
 	br	_start
 
-
-
-/*
- * relocate_code -- Nios2 handles the relocation above. But
- * the generic board code monkeys with the heap, stack, etc.
- * (it makes some assumptions that may not be appropriate
- * for Nios). Nevertheless, we capitulate here.
- *
- * We'll call the board_init_r from here since this isn't
- * supposed to return.
- *
- * void relocate_code (ulong sp, gd_t *global_data,
- *			ulong reloc_addr)
- *			__attribute__ ((noreturn));
- */
+	/*
+	 * relocate_code -- Nios2 handles the relocation above. But
+	 * the generic board code monkeys with the heap, stack, etc.
+	 * (it makes some assumptions that may not be appropriate
+	 * for Nios). Nevertheless, we capitulate here.
+	 *
+	 * We'll call the board_init_r from here since this isn't
+	 * supposed to return.
+	 *
+	 * void relocate_code (ulong sp, gd_t *global_data,
+	 *			ulong reloc_addr)
+	 *			__attribute__ ((noreturn));
+	 */
 	.text
 	.global relocate_code
 
