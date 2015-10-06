@@ -24,6 +24,8 @@
 
 #define CONFIG_HW_WATCHDOG
 
+#define CONFIG_OF_LIBFDT
+
 #define CONFIG_MACH_TYPE	MACH_TYPE_TS48XX
 
 /* text base address used when linking */
