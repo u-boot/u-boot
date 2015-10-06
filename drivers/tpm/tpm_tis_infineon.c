@@ -24,7 +24,6 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
-#include <tis.h>
 #include <tpm.h>
 #include <asm-generic/errno.h>
 #include <linux/compiler.h>
