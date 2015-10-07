@@ -168,6 +168,7 @@ struct zynq_gem_priv {
 	int phyaddr;
 	u32 emio;
 	int init;
+	phy_interface_t interface;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };
@@ -391,7 +392,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev,
-			     PHY_INTERFACE_MODE_MII);
+			     priv->interface);
 
 	phydev->supported = supported | ADVERTISED_Pause |
 			    ADVERTISED_Asym_Pause;
@@ -622,6 +623,12 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 
 	priv->phyaddr = phy_addr;
 	priv->emio = emio;
+
+#ifndef CONFIG_ZYNQ_GEM_INTERFACE
+	priv->interface = PHY_INTERFACE_MODE_MII;
+#else
+	priv->interface = CONFIG_ZYNQ_GEM_INTERFACE;
+#endif
 
 	sprintf(dev->name, "Gem.%lx", base_addr);
 
