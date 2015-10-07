@@ -4,6 +4,15 @@
 
 menu "Multifunction device drivers"
 
+config MISC
+	bool "Enable Driver Model for Misc drivers"
+	depends on DM
+	help
+	  Enable driver model for miscellaneous devices. This class is
+	  used only for those do not fit other more general classes. A
+	  set of generic read, write and ioctl methods may be used to
+	  access the device.
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC
