@@ -220,7 +220,6 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 {
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 	struct dpni_queue_attr rx_queue_attr;
-	uint8_t mac_addr[6];
 	int err;
 
 	if (net_dev->state == ETH_STATE_ACTIVE)
@@ -240,19 +239,11 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 	if (err)
 		goto err_bind;
 
-	err = dpni_get_primary_mac_addr(dflt_mc_io, MC_CMD_NO_FLAGS,
-					priv->dpni_handle, mac_addr);
+	err = dpni_add_mac_addr(dflt_mc_io, MC_CMD_NO_FLAGS,
+				priv->dpni_handle, net_dev->enetaddr);
 	if (err) {
-		printf("dpni_get_primary_mac_addr() failed\n");
+		printf("dpni_add_mac_addr() failed\n");
 		return err;
-	}
-
-	memcpy(net_dev->enetaddr, mac_addr, 0x6);
-
-	/* setup the MAC address */
-	if (net_dev->enetaddr[0] & 0x01) {
-		printf("%s: MacAddress is multcast address\n",	__func__);
-		return 1;
 	}
 
 #ifdef CONFIG_PHYLIB
