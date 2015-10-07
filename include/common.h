@@ -826,6 +826,9 @@ int gzwrite(unsigned char *src, int len,
 	    u64 startoffs,
 	    u64 szexpected);
 
+/* lib/lz4_wrapper.c */
+int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
+
 /* lib/qsort.c */
 void qsort(void *base, size_t nmemb, size_t size,
 	   int(*compar)(const void *, const void *));

@@ -389,6 +389,15 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_LZO */
+#ifdef CONFIG_LZ4
+	case IH_COMP_LZ4: {
+		size_t size = unc_len;
+
+		ret = ulz4fn(image_buf, image_len, load_buf, &size);
+		image_len = size;
+		break;
+	}
+#endif /* CONFIG_LZ4 */
 	default:
 		printf("Unimplemented compression type %d\n", comp);
 		return BOOTM_ERR_UNIMPLEMENTED;
