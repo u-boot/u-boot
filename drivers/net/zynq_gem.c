@@ -208,12 +208,23 @@ static u32 phy_setup_op(struct eth_device *dev, u32 phy_addr, u32 regnum,
 
 static u32 phyread(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 *val)
 {
-	return phy_setup_op(dev, phy_addr, regnum,
+	u32 ret;
+
+	ret = phy_setup_op(dev, phy_addr, regnum,
 				ZYNQ_GEM_PHYMNTNC_OP_R_MASK, val);
+
+	if (!ret)
+		debug("%s: phy_addr %d, regnum 0x%x, val 0x%x\n", __func__,
+		      phy_addr, regnum, *val);
+
+	return ret;
 }
 
 static u32 phywrite(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 data)
 {
+	debug("%s: phy_addr %d, regnum 0x%x, data 0x%x\n", __func__, phy_addr,
+	      regnum, data);
+
 	return phy_setup_op(dev, phy_addr, regnum,
 				ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
 }
