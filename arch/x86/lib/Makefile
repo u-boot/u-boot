@@ -12,6 +12,7 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= cmd_boot.o
 obj-$(CONFIG_HAVE_FSP) += cmd_hob.o
 obj-$(CONFIG_EFI) += efi/
+obj-y	+= e820.o
 obj-y	+= gcc.o
 obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
