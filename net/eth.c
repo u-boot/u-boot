@@ -179,8 +179,12 @@ struct udevice *eth_get_dev(void)
  */
 static void eth_set_dev(struct udevice *dev)
 {
-	if (dev && !device_active(dev))
+	if (dev && !device_active(dev)) {
 		eth_errno = device_probe(dev);
+		if (eth_errno)
+			dev = NULL;
+	}
+
 	eth_get_uclass_priv()->current = dev;
 }
 
@@ -213,10 +217,9 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 		 * match an alias or it will match a literal name and we'll pick
 		 * up the error when we try to probe again in eth_set_dev().
 		 */
-		device_probe(it);
-		/*
-		 * Check for the name or the sequence number to match
-		 */
+		if (device_probe(it))
+			continue;
+		/* Check for the name or the sequence number to match */
 		if (strcmp(it->name, devname) == 0 ||
 		    (endp > startp && it->seq == seq))
 			return it;
@@ -346,22 +349,26 @@ int eth_init(void)
 
 	old_current = current;
 	do {
-		debug("Trying %s\n", current->name);
+		if (current) {
+			debug("Trying %s\n", current->name);
 
-		if (device_active(current)) {
-			ret = eth_get_ops(current)->start(current);
-			if (ret >= 0) {
-				struct eth_device_priv *priv =
-					current->uclass_priv;
+			if (device_active(current)) {
+				ret = eth_get_ops(current)->start(current);
+				if (ret >= 0) {
+					struct eth_device_priv *priv =
+						current->uclass_priv;
 
-				priv->state = ETH_STATE_ACTIVE;
-				return 0;
+					priv->state = ETH_STATE_ACTIVE;
+					return 0;
+				}
+			} else {
+				ret = eth_errno;
 			}
-		} else {
-			ret = eth_errno;
-		}
 
-		debug("FAIL\n");
+			debug("FAIL\n");
+		} else {
+			debug("PROBE FAIL\n");
+		}
 
 		/*
 		 * If ethrotate is enabled, this will change "current",
