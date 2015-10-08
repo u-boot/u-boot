@@ -288,12 +288,25 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				       CONFIG_SYS_VXWORKS_SERVERNAME);
 
 		tmp = getenv("ipaddr");
-		if (tmp)
-			ptr += sprintf(build_buf + ptr, "e=%s ", tmp);
+		if (tmp) {
+			ptr += sprintf(build_buf + ptr, "e=%s", tmp);
+			tmp = getenv("netmask");
+			if (tmp) {
+				__be32 addr = getenv_ip("netmask").s_addr;
+				ptr += sprintf(build_buf + ptr, ":%08x ",
+					       ntohl(addr));
+			} else {
+				ptr += sprintf(build_buf + ptr, " ");
+			}
+		}
 
 		tmp = getenv("serverip");
 		if (tmp)
 			ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
+
+		tmp = getenv("gatewayip");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
 
 		tmp = getenv("hostname");
 		if (tmp)
