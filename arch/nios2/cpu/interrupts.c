@@ -8,7 +8,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-
 #include <asm/nios2.h>
 #include <asm/types.h>
 #include <asm/io.h>
@@ -20,14 +19,14 @@
 #include <status_led.h>
 #endif
 
-typedef volatile struct {
-	unsigned	status;			/* Timer status reg */
-	unsigned	control;		/* Timer control reg */
-	unsigned	periodl;		/* Timeout period low */
-	unsigned	periodh;		/* Timeout period high */
-	unsigned	snapl;			/* Snapshot low */
-	unsigned	snaph;			/* Snapshot high */
-} nios_timer_t;
+struct nios_timer {
+	u32	status;		/* Timer status reg */
+	u32	control;	/* Timer control reg */
+	u32	periodl;	/* Timeout period low */
+	u32	periodh;	/* Timeout period high */
+	u32	snapl;		/* Snapshot low */
+	u32	snaph;		/* Snapshot high */
+};
 
 /* status register */
 #define NIOS_TIMER_TO		(1 << 0)	/* Timeout */
@@ -39,8 +38,8 @@ typedef volatile struct {
 #define NIOS_TIMER_START	(1 << 2)	/* Start timer */
 #define NIOS_TIMER_STOP		(1 << 3)	/* Stop timer */
 
-#if defined(CONFIG_SYS_NIOS_TMRBASE) && !defined(CONFIG_SYS_NIOS_TMRIRQ)
-#error CONFIG_SYS_NIOS_TMRIRQ not defined (see documentation)
+#if defined(CONFIG_SYS_TIMER_BASE) && !defined(CONFIG_SYS_TIMER_IRQ)
+#error CONFIG_SYS_TIMER_IRQ not defined (see documentation)
 #endif
 
 /****************************************************************************/
@@ -54,80 +53,15 @@ struct	irq_action {
 static struct irq_action vecs[32];
 
 /*************************************************************************/
-volatile ulong timestamp = 0;
-
-void reset_timer (void)
-{
-	nios_timer_t *tmr =(nios_timer_t *)CONFIG_SYS_NIOS_TMRBASE;
-
-	/* From Embedded Peripherals Handbook:
-	 *
-	 * "When the hardware is configured with Writeable period
-	 * disabled, writing to one of the period_n registers causes
-	 * the counter to reset to the fixed Timeout Period specified
-	 * at system generation time."
-	 *
-	 * Here we force a reload to prevent early timeouts from
-	 * get_timer() when the interrupt period is greater than
-	 * than 1 msec.
-	 *
-	 * Simply write to periodl with its own value to force an
-	 * internal counter reload, THEN reset the timestamp.
-	 */
-	writel (readl (&tmr->periodl), &tmr->periodl);
-	timestamp = 0;
-
-	/* From Embedded Peripherals Handbook:
-	 *
-	 * "Writing to one of the period_n registers stops the internal
-	 * counter, except when the hardware is configured with Start/Stop
-	 * control bits off. If Start/Stop control bits is off, writing
-	 * either register does not stop the counter."
-	 *
-	 * In order to accomodate either configuration, the control
-	 * register is re-written. If the counter is stopped, it will
-	 * be restarted. If it is running, the write is essentially
-	 * a nop.
-	 */
-	writel (NIOS_TIMER_ITO | NIOS_TIMER_CONT | NIOS_TIMER_START,
-			&tmr->control);
-
-}
-
-ulong get_timer (ulong base)
-{
-	WATCHDOG_RESET ();
-	return (timestamp - base);
-}
+static volatile ulong timestamp;
 
 /*
- * This function is derived from Blackfin code (read timebase as long long).
- * On Nios2 it just returns the timer value.
- */
-unsigned long long get_ticks(void)
-{
-	return get_timer(0);
-}
-
-/*
- * This function is derived from Blackfin code.
- * On Nios2 it returns the number of timer ticks per second.
- */
-ulong get_tbclk(void)
-{
-	ulong tbclk;
-
-	tbclk = CONFIG_SYS_HZ;
-	return tbclk;
-}
-
-/* The board must handle this interrupt if a timer is not
+ * The board must handle this interrupt if a timer is not
  * provided.
  */
-#if defined(CONFIG_SYS_NIOS_TMRBASE)
 void tmr_isr (void *arg)
 {
-	nios_timer_t *tmr = (nios_timer_t *)arg;
+	struct nios_timer *tmr = (struct nios_timer *)arg;
 	/* Interrupt is cleared by writing anything to the
 	 * status register.
 	 */
@@ -138,24 +72,38 @@ void tmr_isr (void *arg)
 #endif
 }
 
-static void tmr_init (void)
+unsigned long notrace timer_read_counter(void)
 {
-	nios_timer_t *tmr =(nios_timer_t *)CONFIG_SYS_NIOS_TMRBASE;
+	struct nios_timer *tmr = (struct nios_timer *)CONFIG_SYS_TIMER_BASE;
+	u32 val;
+
+	/* Trigger update */
+	writel(0x0, &tmr->snapl);
+
+	/* Read timer value */
+	val = readl(&tmr->snapl) & 0xffff;
+	val |= (readl(&tmr->snaph) & 0xffff) << 16;
+
+	return ~val;
+}
+
+int timer_init(void)
+{
+	struct nios_timer *tmr = (struct nios_timer *)CONFIG_SYS_TIMER_BASE;
 
 	writel (0, &tmr->status);
 	writel (0, &tmr->control);
 	writel (NIOS_TIMER_STOP, &tmr->control);
 
-#if defined(CONFIG_SYS_NIOS_TMRCNT)
-	writel (CONFIG_SYS_NIOS_TMRCNT & 0xffff, &tmr->periodl);
-	writel ((CONFIG_SYS_NIOS_TMRCNT >> 16) & 0xffff, &tmr->periodh);
-#endif
-	writel (NIOS_TIMER_ITO | NIOS_TIMER_CONT | NIOS_TIMER_START,
-			&tmr->control);
-	irq_install_handler (CONFIG_SYS_NIOS_TMRIRQ, tmr_isr, (void *)tmr);
-}
+	writel (0xffff, &tmr->periodl);
+	writel (0xffff, &tmr->periodh);
 
-#endif /* CONFIG_SYS_NIOS_TMRBASE */
+	writel (NIOS_TIMER_CONT | NIOS_TIMER_START, &tmr->control);
+	/* FIXME */
+	irq_install_handler(CONFIG_SYS_TIMER_IRQ, tmr_isr, (void *)tmr);
+
+	return 0;
+}
 
 /*************************************************************************/
 int disable_interrupts (void)
@@ -244,10 +192,6 @@ int interrupt_init (void)
 		vecs[i].arg = (void *)i;
 		vecs[i].count = 0;
 	}
-
-#if defined(CONFIG_SYS_NIOS_TMRBASE)
-	tmr_init ();
-#endif
 
 	enable_interrupts ();
 	return (0);
