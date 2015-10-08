@@ -523,22 +523,15 @@ int uclass_post_probe_device(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int uclass_pre_remove_device(struct udevice *dev)
 {
-	struct uclass_driver *uc_drv;
 	struct uclass *uc;
 	int ret;
 
 	uc = dev->uclass;
-	uc_drv = uc->uc_drv;
 	if (uc->uc_drv->pre_remove) {
 		ret = uc->uc_drv->pre_remove(dev);
 		if (ret)
 			return ret;
 	}
-	if (uc_drv->per_device_auto_alloc_size) {
-		free(dev->uclass_priv);
-		dev->uclass_priv = NULL;
-	}
-	dev->seq = -1;
 
 	return 0;
 }
