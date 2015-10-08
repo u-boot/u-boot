@@ -20,6 +20,7 @@
 #include <vxworks.h>
 #ifdef CONFIG_X86
 #include <asm/e820.h>
+#include <linux/linkage.h>
 #endif
 
 /*
@@ -379,7 +380,12 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("## Starting vxWorks at 0x%08lx ...\n", addr);
 
 	dcache_disable();
+#ifdef CONFIG_X86
+	/* VxWorks on x86 uses stack to pass parameters */
+	((asmlinkage void (*)(int))addr)(0);
+#else
 	((void (*)(int))addr)(0);
+#endif
 
 	puts("## vxWorks terminated\n");
 
