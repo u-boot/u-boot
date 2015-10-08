@@ -452,6 +452,17 @@ int pch_gbe_probe(struct udevice *dev)
 	return pch_gbe_phy_init(dev);
 }
 
+int pch_gbe_remove(struct udevice *dev)
+{
+	struct pch_gbe_priv *priv = dev_get_priv(dev);
+
+	free(priv->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
+	return 0;
+}
+
 static const struct eth_ops pch_gbe_ops = {
 	.start = pch_gbe_start,
 	.send = pch_gbe_send,
@@ -470,6 +481,7 @@ U_BOOT_DRIVER(eth_pch_gbe) = {
 	.id = UCLASS_ETH,
 	.of_match = pch_gbe_ids,
 	.probe = pch_gbe_probe,
+	.remove = pch_gbe_remove,
 	.ops = &pch_gbe_ops,
 	.priv_auto_alloc_size = sizeof(struct pch_gbe_priv),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
