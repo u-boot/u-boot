@@ -18,6 +18,9 @@
 #include <elf.h>
 #include <net.h>
 #include <vxworks.h>
+#ifdef CONFIG_X86
+#include <asm/e820.h>
+#endif
 
 /*
  * A very simple elf loader, assumes the image is valid, returns the
@@ -214,6 +217,10 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *tmp; /* Temporary char pointer */
 	char build_buf[128]; /* Buffer for building the bootline */
 	int ptr = 0;
+#ifdef CONFIG_X86
+	struct e820info *info;
+	struct e820entry *data;
+#endif
 
 	/*
 	 * Check the loadaddr variable.
@@ -335,6 +342,29 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("## Using bootline (@ 0x%lx): %s\n", bootaddr,
 		       (char *)bootaddr);
 	}
+
+#ifdef CONFIG_X86
+	/*
+	 * Since E820 information is critical to the kernel, if we don't
+	 * specify these in the environments, use a default one.
+	 */
+	tmp = getenv("e820data");
+	if (tmp)
+		data = (struct e820entry *)simple_strtoul(tmp, NULL, 16);
+	else
+		data = (struct e820entry *)VXWORKS_E820_DATA_ADDR;
+	tmp = getenv("e820info");
+	if (tmp)
+		info = (struct e820info *)simple_strtoul(tmp, NULL, 16);
+	else
+		info = (struct e820info *)VXWORKS_E820_INFO_ADDR;
+
+	memset(info, 0, sizeof(struct e820info));
+	info->sign = E820_SIGNATURE;
+	info->entries = install_e820_map(E820MAX, data);
+	info->addr = (info->entries - 1) * sizeof(struct e820entry) +
+		     VXWORKS_E820_DATA_ADDR;
+#endif
 
 	/*
 	 * If the data at the load address is an elf image, then
