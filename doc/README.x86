@@ -25,6 +25,8 @@ targets and all Intel boards support running U-Boot 'bare metal'.
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
+U-Boot supports loading an x86 VxWorks kernel. Please check README.vxworks
+for more details.
 
 Build Instructions for U-Boot as coreboot payload
 -------------------------------------------------

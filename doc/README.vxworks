@@ -1,19 +1,85 @@
-From VxWorks 6.9+ (not include 6.9), VxWorks starts adopting device tree as its hardware
-decription mechansim (for PowerPC and ARM), thus requiring boot interface changes.
+#
+# Copyright (C) 2013, Miao Yan <miao.yan@windriver.com>
+# Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+VxWorks Support
+===============
+
+This document describes the information about U-Boot loading VxWorks kernel.
+
+Status
+------
+U-Boot supports loading VxWorks kernels via 'bootvx' and 'bootm' commands.
+For booting old kernels (6.9.x) on PowerPC and ARM, and all kernel versions
+on other architectures, 'bootvx' shall be used. For booting VxWorks 7 kernels
+on PowerPC and ARM, 'bootm' shall be used.
+
+64-bit x86 kernel cannot be loaded as of today.
+
+VxWork 7 on PowerPC and ARM
+---------------------------
+From VxWorks 7, VxWorks starts adopting device tree as its hardware decription
+mechansim (for PowerPC and ARM), thus requiring boot interface changes.
 This section will describe the new interface.
 
-For PowerPC, the calling convention of the new VxWorks entry point conforms to the ePAPR standard,
-which is shown below (see ePAPR for more details):
+For PowerPC, the calling convention of the new VxWorks entry point conforms to
+the ePAPR standard, which is shown below (see ePAPR for more details):
 
-    void (*kernel_entry)(fdt_addr,
-              0, 0, EPAPR_MAGIC, boot_IMA, 0, 0)
+    void (*kernel_entry)(fdt_addr, 0, 0, EPAPR_MAGIC, boot_IMA, 0, 0)
 
 For ARM, the calling convention is show below:
 
     void (*kernel_entry)(void *fdt_addr)
 
-When booting new VxWorks kernel (uImage format), the parameters passed to bootm is like below:
+When booting new VxWorks kernel (uImage format), the parameters passed to bootm
+is like below:
 
     bootm <kernel image address> - <device tree address>
 
-The do_bootvx command still works as it was for older VxWorks kernels.
+VxWorks bootline
+----------------
+When using 'bootvx', the kernel bootline must be prepared by U-Boot at a
+board-specific address before loading VxWorks. U-Boot supplies its address
+via "bootaddr" environment variable. To check where the bootline should be
+for a specific board, go to the VxWorks BSP for that board, and look for a
+parameter called BOOT_LINE_ADRS. Assign its value to "bootaddr". A typical
+value for "bootaddr" is 0x101200.
+
+If a "bootargs" variable is defined, its content will be copied to the memory
+location pointed by "bootaddr" as the kernel bootline. If "bootargs" is not
+there, command 'bootvx' can construct a valid bootline using the following
+environments variables: bootdev, bootfile, ipaddr, netmask, serverip,
+gatewayip, hostname, othbootargs.
+
+When using 'bootm', just define "bootargs" in the environment and U-Boot will
+handle bootline fix up for the kernel dtb automatically.
+
+Serial console
+--------------
+It's very common that VxWorks BSPs configure a different baud rate for the
+serial console from what is being used by U-Boot. For example, VxWorks tends
+to use 9600 as the default baud rate on all x86 BSPs while U-Boot uses 115200.
+Please configure both U-Boot and VxWorks to use the same baud rate, or it may
+look like VxWorks hangs somewhere as nothing outputs on the serial console.
+
+x86-specific information
+------------------------
+Before loading an x86 kernel, two additional environment variables need to be
+provided. They are "e820data" and "e820info", which represent the address of
+E820 table and E820 information (defined by VxWorks) in system memory.
+
+Check VxWorks kernel configuration to look for BIOS_E820_DATA_START and
+BIOS_E820_INFO_START, and assign their values to "e820data" and "e820info"
+accordingly. If neither of these two are supplied, U-Boot assumes a default
+location at 0x4000 for "e820data" and 0x4a00 for "e820info". Typical values
+for "e820data" and "e820info" are 0x104000 and 0x104a00. But there is one
+exception on Intel Galileo, where "e820data" and "e820info" should be left
+unset, which assume the default location for VxWorks.
+
+Note since currently U-Boot does not support ACPI yet, VxWorks kernel must
+be configured to use MP table and virtual wire interrupt mode. This requires
+INCLUDE_MPTABLE_BOOT_OP and INCLUDE_VIRTUAL_WIRE_MODE to be included in a
+VxWorks kernel configuration.
