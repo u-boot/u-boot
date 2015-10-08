@@ -55,7 +55,6 @@
  */
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT

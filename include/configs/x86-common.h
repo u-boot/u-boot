@@ -115,7 +115,6 @@
 #define CONFIG_CMD_EXT2
 
 #define CONFIG_CMD_ZBOOT
-#define CONFIG_CMD_ELF
 
 #define CONFIG_BOOTARGS		\
 	"root=/dev/sdb3 init=/sbin/init rootwait ro"

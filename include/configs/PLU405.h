@@ -66,7 +66,6 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_I2C

@@ -115,7 +115,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_BSP
 
 #define CONFIG_CMD_MII

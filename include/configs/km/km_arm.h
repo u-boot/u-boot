@@ -122,7 +122,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_MTDPARTS
 
 /*

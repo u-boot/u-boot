@@ -141,7 +141,6 @@
 #define CONFIG_IP_DEFRAG
 
 /* Can't boot elf images */
-#undef CONFIG_CMD_ELF
 
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
