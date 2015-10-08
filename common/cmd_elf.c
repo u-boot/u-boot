@@ -213,6 +213,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *bootline; /* Text of the bootline */
 	char *tmp; /* Temporary char pointer */
 	char build_buf[128]; /* Buffer for building the bootline */
+	int ptr = 0;
 
 	/*
 	 * Check the loadaddr variable.
@@ -277,30 +278,29 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		       max(strlen(bootline), (size_t)255));
 		flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
 	} else {
-		sprintf(build_buf, CONFIG_SYS_VXWORKS_BOOT_DEVICE);
+		ptr = sprintf(build_buf, CONFIG_SYS_VXWORKS_BOOT_DEVICE);
 		tmp = getenv("bootfile");
 		if (tmp)
-			sprintf(&build_buf[strlen(build_buf)],
-				"%s:%s ", CONFIG_SYS_VXWORKS_SERVERNAME, tmp);
+			ptr += sprintf(build_buf + ptr, "%s:%s ",
+				       CONFIG_SYS_VXWORKS_SERVERNAME, tmp);
 		else
-			sprintf(&build_buf[strlen(build_buf)],
-				"%s:file ", CONFIG_SYS_VXWORKS_SERVERNAME);
+			ptr += sprintf(build_buf + ptr, "%s:file ",
+				       CONFIG_SYS_VXWORKS_SERVERNAME);
 
 		tmp = getenv("ipaddr");
 		if (tmp)
-			sprintf(&build_buf[strlen(build_buf)], "e=%s ", tmp);
+			ptr += sprintf(build_buf + ptr, "e=%s ", tmp);
 
 		tmp = getenv("serverip");
 		if (tmp)
-			sprintf(&build_buf[strlen(build_buf)], "h=%s ", tmp);
+			ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
 
 		tmp = getenv("hostname");
 		if (tmp)
-			sprintf(&build_buf[strlen(build_buf)], "tn=%s ", tmp);
+			ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
 
 #ifdef CONFIG_SYS_VXWORKS_ADD_PARAMS
-		sprintf(&build_buf[strlen(build_buf)],
-			CONFIG_SYS_VXWORKS_ADD_PARAMS);
+		ptr += sprintf(build_buf + ptr, CONFIG_SYS_VXWORKS_ADD_PARAMS);
 #endif
 
 		memcpy((void *)bootaddr, build_buf,
