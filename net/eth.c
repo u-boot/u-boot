@@ -575,7 +575,12 @@ static int eth_post_probe(struct udevice *dev)
 
 static int eth_pre_remove(struct udevice *dev)
 {
+	struct eth_pdata *pdata = dev->platdata;
+
 	eth_get_ops(dev)->stop(dev);
+
+	/* clear the MAC address */
+	memset(pdata->enetaddr, 0, 6);
 
 	return 0;
 }
