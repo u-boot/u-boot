@@ -40,7 +40,6 @@
  * TIMER
  */
 #define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_TIMER_FREQ
-#define CONFIG_SYS_NIOS_TMRMS		10	/* FIXME: Desired period (msec)*/
 
 /*
  * STATUS LED
@@ -59,7 +58,7 @@
 
 #define STATUS_LED_BIT			0	/* Bit-0 on GPIO */
 #define STATUS_LED_STATE		1	/* Blinking */
-#define STATUS_LED_PERIOD	(500 / CONFIG_SYS_NIOS_TMRMS) /* 500 msec */
+#define STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)	/* 500 msec */
 
 /*
  * BOOTP options
