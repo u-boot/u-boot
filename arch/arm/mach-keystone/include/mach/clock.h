@@ -118,6 +118,7 @@ unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
 int clk_set_rate(unsigned int clk, unsigned long hz);
 int get_max_dev_speed(void);
 int get_max_arm_speed(void);
+void pll_pa_clk_sel(void);
 
 #endif
 #endif

@@ -14,6 +14,7 @@
 #include <fdt_support.h>
 #include <asm/arch/ddr3.h>
 #include <asm/arch/psc_defs.h>
+#include <asm/arch/clock.h>
 #include <asm/ti-common/ti-aemif.h>
 #include <asm/ti-common/keystone_net.h>
 
@@ -80,6 +81,9 @@ int board_eth_init(bd_t *bis)
 		return -1;
 	if (psc_enable_module(KS2_LPSC_CRYPTO))
 		return -1;
+
+	if (cpu_is_k2e() || cpu_is_k2l())
+		pll_pa_clk_sel();
 
 	port_num = get_num_eth_ports();
 
