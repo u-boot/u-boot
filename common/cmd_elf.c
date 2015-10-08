@@ -257,68 +257,83 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/*
 	 * Use bootaddr to find the location in memory that VxWorks
-	 * will look for the bootline string. The default value for
-	 * PowerPC is LOCAL_MEM_LOCAL_ADRS + BOOT_LINE_OFFSET which
-	 * defaults to 0x4200.
+	 * will look for the bootline string. The default value is
+	 * (LOCAL_MEM_LOCAL_ADRS + BOOT_LINE_OFFSET) as defined by
+	 * VxWorks BSP. For example, on PowerPC it defaults to 0x4200.
 	 */
 	tmp = getenv("bootaddr");
-	if (!tmp)
-		bootaddr = CONFIG_SYS_VXWORKS_BOOT_ADDR;
-	else
+	if (!tmp) {
+		printf("## VxWorks bootline address not specified\n");
+	} else {
 		bootaddr = simple_strtoul(tmp, NULL, 16);
 
-	/*
-	 * Check to see if the bootline is defined in the 'bootargs'
-	 * parameter. If it is not defined, we may be able to
-	 * construct the info.
-	 */
-	bootline = getenv("bootargs");
-	if (bootline) {
-		memcpy((void *)bootaddr, bootline,
-		       max(strlen(bootline), (size_t)255));
-		flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
-	} else {
-		ptr = sprintf(build_buf, CONFIG_SYS_VXWORKS_BOOT_DEVICE);
-		tmp = getenv("bootfile");
-		if (tmp)
-			ptr += sprintf(build_buf + ptr, "%s:%s ",
-				       CONFIG_SYS_VXWORKS_SERVERNAME, tmp);
-		else
-			ptr += sprintf(build_buf + ptr, "%s:file ",
-				       CONFIG_SYS_VXWORKS_SERVERNAME);
+		/*
+		 * Check to see if the bootline is defined in the 'bootargs'
+		 * parameter. If it is not defined, we may be able to
+		 * construct the info.
+		 */
+		bootline = getenv("bootargs");
+		if (bootline) {
+			memcpy((void *)bootaddr, bootline,
+			       max(strlen(bootline), (size_t)255));
+			flush_cache(bootaddr, max(strlen(bootline),
+						  (size_t)255));
+		} else {
+			tmp = getenv("bootdev");
+			if (tmp)
+				ptr = sprintf(build_buf, tmp);
+			else
+				printf("## VxWorks boot device not specified\n");
 
-		tmp = getenv("ipaddr");
-		if (tmp) {
-			ptr += sprintf(build_buf + ptr, "e=%s", tmp);
-			tmp = getenv("netmask");
+			tmp = getenv("bootfile");
+			if (tmp)
+				ptr += sprintf(build_buf + ptr,
+					       "host:%s ", tmp);
+			else
+				ptr += sprintf(build_buf + ptr,
+					       "host:vxWorks ");
+
+			/*
+			 * The following parameters are only needed if 'bootdev'
+			 * is an ethernet device, otherwise they are optional.
+			 */
+			tmp = getenv("ipaddr");
 			if (tmp) {
-				__be32 addr = getenv_ip("netmask").s_addr;
-				ptr += sprintf(build_buf + ptr, ":%08x ",
-					       ntohl(addr));
-			} else {
-				ptr += sprintf(build_buf + ptr, " ");
+				ptr += sprintf(build_buf + ptr, "e=%s", tmp);
+				tmp = getenv("netmask");
+				if (tmp) {
+					u32 mask = getenv_ip("netmask").s_addr;
+					ptr += sprintf(build_buf + ptr,
+						       ":%08x ", ntohl(mask));
+				} else {
+					ptr += sprintf(build_buf + ptr, " ");
+				}
 			}
+
+			tmp = getenv("serverip");
+			if (tmp)
+				ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
+
+			tmp = getenv("gatewayip");
+			if (tmp)
+				ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
+
+			tmp = getenv("hostname");
+			if (tmp)
+				ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
+
+			tmp = getenv("othbootargs");
+			if (tmp)
+				ptr += sprintf(build_buf + ptr, tmp);
+
+			memcpy((void *)bootaddr, build_buf,
+			       max(strlen(build_buf), (size_t)255));
+			flush_cache(bootaddr, max(strlen(build_buf),
+						  (size_t)255));
 		}
 
-		tmp = getenv("serverip");
-		if (tmp)
-			ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
-
-		tmp = getenv("gatewayip");
-		if (tmp)
-			ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
-
-		tmp = getenv("hostname");
-		if (tmp)
-			ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
-
-#ifdef CONFIG_SYS_VXWORKS_ADD_PARAMS
-		ptr += sprintf(build_buf + ptr, CONFIG_SYS_VXWORKS_ADD_PARAMS);
-#endif
-
-		memcpy((void *)bootaddr, build_buf,
-		       max(strlen(build_buf), (size_t)255));
-		flush_cache(bootaddr, max(strlen(build_buf), (size_t)255));
+		printf("## Using bootline (@ 0x%lx): %s\n", bootaddr,
+		       (char *)bootaddr);
 	}
 
 	/*
@@ -331,8 +346,6 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	else
 		puts("## Not an ELF image, assuming binary\n");
 
-	printf("## Using bootline (@ 0x%lx): %s\n", bootaddr,
-	       (char *)bootaddr);
 	printf("## Starting vxWorks at 0x%08lx ...\n", addr);
 
 	dcache_disable();
