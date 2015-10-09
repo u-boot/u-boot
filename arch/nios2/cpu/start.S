@@ -9,6 +9,15 @@
 #include <config.h>
 #include <version.h>
 
+/*
+ * icache and dcache configuration used only for start.S.
+ * the values are chosen so that it will work for all configuration.
+ */
+#define ICACHE_LINE_SIZE	32 /* fixed 32 */
+#define ICACHE_SIZE_MAX		0x10000 /* 64k max */
+#define DCACHE_LINE_SIZE_MIN	4 /* 4, 16, 32 */
+#define DCACHE_SIZE_MAX		0x10000 /* 64k max */
+
 	/* RESTART */
 	.text
 	.global _start
@@ -22,9 +31,9 @@ _start:
 	 * just be invalidating the cache a second time. If cache
 	 * is not implemented initi behaves as nop.
 	 */
-	ori	r4, r0, %lo(CONFIG_SYS_ICACHELINE_SIZE)
-	movhi	r5, %hi(CONFIG_SYS_ICACHE_SIZE)
-	ori	r5, r5, %lo(CONFIG_SYS_ICACHE_SIZE)
+	ori	r4, r0, %lo(ICACHE_LINE_SIZE)
+	movhi	r5, %hi(ICACHE_SIZE_MAX)
+	ori	r5, r5, %lo(ICACHE_SIZE_MAX)
 0:	initi	r5
 	sub	r5, r5, r4
 	bgt	r5, r0, 0b
@@ -51,10 +60,9 @@ _except_end:
 	 * DCACHE INIT -- if dcache not implemented, initd behaves as
 	 * nop.
 	 */
-	movhi	r4, %hi(CONFIG_SYS_DCACHELINE_SIZE)
-	ori	r4, r4, %lo(CONFIG_SYS_DCACHELINE_SIZE)
-	movhi	r5, %hi(CONFIG_SYS_DCACHE_SIZE)
-	ori	r5, r5, %lo(CONFIG_SYS_DCACHE_SIZE)
+	ori	r4, r0, %lo(DCACHE_LINE_SIZE_MIN)
+	movhi	r5, %hi(DCACHE_SIZE_MAX)
+	ori	r5, r5, %lo(DCACHE_SIZE_MAX)
 	mov	r6, r0
 1:	initd	0(r6)
 	add	r6, r6, r4
