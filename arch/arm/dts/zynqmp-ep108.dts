@@ -11,6 +11,7 @@
 /dts-v1/;
 
 /include/ "zynqmp.dtsi"
+/include/ "zynqmp-ep108-clk.dtsi"
 
 / {
 	model = "ZynqMP EP108";
@@ -162,4 +163,12 @@
 
 &watchdog0 {
 	status = "okay";
+};
+
+&xlnx_dp {
+	xlnx,max-pclock-frequency = <200000>;
+};
+
+&xlnx_dpdma {
+	xlnx,axi-clock-freq = <200000000>;
 };

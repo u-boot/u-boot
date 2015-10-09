@@ -95,7 +95,6 @@
 		can0: can@ff060000 {
 			compatible = "xlnx,zynq-can-1.0";
 			status = "disabled";
-			clocks = <&misc_clk &misc_clk>;
 			clock-names = "can_clk", "pclk";
 			reg = <0x0 0xff060000 0x1000>;
 			interrupts = <0 23 4>;
@@ -107,7 +106,6 @@
 		can1: can@ff070000 {
 			compatible = "xlnx,zynq-can-1.0";
 			status = "disabled";
-			clocks = <&misc_clk &misc_clk>;
 			clock-names = "can_clk", "pclk";
 			reg = <0x0 0xff070000 0x1000>;
 			interrupts = <0 24 4>;
@@ -287,13 +285,6 @@
 			xlnx,bus-width = <64>;
 		};
 
-		misc_clk: misc_clk {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <25000000>;
-		};
-
-
 		nand0: nand@ff100000 {
 			compatible = "arasan,nfc-v3p10";
 			status = "disabled";
@@ -312,7 +303,6 @@
 			interrupts = <0 57 4>, <0 57 4>;
 			reg = <0x0 0xff0b0000 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
-			clocks = <&misc_clk>, <&misc_clk>, <&misc_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			jumbo-max-len = <10240>;
@@ -326,7 +316,6 @@
 			interrupts = <0 59 4>, <0 59 4>;
 			reg = <0x0 0xff0c0000 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
-			clocks = <&misc_clk>, <&misc_clk>, <&misc_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			jumbo-max-len = <10240>;
@@ -340,7 +329,6 @@
 			interrupts = <0 61 4>, <0 61 4>;
 			reg = <0x0 0xff0d0000 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
-			clocks = <&misc_clk>, <&misc_clk>, <&misc_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			jumbo-max-len = <10240>;
@@ -354,7 +342,6 @@
 			interrupts = <0 63 4>, <0 63 4>;
 			reg = <0x0 0xff0e0000 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
-			clocks = <&misc_clk>, <&misc_clk>, <&misc_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			jumbo-max-len = <10240>;
@@ -365,16 +352,9 @@
 			compatible = "xlnx,zynqmp-gpio-1.0";
 			status = "disabled";
 			#gpio-cells = <0x2>;
-			clocks = <&misc_clk>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 16 4>;
 			reg = <0x0 0xff0a0000 0x1000>;
-		};
-
-		i2c_clk: i2c_clk {
-			compatible = "fixed-clock";
-			#clock-cells = <0x0>;
-			clock-frequency = <111111111>;
 		};
 
 		i2c0: i2c@ff020000 {
@@ -383,7 +363,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 17 4>;
 			reg = <0x0 0xff020000 0x1000>;
-			clocks = <&i2c_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -394,7 +373,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 18 4>;
 			reg = <0x0 0xff030000 0x1000>;
-			clocks = <&i2c_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -403,7 +381,6 @@
 			compatible = "xlnx,zynqmp-qspi-1.0";
 			status = "disabled";
 			clock-names = "ref_clk", "pclk";
-			clocks = <&misc_clk &misc_clk>;
 			interrupts = <0 15 4>;
 			interrupt-parent = <&gic>;
 			num-cs = <1>;
@@ -421,19 +398,12 @@
 			interrupt-names = "alarm", "sec";
 		};
 
-		sata_clk: sata_clk {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <75000000>;
-		};
-
 		sata: ahci@fd0c0000 {
 			compatible = "ceva,ahci-1v84";
 			status = "disabled";
 			reg = <0x0 0xfd0c0000 0x2000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 133 4>;
-			clocks = <&sata_clk>;
 		};
 
 		sdhci0: sdhci@ff160000 {
@@ -443,7 +413,6 @@
 			interrupts = <0 48 4>;
 			reg = <0x0 0xff160000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
-			clocks = <&misc_clk>, <&misc_clk>;
 		};
 
 		sdhci1: sdhci@ff170000 {
@@ -453,7 +422,6 @@
 			interrupts = <0 49 4>;
 			reg = <0x0 0xff170000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
-			clocks = <&misc_clk>, <&misc_clk>;
 		};
 
 		smmu: smmu@fd800000 {
@@ -475,7 +443,6 @@
 			interrupts = <0 19 4>;
 			reg = <0x0 0xff040000 0x1000>;
 			clock-names = "ref_clk", "pclk";
-			clocks = <&misc_clk &misc_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -487,7 +454,6 @@
 			interrupts = <0 20 4>;
 			reg = <0x0 0xff050000 0x1000>;
 			clock-names = "ref_clk", "pclk";
-			clocks = <&misc_clk &misc_clk>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -498,7 +464,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 36 4>, <0 37 4>, <0 38 4>;
 			reg = <0x0 0xff110000 0x1000>;
-			clocks = <&misc_clk>;
 			timer-width = <32>;
 		};
 
@@ -508,7 +473,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 39 4>, <0 40 4>, <0 41 4>;
 			reg = <0x0 0xff120000 0x1000>;
-			clocks = <&misc_clk>;
 			timer-width = <32>;
 		};
 
@@ -518,7 +482,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 42 4>, <0 43 4>, <0 44 4>;
 			reg = <0x0 0xff130000 0x1000>;
-			clocks = <&misc_clk>;
 			timer-width = <32>;
 		};
 
@@ -528,7 +491,6 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 45 4>, <0 46 4>, <0 47 4>;
 			reg = <0x0 0xff140000 0x1000>;
-			clocks = <&misc_clk>;
 			timer-width = <32>;
 		};
 
@@ -539,7 +501,6 @@
 			interrupts = <0 21 4>;
 			reg = <0x0 0xff000000 0x1000>;
 			clock-names = "uart_clk", "pclk";
-			clocks = <&misc_clk &misc_clk>;
 		};
 
 		uart1: serial@ff010000 {
@@ -549,7 +510,6 @@
 			interrupts = <0 22 4>;
 			reg = <0x0 0xff010000 0x1000>;
 			clock-names = "uart_clk", "pclk";
-			clocks = <&misc_clk &misc_clk>;
 		};
 
 		usb0: usb@fe200000 {
@@ -559,7 +519,6 @@
 			interrupts = <0 65 4>;
 			reg = <0x0 0xfe200000 0x40000>;
 			clock-names = "clk_xin", "clk_ahb";
-			clocks = <&misc_clk>, <&misc_clk>;
 		};
 
 		usb1: usb@fe300000 {
@@ -569,13 +528,11 @@
 			interrupts = <0 70 4>;
 			reg = <0x0 0xfe300000 0x40000>;
 			clock-names = "clk_xin", "clk_ahb";
-			clocks = <&misc_clk>, <&misc_clk>;
 		};
 
 		watchdog0: watchdog@fd4d0000 {
 			compatible = "cdns,wdt-r1p2";
 			status = "disabled";
-			clocks= <&misc_clk>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 52 1>;
 			reg = <0x0 0xfd4d0000 0x1000>;
@@ -586,7 +543,6 @@
 			compatible = "xlnx,drm";
 			status = "disabled";
 			xlnx,encoder-slave = <&xlnx_dp>;
-			clocks = <&misc_clk>; /* FIXME it will be different  316 663 000 - dc2 hw design */
 			xlnx,connector-type = "DisplayPort";
 			xlnx,dp-sub = <&xlnx_dp_sub>;
 			planes {
@@ -602,33 +558,17 @@
 			};
 		};
 
-		dp_aclk: clock0 {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <50000000>; /* 316 663 000 DC2 hw design */
-			clock-accuracy = <100>;
-		};
-
-		dp_aud_clk: clock1 {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <22579200>; /* 2483600 DC2 hw design */
-			clock-accuracy = <100>;
-		};
-
 		xlnx_dp: dp@43c00000 {
 			compatible = "xlnx,v-dp";
 			status = "disabled";
 			reg = <0x0 0xfd4a0000 0x1000>;
 			interrupts = <0 119 4>;
 			interrupt-parent = <&gic>;
-			clocks = <&dp_aclk>, <&dp_aud_clk>;
 			clock-names = "aclk", "aud_clk";
 			xlnx,dp-version = "v1.2";
 			xlnx,max-lanes = <2>;
 			xlnx,max-link-rate = <540000>;
 			xlnx,max-bpc = <16>;
-			xlnx,max-pclock-frequency = <200000>;
 			xlnx,enable-ycrcb;
 			xlnx,colormetry = "rgb";
 			xlnx,bpc = <8>;
@@ -646,7 +586,6 @@
 		xlnx_dp_snd_codec0: dp_snd_codec0 {
 			compatible = "xlnx,dp-snd-codec";
 			status = "disabled";
-			clocks = <&dp_aud_clk>;
 			clock-names = "aud_clk";
 		};
 
@@ -678,9 +617,7 @@
 			reg = <0x0 0xfd4c0000 0x1000>;
 			interrupts = <0 122 4>;
 			interrupt-parent = <&gic>;
-			clocks = <&misc_clk>;
 			clock-names = "axi_clk";
-			xlnx,axi-clock-freq = <200000000>;
 			dma-channels = <6>;
 			#dma-cells = <1>;
 			dma-video0channel@43c10000 {
