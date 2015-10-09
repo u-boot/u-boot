@@ -41,6 +41,8 @@
 #error "Unknown board variant"
 #endif
 
+#define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
+
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 
