@@ -196,7 +196,7 @@ struct sh_mmcif_regs {
 #define SOFT_RST_OFF		(0 << 31)
 
 #define CLKDEV_EMMC_DATA	52000000	/* 52MHz */
-#ifdef CONFIG_RMOBILE
+#ifdef CONFIG_ARCH_RMOBILE
 #define MMC_CLK_DIV_MIN(clk)	(clk / (1 << 9))
 #define MMC_CLK_DIV_MAX(clk)	(clk / (1 << 1))
 #else

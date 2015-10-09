@@ -1,4 +1,4 @@
-if RMOBILE
+if ARCH_RMOBILE
 
 choice
 	prompt "Renesus ARM SoCs board select"

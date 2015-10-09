@@ -575,9 +575,11 @@ config AM43XX
 	  protocols, dual camera support, optional 3D graphics
 	  and an optional customer programmable secure boot.
 
-config RMOBILE
+config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
 	select CPU_V7
+	select DM
+	select DM_SERIAL
 
 config TARGET_S32V234EVB
 	bool "Support s32v234evb"
