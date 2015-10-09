@@ -200,6 +200,7 @@
 				"rootwait "\
 				"earlyprintk=pl011,0x7ff80000 debug "\
 				"user_debug=31 "\
+				"androidboot.hardware=juno "\
 				"loglevel=9"
 
 /* Copy the kernel and FDT to DRAM memory and boot */
