@@ -189,6 +189,8 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=Image\0"	\
 				"kernel_addr=0x80000000\0" \
+				"initrd_name=ramdisk.img\0"	\
+				"initrd_addr=0x84000000\0"	\
 				"fdt_name=juno\0" \
 				"fdt_addr=0x83000000\0" \
 				"fdt_high=0xffffffffffffffff\0" \
@@ -207,7 +209,12 @@
 #define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr} ; " \
 				"afs load  ${fdt_name} ${fdt_addr} ; " \
 				"fdt addr ${fdt_addr}; fdt resize; " \
-				"booti ${kernel_addr} - ${fdt_addr}"
+				"if afs load  ${initrd_name} ${initrd_addr} ; "\
+				"then "\
+				"  setenv initrd_param ${initrd_addr}; "\
+				"  else setenv initrd_param -; "\
+				"fi ; " \
+				"booti ${kernel_addr} ${initrd_param} ${fdt_addr}"
 
 #define CONFIG_BOOTDELAY		1
 
