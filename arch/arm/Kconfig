@@ -879,7 +879,7 @@ source "arch/arm/cpu/armv7/omap-common/Kconfig"
 
 source "arch/arm/mach-orion5x/Kconfig"
 
-source "arch/arm/cpu/armv7/rmobile/Kconfig"
+source "arch/arm/mach-rmobile/Kconfig"
 
 source "arch/arm/mach-meson/Kconfig"
 
