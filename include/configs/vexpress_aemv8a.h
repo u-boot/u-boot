@@ -194,7 +194,8 @@
 #define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 " \
 				"root=/dev/sda1 rw " \
 				"rootwait "\
-				"earlyprintk=pl011,0x7ff80000 debug user_debug=31 "\
+				"earlyprintk=pl011,0x7ff80000 debug "\
+				"user_debug=31 "\
 				"loglevel=9"
 
 /* Copy the kernel and FDT to DRAM memory and boot */
@@ -222,7 +223,8 @@
 
 #define CONFIG_BOOTCOMMAND	"smhload ${kernel_name} ${kernel_addr}; " \
 				"smhload ${fdt_name} ${fdt_addr}; " \
-				"smhload ${initrd_name} ${initrd_addr} initrd_end; " \
+				"smhload ${initrd_name} ${initrd_addr} "\
+				"initrd_end; " \
 				"fdt addr ${fdt_addr}; fdt resize; " \
 				"fdt chosen ${initrd_addr} ${initrd_end}; " \
 				"booti $kernel_addr - $fdt_addr"
