@@ -187,11 +187,13 @@
  * be copied into DRAM
  */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-				"kernel_name=Image\0"	\
+				"kernel_name=norkern\0"	\
+				"kernel_alt_name=Image\0"	\
 				"kernel_addr=0x80000000\0" \
 				"initrd_name=ramdisk.img\0"	\
 				"initrd_addr=0x84000000\0"	\
-				"fdt_name=juno\0" \
+				"fdt_name=board.dtb\0" \
+				"fdt_alt_name=juno\0" \
 				"fdt_addr=0x83000000\0" \
 				"fdt_high=0xffffffffffffffff\0" \
 				"initrd_high=0xffffffffffffffff\0" \
@@ -207,7 +209,17 @@
 
 /* Copy the kernel and FDT to DRAM memory and boot */
 #define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr} ; " \
+				"if test $? -eq 1; then "\
+				"  echo Loading ${kernel_alt_name} instead of "\
+				"${kernel_name}; "\
+				"  afs load ${kernel_alt_name} ${kernel_addr};"\
+				"fi ; "\
 				"afs load  ${fdt_name} ${fdt_addr} ; " \
+				"if test $? -eq 1; then "\
+				"  echo Loading ${fdt_alt_name} instead of "\
+				"${fdt_name}; "\
+				"  afs load ${fdt_alt_name} ${fdt_addr}; "\
+				"fi ; "\
 				"fdt addr ${fdt_addr}; fdt resize; " \
 				"if afs load  ${initrd_name} ${initrd_addr} ; "\
 				"then "\
