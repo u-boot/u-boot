@@ -48,6 +48,7 @@ obj-y += pcmcia/
 obj-y += dfu/
 obj-y += rtc/
 obj-y += sound/
+obj-y += timer/
 obj-y += tpm/
 obj-y += twserial/
 obj-y += video/
