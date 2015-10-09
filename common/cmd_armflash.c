@@ -175,7 +175,7 @@ static void parse_flash(void)
 		parse_bank(bank);
 }
 
-static void load_image(const char * const name, const ulong address)
+static int load_image(const char * const name, const ulong address)
 {
 	struct afs_image *afi = NULL;
 	int i;
@@ -191,7 +191,7 @@ static void load_image(const char * const name, const ulong address)
 	}
 	if (!afi) {
 		printf("image \"%s\" not found in flash\n", name);
-		return;
+		return CMD_RET_FAILURE;
 	}
 
 	for (i = 0; i < afi->region_count; i++) {
@@ -204,7 +204,7 @@ static void load_image(const char * const name, const ulong address)
 			to = afi->regions[i].load_address;
 		} else {
 			printf("no valid load address\n");
-			return;
+			return CMD_RET_FAILURE;
 		}
 
 		memcpy((void *)to, (void *)from, afi->regions[i].size);
@@ -215,6 +215,7 @@ static void load_image(const char * const name, const ulong address)
 		       to,
 		       afi->regions[i].size);
 	}
+	return CMD_RET_SUCCESS;
 }
 
 static void print_images(void)
@@ -274,12 +275,12 @@ static int do_afs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	} else if (argc == 3 && !strcmp(argv[1], "exists")) {
 		ret = exists(argv[2]);
 	} else if (argc == 3 && !strcmp(argv[1], "load")) {
-		load_image(argv[2], 0x0);
+		ret = load_image(argv[2], 0x0);
 	} else if (argc == 4 && !strcmp(argv[1], "load")) {
 		ulong load_addr;
 
 		load_addr = simple_strtoul(argv[3], NULL, 16);
-		load_image(argv[2], load_addr);
+		ret = load_image(argv[2], load_addr);
 	} else {
 		return CMD_RET_USAGE;
 	}
