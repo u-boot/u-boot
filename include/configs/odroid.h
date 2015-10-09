@@ -108,11 +108,11 @@
  * 2.  ROOT:  -
 */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadkernel=fatload mmc ${mmcbootdev}:${mmcbootpart} ${kerneladdr} " \
+	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kerneladdr} " \
 		"${kernelname}\0" \
-	"loadinitrd=fatload mmc ${mmcbootdev}:${mmcbootpart} ${initrdaddr} " \
+	"loadinitrd=load mmc ${mmcbootdev}:${mmcbootpart} ${initrdaddr} " \
 		"${initrdname}\0" \
-	"loaddtb=fatload mmc ${mmcbootdev}:${mmcbootpart} ${fdtaddr} " \
+	"loaddtb=load mmc ${mmcbootdev}:${mmcbootpart} ${fdtaddr} " \
 		"${fdtfile}\0" \
 	"check_ramdisk=" \
 		"if run loadinitrd; then " \
