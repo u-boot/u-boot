@@ -25,7 +25,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	disable_interrupts();
 	/* indirect call to go beyond 256MB limitation of toolchain */
-	nios2_callr(CONFIG_SYS_RESET_ADDR);
+	nios2_callr(gd->arch.reset_addr);
 	return 0;
 }
 
