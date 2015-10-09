@@ -435,6 +435,22 @@ extern int soft_i2c_gpio_scl;
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
+#ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
+#define BOOTCMD_SUNXI_COMPAT \
+	"bootcmd_sunxi_compat=" \
+		"setenv root /dev/mmcblk0p3 rootwait; " \
+		"if ext2load mmc 0 0x44000000 uEnv.txt; then " \
+			"echo Loaded environment from uEnv.txt; " \
+			"env import -t 0x44000000 ${filesize}; " \
+		"fi; " \
+		"setenv bootargs console=${console} root=${root} ${extraargs}; " \
+		"ext2load mmc 0 0x43000000 script.bin && " \
+		"ext2load mmc 0 0x48000000 uImage && " \
+		"bootm 0x48000000\0"
+#else
+#define BOOTCMD_SUNXI_COMPAT
+#endif
+
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_USB_KEYBOARD
@@ -465,6 +481,7 @@ extern int soft_i2c_gpio_scl;
 	MEM_LAYOUT_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
+	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
 
 #else /* ifndef CONFIG_SPL_BUILD */
