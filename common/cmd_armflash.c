@@ -251,10 +251,28 @@ static void print_images(void)
 	}
 }
 
+static int exists(const char * const name)
+{
+	int i;
+
+	parse_flash();
+	for (i = 0; i < num_afs_images; i++) {
+		struct afs_image *afi = &afs_images[i];
+
+		if (strcmp(afi->name, name) == 0)
+			return CMD_RET_SUCCESS;
+	}
+	return CMD_RET_FAILURE;
+}
+
 static int do_afs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	int ret = CMD_RET_SUCCESS;
+
 	if (argc == 1) {
 		print_images();
+	} else if (argc == 3 && !strcmp(argv[1], "exists")) {
+		ret = exists(argv[2]);
 	} else if (argc == 3 && !strcmp(argv[1], "load")) {
 		load_image(argv[2], 0x0);
 	} else if (argc == 4 && !strcmp(argv[1], "load")) {
@@ -266,12 +284,14 @@ static int do_afs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 	}
 
-	return 0;
+	return ret;
 }
 
 U_BOOT_CMD(afs, 4, 0, do_afs, "show AFS partitions",
 	   "no arguments\n"
 	   "    - list images in flash\n"
+	   "exists <image>\n"
+	   "    - returns 1 if an image exists, else 0\n"
 	   "load <image>\n"
 	   "    - load an image to the location indicated in the header\n"
 	   "load <image> 0x<address>\n"
