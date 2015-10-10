@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
+ * Copyright (C) 2014-2015, Bin Meng <bmeng.cn@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <command.h>
-#include <linux/compiler.h>
 #include <asm/fsp/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -26,7 +25,7 @@ static char *hob_type[] = {
 	"Capsule",
 };
 
-int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const struct hob_header *hdr;
 	uint type;
@@ -74,8 +73,30 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+static cmd_tbl_t fsp_commands[] = {
+	U_BOOT_CMD_MKENT(hob, 0, 1, do_hob, "", ""),
+};
+
+static int do_fsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	cmd_tbl_t *fsp_cmd;
+	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	fsp_cmd = find_cmd_tbl(argv[1], fsp_commands, ARRAY_SIZE(fsp_commands));
+	argc -= 2;
+	argv += 2;
+	if (!fsp_cmd || argc > fsp_cmd->maxargs)
+		return CMD_RET_USAGE;
+
+	ret = fsp_cmd->cmd(fsp_cmd, flag, argc, argv);
+
+	return cmd_process_error(fsp_cmd, ret);
+}
+
 U_BOOT_CMD(
-	hob,	1,	1,	do_hob,
-	"print Firmware Support Package (FSP) Hand-Off Block information",
-	""
+	fsp,	2,	1,	do_fsp,
+	"Show Intel Firmware Support Package (FSP) related information",
+	"hob - Print FSP Hand-Off Block (HOB) information"
 );
