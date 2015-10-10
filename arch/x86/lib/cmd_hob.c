@@ -14,16 +14,16 @@ DECLARE_GLOBAL_DATA_PTR;
 static char *hob_type[] = {
 	"reserved",
 	"Hand-off",
-	"Memory Allocation",
-	"Resource Descriptor",
-	"GUID Extension",
-	"Firmware Volume",
+	"Mem Alloc",
+	"Res Desc",
+	"GUID Ext",
+	"FV",
 	"CPU",
-	"Memory Pool",
+	"Mem Pool",
 	"reserved",
-	"Firmware Volume 2",
-	"Load PEIM Unused",
-	"UEFI Capsule",
+	"FV2",
+	"Load PEIM",
+	"Capsule",
 };
 
 int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -37,20 +37,20 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	printf("HOB list address: 0x%08x\n\n", (unsigned int)hdr);
 
-	printf("No. | Address  | Type                | Length in Bytes\n");
-	printf("----|----------|---------------------|----------------\n");
+	printf("#  | Address  | Type      | Len\n");
+	printf("---|----------|-----------|-----\n");
 	while (!end_of_hob(hdr)) {
-		printf("%-3d | %08x | ", i, (unsigned int)hdr);
+		printf("%-2d | %08x | ", i, (unsigned int)hdr);
 		type = hdr->type;
 		if (type == HOB_TYPE_UNUSED)
 			desc = "*Unused*";
 		else if (type == HOB_TYPE_EOH)
-			desc = "*END OF HOB*";
+			desc = "*EOH*";
 		else if (type >= 0 && type <= ARRAY_SIZE(hob_type))
 			desc = hob_type[type];
 		else
-			desc = "*Invalid Type*";
-		printf("%-19s | %-15d\n", desc, hdr->len);
+			desc = "*Invalid*";
+		printf("%-9s | %-4d\n", desc, hdr->len);
 		hdr = get_next_hob(hdr);
 		i++;
 	}
