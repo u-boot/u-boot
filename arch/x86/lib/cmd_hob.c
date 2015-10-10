@@ -37,8 +37,10 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	printf("HOB list address: 0x%08x\n\n", (unsigned int)hdr);
 
-	printf("#  | Address  | Type      | Len\n");
-	printf("---|----------|-----------|-----\n");
+	printf("#  | Address  | Type      | Len  | ");
+	printf("%42s\n", "GUID");
+	printf("---|----------|-----------|------|-");
+	printf("------------------------------------------\n");
 	while (!end_of_hob(hdr)) {
 		printf("%-2d | %08x | ", i, (unsigned int)hdr);
 		type = hdr->type;
@@ -50,7 +52,21 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			desc = hob_type[type];
 		else
 			desc = "*Invalid*";
-		printf("%-9s | %-4d\n", desc, hdr->len);
+		printf("%-9s | %-4d | ", desc, hdr->len);
+
+		if (type == HOB_TYPE_MEM_ALLOC || type == HOB_TYPE_RES_DESC ||
+		    type == HOB_TYPE_GUID_EXT) {
+			struct efi_guid *guid = (struct efi_guid *)(hdr + 1);
+			int j;
+
+			printf("%08x-%04x-%04x", guid->data1,
+			       guid->data2, guid->data3);
+			for (j = 0; j < ARRAY_SIZE(guid->data4); j++)
+				printf("-%02x", guid->data4[j]);
+		} else {
+			printf("%42s", "Not Available");
+		}
+		printf("\n");
 		hdr = get_next_hob(hdr);
 		i++;
 	}
