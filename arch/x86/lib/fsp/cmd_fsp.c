@@ -25,6 +25,34 @@ static char *hob_type[] = {
 	"Capsule",
 };
 
+static int do_hdr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct fsp_header *hdr = find_fsp_header();
+	u32 img_addr = hdr->img_base;
+	char *sign = (char *)&hdr->sign;
+	int i;
+
+	printf("FSP    : binary 0x%08x, header 0x%08x\n",
+	       CONFIG_FSP_ADDR, (int)hdr);
+	printf("Header : sign ");
+	for (i = 0; i < sizeof(hdr->sign); i++)
+		printf("%c", *sign++);
+	printf(", size %d, rev %d\n", hdr->hdr_len, hdr->hdr_rev);
+	printf("Image  : rev %d.%d, id ",
+	       (hdr->img_rev >> 8) & 0xff, hdr->img_rev & 0xff);
+	for (i = 0; i < ARRAY_SIZE(hdr->img_id); i++)
+		printf("%c", hdr->img_id[i]);
+	printf(", addr 0x%08x, size %d\n", img_addr, hdr->img_size);
+	printf("VPD    : addr 0x%08x, size %d\n",
+	       hdr->cfg_region_off + img_addr, hdr->cfg_region_size);
+	printf("\nNumber of APIs Supported : %d\n", hdr->api_num);
+	printf("\tTempRamInit : 0x%08x\n", hdr->fsp_tempram_init + img_addr);
+	printf("\tFspInit     : 0x%08x\n", hdr->fsp_init + img_addr);
+	printf("\tFspNotify   : 0x%08x\n", hdr->fsp_notify + img_addr);
+
+	return 0;
+}
+
 static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const struct hob_header *hdr;
@@ -74,6 +102,7 @@ static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 static cmd_tbl_t fsp_commands[] = {
+	U_BOOT_CMD_MKENT(hdr, 0, 1, do_hdr, "", ""),
 	U_BOOT_CMD_MKENT(hob, 0, 1, do_hob, "", ""),
 };
 
@@ -98,5 +127,6 @@ static int do_fsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	fsp,	2,	1,	do_fsp,
 	"Show Intel Firmware Support Package (FSP) related information",
-	"hob - Print FSP Hand-Off Block (HOB) information"
+	"hdr - Print FSP header information\n"
+	"fsp hob - Print FSP Hand-Off Block (HOB) information"
 );
