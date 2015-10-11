@@ -602,7 +602,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		}
 
 		tftp_prev_block = tftp_cur_block;
-		timeout_count_max = TIMEOUT_COUNT;
+		timeout_count_max = tftp_timeout_count_max;
 		net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
 
 		store_block(tftp_cur_block - 1, pkt + 2, len);
@@ -697,12 +697,14 @@ static void tftp_timeout_handler(void)
 
 void tftp_start(enum proto_t protocol)
 {
+#if CONFIG_NET_TFTP_VARS
 	char *ep;             /* Environment pointer */
 
 	/*
 	 * Allow the user to choose TFTP blocksize and timeout.
 	 * TFTP protocol has a minimal timeout of 1 second.
 	 */
+
 	ep = getenv("tftpblocksize");
 	if (ep != NULL)
 		tftp_block_size_option = simple_strtol(ep, NULL, 10);
@@ -716,6 +718,17 @@ void tftp_start(enum proto_t protocol)
 		       timeout_ms);
 		timeout_ms = 1000;
 	}
+
+	ep = getenv("tftptimeoutcountmax");
+	if (ep != NULL)
+		tftp_timeout_count_max = simple_strtol(ep, NULL, 10);
+
+	if (tftp_timeout_count_max < 0) {
+		printf("TFTP timeout count max (%d ms) negative, set to 0\n",
+		       tftp_timeout_count_max);
+		tftp_timeout_count_max = 0;
+	}
+#endif
 
 	debug("TFTP blocksize = %i, timeout = %ld ms\n",
 	      tftp_block_size_option, timeout_ms);
@@ -842,7 +855,7 @@ void tftp_start_server(void)
 
 	puts("Loading: *\b");
 
-	timeout_count_max = TIMEOUT_COUNT;
+	timeout_count_max = tftp_timeout_count_max;
 	timeout_count = 0;
 	timeout_ms = TIMEOUT;
 	net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
