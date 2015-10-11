@@ -1177,24 +1177,8 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 	struct usb_endpoint_descriptor *ep_desc;
 	unsigned int flags = 0;
 
-	int protocol = 0;
-	int subclass = 0;
-
 	/* let's examine the device now */
 	iface = &dev->config.if_desc[ifnum];
-
-#if 0
-	/* this is the place to patch some storage devices */
-	debug("iVendor %X iProduct %X\n", dev->descriptor.idVendor,
-			dev->descriptor.idProduct);
-
-	if ((dev->descriptor.idVendor) == 0x066b &&
-	    (dev->descriptor.idProduct) == 0x0103) {
-		debug("patched for E-USB\n");
-		protocol = US_PR_CB;
-		subclass = US_SC_UFI;	    /* an assumption */
-	}
-#endif
 
 	if (dev->descriptor.bDeviceClass != 0 ||
 			iface->desc.bInterfaceClass != USB_CLASS_MASS_STORAGE ||
@@ -1215,17 +1199,8 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 	ss->ifnum = ifnum;
 	ss->pusb_dev = dev;
 	ss->attention_done = 0;
-
-	/* If the device has subclass and protocol, then use that.  Otherwise,
-	 * take data from the specific interface.
-	 */
-	if (subclass) {
-		ss->subclass = subclass;
-		ss->protocol = protocol;
-	} else {
-		ss->subclass = iface->desc.bInterfaceSubClass;
-		ss->protocol = iface->desc.bInterfaceProtocol;
-	}
+	ss->subclass = iface->desc.bInterfaceSubClass;
+	ss->protocol = iface->desc.bInterfaceProtocol;
 
 	/* set the handler pointers based on the protocol */
 	debug("Transport: ");
