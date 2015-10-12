@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/sfi.h>
 #include <asm/mpspec.h>
+#include <asm/smbios.h>
 #include <asm/tables.h>
 #include <asm/acpi_table.h>
 
@@ -54,6 +55,10 @@ void write_tables(void)
 #endif
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	rom_table_end = write_acpi_tables(rom_table_end);
+	rom_table_end = ALIGN(rom_table_end, 1024);
+#endif
+#ifdef CONFIG_GENERATE_SMBIOS_TABLE
+	rom_table_end = write_smbios_table(rom_table_end);
 	rom_table_end = ALIGN(rom_table_end, 1024);
 #endif
 }

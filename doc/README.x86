@@ -764,7 +764,6 @@ TODO List
 - Audio
 - Chrome OS verified boot
 - SMI and ACPI support, to provide platform info and facilities to Linux
-- Desktop Management Interface (DMI) [15] support
 
 References
 ----------
@@ -782,4 +781,3 @@ References
 [12] http://events.linuxfoundation.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
 [13] http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
 [14] doc/device-tree-bindings/misc/intel,irq-router.txt
-[15] http://en.wikipedia.org/wiki/Desktop_Management_Interface
