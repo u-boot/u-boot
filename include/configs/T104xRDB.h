@@ -741,7 +741,9 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #ifdef CONFIG_FMAN_ENET
 #if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x03
-#elif defined(CONFIG_T1040D4RDB) || defined(CONFIG_T1042D4RDB)
+#elif defined(CONFIG_T1040D4RDB)
+#define CONFIG_SYS_SGMII1_PHY_ADDR             0x01
+#elif defined(CONFIG_T1042D4RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x02
 #define CONFIG_SYS_SGMII2_PHY_ADDR             0x03
 #define CONFIG_SYS_SGMII3_PHY_ADDR             0x01
