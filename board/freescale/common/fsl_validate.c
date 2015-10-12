@@ -246,7 +246,7 @@ static void fsl_secboot_image_verification_failure(void)
 	struct ccsr_sfp_regs *sfp_regs = (void *)(CONFIG_SYS_SFP_ADDR);
 	u32 sts = sec_mon_in32(&sec_mon_regs->hp_stat);
 
-	u32 its = sfp_in32(&sfp_regs->ospr) & ITS_MASK >> ITS_BIT;
+	u32 its = (sfp_in32(&sfp_regs->ospr) & ITS_MASK) >> ITS_BIT;
 
 	/*
 	 * Read the SEC_MON status register
