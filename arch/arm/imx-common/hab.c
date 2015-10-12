@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <config.h>
+#include <fuse.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/arch/clock.h>
@@ -260,11 +262,16 @@ uint8_t hab_engines[16] = {
 
 bool is_hab_enabled(void)
 {
-	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
-	struct fuse_bank *bank = &ocotp->bank[0];
-	struct fuse_bank0_regs *fuse =
-		(struct fuse_bank0_regs *)bank->fuse_regs;
-	uint32_t reg = readl(&fuse->cfg5);
+	struct imx_sec_config_fuse_t *fuse =
+		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
+	uint32_t reg;
+	int ret;
+
+	ret = fuse_read(fuse->bank, fuse->word, &reg);
+	if (ret) {
+		puts("\nSecure boot fuse read error\n");
+		return ret;
+	}
 
 	return (reg & 0x2) == 0x2;
 }
