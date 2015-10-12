@@ -7,9 +7,9 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/system.h>
-#include <asm/arch/hab.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/imx-common/hab.h>
 
 /* -------- start of HAB API updates ------------*/
 
