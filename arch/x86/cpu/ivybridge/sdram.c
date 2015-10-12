@@ -89,42 +89,6 @@ void dram_init_banksize(void)
 	}
 }
 
-static int get_mrc_entry(struct udevice **devp, struct fmap_entry *entry)
-{
-	const void *blob = gd->fdt_blob;
-	int node, spi_node, mrc_node;
-	int upto;
-	int ret;
-
-	/* Find the flash chip within the SPI controller node */
-	upto = 0;
-	spi_node = fdtdec_next_alias(blob, "spi", COMPAT_INTEL_ICH_SPI, &upto);
-	if (spi_node < 0)
-		return -ENOENT;
-	node = fdt_first_subnode(blob, spi_node);
-	if (node < 0)
-		return -ECHILD;
-
-	/* Find the place where we put the MRC cache */
-	mrc_node = fdt_subnode_offset(blob, node, "rw-mrc-cache");
-	if (mrc_node < 0)
-		return -EPERM;
-
-	if (fdtdec_read_fmap_entry(blob, mrc_node, "rm-mrc-cache", entry))
-		return -EINVAL;
-
-	if (devp) {
-		debug("getting sf\n");
-		ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
-						     devp);
-		debug("ret = %d\n", ret);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-
 static int read_seed_from_cmos(struct pei_data *pei_data)
 {
 	u16 c1, c2, checksum, seed_checksum;
@@ -180,7 +144,7 @@ static int prepare_mrc_cache(struct pei_data *pei_data)
 	ret = read_seed_from_cmos(pei_data);
 	if (ret)
 		return ret;
-	ret = get_mrc_entry(NULL, &entry);
+	ret = mrccache_get_region(NULL, &entry);
 	if (ret)
 		return ret;
 	mrc_cache = mrccache_find_current(&entry);
@@ -198,32 +162,6 @@ static int prepare_mrc_cache(struct pei_data *pei_data)
 	debug("%s: at %p, size %x checksum %04x\n", __func__,
 	      pei_data->mrc_input, pei_data->mrc_input_len,
 	      mrc_cache->checksum);
-
-	return 0;
-}
-
-static int build_mrc_data(struct mrc_data_container **datap)
-{
-	struct mrc_data_container *data;
-	int orig_len;
-	int output_len;
-
-	orig_len = gd->arch.mrc_output_len;
-	output_len = ALIGN(orig_len, 16);
-	data = malloc(output_len + sizeof(*data));
-	if (!data)
-		return -ENOMEM;
-	data->signature = MRC_DATA_SIGNATURE;
-	data->data_size = output_len;
-	data->reserved = 0;
-	memcpy(data->data, gd->arch.mrc_output, orig_len);
-
-	/* Zero the unused space in aligned buffer. */
-	if (output_len > orig_len)
-		memset(data->data + orig_len, 0, output_len - orig_len);
-
-	data->checksum = compute_ip_checksum(data->data, output_len);
-	*datap = data;
 
 	return 0;
 }
@@ -262,42 +200,12 @@ static int write_seeds_to_cmos(struct pei_data *pei_data)
 	return 0;
 }
 
-static int sdram_save_mrc_data(void)
-{
-	struct mrc_data_container *data;
-	struct fmap_entry entry;
-	struct udevice *sf;
-	int ret;
-
-	if (!gd->arch.mrc_output_len)
-		return 0;
-	debug("Saving %d bytes of MRC output data to SPI flash\n",
-	      gd->arch.mrc_output_len);
-
-	ret = get_mrc_entry(&sf, &entry);
-	if (ret)
-		goto err_entry;
-	ret = build_mrc_data(&data);
-	if (ret)
-		goto err_data;
-	ret = mrccache_update(sf, &entry, data);
-	if (!ret)
-		debug("Saved MRC data with checksum %04x\n", data->checksum);
-
-	free(data);
-err_data:
-err_entry:
-	if (ret)
-		debug("%s: Failed: %d\n", __func__, ret);
-	return ret;
-}
-
 /* Use this hook to save our SDRAM parameters */
 int misc_init_r(void)
 {
 	int ret;
 
-	ret = sdram_save_mrc_data();
+	ret = mrccache_save();
 	if (ret)
 		printf("Unable to save MRC data: %d\n", ret);
 
@@ -476,7 +384,7 @@ int sdram_initialise(struct pei_data *pei_data)
 	if (pei_data->boot_mode != PEI_BOOT_RESUME) {
 		/*
 		 * This will be copied to SDRAM in reserve_arch(), then written
-		 * to SPI flash in sdram_save_mrc_data()
+		 * to SPI flash in mrccache_save()
 		 */
 		gd->arch.mrc_output = (char *)pei_data->mrc_output;
 		gd->arch.mrc_output_len = pei_data->mrc_output_len;
@@ -490,19 +398,7 @@ int sdram_initialise(struct pei_data *pei_data)
 
 int reserve_arch(void)
 {
-	u16 checksum;
-
-	checksum = compute_ip_checksum(gd->arch.mrc_output,
-				       gd->arch.mrc_output_len);
-	debug("Saving %d bytes for MRC output data, checksum %04x\n",
-	      gd->arch.mrc_output_len, checksum);
-	gd->start_addr_sp -= gd->arch.mrc_output_len;
-	memcpy((void *)gd->start_addr_sp, gd->arch.mrc_output,
-	       gd->arch.mrc_output_len);
-	gd->arch.mrc_output = (char *)gd->start_addr_sp;
-	gd->start_addr_sp &= ~0xf;
-
-	return 0;
+	return mrccache_reserve();
 }
 
 static int copy_spd(struct pei_data *peid)
