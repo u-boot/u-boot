@@ -81,6 +81,8 @@
 #define MX6DQ_PU_IROM_MMU_EN_VAR	0x009024a8
 #define MX6DLS_PU_IROM_MMU_EN_VAR	0x00901dd0
 #define MX6SL_PU_IROM_MMU_EN_VAR	0x00900a18
+#define IS_HAB_ENABLED_BIT \
+	(is_soc_type(MXC_SOC_MX7) ? 0x2000000 : 0x2)
 
 /*
  * +------------+  0x0 (DDR_UIMAGE_START) -
@@ -273,7 +275,7 @@ bool is_hab_enabled(void)
 		return ret;
 	}
 
-	return (reg & 0x2) == 0x2;
+	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
 }
 
 static inline uint8_t get_idx(uint8_t *list, uint8_t tgt)
@@ -421,7 +423,7 @@ uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
 			 * crash.
 			 */
 			/* Check MMU enabled */
-			if (get_cr() & CR_M) {
+			if (is_soc_type(MXC_SOC_MX6) && get_cr() & CR_M) {
 				if (is_cpu_type(MXC_CPU_MX6Q) ||
 				    is_cpu_type(MXC_CPU_MX6D)) {
 					/*
