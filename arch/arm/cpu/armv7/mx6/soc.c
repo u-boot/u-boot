@@ -15,6 +15,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/dma.h>
+#include <asm/imx-common/hab.h>
 #include <stdbool.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
@@ -45,6 +46,13 @@ static const struct imx_thermal_plat imx6_thermal_plat = {
 U_BOOT_DEVICE(imx6_thermal) = {
 	.name = "imx_thermal",
 	.platdata = &imx6_thermal_plat,
+};
+#endif
+
+#if defined(CONFIG_SECURE_BOOT)
+struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+	.bank = 0,
+	.word = 6,
 };
 #endif
 
