@@ -21,10 +21,10 @@
 #include <asm/processor.h>
 #include <asm/gpio.h>
 #include <asm/global_data.h>
+#include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/arch/me.h>
-#include <asm/arch/mrccache.h>
 #include <asm/arch/pei_data.h>
 #include <asm/arch/pch.h>
 #include <asm/post.h>

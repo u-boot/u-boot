@@ -12,8 +12,7 @@
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>
-#include <asm/arch/mrccache.h>
-#include <asm/arch/sandybridge.h>
+#include <asm/mrccache.h>
 
 static struct mrc_data_container *next_mrc_block(
 	struct mrc_data_container *mrc_cache)
