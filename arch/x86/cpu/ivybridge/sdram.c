@@ -363,7 +363,7 @@ int sdram_initialise(struct pei_data *pei_data)
 	debug("System Agent Version %d.%d.%d Build %d\n",
 	      version >> 24 , (version >> 16) & 0xff,
 	      (version >> 8) & 0xff, version & 0xff);
-	debug("MCR output data length %#x at %p\n", pei_data->mrc_output_len,
+	debug("MRC output data length %#x at %p\n", pei_data->mrc_output_len,
 	      pei_data->mrc_output);
 
 	/*
@@ -723,7 +723,7 @@ int dram_init(void)
 	int ret;
 
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
-	debug("mcr_input %p\n", pei_data.mrc_input);
+	debug("mrc_input %p\n", pei_data.mrc_input);
 	pei_data.boot_mode = gd->arch.pei_boot_mode;
 	ret = copy_spd(&pei_data);
 	if (!ret)
