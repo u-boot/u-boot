@@ -138,7 +138,7 @@ static int read_seed_from_cmos(struct pei_data *pei_data)
 static int prepare_mrc_cache(struct pei_data *pei_data)
 {
 	struct mrc_data_container *mrc_cache;
-	struct fmap_entry entry;
+	struct mrc_region entry;
 	int ret;
 
 	ret = read_seed_from_cmos(pei_data);

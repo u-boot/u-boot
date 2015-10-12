@@ -40,13 +40,13 @@ static int is_mrc_cache(struct mrc_data_container *cache)
 	return cache && (cache->signature == MRC_DATA_SIGNATURE);
 }
 
-struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry)
+struct mrc_data_container *mrccache_find_current(struct mrc_region *entry)
 {
 	struct mrc_data_container *cache, *next;
 	ulong base_addr, end_addr;
 	uint id;
 
-	base_addr = (1ULL << 32) - CONFIG_ROM_SIZE + entry->offset;
+	base_addr = entry->base + entry->offset;
 	end_addr = base_addr + entry->length;
 	cache = NULL;
 
@@ -85,12 +85,12 @@ struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry)
  *
  * @return next cache entry if found, NULL if we got to the end
  */
-static struct mrc_data_container *find_next_mrc_cache(struct fmap_entry *entry,
+static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
 		struct mrc_data_container *cache)
 {
 	ulong base_addr, end_addr;
 
-	base_addr = (1ULL << 32) - CONFIG_ROM_SIZE + entry->offset;
+	base_addr = entry->base + entry->offset;
 	end_addr = base_addr + entry->length;
 
 	cache = next_mrc_block(cache);
@@ -106,7 +106,7 @@ static struct mrc_data_container *find_next_mrc_cache(struct fmap_entry *entry,
 	return cache;
 }
 
-int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
+int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 		    struct mrc_data_container *cur)
 {
 	struct mrc_data_container *cache;
@@ -118,7 +118,7 @@ int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 		return -EINVAL;
 
 	/* Find the last used block */
-	base_addr = (1ULL << 32) - CONFIG_ROM_SIZE + entry->offset;
+	base_addr = entry->base + entry->offset;
 	debug("Updating MRC cache data\n");
 	cache = mrccache_find_current(entry);
 	if (cache && (cache->data_size == cur->data_size) &&
@@ -189,10 +189,11 @@ int mrccache_reserve(void)
 	return 0;
 }
 
-int mrccache_get_region(struct udevice **devp, struct fmap_entry *entry)
+int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 {
 	const void *blob = gd->fdt_blob;
 	int node, mrc_node;
+	u32 reg[2];
 	int ret;
 
 	/* Find the flash chip within the SPI controller node */
@@ -200,13 +201,19 @@ int mrccache_get_region(struct udevice **devp, struct fmap_entry *entry)
 	if (node < 0)
 		return -ENOENT;
 
+	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2))
+		return -FDT_ERR_NOTFOUND;
+	entry->base = reg[0];
+
 	/* Find the place where we put the MRC cache */
 	mrc_node = fdt_subnode_offset(blob, node, "rw-mrc-cache");
 	if (mrc_node < 0)
 		return -EPERM;
 
-	if (fdtdec_read_fmap_entry(blob, mrc_node, "rm-mrc-cache", entry))
-		return -EINVAL;
+	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2))
+		return -FDT_ERR_NOTFOUND;
+	entry->offset = reg[0];
+	entry->length = reg[1];
 
 	if (devp) {
 		ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
@@ -222,7 +229,7 @@ int mrccache_get_region(struct udevice **devp, struct fmap_entry *entry)
 int mrccache_save(void)
 {
 	struct mrc_data_container *data;
-	struct fmap_entry entry;
+	struct mrc_region entry;
 	struct udevice *sf;
 	int ret;
 

@@ -22,7 +22,12 @@ struct __packed mrc_data_container {
 	u8	data[0];	/* Variable size, platform/run time dependent */
 };
 
-struct fmap_entry;
+struct mrc_region {
+	u32	base;
+	u32	offset;
+	u32	length;
+};
+
 struct udevice;
 
 /**
@@ -34,7 +39,7 @@ struct udevice;
  * @entry:	Position and size of MRC cache in SPI flash
  * @return pointer to latest record, or NULL if none
  */
-struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry);
+struct mrc_data_container *mrccache_find_current(struct mrc_region *entry);
 
 /**
  * mrccache_update() - update the MRC cache with a new record
@@ -48,7 +53,7 @@ struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry);
  * @return 0 if updated, -EEXIST if the record is the same as the latest
  * record, -EINVAL if the record is not valid, other error if SPI write failed
  */
-int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
+int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 		    struct mrc_data_container *cur);
 
 /**
@@ -87,7 +92,7 @@ int mrccache_reserve(void);
  * tree, -EINVAL if MRC region properties format is incorrect, other error
  * if SPI flash probe failed.
  */
-int mrccache_get_region(struct udevice **devp, struct fmap_entry *entry);
+int mrccache_get_region(struct udevice **devp, struct mrc_region *entry);
 
 /**
  * mrccache_save() - save MRC data to the SPI flash
