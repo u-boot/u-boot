@@ -14,6 +14,10 @@
 #define CONFIG_DBG_MONITOR
 #define PHYS_SDRAM_SIZE			SZ_1G
 
+/* Uncomment to enable secure boot support */
+/* #define CONFIG_SECURE_BOOT */
+#define CONFIG_CSF_SIZE			0x4000
+
 /* Network */
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
