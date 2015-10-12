@@ -43,7 +43,7 @@ struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry);
  * @entry:	Position and size of MRC cache in SPI flash
  * @cur:	Record to write
  * @return 0 if updated, -EEXIST if the record is the same as the latest
- * record, other error if SPI write failed
+ * record, -EINVAL if the record is not valid, other error if SPI write failed
  */
 int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 		    struct mrc_data_container *cur);

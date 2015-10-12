@@ -112,6 +112,9 @@ int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 	ulong base_addr;
 	int ret;
 
+	if (!is_mrc_cache(cur))
+		return -EINVAL;
+
 	/* Find the last used block */
 	base_addr = (1ULL << 32) - CONFIG_ROM_SIZE + entry->offset;
 	debug("Updating MRC cache data\n");
