@@ -1,5 +1,5 @@
 /*
- * From Coreboot src/southbridge/intel/bd82x6x/mrccache.c
+ * From coreboot src/southbridge/intel/bd82x6x/mrccache.c
  *
  * Copyright (C) 2014 Google Inc.
  *
@@ -15,17 +15,19 @@
 #include <asm/mrccache.h>
 
 static struct mrc_data_container *next_mrc_block(
-	struct mrc_data_container *mrc_cache)
+	struct mrc_data_container *cache)
 {
 	/* MRC data blocks are aligned within the region */
-	u32 mrc_size = sizeof(*mrc_cache) + mrc_cache->data_size;
+	u32 mrc_size = sizeof(*cache) + cache->data_size;
+	u8 *region_ptr = (u8 *)cache;
+
 	if (mrc_size & (MRC_DATA_ALIGN - 1UL)) {
 		mrc_size &= ~(MRC_DATA_ALIGN - 1UL);
 		mrc_size += MRC_DATA_ALIGN;
 	}
 
-	u8 *region_ptr = (u8 *)mrc_cache;
 	region_ptr += mrc_size;
+
 	return (struct mrc_data_container *)region_ptr;
 }
 
@@ -34,10 +36,6 @@ static int is_mrc_cache(struct mrc_data_container *cache)
 	return cache && (cache->signature == MRC_DATA_SIGNATURE);
 }
 
-/*
- * Find the largest index block in the MRC cache. Return NULL if none is
- * found.
- */
 struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry)
 {
 	struct mrc_data_container *cache, *next;
