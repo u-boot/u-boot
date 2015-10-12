@@ -85,6 +85,15 @@ enum hab_context {
 	HAB_CTX_MAX
 };
 
+struct imx_sec_config_fuse_t {
+	int bank;
+	int word;
+};
+
+#if defined(CONFIG_SECURE_BOOT)
+extern struct imx_sec_config_fuse_t const imx_sec_config_fuse;
+#endif
+
 /*Function prototype description*/
 typedef enum hab_status hab_rvt_report_event_t(enum hab_status, uint32_t,
 		uint8_t* , size_t*);
