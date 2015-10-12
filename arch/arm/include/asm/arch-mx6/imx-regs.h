@@ -325,10 +325,6 @@
 #define WDOG3_BASE_ADDR (is_cpu_type(MXC_CPU_MX6UL) ?	\
 			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR)
 
-#define CHIP_REV_1_0                 0x10
-#define CHIP_REV_1_2                 0x12
-#define CHIP_REV_1_5                 0x15
-#define CHIP_REV_2_0                 0x20
 #if !(defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL))
 #define IRAM_SIZE                    0x00040000
 #else
