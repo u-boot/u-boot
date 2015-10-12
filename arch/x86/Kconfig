@@ -239,6 +239,14 @@ config FSP_SYS_MALLOC_F_LEN
 	help
 	  Additional size of malloc() pool before relocation.
 
+config ENABLE_MRC_CACHE
+	bool "Enable MRC cache"
+	depends on !EFI && !SYS_COREBOOT
+	help
+	  Enable this feature to cause MRC data to be cached in NV storage
+	  to be used for speeding up boot time on future reboots and/or
+	  power cycles.
+
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
