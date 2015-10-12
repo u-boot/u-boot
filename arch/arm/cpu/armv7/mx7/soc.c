@@ -11,6 +11,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/dma.h>
+#include <asm/imx-common/hab.h>
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
 #include <imx_thermal.h>
@@ -25,6 +26,13 @@ static const struct imx_thermal_plat imx7_thermal_plat = {
 U_BOOT_DEVICE(imx7_thermal) = {
 	.name = "imx_thermal",
 	.platdata = &imx7_thermal_plat,
+};
+#endif
+
+#if defined(CONFIG_SECURE_BOOT)
+struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+	.bank = 1,
+	.word = 3,
 };
 #endif
 
