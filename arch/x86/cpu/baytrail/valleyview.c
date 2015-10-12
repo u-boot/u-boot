@@ -65,3 +65,9 @@ int reserve_arch(void)
 #endif
 }
 #endif
+
+void reset_cpu(ulong addr)
+{
+	/* cold reset */
+	x86_full_reset();
+}
