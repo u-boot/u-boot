@@ -190,6 +190,7 @@ Offset   Description         Controlling config
 000000   descriptor.bin      Hard-coded to 0 in ifdtool
 001000   me.bin              Set by the descriptor
 500000   <spare>
+6f0000   MRC cache           CONFIG_ENABLE_MRC_CACHE
 700000   u-boot-dtb.bin      CONFIG_SYS_TEXT_BASE
 790000   vga.bin             CONFIG_VGA_BIOS_ADDR
 7c0000   fsp.bin             CONFIG_FSP_ADDR
