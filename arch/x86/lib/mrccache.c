@@ -2,17 +2,21 @@
  * From coreboot src/southbridge/intel/bd82x6x/mrccache.c
  *
  * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2015 Bin Meng <bmeng.cn@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/mrccache.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static struct mrc_data_container *next_mrc_block(
 	struct mrc_data_container *cache)
@@ -154,4 +158,89 @@ int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 	}
 
 	return 0;
+}
+
+int mrccache_reserve(void)
+{
+	struct mrc_data_container *cache;
+	u16 checksum;
+
+	if (!gd->arch.mrc_output_len)
+		return 0;
+
+	/* adjust stack pointer to store pure cache data plus the header */
+	gd->start_addr_sp -= (gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE);
+	cache = (struct mrc_data_container *)gd->start_addr_sp;
+
+	cache->signature = MRC_DATA_SIGNATURE;
+	cache->data_size = gd->arch.mrc_output_len;
+	checksum = compute_ip_checksum(gd->arch.mrc_output, cache->data_size);
+	debug("Saving %d bytes for MRC output data, checksum %04x\n",
+	      cache->data_size, checksum);
+	cache->checksum = checksum;
+	cache->reserved = 0;
+	memcpy(cache->data, gd->arch.mrc_output, cache->data_size);
+
+	/* gd->arch.mrc_output now points to the container */
+	gd->arch.mrc_output = (char *)cache;
+
+	gd->start_addr_sp &= ~0xf;
+
+	return 0;
+}
+
+int mrccache_get_region(struct udevice **devp, struct fmap_entry *entry)
+{
+	const void *blob = gd->fdt_blob;
+	int node, mrc_node;
+	int ret;
+
+	/* Find the flash chip within the SPI controller node */
+	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
+	if (node < 0)
+		return -ENOENT;
+
+	/* Find the place where we put the MRC cache */
+	mrc_node = fdt_subnode_offset(blob, node, "rw-mrc-cache");
+	if (mrc_node < 0)
+		return -EPERM;
+
+	if (fdtdec_read_fmap_entry(blob, mrc_node, "rm-mrc-cache", entry))
+		return -EINVAL;
+
+	if (devp) {
+		ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
+						     devp);
+		debug("ret = %d\n", ret);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+int mrccache_save(void)
+{
+	struct mrc_data_container *data;
+	struct fmap_entry entry;
+	struct udevice *sf;
+	int ret;
+
+	if (!gd->arch.mrc_output_len)
+		return 0;
+	debug("Saving %d bytes of MRC output data to SPI flash\n",
+	      gd->arch.mrc_output_len);
+
+	ret = mrccache_get_region(&sf, &entry);
+	if (ret)
+		goto err_entry;
+	data  = (struct mrc_data_container *)gd->arch.mrc_output;
+	ret = mrccache_update(sf, &entry, data);
+	if (!ret)
+		debug("Saved MRC data with checksum %04x\n", data->checksum);
+
+err_entry:
+	if (ret)
+		debug("%s: Failed: %d\n", __func__, ret);
+	return ret;
 }
