@@ -34,6 +34,7 @@ F:	include/configs/sun6i.h
 F:	configs/CSQ_CS908_defconfig
 F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M9_defconfig
+F:	configs/Sinovoip_BPI_M2_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
