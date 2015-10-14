@@ -43,6 +43,9 @@ _bss_end_ofs:
 	.quad	__bss_end - _start
 
 reset:
+#ifdef CONFIG_SYS_RESET_SCTRL
+	bl reset_sctrl
+#endif
 	/*
 	 * Could be EL3/EL2/EL1, Initial State:
 	 * Little Endian, MMU Disabled, i/dCache Disabled
@@ -98,6 +101,39 @@ master_cpu:
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 
 	bl	_main
+
+#ifdef CONFIG_SYS_RESET_SCTRL
+reset_sctrl:
+	switch_el x1, 3f, 2f, 1f
+3:
+	mrs	x0, sctlr_el3
+	b	0f
+2:
+	mrs	x0, sctlr_el2
+	b	0f
+1:
+	mrs	x0, sctlr_el1
+
+0:
+	ldr	x1, =0xfdfffffa
+	and	x0, x0, x1
+
+	switch_el x1, 6f, 5f, 4f
+6:
+	msr	sctlr_el3, x0
+	b	7f
+5:
+	msr	sctlr_el2, x0
+	b	7f
+4:
+	msr	sctlr_el1, x0
+
+7:
+	dsb	sy
+	isb
+	b	__asm_invalidate_tlb_all
+	ret
+#endif
 
 /*-----------------------------------------------------------------------*/
 

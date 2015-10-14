@@ -14,7 +14,12 @@
 #define CR_WXN		(1 << 19)	/* Write Permision Imply XN	*/
 #define CR_EE		(1 << 25)	/* Exception (Big) Endian	*/
 
+#ifndef CONFIG_SYS_FULL_VA
 #define PGTABLE_SIZE	(0x10000)
+#else
+#define PGTABLE_SIZE	CONFIG_SYS_PGTABLE_SIZE
+#endif
+
 /* 2MB granularity */
 #define MMU_SECTION_SHIFT	21
 #define MMU_SECTION_SIZE	(1 << MMU_SECTION_SHIFT)
@@ -148,7 +153,9 @@ void flush_l3_cache(void);
 #define CR_AFE	(1 << 29)	/* Access flag enable			*/
 #define CR_TE	(1 << 30)	/* Thumb exception enable		*/
 
+#ifndef PGTABLE_SIZE
 #define PGTABLE_SIZE		(4096 * 4)
+#endif
 
 /*
  * This is used to ensure the compiler did actually allocate the register we
