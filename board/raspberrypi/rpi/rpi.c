@@ -176,6 +176,11 @@ static const struct {
 		"bcm2835-rpi-cm.dtb",
 		false,
 	},
+	[BCM2835_BOARD_REV_A_PLUS_15] = {
+		"Model A+",
+		"bcm2835-rpi-a-plus.dtb",
+		false,
+	},
 #endif
 };
 
