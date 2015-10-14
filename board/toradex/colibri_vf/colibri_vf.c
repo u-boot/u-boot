@@ -119,7 +119,7 @@ int dram_init(void)
 		.trcd_int          = 6,
 		.tras_lockout      = 0,
 		.tdal              = 12,
-		.bstlen            = 0,
+		.bstlen            = 3,
 		.tdll              = 512,
 		.trp_ab            = 6,
 		.tref              = 3120,
