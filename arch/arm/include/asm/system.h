@@ -1,6 +1,9 @@
 #ifndef __ASM_ARM_SYSTEM_H
 #define __ASM_ARM_SYSTEM_H
 
+#include <common.h>
+#include <linux/compiler.h>
+
 #ifdef CONFIG_ARM64
 
 /*
@@ -104,6 +107,24 @@ void protect_secure_region(void);
 void smp_kick_all_cpus(void);
 
 void flush_l3_cache(void);
+
+/*
+ *Issue a hypervisor call in accordance with ARM "SMC Calling convention",
+ * DEN0028A
+ *
+ * @args: input and output arguments
+ *
+ */
+void hvc_call(struct pt_regs *args);
+
+/*
+ *Issue a secure monitor call in accordance with ARM "SMC Calling convention",
+ * DEN0028A
+ *
+ * @args: input and output arguments
+ *
+ */
+void smc_call(struct pt_regs *args);
 
 #endif	/* __ASSEMBLY__ */
 
