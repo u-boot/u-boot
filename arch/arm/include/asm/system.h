@@ -72,6 +72,17 @@ static inline void set_sctlr(unsigned int val)
 	asm volatile("isb");
 }
 
+static inline unsigned long read_mpidr(void)
+{
+	unsigned long val;
+
+	asm volatile("mrs %0, mpidr_el1" : "=r" (val));
+
+	return val;
+}
+
+#define BSP_COREID	0
+
 void __asm_flush_dcache_all(void);
 void __asm_invalidate_dcache_all(void);
 void __asm_flush_dcache_range(u64 start, u64 end);
