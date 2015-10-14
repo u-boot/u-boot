@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= thunderx.o
+obj-y	:= thunderx.o atf.o
