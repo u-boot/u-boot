@@ -367,3 +367,31 @@ U_BOOT_DRIVER(serial_pl01x) = {
 };
 
 #endif
+
+#if defined(CONFIG_DEBUG_UART_PL010) || defined(CONFIG_DEBUG_UART_PL011)
+
+#include <debug_uart.h>
+
+static void _debug_uart_init(void)
+{
+#ifndef CONFIG_DEBUG_UART_SKIP_INIT
+	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_DEBUG_UART_BASE;
+	enum pl01x_type type = CONFIG_IS_ENABLED(DEBUG_UART_PL011) ?
+				TYPE_PL011 : TYPE_PL010;
+
+	pl01x_generic_serial_init(regs, type);
+	pl01x_generic_setbrg(regs, type,
+			     CONFIG_DEBUG_UART_CLOCK, CONFIG_BAUDRATE);
+#endif
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_DEBUG_UART_BASE;
+
+	pl01x_putc(regs, ch);
+}
+
+DEBUG_UART_FUNCS
+
+#endif
