@@ -716,6 +716,10 @@ config ARCH_ROCKCHIP
 	select CPU_V7
 	select DM
 
+config TARGET_THUNDERX_88XX
+	bool "Support ThunderX 88xx"
+	select OF_CONTROL
+
 endchoice
 
 source "arch/arm/mach-at91/Kconfig"
@@ -784,6 +788,7 @@ source "board/bluegiga/apx4devkit/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
+source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
 source "board/compulab/cm_t43/Kconfig"

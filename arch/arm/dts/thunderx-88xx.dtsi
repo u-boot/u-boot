@@ -348,7 +348,7 @@
 			interrupts = <1 21 4>;
 			clocks = <&refclk50mhz>;
 			clock-names = "apb_pclk";
-			flags = <1>;
+			uboot,skip-init;
 		};
 
 		uaa1: serial@87e0,25000000 {
@@ -357,7 +357,7 @@
 			interrupts = <1 22 4>;
 			clocks = <&refclk50mhz>;
 			clock-names = "apb_pclk";
-			flags = <1>;
+			uboot,skip-init;
 		};
 	};
 };
