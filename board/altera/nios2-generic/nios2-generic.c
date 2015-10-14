@@ -37,7 +37,10 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
-	printf("BOARD : %s\n", CONFIG_BOARD_NAME);
+#ifdef CONFIG_ALTERA_SYSID
+	display_sysid();
+#endif
+	printf("BOARD: %s\n", CONFIG_BOARD_NAME);
 	return 0;
 }
 

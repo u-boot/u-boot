@@ -13,20 +13,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined (CONFIG_SYS_NIOS_SYSID_BASE)
-extern void display_sysid (void);
-#endif /* CONFIG_SYS_NIOS_SYSID_BASE */
-
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
-	printf ("CPU   : Nios-II\n");
-#if !defined(CONFIG_SYS_NIOS_SYSID_BASE)
-	printf ("SYSID : <unknown>\n");
-#else
-	display_sysid ();
-#endif
-	return (0);
+	printf("CPU:   Nios-II\n");
+	return 0;
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */
 
