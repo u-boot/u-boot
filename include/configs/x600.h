@@ -17,6 +17,7 @@
 #define CONFIG_SPEAR600				/* SPEAr600 SoC */
 #define CONFIG_X600				/* on X600 board */
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SYS_THUMB_BUILD
 
 #include <asm/arch/hardware.h>
 
@@ -67,6 +68,8 @@
 #define CONFIG_MTD_ECC_SOFT
 #define CONFIG_SYS_FSMC_NAND_8BIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_ECC_BCH
+#define CONFIG_BCH
 
 /* UBI/UBI config options */
 #define CONFIG_MTD_DEVICE

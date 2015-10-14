@@ -7,7 +7,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifeq ($(SOC),$(filter $(SOC),mx25 mx35 mx5 mx6 vf610))
+ifeq ($(SOC),$(filter $(SOC),mx25 mx35 mx5 mx6 mx7 vf610))
 obj-y	= iomux-v3.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
@@ -18,7 +18,13 @@ ifeq ($(SOC),$(filter $(SOC),mx6 mxs))
 obj-y	+= misc.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 endif
-ifeq ($(SOC),$(filter $(SOC),mx6))
+ifeq ($(SOC),$(filter $(SOC),mx7))
+obj-y 	+= cpu.o
+obj-$(CONFIG_SYS_I2C_MXC) += i2c-mxv7.o
+obj-$(CONFIG_SYSCOUNTER_TIMER) += syscounter.o
+endif
+ifeq ($(SOC),$(filter $(SOC),mx6 mx7))
+obj-y 	+= cache.o init.o
 obj-$(CONFIG_CMD_SATA) += sata.o
 obj-$(CONFIG_IMX_VIDEO_SKIP) += video.o
 endif

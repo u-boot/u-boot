@@ -16,4 +16,10 @@ config NET_RANDOM_ETHADDR
 	  A new MAC address will be generated on every boot and it will
 	  not be added to the environment.
 
+config NETCONSOLE
+	bool "NetConsole support"
+	help
+	  Support the 'nc' input/output device for networked console.
+	  See README.NetConsole for details.
+
 endif   # if NET

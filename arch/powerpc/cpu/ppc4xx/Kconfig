@@ -8,6 +8,9 @@ choice
 	prompt "Target select"
 	optional
 
+config TARGET_LWMON5
+	bool "Support lwmon5"
+
 config TARGET_T3CORP
 	bool "Support t3corp"
 
@@ -165,6 +168,7 @@ source "board/gdsys/405ex/Kconfig"
 source "board/gdsys/dlvision/Kconfig"
 source "board/gdsys/gdppc440etx/Kconfig"
 source "board/gdsys/intip/Kconfig"
+source "board/lwmon5/Kconfig"
 source "board/mosaixtech/icon/Kconfig"
 source "board/mpl/mip405/Kconfig"
 source "board/mpl/pip405/Kconfig"

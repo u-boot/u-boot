@@ -9,72 +9,8 @@
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
 
-#if defined(CONFIG_MACH_PH1_SLD3)
-#define CONFIG_DDR_NUM_CH0 2
-#define CONFIG_DDR_NUM_CH1 1
-#define CONFIG_DDR_NUM_CH2 1
-
-/* Physical start address of SDRAM */
-#define CONFIG_SDRAM0_BASE	0x80000000
-#define CONFIG_SDRAM0_SIZE	0x20000000
-#define CONFIG_SDRAM1_BASE	0xc0000000
-#define CONFIG_SDRAM1_SIZE	0x20000000
-#define CONFIG_SDRAM2_BASE	0xc0000000
-#define CONFIG_SDRAM2_SIZE	0x10000000
-#endif
-
-#if defined(CONFIG_MACH_PH1_LD4)
-#define CONFIG_DDR_NUM_CH0 1
-#define CONFIG_DDR_NUM_CH1 1
-
-/* Physical start address of SDRAM */
-#define CONFIG_SDRAM0_BASE	0x80000000
-#define CONFIG_SDRAM0_SIZE	0x10000000
-#define CONFIG_SDRAM1_BASE	0x90000000
-#define CONFIG_SDRAM1_SIZE	0x10000000
-#endif
-
-#if defined(CONFIG_MACH_PH1_PRO4)
-#define CONFIG_DDR_NUM_CH0 2
-#define CONFIG_DDR_NUM_CH1 2
-
-/* Physical start address of SDRAM */
-#define CONFIG_SDRAM0_BASE	0x80000000
-#define CONFIG_SDRAM0_SIZE	0x20000000
-#define CONFIG_SDRAM1_BASE	0xa0000000
-#define CONFIG_SDRAM1_SIZE	0x20000000
-#endif
-
-#if defined(CONFIG_MACH_PH1_SLD8)
-#define CONFIG_DDR_NUM_CH0 1
-#define CONFIG_DDR_NUM_CH1 1
-
-/* Physical start address of SDRAM */
-#define CONFIG_SDRAM0_BASE	0x80000000
-#define CONFIG_SDRAM0_SIZE	0x10000000
-#define CONFIG_SDRAM1_BASE	0x90000000
-#define CONFIG_SDRAM1_SIZE	0x10000000
-#endif
-
 #define CONFIG_I2C_EEPROM
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
-
-/*
- * Support card address map
- */
-#if defined(CONFIG_PFC_MICRO_SUPPORT_CARD)
-# define CONFIG_SUPPORT_CARD_BASE	0x03f00000
-# define CONFIG_SUPPORT_CARD_ETHER_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x00000000)
-# define CONFIG_SUPPORT_CARD_LED_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x00090000)
-# define CONFIG_SUPPORT_CARD_UART_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x000b0000)
-#endif
-
-#if defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
-# define CONFIG_SUPPORT_CARD_BASE	0x08000000
-# define CONFIG_SUPPORT_CARD_ETHER_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x00000000)
-# define CONFIG_SUPPORT_CARD_LED_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x00401630)
-# define CONFIG_SUPPORT_CARD_UART_BASE	(CONFIG_SUPPORT_CARD_BASE + 0x00200000)
-#endif
 
 #ifdef CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550
@@ -90,7 +26,8 @@
 
 #define CONFIG_SMC911X
 
-#define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
+/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
+#define CONFIG_SMC911X_BASE	0
 #define CONFIG_SMC911X_32_BIT
 
 /*-----------------------------------------------------------------------
@@ -140,7 +77,7 @@
 
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 2
+#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
 
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
@@ -191,7 +128,7 @@
 
 #define CONFIG_NAND_DENALI_ECC_SIZE			1024
 
-#ifdef CONFIG_MACH_PH1_SLD3
+#ifdef CONFIG_ARCH_UNIPHIER_PH1_SLD3
 #define CONFIG_SYS_NAND_REGS_BASE			0xf8100000
 #define CONFIG_SYS_NAND_DATA_BASE			0xf8000000
 #else
@@ -240,21 +177,17 @@
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \
 	"tftpboot; bootm;"
 
-#define CONFIG_BOOTARGS		" earlyprintk loglevel=8"
-
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
 #define LINUXBOOT_ENV_SETTINGS \
 	"fit_addr=0x00100000\0" \
 	"fit_addr_r=0x84100000\0" \
 	"fit_size=0x00f00000\0" \
-	"norboot=run add_default_bootargs &&" \
+	"norboot=setexpr fit_addr $nor_base + $fit_addr &&" \
 		"bootm $fit_addr\0" \
-	"nandboot=run add_default_bootargs &&" \
-		"nand read $fit_addr_r $fit_addr $fit_size &&" \
+	"nandboot=nand read $fit_addr_r $fit_addr $fit_size &&" \
 		"bootm $fit_addr_r\0" \
-	"tftpboot=run add_default_bootargs &&" \
-		"tftpboot $fit_addr_r $bootfile &&" \
+	"tftpboot=tftpboot $fit_addr_r $bootfile &&" \
 		"bootm $fit_addr_r\0"
 #else
 #define CONFIG_BOOTFILE			"uImage"
@@ -270,15 +203,15 @@
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
-	"norboot=run add_default_bootargs &&" \
+	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
+		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
+		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
 		"bootm $kernel_addr $ramdisk_addr $fdt_addr\0" \
-	"nandboot=run add_default_bootargs &&" \
-		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
+	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
 		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
-	"tftpboot=run add_default_bootargs &&" \
-		"tftpboot $kernel_addr_r $bootfile &&" \
+	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
@@ -287,35 +220,25 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
+	"norbase=0x42000000\0"					\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl-dtb.bin &&"		\
 		"nand write $loadaddr 0 0x00010000 &&"		\
 		"tftpboot u-boot-dtb.img &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
-	"add_default_bootargs=setenv bootargs $bootargs"	\
-		" console=ttyS0,$baudrate\0"			\
 	LINUXBOOT_ENV_SETTINGS
 
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT
 
-/* Memory Size & Mapping */
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SDRAM0_BASE
-
-#if CONFIG_SDRAM0_BASE + CONFIG_SDRAM0_SIZE >= CONFIG_SDRAM1_BASE
-/* Thre is no memory hole */
-#define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_SIZE	(CONFIG_SDRAM0_SIZE + CONFIG_SDRAM1_SIZE)
-#else
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_NR_DRAM_BANKS		2
-#define CONFIG_SYS_SDRAM_SIZE	(CONFIG_SDRAM0_SIZE)
-#endif
 
-#if defined(CONFIG_MACH_PH1_SLD3) || defined(CONFIG_MACH_PH1_LD4) || \
-	defined(CONFIG_MACH_PH1_SLD8)
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3) || \
+	defined(CONFIG_ARCH_UNIPHIER_PH1_LD4) || \
+	defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
 #define CONFIG_SPL_TEXT_BASE		0x00040000
-#endif
-#if defined(CONFIG_MACH_PH1_PRO4)
+#else
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 

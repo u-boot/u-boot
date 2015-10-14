@@ -1,0 +1,26 @@
+if ARCH_MX7
+
+config MX7
+	bool
+	default y
+
+config MX7D
+	bool
+
+choice
+	prompt "MX7 board select"
+	optional
+
+config TARGET_MX7DSABRESD
+	bool "mx7dsabresd"
+	select DM
+	select DM_THERMAL
+
+endchoice
+
+config SYS_SOC
+	default "mx7"
+
+source "board/freescale/mx7dsabresd/Kconfig"
+
+endif

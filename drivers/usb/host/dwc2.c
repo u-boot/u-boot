@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <usb.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <phys2bus.h>
 #include <usbroothubdes.h>
 #include <asm/io.h>

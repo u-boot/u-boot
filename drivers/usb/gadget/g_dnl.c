@@ -93,8 +93,6 @@ static int g_dnl_unbind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
 
-	free(cdev->config);
-	cdev->config = NULL;
 	debug("%s: calling usb_gadget_disconnect for "
 			"controller '%s'\n", __func__, gadget->name);
 	usb_gadget_disconnect(gadget);

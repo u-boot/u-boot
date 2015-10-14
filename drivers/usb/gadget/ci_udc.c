@@ -87,6 +87,7 @@ static int ci_ep_enable(struct usb_ep *ep,
 static int ci_ep_disable(struct usb_ep *ep);
 static int ci_ep_queue(struct usb_ep *ep,
 		struct usb_request *req, gfp_t gfp_flags);
+static int ci_ep_dequeue(struct usb_ep *ep, struct usb_request *req);
 static struct usb_request *
 ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags);
 static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *_req);
@@ -99,6 +100,7 @@ static struct usb_ep_ops ci_ep_ops = {
 	.enable         = ci_ep_enable,
 	.disable        = ci_ep_disable,
 	.queue          = ci_ep_queue,
+	.dequeue	= ci_ep_dequeue,
 	.alloc_request  = ci_ep_alloc_request,
 	.free_request   = ci_ep_free_request,
 };
@@ -424,7 +426,7 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	int bit, num, len, in;
 	struct ci_req *ci_req;
 	u8 *buf;
-	uint32_t length, actlen;
+	uint32_t len_left, len_this_dtd;
 	struct ept_queue_item *dtd, *qtd;
 
 	ci_ep->req_primed = true;
@@ -442,25 +444,23 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 
 	ci_req->dtd_count = 0;
 	buf = ci_req->hw_buf;
-	actlen = 0;
+	len_left = len;
 	dtd = item;
 
 	do {
-		length = min(ci_req->req.length - actlen,
-			     (unsigned)EP_MAX_LENGTH_TRANSFER);
+		len_this_dtd = min(len_left, (unsigned)EP_MAX_LENGTH_TRANSFER);
 
-		dtd->info = INFO_BYTES(length) | INFO_ACTIVE;
+		dtd->info = INFO_BYTES(len_this_dtd) | INFO_ACTIVE;
 		dtd->page0 = (unsigned long)buf;
 		dtd->page1 = ((unsigned long)buf & 0xfffff000) + 0x1000;
 		dtd->page2 = ((unsigned long)buf & 0xfffff000) + 0x2000;
 		dtd->page3 = ((unsigned long)buf & 0xfffff000) + 0x3000;
 		dtd->page4 = ((unsigned long)buf & 0xfffff000) + 0x4000;
 
-		len -= length;
-		actlen += length;
-		buf += length;
+		len_left -= len_this_dtd;
+		buf += len_this_dtd;
 
-		if (len) {
+		if (len_left) {
 			qtd = (struct ept_queue_item *)
 			       memalign(ILIST_ALIGN, ILIST_ENT_SZ);
 			dtd->next = (unsigned long)qtd;
@@ -469,7 +469,7 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 		}
 
 		ci_req->dtd_count++;
-	} while (len);
+	} while (len_left);
 
 	item = dtd;
 	/*
@@ -523,6 +523,30 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 		bit = EPT_RX(num);
 
 	writel(bit, &udc->epprime);
+}
+
+static int ci_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+{
+	struct ci_ep *ci_ep = container_of(_ep, struct ci_ep, ep);
+	struct ci_req *ci_req;
+
+	list_for_each_entry(ci_req, &ci_ep->queue, queue) {
+		if (&ci_req->req == _req)
+			break;
+	}
+
+	if (&ci_req->req != _req)
+		return -EINVAL;
+
+	list_del_init(&ci_req->queue);
+
+	if (ci_req->req.status == -EINPROGRESS) {
+		ci_req->req.status = -ECONNRESET;
+		if (ci_req->req.complete)
+			ci_req->req.complete(_ep, _req);
+	}
+
+	return 0;
 }
 
 static int ci_ep_queue(struct usb_ep *ep,

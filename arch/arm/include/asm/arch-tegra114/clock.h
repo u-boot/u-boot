@@ -25,4 +25,7 @@
 #define OSC_FREQ_SHIFT          28
 #define OSC_FREQ_MASK           (0xF << OSC_FREQ_SHIFT)
 
+/* CLK_RST_CONTROLLER_PLLC_MISC_0 */
+#define PLLC_IDDQ		(1 << 26)
+
 #endif	/* _TEGRA114_CLOCK_H_ */

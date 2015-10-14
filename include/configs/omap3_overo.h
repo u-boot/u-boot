@@ -88,7 +88,6 @@
 #endif /* CONFIG_NAND */
 
 /* Board NAND Info. */
-#define CONFIG_SYS_NAND_QUIET_TEST
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
 /* Environment information */

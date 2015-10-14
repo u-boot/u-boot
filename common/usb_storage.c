@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <mapmem.h>
+#include <memalign.h>
 #include <asm/byteorder.h>
 #include <asm/processor.h>
 #include <dm/device-internal.h>

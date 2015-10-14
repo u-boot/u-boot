@@ -681,8 +681,10 @@ The following options need to be configured:
 		CONFIG_ARM_ERRATA_742230
 		CONFIG_ARM_ERRATA_743622
 		CONFIG_ARM_ERRATA_751472
-		CONFIG_ARM_ERRATA_794072
 		CONFIG_ARM_ERRATA_761320
+		CONFIG_ARM_ERRATA_773022
+		CONFIG_ARM_ERRATA_774769
+		CONFIG_ARM_ERRATA_794072
 
 		If set, the workarounds for these ARM errata are applied early
 		during U-Boot startup. Note that these options force the
@@ -839,18 +841,6 @@ The following options need to be configured:
 		If you have Amba PrimeCell PL010 or PL011 UARTs on your board,
 		define this to a list of base addresses for each (supported)
 		port. See e.g. include/configs/versatile.h
-
-		CONFIG_PL011_SERIAL_RLCR
-
-		Some vendor versions of PL011 serial ports (e.g. ST-Ericsson U8500)
-		have separate receive and transmit line control registers.  Set
-		this variable to initialize the extra register.
-
-		CONFIG_PL011_SERIAL_FLUSH_ON_INIT
-
-		On some platforms (e.g. U8500) U-Boot is loaded by a second stage
-		boot loader that has already initialized the UART.  Define this
-		variable to flush the UART at init time.
 
 		CONFIG_SERIAL_HW_FLOW_CONTROL
 
@@ -2371,16 +2361,20 @@ CBFS (Coreboot Filesystem) support
 
 		- drivers/i2c/i2c_mxc.c
 		  - activate this driver with CONFIG_SYS_I2C_MXC
+		  - enable bus 1 with CONFIG_SYS_I2C_MXC_I2C1
+		  - enable bus 2 with CONFIG_SYS_I2C_MXC_I2C2
+		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
+		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 		  - define speed for bus 1 with CONFIG_SYS_MXC_I2C1_SPEED
 		  - define slave for bus 1 with CONFIG_SYS_MXC_I2C1_SLAVE
 		  - define speed for bus 2 with CONFIG_SYS_MXC_I2C2_SPEED
 		  - define slave for bus 2 with CONFIG_SYS_MXC_I2C2_SLAVE
 		  - define speed for bus 3 with CONFIG_SYS_MXC_I2C3_SPEED
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
+		  - define speed for bus 4 with CONFIG_SYS_MXC_I2C4_SPEED
+		  - define slave for bus 4 with CONFIG_SYS_MXC_I2C4_SLAVE
 		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
-		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
-		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 
 		- drivers/i2c/rcar_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_RCAR

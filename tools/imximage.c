@@ -160,54 +160,80 @@ static void set_dcd_val_v1(struct imx_header *imxhdr, char *name, int lineno,
 	}
 }
 
+static struct dcd_v2_cmd *gd_last_cmd;
+
 static void set_dcd_param_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 		int32_t cmd)
 {
 	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
+	struct dcd_v2_cmd *d = gd_last_cmd;
+	struct dcd_v2_cmd *d2;
+	int len;
+
+	if (!d)
+		d = &dcd_v2->dcd_cmd;
+	d2 = d;
+	len = be16_to_cpu(d->write_dcd_command.length);
+	if (len > 4)
+		d2 = (struct dcd_v2_cmd *)(((char *)d) + len);
 
 	switch (cmd) {
 	case CMD_WRITE_DATA:
-		dcd_v2->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
-		dcd_v2->write_dcd_command.length = cpu_to_be16(
-				dcd_len * sizeof(dcd_addr_data_t) + 4);
-		dcd_v2->write_dcd_command.param = DCD_WRITE_DATA_PARAM;
+		if ((d->write_dcd_command.tag == DCD_WRITE_DATA_COMMAND_TAG) &&
+		    (d->write_dcd_command.param == DCD_WRITE_DATA_PARAM))
+			break;
+		d = d2;
+		d->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_WRITE_DATA_PARAM;
 		break;
 	case CMD_WRITE_CLR_BIT:
-		dcd_v2->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
-		dcd_v2->write_dcd_command.length = cpu_to_be16(
-				dcd_len * sizeof(dcd_addr_data_t) + 4);
-		dcd_v2->write_dcd_command.param = DCD_WRITE_CLR_BIT_PARAM;
+		if ((d->write_dcd_command.tag == DCD_WRITE_DATA_COMMAND_TAG) &&
+		    (d->write_dcd_command.param == DCD_WRITE_CLR_BIT_PARAM))
+			break;
+		d = d2;
+		d->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_WRITE_CLR_BIT_PARAM;
 		break;
 	/*
 	 * Check data command only supports one entry,
-	 * so use 0xC = size(address + value + command).
 	 */
 	case CMD_CHECK_BITS_SET:
-		dcd_v2->write_dcd_command.tag = DCD_CHECK_DATA_COMMAND_TAG;
-		dcd_v2->write_dcd_command.length = cpu_to_be16(0xC);
-		dcd_v2->write_dcd_command.param = DCD_CHECK_BITS_SET_PARAM;
+		d = d2;
+		d->write_dcd_command.tag = DCD_CHECK_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_CHECK_BITS_SET_PARAM;
 		break;
 	case CMD_CHECK_BITS_CLR:
-		dcd_v2->write_dcd_command.tag = DCD_CHECK_DATA_COMMAND_TAG;
-		dcd_v2->write_dcd_command.length = cpu_to_be16(0xC);
-		dcd_v2->write_dcd_command.param = DCD_CHECK_BITS_SET_PARAM;
+		d = d2;
+		d->write_dcd_command.tag = DCD_CHECK_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_CHECK_BITS_SET_PARAM;
 		break;
 	default:
 		break;
 	}
+	gd_last_cmd = d;
 }
 
 static void set_dcd_val_v2(struct imx_header *imxhdr, char *name, int lineno,
 					int fld, uint32_t value, uint32_t off)
 {
-	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
+	struct dcd_v2_cmd *d = gd_last_cmd;
+	int len;
+
+	len = be16_to_cpu(d->write_dcd_command.length);
+	off = (len - 4) >> 3;
 
 	switch (fld) {
 	case CFG_REG_ADDRESS:
-		dcd_v2->addr_data[off].addr = cpu_to_be32(value);
+		d->addr_data[off].addr = cpu_to_be32(value);
 		break;
 	case CFG_REG_VALUE:
-		dcd_v2->addr_data[off].value = cpu_to_be32(value);
+		d->addr_data[off].value = cpu_to_be32(value);
+		off++;
+		d->write_dcd_command.length = cpu_to_be16((off << 3) + 4);
 		break;
 	default:
 		break;
@@ -236,12 +262,20 @@ static void set_dcd_rst_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 						char *name, int lineno)
 {
 	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
+	struct dcd_v2_cmd *d = gd_last_cmd;
+	int len;
+
+	if (!d)
+		d = &dcd_v2->dcd_cmd;
+	len = be16_to_cpu(d->write_dcd_command.length);
+	if (len > 4)
+		d = (struct dcd_v2_cmd *)(((char *)d) + len);
+
+	len = (char *)d - (char *)&dcd_v2->header;
 
 	dcd_v2->header.tag = DCD_HEADER_TAG;
-	dcd_v2->header.length = cpu_to_be16(
-			dcd_len * sizeof(dcd_addr_data_t) + 8);
+	dcd_v2->header.length = cpu_to_be16(len);
 	dcd_v2->header.version = DCD_VERSION;
-	set_dcd_param_v2(imxhdr, dcd_len, CMD_WRITE_DATA);
 }
 
 static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
@@ -314,6 +348,7 @@ static void set_hdr_func(void)
 		max_dcd_entries = MAX_HW_CFG_SIZE_V1;
 		break;
 	case IMXIMAGE_V2:
+		gd_last_cmd = NULL;
 		set_dcd_val = set_dcd_val_v2;
 		set_dcd_param = set_dcd_param_v2;
 		set_dcd_rst = set_dcd_rst_v2;
@@ -361,8 +396,8 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 	dcd_v2_t *dcd_v2 = &hdr_v2->dcd_table;
 	uint32_t size, version;
 
-	size = be16_to_cpu(dcd_v2->header.length) - 8;
-	if (size > (MAX_HW_CFG_SIZE_V2 * sizeof(dcd_addr_data_t))) {
+	size = be16_to_cpu(dcd_v2->header.length);
+	if (size > (MAX_HW_CFG_SIZE_V2 * sizeof(dcd_addr_data_t)) + 8) {
 		fprintf(stderr,
 			"Error: Image corrupt DCD size %d exceed maximum %d\n",
 			(uint32_t)(size / sizeof(dcd_addr_data_t)),

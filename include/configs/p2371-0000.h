@@ -13,7 +13,6 @@
 #include "tegra210-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra210 (P2371-0000) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA P2371-0000"
 
 /* Board-specific serial config */
@@ -59,7 +58,5 @@
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
-
-#define COUNTER_FREQUENCY	38400000
 
 #endif /* _P2371_0000_H */

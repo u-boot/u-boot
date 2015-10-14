@@ -28,15 +28,6 @@ struct tegra_gpio_config {
 };
 
 /**
- * tegra_spl_gpio_direction_output() - set the output value of a GPIO
- *
- * This function is only used from SPL on seaboard, which needs to enable a
- * GPIO to get the UART running. It could be done in U-Boot rather than SPL,
- * but for now, this gets it working
- */
-int tegra_spl_gpio_direction_output(int gpio, int value);
-
-/**
  * Configure a list of GPIOs
  *
  * @param config	List of GPIO configurations

@@ -759,7 +759,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 /* Enable VSC9953 L2 Switch driver on T1040 SoC */
 #if defined(CONFIG_T1040RDB) || defined(CONFIG_T1040D4RDB)
 #define CONFIG_VSC9953
-#define CONFIG_VSC9953_CMD
+#define CONFIG_CMD_ETHSW
 #ifdef CONFIG_T1040RDB
 #define CONFIG_SYS_FM1_QSGMII11_PHY_ADDR	0x04
 #define CONFIG_SYS_FM1_QSGMII21_PHY_ADDR	0x08

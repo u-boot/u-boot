@@ -23,6 +23,7 @@
 #include <command.h>
 #include <watchdog.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <div64.h>
 
 #include <asm/errno.h>

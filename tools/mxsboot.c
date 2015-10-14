@@ -7,6 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <endian.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -556,15 +557,15 @@ static int mx28_create_sd_image(int infd, int outfd)
 
 	cb = (struct mx28_sd_config_block *)buf;
 
-	cb->signature = 0x00112233;
-	cb->primary_boot_tag = 0x1;
-	cb->secondary_boot_tag = 0x1;
-	cb->num_copies = 1;
-	cb->drv_info[0].chip_num = 0x0;
-	cb->drv_info[0].drive_type = 0x0;
-	cb->drv_info[0].tag = 0x1;
-	cb->drv_info[0].first_sector_number = sd_sector + 4;
-	cb->drv_info[0].sector_count = (size - 4) / 512;
+	cb->signature = htole32(0x00112233);
+	cb->primary_boot_tag = htole32(0x1);
+	cb->secondary_boot_tag = htole32(0x1);
+	cb->num_copies = htole32(1);
+	cb->drv_info[0].chip_num = htole32(0x0);
+	cb->drv_info[0].drive_type = htole32(0x0);
+	cb->drv_info[0].tag = htole32(0x1);
+	cb->drv_info[0].first_sector_number = htole32(sd_sector + 4);
+	cb->drv_info[0].sector_count = htole32((size - 4) / 512);
 
 	wr_size = write(outfd, buf, size);
 	if (wr_size != size) {

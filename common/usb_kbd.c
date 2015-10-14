@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <stdio_dev.h>
 #include <asm/byteorder.h>
 

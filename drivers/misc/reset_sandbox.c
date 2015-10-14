@@ -40,7 +40,7 @@ static int sandbox_reset_request(struct udevice *dev, enum reset_t type)
 	 * (see the U_BOOT_DEVICE() declaration below) should not do anything.
 	 * If we are that device, return an error.
 	 */
-	if (gd->fdt_blob && dev->of_offset == -1)
+	if (state->fdt_fname && dev->of_offset == -1)
 		return -ENODEV;
 
 	switch (type) {

@@ -595,7 +595,7 @@ static void usage(void)
 		params.cmdname);
 	fprintf(stderr, "       %s [-D dtc_options] [-f fit-image.its|-F] fit-image\n",
 		params.cmdname);
-	fprintf(stderr, "          -D => set options for device tree compiler\n"
+	fprintf(stderr, "          -D => set all options for device tree compiler\n"
 			"          -f => input filename for FIT source\n");
 #ifdef CONFIG_FIT_SIGNATURE
 	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-r]\n"

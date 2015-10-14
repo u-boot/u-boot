@@ -50,8 +50,8 @@ config SYS_SOC
 	default "socfpga"
 
 config SYS_CONFIG_NAME
-	default "socfpga_arria5" if TARGET_SOCFPGA_ARRIA5_SOCDK
-	default "socfpga_cyclone5" if TARGET_SOCFPGA_CYCLONE5_SOCDK
+	default "socfpga_arria5_socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "socfpga_cyclone5_socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 	default "socfpga_de0_nano_soc" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "socfpga_mcvevk" if TARGET_SOCFPGA_DENX_MCVEVK
 	default "socfpga_sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT

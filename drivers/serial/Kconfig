@@ -111,7 +111,7 @@ config DEBUG_UART_SHIFT
 
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"
-	depends on ARCH_UNIPHIER && DM_SERIAL
+	depends on ARCH_ROCKCHIP && DM_SERIAL
 	help
 	  Select this to enable a debug UART for Rockchip devices. This uses
 	  the ns16550 driver. You will need to #define CONFIG_SYS_NS16550 in

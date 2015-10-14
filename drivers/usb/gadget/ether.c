@@ -17,6 +17,7 @@
 #include <net.h>
 #include <usb.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <linux/ctype.h>
 
 #include "gadget_chips.h"

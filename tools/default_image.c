@@ -89,7 +89,6 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 {
 	uint32_t checksum;
 	char *source_date_epoch;
-	struct tm *time_universal;
 	time_t time;
 
 	image_header_t * hdr = (image_header_t *)ptr;
@@ -103,13 +102,10 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	if (source_date_epoch != NULL) {
 		time = (time_t) strtol(source_date_epoch, NULL, 10);
 
-		time_universal = gmtime(&time);
-		if (time_universal == NULL) {
+		if (gmtime(&time) == NULL) {
 			fprintf(stderr, "%s: SOURCE_DATE_EPOCH is not valid\n",
 				__func__);
 			time = 0;
-		} else {
-			time = mktime(time_universal);
 		}
 	} else {
 		time = sbuf->st_mtime;

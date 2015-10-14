@@ -15,6 +15,7 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <scsi.h>
 #include <libata.h>
 #include <linux/ctype.h>

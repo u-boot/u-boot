@@ -495,7 +495,7 @@ __weak int imx6_pcie_toggle_reset(void)
 	 *
 	 * The PCIe #PERST reset line _MUST_ be connected, otherwise your
 	 * design does not conform to the specification. You must wait at
-	 * least 20 mS after de-asserting the #PERST so the EP device can
+	 * least 20 ms after de-asserting the #PERST so the EP device can
 	 * do self-initialisation.
 	 *
 	 * In case your #PERST pin is connected to a plain GPIO pin of the
@@ -506,7 +506,7 @@ __weak int imx6_pcie_toggle_reset(void)
 	 * In case your #PERST toggling logic is more complex, for example
 	 * connected via CPLD or somesuch, you can override this function
 	 * in your board file and implement reset logic as needed. You must
-	 * not forget to wait at least 20 mS after de-asserting #PERST in
+	 * not forget to wait at least 20 ms after de-asserting #PERST in
 	 * this case either though.
 	 *
 	 * In case your #PERST line of the PCIe EP device is not connected
@@ -538,7 +538,7 @@ static int imx6_pcie_deassert_core_reset(void)
 
 	/*
 	 * Wait for the clock to settle a bit, when the clock are sourced
-	 * from the CPU, we need about 30mS to settle.
+	 * from the CPU, we need about 30 ms to settle.
 	 */
 	mdelay(50);
 

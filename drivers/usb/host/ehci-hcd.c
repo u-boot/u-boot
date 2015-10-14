@@ -15,6 +15,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <watchdog.h>
 #include <linux/compiler.h>
 

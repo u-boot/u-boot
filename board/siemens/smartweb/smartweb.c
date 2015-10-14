@@ -90,7 +90,8 @@ static void smartweb_macb_hw_init(void)
 		pin_to_mask(AT91_PIN_PA17) |
 		pin_to_mask(AT91_PIN_PA25) |
 		pin_to_mask(AT91_PIN_PA26) |
-		pin_to_mask(AT91_PIN_PA28),
+		pin_to_mask(AT91_PIN_PA28) |
+		pin_to_mask(AT91_PIN_PA29),
 		&pioa->pudr);
 
 	at91_phy_reset();
@@ -101,7 +102,8 @@ static void smartweb_macb_hw_init(void)
 		pin_to_mask(AT91_PIN_PA17) |
 		pin_to_mask(AT91_PIN_PA25) |
 		pin_to_mask(AT91_PIN_PA26) |
-		pin_to_mask(AT91_PIN_PA28),
+		pin_to_mask(AT91_PIN_PA28) |
+		pin_to_mask(AT91_PIN_PA29),
 		&pioa->puer);
 
 	/* Initialize EMAC=MACB hardware */
@@ -141,13 +143,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* Adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-
-	smartweb_nand_hw_init();
-#ifdef CONFIG_MACB
-	smartweb_macb_hw_init();
-#endif
 	/* power LED red */
 	at91_set_gpio_output(AT91_PIN_PC6, 0);
 	at91_set_gpio_output(AT91_PIN_PC7, 1);
@@ -163,6 +158,13 @@ int board_init(void)
 	at91_udc_probe(&board_udc_data);
 #endif
 
+	/* Adress of boot parameters */
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
+	smartweb_nand_hw_init();
+#ifdef CONFIG_MACB
+	smartweb_macb_hw_init();
+#endif
 	return 0;
 }
 
@@ -197,6 +199,7 @@ void matrix_init(void)
 
 void spl_board_init(void)
 {
+	/* power LED orange */
 	at91_set_gpio_output(AT91_PIN_PC6, 1);
 	at91_set_gpio_output(AT91_PIN_PC7, 1);
 	/* alarm LED orange */
@@ -212,8 +215,8 @@ void spl_board_init(void)
 
 	/* check if both  button are pressed */
 	if (at91_get_gpio_value(AT91_PIN_PA28) == 0 &&
-	    at91_get_gpio_value(AT91_PIN_PA29) == 0) {
-		debug("Recovery button pressed\n");
+		at91_get_gpio_value(AT91_PIN_PA29) == 0) {
+		smartweb_nand_hw_init();
 		nand_init();
 		spl_nand_erase_one(0, 0);
 	}

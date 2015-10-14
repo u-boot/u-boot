@@ -12,7 +12,6 @@
 #define MC_CCSR_BASE_ADDR \
 	((struct mc_ccsr_registers __iomem *)0x8340000)
 
-#define BIT(x)			(1 << (x))
 #define GCR1_P1_STOP		BIT(31)
 #define GCR1_P2_STOP		BIT(30)
 #define GCR1_P1_DE_RST		BIT(23)

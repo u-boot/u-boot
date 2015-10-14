@@ -95,6 +95,28 @@ static const char lzo_compressed[] =
 	"\x73\x61\x67\x65\x73\x2e\x0a\x11\x00\x00\x00\x00\x00\x00";
 static const unsigned long lzo_compressed_size = 334;
 
+/* lz4 -z /tmp/plain.txt > /tmp/plain.lz4 */
+static const char lz4_compressed[] =
+	"\x04\x22\x4d\x18\x64\x70\xb9\x01\x01\x00\x00\xff\x19\x49\x20\x61"
+	"\x6d\x20\x61\x20\x68\x69\x67\x68\x6c\x79\x20\x63\x6f\x6d\x70\x72"
+	"\x65\x73\x73\x61\x62\x6c\x65\x20\x62\x69\x74\x20\x6f\x66\x20\x74"
+	"\x65\x78\x74\x2e\x0a\x28\x00\x3d\xf1\x25\x54\x68\x65\x72\x65\x20"
+	"\x61\x72\x65\x20\x6d\x61\x6e\x79\x20\x6c\x69\x6b\x65\x20\x6d\x65"
+	"\x2c\x20\x62\x75\x74\x20\x74\x68\x69\x73\x20\x6f\x6e\x65\x20\x69"
+	"\x73\x20\x6d\x69\x6e\x65\x2e\x0a\x49\x66\x20\x49\x20\x77\x32\x00"
+	"\xd1\x6e\x79\x20\x73\x68\x6f\x72\x74\x65\x72\x2c\x20\x74\x45\x00"
+	"\xf4\x0b\x77\x6f\x75\x6c\x64\x6e\x27\x74\x20\x62\x65\x20\x6d\x75"
+	"\x63\x68\x20\x73\x65\x6e\x73\x65\x20\x69\x6e\x0a\xcf\x00\x50\x69"
+	"\x6e\x67\x20\x6d\x12\x00\x00\x32\x00\xf0\x11\x20\x66\x69\x72\x73"
+	"\x74\x20\x70\x6c\x61\x63\x65\x2e\x20\x41\x74\x20\x6c\x65\x61\x73"
+	"\x74\x20\x77\x69\x74\x68\x20\x6c\x7a\x6f\x2c\x63\x00\xf5\x14\x77"
+	"\x61\x79\x2c\x0a\x77\x68\x69\x63\x68\x20\x61\x70\x70\x65\x61\x72"
+	"\x73\x20\x74\x6f\x20\x62\x65\x68\x61\x76\x65\x20\x70\x6f\x6f\x72"
+	"\x6c\x79\x4e\x00\x30\x61\x63\x65\x27\x01\x01\x95\x00\x01\x2d\x01"
+	"\xb0\x0a\x6d\x65\x73\x73\x61\x67\x65\x73\x2e\x0a\x00\x00\x00\x00"
+	"\x9d\x12\x8c\x9d";
+static const unsigned long lz4_compressed_size = 276;
+
 
 #define TEST_BUFFER_SIZE	512
 
@@ -227,6 +249,39 @@ static int uncompress_using_lzo(void *in, unsigned long in_size,
 	return (ret != LZO_E_OK);
 }
 
+static int compress_using_lz4(void *in, unsigned long in_size,
+			      void *out, unsigned long out_max,
+			      unsigned long *out_size)
+{
+	/* There is no lz4 compression in u-boot, so fake it. */
+	assert(in_size == strlen(plain));
+	assert(memcmp(plain, in, in_size) == 0);
+
+	if (lz4_compressed_size > out_max)
+		return -1;
+
+	memcpy(out, lz4_compressed, lz4_compressed_size);
+	if (out_size)
+		*out_size = lz4_compressed_size;
+
+	return 0;
+}
+
+static int uncompress_using_lz4(void *in, unsigned long in_size,
+				void *out, unsigned long out_max,
+				unsigned long *out_size)
+{
+	int ret;
+	size_t input_size = in_size;
+	size_t output_size = out_max;
+
+	ret = ulz4fn(in, input_size, out, &output_size);
+	if (out_size)
+		*out_size = output_size;
+
+	return (ret != 0);
+}
+
 #define errcheck(statement) if (!(statement)) { \
 	fprintf(stderr, "\tFailed: %s\n", #statement); \
 	ret = 1; \
@@ -325,6 +380,7 @@ static int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc,
 	err += run_test("bzip2", compress_using_bzip2, uncompress_using_bzip2);
 	err += run_test("lzma", compress_using_lzma, uncompress_using_lzma);
 	err += run_test("lzo", compress_using_lzo, uncompress_using_lzo);
+	err += run_test("lz4", compress_using_lz4, uncompress_using_lz4);
 
 	printf("ut_compression %s\n", err == 0 ? "ok" : "FAILED");
 
@@ -401,6 +457,7 @@ static int do_ut_image_decomp(cmd_tbl_t *cmdtp, int flag, int argc,
 	err |= run_bootm_test(IH_COMP_BZIP2, compress_using_bzip2);
 	err |= run_bootm_test(IH_COMP_LZMA, compress_using_lzma);
 	err |= run_bootm_test(IH_COMP_LZO, compress_using_lzo);
+	err |= run_bootm_test(IH_COMP_LZ4, compress_using_lz4);
 	err |= run_bootm_test(IH_COMP_NONE, compress_using_none);
 
 	printf("ut_image_decomp %s\n", err == 0 ? "ok" : "FAILED");

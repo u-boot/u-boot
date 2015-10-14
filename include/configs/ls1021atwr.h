@@ -275,6 +275,8 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /* EEPROM */
@@ -308,11 +310,15 @@
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SPI_FLASH_STMICRO
 
+/* DSPI */
+#define CONFIG_FSL_DSPI
+#define CONFIG_SPI_FLASH_ATMEL
+#endif
+
 /* DM SPI */
 #if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
 #define CONFIG_CMD_SF
 #define CONFIG_DM_SPI_FLASH
-#endif
 #endif
 
 /*

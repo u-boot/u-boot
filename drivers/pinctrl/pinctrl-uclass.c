@@ -11,7 +11,6 @@
 #include <dm/device.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
-#include <dm/root.h>
 #include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -160,8 +159,7 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 
 static int pinconfig_post_bind(struct udevice *dev)
 {
-	/* Scan the bus for devices */
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return 0;
 }
 #endif
 
@@ -249,10 +247,15 @@ static int pinctrl_post_bind(struct udevice *dev)
 	}
 
 	/*
-	 * The pinctrl driver child nodes should be bound so that peripheral
-	 * devices can easily search in parent devices during later DT-parsing.
+	 * If set_state callback is set, we assume this pinctrl driver is the
+	 * full implementation.  In this case, its child nodes should be bound
+	 * so that peripheral devices can easily search in parent devices
+	 * during later DT-parsing.
 	 */
-	return pinconfig_post_bind(dev);
+	if (ops->set_state)
+		return pinconfig_post_bind(dev);
+
+	return 0;
 }
 
 UCLASS_DRIVER(pinctrl) = {

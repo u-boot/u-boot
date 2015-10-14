@@ -32,7 +32,7 @@ void *memalign_simple(size_t align, size_t bytes)
 	void *ptr;
 
 	addr = ALIGN(gd->malloc_base + gd->malloc_ptr, align);
-	new_ptr = addr + bytes;
+	new_ptr = addr + bytes - gd->malloc_base;
 	if (new_ptr > gd->malloc_limit)
 		return NULL;
 	ptr = map_sysmem(addr, bytes);

@@ -11,6 +11,7 @@
 #include <environment.h>
 #include <errno.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <search.h>
 #include <ubi_uboot.h>
 #undef crc32

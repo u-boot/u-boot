@@ -289,8 +289,12 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 
 	dev->flags |= DM_FLAG_ACTIVATED;
 
-	/* continue regardless of the result of pinctrl */
-	pinctrl_select_state(dev, "default");
+	/*
+	 * Process pinctrl for everything except the root device, and
+	 * continue regardless of the result of pinctrl.
+	 */
+	if (dev->parent)
+		pinctrl_select_state(dev, "default");
 
 	ret = uclass_pre_probe_device(dev);
 	if (ret)
@@ -581,7 +585,10 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr;
 
-	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
+						dev->parent->of_offset,
+						dev->of_offset, "reg",
+						0, NULL);
 	if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
 		if (device_get_uclass_id(dev->parent) == UCLASS_SIMPLE_BUS)
 			addr = simple_bus_translate(dev->parent, addr);

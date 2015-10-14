@@ -461,6 +461,11 @@ void reset_cmplx_set_enable(int cpu, int which, int reset)
 		writel(mask, &clkrst->crc_cpu_cmplx_clr);
 }
 
+unsigned int __weak clk_m_get_rate(unsigned int parent_rate)
+{
+	return parent_rate;
+}
+
 unsigned clock_get_rate(enum clock_id clkid)
 {
 	struct clk_pll *pll;
@@ -471,6 +476,9 @@ unsigned clock_get_rate(enum clock_id clkid)
 	parent_rate = osc_freq[clock_get_osc_freq()];
 	if (clkid == CLOCK_ID_OSC)
 		return parent_rate;
+
+	if (clkid == CLOCK_ID_CLK_M)
+		return clk_m_get_rate(parent_rate);
 
 	pll = get_pll(clkid);
 	if (!pll)
@@ -483,7 +491,16 @@ unsigned clock_get_rate(enum clock_id clkid)
 	 * PLLU uses p_mask/p_shift for VCO on all but T210,
 	 * T210 uses normal DIVP. Handled in pllinfo table.
 	 */
-	divm <<= (base >> pllinfo->p_shift) & pllinfo->p_mask;
+#ifdef CONFIG_TEGRA210
+	/*
+	 * PLLP's primary output (pllP_out0) on T210 is the VCO, and divp is
+	 * not applied. pllP_out2 does have divp applied. All other pllP_outN
+	 * are divided down from pllP_out0. We only support pllP_out0 in
+	 * U-Boot at the time of writing this comment.
+	 */
+	if (clkid != CLOCK_ID_PERIPH)
+#endif
+		divm <<= (base >> pllinfo->p_shift) & pllinfo->p_mask;
 	do_div(rate, divm);
 	return rate;
 }
@@ -613,8 +630,10 @@ void clock_init(void)
 	pll_rate[CLOCK_ID_XCPU] = clock_get_rate(CLOCK_ID_XCPU);
 	pll_rate[CLOCK_ID_SFROM32KHZ] = 32768;
 	pll_rate[CLOCK_ID_OSC] = clock_get_rate(CLOCK_ID_OSC);
+	pll_rate[CLOCK_ID_CLK_M] = clock_get_rate(CLOCK_ID_CLK_M);
 
 	debug("Osc = %d\n", pll_rate[CLOCK_ID_OSC]);
+	debug("CLKM = %d\n", pll_rate[CLOCK_ID_CLK_M]);
 	debug("PLLC = %d\n", pll_rate[CLOCK_ID_CGENERAL]);
 	debug("PLLM = %d\n", pll_rate[CLOCK_ID_MEMORY]);
 	debug("PLLP = %d\n", pll_rate[CLOCK_ID_PERIPH]);

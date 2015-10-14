@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <lcd.h>
+#include <memalign.h>
 #include <asm/arch/mbox.h>
 #include <asm/global_data.h>
 

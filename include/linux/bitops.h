@@ -3,6 +3,8 @@
 
 #include <asm/types.h>
 
+#define BIT(nr)		(1UL << (nr))
+
 /*
  * ffs: find first bit set. This is defined the same way as
  * the libc and compiler builtin ffs routines, therefore

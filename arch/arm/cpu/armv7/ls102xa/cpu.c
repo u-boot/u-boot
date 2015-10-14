@@ -13,6 +13,8 @@
 #include <tsec.h>
 #include <netdev.h>
 #include <fsl_esdhc.h>
+#include <config.h>
+#include <fsl_wdog.h>
 
 #include "fsl_epu.h"
 
@@ -354,3 +356,16 @@ void smp_kick_all_cpus(void)
 	asm volatile("sev");
 }
 #endif
+
+void reset_cpu(ulong addr)
+{
+	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
+
+	clrbits_be16(&wdog->wcr, WCR_SRS);
+
+	while (1) {
+		/*
+		 * Let the watchdog trigger
+		 */
+	}
+}

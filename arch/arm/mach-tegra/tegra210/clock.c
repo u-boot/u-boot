@@ -998,18 +998,27 @@ void clock_early_init(void)
 	udelay(2);
 }
 
+unsigned int clk_m_get_rate(unsigned parent_rate)
+{
+	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 value, div;
+
+	value = readl(&clkrst->crc_spare_reg0);
+	div = ((value >> 2) & 0x3) + 1;
+
+	return parent_rate / div;
+}
+
 void arch_timer_init(void)
 {
 	struct sysctr_ctlr *sysctr = (struct sysctr_ctlr *)NV_PA_TSC_BASE;
 	u32 freq, val;
 
-	freq = clock_get_rate(CLOCK_ID_OSC);
-	debug("%s: osc freq is %dHz [0x%08X]\n", __func__, freq, freq);
+	freq = clock_get_rate(CLOCK_ID_CLK_M);
+	debug("%s: clk_m freq is %dHz [0x%08X]\n", __func__, freq, freq);
 
-	/* ARM CNTFRQ */
-#ifndef CONFIG_ARM64
-	asm("mcr p15, 0, %0, c14, c0, 0\n" : : "r" (freq));
-#endif
+	if (current_el() == 3)
+		asm("msr cntfrq_el0, %0\n" : : "r" (freq));
 
 	/* Only Tegra114+ has the System Counter regs */
 	debug("%s: setting CNTFID0 to 0x%08X\n", __func__, freq);

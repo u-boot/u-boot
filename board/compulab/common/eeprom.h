@@ -9,18 +9,24 @@
 
 #ifndef _EEPROM_
 #define _EEPROM_
+#include <errno.h>
 
 #ifdef CONFIG_SYS_I2C
 int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus);
-u32 cl_eeprom_get_board_rev(void);
+u32 cl_eeprom_get_board_rev(uint eeprom_bus);
+int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus);
 #else
 static inline int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
 {
 	return 1;
 }
-static inline u32 cl_eeprom_get_board_rev(void)
+static inline u32 cl_eeprom_get_board_rev(uint eeprom_bus)
 {
 	return 0;
+}
+static inline int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
+{
+	return -ENOSYS;
 }
 #endif
 

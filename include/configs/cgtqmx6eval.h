@@ -33,17 +33,14 @@
 #define CONFIG_CMD_BMODE
 
 /* Thermal support */
-#define CONFIG_IMX6_THERMAL
-
-#define CONFIG_CMD_FUSE
-#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX6_THERMAL)
-#define CONFIG_MXC_OCOTP
-#endif
+#define CONFIG_IMX_THERMAL
 
 /* I2C Configs */
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_SPEED		  100000
 
@@ -67,6 +64,20 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2 /* Enabled USB controller number */
 #define CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
+
+#define CONFIG_CI_UDC
+#define CONFIG_USBD_HS
+#define CONFIG_USB_GADGET_DUALSPEED
+
+#define CONFIG_USB_GADGET
+#define CONFIG_CMD_USB_MASS_STORAGE
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
+#define CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+
+#define CONFIG_G_DNL_VENDOR_NUM		0x0525
+#define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
+#define CONFIG_G_DNL_MANUFACTURER	"Congatec"
 
 /* Framebuffer */
 #define CONFIG_VIDEO

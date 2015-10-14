@@ -167,6 +167,7 @@ static const table_entry_t uimage_comp[] = {
 	{	IH_COMP_GZIP,	"gzip",		"gzip compressed",	},
 	{	IH_COMP_LZMA,	"lzma",		"lzma compressed",	},
 	{	IH_COMP_LZO,	"lzo",		"lzo compressed",	},
+	{	IH_COMP_LZ4,	"lz4",		"lz4 compressed",	},
 	{	-1,		"",		"",			},
 };
 
@@ -906,6 +907,15 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 
 	*rd_start = 0;
 	*rd_end = 0;
+
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	/*
+	 * Look for an Android boot image.
+	 */
+	buf = map_sysmem(images->os.start, 0);
+	if (genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
+		select = argv[0];
+#endif
 
 	if (argc >= 2)
 		select = argv[1];

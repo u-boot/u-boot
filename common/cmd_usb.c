@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <memalign.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <part.h>

@@ -32,17 +32,70 @@
 
 /* Host Memory I/O Boundary */
 #define HM_BOUND		0x08
+#define HM_BOUND_LOCK		0x00000001
 
 /* Extended Configuration Space */
 #define HEC_REG			0x09
+
+/* MTRR Registers */
+#define MTRR_CAP		0x40
+#define MTRR_DEF_TYPE		0x41
+
+#define MTRR_FIX_64K_00000	0x42
+#define MTRR_FIX_64K_40000	0x43
+#define MTRR_FIX_16K_80000	0x44
+#define MTRR_FIX_16K_90000	0x45
+#define MTRR_FIX_16K_A0000	0x46
+#define MTRR_FIX_16K_B0000	0x47
+#define MTRR_FIX_4K_C0000	0x48
+#define MTRR_FIX_4K_C4000	0x49
+#define MTRR_FIX_4K_C8000	0x4a
+#define MTRR_FIX_4K_CC000	0x4b
+#define MTRR_FIX_4K_D0000	0x4c
+#define MTRR_FIX_4K_D4000	0x4d
+#define MTRR_FIX_4K_D8000	0x4e
+#define MTRR_FIX_4K_DC000	0x4f
+#define MTRR_FIX_4K_E0000	0x50
+#define MTRR_FIX_4K_E4000	0x51
+#define MTRR_FIX_4K_E8000	0x52
+#define MTRR_FIX_4K_EC000	0x53
+#define MTRR_FIX_4K_F0000	0x54
+#define MTRR_FIX_4K_F4000	0x55
+#define MTRR_FIX_4K_F8000	0x56
+#define MTRR_FIX_4K_FC000	0x57
+
+#define MTRR_SMRR_PHYBASE	0x58
+#define MTRR_SMRR_PHYMASK	0x59
+
+#define MTRR_VAR_PHYBASE(n)	(0x5a + 2 * (n))
+#define MTRR_VAR_PHYMASK(n)	(0x5b + 2 * (n))
+
+#ifndef __ASSEMBLY__
+
+/* variable range MTRR usage */
+enum {
+	MTRR_VAR_ROM,
+	MTRR_VAR_ESRAM,
+	MTRR_VAR_RAM
+};
+
+#endif /* __ASSEMBLY__ */
 
 /* Port 0x04: Remote Management Unit Message Port Registers */
 
 /* ACPI PBLK Base Address Register */
 #define PBLK_BA			0x70
 
+/* Control Register */
+#define RMU_CTRL		0x71
+
 /* SPI DMA Base Address Register */
 #define SPI_DMA_BA		0x7a
+
+/* Thermal Sensor Register */
+#define TS_MODE			0xb0
+#define TS_TEMP			0xb1
+#define TS_TRIP			0xb2
 
 /* Port 0x05: Memory Manager Message Port Registers */
 
@@ -63,6 +116,12 @@
 #define PCIE_RXPICTRL0_L1	0x2180
 
 /* Port 0x31: SoC Unit Port Registers */
+
+/* Thermal Sensor Config */
+#define TS_CFG1			0x31
+#define TS_CFG2			0x32
+#define TS_CFG3			0x33
+#define TS_CFG4			0x34
 
 /* PCIe Controller Config */
 #define PCIE_CFG		0x36
@@ -88,6 +147,20 @@
 /* 64KiB of RMU binary in flash */
 #define RMU_BINARY_SIZE		0x10000
 
+/* PCIe Root Port Configuration Registers */
+
+#define PCIE_RP_CCFG		0xd0
+#define CCFG_UPRS		(1 << 14)
+#define CCFG_UNRS		(1 << 15)
+#define CCFG_UNSD		(1 << 23)
+#define CCFG_UPSD		(1 << 24)
+
+#define PCIE_RP_MPC2		0xd4
+#define MPC2_IPF		(1 << 11)
+
+#define PCIE_RP_MBC		0xf4
+#define MBC_SBIC		(3 << 16)
+
 /* Legacy Bridge PCI Configuration Registers */
 #define LB_GBA			0x44
 #define LB_PM1BLK		0x48
@@ -99,6 +172,14 @@
 #define LB_BCE			0xd4
 #define LB_BC			0xd8
 #define LB_RCBA			0xf0
+
+/* USB EHCI memory-mapped registers */
+#define EHCI_INSNREG01		0x94
+
+/* USB device memory-mapped registers */
+#define USBD_INT_MASK		0x410
+#define USBD_EP_INT_STS		0x414
+#define USBD_EP_INT_MASK	0x418
 
 #ifndef __ASSEMBLY__
 

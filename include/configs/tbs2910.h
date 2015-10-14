@@ -20,7 +20,7 @@
 
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_IMX6_THERMAL
+#define CONFIG_IMX_THERMAL
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -167,6 +167,8 @@
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_I2C_EDID
@@ -190,7 +192,7 @@
 	"bootargs_upd=setenv bootargs console=ttymxc0,115200 " \
 			"rdinit=/sbin/init enable_wait_mode=off\0" \
 	"bootcmd_mmc=run bootargs_mmc; mmc dev 2; " \
-			"mmc read 0x10800000 0x800 0x4000; bootm\0" \
+			"mmc read 0x10800000 0x800 0x4000; bootm 0x10800000\0" \
 	"bootcmd_up1=load mmc 1 0x10800000 uImage\0" \
 	"bootcmd_up2=load mmc 1 0x10d00000 uramdisk.img; " \
 			"run bootargs_upd; " \

@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include "eeprom.h"
 
 #ifndef CONFIG_SYS_I2C_EEPROM_ADDR
 # define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
@@ -25,6 +26,8 @@
 #define BOARD_REV_OFFSET		0
 #define BOARD_REV_OFFSET_LEGACY		6
 #define BOARD_REV_SIZE			2
+#define PRODUCT_NAME_OFFSET		128
+#define PRODUCT_NAME_SIZE		16
 #define MAC_ADDR_OFFSET			4
 #define MAC_ADDR_OFFSET_LEGACY		0
 
@@ -105,9 +108,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
 int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
 {
 	uint offset;
+	int err;
 
-	if (cl_eeprom_setup(eeprom_bus))
-		return 0;
+	err = cl_eeprom_setup(eeprom_bus);
+	if (err)
+		return err;
 
 	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
 			MAC_ADDR_OFFSET : MAC_ADDR_OFFSET_LEGACY;
@@ -121,7 +126,7 @@ static u32 board_rev;
  * Routine: cl_eeprom_get_board_rev
  * Description: read system revision from eeprom
  */
-u32 cl_eeprom_get_board_rev(void)
+u32 cl_eeprom_get_board_rev(uint eeprom_bus)
 {
 	char str[5]; /* Legacy representation can contain at most 4 digits */
 	uint offset = BOARD_REV_OFFSET_LEGACY;
@@ -129,7 +134,7 @@ u32 cl_eeprom_get_board_rev(void)
 	if (board_rev)
 		return board_rev;
 
-	if (cl_eeprom_setup(CONFIG_SYS_I2C_EEPROM_BUS))
+	if (cl_eeprom_setup(eeprom_bus))
 		return 0;
 
 	if (cl_eeprom_layout != LAYOUT_LEGACY)
@@ -149,3 +154,30 @@ u32 cl_eeprom_get_board_rev(void)
 
 	return board_rev;
 };
+
+/*
+ * Routine: cl_eeprom_get_board_rev
+ * Description: read system revision from eeprom
+ *
+ * @buf: buffer to store the product name
+ * @eeprom_bus: i2c bus num of the eeprom
+ *
+ * @return: 0 on success, < 0 on failure
+ */
+int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
+{
+	int err;
+
+	if (buf == NULL)
+		return -EINVAL;
+
+	err = cl_eeprom_setup(eeprom_bus);
+	if (err)
+		return err;
+
+	err = cl_eeprom_read(PRODUCT_NAME_OFFSET, buf, PRODUCT_NAME_SIZE);
+	if (!err) /* Protect ourselves from invalid data (unterminated str) */
+		buf[PRODUCT_NAME_SIZE - 1] = '\0';
+
+	return err;
+}

@@ -499,15 +499,8 @@ again:
 	}
 
 	/* we have a packet address, so tell the card to use it */
-#ifndef CONFIG_XAENIAX
 	SMC_outb (dev, packet_no, PN_REG);
-#else
-	/* On Xaeniax board, we can't use SMC_outb here because that way
-	 * the Allocate MMU command will end up written to the command register
-	 * as well, which will lead to a problem.
-	 */
-	SMC_outl (dev, packet_no << 16, 0);
-#endif
+
 	/* do not write new ptr value if Write data fifo not empty */
 	while ( saved_ptr & PTR_NOTEMPTY )
 		printf ("Write data fifo not empty!\n");
@@ -542,39 +535,19 @@ again:
 	 */
 #ifdef USE_32_BIT
 	SMC_outsl (dev, SMC91111_DATA_REG, buf, length >> 2);
-#ifndef CONFIG_XAENIAX
 	if (length & 0x2)
 		SMC_outw (dev, *((word *) (buf + (length & 0xFFFFFFFC))),
 			  SMC91111_DATA_REG);
 #else
-	/* On XANEIAX, we can only use 32-bit writes, so we need to handle
-	 * unaligned tail part specially. The standard code doesn't work.
-	 */
-	if ((length & 3) == 3) {
-		u16 * ptr = (u16*) &buf[length-3];
-		SMC_outl(dev, (*ptr) | ((0x2000 | buf[length-1]) << 16),
-				SMC91111_DATA_REG);
-	} else if ((length & 2) == 2) {
-		u16 * ptr = (u16*) &buf[length-2];
-		SMC_outl(dev, *ptr, SMC91111_DATA_REG);
-	} else if (length & 1) {
-		SMC_outl(dev, (0x2000 | buf[length-1]), SMC91111_DATA_REG);
-	} else {
-		SMC_outl(dev, 0, SMC91111_DATA_REG);
-	}
-#endif
-#else
 	SMC_outsw (dev, SMC91111_DATA_REG, buf, (length) >> 1);
 #endif /* USE_32_BIT */
 
-#ifndef CONFIG_XAENIAX
 	/* Send the last byte, if there is one.	  */
 	if ((length & 1) == 0) {
 		SMC_outw (dev, 0, SMC91111_DATA_REG);
 	} else {
 		SMC_outw (dev, buf[length - 1] | 0x2000, SMC91111_DATA_REG);
 	}
-#endif
 
 	/* and let the chipset deal with it */
 	SMC_outw (dev, MC_ENQUEUE, MMU_CMD_REG);
@@ -588,9 +561,6 @@ again:
 
 		/* release packet */
 		/* no need to release, MMU does that now */
-#ifdef CONFIG_XAENIAX
-		 SMC_outw (dev, MC_FREEPKT, MMU_CMD_REG);
-#endif
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (dev, MMU_CMD_REG) & MC_BUSY) {
@@ -610,9 +580,6 @@ again:
 
 		/* release packet */
 		/* no need to release, MMU does that now */
-#ifdef CONFIG_XAENIAX
-		SMC_outw (dev, MC_FREEPKT, MMU_CMD_REG);
-#endif
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (dev, MMU_CMD_REG) & MC_BUSY) {
@@ -625,15 +592,7 @@ again:
 	}
 
 	/* restore previously saved registers */
-#ifndef CONFIG_XAENIAX
 	SMC_outb( dev, saved_pnr, PN_REG );
-#else
-	/* On Xaeniax board, we can't use SMC_outb here because that way
-	 * the Allocate MMU command will end up written to the command register
-	 * as well, which will lead to a problem.
-	 */
-	SMC_outl(dev, saved_pnr << 16, 0);
-#endif
 	SMC_outw( dev, saved_ptr, PTR_REG );
 
 	return length;
@@ -802,15 +761,7 @@ static int smc_rcv(struct eth_device *dev)
 		udelay(1); /* Wait until not busy */
 
 	/* restore saved registers */
-#ifndef CONFIG_XAENIAX
 	SMC_outb( dev, saved_pnr, PN_REG );
-#else
-	/* On Xaeniax board, we can't use SMC_outb here because that way
-	 * the Allocate MMU command will end up written to the command register
-	 * as well, which will lead to a problem.
-	 */
-	SMC_outl( dev, saved_pnr << 16, 0);
-#endif
 	SMC_outw( dev, saved_ptr, PTR_REG );
 
 	if (!is_error) {

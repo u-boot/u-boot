@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <memalign.h>
 #include <nand.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>

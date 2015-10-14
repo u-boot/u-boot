@@ -32,8 +32,6 @@
  */
 #define MV_DEBUG_INIT
 
-#define BIT(x)				(1 << (x))
-
 #ifdef MV_DEBUG_INIT
 #define DEBUG_INIT_S(s)			puts(s)
 #define DEBUG_INIT_D(d, l)		printf("%x", d)

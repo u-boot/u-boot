@@ -35,19 +35,15 @@ choice
 
 config TARGET_ARISTAINETOS
 	bool "aristainetos"
-	select CPU_V7
 
 config TARGET_ARISTAINETOS2
 	bool "aristainetos2"
-	select CPU_V7
 
 config TARGET_ARISTAINETOS2B
 	bool "Support aristainetos2-revB"
-	select CPU_V7
 
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
-	select CPU_V7
 
 config TARGET_CM_FX6
 	bool "CM-FX6"
@@ -58,77 +54,70 @@ config TARGET_CM_FX6
 
 config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
-	select CPU_V7
 
 config TARGET_GW_VENTANA
 	bool "gw_ventana"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_KOSAGI_NOVENA
 	bool "Kosagi Novena"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_MX6CUBOXI
 	bool "Solid-run mx6 boards"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_MX6QARM2
 	bool "mx6qarm2"
-	select CPU_V7
 
 config TARGET_MX6QSABREAUTO
 	bool "mx6qsabreauto"
-	select CPU_V7
 	select DM
 	select DM_THERMAL
 
 config TARGET_MX6SABRESD
 	bool "mx6sabresd"
-	select CPU_V7
 	select SUPPORT_SPL
 	select DM
 	select DM_THERMAL
 
 config TARGET_MX6SLEVK
 	bool "mx6slevk"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_MX6SXSABRESD
 	bool "mx6sxsabresd"
-	select CPU_V7
 	select SUPPORT_SPL
 	select DM
 	select DM_THERMAL
 
+config TARGET_MX6UL_9X9_EVK
+	bool "mx6ul_9x9_evk"
+	select MX6UL
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MX6UL_14X14_EVK
 	bool "mx6ul_14x14_evk"
 	select MX6UL
-	select CPU_V7
 	select DM
 	select DM_THERMAL
 	select SUPPORT_SPL
 
 config TARGET_NITROGEN6X
 	bool "nitrogen6x"
-	select CPU_V7
 
 config TARGET_OT1200
 	bool "Bachmann OT1200"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_PLATINUM_PICON
 	bool "platinum-picon"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_PLATINUM_TITANIUM
 	bool "platinum-titanium"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SECOMX6
@@ -136,28 +125,23 @@ config TARGET_SECOMX6
 
 config TARGET_TBS2910
 	bool "TBS2910 Matrix ARM mini PC"
-	select CPU_V7
 
 config TARGET_TITANIUM
 	bool "titanium"
-	select CPU_V7
 
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
 
 config TARGET_UDOO
 	bool "udoo"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_WANDBOARD
 	bool "wandboard"
-	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_WARP
 	bool "WaRP"
-	select CPU_V7
 
 endchoice
 

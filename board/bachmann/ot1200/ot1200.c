@@ -305,13 +305,13 @@ int board_eth_init(bd_t *bis)
 
 	bus = fec_get_miibus(base, -1);
 	if (!bus)
-		return 0;
+		return -EINVAL;
 
 	/* scan phy 0 and 5 */
 	phydev = phy_find_by_mask(bus, 0x21, PHY_INTERFACE_MODE_RGMII);
 	if (!phydev) {
-		free(bus);
-		return 0;
+		ret = -EINVAL;
+		goto free_bus;
 	}
 
 	/* depending on the phy address we can detect our board version */
@@ -322,12 +322,16 @@ int board_eth_init(bd_t *bis)
 
 	printf("using phy at %d\n", phydev->addr);
 	ret = fec_probe(bis, -1, base, bus, phydev);
-	if (ret) {
-		printf("FEC MXC: %s:failed\n", __func__);
-		free(phydev);
-		free(bus);
-	}
+	if (ret)
+		goto free_phydev;
+
 	return 0;
+
+free_phydev:
+	free(phydev);
+free_bus:
+	free(bus);
+	return ret;
 }
 
 int board_init(void)

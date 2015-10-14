@@ -27,6 +27,7 @@ CONFIG_IMX_WATCHDOG
 	Available for i.mx31/35/5x/6x to service the watchdog. This is not
 	automatically set because some boards (vision2) still need to define
 	their own hw_watchdog_reset routine.
+	TODO: vision2 is removed now, so perhaps this can be changed.
 
 CONFIG_XILINX_TB_WATCHDOG
 	Available for Xilinx Axi platforms to service timebase watchdog timer.

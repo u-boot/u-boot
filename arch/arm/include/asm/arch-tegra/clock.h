@@ -44,6 +44,9 @@ enum {
 /* return the current oscillator clock frequency */
 enum clock_osc_freq clock_get_osc_freq(void);
 
+/* return the clk_m frequency */
+unsigned int clk_m_get_rate(unsigned int parent_rate);
+
 /**
  * Start PLL using the provided configuration parameters.
  *
@@ -338,8 +341,8 @@ void arch_timer_init(void);
 
 void tegra30_set_up_pllp(void);
 
-/* Number of PLL-based clocks (i.e. not OSC or 32KHz) */
-#define CLOCK_ID_PLL_COUNT	(CLOCK_ID_COUNT - 2)
+/* Number of PLL-based clocks (i.e. not OSC, MCLK or 32KHz) */
+#define CLOCK_ID_PLL_COUNT	(CLOCK_ID_COUNT - 3)
 
 struct clk_pll_info {
 	u32	m_shift:5;	/* DIVM_SHIFT */

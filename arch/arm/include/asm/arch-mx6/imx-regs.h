@@ -137,8 +137,10 @@
 /* Defines for Blocks connected via AIPS (SkyBlue) */
 #define ATZ1_BASE_ADDR              AIPS1_ARB_BASE_ADDR
 #define ATZ2_BASE_ADDR              AIPS2_ARB_BASE_ADDR
+#define ATZ3_BASE_ADDR              AIPS3_ARB_BASE_ADDR
 #define AIPS1_BASE_ADDR             AIPS1_ON_BASE_ADDR
 #define AIPS2_BASE_ADDR             AIPS2_ON_BASE_ADDR
+#define AIPS3_BASE_ADDR             AIPS3_ON_BASE_ADDR
 
 #define SPDIF_BASE_ADDR             (ATZ1_BASE_ADDR + 0x04000)
 #define ECSPI1_BASE_ADDR            (ATZ1_BASE_ADDR + 0x08000)
@@ -219,6 +221,8 @@
 
 #define AIPS2_ON_BASE_ADDR          (ATZ2_BASE_ADDR + 0x7C000)
 #define AIPS2_OFF_BASE_ADDR         (ATZ2_BASE_ADDR + 0x80000)
+#define AIPS3_ON_BASE_ADDR          (ATZ3_BASE_ADDR + 0x7C000)
+#define AIPS3_OFF_BASE_ADDR         (ATZ3_BASE_ADDR + 0x80000)
 #define CAAM_BASE_ADDR              (ATZ2_BASE_ADDR)
 #define ARM_BASE_ADDR		    (ATZ2_BASE_ADDR + 0x40000)
 

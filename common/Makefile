@@ -214,6 +214,7 @@ obj-$(CONFIG_DFU_TFTP) += update.o
 obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 obj-$(CONFIG_CMD_DFU) += cmd_dfu.o
 obj-$(CONFIG_CMD_GPT) += cmd_gpt.o
+obj-$(CONFIG_CMD_ETHSW) += cmd_ethsw.o
 
 # Power
 obj-$(CONFIG_CMD_PMIC) += cmd_pmic.o

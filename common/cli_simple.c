@@ -258,7 +258,7 @@ int cli_simple_run_command(const char *cmd, int flag)
 
 void cli_simple_loop(void)
 {
-	static char lastcommand[CONFIG_SYS_CBSIZE] = { 0, };
+	static char lastcommand[CONFIG_SYS_CBSIZE + 1] = { 0, };
 
 	int len;
 	int flag;
