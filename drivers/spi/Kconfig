@@ -15,6 +15,14 @@ config DM_SPI
 
 if DM_SPI
 
+config ALTERA_SPI
+	bool "Altera SPI driver"
+	help
+	  Enable the Altera SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Altera
+	  IP core. Please find details on the "Embedded Peripherals IP
+	  User Guide" of Altera.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help
