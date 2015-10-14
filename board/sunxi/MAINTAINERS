@@ -29,11 +29,11 @@ F:	configs/mk802_a10s_defconfig
 F:	configs/q8_a13_tablet_defconfig
 F:	configs/r7-tv-dongle_defconfig
 F:	configs/UTOO_P66_defconfig
+F:	configs/Wobo_i5_defconfig
 F:	include/configs/sun6i.h
 F:	configs/CSQ_CS908_defconfig
 F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M9_defconfig
-F:	configs/Wobo_i5_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
