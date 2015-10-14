@@ -127,6 +127,22 @@ config DEBUG_UART_APBUART
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_PL010
+	bool "pl010"
+	help
+	  Select this to enable a debug UART using the pl01x driver with the
+	  PL010 UART type. You will need to provide parameters to make this
+	  work. The driver will be available until the real driver model
+	  serial is running.
+
+config DEBUG_UART_PL011
+	bool "pl011"
+	help
+	  Select this to enable a debug UART using the pl01x driver with the
+	  PL011 UART type. You will need to provide parameters to make this
+	  work. The driver will be available until the real driver model
+	  serial is running.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -179,6 +195,12 @@ config DEBUG_UART_ANNOUNCE
 	  U-Boot has the UART ready for use (i.e. your code calls
 	  debug_uart_init()). This can be useful just as a check that
 	  everything is working.
+
+config DEBUG_UART_SKIP_INIT
+	bool "Skip UART initialization"
+	help
+	  Select this if the UART you want to use for debug output is already
+	  initialized by the time U-Boot starts its execution.
 
 config ALTERA_JTAG_UART
 	bool "Altera JTAG UART support"
