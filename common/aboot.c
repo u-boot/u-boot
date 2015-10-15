@@ -37,10 +37,13 @@
 #include <config.h>
 #include <common.h>
 #include <aboot.h>
+#include <div64.h>
 #include <errno.h>
 #include <malloc.h>
 #include <part.h>
 #include <sparse_format.h>
+
+#include <linux/math64.h>
 
 typedef struct sparse_buffer {
 	void	*data;
@@ -260,7 +263,7 @@ void write_sparse_image(block_dev_desc_t *dev_desc,
 {
 	lbaint_t start;
 	lbaint_t blkcnt;
-	unsigned int chunk;
+	unsigned int chunk, offset;
 	sparse_header_t *sparse_header;
 	chunk_header_t *chunk_header;
 	sparse_buffer_t *buffer;
@@ -274,9 +277,12 @@ void write_sparse_image(block_dev_desc_t *dev_desc,
 		return;
 	}
 
-	/* verify sparse_header->blk_sz is an exact multiple of info->blksz */
-	if (sparse_header->blk_sz !=
-	    (sparse_header->blk_sz & ~(info->blksz - 1))) {
+	/*
+	 * Verify that the sparse block size is a multiple of our
+	 * storage backend block size
+	 */
+	div_u64_rem(sparse_header->blk_sz, info->blksz, &offset);
+	if (offset) {
 		printf("%s: Sparse image block size issue [%u]\n",
 		       __func__, sparse_header->blk_sz);
 		fastboot_fail("sparse image block size issue");
