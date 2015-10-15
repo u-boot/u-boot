@@ -140,8 +140,7 @@
 #endif
 
 /* mmc config */
-#if !defined(CONFIG_UART0_PORT_F)
-#define CONFIG_MMC
+#ifdef CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_MMC_SUNXI
@@ -197,7 +196,7 @@
 
 #define CONFIG_SPL_LIBDISK_SUPPORT
 
-#if !defined(CONFIG_UART0_PORT_F)
+#ifdef CONFIG_MMC
 #define CONFIG_SPL_MMC_SUPPORT
 #endif
 
@@ -355,8 +354,11 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_FASTBOOT_FLASH
+
+#ifdef CONFIG_MMC
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV	0
 #define CONFIG_EFI_PARTITION
+#endif
 #endif
 
 #ifdef CONFIG_USB_FUNCTION_MASS_STORAGE

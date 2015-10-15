@@ -2,7 +2,7 @@ menu "MMC Host controller Support"
 
 config MMC
 	bool "Enable MMC support"
-	depends on UNUSED
+	depends on ARCH_SUNXI
 	help
 	  TODO: Move all architectures to use this option
 
