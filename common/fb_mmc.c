@@ -96,8 +96,9 @@ static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
 	fastboot_okay(response_str, "");
 }
 
-void fb_mmc_flash_write(const char *cmd, void *download_buffer,
-			unsigned int download_bytes, char *response)
+void fb_mmc_flash_write(const char *cmd, unsigned int session_id,
+			void *download_buffer, unsigned int download_bytes,
+			char *response)
 {
 	block_dev_desc_t *dev_desc;
 	disk_partition_t info;
@@ -151,7 +152,8 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		printf("Flashing sparse image at offset " LBAFU "\n",
 		       info.start);
 
-		store_sparse_image(&sparse, &sparse_priv, download_buffer);
+		store_sparse_image(&sparse, &sparse_priv, session_id,
+				   download_buffer);
 	} else {
 		write_raw_image(dev_desc, &info, cmd, download_buffer,
 				download_bytes);

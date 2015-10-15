@@ -51,6 +51,7 @@ static inline struct f_fastboot *func_to_fastboot(struct usb_function *f)
 }
 
 static struct f_fastboot *fastboot_func;
+static unsigned int fastboot_flash_session_id;
 static unsigned int download_size;
 static unsigned int download_bytes;
 static bool is_high_speed;
@@ -393,6 +394,15 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 
 		sprintf(str_num, "0x%08x", CONFIG_FASTBOOT_BUF_SIZE);
 		strncat(response, str_num, chars_left);
+
+		/*
+		 * This also indicates the start of a new flashing
+		 * "session", in which we could have 1-N buffers to
+		 * write to a partition.
+		 *
+		 * Reset our session counter.
+		 */
+		fastboot_flash_session_id = 0;
 	} else if (!strcmp_l1("serialno", cmd)) {
 		s = getenv("serial#");
 		if (s)
@@ -555,9 +565,11 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 
 	strcpy(response, "FAILno flash device defined");
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-	fb_mmc_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
+	fb_mmc_flash_write(cmd, fastboot_flash_session_id,
+			   (void *)CONFIG_FASTBOOT_BUF_ADDR,
 			   download_bytes, response);
 #endif
+	fastboot_flash_session_id++;
 	fastboot_tx_write_str(response);
 }
 #endif

@@ -32,4 +32,4 @@ static inline int is_sparse_image(void *buf)
 }
 
 int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
-		       void *data);
+		       unsigned int session_id, void *data);

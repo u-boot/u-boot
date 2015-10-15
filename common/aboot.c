@@ -264,8 +264,8 @@ static void sparse_put_data_buffer(sparse_buffer_t *buffer)
 	free(buffer);
 }
 
-int store_sparse_image(sparse_storage_t *storage,
-		       void *storage_priv, void *data)
+int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
+		       unsigned int session_id, void *data)
 {
 	unsigned int chunk, offset;
 	sparse_header_t *sparse_header;
