@@ -13,6 +13,7 @@
 #include <config.h>
 #include <common.h>
 #include <errno.h>
+#include <fastboot.h>
 #include <malloc.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
@@ -33,9 +34,6 @@
 #define RX_ENDPOINT_MAXIMUM_PACKET_SIZE_2_0  (0x0200)
 #define RX_ENDPOINT_MAXIMUM_PACKET_SIZE_1_1  (0x0040)
 #define TX_ENDPOINT_MAXIMUM_PACKET_SIZE      (0x0040)
-
-/* The 64 defined bytes plus \0 */
-#define RESPONSE_LEN	(64 + 1)
 
 #define EP_BUFFER_SIZE			4096
 
@@ -124,6 +122,19 @@ static struct usb_gadget_strings *fastboot_strings[] = {
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
 static int strcmp_l1(const char *s1, const char *s2);
+
+
+void fastboot_fail(char *response, const char *reason)
+{
+	strncpy(response, "FAIL\0", 5);
+	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
+}
+
+void fastboot_okay(char *response, const char *reason)
+{
+	strncpy(response, "OKAY\0", 5);
+	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
+}
 
 static void fastboot_complete(struct usb_ep *ep, struct usb_request *req)
 {
@@ -358,7 +369,7 @@ static int strcmp_l1(const char *s1, const char *s2)
 static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 	const char *s;
 	size_t chars_left;
 
@@ -415,7 +426,7 @@ static unsigned int rx_bytes_expected(unsigned int maxpacket)
 #define BYTES_PER_DOT	0x20000
 static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 {
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 	unsigned int transfer_size = download_size - download_bytes;
 	const unsigned char *buffer = req->buf;
 	unsigned int buffer_size = req->actual;
@@ -472,7 +483,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 static void cb_download(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 	unsigned int max;
 
 	strsep(&cmd, ":");
@@ -533,7 +544,7 @@ static void cb_continue(struct usb_ep *ep, struct usb_request *req)
 static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 
 	strsep(&cmd, ":");
 	if (!cmd) {
@@ -577,7 +588,7 @@ static void cb_oem(struct usb_ep *ep, struct usb_request *req)
 static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 
 	strsep(&cmd, ":");
 	if (!cmd) {
