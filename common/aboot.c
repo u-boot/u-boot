@@ -58,6 +58,13 @@ static unsigned int sparse_get_chunk_data_size(sparse_header_t *sparse,
 	return chunk->total_sz - sparse->chunk_hdr_sz;
 }
 
+static unsigned int sparse_block_size_to_storage(unsigned int size,
+						 sparse_storage_t *storage,
+						 sparse_header_t *sparse)
+{
+	return size * sparse->blk_sz / storage->block_sz;
+}
+
 static bool sparse_chunk_has_buffer(chunk_header_t *chunk)
 {
 	switch (chunk->chunk_type) {
@@ -257,19 +264,25 @@ static void sparse_put_data_buffer(sparse_buffer_t *buffer)
 	free(buffer);
 }
 
-int write_sparse_image(block_dev_desc_t *dev_desc,
-		       disk_partition_t *info, const char *part_name,
-		       void *data, unsigned sz)
+int store_sparse_image(sparse_storage_t *storage,
+		       void *storage_priv, void *data)
 {
-	lbaint_t start;
-	lbaint_t blkcnt;
 	unsigned int chunk, offset;
 	sparse_header_t *sparse_header;
 	chunk_header_t *chunk_header;
 	sparse_buffer_t *buffer;
+	uint32_t start;
 	uint32_t total_blocks = 0;
 	uint32_t skipped = 0;
 	int i;
+
+	debug("=== Storage ===\n");
+	debug("name: %s\n", storage->name);
+	debug("block_size: 0x%x\n", storage->block_sz);
+	debug("start: 0x%x\n", storage->start);
+	debug("size: 0x%x\n", storage->size);
+	debug("write: 0x%p\n", storage->write);
+	debug("priv: 0x%p\n", storage_priv);
 
 	sparse_header = sparse_parse_header(&data);
 	if (!sparse_header) {
@@ -281,7 +294,7 @@ int write_sparse_image(block_dev_desc_t *dev_desc,
 	 * Verify that the sparse block size is a multiple of our
 	 * storage backend block size
 	 */
-	div_u64_rem(sparse_header->blk_sz, info->blksz, &offset);
+	div_u64_rem(sparse_header->blk_sz, storage->block_sz, &offset);
 	if (offset) {
 		printf("%s: Sparse image block size issue [%u]\n",
 		       __func__, sparse_header->blk_sz);
@@ -291,8 +304,10 @@ int write_sparse_image(block_dev_desc_t *dev_desc,
 	puts("Flashing Sparse Image\n");
 
 	/* Start processing chunks */
-	start = info->start;
+	start = storage->start;
 	for (chunk = 0; chunk < sparse_header->total_chunks; chunk++) {
+		uint32_t blkcnt;
+
 		chunk_header = sparse_parse_chunk(sparse_header, &data);
 		if (!chunk_header) {
 			printf("Unknown chunk type");
@@ -304,20 +319,22 @@ int write_sparse_image(block_dev_desc_t *dev_desc,
 		 * and go on parsing the rest of the chunks
 		 */
 		if (chunk_header->chunk_type == CHUNK_TYPE_DONT_CARE) {
-			skipped += chunk_header->chunk_sz;
+			skipped += sparse_block_size_to_storage(chunk_header->chunk_sz,
+								storage,
+								sparse_header);
 			continue;
 		}
 
 		/* Retrieve the buffer we're going to write */
 		buffer = sparse_get_data_buffer(sparse_header, chunk_header,
-						info->blksz, &data);
+						storage->block_sz, &data);
 		if (!buffer)
 			continue;
 
-		blkcnt = (buffer->length / info->blksz) * buffer->repeat;
+		blkcnt = (buffer->length / storage->block_sz) * buffer->repeat;
 
 		if ((start + total_blocks + blkcnt) >
-		    (info->start + info->size)) {
+		    (storage->start + storage->size)) {
 			printf("%s: Request would exceed partition size!\n",
 			       __func__);
 			return -EINVAL;
@@ -325,30 +342,36 @@ int write_sparse_image(block_dev_desc_t *dev_desc,
 
 		for (i = 0; i < buffer->repeat; i++) {
 			unsigned long buffer_blk_cnt;
-			unsigned long buffer_blks;
+			int ret;
 
-			buffer_blk_cnt = buffer->length / info->blksz;
+			buffer_blk_cnt = buffer->length / storage->block_sz;
 
-			buffer_blks = dev_desc->block_write(dev_desc->dev,
-							    start + total_blocks,
-							    buffer_blk_cnt, buffer->data);
-			if (buffer_blks != buffer_blk_cnt) {
-				printf("%s: Write %d failed " LBAFU "\n",
-				       __func__, i, buffer_blks);
-				return -EIO;
+			ret = storage->write(storage, storage_priv,
+					     start + total_blocks,
+					     buffer_blk_cnt,
+					     buffer->data);
+			if (ret < 0) {
+				printf("%s: Write %d failed %d\n",
+				       __func__, i, ret);
+				return ret;
 			}
 
-			total_blocks += buffer_blk_cnt;
+			total_blocks += ret;
 		}
 
 		sparse_put_data_buffer(buffer);
 	}
 
 	debug("Wrote %d blocks, skipped %d, expected to write %d blocks\n",
-	      total_blocks, skipped, sparse_header->total_blks);
-	printf("........ wrote %d blocks to '%s'\n", total_blocks, part_name);
+	      total_blocks, skipped,
+	      sparse_block_size_to_storage(sparse_header->total_blks,
+					   storage, sparse_header));
+	printf("........ wrote %d blocks to '%s'\n", total_blocks,
+	       storage->name);
 
-	if (total_blocks != sparse_header->total_blks) {
+	if ((total_blocks + skipped) !=
+	    sparse_block_size_to_storage(sparse_header->total_blks,
+					 storage, sparse_header)) {
 		printf("sparse image write failure\n");
 		return -EIO;
 	}

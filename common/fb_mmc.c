@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <errno.h>
 #include <fastboot.h>
 #include <fb_mmc.h>
 #include <part.h>
@@ -18,6 +19,10 @@
 #endif
 
 static char *response_str;
+
+struct fb_mmc_sparse {
+	block_dev_desc_t	*dev_desc;
+};
 
 static int get_partition_info_efi_by_name_or_alias(block_dev_desc_t *dev_desc,
 		const char *name, disk_partition_t *info)
@@ -38,6 +43,24 @@ static int get_partition_info_efi_by_name_or_alias(block_dev_desc_t *dev_desc,
 			ret = get_partition_info_efi_by_name(dev_desc,
 					aliased_part_name, info);
 	}
+	return ret;
+}
+
+
+static int fb_mmc_sparse_write(struct sparse_storage *storage,
+			       void *priv,
+			       unsigned int offset,
+			       unsigned int size,
+			       char *data)
+{
+	struct fb_mmc_sparse *sparse = priv;
+	block_dev_desc_t *dev_desc = sparse->dev_desc;
+	int ret;
+
+	ret = dev_desc->block_write(dev_desc->dev, offset, size, data);
+	if (!ret)
+		return -EIO;
+
 	return ret;
 }
 
@@ -113,12 +136,26 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		return;
 	}
 
-	if (is_sparse_image(download_buffer))
-		write_sparse_image(dev_desc, &info, cmd, download_buffer,
-				   download_bytes);
-	else
+	if (is_sparse_image(download_buffer)) {
+		struct fb_mmc_sparse sparse_priv;
+		sparse_storage_t sparse;
+
+		sparse_priv.dev_desc = dev_desc;
+
+		sparse.block_sz = info.blksz;
+		sparse.start = info.start;
+		sparse.size = info.size;
+		sparse.name = cmd;
+		sparse.write = fb_mmc_sparse_write;
+
+		printf("Flashing sparse image at offset " LBAFU "\n",
+		       info.start);
+
+		store_sparse_image(&sparse, &sparse_priv, download_buffer);
+	} else {
 		write_raw_image(dev_desc, &info, cmd, download_buffer,
 				download_bytes);
+	}
 
 	fastboot_okay(response_str, "");
 }
