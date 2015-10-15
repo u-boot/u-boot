@@ -37,7 +37,7 @@ static int get_part(const char *partname, int *idx, loff_t *off, loff_t *size,
 
 	return 0;
 #else
-	puts("offset is not a number\n");
+	puts("mtdparts support missing.\n");
 	return -1;
 #endif
 }
