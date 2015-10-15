@@ -41,6 +41,26 @@
 #include <part.h>
 #include <sparse_format.h>
 
+static sparse_header_t *sparse_parse_header(void **data)
+{
+	/* Read and skip over sparse image header */
+	sparse_header_t *sparse_header = (sparse_header_t *) *data;
+
+	*data += sparse_header->file_hdr_sz;
+
+	debug("=== Sparse Image Header ===\n");
+	debug("magic: 0x%x\n", sparse_header->magic);
+	debug("major_version: 0x%x\n", sparse_header->major_version);
+	debug("minor_version: 0x%x\n", sparse_header->minor_version);
+	debug("file_hdr_sz: %d\n", sparse_header->file_hdr_sz);
+	debug("chunk_hdr_sz: %d\n", sparse_header->chunk_hdr_sz);
+	debug("blk_sz: %d\n", sparse_header->blk_sz);
+	debug("total_blks: %d\n", sparse_header->total_blks);
+	debug("total_chunks: %d\n", sparse_header->total_chunks);
+
+	return sparse_header;
+}
+
 void write_sparse_image(block_dev_desc_t *dev_desc,
 		disk_partition_t *info, const char *part_name,
 		void *data, unsigned sz)
@@ -58,28 +78,11 @@ void write_sparse_image(block_dev_desc_t *dev_desc,
 	uint32_t total_blocks = 0;
 	int i;
 
-	/* Read and skip over sparse image header */
-	sparse_header = (sparse_header_t *) data;
-
-	data += sparse_header->file_hdr_sz;
-	if (sparse_header->file_hdr_sz > sizeof(sparse_header_t))
-	{
-		/*
-		 * Skip the remaining bytes in a header that is longer than
-		 * we expected.
-		 */
-		data += (sparse_header->file_hdr_sz - sizeof(sparse_header_t));
+	sparse_header = sparse_parse_header(&data);
+	if (!sparse_header) {
+		fastboot_fail("sparse header issue\n");
+		return;
 	}
-
-	debug("=== Sparse Image Header ===\n");
-	debug("magic: 0x%x\n", sparse_header->magic);
-	debug("major_version: 0x%x\n", sparse_header->major_version);
-	debug("minor_version: 0x%x\n", sparse_header->minor_version);
-	debug("file_hdr_sz: %d\n", sparse_header->file_hdr_sz);
-	debug("chunk_hdr_sz: %d\n", sparse_header->chunk_hdr_sz);
-	debug("blk_sz: %d\n", sparse_header->blk_sz);
-	debug("total_blks: %d\n", sparse_header->total_blks);
-	debug("total_chunks: %d\n", sparse_header->total_chunks);
 
 	/* verify sparse_header->blk_sz is an exact multiple of info->blksz */
 	if (sparse_header->blk_sz !=
