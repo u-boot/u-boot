@@ -301,6 +301,7 @@ int arch_cpu_init(void)
 	void *epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
 	void *rcpm2_base =
 		(void *)(CONFIG_SYS_DCSRBAR + DCSR_RCPM2_BLOCK_OFFSET);
+	struct ccsr_scfg *scfg = (void *)CONFIG_SYS_FSL_SCFG_ADDR;
 	u32 state;
 
 	/*
@@ -327,6 +328,8 @@ int arch_cpu_init(void)
 	 * It's also safe to clear at normal boot.
 	 */
 	fsl_epu_clean(epu_base);
+
+	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SEC_RD_WR);
 
 	return 0;
 }
