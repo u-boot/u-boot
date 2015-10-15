@@ -136,7 +136,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 u32 spl_boot_device(void)
 {
-	struct mmc *mmc0, *mmc1;
+	__maybe_unused struct mmc *mmc0, *mmc1;
 	/*
 	 * When booting from the SD card or NAND memory, the "eGON.BT0"
 	 * signature is expected to be found in memory at the address 0x0004
@@ -157,15 +157,18 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_BOARD;
 
 	/* The BROM will try to boot from mmc0 first, so try that first. */
+#ifdef CONFIG_MMC
 	mmc_initialize(gd->bd);
 	mmc0 = find_mmc_device(0);
 	if (sunxi_mmc_has_egon_boot_signature(mmc0))
 		return BOOT_DEVICE_MMC1;
+#endif
 
 	/* Fallback to booting NAND if enabled. */
 	if (IS_ENABLED(CONFIG_SPL_NAND_SUPPORT))
 		return BOOT_DEVICE_NAND;
 
+#ifdef CONFIG_MMC
 	if (CONFIG_MMC_SUNXI_SLOT_EXTRA == 2) {
 		mmc1 = find_mmc_device(1);
 		if (sunxi_mmc_has_egon_boot_signature(mmc1)) {
@@ -179,6 +182,7 @@ u32 spl_boot_device(void)
 			return BOOT_DEVICE_MMC2;
 		}
 	}
+#endif
 
 	panic("Could not determine boot source\n");
 	return -1;		/* Never reached */
