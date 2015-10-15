@@ -277,7 +277,7 @@ obj-y += stdio.o
 
 # This option is not just y/n - it can have a numeric value
 ifdef CONFIG_FASTBOOT_FLASH
-obj-y += aboot.o
+obj-y += image-sparse.o
 ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 obj-y += fb_mmc.o
 endif

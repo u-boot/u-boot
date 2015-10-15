@@ -8,8 +8,8 @@
 #include <config.h>
 #include <common.h>
 
-#include <aboot.h>
 #include <fastboot.h>
+#include <image-sparse.h>
 #include <sparse_format.h>
 
 #include <linux/mtd/mtd.h>

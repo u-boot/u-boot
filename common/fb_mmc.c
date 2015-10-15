@@ -9,8 +9,8 @@
 #include <errno.h>
 #include <fastboot.h>
 #include <fb_mmc.h>
+#include <image-sparse.h>
 #include <part.h>
-#include <aboot.h>
 #include <sparse_format.h>
 #include <mmc.h>
 
