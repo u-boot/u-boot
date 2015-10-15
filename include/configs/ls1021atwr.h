@@ -109,7 +109,13 @@
 #endif
 
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW	board/freescale/ls1021atwr/ls102xa_rcw_sd.cfg
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_SYS_FSL_PBL_RCW	\
+	board/freescale/ls1021atwr/ls102xa_rcw_sd_qspi.cfg
+#else
+#define CONFIG_SYS_FSL_PBL_RCW	\
+	board/freescale/ls1021atwr/ls102xa_rcw_sd_ifc.cfg
+#endif
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -139,6 +145,9 @@
 
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_SYS_TEXT_BASE		0x40010000
+#endif
+
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SYS_NO_FLASH
 #endif
 
@@ -165,7 +174,7 @@
 /*
  * IFC Definitions
  */
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_FSL_IFC
 #define CONFIG_SYS_FLASH_BASE		0x60000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
@@ -302,7 +311,7 @@
 #define CONFIG_DOS_PARTITION
 
 /* SPI */
-#ifdef CONFIG_QSPI_BOOT
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 /* QSPI */
 #define CONFIG_FSL_QSPI
 #define QSPI0_AMBA_BASE			0x40000000
@@ -411,6 +420,10 @@
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
+
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#undef CONFIG_CMD_IMLS
+#endif
 
 #define CONFIG_ARMV7_NONSEC
 #define CONFIG_ARMV7_VIRT

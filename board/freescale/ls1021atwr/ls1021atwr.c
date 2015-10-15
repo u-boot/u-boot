@@ -175,7 +175,7 @@ struct cpld_data {
 	u8 rev2;		/* Reserved */
 };
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 static void convert_serdes_mux(int type, int need_reset);
 
 void cpld_show(void)
@@ -216,7 +216,7 @@ void cpld_show(void)
 int checkboard(void)
 {
 	puts("Board: LS1021ATWR\n");
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	cpld_show();
 #endif
 
@@ -380,7 +380,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 int config_serdes_mux(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -414,7 +414,7 @@ int config_serdes_mux(void)
 }
 #endif
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 int config_board_mux(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
@@ -627,7 +627,7 @@ int board_init(void)
 {
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	config_serdes_mux();
 #endif
 #endif
@@ -657,7 +657,7 @@ int misc_init_r(void)
 #ifdef CONFIG_FSL_DEVICE_DISABLE
 	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
 #endif
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	config_board_mux();
 #endif
 
@@ -706,7 +706,7 @@ u16 flash_read16(void *addr)
 	return (((val) >> 8) & 0x00ff) | (((val) << 8) & 0xff00);
 }
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 static void convert_flash_bank(char bank)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
