@@ -389,6 +389,17 @@ void eth_halt(void)
 	priv->state = ETH_STATE_PASSIVE;
 }
 
+int eth_is_active(struct udevice *dev)
+{
+	struct eth_device_priv *priv;
+
+	if (!dev || !device_active(dev))
+		return 0;
+
+	priv = dev_get_uclass_priv(dev);
+	return priv->state == ETH_STATE_ACTIVE;
+}
+
 int eth_send(void *packet, int length)
 {
 	struct udevice *current;
@@ -580,7 +591,7 @@ UCLASS_DRIVER(eth) = {
 	.per_device_auto_alloc_size = sizeof(struct eth_device_priv),
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
-#endif
+#endif /* #ifdef CONFIG_DM_ETH */
 
 #ifndef CONFIG_DM_ETH
 
@@ -916,6 +927,11 @@ void eth_halt(void)
 	eth_current->halt(eth_current);
 
 	eth_current->state = ETH_STATE_PASSIVE;
+}
+
+int eth_is_active(struct eth_device *dev)
+{
+	return dev && dev->state == ETH_STATE_ACTIVE;
 }
 
 int eth_send(void *packet, int length)

@@ -62,7 +62,7 @@ int board_init(void)
 
 	/* Change the NOR timings to optimum value to get maximum bandwidth */
 	emc->stat[0].waitwen	= EMC_STAT_WAITWEN(1);
-	emc->stat[0].waitoen	= EMC_STAT_WAITOEN(1);
+	emc->stat[0].waitoen	= EMC_STAT_WAITOEN(0);
 	emc->stat[0].waitrd	= EMC_STAT_WAITRD(12);
 	emc->stat[0].waitpage	= EMC_STAT_WAITPAGE(12);
 	emc->stat[0].waitwr	= EMC_STAT_WAITWR(5);

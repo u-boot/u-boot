@@ -37,7 +37,9 @@ config OF_EMBED
 	bool "Embedded DTB for DT control"
 	help
 	  If this option is enabled, the device tree will be picked up and
-	  built into the U-Boot image.
+	  built into the U-Boot image. This is suitable for local debugging
+	  and development only and is not recommended for production devices.
+	  Boards in the mainline U-Boot tree should not use it.
 
 config OF_HOSTFILE
 	bool "Host filed DTB for DT control"

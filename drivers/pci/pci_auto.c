@@ -185,6 +185,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 #ifndef CONFIG_PCI_ENUM_ONLY
 	/* Configure the expansion ROM address */
 	pci_hose_read_config_byte(hose, dev, PCI_HEADER_TYPE, &header_type);
+	header_type &= 0x7f;
 	if (header_type != PCI_HEADER_TYPE_CARDBUS) {
 		rom_addr = (header_type == PCI_HEADER_TYPE_NORMAL) ?
 			   PCI_ROM_ADDRESS : PCI_ROM_ADDRESS1;

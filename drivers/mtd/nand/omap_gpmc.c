@@ -558,10 +558,10 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 		bit_pos  = error_loc[count] % 8;
 		if (byte_pos < SECTOR_BYTES) {
 			dat[byte_pos] ^= 1 << bit_pos;
-			printf("nand: bit-flip corrected @data=%d\n", byte_pos);
+			debug("nand: bit-flip corrected @data=%d\n", byte_pos);
 		} else if (byte_pos < error_max) {
 			read_ecc[byte_pos - SECTOR_BYTES] ^= 1 << bit_pos;
-			printf("nand: bit-flip corrected @oob=%d\n", byte_pos -
+			debug("nand: bit-flip corrected @oob=%d\n", byte_pos -
 								SECTOR_BYTES);
 		} else {
 			err = -EBADMSG;
@@ -663,7 +663,7 @@ static int omap_correct_data_bch_sw(struct mtd_info *mtd, u_char *data,
 			/* correct data only, not ecc bytes */
 			if (errloc[i] < 8*512)
 				data[errloc[i]/8] ^= 1 << (errloc[i] & 7);
-			printf("corrected bitflip %u\n", errloc[i]);
+			debug("corrected bitflip %u\n", errloc[i]);
 #ifdef DEBUG
 			puts("read_ecc: ");
 			/*

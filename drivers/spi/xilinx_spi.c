@@ -247,7 +247,7 @@ static int xilinx_spi_set_speed(struct udevice *bus, uint speed)
 
 	priv->freq = speed;
 
-	debug("xilinx_spi_set_speed: regs=%p, mode=%d\n", priv->regs,
+	debug("xilinx_spi_set_speed: regs=%p, speed=%d\n", priv->regs,
 	      priv->freq);
 
 	return 0;
@@ -260,13 +260,13 @@ static int xilinx_spi_set_mode(struct udevice *bus, uint mode)
 	uint32_t spicr;
 
 	spicr = readl(&regs->spicr);
-	if (priv->mode & SPI_LSB_FIRST)
+	if (mode & SPI_LSB_FIRST)
 		spicr |= SPICR_LSB_FIRST;
-	if (priv->mode & SPI_CPHA)
+	if (mode & SPI_CPHA)
 		spicr |= SPICR_CPHA;
-	if (priv->mode & SPI_CPOL)
+	if (mode & SPI_CPOL)
 		spicr |= SPICR_CPOL;
-	if (priv->mode & SPI_LOOP)
+	if (mode & SPI_LOOP)
 		spicr |= SPICR_LOOP;
 
 	writel(spicr, &regs->spicr);

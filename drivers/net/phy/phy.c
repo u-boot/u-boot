@@ -571,7 +571,7 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 	memset(dev, 0, sizeof(*dev));
 
 	dev->duplex = -1;
-	dev->link = 1;
+	dev->link = 0;
 	dev->interface = interface;
 
 	dev->autoneg = AUTONEG_ENABLE;

@@ -10,13 +10,13 @@
 # Expected results are as follows:
 # EXT4 tests:
 # fs-test.sb.ext4.out: Summary: PASS: 17 FAIL: 2
-# fs-test.ext4.out: Summary: PASS: 11 FAIL: 8
-# fs-test.fs.ext4.out: Summary: PASS: 11 FAIL: 8
+# fs-test.ext4.out: Summary: PASS: 10 FAIL: 9
+# fs-test.fs.ext4.out: Summary: PASS: 10 FAIL: 9
 # FAT tests:
 # fs-test.sb.fat.out: Summary: PASS: 17 FAIL: 2
 # fs-test.fat.out: Summary: PASS: 19 FAIL: 0
 # fs-test.fs.fat.out: Summary: PASS: 19 FAIL: 0
-# Total Summary: TOTAL PASS: 94 TOTAL FAIL: 20
+# Total Summary: TOTAL PASS: 92 TOTAL FAIL: 22
 
 # pre-requisite binaries list.
 PREREQ_BINS="md5sum mkfs mount umount dd fallocate mkdir"
@@ -465,9 +465,9 @@ function check_results() {
 	check_md5 "Test Case 9b " "$1" "$2" 6 \
 		"TC9: load 1MB chunk crossing 2GB boundary from $4"
 
-	# Check 2mb chunk from the last 1MB of 2.5GB file - generic failure case
-	grep -A6 "Test Case 10 " "$1" | grep -q 'Error: "filesize" not defined'
-	pass_fail "TC10: load 2MB from the last 1MB of $4 - generic fail case"
+	# Check 2mb chunk from the last 1MB of 2.5GB file loads 1MB
+	grep -A6 "Test Case 10 " "$1" | grep -q "filesize=100000"
+	pass_fail "TC10: load 2MB from the last 1MB of $4 loads 1MB"
 
 	# Check 1mb chunk write
 	grep -A3 "Test Case 11a " "$1" | \

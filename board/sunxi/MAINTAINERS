@@ -20,8 +20,6 @@ F:	configs/mk802ii_defconfig
 F:	configs/pov_protab2_ips9_defconfig
 F:	include/configs/sun5i.h
 F:	configs/A10s-OLinuXino-M_defconfig
-F:	configs/A10s-OLinuXino-M_defconfig
-F:	configs/A10s-Wobo-i5_defconfig
 F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T003_defconfig
@@ -35,6 +33,7 @@ F:	include/configs/sun6i.h
 F:	configs/CSQ_CS908_defconfig
 F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M9_defconfig
+F:	configs/Wobo_i5_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
@@ -51,6 +50,9 @@ F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
 F:	configs/Ippo_q8h_v1_2_defconfig
 F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
+F:	configs/q8_a23_tablet_800x480_defconfig
+F:	configs/q8_a33_tablet_800x480_defconfig
+F:	configs/q8_a33_tablet_1024x600_defconfig
 F:	include/configs/sun9i.h
 F:	configs/Merrii_A80_Optimus_defconfig
 

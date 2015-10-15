@@ -310,11 +310,15 @@
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SPI_FLASH_STMICRO
 
+/* DSPI */
+#define CONFIG_FSL_DSPI
+#define CONFIG_SPI_FLASH_ATMEL
+#endif
+
 /* DM SPI */
 #if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
 #define CONFIG_CMD_SF
 #define CONFIG_DM_SPI_FLASH
-#endif
 #endif
 
 /*

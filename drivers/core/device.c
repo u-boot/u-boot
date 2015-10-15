@@ -289,8 +289,12 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 
 	dev->flags |= DM_FLAG_ACTIVATED;
 
-	/* continue regardless of the result of pinctrl */
-	pinctrl_select_state(dev, "default");
+	/*
+	 * Process pinctrl for everything except the root device, and
+	 * continue regardless of the result of pinctrl.
+	 */
+	if (dev->parent)
+		pinctrl_select_state(dev, "default");
 
 	ret = uclass_pre_probe_device(dev);
 	if (ret)

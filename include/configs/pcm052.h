@@ -60,14 +60,15 @@
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_DEFAULT			"nand0=NAND,nor0=qspi0-a,nor1=qspi0-b"
+#define MTDIDS_DEFAULT			"nand0=NAND"
 #define MTDPARTS_DEFAULT		"mtdparts=NAND:256k(spare)"\
 					",384k(bootloader)"\
 					",128k(env1)"\
 					",128k(env2)"\
-					",3840k(kernel)"\
-					",-(rootfs)"\
-					",qspi0-a:-(jffs2),qspio0-b:-(jffs2)"
+					",128k(dtb)"\
+					",6144k(kernel)"\
+					",65536k(ramdisk)"\
+					",450944k(root)"
 #endif
 
 #define CONFIG_MMC
@@ -135,36 +136,85 @@
 #define CONFIG_BOARD_SIZE_LIMIT		524288
 
 #define CONFIG_BOOTCOMMAND              "run bootcmd_sd"
-#define CONFIG_EXTRA_ENV_SETTINGS                                       \
-	"bootfile=uImage\0"                             \
-	"bootargs_base=setenv bootargs rw mem=256M "                    \
-		"console=ttymxc1,115200n8\0"            \
-	"bootargs_sd=setenv bootargs ${bootargs} "                      \
-		"root=/dev/mmcblk0p2 rootwait\0"        \
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdt_high=0xffffffff\0" \
+	"initrd_high=0xffffffff\0" \
+	"blimg_file=u-boot.imx\0" \
+	"blsec_addr=0x81000000\0" \
+	"blimg_addr=0x81000400\0" \
+	"kernel_file=zImage\0" \
+	"kernel_addr=0x82000000\0" \
+	"fdt_file=vf610-pcm052.dtb\0" \
+	"fdt_addr=0x81000000\0" \
+	"ram_file=uRamdisk\0" \
+	"ram_addr=0x83000000\0" \
+	"filesys=rootfs.ubifs\0" \
+	"sys_addr=0x81000000\0" \
+	"tftploc=/path/to/tftp/directory/\0" \
+	"nfs_root=/path/to/nfs/root\0" \
+	"tftptimeout=1000\0" \
+	"tftptimeoutcountmax=1000000\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"bootargs_base=setenv bootargs rw mem=256M " \
+		"console=ttyLP1,115200n8\0" \
+	"bootargs_sd=setenv bootargs ${bootargs} " \
+		"root=/dev/mmcblk0p2 rootwait\0" \
 	"bootargs_net=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp " \
-		"nfsroot=${serverip}:${nfs_root},v3,tcp\0"              \
-	"bootargs_nand=setenv bootargs ${bootargs} "                    \
-		"root=/dev/mtdblock2 rootfstype=jffs2\0"                \
-	"bootargs_mtd=setenv bootargs ${bootargs} ${mtdparts}\0"        \
-	"bootcmd_sd=run bootargs_base bootargs_sd bootargs_mtd; mmc rescan; " \
-		"fatload mmc 0:1 ${loadaddr} ${bootfile}; bootm ${loadaddr}\0" \
-	"bootcmd_net=run bootargs_base bootargs_net bootargs_mtd; "     \
-		"tftpboot ${loadaddr} ${tftploc}${bootfile}; bootm\0"   \
-	"bootcmd_nand='run bootargs_base bootargs_nand bootargs_mtd; "  \
-		"nand read ${loadaddr} 0x000E0000 0x3C0000; "           \
-		"bootm ${loadaddr}\0"                                   \
-	"tftploc=/path/to/tftp/directory/\0"                            \
-	"nfs_root=/path/to/nfs/root\0"                                  \
-	"mtdparts=" MTDPARTS_DEFAULT "\0"                               \
-	"update_kernel_from_sd=mw.b $(loadaddr) 0xff 0x3C0000; "        \
-		"mmc rescan; fatload mmc 0:2 ${loadaddr} ${bootfile}; " \
-		"nand erase 0xE0000 0x3C0000; "                         \
-		"nand write.i ${loadaddr} 0xE0000 0x3C0000\0"           \
-	"update_rootfs_from_tftp=mw.b ${loadaddr} 0xff 0x8F20000; "     \
-		"tftp ${loadaddr} ${tftp}${filesys}; "                  \
-		"nand erase 0x4A0000 0x8F20000; "                       \
-		"nand write.i ${loadaddr} 0x4A0000 0x8F20000\0"         \
-	"filesys=rootfs.jffs2\0"
+		"nfsroot=${serverip}:${nfs_root},v3,tcp\0" \
+	"bootargs_nand=setenv bootargs ${bootargs} " \
+		"ubi.mtd=6 rootfstype=ubifs root=ubi0:rootfs\0" \
+	"bootargs_ram=setenv bootargs ${bootargs} " \
+		"root=/dev/ram rw initrd=${ram_addr}\0" \
+	"bootargs_mtd=setenv bootargs ${bootargs} ${mtdparts}\0" \
+	"bootcmd_sd=run bootargs_base bootargs_sd bootargs_mtd; " \
+		"fatload mmc 0:1 ${kernel_addr} ${kernel_file}; " \
+		"fatload mmc 0:1 ${fdt_addr} ${fdt_file}; " \
+		"bootz ${kernel_addr} - ${fdt_addr}\0" \
+	"bootcmd_net=run bootargs_base bootargs_net bootargs_mtd; " \
+		"tftpboot ${kernel_addr} ${tftpdir}${kernel_file}; " \
+		"tftpboot ${fdt_addr} ${tftpdir}${fdt_file}; " \
+		"bootz ${kernel_addr} - ${fdt_addr}\0" \
+	"bootcmd_nand=run bootargs_base bootargs_nand bootargs_mtd; " \
+		"nand read ${fdt_addr} dtb; " \
+		"nand read ${kernel_addr} kernel; " \
+		"bootz ${kernel_addr} - ${fdt_addr}\0" \
+	"bootcmd_ram=run bootargs_base bootargs_ram bootargs_mtd; " \
+		"nand read ${fdt_addr} dtb; " \
+		"nand read ${kernel_addr} kernel; " \
+		"nand read ${ram_addr} ramdisk; " \
+		"bootz ${kernel_addr} ${ram_addr} ${fdt_addr}\0" \
+	"update_bootloader_from_tftp=mtdparts default; " \
+		"nand read ${blsec_addr} bootloader; " \
+		"mw.b ${blimg_addr} 0xff 0x5FC00; " \
+		"if tftp ${blimg_addr} ${tftpdir}${blimg_file}; then " \
+		"nand erase.part bootloader; " \
+		"nand write ${blsec_addr} bootloader ${filesize}; fi\0" \
+	"update_kernel_from_sd=if fatload mmc 0:2 ${kernel_addr} " \
+		"${kernel_file}; " \
+		"then mtdparts default; " \
+		"nand erase.part kernel; " \
+		"nand write ${kernel_addr} kernel ${filesize}; " \
+		"if fatload mmc 0:2 ${fdt_addr} ${fdt_file}; then " \
+		"nand erase.part dtb; " \
+		"nand write ${fdt_addr} dtb ${filesize}; fi\0" \
+	"update_kernel_from_tftp=if tftp ${fdt_addr} ${tftpdir}${fdt_file}; " \
+		"then setenv fdtsize ${filesize}; " \
+		"if tftp ${kernel_addr} ${tftpdir}${kernel_file}; then " \
+		"mtdparts default; " \
+		"nand erase.part dtb; " \
+		"nand write ${fdt_addr} dtb ${fdtsize}; " \
+		"nand erase.part kernel; " \
+		"nand write ${kernel_addr} kernel ${filesize}; fi; fi\0" \
+	"update_rootfs_from_tftp=if tftp ${sys_addr} ${tftpdir}${filesys}; " \
+		"then mtdparts default; " \
+		"nand erase.part root; " \
+		"ubi part root; " \
+		"ubi create rootfs; " \
+		"ubi write ${sys_addr} rootfs ${filesize}; fi\0" \
+	"update_ramdisk_from_tftp=if tftp ${ram_addr} ${tftpdir}${ram_file}; " \
+		"then mtdparts default; " \
+		"nand erase.part ramdisk; " \
+		"nand write ${ram_addr} ramdisk ${filesize}; fi\0"
 
 /* miscellaneous commands */
 #define CONFIG_CMD_ELF
@@ -220,9 +270,9 @@
 #ifdef CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		0x80000
+#define CONFIG_ENV_OFFSET		0xA0000
 #define CONFIG_ENV_SIZE_REDUND		(8 * 1024)
-#define CONFIG_ENV_OFFSET_REDUND	0xA0000
+#define CONFIG_ENV_OFFSET_REDUND	0xC0000
 #endif
 
 #define CONFIG_OF_LIBFDT
