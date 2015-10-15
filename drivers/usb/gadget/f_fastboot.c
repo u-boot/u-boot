@@ -554,7 +554,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 static void cb_oem(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-#ifdef CONFIG_FASTBOOT_FLASH
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 	if (strncmp("format", cmd + 4, 6) == 0) {
 		char cmdbuf[32];
                 sprintf(cmdbuf, "gpt write mmc %x $partitions",
