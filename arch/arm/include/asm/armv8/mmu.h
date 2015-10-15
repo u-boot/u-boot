@@ -103,12 +103,16 @@
 #define TCR_EL2_IPS_BITS	(3 << 16)	/* 42 bits physical address */
 #define TCR_EL3_IPS_BITS	(3 << 16)	/* 42 bits physical address */
 
-/* PTWs cacheable, inner/outer WBWA and non-shareable */
+/* PTWs cacheable, inner/outer WBWA and inner shareable */
 #define TCR_FLAGS		(TCR_TG0_64K |		\
-				TCR_SHARED_NON |	\
+				TCR_SHARED_INNER |	\
 				TCR_ORGN_WBWA |		\
 				TCR_IRGN_WBWA |		\
 				TCR_T0SZ(VA_BITS))
+
+#define TCR_EL1_RSVD		(1 << 31)
+#define TCR_EL2_RSVD		(1 << 31 | 1 << 23)
+#define TCR_EL3_RSVD		(1 << 31 | 1 << 23)
 
 #ifndef __ASSEMBLY__
 
