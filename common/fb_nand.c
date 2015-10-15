@@ -23,6 +23,16 @@ struct fb_nand_sparse {
 	struct part_info	*part;
 };
 
+__weak int board_fastboot_erase_partition_setup(char *name)
+{
+	return 0;
+}
+
+__weak int board_fastboot_write_partition_setup(char *name)
+{
+	return 0;
+}
+
 static int fb_nand_lookup(const char *partname, char *response,
 			  nand_info_t **nand,
 			  struct part_info **part)
@@ -134,6 +144,10 @@ void fb_nand_flash_write(const char *partname, unsigned int session_id,
 		return;
 	}
 
+	ret = board_fastboot_write_partition_setup(part->name);
+	if (ret)
+		return;
+
 	if (is_sparse_image(download_buffer)) {
 		struct fb_nand_sparse sparse_priv;
 		sparse_storage_t sparse;
@@ -183,6 +197,10 @@ void fb_nand_erase(const char *partname, char *response)
 		fastboot_fail(response_str, "invalid NAND device");
 		return;
 	}
+
+	ret = board_fastboot_erase_partition_setup(part->name);
+	if (ret)
+		return;
 
 	ret = _fb_nand_erase(nand, part);
 	if (ret) {
