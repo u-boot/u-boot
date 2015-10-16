@@ -12,6 +12,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
 #include <asm/arch/ls102xa_devdis.h>
+#include <asm/arch/ls102xa_sata.h>
 #include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_csu.h>
@@ -406,6 +407,17 @@ int config_serdes_mux(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_SCSI_AHCI_PLAT
+	ls1021a_sata_init();
+#endif
+
+	return 0;
+}
+#endif
 
 int misc_init_r(void)
 {
