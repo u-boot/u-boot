@@ -3,7 +3,7 @@ Wind River SBC8641D reference board
 
 Created 06/14/2007 Joe Hamman
 Copyright 2007, Embedded Specialties, Inc.
-Copyright 2007 Wind River Systemes, Inc.
+Copyright 2007 Wind River Systems, Inc.
 -----------------------------
 
 1. Building U-Boot
@@ -43,7 +43,7 @@ c) while on, using static precautions, move JP10 back to the failed image.
 d) use "md fff00000" to confirm you are looking at the failed image
 e) turn off write protect with "prot off all"
 f) get new image, i.e. "tftp 200000 /somepath/u-boot.bin"
-g) erase failed image: "erase FFF00000 FFF3FFFF"
-h) copy in new image: "cp.b 200000 FFF00000 40000"
+g) erase failed image: "erase FFF00000 FFF5FFFF"
+h) copy in new image: "cp.b 200000 FFF00000 60000"
 i) ensure new image is written: "md fff00000"
 k) power cycle the board and confirm new image works.
