@@ -37,9 +37,8 @@ static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 }
 
 /* Calibration sequence to determine the read data capture delay register */
-static int spi_calibration(struct udevice *bus)
+static int spi_calibration(struct udevice *bus, uint hz)
 {
-	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	void *base = priv->regbase;
 	u8 opcode_rdid = 0x9F;
@@ -64,7 +63,7 @@ static int spi_calibration(struct udevice *bus)
 	}
 
 	/* use back the intended clock and find low range */
-	cadence_spi_write_speed(bus, plat->max_hz);
+	cadence_spi_write_speed(bus, hz);
 	for (i = 0; i < CQSPI_READ_CAPTURE_MAX_DELAY; i++) {
 		/* Disable QSPI */
 		cadence_qspi_apb_controller_disable(base);
@@ -111,7 +110,7 @@ static int spi_calibration(struct udevice *bus)
 	      (range_hi + range_lo) / 2, range_lo, range_hi);
 
 	/* just to ensure we do once only when speed or chip select change */
-	priv->qspi_calibrated_hz = plat->max_hz;
+	priv->qspi_calibrated_hz = hz;
 	priv->qspi_calibrated_cs = spi_chip_select(bus);
 
 	return 0;
@@ -126,14 +125,19 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	/* Disable QSPI */
 	cadence_qspi_apb_controller_disable(priv->regbase);
 
-	cadence_spi_write_speed(bus, hz);
-
-	/* Calibration required for different SCLK speed or chip select */
-	if (priv->qspi_calibrated_hz != plat->max_hz ||
+	/*
+	 * Calibration required for different current SCLK speed, requested
+	 * SCLK speed or chip select
+	 */
+	if (priv->previous_hz != hz ||
+	    priv->qspi_calibrated_hz != hz ||
 	    priv->qspi_calibrated_cs != spi_chip_select(bus)) {
-		err = spi_calibration(bus);
+		err = spi_calibration(bus, hz);
 		if (err)
 			return err;
+
+		/* prevent calibration run when same as previous request */
+		priv->previous_hz = hz;
 	}
 
 	/* Enable QSPI */
