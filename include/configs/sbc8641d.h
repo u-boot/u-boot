@@ -20,6 +20,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* High Level Configuration Options */
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_SBC8641D		1	/* SBC8641D board specific */
