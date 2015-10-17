@@ -295,16 +295,16 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->regbase = (void *)data[0];
 	plat->ahbbase = (void *)data[2];
 
-	/* Use 500KHz as a suitable default */
-	plat->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
-				      500000);
-
 	/* All other paramters are embedded in the child node */
 	subnode = fdt_first_subnode(blob, node);
 	if (subnode < 0) {
 		printf("Error: subnode with SPI flash config missing!\n");
 		return -ENODEV;
 	}
+
+	/* Use 500 KHz as a suitable default */
+	plat->max_hz = fdtdec_get_uint(blob, subnode, "spi-max-frequency",
+				       500000);
 
 	/* Read other parameters from DT */
 	plat->page_size = fdtdec_get_int(blob, subnode, "page-size", 256);
