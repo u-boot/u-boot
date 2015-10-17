@@ -17,6 +17,8 @@
 #define L2X0_CTRL_EN				1
 
 #define L310_SHARED_ATT_OVERRIDE_ENABLE		(1 << 22)
+#define L310_AUX_CTRL_DATA_PREFETCH_MASK	(1 << 28)
+#define L310_AUX_CTRL_INST_PREFETCH_MASK	(1 << 29)
 
 struct pl310_regs {
 	u32 pl310_cache_id;
