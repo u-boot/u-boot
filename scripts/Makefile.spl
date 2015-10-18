@@ -129,7 +129,9 @@ boot.bin: $(obj)/u-boot-spl.bin
 
 ALL-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).cfg
 
+ifdef CONFIG_SPL_OF_CONTROL
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)/$(SPL_BIN)-pad.bin $(obj)/$(SPL_BIN)-dtb.bin
+endif
 
 ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
