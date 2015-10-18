@@ -7,8 +7,8 @@
 #include <spl.h>
 
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
 #include <asm/spl.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -17,11 +17,7 @@ void board_init_f(ulong dummy)
 {
 	ps7_init();
 
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
 	arch_cpu_init();
-	board_init_r(NULL, 0);
 }
 
 #ifdef CONFIG_SPL_BOARD_INIT
