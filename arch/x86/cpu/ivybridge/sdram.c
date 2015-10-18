@@ -158,14 +158,8 @@ static int prepare_mrc_cache(struct pei_data *pei_data)
 	if (!mrc_cache)
 		return -ENOENT;
 
-	/*
-	 * TODO(sjg@chromium.org): Skip this for now as it causes boot
-	 * problems
-	 */
-	if (0) {
-		pei_data->mrc_input = mrc_cache->data;
-		pei_data->mrc_input_len = mrc_cache->data_size;
-	}
+	pei_data->mrc_input = mrc_cache->data;
+	pei_data->mrc_input_len = mrc_cache->data_size;
 	debug("%s: at %p, size %x checksum %04x\n", __func__,
 	      pei_data->mrc_input, pei_data->mrc_input_len,
 	      mrc_cache->checksum);
