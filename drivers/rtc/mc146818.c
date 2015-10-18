@@ -225,7 +225,7 @@ static int rtc_mc146818_write8(struct udevice *dev, unsigned int reg, int val)
 	return 0;
 }
 
-static int rtc_mc146818_bind(struct udevice *dev)
+static int rtc_mc146818_probe(struct udevice *dev)
 {
 	mc146818_init();
 
@@ -249,7 +249,7 @@ U_BOOT_DRIVER(rtc_mc146818) = {
 	.name = "rtc_mc146818",
 	.id = UCLASS_RTC,
 	.of_match = rtc_mc146818_ids,
-	.bind = rtc_mc146818_bind,
+	.probe = rtc_mc146818_probe,
 	.ops = &rtc_mc146818_ops,
 };
 
