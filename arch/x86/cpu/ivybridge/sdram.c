@@ -336,9 +336,11 @@ int sdram_initialise(struct pei_data *pei_data)
 	if (data) {
 		int rv;
 		int (*func)(struct pei_data *);
+		ulong start;
 
 		debug("Calling MRC at %p\n", data);
 		post_code(POST_PRE_MRC);
+		start = get_timer(0);
 		func = (int (*)(struct pei_data *))data;
 		rv = func(pei_data);
 		post_code(POST_MRC);
@@ -356,6 +358,7 @@ int sdram_initialise(struct pei_data *pei_data)
 			printf("Nonzero MRC return value.\n");
 			return -EFAULT;
 		}
+		debug("MRC execution time %lu ms\n", get_timer(start));
 	} else {
 		printf("UEFI PEI System Agent not found.\n");
 		return -ENOSYS;
