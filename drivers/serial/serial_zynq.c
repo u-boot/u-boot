@@ -195,7 +195,6 @@ DECLARE_PSSERIAL_FUNCTIONS(1);
 static struct serial_device uart_zynq_serial1_device =
 	INIT_PSSERIAL_STRUCTURE(1, "ttyPS1");
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 __weak struct serial_device *default_serial_console(void)
 {
 	const void *blob = gd->fdt_blob;
@@ -218,20 +217,6 @@ __weak struct serial_device *default_serial_console(void)
 
 	return NULL;
 }
-#else
-__weak struct serial_device *default_serial_console(void)
-{
-#if defined(CONFIG_ZYNQ_SERIAL_UART0)
-	if (uart_zynq_ports[0])
-		return &uart_zynq_serial0_device;
-#endif
-#if defined(CONFIG_ZYNQ_SERIAL_UART1)
-	if (uart_zynq_ports[1])
-		return &uart_zynq_serial1_device;
-#endif
-	return NULL;
-}
-#endif
 
 void zynq_serial_initialize(void)
 {
