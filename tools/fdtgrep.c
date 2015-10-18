@@ -667,28 +667,16 @@ static int fdtgrep_find_regions(const void *fdt,
 
 		new_count = fdt_add_alias_regions(fdt, region, count,
 						  max_regions, &state);
-		if (new_count > max_regions) {
-			region = malloc(new_count * sizeof(struct fdt_region));
-			if (!region) {
-				fprintf(stderr,
-					"Out of memory for %d regions\n",
-					count);
-				return -1;
-			}
-			memcpy(region, state.region,
-			       count * sizeof(struct fdt_region));
-			free(state.region);
-			new_count = fdt_add_alias_regions(fdt, region, count,
-							  max_regions, &state);
+		if (new_count <= max_regions) {
+			/*
+			* The alias regions will now be at the end of the list.
+			* Sort the regions by offset to get things into the
+			* right order
+			*/
+			count = new_count;
+			qsort(region, count, sizeof(struct fdt_region),
+			      h_cmp_region);
 		}
-
-		/*
-		 * The alias regions will now be at the end of the list. Sort
-		 * the regions by offset to get things into the right order
-		 */
-		qsort(region, new_count, sizeof(struct fdt_region),
-		      h_cmp_region);
-		count = new_count;
 	}
 
 	if (ret != -FDT_ERR_NOTFOUND)
@@ -805,7 +793,7 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 	 * The first pass will count the regions, but if it is too many,
 	 * we do another pass to actually record them.
 	 */
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < 3; i++) {
 		region = malloc(count * sizeof(struct fdt_region));
 		if (!region) {
 			fprintf(stderr, "Out of memory for %d regions\n",
