@@ -628,7 +628,16 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int node,
 			 int *seqp);
 
 /**
- * Get the offset of the given chosen node
+ * Get a property from the /chosen node
+ *
+ * @param blob		Device tree blob (if NULL, then NULL is returned)
+ * @param name		Property name to look up
+ * @return Value of property, or NULL if it does not exist
+ */
+const char *fdtdec_get_chosen_prop(const void *blob, const char *name);
+
+/**
+ * Get the offset of the given /chosen node
  *
  * This looks up a property in /chosen containing the path to another node,
  * then finds the offset of that node.
