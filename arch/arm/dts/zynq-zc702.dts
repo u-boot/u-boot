@@ -376,6 +376,7 @@
 };
 
 &uart1 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1_default>;
