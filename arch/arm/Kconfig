@@ -553,6 +553,9 @@ config ARCH_ZYNQ
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
 	select ARM64
+	select DM
+	select OF_CONTROL
+	select DM_SERIAL
 
 config TEGRA
 	bool "NVIDIA Tegra"
