@@ -332,7 +332,11 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
+#ifdef CONFIG_OF_CONTROL
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
+#else
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
+#endif
 #endif
 
 /* Disable dcache for SPL just for sure */
