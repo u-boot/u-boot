@@ -93,11 +93,11 @@ static int read_seed_from_cmos(struct pei_data *pei_data)
 {
 	u16 c1, c2, checksum, seed_checksum;
 	struct udevice *dev;
-	int rcode = 0;
+	int ret = 0;
 
-	rcode = uclass_get_device(UCLASS_RTC, 0, &dev);
-	if (rcode) {
-		debug("Cannot find RTC: err=%d\n", rcode);
+	ret = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (ret) {
+		debug("Cannot find RTC: err=%d\n", ret);
 		return -ENODEV;
 	}
 
@@ -170,11 +170,11 @@ static int write_seeds_to_cmos(struct pei_data *pei_data)
 {
 	u16 c1, c2, checksum;
 	struct udevice *dev;
-	int rcode = 0;
+	int ret = 0;
 
-	rcode = uclass_get_device(UCLASS_RTC, 0, &dev);
-	if (rcode) {
-		debug("Cannot find RTC: err=%d\n", rcode);
+	ret = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (ret) {
+		debug("Cannot find RTC: err=%d\n", ret);
 		return -ENODEV;
 	}
 
