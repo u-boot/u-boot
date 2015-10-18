@@ -107,11 +107,18 @@ static int read_seed_from_cmos(struct pei_data *pei_data)
 	 * the flash too much. So we store these in CMOS and the large MRC
 	 * data in SPI flash.
 	 */
-	rtc_read32(dev, CMOS_OFFSET_MRC_SEED, &pei_data->scrambler_seed);
+	ret = rtc_read32(dev, CMOS_OFFSET_MRC_SEED, &pei_data->scrambler_seed);
+	if (!ret) {
+		ret = rtc_read32(dev, CMOS_OFFSET_MRC_SEED_S3,
+				 &pei_data->scrambler_seed_s3);
+	}
+	if (ret) {
+		debug("Failed to read from RTC %s\n", dev->name);
+		return ret;
+	}
+
 	debug("Read scrambler seed    0x%08x from CMOS 0x%02x\n",
 	      pei_data->scrambler_seed, CMOS_OFFSET_MRC_SEED);
-
-	rtc_read32(dev, CMOS_OFFSET_MRC_SEED_S3, &pei_data->scrambler_seed_s3);
 	debug("Read S3 scrambler seed 0x%08x from CMOS 0x%02x\n",
 	      pei_data->scrambler_seed_s3, CMOS_OFFSET_MRC_SEED_S3);
 
