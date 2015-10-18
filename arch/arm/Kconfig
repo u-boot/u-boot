@@ -543,9 +543,12 @@ config ARCH_ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 	select OF_CONTROL
+	select SPL_OF_CONTROL
 	select DM
+	select SPL_DM
 	select DM_SPI
 	select DM_SPI_FLASH
+	select SPL_SEPARATE_BSS
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
