@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <debug_uart.h>
 #include <spl.h>
 
 #include <asm/io.h>
@@ -18,6 +19,11 @@ void board_init_f(ulong dummy)
 	ps7_init();
 
 	arch_cpu_init();
+	/*
+	 * The debug UART can be used from this point:
+	 * debug_uart_init();
+	 * printch('x');
+	 */
 }
 
 #ifdef CONFIG_SPL_BOARD_INIT
