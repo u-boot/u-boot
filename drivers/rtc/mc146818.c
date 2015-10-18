@@ -192,7 +192,7 @@ static void mc146818_init(void)
 	/* Clear any pending interrupts */
 	mc146818_read8(RTC_CONFIG_C);
 }
-#endif
+#endif /* CONFIG_CMD_DATE */
 
 #ifdef CONFIG_DM_RTC
 
