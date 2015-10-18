@@ -101,7 +101,7 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 			continue;
 		next = fdt_next_property_offset(fdt, offset);
 		if (next < 0)
-			next = node_end - sizeof(fdt32_t);
+			next = node_end;
 
 		if (!did_alias_header) {
 			fdt_add_region(info, base + node, 12);
