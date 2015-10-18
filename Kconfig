@@ -152,6 +152,16 @@ config SPL_STACK_R_MALLOC_SIMPLE_LEN
 	  to give board_init_r() a larger heap then the initial heap in
 	  SRAM which is limited to SYS_MALLOC_F_LEN bytes.
 
+config SPL_SEPARATE_BSS
+	depends on SPL
+	bool "BSS section is in a different memory region from text"
+	help
+	  Some platforms need a large BSS region in SPL and can provide this
+	  because RAM is already set up. In this case BSS can be moved to RAM.
+	  This option should then be enabled so that the correct device tree
+	  location is used. Normally we put the device tree at the end of BSS
+	  but with this option enabled, it goes at _image_binary_end.
+
 config TPL
 	bool
 	depends on SPL && SUPPORT_TPL
