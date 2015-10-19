@@ -5,6 +5,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_DM_KEYBOARD) += keyboard-uclass.o
+
 obj-$(CONFIG_I8042_KBD) += i8042.o
 obj-$(CONFIG_TEGRA_KEYBOARD) += tegra-kbc.o
 obj-$(CONFIG_TWL4030_INPUT) += twl4030.o

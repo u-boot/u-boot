@@ -649,12 +649,6 @@ U_BOOT_DRIVER(usb_kbd) = {
 	.probe = usb_kbd_probe,
 };
 
-/* TODO(sjg@chromium.org): Move this into a common location */
-UCLASS_DRIVER(keyboard) = {
-	.id		= UCLASS_KEYBOARD,
-	.name		= "keyboard",
-};
-
 static const struct usb_device_id kbd_id_table[] = {
 	{
 		.match_flags = USB_DEVICE_ID_MATCH_INT_CLASS |
