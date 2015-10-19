@@ -54,7 +54,7 @@ static int check_for_keys(struct keyb *config,
 	unsigned int row, col, bit, data;
 	int num_keys;
 
-	if (cros_ec_scan_keyboard(config->dev, &scan)) {
+	if (cros_ec_scan_keyboard(config->dev->dev, &scan)) {
 		debug("%s: keyboard scan failed\n", __func__);
 		return -EIO;
 	}
@@ -139,7 +139,7 @@ int cros_ec_kbc_check(struct input_config *input)
 	 * may return 0 before all keys have been read from the EC.
 	 */
 	do {
-		irq_pending = cros_ec_interrupt_pending(config.dev);
+		irq_pending = cros_ec_interrupt_pending(config.dev->dev);
 		if (irq_pending) {
 			num_keys = check_for_keys(&config, keys, KBC_MAX_KEYS,
 						  &same);
