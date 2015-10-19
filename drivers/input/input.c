@@ -457,19 +457,27 @@ void input_set_delays(struct input_config *config, int repeat_delay_ms,
 	config->repeat_rate_ms = repeat_rate_ms;
 }
 
+int input_add_tables(struct input_config *config)
+{
+	int ret;
+
+	ret = input_add_table(config, -1, -1,
+			      kbd_plain_xlate, ARRAY_SIZE(kbd_plain_xlate));
+	if (ret)
+		return ret;
+	ret = input_add_table(config, KEY_LEFTSHIFT, KEY_RIGHTSHIFT,
+			      kbd_shift_xlate, ARRAY_SIZE(kbd_shift_xlate));
+	if (ret)
+		return ret;
+
+	return input_add_table(config, KEY_LEFTCTRL, KEY_RIGHTCTRL,
+			       kbd_ctrl_xlate, ARRAY_SIZE(kbd_ctrl_xlate));
+}
+
 int input_init(struct input_config *config, int leds)
 {
 	memset(config, '\0', sizeof(*config));
 	config->leds = leds;
-	if (input_add_table(config, -1, -1,
-			kbd_plain_xlate, ARRAY_SIZE(kbd_plain_xlate)) ||
-		input_add_table(config, KEY_LEFTSHIFT, KEY_RIGHTSHIFT,
-			kbd_shift_xlate, ARRAY_SIZE(kbd_shift_xlate)) ||
-		input_add_table(config, KEY_LEFTCTRL, KEY_RIGHTCTRL,
-			kbd_ctrl_xlate, ARRAY_SIZE(kbd_ctrl_xlate))) {
-		debug("%s: Could not add modifier tables\n", __func__);
-		return -ENOSPC;
-	}
 
 	return 0;
 }

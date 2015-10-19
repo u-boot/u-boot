@@ -255,6 +255,7 @@ int drv_keyboard_init(void)
 		return -1;
 	}
 	config.input.read_keys = cros_ec_kbc_check;
+	input_add_tables(&config.input);
 
 	memset(&dev, '\0', sizeof(dev));
 	strcpy(dev.name, "cros-ec-keyb");

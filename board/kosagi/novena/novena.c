@@ -88,6 +88,7 @@ int drv_keyboard_init(void)
 		debug("%s: Cannot set up input\n", __func__);
 		return -1;
 	}
+	input_add_tables(&button_input);
 	button_input.read_keys = novena_gpio_button_read_keys;
 
 	error = input_stdio_register(&dev);

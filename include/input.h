@@ -123,6 +123,16 @@ void input_set_delays(struct input_config *config, int repeat_delay_ms,
 	       int repeat_rate_ms);
 
 /**
+ * Set up the key map tables
+ *
+ * This must be called after input_init() or keycode decoding will not work.
+ *
+ * @param config	Input state
+ * @return 0 if ok, -1 on error
+ */
+int input_add_tables(struct input_config *config);
+
+/**
  * Set up the input handler with basic key maps.
  *
  * @param config	Input state

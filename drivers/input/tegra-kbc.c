@@ -355,6 +355,7 @@ int drv_keyboard_init(void)
 		return -1;
 	}
 	config.input.read_keys = tegra_kbc_check;
+	input_add_tables(input);
 
 	memset(&dev, '\0', sizeof(dev));
 	strcpy(dev.name, "tegra-kbc");
