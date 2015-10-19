@@ -8,55 +8,55 @@
 #include <phy.h>
 
 /* TI DP83867 */
-#define DP83867_DEVADDR         0x1f
+#define DP83867_DEVADDR		0x1f
 
-#define MII_DP83867_PHYCTRL     0x10
-#define MII_DP83867_MICR        0x12
-#define DP83867_CTRL            0x1f
+#define MII_DP83867_PHYCTRL	0x10
+#define MII_DP83867_MICR	0x12
+#define DP83867_CTRL		0x1f
 
 /* Extended Registers */
 #define DP83867_RGMIICTL        0x0032
 #define DP83867_RGMIIDCTL       0x0086
 
 /* FIXME this is consolidated in the latest U-Boot version */
-#define BIT(x) (1UL << (x))
+#define BIT(x)	(1UL << (x))
 
-#define DP83867_SW_RESET        (1 << 15)
-#define DP83867_SW_RESTART      (1 << 14)
+#define DP83867_SW_RESET	(1 << 15)
+#define DP83867_SW_RESTART	(1 << 14)
 
 /* MICR Interrupt bits */
-#define MII_DP83867_MICR_AN_ERR_INT_EN          BIT(15)
-#define MII_DP83867_MICR_SPEED_CHNG_INT_EN      BIT(14)
-#define MII_DP83867_MICR_DUP_MODE_CHNG_INT_EN   BIT(13)
-#define MII_DP83867_MICR_PAGE_RXD_INT_EN        BIT(12)
-#define MII_DP83867_MICR_AUTONEG_COMP_INT_EN    BIT(11)
-#define MII_DP83867_MICR_LINK_STS_CHNG_INT_EN   BIT(10)
-#define MII_DP83867_MICR_FALSE_CARRIER_INT_EN   BIT(8)
-#define MII_DP83867_MICR_SLEEP_MODE_CHNG_INT_EN BIT(4)
-#define MII_DP83867_MICR_WOL_INT_EN             BIT(3)
-#define MII_DP83867_MICR_XGMII_ERR_INT_EN       BIT(2)
-#define MII_DP83867_MICR_POL_CHNG_INT_EN        BIT(1)
-#define MII_DP83867_MICR_JABBER_INT_EN          BIT(0)
+#define MII_DP83867_MICR_AN_ERR_INT_EN		BIT(15)
+#define MII_DP83867_MICR_SPEED_CHNG_INT_EN	BIT(14)
+#define MII_DP83867_MICR_DUP_MODE_CHNG_INT_EN	BIT(13)
+#define MII_DP83867_MICR_PAGE_RXD_INT_EN	BIT(12)
+#define MII_DP83867_MICR_AUTONEG_COMP_INT_EN	BIT(11)
+#define MII_DP83867_MICR_LINK_STS_CHNG_INT_EN	BIT(10)
+#define MII_DP83867_MICR_FALSE_CARRIER_INT_EN	BIT(8)
+#define MII_DP83867_MICR_SLEEP_MODE_CHNG_INT_EN	BIT(4)
+#define MII_DP83867_MICR_WOL_INT_EN		BIT(3)
+#define MII_DP83867_MICR_XGMII_ERR_INT_EN	BIT(2)
+#define MII_DP83867_MICR_POL_CHNG_INT_EN	BIT(1)
+#define MII_DP83867_MICR_JABBER_INT_EN		BIT(0)
 
 /* RGMIICTL bits */
-#define DP83867_RGMII_TX_CLK_DELAY_EN           BIT(1)
-#define DP83867_RGMII_RX_CLK_DELAY_EN           BIT(0)
+#define DP83867_RGMII_TX_CLK_DELAY_EN	BIT(1)
+#define DP83867_RGMII_RX_CLK_DELAY_EN	BIT(0)
 
 /* PHY CTRL bits */
-#define DP83867_PHYCR_FIFO_DEPTH_SHIFT          14
+#define DP83867_PHYCR_FIFO_DEPTH_SHIFT	14
 
 /* RGMIIDCTL bits */
-#define DP83867_RGMII_TX_CLK_DELAY_SHIFT        4
+#define DP83867_RGMII_TX_CLK_DELAY_SHIFT	4
 
-#define MII_MMD_CTRL            0x0d    /* MMD Access Control Register */
-#define MII_MMD_DATA            0x0e    /* MMD Access Data Register */
+#define MII_MMD_CTRL	0x0d /* MMD Access Control Register */
+#define MII_MMD_DATA	0x0e /* MMD Access Data Register */
 
 /* MMD Access Control register fields */
-#define MII_MMD_CTRL_DEVAD_MASK 0x1f    /* Mask MMD DEVAD*/
-#define MII_MMD_CTRL_ADDR       0x0000  /* Address */
-#define MII_MMD_CTRL_NOINCR     0x4000  /* no post increment */
-#define MII_MMD_CTRL_INCR_RDWT  0x8000  /* post increment on reads & writes */
-#define MII_MMD_CTRL_INCR_ON_WT 0xC000  /* post increment on writes only */
+#define MII_MMD_CTRL_DEVAD_MASK	0x1f /* Mask MMD DEVAD*/
+#define MII_MMD_CTRL_ADDR	0x0000 /* Address */
+#define MII_MMD_CTRL_NOINCR	0x4000 /* no post increment */
+#define MII_MMD_CTRL_INCR_RDWT	0x8000 /* post increment on reads & writes */
+#define MII_MMD_CTRL_INCR_ON_WT	0xC000 /* post increment on writes only */
 
 /* FIXME: These indirect PHY writes should go into common code.  */
 
