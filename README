@@ -872,13 +872,6 @@ The following options need to be configured:
 						(i.e. i8042_tstc)
 			VIDEO_GETC_FCT		get char fct
 						(i.e. i8042_getc)
-			CONFIG_CONSOLE_CURSOR	cursor drawing on/off
-						(requires blink timer
-						cf. i8042.c)
-			CONFIG_SYS_CONSOLE_BLINK_COUNT blink interval (cf. i8042.c)
-			CONFIG_CONSOLE_TIME	display time/date info in
-						upper right corner
-						(requires CONFIG_CMD_DATE)
 			CONFIG_VIDEO_LOGO	display Linux logo in
 						upper left corner
 			CONFIG_VIDEO_BMP_LOGO	use bmp_logo.h instead of

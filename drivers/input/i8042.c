@@ -17,12 +17,6 @@
 #define in8(p)		inb(p)
 #define out8(p, v)	outb(v, p)
 
-#ifdef CONFIG_CONSOLE_CURSOR
-extern void console_cursor(int state);
-static int blink_count = CONFIG_SYS_CONSOLE_BLINK_COUNT;
-static int cursor_state;
-#endif
-
 /* locals */
 
 static int kbd_input = -1;		/* no input yet */
@@ -598,15 +592,6 @@ int i8042_tstc(struct stdio_dev *dev)
 {
 	unsigned char scan_code = 0;
 
-#ifdef CONFIG_CONSOLE_CURSOR
-	if (--blink_count == 0) {
-		cursor_state ^= 1;
-		console_cursor(cursor_state);
-		blink_count = CONFIG_SYS_CONSOLE_BLINK_COUNT;
-		udelay(10);
-	}
-#endif
-
 	if ((in8(I8042_STS_REG) & STATUS_OBF) == 0) {
 		return 0;
 	} else {
@@ -635,14 +620,6 @@ int i8042_getc(struct stdio_dev *dev)
 
 	while (kbd_input == -1) {
 		while ((in8(I8042_STS_REG) & STATUS_OBF) == 0) {
-#ifdef CONFIG_CONSOLE_CURSOR
-			if (--blink_count == 0) {
-				cursor_state ^= 1;
-				console_cursor(cursor_state);
-				blink_count = CONFIG_SYS_CONSOLE_BLINK_COUNT;
-			}
-			udelay(10);
-#endif
 		}
 		scan_code = in8(I8042_DATA_REG);
 		if (scan_code != 0xfa)
