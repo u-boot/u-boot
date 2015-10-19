@@ -20,7 +20,6 @@ void board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
-	preloader_console_init();
 	arch_cpu_init();
 	board_init_r(NULL, 0);
 }
@@ -28,6 +27,7 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void)
 {
+	preloader_console_init();
 	board_init();
 }
 #endif
