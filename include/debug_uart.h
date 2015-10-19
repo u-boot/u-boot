@@ -38,7 +38,7 @@
  * To enable the debug UART in your serial driver:
  *
  * - #include <debug_uart.h>
- * - Define debug_uart_init(), trying to avoid using the stack
+ * - Define _debug_uart_init(), trying to avoid using the stack
  * - Define _debug_uart_putc() as static inline (avoiding stack usage)
  * - Immediately afterwards, add DEBUG_UART_FUNCS to define the rest of the
  *     functionality (printch(), etc.)
@@ -132,6 +132,11 @@ void printhex8(uint value);
 	void printhex8(uint value) \
 	{ \
 		printhex(value, 8); \
-	}
+	} \
+\
+	void debug_uart_init(void) \
+	{ \
+		_debug_uart_init(); \
+	} \
 
 #endif
