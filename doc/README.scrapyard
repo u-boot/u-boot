@@ -12,15 +12,15 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-stxgp3           powerpc     mpc85xx        -           -           Dan Malek <dan@embeddedalley.com>
-stxssa           powerpc     mpc85xx        -           -           Dan Malek <dan@embeddedalley.com>
-cmi_mpc5xx       powerpc     mpc5xx         -           -
-zeus             powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
-sbc405           powerpc     ppc4xx         -           -
-pcs440ep         powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
-p3p440           powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
-csb272/csb472    powerpc     ppc4xx         -           -           Tolunay Orkun <torkun@nextio.com>
-alpr             powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
+stxgp3           powerpc     mpc85xx        2ec69b88    2015-09-02  Dan Malek <dan@embeddedalley.com>
+stxssa           powerpc     mpc85xx        2ec69b88    2015-09-02  Dan Malek <dan@embeddedalley.com>
+cmi_mpc5xx       powerpc     mpc5xx         972f5320    2015-09-02
+zeus             powerpc     ppc4xx         eb5d1dc7    2015-09-02  Stefan Roese <sr@denx.de>
+sbc405           powerpc     ppc4xx         0e030593    2015-09-02
+pcs440ep         powerpc     ppc4xx         242836a8    2015-09-02  Stefan Roese <sr@denx.de>
+p3p440           powerpc     ppc4xx         c6999e5f    2015-09-02  Stefan Roese <sr@denx.de>
+csb272/csb472    powerpc     ppc4xx         54a3f260    2015-09-02  Tolunay Orkun <torkun@nextio.com>
+alpr             powerpc     ppc4xx         0d2fc811    2015-09-02  Stefan Roese <sr@denx.de>
 cam_enc_4xx      arm         arm926ejs      8d775763    2015-08-20  Heiko Schocher <hs@denx.de>
 atstk1003        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 atstk1004        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
