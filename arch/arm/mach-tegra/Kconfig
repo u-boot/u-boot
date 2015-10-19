@@ -12,6 +12,7 @@ config TEGRA_ARMV7_COMMON
 	select DM_I2C
 	select DM_SPI
 	select DM_GPIO
+	select DM_KEYBOARD
 
 choice
 	prompt "Tegra SoC select"
