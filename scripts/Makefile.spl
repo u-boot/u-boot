@@ -52,6 +52,7 @@ libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 
 libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
+libs-y += common/init/
 libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
 libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
 libs-y += drivers/

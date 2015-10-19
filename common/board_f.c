@@ -1030,32 +1030,3 @@ void board_init_f_r(void)
 	hang();
 }
 #endif /* CONFIG_X86 */
-
-/* Unfortunately x86 can't compile this code as gd cannot be assigned */
-#ifndef CONFIG_X86
-__weak void arch_setup_gd(struct global_data *gd_ptr)
-{
-	gd = gd_ptr;
-}
-#endif /* !CONFIG_X86 */
-
-ulong board_init_f_mem(ulong top)
-{
-	struct global_data *gd_ptr;
-
-	/* Leave space for the stack we are running with now */
-	top -= 0x40;
-
-	top -= sizeof(struct global_data);
-	top = ALIGN(top, 16);
-	gd_ptr = (struct global_data *)top;
-	memset(gd_ptr, '\0', sizeof(*gd));
-	arch_setup_gd(gd_ptr);
-
-#ifdef CONFIG_SYS_MALLOC_F_LEN
-	top -= CONFIG_SYS_MALLOC_F_LEN;
-	gd->malloc_base = top;
-#endif
-
-	return top;
-}
