@@ -60,6 +60,4 @@
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
-#define CONFIG_OF_BOARD_SETUP
-
 #endif /* _P2571_H */

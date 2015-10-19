@@ -11,7 +11,6 @@
 #include <asm/arch/pinmux.h>
 #include <asm/gpio.h>
 #include "max77620_init.h"
-#include <asm/arch-tegra/gpu.h>
 #include "pinmux-config-p2571.h"
 
 void pin_mux_mmc(void)
@@ -61,10 +60,4 @@ void start_cpu_fan(void)
 	/* GPIO_PE4 is PS_VDD_FAN_ENABLE */
 	gpio_request(GPIO_PE4, "FAN_VDD");
 	gpio_direction_output(GPIO_PE4, 1);
-}
-
-int ft_board_setup(void *blob, bd_t *bd)
-{
-	gpu_enable_node(blob, "/gpu@0,57000000");
-	return 0;
 }

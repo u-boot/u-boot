@@ -143,4 +143,6 @@
 #define CONFIG_FAT_WRITE
 #endif
 
+#define CONFIG_OF_SYSTEM_SETUP
+
 #endif /* _TEGRA_COMMON_H_ */
