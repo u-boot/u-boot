@@ -13,6 +13,7 @@
 #include <linux/compiler.h>
 #include <dm/platdata.h>
 #include <dm/platform_data/serial_pl01x.h>
+#include "pcie.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,6 +30,7 @@ U_BOOT_DEVICE(vexpress_serials) = {
 
 int board_init(void)
 {
+	vexpress64_pcie_init();
 	return 0;
 }
 
