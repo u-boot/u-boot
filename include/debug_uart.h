@@ -42,6 +42,11 @@
  * - Define _debug_uart_putc() as static inline (avoiding stack usage)
  * - Immediately afterwards, add DEBUG_UART_FUNCS to define the rest of the
  *     functionality (printch(), etc.)
+ *
+ * If your board needs additional init for the UART to work, enable
+ * CONFIG_DEBUG_UART_BOARD_INIT and write a function called
+ * board_debug_uart_init() to perform that init. When debug_uart_init() is
+ * called, the init will happen automatically.
  */
 
 /**
@@ -56,6 +61,14 @@
  *    - CONFIG_DEBUG_UART_CLOCK: Input clock for UART
  */
 void debug_uart_init(void);
+
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void);
+#else
+static inline void board_debug_uart_init(void)
+{
+}
+#endif
 
 /**
  * printch() - Output a character to the debug UART
@@ -136,6 +149,7 @@ void printhex8(uint value);
 \
 	void debug_uart_init(void) \
 	{ \
+		board_debug_uart_init(); \
 		_debug_uart_init(); \
 	} \
 
