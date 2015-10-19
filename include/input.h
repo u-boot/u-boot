@@ -36,6 +36,7 @@ struct input_key_xlate {
 };
 
 struct input_config {
+	struct udevice *dev;
 	uchar fifo[INPUT_BUFFER_LEN];
 	int fifo_in, fifo_out;
 
