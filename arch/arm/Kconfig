@@ -419,6 +419,7 @@ config ARCH_EXYNOS
 	select DM_SERIAL
 	select DM_SPI
 	select DM_GPIO
+	select DM_KEYBOARD
 
 config ARCH_S5PC1XX
 	bool "Samsung S5PC1XX"

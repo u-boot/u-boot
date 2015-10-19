@@ -1785,11 +1785,6 @@ CBFS (Coreboot Filesystem) support
 		Export function i8042_kbd_init, i8042_tstc and i8042_getc
 		for cfb_console. Supports cursor blinking.
 
-		CONFIG_CROS_EC_KEYB
-		Enables a Chrome OS keyboard using the CROS_EC interface.
-		This uses CROS_EC to communicate with a second microcontroller
-		which provides key scans on request.
-
 - Video support:
 		CONFIG_VIDEO
 

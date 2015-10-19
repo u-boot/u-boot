@@ -17,4 +17,7 @@ config PCI
 	  used on some devices to allow the CPU to communicate with its
 	  peripherals.
 
+config DM_KEYBOARD
+	default y
+
 endmenu
