@@ -446,53 +446,66 @@ static void kbd_conv_char(unsigned char scan_code)
 	return;
 }
 
+static int kbd_write(int reg, int value)
+{
+	if (!kbd_input_empty())
+		return -1;
+	out8(reg, value);
+
+	return 0;
+}
+
+static int kbd_read(int reg)
+{
+	if (!kbd_output_full())
+		return -1;
+
+	return in8(reg);
+}
+
+static int kbd_cmd_read(int cmd)
+{
+	if (kbd_write(I8042_CMD_REG, cmd))
+		return -1;
+
+	return kbd_read(I8042_DATA_REG);
+}
+
+static int kbd_cmd_write(int cmd, int data)
+{
+	if (kbd_write(I8042_CMD_REG, cmd))
+		return -1;
+
+	return kbd_write(I8042_DATA_REG, data);
+}
+
 static int kbd_reset(void)
 {
-	u8 config;
+	int config;
 
 	/* controller self test */
-	if (kbd_input_empty() == 0)
-		return -1;
-	out8(I8042_CMD_REG, CMD_SELF_TEST);
-	if (kbd_output_full() == 0)
-		return -1;
-	if (in8(I8042_DATA_REG) != KBC_TEST_OK)
+	if (kbd_cmd_read(CMD_SELF_TEST) != KBC_TEST_OK)
 		return -1;
 
 	/* keyboard reset */
-	if (kbd_input_empty() == 0)
-		return -1;
-	out8(I8042_DATA_REG, CMD_RESET_KBD);
-	if (kbd_output_full() == 0)
-		return -1;
-	if (in8(I8042_DATA_REG) != KBD_ACK)
-		return -1;
-	if (kbd_output_full() == 0)
-		return -1;
-	if (in8(I8042_DATA_REG) != KBD_POR)
+	if (kbd_write(I8042_DATA_REG, CMD_RESET_KBD) ||
+	    kbd_read(I8042_DATA_REG) != KBD_ACK ||
+	    kbd_read(I8042_DATA_REG) != KBD_POR)
 		return -1;
 
 	/* set AT translation and disable irq */
-	if (kbd_input_empty() == 0)
+	config = kbd_cmd_read(CMD_RD_CONFIG);
+	if (config == -1)
 		return -1;
-	out8(I8042_CMD_REG, CMD_RD_CONFIG);
-	if (kbd_output_full() == 0)
-		return -1;
-	config = in8(I8042_DATA_REG);
+
 	config |= CONFIG_AT_TRANS;
 	config &= ~(CONFIG_KIRQ_EN | CONFIG_MIRQ_EN);
-	if (kbd_input_empty() == 0)
+	if (kbd_cmd_write(CMD_WR_CONFIG, config))
 		return -1;
-	out8(I8042_CMD_REG, CMD_WR_CONFIG);
-	if (kbd_input_empty() == 0)
-		return -1;
-	out8(I8042_DATA_REG, config);
 
 	/* enable keyboard */
-	if (kbd_input_empty() == 0)
-		return -1;
-	out8(I8042_CMD_REG, CMD_KBD_EN);
-	if (kbd_input_empty() == 0)
+	if (kbd_write(I8042_CMD_REG, CMD_KBD_EN) ||
+	    !kbd_input_empty())
 		return -1;
 
 	return 0;
