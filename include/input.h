@@ -57,6 +57,7 @@ struct input_config {
 	 *		unknown
 	 */
 	int (*read_keys)(struct input_config *config);
+	bool allow_repeats;		/* Don't filter out repeats */
 	unsigned int next_repeat_ms;	/* Next time we repeat a key */
 	unsigned int repeat_delay_ms;	/* Time before autorepeat starts */
 	unsigned int repeat_rate_ms;	/* Autorepeat rate in ms */
@@ -141,6 +142,24 @@ int input_stdio_register(struct stdio_dev *dev);
  */
 void input_set_delays(struct input_config *config, int repeat_delay_ms,
 	       int repeat_rate_ms);
+
+/**
+ * Tell the input layer whether to allow the caller to determine repeats
+ *
+ * Generally the input library handles processing of a list of scanned keys.
+ * Repeated keys need to be generated based on a timer in this case, since all
+ * that is provided is a list of keys current depressed.
+ *
+ * Keyboards which do their own scanning will resend codes when they want to
+ * inject a repeating key. This function can be called at start-up to select
+ * this behaviour.
+ *
+ * @param config	Input state
+ * @param allow_repeats	true to repeat depressed keys every time
+ *			input_send_keycodes() is called, false to do normal
+ *			keyboard repeat processing with a timer.
+ */
+void input_allow_repeats(struct input_config *config, bool allow_repeats);
 
 /**
  * Set up the key map tables

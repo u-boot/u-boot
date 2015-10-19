@@ -413,8 +413,8 @@ static int _input_send_keycodes(struct input_config *config, int keycode[],
 		 * insert another character if we later realise that we
 		 * have missed a repeat slot.
 		 */
-		is_repeat = config->repeat_rate_ms &&
-			(int)get_timer(config->next_repeat_ms) >= 0;
+		is_repeat = config->allow_repeats || (config->repeat_rate_ms &&
+			(int)get_timer(config->next_repeat_ms) >= 0);
 		if (!is_repeat)
 			return 0;
 	}
@@ -493,6 +493,11 @@ void input_set_delays(struct input_config *config, int repeat_delay_ms,
 {
 	config->repeat_delay_ms = repeat_delay_ms;
 	config->repeat_rate_ms = repeat_rate_ms;
+}
+
+void input_allow_repeats(struct input_config *config, bool allow_repeats)
+{
+	config->allow_repeats = allow_repeats;
 }
 
 int input_add_tables(struct input_config *config)
