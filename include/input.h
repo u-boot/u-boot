@@ -76,6 +76,26 @@ struct stdio_dev;
 int input_send_keycodes(struct input_config *config, int keycode[], int count);
 
 /**
+ * Add a new keycode to an existing list of keycodes
+ *
+ * This can be used to handle keyboards which do their own scanning. An
+ * internal list of depressed keys is maintained by the input library. Then
+ * this function is called to add a new key to the list (when a 'make code' is
+ * received), or remove a key (when a 'break code' is received).
+ *
+ * This function looks after maintenance of the list of active keys, and calls
+ * input_send_keycodes() with its updated list.
+ *
+ * @param config	Input state
+ * @param new_keycode	New keycode to add/remove
+ * @param release	true if this key was released, false if depressed
+ * @return number of ascii characters sent, or 0 if none, or -1 for an
+ *	internal error
+ */
+int input_add_keycode(struct input_config *config, int new_keycode,
+		      bool release);
+
+/**
  * Add a new key translation table to the input
  *
  * @param config	Input state

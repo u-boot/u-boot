@@ -107,6 +107,7 @@ static int input_queue_ascii(struct input_config *config, int ch)
 			return -1; /* buffer full */
 		config->fifo_in++;
 	}
+	debug(" {%02x} ", ch);
 	config->fifo[config->fifo_in] = (uchar)ch;
 
 	return 0;
@@ -394,8 +395,8 @@ static int input_keycodes_to_ascii(struct input_config *config,
 	return ch_count;
 }
 
-int input_send_keycodes(struct input_config *config,
-			int keycode[], int num_keycodes)
+static int _input_send_keycodes(struct input_config *config, int keycode[],
+				int num_keycodes, bool do_send)
 {
 	char ch[num_keycodes * ANSI_CHAR_MAX];
 	int count, i, same = 0;
@@ -420,8 +421,10 @@ int input_send_keycodes(struct input_config *config,
 
 	count = input_keycodes_to_ascii(config, keycode, num_keycodes,
 					ch, sizeof(ch), is_repeat ? 0 : same);
-	for (i = 0; i < count; i++)
-		input_queue_ascii(config, ch[i]);
+	if (do_send) {
+		for (i = 0; i < count; i++)
+			input_queue_ascii(config, ch[i]);
+	}
 	delay_ms = is_repeat ?
 			config->repeat_rate_ms :
 			config->repeat_delay_ms;
@@ -429,6 +432,41 @@ int input_send_keycodes(struct input_config *config,
 	config->next_repeat_ms = get_timer(0) + delay_ms;
 
 	return count;
+}
+
+int input_send_keycodes(struct input_config *config, int keycode[],
+			int num_keycodes)
+{
+	return _input_send_keycodes(config, keycode, num_keycodes, true);
+}
+
+int input_add_keycode(struct input_config *config, int new_keycode,
+		      bool release)
+{
+	int keycode[INPUT_MAX_MODIFIERS + 1];
+	int count, i;
+
+	/* Add the old keycodes which are not removed by this new one */
+	for (i = 0, count = 0; i < config->num_prev_keycodes; i++) {
+		int code = config->prev_keycodes[i];
+
+		if (new_keycode == code) {
+			if (release)
+				continue;
+			new_keycode = -1;
+		}
+		keycode[count++] = code;
+	}
+
+	if (!release && new_keycode != -1)
+		keycode[count++] = new_keycode;
+	debug("\ncodes for %02x/%d: ", new_keycode, release);
+	for (i = 0; i < count; i++)
+		debug("%02x ", keycode[i]);
+	debug("\n");
+
+	/* Don't output any ASCII characters if this is a key release */
+	return _input_send_keycodes(config, keycode, count, !release);
 }
 
 int input_add_table(struct input_config *config, int left_keycode,
