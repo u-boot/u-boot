@@ -128,7 +128,7 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
-	config_gpu();
+	tegra_gpu_config();
 
 #ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();
@@ -419,7 +419,7 @@ int ft_system_setup(void *blob, bd_t *bd)
 
 	/* Enable GPU node if GPU setup has been performed */
 	if (gpu_path != NULL)
-		return gpu_enable_node(blob, gpu_path);
+		return tegra_gpu_enable_node(blob, gpu_path);
 
 	return 0;
 }

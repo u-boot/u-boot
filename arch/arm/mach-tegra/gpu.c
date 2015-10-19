@@ -25,7 +25,7 @@
 
 static bool _configured;
 
-void config_gpu(void)
+void tegra_gpu_config(void)
 {
 	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
 
@@ -43,7 +43,7 @@ void config_gpu(void)
 
 #if defined(CONFIG_OF_LIBFDT)
 
-int gpu_enable_node(void *blob, const char *gpupath)
+int tegra_gpu_enable_node(void *blob, const char *gpupath)
 {
 	int offset;
 

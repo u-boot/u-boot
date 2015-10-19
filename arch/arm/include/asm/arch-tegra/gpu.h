@@ -10,11 +10,11 @@
 
 #if defined(CONFIG_TEGRA_GPU)
 
-void config_gpu(void);
+void tegra_gpu_config(void);
 
 #else /* CONFIG_TEGRA_GPU */
 
-static inline void config_gpu(void)
+static inline void tegra_gpu_config(void)
 {
 }
 
@@ -22,11 +22,11 @@ static inline void config_gpu(void)
 
 #if defined(CONFIG_OF_LIBFDT)
 
-int gpu_enable_node(void *blob, const char *gpupath);
+int tegra_gpu_enable_node(void *blob, const char *gpupath);
 
 #else /* CONFIG_OF_LIBFDT */
 
-static inline int gpu_enable_node(void *blob, const char *gpupath)
+static inline int tegra_gpu_enable_node(void *blob, const char *gpupath)
 {
 	return 0;
 }
