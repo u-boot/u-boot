@@ -314,6 +314,11 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			mask = simple_strtoul(argv[5], NULL, 16);
 	}
 
+	if (addrhi > 31) {
+		printf("Incorrect PHY address. Range should be 0-31\n");
+		return CMD_RET_USAGE;
+	}
+
 	/* use current device */
 	devname = miiphy_get_current_dev();
 
