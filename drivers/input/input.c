@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <stdio_dev.h>
 #include <input.h>
 #include <linux/input.h>
@@ -467,7 +468,7 @@ int input_init(struct input_config *config, int leds)
 		input_add_table(config, KEY_LEFTCTRL, KEY_RIGHTCTRL,
 			kbd_ctrl_xlate, ARRAY_SIZE(kbd_ctrl_xlate))) {
 		debug("%s: Could not add modifier tables\n", __func__);
-		return -1;
+		return -ENOSPC;
 	}
 
 	return 0;
