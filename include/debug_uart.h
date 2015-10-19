@@ -105,6 +105,12 @@ void printhex4(uint value);
  */
 void printhex8(uint value);
 
+#ifdef CONFIG_DEBUG_UART_ANNOUNCE
+#define _DEBUG_UART_ANNOUNCE	printascii("<debug_uart> ");
+#else
+#define _DEBUG_UART_ANNOUNCE
+#endif
+
 /*
  * Now define some functions - this should be inserted into the serial driver
  */
@@ -151,6 +157,7 @@ void printhex8(uint value);
 	{ \
 		board_debug_uart_init(); \
 		_debug_uart_init(); \
+		_DEBUG_UART_ANNOUNCE \
 	} \
 
 #endif

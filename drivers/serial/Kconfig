@@ -120,6 +120,16 @@ config DEBUG_UART_BOARD_INIT
 	  here that is needed to set up the UART ready for use, such as set
 	  pin multiplexing or enable clocks.
 
+config DEBUG_UART_ANNOUNCE
+	bool "Show a message when the debug UART starts up"
+	depends on DEBUG_UART
+	help
+	  Enable this option to show a message when the debug UART is ready
+	  for use. You will see a message like "<debug_uart> " as soon as
+	  U-Boot has the UART ready for use (i.e. your code calls
+	  debug_uart_init()). This can be useful just as a check that
+	  everything is working.
+
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"
 	depends on ARCH_ROCKCHIP && DM_SERIAL
