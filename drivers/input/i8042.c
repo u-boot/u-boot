@@ -585,18 +585,17 @@ int i8042_kbd_init(void)
 			keymap = KBD_GER;
 	}
 
-	for (try = 0; try < KBD_RESET_TRIES; try++) {
-		if (kbd_reset() == 0) {
-			kbd_mapping = keymap;
-			kbd_flags   = NORMAL;
-			kbd_state   = 0;
-			kbd_led_set();
-
-			return 0;
-		}
+	for (try = 0; kbd_reset() != 0; try++) {
+		if (try >= KBD_RESET_TRIES)
+			return -1;
 	}
 
-	return -1;
+	kbd_mapping = keymap;
+	kbd_flags   = NORMAL;
+	kbd_state   = 0;
+	kbd_led_set();
+
+	return 0;
 }
 
 /*
