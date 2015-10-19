@@ -485,30 +485,33 @@ static int kbd_reset(void)
 
 	/* controller self test */
 	if (kbd_cmd_read(CMD_SELF_TEST) != KBC_TEST_OK)
-		return -1;
+		goto err;
 
 	/* keyboard reset */
 	if (kbd_write(I8042_DATA_REG, CMD_RESET_KBD) ||
 	    kbd_read(I8042_DATA_REG) != KBD_ACK ||
 	    kbd_read(I8042_DATA_REG) != KBD_POR)
-		return -1;
+		goto err;
 
 	/* set AT translation and disable irq */
 	config = kbd_cmd_read(CMD_RD_CONFIG);
 	if (config == -1)
-		return -1;
+		goto err;
 
 	config |= CONFIG_AT_TRANS;
 	config &= ~(CONFIG_KIRQ_EN | CONFIG_MIRQ_EN);
 	if (kbd_cmd_write(CMD_WR_CONFIG, config))
-		return -1;
+		goto err;
 
 	/* enable keyboard */
 	if (kbd_write(I8042_CMD_REG, CMD_KBD_EN) ||
 	    !kbd_input_empty())
-		return -1;
+		goto err;
 
 	return 0;
+err:
+	debug("%s: Keyboard failure\n", __func__);
+	return -1;
 }
 
 static int kbd_controller_present(void)
