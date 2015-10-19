@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <malloc.h>
@@ -23,6 +24,8 @@
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 #include <i2c.h>
 #endif
+
+#include <dm/device-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -245,6 +248,32 @@ int stdio_init_tables(void)
 
 int stdio_add_devices(void)
 {
+#ifdef CONFIG_DM_KEYBOARD
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	/*
+	 * For now we probe all the devices here. At some point this should be
+	 * done only when the devices are required - e.g. we have a list of
+	 * input devices to start up in the stdin environment variable. That
+	 * work probably makes more sense when stdio itself is converted to
+	 * driver model.
+	 *
+	 * TODO(sjg@chromium.org): Convert changing uclass_first_device() etc.
+	 * to return the device even on error. Then we could use that here.
+	 */
+	ret = uclass_get(UCLASS_KEYBOARD, &uc);
+	if (ret)
+		return ret;
+
+	/* Don't report errors to the caller - assume that they are non-fatal */
+	uclass_foreach_dev(dev, uc) {
+		ret = device_probe(dev);
+		if (ret)
+			printf("Failed to probe keyboard '%s'\n", dev->name);
+	}
+#endif
 #ifdef CONFIG_SYS_I2C
 	i2c_init_all();
 #else
@@ -258,7 +287,7 @@ int stdio_add_devices(void)
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 	drv_video_init ();
 #endif
-#ifdef CONFIG_KEYBOARD
+#if defined(CONFIG_KEYBOARD) && !defined(CONFIG_DM_KEYBOARD)
 	drv_keyboard_init ();
 #endif
 #ifdef CONFIG_LOGBUFFER
