@@ -11,17 +11,11 @@
 #if defined(CONFIG_TEGRA_GPU)
 
 void config_gpu(void);
-bool gpu_configured(void);
 
 #else /* CONFIG_TEGRA_GPU */
 
 static inline void config_gpu(void)
 {
-}
-
-static inline bool gpu_configured(void)
-{
-	return false;
 }
 
 #endif /* CONFIG_TEGRA_GPU */
