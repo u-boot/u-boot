@@ -50,7 +50,8 @@ ulong board_init_f_mem(ulong top)
 #endif
 	arch_setup_gd(gd_ptr);
 
-#if defined(CONFIG_SYS_MALLOC_F)
+#if defined(CONFIG_SYS_MALLOC_F) && \
+	(!defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SYS_SPL_MALLOC_START))
 	top -= CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_base = top;
 #endif
