@@ -13,7 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Top level Makefile configuration choices

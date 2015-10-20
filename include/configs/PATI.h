@@ -21,7 +21,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Serial Console Configuration */
 #define	CONFIG_5xx_CONS_SCI1

@@ -8,9 +8,6 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
-/* We use generic board and device manager for v8 Versatile Express */
-#define CONFIG_SYS_GENERIC_BOARD
-
 #ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #ifndef CONFIG_SEMIHOSTING
 #error CONFIG_TARGET_VEXPRESS64_BASE_FVP requires CONFIG_SEMIHOSTING

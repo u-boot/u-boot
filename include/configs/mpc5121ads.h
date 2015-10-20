@@ -13,7 +13,6 @@
 
 #define CONFIG_MPC5121ADS 1
 #define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Memory map for the MPC5121ADS board:

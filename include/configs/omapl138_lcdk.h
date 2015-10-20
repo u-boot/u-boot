@@ -195,7 +195,6 @@
 /*
  * U-Boot general configuration
  */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */

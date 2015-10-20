@@ -45,7 +45,6 @@
 #define CONFIG_CONTROLCENTERD
 #define CONFIG_MP			/* support multiple processors */
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENABLE_36BIT_PHYS

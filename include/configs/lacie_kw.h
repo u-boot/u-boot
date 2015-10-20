@@ -8,11 +8,6 @@
 #define _CONFIG_LACIE_KW_H
 
 /*
- * Generic board support
- */
-#define CONFIG_SYS_GENERIC_BOARD
-
-/*
  * Machine number definition
  */
 #if defined(CONFIG_INETSPACE_V2)

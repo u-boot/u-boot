@@ -13,7 +13,6 @@
 
 #define CONFIG_SYS_CORTEX_R4
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_SYS_NO_FLASH
 
 /* ram memory-related information */

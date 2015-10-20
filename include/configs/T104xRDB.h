@@ -12,7 +12,6 @@
  */
 #define CONFIG_T104xRDB
 #define CONFIG_PHYS_64BIT
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_E500			/* BOOKE e500 family */

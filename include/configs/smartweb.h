@@ -51,7 +51,6 @@
 
 /* setting board specific options */
 # define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 

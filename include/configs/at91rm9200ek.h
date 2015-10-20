@@ -61,7 +61,6 @@
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Memory Configuration

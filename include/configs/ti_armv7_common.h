@@ -17,9 +17,6 @@
 #ifndef __CONFIG_TI_ARMV7_COMMON_H__
 #define __CONFIG_TI_ARMV7_COMMON_H__
 
-/* Common define for many platforms. */
-#define CONFIG_SYS_GENERIC_BOARD
-
 /*
  * We typically do not contain NOR flash.  In the cases where we do, we
  * undefine this later.

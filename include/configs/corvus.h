@@ -17,7 +17,6 @@
 #include <asm/hardware.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_GENERIC_BOARD
 /*
  * Warning: changing CONFIG_SYS_TEXT_BASE requires
  * adapting the initial boot program.

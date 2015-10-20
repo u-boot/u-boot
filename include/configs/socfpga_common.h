@@ -6,7 +6,6 @@
 #ifndef __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__
 #define __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Virtual target or real hardware */
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET

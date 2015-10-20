@@ -82,7 +82,6 @@
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #if !defined(CONFIG_SPL_BUILD)
 #define CONFIG_USE_ARCH_MEMSET

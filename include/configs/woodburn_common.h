@@ -21,7 +21,6 @@
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 #define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Only in case the value is not present in mach-types.h */
 #ifndef MACH_TYPE_FLEA3

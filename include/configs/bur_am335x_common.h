@@ -26,7 +26,6 @@
 #define CONFIG_PREBOOT			"run brdefaultip"
 #define CONFIG_CMD_TIME
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_AM33XX
 #define CONFIG_OMAP

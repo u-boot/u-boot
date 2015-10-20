@@ -22,7 +22,6 @@
 #include <asm/hardware.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #if defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_THUMB_BUILD

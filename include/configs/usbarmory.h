@@ -16,7 +16,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_OF_LIBFDT
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MXC_GPIO
 
 #include <asm/arch/imx-regs.h>

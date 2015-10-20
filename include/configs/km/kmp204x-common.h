@@ -21,7 +21,6 @@
 
 #define CONFIG_NAND_ECC_BCH
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* common KM defines */

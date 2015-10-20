@@ -18,9 +18,6 @@
 
 #undef CONFIG_SPL_OS_BOOT
 
-/* Enable Generic board */
-#define CONFIG_SYS_GENERIC_BOARD
-
 /* Device Tree defines */
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP

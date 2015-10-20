@@ -20,7 +20,6 @@
  */
 #define CONFIG_MX27			/* This is a Freescale i.MX27 Chip */
 #define CONFIG_MACH_TYPE	1698	/* APF27 */
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Enable the call to miscellaneous platform dependent initialization.

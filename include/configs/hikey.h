@@ -14,8 +14,6 @@
 
 #include <linux/sizes.h>
 
-/* We use generic board for hikey */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_POWER
 #define CONFIG_POWER_HI6553
 

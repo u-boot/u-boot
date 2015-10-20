@@ -37,9 +37,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-/* use common/board_f.c instead of arch/<arch>/lib/<board>.c */
-#define CONFIG_SYS_GENERIC_BOARD
-
 /*
  * Size of malloc() pool
  */

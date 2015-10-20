@@ -7,7 +7,6 @@
 #ifndef __LS2_COMMON_H
 #define __LS2_COMMON_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LSCH3

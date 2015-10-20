@@ -20,7 +20,6 @@
 #include <asm/hardware.h>
 /* ARM asynchronous clock */
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_DISPLAY_BOARDINFO
 
