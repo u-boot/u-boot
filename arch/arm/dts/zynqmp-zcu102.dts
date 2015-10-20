@@ -225,12 +225,6 @@
 	clocks = <&clk250>;
 };
 
-/* eMMC */
-&sdhci0 {
-	status = "okay";
-	clocks = <&clk200>, <&clk200>;
-};
-
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
