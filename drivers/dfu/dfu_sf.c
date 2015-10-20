@@ -115,8 +115,10 @@ static struct spi_flash *parse_dev(char *devstr)
 int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	char *st;
+	char *devstr_bkup = strdup(devstr);
 
-	dfu->data.sf.dev = parse_dev(devstr);
+	dfu->data.sf.dev = parse_dev(devstr_bkup);
+	free(devstr_bkup);
 	if (!dfu->data.sf.dev)
 		return -ENODEV;
 
