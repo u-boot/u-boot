@@ -197,7 +197,7 @@
 			xlnx,bus-width = <128>;
 		};
 
-		gpu: gpu@fd4b0000 { /* FIXME maybe name is the best */
+		gpu: gpu@fd4b0000 {
 			status = "disabled";
 			compatible = "arm,mali-400", "arm,mali-utgard";
 			reg = <0x0 0xfd4b0000 0x30000>;
