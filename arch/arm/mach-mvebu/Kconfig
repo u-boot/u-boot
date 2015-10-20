@@ -4,6 +4,9 @@ choice
 	prompt "Marvell MVEBU (Armada XP/38x) board select"
 	optional
 
+config TARGET_CLEARFOG
+	bool "Support ClearFog"
+
 config TARGET_DB_88F6820_GP
 	bool "Support DB-88F6820-GP"
 

@@ -48,6 +48,7 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p2571.dtb
 
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
+	armada-388-clearfog.dtb			\
 	armada-388-gp.dtb			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb

@@ -1,0 +1,18 @@
+Update from original Marvell U-Boot to mainline U-Boot:
+-------------------------------------------------------
+
+Generate the U-Boot image with these commands:
+
+$ make clearfog_defconfig
+$ make
+
+The resulting image including the SPL binary with the
+full DDR setup is "u-boot-spl.kwb".
+
+Now all you need to do is copy this image on a SD card.
+For example with this command:
+
+$ sudo dd if=u-boot-spl.kwb of=/dev/sdX bs=512 seek=1
+
+Please use the correct device node for your setup instead
+of "/dev/sdX" here!
