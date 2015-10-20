@@ -11,6 +11,7 @@
 /dts-v1/;
 
 /include/ "zynqmp.dtsi"
+/include/ "zynqmp-clk.dtsi"
 / {
 	model = "ZynqMP zc1751-xm016-dc2 RevA";
 	compatible = "xlnx,zynqmp-zc1751", "xlnx,zynqmp";
@@ -40,51 +41,12 @@
 	};
 };
 
-&amba {
-	/* clock for uart, can, nand, i2c */
-	clk100: clk100 {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <100000000>;
-	};
-
-	/* Gems */
-	clk125: clk125 {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <125000000>;
-	};
-
-	/* clock for sd/emmc */
-	clk200: clk200 {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <200000000>;
-	};
-
-	/* clock for usb */
-	clk250: clk250 {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <250000000>;
-	};
-
-	/* clock for qspi */
-	clk300: clk300 {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <300000000>;
-	};
-};
-
 &can0 {
 	status = "okay";
-	clocks = <&clk100 &clk100>;
 };
 
 &can1 {
 	status = "okay";
-	clocks = <&clk100 &clk100>;
 };
 
 /* fpd_dma clk 667MHz, lpd_dma 500MHz */
@@ -131,7 +93,6 @@
 
 &gem2 {
 	status = "okay";
-	clocks = <&clk125>, <&clk125>, <&clk125>;
 	local-mac-address = [00 0a 35 00 02 90];
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
@@ -145,13 +106,11 @@
 
 &gpio {
 	status = "okay";
-	clocks = <&clk100>; /* FIXME - can't find in the table */
 };
 
 &i2c0 {
 	status = "okay";
 	clock-frequency = <400000>;
-	clocks = <&clk100>;
 
 	tca6416_u26: gpio@20 {
 		compatible = "ti,tca6416";
@@ -171,7 +130,6 @@
 	status = "okay";
 	arasan,has-mdma;
 	num-cs = <2>;
-	clocks = <&clk100 &clk100>;
 
 	partition@0 {	/* for testing purpose */
 		label = "nand-fsbl-uboot";
@@ -231,7 +189,6 @@
 &spi0 {
 	status = "okay";
 	num-cs = <1>;
-	clocks = <&clk200 &clk200>;
 	spi0_flash0: spi0_flash0@0 {
 		compatible = "m25p80";
 		#address-cells = <1>;
@@ -249,7 +206,6 @@
 &spi1 {
 	status = "okay";
 	num-cs = <1>;
-	clocks = <&clk200 &clk200>;
 	spi1_flash0: spi1_flash0@0 {
 		compatible = "mtd_dataflash";
 		#address-cells = <1>;
@@ -269,15 +225,12 @@
 	status = "okay";
 	dr_mode = "peripheral";
 	maximum-speed = "high-speed";
-	clocks = <&clk250>, <&clk250>;
 };
 
 &uart0 {
 	status = "okay";
-	clocks = <&clk100 &clk100>;
 };
 
 &uart1 {
 	status = "okay";
-	clocks = <&clk100 &clk100>;
 };
