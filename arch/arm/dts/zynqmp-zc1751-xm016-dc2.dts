@@ -148,12 +148,6 @@
 	clocks = <&clk100>; /* FIXME - can't find in the table */
 };
 
-/*
-&gpu {
-	status = "okay";
-};
-*/
-
 &i2c0 {
 	status = "okay";
 	clock-frequency = <400000>;
