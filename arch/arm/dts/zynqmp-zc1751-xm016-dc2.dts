@@ -153,26 +153,18 @@
 	clock-frequency = <400000>;
 	clocks = <&clk100>;
 
-	rtc@68 { /* FIXME address */
-		compatible = "dallas,ds1339"; /* http://datasheets.maximintegrated.com/en/ds/DS1339-DS1339U.pdf */
+	tca6416_u26: gpio@20 {
+		compatible = "ti,tca6416";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		/* IRQ not connected */
+	};
+
+	rtc@68 {
+		compatible = "dallas,ds1339";
 		reg = <0x68>;
 	};
-
-
-/* This eeprom is connected on FMC to be detactable from SW point of view
-   address depends on FMC connector where it is plugged
-	eeprom@52 {
-		compatible = "at,24c02";
-		reg = <0x50>; // FIXME 0b10100xx
-	};
-
-	sw1@20 { // FMC address unknown
-		compatible = "nxp,pca9534"; // 8 gpios configurated as input
-		reg = <0x20>; // FIXME
-	};
-
-
-*/
 };
 
 &nand0 {
