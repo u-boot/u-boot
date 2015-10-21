@@ -163,3 +163,39 @@
 	dr_mode = "peripheral";
 	maximum-speed = "high-speed";
 };
+
+&xilinx_drm {
+	status = "okay";
+};
+
+&xlnx_dp {
+	status = "okay";
+	xlnx,max-pclock-frequency = <300000>;
+};
+
+&xlnx_dp_sub {
+	status = "okay";
+	xlnx,vid-fmt = "yuyv";
+	xlnx,gfx-fmt = "rgb565";
+	xlnx,vid-clk-pl;
+};
+
+&xlnx_dp_snd_pcm0 {
+	status = "okay";
+};
+
+&xlnx_dp_snd_pcm1 {
+	status = "okay";
+};
+
+&xlnx_dp_snd_card {
+	status = "okay";
+};
+
+&xlnx_dp_snd_codec0 {
+	status = "okay";
+};
+
+&xlnx_dpdma {
+	status = "okay";
+};
