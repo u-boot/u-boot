@@ -227,15 +227,15 @@
 	num-cs = <1>;
 	clocks = <&clk200 &clk200>;
 	spi1_flash0: spi1_flash0@0 {
-		compatible = "m25p80"; /* AT45DB041E 4Mbit */
+		compatible = "mtd_dataflash";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		spi-max-frequency = <85000000>;
+		spi-max-frequency = <20000000>;
 		reg = <0>;
 
 		spi1_flash0@00000000 {
 			label = "spi1_flash0";
-			reg = <0x0 0x400000>;
+			reg = <0x0 0x84000>;
 		};
 	};
 };
