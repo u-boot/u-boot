@@ -676,6 +676,13 @@
 			xlnx,dp-sub = <&xlnx_dp_sub>;
 		};
 
+		xlnx_dp_snd_card: dp_snd_card {
+			compatible = "xlnx,dp-snd-card";
+			status = "disabled";
+			xlnx,dp-snd-pcm = <&xlnx_dp_snd_pcm0>, <&xlnx_dp_snd_pcm1>;
+			xlnx,dp-snd-codec = <&xlnx_dp_snd_codec0>;
+		};
+
 		xlnx_dp_snd_pcm0: dp_snd_pcm0 {
 			compatible = "xlnx,dp-snd-pcm";
 			status = "disabled";
@@ -695,13 +702,6 @@
 			status = "disabled";
 			clocks = <&dp_aud_clk>;
 			clock-names = "aud_clk";
-		};
-
-		xlnx_dp_snd_card: dp_snd_card {
-			compatible = "xlnx,dp-snd-card";
-			status = "disabled";
-			xlnx,dp-snd-pcm = <&xlnx_dp_snd_pcm0>, <&xlnx_dp_snd_pcm1>;
-			xlnx,dp-snd-codec = <&xlnx_dp_snd_codec0>;
 		};
 	};
 };
