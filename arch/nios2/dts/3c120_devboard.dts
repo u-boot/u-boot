@@ -68,6 +68,9 @@
 				<0x00004400 0x08004400 0x00000040>,
 				<0x00004800 0x08004800 0x00000040>,
 				<0x00004c80 0x08004c80 0x00000020>,
+				<0x00004cc0 0x08004cc0 0x00000010>,
+				<0x00004ce0 0x08004ce0 0x00000010>,
+				<0x00004d00 0x08004d00 0x00000010>,
 				<0x00004d50 0x08004d50 0x00000008>,
 				<0x00008000 0x08008000 0x00000020>,
 				<0x00400000 0x08400000 0x00000020>;
@@ -129,6 +132,44 @@
 				interrupts = <10>;
 				current-speed = <115200>;
 				clock-frequency = <62500000>;
+			};
+
+			user_led_pio_8out: gpio@0x4cc0 {
+				compatible = "altr,pio-1.0";
+				reg = <0x00004cc0 0x00000010>;
+				resetvalue = <255>;
+				altr,gpio-bank-width = <8>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "led";
+			};
+
+			user_dipsw_pio_8in: gpio@0x4ce0 {
+				compatible = "altr,pio-1.0";
+				reg = <0x00004ce0 0x00000010>;
+				interrupt-parent = <&cpu>;
+				interrupts = <8>;
+				edge_type = <2>;
+				level_trigger = <0>;
+				resetvalue = <0>;
+				altr,gpio-bank-width = <8>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "dipsw";
+			};
+
+			user_pb_pio_4in: gpio@0x4d00 {
+				compatible = "altr,pio-1.0";
+				reg = <0x00004d00 0x00000010>;
+				interrupt-parent = <&cpu>;
+				interrupts = <9>;
+				edge_type = <2>;
+				level_trigger = <0>;
+				resetvalue = <0>;
+				altr,gpio-bank-width = <4>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "pb";
 			};
 		};
 

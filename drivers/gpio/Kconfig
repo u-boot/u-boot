@@ -14,6 +14,13 @@ config DM_GPIO
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
 
+config ALTERA_PIO
+	bool "Altera PIO driver"
+	depends on DM_GPIO
+	help
+	  Select this to enable PIO for Altera devices. Please find
+	  details on the "Embedded Peripherals IP User Guide" of Altera.
+
 config DWAPB_GPIO
 	bool "DWAPB GPIO driver"
 	depends on DM && DM_GPIO

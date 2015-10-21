@@ -15,7 +15,6 @@
 #include "../board/altera/nios2-generic/custom_fpga.h" /* fpga parameters */
 #define CONFIG_BOARD_NAME "nios2-generic" /* custom board name */
 #define CONFIG_BOARD_EARLY_INIT_F	/* enable early board-spec. init */
-#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_NIOS_SYSID_BASE	CONFIG_SYS_SYSID_BASE
@@ -30,25 +29,6 @@
  * TIMER
  */
 #define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_TIMER_FREQ
-
-/*
- * STATUS LED
- */
-#define CONFIG_ALTERA_PIO
-#define CONFIG_SYS_ALTERA_PIO_NUM	1
-#define CONFIG_SYS_ALTERA_PIO_GPIO_NUM	LED_PIO_WIDTH
-
-#define CONFIG_STATUS_LED		/* Enable status driver */
-#define CONFIG_BOARD_SPECIFIC_LED
-#define CONFIG_GPIO_LED		/* Enable GPIO LED driver */
-#define CONFIG_GPIO			/* Enable GPIO driver */
-#define LED_PIO_BASE			USER_LED_PIO_8OUT_BASE
-#define LED_PIO_WIDTH			8
-#define LED_PIO_RSTVAL			0xff
-
-#define STATUS_LED_BIT			0	/* Bit-0 on GPIO */
-#define STATUS_LED_STATE		1	/* Blinking */
-#define STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)	/* 500 msec */
 
 /*
  * BOOTP options
@@ -110,5 +90,6 @@
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_INIT_SP - 0x20000)
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_CMD_GPIO
 
 #endif /* __CONFIG_H */

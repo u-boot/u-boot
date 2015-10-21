@@ -35,18 +35,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int board_early_init_r(void)
-{
-#ifdef CONFIG_ALTERA_PIO
-#ifdef LED_PIO_BASE
-	altera_pio_init(LED_PIO_BASE, LED_PIO_WIDTH, 'o',
-			LED_PIO_RSTVAL, (1 << LED_PIO_WIDTH) - 1,
-			"led");
-#endif
-#endif
-	return 0;
-}
-
 int checkboard(void)
 {
 	printf("BOARD : %s\n", CONFIG_BOARD_NAME);
