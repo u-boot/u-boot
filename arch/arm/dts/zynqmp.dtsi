@@ -582,6 +582,26 @@
 			timeout-sec = <10>;
 		};
 
+		xilinx_drm: xilinx_drm {
+			compatible = "xlnx,drm";
+			status = "disabled";
+			xlnx,encoder-slave = <&xlnx_dp>;
+			clocks = <&misc_clk>; /* FIXME it will be different  316 663 000 - dc2 hw design */
+			xlnx,connector-type = "DisplayPort";
+			xlnx,dp-sub = <&xlnx_dp_sub>;
+			planes {
+				xlnx,pixel-format = "rgb565";
+				plane0 {
+					dmas = <&xlnx_dpdma 3>;
+					dma-names = "dma";
+				};
+				plane1 {
+					dmas = <&xlnx_dpdma 0>;
+					dma-names = "dma";
+				};
+			};
+		};
+
 		/* needs to be reviewed and put to the right location */
 		xlnx_dpdma: dma@0xfd4c0000 {
 			compatible = "xlnx,dpdma";
@@ -654,26 +674,6 @@
 			xlnx,bpc = <8>;
 			xlnx,audio-chan = <2>;
 			xlnx,dp-sub = <&xlnx_dp_sub>;
-		};
-
-		xilinx_drm {
-			compatible = "xlnx,drm";
-			status = "disabled";
-			xlnx,encoder-slave = <&xlnx_dp>;
-			clocks = <&misc_clk>; /* FIXME it will be different  316 663 000 - dc2 hw design */
-			xlnx,connector-type = "DisplayPort";
-			xlnx,dp-sub = <&xlnx_dp_sub>;
-			planes {
-				xlnx,pixel-format = "rgb565";
-				plane0 {
-					dmas = <&xlnx_dpdma 3>;
-					dma-names = "dma";
-				};
-				plane1 {
-					dmas = <&xlnx_dpdma 0>;
-					dma-names = "dma";
-				};
-			};
 		};
 
 		xlnx_dp_snd_pcm0: dp_snd_pcm0 {
