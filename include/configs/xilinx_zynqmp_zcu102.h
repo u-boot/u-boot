@@ -18,6 +18,29 @@
 #define CONFIG_ZYNQ_SDHCI1
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_ZYNQ_I2C1
+#define CONFIG_SYS_I2C_MAX_HOPS		1
+#define CONFIG_SYS_NUM_I2C_BUSES	18
+#define CONFIG_SYS_I2C_BUSES	{ \
+				{0, {I2C_NULL_HOP} }, \
+				{0, {{I2C_MUX_PCA9544, 0x75, 0} } }, \
+				{0, {{I2C_MUX_PCA9544, 0x75, 1} } }, \
+				{0, {{I2C_MUX_PCA9544, 0x75, 2} } }, \
+				{1, {I2C_NULL_HOP} }, \
+				{1, {{I2C_MUX_PCA9548, 0x74, 0} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x74, 1} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x74, 2} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x74, 3} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x74, 4} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 0} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 1} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 2} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 3} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 4} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 5} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 6} } }, \
+				{1, {{I2C_MUX_PCA9548, 0x75, 7} } }, \
+				}
+
 #define CONFIG_SYS_I2C_ZYNQ
 #define CONFIG_AHCI
 
