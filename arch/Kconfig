@@ -64,6 +64,9 @@ config NIOS2
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
+	select OF_CONTROL
+	select DM
+	select CPU
 
 config OPENRISC
 	bool "OpenRISC architecture"
