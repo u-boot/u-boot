@@ -683,6 +683,13 @@
 			xlnx,dp-snd-codec = <&xlnx_dp_snd_codec0>;
 		};
 
+		xlnx_dp_snd_codec0: dp_snd_codec0 {
+			compatible = "xlnx,dp-snd-codec";
+			status = "disabled";
+			clocks = <&dp_aud_clk>;
+			clock-names = "aud_clk";
+		};
+
 		xlnx_dp_snd_pcm0: dp_snd_pcm0 {
 			compatible = "xlnx,dp-snd-pcm";
 			status = "disabled";
@@ -695,13 +702,6 @@
 			status = "disabled";
 			dmas = <&xlnx_dpdma 5>;
 			dma-names = "tx";
-		};
-
-		xlnx_dp_snd_codec0: dp_snd_codec0 {
-			compatible = "xlnx,dp-snd-codec";
-			status = "disabled";
-			clocks = <&dp_aud_clk>;
-			clock-names = "aud_clk";
 		};
 	};
 };
