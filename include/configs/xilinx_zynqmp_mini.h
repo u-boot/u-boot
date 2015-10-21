@@ -69,6 +69,8 @@
 #define CONFIG_BOOTDELAY	-1 /* -1 to Disable autoboot */
 #define CONFIG_SYS_MALLOC_LEN	0x2000
 
+#define CONFIG_NR_DRAM_BANKS	1
+
 #if defined(CONFIG_MINI_QSPI)
 # define CONFIG_SYS_SDRAM_SIZE		(256 * 1024)
 # define CONFIG_SYS_SDRAM_BASE		0xFFFC0000
