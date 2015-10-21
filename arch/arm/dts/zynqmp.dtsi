@@ -648,14 +648,6 @@
 			clock-accuracy = <100>;
 		};
 
-		xlnx_dp_sub: dp_sub@43c0a000 {
-			compatible = "xlnx,dp-sub";
-			status = "disabled";
-			reg = <0x0 0xfd4aa000 0x1000>, <0x0 0xfd4ab000 0x1000>, <0x0 0xfd4ac000 0x1000>;
-			reg-names = "blend", "av_buf", "aud";
-			xlnx,output-fmt = "rgb";
-		};
-
 		xlnx_dp: dp@43c00000 {
 			compatible = "xlnx,v-dp";
 			status = "disabled";
@@ -702,6 +694,14 @@
 			status = "disabled";
 			dmas = <&xlnx_dpdma 5>;
 			dma-names = "tx";
+		};
+
+		xlnx_dp_sub: dp_sub@43c0a000 {
+			compatible = "xlnx,dp-sub";
+			status = "disabled";
+			reg = <0x0 0xfd4aa000 0x1000>, <0x0 0xfd4ab000 0x1000>, <0x0 0xfd4ac000 0x1000>;
+			reg-names = "blend", "av_buf", "aud";
+			xlnx,output-fmt = "rgb";
 		};
 	};
 };
