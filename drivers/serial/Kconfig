@@ -61,6 +61,13 @@ config DEBUG_UART_ALTERA_JTAGUART
 	  You will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_ALTERA_UART
+	bool "Altera UART"
+	help
+	  Select this to enable a debug UART using the altera_uart driver.
+	  You will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
 config DEBUG_UART_NS16550
 	bool "ns16550"
 	help
@@ -155,6 +162,13 @@ config ALTERA_JTAG_UART_BYPASS
 	  once the JTAG terminal is connected. Without the bypass, the console
 	  output will wait forever until a JTAG terminal is connected. If you
 	  not are sure, say Y.
+
+config ALTERA_UART
+	bool "Altera UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable an UART for Altera devices. Please find
+	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"
