@@ -36,10 +36,8 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x0 0x0 0x80000000>, <0x8 0x00000000 0x80000000>; /* 4GB DIMM modules where 2GB are below 4GB (DDR_LOW) and the rest at DDR_HIGH */
-		/* PL address space - also with PL DDR 2GB-3GB, 16GB-24GB */
+		reg = <0x0 0x0 0x80000000>, <0x8 0x00000000 0x80000000>;
 	};
-	/* FIXME - there is also PL DDR - based on presentation 64GB */
 };
 
 &amba {
@@ -137,12 +135,11 @@
 	local-mac-address = [00 0a 35 00 02 90];
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
-	phy0: phy@0{ /* DP83867 http://www.ti.com/lit/ds/symlink/dp83867ir.pdf ID 0x2000a231 */
-		reg = <0>; /* FIXME not quite sure about this one */
-		/* max-speed = <100>; */ /* FIXME here for sure */
-                ti,rx-internal-delay = <0x8>; /* FIXME DP83867_RGMIIDCTL_2_25_NS */
-                ti,tx-internal-delay = <0xa>; /* FIXME DP83867_RGMIIDCTL_2_75_NS */
-                ti,fifo-depth = <0x1>; /* default setup DP83867_PHYCR_FIFO_DEPTH_4_B_NIB */
+	phy0: phy@0{
+		reg = <0>;
+		ti,rx-internal-delay = <0x8>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <0x1>;
 	};
 };
 
@@ -184,7 +181,7 @@
 */
 };
 
-&nand0 { /* CLK 100, Micron SLC family device MT29F32G08ABCDB - 2 cs  - flashes in parralel */
+&nand0 {
 	status = "okay";
 	arasan,has-mdma;
 	partition@0 {	/* for testing purpose */
@@ -218,7 +215,7 @@
 	num-cs = <1>;
 	clocks = <&clk200 &clk200>;
 	spi0_flash0: spi0_flash0@0 {
-		compatible = "m25p80"; /* FIXME SST25WF080 */
+		compatible = "m25p80";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		spi-max-frequency = <50000000>;
@@ -239,7 +236,7 @@
 		compatible = "m25p80"; /* AT45DB041E 4Mbit */
 		#address-cells = <1>;
 		#size-cells = <1>;
-		spi-max-frequency = <85000000>; /* Adesto datasheet http://www.adestotech.com/wp-content/uploads/doc8783.pdf */
+		spi-max-frequency = <85000000>;
 		reg = <0>;
 
 		spi1_flash0@00000000 {

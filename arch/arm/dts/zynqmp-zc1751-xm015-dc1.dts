@@ -32,10 +32,8 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x0 0x0 0x80000000>, <0x8 0x00000000 0x80000000>; /* 4GB DIMM modules where 2GB are below 4GB (DDR_LOW) and the rest at DDR_HIGH */
-		/* PL address space - also with PL DDR 512MB-3GB, 16GB-24GB */
+		reg = <0x0 0x0 0x80000000>, <0x8 0x00000000 0x80000000>;
 	};
-	/* FIXME - there is also PL DDR - based on presentation 64GB */
 };
 
 &amba {
@@ -124,14 +122,13 @@
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
 	phy0: phy@0{
-		reg = <0>; /* FIXME not quite sure about this one */
-		/* max-speed = <100>; */ /* FIXME here for sure */
+		reg = <0>;
 	};
 };
 
 &gpio {
 	status = "okay";
-	clocks = <&clk100>; /* FIXME - can't find in the table */
+	clocks = <&clk100>;
 };
 
 /*
@@ -148,13 +145,6 @@
 		compatible = "at,24c64"; /* 24AA64 */
 		reg = <0x54>;
 	};
-/* This eeprom is connected on FMC to be detactable from SW point of view
-   address depends on FMC connector where it is plugged
-	eeprom@52 {
-		compatible = "at,24c02";
-		reg = <0x50>; // FIXME 0b10100xx
-	};
-*/
 };
 
 &qspi {
@@ -166,7 +156,7 @@
 		#size-cells = <1>;
 		reg = <0x0>;
 		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
+		spi-rx-bus-width = <4>;
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */
 		partition@qspi-fsbl-uboot { /* for testing purpose */
 			label = "qspi-fsbl-uboot";

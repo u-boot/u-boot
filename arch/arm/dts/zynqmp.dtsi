@@ -552,7 +552,7 @@
 		};
 
 		usb0: usb@fe200000 {
-			compatible = "snps,dwc3"; /* 2.90a version in 1.0 silicon */
+			compatible = "snps,dwc3";
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 65 4>;
@@ -562,7 +562,7 @@
 		};
 
 		usb1: usb@fe300000 {
-			compatible = "snps,dwc3"; /* 2.90a version in 1.0 silicon */
+			compatible = "snps,dwc3";
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 70 4>;
