@@ -602,38 +602,6 @@
 			};
 		};
 
-		/* needs to be reviewed and put to the right location */
-		xlnx_dpdma: dma@0xfd4c0000 {
-			compatible = "xlnx,dpdma";
-			status = "disabled";
-			reg = <0x0 0xfd4c0000 0x1000>;
-			interrupts = <0 122 4>;
-			interrupt-parent = <&gic>;
-			clocks = <&misc_clk>;
-			clock-names = "axi_clk";
-			xlnx,axi-clock-freq = <200000000>;
-			dma-channels = <6>;
-			#dma-cells = <1>;
-			dma-video0channel@43c10000 {
-				compatible = "xlnx,video0";
-			};
-			dma-video1channel@43c10000 {
-				compatible = "xlnx,video1";
-			};
-			dma-video2channel@43c10000 {
-				compatible = "xlnx,video2";
-			};
-			dma-graphicschannel@43c10000 {
-				compatible = "xlnx,graphics";
-			};
-			dma-audio0channel@43c10000 {
-				compatible = "xlnx,audio0";
-			};
-			dma-audio1channel@43c10000 {
-				compatible = "xlnx,audio1";
-			};
-		};
-
 		dp_aclk: clock0 {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
@@ -702,6 +670,37 @@
 			reg = <0x0 0xfd4aa000 0x1000>, <0x0 0xfd4ab000 0x1000>, <0x0 0xfd4ac000 0x1000>;
 			reg-names = "blend", "av_buf", "aud";
 			xlnx,output-fmt = "rgb";
+		};
+
+		xlnx_dpdma: dma@fd4c0000 {
+			compatible = "xlnx,dpdma";
+			status = "disabled";
+			reg = <0x0 0xfd4c0000 0x1000>;
+			interrupts = <0 122 4>;
+			interrupt-parent = <&gic>;
+			clocks = <&misc_clk>;
+			clock-names = "axi_clk";
+			xlnx,axi-clock-freq = <200000000>;
+			dma-channels = <6>;
+			#dma-cells = <1>;
+			dma-video0channel@43c10000 {
+				compatible = "xlnx,video0";
+			};
+			dma-video1channel@43c10000 {
+				compatible = "xlnx,video1";
+			};
+			dma-video2channel@43c10000 {
+				compatible = "xlnx,video2";
+			};
+			dma-graphicschannel@43c10000 {
+				compatible = "xlnx,graphics";
+			};
+			dma-audio0channel@43c10000 {
+				compatible = "xlnx,audio0";
+			};
+			dma-audio1channel@43c10000 {
+				compatible = "xlnx,audio1";
+			};
 		};
 	};
 };
