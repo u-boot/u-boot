@@ -8,91 +8,44 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-#include <config.h>
 #include <common.h>
-#include <malloc.h>
+#include <dm.h>
+#include <errno.h>
+#include <fdt_support.h>
+#include <memalign.h>
+#include <miiphy.h>
 #include <net.h>
-#include <command.h>
 #include <asm/cache.h>
 #include <asm/dma-mapping.h>
-#include <miiphy.h>
+#include <asm/io.h>
 #include "altera_tse.h"
 
-/* sgdma debug - print descriptor */
-static void alt_sgdma_print_desc(volatile struct alt_sgdma_descriptor *desc)
-{
-	debug("SGDMA DEBUG :\n");
-	debug("desc->source : 0x%x \n", (unsigned int)desc->source);
-	debug("desc->destination : 0x%x \n", (unsigned int)desc->destination);
-	debug("desc->next : 0x%x \n", (unsigned int)desc->next);
-	debug("desc->source_pad : 0x%x \n", (unsigned int)desc->source_pad);
-	debug("desc->destination_pad : 0x%x \n",
-	      (unsigned int)desc->destination_pad);
-	debug("desc->next_pad : 0x%x \n", (unsigned int)desc->next_pad);
-	debug("desc->bytes_to_transfer : 0x%x \n",
-	      (unsigned int)desc->bytes_to_transfer);
-	debug("desc->actual_bytes_transferred : 0x%x \n",
-	      (unsigned int)desc->actual_bytes_transferred);
-	debug("desc->descriptor_status : 0x%x \n",
-	      (unsigned int)desc->descriptor_status);
-	debug("desc->descriptor_control : 0x%x \n",
-	      (unsigned int)desc->descriptor_control);
-}
+DECLARE_GLOBAL_DATA_PTR;
 
-/* This is a generic routine that the SGDMA mode-specific routines
- * call to populate a descriptor.
- * arg1	    :pointer to first SGDMA descriptor.
- * arg2	    :pointer to next  SGDMA descriptor.
- * arg3	    :Address to where data to be written.
- * arg4	    :Address from where data to be read.
- * arg5	    :no of byte to transaction.
- * arg6	    :variable indicating to generate start of packet or not
- * arg7	    :read fixed
- * arg8	    :write fixed
- * arg9	    :read burst
- * arg10    :write burst
- * arg11    :atlantic_channel number
- */
-static void alt_sgdma_construct_descriptor_burst(
-	volatile struct alt_sgdma_descriptor *desc,
-	volatile struct alt_sgdma_descriptor *next,
-	unsigned int *read_addr,
-	unsigned int *write_addr,
+static inline void alt_sgdma_construct_descriptor(
+	struct alt_sgdma_descriptor *desc,
+	struct alt_sgdma_descriptor *next,
+	void *read_addr,
+	void *write_addr,
 	unsigned short length_or_eop,
 	int generate_eop,
 	int read_fixed,
-	int write_fixed_or_sop,
-	int read_burst,
-	int write_burst,
-	unsigned char atlantic_channel)
+	int write_fixed_or_sop)
 {
+	unsigned char val;
+
 	/*
 	 * Mark the "next" descriptor as "not" owned by hardware. This prevents
-	 * The SGDMA controller from continuing to process the chain. This is
-	 * done as a single IO write to bypass cache, without flushing
-	 * the entire descriptor, since only the 8-bit descriptor status must
-	 * be flushed.
+	 * The SGDMA controller from continuing to process the chain.
 	 */
-	if (!next)
-		debug("Next descriptor not defined!!\n");
+	next->descriptor_control = next->descriptor_control &
+		~ALT_SGDMA_DESCRIPTOR_CONTROL_OWNED_BY_HW_MSK;
 
-	next->descriptor_control = (next->descriptor_control &
-		~ALT_SGDMA_DESCRIPTOR_CONTROL_OWNED_BY_HW_MSK);
-
-	desc->source = (unsigned int *)((unsigned int)read_addr & 0x1FFFFFFF);
-	desc->destination =
-	    (unsigned int *)((unsigned int)write_addr & 0x1FFFFFFF);
-	desc->next = (unsigned int *)((unsigned int)next & 0x1FFFFFFF);
-	desc->source_pad = 0x0;
-	desc->destination_pad = 0x0;
-	desc->next_pad = 0x0;
+	memset(desc, 0, sizeof(struct alt_sgdma_descriptor));
+	desc->source = virt_to_phys(read_addr);
+	desc->destination = virt_to_phys(write_addr);
+	desc->next = virt_to_phys(next);
 	desc->bytes_to_transfer = length_or_eop;
-	desc->actual_bytes_transferred = 0;
-	desc->descriptor_status = 0x0;
-
-	/* SGDMA burst not currently supported */
-	desc->read_burst = 0;
-	desc->write_burst = 0;
 
 	/*
 	 * Set the descriptor control block as follows:
@@ -108,108 +61,49 @@ static void alt_sgdma_construct_descriptor_burst(
 	 * pointing at this descriptor, it will not run (via the "owned by
 	 * hardware" bit) until all other descriptor has been set up.
 	 */
-
-	desc->descriptor_control =
-	    ((ALT_SGDMA_DESCRIPTOR_CONTROL_OWNED_BY_HW_MSK) |
-	     (generate_eop ?
-	      ALT_SGDMA_DESCRIPTOR_CONTROL_GENERATE_EOP_MSK : 0x0) |
-	     (read_fixed ?
-	      ALT_SGDMA_DESCRIPTOR_CONTROL_READ_FIXED_ADDRESS_MSK : 0x0) |
-	     (write_fixed_or_sop ?
-	      ALT_SGDMA_DESCRIPTOR_CONTROL_WRITE_FIXED_ADDRESS_MSK : 0x0) |
-	     (atlantic_channel ? ((atlantic_channel & 0x0F) << 3) : 0)
-		    );
+	val = ALT_SGDMA_DESCRIPTOR_CONTROL_OWNED_BY_HW_MSK;
+	if (generate_eop)
+		val |= ALT_SGDMA_DESCRIPTOR_CONTROL_GENERATE_EOP_MSK;
+	if (read_fixed)
+		val |= ALT_SGDMA_DESCRIPTOR_CONTROL_READ_FIXED_ADDRESS_MSK;
+	if (write_fixed_or_sop)
+		val |= ALT_SGDMA_DESCRIPTOR_CONTROL_WRITE_FIXED_ADDRESS_MSK;
+	desc->descriptor_control = val;
 }
 
-static int alt_sgdma_do_sync_transfer(volatile struct alt_sgdma_registers *dev,
-			       volatile struct alt_sgdma_descriptor *desc)
+static int alt_sgdma_wait_transfer(struct alt_sgdma_registers *regs)
 {
-	unsigned int status;
-	int counter = 0;
-
-	/* Wait for any pending transfers to complete */
-	alt_sgdma_print_desc(desc);
-	status = dev->status;
-
-	counter = 0;
-	while (dev->status & ALT_SGDMA_STATUS_BUSY_MSK) {
-		if (counter++ > ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR)
-			break;
-	}
-
-	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR)
-		debug("Timeout waiting sgdma in do sync!\n");
-
-	/*
-	 * Clear any (previous) status register information
-	 * that might occlude our error checking later.
-	 */
-	dev->status = 0xFF;
-
-	/* Point the controller at the descriptor */
-	dev->next_descriptor_pointer = (unsigned int)desc & 0x1FFFFFFF;
-	debug("next desc in sgdma 0x%x\n",
-	      (unsigned int)dev->next_descriptor_pointer);
-
-	/*
-	 * Set up SGDMA controller to:
-	 * - Disable interrupt generation
-	 * - Run once a valid descriptor is written to controller
-	 * - Stop on an error with any particular descriptor
-	 */
-	dev->control = (ALT_SGDMA_CONTROL_RUN_MSK |
-			ALT_SGDMA_CONTROL_STOP_DMA_ER_MSK);
+	int status;
+	ulong ctime;
 
 	/* Wait for the descriptor (chain) to complete */
-	status = dev->status;
-	debug("wait for sgdma....");
-	while (dev->status & ALT_SGDMA_STATUS_BUSY_MSK)
-		;
-	debug("done\n");
-
-	/* Clear Run */
-	dev->control = (dev->control & (~ALT_SGDMA_CONTROL_RUN_MSK));
-
-	/* Get & clear status register contents */
-	status = dev->status;
-	dev->status = 0xFF;
-
-	/* we really should check if the transfer completes properly */
-	debug("tx sgdma status = 0x%x", status);
-	return 0;
-}
-
-static int alt_sgdma_do_async_transfer(volatile struct alt_sgdma_registers *dev,
-				volatile struct alt_sgdma_descriptor *desc)
-{
-	int counter = 0;
-
-	/* Wait for any pending transfers to complete */
-	alt_sgdma_print_desc(desc);
-
-	counter = 0;
-	while (dev->status & ALT_SGDMA_STATUS_BUSY_MSK) {
-		if (counter++ > ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR)
+	ctime = get_timer(0);
+	while (1) {
+		status = readl(&regs->status);
+		if (!(status & ALT_SGDMA_STATUS_BUSY_MSK))
 			break;
+		if (get_timer(ctime) > ALT_TSE_SGDMA_BUSY_TIMEOUT) {
+			status = -ETIMEDOUT;
+			debug("sgdma timeout\n");
+			break;
+		}
 	}
 
-	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR)
-		debug("Timeout waiting sgdma in do async!\n");
+	/* Clear Run */
+	writel(0, &regs->control);
+	/* Clear status */
+	writel(0xff, &regs->status);
 
-	/*
-	 * Clear the RUN bit in the control register. This is needed
-	 * to restart the SGDMA engine later on.
-	 */
-	dev->control = 0;
+	return status;
+}
 
-	/*
-	 * Clear any (previous) status register information
-	 * that might occlude our error checking later.
-	 */
-	dev->status = 0xFF;
+static int alt_sgdma_start_transfer(struct alt_sgdma_registers *regs,
+				    struct alt_sgdma_descriptor *desc)
+{
+	unsigned int val;
 
 	/* Point the controller at the descriptor */
-	dev->next_descriptor_pointer = (unsigned int)desc & 0x1FFFFFFF;
+	writel(virt_to_phys(desc), &regs->next_descriptor_pointer);
 
 	/*
 	 * Set up SGDMA controller to:
@@ -217,26 +111,31 @@ static int alt_sgdma_do_async_transfer(volatile struct alt_sgdma_registers *dev,
 	 * - Run once a valid descriptor is written to controller
 	 * - Stop on an error with any particular descriptor
 	 */
-	dev->control = (ALT_SGDMA_CONTROL_RUN_MSK |
-			ALT_SGDMA_CONTROL_STOP_DMA_ER_MSK);
+	val = ALT_SGDMA_CONTROL_RUN_MSK | ALT_SGDMA_CONTROL_STOP_DMA_ER_MSK;
+	writel(val, &regs->control);
 
-	/* we really should check if the transfer completes properly */
 	return 0;
 }
 
-/* u-boot interface */
-static int tse_adjust_link(struct altera_tse_priv *priv)
+static void tse_adjust_link(struct altera_tse_priv *priv,
+			    struct phy_device *phydev)
 {
+	struct alt_tse_mac *mac_dev = priv->mac_dev;
 	unsigned int refvar;
 
-	refvar = priv->mac_dev->command_config.image;
+	if (!phydev->link) {
+		debug("%s: No link.\n", phydev->dev->name);
+		return;
+	}
 
-	if (!(priv->duplexity))
+	refvar = readl(&mac_dev->command_config);
+
+	if (phydev->duplex)
 		refvar |= ALTERA_TSE_CMD_HD_ENA_MSK;
 	else
 		refvar &= ~ALTERA_TSE_CMD_HD_ENA_MSK;
 
-	switch (priv->speed) {
+	switch (phydev->speed) {
 	case 1000:
 		refvar |= ALTERA_TSE_CMD_ETH_SPEED_MSK;
 		refvar &= ~ALTERA_TSE_CMD_ENA_10_MSK;
@@ -250,721 +149,383 @@ static int tse_adjust_link(struct altera_tse_priv *priv)
 		refvar |= ALTERA_TSE_CMD_ENA_10_MSK;
 		break;
 	}
-	priv->mac_dev->command_config.image = refvar;
-
-	return 0;
+	writel(refvar, &mac_dev->command_config);
 }
 
-static int tse_eth_send(struct eth_device *dev, void *packet, int length)
+static int altera_tse_send(struct udevice *dev, void *packet, int length)
 {
-	struct altera_tse_priv *priv = dev->priv;
-	volatile struct alt_sgdma_registers *tx_sgdma = priv->sgdma_tx;
-	volatile struct alt_sgdma_descriptor *tx_desc =
-	    (volatile struct alt_sgdma_descriptor *)priv->tx_desc;
+	struct altera_tse_priv *priv = dev_get_priv(dev);
+	struct alt_sgdma_descriptor *tx_desc = priv->tx_desc;
+	unsigned long tx_buf = (unsigned long)packet;
 
-	volatile struct alt_sgdma_descriptor *tx_desc_cur =
-	    (volatile struct alt_sgdma_descriptor *)&tx_desc[0];
-
-	flush_dcache_range((unsigned long)packet,
-			(unsigned long)packet + length);
-	alt_sgdma_construct_descriptor_burst(
-		(volatile struct alt_sgdma_descriptor *)&tx_desc[0],
-		(volatile struct alt_sgdma_descriptor *)&tx_desc[1],
-		(unsigned int *)packet,	/* read addr */
-		(unsigned int *)0,
+	flush_dcache_range(tx_buf, tx_buf + length);
+	alt_sgdma_construct_descriptor(
+		tx_desc,
+		tx_desc + 1,
+		packet,	/* read addr */
+		NULL,	/* write addr */
 		length,	/* length or EOP ,will change for each tx */
-		0x1,	/* gen eop */
-		0x0,	/* read fixed */
-		0x1,	/* write fixed or sop */
-		0x0,	/* read burst */
-		0x0,	/* write burst */
-		0x0	/* channel */
+		1,	/* gen eop */
+		0,	/* read fixed */
+		1	/* write fixed or sop */
 		);
-	debug("TX Packet @ 0x%x,0x%x bytes", (unsigned int)packet, length);
 
 	/* send the packet */
-	debug("sending packet\n");
-	alt_sgdma_do_sync_transfer(tx_sgdma, tx_desc_cur);
-	debug("sent %d bytes\n", tx_desc_cur->actual_bytes_transferred);
-	return tx_desc_cur->actual_bytes_transferred;
+	alt_sgdma_start_transfer(priv->sgdma_tx, tx_desc);
+	alt_sgdma_wait_transfer(priv->sgdma_tx);
+	debug("sent %d bytes\n", tx_desc->actual_bytes_transferred);
+
+	return tx_desc->actual_bytes_transferred;
 }
 
-static int tse_eth_rx(struct eth_device *dev)
+static int altera_tse_recv(struct udevice *dev, int flags, uchar **packetp)
 {
-	int packet_length = 0;
-	struct altera_tse_priv *priv = dev->priv;
-	volatile struct alt_sgdma_descriptor *rx_desc =
-	    (volatile struct alt_sgdma_descriptor *)priv->rx_desc;
-	volatile struct alt_sgdma_descriptor *rx_desc_cur = &rx_desc[0];
+	struct altera_tse_priv *priv = dev_get_priv(dev);
+	struct alt_sgdma_descriptor *rx_desc = priv->rx_desc;
+	int packet_length;
 
-	if (rx_desc_cur->descriptor_status &
+	if (rx_desc->descriptor_status &
 	    ALT_SGDMA_DESCRIPTOR_STATUS_TERMINATED_BY_EOP_MSK) {
-		debug("got packet\n");
 		packet_length = rx_desc->actual_bytes_transferred;
-		net_process_received_packet(net_rx_packets[0], packet_length);
-
-		/* start descriptor again */
-		flush_dcache_range((unsigned long)(net_rx_packets[0]),
-				   (unsigned long)(net_rx_packets[0] +
-						   PKTSIZE_ALIGN));
-		alt_sgdma_construct_descriptor_burst(
-			(volatile struct alt_sgdma_descriptor *)&rx_desc[0],
-			(volatile struct alt_sgdma_descriptor *)&rx_desc[1],
-			(unsigned int)0x0,	/* read addr */
-			(unsigned int *)net_rx_packets[0],
-			0x0,	/* length or EOP */
-			0x0,	/* gen eop */
-			0x0,	/* read fixed */
-			0x0,	/* write fixed or sop */
-			0x0,	/* read burst */
-			0x0,	/* write burst */
-			0x0	/* channel */
-		    );
-
-		/* setup the sgdma */
-		alt_sgdma_do_async_transfer(priv->sgdma_rx, &rx_desc[0]);
+		debug("recv %d bytes\n", packet_length);
+		*packetp = priv->rx_buf;
 
 		return packet_length;
 	}
 
-	return -1;
+	return -EAGAIN;
 }
 
-static void tse_eth_halt(struct eth_device *dev)
+static int altera_tse_free_pkt(struct udevice *dev, uchar *packet,
+			       int length)
 {
-	/* don't do anything! */
-	/* this gets called after each uboot  */
-	/* network command.  don't need to reset the thing all of the time */
+	struct altera_tse_priv *priv = dev_get_priv(dev);
+	struct alt_sgdma_descriptor *rx_desc = priv->rx_desc;
+	unsigned long rx_buf = (unsigned long)priv->rx_buf;
+
+	alt_sgdma_wait_transfer(priv->sgdma_rx);
+	invalidate_dcache_range(rx_buf, rx_buf + PKTSIZE_ALIGN);
+	alt_sgdma_construct_descriptor(
+		rx_desc,
+		rx_desc + 1,
+		NULL,	/* read addr */
+		priv->rx_buf, /* write addr */
+		0,	/* length or EOP */
+		0,	/* gen eop */
+		0,	/* read fixed */
+		0	/* write fixed or sop */
+		);
+
+	/* setup the sgdma */
+	alt_sgdma_start_transfer(priv->sgdma_rx, rx_desc);
+	debug("recv setup\n");
+
+	return 0;
 }
 
-static void tse_eth_reset(struct eth_device *dev)
+static void altera_tse_stop(struct udevice *dev)
 {
-	/* stop sgdmas, disable tse receive */
-	struct altera_tse_priv *priv = dev->priv;
-	volatile struct alt_tse_mac *mac_dev = priv->mac_dev;
-	volatile struct alt_sgdma_registers *rx_sgdma = priv->sgdma_rx;
-	volatile struct alt_sgdma_registers *tx_sgdma = priv->sgdma_tx;
-	int counter;
-	volatile struct alt_sgdma_descriptor *rx_desc =
-	    (volatile struct alt_sgdma_descriptor *)&priv->rx_desc[0];
+	struct altera_tse_priv *priv = dev_get_priv(dev);
+	struct alt_tse_mac *mac_dev = priv->mac_dev;
+	struct alt_sgdma_registers *rx_sgdma = priv->sgdma_rx;
+	struct alt_sgdma_registers *tx_sgdma = priv->sgdma_tx;
+	struct alt_sgdma_descriptor *rx_desc = priv->rx_desc;
+	unsigned int status;
+	int ret;
+	ulong ctime;
 
 	/* clear rx desc & wait for sgdma to complete */
 	rx_desc->descriptor_control = 0;
-	rx_sgdma->control = 0;
-	counter = 0;
-	while (rx_sgdma->status & ALT_SGDMA_STATUS_BUSY_MSK) {
-		if (counter++ > ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR)
-			break;
-	}
+	writel(0, &rx_sgdma->control);
+	ret = alt_sgdma_wait_transfer(rx_sgdma);
+	if (ret == -ETIMEDOUT)
+		writel(ALT_SGDMA_CONTROL_SOFTWARERESET_MSK,
+		       &rx_sgdma->control);
 
-	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR) {
-		debug("Timeout waiting for rx sgdma!\n");
-		rx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-		rx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-	}
+	writel(0, &tx_sgdma->control);
+	ret = alt_sgdma_wait_transfer(tx_sgdma);
+	if (ret == -ETIMEDOUT)
+		writel(ALT_SGDMA_CONTROL_SOFTWARERESET_MSK,
+		       &tx_sgdma->control);
 
-	counter = 0;
-	tx_sgdma->control = 0;
-	while (tx_sgdma->status & ALT_SGDMA_STATUS_BUSY_MSK) {
-		if (counter++ > ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR)
-			break;
-	}
-
-	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR) {
-		debug("Timeout waiting for tx sgdma!\n");
-		tx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-		tx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-	}
 	/* reset the mac */
-	mac_dev->command_config.bits.transmit_enable = 1;
-	mac_dev->command_config.bits.receive_enable = 1;
-	mac_dev->command_config.bits.software_reset = 1;
-
-	counter = 0;
-	while (mac_dev->command_config.bits.software_reset) {
-		if (counter++ > ALT_TSE_SW_RESET_WATCHDOG_CNTR)
+	writel(ALTERA_TSE_CMD_SW_RESET_MSK, &mac_dev->command_config);
+	ctime = get_timer(0);
+	while (1) {
+		status = readl(&mac_dev->command_config);
+		if (!(status & ALTERA_TSE_CMD_SW_RESET_MSK))
 			break;
-	}
-
-	if (counter >= ALT_TSE_SW_RESET_WATCHDOG_CNTR)
-		debug("TSEMAC SW reset bit never cleared!\n");
-}
-
-static int tse_mdio_read(struct altera_tse_priv *priv, unsigned int regnum)
-{
-	volatile struct alt_tse_mac *mac_dev;
-	unsigned int *mdio_regs;
-	unsigned int data;
-	u16 value;
-
-	mac_dev = priv->mac_dev;
-
-	/* set mdio address */
-	mac_dev->mdio_phy1_addr = priv->phyaddr;
-	mdio_regs = (unsigned int *)&mac_dev->mdio_phy1;
-
-	/* get the data */
-	data = mdio_regs[regnum];
-
-	value = data & 0xffff;
-
-	return value;
-}
-
-static int tse_mdio_write(struct altera_tse_priv *priv, unsigned int regnum,
-		   unsigned int value)
-{
-	volatile struct alt_tse_mac *mac_dev;
-	unsigned int *mdio_regs;
-	unsigned int data;
-
-	mac_dev = priv->mac_dev;
-
-	/* set mdio address */
-	mac_dev->mdio_phy1_addr = priv->phyaddr;
-	mdio_regs = (unsigned int *)&mac_dev->mdio_phy1;
-
-	/* get the data */
-	data = (unsigned int)value;
-
-	mdio_regs[regnum] = data;
-
-	return 0;
-}
-
-/* MDIO access to phy */
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) && !defined(BITBANGMII)
-static int altera_tse_miiphy_write(const char *devname, unsigned char addr,
-				   unsigned char reg, unsigned short value)
-{
-	struct eth_device *dev;
-	struct altera_tse_priv *priv;
-	dev = eth_get_dev_by_name(devname);
-	priv = dev->priv;
-
-	tse_mdio_write(priv, (uint) reg, (uint) value);
-
-	return 0;
-}
-
-static int altera_tse_miiphy_read(const char *devname, unsigned char addr,
-				  unsigned char reg, unsigned short *value)
-{
-	struct eth_device *dev;
-	struct altera_tse_priv *priv;
-	volatile struct alt_tse_mac *mac_dev;
-	unsigned int *mdio_regs;
-
-	dev = eth_get_dev_by_name(devname);
-	priv = dev->priv;
-
-	mac_dev = priv->mac_dev;
-	mac_dev->mdio_phy1_addr = (int)addr;
-	mdio_regs = (unsigned int *)&mac_dev->mdio_phy1;
-
-	*value = 0xffff & mdio_regs[reg];
-
-	return 0;
-
-}
-#endif
-
-/*
- * Also copied from tsec.c
- */
-/* Parse the status register for link, and then do
- * auto-negotiation
- */
-static uint mii_parse_sr(uint mii_reg, struct altera_tse_priv *priv)
-{
-	/*
-	 * Wait if the link is up, and autonegotiation is in progress
-	 * (ie - we're capable and it's not done)
-	 */
-	mii_reg = tse_mdio_read(priv, MIIM_STATUS);
-
-	if (!(mii_reg & MIIM_STATUS_LINK) && (mii_reg & BMSR_ANEGCAPABLE)
-	    && !(mii_reg & BMSR_ANEGCOMPLETE)) {
-		int i = 0;
-
-		puts("Waiting for PHY auto negotiation to complete");
-		while (!(mii_reg & BMSR_ANEGCOMPLETE)) {
-			/*
-			 * Timeout reached ?
-			 */
-			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
-				puts(" TIMEOUT !\n");
-				priv->link = 0;
-				return 0;
-			}
-
-			if ((i++ % 1000) == 0)
-				putc('.');
-			udelay(1000);	/* 1 ms */
-			mii_reg = tse_mdio_read(priv, MIIM_STATUS);
-		}
-		puts(" done\n");
-		priv->link = 1;
-		udelay(500000);	/* another 500 ms (results in faster booting) */
-	} else {
-		if (mii_reg & MIIM_STATUS_LINK) {
-			debug("Link is up\n");
-			priv->link = 1;
-		} else {
-			debug("Link is down\n");
-			priv->link = 0;
-		}
-	}
-
-	return 0;
-}
-
-/* Parse the 88E1011's status register for speed and duplex
- * information
- */
-static uint mii_parse_88E1011_psr(uint mii_reg, struct altera_tse_priv *priv)
-{
-	uint speed;
-
-	mii_reg = tse_mdio_read(priv, MIIM_88E1011_PHY_STATUS);
-
-	if ((mii_reg & MIIM_88E1011_PHYSTAT_LINK) &&
-	    !(mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE)) {
-		int i = 0;
-
-		puts("Waiting for PHY realtime link");
-		while (!(mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE)) {
-			/* Timeout reached ? */
-			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
-				puts(" TIMEOUT !\n");
-				priv->link = 0;
-				break;
-			}
-
-			if ((i++ == 1000) == 0) {
-				i = 0;
-				puts(".");
-			}
-			udelay(1000);	/* 1 ms */
-			mii_reg = tse_mdio_read(priv, MIIM_88E1011_PHY_STATUS);
-		}
-		puts(" done\n");
-		udelay(500000);	/* another 500 ms (results in faster booting) */
-	} else {
-		if (mii_reg & MIIM_88E1011_PHYSTAT_LINK)
-			priv->link = 1;
-		else
-			priv->link = 0;
-	}
-
-	if (mii_reg & MIIM_88E1011_PHYSTAT_DUPLEX)
-		priv->duplexity = 1;
-	else
-		priv->duplexity = 0;
-
-	speed = (mii_reg & MIIM_88E1011_PHYSTAT_SPEED);
-
-	switch (speed) {
-	case MIIM_88E1011_PHYSTAT_GBIT:
-		priv->speed = 1000;
-		debug("PHY Speed is 1000Mbit\n");
-		break;
-	case MIIM_88E1011_PHYSTAT_100:
-		debug("PHY Speed is 100Mbit\n");
-		priv->speed = 100;
-		break;
-	default:
-		debug("PHY Speed is 10Mbit\n");
-		priv->speed = 10;
-	}
-
-	return 0;
-}
-
-static uint mii_m88e1111s_setmode_sr(uint mii_reg, struct altera_tse_priv *priv)
-{
-	uint mii_data = tse_mdio_read(priv, mii_reg);
-	mii_data &= 0xfff0;
-	if ((priv->flags >= 1) && (priv->flags <= 4))
-		mii_data |= 0xb;
-	else if (priv->flags == 5)
-		mii_data |= 0x4;
-
-	return mii_data;
-}
-
-static uint mii_m88e1111s_setmode_cr(uint mii_reg, struct altera_tse_priv *priv)
-{
-	uint mii_data = tse_mdio_read(priv, mii_reg);
-	mii_data &= ~0x82;
-	if ((priv->flags >= 1) && (priv->flags <= 4))
-		mii_data |= 0x82;
-
-	return mii_data;
-}
-
-/*
- * Returns which value to write to the control register.
- * For 10/100, the value is slightly different
- */
-static uint mii_cr_init(uint mii_reg, struct altera_tse_priv *priv)
-{
-	return MIIM_CONTROL_INIT;
-}
-
-/*
- * PHY & MDIO code
- * Need to add SGMII stuff
- *
- */
-
-static struct phy_info phy_info_M88E1111S = {
-	0x01410cc,
-	"Marvell 88E1111S",
-	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Reset and configure the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {MIIM_88E1111_PHY_EXT_SR, 0x848f,
-			    &mii_m88e1111s_setmode_sr},
-			   /* Delay RGMII TX and RX */
-			   {MIIM_88E1111_PHY_EXT_CR, 0x0cd2,
-			    &mii_m88e1111s_setmode_cr},
-			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
-			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Status is read once to clear old link state */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_88E1011_PHY_STATUS, miim_read,
-			    &mii_parse_88E1011_psr},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
-};
-
-/* a generic flavor.  */
-static struct phy_info phy_info_generic = {
-	0,
-	"Unknown/Generic PHY",
-	32,
-	(struct phy_cmd[]){	/* config */
-			   {MII_BMCR, BMCR_RESET, NULL},
-			   {MII_BMCR, BMCR_ANENABLE | BMCR_ANRESTART, NULL},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   {MII_BMSR, miim_read, NULL},
-			   {MII_BMSR, miim_read, &mii_parse_sr},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   }
-};
-
-static struct phy_info *phy_info[] = {
-	&phy_info_M88E1111S,
-	NULL
-};
-
- /* Grab the identifier of the device's PHY, and search through
-  * all of the known PHYs to see if one matches.	 If so, return
-  * it, if not, return NULL
-  */
-static struct phy_info *get_phy_info(struct eth_device *dev)
-{
-	struct altera_tse_priv *priv = (struct altera_tse_priv *)dev->priv;
-	uint phy_reg, phy_ID;
-	int i;
-	struct phy_info *theInfo = NULL;
-
-	/* Grab the bits from PHYIR1, and put them in the upper half */
-	phy_reg = tse_mdio_read(priv, MIIM_PHYIR1);
-	phy_ID = (phy_reg & 0xffff) << 16;
-
-	/* Grab the bits from PHYIR2, and put them in the lower half */
-	phy_reg = tse_mdio_read(priv, MIIM_PHYIR2);
-	phy_ID |= (phy_reg & 0xffff);
-
-	/* loop through all the known PHY types, and find one that */
-	/* matches the ID we read from the PHY. */
-	for (i = 0; phy_info[i]; i++) {
-		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift)) {
-			theInfo = phy_info[i];
+		if (get_timer(ctime) > ALT_TSE_SW_RESET_TIMEOUT) {
+			debug("Reset mac timeout\n");
 			break;
 		}
 	}
-
-	if (theInfo == NULL) {
-		theInfo = &phy_info_generic;
-		debug("%s: No support for PHY id %x; assuming generic\n",
-		      dev->name, phy_ID);
-	} else
-		debug("%s: PHY is %s (%x)\n", dev->name, theInfo->name, phy_ID);
-
-	return theInfo;
 }
 
-/* Execute the given series of commands on the given device's
- * PHY, running functions as necessary
- */
-static void phy_run_commands(struct altera_tse_priv *priv, struct phy_cmd *cmd)
+static int tse_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
-	int i;
-	uint result;
+	struct altera_tse_priv *priv = bus->priv;
+	struct alt_tse_mac *mac_dev = priv->mac_dev;
+	unsigned int value;
 
-	for (i = 0; cmd->mii_reg != miim_end; i++) {
-		if (cmd->mii_data == miim_read) {
-			result = tse_mdio_read(priv, cmd->mii_reg);
+	/* set mdio address */
+	writel(addr, &mac_dev->mdio_phy1_addr);
+	/* get the data */
+	value = readl(&mac_dev->mdio_phy1[reg]);
 
-			if (cmd->funct != NULL)
-				(*(cmd->funct)) (result, priv);
-
-		} else {
-			if (cmd->funct != NULL)
-				result = (*(cmd->funct)) (cmd->mii_reg, priv);
-			else
-				result = cmd->mii_data;
-
-			tse_mdio_write(priv, cmd->mii_reg, result);
-
-		}
-		cmd++;
-	}
+	return value & 0xffff;
 }
 
-/* Phy init code */
-static int init_phy(struct eth_device *dev)
+static int tse_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
+			  u16 val)
 {
-	struct altera_tse_priv *priv = (struct altera_tse_priv *)dev->priv;
-	struct phy_info *curphy;
+	struct altera_tse_priv *priv = bus->priv;
+	struct alt_tse_mac *mac_dev = priv->mac_dev;
 
-	/* Get the cmd structure corresponding to the attached
-	 * PHY */
-	curphy = get_phy_info(dev);
+	/* set mdio address */
+	writel(addr, &mac_dev->mdio_phy1_addr);
+	/* set the data */
+	writel(val, &mac_dev->mdio_phy1[reg]);
 
-	if (curphy == NULL) {
-		priv->phyinfo = NULL;
-		debug("%s: No PHY found\n", dev->name);
-
-		return 0;
-	} else
-		debug("%s found\n", curphy->name);
-	priv->phyinfo = curphy;
-
-	phy_run_commands(priv, priv->phyinfo->config);
-
-	return 1;
-}
-
-static int tse_set_mac_address(struct eth_device *dev)
-{
-	struct altera_tse_priv *priv = dev->priv;
-	volatile struct alt_tse_mac *mac_dev = priv->mac_dev;
-
-	debug("Setting MAC address to 0x%02x%02x%02x%02x%02x%02x\n",
-	      dev->enetaddr[5], dev->enetaddr[4],
-	      dev->enetaddr[3], dev->enetaddr[2],
-	      dev->enetaddr[1], dev->enetaddr[0]);
-	mac_dev->mac_addr_0 = ((dev->enetaddr[3]) << 24 |
-			       (dev->enetaddr[2]) << 16 |
-			       (dev->enetaddr[1]) << 8 | (dev->enetaddr[0]));
-
-	mac_dev->mac_addr_1 = ((dev->enetaddr[5] << 8 |
-				(dev->enetaddr[4])) & 0xFFFF);
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_0_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_0_1 = mac_dev->mac_addr_1;
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_1_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_1_1 = mac_dev->mac_addr_1;
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_2_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_2_1 = mac_dev->mac_addr_1;
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_3_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_3_1 = mac_dev->mac_addr_1;
 	return 0;
 }
 
-static int tse_eth_init(struct eth_device *dev, bd_t * bd)
+static int tse_mdio_init(const char *name, struct altera_tse_priv *priv)
 {
-	int dat;
-	struct altera_tse_priv *priv = dev->priv;
-	volatile struct alt_tse_mac *mac_dev = priv->mac_dev;
-	volatile struct alt_sgdma_descriptor *tx_desc = priv->tx_desc;
-	volatile struct alt_sgdma_descriptor *rx_desc = priv->rx_desc;
-	volatile struct alt_sgdma_descriptor *rx_desc_cur =
-	    (volatile struct alt_sgdma_descriptor *)&rx_desc[0];
+	struct mii_dev *bus = mdio_alloc();
 
-	/* stop controller */
-	debug("Reseting TSE & SGDMAs\n");
-	tse_eth_reset(dev);
+	if (!bus) {
+		printf("Failed to allocate MDIO bus\n");
+		return -ENOMEM;
+	}
 
-	/* start the phy */
-	debug("Configuring PHY\n");
-	phy_run_commands(priv, priv->phyinfo->startup);
+	bus->read = tse_mdio_read;
+	bus->write = tse_mdio_write;
+	snprintf(bus->name, sizeof(bus->name), name);
+
+	bus->priv = (void *)priv;
+
+	return mdio_register(bus);
+}
+
+static int tse_phy_init(struct altera_tse_priv *priv, void *dev)
+{
+	struct phy_device *phydev;
+	unsigned int mask = 0xffffffff;
+
+	if (priv->phyaddr)
+		mask = 1 << priv->phyaddr;
+
+	phydev = phy_find_by_mask(priv->bus, mask, priv->interface);
+	if (!phydev)
+		return -ENODEV;
+
+	phy_connect_dev(phydev, dev);
+
+	phydev->supported &= PHY_GBIT_FEATURES;
+	phydev->advertising = phydev->supported;
+
+	priv->phydev = phydev;
+	phy_config(phydev);
+
+	return 0;
+}
+
+static int altera_tse_write_hwaddr(struct udevice *dev)
+{
+	struct altera_tse_priv *priv = dev_get_priv(dev);
+	struct alt_tse_mac *mac_dev = priv->mac_dev;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	u8 *hwaddr = pdata->enetaddr;
+	unsigned int mac_lo, mac_hi;
+
+	mac_lo = (hwaddr[3] << 24) | (hwaddr[2] << 16) |
+		(hwaddr[1] << 8) | hwaddr[0];
+	mac_hi = (hwaddr[5] << 8) | hwaddr[4];
+	debug("Set MAC address to 0x%04x%08x\n", mac_hi, mac_lo);
+
+	writel(mac_lo, &mac_dev->mac_addr_0);
+	writel(mac_hi, &mac_dev->mac_addr_1);
+	writel(mac_lo, &mac_dev->supp_mac_addr_0_0);
+	writel(mac_hi, &mac_dev->supp_mac_addr_0_1);
+	writel(mac_lo, &mac_dev->supp_mac_addr_1_0);
+	writel(mac_hi, &mac_dev->supp_mac_addr_1_1);
+	writel(mac_lo, &mac_dev->supp_mac_addr_2_0);
+	writel(mac_hi, &mac_dev->supp_mac_addr_2_1);
+	writel(mac_lo, &mac_dev->supp_mac_addr_3_0);
+	writel(mac_hi, &mac_dev->supp_mac_addr_3_1);
+
+	return 0;
+}
+
+static int altera_tse_start(struct udevice *dev)
+{
+	struct altera_tse_priv *priv = dev_get_priv(dev);
+	struct alt_tse_mac *mac_dev = priv->mac_dev;
+	unsigned int val;
+	int ret;
 
 	/* need to create sgdma */
-	debug("Configuring tx desc\n");
-	alt_sgdma_construct_descriptor_burst(
-		(volatile struct alt_sgdma_descriptor *)&tx_desc[0],
-		(volatile struct alt_sgdma_descriptor *)&tx_desc[1],
-		(unsigned int *)NULL,	/* read addr */
-		(unsigned int *)0,
-		0,	/* length or EOP ,will change for each tx */
-		0x1,	/* gen eop */
-		0x0,	/* read fixed */
-		0x1,	/* write fixed or sop */
-		0x0,	/* read burst */
-		0x0,	/* write burst */
-		0x0	/* channel */
-		);
 	debug("Configuring rx desc\n");
-	flush_dcache_range((unsigned long)(net_rx_packets[0]),
-			   (unsigned long)(net_rx_packets[0]) + PKTSIZE_ALIGN);
-	alt_sgdma_construct_descriptor_burst(
-		(volatile struct alt_sgdma_descriptor *)&rx_desc[0],
-		(volatile struct alt_sgdma_descriptor *)&rx_desc[1],
-		(unsigned int)0x0,	/* read addr */
-		(unsigned int *)net_rx_packets[0],
-		0x0,	/* length or EOP */
-		0x0,	/* gen eop */
-		0x0,	/* read fixed */
-		0x0,	/* write fixed or sop */
-		0x0,	/* read burst */
-		0x0,	/* write burst */
-		0x0	/* channel */
-		);
-	/* start rx async transfer */
-	debug("Starting rx sgdma\n");
-	alt_sgdma_do_async_transfer(priv->sgdma_rx, rx_desc_cur);
-
+	altera_tse_free_pkt(dev, priv->rx_buf, PKTSIZE_ALIGN);
 	/* start TSE */
 	debug("Configuring TSE Mac\n");
 	/* Initialize MAC registers */
-	mac_dev->max_frame_length = PKTSIZE_ALIGN;
-	mac_dev->rx_almost_empty_threshold = 8;
-	mac_dev->rx_almost_full_threshold = 8;
-	mac_dev->tx_almost_empty_threshold = 8;
-	mac_dev->tx_almost_full_threshold = 3;
-	mac_dev->tx_sel_empty_threshold =
-	    CONFIG_SYS_ALTERA_TSE_TX_FIFO - 16;
-	mac_dev->tx_sel_full_threshold = 0;
-	mac_dev->rx_sel_empty_threshold =
-	    CONFIG_SYS_ALTERA_TSE_TX_FIFO - 16;
-	mac_dev->rx_sel_full_threshold = 0;
+	writel(PKTSIZE_ALIGN, &mac_dev->max_frame_length);
+	writel(priv->rx_fifo_depth - 16, &mac_dev->rx_sel_empty_threshold);
+	writel(0, &mac_dev->rx_sel_full_threshold);
+	writel(priv->tx_fifo_depth - 16, &mac_dev->tx_sel_empty_threshold);
+	writel(0, &mac_dev->tx_sel_full_threshold);
+	writel(8, &mac_dev->rx_almost_empty_threshold);
+	writel(8, &mac_dev->rx_almost_full_threshold);
+	writel(8, &mac_dev->tx_almost_empty_threshold);
+	writel(3, &mac_dev->tx_almost_full_threshold);
 
 	/* NO Shift */
-	mac_dev->rx_cmd_stat.bits.rx_shift16 = 0;
-	mac_dev->tx_cmd_stat.bits.tx_shift16 = 0;
+	writel(0, &mac_dev->rx_cmd_stat);
+	writel(0, &mac_dev->tx_cmd_stat);
 
 	/* enable MAC */
-	dat = 0;
-	dat = ALTERA_TSE_CMD_TX_ENA_MSK | ALTERA_TSE_CMD_RX_ENA_MSK;
+	val = ALTERA_TSE_CMD_TX_ENA_MSK | ALTERA_TSE_CMD_RX_ENA_MSK;
+	writel(val, &mac_dev->command_config);
 
-	mac_dev->command_config.image = dat;
-
-	/* configure the TSE core  */
-	/*  -- output clocks,  */
-	/*  -- and later config stuff for SGMII */
-	if (priv->link) {
-		debug("Adjusting TSE to link speed\n");
-		tse_adjust_link(priv);
+	/* Start up the PHY */
+	ret = phy_startup(priv->phydev);
+	if (ret) {
+		debug("Could not initialize PHY %s\n",
+		      priv->phydev->dev->name);
+		return ret;
 	}
 
-	return priv->link ? 0 : -1;
+	tse_adjust_link(priv, priv->phydev);
+
+	if (!priv->phydev->link)
+		return -EIO;
+
+	return 0;
 }
 
-/* TSE init code */
-int altera_tse_initialize(u8 dev_num, int mac_base,
-			  int sgdma_rx_base, int sgdma_tx_base,
-			  u32 sgdma_desc_base, u32 sgdma_desc_size)
+static int altera_tse_probe(struct udevice *dev)
 {
-	struct altera_tse_priv *priv;
-	struct eth_device *dev;
-	struct alt_sgdma_descriptor *rx_desc;
-	struct alt_sgdma_descriptor *tx_desc;
-	unsigned long dma_handle;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct altera_tse_priv *priv = dev_get_priv(dev);
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
+	const char *list, *end;
+	const fdt32_t *cell;
+	void *base, *desc_mem = NULL;
+	unsigned long addr, size;
+	int len, idx;
+	int ret;
 
-	dev = (struct eth_device *)malloc(sizeof *dev);
-
-	if (NULL == dev)
-		return 0;
-
-	memset(dev, 0, sizeof *dev);
-
-	priv = malloc(sizeof(*priv));
-
-	if (!priv) {
-		free(dev);
-		return 0;
+	/*
+	 * decode regs, assume address-cells and size-cells are both one.
+	 * there are multiple reg tuples, and they need to match with
+	 * reg-names.
+	 */
+	list = fdt_getprop(blob, node, "reg-names", &len);
+	if (!list)
+		return -ENOENT;
+	end = list + len;
+	cell = fdt_getprop(blob, node, "reg", &len);
+	if (!cell)
+		return -ENOENT;
+	idx = 0;
+	while (list < end) {
+		addr = fdt_translate_address((void *)blob,
+					     node, cell + idx);
+		size = fdt_addr_to_cpu(cell[idx + 1]);
+		base = ioremap(addr, size);
+		len = strlen(list);
+		if (strcmp(list, "control_port") == 0)
+			priv->mac_dev = base;
+		else if (strcmp(list, "rx_csr") == 0)
+			priv->sgdma_rx = base;
+		else if (strcmp(list, "tx_csr") == 0)
+			priv->sgdma_tx = base;
+		else if (strcmp(list, "s1") == 0)
+			desc_mem = base;
+		idx += 2;
+		list += (len + 1);
 	}
-	if (sgdma_desc_size) {
-		if (sgdma_desc_size < (sizeof(*tx_desc) * (3 + PKTBUFSRX))) {
-			printf("ALTERA_TSE-%hu: "
-			       "descriptor memory is too small\n", dev_num);
-			free(priv);
-			free(dev);
-			return 0;
-		}
-		tx_desc = (struct alt_sgdma_descriptor *)sgdma_desc_base;
-	} else {
-		tx_desc = dma_alloc_coherent(sizeof(*tx_desc) * (3 + PKTBUFSRX),
-					     &dma_handle);
+	/* decode fifo depth */
+	priv->rx_fifo_depth = fdtdec_get_int(blob, node,
+		"rx-fifo-depth", 0);
+	priv->tx_fifo_depth = fdtdec_get_int(blob, node,
+		"tx-fifo-depth", 0);
+	/* decode phy */
+	addr = fdtdec_get_int(blob, node,
+			      "phy-handle", 0);
+	addr = fdt_node_offset_by_phandle(blob, addr);
+	priv->phyaddr = fdtdec_get_int(blob, addr,
+		"reg", 0);
+	/* init desc */
+	len = sizeof(struct alt_sgdma_descriptor) * 4;
+	if (!desc_mem) {
+		desc_mem = dma_alloc_coherent(len, &addr);
+		if (!desc_mem)
+			return -ENOMEM;
 	}
+	memset(desc_mem, 0, len);
+	priv->tx_desc = desc_mem;
+	priv->rx_desc = priv->tx_desc + 2;
+	/* allocate recv packet buffer */
+	priv->rx_buf = malloc_cache_aligned(PKTSIZE_ALIGN);
+	if (!priv->rx_buf)
+		return -ENOMEM;
 
-	rx_desc = tx_desc + 2;
-	debug("tx desc: address = 0x%x\n", (unsigned int)tx_desc);
-	debug("rx desc: address = 0x%x\n", (unsigned int)rx_desc);
+	/* stop controller */
+	debug("Reset TSE & SGDMAs\n");
+	altera_tse_stop(dev);
 
-	if (!tx_desc) {
-		free(priv);
-		free(dev);
-		return 0;
-	}
-	memset(rx_desc, 0, (sizeof *rx_desc) * (PKTBUFSRX + 1));
-	memset(tx_desc, 0, (sizeof *tx_desc) * 2);
+	/* start the phy */
+	priv->interface = pdata->phy_interface;
+	tse_mdio_init(dev->name, priv);
+	priv->bus = miiphy_get_dev_by_name(dev->name);
 
-	/* initialize tse priv */
-	priv->mac_dev = (volatile struct alt_tse_mac *)mac_base;
-	priv->sgdma_rx = (volatile struct alt_sgdma_registers *)sgdma_rx_base;
-	priv->sgdma_tx = (volatile struct alt_sgdma_registers *)sgdma_tx_base;
-	priv->phyaddr = CONFIG_SYS_ALTERA_TSE_PHY_ADDR;
-	priv->flags = CONFIG_SYS_ALTERA_TSE_FLAGS;
-	priv->rx_desc = rx_desc;
-	priv->tx_desc = tx_desc;
+	ret = tse_phy_init(priv, dev);
 
-	/* init eth structure */
-	dev->priv = priv;
-	dev->init = tse_eth_init;
-	dev->halt = tse_eth_halt;
-	dev->send = tse_eth_send;
-	dev->recv = tse_eth_rx;
-	dev->write_hwaddr = tse_set_mac_address;
-	sprintf(dev->name, "%s-%hu", "ALTERA_TSE", dev_num);
-
-	eth_register(dev);
-
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) && !defined(BITBANGMII)
-	miiphy_register(dev->name, altera_tse_miiphy_read,
-			altera_tse_miiphy_write);
-#endif
-
-	init_phy(dev);
-
-	return 1;
+	return ret;
 }
+
+static int altera_tse_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	const char *phy_mode;
+
+	pdata->phy_interface = -1;
+	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	if (phy_mode)
+		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	if (pdata->phy_interface == -1) {
+		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static const struct eth_ops altera_tse_ops = {
+	.start		= altera_tse_start,
+	.send		= altera_tse_send,
+	.recv		= altera_tse_recv,
+	.free_pkt	= altera_tse_free_pkt,
+	.stop		= altera_tse_stop,
+	.write_hwaddr	= altera_tse_write_hwaddr,
+};
+
+static const struct udevice_id altera_tse_ids[] = {
+	{ .compatible = "altr,tse-1.0", },
+	{ }
+};
+
+U_BOOT_DRIVER(altera_tse) = {
+	.name	= "altera_tse",
+	.id	= UCLASS_ETH,
+	.of_match = altera_tse_ids,
+	.ops	= &altera_tse_ops,
+	.ofdata_to_platdata = altera_tse_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto_alloc_size = sizeof(struct altera_tse_priv),
+	.probe	= altera_tse_probe,
+};

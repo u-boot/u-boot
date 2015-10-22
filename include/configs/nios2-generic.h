@@ -34,6 +34,14 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /*
+ * MII/PHY
+ */
+#define CONFIG_CMD_MII			1
+#define CONFIG_PHY_GIGE			1
+#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
+#define CONFIG_PHY_MARVELL		1
+
+/*
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE

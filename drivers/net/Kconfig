@@ -25,6 +25,15 @@ menuconfig NETDEVICES
 
 if NETDEVICES
 
+config ALTERA_TSE
+	bool "Altera Triple-Speed Ethernet MAC support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the Altera Triple-Speed (TSE) Ethernet MAC.
+	  Please find details on the "Triple-Speed Ethernet MegaCore Function
+	  Resource Center" of Altera.
+
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
 	help
