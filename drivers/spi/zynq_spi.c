@@ -18,14 +18,14 @@ DECLARE_GLOBAL_DATA_PTR;
 /* zynq spi register bit masks ZYNQ_SPI_<REG>_<BIT>_MASK */
 #define ZYNQ_SPI_CR_MSA_MASK		BIT(15)	/* Manual start enb */
 #define ZYNQ_SPI_CR_MCS_MASK		BIT(14)	/* Manual chip select */
-#define ZYNQ_SPI_CR_CS_MASK		(0xF << 10)	/* Chip select */
-#define ZYNQ_SPI_CR_BAUD_MASK		(0x7 << 3)	/* Baud rate div */
+#define ZYNQ_SPI_CR_CS_MASK		GENMASK(13, 10)	/* Chip select */
+#define ZYNQ_SPI_CR_BAUD_MASK		GENMASK(5, 3)	/* Baud rate div */
 #define ZYNQ_SPI_CR_CPHA_MASK		BIT(2)	/* Clock phase */
 #define ZYNQ_SPI_CR_CPOL_MASK		BIT(1)	/* Clock polarity */
 #define ZYNQ_SPI_CR_MSTREN_MASK		BIT(0)	/* Mode select */
 #define ZYNQ_SPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX_FIFO_not_empty */
 #define ZYNQ_SPI_IXR_TXOW_MASK		BIT(2)	/* TX_FIFO_not_full */
-#define ZYNQ_SPI_IXR_ALL_MASK		0x7F		/* All IXR bits */
+#define ZYNQ_SPI_IXR_ALL_MASK		GENMASK(6, 0)	/* All IXR bits */
 #define ZYNQ_SPI_ENR_SPI_EN_MASK	BIT(0)	/* SPI Enable */
 
 #define ZYNQ_SPI_CR_BAUD_MAX		8	/* Baud rate divisor max val */
