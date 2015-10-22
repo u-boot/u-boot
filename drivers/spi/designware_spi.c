@@ -74,7 +74,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPI_CFS_OFFSET			12
 
 /* Bit fields in SR, 7 bits */
-#define SR_MASK				0x7f		/* cover 7 bits */
+#define SR_MASK				GENMASK(6, 0)	/* cover 7 bits */
 #define SR_BUSY				BIT(0)
 #define SR_TF_NOT_FULL			BIT(1)
 #define SR_TF_EMPT			BIT(2)
