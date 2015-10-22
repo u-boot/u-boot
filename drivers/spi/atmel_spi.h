@@ -59,7 +59,7 @@
 #define ATMEL_SPI_CSRx_CSAAT		BIT(3)
 #define ATMEL_SPI_CSRx_BITS(x)		((x) << 4)
 #define ATMEL_SPI_CSRx_SCBR(x)		((x) << 8)
-#define ATMEL_SPI_CSRx_SCBR_MAX		0xff
+#define ATMEL_SPI_CSRx_SCBR_MAX		GENMASK(7, 0)
 #define ATMEL_SPI_CSRx_DLYBS(x)		((x) << 16)
 #define ATMEL_SPI_CSRx_DLYBCT(x)	((x) << 24)
 
