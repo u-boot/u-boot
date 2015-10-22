@@ -52,14 +52,14 @@
 #define SPISR_RX_EMPTY		BIT(0)
 
 /* SPI Data Transmit Register (spidtr), [1] p12, [2] p12 */
-#define SPIDTR_8BIT_MASK	(0xff << 0)
-#define SPIDTR_16BIT_MASK	(0xffff << 0)
-#define SPIDTR_32BIT_MASK	(0xffffffff << 0)
+#define SPIDTR_8BIT_MASK	GENMASK(7, 0)
+#define SPIDTR_16BIT_MASK	GENMASK(15, 0)
+#define SPIDTR_32BIT_MASK	GENMASK(31, 0)
 
 /* SPI Data Receive Register (spidrr), [1] p12, [2] p12 */
-#define SPIDRR_8BIT_MASK	(0xff << 0)
-#define SPIDRR_16BIT_MASK	(0xffff << 0)
-#define SPIDRR_32BIT_MASK	(0xffffffff << 0)
+#define SPIDRR_8BIT_MASK	GENMASK(7, 0)
+#define SPIDRR_16BIT_MASK	GENMASK(15, 0)
+#define SPIDRR_32BIT_MASK	GENMASK(31, 0)
 
 /* SPI Slave Select Register (spissr), [1] p13, [2] p13 */
 #define SPISSR_MASK(cs)		(1 << (cs))
@@ -75,7 +75,7 @@
 #define XILSPI_SPICR_DFLT_OFF	(SPICR_MASTER_INHIBIT | SPICR_MANUAL_SS)
 
 #ifndef CONFIG_XILINX_SPI_IDLE_VAL
-#define CONFIG_XILINX_SPI_IDLE_VAL	0xff
+#define CONFIG_XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
 #endif
 
 #ifndef CONFIG_SYS_XILINX_SPI_LIST
