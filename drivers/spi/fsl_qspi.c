@@ -68,7 +68,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define QSPI_CMD_SE_4B		0xdc    /* Sector erase (usually 64KiB) */
 
 /* fsl_qspi_platdata flags */
-#define QSPI_FLAG_REGMAP_ENDIAN_BIG	(1 << 0)
+#define QSPI_FLAG_REGMAP_ENDIAN_BIG	BIT(0)
 
 /* default SCK frequency, unit: HZ */
 #define FSL_QSPI_DEFAULT_SCK_FREQ	50000000
@@ -383,7 +383,7 @@ static void qspi_enable_ddr_mode(struct fsl_qspi_priv *priv)
 	/* Enable the module again (enable the DDR too) */
 	reg |= QSPI_MCR_DDR_EN_MASK;
 	/* Enable bit 29 for imx6sx */
-	reg |= (1 << 29);
+	reg |= BIT(29);
 
 	qspi_write32(priv->flags, &regs->mcr, reg);
 }
