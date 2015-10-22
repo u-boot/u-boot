@@ -16,20 +16,20 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* zynq qspi register bit masks ZYNQ_QSPI_<REG>_<BIT>_MASK */
-#define ZYNQ_QSPI_CR_IFMODE_MASK	(1 << 31)	/* Flash intrface mode*/
-#define ZYNQ_QSPI_CR_MSA_MASK		(1 << 15)	/* Manual start enb */
-#define ZYNQ_QSPI_CR_MCS_MASK		(1 << 14)	/* Manual chip select */
-#define ZYNQ_QSPI_CR_PCS_MASK		(1 << 10)	/* Peri chip select */
+#define ZYNQ_QSPI_CR_IFMODE_MASK	BIT(31)	/* Flash intrface mode*/
+#define ZYNQ_QSPI_CR_MSA_MASK		BIT(15)	/* Manual start enb */
+#define ZYNQ_QSPI_CR_MCS_MASK		BIT(14)	/* Manual chip select */
+#define ZYNQ_QSPI_CR_PCS_MASK		BIT(10)	/* Peri chip select */
 #define ZYNQ_QSPI_CR_FW_MASK		(0x3 << 6)	/* FIFO width */
 #define ZYNQ_QSPI_CR_SS_MASK		(0xF << 10)	/* Slave Select */
 #define ZYNQ_QSPI_CR_BAUD_MASK		(0x7 << 3)	/* Baud rate div */
-#define ZYNQ_QSPI_CR_CPHA_MASK		(1 << 2)	/* Clock phase */
-#define ZYNQ_QSPI_CR_CPOL_MASK		(1 << 1)	/* Clock polarity */
-#define ZYNQ_QSPI_CR_MSTREN_MASK	(1 << 0)	/* Mode select */
-#define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	(1 << 4)	/* RX_FIFO_not_empty */
-#define ZYNQ_QSPI_IXR_TXOW_MASK		(1 << 2)	/* TX_FIFO_not_full */
+#define ZYNQ_QSPI_CR_CPHA_MASK		BIT(2)	/* Clock phase */
+#define ZYNQ_QSPI_CR_CPOL_MASK		BIT(1)	/* Clock polarity */
+#define ZYNQ_QSPI_CR_MSTREN_MASK	BIT(0)	/* Mode select */
+#define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX_FIFO_not_empty */
+#define ZYNQ_QSPI_IXR_TXOW_MASK		BIT(2)	/* TX_FIFO_not_full */
 #define ZYNQ_QSPI_IXR_ALL_MASK		0x7F		/* All IXR bits */
-#define ZYNQ_QSPI_ENR_SPI_EN_MASK	(1 << 0)	/* SPI Enable */
+#define ZYNQ_QSPI_ENR_SPI_EN_MASK	BIT(0)	/* SPI Enable */
 
 /* zynq qspi Transmit Data Register */
 #define ZYNQ_QSPI_TXD_00_00_OFFSET	0x1C	/* Transmit 4-byte inst */
