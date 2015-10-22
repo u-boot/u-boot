@@ -5,3 +5,4 @@
 #
 
 obj-$(CONFIG_TIMER)		+= timer-uclass.o
+obj-$(CONFIG_ALTERA_TIMER)	+= altera_timer.o

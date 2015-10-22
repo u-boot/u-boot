@@ -795,8 +795,7 @@ static init_fnc_t init_sequence_f[] = {
 	init_timebase,
 #endif
 #if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
-		defined(CONFIG_BLACKFIN) || defined(CONFIG_NDS32) || \
-		defined(CONFIG_NIOS2)
+		defined(CONFIG_BLACKFIN) || defined(CONFIG_NDS32)
 	timer_init,		/* initialize timer */
 #endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM

@@ -26,11 +26,6 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
 
 /*
- * TIMER
- */
-#define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_TIMER_FREQ
-
-/*
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE

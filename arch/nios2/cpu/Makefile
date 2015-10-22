@@ -7,5 +7,5 @@
 
 extra-y	= start.o
 obj-y	= exceptions.o
-obj-y	+= cpu.o interrupts.o sysid.o timer.o traps.o
+obj-y	+= cpu.o interrupts.o sysid.o traps.o
 obj-y	+= fdt.o

@@ -9,4 +9,11 @@ config TIMER
 	  will be used. The timer is usually a 32 bits free-running up
 	  counter. There may be no real tick, and no timer interrupt.
 
+config ALTERA_TIMER
+	bool "Altera Timer support"
+	depends on TIMER
+	help
+	  Select this to enable an timer for Altera devices. Please find
+	  details on the "Embedded Peripherals IP User Guide" of Altera.
+
 endmenu
