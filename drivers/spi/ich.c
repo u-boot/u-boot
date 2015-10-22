@@ -692,13 +692,13 @@ static int ich_spi_probe(struct udevice *bus)
 	 */
 	if (plat->use_sbase) {
 		bios_cntl = ich_readb(priv, priv->bcr);
-		bios_cntl &= ~(1 << 5);	/* clear Enable InSMM_STS (EISS) */
+		bios_cntl &= ~BIT(5);	/* clear Enable InSMM_STS (EISS) */
 		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
 		ich_writeb(priv, bios_cntl, priv->bcr);
 	} else {
 		pci_read_config_byte(plat->dev, 0xdc, &bios_cntl);
 		if (plat->ich_version == 9)
-			bios_cntl &= ~(1 << 5);
+			bios_cntl &= ~BIT(5);
 		pci_write_config_byte(plat->dev, 0xdc, bios_cntl | 0x1);
 	}
 
