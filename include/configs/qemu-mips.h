@@ -45,7 +45,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_DHCP

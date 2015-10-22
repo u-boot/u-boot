@@ -43,7 +43,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_DHCP
 
 /* MMC SPL */

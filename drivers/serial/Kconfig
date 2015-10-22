@@ -109,6 +109,27 @@ config DEBUG_UART_SHIFT
 	  value. Use this value to specify the shift to use, where 0=byte
 	  registers, 2=32-bit word registers, etc.
 
+config DEBUG_UART_BOARD_INIT
+	bool "Enable board-specific debug UART init"
+	depends on DEBUG_UART
+	help
+	  Some boards need to set things up before the debug UART can be used.
+	  On these boards a call to debug_uart_init() is insufficient. When
+	  this option is enabled, the function board_debug_uart_init() will
+	  be called when debug_uart_init() is called. You can put any code
+	  here that is needed to set up the UART ready for use, such as set
+	  pin multiplexing or enable clocks.
+
+config DEBUG_UART_ANNOUNCE
+	bool "Show a message when the debug UART starts up"
+	depends on DEBUG_UART
+	help
+	  Enable this option to show a message when the debug UART is ready
+	  for use. You will see a message like "<debug_uart> " as soon as
+	  U-Boot has the UART ready for use (i.e. your code calls
+	  debug_uart_init()). This can be useful just as a check that
+	  everything is working.
+
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"
 	depends on ARCH_ROCKCHIP && DM_SERIAL

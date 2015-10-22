@@ -23,7 +23,6 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_ELF
 #undef CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING

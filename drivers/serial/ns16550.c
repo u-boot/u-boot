@@ -257,7 +257,7 @@ int NS16550_tstc(NS16550_t com_port)
 			(1 << CONFIG_DEBUG_UART_SHIFT), \
 		CONFIG_DEBUG_UART_SHIFT)
 
-void debug_uart_init(void)
+static inline void _debug_uart_init(void)
 {
 	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
 	int baud_divisor;

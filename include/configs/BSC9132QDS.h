@@ -580,7 +580,6 @@ combinations. this should be removed later
  */
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ

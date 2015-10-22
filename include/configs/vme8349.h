@@ -373,7 +373,6 @@
     #undef CONFIG_CMD_ENV
 #endif
 
-#define CONFIG_CMD_ELF
 /* Pass Ethernet MAC to VxWorks */
 #define CONFIG_SYS_VXWORKS_MAC_PTR	0x000043f0
 

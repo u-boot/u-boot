@@ -73,7 +73,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_ELF
 #define CONFIG_MP
 
 #define CONFIG_CMD_MII

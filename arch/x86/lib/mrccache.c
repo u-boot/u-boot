@@ -1,32 +1,37 @@
 /*
- * From Coreboot src/southbridge/intel/bd82x6x/mrccache.c
+ * From coreboot src/southbridge/intel/bd82x6x/mrccache.c
  *
  * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2015 Bin Meng <bmeng.cn@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>
-#include <asm/arch/mrccache.h>
-#include <asm/arch/sandybridge.h>
+#include <asm/mrccache.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static struct mrc_data_container *next_mrc_block(
-	struct mrc_data_container *mrc_cache)
+	struct mrc_data_container *cache)
 {
 	/* MRC data blocks are aligned within the region */
-	u32 mrc_size = sizeof(*mrc_cache) + mrc_cache->data_size;
+	u32 mrc_size = sizeof(*cache) + cache->data_size;
+	u8 *region_ptr = (u8 *)cache;
+
 	if (mrc_size & (MRC_DATA_ALIGN - 1UL)) {
 		mrc_size &= ~(MRC_DATA_ALIGN - 1UL);
 		mrc_size += MRC_DATA_ALIGN;
 	}
 
-	u8 *region_ptr = (u8 *)mrc_cache;
 	region_ptr += mrc_size;
+
 	return (struct mrc_data_container *)region_ptr;
 }
 
@@ -35,17 +40,13 @@ static int is_mrc_cache(struct mrc_data_container *cache)
 	return cache && (cache->signature == MRC_DATA_SIGNATURE);
 }
 
-/*
- * Find the largest index block in the MRC cache. Return NULL if none is
- * found.
- */
-struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry)
+struct mrc_data_container *mrccache_find_current(struct mrc_region *entry)
 {
 	struct mrc_data_container *cache, *next;
 	ulong base_addr, end_addr;
 	uint id;
 
-	base_addr = (1ULL << 32) - CONFIG_ROM_SIZE + entry->offset;
+	base_addr = entry->base + entry->offset;
 	end_addr = base_addr + entry->length;
 	cache = NULL;
 
@@ -84,12 +85,12 @@ struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry)
  *
  * @return next cache entry if found, NULL if we got to the end
  */
-static struct mrc_data_container *find_next_mrc_cache(struct fmap_entry *entry,
+static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
 		struct mrc_data_container *cache)
 {
 	ulong base_addr, end_addr;
 
-	base_addr = (1ULL << 32) - CONFIG_ROM_SIZE + entry->offset;
+	base_addr = entry->base + entry->offset;
 	end_addr = base_addr + entry->length;
 
 	cache = next_mrc_block(cache);
@@ -105,7 +106,7 @@ static struct mrc_data_container *find_next_mrc_cache(struct fmap_entry *entry,
 	return cache;
 }
 
-int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
+int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 		    struct mrc_data_container *cur)
 {
 	struct mrc_data_container *cache;
@@ -113,8 +114,11 @@ int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 	ulong base_addr;
 	int ret;
 
+	if (!is_mrc_cache(cur))
+		return -EINVAL;
+
 	/* Find the last used block */
-	base_addr = (1ULL << 32) - CONFIG_ROM_SIZE + entry->offset;
+	base_addr = entry->base + entry->offset;
 	debug("Updating MRC cache data\n");
 	cache = mrccache_find_current(entry);
 	if (cache && (cache->data_size == cur->data_size) &&
@@ -154,4 +158,96 @@ int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 	}
 
 	return 0;
+}
+
+int mrccache_reserve(void)
+{
+	struct mrc_data_container *cache;
+	u16 checksum;
+
+	if (!gd->arch.mrc_output_len)
+		return 0;
+
+	/* adjust stack pointer to store pure cache data plus the header */
+	gd->start_addr_sp -= (gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE);
+	cache = (struct mrc_data_container *)gd->start_addr_sp;
+
+	cache->signature = MRC_DATA_SIGNATURE;
+	cache->data_size = gd->arch.mrc_output_len;
+	checksum = compute_ip_checksum(gd->arch.mrc_output, cache->data_size);
+	debug("Saving %d bytes for MRC output data, checksum %04x\n",
+	      cache->data_size, checksum);
+	cache->checksum = checksum;
+	cache->reserved = 0;
+	memcpy(cache->data, gd->arch.mrc_output, cache->data_size);
+
+	/* gd->arch.mrc_output now points to the container */
+	gd->arch.mrc_output = (char *)cache;
+
+	gd->start_addr_sp &= ~0xf;
+
+	return 0;
+}
+
+int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
+{
+	const void *blob = gd->fdt_blob;
+	int node, mrc_node;
+	u32 reg[2];
+	int ret;
+
+	/* Find the flash chip within the SPI controller node */
+	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
+	if (node < 0)
+		return -ENOENT;
+
+	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2))
+		return -FDT_ERR_NOTFOUND;
+	entry->base = reg[0];
+
+	/* Find the place where we put the MRC cache */
+	mrc_node = fdt_subnode_offset(blob, node, "rw-mrc-cache");
+	if (mrc_node < 0)
+		return -EPERM;
+
+	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2))
+		return -FDT_ERR_NOTFOUND;
+	entry->offset = reg[0];
+	entry->length = reg[1];
+
+	if (devp) {
+		ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
+						     devp);
+		debug("ret = %d\n", ret);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+int mrccache_save(void)
+{
+	struct mrc_data_container *data;
+	struct mrc_region entry;
+	struct udevice *sf;
+	int ret;
+
+	if (!gd->arch.mrc_output_len)
+		return 0;
+	debug("Saving %d bytes of MRC output data to SPI flash\n",
+	      gd->arch.mrc_output_len);
+
+	ret = mrccache_get_region(&sf, &entry);
+	if (ret)
+		goto err_entry;
+	data  = (struct mrc_data_container *)gd->arch.mrc_output;
+	ret = mrccache_update(sf, &entry, data);
+	if (!ret)
+		debug("Saved MRC data with checksum %04x\n", data->checksum);
+
+err_entry:
+	if (ret)
+		debug("%s: Failed: %d\n", __func__, ret);
+	return ret;
 }

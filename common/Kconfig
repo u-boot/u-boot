@@ -148,6 +148,12 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_ELF
+	bool "bootelf, bootvx"
+	default y
+	help
+	  Boot an ELF/vxWorks image from the memory.
+
 config CMD_GO
 	bool "go"
 	default y

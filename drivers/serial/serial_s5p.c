@@ -207,7 +207,7 @@ U_BOOT_DRIVER(serial_s5p) = {
 
 #include <debug_uart.h>
 
-void debug_uart_init(void)
+static inline void _debug_uart_init(void)
 {
 	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_DEBUG_UART_BASE;
 

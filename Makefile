@@ -1288,6 +1288,7 @@ define filechk_timestamp.h
 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_DATE "%b %d %C%y"'; \
 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TIME "%T"'; \
 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TZ "%z"'; \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_DMI_DATE "%m/%d/%Y"'; \
 		else \
 			return 42; \
 		fi; \
@@ -1295,6 +1296,7 @@ define filechk_timestamp.h
 		LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"'; \
 		LC_ALL=C date +'#define U_BOOT_TIME "%T"'; \
 		LC_ALL=C date +'#define U_BOOT_TZ "%z"'; \
+		LC_ALL=C date +'#define U_BOOT_DMI_DATE "%m/%d/%Y"'; \
 	fi)
 endef
 

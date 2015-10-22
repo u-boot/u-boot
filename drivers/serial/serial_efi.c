@@ -107,7 +107,7 @@ static int serial_efi_pending(struct udevice *dev, bool input)
  * There is nothing to init here since the EFI console is already running by
  * the time we enter U-Boot.
  */
-void debug_uart_init(void)
+static inline void _debug_uart_init(void)
 {
 }
 

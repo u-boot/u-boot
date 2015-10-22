@@ -6,7 +6,8 @@ dtb-y += bayleybay.dtb \
 	galileo.dtb \
 	minnowmax.dtb \
 	qemu-x86_i440fx.dtb \
-	qemu-x86_q35.dtb
+	qemu-x86_q35.dtb \
+	broadwell_som-6896.dtb
 
 targets += $(dtb-y)
 

@@ -31,9 +31,6 @@
 #define BZIMAGE_LOAD_ADDR  0x100000
 #define ZIMAGE_LOAD_ADDR   0x10000
 
-/* Implementation defined function to install an e820 map. */
-unsigned install_e820_map(unsigned max_entries, struct e820entry *);
-
 struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 				ulong *load_addressp);
 int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,

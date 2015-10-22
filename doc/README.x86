@@ -25,6 +25,8 @@ targets and all Intel boards support running U-Boot 'bare metal'.
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
+U-Boot supports loading an x86 VxWorks kernel. Please check README.vxworks
+for more details.
 
 Build Instructions for U-Boot as coreboot payload
 -------------------------------------------------
@@ -188,6 +190,7 @@ Offset   Description         Controlling config
 000000   descriptor.bin      Hard-coded to 0 in ifdtool
 001000   me.bin              Set by the descriptor
 500000   <spare>
+6f0000   MRC cache           CONFIG_ENABLE_MRC_CACHE
 700000   u-boot-dtb.bin      CONFIG_SYS_TEXT_BASE
 790000   vga.bin             CONFIG_VGA_BIOS_ADDR
 7c0000   fsp.bin             CONFIG_FSP_ADDR
@@ -330,9 +333,8 @@ In keeping with the U-Boot philosophy of providing functions to check and
 adjust internal settings, there are several x86-specific commands that may be
 useful:
 
-hob  - Display information about Firmware Support Package (FSP) Hand-off
-	 Block. This is only available on platforms which use FSP, mostly
-	 Atom.
+fsp  - Display information about Intel Firmware Support Package (FSP).
+	 This is only available on platforms which use FSP, mostly Atom.
 iod  - Display I/O memory
 iow  - Write I/O memory
 mtrr - List and set the Memory Type Range Registers (MTRR). These are used to
@@ -762,7 +764,6 @@ TODO List
 - Audio
 - Chrome OS verified boot
 - SMI and ACPI support, to provide platform info and facilities to Linux
-- Desktop Management Interface (DMI) [15] support
 
 References
 ----------
@@ -780,4 +781,3 @@ References
 [12] http://events.linuxfoundation.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
 [13] http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
 [14] doc/device-tree-bindings/misc/intel,irq-router.txt
-[15] http://en.wikipedia.org/wiki/Desktop_Management_Interface
