@@ -32,24 +32,24 @@
  */
 
 /* SPI Control Register (spicr), [1] p9, [2] p8 */
-#define SPICR_LSB_FIRST		(1 << 9)
-#define SPICR_MASTER_INHIBIT	(1 << 8)
-#define SPICR_MANUAL_SS		(1 << 7)
-#define SPICR_RXFIFO_RESEST	(1 << 6)
-#define SPICR_TXFIFO_RESEST	(1 << 5)
-#define SPICR_CPHA		(1 << 4)
-#define SPICR_CPOL		(1 << 3)
-#define SPICR_MASTER_MODE	(1 << 2)
-#define SPICR_SPE		(1 << 1)
-#define SPICR_LOOP		(1 << 0)
+#define SPICR_LSB_FIRST		BIT(9)
+#define SPICR_MASTER_INHIBIT	BIT(8)
+#define SPICR_MANUAL_SS		BIT(7)
+#define SPICR_RXFIFO_RESEST	BIT(6)
+#define SPICR_TXFIFO_RESEST	BIT(5)
+#define SPICR_CPHA		BIT(4)
+#define SPICR_CPOL		BIT(3)
+#define SPICR_MASTER_MODE	BIT(2)
+#define SPICR_SPE		BIT(1)
+#define SPICR_LOOP		BIT(0)
 
 /* SPI Status Register (spisr), [1] p11, [2] p10 */
-#define SPISR_SLAVE_MODE_SELECT	(1 << 5)
-#define SPISR_MODF		(1 << 4)
-#define SPISR_TX_FULL		(1 << 3)
-#define SPISR_TX_EMPTY		(1 << 2)
-#define SPISR_RX_FULL		(1 << 1)
-#define SPISR_RX_EMPTY		(1 << 0)
+#define SPISR_SLAVE_MODE_SELECT	BIT(5)
+#define SPISR_MODF		BIT(4)
+#define SPISR_TX_FULL		BIT(3)
+#define SPISR_TX_EMPTY		BIT(2)
+#define SPISR_RX_FULL		BIT(1)
+#define SPISR_RX_EMPTY		BIT(0)
 
 /* SPI Data Transmit Register (spidtr), [1] p12, [2] p12 */
 #define SPIDTR_8BIT_MASK	(0xff << 0)
