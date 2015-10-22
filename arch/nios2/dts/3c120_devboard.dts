@@ -149,5 +149,6 @@
 
 	chosen {
 		bootargs = "debug console=ttyJ0,115200";
+		stdout-path = &jtag_uart;
 	};
 };
