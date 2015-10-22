@@ -30,9 +30,4 @@ static inline void *devm_kzalloc(struct device *dev, unsigned int size,
 {
 	return kzalloc(size, flags);
 }
-
-static inline void *kmalloc_array(size_t n, size_t size, gfp_t flags)
-{
-	return kzalloc(n * size, flags);
-}
 #endif
