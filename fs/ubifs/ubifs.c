@@ -103,8 +103,8 @@ struct crypto_comp {
 	int compressor;
 };
 
-static inline struct crypto_comp *crypto_alloc_comp(const char *alg_name,
-						u32 type, u32 mask)
+static inline struct crypto_comp
+*crypto_alloc_comp(const char *alg_name, u32 type, u32 mask)
 {
 	struct ubifs_compressor *comp;
 	struct crypto_comp *ptr;
@@ -124,15 +124,16 @@ static inline struct crypto_comp *crypto_alloc_comp(const char *alg_name,
 		i++;
 	}
 	if (i >= UBIFS_COMPR_TYPES_CNT) {
-		ubifs_err("invalid compression type %s", alg_name);
+		dbg_gen("invalid compression type %s", alg_name);
 		free (ptr);
 		return NULL;
 	}
 	return ptr;
 }
-static inline int crypto_comp_decompress(struct crypto_comp *tfm,
-				const u8 *src, unsigned int slen,
-				u8 *dst, unsigned int *dlen)
+static inline int
+crypto_comp_decompress(const struct ubifs_info *c, struct crypto_comp *tfm,
+		       const u8 *src, unsigned int slen, u8 *dst,
+		       unsigned int *dlen)
 {
 	struct ubifs_compressor *compr = ubifs_compressors[tfm->compressor];
 	int err;
@@ -145,7 +146,7 @@ static inline int crypto_comp_decompress(struct crypto_comp *tfm,
 
 	err = compr->decompress(src, slen, dst, (size_t *)dlen);
 	if (err)
-		ubifs_err("cannot decompress %d bytes, compressor %s, "
+		ubifs_err(c, "cannot decompress %d bytes, compressor %s, "
 			  "error %d", slen, compr->name, err);
 
 	return err;
@@ -172,21 +173,21 @@ atomic_long_t ubifs_clean_zn_cnt;
  * The length of the uncompressed data is returned in @out_len. This functions
  * returns %0 on success or a negative error code on failure.
  */
-int ubifs_decompress(const void *in_buf, int in_len, void *out_buf,
-		     int *out_len, int compr_type)
+int ubifs_decompress(const struct ubifs_info *c, const void *in_buf,
+		     int in_len, void *out_buf, int *out_len, int compr_type)
 {
 	int err;
 	struct ubifs_compressor *compr;
 
 	if (unlikely(compr_type < 0 || compr_type >= UBIFS_COMPR_TYPES_CNT)) {
-		ubifs_err("invalid compression type %d", compr_type);
+		ubifs_err(c, "invalid compression type %d", compr_type);
 		return -EINVAL;
 	}
 
 	compr = ubifs_compressors[compr_type];
 
 	if (unlikely(!compr->capi_name)) {
-		ubifs_err("%s compression is not compiled in", compr->name);
+		ubifs_err(c, "%s compression is not compiled in", compr->name);
 		return -EINVAL;
 	}
 
@@ -198,13 +199,13 @@ int ubifs_decompress(const void *in_buf, int in_len, void *out_buf,
 
 	if (compr->decomp_mutex)
 		mutex_lock(compr->decomp_mutex);
-	err = crypto_comp_decompress(compr->cc, in_buf, in_len, out_buf,
+	err = crypto_comp_decompress(c, compr->cc, in_buf, in_len, out_buf,
 				     (unsigned int *)out_len);
 	if (compr->decomp_mutex)
 		mutex_unlock(compr->decomp_mutex);
 	if (err)
-		ubifs_err("cannot decompress %d bytes, compressor %s, error %d",
-			  in_len, compr->name, err);
+		ubifs_err(c, "cannot decompress %d bytes, compressor %s,"
+			  " error %d", in_len, compr->name, err);
 
 	return err;
 }
@@ -229,8 +230,9 @@ static int __init compr_init(struct ubifs_compressor *compr)
 	if (compr->capi_name) {
 		compr->cc = crypto_alloc_comp(compr->capi_name, 0, 0);
 		if (IS_ERR(compr->cc)) {
-			ubifs_err("cannot initialize compressor %s, error %ld",
-				  compr->name, PTR_ERR(compr->cc));
+			dbg_gen("cannot initialize compressor %s,"
+				  " error %ld", compr->name,
+				  PTR_ERR(compr->cc));
 			return PTR_ERR(compr->cc);
 		}
 	}
@@ -384,7 +386,7 @@ static int ubifs_printdir(struct file *file, void *dirent)
 
 out:
 	if (err != -ENOENT) {
-		ubifs_err("cannot find next direntry, error %d", err);
+		ubifs_err(c, "cannot find next direntry, error %d", err);
 		return err;
 	}
 
@@ -468,7 +470,7 @@ static int ubifs_finddir(struct super_block *sb, char *dirname,
 
 out:
 	if (err != -ENOENT)
-		ubifs_err("cannot find next direntry, error %d", err);
+		dbg_gen("cannot find next direntry, error %d", err);
 
 out_free:
 	if (file->private_data)
@@ -715,7 +717,7 @@ static int read_block(struct inode *inode, void *addr, unsigned int block,
 
 	dlen = le32_to_cpu(dn->ch.len) - UBIFS_DATA_NODE_SZ;
 	out_len = UBIFS_BLOCK_SIZE;
-	err = ubifs_decompress(&dn->data, dlen, addr, &out_len,
+	err = ubifs_decompress(c, &dn->data, dlen, addr, &out_len,
 			       le16_to_cpu(dn->compr_type));
 	if (err || len != out_len)
 		goto dump;
@@ -731,7 +733,7 @@ static int read_block(struct inode *inode, void *addr, unsigned int block,
 	return 0;
 
 dump:
-	ubifs_err("bad data node (block %u, inode %lu)",
+	ubifs_err(c, "bad data node (block %u, inode %lu)",
 		  block, inode->i_ino);
 	ubifs_dump_node(c, dn);
 	return -EINVAL;
@@ -833,7 +835,7 @@ static int do_readpage(struct ubifs_info *c, struct inode *inode,
 			dbg_gen("hole");
 			goto out_free;
 		}
-		ubifs_err("cannot read page %lu of inode %lu, error %d",
+		ubifs_err(c, "cannot read page %lu of inode %lu, error %d",
 			  page->index, inode->i_ino, err);
 		goto error;
 	}

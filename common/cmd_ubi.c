@@ -255,7 +255,7 @@ static int ubi_remove_vol(char *volume)
 
 	return 0;
 out_err:
-	ubi_err("cannot remove volume %s, error %d", volume, err);
+	ubi_err(ubi, "cannot remove volume %s, error %d", volume, err);
 	if (err < 0)
 		err = -err;
 	return err;
@@ -284,8 +284,8 @@ static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 			return -err;
 
 		if (err) {
-			ubi_warn("volume %d on UBI device %d is corrupted",
-					vol->vol_id, ubi->ubi_num);
+			ubi_warn(ubi, "volume %d on UBI device %d is corrupt",
+				 vol->vol_id, ubi->ubi_num);
 			vol->corrupted = 1;
 		}
 

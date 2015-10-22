@@ -3494,6 +3494,10 @@ FIT uImage format:
 		without a fastmap.
 		default: 0
 
+		CONFIG_MTD_UBI_FM_DEBUG
+		Enable UBI fastmap debug
+		default: 0
+
 - UBIFS support
 		CONFIG_CMD_UBIFS
 
