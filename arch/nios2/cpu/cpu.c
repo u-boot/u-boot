@@ -29,21 +29,6 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int dcache_status(void)
-{
-	return 1;
-}
-
-void dcache_enable(void)
-{
-	flush_dcache(CONFIG_SYS_DCACHE_SIZE, CONFIG_SYS_DCACHELINE_SIZE);
-}
-
-void dcache_disable(void)
-{
-	flush_dcache(CONFIG_SYS_DCACHE_SIZE, CONFIG_SYS_DCACHELINE_SIZE);
-}
-
 int arch_cpu_init_dm(void)
 {
 	struct udevice *dev;
