@@ -73,3 +73,13 @@ $(obj)/%.srec: $(obj)/% FORCE
 $(obj)/%.bin: OBJCOPYFLAGS := -O binary
 $(obj)/%.bin: $(obj)/% FORCE
 	$(call if_changed,objcopy)
+
+# some files can only build in ARM or THUMB2, not THUMB1
+
+ifdef CONFIG_SYS_THUMB_BUILD
+ifndef CONFIG_HAS_THUMB2
+
+CFLAGS_stubs.o := -marm
+
+endif
+endif
