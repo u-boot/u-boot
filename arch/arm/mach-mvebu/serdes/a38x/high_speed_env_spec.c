@@ -1362,7 +1362,7 @@ enum serdes_seq serdes_type_and_speed_to_speed_seq(enum serdes_type serdes_type,
 	return seq_id;
 }
 
-void print_topology_details(struct serdes_map *serdes_map_array)
+void print_topology_details(const struct serdes_map *serdes_map_array)
 {
 	u32 lane_num;
 
@@ -1462,7 +1462,7 @@ int serdes_polarity_config(u32 serdes_num, int is_rx)
 	return MV_OK;
 }
 
-int hws_power_up_serdes_lanes(struct serdes_map *serdes_config_map)
+int hws_power_up_serdes_lanes(const struct serdes_map *serdes_config_map)
 {
 	u32 serdes_id, serdes_lane_num;
 	enum ref_clock ref_clock;
@@ -2145,7 +2145,7 @@ int hws_ref_clock_set(u32 serdes_num, enum serdes_type serdes_type,
  * RETURNS:              MV_OK           - for success
  *                       MV_BAD_PARAM    - for fail
  */
-int hws_pex_tx_config_seq(struct serdes_map *serdes_map)
+int hws_pex_tx_config_seq(const struct serdes_map *serdes_map)
 {
 	enum serdes_mode serdes_mode;
 	u32 serdes_lane_id, serdes_lane_hw_num;

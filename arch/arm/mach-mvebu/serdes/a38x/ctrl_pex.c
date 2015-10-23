@@ -13,7 +13,7 @@
 #include "ctrl_pex.h"
 #include "sys_env_lib.h"
 
-int hws_pex_config(struct serdes_map *serdes_map)
+int hws_pex_config(const struct serdes_map *serdes_map)
 {
 	u32 pex_idx, tmp, next_busno, first_busno, temp_pex_reg,
 	    temp_reg, addr, dev_id, ctrl_mode;

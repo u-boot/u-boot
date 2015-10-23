@@ -220,7 +220,7 @@ enum serdes_seq serdes_type_and_speed_to_speed_seq(enum serdes_type serdes_type,
 						   enum serdes_speed baud_rate);
 int hws_serdes_seq_init(void);
 int hws_serdes_seq_db_init(void);
-int hws_power_up_serdes_lanes(struct serdes_map *serdes_config_map);
+int hws_power_up_serdes_lanes(const struct serdes_map *serdes_config_map);
 int hws_ctrl_high_speed_serdes_phy_config(void);
 int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 			 enum serdes_type serdes_type,
@@ -244,7 +244,7 @@ u32 hws_serdes_get_ref_clock_val(enum serdes_type serdes_type);
 u32 hws_serdes_get_max_lane(void);
 int hws_get_ext_base_addr(u32 serdes_num, u32 base_addr, u32 unit_base_offset,
 			  u32 *unit_base_reg, u32 *unit_offset);
-int hws_pex_tx_config_seq(struct serdes_map *serdes_map);
+int hws_pex_tx_config_seq(const struct serdes_map *serdes_map);
 u32 hws_get_physical_serdes_num(u32 serdes_num);
 int hws_is_serdes_active(u8 lane_num);
 
