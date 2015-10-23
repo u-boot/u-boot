@@ -35,9 +35,8 @@
 struct atmel_mci_priv {
 	struct mmc_config	cfg;
 	struct atmel_mci	*mci;
+	unsigned int		initialized:1;
 };
-
-static int initialized = 0;
 
 /* Read Atmel MCI IP version */
 static unsigned int atmel_mci_get_version(struct atmel_mci *mci)
@@ -121,7 +120,7 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 
 	udelay(50);
 
-	initialized = 1;
+	priv->initialized = 1;
 }
 
 /* Return the CMDR with flags for a given command and data packet */
@@ -210,7 +209,7 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	u32 error_flags = 0;
 	u32 status;
 
-	if (!initialized) {
+	if (!priv->initialized) {
 		puts ("MCI not initialized!\n");
 		return COMM_ERR;
 	}
@@ -415,6 +414,7 @@ int atmel_mci_init(void *regs)
 	cfg->ops = &atmel_mci_ops;
 
 	priv->mci = (struct atmel_mci *)regs;
+	priv->initialized = 0;
 
 	/* need to be able to pass these in on a board by board basis */
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
