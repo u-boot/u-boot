@@ -7,10 +7,9 @@
 #ifndef _X86_ARCH_TNC_H_
 #define _X86_ARCH_TNC_H_
 
-/* IGD Control Register */
-#define IGD_GC		0x50
-#define VGA_DISABLE	0x00020000
-#define GMS_MASK	0x00700000
+/* IGD Function Disable Register */
+#define IGD_FD		0xc4
+#define FUNC_DISABLE	0x00000001
 
 /* Memory BAR Enable */
 #define MEM_BAR_EN	0x00000001
