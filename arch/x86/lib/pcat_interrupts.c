@@ -20,10 +20,6 @@
 #include <asm/ibmpc.h>
 #include <asm/interrupt.h>
 
-#if CONFIG_SYS_NUM_IRQS != 16
-#error "CONFIG_SYS_NUM_IRQS must equal 16 if CONFIG_SYS_NUM_IRQS is defined"
-#endif
-
 int i8259_init(void)
 {
 	u8 i;
@@ -70,7 +66,7 @@ void mask_irq(int irq)
 {
 	int imr_port;
 
-	if (irq >= CONFIG_SYS_NUM_IRQS)
+	if (irq >= SYS_NUM_IRQS)
 		return;
 
 	if (irq > 7)
@@ -85,7 +81,7 @@ void unmask_irq(int irq)
 {
 	int imr_port;
 
-	if (irq >= CONFIG_SYS_NUM_IRQS)
+	if (irq >= SYS_NUM_IRQS)
 		return;
 
 	if (irq > 7)
@@ -98,7 +94,7 @@ void unmask_irq(int irq)
 
 void specific_eoi(int irq)
 {
-	if (irq >= CONFIG_SYS_NUM_IRQS)
+	if (irq >= SYS_NUM_IRQS)
 		return;
 
 	if (irq > 7) {
