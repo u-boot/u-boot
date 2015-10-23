@@ -122,10 +122,19 @@ u32 __weak get_board_rev(void)
 }
 #endif
 
+/* enable all periherial can be accessed in nosec mode */
+static void init_csu(void)
+{
+	int i = 0;
+	for (i = 0; i < CSU_NUM_REGS; i++)
+		writel(CSU_INIT_SEC_LEVEL0, CSU_IPS_BASE_ADDR + i * 4);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
 
+	init_csu();
 	/* Disable PDE bit of WMCR register */
 	imx_set_wdog_powerdown(false);
 

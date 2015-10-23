@@ -866,6 +866,9 @@ struct cspi_regs {
 	ECSPI3_BASE_ADDR, \
 	ECSPI4_BASE_ADDR
 
+#define CSU_INIT_SEC_LEVEL0	0x00FF00FF
+#define CSU_NUM_REGS		64
+
 struct ocotp_regs {
 	u32 ctrl;
 	u32 ctrl_set;
