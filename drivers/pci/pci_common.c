@@ -231,7 +231,7 @@ phys_addr_t pci_hose_bus_to_phys(struct pci_controller *hose,
 	 * if PCI_REGION_MEM is set we do a two pass search with preference
 	 * on matches that don't have PCI_REGION_SYS_MEMORY set
 	 */
-	if ((flags & PCI_REGION_MEM) == PCI_REGION_MEM) {
+	if ((flags & PCI_REGION_TYPE) == PCI_REGION_MEM) {
 		ret = __pci_hose_bus_to_phys(hose, bus_addr,
 				flags, PCI_REGION_SYS_MEMORY, &phys_addr);
 		if (!ret)
@@ -298,7 +298,7 @@ pci_addr_t pci_hose_phys_to_bus(struct pci_controller *hose,
 	 * if PCI_REGION_MEM is set we do a two pass search with preference
 	 * on matches that don't have PCI_REGION_SYS_MEMORY set
 	 */
-	if ((flags & PCI_REGION_MEM) == PCI_REGION_MEM) {
+	if ((flags & PCI_REGION_TYPE) == PCI_REGION_MEM) {
 		ret = __pci_hose_phys_to_bus(hose, phys_addr,
 				flags, PCI_REGION_SYS_MEMORY, &bus_addr);
 		if (!ret)
