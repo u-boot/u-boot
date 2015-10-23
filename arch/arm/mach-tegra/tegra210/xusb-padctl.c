@@ -15,6 +15,76 @@
 
 #include <dt-bindings/pinctrl/pinctrl-tegra-xusb.h>
 
+enum tegra210_function {
+	TEGRA210_FUNC_SNPS,
+	TEGRA210_FUNC_XUSB,
+	TEGRA210_FUNC_UART,
+	TEGRA210_FUNC_PCIE_X1,
+	TEGRA210_FUNC_PCIE_X4,
+	TEGRA210_FUNC_USB3,
+	TEGRA210_FUNC_SATA,
+	TEGRA210_FUNC_RSVD,
+};
+
+static const char *const tegra210_functions[] = {
+	"snps",
+	"xusb",
+	"uart",
+	"pcie-x1",
+	"pcie-x4",
+	"usb3",
+	"sata",
+	"rsvd",
+};
+
+static const unsigned int tegra210_otg_functions[] = {
+	TEGRA210_FUNC_SNPS,
+	TEGRA210_FUNC_XUSB,
+	TEGRA210_FUNC_UART,
+	TEGRA210_FUNC_RSVD,
+};
+
+static const unsigned int tegra210_usb_functions[] = {
+	TEGRA210_FUNC_SNPS,
+	TEGRA210_FUNC_XUSB,
+};
+
+static const unsigned int tegra210_pci_functions[] = {
+	TEGRA210_FUNC_PCIE_X1,
+	TEGRA210_FUNC_USB3,
+	TEGRA210_FUNC_SATA,
+	TEGRA210_FUNC_PCIE_X4,
+};
+
+#define TEGRA210_LANE(_name, _offset, _shift, _mask, _iddq, _funcs)	\
+	{								\
+		.name = _name,						\
+		.offset = _offset,					\
+		.shift = _shift,					\
+		.mask = _mask,						\
+		.iddq = _iddq,						\
+		.num_funcs = ARRAY_SIZE(tegra210_##_funcs##_functions),	\
+		.funcs = tegra210_##_funcs##_functions,			\
+	}
+
+static const struct tegra_xusb_padctl_lane tegra210_lanes[] = {
+	TEGRA210_LANE("otg-0",     0x004,  0, 0x3, 0, otg),
+	TEGRA210_LANE("otg-1",     0x004,  2, 0x3, 0, otg),
+	TEGRA210_LANE("otg-2",     0x004,  4, 0x3, 0, otg),
+	TEGRA210_LANE("otg-3",     0x004,  6, 0x3, 0, otg),
+	TEGRA210_LANE("usb2-bias", 0x004, 18, 0x3, 0, otg),
+	TEGRA210_LANE("hsic-0",    0x004, 14, 0x1, 0, usb),
+	TEGRA210_LANE("hsic-1",    0x004, 15, 0x1, 0, usb),
+	TEGRA210_LANE("pcie-0",    0x028, 12, 0x3, 1, pci),
+	TEGRA210_LANE("pcie-1",    0x028, 14, 0x3, 2, pci),
+	TEGRA210_LANE("pcie-2",    0x028, 16, 0x3, 3, pci),
+	TEGRA210_LANE("pcie-3",    0x028, 18, 0x3, 4, pci),
+	TEGRA210_LANE("pcie-4",    0x028, 20, 0x3, 5, pci),
+	TEGRA210_LANE("pcie-5",    0x028, 22, 0x3, 6, pci),
+	TEGRA210_LANE("pcie-6",    0x028, 24, 0x3, 7, pci),
+	TEGRA210_LANE("sata-0",    0x028, 30, 0x3, 8, pci),
+};
+
 #define XUSB_PADCTL_ELPG_PROGRAM 0x024
 #define  XUSB_PADCTL_ELPG_PROGRAM_AUX_MUX_LP0_VCORE_DOWN (1 << 31)
 #define  XUSB_PADCTL_ELPG_PROGRAM_AUX_MUX_LP0_CLAMP_EN_EARLY (1 << 30)
@@ -328,10 +398,10 @@ static struct tegra_xusb_phy tegra210_phys[] = {
 };
 
 static const struct tegra_xusb_padctl_soc tegra210_socdata = {
-	.lanes = NULL,
-	.num_lanes = 0,
-	.functions = NULL,
-	.num_functions = 0,
+	.lanes = tegra210_lanes,
+	.num_lanes = ARRAY_SIZE(tegra210_lanes),
+	.functions = tegra210_functions,
+	.num_functions = ARRAY_SIZE(tegra210_functions),
 	.phys = tegra210_phys,
 	.num_phys = ARRAY_SIZE(tegra210_phys),
 };

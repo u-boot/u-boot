@@ -45,8 +45,8 @@ struct tegra_xusb_padctl_pin {
 	int iddq;
 };
 
-#define MAX_GROUPS 3
-#define MAX_PINS 6
+#define MAX_GROUPS 5
+#define MAX_PINS 7
 
 struct tegra_xusb_padctl_group {
 	const char *name;
