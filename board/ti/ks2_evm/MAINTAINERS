@@ -8,3 +8,5 @@ F:	include/configs/k2e_evm.h
 F:	configs/k2e_evm_defconfig
 F:	include/configs/k2l_evm.h
 F:	configs/k2l_evm_defconfig
+F:	include/configs/k2g_evm.h
+F:	configs/k2g_evm_defconfig

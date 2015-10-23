@@ -23,9 +23,13 @@
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550
+#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
 #define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000
+#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#else
+#define CONFIG_OMAP_SERIAL
+#endif
 
 /* I2C Configuration */
 #define CONFIG_CMD_EEPROM
@@ -134,6 +138,14 @@
 #define CONFIG_G_DNL_VENDOR_NUM 0x0403
 #define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
 #define CONFIG_USB_GADGET_DUALSPEED
+#endif
+
+/*
+ * Disable MMC DM for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_MMC
 #endif
 
 #ifndef CONFIG_SPL_BUILD

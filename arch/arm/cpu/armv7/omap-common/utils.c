@@ -41,35 +41,73 @@ void cancel_out(u32 *num, u32 *den, u32 den_limit)
 	}
 }
 
-void __weak usb_fake_mac_from_die_id(u32 *id)
+__weak void omap_die_id(unsigned int *die_id)
 {
-	uint8_t device_mac[6];
+	die_id[0] = die_id[1] = die_id[2] = die_id[3] = 0;
+}
 
-	if (!getenv("usbethaddr")) {
-		/*
-		 * create a fake MAC address from the processor ID code.
-		 * first byte is 0x02 to signify locally administered.
-		 */
-		device_mac[0] = 0x02;
-		device_mac[1] = id[3] & 0xff;
-		device_mac[2] = id[2] & 0xff;
-		device_mac[3] = id[1] & 0xff;
-		device_mac[4] = id[0] & 0xff;
-		device_mac[5] = (id[0] >> 8) & 0xff;
+void omap_die_id_serial(void)
+{
+	unsigned int die_id[4] = { 0 };
+	char serial_string[17] = { 0 };
 
-		eth_setenv_enetaddr("usbethaddr", device_mac);
+	omap_die_id((unsigned int *)&die_id);
+
+	if (!getenv("serial#")) {
+		snprintf(serial_string, sizeof(serial_string),
+			"%08x%08x", die_id[0], die_id[3]);
+
+		setenv("serial#", serial_string);
 	}
 }
 
-void __weak usb_set_serial_num_from_die_id(u32 *id)
+void omap_die_id_get_board_serial(struct tag_serialnr *serialnr)
 {
-	char serialno[72];
-	uint32_t serialno_lo, serialno_hi;
+	char *serial_string;
+	unsigned long long serial;
 
-	if (!getenv("serial#")) {
-		serialno_hi = id[0];
-		serialno_lo = id[1];
-		sprintf(serialno, "%08x%08x", serialno_hi, serialno_lo);
-		setenv("serial#", serialno);
+	serial_string = getenv("serial#");
+
+	if (serial_string) {
+		serial = simple_strtoull(serial_string, NULL, 16);
+
+		serialnr->high = (unsigned int) (serial >> 32);
+		serialnr->low = (unsigned int) (serial & 0xffffffff);
+	} else {
+		serialnr->high = 0;
+		serialnr->low = 0;
 	}
+}
+
+void omap_die_id_usbethaddr(void)
+{
+	unsigned int die_id[4] = { 0 };
+	unsigned char mac[6] = { 0 };
+
+	omap_die_id((unsigned int *)&die_id);
+
+	if (!getenv("usbethaddr")) {
+		/*
+		 * Create a fake MAC address from the processor ID code.
+		 * First byte is 0x02 to signify locally administered.
+		 */
+		mac[0] = 0x02;
+		mac[1] = die_id[3] & 0xff;
+		mac[2] = die_id[2] & 0xff;
+		mac[3] = die_id[1] & 0xff;
+		mac[4] = die_id[0] & 0xff;
+		mac[5] = (die_id[0] >> 8) & 0xff;
+
+		eth_setenv_enetaddr("usbethaddr", mac);
+	}
+}
+
+void omap_die_id_display(void)
+{
+	unsigned int die_id[4] = { 0 };
+
+	omap_die_id(die_id);
+
+	printf("OMAP die ID: %08x%08x%08x%08x", die_id[0], die_id[1], die_id[2],
+		die_id[3]);
 }

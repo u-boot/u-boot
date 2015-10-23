@@ -115,7 +115,6 @@
 #define CONFIG_CMD_EXT2
 
 #define CONFIG_CMD_ZBOOT
-#define CONFIG_CMD_ELF
 
 #define CONFIG_BOOTARGS		\
 	"root=/dev/sdb3 init=/sbin/init rootwait ro"
@@ -217,7 +216,7 @@
 
 /* Default environment */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_HOSTNAME		"x86"
+#define CONFIG_HOSTNAME		x86
 #define CONFIG_BOOTFILE		"bzImage"
 #define CONFIG_LOADADDR		0x1000000
 

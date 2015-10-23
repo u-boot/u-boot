@@ -84,7 +84,6 @@
  * Commands
  */
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 
@@ -288,7 +287,6 @@ int vct_gpio_get(int pin);
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_ELF
 #undef CONFIG_CMD_FAT
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_I2C

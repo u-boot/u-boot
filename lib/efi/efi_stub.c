@@ -59,7 +59,7 @@ struct __packed desctab_info {
  * considering if we start needing more U-Boot functionality. Note that we
  * could then move get_codeseg32() to arch/x86/cpu/cpu.c.
  */
-void debug_uart_init(void)
+void _debug_uart_init(void)
 {
 }
 

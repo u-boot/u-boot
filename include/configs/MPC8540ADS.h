@@ -353,7 +353,6 @@
  */
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
 
 #if defined(CONFIG_PCI)

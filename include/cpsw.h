@@ -31,6 +31,8 @@ enum {
 struct cpsw_platform_data {
 	u32	mdio_base;
 	u32	cpsw_base;
+	u32	mac_id;
+	u32	gmii_sel;
 	int	mdio_div;
 	int	channels;	/* number of cpdma channels (symmetric)	*/
 	u32	cpdma_reg_ofs;	/* cpdma register offset		*/

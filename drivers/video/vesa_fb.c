@@ -34,7 +34,7 @@ void *video_hw_init(void)
 	}
 	if (vbe_get_video_info(gdev)) {
 		dev = pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, 0);
-		if (dev == -1) {
+		if (dev < 0) {
 			printf("no card detected\n");
 			return NULL;
 		}

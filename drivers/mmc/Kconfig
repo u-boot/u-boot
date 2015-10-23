@@ -1,5 +1,11 @@
 menu "MMC Host controller Support"
 
+config MMC
+	bool "Enable MMC support"
+	depends on ARCH_SUNXI
+	help
+	  TODO: Move all architectures to use this option
+
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
 	depends on DM

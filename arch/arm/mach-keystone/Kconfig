@@ -13,6 +13,9 @@ config TARGET_K2E_EVM
 config TARGET_K2L_EVM
 	bool "TI Keystone 2 Lamar EVM"
 
+config TARGET_K2G_EVM
+	bool "TI Keystone 2 Galileo EVM"
+
 endchoice
 
 config SYS_SOC

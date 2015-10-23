@@ -142,7 +142,12 @@ void arch_setup_gd(gd_t *new_gd)
 
 	gdt_addr = new_gd->arch.gdt;
 
-	/* CS: code, read/execute, 4 GB, base 0 */
+	/*
+	 * CS: code, read/execute, 4 GB, base 0
+	 *
+	 * Some OS (like VxWorks) requires GDT entry 1 to be the 32-bit CS
+	 */
+	gdt_addr[X86_GDT_ENTRY_UNUSED] = GDT_ENTRY(0xc09b, 0, 0xfffff);
 	gdt_addr[X86_GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff);
 
 	/* DS: data, read/write, 4 GB, base 0 */

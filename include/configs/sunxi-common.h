@@ -73,7 +73,10 @@
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x2a000000
 #define CONFIG_PRE_CON_BUF_ADDR		0x2f000000
-#define CONFIG_SYS_SPL_MALLOC_START	0x2ff00000
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+ * since it needs to fit in with the other values. By also #defining it
+ * we get warnings if the Kconfig value mismatches. */
+#define CONFIG_SPL_STACK_R_ADDR		0x2fe00000
 #define CONFIG_SPL_BSS_START_ADDR	0x2ff80000
 #else
 #define SDRAM_OFFSET(x) 0x4##x
@@ -81,12 +84,14 @@
 #define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 #define CONFIG_SYS_TEXT_BASE		0x4a000000
 #define CONFIG_PRE_CON_BUF_ADDR		0x4f000000
-#define CONFIG_SYS_SPL_MALLOC_START	0x4ff00000
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+ * since it needs to fit in with the other values. By also #defining it
+ * we get warnings if the Kconfig value mismatches. */
+#define CONFIG_SPL_STACK_R_ADDR		0x4fe00000
 #define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
 #endif
 
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000 /* 512 KiB */
 
 #ifdef CONFIG_MACH_SUN9I
 /*
@@ -135,8 +140,7 @@
 #endif
 
 /* mmc config */
-#if !defined(CONFIG_UART0_PORT_F)
-#define CONFIG_MMC
+#ifdef CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_MMC_SUNXI
@@ -192,7 +196,7 @@
 
 #define CONFIG_SPL_LIBDISK_SUPPORT
 
-#if !defined(CONFIG_UART0_PORT_F)
+#ifdef CONFIG_MMC
 #define CONFIG_SPL_MMC_SUPPORT
 #endif
 
@@ -347,10 +351,14 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_CMD_FASTBOOT
 #define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
 #define CONFIG_FASTBOOT_BUF_SIZE	0x2000000
+#define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_FASTBOOT_FLASH
+
+#ifdef CONFIG_MMC
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV	0
 #define CONFIG_EFI_PARTITION
+#endif
 #endif
 
 #ifdef CONFIG_USB_FUNCTION_MASS_STORAGE
@@ -430,6 +438,22 @@ extern int soft_i2c_gpio_scl;
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
+#ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
+#define BOOTCMD_SUNXI_COMPAT \
+	"bootcmd_sunxi_compat=" \
+		"setenv root /dev/mmcblk0p3 rootwait; " \
+		"if ext2load mmc 0 0x44000000 uEnv.txt; then " \
+			"echo Loaded environment from uEnv.txt; " \
+			"env import -t 0x44000000 ${filesize}; " \
+		"fi; " \
+		"setenv bootargs console=${console} root=${root} ${extraargs}; " \
+		"ext2load mmc 0 0x43000000 script.bin && " \
+		"ext2load mmc 0 0x48000000 uImage && " \
+		"bootm 0x48000000\0"
+#else
+#define BOOTCMD_SUNXI_COMPAT
+#endif
+
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_USB_KEYBOARD
@@ -460,6 +484,7 @@ extern int soft_i2c_gpio_scl;
 	MEM_LAYOUT_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
+	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
 
 #else /* ifndef CONFIG_SPL_BUILD */

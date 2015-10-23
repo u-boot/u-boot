@@ -53,7 +53,6 @@
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_SDRAM

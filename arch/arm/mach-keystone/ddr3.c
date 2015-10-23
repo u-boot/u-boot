@@ -52,7 +52,8 @@ void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 	__raw_writel(phy_cfg->dtpr2, base + KS2_DDRPHY_DTPR2_OFFSET);
 	__raw_writel(phy_cfg->mr0,   base + KS2_DDRPHY_MR0_OFFSET);
 	__raw_writel(phy_cfg->mr1,   base + KS2_DDRPHY_MR1_OFFSET);
-	__raw_writel(phy_cfg->mr2,   base + KS2_DDRPHY_MR2_OFFSET);
+	if (!cpu_is_k2g())
+		__raw_writel(phy_cfg->mr2,   base + KS2_DDRPHY_MR2_OFFSET);
 	__raw_writel(phy_cfg->dtcr,  base + KS2_DDRPHY_DTCR_OFFSET);
 	__raw_writel(phy_cfg->pgcr2, base + KS2_DDRPHY_PGCR2_OFFSET);
 
@@ -63,6 +64,15 @@ void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 	__raw_writel(phy_cfg->pir_v1, base + KS2_DDRPHY_PIR_OFFSET);
 	while ((__raw_readl(base + KS2_DDRPHY_PGSR0_OFFSET) & 0x1) != 0x1)
 		;
+
+	/* Disable ECC for K2G */
+	if (cpu_is_k2g()) {
+		clrbits_le32(base + KS2_DDRPHY_DATX8_4_OFFSET, 0x1);
+		clrbits_le32(base + KS2_DDRPHY_DATX8_5_OFFSET, 0x1);
+		clrbits_le32(base + KS2_DDRPHY_DATX8_6_OFFSET, 0x1);
+		clrbits_le32(base + KS2_DDRPHY_DATX8_7_OFFSET, 0x1);
+		clrbits_le32(base + KS2_DDRPHY_DATX8_8_OFFSET, 0x1);
+	}
 
 	__raw_writel(phy_cfg->pir_v2, base + KS2_DDRPHY_PIR_OFFSET);
 	while ((__raw_readl(base + KS2_DDRPHY_PGSR0_OFFSET) & 0x1) != 0x1)

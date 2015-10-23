@@ -24,6 +24,7 @@ obj-$(CONFIG_DM_MMC) += mmc.o
 obj-$(CONFIG_DM_PCI) += pci.o
 obj-$(CONFIG_RAM) += ram.o
 obj-y += regmap.o
+obj-$(CONFIG_REMOTEPROC) += remoteproc.o
 obj-$(CONFIG_RESET) += reset.o
 obj-$(CONFIG_DM_RTC) += rtc.o
 obj-$(CONFIG_DM_SPI_FLASH) += sf.o

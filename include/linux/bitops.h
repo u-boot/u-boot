@@ -3,7 +3,20 @@
 
 #include <asm/types.h>
 
-#define BIT(nr)		(1UL << (nr))
+#define BIT(nr)			(1UL << (nr))
+#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
+#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
+
+/*
+ * Create a contiguous bitmask starting at bit position @l and ending at
+ * position @h. For example
+ * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
+ */
+#define GENMASK(h, l) \
+	(((~0UL) << (l)) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
+
+#define GENMASK_ULL(h, l) \
+	(((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
 
 /*
  * ffs: find first bit set. This is defined the same way as
@@ -105,9 +118,6 @@ static inline unsigned int generic_hweight8(unsigned int w)
 	res = (res & 0x33) + ((res >> 2) & 0x33);
 	return (res & 0x0F) + ((res >> 4) & 0x0F);
 }
-
-#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
-#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
 
 #include <asm/bitops.h>
 

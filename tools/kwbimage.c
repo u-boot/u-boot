@@ -681,6 +681,9 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		exit(EXIT_FAILURE);
 	}
 
+	/* The MVEBU BootROM does not allow non word aligned payloads */
+	sbuf->st_size = ALIGN_SUP(sbuf->st_size, 4);
+
 	version = image_get_version();
 	switch (version) {
 		/*

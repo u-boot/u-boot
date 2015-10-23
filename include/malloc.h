@@ -872,7 +872,7 @@ extern Void_t*     sbrk();
 
 #else
 
-#ifdef CONFIG_SYS_MALLOC_SIMPLE
+#if CONFIG_IS_ENABLED(SYS_MALLOC_SIMPLE)
 #define malloc malloc_simple
 #define realloc realloc_simple
 #define memalign memalign_simple

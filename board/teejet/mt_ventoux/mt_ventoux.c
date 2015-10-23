@@ -257,7 +257,7 @@ int misc_init_r(void)
 	int ret;
 
 	TAM3517_READ_EEPROM(&info, ret);
-	dieid_num_r();
+	omap_die_id_display();
 
 	if (ret)
 		return 0;

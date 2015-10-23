@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/e820.h>
+#include <asm/mrccache.h>
 #include <asm/post.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -31,6 +32,11 @@ int dram_init(void)
 
 	gd->ram_size = ram_size;
 	post_code(POST_DRAM);
+
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	gd->arch.mrc_output = fsp_get_nvs_data(gd->arch.hob_list,
+					       &gd->arch.mrc_output_len);
+#endif
 
 	return 0;
 }

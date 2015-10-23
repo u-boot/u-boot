@@ -105,20 +105,14 @@ config KIRKWOOD
 	bool "Marvell Kirkwood"
 	select CPU_ARM926EJS
 
-config TARGET_DB_88F6820_GP
-	bool "Support DB-88F6820-GP"
+config ARCH_MVEBU
+	bool "Marvell MVEBU family (Armada XP/38x)"
 	select CPU_V7
 	select SUPPORT_SPL
-
-config TARGET_DB_MV784MP_GP
-	bool "Support db-mv784mp-gp"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_MAXBCM
-	bool "Support maxbcm"
-	select CPU_V7
-	select SUPPORT_SPL
+	select OF_CONTROL
+	select OF_SEPARATE
+	select DM
+	select DM_SERIAL
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
@@ -522,6 +516,8 @@ config ARCH_SUNXI
 	select DM_USB
 	select OF_CONTROL
 	select OF_SEPARATE
+	select SPL_STACK_R if !MACH_SUN9I
+	select SPL_SYS_MALLOC_SIMPLE if !MACH_SUN9I
 	select USB
 	select USB_STORAGE
 	select USB_KEYBOARD
@@ -683,6 +679,8 @@ source "arch/arm/mach-integrator/Kconfig"
 source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
+
+source "arch/arm/mach-mvebu/Kconfig"
 
 source "arch/arm/cpu/armv7/mx7/Kconfig"
 

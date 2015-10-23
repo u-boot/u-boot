@@ -37,7 +37,7 @@ static int do_mon_install(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	freq = clk_get_rate(sys_clk0_6_clk);
+	freq = CONFIG_SYS_HZ_CLOCK;
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 

@@ -171,7 +171,7 @@ int misc_init_r(void)
 
 	setup_net_chip();
 
-	dieid_num_r();
+	omap_die_id_display();
 
 	set_fdt();
 

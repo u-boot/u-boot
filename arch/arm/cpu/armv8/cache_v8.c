@@ -59,15 +59,15 @@ static void mmu_setup(void)
 	el = current_el();
 	if (el == 1) {
 		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
-				  TCR_FLAGS | TCR_EL1_IPS_BITS,
+				  TCR_EL1_RSVD | TCR_FLAGS | TCR_EL1_IPS_BITS,
 				  MEMORY_ATTRIBUTES);
 	} else if (el == 2) {
 		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
-				  TCR_FLAGS | TCR_EL2_IPS_BITS,
+				  TCR_EL2_RSVD | TCR_FLAGS | TCR_EL2_IPS_BITS,
 				  MEMORY_ATTRIBUTES);
 	} else {
 		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
-				  TCR_FLAGS | TCR_EL3_IPS_BITS,
+				  TCR_EL3_RSVD | TCR_FLAGS | TCR_EL3_IPS_BITS,
 				  MEMORY_ATTRIBUTES);
 	}
 	/* enable the mmu */

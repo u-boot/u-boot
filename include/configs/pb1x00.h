@@ -168,13 +168,11 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 
 #undef CONFIG_CMD_FAT
 #undef CONFIG_CMD_IDE
-#undef CONFIG_CMD_ELF
 #undef CONFIG_CMD_BEDBUG
 
 #endif	/* __CONFIG_H */

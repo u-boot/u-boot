@@ -31,7 +31,13 @@ const struct keystone_pll_regs keystone_pll_regs[] = {
 	[TETRIS_PLL]	= {KS2_ARMPLLCTL0, KS2_ARMPLLCTL1},
 	[DDR3A_PLL]	= {KS2_DDR3APLLCTL0, KS2_DDR3APLLCTL1},
 	[DDR3B_PLL]	= {KS2_DDR3BPLLCTL0, KS2_DDR3BPLLCTL1},
+	[UART_PLL]	= {KS2_UARTPLLCTL0, KS2_UARTPLLCTL1},
 };
+
+inline void pll_pa_clk_sel(void)
+{
+	setbits_le32(keystone_pll_regs[PASS_PLL].reg1, CFG_PLLCTL1_PAPLL_MASK);
+}
 
 static void wait_for_completion(const struct pll_init_data *data)
 {
@@ -180,9 +186,8 @@ void configure_secondary_pll(const struct pll_init_data *data)
 	sdelay(21000);
 
 	/* Select the Output of PASS PLL as input to PASS */
-	if (data->pll == PASS_PLL)
-		setbits_le32(keystone_pll_regs[data->pll].reg1,
-			     CFG_PLLCTL1_PAPLL_MASK);
+	if (data->pll == PASS_PLL && cpu_is_k2hk())
+		pll_pa_clk_sel();
 
 	/* Select the Output of ARM PLL as input to ARM */
 	if (data->pll == TETRIS_PLL)
@@ -309,6 +314,10 @@ static unsigned long pll_freq_get(int pll)
 			ret = external_clk[ddr3b_clk];
 			reg = KS2_DDR3BPLLCTL0;
 			break;
+		case UART_PLL:
+			ret = external_clk[uart_clk];
+			reg = KS2_UARTPLLCTL0;
+			break;
 		default:
 			return 0;
 		}
@@ -350,6 +359,10 @@ unsigned long clk_get_rate(unsigned int clk)
 	case ddr3b_pll_clk:
 		if (cpu_is_k2hk())
 			freq = pll_freq_get(DDR3B_PLL);
+		break;
+	case uart_pll_clk:
+		if (cpu_is_k2g())
+			freq = pll_freq_get(UART_PLL);
 		break;
 	case sys_clk0_1_clk:
 	case sys_clk0_clk:

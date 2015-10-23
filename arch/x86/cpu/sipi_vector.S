@@ -190,8 +190,8 @@ load_msr:
 
 	/* c_handler(cpu_num) */
 	movl	%esi, %eax	/* cpu_num */
-	mov	c_handler, %eax
-	call	*%eax
+	mov	c_handler, %esi
+	call	*%esi
 
 	.align	4
 .globl	sipi_params

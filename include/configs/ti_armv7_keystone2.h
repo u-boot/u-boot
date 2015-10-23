@@ -32,6 +32,12 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SPL_TEXT_BASE - \
 					GENERATED_GBL_DATA_SIZE)
 
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+#define SPL_MALLOC_F_SIZE	CONFIG_SYS_MALLOC_F_LEN
+#else
+#define SPL_MALLOC_F_SIZE	0
+#endif
+
 /* SPL SPI Loader Configuration */
 #define CONFIG_SPL_PAD_TO		65536
 #define CONFIG_SPL_MAX_SIZE		(CONFIG_SPL_PAD_TO - 8)
@@ -44,6 +50,7 @@
 #define CONFIG_SPL_STACK_SIZE		(8 * 1024)
 #define CONFIG_SPL_STACK		(CONFIG_SYS_SPL_MALLOC_START + \
 					CONFIG_SYS_SPL_MALLOC_SIZE + \
+					SPL_MALLOC_F_SIZE + \
 					CONFIG_SPL_STACK_SIZE - 4)
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_SUPPORT
@@ -52,13 +59,22 @@
 
 /* UART Configuration */
 #define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_MEM32
+#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
+#define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
+#else
+#define CONFIG_KEYSTONE_SERIAL
+#endif
 #define CONFIG_SYS_NS16550_COM1		KS2_UART0_BASE
 #define CONFIG_SYS_NS16550_COM2		KS2_UART1_BASE
-#define CONFIG_SYS_NS16550_CLK		clk_get_rate(KS2_CLK1_6)
 #define CONFIG_CONS_INDEX		1
+
+#ifndef CONFIG_SOC_K2G
+#define CONFIG_SYS_NS16550_CLK		clk_get_rate(KS2_CLK1_6)
+#else
+#define CONFIG_SYS_NS16550_CLK		clk_get_rate(uart_pll_clk) / 2
+#endif
 
 /* SPI Configuration */
 #define CONFIG_SPI_FLASH_STMICRO
@@ -291,6 +307,10 @@
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
+#ifndef CONFIG_SOC_K2G
 #define CONFIG_SYS_HZ_CLOCK		clk_get_rate(KS2_CLK1_6)
+#else
+#define CONFIG_SYS_HZ_CLOCK		external_clk[sys_clk]
+#endif
 
 #endif /* __CONFIG_KS2_EVM_H */

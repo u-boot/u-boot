@@ -38,7 +38,10 @@ DECLARE_GLOBAL_DATA_PTR;
 /* GPIO that controls power to DDR on EVM-SK */
 #define GPIO_DDR_VTT_EN		7
 
+#if defined(CONFIG_SPL_BUILD) || \
+	(defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_DM_ETH))
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
+#endif
 
 /*
  * Read header information from EEPROM into global structure.
@@ -513,6 +516,8 @@ int board_late_init(void)
 }
 #endif
 
+#ifndef CONFIG_DM_ETH
+
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
 static void cpsw_control(int enabled)
@@ -670,3 +675,5 @@ int board_eth_init(bd_t *bis)
 	return n;
 }
 #endif
+
+#endif /* CONFIG_DM_ETH */

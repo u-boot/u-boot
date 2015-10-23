@@ -7,6 +7,7 @@
 enum axp209_reg {
 	AXP209_POWER_STATUS = 0x00,
 	AXP209_CHIP_VERSION = 0x03,
+	AXP209_OUTPUT_CTRL = 0x12,
 	AXP209_DCDC2_VOLTAGE = 0x23,
 	AXP209_DCDC3_VOLTAGE = 0x27,
 	AXP209_LDO24_VOLTAGE = 0x28,
@@ -22,6 +23,13 @@ enum axp209_reg {
 
 #define AXP209_POWER_STATUS_ON_BY_DC	(1 << 0)
 #define AXP209_POWER_STATUS_VBUS_USABLE	(1 << 4)
+
+#define AXP209_OUTPUT_CTRL_EXTEN	(1 << 0)
+#define AXP209_OUTPUT_CTRL_DCDC3	(1 << 1)
+#define AXP209_OUTPUT_CTRL_LDO2		(1 << 2)
+#define AXP209_OUTPUT_CTRL_LDO4		(1 << 3)
+#define AXP209_OUTPUT_CTRL_DCDC2	(1 << 4)
+#define AXP209_OUTPUT_CTRL_LDO3		(1 << 6)
 
 #define AXP209_IRQ5_PEK_UP		(1 << 6)
 #define AXP209_IRQ5_PEK_DOWN		(1 << 5)
@@ -39,12 +47,3 @@ enum axp209_reg {
 #define AXP_GPIO_CTRL_INPUT			0x02 /* Input */
 #define AXP_GPIO_STATE			0x94
 #define AXP_GPIO_STATE_OFFSET			4
-
-extern int axp209_set_dcdc2(int mvolt);
-extern int axp209_set_dcdc3(int mvolt);
-extern int axp209_set_ldo2(int mvolt);
-extern int axp209_set_ldo3(int mvolt);
-extern int axp209_set_ldo4(int mvolt);
-extern int axp209_init(void);
-extern int axp209_poweron_by_dc(void);
-extern int axp209_power_button(void);

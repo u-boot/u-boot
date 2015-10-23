@@ -52,6 +52,13 @@ config USB_EHCI
 
 if USB_EHCI_HCD
 
+config USB_EHCI_MARVELL
+	bool "Support for MVEBU (AXP / A38x) on-chip EHCI USB controller"
+	depends on ARCH_MVEBU
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
+
 config USB_EHCI_MX6
 	bool "Support for i.MX6 on-chip EHCI USB controller"
 	depends on ARCH_MX6

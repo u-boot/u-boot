@@ -19,6 +19,7 @@
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <errno.h>
+#include <asm/arch/sys_proto.h>
 
 #define PCI_ACCESS_READ  0
 #define PCI_ACCESS_WRITE 1
@@ -430,6 +431,10 @@ static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 static int imx6_pcie_assert_core_reset(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	if (is_mx6dqp())
+		setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_PCIE_SW_RST);
+
 #if defined(CONFIG_MX6SX)
 	struct gpc *gpc_regs = (struct gpc *)GPC_BASE_ADDR;
 
@@ -535,6 +540,9 @@ static int imx6_pcie_deassert_core_reset(void)
 	imx6_pcie_toggle_power();
 
 	enable_pcie_clock();
+
+	if (is_mx6dqp())
+		clrbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_PCIE_SW_RST);
 
 	/*
 	 * Wait for the clock to settle a bit, when the clock are sourced

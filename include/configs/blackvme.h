@@ -156,7 +156,6 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_CPLBINFO
 #define CONFIG_CMD_SF
-#define CONFIG_CMD_ELF
 
 /*
  * Default: boot from SPI flash.

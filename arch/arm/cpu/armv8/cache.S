@@ -112,7 +112,7 @@ ENDPROC(__asm_flush_dcache_all)
 
 ENTRY(__asm_invalidate_dcache_all)
 	mov	x16, lr
-	mov	x0, #0xffff
+	mov	x0, #0x1
 	bl	__asm_dcache_all
 	mov	lr, x16
 	ret

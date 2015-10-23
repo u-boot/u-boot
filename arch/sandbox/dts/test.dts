@@ -13,6 +13,8 @@
 		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
 		pci0 = &pci;
+		remoteproc1 = &rproc_1;
+		remoteproc2 = &rproc_2;
 		rtc0 = &rtc_0;
 		rtc1 = &rtc_1;
 		spi0 = "/spi@0";
@@ -231,6 +233,17 @@
 
 	reset@1 {
 		compatible = "sandbox,reset";
+	};
+
+	rproc_1: rproc@1 {
+		compatible = "sandbox,test-processor";
+		remoteproc-name = "remoteproc-test-dev1";
+	};
+
+	rproc_2: rproc@2 {
+		compatible = "sandbox,test-processor";
+		internal-memory-mapped;
+		remoteproc-name = "remoteproc-test-dev2";
 	};
 
 	spi@0 {

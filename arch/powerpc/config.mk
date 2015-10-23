@@ -15,7 +15,8 @@ LDFLAGS_FINAL += --bss-plt
 PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections \
 -fdata-sections -mcall-linux
 
-PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2 -m32
+PF_CPPFLAGS_POWERPC	:= $(call cc-option,-fno-ira-hoist-pressure,)
+PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2 -m32 $(PF_CPPFLAGS_POWERPC)
 PLATFORM_LDFLAGS  += -m32 -melf32ppclinux
 
 #

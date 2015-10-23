@@ -330,7 +330,6 @@
 #define CONFIG_PCIE_IMX
 #endif
 
-#define CONFIG_CMD_ELF
 
 #define CONFIG_USB_GADGET
 #define CONFIG_CMD_USB_MASS_STORAGE

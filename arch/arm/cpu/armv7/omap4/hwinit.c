@@ -156,6 +156,14 @@ void init_omap_revision(void)
 	}
 }
 
+void omap_die_id(unsigned int *die_id)
+{
+	die_id[0] = readl((*ctrl)->control_std_fuse_die_id_0);
+	die_id[1] = readl((*ctrl)->control_std_fuse_die_id_1);
+	die_id[2] = readl((*ctrl)->control_std_fuse_die_id_2);
+	die_id[3] = readl((*ctrl)->control_std_fuse_die_id_3);
+}
+
 #ifndef CONFIG_SYS_L2CACHE_OFF
 void v7_outer_cache_enable(void)
 {

@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
-#include <axp221.h>
+#include <axp_pmic.h>
 #include <errno.h>
 
 #ifdef CONFIG_MACH_SUN6I
@@ -82,7 +82,7 @@ int print_cpuinfo(void)
 int sunxi_get_sid(unsigned int *sid)
 {
 #ifdef CONFIG_AXP221_POWER
-	return axp221_get_sid(sid);
+	return axp_get_sid(sid);
 #elif defined SUNXI_SID_BASE
 	int i;
 

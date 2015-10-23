@@ -1,0 +1,24 @@
+#
+# (C) Copyright 2015
+# Texas Instruments Incorporated - http://www.ti.com/
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+menu "Remote Processor drivers"
+
+# REMOTEPROC gets selected by drivers as needed
+# All users should depend on DM
+config REMOTEPROC
+	bool
+	depends on DM
+
+# Please keep the configuration alphabetically sorted.
+config REMOTEPROC_SANDBOX
+	bool "Support for Test processor for Sandbox"
+	select REMOTEPROC
+	depends on DM
+	depends on SANDBOX
+	help
+	  Say 'y' here to add support for test processor which does dummy
+	  operations for sandbox platform.
+endmenu

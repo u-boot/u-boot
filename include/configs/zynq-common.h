@@ -289,7 +289,6 @@
 /* Boot FreeBSD/vxWorks from an ELF image */
 #if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
 # define CONFIG_API
-# define CONFIG_CMD_ELF
 # define CONFIG_SYS_MMC_MAX_DEVICE	1
 #endif
 

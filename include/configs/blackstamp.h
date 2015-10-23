@@ -117,7 +117,6 @@
 #define CONFIG_CMD_CPLBINFO
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_SF
-#define CONFIG_CMD_ELF
 
 #define CONFIG_BOOTDELAY     5
 #define CONFIG_BOOTCOMMAND   "run ramboot"

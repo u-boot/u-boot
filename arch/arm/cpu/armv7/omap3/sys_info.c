@@ -42,39 +42,14 @@ static char *rev_s_37xx[CPU_37XX_MAX_REV] = {
 				"1.2"};
 #endif /* CONFIG_DISPLAY_CPUINFO */
 
-/*****************************************************************
- * get_dieid(u32 *id) - read die ID
- *****************************************************************/
-void get_dieid(u32 *id)
+void omap_die_id(unsigned int *die_id)
 {
 	struct ctrl_id *id_base = (struct ctrl_id *)OMAP34XX_ID_L4_IO_BASE;
 
-	id[3] = readl(&id_base->die_id_0);
-	id[2] = readl(&id_base->die_id_1);
-	id[1] = readl(&id_base->die_id_2);
-	id[0] = readl(&id_base->die_id_3);
-}
-
-/*****************************************************************
- * dieid_num_r(void) - read and set die ID
- *****************************************************************/
-void dieid_num_r(void)
-{
-	char *uid_s, die_id[34];
-	u32 id[4];
-
-	memset(die_id, 0, sizeof(die_id));
-
-	uid_s = getenv("dieid#");
-
-	if (uid_s == NULL) {
-		get_dieid(id);
-		sprintf(die_id, "%08x%08x%08x%08x", id[0], id[1], id[2], id[3]);
-		setenv("dieid#", die_id);
-		uid_s = die_id;
-	}
-
-	printf("Die ID #%s\n", uid_s);
+	die_id[0] = readl(&id_base->die_id_0);
+	die_id[1] = readl(&id_base->die_id_1);
+	die_id[2] = readl(&id_base->die_id_2);
+	die_id[3] = readl(&id_base->die_id_3);
 }
 
 /******************************************
