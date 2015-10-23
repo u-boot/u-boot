@@ -420,6 +420,21 @@ config PCIE_ECAM_SIZE
 	  so a default 0x10000000 size covers all of the 256 buses which is the
 	  maximum number of PCI buses as defined by the PCI specification.
 
+config I8259_PIC
+	bool
+	default y
+	help
+	  Intel 8259 ISA compatible chipset incorporates two 8259 (master and
+	  slave) interrupt controllers. Include this to have U-Boot set up
+	  the interrupt correctly.
+
+config I8254_TIMER
+	bool
+	default y
+	help
+	  Intel 8254 timer contains three counters which have fixed uses.
+	  Include this to have U-Boot set up the timer correctly.
+
 source "arch/x86/lib/efi/Kconfig"
 
 endmenu
