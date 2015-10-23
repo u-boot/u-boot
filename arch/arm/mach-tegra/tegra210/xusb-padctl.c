@@ -279,7 +279,10 @@ static int pcie_phy_enable(struct tegra_xusb_phy *phy)
 		if (value & XUSB_PADCTL_UPHY_PLL_P0_CTL2_CAL_DONE)
 			break;
 	}
-
+	if (!(value & XUSB_PADCTL_UPHY_PLL_P0_CTL2_CAL_DONE)) {
+		debug("  timeout\n");
+		return -ETIMEDOUT;
+	}
 	debug("  done\n");
 
 	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL2);
@@ -295,7 +298,10 @@ static int pcie_phy_enable(struct tegra_xusb_phy *phy)
 		if ((value & XUSB_PADCTL_UPHY_PLL_P0_CTL2_CAL_DONE) == 0)
 			break;
 	}
-
+	if (value & XUSB_PADCTL_UPHY_PLL_P0_CTL2_CAL_DONE) {
+		debug("  timeout\n");
+		return -ETIMEDOUT;
+	}
 	debug("  done\n");
 
 	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL1);
@@ -310,7 +316,10 @@ static int pcie_phy_enable(struct tegra_xusb_phy *phy)
 		if (value & XUSB_PADCTL_UPHY_PLL_P0_CTL1_LOCKDET_STATUS)
 			break;
 	}
-
+	if (!(value & XUSB_PADCTL_UPHY_PLL_P0_CTL1_LOCKDET_STATUS)) {
+		debug("  timeout\n");
+		return -ETIMEDOUT;
+	}
 	debug("  done\n");
 
 	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL8);
@@ -326,7 +335,10 @@ static int pcie_phy_enable(struct tegra_xusb_phy *phy)
 		if (value & XUSB_PADCTL_UPHY_PLL_P0_CTL8_RCAL_DONE)
 			break;
 	}
-
+	if (!(value & XUSB_PADCTL_UPHY_PLL_P0_CTL8_RCAL_DONE)) {
+		debug("  timeout\n");
+		return -ETIMEDOUT;
+	}
 	debug("  done\n");
 
 	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL8);
@@ -341,7 +353,10 @@ static int pcie_phy_enable(struct tegra_xusb_phy *phy)
 		if ((value & XUSB_PADCTL_UPHY_PLL_P0_CTL8_RCAL_DONE) == 0)
 			break;
 	}
-
+	if (value & XUSB_PADCTL_UPHY_PLL_P0_CTL8_RCAL_DONE) {
+		debug("  timeout\n");
+		return -ETIMEDOUT;
+	}
 	debug("  done\n");
 
 	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL8);
