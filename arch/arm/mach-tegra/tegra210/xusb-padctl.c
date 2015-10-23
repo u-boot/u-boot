@@ -8,51 +8,12 @@
 
 #include <common.h>
 #include <errno.h>
-#include <fdtdec.h>
-#include <malloc.h>
 
-#include <asm/io.h>
+#include "../xusb-padctl-common.h"
 
 #include <asm/arch/clock.h>
-#include <asm/arch-tegra/xusb-padctl.h>
 
 #include <dt-bindings/pinctrl/pinctrl-tegra-xusb.h>
-
-struct tegra_xusb_phy_ops {
-	int (*prepare)(struct tegra_xusb_phy *phy);
-	int (*enable)(struct tegra_xusb_phy *phy);
-	int (*disable)(struct tegra_xusb_phy *phy);
-	int (*unprepare)(struct tegra_xusb_phy *phy);
-};
-
-struct tegra_xusb_phy {
-	const struct tegra_xusb_phy_ops *ops;
-
-	struct tegra_xusb_padctl *padctl;
-};
-
-struct tegra_xusb_padctl {
-	struct fdt_resource regs;
-
-	unsigned int enable;
-
-	struct tegra_xusb_phy phys[2];
-};
-
-static inline u32 padctl_readl(struct tegra_xusb_padctl *padctl,
-			       unsigned long offset)
-{
-	u32 value = readl(padctl->regs.start + offset);
-	debug("padctl: %08lx > %08x\n", offset, value);
-	return value;
-}
-
-static inline void padctl_writel(struct tegra_xusb_padctl *padctl,
-				 u32 value, unsigned long offset)
-{
-	debug("padctl: %08lx < %08x\n", offset, value);
-	writel(value, padctl->regs.start + offset);
-}
 
 #define XUSB_PADCTL_ELPG_PROGRAM 0x024
 #define  XUSB_PADCTL_ELPG_PROGRAM_AUX_MUX_LP0_VCORE_DOWN (1 << 31)
@@ -358,120 +319,22 @@ static const struct tegra_xusb_phy_ops pcie_phy_ops = {
 	.unprepare = phy_unprepare,
 };
 
-static struct tegra_xusb_padctl *padctl = &(struct tegra_xusb_padctl) {
-	.phys = {
-		[0] = {
-			.ops = &pcie_phy_ops,
-		},
+static struct tegra_xusb_phy tegra210_phys[] = {
+	{
+		.type = TEGRA_XUSB_PADCTL_PCIE,
+		.ops = &pcie_phy_ops,
+		.padctl = &padctl,
 	},
 };
 
-static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
-				      const void *fdt, int node)
-{
-	int err;
-
-	err = fdt_get_resource(fdt, node, "reg", 0, &padctl->regs);
-	if (err < 0) {
-		error("registers not found");
-		return err;
-	}
-
-	debug("regs: %pa-%pa\n", &padctl->regs.start,
-	      &padctl->regs.end);
-
-	return 0;
-}
-
-static int process_nodes(const void *fdt, int nodes[], unsigned int count)
-{
-	unsigned int i;
-	int err;
-
-	debug("> %s(fdt=%p, nodes=%p, count=%u)\n", __func__, fdt, nodes,
-	      count);
-
-	for (i = 0; i < count; i++) {
-		enum fdt_compat_id id;
-
-		if (!fdtdec_get_is_enabled(fdt, nodes[i]))
-			continue;
-
-		id = fdtdec_lookup(fdt, nodes[i]);
-		switch (id) {
-		case COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL:
-		case COMPAT_NVIDIA_TEGRA210_XUSB_PADCTL:
-			break;
-
-		default:
-			error("unsupported compatible: %s",
-			      fdtdec_get_compatible(id));
-			continue;
-		}
-
-		err = tegra_xusb_padctl_parse_dt(padctl, fdt, nodes[i]);
-		if (err < 0) {
-			error("failed to parse DT: %d",
-			      err);
-			continue;
-		}
-
-		/* deassert XUSB padctl reset */
-		reset_set_enable(PERIPH_ID_XUSB_PADCTL, 0);
-
-		/* only a single instance is supported */
-		break;
-	}
-
-	debug("< %s()\n", __func__);
-	return 0;
-}
-
-struct tegra_xusb_phy *tegra_xusb_phy_get(unsigned int type)
-{
-	struct tegra_xusb_phy *phy = NULL;
-
-	switch (type) {
-	case TEGRA_XUSB_PADCTL_PCIE:
-		phy = &padctl->phys[0];
-		phy->padctl = padctl;
-		break;
-	}
-
-	return phy;
-}
-
-int tegra_xusb_phy_prepare(struct tegra_xusb_phy *phy)
-{
-	if (phy && phy->ops && phy->ops->prepare)
-		return phy->ops->prepare(phy);
-
-	return phy ? -ENOSYS : -EINVAL;
-}
-
-int tegra_xusb_phy_enable(struct tegra_xusb_phy *phy)
-{
-	if (phy && phy->ops && phy->ops->enable)
-		return phy->ops->enable(phy);
-
-	return phy ? -ENOSYS : -EINVAL;
-}
-
-int tegra_xusb_phy_disable(struct tegra_xusb_phy *phy)
-{
-	if (phy && phy->ops && phy->ops->disable)
-		return phy->ops->disable(phy);
-
-	return phy ? -ENOSYS : -EINVAL;
-}
-
-int tegra_xusb_phy_unprepare(struct tegra_xusb_phy *phy)
-{
-	if (phy && phy->ops && phy->ops->unprepare)
-		return phy->ops->unprepare(phy);
-
-	return phy ? -ENOSYS : -EINVAL;
-}
+static const struct tegra_xusb_padctl_soc tegra210_socdata = {
+	.lanes = NULL,
+	.num_lanes = 0,
+	.functions = NULL,
+	.num_functions = 0,
+	.phys = tegra210_phys,
+	.num_phys = ARRAY_SIZE(tegra210_phys),
+};
 
 void tegra_xusb_padctl_init(const void *fdt)
 {
@@ -482,13 +345,7 @@ void tegra_xusb_padctl_init(const void *fdt)
 	count = fdtdec_find_aliases_for_id(fdt, "padctl",
 					   COMPAT_NVIDIA_TEGRA210_XUSB_PADCTL,
 					   nodes, ARRAY_SIZE(nodes));
-	if (process_nodes(fdt, nodes, count))
-		return;
-
-	count = fdtdec_find_aliases_for_id(fdt, "padctl",
-					   COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL,
-					   nodes, ARRAY_SIZE(nodes));
-	if (process_nodes(fdt, nodes, count))
+	if (tegra_xusb_process_nodes(fdt, nodes, count, &tegra210_socdata))
 		return;
 
 	debug("< %s()\n", __func__);
