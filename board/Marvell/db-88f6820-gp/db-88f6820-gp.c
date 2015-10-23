@@ -65,9 +65,10 @@ static struct serdes_map board_serdes_map[] = {
 	{USB3_HOST1, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0}
 };
 
-int hws_board_topology_load(struct serdes_map *serdes_map_array)
+int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
-	memcpy(serdes_map_array, board_serdes_map, sizeof(board_serdes_map));
+	*serdes_map_array = board_serdes_map;
+	*count = ARRAY_SIZE(board_serdes_map);
 	return 0;
 }
 

@@ -20,11 +20,6 @@
 #error "No device is defined"
 #endif
 
-/*
- * The board topology map, initialized in the beginning of
- * ctrl_high_speed_serdes_phy_config
- */
-struct serdes_map serdes_configuration_map[MAX_SERDES_LANES];
 
 /*
  * serdes_seq_db - holds all serdes sequences, their size and the
@@ -1362,7 +1357,8 @@ enum serdes_seq serdes_type_and_speed_to_speed_seq(enum serdes_type serdes_type,
 	return seq_id;
 }
 
-void print_topology_details(const struct serdes_map *serdes_map_array)
+static void print_topology_details(const struct serdes_map *serdes_map,
+								u8 count)
 {
 	u32 lane_num;
 
@@ -1370,16 +1366,16 @@ void print_topology_details(const struct serdes_map *serdes_map_array)
 
 	DEBUG_INIT_S(" | Lane #  | Speed |  Type       |\n");
 	DEBUG_INIT_S(" --------------------------------\n");
-	for (lane_num = 0; lane_num < hws_serdes_get_max_lane(); lane_num++) {
-		if (serdes_map_array[lane_num].serdes_type == DEFAULT_SERDES)
+	for (lane_num = 0; lane_num < count; lane_num++) {
+		if (serdes_map[lane_num].serdes_type == DEFAULT_SERDES)
 			continue;
 		DEBUG_INIT_S(" |   ");
 		DEBUG_INIT_D(hws_get_physical_serdes_num(lane_num), 1);
 		DEBUG_INIT_S("    |  ");
-		DEBUG_INIT_D(serdes_map_array[lane_num].serdes_speed, 2);
+		DEBUG_INIT_D(serdes_map[lane_num].serdes_speed, 2);
 		DEBUG_INIT_S("   |  ");
 		DEBUG_INIT_S((char *)
-			     serdes_type_to_string[serdes_map_array[lane_num].
+			     serdes_type_to_string[serdes_map[lane_num].
 						   serdes_type]);
 		DEBUG_INIT_S("\t|\n");
 	}
@@ -1413,6 +1409,9 @@ int hws_pre_serdes_init_config(void)
 
 int serdes_phy_config(void)
 {
+	struct serdes_map *serdes_map;
+	u8 serdes_count;
+
 	DEBUG_INIT_FULL_S("\n### ctrl_high_speed_serdes_phy_config ###\n");
 
 	DEBUG_INIT_S("High speed PHY - Version: ");
@@ -1428,17 +1427,21 @@ int serdes_phy_config(void)
 	/* Board topology load */
 	DEBUG_INIT_FULL_S
 	    ("ctrl_high_speed_serdes_phy_config: Loading board topology..\n");
-	CHECK_STATUS(hws_board_topology_load(serdes_configuration_map));
+	CHECK_STATUS(hws_board_topology_load(&serdes_map, &serdes_count));
+	if (serdes_count > hws_serdes_get_max_lane()) {
+		printf("Error: too many serdes lanes specified by board\n");
+		return MV_FAIL;
+	}
 
 	/* print topology */
-	print_topology_details(serdes_configuration_map);
+	print_topology_details(serdes_map, serdes_count);
 	CHECK_STATUS(hws_pre_serdes_init_config());
 
 	/* Power-Up sequence */
 	DEBUG_INIT_FULL_S
 		("ctrl_high_speed_serdes_phy_config: Starting serdes power up sequence\n");
 
-	CHECK_STATUS(hws_power_up_serdes_lanes(serdes_configuration_map));
+	CHECK_STATUS(hws_power_up_serdes_lanes(serdes_map, serdes_count));
 
 	DEBUG_INIT_FULL_S
 		("\n### ctrl_high_speed_serdes_phy_config ended successfully ###\n");
@@ -1462,7 +1465,7 @@ int serdes_polarity_config(u32 serdes_num, int is_rx)
 	return MV_OK;
 }
 
-int hws_power_up_serdes_lanes(const struct serdes_map *serdes_config_map)
+int hws_power_up_serdes_lanes(struct serdes_map *serdes_map, u8 count)
 {
 	u32 serdes_id, serdes_lane_num;
 	enum ref_clock ref_clock;
@@ -1484,22 +1487,21 @@ int hws_power_up_serdes_lanes(const struct serdes_map *serdes_config_map)
 	/* COMMON PHYS SELECTORS register configuration */
 	DEBUG_INIT_FULL_S
 	    ("hws_power_up_serdes_lanes: Updating COMMON PHYS SELECTORS reg\n");
-	CHECK_STATUS(hws_update_serdes_phy_selectors(serdes_configuration_map));
+	CHECK_STATUS(hws_update_serdes_phy_selectors(serdes_map, count));
 
 	/* per Serdes Power Up */
-	for (serdes_id = 0; serdes_id < hws_serdes_get_max_lane();
-	     serdes_id++) {
+	for (serdes_id = 0; serdes_id < count; serdes_id++) {
 		DEBUG_INIT_FULL_S
 		    ("calling serdes_power_up_ctrl: serdes lane number ");
 		DEBUG_INIT_FULL_D_10(serdes_lane_num, 1);
 		DEBUG_INIT_FULL_S("\n");
 
 		serdes_lane_num = hws_get_physical_serdes_num(serdes_id);
-		serdes_type = serdes_config_map[serdes_id].serdes_type;
-		serdes_speed = serdes_config_map[serdes_id].serdes_speed;
-		serdes_mode = serdes_config_map[serdes_id].serdes_mode;
-		serdes_rx_polarity_swap = serdes_config_map[serdes_id].swap_rx;
-		serdes_tx_polarity_swap = serdes_config_map[serdes_id].swap_tx;
+		serdes_type = serdes_map[serdes_id].serdes_type;
+		serdes_speed = serdes_map[serdes_id].serdes_speed;
+		serdes_mode = serdes_map[serdes_id].serdes_mode;
+		serdes_rx_polarity_swap = serdes_map[serdes_id].swap_rx;
+		serdes_tx_polarity_swap = serdes_map[serdes_id].swap_tx;
 
 		/* serdes lane is not in use */
 		if (serdes_type == DEFAULT_SERDES)
@@ -1534,10 +1536,10 @@ int hws_power_up_serdes_lanes(const struct serdes_map *serdes_config_map)
 		/* Set PEX_TX_CONFIG_SEQ sequence for PEXx4 mode.
 		   After finish the Power_up sequence for all lanes,
 		   the lanes should be released from reset state.       */
-		CHECK_STATUS(hws_pex_tx_config_seq(serdes_config_map));
+		CHECK_STATUS(hws_pex_tx_config_seq(serdes_map, count));
 
 		/* PEX configuration */
-		CHECK_STATUS(hws_pex_config(serdes_config_map));
+		CHECK_STATUS(hws_pex_config(serdes_map, count));
 	}
 
 	/* USB2 configuration */
@@ -1905,7 +1907,7 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 	return MV_OK;
 }
 
-int hws_update_serdes_phy_selectors(struct serdes_map *serdes_config_map)
+int hws_update_serdes_phy_selectors(struct serdes_map *serdes_map, u8 count)
 {
 	u32 lane_data, idx, serdes_lane_hw_num, reg_data = 0;
 	enum serdes_type serdes_type;
@@ -1927,10 +1929,9 @@ int hws_update_serdes_phy_selectors(struct serdes_map *serdes_config_map)
 	 * Updating bits 0-17 in the COMMON PHYS SELECTORS register
 	 * according to the serdes types
 	 */
-	for (idx = 0; idx < hws_serdes_get_max_lane();
-	     idx++) {
-		serdes_type = serdes_config_map[idx].serdes_type;
-		serdes_mode = serdes_config_map[idx].serdes_mode;
+	for (idx = 0; idx < count; idx++) {
+		serdes_type = serdes_map[idx].serdes_type;
+		serdes_mode = serdes_map[idx].serdes_mode;
 		serdes_lane_hw_num = hws_get_physical_serdes_num(idx);
 
 		lane_data =
@@ -1942,7 +1943,7 @@ int hws_update_serdes_phy_selectors(struct serdes_map *serdes_config_map)
 
 		if (hws_serdes_topology_verify
 		    (serdes_type, idx, serdes_mode) != MV_OK) {
-			serdes_config_map[idx].serdes_type =
+			serdes_map[idx].serdes_type =
 			    DEFAULT_SERDES;
 			printf("%s: SerDes lane #%d is  disabled\n", __func__,
 			       serdes_lane_hw_num);
@@ -1968,8 +1969,7 @@ int hws_update_serdes_phy_selectors(struct serdes_map *serdes_config_map)
 			printf
 			    ("%s: Warning: SerDes lane #%d and type %d are not supported together\n",
 			     __func__, serdes_lane_hw_num, serdes_mode);
-			serdes_config_map[idx].serdes_type =
-				DEFAULT_SERDES;
+			serdes_map[idx].serdes_type = DEFAULT_SERDES;
 			printf("%s: SerDes lane #%d is  disabled\n", __func__,
 			       serdes_lane_hw_num);
 			continue;
@@ -1991,7 +1991,7 @@ int hws_update_serdes_phy_selectors(struct serdes_map *serdes_config_map)
 
 	/* Print topology */
 	if (updated_topology_print)
-		print_topology_details(serdes_config_map);
+		print_topology_details(serdes_map, count);
 
 	/*
 	 * Updating the PEXx4 Enable bit in the COMMON PHYS SELECTORS
@@ -2145,7 +2145,7 @@ int hws_ref_clock_set(u32 serdes_num, enum serdes_type serdes_type,
  * RETURNS:              MV_OK           - for success
  *                       MV_BAD_PARAM    - for fail
  */
-int hws_pex_tx_config_seq(const struct serdes_map *serdes_map)
+int hws_pex_tx_config_seq(const struct serdes_map *serdes_map, u8 count)
 {
 	enum serdes_mode serdes_mode;
 	u32 serdes_lane_id, serdes_lane_hw_num;
@@ -2159,8 +2159,7 @@ int hws_pex_tx_config_seq(const struct serdes_map *serdes_map)
 	 */
 
 	/* relese pipe soft reset for all lanes */
-	for (serdes_lane_id = 0; serdes_lane_id < hws_serdes_get_max_lane();
-	     serdes_lane_id++) {
+	for (serdes_lane_id = 0; serdes_lane_id < count; serdes_lane_id++) {
 		serdes_mode = serdes_map[serdes_lane_id].serdes_mode;
 		serdes_lane_hw_num =
 		    hws_get_physical_serdes_num(serdes_lane_id);
@@ -2173,8 +2172,7 @@ int hws_pex_tx_config_seq(const struct serdes_map *serdes_map)
 	}
 
 	/* set phy soft reset for all lanes */
-	for (serdes_lane_id = 0; serdes_lane_id < hws_serdes_get_max_lane();
-	     serdes_lane_id++) {
+	for (serdes_lane_id = 0; serdes_lane_id < count; serdes_lane_id++) {
 		serdes_mode = serdes_map[serdes_lane_id].serdes_mode;
 		serdes_lane_hw_num =
 		    hws_get_physical_serdes_num(serdes_lane_id);
@@ -2186,8 +2184,7 @@ int hws_pex_tx_config_seq(const struct serdes_map *serdes_map)
 	}
 
 	/* set phy soft reset for all lanes */
-	for (serdes_lane_id = 0; serdes_lane_id < hws_serdes_get_max_lane();
-	     serdes_lane_id++) {
+	for (serdes_lane_id = 0; serdes_lane_id < count; serdes_lane_id++) {
 		serdes_mode = serdes_map[serdes_lane_id].serdes_mode;
 		serdes_lane_hw_num =
 		    hws_get_physical_serdes_num(serdes_lane_id);
