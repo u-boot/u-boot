@@ -48,8 +48,8 @@ static unsigned int atmel_mci_get_version(struct atmel_mci *mci)
  */
 static void dump_cmd(u32 cmdr, u32 arg, u32 status, const char* msg)
 {
-	printf("gen_atmel_mci: CMDR %08x (%2u) ARGR %08x (SR: %08x) %s\n",
-		cmdr, cmdr&0x3F, arg, status, msg);
+	debug("gen_atmel_mci: CMDR %08x (%2u) ARGR %08x (SR: %08x) %s\n",
+	      cmdr, cmdr & 0x3F, arg, status, msg);
 }
 
 /* Setup for MCI Clock and Block Size */
@@ -73,16 +73,16 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 			clkodd = clkdiv & 1;
 			clkdiv >>= 1;
 
-			printf("mci: setting clock %u Hz, block size %u\n",
-			       bus_hz / (clkdiv * 2 + clkodd + 2), blklen);
+			debug("mci: setting clock %u Hz, block size %u\n",
+			      bus_hz / (clkdiv * 2 + clkodd + 2), blklen);
 		} else {
 			/* find clkdiv yielding a rate <= than requested */
 			for (clkdiv = 0; clkdiv < 255; clkdiv++) {
 				if ((bus_hz / (clkdiv + 1) / 2) <= hz)
 					break;
 			}
-			printf("mci: setting clock %u Hz, block size %u\n",
-			       (bus_hz / (clkdiv + 1)) / 2, blklen);
+			debug("mci: setting clock %u Hz, block size %u\n",
+			      (bus_hz / (clkdiv + 1)) / 2, blklen);
 
 		}
 	}
