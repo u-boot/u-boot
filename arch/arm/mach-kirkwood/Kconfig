@@ -49,6 +49,9 @@ config TARGET_GOFLEXHOME
 config TARGET_NAS220
 	bool "BlackArmor NAS220"
 
+config TARGET_NSA310S
+	bool "Zyxel NSA310S"
+
 endchoice
 
 config SYS_SOC
@@ -69,5 +72,6 @@ source "board/raidsonic/ib62x0/Kconfig"
 source "board/Seagate/dockstar/Kconfig"
 source "board/Seagate/goflexhome/Kconfig"
 source "board/Seagate/nas220/Kconfig"
+source "board/zyxel/nsa310s/Kconfig"
 
 endif
