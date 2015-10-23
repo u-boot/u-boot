@@ -8,15 +8,8 @@
 
 #include <common.h>
 #include <errno.h>
-#include <fdtdec.h>
-#include <malloc.h>
 
 #include "../xusb-padctl-common.h"
-
-#include <asm/io.h>
-
-#include <asm/arch/clock.h>
-#include <asm/arch-tegra/xusb-padctl.h>
 
 #include <dt-bindings/pinctrl/pinctrl-tegra-xusb.h>
 
@@ -302,66 +295,27 @@ static const struct tegra_xusb_phy_ops sata_phy_ops = {
 	.unprepare = phy_unprepare,
 };
 
-struct tegra_xusb_padctl *padctl = &(struct tegra_xusb_padctl) {
-	.phys = {
-		[0] = {
-			.ops = &pcie_phy_ops,
-		},
-		[1] = {
-			.ops = &sata_phy_ops,
-		},
+static struct tegra_xusb_phy tegra124_phys[] = {
+	{
+		.type = TEGRA_XUSB_PADCTL_PCIE,
+		.ops = &pcie_phy_ops,
+		.padctl = &padctl,
+	},
+	{
+		.type = TEGRA_XUSB_PADCTL_SATA,
+		.ops = &sata_phy_ops,
+		.padctl = &padctl,
 	},
 };
 
-int process_nodes(const void *fdt, int nodes[], unsigned int count)
-{
-	unsigned int i;
-
-	for (i = 0; i < count; i++) {
-		enum fdt_compat_id id;
-		int err;
-
-		if (!fdtdec_get_is_enabled(fdt, nodes[i]))
-			continue;
-
-		id = fdtdec_lookup(fdt, nodes[i]);
-		switch (id) {
-		case COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL:
-			break;
-
-		default:
-			error("unsupported compatible: %s",
-			      fdtdec_get_compatible(id));
-			continue;
-		}
-
-		padctl->num_lanes = ARRAY_SIZE(tegra124_lanes);
-		padctl->lanes = tegra124_lanes;
-
-		padctl->num_functions = ARRAY_SIZE(tegra124_functions);
-		padctl->functions = tegra124_functions;
-
-		err = tegra_xusb_padctl_parse_dt(padctl, fdt, nodes[i]);
-		if (err < 0) {
-			error("failed to parse DT: %d", err);
-			continue;
-		}
-
-		/* deassert XUSB padctl reset */
-		reset_set_enable(PERIPH_ID_XUSB_PADCTL, 0);
-
-		err = tegra_xusb_padctl_config_apply(padctl, &padctl->config);
-		if (err < 0) {
-			error("failed to apply pinmux: %d", err);
-			continue;
-		}
-
-		/* only a single instance is supported */
-		break;
-	}
-
-	return 0;
-}
+static const struct tegra_xusb_padctl_soc tegra124_socdata = {
+	.lanes = tegra124_lanes,
+	.num_lanes = ARRAY_SIZE(tegra124_lanes),
+	.functions = tegra124_functions,
+	.num_functions = ARRAY_SIZE(tegra124_functions),
+	.phys = tegra124_phys,
+	.num_phys = ARRAY_SIZE(tegra124_phys),
+};
 
 void tegra_xusb_padctl_init(const void *fdt)
 {
@@ -370,6 +324,6 @@ void tegra_xusb_padctl_init(const void *fdt)
 	count = fdtdec_find_aliases_for_id(fdt, "padctl",
 					   COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL,
 					   nodes, ARRAY_SIZE(nodes));
-	if (process_nodes(fdt, nodes, count))
+	if (tegra_xusb_process_nodes(fdt, nodes, count, &tegra124_socdata))
 		return;
 }

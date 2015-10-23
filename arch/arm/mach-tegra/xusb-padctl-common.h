@@ -33,8 +33,8 @@ struct tegra_xusb_phy_ops {
 };
 
 struct tegra_xusb_phy {
+	unsigned int type;
 	const struct tegra_xusb_phy_ops *ops;
-
 	struct tegra_xusb_padctl *padctl;
 };
 
@@ -58,6 +58,15 @@ struct tegra_xusb_padctl_group {
 	int iddq;
 };
 
+struct tegra_xusb_padctl_soc {
+	const struct tegra_xusb_padctl_lane *lanes;
+	unsigned int num_lanes;
+	const char *const *functions;
+	unsigned int num_functions;
+	struct tegra_xusb_phy *phys;
+	unsigned int num_phys;
+};
+
 struct tegra_xusb_padctl_config {
 	const char *name;
 
@@ -66,20 +75,13 @@ struct tegra_xusb_padctl_config {
 };
 
 struct tegra_xusb_padctl {
+	const struct tegra_xusb_padctl_soc *socdata;
+	struct tegra_xusb_padctl_config config;
 	struct fdt_resource regs;
-
 	unsigned int enable;
 
-	struct tegra_xusb_phy phys[2];
-
-	const struct tegra_xusb_padctl_lane *lanes;
-	unsigned int num_lanes;
-
-	const char *const *functions;
-	unsigned int num_functions;
-
-	struct tegra_xusb_padctl_config config;
 };
+extern struct tegra_xusb_padctl padctl;
 
 static inline u32 padctl_readl(struct tegra_xusb_padctl *padctl,
 			       unsigned long offset)
@@ -93,11 +95,7 @@ static inline void padctl_writel(struct tegra_xusb_padctl *padctl,
 	writel(value, padctl->regs.start + offset);
 }
 
-extern struct tegra_xusb_padctl *padctl;
-
-int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
-			       const void *fdt, int node);
-int tegra_xusb_padctl_config_apply(struct tegra_xusb_padctl *padctl,
-				   struct tegra_xusb_padctl_config *config);
+int tegra_xusb_process_nodes(const void *fdt, int nodes[], unsigned int count,
+	const struct tegra_xusb_padctl_soc *socdata);
 
 #endif
