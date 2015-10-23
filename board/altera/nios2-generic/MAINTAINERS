@@ -1,6 +1,0 @@
-NIOS2-GENERIC BOARD
-M:	Scott McNutt <smcnutt@psyent.com>
-S:	Maintained
-F:	board/altera/nios2-generic/
-F:	include/configs/nios2-generic.h
-F:	configs/nios2-generic_defconfig

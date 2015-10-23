@@ -12,18 +12,26 @@
 /*
  * BOARD/CPU
  */
-#include "../board/altera/nios2-generic/custom_fpga.h" /* fpga parameters */
-#define CONFIG_BOARD_NAME "nios2-generic" /* custom board name */
-#define CONFIG_BOARD_EARLY_INIT_F	/* enable early board-spec. init */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO_LATE
-#define CONFIG_SYS_NIOS_SYSID_BASE	CONFIG_SYS_SYSID_BASE
 
 /*
  * SERIAL
  */
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
+
+/*
+ * CFI Flash
+ */
+#define CONFIG_SYS_FLASH_BASE		0xe0000000
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_SYS_CFI_FLASH_STATUS_POLL /* fix amd flash issue */
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /*
  * BOOTP options
@@ -49,11 +57,9 @@
  */
 #define CONFIG_ENV_IS_IN_FLASH
 
-#define CONFIG_ENV_SIZE		0x20000	/* 128k, 1 sector */
+#define CONFIG_ENV_SIZE			0x20000	/* 128k, 1 sector */
 #define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/
-#define CONFIG_ENV_ADDR		((CONFIG_SYS_RESET_ADDR + \
-					  CONFIG_SYS_MONITOR_LEN) | \
-					 CONFIG_SYS_FLASH_BASE)
+#define CONFIG_ENV_ADDR			0xe2840000
 
 /*
  * MEMORY ORGANIZATION
@@ -61,6 +67,8 @@
  * -The heap is placed below the monitor
  * -The stack is placed below the heap (&grows down).
  */
+#define CONFIG_SYS_SDRAM_BASE		0xD0000000
+#define CONFIG_SYS_SDRAM_SIZE		0x08000000
 #define CONFIG_MONITOR_IS_IN_RAM
 #define CONFIG_SYS_MONITOR_LEN		0x40000	/* Reserve 256k */
 #define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_SDRAM_BASE + \
