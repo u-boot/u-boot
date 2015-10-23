@@ -1,12 +1,13 @@
 /*
  * Linux driver for Disk-On-Chip devices
  *
- * Copyright (C) 1999 Machine Vision Holdings, Inc.
- * Copyright (C) 2001-2003 David Woodhouse <dwmw2@infradead.org>
- * Copyright (C) 2002-2003 Greg Ungerer <gerg@snapgear.com>
- * Copyright (C) 2002-2003 SnapGear Inc
+ * Copyright © 1999 Machine Vision Holdings, Inc.
+ * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
+ * Copyright © 2002-2003 Greg Ungerer <gerg@snapgear.com>
+ * Copyright © 2002-2003 SnapGear Inc
  *
- * Released under GPL
+ * SPDX-License-Identifier:	GPL-2.0+
+ *
  */
 
 #ifndef __MTD_DOC2000_H__
