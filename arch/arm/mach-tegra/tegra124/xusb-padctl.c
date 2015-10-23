@@ -220,7 +220,7 @@ static int tegra_xusb_padctl_disable(struct tegra_xusb_padctl *padctl)
 	u32 value;
 
 	if (padctl->enable == 0) {
-		error("tegra-xusb-padctl: unbalanced enable/disable");
+		error("unbalanced enable/disable");
 		return 0;
 	}
 
@@ -415,7 +415,7 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	len = fdt_count_strings(fdt, node, "nvidia,lanes");
 	if (len < 0) {
-		error("tegra-xusb-padctl: failed to parse \"nvidia,lanes\" property");
+		error("failed to parse \"nvidia,lanes\" property");
 		return -EINVAL;
 	}
 
@@ -425,7 +425,7 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 		err = fdt_get_string_index(fdt, node, "nvidia,lanes", i,
 					   &group->pins[i]);
 		if (err < 0) {
-			error("tegra-xusb-padctl: failed to read string from \"nvidia,lanes\" property");
+			error("failed to read string from \"nvidia,lanes\" property");
 			return -EINVAL;
 		}
 	}
@@ -434,7 +434,7 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	err = fdt_get_string(fdt, node, "nvidia,function", &group->func);
 	if (err < 0) {
-		error("tegra-xusb-padctl: failed to parse \"nvidia,func\" property");
+		error("failed to parse \"nvidia,func\" property");
 		return -EINVAL;
 	}
 
@@ -487,15 +487,14 @@ tegra_xusb_padctl_group_apply(struct tegra_xusb_padctl *padctl,
 
 		lane = tegra_xusb_padctl_find_lane(padctl, group->pins[i]);
 		if (!lane) {
-			error("tegra-xusb-padctl: no lane for pin %s",
-			      group->pins[i]);
+			error("no lane for pin %s", group->pins[i]);
 			continue;
 		}
 
 		func = tegra_xusb_padctl_lane_find_function(padctl, lane,
 							    group->func);
 		if (func < 0) {
-			error("tegra-xusb-padctl: function %s invalid for lane %s: %d",
+			error("function %s invalid for lane %s: %d",
 			      group->func, lane->name, func);
 			continue;
 		}
@@ -537,8 +536,7 @@ tegra_xusb_padctl_config_apply(struct tegra_xusb_padctl *padctl,
 
 		err = tegra_xusb_padctl_group_apply(padctl, group);
 		if (err < 0) {
-			error("tegra-xusb-padctl: failed to apply group %s: %d",
-			      group->name, err);
+			error("failed to apply group %s: %d", group->name, err);
 			continue;
 		}
 	}
@@ -564,8 +562,7 @@ tegra_xusb_padctl_config_parse_dt(struct tegra_xusb_padctl *padctl,
 		err = tegra_xusb_padctl_group_parse_dt(padctl, group, fdt,
 						       subnode);
 		if (err < 0) {
-			error("tegra-xusb-padctl: failed to parse group %s",
-			      group->name);
+			error("failed to parse group %s", group->name);
 			return err;
 		}
 
@@ -582,7 +579,7 @@ static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	err = fdt_get_resource(fdt, node, "reg", 0, &padctl->regs);
 	if (err < 0) {
-		error("tegra-xusb-padctl: registers not found");
+		error("registers not found");
 		return err;
 	}
 
@@ -592,8 +589,8 @@ static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
 		err = tegra_xusb_padctl_config_parse_dt(padctl, config, fdt,
 							subnode);
 		if (err < 0) {
-			error("tegra-xusb-padctl: failed to parse entry %s: %d",
-			      config->name, err);
+			error("failed to parse entry %s: %d", config->name,
+			      err);
 			continue;
 		}
 	}
@@ -618,7 +615,7 @@ static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 			break;
 
 		default:
-			error("tegra-xusb-padctl: unsupported compatible: %s",
+			error("unsupported compatible: %s",
 			      fdtdec_get_compatible(id));
 			continue;
 		}
@@ -631,8 +628,7 @@ static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 
 		err = tegra_xusb_padctl_parse_dt(padctl, fdt, nodes[i]);
 		if (err < 0) {
-			error("tegra-xusb-padctl: failed to parse DT: %d",
-			      err);
+			error("failed to parse DT: %d", err);
 			continue;
 		}
 
@@ -641,8 +637,7 @@ static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 
 		err = tegra_xusb_padctl_config_apply(padctl, &padctl->config);
 		if (err < 0) {
-			error("tegra-xusb-padctl: failed to apply pinmux: %d",
-			      err);
+			error("failed to apply pinmux: %d", err);
 			continue;
 		}
 
