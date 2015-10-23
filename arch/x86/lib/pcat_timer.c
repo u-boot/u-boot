@@ -9,10 +9,20 @@
 #include <asm/io.h>
 #include <asm/i8254.h>
 
+#define TIMER1_VALUE	18	/* 15.6us */
 #define TIMER2_VALUE	0x0a8e	/* 440Hz */
 
 int pcat_timer_init(void)
 {
+	/*
+	 * Initialize counter 1, used to refresh request signal.
+	 * This is required for legacy purpose as some codes like
+	 * vgabios utilizes counter 1 to provide delay functionality.
+	 */
+	outb(PIT_CMD_CTR1 | PIT_CMD_LOW | PIT_CMD_MODE2,
+	     PIT_BASE + PIT_COMMAND);
+	outb(TIMER1_VALUE, PIT_BASE + PIT_T1);
+
 	/*
 	 * Initialize counter 2, used to drive the speaker.
 	 * To start a beep, set both bit0 and bit1 of port 0x61.
