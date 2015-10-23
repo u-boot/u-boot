@@ -113,6 +113,8 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 	if (mmc->card_caps & mmc->cfg->host_caps & MMC_MODE_HS)
 		writel(MMCI_BIT(HSMODE), &mci->cfg);
 
+	udelay(50);
+
 	initialized = 1;
 }
 
