@@ -5,14 +5,12 @@
  */
 
 #include <common.h>
-#include <i2c.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
 #include "high_speed_env_spec.h"
-#include "high_speed_topology_spec.h"
 #include "sys_env_lib.h"
 #include "ctrl_pex.h"
 
@@ -1364,27 +1362,6 @@ enum serdes_seq serdes_type_and_speed_to_speed_seq(enum serdes_type serdes_type,
 	return seq_id;
 }
 
-/*
- * This is the weak default function for the Marvell evaluation or
- * development boarrds. Like the DB-88F6820-GP and others.
- * Custom boards should define this function in their board
- * code (board directory). And overwrite this default function
- * with this custom specific code.
- */
-__weak int hws_board_topology_load(struct serdes_map *serdes_map_array)
-{
-	u32 board_id = mv_board_id_get();
-	u32 board_id_index = mv_board_id_index_get(board_id);
-
-	DEBUG_INIT_FULL_S("\n### hws_board_topology_load ###\n");
-	/* getting board topology according to the board id */
-	DEBUG_INIT_FULL_S("Getting board topology according to the board id\n");
-
-	CHECK_STATUS(load_topology_func_arr[board_id_index] (serdes_map_array));
-
-	return MV_OK;
-}
-
 void print_topology_details(struct serdes_map *serdes_map_array)
 {
 	u32 lane_num;
@@ -1447,9 +1424,6 @@ int serdes_phy_config(void)
 		printf("hws_ctrl_high_speed_serdes_phy_config: Error: Serdes initialization fail\n");
 		return MV_FAIL;
 	}
-
-	/* I2C init */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	/* Board topology load */
 	DEBUG_INIT_FULL_S

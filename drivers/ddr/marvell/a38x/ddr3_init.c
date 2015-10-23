@@ -96,7 +96,6 @@ u8 generic_init_controller = 1;
 static u32 ddr3_get_static_ddr_mode(void);
 #endif
 static int ddr3_hws_tune_training_params(u8 dev_num);
-static int ddr3_update_topology_map(struct hws_topology_map *topology_map);
 
 /* device revision */
 #define DEV_VERSION_ID_REG		0x1823c
@@ -383,14 +382,6 @@ int ddr3_init(void)
 	}
 #endif
 
-	/* Load topology for New Training IP */
-	status = ddr3_load_topology_map();
-	if (MV_OK != status) {
-		printf("%s Training Sequence topology load - FAILED\n",
-		       ddr_type);
-		return status;
-	}
-
 	/* Tune training algo paramteres */
 	status = ddr3_hws_tune_training_params(0);
 	if (MV_OK != status)
@@ -537,27 +528,6 @@ u32 ddr3_get_cs_num_from_reg(void)
 	}
 
 	return cs_count;
-}
-
-/*
- * Name:     ddr3_load_topology_map
- * Desc:
- * Args:
- * Notes:
- * Returns:
- */
-int ddr3_load_topology_map(void)
-{
-	struct hws_topology_map *tm = ddr3_get_topology_map();
-
-#if defined(MV_DDR_TOPOLOGY_UPDATE_FROM_TWSI)
-	/* Update topology data */
-	if (MV_OK != ddr3_update_topology_map(tm)) {
-		DEBUG_INIT_FULL_S("Failed update of DDR3 Topology map\n");
-	}
-#endif
-
-	return MV_OK;
 }
 
 void get_target_freq(u32 freq_mode, u32 *ddr_freq, u32 *hclk_ps)
@@ -780,48 +750,6 @@ int ddr3_calc_mem_cs_size(u32 cs, u32 *cs_size)
 
 	return MV_OK;
 }
-
-#if defined(MV_DDR_TOPOLOGY_UPDATE_FROM_TWSI)
-/*
- * Name:     ddr3_update_topology_map
- * Desc:
- * Args:
- * Notes: Update topology map by Sat_r values
- * Returns:
- */
-static int ddr3_update_topology_map(struct hws_topology_map *tm)
-{
-	struct topology_update_info topology_update_info;
-
-	topology_update_info.update_width = 0;
-	topology_update_info.update_ecc = 0;
-	topology_update_info.update_ecc_pup3_mode = 0;
-	sys_env_get_topology_update_info(&topology_update_info);
-	if (topology_update_info.update_width) {
-		tm->bus_act_mask &=
-		    ~(TOPOLOGY_UPDATE_WIDTH_32BIT_MASK);
-		if (topology_update_info.width == TOPOLOGY_UPDATE_WIDTH_16BIT)
-			tm->bus_act_mask =
-			    TOPOLOGY_UPDATE_WIDTH_16BIT_MASK;
-		else
-			tm->bus_act_mask =
-			    TOPOLOGY_UPDATE_WIDTH_32BIT_MASK;
-	}
-
-	if (topology_update_info.update_ecc) {
-		if (topology_update_info.ecc == TOPOLOGY_UPDATE_ECC_OFF) {
-			tm->bus_act_mask &=
-			    ~(1 << topology_update_info.ecc_pup_mode_offset);
-		} else {
-			tm->bus_act_mask |=
-			    topology_update_info.
-			    ecc << topology_update_info.ecc_pup_mode_offset;
-		}
-	}
-
-	return MV_OK;
-}
-#endif
 
 /*
  * Name:     ddr3_hws_tune_training_params
