@@ -104,6 +104,7 @@ struct stm32_flash_regs {
 #define STM32_FLASH_CR_STRT		(1 << 16)
 #define STM32_FLASH_CR_LOCK		(1 << 31)
 #define STM32_FLASH_CR_SNB_OFFSET	3
+#define STM32_FLASH_CR_SNB_MASK		(15 << STM32_FLASH_CR_SNB_OFFSET)
 
 enum clock {
 	CLOCK_CORE,
