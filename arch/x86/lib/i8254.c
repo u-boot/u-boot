@@ -12,7 +12,7 @@
 #define TIMER1_VALUE	18	/* 15.6us */
 #define TIMER2_VALUE	0x0a8e	/* 440Hz */
 
-int pcat_timer_init(void)
+int i8254_init(void)
 {
 	/*
 	 * Initialize counter 1, used to refresh request signal.
