@@ -8,11 +8,9 @@
 /* i8259.h i8259 PIC Registers */
 
 #ifndef _ASMI386_I8259_H_
-#define _ASMI386_I8959_H_       1
-
+#define _ASMI386_I8959_H_
 
 /* PIC I/O mapped registers */
-
 #define IRR		0x0	/* Interrupt Request Register */
 #define ISR		0x0	/* In-Service Register */
 #define ICW1		0x0	/* Initialization Control Word 1 */
@@ -23,7 +21,7 @@
 #define ICW4		0x1	/* Initialization Control Word 4 */
 #define IMR		0x1	/* Interrupt Mask Register */
 
-/* bits for IRR, IMR, ISR and ICW3 */
+/* IRR, IMR, ISR and ICW3 bits */
 #define	IR7		0x80	/* IR7 */
 #define	IR6		0x40	/* IR6 */
 #define	IR5		0x20	/* IR5 */
@@ -33,7 +31,7 @@
 #define	IR1		0x02	/* IR1 */
 #define	IR0		0x01	/* IR0 */
 
-/* bits for SEOI */
+/* SEOI bits */
 #define	SEOI_IR7	0x07	/* IR7 */
 #define	SEOI_IR6	0x06	/* IR6 */
 #define	SEOI_IR5	0x05	/* IR5 */
@@ -49,9 +47,9 @@
 #define OCW2_NOP	0x40	/* NOP */
 #define OCW2_SEOI	0x60	/* Specific EOI */
 #define OCW2_RSET	0x80	/* Rotate/set */
-#define OCW2_REOI	0xA0	/* Rotate on non specific EOI */
-#define OCW2_PSET	0xC0	/* Priority Set Command */
-#define OCW2_RSEOI	0xE0	/* Rotate on specific EOI */
+#define OCW2_REOI	0xa0	/* Rotate on non specific EOI */
+#define OCW2_PSET	0xc0	/* Priority Set Command */
+#define OCW2_RSEOI	0xe0	/* Rotate on specific EOI */
 
 /* ICW1 bits */
 #define ICW1_SEL	0x10	/* Select ICW1 */
@@ -60,15 +58,20 @@
 #define ICW1_SNGL	0x02	/* Single PIC */
 #define ICW1_EICW4	0x01	/* Expect initilization ICW4 */
 
-/* ICW2 is the starting vector number */
-
-/* ICW2 is bit-mask of present slaves for a master device,
- * or the slave ID for a slave device */
+/*
+ * ICW2 is the starting vector number
+ *
+ * ICW2 is bit-mask of present slaves for a master device,
+ * or the slave ID for a slave device
+ */
 
 /* ICW4 bits */
-#define	ICW4_AEOI	0x02	/* Automatic EOI Mode */
+#define ICW4_AEOI	0x02	/* Automatic EOI Mode */
 #define ICW4_PM		0x01	/* Microprocessor Mode */
+
+#define ELCR1		0x4d0
+#define ELCR2		0x4d1
 
 int i8259_init(void);
 
-#endif
+#endif /* _ASMI386_I8959_H_ */

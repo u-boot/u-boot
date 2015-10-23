@@ -28,10 +28,11 @@ int i8259_init(void)
 	outb(0xff, MASTER_PIC + IMR);
 	outb(0xff, SLAVE_PIC + IMR);
 
-	/* Master PIC */
-	/* Place master PIC interrupts at INT20 */
-	/* ICW3, One slave PIC is present */
-	outb(ICW1_SEL|ICW1_EICW4, MASTER_PIC + ICW1);
+	/*
+	 * Master PIC
+	 * Place master PIC interrupts at INT20
+	 */
+	outb(ICW1_SEL | ICW1_EICW4, MASTER_PIC + ICW1);
 	outb(0x20, MASTER_PIC + ICW2);
 	outb(IR2, MASTER_PIC + ICW3);
 	outb(ICW4_PM, MASTER_PIC + ICW4);
@@ -39,10 +40,11 @@ int i8259_init(void)
 	for (i = 0; i < 8; i++)
 		outb(OCW2_SEOI | i, MASTER_PIC + OCW2);
 
-	/* Slave PIC */
-	/* Place slave PIC interrupts at INT28 */
-	/* Slave ID */
-	outb(ICW1_SEL|ICW1_EICW4, SLAVE_PIC + ICW1);
+	/*
+	 * Slave PIC
+	 * Place slave PIC interrupts at INT28
+	 */
+	outb(ICW1_SEL | ICW1_EICW4, SLAVE_PIC + ICW1);
 	outb(0x28, SLAVE_PIC + ICW2);
 	outb(0x02, SLAVE_PIC + ICW3);
 	outb(ICW4_PM, SLAVE_PIC + ICW4);
@@ -109,9 +111,6 @@ void specific_eoi(int irq)
 
 	outb(OCW2_SEOI | irq, MASTER_PIC + OCW2);
 }
-
-#define ELCR1			0x4d0
-#define ELCR2			0x4d1
 
 void configure_irq_trigger(int int_num, bool is_level_triggered)
 {
