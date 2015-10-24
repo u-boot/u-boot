@@ -1,6 +1,0 @@
-TAISHAN BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/amcc/taishan/
-F:	include/configs/taishan.h
-F:	configs/taishan_defconfig
