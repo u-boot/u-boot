@@ -2,9 +2,6 @@
  * Copyright (C) 2007,
  * Daniel Hellstrom, daniel@gaisler.com
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
