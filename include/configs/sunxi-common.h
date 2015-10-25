@@ -335,6 +335,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_USB_GADGET_VBUS_DRAW	0
 
 #define CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_USB_FUNCTION_FASTBOOT
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #endif
@@ -343,6 +344,11 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_G_DNL_VENDOR_NUM		0x1f3a
 #define CONFIG_G_DNL_PRODUCT_NUM	0x1010
 #define CONFIG_G_DNL_MANUFACTURER	"Allwinner Technology"
+#endif
+
+#ifdef CONFIG_USB_FUNCTION_DFU
+#define CONFIG_CMD_DFU
+#define CONFIG_DFU_RAM
 #endif
 
 #ifdef CONFIG_USB_FUNCTION_FASTBOOT
@@ -392,13 +398,26 @@ extern int soft_i2c_gpio_scl;
  * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
  * 1M script, 1M pxe and the ramdisk at the end.
  */
+
+#define KERNEL_ADDR_R  __stringify(SDRAM_OFFSET(2000000))
+#define FDT_ADDR_R     __stringify(SDRAM_OFFSET(3000000))
+#define SCRIPT_ADDR_R  __stringify(SDRAM_OFFSET(3100000))
+#define PXEFILE_ADDR_R __stringify(SDRAM_OFFSET(3200000))
+#define RAMDISK_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0xa000000\0" \
-	"kernel_addr_r=" __stringify(SDRAM_OFFSET(2000000)) "\0" \
-	"fdt_addr_r=" __stringify(SDRAM_OFFSET(3000000)) "\0" \
-	"scriptaddr=" __stringify(SDRAM_OFFSET(3100000)) "\0" \
-	"pxefile_addr_r=" __stringify(SDRAM_OFFSET(3200000)) "\0" \
-	"ramdisk_addr_r=" __stringify(SDRAM_OFFSET(3300000)) "\0"
+	"kernel_addr_r=" KERNEL_ADDR_R "\0" \
+	"fdt_addr_r=" FDT_ADDR_R "\0" \
+	"scriptaddr=" SCRIPT_ADDR_R "\0" \
+	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0"
+
+#define DFU_ALT_INFO_RAM \
+	"dfu_alt_info_ram=" \
+	"kernel ram " KERNEL_ADDR_R " 0x1000000;" \
+	"fdt ram " FDT_ADDR_R " 0x100000;" \
+	"ramdisk ram " RAMDISK_ADDR_R " 0x4000000\0"
 
 #ifdef CONFIG_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
@@ -480,6 +499,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
+	DFU_ALT_INFO_RAM \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
 	BOOTCMD_SUNXI_COMPAT \
