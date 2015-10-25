@@ -40,7 +40,7 @@ static void dwmci_set_idma_desc(struct dwmci_idmac *idmac,
 	desc->flags = desc0;
 	desc->cnt = desc1;
 	desc->addr = desc2;
-	desc->next_addr = (unsigned int)desc + sizeof(struct dwmci_idmac);
+	desc->next_addr = (ulong)desc + sizeof(struct dwmci_idmac);
 }
 
 static void dwmci_prepare_data(struct dwmci_host *host,
@@ -58,7 +58,7 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 	dwmci_wait_reset(host, DWMCI_CTRL_FIFO_RESET);
 
 	data_start = (ulong)cur_idmac;
-	dwmci_writel(host, DWMCI_DBADDR, (unsigned int)cur_idmac);
+	dwmci_writel(host, DWMCI_DBADDR, (ulong)cur_idmac);
 
 	do {
 		flags = DWMCI_IDMAC_OWN | DWMCI_IDMAC_CH ;
@@ -70,7 +70,7 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 			cnt = data->blocksize * 8;
 
 		dwmci_set_idma_desc(cur_idmac, flags, cnt,
-				    (u32)bounce_buffer + (i * PAGE_SIZE));
+				    (ulong)bounce_buffer + (i * PAGE_SIZE));
 
 		if (blk_cnt <= 8)
 			break;

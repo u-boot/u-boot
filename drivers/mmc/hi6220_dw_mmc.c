@@ -48,7 +48,7 @@ int hi6220_dwmci_add_port(int index, u32 regbase, int bus_width)
 		return -ENOMEM;
 	}
 
-	host->ioaddr = (void *)regbase;
+	host->ioaddr = (void *)(ulong)regbase;
 	host->buswidth = bus_width;
 	host->bus_hz = MMC0_DEFAULT_FREQ;
 
