@@ -430,7 +430,6 @@ static int zynq_qspi_start_transfer(struct zynq_qspi_priv *priv)
 		zynq_qspi_fill_tx_fifo(priv, priv->fifo_depth);
 
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->ier);
-	/* Start the transfer by enabling manual start bit */
 
 	/* wait for completion */
 	do {
@@ -516,7 +515,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 	priv->rx_buf = din;
 	priv->len = bitlen / 8;
 
-	debug("spi_xfer: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n",
+	debug("zynq_qspi_xfer: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n",
 	      bus->seq, slave_plat->cs, bitlen, priv->len, flags);
 
 	/*
@@ -569,8 +568,7 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 	writel(confr, &regs->cr);
 	priv->freq = speed;
 
-	debug("zynq_spi_set_speed: regs=%p, speed=%d\n",
-	      priv->regs, priv->freq);
+	debug("%s: regs=%p, speed=%d\n", __func__, priv->regs, priv->freq);
 
 	return 0;
 }
@@ -593,7 +591,7 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 	writel(confr, &regs->cr);
 	priv->mode = mode;
 
-	debug("zynq_spi_set_mode: regs=%p, mode=%d\n", priv->regs, priv->mode);
+	debug("%s: regs=%p, mode=%d\n", __func__, priv->regs, priv->mode);
 
 	return 0;
 }
