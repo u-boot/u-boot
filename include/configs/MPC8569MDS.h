@@ -12,7 +12,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_FSL_CLK
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */

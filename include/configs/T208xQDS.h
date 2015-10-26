@@ -13,7 +13,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
-#define CONFIG_FSL_CLK
 #define CONFIG_MMC
 #define CONFIG_USB_EHCI
 #if defined(CONFIG_PPC_T2080)

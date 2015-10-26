@@ -21,6 +21,7 @@
 #define CONFIG_MXC_GPT_HCLK
 #define CONFIG_SYSCOUNTER_TIMER
 #define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
+#define CONFIG_SYS_FSL_CLK
 
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR

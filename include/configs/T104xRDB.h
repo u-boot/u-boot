@@ -13,7 +13,6 @@
 #define CONFIG_T104xRDB
 #define CONFIG_PHYS_64BIT
 #define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_FSL_CLK
 
 #define CONFIG_E500			/* BOOKE e500 family */
 #include <asm/config_mpc85xx.h>
