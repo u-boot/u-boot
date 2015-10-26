@@ -128,6 +128,27 @@
 			};
 		};
 
+		i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			adv7511: hdmi-tx@39 {
+				compatible = "adi,adv7511";
+				reg = <0x39>;
+				adi,input-style = <0x03>;
+				adi,input-id = <0x01>;
+				adi,input-color-depth = <0x3>;
+				adi,sync-pulse = <0x03>;
+				adi,bit-justification = <0x01>;
+				adi,up-conversion = <0x00>;
+				adi,timing-generation-sequence = <0x00>;
+				adi,vsync-polarity = <0x02>;
+				adi,hsync-polarity = <0x02>;
+				adi,tdms-clock-inversion;
+				adi,clock-delay = <0x00>;
+			};
+		};
+
 		i2c@2 {
 			#address-cells = <1>;
 			#size-cells = <0>;
