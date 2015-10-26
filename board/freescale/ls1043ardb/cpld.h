@@ -41,4 +41,5 @@ void cpld_rev_bit(unsigned char *value);
 #define CPLD_BANK_SEL_MASK	0x07
 #define CPLD_BANK_SEL_ALTBANK	0x04
 #define CPLD_CFG_RCW_SRC_NAND	0x106
+#define CPLD_CFG_RCW_SRC_SD	0x040
 #endif

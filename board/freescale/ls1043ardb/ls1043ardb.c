@@ -25,12 +25,17 @@ DECLARE_GLOBAL_DATA_PTR;
 int checkboard(void)
 {
 	static const char *freq[3] = {"100.00MHZ", "156.25MHZ"};
+#ifndef CONFIG_SD_BOOT
 	u8 cfg_rcw_src1, cfg_rcw_src2;
 	u32 cfg_rcw_src;
+#endif
 	u32 sd1refclk_sel;
 
 	printf("Board: LS1043ARDB, boot from ");
 
+#ifdef CONFIG_SD_BOOT
+	puts("SD\n");
+#else
 	cfg_rcw_src1 = CPLD_READ(cfg_rcw_src1);
 	cfg_rcw_src2 = CPLD_READ(cfg_rcw_src2);
 	cpld_rev_bit(&cfg_rcw_src1);
@@ -43,6 +48,7 @@ int checkboard(void)
 		puts("NAND\n");
 	else
 		printf("Invalid setting of SW4\n");
+#endif
 
 	printf("CPLD:  V%x.%x\nPCBA:  V%x.0\n", CPLD_READ(cpld_ver),
 	       CPLD_READ(cpld_ver_sub), CPLD_READ(pcba_ver));
