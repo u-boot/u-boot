@@ -1,13 +1,17 @@
 /*
- * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <errno.h>
 #include <common.h>
 #include <asm/io.h>
-#include <asm/fsl_serdes.h>
 #include <fsl_mdio.h>
+#ifdef CONFIG_FSL_LAYERSCAPE
+#include <asm/arch/fsl_serdes.h>
+#else
+#include <asm/fsl_serdes.h>
+#endif
 
 #include "fm.h"
 
@@ -153,7 +157,9 @@ void fm_disable_port(enum fm_port port)
 		return;
 
 	fm_info[i].enabled = 0;
+#ifndef CONFIG_SYS_FMAN_V3
 	fman_disable_port(port);
+#endif
 }
 
 void fm_enable_port(enum fm_port port)

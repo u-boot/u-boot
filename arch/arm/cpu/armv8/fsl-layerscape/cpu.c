@@ -274,6 +274,9 @@ static inline void final_mmu_setup(void)
 	flush_dcache_range(gd->arch.tlb_addr,
 			   gd->arch.tlb_addr + gd->arch.tlb_size);
 
+#ifdef CONFIG_SYS_DPAA_FMAN
+	flush_dcache_all();
+#endif
 	/* point TTBR to the new table */
 	el = current_el();
 
@@ -432,6 +435,9 @@ int print_cpuinfo(void)
 	printf("\n       Bus:      %-4s MHz  ",
 	       strmhz(buf, sysinfo.freq_systembus));
 	printf("DDR:      %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus));
+#ifdef CONFIG_SYS_DPAA_FMAN
+	printf("  FMAN:     %-4s MHz", strmhz(buf, sysinfo.freq_fman[0]));
+#endif
 #ifdef CONFIG_FSL_LSCH3
 	printf("     DP-DDR:   %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus2));
 #endif
@@ -468,6 +474,9 @@ int cpu_eth_init(bd_t *bis)
 #ifdef CONFIG_FSL_MC_ENET
 	error = fsl_mc_ldpaa_init(bis);
 #endif
+#ifdef CONFIG_FMAN_ENET
+	fm_standard_init(bis);
+#endif
 	return error;
 }
 
@@ -483,6 +492,9 @@ int arch_early_init_r(void)
 
 #ifdef CONFIG_SYS_HAS_SERDES
 	fsl_serdes_init();
+#endif
+#ifdef CONFIG_FMAN_ENET
+	fman_enet_init();
 #endif
 	return 0;
 }

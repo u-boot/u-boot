@@ -18,6 +18,12 @@
 #include <asm/arch/mp.h>
 #endif
 
+int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
+{
+	return fdt_setprop_string(blob, offset, "phy-connection-type",
+					 phy_string_for_interface(phyc));
+}
+
 #ifdef CONFIG_MP
 void ft_fixup_cpu(void *blob)
 {

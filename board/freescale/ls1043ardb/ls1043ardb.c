@@ -13,6 +13,7 @@
 #include <hwconfig.h>
 #include <ahci.h>
 #include <scsi.h>
+#include <fm_eth.h>
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
@@ -108,6 +109,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
+#ifdef CONFIG_SYS_DPAA_FMAN
+	fdt_fixup_fman_ethernet(blob);
+#endif
 	return 0;
 }
 

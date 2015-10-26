@@ -7,3 +7,4 @@
 obj-y += cpld.o
 obj-y += ddr.o
 obj-y += ls1043ardb.o
+obj-$(CONFIG_SYS_DPAA_FMAN) += eth.o

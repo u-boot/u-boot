@@ -153,6 +153,18 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_PING
 
+/* FMan ucode */
+#define CONFIG_SYS_DPAA_FMAN
+#ifdef CONFIG_SYS_DPAA_FMAN
+#define CONFIG_SYS_FM_MURAM_SIZE	0x60000
+
+#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
+/* FMan fireware Pre-load address */
+#define CONFIG_SYS_FMAN_FW_ADDR		0x60300000
+#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
+#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
+#endif
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 #define CONFIG_ARCH_EARLY_INIT_R

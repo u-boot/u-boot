@@ -25,6 +25,9 @@ void get_sys_info(struct sys_info *sys_info)
 	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
+#ifdef CONFIG_SYS_DPAA_FMAN
+	u32 rcw_tmp;
+#endif
 	struct ccsr_clk *clk = (void *)(CONFIG_SYS_FSL_CLK_ADDR);
 	unsigned int cpu;
 	const u8 core_cplx_pll[8] = {
@@ -79,6 +82,26 @@ void get_sys_info(struct sys_info *sys_info)
 
 #define HWA_CGA_M1_CLK_SEL	0xe0000000
 #define HWA_CGA_M1_CLK_SHIFT	29
+#ifdef CONFIG_SYS_DPAA_FMAN
+	rcw_tmp = in_be32(&gur->rcwsr[7]);
+	switch ((rcw_tmp & HWA_CGA_M1_CLK_SEL) >> HWA_CGA_M1_CLK_SHIFT) {
+	case 2:
+		sys_info->freq_fman[0] = freq_c_pll[0] / 2;
+		break;
+	case 3:
+		sys_info->freq_fman[0] = freq_c_pll[0] / 3;
+		break;
+	case 6:
+		sys_info->freq_fman[0] = freq_c_pll[1] / 2;
+		break;
+	case 7:
+		sys_info->freq_fman[0] = freq_c_pll[1] / 3;
+		break;
+	default:
+		printf("Error: Unknown FMan1 clock select!\n");
+		break;
+	}
+#endif
 
 #define HWA_CGA_M2_CLK_SEL	0x00000007
 #define HWA_CGA_M2_CLK_SHIFT	0

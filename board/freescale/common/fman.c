@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,7 +10,11 @@
 #include <fdt_support.h>
 
 #include <fm_eth.h>
+#ifdef CONFIG_FSL_LAYERSCAPE
+#include <asm/arch/fsl_serdes.h>
+#else
 #include <asm/fsl_serdes.h>
+#endif
 
 /*
  * Given the following ...

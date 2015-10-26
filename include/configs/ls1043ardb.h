@@ -234,4 +234,29 @@
 #define CONFIG_ENV_SIZE			0x20000
 #endif
 
+/* FMan */
+#ifdef CONFIG_SYS_DPAA_FMAN
+#define CONFIG_FMAN_ENET
+#define CONFIG_CMD_MII
+#define CONFIG_PHYLIB
+#define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
+
+#define CONFIG_PHY_VITESSE
+#define CONFIG_PHY_REALTEK
+#define CONFIG_PHY_AQUANTIA
+
+#define RGMII_PHY1_ADDR			0x1
+#define RGMII_PHY2_ADDR			0x2
+
+#define QSGMII_PORT1_PHY_ADDR		0x4
+#define QSGMII_PORT2_PHY_ADDR		0x5
+#define QSGMII_PORT3_PHY_ADDR		0x6
+#define QSGMII_PORT4_PHY_ADDR		0x7
+
+#define FM1_10GEC1_PHY_ADDR		0x1
+
+#define CONFIG_ETHPRIME			"FM1@DTSEC3"
+#endif
+
 #endif /* __LS1043ARDB_H__ */
