@@ -1,12 +1,11 @@
 /*
- * Copyright 2015 Freescale Semiconductor, Inc.
+ * Copyright 2014-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/arch/fsl_serdes.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
 
 struct serdes_config {
 	u8 protocol;

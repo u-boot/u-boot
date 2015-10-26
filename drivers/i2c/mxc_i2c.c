@@ -523,8 +523,8 @@ static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 #endif
 
 static struct mxc_i2c_bus mxc_i2c_buses[] = {
-#if defined(CONFIG_LS102XA) || defined(CONFIG_FSL_LSCH3) || \
-		defined(CONFIG_VF610)
+#if defined(CONFIG_LS102XA) || defined(CONFIG_VF610) || \
+	defined(CONFIG_FSL_LAYERSCAPE)
 	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 2, I2C3_BASE_ADDR, I2C_QUIRK_FLAG },

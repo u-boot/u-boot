@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2014 Freescale Semiconductor
+ * (C) Copyright 2014-2015 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
  *
@@ -10,11 +10,14 @@
 #include <linux/linkage.h>
 #include <asm/gic.h>
 #include <asm/macro.h>
-#include "mp.h"
+#ifdef CONFIG_MP
+#include <asm/arch/mp.h>
+#endif
 
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
+#ifdef CONFIG_FSL_LSCH3
 	/* Add fully-coherent masters to DVM domain */
 	ldr	x0, =CCI_MN_BASE
 	ldr	x1, =CCI_MN_RNF_NODEID_LIST
@@ -81,6 +84,7 @@ ENTRY(lowlevel_init)
 	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(20)
 	ldr	x1, =0x00FF000C
 	bl	ccn504_set_qos
+#endif
 
 	/* Set the SMMU page size in the sACR register */
 	ldr	x1, =SMMU_BASE
@@ -106,10 +110,12 @@ ENTRY(lowlevel_init)
 
 	branch_if_master x0, x1, 2f
 
+#if defined(CONFIG_MP) && defined(CONFIG_ARMV8_MULTIENTRY)
 	ldr	x0, =secondary_boot_func
 	blr	x0
-2:
+#endif
 
+2:
 #ifdef CONFIG_FSL_TZPC_BP147
 	/* Set Non Secure access for all devices protected via TZPC */
 	ldr	x1, =TZPCDECPROT_0_SET_BASE /* Decode Protection-0 Set Reg */
@@ -245,6 +251,7 @@ ENTRY(__asm_flush_l3_cache)
 	ret
 ENDPROC(__asm_flush_l3_cache)
 
+#ifdef CONFIG_MP
 	/* Keep literals not used by the secondary boot code outside it */
 	.ltorg
 
@@ -353,3 +360,4 @@ __real_cntfrq:
 	/* Secondary Boot Code ends here */
 __secondary_boot_code_size:
 	.quad .-secondary_boot_code
+#endif

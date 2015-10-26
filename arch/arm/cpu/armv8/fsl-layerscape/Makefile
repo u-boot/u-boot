@@ -1,0 +1,21 @@
+#
+# Copyright 2014-2015, Freescale Semiconductor
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+obj-y += cpu.o
+obj-y += lowlevel.o
+obj-y += soc.o
+obj-$(CONFIG_MP) += mp.o
+obj-$(CONFIG_OF_LIBFDT) += fdt.o
+obj-$(CONFIG_SPL) += spl.o
+
+ifneq ($(CONFIG_FSL_LSCH3),)
+obj-y += fsl_lsch3_speed.o
+obj-$(CONFIG_SYS_HAS_SERDES) += fsl_lsch3_serdes.o
+endif
+
+ifneq ($(CONFIG_LS2085A),)
+obj-$(CONFIG_SYS_HAS_SERDES) += ls2085a_serdes.o
+endif

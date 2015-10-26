@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <asm/system.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
 
 #include <fsl-mc/fsl_mc.h>
 #include <fsl_debug_server.h>

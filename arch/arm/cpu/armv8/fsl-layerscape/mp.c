@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2014-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -7,9 +7,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/system.h>
-#include <asm/io.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
-#include "mp.h"
+#include <asm/arch/mp.h>
+#include <asm/arch/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -23,7 +22,7 @@ phys_addr_t determine_mp_bootpg(void)
 	return (phys_addr_t)&secondary_boot_code;
 }
 
-int fsl_lsch3_wake_seconday_cores(void)
+int fsl_layerscape_wake_seconday_cores(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	struct ccsr_reset __iomem *rst = (void *)(CONFIG_SYS_FSL_RST_ADDR);
@@ -48,9 +47,10 @@ int fsl_lsch3_wake_seconday_cores(void)
 			   (CONFIG_MAX_CPUS*SPIN_TABLE_ELEM_SIZE));
 
 	printf("Waking secondary cores to start from %lx\n", gd->relocaddr);
-	out_le32(&gur->bootlocptrh, (u32)(gd->relocaddr >> 32));
-	out_le32(&gur->bootlocptrl, (u32)gd->relocaddr);
-	out_le32(&gur->scratchrw[6], 1);
+
+	gur_out32(&gur->bootlocptrh, (u32)(gd->relocaddr >> 32));
+	gur_out32(&gur->bootlocptrl, (u32)gd->relocaddr);
+	gur_out32(&gur->scratchrw[6], 1);
 	asm volatile("dsb st" : : : "memory");
 	rst->brrl = cores;
 	asm volatile("dsb st" : : : "memory");

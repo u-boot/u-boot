@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2014-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -7,11 +7,16 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-#include <asm/arch-fsl-lsch3/fdt.h>
+#include <phy.h>
+#ifdef CONFIG_FSL_LSCH3
+#include <asm/arch/fdt.h>
+#endif
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
-#include "mp.h"
+#ifdef CONFIG_MP
+#include <asm/arch/mp.h>
+#endif
 
 #ifdef CONFIG_MP
 void ft_fixup_cpu(void *blob)
@@ -150,6 +155,7 @@ void append_mmu_masters(void *blob, const char *smmu_path,
  *      for all DPAA2 devices.
  *
  */
+#ifdef CONFIG_FSL_LSCH3
 static void fdt_fixup_smmu(void *blob)
 {
 	int nodeoffset;
@@ -165,6 +171,7 @@ static void fdt_fixup_smmu(void *blob)
 	fdt_fixup_smmu_pcie(blob);
 #endif
 }
+#endif
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
@@ -181,9 +188,11 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	ft_pci_setup(blob, bd);
 #endif
 
-#if defined(CONFIG_FSL_ESDHC)
+#ifdef CONFIG_FSL_ESDHC
 	fdt_fixup_esdhc(blob, bd);
 #endif
 
+#ifdef CONFIG_FSL_LSCH3
 	fdt_fixup_smmu(blob);
+#endif
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Freescale Semiconductor, Inc.
+ * Copyright 2014-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -8,7 +8,7 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/fsl_serdes.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
+#include <asm/arch/soc.h>
 #include <fsl-mc/ldpaa_wriop.h>
 
 #ifdef CONFIG_SYS_FSL_SRDS_1
@@ -35,7 +35,7 @@ int is_serdes_configured(enum srds_prtcl device)
 int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-	u32 cfg = in_le32(&gur->rcwsr[28]);
+	u32 cfg = gur_in32(&gur->rcwsr[28]);
 	int i;
 
 	switch (sd) {
@@ -76,7 +76,7 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 
 	memset(serdes_prtcl_map, 0, sizeof(serdes_prtcl_map));
 
-	cfg = in_le32(&gur->rcwsr[28]) & sd_prctl_mask;
+	cfg = gur_in32(&gur->rcwsr[28]) & sd_prctl_mask;
 	cfg >>= sd_prctl_shift;
 	printf("Using SERDES%d Protocol: %d (0x%x)\n", sd + 1, cfg, cfg);
 

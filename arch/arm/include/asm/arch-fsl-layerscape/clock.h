@@ -1,12 +1,12 @@
 /*
- * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 
-#ifndef __ASM_ARCH_FSL_LSCH3_CLOCK_H_
-#define __ASM_ARCH_FSL_LSCH3_CLOCK_H_
+#ifndef __ASM_ARCH_FSL_LAYERSCAPE_CLOCK_H_
+#define __ASM_ARCH_FSL_LAYERSCAPE_CLOCK_H_
 
 #include <common.h>
 
@@ -21,4 +21,4 @@ enum mxc_clock {
 
 unsigned int mxc_get_clock(enum mxc_clock clk);
 
-#endif /* __ASM_ARCH_FSL_LSCH3_CLOCK_H_ */
+#endif /* __ASM_ARCH_FSL_LAYERSCAPE_CLOCK_H_ */

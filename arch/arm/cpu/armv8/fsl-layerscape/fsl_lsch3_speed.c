@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, Freescale Semiconductor, Inc.
+ * Copyright 2014-2015, Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  *
@@ -11,8 +11,8 @@
 #include <fsl_ifc.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/soc.h>
 #include "cpu.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -83,15 +83,15 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_ddrbus2 = sysclk;
 #endif
 
-	sys_info->freq_systembus *= (in_le32(&gur->rcwsr[0]) >>
+	sys_info->freq_systembus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_MASK;
 	/* Platform clock is half of platform PLL */
 	sys_info->freq_systembus /= 2;
-	sys_info->freq_ddrbus *= (in_le32(&gur->rcwsr[0]) >>
+	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_MASK;
-	sys_info->freq_ddrbus2 *= (in_le32(&gur->rcwsr[0]) >>
+	sys_info->freq_ddrbus2 *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_MASK;
 
@@ -118,7 +118,7 @@ void get_sys_info(struct sys_info *sys_info)
 	}
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = in_le32(&ifc_regs.gregs->ifc_ccr);
+	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
 	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
 
 	sys_info->freq_localbus = sys_info->freq_systembus / ccr;

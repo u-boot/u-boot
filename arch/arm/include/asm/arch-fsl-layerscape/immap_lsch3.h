@@ -6,9 +6,109 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __ARCH_FSL_LSCH3_IMMAP_H
+#ifndef __ARCH_FSL_LSCH3_IMMAP_H_
 #define __ARCH_FSL_LSCH3_IMMAP_H_
 
+#define CONFIG_SYS_IMMR				0x01000000
+#define CONFIG_SYS_FSL_DDR_ADDR			(CONFIG_SYS_IMMR + 0x00080000)
+#define CONFIG_SYS_FSL_DDR2_ADDR		(CONFIG_SYS_IMMR + 0x00090000)
+#define CONFIG_SYS_FSL_DDR3_ADDR		0x08210000
+#define CONFIG_SYS_FSL_GUTS_ADDR		(CONFIG_SYS_IMMR + 0x00E00000)
+#define CONFIG_SYS_FSL_PMU_ADDR			(CONFIG_SYS_IMMR + 0x00E30000)
+#define CONFIG_SYS_FSL_RST_ADDR			(CONFIG_SYS_IMMR + 0x00E60000)
+#define CONFIG_SYS_FSL_CH3_CLK_GRPA_ADDR	(CONFIG_SYS_IMMR + 0x00300000)
+#define CONFIG_SYS_FSL_CH3_CLK_GRPB_ADDR	(CONFIG_SYS_IMMR + 0x00310000)
+#define CONFIG_SYS_FSL_CH3_CLK_CTRL_ADDR	(CONFIG_SYS_IMMR + 0x00370000)
+#define CONFIG_SYS_FSL_ESDHC_ADDR		(CONFIG_SYS_IMMR + 0x01140000)
+#define CONFIG_SYS_IFC_ADDR			(CONFIG_SYS_IMMR + 0x01240000)
+#define CONFIG_SYS_NS16550_COM1			(CONFIG_SYS_IMMR + 0x011C0500)
+#define CONFIG_SYS_NS16550_COM2			(CONFIG_SYS_IMMR + 0x011C0600)
+#define CONFIG_SYS_FSL_TIMER_ADDR		0x023d0000
+#define CONFIG_SYS_FSL_PMU_CLTBENR		(CONFIG_SYS_FSL_PMU_ADDR + \
+						 0x18A0)
+
+#define CONFIG_SYS_FSL_WRIOP1_ADDR		(CONFIG_SYS_IMMR + 0x7B80000)
+#define CONFIG_SYS_FSL_WRIOP1_MDIO1	(CONFIG_SYS_FSL_WRIOP1_ADDR + 0x16000)
+#define CONFIG_SYS_FSL_WRIOP1_MDIO2	(CONFIG_SYS_FSL_WRIOP1_ADDR + 0x17000)
+#define CONFIG_SYS_FSL_LSCH3_SERDES_ADDR	(CONFIG_SYS_IMMR + 0xEA0000)
+
+/* SP (Cortex-A5) related */
+#define CONFIG_SYS_FSL_SP_ADDR			(CONFIG_SYS_IMMR + 0x00F00000)
+#define CONFIG_SYS_FSL_SP_VSG_GIC_ADDR		(CONFIG_SYS_FSL_SP_ADDR)
+#define CONFIG_SYS_FSL_SP_VSG_GIC_VIGR1		(CONFIG_SYS_FSL_SP_ADDR)
+#define CONFIG_SYS_FSL_SP_VSG_GIC_VIGR2		\
+					(CONFIG_SYS_FSL_SP_ADDR + 0x0008)
+#define CONFIG_SYS_FSL_SP_LOOPBACK_DUART	\
+					(CONFIG_SYS_FSL_SP_ADDR + 0x1000)
+
+#define CONFIG_SYS_FSL_DCSR_DDR_ADDR		0x70012c000ULL
+#define CONFIG_SYS_FSL_DCSR_DDR2_ADDR		0x70012d000ULL
+#define CONFIG_SYS_FSL_DCSR_DDR3_ADDR		0x700132000ULL
+#define CONFIG_SYS_FSL_DCSR_DDR4_ADDR		0x700133000ULL
+
+#define I2C1_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01000000)
+#define I2C2_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01010000)
+#define I2C3_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01020000)
+#define I2C4_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01030000)
+
+#define CONFIG_SYS_LS2085A_XHCI_USB1_ADDR	(CONFIG_SYS_IMMR + 0x02100000)
+#define CONFIG_SYS_LS2085A_XHCI_USB2_ADDR	(CONFIG_SYS_IMMR + 0x02110000)
+
+/* TZ Address Space Controller Definitions */
+#define TZASC1_BASE			0x01100000	/* as per CCSR map. */
+#define TZASC2_BASE			0x01110000	/* as per CCSR map. */
+#define TZASC3_BASE			0x01120000	/* as per CCSR map. */
+#define TZASC4_BASE			0x01130000	/* as per CCSR map. */
+#define TZASC_BUILD_CONFIG_REG(x)	((TZASC1_BASE + (x * 0x10000)))
+#define TZASC_ACTION_REG(x)		((TZASC1_BASE + (x * 0x10000)) + 0x004)
+#define TZASC_GATE_KEEPER(x)		((TZASC1_BASE + (x * 0x10000)) + 0x008)
+#define TZASC_REGION_BASE_LOW_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x100)
+#define TZASC_REGION_BASE_HIGH_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x104)
+#define TZASC_REGION_TOP_LOW_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x108)
+#define TZASC_REGION_TOP_HIGH_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x10C)
+#define TZASC_REGION_ATTRIBUTES_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x110)
+#define TZASC_REGION_ID_ACCESS_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x114)
+
+/* PCIe */
+#define CONFIG_SYS_PCIE1_ADDR			(CONFIG_SYS_IMMR + 0x2400000)
+#define CONFIG_SYS_PCIE2_ADDR			(CONFIG_SYS_IMMR + 0x2500000)
+#define CONFIG_SYS_PCIE3_ADDR			(CONFIG_SYS_IMMR + 0x2600000)
+#define CONFIG_SYS_PCIE4_ADDR			(CONFIG_SYS_IMMR + 0x2700000)
+#define CONFIG_SYS_PCIE1_PHYS_ADDR		0x1000000000ULL
+#define CONFIG_SYS_PCIE2_PHYS_ADDR		0x1200000000ULL
+#define CONFIG_SYS_PCIE3_PHYS_ADDR		0x1400000000ULL
+#define CONFIG_SYS_PCIE4_PHYS_ADDR		0x1600000000ULL
+
+/* Device Configuration */
+#define DCFG_BASE		0x01e00000
+#define DCFG_PORSR1			0x000
+#define DCFG_PORSR1_RCW_SRC		0xff800000
+#define DCFG_PORSR1_RCW_SRC_NOR		0x12f00000
+#define DCFG_RCWSR13			0x130
+#define DCFG_RCWSR13_DSPI		(0 << 8)
+
+#define DCFG_DCSR_BASE		0X700100000ULL
+#define DCFG_DCSR_PORCR1		0x000
+
+/* Supplemental Configuration */
+#define SCFG_BASE		0x01fc0000
+#define SCFG_USB3PRM1CR			0x000
+
+#define TP_ITYP_AV		0x00000001	/* Initiator available */
+#define TP_ITYP_TYPE(x)	(((x) & 0x6) >> 1)	/* Initiator Type */
+#define TP_ITYP_TYPE_ARM	0x0
+#define TP_ITYP_TYPE_PPC	0x1		/* PowerPC */
+#define TP_ITYP_TYPE_OTHER	0x2		/* StarCore DSP */
+#define TP_ITYP_TYPE_HA		0x3		/* HW Accelerator */
+#define TP_ITYP_THDS(x)	(((x) & 0x18) >> 3)	/* # threads */
+#define TP_ITYP_VER(x)	(((x) & 0xe0) >> 5)	/* Initiator Version */
+#define TY_ITYP_VER_A7		0x1
+#define TY_ITYP_VER_A53		0x2
+#define TY_ITYP_VER_A57		0x3
+
+#define TP_CLUSTER_EOC		0x80000000	/* end of clusters */
+#define TP_CLUSTER_INIT_MASK	0x0000003f	/* initiator mask */
+#define TP_INIT_PER_CLUSTER     4
 /* This is chassis generation 3 */
 
 struct sys_info {
@@ -109,21 +209,6 @@ struct ccsr_gur {
 	u8	res_858[0x1000-0x858];
 };
 
-#define TP_ITYP_AV		0x00000001	/* Initiator available */
-#define TP_ITYP_TYPE(x)	(((x) & 0x6) >> 1)	/* Initiator Type */
-#define TP_ITYP_TYPE_ARM	0x0
-#define TP_ITYP_TYPE_PPC	0x1		/* PowerPC */
-#define TP_ITYP_TYPE_OTHER	0x2		/* StarCore DSP */
-#define TP_ITYP_TYPE_HA		0x3		/* HW Accelerator */
-#define TP_ITYP_THDS(x)	(((x) & 0x18) >> 3)	/* # threads */
-#define TP_ITYP_VER(x)	(((x) & 0xe0) >> 5)	/* Initiator Version */
-#define TY_ITYP_VER_A7		0x1
-#define TY_ITYP_VER_A53		0x2
-#define TY_ITYP_VER_A57		0x3
-
-#define TP_CLUSTER_EOC		0x80000000	/* end of clusters */
-#define TP_CLUSTER_INIT_MASK	0x0000003f	/* initiator mask */
-#define TP_INIT_PER_CLUSTER     4
 
 struct ccsr_clk_cluster_group {
 	struct {
@@ -180,4 +265,4 @@ struct ccsr_reset {
 	u32 ip_rev1;			/* 0xbf8 */
 	u32 ip_rev2;			/* 0xbfc */
 };
-#endif /* __ARCH_FSL_LSCH3_IMMAP_H */
+#endif /* __ARCH_FSL_LSCH3_IMMAP_H_ */

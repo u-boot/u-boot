@@ -1,11 +1,11 @@
 /*
- * Copyright 2014, Freescale Semiconductor
+ * Copyright 2014-2015, Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _FSL_CH3_MP_H
-#define _FSL_CH3_MP_H
+#ifndef _FSL_LAYERSCAPE_MP_H
+#define _FSL_LAYERSCAPE_MP_H
 
 /*
 * Each spin table element is defined as
@@ -29,10 +29,10 @@ extern u64 __spin_table[];
 extern u64 __real_cntfrq;
 extern u64 *secondary_boot_code;
 extern size_t __secondary_boot_code_size;
-int fsl_lsch3_wake_seconday_cores(void);
+int fsl_layerscape_wake_seconday_cores(void);
 void *get_spin_tbl_addr(void);
 phys_addr_t determine_mp_bootpg(void);
 void secondary_boot_func(void);
 int is_core_online(u64 cpu_id);
 #endif
-#endif /* _FSL_CH3_MP_H */
+#endif /* _FSL_LAYERSCAPE_MP_H */

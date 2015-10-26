@@ -17,7 +17,7 @@
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 #include <i2c.h>
-#include <asm/arch-fsl-lsch3/soc.h>
+#include <asm/arch/soc.h>
 
 #include "../common/qixis.h"
 #include "ls2085ardb_qixis.h"

@@ -1,19 +1,18 @@
 /*
- * Copyright 2015 Freescale Semiconductor
+ * Copyright 2014-2015 Freescale Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <fsl_ifc.h>
-#include <nand.h>
-#include <spl.h>
-#include <asm/arch-fsl-lsch3/soc.h>
+#include <asm/arch/soc.h>
 #include <asm/io.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_LS2085A
 static void erratum_a008751(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008751
@@ -77,31 +76,11 @@ void fsl_lsch3_early_init_f(void)
 	init_early_memctl_regs();	/* tighten IFC timing */
 	erratum_a009203();
 }
+#endif
 
-#ifdef CONFIG_SPL_BUILD
-void board_init_f(ulong dummy)
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
 {
-	/* Clear global data */
-	memset((void *)gd, 0, sizeof(gd_t));
-
-	arch_cpu_init();
-	board_early_init_f();
-	timer_init();
-	env_init();
-	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
-
-	serial_init();
-	console_init_f();
-	dram_init();
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	board_init_r(NULL, 0);
-}
-
-u32 spl_boot_device(void)
-{
-	return BOOT_DEVICE_NAND;
+	return 0;
 }
 #endif

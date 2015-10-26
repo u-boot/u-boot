@@ -4,13 +4,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __FSL_SERDES_H
-#define __FSL_SERDES_H
+#ifndef __FSL_SERDES_H__
+#define __FSL_SERDES_H__
 
 #include <config.h>
 
-#define	SRDS_MAX_LANES	8
-
+#if defined(CONFIG_LS2085A)
 enum srds_prtcl {
 	NONE = 0,
 	PCIE1,
@@ -56,12 +55,12 @@ enum srds {
 	FSL_SRDS_1  = 0,
 	FSL_SRDS_2  = 1,
 };
+#endif
 
 int is_serdes_configured(enum srds_prtcl device);
 void fsl_serdes_init(void);
-
 int serdes_get_first_lane(u32 sd, enum srds_prtcl device);
 enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane);
 int is_serdes_prtcl_valid(int serdes, u32 prtcl);
 
-#endif /* __FSL_SERDES_H */
+#endif /* __FSL_SERDES_H__ */
