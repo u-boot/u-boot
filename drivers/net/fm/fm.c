@@ -80,11 +80,11 @@ static void fm_upload_ucode(int fm_idx, struct fm_imem *imem,
 	out_be32(&imem->iadd, IRAM_IADD_AIE);
 	/* write microcode to IRAM */
 	for (i = 0; i < size / 4; i++)
-		out_be32(&imem->idata, ucode[i]);
+		out_be32(&imem->idata, (be32_to_cpu(ucode[i])));
 
 	/* verify if the writing is over */
 	out_be32(&imem->iadd, 0);
-	while ((in_be32(&imem->idata) != ucode[0]) && --timeout)
+	while ((in_be32(&imem->idata) != be32_to_cpu(ucode[0])) && --timeout)
 		;
 	if (!timeout)
 		printf("Fman%u: microcode upload timeout\n", fm_idx + 1);
@@ -177,14 +177,15 @@ static int fman_upload_firmware(int fm_idx,
 		const struct qe_microcode *ucode = &firmware->microcode[i];
 
 		/* Upload a microcode if it's present */
-		if (ucode->code_offset) {
+		if (be32_to_cpu(ucode->code_offset)) {
 			u32 ucode_size;
 			u32 *code;
 			printf("Fman%u: Uploading microcode version %u.%u.%u\n",
 			       fm_idx + 1, ucode->major, ucode->minor,
 			       ucode->revision);
-			code = (void *)firmware + ucode->code_offset;
-			ucode_size = sizeof(u32) * ucode->count;
+			code = (void *)firmware +
+			       be32_to_cpu(ucode->code_offset);
+			ucode_size = sizeof(u32) * be32_to_cpu(ucode->count);
 			fm_upload_ucode(fm_idx, fm_imem, code, ucode_size);
 		}
 	}

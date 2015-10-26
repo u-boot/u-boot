@@ -109,7 +109,7 @@ static int tgec_is_fibre(struct eth_device *dev)
 static u16 muram_readw(u16 *addr)
 {
 	u32 base = (u32)addr & ~0x3;
-	u32 val32 = *(u32 *)base;
+	u32 val32 = in_be32((u32 *)base);
 	int byte_pos;
 	u16 ret;
 
@@ -125,7 +125,7 @@ static u16 muram_readw(u16 *addr)
 static void muram_writew(u16 *addr, u16 val)
 {
 	u32 base = (u32)addr & ~0x3;
-	u32 org32 = *(u32 *)base;
+	u32 org32 = in_be32((u32 *)base);
 	u32 val32;
 	int byte_pos;
 
@@ -135,7 +135,7 @@ static void muram_writew(u16 *addr, u16 val)
 	else
 		val32 = (org32 & 0x0000ffff) | ((u32)val << 16);
 
-	*(u32 *)base = val32;
+	out_be32((u32 *)base, val32);
 }
 
 static void bmi_rx_port_disable(struct fm_bmi_rx_port *rx_port)
@@ -213,10 +213,10 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	pram_page_offset = (u32)pram - fm_muram_base(fm_eth->fm_index);
 
 	/* enable global mode- snooping data buffers and BDs */
-	pram->mode = PRAM_MODE_GLOBAL;
+	out_be32(&pram->mode, PRAM_MODE_GLOBAL);
 
 	/* init the Rx queue descriptor pionter */
-	pram->rxqd_ptr = pram_page_offset + 0x20;
+	out_be32(&pram->rxqd_ptr, pram_page_offset + 0x20);
 
 	/* set the max receive buffer length, power of 2 */
 	muram_writew(&pram->mrblr, MAX_RXBUF_LOG2);
@@ -243,10 +243,11 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	/* init Rx BDs ring */
 	rxbd = (struct fm_port_bd *)rx_bd_ring_base;
 	for (i = 0; i < RX_BD_RING_SIZE; i++) {
-		rxbd->status = RxBD_EMPTY;
-		rxbd->len = 0;
-		rxbd->buf_ptr_hi = 0;
-		rxbd->buf_ptr_lo = (u32)rx_buf_pool + i * MAX_RXBUF_LEN;
+		muram_writew(&rxbd->status, RxBD_EMPTY);
+		muram_writew(&rxbd->len, 0);
+		muram_writew(&rxbd->buf_ptr_hi, 0);
+		out_be32(&rxbd->buf_ptr_lo, (u32)rx_buf_pool +
+				i * MAX_RXBUF_LEN);
 		rxbd++;
 	}
 
@@ -254,7 +255,7 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	rxqd = &pram->rxqd;
 	muram_writew(&rxqd->gen, 0);
 	muram_writew(&rxqd->bd_ring_base_hi, 0);
-	rxqd->bd_ring_base_lo = (u32)rx_bd_ring_base;
+	out_be32(&rxqd->bd_ring_base_lo, (u32)rx_bd_ring_base);
 	muram_writew(&rxqd->bd_ring_size, sizeof(struct fm_port_bd)
 			* RX_BD_RING_SIZE);
 	muram_writew(&rxqd->offset_in, 0);
@@ -285,10 +286,10 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 	pram_page_offset = (u32)pram - fm_muram_base(fm_eth->fm_index);
 
 	/* enable global mode- snooping data buffers and BDs */
-	pram->mode = PRAM_MODE_GLOBAL;
+	out_be32(&pram->mode, PRAM_MODE_GLOBAL);
 
 	/* init the Tx queue descriptor pionter */
-	pram->txqd_ptr = pram_page_offset + 0x40;
+	out_be32(&pram->txqd_ptr, pram_page_offset + 0x40);
 
 	/* alloc Tx buffer descriptors from main memory */
 	tx_bd_ring_base = malloc(sizeof(struct fm_port_bd)
@@ -304,16 +305,17 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 	/* init Tx BDs ring */
 	txbd = (struct fm_port_bd *)tx_bd_ring_base;
 	for (i = 0; i < TX_BD_RING_SIZE; i++) {
-		txbd->status = TxBD_LAST;
-		txbd->len = 0;
-		txbd->buf_ptr_hi = 0;
-		txbd->buf_ptr_lo = 0;
+		muram_writew(&txbd->status, TxBD_LAST);
+		muram_writew(&txbd->len, 0);
+		muram_writew(&txbd->buf_ptr_hi, 0);
+		out_be32(&txbd->buf_ptr_lo, 0);
+		txbd++;
 	}
 
 	/* set the Tx queue decriptor */
 	txqd = &pram->txqd;
 	muram_writew(&txqd->bd_ring_base_hi, 0);
-	txqd->bd_ring_base_lo = (u32)tx_bd_ring_base;
+	out_be32(&txqd->bd_ring_base_lo, (u32)tx_bd_ring_base);
 	muram_writew(&txqd->bd_ring_size, sizeof(struct fm_port_bd)
 			* TX_BD_RING_SIZE);
 	muram_writew(&txqd->offset_in, 0);
@@ -368,7 +370,7 @@ static void fmc_tx_port_graceful_stop_enable(struct fm_eth *fm_eth)
 
 	pram = fm_eth->tx_pram;
 	/* graceful stop transmission of frames */
-	pram->mode |= PRAM_MODE_GRACEFUL_STOP;
+	setbits_be32(&pram->mode, PRAM_MODE_GRACEFUL_STOP);
 	sync();
 }
 
@@ -378,7 +380,7 @@ static void fmc_tx_port_graceful_stop_disable(struct fm_eth *fm_eth)
 
 	pram = fm_eth->tx_pram;
 	/* re-enable transmission of frames */
-	pram->mode &= ~PRAM_MODE_GRACEFUL_STOP;
+	clrbits_be32(&pram->mode, PRAM_MODE_GRACEFUL_STOP);
 	sync();
 }
 
@@ -469,19 +471,20 @@ static int fm_eth_send(struct eth_device *dev, void *buf, int len)
 	txbd = fm_eth->cur_txbd;
 
 	/* find one empty TxBD */
-	for (i = 0; txbd->status & TxBD_READY; i++) {
+	for (i = 0; muram_readw(&txbd->status) & TxBD_READY; i++) {
 		udelay(100);
 		if (i > 0x1000) {
-			printf("%s: Tx buffer not ready\n", dev->name);
+			printf("%s: Tx buffer not ready, txbd->status = 0x%x\n",
+			       dev->name, muram_readw(&txbd->status));
 			return 0;
 		}
 	}
 	/* setup TxBD */
-	txbd->buf_ptr_hi = 0;
-	txbd->buf_ptr_lo = (u32)buf;
-	txbd->len = len;
+	muram_writew(&txbd->buf_ptr_hi, 0);
+	out_be32(&txbd->buf_ptr_lo, (u32)buf);
+	muram_writew(&txbd->len, len);
 	sync();
-	txbd->status = TxBD_READY | TxBD_LAST;
+	muram_writew(&txbd->status, TxBD_READY | TxBD_LAST);
 	sync();
 
 	/* update TxQD, let RISC to send the packet */
@@ -493,10 +496,11 @@ static int fm_eth_send(struct eth_device *dev, void *buf, int len)
 	sync();
 
 	/* wait for buffer to be transmitted */
-	for (i = 0; txbd->status & TxBD_READY; i++) {
+	for (i = 0; muram_readw(&txbd->status) & TxBD_READY; i++) {
 		udelay(100);
 		if (i > 0x10000) {
-			printf("%s: Tx error\n", dev->name);
+			printf("%s: Tx error, txbd->status = 0x%x\n",
+			       dev->name, muram_readw(&txbd->status));
 			return 0;
 		}
 	}
@@ -525,12 +529,12 @@ static int fm_eth_recv(struct eth_device *dev)
 	fm_eth = (struct fm_eth *)dev->priv;
 	pram = fm_eth->rx_pram;
 	rxbd = fm_eth->cur_rxbd;
-	status = rxbd->status;
+	status = muram_readw(&rxbd->status);
 
 	while (!(status & RxBD_EMPTY)) {
 		if (!(status & RxBD_ERROR)) {
-			data = (u8 *)rxbd->buf_ptr_lo;
-			len = rxbd->len;
+			data = (u8 *)in_be32(&rxbd->buf_ptr_lo);
+			len = muram_readw(&rxbd->len);
 			net_process_received_packet(data, len);
 		} else {
 			printf("%s: Rx error\n", dev->name);
@@ -538,8 +542,8 @@ static int fm_eth_recv(struct eth_device *dev)
 		}
 
 		/* clear the RxBDs */
-		rxbd->status = RxBD_EMPTY;
-		rxbd->len = 0;
+		muram_writew(&rxbd->status, RxBD_EMPTY);
+		muram_writew(&rxbd->len, 0);
 		sync();
 
 		/* advance RxBD */
@@ -548,7 +552,7 @@ static int fm_eth_recv(struct eth_device *dev)
 		if (rxbd >= (rxbd_base + RX_BD_RING_SIZE))
 			rxbd = rxbd_base;
 		/* read next status */
-		status = rxbd->status;
+		status = muram_readw(&rxbd->status);
 
 		/* update RxQD */
 		offset_out = muram_readw(&pram->rxqd.offset_out);
