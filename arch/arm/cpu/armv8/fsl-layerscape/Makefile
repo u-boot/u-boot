@@ -14,6 +14,11 @@ obj-$(CONFIG_SPL) += spl.o
 ifneq ($(CONFIG_FSL_LSCH3),)
 obj-y += fsl_lsch3_speed.o
 obj-$(CONFIG_SYS_HAS_SERDES) += fsl_lsch3_serdes.o
+else
+ifneq ($(CONFIG_FSL_LSCH2),)
+obj-y += fsl_lsch2_speed.o
+obj-$(CONFIG_SYS_HAS_SERDES) += fsl_lsch2_serdes.o
+endif
 endif
 
 ifneq ($(CONFIG_LS2085A),)

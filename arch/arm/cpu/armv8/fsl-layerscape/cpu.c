@@ -180,6 +180,8 @@ static inline void early_mmu_setup(void)
 	set_pgtable_table(level1_table0,
 			  CONFIG_SYS_FLASH_BASE >> SECTION_SHIFT_L1,
 			  level2_table1);
+#elif defined(CONFIG_FSL_LSCH2)
+	set_pgtable_table(level1_table0, 1, level2_table1);
 #endif
 	/* Find the table and fill in the block entries */
 	for (i = 0; i < ARRAY_SIZE(early_mmu_table); i++) {
@@ -215,6 +217,9 @@ static inline void early_mmu_setup(void)
  *
  * For LSCH3:
  * Level 2 table 1 contains 512 entries for each 2MB from 32GB to 33GB.
+ * For LSCH2:
+ * Level 2 table 1 contains 512 entries for each 2MB from 1GB to 2GB.
+ * Level 2 table 2 contains 512 entries for each 2MB from 20GB to 21GB.
  */
 static inline void final_mmu_setup(void)
 {
@@ -225,6 +230,9 @@ static inline void final_mmu_setup(void)
 	u64 *level2_table0 = (u64 *)(gd->arch.tlb_addr + 0x3000);
 #ifdef CONFIG_FSL_LSCH3
 	u64 *level2_table1 = (u64 *)(gd->arch.tlb_addr + 0x4000);
+#elif defined(CONFIG_FSL_LSCH2)
+	u64 *level2_table1 = (u64 *)(gd->arch.tlb_addr + 0x4000);
+	u64 *level2_table2 = (u64 *)(gd->arch.tlb_addr + 0x5000);
 #endif
 	struct table_info table = {level0_table, 0, BLOCK_SIZE_L0};
 
@@ -239,6 +247,11 @@ static inline void final_mmu_setup(void)
 	set_pgtable_table(level1_table0,
 			  CONFIG_SYS_FSL_QBMAN_BASE >> SECTION_SHIFT_L1,
 			  level2_table1);
+#elif defined(CONFIG_FSL_LSCH2)
+	set_pgtable_table(level1_table0, 1, level2_table1);
+	set_pgtable_table(level1_table0,
+			  CONFIG_SYS_FSL_QBMAN_BASE >> SECTION_SHIFT_L1,
+			  level2_table2);
 #endif
 
 	/* Find the table and fill in the block entries */

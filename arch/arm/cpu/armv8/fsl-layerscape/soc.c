@@ -76,6 +76,23 @@ void fsl_lsch3_early_init_f(void)
 	init_early_memctl_regs();	/* tighten IFC timing */
 	erratum_a009203();
 }
+
+#elif defined(CONFIG_LS1043A)
+void fsl_lsch2_early_init_f(void)
+{
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+
+#ifdef CONFIG_FSL_IFC
+	init_early_memctl_regs();	/* tighten IFC timing */
+#endif
+
+	/*
+	 * Enable snoop requests and DVM message requests for
+	 * Slave insterface S4 (A53 core cluster)
+	 */
+	out_le32(&cci->slave[4].snoop_ctrl,
+		 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
+}
 #endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
