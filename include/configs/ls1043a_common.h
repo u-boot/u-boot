@@ -153,6 +153,17 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_PING
 
+/*  MMC  */
+#define CONFIG_MMC
+#ifdef CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_FAT
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
+#define CONFIG_GENERIC_MMC
+#define CONFIG_DOS_PARTITION
+#endif
+
 /* FMan ucode */
 #define CONFIG_SYS_DPAA_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN

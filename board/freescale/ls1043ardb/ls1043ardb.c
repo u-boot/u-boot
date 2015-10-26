@@ -12,6 +12,7 @@
 #include <asm/arch/soc.h>
 #include <hwconfig.h>
 #include <ahci.h>
+#include <mmc.h>
 #include <scsi.h>
 #include <fm_eth.h>
 #include <fsl_csu.h>

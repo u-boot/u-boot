@@ -25,7 +25,7 @@ void get_sys_info(struct sys_info *sys_info)
 	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
-#ifdef CONFIG_SYS_DPAA_FMAN
+#if defined(CONFIG_FSL_ESDHC) || defined(CONFIG_SYS_DPAA_FMAN)
 	u32 rcw_tmp;
 #endif
 	struct ccsr_clk *clk = (void *)(CONFIG_SYS_FSL_CLK_ADDR);
@@ -105,6 +105,11 @@ void get_sys_info(struct sys_info *sys_info)
 
 #define HWA_CGA_M2_CLK_SEL	0x00000007
 #define HWA_CGA_M2_CLK_SHIFT	0
+#ifdef CONFIG_FSL_ESDHC
+	rcw_tmp = in_be32(&gur->rcwsr[15]);
+	rcw_tmp = (rcw_tmp & HWA_CGA_M2_CLK_SEL) >> HWA_CGA_M2_CLK_SHIFT;
+	sys_info->freq_sdhc = freq_c_pll[1] / rcw_tmp;
+#endif
 
 #if defined(CONFIG_FSL_IFC)
 	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
@@ -123,6 +128,10 @@ int get_clocks(void)
 	gd->bus_clk = sys_info.freq_systembus;
 	gd->mem_clk = sys_info.freq_ddrbus;
 
+#ifdef CONFIG_FSL_ESDHC
+	gd->arch.sdhc_clk = sys_info.freq_sdhc;
+#endif
+
 	if (gd->cpu_clk != 0)
 		return 0;
 	else
@@ -139,6 +148,13 @@ ulong get_ddr_freq(ulong dummy)
 	return gd->mem_clk;
 }
 
+#ifdef CONFIG_FSL_ESDHC
+int get_sdhc_freq(ulong dummy)
+{
+	return gd->arch.sdhc_clk;
+}
+#endif
+
 int get_serial_clock(void)
 {
 	return gd->bus_clk;
@@ -149,6 +165,10 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	switch (clk) {
 	case MXC_I2C_CLK:
 		return get_bus_freq(0);
+#if defined(CONFIG_FSL_ESDHC)
+	case MXC_ESDHC_CLK:
+		return get_sdhc_freq(0);
+#endif
 	case MXC_DSPI_CLK:
 		return get_bus_freq(0);
 	case MXC_UART_CLK:
