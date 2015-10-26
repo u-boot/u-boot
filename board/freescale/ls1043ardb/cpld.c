@@ -45,6 +45,22 @@ void cpld_set_defbank(void)
 	CPLD_WRITE(global_rst, 1);
 }
 
+void cpld_set_nand(void)
+{
+	u16 reg = CPLD_CFG_RCW_SRC_NAND;
+	u8 reg5 = (u8)(reg >> 1);
+	u8 reg6 = (u8)(reg & 1);
+
+	cpld_rev_bit(&reg5);
+
+	CPLD_WRITE(soft_mux_on, 1);
+
+	CPLD_WRITE(cfg_rcw_src1, reg5);
+	CPLD_WRITE(cfg_rcw_src2, reg6);
+
+	CPLD_WRITE(system_rst, 1);
+}
+
 #ifdef DEBUG
 static void cpld_dump_regs(void)
 {
@@ -91,6 +107,8 @@ int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (strcmp(argv[1], "reset") == 0) {
 		if (strcmp(argv[2], "altbank") == 0)
 			cpld_set_altbank();
+		else if (strcmp(argv[2], "nand") == 0)
+			cpld_set_nand();
 		else
 			cpld_set_defbank();
 #ifdef DEBUG
@@ -109,6 +127,7 @@ U_BOOT_CMD(
 	"Reset the board or alternate bank",
 	"reset: reset to default bank\n"
 	"cpld reset altbank: reset to alternate bank\n"
+	"cpld reset nand: reset to boot from NAND flash\n"
 #ifdef DEBUG
 	"cpld dump - display the CPLD registers\n"
 #endif

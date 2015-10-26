@@ -83,3 +83,4 @@ Start Address	End Address	Description		Size
 Booting Options
 ---------------
 a) NOR boot
+b) NAND boot
