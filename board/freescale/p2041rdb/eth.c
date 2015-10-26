@@ -19,7 +19,7 @@
 #include <fm_eth.h>
 #include <fsl_mdio.h>
 #include <malloc.h>
-#include <asm/fsl_dtsec.h>
+#include <fsl_dtsec.h>
 
 #include "cpld.h"
 #include "../common/fman.h"
