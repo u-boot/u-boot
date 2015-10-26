@@ -23,6 +23,7 @@
 		i2c1 = &i2c1;
 		rtc0 = &rtc;
 		serial0 = &uart0;
+		serial1 = &uart1;
 		spi0 = &qspi;
 		usb0 = &usb0;
 	};
@@ -492,6 +493,10 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 };
 
 &uart0 {
+	status = "okay";
+};
+
+&uart1 {
 	status = "okay";
 };
 
