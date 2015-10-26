@@ -107,6 +107,51 @@
 	status = "okay";
 	clock-frequency = <400000>;
 
+	tca6416_u97: gpio@20 { /* FIXME enable it by i2c mw 20 6 1 */
+		compatible = "ti,tca6416";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		/*
+		 * IRQ not connected
+		 * Lines:
+		 * 0 - PS_GTR_LAN_SEL0
+		 * 1 - PS_GTR_LAN_SEL1
+		 * 2 - PS_GTR_LAN_SEL2
+		 * 3 - PS_GTR_LAN_SEL3
+		 * 4 - PCI_CLK_DIR_SEL
+		 * 5 - IIC_MUX_RESET_B
+		 * 6 - GEM3_EXP_RESET_B
+		 * 7, 10 - 17 - not connected
+		 */
+	};
+
+	tca6416_u61: gpio@21 { /* FIXME enable it by i2c mw 21 6 0 */
+		compatible = "ti,tca6416";
+		reg = <0x21>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		/*
+		 * IRQ not connected
+		 * Lines:
+		 * 0 - VCCPSPLL_EN
+		 * 1 - MGTRAVCC_EN
+		 * 2 - MGTRAVTT_EN
+		 * 3 - VCCPSDDRPLL_EN
+		 * 4 - MIO26_PMU_INPUT_LS
+		 * 5 - PL_PMBUS_ALERT
+		 * 6 - PS_PMBUS_ALERT
+		 * 7 - MAXIM_PMBUS_ALERT
+		 * 10 - PL_DDR4_VTERM_EN
+		 * 11 - PL_DDR4_VPP_2V5_EN
+		 * 12 - PS_DIMM_VDDQ_TO_PSVCCO_ON
+		 * 13 - PS_DIMM_SUSPEND_EN
+		 * 14 - PS_DDR4_VTERM_EN
+		 * 15 - PS_DDR4_VPP_2V5_EN
+		 * 16 - 17 - not connected
+		 */
+	};
+
 	i2cswitch@75 { /* u60 */
 		compatible = "nxp,pca9544";
 		#address-cells = <1>;
@@ -271,32 +316,6 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 		/* Bus 3 is not connected */
 	};
 
-	tca6416_u61: gpio@20 {
-		compatible = "ti,tca6416";
-		reg = <0x20>;
-		gpio-controller;
-		#gpio-cells = <2>;
-		/* IRQ not connected */
-	};
-
-	tca6416_u97: gpio@21 {
-		compatible = "ti,tca6416";
-		reg = <0x21>;
-		gpio-controller;
-		#gpio-cells = <2>;
-		/*
-		 * IRQ not connected
-		 * Lines:
-		 * 0 - PS_GTR_LAN_SEL0
-		 * 1 - PS_GTR_LAN_SEL1
-		 * 2 - PS_GTR_LAN_SEL2
-		 * 3 - PS_GTR_LAN_SEL3
-		 * 4 - PCI_CLK_DIR_SEL
-		 * 5 - IIC_MUX_RESET_B
-		 * 6 - GEM3_EXP_RESET_B
-		 * 7 - 17 - not connected
-		 */
-	};
 	/* FIXME PL connection - u55 , PMOD - j160 */
 	/* FIXME MSP430F - u41 - not detected */
 };
