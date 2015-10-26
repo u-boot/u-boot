@@ -134,11 +134,6 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	if (index >= ARRAY_SIZE(nc_reg_bases))
 		return -EINVAL;
 
-	if (init == USB_INIT_DEVICE && index == 1)
-		return -ENODEV;
-	if (init == USB_INIT_HOST && index == 0)
-		return -ENODEV;
-
 	ehci = (struct usb_ehci *)nc_reg_bases[index];
 
 	/* Do board specific initialisation */
