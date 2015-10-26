@@ -108,12 +108,12 @@ static int tgec_is_fibre(struct eth_device *dev)
 
 static u16 muram_readw(u16 *addr)
 {
-	u32 base = (u32)addr & ~0x3;
-	u32 val32 = in_be32((u32 *)base);
+	ulong base = (ulong)addr & ~0x3UL;
+	u32 val32 = in_be32((void *)base);
 	int byte_pos;
 	u16 ret;
 
-	byte_pos = (u32)addr & 0x3;
+	byte_pos = (ulong)addr & 0x3UL;
 	if (byte_pos)
 		ret = (u16)(val32 & 0x0000ffff);
 	else
@@ -124,18 +124,18 @@ static u16 muram_readw(u16 *addr)
 
 static void muram_writew(u16 *addr, u16 val)
 {
-	u32 base = (u32)addr & ~0x3;
-	u32 org32 = in_be32((u32 *)base);
+	ulong base = (ulong)addr & ~0x3UL;
+	u32 org32 = in_be32((void *)base);
 	u32 val32;
 	int byte_pos;
 
-	byte_pos = (u32)addr & 0x3;
+	byte_pos = (ulong)addr & 0x3UL;
 	if (byte_pos)
 		val32 = (org32 & 0xffff0000) | val;
 	else
 		val32 = (org32 & 0x0000ffff) | ((u32)val << 16);
 
-	out_be32((u32 *)base, val32);
+	out_be32((void *)base, val32);
 }
 
 static void bmi_rx_port_disable(struct fm_bmi_rx_port *rx_port)
@@ -199,6 +199,8 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	u32 pram_page_offset;
 	void *rx_bd_ring_base;
 	void *rx_buf_pool;
+	u32 bd_ring_base_lo, bd_ring_base_hi;
+	u32 buf_lo, buf_hi;
 	struct fm_port_bd *rxbd;
 	struct fm_port_qd *rxqd;
 	struct fm_bmi_rx_port *bmi_rx_port = fm_eth->rx_port;
@@ -207,10 +209,15 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	/* alloc global parameter ram at MURAM */
 	pram = (struct fm_port_global_pram *)fm_muram_alloc(fm_eth->fm_index,
 		FM_PRAM_SIZE, FM_PRAM_ALIGN);
+	if (!pram) {
+		printf("%s: No muram for Rx global parameter\n", __func__);
+		return 0;
+	}
+
 	fm_eth->rx_pram = pram;
 
 	/* parameter page offset to MURAM */
-	pram_page_offset = (u32)pram - fm_muram_base(fm_eth->fm_index);
+	pram_page_offset = (void *)pram - fm_muram_base(fm_eth->fm_index);
 
 	/* enable global mode- snooping data buffers and BDs */
 	out_be32(&pram->mode, PRAM_MODE_GLOBAL);
@@ -234,6 +241,7 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	if (!rx_buf_pool)
 		return 0;
 	memset(rx_buf_pool, 0, MAX_RXBUF_LEN * RX_BD_RING_SIZE);
+	debug("%s: rx_buf_pool = %p\n", __func__, rx_buf_pool);
 
 	/* save them to fm_eth */
 	fm_eth->rx_bd_ring = rx_bd_ring_base;
@@ -245,17 +253,22 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	for (i = 0; i < RX_BD_RING_SIZE; i++) {
 		muram_writew(&rxbd->status, RxBD_EMPTY);
 		muram_writew(&rxbd->len, 0);
-		muram_writew(&rxbd->buf_ptr_hi, 0);
-		out_be32(&rxbd->buf_ptr_lo, (u32)rx_buf_pool +
-				i * MAX_RXBUF_LEN);
+		buf_hi = upper_32_bits(virt_to_phys(rx_buf_pool +
+					i * MAX_RXBUF_LEN));
+		buf_lo = lower_32_bits(virt_to_phys(rx_buf_pool +
+					i * MAX_RXBUF_LEN));
+		muram_writew(&rxbd->buf_ptr_hi, (u16)buf_hi);
+		out_be32(&rxbd->buf_ptr_lo, buf_lo);
 		rxbd++;
 	}
 
 	/* set the Rx queue descriptor */
 	rxqd = &pram->rxqd;
 	muram_writew(&rxqd->gen, 0);
-	muram_writew(&rxqd->bd_ring_base_hi, 0);
-	out_be32(&rxqd->bd_ring_base_lo, (u32)rx_bd_ring_base);
+	bd_ring_base_hi = upper_32_bits(virt_to_phys(rx_bd_ring_base));
+	bd_ring_base_lo = lower_32_bits(virt_to_phys(rx_bd_ring_base));
+	muram_writew(&rxqd->bd_ring_base_hi, (u16)bd_ring_base_hi);
+	out_be32(&rxqd->bd_ring_base_lo, bd_ring_base_lo);
 	muram_writew(&rxqd->bd_ring_size, sizeof(struct fm_port_bd)
 			* RX_BD_RING_SIZE);
 	muram_writew(&rxqd->offset_in, 0);
@@ -272,6 +285,7 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 	struct fm_port_global_pram *pram;
 	u32 pram_page_offset;
 	void *tx_bd_ring_base;
+	u32 bd_ring_base_lo, bd_ring_base_hi;
 	struct fm_port_bd *txbd;
 	struct fm_port_qd *txqd;
 	struct fm_bmi_tx_port *bmi_tx_port = fm_eth->tx_port;
@@ -280,10 +294,14 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 	/* alloc global parameter ram at MURAM */
 	pram = (struct fm_port_global_pram *)fm_muram_alloc(fm_eth->fm_index,
 		FM_PRAM_SIZE, FM_PRAM_ALIGN);
+	if (!pram) {
+		printf("%s: No muram for Tx global parameter\n", __func__);
+		return 0;
+	}
 	fm_eth->tx_pram = pram;
 
 	/* parameter page offset to MURAM */
-	pram_page_offset = (u32)pram - fm_muram_base(fm_eth->fm_index);
+	pram_page_offset = (void *)pram - fm_muram_base(fm_eth->fm_index);
 
 	/* enable global mode- snooping data buffers and BDs */
 	out_be32(&pram->mode, PRAM_MODE_GLOBAL);
@@ -314,8 +332,10 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 
 	/* set the Tx queue decriptor */
 	txqd = &pram->txqd;
-	muram_writew(&txqd->bd_ring_base_hi, 0);
-	out_be32(&txqd->bd_ring_base_lo, (u32)tx_bd_ring_base);
+	bd_ring_base_hi = upper_32_bits(virt_to_phys(tx_bd_ring_base));
+	bd_ring_base_lo = lower_32_bits(virt_to_phys(tx_bd_ring_base));
+	muram_writew(&txqd->bd_ring_base_hi, (u16)bd_ring_base_hi);
+	out_be32(&txqd->bd_ring_base_lo, bd_ring_base_lo);
 	muram_writew(&txqd->bd_ring_size, sizeof(struct fm_port_bd)
 			* TX_BD_RING_SIZE);
 	muram_writew(&txqd->offset_in, 0);
@@ -480,8 +500,8 @@ static int fm_eth_send(struct eth_device *dev, void *buf, int len)
 		}
 	}
 	/* setup TxBD */
-	muram_writew(&txbd->buf_ptr_hi, 0);
-	out_be32(&txbd->buf_ptr_lo, (u32)buf);
+	muram_writew(&txbd->buf_ptr_hi, (u16)upper_32_bits(virt_to_phys(buf)));
+	out_be32(&txbd->buf_ptr_lo, lower_32_bits(virt_to_phys(buf)));
 	muram_writew(&txbd->len, len);
 	sync();
 	muram_writew(&txbd->status, TxBD_READY | TxBD_LAST);
@@ -522,6 +542,7 @@ static int fm_eth_recv(struct eth_device *dev)
 	struct fm_port_global_pram *pram;
 	struct fm_port_bd *rxbd, *rxbd_base;
 	u16 status, len;
+	u32 buf_lo, buf_hi;
 	u8 *data;
 	u16 offset_out;
 	int ret = 1;
@@ -533,7 +554,9 @@ static int fm_eth_recv(struct eth_device *dev)
 
 	while (!(status & RxBD_EMPTY)) {
 		if (!(status & RxBD_ERROR)) {
-			data = (u8 *)in_be32(&rxbd->buf_ptr_lo);
+			buf_hi = muram_readw(&rxbd->buf_ptr_hi);
+			buf_lo = in_be32(&rxbd->buf_ptr_lo);
+			data = (u8 *)((ulong)(buf_hi << 16) << 16 | buf_lo);
 			len = muram_readw(&rxbd->len);
 			net_process_received_packet(data, len);
 		} else {
