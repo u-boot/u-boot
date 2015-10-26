@@ -95,6 +95,7 @@ static void dtsec_init_phy(struct eth_device *dev)
 		dtsec_configure_serdes(fm_eth);
 }
 
+#ifdef CONFIG_PHYLIB
 static int tgec_is_fibre(struct eth_device *dev)
 {
 	struct fm_eth *fm = dev->priv;
@@ -104,6 +105,7 @@ static int tgec_is_fibre(struct eth_device *dev)
 
 	return hwconfig_arg_cmp(phyopt, "xfi");
 }
+#endif
 #endif
 
 static u16 muram_readw(u16 *addr)
@@ -483,8 +485,10 @@ static void fm_eth_halt(struct eth_device *dev)
 	/* disable bmi Rx port */
 	bmi_rx_port_disable(fm_eth->rx_port);
 
+#ifdef CONFIG_PHYLIB
 	if (fm_eth->phydev)
 		phy_shutdown(fm_eth->phydev);
+#endif
 }
 
 static int fm_eth_send(struct eth_device *dev, void *buf, int len)
@@ -658,13 +662,15 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 static int init_phy(struct eth_device *dev)
 {
 	struct fm_eth *fm_eth = dev->priv;
+#ifdef CONFIG_PHYLIB
 	struct phy_device *phydev = NULL;
 	u32 supported;
+#endif
 
-#ifdef CONFIG_PHYLIB
 	if (fm_eth->type == FM_ETH_1G_E)
 		dtsec_init_phy(dev);
 
+#ifdef CONFIG_PHYLIB
 	if (fm_eth->bus) {
 		phydev = phy_connect(fm_eth->bus, fm_eth->phyaddr, dev,
 					fm_eth->enet_if);
