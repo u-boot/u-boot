@@ -370,7 +370,7 @@ T:	git git://git.denx.de/u-boot-sh.git
 F:	arch/sh/
 
 SPARC
-M:	Daniel Hellstrom <daniel@gaisler.com>
+M:	Francois Retief <fgretief@spaceteq.co.za>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-sparc.git
 F:	arch/sparc/
