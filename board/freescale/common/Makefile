@@ -71,7 +71,7 @@ obj-$(CONFIG_P4080DS)	+= p_corenet/
 obj-$(CONFIG_P5020DS)	+= p_corenet/
 obj-$(CONFIG_P5040DS)	+= p_corenet/
 
-obj-$(CONFIG_LS102XA_NS_ACCESS)	+= ns_access.o
+obj-$(CONFIG_LAYERSCAPE_NS_ACCESS)	+= ns_access.o
 
 ifdef CONFIG_SECURE_BOOT
 obj-$(CONFIG_CMD_ESBC_VALIDATE) += fsl_validate.o cmd_esbc_validate.o
