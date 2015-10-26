@@ -211,7 +211,7 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 		FM_PRAM_SIZE, FM_PRAM_ALIGN);
 	if (!pram) {
 		printf("%s: No muram for Rx global parameter\n", __func__);
-		return 0;
+		return -ENOMEM;
 	}
 
 	fm_eth->rx_pram = pram;
@@ -232,14 +232,16 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	rx_bd_ring_base = malloc(sizeof(struct fm_port_bd)
 			* RX_BD_RING_SIZE);
 	if (!rx_bd_ring_base)
-		return 0;
+		return -ENOMEM;
+
 	memset(rx_bd_ring_base, 0, sizeof(struct fm_port_bd)
 			* RX_BD_RING_SIZE);
 
 	/* alloc Rx buffer from main memory */
 	rx_buf_pool = malloc(MAX_RXBUF_LEN * RX_BD_RING_SIZE);
 	if (!rx_buf_pool)
-		return 0;
+		return -ENOMEM;
+
 	memset(rx_buf_pool, 0, MAX_RXBUF_LEN * RX_BD_RING_SIZE);
 	debug("%s: rx_buf_pool = %p\n", __func__, rx_buf_pool);
 
@@ -277,7 +279,7 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 	/* set IM parameter ram pointer to Rx Frame Queue ID */
 	out_be32(&bmi_rx_port->fmbm_rfqid, pram_page_offset);
 
-	return 1;
+	return 0;
 }
 
 static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
@@ -296,7 +298,7 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 		FM_PRAM_SIZE, FM_PRAM_ALIGN);
 	if (!pram) {
 		printf("%s: No muram for Tx global parameter\n", __func__);
-		return 0;
+		return -ENOMEM;
 	}
 	fm_eth->tx_pram = pram;
 
@@ -313,7 +315,8 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 	tx_bd_ring_base = malloc(sizeof(struct fm_port_bd)
 			* TX_BD_RING_SIZE);
 	if (!tx_bd_ring_base)
-		return 0;
+		return -ENOMEM;
+
 	memset(tx_bd_ring_base, 0, sizeof(struct fm_port_bd)
 			* TX_BD_RING_SIZE);
 	/* save it to fm_eth */
@@ -344,29 +347,35 @@ static int fm_eth_tx_port_parameter_init(struct fm_eth *fm_eth)
 	/* set IM parameter ram pointer to Tx Confirmation Frame Queue ID */
 	out_be32(&bmi_tx_port->fmbm_tcfqid, pram_page_offset);
 
-	return 1;
+	return 0;
 }
 
 static int fm_eth_init(struct fm_eth *fm_eth)
 {
+	int ret;
 
-	if (!fm_eth_rx_port_parameter_init(fm_eth))
-		return 0;
+	ret = fm_eth_rx_port_parameter_init(fm_eth);
+	if (ret)
+		return ret;
 
-	if (!fm_eth_tx_port_parameter_init(fm_eth))
-		return 0;
+	ret = fm_eth_tx_port_parameter_init(fm_eth);
+	if (ret)
+		return ret;
 
-	return 1;
+	return 0;
 }
 
 static int fm_eth_startup(struct fm_eth *fm_eth)
 {
 	struct fsl_enet_mac *mac;
+	int ret;
+
 	mac = fm_eth->mac;
 
 	/* Rx/TxBDs, Rx/TxQDs, Rx buff and parameter ram init */
-	if (!fm_eth_init(fm_eth))
-		return 0;
+	ret = fm_eth_init(fm_eth);
+	if (ret)
+		return ret;
 	/* setup the MAC controller */
 	mac->init_mac(mac);
 
@@ -381,7 +390,7 @@ static int fm_eth_startup(struct fm_eth *fm_eth)
 	/* init bmi tx port, IM mode and disable */
 	bmi_tx_port_init(fm_eth->tx_port);
 
-	return 1;
+	return 0;
 }
 
 static void fmc_tx_port_graceful_stop_enable(struct fm_eth *fm_eth)
@@ -628,7 +637,7 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	/* alloc mac controller */
 	mac = malloc(sizeof(struct fsl_enet_mac));
 	if (!mac)
-		return 0;
+		return -ENOMEM;
 	memset(mac, 0, sizeof(struct fsl_enet_mac));
 
 	/* save the mac to fm_eth struct */
@@ -643,7 +652,7 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 		init_tgec(mac, base, phyregs, MAX_RXBUF_LEN);
 #endif
 
-	return 1;
+	return 0;
 }
 
 static int init_phy(struct eth_device *dev)
@@ -696,17 +705,18 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 	struct eth_device *dev;
 	struct fm_eth *fm_eth;
 	int i, num = info->num;
+	int ret;
 
 	/* alloc eth device */
 	dev = (struct eth_device *)malloc(sizeof(struct eth_device));
 	if (!dev)
-		return 0;
+		return -ENOMEM;
 	memset(dev, 0, sizeof(struct eth_device));
 
 	/* alloc the FMan ethernet private struct */
 	fm_eth = (struct fm_eth *)malloc(sizeof(struct fm_eth));
 	if (!fm_eth)
-		return 0;
+		return -ENOMEM;
 	memset(fm_eth, 0, sizeof(struct fm_eth));
 
 	/* save off some things we need from the info struct */
@@ -721,8 +731,9 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 	fm_eth->max_rx_len = MAX_RXBUF_LEN;
 
 	/* init global mac structure */
-	if (!fm_eth_init_mac(fm_eth, reg))
-		return 0;
+	ret = fm_eth_init_mac(fm_eth, reg);
+	if (ret)
+		return ret;
 
 	/* keep same as the manual, we call FMAN1, FMAN2, DTSEC1, DTSEC2, etc */
 	if (fm_eth->type == FM_ETH_1G_E)
@@ -743,8 +754,9 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 	fm_eth->enet_if = info->enet_if;
 
 	/* startup the FM im */
-	if (!fm_eth_startup(fm_eth))
-		return 0;
+	ret = fm_eth_startup(fm_eth);
+	if (ret)
+		return ret;
 
 	init_phy(dev);
 
@@ -753,5 +765,5 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 		dev->enetaddr[i] = 0;
 	eth_register(dev);
 
-	return 1;
+	return 0;
 }
