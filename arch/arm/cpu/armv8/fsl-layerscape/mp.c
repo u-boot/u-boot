@@ -25,7 +25,11 @@ phys_addr_t determine_mp_bootpg(void)
 int fsl_layerscape_wake_seconday_cores(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+#ifdef CONFIG_FSL_LSCH3
 	struct ccsr_reset __iomem *rst = (void *)(CONFIG_SYS_FSL_RST_ADDR);
+#elif defined(CONFIG_FSL_LSCH2)
+	struct ccsr_scfg __iomem *scfg = (void *)(CONFIG_SYS_FSL_SCFG_ADDR);
+#endif
 	u32 cores, cpu_up_mask = 1;
 	int i, timeout = 10;
 	u64 *table = get_spin_tbl_addr();
@@ -48,13 +52,23 @@ int fsl_layerscape_wake_seconday_cores(void)
 
 	printf("Waking secondary cores to start from %lx\n", gd->relocaddr);
 
+#ifdef CONFIG_FSL_LSCH3
 	gur_out32(&gur->bootlocptrh, (u32)(gd->relocaddr >> 32));
 	gur_out32(&gur->bootlocptrl, (u32)gd->relocaddr);
 	gur_out32(&gur->scratchrw[6], 1);
 	asm volatile("dsb st" : : : "memory");
 	rst->brrl = cores;
 	asm volatile("dsb st" : : : "memory");
+#elif defined(CONFIG_FSL_LSCH2)
+	scfg_out32(&scfg->scratchrw[0], (u32)(gd->relocaddr >> 32));
+	scfg_out32(&scfg->scratchrw[1], (u32)gd->relocaddr);
+	asm volatile("dsb st" : : : "memory");
+	gur_out32(&gur->brrl, cores);
+	asm volatile("dsb st" : : : "memory");
 
+	/* Bootup online cores */
+	scfg_out32(&scfg->corebcr, cores);
+#endif
 	/* This is needed as a precautionary measure.
 	 * If some code before this has accidentally  released the secondary
 	 * cores then the pre-bootloader code will trap them in a "wfe" unless

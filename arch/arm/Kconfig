@@ -630,6 +630,7 @@ config TARGET_LS1021ATWR
 config TARGET_LS1043ARDB
 	bool "Support ls1043ardb"
 	select ARM64
+	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
 	help
 	  Support for Freescale LS1043ARDB platform.

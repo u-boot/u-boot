@@ -11,6 +11,7 @@
 #define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_FSL_LSCH2
 #define CONFIG_LS1043A
+#define CONFIG_MP
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_GICV2
 
@@ -43,6 +44,8 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+
+#define CPU_RELEASE_ADDR               secondary_boot_func
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
