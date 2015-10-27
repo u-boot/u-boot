@@ -200,7 +200,7 @@ static int soft_spi_ofdata_to_platdata(struct udevice *dev)
 
 static int soft_spi_probe(struct udevice *dev)
 {
-	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 	struct soft_spi_platdata *plat = dev->platdata;
 	int cs_flags, clk_flags;
 

@@ -577,7 +577,7 @@ static struct flash_info *jedec_probe(struct spi_slave *spi, u8 *id)
  */
 static int spi_dataflash_probe(struct udevice *dev)
 {
-	struct spi_slave *spi = dev_get_parentdata(dev);
+	struct spi_slave *spi = dev_get_parent_priv(dev);
 	struct spi_flash *spi_flash;
 	struct flash_info *info;
 	u8 idcode[5];

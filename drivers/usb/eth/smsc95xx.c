@@ -945,7 +945,7 @@ int smsc95xx_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 #ifdef CONFIG_DM_ETH
 static int smsc95xx_eth_start(struct udevice *dev)
 {
-	struct usb_device *udev = dev_get_parentdata(dev);
+	struct usb_device *udev = dev_get_parent_priv(dev);
 	struct smsc95xx_private *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
@@ -1029,7 +1029,7 @@ static int smsc95xx_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
 
 int smsc95xx_write_hwaddr(struct udevice *dev)
 {
-	struct usb_device *udev = dev_get_parentdata(dev);
+	struct usb_device *udev = dev_get_parent_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct smsc95xx_private *priv = dev_get_priv(dev);
 

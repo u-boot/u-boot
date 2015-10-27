@@ -16,7 +16,6 @@
 #include <common.h>
 #include <dm.h>
 #include <mapmem.h>
-#include <tis.h>
 #include <tpm.h>
 #include <asm/io.h>
 

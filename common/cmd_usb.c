@@ -281,7 +281,7 @@ static struct usb_device *usb_find_device(int devnum)
 
 		if (!device_active(hub))
 			continue;
-		udev = dev_get_parentdata(hub);
+		udev = dev_get_parent_priv(hub);
 		if (udev->devnum == devnum)
 			return udev;
 
@@ -291,7 +291,7 @@ static struct usb_device *usb_find_device(int devnum)
 			if (!device_active(hub))
 				continue;
 
-			udev = dev_get_parentdata(dev);
+			udev = dev_get_parent_priv(dev);
 			if (udev->devnum == devnum)
 				return udev;
 		}
@@ -407,7 +407,7 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 		if (!device_active(child))
 			continue;
 
-		udev = dev_get_parentdata(child);
+		udev = dev_get_parent_priv(child);
 
 		/* Ignore emulators, we only want real devices */
 		if (device_get_uclass_id(child) != UCLASS_USB_EMUL) {
@@ -553,7 +553,7 @@ static void show_info(struct udevice *dev)
 	struct udevice *child;
 	struct usb_device *udev;
 
-	udev = dev_get_parentdata(dev);
+	udev = dev_get_parent_priv(dev);
 	usb_display_desc(udev);
 	usb_display_config(udev);
 	for (device_find_first_child(dev, &child);
@@ -641,7 +641,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			device_find_first_child(bus, &dev);
 			if (dev && device_active(dev)) {
-				udev = dev_get_parentdata(dev);
+				udev = dev_get_parent_priv(dev);
 				usb_show_tree(udev);
 			}
 		}

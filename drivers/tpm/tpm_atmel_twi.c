@@ -7,51 +7,56 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <tpm.h>
 #include <i2c.h>
 #include <asm/unaligned.h>
+
+#include "tpm_internal.h"
 
 #define ATMEL_TPM_TIMEOUT_MS 5000 /* sufficient for anything but
 				     generating/exporting keys */
 
 /*
- * tis_init()
- *
- * Initialize the TPM device. Returns 0 on success or -1 on
- * failure (in case device probing did not succeed).
- */
-int tis_init(void)
-{
-	return 0;
-}
-
-/*
- * tis_open()
+ * tpm_atmel_twi_open()
  *
  * Requests access to locality 0 for the caller. After all commands have been
  * completed the caller is supposed to call tis_close().
  *
  * Returns 0 on success, -1 on failure.
  */
-int tis_open(void)
+static int tpm_atmel_twi_open(struct udevice *dev)
 {
 	return 0;
 }
 
 /*
- * tis_close()
+ * tpm_atmel_twi_close()
  *
  * terminate the currect session with the TPM by releasing the locked
  * locality. Returns 0 on success of -1 on failure (in case lock
  * removal did not succeed).
  */
-int tis_close(void)
+static int tpm_atmel_twi_close(struct udevice *dev)
 {
 	return 0;
 }
 
 /*
- * tis_sendrecv()
+ * tpm_atmel_twi_get_desc()
+ *
+ * @dev:        Device to check
+ * @buf:        Buffer to put the string
+ * @size:       Maximum size of buffer
+ * @return length of string, or -ENOSPC it no space
+ */
+static int tpm_atmel_twi_get_desc(struct udevice *dev, char *buf, int size)
+{
+	return 0;
+}
+
+/*
+ * tpm_atmel_twi_xfer()
  *
  * Send the requested data to the TPM and then try to get its response
  *
@@ -63,8 +68,9 @@ int tis_close(void)
  * Returns 0 on success (and places the number of response bytes at recv_len)
  * or -1 on failure.
  */
-int tis_sendrecv(const uint8_t *sendbuf, size_t send_size, uint8_t *recvbuf,
-			size_t *recv_len)
+static int tpm_atmel_twi_xfer(struct udevice *dev,
+			      const uint8_t *sendbuf, size_t send_size,
+			      uint8_t *recvbuf, size_t *recv_len)
 {
 	int res;
 	unsigned long start;
@@ -83,6 +89,7 @@ int tis_sendrecv(const uint8_t *sendbuf, size_t send_size, uint8_t *recvbuf,
 
 	start = get_timer(0);
 	while ((res = i2c_read(0x29, 0, 0, recvbuf, 10))) {
+		/* TODO Use TIS_TIMEOUT from tpm_tis_infineon.h */
 		if (get_timer(start) > ATMEL_TPM_TIMEOUT_MS) {
 			puts("tpm timed out\n");
 			return -1;
@@ -110,3 +117,28 @@ int tis_sendrecv(const uint8_t *sendbuf, size_t send_size, uint8_t *recvbuf,
 
 	return res;
 }
+
+static int tpm_atmel_twi_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct udevice_id tpm_atmel_twi_ids[] = {
+	{ .compatible = "atmel,at97sc3204t"},
+	{ }
+};
+
+static const struct tpm_ops tpm_atmel_twi_ops = {
+	.open = tpm_atmel_twi_open,
+	.close = tpm_atmel_twi_close,
+	.xfer = tpm_atmel_twi_xfer,
+	.get_desc = tpm_atmel_twi_get_desc,
+};
+
+U_BOOT_DRIVER(tpm_atmel_twi) = {
+	.name = "tpm_atmel_twi",
+	.id = UCLASS_TPM,
+	.of_match = tpm_atmel_twi_ids,
+	.ops = &tpm_atmel_twi_ops,
+	.probe = tpm_atmel_twi_probe,
+};

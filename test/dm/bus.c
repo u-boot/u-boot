@@ -46,7 +46,7 @@ static int testbus_child_post_bind(struct udevice *dev)
 
 static int testbus_child_pre_probe(struct udevice *dev)
 {
-	struct dm_test_parent_data *parent_data = dev_get_parentdata(dev);
+	struct dm_test_parent_data *parent_data = dev_get_parent_priv(dev);
 
 	parent_data->flag += FLAG_CHILD_PROBED;
 
@@ -64,7 +64,7 @@ static int testbus_child_pre_probe_uclass(struct udevice *dev)
 
 static int testbus_child_post_remove(struct udevice *dev)
 {
-	struct dm_test_parent_data *parent_data = dev_get_parentdata(dev);
+	struct dm_test_parent_data *parent_data = dev_get_parent_priv(dev);
 	struct dm_test_state *dms = test_state;
 
 	parent_data->flag += FLAG_CHILD_REMOVED;
@@ -215,20 +215,20 @@ static int test_bus_parent_data(struct unit_test_state *uts)
 
 	/* Check that parent data is allocated */
 	ut_assertok(device_find_child_by_seq(bus, 0, true, &dev));
-	ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+	ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
-	parent_data = dev_get_parentdata(dev);
+	parent_data = dev_get_parent_priv(dev);
 	ut_assert(NULL != parent_data);
 
 	/* Check that it starts at 0 and goes away when device is removed */
 	parent_data->sum += 5;
 	ut_asserteq(5, parent_data->sum);
 	device_remove(dev);
-	ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+	ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 
 	/* Check that we can do this twice */
 	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
-	parent_data = dev_get_parentdata(dev);
+	parent_data = dev_get_parent_priv(dev);
 	ut_assert(NULL != parent_data);
 	parent_data->sum += 5;
 	ut_asserteq(5, parent_data->sum);
@@ -239,11 +239,11 @@ static int test_bus_parent_data(struct unit_test_state *uts)
 	uclass_foreach_dev(dev, uc) {
 		/* Ignore these if they are not on this bus */
 		if (dev->parent != bus) {
-			ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+			ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 			continue;
 		}
 		ut_assertok(device_probe(dev));
-		parent_data = dev_get_parentdata(dev);
+		parent_data = dev_get_parent_priv(dev);
 
 		parent_data->sum = value;
 		value += 5;
@@ -255,7 +255,7 @@ static int test_bus_parent_data(struct unit_test_state *uts)
 		/* Ignore these if they are not on this bus */
 		if (dev->parent != bus)
 			continue;
-		parent_data = dev_get_parentdata(dev);
+		parent_data = dev_get_parent_priv(dev);
 
 		ut_asserteq(value, parent_data->sum);
 		value += 5;
@@ -311,10 +311,10 @@ static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 		/* Ignore these if they are not on this bus */
 		if (dev->parent != bus)
 			continue;
-		ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+		ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 
 		ut_assertok(device_probe(dev));
-		parent_data = dev_get_parentdata(dev);
+		parent_data = dev_get_parent_priv(dev);
 		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
 	}
 
@@ -322,10 +322,10 @@ static int dm_test_bus_parent_ops(struct unit_test_state *uts)
 		/* Ignore these if they are not on this bus */
 		if (dev->parent != bus)
 			continue;
-		parent_data = dev_get_parentdata(dev);
+		parent_data = dev_get_parent_priv(dev);
 		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
 		ut_assertok(device_remove(dev));
-		ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+		ut_asserteq_ptr(NULL, dev_get_parent_priv(dev));
 		ut_asserteq_ptr(dms->removed, dev);
 	}
 	test_state = NULL;

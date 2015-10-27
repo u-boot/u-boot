@@ -913,7 +913,7 @@ void spi_init(void)
 #else
 static int fsl_qspi_child_pre_probe(struct udevice *dev)
 {
-	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	slave->max_write_size = TX_BUFFER_SIZE;
 

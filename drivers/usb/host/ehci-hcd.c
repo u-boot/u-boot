@@ -303,7 +303,7 @@ static void ehci_update_endpt2_dev_n_port(struct usb_device *udev,
 
 	ttdev = udev;
 	parent = udev->dev;
-	uparent = dev_get_parentdata(parent);
+	uparent = dev_get_parent_priv(parent);
 
 	while (uparent->speed != USB_SPEED_HIGH) {
 		struct udevice *dev = parent;
@@ -313,9 +313,9 @@ static void ehci_update_endpt2_dev_n_port(struct usb_device *udev,
 			return;
 		}
 
-		ttdev = dev_get_parentdata(dev);
+		ttdev = dev_get_parent_priv(dev);
 		parent = dev->parent;
-		uparent = dev_get_parentdata(parent);
+		uparent = dev_get_parent_priv(parent);
 	}
 	parent_devnum = uparent->devnum;
 #else
