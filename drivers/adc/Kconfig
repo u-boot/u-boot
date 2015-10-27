@@ -10,3 +10,12 @@ config ADC
 	  - methods for get Vdd/Vss reference Voltage values with polarity
 	  - support supply's phandle with auto-enable
 	  - supply polarity setting in fdt
+
+config ADC_EXYNOS
+	bool "Enable Exynos 54xx ADC driver"
+	help
+	  This enables basic driver for Exynos ADC compatible with Exynos54xx.
+	  It provides:
+	  - 10 analog input channels
+	  - 12-bit resolution
+	  - 600 KSPS of sample rate
