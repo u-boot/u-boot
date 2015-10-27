@@ -858,7 +858,7 @@ static int exynos4x12_pinmux_config(int peripheral, int flags)
 int exynos_pinmux_config(int peripheral, int flags)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420() || proid_is_exynos5800())
+		if (proid_is_exynos5420() || proid_is_exynos5422())
 			return exynos5420_pinmux_config(peripheral, flags);
 		else if (proid_is_exynos5250())
 			return exynos5_pinmux_config(peripheral, flags);
