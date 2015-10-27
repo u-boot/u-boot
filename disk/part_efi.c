@@ -223,6 +223,10 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 		uuid_bin = (unsigned char *)gpt_pte[i].partition_type_guid.b;
 		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\ttype:\t%s\n", uuid);
+#ifdef CONFIG_PARTITION_TYPE_GUID
+		if (!uuid_guid_get_str(uuid_bin, uuid))
+			printf("\ttype:\t%s\n", uuid);
+#endif
 		uuid_bin = (unsigned char *)gpt_pte[i].unique_partition_guid.b;
 		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\tguid:\t%s\n", uuid);
