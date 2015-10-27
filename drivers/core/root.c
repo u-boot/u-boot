@@ -59,6 +59,8 @@ void fix_drivers(void)
 			entry->unbind += gd->reloc_off;
 		if (entry->ofdata_to_platdata)
 			entry->ofdata_to_platdata += gd->reloc_off;
+		if (entry->child_post_bind)
+			entry->child_post_bind += gd->reloc_off;
 		if (entry->child_pre_probe)
 			entry->child_pre_probe += gd->reloc_off;
 		if (entry->child_post_remove)
@@ -81,10 +83,16 @@ void fix_uclass(void)
 			entry->post_bind += gd->reloc_off;
 		if (entry->pre_unbind)
 			entry->pre_unbind += gd->reloc_off;
+		if (entry->pre_probe)
+			entry->pre_probe += gd->reloc_off;
 		if (entry->post_probe)
 			entry->post_probe += gd->reloc_off;
 		if (entry->pre_remove)
 			entry->pre_remove += gd->reloc_off;
+		if (entry->child_post_bind)
+			entry->child_post_bind += gd->reloc_off;
+		if (entry->child_pre_probe)
+			entry->child_pre_probe += gd->reloc_off;
 		if (entry->init)
 			entry->init += gd->reloc_off;
 		if (entry->destroy)
