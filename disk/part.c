@@ -392,6 +392,9 @@ int get_partition_info(block_dev_desc_t *dev_desc, int part,
 	/* The common case is no UUID support */
 	info->uuid[0] = 0;
 #endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	info->type_guid[0] = 0;
+#endif
 
 	switch (dev_desc->part_type) {
 #ifdef CONFIG_MAC_PARTITION
@@ -532,6 +535,9 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 #ifdef CONFIG_PARTITION_UUIDS
 		info->uuid[0] = 0;
 #endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+		info->type_guid[0] = 0;
+#endif
 
 		return 0;
 	}
@@ -638,6 +644,9 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 		strcpy((char *)info->name, "Whole Disk");
 #ifdef CONFIG_PARTITION_UUIDS
 		info->uuid[0] = 0;
+#endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+		info->type_guid[0] = 0;
 #endif
 
 		ret = 0;

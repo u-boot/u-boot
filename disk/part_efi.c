@@ -283,6 +283,10 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b, info->uuid,
 			UUID_STR_FORMAT_GUID);
 #endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	uuid_bin_to_str(gpt_pte[part - 1].partition_type_guid.b,
+			info->type_guid, UUID_STR_FORMAT_GUID);
+#endif
 
 	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s\n", __func__,
 	      info->start, info->size, info->name);
@@ -419,6 +423,10 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 	char *str_uuid;
 	unsigned char *bin_uuid;
 #endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	char *str_type_guid;
+	unsigned char *bin_type_guid;
+#endif
 
 	for (i = 0; i < parts; i++) {
 		/* partition starting lba */
@@ -445,9 +453,26 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		else
 			gpt_e[i].ending_lba = cpu_to_le64(offset - 1);
 
+#ifdef CONFIG_PARTITION_TYPE_GUID
+		str_type_guid = partitions[i].type_guid;
+		bin_type_guid = gpt_e[i].partition_type_guid.b;
+		if (strlen(str_type_guid)) {
+			if (uuid_str_to_bin(str_type_guid, bin_type_guid,
+					    UUID_STR_FORMAT_GUID)) {
+				printf("Partition no. %d: invalid type guid: %s\n",
+				       i, str_type_guid);
+				return -1;
+			}
+		} else {
+			/* default partition type GUID */
+			memcpy(bin_type_guid,
+			       &PARTITION_BASIC_DATA_GUID, 16);
+		}
+#else
 		/* partition type GUID */
 		memcpy(gpt_e[i].partition_type_guid.b,
 			&PARTITION_BASIC_DATA_GUID, 16);
+#endif
 
 #ifdef CONFIG_PARTITION_UUIDS
 		str_uuid = partitions[i].uuid;

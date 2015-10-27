@@ -171,6 +171,19 @@ To restore GUID partition table one needs to:
 2. From u-boot prompt type:
    gpt write mmc 0 $partitions
 
+Partition type GUID:
+====================
+
+For created partition, the used partition type GUID is
+PARTITION_BASIC_DATA_GUID (EBD0A0A2-B9E5-4433-87C0-68B6B72699C7).
+
+If you define 'CONFIG_PARTITION_TYPE_GUID', a optionnal parameter 'type'
+can specify a other partition type guid:
+
+     "partitions=uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
+	name=kernel,size=60MiB,uuid=...,
+	type=0FC63DAF-8483-4772-8E79-3D69D8477DE4;"
+
 Useful info:
 ============
 

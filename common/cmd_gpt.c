@@ -218,6 +218,23 @@ static int set_gpt_info(block_dev_desc_t *dev_desc,
 			strcpy((char *)parts[i].uuid, p);
 			free(val);
 		}
+#ifdef CONFIG_PARTITION_TYPE_GUID
+		/* guid */
+		val = extract_val(tok, "type");
+		if (val) {
+			/* 'type' is optional */
+			if (extract_env(val, &p))
+				p = val;
+			if (strlen(p) >= sizeof(parts[i].type_guid)) {
+				printf("Wrong type guid format for partition %d\n",
+				       i);
+				errno = -4;
+				goto err;
+			}
+			strcpy((char *)parts[i].type_guid, p);
+			free(val);
+		}
+#endif
 		/* name */
 		val = extract_val(tok, "name");
 		if (!val) { /* name is mandatory */
