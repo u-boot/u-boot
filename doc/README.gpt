@@ -31,7 +31,8 @@ More often UUID is displayed as 32 hexadecimal digits, in 5 groups,
 separated by hyphens, in the form 8-4-4-4-12 for a total of 36 characters
 (32 digits and 4 hyphens)
 
-For instance, GUID of Linux data partition: EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+For instance, GUID of Basic data partition: EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+and GUID of Linux filesystem data: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
 
 Historically there are 5 methods to generate this number. The oldest one is
 combining machine's MAC address and timer (epoch) value.
