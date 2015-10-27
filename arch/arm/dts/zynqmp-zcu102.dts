@@ -473,6 +473,10 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 	};
 };
 
+&pcie {
+	status = "okay";
+};
+
 &qspi {
 	status = "okay";
 	flash@0 {
