@@ -157,10 +157,15 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	int i;
 	bd_t *bd = gd->bd;
 
-	print_num("mem start",		(ulong)bd->bi_memstart);
-	print_lnum("mem size",		(u64)bd->bi_memsize);
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
+		print_num("DRAM bank",	i);
+		print_num("-> start",	bd->bi_dram[i].start);
+		print_num("-> size",	bd->bi_dram[i].size);
+	}
+
 	print_num("flash start",	(ulong)bd->bi_flashstart);
 	print_num("flash size",		(ulong)bd->bi_flashsize);
 	print_num("flash offset",	(ulong)bd->bi_flashoffset);
