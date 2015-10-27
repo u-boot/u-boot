@@ -19,6 +19,7 @@ struct arch_global_data {
 	int has_mmu;
 	u32 io_region_base;
 	u32 mem_region_base;
+	u32 physaddr_mask;
 };
 
 #include <asm-generic/global_data.h>

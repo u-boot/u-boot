@@ -119,6 +119,7 @@ static int altera_nios2_probe(struct udevice *dev)
 		"altr,has-mmu", 0);
 	gd->arch.io_region_base = gd->arch.has_mmu ? 0xe0000000 : 0x80000000;
 	gd->arch.mem_region_base = gd->arch.has_mmu ? 0xc0000000 : 0x00000000;
+	gd->arch.physaddr_mask = gd->arch.has_mmu ? 0x1fffffff : 0x7fffffff;
 
 	return 0;
 }

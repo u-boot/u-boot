@@ -44,10 +44,7 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 static inline phys_addr_t virt_to_phys(void * vaddr)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	if (gd->arch.has_mmu)
-		return (phys_addr_t)vaddr & 0x1fffffff;
-	else
-		return (phys_addr_t)vaddr & 0x7fffffff;
+	return (phys_addr_t)vaddr & gd->arch.physaddr_mask;
 }
 
 static inline void *ioremap(unsigned long physaddr, unsigned long size)
