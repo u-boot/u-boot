@@ -189,6 +189,12 @@
 		};
 	};
 
+	adc@0 {
+		compatible = "sandbox,adc";
+		vdd-supply = <&buck2>;
+		vss-microvolts = <0>;
+	};
+
 	leds {
 		compatible = "gpio-leds";
 

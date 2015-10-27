@@ -7,3 +7,4 @@
 
 obj-$(CONFIG_ADC) += adc-uclass.o
 obj-$(CONFIG_ADC_EXYNOS) += exynos-adc.o
+obj-$(CONFIG_ADC_SANDBOX) += sandbox.o

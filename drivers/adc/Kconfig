@@ -19,3 +19,12 @@ config ADC_EXYNOS
 	  - 10 analog input channels
 	  - 12-bit resolution
 	  - 600 KSPS of sample rate
+
+config ADC_SANDBOX
+	bool "Enable Sandbox ADC test driver"
+	help
+	  This enables driver for Sandbox ADC device emulation.
+	  It provides:
+	  - 4 analog input channels
+	  - 16-bit resolution
+	  - single and multi-channel conversion mode
