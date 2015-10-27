@@ -335,34 +335,34 @@ void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
 		debug ("fwc addr %p cmd %x %x 8bit x %d bit\n", addr, cmd,
-		       cword.c, info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-		flash_write8(cword.c, addr);
+		       cword.w8, info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
+		flash_write8(cword.w8, addr);
 		break;
 	case FLASH_CFI_16BIT:
 		debug ("fwc addr %p cmd %x %4.4x 16bit x %d bit\n", addr,
-		       cmd, cword.w,
+		       cmd, cword.w16,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-		flash_write16(cword.w, addr);
+		flash_write16(cword.w16, addr);
 		break;
 	case FLASH_CFI_32BIT:
-		debug ("fwc addr %p cmd %x %8.8lx 32bit x %d bit\n", addr,
-		       cmd, cword.l,
+		debug ("fwc addr %p cmd %x %8.8x 32bit x %d bit\n", addr,
+		       cmd, cword.w32,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-		flash_write32(cword.l, addr);
+		flash_write32(cword.w32, addr);
 		break;
 	case FLASH_CFI_64BIT:
 #ifdef DEBUG
 		{
 			char str[20];
 
-			print_longlong (str, cword.ll);
+			print_longlong (str, cword.w64);
 
 			debug ("fwrite addr %p cmd %x %s 64 bit x %d bit\n",
 			       addr, cmd, str,
 			       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		}
 #endif
-		flash_write64(cword.ll, addr);
+		flash_write64(cword.w64, addr);
 		break;
 	}
 
@@ -393,16 +393,16 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 	debug ("is= cmd %x(%c) addr %p ", cmd, cmd, addr);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		debug ("is= %x %x\n", flash_read8(addr), cword.c);
-		retval = (flash_read8(addr) == cword.c);
+		debug ("is= %x %x\n", flash_read8(addr), cword.w8);
+		retval = (flash_read8(addr) == cword.w8);
 		break;
 	case FLASH_CFI_16BIT:
-		debug ("is= %4.4x %4.4x\n", flash_read16(addr), cword.w);
-		retval = (flash_read16(addr) == cword.w);
+		debug ("is= %4.4x %4.4x\n", flash_read16(addr), cword.w16);
+		retval = (flash_read16(addr) == cword.w16);
 		break;
 	case FLASH_CFI_32BIT:
-		debug ("is= %8.8x %8.8lx\n", flash_read32(addr), cword.l);
-		retval = (flash_read32(addr) == cword.l);
+		debug ("is= %8.8x %8.8x\n", flash_read32(addr), cword.w32);
+		retval = (flash_read32(addr) == cword.w32);
 		break;
 	case FLASH_CFI_64BIT:
 #ifdef DEBUG
@@ -411,11 +411,11 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 			char str2[20];
 
 			print_longlong (str1, flash_read64(addr));
-			print_longlong (str2, cword.ll);
+			print_longlong (str2, cword.w64);
 			debug ("is= %s %s\n", str1, str2);
 		}
 #endif
-		retval = (flash_read64(addr) == cword.ll);
+		retval = (flash_read64(addr) == cword.w64);
 		break;
 	default:
 		retval = 0;
@@ -439,16 +439,16 @@ static int flash_isset (flash_info_t * info, flash_sect_t sect,
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		retval = ((flash_read8(addr) & cword.c) == cword.c);
+		retval = ((flash_read8(addr) & cword.w8) == cword.w8);
 		break;
 	case FLASH_CFI_16BIT:
-		retval = ((flash_read16(addr) & cword.w) == cword.w);
+		retval = ((flash_read16(addr) & cword.w16) == cword.w16);
 		break;
 	case FLASH_CFI_32BIT:
-		retval = ((flash_read32(addr) & cword.l) == cword.l);
+		retval = ((flash_read32(addr) & cword.w32) == cword.w32);
 		break;
 	case FLASH_CFI_64BIT:
-		retval = ((flash_read64(addr) & cword.ll) == cword.ll);
+		retval = ((flash_read64(addr) & cword.w64) == cword.w64);
 		break;
 	default:
 		retval = 0;
@@ -680,33 +680,33 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		cword->c = c;
+		cword->w8 = c;
 		break;
 	case FLASH_CFI_16BIT:
 #if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 		w = c;
 		w <<= 8;
-		cword->w = (cword->w >> 8) | w;
+		cword->w16 = (cword->w16 >> 8) | w;
 #else
-		cword->w = (cword->w << 8) | c;
+		cword->w16 = (cword->w16 << 8) | c;
 #endif
 		break;
 	case FLASH_CFI_32BIT:
 #if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 		l = c;
 		l <<= 24;
-		cword->l = (cword->l >> 8) | l;
+		cword->w32 = (cword->w32 >> 8) | l;
 #else
-		cword->l = (cword->l << 8) | c;
+		cword->w32 = (cword->w32 << 8) | c;
 #endif
 		break;
 	case FLASH_CFI_64BIT:
 #if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 		ll = c;
 		ll <<= 56;
-		cword->ll = (cword->ll >> 8) | ll;
+		cword->w64 = (cword->w64 >> 8) | ll;
 #else
-		cword->ll = (cword->ll << 8) | c;
+		cword->w64 = (cword->w64 << 8) | c;
 #endif
 		break;
 	}
@@ -753,16 +753,16 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	/* Check if Flash is (sufficiently) erased */
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		flag = ((flash_read8(dstaddr) & cword.c) == cword.c);
+		flag = ((flash_read8(dstaddr) & cword.w8) == cword.w8);
 		break;
 	case FLASH_CFI_16BIT:
-		flag = ((flash_read16(dstaddr) & cword.w) == cword.w);
+		flag = ((flash_read16(dstaddr) & cword.w16) == cword.w16);
 		break;
 	case FLASH_CFI_32BIT:
-		flag = ((flash_read32(dstaddr) & cword.l) == cword.l);
+		flag = ((flash_read32(dstaddr) & cword.w32) == cword.w32);
 		break;
 	case FLASH_CFI_64BIT:
-		flag = ((flash_read64(dstaddr) & cword.ll) == cword.ll);
+		flag = ((flash_read64(dstaddr) & cword.w64) == cword.w64);
 		break;
 	default:
 		flag = 0;
@@ -800,16 +800,16 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		flash_write8(cword.c, dstaddr);
+		flash_write8(cword.w8, dstaddr);
 		break;
 	case FLASH_CFI_16BIT:
-		flash_write16(cword.w, dstaddr);
+		flash_write16(cword.w16, dstaddr);
 		break;
 	case FLASH_CFI_32BIT:
-		flash_write32(cword.l, dstaddr);
+		flash_write32(cword.w32, dstaddr);
 		break;
 	case FLASH_CFI_64BIT:
-		flash_write64(cword.ll, dstaddr);
+		flash_write64(cword.w64, dstaddr);
 		break;
 	}
 
@@ -1115,7 +1115,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			if (use_flash_status_poll(info)) {
 				cfiword_t cword;
 				void *dest;
-				cword.ll = 0xffffffffffffffffULL;
+				cword.w64 = 0xffffffffffffffffULL;
 				dest = flash_map(info, sect, 0);
 				st = flash_status_poll(info, &cword, dest,
 						       info->erase_blk_tout, "erase");
@@ -1305,7 +1305,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 
 	/* handle unaligned start */
 	if ((aln = addr - wp) != 0) {
-		cword.l = 0;
+		cword.w32 = 0;
 		p = (uchar *)wp;
 		for (i = 0; i < aln; ++i)
 			flash_add_byte (info, &cword, flash_read8(p + i));
@@ -1332,7 +1332,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	while (cnt >= info->portwidth) {
 		/* prohibit buffer write when buffer_size is 1 */
 		if (info->buffer_size == 1) {
-			cword.l = 0;
+			cword.w32 = 0;
 			for (i = 0; i < info->portwidth; i++)
 				flash_add_byte (info, &cword, *src++);
 			if ((rc = flash_write_cfiword (info, wp, cword)) != 0)
@@ -1359,7 +1359,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	}
 #else
 	while (cnt >= info->portwidth) {
-		cword.l = 0;
+		cword.w32 = 0;
 		for (i = 0; i < info->portwidth; i++) {
 			flash_add_byte (info, &cword, *src++);
 		}
@@ -1381,7 +1381,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	/*
 	 * handle unaligned tail bytes
 	 */
-	cword.l = 0;
+	cword.w32 = 0;
 	p = (uchar *)wp;
 	for (i = 0; (i < info->portwidth) && (cnt > 0); ++i) {
 		flash_add_byte (info, &cword, *src++);
