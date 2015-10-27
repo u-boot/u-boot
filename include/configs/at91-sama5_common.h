@@ -97,8 +97,8 @@
 #elif CONFIG_SYS_USE_SERIALFLASH
 /* u-boot env in serial flash, by default is bus 0 and cs 0 */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET		0x4000
-#define CONFIG_ENV_SIZE			0x4000
+#define CONFIG_ENV_OFFSET		0x6000
+#define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_BOOTCOMMAND		"sf probe 0; "				\
 					"sf read 0x21000000 0x60000 0xc000; "	\
