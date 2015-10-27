@@ -1,6 +1,0 @@
-TAIHU BOARD
-M:	John Otken <jotken@softadvances.com>
-S:	Maintained
-F:	board/amcc/taihu/
-F:	include/configs/taihu.h
-F:	configs/taihu_defconfig
