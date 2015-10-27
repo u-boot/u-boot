@@ -38,8 +38,8 @@ struct altera_spi_priv {
 	struct altera_spi_regs *regs;
 };
 
-#define ALTERA_SPI_STATUS_RRDY_MSK	(1 << 7)
-#define ALTERA_SPI_CONTROL_SSO_MSK	(1 << 10)
+#define ALTERA_SPI_STATUS_RRDY_MSK	BIT(7)
+#define ALTERA_SPI_CONTROL_SSO_MSK	BIT(10)
 
 static void spi_cs_activate(struct udevice *dev, uint cs)
 {
