@@ -304,8 +304,8 @@ int checkboard(void)
 	printf("Board: %s\n", board_info ? board_info : "unknown");
 #ifdef CONFIG_BOARD_TYPES
 	board_info = get_board_type();
-
-	printf("Model: %s\n", board_info ? board_info : "unknown");
+	if (board_info)
+		printf("Type:  %s\n", board_info);
 #endif
 	return 0;
 }

@@ -85,6 +85,9 @@ void set_board_info(void)
 
 #ifdef CONFIG_BOARD_TYPES
 	bdtype = get_board_type();
+	if (!bdtype)
+		bdtype = "";
+
 	sprintf(info, "%s%s", bdname, bdtype);
 	setenv("boardname", info);
 #endif
