@@ -124,6 +124,7 @@ static int parse_config (void);
 
 #if defined(CONFIG_FILE)
 static int get_config (char *);
+static char *config_file = CONFIG_FILE;
 #endif
 static inline ulong getenvsize (void)
 {
@@ -245,6 +246,19 @@ int fw_printenv (int argc, char *argv[])
 	char *env, *nxt;
 	int i, n_flag;
 	int rc = 0;
+
+#ifdef CONFIG_FILE
+	if (argc >= 2 && strcmp(argv[1], "-c") == 0) {
+		if (argc < 3) {
+			fprintf(stderr,
+				"## Error: '-c' option requires the config file to use\n");
+			return -1;
+		}
+		config_file = argv[2];
+		argv += 2;
+		argc -= 2;
+	}
+#endif
 
 	if (argc >= 2 && strcmp(argv[1], "-a") == 0) {
 		if (argc < 3) {
@@ -485,6 +499,19 @@ int fw_setenv(int argc, char *argv[])
 	size_t len;
 	char *name;
 	char *value = NULL;
+
+#ifdef CONFIG_FILE
+	if (argc >= 2 && strcmp(argv[1], "-c") == 0) {
+		if (argc < 3) {
+			fprintf(stderr,
+				"## Error: '-c' option requires the config file to use\n");
+			return -1;
+		}
+		config_file = argv[2];
+		argv += 2;
+		argc -= 2;
+	}
+#endif
 
 	if (argc < 2) {
 		errno = EINVAL;
@@ -1364,9 +1391,9 @@ static int parse_config ()
 
 #if defined(CONFIG_FILE)
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
-	if (get_config (CONFIG_FILE)) {
+	if (get_config (config_file)) {
 		fprintf (stderr,
-			"Cannot parse config file: %s\n", strerror (errno));
+			"Cannot parse config file '%s': %s\n", config_file, strerror (errno));
 		return -1;
 	}
 #else

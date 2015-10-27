@@ -50,8 +50,13 @@ void usage(void)
 
 	fprintf(stderr, "fw_printenv/fw_setenv, "
 		"a command line interface to U-Boot environment\n\n"
+#ifndef CONFIG_FILE
 		"usage:\tfw_printenv [-a key] [-n] [variable name]\n"
 		"\tfw_setenv [-a key] [variable name] [variable value]\n"
+#else
+		"usage:\tfw_printenv [-c /my/fw_env.config] [-a key] [-n] [variable name]\n"
+		"\tfw_setenv [-c /my/fw_env.config] [-a key] [variable name] [variable value]\n"
+#endif
 		"\tfw_setenv -s [ file ]\n"
 		"\tfw_setenv -s - < [ file ]\n\n"
 		"The file passed as argument contains only pairs "
@@ -98,11 +103,14 @@ int main(int argc, char *argv[])
 		cmdname = p + 1;
 	}
 
-	while ((c = getopt_long (argc, argv, "a:ns:h",
+	while ((c = getopt_long (argc, argv, "a:c:ns:h",
 		long_options, NULL)) != EOF) {
 		switch (c) {
 		case 'a':
 			/* AES key, handled later */
+			break;
+		case 'c':
+			/* handled later */
 			break;
 		case 'n':
 			/* handled in fw_printenv */
