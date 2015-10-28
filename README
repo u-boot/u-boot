@@ -2438,6 +2438,15 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_I2C_IHS_CH3 activate hardware channel 3
 		  - CONFIG_SYS_I2C_IHS_SPEED_3 speed channel 3
 		  - CONFIG_SYS_I2C_IHS_SLAVE_3 slave addr channel 3
+		  - activate dual channel with CONFIG_SYS_I2C_IHS_DUAL
+		  - CONFIG_SYS_I2C_IHS_SPEED_0_1 speed channel 0_1
+		  - CONFIG_SYS_I2C_IHS_SLAVE_0_1 slave addr channel 0_1
+		  - CONFIG_SYS_I2C_IHS_SPEED_1_1 speed channel 1_1
+		  - CONFIG_SYS_I2C_IHS_SLAVE_1_1 slave addr channel 1_1
+		  - CONFIG_SYS_I2C_IHS_SPEED_2_1 speed channel 2_1
+		  - CONFIG_SYS_I2C_IHS_SLAVE_2_1 slave addr channel 2_1
+		  - CONFIG_SYS_I2C_IHS_SPEED_3_1 speed channel 3_1
+		  - CONFIG_SYS_I2C_IHS_SLAVE_3_1 slave addr channel 3_1
 
 		additional defines:
 

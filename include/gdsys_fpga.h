@@ -143,7 +143,7 @@ struct ihs_fpga {
 	u16 reserved_2[2];	/* 0x001c */
 	struct ihs_io_ep ep;	/* 0x0020 */
 	u16 reserved_3[9];	/* 0x002e */
-	struct ihs_i2c i2c;	/* 0x0040 */
+	struct ihs_i2c i2c0;	/* 0x0040 */
 	u16 reserved_4[10];	/* 0x004c */
 	u16 mc_int;		/* 0x0060 */
 	u16 mc_int_en;		/* 0x0062 */
@@ -177,7 +177,7 @@ struct ihs_fpga {
 	u16 reserved_2[2];	/* 0x001c */
 	struct ihs_io_ep ep;	/* 0x0020 */
 	u16 reserved_3[9];	/* 0x002e */
-	struct ihs_i2c i2c;	/* 0x0040 */
+	struct ihs_i2c i2c0;	/* 0x0040 */
 	u16 reserved_4[10];	/* 0x004c */
 	u16 mc_int;		/* 0x0060 */
 	u16 mc_int_en;		/* 0x0062 */
@@ -208,10 +208,12 @@ struct ihs_fpga {
 	u16 reserved_1[29];	/* 0x001e */
 	u16 mpc3w_control;	/* 0x0058 */
 	u16 reserved_2[3];	/* 0x005a */
-	struct ihs_i2c i2c;	/* 0x0060 */
-	u16 reserved_3[205];	/* 0x0066 */
+	struct ihs_i2c i2c0;	/* 0x0060 */
+	u16 reserved_3[2];	/* 0x006c */
+	struct ihs_i2c i2c1;	/* 0x0070 */
+	u16 reserved_4[194];	/* 0x007c */
 	struct ihs_osd osd;	/* 0x0200 */
-	u16 reserved_4[761];	/* 0x020e */
+	u16 reserved_5[761];	/* 0x020e */
 	u16 videomem[31736];	/* 0x0800 */
 };
 #endif
