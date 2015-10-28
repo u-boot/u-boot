@@ -25,17 +25,19 @@
 #define LATCH2_MC2_PRESENT_N 0x0080
 
 enum {
-	UNITTYPE_VIDEO_USER = 0,
-	UNITTYPE_MAIN_USER = 1,
-	UNITTYPE_VIDEO_SERVER = 2,
-	UNITTYPE_MAIN_SERVER = 3,
+	UNITTYPE_MAIN = 1<<0,
+	UNITTYPE_SERVER = 1<<1,
+	UNITTYPE_DISPLAYPORT = 1<<2,
 };
 
 enum {
 	HWVER_101 = 0,
 	HWVER_110 = 1,
-	HWVER_120 = 2,
-	HWVER_130 = 3,
+	HWVER_130 = 2,
+	HWVER_140 = 3,
+	HWVER_150 = 4,
+	HWVER_160 = 5,
+	HWVER_170 = 6,
 };
 
 enum {
@@ -121,27 +123,20 @@ static void print_fpga_info(unsigned dev)
 	feature_carriers = (fpga_features >> 2) & 0x0003;
 	feature_video_channels = fpga_features & 0x0003;
 
-	switch (unit_type) {
-	case UNITTYPE_VIDEO_USER:
-		printf("Videochannel Userside");
-		break;
+	if (unit_type & UNITTYPE_MAIN)
+		printf("Mainchannel ");
+	else
+		printf("Videochannel ");
 
-	case UNITTYPE_MAIN_USER:
-		printf("Mainchannel Userside");
-		break;
+	if (unit_type & UNITTYPE_SERVER)
+		printf("Serverside ");
+	else
+		printf("Userside ");
 
-	case UNITTYPE_VIDEO_SERVER:
-		printf("Videochannel Serverside");
-		break;
-
-	case UNITTYPE_MAIN_SERVER:
-		printf("Mainchannel Serverside");
-		break;
-
-	default:
-		printf("UnitType %d(not supported)", unit_type);
-		break;
-	}
+	if (unit_type & UNITTYPE_DISPLAYPORT)
+		printf("DisplayPort");
+	else
+		printf("DVI-DL");
 
 	switch (hardware_version) {
 	case HWVER_101:
@@ -149,15 +144,27 @@ static void print_fpga_info(unsigned dev)
 		break;
 
 	case HWVER_110:
-		printf(" HW-Ver 1.10-1.12\n");
-		break;
-
-	case HWVER_120:
-		printf(" HW-Ver 1.20\n");
+		printf(" HW-Ver 1.10-1.20\n");
 		break;
 
 	case HWVER_130:
 		printf(" HW-Ver 1.30\n");
+		break;
+
+	case HWVER_140:
+		printf(" HW-Ver 1.40-1.43\n");
+		break;
+
+	case HWVER_150:
+		printf(" HW-Ver 1.50\n");
+		break;
+
+	case HWVER_160:
+		printf(" HW-Ver 1.60-1.61\n");
+		break;
+
+	case HWVER_170:
+		printf(" HW-Ver 1.70\n");
 		break;
 
 	default:
@@ -260,7 +267,7 @@ int last_stage_init(void)
 	if (get_mc2_present())
 		print_fpga_info(1);
 
-	if (((versions >> 4) & 0x000f) != UNITTYPE_MAIN_USER)
+	if (((versions >> 4) & 0x000f) & UNITTYPE_SERVER)
 		return 0;
 
 	if (!get_fpga_state(0) || (get_hwver() == HWVER_101))
