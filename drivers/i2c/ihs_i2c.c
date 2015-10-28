@@ -135,7 +135,7 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, uint addr,
 	if (len <= 0)
 		return 1;
 
-	if (ihs_i2c_address(chip, addr, alen, !read))
+	if (ihs_i2c_address(chip, addr, alen, len))
 		return 1;
 
 	while (len) {
