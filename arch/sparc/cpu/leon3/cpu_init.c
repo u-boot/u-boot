@@ -47,17 +47,6 @@ void cpu_init_f(void)
 #endif
 }
 
-/* Routine called from start.S,
- *
- * Run from FLASH/PROM:
- *  - memory controller has already been setup up, stack can be used
- *  - global variables available for read/writing
- *  - constants avaiable
-	 */
-void cpu_init_f2(void)
-{
-}
-
 /* If cache snooping is available in hardware the result will be set
  * to 0x800000, otherwise 0.
  */

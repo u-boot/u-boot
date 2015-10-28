@@ -257,10 +257,17 @@ wiminit:
 	set	WIM_INIT, %g3
 	mov	%g3, %wim
 
-stackp:
+stackinit:
 	set	CONFIG_SYS_INIT_SP_OFFSET, %fp
 	andn	%fp, 0x0f, %fp
 	sub	%fp, 64, %sp
+
+tbrinit:
+	set	CONFIG_SYS_TEXT_BASE, %g2
+	wr	%g0, %g2, %tbr
+	nop
+	nop
+	nop
 
 /* Obtain the address of _GLOBAL_OFFSET_TABLE_ */
 	SPARC_PIC_THUNK_CALL(l7)
@@ -298,25 +305,50 @@ cpu_init_unreloc:
 	call	cpu_init_f
 	 nop
 
-/* un relocated start address of monitor */
-#define TEXT_START _text
+board_init_unreloc:
+	call	board_init_f
+	 clr	%o0			! boot_flags
 
-/* un relocated end address of monitor */
-#define DATA_END __init_end
+dead_unreloc:
+	mov	1, %g1			! For GRMON2 to exit normally.
+	ta 0				! If board_init_f call returns.. (unlikely)
+	 nop
+	nop
+	ba	dead_unreloc		! infinte loop
+	 nop
 
+!-------------------------------------------------------------------------------
+
+/* void relocate_code (addr_sp, gd, addr_moni)
+ *
+ * This "function" does not return, instead it continues in RAM after
+ * relocating the monitor code.
+ *
+ * %o0 = Relocated stack pointer
+ * %o1 = Relocated global data pointer
+ * %o2 = Relocated text pointer
+ *
+ * %l7 = _GLOBAL_OFFSET_TABLE_ address
+ */
+	.globl	relocate_code
+	.type	relocate_code, #function
+	.align	4
+relocate_code:
+	!SPARC_PIC_THUNK_CALL(l7)
 reloc:
-	SPARC_LOAD_ADDRESS(TEXT_START, l7, g2)
-	SPARC_LOAD_ADDRESS(DATA_END, l7, g3)
-	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g4
-reloc_loop:
-	ldd	[%g2],%l0
-	ldd	[%g2+8],%l2
-	std	%l0,[%g4]
-	std	%l2,[%g4+8]
-	inc	16,%g2
-	subcc	%g3,%g2,%g0
-	bne	reloc_loop
-	 inc	16,%g4
+	SPARC_LOAD_ADDRESS(_text, l7, g2)	! start address of monitor
+	SPARC_LOAD_ADDRESS(__init_end, l7, g3)	! end address of monitor
+	mov	%o2, %g4		! relocation address
+	sub	%g4, %g2, %g6		! relocation offset
+	/* copy .text & .data to relocated address */
+10:	ldd	[%g2], %l0
+	ldd	[%g2+8], %l2
+	std	%l0, [%g4]
+	std	%l2, [%g4+8]
+	inc	16, %g2			! src += 16
+	cmp	%g2, %g3
+	bcs	10b			! while (src < end)
+	 inc	16, %g4			! dst += 16
 
 	clr	%l0
 	clr	%l1
@@ -331,48 +363,41 @@ reloc_loop:
  *
  */
 
+	/* clear the relocated .bss area */
 clr_bss:
-/* clear bss area (the relocated) */
 	SPARC_LOAD_ADDRESS(__bss_start, l7, g2)
 	SPARC_LOAD_ADDRESS(__bss_end, l7, g3)
-	sub	%g3,%g2,%g3
+	sub	%g3,%g2,%g3		! length of .bss area
 	add	%g3,%g4,%g3
+	/* clearing 16byte a time ==> linker script need to align to 16 byte offset */
 	clr	%g1	/* std %g0 uses g0 and g1 */
-/* clearing 16byte a time ==> linker script need to align to 16 byte offset */
-clr_bss_16:
-	std	%g0,[%g4]
-	std	%g0,[%g4+8]
-	inc	16,%g4
-	cmp	%g3,%g4
-	bne	clr_bss_16
+20:
+	std	%g0, [%g4]
+	std	%g0, [%g4+8]
+	inc	16, %g4			! ptr += 16
+	cmp	%g4, %g3
+	bcs	20b			! while (ptr < end)
 	 nop
 
-/* add offsets to GOT table */
+	/* add offsets to GOT table */
 fixup_got:
 	SPARC_LOAD_ADDRESS(__got_start, l7, g4)
+	add	%g4, %g6, %g4
 	SPARC_LOAD_ADDRESS(__got_end, l7, g3)
-/*
- * new got offset = (old GOT-PTR (read with ld) -
- *   CONFIG_SYS_RELOC_MONITOR_BASE(from define) ) +
- *   Destination Address (from define)
- */
-	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g2
-	SPARC_LOAD_ADDRESS(TEXT_START, l7, g1)
-	add	%g4,%g2,%g4
-	sub	%g4,%g1,%g4
-	add	%g3,%g2,%g3
-	sub	%g3,%g1,%g3
-	sub	%g2,%g1,%g2	! prepare register with (new base address) -
-				!  (old base address)
-got_loop:
-	ld	[%g4],%l0	! load old GOT-PTR
-	add	%l0,%g2,%l0	! increase with (new base address) -
-				!  (old base)
-	st	%l0,[%g4]
-	inc	4,%g4
-	cmp	%g3,%g4
-	bne	got_loop
+	add	%g3, %g6, %g3
+30:	ld	[%g4], %l0
+#ifdef CONFIG_RELOC_GOT_SKIP_NULL
+	cmp	%l0, 0
+	be	32f
+#endif
+	add	%l0, %g6, %l0		! relocate GOT pointer
+	st	%l0, [%g4]
+32:	inc	4, %g4			! ptr += 4
+	cmp	%g4, %g3
+	bcs	30b			! while (ptr < end)
 	 nop
+
+#if 0 /* FIXME: Relocated PROM address should be calculated! */
 
 prom_relocate:
 	SPARC_LOAD_ADDRESS(__prom_start, l7, g2)
@@ -389,35 +414,46 @@ prom_relocate_loop:
 	bne	prom_relocate_loop
 	 inc	16,%g4
 
+#endif
+
+! %o0 = stack pointer (relocated)
+! %o1 = global data pointer (relocated)
+! %o2 = text pointer (relocated)
+
+! %g6 = relocation offset
+! %l7 = _GLOBAL_OFFSET_TABLE_
+
 /* Trap table has been moved, lets tell CPU about
  * the new trap table address
  */
-
-	set	CONFIG_SYS_RELOC_MONITOR_BASE, %g2
-	wr	%g0, %g2, %tbr
+update_trap_table_address:
+	wr	%g0, %o2, %tbr
 	nop
 	nop
 	nop
 
-/* Call relocated init functions */
-jump:
-	SPARC_LOAD_ADDRESS(cpu_init_f2, l7, o1)
-	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
-	add	%o1,%o2,%o1
-	sub	%o1,%g1,%o1
-	call	%o1
-	 clr	%o0
+update_stack_pointers:
+	mov	%o0, %fp
+	andn	%fp, 0x0f, %fp	! align to 16 bytes
+	add	%fp, -64, %fp	! make space for a window push
+	mov	%fp, %sp	! setup stack pointer
 
-	SPARC_LOAD_ADDRESS(board_init_f, l7, o1)
-	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
-	SPARC_LOAD_ADDRESS(TEXT_START, l7, g1)
-	add	%o1,%o2,%o1
-	sub	%o1,%g1,%o1
-	call	%o1
-	 clr	%o0
+jump_board_init_r:
+	mov	%o1, %o0	! relocated global data pointer
+	mov	%o2, %o1	! relocated text pointer
+	SPARC_LOAD_ADDRESS(board_init_r, l7, o3)
+	add	%o3, %g6, %o3	! add relocation offset
+	call	%o3
+	 nop
 
-dead:	ta 0				! if call returns...
-	nop
+dead:
+	mov	1, %g1			! For GRMON2 to exit normally.
+	ta 0				! if call returns.. (unlikely)
+	 nop
+	b	dead			! infinte loop
+	 nop
+
+!------------------------------------------------------------------------------
 
 /* Interrupt handler caller,
  * reg L7: interrupt number
@@ -446,54 +482,56 @@ _irq_entry:
 
 	RESTORE_ALL
 
-!Window overflow trap handler.
+!------------------------------------------------------------------------------
+
+/*
+ * Window overflow trap handler
+ */
 	.global _window_overflow
 
 _window_overflow:
 
 	mov	%wim, %l3		! Calculate next WIM
-	mov	%g1, %l7
-	srl	%l3, 1, %g1
-	sll	%l3, (CONFIG_SYS_SPARC_NWINDOWS-1) , %l4
-	or	%l4, %g1, %g1
-
+	mov     %g1, %l7
+	srl     %l3, 1, %g1
+	sll	%l3, (CONFIG_SYS_SPARC_NWINDOWS-1), %l4
+	or      %g1, %l4, %g1
 	save				! Get into window to be saved.
-	mov	%g1, %wim
-	nop;
-	nop;
-	nop
-	st	%l0, [%sp + 0];
-	st	%l1, [%sp + 4];
-	st	%l2, [%sp + 8];
-	st	%l3, [%sp + 12];
-	st	%l4, [%sp + 16];
-	st	%l5, [%sp + 20];
-	st	%l6, [%sp + 24];
-	st	%l7, [%sp + 28];
-	st	%i0, [%sp + 32];
-	st	%i1, [%sp + 36];
-	st	%i2, [%sp + 40];
-	st	%i3, [%sp + 44];
-	st	%i4, [%sp + 48];
-	st	%i5, [%sp + 52];
-	st	%i6, [%sp + 56];
-	st	%i7, [%sp + 60];
+	mov     %g1, %wim
+	nop; nop; nop
+	st      %l0, [%sp + 0]		! Save window to the stack
+	st      %l1, [%sp + 4]
+	st      %l2, [%sp + 8]
+	st      %l3, [%sp + 12]
+	st      %l4, [%sp + 16]
+	st      %l5, [%sp + 20]
+	st      %l6, [%sp + 24]
+	st      %l7, [%sp + 28]
+	st      %i0, [%sp + 32]
+	st      %i1, [%sp + 36]
+	st      %i2, [%sp + 40]
+	st      %i3, [%sp + 44]
+	st      %i4, [%sp + 48]
+	st      %i5, [%sp + 52]
+	st      %i6, [%sp + 56]
+	st      %i7, [%sp + 60]
 	restore				! Go back to trap window.
-	mov	%l7, %g1
+	mov     %l7, %g1
 	jmp	%l1			! Re-execute save.
-	rett	%l2
+	 rett	%l2
 
-/* Window underflow trap handler.  */
-
+/*
+ * Window underflow trap handler
+ */
 	.global  _window_underflow
 
 _window_underflow:
 
-	mov  %wim, %l3			! Calculate next WIM
-	sll  %l3, 1, %l4
-	srl  %l3, (CONFIG_SYS_SPARC_NWINDOWS-1), %l5
-	or   %l5, %l4, %l5
-	mov  %l5, %wim
+	mov	%wim, %l3		! Calculate next WIM
+	srl	%l3, (CONFIG_SYS_SPARC_NWINDOWS-1), %l5
+	sll	%l3, 1, %l4
+	or	%l5, %l4, %l5
+	mov 	%l5, %wim
 	nop; nop; nop
 	restore				! Two restores to get into the
 	restore				! window to restore
@@ -516,9 +554,9 @@ _window_underflow:
 	save				! Get back to the trap window.
 	save
 	jmp	%l1			! Re-execute restore.
-	rett	%l2
+	 rett	%l2
 
-	retl
+!------------------------------------------------------------------------------
 
 _nmi_trap:
 	nop
