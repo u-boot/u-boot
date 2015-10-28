@@ -27,18 +27,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* reset CPU (jump to 0, without reset) */
-void start(void);
-
 ambapp_dev_irqmp *irqmp = NULL;
 ambapp_dev_gptimer *gptimer = NULL;
 unsigned int gptimer_irq = 0;
 int leon3_snooping_avail = 0;
-
-struct {
-	gd_t gd_area;
-	bd_t bd;
-} global_data;
 
 /*
  * Breath some life into the CPU...
@@ -69,6 +61,15 @@ void cpu_init_f2(void)
 	 * structure represents the AMBA bus that the CPU is located at.
 	 */
 	ambapp_bus_init(CONFIG_AMBAPP_IOAREA, CONFIG_SYS_CLK_FREQ, &ambapp_plb);
+}
+
+int arch_cpu_init(void)
+{
+	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
+	gd->bus_clk = CONFIG_SYS_CLK_FREQ;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+
+	return 0;
 }
 
 /*

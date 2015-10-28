@@ -1,8 +1,8 @@
 /* Initializes CPU and basic hardware such as memory
  * controllers, IRQ controller and system timer 0.
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,14 +17,6 @@
 #define US_PER_TICK (1000000 / CONFIG_SYS_HZ)
 
 DECLARE_GLOBAL_DATA_PTR;
-
-/* reset CPU (jump to 0, without reset) */
-void start(void);
-
-struct {
-	gd_t gd_area;
-	bd_t bd;
-} global_data;
 
 /*
  * Breath some life into the CPU...
@@ -67,6 +59,15 @@ void cpu_init_f(void)
 void cpu_init_f2(void)
 {
 
+}
+
+int arch_cpu_init(void)
+{
+	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
+	gd->bus_clk = CONFIG_SYS_CLK_FREQ;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+
+	return 0;
 }
 
 /*

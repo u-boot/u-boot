@@ -1,7 +1,7 @@
 /* CPU specific code for the LEON3 CPU
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

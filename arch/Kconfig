@@ -97,6 +97,7 @@ config SH
 
 config SPARC
 	bool "SPARC architecture"
+	select HAVE_GENERIC_BOARD
 	select CREATE_ARCH_SYMLINK
 
 config X86
