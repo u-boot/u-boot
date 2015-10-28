@@ -360,7 +360,6 @@
 #define CONFIG_SYS_I2C_SOFT_SLAVE_4		0x7F
 
 #define CONFIG_SYS_ICS8N3QV01_I2C		{5, 6, 7, 8}
-#define CONFIG_SYS_CH7301_I2C			{5, 6, 7, 8}
 #define CONFIG_SYS_DP501_I2C			{1, 2, 3, 4}
 
 #ifndef __ASSEMBLY__
