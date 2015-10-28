@@ -57,6 +57,27 @@ MINFRAME = (WINDOWSIZE + ARGPUSHSIZE + 4)
 #error Must define number of SPARC register windows, default is 8
 #endif
 
+/* Macros to load address into a register. Uses GOT table for PIC */
+#ifdef __PIC__
+
+#define SPARC_PIC_THUNK_CALL(reg) \
+	sethi	%pc22(_GLOBAL_OFFSET_TABLE_-4), %##reg; \
+	call	__sparc_get_pc_thunk.reg; \
+	 add	%##reg, %pc10(_GLOBAL_OFFSET_TABLE_+4), %##reg;
+
+#define SPARC_LOAD_ADDRESS(sym, got, reg) \
+	sethi	%gdop_hix22(sym), %##reg; \
+	xor	%##reg, %gdop_lox10(sym), %##reg; \
+	ld	[%##got + %##reg], %##reg, %gdop(sym);
+
+#else
+
+#define SPARC_PIC_THUNK_CALL(reg)
+#define SPARC_LOAD_ADDRESS(sym, got, tmp) \
+	set	sym, %##reg;
+
+#endif
+
 #define STACK_ALIGN	8
 #define SA(X)	(((X)+(STACK_ALIGN-1)) & ~(STACK_ALIGN-1))
 
@@ -229,7 +250,7 @@ clear_window:
 	bge	clear_window
 	save
 
-wininit:
+wiminit:
 	set	WIM_INIT, %g3
 	mov	%g3, %wim
 
@@ -240,7 +261,7 @@ stackp:
 
 cpu_init_unreloc:
 	call	cpu_init_f
-	nop
+	 nop
 
 /* un relocated start address of monitor */
 #define TEXT_START _text
@@ -248,9 +269,10 @@ cpu_init_unreloc:
 /* un relocated end address of monitor */
 #define DATA_END __init_end
 
+	SPARC_PIC_THUNK_CALL(l7)
 reloc:
-	set	TEXT_START,%g2
-	set	DATA_END,%g3
+	SPARC_LOAD_ADDRESS(TEXT_START, l7, g2)
+	SPARC_LOAD_ADDRESS(DATA_END, l7, g3)
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g4
 reloc_loop:
 	ldd	[%g2],%l0
@@ -260,7 +282,7 @@ reloc_loop:
 	inc	16,%g2
 	subcc	%g3,%g2,%g0
 	bne	reloc_loop
-	inc	16,%g4
+	 inc	16,%g4
 
 	clr	%l0
 	clr	%l1
@@ -277,8 +299,8 @@ reloc_loop:
 
 clr_bss:
 /* clear bss area (the relocated) */
-	set	__bss_start,%g2
-	set	__bss_end,%g3
+	SPARC_LOAD_ADDRESS(__bss_start, l7, g2)
+	SPARC_LOAD_ADDRESS(__bss_end, l7, g3)
 	sub	%g3,%g2,%g3
 	add	%g3,%g4,%g3
 	clr	%g1	/* std %g0 uses g0 and g1 */
@@ -289,19 +311,19 @@ clr_bss_16:
 	inc	16,%g4
 	cmp	%g3,%g4
 	bne	clr_bss_16
-	nop
+	 nop
 
 /* add offsets to GOT table */
 fixup_got:
-	set	__got_start,%g4
-	set	__got_end,%g3
+	SPARC_LOAD_ADDRESS(__got_start, l7, g4)
+	SPARC_LOAD_ADDRESS(__got_end, l7, g3)
 /*
  * new got offset = (old GOT-PTR (read with ld) -
  *   CONFIG_SYS_RELOC_MONITOR_BASE(from define) ) +
  *   Destination Address (from define)
  */
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g2
-	set	TEXT_START, %g1
+	SPARC_LOAD_ADDRESS(TEXT_START, l7, g1)
 	add	%g4,%g2,%g4
 	sub	%g4,%g1,%g4
 	add	%g3,%g2,%g3
@@ -316,11 +338,11 @@ got_loop:
 	inc	4,%g4
 	cmp	%g3,%g4
 	bne	got_loop
-	nop
+	 nop
 
 prom_relocate:
-	set	__prom_start, %g2
-	set	__prom_end, %g3
+	SPARC_LOAD_ADDRESS(__prom_start, l7, g2)
+	SPARC_LOAD_ADDRESS(__prom_end, l7, g3)
 	set	CONFIG_SYS_PROM_OFFSET, %g4
 
 prom_relocate_loop:
@@ -331,7 +353,7 @@ prom_relocate_loop:
 	inc	16,%g2
 	subcc	%g3,%g2,%g0
 	bne	prom_relocate_loop
-	inc	16,%g4
+	 inc	16,%g4
 
 /* Trap table has been moved, lets tell CPU about
  * the new trap table address
@@ -358,19 +380,19 @@ snoop_detect:
 	nop
 /* Call relocated init functions */
 jump:
-	set	cpu_init_f2,%o1
+	SPARC_LOAD_ADDRESS(cpu_init_f2, l7, o1)
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
 	add	%o1,%o2,%o1
 	sub	%o1,%g1,%o1
 	call	%o1
-	clr	%o0
+	 clr	%o0
 
-	set	board_init_f,%o1
+	SPARC_LOAD_ADDRESS(board_init_f, l7, o1)
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
 	add	%o1,%o2,%o1
 	sub	%o1,%g1,%o1
 	call	%o1
-	clr	%o0
+	 clr	%o0
 
 dead:	ta 0				! if call returns...
 	nop
