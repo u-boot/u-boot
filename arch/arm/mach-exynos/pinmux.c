@@ -737,10 +737,10 @@ static int exynos4x12_mmc_config(int peripheral, int flags)
 		return -1;
 	}
 	for (i = start; i < (start + 7); i++) {
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 		if (i == (start + 2))
 			continue;
 		gpio_cfg_pin(i,  func);
-		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 		gpio_set_drv(i, S5P_GPIO_DRV_4X);
 	}
 	if (flags & PINMUX_FLAG_8BIT_MODE) {
