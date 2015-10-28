@@ -131,9 +131,4 @@
 
 #define CONFIG_SYS_ALT_MEMTEST
 
-/*
- * display enhanced info about the cpu at boot.
- */
-#define CONFIG_DISPLAY_CPUINFO
-
 #endif /* _CONFIG_DREAMPLUG_H */
