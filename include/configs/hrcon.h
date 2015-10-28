@@ -20,7 +20,11 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
+#ifdef CONFIG_HRCON_DH
+#define CONFIG_IDENT_STRING	" hrcon dh 0.01"
+#else
 #define CONFIG_IDENT_STRING	" hrcon 0.01"
+#endif
 
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -343,6 +347,22 @@
 #define CONFIG_SYS_I2C_IHS_SPEED_3		50000
 #define CONFIG_SYS_I2C_IHS_SLAVE_3		0x7F
 
+#ifdef CONFIG_HRCON_DH
+#define CONFIG_SYS_I2C_IHS_DUAL
+#define CONFIG_SYS_I2C_IHS_CH0_1
+#define CONFIG_SYS_I2C_IHS_SPEED_0_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_0_1		0x7F
+#define CONFIG_SYS_I2C_IHS_CH1_1
+#define CONFIG_SYS_I2C_IHS_SPEED_1_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_1_1		0x7F
+#define CONFIG_SYS_I2C_IHS_CH2_1
+#define CONFIG_SYS_I2C_IHS_SPEED_2_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_2_1		0x7F
+#define CONFIG_SYS_I2C_IHS_CH3_1
+#define CONFIG_SYS_I2C_IHS_SPEED_3_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_3_1		0x7F
+#endif
+
 /*
  * Software (bit-bang) I2C driver configuration
  */
@@ -359,16 +379,48 @@
 #define CONFIG_SYS_I2C_SOFT_SPEED_4		50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE_4		0x7F
 
+#ifdef CONFIG_HRCON_DH
+#define I2C_SOFT_DECLARATIONS5
+#define CONFIG_SYS_I2C_SOFT_SPEED_5		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_5		0x7F
+#define I2C_SOFT_DECLARATIONS6
+#define CONFIG_SYS_I2C_SOFT_SPEED_6		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_6		0x7F
+#define I2C_SOFT_DECLARATIONS7
+#define CONFIG_SYS_I2C_SOFT_SPEED_7		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_7		0x7F
+#define I2C_SOFT_DECLARATIONS8
+#define CONFIG_SYS_I2C_SOFT_SPEED_8		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_8		0x7F
+#endif
+
+#ifdef CONFIG_HRCON_DH
+#define CONFIG_SYS_ICS8N3QV01_I2C		{9, 10, 11, 12, 13, 14, 15, 16}
+#define CONFIG_SYS_DP501_I2C			{1, 3, 5, 7, 2, 4, 6, 8}
+#else
 #define CONFIG_SYS_ICS8N3QV01_I2C		{5, 6, 7, 8}
 #define CONFIG_SYS_DP501_I2C			{1, 2, 3, 4}
+#endif
 
 #ifndef __ASSEMBLY__
 void fpga_gpio_set(unsigned int bus, int pin);
 void fpga_gpio_clear(unsigned int bus, int pin);
 int fpga_gpio_get(unsigned int bus, int pin);
+void fpga_control_set(unsigned int bus, int pin);
+void fpga_control_clear(unsigned int bus, int pin);
 #endif
 
+#ifdef CONFIG_HRCON_DH
+#define I2C_ACTIVE \
+	do { \
+		if (I2C_ADAP_HWNR > 3) \
+			fpga_control_set(I2C_ADAP_HWNR, 0x0004); \
+		else \
+			fpga_control_clear(I2C_ADAP_HWNR, 0x0004); \
+	} while (0)
+#else
 #define I2C_ACTIVE	{ }
+#endif
 #define I2C_TRISTATE	{ }
 #define I2C_READ \
 	(fpga_gpio_get(I2C_ADAP_HWNR, 0x0040) ? 1 : 0)
@@ -400,6 +452,10 @@ int fpga_gpio_get(unsigned int bus, int pin);
 #define CONFIG_SYS_OSD_SCREENS		1
 #define CONFIG_SYS_DP501_DIFFERENTIAL
 #define CONFIG_SYS_DP501_VCAPCTRL0	0x01 /* DDR mode 0, DE for H/VSYNC */
+
+#ifdef CONFIG_HRCON_DH
+#define CONFIG_SYS_OSD_DH
+#endif
 
 /*
  * General PCI

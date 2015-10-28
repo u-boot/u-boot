@@ -473,3 +473,31 @@ U_BOOT_I2C_ADAP_COMPLETE(soft3, soft_i2c_init, soft_i2c_probe,
 			 CONFIG_SYS_I2C_SOFT_SLAVE_4,
 			 3)
 #endif
+#if defined(I2C_SOFT_DECLARATIONS5)
+U_BOOT_I2C_ADAP_COMPLETE(soft4, soft_i2c_init, soft_i2c_probe,
+			 soft_i2c_read, soft_i2c_write, NULL,
+			 CONFIG_SYS_I2C_SOFT_SPEED_5,
+			 CONFIG_SYS_I2C_SOFT_SLAVE_5,
+			 4)
+#endif
+#if defined(I2C_SOFT_DECLARATIONS6)
+U_BOOT_I2C_ADAP_COMPLETE(soft5, soft_i2c_init, soft_i2c_probe,
+			 soft_i2c_read, soft_i2c_write, NULL,
+			 CONFIG_SYS_I2C_SOFT_SPEED_6,
+			 CONFIG_SYS_I2C_SOFT_SLAVE_6,
+			 5)
+#endif
+#if defined(I2C_SOFT_DECLARATIONS7)
+U_BOOT_I2C_ADAP_COMPLETE(soft6, soft_i2c_init, soft_i2c_probe,
+			 soft_i2c_read, soft_i2c_write, NULL,
+			 CONFIG_SYS_I2C_SOFT_SPEED_7,
+			 CONFIG_SYS_I2C_SOFT_SLAVE_7,
+			 6)
+#endif
+#if defined(I2C_SOFT_DECLARATIONS8)
+U_BOOT_I2C_ADAP_COMPLETE(soft7, soft_i2c_init, soft_i2c_probe,
+			 soft_i2c_read, soft_i2c_write, NULL,
+			 CONFIG_SYS_I2C_SOFT_SPEED_8,
+			 CONFIG_SYS_I2C_SOFT_SLAVE_8,
+			 7)
+#endif

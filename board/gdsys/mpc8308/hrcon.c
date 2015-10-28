@@ -128,6 +128,7 @@ int last_stage_init(void)
 
 	/* Turn on Parade DP501 */
 	pca9698_direction_output(0x20, 10, 1);
+	pca9698_direction_output(0x20, 11, 1);
 
 	ch0_rgmii2_present = !pca9698_get_value(0x20, 30);
 
@@ -174,6 +175,9 @@ int last_stage_init(void)
 
 	ioep_fpga_print_info(0);
 	osd_probe(0);
+#ifdef CONFIG_SYS_OSD_DH
+	osd_probe(4);
+#endif
 
 	if (slaves <= 0)
 		return 0;
@@ -185,6 +189,9 @@ int last_stage_init(void)
 
 		ioep_fpga_print_info(k);
 		osd_probe(k);
+#ifdef CONFIG_SYS_OSD_DH
+		osd_probe(k + 4);
+#endif
 		if (hw_type_cat) {
 			miiphy_register(bb_miiphy_buses[k].name,
 					bb_miiphy_read, bb_miiphy_write);
@@ -196,26 +203,42 @@ int last_stage_init(void)
 }
 
 /*
- * provide access to fpga gpios (for I2C bitbang)
+ * provide access to fpga gpios and controls (for I2C bitbang)
  * (these may look all too simple but make iocon.h much more readable)
  */
 void fpga_gpio_set(unsigned int bus, int pin)
 {
-	FPGA_SET_REG(bus, gpio.set, pin);
+	FPGA_SET_REG(bus >= 4 ? (bus - 4) : bus, gpio.set, pin);
 }
 
 void fpga_gpio_clear(unsigned int bus, int pin)
 {
-	FPGA_SET_REG(bus, gpio.clear, pin);
+	FPGA_SET_REG(bus >= 4 ? (bus - 4) : bus, gpio.clear, pin);
 }
 
 int fpga_gpio_get(unsigned int bus, int pin)
 {
 	u16 val;
 
-	FPGA_GET_REG(bus, gpio.read, &val);
+	FPGA_GET_REG(bus >= 4 ? (bus - 4) : bus, gpio.read, &val);
 
 	return val & pin;
+}
+
+void fpga_control_set(unsigned int bus, int pin)
+{
+	u16 val;
+
+	FPGA_GET_REG(bus >= 4 ? (bus - 4) : bus, control, &val);
+	FPGA_SET_REG(bus >= 4 ? (bus - 4) : bus, control, val | pin);
+}
+
+void fpga_control_clear(unsigned int bus, int pin)
+{
+	u16 val;
+
+	FPGA_GET_REG(bus >= 4 ? (bus - 4) : bus, control, &val);
+	FPGA_SET_REG(bus >= 4 ? (bus - 4) : bus, control, val & ~pin);
 }
 
 void mpc8308_init(void)
