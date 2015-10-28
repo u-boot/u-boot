@@ -40,11 +40,29 @@ static int dp501_detect_cable_adapter(u8 addr)
 static void dp501_link_training(u8 addr)
 {
 	u8 val;
+	u8 link_bw;
+	u8 max_lane_cnt;
+	u8 lane_cnt;
 
 	val = i2c_reg_read(addr, 0x51);
-	i2c_reg_write(addr, 0x5d, val); /* set link_bw */
+	if (val >= 0x0a)
+		link_bw = 0x0a;
+	else
+		link_bw = 0x06;
+	if (link_bw != val)
+		printf("DP sink supports %d Mbps link rate, set to %d Mbps\n",
+		       val * 270, link_bw * 270);
+	i2c_reg_write(addr, 0x5d, link_bw); /* set link_bw */
 	val = i2c_reg_read(addr, 0x52);
-	i2c_reg_write(addr, 0x5e, val); /* set lane_cnt */
+	max_lane_cnt = val & 0x1f;
+	if (max_lane_cnt >= 4)
+		lane_cnt = 4;
+	else
+		lane_cnt = max_lane_cnt;
+	if (lane_cnt != max_lane_cnt)
+		printf("DP sink supports %d lanes, set to %d lanes\n",
+		       max_lane_cnt, lane_cnt);
+	i2c_reg_write(addr, 0x5e, lane_cnt | (val & 0x80)); /* set lane_cnt */
 	val = i2c_reg_read(addr, 0x53);
 	i2c_reg_write(addr, 0x5c, val); /* set downspread_ctl */
 
