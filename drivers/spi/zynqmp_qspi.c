@@ -284,8 +284,6 @@ static int zynqmp_qspi_child_pre_probe(struct udevice *bus)
 {
 	struct spi_slave *slave = dev_get_parentdata(bus);
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus->parent);
-	u8 bootmode;
-	u32 reg;
 
 	slave->option = priv->is_dual;
 	slave->op_mode_rx = SPI_OPM_RX_QOF;
@@ -297,7 +295,6 @@ static int zynqmp_qspi_child_pre_probe(struct udevice *bus)
 
 static void zynqmp_qspi_check_is_dual_flash(struct zynqmp_qspi_priv *priv)
 {
-	int is_dual = -1;
 	int lower_mio = 0, upper_mio = 0, upper_mio_cs1 = 0;
 
 	lower_mio = zynq_slcr_get_mio_pin_status("qspi0");
