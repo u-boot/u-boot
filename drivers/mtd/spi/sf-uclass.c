@@ -74,11 +74,11 @@ int spi_flash_remove(struct udevice *dev)
 	return device_remove(dev);
 }
 
-static int reloc_done;
-
 static int spi_flash_post_bind(struct udevice *dev)
 {
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_spi_flash_ops *ops = sf_get_ops(dev);
+	static int reloc_done = 0;
 
 	if (!reloc_done) {
 		if (ops->read)
@@ -90,6 +90,7 @@ static int spi_flash_post_bind(struct udevice *dev)
 
 		reloc_done++;
 	}
+#endif
 	return 0;
 }
 
