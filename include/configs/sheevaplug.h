@@ -20,33 +20,11 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_MACH_SHEEVAPLUG	/* Machine type */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-
-/* Add target to build it automatically upon "make" */
-#define CONFIG_BUILD_TARGET     "u-boot.kwb"
-
-/*
- * Compression configuration
- */
-#define CONFIG_BZIP2
-#define CONFIG_LZMA
-
-/*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
 
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_IDE
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
 
 /*
@@ -55,15 +33,10 @@
 #define CONFIG_SYS_MVFS
 
 /*
- * Extra file system
- */
-#define CONFIG_CMD_EXT4
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
+ * mv-plug-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
-#include "mv-common.h"
+#include "mv-plug-common.h"
 
 /*
  *  Environment variables configurations
@@ -135,14 +108,5 @@
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
 #define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
 #endif /* CONFIG_CMD_IDE */
-
-/*
- * RTC driver configuration
- */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
-#define CONFIG_SYS_ALT_MEMTEST
 
 #endif /* _CONFIG_SHEEVAPLUG_H */
