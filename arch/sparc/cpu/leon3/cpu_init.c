@@ -30,7 +30,6 @@ DECLARE_GLOBAL_DATA_PTR;
 ambapp_dev_irqmp *irqmp = NULL;
 ambapp_dev_gptimer *gptimer = NULL;
 unsigned int gptimer_irq = 0;
-int leon3_snooping_avail = 0;
 
 /*
  * Breath some life into the CPU...
@@ -63,11 +62,23 @@ void cpu_init_f2(void)
 	ambapp_bus_init(CONFIG_AMBAPP_IOAREA, CONFIG_SYS_CLK_FREQ, &ambapp_plb);
 }
 
+/* If cache snooping is available in hardware the result will be set
+ * to 0x800000, otherwise 0.
+ */
+static unsigned int snoop_detect(void)
+{
+	unsigned int result;
+	asm("lda [%%g0] 2, %0" : "=r"(result));
+	return result & 0x00800000;
+}
+
 int arch_cpu_init(void)
 {
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 	gd->bus_clk = CONFIG_SYS_CLK_FREQ;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+
+	gd->arch.snooping_available = snoop_detect();
 
 	return 0;
 }

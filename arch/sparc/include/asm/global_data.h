@@ -2,8 +2,8 @@
  * (C) Copyright 2002-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com.
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham, Gaisler, daniel@gaisler.com.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,6 +17,9 @@
 struct arch_global_data {
 	void *uart;
 	unsigned int uart_freq;
+#ifdef CONFIG_LEON3
+	unsigned int snooping_available;
+#endif
 };
 
 #include <asm-generic/global_data.h>

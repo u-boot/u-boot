@@ -209,8 +209,6 @@ _trap_table:
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! f8-fb
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! fc-ff
 
-	.extern leon3_snooping_avail
-
 	.section	".text"
 	.extern	_nomem_amba_init, _nomem_memory_ctrl_init
 	.align 4
@@ -401,19 +399,6 @@ prom_relocate_loop:
 	nop
 	nop
 
-/* If CACHE snooping is available in hardware the
- * variable leon3_snooping_avail will be set to
- * 0x800000 else 0.
- */
-snoop_detect:
-	sethi	%hi(0x00800000), %o0
-	lda	[%g0] 2, %o1
-	and	%o0, %o1, %o0
-	sethi	%hi(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE), %o1
-	st	%o0, [%lo(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE)+%o1]
-
-/*	call	relocate*/
-	nop
 /* Call relocated init functions */
 jump:
 	SPARC_LOAD_ADDRESS(cpu_init_f2, l7, o1)
