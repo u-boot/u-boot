@@ -15,19 +15,19 @@
 #define ATMEL_SPI_VERSION		0x00fc
 
 /* Bits in CR */
-#define ATMEL_SPI_CR_SPIEN		(1 << 0)
-#define ATMEL_SPI_CR_SPIDIS		(1 << 1)
-#define ATMEL_SPI_CR_SWRST		(1 << 7)
-#define ATMEL_SPI_CR_LASTXFER		(1 << 24)
+#define ATMEL_SPI_CR_SPIEN		BIT(0)
+#define ATMEL_SPI_CR_SPIDIS		BIT(1)
+#define ATMEL_SPI_CR_SWRST		BIT(7)
+#define ATMEL_SPI_CR_LASTXFER		BIT(24)
 
 /* Bits in MR */
-#define ATMEL_SPI_MR_MSTR		(1 << 0)
-#define ATMEL_SPI_MR_PS			(1 << 1)
-#define ATMEL_SPI_MR_PCSDEC		(1 << 2)
-#define ATMEL_SPI_MR_FDIV		(1 << 3)
-#define ATMEL_SPI_MR_MODFDIS		(1 << 4)
-#define ATMEL_SPI_MR_WDRBT		(1 << 5)
-#define ATMEL_SPI_MR_LLB		(1 << 7)
+#define ATMEL_SPI_MR_MSTR		BIT(0)
+#define ATMEL_SPI_MR_PS			BIT(1)
+#define ATMEL_SPI_MR_PCSDEC		BIT(2)
+#define ATMEL_SPI_MR_FDIV		BIT(3)
+#define ATMEL_SPI_MR_MODFDIS		BIT(4)
+#define ATMEL_SPI_MR_WDRBT		BIT(5)
+#define ATMEL_SPI_MR_LLB		BIT(7)
 #define ATMEL_SPI_MR_PCS(x)		(((x) & 15) << 16)
 #define ATMEL_SPI_MR_DLYBCS(x)		((x) << 24)
 
@@ -38,28 +38,28 @@
 /* Bits in TDR */
 #define ATMEL_SPI_TDR_TD(x)		(x)
 #define ATMEL_SPI_TDR_PCS(x)		((x) << 16)
-#define ATMEL_SPI_TDR_LASTXFER		(1 << 24)
+#define ATMEL_SPI_TDR_LASTXFER		BIT(24)
 
 /* Bits in SR/IER/IDR/IMR */
-#define ATMEL_SPI_SR_RDRF		(1 << 0)
-#define ATMEL_SPI_SR_TDRE		(1 << 1)
-#define ATMEL_SPI_SR_MODF		(1 << 2)
-#define ATMEL_SPI_SR_OVRES		(1 << 3)
-#define ATMEL_SPI_SR_ENDRX		(1 << 4)
-#define ATMEL_SPI_SR_ENDTX		(1 << 5)
-#define ATMEL_SPI_SR_RXBUFF		(1 << 6)
-#define ATMEL_SPI_SR_TXBUFE		(1 << 7)
-#define ATMEL_SPI_SR_NSSR		(1 << 8)
-#define ATMEL_SPI_SR_TXEMPTY		(1 << 9)
-#define ATMEL_SPI_SR_SPIENS		(1 << 16)
+#define ATMEL_SPI_SR_RDRF		BIT(0)
+#define ATMEL_SPI_SR_TDRE		BIT(1)
+#define ATMEL_SPI_SR_MODF		BIT(2)
+#define ATMEL_SPI_SR_OVRES		BIT(3)
+#define ATMEL_SPI_SR_ENDRX		BIT(4)
+#define ATMEL_SPI_SR_ENDTX		BIT(5)
+#define ATMEL_SPI_SR_RXBUFF		BIT(6)
+#define ATMEL_SPI_SR_TXBUFE		BIT(7)
+#define ATMEL_SPI_SR_NSSR		BIT(8)
+#define ATMEL_SPI_SR_TXEMPTY		BIT(9)
+#define ATMEL_SPI_SR_SPIENS		BIT(16)
 
 /* Bits in CSRx */
-#define ATMEL_SPI_CSRx_CPOL		(1 << 0)
-#define ATMEL_SPI_CSRx_NCPHA		(1 << 1)
-#define ATMEL_SPI_CSRx_CSAAT		(1 << 3)
+#define ATMEL_SPI_CSRx_CPOL		BIT(0)
+#define ATMEL_SPI_CSRx_NCPHA		BIT(1)
+#define ATMEL_SPI_CSRx_CSAAT		BIT(3)
 #define ATMEL_SPI_CSRx_BITS(x)		((x) << 4)
 #define ATMEL_SPI_CSRx_SCBR(x)		((x) << 8)
-#define ATMEL_SPI_CSRx_SCBR_MAX		0xff
+#define ATMEL_SPI_CSRx_SCBR_MAX		GENMASK(7, 0)
 #define ATMEL_SPI_CSRx_DLYBS(x)		((x) << 16)
 #define ATMEL_SPI_CSRx_DLYBCT(x)	((x) << 24)
 

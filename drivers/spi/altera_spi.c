@@ -11,14 +11,17 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
-#include <spi.h>
 #include <fdtdec.h>
+#include <spi.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define ALTERA_SPI_STATUS_RRDY_MSK	BIT(7)
+#define ALTERA_SPI_CONTROL_SSO_MSK	BIT(10)
+
 #ifndef CONFIG_ALTERA_SPI_IDLE_VAL
-#define CONFIG_ALTERA_SPI_IDLE_VAL 0xff
+#define CONFIG_ALTERA_SPI_IDLE_VAL	0xff
 #endif
 
 struct altera_spi_regs {
@@ -37,9 +40,6 @@ struct altera_spi_platdata {
 struct altera_spi_priv {
 	struct altera_spi_regs *regs;
 };
-
-#define ALTERA_SPI_STATUS_RRDY_MSK	(1 << 7)
-#define ALTERA_SPI_CONTROL_SSO_MSK	(1 << 10)
 
 static void spi_cs_activate(struct udevice *dev, uint cs)
 {

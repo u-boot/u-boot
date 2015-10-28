@@ -17,6 +17,7 @@
 		ethernet0 = &gem0;
 		i2c0 = &i2c0;
 		serial0 = &uart1;
+		spi0 = &qspi;
 	};
 
 	memory {
@@ -299,6 +300,10 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1_default>;
+};
+
+&qspi {
+	status = "okay";
 };
 
 &usb0 {

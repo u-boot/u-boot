@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2013 Inc.
+ * (C) Copyright 2013 Xilinx, Inc.
  * (C) Copyright 2015 Jagan Teki <jteki@openedev.com>
  *
  * Xilinx Zynq PS SPI controller driver (master mode only)
@@ -7,30 +7,30 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
-#include <config.h>
 #include <common.h>
 #include <dm.h>
-#include <errno.h>
 #include <malloc.h>
 #include <spi.h>
-#include <fdtdec.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 /* zynq spi register bit masks ZYNQ_SPI_<REG>_<BIT>_MASK */
-#define ZYNQ_SPI_CR_MSA_MASK		(1 << 15)	/* Manual start enb */
-#define ZYNQ_SPI_CR_MCS_MASK		(1 << 14)	/* Manual chip select */
-#define ZYNQ_SPI_CR_CS_MASK		(0xF << 10)	/* Chip select */
-#define ZYNQ_SPI_CR_BRD_MASK		(0x7 << 3)	/* Baud rate div */
-#define ZYNQ_SPI_CR_CPHA_MASK		(1 << 2)	/* Clock phase */
-#define ZYNQ_SPI_CR_CPOL_MASK		(1 << 1)	/* Clock polarity */
-#define ZYNQ_SPI_CR_MSTREN_MASK		(1 << 0)	/* Mode select */
-#define ZYNQ_SPI_IXR_RXNEMPTY_MASK	(1 << 4)	/* RX_FIFO_not_empty */
-#define ZYNQ_SPI_IXR_TXOW_MASK		(1 << 2)	/* TX_FIFO_not_full */
-#define ZYNQ_SPI_IXR_ALL_MASK		0x7F		/* All IXR bits */
-#define ZYNQ_SPI_ENR_SPI_EN_MASK	(1 << 0)	/* SPI Enable */
+#define ZYNQ_SPI_CR_MSA_MASK		BIT(15)	/* Manual start enb */
+#define ZYNQ_SPI_CR_MCS_MASK		BIT(14)	/* Manual chip select */
+#define ZYNQ_SPI_CR_CS_MASK		GENMASK(13, 10)	/* Chip select */
+#define ZYNQ_SPI_CR_BAUD_MASK		GENMASK(5, 3)	/* Baud rate div */
+#define ZYNQ_SPI_CR_CPHA_MASK		BIT(2)	/* Clock phase */
+#define ZYNQ_SPI_CR_CPOL_MASK		BIT(1)	/* Clock polarity */
+#define ZYNQ_SPI_CR_MSTREN_MASK		BIT(0)	/* Mode select */
+#define ZYNQ_SPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX_FIFO_not_empty */
+#define ZYNQ_SPI_IXR_TXOW_MASK		BIT(2)	/* TX_FIFO_not_full */
+#define ZYNQ_SPI_IXR_ALL_MASK		GENMASK(6, 0)	/* All IXR bits */
+#define ZYNQ_SPI_ENR_SPI_EN_MASK	BIT(0)	/* SPI Enable */
+
+#define ZYNQ_SPI_CR_BAUD_MAX		8	/* Baud rate divisor max val */
+#define ZYNQ_SPI_CR_BAUD_SHIFT		3	/* Baud rate divisor shift */
+#define ZYNQ_SPI_CR_SS_SHIFT		10	/* Slave select shift */
 
 #define ZYNQ_SPI_FIFO_DEPTH		128
 #ifndef CONFIG_SYS_ZYNQ_SPI_WAIT
@@ -61,6 +61,7 @@ struct zynq_spi_platdata {
 /* zynq spi priv */
 struct zynq_spi_priv {
 	struct zynq_spi_regs *regs;
+	u8 cs;
 	u8 mode;
 	u8 fifo_depth;
 	u32 freq;		/* required frequency */
@@ -128,7 +129,7 @@ static int zynq_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static void spi_cs_activate(struct udevice *dev, uint cs)
+static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
@@ -143,7 +144,7 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 	 * xx01	- cs1
 	 * x011 - cs2
 	 */
-	cr |= (~(0x1 << cs) << 10) & ZYNQ_SPI_CR_CS_MASK;
+	cr |= (~(1 << priv->cs) << ZYNQ_SPI_CR_SS_SHIFT) & ZYNQ_SPI_CR_CS_MASK;
 	writel(cr, &regs->cr);
 }
 
@@ -199,8 +200,9 @@ static int zynq_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		return -1;
 	}
 
+	priv->cs = slave_plat->cs;
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(dev, slave_plat->cs);
+		spi_cs_activate(dev);
 
 	while (rx_len > 0) {
 		/* Write the data into TX FIFO - tx threshold is fifo_depth */
@@ -260,14 +262,14 @@ static int zynq_spi_set_speed(struct udevice *bus, uint speed)
 		/* Set baudrate x8, if the freq is 0 */
 		baud_rate_val = 0x2;
 	} else if (plat->speed_hz != speed) {
-		while ((baud_rate_val < 8) &&
+		while ((baud_rate_val < ZYNQ_SPI_CR_BAUD_MAX) &&
 				((plat->frequency /
 				(2 << baud_rate_val)) > speed))
 			baud_rate_val++;
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
-	confr &= ~ZYNQ_SPI_CR_BRD_MASK;
-	confr |= (baud_rate_val << 3);
+	confr &= ~ZYNQ_SPI_CR_BAUD_MASK;
+	confr |= (baud_rate_val << ZYNQ_SPI_CR_BAUD_SHIFT);
 
 	writel(confr, &regs->cr);
 	priv->freq = speed;

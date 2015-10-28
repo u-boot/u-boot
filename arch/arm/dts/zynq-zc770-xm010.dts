@@ -16,7 +16,8 @@
 		ethernet0 = &gem0;
 		i2c0 = &i2c0;
 		serial0 = &uart1;
-		spi0 = &spi1;
+		spi0 = &qspi;
+		spi1 = &spi1;
 	};
 
 	chosen {
@@ -51,6 +52,10 @@
 			reg = <0x0 0x100000>;
 		};
 	};
+};
+
+&qspi {
+	status = "okay";
 };
 
 &can0 {

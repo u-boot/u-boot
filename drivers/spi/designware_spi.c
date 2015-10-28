@@ -74,14 +74,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPI_CFS_OFFSET			12
 
 /* Bit fields in SR, 7 bits */
-#define SR_MASK				0x7f		/* cover 7 bits */
-#define SR_BUSY				(1 << 0)
-#define SR_TF_NOT_FULL			(1 << 1)
-#define SR_TF_EMPT			(1 << 2)
-#define SR_RF_NOT_EMPT			(1 << 3)
-#define SR_RF_FULL			(1 << 4)
-#define SR_TX_ERR			(1 << 5)
-#define SR_DCOL				(1 << 6)
+#define SR_MASK				GENMASK(6, 0)	/* cover 7 bits */
+#define SR_BUSY				BIT(0)
+#define SR_TF_NOT_FULL			BIT(1)
+#define SR_TF_EMPT			BIT(2)
+#define SR_RF_NOT_EMPT			BIT(3)
+#define SR_RF_FULL			BIT(4)
+#define SR_TX_ERR			BIT(5)
+#define SR_DCOL				BIT(6)
 
 #define RX_TIMEOUT			1000		/* timeout in ms */
 

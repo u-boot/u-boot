@@ -63,9 +63,9 @@ void spi_cs_activate(struct spi_slave *slave)
 		ssel = bfin_read32(&bss->regs->ssel);
 		ssel |= 1 << slave->cs;
 		if (bss->cs_pol)
-			ssel |= (1 << 8) << slave->cs;
+			ssel |= BIT(8) << slave->cs;
 		else
-			ssel &= ~((1 << 8) << slave->cs);
+			ssel &= ~(BIT(8) << slave->cs);
 		bfin_write32(&bss->regs->ssel, ssel);
 	}
 
@@ -83,9 +83,9 @@ void spi_cs_deactivate(struct spi_slave *slave)
 		u32 ssel;
 		ssel = bfin_read32(&bss->regs->ssel);
 		if (bss->cs_pol)
-			ssel &= ~((1 << 8) << slave->cs);
+			ssel &= ~(BIT(8) << slave->cs);
 		else
-			ssel |= (1 << 8) << slave->cs;
+			ssel |= BIT(8) << slave->cs;
 		/* deassert cs */
 		bfin_write32(&bss->regs->ssel, ssel);
 		SSYNC();
