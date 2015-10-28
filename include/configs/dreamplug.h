@@ -42,6 +42,11 @@
 #define CONFIG_BUILD_TARGET     "u-boot.kwb"
 
 /*
+ * Enable device tree support
+ */
+#define CONFIG_OF_LIBFDT
+
+/*
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
@@ -130,7 +135,5 @@
  * display enhanced info about the cpu at boot.
  */
 #define CONFIG_DISPLAY_CPUINFO
-
-#define CONFIG_OF_LIBFDT
 
 #endif /* _CONFIG_DREAMPLUG_H */
