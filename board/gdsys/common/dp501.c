@@ -77,6 +77,8 @@ void dp501_powerup(u8 addr)
 	i2c_reg_write(addr + 2, 0x24, 0x02); /* clock input single ended */
 #endif
 
+	i2c_reg_write(addr + 2, 0x1a, 0x04); /* SPDIF input method TTL */
+
 	i2c_reg_write(addr + 2, 0x00, 0x18); /* driving strength */
 	i2c_reg_write(addr + 2, 0x03, 0x06); /* driving strength */
 	i2c_reg_write(addr, 0x2c, 0x00); /* configure N value */
