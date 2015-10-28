@@ -81,11 +81,6 @@ void timer_interrupt(struct pt_regs *regs)
 	timestamp++;
 }
 
-ulong get_timer(ulong base)
-{
-	return (timestamp - base);
-}
-
 void timer_interrupt_init(void)
 {
 	int irq;

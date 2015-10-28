@@ -15,6 +15,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	void *timer;
 	void *uart;
 	unsigned int uart_freq;
 #ifdef CONFIG_LEON3

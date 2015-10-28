@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/asi.h>
 #include <asm/leon.h>
+#include <asm/io.h>
 
 #include <config.h>
 
@@ -54,6 +55,9 @@ void cpu_init_f(void)
 #else
 	leon2->PIO_Interrupt = 0;
 #endif
+
+	/* disable timers */
+	leon2->Timer_Control_1 = leon2->Timer_Control_2 = 0;
 }
 
 int arch_cpu_init(void)
@@ -66,17 +70,11 @@ int arch_cpu_init(void)
 }
 
 /*
- * initialize higher level parts of CPU like time base and timers
+ * initialize higher level parts of CPU
  */
 int cpu_init_r(void)
 {
-	LEON2_regs *leon2 = (LEON2_regs *) LEON2_PREGS;
-
-	/* initialize prescaler common to all timers to 1MHz */
-	leon2->Scaler_Counter = leon2->Scaler_Reload =
-	    (((CONFIG_SYS_CLK_FREQ / 1000) + 500) / 1000) - 1;
-
-	return (0);
+	return 0;
 }
 
 /* Uses Timer 0 to get accurate
@@ -106,11 +104,6 @@ int timer_interrupt_init_cpu(void)
 	return LEON2_TIMER1_IRQNO;
 }
 
-ulong get_tbclk(void)
-{
-	return TIMER_BASE_CLK;
-}
-
 /*
  * This function is intended for SHORT delays only.
  */
@@ -124,4 +117,22 @@ unsigned long cpu_usec2ticks(unsigned long usec)
 unsigned long cpu_ticks2usec(unsigned long ticks)
 {
 	return ticks * US_PER_TICK;
+}
+
+int timer_init(void)
+{
+	LEON2_regs *leon2 = (LEON2_regs *)LEON2_PREGS;
+
+	/* initialize prescaler common to all timers to 1MHz */
+	leon2->Scaler_Counter = leon2->Scaler_Reload =
+		(((CONFIG_SYS_CLK_FREQ / 1000) + 500) / 1000) - 1;
+
+	/* SYS_HZ ticks per second */
+	leon2->Timer_Counter_1 = 0;
+	leon2->Timer_Reload_1 = (CONFIG_SYS_TIMER_RATE / CONFIG_SYS_HZ) - 1;
+	leon2->Timer_Control_1 = LEON2_TIMER_CTRL_EN | LEON2_TIMER_CTRL_RS |
+		LEON2_TIMER_CTRL_LD;
+
+	CONFIG_SYS_TIMER_COUNTER = (void *)&leon2->Timer_Counter_1;
+	return 0;
 }
