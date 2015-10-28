@@ -1,6 +1,7 @@
 /* This is where the SPARC/LEON3 starts
- * Copyright (C) 2007,
- * Daniel Hellstrom, daniel@gaisler.com
+ *
+ * Copyright (C) 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -12,7 +13,6 @@
 #include <asm/psr.h>
 #include <asm/stack.h>
 #include <asm/leon.h>
-#include <version.h>
 
 /* Entry for traps which jump to a programmer-specified trap handler.  */
 #define TRAPR(H)  \
@@ -197,14 +197,6 @@ _trap_table:
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! f4-f7
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! f8-fb
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! fc-ff
-/*
- * Version string
- */
-
-	.data
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	.section	".text"
 	.align 4

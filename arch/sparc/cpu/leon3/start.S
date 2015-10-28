@@ -1,6 +1,7 @@
 /* This is where the SPARC/LEON3 starts
- * Copyright (C) 2007,
- * Daniel Hellstrom, daniel@gaisler.com
+ *
+ * Copyright (C) 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -12,7 +13,6 @@
 #include <asm/psr.h>
 #include <asm/stack.h>
 #include <asm/leon.h>
-#include <version.h>
 #include <ambapp.h>
 
 /* Default Plug&Play I/O area */
@@ -208,15 +208,8 @@ _trap_table:
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! f4-f7
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! f8-fb
 	SOFT_TRAP; SOFT_TRAP; SOFT_TRAP; SOFT_TRAP;	! fc-ff
-/*
- * Version string
- */
 
-	.data
 	.extern leon3_snooping_avail
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	.section	".text"
 	.extern	_nomem_amba_init, _nomem_memory_ctrl_init
