@@ -119,7 +119,7 @@ int last_stage_init(void)
 	int slaves;
 	unsigned int k;
 	unsigned int mux_ch;
-	unsigned char mclink_controllers[] = { 0x24, 0x25, 0x26 };
+	unsigned char mclink_controllers[] = { 0x3c, 0x3d, 0x3e };
 	u16 fpga_features;
 	bool hw_type_cat = pca9698_get_value(0x20, 20);
 	bool ch0_rgmii2_present = false;
@@ -131,7 +131,7 @@ int last_stage_init(void)
 
 	ch0_rgmii2_present = !pca9698_get_value(0x20, 30);
 
-	/* wait for FPGA done */
+	/* wait for FPGA done, then reset FPGA */
 	for (k = 0; k < ARRAY_SIZE(mclink_controllers); ++k) {
 		unsigned int ctr = 0;
 
@@ -146,6 +146,12 @@ int last_stage_init(void)
 				break;
 			}
 		}
+
+		pca953x_set_dir(mclink_controllers[k], MCFPGA_RESET_N, 0);
+		pca953x_set_val(mclink_controllers[k], MCFPGA_RESET_N, 0);
+		udelay(10);
+		pca953x_set_val(mclink_controllers[k], MCFPGA_RESET_N,
+				MCFPGA_RESET_N);
 	}
 
 	if (hw_type_cat) {
