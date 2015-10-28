@@ -303,6 +303,8 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		res = osd_write_videomem(screen, y * base_width + x, buf, len);
 		if (res < 0)
 			return res;
+
+		OSD_SET_REG(screen, control, 0x0049);
 	}
 
 	return 0;
@@ -401,8 +403,6 @@ int osd_probe(unsigned screen)
 	if (!output_driver_present)
 		printf("       no output driver found\n");
 
-	OSD_SET_REG(screen, control, 0x0049);
-
 	OSD_SET_REG(screen, xy_size, ((32 - 1) << 8) | (16 - 1));
 	OSD_SET_REG(screen, x_pos, 0x007f);
 	OSD_SET_REG(screen, y_pos, 0x005f);
@@ -461,6 +461,8 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			osd_write_videomem(screen, offset, buffer,
 				wp - buffer);
 		}
+
+		OSD_SET_REG(screen, control, 0x0049);
 	}
 
 	return 0;
