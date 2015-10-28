@@ -1,7 +1,7 @@
 /* SPARC I/O definitions
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com.
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -12,44 +12,56 @@
 /* Nothing to sync, total store ordering (TSO)... */
 #define sync()
 
+/*
+ * Generic virtual read/write.
+ */
+
+#ifndef CONFIG_SYS_HAS_NO_CACHE
+
 /* Forces a cache miss on read/load.
  * On some architectures we need to bypass the cache when reading
  * I/O registers so that we are not reading the same status word
  * over and over again resulting in a hang (until an IRQ if lucky)
- *
  */
-#ifndef CONFIG_SYS_HAS_NO_CACHE
-#define READ_BYTE(var)  SPARC_NOCACHE_READ_BYTE((unsigned int)(var))
-#define READ_HWORD(var) SPARC_NOCACHE_READ_HWORD((unsigned int)(var))
-#define READ_WORD(var)  SPARC_NOCACHE_READ((unsigned int)(var))
-#define READ_DWORD(var) SPARC_NOCACHE_READ_DWORD((unsigned int)(var))
+
+#define __arch_getb(a)		SPARC_NOCACHE_READ_BYTE((unsigned int)(a))
+#define __arch_getw(a)		SPARC_NOCACHE_READ_HWORD((unsigned int)(a))
+#define __arch_getl(a)		SPARC_NOCACHE_READ((unsigned int)(a))
+#define __arch_getq(a)		SPARC_NOCACHE_READ_DWORD((unsigned int)(a))
+
 #else
-#define READ_BYTE(var)  (var)
-#define READ_HWORD(var) (var)
-#define READ_WORD(var)  (var)
-#define READ_DWORD(var) (var)
-#endif
 
-/*
- * Generic virtual read/write.
- */
-#define __arch_getb(a)			(READ_BYTE(a))
-#define __arch_getw(a)			(READ_HWORD(a))
-#define __arch_getl(a)			(READ_WORD(a))
-#define __arch_getq(a)			(READ_DWORD(a))
+#define __arch_getb(a)		(*(volatile unsigned char *)(a))
+#define __arch_getw(a)		(*(volatile unsigned short *)(a))
+#define __arch_getl(a)		(*(volatile unsigned int *)(a))
+#define __arch_getq(a)		(*(volatile unsigned long long *)(a))
 
-#define __arch_putb(v,a)		(*(volatile unsigned char *)(a) = (v))
-#define __arch_putw(v,a)		(*(volatile unsigned short *)(a) = (v))
-#define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
+#endif /* CONFIG_SYS_HAS_NO_CACHE */
 
-#define __raw_writeb(v,a)		__arch_putb(v,a)
-#define __raw_writew(v,a)		__arch_putw(v,a)
-#define __raw_writel(v,a)		__arch_putl(v,a)
+#define __arch_putb(v, a)	(*(volatile unsigned char *)(a) = (v))
+#define __arch_putw(v, a)	(*(volatile unsigned short *)(a) = (v))
+#define __arch_putl(v, a)	(*(volatile unsigned int *)(a) = (v))
+#define __arch_putq(v, a)	(*(volatile unsigned long long *)(a) = (v))
+
+#define __raw_writeb(v, a)		__arch_putb(v, a)
+#define __raw_writew(v, a)		__arch_putw(v, a)
+#define __raw_writel(v, a)		__arch_putl(v, a)
+#define __raw_writeq(v, a)		__arch_putq(v, a)
 
 #define __raw_readb(a)			__arch_getb(a)
 #define __raw_readw(a)			__arch_getw(a)
 #define __raw_readl(a)			__arch_getl(a)
 #define __raw_readq(a)			__arch_getq(a)
+
+#define writeb				__raw_writeb
+#define writew				__raw_writew
+#define writel				__raw_writel
+#define writeq				__raw_writeq
+
+#define readb				__raw_readb
+#define readw				__raw_readw
+#define readl				__raw_readl
+#define readq				__raw_readq
 
 /*
  * Given a physical address and a length, return a virtual address

@@ -274,10 +274,6 @@
 #define CONFIG_SYS_GRLIB_DDR2_CFG1 0x00000000
 #define CONFIG_SYS_GRLIB_DDR2_CFG3 0x00000000
 
-/* Calculate scaler register value from default baudrate */
-#define CONFIG_SYS_GRLIB_APBUART_SCALER \
- ((((CONFIG_SYS_CLK_FREQ*10)/(CONFIG_BAUDRATE*8))-5)/10)
-
 /* Identification string */
 #define CONFIG_IDENT_STRING "GAISLER LEON3 GR-XC3S-1500"
 

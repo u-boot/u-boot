@@ -21,7 +21,8 @@
 #define PRINT_ROM_VEC
 */
 extern struct linux_romvec *kernel_arg_promvec;
-extern ambapp_dev_apbuart *leon3_apbuart;
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define PROM_PGT __attribute__ ((__section__ (".prom.pgt")))
 #define PROM_TEXT __attribute__ ((__section__ (".prom.text")))
@@ -909,7 +910,7 @@ void leon_prom_init(struct leon_prom_info *pspi)
 	pspi->avail.num_bytes = pspi->totphys.num_bytes;
 
 	/* Set the pointer to the Console UART in romvec */
-	pspi->reloc_funcs.leon3_apbuart = leon3_apbuart;
+	pspi->reloc_funcs.leon3_apbuart = gd->arch.uart;
 
 	{
 		int j = 1;

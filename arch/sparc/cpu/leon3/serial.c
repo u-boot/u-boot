@@ -1,66 +1,70 @@
 /* GRLIB APBUART Serial controller driver
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com.
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <asm/processor.h>
-#include <asm/leon.h>
+#include <asm/io.h>
 #include <ambapp.h>
 #include <serial.h>
-#include <linux/compiler.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-ambapp_dev_apbuart *leon3_apbuart = NULL;
-
 static int leon3_serial_init(void)
 {
+	ambapp_dev_apbuart *uart;
 	ambapp_apbdev apbdev;
 	unsigned int tmp;
 
 	/* find UART */
-	if (ambapp_apb_first(VENDOR_GAISLER, GAISLER_APBUART, &apbdev) == 1) {
+	if (ambapp_apb_first(VENDOR_GAISLER, GAISLER_APBUART, &apbdev) != 1)
+		return -1; /* didn't find hardware */
 
-		leon3_apbuart = (ambapp_dev_apbuart *) apbdev.address;
+	/* found apbuart, let's init .. */
+	uart = (ambapp_dev_apbuart *) apbdev.address;
 
-		/* found apbuart, let's init...
-		 *
-		 * Set scaler / baud rate
-		 *
-		 * Receiver & transmitter enable
-		 */
-		leon3_apbuart->scaler = CONFIG_SYS_GRLIB_APBUART_SCALER;
+	/* Set scaler / baud rate */
+	tmp = (((CONFIG_SYS_CLK_FREQ*10) / (CONFIG_BAUDRATE*8)) - 5)/10;
+	writel(tmp, &uart->scaler);
 
-		/* Let bit 11 be unchanged (debug bit for GRMON) */
-		tmp = READ_WORD(leon3_apbuart->ctrl);
+	/* Let bit 11 be unchanged (debug bit for GRMON) */
+	tmp = readl(&uart->ctrl) & LEON_REG_UART_CTRL_DBG;
+	/* Receiver & transmitter enable */
+	tmp |= LEON_REG_UART_CTRL_RE | LEON_REG_UART_CTRL_TE;
+	writel(tmp, &uart->ctrl);
 
-		leon3_apbuart->ctrl = ((tmp & LEON_REG_UART_CTRL_DBG) |
-				       LEON_REG_UART_CTRL_RE |
-				       LEON_REG_UART_CTRL_TE);
+	gd->arch.uart = uart;
+	return 0;
+}
 
-		return 0;
-	}
-	return -1;		/* didn't find hardware */
+static inline ambapp_dev_apbuart *leon3_get_uart_regs(void)
+{
+	ambapp_dev_apbuart *uart = gd->arch.uart;
+	return uart;
 }
 
 static void leon3_serial_putc_raw(const char c)
 {
-	if (!leon3_apbuart)
+	ambapp_dev_apbuart * const uart = leon3_get_uart_regs();
+
+	if (!uart)
 		return;
 
 	/* Wait for last character to go. */
-	while (!(READ_WORD(leon3_apbuart->status) & LEON_REG_UART_STATUS_THE)) ;
+	while (!(readl(&uart->status) & LEON_REG_UART_STATUS_THE))
+		WATCHDOG_RESET();
 
 	/* Send data */
-	leon3_apbuart->data = c;
+	writel(c, &uart->data);
 
 #ifdef LEON_DEBUG
 	/* Wait for data to be sent */
-	while (!(READ_WORD(leon3_apbuart->status) & LEON_REG_UART_STATUS_TSE)) ;
+	while (!(readl(&uart->status) & LEON_REG_UART_STATUS_TSE))
+		WATCHDOG_RESET();
 #endif
 }
 
@@ -74,36 +78,44 @@ static void leon3_serial_putc(const char c)
 
 static int leon3_serial_getc(void)
 {
-	if (!leon3_apbuart)
+	ambapp_dev_apbuart * const uart = leon3_get_uart_regs();
+
+	if (!uart)
 		return 0;
 
 	/* Wait for a character to arrive. */
-	while (!(READ_WORD(leon3_apbuart->status) & LEON_REG_UART_STATUS_DR)) ;
+	while (!(readl(&uart->status) & LEON_REG_UART_STATUS_DR))
+		WATCHDOG_RESET();
 
-	/* read data */
-	return READ_WORD(leon3_apbuart->data);
+	/* Read character data */
+	return readl(&uart->data);
 }
 
 static int leon3_serial_tstc(void)
 {
-	if (leon3_apbuart)
-		return (READ_WORD(leon3_apbuart->status) &
-			LEON_REG_UART_STATUS_DR);
-	return 0;
+	ambapp_dev_apbuart * const uart = leon3_get_uart_regs();
+
+	if (!uart)
+		return 0;
+
+	return readl(&uart->status) & LEON_REG_UART_STATUS_DR;
 }
 
 /* set baud rate for uart */
 static void leon3_serial_setbrg(void)
 {
-	/* update baud rate settings, read it from gd->baudrate */
+	ambapp_dev_apbuart * const uart = leon3_get_uart_regs();
 	unsigned int scaler;
-	if (leon3_apbuart && (gd->baudrate > 0)) {
-		scaler =
-		    (((CONFIG_SYS_CLK_FREQ * 10) / (gd->baudrate * 8)) -
-		     5) / 10;
-		leon3_apbuart->scaler = scaler;
-	}
-	return;
+
+	if (!uart)
+		return;
+
+	if (!gd->baudrate)
+		gd->baudrate = CONFIG_BAUDRATE;
+
+	scaler = (((CONFIG_SYS_CLK_FREQ*10) / (gd->baudrate*8)) - 5)/10;
+
+	writel(scaler, &uart->scaler);
 }
 
 static struct serial_device leon3_serial_drv = {
