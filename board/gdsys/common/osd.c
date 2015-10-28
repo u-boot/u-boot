@@ -27,6 +27,8 @@
 #define DP501_I2C_ADDR 0x08
 
 #define PIXCLK_640_480_60 25180000
+#define MAX_X_CHARS 53
+#define MAX_Y_CHARS 26
 
 #ifdef CONFIG_SYS_OSD_DH
 #define MAX_OSD_SCREEN 8
@@ -464,6 +466,35 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+int osd_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned screen;
+	unsigned x;
+	unsigned y;
+
+	if (argc < 3) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	x = simple_strtoul(argv[1], NULL, 16);
+	y = simple_strtoul(argv[2], NULL, 16);
+
+	if (!x || (x > 64) || (x > MAX_X_CHARS) ||
+	    !y || (y > 32) || (y > MAX_Y_CHARS)) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	for (screen = 0; screen < MAX_OSD_SCREEN; ++screen) {
+		OSD_SET_REG(screen, xy_size, ((x - 1) << 8) | (y - 1));
+		OSD_SET_REG(screen, x_pos, 32767 * (640 - 12 * x) / 65535);
+		OSD_SET_REG(screen, y_pos, 32767 * (480 - 18 * y) / 65535);
+	}
+
+	return 0;
+}
+
 U_BOOT_CMD(
 	osdw, 5, 0, osd_write,
 	"write 16-bit hex encoded buffer to osd memory",
@@ -474,4 +505,11 @@ U_BOOT_CMD(
 	osdp, 5, 0, osd_print,
 	"write ASCII buffer to osd memory",
 	"pos_x pos_y color text\n"
+);
+
+U_BOOT_CMD(
+	osdsize, 3, 0, osd_size,
+	"set OSD XY size in characters",
+	"size_x(max. " __stringify(MAX_X_CHARS)
+	") size_y(max. " __stringify(MAX_Y_CHARS) ")\n"
 );
