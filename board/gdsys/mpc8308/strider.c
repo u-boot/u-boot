@@ -28,6 +28,7 @@
 #include "../common/mclink.h"
 #include "../common/osd.h"
 #include "../common/phy.h"
+#include "../common/fanctrl.h"
 
 #include <pca953x.h>
 #include <pca9698.h>
@@ -49,13 +50,6 @@ enum {
 enum {
 	GPIO_MDC = 1 << 14,
 	GPIO_MDIO = 1 << 15,
-};
-
-enum {
-	FAN_CONFIG = 0x03,
-	FAN_TACHLIM_LSB = 0x48,
-	FAN_TACHLIM_MSB = 0x49,
-	FAN_PWM_FREQ = 0x4D,
 };
 
 unsigned int mclink_fpgacount;
@@ -126,22 +120,6 @@ int checkboard(void)
 	puts("\n");
 
 	return 0;
-}
-
-static void init_fan_controller(u8 addr)
-{
-	int val;
-
-	/* set PWM Frequency to 2.5% resolution */
-	i2c_reg_write(addr, FAN_PWM_FREQ, 20);
-
-	/* set Tachometer Limit */
-	i2c_reg_write(addr, FAN_TACHLIM_LSB, 0x10);
-	i2c_reg_write(addr, FAN_TACHLIM_MSB, 0x0a);
-
-	/* enable Tach input */
-	val = i2c_reg_read(addr, FAN_CONFIG) | 0x04;
-	i2c_reg_write(addr, FAN_CONFIG, val);
 }
 
 int last_stage_init(void)

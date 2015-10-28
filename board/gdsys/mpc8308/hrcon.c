@@ -26,6 +26,7 @@
 #include "../common/osd.h"
 #include "../common/mclink.h"
 #include "../common/phy.h"
+#include "../common/fanctrl.h"
 
 #include <pca953x.h>
 #include <pca9698.h>
@@ -51,6 +52,11 @@ enum {
 
 unsigned int mclink_fpgacount;
 struct ihs_fpga *fpga_ptr[] = CONFIG_SYS_FPGA_PTR;
+
+struct {
+	u8 bus;
+	u8 addr;
+} hrcon_fans[] = CONFIG_HRCON_FANS;
 
 int fpga_set_reg(u32 fpga, u16 *reg, off_t regoff, u16 data)
 {
@@ -197,6 +203,11 @@ int last_stage_init(void)
 					bb_miiphy_read, bb_miiphy_write);
 			setup_88e1514(bb_miiphy_buses[k].name, 0);
 		}
+	}
+
+	for (k = 0; k < ARRAY_SIZE(hrcon_fans); ++k) {
+		i2c_set_bus_num(hrcon_fans[k].bus);
+		init_fan_controller(hrcon_fans[k].addr);
 	}
 
 	return 0;
