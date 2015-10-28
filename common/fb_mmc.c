@@ -13,6 +13,7 @@
 #include <part.h>
 #include <sparse_format.h>
 #include <mmc.h>
+#include <div64.h>
 
 #ifndef CONFIG_FASTBOOT_GPT_NAME
 #define CONFIG_FASTBOOT_GPT_NAME GPT_ENTRY_NAME
@@ -73,7 +74,7 @@ static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
 
 	/* determine number of blocks to write */
 	blkcnt = ((download_bytes + (info->blksz - 1)) & ~(info->blksz - 1));
-	blkcnt = blkcnt / info->blksz;
+	blkcnt = lldiv(blkcnt, info->blksz);
 
 	if (blkcnt > info->size) {
 		error("too large for partition: '%s'\n", part_name);
