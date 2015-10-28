@@ -32,7 +32,6 @@
  */
 #define CONFIG_BZIP2
 #define CONFIG_LZMA
-#define CONFIG_LZO
 
 /*
  * Enable device tree support
@@ -48,6 +47,16 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_MII
+
+/*
+ * Standard filesystems
+ */
+#define CONFIG_SYS_MVFS
+
+/*
+ * Extra file system
+ */
+#define CONFIG_CMD_EXT4
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -123,20 +132,6 @@
 #ifdef CONFIG_CMD_DATE
 #define CONFIG_RTC_MV
 #endif /* CONFIG_CMD_DATE */
-
-/*
- * File system
- */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 
 #define CONFIG_SYS_ALT_MEMTEST
 
