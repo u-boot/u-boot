@@ -381,7 +381,7 @@ int last_stage_init(void)
 		ch0_rgmii2_present = !pca9698_get_value(0x20, 30);
 	}
 
-	/* wait for FPGA done */
+	/* wait for FPGA done; then reset FPGA */
 	for (k = 0; k < ARRAY_SIZE(mclink_controllers); ++k) {
 		unsigned int ctr = 0;
 
@@ -396,6 +396,12 @@ int last_stage_init(void)
 				break;
 			}
 		}
+
+		pca953x_set_dir(mclink_controllers[k], MCFPGA_RESET_N, 0);
+		pca953x_set_val(mclink_controllers[k], MCFPGA_RESET_N, 0);
+		udelay(10);
+		pca953x_set_val(mclink_controllers[k], MCFPGA_RESET_N,
+				MCFPGA_RESET_N);
 	}
 
 	if (!legacy && (feature_carrier_speed == CARRIER_SPEED_1G)) {
