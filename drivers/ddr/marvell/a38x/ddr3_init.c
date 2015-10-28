@@ -305,8 +305,6 @@ int ddr3_init(void)
 		SAR1_CPU_CORE_OFFSET;
 	switch (soc_num) {
 	case 0x3:
-		reg_bit_set(CPU_CONFIGURATION_REG(3), CPU_MRVL_ID_OFFSET);
-		reg_bit_set(CPU_CONFIGURATION_REG(2), CPU_MRVL_ID_OFFSET);
 	case 0x1:
 		reg_bit_set(CPU_CONFIGURATION_REG(1), CPU_MRVL_ID_OFFSET);
 	case 0x0:
