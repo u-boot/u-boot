@@ -13,24 +13,28 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SYS_I2C_IHS_DUAL
 #define I2C_SET_REG(fld, val) \
-	{ if (I2C_ADAP_HWNR & 0x10) \
-		FPGA_SET_REG(I2C_ADAP_HWNR & 0xf, i2c1.fld, val); \
-	else \
-		FPGA_SET_REG(I2C_ADAP_HWNR, i2c0.fld, val); }
+	do { \
+		if (I2C_ADAP_HWNR & 0x10) \
+			FPGA_SET_REG(I2C_ADAP_HWNR & 0xf, i2c1.fld, val); \
+		else \
+			FPGA_SET_REG(I2C_ADAP_HWNR, i2c0.fld, val); \
+	} while (0)
 #else
 #define I2C_SET_REG(fld, val) \
-		FPGA_SET_REG(I2C_ADAP_HWNR, i2c0.fld, val);
+		FPGA_SET_REG(I2C_ADAP_HWNR, i2c0.fld, val)
 #endif
 
 #ifdef CONFIG_SYS_I2C_IHS_DUAL
 #define I2C_GET_REG(fld, val) \
-	{ if (I2C_ADAP_HWNR & 0x10) \
-		FPGA_GET_REG(I2C_ADAP_HWNR & 0xf, i2c1.fld, val); \
-	else \
-		FPGA_GET_REG(I2C_ADAP_HWNR, i2c0.fld, val); }
+	do {					\
+		if (I2C_ADAP_HWNR & 0x10) \
+			FPGA_GET_REG(I2C_ADAP_HWNR & 0xf, i2c1.fld, val); \
+		else \
+			FPGA_GET_REG(I2C_ADAP_HWNR, i2c0.fld, val); \
+	} while (0)
 #else
 #define I2C_GET_REG(fld, val) \
-		FPGA_GET_REG(I2C_ADAP_HWNR, i2c0.fld, val);
+		FPGA_GET_REG(I2C_ADAP_HWNR, i2c0.fld, val)
 #endif
 
 enum {
