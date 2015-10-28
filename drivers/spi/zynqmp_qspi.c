@@ -530,16 +530,16 @@ static int zynqmp_qspi_genfifo_fill_rx(struct zynqmp_qspi_priv *priv)
 	if (priv->stripe)
 		gen_fifo_cmd |= ZYNQMP_QSPI_GFIFO_STRIPE_MASK;
 
-	if (!((u32)priv->rx_buf & 0x3) && !(actuallen % 4)) {
+	if (!((unsigned long)priv->rx_buf & 0x3) && !(actuallen % 4)) {
 		buf = (u32 *)priv->rx_buf;
 	} else {
 		ALLOC_CACHE_ALIGN_BUFFER(u8, tmp, roundup(priv->len, 4));
 		buf = (u32 *)tmp;
 	}
-	writel((u32)buf, &dma_regs->dmadst);
+	writel((unsigned long)buf, &dma_regs->dmadst);
 	writel(roundup(priv->len, 4), &dma_regs->dmasize);
 	writel(ZYNQMP_QSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
-	addr = (u32)buf;
+	addr = (unsigned long)buf;
 	size = roundup(priv->len, ARCH_DMA_MINALIGN);
 	flush_dcache_range(addr, addr+size);
 
