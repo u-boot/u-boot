@@ -25,6 +25,16 @@ int checkcpu(void)
 	return 0;
 }
 
+#ifdef CONFIG_DISPLAY_CPUINFO
+
+int print_cpuinfo(void)
+{
+	printf("CPU:   LEON3\n");
+	return 0;
+}
+
+#endif
+
 /* ------------------------------------------------------------------------- */
 
 void cpu_reset(void)
