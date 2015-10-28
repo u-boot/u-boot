@@ -57,7 +57,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
