@@ -46,16 +46,12 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
