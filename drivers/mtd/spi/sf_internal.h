@@ -190,6 +190,8 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 	return spi_flash_cmd(flash->spi, CMD_WRITE_DISABLE, NULL, 0);
 }
 
+int spi_flash_cmd_bp_unlock(struct spi_flash *flash);
+
 /*
  * Send the read status command to the device and wait for the wip
  * (write-in-progress) bit to clear itself.

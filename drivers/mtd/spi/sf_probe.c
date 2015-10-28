@@ -399,7 +399,7 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 #if defined(CONFIG_SPI_FLASH_SST)
 	if(params->flags == SST_LOCKBP) {
 		int ret;
-		ret = spi_flash_cmd_bp_unlock();
+		ret = spi_flash_cmd_bp_unlock(flash);
 		if (ret) {
 			debug("SF: fail to unlock block protection\n");
 			return ret;
