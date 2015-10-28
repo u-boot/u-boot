@@ -88,7 +88,8 @@ void dp501_powerup(u8 addr)
 	dp501_setbits(addr, 0x78, 0x03); /* clear all interrupt */
 	i2c_reg_write(addr, 0x75, 0xf8); /* aux channel reset */
 	i2c_reg_write(addr, 0x75, 0x00); /* clear aux channel reset */
-	i2c_reg_write(addr, 0x87, 0x70); /* set retry counter as 7 */
+	i2c_reg_write(addr, 0x87, 0x7f); /* set retry counter as 7
+					    retry interval 400us */
 
 	if (dp501_detect_cable_adapter(addr)) {
 		printf("DVI/HDMI cable adapter detected\n");
