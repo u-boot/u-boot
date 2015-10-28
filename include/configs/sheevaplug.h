@@ -24,6 +24,9 @@
 #define CONFIG_MACH_SHEEVAPLUG	/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
+/* Add target to build it automatically upon "make" */
+#define CONFIG_BUILD_TARGET     "u-boot.kwb"
+
 /*
  * Compression configuration
  */
@@ -46,6 +49,7 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_IDE
@@ -133,6 +137,13 @@
 #endif /* CONFIG_CMD_IDE */
 
 /*
+ * RTC driver configuration
+ */
+#ifdef CONFIG_CMD_DATE
+#define CONFIG_RTC_MV
+#endif /* CONFIG_CMD_DATE */
+
+/*
  * File system
  */
 #define CONFIG_CMD_EXT2
@@ -145,5 +156,7 @@
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS
+
+#define CONFIG_SYS_ALT_MEMTEST
 
 #endif /* _CONFIG_SHEEVAPLUG_H */
