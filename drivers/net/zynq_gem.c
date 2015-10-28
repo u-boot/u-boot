@@ -351,13 +351,13 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		for (i = 0; i < RX_BUF; i++) {
 			priv->rx_bd[i].status = 0xF0000000;
 			priv->rx_bd[i].addr =
-					((u32)(priv->rxbuffers) +
+					((unsigned long)(priv->rxbuffers) +
 							(i * PKTSIZE_ALIGN));
 		}
 		/* WRAP bit to last BD */
 		priv->rx_bd[--i].addr |= ZYNQ_GEM_RXBUF_WRAP_MASK;
 		/* Write RxBDs to IP */
-		writel((u32)priv->rx_bd, &regs->rxqbase);
+		writel((unsigned long)priv->rx_bd, &regs->rxqbase);
 
 		/* Setup for DMA Configuration register */
 		writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
@@ -382,8 +382,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		flush_dcache_range((ulong)&dummy_rx_bd, (ulong)&dummy_rx_bd +
 				   sizeof(dummy_rx_bd));
 
-		writel((u32)dummy_tx_bd, &regs->transmit_q1_ptr);
-		writel((u32)dummy_rx_bd, &regs->receive_q1_ptr);
+		writel((unsigned long)dummy_tx_bd, &regs->transmit_q1_ptr);
+		writel((unsigned long)dummy_rx_bd, &regs->receive_q1_ptr);
 
 		priv->init++;
 	}
@@ -476,7 +476,7 @@ static inline int wait_for_bit(const char *func, u32 *reg, const u32 mask,
 
 static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 {
-	u32 addr, size;
+	unsigned long addr, size;
 	struct zynq_gem_priv *priv = dev->priv;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	struct emac_bd *current_bd = &priv->tx_bd[1];
@@ -484,7 +484,7 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	/* Setup Tx BD */
 	memset(priv->tx_bd, 0, sizeof(struct emac_bd));
 
-	priv->tx_bd->addr = (u32)ptr;
+	priv->tx_bd->addr = (unsigned long)ptr;
 	priv->tx_bd->status = (len & ZYNQ_GEM_TXBUF_FRMLEN_MASK) |
 			       ZYNQ_GEM_TXBUF_LAST_MASK;
 	/* Dummy descriptor to mark it as the last in descriptor chain */
@@ -494,14 +494,14 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 			     ZYNQ_GEM_TXBUF_USED_MASK;
 
 	/* setup BD */
-	writel((u32)priv->tx_bd, &regs->txqbase);
+	writel((unsigned long)priv->tx_bd, &regs->txqbase);
 
-	addr = (u32) ptr;
+	addr = (unsigned long)ptr;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup(len, ARCH_DMA_MINALIGN);
 	flush_dcache_range(addr, addr + size);
 
-	addr = (u32)priv->rxbuffers;
+	addr = (unsigned long)priv->rxbuffers;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup((RX_BUF * PKTSIZE_ALIGN), ARCH_DMA_MINALIGN);
 	flush_dcache_range(addr, addr + size);
@@ -537,7 +537,7 @@ static int zynq_gem_recv(struct eth_device *dev)
 
 	frame_len = current_bd->status & ZYNQ_GEM_RXBUF_LEN_MASK;
 	if (frame_len) {
-		u32 addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
+		unsigned long addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
 		addr &= ~(ARCH_DMA_MINALIGN - 1);
 
 		net_process_received_packet((u8 *)addr, frame_len);
@@ -619,7 +619,8 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 
 	/* Initialize the bd spaces for tx and rx bd's */
 	priv->tx_bd = (struct emac_bd *)bd_space;
-	priv->rx_bd = (struct emac_bd *)((u32)bd_space + BD_SEPRN_SPACE);
+	priv->rx_bd = (struct emac_bd *)((unsigned long)bd_space +
+					 BD_SEPRN_SPACE);
 
 	priv->phyaddr = phy_addr;
 	priv->emio = emio;
