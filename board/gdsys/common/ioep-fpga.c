@@ -43,6 +43,7 @@ enum {
 enum {
 	RAM_DDR2_32 = 0,
 	RAM_DDR3_32 = 1,
+	RAM_DDR3_48 = 2,
 };
 
 enum {
@@ -213,6 +214,10 @@ void ioep_fpga_print_info(unsigned int fpga)
 
 	case RAM_DDR3_32:
 		printf(", RAM 32 bit DDR3");
+		break;
+
+	case RAM_DDR3_48:
+		printf(", RAM 48 bit DDR3");
 		break;
 
 	default:
