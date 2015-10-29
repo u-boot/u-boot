@@ -28,8 +28,10 @@ static int leon3_serial_init(void)
 
 	/* find UART */
 	if (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_APBUART,
-		CONFIG_SYS_GRLIB_APBUART_INDEX, &apbdev) != 1)
+		CONFIG_SYS_GRLIB_APBUART_INDEX, &apbdev) != 1) {
+		panic("%s: apbuart not found!\n", __func__);
 		return -1; /* didn't find hardware */
+	}
 
 	/* found apbuart, let's init .. */
 	uart = (ambapp_dev_apbuart *) apbdev.address;
@@ -145,3 +147,26 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &leon3_serial_drv;
 }
+
+#ifdef CONFIG_DEBUG_UART_APBUART
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+	ambapp_dev_apbuart *uart = (ambapp_dev_apbuart *)CONFIG_DEBUG_UART_BASE;
+	uart->scaler = (((CONFIG_DEBUG_UART_CLOCK*10) / (CONFIG_BAUDRATE*8)) - 5)/10;
+	uart->ctrl = APBUART_CTRL_RE | APBUART_CTRL_TE;
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	ambapp_dev_apbuart *uart = (ambapp_dev_apbuart *)CONFIG_DEBUG_UART_BASE;
+	while (!(readl(&uart->status) & APBUART_STATUS_THE))
+		WATCHDOG_RESET();
+	writel(ch, &uart->data);
+}
+
+DEBUG_UART_FUNCS
+
+#endif

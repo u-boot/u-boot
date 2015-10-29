@@ -13,6 +13,7 @@
 #include <ambapp.h>
 #include <grlib/irqmp.h>
 #include <grlib/gptimer.h>
+#include <debug_uart.h>
 
 #include <config.h>
 
@@ -50,7 +51,9 @@ struct {
  */
 void cpu_init_f(void)
 {
-
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 }
 
 /* Routine called from start.S,
