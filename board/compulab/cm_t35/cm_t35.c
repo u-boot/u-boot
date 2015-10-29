@@ -64,6 +64,7 @@ struct splash_location splash_locations[] = {
 	{
 		.name = "nand",
 		.storage = SPLASH_STORAGE_NAND,
+		.flags = SPLASH_STORAGE_RAW,
 		.offset = 0x100000,
 	},
 };

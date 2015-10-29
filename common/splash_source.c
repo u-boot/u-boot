@@ -13,6 +13,7 @@
 #include <spi_flash.h>
 #include <spi.h>
 #include <bmp_layout.h>
+#include <fs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -103,6 +104,56 @@ splash_address_too_high:
 	return -EFAULT;
 }
 
+static int splash_select_fs_dev(struct splash_location *location)
+{
+	int res;
+
+	switch (location->storage) {
+	case SPLASH_STORAGE_MMC:
+		res = fs_set_blk_dev("mmc", location->devpart, FS_TYPE_ANY);
+		break;
+	default:
+		printf("Error: unsupported location storage.\n");
+		return -ENODEV;
+	}
+
+	if (res)
+		printf("Error: could not access storage.\n");
+
+	return res;
+}
+
+#define SPLASH_SOURCE_DEFAULT_FILE_NAME		"splash.bmp"
+
+static int splash_load_fs(struct splash_location *location, u32 bmp_load_addr)
+{
+	int res;
+	loff_t bmp_size;
+	char *splash_file;
+
+	splash_file = getenv("splashfile");
+	if (!splash_file)
+		splash_file = SPLASH_SOURCE_DEFAULT_FILE_NAME;
+
+	res = splash_select_fs_dev(location);
+	if (res)
+		return res;
+
+	res = fs_size(splash_file, &bmp_size);
+	if (res) {
+		printf("Error (%d): cannot determine file size\n", res);
+		return res;
+	}
+
+	if (bmp_load_addr + bmp_size >= gd->start_addr_sp) {
+		printf("Error: splashimage address too high. Data overwrites U-Boot and/or placed beyond DRAM boundaries.\n");
+		return -EFAULT;
+	}
+
+	splash_select_fs_dev(location);
+	return fs_read(splash_file, bmp_load_addr, 0, 0, NULL);
+}
+
 /**
  * select_splash_location - return the splash location based on board support
  *			    and env variable "splashsource".
@@ -172,5 +223,10 @@ int splash_source_load(struct splash_location *locations, uint size)
 	if (!splash_location)
 		return -EINVAL;
 
-	return splash_load_raw(splash_location, bmp_load_addr);
+	if (splash_location->flags & SPLASH_STORAGE_RAW)
+		return splash_load_raw(splash_location, bmp_load_addr);
+	else if (splash_location->flags & SPLASH_STORAGE_FS)
+		return splash_load_fs(splash_location, bmp_load_addr);
+
+	return -EINVAL;
 }

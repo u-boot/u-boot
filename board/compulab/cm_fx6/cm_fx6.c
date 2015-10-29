@@ -39,6 +39,7 @@ static struct splash_location cm_fx6_splash_locations[] = {
 	{
 		.name = "sf",
 		.storage = SPLASH_STORAGE_SF,
+		.flags = SPLASH_STORAGE_RAW,
 		.offset = 0x100000,
 	},
 };
