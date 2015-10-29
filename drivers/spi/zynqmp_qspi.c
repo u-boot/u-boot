@@ -83,6 +83,8 @@
 #define SPI_XFER_ON_LOWER	1
 #define SPI_XFER_ON_UPPER	2
 
+#define ZYNQMP_QSPI_DMA_ALIGN	0x4
+
 /* QSPI register offsets */
 struct zynqmp_qspi_regs {
 	u32 confr;	/* 0x00 */
@@ -518,34 +520,15 @@ static int zynqmp_qspi_genfifo_fill_tx(struct zynqmp_qspi_priv *priv)
 	return ret;
 }
 
-static int zynqmp_qspi_genfifo_fill_rx(struct zynqmp_qspi_priv *priv)
+static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
+				 u32 gen_fifo_cmd, u32 *buf)
 {
-	u32 gen_fifo_cmd;
-	u32 *buf;
 	u32 addr;
 	u32 size, len;
 	u32 timeout = 10000000;
 	u32 actuallen = priv->len;
 	struct zynqmp_qspi_dma_regs *dma_regs = priv->dma_regs;
 
-	gen_fifo_cmd = zynqmp_qspi_bus_select(priv);
-	gen_fifo_cmd |= ZYNQMP_QSPI_GFIFO_RX |
-			ZYNQMP_QSPI_GFIFO_DATA_XFR_MASK;
-
-	if (last_cmd == QUAD_OUT_READ_CMD)
-		gen_fifo_cmd |= ZYNQMP_QSPI_SPI_MODE_QSPI;
-	else
-		gen_fifo_cmd |= ZYNQMP_QSPI_SPI_MODE_SPI;
-
-	if (priv->stripe)
-		gen_fifo_cmd |= ZYNQMP_QSPI_GFIFO_STRIPE_MASK;
-
-	if (!((unsigned long)priv->rx_buf & 0x3) && !(actuallen % 4)) {
-		buf = (u32 *)priv->rx_buf;
-	} else {
-		ALLOC_CACHE_ALIGN_BUFFER(u8, tmp, roundup(priv->len, 4));
-		buf = (u32 *)tmp;
-	}
 	writel((unsigned long)buf, &dma_regs->dmadst);
 	writel(roundup(priv->len, 4), &dma_regs->dmasize);
 	writel(ZYNQMP_QSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
@@ -587,6 +570,40 @@ static int zynqmp_qspi_genfifo_fill_rx(struct zynqmp_qspi_priv *priv)
 		memcpy(priv->rx_buf, buf, actuallen);
 
 	return 0;
+}
+
+static int zynqmp_qspi_genfifo_fill_rx(struct zynqmp_qspi_priv *priv)
+{
+	u32 gen_fifo_cmd;
+	u32 *buf;
+	u32 actuallen = priv->len;
+
+	gen_fifo_cmd = zynqmp_qspi_bus_select(priv);
+	gen_fifo_cmd |= ZYNQMP_QSPI_GFIFO_RX |
+			ZYNQMP_QSPI_GFIFO_DATA_XFR_MASK;
+
+	if (last_cmd == QUAD_OUT_READ_CMD)
+		gen_fifo_cmd |= ZYNQMP_QSPI_SPI_MODE_QSPI;
+	else
+		gen_fifo_cmd |= ZYNQMP_QSPI_SPI_MODE_SPI;
+
+	if (priv->stripe)
+		gen_fifo_cmd |= ZYNQMP_QSPI_GFIFO_STRIPE_MASK;
+
+	/*
+	 * Check if receive buffer is aligned to 4 byte and length
+	 * is multiples of four byte as we are using dma to receive.
+	 */
+	if (!((unsigned long)priv->rx_buf & (ZYNQMP_QSPI_DMA_ALIGN - 1)) &&
+	    !(actuallen % ZYNQMP_QSPI_DMA_ALIGN)) {
+		buf = (u32 *)priv->rx_buf;
+		return zynqmp_qspi_start_dma(priv, gen_fifo_cmd, buf);
+	}
+
+	ALLOC_CACHE_ALIGN_BUFFER(u8, tmp, roundup(priv->len,
+						  ZYNQMP_QSPI_DMA_ALIGN));
+	buf = (u32 *)tmp;
+	return zynqmp_qspi_start_dma(priv, gen_fifo_cmd, buf);
 }
 
 static int zynqmp_qspi_start_transfer(struct zynqmp_qspi_priv *priv)
