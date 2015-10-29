@@ -18,10 +18,10 @@ static inline void sync(void)
  * that can be used to access the memory range with the caching
  * properties specified by "flags".
  */
-#define MAP_NOCACHE	(1)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
+#define MAP_NOCACHE	1
+#define MAP_WRCOMBINE	0
+#define MAP_WRBACK	0
+#define MAP_WRTHROUGH	0
 
 static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
