@@ -223,6 +223,13 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 			    idcode[0]) < 0)
 				debug("SF: enter 3B address mode failed\n");
 		}
+	} else {
+		/*
+		 * Clear the 4-byte support if the flash size is
+		 * less than 16MB
+		 */
+		if (flash->spi->bytemode == SPI_4BYTE_MODE)
+			flash->spi->bytemode = 0;
 	}
 
 #ifdef CONFIG_SF_DUAL_FLASH
