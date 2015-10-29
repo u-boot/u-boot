@@ -400,6 +400,13 @@ const struct boot_mode soc_boot_modes[] = {
 	{NULL,		0},
 };
 
+void reset_misc(void)
+{
+#ifdef CONFIG_VIDEO_MXS
+	lcdif_power_down();
+#endif
+}
+
 void s_init(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
