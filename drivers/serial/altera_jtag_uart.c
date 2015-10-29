@@ -22,11 +22,11 @@ struct altera_jtaguart_platdata {
 };
 
 /* data register */
-#define ALTERA_JTAG_RVALID	(1<<15)		/* Read valid */
+#define ALTERA_JTAG_RVALID	BIT(15)	/* Read valid */
 
 /* control register */
-#define ALTERA_JTAG_AC		(1 << 10)	/* activity indicator */
-#define ALTERA_JTAG_RRDY	(1 << 12)	/* read available */
+#define ALTERA_JTAG_AC		BIT(10)	/* activity indicator */
+#define ALTERA_JTAG_RRDY	BIT(12)	/* read available */
 #define ALTERA_JTAG_WSPACE(d)	((d)>>16)	/* Write space avail */
 /* Write fifo size. FIXME: this should be extracted with sopc2dts */
 #define ALTERA_JTAG_WRITE_DEPTH	64
