@@ -1,5 +1,5 @@
 /*
- * Freescale i.MX28 LCDIF Register Definitions
+ * Freescale i.MX28/6SX/6UL/7D LCDIF Register Definitions
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -10,8 +10,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX28_REGS_LCDIF_H__
-#define __MX28_REGS_LCDIF_H__
+#ifndef __IMX_REGS_LCDIF_H__
+#define __IMX_REGS_LCDIF_H__
 
 #ifndef	__ASSEMBLY__
 #include <asm/imx-common/regs-common.h>
@@ -19,7 +19,8 @@
 struct mxs_lcdif_regs {
 	mxs_reg_32(hw_lcdif_ctrl)		/* 0x00 */
 	mxs_reg_32(hw_lcdif_ctrl1)		/* 0x10 */
-#if defined(CONFIG_MX28)
+#if defined(CONFIG_MX28) || defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || \
+	defined(CONFIG_MX7)
 	mxs_reg_32(hw_lcdif_ctrl2)		/* 0x20 */
 #endif
 	mxs_reg_32(hw_lcdif_transfer_count)	/* 0x20/0x30 */
@@ -54,7 +55,8 @@ struct mxs_lcdif_regs {
 #endif
 	mxs_reg_32(hw_lcdif_data)		/* 0x1b0/0x180 */
 	mxs_reg_32(hw_lcdif_bm_error_stat)	/* 0x1c0/0x190 */
-#if defined(CONFIG_MX28)
+#if defined(CONFIG_MX28) || defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || \
+	defined(CONFIG_MX7)
 	mxs_reg_32(hw_lcdif_crc_stat)		/* 0x1a0 */
 #endif
 	mxs_reg_32(hw_lcdif_lcdif_stat)		/* 0x1d0/0x1b0 */
@@ -62,6 +64,18 @@ struct mxs_lcdif_regs {
 	mxs_reg_32(hw_lcdif_debug0)		/* 0x1f0/0x1d0 */
 	mxs_reg_32(hw_lcdif_debug1)		/* 0x200/0x1e0 */
 	mxs_reg_32(hw_lcdif_debug2)		/* 0x1f0 */
+#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || defined(CONFIG_MX7)
+	mxs_reg_32(hw_lcdif_thres)
+	mxs_reg_32(hw_lcdif_as_ctrl)
+	mxs_reg_32(hw_lcdif_as_buf)
+	mxs_reg_32(hw_lcdif_as_next_buf)
+	mxs_reg_32(hw_lcdif_as_clrkeylow)
+	mxs_reg_32(hw_lcdif_as_clrkeyhigh)
+	mxs_reg_32(hw_lcdif_as_sync_delay)
+	mxs_reg_32(hw_lcdif_as_debug3)
+	mxs_reg_32(hw_lcdif_as_debug4)
+	mxs_reg_32(hw_lcdif_as_debug5)
+#endif
 };
 #endif
 
@@ -194,7 +208,7 @@ struct mxs_lcdif_regs {
 #if defined(CONFIG_MX23)
 #define	LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH_MASK			(0xff << 24)
 #define	LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH_OFFSET			24
-#elif defined(CONFIG_MX28)
+#else
 #define	LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH_MASK			(0x3fff << 18)
 #define	LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH_OFFSET			18
 #endif
@@ -214,4 +228,4 @@ struct mxs_lcdif_regs {
 #define	LCDIF_VDCTRL4_DOTCLK_H_VALID_DATA_CNT_MASK		0x3ffff
 #define	LCDIF_VDCTRL4_DOTCLK_H_VALID_DATA_CNT_OFFSET		0
 
-#endif /* __MX28_REGS_LCDIF_H__ */
+#endif /* __IMX_REGS_LCDIF_H__ */
