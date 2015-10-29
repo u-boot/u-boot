@@ -55,7 +55,7 @@ static void mxs_lcd_init(GraphicDevice *panel,
 	uint8_t valid_data = 0;
 
 	/* Kick in the LCDIF clock */
-	mxs_set_lcdclk(PS2KHZ(mode->pixclock));
+	mxs_set_lcdclk(MXS_LCDIF_BASE, PS2KHZ(mode->pixclock));
 
 	/* Restart the LCDIF block */
 	mxs_reset_block(&regs->hw_lcdif_ctrl_reg);

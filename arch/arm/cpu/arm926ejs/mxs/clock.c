@@ -309,7 +309,7 @@ void mxs_set_ssp_busclock(unsigned int bus, uint32_t freq)
 		bus, tgtclk, freq);
 }
 
-void mxs_set_lcdclk(uint32_t freq)
+void mxs_set_lcdclk(uint32_t __maybe_unused lcd_base, uint32_t freq)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
