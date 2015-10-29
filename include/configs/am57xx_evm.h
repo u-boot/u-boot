@@ -9,8 +9,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_BEAGLE_X15_H
-#define __CONFIG_BEAGLE_X15_H
+#ifndef __CONFIG_AM57XX_EVM_H
+#define __CONFIG_AM57XX_EVM_H
 
 #define CONFIG_AM57XX
 
@@ -88,4 +88,4 @@
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
 
-#endif /* __CONFIG_BEAGLE_X5_H */
+#endif /* __CONFIG_AM57XX_EVM_H */
