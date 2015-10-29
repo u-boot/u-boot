@@ -67,11 +67,6 @@
 		"rootfstype=${mmcrootfstype}\0"
 
 /*
- * Default to a quick boot delay.
- */
-#define CONFIG_BOOTDELAY		1
-
-/*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
  * we say (for simplicity) that we have 1 bank, always, even when
  * we have more.  We always start at 0x80000000, and we place the
@@ -287,5 +282,7 @@
 #else
 #define NETARGS ""
 #endif
+
+#include <config_distro_defaults.h>
 
 #endif	/* __CONFIG_TI_ARMV7_COMMON_H__ */
