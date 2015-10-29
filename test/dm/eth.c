@@ -13,10 +13,14 @@
 #include <malloc.h>
 #include <net.h>
 #include <dm/test.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 #include <asm/eth.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define DM_TEST_ETH_NUM		4
 
 static int dm_test_eth(struct unit_test_state *uts)
 {
@@ -81,6 +85,66 @@ static int dm_test_eth_prime(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_eth_prime, DM_TESTF_SCAN_FDT);
+
+/**
+ * This test case is trying to test the following scenario:
+ *	- All ethernet devices are not probed
+ *	- "ethaddr" for all ethernet devices are not set
+ *	- "ethact" is set to a valid ethernet device name
+ *
+ * With Sandbox default test configuration, all ethernet devices are
+ * probed after power-up, so we have to manually create such scenario:
+ *	- Remove all ethernet devices
+ *	- Remove all "ethaddr" environment variables
+ *	- Set "ethact" to the first ethernet device
+ *
+ * Do a ping test to see if anything goes wrong.
+ */
+static int dm_test_eth_act(struct unit_test_state *uts)
+{
+	struct udevice *dev[DM_TEST_ETH_NUM];
+	const char *ethname[DM_TEST_ETH_NUM] = {"eth@10002000", "eth@10003000",
+						"sbe5", "eth@10004000"};
+	const char *addrname[DM_TEST_ETH_NUM] = {"ethaddr", "eth5addr",
+						 "eth3addr", "eth1addr"};
+	char ethaddr[DM_TEST_ETH_NUM][18];
+	int i;
+
+	net_ping_ip = string_to_ip("1.1.2.2");
+
+	/* Prepare the test scenario */
+	for (i = 0; i < DM_TEST_ETH_NUM; i++) {
+		ut_assertok(uclass_find_device_by_name(UCLASS_ETH,
+						       ethname[i], &dev[i]));
+		ut_assertok(device_remove(dev[i]));
+
+		/* Invalidate MAC address */
+		strcpy(ethaddr[i], getenv(addrname[i]));
+		/* Must disable access protection for ethaddr before clearing */
+		setenv(".flags", addrname[i]);
+		setenv(addrname[i], NULL);
+	}
+
+	/* Set ethact to "eth@10002000" */
+	setenv("ethact", ethname[0]);
+
+	/* Segment fault might happen if something is wrong */
+	ut_asserteq(-ENODEV, net_loop(PING));
+
+	for (i = 0; i < DM_TEST_ETH_NUM; i++) {
+		/* Restore the env */
+		setenv(".flags", addrname[i]);
+		setenv(addrname[i], ethaddr[i]);
+
+		/* Probe the device again */
+		ut_assertok(device_probe(dev[i]));
+	}
+	setenv(".flags", NULL);
+	setenv("ethact", NULL);
+
+	return 0;
+}
+DM_TEST(dm_test_eth_act, DM_TESTF_SCAN_FDT);
 
 /* The asserts include a return on fail; cleanup in the caller */
 static int _dm_test_eth_rotate1(struct unit_test_state *uts)

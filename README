@@ -5454,10 +5454,10 @@ List of environment variables (most likely not complete):
 		  unset, then it will be made silent if the U-Boot console
 		  is silent.
 
-  tftpsrcport	- If this is set, the value is used for TFTP's
+  tftpsrcp	- If this is set, the value is used for TFTP's
 		  UDP source port.
 
-  tftpdstport	- If this is set, the value is used for TFTP's UDP
+  tftpdstp	- If this is set, the value is used for TFTP's UDP
 		  destination port instead of the Well Know Port 69.
 
   tftpblocksize - Block size to use for TFTP transfers; if not set,
@@ -5470,6 +5470,14 @@ List of environment variables (most likely not complete):
 		  Lowering this value may make downloads succeed
 		  faster in networks with high packet loss rates or
 		  with unreliable TFTP servers.
+
+  tftptimeoutcountmax	- maximum count of TFTP timeouts (no
+		  unit, minimum value = 0). Defines how many timeouts
+		  can happen during a single file transfer before that
+		  transfer is aborted. The default is 10, and 0 means
+		  'no timeouts allowed'. Increasing this value may help
+		  downloads succeed with high packet loss rates, or with
+		  unreliable TFTP servers or client hardware.
 
   vlan		- When set to a value < 4095 the traffic over
 		  Ethernet is encapsulated/received over 802.1q

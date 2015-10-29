@@ -120,8 +120,9 @@
 /* Some extra defines */
 #define HS_USB_PKT_SIZE			512
 #define FS_USB_PKT_SIZE			64
-#define DEFAULT_HS_BURST_CAP_SIZE	(16 * 1024 + 5 * HS_USB_PKT_SIZE)
-#define DEFAULT_FS_BURST_CAP_SIZE	(6 * 1024 + 33 * FS_USB_PKT_SIZE)
+/* 5/33 is lower limit for BURST_CAP to work */
+#define DEFAULT_HS_BURST_CAP_SIZE	(5 * HS_USB_PKT_SIZE)
+#define DEFAULT_FS_BURST_CAP_SIZE	(33 * FS_USB_PKT_SIZE)
 #define DEFAULT_BULK_IN_DELAY		0x00002000
 #define MAX_SINGLE_PACKET_SIZE		2048
 #define EEPROM_MAC_OFFSET		0x01
@@ -135,7 +136,7 @@
 #define USB_BULK_SEND_TIMEOUT 5000
 #define USB_BULK_RECV_TIMEOUT 5000
 
-#define RX_URB_SIZE 2048
+#define RX_URB_SIZE DEFAULT_HS_BURST_CAP_SIZE
 #define PHY_CONNECT_TIMEOUT 5000
 
 #define TURBO_MODE
@@ -528,22 +529,6 @@ static int smsc95xx_init_common(struct usb_device *udev, struct ueth_data *dev,
 	ret = smsc95xx_write_hwaddr_common(udev, priv, enetaddr);
 	if (ret < 0)
 		return ret;
-
-	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
-	if (ret < 0)
-		return ret;
-	debug("Read Value from HW_CFG : 0x%08x\n", read_buf);
-
-	read_buf |= HW_CFG_BIR_;
-	ret = smsc95xx_write_reg(udev, HW_CFG, read_buf);
-	if (ret < 0)
-		return ret;
-
-	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
-	if (ret < 0)
-		return ret;
-	debug("Read Value from HW_CFG after writing "
-		"HW_CFG_BIR_: 0x%08x\n", read_buf);
 
 #ifdef TURBO_MODE
 	if (dev->pusb_dev->speed == USB_SPEED_HIGH) {

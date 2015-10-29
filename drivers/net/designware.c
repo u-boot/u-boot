@@ -613,6 +613,17 @@ static int designware_eth_probe(struct udevice *dev)
 	return ret;
 }
 
+static int designware_eth_remove(struct udevice *dev)
+{
+	struct dw_eth_dev *priv = dev_get_priv(dev);
+
+	free(priv->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
+	return 0;
+}
+
 static const struct eth_ops designware_eth_ops = {
 	.start			= designware_eth_start,
 	.send			= designware_eth_send,
@@ -653,6 +664,7 @@ U_BOOT_DRIVER(eth_designware) = {
 	.ofdata_to_platdata = designware_eth_ofdata_to_platdata,
 	.bind	= designware_eth_bind,
 	.probe	= designware_eth_probe,
+	.remove	= designware_eth_remove,
 	.ops	= &designware_eth_ops,
 	.priv_auto_alloc_size = sizeof(struct dw_eth_dev),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
