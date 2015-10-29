@@ -264,6 +264,7 @@
 #define CSU_BASE_ADDR               (AIPS2_OFF_BASE_ADDR + 0x40000)
 #define IP2APB_PERFMON1_BASE_ADDR   (AIPS2_OFF_BASE_ADDR + 0x44000)
 #define IP2APB_PERFMON2_BASE_ADDR   (AIPS2_OFF_BASE_ADDR + 0x48000)
+#define MX6UL_LCDIF1_BASE_ADDR      (AIPS2_OFF_BASE_ADDR + 0x48000)
 #ifdef CONFIG_MX6SX
 #define DEBUG_MONITOR_BASE_ADDR     (AIPS2_OFF_BASE_ADDR + 0x4C000)
 #else
@@ -300,8 +301,6 @@
 #define CSI1_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x14000)
 #define PXP_BASE_ADDR               (AIPS3_ARB_BASE_ADDR + 0x18000)
 #define CSI2_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x1C000)
-#define LCDIF1_BASE_ADDR            (AIPS3_ARB_BASE_ADDR + 0x20000)
-#define LCDIF2_BASE_ADDR            (AIPS3_ARB_BASE_ADDR + 0x24000)
 #define VADC_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x28000)
 #define VDEC_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x2C000)
 #define SPBA_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x3C000)
@@ -319,11 +318,10 @@
 #define PWM7_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0xAC000)
 #define PWM8_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0xB0000)
 #endif
+/* Only for i.MX6SX */
+#define LCDIF2_BASE_ADDR            (AIPS3_ARB_BASE_ADDR + 0x24000)
+#define MX6SX_LCDIF1_BASE_ADDR      (AIPS3_ARB_BASE_ADDR + 0x20000)
 #define MX6SX_WDOG3_BASE_ADDR       (AIPS3_ARB_BASE_ADDR + 0x88000)
-
-/* only for i.MX6SX/UL */
-#define WDOG3_BASE_ADDR (is_cpu_type(MXC_CPU_MX6UL) ?	\
-			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR)
 
 #if !(defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL))
 #define IRAM_SIZE                    0x00040000
@@ -332,8 +330,16 @@
 #endif
 #define FEC_QUIRK_ENET_MAC
 
+#include <asm/imx-common/regs-lcdif.h>
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
+
+/* only for i.MX6SX/UL */
+#define WDOG3_BASE_ADDR (is_cpu_type(MXC_CPU_MX6UL) ?	\
+			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR)
+#define LCDIF1_BASE_ADDR (is_cpu_type(MXC_CPU_MX6UL)) ?	\
+			  MX6UL_LCDIF1_BASE_ADDR : MX6SX_LCDIF1_BASE_ADDR
+
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
