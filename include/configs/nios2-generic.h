@@ -36,10 +36,10 @@
 /*
  * MII/PHY
  */
-#define CONFIG_CMD_MII			1
-#define CONFIG_PHY_GIGE			1
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
-#define CONFIG_PHY_MARVELL		1
+#define CONFIG_CMD_MII
+#define CONFIG_PHY_GIGE
+#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
+#define CONFIG_PHY_MARVELL
 
 /*
  * BOOTP options
