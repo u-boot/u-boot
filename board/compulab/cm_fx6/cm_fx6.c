@@ -42,6 +42,24 @@ static struct splash_location cm_fx6_splash_locations[] = {
 		.flags = SPLASH_STORAGE_RAW,
 		.offset = 0x100000,
 	},
+	{
+		.name = "mmc_fs",
+		.storage = SPLASH_STORAGE_MMC,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "2:1",
+	},
+	{
+		.name = "usb_fs",
+		.storage = SPLASH_STORAGE_USB,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "0:1",
+	},
+	{
+		.name = "sata_fs",
+		.storage = SPLASH_STORAGE_SATA,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "0:1",
+	},
 };
 
 int splash_screen_prepare(void)
