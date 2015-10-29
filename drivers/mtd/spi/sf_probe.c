@@ -213,7 +213,7 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	 * and make sure the chip (> 16MiB) in default 3-byte address mode,
 	 * in case of warm bootup, the chip was set to 4-byte mode in kernel.
 	 */
-	if (flash->size > SPI_FLASH_16MB_BOUN) {
+	if ((flash->size >> flash->shift) > SPI_FLASH_16MB_BOUN) {
 		if (flash->spi->bytemode == SPI_4BYTE_MODE) {
 			if (spi_flash_cmd_4B_addr_switch(flash, true,
 			    idcode[0]) < 0)
@@ -367,7 +367,7 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
 	u8 curr_bank = 0;
-	if (flash->size > SPI_FLASH_16MB_BOUN) {
+	if ((flash->size >> flash->shift) > SPI_FLASH_16MB_BOUN) {
 		int ret;
 
 		flash->bank_read_cmd = (idcode[0] == 0x01) ?
