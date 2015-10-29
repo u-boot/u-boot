@@ -29,6 +29,7 @@ enum splash_storage {
 	SPLASH_STORAGE_SF,
 	SPLASH_STORAGE_MMC,
 	SPLASH_STORAGE_USB,
+	SPLASH_STORAGE_SATA,
 };
 
 enum splash_flags {
