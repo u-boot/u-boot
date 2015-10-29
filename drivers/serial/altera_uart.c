@@ -27,9 +27,9 @@ struct altera_uart_platdata {
 };
 
 /* status register */
-#define ALTERA_UART_TMT		(1 << 5)	/* tx empty */
-#define ALTERA_UART_TRDY	(1 << 6)	/* tx ready */
-#define ALTERA_UART_RRDY	(1 << 7)	/* rx ready */
+#define ALTERA_UART_TMT		BIT(5)	/* tx empty */
+#define ALTERA_UART_TRDY	BIT(6)	/* tx ready */
+#define ALTERA_UART_RRDY	BIT(7)	/* rx ready */
 
 DECLARE_GLOBAL_DATA_PTR;
 
