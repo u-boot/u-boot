@@ -14,7 +14,7 @@ ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
 obj-y	+= timer.o cpu.o speed.o
 obj-$(CONFIG_SYS_I2C_MXC) += i2c-mxv7.o
 endif
-ifeq ($(SOC),$(filter $(SOC),mx6 mxs))
+ifeq ($(SOC),$(filter $(SOC),mx7 mx6 mxs))
 obj-y	+= misc.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 endif
