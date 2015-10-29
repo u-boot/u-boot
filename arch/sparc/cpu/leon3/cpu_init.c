@@ -56,10 +56,6 @@ void cpu_init_f(void)
 	 */
 void cpu_init_f2(void)
 {
-	/* Initialize the AMBA Plug & Play bus structure, the bus
-	 * structure represents the AMBA bus that the CPU is located at.
-	 */
-	ambapp_bus_init(CONFIG_AMBAPP_IOAREA, CONFIG_SYS_CLK_FREQ, &ambapp_plb);
 }
 
 /* If cache snooping is available in hardware the result will be set
@@ -79,6 +75,11 @@ int arch_cpu_init(void)
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
 	gd->arch.snooping_available = snoop_detect();
+
+	/* Initialize the AMBA Plug & Play bus structure, the bus
+	 * structure represents the AMBA bus that the CPU is located at.
+	 */
+	ambapp_bus_init(CONFIG_AMBAPP_IOAREA, CONFIG_SYS_CLK_FREQ, &ambapp_plb);
 
 	return 0;
 }

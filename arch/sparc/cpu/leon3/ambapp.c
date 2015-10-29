@@ -40,7 +40,7 @@ extern int ambapp_find_ahb(struct ambapp_bus *abus, unsigned int dev_vend,
 	int index, int type, struct ambapp_find_ahb_info *result);
 
 /************ C ROUTINES USED BY U-BOOT AMBA CORE DRIVERS ************/
-struct ambapp_bus ambapp_plb;
+struct ambapp_bus ambapp_plb __section(.data);
 
 void ambapp_bus_init(
 	unsigned int ioarea,
