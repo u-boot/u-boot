@@ -17,7 +17,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Select which UART that will become u-boot console */
 #ifndef CONFIG_SYS_GRLIB_APBUART_INDEX
+/* Try to use CONFIG_CONS_INDEX, if available, it is numbered from 1 */
+#ifdef CONFIG_CONS_INDEX
+#define CONFIG_SYS_GRLIB_APBUART_INDEX (CONFIG_CONS_INDEX - 1)
+#else
 #define CONFIG_SYS_GRLIB_APBUART_INDEX 0
+#endif
 #endif
 
 static unsigned apbuart_calc_scaler(unsigned apbuart_freq, unsigned baud)
