@@ -297,11 +297,15 @@ static unsigned int zynq_i2c_set_bus_speed(struct i2c_adapter *adap,
 	return 0;
 }
 
+#ifdef CONFIG_ZYNQ_I2C0
 U_BOOT_I2C_ADAP_COMPLETE(zynq_0, zynq_i2c_init, zynq_i2c_probe, zynq_i2c_read,
 			 zynq_i2c_write, zynq_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_ZYNQ_SPEED, CONFIG_SYS_I2C_ZYNQ_SLAVE,
 			 0)
+#endif
+#ifdef CONFIG_ZYNQ_I2C1
 U_BOOT_I2C_ADAP_COMPLETE(zynq_1, zynq_i2c_init, zynq_i2c_probe, zynq_i2c_read,
 			 zynq_i2c_write, zynq_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_ZYNQ_SPEED, CONFIG_SYS_I2C_ZYNQ_SLAVE,
 			 1)
+#endif

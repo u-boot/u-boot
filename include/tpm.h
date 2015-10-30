@@ -8,8 +8,6 @@
 #ifndef __TPM_H
 #define __TPM_H
 
-#include <tis.h>
-
 /*
  * Here is a partial implementation of TPM commands.  Please consult TCG Main
  * Specification for definitions of TPM commands.
@@ -196,8 +194,6 @@ struct tpm_permanent_flags {
 	u8	disable_full_da_logic_info;
 } __packed;
 
-#ifdef CONFIG_DM_TPM
-
 /* Max buffer size supported by our tpm */
 #define TPM_DEV_BUFSIZE		1260
 
@@ -374,8 +370,6 @@ int tpm_get_desc(struct udevice *dev, char *buf, int size);
  */
 int tpm_xfer(struct udevice *dev, const uint8_t *sendbuf, size_t send_size,
 	     uint8_t *recvbuf, size_t *recv_size);
-
-#endif /* CONFIG_DM_TPM */
 
 /**
  * Initialize TPM device.  It must be called before any TPM commands.

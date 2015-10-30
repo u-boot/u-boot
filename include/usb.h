@@ -96,7 +96,7 @@ enum {
  * (the hubs) have this as parent data. Hubs are children of controllers or
  * other hubs and there is always a single root hub for each controller.
  * Therefore struct usb_device can always be accessed with
- * dev_get_parentdata(dev), where dev is a USB device.
+ * dev_get_parent_priv(dev), where dev is a USB device.
  *
  * Pointers exist for obtaining both the device (could be any uclass) and
  * controller (UCLASS_USB) from this structure. The controller does not have

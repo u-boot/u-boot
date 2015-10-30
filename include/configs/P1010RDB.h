@@ -14,8 +14,8 @@
 #ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
-#define	CONFIG_SYS_GENERIC_BOARD
 #define	CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_FSL_CLK
 
 #define CONFIG_P1010
 #define CONFIG_E500			/* BOOKE e500 family */

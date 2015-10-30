@@ -31,7 +31,6 @@
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_OF_LIBFDT		/* Device Tree support */
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* general purpose I/O */
 #define CONFIG_AT91_GPIO

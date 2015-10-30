@@ -82,7 +82,7 @@ static inline u16 find_tt(struct usb_device *udev)
 	 */
 	ttdev = udev;
 	parent = udev->dev;
-	uparent = dev_get_parentdata(parent);
+	uparent = dev_get_parent_priv(parent);
 
 	while (uparent->speed != USB_SPEED_HIGH) {
 		struct udevice *dev = parent;
@@ -92,9 +92,9 @@ static inline u16 find_tt(struct usb_device *udev)
 			return 0;
 		}
 
-		ttdev = dev_get_parentdata(dev);
+		ttdev = dev_get_parent_priv(dev);
 		parent = dev->parent;
-		uparent = dev_get_parentdata(parent);
+		uparent = dev_get_parent_priv(parent);
 	}
 
 	return (uparent->devnum << 8) | (ttdev->portnr - 1);
@@ -119,12 +119,12 @@ static inline struct usb_device *usb_dev_get_parent(struct usb_device *udev)
 	 * If these 2 are not the same we are being called from
 	 * usb_scan_device() and udev itself is the parent.
 	 */
-	if (dev_get_parentdata(udev->dev) != udev)
+	if (dev_get_parent_priv(udev->dev) != udev)
 		return udev;
 
 	/* We are being called normally, use the parent pointer */
 	if (device_get_uclass_id(parent) == UCLASS_USB_HUB)
-		return dev_get_parentdata(parent);
+		return dev_get_parent_priv(parent);
 
 	return NULL;
 }

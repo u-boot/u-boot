@@ -17,7 +17,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Generic Interrupt Controller Definitions */
 #define CONFIG_GICV2

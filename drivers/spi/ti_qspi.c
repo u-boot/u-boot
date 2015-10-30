@@ -20,13 +20,13 @@
 #define QSPI_TIMEOUT                    2000000
 #define QSPI_FCLK                       192000000
 /* clock control */
-#define QSPI_CLK_EN                     (1 << 31)
+#define QSPI_CLK_EN                     BIT(31)
 #define QSPI_CLK_DIV_MAX                0xffff
 /* command */
 #define QSPI_EN_CS(n)                   (n << 28)
 #define QSPI_WLEN(n)                    ((n-1) << 19)
-#define QSPI_3_PIN                      (1 << 18)
-#define QSPI_RD_SNGL                    (1 << 16)
+#define QSPI_3_PIN                      BIT(18)
+#define QSPI_RD_SNGL                    BIT(16)
 #define QSPI_WR_SNGL                    (2 << 16)
 #define QSPI_INVAL                      (4 << 16)
 #define QSPI_RD_QUAD                    (7 << 16)
@@ -36,8 +36,8 @@
 #define QSPI_CSPOL(n)                   (1 << (1 + n*8))
 #define QSPI_CKPOL(n)                   (1 << (n*8))
 /* status */
-#define QSPI_WC                         (1 << 1)
-#define QSPI_BUSY                       (1 << 0)
+#define QSPI_WC                         BIT(1)
+#define QSPI_BUSY                       BIT(0)
 #define QSPI_WC_BUSY                    (QSPI_WC | QSPI_BUSY)
 #define QSPI_XFER_DONE                  QSPI_WC
 #define MM_SWITCH                       0x01

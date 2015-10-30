@@ -25,6 +25,7 @@ _start:
 
 	addi	r8, r0, __end
 	mts	rslr, r8
+	/* TODO: Redo this code to call board_init_f_mem() */
 #if defined(CONFIG_SPL_BUILD)
 	addi	r1, r0, CONFIG_SPL_STACK_ADDR
 	mts	rshr, r1
@@ -141,6 +142,7 @@ _start:
 	ori	r12, r12, 0x1a0
 	mts	rmsr, r12
 
+	/* TODO: Redo this code to call board_init_f_mem() */
 clear_bss:
 	/* clear BSS segments */
 	addi	r5, r0, __bss_start

@@ -13,102 +13,6 @@
 
 #define __packed_1_    __attribute__ ((packed, aligned(1)))
 
-/* PHY Stuff */
-#define miim_end -2
-#define miim_read -1
-
-#define PHY_AUTONEGOTIATE_TIMEOUT	5000	/* in ms */
-
-#ifndef CONFIG_SYS_TBIPA_VALUE
-#define CONFIG_SYS_TBIPA_VALUE	0x1f
-#endif
-#define MIIMCFG_INIT_VALUE	0x00000003
-#define MIIMCFG_RESET		0x80000000
-
-#define MIIMIND_BUSY		0x00000001
-#define MIIMIND_NOTVALID	0x00000004
-
-#define MIIM_CONTROL		0x00
-#define MIIM_CONTROL_RESET	0x00009140
-#define MIIM_CONTROL_INIT	0x00001140
-#define MIIM_CONTROL_RESTART	0x00001340
-#define MIIM_ANEN		0x00001000
-
-#define MIIM_CR		0x00
-#define MIIM_CR_RST		0x00008000
-#define MIIM_CR_INIT		0x00001000
-
-#define MIIM_STATUS		0x1
-#define MIIM_STATUS_AN_DONE	0x00000020
-#define MIIM_STATUS_LINK	0x0004
-
-#define MIIM_PHYIR1		0x2
-#define MIIM_PHYIR2		0x3
-
-#define MIIM_ANAR		0x4
-#define MIIM_ANAR_INIT		0x1e1
-
-#define MIIM_TBI_ANLPBPA	0x5
-#define MIIM_TBI_ANLPBPA_HALF	0x00000040
-#define MIIM_TBI_ANLPBPA_FULL	0x00000020
-
-#define MIIM_TBI_ANEX		0x6
-#define MIIM_TBI_ANEX_NP	0x00000004
-#define MIIM_TBI_ANEX_PRX	0x00000002
-
-#define MIIM_GBIT_CONTROL	0x9
-#define MIIM_GBIT_CONTROL_INIT	0xe00
-
-#define MIIM_EXT_PAGE_ACCESS	0x1f
-
-/* 88E1011 PHY Status Register */
-#define MIIM_88E1011_PHY_STATUS	0x11
-#define MIIM_88E1011_PHYSTAT_SPEED	0xc000
-#define MIIM_88E1011_PHYSTAT_GBIT	0x8000
-#define MIIM_88E1011_PHYSTAT_100	0x4000
-#define MIIM_88E1011_PHYSTAT_DUPLEX	0x2000
-#define MIIM_88E1011_PHYSTAT_SPDDONE	0x0800
-#define MIIM_88E1011_PHYSTAT_LINK	0x0400
-
-#define MIIM_88E1011_PHY_SCR		0x10
-#define MIIM_88E1011_PHY_MDI_X_AUTO	0x0060
-
-#define MIIM_88E1111_PHY_EXT_CR	0x14
-#define MIIM_88E1111_PHY_EXT_SR	0x1b
-
-/* 88E1111 PHY LED Control Register */
-#define MIIM_88E1111_PHY_LED_CONTROL	24
-#define MIIM_88E1111_PHY_LED_DIRECT	0x4100
-#define MIIM_88E1111_PHY_LED_COMBINE	0x411C
-
-#define MIIM_READ_COMMAND	0x00000001
-
-/* struct phy_info: a structure which defines attributes for a PHY
- * id will contain a number which represents the PHY.  During
- * startup, the driver will poll the PHY to find out what its
- * UID--as defined by registers 2 and 3--is.  The 32-bit result
- * gotten from the PHY will be shifted right by "shift" bits to
- * discard any bits which may change based on revision numbers
- * unimportant to functionality
- *
- * The struct phy_cmd entries represent pointers to an arrays of
- * commands which tell the driver what to do to the PHY.
- */
-struct phy_info {
-	uint id;
-	char *name;
-	uint shift;
-	/* Called to configure the PHY, and modify the controller
-	 * based on the results */
-	struct phy_cmd *config;
-
-	/* Called when starting up the controller */
-	struct phy_cmd *startup;
-
-	/* Called when bringing down the controller */
-	struct phy_cmd *shutdown;
-};
-
 /* SGDMA Stuff */
 #define ALT_SGDMA_STATUS_ERROR_MSK			(0x00000001)
 #define ALT_SGDMA_STATUS_EOP_ENCOUNTERED_MSK		(0x00000002)
@@ -116,18 +20,9 @@ struct phy_info {
 #define ALT_SGDMA_STATUS_CHAIN_COMPLETED_MSK		(0x00000008)
 #define ALT_SGDMA_STATUS_BUSY_MSK			(0x00000010)
 
-#define ALT_SGDMA_CONTROL_IE_ERROR_MSK			(0x00000001)
-#define ALT_SGDMA_CONTROL_IE_EOP_ENCOUNTERED_MSK	(0x00000002)
-#define ALT_SGDMA_CONTROL_IE_DESC_COMPLETED_MSK	(0x00000004)
-#define ALT_SGDMA_CONTROL_IE_CHAIN_COMPLETED_MSK	(0x00000008)
-#define ALT_SGDMA_CONTROL_IE_GLOBAL_MSK		(0x00000010)
 #define ALT_SGDMA_CONTROL_RUN_MSK			(0x00000020)
 #define ALT_SGDMA_CONTROL_STOP_DMA_ER_MSK		(0x00000040)
-#define ALT_SGDMA_CONTROL_IE_MAX_DESC_PROCESSED_MSK	(0x00000080)
-#define ALT_SGDMA_CONTROL_MAX_DESC_PROCESSED_MSK	(0x0000FF00)
 #define ALT_SGDMA_CONTROL_SOFTWARERESET_MSK		(0x00010000)
-#define ALT_SGDMA_CONTROL_PARK_MSK			(0x00020000)
-#define ALT_SGDMA_CONTROL_CLEAR_INTERRUPT_MSK		(0x80000000)
 
 #define ALTERA_TSE_SGDMA_INTR_MASK  (ALT_SGDMA_CONTROL_IE_CHAIN_COMPLETED_MSK \
 			| ALT_SGDMA_STATUS_DESC_COMPLETED_MSK \
@@ -176,13 +71,13 @@ struct phy_info {
  *
  */
 struct alt_sgdma_descriptor {
-	unsigned int *source;	/* the address of data to be read. */
+	unsigned int source;	/* the address of data to be read. */
 	unsigned int source_pad;
 
-	unsigned int *destination;	/* the address to write data */
+	unsigned int destination;	/* the address to write data */
 	unsigned int destination_pad;
 
-	unsigned int *next;	/* the next descriptor in the list. */
+	unsigned int next;	/* the next descriptor in the list. */
 	unsigned int next_pad;
 
 	unsigned short bytes_to_transfer; /* the number of bytes to transfer */
@@ -241,112 +136,15 @@ struct alt_sgdma_registers {
 
 #define ALTERA_TSE_RX_CMD_STAT_RX_SHIFT16	(0x02000000)
 
-#define ALT_TSE_SW_RESET_WATCHDOG_CNTR		10000
-#define ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR	90000000
-
-/* Command_Config Register Bit Definitions */
-
-typedef volatile union __alt_tse_command_config {
-	unsigned int image;
-	struct {
-		unsigned int
-		 transmit_enable:1,		/* bit 0 */
-		 receive_enable:1,		/* bit 1 */
-		 pause_frame_xon_gen:1,	/* bit 2 */
-		 ethernet_speed:1,		/* bit 3 */
-		 promiscuous_enable:1,		/* bit 4 */
-		 pad_enable:1,			/* bit 5 */
-		 crc_forward:1,		/* bit 6 */
-		 pause_frame_forward:1,	/* bit 7 */
-		 pause_frame_ignore:1,		/* bit 8 */
-		 set_mac_address_on_tx:1,	/* bit 9 */
-		 halfduplex_enable:1,		/* bit 10 */
-		 excessive_collision:1,	/* bit 11 */
-		 late_collision:1,		/* bit 12 */
-		 software_reset:1,		/* bit 13 */
-		 multicast_hash_mode_sel:1,	/* bit 14 */
-		 loopback_enable:1,		/* bit 15 */
-		 src_mac_addr_sel_on_tx:3,	/* bit 18:16 */
-		 magic_packet_detect:1,	/* bit 19 */
-		 sleep_mode_enable:1,		/* bit 20 */
-		 wake_up_request:1,		/* bit 21 */
-		 pause_frame_xoff_gen:1,	/* bit 22 */
-		 control_frame_enable:1,	/* bit 23 */
-		 payload_len_chk_disable:1,	/* bit 24 */
-		 enable_10mbps_intf:1,		/* bit 25 */
-		 rx_error_discard_enable:1,	/* bit 26 */
-		 reserved_bits:4,		/* bit 30:27 */
-		 self_clear_counter_reset:1;	/* bit 31 */
-	} __packed_1_ bits;
-} __packed_1_ alt_tse_command_config;
-
-/* Tx_Cmd_Stat Register Bit Definitions */
-
-typedef volatile union __alt_tse_tx_cmd_stat {
-	unsigned int image;
-	struct {
-		unsigned int reserved_lsbs:17,	/* bit 16:0  */
-		 omit_crc:1,			/* bit 17 */
-		 tx_shift16:1,			/* bit 18 */
-		 reserved_msbs:13;		/* bit 31:19 */
-
-	} __packed_1_ bits;
-} alt_tse_tx_cmd_stat;
-
-/* Rx_Cmd_Stat Register Bit Definitions */
-
-typedef volatile union __alt_tse_rx_cmd_stat {
-	unsigned int image;
-	struct {
-		unsigned int reserved_lsbs:25,	/* bit 24:0  */
-		 rx_shift16:1,			/* bit 25 */
-		 reserved_msbs:6;		/* bit 31:26 */
-
-	} __packed_1_ bits;
-} alt_tse_rx_cmd_stat;
-
-struct alt_tse_mdio {
-	unsigned int control;	/*PHY device operation control register */
-	unsigned int status;	/*PHY device operation status register */
-	unsigned int phy_id1;	/*Bits 31:16 of PHY identifier. */
-	unsigned int phy_id2;	/*Bits 15:0 of PHY identifier. */
-	unsigned int auto_negotiation_advertisement;
-	unsigned int remote_partner_base_page_ability;
-
-	unsigned int reg6;
-	unsigned int reg7;
-	unsigned int reg8;
-	unsigned int reg9;
-	unsigned int rega;
-	unsigned int regb;
-	unsigned int regc;
-	unsigned int regd;
-	unsigned int rege;
-	unsigned int regf;
-	unsigned int reg10;
-	unsigned int reg11;
-	unsigned int reg12;
-	unsigned int reg13;
-	unsigned int reg14;
-	unsigned int reg15;
-	unsigned int reg16;
-	unsigned int reg17;
-	unsigned int reg18;
-	unsigned int reg19;
-	unsigned int reg1a;
-	unsigned int reg1b;
-	unsigned int reg1c;
-	unsigned int reg1d;
-	unsigned int reg1e;
-	unsigned int reg1f;
-};
+#define ALT_TSE_SW_RESET_TIMEOUT		(3 * CONFIG_SYS_HZ)
+#define ALT_TSE_SGDMA_BUSY_TIMEOUT		(3 * CONFIG_SYS_HZ)
 
 /* MAC register Space */
 
 struct alt_tse_mac {
 	unsigned int megacore_revision;
 	unsigned int scratch_pad;
-	alt_tse_command_config command_config;
+	unsigned int command_config;
 	unsigned int mac_addr_0;
 	unsigned int mac_addr_1;
 	unsigned int max_frame_length;
@@ -413,8 +211,8 @@ struct alt_tse_mac {
 	unsigned int reservedxE4;
 
 	/*FIFO control register. */
-	alt_tse_tx_cmd_stat tx_cmd_stat;
-	alt_tse_rx_cmd_stat rx_cmd_stat;
+	unsigned int tx_cmd_stat;
+	unsigned int rx_cmd_stat;
 
 	unsigned int ipaccTxConf;
 	unsigned int ipaccRxConf;
@@ -425,8 +223,8 @@ struct alt_tse_mac {
 	unsigned int hash_table[64];
 
 	/*Registers 0 to 31 within PHY device 0/1 */
-	struct alt_tse_mdio mdio_phy0;
-	struct alt_tse_mdio mdio_phy1;
+	unsigned int mdio_phy0[0x20];
+	unsigned int mdio_phy1[0x20];
 
 	/*4 Supplemental MAC Addresses */
 	unsigned int supp_mac_addr_0_0;
@@ -441,52 +239,19 @@ struct alt_tse_mac {
 	unsigned int reservedx320[56];
 };
 
-/* flags: TSE MII modes */
-/* GMII/MII	= 0 */
-/* RGMII	= 1 */
-/* RGMII_ID	= 2 */
-/* RGMII_TXID	= 3 */
-/* RGMII_RXID	= 4 */
-/* SGMII	= 5 */
 struct altera_tse_priv {
-	char devname[16];
-	volatile struct alt_tse_mac *mac_dev;
-	volatile struct alt_sgdma_registers *sgdma_rx;
-	volatile struct alt_sgdma_registers *sgdma_tx;
-	unsigned int rx_sgdma_irq;
-	unsigned int tx_sgdma_irq;
-	unsigned int has_descriptor_mem;
-	unsigned int descriptor_mem_base;
-	unsigned int descriptor_mem_size;
-	volatile struct alt_sgdma_descriptor *rx_desc;
-	volatile struct alt_sgdma_descriptor *tx_desc;
-	volatile unsigned char *rx_buf;
-	struct phy_info *phyinfo;
+	struct alt_tse_mac *mac_dev;
+	struct alt_sgdma_registers *sgdma_rx;
+	struct alt_sgdma_registers *sgdma_tx;
+	unsigned int rx_fifo_depth;
+	unsigned int tx_fifo_depth;
+	struct alt_sgdma_descriptor *rx_desc;
+	struct alt_sgdma_descriptor *tx_desc;
+	unsigned char *rx_buf;
 	unsigned int phyaddr;
-	unsigned int flags;
-	unsigned int link;
-	unsigned int duplexity;
-	unsigned int speed;
+	unsigned int interface;
+	struct phy_device *phydev;
+	struct mii_dev *bus;
 };
 
-/* Phy stuff continued */
-/*
- * struct phy_cmd:  A command for reading or writing a PHY register
- *
- * mii_reg:  The register to read or write
- *
- * mii_data:  For writes, the value to put in the register.
- *	A value of -1 indicates this is a read.
- *
- * funct: A function pointer which is invoked for each command.
- *	For reads, this function will be passed the value read
- *	from the PHY, and process it.
- *	For writes, the result of this function will be written
- *	to the PHY register
- */
-struct phy_cmd {
-	uint mii_reg;
-	uint mii_data;
-	uint(*funct) (uint mii_reg, struct altera_tse_priv *priv);
-};
 #endif /* _ALTERA_TSE_H_ */

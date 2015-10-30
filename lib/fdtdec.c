@@ -219,13 +219,13 @@ int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 
 		for (i = 0; i < num; i++) {
 			debug("pci address #%d: %08lx %08lx %08lx\n", i,
-			      (ulong)fdt_addr_to_cpu(cell[0]),
-			      (ulong)fdt_addr_to_cpu(cell[1]),
-			      (ulong)fdt_addr_to_cpu(cell[2]));
-			if ((fdt_addr_to_cpu(*cell) & type) == type) {
-				addr->phys_hi = fdt_addr_to_cpu(cell[0]);
-				addr->phys_mid = fdt_addr_to_cpu(cell[1]);
-				addr->phys_lo = fdt_addr_to_cpu(cell[2]);
+			      (ulong)fdt32_to_cpu(cell[0]),
+			      (ulong)fdt32_to_cpu(cell[1]),
+			      (ulong)fdt32_to_cpu(cell[2]));
+			if ((fdt32_to_cpu(*cell) & type) == type) {
+				addr->phys_hi = fdt32_to_cpu(cell[0]);
+				addr->phys_mid = fdt32_to_cpu(cell[1]);
+				addr->phys_lo = fdt32_to_cpu(cell[1]);
 				break;
 			} else {
 				cell += (FDT_PCI_ADDR_CELLS +

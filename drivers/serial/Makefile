@@ -25,6 +25,7 @@ obj-$(CONFIG_EFI_APP) += serial_efi.o
 obj-$(CONFIG_LPC32XX_HSUART) += lpc32xx_hsuart.o
 obj-$(CONFIG_MCFUART) += mcfuart.o
 obj-$(CONFIG_OPENCORES_YANU) += opencores_yanu.o
+obj-$(CONFIG_KEYSTONE_SERIAL) += serial_keystone.o
 obj-$(CONFIG_SYS_NS16550) += ns16550.o
 obj-$(CONFIG_S5P) += serial_s5p.o
 obj-$(CONFIG_IMX_SERIAL) += serial_imx.o

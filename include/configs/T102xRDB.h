@@ -12,7 +12,6 @@
 #define __T1024RDB_H
 
 /* High Level Configuration Options */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
@@ -21,6 +20,7 @@
 #define CONFIG_MP			/* support multiple processors */
 #define CONFIG_PHYS_64BIT
 #define CONFIG_ENABLE_36BIT_PHYS
+#define CONFIG_FSL_CLK
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_ADDR_MAP		1

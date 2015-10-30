@@ -913,7 +913,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	 * Look for an Android boot image.
 	 */
 	buf = map_sysmem(images->os.start, 0);
-	if (genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
+	if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
 		select = argv[0];
 #endif
 

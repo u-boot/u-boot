@@ -23,6 +23,7 @@
 #include <fat.h>
 #include <fs.h>
 #include <sandboxfs.h>
+#include <ubifs_uboot.h>
 #include <asm/io.h>
 #include <div64.h>
 #include <linux/math64.h>
@@ -154,6 +155,21 @@ static struct fstype_info fstypes[] = {
 		.size = sandbox_fs_size,
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
+		.uuid = fs_uuid_unsupported,
+	},
+#endif
+#ifdef CONFIG_CMD_UBIFS
+	{
+		.fstype = FS_TYPE_UBIFS,
+		.name = "ubifs",
+		.null_dev_desc_ok = true,
+		.probe = ubifs_set_blk_dev,
+		.close = ubifs_close,
+		.ls = ubifs_ls,
+		.exists = ubifs_exists,
+		.size = ubifs_size,
+		.read = ubifs_read,
+		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
 	},
 #endif

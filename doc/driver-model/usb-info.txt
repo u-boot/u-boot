@@ -84,7 +84,7 @@ The following primary data structures are in use:
 	This holds information about a device on the bus. All devices have
 	this structure, even the root hub. The controller itself does not
 	have this structure. You can access it for a device 'dev' with
-	dev_get_parentdata(dev). It matches the old structure except that the
+	dev_get_parent_priv(dev). It matches the old structure except that the
 	parent and child information is not present (since driver model
 	handles that). Once the device is set up, you can find the device
 	descriptor and current configuration descriptor in this structure.
@@ -279,7 +279,7 @@ USB hubs are scanned as in the section above. While hubs have their own
 uclass, they share some common elements with controllers:
 
 - they both attach private data to their children (struct usb_device,
-accessible for a child with dev_get_parentdata(child))
+accessible for a child with dev_get_parent_priv(child))
 - they both use usb_child_pre_probe() to set up their children as proper USB
 devices
 

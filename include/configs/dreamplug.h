@@ -37,7 +37,6 @@
 #define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_MACH_TYPE	MACH_TYPE_DREAMPLUG
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Add target to build it automatically upon "make" */
 #define CONFIG_BUILD_TARGET     "u-boot.kwb"

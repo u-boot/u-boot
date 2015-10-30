@@ -15,6 +15,14 @@ config DM_SPI
 
 if DM_SPI
 
+config ALTERA_SPI
+	bool "Altera SPI driver"
+	help
+	  Enable the Altera SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Altera
+	  IP core. Please find details on the "Embedded Peripherals IP
+	  User Guide" of Altera.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help
@@ -130,6 +138,15 @@ config ZYNQ_SPI
 	  Enable the Zynq SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Zynq
 	  SPI IP core.
+
+config ZYNQ_QSPI
+	bool "Zynq QSPI driver"
+	depends on ARCH_ZYNQ
+	help
+	  Enable the Zynq Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Zynq QSPI IP core. This IP is used to connect the flash in
+	  4-bit qspi, 8-bit dual stacked and shared 4-bit dual parallel.
 
 endif # if DM_SPI
 

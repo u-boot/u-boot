@@ -22,6 +22,44 @@ static struct phy_driver KSZ804_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver KSZ8031_driver = {
+	.name = "Micrel KSZ8021/KSZ8031",
+	.uid = 0x221550,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &genphy_config,
+	.startup = &genphy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+/**
+ * KSZ8051
+ */
+#define MII_KSZ8051_PHY_OMSO			0x16
+#define MII_KSZ8051_PHY_OMSO_NAND_TREE_ON	(1 << 5)
+
+static int ksz8051_config(struct phy_device *phydev)
+{
+	unsigned val;
+
+	/* Disable NAND-tree */
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_KSZ8051_PHY_OMSO);
+	val &= ~MII_KSZ8051_PHY_OMSO_NAND_TREE_ON;
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_KSZ8051_PHY_OMSO, val);
+
+	return genphy_config(phydev);
+}
+
+static struct phy_driver KSZ8051_driver = {
+	.name = "Micrel KSZ8051",
+	.uid = 0x221550,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &ksz8051_config,
+	.startup = &genphy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 static struct phy_driver KSZ8081_driver = {
 	.name = "Micrel KSZ8081",
 	.uid = 0x221560,
@@ -282,6 +320,8 @@ static struct phy_driver ksz9031_driver = {
 int phy_micrel_init(void)
 {
 	phy_register(&KSZ804_driver);
+	phy_register(&KSZ8031_driver);
+	phy_register(&KSZ8051_driver);
 	phy_register(&KSZ8081_driver);
 #ifdef CONFIG_PHY_MICREL_KSZ9021
 	phy_register(&ksz9021_driver);

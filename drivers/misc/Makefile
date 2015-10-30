@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_MISC) += misc-uclass.o
 obj-$(CONFIG_ALI152X) += ali512x.o
+obj-$(CONFIG_ALTERA_SYSID) += altera_sysid.o
 obj-$(CONFIG_DS4510)  += ds4510.o
 obj-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.o
 obj-$(CONFIG_CROS_EC) += cros_ec.o

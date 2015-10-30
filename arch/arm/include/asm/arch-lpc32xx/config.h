@@ -9,7 +9,6 @@
 #ifndef _LPC32XX_CONFIG_H
 #define _LPC32XX_CONFIG_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Basic CPU architecture */
 #define CONFIG_ARCH_CPU_INIT

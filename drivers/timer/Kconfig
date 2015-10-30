@@ -1,0 +1,19 @@
+menu "Timer Support"
+
+config TIMER
+	bool "Enable Driver Model for Timer drivers"
+	depends on DM
+	help
+	  Enable driver model for Timer access. It uses the same API as
+	  lib/time.c. But now implemented by the uclass. The first timer
+	  will be used. The timer is usually a 32 bits free-running up
+	  counter. There may be no real tick, and no timer interrupt.
+
+config ALTERA_TIMER
+	bool "Altera Timer support"
+	depends on TIMER
+	help
+	  Select this to enable an timer for Altera devices. Please find
+	  details on the "Embedded Peripherals IP User Guide" of Altera.
+
+endmenu

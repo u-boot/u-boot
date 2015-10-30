@@ -1119,7 +1119,7 @@ static struct usb_device *get_usb_device(struct udevice *dev)
 	if (device_get_uclass_id(dev) == UCLASS_USB)
 		udev = dev_get_uclass_priv(dev);
 	else
-		udev = dev_get_parentdata(dev);
+		udev = dev_get_parent_priv(dev);
 
 	return udev;
 }
@@ -1150,7 +1150,7 @@ static int xhci_submit_control_msg(struct udevice *dev, struct usb_device *udev,
 		} else {
 			while (!is_root_hub(hub->parent))
 				hub = hub->parent;
-			uhop = dev_get_parentdata(hub);
+			uhop = dev_get_parent_priv(hub);
 			root_portnr = uhop->portnr;
 		}
 	}

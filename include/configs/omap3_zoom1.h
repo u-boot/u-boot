@@ -17,7 +17,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP3_ZOOM1	1	/* working with Zoom MDK Rev1 */
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_NAND
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */

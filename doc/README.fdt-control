@@ -156,7 +156,10 @@ address of the fdt binary blob, and will override either of the options.
 Be aware that this environment variable is checked prior to relocation,
 when only the compiled-in environment is available. Therefore it is not
 possible to define this variable in the saved SPI/NAND flash
-environment, for example (it will be ignored).
+environment, for example (it will be ignored). After relocation, this
+variable will be set to the address of the newly relocated fdt blob.
+It is read-only and cannot be changed. It can optionally be used to
+control the boot process of Linux with bootm/bootz commands.
 
 To use this, put something like this in your board header file:
 

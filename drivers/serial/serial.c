@@ -109,8 +109,6 @@ U_BOOT_ENV_CALLBACK(baudrate, on_baudrate);
 	void name(void)						\
 		__attribute__((weak, alias("serial_null")));
 
-serial_initfunc(altera_jtag_serial_initialize);
-serial_initfunc(altera_serial_initialize);
 serial_initfunc(amirix_serial_initialize);
 serial_initfunc(arc_serial_initialize);
 serial_initfunc(arm_dcc_initialize);
@@ -202,8 +200,6 @@ void serial_register(struct serial_device *dev)
  */
 void serial_initialize(void)
 {
-	altera_jtag_serial_initialize();
-	altera_serial_initialize();
 	amirix_serial_initialize();
 	arc_serial_initialize();
 	arm_dcc_initialize();

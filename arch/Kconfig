@@ -24,6 +24,7 @@ config ARM
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config AVR32
@@ -63,6 +64,10 @@ config NIOS2
 	bool "Nios II architecture"
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
+	select SUPPORT_OF_CONTROL
+	select OF_CONTROL
+	select DM
+	select CPU
 
 config OPENRISC
 	bool "OpenRISC architecture"
@@ -71,6 +76,7 @@ config PPC
 	bool "PowerPC architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config SANDBOX

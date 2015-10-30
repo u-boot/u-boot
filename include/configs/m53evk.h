@@ -9,7 +9,6 @@
 #define __M53EVK_CONFIG_H__
 
 #define CONFIG_MX53
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MXC_GPIO
 
 #include <asm/arch/imx-regs.h>
@@ -18,6 +17,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_REVISION_TAG
 #define CONFIG_SYS_NO_FLASH
+#define CONFIG_FSL_CLK
 
 #define CONFIG_FIT
 

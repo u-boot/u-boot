@@ -73,7 +73,7 @@ led_dev_t led_dev[] = {
 
 static int status_led_init_done = 0;
 
-static void status_led_init (void)
+void status_led_init(void)
 {
 	led_dev_t *ld;
 	int i;

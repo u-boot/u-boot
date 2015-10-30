@@ -11,7 +11,6 @@
  * Common configurations used for both spear3xx as well as spear6xx
  */
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* U-boot Load Address */
 #define CONFIG_SYS_TEXT_BASE			0x00700000

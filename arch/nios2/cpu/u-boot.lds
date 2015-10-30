@@ -50,9 +50,11 @@ SECTIONS
 	  *(.gnu.linkonce.d*)
 	}
 
-	. = ALIGN(16);
-	_gp = .;			/* Global pointer addr */
-	PROVIDE (gp = .);
+	/*
+	 * gp - Since we don't use gp for small data with option "-G0",
+	 * we will use gp as global data pointer. The _gp location is
+	 * not needed.
+	 */
 
 	.sdata :
 	{
@@ -64,6 +66,12 @@ SECTIONS
 
 	_edata = .;
 	PROVIDE (edata = .);
+
+	/*
+	 * _end - This is end of u-boot.bin image.
+	 * dtb will be appended here to make u-boot-dtb.bin
+	 */
+	_end = .;
 
 	/* UNINIT DATA - Small uninitialized data is first so it's
 	 * adjacent to sdata and can be referenced via gp. The normal

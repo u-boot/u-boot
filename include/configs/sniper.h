@@ -34,7 +34,6 @@
  * Board
  */
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MISC_INIT_R
 
 /*

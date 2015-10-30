@@ -58,7 +58,7 @@ GB2p5="${MOUNT_DIR}/${BIG_FILE}"
 # Check if the prereq binaries exist, or exit
 function check_prereq() {
 	for prereq in $PREREQ_BINS; do
-		if [ ! -x `which $prereq` ]; then
+		if [ ! -x "`which $prereq`" ]; then
 			echo "Missing $prereq binary. Exiting!"
 			exit
 		fi

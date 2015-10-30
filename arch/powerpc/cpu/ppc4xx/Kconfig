@@ -28,9 +28,6 @@ config TARGET_CANYONLANDS
 	select DM
 	select DM_SERIAL
 
-config TARGET_EBONY
-	bool "Support ebony"
-
 config TARGET_KATMAI
 	bool "Support katmai"
 
@@ -43,20 +40,11 @@ config TARGET_LUAN
 config TARGET_MAKALU
 	bool "Support makalu"
 
-config TARGET_OCOTEA
-	bool "Support ocotea"
-
 config TARGET_REDWOOD
 	bool "Support redwood"
 
 config TARGET_SEQUOIA
 	bool "Support sequoia"
-
-config TARGET_TAIHU
-	bool "Support taihu"
-
-config TARGET_TAISHAN
-	bool "Support taishan"
 
 config TARGET_WALNUT
 	bool "Support walnut"
@@ -142,16 +130,12 @@ source "board/amcc/acadia/Kconfig"
 source "board/amcc/bamboo/Kconfig"
 source "board/amcc/bubinga/Kconfig"
 source "board/amcc/canyonlands/Kconfig"
-source "board/amcc/ebony/Kconfig"
 source "board/amcc/katmai/Kconfig"
 source "board/amcc/kilauea/Kconfig"
 source "board/amcc/luan/Kconfig"
 source "board/amcc/makalu/Kconfig"
-source "board/amcc/ocotea/Kconfig"
 source "board/amcc/redwood/Kconfig"
 source "board/amcc/sequoia/Kconfig"
-source "board/amcc/taihu/Kconfig"
-source "board/amcc/taishan/Kconfig"
 source "board/amcc/walnut/Kconfig"
 source "board/amcc/yosemite/Kconfig"
 source "board/amcc/yucca/Kconfig"

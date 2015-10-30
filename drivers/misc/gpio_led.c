@@ -51,3 +51,57 @@ void __led_toggle(led_id_t mask)
 {
 	gpio_set_value(mask, !gpio_get_value(mask));
 }
+
+#ifdef CONFIG_GPIO_LED_STUBS
+
+/* 'generic' override of colored LED stubs, to use GPIO functions instead */
+
+#ifdef STATUS_LED_RED
+void red_led_on(void)
+{
+	__led_set(STATUS_LED_RED, STATUS_LED_ON);
+}
+
+void red_led_off(void)
+{
+	__led_set(STATUS_LED_RED, STATUS_LED_OFF);
+}
+#endif
+
+#ifdef STATUS_LED_GREEN
+void green_led_on(void)
+{
+	__led_set(STATUS_LED_GREEN, STATUS_LED_ON);
+}
+
+void green_led_off(void)
+{
+	__led_set(STATUS_LED_GREEN, STATUS_LED_OFF);
+}
+#endif
+
+#ifdef STATUS_LED_YELLOW
+void yellow_led_on(void)
+{
+	__led_set(STATUS_LED_YELLOW, STATUS_LED_ON);
+}
+
+void yellow_led_off(void)
+{
+	__led_set(STATUS_LED_YELLOW, STATUS_LED_OFF);
+}
+#endif
+
+#ifdef STATUS_LED_BLUE
+void blue_led_on(void)
+{
+	__led_set(STATUS_LED_BLUE, STATUS_LED_ON);
+}
+
+void blue_led_off(void)
+{
+	__led_set(STATUS_LED_BLUE, STATUS_LED_OFF);
+}
+#endif
+
+#endif /* CONFIG_GPIO_LED_STUBS */

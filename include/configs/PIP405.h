@@ -21,7 +21,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /***********************************************************
  * Clock

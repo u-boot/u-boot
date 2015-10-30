@@ -11,7 +11,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Memory configuration

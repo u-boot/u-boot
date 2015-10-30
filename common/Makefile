@@ -7,6 +7,7 @@
 
 # core
 ifndef CONFIG_SPL_BUILD
+obj-y += init/
 obj-y += main.o
 obj-y += exports.o
 obj-y += hash.o

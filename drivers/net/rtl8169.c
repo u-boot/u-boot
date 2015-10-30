@@ -581,7 +581,8 @@ int rtl8169_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 #else
 static int rtl_recv(struct eth_device *dev)
 {
-	return rtl_recv_common((pci_dev_t)dev->priv, dev->iobase, NULL);
+	return rtl_recv_common((pci_dev_t)(unsigned long)dev->priv,
+			       dev->iobase, NULL);
 }
 #endif /* nCONFIG_DM_ETH */
 
@@ -666,8 +667,8 @@ int rtl8169_eth_send(struct udevice *dev, void *packet, int length)
 #else
 static int rtl_send(struct eth_device *dev, void *packet, int length)
 {
-	return rtl_send_common((pci_dev_t)dev->priv, dev->iobase, packet,
-			       length);
+	return rtl_send_common((pci_dev_t)(unsigned long)dev->priv,
+			       dev->iobase, packet, length);
 }
 #endif
 
@@ -846,7 +847,8 @@ RESET - Finish setting up the ethernet interface
 ***************************************************************************/
 static int rtl_reset(struct eth_device *dev, bd_t *bis)
 {
-	rtl8169_common_start((pci_dev_t)dev->priv, dev->enetaddr);
+	rtl8169_common_start((pci_dev_t)(unsigned long)dev->priv,
+			     dev->enetaddr);
 
 	return 0;
 }

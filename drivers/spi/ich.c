@@ -692,13 +692,13 @@ static int ich_spi_probe(struct udevice *bus)
 	 */
 	if (plat->use_sbase) {
 		bios_cntl = ich_readb(priv, priv->bcr);
-		bios_cntl &= ~(1 << 5);	/* clear Enable InSMM_STS (EISS) */
+		bios_cntl &= ~BIT(5);	/* clear Enable InSMM_STS (EISS) */
 		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
 		ich_writeb(priv, bios_cntl, priv->bcr);
 	} else {
 		pci_read_config_byte(plat->dev, 0xdc, &bios_cntl);
 		if (plat->ich_version == 9)
-			bios_cntl &= ~(1 << 5);
+			bios_cntl &= ~BIT(5);
 		pci_write_config_byte(plat->dev, 0xdc, bios_cntl | 0x1);
 	}
 
@@ -740,7 +740,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	struct udevice *bus = dev_get_parent(dev);
 	struct ich_spi_platdata *plat = dev_get_platdata(bus);
 	struct ich_spi_priv *priv = dev_get_priv(bus);
-	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	/*
 	 * Yes this controller can only write a small number of bytes at

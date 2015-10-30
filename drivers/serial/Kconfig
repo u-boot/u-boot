@@ -54,6 +54,20 @@ choice
 	prompt "Select which UART will provide the debug UART"
 	depends on DEBUG_UART
 
+config DEBUG_UART_ALTERA_JTAGUART
+	bool "Altera JTAG UART"
+	help
+	  Select this to enable a debug UART using the altera_jtag_uart driver.
+	  You will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
+config DEBUG_UART_ALTERA_UART
+	bool "Altera UART"
+	help
+	  Select this to enable a debug UART using the altera_uart driver.
+	  You will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
 config DEBUG_UART_NS16550
 	bool "ns16550"
 	help
@@ -129,6 +143,32 @@ config DEBUG_UART_ANNOUNCE
 	  U-Boot has the UART ready for use (i.e. your code calls
 	  debug_uart_init()). This can be useful just as a check that
 	  everything is working.
+
+config ALTERA_JTAG_UART
+	bool "Altera JTAG UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable an JTAG UART for Altera devices.The JTAG UART
+	  core implements a method to communicate serial character streams
+	  between a host PC and a Qsys system on an Altera FPGA. Please find
+	  details on the "Embedded Peripherals IP User Guide" of Altera.
+
+config ALTERA_JTAG_UART_BYPASS
+	bool "Bypass output when no connection"
+	depends on ALTERA_JTAG_UART
+	help
+	  Bypass console output and keep going even if there is no JTAG
+	  terminal connection with the host. The console output will resume
+	  once the JTAG terminal is connected. Without the bypass, the console
+	  output will wait forever until a JTAG terminal is connected. If you
+	  not are sure, say Y.
+
+config ALTERA_UART
+	bool "Altera UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable an UART for Altera devices. Please find
+	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"

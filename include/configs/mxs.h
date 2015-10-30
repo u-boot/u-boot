@@ -40,7 +40,6 @@
 /*
  * CPU specifics
  */
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* MXS uses FDT */
 #define CONFIG_OF_LIBFDT

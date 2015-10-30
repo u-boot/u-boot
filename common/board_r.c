@@ -290,6 +290,9 @@ static int initr_dm(void)
 	/* Save the pre-reloc driver model and start a new one */
 	gd->dm_root_f = gd->dm_root;
 	gd->dm_root = NULL;
+#ifdef CONFIG_TIMER
+	gd->timer = NULL;
+#endif
 	return dm_init_and_scan(false);
 }
 #endif
@@ -446,6 +449,9 @@ static int initr_env(void)
 		env_relocate();
 	else
 		set_default_env(NULL);
+#ifdef CONFIG_OF_CONTROL
+	setenv_addr("fdtcontroladdr", gd->fdt_blob);
+#endif
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
@@ -541,11 +547,14 @@ static int initr_kgdb(void)
 }
 #endif
 
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+#if defined(CONFIG_STATUS_LED)
 static int initr_status_led(void)
 {
+#if defined(STATUS_LED_BOOT)
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
-
+#else
+	status_led_init();
+#endif
 	return 0;
 }
 #endif
@@ -832,7 +841,7 @@ init_fnc_t init_sequence_r[] = {
 	|| defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
 #endif
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+#if defined(CONFIG_STATUS_LED)
 	initr_status_led,
 #endif
 	/* PPC has a udelay(20) here dating from 2002. Why? */

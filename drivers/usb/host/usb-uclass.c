@@ -289,7 +289,7 @@ static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
 
 	if (!device_active(parent))
 		return NULL;
-	udev = dev_get_parentdata(parent);
+	udev = dev_get_parent_priv(parent);
 	if (udev->devnum == devnum)
 		return udev;
 
@@ -575,7 +575,7 @@ int usb_scan_device(struct udevice *parent, int port,
 	udev->portnr = port;
 	debug("Calling usb_setup_device(), portnr=%d\n", udev->portnr);
 	parent_udev = device_get_uclass_id(parent) == UCLASS_USB_HUB ?
-		dev_get_parentdata(parent) : NULL;
+		dev_get_parent_priv(parent) : NULL;
 	ret = usb_setup_device(udev, priv->desc_before_addr, parent_udev);
 	debug("read_descriptor for '%s': ret=%d\n", parent->name, ret);
 	if (ret)
@@ -638,7 +638,7 @@ int usb_detect_change(void)
 			if (!device_active(dev))
 				continue;
 
-			udev = dev_get_parentdata(dev);
+			udev = dev_get_parent_priv(dev);
 			if (usb_get_port_status(udev, udev->portnr, &status)
 					< 0)
 				/* USB request failed */
@@ -694,7 +694,7 @@ struct udevice *usb_get_bus(struct udevice *dev)
 
 int usb_child_pre_probe(struct udevice *dev)
 {
-	struct usb_device *udev = dev_get_parentdata(dev);
+	struct usb_device *udev = dev_get_parent_priv(dev);
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
 	int ret;
 

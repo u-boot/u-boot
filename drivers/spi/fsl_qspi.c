@@ -24,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TX_BUFFER_SIZE		0x40
 #endif
 
-#define OFFSET_BITS_MASK	0x00ffffff
+#define OFFSET_BITS_MASK	GENMASK(24, 0)
 
 #define FLASH_STATUS_WEL	0x02
 
@@ -68,7 +68,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define QSPI_CMD_SE_4B		0xdc    /* Sector erase (usually 64KiB) */
 
 /* fsl_qspi_platdata flags */
-#define QSPI_FLAG_REGMAP_ENDIAN_BIG	(1 << 0)
+#define QSPI_FLAG_REGMAP_ENDIAN_BIG	BIT(0)
 
 /* default SCK frequency, unit: HZ */
 #define FSL_QSPI_DEFAULT_SCK_FREQ	50000000
@@ -383,7 +383,7 @@ static void qspi_enable_ddr_mode(struct fsl_qspi_priv *priv)
 	/* Enable the module again (enable the DDR too) */
 	reg |= QSPI_MCR_DDR_EN_MASK;
 	/* Enable bit 29 for imx6sx */
-	reg |= (1 << 29);
+	reg |= BIT(29);
 
 	qspi_write32(priv->flags, &regs->mcr, reg);
 }
@@ -913,7 +913,7 @@ void spi_init(void)
 #else
 static int fsl_qspi_child_pre_probe(struct udevice *dev)
 {
-	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	slave->max_write_size = TX_BUFFER_SIZE;
 
