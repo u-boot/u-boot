@@ -33,5 +33,6 @@ obj-y += syscon.o
 obj-$(CONFIG_DM_USB) += usb.o
 obj-$(CONFIG_DM_PMIC) += pmic.o
 obj-$(CONFIG_DM_REGULATOR) += regulator.o
+obj-$(CONFIG_TIMER) += timer.o
 obj-$(CONFIG_ADC) += adc.o
 endif

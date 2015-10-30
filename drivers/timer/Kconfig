@@ -16,4 +16,11 @@ config ALTERA_TIMER
 	  Select this to enable an timer for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config SANDBOX_TIMER
+	bool "Sandbox Timer support"
+	depends on SANDBOX && TIMER
+	help
+	  Select this to enable an emulated timer for sandbox. It gets
+	  time from host os.
+
 endmenu

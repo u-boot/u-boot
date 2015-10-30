@@ -177,6 +177,10 @@
 		sides = <4>;
 	};
 
+	timer {
+		compatible = "sandbox,timer";
+	};
+
 	tpm {
 		compatible = "google,sandbox-tpm";
 	};

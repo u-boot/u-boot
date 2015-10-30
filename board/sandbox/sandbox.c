@@ -26,6 +26,7 @@ void flush_cache(unsigned long start, unsigned long size)
 {
 }
 
+#ifndef CONFIG_TIMER
 /* system timer offset in ms */
 static unsigned long sandbox_timer_offset;
 
@@ -38,6 +39,7 @@ unsigned long timer_read_counter(void)
 {
 	return os_get_nsec() / 1000 + sandbox_timer_offset * 1000;
 }
+#endif
 
 int dram_init(void)
 {
