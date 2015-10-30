@@ -780,9 +780,9 @@ static init_fnc_t init_sequence_f[] = {
 	x86_fsp_init,
 #endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
-	mark_bootstage,
 	initf_dm,
 	arch_cpu_init_dm,
+	mark_bootstage,		/* need timer, go after init dm */
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
