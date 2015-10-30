@@ -1,0 +1,119 @@
+/*
+ * clock specification for Xilinx ZynqMP ep108 development board
+ *
+ * (C) Copyright 2015, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+&amba {
+	misc_clk: misc_clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
+	};
+
+	i2c_clk: i2c_clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0x0>;
+		clock-frequency = <111111111>;
+	};
+
+	sata_clk: sata_clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <75000000>;
+	};
+
+	dp_aclk: clock0 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <50000000>;
+		clock-accuracy = <100>;
+	};
+
+	dp_aud_clk: clock1 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <22579200>;
+		clock-accuracy = <100>;
+	};
+};
+
+&can0 {
+	clocks = <&misc_clk &misc_clk>;
+};
+
+&gem0 {
+	clocks = <&misc_clk>, <&misc_clk>, <&misc_clk>;
+};
+
+&gpio {
+	clocks = <&misc_clk>;
+};
+
+&i2c0 {
+	clocks = <&i2c_clk>;
+};
+
+&i2c1 {
+	clocks = <&i2c_clk>;
+};
+
+&qspi {
+	clocks = <&misc_clk &misc_clk>;
+};
+
+&sata {
+	clocks = <&sata_clk>;
+};
+
+&sdhci0 {
+	clocks = <&misc_clk>, <&misc_clk>;
+};
+
+&sdhci1 {
+	clocks = <&misc_clk>, <&misc_clk>;
+};
+
+&spi0 {
+	clocks = <&misc_clk &misc_clk>;
+};
+
+&spi1 {
+	clocks = <&misc_clk &misc_clk>;
+};
+
+&uart0 {
+	clocks = <&misc_clk &misc_clk>;
+};
+
+&usb0 {
+	clocks = <&misc_clk>, <&misc_clk>;
+};
+
+&usb1 {
+	clocks = <&misc_clk>, <&misc_clk>;
+};
+
+&watchdog0 {
+	clocks= <&misc_clk>;
+};
+
+&xilinx_drm {
+	clocks = <&misc_clk>;
+};
+
+&xlnx_dp {
+	clocks = <&dp_aclk>, <&dp_aud_clk>;
+};
+
+&xlnx_dp_snd_codec0 {
+	clocks = <&dp_aud_clk>;
+};
+
+&xlnx_dpdma {
+	clocks = <&misc_clk>;
+};

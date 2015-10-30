@@ -65,6 +65,8 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc770-xm011.dtb \
 	zynq-zc770-xm012.dtb \
 	zynq-zc770-xm013.dtb
+dtb-$(CONFIG_ARCH_ZYNQMP) += \
+	zynqmp-ep108.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-evm.dtb
 dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb
 
