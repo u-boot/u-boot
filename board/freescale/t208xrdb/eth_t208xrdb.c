@@ -21,7 +21,7 @@
 #include <fsl_mdio.h>
 #include <miiphy.h>
 #include <phy.h>
-#include <asm/fsl_dtsec.h>
+#include <fsl_dtsec.h>
 #include <asm/fsl_serdes.h>
 
 int board_eth_init(bd_t *bis)

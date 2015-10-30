@@ -11,7 +11,7 @@
 
 #define CONFIG_ARMV7_PSCI
 
-#define CONFIG_FSL_CLK
+#define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -69,7 +69,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0xe8
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x400
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x600
 
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1a000
@@ -82,7 +82,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
-#define CONFIG_SYS_MONITOR_LEN		0x80000
+#define CONFIG_SYS_MONITOR_LEN		0xc0000
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
@@ -563,7 +563,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ARMV7_NONSEC
 #define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
-#define CONFIG_LS102XA_NS_ACCESS
+#define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 #define CONFIG_TIMER_CLK_FREQ		12500000
 
@@ -574,7 +574,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_BOOTDELAY		3
 
-#define CONFIG_SYS_QE_FW_ADDR     0x67f40000
+#define CONFIG_SYS_QE_FW_ADDR     0x600c0000
 
 #ifdef CONFIG_LPUART
 #define CONFIG_EXTRA_ENV_SETTINGS       \
@@ -658,6 +658,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
+#define CONFIG_OF_STDOUT_VIA_ALIAS
 #define CONFIG_CMD_BOOTZ
 
 #define CONFIG_MISC_INIT_R

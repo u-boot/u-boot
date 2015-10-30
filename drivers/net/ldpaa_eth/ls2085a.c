@@ -7,9 +7,7 @@
 #include <phy.h>
 #include <fsl-mc/ldpaa_wriop.h>
 #include <asm/io.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include <asm/arch/fsl_serdes.h>
-#include <fsl-mc/ldpaa_wriop.h>
 
 u32 dpmac_to_devdisr[] = {
 	[WRIOP1_DPMAC1] = FSL_CHASSIS3_DEVDISR2_DPMAC1,

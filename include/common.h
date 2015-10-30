@@ -76,6 +76,12 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_SOC_DA8XX
 #include <asm/arch/hardware.h>
 #endif
+#ifdef CONFIG_FSL_LSCH3
+#include <asm/arch/immap_lsch3.h>
+#endif
+#ifdef CONFIG_FSL_LSCH2
+#include <asm/arch/immap_lsch2.h>
+#endif
 
 #include <part.h>
 #include <flash.h>

@@ -11,7 +11,9 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <malloc.h>
-#include <asm/arch-fsl-lsch3/fdt.h>
+#ifdef CONFIG_FSL_LAYERSCAPE
+#include <asm/arch/fdt.h>
+#endif
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE

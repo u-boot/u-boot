@@ -19,7 +19,7 @@
 #define CONFIG_MX35
 
 #define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_FSL_CLK
+#define CONFIG_SYS_FSL_CLK
 
 /* Set TEXT at the beginning of the NOR flash */
 #define CONFIG_SYS_TEXT_BASE	0xA0000000

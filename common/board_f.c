@@ -806,7 +806,7 @@ static init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
 	board_postclk_init,
 #endif
-#ifdef CONFIG_FSL_CLK
+#ifdef CONFIG_SYS_FSL_CLK
 	get_clocks,
 #endif
 #ifdef CONFIG_M68K

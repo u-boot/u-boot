@@ -8,7 +8,7 @@ config SYS_VENDOR
 	default "freescale"
 
 config SYS_SOC
-	default "fsl-lsch3"
+	default "fsl-layerscape"
 
 config SYS_CONFIG_NAME
 	default "ls2085aqds"

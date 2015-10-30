@@ -158,25 +158,30 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 	aliasoff = fdt_path_offset(fdt, "/aliases");
 	if (aliasoff < 0) {
 		err = aliasoff;
-		goto error;
+		goto noalias;
 	}
 
 	path = fdt_getprop(fdt, aliasoff, sername, &len);
 	if (!path) {
 		err = len;
-		goto error;
+		goto noalias;
 	}
 
 	/* fdt_setprop may break "path" so we copy it to tmp buffer */
 	memcpy(tmp, path, len);
 
 	err = fdt_setprop(fdt, chosenoff, "linux,stdout-path", tmp, len);
-error:
 	if (err < 0)
 		printf("WARNING: could not set linux,stdout-path %s.\n",
 		       fdt_strerror(err));
 
 	return err;
+
+noalias:
+	printf("WARNING: %s: could not read %s alias: %s\n",
+	       __func__, sername, fdt_strerror(err));
+
+	return 0;
 }
 #else
 static int fdt_fixup_stdout(void *fdt, int chosenoff)

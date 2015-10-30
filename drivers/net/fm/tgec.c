@@ -12,7 +12,7 @@
 #include <phy.h>
 #include <asm/types.h>
 #include <asm/io.h>
-#include <asm/fsl_tgec.h>
+#include <fsl_tgec.h>
 
 #include "fm.h"
 

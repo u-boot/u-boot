@@ -1130,7 +1130,11 @@ spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
 ifeq ($(ARCH),arm)
+ifdef CONFIG_DM
+UBOOT_BINLOAD := u-boot-dtb.img
+else
 UBOOT_BINLOAD := u-boot.img
+endif
 else
 UBOOT_BINLOAD := u-boot.bin
 endif

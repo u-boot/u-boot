@@ -22,21 +22,22 @@
 
 struct fm_muram muram[CONFIG_SYS_NUM_FMAN];
 
-u32 fm_muram_base(int fm_idx)
+void *fm_muram_base(int fm_idx)
 {
 	return muram[fm_idx].base;
 }
 
-u32 fm_muram_alloc(int fm_idx, u32 size, u32 align)
+void *fm_muram_alloc(int fm_idx, size_t size, ulong align)
 {
-	u32 ret;
-	u32 align_mask, off;
-	u32 save;
+	void *ret;
+	ulong align_mask;
+	size_t off;
+	void *save;
 
 	align_mask = align - 1;
 	save = muram[fm_idx].alloc;
 
-	off = save & align_mask;
+	off = (ulong)save & align_mask;
 	if (off != 0)
 		muram[fm_idx].alloc += (align - off);
 	off = size & align_mask;
@@ -45,6 +46,7 @@ u32 fm_muram_alloc(int fm_idx, u32 size, u32 align)
 	if ((muram[fm_idx].alloc + size) >= muram[fm_idx].top) {
 		muram[fm_idx].alloc = save;
 		printf("%s: run out of ram.\n", __func__);
+		return NULL;
 	}
 
 	ret = muram[fm_idx].alloc;
@@ -56,7 +58,7 @@ u32 fm_muram_alloc(int fm_idx, u32 size, u32 align)
 
 static void fm_init_muram(int fm_idx, void *reg)
 {
-	u32 base = (u32)reg;
+	void *base = reg;
 
 	muram[fm_idx].base = base;
 	muram[fm_idx].size = CONFIG_SYS_FM_MURAM_SIZE;
@@ -80,11 +82,11 @@ static void fm_upload_ucode(int fm_idx, struct fm_imem *imem,
 	out_be32(&imem->iadd, IRAM_IADD_AIE);
 	/* write microcode to IRAM */
 	for (i = 0; i < size / 4; i++)
-		out_be32(&imem->idata, ucode[i]);
+		out_be32(&imem->idata, (be32_to_cpu(ucode[i])));
 
 	/* verify if the writing is over */
 	out_be32(&imem->iadd, 0);
-	while ((in_be32(&imem->idata) != ucode[0]) && --timeout)
+	while ((in_be32(&imem->idata) != be32_to_cpu(ucode[0])) && --timeout)
 		;
 	if (!timeout)
 		printf("Fman%u: microcode upload timeout\n", fm_idx + 1);
@@ -177,14 +179,15 @@ static int fman_upload_firmware(int fm_idx,
 		const struct qe_microcode *ucode = &firmware->microcode[i];
 
 		/* Upload a microcode if it's present */
-		if (ucode->code_offset) {
+		if (be32_to_cpu(ucode->code_offset)) {
 			u32 ucode_size;
 			u32 *code;
 			printf("Fman%u: Uploading microcode version %u.%u.%u\n",
 			       fm_idx + 1, ucode->major, ucode->minor,
 			       ucode->revision);
-			code = (void *)firmware + ucode->code_offset;
-			ucode_size = sizeof(u32) * ucode->count;
+			code = (void *)firmware +
+			       be32_to_cpu(ucode->code_offset);
+			ucode_size = sizeof(u32) * be32_to_cpu(ucode->count);
 			fm_upload_ucode(fm_idx, fm_imem, code, ucode_size);
 		}
 	}
@@ -255,7 +258,9 @@ static void fm_init_fpm(struct fm_fpm *fpm)
 static int fm_init_bmi(int fm_idx, struct fm_bmi_common *bmi)
 {
 	int blk, i, port_id;
-	u32 val, offset, base;
+	u32 val;
+	size_t offset;
+	void *base;
 
 	/* alloc free buffer pool in MURAM */
 	base = fm_muram_alloc(fm_idx, FM_FREE_POOL_SIZE, FM_FREE_POOL_ALIGN);

@@ -627,6 +627,14 @@ config TARGET_LS1021ATWR
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_LS1043ARDB
+	bool "Support ls1043ardb"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	help
+	  Support for Freescale LS1043ARDB platform.
+
 config TARGET_H2200
 	bool "Support h2200"
 	select CPU_PXA
@@ -743,6 +751,7 @@ source "board/freescale/ls2085aqds/Kconfig"
 source "board/freescale/ls2085ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
+source "board/freescale/ls1043ardb/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
 source "board/freescale/mx25pdk/Kconfig"
 source "board/freescale/mx28evk/Kconfig"

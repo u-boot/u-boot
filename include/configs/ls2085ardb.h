@@ -18,7 +18,7 @@
 unsigned long get_board_sys_clk(void);
 #endif
 
-#define CONFIG_FSL_CLK
+#define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		133333333
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
@@ -331,6 +331,7 @@ unsigned long get_board_sys_clk(void);
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_AQUANTIA
 #define CONFIG_PHY_CORTINA
 #define CONFIG_PHYLIB
 #define	CONFIG_SYS_CORTINA_FW_IN_NOR

@@ -324,6 +324,8 @@ typedef struct memctl_options_s {
 	unsigned int dqs_config;	/* Use DQS? maybe only with DDR2? */
 	/* SREN - self-refresh during sleep */
 	unsigned int self_refresh_in_sleep;
+	/* SR_IE - Self-refresh interrupt enable */
+	unsigned int self_refresh_interrupt_en;
 	unsigned int dynamic_power;	/* DYN_PWR */
 	/* memory data width to use (16-bit, 32-bit, 64-bit) */
 	unsigned int data_bus_width;
