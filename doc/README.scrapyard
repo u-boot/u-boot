@@ -12,10 +12,10 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-ocotea           powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
-taishan          powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
-ebony            powerpc     ppc4xx         -           -           Stefan Roese <sr@denx.de>
-taihu            powerpc     ppc4xx         -           -           John Otken <jotken@softadvances.com>
+ocotea           powerpc     ppc4xx         29155e73    2015-10-27  Stefan Roese <sr@denx.de>
+taishan          powerpc     ppc4xx         bb5553c6    2015-10-27  Stefan Roese <sr@denx.de>
+ebony            powerpc     ppc4xx         9d9e2f5d    2015-10-27  Stefan Roese <sr@denx.de>
+taihu            powerpc     ppc4xx         123b6cd7    2015-10-27  John Otken <jotken@softadvances.com>
 lcd4_lwmon5      powerpc     ppc4xx         b6b5e394    2015-10-02  Stefan Roese <sr@denx.de>
 da830evm         arm         arm926ejs      d7e8b2b9    2015-09-12  Nick Thompson <nick.thompson@gefanuc.com>
 wireless_space   arm         arm926ejs      b352182a    2015-09-12  Albert ARIBAUD <albert.u.boot@aribaud.net>
