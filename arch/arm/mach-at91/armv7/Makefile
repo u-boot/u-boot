@@ -8,6 +8,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_SAMA5D2)	+= sama5d2_devices.o
 obj-$(CONFIG_SAMA5D3)	+= sama5d3_devices.o
 obj-$(CONFIG_SAMA5D4)	+= sama5d4_devices.o
 obj-y += clock.o
