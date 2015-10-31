@@ -8,9 +8,15 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/io.h>
-#include <linux/compiler.h>
 #include <serial.h>
+#include <asm/io.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+/* status register */
+#define ALTERA_UART_TMT		BIT(5)	/* tx empty */
+#define ALTERA_UART_TRDY	BIT(6)	/* tx ready */
+#define ALTERA_UART_RRDY	BIT(7)	/* rx ready */
 
 struct altera_uart_regs {
 	u32	rxdata;		/* Rx data reg */
@@ -25,13 +31,6 @@ struct altera_uart_platdata {
 	struct altera_uart_regs *regs;
 	unsigned int uartclk;
 };
-
-/* status register */
-#define ALTERA_UART_TMT		BIT(5)	/* tx empty */
-#define ALTERA_UART_TRDY	BIT(6)	/* tx ready */
-#define ALTERA_UART_RRDY	BIT(7)	/* rx ready */
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int altera_uart_setbrg(struct udevice *dev, int baudrate)
 {
@@ -106,8 +105,8 @@ static const struct dm_serial_ops altera_uart_ops = {
 };
 
 static const struct udevice_id altera_uart_ids[] = {
-	{ .compatible = "altr,uart-1.0", },
-	{ }
+	{ .compatible = "altr,uart-1.0" },
+	{}
 };
 
 U_BOOT_DRIVER(altera_uart) = {
