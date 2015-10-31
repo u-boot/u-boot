@@ -26,11 +26,6 @@
 #define CONFIG_BUILD_TARGET     "u-boot.kwb"
 
 /*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
-
-/*
  * Compression configuration
  */
 #define CONFIG_BZIP2
