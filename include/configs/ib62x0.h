@@ -9,7 +9,6 @@
 #ifndef _CONFIG_IB62x0_H
 #define _CONFIG_IB62x0_H
 
-
 /*
  * Version number information
  */
@@ -30,7 +29,6 @@
  */
 #define CONFIG_BZIP2
 #define CONFIG_LZMA
-#define CONFIG_LZO
 
 /*
  * Commands configuration
@@ -114,18 +112,5 @@
 #ifdef CONFIG_CMD_DATE
 #define CONFIG_RTC_MV
 #endif /* CONFIG_CMD_DATE */
-
-/*
- * File system
- */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 
 #endif /* _CONFIG_IB62x0_H */
