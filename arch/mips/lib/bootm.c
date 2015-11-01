@@ -15,12 +15,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	LINUX_MAX_ENVS		256
 #define	LINUX_MAX_ARGS		256
 
-#if defined(CONFIG_MALTA)
-#define mips_boot_malta		1
-#else
-#define mips_boot_malta		0
-#endif
-
 static int linux_argc;
 static char **linux_argv;
 static char *linux_argp;
@@ -157,7 +151,7 @@ static void linux_env_set(const char *env_name, const char *env_val)
 		strcpy(linux_env_p, env_name);
 		linux_env_p += strlen(env_name);
 
-		if (mips_boot_malta) {
+		if (CONFIG_IS_ENABLED(MALTA)) {
 			linux_env_p++;
 			linux_env[++linux_env_idx] = linux_env_p;
 		} else {
@@ -178,14 +172,15 @@ static void linux_env_legacy(bootm_headers_t *images)
 	const char *cp;
 	ulong rd_start, rd_size;
 
-#ifdef CONFIG_MEMSIZE_IN_BYTES
-	sprintf(env_buf, "%lu", (ulong)gd->ram_size);
-	debug("## Giving linux memsize in bytes, %lu\n", (ulong)gd->ram_size);
-#else
-	sprintf(env_buf, "%lu", (ulong)(gd->ram_size >> 20));
-	debug("## Giving linux memsize in MB, %lu\n",
-	      (ulong)(gd->ram_size >> 20));
-#endif /* CONFIG_MEMSIZE_IN_BYTES */
+	if (CONFIG_IS_ENABLED(MEMSIZE_IN_BYTES)) {
+		sprintf(env_buf, "%lu", (ulong)gd->ram_size);
+		debug("## Giving linux memsize in bytes, %lu\n",
+		      (ulong)gd->ram_size);
+	} else {
+		sprintf(env_buf, "%lu", (ulong)(gd->ram_size >> 20));
+		debug("## Giving linux memsize in MB, %lu\n",
+		      (ulong)(gd->ram_size >> 20));
+	}
 
 	rd_start = UNCACHED_SDRAM(images->initrd_start);
 	rd_size = images->initrd_end - images->initrd_start;
@@ -214,7 +209,7 @@ static void linux_env_legacy(bootm_headers_t *images)
 	if (cp)
 		linux_env_set("eth1addr", cp);
 
-	if (mips_boot_malta) {
+	if (CONFIG_IS_ENABLED(MALTA)) {
 		sprintf(env_buf, "%un8r", gd->baudrate);
 		linux_env_set("modetty0", env_buf);
 	}
@@ -307,13 +302,13 @@ static void boot_jump_linux(bootm_headers_t *images)
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	if (mips_boot_malta)
+	if (CONFIG_IS_ENABLED(MALTA))
 		linux_extra = gd->ram_size;
 
-#ifdef CONFIG_BOOTSTAGE_FDT
+#if CONFIG_IS_ENABLED(BOOTSTAGE_FDT)
 	bootstage_fdt_add_report();
 #endif
-#ifdef CONFIG_BOOTSTAGE_REPORT
+#if CONFIG_IS_ENABLED(BOOTSTAGE_REPORT)
 	bootstage_report();
 #endif
 
