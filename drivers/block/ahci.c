@@ -485,36 +485,6 @@ static void ahci_fill_cmd_slot(struct ahci_ioports *pp, u32 opts)
 #endif
 }
 
-
-#ifdef CONFIG_AHCI_SETFEATURES_XFER
-static void ahci_set_feature(u8 port)
-{
-	struct ahci_ioports *pp = &(probe_ent->port[port]);
-	void __iomem *port_mmio = pp->port_mmio;
-	u32 cmd_fis_len = 5;	/* five dwords */
-	u8 fis[20];
-
-	/* set feature */
-	memset(fis, 0, sizeof(fis));
-	fis[0] = 0x27;
-	fis[1] = 1 << 7;
-	fis[2] = ATA_CMD_SET_FEATURES;
-	fis[3] = SETFEATURES_XFER;
-	fis[12] = __ilog2(probe_ent->udma_mask + 1) + 0x40 - 0x01;
-
-	memcpy((unsigned char *)pp->cmd_tbl, fis, sizeof(fis));
-	ahci_fill_cmd_slot(pp, cmd_fis_len);
-	ahci_dcache_flush_sata_cmd(pp);
-	writel(1, port_mmio + PORT_CMD_ISSUE);
-	readl(port_mmio + PORT_CMD_ISSUE);
-
-	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE,
-				WAIT_MS_DATAIO, 0x1)) {
-		printf("set feature error on port %d!\n", port);
-	}
-}
-#endif
-
 static int wait_spinup(void __iomem *port_mmio)
 {
 	ulong start;
@@ -956,9 +926,6 @@ void scsi_low_level_init(int busdevfunc)
 				printf("Can not start port %d\n", i);
 				continue;
 			}
-#ifdef CONFIG_AHCI_SETFEATURES_XFER
-			ahci_set_feature((u8) i);
-#endif
 		}
 	}
 }
@@ -1002,9 +969,6 @@ int ahci_init(void __iomem *base)
 				printf("Can not start port %d\n", i);
 				continue;
 			}
-#ifdef CONFIG_AHCI_SETFEATURES_XFER
-			ahci_set_feature((u8) i);
-#endif
 		}
 	}
 err_out:
