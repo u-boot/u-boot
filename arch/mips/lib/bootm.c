@@ -21,18 +21,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define mips_boot_malta		0
 #endif
 
-#if defined(CONFIG_MIPS_BOOT_CMDLINE_LEGACY)
-#define mips_boot_cmdline_legacy	1
-#else
-#define mips_boot_cmdline_legacy	0
-#endif
-
-#if defined(CONFIG_MIPS_BOOT_ENV_LEGACY)
-#define mips_boot_env_legacy	1
-#else
-#define mips_boot_env_legacy	0
-#endif
-
 static int linux_argc;
 static char **linux_argv;
 static char *linux_argp;
@@ -60,50 +48,6 @@ void arch_lmb_reserve(struct lmb *lmb)
 	/* adjust sp by 4K to be safe */
 	sp -= 4096;
 	lmb_reserve(lmb, sp, CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp);
-}
-
-static int boot_setup_linux(bootm_headers_t *images)
-{
-	int ret;
-	ulong rd_len;
-
-	rd_len = images->rd_end - images->rd_start;
-	ret = boot_ramdisk_high(&images->lmb, images->rd_start,
-		rd_len, &images->initrd_start, &images->initrd_end);
-	if (ret)
-		return ret;
-
-#if defined(CONFIG_MIPS_BOOT_FDT) && defined(CONFIG_OF_LIBFDT)
-	if (images->ft_len) {
-		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
-
-		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
-			&images->ft_len);
-		if (ret)
-			return ret;
-	}
-#endif
-
-	return 0;
-}
-
-static void boot_setup_fdt(bootm_headers_t *images)
-{
-#if defined(CONFIG_MIPS_BOOT_FDT) && defined(CONFIG_OF_LIBFDT)
-	u64 mem_start = 0;
-	u64 mem_size = gd->ram_size;
-
-	debug("## setup FDT\n");
-
-	fdt_chosen(images->ft_addr);
-	fdt_fixup_memory_banks(images->ft_addr, &mem_start, &mem_size, 1);
-	fdt_fixup_ethernet(images->ft_addr);
-	fdt_initrd(images->ft_addr, images->initrd_start, images->initrd_end);
-
-#if defined(CONFIG_OF_BOARD_SETUP)
-	ft_board_setup(images->ft_addr, gd->bd);
-#endif
-#endif
 }
 
 static void linux_cmdline_init(void)
@@ -197,18 +141,6 @@ static void linux_cmdline_append(bootm_headers_t *images)
 	}
 }
 
-static void boot_cmdline_linux(bootm_headers_t *images)
-{
-	if (mips_boot_cmdline_legacy && !images->ft_len) {
-		linux_cmdline_legacy(images);
-
-		if (!mips_boot_env_legacy)
-			linux_cmdline_append(images);
-
-		linux_cmdline_dump();
-	}
-}
-
 static void linux_env_init(void)
 {
 	linux_env = (char **)(((ulong) linux_argp + 15) & ~15);
@@ -288,13 +220,81 @@ static void linux_env_legacy(bootm_headers_t *images)
 	}
 }
 
+static int boot_reloc_ramdisk(bootm_headers_t *images)
+{
+	ulong rd_len = images->rd_end - images->rd_start;
+
+	/*
+	 * In case of legacy uImage's, relocation of ramdisk is already done
+	 * by do_bootm_states() and should not repeated in 'bootm prep'.
+	 */
+	if (images->state & BOOTM_STATE_RAMDISK) {
+		debug("## Ramdisk already relocated\n");
+		return 0;
+	}
+
+	return boot_ramdisk_high(&images->lmb, images->rd_start,
+		rd_len, &images->initrd_start, &images->initrd_end);
+}
+
+static int boot_reloc_fdt(bootm_headers_t *images)
+{
+	/*
+	 * In case of legacy uImage's, relocation of FDT is already done
+	 * by do_bootm_states() and should not repeated in 'bootm prep'.
+	 */
+	if (images->state & BOOTM_STATE_FDT) {
+		debug("## FDT already relocated\n");
+		return 0;
+	}
+
+#if CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && CONFIG_IS_ENABLED(OF_LIBFDT)
+	boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
+	return boot_relocate_fdt(&images->lmb, &images->ft_addr,
+		&images->ft_len);
+#else
+	return 0;
+#endif
+}
+
+int arch_fixup_memory_node(void *blob)
+{
+#if CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && CONFIG_IS_ENABLED(OF_LIBFDT)
+	u64 mem_start = 0;
+	u64 mem_size = gd->ram_size;
+
+	return fdt_fixup_memory_banks(blob, &mem_start, &mem_size, 1);
+#else
+	return 0;
+#endif
+}
+
+static int boot_setup_fdt(bootm_headers_t *images)
+{
+	return image_setup_libfdt(images, images->ft_addr, images->ft_len,
+		&images->lmb);
+}
+
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	if (mips_boot_env_legacy && !images->ft_len)
-		linux_env_legacy(images);
+	boot_reloc_ramdisk(images);
 
-	if (images->ft_len)
+	if (CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && images->ft_len) {
+		boot_reloc_fdt(images);
 		boot_setup_fdt(images);
+	} else {
+		if (CONFIG_IS_ENABLED(CONFIG_MIPS_BOOT_ENV_LEGACY))
+			linux_env_legacy(images);
+
+		if (CONFIG_IS_ENABLED(MIPS_BOOT_CMDLINE_LEGACY)) {
+			linux_cmdline_legacy(images);
+
+			if (!CONFIG_IS_ENABLED(CONFIG_MIPS_BOOT_ENV_LEGACY))
+				linux_cmdline_append(images);
+
+			linux_cmdline_dump();
+		}
+	}
 }
 
 static void boot_jump_linux(bootm_headers_t *images)
@@ -327,34 +327,27 @@ static void boot_jump_linux(bootm_headers_t *images)
 int do_bootm_linux(int flag, int argc, char * const argv[],
 			bootm_headers_t *images)
 {
-	int ret;
-
 	/* No need for those on MIPS */
 	if (flag & BOOTM_STATE_OS_BD_T)
 		return -1;
 
-	if (flag & BOOTM_STATE_OS_CMDLINE) {
-		boot_cmdline_linux(images);
+	/*
+	 * Cmdline init has been moved to 'bootm prep' because it has to be
+	 * done after relocation of ramdisk to always pass correct values
+	 * for rd_start and rd_size to Linux kernel.
+	 */
+	if (flag & BOOTM_STATE_OS_CMDLINE)
 		return 0;
-	}
 
 	if (flag & BOOTM_STATE_OS_PREP) {
 		boot_prep_linux(images);
 		return 0;
 	}
 
-	if (flag & BOOTM_STATE_OS_GO) {
+	if (flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)) {
 		boot_jump_linux(images);
 		return 0;
 	}
-
-	ret = boot_setup_linux(images);
-	if (ret)
-		return ret;
-
-	boot_cmdline_linux(images);
-	boot_prep_linux(images);
-	boot_jump_linux(images);
 
 	/* does not return */
 	return 1;
