@@ -20,6 +20,11 @@
 #define CONFIG_AMBAPP_IOAREA AMBA_DEFAULT_IOAREA
 #endif
 
+/* Default number of SPARC register windows */
+#ifndef CONFIG_SYS_SPARC_NWINDOWS
+#define CONFIG_SYS_SPARC_NWINDOWS 8
+#endif
+
 /* Entry for traps which jump to a programmer-specified trap handler.  */
 #define TRAPR(H)  \
 	wr	%g0, 0xfe0, %psr; \

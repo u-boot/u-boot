@@ -42,9 +42,6 @@
 /* CPU / AMBA BUS configuration */
 #define CONFIG_SYS_CLK_FREQ	20000000	/* 20MHz */
 
-/* Number of SPARC register windows */
-#define CONFIG_SYS_SPARC_NWINDOWS 8
-
 /*
  * Serial console configuration
  */

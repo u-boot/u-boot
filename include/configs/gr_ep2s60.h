@@ -26,9 +26,6 @@
 /* CPU / AMBA BUS configuration */
 #define CONFIG_SYS_CLK_FREQ	96000000	/* 96MHz */
 
-/* Number of SPARC register windows */
-#define CONFIG_SYS_SPARC_NWINDOWS 8
-
 /* Define this is the GR-2S60-MEZZ mezzanine is available and you
  * want to use the USB and GRETH functionality of the board
  */
