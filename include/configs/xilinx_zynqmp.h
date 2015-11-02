@@ -165,8 +165,7 @@
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"kernel_size=0x2000000\0" \
-	"fdt_size=0x80000\0" \
+	CONFIG_KERNEL_FDT_OFST_SIZE \
 	"sdbootdev=0\0"\
 	"sdboot=mmc dev $sdbootdev && mmcinfo && load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
