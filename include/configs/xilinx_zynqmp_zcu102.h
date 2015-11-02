@@ -51,6 +51,12 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_SDRAM_SIZE		0x80000000
 
+#define CONFIG_KERNEL_FDT_OFST_SIZE \
+	"kernel_offset=0x180000\0" \
+	"fdt_offset=0x100000\0" \
+	"kernel_size=0x1e00000\0" \
+	"fdt_size=0x80000\0"
+
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZCU102_H */

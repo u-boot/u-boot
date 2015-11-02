@@ -26,6 +26,12 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_SDRAM_SIZE		0x80000000
 
+#define CONFIG_KERNEL_FDT_OFST_SIZE \
+	"kernel_offset=0x400000\0" \
+	"fdt_offset=0x2400000\0" \
+	"kernel_size=0x2000000\0" \
+	"fdt_size=0x80000\0"
+
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZC1751_XM016_DC2_H */

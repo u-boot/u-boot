@@ -191,10 +191,7 @@
 	"initrd_size=0x2000000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"kernel_offset=0x400000\0" \
-	"fdt_offset=0x2400000\0" \
-	"kernel_size=0x2000000\0" \
-	"fdt_size=0x80000\0" \
+	CONFIG_KERNEL_FDT_OFST_SIZE \
 	"sata_root=if test $scsidevs -gt 0; then setenv bootargs $bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
 	"veloce=fdt addr f000000 && " \
 		"fdt set /amba/misc_clk clock-frequency <48000> && "\
