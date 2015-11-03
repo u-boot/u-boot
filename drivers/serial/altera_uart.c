@@ -124,7 +124,7 @@ U_BOOT_DRIVER(altera_uart) = {
 
 #include <debug_uart.h>
 
-void debug_uart_init(void)
+static inline void _debug_uart_init(void)
 {
 	struct altera_uart_regs *regs = (void *)CONFIG_DEBUG_UART_BASE;
 	u32 div;
