@@ -491,18 +491,8 @@ void fdt_fixup_ethernet(void *fdt)
 	if (node < 0)
 		return;
 
-	if (!getenv("ethaddr")) {
-		if (getenv("usbethaddr")) {
-			strcpy(mac, "usbethaddr");
-		} else {
-			debug("No ethernet MAC Address defined\n");
-			return;
-		}
-	} else {
-		strcpy(mac, "ethaddr");
-	}
-
 	i = 0;
+	strcpy(mac, "ethaddr");
 	while ((tmp = getenv(mac)) != NULL) {
 		sprintf(enet, "ethernet%d", i);
 		path = fdt_getprop(fdt, node, enet, NULL);
