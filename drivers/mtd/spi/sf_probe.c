@@ -11,12 +11,9 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <malloc.h>
-#include <mapmem.h>
 #include <spi.h>
 #include <spi_flash.h>
-#include <asm/io.h>
 
 #include "sf_internal.h"
 

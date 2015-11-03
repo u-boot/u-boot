@@ -14,8 +14,6 @@
 #include <mapmem.h>
 #include <spi.h>
 #include <spi_flash.h>
-#include <watchdog.h>
-#include <linux/compiler.h>
 #include <linux/log2.h>
 
 #include "sf_internal.h"
