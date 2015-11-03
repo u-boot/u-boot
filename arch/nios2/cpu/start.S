@@ -158,7 +158,7 @@ relocate_code:
 	ori	r6, r6, %lo(__bss_end)
 	beq	r5, r6, 5f
 
-4:	stwio	r0, 0(r5)
+4:	stw	r0, 0(r5)
 	addi	r5, r5, 4
 	bne	r5, r6, 4b
 5:
