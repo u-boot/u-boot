@@ -156,7 +156,3 @@ void board_init_f(ulong dummy)
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
 }
-
-void reset_cpu(ulong addr)
-{
-}
