@@ -130,7 +130,7 @@ U_BOOT_DRIVER(altera_jtaguart) = {
 
 #include <debug_uart.h>
 
-void debug_uart_init(void)
+static inline void _debug_uart_init(void)
 {
 }
 
