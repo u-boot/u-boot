@@ -30,6 +30,16 @@ static void spi_flash_addr(u32 addr, u8 *cmd)
 	cmd[3] = addr >> 0;
 }
 
+/* Read commands array */
+static u8 spi_read_cmds_array[] = {
+	CMD_READ_ARRAY_SLOW,
+	CMD_READ_ARRAY_FAST,
+	CMD_READ_DUAL_OUTPUT_FAST,
+	CMD_READ_DUAL_IO_FAST,
+	CMD_READ_QUAD_OUTPUT_FAST,
+	CMD_READ_QUAD_IO_FAST,
+};
+
 int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
 {
 	int ret;
@@ -132,6 +142,35 @@ static int spi_flash_write_bank(struct spi_flash *flash, u32 offset)
 bar_end:
 	flash->bank_curr = bank_sel;
 	return flash->bank_curr;
+}
+
+static int spi_flash_read_bank(struct spi_flash *flash, u8 idcode0)
+{
+	u8 curr_bank = 0;
+	int ret;
+
+	if (flash->size <= SPI_FLASH_16MB_BOUN)
+		goto bank_end;
+
+	switch (idcode0) {
+	case SPI_FLASH_CFI_MFR_SPANSION:
+		flash->bank_read_cmd = CMD_BANKADDR_BRRD;
+		flash->bank_write_cmd = CMD_BANKADDR_BRWR;
+	default:
+		flash->bank_read_cmd = CMD_EXTNADDR_RDEAR;
+		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
+	}
+
+	ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
+				    &curr_bank, 1);
+	if (ret) {
+		debug("SF: fail to read bank addr register\n");
+		return ret;
+	}
+
+bank_end:
+	flash->bank_curr = curr_bank;
+	return 0;
 }
 #endif
 
@@ -762,16 +801,6 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 #endif
 
 
-/* Read commands array */
-static u8 spi_read_cmds_array[] = {
-	CMD_READ_ARRAY_SLOW,
-	CMD_READ_ARRAY_FAST,
-	CMD_READ_DUAL_OUTPUT_FAST,
-	CMD_READ_DUAL_IO_FAST,
-	CMD_READ_QUAD_OUTPUT_FAST,
-	CMD_READ_QUAD_IO_FAST,
-};
-
 #ifdef CONFIG_SPI_FLASH_MACRONIX
 static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
 {
@@ -838,37 +867,6 @@ static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
 		return -1;
 	}
 }
-
-#ifdef CONFIG_SPI_FLASH_BAR
-static int spi_flash_read_bank(struct spi_flash *flash, u8 idcode0)
-{
-	u8 curr_bank = 0;
-	int ret;
-
-	if (flash->size <= SPI_FLASH_16MB_BOUN)
-		goto bank_end;
-
-	switch (idcode0) {
-	case SPI_FLASH_CFI_MFR_SPANSION:
-		flash->bank_read_cmd = CMD_BANKADDR_BRRD;
-		flash->bank_write_cmd = CMD_BANKADDR_BRWR;
-	default:
-		flash->bank_read_cmd = CMD_EXTNADDR_RDEAR;
-		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
-	}
-
-	ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
-				    &curr_bank, 1);
-	if (ret) {
-		debug("SF: fail to read bank addr register\n");
-		return ret;
-	}
-
-bank_end:
-	flash->bank_curr = curr_bank;
-	return 0;
-}
-#endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
