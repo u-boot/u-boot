@@ -287,6 +287,7 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 	}
 	confr &= ~ZYNQMP_QSPI_BAUD_DIV_MASK;
 	confr |= (baud_rate_val << 3);
+	writel(confr, &regs->confr);
 
 	priv->freq = speed;
 
