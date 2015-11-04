@@ -474,8 +474,8 @@ static void initialize_dpmac_to_slot(void)
 		       serdes1_prtcl);
 		break;
 	default:
-		printf("qds: WRIOP: Unsupported SerDes1 Protocol 0x%02x\n",
-		       serdes1_prtcl);
+		printf("%s qds: WRIOP: Unsupported SerDes1 Protocol 0x%02x\n",
+		       __func__, serdes1_prtcl);
 		break;
 	}
 
@@ -505,8 +505,8 @@ static void initialize_dpmac_to_slot(void)
 		}
 		break;
 	default:
-		printf("qds: WRIOP: Unsupported SerDes2 Protocol 0x%02x\n",
-		       serdes2_prtcl);
+		printf(" %s qds: WRIOP: Unsupported SerDes2 Protocol 0x%02x\n",
+		       __func__ , serdes2_prtcl);
 		break;
 	}
 }
@@ -580,8 +580,8 @@ void ls2085a_handle_phy_interface_sgmii(int dpmac_id)
 		}
 	break;
 	default:
-		printf("qds: WRIOP: Unsupported SerDes1 Protocol 0x%02x\n",
-		       serdes1_prtcl);
+		printf("%s qds: WRIOP: Unsupported SerDes1 Protocol 0x%02x\n",
+		       __func__ , serdes1_prtcl);
 	break;
 	}
 
@@ -626,8 +626,8 @@ serdes2:
 	}
 	break;
 	default:
-		printf("qds: WRIOP: Unsupported SerDes2 Protocol 0x%02x\n",
-		       serdes2_prtcl);
+		printf("%s qds: WRIOP: Unsupported SerDes2 Protocol 0x%02x\n",
+		       __func__, serdes2_prtcl);
 	break;
 	}
 }
