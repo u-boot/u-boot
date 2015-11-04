@@ -16,10 +16,13 @@
 /* Command IDs */
 #define DPRC_CMDID_CLOSE			0x800
 #define DPRC_CMDID_OPEN				0x805
+#define DPRC_CMDID_CREATE			0x905
 
 #define DPRC_CMDID_GET_ATTR			0x004
 #define DPRC_CMDID_RESET_CONT			0x005
 
+#define DPRC_CMDID_CREATE_CONT			0x151
+#define DPRC_CMDID_DESTROY_CONT			0x152
 #define DPRC_CMDID_GET_CONT_ID			0x830
 #define DPRC_CMDID_GET_OBJ_COUNT		0x159
 #define DPRC_CMDID_GET_OBJ			0x15A
@@ -38,6 +41,41 @@
 /*                cmd, param, offset, width, type, arg_name */
 #define DPRC_CMD_OPEN(cmd, container_id) \
 	MC_CMD_OP(cmd, 0, 0,  32, int,	    container_id)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPRC_CMD_CREATE_CONTAINER(cmd, cfg) \
+do { \
+	MC_CMD_OP(cmd, 0, 32, 16, uint16_t, cfg->icid); \
+	MC_CMD_OP(cmd, 0, 0,  32, uint32_t, cfg->options); \
+	MC_CMD_OP(cmd, 1, 32, 32, int,	    cfg->portal_id); \
+	MC_CMD_OP(cmd, 2, 0,  8,  char,	    cfg->label[0]);\
+	MC_CMD_OP(cmd, 2, 8,  8,  char,	    cfg->label[1]);\
+	MC_CMD_OP(cmd, 2, 16, 8,  char,	    cfg->label[2]);\
+	MC_CMD_OP(cmd, 2, 24, 8,  char,	    cfg->label[3]);\
+	MC_CMD_OP(cmd, 2, 32, 8,  char,	    cfg->label[4]);\
+	MC_CMD_OP(cmd, 2, 40, 8,  char,	    cfg->label[5]);\
+	MC_CMD_OP(cmd, 2, 48, 8,  char,	    cfg->label[6]);\
+	MC_CMD_OP(cmd, 2, 56, 8,  char,	    cfg->label[7]);\
+	MC_CMD_OP(cmd, 3, 0,  8,  char,	    cfg->label[8]);\
+	MC_CMD_OP(cmd, 3, 8,  8,  char,	    cfg->label[9]);\
+	MC_CMD_OP(cmd, 3, 16, 8,  char,	    cfg->label[10]);\
+	MC_CMD_OP(cmd, 3, 24, 8,  char,	    cfg->label[11]);\
+	MC_CMD_OP(cmd, 3, 32, 8,  char,	    cfg->label[12]);\
+	MC_CMD_OP(cmd, 3, 40, 8,  char,	    cfg->label[13]);\
+	MC_CMD_OP(cmd, 3, 48, 8,  char,	    cfg->label[14]);\
+	MC_CMD_OP(cmd, 3, 56, 8,  char,	    cfg->label[15]);\
+} while (0)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPRC_RSP_CREATE_CONTAINER(cmd, child_container_id, child_portal_offset)\
+do { \
+	MC_RSP_OP(cmd, 1, 0,  32, int,	   child_container_id); \
+	MC_RSP_OP(cmd, 2, 0,  64, uint64_t, child_portal_offset);\
+} while (0)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPRC_CMD_DESTROY_CONTAINER(cmd, child_container_id) \
+	MC_CMD_OP(cmd, 0, 0,  32, int,	    child_container_id)
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPRC_CMD_RESET_CONTAINER(cmd, child_container_id) \
@@ -465,6 +503,52 @@ struct dprc_cfg {
 	uint64_t options;
 	char label[16];
 };
+
+/**
+ * dprc_create_container() - Create child container
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @token:	Token of DPRC object
+ * @cfg:	Child container configuration
+ * @child_container_id:	Returned child container ID
+ * @child_portal_offset: Returned child portal offset from MC portal base
+ *
+ *
+ * Return:	'0' on Success; Error code otherwise.
+ */
+int dprc_create_container(struct fsl_mc_io	*mc_io,
+			  uint32_t		cmd_flags,
+			  uint16_t		token,
+			  struct dprc_cfg	*cfg,
+			  int			*child_container_id,
+			  uint64_t		*child_portal_offset);
+
+/**
+ * dprc_destroy_container() - Destroy child container.
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @token:	Token of DPRC object
+ * @child_container_id:	ID of the container to destroy
+ *
+ * This function terminates the child container, so following this call the
+ * child container ID becomes invalid.
+ *
+ * Notes:
+ * - All resources and objects of the destroyed container are returned to the
+ * parent container or destroyed if were created be the destroyed container.
+ * - This function destroy all the child containers of the specified
+ *   container prior to destroying the container itself.
+ *
+ * warning: Only the parent container is allowed to destroy a child policy
+ *		Container 0 can't be destroyed
+ *
+ * Return:	'0' on Success; Error code otherwise.
+ *
+ */
+int dprc_destroy_container(struct fsl_mc_io	*mc_io,
+			   uint32_t		cmd_flags,
+			   uint16_t		token,
+			   int			child_container_id);
 
 /**
  * dprc_reset_container - Reset child container.
