@@ -601,7 +601,7 @@ static int ldpaa_eth_netdev_init(struct eth_device *net_dev)
 	return 0;
 }
 
-int ldpaa_eth_init(struct dprc_obj_desc obj_desc)
+int ldpaa_eth_init(int id)
 {
 	struct eth_device		*net_dev = NULL;
 	struct ldpaa_eth_priv		*priv = NULL;
@@ -626,7 +626,7 @@ int ldpaa_eth_init(struct dprc_obj_desc obj_desc)
 
 	net_dev->priv = (void *)priv;
 	priv->net_dev = (struct eth_device *)net_dev;
-	priv->dpni_id = obj_desc.id;
+	priv->dpni_id = id;
 
 	err = ldpaa_eth_netdev_init(net_dev);
 	if (err)
