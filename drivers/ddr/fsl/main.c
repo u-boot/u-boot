@@ -813,6 +813,7 @@ phys_size_t fsl_ddr_sdram(void)
 	info.board_need_mem_reset = board_need_mem_reset;
 	info.board_mem_reset = board_assert_mem_reset;
 	info.board_mem_de_reset = board_deassert_mem_reset;
+	remove_unused_controllers(&info);
 
 	return __fsl_ddr_sdram(&info);
 }

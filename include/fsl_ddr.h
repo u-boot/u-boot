@@ -131,6 +131,7 @@ void board_add_ram_info(int use_default);
 /* processor specific function */
 void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 				   unsigned int ctrl_num, int step);
+void remove_unused_controllers(fsl_ddr_info_t *info);
 
 /* board specific function */
 int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,

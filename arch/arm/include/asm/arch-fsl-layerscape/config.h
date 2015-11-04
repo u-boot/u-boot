@@ -67,6 +67,13 @@
 #define CCI_MN_DVM_DOMAIN_CTL		0x200
 #define CCI_MN_DVM_DOMAIN_CTL_SET	0x210
 
+#define CCI_HN_F_0_BASE			(CCI_MN_BASE + 0x200000)
+#define CCI_HN_F_1_BASE			(CCI_MN_BASE + 0x210000)
+#define CCN_HN_F_SAM_CTL		0x8	/* offset on base HN_F base */
+#define CCN_HN_F_SAM_NODEID_MASK	0x7f
+#define CCN_HN_F_SAM_NODEID_DDR0	0x4
+#define CCN_HN_F_SAM_NODEID_DDR1	0xe
+
 #define CCI_RN_I_0_BASE			(CCI_MN_BASE + 0x800000)
 #define CCI_RN_I_2_BASE			(CCI_MN_BASE + 0x820000)
 #define CCI_RN_I_6_BASE			(CCI_MN_BASE + 0x860000)
