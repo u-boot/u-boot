@@ -13,6 +13,7 @@
 #include <linux/sizes.h>
 #include <dm.h>
 #include <errno.h>
+#include <watchdog.h>
 #include "fsl_qspi.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -527,6 +528,8 @@ static void qspi_op_read(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 	to_or_from = priv->sf_addr + priv->cur_amba_base;
 
 	while (len > 0) {
+		WATCHDOG_RESET();
+
 		qspi_write32(priv->flags, &regs->sfar, to_or_from);
 
 		size = (len > RX_BUFFER_SIZE) ?
@@ -574,6 +577,8 @@ static void qspi_op_write(struct fsl_qspi_priv *priv, u8 *txbuf, u32 len)
 
 	status_reg = 0;
 	while ((status_reg & FLASH_STATUS_WEL) != FLASH_STATUS_WEL) {
+		WATCHDOG_RESET();
+
 		qspi_write32(priv->flags, &regs->ipcr,
 			     (SEQID_WREN << QSPI_IPCR_SEQID_SHIFT) | 0);
 		while (qspi_read32(priv->flags, &regs->sr) & QSPI_SR_BUSY_MASK)
