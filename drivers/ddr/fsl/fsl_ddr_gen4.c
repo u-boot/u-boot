@@ -54,6 +54,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	u32 temp32, mr6;
+	u32 vref_seq1[3] = {0x80, 0x96, 0x16};	/* for range 1 */
+	u32 vref_seq2[3] = {0xc0, 0xf0, 0x70};	/* for range 2 */
+	u32 *vref_seq = vref_seq1;
 #endif
 #ifdef CONFIG_FSL_DDR_BIST
 	u32 mtcr, err_detect, err_sbe;
@@ -307,16 +310,21 @@ step2:
 	/* This erraum only applies to verion 5.2.0 */
 	if (fsl_ddr_get_version(ctrl_num) == 0x50200) {
 		/* Wait for idle */
-		timeout = 200;
+		timeout = 40;
 		while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
 		       (timeout > 0)) {
-			udelay(100);
+			udelay(1000);
 			timeout--;
 		}
 		if (timeout <= 0) {
 			printf("Controler %d timeout, debug_2 = %x\n",
 			       ctrl_num, ddr_in32(&ddr->debug[1]));
 		}
+
+		/* The vref setting sequence is different for range 2 */
+		if (regs->ddr_cdr2 & DDR_CDR2_VREF_RANGE_2)
+			vref_seq = vref_seq2;
+
 		/* Set VREF */
 		for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 			if (!(regs->cs[i].config & SDRAM_CS_CONFIG_EN))
@@ -327,17 +335,17 @@ step2:
 				 MD_CNTL_CS_SEL(i)			|
 				 MD_CNTL_MD_SEL(6)			|
 				 0x00200000;
-			temp32 = mr6 | 0xc0;
+			temp32 = mr6 | vref_seq[0];
 			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
 						temp32, MD_CNTL_MD_EN);
 			udelay(1);
 			debug("MR6 = 0x%08x\n", temp32);
-			temp32 = mr6 | 0xf0;
+			temp32 = mr6 | vref_seq[1];
 			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
 						temp32, MD_CNTL_MD_EN);
 			udelay(1);
 			debug("MR6 = 0x%08x\n", temp32);
-			temp32 = mr6 | 0x70;
+			temp32 = mr6 | vref_seq[2];
 			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
 						temp32, MD_CNTL_MD_EN);
 			udelay(1);
@@ -347,10 +355,10 @@ step2:
 		ddr_out32(&ddr->debug[28], 0);		/* Enable deskew */
 		ddr_out32(&ddr->debug[1], 0x400);	/* restart deskew */
 		/* wait for idle */
-		timeout = 200;
+		timeout = 40;
 		while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
 		       (timeout > 0)) {
-			udelay(100);
+			udelay(1000);
 			timeout--;
 		}
 		if (timeout <= 0) {
