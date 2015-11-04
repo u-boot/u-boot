@@ -164,7 +164,6 @@ int drv_video_init(void)
 
 	memset(&videodev, 0, sizeof(videodev));
 	strcpy(videodev.name, "video");
-	videodev.ext = DEV_EXT_VIDEO;
 
 	return stdio_register(&videodev);
 }

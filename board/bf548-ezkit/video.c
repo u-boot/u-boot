@@ -328,7 +328,6 @@ int drv_video_init(void)
 	memset(&videodev, 0, sizeof(videodev));
 
 	strcpy(videodev.name, "video");
-	videodev.ext = DEV_EXT_VIDEO;	/* Video extensions */
 
 	error = stdio_register(&videodev);
 
