@@ -62,7 +62,7 @@ my %commit_author_hash;
 my %commit_signer_hash;
 
 my @penguin_chief = ();
-push(@penguin_chief, "Tom Rini:trini\@ti.com");
+push(@penguin_chief, "Tom Rini:trini\@konsulko.com");
 
 my @penguin_chief_names = ();
 foreach my $chief (@penguin_chief) {
