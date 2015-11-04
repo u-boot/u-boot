@@ -221,7 +221,7 @@
 			reg = <0x65c00000 0x100>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_usb1>;
-			interrupts = <0 135 4>;
+			interrupts = <0 137 4>;
 		};
 
 		pinctrl: pinctrl@5f801000 {
