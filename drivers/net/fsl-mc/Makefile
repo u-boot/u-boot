@@ -10,5 +10,6 @@ obj-y += mc.o \
 	dpmng.o	\
 	dprc.o	\
 	dpbp.o	\
-	dpni.o
+	dpni.o	\
+	dpmac.o
 obj-y += dpio/
