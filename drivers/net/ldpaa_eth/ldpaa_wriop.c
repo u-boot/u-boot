@@ -26,6 +26,7 @@ void wriop_init_dpmac(int sd, int dpmac_id, int lane_prtcl)
 
 	dpmac_info[dpmac_id].enabled = 0;
 	dpmac_info[dpmac_id].id = 0;
+	dpmac_info[dpmac_id].phy_addr = -1;
 	dpmac_info[dpmac_id].enet_if = PHY_INTERFACE_MODE_NONE;
 
 	enet_if = wriop_dpmac_enet_if(dpmac_id, lane_prtcl);
@@ -70,6 +71,17 @@ void wriop_enable_dpmac(int dpmac_id)
 	dpmac_info[i].enabled = 1;
 	wriop_dpmac_enable(dpmac_id);
 }
+
+u8 wriop_is_enabled_dpmac(int dpmac_id)
+{
+	int i = wriop_dpmac_to_index(dpmac_id);
+
+	if (i == -1)
+		return -1;
+
+	return dpmac_info[i].enabled;
+}
+
 
 void wriop_set_mdio(int dpmac_id, struct mii_dev *bus)
 {
