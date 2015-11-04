@@ -13,6 +13,7 @@
 #include <linux/compat.h>
 #include <linux/types.h>
 #include <linux/stringify.h>
+#include <phy.h>
 
 #include <fsl-mc/fsl_mc_sys.h>
 #include <fsl-mc/fsl_mc_cmd.h>
@@ -64,6 +65,6 @@ struct fsl_dpni_obj {
 extern struct fsl_dpni_obj *dflt_dpni;
 
 int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr);
-int ldpaa_eth_init(int dpmac_id);
+int ldpaa_eth_init(int dpmac_id, phy_interface_t enet_if);
 int mc_apply_dpl(u64 mc_dpl_addr);
 #endif /* _FSL_MC_PRIVATE_H_ */
