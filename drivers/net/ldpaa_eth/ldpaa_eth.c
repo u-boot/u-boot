@@ -24,6 +24,84 @@ static int init_phy(struct eth_device *dev)
 	return 0;
 }
 
+#ifdef DEBUG
+static void ldpaa_eth_get_dpni_counter(void)
+{
+	int err = 0;
+	u64 value;
+
+	err = dpni_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     dflt_dpni->dpni_handle,
+		     DPNI_CNT_ING_FRAME,
+		     &value);
+	if (err < 0) {
+		printf("dpni_get_counter: DPNI_CNT_ING_FRAME failed\n");
+		return;
+	}
+	printf("DPNI_CNT_ING_FRAME=%lld\n", value);
+
+	err = dpni_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     dflt_dpni->dpni_handle,
+		     DPNI_CNT_ING_BYTE,
+		     &value);
+	if (err < 0) {
+		printf("dpni_get_counter: DPNI_CNT_ING_BYTE failed\n");
+		return;
+	}
+	printf("DPNI_CNT_ING_BYTE=%lld\n", value);
+
+	err = dpni_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     dflt_dpni->dpni_handle,
+		     DPNI_CNT_ING_FRAME_DROP ,
+		     &value);
+	if (err < 0) {
+		printf("dpni_get_counter: DPNI_CNT_ING_FRAME_DROP failed\n");
+		return;
+	}
+	printf("DPNI_CNT_ING_FRAME_DROP =%lld\n", value);
+
+	err = dpni_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     dflt_dpni->dpni_handle,
+		     DPNI_CNT_ING_FRAME_DISCARD,
+		     &value);
+	if (err < 0) {
+		printf("dpni_get_counter: DPNI_CNT_ING_FRAME_DISCARD failed\n");
+		return;
+	}
+	printf("DPNI_CNT_ING_FRAME_DISCARD=%lld\n", value);
+
+	err = dpni_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     dflt_dpni->dpni_handle,
+		     DPNI_CNT_EGR_FRAME,
+		     &value);
+	if (err < 0) {
+		printf("dpni_get_counter: DPNI_CNT_EGR_FRAME failed\n");
+		return;
+	}
+	printf("DPNI_CNT_EGR_FRAME=%lld\n", value);
+
+	err = dpni_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     dflt_dpni->dpni_handle,
+		     DPNI_CNT_EGR_BYTE ,
+		     &value);
+	if (err < 0) {
+		printf("dpni_get_counter: DPNI_CNT_EGR_BYTE failed\n");
+		return;
+	}
+	printf("DPNI_CNT_EGR_BYTE =%lld\n", value);
+
+	err = dpni_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     dflt_dpni->dpni_handle,
+		     DPNI_CNT_EGR_FRAME_DISCARD ,
+		     &value);
+	if (err < 0) {
+		printf("dpni_get_counter: DPNI_CNT_EGR_FRAME_DISCARD failed\n");
+		return;
+	}
+	printf("DPNI_CNT_EGR_FRAME_DISCARD =%lld\n", value);
+}
+#endif
+
 static void ldpaa_eth_rx(struct ldpaa_eth_priv *priv,
 			 const struct dpaa_fd *fd)
 {
@@ -222,6 +300,9 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 	struct dpni_queue_attr rx_queue_attr;
 	struct dpmac_link_state	dpmac_link_state = { 0 };
+#ifdef DEBUG
+	struct dpni_link_state link_state;
+#endif
 	int err;
 
 	if (net_dev->state == ETH_STATE_ACTIVE)
@@ -295,6 +376,20 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 		printf("dpmac_set_link_state() failed\n");
 		return err;
 	}
+
+#ifdef DEBUG
+	err = dpni_get_link_state(dflt_mc_io, MC_CMD_NO_FLAGS,
+				  dflt_dpni->dpni_handle, &link_state);
+	if (err < 0) {
+		printf("dpni_get_link_state() failed\n");
+		return err;
+	}
+
+	printf("link status: %d - ", link_state.up);
+	link_state.up == 0 ? printf("down\n") :
+	link_state.up == 1 ? printf("up\n") : printf("error state\n");
+#endif
+
 	/* TODO: support multiple Rx flows */
 	err = dpni_get_rx_flow(dflt_mc_io, MC_CMD_NO_FLAGS,
 			       dflt_dpni->dpni_handle, 0, 0, &rx_queue_attr);
@@ -338,6 +433,10 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 	if ((net_dev->state == ETH_STATE_PASSIVE) ||
 	    (net_dev->state == ETH_STATE_INIT))
 		return;
+
+#ifdef DEBUG
+	ldpaa_eth_get_dpni_counter();
+#endif
 
 	err = dprc_disconnect(dflt_mc_io, MC_CMD_NO_FLAGS,
 			      dflt_dprc_handle, &dpmac_endpoint);
@@ -523,6 +622,11 @@ static int ldpaa_dpmac_bind(struct ldpaa_eth_priv *priv)
 		.max_rate = 0
 	};
 
+#ifdef DEBUG
+	struct dprc_endpoint dbg_endpoint;
+	int state = 0;
+#endif
+
 	memset(&dpmac_endpoint, 0, sizeof(struct dprc_endpoint));
 	sprintf(dpmac_endpoint.type, "dpmac");
 	dpmac_endpoint.id = priv->dpmac_id;
@@ -536,6 +640,25 @@ static int ldpaa_dpmac_bind(struct ldpaa_eth_priv *priv)
 			     &dpmac_endpoint,
 			     &dpni_endpoint,
 			     &dprc_connection_cfg);
+	if (err)
+		printf("dprc_connect() failed\n");
+
+#ifdef DEBUG
+	err = dprc_get_connection(dflt_mc_io, MC_CMD_NO_FLAGS,
+				    dflt_dprc_handle, &dpni_endpoint,
+				    &dbg_endpoint, &state);
+	printf("%s, DPMAC Type= %s\n", __func__, dbg_endpoint.type);
+	printf("%s, DPMAC ID= %d\n", __func__, dbg_endpoint.id);
+	printf("%s, DPMAC State= %d\n", __func__, state);
+
+	memset(&dbg_endpoint, 0, sizeof(struct dprc_endpoint));
+	err = dprc_get_connection(dflt_mc_io, MC_CMD_NO_FLAGS,
+				    dflt_dprc_handle, &dpmac_endpoint,
+				    &dbg_endpoint, &state);
+	printf("%s, DPNI Type= %s\n", __func__, dbg_endpoint.type);
+	printf("%s, DPNI ID= %d\n", __func__, dbg_endpoint.id);
+	printf("%s, DPNI State= %d\n", __func__, state);
+#endif
 	return err;
 }
 
