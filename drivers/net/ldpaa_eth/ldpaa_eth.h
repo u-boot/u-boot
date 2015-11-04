@@ -28,10 +28,10 @@ enum ldpaa_eth_type {
 #define LDPAA_ETH_REFILL_THRESH		(LDPAA_ETH_NUM_BUFS/2)
 #define LDPAA_ETH_RX_BUFFER_SIZE	2048
 
-/* Hardware requires alignment for ingress/egress buffer addresses
- * and ingress buffer lengths.
+/* Hardware requires alignment for buffer address and length: 256-byte
+ * for ingress, 64-byte for egress. Using 256 for both.
  */
-#define LDPAA_ETH_BUF_ALIGN		64
+#define LDPAA_ETH_BUF_ALIGN		256
 
 /* So far we're only accomodating a skb backpointer in the frame's
  * software annotation, but the hardware options are either 0 or 64.

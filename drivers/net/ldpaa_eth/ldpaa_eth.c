@@ -500,7 +500,7 @@ static int ldpaa_bp_add_7(uint16_t bpid)
 	struct qbman_release_desc rd;
 
 	for (i = 0; i < 7; i++) {
-		addr = memalign(L1_CACHE_BYTES, LDPAA_ETH_RX_BUFFER_SIZE);
+		addr = memalign(LDPAA_ETH_BUF_ALIGN, LDPAA_ETH_RX_BUFFER_SIZE);
 		if (!addr) {
 			printf("addr allocation failed\n");
 			goto err_alloc;
@@ -685,10 +685,13 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 	/* Configure our buffers' layout */
 	dflt_dpni->buf_layout.options = DPNI_BUF_LAYOUT_OPT_PARSER_RESULT |
 				   DPNI_BUF_LAYOUT_OPT_FRAME_STATUS |
-				   DPNI_BUF_LAYOUT_OPT_PRIVATE_DATA_SIZE;
+				   DPNI_BUF_LAYOUT_OPT_PRIVATE_DATA_SIZE |
+				   DPNI_BUF_LAYOUT_OPT_DATA_ALIGN;
 	dflt_dpni->buf_layout.pass_parser_result = true;
 	dflt_dpni->buf_layout.pass_frame_status = true;
 	dflt_dpni->buf_layout.private_data_size = LDPAA_ETH_SWA_SIZE;
+	/* HW erratum mandates data alignment in multiples of 256 */
+	dflt_dpni->buf_layout.data_align = LDPAA_ETH_BUF_ALIGN;
 	/* ...rx, ... */
 	err = dpni_set_rx_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 					dflt_dpni->dpni_handle,
@@ -699,7 +702,9 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 	}
 
 	/* ... tx, ... */
-	dflt_dpni->buf_layout.options &= ~DPNI_BUF_LAYOUT_OPT_PARSER_RESULT;
+	/* remove Rx-only options */
+	dflt_dpni->buf_layout.options &= ~(DPNI_BUF_LAYOUT_OPT_DATA_ALIGN |
+				      DPNI_BUF_LAYOUT_OPT_PARSER_RESULT);
 	err = dpni_set_tx_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 					dflt_dpni->dpni_handle,
 					&dflt_dpni->buf_layout);
