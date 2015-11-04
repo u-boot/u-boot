@@ -18,6 +18,11 @@ static u8 serdes1_prtcl_map[SERDES_PRCTL_COUNT];
 static u8 serdes2_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
 
+#ifdef CONFIG_FSL_MC_ENET
+int xfi_dpmac[XFI8 + 1];
+int sgmii_dpmac[SGMII16 + 1];
+#endif
+
 int is_serdes_configured(enum srds_prtcl device)
 {
 	int ret = 0;
@@ -116,9 +121,15 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 				wriop_init_dpmac(sd, 12, (int)lane_prtcl);
 				break;
 			default:
+				if (lane_prtcl >= XFI1 && lane_prtcl <= XFI8)
+					wriop_init_dpmac(sd,
+							 xfi_dpmac[lane_prtcl],
+							 (int)lane_prtcl);
+
 				 if (lane_prtcl >= SGMII1 &&
-					   lane_prtcl <= SGMII16)
-					wriop_init_dpmac(sd, lane + 1,
+				     lane_prtcl <= SGMII16)
+					wriop_init_dpmac(sd, sgmii_dpmac[
+							 lane_prtcl],
 							 (int)lane_prtcl);
 				break;
 			}
@@ -129,6 +140,16 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 
 void fsl_serdes_init(void)
 {
+#ifdef CONFIG_FSL_MC_ENET
+	int i , j;
+
+	for (i = XFI1, j = 1; i <= XFI8; i++, j++)
+		xfi_dpmac[i] = j;
+
+	for (i = SGMII1, j = 1; i <= SGMII16; i++, j++)
+		sgmii_dpmac[i] = j;
+#endif
+
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	serdes_init(FSL_SRDS_1,
 		    CONFIG_SYS_FSL_LSCH3_SERDES_ADDR,
