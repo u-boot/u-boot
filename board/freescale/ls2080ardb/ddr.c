@@ -134,10 +134,18 @@ found:
 	popts->zq_en = 1;
 
 	if (ddr_freq < 2350) {
-		popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
-				  DDR_CDR1_ODT(DDR_CDR_ODT_60ohm);
-		popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_60ohm) |
-				  DDR_CDR2_VREF_RANGE_2;
+		if (pdimm[0].n_ranks == 2 && pdimm[1].n_ranks == 2) {
+			/* four chip-selects */
+			popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
+					  DDR_CDR1_ODT(DDR_CDR_ODT_80ohm);
+			popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_80ohm);
+			popts->twot_en = 1;	/* enable 2T timing */
+		} else {
+			popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
+					  DDR_CDR1_ODT(DDR_CDR_ODT_60ohm);
+			popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_60ohm) |
+					  DDR_CDR2_VREF_RANGE_2;
+		}
 	} else {
 		popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
 				  DDR_CDR1_ODT(DDR_CDR_ODT_100ohm);
