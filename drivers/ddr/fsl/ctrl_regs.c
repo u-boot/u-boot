@@ -317,7 +317,24 @@ static void set_timing_cfg_0(const unsigned int ctrl_num,
 
 	/* for faster clock, need more time for data setup */
 	trwt_mclk = (data_rate/1000000 > 1900) ? 3 : 2;
-	twrt_mclk = 1;
+
+	/*
+	 * for single quad-rank DIMM and two-slot DIMMs
+	 * to avoid ODT overlap
+	 */
+	switch (avoid_odt_overlap(dimm_params)) {
+	case 2:
+		twrt_mclk = 2;
+		twwt_mclk = 2;
+		trrt_mclk = 2;
+		break;
+	default:
+		twrt_mclk = 1;
+		twwt_mclk = 1;
+		trrt_mclk = 0;
+		break;
+	}
+
 	act_pd_exit_mclk = picos_to_mclk(ctrl_num, txp);
 	pre_pd_exit_mclk = act_pd_exit_mclk;
 	/*
@@ -1822,6 +1839,7 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int wrt = 0; /* Write-to-read turnaround for same CS */
 	unsigned int rrt = 0; /* Read-to-read turnaround for same CS */
 	unsigned int wwt = 0; /* Write-to-write turnaround for same CS */
+	unsigned int trwt_mclk = 0;	/* ext_rwt */
 	unsigned int dll_lock = 0; /* DDR SDRAM DLL Lock Time */
 
 #if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
@@ -1835,17 +1853,21 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr,
 		wwt = 2;	/* BL/2 + 2 clocks */
 	}
 #endif
-
 #ifdef CONFIG_SYS_FSL_DDR4
 	dll_lock = 2;	/* tDLLK = 1024 clocks */
 #elif defined(CONFIG_SYS_FSL_DDR3)
 	dll_lock = 1;	/* tDLLK = 512 clocks from spec */
 #endif
+
+	if (popts->trwt_override)
+		trwt_mclk = popts->trwt;
+
 	ddr->timing_cfg_4 = (0
 			     | ((rwt & 0xf) << 28)
 			     | ((wrt & 0xf) << 24)
 			     | ((rrt & 0xf) << 20)
 			     | ((wwt & 0xf) << 16)
+			     | ((trwt_mclk & 0xc) << 12)
 			     | (dll_lock & 0x3)
 			     );
 	debug("FSLDDR: timing_cfg_4 = 0x%08x\n", ddr->timing_cfg_4);
