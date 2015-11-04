@@ -329,7 +329,6 @@ int drv_video_init(void)
 
 	strcpy(videodev.name, "video");
 	videodev.ext = DEV_EXT_VIDEO;	/* Video extensions */
-	videodev.flags = DEV_FLAGS_SYSTEM;	/* No Output */
 
 	error = stdio_register(&videodev);
 

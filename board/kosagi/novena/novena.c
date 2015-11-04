@@ -77,7 +77,7 @@ int drv_keyboard_init(void)
 	int error;
 	struct stdio_dev dev = {
 		.name	= "button",
-		.flags	= DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM,
+		.flags	= DEV_FLAGS_INPUT,
 		.start	= novena_gpio_button_init,
 		.getc	= novena_gpio_button_getc,
 		.tstc	= novena_gpio_button_tstc,

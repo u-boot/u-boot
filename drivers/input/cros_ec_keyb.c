@@ -258,7 +258,7 @@ int drv_keyboard_init(void)
 
 	memset(&dev, '\0', sizeof(dev));
 	strcpy(dev.name, "cros-ec-keyb");
-	dev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	dev.flags = DEV_FLAGS_INPUT;
 	dev.getc = kbd_getc;
 	dev.tstc = kbd_tstc;
 	dev.start = cros_ec_init_keyboard;

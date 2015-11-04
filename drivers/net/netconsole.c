@@ -330,7 +330,7 @@ int drv_nc_init(void)
 	memset(&dev, 0, sizeof(dev));
 
 	strcpy(dev.name, "nc");
-	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 	dev.start = nc_stdio_start;
 	dev.putc = nc_stdio_putc;
 	dev.puts = nc_stdio_puts;
