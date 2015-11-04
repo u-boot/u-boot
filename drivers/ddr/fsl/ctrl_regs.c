@@ -1117,10 +1117,18 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 	unsigned short esdmode4 = 0;	/* Extended SDRAM mode 4 */
 	unsigned short esdmode5;	/* Extended SDRAM mode 5 */
 	int rtt_park = 0;
+	bool four_cs = false;
 
+#if CONFIG_CHIP_SELECTS_PER_CTRL == 4
+	if ((ddr->cs[0].config & SDRAM_CS_CONFIG_EN) &&
+	    (ddr->cs[1].config & SDRAM_CS_CONFIG_EN) &&
+	    (ddr->cs[2].config & SDRAM_CS_CONFIG_EN) &&
+	    (ddr->cs[3].config & SDRAM_CS_CONFIG_EN))
+		four_cs = true;
+#endif
 	if (ddr->cs[0].config & SDRAM_CS_CONFIG_EN) {
 		esdmode5 = 0x00000500;	/* Data mask enable, RTT_PARK CS0 */
-		rtt_park = 1;
+		rtt_park = four_cs ? 0 : 1;
 	} else {
 		esdmode5 = 0x00000400;	/* Data mask enabled */
 	}
@@ -1130,7 +1138,10 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 				 | ((esdmode5 & 0xffff) << 0)
 				);
 
-	/* only mode_9 use 0x500, others use 0x400 */
+	/* Normally only the first enabled CS use 0x500, others use 0x400
+	 * But when four chip-selects are all enabled, all mode registers
+	 * need 0x500 to park.
+	 */
 
 	debug("FSLDDR: ddr_sdram_mode_9) = 0x%08x\n", ddr->ddr_sdram_mode_9);
 	if (unq_mrs_en) {	/* unique mode registers are supported */
@@ -1138,7 +1149,7 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 			if (!rtt_park &&
 			    (ddr->cs[i].config & SDRAM_CS_CONFIG_EN)) {
 				esdmode5 |= 0x00000500;	/* RTT_PARK */
-				rtt_park = 1;
+				rtt_park = four_cs ? 0 : 1;
 			} else {
 				esdmode5 = 0x00000400;
 			}
