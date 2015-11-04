@@ -50,6 +50,11 @@ struct mc_ccsr_registers {
 };
 
 int get_mc_boot_status(void);
+int get_dpl_apply_status(void);
+#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+int get_aiop_apply_status(void);
+#endif
+u64 mc_get_dram_addr(void);
 unsigned long mc_get_dram_block_size(void);
 int fsl_mc_ldpaa_init(bd_t *bis);
 void fsl_mc_ldpaa_exit(bd_t *bis);
