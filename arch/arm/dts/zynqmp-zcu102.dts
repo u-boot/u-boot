@@ -90,7 +90,7 @@
 	local-mac-address = [00 0a 35 00 02 90];
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
-	phy0: phy@21{
+	phy0: phy@21 {
 		reg = <21>;
 	};
 };
