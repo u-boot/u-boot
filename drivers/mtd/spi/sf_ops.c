@@ -15,6 +15,7 @@
 #include <spi_flash.h>
 #include <watchdog.h>
 #include <linux/compiler.h>
+#include <linux/log2.h>
 
 #include "sf_internal.h"
 
@@ -565,3 +566,172 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 	return ret;
 }
 #endif
+
+#ifdef CONFIG_SPI_FLASH_STMICRO
+static void stm_get_locked_range(struct spi_flash *flash, u8 sr, loff_t *ofs,
+				 u32 *len)
+{
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	int shift = ffs(mask) - 1;
+	int pow;
+
+	if (!(sr & mask)) {
+		/* No protection */
+		*ofs = 0;
+		*len = 0;
+	} else {
+		pow = ((sr & mask) ^ mask) >> shift;
+		*len = flash->size >> pow;
+		*ofs = flash->size - *len;
+	}
+}
+
+/*
+ * Return 1 if the entire region is locked, 0 otherwise
+ */
+static int stm_is_locked_sr(struct spi_flash *flash, loff_t ofs, u32 len,
+			    u8 sr)
+{
+	loff_t lock_offs;
+	u32 lock_len;
+
+	stm_get_locked_range(flash, sr, &lock_offs, &lock_len);
+
+	return (ofs + len <= lock_offs + lock_len) && (ofs >= lock_offs);
+}
+
+/*
+ * Check if a region of the flash is (completely) locked. See stm_lock() for
+ * more info.
+ *
+ * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
+ * negative on errors.
+ */
+int stm_is_locked(struct spi_flash *flash, loff_t ofs, u32 len)
+{
+	int status;
+	u8 sr;
+
+	status = spi_flash_cmd_read_status(flash, &sr);
+	if (status < 0)
+		return status;
+
+	return stm_is_locked_sr(flash, ofs, len, sr);
+}
+
+/*
+ * Lock a region of the flash. Compatible with ST Micro and similar flash.
+ * Supports only the block protection bits BP{0,1,2} in the status register
+ * (SR). Does not support these features found in newer SR bitfields:
+ *   - TB: top/bottom protect - only handle TB=0 (top protect)
+ *   - SEC: sector/block protect - only handle SEC=0 (block protect)
+ *   - CMP: complement protect - only support CMP=0 (range is not complemented)
+ *
+ * Sample table portion for 8MB flash (Winbond w25q64fw):
+ *
+ *   SEC  |  TB   |  BP2  |  BP1  |  BP0  |  Prot Length  | Protected Portion
+ *  --------------------------------------------------------------------------
+ *    X   |   X   |   0   |   0   |   0   |  NONE         | NONE
+ *    0   |   0   |   0   |   0   |   1   |  128 KB       | Upper 1/64
+ *    0   |   0   |   0   |   1   |   0   |  256 KB       | Upper 1/32
+ *    0   |   0   |   0   |   1   |   1   |  512 KB       | Upper 1/16
+ *    0   |   0   |   1   |   0   |   0   |  1 MB         | Upper 1/8
+ *    0   |   0   |   1   |   0   |   1   |  2 MB         | Upper 1/4
+ *    0   |   0   |   1   |   1   |   0   |  4 MB         | Upper 1/2
+ *    X   |   X   |   1   |   1   |   1   |  8 MB         | ALL
+ *
+ * Returns negative on errors, 0 on success.
+ */
+int stm_lock(struct spi_flash *flash, u32 ofs, size_t len)
+{
+	u8 status_old, status_new;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+
+	spi_flash_cmd_read_status(flash, &status_old);
+
+	/* SPI NOR always locks to the end */
+	if (ofs + len != flash->size) {
+		/* Does combined region extend to end? */
+		if (!stm_is_locked_sr(flash, ofs + len, flash->size - ofs - len,
+				      status_old))
+			return -EINVAL;
+		len = flash->size - ofs;
+	}
+
+	/*
+	 * Need smallest pow such that:
+	 *
+	 *   1 / (2^pow) <= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
+	 */
+	pow = ilog2(flash->size) - ilog2(len);
+	val = mask - (pow << shift);
+	if (val & ~mask)
+		return -EINVAL;
+
+	/* Don't "lock" with no region! */
+	if (!(val & mask))
+		return -EINVAL;
+
+	status_new = (status_old & ~mask) | val;
+
+	/* Only modify protection if it will not unlock other areas */
+	if ((status_new & mask) <= (status_old & mask))
+		return -EINVAL;
+
+	spi_flash_cmd_write_status(flash, status_new);
+
+	return 0;
+}
+
+/*
+ * Unlock a region of the flash. See stm_lock() for more info
+ *
+ * Returns negative on errors, 0 on success.
+ */
+int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
+{
+	uint8_t status_old, status_new;
+	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 shift = ffs(mask) - 1, pow, val;
+
+	spi_flash_cmd_read_status(flash, &status_old);
+
+	/* Cannot unlock; would unlock larger region than requested */
+	if (stm_is_locked_sr(flash, status_old, ofs - flash->erase_size,
+			     flash->erase_size))
+		return -EINVAL;
+	/*
+	 * Need largest pow such that:
+	 *
+	 *   1 / (2^pow) >= (len / size)
+	 *
+	 * so (assuming power-of-2 size) we do:
+	 *
+	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
+	 */
+	pow = ilog2(flash->size) - order_base_2(flash->size - (ofs + len));
+	if (ofs + len == flash->size) {
+		val = 0; /* fully unlocked */
+	} else {
+		val = mask - (pow << shift);
+		/* Some power-of-two sizes are not supported */
+		if (val & ~mask)
+			return -EINVAL;
+	}
+
+	status_new = (status_old & ~mask) | val;
+
+	/* Only modify protection if it will not lock other areas */
+	if ((status_new & mask) >= (status_old & mask))
+		return -EINVAL;
+
+	spi_flash_cmd_write_status(flash, status_new);
+
+	return 0;
+}
+#endif  /* CONFIG_SPI_FLASH_STMICRO */
