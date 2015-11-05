@@ -40,10 +40,6 @@ config SYS_CONFIG_NAME
 	default "xilinx_zynqmp_zc1751_xm016_dc2" if TARGET_ZYNQMP_ZC1751_XM016_DC2
 	default "xilinx_zynqmp_zc1751_xm019_dc5" if TARGET_ZYNQMP_ZC1751_XM019_DC5
 
-config SECURE_IOU
-	bool "Configure ZynqMP secure IOU"
-	default n
-
 config ZYNQMP_QSPI
 	bool "Configure ZynqMP QSPI"
 
