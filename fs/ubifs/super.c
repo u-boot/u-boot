@@ -31,7 +31,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <memalign.h>
-#include <linux/compat.h>
+#include <linux/log2.h>
 #include <linux/stat.h>
 #include <linux/err.h>
 #include "ubifs.h"

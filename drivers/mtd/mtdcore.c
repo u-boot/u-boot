@@ -27,11 +27,11 @@
 #include <linux/gfp.h>
 #include <linux/slab.h>
 #else
-#include <linux/compat.h>
 #include <linux/err.h>
 #include <ubi_uboot.h>
 #endif
 
+#include <linux/log2.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 

@@ -30,7 +30,7 @@
 #include <linux/slab.h>
 #include <linux/major.h>
 #else
-#include <linux/compat.h>
+#include <linux/log2.h>
 #endif
 #include <linux/err.h>
 #include <ubi_uboot.h>
