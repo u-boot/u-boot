@@ -21,6 +21,10 @@
 #ifdef __KERNEL__
 
 #include <asm/system.h>
+#include <asm-generic/bitops/fls.h>
+#include <asm-generic/bitops/__fls.h>
+#include <asm-generic/bitops/fls64.h>
+#include <asm-generic/bitops/__ffs.h>
 
 #define smp_mb__before_clear_bit()	do { } while (0)
 #define smp_mb__after_clear_bit()	do { } while (0)
