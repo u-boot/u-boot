@@ -6,6 +6,10 @@
 #define _M68K_BITOPS_H
 
 #include <asm/byteorder.h>
+#include <asm-generic/bitops/fls.h>
+#include <asm-generic/bitops/__fls.h>
+#include <asm-generic/bitops/fls64.h>
+#include <asm-generic/bitops/__ffs.h>
 
 extern void set_bit(int nr, volatile void *addr);
 extern void clear_bit(int nr, volatile void *addr);
