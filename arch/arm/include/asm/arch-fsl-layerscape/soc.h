@@ -58,4 +58,7 @@ void fsl_lsch2_early_init_f(void);
 #endif
 
 void cpu_name(char *name);
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009635
+void erratum_a009635(void);
+#endif
 #endif /* _ASM_ARMV8_FSL_LAYERSCAPE_SOC_H_ */

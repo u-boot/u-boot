@@ -303,3 +303,23 @@ How to use commands :-
 	=> fsl_mc start aiop 0x580900000
 	=> setenv ethact DPMAC1@xgmii
 	=> fsl_mc apply dpl 580700000
+
+Errata A009635
+---------------
+If the core runs at higher than x3 speed of the platform, there is
+possiblity about sev instruction to getting missed by other cores.
+This is because of SoC Run Control block may not able to sample
+the EVENTI(Sev) signals.
+
+Workaround: Configure Run Control and EPU to periodically send out EVENTI signals to
+wake up A57 cores
+
+Errata workaround uses Env variable "a009635_interval_val". It uses decimal
+value.
+- Default value of env variable is platform clock (MHz)
+
+- User can modify default value by updating the env variable
+  setenv a009635_interval_val 600; saveenv;
+  It configure platform clock as 600 MHz
+
+- Env variable as 0 signifies no workaround

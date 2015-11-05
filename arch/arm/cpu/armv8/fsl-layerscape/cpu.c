@@ -484,7 +484,13 @@ int arch_early_init_r(void)
 {
 #ifdef CONFIG_MP
 	int rv = 1;
+#endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009635
+	erratum_a009635();
+#endif
+
+#ifdef CONFIG_MP
 	rv = fsl_layerscape_wake_seconday_cores();
 	if (rv)
 		printf("Did not wake secondary cores\n");
