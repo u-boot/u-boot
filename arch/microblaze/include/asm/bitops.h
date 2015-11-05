@@ -7,6 +7,10 @@
 
 #include <asm/byteorder.h>	/* swab32 */
 #include <asm/system.h>		/* save_flags */
+#include <asm-generic/bitops/fls.h>
+#include <asm-generic/bitops/__fls.h>
+#include <asm-generic/bitops/fls64.h>
+#include <asm-generic/bitops/__ffs.h>
 
 #ifdef __KERNEL__
 /*
