@@ -28,6 +28,8 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_SDRAM_SIZE		0x40000000
 
+#define COUNTER_FREQUENCY	4000000
+
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_EP_H */

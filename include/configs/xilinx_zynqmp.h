@@ -43,7 +43,9 @@
 #define CONFIG_OF_LIBFDT
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
-#define COUNTER_FREQUENCY		4000000
+#if !defined(COUNTER_FREQUENCY)
+# define COUNTER_FREQUENCY		100000000
+#endif
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x2000000)
