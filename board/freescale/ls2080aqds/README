@@ -172,7 +172,7 @@ Supported PHY addresses during SGMII:
 #define XQSGMII_CARD_PHY4_PORT0_ADDR 0xc
 #define XQSGMII_CARD_PHY4_PORT2_ADDR 0xe
 
-Mapping DPMACx to PHY during QSGMII
+Mapping DPMACx to PHY during SGMII
 DPMAC1 -> PHY1-P0
 DPMAC2 -> PHY2-P0
 DPMAC3 -> PHY3-P0
