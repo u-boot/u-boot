@@ -182,6 +182,19 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	flash->read = spi_flash_cmd_read_ops;
 #endif
 
+	/* lock hooks are flash specific - assign them based on idcode0 */
+	switch (idcode[0]) {
+#ifdef CONFIG_SPI_FLASH_STMICRO
+	case SPI_FLASH_CFI_MFR_STMICRO:
+		flash->flash_lock = stm_lock;
+		flash->flash_unlock = stm_unlock;
+		flash->flash_is_locked = stm_is_locked;
+#endif
+		break;
+	default:
+		debug("SF: Lock ops not supported for %02x flash\n", idcode[0]);
+	}
+
 	/* Compute the flash size */
 	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
 	/*

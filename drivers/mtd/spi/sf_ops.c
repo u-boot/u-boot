@@ -268,6 +268,11 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 		return -1;
 	}
 
+	if (flash->flash_is_locked(flash, offset, len) > 0) {
+		printf("offset 0x%x is protected and cannot be erased\n", offset);
+		return -EINVAL;
+	}
+
 	cmd[0] = flash->erase_cmd;
 	while (len) {
 		erase_addr = offset;
@@ -309,6 +314,11 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 	int ret = -1;
 
 	page_size = flash->page_size;
+
+	if (flash->flash_is_locked(flash, offset, len) > 0) {
+		printf("offset 0x%x is protected and cannot be written\n", offset);
+		return -EINVAL;
+	}
 
 	cmd[0] = flash->write_cmd;
 	for (actual = 0; actual < len; actual += chunk_len) {
@@ -589,7 +599,7 @@ static void stm_get_locked_range(struct spi_flash *flash, u8 sr, loff_t *ofs,
 /*
  * Return 1 if the entire region is locked, 0 otherwise
  */
-static int stm_is_locked_sr(struct spi_flash *flash, loff_t ofs, u32 len,
+static int stm_is_locked_sr(struct spi_flash *flash, u32 ofs, u32 len,
 			    u8 sr)
 {
 	loff_t lock_offs;
@@ -607,7 +617,7 @@ static int stm_is_locked_sr(struct spi_flash *flash, loff_t ofs, u32 len,
  * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
  * negative on errors.
  */
-int stm_is_locked(struct spi_flash *flash, loff_t ofs, u32 len)
+int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len)
 {
 	int status;
 	u8 sr;
