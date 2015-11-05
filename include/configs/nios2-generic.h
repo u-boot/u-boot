@@ -33,8 +33,9 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /*
- * MII/PHY
+ * NET options
  */
+#define CONFIG_SYS_RX_ETH_BUFFER	0
 #define CONFIG_CMD_MII
 #define CONFIG_PHY_GIGE
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
