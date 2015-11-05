@@ -45,16 +45,3 @@ void at91_udp_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_UDPHS);
 }
 #endif
-
-#ifdef CONFIG_SPL_BUILD
-void redirect_int_from_saic_to_aic(void)
-{
-	struct atmel_sfr *sfr = (struct atmel_sfr *)ATMEL_BASE_SFR;
-	u32 key32;
-
-	if (!(readl(&sfr->aicredir) & ATMEL_SFR_AICREDIR_NSAIC)) {
-		key32 = readl(&sfr->sn1) ^ ATMEL_SFR_AICREDIR_KEY;
-		writel((key32 | ATMEL_SFR_AICREDIR_NSAIC), &sfr->aicredir);
-	}
-}
-#endif

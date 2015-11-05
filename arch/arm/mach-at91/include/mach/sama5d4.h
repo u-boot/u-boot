@@ -204,6 +204,9 @@
 #define H32MX_SLAVE_USB			5	/* USB Device & Host */
 #define H32MX_SLAVE_SMD			6	/* Soft Modem (SMD) */
 
+/* AICREDIR Unlock Key */
+#define ATMEL_SFR_AICREDIR_KEY		0x5F67B102
+
 /* sama5d4 series chip id definitions */
 #define ARCH_ID_SAMA5D4		0x8a5c07c0
 #define ARCH_EXID_SAMA5D41	0x00000001
