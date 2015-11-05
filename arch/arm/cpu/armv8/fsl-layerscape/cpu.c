@@ -76,7 +76,7 @@ static int set_block_entry(const struct sys_mmu_table *list,
 				    index,
 				    block_addr,
 				    list->memory_type,
-				    list->share);
+				    list->attribute);
 		block_addr += block_size;
 		index++;
 	}
