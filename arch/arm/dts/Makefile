@@ -58,7 +58,8 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 dtb-$(CONFIG_ARCH_ZYNQMP) += zynqmp-ep108.dtb	\
 	zynqmp-zcu102.dtb			\
 	zynqmp-zc1751-xm015-dc1.dtb		\
-	zynqmp-zc1751-xm016-dc2.dtb
+	zynqmp-zc1751-xm016-dc2.dtb		\
+	zynqmp-zc1751-xm019-dc5.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\

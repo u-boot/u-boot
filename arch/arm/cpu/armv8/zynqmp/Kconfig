@@ -18,6 +18,9 @@ config TARGET_ZYNQMP_ZC1751_XM015_DC1
 config TARGET_ZYNQMP_ZC1751_XM016_DC2
 	bool "ZynqMP ZC1751 XM016 DC2"
 
+config TARGET_ZYNQMP_ZC1751_XM019_DC5
+	bool "ZynqMP ZC1751 XM019 DC5"
+
 endchoice
 
 config SYS_BOARD
@@ -35,6 +38,7 @@ config SYS_CONFIG_NAME
 	default "xilinx_zynqmp_zcu102" if TARGET_ZYNQMP_ZCU102
 	default "xilinx_zynqmp_zc1751_xm015_dc1" if TARGET_ZYNQMP_ZC1751_XM015_DC1
 	default "xilinx_zynqmp_zc1751_xm016_dc2" if TARGET_ZYNQMP_ZC1751_XM016_DC2
+	default "xilinx_zynqmp_zc1751_xm019_dc5" if TARGET_ZYNQMP_ZC1751_XM019_DC5
 
 config SECURE_IOU
 	bool "Configure ZynqMP secure IOU"
