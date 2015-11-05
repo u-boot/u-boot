@@ -173,4 +173,8 @@ static inline void outsl (unsigned long port, const void *src, unsigned long cou
 #define setbits_8(addr, set) setbits(8, addr, set)
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
+#define memset_io(a, b, c)		memset((void *)(a), (b), (c))
+#define memcpy_fromio(a, b, c)		memcpy((a), (void *)(b), (c))
+#define memcpy_toio(a, b, c)		memcpy((void *)(a), (b), (c))
+
 #endif /* __ASM_NIOS2_IO_H_ */
