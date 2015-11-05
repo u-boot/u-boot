@@ -490,6 +490,19 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 		s32 default_val);
 
 /**
+ * Unsigned version of fdtdec_get_int. The property must have at least
+ * 4 bytes of data. The value of the first cell is returned.
+ *
+ * @param blob	FDT blob
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @param default_val	default value to return if the property is not found
+ * @return unsigned integer value, if found, or default_val if not
+ */
+unsigned int fdtdec_get_uint(const void *blob, int node, const char *prop_name,
+			unsigned int default_val);
+
+/**
  * Get a variable-sized number from a property
  *
  * This reads a number from one or more cells.
