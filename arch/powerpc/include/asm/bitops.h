@@ -6,6 +6,7 @@
 #define _PPC_BITOPS_H
 
 #include <asm/byteorder.h>
+#include <asm-generic/bitops/__ffs.h>
 
 extern void set_bit(int nr, volatile void *addr);
 extern void clear_bit(int nr, volatile void *addr);
@@ -208,16 +209,6 @@ static inline int fls64(__u64 x)
 #else
 #error BITS_PER_LONG not 32 or 64
 #endif
-
-static inline int __ilog2_u64(u64 n)
-{
-	return fls64(n) - 1;
-}
-
-static inline int ffs64(u64 x)
-{
-	return __ilog2_u64(x & -x) + 1ull;
-}
 
 #ifdef __KERNEL__
 
