@@ -15,10 +15,6 @@ void matrix_init(void)
 	struct atmel_matrix *h32mx = (struct atmel_matrix *)ATMEL_BASE_MATRIX1;
 	int i;
 
-	/* Disable the write protect */
-	writel(ATMEL_MATRIX_WPMR_WPKEY & ~ATMEL_MATRIX_WPMR_WPEN, &h64mx->wpmr);
-	writel(ATMEL_MATRIX_WPMR_WPKEY & ~ATMEL_MATRIX_WPMR_WPEN, &h32mx->wpmr);
-
 	/* DDR port 1 ~ poart 7, slave number is: 4 ~ 10 */
 	for (i = 4; i <= 10; i++) {
 		writel(0x000f0f0f, &h64mx->ssr[i]);
@@ -44,8 +40,4 @@ void matrix_init(void)
 	/* Configure Programmable Security peripherals on matrix 32 */
 	writel(readl(&h32mx->spselr[0]) | 0xFFC00000, &h32mx->spselr[0]);
 	writel(readl(&h32mx->spselr[1]) | 0x60E3FFFF, &h32mx->spselr[1]);
-
-	/* Enable the write protect */
-	writel(ATMEL_MATRIX_WPMR_WPKEY | ATMEL_MATRIX_WPMR_WPEN, &h64mx->wpmr);
-	writel(ATMEL_MATRIX_WPMR_WPKEY | ATMEL_MATRIX_WPMR_WPEN, &h32mx->wpmr);
 }
