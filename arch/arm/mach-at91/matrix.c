@@ -31,13 +31,4 @@ void matrix_init(void)
 	writel(0x00010101, &h32mx->ssr[4]);
 	writel(0x00000001, &h32mx->sassr[4]);
 	writel(0x00000001, &h32mx->srtsr[4]);
-
-	/* Configure Programmable Security peripherals on matrix 64 */
-	writel(readl(&h64mx->spselr[0]) | 0x00080000, &h64mx->spselr[0]);
-	writel(readl(&h64mx->spselr[1]) | 0x00180000, &h64mx->spselr[1]);
-	writel(readl(&h64mx->spselr[2]) | 0x00000008, &h64mx->spselr[2]);
-
-	/* Configure Programmable Security peripherals on matrix 32 */
-	writel(readl(&h32mx->spselr[0]) | 0xFFC00000, &h32mx->spselr[0]);
-	writel(readl(&h32mx->spselr[1]) | 0x60E3FFFF, &h32mx->spselr[1]);
 }
