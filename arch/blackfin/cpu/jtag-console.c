@@ -183,7 +183,7 @@ int drv_jtag_console_init(void)
 
 	memset(&dev, 0x00, sizeof(dev));
 	strcpy(dev.name, "jtag");
-	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 	dev.putc = jtag_putc;
 	dev.puts = jtag_puts;
 	dev.tstc = jtag_tstc;

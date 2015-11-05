@@ -274,7 +274,7 @@ int kbd_init (void)
 		return -1;
 	memset (&kbddev, 0, sizeof(kbddev));
 	strcpy(kbddev.name, DEVNAME);
-	kbddev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	kbddev.flags =  DEV_FLAGS_INPUT;
 	kbddev.getc = kbd_getc ;
 	kbddev.tstc = kbd_testc ;
 
