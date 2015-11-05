@@ -94,6 +94,8 @@
 	"boot.scr fat 0 1;"                 \
 	"boot.cmd fat 0 1;"                 \
 	"exynos5422-odroidxu3.dtb fat 0 1;" \
+	"exynos5422-odroidxu3-lite.dtb fat 0 1;" \
+	"exynos5422-odroidxu4.dtb fat 0 1;" \
 	"boot part 0 1;"                    \
 	"root part 0 2\0"
 
@@ -113,8 +115,18 @@
 
 /* Enable: board/samsung/common/misc.c to use set_dfu_alt_info() */
 #define CONFIG_MISC_COMMON
+#define CONFIG_MISC_INIT_R
 #define CONFIG_SET_DFU_ALT_INFO
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
+
+/* Set soc_rev, soc_id, board_rev, boardname, fdtfile */
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#define CONFIG_ODROID_REV_AIN			9
+#define CONFIG_REVISION_TAG
+#define CONFIG_BOARD_TYPES
+
+#undef CONFIG_SYS_BOARD
+#define CONFIG_SYS_BOARD	"odroid"
 
 /* Define new extra env settings, including DFU settings */
 #undef CONFIG_EXTRA_ENV_SETTINGS

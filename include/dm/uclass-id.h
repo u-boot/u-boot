@@ -25,6 +25,7 @@ enum uclass_id {
 	UCLASS_SIMPLE_BUS,	/* bus with child devices */
 
 	/* U-Boot uclasses start here - in alphabetical order */
+	UCLASS_ADC,		/* Analog-to-digital converter */
 	UCLASS_CLK,		/* Clock source, e.g. used by peripherals */
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */

@@ -78,7 +78,7 @@ static inline void configure_l2_ctlr(void)
 		CACHE_TAG_RAM_LATENCY_2_CYCLES |
 		CACHE_DATA_RAM_LATENCY_2_CYCLES;
 
-	if (proid_is_exynos5420() || proid_is_exynos5800()) {
+	if (proid_is_exynos5420() || proid_is_exynos5422()) {
 		val |= CACHE_ECC_AND_PARITY |
 			CACHE_TAG_RAM_LATENCY_3_CYCLES |
 			CACHE_DATA_RAM_LATENCY_3_CYCLES;
@@ -97,7 +97,7 @@ static inline void configure_l2_actlr(void)
 {
 	uint32_t val;
 
-	if (proid_is_exynos5420() || proid_is_exynos5800()) {
+	if (proid_is_exynos5420() || proid_is_exynos5422()) {
 		mrc_l2_aux_ctlr(val);
 		val |= CACHE_ENABLE_FORCE_L2_LOGIC |
 			CACHE_DISABLE_CLEAN_EVICT;

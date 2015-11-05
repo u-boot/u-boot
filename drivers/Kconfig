@@ -4,6 +4,8 @@ source "drivers/core/Kconfig"
 
 # types of drivers sorted in alphabetical order
 
+source "drivers/adc/Kconfig"
+
 source "drivers/block/Kconfig"
 
 source "drivers/clk/Kconfig"

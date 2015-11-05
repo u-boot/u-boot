@@ -55,7 +55,7 @@
 		regulator-always-on;
 	};
 
-	buck2 {
+	buck2: buck2 {
 		regulator-name = "SUPPLY_3.3V";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;

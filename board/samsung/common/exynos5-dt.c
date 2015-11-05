@@ -27,7 +27,10 @@
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
 #include <power/regulator.h>
+#include <power/s2mps11.h>
 #include <power/s5m8767.h>
+#include <samsung/exynos5-dt-types.h>
+#include <samsung/misc.h>
 #include <tmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -335,14 +338,23 @@ int board_usb_init(int index, enum usb_init_type init)
 #ifdef CONFIG_SET_DFU_ALT_INFO
 char *get_dfu_alt_system(char *interface, char *devstr)
 {
+	char *info = "Not supported!";
+
+	if (board_is_odroidxu4())
+		return info;
+
 	return getenv("dfu_alt_system");
 }
 
 char *get_dfu_alt_boot(char *interface, char *devstr)
 {
+	char *info = "Not supported!";
 	struct mmc *mmc;
 	char *alt_boot;
 	int dev_num;
+
+	if (board_is_odroidxu4())
+		return info;
 
 	dev_num = simple_strtoul(devstr, NULL, 10);
 

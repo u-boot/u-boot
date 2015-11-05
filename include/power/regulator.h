@@ -419,4 +419,20 @@ int regulator_get_by_devname(const char *devname, struct udevice **devp);
  */
 int regulator_get_by_platname(const char *platname, struct udevice **devp);
 
+/**
+ * device_get_supply_regulator: returns the pointer to the supply regulator.
+ * Search by phandle, found in device's node.
+ *
+ * Note: Please pay attention to proper order of device bind sequence.
+ * The regulator device searched by the phandle, must be binded before
+ * this function call.
+ *
+ * @dev         - device with supply phandle
+ * @supply_name - phandle name of regulator
+ * @devp        - returned pointer to the supply device
+ * @return 0 on success or negative value of errno.
+ */
+int device_get_supply_regulator(struct udevice *dev, const char *supply_name,
+				struct udevice **devp);
+
 #endif /* _INCLUDE_REGULATOR_H_ */
