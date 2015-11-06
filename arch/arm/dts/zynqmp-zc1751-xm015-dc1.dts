@@ -160,7 +160,7 @@
 /* ULPI SMSC USB3320 */
 &usb0 {
 	status = "okay";
-	dr_mode = "peripheral";
+	dr_mode = "host";
 	maximum-speed = "high-speed";
 };
 
