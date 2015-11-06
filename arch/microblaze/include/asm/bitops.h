@@ -21,31 +21,31 @@
  * The __ functions are not atomic
  */
 
-extern void set_bit(int nr, volatile void * addr);
-extern void __set_bit(int nr, volatile void * addr);
+extern void set_bit(int nr, volatile void *addr);
+extern void __set_bit(int nr, volatile void *addr);
 
-extern void clear_bit(int nr, volatile void * addr);
+extern void clear_bit(int nr, volatile void *addr);
 #define __clear_bit(nr, addr) clear_bit(nr, addr)
 #define PLATFORM__CLEAR_BIT
 
-extern void change_bit(int nr, volatile void * addr);
-extern void __change_bit(int nr, volatile void * addr);
-extern int test_and_set_bit(int nr, volatile void * addr);
-extern int __test_and_set_bit(int nr, volatile void * addr);
-extern int test_and_clear_bit(int nr, volatile void * addr);
-extern int __test_and_clear_bit(int nr, volatile void * addr);
-extern int test_and_change_bit(int nr, volatile void * addr);
-extern int __test_and_change_bit(int nr, volatile void * addr);
-extern int __constant_test_bit(int nr, const volatile void * addr);
-extern int __test_bit(int nr, volatile void * addr);
-extern int find_first_zero_bit(void * addr, unsigned size);
-extern int find_next_zero_bit (void * addr, int size, int offset);
+extern void change_bit(int nr, volatile void *addr);
+extern void __change_bit(int nr, volatile void *addr);
+extern int test_and_set_bit(int nr, volatile void *addr);
+extern int __test_and_set_bit(int nr, volatile void *addr);
+extern int test_and_clear_bit(int nr, volatile void *addr);
+extern int __test_and_clear_bit(int nr, volatile void *addr);
+extern int test_and_change_bit(int nr, volatile void *addr);
+extern int __test_and_change_bit(int nr, volatile void *addr);
+extern int __constant_test_bit(int nr, const volatile void *addr);
+extern int __test_bit(int nr, volatile void *addr);
+extern int find_first_zero_bit(void *addr, unsigned size);
+extern int find_next_zero_bit(void *addr, int size, int offset);
 
 /*
  * ffz = Find First Zero in word. Undefined if no zero exists,
  * so code should check against ~0UL first..
  */
-extern __inline__ unsigned long ffz(unsigned long word)
+extern inline unsigned long ffz(unsigned long word)
 {
 	unsigned long result = 0;
 
@@ -57,7 +57,7 @@ extern __inline__ unsigned long ffz(unsigned long word)
 }
 
 
-extern __inline__ void set_bit(int nr, volatile void * addr)
+extern inline void set_bit(int nr, volatile void *addr)
 {
 	int	* a = (int *) addr;
 	int	mask;
@@ -70,7 +70,7 @@ extern __inline__ void set_bit(int nr, volatile void * addr)
 	restore_flags(flags);
 }
 
-extern __inline__ void __set_bit(int nr, volatile void * addr)
+extern inline void __set_bit(int nr, volatile void *addr)
 {
 	int	* a = (int *) addr;
 	int	mask;
@@ -87,7 +87,7 @@ extern __inline__ void __set_bit(int nr, volatile void * addr)
 #define smp_mb__before_clear_bit()	barrier()
 #define smp_mb__after_clear_bit()	barrier()
 
-extern __inline__ void clear_bit(int nr, volatile void * addr)
+extern inline void clear_bit(int nr, volatile void *addr)
 {
 	int	* a = (int *) addr;
 	int	mask;
@@ -100,7 +100,7 @@ extern __inline__ void clear_bit(int nr, volatile void * addr)
 	restore_flags(flags);
 }
 
-extern __inline__ void change_bit(int nr, volatile void * addr)
+extern inline void change_bit(int nr, volatile void *addr)
 {
 	int mask;
 	unsigned long flags;
@@ -113,7 +113,7 @@ extern __inline__ void change_bit(int nr, volatile void * addr)
 	restore_flags(flags);
 }
 
-extern __inline__ void __change_bit(int nr, volatile void * addr)
+extern inline void __change_bit(int nr, volatile void *addr)
 {
 	int mask;
 	unsigned long *ADDR = (unsigned long *) addr;
@@ -123,7 +123,7 @@ extern __inline__ void __change_bit(int nr, volatile void * addr)
 	*ADDR ^= mask;
 }
 
-extern __inline__ int test_and_set_bit(int nr, volatile void * addr)
+extern inline int test_and_set_bit(int nr, volatile void *addr)
 {
 	int	mask, retval;
 	volatile unsigned int *a = (volatile unsigned int *) addr;
@@ -139,7 +139,7 @@ extern __inline__ int test_and_set_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-extern __inline__ int __test_and_set_bit(int nr, volatile void * addr)
+extern inline int __test_and_set_bit(int nr, volatile void *addr)
 {
 	int	mask, retval;
 	volatile unsigned int *a = (volatile unsigned int *) addr;
@@ -151,7 +151,7 @@ extern __inline__ int __test_and_set_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-extern __inline__ int test_and_clear_bit(int nr, volatile void * addr)
+extern inline int test_and_clear_bit(int nr, volatile void *addr)
 {
 	int	mask, retval;
 	volatile unsigned int *a = (volatile unsigned int *) addr;
@@ -167,7 +167,7 @@ extern __inline__ int test_and_clear_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-extern __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
+extern inline int __test_and_clear_bit(int nr, volatile void *addr)
 {
 	int	mask, retval;
 	volatile unsigned int *a = (volatile unsigned int *) addr;
@@ -179,7 +179,7 @@ extern __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-extern __inline__ int test_and_change_bit(int nr, volatile void * addr)
+extern inline int test_and_change_bit(int nr, volatile void *addr)
 {
 	int	mask, retval;
 	volatile unsigned int *a = (volatile unsigned int *) addr;
@@ -195,7 +195,7 @@ extern __inline__ int test_and_change_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-extern __inline__ int __test_and_change_bit(int nr, volatile void * addr)
+extern inline int __test_and_change_bit(int nr, volatile void *addr)
 {
 	int	mask, retval;
 	volatile unsigned int *a = (volatile unsigned int *) addr;
@@ -210,12 +210,12 @@ extern __inline__ int __test_and_change_bit(int nr, volatile void * addr)
 /*
  * This routine doesn't need to be atomic.
  */
-extern __inline__ int __constant_test_bit(int nr, const volatile void * addr)
+extern inline int __constant_test_bit(int nr, const volatile void *addr)
 {
 	return ((1UL << (nr & 31)) & (((const volatile unsigned int *) addr)[nr >> 5])) != 0;
 }
 
-extern __inline__ int __test_bit(int nr, volatile void * addr)
+extern inline int __test_bit(int nr, volatile void *addr)
 {
 	int	* a = (int *) addr;
 	int	mask;
@@ -233,7 +233,7 @@ extern __inline__ int __test_bit(int nr, volatile void * addr)
 #define find_first_zero_bit(addr, size) \
 	find_next_zero_bit((addr), (size), 0)
 
-extern __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+extern inline int find_next_zero_bit(void *addr, int size, int offset)
 {
 	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
 	unsigned long result = offset & ~31UL;
@@ -279,7 +279,7 @@ found_middle:
 #define hweight8(x) generic_hweight8(x)
 
 
-extern __inline__ int ext2_set_bit(int nr, volatile void * addr)
+extern inline int ext2_set_bit(int nr, volatile void *addr)
 {
 	int		mask, retval;
 	unsigned long	flags;
@@ -294,7 +294,7 @@ extern __inline__ int ext2_set_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-extern __inline__ int ext2_clear_bit(int nr, volatile void * addr)
+extern inline int ext2_clear_bit(int nr, volatile void *addr)
 {
 	int		mask, retval;
 	unsigned long	flags;
@@ -309,7 +309,7 @@ extern __inline__ int ext2_clear_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-extern __inline__ int ext2_test_bit(int nr, const volatile void * addr)
+extern inline int ext2_test_bit(int nr, const volatile void *addr)
 {
 	int			mask;
 	const volatile unsigned char	*ADDR = (const unsigned char *) addr;
