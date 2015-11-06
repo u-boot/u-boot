@@ -27,12 +27,12 @@ static inline void alt_sgdma_construct_descriptor(
 	struct alt_sgdma_descriptor *next,
 	void *read_addr,
 	void *write_addr,
-	unsigned short length_or_eop,
+	u16 length_or_eop,
 	int generate_eop,
 	int read_fixed,
 	int write_fixed_or_sop)
 {
-	unsigned char val;
+	u8 val;
 
 	/*
 	 * Mark the "next" descriptor as "not" owned by hardware. This prevents
@@ -100,7 +100,7 @@ static int alt_sgdma_wait_transfer(struct alt_sgdma_registers *regs)
 static int alt_sgdma_start_transfer(struct alt_sgdma_registers *regs,
 				    struct alt_sgdma_descriptor *desc)
 {
-	unsigned int val;
+	u32 val;
 
 	/* Point the controller at the descriptor */
 	writel(virt_to_phys(desc), &regs->next_descriptor_pointer);
@@ -121,7 +121,7 @@ static void tse_adjust_link(struct altera_tse_priv *priv,
 			    struct phy_device *phydev)
 {
 	struct alt_tse_mac *mac_dev = priv->mac_dev;
-	unsigned int refvar;
+	u32 refvar;
 
 	if (!phydev->link) {
 		debug("%s: No link.\n", phydev->dev->name);
@@ -230,7 +230,7 @@ static void altera_tse_stop(struct udevice *dev)
 	struct alt_sgdma_registers *rx_sgdma = priv->sgdma_rx;
 	struct alt_sgdma_registers *tx_sgdma = priv->sgdma_tx;
 	struct alt_sgdma_descriptor *rx_desc = priv->rx_desc;
-	unsigned int status;
+	u32 status;
 	int ret;
 	ulong ctime;
 
@@ -266,7 +266,7 @@ static int tse_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct altera_tse_priv *priv = bus->priv;
 	struct alt_tse_mac *mac_dev = priv->mac_dev;
-	unsigned int value;
+	u32 value;
 
 	/* set mdio address */
 	writel(addr, &mac_dev->mdio_phy1_addr);
@@ -337,7 +337,7 @@ static int altera_tse_write_hwaddr(struct udevice *dev)
 	struct alt_tse_mac *mac_dev = priv->mac_dev;
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	u8 *hwaddr = pdata->enetaddr;
-	unsigned int mac_lo, mac_hi;
+	u32 mac_lo, mac_hi;
 
 	mac_lo = (hwaddr[3] << 24) | (hwaddr[2] << 16) |
 		(hwaddr[1] << 8) | hwaddr[0];
@@ -362,7 +362,7 @@ static int altera_tse_start(struct udevice *dev)
 {
 	struct altera_tse_priv *priv = dev_get_priv(dev);
 	struct alt_tse_mac *mac_dev = priv->mac_dev;
-	unsigned int val;
+	u32 val;
 	int ret;
 
 	/* need to create sgdma */

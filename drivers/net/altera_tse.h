@@ -54,34 +54,34 @@
  *
  */
 struct alt_sgdma_descriptor {
-	unsigned int source;	/* the address of data to be read. */
-	unsigned int source_pad;
+	u32 source;	/* the address of data to be read. */
+	u32 source_pad;
 
-	unsigned int destination;	/* the address to write data */
-	unsigned int destination_pad;
+	u32 destination;	/* the address to write data */
+	u32 destination_pad;
 
-	unsigned int next;	/* the next descriptor in the list. */
-	unsigned int next_pad;
+	u32 next;	/* the next descriptor in the list. */
+	u32 next_pad;
 
-	unsigned short bytes_to_transfer; /* the number of bytes to transfer */
-	unsigned char read_burst;
-	unsigned char write_burst;
+	u16 bytes_to_transfer; /* the number of bytes to transfer */
+	u8 read_burst;
+	u8 write_burst;
 
-	unsigned short actual_bytes_transferred;/* bytes transferred by DMA */
-	unsigned char descriptor_status;
-	unsigned char descriptor_control;
+	u16 actual_bytes_transferred;/* bytes transferred by DMA */
+	u8 descriptor_status;
+	u8 descriptor_control;
 
 } __packed_1_;
 
 /* SG-DMA Control/Status Slave registers map */
 
 struct alt_sgdma_registers {
-	unsigned int status;
-	unsigned int status_pad[3];
-	unsigned int control;
-	unsigned int control_pad[3];
-	unsigned int next_descriptor_pointer;
-	unsigned int descriptor_pad[3];
+	u32 status;
+	u32 status_pad[3];
+	u32 control;
+	u32 control_pad[3];
+	u32 next_descriptor_pointer;
+	u32 descriptor_pad[3];
 };
 
 /* TSE Stuff */
@@ -98,47 +98,47 @@ struct alt_sgdma_registers {
 /* MAC register Space */
 
 struct alt_tse_mac {
-	unsigned int megacore_revision;
-	unsigned int scratch_pad;
-	unsigned int command_config;
-	unsigned int mac_addr_0;
-	unsigned int mac_addr_1;
-	unsigned int max_frame_length;
-	unsigned int pause_quanta;
-	unsigned int rx_sel_empty_threshold;
-	unsigned int rx_sel_full_threshold;
-	unsigned int tx_sel_empty_threshold;
-	unsigned int tx_sel_full_threshold;
-	unsigned int rx_almost_empty_threshold;
-	unsigned int rx_almost_full_threshold;
-	unsigned int tx_almost_empty_threshold;
-	unsigned int tx_almost_full_threshold;
-	unsigned int mdio_phy0_addr;
-	unsigned int mdio_phy1_addr;
+	u32 megacore_revision;
+	u32 scratch_pad;
+	u32 command_config;
+	u32 mac_addr_0;
+	u32 mac_addr_1;
+	u32 max_frame_length;
+	u32 pause_quanta;
+	u32 rx_sel_empty_threshold;
+	u32 rx_sel_full_threshold;
+	u32 tx_sel_empty_threshold;
+	u32 tx_sel_full_threshold;
+	u32 rx_almost_empty_threshold;
+	u32 rx_almost_full_threshold;
+	u32 tx_almost_empty_threshold;
+	u32 tx_almost_full_threshold;
+	u32 mdio_phy0_addr;
+	u32 mdio_phy1_addr;
 
-	unsigned int reserved1[0x29];
+	u32 reserved1[0x29];
 
 	/*FIFO control register. */
-	unsigned int tx_cmd_stat;
-	unsigned int rx_cmd_stat;
+	u32 tx_cmd_stat;
+	u32 rx_cmd_stat;
 
-	unsigned int reserved2[0x44];
+	u32 reserved2[0x44];
 
 	/*Registers 0 to 31 within PHY device 0/1 */
-	unsigned int mdio_phy0[0x20];
-	unsigned int mdio_phy1[0x20];
+	u32 mdio_phy0[0x20];
+	u32 mdio_phy1[0x20];
 
 	/*4 Supplemental MAC Addresses */
-	unsigned int supp_mac_addr_0_0;
-	unsigned int supp_mac_addr_0_1;
-	unsigned int supp_mac_addr_1_0;
-	unsigned int supp_mac_addr_1_1;
-	unsigned int supp_mac_addr_2_0;
-	unsigned int supp_mac_addr_2_1;
-	unsigned int supp_mac_addr_3_0;
-	unsigned int supp_mac_addr_3_1;
+	u32 supp_mac_addr_0_0;
+	u32 supp_mac_addr_0_1;
+	u32 supp_mac_addr_1_0;
+	u32 supp_mac_addr_1_1;
+	u32 supp_mac_addr_2_0;
+	u32 supp_mac_addr_2_1;
+	u32 supp_mac_addr_3_0;
+	u32 supp_mac_addr_3_1;
 
-	unsigned int reserved3[0x38];
+	u32 reserved3[0x38];
 };
 
 struct altera_tse_priv {
