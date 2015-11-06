@@ -193,6 +193,7 @@
 	"initrd_size=0x2000000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
+	"sdbootdev=0\0"\
 	CONFIG_KERNEL_FDT_OFST_SIZE \
 	"sata_root=if test $scsidevs -gt 0; then setenv bootargs $bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
 	"veloce=fdt addr f000000 && " \
@@ -205,11 +206,8 @@
 	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr $fdt_offset $fdt_size && " \
 		  "sf read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
-	"sdboot=mmcinfo && load mmc 0:$partid $fdt_addr system.dtb && " \
-		"load mmc 0:$partid $kernel_addr Image && " \
-		"booti $kernel_addr - $fdt_addr\0" \
-	"sdboot1=mmc dev 1 && mmcinfo && load mmc 1:$partid $fdt_addr system.dtb && " \
-		"load mmc 1:$partid $kernel_addr Image && " \
+	"sdboot=mmc dev $sdbootdev && mmcinfo && load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
+		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
 	"nandboot=nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
 		  "nand read $kernel_addr $kernel_offset $kernel_size && " \
