@@ -17,7 +17,6 @@
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_ARCH_EARLY_INIT_R
 
-#define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_PCI_PNP
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,vga\0" \

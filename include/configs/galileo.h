@@ -21,7 +21,6 @@
 /* ns16550 UART is memory-mapped in Quark SoC */
 #undef  CONFIG_SYS_NS16550_PORT_MAPPED
 
-#define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_PCI_PNP
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial\0" \

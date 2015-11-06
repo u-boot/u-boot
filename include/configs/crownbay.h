@@ -20,7 +20,6 @@
 
 #define CONFIG_SMSC_LPC47M
 
-#define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_PCI_PNP
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,vga,usbkbd\0" \
