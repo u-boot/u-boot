@@ -103,7 +103,10 @@ int board_late_init(void)
 		break;
 	case SD_MODE1:
 		puts("SD_MODE1\n");
-		setenv("modeboot", "sdboot1");
+#if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
+		setenv("sdbootdev", "1");
+#endif
+		setenv("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
 		puts("NAND_MODE\n");

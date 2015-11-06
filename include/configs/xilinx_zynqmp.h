@@ -156,8 +156,10 @@
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"sdboot=mmcinfo && load mmc 0:0 $fdt_addr system.dtb && " \
-		"load mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0" \
+	"sdbootdev=0\0"\
+	"sdboot=mmc dev $sdbootdev && mmcinfo && load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
+		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
+		"booti $kernel_addr - $fdt_addr\0" \
 	DFU_ALT_INFO
 
 #define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
