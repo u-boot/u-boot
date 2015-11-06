@@ -11,7 +11,7 @@
 #ifndef _ALTERA_TSE_H_
 #define _ALTERA_TSE_H_
 
-#define __packed_1_    __attribute__ ((packed, aligned(1)))
+#define __packed_1_    __packed __aligned(1)
 
 /* SGDMA Stuff */
 #define ALT_SGDMA_STATUS_BUSY_MSK			(0x00000010)
