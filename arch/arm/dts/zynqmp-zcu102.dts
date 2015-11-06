@@ -92,6 +92,9 @@
 	phy-mode = "rgmii-id";
 	phy0: phy@21 {
 		reg = <21>;
+		ti,rx-internal-delay = <0x8>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <0x1>;
 	};
 };
 
