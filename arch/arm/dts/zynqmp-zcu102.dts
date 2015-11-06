@@ -375,9 +375,9 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x5d>;
-				temperature-stability = <50>; /* copy from zc702 */
+				temperature-stability = <50>;
 				factory-fout = <156250000>;
-				clock-frequency = <148500000>;
+				clock-frequency = <300000000>;
 			};
 		};
 		i2c@3 { /* i2c mw 74 0 8 */
