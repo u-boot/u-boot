@@ -224,7 +224,6 @@
 &usb1 {
 	status = "okay";
 	dr_mode = "host";
-	maximum-speed = "high-speed";
 };
 
 &uart0 {

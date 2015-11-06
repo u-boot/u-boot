@@ -534,5 +534,4 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 &usb0 {
 	status = "okay";
 	dr_mode = "host";
-	maximum-speed = "high-speed";
 };

@@ -161,7 +161,6 @@
 &usb0 {
 	status = "okay";
 	dr_mode = "host";
-	maximum-speed = "high-speed";
 };
 
 &xilinx_drm {
