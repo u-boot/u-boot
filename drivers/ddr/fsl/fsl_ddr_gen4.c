@@ -423,16 +423,16 @@ step2:
 	if (getenv_f("ddr_bist", buffer, CONFIG_SYS_CBSIZE) >= 0) {
 		puts("Running BIST test. This will take a while...");
 		cs0_config = ddr_in32(&ddr->cs0_config);
+		cs0_bnds = ddr_in32(&ddr->cs0_bnds);
+		cs1_bnds = ddr_in32(&ddr->cs1_bnds);
+		cs2_bnds = ddr_in32(&ddr->cs2_bnds);
+		cs3_bnds = ddr_in32(&ddr->cs3_bnds);
 		if (cs0_config & CTLR_INTLV_MASK) {
-			cs0_bnds = ddr_in32(&cs0_bnds);
-			cs1_bnds = ddr_in32(&cs1_bnds);
-			cs2_bnds = ddr_in32(&cs2_bnds);
-			cs3_bnds = ddr_in32(&cs3_bnds);
 			/* set bnds to non-interleaving */
-			ddr_out32(&cs0_bnds, (cs0_bnds & 0xfffefffe) >> 1);
-			ddr_out32(&cs1_bnds, (cs1_bnds & 0xfffefffe) >> 1);
-			ddr_out32(&cs2_bnds, (cs2_bnds & 0xfffefffe) >> 1);
-			ddr_out32(&cs3_bnds, (cs3_bnds & 0xfffefffe) >> 1);
+			ddr_out32(&ddr->cs0_bnds, (cs0_bnds & 0xfffefffe) >> 1);
+			ddr_out32(&ddr->cs1_bnds, (cs1_bnds & 0xfffefffe) >> 1);
+			ddr_out32(&ddr->cs2_bnds, (cs2_bnds & 0xfffefffe) >> 1);
+			ddr_out32(&ddr->cs3_bnds, (cs3_bnds & 0xfffefffe) >> 1);
 		}
 		ddr_out32(&ddr->mtp1, BIST_PATTERN1);
 		ddr_out32(&ddr->mtp2, BIST_PATTERN1);
@@ -469,10 +469,10 @@ step2:
 
 		if (cs0_config & CTLR_INTLV_MASK) {
 			/* restore bnds registers */
-			ddr_out32(&cs0_bnds, cs0_bnds);
-			ddr_out32(&cs1_bnds, cs1_bnds);
-			ddr_out32(&cs2_bnds, cs2_bnds);
-			ddr_out32(&cs3_bnds, cs3_bnds);
+			ddr_out32(&ddr->cs0_bnds, cs0_bnds);
+			ddr_out32(&ddr->cs1_bnds, cs1_bnds);
+			ddr_out32(&ddr->cs2_bnds, cs2_bnds);
+			ddr_out32(&ddr->cs3_bnds, cs3_bnds);
 		}
 	}
 #endif
