@@ -8,13 +8,6 @@
 #include <asm/byteorder.h>
 #include <asm-generic/bitops/__ffs.h>
 
-extern void set_bit(int nr, volatile void *addr);
-extern void clear_bit(int nr, volatile void *addr);
-extern void change_bit(int nr, volatile void *addr);
-extern int test_and_set_bit(int nr, volatile void *addr);
-extern int test_and_clear_bit(int nr, volatile void *addr);
-extern int test_and_change_bit(int nr, volatile void *addr);
-
 /*
  * Arguably these bit operations don't imply any memory barrier or
  * SMP ordering, but in fact a lot of drivers expect them to imply
@@ -35,7 +28,7 @@ extern int test_and_change_bit(int nr, volatile void *addr);
  * These used to be if'd out here because using : "cc" as a constraint
  * resulted in errors from egcs.  Things may be OK with gcc-2.95.
  */
-extern __inline__ void set_bit(int nr, volatile void * addr)
+static __inline__ void set_bit(int nr, volatile void * addr)
 {
 	unsigned long old;
 	unsigned long mask = 1 << (nr & 0x1f);
@@ -52,7 +45,7 @@ extern __inline__ void set_bit(int nr, volatile void * addr)
 	: "cc" );
 }
 
-extern __inline__ void clear_bit(int nr, volatile void *addr)
+static __inline__ void clear_bit(int nr, volatile void *addr)
 {
 	unsigned long old;
 	unsigned long mask = 1 << (nr & 0x1f);
@@ -69,7 +62,7 @@ extern __inline__ void clear_bit(int nr, volatile void *addr)
 	: "cc");
 }
 
-extern __inline__ void change_bit(int nr, volatile void *addr)
+static __inline__ void change_bit(int nr, volatile void *addr)
 {
 	unsigned long old;
 	unsigned long mask = 1 << (nr & 0x1f);
@@ -86,7 +79,7 @@ extern __inline__ void change_bit(int nr, volatile void *addr)
 	: "cc");
 }
 
-extern __inline__ int test_and_set_bit(int nr, volatile void *addr)
+static __inline__ int test_and_set_bit(int nr, volatile void *addr)
 {
 	unsigned int old, t;
 	unsigned int mask = 1 << (nr & 0x1f);
@@ -105,7 +98,7 @@ extern __inline__ int test_and_set_bit(int nr, volatile void *addr)
 	return (old & mask) != 0;
 }
 
-extern __inline__ int test_and_clear_bit(int nr, volatile void *addr)
+static __inline__ int test_and_clear_bit(int nr, volatile void *addr)
 {
 	unsigned int old, t;
 	unsigned int mask = 1 << (nr & 0x1f);
@@ -124,7 +117,7 @@ extern __inline__ int test_and_clear_bit(int nr, volatile void *addr)
 	return (old & mask) != 0;
 }
 
-extern __inline__ int test_and_change_bit(int nr, volatile void *addr)
+static __inline__ int test_and_change_bit(int nr, volatile void *addr)
 {
 	unsigned int old, t;
 	unsigned int mask = 1 << (nr & 0x1f);
@@ -144,7 +137,7 @@ extern __inline__ int test_and_change_bit(int nr, volatile void *addr)
 }
 #endif /* __INLINE_BITOPS */
 
-extern __inline__ int test_bit(int nr, __const__ volatile void *addr)
+static __inline__ int test_bit(int nr, __const__ volatile void *addr)
 {
 	__const__ unsigned int *p = (__const__ unsigned int *) addr;
 
@@ -153,7 +146,7 @@ extern __inline__ int test_bit(int nr, __const__ volatile void *addr)
 
 /* Return the bit position of the most significant 1 bit in a word */
 /* - the result is undefined when x == 0 */
-extern __inline__ int __ilog2(unsigned int x)
+static __inline__ int __ilog2(unsigned int x)
 {
 	int lz;
 
@@ -161,7 +154,7 @@ extern __inline__ int __ilog2(unsigned int x)
 	return 31 - lz;
 }
 
-extern __inline__ int ffz(unsigned int x)
+static __inline__ int ffz(unsigned int x)
 {
 	if ((x = ~x) == 0)
 		return 32;
@@ -217,7 +210,7 @@ static inline int fls64(__u64 x)
  * the libc and compiler builtin ffs routines, therefore
  * differs in spirit from the above ffz (man ffs).
  */
-extern __inline__ int ffs(int x)
+static __inline__ int ffs(int x)
 {
 	return __ilog2(x & -x) + 1;
 }
@@ -241,7 +234,7 @@ extern __inline__ int ffs(int x)
 #define find_first_zero_bit(addr, size) \
 	find_next_zero_bit((addr), (size), 0)
 
-extern __inline__ unsigned long find_next_zero_bit(void * addr,
+static __inline__ unsigned long find_next_zero_bit(void * addr,
 	unsigned long size, unsigned long offset)
 {
 	unsigned int * p = ((unsigned int *) addr) + (offset >> 5);
@@ -289,7 +282,7 @@ found_middle:
 #define ext2_clear_bit(nr, addr)	test_and_clear_bit((nr) ^ 0x18, addr)
 
 #else
-extern __inline__ int ext2_set_bit(int nr, void * addr)
+static __inline__ int ext2_set_bit(int nr, void * addr)
 {
 	int		mask;
 	unsigned char	*ADDR = (unsigned char *) addr;
@@ -302,7 +295,7 @@ extern __inline__ int ext2_set_bit(int nr, void * addr)
 	return oldbit;
 }
 
-extern __inline__ int ext2_clear_bit(int nr, void * addr)
+static __inline__ int ext2_clear_bit(int nr, void * addr)
 {
 	int		mask;
 	unsigned char	*ADDR = (unsigned char *) addr;
@@ -316,7 +309,7 @@ extern __inline__ int ext2_clear_bit(int nr, void * addr)
 }
 #endif	/* __KERNEL__ */
 
-extern __inline__ int ext2_test_bit(int nr, __const__ void * addr)
+static __inline__ int ext2_test_bit(int nr, __const__ void * addr)
 {
 	__const__ unsigned char	*ADDR = (__const__ unsigned char *) addr;
 

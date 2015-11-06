@@ -42,7 +42,7 @@
 
 #ifndef __ASSEMBLY__
 /* Get the %psr register. */
-extern __inline__ unsigned int get_psr(void)
+static __inline__ unsigned int get_psr(void)
 {
 	unsigned int psr;
 	__asm__ __volatile__("rd	%%psr, %0\n\t"
@@ -53,7 +53,7 @@ extern __inline__ unsigned int get_psr(void)
 	return psr;
 }
 
-extern __inline__ void put_psr(unsigned int new_psr)
+static __inline__ void put_psr(unsigned int new_psr)
 {
 	__asm__ __volatile__("wr	%0, 0x0, %%psr\n\t" "nop\n\t" "nop\n\t" "nop\n\t":	/* no outputs */
 			     :"r"(new_psr)
@@ -67,7 +67,7 @@ extern __inline__ void put_psr(unsigned int new_psr)
 
 extern unsigned int fsr_storage;
 
-extern __inline__ unsigned int get_fsr(void)
+static __inline__ unsigned int get_fsr(void)
 {
 	unsigned int fsr = 0;
 
