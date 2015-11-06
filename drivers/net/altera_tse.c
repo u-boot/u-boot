@@ -409,20 +409,22 @@ static int altera_tse_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct altera_tse_priv *priv = dev_get_priv(dev);
-	const void *blob = gd->fdt_blob;
+	void *blob = (void *)gd->fdt_blob;
 	int node = dev->of_offset;
 	const char *list, *end;
 	const fdt32_t *cell;
 	void *base, *desc_mem = NULL;
 	unsigned long addr, size;
+	int parent, addrc, sizec;
 	int len, idx;
 	int ret;
 
 	/*
-	 * decode regs, assume address-cells and size-cells are both one.
-	 * there are multiple reg tuples, and they need to match with
-	 * reg-names.
+	 * decode regs. there are multiple reg tuples, and they need to
+	 * match with reg-names.
 	 */
+	parent = fdt_parent_offset(blob, node);
+	of_bus_default_count_cells(blob, parent, &addrc, &sizec);
 	list = fdt_getprop(blob, node, "reg-names", &len);
 	if (!list)
 		return -ENOENT;
@@ -434,7 +436,7 @@ static int altera_tse_probe(struct udevice *dev)
 	while (list < end) {
 		addr = fdt_translate_address((void *)blob,
 					     node, cell + idx);
-		size = fdt_addr_to_cpu(cell[idx + 1]);
+		size = fdt_addr_to_cpu(cell[idx + addrc]);
 		base = ioremap(addr, size);
 		len = strlen(list);
 		if (strcmp(list, "control_port") == 0)
@@ -445,7 +447,7 @@ static int altera_tse_probe(struct udevice *dev)
 			priv->sgdma_tx = base;
 		else if (strcmp(list, "s1") == 0)
 			desc_mem = base;
-		idx += 2;
+		idx += addrc + sizec;
 		list += (len + 1);
 	}
 	/* decode fifo depth */
