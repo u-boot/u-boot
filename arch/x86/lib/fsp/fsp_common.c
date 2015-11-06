@@ -35,11 +35,6 @@ int fsp_init_phase_pci(void)
 	return status ? -EPERM : 0;
 }
 
-int board_pci_post_scan(struct pci_controller *hose)
-{
-	return fsp_init_phase_pci();
-}
-
 void board_final_cleanup(void)
 {
 	u32 status;
