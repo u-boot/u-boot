@@ -896,7 +896,7 @@ static init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
-#if defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
+#if defined(CONFIG_BLACKFIN)
 	/* Blackfin u-boot monitor should be on top of the ram */
 	reserve_uboot,
 #endif
@@ -921,7 +921,7 @@ static init_fnc_t init_sequence_f[] = {
 		!defined(CONFIG_BLACKFIN) && !defined(CONFIG_M68K)
 	reserve_video,
 #endif
-#if !defined(CONFIG_BLACKFIN) && !defined(CONFIG_NIOS2)
+#if !defined(CONFIG_BLACKFIN)
 	reserve_uboot,
 #endif
 #ifndef CONFIG_SPL_BUILD

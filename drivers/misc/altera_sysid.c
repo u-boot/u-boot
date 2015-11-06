@@ -87,8 +87,8 @@ static const struct misc_ops altera_sysid_ops = {
 };
 
 static const struct udevice_id altera_sysid_ids[] = {
-	{ .compatible = "altr,sysid-1.0", },
-	{ }
+	{ .compatible = "altr,sysid-1.0" },
+	{}
 };
 
 U_BOOT_DRIVER(altera_sysid) = {

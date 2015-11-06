@@ -8,9 +8,20 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/io.h>
-#include <linux/compiler.h>
 #include <serial.h>
+#include <asm/io.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+/* data register */
+#define ALTERA_JTAG_RVALID	BIT(15)	/* Read valid */
+
+/* control register */
+#define ALTERA_JTAG_AC		BIT(10)	/* activity indicator */
+#define ALTERA_JTAG_RRDY	BIT(12)	/* read available */
+#define ALTERA_JTAG_WSPACE(d)	((d) >> 16)	/* Write space avail */
+/* Write fifo size. FIXME: this should be extracted with sopc2dts */
+#define ALTERA_JTAG_WRITE_DEPTH	64
 
 struct altera_jtaguart_regs {
 	u32	data;			/* Data register */
@@ -20,18 +31,6 @@ struct altera_jtaguart_regs {
 struct altera_jtaguart_platdata {
 	struct altera_jtaguart_regs *regs;
 };
-
-/* data register */
-#define ALTERA_JTAG_RVALID	(1<<15)		/* Read valid */
-
-/* control register */
-#define ALTERA_JTAG_AC		(1 << 10)	/* activity indicator */
-#define ALTERA_JTAG_RRDY	(1 << 12)	/* read available */
-#define ALTERA_JTAG_WSPACE(d)	((d)>>16)	/* Write space avail */
-/* Write fifo size. FIXME: this should be extracted with sopc2dts */
-#define ALTERA_JTAG_WRITE_DEPTH	64
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int altera_jtaguart_setbrg(struct udevice *dev, int baudrate)
 {
@@ -112,8 +111,8 @@ static const struct dm_serial_ops altera_jtaguart_ops = {
 };
 
 static const struct udevice_id altera_jtaguart_ids[] = {
-	{ .compatible = "altr,juart-1.0", },
-	{ }
+	{ .compatible = "altr,juart-1.0" },
+	{}
 };
 
 U_BOOT_DRIVER(altera_jtaguart) = {
@@ -131,7 +130,7 @@ U_BOOT_DRIVER(altera_jtaguart) = {
 
 #include <debug_uart.h>
 
-void debug_uart_init(void)
+static inline void _debug_uart_init(void)
 {
 }
 

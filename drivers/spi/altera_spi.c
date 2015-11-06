@@ -193,8 +193,8 @@ static const struct dm_spi_ops altera_spi_ops = {
 };
 
 static const struct udevice_id altera_spi_ids[] = {
-	{ .compatible = "altr,spi-1.0", },
-	{ }
+	{ .compatible = "altr,spi-1.0" },
+	{}
 };
 
 U_BOOT_DRIVER(altera_spi) = {
