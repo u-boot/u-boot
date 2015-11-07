@@ -41,6 +41,9 @@ typedef struct {
 	ulong   addr_unlock2;		/* unlock address 2 for AMD flash roms  */
 	const char *name;		/* human-readable name	                */
 #endif
+#ifdef CONFIG_MTD
+	struct mtd_info *mtd;
+#endif
 } flash_info_t;
 
 extern flash_info_t flash_info[]; /* info for FLASH chips	*/

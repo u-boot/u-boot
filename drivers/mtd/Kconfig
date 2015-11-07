@@ -1,3 +1,15 @@
+menu "MTD Support"
+
+config MTD
+	bool "Enable Driver Model for MTD drivers"
+	depends on DM
+	help
+	  Enable driver model for Memory Technology Devices (MTD), such as
+	  flash, RAM and similar chips, often used for solid state file
+	  systems on embedded devices.
+
+endmenu
+
 source "drivers/mtd/nand/Kconfig"
 
 source "drivers/mtd/spi/Kconfig"

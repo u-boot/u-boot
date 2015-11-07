@@ -272,6 +272,8 @@ struct mtd_info {
 	struct module *owner;
 #ifndef __UBOOT__
 	struct device dev;
+#else
+	struct udevice *dev;
 #endif
 	int usecount;
 };
