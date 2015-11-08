@@ -61,11 +61,32 @@ end:
 	return 0;
 }
 
+int spl_mmc_get_device_index(u32 boot_device)
+{
+	switch (boot_device) {
+	case BOOT_DEVICE_MMC1:
+		return 0;
+	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
+		return 1;
+	}
+
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+	printf("spl: unsupported mmc boot device.\n");
+#endif
+
+	return -ENODEV;
+}
+
 #ifdef CONFIG_DM_MMC
-static int spl_mmc_find_device(struct mmc **mmc)
+static int spl_mmc_find_device(struct mmc **mmc, u32 boot_device)
 {
 	struct udevice *dev;
-	int err;
+	int err, mmc_dev;
+
+	mmc_dev = spl_mmc_get_device_index(boot_device);
+	if (mmc_dev < 0)
+		return mmc_dev;
 
 	err = mmc_initialize(NULL);
 	if (err) {
@@ -75,7 +96,7 @@ static int spl_mmc_find_device(struct mmc **mmc)
 		return err;
 	}
 
-	err = uclass_get_device(UCLASS_MMC, 0, &dev);
+	err = uclass_get_device(UCLASS_MMC, mmc_dev, &dev);
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: could not find mmc device. error: %d\n", err);
@@ -88,9 +109,13 @@ static int spl_mmc_find_device(struct mmc **mmc)
 	return *mmc != NULL ? 0 : -ENODEV;
 }
 #else
-static int spl_mmc_find_device(struct mmc **mmc)
+static int spl_mmc_find_device(struct mmc **mmc, u32 boot_device)
 {
-	int err;
+	int err, mmc_dev;
+
+	mmc_dev = spl_mmc_get_device_index(boot_device);
+	if (mmc_dev < 0)
+		return mmc_dev;
 
 	err = mmc_initialize(gd->bd);
 	if (err) {
@@ -101,7 +126,7 @@ static int spl_mmc_find_device(struct mmc **mmc)
 	}
 
 	/* We register only one device. So, the dev id is always 0 */
-	*mmc = find_mmc_device(0);
+	*mmc = find_mmc_device(mmc_dev);
 	if (!*mmc) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		puts("spl: mmc device not found\n");
@@ -221,14 +246,14 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 }
 #endif
 
-int spl_mmc_load_image(void)
+int spl_mmc_load_image(u32 boot_device)
 {
 	struct mmc *mmc;
 	u32 boot_mode;
 	int err = 0;
 	__maybe_unused int part;
 
-	err = spl_mmc_find_device(&mmc);
+	err = spl_mmc_find_device(&mmc, boot_device);
 	if (err)
 		return err;
 

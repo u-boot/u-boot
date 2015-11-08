@@ -284,7 +284,7 @@ static int spl_load_image(u32 boot_device)
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-		return spl_mmc_load_image();
+		return spl_mmc_load_image(boot_device);
 #endif
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:

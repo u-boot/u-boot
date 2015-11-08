@@ -173,16 +173,8 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_MMC
 	if (CONFIG_MMC_SUNXI_SLOT_EXTRA == 2) {
 		mmc1 = find_mmc_device(1);
-		if (sunxi_mmc_has_egon_boot_signature(mmc1)) {
-			/*
-			 * spl_mmc.c: spl_mmc_load_image() is hard-coded to
-			 * use find_mmc_device(0), no matter what we
-			 * return. Swap mmc0 and mmc2 to make this work.
-			 */
-			mmc0->block_dev.dev = 1;
-			mmc1->block_dev.dev = 0;
+		if (sunxi_mmc_has_egon_boot_signature(mmc1))
 			return BOOT_DEVICE_MMC2;
-		}
 	}
 #endif
 

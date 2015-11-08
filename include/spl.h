@@ -54,7 +54,7 @@ int spl_onenand_load_image(void);
 int spl_nor_load_image(void);
 
 /* MMC SPL functions */
-int spl_mmc_load_image(void);
+int spl_mmc_load_image(u32 boot_device);
 
 /* YMODEM SPL functions */
 int spl_ymodem_load_image(void);
