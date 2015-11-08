@@ -164,6 +164,7 @@ void spl_mmc_load_image(void)
 		if (!err)
 			return;
 #endif
+		break;
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
 
@@ -203,6 +204,7 @@ void spl_mmc_load_image(void)
 #endif
 #endif
 #endif
+		break;
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	case MMCSD_MODE_EMMCBOOT:
 		/*
@@ -240,15 +242,14 @@ void spl_mmc_load_image(void)
 		if (!err)
 			return;
 #endif
+		break;
 #endif
 	case MMCSD_MODE_UNDEFINED:
-	default:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		if (err)
-			puts("spl: mmc: no boot mode left to try\n");
-		else
-			puts("spl: mmc: wrong boot mode\n");
+	default:
+		puts("spl: mmc: wrong boot mode\n");
 #endif
-		hang();
 	}
+
+	hang();
 }
