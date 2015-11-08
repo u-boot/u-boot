@@ -178,6 +178,73 @@ int spl_init(void)
 	return 0;
 }
 
+static int spl_load_image(u32 boot_device)
+{
+	switch (boot_device) {
+#ifdef CONFIG_SPL_RAM_DEVICE
+	case BOOT_DEVICE_RAM:
+		return spl_ram_load_image();
+#endif
+#ifdef CONFIG_SPL_MMC_SUPPORT
+	case BOOT_DEVICE_MMC1:
+	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
+		return spl_mmc_load_image();
+#endif
+#ifdef CONFIG_SPL_NAND_SUPPORT
+	case BOOT_DEVICE_NAND:
+		return spl_nand_load_image();
+#endif
+#ifdef CONFIG_SPL_ONENAND_SUPPORT
+	case BOOT_DEVICE_ONENAND:
+		return spl_onenand_load_image();
+#endif
+#ifdef CONFIG_SPL_NOR_SUPPORT
+	case BOOT_DEVICE_NOR:
+		return spl_nor_load_image();
+#endif
+#ifdef CONFIG_SPL_YMODEM_SUPPORT
+	case BOOT_DEVICE_UART:
+		return spl_ymodem_load_image();
+#endif
+#ifdef CONFIG_SPL_SPI_SUPPORT
+	case BOOT_DEVICE_SPI:
+		return spl_spi_load_image();
+#endif
+#ifdef CONFIG_SPL_ETH_SUPPORT
+	case BOOT_DEVICE_CPGMAC:
+#ifdef CONFIG_SPL_ETH_DEVICE
+		return spl_net_load_image(CONFIG_SPL_ETH_DEVICE);
+#else
+		return spl_net_load_image(NULL);
+#endif
+#endif
+#ifdef CONFIG_SPL_USBETH_SUPPORT
+	case BOOT_DEVICE_USBETH:
+		return spl_net_load_image("usb_ether");
+#endif
+#ifdef CONFIG_SPL_USB_SUPPORT
+	case BOOT_DEVICE_USB:
+		return spl_usb_load_image();
+#endif
+#ifdef CONFIG_SPL_SATA_SUPPORT
+	case BOOT_DEVICE_SATA:
+		return spl_sata_load_image();
+#endif
+#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
+	case BOOT_DEVICE_BOARD:
+		return spl_board_load_image();
+#endif
+	default:
+#if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		puts("SPL: Unsupported Boot Device!\n");
+#endif
+		return -ENODEV;
+	}
+
+	return -EINVAL;
+}
+
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	u32 boot_device;
@@ -207,92 +274,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	boot_device = spl_boot_device();
 	debug("boot device - %d\n", boot_device);
-	switch (boot_device) {
-#ifdef CONFIG_SPL_RAM_DEVICE
-	case BOOT_DEVICE_RAM:
-		if (spl_ram_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_MMC_SUPPORT
-	case BOOT_DEVICE_MMC1:
-	case BOOT_DEVICE_MMC2:
-	case BOOT_DEVICE_MMC2_2:
-		if (spl_mmc_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_NAND_SUPPORT
-	case BOOT_DEVICE_NAND:
-		if (spl_nand_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_ONENAND_SUPPORT
-	case BOOT_DEVICE_ONENAND:
-		if (spl_onenand_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_NOR_SUPPORT
-	case BOOT_DEVICE_NOR:
-		if (spl_nor_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_YMODEM_SUPPORT
-	case BOOT_DEVICE_UART:
-		if (spl_ymodem_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_SPI_SUPPORT
-	case BOOT_DEVICE_SPI:
-		if (spl_spi_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_ETH_SUPPORT
-	case BOOT_DEVICE_CPGMAC:
-#ifdef CONFIG_SPL_ETH_DEVICE
-		if (spl_net_load_image(CONFIG_SPL_ETH_DEVICE))
-			hang();
-#else
-		if (spl_net_load_image(NULL))
-			hang();
-#endif
-		break;
-#endif
-#ifdef CONFIG_SPL_USBETH_SUPPORT
-	case BOOT_DEVICE_USBETH:
-		if (spl_net_load_image("usb_ether"))
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_USB_SUPPORT
-	case BOOT_DEVICE_USB:
-		if (spl_usb_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
-	case BOOT_DEVICE_SATA:
-		if (spl_sata_load_image())
-			hang();
-		break;
-#endif
-#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
-	case BOOT_DEVICE_BOARD:
-		if (spl_board_load_image())
-			hang();
-		break;
-#endif
-	default:
-#if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		puts("SPL: Unsupported Boot Device!\n");
-#endif
+	if (spl_load_image(boot_device))
 		hang();
-	}
 
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
