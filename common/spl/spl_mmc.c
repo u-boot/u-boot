@@ -11,6 +11,7 @@
 #include <spl.h>
 #include <linux/compiler.h>
 #include <asm/u-boot.h>
+#include <errno.h>
 #include <mmc.h>
 #include <image.h>
 
@@ -58,6 +59,58 @@ end:
 
 	return 0;
 }
+
+#ifdef CONFIG_DM_MMC
+static int spl_mmc_find_device(struct mmc **mmc)
+{
+	struct udevice *dev;
+	int err;
+
+	err = mmc_initialize(NULL);
+	if (err) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+		printf("spl: could not initialize mmc. error: %d\n", err);
+#endif
+		return err;
+	}
+
+	err = uclass_get_device(UCLASS_MMC, 0, &dev);
+	if (err) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+		printf("spl: could not find mmc device. error: %d\n", err);
+#endif
+		return err;
+	}
+
+	*mmc = NULL;
+	*mmc = mmc_get_mmc_dev(dev);
+	return *mmc != NULL ? 0 : -ENODEV;
+}
+#else
+static int spl_mmc_find_device(struct mmc **mmc)
+{
+	int err;
+
+	err = mmc_initialize(gd->bd);
+	if (err) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+		printf("spl: could not initialize mmc. error: %d\n", err);
+#endif
+		return err;
+	}
+
+	/* We register only one device. So, the dev id is always 0 */
+	*mmc = find_mmc_device(0);
+	if (!*mmc) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+		puts("spl: mmc device not found\n");
+#endif
+		return -ENODEV;
+	}
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
 static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
@@ -110,30 +163,10 @@ void spl_mmc_load_image(void)
 	int err = 0;
 	__maybe_unused int part;
 
-#ifdef CONFIG_DM_MMC
-	struct udevice *dev;
-
-	mmc_initialize(NULL);
-	err = uclass_get_device(UCLASS_MMC, 0, &dev);
-	mmc = NULL;
-	if (!err)
-		mmc = mmc_get_mmc_dev(dev);
-#else
-	mmc_initialize(gd->bd);
-
-	/* We register only one device. So, the dev id is always 0 */
-	mmc = find_mmc_device(0);
-	if (!mmc) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		puts("spl: mmc device not found\n");
-#endif
+	if (spl_mmc_find_device(&mmc))
 		hang();
-	}
-#endif
 
-	if (!err)
-		err = mmc_init(mmc);
-
+	err = mmc_init(mmc);
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: mmc init failed with error: %d\n", err);
