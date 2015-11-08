@@ -133,6 +133,12 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 	return mmc_load_image_raw_sector(mmc, info.start);
 #endif
 }
+#else
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION -1
+static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
+{
+	return -ENOSYS;
+}
 #endif
 
 #ifdef CONFIG_SPL_OS_BOOT
@@ -193,12 +199,12 @@ void spl_mmc_load_image(void)
 			if (!err)
 				return;
 		}
-#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION)
+
 		err = mmc_load_image_raw_partition(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
 		if (!err)
 			return;
-#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
+#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
 		err = mmc_load_image_raw_sector(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 		if (!err)
@@ -265,12 +271,11 @@ void spl_mmc_load_image(void)
 			if (!err)
 				return;
 		}
-#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION)
 		err = mmc_load_image_raw_partition(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
 		if (!err)
 			return;
-#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
+#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
 		err = mmc_load_image_raw_sector(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 		if (!err)
