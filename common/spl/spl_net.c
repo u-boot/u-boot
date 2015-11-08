@@ -8,12 +8,13 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <errno.h>
 #include <spl.h>
 #include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void spl_net_load_image(const char *device)
+int spl_net_load_image(const char *device)
 {
 	int rv;
 
@@ -24,14 +25,16 @@ void spl_net_load_image(const char *device)
 	rv = eth_initialize();
 	if (rv == 0) {
 		printf("No Ethernet devices found\n");
-		hang();
+		return -ENODEV;
 	}
 	if (device)
 		setenv("ethact", device);
 	rv = net_loop(BOOTP);
 	if (rv < 0) {
 		printf("Problem booting with BOOTP\n");
-		hang();
+		return rv;
 	}
 	spl_parse_image_header((struct image_header *)load_addr);
+
+	return 0;
 }

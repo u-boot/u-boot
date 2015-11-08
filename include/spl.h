@@ -45,31 +45,31 @@ int spl_start_uboot(void);
 void spl_display_print(void);
 
 /* NAND SPL functions */
-void spl_nand_load_image(void);
+int spl_nand_load_image(void);
 
 /* OneNAND SPL functions */
-void spl_onenand_load_image(void);
+int spl_onenand_load_image(void);
 
 /* NOR SPL functions */
-void spl_nor_load_image(void);
+int spl_nor_load_image(void);
 
 /* MMC SPL functions */
-void spl_mmc_load_image(void);
+int spl_mmc_load_image(void);
 
 /* YMODEM SPL functions */
-void spl_ymodem_load_image(void);
+int spl_ymodem_load_image(void);
 
 /* SPI SPL functions */
-void spl_spi_load_image(void);
+int spl_spi_load_image(void);
 
 /* Ethernet SPL functions */
-void spl_net_load_image(const char *device);
+int spl_net_load_image(const char *device);
 
 /* USB SPL functions */
-void spl_usb_load_image(void);
+int spl_usb_load_image(void);
 
 /* SATA SPL functions */
-void spl_sata_load_image(void);
+int spl_sata_load_image(void);
 
 /* SPL FAT image functions */
 int spl_load_image_fat(block_dev_desc_t *block_dev, int partition, const char *filename);

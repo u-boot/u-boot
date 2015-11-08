@@ -132,7 +132,7 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 }
 
 #ifdef CONFIG_SPL_RAM_DEVICE
-static void spl_ram_load_image(void)
+static int spl_ram_load_image(void)
 {
 	const struct image_header *header;
 
@@ -145,6 +145,8 @@ static void spl_ram_load_image(void)
 		(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
 
 	spl_parse_image_header(header);
+
+	return 0;
 }
 #endif
 
@@ -208,68 +210,81 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	switch (boot_device) {
 #ifdef CONFIG_SPL_RAM_DEVICE
 	case BOOT_DEVICE_RAM:
-		spl_ram_load_image();
+		if (spl_ram_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-		spl_mmc_load_image();
+		if (spl_mmc_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
-		spl_nand_load_image();
+		if (spl_nand_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_ONENAND_SUPPORT
 	case BOOT_DEVICE_ONENAND:
-		spl_onenand_load_image();
+		if (spl_onenand_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_NOR_SUPPORT
 	case BOOT_DEVICE_NOR:
-		spl_nor_load_image();
+		if (spl_nor_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
 	case BOOT_DEVICE_UART:
-		spl_ymodem_load_image();
+		if (spl_ymodem_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_SPI_SUPPORT
 	case BOOT_DEVICE_SPI:
-		spl_spi_load_image();
+		if (spl_spi_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_ETH_SUPPORT
 	case BOOT_DEVICE_CPGMAC:
 #ifdef CONFIG_SPL_ETH_DEVICE
-		spl_net_load_image(CONFIG_SPL_ETH_DEVICE);
+		if (spl_net_load_image(CONFIG_SPL_ETH_DEVICE))
+			hang();
 #else
-		spl_net_load_image(NULL);
+		if (spl_net_load_image(NULL))
+			hang();
 #endif
 		break;
 #endif
 #ifdef CONFIG_SPL_USBETH_SUPPORT
 	case BOOT_DEVICE_USBETH:
-		spl_net_load_image("usb_ether");
+		if (spl_net_load_image("usb_ether"))
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_USB_SUPPORT
 	case BOOT_DEVICE_USB:
-		spl_usb_load_image();
+		if (spl_usb_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_SATA_SUPPORT
 	case BOOT_DEVICE_SATA:
-		spl_sata_load_image();
+		if (spl_sata_load_image())
+			hang();
 		break;
 #endif
 #ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
 	case BOOT_DEVICE_BOARD:
-		spl_board_load_image();
+		if (spl_board_load_image())
+			hang();
 		break;
 #endif
 	default:

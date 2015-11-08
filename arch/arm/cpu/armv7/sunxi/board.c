@@ -95,10 +95,12 @@ static int gpio_init(void)
 	return 0;
 }
 
-void spl_board_load_image(void)
+int spl_board_load_image(void)
 {
 	debug("Returning to FEL sp=%x, lr=%x\n", fel_stash.sp, fel_stash.lr);
 	return_to_fel(fel_stash.sp, fel_stash.lr);
+
+	return 0;
 }
 
 void s_init(void)

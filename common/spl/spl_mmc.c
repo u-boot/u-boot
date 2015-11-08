@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <spl.h>
 #include <linux/compiler.h>
+#include <errno.h>
 #include <asm/u-boot.h>
 #include <errno.h>
 #include <mmc.h>
@@ -220,25 +221,27 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 }
 #endif
 
-void spl_mmc_load_image(void)
+int spl_mmc_load_image(void)
 {
 	struct mmc *mmc;
 	u32 boot_mode;
 	int err = 0;
 	__maybe_unused int part;
 
-	if (spl_mmc_find_device(&mmc))
-		hang();
+	err = spl_mmc_find_device(&mmc);
+	if (err)
+		return err;
 
 	err = mmc_init(mmc);
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: mmc init failed with error: %d\n", err);
 #endif
-		hang();
+		return err;
 	}
 
 	boot_mode = spl_boot_mode();
+	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
 			/*
@@ -251,11 +254,12 @@ void spl_mmc_load_image(void)
 			if (part == 7)
 				part = 0;
 
-			if (mmc_switch_part(0, part)) {
+			err = mmc_switch_part(0, part);
+			if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 				puts("spl: mmc partition switch failed\n");
 #endif
-				hang();
+				return err;
 			}
 			/* Fall through */
 	case MMCSD_MODE_RAW:
@@ -264,18 +268,18 @@ void spl_mmc_load_image(void)
 		if (!spl_start_uboot()) {
 			err = mmc_load_image_raw_os(mmc);
 			if (!err)
-				return;
+				return err;
 		}
 
 		err = mmc_load_image_raw_partition(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
 		if (!err)
-			return;
+			return err;
 #if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
 		err = mmc_load_image_raw_sector(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 		if (!err)
-			return;
+			return err;
 #endif
 		break;
 	case MMCSD_MODE_FS:
@@ -283,7 +287,7 @@ void spl_mmc_load_image(void)
 
 		err = spl_mmc_do_fs_boot(mmc);
 		if (!err)
-			return;
+			return err;
 
 		break;
 	case MMCSD_MODE_UNDEFINED:
@@ -293,5 +297,5 @@ void spl_mmc_load_image(void)
 #endif
 	}
 
-	hang();
+	return err;
 }
