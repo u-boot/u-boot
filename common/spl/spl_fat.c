@@ -13,6 +13,7 @@
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <fat.h>
+#include <errno.h>
 #include <image.h>
 
 static int fat_registered;
@@ -118,6 +119,11 @@ defaults:
 
 	return spl_load_image_fat(block_dev, partition,
 			CONFIG_SPL_FS_LOAD_KERNEL_NAME);
+}
+#else
+int spl_load_image_fat_os(block_dev_desc_t *block_dev, int partition)
+{
+	return -ENOSYS;
 }
 #endif
 #endif

@@ -154,6 +154,15 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 	return mmc_load_image_raw_sector(mmc,
 		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
 }
+#else
+int spl_start_uboot(void)
+{
+	return 1;
+}
+static int mmc_load_image_raw_os(struct mmc *mmc)
+{
+	return -ENOSYS;
+}
 #endif
 
 void spl_mmc_load_image(void)
@@ -179,13 +188,11 @@ void spl_mmc_load_image(void)
 	case MMCSD_MODE_RAW:
 		debug("spl: mmc boot mode: raw\n");
 
-#ifdef CONFIG_SPL_OS_BOOT
 		if (!spl_start_uboot()) {
 			err = mmc_load_image_raw_os(mmc);
 			if (!err)
 				return;
 		}
-#endif
 #if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION)
 		err = mmc_load_image_raw_partition(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
@@ -203,14 +210,12 @@ void spl_mmc_load_image(void)
 
 #ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
 #ifdef CONFIG_SPL_FAT_SUPPORT
-#ifdef CONFIG_SPL_OS_BOOT
 		if (!spl_start_uboot()) {
 			err = spl_load_image_fat_os(&mmc->block_dev,
 				CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
 			if (!err)
 				return;
 		}
-#endif
 #ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 		err = spl_load_image_fat(&mmc->block_dev,
 					 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
@@ -220,14 +225,12 @@ void spl_mmc_load_image(void)
 #endif
 #endif
 #ifdef CONFIG_SPL_EXT_SUPPORT
-#ifdef CONFIG_SPL_OS_BOOT
 		if (!spl_start_uboot()) {
 			err = spl_load_image_ext_os(&mmc->block_dev,
 				CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
 			if (!err)
 				return;
 		}
-#endif
 #ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 		err = spl_load_image_ext(&mmc->block_dev,
 					 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
@@ -257,13 +260,11 @@ void spl_mmc_load_image(void)
 			hang();
 		}
 
-#ifdef CONFIG_SPL_OS_BOOT
 		if (!spl_start_uboot()) {
 			err = mmc_load_image_raw_os(mmc);
 			if (!err)
 				return;
 		}
-#endif
 #if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION)
 		err = mmc_load_image_raw_partition(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);

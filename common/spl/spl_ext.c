@@ -6,6 +6,7 @@
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <ext4fs.h>
+#include <errno.h>
 #include <image.h>
 
 #ifdef CONFIG_SPL_EXT_SUPPORT
@@ -134,6 +135,11 @@ defaults:
 
 	return spl_load_image_ext(block_dev, partition,
 			CONFIG_SPL_FS_LOAD_KERNEL_NAME);
+}
+#else
+int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition)
+{
+	return -ENOSYS;
 }
 #endif
 #endif
