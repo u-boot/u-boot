@@ -171,6 +171,55 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 }
 #endif
 
+#ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
+int spl_mmc_do_fs_boot(struct mmc *mmc)
+{
+	int err = -ENOSYS;
+
+#ifdef CONFIG_SPL_FAT_SUPPORT
+	if (!spl_start_uboot()) {
+		err = spl_load_image_fat_os(&mmc->block_dev,
+			CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
+		if (!err)
+			return err;
+	}
+#ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
+	err = spl_load_image_fat(&mmc->block_dev,
+				 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
+				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+	if (!err)
+		return err;
+#endif
+#endif
+#ifdef CONFIG_SPL_EXT_SUPPORT
+	if (!spl_start_uboot()) {
+		err = spl_load_image_ext_os(&mmc->block_dev,
+			CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
+		if (!err)
+			return err;
+	}
+#ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
+	err = spl_load_image_ext(&mmc->block_dev,
+				 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
+				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+	if (!err)
+		return err;
+#endif
+#endif
+
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+	err = -ENOENT;
+#endif
+
+	return err;
+}
+#else
+int spl_mmc_do_fs_boot(struct mmc *mmc)
+{
+	return -ENOSYS;
+}
+#endif
+
 void spl_mmc_load_image(void)
 {
 	struct mmc *mmc;
@@ -214,38 +263,10 @@ void spl_mmc_load_image(void)
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
 
-#ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
-#ifdef CONFIG_SPL_FAT_SUPPORT
-		if (!spl_start_uboot()) {
-			err = spl_load_image_fat_os(&mmc->block_dev,
-				CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
-			if (!err)
-				return;
-		}
-#ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-		err = spl_load_image_fat(&mmc->block_dev,
-					 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
-					 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+		err = spl_mmc_do_fs_boot(mmc);
 		if (!err)
 			return;
-#endif
-#endif
-#ifdef CONFIG_SPL_EXT_SUPPORT
-		if (!spl_start_uboot()) {
-			err = spl_load_image_ext_os(&mmc->block_dev,
-				CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
-			if (!err)
-				return;
-		}
-#ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-		err = spl_load_image_ext(&mmc->block_dev,
-					 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
-					 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
-		if (!err)
-			return;
-#endif
-#endif
-#endif
+
 		break;
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	case MMCSD_MODE_EMMCBOOT:
