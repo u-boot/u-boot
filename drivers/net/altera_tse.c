@@ -223,16 +223,33 @@ static int altera_tse_free_pkt(struct udevice *dev, uchar *packet,
 	return 0;
 }
 
+static void altera_tse_stop_mac(struct altera_tse_priv *priv)
+{
+	struct alt_tse_mac *mac_dev = priv->mac_dev;
+	u32 status;
+	ulong ctime;
+
+	/* reset the mac */
+	writel(ALTERA_TSE_CMD_SW_RESET_MSK, &mac_dev->command_config);
+	ctime = get_timer(0);
+	while (1) {
+		status = readl(&mac_dev->command_config);
+		if (!(status & ALTERA_TSE_CMD_SW_RESET_MSK))
+			break;
+		if (get_timer(ctime) > ALT_TSE_SW_RESET_TIMEOUT) {
+			debug("Reset mac timeout\n");
+			break;
+		}
+	}
+}
+
 static void altera_tse_stop(struct udevice *dev)
 {
 	struct altera_tse_priv *priv = dev_get_priv(dev);
-	struct alt_tse_mac *mac_dev = priv->mac_dev;
 	struct alt_sgdma_registers *rx_sgdma = priv->sgdma_rx;
 	struct alt_sgdma_registers *tx_sgdma = priv->sgdma_tx;
 	struct alt_sgdma_descriptor *rx_desc = priv->rx_desc;
-	u32 status;
 	int ret;
-	ulong ctime;
 
 	/* clear rx desc & wait for sgdma to complete */
 	rx_desc->descriptor_control = 0;
@@ -248,18 +265,7 @@ static void altera_tse_stop(struct udevice *dev)
 		writel(ALT_SGDMA_CONTROL_SOFTWARERESET_MSK,
 		       &tx_sgdma->control);
 
-	/* reset the mac */
-	writel(ALTERA_TSE_CMD_SW_RESET_MSK, &mac_dev->command_config);
-	ctime = get_timer(0);
-	while (1) {
-		status = readl(&mac_dev->command_config);
-		if (!(status & ALTERA_TSE_CMD_SW_RESET_MSK))
-			break;
-		if (get_timer(ctime) > ALT_TSE_SW_RESET_TIMEOUT) {
-			debug("Reset mac timeout\n");
-			break;
-		}
-	}
+	altera_tse_stop_mac(priv);
 }
 
 static int tse_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
