@@ -1,5 +1,5 @@
 #include <config.h>
-OUTPUT_ARCH(or32)
+OUTPUT_ARCH(or1k)
 __DYNAMIC  =  0;
 
 MEMORY
