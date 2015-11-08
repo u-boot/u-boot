@@ -178,6 +178,23 @@ int spl_init(void)
 	return 0;
 }
 
+#ifndef BOOT_DEVICE_NONE
+#define BOOT_DEVICE_NONE 0xdeadbeef
+#endif
+
+static u32 spl_boot_list[] = {
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+};
+
+__weak void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+}
+
 static int spl_load_image(u32 boot_device)
 {
 	switch (boot_device) {
@@ -247,7 +264,7 @@ static int spl_load_image(u32 boot_device)
 
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
-	u32 boot_device;
+	int i;
 
 	debug(">>spl:board_init_r()\n");
 
@@ -272,10 +289,18 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
-	boot_device = spl_boot_device();
-	debug("boot device - %d\n", boot_device);
-	if (spl_load_image(boot_device))
+	board_boot_order(spl_boot_list);
+	for (i = 0; i < ARRAY_SIZE(spl_boot_list) &&
+			spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
+		if (!spl_load_image(spl_boot_list[i]))
+			break;
+	}
+
+	if (i == ARRAY_SIZE(spl_boot_list) ||
+	    spl_boot_list[i] == BOOT_DEVICE_NONE) {
+		puts("SPL: failed to boot from all boot devices\n");
 		hang();
+	}
 
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
