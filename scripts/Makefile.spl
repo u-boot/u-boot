@@ -56,6 +56,7 @@ libs-y += common/init/
 libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
 libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
 libs-y += drivers/
+libs-y += dts/
 libs-y += fs/
 libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
