@@ -86,4 +86,6 @@ long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
  */
 long sandbox_i2c_rtc_get_set_base_time(struct udevice *dev, long base_time);
 
+int sandbox_usb_keyb_add_string(struct udevice *dev, const char *str);
+
 #endif
