@@ -411,13 +411,13 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 
 	iface = &dev->config.if_desc[ifnum];
 
-	if (iface->desc.bInterfaceClass != 3)
+	if (iface->desc.bInterfaceClass != USB_CLASS_HID)
 		return 0;
 
-	if (iface->desc.bInterfaceSubClass != 1)
+	if (iface->desc.bInterfaceSubClass != USB_SUB_HID_BOOT)
 		return 0;
 
-	if (iface->desc.bInterfaceProtocol != 1)
+	if (iface->desc.bInterfaceProtocol != USB_PROT_HID_KEYBOARD)
 		return 0;
 
 	if (iface->desc.bNumEndpoints != 1)
@@ -626,8 +626,8 @@ static const struct usb_device_id kbd_id_table[] = {
 			USB_DEVICE_ID_MATCH_INT_SUBCLASS |
 			USB_DEVICE_ID_MATCH_INT_PROTOCOL,
 		.bInterfaceClass = USB_CLASS_HID,
-		.bInterfaceSubClass = 1,
-		.bInterfaceProtocol = 1,
+		.bInterfaceSubClass = USB_SUB_HID_BOOT,
+		.bInterfaceProtocol = USB_PROT_HID_KEYBOARD,
 	},
 	{ }		/* Terminating entry */
 };
