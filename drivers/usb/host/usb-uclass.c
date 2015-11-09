@@ -494,14 +494,15 @@ error:
 }
 
 /**
- * usb_find_emul_child() - Find an existing device for emulated devices
+ * usb_find_child() - Find an existing device which matches our needs
+ *
+ *
  */
-static int usb_find_emul_child(struct udevice *parent,
-			       struct usb_device_descriptor *desc,
-			       struct usb_interface_descriptor *iface,
-			       struct udevice **devp)
+static int usb_find_child(struct udevice *parent,
+			  struct usb_device_descriptor *desc,
+			  struct usb_interface_descriptor *iface,
+			  struct udevice **devp)
 {
-#ifdef CONFIG_SANDBOX
 	struct udevice *dev;
 
 	*devp = NULL;
@@ -520,7 +521,7 @@ static int usb_find_emul_child(struct udevice *parent,
 			return 0;
 		}
 	}
-#endif
+
 	return -ENOENT;
 }
 
@@ -580,8 +581,8 @@ int usb_scan_device(struct udevice *parent, int port,
 	debug("read_descriptor for '%s': ret=%d\n", parent->name, ret);
 	if (ret)
 		return ret;
-	ret = usb_find_emul_child(parent, &udev->descriptor, iface, &dev);
-	debug("** usb_find_emul_child returns %d\n", ret);
+	ret = usb_find_child(parent, &udev->descriptor, iface, &dev);
+	debug("** usb_find_child returns %d\n", ret);
 	if (ret) {
 		if (ret != -ENOENT)
 			return ret;
