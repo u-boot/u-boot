@@ -13,7 +13,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* We only support up to 8 */
-#define SANDBOX_NUM_PORTS	2
+#define SANDBOX_NUM_PORTS	4
 
 struct sandbox_hub_platdata {
 	struct usb_dev_platdata plat;
