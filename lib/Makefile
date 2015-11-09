@@ -74,6 +74,7 @@ obj-y += div64.o
 obj-y += hang.o
 obj-y += linux_compat.o
 obj-y += linux_string.o
+obj-y += membuff.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o
 obj-y += time.o
