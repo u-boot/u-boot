@@ -11,7 +11,6 @@
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_FSL_LSCH3
-#define CONFIG_LS2080A
 #define CONFIG_MP
 #define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
@@ -184,7 +183,7 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
 #define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
-#ifndef CONFIG_LS2080A
+#ifdef CONFIG_LS2085A
 #define CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
 #define CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
 #endif
@@ -208,7 +207,13 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_PCIE3		/* PCIE controler 3 */
 #define CONFIG_PCIE4		/* PCIE controler 4 */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
+#ifdef CONFIG_LS2080A
 #define FSL_PCIE_COMPAT "fsl,ls2080a-pcie"
+#endif
+
+#ifdef CONFIG_LS2085A
+#define FSL_PCIE_COMPAT "fsl,ls2085a-pcie"
+#endif
 
 #define CONFIG_SYS_PCI_64BIT
 

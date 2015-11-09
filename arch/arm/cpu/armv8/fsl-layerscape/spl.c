@@ -48,7 +48,7 @@ void board_init_f(ulong dummy)
 	gd = &gdata;
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
-#ifdef CONFIG_LS2080A
+#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
 	arch_cpu_init();
 #endif
 #ifdef CONFIG_FSL_IFC
@@ -56,7 +56,7 @@ void board_init_f(ulong dummy)
 #endif
 	board_early_init_f();
 	timer_init();
-#ifdef CONFIG_LS2080A
+#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
 	env_init();
 #endif
 	get_clocks();

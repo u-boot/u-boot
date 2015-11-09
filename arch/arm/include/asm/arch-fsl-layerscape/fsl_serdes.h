@@ -9,7 +9,7 @@
 
 #include <config.h>
 
-#if defined(CONFIG_LS2080A)
+#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
 enum srds_prtcl {
 	NONE = 0,
 	PCIE1,
