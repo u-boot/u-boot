@@ -509,6 +509,18 @@ static inline bool device_is_on_pci_bus(struct udevice *dev)
 	return device_get_uclass_id(dev->parent) == UCLASS_PCI;
 }
 
+/**
+ * device_foreach_child_safe() - iterate through child devices safely
+ *
+ * This allows the @pos child to be removed in the loop if required.
+ *
+ * @pos: struct udevice * for the current device
+ * @next: struct udevice * for the next device
+ * @parent: parent device to scan
+ */
+#define device_foreach_child_safe(pos, next, parent)	\
+	list_for_each_entry_safe(pos, next, &parent->child_head, sibling_node)
+
 /* device resource management */
 typedef void (*dr_release_t)(struct udevice *dev, void *res);
 typedef int (*dr_match_t)(struct udevice *dev, void *res, void *match_data);
