@@ -107,14 +107,14 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		goto step2;
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008336
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_LS2080A
 	/* A008336 only applies to general DDR controllers */
 	if ((ctrl_num == 0) || (ctrl_num == 1))
 #endif
 		ddr_out32(eddrtqcr1, 0x63b30002);
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008514
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_LS2080A
 	/* A008514 only applies to DP-DDR controler */
 	if (ctrl_num == 2)
 #endif

@@ -438,7 +438,7 @@ int print_cpuinfo(void)
 #ifdef CONFIG_SYS_DPAA_FMAN
 	printf("  FMAN:     %-4s MHz", strmhz(buf, sysinfo.freq_fman[0]));
 #endif
-#ifdef CONFIG_FSL_LSCH3
+#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	printf("     DP-DDR:   %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus2));
 #endif
 	puts("\n");

@@ -141,7 +141,7 @@ void append_mmu_masters(void *blob, const char *smmu_path,
 
 /*
  * The info below summarizes how streamID partitioning works
- * for ls2085a and how it is conveyed to the OS via the device tree.
+ * for ls2080a and how it is conveyed to the OS via the device tree.
  *
  *  -non-PCI legacy, platform devices (USB, SD/MMC, SATA, DMA)
  *     -all legacy devices get a unique ICID assigned and programmed in

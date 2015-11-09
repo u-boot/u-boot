@@ -1147,7 +1147,10 @@ static int do_fsl_mc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	switch (argv[1][0]) {
 	case 's': {
 			char sub_cmd;
-			u64 mc_fw_addr, mc_dpc_addr, aiop_fw_addr;
+			u64 mc_fw_addr, mc_dpc_addr;
+#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+			u64 aiop_fw_addr;
+#endif
 
 			sub_cmd = argv[2][0];
 			switch (sub_cmd) {

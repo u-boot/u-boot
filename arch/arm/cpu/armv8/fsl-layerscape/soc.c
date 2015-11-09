@@ -12,7 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_LS2080A
 static void erratum_a008751(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008751

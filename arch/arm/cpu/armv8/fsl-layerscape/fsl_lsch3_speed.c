@@ -11,6 +11,7 @@
 #include <fsl_ifc.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/arch-fsl-layerscape/immap_lsch3.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/soc.h>
 #include "cpu.h"
@@ -77,10 +78,14 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_systembus = sysclk;
 #ifdef CONFIG_DDR_CLK_FREQ
 	sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
+#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	sys_info->freq_ddrbus2 = CONFIG_DDR_CLK_FREQ;
+#endif
 #else
 	sys_info->freq_ddrbus = sysclk;
+#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	sys_info->freq_ddrbus2 = sysclk;
+#endif
 #endif
 
 	sys_info->freq_systembus *= (gur_in32(&gur->rcwsr[0]) >>
@@ -91,9 +96,11 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_MASK;
+#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	sys_info->freq_ddrbus2 *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_MASK;
+#endif
 
 	for (i = 0; i < CONFIG_SYS_FSL_NUM_CC_PLLS; i++) {
 		/*
@@ -133,7 +140,9 @@ int get_clocks(void)
 	gd->cpu_clk = sys_info.freq_processor[0];
 	gd->bus_clk = sys_info.freq_systembus;
 	gd->mem_clk = sys_info.freq_ddrbus;
+#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	gd->arch.mem2_clk = sys_info.freq_ddrbus2;
+#endif
 #if defined(CONFIG_FSL_ESDHC)
 	gd->arch.sdhc_clk = gd->bus_clk / 2;
 #endif /* defined(CONFIG_FSL_ESDHC) */
@@ -169,8 +178,10 @@ ulong get_ddr_freq(ulong ctrl_num)
 	 * DDR controller 0 & 1 are on memory complex 0
 	 * DDR controler 2 is on memory complext 1
 	 */
+#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	if (ctrl_num >= 2)
 		return gd->arch.mem2_clk;
+#endif
 
 	return gd->mem_clk;
 }

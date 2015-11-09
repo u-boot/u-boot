@@ -589,36 +589,46 @@ config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
 	select ARM64
 
-config TARGET_LS2085A_EMU
-	bool "Support ls2085a_emu"
+config TARGET_LS2080A_EMU
+	bool "Support ls2080a_emu"
 	select ARM64
 	select ARMV8_MULTIENTRY
-
-config TARGET_LS2085A_SIMU
-	bool "Support ls2085a_simu"
-	select ARM64
-	select ARMV8_MULTIENTRY
-
-config TARGET_LS2085AQDS
-	bool "Support ls2085aqds"
-	select ARM64
-	select ARMV8_MULTIENTRY
-	select SUPPORT_SPL
 	help
-	  Support for Freescale LS2085AQDS platform
-	  The LS2085A Development System (QDS) is a high-performance
-	  development platform that supports the QorIQ LS2085A
+	  Support for Freescale LS2080A_EMU platform
+	  The LS2080A Development System (EMULATOR) is a pre silicon
+	  development platform that supports the QorIQ LS2080A
 	  Layerscape Architecture processor.
 
-config TARGET_LS2085ARDB
-	bool "Support ls2085ardb"
+config TARGET_LS2080A_SIMU
+	bool "Support ls2080a_simu"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	help
+	  Support for Freescale LS2080A_SIMU platform
+	  The LS2080A Development System (QDS) is a pre silicon
+	  development platform that supports the QorIQ LS2080A
+	  Layerscape Architecture processor.
+
+config TARGET_LS2080AQDS
+	bool "Support ls2080aqds"
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select SUPPORT_SPL
 	help
-	  Support for Freescale LS2085ARDB platform.
-	  The LS2085A Reference design board (RDB) is a high-performance
-	  development platform that supports the QorIQ LS2085A
+	  Support for Freescale LS2080AQDS platform
+	  The LS2080A Development System (QDS) is a high-performance
+	  development platform that supports the QorIQ LS2080A
+	  Layerscape Architecture processor.
+
+config TARGET_LS2080ARDB
+	bool "Support ls2080ardb"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	help
+	  Support for Freescale LS2080ARDB platform.
+	  The LS2080A Reference design board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS2080A
 	  Layerscape Architecture processor.
 
 config TARGET_HIKEY
@@ -759,9 +769,9 @@ source "board/compulab/cm_t43/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
-source "board/freescale/ls2085a/Kconfig"
-source "board/freescale/ls2085aqds/Kconfig"
-source "board/freescale/ls2085ardb/Kconfig"
+source "board/freescale/ls2080a/Kconfig"
+source "board/freescale/ls2080aqds/Kconfig"
+source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"

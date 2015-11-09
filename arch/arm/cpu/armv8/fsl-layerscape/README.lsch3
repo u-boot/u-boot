@@ -7,7 +7,7 @@
 Freescale LayerScape with Chassis Generation 3
 
 This architecture supports Freescale ARMv8 SoCs with Chassis generation 3,
-for example LS2085A.
+for example LS2080A.
 
 DDR Layout
 ============
@@ -152,7 +152,7 @@ u-boot command
 nand write <rcw image in memory> 0 <size of rcw image>
 
 To form the NAND image, build u-boot with NAND config, for example,
-ls2085aqds_nand_defconfig. The image needed is u-boot-with-spl.bin.
+ls2080aqds_nand_defconfig. The image needed is u-boot-with-spl.bin.
 The u-boot image should be written to match SRC_ADDR, in above example 0x20000.
 
 nand write <u-boot image in memory> 200000 <size of u-boot image>

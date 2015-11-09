@@ -6,4 +6,4 @@
 
 obj-y += ldpaa_wriop.o
 obj-y += ldpaa_eth.o
-obj-$(CONFIG_LS2085A) += ls2085a.o
+obj-$(CONFIG_LS2080A) += ls2080a.o
