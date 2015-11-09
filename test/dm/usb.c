@@ -208,3 +208,53 @@ static int dm_test_usb_tree_remove(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_usb_tree_remove, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+const char usb_tree_reorder[] =
+"  1  Hub (12 Mb/s, 100mA)\n"
+"  |  sandbox hub 2345\n"
+"  |\n"
+"  |\b+-2  Mass Storage (12 Mb/s, 100mA)\n"
+"  |    sandbox flash flash-stick@0\n"
+"  |  \n"
+"  |\b+-3  Mass Storage (12 Mb/s, 100mA)\n"
+"  |    sandbox flash flash-stick@2\n"
+"  |  \n"
+"  |\b+-4  Mass Storage (12 Mb/s, 100mA)\n"
+"       sandbox flash flash-stick@1\n"
+"     \n";
+
+/*
+ * test that the 'usb tree' command output looks correct when we reorder two
+ * devices.
+ */
+static int dm_test_usb_tree_reorder(struct unit_test_state *uts)
+{
+	struct udevice *dev, *parent;
+	char *data;
+	int len;
+
+	/* Remove the second emulation device */
+	ut_assertok(uclass_find_device_by_name(UCLASS_USB_EMUL, "flash-stick@1",
+					       &dev));
+	parent = dev->parent;
+
+	/* Reorder the devices in the parent list and uclass list */
+	list_del(&dev->sibling_node);
+	list_add_tail(&dev->sibling_node, &parent->child_head);
+
+	list_del(&dev->uclass_node);
+	list_add_tail(&dev->uclass_node, &dev->uclass->dev_head);
+
+	state_set_skip_delays(true);
+	ut_assertok(usb_init());
+	console_record_reset_enable();
+	usb_show_tree();
+	len = membuff_getraw(&gd->console_out, -1, true, &data);
+	if (len)
+		data[len] = '\0';
+	ut_asserteq_str(usb_tree_reorder, data);
+	ut_assertok(usb_stop());
+
+	return 0;
+}
+DM_TEST(dm_test_usb_tree_reorder, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
