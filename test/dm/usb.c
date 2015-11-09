@@ -10,6 +10,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <asm/state.h>
+#include <asm/test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
@@ -258,3 +259,33 @@ static int dm_test_usb_tree_reorder(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_usb_tree_reorder, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_usb_keyb(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	state_set_skip_delays(true);
+	ut_assertok(usb_init());
+
+	/* Initially there should be no characters */
+	ut_asserteq(0, tstc());
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_USB_EMUL, "keyb",
+					      &dev));
+
+	/*
+	 * Add a string to the USB keyboard buffer - it should appear in
+	 * stdin
+	 */
+	ut_assertok(sandbox_usb_keyb_add_string(dev, "ab"));
+	ut_asserteq(1, tstc());
+	ut_asserteq('a', getc());
+	ut_asserteq(1, tstc());
+	ut_asserteq('b', getc());
+	ut_asserteq(0, tstc());
+
+	ut_assertok(usb_stop());
+
+	return 0;
+}
+DM_TEST(dm_test_usb_keyb, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

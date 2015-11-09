@@ -325,6 +325,11 @@
 					sandbox,filepath = "testflash2.bin";
 				};
 
+				keyb@3 {
+					reg = <3>;
+					compatible = "sandbox,usb-keyb";
+				};
+
 			};
 		};
 	};
