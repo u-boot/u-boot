@@ -202,6 +202,20 @@ static void usb_scan_bus(struct udevice *bus, bool recurse)
 		printf("%d USB Device(s) found\n", priv->next_addr);
 }
 
+static void remove_inactive_children(struct uclass *uc, struct udevice *bus)
+{
+	uclass_foreach_dev(bus, uc) {
+		struct udevice *dev, *next;
+
+		if (!device_active(bus))
+			continue;
+		device_foreach_child_safe(dev, next, bus) {
+			if (!device_active(dev))
+				device_unbind(dev);
+		}
+	}
+}
+
 int usb_init(void)
 {
 	int controllers_initialized = 0;
@@ -270,6 +284,15 @@ int usb_init(void)
 	}
 
 	debug("scan end\n");
+
+	/* Remove any devices that were not found on this scan */
+	remove_inactive_children(uc, bus);
+
+	ret = uclass_get(UCLASS_USB_HUB, &uc);
+	if (ret)
+		return ret;
+	remove_inactive_children(uc, bus);
+
 	/* if we were not able to find at least one working bus, bail out */
 	if (!count)
 		printf("No controllers found\n");
