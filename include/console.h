@@ -20,6 +20,28 @@ void clear_ctrlc(void);	/* clear the Control-C condition */
 int disable_ctrlc(int);	/* 1 to disable, 0 to enable Control-C detect */
 int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
 
+/**
+ * console_record_init() - set up the console recording buffers
+ *
+ * This should be called as soon as malloc() is available so that the maximum
+ * amount of console output can be recorded.
+ */
+int console_record_init(void);
+
+/**
+ * console_record_reset() - reset the console recording buffers
+ *
+ * Removes any data in the buffers
+ */
+void console_record_reset(void);
+
+/**
+ * console_record_reset_enable() - reset and enable the console buffers
+ *
+ * This should be called to enable the console buffer.
+ */
+void console_record_reset_enable(void);
+
 /*
  * CONSOLE multiplexing.
  */

@@ -21,6 +21,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <membuff.h>
 #include <linux/list.h>
 
 typedef struct global_data {
@@ -103,6 +104,10 @@ typedef struct global_data {
 #endif
 	struct udevice *cur_serial_dev;	/* current serial device */
 	struct arch_global_data arch;	/* architecture-specific data */
+#ifdef CONFIG_CONSOLE_RECORD
+	struct membuff console_out;	/* console output */
+	struct membuff console_in;	/* console input */
+#endif
 } gd_t;
 #endif
 
@@ -121,5 +126,6 @@ typedef struct global_data {
 #define GD_FLG_FULL_MALLOC_INIT	0x00200	/* Full malloc() is ready	   */
 #define GD_FLG_SPL_INIT		0x00400	/* spl_init() has been called	   */
 #define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate */
+#define GD_FLG_RECORD		0x01000	/* Record console */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

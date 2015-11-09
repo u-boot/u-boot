@@ -737,6 +737,15 @@ static int mark_bootstage(void)
 	return 0;
 }
 
+static int initf_console_record(void)
+{
+#if defined(CONFIG_CONSOLE_RECORD) && defined(CONFIG_SYS_MALLOC_F_LEN)
+	return console_record_init();
+#else
+	return 0;
+#endif
+}
+
 static int initf_dm(void)
 {
 #if defined(CONFIG_DM) && defined(CONFIG_SYS_MALLOC_F_LEN)
@@ -773,6 +782,7 @@ static init_fnc_t init_sequence_f[] = {
 	trace_early_init,
 #endif
 	initf_malloc,
+	initf_console_record,
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	/* TODO: can this go into arch_cpu_init()? */
 	probecpu,

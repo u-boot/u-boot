@@ -280,6 +280,15 @@ static int initr_malloc(void)
 	return 0;
 }
 
+static int initr_console_record(void)
+{
+#if defined(CONFIG_CONSOLE_RECORD)
+	return console_record_init();
+#else
+	return 0;
+#endif
+}
+
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 static int initr_noncached(void)
 {
@@ -731,6 +740,7 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
+	initr_console_record,
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 	initr_noncached,
 #endif
