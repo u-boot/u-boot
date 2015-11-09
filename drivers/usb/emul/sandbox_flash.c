@@ -31,6 +31,14 @@ enum cmd_phase {
 	PHASE_STATUS,
 };
 
+enum {
+	STRINGID_MANUFACTURER = 1,
+	STRINGID_PRODUCT,
+	STRINGID_SERIAL,
+
+	STRINGID_COUNT,
+};
+
 /**
  * struct sandbox_flash_priv - private state for this driver
  *
@@ -61,6 +69,7 @@ struct sandbox_flash_priv {
 
 struct sandbox_flash_plat {
 	const char *pathname;
+	struct usb_string flash_strings[STRINGID_COUNT];
 };
 
 struct scsi_inquiry_resp {
@@ -87,21 +96,6 @@ struct __packed scsi_read10_req {
 	u8 spare;
 	u16 transfer_len;
 	u8 spare2[3];
-};
-
-enum {
-	STRINGID_MANUFACTURER = 1,
-	STRINGID_PRODUCT,
-	STRINGID_SERIAL,
-
-	STRINGID_COUNT,
-};
-
-static struct usb_string flash_strings[] = {
-	{STRINGID_MANUFACTURER,	"sandbox"},
-	{STRINGID_PRODUCT,	"flash"},
-	{STRINGID_SERIAL,	"2345"},
-	{},
 };
 
 static struct usb_device_descriptor flash_device_desc = {
@@ -246,7 +240,8 @@ static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
 	}
 }
 
-static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
+static int handle_ufi_command(struct sandbox_flash_plat *plat,
+			      struct sandbox_flash_priv *priv, const void *buff,
 			      int len)
 {
 	const struct SCSI_cmd_block *req = buff;
@@ -260,9 +255,10 @@ static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
 		resp->data_format = 1;
 		resp->additional_len = 0x1f;
 		strncpy(resp->vendor,
-			flash_strings[STRINGID_MANUFACTURER -  1].s,
+			plat->flash_strings[STRINGID_MANUFACTURER -  1].s,
 			sizeof(resp->vendor));
-		strncpy(resp->product, flash_strings[STRINGID_PRODUCT - 1].s,
+		strncpy(resp->product,
+			plat->flash_strings[STRINGID_PRODUCT - 1].s,
 			sizeof(resp->product));
 		strncpy(resp->revision, "1.0", sizeof(resp->revision));
 		setup_response(priv, resp, sizeof(*resp));
@@ -303,6 +299,7 @@ static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
 static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			      unsigned long pipe, void *buff, int len)
 {
+	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
 	struct sandbox_flash_priv *priv = dev_get_priv(dev);
 	int ep = usb_pipeendpoint(pipe);
 	struct umass_bbb_cbw *cbw = buff;
@@ -325,7 +322,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 				goto err;
 			priv->transfer_len = cbw->dCBWDataTransferLength;
 			priv->tag = cbw->dCBWTag;
-			return handle_ufi_command(priv, cbw->CBWCDB,
+			return handle_ufi_command(plat, priv, cbw->CBWCDB,
 						  cbw->bCDBLength);
 		case PHASE_DATA:
 			debug("data out\n");
@@ -384,7 +381,18 @@ static int sandbox_flash_ofdata_to_platdata(struct udevice *dev)
 
 static int sandbox_flash_bind(struct udevice *dev)
 {
-	return usb_emul_setup_device(dev, PACKET_SIZE_64, flash_strings,
+	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
+	struct usb_string *fs;
+
+	fs = plat->flash_strings;
+	fs[0].id = STRINGID_MANUFACTURER;
+	fs[0].s = "sandbox";
+	fs[1].id = STRINGID_PRODUCT;
+	fs[1].s = "flash";
+	fs[2].id = STRINGID_SERIAL;
+	fs[2].s = dev->name;
+
+	return usb_emul_setup_device(dev, PACKET_SIZE_64, plat->flash_strings,
 				     flash_desc_list);
 }
 
