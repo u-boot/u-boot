@@ -186,6 +186,7 @@ static int altera_tse_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	if (rx_desc->descriptor_status &
 	    ALT_SGDMA_DESCRIPTOR_STATUS_TERMINATED_BY_EOP_MSK) {
+		alt_sgdma_wait_transfer(priv->sgdma_rx);
 		packet_length = rx_desc->actual_bytes_transferred;
 		debug("recv %d bytes\n", packet_length);
 		*packetp = priv->rx_buf;
@@ -203,7 +204,6 @@ static int altera_tse_free_pkt(struct udevice *dev, uchar *packet,
 	struct alt_sgdma_descriptor *rx_desc = priv->rx_desc;
 	unsigned long rx_buf = (unsigned long)priv->rx_buf;
 
-	alt_sgdma_wait_transfer(priv->sgdma_rx);
 	invalidate_dcache_range(rx_buf, rx_buf + PKTSIZE_ALIGN);
 	alt_sgdma_construct_descriptor(
 		rx_desc,
