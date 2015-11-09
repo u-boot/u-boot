@@ -177,7 +177,7 @@
 
 #define CONFIG_KEYBOARD
 
-#define SANDBOX_SERIAL_SETTINGS		"stdin=serial,cros-ec-keyb\0" \
+#define SANDBOX_SERIAL_SETTINGS		"stdin=serial,cros-ec-keyb,usbkbd\0" \
 					"stdout=serial,lcd\0" \
 					"stderr=serial,lcd\0"
 #else
