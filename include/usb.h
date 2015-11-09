@@ -957,4 +957,12 @@ int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
  */
 void usb_emul_reset(struct udevice *dev);
 
+/**
+ * usb_show_tree() - show the USB device tree
+ *
+ * This shows a list of active USB devices along with basic information about
+ * each.
+ */
+void usb_show_tree(void);
+
 #endif /*_USB_H_ */

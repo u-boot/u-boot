@@ -429,12 +429,43 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 }
 
 /* main routine for the tree command */
-static void usb_show_tree(struct usb_device *dev)
+static void usb_show_subtree(struct usb_device *dev)
 {
 	char preamble[32];
 
 	memset(preamble, '\0', sizeof(preamble));
 	usb_show_tree_graph(dev, &preamble[0]);
+}
+
+void usb_show_tree(void)
+{
+#ifdef CONFIG_DM_USB
+	struct udevice *bus;
+
+	for (uclass_first_device(UCLASS_USB, &bus);
+		bus;
+		uclass_next_device(&bus)) {
+		struct usb_device *udev;
+		struct udevice *dev;
+
+		device_find_first_child(bus, &dev);
+		if (dev && device_active(dev)) {
+			udev = dev_get_parent_priv(dev);
+			usb_show_subtree(udev);
+		}
+	}
+#else
+	struct usb_device *udev;
+	int i;
+
+	for (i = 0; i < USB_MAX_DEVICE; i++) {
+		udev = usb_get_dev_index(i);
+		if (udev == NULL)
+			break;
+		if (udev->parent == NULL)
+			usb_show_subtree(udev);
+	}
+#endif
 }
 
 static int usb_test(struct usb_device *dev, int port, char* arg)
@@ -631,30 +662,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	if (strncmp(argv[1], "tree", 4) == 0) {
 		puts("USB device tree:\n");
-#ifdef CONFIG_DM_USB
-		struct udevice *bus;
-
-		for (uclass_first_device(UCLASS_USB, &bus);
-		     bus;
-		     uclass_next_device(&bus)) {
-			struct usb_device *udev;
-			struct udevice *dev;
-
-			device_find_first_child(bus, &dev);
-			if (dev && device_active(dev)) {
-				udev = dev_get_parent_priv(dev);
-				usb_show_tree(udev);
-			}
-		}
-#else
-		for (i = 0; i < USB_MAX_DEVICE; i++) {
-			udev = usb_get_dev_index(i);
-			if (udev == NULL)
-				break;
-			if (udev->parent == NULL)
-				usb_show_tree(udev);
-		}
-#endif
+		usb_show_tree();
 		return 0;
 	}
 	if (strncmp(argv[1], "inf", 3) == 0) {
