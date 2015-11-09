@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <version.h>

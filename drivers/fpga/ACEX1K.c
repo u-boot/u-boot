@@ -9,6 +9,7 @@
  */
 
 #include <common.h>		/* core U-Boot definitions */
+#include <console.h>
 #include <ACEX1K.h>		/* ACEX device family */
 
 /* Define FPGA_DEBUG to get debug printf's */

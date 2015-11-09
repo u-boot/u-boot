@@ -22,6 +22,7 @@
 #include <common.h>
 #include <linux/mtd/mtd.h>
 #include <command.h>
+#include <console.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <asm/byteorder.h>

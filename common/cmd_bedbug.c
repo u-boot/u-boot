@@ -5,6 +5,7 @@
 #include <common.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
 #include <linux/ctype.h>
 #include <net.h>
 #include <bedbug/type.h>

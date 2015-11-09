@@ -8,6 +8,7 @@
  * linux/drivers/char/pc_keyb.c
  */
 #include <common.h>
+#include <console.h>
 #include <asm/processor.h>
 #include <stdio_dev.h>
 #include "isa.h"

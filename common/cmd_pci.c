@@ -17,6 +17,7 @@
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>

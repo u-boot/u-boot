@@ -69,6 +69,7 @@
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
 #include <dm.h>
 #include <edid.h>
 #include <environment.h>

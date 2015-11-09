@@ -9,7 +9,10 @@
  ***********************************************************************/
 
 #include <common.h>
+#include <console.h>
 #include <input.h>
+
+#include <stdio_dev.h>
 #include <keyboard.h>
 #include <stdio_dev.h>
 

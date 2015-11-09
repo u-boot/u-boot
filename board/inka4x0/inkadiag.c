@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <common.h>
 #include <config.h>
+#include <console.h>
 #include <mpc5xxx.h>
 #include <pci.h>
 

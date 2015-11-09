@@ -18,6 +18,7 @@
 /* #define DEBUG	*/
 
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdt_support.h>

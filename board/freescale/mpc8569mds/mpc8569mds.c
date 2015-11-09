@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <hwconfig.h>
 #include <pci.h>
 #include <asm/processor.h>

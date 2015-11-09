@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cli.h>
 #include <cli_hush.h>
+#include <console.h>
 #include <fdtdec.h>
 #include <malloc.h>
 

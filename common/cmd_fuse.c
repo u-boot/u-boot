@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <fuse.h>
 #include <asm/errno.h>
 

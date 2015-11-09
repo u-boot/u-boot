@@ -8,6 +8,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <console.h>
 
 #include <net.h>
 #include <phy.h>

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <debug_uart.h>
 #include <stdarg.h>
 #include <iomux.h>

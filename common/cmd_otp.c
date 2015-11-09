@@ -16,6 +16,7 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <console.h>
 
 #include <asm/blackfin.h>
 #include <asm/clock.h>

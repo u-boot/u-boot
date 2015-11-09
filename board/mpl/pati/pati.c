@@ -29,6 +29,7 @@
  **********************************************************************************/
 
 #include <common.h>
+#include <console.h>
 #include <mpc5xx.h>
 #include <stdio_dev.h>
 #include <pci_ids.h>

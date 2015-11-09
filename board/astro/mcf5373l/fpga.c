@@ -15,6 +15,7 @@
 /* Altera/Xilinx FPGA configuration support for the ASTRO "URMEL" board */
 
 #include <common.h>
+#include <console.h>
 #include <watchdog.h>
 #include <altera.h>
 #include <ACEX1K.h>

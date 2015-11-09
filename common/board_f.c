@@ -13,6 +13,7 @@
 #include <common.h>
 #include <linux/compiler.h>
 #include <version.h>
+#include <console.h>
 #include <environment.h>
 #include <dm.h>
 #include <fdtdec.h>

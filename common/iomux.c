@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <serial.h>
 #include <malloc.h>
 

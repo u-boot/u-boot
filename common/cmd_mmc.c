@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <mmc.h>
 
 static int curr_device = -1;

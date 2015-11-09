@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <console.h>
 #include <div64.h>
 #include <inttypes.h>
 #include <version.h>

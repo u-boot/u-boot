@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <asm/processor.h>
 #include <spd_sdram.h>
 #include <i2c.h>

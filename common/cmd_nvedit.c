@@ -27,6 +27,7 @@
 #include <common.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
 #include <environment.h>
 #include <search.h>
 #include <errno.h>

@@ -10,6 +10,7 @@
 #include <common.h>
 #include <autoboot.h>
 #include <cli.h>
+#include <console.h>
 #include <version.h>
 
 DECLARE_GLOBAL_DATA_PTR;

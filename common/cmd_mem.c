@@ -12,9 +12,11 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 #endif

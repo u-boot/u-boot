@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <virtex2.h>
 
 #if 0

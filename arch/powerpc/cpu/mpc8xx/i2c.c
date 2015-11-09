@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 
 #ifdef CONFIG_HARD_I2C
 

@@ -14,6 +14,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <console.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 #include "vsc7385.h"

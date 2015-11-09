@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 
 #if defined(CONFIG_CMD_BSP)
 

@@ -218,7 +218,6 @@ int run_command_repeatable(const char *cmd, int flag);
  * @return 0 on success, or != 0 on error.
  */
 int run_command_list(const char *cmd, int len, int flag);
-extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */
 void board_init_f(ulong);
@@ -862,15 +861,6 @@ void srand(unsigned int seed);
 unsigned int rand(void);
 unsigned int rand_r(unsigned int *seedp);
 
-/* common/console.c */
-int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
-int	console_init_r(void);	/* After  relocation; uses the console stuff	*/
-int	console_assign(int file, const char *devname);	/* Assign the console	*/
-int	ctrlc (void);
-int	had_ctrlc (void);	/* have we had a Control-C since last clear? */
-void	clear_ctrlc (void);	/* clear the Control-C condition */
-int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
-int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
 /*
  * STDIO based functions (can always be used)
  */
@@ -928,13 +918,6 @@ static inline struct in_addr getenv_ip(char *var)
 {
 	return string_to_ip(getenv(var));
 }
-
-/*
- * CONSOLE multiplexing.
- */
-#ifdef CONFIG_CONSOLE_MUX
-#include <iomux.h>
-#endif
 
 int	pcmcia_init (void);
 

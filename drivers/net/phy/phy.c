@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <malloc.h>
 #include <net.h>

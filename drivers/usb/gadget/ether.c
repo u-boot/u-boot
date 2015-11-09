@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <asm/errno.h>
 #include <linux/netdevice.h>
 #include <linux/usb/ch9.h>

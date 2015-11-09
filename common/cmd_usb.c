@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <dm.h>
 #include <memalign.h>
 #include <asm/byteorder.h>

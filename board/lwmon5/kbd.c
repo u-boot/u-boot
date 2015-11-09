@@ -17,6 +17,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <command.h>
+#include <console.h>
 #include <post.h>
 #include <serial.h>
 #include <malloc.h>
