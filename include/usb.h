@@ -938,6 +938,17 @@ int usb_emul_bulk(struct udevice *emul, struct usb_device *udev,
 		  unsigned long pipe, void *buffer, int length);
 
 /**
+ * usb_emul_int() - Send an interrupt packet to an emulator
+ *
+ * @emul:	Emulator device
+ * @udev:	USB device (which the emulator is causing to appear)
+ * See struct dm_usb_ops for details on other parameters
+ * @return 0 if OK, -ve on error
+ */
+int usb_emul_int(struct udevice *emul, struct usb_device *udev,
+		  unsigned long pipe, void *buffer, int length, int interval);
+
+/**
  * usb_emul_find() - Find an emulator for a particular device
  *
  * Check @pipe to find a device number on bus @bus and return it.

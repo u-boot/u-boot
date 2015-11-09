@@ -218,6 +218,18 @@ int usb_emul_bulk(struct udevice *emul, struct usb_device *udev,
 	return ops->bulk(emul, udev, pipe, buffer, length);
 }
 
+int usb_emul_int(struct udevice *emul, struct usb_device *udev,
+		  unsigned long pipe, void *buffer, int length, int interval)
+{
+	struct dm_usb_ops *ops = usb_get_emul_ops(emul);
+
+	if (!ops->interrupt)
+		return -ENOSYS;
+	debug("%s: dev=%s\n", __func__, emul->name);
+
+	return ops->interrupt(emul, udev, pipe, buffer, length, interval);
+}
+
 int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
 			  struct usb_string *strings, void **desc_list)
 {

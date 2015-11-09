@@ -87,6 +87,24 @@ static int sandbox_submit_bulk(struct udevice *bus, struct usb_device *udev,
 	return ret;
 }
 
+static int sandbox_submit_int(struct udevice *bus, struct usb_device *udev,
+			      unsigned long pipe, void *buffer, int length,
+			      int interval)
+{
+	struct udevice *emul;
+	int ret;
+
+	/* Just use child of dev as emulator? */
+	debug("%s: bus=%s\n", __func__, bus->name);
+	ret = usb_emul_find(bus, pipe, &emul);
+	usbmon_trace(bus, pipe, NULL, emul);
+	if (ret)
+		return ret;
+	ret = usb_emul_int(emul, udev, pipe, buffer, length, interval);
+
+	return ret;
+}
+
 static int sandbox_alloc_device(struct udevice *dev, struct usb_device *udev)
 {
 	return 0;
@@ -100,6 +118,7 @@ static int sandbox_usb_probe(struct udevice *dev)
 static const struct dm_usb_ops sandbox_usb_ops = {
 	.control	= sandbox_submit_control,
 	.bulk		= sandbox_submit_bulk,
+	.interrupt	= sandbox_submit_int,
 	.alloc_device	= sandbox_alloc_device,
 };
 
