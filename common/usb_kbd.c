@@ -541,35 +541,6 @@ int drv_usb_kbd_init(void)
 	int error, i;
 
 	debug("%s: Probing for keyboard\n", __func__);
-#ifdef CONFIG_DM_USB
-	/*
-	 * TODO: We should add U_BOOT_USB_DEVICE() declarations to each USB
-	 * keyboard driver and then most of this file can be removed.
-	 */
-	struct udevice *bus;
-	struct uclass *uc;
-	int ret;
-
-	ret = uclass_get(UCLASS_USB, &uc);
-	if (ret)
-		return ret;
-	uclass_foreach_dev(bus, uc) {
-		for (i = 0; i < USB_MAX_DEVICE; i++) {
-			struct usb_device *dev;
-
-			dev = usb_get_dev_index(bus, i); /* get device */
-			debug("i=%d, %p\n", i, dev);
-			if (!dev)
-				break; /* no more devices available */
-
-			error = probe_usb_keyboard(dev);
-			if (!error)
-				return 1;
-			if (error && error != -ENOENT)
-				return error;
-		} /* for */
-	}
-#else
 	/* Scan all USB Devices */
 	for (i = 0; i < USB_MAX_DEVICE; i++) {
 		struct usb_device *dev;
@@ -588,7 +559,6 @@ int drv_usb_kbd_init(void)
 		if (error && error != -ENOENT)
 			return error;
 	}
-#endif
 
 	/* No USB Keyboard found */
 	return -1;
