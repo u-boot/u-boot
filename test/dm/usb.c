@@ -8,6 +8,8 @@
 #include <dm.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <asm/state.h>
+#include <dm/device-internal.h>
 #include <dm/test.h>
 #include <test/ut.h>
 
@@ -35,6 +37,7 @@ static int dm_test_usb_flash(struct unit_test_state *uts)
 	block_dev_desc_t *dev_desc;
 	char cmp[1024];
 
+	state_set_skip_delays(true);
 	ut_assertok(usb_init());
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
 	ut_assertok(get_device("usb", "0", &dev_desc));

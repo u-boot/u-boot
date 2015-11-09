@@ -31,6 +31,9 @@
 #include <asm/unaligned.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
+#endif
 #include <asm/unaligned.h>
 #include <dm/root.h>
 
@@ -466,7 +469,12 @@ static int usb_hub_configure(struct usb_device *dev)
 		unsigned short portstatus, portchange;
 		int ret;
 		ulong start = get_timer(0);
+		uint delay = CONFIG_SYS_HZ;
 
+#ifdef CONFIG_SANDBOX
+		if (state_get_skip_delays())
+			delay = 0;
+#endif
 #ifdef CONFIG_DM_USB
 		debug("\n\nScanning '%s' port %d\n", dev->dev->name, i + 1);
 #else
@@ -498,7 +506,7 @@ static int usb_hub_configure(struct usb_device *dev)
 			if (portstatus & USB_PORT_STAT_CONNECTION)
 				break;
 
-		} while (get_timer(start) < CONFIG_SYS_HZ * 1);
+		} while (get_timer(start) < delay);
 
 		if (ret < 0)
 			continue;

@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <asm/state.h>
 #include <dm/test.h>
 #include <dm/root.h>
 #include <dm/uclass-internal.h>
@@ -113,6 +114,7 @@ static int dm_test_main(const char *test_name)
 			ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
 
 		test->func(uts);
+		state_set_skip_delays(false);
 
 		ut_assertok(dm_test_destroy(uts));
 	}
