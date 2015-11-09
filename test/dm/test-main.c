@@ -76,6 +76,7 @@ static int dm_test_main(const char *test_name)
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
 	const int n_ents = ll_entry_count(struct unit_test, dm_test);
 	struct unit_test_state *uts = &global_dm_test_state;
+	struct sandbox_state *state = state_get_current();
 	uts->priv = &_global_priv_dm_test_state;
 	struct unit_test *test;
 	int run_count;
@@ -114,7 +115,15 @@ static int dm_test_main(const char *test_name)
 		if (test->flags & DM_TESTF_SCAN_FDT)
 			ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
 
+		/*
+		 * Silence the console and rely on console reocrding to get
+		 * our output.
+		 */
+		console_record_reset();
+		if (!state->show_test_output)
+			gd->flags |= GD_FLG_SILENT;
 		test->func(uts);
+		gd->flags &= ~GD_FLG_SILENT;
 		state_set_skip_delays(false);
 
 		ut_assertok(dm_test_destroy(uts));

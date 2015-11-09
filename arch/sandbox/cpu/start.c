@@ -257,6 +257,14 @@ static int sandbox_cmdline_cb_terminal(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(terminal, 't', 1,
 			  "Set terminal to raw/cooked mode");
 
+static int sandbox_cmdline_cb_verbose(struct sandbox_state *state,
+				      const char *arg)
+{
+	state->show_test_output = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(verbose, 'v', 0, "Show test output");
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;

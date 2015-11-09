@@ -64,6 +64,7 @@ struct sandbox_state {
 	bool reset_allowed[RESET_COUNT];	/* Allowed reset types */
 	enum state_terminal_raw term_raw;	/* Terminal raw/cooked */
 	bool skip_delays;		/* Ignore any time delays (for test) */
+	bool show_test_output;		/* Don't suppress stdout in tests */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
