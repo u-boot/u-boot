@@ -29,11 +29,6 @@
 #define	CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-/* Maximum number of times to poll for acknowledge after write */
-#if defined(CONFIG_SYS_EEPROM_X40430)
-#define MAX_ACKNOWLEDGE_POLLS	10
-#endif
-
 /*
  * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
  *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
@@ -141,14 +136,6 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	unsigned blk_off;
 	int rcode = 0;
 
-#if defined(CONFIG_SYS_EEPROM_X40430)
-	uchar	contr_r_addr[2];
-	uchar	addr_void[2];
-	uchar	contr_reg[2];
-	uchar	ctrl_reg_v;
-	int	i;
-#endif
-
 #if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable (dev_addr,1);
 #endif
@@ -213,88 +200,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 #if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 		spi_write (addr, alen, buffer, len);
 #else
-#if defined(CONFIG_SYS_EEPROM_X40430)
-		/* Get the value of the control register.
-		 * Set current address (internal pointer in the x40430)
-		 * to 0x1ff.
-		 */
-		contr_r_addr[0] = 9;
-		contr_r_addr[1] = 0xff;
-		addr_void[0]    = 0;
-		addr_void[1]    = addr[1];
-#ifdef CONFIG_SYS_I2C_EEPROM_ADDR
-		contr_r_addr[0] |= CONFIG_SYS_I2C_EEPROM_ADDR;
-		addr_void[0]    |= CONFIG_SYS_I2C_EEPROM_ADDR;
-#endif
-		contr_reg[0] = 0xff;
-		if (i2c_read (contr_r_addr[0], contr_r_addr[1], 1, contr_reg, 1) != 0) {
-			rcode = 1;
-		}
-		ctrl_reg_v = contr_reg[0];
 
-		/* Are any of the eeprom blocks write protected?
-		 */
-		if (ctrl_reg_v & 0x18) {
-			ctrl_reg_v &= ~0x18;   /* reset block protect bits  */
-			ctrl_reg_v |=  0x02;   /* set write enable latch    */
-			ctrl_reg_v &= ~0x04;   /* clear RWEL                */
-
-			/* Set write enable latch.
-			 */
-			contr_reg[0] = 0x02;
-			if (i2c_write (contr_r_addr[0], 0xff, 1, contr_reg, 1) != 0) {
-				rcode = 1;
-			}
-
-			/* Set register write enable latch.
-			 */
-			contr_reg[0] = 0x06;
-			if (i2c_write (contr_r_addr[0], 0xFF, 1, contr_reg, 1) != 0) {
-				rcode = 1;
-			}
-
-			/* Modify ctrl register.
-			 */
-			contr_reg[0] = ctrl_reg_v;
-			if (i2c_write (contr_r_addr[0], 0xFF, 1, contr_reg, 1) != 0) {
-				rcode = 1;
-			}
-
-			/* The write (above) is an operation on NV memory.
-			 * These can take some time (~5ms), and the device
-			 * will not respond to further I2C messages till
-			 * it's completed the write.
-			 * So poll device for an I2C acknowledge.
-			 * When we get one we know we can continue with other
-			 * operations.
-			 */
-			contr_reg[0] = 0;
-			for (i = 0; i < MAX_ACKNOWLEDGE_POLLS; i++) {
-				if (i2c_read (addr_void[0], addr_void[1], 1, contr_reg, 1) == 0)
-					break;	/* got ack */
-#if defined(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS)
-				udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
-#endif
-			}
-			if (i == MAX_ACKNOWLEDGE_POLLS) {
-				puts ("EEPROM poll acknowledge failed\n");
-				rcode = 1;
-			}
-		}
-
-		/* Is the write enable latch on?.
-		 */
-		else if (!(ctrl_reg_v & 0x02)) {
-			/* Set write enable latch.
-			 */
-			contr_reg[0] = 0x02;
-			if (i2c_write (contr_r_addr[0], 0xFF, 1, contr_reg, 1) != 0) {
-			       rcode = 1;
-			}
-		}
-		/* Write is enabled ... now write eeprom value.
-		 */
-#endif
 #if defined(CONFIG_SYS_I2C_EEPROM_BUS)
 		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
 #endif
