@@ -52,6 +52,8 @@ int fdt_set_phy_handle(void *fdt, char *compat, phys_addr_t addr,
 	if (!ph)
 		return -FDT_ERR_BADPHANDLE;
 
+	ph = cpu_to_fdt32(ph);
+
 	offset = fdt_node_offset_by_compat_reg(fdt, compat, addr);
 	if (offset < 0)
 		return offset;
