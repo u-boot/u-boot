@@ -209,14 +209,21 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char * const *args = &argv[2];
 	int rcode;
 	ulong dev_addr, addr, off, cnt;
+	int bus_addr;
 
 	switch (argc) {
 #ifdef CONFIG_SYS_DEF_EEPROM_ADDR
 	case 5:
+		bus_addr = -1;
 		dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
 		break;
 #endif
 	case 6:
+		bus_addr = -1;
+		dev_addr = simple_strtoul(*args++, NULL, 16);
+		break;
+	case 7:
+		bus_addr = simple_strtoul(*args++, NULL, 16);
 		dev_addr = simple_strtoul(*args++, NULL, 16);
 		break;
 	default:
@@ -227,7 +234,7 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	off = simple_strtoul(*args++, NULL, 16);
 	cnt = simple_strtoul(*args++, NULL, 16);
 
-	eeprom_init(-1);
+	eeprom_init(bus_addr);
 
 	if (strcmp (argv[1], "read") == 0) {
 		printf(fmt, dev_addr, argv[1], addr, off, cnt);
@@ -249,9 +256,9 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	eeprom,	6,	1,	do_eeprom,
+	eeprom,	7,	1,	do_eeprom,
 	"EEPROM sub-system",
-	"read  devaddr addr off cnt\n"
-	"eeprom write devaddr addr off cnt\n"
+	"read  <bus> <devaddr> addr off cnt\n"
+	"eeprom write <bus> <devaddr> addr off cnt\n"
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
 )
