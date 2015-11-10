@@ -39,6 +39,8 @@
 #define CONFIG_BOARD_TYPES
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#define CONFIG_OF_LIBFDT
+
 /*
  * NAND Flash configuration
  */
@@ -48,28 +50,14 @@
 
 /*
  * UART configuration
- *
- * CONFIG_CONS_INDEX = 1 - Debug UART
- * CONFIG_CONS_INDEX = 4 - FPGA UART connected to FTDI/USB
  */
-#define CONFIG_CONS_INDEX		4
+#define CONFIG_DW_SERIAL
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	-4
-#if (CONFIG_CONS_INDEX == 1)
-	/* Debug UART */
-#	define CONFIG_SYS_NS16550_CLK		33333000
-#else
-	/* FPGA UARTs use different clock */
-#	define CONFIG_SYS_NS16550_CLK		33333333
-#endif
-#define CONFIG_SYS_NS16550_COM1		(ARC_APB_PERIPHERAL_BASE + 0x5000)
-#define CONFIG_SYS_NS16550_COM2		(ARC_FPGA_PERIPHERAL_BASE + 0x20000)
-#define CONFIG_SYS_NS16550_COM3		(ARC_FPGA_PERIPHERAL_BASE + 0x21000)
-#define CONFIG_SYS_NS16550_COM4		(ARC_FPGA_PERIPHERAL_BASE + 0x22000)
+#define CONFIG_SYS_NS16550_CLK		33333333
 #define CONFIG_SYS_NS16550_MEM32
-
 #define CONFIG_BAUDRATE			115200
+
 /*
  * I2C configuration
  */
@@ -119,18 +107,11 @@
 #define CONFIG_DW_AUTONEG
 
 /*
- * Command line configuration
+ * Commands still not supported in Kconfig
  */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_RARP
-
-#define CONFIG_OF_LIBFDT
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		16
