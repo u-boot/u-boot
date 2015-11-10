@@ -197,7 +197,7 @@
 	"bootdev=/dev/mmcblk0p1\0"					\
 	"rootdev=/dev/mmcblk0p2\0"					\
 	"netdev=eth0\0"							\
-	"kernel_addr_r=0x18000000\0"					\
+	"kernel_addr_r="__stringify(CONFIG_LOADADDR)"\0"		\
 	"addcons="							\
 		"setenv bootargs ${bootargs} "				\
 		"console=${consdev},${baudrate}\0"			\
