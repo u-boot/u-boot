@@ -8,13 +8,8 @@
 #
 # Created by Charles Manning <charles@aleph1.co.uk>
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 2 as
-# published by the Free Software Foundation.
+# SPDX-License-Identifier:	GPL-2.0
 #
-# NB Warning this Makefile does not include header dependencies.
-#
-# $Id: Makefile,v 1.15 2007/07/18 19:40:38 charles Exp $
 
 obj-y := \
 	yaffs_allocator.o yaffs_attribs.o yaffs_bitmap.o yaffs_uboot_glue.o\

@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 obj-$(CONFIG_AT91_WANTS_COMMON_PHY) += phy.o
 ifneq ($(CONFIG_SPL_BUILD),)
 obj-$(CONFIG_AT91SAM9260) += sdram.o spl_at91.o
