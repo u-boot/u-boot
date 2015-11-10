@@ -60,7 +60,7 @@ __weak int eeprom_write_enable(unsigned dev_addr, int state)
 	return 0;
 }
 
-void eeprom_init(void)
+void eeprom_init(int bus)
 {
 	/* SPI EEPROM */
 #if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
@@ -69,6 +69,10 @@ void eeprom_init(void)
 
 	/* I2C EEPROM */
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
+#if defined(CONFIG_SYS_I2C)
+	if (bus >= 0)
+		i2c_set_bus_num(bus);
+#endif
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 }
@@ -223,7 +227,7 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	off = simple_strtoul(*args++, NULL, 16);
 	cnt = simple_strtoul(*args++, NULL, 16);
 
-	eeprom_init();
+	eeprom_init(-1);
 
 	if (strcmp (argv[1], "read") == 0) {
 		printf(fmt, dev_addr, argv[1], addr, off, cnt);

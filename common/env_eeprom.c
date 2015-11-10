@@ -91,7 +91,7 @@ void env_relocate_spec(void)
 	uchar rdbuf[64], flags[2];
 	int i, crc_ok[2] = {0, 0};
 
-	eeprom_init();	/* prepare for EEPROM read/write */
+	eeprom_init(-1);	/* prepare for EEPROM read/write */
 
 	off_env[0] = CONFIG_ENV_OFFSET;
 	off_env[1] = CONFIG_ENV_OFFSET_REDUND;
@@ -154,7 +154,7 @@ void env_relocate_spec(void)
 	ulong crc, len, new;
 	uchar rdbuf[64];
 
-	eeprom_init();	/* prepare for EEPROM read/write */
+	eeprom_init(-1);	/* prepare for EEPROM read/write */
 
 	/* read old CRC */
 	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
