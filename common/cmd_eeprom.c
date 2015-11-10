@@ -29,6 +29,10 @@
 #define	CONFIG_SYS_I2C_SPEED	50000
 #endif
 
+#ifndef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	0
+#endif
+
 /*
  * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
  *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
@@ -211,9 +215,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		buffer += len;
 		offset += len;
 
-#if defined(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS)
 		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
-#endif
 	}
 
 	eeprom_write_enable(dev_addr, 0);
