@@ -33,6 +33,13 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	0
 #endif
 
+#ifndef CONFIG_SYS_EEPROM_PAGE_WRITE_BITS
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	8
+#endif
+
+#define	EEPROM_PAGE_SIZE	(1 << CONFIG_SYS_EEPROM_PAGE_WRITE_BITS)
+#define	EEPROM_PAGE_OFFSET(x)	((x) & (EEPROM_PAGE_SIZE - 1))
+
 /*
  * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
  *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
@@ -194,15 +201,8 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		 */
 #if !defined(CONFIG_SYS_I2C_FRAM)
 
-#if defined(CONFIG_SYS_EEPROM_PAGE_WRITE_BITS)
-
-#define	EEPROM_PAGE_SIZE	(1 << CONFIG_SYS_EEPROM_PAGE_WRITE_BITS)
-#define	EEPROM_PAGE_OFFSET(x)	((x) & (EEPROM_PAGE_SIZE - 1))
-
 		maxlen = EEPROM_PAGE_SIZE - EEPROM_PAGE_OFFSET(blk_off);
-#else
-		maxlen = 0x100 - blk_off;
-#endif
+
 		if (maxlen > I2C_RXTX_LEN)
 			maxlen = I2C_RXTX_LEN;
 
