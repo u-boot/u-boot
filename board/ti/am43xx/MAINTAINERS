@@ -7,3 +7,5 @@ F:	configs/am43xx_evm_defconfig
 F:	configs/am43xx_evm_qspiboot_defconfig
 F:	configs/am43xx_evm_ethboot_defconfig
 F:	configs/am43xx_evm_usbhost_boot_defconfig
+F:	configs/am437x_gp_evm_defconfig
+F:	configs/am437x_sk_evm_defconfig
