@@ -61,6 +61,28 @@ void eeprom_init(void)
 #endif
 }
 
+static int eeprom_addr(unsigned dev_addr, unsigned offset, uchar *addr)
+{
+	unsigned blk_off;
+	int alen;
+
+	blk_off = offset & 0xff;	/* block offset */
+#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1
+	addr[0] = offset >> 8;		/* block number */
+	addr[1] = blk_off;		/* block offset */
+	alen = 2;
+#else
+	addr[0] = offset >> 16;		/* block number */
+	addr[1] = offset >>  8;		/* upper address octet */
+	addr[2] = blk_off;		/* lower address octet */
+	alen = 3;
+#endif	/* CONFIG_SYS_I2C_EEPROM_ADDR_LEN */
+
+	addr[0] |= dev_addr;		/* insert device address */
+
+	return alen;
+}
+
 static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 			   uchar *buffer, unsigned len, bool read)
 {
@@ -94,6 +116,7 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 	unsigned end = offset + cnt;
 	unsigned blk_off;
 	int rcode = 0;
+	uchar addr[3];
 
 	/*
 	 * Read data until done or would cross a page boundary.
@@ -106,26 +129,8 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 		unsigned maxlen;
 #endif
 
-#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1
-		uchar addr[2];
-
 		blk_off = offset & 0xFF;	/* block offset */
-
-		addr[0] = offset >> 8;		/* block number */
-		addr[1] = blk_off;		/* block offset */
-		alen	= 2;
-#else
-		uchar addr[3];
-
-		blk_off = offset & 0xFF;	/* block offset */
-
-		addr[0] = offset >> 16;		/* block number */
-		addr[1] = offset >>  8;		/* upper address octet */
-		addr[2] = blk_off;		/* lower address octet */
-		alen	= 3;
-#endif	/* CONFIG_SYS_I2C_EEPROM_ADDR_LEN */
-
-		addr[0] |= dev_addr;		/* insert device address */
+		alen = eeprom_addr(dev_addr, offset, addr);
 
 		len = end - offset;
 
@@ -156,6 +161,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	unsigned end = offset + cnt;
 	unsigned blk_off;
 	int rcode = 0;
+	uchar addr[3];
 
 #if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable (dev_addr,1);
@@ -172,26 +178,8 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		unsigned maxlen;
 #endif
 
-#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1
-		uchar addr[2];
-
 		blk_off = offset & 0xFF;	/* block offset */
-
-		addr[0] = offset >> 8;		/* block number */
-		addr[1] = blk_off;		/* block offset */
-		alen	= 2;
-#else
-		uchar addr[3];
-
-		blk_off = offset & 0xFF;	/* block offset */
-
-		addr[0] = offset >> 16;		/* block number */
-		addr[1] = offset >>  8;		/* upper address octet */
-		addr[2] = blk_off;		/* lower address octet */
-		alen	= 3;
-#endif	/* CONFIG_SYS_I2C_EEPROM_ADDR_LEN */
-
-		addr[0] |= dev_addr;		/* insert device address */
+		alen = eeprom_addr(dev_addr, offset, addr);
 
 		len = end - offset;
 
