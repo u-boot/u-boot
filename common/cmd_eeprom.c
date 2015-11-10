@@ -49,8 +49,8 @@
  */
 #if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 #if !defined(CONFIG_SYS_I2C_EEPROM_ADDR_LEN) || \
-    (CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1) || \
-    (CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2)
+	(CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1) || \
+	(CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2)
 #error CONFIG_SYS_I2C_EEPROM_ADDR_LEN must be 1 or 2
 #endif
 #endif
@@ -185,7 +185,8 @@ int eeprom_read(unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
 	return eeprom_rw(dev_addr, offset, buffer, cnt, 1);
 }
 
-int eeprom_write(unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
+int eeprom_write(unsigned dev_addr, unsigned offset,
+		 uchar *buffer, unsigned cnt)
 {
 	int ret;
 
@@ -236,19 +237,19 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	eeprom_init(bus_addr);
 
-	if (strcmp (argv[1], "read") == 0) {
+	if (strcmp(argv[1], "read") == 0) {
 		printf(fmt, dev_addr, argv[1], addr, off, cnt);
 
-		rcode = eeprom_read(dev_addr, off, (uchar *) addr, cnt);
+		rcode = eeprom_read(dev_addr, off, (uchar *)addr, cnt);
 
-		puts ("done\n");
+		puts("done\n");
 		return rcode;
-	} else if (strcmp (argv[1], "write") == 0) {
+	} else if (strcmp(argv[1], "write") == 0) {
 		printf(fmt, dev_addr, argv[1], addr, off, cnt);
 
-		rcode = eeprom_write(dev_addr, off, (uchar *) addr, cnt);
+		rcode = eeprom_write(dev_addr, off, (uchar *)addr, cnt);
 
-		puts ("done\n");
+		puts("done\n");
 		return rcode;
 	}
 
