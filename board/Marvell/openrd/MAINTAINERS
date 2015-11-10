@@ -1,0 +1,12 @@
+OPENRD BOARD
+M:	Albert ARIBAUD <albert-u-boot@aribaud.net>
+S:	Maintained
+F:	board/Marvell/openrd/
+F:	include/configs/openrd.h
+F:	configs/openrd_base_defconfig
+
+OPENRD_CLIENT BOARD
+M:	Albert ARIBAUD <albert-u-boot@aribaud.net>
+S:	Maintained
+F:	configs/openrd_client_defconfig
+F:	configs/openrd_ultimate_defconfig

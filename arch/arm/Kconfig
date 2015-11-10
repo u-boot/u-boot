@@ -10,6 +10,9 @@ config ARM64
 config HAS_VBAR
         bool
 
+config HAS_THUMB2
+        bool
+
 config CPU_ARM720T
         bool
 
@@ -32,9 +35,11 @@ config CPU_ARM1176
 config CPU_V7
         bool
         select HAS_VBAR
+        select HAS_THUMB2
 
 config CPU_V7M
 	bool
+        select HAS_THUMB2
 
 config CPU_PXA
         bool

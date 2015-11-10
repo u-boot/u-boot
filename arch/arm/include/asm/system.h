@@ -17,6 +17,7 @@
 #define PGTABLE_SIZE	(0x10000)
 /* 2MB granularity */
 #define MMU_SECTION_SHIFT	21
+#define MMU_SECTION_SIZE	(1 << MMU_SECTION_SHIFT)
 
 #ifndef __ASSEMBLY__
 
@@ -278,11 +279,6 @@ enum {
  */
 void mmu_page_table_flush(unsigned long start, unsigned long stop);
 
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-void noncached_init(void);
-phys_addr_t noncached_alloc(size_t size, size_t align);
-#endif /* CONFIG_SYS_NONCACHED_MEMORY */
-
 #endif /* __ASSEMBLY__ */
 
 #define arch_align_stack(x) (x)
@@ -301,6 +297,11 @@ phys_addr_t noncached_alloc(size_t size, size_t align);
  */
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option);
+
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+void noncached_init(void);
+phys_addr_t noncached_alloc(size_t size, size_t align);
+#endif /* CONFIG_SYS_NONCACHED_MEMORY */
 
 #endif /* __ASSEMBLY__ */
 

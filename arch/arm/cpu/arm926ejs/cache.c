@@ -82,4 +82,9 @@ void flush_dcache_all(void)
 /*
  * Stub implementations for l2 cache operations
  */
+
 __weak void l2_cache_disable(void) {}
+
+#if defined CONFIG_SYS_THUMB_BUILD
+__weak void invalidate_l2_cache(void) {}
+#endif
