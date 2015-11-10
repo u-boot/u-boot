@@ -475,9 +475,6 @@ void	fdc_hw_init   (void);
 
 /* $(BOARD)/eeprom.c */
 void eeprom_init  (void);
-#ifndef CONFIG_SPI
-int  eeprom_probe (unsigned dev_addr, unsigned offset);
-#endif
 int  eeprom_read  (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 int  eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 
