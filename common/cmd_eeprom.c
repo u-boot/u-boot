@@ -146,38 +146,44 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 	return ret;
 }
 
-int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
+static int eeprom_rw(unsigned dev_addr, unsigned offset, uchar *buffer,
+		     unsigned cnt, bool read)
 {
 	unsigned end = offset + cnt;
+	unsigned alen, len;
 	int rcode = 0;
 	uchar addr[3];
 
-	/*
-	 * Read data until done or would cross a page boundary.
-	 * We must write the address again when changing pages
-	 * because the next page may be in a different device.
-	 */
 	while (offset < end) {
-		unsigned alen, len;
-
 		alen = eeprom_addr(dev_addr, offset, addr);
 
 		len = eeprom_len(offset, end);
 
-		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, 1);
+		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, read);
 
 		buffer += len;
 		offset += len;
+
+		if (!read)
+			udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 	}
 
 	return rcode;
 }
 
-int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
+int eeprom_read(unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
 {
-	unsigned end = offset + cnt;
-	int rcode = 0;
-	uchar addr[3];
+	/*
+	 * Read data until done or would cross a page boundary.
+	 * We must write the address again when changing pages
+	 * because the next page may be in a different device.
+	 */
+	return eeprom_rw(dev_addr, offset, buffer, cnt, 1);
+}
+
+int eeprom_write(unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
+{
+	int ret;
 
 	eeprom_write_enable(dev_addr, 1);
 
@@ -186,25 +192,10 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	 * We must write the address again when changing pages
 	 * because the address counter only increments within a page.
 	 */
-
-	while (offset < end) {
-		unsigned alen, len;
-
-		alen = eeprom_addr(dev_addr, offset, addr);
-
-		len = eeprom_len(offset, end);
-
-		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, 0);
-
-		buffer += len;
-		offset += len;
-
-		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
-	}
+	ret = eeprom_rw(dev_addr, offset, buffer, cnt, 1);
 
 	eeprom_write_enable(dev_addr, 0);
-
-	return rcode;
+	return ret;
 }
 
 static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
