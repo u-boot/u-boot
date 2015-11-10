@@ -2692,11 +2692,6 @@ CBFS (Coreboot Filesystem) support
 		Enables the driver for SPI controller on SuperH. Currently
 		only SH7757 is supported.
 
-		CONFIG_SPI_X
-
-		Enables extended (16-bit) SPI EEPROM addressing.
-		(symmetrical to CONFIG_I2C_X)
-
 		CONFIG_SOFT_SPI
 
 		Enables a software (bit-bang) SPI driver rather than

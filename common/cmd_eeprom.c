@@ -78,7 +78,7 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 		unsigned maxlen;
 #endif
 
-#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 && !defined(CONFIG_SPI_X)
+#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1
 		uchar addr[2];
 
 		blk_off = offset & 0xFF;	/* block offset */
@@ -95,7 +95,7 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 		addr[1] = offset >>  8;		/* upper address octet */
 		addr[2] = blk_off;		/* lower address octet */
 		alen	= 3;
-#endif	/* CONFIG_SYS_I2C_EEPROM_ADDR_LEN, CONFIG_SPI_X */
+#endif	/* CONFIG_SYS_I2C_EEPROM_ADDR_LEN */
 
 		addr[0] |= dev_addr;		/* insert device address */
 
@@ -151,7 +151,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		unsigned maxlen;
 #endif
 
-#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 && !defined(CONFIG_SPI_X)
+#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1
 		uchar addr[2];
 
 		blk_off = offset & 0xFF;	/* block offset */
@@ -168,7 +168,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		addr[1] = offset >>  8;		/* upper address octet */
 		addr[2] = blk_off;		/* lower address octet */
 		alen	= 3;
-#endif	/* CONFIG_SYS_I2C_EEPROM_ADDR_LEN, CONFIG_SPI_X */
+#endif	/* CONFIG_SYS_I2C_EEPROM_ADDR_LEN */
 
 		addr[0] |= dev_addr;		/* insert device address */
 
