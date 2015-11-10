@@ -77,17 +77,13 @@ static int handle_eeprom_v1(struct tricorder_eeprom *eeprom)
 
 int tricorder_get_eeprom(int addr, struct tricorder_eeprom *eeprom)
 {
-#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	unsigned int bus = i2c_get_bus_num();
 	i2c_set_bus_num(CONFIG_SYS_EEPROM_BUS_NUM);
-#endif
 
 	memset(eeprom, 0, TRICORDER_EEPROM_SIZE);
 
 	i2c_read(addr, 0, 2, (unsigned char *)eeprom, TRICORDER_EEPROM_SIZE);
-#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	i2c_set_bus_num(bus);
-#endif
 
 	if (be32_to_cpu(eeprom->magic) != TRICORDER_EEPROM_MAGIC) {
 		warn_wrong_value("magic", TRICORDER_EEPROM_MAGIC,
@@ -138,9 +134,6 @@ int tricorder_eeprom_write(unsigned devaddr, const char *name,
 	int ret;
 	unsigned char *p;
 	int i;
-#ifdef CONFIG_SYS_EEPROM_BUS_NUM
-	unsigned int bus;
-#endif
 
 	memset(eeprom, 0, TRICORDER_EEPROM_SIZE);
 	memset(eeprom_verify, 0, TRICORDER_EEPROM_SIZE);
@@ -172,33 +165,23 @@ int tricorder_eeprom_write(unsigned devaddr, const char *name,
 	print_buffer(0, &eeprom, 1, sizeof(eeprom), 16);
 #endif
 
-#ifdef CONFIG_SYS_EEPROM_BUS_NUM
-	bus = i2c_get_bus_num();
-	i2c_set_bus_num(CONFIG_SYS_EEPROM_BUS_NUM);
-#endif
+	eeprom_init(CONFIG_SYS_EEPROM_BUS_NUM);
 
-	/* do page write to the eeprom */
-	for (i = 0, p = (unsigned char *)&eeprom;
-	     i < sizeof(eeprom);
-	     i += 32, p += 32) {
-		ret = i2c_write(devaddr, i, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
-				p, min(sizeof(eeprom) - i, 32));
-		if (ret)
-			break;
-		udelay(5000); /* 5ms write cycle timing */
-	}
-
-	ret = i2c_read(devaddr, 0, 2, (unsigned char *)&eeprom_verify,
+	ret = eeprom_write(devaddr, 0, (unsigned char *)&eeprom,
 			TRICORDER_EEPROM_SIZE);
+	if (ret)
+		printf("Tricorder: Could not write EEPROM content!\n");
+
+	ret = eeprom_read(devaddr, 0, (unsigned char *)&eeprom_verify,
+			TRICORDER_EEPROM_SIZE);
+	if (ret)
+		printf("Tricorder: Could not read EEPROM content!\n");
 
 	if (memcmp(&eeprom, &eeprom_verify, sizeof(eeprom)) != 0) {
 		printf("Tricorder: Could not verify EEPROM content!\n");
 		ret = 1;
 	}
 
-#ifdef CONFIG_SYS_EEPROM_BUS_NUM
-	i2c_set_bus_num(bus);
-#endif
 	return ret;
 }
 
@@ -206,7 +189,7 @@ int do_tricorder_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc == 3) {
 		ulong dev_addr = simple_strtoul(argv[2], NULL, 16);
-		eeprom_init();
+
 		if (strcmp(argv[1], "read") == 0) {
 			int rcode;
 
@@ -220,7 +203,6 @@ int do_tricorder_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		char *version = argv[4];
 		char *serial = argv[5];
 		char *interface = NULL;
-		eeprom_init();
 
 		if (argc == 7)
 			interface = argv[6];
