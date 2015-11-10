@@ -170,6 +170,8 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	debug("spi_cs_deactivate: 0x%08x\n", (u32)slave);
 
 	writel(qslave->cmd | QSPI_INVAL, &qslave->base->cmd);
+	/* dummy readl to ensure bus sync */
+	readl(&qslave->base->cmd);
 }
 
 void spi_init(void)
