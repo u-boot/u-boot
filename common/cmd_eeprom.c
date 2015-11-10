@@ -57,7 +57,7 @@ void eeprom_init(void)
 {
 	/* SPI EEPROM */
 #if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-	spi_init_f ();
+	spi_init_f();
 #endif
 
 	/* I2C EEPROM */
@@ -248,9 +248,7 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	off = simple_strtoul(*args++, NULL, 16);
 	cnt = simple_strtoul(*args++, NULL, 16);
 
-# if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-	eeprom_init ();
-# endif /* !CONFIG_SPI */
+	eeprom_init();
 
 	if (strcmp (argv[1], "read") == 0) {
 		printf(fmt, dev_addr, argv[1], addr, off, cnt);
