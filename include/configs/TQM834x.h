@@ -182,7 +182,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2	/* 16 bit */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	5	/* 32 bytes/write */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	12	/* 10ms +/- 20% */
-#define CONFIG_SYS_I2C_MULTI_EEPROMS		/* more than one eeprom */
 
 /* I2C RTC */
 #define CONFIG_RTC_DS1337			/* use ds1337 rtc via i2c */

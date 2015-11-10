@@ -338,50 +338,50 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *const fmt =
 		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
+	char * const *args = &argv[2];
+	int rcode;
+	ulong dev_addr, addr, off, cnt;
 
-#if defined(CONFIG_SYS_I2C_MULTI_EEPROMS)
-	if (argc == 6) {
-		ulong dev_addr = simple_strtoul (argv[2], NULL, 16);
-		ulong addr = simple_strtoul (argv[3], NULL, 16);
-		ulong off  = simple_strtoul (argv[4], NULL, 16);
-		ulong cnt  = simple_strtoul (argv[5], NULL, 16);
-#else
-	if (argc == 5) {
-		ulong dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
-		ulong addr = simple_strtoul (argv[2], NULL, 16);
-		ulong off  = simple_strtoul (argv[3], NULL, 16);
-		ulong cnt  = simple_strtoul (argv[4], NULL, 16);
-#endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
+	switch (argc) {
+#ifdef CONFIG_SYS_DEF_EEPROM_ADDR
+	case 5:
+		dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
+		break;
+#endif
+	case 6:
+		dev_addr = simple_strtoul(*args++, NULL, 16);
+		break;
+	default:
+		return CMD_RET_USAGE;
+	}
+
+	addr = simple_strtoul(*args++, NULL, 16);
+	off = simple_strtoul(*args++, NULL, 16);
+	cnt = simple_strtoul(*args++, NULL, 16);
 
 # if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-		eeprom_init ();
+	eeprom_init ();
 # endif /* !CONFIG_SPI */
 
-		if (strcmp (argv[1], "read") == 0) {
-			int rcode;
+	if (strcmp (argv[1], "read") == 0) {
+		printf(fmt, dev_addr, argv[1], addr, off, cnt);
 
-			printf (fmt, dev_addr, argv[1], addr, off, cnt);
+		rcode = eeprom_read(dev_addr, off, (uchar *) addr, cnt);
 
-			rcode = eeprom_read (dev_addr, off, (uchar *) addr, cnt);
+		puts ("done\n");
+		return rcode;
+	} else if (strcmp (argv[1], "write") == 0) {
+		printf(fmt, dev_addr, argv[1], addr, off, cnt);
 
-			puts ("done\n");
-			return rcode;
-		} else if (strcmp (argv[1], "write") == 0) {
-			int rcode;
+		rcode = eeprom_write(dev_addr, off, (uchar *) addr, cnt);
 
-			printf (fmt, dev_addr, argv[1], addr, off, cnt);
-
-			rcode = eeprom_write (dev_addr, off, (uchar *) addr, cnt);
-
-			puts ("done\n");
-			return rcode;
-		}
+		puts ("done\n");
+		return rcode;
 	}
 
 	return CMD_RET_USAGE;
 }
 
-#ifdef CONFIG_SYS_I2C_MULTI_EEPROMS
 U_BOOT_CMD(
 	eeprom,	6,	1,	do_eeprom,
 	"EEPROM sub-system",
@@ -389,12 +389,3 @@ U_BOOT_CMD(
 	"eeprom write devaddr addr off cnt\n"
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
 )
-#else /* One EEPROM */
-U_BOOT_CMD(
-	eeprom,	5,	1,	do_eeprom,
-	"EEPROM sub-system",
-	"read  addr off cnt\n"
-	"eeprom write addr off cnt\n"
-	"       - read/write `cnt' bytes at EEPROM offset `off'"
-)
-#endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
