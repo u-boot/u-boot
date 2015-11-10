@@ -25,86 +25,46 @@
 #include <command.h>
 #include <i2c.h>
 
-extern void eeprom_init  (void);
-extern int  eeprom_read  (unsigned dev_addr, unsigned offset,
-			  uchar *buffer, unsigned cnt);
-extern int  eeprom_write (unsigned dev_addr, unsigned offset,
-			  uchar *buffer, unsigned cnt);
-#if defined(CONFIG_SYS_EEPROM_WREN)
-extern int eeprom_write_enable (unsigned dev_addr, int state);
+#ifndef	CONFIG_SYS_I2C_SPEED
+#define	CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-
+/* Maximum number of times to poll for acknowledge after write */
 #if defined(CONFIG_SYS_EEPROM_X40430)
-	/* Maximum number of times to poll for acknowledge after write */
 #define MAX_ACKNOWLEDGE_POLLS	10
 #endif
 
-/* ------------------------------------------------------------------------- */
-
-#if defined(CONFIG_CMD_EEPROM)
-static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	const char *const fmt =
-		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
-
-#if defined(CONFIG_SYS_I2C_MULTI_EEPROMS)
-	if (argc == 6) {
-		ulong dev_addr = simple_strtoul (argv[2], NULL, 16);
-		ulong addr = simple_strtoul (argv[3], NULL, 16);
-		ulong off  = simple_strtoul (argv[4], NULL, 16);
-		ulong cnt  = simple_strtoul (argv[5], NULL, 16);
-#else
-	if (argc == 5) {
-		ulong dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
-		ulong addr = simple_strtoul (argv[2], NULL, 16);
-		ulong off  = simple_strtoul (argv[3], NULL, 16);
-		ulong cnt  = simple_strtoul (argv[4], NULL, 16);
-#endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
-
-# if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-		eeprom_init ();
-# endif /* !CONFIG_SPI */
-
-		if (strcmp (argv[1], "read") == 0) {
-			int rcode;
-
-			printf (fmt, dev_addr, argv[1], addr, off, cnt);
-
-			rcode = eeprom_read (dev_addr, off, (uchar *) addr, cnt);
-
-			puts ("done\n");
-			return rcode;
-		} else if (strcmp (argv[1], "write") == 0) {
-			int rcode;
-
-			printf (fmt, dev_addr, argv[1], addr, off, cnt);
-
-			rcode = eeprom_write (dev_addr, off, (uchar *) addr, cnt);
-
-			puts ("done\n");
-			return rcode;
-		}
-	}
-
-	return CMD_RET_USAGE;
-}
-#endif
-
-/*-----------------------------------------------------------------------
- *
+/*
  * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
  *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
  *
  * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
  *   0x00000nxx for EEPROM address selectors and page number at n.
  */
-
 #if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-#if !defined(CONFIG_SYS_I2C_EEPROM_ADDR_LEN) || CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1 || CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2
+#if !defined(CONFIG_SYS_I2C_EEPROM_ADDR_LEN) || \
+    (CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1) || \
+    (CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2)
 #error CONFIG_SYS_I2C_EEPROM_ADDR_LEN must be 1 or 2
 #endif
 #endif
+
+#if defined(CONFIG_SYS_EEPROM_WREN)
+extern int eeprom_write_enable (unsigned dev_addr, int state);
+#endif
+
+void eeprom_init(void)
+{
+	/* SPI EEPROM */
+#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
+	spi_init_f ();
+#endif
+
+	/* I2C EEPROM */
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+}
 
 int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
 {
@@ -112,7 +72,8 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 	unsigned blk_off;
 	int rcode = 0;
 
-	/* Read data until done or would cross a page boundary.
+	/*
+	 * Read data until done or would cross a page boundary.
 	 * We must write the address again when changing pages
 	 * because the next page may be in a different device.
 	 */
@@ -174,15 +135,6 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 	return rcode;
 }
 
-/*-----------------------------------------------------------------------
- *
- * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
- *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
- *
- * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
- *   0x00000nxx for EEPROM address selectors and page number at n.
- */
-
 int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
 {
 	unsigned end = offset + cnt;
@@ -200,7 +152,8 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 #if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable (dev_addr,1);
 #endif
-	/* Write data until done or would cross a write page boundary.
+	/*
+	 * Write data until done or would cross a write page boundary.
 	 * We must write the address again when changing pages
 	 * because the address counter only increments within a page.
 	 */
@@ -363,8 +316,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 }
 
 #if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-int
-eeprom_probe (unsigned dev_addr, unsigned offset)
+int eeprom_probe(unsigned dev_addr, unsigned offset)
 {
 	unsigned char chip;
 
@@ -382,30 +334,52 @@ eeprom_probe (unsigned dev_addr, unsigned offset)
 }
 #endif
 
-/*-----------------------------------------------------------------------
- * Set default values
- */
-#ifndef	CONFIG_SYS_I2C_SPEED
-#define	CONFIG_SYS_I2C_SPEED	50000
-#endif
-
-void eeprom_init  (void)
+static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	const char *const fmt =
+		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
 
-#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-	spi_init_f ();
-#endif
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
-	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
+#if defined(CONFIG_SYS_I2C_MULTI_EEPROMS)
+	if (argc == 6) {
+		ulong dev_addr = simple_strtoul (argv[2], NULL, 16);
+		ulong addr = simple_strtoul (argv[3], NULL, 16);
+		ulong off  = simple_strtoul (argv[4], NULL, 16);
+		ulong cnt  = simple_strtoul (argv[5], NULL, 16);
+#else
+	if (argc == 5) {
+		ulong dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
+		ulong addr = simple_strtoul (argv[2], NULL, 16);
+		ulong off  = simple_strtoul (argv[3], NULL, 16);
+		ulong cnt  = simple_strtoul (argv[4], NULL, 16);
+#endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
+
+# if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
+		eeprom_init ();
+# endif /* !CONFIG_SPI */
+
+		if (strcmp (argv[1], "read") == 0) {
+			int rcode;
+
+			printf (fmt, dev_addr, argv[1], addr, off, cnt);
+
+			rcode = eeprom_read (dev_addr, off, (uchar *) addr, cnt);
+
+			puts ("done\n");
+			return rcode;
+		} else if (strcmp (argv[1], "write") == 0) {
+			int rcode;
+
+			printf (fmt, dev_addr, argv[1], addr, off, cnt);
+
+			rcode = eeprom_write (dev_addr, off, (uchar *) addr, cnt);
+
+			puts ("done\n");
+			return rcode;
+		}
+	}
+
+	return CMD_RET_USAGE;
 }
-
-/*-----------------------------------------------------------------------
- */
-
-/***************************************************/
-
-#if defined(CONFIG_CMD_EEPROM)
 
 #ifdef CONFIG_SYS_I2C_MULTI_EEPROMS
 U_BOOT_CMD(
@@ -424,5 +398,3 @@ U_BOOT_CMD(
 	"       - read/write `cnt' bytes at EEPROM offset `off'"
 )
 #endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
-
-#endif
