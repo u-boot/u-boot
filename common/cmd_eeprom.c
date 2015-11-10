@@ -95,6 +95,29 @@ static int eeprom_addr(unsigned dev_addr, unsigned offset, uchar *addr)
 	return alen;
 }
 
+static int eeprom_len(unsigned offset, unsigned end)
+{
+	unsigned len = end - offset;
+
+	/*
+	 * For a FRAM device there is no limit on the number of the
+	 * bytes that can be ccessed with the single read or write
+	 * operation.
+	 */
+#if !defined(CONFIG_SYS_I2C_FRAM)
+	unsigned blk_off = offset & 0xff;
+	unsigned maxlen = EEPROM_PAGE_SIZE - EEPROM_PAGE_OFFSET(blk_off);
+
+	if (maxlen > I2C_RXTX_LEN)
+		maxlen = I2C_RXTX_LEN;
+
+	if (len > maxlen)
+		len = maxlen;
+#endif
+
+	return len;
+}
+
 static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 			   uchar *buffer, unsigned len, bool read)
 {
@@ -126,7 +149,6 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
 {
 	unsigned end = offset + cnt;
-	unsigned blk_off;
 	int rcode = 0;
 	uchar addr[3];
 
@@ -137,27 +159,10 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 	 */
 	while (offset < end) {
 		unsigned alen, len;
-#if !defined(CONFIG_SYS_I2C_FRAM)
-		unsigned maxlen;
-#endif
 
-		blk_off = offset & 0xFF;	/* block offset */
 		alen = eeprom_addr(dev_addr, offset, addr);
 
-		len = end - offset;
-
-		/*
-		 * For a FRAM device there is no limit on the number of the
-		 * bytes that can be ccessed with the single read or write
-		 * operation.
-		 */
-#if !defined(CONFIG_SYS_I2C_FRAM)
-		maxlen = 0x100 - blk_off;
-		if (maxlen > I2C_RXTX_LEN)
-			maxlen = I2C_RXTX_LEN;
-		if (len > maxlen)
-			len = maxlen;
-#endif
+		len = eeprom_len(offset, end);
 
 		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, 1);
 
@@ -171,7 +176,6 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
 {
 	unsigned end = offset + cnt;
-	unsigned blk_off;
 	int rcode = 0;
 	uchar addr[3];
 
@@ -185,30 +189,10 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 
 	while (offset < end) {
 		unsigned alen, len;
-#if !defined(CONFIG_SYS_I2C_FRAM)
-		unsigned maxlen;
-#endif
 
-		blk_off = offset & 0xFF;	/* block offset */
 		alen = eeprom_addr(dev_addr, offset, addr);
 
-		len = end - offset;
-
-		/*
-		 * For a FRAM device there is no limit on the number of the
-		 * bytes that can be accessed with the single read or write
-		 * operation.
-		 */
-#if !defined(CONFIG_SYS_I2C_FRAM)
-
-		maxlen = EEPROM_PAGE_SIZE - EEPROM_PAGE_OFFSET(blk_off);
-
-		if (maxlen > I2C_RXTX_LEN)
-			maxlen = I2C_RXTX_LEN;
-
-		if (len > maxlen)
-			len = maxlen;
-#endif
+		len = eeprom_len(offset, end);
 
 		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, 0);
 
