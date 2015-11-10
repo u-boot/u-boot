@@ -44,9 +44,10 @@
 #endif
 #endif
 
-#if defined(CONFIG_SYS_EEPROM_WREN)
-extern int eeprom_write_enable (unsigned dev_addr, int state);
-#endif
+__weak int eeprom_write_enable(unsigned dev_addr, int state)
+{
+	return 0;
+}
 
 void eeprom_init(void)
 {
@@ -163,9 +164,8 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	int rcode = 0;
 	uchar addr[3];
 
-#if defined(CONFIG_SYS_EEPROM_WREN)
-	eeprom_write_enable (dev_addr,1);
-#endif
+	eeprom_write_enable(dev_addr, 1);
+
 	/*
 	 * Write data until done or would cross a write page boundary.
 	 * We must write the address again when changing pages
@@ -215,9 +215,9 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 	}
-#if defined(CONFIG_SYS_EEPROM_WREN)
-	eeprom_write_enable (dev_addr,0);
-#endif
+
+	eeprom_write_enable(dev_addr, 0);
+
 	return rcode;
 }
 
