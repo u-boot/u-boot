@@ -61,6 +61,34 @@ void eeprom_init(void)
 #endif
 }
 
+static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
+			   uchar *buffer, unsigned len, bool read)
+{
+	int ret = 0;
+
+	/* SPI */
+#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
+	if (read)
+		spi_read(addr, alen, buffer, len);
+	else
+		spi_write(addr, alen, buffer, len);
+#else	/* I2C */
+
+#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
+	i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+#endif
+
+	if (read)
+		ret = i2c_read(addr[0], offset, alen - 1, buffer, len);
+	else
+		ret = i2c_write(addr[0], offset, alen - 1, buffer, len);
+
+	if (ret)
+		ret = 1;
+#endif
+	return ret;
+}
+
 int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
 {
 	unsigned end = offset + cnt;
@@ -114,15 +142,8 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 			len = maxlen;
 #endif
 
-#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-		spi_read (addr, alen, buffer, len);
-#else
-#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
-		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
-#endif
-		if (i2c_read(addr[0], offset, alen - 1, buffer, len))
-			rcode = 1;
-#endif
+		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, 1);
+
 		buffer += len;
 		offset += len;
 	}
@@ -197,17 +218,8 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 			len = maxlen;
 #endif
 
-#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-		spi_write (addr, alen, buffer, len);
-#else
+		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, 0);
 
-#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
-		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
-#endif
-		if (i2c_write(addr[0], offset, alen - 1, buffer, len))
-			rcode = 1;
-
-#endif
 		buffer += len;
 		offset += len;
 
