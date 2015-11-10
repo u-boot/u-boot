@@ -5,3 +5,5 @@ F:	board/freescale/ls1043ardb/
 F:	board/freescale/ls1043ardb/ls1043ardb.c
 F:	include/configs/ls1043ardb.h
 F:	configs/ls1043ardb_defconfig
+F:	configs/ls1043ardb_nand_defconfig
+F:	configs/ls1043ardb_sdcard_defconfig
