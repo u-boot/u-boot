@@ -7,7 +7,7 @@
 
 obj-$(CONFIG_DM_KEYBOARD) += keyboard-uclass.o
 
-obj-$(CONFIG_I8042_KBD) += i8042.o
+obj-$(CONFIG_I8042_KEYB) += i8042.o
 obj-$(CONFIG_TEGRA_KEYBOARD) += tegra-kbc.o
 obj-$(CONFIG_TWL4030_INPUT) += twl4030.o
 obj-$(CONFIG_CROS_EC_KEYB) += cros_ec_keyb.o

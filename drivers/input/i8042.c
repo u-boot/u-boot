@@ -8,8 +8,11 @@
 /* i8042.c - Intel 8042 keyboard driver routines */
 
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
 #include <i8042.h>
 #include <input.h>
+#include <keyboard.h>
 #include <asm/io.h>
 
 /* defines */
@@ -17,8 +20,9 @@
 #define out8(p, v)	outb(v, p)
 
 /* locals */
-static struct input_config config;
-static bool extended;
+struct i8042_kbd_priv {
+	bool extended;	/* true if an extended keycode is expected next */
+};
 
 static unsigned char ext_key_map[] = {
 	0x1c, /* keypad enter */
@@ -60,12 +64,20 @@ static int kbd_output_full(void)
 	return kbd_timeout != -1;
 }
 
-static void kbd_led_set(int flags)
+/**
+ * check_leds() - Check the keyboard LEDs and update them it needed
+ *
+ * @ret:	Value to return
+ * @return value of @ret
+ */
+static int i8042_kbd_update_leds(struct udevice *dev, int leds)
 {
 	kbd_input_empty();
 	out8(I8042_DATA_REG, CMD_SET_KBD_LED);
 	kbd_input_empty();
-	out8(I8042_DATA_REG, flags & 0x7);
+	out8(I8042_DATA_REG, leds & 0x7);
+
+	return 0;
 }
 
 static int kbd_write(int reg, int value)
@@ -144,6 +156,8 @@ static int kbd_controller_present(void)
 /*
  * Implement a weak default function for boards that optionally
  * need to skip the i8042 initialization.
+ *
+ * TODO(sjg@chromium.org): Use device tree for this?
  */
 int __weak board_i8042_skip(void)
 {
@@ -190,6 +204,8 @@ int i8042_disable(void)
 
 static int i8042_kbd_check(struct input_config *input)
 {
+	struct i8042_kbd_priv *priv = dev_get_priv(input->dev);
+
 	if ((in8(I8042_STS_REG) & STATUS_OBF) == 0) {
 		return 0;
 	} else {
@@ -201,15 +217,15 @@ static int i8042_kbd_check(struct input_config *input)
 		if (scan_code == 0xfa) {
 			return 0;
 		} else if (scan_code == 0xe0) {
-			extended = true;
+			priv->extended = true;
 			return 0;
 		}
 		if (scan_code & 0x80) {
 			scan_code &= 0x7f;
 			release = true;
 		}
-		if (extended) {
-			extended = false;
+		if (priv->extended) {
+			priv->extended = false;
 			for (i = 0; ext_key_map[i]; i++) {
 				if (ext_key_map[i] == scan_code) {
 					scan_code = 0x60 + i;
@@ -221,21 +237,23 @@ static int i8042_kbd_check(struct input_config *input)
 				return 0;
 		}
 
-		input_add_keycode(&config, scan_code, release);
+		input_add_keycode(input, scan_code, release);
 		return 1;
 	}
 }
 
 /* i8042_kbd_init - reset keyboard and init state flags */
-int i8042_kbd_init(void)
+static int i8042_start(struct udevice *dev)
 {
+	struct keyboard_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct input_config *input = &uc_priv->input;
 	int keymap, try;
 	char *penv;
 	int ret;
 
 	if (!kbd_controller_present() || board_i8042_skip()) {
 		debug("i8042 keyboard controller is not present\n");
-		return -1;
+		return -ENOENT;
 	}
 
 	/* Init keyboard device (default US layout) */
@@ -251,42 +269,65 @@ int i8042_kbd_init(void)
 			return -1;
 	}
 
-	ret = input_init(&config, keymap == KBD_GER);
+	ret = input_add_tables(input, keymap == KBD_GER);
 	if (ret)
 		return ret;
-	config.read_keys = i8042_kbd_check;
-	input_allow_repeats(&config, true);
 
-	kbd_led_set(NORMAL);
+	i8042_kbd_update_leds(dev, NORMAL);
+	debug("%s: started\n", __func__);
 
 	return 0;
 }
 
 /**
- * check_leds() - Check the keyboard LEDs and update them it needed
+ * Set up the i8042 keyboard. This is called by the stdio device handler
  *
- * @ret:	Value to return
- * @return value of @ret
+ * We want to do this init when the keyboard is actually used rather than
+ * at start-up, since keyboard input may not currently be selected.
+ *
+ * Once the keyboard starts there will be a period during which we must
+ * wait for the keyboard to init. We do this only when a key is first
+ * read - see kbd_wait_for_fifo_init().
+ *
+ * @return 0 if ok, -ve on error
  */
-static int check_leds(int ret)
+static int i8042_kbd_probe(struct udevice *dev)
 {
-	int leds;
+	struct keyboard_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct stdio_dev *sdev = &uc_priv->sdev;
+	struct input_config *input = &uc_priv->input;
+	int ret;
 
-	leds = input_leds_changed(&config);
-	if (leds >= 0)
-		kbd_led_set(leds);
+	/* Register the device. i8042_start() will be called soon */
+	input->dev = dev;
+	input->read_keys = i8042_kbd_check;
+	input_allow_repeats(input, true);
+	strcpy(sdev->name, "i8042-kbd");
+	ret = input_stdio_register(sdev);
+	if (ret) {
+		debug("%s: input_stdio_register() failed\n", __func__);
+		return ret;
+	}
+	debug("%s: ready\n", __func__);
 
-	return ret;
+	return 0;
 }
 
-/* i8042_tstc - test if keyboard input is available */
-int i8042_tstc(struct stdio_dev *dev)
-{
-	return check_leds(input_tstc(&config));
-}
+static const struct keyboard_ops i8042_kbd_ops = {
+	.start	= i8042_start,
+	.update_leds	= i8042_kbd_update_leds,
+};
 
-/* i8042_getc - wait till keyboard input is available */
-int i8042_getc(struct stdio_dev *dev)
-{
-	return check_leds(input_getc(&config));
-}
+static const struct udevice_id i8042_kbd_ids[] = {
+	{ .compatible = "intel,i8042-keyboard" },
+	{ }
+};
+
+U_BOOT_DRIVER(i8042_kbd) = {
+	.name	= "i8042_kbd",
+	.id	= UCLASS_KEYBOARD,
+	.of_match = i8042_kbd_ids,
+	.probe = i8042_kbd_probe,
+	.ops	= &i8042_kbd_ops,
+	.priv_auto_alloc_size = sizeof(struct i8042_kbd_priv),
+};
