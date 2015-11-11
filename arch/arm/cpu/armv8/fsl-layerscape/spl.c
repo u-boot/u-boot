@@ -44,8 +44,6 @@ u32 spl_boot_mode(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
-	/* Set global data pointer */
-	gd = &gdata;
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
 #if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
