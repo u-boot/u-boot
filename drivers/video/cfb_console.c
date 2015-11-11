@@ -15,8 +15,10 @@
  * logo can be placed in the upper left corner and additional board
  * information strings (that normally goes to serial port) can be drawn.
  *
- * The console driver can use the standard PC keyboard interface (i8042)
- * for character input. Character output goes to a memory mapped video
+ * The console driver can use a keyboard interface for character input
+ * but this is deprecated. Only rk51 uses it.
+ *
+ * Character output goes to a memory-mapped video
  * framebuffer with little or big-endian organisation.
  * With environment setting 'console=serial' the console i/o can be
  * forced to serial port.
@@ -38,7 +40,6 @@
  * VIDEO_DATA_FORMAT	      - graphical data format GDF
  * VIDEO_FB_ADRS	      - start of video memory
  *
- * CONFIG_I8042_KBD	      - AT Keyboard driver for i8042
  * VIDEO_KBD_INIT_FCT	      - init function for keyboard
  * VIDEO_TSTC_FCT	      - keyboard_tstc function
  * VIDEO_GETC_FCT	      - keyboard_getc function
@@ -156,19 +157,6 @@
 #define VIDEO_PIXEL_SIZE	(pGD->gdfBytesPP)
 #define VIDEO_DATA_FORMAT	(pGD->gdfIndex)
 #define VIDEO_FB_ADRS		(pGD->frameAdrs)
-
-/*
- * Console device defines with i8042 keyboard controller
- * Any other keyboard controller must change this section
- */
-
-#ifdef	CONFIG_I8042_KBD
-#include <i8042.h>
-
-#define VIDEO_KBD_INIT_FCT	i8042_kbd_init()
-#define VIDEO_TSTC_FCT		i8042_tstc
-#define VIDEO_GETC_FCT		i8042_getc
-#endif
 
 /*
  * Console device

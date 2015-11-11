@@ -867,11 +867,11 @@ The following options need to be configured:
 						(0-5, cf. cfb_console.c)
 			VIDEO_FB_ADRS		framebuffer address
 			VIDEO_KBD_INIT_FCT	keyboard int fct
-						(i.e. i8042_kbd_init())
+						(i.e. rx51_kp_init())
 			VIDEO_TSTC_FCT		test char fct
-						(i.e. i8042_tstc)
+						(i.e. rx51_kp_tstc)
 			VIDEO_GETC_FCT		get char fct
-						(i.e. i8042_getc)
+						(i.e. rx51_kp_getc)
 			CONFIG_VIDEO_LOGO	display Linux logo in
 						upper left corner
 			CONFIG_VIDEO_BMP_LOGO	use bmp_logo.h instead of
@@ -1767,11 +1767,15 @@ CBFS (Coreboot Filesystem) support
 		a default value of 65536 will be defined.
 
 - Keyboard Support:
-		CONFIG_I8042_KBD
-		Standard PC keyboard driver with US (is default) and
-		GERMAN key layout (switch via environment 'keymap=de') support.
-		Export function i8042_kbd_init, i8042_tstc and i8042_getc
-		for cfb_console. Supports cursor blinking.
+		See Kconfig help for available keyboard drivers.
+
+		CONFIG_KEYBOARD
+
+		Define this to enable a custom keyboard support.
+		This simply calls drv_keyboard_init() which must be
+		defined in your board-specific files. This option is deprecated
+		and is only used by novena. For new boards, use driver model
+		instead.
 
 - Video support:
 		CONFIG_VIDEO
@@ -1831,15 +1835,6 @@ CBFS (Coreboot Filesystem) support
 		variable, and if defined, enable the DIU as a console during
 		boot.  See the documentation file README.video for a
 		description of this variable.
-
-
-- Keyboard Support:
-		CONFIG_KEYBOARD
-
-		Define this to enable a custom keyboard support.
-		This simply calls drv_keyboard_init() which must be
-		defined in your board-specific files.
-		The only board using this so far is RBC823.
 
 - LCD Support:	CONFIG_LCD
 
