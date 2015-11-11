@@ -452,16 +452,19 @@ static int input_keycodes_to_ascii(struct input_config *config,
 	/* Start conversion by looking for the first new keycode (by same). */
 	for (i = same; i < num_keycodes; i++) {
 		int key = keycode[i];
-		int ch = (key < table->num_entries) ? table->xlate[key] : 0xff;
+		int ch;
 
 		/*
 		 * For a normal key (with an ASCII value), add it; otherwise
 		 * translate special key to escape sequence if possible.
 		 */
-		if (ch != 0xff) {
-			if (ch_count < max_chars)
-				output_ch[ch_count] = (uchar)ch;
-			ch_count++;
+		if (key < table->num_entries) {
+			ch = table->xlate[key];
+			if ((config->flags & FLAG_CAPS_LOCK) &&
+			    ch >= 'a' && ch <= 'z')
+				ch -= 'a' - 'A';
+			if (ch_count < max_chars && ch != 0xff)
+				output_ch[ch_count++] = (uchar)ch;
 		} else {
 			ch_count += input_keycode_to_ansi364(config, key,
 						output_ch, max_chars);
