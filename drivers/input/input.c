@@ -275,6 +275,7 @@ static struct input_key_xlate *process_modifier(struct input_config *config,
 			if (config->flags & FLAG_SCROLL_LOCK)
 				leds |= INPUT_LED_SCROLL;
 			config->leds = leds;
+			config->leds_changed = flip;
 		}
 	}
 
@@ -584,6 +585,14 @@ void input_set_delays(struct input_config *config, int repeat_delay_ms,
 void input_allow_repeats(struct input_config *config, bool allow_repeats)
 {
 	config->allow_repeats = allow_repeats;
+}
+
+int input_leds_changed(struct input_config *config)
+{
+	if (config->leds_changed)
+		return config->leds;
+
+	return -1;
 }
 
 int input_add_tables(struct input_config *config, bool german)

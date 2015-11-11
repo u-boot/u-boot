@@ -43,7 +43,8 @@ struct input_config {
 	/* Which modifiers are active (1 bit for each MOD_... value) */
 	uchar modifiers;
 	uchar flags;		/* active state keys (FLAGS_...) */
-	uchar leds;		/* active LEDS (INPUT_LED_...) */
+	uchar leds;		/* active LEDs (INPUT_LED_...) */
+	uchar leds_changed;	/* LEDs that just changed */
 	uchar num_tables;	/* number of modifier tables */
 	int prev_keycodes[INPUT_BUFFER_LEN];	/* keys held last time */
 	int num_prev_keycodes;	/* number of prev keys */
@@ -160,6 +161,17 @@ void input_set_delays(struct input_config *config, int repeat_delay_ms,
  *			keyboard repeat processing with a timer.
  */
 void input_allow_repeats(struct input_config *config, bool allow_repeats);
+
+/**
+ * Check if keyboard LEDs need to be updated
+ *
+ * This can be called after input_tstc() to see if keyboard LEDs need
+ * updating.
+ *
+ * @param config	Input state
+ * @return -1 if no LEDs need updating, other value if they do
+ */
+int input_leds_changed(struct input_config *config);
 
 /**
  * Set up the key map tables
