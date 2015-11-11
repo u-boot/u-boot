@@ -17,6 +17,7 @@ alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
 alias alisonwang     Alison Wang <alison.wang@freescale.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
+alias bmeng          Bin Meng <bmeng.cn@gmail.com>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 alias galak          Kumar Gala <galak@kernel.crashing.org>
 alias gruss          Graeme Russ <graeme.russ@gmail.com>
@@ -111,7 +112,7 @@ alias sparc          uboot, Francois Retief <fgretief@spaceteq.co.za>
 alias superh         uboot, iwamatsu
 alias sh             superh
 
-alias x86            uboot, sjg, gruss
+alias x86            uboot, sjg, gruss, bmeng
 
 # Subsystem aliases
 alias dm             uboot, sjg
