@@ -60,6 +60,10 @@
 #define CONFIG_SYS_PCIE1_PHYS_ADDR		0x4000000000ULL
 #define CONFIG_SYS_PCIE2_PHYS_ADDR		0x4800000000ULL
 #define CONFIG_SYS_PCIE3_PHYS_ADDR		0x5000000000ULL
+/* LUT registers */
+#define PCIE_LUT_BASE				0x10000
+#define PCIE_LUT_LCTRL0				0x7F8
+#define PCIE_LUT_DBG				0x7FC
 
 /* TZ Address Space Controller Definitions */
 #define TZASC1_BASE			0x01100000	/* as per CCSR map. */

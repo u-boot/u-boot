@@ -11,8 +11,9 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <malloc.h>
-#ifdef CONFIG_FSL_LAYERSCAPE
+#ifndef CONFIG_LS102XA
 #include <asm/arch/fdt.h>
+#include <asm/arch/soc.h>
 #endif
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
@@ -56,11 +57,6 @@
 #define PCIE_ATU_DEV(x)			(((x) & 0x1f) << 19)
 #define PCIE_ATU_FUNC(x)		(((x) & 0x7) << 16)
 #define PCIE_ATU_UPPER_TARGET		0x91C
-
-/* LUT registers */
-#define PCIE_LUT_BASE		0x80000
-#define PCIE_LUT_LCTRL0		0x7F8
-#define PCIE_LUT_DBG		0x7FC
 
 #define PCIE_DBI_RO_WR_EN	0x8bc
 
@@ -162,7 +158,7 @@ static int ls_pcie_link_state(struct ls_pcie *pcie)
 {
 	u32 state;
 
-	state = readl(pcie->dbi + PCIE_LUT_BASE + PCIE_LUT_DBG) &
+	state = pex_lut_in32(pcie->dbi + PCIE_LUT_BASE + PCIE_LUT_DBG) &
 		LTSSM_STATE_MASK;
 	if (state < LTSSM_PCIE_L0) {
 		debug("....PCIe link error. LTSSM=0x%02x.\n", state);
@@ -466,16 +462,20 @@ static void ls_pcie_setup_ep(struct ls_pcie *pcie, struct ls_pcie_info *info)
 
 		for (pf = 0; pf < PCIE_PF_NUM; pf++) {
 			for (vf = 0; vf <= PCIE_VF_NUM; vf++) {
+#ifndef CONFIG_LS102XA
 				writel(PCIE_LCTRL0_VAL(pf, vf),
 				       pcie->dbi + PCIE_LUT_BASE +
 				       PCIE_LUT_LCTRL0);
+#endif
 				ls_pcie_ep_setup_bars(pcie->dbi);
 				ls_pcie_ep_setup_atu(pcie, info);
 			}
 		}
 
 		/* Disable CFG2 */
+#ifndef CONFIG_LS102XA
 		writel(0, pcie->dbi + PCIE_LUT_BASE + PCIE_LUT_LCTRL0);
+#endif
 	} else {
 		ls_pcie_ep_setup_bars(pcie->dbi + PCIE_NO_SRIOV_BAR_BASE);
 		ls_pcie_ep_setup_atu(pcie, info);

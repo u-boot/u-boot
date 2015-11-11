@@ -23,6 +23,14 @@
 #define scfg_out32(a, v)   out_be32(a, v)
 #endif
 
+#ifdef CONFIG_SYS_FSL_PEX_LUT_LE
+#define pex_lut_in32(a)       in_le32(a)
+#define pex_lut_out32(a, v)   out_le32(a, v)
+#elif defined(CONFIG_SYS_FSL_PEX_LUT_BE)
+#define pex_lut_in32(a)       in_be32(a)
+#define pex_lut_out32(a, v)   out_be32(a, v)
+#endif
+
 struct cpu_type {
 	char name[15];
 	u32 soc_ver;
