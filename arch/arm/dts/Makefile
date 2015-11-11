@@ -89,7 +89,8 @@ dtb-$(CONFIG_LS102XA) += ls1021a-qds.dtb \
 	ls1021a-twr.dtb
 dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
 	fsl-ls2080a-rdb.dtb
-dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-rdb.dtb
+dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds.dtb \
+	fsl-ls1043a-rdb.dtb
 
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-a1000.dtb \
