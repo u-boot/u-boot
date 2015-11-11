@@ -55,7 +55,6 @@
 
 /* GPIO support */
 #define CONFIG_DM_GPIO
-#define CONFIG_CMD_GPIO
 #define CONFIG_VYBRID_GPIO
 
 /* Dynamic MTD partition support */

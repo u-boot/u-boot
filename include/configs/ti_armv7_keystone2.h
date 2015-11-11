@@ -302,7 +302,6 @@
 
 /* And no support for GPIO, yet.. */
 #undef CONFIG_SPL_GPIO_SUPPORT
-#undef CONFIG_CMD_GPIO
 
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>

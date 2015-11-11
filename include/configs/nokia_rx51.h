@@ -129,7 +129,6 @@
 
 #define CONFIG_CMD_I2C			/* I2C serial bus support */
 #define CONFIG_CMD_MMC			/* MMC support */
-#define CONFIG_CMD_GPIO			/* Enable gpio command */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */

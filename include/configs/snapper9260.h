@@ -151,7 +151,6 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND

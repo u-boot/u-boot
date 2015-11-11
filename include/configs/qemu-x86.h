@@ -52,7 +52,6 @@
 
 /* GPIO is not supported */
 #undef CONFIG_INTEL_ICH6_GPIO
-#undef CONFIG_CMD_GPIO
 
 /* SPI is not supported */
 #undef CONFIG_ICH_SPI

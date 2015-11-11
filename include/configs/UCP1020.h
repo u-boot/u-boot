@@ -538,7 +538,6 @@
 #endif
 
 /* Misc Extra Settings */
-#define CONFIG_CMD_GPIO			1
 #undef CONFIG_WATCHDOG	/* watchdog disabled */
 
 /*

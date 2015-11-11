@@ -101,7 +101,6 @@
 #define CONFIG_CMD_SPI
 
 /* GPIO block */
-#define CONFIG_CMD_GPIO
 
 /*
  * The following are general good-enough settings for U-Boot.  We set a

@@ -9,6 +9,7 @@ CONFIG_SYS_PROMPT="Tegra20 (Paz00) MOD # "
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
+CONFIG_CMD_GPIO=y
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NFS is not set
 CONFIG_USB=y

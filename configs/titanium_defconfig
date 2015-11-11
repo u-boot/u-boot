@@ -5,4 +5,5 @@ CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/barco/titanium/imximage.cfg"
 CONFIG_SYS_PROMPT="Titanium > "
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
+CONFIG_CMD_GPIO=y
 # CONFIG_CMD_SETEXPR is not set

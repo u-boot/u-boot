@@ -137,7 +137,6 @@
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_GPIO
 
 
 #define CONFIG_SYS_NO_FLASH

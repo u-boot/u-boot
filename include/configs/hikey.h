@@ -79,7 +79,6 @@
 #endif
 
 #define CONFIG_HIKEY_GPIO
-#define CONFIG_CMD_GPIO
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC

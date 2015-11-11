@@ -48,7 +48,6 @@
 #define CONFIG_SMC911X_BASE		0x2C000000
 
 /* GPIO */
-#define CONFIG_CMD_GPIO
 
 /* ENV related config options */
 #define CONFIG_ENV_IS_NOWHERE

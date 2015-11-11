@@ -102,6 +102,5 @@
 					 CONFIG_SYS_MALLOC_LEN -	\
 					 0x10000)
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_CMD_GPIO
 
 #endif /* __CONFIG_H */

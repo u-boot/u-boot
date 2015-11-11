@@ -103,7 +103,6 @@
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
-#define CONFIG_CMD_GPIO
 
 /* MMC */
 #define CONFIG_MMC

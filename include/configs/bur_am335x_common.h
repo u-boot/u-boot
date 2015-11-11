@@ -113,7 +113,6 @@
 #define CONFIG_CMD_I2C
 /* GPIO */
 #define CONFIG_OMAP_GPIO
-#define CONFIG_CMD_GPIO
 /*
  * ----------------------------------------------------------------------------
  * The following are general good-enough settings for U-Boot.  We set a

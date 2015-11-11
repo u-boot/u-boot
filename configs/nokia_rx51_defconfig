@@ -8,6 +8,7 @@ CONFIG_AUTOBOOT_KEYED=y
 # CONFIG_CMD_SAVEENV is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
+CONFIG_CMD_GPIO=y
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NET is not set
 # CONFIG_CMD_NFS is not set

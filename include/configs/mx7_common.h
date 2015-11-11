@@ -73,7 +73,6 @@
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
-#define CONFIG_CMD_GPIO
 
 /* UART */
 #define CONFIG_MXC_UART

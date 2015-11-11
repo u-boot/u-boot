@@ -155,7 +155,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_GPIO
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS

@@ -39,7 +39,6 @@
 #include <configs/ti_omap4_common.h>
 
 /* GPIO */
-#define CONFIG_CMD_GPIO
 
 /* ENV related config options */
 

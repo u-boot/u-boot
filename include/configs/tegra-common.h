@@ -113,7 +113,6 @@
 						GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_TEGRA_GPIO
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_ENTERRCM
 
 /* Defines for SPL */

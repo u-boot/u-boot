@@ -162,7 +162,6 @@
 /* Enable Time Command */
 #define CONFIG_CMD_TIME
 
-#define CONFIG_CMD_GPIO
 
 /* USB */
 #define CONFIG_CMD_USB

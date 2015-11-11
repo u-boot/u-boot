@@ -615,7 +615,6 @@
 #define CONFIG_OMAP_GPIO
 
 /* Gpio cmd support */
-#define CONFIG_CMD_GPIO
 
 /* Watchdog */
 #define CONFIG_HW_WATCHDOG

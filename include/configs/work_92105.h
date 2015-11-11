@@ -153,7 +153,6 @@
  * GPIO
  */
 
-#define CONFIG_CMD_GPIO
 #define CONFIG_LPC32XX_GPIO
 
 /*

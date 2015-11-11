@@ -355,6 +355,12 @@ config CMD_REMOTEPROC
 	depends on REMOTEPROC
 	help
 	  Support for Remote Processor control
+
+config CMD_GPIO
+	bool "gpio"
+	help
+	  GPIO support.
+
 endmenu
 
 

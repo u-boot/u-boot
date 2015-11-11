@@ -117,7 +117,6 @@
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MMC
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART

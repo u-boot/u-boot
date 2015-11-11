@@ -365,7 +365,6 @@
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 #define CONFIG_MPC83XX_GPIO 1
-#define CONFIG_CMD_GPIO 1
 
 /*
  * Serial Port
