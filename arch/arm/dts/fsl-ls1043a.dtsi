@@ -79,6 +79,32 @@
 			clocks = <&sysclk>;
 		};
 
+		dspi0: dspi@2100000 {
+			compatible = "fsl,vf610-dspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0x2100000 0x0 0x10000>;
+			interrupts = <0 64 0x4>;
+			clock-names = "dspi";
+			clocks = <&clockgen 4 0>;
+			num-cs = <6>;
+			big-endian;
+			status = "disabled";
+		};
+
+		dspi1: dspi@2110000 {
+			compatible = "fsl,vf610-dspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0x2110000 0x0 0x10000>;
+			interrupts = <0 65 0x4>;
+			clock-names = "dspi";
+			clocks = <&clockgen 4 0>;
+			num-cs = <6>;
+			big-endian;
+			status = "disabled";
+		};
+
 		ifc: ifc@1530000 {
 			compatible = "fsl,ifc", "simple-bus";
 			reg = <0x0 0x1530000 0x0 0x10000>;
