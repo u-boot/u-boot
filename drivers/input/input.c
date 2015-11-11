@@ -236,7 +236,6 @@ static struct input_key_xlate *process_modifier(struct input_config *config,
 						int key, int release)
 {
 	struct input_key_xlate *table;
-	int flip = -1;
 	int i;
 
 	/* Start with the main table, and see what modifiers change it */
@@ -251,6 +250,8 @@ static struct input_key_xlate *process_modifier(struct input_config *config,
 
 	/* Handle the lighted keys */
 	if (!release) {
+		int flip = -1;
+
 		switch (key) {
 		case KEY_SCROLLLOCK:
 			flip = FLAG_SCROLL_LOCK;
@@ -262,19 +263,19 @@ static struct input_key_xlate *process_modifier(struct input_config *config,
 			flip = FLAG_CAPS_LOCK;
 			break;
 		}
-	}
 
-	if (flip != -1) {
-		int leds = 0;
+		if (flip != -1) {
+			int leds = 0;
 
-		config->leds ^= flip;
-		if (config->flags & FLAG_NUM_LOCK)
-			leds |= INPUT_LED_NUM;
-		if (config->flags & FLAG_CAPS_LOCK)
-			leds |= INPUT_LED_CAPS;
-		if (config->flags & FLAG_SCROLL_LOCK)
-			leds |= INPUT_LED_SCROLL;
-		config->leds = leds;
+			config->leds ^= flip;
+			if (config->flags & FLAG_NUM_LOCK)
+				leds |= INPUT_LED_NUM;
+			if (config->flags & FLAG_CAPS_LOCK)
+				leds |= INPUT_LED_CAPS;
+			if (config->flags & FLAG_SCROLL_LOCK)
+				leds |= INPUT_LED_SCROLL;
+			config->leds = leds;
+		}
 	}
 
 	return table;
