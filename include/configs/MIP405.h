@@ -362,11 +362,6 @@
 #define CONFIG_ISO_PARTITION /* Experimental */
 
 /************************************************************
- * Keyboard support
- ************************************************************/
-#undef CONFIG_ISA_KEYBOARD
-
-/************************************************************
  * Video support
  ************************************************************/
 #define CONFIG_VIDEO			/*To enable video controller support */

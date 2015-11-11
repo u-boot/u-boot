@@ -1767,11 +1767,6 @@ CBFS (Coreboot Filesystem) support
 		a default value of 65536 will be defined.
 
 - Keyboard Support:
-		CONFIG_ISA_KEYBOARD
-
-		Define this to enable standard (PC-Style) keyboard
-		support
-
 		CONFIG_I8042_KBD
 		Standard PC keyboard driver with US (is default) and
 		GERMAN key layout (switch via environment 'keymap=de') support.
