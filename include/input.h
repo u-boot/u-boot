@@ -167,9 +167,10 @@ void input_allow_repeats(struct input_config *config, bool allow_repeats);
  * This must be called after input_init() or keycode decoding will not work.
  *
  * @param config	Input state
+ * @param german	true to use German keyboard layout, false for US
  * @return 0 if ok, -1 on error
  */
-int input_add_tables(struct input_config *config);
+int input_add_tables(struct input_config *config, bool german);
 
 /**
  * Set up the input handler with basic key maps.

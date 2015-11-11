@@ -211,7 +211,7 @@ static int cros_ec_kbd_probe(struct udevice *dev)
 
 	priv->input = input;
 	input->dev = dev;
-	input_add_tables(input);
+	input_add_tables(input, false);
 	input->read_keys = cros_ec_kbc_check;
 	strcpy(sdev->name, "cros-ec-keyb");
 

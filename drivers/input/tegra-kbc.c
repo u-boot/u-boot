@@ -326,7 +326,7 @@ static int tegra_kbd_probe(struct udevice *dev)
 	priv->input = input;
 	input->dev = dev;
 	input->read_keys = tegra_kbc_check;
-	input_add_tables(input);
+	input_add_tables(input, false);
 	strcpy(sdev->name, "tegra-kbc");
 	ret = input_stdio_register(sdev);
 	if (ret) {

@@ -78,6 +78,88 @@ static unsigned char kbd_ctrl_xlate[] = {
 	'\r', 0xff, '/',  '*',
 };
 
+static const uchar kbd_plain_xlate_german[] = {
+	0xff, 0x1b,  '1',  '2',  '3',  '4',  '5',  '6', /* scan 00-07 */
+	 '7',  '8',  '9',  '0', 0xe1, '\'', 0x08, '\t', /* scan 08-0F */
+	 'q',  'w',  'e',  'r',  't',  'z',  'u',  'i', /* scan 10-17 */
+	 'o',  'p', 0x81,  '+', '\r', 0xff,  'a',  's', /* scan 18-1F */
+	 'd',  'f',  'g',  'h',  'j',  'k',  'l', 0x94, /* scan 20-27 */
+	0x84,  '^', 0xff,  '#',  'y',  'x',  'c',  'v', /* scan 28-2F */
+	 'b',  'n',  'm',  ',',  '.',  '-', 0xff,  '*', /* scan 30-37 */
+	 ' ',  ' ', 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 38-3F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,  '7', /* scan 40-47 */
+	 '8',  '9',  '-',  '4',  '5',  '6',  '+',  '1', /* scan 48-4F */
+	 '2',  '3',  '0',  ',', 0xff, 0xff,  '<', 0xff, /* scan 50-57 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 58-5F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 60-67 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 68-6F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 70-77 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 78-7F */
+	'\r', 0xff,  '/',  '*',
+};
+
+static unsigned char kbd_shift_xlate_german[] = {
+	   0xff, 0x1b,  '!',  '"', 0x15,  '$',  '%',  '&', /* scan 00-07 */
+	 '/',  '(',  ')',  '=',  '?',  '`', 0x08, '\t', /* scan 08-0F */
+	 'Q',  'W',  'E',  'R',  'T',  'Z',  'U',  'I', /* scan 10-17 */
+	 'O',  'P', 0x9a,  '*', '\r', 0xff,  'A',  'S', /* scan 18-1F */
+	 'D',  'F',  'G',  'H',  'J',  'K',  'L', 0x99, /* scan 20-27 */
+	0x8e, 0xf8, 0xff, '\'',  'Y',  'X',  'C',  'V', /* scan 28-2F */
+	 'B',  'N',  'M',  ';',  ':',  '_', 0xff,  '*', /* scan 30-37 */
+	 ' ',  ' ', 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 38-3F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,  '7', /* scan 40-47 */
+	 '8',  '9',  '-',  '4',  '5',  '6',  '+',  '1', /* scan 48-4F */
+	 '2',  '3',  '0',  ',', 0xff, 0xff,  '>', 0xff, /* scan 50-57 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 58-5F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 60-67 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 68-6F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 70-77 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 78-7F */
+	'\r', 0xff,  '/',  '*',
+};
+
+static unsigned char kbd_right_alt_xlate_german[] = {
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 00-07 */
+	 '{',  '[',  ']',  '}', '\\', 0xff, 0xff, 0xff, /* scan 08-0F */
+	 '@', 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 10-17 */
+	0xff, 0xff, 0xff,  '~', 0xff, 0xff, 0xff, 0xff, /* scan 18-1F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 20-27 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 28-2F */
+	0xff, 0xff, 0xe6, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 30-37 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 38-3F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 40-47 */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 48-4F */
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff,  '|', 0xff, /* scan 50-57 */
+};
+
+enum kbd_mask {
+	KBD_ENGLISH	= 1 << 0,
+	KBD_GERMAN	= 1 << 1,
+};
+
+static struct kbd_entry {
+	int kbd_mask;		/* Which languages this is for */
+	int left_keycode;	/* Left keycode to select this map */
+	int right_keycode;	/* Right keycode to select this map */
+	const uchar *xlate;	/* Ascii code for each keycode */
+	int num_entries;	/* Number of entries in xlate */
+} kbd_entry[] = {
+	{ KBD_ENGLISH, -1, -1,
+		kbd_plain_xlate, ARRAY_SIZE(kbd_plain_xlate) },
+	{ KBD_GERMAN, -1, -1,
+		kbd_plain_xlate_german, ARRAY_SIZE(kbd_plain_xlate_german) },
+	{ KBD_ENGLISH, KEY_LEFTSHIFT, KEY_RIGHTSHIFT,
+		kbd_shift_xlate, ARRAY_SIZE(kbd_shift_xlate) },
+	{ KBD_GERMAN, KEY_LEFTSHIFT, KEY_RIGHTSHIFT,
+		kbd_shift_xlate_german, ARRAY_SIZE(kbd_shift_xlate_german) },
+	{ KBD_ENGLISH | KBD_GERMAN, KEY_LEFTCTRL, KEY_RIGHTCTRL,
+		kbd_ctrl_xlate, ARRAY_SIZE(kbd_ctrl_xlate) },
+	{ KBD_GERMAN, -1, KEY_RIGHTALT,
+		kbd_right_alt_xlate_german,
+		ARRAY_SIZE(kbd_right_alt_xlate_german) },
+	{},
+};
+
 /*
  * Scan key code to ANSI 3.64 escape sequence table.  This table is
  * incomplete in that it does not include all possible extra keys.
@@ -500,21 +582,24 @@ void input_allow_repeats(struct input_config *config, bool allow_repeats)
 	config->allow_repeats = allow_repeats;
 }
 
-int input_add_tables(struct input_config *config)
+int input_add_tables(struct input_config *config, bool german)
 {
+	struct kbd_entry *entry;
+	int mask;
 	int ret;
 
-	ret = input_add_table(config, -1, -1,
-			      kbd_plain_xlate, ARRAY_SIZE(kbd_plain_xlate));
-	if (ret)
-		return ret;
-	ret = input_add_table(config, KEY_LEFTSHIFT, KEY_RIGHTSHIFT,
-			      kbd_shift_xlate, ARRAY_SIZE(kbd_shift_xlate));
-	if (ret)
-		return ret;
+	mask = german ? KBD_GERMAN : KBD_ENGLISH;
+	for (entry = kbd_entry; entry->kbd_mask; entry++) {
+		if (!(mask & entry->kbd_mask))
+			continue;
+		ret = input_add_table(config, entry->left_keycode,
+				      entry->right_keycode, entry->xlate,
+				      entry->num_entries);
+		if (ret)
+			return ret;
+	}
 
-	return input_add_table(config, KEY_LEFTCTRL, KEY_RIGHTCTRL,
-			       kbd_ctrl_xlate, ARRAY_SIZE(kbd_ctrl_xlate));
+	return 0;
 }
 
 int input_init(struct input_config *config, int leds)
