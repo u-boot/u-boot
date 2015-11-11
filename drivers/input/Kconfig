@@ -13,3 +13,13 @@ config CROS_EC_KEYB
 	  Most ARM Chromebooks use an EC to provide access to the keyboard.
 	  Messages are used to request key scans from the EC and these are
 	  then decoded into keys by this driver.
+
+config I8042_KEYB
+	bool "Enable Intel i8042 keyboard support"
+	depends on DM_KEYBOARD
+	help
+	  This adds a driver for the i8042 keyboard controller, allowing the
+	  keyboard to be used on devices which support this controller. The
+	  driver handles English and German keyboards - set the environment
+	  variable 'keymap' to "de" to select German. Keyboard repeat is
+	  handled by the keyboard itself.
