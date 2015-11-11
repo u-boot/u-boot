@@ -507,9 +507,15 @@ int board_late_init(void)
 	safe_string[sizeof(header.name)] = 0;
 	setenv("board_name", safe_string);
 
-	strncpy(safe_string, (char *)header.version, sizeof(header.version));
-	safe_string[sizeof(header.version)] = 0;
-	setenv("board_rev", safe_string);
+	/* BeagleBone Green eeprom, board_rev: 0x1a 0x00 0x00 0x00 */
+	if ( (header.version[0] == 0x1a) && (header.version[1] == 0x00) &&
+	     (header.version[2] == 0x00) && (header.version[3] == 0x00) ) {
+		setenv("board_rev", "BBG1");
+	} else {
+		strncpy(safe_string, (char *)header.version, sizeof(header.version));
+		safe_string[sizeof(header.version)] = 0;
+		setenv("board_rev", safe_string);
+	}
 #endif
 
 	return 0;
