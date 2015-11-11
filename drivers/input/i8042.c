@@ -15,13 +15,20 @@
 #include <keyboard.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* defines */
 #define in8(p)		inb(p)
 #define out8(p, v)	outb(v, p)
 
+enum {
+	QUIRK_DUP_POR	= 1 << 0,
+};
+
 /* locals */
 struct i8042_kbd_priv {
 	bool extended;	/* true if an extended keycode is expected next */
+	int quirks;	/* quirks that we support */
 };
 
 static unsigned char ext_key_map[] = {
@@ -113,7 +120,7 @@ static int kbd_cmd_write(int cmd, int data)
 	return kbd_write(I8042_DATA_REG, data);
 }
 
-static int kbd_reset(void)
+static int kbd_reset(int quirk)
 {
 	int config;
 
@@ -131,6 +138,10 @@ static int kbd_reset(void)
 	config = kbd_cmd_read(CMD_RD_CONFIG);
 	if (config == -1)
 		goto err;
+
+	/* Sometimes get a second byte */
+	else if ((quirk & QUIRK_DUP_POR) && config == KBD_POR)
+		config = kbd_cmd_read(CMD_RD_CONFIG);
 
 	config |= CONFIG_AT_TRANS;
 	config &= ~(CONFIG_KIRQ_EN | CONFIG_MIRQ_EN);
@@ -246,6 +257,7 @@ static int i8042_kbd_check(struct input_config *input)
 static int i8042_start(struct udevice *dev)
 {
 	struct keyboard_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct i8042_kbd_priv *priv = dev_get_priv(dev);
 	struct input_config *input = &uc_priv->input;
 	int keymap, try;
 	char *penv;
@@ -264,7 +276,7 @@ static int i8042_start(struct udevice *dev)
 			keymap = KBD_GER;
 	}
 
-	for (try = 0; kbd_reset() != 0; try++) {
+	for (try = 0; kbd_reset(priv->quirks) != 0; try++) {
 		if (try >= KBD_RESET_TRIES)
 			return -1;
 	}
@@ -294,9 +306,14 @@ static int i8042_start(struct udevice *dev)
 static int i8042_kbd_probe(struct udevice *dev)
 {
 	struct keyboard_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct i8042_kbd_priv *priv = dev_get_priv(dev);
 	struct stdio_dev *sdev = &uc_priv->sdev;
 	struct input_config *input = &uc_priv->input;
 	int ret;
+
+	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+			    "intel,duplicate-por"))
+		priv->quirks |= QUIRK_DUP_POR;
 
 	/* Register the device. i8042_start() will be called soon */
 	input->dev = dev;
