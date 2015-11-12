@@ -158,6 +158,9 @@ struct emac_bd {
 /* BD separation space */
 #define BD_SEPRN_SPACE	(RX_BUF * sizeof(struct emac_bd))
 
+/* Setup the first free TX descriptor */
+#define TX_FREE_DESC	2
+
 /* Initialized, rxbd_current, rx_first_buf must be 0 after init */
 struct zynq_gem_priv {
 	struct emac_bd *tx_bd;
@@ -315,8 +318,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	struct phy_device *phydev;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	struct zynq_gem_priv *priv = dev->priv;
-	struct emac_bd *dummy_tx_bd = &priv->tx_bd[4];
-	struct emac_bd *dummy_rx_bd = &priv->tx_bd[6];
+	struct emac_bd *dummy_tx_bd = &priv->tx_bd[TX_FREE_DESC];
+	struct emac_bd *dummy_rx_bd = &priv->tx_bd[TX_FREE_DESC + 2];
 	const u32 supported = SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
