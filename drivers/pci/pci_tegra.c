@@ -166,6 +166,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RP_VEND_XP	0x00000F00
 #define  RP_VEND_XP_DL_UP	(1 << 30)
 
+#define RP_VEND_CTL2				0x00000FA8
+#define  RP_VEND_CTL2_PCA_ENABLE		(1 << 7)
+
 #define RP_PRIV_MISC	0x00000FE0
 #define  RP_PRIV_MISC_PRSNT_MAP_EP_PRSNT (0xE << 0)
 #define  RP_PRIV_MISC_PRSNT_MAP_EP_ABSNT (0xF << 0)
@@ -194,6 +197,7 @@ struct tegra_pcie_soc {
 	bool has_pex_bias_ctrl;
 	bool has_cml_clk;
 	bool has_gen2;
+	bool force_pca_enable;
 };
 
 struct tegra_pcie {
@@ -383,6 +387,7 @@ static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
 		break;
 
 	case COMPAT_NVIDIA_TEGRA124_PCIE:
+	case COMPAT_NVIDIA_TEGRA210_PCIE:
 		switch (lanes) {
 		case 0x0000104:
 			debug("4x1, 1x1 configuration\n");
@@ -406,8 +411,33 @@ static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
 static int tegra_pcie_parse_dt_ranges(const void *fdt, int node,
 				      struct tegra_pcie *pcie)
 {
+	int parent, na_parent, na_pcie, ns_pcie;
 	const u32 *ptr, *end;
 	int len;
+
+	parent = fdt_parent_offset(fdt, node);
+	if (parent < 0) {
+		error("Can't find PCI parent node\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	na_parent = fdt_address_cells(fdt, parent);
+	if (na_parent < 1) {
+		error("bad #address-cells for PCIE parent\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	na_pcie = fdt_address_cells(fdt, node);
+	if (na_pcie < 1) {
+		error("bad #address-cells for PCIE\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	ns_pcie = fdt_size_cells(fdt, node);
+	if (ns_pcie < 1) {
+		error("bad #size-cells for PCIE\n");
+		return -FDT_ERR_NOTFOUND;
+	}
 
 	ptr = fdt_getprop(fdt, node, "ranges", &len);
 	if (!ptr) {
@@ -437,11 +467,13 @@ static int tegra_pcie_parse_dt_ranges(const void *fdt, int node,
 		}
 
 		if (res) {
-			res->start = fdt32_to_cpu(ptr[3]);
-			res->end = res->start + fdt32_to_cpu(ptr[5]);
+			int start_low = na_pcie + (na_parent - 1);
+			int size_low = na_pcie + na_parent + (ns_pcie - 1);
+			res->start = fdt32_to_cpu(ptr[start_low]);
+			res->end = res->start + fdt32_to_cpu(ptr[size_low]);
 		}
 
-		ptr += 3 + 1 + 2;
+		ptr += na_pcie + na_parent + ns_pcie;
 	}
 
 	debug("PCI regions:\n");
@@ -586,8 +618,6 @@ static int tegra_pcie_power_on(struct tegra_pcie *pcie)
 		error("failed to power off PCIe partition: %d", err);
 		return err;
 	}
-
-	tegra_pcie_board_init();
 
 	err = tegra_powergate_sequence_power_up(TEGRA_POWERGATE_PCIE,
 						PERIPH_ID_PCIE);
@@ -860,6 +890,7 @@ static void tegra_pcie_port_reset(struct tegra_pcie_port *port)
 
 static void tegra_pcie_port_enable(struct tegra_pcie_port *port)
 {
+	const struct tegra_pcie_soc *soc = port->pcie->soc;
 	unsigned long ctrl = tegra_pcie_port_get_pex_ctrl(port);
 	unsigned long value;
 
@@ -875,6 +906,12 @@ static void tegra_pcie_port_enable(struct tegra_pcie_port *port)
 	afi_writel(port->pcie, value, ctrl);
 
 	tegra_pcie_port_reset(port);
+
+	if (soc->force_pca_enable) {
+		value = rp_readl(port, RP_VEND_CTL2);
+		value |= RP_VEND_CTL2_PCA_ENABLE;
+		rp_writel(port, value, RP_VEND_CTL2);
+	}
 }
 
 static bool tegra_pcie_port_check_link(struct tegra_pcie_port *port)
@@ -972,6 +1009,7 @@ static const struct tegra_pcie_soc tegra20_pcie_soc = {
 	.has_pex_bias_ctrl = false,
 	.has_cml_clk = false,
 	.has_gen2 = false,
+	.force_pca_enable = false,
 };
 
 static const struct tegra_pcie_soc tegra30_pcie_soc = {
@@ -982,6 +1020,7 @@ static const struct tegra_pcie_soc tegra30_pcie_soc = {
 	.has_pex_bias_ctrl = true,
 	.has_cml_clk = true,
 	.has_gen2 = false,
+	.force_pca_enable = false,
 };
 
 static const struct tegra_pcie_soc tegra124_pcie_soc = {
@@ -992,11 +1031,31 @@ static const struct tegra_pcie_soc tegra124_pcie_soc = {
 	.has_pex_bias_ctrl = true,
 	.has_cml_clk = true,
 	.has_gen2 = true,
+	.force_pca_enable = false,
+};
+
+static const struct tegra_pcie_soc tegra210_pcie_soc = {
+	.num_ports = 2,
+	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
+	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
+	.has_pex_clkreq_en = true,
+	.has_pex_bias_ctrl = true,
+	.has_cml_clk = true,
+	.has_gen2 = true,
+	.force_pca_enable = true,
 };
 
 static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 {
 	unsigned int i;
+	uint64_t dram_end;
+	uint32_t pci_dram_size;
+
+	/* Clip PCI-accessible DRAM to 32-bits */
+	dram_end = ((uint64_t)NV_PA_SDRAM_BASE) + gd->ram_size;
+	if (dram_end > 0x100000000)
+		dram_end = 0x100000000;
+	pci_dram_size = dram_end - NV_PA_SDRAM_BASE;
 
 	for (i = 0; i < count; i++) {
 		const struct tegra_pcie_soc *soc;
@@ -1019,6 +1078,10 @@ static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 
 		case COMPAT_NVIDIA_TEGRA124_PCIE:
 			soc = &tegra124_pcie_soc;
+			break;
+
+		case COMPAT_NVIDIA_TEGRA210_PCIE:
+			soc = &tegra210_pcie_soc;
 			break;
 
 		default:
@@ -1069,7 +1132,7 @@ static int process_nodes(const void *fdt, int nodes[], unsigned int count)
 		pcie->hose.last_busno = 0;
 
 		pci_set_region(&pcie->hose.regions[0], NV_PA_SDRAM_BASE,
-			       NV_PA_SDRAM_BASE, gd->ram_size,
+			       NV_PA_SDRAM_BASE, pci_dram_size,
 			       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 		pci_set_region(&pcie->hose.regions[1], pcie->io.start,
@@ -1114,6 +1177,14 @@ void pci_init_board(void)
 {
 	const void *fdt = gd->fdt_blob;
 	int count, nodes[1];
+
+	tegra_pcie_board_init();
+
+	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
+					   COMPAT_NVIDIA_TEGRA210_PCIE,
+					   nodes, ARRAY_SIZE(nodes));
+	if (process_nodes(fdt, nodes, count))
+		return;
 
 	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
 					   COMPAT_NVIDIA_TEGRA124_PCIE,

@@ -123,6 +123,13 @@ config TEGRA20_SLINK
 	  be used to access the SPI NOR flash on platforms embedding this
 	  nVidia Tegra20/Tegra30 IP cores.
 
+config TEGRA210_QSPI
+	bool "nVidia Tegra210 QSPI driver"
+	help
+	  Enable the Tegra Quad-SPI (QSPI) driver for T210. This driver
+	  be used to access SPI chips on platforms embedding this
+	  NVIDIA Tegra210 IP core.
+
 config XILINX_SPI
 	bool "Xilinx SPI driver"
 	help
