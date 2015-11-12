@@ -3577,6 +3577,9 @@ FIT uImage format:
 
 		CONFIG_SYS_SPL_MALLOC_START
 		Starting address of the malloc pool used in SPL.
+		When this option is set the full malloc is used in SPL and
+		it is set up by spl_init() and before that, the simple malloc()
+		can be used if CONFIG_SYS_MALLOC_F is defined.
 
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
