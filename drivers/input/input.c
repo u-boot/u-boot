@@ -8,9 +8,13 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <stdio_dev.h>
 #include <input.h>
+#ifdef CONFIG_DM_KEYBOARD
+#include <keyboard.h>
+#endif
 #include <linux/input.h>
 
 enum {
@@ -235,6 +239,10 @@ int input_getc(struct input_config *config)
 static struct input_key_xlate *process_modifier(struct input_config *config,
 						int key, int release)
 {
+#ifdef CONFIG_DM_KEYBOARD
+	struct udevice *dev = config->dev;
+	struct keyboard_ops *ops = keyboard_get_ops(dev);
+#endif
 	struct input_key_xlate *table;
 	int i;
 
@@ -276,6 +284,13 @@ static struct input_key_xlate *process_modifier(struct input_config *config,
 				leds |= INPUT_LED_SCROLL;
 			config->leds = leds;
 			config->leds_changed = flip;
+
+#ifdef CONFIG_DM_KEYBOARD
+			if (ops->update_leds) {
+				if (ops->update_leds(dev, config->leds))
+					debug("Update keyboard's LED failed\n");
+			}
+#endif
 		}
 	}
 
