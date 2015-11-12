@@ -20,3 +20,14 @@ obj-$(CONFIG_MX25) += mx25/
 obj-$(CONFIG_MX27) += mx27/
 obj-$(if $(filter mxs,$(SOC)),y) += mxs/
 obj-$(if $(filter spear,$(SOC)),y) += spear/
+
+# some files can only build in ARM or THUMB2, not THUMB1
+
+ifdef CONFIG_SYS_THUMB_BUILD
+ifndef CONFIG_HAS_THUMB2
+
+CFLAGS_cpu.o := -marm
+CFLAGS_cache.o := -marm
+
+endif
+endif

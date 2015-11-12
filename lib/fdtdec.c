@@ -601,16 +601,21 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 	return -ENOENT;
 }
 
+const char *fdtdec_get_chosen_prop(const void *blob, const char *name)
+{
+	int chosen_node;
+
+	if (!blob)
+		return NULL;
+	chosen_node = fdt_path_offset(blob, "/chosen");
+	return fdt_getprop(blob, chosen_node, name, NULL);
+}
+
 int fdtdec_get_chosen_node(const void *blob, const char *name)
 {
 	const char *prop;
-	int chosen_node;
-	int len;
 
-	if (!blob)
-		return -FDT_ERR_NOTFOUND;
-	chosen_node = fdt_path_offset(blob, "/chosen");
-	prop = fdt_getprop(blob, chosen_node, name, &len);
+	prop = fdtdec_get_chosen_prop(blob, name);
 	if (!prop)
 		return -FDT_ERR_NOTFOUND;
 	return fdt_path_offset(blob, prop);
@@ -1217,8 +1222,11 @@ int fdtdec_setup(void)
 	gd->fdt_blob = __dtb_dt_begin;
 # elif defined CONFIG_OF_SEPARATE
 #  ifdef CONFIG_SPL_BUILD
-	/* FDT is at end of BSS */
-	gd->fdt_blob = (ulong *)&__bss_end;
+	/* FDT is at end of BSS unless it is in a different memory region */
+	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
+		gd->fdt_blob = (ulong *)&_image_binary_end;
+	else
+		gd->fdt_blob = (ulong *)&__bss_end;
 #  else
 	/* FDT is at end of image */
 	gd->fdt_blob = (ulong *)&_end;

@@ -125,8 +125,13 @@ void qixis_write_i2c(unsigned int reg, u8 value);
 #define QIXIS_ESDHC_ADAPTER_TYPE_MMC            0x5	/* MMC Card */
 #define QIXIS_ESDHC_ADAPTER_TYPE_SD             0x6	/* SD Card Rev2.0 3.0 */
 #define QIXIS_ESDHC_NO_ADAPTER                  0x7	/* No Card is Present*/
+
 #define QIXIS_SDCLKIN		0x08
 #define QIXIS_SDCLKOUT		0x02
+#define QIXIS_DAT5_6_7		0X02
+#define QIXIS_DAT4		0X01
+
+#define QIXIS_EVDD_BY_SDHC_VS	0x0c
 #endif
 
 #endif

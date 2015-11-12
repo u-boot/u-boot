@@ -144,6 +144,7 @@ struct ccsr_gur {
 };
 
 #define SCFG_ETSECDMAMCR_LE_BD_FR	0x00000c00
+#define SCFG_SNPCNFGCR_SEC_RD_WR	0xc0000000
 #define SCFG_ETSECCMCR_GE2_CLK125	0x04000000
 #define SCFG_ETSECCMCR_GE0_CLK125	0x00000000
 #define SCFG_ETSECCMCR_GE1_CLK125	0x08000000
@@ -397,4 +398,28 @@ struct ccsr_cci400 {
 	u8 res_e004[0x10000 - 0xe004];
 };
 
+/* AHCI (sata) register map */
+struct ccsr_ahci {
+	u32 res1[0xa4/4];	/* 0x0 - 0xa4 */
+	u32 pcfg;	/* port config */
+	u32 ppcfg;	/* port phy1 config */
+	u32 pp2c;	/* port phy2 config */
+	u32 pp3c;	/* port phy3 config */
+	u32 pp4c;	/* port phy4 config */
+	u32 pp5c;	/* port phy5 config */
+	u32 paxic;	/* port AXI config */
+	u32 axicc;	/* AXI cache control */
+	u32 axipc;	/* AXI PROT control */
+	u32 ptc;	/* port Trans Config */
+	u32 pts;	/* port Trans Status */
+	u32 plc;	/* port link config */
+	u32 plc1;	/* port link config1 */
+	u32 plc2;	/* port link config2 */
+	u32 pls;	/* port link status */
+	u32 pls1;	/* port link status1 */
+	u32 pcmdc;	/* port CMD config */
+	u32 ppcs;	/* port phy control status */
+	u32 pberr;	/* port 0/1 BIST error */
+	u32 cmds;	/* port 0/1 CMD status error */
+};
 #endif	/* __ASM_ARCH_LS102XA_IMMAP_H_ */

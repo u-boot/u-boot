@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 dtb-y += bayleybay.dtb \
 	chromebook_link.dtb \
 	chromebox_panther.dtb \

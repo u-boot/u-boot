@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 obj-$(CONFIG_ARCH_UNIPHIER_PH1_SLD3)	+= pll-init-ph1-sld3.o \
 					   pll-spectrum-ph1-sld3.o
 obj-$(CONFIG_ARCH_UNIPHIER_PH1_LD4)	+= pll-init-ph1-ld4.o \

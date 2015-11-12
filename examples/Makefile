@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 ifndef CONFIG_SANDBOX
 
 ifdef FTRACE

@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 obj-y					+= boot-mode.o
 
 obj-$(CONFIG_ARCH_UNIPHIER_PH1_SLD3)	+= boot-mode-ph1-sld3.o

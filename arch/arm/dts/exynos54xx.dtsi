@@ -42,6 +42,13 @@
 		xhci1 = "/xhci@12400000";
 	};
 
+	adc@12D10000 {
+		compatible = "samsung,exynos-adc-v2";
+		reg = <0x12D10000 0x100>;
+		interrupts = <0 106 0>;
+		status = "disabled";
+	};
+
 	i2c@12CA0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;

@@ -16,7 +16,6 @@
 #include <asm/io.h>
 #include <exports.h>
 #include <asm/arch/fsl_serdes.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include <fsl-mc/ldpaa_wriop.h>
 
 DECLARE_GLOBAL_DATA_PTR;

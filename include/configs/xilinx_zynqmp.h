@@ -55,9 +55,7 @@
 # define CONFIG_ARM_DCC
 # define CONFIG_CPU_ARMV8
 #else
-# if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
-#  define CONFIG_ZYNQ_SERIAL
-# endif
+# define CONFIG_ZYNQ_SERIAL
 #endif
 
 #define CONFIG_CONS_INDEX		0

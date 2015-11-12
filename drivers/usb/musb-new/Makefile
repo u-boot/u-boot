@@ -1,6 +1,8 @@
 #
 # for USB OTG silicon based on Mentor Graphics INVENTRA designs
 #
+# SPDX-License-Identifier:	GPL-2.0+
+#
 
 obj-$(CONFIG_USB_MUSB_GADGET) += musb_gadget.o musb_gadget_ep0.o musb_core.o
 obj-$(CONFIG_USB_MUSB_GADGET) += musb_uboot.o

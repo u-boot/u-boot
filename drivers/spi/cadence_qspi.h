@@ -38,6 +38,7 @@ struct cadence_spi_priv {
 	int		qspi_is_init;
 	unsigned int	qspi_calibrated_hz;
 	unsigned int	qspi_calibrated_cs;
+	unsigned int	previous_hz;
 };
 
 /* Functions call declaration */

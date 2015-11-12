@@ -17,7 +17,7 @@
 #include <environment.h>
 #include <i2c.h>
 #include <rtc.h>
-#include <asm/arch-fsl-lsch3/soc.h>
+#include <asm/arch/soc.h>
 #include <hwconfig.h>
 
 #include "../common/qixis.h"

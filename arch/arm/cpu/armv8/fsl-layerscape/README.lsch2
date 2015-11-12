@@ -1,0 +1,10 @@
+#
+# Copyright 2015 Freescale Semiconductor
+#
+# SPDX-License-Identifier:      GPL-2.0+
+#
+
+Freescale LayerScape with Chassis Generation 2
+
+This architecture supports Freescale ARMv8 SoCs with Chassis generation 2,
+for example LS1043A.

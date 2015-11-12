@@ -6,5 +6,6 @@ F:	include/configs/ls1021atwr.h
 F:	configs/ls1021atwr_nor_defconfig
 F:	configs/ls1021atwr_nor_SECURE_BOOT_defconfig
 F:	configs/ls1021atwr_nor_lpuart_defconfig
-F:	configs/ls1021atwr_sdcard_defconfig
+F:	configs/ls1021atwr_sdcard_ifc_defconfig
+F:	configs/ls1021atwr_sdcard_qspi_defconfig
 F:	configs/ls1021atwr_qspi_defconfig

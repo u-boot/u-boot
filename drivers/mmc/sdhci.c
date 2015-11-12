@@ -286,9 +286,25 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
 	struct sdhci_host *host = mmc->priv;
-	unsigned int div, clk, timeout;
+	unsigned int div, clk, timeout, reg;
 
-	sdhci_writew(host, 0, SDHCI_CLOCK_CONTROL);
+	/* Wait max 20 ms */
+	timeout = 200;
+	while (sdhci_readl(host, SDHCI_PRESENT_STATE) &
+			   (SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT)) {
+		if (timeout == 0) {
+			printf("%s: Timeout to wait cmd & data inhibit\n",
+			       __func__);
+			return -1;
+		}
+
+		timeout--;
+		udelay(100);
+	}
+
+	reg = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
+	reg &= ~SDHCI_CLOCK_CARD_EN;
+	sdhci_writew(host, reg, SDHCI_CLOCK_CONTROL);
 
 	if (clock == 0)
 		return 0;

@@ -1,9 +1,7 @@
 #
 # Copyright 2008-2014 Freescale Semiconductor, Inc.
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# Version 2 as published by the Free Software Foundation.
+# SPDX-License-Identifier:	GPL-2.0
 #
 
 obj-$(CONFIG_SYS_FSL_DDR1) += main.o util.o ctrl_regs.o options.o \

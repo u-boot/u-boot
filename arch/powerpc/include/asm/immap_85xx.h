@@ -19,7 +19,7 @@
 #include <fsl_sec.h>
 #include <fsl_sfp.h>
 #include <asm/fsl_lbc.h>
-#include <asm/fsl_fman.h>
+#include <fsl_fman.h>
 #include <fsl_immap.h>
 
 typedef struct ccsr_local {

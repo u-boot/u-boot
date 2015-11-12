@@ -7,6 +7,9 @@
 # .config is included by main Makefile.
 # ---------------------------------------------------------------------------
 # fixdep: 	 Used to generate dependency information during build process
+#
+# SPDX-License-Identifier:	GPL-2.0
+#
 
 hostprogs-y	:= fixdep
 always		:= $(hostprogs-y)

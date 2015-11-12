@@ -9,8 +9,10 @@
 
 
 #define CONFIG_REMAKE_ELF
+#define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_FSL_LSCH3
 #define CONFIG_LS2085A
+#define CONFIG_MP
 #define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
 
@@ -18,11 +20,14 @@
 #define CONFIG_ARM_ERRATA_828024
 #define CONFIG_ARM_ERRATA_826974
 
-#include <asm/arch-fsl-lsch3/ls2085a_stream_id.h>
-#include <asm/arch-fsl-lsch3/config.h>
+#include <asm/arch/ls2085a_stream_id.h>
+#include <asm/arch/config.h>
 #if (defined(CONFIG_SYS_FSL_SRDS_1) || defined(CONFIG_SYS_FSL_SRDS_2))
 #define	CONFIG_SYS_HAS_SERDES
 #endif
+
+/* Link Definitions */
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 
 /* We need architecture specific misc initializations */
 #define CONFIG_ARCH_MISC_INIT
@@ -46,6 +51,7 @@
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
+#define CONFIG_OF_STDOUT_VIA_ALIAS
 
 /* new uImage format support */
 #define CONFIG_FIT
@@ -61,6 +67,7 @@
 
 #define CONFIG_SYS_FSL_DDR_INTLV_256B	/* force 256 byte interleaving */
 
+#define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE

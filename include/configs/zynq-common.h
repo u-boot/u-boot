@@ -179,7 +179,10 @@
 # define CONFIG_CMD_FS_GENERIC
 #endif
 
+#if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
 #define CONFIG_SYS_I2C_ZYNQ
+#endif
+
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
 # define CONFIG_CMD_I2C
@@ -329,7 +332,11 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
+#ifdef CONFIG_OF_CONTROL
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
+#else
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
+#endif
 #endif
 
 /* Disable dcache for SPL just for sure */

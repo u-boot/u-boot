@@ -131,7 +131,8 @@ void get_sys_info(sys_info_t *sys_info)
 	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
 #if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
-	defined(CONFIG_PPC_T4080) || defined(CONFIG_PPC_T2080)
+	defined(CONFIG_PPC_T4080) || defined(CONFIG_PPC_T2080) || \
+	defined(CONFIG_PPC_T2081)
 	svr = get_svr();
 	switch (SVR_SOC_VER(svr)) {
 	case SVR_T4240:

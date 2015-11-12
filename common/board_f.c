@@ -551,7 +551,7 @@ static int display_new_sp(void)
 	return 0;
 }
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
 static int setup_board_part1(void)
 {
 	bd_t *bd = gd->bd;
@@ -580,7 +580,9 @@ static int setup_board_part1(void)
 
 	return 0;
 }
+#endif
 
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static int setup_board_part2(void)
 {
 	bd_t *bd = gd->bd;
@@ -806,7 +808,7 @@ static init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
 	board_postclk_init,
 #endif
-#ifdef CONFIG_FSL_CLK
+#ifdef CONFIG_SYS_FSL_CLK
 	get_clocks,
 #endif
 #ifdef CONFIG_M68K
@@ -894,7 +896,7 @@ static init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
-#if defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
+#if defined(CONFIG_BLACKFIN)
 	/* Blackfin u-boot monitor should be on top of the ram */
 	reserve_uboot,
 #endif
@@ -919,7 +921,7 @@ static init_fnc_t init_sequence_f[] = {
 		!defined(CONFIG_BLACKFIN) && !defined(CONFIG_M68K)
 	reserve_video,
 #endif
-#if !defined(CONFIG_BLACKFIN) && !defined(CONFIG_NIOS2)
+#if !defined(CONFIG_BLACKFIN)
 	reserve_uboot,
 #endif
 #ifndef CONFIG_SPL_BUILD
@@ -933,8 +935,10 @@ static init_fnc_t init_sequence_f[] = {
 	reserve_stacks,
 	setup_dram_config,
 	show_dram_config,
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_MIPS)
 	setup_board_part1,
+#endif
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 	INIT_FUNC_WATCHDOG_RESET
 	setup_board_part2,
 #endif

@@ -490,6 +490,19 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 		s32 default_val);
 
 /**
+ * Unsigned version of fdtdec_get_int. The property must have at least
+ * 4 bytes of data. The value of the first cell is returned.
+ *
+ * @param blob	FDT blob
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @param default_val	default value to return if the property is not found
+ * @return unsigned integer value, if found, or default_val if not
+ */
+unsigned int fdtdec_get_uint(const void *blob, int node, const char *prop_name,
+			unsigned int default_val);
+
+/**
  * Get a variable-sized number from a property
  *
  * This reads a number from one or more cells.
@@ -628,7 +641,16 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int node,
 			 int *seqp);
 
 /**
- * Get the offset of the given chosen node
+ * Get a property from the /chosen node
+ *
+ * @param blob		Device tree blob (if NULL, then NULL is returned)
+ * @param name		Property name to look up
+ * @return Value of property, or NULL if it does not exist
+ */
+const char *fdtdec_get_chosen_prop(const void *blob, const char *name);
+
+/**
+ * Get the offset of the given /chosen node
  *
  * This looks up a property in /chosen containing the path to another node,
  * then finds the offset of that node.

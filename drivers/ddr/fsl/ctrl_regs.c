@@ -858,7 +858,7 @@ static void set_ddr_sdram_cfg_2(const unsigned int ctrl_num,
 			break;
 		}
 	}
-
+	sr_ie = popts->self_refresh_interrupt_en;
 	num_pr = 1;	/* Make this configurable */
 
 	/*

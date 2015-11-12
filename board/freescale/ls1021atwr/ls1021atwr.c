@@ -8,13 +8,14 @@
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
-#include <asm/arch/ns_access.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
 #include <asm/arch/ls102xa_devdis.h>
+#include <asm/arch/ls102xa_sata.h>
 #include <hwconfig.h>
 #include <mmc.h>
+#include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <fsl_immap.h>
@@ -69,92 +70,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PIN_QE_LCD_MUX_LCD	0x0
 #define PIN_QE_LCD_MUX_QE	0x1
 
-#ifdef CONFIG_LS102XA_NS_ACCESS
-static struct csu_ns_dev ns_dev[] = {
-	{ CSU_CSLX_PCIE2_IO, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE1_IO, CSU_ALL_RW },
-	{ CSU_CSLX_MG2TPR_IP, CSU_ALL_RW },
-	{ CSU_CSLX_IFC_MEM, CSU_ALL_RW },
-	{ CSU_CSLX_OCRAM, CSU_ALL_RW },
-	{ CSU_CSLX_GIC, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE1, CSU_ALL_RW },
-	{ CSU_CSLX_OCRAM2, CSU_ALL_RW },
-	{ CSU_CSLX_QSPI_MEM, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE2, CSU_ALL_RW },
-	{ CSU_CSLX_SATA, CSU_ALL_RW },
-	{ CSU_CSLX_USB3, CSU_ALL_RW },
-	{ CSU_CSLX_SERDES, CSU_ALL_RW },
-	{ CSU_CSLX_QDMA, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART2, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART1, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART4, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART3, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART6, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART5, CSU_ALL_RW },
-	{ CSU_CSLX_DSPI2, CSU_ALL_RW },
-	{ CSU_CSLX_DSPI1, CSU_ALL_RW },
-	{ CSU_CSLX_QSPI, CSU_ALL_RW },
-	{ CSU_CSLX_ESDHC, CSU_ALL_RW },
-	{ CSU_CSLX_2D_ACE, CSU_ALL_RW },
-	{ CSU_CSLX_IFC, CSU_ALL_RW },
-	{ CSU_CSLX_I2C1, CSU_ALL_RW },
-	{ CSU_CSLX_USB2, CSU_ALL_RW },
-	{ CSU_CSLX_I2C3, CSU_ALL_RW },
-	{ CSU_CSLX_I2C2, CSU_ALL_RW },
-	{ CSU_CSLX_DUART2, CSU_ALL_RW },
-	{ CSU_CSLX_DUART1, CSU_ALL_RW },
-	{ CSU_CSLX_WDT2, CSU_ALL_RW },
-	{ CSU_CSLX_WDT1, CSU_ALL_RW },
-	{ CSU_CSLX_EDMA, CSU_ALL_RW },
-	{ CSU_CSLX_SYS_CNT, CSU_ALL_RW },
-	{ CSU_CSLX_DMA_MUX2, CSU_ALL_RW },
-	{ CSU_CSLX_DMA_MUX1, CSU_ALL_RW },
-	{ CSU_CSLX_DDR, CSU_ALL_RW },
-	{ CSU_CSLX_QUICC, CSU_ALL_RW },
-	{ CSU_CSLX_DCFG_CCU_RCPM, CSU_ALL_RW },
-	{ CSU_CSLX_SECURE_BOOTROM, CSU_ALL_RW },
-	{ CSU_CSLX_SFP, CSU_ALL_RW },
-	{ CSU_CSLX_TMU, CSU_ALL_RW },
-	{ CSU_CSLX_SECURE_MONITOR, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED0, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC1, CSU_ALL_RW },
-	{ CSU_CSLX_SEC5_5, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC3, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC2, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO2, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO1, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO4, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO3, CSU_ALL_RW },
-	{ CSU_CSLX_PLATFORM_CONT, CSU_ALL_RW },
-	{ CSU_CSLX_CSU, CSU_ALL_RW },
-	{ CSU_CSLX_ASRC, CSU_ALL_RW },
-	{ CSU_CSLX_SPDIF, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN2, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN1, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN4, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN3, CSU_ALL_RW },
-	{ CSU_CSLX_SAI2, CSU_ALL_RW },
-	{ CSU_CSLX_SAI1, CSU_ALL_RW },
-	{ CSU_CSLX_SAI4, CSU_ALL_RW },
-	{ CSU_CSLX_SAI3, CSU_ALL_RW },
-	{ CSU_CSLX_FTM2, CSU_ALL_RW },
-	{ CSU_CSLX_FTM1, CSU_ALL_RW },
-	{ CSU_CSLX_FTM4, CSU_ALL_RW },
-	{ CSU_CSLX_FTM3, CSU_ALL_RW },
-	{ CSU_CSLX_FTM6, CSU_ALL_RW },
-	{ CSU_CSLX_FTM5, CSU_ALL_RW },
-	{ CSU_CSLX_FTM8, CSU_ALL_RW },
-	{ CSU_CSLX_FTM7, CSU_ALL_RW },
-	{ CSU_CSLX_COP_DCSR, CSU_ALL_RW },
-	{ CSU_CSLX_EPU, CSU_ALL_RW },
-	{ CSU_CSLX_GDI, CSU_ALL_RW },
-	{ CSU_CSLX_DDI, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED1, CSU_ALL_RW },
-	{ CSU_CSLX_USB3_PHY, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED2, CSU_ALL_RW },
-};
-#endif
-
 struct cpld_data {
 	u8 cpld_ver;		/* cpld revision */
 	u8 cpld_ver_sub;	/* cpld sub revision */
@@ -175,7 +90,7 @@ struct cpld_data {
 	u8 rev2;		/* Reserved */
 };
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 static void convert_serdes_mux(int type, int need_reset);
 
 void cpld_show(void)
@@ -216,7 +131,7 @@ void cpld_show(void)
 int checkboard(void)
 {
 	puts("Board: LS1021ATWR\n");
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	cpld_show();
 #endif
 
@@ -380,7 +295,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 int config_serdes_mux(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -414,7 +329,7 @@ int config_serdes_mux(void)
 }
 #endif
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 int config_board_mux(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
@@ -521,8 +436,10 @@ int board_early_init_f(void)
 	}
 
 #if defined(CONFIG_DEEP_SLEEP)
-	if (is_warm_boot())
-		fsl_dp_disable_console();
+	if (is_warm_boot()) {
+		timer_init();
+		dram_init();
+	}
 #endif
 
 	return 0;
@@ -531,6 +448,8 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
+	void (*second_uboot)(void);
+
 	/* Clear the BSS */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
@@ -546,10 +465,21 @@ void board_init_f(ulong dummy)
 	dram_init();
 
 	/* Allow OCRAM access permission as R/W */
-#ifdef CONFIG_LS102XA_NS_ACCESS
-	enable_devices_ns_access(&ns_dev[4], 1);
-	enable_devices_ns_access(&ns_dev[7], 1);
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
+	enable_layerscape_ns_access();
 #endif
+
+	/*
+	 * if it is woken up from deep sleep, then jump to second
+	 * stage uboot and continue executing without recopying
+	 * it from SD since it has already been reserved in memeory
+	 * in last boot.
+	 */
+	if (is_warm_boot()) {
+		second_uboot = (void (*)(void))CONFIG_SYS_TEXT_BASE;
+		second_uboot();
+	}
 
 	board_init_r(NULL, 0);
 }
@@ -627,7 +557,7 @@ int board_init(void)
 {
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	config_serdes_mux();
 #endif
 #endif
@@ -637,8 +567,8 @@ int board_init(void)
 	ls102xa_config_smmu_stream_id(dev_stream_id,
 				      ARRAY_SIZE(dev_stream_id));
 
-#ifdef CONFIG_LS102XA_NS_ACCESS
-	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
 #endif
 
 #ifdef CONFIG_U_QE
@@ -651,13 +581,24 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_SCSI_AHCI_PLAT
+	ls1021a_sata_init();
+#endif
+
+	return 0;
+}
+#endif
+
 #if defined(CONFIG_MISC_INIT_R)
 int misc_init_r(void)
 {
 #ifdef CONFIG_FSL_DEVICE_DISABLE
 	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
 #endif
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	config_board_mux();
 #endif
 
@@ -670,8 +611,8 @@ int misc_init_r(void)
 #if defined(CONFIG_DEEP_SLEEP)
 void board_sleep_prepare(void)
 {
-#ifdef CONFIG_LS102XA_NS_ACCESS
-	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
 #endif
 }
 #endif
@@ -706,7 +647,7 @@ u16 flash_read16(void *addr)
 	return (((val) >> 8) & 0x00ff) | (((val) << 8) & 0xff00);
 }
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 static void convert_flash_bank(char bank)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);

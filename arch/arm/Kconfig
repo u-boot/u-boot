@@ -10,6 +10,9 @@ config ARM64
 config HAS_VBAR
         bool
 
+config HAS_THUMB2
+        bool
+
 config CPU_ARM720T
         bool
 
@@ -32,9 +35,11 @@ config CPU_ARM1176
 config CPU_V7
         bool
         select HAS_VBAR
+        select HAS_THUMB2
 
 config CPU_V7M
 	bool
+        select HAS_THUMB2
 
 config CPU_PXA
         bool
@@ -543,13 +548,20 @@ config ARCH_ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 	select OF_CONTROL
+	select SPL_OF_CONTROL
 	select DM
+	select SPL_DM
 	select DM_SPI
+	select DM_SERIAL
 	select DM_SPI_FLASH
+	select SPL_SEPARATE_BSS
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
 	select ARM64
+	select DM
+	select OF_CONTROL
+	select DM_SERIAL
 
 config TEGRA
 	bool "NVIDIA Tegra"
@@ -626,6 +638,14 @@ config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7
 	select SUPPORT_SPL
+
+config TARGET_LS1043ARDB
+	bool "Support ls1043ardb"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	help
+	  Support for Freescale LS1043ARDB platform.
 
 config TARGET_H2200
 	bool "Support h2200"
@@ -743,6 +763,7 @@ source "board/freescale/ls2085aqds/Kconfig"
 source "board/freescale/ls2085ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
+source "board/freescale/ls1043ardb/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
 source "board/freescale/mx25pdk/Kconfig"
 source "board/freescale/mx28evk/Kconfig"

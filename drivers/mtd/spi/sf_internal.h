@@ -105,6 +105,9 @@ enum spi_nor_option_flags {
 #define STATUS_QEB_WINSPAN		(1 << 1)
 #define STATUS_QEB_MXIC		(1 << 6)
 #define STATUS_PEC			(1 << 7)
+#define SR_BP0				BIT(2)  /* Block protect 0 */
+#define SR_BP1				BIT(3)  /* Block protect 1 */
+#define SR_BP2				BIT(4)  /* Block protect 2 */
 
 /* Flash timeout values */
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
@@ -172,6 +175,15 @@ int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs);
 
 /* Program the status register */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws);
+
+/* Lock stmicro spi flash region */
+int stm_lock(struct spi_flash *flash, u32 ofs, size_t len);
+
+/* Unlock stmicro spi flash region */
+int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len);
+
+/* Check if a stmicro spi flash region is completely locked */
+int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len);
 
 /* Read the config register */
 int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc);

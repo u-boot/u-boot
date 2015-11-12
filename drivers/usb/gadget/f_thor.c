@@ -569,7 +569,7 @@ static void thor_tx_data(unsigned char *data, int len)
 
 	dev->in_req->length = len;
 
-	debug("%s: dev->in_req->length:%d to_cpy:%d\n", __func__,
+	debug("%s: dev->in_req->length:%d to_cpy:%zd\n", __func__,
 	      dev->in_req->length, sizeof(data));
 
 	status = usb_ep_queue(dev->in_ep, dev->in_req, 0);

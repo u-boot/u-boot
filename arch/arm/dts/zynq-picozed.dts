@@ -21,3 +21,8 @@
 		reg = <0 0x40000000>;
 	};
 };
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};

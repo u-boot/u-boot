@@ -44,3 +44,4 @@ void cpld_write(unsigned int reg, u8 value);
 		cpld_write(offsetof(struct cpld_data, reg), value)
 #define MISC_CTL_SG_SEL		0x80
 #define MISC_CTL_AURORA_SEL	0x02
+#define MISC_MUX_QE_TDM		0xc0

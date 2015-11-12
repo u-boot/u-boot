@@ -106,7 +106,8 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 		xfertyp |= XFERTYP_RSPTYP_48;
 
 #if defined(CONFIG_MX53) || defined(CONFIG_PPC_T4240) || \
-	defined(CONFIG_LS102XA) || defined(CONFIG_LS2085A)
+	defined(CONFIG_LS102XA) || defined(CONFIG_FSL_LAYERSCAPE) || \
+	defined(CONFIG_PPC_T4160)
 	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
 		xfertyp |= XFERTYP_CMDTYP_ABORT;
 #endif
@@ -184,7 +185,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	int timeout;
 	struct fsl_esdhc_cfg *cfg = mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_FSL_LAYERSCAPE
 	dma_addr_t addr;
 #endif
 	uint wml_value;
@@ -197,7 +198,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_FSL_LAYERSCAPE
 		addr = virt_to_phys((void *)(data->dest));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -223,7 +224,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
 					wml_value << 16);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_FSL_LAYERSCAPE
 		addr = virt_to_phys((void *)(data->src));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -277,7 +278,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 static void check_and_invalidate_dcache_range
 	(struct mmc_cmd *cmd,
 	 struct mmc_data *data) {
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_FSL_LAYERSCAPE
 	unsigned start = 0;
 #else
 	unsigned start = (unsigned)data->dest ;
@@ -285,7 +286,7 @@ static void check_and_invalidate_dcache_range
 	unsigned size = roundup(ARCH_DMA_MINALIGN,
 				data->blocks*data->blocksize);
 	unsigned end = start+size ;
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_FSL_LAYERSCAPE
 	dma_addr_t addr;
 
 	addr = virt_to_phys((void *)(data->dest));
@@ -747,8 +748,14 @@ void mmc_adapter_card_type_ident(void)
 
 	switch (card_id) {
 	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC45:
+		value = QIXIS_READ(brdcfg[5]);
+		value |= (QIXIS_DAT4 | QIXIS_DAT5_6_7);
+		QIXIS_WRITE(brdcfg[5], value);
 		break;
 	case QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY:
+		value = QIXIS_READ(pwr_ctl[1]);
+		value |= QIXIS_EVDD_BY_SDHC_VS;
+		QIXIS_WRITE(pwr_ctl[1], value);
 		break;
 	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC44:
 		value = QIXIS_READ(brdcfg[5]);

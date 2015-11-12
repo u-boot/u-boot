@@ -144,6 +144,9 @@
 #define ATMEL_BASE_PIOE		0xfc06d000
 #define ATMEL_BASE_AIC		0xfc06e000
 
+#define ATMEL_CHIPID_CIDR	0xfc069040
+#define ATMEL_CHIPID_EXID	0xfc069044
+
 /*
  * Internal Memory.
  */

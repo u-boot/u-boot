@@ -60,3 +60,27 @@ obj-$(CONFIG_DEBUG_LL)	+= debug.o
 ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
 extra-y	+= eabi_compat.o
 endif
+
+# some files can only build in ARM or THUMB2, not THUMB1
+
+ifdef CONFIG_SYS_THUMB_BUILD
+ifndef CONFIG_HAS_THUMB2
+
+# for C files, just apend -marm, which will override previous -mthumb*
+
+CFLAGS_cache.o := -marm
+CFLAGS_cache-cp15.o := -marm
+
+# For .S, drop -mthumb* and other thumb-related options.
+# CFLAGS_REMOVE_* would not have an effet, so AFLAGS_REMOVE_*
+# was implemented and is used here.
+# Also, define ${target}_NO_THUMB_BUILD for these two targets
+# so that the code knows it should not use Thumb.
+
+AFLAGS_REMOVE_memset.o := -mthumb -mthumb-interwork
+AFLAGS_REMOVE_memcpy.o := -mthumb -mthumb-interwork
+AFLAGS_memset.o := -DMEMSET_NO_THUMB_BUILD
+AFLAGS_memcpy.o := -DMEMCPY_NO_THUMB_BUILD
+
+endif
+endif

@@ -15,7 +15,7 @@
 #include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
-#include <asm/arch-fsl-lsch3/soc.h>
+#include <asm/arch/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -88,7 +88,7 @@ static void drv_system_init (void)
 	memset (&dev, 0, sizeof (dev));
 
 	strcpy (dev.name, "serial");
-	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 	dev.putc = stdio_serial_putc;
 	dev.puts = stdio_serial_puts;
 	dev.getc = stdio_serial_getc;
@@ -99,7 +99,7 @@ static void drv_system_init (void)
 	memset (&dev, 0, sizeof (dev));
 
 	strcpy (dev.name, "nulldev");
-	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 	dev.putc = nulldev_putc;
 	dev.puts = nulldev_puts;
 	dev.getc = nulldev_input;

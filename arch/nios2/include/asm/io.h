@@ -18,15 +18,19 @@ static inline void sync(void)
  * that can be used to access the memory range with the caching
  * properties specified by "flags".
  */
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
+#define MAP_NOCACHE	1
+#define MAP_WRCOMBINE	0
+#define MAP_WRBACK	0
+#define MAP_WRTHROUGH	0
 
 static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
-	return (void *)paddr;
+	DECLARE_GLOBAL_DATA_PTR;
+	if (flags)
+		return (void *)(paddr | gd->arch.io_region_base);
+	else
+		return (void *)(paddr | gd->arch.mem_region_base);
 }
 
 /*
@@ -40,10 +44,7 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 static inline phys_addr_t virt_to_phys(void * vaddr)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	if (gd->arch.has_mmu)
-		return (phys_addr_t)vaddr & 0x1fffffff;
-	else
-		return (phys_addr_t)vaddr & 0x7fffffff;
+	return (phys_addr_t)vaddr & gd->arch.physaddr_mask;
 }
 
 static inline void *ioremap(unsigned long physaddr, unsigned long size)
@@ -171,5 +172,9 @@ static inline void outsl (unsigned long port, const void *src, unsigned long cou
 #define clrbits_8(addr, clear) clrbits(8, addr, clear)
 #define setbits_8(addr, set) setbits(8, addr, set)
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
+
+#define memset_io(a, b, c)		memset((void *)(a), (b), (c))
+#define memcpy_fromio(a, b, c)		memcpy((a), (void *)(b), (c))
+#define memcpy_toio(a, b, c)		memcpy((void *)(a), (b), (c))
 
 #endif /* __ASM_NIOS2_IO_H_ */

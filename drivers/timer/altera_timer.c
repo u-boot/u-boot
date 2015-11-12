@@ -16,6 +16,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* control register */
+#define ALTERA_TIMER_CONT	BIT(1)	/* Continuous mode */
+#define ALTERA_TIMER_START	BIT(2)	/* Start timer */
+#define ALTERA_TIMER_STOP	BIT(3)	/* Stop timer */
+
 struct altera_timer_regs {
 	u32	status;		/* Timer status reg */
 	u32	control;	/* Timer control reg */
@@ -29,11 +34,6 @@ struct altera_timer_platdata {
 	struct altera_timer_regs *regs;
 	unsigned long clock_rate;
 };
-
-/* control register */
-#define ALTERA_TIMER_CONT	(1 << 1)	/* Continuous mode */
-#define ALTERA_TIMER_START	(1 << 2)	/* Start timer */
-#define ALTERA_TIMER_STOP	(1 << 3)	/* Stop timer */
 
 static int altera_timer_get_count(struct udevice *dev, unsigned long *count)
 {
@@ -88,8 +88,8 @@ static const struct timer_ops altera_timer_ops = {
 };
 
 static const struct udevice_id altera_timer_ids[] = {
-	{ .compatible = "altr,timer-1.0", },
-	{ }
+	{ .compatible = "altr,timer-1.0" },
+	{}
 };
 
 U_BOOT_DRIVER(altera_timer) = {

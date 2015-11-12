@@ -8,13 +8,14 @@
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
-#include <asm/arch/ns_access.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
 #include <asm/arch/ls102xa_devdis.h>
+#include <asm/arch/ls102xa_sata.h>
 #include <hwconfig.h>
 #include <mmc.h>
+#include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
@@ -55,92 +56,6 @@ enum {
 	GE2_CLK125,
 	GE1_CLK125,
 };
-
-#ifdef CONFIG_LS102XA_NS_ACCESS
-static struct csu_ns_dev ns_dev[] = {
-	{ CSU_CSLX_PCIE2_IO, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE1_IO, CSU_ALL_RW },
-	{ CSU_CSLX_MG2TPR_IP, CSU_ALL_RW },
-	{ CSU_CSLX_IFC_MEM, CSU_ALL_RW },
-	{ CSU_CSLX_OCRAM, CSU_ALL_RW },
-	{ CSU_CSLX_GIC, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE1, CSU_ALL_RW },
-	{ CSU_CSLX_OCRAM2, CSU_ALL_RW },
-	{ CSU_CSLX_QSPI_MEM, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE2, CSU_ALL_RW },
-	{ CSU_CSLX_SATA, CSU_ALL_RW },
-	{ CSU_CSLX_USB3, CSU_ALL_RW },
-	{ CSU_CSLX_SERDES, CSU_ALL_RW },
-	{ CSU_CSLX_QDMA, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART2, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART1, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART4, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART3, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART6, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART5, CSU_ALL_RW },
-	{ CSU_CSLX_DSPI2, CSU_ALL_RW },
-	{ CSU_CSLX_DSPI1, CSU_ALL_RW },
-	{ CSU_CSLX_QSPI, CSU_ALL_RW },
-	{ CSU_CSLX_ESDHC, CSU_ALL_RW },
-	{ CSU_CSLX_2D_ACE, CSU_ALL_RW },
-	{ CSU_CSLX_IFC, CSU_ALL_RW },
-	{ CSU_CSLX_I2C1, CSU_ALL_RW },
-	{ CSU_CSLX_USB2, CSU_ALL_RW },
-	{ CSU_CSLX_I2C3, CSU_ALL_RW },
-	{ CSU_CSLX_I2C2, CSU_ALL_RW },
-	{ CSU_CSLX_DUART2, CSU_ALL_RW },
-	{ CSU_CSLX_DUART1, CSU_ALL_RW },
-	{ CSU_CSLX_WDT2, CSU_ALL_RW },
-	{ CSU_CSLX_WDT1, CSU_ALL_RW },
-	{ CSU_CSLX_EDMA, CSU_ALL_RW },
-	{ CSU_CSLX_SYS_CNT, CSU_ALL_RW },
-	{ CSU_CSLX_DMA_MUX2, CSU_ALL_RW },
-	{ CSU_CSLX_DMA_MUX1, CSU_ALL_RW },
-	{ CSU_CSLX_DDR, CSU_ALL_RW },
-	{ CSU_CSLX_QUICC, CSU_ALL_RW },
-	{ CSU_CSLX_DCFG_CCU_RCPM, CSU_ALL_RW },
-	{ CSU_CSLX_SECURE_BOOTROM, CSU_ALL_RW },
-	{ CSU_CSLX_SFP, CSU_ALL_RW },
-	{ CSU_CSLX_TMU, CSU_ALL_RW },
-	{ CSU_CSLX_SECURE_MONITOR, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED0, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC1, CSU_ALL_RW },
-	{ CSU_CSLX_SEC5_5, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC3, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC2, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO2, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO1, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO4, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO3, CSU_ALL_RW },
-	{ CSU_CSLX_PLATFORM_CONT, CSU_ALL_RW },
-	{ CSU_CSLX_CSU, CSU_ALL_RW },
-	{ CSU_CSLX_ASRC, CSU_ALL_RW },
-	{ CSU_CSLX_SPDIF, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN2, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN1, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN4, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN3, CSU_ALL_RW },
-	{ CSU_CSLX_SAI2, CSU_ALL_RW },
-	{ CSU_CSLX_SAI1, CSU_ALL_RW },
-	{ CSU_CSLX_SAI4, CSU_ALL_RW },
-	{ CSU_CSLX_SAI3, CSU_ALL_RW },
-	{ CSU_CSLX_FTM2, CSU_ALL_RW },
-	{ CSU_CSLX_FTM1, CSU_ALL_RW },
-	{ CSU_CSLX_FTM4, CSU_ALL_RW },
-	{ CSU_CSLX_FTM3, CSU_ALL_RW },
-	{ CSU_CSLX_FTM6, CSU_ALL_RW },
-	{ CSU_CSLX_FTM5, CSU_ALL_RW },
-	{ CSU_CSLX_FTM8, CSU_ALL_RW },
-	{ CSU_CSLX_FTM7, CSU_ALL_RW },
-	{ CSU_CSLX_COP_DCSR, CSU_ALL_RW },
-	{ CSU_CSLX_EPU, CSU_ALL_RW },
-	{ CSU_CSLX_GDI, CSU_ALL_RW },
-	{ CSU_CSLX_DDI, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED1, CSU_ALL_RW },
-	{ CSU_CSLX_USB3_PHY, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED2, CSU_ALL_RW },
-};
-#endif
 
 int checkboard(void)
 {
@@ -382,9 +297,8 @@ void board_init_f(ulong dummy)
 	dram_init();
 
 	/* Allow OCRAM access permission as R/W */
-#ifdef CONFIG_LS102XA_NS_ACCESS
-	enable_devices_ns_access(&ns_dev[4], 1);
-	enable_devices_ns_access(&ns_dev[7], 1);
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
 #endif
 
 	board_init_r(NULL, 0);
@@ -494,6 +408,17 @@ int config_serdes_mux(void)
 	return 0;
 }
 
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_SCSI_AHCI_PLAT
+	ls1021a_sata_init();
+#endif
+
+	return 0;
+}
+#endif
+
 int misc_init_r(void)
 {
 	int conflict_flag;
@@ -602,8 +527,8 @@ int board_init(void)
 	ls102xa_config_smmu_stream_id(dev_stream_id,
 				      ARRAY_SIZE(dev_stream_id));
 
-#ifdef CONFIG_LS102XA_NS_ACCESS
-	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
 #endif
 
 #ifdef CONFIG_U_QE
@@ -627,8 +552,8 @@ void board_sleep_prepare(void)
 	}
 
 
-#ifdef CONFIG_LS102XA_NS_ACCESS
-	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
+	enable_layerscape_ns_access();
 #endif
 }
 #endif

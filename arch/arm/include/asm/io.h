@@ -46,7 +46,7 @@ static inline void sync(void)
 static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
-	return (void *)paddr;
+	return (void *)((unsigned long)paddr);
 }
 
 /*
@@ -59,7 +59,7 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 
 static inline phys_addr_t virt_to_phys(void * vaddr)
 {
-	return (phys_addr_t)(vaddr);
+	return (phys_addr_t)((unsigned long)vaddr);
 }
 
 /*

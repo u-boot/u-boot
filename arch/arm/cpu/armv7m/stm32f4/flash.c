@@ -97,6 +97,9 @@ int flash_erase(flash_info_t *info, int first, int last)
 		while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
 			;
 
+		/* clear old sector number before writing a new one */
+		clrbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_SNB_MASK);
+
 		if (bank == 0) {
 			setbits_le32(&STM32_FLASH->cr,
 				     (i << STM32_FLASH_CR_SNB_OFFSET));
@@ -114,9 +117,9 @@ int flash_erase(flash_info_t *info, int first, int last)
 			;
 
 		clrbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_SER);
-		stm32f4_flash_lock(1);
 	}
 
+	stm32f4_flash_lock(1);
 	return 0;
 }
 

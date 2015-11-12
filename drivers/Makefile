@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 obj-$(CONFIG_$(SPL_)DM)		+= core/
 obj-$(CONFIG_$(SPL_)CLK)	+= clk/
 obj-$(CONFIG_$(SPL_)LED)	+= led/
@@ -35,6 +39,7 @@ obj-$(CONFIG_SPL_SATA_SUPPORT) += block/
 
 else
 
+obj-y += adc/
 obj-$(CONFIG_DM_DEMO) += demo/
 obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/

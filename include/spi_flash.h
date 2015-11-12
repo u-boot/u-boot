@@ -54,6 +54,9 @@ struct spi_slave;
  * @write_cmd:		Write cmd - page and quad program.
  * @dummy_byte:		Dummy cycles for read operation.
  * @memory_map:		Address of read-only SPI flash access
+ * @flash_lock:		lock a region of the SPI Flash
+ * @flash_unlock:	unlock a region of the SPI Flash
+ * @flash_is_locked:	check if a region of the SPI Flash is completely locked
  * @read:		Flash read ops: Read len bytes at offset into buf
  *			Supported cmds: Fast Array Read
  * @write:		Flash write ops: Write len bytes from buf into offset
@@ -87,6 +90,10 @@ struct spi_flash {
 	u8 dummy_byte;
 
 	void *memory_map;
+
+	int (*flash_lock)(struct spi_flash *flash, u32 ofs, size_t len);
+	int (*flash_unlock)(struct spi_flash *flash, u32 ofs, size_t len);
+	int (*flash_is_locked)(struct spi_flash *flash, u32 ofs, size_t len);
 #ifndef CONFIG_DM_SPI_FLASH
 	/*
 	 * These are not strictly needed for driver model, but keep them here
@@ -226,6 +233,18 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 	return flash->erase(flash, offset, len);
 }
 #endif
+
+static inline int spi_flash_protect(struct spi_flash *flash, u32 ofs, u32 len,
+					bool prot)
+{
+	if (!flash->flash_lock)
+		return -EOPNOTSUPP;
+
+	if (prot)
+		return flash->flash_lock(flash, ofs, len);
+	else
+		return flash->flash_unlock(flash, ofs, len);
+}
 
 void spi_boot(void) __noreturn;
 void spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst);

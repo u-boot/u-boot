@@ -32,7 +32,11 @@
 # define MCI_BUS 0
 #endif
 
-static int initialized = 0;
+struct atmel_mci_priv {
+	struct mmc_config	cfg;
+	struct atmel_mci	*mci;
+	unsigned int		initialized:1;
+};
 
 /* Read Atmel MCI IP version */
 static unsigned int atmel_mci_get_version(struct atmel_mci *mci)
@@ -48,14 +52,15 @@ static unsigned int atmel_mci_get_version(struct atmel_mci *mci)
  */
 static void dump_cmd(u32 cmdr, u32 arg, u32 status, const char* msg)
 {
-	printf("gen_atmel_mci: CMDR %08x (%2u) ARGR %08x (SR: %08x) %s\n",
-		cmdr, cmdr&0x3F, arg, status, msg);
+	debug("gen_atmel_mci: CMDR %08x (%2u) ARGR %08x (SR: %08x) %s\n",
+	      cmdr, cmdr & 0x3F, arg, status, msg);
 }
 
 /* Setup for MCI Clock and Block Size */
 static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 {
-	atmel_mci_t *mci = mmc->priv;
+	struct atmel_mci_priv *priv = mmc->priv;
+	atmel_mci_t *mci = priv->mci;
 	u32 bus_hz = get_mci_clk_rate();
 	u32 clkdiv = 255;
 	unsigned int version = atmel_mci_get_version(mci);
@@ -73,16 +78,16 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 			clkodd = clkdiv & 1;
 			clkdiv >>= 1;
 
-			printf("mci: setting clock %u Hz, block size %u\n",
-			       bus_hz / (clkdiv * 2 + clkodd + 2), blklen);
+			debug("mci: setting clock %u Hz, block size %u\n",
+			      bus_hz / (clkdiv * 2 + clkodd + 2), blklen);
 		} else {
 			/* find clkdiv yielding a rate <= than requested */
 			for (clkdiv = 0; clkdiv < 255; clkdiv++) {
 				if ((bus_hz / (clkdiv + 1) / 2) <= hz)
 					break;
 			}
-			printf("mci: setting clock %u Hz, block size %u\n",
-			       (bus_hz / (clkdiv + 1)) / 2, blklen);
+			debug("mci: setting clock %u Hz, block size %u\n",
+			      (bus_hz / (clkdiv + 1)) / 2, blklen);
 
 		}
 	}
@@ -113,7 +118,9 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 	if (mmc->card_caps & mmc->cfg->host_caps & MMC_MODE_HS)
 		writel(MMCI_BIT(HSMODE), &mci->cfg);
 
-	initialized = 1;
+	udelay(50);
+
+	priv->initialized = 1;
 }
 
 /* Return the CMDR with flags for a given command and data packet */
@@ -196,12 +203,13 @@ io_fail:
 static int
 mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	atmel_mci_t *mci = mmc->priv;
+	struct atmel_mci_priv *priv = mmc->priv;
+	atmel_mci_t *mci = priv->mci;
 	u32 cmdr;
 	u32 error_flags = 0;
 	u32 status;
 
-	if (!initialized) {
+	if (!priv->initialized) {
 		puts ("MCI not initialized!\n");
 		return COMM_ERR;
 	}
@@ -321,7 +329,8 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 /* Entered into mmc structure during driver init */
 static void mci_set_ios(struct mmc *mmc)
 {
-	atmel_mci_t *mci = mmc->priv;
+	struct atmel_mci_priv *priv = mmc->priv;
+	atmel_mci_t *mci = priv->mci;
 	int bus_width = mmc->bus_width;
 	unsigned int version = atmel_mci_get_version(mci);
 	int busw;
@@ -357,7 +366,8 @@ static void mci_set_ios(struct mmc *mmc)
 /* Entered into mmc structure during driver init */
 static int mci_init(struct mmc *mmc)
 {
-	atmel_mci_t *mci = mmc->priv;
+	struct atmel_mci_priv *priv = mmc->priv;
+	atmel_mci_t *mci = priv->mci;
 
 	/* Initialize controller */
 	writel(MMCI_BIT(SWRST), &mci->cr);	/* soft reset */
@@ -391,22 +401,24 @@ int atmel_mci_init(void *regs)
 {
 	struct mmc *mmc;
 	struct mmc_config *cfg;
-	struct atmel_mci *mci;
+	struct atmel_mci_priv *priv;
 	unsigned int version;
 
-	cfg = malloc(sizeof(*cfg));
-	if (cfg == NULL)
-		return -1;
-	memset(cfg, 0, sizeof(*cfg));
+	priv = calloc(1, sizeof(*priv));
+	if (!priv)
+		return -ENOMEM;
 
-	mci = (struct atmel_mci *)regs;
+	cfg = &priv->cfg;
 
 	cfg->name = "mci";
 	cfg->ops = &atmel_mci_ops;
 
+	priv->mci = (struct atmel_mci *)regs;
+	priv->initialized = 0;
+
 	/* need to be able to pass these in on a board by board basis */
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-	version = atmel_mci_get_version(mci);
+	version = atmel_mci_get_version(priv->mci);
 	if ((version & 0xf00) >= 0x300) {
 		cfg->host_caps = MMC_MODE_8BIT;
 		cfg->host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
@@ -423,13 +435,13 @@ int atmel_mci_init(void *regs)
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	mmc = mmc_create(cfg, regs);
+	mmc = mmc_create(cfg, priv);
 
 	if (mmc == NULL) {
-		free(cfg);
-		return -1;
+		free(priv);
+		return -ENODEV;
 	}
-	/* NOTE: possibly leaking the cfg structure */
+	/* NOTE: possibly leaking the priv structure */
 
 	return 0;
 }

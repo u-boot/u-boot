@@ -30,12 +30,12 @@ http://www.alterawiki.com/wiki/Sopc2dts
 $ java -jar sopc2dts.jar --force-altr -i mysystem.sopcinfo -o mysystem.dts
 
 You will need to add additional properties to the dts. Please find an
-example at, arch/nios2/dts/3c120_devboard.dts.
+example at, arch/nios2/dts/10m50_devboard.dts.
 
 1. Add "stdout-path=..." property with your serial path to the chosen
 node, like this,
 	chosen {
-		stdout-path = &jtag_uart;
+		stdout-path = &uart_0;
 	};
 
 2. If you use SPI/EPCS or I2C, you will need to add aliases to number
@@ -45,9 +45,9 @@ the sequence of these devices, like this,
 	};
 
 Next, you will need a default config file. You may start with
-nios2-generic_defconfig, modify the options and save it.
+10m50_defconfig, modify the options and save it.
 
-$ make nios2-generic_defconfig
+$ make 10m50_defconfig
 $ make menuconfig
 $ make savedefconfig
 $ cp defconfig configs/mysystem_defconfig
@@ -72,15 +72,15 @@ copies all the u-boot-dtb.bin, not just u-boot.bin.
 binary. This is handy for development, eg, using gdb or nios2-download.
 
 The last thing, legacy board header file describes those config options
-not covered in Kconfig yet. You may copy it from nios2-generic.h.
+not covered in Kconfig yet. You may copy it from 10m50_devboard.h.
 
-$ cp include/configs/nios2-generic.h include/configs/mysystem.h
+$ cp include/configs/10m50_devboard.h include/configs/mysystem.h
 
 Please change the SDRAM base and size to match your board. The base
 should be cached virtual address, for Nios II with MMU it is 0xCxxx_xxxx
 to 0xDxxx_xxxx.
 
-#define CONFIG_SYS_SDRAM_BASE		0xD0000000
+#define CONFIG_SYS_SDRAM_BASE		0xc8000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
 
 You will need to change the environment variables location and setting,

@@ -1,0 +1,12 @@
+if TARGET_CYRUS
+
+config SYS_BOARD
+	default "cyrus"
+
+config SYS_VENDOR
+	default "varisys"
+
+config SYS_CONFIG_NAME
+	default "cyrus"
+
+endif

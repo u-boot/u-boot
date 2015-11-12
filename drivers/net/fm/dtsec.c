@@ -7,7 +7,7 @@
 #include <common.h>
 #include <asm/types.h>
 #include <asm/io.h>
-#include <asm/fsl_dtsec.h>
+#include <fsl_dtsec.h>
 #include <fsl_mdio.h>
 #include <phy.h>
 

@@ -15,6 +15,7 @@ obj-$(CONFIG_CMD_ENTERRCM) += cmd_enterrcm.o
 obj-$(CONFIG_PWM_TEGRA) += pwm.o
 endif
 
+obj-$(CONFIG_ARM64) += arm64-mmu.o
 obj-y += ap.o
 obj-y += board.o board2.o
 obj-y += cache.o

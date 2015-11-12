@@ -12,6 +12,7 @@
 
 / {
 	model = "Samsung/Google Peach Pi board based on Exynos5800";
+	cpu-model = "Exynos5800";
 
 	compatible = "google,pit-rev#", "google,pit",
 		"google,peach", "samsung,exynos5800", "samsung,exynos5";

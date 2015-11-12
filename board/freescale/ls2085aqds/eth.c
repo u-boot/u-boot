@@ -8,7 +8,6 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/fsl_serdes.h>
-#include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include <hwconfig.h>
 #include <fsl_mdio.h>
 #include <malloc.h>
