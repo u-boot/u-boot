@@ -19,7 +19,7 @@
 
 #define CONFIG_PCI_PNP
 
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,vga\0" \
+#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd\0" \
 					"stdout=serial,vga\0" \
 					"stderr=serial,vga\0"
 
