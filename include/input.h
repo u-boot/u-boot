@@ -17,8 +17,8 @@ enum {
 enum {
 	/* Keyboard LEDs */
 	INPUT_LED_SCROLL	= 1 << 0,
-	INPUT_LED_CAPS		= 1 << 1,
-	INPUT_LED_NUM		= 1 << 2,
+	INPUT_LED_NUM		= 1 << 1,
+	INPUT_LED_CAPS		= 1 << 2,
 };
 
 /*

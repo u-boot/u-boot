@@ -19,9 +19,9 @@
 
 enum {
 	/* These correspond to the lights on the keyboard */
-	FLAG_NUM_LOCK		= 1 << 0,
-	FLAG_CAPS_LOCK		= 1 << 1,
-	FLAG_SCROLL_LOCK	= 1 << 2,
+	FLAG_SCROLL_LOCK	= 1 << 0,
+	FLAG_NUM_LOCK		= 1 << 1,
+	FLAG_CAPS_LOCK		= 1 << 2,
 
 	/* Special flag ORed with key code to indicate release */
 	KEY_RELEASE		= 1 << 15,
