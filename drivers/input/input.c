@@ -479,6 +479,12 @@ static int input_keycodes_to_ascii(struct input_config *config,
 			if ((config->flags & FLAG_CAPS_LOCK) &&
 			    ch >= 'a' && ch <= 'z')
 				ch -= 'a' - 'A';
+			/* ban digit numbers if 'Num Lock' is not on */
+			if (!(config->flags & FLAG_NUM_LOCK)) {
+				if (key >= KEY_KP7 && key <= KEY_KPDOT &&
+				    key != KEY_KPMINUS && key != KEY_KPPLUS)
+					ch = 0xff;
+			}
 			if (ch_count < max_chars && ch != 0xff)
 				output_ch[ch_count++] = (uchar)ch;
 		} else {
