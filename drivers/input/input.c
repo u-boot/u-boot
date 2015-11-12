@@ -267,7 +267,7 @@ static struct input_key_xlate *process_modifier(struct input_config *config,
 		if (flip != -1) {
 			int leds = 0;
 
-			config->leds ^= flip;
+			config->flags ^= flip;
 			if (config->flags & FLAG_NUM_LOCK)
 				leds |= INPUT_LED_NUM;
 			if (config->flags & FLAG_CAPS_LOCK)
