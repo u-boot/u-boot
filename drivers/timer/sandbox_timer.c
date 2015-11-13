@@ -27,10 +27,6 @@ static int sandbox_timer_get_count(struct udevice *dev, unsigned long *count)
 
 static int sandbox_timer_probe(struct udevice *dev)
 {
-	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-
-	uc_priv->clock_rate = 1000000;
-
 	return 0;
 }
 
