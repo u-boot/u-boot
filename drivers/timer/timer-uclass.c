@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <timer.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Implement a timer uclass to work with lib/time.c. The timer is usually
  * a 32 bits free-running up counter. The get_rate() method is used to get
@@ -35,8 +37,19 @@ unsigned long timer_get_rate(struct udevice *dev)
 	return uc_priv->clock_rate;
 }
 
+static int timer_pre_probe(struct udevice *dev)
+{
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	uc_priv->clock_rate = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					     "clock-frequency", 0);
+
+	return 0;
+}
+
 UCLASS_DRIVER(timer) = {
 	.id		= UCLASS_TIMER,
 	.name		= "timer",
+	.pre_probe	= timer_pre_probe,
 	.per_device_auto_alloc_size = sizeof(struct timer_dev_priv),
 };
