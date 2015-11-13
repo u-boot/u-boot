@@ -8,6 +8,7 @@
 #ifndef __MX6CUBOXI_CONFIG_H
 #define __MX6CUBOXI_CONFIG_H
 
+#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -137,7 +138,6 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
-#include <config_distro_defaults.h>
 #include <config_distro_bootcmd.h>
 
 #else
