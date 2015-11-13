@@ -79,6 +79,7 @@
 		"  ${filesize} && "					\
 		"protect on " __stringify(BOOTFLASH_START) "  +${filesize}\0"\
 	"set_fdthigh=true\0"						\
+	"checkfdt=true\0"						\
 	""
 
 #endif /* __CONFIG_KEYMILE_POWERPC_H */

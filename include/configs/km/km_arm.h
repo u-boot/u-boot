@@ -82,6 +82,12 @@
 	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.kwb\0"		\
 	CONFIG_KM_UPDATE_UBOOT						\
 	"set_fdthigh=setenv fdt_high ${kernelmem}\0"			\
+	"checkfdt="							\
+		"if cramfsls fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb; "	\
+		"then true; else setenv cramfsloadfdt true; "		\
+		"setenv boot bootm ${load_addr_r}; "			\
+		"echo No FDT found, booting with the kernel "		\
+		"appended one; fi\0"					\
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */

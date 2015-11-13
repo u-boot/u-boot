@@ -141,8 +141,9 @@
  * - 'release': for a standalone system		kernel/rootfs from flash
  */
 #define CONFIG_KM_DEF_ENV_BOOTTARGETS					\
-	"subbootcmds=ubiattach ubicopy cramfsloadfdt set_fdthigh "	\
-		"cramfsloadkernel flashargs add_default addpanic boot\0"\
+	"subbootcmds=ubiattach ubicopy checkfdt cramfsloadfdt "		\
+		"set_fdthigh cramfsloadkernel flashargs add_default "	\
+		"addpanic boot\0"					\
 	"develop="							\
 		"tftp 200000 scripts/develop-${arch}.txt && "		\
 		"env import -t 200000 ${filesize} && "			\
