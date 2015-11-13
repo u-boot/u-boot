@@ -8,7 +8,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
+#include <timer.h>
 #include <asm/io.h>
 #include <asm/i8254.h>
 #include <asm/ibmpc.h>
@@ -278,6 +280,7 @@ success:
 	return delta / 1000;
 }
 
+#ifndef CONFIG_TIMER
 void timer_set_base(u64 base)
 {
 	gd->arch.tsc_base = base;
@@ -297,10 +300,14 @@ u64 notrace get_ticks(void)
 		panic("No tick base available");
 	return now_tick - gd->arch.tsc_base;
 }
+#endif /* CONFIG_TIMER */
 
 /* Get the speed of the TSC timer in MHz */
 unsigned notrace long get_tbclk_mhz(void)
 {
+#ifdef CONFIG_TIMER
+	return get_tbclk() / 1000000;
+#else
 	unsigned long fast_calibrate;
 
 	if (gd->arch.tsc_mhz)
@@ -320,12 +327,15 @@ unsigned notrace long get_tbclk_mhz(void)
 
 	gd->arch.tsc_mhz = fast_calibrate;
 	return fast_calibrate;
+#endif
 }
 
+#ifndef CONFIG_TIMER
 unsigned long get_tbclk(void)
 {
 	return get_tbclk_mhz() * 1000 * 1000;
 }
+#endif
 
 static ulong get_ms_timer(void)
 {
@@ -375,3 +385,58 @@ int timer_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_TIMER
+static int tsc_timer_get_count(struct udevice *dev, u64 *count)
+{
+	u64 now_tick = rdtsc();
+
+	*count = now_tick - gd->arch.tsc_base;
+
+	return 0;
+}
+
+static int tsc_timer_probe(struct udevice *dev)
+{
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	gd->arch.tsc_base = rdtsc();
+
+	/*
+	 * If there is no clock frequency specified in the device tree,
+	 * calibrate it by ourselves.
+	 */
+	if (!uc_priv->clock_rate) {
+		unsigned long fast_calibrate;
+
+		fast_calibrate = try_msr_calibrate_tsc();
+		if (!fast_calibrate) {
+			fast_calibrate = quick_pit_calibrate();
+			if (!fast_calibrate)
+				panic("TSC frequency is ZERO");
+		}
+
+		uc_priv->clock_rate = fast_calibrate * 1000000;
+	}
+
+	return 0;
+}
+
+static const struct timer_ops tsc_timer_ops = {
+	.get_count = tsc_timer_get_count,
+};
+
+static const struct udevice_id tsc_timer_ids[] = {
+	{ .compatible = "x86,tsc-timer", },
+	{ }
+};
+
+U_BOOT_DRIVER(tsc_timer) = {
+	.name	= "tsc_timer",
+	.id	= UCLASS_TIMER,
+	.of_match = tsc_timer_ids,
+	.probe = tsc_timer_probe,
+	.ops	= &tsc_timer_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+#endif /* CONFIG_TIMER */
