@@ -10,10 +10,10 @@
 #include <timer.h>
 
 /*
- * Implement a Timer uclass to work with lib/time.c. The timer is usually
+ * Implement a timer uclass to work with lib/time.c. The timer is usually
  * a 32 bits free-running up counter. The get_rate() method is used to get
  * the input clock frequency of the timer. The get_count() method is used
- * get the current 32 bits count value. If the hardware is counting down,
+ * to get the current 32 bits count value. If the hardware is counting down,
  * the value should be inversed inside the method. There may be no real
  * tick, and no timer interrupt.
  */

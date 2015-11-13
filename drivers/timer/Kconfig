@@ -1,23 +1,23 @@
 menu "Timer Support"
 
 config TIMER
-	bool "Enable Driver Model for Timer drivers"
+	bool "Enable driver model for timer drivers"
 	depends on DM
 	help
-	  Enable driver model for Timer access. It uses the same API as
-	  lib/time.c. But now implemented by the uclass. The first timer
+	  Enable driver model for timer access. It uses the same API as
+	  lib/time.c, but now implemented by the uclass. The first timer
 	  will be used. The timer is usually a 32 bits free-running up
 	  counter. There may be no real tick, and no timer interrupt.
 
 config ALTERA_TIMER
-	bool "Altera Timer support"
+	bool "Altera timer support"
 	depends on TIMER
 	help
-	  Select this to enable an timer for Altera devices. Please find
+	  Select this to enable a timer for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
 config SANDBOX_TIMER
-	bool "Sandbox Timer support"
+	bool "Sandbox timer support"
 	depends on SANDBOX && TIMER
 	help
 	  Select this to enable an emulated timer for sandbox. It gets
