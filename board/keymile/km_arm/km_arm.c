@@ -55,6 +55,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PHY_MARVELL_88E1118R_LED_CTRL_LED1_ACT		(0x3<<4)
 #define PHY_MARVELL_88E1118R_LED_CTRL_LED2_LINK		(0x0<<8)
 
+/* I/O pin to erase flash RGPP09 = MPP43 */
+#define KM_FLASH_ERASE_ENABLE	43
+
 /* Multi-Purpose Pins Functionality configuration */
 static const u32 kwmpp_config[] = {
 	MPP0_NF_IO2,
@@ -201,8 +204,10 @@ int misc_init_r(void)
 {
 #if defined(CONFIG_KM_MGCOGE3UN)
 	char *wait_for_ne;
+	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
 	wait_for_ne = getenv("waitforne");
-	if (wait_for_ne != NULL) {
+
+	if ((wait_for_ne != NULL) && (dip_switch == 0)) {
 		if (strcmp(wait_for_ne, "true") == 0) {
 			int cnt = 0;
 			int abort = 0;
@@ -291,9 +296,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#if defined(CONFIG_KMCOGE5UN)
-/* I/O pin to erase flash RGPP09 = MPP43 */
-#define KM_FLASH_ERASE_ENABLE	43
+#if (defined(CONFIG_KMCOGE5UN) | defined(CONFIG_KM_MGCOGE3UN))
 	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
 
 	/* if pin 1 do full erase */
