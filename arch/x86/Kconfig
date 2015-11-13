@@ -279,26 +279,6 @@ config AP_STACK_SIZE
 	  the memory used by this initialisation process. Typically 4KB is
 	  enough space.
 
-config TSC_CALIBRATION_BYPASS
-	bool "Bypass Time-Stamp Counter (TSC) calibration"
-	default n
-	help
-	  By default U-Boot automatically calibrates Time-Stamp Counter (TSC)
-	  running frequency via Model-Specific Register (MSR) and Programmable
-	  Interval Timer (PIT). If the calibration does not work on your board,
-	  select this option and provide a hardcoded TSC running frequency with
-	  CONFIG_TSC_FREQ_IN_MHZ below.
-
-	  Normally this option should be turned on in a simulation environment
-	  like qemu.
-
-config TSC_FREQ_IN_MHZ
-	int "Time-Stamp Counter (TSC) running frequency in MHz"
-	depends on TSC_CALIBRATION_BYPASS
-	default 1000
-	help
-	  The running frequency in MHz of Time-Stamp Counter (TSC).
-
 config HAVE_VGA_BIOS
 	bool "Add a VGA BIOS image"
 	help

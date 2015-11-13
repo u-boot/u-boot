@@ -280,62 +280,11 @@ success:
 	return delta / 1000;
 }
 
-#ifndef CONFIG_TIMER
-void timer_set_base(u64 base)
-{
-	gd->arch.tsc_base = base;
-}
-
-/*
- * Get the number of CPU time counter ticks since it was read first time after
- * restart. This yields a free running counter guaranteed to take almost 6
- * years to wrap around even at 100GHz clock rate.
- */
-u64 notrace get_ticks(void)
-{
-	u64 now_tick = rdtsc();
-
-	/* We assume that 0 means the base hasn't been set yet */
-	if (!gd->arch.tsc_base)
-		panic("No tick base available");
-	return now_tick - gd->arch.tsc_base;
-}
-#endif /* CONFIG_TIMER */
-
 /* Get the speed of the TSC timer in MHz */
 unsigned notrace long get_tbclk_mhz(void)
 {
-#ifdef CONFIG_TIMER
 	return get_tbclk() / 1000000;
-#else
-	unsigned long fast_calibrate;
-
-	if (gd->arch.tsc_mhz)
-		return gd->arch.tsc_mhz;
-
-#ifdef CONFIG_TSC_CALIBRATION_BYPASS
-	fast_calibrate = CONFIG_TSC_FREQ_IN_MHZ;
-#else
-	fast_calibrate = try_msr_calibrate_tsc();
-	if (!fast_calibrate) {
-
-		fast_calibrate = quick_pit_calibrate();
-		if (!fast_calibrate)
-			panic("TSC frequency is ZERO");
-	}
-#endif
-
-	gd->arch.tsc_mhz = fast_calibrate;
-	return fast_calibrate;
-#endif
 }
-
-#ifndef CONFIG_TIMER
-unsigned long get_tbclk(void)
-{
-	return get_tbclk_mhz() * 1000 * 1000;
-}
-#endif
 
 static ulong get_ms_timer(void)
 {
@@ -386,7 +335,6 @@ int timer_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_TIMER
 static int tsc_timer_get_count(struct udevice *dev, u64 *count)
 {
 	u64 now_tick = rdtsc();
@@ -439,4 +387,3 @@ U_BOOT_DRIVER(tsc_timer) = {
 	.ops	= &tsc_timer_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
-#endif /* CONFIG_TIMER */

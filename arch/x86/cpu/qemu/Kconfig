@@ -6,7 +6,6 @@
 
 config QEMU
 	bool
-	select TSC_CALIBRATION_BYPASS
 
 if QEMU
 
