@@ -296,7 +296,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#if (defined(CONFIG_KMCOGE5UN) | defined(CONFIG_KM_MGCOGE3UN))
+#if (defined(CONFIG_KM_COGE5UN) | defined(CONFIG_KM_MGCOGE3UN))
 	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
 
 	/* if pin 1 do full erase */
