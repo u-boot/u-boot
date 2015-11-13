@@ -641,24 +641,6 @@ int cpu_jump_to_64bit(ulong setup_base, ulong target)
 
 void show_boot_progress(int val)
 {
-#if MIN_PORT80_KCLOCKS_DELAY
-	/*
-	 * Scale the time counter reading to avoid using 64 bit arithmetics.
-	 * Can't use get_timer() here becuase it could be not yet
-	 * initialized or even implemented.
-	 */
-	if (!gd->arch.tsc_prev) {
-		gd->arch.tsc_base_kclocks = rdtsc() / 1000;
-		gd->arch.tsc_prev = 0;
-	} else {
-		uint32_t now;
-
-		do {
-			now = rdtsc() / 1000 - gd->arch.tsc_base_kclocks;
-		} while (now < (gd->arch.tsc_prev + MIN_PORT80_KCLOCKS_DELAY));
-		gd->arch.tsc_prev = now;
-	}
-#endif
 	outb(val, POST_PORT);
 }
 
