@@ -20,10 +20,6 @@
 #include <asm/ibmpc.h>
 #include <asm/interrupt.h>
 
-#if CONFIG_SYS_NUM_IRQS != 16
-#error "CONFIG_SYS_NUM_IRQS must equal 16 if CONFIG_SYS_NUM_IRQS is defined"
-#endif
-
 int i8259_init(void)
 {
 	u8 i;
@@ -32,10 +28,11 @@ int i8259_init(void)
 	outb(0xff, MASTER_PIC + IMR);
 	outb(0xff, SLAVE_PIC + IMR);
 
-	/* Master PIC */
-	/* Place master PIC interrupts at INT20 */
-	/* ICW3, One slave PIC is present */
-	outb(ICW1_SEL|ICW1_EICW4, MASTER_PIC + ICW1);
+	/*
+	 * Master PIC
+	 * Place master PIC interrupts at INT20
+	 */
+	outb(ICW1_SEL | ICW1_EICW4, MASTER_PIC + ICW1);
 	outb(0x20, MASTER_PIC + ICW2);
 	outb(IR2, MASTER_PIC + ICW3);
 	outb(ICW4_PM, MASTER_PIC + ICW4);
@@ -43,10 +40,11 @@ int i8259_init(void)
 	for (i = 0; i < 8; i++)
 		outb(OCW2_SEOI | i, MASTER_PIC + OCW2);
 
-	/* Slave PIC */
-	/* Place slave PIC interrupts at INT28 */
-	/* Slave ID */
-	outb(ICW1_SEL|ICW1_EICW4, SLAVE_PIC + ICW1);
+	/*
+	 * Slave PIC
+	 * Place slave PIC interrupts at INT28
+	 */
+	outb(ICW1_SEL | ICW1_EICW4, SLAVE_PIC + ICW1);
 	outb(0x28, SLAVE_PIC + ICW2);
 	outb(0x02, SLAVE_PIC + ICW3);
 	outb(ICW4_PM, SLAVE_PIC + ICW4);
@@ -70,7 +68,7 @@ void mask_irq(int irq)
 {
 	int imr_port;
 
-	if (irq >= CONFIG_SYS_NUM_IRQS)
+	if (irq >= SYS_NUM_IRQS)
 		return;
 
 	if (irq > 7)
@@ -85,7 +83,7 @@ void unmask_irq(int irq)
 {
 	int imr_port;
 
-	if (irq >= CONFIG_SYS_NUM_IRQS)
+	if (irq >= SYS_NUM_IRQS)
 		return;
 
 	if (irq > 7)
@@ -98,7 +96,7 @@ void unmask_irq(int irq)
 
 void specific_eoi(int irq)
 {
-	if (irq >= CONFIG_SYS_NUM_IRQS)
+	if (irq >= SYS_NUM_IRQS)
 		return;
 
 	if (irq > 7) {
@@ -114,9 +112,6 @@ void specific_eoi(int irq)
 	outb(OCW2_SEOI | irq, MASTER_PIC + OCW2);
 }
 
-#define ELCR1			0x4d0
-#define ELCR2			0x4d1
-
 void configure_irq_trigger(int int_num, bool is_level_triggered)
 {
 	u16 int_bits = inb(ELCR1) | (((u16)inb(ELCR2)) << 8);
@@ -131,20 +126,4 @@ void configure_irq_trigger(int int_num, bool is_level_triggered)
 	debug("%s: try to set interrupts 0x%x\n", __func__, int_bits);
 	outb((u8)(int_bits & 0xff), ELCR1);
 	outb((u8)(int_bits >> 8), ELCR2);
-
-#ifdef PARANOID_IRQ_TRIGGERS
-	/*
-	 * Try reading back the new values. This seems like an error but is
-	 * not
-	 */
-	if (inb(ELCR1) != (int_bits & 0xff)) {
-		printf("%s: lower order bits are wrong: want 0x%x, got 0x%x\n",
-		       __func__, (int_bits & 0xff), inb(ELCR1));
-	}
-
-	if (inb(ELCR2) != (int_bits >> 8)) {
-		printf("%s: higher order bits are wrong: want 0x%x, got 0x%x\n",
-		       __func__, (int_bits>>8), inb(ELCR2));
-	}
-#endif
 }

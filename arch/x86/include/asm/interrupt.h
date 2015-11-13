@@ -13,6 +13,8 @@
 
 #include <asm/types.h>
 
+#define SYS_NUM_IRQS	16
+
 /* Architecture defined exceptions */
 enum x86_exception {
 	EXC_DE = 0,

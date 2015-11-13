@@ -368,9 +368,9 @@ void __udelay(unsigned long usec)
 
 int timer_init(void)
 {
-#ifdef CONFIG_SYS_PCAT_TIMER
-	/* Set up the PCAT timer if required */
-	pcat_timer_init();
+#ifdef CONFIG_I8254_TIMER
+	/* Set up the i8254 timer if required */
+	i8254_init();
 #endif
 
 	return 0;

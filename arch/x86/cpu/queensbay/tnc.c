@@ -25,12 +25,26 @@ static void unprotect_spi_flash(void)
 
 static void __maybe_unused disable_igd(void)
 {
-	u32 gc;
-
-	gc = x86_pci_read_config32(TNC_IGD, IGD_GC);
-	gc &= ~GMS_MASK;
-	gc |= VGA_DISABLE;
-	x86_pci_write_config32(TNC_IGD, IGD_GC, gc);
+	/*
+	 * According to Atom E6xx datasheet, setting VGA Disable (bit17)
+	 * of Graphics Controller register (offset 0x50) prevents IGD
+	 * (D2:F0) from reporting itself as a VGA display controller
+	 * class in the PCI configuration space, and should also prevent
+	 * it from responding to VGA legacy memory range and I/O addresses.
+	 *
+	 * However test result shows that with just VGA Disable bit set and
+	 * a PCIe graphics card connected to one of the PCIe controllers on
+	 * the E6xx, accessing the VGA legacy space still causes system hang.
+	 * After a number of attempts, it turns out besides VGA Disable bit,
+	 * the SDVO (D3:F0) device should be disabled to make it work.
+	 *
+	 * To simplify, use the Function Disable register (offset 0xc4)
+	 * to disable both IGD (D2:F0) and SDVO (D3:F0) devices. Now these
+	 * two devices will be completely disabled (invisible in the PCI
+	 * configuration space) unless a system reset is performed.
+	 */
+	x86_pci_write_config32(TNC_IGD, IGD_FD, FUNC_DISABLE);
+	x86_pci_write_config32(TNC_SDVO, IGD_FD, FUNC_DISABLE);
 }
 
 int arch_cpu_init(void)

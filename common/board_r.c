@@ -837,8 +837,7 @@ init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_ARM) || defined(CONFIG_AVR32)
 	initr_enable_interrupts,
 #endif
-#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32) \
-	|| defined(CONFIG_M68K)
+#if defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32) || defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_STATUS_LED)

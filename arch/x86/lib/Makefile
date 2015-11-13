@@ -19,8 +19,8 @@ obj-y	+= lpc-uclass.o
 obj-y	+= mpspec.o
 obj-$(CONFIG_ENABLE_MRC_CACHE) += mrccache.o
 obj-y += cmd_mtrr.o
-obj-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
-obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
+obj-$(CONFIG_I8259_PIC) += i8259.o
+obj-$(CONFIG_I8254_TIMER) += i8254.o
 ifndef CONFIG_DM_PCI
 obj-$(CONFIG_PCI) += pci_type1.o
 endif
