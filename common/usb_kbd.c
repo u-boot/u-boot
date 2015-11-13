@@ -476,6 +476,9 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 				      USB_KBD_BOOT_REPORT_SIZE, data->new,
 				      data->intinterval);
 	if (!data->intq) {
+#elif defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
+	if (usb_get_report(dev, iface->desc.bInterfaceNumber,
+			   1, 0, data->new, USB_KBD_BOOT_REPORT_SIZE) < 0) {
 #else
 	if (usb_submit_int_msg(dev, data->intpipe, data->new, data->intpktsize,
 			       data->intinterval) < 0) {
