@@ -56,6 +56,10 @@
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_PROMPT "Hit <SPACE> key to stop autoboot in %2ds\n"
+#define CONFIG_AUTOBOOT_STOP_STR        " "
+
 /* Support the IVM EEprom */
 #define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
 #define CONFIG_SYS_IVM_EEPROM_MAX_LEN	0x400
