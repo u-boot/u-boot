@@ -2,9 +2,6 @@
  * Copyright (C) 2007,
  * Daniel Hellstrom, daniel@gaisler.com
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -16,6 +13,12 @@
 #include <asm/stack.h>
 #include <asm/leon.h>
 #include <version.h>
+#include <ambapp.h>
+
+/* Default Plug&Play I/O area */
+#ifndef CONFIG_AMBAPP_IOAREA
+#define CONFIG_AMBAPP_IOAREA AMBA_DEFAULT_IOAREA
+#endif
 
 /* Entry for traps which jump to a programmer-specified trap handler.  */
 #define TRAPR(H)  \
@@ -58,6 +61,27 @@ MINFRAME = (WINDOWSIZE + ARGPUSHSIZE + 4)
 /* Number of register windows */
 #ifndef CONFIG_SYS_SPARC_NWINDOWS
 #error Must define number of SPARC register windows, default is 8
+#endif
+
+/* Macros to load address into a register. Uses GOT table for PIC */
+#ifdef __PIC__
+
+#define SPARC_PIC_THUNK_CALL(reg) \
+	sethi	%pc22(_GLOBAL_OFFSET_TABLE_-4), %##reg; \
+	call	__sparc_get_pc_thunk.reg; \
+	 add	%##reg, %pc10(_GLOBAL_OFFSET_TABLE_+4), %##reg;
+
+#define SPARC_LOAD_ADDRESS(sym, got, reg) \
+	sethi	%gdop_hix22(sym), %##reg; \
+	xor	%##reg, %gdop_lox10(sym), %##reg; \
+	ld	[%##got + %##reg], %##reg, %gdop(sym);
+
+#else
+
+#define SPARC_PIC_THUNK_CALL(reg)
+#define SPARC_LOAD_ADDRESS(sym, got, tmp) \
+	set	sym, %##reg;
+
 #endif
 
 #define STACK_ALIGN	8
@@ -190,6 +214,7 @@ version_string:
 	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	.section	".text"
+	.extern	_nomem_amba_init, _nomem_memory_ctrl_init
 	.align 4
 
 _hardreset:
@@ -232,7 +257,7 @@ clear_window:
 	bge	clear_window
 	save
 
-wininit:
+wiminit:
 	set	WIM_INIT, %g3
 	mov	%g3, %wim
 
@@ -241,9 +266,41 @@ stackp:
 	andn	%fp, 0x0f, %fp
 	sub	%fp, 64, %sp
 
+/* Obtain the address of _GLOBAL_OFFSET_TABLE_ */
+	SPARC_PIC_THUNK_CALL(l7)
+
+/* Scan AMBA Bus for AMBA buses using PnP information. All found
+ * AMBA buses I/O area will be located in i0-i5 upon return.
+ * The i0-i5 registers are later used by _nomem_amba_init2
+ */
+ambainit:
+	call	_nomem_amba_init
+	 sethi	%hi(CONFIG_AMBAPP_IOAREA), %o0
+
+/* Scan AMBA Buses for memory controllers, then initialize the
+ * memory controllers. Note that before setting up the memory controller
+ * the stack can not be used.
+ */
+memory_ctrl_init:
+	SPARC_LOAD_ADDRESS(grlib_mctrl_handlers, l7, o0)
+
+	call	_nomem_memory_ctrl_init
+	 nop
+
+/* The return valu indicate how many memory controllers where found and
+ * initialized, if no memory controller was initialized, we can not continue
+ * because from here on we expect memory to be working.
+ */
+	cmp	%o0, 0
+memory_ctrl_init_failed:
+	beq	memory_ctrl_init_failed
+	 nop
+
+/*** From now on the stack can be used. ***/
+
 cpu_init_unreloc:
 	call	cpu_init_f
-	nop
+	 nop
 
 /* un relocated start address of monitor */
 #define TEXT_START _text
@@ -252,8 +309,8 @@ cpu_init_unreloc:
 #define DATA_END __init_end
 
 reloc:
-	set	TEXT_START,%g2
-	set	DATA_END,%g3
+	SPARC_LOAD_ADDRESS(TEXT_START, l7, g2)
+	SPARC_LOAD_ADDRESS(DATA_END, l7, g3)
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g4
 reloc_loop:
 	ldd	[%g2],%l0
@@ -263,7 +320,7 @@ reloc_loop:
 	inc	16,%g2
 	subcc	%g3,%g2,%g0
 	bne	reloc_loop
-	inc	16,%g4
+	 inc	16,%g4
 
 	clr	%l0
 	clr	%l1
@@ -280,8 +337,8 @@ reloc_loop:
 
 clr_bss:
 /* clear bss area (the relocated) */
-	set	__bss_start,%g2
-	set	__bss_end,%g3
+	SPARC_LOAD_ADDRESS(__bss_start, l7, g2)
+	SPARC_LOAD_ADDRESS(__bss_end, l7, g3)
 	sub	%g3,%g2,%g3
 	add	%g3,%g4,%g3
 	clr	%g1	/* std %g0 uses g0 and g1 */
@@ -292,19 +349,19 @@ clr_bss_16:
 	inc	16,%g4
 	cmp	%g3,%g4
 	bne	clr_bss_16
-	nop
+	 nop
 
 /* add offsets to GOT table */
 fixup_got:
-	set	__got_start,%g4
-	set	__got_end,%g3
+	SPARC_LOAD_ADDRESS(__got_start, l7, g4)
+	SPARC_LOAD_ADDRESS(__got_end, l7, g3)
 /*
  * new got offset = (old GOT-PTR (read with ld) -
  *   CONFIG_SYS_RELOC_MONITOR_BASE(from define) ) +
  *   Destination Address (from define)
  */
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g2
-	set	TEXT_START, %g1
+	SPARC_LOAD_ADDRESS(TEXT_START, l7, g1)
 	add	%g4,%g2,%g4
 	sub	%g4,%g1,%g4
 	add	%g3,%g2,%g3
@@ -319,11 +376,11 @@ got_loop:
 	inc	4,%g4
 	cmp	%g3,%g4
 	bne	got_loop
-	nop
+	 nop
 
 prom_relocate:
-	set	__prom_start, %g2
-	set	__prom_end, %g3
+	SPARC_LOAD_ADDRESS(__prom_start, l7, g2)
+	SPARC_LOAD_ADDRESS(__prom_end, l7, g3)
 	set	CONFIG_SYS_PROM_OFFSET, %g4
 
 prom_relocate_loop:
@@ -334,7 +391,7 @@ prom_relocate_loop:
 	inc	16,%g2
 	subcc	%g3,%g2,%g0
 	bne	prom_relocate_loop
-	inc	16,%g4
+	 inc	16,%g4
 
 /* Trap table has been moved, lets tell CPU about
  * the new trap table address
@@ -361,19 +418,20 @@ snoop_detect:
 	nop
 /* Call relocated init functions */
 jump:
-	set	cpu_init_f2,%o1
+	SPARC_LOAD_ADDRESS(cpu_init_f2, l7, o1)
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
 	add	%o1,%o2,%o1
 	sub	%o1,%g1,%o1
 	call	%o1
-	clr	%o0
+	 clr	%o0
 
-	set	board_init_f,%o1
+	SPARC_LOAD_ADDRESS(board_init_f, l7, o1)
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
+	SPARC_LOAD_ADDRESS(TEXT_START, l7, g1)
 	add	%o1,%o2,%o1
 	sub	%o1,%g1,%o1
 	call	%o1
-	clr	%o0
+	 clr	%o0
 
 dead:	ta 0				! if call returns...
 	nop

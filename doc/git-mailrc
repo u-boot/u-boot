@@ -106,7 +106,7 @@ alias ppc4xx         uboot, stroese
 alias sandbox        sjg
 alias sb             sandbox
 
-alias sparc          uboot, Daniel Hellstrom <daniel@gaisler.com>
+alias sparc          uboot, Francois Retief <fgretief@spaceteq.co.za>
 
 alias superh         uboot, iwamatsu
 alias sh             superh

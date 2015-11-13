@@ -690,11 +690,11 @@ void handle_usb_interrupt(void)
  */
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
-	unsigned char temp;
 	ambapp_ahbdev ahbdev;
 
 	/* Find GRUSB core using AMBA Plug&Play information */
-	if (ambapp_ahbslv_first(VENDOR_GAISLER, GAISLER_UHCI, &ahbdev) != 1) {
+	if (ambapp_ahbslv_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_UHCI,
+		CONFIG_SYS_GRLIB_GRUSB_INDEX, &ahbdev) != 1) {
 		printf("USB UHCI: Failed to find GRUSB controller\n");
 		return -1;
 	}

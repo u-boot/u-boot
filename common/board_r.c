@@ -46,6 +46,9 @@
 #include <stdio_dev.h>
 #include <trace.h>
 #include <watchdog.h>
+#ifdef CONFIG_CMD_AMBAPP
+#include <ambapp.h>
+#endif
 #ifdef CONFIG_ADDR_MAP
 #include <asm/mmu.h>
 #endif
@@ -559,6 +562,18 @@ static int initr_status_led(void)
 }
 #endif
 
+#if defined(CONFIG_CMD_AMBAPP) && defined(CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP)
+extern int do_ambapp_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+
+static int initr_ambapp_print(void)
+{
+	puts("AMBA:\n");
+	do_ambapp_print(NULL, 0, 0, NULL);
+
+	return 0;
+}
+#endif
+
 #if defined(CONFIG_CMD_SCSI)
 static int initr_scsi(void)
 {
@@ -849,6 +864,12 @@ init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
+#endif
+#if defined(CONFIG_CMD_AMBAPP)
+	ambapp_init_reloc,
+#if defined(CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP)
+	initr_ambapp_print,
+#endif
 #endif
 #ifdef CONFIG_CMD_SCSI
 	INIT_FUNC_WATCHDOG_RESET

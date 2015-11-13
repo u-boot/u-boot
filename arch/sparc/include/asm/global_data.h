@@ -15,6 +15,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	void *uart;
 };
 
 #include <asm-generic/global_data.h>

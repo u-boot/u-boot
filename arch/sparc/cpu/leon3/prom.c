@@ -15,13 +15,17 @@
 #include <asm/irq.h>
 #include <asm/leon.h>
 #include <ambapp.h>
+#include <grlib/apbuart.h>
+#include <grlib/irqmp.h>
+#include <grlib/gptimer.h>
 
 #include <config.h>
 /*
 #define PRINT_ROM_VEC
 */
 extern struct linux_romvec *kernel_arg_promvec;
-extern ambapp_dev_apbuart *leon3_apbuart;
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define PROM_PGT __attribute__ ((__section__ (".prom.pgt")))
 #define PROM_TEXT __attribute__ ((__section__ (".prom.text")))
@@ -740,14 +744,14 @@ static int PROM_TEXT leon_nbputchar(int c)
 
 	/* Wait for last character to go. */
 	while (!(SPARC_BYPASS_READ(&uart->status)
-		 & LEON_REG_UART_STATUS_THE)) ;
+		 & APBUART_STATUS_THE));
 
 	/* Send data */
 	SPARC_BYPASS_WRITE(&uart->data, c);
 
 	/* Wait for data to be sent */
 	while (!(SPARC_BYPASS_READ(&uart->status)
-		 & LEON_REG_UART_STATUS_TSE)) ;
+		 & APBUART_STATUS_TSE));
 
 	return 0;
 }
@@ -909,7 +913,7 @@ void leon_prom_init(struct leon_prom_info *pspi)
 	pspi->avail.num_bytes = pspi->totphys.num_bytes;
 
 	/* Set the pointer to the Console UART in romvec */
-	pspi->reloc_funcs.leon3_apbuart = leon3_apbuart;
+	pspi->reloc_funcs.leon3_apbuart = gd->arch.uart;
 
 	{
 		int j = 1;
