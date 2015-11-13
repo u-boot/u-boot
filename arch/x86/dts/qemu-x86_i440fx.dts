@@ -12,6 +12,7 @@
 /include/ "serial.dtsi"
 /include/ "keyboard.dtsi"
 /include/ "rtc.dtsi"
+/include/ "tsc_timer.dtsi"
 
 / {
 	model = "QEMU x86 (I440FX)";
@@ -42,6 +43,10 @@
 			reg = <1>;
 			intel,apic-id = <1>;
 		};
+	};
+
+	tsc-timer {
+		clock-frequency = <1000000000>;
 	};
 
 	pci {

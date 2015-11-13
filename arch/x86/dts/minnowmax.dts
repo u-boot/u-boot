@@ -12,6 +12,7 @@
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
 /include/ "rtc.dtsi"
+/include/ "tsc_timer.dtsi"
 
 / {
 	model = "Intel Minnowboard Max";

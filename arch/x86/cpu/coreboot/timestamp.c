@@ -27,28 +27,6 @@ static struct timestamp_table *ts_table  __attribute__((section(".data")));
 
 void timestamp_init(void)
 {
-#ifdef CONFIG_SYS_X86_TSC_TIMER
-	uint64_t base_time;
-#endif
-
-	ts_table = lib_sysinfo.tstamp_table;
-#ifdef CONFIG_SYS_X86_TSC_TIMER
-	/*
-	 * If coreboot is built with CONFIG_COLLECT_TIMESTAMPS, use the value
-	 * of base_time in coreboot's timestamp table as our timer base,
-	 * otherwise TSC counter value will be used.
-	 *
-	 * Sometimes even coreboot is built with CONFIG_COLLECT_TIMESTAMPS,
-	 * the value of base_time in the timestamp table is still zero, so
-	 * we must exclude this case too (this is currently seen on booting
-	 * coreboot in qemu)
-	 */
-	if (ts_table && ts_table->base_time)
-		base_time = ts_table->base_time;
-	else
-		base_time = rdtsc();
-	timer_set_base(base_time);
-#endif
 	timestamp_add_now(TS_U_BOOT_INITTED);
 }
 

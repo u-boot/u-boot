@@ -10,10 +10,6 @@
 
 int arch_cpu_init(void)
 {
-#ifdef CONFIG_SYS_X86_TSC_TIMER
-	timer_set_base(rdtsc());
-#endif
-
 	return 0;
 }
 

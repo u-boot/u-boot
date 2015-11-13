@@ -12,6 +12,7 @@
 /include/ "serial.dtsi"
 /include/ "keyboard.dtsi"
 /include/ "rtc.dtsi"
+/include/ "tsc_timer.dtsi"
 
 / {
 	model = "Intel Crown Bay";

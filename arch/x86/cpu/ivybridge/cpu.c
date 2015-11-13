@@ -118,7 +118,6 @@ static void set_spi_speed(void)
 int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
-	timer_set_base(rdtsc());
 
 	return x86_cpu_init_f();
 }

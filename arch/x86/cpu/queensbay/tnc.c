@@ -52,9 +52,6 @@ int arch_cpu_init(void)
 	int ret;
 
 	post_code(POST_CPU_INIT);
-#ifdef CONFIG_SYS_X86_TSC_TIMER
-	timer_set_base(rdtsc());
-#endif
 
 	ret = x86_cpu_init_f();
 	if (ret)
