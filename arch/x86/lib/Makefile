@@ -34,7 +34,6 @@ obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y	+= string.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 obj-y	+= tables.o
-obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 obj-$(CONFIG_HAVE_FSP) += fsp/
 

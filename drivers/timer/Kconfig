@@ -23,4 +23,11 @@ config SANDBOX_TIMER
 	  Select this to enable an emulated timer for sandbox. It gets
 	  time from host os.
 
+config X86_TSC_TIMER
+	bool "x86 Time-Stamp Counter (TSC) timer support"
+	depends on TIMER && X86
+	default y if X86
+	help
+	  Select this to enable Time-Stamp Counter (TSC) timer for x86.
+
 endmenu
