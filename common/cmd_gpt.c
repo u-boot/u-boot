@@ -367,7 +367,10 @@ static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	"GUID Partition Table",
 	"<command> <interface> <dev> <partitions_list>\n"
-	" - GUID partition table restoration\n"
-	" Restore GPT information on a device connected\n"
+	" - GUID partition table restoration and validity check\n"
+	" Restore or verify GPT information on a device connected\n"
 	" to interface\n"
+	" Example usage:\n"
+	" gpt write mmc 0 $partitions\n"
+	" gpt verify mmc 0 $partitions\n"
 );
