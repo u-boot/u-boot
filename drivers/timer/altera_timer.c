@@ -75,8 +75,9 @@ static int altera_timer_ofdata_to_platdata(struct udevice *dev)
 {
 	struct altera_timer_platdata *plat = dev_get_platdata(dev);
 
-	plat->regs = ioremap(dev_get_addr(dev),
-		sizeof(struct altera_timer_regs));
+	plat->regs = map_physmem(dev_get_addr(dev),
+				 sizeof(struct altera_timer_regs),
+				 MAP_NOCACHE);
 	plat->clock_rate = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 		"clock-frequency", 0);
 
