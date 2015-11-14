@@ -608,7 +608,7 @@ static int altera_tse_probe(struct udevice *dev)
 		addr = fdt_translate_address((void *)blob,
 					     node, cell + idx);
 		size = fdt_addr_to_cpu(cell[idx + addrc]);
-		base = ioremap(addr, size);
+		base = map_physmem(addr, size, MAP_NOCACHE);
 		len = strlen(list);
 		if (strcmp(list, "control_port") == 0)
 			priv->mac_dev = base;
