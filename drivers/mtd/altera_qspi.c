@@ -243,7 +243,7 @@ static int altera_qspi_ofdata_to_platdata(struct udevice *dev)
 		addr = fdt_translate_address((void *)blob,
 					     node, cell + idx);
 		size = fdt_addr_to_cpu(cell[idx + addrc]);
-		base = ioremap(addr, size);
+		base = map_physmem(addr, size, MAP_NOCACHE);
 		len = strlen(list);
 		if (strcmp(list, "avl_csr") == 0) {
 			pdata->regs = base;
