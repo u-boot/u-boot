@@ -19,6 +19,6 @@ static inline void *dma_alloc_coherent(size_t len, unsigned long *handle)
 	if (handle)
 		*handle = addr;
 
-	return ioremap(addr, len);
+	return map_physmem(addr, len, MAP_NOCACHE);
 }
 #endif /* __ASM_NIOS2_DMA_MAPPING_H */
