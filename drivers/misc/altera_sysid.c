@@ -76,8 +76,9 @@ static int altera_sysid_ofdata_to_platdata(struct udevice *dev)
 {
 	struct altera_sysid_platdata *plat = dev_get_platdata(dev);
 
-	plat->regs = ioremap(dev_get_addr(dev),
-		sizeof(struct altera_sysid_regs));
+	plat->regs = map_physmem(dev_get_addr(dev),
+				 sizeof(struct altera_sysid_regs),
+				 MAP_NOCACHE);
 
 	return 0;
 }
