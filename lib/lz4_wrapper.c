@@ -94,7 +94,9 @@ int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn)
 	}
 
 	while (1) {
-		struct lz4_block_header b = { .raw = le32_to_cpu(*(u32 *)in) };
+		struct lz4_block_header b;
+
+		b.raw = le32_to_cpu(*(u32 *)in);
 		in += sizeof(struct lz4_block_header);
 
 		if (in - src + b.size > srcn) {
