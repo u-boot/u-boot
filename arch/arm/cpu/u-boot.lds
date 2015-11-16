@@ -14,6 +14,23 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
+	/*
+	 * Discard the relocation entries for secure text.
+	 * The secure code is bundled with u-boot image, so there will
+	 * be relocations entries for the secure code, since we use
+	 * "-mword-relocations" to compile and "-pie" to link into the
+	 * final image. We do not need the relocation entries for secure
+	 * code, because secure code will not be relocated, it only needs
+	 * to be copied from loading address to CONFIG_ARMV7_SECURE_BASE,
+	 * which is the linking and running address for secure code.
+	 * If keep the relocation entries in .rel.dyn section,
+	 * "relocation offset + linking address" may locates into an
+	 * address that is reserved by SoC, then will trigger data abort.
+	 *
+	 * The reason that move .rel._secure at the beginning, is to
+	 * avoid hole in the final image.
+	 */
+	/DISCARD/ : { *(.rel._secure*) }
 	. = 0x00000000;
 
 	. = ALIGN(4);

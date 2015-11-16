@@ -19,7 +19,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONSOLE_DEV		"ttymxc0"
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"
-#define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 

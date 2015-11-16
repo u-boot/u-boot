@@ -19,3 +19,8 @@ splashsource works as follows:
   use that splash location.
 - If splashsource is undefined, use the first splash location as default.
 - If splashsource is set to an unsupported value, do not load a splash screen.
+
+A splash source location can describe either storage with raw data, or storage
+formatted with a file system. In case of a filesystem, the splash screen data is
+loaded as a file. The name of the splash screen file can be controlled with the
+environment variable "splashfile".

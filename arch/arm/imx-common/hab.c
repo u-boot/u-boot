@@ -5,11 +5,13 @@
  */
 
 #include <common.h>
+#include <config.h>
+#include <fuse.h>
 #include <asm/io.h>
 #include <asm/system.h>
-#include <asm/arch/hab.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/imx-common/hab.h>
 
 /* -------- start of HAB API updates ------------*/
 
@@ -79,6 +81,8 @@
 #define MX6DQ_PU_IROM_MMU_EN_VAR	0x009024a8
 #define MX6DLS_PU_IROM_MMU_EN_VAR	0x00901dd0
 #define MX6SL_PU_IROM_MMU_EN_VAR	0x00900a18
+#define IS_HAB_ENABLED_BIT \
+	(is_soc_type(MXC_SOC_MX7) ? 0x2000000 : 0x2)
 
 /*
  * +------------+  0x0 (DDR_UIMAGE_START) -
@@ -260,13 +264,18 @@ uint8_t hab_engines[16] = {
 
 bool is_hab_enabled(void)
 {
-	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
-	struct fuse_bank *bank = &ocotp->bank[0];
-	struct fuse_bank0_regs *fuse =
-		(struct fuse_bank0_regs *)bank->fuse_regs;
-	uint32_t reg = readl(&fuse->cfg5);
+	struct imx_sec_config_fuse_t *fuse =
+		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
+	uint32_t reg;
+	int ret;
 
-	return (reg & 0x2) == 0x2;
+	ret = fuse_read(fuse->bank, fuse->word, &reg);
+	if (ret) {
+		puts("\nSecure boot fuse read error\n");
+		return ret;
+	}
+
+	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
 }
 
 static inline uint8_t get_idx(uint8_t *list, uint8_t tgt)
@@ -414,7 +423,7 @@ uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
 			 * crash.
 			 */
 			/* Check MMU enabled */
-			if (get_cr() & CR_M) {
+			if (is_soc_type(MXC_SOC_MX6) && get_cr() & CR_M) {
 				if (is_cpu_type(MXC_CPU_MX6Q) ||
 				    is_cpu_type(MXC_CPU_MX6D)) {
 					/*

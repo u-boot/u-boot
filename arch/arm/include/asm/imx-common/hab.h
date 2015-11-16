@@ -85,6 +85,15 @@ enum hab_context {
 	HAB_CTX_MAX
 };
 
+struct imx_sec_config_fuse_t {
+	int bank;
+	int word;
+};
+
+#if defined(CONFIG_SECURE_BOOT)
+extern struct imx_sec_config_fuse_t const imx_sec_config_fuse;
+#endif
+
 /*Function prototype description*/
 typedef enum hab_status hab_rvt_report_event_t(enum hab_status, uint32_t,
 		uint8_t* , size_t*);
@@ -113,7 +122,7 @@ typedef void hapi_clock_init_t(void);
 #define HAB_ENG_RTL		0x77   /* RTL simulation engine */
 #define HAB_ENG_SW		0xff   /* Software engine */
 
-#ifdef CONFIG_MX6SX
+#ifdef CONFIG_ROM_UNIFIED_SECTIONS
 #define HAB_RVT_BASE			0x00000100
 #else
 #define HAB_RVT_BASE			0x00000094

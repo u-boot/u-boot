@@ -279,6 +279,9 @@ void arch_preboot_os(void)
 	/* disable video before launching O/S */
 	ipuv3_fb_shutdown();
 #endif
+#if defined(CONFIG_VIDEO_MXS)
+	lcdif_power_down();
+#endif
 }
 
 void set_chipselect_size(int const cs_size)

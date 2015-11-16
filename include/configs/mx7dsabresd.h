@@ -14,6 +14,10 @@
 #define CONFIG_DBG_MONITOR
 #define PHYS_SDRAM_SIZE			SZ_1G
 
+/* Uncomment to enable secure boot support */
+/* #define CONFIG_SECURE_BOOT */
+#define CONFIG_CSF_SIZE			0x4000
+
 /* Network */
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
@@ -65,8 +69,15 @@
 	"initrd_high=0xffffffff\0" \
 	"bootcmd_mfg=run mfgtool_args;bootz ${loadaddr} ${initrd_addr} ${fdt_addr};\0" \
 
+#define CONFIG_DFU_ENV_SETTINGS \
+	"dfu_alt_info=image raw 0 0x800000;"\
+		"u-boot raw 0 0x4000;"\
+		"bootimg part 0 1;"\
+		"rootfs part 0 2\0" \
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_MFG_ENV_SETTINGS \
+	CONFIG_DFU_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
@@ -76,6 +87,7 @@
 	"fdt_addr=0x83000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
+	"videomode=video=ctfb:x:480,y:272,depth:24,pclk:108695,le:8,ri:4,up:2,lo:4,hs:41,vs:10,sync:0,vmode:0\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
@@ -187,5 +199,41 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 #define CONFIG_IMX_THERMAL
+
+#define CONFIG_CI_UDC
+#define CONFIG_USBD_HS
+#define CONFIG_USB_GADGET_DUALSPEED
+
+#define CONFIG_USB_GADGET
+#define CONFIG_CMD_USB_MASS_STORAGE
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
+#define CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+
+#define CONFIG_G_DNL_VENDOR_NUM		0x0525
+#define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
+#define CONFIG_G_DNL_MANUFACTURER	"FSL"
+
+/* USB Device Firmware Update support */
+#define CONFIG_CMD_DFU
+#define CONFIG_USB_FUNCTION_DFU
+#define CONFIG_DFU_MMC
+#define CONFIG_DFU_RAM
+
+#define CONFIG_VIDEO
+#ifdef CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_MXS
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_LOGO
+#endif
 
 #endif	/* __CONFIG_H */

@@ -9,5 +9,4 @@
 
 obj-y	:= soc.o clock.o
 obj-$(CONFIG_SPL_BUILD)	     += ddr.o
-obj-$(CONFIG_SECURE_BOOT)    += hab.o
 obj-$(CONFIG_MP)             += mp.o

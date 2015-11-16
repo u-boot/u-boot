@@ -12,13 +12,16 @@
 #include <splash.h>
 #include <spi_flash.h>
 #include <spi.h>
+#include <usb.h>
+#include <sata.h>
 #include <bmp_layout.h>
+#include <fs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPI_FLASH
 static struct spi_flash *sf;
-static int splash_sf_read(u32 bmp_load_addr, int offset, size_t read_size)
+static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 {
 	if (!sf) {
 		sf = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
@@ -32,7 +35,7 @@ static int splash_sf_read(u32 bmp_load_addr, int offset, size_t read_size)
 	return spi_flash_read(sf, offset, read_size, (void *)bmp_load_addr);
 }
 #else
-static int splash_sf_read(u32 bmp_load_addr, int offset, size_t read_size)
+static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 {
 	debug("%s: sf support not available\n", __func__);
 	return -ENOSYS;
@@ -40,7 +43,7 @@ static int splash_sf_read(u32 bmp_load_addr, int offset, size_t read_size)
 #endif
 
 #ifdef CONFIG_CMD_NAND
-static int splash_nand_read(u32 bmp_load_addr, int offset, size_t read_size)
+static int splash_nand_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 {
 	return nand_read_skip_bad(&nand_info[nand_curr_device], offset,
 				  &read_size, NULL,
@@ -48,14 +51,14 @@ static int splash_nand_read(u32 bmp_load_addr, int offset, size_t read_size)
 				  (u_char *)bmp_load_addr);
 }
 #else
-static int splash_nand_read(u32 bmp_load_addr, int offset, size_t read_size)
+static int splash_nand_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 {
 	debug("%s: nand support not available\n", __func__);
 	return -ENOSYS;
 }
 #endif
 
-static int splash_storage_read(struct splash_location *location,
+static int splash_storage_read_raw(struct splash_location *location,
 			       u32 bmp_load_addr, size_t read_size)
 {
 	u32 offset;
@@ -66,9 +69,9 @@ static int splash_storage_read(struct splash_location *location,
 	offset = location->offset;
 	switch (location->storage) {
 	case SPLASH_STORAGE_NAND:
-		return splash_nand_read(bmp_load_addr, offset, read_size);
+		return splash_nand_read_raw(bmp_load_addr, offset, read_size);
 	case SPLASH_STORAGE_SF:
-		return splash_sf_read(bmp_load_addr, offset, read_size);
+		return splash_sf_read_raw(bmp_load_addr, offset, read_size);
 	default:
 		printf("Unknown splash location\n");
 	}
@@ -85,7 +88,7 @@ static int splash_load_raw(struct splash_location *location, u32 bmp_load_addr)
 	if (bmp_load_addr + bmp_header_size >= gd->start_addr_sp)
 		goto splash_address_too_high;
 
-	res = splash_storage_read(location, bmp_load_addr, bmp_header_size);
+	res = splash_storage_read_raw(location, bmp_load_addr, bmp_header_size);
 	if (res < 0)
 		return res;
 
@@ -95,12 +98,109 @@ static int splash_load_raw(struct splash_location *location, u32 bmp_load_addr)
 	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
 		goto splash_address_too_high;
 
-	return splash_storage_read(location, bmp_load_addr, bmp_size);
+	return splash_storage_read_raw(location, bmp_load_addr, bmp_size);
 
 splash_address_too_high:
 	printf("Error: splashimage address too high. Data overwrites U-Boot and/or placed beyond DRAM boundaries.\n");
 
 	return -EFAULT;
+}
+
+static int splash_select_fs_dev(struct splash_location *location)
+{
+	int res;
+
+	switch (location->storage) {
+	case SPLASH_STORAGE_MMC:
+		res = fs_set_blk_dev("mmc", location->devpart, FS_TYPE_ANY);
+		break;
+	case SPLASH_STORAGE_USB:
+		res = fs_set_blk_dev("usb", location->devpart, FS_TYPE_ANY);
+		break;
+	case SPLASH_STORAGE_SATA:
+		res = fs_set_blk_dev("sata", location->devpart, FS_TYPE_ANY);
+		break;
+	default:
+		printf("Error: unsupported location storage.\n");
+		return -ENODEV;
+	}
+
+	if (res)
+		printf("Error: could not access storage.\n");
+
+	return res;
+}
+
+#ifdef CONFIG_USB_STORAGE
+static int splash_init_usb(void)
+{
+	int err;
+
+	err = usb_init();
+	if (err)
+		return err;
+
+	return usb_stor_scan(1) < 0 ? -ENODEV : 0;
+}
+#else
+static inline int splash_init_usb(void)
+{
+	printf("Cannot load splash image: no USB support\n");
+	return -ENOSYS;
+}
+#endif
+
+#ifdef CONFIG_CMD_SATA
+static int splash_init_sata(void)
+{
+	return sata_initialize();
+}
+#else
+static inline int splash_init_sata(void)
+{
+	printf("Cannot load splash image: no SATA support\n");
+	return -ENOSYS;
+}
+#endif
+
+#define SPLASH_SOURCE_DEFAULT_FILE_NAME		"splash.bmp"
+
+static int splash_load_fs(struct splash_location *location, u32 bmp_load_addr)
+{
+	int res = 0;
+	loff_t bmp_size;
+	char *splash_file;
+
+	splash_file = getenv("splashfile");
+	if (!splash_file)
+		splash_file = SPLASH_SOURCE_DEFAULT_FILE_NAME;
+
+	if (location->storage == SPLASH_STORAGE_USB)
+		res = splash_init_usb();
+
+	if (location->storage == SPLASH_STORAGE_SATA)
+		res = splash_init_sata();
+
+	if (res)
+		return res;
+
+	res = splash_select_fs_dev(location);
+	if (res)
+		return res;
+
+	res = fs_size(splash_file, &bmp_size);
+	if (res) {
+		printf("Error (%d): cannot determine file size\n", res);
+		return res;
+	}
+
+	if (bmp_load_addr + bmp_size >= gd->start_addr_sp) {
+		printf("Error: splashimage address too high. Data overwrites U-Boot and/or placed beyond DRAM boundaries.\n");
+		return -EFAULT;
+	}
+
+	splash_select_fs_dev(location);
+	return fs_read(splash_file, bmp_load_addr, 0, 0, NULL);
 }
 
 /**
@@ -172,5 +272,10 @@ int splash_source_load(struct splash_location *locations, uint size)
 	if (!splash_location)
 		return -EINVAL;
 
-	return splash_load_raw(splash_location, bmp_load_addr);
+	if (splash_location->flags & SPLASH_STORAGE_RAW)
+		return splash_load_raw(splash_location, bmp_load_addr);
+	else if (splash_location->flags & SPLASH_STORAGE_FS)
+		return splash_load_fs(splash_location, bmp_load_addr);
+
+	return -EINVAL;
 }

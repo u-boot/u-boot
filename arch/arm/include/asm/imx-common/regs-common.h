@@ -10,6 +10,8 @@
 #ifndef __MXS_REGS_COMMON_H__
 #define __MXS_REGS_COMMON_H__
 
+#include <linux/types.h>
+
 /*
  * The i.MXS has interesting feature when it comes to register access. There
  * are four kinds of access to one particular register. Those are:

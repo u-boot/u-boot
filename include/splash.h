@@ -27,12 +27,22 @@
 enum splash_storage {
 	SPLASH_STORAGE_NAND,
 	SPLASH_STORAGE_SF,
+	SPLASH_STORAGE_MMC,
+	SPLASH_STORAGE_USB,
+	SPLASH_STORAGE_SATA,
+};
+
+enum splash_flags {
+	SPLASH_STORAGE_RAW,
+	SPLASH_STORAGE_FS,
 };
 
 struct splash_location {
 	char *name;
 	enum splash_storage storage;
+	enum splash_flags flags;
 	u32 offset;	/* offset from start of storage */
+	char *devpart;  /* Use the load command dev:part conventions */
 };
 
 int splash_source_load(struct splash_location *locations, uint size);
