@@ -35,6 +35,9 @@ config ROCKCHIP_MAX_SPL_SIZE
 config SYS_MALLOC_F
 	default y
 
+config SPL_SYS_MALLOC_SIMPLE
+	default y
+
 config SPL_DM
 	default y
 
