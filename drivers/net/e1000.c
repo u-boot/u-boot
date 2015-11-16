@@ -5286,7 +5286,6 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 
 #ifndef CONFIG_E1000_NO_NVM
 	/* Validate the EEPROM and get chipset information */
-#if !defined(CONFIG_MVBC_1G)
 	if (e1000_init_eeprom_params(hw)) {
 		E1000_ERR(hw, "EEPROM is invalid!\n");
 		return -EINVAL;
@@ -5294,7 +5293,6 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 	if ((E1000_READ_REG(hw, I210_EECD) & E1000_EECD_FLUPD) &&
 	    e1000_validate_eeprom_checksum(hw))
 		return -ENXIO;
-#endif
 	e1000_read_mac_addr(hw, enetaddr);
 #endif
 	e1000_get_bus_type(hw);
