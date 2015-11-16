@@ -14,9 +14,6 @@
 #include <serial.h>
 
 static char *bf;
-static char buf[12];
-static unsigned int num;
-static char uc;
 static char zs;
 
 static void out(char c)
@@ -26,17 +23,16 @@ static void out(char c)
 
 static void out_dgt(char dgt)
 {
-	out(dgt + (dgt < 10 ? '0' : (uc ? 'A' : 'a') - 10));
+	out(dgt + (dgt < 10 ? '0' : 'a' - 10));
 	zs = 1;
 }
 
-static void div_out(unsigned int div)
+static void div_out(unsigned int *num, unsigned int div)
 {
 	unsigned char dgt = 0;
 
-	num &= 0xffff; /* just for testing the code with 32 bit ints */
-	while (num >= div) {
-		num -= div;
+	while (*num >= div) {
+		*num -= div;
 		dgt++;
 	}
 
@@ -49,6 +45,9 @@ int printf(const char *fmt, ...)
 	va_list va;
 	char ch;
 	char *p;
+	unsigned int num;
+	char buf[12];
+	unsigned int div;
 
 	va_start(va, fmt);
 
@@ -68,7 +67,7 @@ int printf(const char *fmt, ...)
 			if (ch >= '0' && ch <= '9') {
 				w = 0;
 				while (ch >= '0' && ch <= '9') {
-					w = (((w << 2) + w) << 1) + ch - '0';
+					w = (w * 10) + ch - '0';
 					ch = *fmt++;
 				}
 			}
@@ -86,20 +85,13 @@ int printf(const char *fmt, ...)
 					num = -(int)num;
 					out('-');
 				}
-				div_out(10000);
-				div_out(1000);
-				div_out(100);
-				div_out(10);
-				out_dgt(num);
+				for (div = 1000000000; div; div /= 10)
+					div_out(&num, div);
 				break;
 			case 'x':
-			case 'X':
-				uc = ch == 'X';
 				num = va_arg(va, unsigned int);
-				div_out(0x1000);
-				div_out(0x100);
-				div_out(0x10);
-				out_dgt(num);
+				for (div = 0x10000000; div; div /= 0x10)
+					div_out(&num, div);
 				break;
 			case 'c':
 				out((char)(va_arg(va, int)));
