@@ -164,14 +164,15 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	flash->memory_map = spi->memory_map;
 	flash->dual_flash = flash->spi->option;
 
+	/* Assign spi flash flags */
+	if (params->flags & SST_WR)
+		flash->flags |= SNOR_F_SST_WR;
+
 	/* Assign spi_flash ops */
 #ifndef CONFIG_DM_SPI_FLASH
 	flash->write = spi_flash_cmd_write_ops;
 #if defined(CONFIG_SPI_FLASH_SST)
-	if (params->flags & SST_WR)
-		flash->flags |= SNOR_F_SST_WR;
-
-	if (params->flags & SNOR_F_SST_WR) {
+	if (flash->flags & SNOR_F_SST_WR) {
 		if (flash->spi->op_mode_tx & SPI_OPM_TX_BP)
 			flash->write = sst_write_bp;
 		else
