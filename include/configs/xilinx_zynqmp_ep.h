@@ -24,6 +24,8 @@
 #define CONFIG_SYS_I2C_ZYNQ
 #define CONFIG_ZYNQ_EEPROM
 #define CONFIG_AHCI
+#define CONFIG_ZYNQMP_XHCI_LIST {ZYNQMP_USB0_XHCI_BASEADDR, \
+				 ZYNQMP_USB1_XHCI_BASEADDR}
 
 #include <configs/xilinx_zynqmp.h>
 
