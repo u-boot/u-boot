@@ -566,7 +566,8 @@ int printf(const char *fmt, ...)
 
 	va_start(args, fmt);
 
-	/* For this to work, printbuffer must be larger than
+	/*
+	 * For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
 	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
@@ -582,7 +583,8 @@ int vprintf(const char *fmt, va_list args)
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
 
-	/* For this to work, printbuffer must be larger than
+	/*
+	 * For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
 	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
