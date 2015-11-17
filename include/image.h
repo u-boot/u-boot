@@ -248,8 +248,9 @@ struct lmb;
 #define IH_TYPE_RKIMAGE		23	/* Rockchip Boot Image		*/
 #define IH_TYPE_RKSD		24	/* Rockchip SD card		*/
 #define IH_TYPE_RKSPI		25	/* Rockchip SPI image		*/
+#define IH_TYPE_ZYNQIMAGE	26	/* Xilinx Zynq Boot Image */
 
-#define IH_TYPE_COUNT		26	/* Number of image types */
+#define IH_TYPE_COUNT		27	/* Number of image types */
 
 /*
  * Compression Types
