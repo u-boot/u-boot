@@ -72,6 +72,7 @@ config MACH_SUN8I_H3
 	bool "sun8i (Allwinner H3)"
 	select CPU_V7
 	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
 
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
