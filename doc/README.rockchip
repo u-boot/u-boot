@@ -42,6 +42,10 @@ At present three RK3288 boards are supported:
    - Radxa Rock 2 - also uses firefly-rk3288 configuration
    - Haier Chromebook - use chromebook_jerry configuration
 
+one RK3036 board is support:
+
+   - EVB RK3036 - use evb-rk3036_defconfig configuration
+
 For example:
 
    CROSS_COMPILE=arm-linux-gnueabi- make O=firefly firefly-rk3288_defconfig all
@@ -118,6 +122,13 @@ something like:
    Err:   serial@ff690000
    =>
 
+For evb_rk3036 board:
+	./evb-rk3036/tools/mkimage -T rksd  -d evb-rk3036/spl/u-boot-spl.bin out && \
+	cat evb-rk3036/u-boot-dtb.bin >> out && \
+	sudo dd if=out of=/dev/sdc seek=64
+
+Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the
+      debug uart must be disabled
 
 Booting from SPI
 ================
