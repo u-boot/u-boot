@@ -428,6 +428,7 @@ static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "nvidia,tegra20-uart" },
+	{ .compatible = "rockchip,rk3036-uart" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "ti,omap2-uart" },
 	{ .compatible = "ti,omap3-uart" },
