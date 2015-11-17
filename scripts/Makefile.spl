@@ -117,6 +117,7 @@ MKIMAGEFLAGS_MLO.byteswap = -T omapimage -n byteswap -a $(CONFIG_SPL_TEXT_BASE)
 MLO MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkimage)
 
+ifeq ($(CONFIG_SYS_SOC),"at91")
 MKIMAGEFLAGS_boot.bin = -T atmelimage
 
 ifeq ($(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER),y)
@@ -127,6 +128,12 @@ endif
 
 boot.bin: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkimage)
+else
+MKIMAGEFLAGS_boot.bin = -T zynqimage
+
+spl/boot.bin: $(obj)/u-boot-spl-dtb.bin
+	$(call if_changed,mkimage)
+endif
 
 ALL-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).cfg
 
@@ -148,6 +155,10 @@ endif
 
 ifeq ($(CONFIG_SYS_SOC),"at91")
 ALL-y	+= boot.bin
+endif
+
+ifdef CONFIG_ARCH_ZYNQ
+ALL-y	+= $(obj)/boot.bin
 endif
 
 all:	$(ALL-y)
