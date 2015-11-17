@@ -11,10 +11,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#endif
-
 #include <i2c.h>
 #include "../common/common.h"
 
@@ -465,14 +462,13 @@ static void setports(int gpio)
 	}
 }
 #endif
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-int ft_board_setup(void *blob, bd_t *bd)
+
+void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
 
 #if defined(CONFIG_MGCOGE3NE)
 int get_testpin(void)
