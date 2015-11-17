@@ -18,6 +18,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
 #include <asm/arch/sdram.h>
+#include <asm/arch/timer.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <dm/test.h>
@@ -110,24 +111,6 @@ static void configure_l2ctlr(void)
 	write_l2ctlr(l2ctlr);
 }
 
-struct rk3288_timer {
-	u32 timer_load_count0;
-	u32 timer_load_count1;
-	u32 timer_curr_value0;
-	u32 timer_curr_value1;
-	u32 timer_ctrl_reg;
-	u32 timer_int_status;
-};
-
-void init_timer(void)
-{
-	struct rk3288_timer * const timer7_ptr = (void *)TIMER7_BASE;
-
-	writel(0xffffffff, &timer7_ptr->timer_load_count0);
-	writel(0xffffffff, &timer7_ptr->timer_load_count1);
-	writel(1, &timer7_ptr->timer_ctrl_reg);
-}
-
 static int configure_emmc(struct udevice *pinctrl)
 {
 	struct gpio_desc desc;
@@ -197,7 +180,7 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	init_timer();
+	rockchip_timer_init();
 	configure_l2ctlr();
 
 	ret = uclass_get_device(UCLASS_CLK, 0, &dev);

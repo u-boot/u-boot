@@ -10,4 +10,5 @@ else
 obj-y += board.o
 endif
 obj-y += common.o
+obj-y += rk_timer.o
 obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288/
