@@ -105,6 +105,15 @@
 # define CONFIG_CMD_EXT4_WRITE
 #endif
 
+#ifdef CONFIG_NAND_ARASAN
+# define CONFIG_CMD_NAND
+# define CONFIG_CMD_NAND_LOCK_UNLOCK
+# define CONFIG_SYS_MAX_NAND_DEVICE	1
+# define CONFIG_SYS_NAND_SELF_INIT
+# define CONFIG_SYS_NAND_ONFI_DETECTION
+# define CONFIG_MTD_DEVICE
+#endif
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
