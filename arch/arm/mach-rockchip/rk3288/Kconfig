@@ -16,6 +16,12 @@ config TARGET_CHROMEBOOK_JERRY
 	  WiFi. It includes a Chrome OS EC (Cortex-M3) to provide access to
 	  the keyboard and battery functions.
 
+config ROCKCHIP_SPL_HDR
+	default "RK32"
+
+config ROCKCHIP_MAX_SPL_SIZE
+	default 0x8000
+
 config SYS_SOC
 	default "rockchip"
 

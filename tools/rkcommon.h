@@ -11,7 +11,6 @@
 enum {
 	RK_BLK_SIZE		= 512,
 	RK_CODE1_OFFSET		= 4,
-	RK_MAX_CODE1_SIZE	= 32 << 10,
 };
 
 /**

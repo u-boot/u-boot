@@ -9,6 +9,12 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x400
 
+config ROCKCHIP_SPL_HDR
+        default "RK30"
+
+config ROCKCHIP_MAX_SPL_SIZE
+        default 0x1000
+
 config ROCKCHIP_COMMON
 	bool "Support rk common fuction"
 

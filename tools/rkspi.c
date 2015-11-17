@@ -53,7 +53,7 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 		       size);
 	}
 
-	memcpy(buf + RKSPI_SPL_HDR_START, "RK32", 4);
+	memcpy(buf + RKSPI_SPL_HDR_START, CONFIG_ROCKCHIP_SPL_HDR, 4);
 
 	/*
 	 * Spread the image out so we only use the first 2KB of each 4KB
@@ -89,7 +89,7 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 {
 	int pad_size;
 
-	pad_size = (RK_MAX_CODE1_SIZE + 0x7ff) / 0x800 * 0x800;
+	pad_size = (CONFIG_ROCKCHIP_MAX_SPL_SIZE + 0x7ff) / 0x800 * 0x800;
 	params->orig_file_size = pad_size;
 
 	/* We will double the image size due to the SPI format */
