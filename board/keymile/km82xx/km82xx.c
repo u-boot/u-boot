@@ -447,22 +447,6 @@ int get_scl(void)
 	return get_pin(SCL_MASK, 3);
 }
 
-#if defined(CONFIG_HARD_I2C)
-static void setports(int gpio)
-{
-	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
-
-	if (gpio) {
-		clrbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
-		clrbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
-	} else {
-		setbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
-		clrbits_be32(&iop->pdir, (SDA_MASK | SCL_MASK));
-		setbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
-	}
-}
-#endif
-
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
