@@ -447,7 +447,7 @@ int get_scl(void)
 	return get_pin(SCL_MASK, 3);
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
