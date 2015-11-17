@@ -5,7 +5,7 @@
 #
 
 ifdef CONFIG_SPL_BUILD
-obj-y += board-spl.o
+obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board-spl.o
 else
 obj-y += board.o
 endif
