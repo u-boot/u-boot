@@ -417,7 +417,13 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		binhdrsz = sizeof(struct opt_hdr_v1) +
 			(binarye->binary.nargs + 1) * sizeof(unsigned int) +
 			s.st_size;
-		binhdrsz = ALIGN_SUP(binhdrsz, 32);
+
+		/*
+		 * The size includes the binary image size, rounded
+		 * up to a 4-byte boundary. Plus 4 bytes for the
+		 * next-header byte and 3-byte alignment at the end.
+		 */
+		binhdrsz = ALIGN_SUP(binhdrsz, 4) + 4;
 		hdr->headersz_lsb = binhdrsz & 0xFFFF;
 		hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
 
@@ -441,7 +447,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 		fclose(bin);
 
-		cur += s.st_size;
+		cur += ALIGN_SUP(s.st_size, 4);
 
 		/*
 		 * For now, we don't support more than one binary
@@ -449,7 +455,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		 * supported. So, the binary header is necessarily the
 		 * last one
 		 */
-		*((unsigned char *)cur) = 0;
+		*((uint32_t *)cur) = 0x00000000;
 
 		cur += sizeof(uint32_t);
 	}

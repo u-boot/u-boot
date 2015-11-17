@@ -9,7 +9,6 @@
 #ifndef _CONFIG_IB62x0_H
 #define _CONFIG_IB62x0_H
 
-
 /*
  * Version number information
  */
@@ -22,35 +21,23 @@
 #define CONFIG_KW88F6281		/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-/*
- * Machine type
- */
-#define CONFIG_MACH_TYPE	MACH_TYPE_NAS6210
-
-/*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
+/* Add target to build it automatically upon "make" */
+#define CONFIG_BUILD_TARGET     "u-boot.kwb"
 
 /*
  * Compression configuration
  */
 #define CONFIG_BZIP2
 #define CONFIG_LZMA
-#define CONFIG_LZO
 
 /*
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#define CONFIG_CMD_ENV
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -125,18 +112,5 @@
 #ifdef CONFIG_CMD_DATE
 #define CONFIG_RTC_MV
 #endif /* CONFIG_CMD_DATE */
-
-/*
- * File system
- */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 
 #endif /* _CONFIG_IB62x0_H */

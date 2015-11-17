@@ -12,11 +12,6 @@
 
 #include "ddr3_hws_hw_training_def.h"
 
-/* Allow topolgy update from board TWSI device*/
-#if !defined(CONFIG_CUSTOMER_BOARD_SUPPORT)
-#define MV_DDR_TOPOLOGY_UPDATE_FROM_TWSI
-#endif
-
 #define ECC_SUPPORT
 
 /* right now, we're not supporting this in mainline */

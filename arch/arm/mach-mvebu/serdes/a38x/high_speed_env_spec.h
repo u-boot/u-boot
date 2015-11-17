@@ -215,12 +215,12 @@ extern u8 selectors_serdes_rev2_map[LAST_SERDES_TYPE][MAX_SERDES_LANES];
 
 u8 hws_ctrl_serdes_rev_get(void);
 int mv_update_serdes_select_phy_mode_seq(void);
-int hws_board_topology_load(struct serdes_map *serdes_map_array);
+int hws_board_topology_load(struct serdes_map **serdes_map, u8 *count);
 enum serdes_seq serdes_type_and_speed_to_speed_seq(enum serdes_type serdes_type,
 						   enum serdes_speed baud_rate);
 int hws_serdes_seq_init(void);
 int hws_serdes_seq_db_init(void);
-int hws_power_up_serdes_lanes(struct serdes_map *serdes_config_map);
+int hws_power_up_serdes_lanes(struct serdes_map *serdes_map, u8 count);
 int hws_ctrl_high_speed_serdes_phy_config(void);
 int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 			 enum serdes_type serdes_type,
@@ -237,14 +237,14 @@ int hws_serdes_pex_ref_clock_get(enum serdes_type serdes_type,
 				 enum ref_clock *ref_clock);
 int hws_ref_clock_set(u32 serdes_num, enum serdes_type serdes_type,
 		      enum ref_clock ref_clock);
-int hws_update_serdes_phy_selectors(struct serdes_map *serdes_config_map);
+int hws_update_serdes_phy_selectors(struct serdes_map *serdes_map, u8 count);
 u32 hws_serdes_get_phy_selector_val(int serdes_num,
 				    enum serdes_type serdes_type);
 u32 hws_serdes_get_ref_clock_val(enum serdes_type serdes_type);
 u32 hws_serdes_get_max_lane(void);
 int hws_get_ext_base_addr(u32 serdes_num, u32 base_addr, u32 unit_base_offset,
 			  u32 *unit_base_reg, u32 *unit_offset);
-int hws_pex_tx_config_seq(struct serdes_map *serdes_map);
+int hws_pex_tx_config_seq(const struct serdes_map *serdes_map, u8 count);
 u32 hws_get_physical_serdes_num(u32 serdes_num);
 int hws_is_serdes_active(u8 lane_num);
 

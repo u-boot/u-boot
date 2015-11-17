@@ -13,17 +13,16 @@
 #include "ctrl_pex.h"
 #include "sys_env_lib.h"
 
-int hws_pex_config(struct serdes_map *serdes_map)
+int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 {
 	u32 pex_idx, tmp, next_busno, first_busno, temp_pex_reg,
 	    temp_reg, addr, dev_id, ctrl_mode;
 	enum serdes_type serdes_type;
-	u32 idx, max_lane_num;
+	u32 idx;
 
 	DEBUG_INIT_FULL_S("\n### hws_pex_config ###\n");
 
-	max_lane_num = hws_serdes_get_max_lane();
-	for (idx = 0; idx < max_lane_num; idx++) {
+	for (idx = 0; idx < count; idx++) {
 		serdes_type = serdes_map[idx].serdes_type;
 		/* configuration for PEX only */
 		if ((serdes_type != PEX0) && (serdes_type != PEX1) &&
@@ -47,7 +46,7 @@ int hws_pex_config(struct serdes_map *serdes_map)
 	tmp = reg_read(SOC_CTRL_REG);
 	tmp &= ~0x03;
 
-	for (idx = 0; idx < max_lane_num; idx++) {
+	for (idx = 0; idx < count; idx++) {
 		serdes_type = serdes_map[idx].serdes_type;
 		if ((serdes_type != PEX0) &&
 		    ((serdes_map[idx].serdes_mode == PEX_ROOT_COMPLEX_X4) ||
@@ -81,7 +80,7 @@ int hws_pex_config(struct serdes_map *serdes_map)
 	next_busno = 0;
 	mdelay(150);
 
-	for (idx = 0; idx < max_lane_num; idx++) {
+	for (idx = 0; idx < count; idx++) {
 		serdes_type = serdes_map[idx].serdes_type;
 		DEBUG_INIT_FULL_S(" serdes_type=0x");
 		DEBUG_INIT_FULL_D(serdes_type, 8);
@@ -191,7 +190,7 @@ int hws_pex_config(struct serdes_map *serdes_map)
 	/* Update pex DEVICE ID */
 	ctrl_mode = sys_env_model_get();
 
-	for (idx = 0; idx < max_lane_num; idx++) {
+	for (idx = 0; idx < count; idx++) {
 		serdes_type = serdes_map[idx].serdes_type;
 		/* configuration for PEX only */
 		if ((serdes_type != PEX0) && (serdes_type != PEX1) &&

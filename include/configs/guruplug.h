@@ -20,46 +20,18 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_MACH_GURUPLUG	/* Machine type */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * Compression configuration
+ * Standard filesystems
  */
-#define CONFIG_BZIP2
-#define CONFIG_LZMA
-#define CONFIG_LZO
+#define CONFIG_SYS_MVFS
 
 /*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
-
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-
-/*
- * Commands configuration
- */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_IDE
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
+ * mv-plug-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
-#include "mv-common.h"
+#include "mv-plug-common.h"
 
 /*
  *  Environment variables configurations
@@ -122,21 +94,5 @@
 #ifdef CONFIG_MVSATA_IDE
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
 #endif /*CONFIG_MVSATA_IDE*/
-
-/*
- * File system
- */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
-
-#define CONFIG_SYS_ALT_MEMTEST
 
 #endif /* _CONFIG_GURUPLUG_H */

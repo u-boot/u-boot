@@ -34,31 +34,19 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_MACH_TYPE	MACH_TYPE_DREAMPLUG
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-
-/* Add target to build it automatically upon "make" */
-#define CONFIG_BUILD_TARGET     "u-boot.kwb"
 
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_IDE
-#define CONFIG_CMD_DATE
 
 /*
- * mv-common.h should be defined after CMD configs since it used them
+ * mv-plug-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
-#include "mv-common.h"
+#include "mv-plug-common.h"
 
 /*
  *  Environment variables configurations
@@ -117,21 +105,5 @@
 #ifdef CONFIG_MVSATA_IDE
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
 #endif /*CONFIG_MVSATA_IDE*/
-
-/*
- * RTC driver configuration
- */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
-#define CONFIG_SYS_ALT_MEMTEST
-
-/*
- * display enhanced info about the cpu at boot.
- */
-#define CONFIG_DISPLAY_CPUINFO
-
-#define CONFIG_OF_LIBFDT
 
 #endif /* _CONFIG_DREAMPLUG_H */
