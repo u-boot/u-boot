@@ -493,6 +493,9 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		memset(&gpt_e[i].attributes, 0,
 		       sizeof(gpt_entry_attributes));
 
+		if (partitions[i].bootable)
+			gpt_e[i].attributes.fields.legacy_bios_bootable = 1;
+
 		/* partition name */
 		efiname_len = sizeof(gpt_e[i].partition_name)
 			/ sizeof(efi_char16_t);

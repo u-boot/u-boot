@@ -122,6 +122,40 @@ static char *extract_val(const char *str, const char *key)
 }
 
 /**
+ * found_key(): Found key without value in parameter list (comma separated).
+ *
+ * @param str - pointer to string with key
+ * @param key - pointer to the key to search for
+ *
+ * @return - true on found key
+ */
+static bool found_key(const char *str, const char *key)
+{
+	char *k;
+	char *s, *strcopy;
+	bool result = false;
+
+	strcopy = strdup(str);
+	if (!strcopy)
+		return NULL;
+
+	s = strcopy;
+	while (s) {
+		k = strsep(&s, ",");
+		if (!k)
+			break;
+		if  (strcmp(k, key) == 0) {
+			result = true;
+			break;
+		}
+	}
+
+	free(strcopy);
+
+	return result;
+}
+
+/**
  * set_gpt_info(): Fill partition information from string
  *		function allocates memory, remember to free!
  *
@@ -275,6 +309,10 @@ static int set_gpt_info(block_dev_desc_t *dev_desc,
 			parts[i].start = lldiv(start_ll, dev_desc->blksz);
 			free(val);
 		}
+
+		/* bootable */
+		if (found_key(tok, "bootable"))
+			parts[i].bootable = 1;
 	}
 
 	*parts_count = p_count;

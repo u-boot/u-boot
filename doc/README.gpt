@@ -142,6 +142,10 @@ of the Primary.
 
 	   Attribute flags:
 	   Bit 0  - System partition
+	   Bit 1  - Hide from EFI
+	   Bit 2  - Legacy BIOS bootable
+	   Bit 48-63 - Defined and used by the individual partition type
+	   For Basic data partition :
 	   Bit 60 - Read-only
 	   Bit 62 - Hidden
 	   Bit 63 - Not mount
@@ -161,10 +165,20 @@ To restore GUID partition table one needs to:
    The fields 'name' and 'size' are mandatory for every partition.
    The field 'start' is optional.
 
+   If field 'size' of the last partition is 0, the partiton is extended
+   up to the end of the device.
+
    The fields 'uuid' and 'uuid_disk' are optional if CONFIG_RANDOM_UUID is
    enabled. A random uuid will be used if omitted or they point to an empty/
    non-existent environment variable. The environment variable will be set to
    the generated UUID.
+
+   The field 'bootable' is optional, it is used to mark the GPT partition
+   bootable (set attribute flags "Legacy BIOS bootable").
+     "name=u-boot,size=60MiB;name=boot,size=60Mib,bootable;name=rootfs,size=0"
+   It can be used to locate bootable disks with command
+   "part list <interface> <dev> -bootable <varname>",
+   please check out doc/README.distro for use.
 
 2. Define 'CONFIG_EFI_PARTITION' and 'CONFIG_CMD_GPT'
 
