@@ -25,7 +25,7 @@ enum {
  *
  * @signature:		Signature (must be RKSD_SIGNATURE)
  * @disable_rc4:	0 to use rc4 for boot image,  1 to use plain binary
- * @code1_offset:	Offset in blocks of the SPL code from this header
+ * @init_offset:	Offset in blocks of the SPL code from this header
  *			block. E.g. 4 means 2KB after the start of this header.
  * Other fields are not used by U-Boot
  */
@@ -33,11 +33,10 @@ struct header0_info {
 	uint32_t signature;
 	uint8_t reserved[4];
 	uint32_t disable_rc4;
-	uint16_t code1_offset;
-	uint16_t code2_offset;
-	uint8_t reserved1[490];
-	uint16_t usflashdatasize;
-	uint16_t ucflashbootsize;
+	uint16_t init_offset;
+	uint8_t reserved1[492];
+	uint16_t init_size;
+	uint16_t init_boot_size;
 	uint8_t reserved2[2];
 };
 
@@ -53,18 +52,15 @@ int rkcommon_set_header(void *buf, uint file_size)
 	if (file_size > CONFIG_ROCKCHIP_MAX_SPL_SIZE)
 		return -ENOSPC;
 
-	memset(buf,  '\0', RK_CODE1_OFFSET * RK_BLK_SIZE);
+	memset(buf,  '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
 	hdr = (struct header0_info *)buf;
 	hdr->signature = RK_SIGNATURE;
 	hdr->disable_rc4 = 1;
-	hdr->code1_offset = RK_CODE1_OFFSET;
-	hdr->code2_offset = 8;
+	hdr->init_offset = RK_INIT_OFFSET;
 
-	hdr->usflashdatasize = (file_size + RK_BLK_SIZE - 1) / RK_BLK_SIZE;
-	hdr->usflashdatasize = (hdr->usflashdatasize + 3) & ~3;
-	hdr->ucflashbootsize = hdr->usflashdatasize;
-
-	debug("size=%x, %x\n", params->file_size, hdr->usflashdatasize);
+	hdr->init_size = (file_size + RK_BLK_SIZE - 1) / RK_BLK_SIZE;
+	hdr->init_size = (hdr->init_size + 3) & ~3;
+	hdr->init_boot_size = hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 
