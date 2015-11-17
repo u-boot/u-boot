@@ -105,6 +105,8 @@
 
 /* Status Register */
 #define DWMCI_BUSY		(1 << 9)
+#define DWMCI_FIFO_MASK		0x1ff
+#define DWMCI_FIFO_SHIFT	17
 
 /* FIFOTH Register */
 #define MSIZE(x)		((x) << 28)
@@ -180,6 +182,9 @@ struct dwmci_host {
 	unsigned int (*get_mmc_clk)(struct dwmci_host *host, uint freq);
 
 	struct mmc_config cfg;
+
+	/* use fifo mode to read and write data */
+	bool fifo_mode;
 };
 
 struct dwmci_idmac {

@@ -94,12 +94,21 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 	dwmci_writel(host, DWMCI_BYTCNT, data->blocksize * data->blocks);
 }
 
-static int dwmci_data_transfer(struct dwmci_host *host)
+static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 {
 	int ret = 0;
-	unsigned int timeout = 240000;
-	u32 mask;
+	u32 timeout = 240000;
+	u32 mask, size, i, len = 0;
+	u32 *buf = NULL;
 	ulong start = get_timer(0);
+	u32 fifo_depth = (((host->fifoth_val & RX_WMARK_MASK) >>
+			    RX_WMARK_SHIFT) + 1) * 2;
+
+	size = data->blocksize * data->blocks / 4;
+	if (data->flags == MMC_DATA_READ)
+		buf = (unsigned int *)data->dest;
+	else
+		buf = (unsigned int *)data->src;
 
 	for (;;) {
 		mask = dwmci_readl(host, DWMCI_RINTSTS);
@@ -108,6 +117,36 @@ static int dwmci_data_transfer(struct dwmci_host *host)
 			debug("%s: DATA ERROR!\n", __func__);
 			ret = -EINVAL;
 			break;
+		}
+
+		if (host->fifo_mode && size) {
+			if (data->flags == MMC_DATA_READ) {
+				if ((dwmci_readl(host, DWMCI_RINTSTS) &&
+				     DWMCI_INTMSK_RXDR)) {
+					len = dwmci_readl(host, DWMCI_STATUS);
+					len = (len >> DWMCI_FIFO_SHIFT) &
+						    DWMCI_FIFO_MASK;
+					for (i = 0; i < len; i++)
+						*buf++ =
+						dwmci_readl(host, DWMCI_DATA);
+					dwmci_writel(host, DWMCI_RINTSTS,
+						     DWMCI_INTMSK_RXDR);
+				}
+			} else {
+				if ((dwmci_readl(host, DWMCI_RINTSTS) &&
+				     DWMCI_INTMSK_TXDR)) {
+					len = dwmci_readl(host, DWMCI_STATUS);
+					len = fifo_depth - ((len >>
+						   DWMCI_FIFO_SHIFT) &
+						   DWMCI_FIFO_MASK);
+					for (i = 0; i < len; i++)
+						dwmci_writel(host, DWMCI_DATA,
+							     *buf++);
+					dwmci_writel(host, DWMCI_RINTSTS,
+						     DWMCI_INTMSK_TXDR);
+				}
+			}
+			size = size > len ? (size - len) : 0;
 		}
 
 		/* Data arrived correctly. */
@@ -165,17 +204,24 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	dwmci_writel(host, DWMCI_RINTSTS, DWMCI_INTMSK_ALL);
 
 	if (data) {
-		if (data->flags == MMC_DATA_READ) {
-			bounce_buffer_start(&bbstate, (void*)data->dest,
-					    data->blocksize *
-					    data->blocks, GEN_BB_WRITE);
+		if (host->fifo_mode) {
+			dwmci_writel(host, DWMCI_BLKSIZ, data->blocksize);
+			dwmci_writel(host, DWMCI_BYTCNT,
+				     data->blocksize * data->blocks);
+			dwmci_wait_reset(host, DWMCI_CTRL_FIFO_RESET);
 		} else {
-			bounce_buffer_start(&bbstate, (void*)data->src,
-					    data->blocksize *
-					    data->blocks, GEN_BB_READ);
+			if (data->flags == MMC_DATA_READ) {
+				bounce_buffer_start(&bbstate, (void*)data->dest,
+						data->blocksize *
+						data->blocks, GEN_BB_WRITE);
+			} else {
+				bounce_buffer_start(&bbstate, (void*)data->src,
+						data->blocksize *
+						data->blocks, GEN_BB_READ);
+			}
+			dwmci_prepare_data(host, data, cur_idmac,
+					   bbstate.bounce_buffer);
 		}
-		dwmci_prepare_data(host, data, cur_idmac,
-				   bbstate.bounce_buffer);
 	}
 
 	dwmci_writel(host, DWMCI_CMDARG, cmd->cmdarg);
@@ -249,12 +295,15 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (data) {
-		ret = dwmci_data_transfer(host);
+		ret = dwmci_data_transfer(host, data);
 
-		ctrl = dwmci_readl(host, DWMCI_CTRL);
-		ctrl &= ~(DWMCI_DMA_EN);
-		dwmci_writel(host, DWMCI_CTRL, ctrl);
-		bounce_buffer_stop(&bbstate);
+		/* only dma mode need it */
+		if (!host->fifo_mode) {
+			ctrl = dwmci_readl(host, DWMCI_CTRL);
+			ctrl &= ~(DWMCI_DMA_EN);
+			dwmci_writel(host, DWMCI_CTRL, ctrl);
+			bounce_buffer_stop(&bbstate);
+		}
 	}
 
 	udelay(100);
