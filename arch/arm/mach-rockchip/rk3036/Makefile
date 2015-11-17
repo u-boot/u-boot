@@ -8,3 +8,5 @@ ifndef CONFIG_SPL_BUILD
 obj-y += reset_rk3036.o
 obj-y += syscon_rk3036.o
 endif
+
+obj-y += sdram_rk3036.o
