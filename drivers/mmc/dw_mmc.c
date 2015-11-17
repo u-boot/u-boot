@@ -94,6 +94,42 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 	dwmci_writel(host, DWMCI_BYTCNT, data->blocksize * data->blocks);
 }
 
+static int dwmci_data_transfer(struct dwmci_host *host)
+{
+	int ret = 0;
+	unsigned int timeout = 240000;
+	u32 mask;
+	ulong start = get_timer(0);
+
+	for (;;) {
+		mask = dwmci_readl(host, DWMCI_RINTSTS);
+		/* Error during data transfer. */
+		if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
+			debug("%s: DATA ERROR!\n", __func__);
+			ret = -EINVAL;
+			break;
+		}
+
+		/* Data arrived correctly. */
+		if (mask & DWMCI_INTMSK_DTO) {
+			ret = 0;
+			break;
+		}
+
+		/* Check for timeout. */
+		if (get_timer(start) > timeout) {
+			debug("%s: Timeout waiting for data!\n",
+			      __func__);
+			ret = TIMEOUT;
+			break;
+		}
+	}
+
+	dwmci_writel(host, DWMCI_RINTSTS, mask);
+
+	return ret;
+}
+
 static int dwmci_set_transfer_mode(struct dwmci_host *host,
 		struct mmc_data *data)
 {
@@ -213,38 +249,11 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (data) {
-		start = get_timer(0);
-		timeout = 240000;
-		for (;;) {
-			mask = dwmci_readl(host, DWMCI_RINTSTS);
-			/* Error during data transfer. */
-			if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
-				debug("%s: DATA ERROR!\n", __func__);
-				ret = -EINVAL;
-				break;
-			}
-
-			/* Data arrived correctly. */
-			if (mask & DWMCI_INTMSK_DTO) {
-				ret = 0;
-				break;
-			}
-
-			/* Check for timeout. */
-			if (get_timer(start) > timeout) {
-				debug("%s: Timeout waiting for data!\n",
-				       __func__);
-				ret = TIMEOUT;
-				break;
-			}
-		}
-
-		dwmci_writel(host, DWMCI_RINTSTS, mask);
+		ret = dwmci_data_transfer(host);
 
 		ctrl = dwmci_readl(host, DWMCI_CTRL);
 		ctrl &= ~(DWMCI_DMA_EN);
 		dwmci_writel(host, DWMCI_CTRL, ctrl);
-
 		bounce_buffer_stop(&bbstate);
 	}
 
