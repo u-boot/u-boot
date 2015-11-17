@@ -28,8 +28,10 @@
 
 /* QE microcode/firmware address */
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-/* at end of uboot partition, before env */
-#define CONFIG_SYS_QE_FW_ADDR   0xF00B0000
+/* between the u-boot partition and env */
+#ifndef CONFIG_SYS_QE_FW_ADDR
+#define CONFIG_SYS_QE_FW_ADDR   0xF00C0000
+#endif
 
 /*
  * System IO Config
