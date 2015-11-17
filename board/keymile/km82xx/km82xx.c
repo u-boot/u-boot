@@ -329,8 +329,8 @@ int last_stage_init(void)
 
 	dip_switch = in_8(&base->mswitch);
 	dip_switch &= BFTICU_DIPSWITCH_MASK;
-	/* dip switch 'full reset' or 'db erase' */
-	if (dip_switch & 0x1 || dip_switch & 0x2) {
+	/* dip switch 'full reset' or 'db erase' or 'Local mgmt IP' or any */
+	if (dip_switch != 0) {
 		/* start bootloader */
 		puts("DIP:   Enabled\n");
 		setenv("actual_bank", "0");
