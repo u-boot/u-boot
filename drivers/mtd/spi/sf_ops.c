@@ -663,8 +663,11 @@ int stm_lock(struct spi_flash *flash, u32 ofs, size_t len)
 	u8 status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
 	u8 shift = ffs(mask) - 1, pow, val;
+	int ret;
 
-	spi_flash_cmd_read_status(flash, &status_old);
+	ret = spi_flash_cmd_read_status(flash, &status_old);
+	if (ret < 0)
+		return ret;
 
 	/* SPI NOR always locks to the end */
 	if (ofs + len != flash->size) {
@@ -714,8 +717,11 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 	uint8_t status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
 	u8 shift = ffs(mask) - 1, pow, val;
+	int ret;
 
-	spi_flash_cmd_read_status(flash, &status_old);
+	ret = spi_flash_cmd_read_status(flash, &status_old);
+	if (ret < 0)
+		return ret;
 
 	/* Cannot unlock; would unlock larger region than requested */
 	if (stm_is_locked_sr(flash, status_old, ofs - flash->erase_size,
