@@ -257,6 +257,7 @@
 		cap-mmc-highspeed;
 		mmc-ddr-1_8v;
 		disable-wp;
+		fifo-mode;
 		non-removable;
 		num-slots = <1>;
 		default-sample-phase = <158>;
