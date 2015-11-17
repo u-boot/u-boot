@@ -36,6 +36,9 @@
 #elif defined(CONFIG_KMOPTI2)
 #define CONFIG_KM_BOARD_NAME	"kmopti2"
 #define CONFIG_HOSTNAME		kmopti2
+#elif defined(CONFIG_KMTEPR2)
+#define CONFIG_KM_BOARD_NAME    "kmtepr2"
+#define CONFIG_HOSTNAME         kmtepr2
 #else
 #error ("Board not supported")
 #endif
@@ -47,21 +50,45 @@
 
 #define CONFIG_SYS_APP1_BASE	0xA0000000    /* PAXG */
 #define	CONFIG_SYS_APP1_SIZE	256 /* Megabytes */
-#if defined(CONFIG_TUXX1) || defined(CONFIG_KMOPTI2)
+#if defined(CONFIG_TUXX1) || defined(CONFIG_KMOPTI2) || defined(CONFIG_KMTEPR2)
 #define CONFIG_SYS_APP2_BASE	0xB0000000    /* PINC3 */
 #define	CONFIG_SYS_APP2_SIZE	256 /* Megabytes */
 #endif
 
 /*
  * Init Local Bus Memory Controller:
- *				      Device on
- * Bank Bus     Machine PortSz  Size  TUDA1  TUXA1  TUGE1  KMSUPX4 KMOPTI2
- * ---- ---     ------- ------  ----- ---------------------------------------
- *  2   Local   GPCM    8 bit  256MB  PAXG  LPXF   PAXI     LPXF   PAXE
- *  3   Local   GPCM    8 bit  256MB  PINC3 PINC2  unused  unused  OPI2(16 bit)
+ *				      Device on board
+ * Bank Bus     Machine PortSz Size   TUDA1  TUXA1  TUGE1   KMSUPX4 KMOPTI2
+ * -----------------------------------------------------------------------------
+ *  2   Local   GPCM    8 bit  256MB  PAXG   LPXF   PAXI    LPXF    PAXE
+ *  3   Local   GPCM    8 bit  256MB  PINC3  PINC2  unused  unused  OPI2(16 bit)
  *
+ *				      Device on board (continued)
+ * Bank Bus     Machine PortSz Size   KMTEPR2
+ * -----------------------------------------------------------------------------
+ *  2   Local   GPCM    8 bit  256MB  NVRAM
+ *  3   Local   GPCM    8 bit  256MB  TEP2 (16 bit)
  */
 
+#if defined(CONFIG_KMTEPRO2)
+/*
+ * Configuration for C2 (NVRAM) on the local bus
+ */
+#define CONFIG_SYS_LBLAWBAR2_PRELIM    CONFIG_SYS_APP1_BASE
+#define CONFIG_SYS_LBLAWAR2_PRELIM     (LBLAWAR_EN | LBLAWAR_256MB)
+#define CONFIG_SYS_BR2_PRELIM  (CONFIG_SYS_APP1_BASE | \
+				BR_PS_8 | \
+				BR_MS_GPCM | \
+				BR_V)
+#define CONFIG_SYS_OR2_PRELIM  (MEG_TO_AM(CONFIG_SYS_APP1_SIZE) | \
+				OR_GPCM_CSNT | \
+				OR_GPCM_ACS_DIV2 | \
+				OR_GPCM_XACS | \
+				OR_GPCM_SCY_2 | \
+				OR_GPCM_TRLX_SET | \
+				OR_GPCM_EHTR_SET | \
+				OR_GPCM_EAD)
+#else
 /*
  * Configuration for C2 on the local bus
  */
@@ -82,6 +109,8 @@
 				 OR_GPCM_TRLX_SET | \
 				 OR_GPCM_EHTR_CLEAR | \
 				 OR_GPCM_EAD)
+#endif
+
 #if defined(CONFIG_TUXX1)
 /*
  * Configuration for C3 on the local bus
@@ -108,7 +137,7 @@
 				 MxMR_WLFx_2X)
 #endif
 
-#if defined(CONFIG_KMOPTI2)
+#if defined(CONFIG_KMOPTI2) || defined(CONFIG_KMTEPR2)
 /*
  * Configuration for C3 on the local bus
  */
