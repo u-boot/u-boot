@@ -12,9 +12,6 @@ config ROCKCHIP_RK3288
 config SYS_MALLOC_F
 	default y
 
-config SYS_MALLOC_F_LEN
-	default 0x800
-
 config SPL_DM
 	default y
 

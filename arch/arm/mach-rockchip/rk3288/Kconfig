@@ -19,6 +19,9 @@ config TARGET_CHROMEBOOK_JERRY
 config SYS_SOC
 	default "rockchip"
 
+config SYS_MALLOC_F_LEN
+	default 0x0800
+
 source "board/google/chromebook_jerry/Kconfig"
 
 source "board/firefly/firefly-rk3288/Kconfig"
