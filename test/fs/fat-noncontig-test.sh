@@ -74,9 +74,25 @@ make O=${odir} -s sandbox_defconfig && make O=${odir} -s -j8
 mkdir -p ${mnt}
 if [ ! -f ${img} ]; then
     fallocate -l 40M ${img}
+    if [ $? -ne 0 ]; then
+        echo fallocate failed - using dd instead
+        dd if=/dev/zero of=${img} bs=1024 count=$((40 * 1024))
+        if [ $? -ne 0 ]; then
+            echo Could not create empty disk image
+            exit $?
+        fi
+    fi
     mkfs.fat ${img}
+    if [ $? -ne 0 ]; then
+        echo Could not create FAT filesystem
+        exit $?
+    fi
 
     sudo mount -o loop,uid=$(id -u) ${img} ${mnt}
+    if [ $? -ne 0 ]; then
+        echo Could not mount test filesystem
+        exit $?
+    fi
 
     for ((sects=8; sects < 512; sects += 8)); do
         fn=${mnt}/keep-${sects}.img
@@ -92,11 +108,23 @@ if [ ! -f ${img} ]; then
     dd if=${fill} of=${mnttestfn} bs=511 >/dev/null 2>&1
 
     sudo umount ${mnt}
+    if [ $? -ne 0 ]; then
+        echo Could not unmount test filesystem
+        exit $?
+    fi
 fi
 
 sudo mount -o ro,loop,uid=$(id -u) ${img} ${mnt}
+if [ $? -ne 0 ]; then
+    echo Could not mount test filesystem
+    exit $?
+fi
 crc=0x`crc32 ${mnttestfn}`
 sudo umount ${mnt}
+if [ $? -ne 0 ]; then
+    echo Could not unmount test filesystem
+    exit $?
+fi
 
 crc=`printf %02x%02x%02x%02x \
     $((${crc} & 0xff)) \
@@ -111,3 +139,7 @@ crc32 ${loadaddr} \$filesize ${crcaddr}
 if itest.l *${crcaddr} != ${crc}; then echo FAILURE; else echo PASS; fi
 reset
 EOF
+if [ $? -ne 0 ]; then
+    echo U-Boot exit status indicates an error
+    exit $?
+fi
