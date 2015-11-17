@@ -184,8 +184,9 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 
 	/* lock hooks are flash specific - assign them based on idcode0 */
 	switch (idcode[0]) {
-#ifdef CONFIG_SPI_FLASH_STMICRO
+#if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 	case SPI_FLASH_CFI_MFR_STMICRO:
+	case SPI_FLASH_CFI_MFR_SST:
 		flash->flash_lock = stm_lock;
 		flash->flash_unlock = stm_unlock;
 		flash->flash_is_locked = stm_is_locked;
