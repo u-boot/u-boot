@@ -1,0 +1,3 @@
+if ROCKCHIP_RK3036
+
+endif
