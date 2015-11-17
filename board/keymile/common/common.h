@@ -134,6 +134,8 @@ int wait_for_fpga_config(void);
 int fpga_reset(void);
 int toggle_eeprom_spi_bus(void);
 
+int get_testpin(void);
+
 int set_km_env(void);
 int fdt_set_node_and_value(void *blob,
 			char *nodename,

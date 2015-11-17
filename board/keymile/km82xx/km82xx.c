@@ -473,3 +473,12 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
+
+#if defined(CONFIG_MGCOGE3NE)
+int get_testpin(void)
+{
+	/* Testpin is Port C pin 29 - enable = low */
+	int testpin = !get_pin(0x00000004, 2);
+	return testpin;
+}
+#endif
