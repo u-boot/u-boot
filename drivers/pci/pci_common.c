@@ -268,7 +268,7 @@ int __pci_hose_phys_to_bus(struct pci_controller *hose,
 		bus_addr = phys_addr - res->phys_start + res->bus_start;
 
 		if (bus_addr >= res->bus_start &&
-		    bus_addr < res->bus_start + res->size) {
+		    (bus_addr - res->bus_start) < res->size) {
 			*ba = bus_addr;
 			return 0;
 		}
