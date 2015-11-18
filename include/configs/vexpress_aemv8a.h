@@ -276,10 +276,6 @@
 
 #endif
 
-/* Do not preserve environment */
-#define CONFIG_ENV_IS_NOWHERE		1
-#define CONFIG_ENV_SIZE			0x1000
-
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -290,28 +286,35 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
-/* Flash memory is available on the Juno board only */
-#ifndef CONFIG_TARGET_VEXPRESS64_JUNO
-#define CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+#define CONFIG_SYS_FLASH_BASE		0x08000000
+/* 255 x 256KiB sectors + 4 x 64KiB sectors at the end = 259 */
+#define CONFIG_SYS_MAX_FLASH_SECT	259
+/* Store environment at top of flash in the same location as blank.img */
+/* in the Juno firmware. */
+#define CONFIG_ENV_ADDR			0x0BFC0000
+#define CONFIG_ENV_SECT_SIZE		0x00010000
 #else
+#define CONFIG_SYS_FLASH_BASE		0x0C000000
+/* 256 x 256KiB sectors */
+#define CONFIG_SYS_MAX_FLASH_SECT	256
+/* Store environment at top of flash */
+#define CONFIG_ENV_ADDR			0x0FFC0000
+#define CONFIG_ENV_SECT_SIZE		0x00040000
+#endif
+
 #define CONFIG_CMD_ARMFLASH
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
-#define CONFIG_SYS_FLASH_BASE		0x08000000
-#define CONFIG_SYS_FLASH_SIZE		0x04000000 /* 64 MiB */
-#define CONFIG_SYS_MAX_FLASH_BANKS	2
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
 
-/* Timeout values in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
-
-/* 255 0x40000 sectors + first or last sector may have 4 erase regions = 259 */
-#define CONFIG_SYS_MAX_FLASH_SECT	259		/* Max sectors */
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes */
 #define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
+#define FLASH_MAX_SECTOR_SIZE		0x00040000
+#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_IS_IN_FLASH		1
 
-#endif
 
 #endif /* __VEXPRESS_AEMV8A_H */
