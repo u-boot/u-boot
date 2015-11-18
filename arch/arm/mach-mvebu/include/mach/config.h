@@ -23,6 +23,12 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
+#define CONFIG_SYS_L2_PL310
+
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
+#endif
+
 /*
  * By default kwbimage.cfg from board specific folder is used
  * If for some board, different configuration file need to be used,

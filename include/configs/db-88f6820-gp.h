@@ -14,11 +14,6 @@
 #define CONFIG_ARMADA_38X
 #define CONFIG_DB_88F6820_GP		/* Board target name for DDR training */
 
-#define CONFIG_SYS_L2_PL310
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#endif
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*

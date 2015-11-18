@@ -11,9 +11,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_ARMADA_XP		/* SOC Family Name */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#endif
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
