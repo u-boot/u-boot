@@ -28,6 +28,13 @@ U_BOOT_DEVICE(vexpress_serials) = {
 	.platdata = &serial_platdata,
 };
 
+/* This function gets replaced by platforms supporting PCIe.
+ * The replacement function, eg. on Juno, initialises the PCIe bus.
+ */
+__weak void vexpress64_pcie_init(void)
+{
+}
+
 int board_init(void)
 {
 	vexpress64_pcie_init();

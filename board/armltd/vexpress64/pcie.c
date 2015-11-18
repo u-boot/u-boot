@@ -191,7 +191,5 @@ void xr3pci_init(void)
 
 void vexpress64_pcie_init(void)
 {
-#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 	xr3pci_init();
-#endif
 }
