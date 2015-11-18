@@ -165,14 +165,19 @@
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x10000000)
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_2			(0x880000000)
 /* Top 16MB reserved for secure world use */
 #define DRAM_SEC_SIZE		0x01000000
 #define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE
-#define PHYS_SDRAM_2_SIZE	0x180000000
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+#define CONFIG_NR_DRAM_BANKS		2
+#define PHYS_SDRAM_2			(0x880000000)
+#define PHYS_SDRAM_2_SIZE		0x180000000
+#else
+#define CONFIG_NR_DRAM_BANKS		1
+#endif
 
 /* Enable memtest */
 #define CONFIG_CMD_MEMTEST
