@@ -50,8 +50,9 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;
 	host->priv = dev;
 
-	/* TODO(sjg@chromium.org): Remove the need for this hack */
-	host->dev_index = (ulong)host->ioaddr == 0xff0f0000 ? 0 : 1;
+	/* use non-removeable as sdcard and emmc as judgement */
+	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "non-removable"))
+		host->dev_index = 1;
 
 	return 0;
 }
