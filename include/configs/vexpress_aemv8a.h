@@ -35,8 +35,6 @@
 #elif CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_SYS_TEXT_BASE		0xe0000000
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
-#else
-#error "Unknown board variant"
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
@@ -108,8 +106,6 @@
 #elif CONFIG_TARGET_VEXPRESS64_JUNO
 #define GICD_BASE			(0x2C010000)
 #define GICC_BASE			(0x2C02f000)
-#else
-#error "Unknown board variant"
 #endif
 #endif /* !CONFIG_GICV3 */
 
@@ -278,8 +274,6 @@
 
 #define CONFIG_BOOTDELAY		1
 
-#else
-#error "Unknown board variant"
 #endif
 
 /* Do not preserve environment */
