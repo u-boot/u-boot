@@ -81,7 +81,9 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_de0_nano_soc.dtb			\
 	socfpga_cyclone5_sockit.dtb			\
-	socfpga_cyclone5_socrates.dtb
+	socfpga_cyclone5_socrates.dtb			\
+	socfpga_cyclone5_sr1500.dtb
+
 dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb dra7-evm.dtb
 dtb-$(CONFIG_TARGET_BEAGLE_X15) += am57xx-beagle-x15.dtb
 dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
