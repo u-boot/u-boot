@@ -249,7 +249,7 @@
 	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
 	"get_mon_ubi=ubifsload ${addr_mon} ${name_mon}\0"		\
 	"get_uboot_net=dhcp ${loadaddr} ${tftp_root}/${name_uboot}\0"	\
-	"burn_uboot_spi=sf probe; sf erase 0 0x100000; "		\
+	"burn_uboot_spi=sf probe; sf erase 0 0x80000; "		\
 		"sf write ${loadaddr} 0 ${filesize}\0"		\
 	"burn_uboot_nand=nand erase 0 0x100000; "			\
 		"nand write ${loadaddr} 0 ${filesize}\0"		\
