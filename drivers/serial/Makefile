@@ -19,7 +19,6 @@ obj-$(CONFIG_ALTERA_UART) += altera_uart.o
 obj-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
 obj-$(CONFIG_ARM_DCC) += arm_dcc.o
 obj-$(CONFIG_ATMEL_USART) += atmel_usart.o
-obj-$(CONFIG_DW_SERIAL) += serial_dw.o
 obj-$(CONFIG_EFI_APP) += serial_efi.o
 obj-$(CONFIG_LPC32XX_HSUART) += lpc32xx_hsuart.o
 obj-$(CONFIG_MCFUART) += mcfuart.o

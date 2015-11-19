@@ -46,7 +46,7 @@
 /* ns16550 reg in the low bits of cpu reg */
 #define CONFIG_SYS_NS16550_CLK		24000000
 #ifdef CONFIG_DM_SERIAL
-# define CONFIG_DW_SERIAL
+# define CONFIG_NS16550_SERIAL
 #else
 # define CONFIG_SYS_NS16550_REG_SIZE	-4
 # define CONFIG_SYS_NS16550_COM1		SUNXI_UART0_BASE
