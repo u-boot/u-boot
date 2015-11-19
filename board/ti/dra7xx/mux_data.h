@@ -372,7 +372,7 @@ const struct pad_conf_entry dra74x_core_padconf_array[] = {
 	{I2C2_SDA, (M0 | PIN_INPUT_PULLUP)},	/* i2c2_sda.i2c2_sda */
 	{I2C2_SCL, (M0 | PIN_INPUT_PULLUP)},	/* i2c2_scl.i2c2_scl */
 	{WAKEUP0, (M15 | PULL_UP)},	/* Wakeup0.safe for dcan1_rx */
-	{WAKEUP2, (M14 | PIN_OUTPUT)},	/* Wakeup2.gpio1_2 */
+	{WAKEUP2, (M14)},		/* Wakeup2.gpio1_2 */
 };
 
 #ifdef CONFIG_IODELAY_RECALIBRATION

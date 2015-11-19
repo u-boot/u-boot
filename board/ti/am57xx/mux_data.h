@@ -255,10 +255,10 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{UART2_RTSN, (M1 | PIN_INPUT_SLEW)},	/* uart2_rtsn.uart3_txd */
 	{I2C2_SDA, (M1 | PIN_INPUT)},		/* i2c2_sda.hdmi1_ddc_scl */
 	{I2C2_SCL, (M1 | PIN_INPUT)},		/* i2c2_scl.hdmi1_ddc_sda */
-	{WAKEUP0, (M0 | PIN_OUTPUT_PULLUP)},	/* Wakeup0.Wakeup0 */
-	{WAKEUP1, (M0 | PIN_OUTPUT_PULLDOWN)},	/* Wakeup1.Wakeup1 */
-	{WAKEUP2, (M0 | PIN_OUTPUT_PULLDOWN)},	/* Wakeup2.Wakeup2 */
-	{WAKEUP3, (M0 | PIN_OUTPUT_PULLUP)},	/* Wakeup3.Wakeup3 */
+	{WAKEUP0, (M0 | PULL_UP)},		/* Wakeup0.Wakeup0 */
+	{WAKEUP1, (M0)},			/* Wakeup1.Wakeup1 */
+	{WAKEUP2, (M0)},			/* Wakeup2.Wakeup2 */
+	{WAKEUP3, (M0 | PULL_UP)},		/* Wakeup3.Wakeup3 */
 	{ON_OFF, (M1 | PIN_OUTPUT_PULLUP)},	/* on_off.on_off */
 	{RTC_PORZ, (M0 | PIN_OUTPUT_PULLDOWN)},	/* rtc_porz.rtc_porz */
 	{RTCK, (M0 | PIN_INPUT_PULLDOWN)},	/* rtck.rtck */
