@@ -198,6 +198,7 @@ config ROCKCHIP_SERIAL
 config NS16550_SERIAL
 	bool "NS16550 UART or compatible"
 	depends on DM_SERIAL
+	default y if X86
 	help
 	  Support NS16550 UART or compatible with driver model. This can be
 	  enabled in the device tree with the correct input clock frequency.
@@ -232,15 +233,5 @@ config UNIPHIER_SERIAL
 	help
 	  If you have a UniPhier based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
-
-config X86_SERIAL
-	bool "Support for 16550 serial port on x86 machines"
-	depends on X86
-	default y
-	help
-	  Most x86 machines have a ns16550 UART or compatible. This can be
-	  enabled in the device tree with the correct input clock frequency
-	  provided (default 1843200). Enable this to obtain serial console
-	  output.
 
 endmenu
