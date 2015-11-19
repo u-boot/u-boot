@@ -50,7 +50,7 @@ static const struct ns16550_platdata zoom1_serial = {
 };
 
 U_BOOT_DEVICE(zoom1_uart) = {
-	"serial_omap",
+	"ns16550_serial",
 	&zoom1_serial
 };
 

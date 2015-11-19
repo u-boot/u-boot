@@ -74,7 +74,7 @@ static const struct ns16550_platdata overo_serial = {
 };
 
 U_BOOT_DEVICE(overo_uart) = {
-	"serial_omap",
+	"ns16550_serial",
 	&overo_serial
 };
 

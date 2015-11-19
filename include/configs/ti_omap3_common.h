@@ -19,7 +19,7 @@
 #include <asm/arch/omap.h>
 
 #ifndef CONFIG_SPL_BUILD
-# define CONFIG_OMAP_SERIAL
+# define CONFIG_NS16550_SERIAL
 #endif
 
 /* Common ARM Erratas */
@@ -37,10 +37,10 @@
 /* NS16550 Configuration */
 #define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
 #define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 #ifdef CONFIG_SPL_BUILD
 # define CONFIG_SYS_NS16550_SERIAL
 # define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-# define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 #endif
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
 					115200}

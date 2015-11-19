@@ -51,12 +51,12 @@
  * Hardware drivers
  */
 #define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_CLK		48000000
 #if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		48000000
 #else
-#define CONFIG_OMAP_SERIAL
+#define CONFIG_NS16550_SERIAL
 #endif
 
 /*

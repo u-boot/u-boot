@@ -35,7 +35,7 @@ static const struct ns16550_platdata serial_omap_platdata = {
 };
 
 U_BOOT_DEVICE(sniper_serial) = {
-	.name = "serial_omap",
+	.name = "ns16550_serial",
 	.platdata = &serial_omap_platdata
 };
 

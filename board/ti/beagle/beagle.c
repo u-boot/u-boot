@@ -79,7 +79,7 @@ static const struct ns16550_platdata beagle_serial = {
 };
 
 U_BOOT_DEVICE(beagle_uart) = {
-	"serial_omap",
+	"ns16550_serial",
 	&beagle_serial
 };
 

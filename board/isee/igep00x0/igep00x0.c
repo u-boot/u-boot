@@ -40,7 +40,7 @@ static const struct ns16550_platdata igep_serial = {
 };
 
 U_BOOT_DEVICE(igep_uart) = {
-	"serial_omap",
+	"ns16550_serial",
 	&igep_serial
 };
 

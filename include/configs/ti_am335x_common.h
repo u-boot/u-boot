@@ -20,7 +20,7 @@
 #define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #ifndef CONFIG_SPL_BUILD
-# define CONFIG_OMAP_SERIAL
+# define CONFIG_NS16550_SERIAL
 #endif
 
 #include <asm/arch/omap.h>
