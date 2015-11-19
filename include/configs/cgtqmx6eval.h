@@ -100,6 +100,12 @@
 #define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
 #define CONFIG_G_DNL_MANUFACTURER	"Congatec"
 
+/* USB Device Firmware Update support */
+#define CONFIG_CMD_DFU
+#define CONFIG_USB_FUNCTION_DFU
+#define CONFIG_DFU_MMC
+#define CONFIG_DFU_SF
+
 #define CONFIG_USB_FUNCTION_FASTBOOT
 #define CONFIG_CMD_FASTBOOT
 #define CONFIG_ANDROID_BOOT_IMAGE
@@ -164,6 +170,10 @@
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"dfuspi=dfu 0 sf 0:0:10000000:0\0" \
+	"dfu_alt_info_spl=spl raw 0x400\0" \
+	"dfu_alt_info_img=u-boot raw 0x10000\0" \
+	"dfu_alt_info=spl raw 0x400\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
