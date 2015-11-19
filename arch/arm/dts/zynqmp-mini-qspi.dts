@@ -1,0 +1,99 @@
+/*
+ * dts file for Xilinx ZynqMP Mini Configuration
+ *
+ * (C) Copyright 2015, Xilinx, Inc.
+ *
+ * Siva Durga Prasad <siva.durga.paladugu@xilinx.com>
+ * Michal Simek <michal.simek@xilinx.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+/ {
+	model = "ZynqMP MINI QSPI";
+	compatible = "xlnx,zynqmp";
+	#address-cells = <2>;
+	#size-cells = <1>;
+
+	aliases {
+		serial0 = &uart0;
+		spi0 = &qspi;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x40000000>;
+	};
+
+	amba: amba {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <1>;
+		ranges;
+
+		qspi: spi@ff0f0000 {
+			compatible = "xlnx,zynqmp-qspi-1.0";
+			status = "disabled";
+			clock-names = "ref_clk", "pclk";
+			clocks = <&misc_clk &misc_clk>;
+			num-cs = <1>;
+			reg = <0x0 0xff0f0000 0x1000 0x0 0xc0000000 0x8000000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		uart0: serial@ff000000 {
+			compatible = "cdns,uart-r1p12";
+			status = "disabled";
+			reg = <0x0 0xff000000 0x1000>;
+			clock-names = "uart_clk", "pclk";
+			clocks = <&misc_clk &misc_clk>;
+		};
+
+		misc_clk: misc_clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
+		};
+
+	};
+};
+
+&qspi {
+	status = "okay";
+	flash@0 {
+		compatible = "n25q512a11";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <10000000>;
+		partition@qspi-fsbl-uboot { /* for testing purpose */
+			label = "qspi-fsbl-uboot";
+			reg = <0x0 0x100000>;
+		};
+		partition@qspi-linux { /* for testing purpose */
+			label = "qspi-linux";
+			reg = <0x100000 0x500000>;
+		};
+		partition@qspi-device-tree { /* for testing purpose */
+			label = "qspi-device-tree";
+			reg = <0x600000 0x20000>;
+		};
+		partition@qspi-rootfs { /* for testing purpose */
+			label = "qspi-rootfs";
+			reg = <0x620000 0x5E0000>;
+		};
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
