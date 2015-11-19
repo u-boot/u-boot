@@ -49,7 +49,8 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-388-gp.dtb			\
-	armada-xp-gp.dtb
+	armada-xp-gp.dtb			\
+	armada-xp-maxbcm.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
 	uniphier-ph1-ld4-ref.dtb \
