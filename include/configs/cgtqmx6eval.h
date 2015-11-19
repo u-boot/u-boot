@@ -17,10 +17,21 @@
 
 #define CONFIG_MACH_TYPE	4122
 
+#ifdef CONFIG_SPL
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
+#define CONFIG_SPL_SPI_LOAD
+#include "imx6_spl.h"
+#endif
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_MXC_UART
@@ -144,10 +155,11 @@
 #define CONFIG_MMCROOT		"/dev/mmcblk0p2"
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
-	"fdtfile=imx6q-qmx6.dtb\0" \
+	"fdtfile=undefined\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
@@ -192,6 +204,13 @@
 		"else " \
 			"bootz; " \
 		"fi;\0" \
+	"findfdt="\
+		"if test $board_rev = MX6Q ; then " \
+			"setenv fdtfile imx6q-qmx6.dtb; fi; " \
+		"if test $board_rev = MX6DL ; then " \
+			"setenv fdtfile imx6dl-qmx6.dtb; fi; " \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs " \
 		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
@@ -220,6 +239,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run spilock;"	    \
+	"run findfdt; "	\
 	"mmc dev ${mmcdev};" \
 	"if mmc rescan; then " \
 		"if run loadbootscript; then " \

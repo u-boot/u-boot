@@ -46,6 +46,9 @@ config TARGET_ARISTAINETOS2B
 
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
 
 config TARGET_CM_FX6
 	bool "CM-FX6"
