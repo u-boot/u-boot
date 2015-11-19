@@ -52,6 +52,8 @@
 	};
 
 	aliases {
+		ethernet0 = &eth0;
+		ethernet1 = &eth1;
 		spi0 = &spi0;
 	};
 
