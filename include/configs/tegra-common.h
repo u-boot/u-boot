@@ -39,8 +39,9 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_TEGRA_SERIAL
+#define CONFIG_NS16550_SERIAL
 #define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 
 /*
  * Common HW configuration.
