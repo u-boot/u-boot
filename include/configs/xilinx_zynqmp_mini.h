@@ -18,6 +18,7 @@
 #define _CONFIG_CMD_DEFAULT_H
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_FIT_DISABLE_SHA256
 
 #include <configs/xilinx_zynqmp.h>
 
@@ -51,6 +52,8 @@
 #undef CONFIG_SYS_MEMTEST_END
 #undef CONFIG_SYS_CACHELINE_SIZE
 #undef CONFIG_SYS_INIT_SP_ADDR
+#undef CONFIG_SYS_LONGHELP
+#undef CONFIG_CMD_CACHE
 
 #undef CONFIG_CMD_MII
 
