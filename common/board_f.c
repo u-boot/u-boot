@@ -504,7 +504,7 @@ static int reserve_global_data(void)
 	return 0;
 }
 
-static int reserve_fdt(void)
+static int __maybe_unused reserve_fdt(void)
 {
 	/*
 	 * If the device tree is sitting immediately above our image then we
@@ -652,7 +652,7 @@ static int setup_dram_config(void)
 	return 0;
 }
 
-static int reloc_fdt(void)
+static int __maybe_unused reloc_fdt(void)
 {
 	if (gd->new_fdt) {
 		memcpy(gd->new_fdt, gd->fdt_blob, gd->fdt_size);
@@ -673,6 +673,9 @@ static int setup_reloc(void)
 	 */
 	gd->reloc_off = gd->relocaddr - (CONFIG_SYS_TEXT_BASE + 0x400);
 #endif
+#endif
+#ifdef CONFIG_OF_EMBED
+	gd->fdt_blob += gd->reloc_off;
 #endif
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
@@ -910,7 +913,9 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	setup_machine,
 	reserve_global_data,
+#ifndef CONFIG_OF_EMBED
 	reserve_fdt,
+#endif
 	reserve_arch,
 	reserve_stacks,
 	setup_dram_config,
@@ -925,7 +930,9 @@ static init_fnc_t init_sequence_f[] = {
 	setup_board_extra,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
+#ifndef CONFIG_OF_EMBED
 	reloc_fdt,
+#endif
 	setup_reloc,
 #if defined(CONFIG_X86) || defined(CONFIG_ARC)
 	copy_uboot_to_ram,
