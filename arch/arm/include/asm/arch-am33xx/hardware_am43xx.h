@@ -98,4 +98,7 @@
 
 #define NUM_CRYSTAL_FREQ			0x4
 
+/* EDMA3 Base Address */
+#define EDMA3_BASE				0x49000000
+
 #endif /* __AM43XX_HARDWARE_AM43XX_H */
