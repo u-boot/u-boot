@@ -55,10 +55,7 @@
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
-#define CONFIG_PHY_ADDR			{ 0x0, 0x1, 0x2, 0x3 }
-#define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_SGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
-#define CONFIG_RESET_PHY_R
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST

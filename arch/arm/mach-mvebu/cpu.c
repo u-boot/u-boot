@@ -326,30 +326,6 @@ int arch_misc_init(void)
 }
 #endif /* CONFIG_ARCH_MISC_INIT */
 
-#ifdef CONFIG_MVNETA
-int cpu_eth_init(bd_t *bis)
-{
-	u32 enet_base[] = { MVEBU_EGIGA0_BASE, MVEBU_EGIGA1_BASE,
-			    MVEBU_EGIGA2_BASE, MVEBU_EGIGA3_BASE };
-	u8 phy_addr[] = CONFIG_PHY_ADDR;
-	int i;
-
-	/*
-	 * Only Armada XP supports all 4 ethernet interfaces. A38x has
-	 * slightly different base addresses for its 2-3 interfaces.
-	 */
-	if (mvebu_soc_family() != MVEBU_SOC_AXP) {
-		enet_base[1] = MVEBU_EGIGA2_BASE;
-		enet_base[2] = MVEBU_EGIGA3_BASE;
-	}
-
-	for (i = 0; i < ARRAY_SIZE(phy_addr); i++)
-		mvneta_initialize(bis, enet_base[i], i, phy_addr[i]);
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_MV_SDHCI
 int board_mmc_init(bd_t *bis)
 {

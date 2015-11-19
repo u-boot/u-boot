@@ -117,6 +117,7 @@ config ARCH_MVEBU
 	select OF_CONTROL
 	select OF_SEPARATE
 	select DM
+	select DM_ETH
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH

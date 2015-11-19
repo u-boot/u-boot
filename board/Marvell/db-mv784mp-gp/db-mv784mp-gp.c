@@ -87,40 +87,32 @@ int board_eth_init(bd_t *bis)
 	return pci_eth_init(bis);
 }
 
-#ifdef CONFIG_RESET_PHY_R
-/* Configure and enable MV88E1545 PHY */
-void reset_phy(void)
+int board_phy_config(struct phy_device *phydev)
 {
-	u8 phy_addr[] = CONFIG_PHY_ADDR;
-	u16 devadr = phy_addr[0];
-	char *name = "neta0";
 	u16 reg;
-
-	if (miiphy_set_current_dev(name))
-		return;
 
 	/* Enable QSGMII AN */
 	/* Set page to 4 */
-	miiphy_write(name, devadr, 0x16, 4);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 4);
 	/* Enable AN */
-	miiphy_write(name, devadr, 0x0, 0x1140);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x0, 0x1140);
 	/* Set page to 0 */
-	miiphy_write(name, devadr, 0x16, 0);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0);
 
 	/* Phy C_ANEG */
-	miiphy_read(name, devadr, 0x4, &reg);
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, 0x4);
 	reg |= 0x1E0;
-	miiphy_write(name, devadr, 0x4, reg);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x4, reg);
 
 	/* Soft-Reset */
-	miiphy_write(name, devadr, 22, 0x0000);
-	miiphy_write(name, devadr, 0, 0x9140);
+	phy_write(phydev, MDIO_DEVAD_NONE, 22, 0x0000);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0, 0x9140);
 
 	/* Power up the phy */
-	miiphy_read(name, devadr, ETH_PHY_CTRL_REG, &reg);
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, ETH_PHY_CTRL_REG);
 	reg &= ~(ETH_PHY_CTRL_POWER_DOWN_MASK);
-	miiphy_write(name, devadr, ETH_PHY_CTRL_REG, reg);
+	phy_write(phydev, MDIO_DEVAD_NONE, ETH_PHY_CTRL_REG, reg);
 
-	printf("88E1545 Initialized on %s\n", name);
+	printf("88E1545 Initialized\n");
+	return 0;
 }
-#endif /* CONFIG_RESET_PHY_R */

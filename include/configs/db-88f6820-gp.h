@@ -99,8 +99,6 @@
 #define CONFIG_ENV_SECT_SIZE		(256 << 10) /* 256KiB sectors */
 
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
-#define CONFIG_PHY_ADDR			{ 1, 0 }
-#define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* PCIe support */
@@ -109,7 +107,6 @@
 #define CONFIG_PCI_MVEBU
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
-#define CONFIG_E1000	/* enable Intel E1000 support for testing */
 #endif
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
