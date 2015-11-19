@@ -8,7 +8,6 @@
 ifdef CONFIG_DM_SERIAL
 obj-y += serial-uclass.o
 obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
-obj-$(CONFIG_PPC) += serial_ppc.o
 else
 obj-y += serial.o
 obj-$(CONFIG_PL010_SERIAL) += serial_pl01x.o

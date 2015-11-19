@@ -104,4 +104,12 @@
 /* All PPC boards must swap IDE bytes */
 #define CONFIG_IDE_SWAP_IO
 
+#if defined(CONFIG_DM_SERIAL)
+/*
+ * TODO: Convert this to a clock driver exists that can give us the UART
+ * clock here.
+ */
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#endif
+
 #endif /* _ASM_CONFIG_H_ */

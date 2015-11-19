@@ -198,7 +198,7 @@ config ROCKCHIP_SERIAL
 config NS16550_SERIAL
 	bool "NS16550 UART or compatible"
 	depends on DM_SERIAL
-	default y if X86
+	default y if X86 || PPC
 	help
 	  Support NS16550 UART or compatible with driver model. This can be
 	  enabled in the device tree with the correct input clock frequency.
