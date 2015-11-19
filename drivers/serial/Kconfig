@@ -186,19 +186,10 @@ config ALTERA_UART
 	  Select this to enable an UART for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
-config ROCKCHIP_SERIAL
-	bool "Rockchip on-chip UART support"
-	depends on ARCH_ROCKCHIP && DM_SERIAL
-	help
-	  Select this to enable a debug UART for Rockchip devices. This uses
-	  the ns16550 driver. You will need to #define CONFIG_SYS_NS16550 in
-	  your board config header. The clock input is automatically set to
-	  use the oscillator (24MHz).
-
 config NS16550_SERIAL
 	bool "NS16550 UART or compatible"
 	depends on DM_SERIAL
-	default y if X86 || PPC
+	default y if X86 || PPC || ARCH_ROCKCHIP
 	help
 	  Support NS16550 UART or compatible with driver model. This can be
 	  enabled in the device tree with the correct input clock frequency.

@@ -33,9 +33,6 @@ config DM_I2C
 config DM_GPIO
 	default y
 
-config ROCKCHIP_SERIAL
-	default y
-
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
 
 endif
