@@ -8,7 +8,6 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
-#include <mapmem.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <watchdog.h>
@@ -97,7 +96,7 @@ static void ns16550_writeb(NS16550_t port, int offset, int value)
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
-	addr = map_sysmem(plat->base, 0) + offset;
+	addr = map_physmem(plat->base, 0, MAP_NOCACHE) + offset;
 	/*
 	 * As far as we know it doesn't make sense to support selection of
 	 * these options at run-time, so use the existing CONFIG options.
@@ -111,7 +110,7 @@ static int ns16550_readb(NS16550_t port, int offset)
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
-	addr = map_sysmem(plat->base, 0) + offset;
+	addr = map_physmem(plat->base, 0, MAP_NOCACHE) + offset;
 
 	return serial_in_shift(addr, plat->reg_shift);
 }
