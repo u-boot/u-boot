@@ -29,6 +29,16 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
+/* SPI NOR */
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_SST
+#define CONFIG_MXC_SPI
+#define CONFIG_SF_DEFAULT_BUS		0
+#define CONFIG_SF_DEFAULT_SPEED		20000000
+#define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
+
 /* Miscellaneous commands */
 #define CONFIG_CMD_BMODE
 
@@ -200,8 +210,10 @@
 		"else " \
 			"bootz; " \
 		"fi;\0" \
+	"spilock=sf probe && sf protect lock 0x3f0000 0x10000;"\
 
 #define CONFIG_BOOTCOMMAND \
+	"run spilock;"	    \
 	"mmc dev ${mmcdev};" \
 	"if mmc rescan; then " \
 		"if run loadbootscript; then " \
