@@ -41,7 +41,6 @@
 #endif
 
 /* Serial & console */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
 #define CONFIG_SYS_NS16550_CLK		24000000

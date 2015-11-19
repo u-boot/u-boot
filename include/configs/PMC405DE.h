@@ -88,7 +88,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x3000000 /* 1 ... 48 MB in DRAM */
 
 #define CONFIG_CONS_INDEX	2	/* Use UART1			*/
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()

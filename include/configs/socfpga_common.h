@@ -219,7 +219,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * Serial Driver
  */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
 #define CONFIG_SYS_NS16550_COM1		SOCFPGA_UART0_ADDRESS

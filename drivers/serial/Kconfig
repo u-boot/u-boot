@@ -186,6 +186,16 @@ config ALTERA_UART
 	  Select this to enable an UART for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config SYS_NS16550
+	bool "NS16550 UART or compatible"
+	help
+	  Support NS16550 UART or compatible. This can be enabled in the
+	  device tree with the correct input clock frequency. If the input
+	  clock frequency is not defined in the device tree, the macro
+	  CONFIG_SYS_NS16550_CLK defined in a legacy board header file will
+	  be used. It can be a constant or a function to get clock, eg,
+	  get_serial_clock().
+
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"
 	depends on SANDBOX

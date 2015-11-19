@@ -79,7 +79,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 /* Serial Info */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 /* Post pad 3 bytes after each reg addr */
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
