@@ -53,6 +53,7 @@ config DEBUG_UART
 choice
 	prompt "Select which UART will provide the debug UART"
 	depends on DEBUG_UART
+	default DEBUG_UART_NS16550
 
 config DEBUG_UART_ALTERA_JTAGUART
 	bool "Altera JTAG UART"
