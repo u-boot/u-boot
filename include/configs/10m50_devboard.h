@@ -20,6 +20,7 @@
  */
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* Suppress console info */
+#define CONFIG_SYS_NS16550_MEM32
 
 /*
  * Flash

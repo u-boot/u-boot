@@ -262,6 +262,6 @@
 
 	chosen {
 		bootargs = "debug console=ttyS0,115200";
-		stdout-path = &uart_0;
+		stdout-path = &a_16550_uart_0;
 	};
 };
