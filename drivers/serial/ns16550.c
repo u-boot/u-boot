@@ -56,6 +56,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_DM_SERIAL
 
+#ifndef CONFIG_SYS_NS16550_CLK
+#define CONFIG_SYS_NS16550_CLK  0
+#endif
+
 static inline void serial_out_shift(void *addr, int shift, int value)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
@@ -400,6 +404,15 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	plat->base = addr;
 	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					 "reg-shift", 1);
+#ifdef CONFIG_NS16550_SERIAL
+	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				     "clock-frequency",
+				     CONFIG_SYS_NS16550_CLK);
+	if (!plat->clock) {
+		debug("ns16550 clock not defined\n");
+		return -EINVAL;
+	}
+#endif /* CONFIG_NS16550_SERIAL */
 
 	return 0;
 }
@@ -411,4 +424,35 @@ const struct dm_serial_ops ns16550_serial_ops = {
 	.getc = ns16550_serial_getc,
 	.setbrg = ns16550_serial_setbrg,
 };
+
+#ifdef CONFIG_NS16550_SERIAL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id ns16550_serial_ids[] = {
+	{ .compatible = "ns16550" },
+	{ .compatible = "ns16550a" },
+	{ .compatible = "nvidia,tegra20-uart" },
+	{ .compatible = "snps,dw-apb-uart" },
+	{ .compatible = "ti,omap2-uart" },
+	{ .compatible = "ti,omap3-uart" },
+	{ .compatible = "ti,omap4-uart" },
+	{ .compatible = "ti,am3352-uart" },
+	{ .compatible = "ti,am4372-uart" },
+	{ .compatible = "ti,dra742-uart" },
+	{}
+};
+#endif
+
+U_BOOT_DRIVER(ns16550_serial) = {
+	.name	= "ns16550_serial",
+	.id	= UCLASS_SERIAL,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.of_match = ns16550_serial_ids,
+	.ofdata_to_platdata = ns16550_serial_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
+#endif
+	.priv_auto_alloc_size = sizeof(struct NS16550),
+	.probe = ns16550_serial_probe,
+	.ops	= &ns16550_serial_ops,
+};
+#endif /* CONFIG_NS16550_SERIAL */
 #endif /* CONFIG_DM_SERIAL */
