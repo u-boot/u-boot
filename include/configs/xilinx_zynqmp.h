@@ -94,6 +94,9 @@
 # define CONFIG_SDHCI
 # define CONFIG_ZYNQ_SDHCI
 # define CONFIG_CMD_MMC
+# ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
+#  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
+# endif
 #endif
 
 #if defined(CONFIG_ZYNQ_SDHCI)
@@ -182,6 +185,7 @@
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 # define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
+# define CONFIG_PHY_TI
 #endif
 
 /* I2C */

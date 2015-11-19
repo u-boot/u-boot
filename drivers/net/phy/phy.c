@@ -484,6 +484,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_TERANETICS
 	phy_teranetics_init();
 #endif
+#ifdef CONFIG_PHY_TI
+	phy_ti_init();
+#endif
 #ifdef CONFIG_PHY_VITESSE
 	phy_vitesse_init();
 #endif
