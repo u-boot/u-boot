@@ -404,7 +404,6 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	plat->base = addr;
 	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					 "reg-shift", 1);
-#ifdef CONFIG_NS16550_SERIAL
 	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				     "clock-frequency",
 				     CONFIG_SYS_NS16550_CLK);
@@ -412,7 +411,6 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 		debug("ns16550 clock not defined\n");
 		return -EINVAL;
 	}
-#endif /* CONFIG_NS16550_SERIAL */
 
 	return 0;
 }
@@ -425,7 +423,6 @@ const struct dm_serial_ops ns16550_serial_ops = {
 	.setbrg = ns16550_serial_setbrg,
 };
 
-#ifdef CONFIG_NS16550_SERIAL
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ns16550" },
@@ -454,5 +451,4 @@ U_BOOT_DRIVER(ns16550_serial) = {
 	.probe = ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,
 };
-#endif /* CONFIG_NS16550_SERIAL */
 #endif /* CONFIG_DM_SERIAL */

@@ -39,10 +39,6 @@
 /*
  * NS16550 Configuration
  */
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DM_SERIAL)
-#define CONFIG_NS16550_SERIAL
-#endif
-
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK

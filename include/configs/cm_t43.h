@@ -18,7 +18,6 @@
 #include <asm/arch/omap.h>
 
 /* Serial support */
-#define CONFIG_NS16550_SERIAL
 #define CONFIG_DM_SERIAL
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL

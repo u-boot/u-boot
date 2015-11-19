@@ -18,10 +18,6 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
 
-#ifndef CONFIG_SPL_BUILD
-# define CONFIG_NS16550_SERIAL
-#endif
-
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973

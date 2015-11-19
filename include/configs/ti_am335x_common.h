@@ -19,10 +19,6 @@
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 #define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
-#ifndef CONFIG_SPL_BUILD
-# define CONFIG_NS16550_SERIAL
-#endif
-
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */

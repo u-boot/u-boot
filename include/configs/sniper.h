@@ -196,9 +196,7 @@
  */
 
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_NS16550_SERIAL
-#else
+#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #endif
