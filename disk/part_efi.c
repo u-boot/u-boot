@@ -578,6 +578,116 @@ err:
 	return ret;
 }
 
+static void gpt_convert_efi_name_to_char(char *s, efi_char16_t *es, int n)
+{
+	char *ess = (char *)es;
+	int i, j;
+
+	memset(s, '\0', n);
+
+	for (i = 0, j = 0; j < n; i += 2, j++) {
+		s[j] = ess[i];
+		if (!ess[i])
+			return;
+	}
+}
+
+int gpt_verify_headers(block_dev_desc_t *dev_desc, gpt_header *gpt_head,
+		       gpt_entry **gpt_pte)
+{
+	/*
+	 * This function validates AND
+	 * fills in the GPT header and PTE
+	 */
+	if (is_gpt_valid(dev_desc,
+			 GPT_PRIMARY_PARTITION_TABLE_LBA,
+			 gpt_head, gpt_pte) != 1) {
+		printf("%s: *** ERROR: Invalid GPT ***\n",
+		       __func__);
+		return -1;
+	}
+	if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
+			 gpt_head, gpt_pte) != 1) {
+		printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+		       __func__);
+		return -1;
+	}
+
+	return 0;
+}
+
+int gpt_verify_partitions(block_dev_desc_t *dev_desc,
+			  disk_partition_t *partitions, int parts,
+			  gpt_header *gpt_head, gpt_entry **gpt_pte)
+{
+	char efi_str[PARTNAME_SZ + 1];
+	u64 gpt_part_size;
+	gpt_entry *gpt_e;
+	int ret, i;
+
+	ret = gpt_verify_headers(dev_desc, gpt_head, gpt_pte);
+	if (ret)
+		return ret;
+
+	gpt_e = *gpt_pte;
+
+	for (i = 0; i < parts; i++) {
+		if (i == gpt_head->num_partition_entries) {
+			error("More partitions than allowed!\n");
+			return -1;
+		}
+
+		/* Check if GPT and ENV partition names match */
+		gpt_convert_efi_name_to_char(efi_str, gpt_e[i].partition_name,
+					     PARTNAME_SZ + 1);
+
+		debug("%s: part: %2d name - GPT: %16s, ENV: %16s ",
+		      __func__, i, efi_str, partitions[i].name);
+
+		if (strncmp(efi_str, (char *)partitions[i].name,
+			    sizeof(partitions->name))) {
+			error("Partition name: %s does not match %s!\n",
+			      efi_str, (char *)partitions[i].name);
+			return -1;
+		}
+
+		/* Check if GPT and ENV sizes match */
+		gpt_part_size = le64_to_cpu(gpt_e[i].ending_lba) -
+			le64_to_cpu(gpt_e[i].starting_lba) + 1;
+		debug("size(LBA) - GPT: %8llu, ENV: %8llu ",
+		      gpt_part_size, (u64) partitions[i].size);
+
+		if (le64_to_cpu(gpt_part_size) != partitions[i].size) {
+			error("Partition %s size: %llu does not match %llu!\n",
+			      efi_str, gpt_part_size, (u64) partitions[i].size);
+			return -1;
+		}
+
+		/*
+		 * Start address is optional - check only if provided
+		 * in '$partition' variable
+		 */
+		if (!partitions[i].start) {
+			debug("\n");
+			continue;
+		}
+
+		/* Check if GPT and ENV start LBAs match */
+		debug("start LBA - GPT: %8llu, ENV: %8llu\n",
+		      le64_to_cpu(gpt_e[i].starting_lba),
+		      (u64) partitions[i].start);
+
+		if (le64_to_cpu(gpt_e[i].starting_lba) != partitions[i].start) {
+			error("Partition %s start: %llu does not match %llu!\n",
+			      efi_str, le64_to_cpu(gpt_e[i].starting_lba),
+			      (u64) partitions[i].start);
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 int is_valid_gpt_buf(block_dev_desc_t *dev_desc, void *buf)
 {
 	gpt_header *gpt_h;
