@@ -112,12 +112,10 @@ M:	Minkyu Kang <mk7.kang@samsung.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-samsung.git
 F:	arch/arm/cpu/arm920t/s3c24x0/
-F:	arch/arm/cpu/armv7/exynos/
-F:	arch/arm/cpu/armv7/s5pc1xx/
+F:	arch/arm/mach-exynos/
+F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
-F:	arch/arm/include/asm/arch-exynos/
 F:	arch/arm/include/asm/arch-s3c24x0/
-F:	arch/arm/include/asm/arch-s5pc1xx/
 
 ARM STM SPEAR
 M:	Vipin Kumar <vipin.kumar@st.com>
