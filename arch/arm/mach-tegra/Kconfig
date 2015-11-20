@@ -6,6 +6,7 @@ config TEGRA_COMMON
 	select DM_GPIO
 	select DM_I2C
 	select DM_KEYBOARD
+	select DM_PCI
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH

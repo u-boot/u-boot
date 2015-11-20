@@ -10,10 +10,10 @@
  * SPDX-License-Identifier:	GPL-2.0
  */
 
-#define DEBUG
 #define pr_fmt(fmt) "tegra-pcie: " fmt
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -177,7 +177,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define  RP_LINK_CONTROL_STATUS_DL_LINK_ACTIVE	0x20000000
 #define  RP_LINK_CONTROL_STATUS_LINKSTAT_MASK	0x3fff0000
 
-struct tegra_pcie;
+enum tegra_pci_id {
+	TEGRA20_PCIE,
+	TEGRA30_PCIE,
+	TEGRA124_PCIE,
+	TEGRA210_PCIE,
+};
 
 struct tegra_pcie_port {
 	struct tegra_pcie *pcie;
@@ -207,21 +212,12 @@ struct tegra_pcie {
 	struct fdt_resource afi;
 	struct fdt_resource cs;
 
-	struct fdt_resource prefetch;
-	struct fdt_resource mem;
-	struct fdt_resource io;
-
 	struct list_head ports;
 	unsigned long xbar;
 
 	const struct tegra_pcie_soc *soc;
 	struct tegra_xusb_phy *phy;
 };
-
-static inline struct tegra_pcie *to_tegra_pcie(struct pci_controller *hose)
-{
-	return container_of(hose, struct tegra_pcie, hose);
-}
 
 static void afi_writel(struct tegra_pcie *pcie, unsigned long value,
 		       unsigned long offset)
@@ -284,46 +280,54 @@ static int tegra_pcie_conf_address(struct tegra_pcie *pcie, pci_dev_t bdf,
 		return 0;
 	}
 
-	return -1;
+	return -EFAULT;
 }
 
-static int tegra_pcie_read_conf(struct pci_controller *hose, pci_dev_t bdf,
-				int where, u32 *value)
+static int pci_tegra_read_config(struct udevice *bus, pci_dev_t bdf,
+				 uint offset, ulong *valuep,
+				 enum pci_size_t size)
 {
-	struct tegra_pcie *pcie = to_tegra_pcie(hose);
-	unsigned long address;
+	struct tegra_pcie *pcie = dev_get_priv(bus);
+	unsigned long address, value;
 	int err;
 
-	err = tegra_pcie_conf_address(pcie, bdf, where, &address);
+	err = tegra_pcie_conf_address(pcie, bdf, offset, &address);
 	if (err < 0) {
-		*value = 0xffffffff;
-		return 1;
+		value = 0xffffffff;
+		goto done;
 	}
 
-	*value = readl(address);
+	value = readl(address);
 
 	/* fixup root port class */
 	if (PCI_BUS(bdf) == 0) {
-		if (where == PCI_CLASS_REVISION) {
-			*value &= ~0x00ff0000;
-			*value |= PCI_CLASS_BRIDGE_PCI << 16;
+		if (offset == PCI_CLASS_REVISION) {
+			value &= ~0x00ff0000;
+			value |= PCI_CLASS_BRIDGE_PCI << 16;
 		}
 	}
+
+done:
+	*valuep = pci_conv_32_to_size(value, offset, size);
 
 	return 0;
 }
 
-static int tegra_pcie_write_conf(struct pci_controller *hose, pci_dev_t bdf,
-				 int where, u32 value)
+static int pci_tegra_write_config(struct udevice *bus, pci_dev_t bdf,
+				  uint offset, ulong value,
+				  enum pci_size_t size)
 {
-	struct tegra_pcie *pcie = to_tegra_pcie(hose);
+	struct tegra_pcie *pcie = dev_get_priv(bus);
 	unsigned long address;
+	ulong old;
 	int err;
 
-	err = tegra_pcie_conf_address(pcie, bdf, where, &address);
+	err = tegra_pcie_conf_address(pcie, bdf, offset, &address);
 	if (err < 0)
-		return 1;
+		return 0;
 
+	old = readl(address);
+	value = pci_conv_size_to_32(old, value, offset, size);
 	writel(value, address);
 
 	return 0;
@@ -348,12 +352,10 @@ static int tegra_pcie_port_parse_dt(const void *fdt, int node,
 }
 
 static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
-				      unsigned long *xbar)
+				      enum tegra_pci_id id, unsigned long *xbar)
 {
-	enum fdt_compat_id id = fdtdec_lookup(fdt, node);
-
 	switch (id) {
-	case COMPAT_NVIDIA_TEGRA20_PCIE:
+	case TEGRA20_PCIE:
 		switch (lanes) {
 		case 0x00000004:
 			debug("single-mode configuration\n");
@@ -366,8 +368,7 @@ static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
 			return 0;
 		}
 		break;
-
-	case COMPAT_NVIDIA_TEGRA30_PCIE:
+	case TEGRA30_PCIE:
 		switch (lanes) {
 		case 0x00000204:
 			debug("4x1, 2x1 configuration\n");
@@ -385,9 +386,8 @@ static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
 			return 0;
 		}
 		break;
-
-	case COMPAT_NVIDIA_TEGRA124_PCIE:
-	case COMPAT_NVIDIA_TEGRA210_PCIE:
+	case TEGRA124_PCIE:
+	case TEGRA210_PCIE:
 		switch (lanes) {
 		case 0x0000104:
 			debug("4x1, 1x1 configuration\n");
@@ -400,90 +400,11 @@ static int tegra_pcie_get_xbar_config(const void *fdt, int node, u32 lanes,
 			return 0;
 		}
 		break;
-
 	default:
 		break;
 	}
 
 	return -FDT_ERR_NOTFOUND;
-}
-
-static int tegra_pcie_parse_dt_ranges(const void *fdt, int node,
-				      struct tegra_pcie *pcie)
-{
-	int parent, na_parent, na_pcie, ns_pcie;
-	const u32 *ptr, *end;
-	int len;
-
-	parent = fdt_parent_offset(fdt, node);
-	if (parent < 0) {
-		error("Can't find PCI parent node\n");
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	na_parent = fdt_address_cells(fdt, parent);
-	if (na_parent < 1) {
-		error("bad #address-cells for PCIE parent\n");
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	na_pcie = fdt_address_cells(fdt, node);
-	if (na_pcie < 1) {
-		error("bad #address-cells for PCIE\n");
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	ns_pcie = fdt_size_cells(fdt, node);
-	if (ns_pcie < 1) {
-		error("bad #size-cells for PCIE\n");
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	ptr = fdt_getprop(fdt, node, "ranges", &len);
-	if (!ptr) {
-		error("missing \"ranges\" property");
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	end = ptr + len / 4;
-
-	while (ptr < end) {
-		struct fdt_resource *res = NULL;
-		u32 space = fdt32_to_cpu(*ptr);
-
-		switch ((space >> 24) & 0x3) {
-		case 0x01:
-			res = &pcie->io;
-			break;
-
-		case 0x02: /* 32 bit */
-		case 0x03: /* 64 bit */
-			if (space & (1 << 30))
-				res = &pcie->prefetch;
-			else
-				res = &pcie->mem;
-
-			break;
-		}
-
-		if (res) {
-			int start_low = na_pcie + (na_parent - 1);
-			int size_low = na_pcie + na_parent + (ns_pcie - 1);
-			res->start = fdt32_to_cpu(ptr[start_low]);
-			res->end = res->start + fdt32_to_cpu(ptr[size_low]);
-		}
-
-		ptr += na_pcie + na_parent + ns_pcie;
-	}
-
-	debug("PCI regions:\n");
-	debug("  I/O: %pa-%pa\n", &pcie->io.start, &pcie->io.end);
-	debug("  non-prefetchable memory: %pa-%pa\n", &pcie->mem.start,
-	      &pcie->mem.end);
-	debug("  prefetchable memory: %pa-%pa\n", &pcie->prefetch.start,
-	      &pcie->prefetch.end);
-
-	return 0;
 }
 
 static int tegra_pcie_parse_port_info(const void *fdt, int node,
@@ -512,7 +433,12 @@ static int tegra_pcie_parse_port_info(const void *fdt, int node,
 	return 0;
 }
 
-static int tegra_pcie_parse_dt(const void *fdt, int node,
+int __weak tegra_pcie_board_init(void)
+{
+	return 0;
+}
+
+static int tegra_pcie_parse_dt(const void *fdt, int node, enum tegra_pci_id id,
 			       struct tegra_pcie *pcie)
 {
 	int err, subnode;
@@ -539,6 +465,8 @@ static int tegra_pcie_parse_dt(const void *fdt, int node,
 		return err;
 	}
 
+	tegra_pcie_board_init();
+
 	pcie->phy = tegra_xusb_phy_get(TEGRA_XUSB_PADCTL_PCIE);
 	if (pcie->phy) {
 		err = tegra_xusb_phy_prepare(pcie->phy);
@@ -546,12 +474,6 @@ static int tegra_pcie_parse_dt(const void *fdt, int node,
 			error("failed to prepare PHY: %d", err);
 			return err;
 		}
-	}
-
-	err = tegra_pcie_parse_dt_ranges(fdt, node, pcie);
-	if (err < 0) {
-		error("failed to parse \"ranges\" property");
-		return err;
 	}
 
 	fdt_for_each_subnode(fdt, subnode, node) {
@@ -588,17 +510,12 @@ static int tegra_pcie_parse_dt(const void *fdt, int node,
 		port->pcie = pcie;
 	}
 
-	err = tegra_pcie_get_xbar_config(fdt, node, lanes, &pcie->xbar);
+	err = tegra_pcie_get_xbar_config(fdt, node, lanes, id, &pcie->xbar);
 	if (err < 0) {
 		error("invalid lane configuration");
 		return err;
 	}
 
-	return 0;
-}
-
-int __weak tegra_pcie_board_init(void)
-{
 	return 0;
 }
 
@@ -788,9 +705,12 @@ static int tegra_pcie_enable_controller(struct tegra_pcie *pcie)
 	return 0;
 }
 
-static void tegra_pcie_setup_translations(struct tegra_pcie *pcie)
+static int tegra_pcie_setup_translations(struct udevice *bus)
 {
+	struct tegra_pcie *pcie = dev_get_priv(bus);
 	unsigned long fpci, axi, size;
+	struct pci_region *io, *mem, *pref;
+	int count;
 
 	/* BAR 0: type 1 extended configuration space */
 	fpci = 0xfe100000;
@@ -801,28 +721,32 @@ static void tegra_pcie_setup_translations(struct tegra_pcie *pcie)
 	afi_writel(pcie, size >> 12, AFI_AXI_BAR0_SZ);
 	afi_writel(pcie, fpci, AFI_FPCI_BAR0);
 
+	count = pci_get_regions(bus, &io, &mem, &pref);
+	if (count != 3)
+		return -EINVAL;
+
 	/* BAR 1: downstream I/O */
 	fpci = 0xfdfc0000;
-	size = fdt_resource_size(&pcie->io);
-	axi = pcie->io.start;
+	size = io->size;
+	axi = io->phys_start;
 
 	afi_writel(pcie, axi, AFI_AXI_BAR1_START);
 	afi_writel(pcie, size >> 12, AFI_AXI_BAR1_SZ);
 	afi_writel(pcie, fpci, AFI_FPCI_BAR1);
 
 	/* BAR 2: prefetchable memory */
-	fpci = (((pcie->prefetch.start >> 12) & 0x0fffffff) << 4) | 0x1;
-	size = fdt_resource_size(&pcie->prefetch);
-	axi = pcie->prefetch.start;
+	fpci = (((pref->phys_start >> 12) & 0x0fffffff) << 4) | 0x1;
+	size = pref->size;
+	axi = pref->phys_start;
 
 	afi_writel(pcie, axi, AFI_AXI_BAR2_START);
 	afi_writel(pcie, size >> 12, AFI_AXI_BAR2_SZ);
 	afi_writel(pcie, fpci, AFI_FPCI_BAR2);
 
 	/* BAR 3: non-prefetchable memory */
-	fpci = (((pcie->mem.start >> 12) & 0x0fffffff) << 4) | 0x1;
-	size = fdt_resource_size(&pcie->mem);
-	axi = pcie->mem.start;
+	fpci = (((mem->phys_start >> 12) & 0x0fffffff) << 4) | 0x1;
+	size = mem->size;
+	axi = mem->phys_start;
 
 	afi_writel(pcie, axi, AFI_AXI_BAR3_START);
 	afi_writel(pcie, size >> 12, AFI_AXI_BAR3_SZ);
@@ -848,6 +772,8 @@ static void tegra_pcie_setup_translations(struct tegra_pcie *pcie)
 	afi_writel(pcie, 0, AFI_MSI_BAR_SZ);
 	afi_writel(pcie, 0, AFI_MSI_AXI_BAR_ST);
 	afi_writel(pcie, 0, AFI_MSI_BAR_SZ);
+
+	return 0;
 }
 
 static unsigned long tegra_pcie_port_get_pex_ctrl(struct tegra_pcie_port *port)
@@ -1001,209 +927,116 @@ static int tegra_pcie_enable(struct tegra_pcie *pcie)
 	return 0;
 }
 
-static const struct tegra_pcie_soc tegra20_pcie_soc = {
-	.num_ports = 2,
-	.pads_pll_ctl = PADS_PLL_CTL_TEGRA20,
-	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_DIV10,
-	.has_pex_clkreq_en = false,
-	.has_pex_bias_ctrl = false,
-	.has_cml_clk = false,
-	.has_gen2 = false,
-	.force_pca_enable = false,
+static const struct tegra_pcie_soc pci_tegra_soc[] = {
+	[TEGRA20_PCIE] = {
+		.num_ports = 2,
+		.pads_pll_ctl = PADS_PLL_CTL_TEGRA20,
+		.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_DIV10,
+		.has_pex_clkreq_en = false,
+		.has_pex_bias_ctrl = false,
+		.has_cml_clk = false,
+		.has_gen2 = false,
+	},
+	[TEGRA30_PCIE] = {
+		.num_ports = 3,
+		.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
+		.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
+		.has_pex_clkreq_en = true,
+		.has_pex_bias_ctrl = true,
+		.has_cml_clk = true,
+		.has_gen2 = false,
+	},
+	[TEGRA124_PCIE] = {
+		.num_ports = 2,
+		.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
+		.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
+		.has_pex_clkreq_en = true,
+		.has_pex_bias_ctrl = true,
+		.has_cml_clk = true,
+		.has_gen2 = true,
+	},
+	[TEGRA210_PCIE] = {
+		.num_ports = 2,
+		.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
+		.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
+		.has_pex_clkreq_en = true,
+		.has_pex_bias_ctrl = true,
+		.has_cml_clk = true,
+		.has_gen2 = true,
+		.force_pca_enable = true,
+	}
 };
 
-static const struct tegra_pcie_soc tegra30_pcie_soc = {
-	.num_ports = 3,
-	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
-	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
-	.has_pex_clkreq_en = true,
-	.has_pex_bias_ctrl = true,
-	.has_cml_clk = true,
-	.has_gen2 = false,
-	.force_pca_enable = false,
-};
-
-static const struct tegra_pcie_soc tegra124_pcie_soc = {
-	.num_ports = 2,
-	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
-	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
-	.has_pex_clkreq_en = true,
-	.has_pex_bias_ctrl = true,
-	.has_cml_clk = true,
-	.has_gen2 = true,
-	.force_pca_enable = false,
-};
-
-static const struct tegra_pcie_soc tegra210_pcie_soc = {
-	.num_ports = 2,
-	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
-	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
-	.has_pex_clkreq_en = true,
-	.has_pex_bias_ctrl = true,
-	.has_cml_clk = true,
-	.has_gen2 = true,
-	.force_pca_enable = true,
-};
-
-static int process_nodes(const void *fdt, int nodes[], unsigned int count)
+static int pci_tegra_ofdata_to_platdata(struct udevice *dev)
 {
-	unsigned int i;
-	uint64_t dram_end;
-	uint32_t pci_dram_size;
+	struct tegra_pcie *pcie = dev_get_priv(dev);
+	enum tegra_pci_id id;
 
-	/* Clip PCI-accessible DRAM to 32-bits */
-	dram_end = ((uint64_t)NV_PA_SDRAM_BASE) + gd->ram_size;
-	if (dram_end > 0x100000000)
-		dram_end = 0x100000000;
-	pci_dram_size = dram_end - NV_PA_SDRAM_BASE;
+	id = dev_get_driver_data(dev);
+	pcie->soc = &pci_tegra_soc[id];
 
-	for (i = 0; i < count; i++) {
-		const struct tegra_pcie_soc *soc;
-		struct tegra_pcie *pcie;
-		enum fdt_compat_id id;
-		int err;
+	INIT_LIST_HEAD(&pcie->ports);
 
-		if (!fdtdec_get_is_enabled(fdt, nodes[i]))
-			continue;
+	if (tegra_pcie_parse_dt(gd->fdt_blob, dev->of_offset, id, pcie))
+		return -EINVAL;
 
-		id = fdtdec_lookup(fdt, nodes[i]);
-		switch (id) {
-		case COMPAT_NVIDIA_TEGRA20_PCIE:
-			soc = &tegra20_pcie_soc;
-			break;
+	return 0;
+}
 
-		case COMPAT_NVIDIA_TEGRA30_PCIE:
-			soc = &tegra30_pcie_soc;
-			break;
+static int pci_tegra_probe(struct udevice *dev)
+{
+	struct tegra_pcie *pcie = dev_get_priv(dev);
+	int err;
 
-		case COMPAT_NVIDIA_TEGRA124_PCIE:
-			soc = &tegra124_pcie_soc;
-			break;
+	err = tegra_pcie_power_on(pcie);
+	if (err < 0) {
+		error("failed to power on");
+		return err;
+	}
 
-		case COMPAT_NVIDIA_TEGRA210_PCIE:
-			soc = &tegra210_pcie_soc;
-			break;
+	err = tegra_pcie_enable_controller(pcie);
+	if (err < 0) {
+		error("failed to enable controller");
+		return err;
+	}
 
-		default:
-			error("unsupported compatible: %s",
-			      fdtdec_get_compatible(id));
-			continue;
-		}
+	err = tegra_pcie_setup_translations(dev);
+	if (err < 0) {
+		error("failed to decode ranges");
+		return err;
+	}
 
-		pcie = malloc(sizeof(*pcie));
-		if (!pcie) {
-			error("failed to allocate controller");
-			continue;
-		}
-
-		memset(pcie, 0, sizeof(*pcie));
-		pcie->soc = soc;
-
-		INIT_LIST_HEAD(&pcie->ports);
-
-		err = tegra_pcie_parse_dt(fdt, nodes[i], pcie);
-		if (err < 0) {
-			free(pcie);
-			continue;
-		}
-
-		err = tegra_pcie_power_on(pcie);
-		if (err < 0) {
-			error("failed to power on");
-			continue;
-		}
-
-		err = tegra_pcie_enable_controller(pcie);
-		if (err < 0) {
-			error("failed to enable controller");
-			continue;
-		}
-
-		tegra_pcie_setup_translations(pcie);
-
-		err = tegra_pcie_enable(pcie);
-		if (err < 0) {
-			error("failed to enable PCIe");
-			continue;
-		}
-
-		pcie->hose.first_busno = 0;
-		pcie->hose.current_busno = 0;
-		pcie->hose.last_busno = 0;
-
-		pci_set_region(&pcie->hose.regions[0], NV_PA_SDRAM_BASE,
-			       NV_PA_SDRAM_BASE, pci_dram_size,
-			       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-
-		pci_set_region(&pcie->hose.regions[1], pcie->io.start,
-			       pcie->io.start, fdt_resource_size(&pcie->io),
-			       PCI_REGION_IO);
-
-		pci_set_region(&pcie->hose.regions[2], pcie->mem.start,
-			       pcie->mem.start, fdt_resource_size(&pcie->mem),
-			       PCI_REGION_MEM);
-
-		pci_set_region(&pcie->hose.regions[3], pcie->prefetch.start,
-			       pcie->prefetch.start,
-			       fdt_resource_size(&pcie->prefetch),
-			       PCI_REGION_MEM | PCI_REGION_PREFETCH);
-
-		pcie->hose.region_count = 4;
-
-		pci_set_ops(&pcie->hose,
-			    pci_hose_read_config_byte_via_dword,
-			    pci_hose_read_config_word_via_dword,
-			    tegra_pcie_read_conf,
-			    pci_hose_write_config_byte_via_dword,
-			    pci_hose_write_config_word_via_dword,
-			    tegra_pcie_write_conf);
-
-		pci_register_hose(&pcie->hose);
-
-#ifdef CONFIG_PCI_SCAN_SHOW
-		printf("PCI: Enumerating devices...\n");
-		printf("---------------------------------------\n");
-		printf("  Device        ID          Description\n");
-		printf("  ------        --          -----------\n");
-#endif
-
-		pcie->hose.last_busno = pci_hose_scan(&pcie->hose);
+	err = tegra_pcie_enable(pcie);
+	if (err < 0) {
+		error("failed to enable PCIe");
+		return err;
 	}
 
 	return 0;
 }
 
-void pci_init_board(void)
-{
-	const void *fdt = gd->fdt_blob;
-	int count, nodes[1];
+static const struct dm_pci_ops pci_tegra_ops = {
+	.read_config	= pci_tegra_read_config,
+	.write_config	= pci_tegra_write_config,
+};
 
-	tegra_pcie_board_init();
+static const struct udevice_id pci_tegra_ids[] = {
+	{ .compatible = "nvidia,tegra20-pcie", .data = TEGRA20_PCIE },
+	{ .compatible = "nvidia,tegra30-pcie", .data = TEGRA30_PCIE },
+	{ .compatible = "nvidia,tegra124-pcie", .data = TEGRA124_PCIE },
+	{ .compatible = "nvidia,tegra210-pcie", .data = TEGRA210_PCIE },
+	{ }
+};
 
-	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
-					   COMPAT_NVIDIA_TEGRA210_PCIE,
-					   nodes, ARRAY_SIZE(nodes));
-	if (process_nodes(fdt, nodes, count))
-		return;
-
-	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
-					   COMPAT_NVIDIA_TEGRA124_PCIE,
-					   nodes, ARRAY_SIZE(nodes));
-	if (process_nodes(fdt, nodes, count))
-		return;
-
-	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
-					   COMPAT_NVIDIA_TEGRA30_PCIE,
-					   nodes, ARRAY_SIZE(nodes));
-	if (process_nodes(fdt, nodes, count))
-		return;
-
-	count = fdtdec_find_aliases_for_id(fdt, "pcie-controller",
-					   COMPAT_NVIDIA_TEGRA20_PCIE,
-					   nodes, ARRAY_SIZE(nodes));
-	if (process_nodes(fdt, nodes, count))
-		return;
-}
+U_BOOT_DRIVER(pci_tegra) = {
+	.name	= "pci_tegra",
+	.id	= UCLASS_PCI,
+	.of_match = pci_tegra_ids,
+	.ops	= &pci_tegra_ops,
+	.ofdata_to_platdata = pci_tegra_ofdata_to_platdata,
+	.probe	= pci_tegra_probe,
+	.priv_auto_alloc_size = sizeof(struct tegra_pcie),
+};
 
 int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
 {

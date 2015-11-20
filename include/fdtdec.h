@@ -128,10 +128,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA124_SDMMC,	/* Tegra124 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA30_SDMMC,	/* Tegra30 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA20_SDMMC,	/* Tegra20 SDMMC controller */
-	COMPAT_NVIDIA_TEGRA124_PCIE,	/* Tegra 124 PCIe controller */
-	COMPAT_NVIDIA_TEGRA210_PCIE,	/* Tegra 210 PCIe controller */
-	COMPAT_NVIDIA_TEGRA30_PCIE,	/* Tegra 30 PCIe controller */
-	COMPAT_NVIDIA_TEGRA20_PCIE,	/* Tegra 20 PCIe controller */
 	COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL,
 					/* Tegra124 XUSB pad controller */
 	COMPAT_NVIDIA_TEGRA210_XUSB_PADCTL,
