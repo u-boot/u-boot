@@ -1,14 +1,21 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013 - 2015  Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:    GPL-2.0+
  */
 
-#ifndef _ASM_FSL_ERRATA_H
-#define _ASM_FSL_ERRATA_H
+#ifndef _FSL_ERRATA_H
+#define _FSL_ERRATA_H
 
 #include <common.h>
+#if defined(CONFIG_PPC)
 #include <asm/processor.h>
+#elif defined(CONFIG_LS102XA)
+#include <asm/arch-ls102xa/immap_ls102xa.h>
+#elif defined(CONFIG_FSL_LAYERSCAPE)
+#include <asm/arch/soc.h>
+#endif
+
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006379
 static inline bool has_erratum_a006379(void)
@@ -25,7 +32,6 @@ static inline bool has_erratum_a006379(void)
 
 	return false;
 }
-#endif
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007186
@@ -51,3 +57,5 @@ static inline bool has_erratum_a007186(void)
 	return false;
 }
 #endif
+
+#endif /*  _FSL_ERRATA_H */

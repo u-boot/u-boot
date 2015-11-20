@@ -19,7 +19,7 @@
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <asm/mmu.h>
-#include <asm/fsl_errata.h>
+#include <fsl_errata.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>

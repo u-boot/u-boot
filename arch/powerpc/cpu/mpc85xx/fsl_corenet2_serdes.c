@@ -11,7 +11,7 @@
 #include <asm/processor.h>
 #include <asm/fsl_law.h>
 #include <asm/errno.h>
-#include <asm/fsl_errata.h>
+#include <fsl_errata.h>
 #include "fsl_corenet2_serdes.h"
 
 #ifdef CONFIG_SYS_FSL_SRDS_1

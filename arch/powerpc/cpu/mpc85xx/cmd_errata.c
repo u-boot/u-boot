@@ -7,7 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <linux/compiler.h>
-#include <asm/fsl_errata.h>
+#include <fsl_errata.h>
 #include <asm/processor.h>
 #include <fsl_usb.h>
 #include "fsl_corenet_serdes.h"
