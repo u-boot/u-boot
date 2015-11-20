@@ -47,8 +47,7 @@
  * SPI Flash configuration
  */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_HARD_SPI			1
-#define CONFIG_KIRKWOOD_SPI		1
+#define CONFIG_KIRKWOOD_SPI
 #ifndef CONFIG_ENV_SPI_BUS
 # define CONFIG_ENV_SPI_BUS		0
 #endif
@@ -59,6 +58,9 @@
 # define CONFIG_ENV_SPI_MAX_HZ		50000000
 #endif
 #endif
+
+/* Needed for SPI NOR booting in SPL */
+#define CONFIG_DM_SEQ_ALIAS		1
 
 /*
  * Ethernet Driver configuration

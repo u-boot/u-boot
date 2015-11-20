@@ -118,8 +118,11 @@ config ARCH_MVEBU
 	select OF_SEPARATE
 	select DM
 	select DM_SERIAL
+	select DM_SPI
+	select DM_SPI_FLASH
 	select SPL_DM
 	select SPL_OF_CONTROL
+	select SPL_SIMPLE_BUS
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
