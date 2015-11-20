@@ -19,4 +19,14 @@ config PCI_SANDBOX
 	  the device tree but the normal PCI scan technique is used to find
 	  then.
 
+config PCI_TEGRA
+	bool "Tegra PCI support"
+	depends on TEGRA
+	help
+	  Enable support for the PCIe controller found on some generations of
+	  Tegra. Tegra20 has 2 root ports with a total of 4 lanes, Tegra30 has
+	  3 root ports with a total of 6 lanes and Tegra124 has 2 root ports
+	  with a total of 5 lanes. Some boards require this for Ethernet
+	  support to work (e.g. beaver, jetson-tk1).
+
 endmenu
