@@ -1,6 +1,9 @@
 /*
  * cmd_gpt.c -- GPT (GUID Partition Table) handling command
  *
+ * Copyright (C) 2015
+ * Lukasz Majewski <l.majewski@majess.pl>
+ *
  * Copyright (C) 2012 Samsung Electronics
  * author: Lukasz Majewski <l.majewski@samsung.com>
  * author: Piotr Wilczek <p.wilczek@samsung.com>
@@ -15,6 +18,7 @@
 #include <exports.h>
 #include <linux/ctype.h>
 #include <div64.h>
+#include <memalign.h>
 
 #ifndef CONFIG_PARTITION_UUIDS
 #error CONFIG_PARTITION_UUIDS must be enabled for CONFIG_CMD_GPT to be enabled
@@ -314,6 +318,43 @@ static int gpt_default(block_dev_desc_t *blk_dev_desc, const char *str_part)
 	return ret;
 }
 
+static int gpt_verify(block_dev_desc_t *blk_dev_desc, const char *str_part)
+{
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1,
+				     blk_dev_desc->blksz);
+	disk_partition_t *partitions = NULL;
+	gpt_entry *gpt_pte = NULL;
+	char *str_disk_guid;
+	u8 part_count = 0;
+	int ret = 0;
+
+	/* fill partitions */
+	ret = set_gpt_info(blk_dev_desc, str_part,
+			&str_disk_guid, &partitions, &part_count);
+	if (ret) {
+		if (ret == -1) {
+			printf("No partition list provided - only basic check\n");
+			ret = gpt_verify_headers(blk_dev_desc, gpt_head,
+						 &gpt_pte);
+			goto out;
+		}
+		if (ret == -2)
+			printf("Missing disk guid\n");
+		if ((ret == -3) || (ret == -4))
+			printf("Partition list incomplete\n");
+		return -1;
+	}
+
+	/* Check partition layout with provided pattern */
+	ret = gpt_verify_partitions(blk_dev_desc, partitions, part_count,
+				    gpt_head, &gpt_pte);
+	free(str_disk_guid);
+	free(partitions);
+ out:
+	free(gpt_pte);
+	return ret;
+}
+
 /**
  * do_gpt(): Perform GPT operations
  *
@@ -329,39 +370,40 @@ static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret = CMD_RET_SUCCESS;
 	int dev = 0;
 	char *ep;
-	block_dev_desc_t *blk_dev_desc;
+	block_dev_desc_t *blk_dev_desc = NULL;
 
-	if (argc < 5)
+	if (argc < 4 || argc > 5)
 		return CMD_RET_USAGE;
 
-	/* command: 'write' */
+	dev = (int)simple_strtoul(argv[3], &ep, 10);
+	if (!ep || ep[0] != '\0') {
+		printf("'%s' is not a number\n", argv[3]);
+		return CMD_RET_USAGE;
+	}
+	blk_dev_desc = get_dev(argv[2], dev);
+	if (!blk_dev_desc) {
+		printf("%s: %s dev %d NOT available\n",
+		       __func__, argv[2], dev);
+		return CMD_RET_FAILURE;
+	}
+
 	if ((strcmp(argv[1], "write") == 0) && (argc == 5)) {
-		dev = (int)simple_strtoul(argv[3], &ep, 10);
-		if (!ep || ep[0] != '\0') {
-			printf("'%s' is not a number\n", argv[3]);
-			return CMD_RET_USAGE;
-		}
-		blk_dev_desc = get_dev(argv[2], dev);
-		if (!blk_dev_desc) {
-			printf("%s: %s dev %d NOT available\n",
-			       __func__, argv[2], dev);
-			return CMD_RET_FAILURE;
-		}
-
-		puts("Writing GPT: ");
-
+		printf("Writing GPT: ");
 		ret = gpt_default(blk_dev_desc, argv[4]);
-		if (!ret) {
-			puts("success!\n");
-			return CMD_RET_SUCCESS;
-		} else {
-			puts("error!\n");
-			return CMD_RET_FAILURE;
-		}
+	} else if ((strcmp(argv[1], "verify") == 0)) {
+		ret = gpt_verify(blk_dev_desc, argv[4]);
+		printf("Verify GPT: ");
 	} else {
 		return CMD_RET_USAGE;
 	}
-	return ret;
+
+	if (ret) {
+		printf("error!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	printf("success!\n");
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
