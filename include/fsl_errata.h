@@ -58,4 +58,35 @@ static inline bool has_erratum_a007186(void)
 }
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008378
+static inline bool has_erratum_a008378(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+
+	switch (soc) {
+#ifdef CONFIG_LS102XA
+	case SOC_VER_LS1020:
+	case SOC_VER_LS1021:
+	case SOC_VER_LS1022:
+	case SOC_VER_SLS1020:
+		return IS_SVR_REV(svr, 1, 0);
+#endif
+#ifdef CONFIG_PPC
+	case SVR_T1023:
+	case SVR_T1024:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_T1020:
+	case SVR_T1022:
+	case SVR_T1040:
+	case SVR_T1042:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+#endif
+	default:
+		return false;
+	}
+}
+#endif
+
 #endif /*  _FSL_ERRATA_H */

@@ -10,6 +10,7 @@
 #include <asm/processor.h>
 #include <fsl_immap.h>
 #include <fsl_ddr.h>
+#include <fsl_errata.h>
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 static void set_wait_for_bits_clear(void *ptr, u32 value, u32 bits)
@@ -238,9 +239,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
 #define IS_ACC_ECC_EN(v) ((v) & 0x4)
 #define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
-	if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
-	    IS_DBI(regs->ddr_sdram_cfg_3))
-		ddr_setbits32(ddr->debug[28], 0x9 << 20);
+	if (has_erratum_a008378()) {
+		if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
+		    IS_DBI(regs->ddr_sdram_cfg_3))
+			ddr_setbits32(&ddr->debug[28], 0x9 << 20);
+	}
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
