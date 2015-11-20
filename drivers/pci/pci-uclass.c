@@ -680,8 +680,8 @@ static int decode_regions(struct pci_controller *hose, const void *blob,
 			  int parent_node, int node)
 {
 	int pci_addr_cells, addr_cells, size_cells;
+	phys_addr_t base = 0, size;
 	int cells_per_record;
-	phys_addr_t addr;
 	const u32 *prop;
 	int len;
 	int i;
@@ -732,11 +732,14 @@ static int decode_regions(struct pci_controller *hose, const void *blob,
 	}
 
 	/* Add a region for our local memory */
-	addr = gd->ram_size;
-	if (gd->pci_ram_top && gd->pci_ram_top < addr)
-		addr = gd->pci_ram_top;
-	pci_set_region(hose->regions + hose->region_count++, 0, 0, addr,
-		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+	size = gd->ram_size;
+#ifdef CONFIG_SYS_SDRAM_BASE
+	base = CONFIG_SYS_SDRAM_BASE;
+#endif
+	if (gd->pci_ram_top && gd->pci_ram_top < base + size)
+		size = gd->pci_ram_top - base;
+	pci_set_region(hose->regions + hose->region_count++, base, base,
+		       size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	return 0;
 }
