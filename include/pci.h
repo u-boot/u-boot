@@ -1131,6 +1131,18 @@ ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
 struct udevice *pci_get_controller(struct udevice *dev);
 
 /**
+ * pci_get_regions() - obtain pointers to all the region types
+ *
+ * @dev:	Device to check
+ * @iop:	Returns a pointer to the I/O region, or NULL if none
+ * @memp:	Returns a pointer to the memory region, or NULL if none
+ * @prefp:	Returns a pointer to the pre-fetch region, or NULL if none
+ * @return the number of non-NULL regions returned, normally 3
+ */
+int pci_get_regions(struct udevice *dev, struct pci_region **iop,
+		    struct pci_region **memp, struct pci_region **prefp);
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {

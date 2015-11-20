@@ -974,6 +974,36 @@ ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
 	return value;
 }
 
+int pci_get_regions(struct udevice *dev, struct pci_region **iop,
+		    struct pci_region **memp, struct pci_region **prefp)
+{
+	struct udevice *bus = pci_get_controller(dev);
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
+	int i;
+
+	*iop = NULL;
+	*memp = NULL;
+	*prefp = NULL;
+	for (i = 0; i < hose->region_count; i++) {
+		switch (hose->regions[i].flags) {
+		case PCI_REGION_IO:
+			if (!*iop || (*iop)->size < hose->regions[i].size)
+				*iop = hose->regions + i;
+			break;
+		case PCI_REGION_MEM:
+			if (!*memp || (*memp)->size < hose->regions[i].size)
+				*memp = hose->regions + i;
+			break;
+		case (PCI_REGION_MEM | PCI_REGION_PREFETCH):
+			if (!*prefp || (*prefp)->size < hose->regions[i].size)
+				*prefp = hose->regions + i;
+			break;
+		}
+	}
+
+	return (*iop != NULL) + (*memp != NULL) + (*prefp != NULL);
+}
+
 UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",
