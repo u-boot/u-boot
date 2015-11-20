@@ -293,9 +293,6 @@ static int gpt_default(block_dev_desc_t *blk_dev_desc, const char *str_part)
 	u8 part_count = 0;
 	disk_partition_t *partitions = NULL;
 
-	if (!str_part)
-		return -1;
-
 	/* fill partitions */
 	ret = set_gpt_info(blk_dev_desc, str_part,
 			&str_disk_guid, &partitions, &part_count);
