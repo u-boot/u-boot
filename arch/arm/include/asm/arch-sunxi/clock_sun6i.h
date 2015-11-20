@@ -220,11 +220,7 @@ struct sunxi_ccm_reg {
 #define CCM_PLL11_CTRL_UPD		(0x1 << 30)
 #define CCM_PLL11_CTRL_EN		(0x1 << 31)
 
-#if defined CONFIG_MACH_SUN8I_H3
 #define AHB1_ABP1_DIV_DEFAULT		0x00003180 /* AHB1=PLL6/3,APB1=AHB1/2 */
-#else
-#define AHB1_ABP1_DIV_DEFAULT		0x00002020 /* AHB1=AXI/4, APB1=AHB1/2 */
-#endif
 
 #define AXI_GATE_OFFSET_DRAM		0
 
