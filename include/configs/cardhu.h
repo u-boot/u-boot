@@ -75,7 +75,6 @@
 #define CONFIG_PCI
 #define CONFIG_PCI_PNP
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PCI_ENUM
 
 /* PCI networking support */
 #define CONFIG_RTL8169

@@ -458,7 +458,11 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return pci_cfg_display(bdf, addr, size, value);
 #ifdef CONFIG_CMD_PCI_ENUM
 	case 'e':
+# ifdef CONFIG_DM_PCI
+		printf("This command is not yet supported with driver model\n");
+# else
 		pci_init();
+# endif
 		return 0;
 #endif
 	case 'n':		/* next */
