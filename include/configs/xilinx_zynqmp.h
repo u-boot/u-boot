@@ -214,9 +214,6 @@
 #define CONFIG_CMD_SCSI
 #endif
 
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */
-
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
 #define CONFIG_CMD_BOOTI
