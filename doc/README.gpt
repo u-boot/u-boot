@@ -168,8 +168,33 @@ To restore GUID partition table one needs to:
 
 2. Define 'CONFIG_EFI_PARTITION' and 'CONFIG_CMD_GPT'
 
-2. From u-boot prompt type:
+3. From u-boot prompt type:
    gpt write mmc 0 $partitions
+
+Checking (validating) GPT partitions in U-Boot:
+===============================================
+
+Procedure is the same as above. The only change is at point 3.
+
+At u-boot prompt one needs to write:
+   gpt verify mmc 0 [$partitions]
+
+where [$partitions] is an optional parameter.
+
+When it is not provided, only basic checks based on CRC32 calculation for GPT
+header and PTEs are performed.
+When provided, additionally partition data - name, size and starting
+offset (last two in LBA) - are compared with data defined in '$partitions'
+environment variable.
+
+After running this command, return code is set to 0 if no errors found in
+on non-volatile medium stored GPT.
+
+Following line can be used to assess if GPT verification has succeed:
+
+U-BOOT> gpt verify mmc 0 $partitions
+U-BOOT> if test $? = 0; then echo "GPT OK"; else echo "GPT ERR"; fi
+
 
 Partition type GUID:
 ====================
