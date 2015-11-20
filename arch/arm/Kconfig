@@ -594,6 +594,7 @@ config ARCH_ZYNQMP
 	select DM
 	select OF_CONTROL
 	select DM_SERIAL
+	select SUPPORT_SPL
 
 config TEGRA
 	bool "NVIDIA Tegra"

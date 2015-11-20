@@ -41,7 +41,7 @@
 # define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #endif
 
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_INIT_SP_ADDR		0xfffffffc
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
 #if !defined(COUNTER_FREQUENCY)
@@ -65,7 +65,9 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
-#define CONFIG_ISO_PARTITION
+#ifndef CONFIG_SPL_BUILD
+# define CONFIG_ISO_PARTITION
+#endif
 #define CONFIG_MP
 
 /* BOOTP options */
@@ -227,5 +229,42 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_CLOCKS
+
+#define CONFIG_SPL_TEXT_BASE		0xfffc0000
+#define CONFIG_SPL_MAX_SIZE		0x20000
+
+/* Just random location in OCM */
+#define CONFIG_SPL_BSS_START_ADDR	0x1000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x2000000
+
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_RAM_DEVICE
+
+#define CONFIG_SPL_OS_BOOT
+/* u-boot is like dtb */
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"u-boot.bin"
+#define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
+
+/* ATF is my kernel image */
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf.ub"
+
+/* FIT load address for RAM boot */
+#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x10000000
+
+/* MMC support */
+#ifdef CONFIG_ZYNQ_SDHCI
+# define CONFIG_SPL_MMC_SUPPORT
+# define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
+# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
+# define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
+# define CONFIG_SPL_LIBDISK_SUPPORT
+# define CONFIG_SPL_FAT_SUPPORT
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+#endif
 
 #endif /* __XILINX_ZYNQMP_H */
