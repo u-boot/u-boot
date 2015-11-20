@@ -11,6 +11,8 @@
 #define SVR_MIN(svr)		(((svr) >>  0) & 0xf)
 #define SVR_SOC_VER(svr)	(((svr) >> 8) & 0x7ff)
 #define IS_E_PROCESSOR(svr)	(svr & 0x80000)
+#define IS_SVR_REV(svr, maj, min) \
+		((SVR_MAJ(svr) == maj) && (SVR_MIN(svr) == min))
 
 #define SOC_VER_SLS1020		0x00
 #define SOC_VER_LS1020		0x10
@@ -422,4 +424,7 @@ struct ccsr_ahci {
 	u32 pberr;	/* port 0/1 BIST error */
 	u32 cmds;	/* port 0/1 CMD status error */
 };
+
+uint get_svr(void);
+
 #endif	/* __ASM_ARCH_LS102XA_IMMAP_H_ */
