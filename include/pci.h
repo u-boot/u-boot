@@ -1092,6 +1092,37 @@ static inline int pci_read_config_byte(pci_dev_t pcidev, int offset,
 }
 
 /**
+ * pci_conv_32_to_size() - convert a 32-bit read value to the given size
+ *
+ * Some PCI buses must always perform 32-bit reads. The data must then be
+ * shifted and masked to reflect the required access size and offset. This
+ * function performs this transformation.
+ *
+ * @value:	Value to transform (32-bit value read from @offset & ~3)
+ * @offset:	Register offset that was read
+ * @size:	Required size of the result
+ * @return the value that would have been obtained if the read had been
+ * performed at the given offset with the correct size
+ */
+ulong pci_conv_32_to_size(ulong value, uint offset, enum pci_size_t size);
+
+/**
+ * pci_conv_size_to_32() - update a 32-bit value to prepare for a write
+ *
+ * Some PCI buses must always perform 32-bit writes. To emulate a smaller
+ * write the old 32-bit data must be read, updated with the required new data
+ * and written back as a 32-bit value. This function performs the
+ * transformation from the old value to the new value.
+ *
+ * @value:	Value to transform (32-bit value read from @offset & ~3)
+ * @offset:	Register offset that should be written
+ * @size:	Required size of the write
+ * @return the value that should be written as a 32-bit access to @offset & ~3.
+ */
+ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
+			  enum pci_size_t size);
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {

@@ -927,6 +927,45 @@ int pci_find_first_device(struct udevice **devp)
 	return skip_to_next_device(bus, devp);
 }
 
+ulong pci_conv_32_to_size(ulong value, uint offset, enum pci_size_t size)
+{
+	switch (size) {
+	case PCI_SIZE_8:
+		return (value >> ((offset & 3) * 8)) & 0xff;
+	case PCI_SIZE_16:
+		return (value >> ((offset & 2) * 8)) & 0xffff;
+	default:
+		return value;
+	}
+}
+
+ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
+			  enum pci_size_t size)
+{
+	uint off_mask;
+	uint val_mask, shift;
+	ulong ldata, mask;
+
+	switch (size) {
+	case PCI_SIZE_8:
+		off_mask = 3;
+		val_mask = 0xff;
+		break;
+	case PCI_SIZE_16:
+		off_mask = 2;
+		val_mask = 0xffff;
+		break;
+	default:
+		return value;
+	}
+	shift = (offset & off_mask) * 8;
+	ldata = (value & val_mask) << shift;
+	mask = val_mask << shift;
+	value = (old & ~mask) | ldata;
+
+	return value;
+}
+
 UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",
