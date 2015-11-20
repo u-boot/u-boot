@@ -145,33 +145,42 @@ void spi_init(void)
 {
 }
 
+static void _spi_cs_activate(struct kwspi_registers *reg)
+{
+	setbits_le32(&reg->ctrl, KWSPI_CSN_ACT);
+}
+
+static void _spi_cs_deactivate(struct kwspi_registers *reg)
+{
+	clrbits_le32(&reg->ctrl, KWSPI_CSN_ACT);
+}
+
 void spi_cs_activate(struct spi_slave *slave)
 {
-	setbits_le32(&spireg->ctrl, KWSPI_CSN_ACT);
+	_spi_cs_activate(spireg);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-	clrbits_le32(&spireg->ctrl, KWSPI_CSN_ACT);
+	_spi_cs_deactivate(spireg);
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-	     void *din, unsigned long flags)
+static int _spi_xfer(struct kwspi_registers *reg, unsigned int bitlen,
+		     const void *dout, void *din, unsigned long flags)
 {
 	unsigned int tmpdout, tmpdin;
 	int tm, isread = 0;
 
-	debug("spi_xfer: slave %u:%u dout %p din %p bitlen %u\n",
-	      slave->bus, slave->cs, dout, din, bitlen);
+	debug("spi_xfer: dout %p din %p bitlen %u\n", dout, din, bitlen);
 
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(slave);
+		_spi_cs_activate(reg);
 
 	/*
 	 * handle data in 8-bit chunks
 	 * TBD: 2byte xfer mode to be enabled
 	 */
-	clrsetbits_le32(&spireg->cfg, KWSPI_XFERLEN_MASK, KWSPI_XFERLEN_1BYTE);
+	clrsetbits_le32(&reg->cfg, KWSPI_XFERLEN_MASK, KWSPI_XFERLEN_1BYTE);
 
 	while (bitlen > 4) {
 		debug("loopstart bitlen %d\n", bitlen);
@@ -181,8 +190,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		if (dout)
 			tmpdout = *(u32 *)dout & 0xff;
 
-		clrbits_le32(&spireg->irq_cause, KWSPI_SMEMRDIRQ);
-		writel(tmpdout, &spireg->dout);	/* Write the data out */
+		clrbits_le32(&reg->irq_cause, KWSPI_SMEMRDIRQ);
+		writel(tmpdout, &reg->dout);	/* Write the data out */
 		debug("*** spi_xfer: ... %08x written, bitlen %d\n",
 		      tmpdout, bitlen);
 
@@ -192,9 +201,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		 * The NE event must be read and cleared first
 		 */
 		for (tm = 0, isread = 0; tm < KWSPI_TIMEOUT; ++tm) {
-			if (readl(&spireg->irq_cause) & KWSPI_SMEMRDIRQ) {
+			if (readl(&reg->irq_cause) & KWSPI_SMEMRDIRQ) {
 				isread = 1;
-				tmpdin = readl(&spireg->din);
+				tmpdin = readl(&reg->din);
 				debug("spi_xfer: din %p..%08x read\n",
 				      din, tmpdin);
 
@@ -216,7 +225,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	}
 
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(slave);
+		_spi_cs_deactivate(reg);
 
 	return 0;
+}
+
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+	     const void *dout, void *din, unsigned long flags)
+{
+	return _spi_xfer(spireg, bitlen, dout, din, flags);
 }
