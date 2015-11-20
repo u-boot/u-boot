@@ -1123,6 +1123,14 @@ ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
 			  enum pci_size_t size);
 
 /**
+ * pci_get_controller() - obtain the controller to use for a bus
+ *
+ * @dev:	Device to check
+ * @return pointer to the controller device for this bus
+ */
+struct udevice *pci_get_controller(struct udevice *dev);
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {

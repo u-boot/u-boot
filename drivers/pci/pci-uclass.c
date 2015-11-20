@@ -53,6 +53,14 @@ struct pci_controller *pci_bus_to_hose(int busnum)
 	return dev_get_uclass_priv(bus);
 }
 
+struct udevice *pci_get_controller(struct udevice *dev)
+{
+	while (device_is_on_pci_bus(dev))
+		dev = dev->parent;
+
+	return dev;
+}
+
 pci_dev_t pci_get_bdf(struct udevice *dev)
 {
 	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
