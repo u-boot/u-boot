@@ -273,12 +273,6 @@ void s_init(void)
 	set_uart_mux_conf();
 	setup_clocks_for_console();
 	uart_soft_reset();
-#if defined(CONFIG_NOR_BOOT) || defined(CONFIG_QSPI_BOOT)
-	/* TODO: This does not work, gd is not available yet */
-	gd->baudrate = CONFIG_BAUDRATE;
-	serial_init();
-	gd->have_console = 1;
-#endif
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
 	/* Enable RTC32K clock */
 	rtc32k_enable();
