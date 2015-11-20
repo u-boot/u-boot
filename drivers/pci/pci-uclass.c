@@ -704,6 +704,7 @@ static int decode_regions(struct pci_controller *hose, const void *blob,
 		int space_code;
 		u32 flags;
 		int type;
+		int pos;
 
 		if (len < cells_per_record)
 			break;
@@ -726,9 +727,15 @@ static int decode_regions(struct pci_controller *hose, const void *blob,
 		} else {
 			continue;
 		}
-		debug(" - type=%d\n", type);
-		pci_set_region(hose->regions + hose->region_count++, pci_addr,
-			       addr, size, type);
+		pos = -1;
+		for (i = 0; i < hose->region_count; i++) {
+			if (hose->regions[i].flags == type)
+				pos = i;
+		}
+		if (pos == -1)
+			pos = hose->region_count++;
+		debug(" - type=%d, pos=%d\n", type, pos);
+		pci_set_region(hose->regions + pos, pci_addr, addr, size, type);
 	}
 
 	/* Add a region for our local memory */
