@@ -154,6 +154,7 @@ static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 	case SPI_FLASH_CFI_MFR_SPANSION:
 		flash->bank_read_cmd = CMD_BANKADDR_BRRD;
 		flash->bank_write_cmd = CMD_BANKADDR_BRWR;
+		break;
 	default:
 		flash->bank_read_cmd = CMD_EXTNADDR_RDEAR;
 		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
