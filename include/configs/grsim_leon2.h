@@ -3,14 +3,16 @@
  * (C) Copyright 2003-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com.
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * High Level Configuration Options

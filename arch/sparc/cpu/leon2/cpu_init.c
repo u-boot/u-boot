@@ -56,11 +56,6 @@ void cpu_init_f(void)
 #endif
 }
 
-void cpu_init_f2(void)
-{
-
-}
-
 int arch_cpu_init(void)
 {
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
