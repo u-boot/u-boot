@@ -50,17 +50,17 @@ void cpu_init_f(void)
 
 	/* cache */
 
-       /* I/O port setup */
+	/* I/O port setup */
 #ifdef LEON2_IO_PORT_DIR
-       leon2->PIO_Direction = LEON2_IO_PORT_DIR;
+	leon2->PIO_Direction = LEON2_IO_PORT_DIR;
 #endif
 #ifdef LEON2_IO_PORT_DATA
-       leon2->PIO_Data = LEON2_IO_PORT_DATA;
+	leon2->PIO_Data = LEON2_IO_PORT_DATA;
 #endif
 #ifdef LEON2_IO_PORT_INT
-       leon2->PIO_Interrupt = LEON2_IO_PORT_INT;
+	leon2->PIO_Interrupt = LEON2_IO_PORT_INT;
 #else
-       leon2->PIO_Interrupt = 0;
+	leon2->PIO_Interrupt = 0;
 #endif
 }
 
