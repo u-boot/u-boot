@@ -14,9 +14,6 @@
 
 #include <config.h>
 
-#define TIMER_BASE_CLK 1000000
-#define US_PER_TICK (1000000 / CONFIG_SYS_HZ)
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -77,48 +74,8 @@ int cpu_init_r(void)
 	return 0;
 }
 
-/* Uses Timer 0 to get accurate
- * pauses. Max 2 raised to 32 ticks
- *
+/* initiate and setup timer0 to configured HZ. Base clock is 1MHz.
  */
-void cpu_wait_ticks(unsigned long ticks)
-{
-	unsigned long start = get_timer(0);
-	while (get_timer(start) < ticks) ;
-}
-
-/* initiate and setup timer0 interrupt to configured HZ. Base clock is 1MHz.
- * Return irq number for timer int or a negative number for
- * dealing with self
- */
-int timer_interrupt_init_cpu(void)
-{
-	LEON2_regs *leon2 = (LEON2_regs *) LEON2_PREGS;
-
-	/* SYS_HZ ticks per second */
-	leon2->Timer_Counter_1 = 0;
-	leon2->Timer_Reload_1 = (TIMER_BASE_CLK / CONFIG_SYS_HZ) - 1;
-	leon2->Timer_Control_1 =
-	    (LEON2_TIMER_CTRL_EN | LEON2_TIMER_CTRL_RS | LEON2_TIMER_CTRL_LD);
-
-	return LEON2_TIMER1_IRQNO;
-}
-
-/*
- * This function is intended for SHORT delays only.
- */
-unsigned long cpu_usec2ticks(unsigned long usec)
-{
-	if (usec < US_PER_TICK)
-		return 1;
-	return usec / US_PER_TICK;
-}
-
-unsigned long cpu_ticks2usec(unsigned long ticks)
-{
-	return ticks * US_PER_TICK;
-}
-
 int timer_init(void)
 {
 	LEON2_regs *leon2 = (LEON2_regs *)LEON2_PREGS;

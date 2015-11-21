@@ -124,17 +124,6 @@ int interrupt_init_cpu(void)
 
 /****************************************************************************/
 
-/* Handle Timer 0 IRQ */
-void timer_interrupt_cpu(void *arg)
-{
-	gptimer->e[0].ctrl = (GPTIMER_CTRL_EN | GPTIMER_CTRL_RS |
-			      GPTIMER_CTRL_LD | GPTIMER_CTRL_IE);
-	/* nothing to do here */
-	return;
-}
-
-/****************************************************************************/
-
 /*
  * Install and free a interrupt handler.
  */

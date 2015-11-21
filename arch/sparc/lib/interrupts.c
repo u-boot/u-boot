@@ -66,33 +66,3 @@ int interrupt_init(void)
 
 	return ret;
 }
-
-/* timer interrupt/overflow counter */
-static volatile ulong timestamp = 0;
-
-/* regs can not be used here! regs is actually the pointer given in
- * irq_install_handler
- */
-void timer_interrupt(struct pt_regs *regs)
-{
-	/* call cpu specific function from $(CPU)/interrupts.c */
-	timer_interrupt_cpu((void *)regs);
-
-	timestamp++;
-}
-
-void timer_interrupt_init(void)
-{
-	int irq;
-
-	timestamp = 0;
-
-	irq = timer_interrupt_init_cpu();
-
-	if (irq < 0) {
-		/* cpu specific code handled the interrupt registration it self */
-		return;
-	}
-	/* register interrupt handler for timer */
-	irq_install_handler(irq, (void (*)(void *))timer_interrupt, NULL);
-}

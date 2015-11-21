@@ -11,7 +11,6 @@
 #include <asm/asi.h>
 #include <asm/leon.h>
 #include <asm/io.h>
-#include <asm/irq.h>
 #include <ambapp.h>
 #include <grlib/irqmp.h>
 #include <grlib/gptimer.h>
@@ -28,9 +27,6 @@
 #ifndef CONFIG_SYS_GRLIB_GPTIMER_INDEX
 #define CONFIG_SYS_GRLIB_GPTIMER_INDEX 0
 #endif
-
-#define TIMER_BASE_CLK 1000000
-#define US_PER_TICK (1000000 / CONFIG_SYS_HZ)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -142,63 +138,7 @@ int cpu_init_r(void)
 	return 0;
 }
 
-/* Busy wait a number of ms */
-void cpu_wait_ms_busy(unsigned long ms)
-{
-	unsigned int ms_delay;
-	volatile unsigned int tmp;
-
-	/* ~10-20 cycles per decrement */
-	ms_delay = leon_cpu_freq / (1000 * 10);
-	do {
-		/* Wait ~1ms */
-		tmp = ms_delay;
-		while (tmp-- > 0)
 			;
-	} while (--ms > 0);
-}
-
-/* Uses Timer 0 to get accurate
- * pauses. Max 2 raised to 32 ticks
- *
- */
-void cpu_wait_ticks(unsigned long ticks)
-{
-	unsigned long start;
-
-	if (interrupt_is_enabled()) {
-		start = get_timer(0);
-		while (get_timer(start) < ticks)
-			;
-	} else {
-		/* Interrupts disabled, this means that we cannot
-		 * use get_timer(), it relies on IRQ. Instead the
-		 * CPU frequency is used.
-		 */
-		cpu_wait_ms_busy(ticks2usec(ticks) / 1000);
-	}
-}
-
-int timer_interrupt_init_cpu(void)
-{
-	return -1;
-}
-
-/*
- * This function is intended for SHORT delays only.
- */
-unsigned long cpu_usec2ticks(unsigned long usec)
-{
-	if (usec < US_PER_TICK)
-		return 1;
-	return usec / US_PER_TICK;
-}
-
-unsigned long cpu_ticks2usec(unsigned long ticks)
-{
-	return ticks * US_PER_TICK;
-}
-
 int timer_init(void)
 {
 	ambapp_dev_gptimer_element *tmr;
