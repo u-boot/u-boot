@@ -200,13 +200,6 @@ void board_init_f(ulong dummy)
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
-
-	/*
-	 * Now that DRAM is initialized setup base pointer for simple malloc
-	 * into RAM.
-	 */
-	gd->malloc_base = CONFIG_SPL_STACK_R_ADDR;
-	gd->malloc_ptr = 0;
 }
 
 static int setup_led(void)
