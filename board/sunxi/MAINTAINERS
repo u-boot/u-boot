@@ -50,6 +50,8 @@ F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
+F:	configs/orangepi_pc_defconfig
+F:	configs/orangepi_plus_defconfig
 F:	configs/q8_a23_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_1024x600_defconfig
@@ -118,6 +120,11 @@ INET 86VS BOARD
 M:	Michal Suchanek <hramrach@gmail.com>
 S:	Maintained
 F:	configs/iNet_86VS_defconfig
+
+LAMOBO-R1 BOARD
+M:	Jelle de Jong <jelledejong@powercraft.nl>
+S:	Maintained
+F:	configs/Lamobo_R1_defconfig
 
 LINKSPRITE-PCDUINO BOARD
 M:	Zoltan Herpai <wigyori@uid0.hu>

@@ -69,6 +69,8 @@ int print_cpuinfo(void)
 	puts("CPU:   Allwinner A23 (SUN8I)\n");
 #elif defined CONFIG_MACH_SUN8I_A33
 	puts("CPU:   Allwinner A33 (SUN8I)\n");
+#elif defined CONFIG_MACH_SUN8I_H3
+	puts("CPU:   Allwinner H3 (SUN8I)\n");
 #elif defined CONFIG_MACH_SUN9I
 	puts("CPU:   Allwinner A80 (SUN9I)\n");
 #else

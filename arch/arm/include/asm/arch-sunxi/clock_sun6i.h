@@ -201,6 +201,7 @@ struct sunxi_ccm_reg {
 #define CCM_PLL6_CTRL_N_MASK		(0x1f << CCM_PLL6_CTRL_N_SHIFT)
 #define CCM_PLL6_CTRL_K_SHIFT		4
 #define CCM_PLL6_CTRL_K_MASK		(0x3 << CCM_PLL6_CTRL_K_SHIFT)
+#define CCM_PLL6_CTRL_LOCK		(1 << 28)
 
 #define CCM_MIPI_PLL_CTRL_M_SHIFT	0
 #define CCM_MIPI_PLL_CTRL_M_MASK	(0xf << CCM_MIPI_PLL_CTRL_M_SHIFT)
@@ -219,7 +220,11 @@ struct sunxi_ccm_reg {
 #define CCM_PLL11_CTRL_UPD		(0x1 << 30)
 #define CCM_PLL11_CTRL_EN		(0x1 << 31)
 
-#define AHB1_ABP1_DIV_DEFAULT		0x00002020
+#if defined CONFIG_MACH_SUN8I_H3
+#define AHB1_ABP1_DIV_DEFAULT		0x00003180 /* AHB1=PLL6/3,APB1=AHB1/2 */
+#else
+#define AHB1_ABP1_DIV_DEFAULT		0x00002020 /* AHB1=AXI/4, APB1=AHB1/2 */
+#endif
 
 #define AXI_GATE_OFFSET_DRAM		0
 
@@ -282,6 +287,9 @@ struct sunxi_ccm_reg {
 #define CCM_DRAMCLK_CFG_DIV_MASK	(0xf << 0)
 #define CCM_DRAMCLK_CFG_DIV0(x)		((x - 1) << 8)
 #define CCM_DRAMCLK_CFG_DIV0_MASK	(0xf << 8)
+#define CCM_DRAMCLK_CFG_SRC_PLL5	(0x0 << 20)
+#define CCM_DRAMCLK_CFG_SRC_PLL6x2	(0x1 << 20)
+#define CCM_DRAMCLK_CFG_SRC_MASK	(0x3 << 20)
 #define CCM_DRAMCLK_CFG_UPD		(0x1 << 16)
 #define CCM_DRAMCLK_CFG_RST		(0x1 << 31)
 
