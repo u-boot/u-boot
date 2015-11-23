@@ -66,6 +66,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_SPARC)
+extern int prom_init(void);
+#endif
+
 ulong monitor_flash_len;
 
 __weak int board_flash_wp_on(void)
@@ -933,6 +937,9 @@ init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_PS2KBD
 	initr_kbd,
+#endif
+#if defined(CONFIG_SPARC)
+	prom_init,
 #endif
 	run_main_loop,
 };

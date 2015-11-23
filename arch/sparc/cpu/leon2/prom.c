@@ -25,6 +25,8 @@ extern struct linux_romvec *kernel_arg_promvec;
 #define PROM_TEXT __attribute__ ((__section__ (".prom.text")))
 #define PROM_DATA __attribute__ ((__section__ (".prom.data")))
 
+void *__prom_start_reloc; /* relocated prom_start address */
+
 /* for __va */
 extern int __prom_start;
 #define PAGE_OFFSET 0xf0000000

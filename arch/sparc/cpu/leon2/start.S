@@ -414,24 +414,24 @@ fixup_got:
 	bcs	30b			! while (ptr < end)
 	 nop
 
-#if 0 /* FIXME: Relocated PROM address should be calculated! */
-
 prom_relocate:
 	SPARC_LOAD_ADDRESS(__prom_start, l7, g2)
 	SPARC_LOAD_ADDRESS(__prom_end, l7, g3)
-	set	CONFIG_SYS_PROM_OFFSET, %g4
+	/*
+	 * Calculated addres is stored in this variable by
+	 * reserve_prom() function in common/board_f.c
+	 */
+	SPARC_LOAD_ADDRESS(__prom_start_reloc, l7, g4)
+	ld	[%g4], %g4
 
-prom_relocate_loop:
-	ldd	[%g2],%l0
-	ldd	[%g2+8],%l2
-	std	%l0,[%g4]
-	std	%l2,[%g4+8]
-	inc	16,%g2
-	subcc	%g3,%g2,%g0
-	bne	prom_relocate_loop
-	 inc	16,%g4
-
-#endif
+40:	ldd	[%g2], %l0
+	ldd	[%g2+8], %l2
+	std	%l0, [%g4]
+	std	%l2, [%g4+8]
+	inc	16, %g2
+	cmp	%g2, %g3
+	bcs	40b
+	 inc	16, %g4
 
 ! %o0 = stack pointer (relocated)
 ! %o1 = global data pointer (relocated)

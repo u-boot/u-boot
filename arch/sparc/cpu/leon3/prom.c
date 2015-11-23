@@ -33,6 +33,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 ambapp_dev_gptimer *gptimer;
 
+void *__prom_start_reloc; /* relocated prom_start address */
+
 /* for __va */
 extern int __prom_start;
 #define PAGE_OFFSET 0xf0000000
