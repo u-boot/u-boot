@@ -187,5 +187,12 @@ phys_size_t initdram(int board_type)
 void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
+		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
+		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
+		gd->bd->bi_dram[1].size = gd->ram_size -
+					  CONFIG_SYS_DDR_BLOCK1_SIZE;
+	} else {
+		gd->bd->bi_dram[0].size = gd->ram_size;
+	}
 }
