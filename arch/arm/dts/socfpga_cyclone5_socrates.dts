@@ -19,6 +19,10 @@
 		device_type = "memory";
 		reg = <0x0 0x40000000>; /* 1GB */
 	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+	};
 };
 
 &gmac1 {
@@ -37,6 +41,7 @@
 
 &mmc0 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &qspi {
