@@ -52,15 +52,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define QSPI_CMD_READ                   (0x3 << 0)
 #define QSPI_CMD_READ_DUAL		(0x6b << 0)
-#define QSPI_CMD_READ_QUAD              (0x6b << 0)
+#define QSPI_CMD_READ_QUAD              (0x6c << 0)
 #define QSPI_CMD_READ_FAST              (0x0b << 0)
-#define QSPI_SETUP0_NUM_A_BYTES         (0x2 << 8)
+#define QSPI_SETUP0_NUM_A_BYTES         (0x3 << 8)
 #define QSPI_SETUP0_NUM_D_BYTES_NO_BITS (0x0 << 10)
 #define QSPI_SETUP0_NUM_D_BYTES_8_BITS  (0x1 << 10)
 #define QSPI_SETUP0_READ_NORMAL         (0x0 << 12)
 #define QSPI_SETUP0_READ_DUAL           (0x1 << 12)
 #define QSPI_SETUP0_READ_QUAD           (0x3 << 12)
-#define QSPI_CMD_WRITE                  (0x2 << 16)
+#define QSPI_CMD_WRITE                  (0x12 << 16)
 #define QSPI_NUM_DUMMY_BITS             (0x0 << 24)
 
 /* ti qspi register set */
