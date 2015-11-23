@@ -6,7 +6,7 @@
 #ifndef __CONFIG_SOCFPGA_CYCLONE5_H__
 #define __CONFIG_SOCFPGA_CYCLONE5_H__
 
-#include <asm/arch/socfpga_base_addrs.h>
+#include <asm/arch/base_addr_ac5.h>
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH

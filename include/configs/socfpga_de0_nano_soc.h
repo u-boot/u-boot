@@ -6,7 +6,7 @@
 #ifndef __CONFIG_TERASIC_DE0_H__
 #define __CONFIG_TERASIC_DE0_H__
 
-#include <asm/arch/socfpga_base_addrs.h>
+#include <asm/arch/base_addr_ac5.h>
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
