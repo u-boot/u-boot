@@ -861,6 +861,42 @@ int sprintf(char *buf, const char *fmt, ...)
 	return i;
 }
 
+int printf(const char *fmt, ...)
+{
+	va_list args;
+	uint i;
+	char printbuffer[CONFIG_SYS_PBSIZE];
+
+	va_start(args, fmt);
+
+	/*
+	 * For this to work, printbuffer must be larger than
+	 * anything we ever want to print.
+	 */
+	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
+	va_end(args);
+
+	/* Print the string */
+	puts(printbuffer);
+	return i;
+}
+
+int vprintf(const char *fmt, va_list args)
+{
+	uint i;
+	char printbuffer[CONFIG_SYS_PBSIZE];
+
+	/*
+	 * For this to work, printbuffer must be larger than
+	 * anything we ever want to print.
+	 */
+	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
+
+	/* Print the string */
+	puts(printbuffer);
+	return i;
+}
+
 static void panic_finish(void) __attribute__ ((noreturn));
 
 static void panic_finish(void)
