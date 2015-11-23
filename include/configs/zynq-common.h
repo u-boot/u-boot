@@ -367,16 +367,16 @@
 /* The highest 64k OCM address */
 #define OCM_HIGH_ADDR	0xffff0000
 
-/* Just define any reasonable size */
-#define CONFIG_SPL_STACK_SIZE	0x1000
-
-/* SPL stack position - and stack goes down */
-#define CONFIG_SPL_STACK	(OCM_HIGH_ADDR + CONFIG_SPL_STACK_SIZE)
-
 /* On the top of OCM space */
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_STACK + \
-					 GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_START	OCM_HIGH_ADDR
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000
+
+/*
+ * SPL stack position - and stack goes down
+ * 0xfffffe00 is used for putting wfi loop.
+ * Set it up as limit for now.
+ */
+#define CONFIG_SPL_STACK	0xfffffe00
 
 /* BSS setup */
 #define CONFIG_SPL_BSS_START_ADDR	0x100000
