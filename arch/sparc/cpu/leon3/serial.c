@@ -29,6 +29,7 @@ static int leon3_serial_init(void)
 	/* find UART */
 	if (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_APBUART,
 		CONFIG_SYS_GRLIB_APBUART_INDEX, &apbdev) != 1) {
+		gd->flags &= ~GD_FLG_SERIAL_READY;
 		panic("%s: apbuart not found!\n", __func__);
 		return -1; /* didn't find hardware */
 	}
