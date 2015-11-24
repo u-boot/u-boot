@@ -33,7 +33,6 @@ config TARGET_ZYNQ_ZC770
 
 config TARGET_ZYNQ_ZYBO
 	bool "Zynq Zybo Board"
-	select ZYNQ_CUSTOM_INIT
 
 endchoice
 
