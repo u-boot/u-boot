@@ -818,7 +818,7 @@ static int ata_scsiop_read_capacity10(ccb *pccb)
 	if (!ataid[pccb->target]) {
 		printf("scsi_ahci: SCSI READ CAPACITY10 command failure. "
 		       "\tNo ATA info!\n"
-		       "\tPlease run SCSI commmand INQUIRY firstly!\n");
+		       "\tPlease run SCSI command INQUIRY firstly!\n");
 		return -EPERM;
 	}
 
@@ -847,7 +847,7 @@ static int ata_scsiop_read_capacity16(ccb *pccb)
 	if (!ataid[pccb->target]) {
 		printf("scsi_ahci: SCSI READ CAPACITY16 command failure. "
 		       "\tNo ATA info!\n"
-		       "\tPlease run SCSI commmand INQUIRY firstly!\n");
+		       "\tPlease run SCSI command INQUIRY firstly!\n");
 		return -EPERM;
 	}
 

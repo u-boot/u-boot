@@ -94,7 +94,7 @@ Configuration Options:
 	address of u-boot MTD partition in NAND.
 
    CONFIG_CMD_NAND
-      Enables NAND support and commmands.
+      Enables NAND support and commands.
 
    CONFIG_CMD_NAND_TORTURE
       Enables the torture command (see description of this command below).

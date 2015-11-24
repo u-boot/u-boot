@@ -57,7 +57,7 @@
 #define ENABLE_JFFS	1
 #endif
 
-/* Define which commmands should be available at u-boot command prompt */
+/* Define which commands should be available at u-boot command prompt */
 
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
