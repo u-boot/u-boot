@@ -111,7 +111,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN        1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS     3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
-#define CONFIG_SYS_I2C_MULTI_EEPROMS
 #endif
 
 /* Miscellaneous commands */
