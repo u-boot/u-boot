@@ -858,6 +858,7 @@
 			xlnx,bpc = <8>;
 			xlnx,audio-chan = <2>;
 			xlnx,dp-sub = <&xlnx_dp_sub>;
+			xlnx,max-pclock-frequency = <300000>;
 		};
 
 		xlnx_dp_snd_card: dp_snd_card {
@@ -893,6 +894,8 @@
 			reg = <0x0 0xfd4aa000 0x1000>, <0x0 0xfd4ab000 0x1000>, <0x0 0xfd4ac000 0x1000>;
 			reg-names = "blend", "av_buf", "aud";
 			xlnx,output-fmt = "rgb";
+			xlnx,vid-fmt = "yuyv";
+			xlnx,gfx-fmt = "rgb565";
 		};
 
 		xlnx_dpdma: dma@fd4c0000 {
