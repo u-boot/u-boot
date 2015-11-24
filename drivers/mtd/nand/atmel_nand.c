@@ -80,6 +80,7 @@ static struct nand_ecclayout atmel_pmecc_oobinfo;
  *                8-bits                13-bytes                 14-bytes
  *               12-bits                20-bytes                 21-bytes
  *               24-bits                39-bytes                 42-bytes
+ *               32-bits                52-bytes                 56-bytes
  */
 static int pmecc_get_ecc_bytes(int cap, int sector_size)
 {
@@ -638,6 +639,9 @@ static void atmel_pmecc_core_init(struct mtd_info *mtd)
 	case 24:
 		val = PMECC_CFG_BCH_ERR24;
 		break;
+	case 32:
+		val = PMECC_CFG_BCH_ERR32;
+		break;
 	}
 
 	if (host->pmecc_sector_size == 512)
@@ -723,7 +727,11 @@ static int pmecc_choose_ecc(struct atmel_nand_host *host,
 		else if (*cap <= 24)
 			host->pmecc_corr_cap = 24;
 		else
-			return -EINVAL;
+#ifdef CONFIG_SAMA5D2
+			host->pmecc_corr_cap = 32;
+#else
+			host->pmecc_corr_cap = 24;
+#endif
 	}
 	if (host->pmecc_sector_size == 0) {
 		/* use the most fitable sector size (the near smaller one ) */
