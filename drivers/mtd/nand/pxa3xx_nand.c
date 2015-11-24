@@ -451,7 +451,7 @@ static void pxa3xx_set_datasize(struct pxa3xx_nand_info *info,
 }
 
 /**
- * NOTE: it is a must to set ND_RUN firstly, then write
+ * NOTE: it is a must to set ND_RUN first, then write
  * command buffer, otherwise, it does not work.
  * We enable all the interrupt at the same time, and
  * let pxa3xx_nand_irq to handle all logic.

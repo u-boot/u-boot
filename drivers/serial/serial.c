@@ -527,7 +527,7 @@ static const int bauds[] = CONFIG_SYS_BAUDRATE_TABLE;
  *
  * Do a loopback test of the currently selected serial port. This
  * function is only useful in the context of the POST testing framwork.
- * The serial port is firstly configured into loopback mode and then
+ * The serial port is first configured into loopback mode and then
  * characters are sent through it.
  *
  * Returns 0 on success, value otherwise.
