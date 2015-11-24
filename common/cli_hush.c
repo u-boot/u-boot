@@ -2162,7 +2162,7 @@ int set_local_var(const char *s, int flg_export)
 	 * NAME=VALUE format.  So the first order of business is to
 	 * split 's' on the '=' into 'name' and 'value' */
 	value = strchr(name, '=');
-	if (value == NULL && ++value == NULL) {
+	if (value == NULL || *(value + 1) == 0) {
 		free(name);
 		return -1;
 	}
