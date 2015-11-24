@@ -180,13 +180,10 @@
 
 &xlnx_dp {
 	status = "okay";
-	xlnx,max-pclock-frequency = <300000>;
 };
 
 &xlnx_dp_sub {
 	status = "okay";
-	xlnx,vid-fmt = "yuyv";
-	xlnx,gfx-fmt = "rgb565";
 	xlnx,vid-clk-pl;
 };
 
