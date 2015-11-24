@@ -421,7 +421,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 				compatible = "silabs,si570";
 				reg = <0x5d>;
 				temperature-stability = <50>;
-				factory-fout = <156250000>;
+				factory-fout = <300000000>;
 				clock-frequency = <300000000>;
 			};
 		};
