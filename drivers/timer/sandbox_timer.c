@@ -18,7 +18,7 @@ void sandbox_timer_add_offset(unsigned long offset)
 	sandbox_timer_offset += offset;
 }
 
-static int sandbox_timer_get_count(struct udevice *dev, unsigned long *count)
+static int sandbox_timer_get_count(struct udevice *dev, u64 *count)
 {
 	*count = os_get_nsec() / 1000 + sandbox_timer_offset * 1000;
 

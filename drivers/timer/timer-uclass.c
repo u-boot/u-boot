@@ -13,14 +13,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Implement a timer uclass to work with lib/time.c. The timer is usually
- * a 32 bits free-running up counter. The get_rate() method is used to get
+ * a 32/64 bits free-running up counter. The get_rate() method is used to get
  * the input clock frequency of the timer. The get_count() method is used
- * to get the current 32 bits count value. If the hardware is counting down,
+ * to get the current 64 bits count value. If the hardware is counting down,
  * the value should be inversed inside the method. There may be no real
  * tick, and no timer interrupt.
  */
 
-int timer_get_count(struct udevice *dev, unsigned long *count)
+int timer_get_count(struct udevice *dev, u64 *count)
 {
 	const struct timer_ops *ops = device_get_ops(dev);
 
@@ -45,6 +45,15 @@ static int timer_pre_probe(struct udevice *dev)
 					     "clock-frequency", 0);
 
 	return 0;
+}
+
+u64 timer_conv_64(u32 count)
+{
+	/* increment tbh if tbl has rolled over */
+	if (count < gd->timebase_l)
+		gd->timebase_h++;
+	gd->timebase_l = count;
+	return ((u64)gd->timebase_h << 32) | gd->timebase_l;
 }
 
 UCLASS_DRIVER(timer) = {

@@ -8,13 +8,21 @@
 #define _TIMER_H_
 
 /*
+ * timer_conv_64 - convert 32-bit counter value to 64-bit
+ *
+ * @count: 32-bit counter value
+ * @return: 64-bit counter value
+ */
+u64 timer_conv_64(u32 count);
+
+/*
  * Get the current timer count
  *
  * @dev: The timer device
  * @count: pointer that returns the current timer count
  * @return: 0 if OK, -ve on error
  */
-int timer_get_count(struct udevice *dev, unsigned long *count);
+int timer_get_count(struct udevice *dev, u64 *count);
 
 /*
  * Get the timer input clock frequency
@@ -35,10 +43,10 @@ struct timer_ops {
 	 * Get the current timer count
 	 *
 	 * @dev: The timer device
-	 * @count: pointer that returns the current timer count
+	 * @count: pointer that returns the current 64-bit timer count
 	 * @return: 0 if OK, -ve on error
 	 */
-	int (*get_count)(struct udevice *dev, unsigned long *count);
+	int (*get_count)(struct udevice *dev, u64 *count);
 };
 
 /*

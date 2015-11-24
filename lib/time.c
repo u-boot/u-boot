@@ -69,9 +69,9 @@ ulong notrace get_tbclk(void)
 	return timer_get_rate(gd->timer);
 }
 
-unsigned long notrace timer_read_counter(void)
+uint64_t notrace get_ticks(void)
 {
-	unsigned long count;
+	u64 count;
 	int ret;
 
 	ret = dm_timer_init();
@@ -84,7 +84,8 @@ unsigned long notrace timer_read_counter(void)
 
 	return count;
 }
-#endif /* CONFIG_TIMER */
+
+#else /* !CONFIG_TIMER */
 
 uint64_t __weak notrace get_ticks(void)
 {
@@ -96,6 +97,8 @@ uint64_t __weak notrace get_ticks(void)
 	gd->timebase_l = now;
 	return ((uint64_t)gd->timebase_h << 32) | gd->timebase_l;
 }
+
+#endif /* CONFIG_TIMER */
 
 /* Returns time in milliseconds */
 static uint64_t notrace tick_to_time(uint64_t tick)

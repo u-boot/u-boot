@@ -34,7 +34,7 @@ struct altera_timer_platdata {
 	struct altera_timer_regs *regs;
 };
 
-static int altera_timer_get_count(struct udevice *dev, unsigned long *count)
+static int altera_timer_get_count(struct udevice *dev, u64 *count)
 {
 	struct altera_timer_platdata *plat = dev->platdata;
 	struct altera_timer_regs *const regs = plat->regs;
@@ -46,7 +46,7 @@ static int altera_timer_get_count(struct udevice *dev, unsigned long *count)
 	/* Read timer value */
 	val = readl(&regs->snapl) & 0xffff;
 	val |= (readl(&regs->snaph) & 0xffff) << 16;
-	*count = ~val;
+	*count = timer_conv_64(~val);
 
 	return 0;
 }
