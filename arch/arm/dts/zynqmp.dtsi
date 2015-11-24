@@ -842,7 +842,7 @@
 			};
 		};
 
-		xlnx_dp: dp@43c00000 {
+		xlnx_dp: dp@fd4a0000 {
 			compatible = "xlnx,v-dp";
 			status = "disabled";
 			reg = <0x0 0xfd4a0000 0x1000>;
@@ -887,7 +887,7 @@
 			dma-names = "tx";
 		};
 
-		xlnx_dp_sub: dp_sub@43c0a000 {
+		xlnx_dp_sub: dp_sub@fd4aa000 {
 			compatible = "xlnx,dp-sub";
 			status = "disabled";
 			reg = <0x0 0xfd4aa000 0x1000>, <0x0 0xfd4ab000 0x1000>, <0x0 0xfd4ac000 0x1000>;
