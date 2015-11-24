@@ -158,3 +158,7 @@
 &xlnx_dpdma {
 	clocks = <&dpdma_clk>;
 };
+
+&xlnx_dp_snd_codec0 {
+	clocks = <&dp_aud_clk>;
+};
