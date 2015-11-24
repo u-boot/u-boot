@@ -810,7 +810,15 @@ static int kwbimage_generate(struct image_tool_params *params,
 	tparams->header_size = alloc_len;
 	tparams->hdr = hdr;
 
-	return 0;
+	/*
+	 * The resulting image needs to be 4-byte aligned. At least
+	 * the Marvell hdrparser tool complains if its unaligned.
+	 * By returning 1 here in this function, called via
+	 * tparams->vrec_header() in mkimage.c, mkimage will
+	 * automatically pad the the resulting image to a 4-byte
+	 * size if necessary.
+	 */
+	return 1;
 }
 
 /*
