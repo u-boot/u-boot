@@ -91,6 +91,7 @@ _start:
 	li	r5,GD_SIZE	/* parameter 3:	 count			*/
 	bl	memset
 
+	li	r3, 0		/* parameter 1:	 bootflag		*/
 	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
 	/* NOTREACHED - board_init_f() does not return */
 #else
@@ -169,6 +170,7 @@ lowboot_reentry:
 	/* r3: IMMR */
 	bl	cpu_init_f	/* run low-level CPU init code (in Flash)*/
 
+	li	r3, 0		/* parameter 1:	 bootflag		*/
 	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
 
 	/* NOTREACHED - board_init_f() does not return */
