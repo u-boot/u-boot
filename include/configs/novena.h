@@ -82,6 +82,7 @@
 
 /* SPL */
 #define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_EXT_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
