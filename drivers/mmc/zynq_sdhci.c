@@ -29,7 +29,7 @@ int zynq_sdhci_init(phys_addr_t regbase)
 		       SDHCI_QUIRK_BROKEN_R1B;
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
-	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ, 52000000 >> 9);
+	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ, 0);
 	return 0;
 }
 
