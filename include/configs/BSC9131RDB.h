@@ -273,7 +273,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_CMD_I2C
 
 
-#define CONFIG_FSL_ESPI
 /* eSPI - Enhanced SPI */
 #ifdef CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH_SPANSION

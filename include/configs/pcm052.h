@@ -97,7 +97,6 @@
 #define CONFIG_PHY_MICREL
 
 /* QSPI Configs*/
-#define CONFIG_FSL_QSPI
 
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_CMD_SF

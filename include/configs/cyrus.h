@@ -279,7 +279,6 @@
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_FSL_ESPI
 
 /*
  * General PCI

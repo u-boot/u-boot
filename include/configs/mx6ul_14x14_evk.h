@@ -195,7 +195,6 @@
 #define CONFIG_CMD_CACHE
 #endif
 
-#define CONFIG_FSL_QSPI
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH

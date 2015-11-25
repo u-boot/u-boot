@@ -18,7 +18,6 @@
 # define CONFIG_ZYNQ_GEM0
 # define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
 # define CONFIG_ZYNQ_SDHCI0
-# define CONFIG_ZYNQ_SPI
 
 #elif defined(CONFIG_ZC770_XM011)
 

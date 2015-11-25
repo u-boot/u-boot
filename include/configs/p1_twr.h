@@ -269,7 +269,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * eSPI - Enhanced SPI
  */
 #define CONFIG_HARD_SPI
-#define CONFIG_FSL_ESPI
 
 #if defined(CONFIG_PCI)
 /*

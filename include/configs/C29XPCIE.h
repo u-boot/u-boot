@@ -426,7 +426,6 @@
 #define CONFIG_CMD_I2C
 
 /* eSPI - Enhanced SPI */
-#define CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_SPI_FLASH_EON
 #define CONFIG_CMD_SF

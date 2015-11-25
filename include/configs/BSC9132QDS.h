@@ -478,7 +478,6 @@ combinations. this should be removed later
  * used for SLIC
  */
 /* eSPI - Enhanced SPI */
-#define CONFIG_FSL_ESPI  /* SPI */
 #ifdef CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_CMD_SF

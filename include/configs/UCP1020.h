@@ -379,7 +379,6 @@
  * eSPI - Enhanced SPI
  */
 #define CONFIG_HARD_SPI
-#define CONFIG_FSL_ESPI
 
 #define CONFIG_SPI_FLASH_SST		1
 #define CONFIG_SPI_FLASH_STMICRO	1

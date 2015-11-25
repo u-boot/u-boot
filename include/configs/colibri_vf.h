@@ -270,7 +270,6 @@
 #ifdef CONFIG_OF_CONTROL
 #define CONFIG_DM_SPI
 #define CONFIG_CMD_SPI
-#define CONFIG_FSL_DSPI
 #endif
 
 #endif /* __CONFIG_H */

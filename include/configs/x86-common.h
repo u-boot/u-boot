@@ -164,7 +164,6 @@
 /*-----------------------------------------------------------------------
  * FLASH configuration
  */
-#define CONFIG_ICH_SPI
 #define CONFIG_SPI_FLASH_MACRONIX
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SPI_FLASH_GIGADEVICE

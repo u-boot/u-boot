@@ -54,7 +54,6 @@
 #undef CONFIG_INTEL_ICH6_GPIO
 
 /* SPI is not supported */
-#undef CONFIG_ICH_SPI
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 

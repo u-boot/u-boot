@@ -708,7 +708,6 @@
  * eSPI - Enhanced SPI
  */
 #define CONFIG_HARD_SPI
-#define CONFIG_FSL_ESPI
 
 #if defined(CONFIG_SPI_FLASH)
 #define CONFIG_SPI_FLASH_SPANSION

@@ -296,7 +296,6 @@ int get_scl(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH_BAR	/* 4 byte-addressing */
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SPANSION
