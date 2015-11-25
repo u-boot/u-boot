@@ -44,12 +44,9 @@ enum {
 #endif
 	SECT_32K	= 1 << 1,
 	E_FSR		= 1 << 2,
-	SST_BP		= 1 << 3,
-	SST_WP		= 1 << 4,
-	WR_QPP		= 1 << 5,
+	SST_WR		= 1 << 3,
+	WR_QPP		= 1 << 4,
 };
-
-#define SST_WR		(SST_BP | SST_WP)
 
 enum spi_nor_option_flags {
 	SNOR_F_SST_WR		= (1 << 0),
