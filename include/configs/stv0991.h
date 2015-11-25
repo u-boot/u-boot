@@ -82,8 +82,6 @@
 #define CONFIG_CQSPI_REF_CLK		((30/4)/2)*1000*1000
 #define CONFIG_CMD_SPI
 
-#define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
-#define CONFIG_SPI_FLASH_WINBOND	/* WINBOND */
 #define CONFIG_CMD_SF
 #endif
 

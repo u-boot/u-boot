@@ -252,7 +252,6 @@ int get_scl(void);
 
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-#define CONFIG_SPI_FLASH_STMICRO
 
 /* SPI bus claim MPP configuration */
 #define CONFIG_SYS_KW_SPI_MPP	0x0

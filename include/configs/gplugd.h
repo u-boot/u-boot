@@ -91,7 +91,6 @@
 
 /* Flash Support */
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_ATMEL
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

@@ -277,9 +277,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_FSL_DSPI
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_SST
-#define CONFIG_SPI_FLASH_EON
 #endif
 
 /*

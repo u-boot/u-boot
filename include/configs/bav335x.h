@@ -580,7 +580,6 @@ DEFAULT_LINUX_BOOT_ENV \
 
 /* SPI flash. */
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */

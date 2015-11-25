@@ -313,10 +313,8 @@
 #define QSPI0_AMBA_BASE			0x40000000
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2
-#define CONFIG_SPI_FLASH_STMICRO
 
 /* DSPI */
-#define CONFIG_SPI_FLASH_ATMEL
 #endif
 
 /* DM SPI */

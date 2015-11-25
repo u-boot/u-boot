@@ -578,10 +578,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_SPI_FLASH_STMICRO
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_SST
-#define CONFIG_SPI_FLASH_EON
 #endif
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH_BAR

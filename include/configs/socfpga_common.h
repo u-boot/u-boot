@@ -88,7 +88,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 /*
  * The base address is configurable in QSys, each board must specify the
@@ -191,8 +190,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
  * QSPI support
  */
 /* Enable multiple SPI NOR flash manufacturers */
-#define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
-#define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SPI_FLASH_MTD
 #define CONFIG_CMD_MTDPARTS
