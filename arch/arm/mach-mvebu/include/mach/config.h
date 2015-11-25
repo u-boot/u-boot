@@ -90,9 +90,4 @@
 #define CONFIG_SYS_TIMER_COUNTER	(MVEBU_TIMER_BASE + 0x14)
 #define CONFIG_SYS_TIMER_RATE		25000000
 
-/* Common SPL configuration */
-#ifndef CONFIG_SPL_LDSCRIPT
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-mvebu/u-boot-spl.lds"
-#endif
-
 #endif /* __MVEBU_CONFIG_H */

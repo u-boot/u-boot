@@ -101,11 +101,13 @@
 #endif /* CONFIG_CMD_IDE */
 
 /* PCIe support */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI
 #define CONFIG_PCI_MVEBU
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_E1000	/* enable Intel E1000 support for testing */
+#endif
 
 /* NAND */
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
@@ -139,9 +141,9 @@
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
 #define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
 
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
-					 CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(16 << 10)
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MALLOC_SIMPLE
+#endif
 
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)

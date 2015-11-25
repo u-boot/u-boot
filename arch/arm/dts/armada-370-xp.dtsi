@@ -141,6 +141,7 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0 MBUS_ID(0xf0, 0x01) 0 0x100000>;
+			u-boot,dm-pre-reloc;
 
 			rtc@10300 {
 				compatible = "marvell,orion-rtc";

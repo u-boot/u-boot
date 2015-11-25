@@ -122,6 +122,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&uart0_pins>;
 				status = "okay";
+				u-boot,dm-pre-reloc;
 			};
 
 			/* GE1 CON15 */

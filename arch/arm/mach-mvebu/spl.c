@@ -1,10 +1,13 @@
 /*
- * Copyright (C) 2014 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <dm.h>
+#include <debug_uart.h>
+#include <fdtdec.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
@@ -31,6 +34,8 @@ u32 spl_boot_mode(void)
 
 void board_init_f(ulong dummy)
 {
+	int ret;
+
 #ifndef CONFIG_MVEBU_BOOTROM_UARTBOOT
 	/*
 	 * Only call arch_cpu_init() when not returning to the
@@ -50,6 +55,27 @@ void board_init_f(ulong dummy)
 	 * to work.
 	 */
 	board_early_init_f();
+
+	/* Example code showing how to enable the debug UART on MVEBU */
+#ifdef EARLY_UART
+	/*
+	 * Debug UART can be used from here if required:
+	 *
+	 * debug_uart_init();
+	 * printch('a');
+	 * printhex8(0x1234);
+	 * printascii("string");
+	 */
+#endif
+
+	ret = spl_init();
+	if (ret) {
+		debug("spl_init() failed: %d\n", ret);
+		hang();
+	}
+
+	/* Use special translation offset for SPL */
+	dm_set_translation_offset(0xd0000000 - 0xf1000000);
 
 	preloader_console_init();
 
