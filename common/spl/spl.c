@@ -431,8 +431,13 @@ void preloader_console_init(void)
  * more stack space for things like the MMC sub-system.
  *
  * This function calculates the stack position, copies the global_data into
- * place and returns the new stack position. The caller is responsible for
- * setting up the sp register.
+ * place, sets the new gd (except for ARM, for which setting GD within a C
+ * function may not always work) and returns the new stack position. The
+ * caller is responsible for setting up the sp register and, in the case
+ * of ARM, setting up gd.
+ *
+ * All of this is done using the same layout and alignments as done in
+ * board_init_f_init_reserve() / board_init_f_alloc_reserve().
  *
  * @return new stack location, or 0 to use the same stack
  */
@@ -440,14 +445,7 @@ ulong spl_relocate_stack_gd(void)
 {
 #ifdef CONFIG_SPL_STACK_R
 	gd_t *new_gd;
-	ulong ptr;
-
-	/* Get stack position: use 8-byte alignment for ABI compliance */
-	ptr = CONFIG_SPL_STACK_R_ADDR - sizeof(gd_t);
-	ptr &= ~7;
-	new_gd = (gd_t *)ptr;
-	memcpy(new_gd, (void *)gd, sizeof(gd_t));
-	gd = new_gd;
+	ulong ptr = CONFIG_SPL_STACK_R_ADDR;
 
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 	if (CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN) {
@@ -460,7 +458,13 @@ ulong spl_relocate_stack_gd(void)
 		gd->malloc_ptr = 0;
 	}
 #endif
-
+	/* Get stack position: use 8-byte alignment for ABI compliance */
+	ptr = CONFIG_SPL_STACK_R_ADDR - roundup(sizeof(gd_t),16);
+	new_gd = (gd_t *)ptr;
+	memcpy(new_gd, (void *)gd, sizeof(gd_t));
+#if !defined(CONFIG_ARM)
+	gd = new_gd;
+#endif
 	return ptr;
 #else
 	return 0;

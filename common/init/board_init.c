@@ -21,13 +21,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define _USE_MEMCPY
 #endif
 
-/* Unfortunately x86 can't compile this code as gd cannot be assigned */
-#ifndef CONFIG_X86
+/* Unfortunately x86 or ARM can't compile this code as gd cannot be assigned */
+#if !defined(CONFIG_X86) && !defined(CONFIG_ARM)
 __weak void arch_setup_gd(struct global_data *gd_ptr)
 {
 	gd = gd_ptr;
 }
-#endif /* !CONFIG_X86 */
+#endif /* !CONFIG_X86 && !CONFIG_ARM */
 
 /*
  * Allocate reserved space for use as 'globals' from 'top' address and
@@ -128,7 +128,7 @@ void board_init_f_init_reserve(ulong base)
 		*ptr++ = 0;
 #endif
 	/* set GD unless architecture did it already */
-#ifndef CONFIG_X86
+#if !defined(CONFIG_X86) && !defined(CONFIG_ARM)
 	arch_setup_gd(gd_ptr);
 #endif
 	/* next alloc will be higher by one GD plus 16-byte alignment */
