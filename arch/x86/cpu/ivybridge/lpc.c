@@ -240,15 +240,6 @@ static void pch_rtc_init(pci_dev_t dev)
 	}
 	debug("rtc_failed = 0x%x\n", rtc_failed);
 
-#if CONFIG_HAVE_ACPI_RESUME
-	/* Avoid clearing pending interrupts and resetting the RTC control
-	 * register in the resume path because the Linux kernel relies on
-	 * this to know if it should restart the RTC timerqueue if the wake
-	 * was due to the RTC alarm.
-	 */
-	if (acpi_get_slp_type() == 3)
-		return;
-#endif
 	/* TODO: Handle power failure */
 	if (rtc_failed)
 		printf("RTC power failed\n");

@@ -298,16 +298,7 @@ int print_cpuinfo(void)
 	pm1_cnt = inl(DEFAULT_PMBASE + PM1_CNT);
 
 	if ((pm1_sts & WAK_STS) && ((pm1_cnt >> 10) & 7) == 5) {
-#if CONFIG_HAVE_ACPI_RESUME
-		debug("Resume from S3 detected.\n");
-		boot_mode = PEI_BOOT_RESUME;
-		/* Clear SLP_TYPE. This will break stage2 but
-		 * we care for that when we get there.
-		 */
-		outl(pm1_cnt & ~(7 << 10), DEFAULT_PMBASE + PM1_CNT);
-#else
 		debug("Resume from S3 detected, but disabled.\n");
-#endif
 	} else {
 		/*
 		 * TODO: An indication of life might be possible here (e.g.

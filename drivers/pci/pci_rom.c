@@ -33,10 +33,6 @@
 #include <video_fb.h>
 #include <linux/screen_info.h>
 
-#ifdef CONFIG_HAVE_ACPI_RESUME
-#include <asm/acpi.h>
-#endif
-
 __weak bool board_should_run_oprom(pci_dev_t dev)
 {
 	return true;
@@ -44,10 +40,6 @@ __weak bool board_should_run_oprom(pci_dev_t dev)
 
 static bool should_load_oprom(pci_dev_t dev)
 {
-#ifdef CONFIG_HAVE_ACPI_RESUME
-	if (acpi_get_slp_type() == 3)
-		return false;
-#endif
 	if (IS_ENABLED(CONFIG_ALWAYS_LOAD_OPROM))
 		return 1;
 	if (board_should_run_oprom(dev))
