@@ -214,6 +214,7 @@
 			ti,hwmods = "uart1";
 			clock-frequency = <48000000>;
 			reg = <0x44e09000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <72>;
 			status = "disabled";
 			dmas = <&edma 26>, <&edma 27>;
@@ -225,6 +226,7 @@
 			ti,hwmods = "uart2";
 			clock-frequency = <48000000>;
 			reg = <0x48022000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <73>;
 			status = "disabled";
 			dmas = <&edma 28>, <&edma 29>;
@@ -236,6 +238,7 @@
 			ti,hwmods = "uart3";
 			clock-frequency = <48000000>;
 			reg = <0x48024000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <74>;
 			status = "disabled";
 			dmas = <&edma 30>, <&edma 31>;
@@ -247,6 +250,7 @@
 			ti,hwmods = "uart4";
 			clock-frequency = <48000000>;
 			reg = <0x481a6000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <44>;
 			status = "disabled";
 		};
@@ -256,6 +260,7 @@
 			ti,hwmods = "uart5";
 			clock-frequency = <48000000>;
 			reg = <0x481a8000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <45>;
 			status = "disabled";
 		};
@@ -265,6 +270,7 @@
 			ti,hwmods = "uart6";
 			clock-frequency = <48000000>;
 			reg = <0x481aa000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <46>;
 			status = "disabled";
 		};

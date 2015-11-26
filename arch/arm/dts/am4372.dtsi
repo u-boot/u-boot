@@ -152,6 +152,7 @@
 		uart0: serial@44e09000 {
 			compatible = "ti,am4372-uart","ti,omap2-uart";
 			reg = <0x44e09000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "uart1";
 		};
@@ -159,6 +160,7 @@
 		uart1: serial@48022000 {
 			compatible = "ti,am4372-uart","ti,omap2-uart";
 			reg = <0x48022000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "uart2";
 			status = "disabled";
@@ -167,6 +169,7 @@
 		uart2: serial@48024000 {
 			compatible = "ti,am4372-uart","ti,omap2-uart";
 			reg = <0x48024000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "uart3";
 			status = "disabled";
@@ -175,6 +178,7 @@
 		uart3: serial@481a6000 {
 			compatible = "ti,am4372-uart","ti,omap2-uart";
 			reg = <0x481a6000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "uart4";
 			status = "disabled";
@@ -183,6 +187,7 @@
 		uart4: serial@481a8000 {
 			compatible = "ti,am4372-uart","ti,omap2-uart";
 			reg = <0x481a8000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "uart5";
 			status = "disabled";
@@ -191,6 +196,7 @@
 		uart5: serial@481aa000 {
 			compatible = "ti,am4372-uart","ti,omap2-uart";
 			reg = <0x481aa000 0x2000>;
+			reg-shift = <2>;
 			interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "uart6";
 			status = "disabled";
