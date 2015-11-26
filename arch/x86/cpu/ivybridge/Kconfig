@@ -5,36 +5,10 @@
 #
 # SPDX-License-Identifier:	GPL-2.0
 
-
-config NORTHBRIDGE_INTEL_SANDYBRIDGE
-	bool
-	select CACHE_MRC_BIN
-	select CPU_INTEL_MODEL_206AX
-
 config NORTHBRIDGE_INTEL_IVYBRIDGE
 	bool
 	select CACHE_MRC_BIN
 	select CPU_INTEL_MODEL_306AX
-
-if NORTHBRIDGE_INTEL_SANDYBRIDGE
-
-config VGA_BIOS_ID
-	string
-	default "8086,0106"
-
-config CACHE_MRC_SIZE_KB
-	int
-	default 256
-
-config DCACHE_RAM_BASE
-	hex
-	default 0xff7f0000
-
-config DCACHE_RAM_SIZE
-	hex
-	default 0x10000
-
-endif
 
 if NORTHBRIDGE_INTEL_IVYBRIDGE
 
@@ -58,10 +32,6 @@ config DCACHE_RAM_SIZE
 	hex
 	default 0x20000
 
-endif
-
-if NORTHBRIDGE_INTEL_SANDYBRIDGE || NORTHBRIDGE_INTEL_IVYBRIDGE
-
 config HAVE_MRC
         bool "Add a System Agent binary"
         help
@@ -83,8 +53,7 @@ config DCACHE_RAM_MRC_VAR_SIZE
 config MRC_FILE
 	string "Intel System Agent path and filename"
 	depends on HAVE_MRC
-	default "systemagent-ivybridge.bin" if NORTHBRIDGE_INTEL_IVYBRIDGE
-	default "systemagent-sandybridge.bin" if NORTHBRIDGE_INTEL_SANDYBRIDGE
+	default "systemagent-ivybridge.bin"
 	help
 	  The path and filename of the file to use as System Agent
 	  binary.
