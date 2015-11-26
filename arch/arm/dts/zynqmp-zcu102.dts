@@ -133,6 +133,31 @@
 		 * 6 - GEM3_EXP_RESET_B
 		 * 7, 10 - 17 - not connected
 		 */
+
+		gtr_sel0 {
+			gpio-hog;
+			gpios = <0 0>;
+			output-high; /* PCIE = 0, DP = 1 */
+			line-name = "sel0";
+		};
+		gtr_sel1 {
+			gpio-hog;
+			gpios = <1 0>;
+			output-high; /* PCIE = 0, DP = 1 */
+			line-name = "sel1";
+		};
+		gtr_sel2 {
+			gpio-hog;
+			gpios = <2 0>;
+			output-high; /* PCIE = 0, USB0 = 1 */
+			line-name = "sel2";
+		};
+		gtr_sel3 {
+			gpio-hog;
+			gpios = <3 0>;
+			output-high; /* PCIE = 0, SATA = 1 */
+			line-name = "sel3";
+		};
 	};
 
 	tca6416_u61: gpio@21 { /* FIXME enable it by i2c mw 21 6 0 */
