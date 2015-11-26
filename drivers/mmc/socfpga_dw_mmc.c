@@ -19,21 +19,23 @@ static const struct socfpga_clock_manager *clock_manager_base =
 static const struct socfpga_system_manager *system_manager_base =
 		(void *)SOCFPGA_SYSMGR_ADDRESS;
 
-static void socfpga_dwmci_clksel(struct dwmci_host *host)
-{
+/* socfpga implmentation specific drver private data */
+struct dwmci_socfpga_priv_data {
 	unsigned int drvsel;
 	unsigned int smplsel;
+};
+
+static void socfpga_dwmci_clksel(struct dwmci_host *host)
+{
+	struct dwmci_socfpga_priv_data *priv = host->priv;
 
 	/* Disable SDMMC clock. */
 	clrbits_le32(&clock_manager_base->per_pll.en,
 		CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 
-	/* Configures drv_sel and smpl_sel */
-	drvsel = CONFIG_SOCFPGA_DWMMC_DRVSEL;
-	smplsel = CONFIG_SOCFPGA_DWMMC_SMPSEL;
-
-	debug("%s: drvsel %d smplsel %d\n", __func__, drvsel, smplsel);
-	writel(SYSMGR_SDMMC_CTRL_SET(smplsel, drvsel),
+	debug("%s: drvsel %d smplsel %d\n", __func__,
+	      priv->drvsel, priv->smplsel);
+	writel(SYSMGR_SDMMC_CTRL_SET(priv->smplsel, priv->drvsel),
 		&system_manager_base->sdmmcgrp_ctrl);
 
 	debug("%s: SYSMGR_SDMMCGRP_CTRL_REG = 0x%x\n", __func__,
@@ -50,6 +52,7 @@ static int socfpga_dwmci_of_probe(const void *blob, int node, const int idx)
 	const unsigned long clk = cm_get_mmc_controller_clk_hz();
 
 	struct dwmci_host *host;
+	struct dwmci_socfpga_priv_data *priv;
 	fdt_addr_t reg_base;
 	int bus_width, fifo_depth;
 
@@ -83,6 +86,13 @@ static int socfpga_dwmci_of_probe(const void *blob, int node, const int idx)
 	if (!host)
 		return -ENOMEM;
 
+	/* Allocate the priv */
+	priv = calloc(1, sizeof(*priv));
+	if (!priv) {
+		free(host);
+		return -ENOMEM;
+	}
+
 	host->name = "SOCFPGA DWMMC";
 	host->ioaddr = (void *)reg_base;
 	host->buswidth = bus_width;
@@ -92,6 +102,9 @@ static int socfpga_dwmci_of_probe(const void *blob, int node, const int idx)
 	host->bus_hz = clk;
 	host->fifoth_val = MSIZE(0x2) |
 		RX_WMARK(fifo_depth / 2 - 1) | TX_WMARK(fifo_depth / 2);
+	priv->drvsel = fdtdec_get_uint(blob, node, "drvsel", 3);
+	priv->smplsel = fdtdec_get_uint(blob, node, "smplsel", 0);
+	host->priv = priv;
 
 	return add_dwmci(host, host->bus_hz, 400000);
 }
