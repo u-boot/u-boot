@@ -314,7 +314,7 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 {
 	u32 i;
-	unsigned long __maybe_unused clk_rate = 0;
+	unsigned long clk_rate = 0;
 	struct phy_device *phydev;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	struct zynq_gem_priv *priv = dev->priv;
@@ -368,10 +368,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		/* Setup for Network Control register, MDIO, Rx and Tx enable */
 		setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK);
 
-		/*
-		 * Disable the second priority queue.
-		 * FIXME: Consider GEMs with more than 2 queues.
-		 */
+		/* Disable the second priority queue */
 		dummy_tx_bd->addr = 0;
 		dummy_tx_bd->status = ZYNQ_GEM_TXBUF_WRAP_MASK |
 				ZYNQ_GEM_TXBUF_LAST_MASK|
@@ -444,13 +441,13 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	return 0;
 }
 
-static inline int wait_for_bit(const char *func, u32 *reg, const u32 mask,
-			       bool set, unsigned int timeout)
+static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
+			bool set, unsigned int timeout)
 {
 	u32 val;
 	unsigned long start = get_timer(0);
 
-	while(1) {
+	while (1) {
 		val = readl(reg);
 
 		if (!set)
@@ -466,7 +463,6 @@ static inline int wait_for_bit(const char *func, u32 *reg, const u32 mask,
 			puts("Abort\n");
 			return -1;
 		}
-
 
 		udelay(1);
 	}
