@@ -8,17 +8,8 @@
 config NORTHBRIDGE_INTEL_IVYBRIDGE
 	bool
 	select CACHE_MRC_BIN
-	select CPU_INTEL_MODEL_306AX
 
 if NORTHBRIDGE_INTEL_IVYBRIDGE
-
-config VGA_BIOS_ID
-	string
-	default "8086,0166"
-
-config EXTERNAL_MRC_BLOB
-	bool
-	default n
 
 config CACHE_MRC_SIZE_KB
 	int
@@ -50,24 +41,9 @@ config DCACHE_RAM_MRC_VAR_SIZE
 	  memory reference code. This should be set to 16KB (0x4000 hex)
 	  so that MRC has enough space to run.
 
-config MRC_FILE
-	string "Intel System Agent path and filename"
-	depends on HAVE_MRC
-	default "systemagent-ivybridge.bin"
-	help
-	  The path and filename of the file to use as System Agent
-	  binary.
-
 config CPU_SPECIFIC_OPTIONS
 	def_bool y
 	select SMM_TSEG
-	select ARCH_BOOTBLOCK_X86_32
-	select ARCH_ROMSTAGE_X86_32
-	select ARCH_RAMSTAGE_X86_32
-	select SSE2
-	select UDELAY_LAPIC
-	select CPU_MICROCODE_IN_CBFS
-	select TSC_SYNC_MFENCE
 	select HAVE_INTEL_ME
 	select X86_RAMTEST
 
@@ -98,12 +74,6 @@ config CPU_INTEL_SOCKET_RPGA989
 	bool
 
 if CPU_INTEL_SOCKET_RPGA989
-
-config SOCKET_SPECIFIC_OPTIONS # dummy
-	def_bool y
-	select MMX
-	select SSE
-	select CACHE_AS_RAM
 
 config CACHE_MRC_BIN
 	bool
