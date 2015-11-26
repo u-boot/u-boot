@@ -155,7 +155,7 @@ config OF_TRANSLATE
 	  smaller in size than fdt_translate_address().
 
 config SPL_OF_TRANSLATE
-	bool "Translate addresses using fdt_translate_address"
+	bool "Translate addresses using fdt_translate_address in SPL"
 	depends on SPL_DM && SPL_OF_CONTROL
 	default n
 	help
