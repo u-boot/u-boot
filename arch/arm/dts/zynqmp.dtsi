@@ -330,6 +330,7 @@
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
+			#stream-id-cells = <1>;
 			jumbo-max-len = <10240>;
 			jumbo-supported;
 		};
@@ -343,6 +344,7 @@
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
+			#stream-id-cells = <1>;
 			jumbo-max-len = <10240>;
 			jumbo-supported;
 		};
@@ -356,6 +358,7 @@
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
+			#stream-id-cells = <1>;
 			jumbo-max-len = <10240>;
 			jumbo-supported;
 		};
@@ -369,6 +372,7 @@
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
+			#stream-id-cells = <1>;
 			jumbo-max-len = <10240>;
 			jumbo-supported;
 		};
@@ -484,6 +488,10 @@
 				<0 155 4>, <0 155 4>, <0 155 4>, <0 155 4>,
 				<0 155 4>, <0 155 4>, <0 155 4>, <0 155 4>,
 				<0 155 4>, <0 155 4>, <0 155 4>, <0 155 4>;
+			mmu-masters = < &gem0 0x874
+					&gem1 0x875
+					&gem2 0x876
+					&gem3 0x877 >;
 		};
 
 		spi0: spi@ff040000 {
