@@ -114,6 +114,8 @@ void miiphy_register(const char *name,
 	if (new_dev == NULL || ldev == NULL) {
 		printf("miiphy_register: cannot allocate memory for '%s'\n",
 			name);
+		free(ldev);
+		mdio_free(new_dev);
 		return;
 	}
 
