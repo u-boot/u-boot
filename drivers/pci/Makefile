@@ -13,7 +13,7 @@ obj-$(CONFIG_X86) += pci_x86.o
 else
 obj-$(CONFIG_PCI) += pci.o
 endif
-obj-$(CONFIG_PCI) += pci_common.o pci_auto.o pci_rom.o
+obj-$(CONFIG_PCI) += pci_common.o pci_auto_old.o pci_rom.o
 
 obj-$(CONFIG_FSL_PCI_INIT) += fsl_pci_init.o
 obj-$(CONFIG_PCI_INDIRECT_BRIDGE) += pci_indirect.o
