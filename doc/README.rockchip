@@ -71,7 +71,7 @@ Connect your board's OTG port to your computer.
 
 To create a suitable image and write it to the board:
 
-   ./firefly-rk3288/tools/mkimage -T rkimage -d \
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rkimage -d \
 	./firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
    cat out | openssl rc4 -K 7c4e0304550509072d2c7b38170d1711 | rkflashtool l
 
@@ -94,7 +94,7 @@ Booting from an SD card
 
 To write an image that boots from an SD card (assumed to be /dev/sdc):
 
-   ./firefly-rk3288/tools/mkimage -T rksd -d \
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
 	firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
    sudo dd if=out of=/dev/sdc seek=64 && \
    sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=256
@@ -123,7 +123,7 @@ something like:
    =>
 
 For evb_rk3036 board:
-	./evb-rk3036/tools/mkimage -T rksd  -d evb-rk3036/spl/u-boot-spl.bin out && \
+	./evb-rk3036/tools/mkimage -n rk3036 -T rksd  -d evb-rk3036/spl/u-boot-spl.bin out && \
 	cat evb-rk3036/u-boot-dtb.bin >> out && \
 	sudo dd if=out of=/dev/sdc seek=64
 
@@ -135,7 +135,7 @@ Booting from SPI
 
 To write an image that boots from SPI flash (e.g. for the Haier Chromebook):
 
-   ./chromebook_jerry/tools/mkimage -T rkspi -d chromebook_jerry/spl/u-boot-spl-dtb.bin out
+   ./chromebook_jerry/tools/mkimage -n rk3036 -T rkspi -d chromebook_jerry/spl/u-boot-spl-dtb.bin out
    dd if=spl.bin of=out.bin bs=128K conv=sync
    cat chromebook_jerry/u-boot-dtb.img out.bin
    dd if=out.bin of=out.bin.pad bs=4M conv=sync
