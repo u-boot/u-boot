@@ -9,6 +9,15 @@ config DM_PCI
 	  available PCI devices, allows scanning of PCI buses and provides
 	  device configuration support.
 
+config DM_PCI_COMPAT
+	bool "Enable compatible functions for PCI"
+	depends on DM_PCI
+	help
+	  Enable compatibility functions for PCI so that old code can be used
+	  with CONFIG_DM_PCI enabled. This should be used as an interim
+	  measure when porting a board to use driver model for PCI. Once the
+	  board is fully supported, this option should be disabled.
+
 config PCI_SANDBOX
 	bool "Sandbox PCI support"
 	depends on SANDBOX && DM_PCI

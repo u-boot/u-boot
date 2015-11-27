@@ -93,6 +93,9 @@ config SYS_X86_START16
 	depends on X86_RESET_VECTOR
 	default 0xfffff800
 
+config DM_PCI_COMPAT
+	default y	# Until we finish moving over to the new API
+
 config BOARD_ROMSIZE_KB_512
 	bool
 config BOARD_ROMSIZE_KB_1024

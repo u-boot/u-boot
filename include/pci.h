@@ -656,6 +656,7 @@ extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
 	pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
 /* For driver model these are defined in macros in pci_compat.c */
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte(struct pci_controller *hose,
 				     pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word(struct pci_controller *hose,
@@ -668,6 +669,7 @@ extern int pci_hose_write_config_word(struct pci_controller *hose,
 				      pci_dev_t dev, int where, u16 val);
 extern int pci_hose_write_config_dword(struct pci_controller *hose,
 				       pci_dev_t dev, int where, u32 val);
+#endif
 
 #ifndef CONFIG_DM_PCI
 extern int pci_read_config_byte(pci_dev_t dev, int where, u8 *val);
@@ -678,6 +680,13 @@ extern int pci_write_config_word(pci_dev_t dev, int where, u16 val);
 extern int pci_write_config_dword(pci_dev_t dev, int where, u32 val);
 #endif
 
+void pciauto_region_init(struct pci_region *res);
+void pciauto_region_align(struct pci_region *res, pci_size_t size);
+void pciauto_config_init(struct pci_controller *hose);
+int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
+			    pci_addr_t *bar);
+
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte_via_dword(struct pci_controller *hose,
 					       pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word_via_dword(struct pci_controller *hose,
@@ -696,9 +705,6 @@ extern int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev);
 extern int pci_hose_scan(struct pci_controller *hose);
 extern int pci_hose_scan_bus(struct pci_controller *hose, int bus);
 
-extern void pciauto_region_init(struct pci_region* res);
-extern void pciauto_region_align(struct pci_region *res, pci_size_t size);
-extern int pciauto_region_allocate(struct pci_region* res, pci_size_t size, pci_addr_t *bar);
 extern void pciauto_setup_device(struct pci_controller *hose,
 				 pci_dev_t dev, int bars_num,
 				 struct pci_region *mem,
@@ -708,7 +714,6 @@ extern void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 				 pci_dev_t dev, int sub_bus);
 extern void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 				 pci_dev_t dev, int sub_bus);
-extern void pciauto_config_init(struct pci_controller *hose);
 extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int index);
@@ -739,6 +744,7 @@ extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
 				unsigned short device,
 				unsigned short class);
 #endif
+#endif /* !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT) */
 
 const char * pci_class_str(u8 class);
 int pci_last_busno(void);
@@ -747,6 +753,7 @@ int pci_last_busno(void);
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif
 
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 /**
  * pci_write_bar32() - Write the address of a BAR including control bits
  *
@@ -783,6 +790,7 @@ u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
  */
 pci_dev_t pci_hose_find_devices(struct pci_controller *hose, int busnum,
 				struct pci_device_id *ids, int *indexp);
+#endif /* !CONFIG_DM_PCI || CONFIG_DM_PCI_COMPAT */
 
 /* Access sizes for PCI reads and writes */
 enum pci_size_t {
@@ -1041,6 +1049,7 @@ int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
  */
 int pci_write_config32(pci_dev_t pcidev, int offset, u32 value);
 
+#ifdef CONFIG_DM_PCI_COMPAT
 /* Compatibility with old naming */
 static inline int pci_write_config_dword(pci_dev_t pcidev, int offset,
 					 u32 value)
@@ -1092,6 +1101,19 @@ static inline int pci_read_config_byte(pci_dev_t pcidev, int offset,
 {
 	return pci_read_config8(pcidev, offset, valuep);
 }
+
+#endif /* CONFIG_DM_PCI_COMPAT */
+
+/**
+ * dm_pciauto_config_device() - configure a device ready for use
+ *
+ * Space is allocated for each PCI base address register (BAR) so that the
+ * devices are mapped into memory and I/O space ready for use.
+ *
+ * @dev:	Device to configure
+ * @return 0 if OK, -ve on error
+ */
+int dm_pciauto_config_device(struct udevice *dev);
 
 /**
  * pci_conv_32_to_size() - convert a 32-bit read value to the given size
