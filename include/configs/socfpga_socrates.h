@@ -75,7 +75,6 @@
 	"bootimage=zImage\0" \
 	"fdt_addr=100\0" \
 	"fdtimage=socfpga.dtb\0" \
-		"fsloadcmd=ext2load\0" \
 	"bootm ${loadaddr} - ${fdt_addr}\0" \
 	"mmcroot=/dev/mmcblk0p2\0" \
 	"mmcboot=setenv bootargs " CONFIG_BOOTARGS \
