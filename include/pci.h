@@ -537,6 +537,8 @@ extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev
 
 /*
  * Structure of a PCI controller (host bridge)
+ *
+ * With driver model this is dev_get_uclass_priv(bus)
  */
 struct pci_controller {
 #ifdef CONFIG_DM_PCI
