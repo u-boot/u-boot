@@ -161,15 +161,10 @@ static struct pci_reg_info regs_cardbus[] = {
 	{},
 };
 
-/*
- * Subroutine:  PCI_Header_Show
+/**
+ * pci_header_show() - Show the header of the specified PCI device.
  *
- * Description: Reads the header of the specified PCI device.
- *
- * Inputs:		BusDevFunc      Bus+Device+Function number
- *
- * Return:      None
- *
+ * @dev: Bus+Device+Function number
  */
 void pci_header_show(pci_dev_t dev)
 {
@@ -200,16 +195,12 @@ void pci_header_show(pci_dev_t dev)
     }
 }
 
-/*
- * Subroutine:  pci_header_show_brief
+/**
+ * pci_header_show_brief() - Show the short-form PCI device header
  *
- * Description: Reads and prints the header of the
- *		specified PCI device in short form.
+ * Reads and prints the header of the specified PCI device in short form.
  *
- * Inputs:	dev      Bus+Device+Function number
- *
- * Return:      None
- *
+ * @dev: Bus+Device+Function number
  */
 void pci_header_show_brief(pci_dev_t dev)
 {
@@ -226,25 +217,23 @@ void pci_header_show_brief(pci_dev_t dev)
 	       pci_class_str(class), subclass);
 }
 
-/*
- * Subroutine:  pciinfo
+/**
+ * pciinfo() - Show a list of devices on the PCI bus
  *
- * Description: Show information about devices on PCI bus.
- *		Depending on the defineCONFIG_SYS_SHORT_PCI_LISTING
- *		the output will be more or less exhaustive.
+ * Show information about devices on PCI bus. Depending on @short_pci_listing
+ * the output will be more or less exhaustive.
  *
- * Inputs:	bus_no		the number of the bus to be scanned.
- *
- * Return:      None
- *
+ * @bus_num: The number of the bus to be scanned
+ * @short_pci_listing: true to use short form, showing only a brief header
+ * for each device
  */
 void pciinfo(int bus_num, int short_pci_listing)
 {
 	struct pci_controller *hose = pci_bus_to_hose(bus_num);
-	int Device;
-	int Function;
-	unsigned char HeaderType;
-	unsigned short VendorID;
+	int device;
+	int function;
+	unsigned char header_type;
+	unsigned short vendor_id;
 	pci_dev_t dev;
 	int ret;
 
@@ -258,42 +247,42 @@ void pciinfo(int bus_num, int short_pci_listing)
 		printf("_____________________________________________________________\n");
 	}
 
-	for (Device = 0; Device < PCI_MAX_PCI_DEVICES; Device++) {
-		HeaderType = 0;
-		VendorID = 0;
-		for (Function = 0; Function < PCI_MAX_PCI_FUNCTIONS;
-		     Function++) {
+	for (device = 0; device < PCI_MAX_PCI_DEVICES; device++) {
+		header_type = 0;
+		vendor_id = 0;
+		for (function = 0; function < PCI_MAX_PCI_FUNCTIONS;
+		     function++) {
 			/*
 			 * If this is not a multi-function device, we skip
 			 * the rest.
 			 */
-			if (Function && !(HeaderType & 0x80))
+			if (function && !(header_type & 0x80))
 				break;
 
-			dev = PCI_BDF(bus_num, Device, Function);
+			dev = PCI_BDF(bus_num, device, function);
 
 			if (pci_skip_dev(hose, dev))
 				continue;
 
 			ret = pci_read_config_word(dev, PCI_VENDOR_ID,
-						   &VendorID);
+						   &vendor_id);
 			if (ret)
 				goto error;
-			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))
+			if ((vendor_id == 0xFFFF) || (vendor_id == 0x0000))
 				continue;
 
-			if (!Function) {
+			if (!function) {
 				pci_read_config_byte(dev, PCI_HEADER_TYPE,
-						     &HeaderType);
+						     &header_type);
 			}
 
 			if (short_pci_listing) {
-				printf("%02x.%02x.%02x   ", bus_num, Device,
-				       Function);
+				printf("%02x.%02x.%02x   ", bus_num, device,
+				       function);
 				pci_header_show_brief(dev);
 			} else {
 				printf("\nFound PCI device %02x.%02x.%02x:\n",
-				       bus_num, Device, Function);
+				       bus_num, device, function);
 				pci_header_show(dev);
 			}
 		}
@@ -305,9 +294,13 @@ error:
 }
 
 
-/* Convert the "bus.device.function" identifier into a number.
+/**
+ * get_pci_dev() - Convert the "bus.device.function" identifier into a number
+ *
+ * @name: Device string in the form "bus.device.function" where each is in hex
+ * @return encoded pci_dev_t or -1 if the string was invalid
  */
-static pci_dev_t get_pci_dev(char* name)
+static pci_dev_t get_pci_dev(char *name)
 {
 	char cnum[12];
 	int len, i, iold, n;
@@ -328,6 +321,7 @@ static pci_dev_t get_pci_dev(char* name)
 	if (n == 0)
 		n = 1;
 	bdfs[n] = simple_strtoul(cnum, NULL, 16);
+
 	return PCI_BDF(bdfs[0], bdfs[1], bdfs[2]);
 }
 
