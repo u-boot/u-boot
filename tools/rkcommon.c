@@ -40,16 +40,84 @@ struct header0_info {
 	uint8_t reserved2[2];
 };
 
+/**
+ * struct spl_info - spl info for each chip
+ *
+ * @imagename:		Image name(passed by "mkimage -n")
+ * @spl_hdr:		Boot ROM requires a 4-bytes spl header
+ * @spl_size:		Spl size(include extra 4-bytes spl header)
+ */
+struct spl_info {
+	const char *imagename;
+	const char *spl_hdr;
+	const uint32_t spl_size;
+};
+
+static struct spl_info spl_infos[] = {
+	{ "rk3036", "RK30", 0x1000 },
+	{ "rk3288", "RK32", 0x8000 },
+};
+
 static unsigned char rc4_key[16] = {
 	124, 78, 3, 4, 85, 5, 9, 7,
 	45, 44, 123, 56, 23, 13, 23, 17
 };
 
-int rkcommon_set_header(void *buf, uint file_size)
+static struct spl_info *rkcommon_get_spl_info(char *imagename)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(spl_infos); i++)
+		if (!strncmp(imagename, spl_infos[i].imagename, 6))
+			return spl_infos + i;
+
+	return NULL;
+}
+
+int rkcommon_check_params(struct image_tool_params *params)
+{
+	int i;
+
+	if (rkcommon_get_spl_info(params->imagename) != NULL)
+		return 0;
+
+	fprintf(stderr, "ERROR: imagename (%s) is not supported!\n",
+		strlen(params->imagename) > 0 ? params->imagename : "NULL");
+
+	fprintf(stderr, "Available imagename:");
+	for (i = 0; i < ARRAY_SIZE(spl_infos); i++)
+		fprintf(stderr, "\t%s", spl_infos[i].imagename);
+	fprintf(stderr, "\n");
+
+	return -1;
+}
+
+const char *rkcommon_get_spl_hdr(struct image_tool_params *params)
+{
+	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
+
+	/*
+	 * info would not be NULL, because of we checked params before.
+	 */
+	return info->spl_hdr;
+}
+
+int rkcommon_get_spl_size(struct image_tool_params *params)
+{
+	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
+
+	/*
+	 * info would not be NULL, because of we checked params before.
+	 */
+	return info->spl_size;
+}
+
+int rkcommon_set_header(void *buf, uint file_size,
+			struct image_tool_params *params)
 {
 	struct header0_info *hdr;
 
-	if (file_size > RK_MAX_CODE1_SIZE)
+	if (file_size > rkcommon_get_spl_size(params))
 		return -ENOSPC;
 
 	memset(buf,  '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
