@@ -444,6 +444,7 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr = 0, value = 0, cmd_size = 0;
 	enum pci_size_t size = PCI_SIZE_32;
+	pci_dev_t dev;
 	int busnum = 0;
 	pci_dev_t bdf = 0;
 	char cmd = 's';
@@ -488,12 +489,14 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
+	dev = bdf;
+
 	switch (argv[1][0]) {
 	case 'h':		/* header */
-		pci_header_show(bdf);
+		pci_header_show(dev);
 		break;
 	case 'd':		/* display */
-		return pci_cfg_display(bdf, addr, size, value);
+		return pci_cfg_display(dev, addr, size, value);
 #ifdef CONFIG_CMD_PCI_ENUM
 	case 'e':
 # ifdef CONFIG_DM_PCI
@@ -506,17 +509,17 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 'n':		/* next */
 		if (argc < 4)
 			goto usage;
-		ret = pci_cfg_modify(bdf, addr, size, value, 0);
+		ret = pci_cfg_modify(dev, addr, size, value, 0);
 		break;
 	case 'm':		/* modify */
 		if (argc < 4)
 			goto usage;
-		ret = pci_cfg_modify(bdf, addr, size, value, 1);
+		ret = pci_cfg_modify(dev, addr, size, value, 1);
 		break;
 	case 'w':		/* write */
 		if (argc < 5)
 			goto usage;
-		ret = pci_cfg_write(bdf, addr, size, value);
+		ret = pci_cfg_write(dev, addr, size, value);
 		break;
 	default:
 		ret = CMD_RET_USAGE;
