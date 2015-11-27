@@ -30,7 +30,7 @@ static void rkimage_print_header(const void *buf)
 static void rkimage_set_header(void *buf, struct stat *sbuf, int ifd,
 			       struct image_tool_params *params)
 {
-	memcpy(buf, CONFIG_ROCKCHIP_SPL_HDR, 4);
+	memcpy(buf, "RK32", 4);
 }
 
 static int rkimage_extract_subimage(void *buf, struct image_tool_params *params)

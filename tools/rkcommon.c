@@ -49,7 +49,7 @@ int rkcommon_set_header(void *buf, uint file_size)
 {
 	struct header0_info *hdr;
 
-	if (file_size > CONFIG_ROCKCHIP_MAX_SPL_SIZE)
+	if (file_size > RK_MAX_CODE1_SIZE)
 		return -ENOSPC;
 
 	memset(buf,  '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
