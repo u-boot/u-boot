@@ -408,6 +408,7 @@ pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag
 static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr = 0, value = 0, size = 0;
+	int busnum = 0;
 	pci_dev_t bdf = 0;
 	char cmd = 's';
 	int ret = 0;
@@ -438,16 +439,15 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	default:		/* scan bus */
 		value = 1; /* short listing */
-		bdf = 0;   /* bus number  */
 		if (argc > 1) {
 			if (argv[argc-1][0] == 'l') {
 				value = 0;
 				argc--;
 			}
 			if (argc > 1)
-				bdf = simple_strtoul(argv[1], NULL, 16);
+				busnum = simple_strtoul(argv[1], NULL, 16);
 		}
-		pciinfo(bdf, value);
+		pciinfo(busnum, value);
 		return 0;
 	}
 
