@@ -131,6 +131,145 @@ void pci_header_show_brief(pci_dev_t dev)
 	       pci_class_str(class), subclass);
 }
 
+struct pci_reg_info {
+	const char *name;
+	enum pci_size_t size;
+	u8 offset;
+};
+
+static int pci_field_width(enum pci_size_t size)
+{
+	switch (size) {
+	case PCI_SIZE_8:
+		return 2;
+	case PCI_SIZE_16:
+		return 4;
+	case PCI_SIZE_32:
+	default:
+		return 8;
+	}
+}
+
+static unsigned long pci_read_config(pci_dev_t dev, int offset,
+				     enum pci_size_t size)
+{
+	u32 val32;
+	u16 val16;
+	u8 val8;
+
+	switch (size) {
+	case PCI_SIZE_8:
+		pci_read_config_byte(dev, offset, &val8);
+		return val8;
+	case PCI_SIZE_16:
+		pci_read_config_word(dev, offset, &val16);
+		return val16;
+	case PCI_SIZE_32:
+	default:
+		pci_read_config_dword(dev, offset, &val32);
+		return val32;
+	}
+}
+
+static void pci_show_regs(pci_dev_t dev, struct pci_reg_info *regs)
+{
+	for (; regs->name; regs++) {
+		printf("  %s =%*s%#.*lx\n", regs->name,
+		       (int)(28 - strlen(regs->name)), "",
+		       pci_field_width(regs->size),
+		       pci_read_config(dev, regs->offset, regs->size));
+	}
+}
+
+static struct pci_reg_info regs_start[] = {
+	{ "vendor ID", PCI_SIZE_16, PCI_VENDOR_ID },
+	{ "device ID", PCI_SIZE_16, PCI_DEVICE_ID },
+	{ "command register ID", PCI_SIZE_16, PCI_COMMAND },
+	{ "status register", PCI_SIZE_16, PCI_STATUS },
+	{ "revision ID", PCI_SIZE_8, PCI_REVISION_ID },
+	{},
+};
+
+static struct pci_reg_info regs_rest[] = {
+	{ "sub class code", PCI_SIZE_8, PCI_CLASS_SUB_CODE },
+	{ "programming interface", PCI_SIZE_8, PCI_CLASS_PROG },
+	{ "cache line", PCI_SIZE_8, PCI_CACHE_LINE_SIZE },
+	{ "latency time", PCI_SIZE_8, PCI_LATENCY_TIMER },
+	{ "header type", PCI_SIZE_8, PCI_HEADER_TYPE },
+	{ "BIST", PCI_SIZE_8, PCI_BIST },
+	{ "base address 0", PCI_SIZE_32, PCI_BASE_ADDRESS_0 },
+	{},
+};
+
+static struct pci_reg_info regs_normal[] = {
+	{ "base address 1", PCI_SIZE_32, PCI_BASE_ADDRESS_1 },
+	{ "base address 2", PCI_SIZE_32, PCI_BASE_ADDRESS_2 },
+	{ "base address 3", PCI_SIZE_32, PCI_BASE_ADDRESS_3 },
+	{ "base address 4", PCI_SIZE_32, PCI_BASE_ADDRESS_4 },
+	{ "base address 5", PCI_SIZE_32, PCI_BASE_ADDRESS_5 },
+	{ "cardBus CIS pointer", PCI_SIZE_32, PCI_CARDBUS_CIS },
+	{ "sub system vendor ID", PCI_SIZE_16, PCI_SUBSYSTEM_VENDOR_ID },
+	{ "sub system ID", PCI_SIZE_16, PCI_SUBSYSTEM_ID },
+	{ "expansion ROM base address", PCI_SIZE_32, PCI_ROM_ADDRESS },
+	{ "interrupt line", PCI_SIZE_8, PCI_INTERRUPT_LINE },
+	{ "interrupt pin", PCI_SIZE_8, PCI_INTERRUPT_PIN },
+	{ "min Grant", PCI_SIZE_8, PCI_MIN_GNT },
+	{ "max Latency", PCI_SIZE_8, PCI_MAX_LAT },
+	{},
+};
+
+static struct pci_reg_info regs_bridge[] = {
+	{ "base address 1", PCI_SIZE_32, PCI_BASE_ADDRESS_1 },
+	{ "primary bus number", PCI_SIZE_8, PCI_PRIMARY_BUS },
+	{ "secondary bus number", PCI_SIZE_8, PCI_SECONDARY_BUS },
+	{ "subordinate bus number", PCI_SIZE_8, PCI_SUBORDINATE_BUS },
+	{ "secondary latency timer", PCI_SIZE_8, PCI_SEC_LATENCY_TIMER },
+	{ "IO base", PCI_SIZE_8, PCI_IO_BASE },
+	{ "IO limit", PCI_SIZE_8, PCI_IO_LIMIT },
+	{ "secondary status", PCI_SIZE_16, PCI_SEC_STATUS },
+	{ "memory base", PCI_SIZE_16, PCI_MEMORY_BASE },
+	{ "memory limit", PCI_SIZE_16, PCI_MEMORY_LIMIT },
+	{ "prefetch memory base", PCI_SIZE_16, PCI_PREF_MEMORY_BASE },
+	{ "prefetch memory limit", PCI_SIZE_16, PCI_PREF_MEMORY_LIMIT },
+	{ "prefetch memory base upper", PCI_SIZE_32, PCI_PREF_BASE_UPPER32 },
+	{ "prefetch memory limit upper", PCI_SIZE_32, PCI_PREF_LIMIT_UPPER32 },
+	{ "IO base upper 16 bits", PCI_SIZE_16, PCI_IO_BASE_UPPER16 },
+	{ "IO limit upper 16 bits", PCI_SIZE_16, PCI_IO_LIMIT_UPPER16 },
+	{ "expansion ROM base address", PCI_SIZE_32, PCI_ROM_ADDRESS1 },
+	{ "interrupt line", PCI_SIZE_8, PCI_INTERRUPT_LINE },
+	{ "interrupt pin", PCI_SIZE_8, PCI_INTERRUPT_PIN },
+	{ "bridge control", PCI_SIZE_16, PCI_BRIDGE_CONTROL },
+	{},
+};
+
+static struct pci_reg_info regs_cardbus[] = {
+	{ "capabilities", PCI_SIZE_8, PCI_CB_CAPABILITY_LIST },
+	{ "secondary status", PCI_SIZE_16, PCI_CB_SEC_STATUS },
+	{ "primary bus number", PCI_SIZE_8, PCI_CB_PRIMARY_BUS },
+	{ "CardBus number", PCI_SIZE_8, PCI_CB_CARD_BUS },
+	{ "subordinate bus number", PCI_SIZE_8, PCI_CB_SUBORDINATE_BUS },
+	{ "CardBus latency timer", PCI_SIZE_8, PCI_CB_LATENCY_TIMER },
+	{ "CardBus memory base 0", PCI_SIZE_32, PCI_CB_MEMORY_BASE_0 },
+	{ "CardBus memory limit 0", PCI_SIZE_32, PCI_CB_MEMORY_LIMIT_0 },
+	{ "CardBus memory base 1", PCI_SIZE_32, PCI_CB_MEMORY_BASE_1 },
+	{ "CardBus memory limit 1", PCI_SIZE_32, PCI_CB_MEMORY_LIMIT_1 },
+	{ "CardBus IO base 0", PCI_SIZE_16, PCI_CB_IO_BASE_0 },
+	{ "CardBus IO base high 0", PCI_SIZE_16, PCI_CB_IO_BASE_0_HI },
+	{ "CardBus IO limit 0", PCI_SIZE_16, PCI_CB_IO_LIMIT_0 },
+	{ "CardBus IO limit high 0", PCI_SIZE_16, PCI_CB_IO_LIMIT_0_HI },
+	{ "CardBus IO base 1", PCI_SIZE_16, PCI_CB_IO_BASE_1 },
+	{ "CardBus IO base high 1", PCI_SIZE_16, PCI_CB_IO_BASE_1_HI },
+	{ "CardBus IO limit 1", PCI_SIZE_16, PCI_CB_IO_LIMIT_1 },
+	{ "CardBus IO limit high 1", PCI_SIZE_16, PCI_CB_IO_LIMIT_1_HI },
+	{ "interrupt line", PCI_SIZE_8, PCI_INTERRUPT_LINE },
+	{ "interrupt pin", PCI_SIZE_8, PCI_INTERRUPT_PIN },
+	{ "bridge control", PCI_SIZE_16, PCI_CB_BRIDGE_CONTROL },
+	{ "subvendor ID", PCI_SIZE_16, PCI_CB_SUBSYSTEM_VENDOR_ID },
+	{ "subdevice ID", PCI_SIZE_16, PCI_CB_SUBSYSTEM_ID },
+	{ "PC Card 16bit base address", PCI_SIZE_32, PCI_CB_LEGACY_MODE_BASE },
+	{},
+};
+
 /*
  * Subroutine:  PCI_Header_Show
  *
@@ -143,111 +282,31 @@ void pci_header_show_brief(pci_dev_t dev)
  */
 void pci_header_show(pci_dev_t dev)
 {
-	u8 _byte, header_type;
-	u16 _word;
-	u32 _dword;
-
-#define PRINT(msg, type, reg) \
-	pci_read_config_##type(dev, reg, &_##type); \
-	printf(msg, _##type)
-
-#define PRINT2(msg, type, reg, func) \
-	pci_read_config_##type(dev, reg, &_##type); \
-	printf(msg, _##type, func(_##type))
+	u8 class, header_type;
 
 	pci_read_config_byte(dev, PCI_HEADER_TYPE, &header_type);
+	pci_show_regs(dev, regs_start);
 
-	PRINT ("  vendor ID =                   0x%.4x\n", word, PCI_VENDOR_ID);
-	PRINT ("  device ID =                   0x%.4x\n", word, PCI_DEVICE_ID);
-	PRINT ("  command register =            0x%.4x\n", word, PCI_COMMAND);
-	PRINT ("  status register =             0x%.4x\n", word, PCI_STATUS);
-	PRINT ("  revision ID =                 0x%.2x\n", byte, PCI_REVISION_ID);
-	PRINT2("  class code =                  0x%.2x (%s)\n", byte, PCI_CLASS_CODE,
-								pci_class_str);
-	PRINT ("  sub class code =              0x%.2x\n", byte, PCI_CLASS_SUB_CODE);
-	PRINT ("  programming interface =       0x%.2x\n", byte, PCI_CLASS_PROG);
-	PRINT ("  cache line =                  0x%.2x\n", byte, PCI_CACHE_LINE_SIZE);
-	PRINT ("  latency time =                0x%.2x\n", byte, PCI_LATENCY_TIMER);
-	PRINT ("  header type =                 0x%.2x\n", byte, PCI_HEADER_TYPE);
-	PRINT ("  BIST =                        0x%.2x\n", byte, PCI_BIST);
-	PRINT ("  base address 0 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_0);
+	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
+	printf("  class code =                  0x%.2x (%s)\n", class,
+	       pci_class_str(class));
+	pci_show_regs(dev, regs_rest);
 
 	switch (header_type & 0x03) {
 	case PCI_HEADER_TYPE_NORMAL:	/* "normal" PCI device */
-		PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
-		PRINT ("  base address 2 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_2);
-		PRINT ("  base address 3 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_3);
-		PRINT ("  base address 4 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_4);
-		PRINT ("  base address 5 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_5);
-		PRINT ("  cardBus CIS pointer =         0x%.8x\n", dword, PCI_CARDBUS_CIS);
-		PRINT ("  sub system vendor ID =        0x%.4x\n", word, PCI_SUBSYSTEM_VENDOR_ID);
-		PRINT ("  sub system ID =               0x%.4x\n", word, PCI_SUBSYSTEM_ID);
-		PRINT ("  expansion ROM base address =  0x%.8x\n", dword, PCI_ROM_ADDRESS);
-		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
-		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
-		PRINT ("  min Grant =                   0x%.2x\n", byte, PCI_MIN_GNT);
-		PRINT ("  max Latency =                 0x%.2x\n", byte, PCI_MAX_LAT);
+		pci_show_regs(dev, regs_normal);
 		break;
-
 	case PCI_HEADER_TYPE_BRIDGE:	/* PCI-to-PCI bridge */
-
-		PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
-		PRINT ("  primary bus number =          0x%.2x\n", byte, PCI_PRIMARY_BUS);
-		PRINT ("  secondary bus number =        0x%.2x\n", byte, PCI_SECONDARY_BUS);
-		PRINT ("  subordinate bus number =      0x%.2x\n", byte, PCI_SUBORDINATE_BUS);
-		PRINT ("  secondary latency timer =     0x%.2x\n", byte, PCI_SEC_LATENCY_TIMER);
-		PRINT ("  IO base =                     0x%.2x\n", byte, PCI_IO_BASE);
-		PRINT ("  IO limit =                    0x%.2x\n", byte, PCI_IO_LIMIT);
-		PRINT ("  secondary status =            0x%.4x\n", word, PCI_SEC_STATUS);
-		PRINT ("  memory base =                 0x%.4x\n", word, PCI_MEMORY_BASE);
-		PRINT ("  memory limit =                0x%.4x\n", word, PCI_MEMORY_LIMIT);
-		PRINT ("  prefetch memory base =        0x%.4x\n", word, PCI_PREF_MEMORY_BASE);
-		PRINT ("  prefetch memory limit =       0x%.4x\n", word, PCI_PREF_MEMORY_LIMIT);
-		PRINT ("  prefetch memory base upper =  0x%.8x\n", dword, PCI_PREF_BASE_UPPER32);
-		PRINT ("  prefetch memory limit upper = 0x%.8x\n", dword, PCI_PREF_LIMIT_UPPER32);
-		PRINT ("  IO base upper 16 bits =       0x%.4x\n", word, PCI_IO_BASE_UPPER16);
-		PRINT ("  IO limit upper 16 bits =      0x%.4x\n", word, PCI_IO_LIMIT_UPPER16);
-		PRINT ("  expansion ROM base address =  0x%.8x\n", dword, PCI_ROM_ADDRESS1);
-		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
-		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
-		PRINT ("  bridge control =              0x%.4x\n", word, PCI_BRIDGE_CONTROL);
+		pci_show_regs(dev, regs_bridge);
 		break;
-
 	case PCI_HEADER_TYPE_CARDBUS:	/* PCI-to-CardBus bridge */
-
-		PRINT ("  capabilities =                0x%.2x\n", byte, PCI_CB_CAPABILITY_LIST);
-		PRINT ("  secondary status =            0x%.4x\n", word, PCI_CB_SEC_STATUS);
-		PRINT ("  primary bus number =          0x%.2x\n", byte, PCI_CB_PRIMARY_BUS);
-		PRINT ("  CardBus number =              0x%.2x\n", byte, PCI_CB_CARD_BUS);
-		PRINT ("  subordinate bus number =      0x%.2x\n", byte, PCI_CB_SUBORDINATE_BUS);
-		PRINT ("  CardBus latency timer =       0x%.2x\n", byte, PCI_CB_LATENCY_TIMER);
-		PRINT ("  CardBus memory base 0 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_0);
-		PRINT ("  CardBus memory limit 0 =      0x%.8x\n", dword, PCI_CB_MEMORY_LIMIT_0);
-		PRINT ("  CardBus memory base 1 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_1);
-		PRINT ("  CardBus memory limit 1 =      0x%.8x\n", dword, PCI_CB_MEMORY_LIMIT_1);
-		PRINT ("  CardBus IO base 0 =           0x%.4x\n", word, PCI_CB_IO_BASE_0);
-		PRINT ("  CardBus IO base high 0 =      0x%.4x\n", word, PCI_CB_IO_BASE_0_HI);
-		PRINT ("  CardBus IO limit 0 =          0x%.4x\n", word, PCI_CB_IO_LIMIT_0);
-		PRINT ("  CardBus IO limit high 0 =     0x%.4x\n", word, PCI_CB_IO_LIMIT_0_HI);
-		PRINT ("  CardBus IO base 1 =           0x%.4x\n", word, PCI_CB_IO_BASE_1);
-		PRINT ("  CardBus IO base high 1 =      0x%.4x\n", word, PCI_CB_IO_BASE_1_HI);
-		PRINT ("  CardBus IO limit 1 =          0x%.4x\n", word, PCI_CB_IO_LIMIT_1);
-		PRINT ("  CardBus IO limit high 1 =     0x%.4x\n", word, PCI_CB_IO_LIMIT_1_HI);
-		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
-		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
-		PRINT ("  bridge control =              0x%.4x\n", word, PCI_CB_BRIDGE_CONTROL);
-		PRINT ("  subvendor ID =                0x%.4x\n", word, PCI_CB_SUBSYSTEM_VENDOR_ID);
-		PRINT ("  subdevice ID =                0x%.4x\n", word, PCI_CB_SUBSYSTEM_ID);
-		PRINT ("  PC Card 16bit base address =  0x%.8x\n", dword, PCI_CB_LEGACY_MODE_BASE);
+		pci_show_regs(dev, regs_cardbus);
 		break;
 
 	default:
 		printf("unknown header\n");
 		break;
     }
-
-#undef PRINT
-#undef PRINT2
 }
 
 /* Convert the "bus.device.function" identifier into a number.
