@@ -432,7 +432,6 @@ int get_env_id (void);
 
 void	pci_init      (void);
 void	pci_init_board(void);
-void	pciinfo	      (int, int);
 
 #if defined(CONFIG_PCI) && defined(CONFIG_4xx)
     int	   pci_pre_init	       (struct pci_controller *);
