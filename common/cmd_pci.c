@@ -28,17 +28,22 @@ struct pci_reg_info {
 	u8 offset;
 };
 
-static int pci_field_width(enum pci_size_t size)
+static int pci_byte_size(enum pci_size_t size)
 {
 	switch (size) {
 	case PCI_SIZE_8:
-		return 2;
+		return 1;
 	case PCI_SIZE_16:
-		return 4;
+		return 2;
 	case PCI_SIZE_32:
 	default:
-		return 8;
+		return 4;
 	}
+}
+
+static int pci_field_width(enum pci_size_t size)
+{
+	return pci_byte_size(size) * 2;
 }
 
 static unsigned long pci_read_config(pci_dev_t dev, int offset,
@@ -325,38 +330,31 @@ static pci_dev_t get_pci_dev(char *name)
 	return PCI_BDF(bdfs[0], bdfs[1], bdfs[2]);
 }
 
-static int pci_cfg_display(pci_dev_t bdf, ulong addr, ulong size, ulong length)
+static int pci_cfg_display(pci_dev_t bdf, ulong addr, enum pci_size_t size,
+			   ulong length)
 {
 #define DISP_LINE_LEN	16
 	ulong i, nbytes, linebytes;
+	int byte_size;
 	int rc = 0;
 
+	byte_size = pci_byte_size(size);
 	if (length == 0)
-		length = 0x40 / size; /* Standard PCI configuration space */
+		length = 0x40 / byte_size; /* Standard PCI config space */
 
 	/* Print the lines.
 	 * once, and all accesses are with the specified bus width.
 	 */
-	nbytes = length * size;
+	nbytes = length * byte_size;
 	do {
-		uint	val4;
-		ushort  val2;
-		u_char	val1;
-
 		printf("%08lx:", addr);
-		linebytes = (nbytes>DISP_LINE_LEN)?DISP_LINE_LEN:nbytes;
-		for (i=0; i<linebytes; i+= size) {
-			if (size == 4) {
-				pci_read_config_dword(bdf, addr, &val4);
-				printf(" %08x", val4);
-			} else if (size == 2) {
-				pci_read_config_word(bdf, addr, &val2);
-				printf(" %04x", val2);
-			} else {
-				pci_read_config_byte(bdf, addr, &val1);
-				printf(" %02x", val1);
-			}
-			addr += size;
+		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
+		for (i = 0; i < linebytes; i += byte_size) {
+			unsigned long val;
+
+			val = pci_read_config(bdf, addr, size);
+			printf(" %0*lx", pci_field_width(size), val);
+			addr += byte_size;
 		}
 		printf("\n");
 		nbytes -= linebytes;
@@ -385,32 +383,20 @@ static int pci_cfg_write (pci_dev_t bdf, ulong addr, ulong size, ulong value)
 	return 0;
 }
 
-static int
-pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag)
+static int pci_cfg_modify(pci_dev_t bdf, ulong addr, enum pci_size_t size,
+			  ulong value, int incrflag)
 {
 	ulong	i;
 	int	nbytes;
-	uint	val4;
-	ushort  val2;
-	u_char	val1;
+	ulong val;
 
 	/* Print the address, followed by value.  Then accept input for
 	 * the next value.  A non-converted value exits.
 	 */
 	do {
 		printf("%08lx:", addr);
-		if (size == 4) {
-			pci_read_config_dword(bdf, addr, &val4);
-			printf(" %08x", val4);
-		}
-		else if (size == 2) {
-			pci_read_config_word(bdf, addr, &val2);
-			printf(" %04x", val2);
-		}
-		else {
-			pci_read_config_byte(bdf, addr, &val1);
-			printf(" %02x", val1);
-		}
+		val = pci_read_config(bdf, addr, size);
+		printf(" %0*lx", pci_field_width(size), val);
 
 		nbytes = cli_readline(" ? ");
 		if (nbytes == 0 || (nbytes == 1 && console_buffer[0] == '-')) {
@@ -456,7 +442,8 @@ pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag
  */
 static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong addr = 0, value = 0, size = 0;
+	ulong addr = 0, value = 0, cmd_size = 0;
+	enum pci_size_t size = PCI_SIZE_32;
 	int busnum = 0;
 	pci_dev_t bdf = 0;
 	char cmd = 's';
@@ -471,7 +458,8 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 'm':		/* modify */
 	case 'w':		/* write */
 		/* Check for a size specification. */
-		size = cmd_get_data_size(argv[1], 4);
+		cmd_size = cmd_get_data_size(argv[1], 4);
+		size = (cmd_size == 4) ? PCI_SIZE_32 : cmd_size - 1;
 		if (argc > 3)
 			addr = simple_strtoul(argv[3], NULL, 16);
 		if (argc > 4)
