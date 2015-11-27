@@ -200,6 +200,16 @@ void pci_header_show(pci_dev_t dev)
     }
 }
 
+void pciinfo_header(int busnum, bool short_listing)
+{
+	printf("Scanning PCI devices on bus %d\n", busnum);
+
+	if (short_listing) {
+		printf("BusDevFun  VendorId   DeviceId   Device Class       Sub-Class\n");
+		printf("_____________________________________________________________\n");
+	}
+}
+
 /**
  * pci_header_show_brief() - Show the short-form PCI device header
  *
@@ -245,12 +255,7 @@ void pciinfo(int bus_num, int short_pci_listing)
 	if (!hose)
 		return;
 
-	printf("Scanning PCI devices on bus %d\n", bus_num);
-
-	if (short_pci_listing) {
-		printf("BusDevFun  VendorId   DeviceId   Device Class       Sub-Class\n");
-		printf("_____________________________________________________________\n");
-	}
+	pciinfo_header(bus_num, short_pci_listing);
 
 	for (device = 0; device < PCI_MAX_PCI_DEVICES; device++) {
 		header_type = 0;
