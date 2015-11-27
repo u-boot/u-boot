@@ -22,115 +22,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-/*
- * Follows routines for the output of infos about devices on PCI bus.
- */
-
-void pci_header_show(pci_dev_t dev);
-void pci_header_show_brief(pci_dev_t dev);
-
-/*
- * Subroutine:  pciinfo
- *
- * Description: Show information about devices on PCI bus.
- *				Depending on the define CONFIG_SYS_SHORT_PCI_LISTING
- *				the output will be more or less exhaustive.
- *
- * Inputs:	bus_no		the number of the bus to be scanned.
- *
- * Return:      None
- *
- */
-void pciinfo(int BusNum, int ShortPCIListing)
-{
-	struct pci_controller *hose = pci_bus_to_hose(BusNum);
-	int Device;
-	int Function;
-	unsigned char HeaderType;
-	unsigned short VendorID;
-	pci_dev_t dev;
-	int ret;
-
-	if (!hose)
-		return;
-
-	printf("Scanning PCI devices on bus %d\n", BusNum);
-
-	if (ShortPCIListing) {
-		printf("BusDevFun  VendorId   DeviceId   Device Class       Sub-Class\n");
-		printf("_____________________________________________________________\n");
-	}
-
-	for (Device = 0; Device < PCI_MAX_PCI_DEVICES; Device++) {
-		HeaderType = 0;
-		VendorID = 0;
-		for (Function = 0; Function < PCI_MAX_PCI_FUNCTIONS; Function++) {
-			/*
-			 * If this is not a multi-function device, we skip the rest.
-			 */
-			if (Function && !(HeaderType & 0x80))
-				break;
-
-			dev = PCI_BDF(BusNum, Device, Function);
-
-			if (pci_skip_dev(hose, dev))
-				continue;
-
-			ret = pci_read_config_word(dev, PCI_VENDOR_ID,
-						   &VendorID);
-			if (ret)
-				goto error;
-			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))
-				continue;
-
-			if (!Function) pci_read_config_byte(dev, PCI_HEADER_TYPE, &HeaderType);
-
-			if (ShortPCIListing)
-			{
-				printf("%02x.%02x.%02x   ", BusNum, Device, Function);
-				pci_header_show_brief(dev);
-			}
-			else
-			{
-				printf("\nFound PCI device %02x.%02x.%02x:\n",
-				       BusNum, Device, Function);
-				pci_header_show(dev);
-			}
-		}
-	}
-
-	return;
-error:
-	printf("Cannot read bus configuration: %d\n", ret);
-}
-
-
-/*
- * Subroutine:  pci_header_show_brief
- *
- * Description: Reads and prints the header of the
- *		specified PCI device in short form.
- *
- * Inputs:	dev      Bus+Device+Function number
- *
- * Return:      None
- *
- */
-void pci_header_show_brief(pci_dev_t dev)
-{
-	u16 vendor, device;
-	u8 class, subclass;
-
-	pci_read_config_word(dev, PCI_VENDOR_ID, &vendor);
-	pci_read_config_word(dev, PCI_DEVICE_ID, &device);
-	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
-	pci_read_config_byte(dev, PCI_CLASS_SUB_CODE, &subclass);
-
-	printf("0x%.4x     0x%.4x     %-23s 0x%.2x\n",
-	       vendor, device,
-	       pci_class_str(class), subclass);
-}
-
 struct pci_reg_info {
 	const char *name;
 	enum pci_size_t size;
@@ -284,10 +175,10 @@ void pci_header_show(pci_dev_t dev)
 {
 	u8 class, header_type;
 
+	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
 	pci_read_config_byte(dev, PCI_HEADER_TYPE, &header_type);
 	pci_show_regs(dev, regs_start);
 
-	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
 	printf("  class code =                  0x%.2x (%s)\n", class,
 	       pci_class_str(class));
 	pci_show_regs(dev, regs_rest);
@@ -308,6 +199,111 @@ void pci_header_show(pci_dev_t dev)
 		break;
     }
 }
+
+/*
+ * Subroutine:  pci_header_show_brief
+ *
+ * Description: Reads and prints the header of the
+ *		specified PCI device in short form.
+ *
+ * Inputs:	dev      Bus+Device+Function number
+ *
+ * Return:      None
+ *
+ */
+void pci_header_show_brief(pci_dev_t dev)
+{
+	u16 vendor, device;
+	u8 class, subclass;
+
+	pci_read_config_word(dev, PCI_VENDOR_ID, &vendor);
+	pci_read_config_word(dev, PCI_DEVICE_ID, &device);
+	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
+	pci_read_config_byte(dev, PCI_CLASS_SUB_CODE, &subclass);
+
+	printf("0x%.4x     0x%.4x     %-23s 0x%.2x\n",
+	       vendor, device,
+	       pci_class_str(class), subclass);
+}
+
+/*
+ * Subroutine:  pciinfo
+ *
+ * Description: Show information about devices on PCI bus.
+ *		Depending on the defineCONFIG_SYS_SHORT_PCI_LISTING
+ *		the output will be more or less exhaustive.
+ *
+ * Inputs:	bus_no		the number of the bus to be scanned.
+ *
+ * Return:      None
+ *
+ */
+void pciinfo(int bus_num, int short_pci_listing)
+{
+	struct pci_controller *hose = pci_bus_to_hose(bus_num);
+	int Device;
+	int Function;
+	unsigned char HeaderType;
+	unsigned short VendorID;
+	pci_dev_t dev;
+	int ret;
+
+	if (!hose)
+		return;
+
+	printf("Scanning PCI devices on bus %d\n", bus_num);
+
+	if (short_pci_listing) {
+		printf("BusDevFun  VendorId   DeviceId   Device Class       Sub-Class\n");
+		printf("_____________________________________________________________\n");
+	}
+
+	for (Device = 0; Device < PCI_MAX_PCI_DEVICES; Device++) {
+		HeaderType = 0;
+		VendorID = 0;
+		for (Function = 0; Function < PCI_MAX_PCI_FUNCTIONS;
+		     Function++) {
+			/*
+			 * If this is not a multi-function device, we skip
+			 * the rest.
+			 */
+			if (Function && !(HeaderType & 0x80))
+				break;
+
+			dev = PCI_BDF(bus_num, Device, Function);
+
+			if (pci_skip_dev(hose, dev))
+				continue;
+
+			ret = pci_read_config_word(dev, PCI_VENDOR_ID,
+						   &VendorID);
+			if (ret)
+				goto error;
+			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))
+				continue;
+
+			if (!Function) {
+				pci_read_config_byte(dev, PCI_HEADER_TYPE,
+						     &HeaderType);
+			}
+
+			if (short_pci_listing) {
+				printf("%02x.%02x.%02x   ", bus_num, Device,
+				       Function);
+				pci_header_show_brief(dev);
+			} else {
+				printf("\nFound PCI device %02x.%02x.%02x:\n",
+				       bus_num, Device, Function);
+				pci_header_show(dev);
+			}
+		}
+	}
+
+	return;
+error:
+	printf("Cannot read bus configuration: %d\n", ret);
+}
+
 
 /* Convert the "bus.device.function" identifier into a number.
  */
