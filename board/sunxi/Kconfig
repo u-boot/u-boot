@@ -74,6 +74,12 @@ config MACH_SUN8I_H3
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
+config MACH_SUN8I_A83T
+	bool "sun8i (Allwinner A83T)"
+	select CPU_V7
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
+
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
@@ -84,7 +90,7 @@ endchoice
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
-	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3
+	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3 || MACH_SUN8I_A83T
 
 
 config DRAM_CLK
@@ -373,6 +379,7 @@ config AXP_GPIO
 
 config VIDEO
 	boolean "Enable graphical uboot console on HDMI, LCD or VGA"
+	depends on !MACH_SUN8I_A83T
 	default y
 	---help---
 	Say Y here to add support for using a cfb console on the HDMI, LCD
