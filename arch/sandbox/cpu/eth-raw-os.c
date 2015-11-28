@@ -198,7 +198,8 @@ int sandbox_eth_raw_os_send(void *packet, int length,
 		addr.sin_family = AF_INET;
 		addr.sin_port = udph->source;
 		addr.sin_addr.s_addr = iph->saddr;
-		retval = bind(priv->local_bind_sd, &addr, sizeof(addr));
+		retval = bind(priv->local_bind_sd, (struct sockaddr *)&addr,
+			      sizeof(addr));
 		if (retval < 0)
 			printf("Failed to bind: %d %s\n", errno,
 			       strerror(errno));
