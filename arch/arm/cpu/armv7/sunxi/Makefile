@@ -54,6 +54,7 @@ obj-$(CONFIG_MACH_SUN6I)	+= dram_sun6i.o
 obj-$(CONFIG_MACH_SUN7I)	+= dram_sun4i.o
 obj-$(CONFIG_MACH_SUN8I_A23)	+= dram_sun8i_a23.o
 obj-$(CONFIG_MACH_SUN8I_A33)	+= dram_sun8i_a33.o
+obj-$(CONFIG_MACH_SUN8I_A83T)	+= dram_sun8i_a83t.o
 obj-$(CONFIG_MACH_SUN8I_H3)	+= dram_sun8i_h3.o
 obj-y	+= fel_utils.o
 endif
