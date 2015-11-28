@@ -184,7 +184,7 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 	u32 cfg;
 	int lane;
 
-	memset(serdes_prtcl_map, 0, sizeof(serdes_prtcl_map));
+	memset(serdes_prtcl_map, 0, sizeof(u8) * SERDES_PRCTL_COUNT);
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007186
 	struct ccsr_sfp_regs  __iomem *sfp_regs =
 			(struct ccsr_sfp_regs __iomem *)(CONFIG_SYS_SFP_ADDR);
