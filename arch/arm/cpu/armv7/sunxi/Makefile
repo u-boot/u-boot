@@ -33,6 +33,7 @@ obj-$(CONFIG_MACH_SUN6I)	+= tzpc.o
 obj-$(CONFIG_AXP152_POWER)	+= pmic_bus.o
 obj-$(CONFIG_AXP209_POWER)	+= pmic_bus.o
 obj-$(CONFIG_AXP221_POWER)	+= pmic_bus.o
+obj-$(CONFIG_AXP818_POWER)	+= pmic_bus.o
 
 ifndef CONFIG_SPL_BUILD
 ifdef CONFIG_ARMV7_PSCI

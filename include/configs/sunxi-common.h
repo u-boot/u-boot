@@ -239,7 +239,8 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 /* PMU */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || defined CONFIG_AXP221_POWER
+#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
+    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
 #define CONFIG_SPL_POWER_SUPPORT
 #endif
 

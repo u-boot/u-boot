@@ -23,6 +23,7 @@
 #define AXP221_CTRL_ADDR		0x3e
 #define AXP221_INIT_DATA		0x3e
 
+/* AXP818 device and runtime addresses are same as AXP223 */
 #define AXP223_DEVICE_ADDR		0x3a3
 #define AXP223_RUNTIME_ADDR		0x2d
 
@@ -35,7 +36,7 @@ int pmic_bus_init(void)
 	if (!needs_init)
 		return 0;
 
-#ifdef CONFIG_AXP221_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
 # ifdef CONFIG_MACH_SUN6I
 	p2wi_init();
 	ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR, AXP221_CTRL_ADDR,
@@ -61,7 +62,7 @@ int pmic_bus_read(u8 reg, u8 *data)
 	return i2c_read(AXP152_I2C_ADDR, reg, 1, data, 1);
 #elif defined CONFIG_AXP209_POWER
 	return i2c_read(AXP209_I2C_ADDR, reg, 1, data, 1);
-#elif defined CONFIG_AXP221_POWER
+#elif defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
 # ifdef CONFIG_MACH_SUN6I
 	return p2wi_read(reg, data);
 # else
@@ -76,7 +77,7 @@ int pmic_bus_write(u8 reg, u8 data)
 	return i2c_write(AXP152_I2C_ADDR, reg, 1, &data, 1);
 #elif defined CONFIG_AXP209_POWER
 	return i2c_write(AXP209_I2C_ADDR, reg, 1, &data, 1);
-#elif defined CONFIG_AXP221_POWER
+#elif defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
 # ifdef CONFIG_MACH_SUN6I
 	return p2wi_write(reg, data);
 # else
