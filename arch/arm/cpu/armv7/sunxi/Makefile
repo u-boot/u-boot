@@ -26,7 +26,11 @@ obj-$(CONFIG_MACH_SUN4I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN6I)	+= clock_sun6i.o
 obj-$(CONFIG_MACH_SUN7I)	+= clock_sun4i.o
+ifdef CONFIG_MACH_SUN8I_A83T
+obj-y				+= clock_sun8i_a83t.o
+else
 obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
+endif
 obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o
 obj-$(CONFIG_MACH_SUN6I)	+= tzpc.o
 
