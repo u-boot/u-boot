@@ -101,6 +101,11 @@ M:	Priit Laes <plaes@plaes.org>
 S:	Maintained
 F:	configs/sunxi_Gemei_G9_defconfig
 
+H8HOMLET PROTO A83T BOARD
+M:	VishnuPatekar <vishnupatekar0510@gmail.com>
+S:	Maintained
+F:	configs/h8_homlet_v2_defconfig
+
 HUMMINGBIRD-A31 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
