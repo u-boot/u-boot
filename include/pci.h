@@ -995,7 +995,7 @@ int pci_find_device_id(struct pci_device_id *ids, int index,
  * @bdf:	PCI bus address to scan (PCI_BUS(bdf) is the bus number)
  * @return 0 if OK, -ve on error
  */
-int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf);
+int dm_pci_hose_probe_bus(struct udevice *bus);
 
 /**
  * pci_bus_read_config() - Read a configuration value from a device

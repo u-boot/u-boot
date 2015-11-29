@@ -17,6 +17,7 @@
 #if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
 #include <asm/fsp/fsp_support.h>
 #endif
+#include "pci_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -404,7 +405,7 @@ int pci_auto_config_devices(struct udevice *bus)
 		int ret;
 
 		debug("%s: device %s\n", __func__, dev->name);
-		ret = pciauto_config_device(hose, dm_pci_get_bdf(dev));
+		ret = dm_pciauto_config_device(dev);
 		if (ret < 0)
 			return ret;
 		max_bus = ret;
@@ -419,26 +420,16 @@ int pci_auto_config_devices(struct udevice *bus)
 	return sub_bus;
 }
 
-int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf)
+int dm_pci_hose_probe_bus(struct udevice *bus)
 {
-	struct udevice *parent, *bus;
 	int sub_bus;
 	int ret;
 
 	debug("%s\n", __func__);
-	parent = hose->bus;
-
-	/* Find the bus within the parent */
-	ret = pci_bus_find_devfn(parent, PCI_MASK_BUS(bdf), &bus);
-	if (ret) {
-		debug("%s: Cannot find device %x on bus %s: %d\n", __func__,
-		      bdf, parent->name, ret);
-		return ret;
-	}
 
 	sub_bus = pci_get_bus_max() + 1;
 	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
-	pciauto_prescan_setup_bridge(hose, bdf, sub_bus);
+	dm_pciauto_prescan_setup_bridge(bus, sub_bus);
 
 	ret = device_probe(bus);
 	if (ret) {
@@ -452,7 +443,7 @@ int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf)
 		return -EPIPE;
 	}
 	sub_bus = pci_get_bus_max();
-	pciauto_postscan_setup_bridge(hose, bdf, sub_bus);
+	dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 
 	return sub_bus;
 }
