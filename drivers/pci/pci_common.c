@@ -79,48 +79,6 @@ const char *pci_class_str(u8 class)
 	};
 }
 
-pci_dev_t pci_find_class(uint find_class, int index)
-{
-	int bus;
-	int devnum;
-	pci_dev_t bdf;
-	uint32_t class;
-
-	for (bus = 0; bus <= pci_last_busno(); bus++) {
-		for (devnum = 0; devnum < PCI_MAX_PCI_DEVICES - 1; devnum++) {
-			pci_read_config_dword(PCI_BDF(bus, devnum, 0),
-					      PCI_CLASS_REVISION, &class);
-			if (class >> 16 == 0xffff)
-				continue;
-
-			for (bdf = PCI_BDF(bus, devnum, 0);
-					bdf <= PCI_BDF(bus, devnum,
-						PCI_MAX_PCI_FUNCTIONS - 1);
-					bdf += PCI_BDF(0, 0, 1)) {
-				pci_read_config_dword(bdf, PCI_CLASS_REVISION,
-						      &class);
-				class >>= 8;
-
-				if (class != find_class)
-					continue;
-				/*
-				 * Decrement the index. We want to return the
-				 * correct device, so index is 0 for the first
-				 * matching device, 1 for the second, etc.
-				 */
-				if (index) {
-					index--;
-					continue;
-				}
-				/* Return index'th controller. */
-				return bdf;
-			}
-		}
-	}
-
-	return -ENODEV;
-}
-
 __weak int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
 {
 	/*
@@ -363,5 +321,47 @@ pci_dev_t pci_hose_find_devices(struct pci_controller *hose, int busnum,
 	}
 
 	return -1;
+}
+
+pci_dev_t pci_find_class(uint find_class, int index)
+{
+	int bus;
+	int devnum;
+	pci_dev_t bdf;
+	uint32_t class;
+
+	for (bus = 0; bus <= pci_last_busno(); bus++) {
+		for (devnum = 0; devnum < PCI_MAX_PCI_DEVICES - 1; devnum++) {
+			pci_read_config_dword(PCI_BDF(bus, devnum, 0),
+					      PCI_CLASS_REVISION, &class);
+			if (class >> 16 == 0xffff)
+				continue;
+
+			for (bdf = PCI_BDF(bus, devnum, 0);
+					bdf <= PCI_BDF(bus, devnum,
+						PCI_MAX_PCI_FUNCTIONS - 1);
+					bdf += PCI_BDF(0, 0, 1)) {
+				pci_read_config_dword(bdf, PCI_CLASS_REVISION,
+						      &class);
+				class >>= 8;
+
+				if (class != find_class)
+					continue;
+				/*
+				 * Decrement the index. We want to return the
+				 * correct device, so index is 0 for the first
+				 * matching device, 1 for the second, etc.
+				 */
+				if (index) {
+					index--;
+					continue;
+				}
+				/* Return index'th controller. */
+				return bdf;
+			}
+		}
+	}
+
+	return -ENODEV;
 }
 #endif /* !CONFIG_DM_PCI || CONFIG_DM_PCI_COMPAT */
