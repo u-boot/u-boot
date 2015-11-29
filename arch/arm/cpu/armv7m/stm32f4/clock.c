@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2015
- * Kamil Lulko, <rev13@wp.pl>
+ * Kamil Lulko, <kamil.lulko@gmail.com>
  *
  * (C) Copyright 2014
  * STMicroelectronics

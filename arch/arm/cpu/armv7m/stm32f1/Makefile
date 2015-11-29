@@ -3,7 +3,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # (C) Copyright 2015
-# Kamil Lulko, <rev13@wp.pl>
+# Kamil Lulko, <kamil.lulko@gmail.com>
 #
 # Copyright 2015 ATS Advanced Telematics Systems GmbH
 # Copyright 2015 Konsulko Group, Matt Porter <mporter@konsulko.com>
