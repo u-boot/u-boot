@@ -324,8 +324,9 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 			return 0;
 		}
 
-		headersz += s.st_size +
-			binarye->binary.nargs * sizeof(unsigned int);
+		headersz += sizeof(struct opt_hdr_v1) +
+			s.st_size +
+			(binarye->binary.nargs + 2) * sizeof(uint32_t);
 		if (hasext)
 			*hasext = 1;
 	}
@@ -419,7 +420,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		fstat(fileno(bin), &s);
 
 		binhdrsz = sizeof(struct opt_hdr_v1) +
-			(binarye->binary.nargs + 1) * sizeof(unsigned int) +
+			(binarye->binary.nargs + 2) * sizeof(uint32_t) +
 			s.st_size;
 
 		/*
