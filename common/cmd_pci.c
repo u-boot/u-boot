@@ -606,7 +606,7 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 #ifdef CONFIG_DM_PCI
-	ret = pci_bus_find_bdf(bdf, &dev);
+	ret = dm_pci_bus_find_bdf(bdf, &dev);
 	if (ret) {
 		printf("No such device\n");
 		return CMD_RET_FAILURE;

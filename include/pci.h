@@ -902,13 +902,13 @@ int pci_bind_bus_devices(struct udevice *bus);
 int pci_auto_config_devices(struct udevice *bus);
 
 /**
- * pci_bus_find_bdf() - Find a device given its PCI bus address
+ * dm_pci_bus_find_bdf() - Find a device given its PCI bus address
  *
  * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
  * @devp:	Returns the device for this address, if found
  * @return 0 if OK, -ENODEV if not found
  */
-int pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp);
+int dm_pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp);
 
 /**
  * pci_bus_find_devfn() - Find a device on a bus

@@ -128,7 +128,7 @@ int pci_bus_find_devfn(struct udevice *bus, pci_dev_t find_devfn,
 	return -ENODEV;
 }
 
-int pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp)
+int dm_pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp)
 {
 	struct udevice *bus;
 	int ret;
