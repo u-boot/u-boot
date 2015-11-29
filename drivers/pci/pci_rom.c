@@ -324,8 +324,8 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 #ifdef CONFIG_X86
 		bios_set_interrupt_handler(0x15, int15_handler);
 
-		bios_run_on_x86(dm_pci_get_bdf(dev), (unsigned long)ram,
-				vesa_mode, &mode_info);
+		bios_run_on_x86(dev, (unsigned long)ram, vesa_mode,
+				&mode_info);
 #endif
 	}
 	debug("Final vesa mode %#x\n", mode_info.video_mode);

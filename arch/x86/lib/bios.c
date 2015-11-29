@@ -242,9 +242,10 @@ static void vbe_set_graphics(int vesa_mode, struct vbe_mode_info *mode_info)
 	vbe_set_mode(mode_info);
 }
 
-void bios_run_on_x86(pci_dev_t pcidev, unsigned long addr, int vesa_mode,
+void bios_run_on_x86(struct udevice *dev, unsigned long addr, int vesa_mode,
 		     struct vbe_mode_info *mode_info)
 {
+	pci_dev_t pcidev = dm_pci_get_bdf(dev);
 	u32 num_dev;
 
 	num_dev = PCI_BUS(pcidev) << 8 | PCI_DEV(pcidev) << 3 |
