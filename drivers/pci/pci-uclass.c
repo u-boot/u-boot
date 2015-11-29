@@ -195,6 +195,45 @@ int pci_find_device_id(struct pci_device_id *ids, int index,
 	return -ENODEV;
 }
 
+static int dm_pci_bus_find_device(struct udevice *bus, unsigned int vendor,
+				  unsigned int device, int *indexp,
+				  struct udevice **devp)
+{
+	struct pci_child_platdata *pplat;
+	struct udevice *dev;
+
+	for (device_find_first_child(bus, &dev);
+	     dev;
+	     device_find_next_child(&dev)) {
+		pplat = dev_get_parent_platdata(dev);
+		if (pplat->vendor == vendor && pplat->device == device) {
+			if (!(*indexp)--) {
+				*devp = dev;
+				return 0;
+			}
+		}
+	}
+
+	return -ENODEV;
+}
+
+int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
+		       struct udevice **devp)
+{
+	struct udevice *bus;
+
+	/* Scan all known buses */
+	for (uclass_first_device(UCLASS_PCI, &bus);
+	     bus;
+	     uclass_next_device(&bus)) {
+		if (!dm_pci_bus_find_device(bus, vendor, device, &index, devp))
+			return device_probe(*devp);
+	}
+	*devp = NULL;
+
+	return -ENODEV;
+}
+
 int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size)
 {

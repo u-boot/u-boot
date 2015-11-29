@@ -1167,6 +1167,18 @@ int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 		    struct pci_region **memp, struct pci_region **prefp);
 
 /**
+ * dm_pci_find_device() - find a device by vendor/device ID
+ *
+ * @vendor:	Vendor ID
+ * @device:	Device ID
+ * @index:	0 to find the first match, 1 for second, etc.
+ * @devp:	Returns pointer to the device, if found
+ * @return 0 if found, -ve on error
+ */
+int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
+		       struct udevice **devp);
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {
