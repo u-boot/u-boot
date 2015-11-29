@@ -61,7 +61,7 @@ struct udevice *pci_get_controller(struct udevice *dev)
 	return dev;
 }
 
-pci_dev_t pci_get_bdf(struct udevice *dev)
+pci_dev_t dm_pci_get_bdf(struct udevice *dev)
 {
 	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
 	struct udevice *bus = dev->parent;
@@ -225,7 +225,8 @@ int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
 
 	for (bus = dev; device_is_on_pci_bus(bus);)
 		bus = bus->parent;
-	return pci_bus_write_config(bus, pci_get_bdf(dev), offset, value, size);
+	return pci_bus_write_config(bus, dm_pci_get_bdf(dev), offset, value,
+				    size);
 }
 
 
@@ -290,7 +291,7 @@ int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
 
 	for (bus = dev; device_is_on_pci_bus(bus);)
 		bus = bus->parent;
-	return pci_bus_read_config(bus, pci_get_bdf(dev), offset, valuep,
+	return pci_bus_read_config(bus, dm_pci_get_bdf(dev), offset, valuep,
 				   size);
 }
 
@@ -403,7 +404,7 @@ int pci_auto_config_devices(struct udevice *bus)
 		int ret;
 
 		debug("%s: device %s\n", __func__, dev->name);
-		ret = pciauto_config_device(hose, pci_get_bdf(dev));
+		ret = pciauto_config_device(hose, dm_pci_get_bdf(dev));
 		if (ret < 0)
 			return ret;
 		max_bus = ret;

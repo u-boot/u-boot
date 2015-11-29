@@ -576,7 +576,7 @@ int rtl8169_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct rtl8169_private *priv = dev_get_priv(dev);
 
-	return rtl_recv_common(pci_get_bdf(dev), priv->iobase, packetp);
+	return rtl_recv_common(dm_pci_get_bdf(dev), priv->iobase, packetp);
 }
 #else
 static int rtl_recv(struct eth_device *dev)
@@ -661,7 +661,8 @@ int rtl8169_eth_send(struct udevice *dev, void *packet, int length)
 {
 	struct rtl8169_private *priv = dev_get_priv(dev);
 
-	return rtl_send_common(pci_get_bdf(dev), priv->iobase, packet, length);
+	return rtl_send_common(dm_pci_get_bdf(dev), priv->iobase, packet,
+			       length);
 }
 
 #else
@@ -837,7 +838,7 @@ static int rtl8169_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_platdata(dev);
 
-	rtl8169_common_start(pci_get_bdf(dev), plat->enetaddr);
+	rtl8169_common_start(dm_pci_get_bdf(dev), plat->enetaddr);
 
 	return 0;
 }
@@ -1130,10 +1131,10 @@ static int rtl8169_eth_probe(struct udevice *dev)
 		region = 1;
 		break;
 	}
-	pci_read_config32(pci_get_bdf(dev), PCI_BASE_ADDRESS_0 + region * 4,
+	pci_read_config32(dm_pci_get_bdf(dev), PCI_BASE_ADDRESS_0 + region * 4,
 			  &iobase);
 	iobase &= ~0xf;
-	priv->iobase = (int)pci_mem_to_phys(pci_get_bdf(dev), iobase);
+	priv->iobase = (int)pci_mem_to_phys(dm_pci_get_bdf(dev), iobase);
 
 	ret = rtl_init(priv->iobase, dev->name, plat->enetaddr);
 	if (ret < 0) {

@@ -5628,8 +5628,8 @@ static int e1000_eth_probe(struct udevice *dev)
 	int ret;
 
 	hw->name = dev->name;
-	ret = e1000_init_one(hw, trailing_strtol(dev->name), pci_get_bdf(dev),
-			     plat->enetaddr);
+	ret = e1000_init_one(hw, trailing_strtol(dev->name),
+			     dm_pci_get_bdf(dev), plat->enetaddr);
 	if (ret < 0) {
 		printf(pr_fmt("failed to initialize card: %d\n"), ret);
 		return ret;

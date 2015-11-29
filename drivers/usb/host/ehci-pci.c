@@ -94,7 +94,7 @@ static int ehci_pci_probe(struct udevice *dev)
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 
-	ehci_pci_common_init(pci_get_bdf(dev), &hccr, &hcor);
+	ehci_pci_common_init(dm_pci_get_bdf(dev), &hccr, &hcor);
 
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 }

@@ -34,5 +34,5 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 
 	if (pci_find_device_id(ids, index, &dev))
 		return -1;
-	return pci_get_bdf(dev);
+	return dm_pci_get_bdf(dev);
 }

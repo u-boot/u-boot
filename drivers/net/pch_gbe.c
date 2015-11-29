@@ -424,7 +424,7 @@ int pch_gbe_probe(struct udevice *dev)
 	pci_dev_t devno;
 	u32 iobase;
 
-	devno = pci_get_bdf(dev);
+	devno = dm_pci_get_bdf(dev);
 
 	/*
 	 * The priv structure contains the descriptors and frame buffers which
