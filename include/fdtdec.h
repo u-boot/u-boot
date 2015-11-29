@@ -445,32 +445,15 @@ int fdtdec_get_pci_vendev(const void *blob, int node,
 
 /**
  * Look at the pci address of a device node that represents a PCI device
- * and parse the bus, device and function number from it. For some cases
- * like the bus number encoded in reg property is not correct after pci
- * enumeration, this function looks through the node's compatible strings
- * to get these numbers extracted instead.
- *
- * @param blob		FDT blob
- * @param node		node to examine
- * @param addr		pci address in the form of fdt_pci_addr
- * @param bdf		returns bus, device, function triplet
- * @return 0 if ok, negative on error
- */
-int fdtdec_get_pci_bdf(const void *blob, int node,
-		struct fdt_pci_addr *addr, pci_dev_t *bdf);
-
-/**
- * Look at the pci address of a device node that represents a PCI device
  * and return base address of the pci device's registers.
  *
- * @param blob		FDT blob
- * @param node		node to examine
+ * @param dev		device to examine
  * @param addr		pci address in the form of fdt_pci_addr
  * @param bar		returns base address of the pci device's registers
  * @return 0 if ok, negative on error
  */
-int fdtdec_get_pci_bar32(const void *blob, int node,
-		struct fdt_pci_addr *addr, u32 *bar);
+int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
+			 u32 *bar);
 
 /**
  * Look up a 32-bit integer property in a node and return it. The property
