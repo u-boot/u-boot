@@ -313,6 +313,7 @@ pci_addr_t pci_hose_phys_to_bus(struct pci_controller *hose,
 	return bus_addr;
 }
 
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
 {
 	struct pci_device_id ids[2] = { {}, {0, 0} };
@@ -363,3 +364,4 @@ pci_dev_t pci_hose_find_devices(struct pci_controller *hose, int busnum,
 
 	return -1;
 }
+#endif /* !CONFIG_DM_PCI || CONFIG_DM_PCI_COMPAT */
