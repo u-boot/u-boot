@@ -11,6 +11,7 @@
 #include <fdtdec.h>
 #include <inttypes.h>
 #include <pci.h>
+#include <asm/io.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
@@ -1066,6 +1067,141 @@ u32 dm_pci_read_bar32(struct udevice *dev, int barnum)
 		return addr & PCI_BASE_ADDRESS_IO_MASK;
 	else
 		return addr & PCI_BASE_ADDRESS_MEM_MASK;
+}
+
+static int _dm_pci_bus_to_phys(struct udevice *ctlr,
+			       pci_addr_t bus_addr, unsigned long flags,
+			       unsigned long skip_mask, phys_addr_t *pa)
+{
+	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
+	struct pci_region *res;
+	int i;
+
+	for (i = 0; i < hose->region_count; i++) {
+		res = &hose->regions[i];
+
+		if (((res->flags ^ flags) & PCI_REGION_TYPE) != 0)
+			continue;
+
+		if (res->flags & skip_mask)
+			continue;
+
+		if (bus_addr >= res->bus_start &&
+		    (bus_addr - res->bus_start) < res->size) {
+			*pa = (bus_addr - res->bus_start + res->phys_start);
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t bus_addr,
+			       unsigned long flags)
+{
+	phys_addr_t phys_addr = 0;
+	struct udevice *ctlr;
+	int ret;
+
+	/* The root controller has the region information */
+	ctlr = pci_get_controller(dev);
+
+	/*
+	 * if PCI_REGION_MEM is set we do a two pass search with preference
+	 * on matches that don't have PCI_REGION_SYS_MEMORY set
+	 */
+	if ((flags & PCI_REGION_TYPE) == PCI_REGION_MEM) {
+		ret = _dm_pci_bus_to_phys(ctlr, bus_addr,
+					  flags, PCI_REGION_SYS_MEMORY,
+					  &phys_addr);
+		if (!ret)
+			return phys_addr;
+	}
+
+	ret = _dm_pci_bus_to_phys(ctlr, bus_addr, flags, 0, &phys_addr);
+
+	if (ret)
+		puts("pci_hose_bus_to_phys: invalid physical address\n");
+
+	return phys_addr;
+}
+
+int _dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
+			unsigned long flags, unsigned long skip_mask,
+			pci_addr_t *ba)
+{
+	struct pci_region *res;
+	struct udevice *ctlr;
+	pci_addr_t bus_addr;
+	int i;
+	struct pci_controller *hose;
+
+	/* The root controller has the region information */
+	ctlr = pci_get_controller(dev);
+	hose = dev_get_uclass_priv(ctlr);
+
+	for (i = 0; i < hose->region_count; i++) {
+		res = &hose->regions[i];
+
+		if (((res->flags ^ flags) & PCI_REGION_TYPE) != 0)
+			continue;
+
+		if (res->flags & skip_mask)
+			continue;
+
+		bus_addr = phys_addr - res->phys_start + res->bus_start;
+
+		if (bus_addr >= res->bus_start &&
+		    (bus_addr - res->bus_start) < res->size) {
+			*ba = bus_addr;
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
+			      unsigned long flags)
+{
+	pci_addr_t bus_addr = 0;
+	int ret;
+
+	/*
+	 * if PCI_REGION_MEM is set we do a two pass search with preference
+	 * on matches that don't have PCI_REGION_SYS_MEMORY set
+	 */
+	if ((flags & PCI_REGION_TYPE) == PCI_REGION_MEM) {
+		ret = _dm_pci_phys_to_bus(dev, phys_addr, flags,
+					  PCI_REGION_SYS_MEMORY, &bus_addr);
+		if (!ret)
+			return bus_addr;
+	}
+
+	ret = _dm_pci_phys_to_bus(dev, phys_addr, flags, 0, &bus_addr);
+
+	if (ret)
+		puts("pci_hose_phys_to_bus: invalid physical address\n");
+
+	return bus_addr;
+}
+
+void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
+{
+	pci_addr_t pci_bus_addr;
+	u32 bar_response;
+
+	/* read BAR address */
+	dm_pci_read_config32(dev, bar, &bar_response);
+	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
+
+	/*
+	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
+	 * isn't actualy used on any platform because u-boot assumes a static
+	 * linear mapping.  In the future, this could read the BAR size
+	 * and pass that as the size if needed.
+	 */
+	return dm_pci_bus_to_virt(dev, pci_bus_addr, flags, 0, MAP_NOCACHE);
 }
 
 UCLASS_DRIVER(pci) = {
