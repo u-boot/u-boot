@@ -674,9 +674,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 		/* Find this device in the device tree */
 		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
 
-		/* Search for a driver */
-
-		/* If nothing in the device tree, bind a generic device */
+		/* If nothing in the device tree, bind a device */
 		if (ret == -ENODEV) {
 			struct pci_device_id find_id;
 			ulong val;
