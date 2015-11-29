@@ -89,13 +89,13 @@ struct mcs7830_private {
 
 /*
  * mcs7830_read_reg() - read a register of the network adapter
- * @dev:	network device to read from
+ * @udev:	network device to read from
  * @idx:	index of the register to start reading from
  * @size:	number of bytes to read
  * @data:	buffer to read into
  * Return: zero upon success, negative upon error
  */
-static int mcs7830_read_reg(struct ueth_data *dev, uint8_t idx,
+static int mcs7830_read_reg(struct usb_device *udev, uint8_t idx,
 			    uint16_t size, void *data)
 {
 	int len;
@@ -103,8 +103,8 @@ static int mcs7830_read_reg(struct ueth_data *dev, uint8_t idx,
 
 	debug("%s() idx=0x%04X sz=%d\n", __func__, idx, size);
 
-	len = usb_control_msg(dev->pusb_dev,
-			      usb_rcvctrlpipe(dev->pusb_dev, 0),
+	len = usb_control_msg(udev,
+			      usb_rcvctrlpipe(udev, 0),
 			      MCS7830_RD_BREQ,
 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 			      0, idx, buf, size,
@@ -119,13 +119,13 @@ static int mcs7830_read_reg(struct ueth_data *dev, uint8_t idx,
 
 /*
  * mcs7830_write_reg() - write a register of the network adapter
- * @dev:	network device to write to
+ * @udev:	network device to write to
  * @idx:	index of the register to start writing to
  * @size:	number of bytes to write
  * @data:	buffer holding the data to write
  * Return: zero upon success, negative upon error
  */
-static int mcs7830_write_reg(struct ueth_data *dev, uint8_t idx,
+static int mcs7830_write_reg(struct usb_device *udev, uint8_t idx,
 			     uint16_t size, void *data)
 {
 	int len;
@@ -134,8 +134,8 @@ static int mcs7830_write_reg(struct ueth_data *dev, uint8_t idx,
 	debug("%s() idx=0x%04X sz=%d\n", __func__, idx, size);
 
 	memcpy(buf, data, size);
-	len = usb_control_msg(dev->pusb_dev,
-			      usb_sndctrlpipe(dev->pusb_dev, 0),
+	len = usb_control_msg(udev,
+			      usb_sndctrlpipe(udev, 0),
 			      MCS7830_WR_BREQ,
 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 			      0, idx, buf, size,
@@ -149,12 +149,12 @@ static int mcs7830_write_reg(struct ueth_data *dev, uint8_t idx,
 
 /*
  * mcs7830_phy_emit_wait() - emit PHY read/write access, wait for its execution
- * @dev:	network device to talk to
+ * @udev:	network device to talk to
  * @rwflag:	PHY_CMD1_READ or PHY_CMD1_WRITE opcode
  * @index:	number of the PHY register to read or write
  * Return: zero upon success, negative upon error
  */
-static int mcs7830_phy_emit_wait(struct ueth_data *dev,
+static int mcs7830_phy_emit_wait(struct usb_device *udev,
 				 uint8_t rwflag, uint8_t index)
 {
 	int rc;
@@ -164,14 +164,14 @@ static int mcs7830_phy_emit_wait(struct ueth_data *dev,
 	/* send the PHY read/write request */
 	cmd[0] = rwflag | PHY_CMD1_PHYADDR;
 	cmd[1] = PHY_CMD2_PEND | (index & 0x1f);
-	rc = mcs7830_write_reg(dev, REG_PHY_CMD, sizeof(cmd), cmd);
+	rc = mcs7830_write_reg(udev, REG_PHY_CMD, sizeof(cmd), cmd);
 	if (rc < 0)
 		return rc;
 
 	/* wait for the response to become available (usually < 1ms) */
 	retry = 10;
 	do {
-		rc = mcs7830_read_reg(dev, REG_PHY_CMD, sizeof(cmd), cmd);
+		rc = mcs7830_read_reg(udev, REG_PHY_CMD, sizeof(cmd), cmd);
 		if (rc < 0)
 			return rc;
 		if (cmd[1] & PHY_CMD2_READY)
@@ -185,50 +185,51 @@ static int mcs7830_phy_emit_wait(struct ueth_data *dev,
 
 /*
  * mcs7830_read_phy() - read a PHY register of the network adapter
- * @dev:	network device to read from
+ * @udev:	network device to read from
  * @index:	index of the PHY register to read from
  * Return: non-negative 16bit register content, negative upon error
  */
-static int mcs7830_read_phy(struct ueth_data *dev, uint8_t index)
+static int mcs7830_read_phy(struct usb_device *udev, uint8_t index)
 {
 	int rc;
 	uint16_t val;
 
 	/* issue the PHY read request and wait for its execution */
-	rc = mcs7830_phy_emit_wait(dev, PHY_CMD1_READ, index);
+	rc = mcs7830_phy_emit_wait(udev, PHY_CMD1_READ, index);
 	if (rc < 0)
 		return rc;
 
 	/* fetch the PHY data which was read */
-	rc = mcs7830_read_reg(dev, REG_PHY_DATA, sizeof(val), &val);
+	rc = mcs7830_read_reg(udev, REG_PHY_DATA, sizeof(val), &val);
 	if (rc < 0)
 		return rc;
 	rc = le16_to_cpu(val);
-	debug("%s(%s, %d) => 0x%04X\n", __func__, dev->eth_dev.name, index, rc);
+	debug("%s(%d) => 0x%04X\n", __func__, index, rc);
 	return rc;
 }
 
 /*
  * mcs7830_write_phy() - write a PHY register of the network adapter
- * @dev:	network device to write to
+ * @udev:	network device to write to
  * @index:	index of the PHY register to write to
  * @val:	value to write to the PHY register
  * Return: zero upon success, negative upon error
  */
-static int mcs7830_write_phy(struct ueth_data *dev, uint8_t index, uint16_t val)
+static int mcs7830_write_phy(struct usb_device *udev, uint8_t index,
+			     uint16_t val)
 {
 	int rc;
 
-	debug("%s(%s, %d, 0x%04X)\n", __func__, dev->eth_dev.name, index, val);
+	debug("%s(%d, 0x%04X)\n", __func__, index, val);
 
 	/* setup the PHY data which is to get written */
 	val = cpu_to_le16(val);
-	rc = mcs7830_write_reg(dev, REG_PHY_DATA, sizeof(val), &val);
+	rc = mcs7830_write_reg(udev, REG_PHY_DATA, sizeof(val), &val);
 	if (rc < 0)
 		return rc;
 
 	/* issue the PHY write request and wait for its execution */
-	rc = mcs7830_phy_emit_wait(dev, PHY_CMD1_WRITE, index);
+	rc = mcs7830_phy_emit_wait(udev, PHY_CMD1_WRITE, index);
 	if (rc < 0)
 		return rc;
 
@@ -237,21 +238,21 @@ static int mcs7830_write_phy(struct ueth_data *dev, uint8_t index, uint16_t val)
 
 /*
  * mcs7830_write_config() - write to the network adapter's config register
- * @eth:	network device to write to
+ * @udev:	network device to write to
+ * @priv:	private data
  * Return: zero upon success, negative upon error
  *
  * the data which gets written is taken from the shadow config register
  * within the device driver's private data
  */
-static int mcs7830_write_config(struct ueth_data *dev)
+static int mcs7830_write_config(struct usb_device *udev,
+				struct mcs7830_private *priv)
 {
-	struct mcs7830_private *priv;
 	int rc;
 
 	debug("%s()\n", __func__);
-	priv = dev->dev_priv;
 
-	rc = mcs7830_write_reg(dev, REG_CONFIG,
+	rc = mcs7830_write_reg(udev, REG_CONFIG,
 			       sizeof(priv->config), &priv->config);
 	if (rc < 0) {
 		debug("writing config to adapter failed\n");
@@ -263,21 +264,21 @@ static int mcs7830_write_config(struct ueth_data *dev)
 
 /*
  * mcs7830_write_mchash() - write the network adapter's multicast filter
- * @eth:	network device to write to
+ * @udev:	network device to write to
+ * @priv:	private data
  * Return: zero upon success, negative upon error
  *
  * the data which gets written is taken from the shadow multicast hashes
  * within the device driver's private data
  */
-static int mcs7830_write_mchash(struct ueth_data *dev)
+static int mcs7830_write_mchash(struct usb_device *udev,
+				struct mcs7830_private *priv)
 {
-	struct mcs7830_private *priv;
 	int rc;
 
 	debug("%s()\n", __func__);
-	priv = dev->dev_priv;
 
-	rc = mcs7830_write_reg(dev, REG_MULTICAST_HASH,
+	rc = mcs7830_write_reg(udev, REG_MULTICAST_HASH,
 			       sizeof(priv->mchash), &priv->mchash);
 	if (rc < 0) {
 		debug("writing multicast hash to adapter failed\n");
@@ -289,12 +290,12 @@ static int mcs7830_write_mchash(struct ueth_data *dev)
 
 /*
  * mcs7830_set_autoneg() - setup and trigger ethernet link autonegotiation
- * @eth:	network device to run link negotiation on
+ * @udev:	network device to run link negotiation on
  * Return: zero upon success, negative upon error
  *
  * the routine advertises available media and starts autonegotiation
  */
-static int mcs7830_set_autoneg(struct ueth_data *dev)
+static int mcs7830_set_autoneg(struct usb_device *udev)
 {
 	int adv, flg;
 	int rc;
@@ -310,39 +311,39 @@ static int mcs7830_set_autoneg(struct ueth_data *dev)
 	 */
 
 	adv = ADVERTISE_PAUSE_CAP | ADVERTISE_ALL | ADVERTISE_CSMA;
-	rc = mcs7830_write_phy(dev, MII_ADVERTISE, adv);
+	rc = mcs7830_write_phy(udev, MII_ADVERTISE, adv);
 
 	flg = 0;
 	if (!rc)
-		rc = mcs7830_write_phy(dev, MII_BMCR, flg);
+		rc = mcs7830_write_phy(udev, MII_BMCR, flg);
 
 	flg |= BMCR_ANENABLE;
 	if (!rc)
-		rc = mcs7830_write_phy(dev, MII_BMCR, flg);
+		rc = mcs7830_write_phy(udev, MII_BMCR, flg);
 
 	flg |= BMCR_ANRESTART;
 	if (!rc)
-		rc = mcs7830_write_phy(dev, MII_BMCR, flg);
+		rc = mcs7830_write_phy(udev, MII_BMCR, flg);
 
 	return rc;
 }
 
 /*
  * mcs7830_get_rev() - identify a network adapter's chip revision
- * @eth:	network device to identify
+ * @udev:	network device to identify
  * Return: non-negative number, reflecting the revision number
  *
  * currently, only "rev C and higher" and "below rev C" are needed, so
  * the return value is #1 for "below rev C", and #2 for "rev C and above"
  */
-static int mcs7830_get_rev(struct ueth_data *dev)
+static int mcs7830_get_rev(struct usb_device *udev)
 {
 	uint8_t buf[2];
 	int rc;
 	int rev;
 
 	/* register 22 is readable in rev C and higher */
-	rc = mcs7830_read_reg(dev, REG_FRAME_DROP_COUNTER, sizeof(buf), buf);
+	rc = mcs7830_read_reg(udev, REG_FRAME_DROP_COUNTER, sizeof(buf), buf);
 	if (rc < 0)
 		rev = 1;
 	else
@@ -353,19 +354,19 @@ static int mcs7830_get_rev(struct ueth_data *dev)
 
 /*
  * mcs7830_apply_fixup() - identify an adapter and potentially apply fixups
- * @eth:	network device to identify and apply fixups to
+ * @udev:	network device to identify and apply fixups to
  * Return: zero upon success (no errors emitted from here)
  *
  * this routine identifies the network adapter's chip revision, and applies
  * fixups for known issues
  */
-static int mcs7830_apply_fixup(struct ueth_data *dev)
+static int mcs7830_apply_fixup(struct usb_device *udev)
 {
 	int rev;
 	int i;
 	uint8_t thr;
 
-	rev = mcs7830_get_rev(dev);
+	rev = mcs7830_get_rev(udev);
 	debug("%s() rev=%d\n", __func__, rev);
 
 	/*
@@ -374,10 +375,10 @@ static int mcs7830_apply_fixup(struct ueth_data *dev)
 	 * exactly", the introductory comment says "rev C and above")
 	 */
 	if (rev == 2) {
-		debug("%s: applying rev C fixup\n", dev->eth_dev.name);
+		debug("%s: applying rev C fixup\n", __func__);
 		thr = PAUSE_THRESHOLD_DEFAULT;
 		for (i = 0; i < 2; i++) {
-			(void)mcs7830_write_reg(dev, REG_PAUSE_THRESHOLD,
+			(void)mcs7830_write_reg(udev, REG_PAUSE_THRESHOLD,
 						sizeof(thr), &thr);
 			mdelay(1);
 		}
@@ -395,13 +396,12 @@ static int mcs7830_apply_fixup(struct ueth_data *dev)
  * of the interface callbacks can exchange ethernet frames; link negotiation is
  * triggered from here already and continues in background
  */
-static int mcs7830_basic_reset(struct ueth_data *dev)
+static int mcs7830_basic_reset(struct usb_device *udev,
+			       struct mcs7830_private *priv)
 {
-	struct mcs7830_private *priv;
 	int rc;
 
 	debug("%s()\n", __func__);
-	priv = dev->dev_priv;
 
 	/*
 	 * comment from the respective Linux driver, which
@@ -411,25 +411,25 @@ static int mcs7830_basic_reset(struct ueth_data *dev)
 	priv->config = CONF_TXENABLE;
 	priv->config |= CONF_ALLMULTICAST;
 
-	rc = mcs7830_set_autoneg(dev);
+	rc = mcs7830_set_autoneg(udev);
 	if (rc < 0) {
 		error("setting autoneg failed\n");
 		return rc;
 	}
 
-	rc = mcs7830_write_mchash(dev);
+	rc = mcs7830_write_mchash(udev, priv);
 	if (rc < 0) {
 		error("failed to set multicast hash\n");
 		return rc;
 	}
 
-	rc = mcs7830_write_config(dev);
+	rc = mcs7830_write_config(udev, priv);
 	if (rc < 0) {
 		error("failed to set configuration\n");
 		return rc;
 	}
 
-	rc = mcs7830_apply_fixup(dev);
+	rc = mcs7830_apply_fixup(udev);
 	if (rc < 0) {
 		error("fixup application failed\n");
 		return rc;
@@ -440,51 +440,38 @@ static int mcs7830_basic_reset(struct ueth_data *dev)
 
 /*
  * mcs7830_read_mac() - read an ethernet adapter's MAC address
- * @eth:	network device to read from
+ * @udev:	network device to read from
+ * @enetaddr:	place to put ethernet MAC address
  * Return: zero upon success, negative upon error
  *
  * this routine fetches the MAC address stored within the ethernet adapter,
  * and stores it in the ethernet interface's data structure
  */
-static int mcs7830_read_mac(struct eth_device *eth)
+static int mcs7830_read_mac(struct usb_device *udev, unsigned char enetaddr[])
 {
-	struct ueth_data *dev;
 	int rc;
 	uint8_t buf[ETH_ALEN];
 
 	debug("%s()\n", __func__);
-	dev = eth->priv;
 
-	rc = mcs7830_read_reg(dev, REG_ETHER_ADDR, ETH_ALEN, buf);
+	rc = mcs7830_read_reg(udev, REG_ETHER_ADDR, ETH_ALEN, buf);
 	if (rc < 0) {
 		debug("reading MAC from adapter failed\n");
 		return rc;
 	}
 
-	memcpy(&eth->enetaddr[0], buf, ETH_ALEN);
+	memcpy(enetaddr, buf, ETH_ALEN);
 	return 0;
 }
 
-/*
- * mcs7830_write_mac() - write an ethernet adapter's MAC address
- * @eth:	network device to write to
- * Return: zero upon success, negative upon error
- *
- * this routine takes the MAC address from the ethernet interface's data
- * structure, and writes it into the ethernet adapter such that subsequent
- * exchange of ethernet frames uses this address
- */
-static int mcs7830_write_mac(struct eth_device *eth)
+static int mcs7830_write_mac_common(struct usb_device *udev,
+				    unsigned char enetaddr[])
 {
-	struct ueth_data *dev;
 	int rc;
 
 	debug("%s()\n", __func__);
-	dev = eth->priv;
 
-	if (sizeof(eth->enetaddr) != ETH_ALEN)
-		return -EINVAL;
-	rc = mcs7830_write_reg(dev, REG_ETHER_ADDR, ETH_ALEN, eth->enetaddr);
+	rc = mcs7830_write_reg(udev, REG_ETHER_ADDR, ETH_ALEN, enetaddr);
 	if (rc < 0) {
 		debug("writing MAC to adapter failed\n");
 		return rc;
@@ -492,28 +479,16 @@ static int mcs7830_write_mac(struct eth_device *eth)
 	return 0;
 }
 
-/*
- * mcs7830_init() - network interface's init callback
- * @eth:	network device to initialize
- * @bd:		board information
- * Return: zero upon success, negative upon error
- *
- * after initial setup during probe() and get_info(), this init() callback
- * ensures that the link is up and subsequent send() and recv() calls can
- * exchange ethernet frames
- */
-static int mcs7830_init(struct eth_device *eth, bd_t *bd)
+static int mcs7830_init_common(struct usb_device *udev)
 {
-	struct ueth_data *dev;
 	int timeout;
 	int have_link;
 
 	debug("%s()\n", __func__);
-	dev = eth->priv;
 
 	timeout = 0;
 	do {
-		have_link = mcs7830_read_phy(dev, MII_BMSR) & BMSR_LSTATUS;
+		have_link = mcs7830_read_phy(udev, MII_BMSR) & BMSR_LSTATUS;
 		if (have_link)
 			break;
 		udelay(LINKSTATUS_TIMEOUT_RES * 1000);
@@ -526,28 +501,18 @@ static int mcs7830_init(struct eth_device *eth, bd_t *bd)
 	return 0;
 }
 
-/*
- * mcs7830_send() - network interface's send callback
- * @eth:	network device to send the frame from
- * @packet:	ethernet frame content
- * @length:	ethernet frame length
- * Return: zero upon success, negative upon error
- *
- * this routine send an ethernet frame out of the network interface
- */
-static int mcs7830_send(struct eth_device *eth, void *packet, int length)
+static int mcs7830_send_common(struct ueth_data *ueth, void *packet,
+			       int length)
 {
-	struct ueth_data *dev;
+	struct usb_device *udev = ueth->pusb_dev;
 	int rc;
 	int gotlen;
 	/* there is a status byte after the ethernet frame */
 	ALLOC_CACHE_ALIGN_BUFFER(uint8_t, buf, PKTSIZE + sizeof(uint8_t));
 
-	dev = eth->priv;
-
 	memcpy(buf, packet, length);
-	rc = usb_bulk_msg(dev->pusb_dev,
-			  usb_sndbulkpipe(dev->pusb_dev, dev->ep_out),
+	rc = usb_bulk_msg(udev,
+			  usb_sndbulkpipe(udev, ueth->ep_out),
 			  &buf[0], length, &gotlen,
 			  USBCALL_TIMEOUT);
 	debug("%s() TX want len %d, got len %d, rc %d\n",
@@ -555,28 +520,17 @@ static int mcs7830_send(struct eth_device *eth, void *packet, int length)
 	return rc;
 }
 
-/*
- * mcs7830_recv() - network interface's recv callback
- * @eth:	network device to receive frames from
- * Return: zero upon success, negative upon error
- *
- * this routine checks for available ethernet frames that the network
- * interface might have received, and notifies the network stack
- */
-static int mcs7830_recv(struct eth_device *eth)
+static int mcs7830_recv_common(struct ueth_data *ueth, uint8_t *buf)
 {
-	struct ueth_data *dev;
-	ALLOC_CACHE_ALIGN_BUFFER(uint8_t, buf, MCS7830_RX_URB_SIZE);
 	int rc, wantlen, gotlen;
 	uint8_t sts;
 
 	debug("%s()\n", __func__);
-	dev = eth->priv;
 
 	/* fetch input data from the adapter */
 	wantlen = MCS7830_RX_URB_SIZE;
-	rc = usb_bulk_msg(dev->pusb_dev,
-			  usb_rcvbulkpipe(dev->pusb_dev, dev->ep_in),
+	rc = usb_bulk_msg(ueth->pusb_dev,
+			  usb_rcvbulkpipe(ueth->pusb_dev, ueth->ep_in),
 			  &buf[0], wantlen, &gotlen,
 			  USBCALL_TIMEOUT);
 	debug("%s() RX want len %d, got len %d, rc %d\n",
@@ -601,8 +555,7 @@ static int mcs7830_recv(struct eth_device *eth)
 
 	if (sts == STAT_RX_FRAME_CORRECT) {
 		debug("%s() got a frame, len=%d\n", __func__, gotlen);
-		net_process_received_packet(buf, gotlen);
-		return 0;
+		return gotlen;
 	}
 
 	debug("RX: frame error (sts 0x%02X, %s %s %s %s %s)\n",
@@ -616,6 +569,60 @@ static int mcs7830_recv(struct eth_device *eth)
 }
 
 /*
+ * mcs7830_init() - network interface's init callback
+ * @udev:	network device to initialize
+ * @bd:		board information
+ * Return: zero upon success, negative upon error
+ *
+ * after initial setup during probe() and get_info(), this init() callback
+ * ensures that the link is up and subsequent send() and recv() calls can
+ * exchange ethernet frames
+ */
+static int mcs7830_init(struct eth_device *eth, bd_t *bd)
+{
+	struct ueth_data *dev = eth->priv;
+
+	return mcs7830_init_common(dev->pusb_dev);
+}
+
+/*
+ * mcs7830_send() - network interface's send callback
+ * @eth:	network device to send the frame from
+ * @packet:	ethernet frame content
+ * @length:	ethernet frame length
+ * Return: zero upon success, negative upon error
+ *
+ * this routine send an ethernet frame out of the network interface
+ */
+static int mcs7830_send(struct eth_device *eth, void *packet, int length)
+{
+	struct ueth_data *dev = eth->priv;
+
+	return mcs7830_send_common(dev, packet, length);
+}
+
+/*
+ * mcs7830_recv() - network interface's recv callback
+ * @eth:	network device to receive frames from
+ * Return: zero upon success, negative upon error
+ *
+ * this routine checks for available ethernet frames that the network
+ * interface might have received, and notifies the network stack
+ */
+static int mcs7830_recv(struct eth_device *eth)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(uint8_t, buf, MCS7830_RX_URB_SIZE);
+	struct ueth_data *ueth = eth->priv;
+	int len;
+
+	len = mcs7830_recv_common(ueth, buf);
+	if (len <= 0)
+		net_process_received_packet(buf, len);
+
+	return 0;
+}
+
+/*
  * mcs7830_halt() - network interface's halt callback
  * @eth:	network device to cease operation of
  * Return: none
@@ -626,6 +633,22 @@ static int mcs7830_recv(struct eth_device *eth)
 static void mcs7830_halt(struct eth_device *eth)
 {
 	debug("%s()\n", __func__);
+}
+
+/*
+ * mcs7830_write_mac() - write an ethernet adapter's MAC address
+ * @eth:	network device to write to
+ * Return: zero upon success, negative upon error
+ *
+ * this routine takes the MAC address from the ethernet interface's data
+ * structure, and writes it into the ethernet adapter such that subsequent
+ * exchange of ethernet frames uses this address
+ */
+static int mcs7830_write_mac(struct eth_device *eth)
+{
+	struct ueth_data *ueth = eth->priv;
+
+	return mcs7830_write_mac_common(ueth->pusb_dev, eth->enetaddr);
 }
 
 /*
@@ -802,10 +825,10 @@ int mcs7830_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->write_hwaddr = mcs7830_write_mac;
 	eth->priv = ss;
 
-	if (mcs7830_basic_reset(ss))
+	if (mcs7830_basic_reset(ss->pusb_dev, ss->dev_priv))
 		return 0;
 
-	if (mcs7830_read_mac(eth))
+	if (mcs7830_read_mac(ss->pusb_dev, eth->enetaddr))
 		return 0;
 	debug("MAC %pM\n", eth->enetaddr);
 
