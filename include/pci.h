@@ -1179,6 +1179,16 @@ int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
 		       struct udevice **devp);
 
 /**
+ * dm_pci_find_class() - find a device by class
+ *
+ * @find_class: 3-byte (24-bit) class value to find
+ * @index:	0 to find the first match, 1 for second, etc.
+ * @devp:	Returns pointer to the device, if found
+ * @return 0 if found, -ve on error
+ */
+int dm_pci_find_class(uint find_class, int index, struct udevice **devp);
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {

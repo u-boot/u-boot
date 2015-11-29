@@ -234,6 +234,26 @@ int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
 	return -ENODEV;
 }
 
+int dm_pci_find_class(uint find_class, int index, struct udevice **devp)
+{
+	struct udevice *dev;
+
+	/* Scan all known buses */
+	for (pci_find_first_device(&dev);
+	     dev;
+	     pci_find_next_device(&dev)) {
+		struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+
+		if (pplat->class == find_class && !index--) {
+			*devp = dev;
+			return device_probe(*devp);
+		}
+	}
+	*devp = NULL;
+
+	return -ENODEV;
+}
+
 int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size)
 {
