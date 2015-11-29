@@ -1,7 +1,5 @@
 /*
- * arch/powerpc/kernel/pci_auto.c
- *
- * PCI autoconfiguration library
+ * PCI autoconfiguration library (legacy version, do not change)
  *
  * Author: Matt Porter <mporter@mvista.com>
  *
@@ -13,6 +11,11 @@
 #include <common.h>
 #include <errno.h>
 #include <pci.h>
+
+/*
+ * Do not change this file. Instead, convert your board to use CONFIG_DM_PCI
+ * and change pci_auto.c.
+ */
 
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
 #ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE
