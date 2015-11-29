@@ -1167,6 +1167,15 @@ int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 		    struct pci_region **memp, struct pci_region **prefp);
 
 /**
+ * dm_pci_read_bar32() - read a base address register from a device
+ *
+ * @dev:	Device to check
+ * @barnum:	Bar number to read (numbered from 0)
+ * @return: value of BAR
+ */
+u32 dm_pci_read_bar32(struct udevice *dev, int barnum);
+
+/**
  * dm_pci_find_device() - find a device by vendor/device ID
  *
  * @vendor:	Vendor ID

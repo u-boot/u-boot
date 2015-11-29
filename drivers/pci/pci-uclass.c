@@ -1055,6 +1055,19 @@ int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 	return (*iop != NULL) + (*memp != NULL) + (*prefp != NULL);
 }
 
+u32 dm_pci_read_bar32(struct udevice *dev, int barnum)
+{
+	u32 addr;
+	int bar;
+
+	bar = PCI_BASE_ADDRESS_0 + barnum * 4;
+	dm_pci_read_config32(dev, bar, &addr);
+	if (addr & PCI_BASE_ADDRESS_SPACE_IO)
+		return addr & PCI_BASE_ADDRESS_IO_MASK;
+	else
+		return addr & PCI_BASE_ADDRESS_MEM_MASK;
+}
+
 UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",
