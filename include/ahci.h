@@ -145,7 +145,11 @@ struct ahci_ioports {
 };
 
 struct ahci_probe_ent {
+#ifdef CONFIG_DM_PCI
+	struct udevice *dev;
+#else
 	pci_dev_t	dev;
+#endif
 	struct ahci_ioports	port[AHCI_MAX_PORTS];
 	u32	n_ports;
 	u32	hard_port_no;
