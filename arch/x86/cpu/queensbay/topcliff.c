@@ -11,10 +11,10 @@
 static struct pci_device_id mmc_supported[] = {
 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TCF_SDIO_0 },
 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TCF_SDIO_1 },
+	{},
 };
 
 int cpu_mmc_init(bd_t *bis)
 {
-	return pci_mmc_init("Topcliff SDHCI", mmc_supported,
-			    ARRAY_SIZE(mmc_supported));
+	return pci_mmc_init("Topcliff SDHCI", mmc_supported);
 }

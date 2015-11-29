@@ -489,11 +489,9 @@ struct pci_device_id;
  * This finds all the matching PCI IDs and sets them up as MMC devices.
  *
  * @name:		Name to use for devices
- * @mmc_supported:	PCI IDs to search for
- * @num_ids:		Number of elements in @mmc_supported
+ * @mmc_supported:	PCI IDs to search for, terminated by {0, 0}
  */
-int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported,
-		 int num_ids);
+int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
