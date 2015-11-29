@@ -99,6 +99,7 @@ __weak int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
 	return 0;
 }
 
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 /* Get a virtual address associated with a BAR region */
 void *pci_map_bar(pci_dev_t pdev, int bar, int flags)
 {
@@ -271,7 +272,6 @@ pci_addr_t pci_hose_phys_to_bus(struct pci_controller *hose,
 	return bus_addr;
 }
 
-#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
 {
 	struct pci_device_id ids[2] = { {}, {0, 0} };

@@ -621,6 +621,7 @@ static inline void pci_set_ops(struct pci_controller *hose,
 extern void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
 #endif
 
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 					pci_addr_t addr, unsigned long flags);
 extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
@@ -656,7 +657,6 @@ extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
 	pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
 /* For driver model these are defined in macros in pci_compat.c */
-#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte(struct pci_controller *hose,
 				     pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word(struct pci_controller *hose,
