@@ -13,7 +13,6 @@
 #include <asm/arch/pinmux.h>
 #include <asm/gpio.h>
 #include <i2c.h>
-#include <netdev.h>
 
 void pin_mux_usb(void)
 {
@@ -41,10 +40,3 @@ void pin_mux_mmc(void)
 	/* For CD GPIO PP1 */
 	pinmux_tristate_disable(PMUX_PINGRP_DAP3);
 }
-
-#ifdef CONFIG_PCI
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
-}
-#endif
