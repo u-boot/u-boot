@@ -403,7 +403,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 
 	plat->base = addr;
 	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-					 "reg-shift", 1);
+					 "reg-shift", 0);
 	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				     "clock-frequency",
 				     CONFIG_SYS_NS16550_CLK);
