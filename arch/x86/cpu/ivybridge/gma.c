@@ -728,8 +728,7 @@ static int int15_handler(void)
 	return res;
 }
 
-int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
-		   const void *blob, int node)
+int gma_func0_init(struct udevice *dev, const void *blob, int node)
 {
 #ifdef CONFIG_VIDEO
 	ulong start;
@@ -740,16 +739,16 @@ int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
 	int ret;
 
 	/* IGD needs to be Bus Master */
-	reg32 = x86_pci_read_config32(dev, PCI_COMMAND);
+	dm_pci_read_config32(dev, PCI_COMMAND, &reg32);
 	reg32 |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY | PCI_COMMAND_IO;
-	x86_pci_write_config32(dev, PCI_COMMAND, reg32);
+	dm_pci_write_config32(dev, PCI_COMMAND, reg32);
 
 	/* Use write-combining for the graphics memory, 256MB */
-	base = pci_read_bar32(hose, dev, 2);
+	base = dm_pci_read_bar32(dev, 2);
 	mtrr_add_request(MTRR_TYPE_WRCOMB, base, 256 << 20);
 	mtrr_commit(true);
 
-	gtt_bar = (void *)pci_read_bar32(pci_bus_to_hose(0), dev, 0);
+	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
 	debug("GT bar %p\n", gtt_bar);
 	ret = gma_pm_init_pre_vbios(gtt_bar);
 	if (ret)
@@ -757,8 +756,8 @@ int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
 
 #ifdef CONFIG_VIDEO
 	start = get_timer(0);
-	ret = pci_run_vga_bios(dev, int15_handler, PCI_ROM_USE_NATIVE |
-			       PCI_ROM_ALLOW_FALLBACK);
+	ret = pci_run_vga_bios(dm_pci_get_bdf(dev), int15_handler,
+			       PCI_ROM_USE_NATIVE | PCI_ROM_ALLOW_FALLBACK);
 	debug("BIOS ran in %lums\n", get_timer(start));
 #endif
 	/* Post VBIOS init */
