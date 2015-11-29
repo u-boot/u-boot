@@ -756,8 +756,8 @@ int gma_func0_init(struct udevice *dev, const void *blob, int node)
 
 #ifdef CONFIG_VIDEO
 	start = get_timer(0);
-	ret = pci_run_vga_bios(dm_pci_get_bdf(dev), int15_handler,
-			       PCI_ROM_USE_NATIVE | PCI_ROM_ALLOW_FALLBACK);
+	ret = dm_pci_run_vga_bios(dev, int15_handler,
+				  PCI_ROM_USE_NATIVE | PCI_ROM_ALLOW_FALLBACK);
 	debug("BIOS ran in %lums\n", get_timer(start));
 #endif
 	/* Post VBIOS init */

@@ -19,8 +19,8 @@ GraphicDevice ctfb;
 void *video_hw_init(void)
 {
 	GraphicDevice *gdev = &ctfb;
+	struct udevice *dev;
 	int bits_per_pixel;
-	pci_dev_t dev;
 	int ret;
 
 	printf("Video: ");
@@ -33,14 +33,14 @@ void *video_hw_init(void)
 		return NULL;
 	}
 	if (vbe_get_video_info(gdev)) {
-		dev = pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, 0);
-		if (dev < 0) {
+		ret = dm_pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, 0, &dev);
+		if (ret) {
 			printf("no card detected\n");
 			return NULL;
 		}
 		bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "vesa display");
-		ret = pci_run_vga_bios(dev, NULL, PCI_ROM_USE_NATIVE |
-				       PCI_ROM_ALLOW_FALLBACK);
+		ret = dm_pci_run_vga_bios(dev, NULL, PCI_ROM_USE_NATIVE |
+					  PCI_ROM_ALLOW_FALLBACK);
 		bootstage_accum(BOOTSTAGE_ID_ACCUM_LCD);
 		if (ret) {
 			printf("failed to run video BIOS: %d\n", ret);

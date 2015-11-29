@@ -44,14 +44,14 @@ enum pci_rom_emul {
 };
 
  /**
- * pci_run_vga_bios() - Run the VGA BIOS in an x86 PC
+ * dm_pci_run_vga_bios() - Run the VGA BIOS in an x86 PC
  *
  * @dev:	Video device containing the BIOS
  * @int15_handler:	Function to call to handle int 0x15
  * @exec_method:	flags from enum pci_rom_emul
  */
-int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void),
-		     int exec_method);
+int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
+			int exec_method);
 
 /**
  * board_map_oprom_vendev() - map several PCI IDs to the one the ROM expects
