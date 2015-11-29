@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <linux/mii.h>
 #include <malloc.h>
@@ -83,6 +84,10 @@ struct mcs7830_regs {
  * @mchash:	shadow for the network adapter's multicast hash registers
  */
 struct mcs7830_private {
+#ifdef CONFIG_DM_ETH
+	uint8_t rx_buf[MCS7830_RX_URB_SIZE];
+	struct ueth_data ueth;
+#endif
 	uint8_t config;
 	uint8_t mchash[8];
 };
@@ -568,6 +573,7 @@ static int mcs7830_recv_common(struct ueth_data *ueth, uint8_t *buf)
 	return -EIO;
 }
 
+#ifndef CONFIG_DM_ETH
 /*
  * mcs7830_init() - network interface's init callback
  * @udev:	network device to initialize
@@ -834,3 +840,102 @@ int mcs7830_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 
 	return 1;
 }
+#endif
+
+
+#ifdef CONFIG_DM_ETH
+static int mcs7830_eth_start(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+
+	return mcs7830_init_common(udev);
+}
+
+void mcs7830_eth_stop(struct udevice *dev)
+{
+	debug("** %s()\n", __func__);
+}
+
+int mcs7830_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct mcs7830_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	return mcs7830_send_common(ueth, packet, length);
+}
+
+int mcs7830_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct mcs7830_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+	int len;
+
+	len = mcs7830_recv_common(ueth, priv->rx_buf);
+	*packetp = priv->rx_buf;
+
+	return len;
+}
+
+static int mcs7830_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
+{
+	struct mcs7830_private *priv = dev_get_priv(dev);
+
+	packet_len = ALIGN(packet_len, 4);
+	usb_ether_advance_rxbuf(&priv->ueth, sizeof(u32) + packet_len);
+
+	return 0;
+}
+
+int mcs7830_write_hwaddr(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	return mcs7830_write_mac_common(udev, pdata->enetaddr);
+}
+
+static int mcs7830_eth_probe(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+	struct mcs7830_private *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	if (mcs7830_basic_reset(udev, priv))
+		return 0;
+
+	if (mcs7830_read_mac(udev, pdata->enetaddr))
+		return 0;
+
+	return usb_ether_register(dev, ueth, MCS7830_RX_URB_SIZE);
+}
+
+static const struct eth_ops mcs7830_eth_ops = {
+	.start	= mcs7830_eth_start,
+	.send	= mcs7830_eth_send,
+	.recv	= mcs7830_eth_recv,
+	.free_pkt = mcs7830_free_pkt,
+	.stop	= mcs7830_eth_stop,
+	.write_hwaddr = mcs7830_write_hwaddr,
+};
+
+U_BOOT_DRIVER(mcs7830_eth) = {
+	.name	= "mcs7830_eth",
+	.id	= UCLASS_ETH,
+	.probe = mcs7830_eth_probe,
+	.ops	= &mcs7830_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct mcs7830_private),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+
+static const struct usb_device_id mcs7830_eth_id_table[] = {
+	{ USB_DEVICE(0x9710, 0x7832) },		/* Moschip 7832 */
+	{ USB_DEVICE(0x9710, 0x7830), },	/* Moschip 7830 */
+	{ USB_DEVICE(0x9710, 0x7730), },	/* Moschip 7730 */
+	{ USB_DEVICE(0x0df6, 0x0021), },	/* Sitecom LN 30 */
+	{ }		/* Terminating entry */
+};
+
+U_BOOT_USB_DEVICE(mcs7830_eth, mcs7830_eth_id_table);
+#endif
