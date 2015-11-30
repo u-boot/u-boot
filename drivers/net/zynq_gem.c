@@ -172,9 +172,8 @@ struct zynq_gem_priv {
 	struct mii_dev *bus;
 };
 
-static inline int mdio_wait(struct eth_device *dev)
+static inline int mdio_wait(struct zynq_gem_regs *regs)
 {
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	u32 timeout = 20000;
 
 	/* Wait till MDIO interface is ready to accept a new transaction. */
@@ -198,7 +197,7 @@ static u32 phy_setup_op(struct eth_device *dev, u32 phy_addr, u32 regnum,
 	u32 mgtcr;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	/* Construct mgtcr mask for the operation */
@@ -209,7 +208,7 @@ static u32 phy_setup_op(struct eth_device *dev, u32 phy_addr, u32 regnum,
 	/* Write mgtcr and wait for completion */
 	writel(mgtcr, &regs->phymntnc);
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	if (op == ZYNQ_GEM_PHYMNTNC_OP_R_MASK)
