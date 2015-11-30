@@ -310,7 +310,35 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 	return 0;
 }
 
-static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
+static int zynq_phy_init(struct eth_device *dev)
+{
+	int ret;
+	struct zynq_gem_priv *priv = dev->priv;
+	const u32 supported = SUPPORTED_10baseT_Half |
+			SUPPORTED_10baseT_Full |
+			SUPPORTED_100baseT_Half |
+			SUPPORTED_100baseT_Full |
+			SUPPORTED_1000baseT_Half |
+			SUPPORTED_1000baseT_Full;
+
+	ret = phy_detection(dev);
+	if (ret) {
+		printf("GEM PHY init failed\n");
+		return ret;
+	}
+
+	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
+				   priv->interface);
+
+	priv->phydev->supported = supported | ADVERTISED_Pause |
+				  ADVERTISED_Asym_Pause;
+	priv->phydev->advertising = priv->phydev->supported;
+	phy_config(priv->phydev);
+
+	return 0;
+}
+
+static int zynq_gem_init(struct eth_device *dev, bd_t *bis)
 {
 	u32 i;
 	int ret;
@@ -319,12 +347,6 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	struct zynq_gem_priv *priv = dev->priv;
 	struct emac_bd *dummy_tx_bd = &priv->tx_bd[TX_FREE_DESC];
 	struct emac_bd *dummy_rx_bd = &priv->tx_bd[TX_FREE_DESC + 2];
-	const u32 supported = SUPPORTED_10baseT_Half |
-			SUPPORTED_10baseT_Full |
-			SUPPORTED_100baseT_Half |
-			SUPPORTED_100baseT_Full |
-			SUPPORTED_1000baseT_Half |
-			SUPPORTED_1000baseT_Full;
 
 	if (!priv->init) {
 		/* Disable all interrupts */
@@ -387,19 +409,10 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		priv->init++;
 	}
 
-	ret = phy_detection(dev);
-	if (ret) {
-		printf("GEM PHY init failed\n");
+	ret = zynq_phy_init(dev);
+	if (ret)
 		return ret;
-	}
 
-	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
-				   priv->interface);
-
-	priv->phydev->supported = supported | ADVERTISED_Pause |
-				  ADVERTISED_Asym_Pause;
-	priv->phydev->advertising = priv->phydev->supported;
-	phy_config(priv->phydev);
 	phy_startup(priv->phydev);
 
 	if (!priv->phydev->link) {
