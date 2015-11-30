@@ -167,6 +167,7 @@ struct zynq_gem_priv {
 	int phyaddr;
 	u32 emio;
 	int init;
+	struct zynq_gem_regs *iobase;
 	phy_interface_t interface;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
@@ -191,11 +192,11 @@ static inline int mdio_wait(struct zynq_gem_regs *regs)
 	return 0;
 }
 
-static u32 phy_setup_op(struct eth_device *dev, u32 phy_addr, u32 regnum,
-							u32 op, u16 *data)
+static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
+			u32 op, u16 *data)
 {
 	u32 mgtcr;
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
+	struct zynq_gem_regs *regs = priv->iobase;
 
 	if (mdio_wait(regs))
 		return 1;
@@ -217,12 +218,13 @@ static u32 phy_setup_op(struct eth_device *dev, u32 phy_addr, u32 regnum,
 	return 0;
 }
 
-static u32 phyread(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 *val)
+static u32 phyread(struct zynq_gem_priv *priv, u32 phy_addr,
+		   u32 regnum, u16 *val)
 {
 	u32 ret;
 
-	ret = phy_setup_op(dev, phy_addr, regnum,
-				ZYNQ_GEM_PHYMNTNC_OP_R_MASK, val);
+	ret = phy_setup_op(priv, phy_addr, regnum,
+			   ZYNQ_GEM_PHYMNTNC_OP_R_MASK, val);
 
 	if (!ret)
 		debug("%s: phy_addr %d, regnum 0x%x, val 0x%x\n", __func__,
@@ -231,13 +233,14 @@ static u32 phyread(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 *val)
 	return ret;
 }
 
-static u32 phywrite(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 data)
+static u32 phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
+		    u32 regnum, u16 data)
 {
 	debug("%s: phy_addr %d, regnum 0x%x, data 0x%x\n", __func__, phy_addr,
 	      regnum, data);
 
-	return phy_setup_op(dev, phy_addr, regnum,
-				ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
+	return phy_setup_op(priv, phy_addr, regnum,
+			    ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
 }
 
 static int phy_detection(struct eth_device *dev)
@@ -247,7 +250,7 @@ static int phy_detection(struct eth_device *dev)
 	struct zynq_gem_priv *priv = dev->priv;
 
 	if (priv->phyaddr != -1) {
-		phyread(dev, priv->phyaddr, PHY_DETECT_REG, &phyreg);
+		phyread(priv, priv->phyaddr, PHY_DETECT_REG, &phyreg);
 		if ((phyreg != 0xFFFF) &&
 		    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 			/* Found a valid PHY address */
@@ -265,7 +268,7 @@ static int phy_detection(struct eth_device *dev)
 	if (priv->phyaddr == -1) {
 		/* detect the PHY address */
 		for (i = 31; i >= 0; i--) {
-			phyread(dev, i, PHY_DETECT_REG, &phyreg);
+			phyread(priv, i, PHY_DETECT_REG, &phyreg);
 			if ((phyreg != 0xFFFF) &&
 			    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 				/* Found a valid PHY address */
@@ -561,9 +564,10 @@ static int zynq_gem_miiphyread(const char *devname, uchar addr,
 							uchar reg, ushort *val)
 {
 	struct eth_device *dev = eth_get_dev();
+	struct zynq_gem_priv *priv = dev->priv;
 	int ret;
 
-	ret = phyread(dev, addr, reg, val);
+	ret = phyread(priv, addr, reg, val);
 	debug("%s 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, *val);
 	return ret;
 }
@@ -572,9 +576,10 @@ static int zynq_gem_miiphy_write(const char *devname, uchar addr,
 							uchar reg, ushort val)
 {
 	struct eth_device *dev = eth_get_dev();
+	struct zynq_gem_priv *priv = dev->priv;
 
 	debug("%s 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, val);
-	return phywrite(dev, addr, reg, val);
+	return phywrite(priv, addr, reg, val);
 }
 
 int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
@@ -620,6 +625,7 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	sprintf(dev->name, "Gem.%lx", base_addr);
 
 	dev->iobase = base_addr;
+	priv->iobase = (struct zynq_gem_regs *)base_addr;
 
 	dev->init = zynq_gem_init;
 	dev->halt = zynq_gem_halt;
