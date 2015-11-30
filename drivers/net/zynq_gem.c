@@ -314,12 +314,16 @@ static int zynq_phy_init(struct eth_device *dev)
 {
 	int ret;
 	struct zynq_gem_priv *priv = dev->priv;
+	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	const u32 supported = SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
 			SUPPORTED_100baseT_Full |
 			SUPPORTED_1000baseT_Half |
 			SUPPORTED_1000baseT_Full;
+
+	/* Enable only MDIO bus */
+	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs->nwctrl);
 
 	ret = phy_detection(dev);
 	if (ret) {
@@ -343,7 +347,6 @@ static int zynq_phy_init(struct eth_device *dev)
 static int zynq_gem_init(struct eth_device *dev, bd_t *bis)
 {
 	u32 i;
-	int ret;
 	unsigned long clk_rate = 0;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	struct zynq_gem_priv *priv = dev->priv;
@@ -410,10 +413,6 @@ static int zynq_gem_init(struct eth_device *dev, bd_t *bis)
 
 		priv->init++;
 	}
-
-	ret = zynq_phy_init(dev);
-	if (ret)
-		return ret;
 
 	phy_startup(priv->phydev);
 
@@ -597,6 +596,7 @@ static int zynq_gem_miiphy_write(const char *devname, uchar addr,
 int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 			int phy_addr, u32 emio)
 {
+	int ret;
 	struct eth_device *dev;
 	struct zynq_gem_priv *priv;
 	void *bd_space;
@@ -649,6 +649,10 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 
 	miiphy_register(dev->name, zynq_gem_miiphyread, zynq_gem_miiphy_write);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
+
+	ret = zynq_phy_init(dev);
+	if (ret)
+		return ret;
 
 	return 1;
 }
