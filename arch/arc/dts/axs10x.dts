@@ -42,4 +42,10 @@
 		clock-names = "stmmaceth";
 		max-speed = <100>;
 	};
+
+	ehci@0xe0040000 {
+		compatible = "generic-ehci";
+		reg = < 0xe0040000 0x100 >;
+		interrupts = < 8 >;
+	};
 };
