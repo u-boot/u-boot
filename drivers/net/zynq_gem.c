@@ -329,6 +329,8 @@ static int zynq_phy_init(struct eth_device *dev)
 
 	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
 				   priv->interface);
+	if (!priv->phydev)
+		return -ENODEV;
 
 	priv->phydev->supported = supported | ADVERTISED_Pause |
 				  ADVERTISED_Asym_Pause;
