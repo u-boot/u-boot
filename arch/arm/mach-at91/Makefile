@@ -10,7 +10,7 @@ obj-$(CONFIG_AT91SAM9M10G45) += mpddrc.o spl_at91.o
 obj-$(CONFIG_AT91SAM9N12) += mpddrc.o spl_at91.o
 obj-$(CONFIG_AT91SAM9X5) += mpddrc.o spl_at91.o
 obj-$(CONFIG_SAMA5D3) += mpddrc.o spl_atmel.o
-obj-$(CONFIG_SAMA5D4) += mpddrc.o spl_atmel.o
+obj-$(CONFIG_SAMA5D4) += mpddrc.o spl_atmel.o matrix.o atmel_sfr.o
 obj-y += spl.o
 endif
 

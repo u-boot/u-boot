@@ -78,7 +78,8 @@ typedef struct at91_pmc {
 #define AT91_PMC_PLLXR_DIV(x)		(x & 0xFF)
 #define AT91_PMC_PLLXR_PLLCOUNT(x)	((x & 0x3F) << 8)
 #define AT91_PMC_PLLXR_OUT(x)		((x & 0x03) << 14)
-#if defined(CONFIG_SAMA5D3) || defined(CONFIG_SAMA5D4)
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) || \
+	defined(CONFIG_SAMA5D4)
 #define AT91_PMC_PLLXR_MUL(x)		((x & 0x7F) << 18)
 #else
 #define AT91_PMC_PLLXR_MUL(x)		((x & 0x7FF) << 16)
@@ -97,7 +98,8 @@ typedef struct at91_pmc {
 #define AT91_PMC_MCKR_CSS_PLLB		0x00000003
 #define AT91_PMC_MCKR_CSS_MASK		0x00000003
 
-#if defined(CONFIG_SAMA5D3) || defined(CONFIG_SAMA5D4) || \
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) || \
+	defined(CONFIG_SAMA5D4) || \
 	defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12)
 #define AT91_PMC_MCKR_PRES_1		0x00000000
 #define AT91_PMC_MCKR_PRES_2		0x00000010
@@ -127,10 +129,7 @@ typedef struct at91_pmc {
 #else
 #define AT91_PMC_MCKR_MDIV_1		0x00000000
 #define AT91_PMC_MCKR_MDIV_2		0x00000100
-#if defined(CONFIG_SAMA5D3) || defined(CONFIG_SAMA5D4) || \
-	defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12)
 #define AT91_PMC_MCKR_MDIV_3		0x00000300
-#endif
 #define AT91_PMC_MCKR_MDIV_4		0x00000200
 #define AT91_PMC_MCKR_MDIV_MASK		0x00000300
 #endif

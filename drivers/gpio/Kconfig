@@ -28,6 +28,17 @@ config DWAPB_GPIO
 	help
 	  Support for the Designware APB GPIO driver.
 
+config ATMEL_PIO4
+	bool "ATMEL PIO4 driver"
+	depends on DM
+	default n
+	help
+	  Say yes here to support the Atmel PIO4 driver.
+	  The PIO4 is new version of Atmel PIO controller, which manages
+	  up to 128 fully programmable input/output lines. Each I/O line
+	  may be dedicated as a general purpose I/O or be assigned to
+	  a function of an embedded peripheral.
+
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM
