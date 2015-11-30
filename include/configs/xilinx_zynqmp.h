@@ -176,10 +176,8 @@
 #define CONFIG_SYS_MAXARGS		64
 
 /* Ethernet driver */
-#if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1) || \
-	defined(CONFIG_ZYNQ_GEM2) || defined(CONFIG_ZYNQ_GEM3)
+#if defined(CONFIG_ZYNQ_GEM)
 # define CONFIG_NET_MULTI
-# define CONFIG_ZYNQ_GEM
 # define CONFIG_MII
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 # define CONFIG_PHYLIB
