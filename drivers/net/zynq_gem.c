@@ -621,12 +621,6 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->bus->priv = priv;
 	strcpy(priv->bus->name, "gem");
 
-#ifndef CONFIG_ZYNQ_GEM_INTERFACE
-	priv->interface = PHY_INTERFACE_MODE_MII;
-#else
-	priv->interface = CONFIG_ZYNQ_GEM_INTERFACE;
-#endif
-
 	ret = mdio_register(priv->bus);
 	if (ret)
 		return ret;
@@ -660,6 +654,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	int offset = 0;
+	const char *phy_mode;
 
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
@@ -671,8 +666,17 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	if (offset > 0)
 		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
 
-	printf("ZYNQ GEM: %lx, phyaddr %d\n", (ulong)priv->iobase,
-	       priv->phyaddr);
+	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	if (phy_mode)
+		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	if (pdata->phy_interface == -1) {
+		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		return -EINVAL;
+	}
+	priv->interface = pdata->phy_interface;
+
+	printf("ZYNQ GEM: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
+	       priv->phyaddr, phy_string_for_interface(priv->interface));
 
 	return 0;
 }
