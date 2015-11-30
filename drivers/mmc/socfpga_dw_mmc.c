@@ -5,24 +5,29 @@
  */
 
 #include <common.h>
-#include <malloc.h>
-#include <fdtdec.h>
-#include <libfdt.h>
+#include <asm/arch/clock_manager.h>
+#include <asm/arch/dwmmc.h>
+#include <asm/arch/system_manager.h>
+#include <dm.h>
 #include <dwmmc.h>
 #include <errno.h>
-#include <asm/arch/dwmmc.h>
-#include <asm/arch/clock_manager.h>
-#include <asm/arch/system_manager.h>
+#include <fdtdec.h>
+#include <libfdt.h>
+#include <linux/err.h>
+#include <malloc.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static const struct socfpga_clock_manager *clock_manager_base =
 		(void *)SOCFPGA_CLKMGR_ADDRESS;
 static const struct socfpga_system_manager *system_manager_base =
 		(void *)SOCFPGA_SYSMGR_ADDRESS;
 
-/* socfpga implmentation specific drver private data */
+/* socfpga implmentation specific driver private data */
 struct dwmci_socfpga_priv_data {
-	unsigned int drvsel;
-	unsigned int smplsel;
+	struct dwmci_host	host;
+	unsigned int		drvsel;
+	unsigned int		smplsel;
 };
 
 static void socfpga_dwmci_clksel(struct dwmci_host *host)
@@ -46,98 +51,77 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 		CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 }
 
-static int socfpga_dwmci_of_probe(const void *blob, int node, const int idx)
+static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
 {
 	/* FIXME: probe from DT eventually too/ */
 	const unsigned long clk = cm_get_mmc_controller_clk_hz();
 
-	struct dwmci_host *host;
-	struct dwmci_socfpga_priv_data *priv;
-	fdt_addr_t reg_base;
-	int bus_width, fifo_depth;
+	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
+	struct dwmci_host *host = &priv->host;
+	int fifo_depth;
 
 	if (clk == 0) {
-		printf("DWMMC%d: MMC clock is zero!", idx);
+		printf("DWMMC: MMC clock is zero!");
 		return -EINVAL;
 	}
 
-	/* Get the register address from the device node */
-	reg_base = fdtdec_get_addr(blob, node, "reg");
-	if (!reg_base) {
-		printf("DWMMC%d: Can't get base address\n", idx);
-		return -EINVAL;
-	}
-
-	/* Get the bus width from the device node */
-	bus_width = fdtdec_get_int(blob, node, "bus-width", 0);
-	if (bus_width <= 0) {
-		printf("DWMMC%d: Can't get bus-width\n", idx);
-		return -EINVAL;
-	}
-
-	fifo_depth = fdtdec_get_int(blob, node, "fifo-depth", 0);
+	fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				    "fifo-depth", 0);
 	if (fifo_depth < 0) {
-		printf("DWMMC%d: Can't get FIFO depth\n", idx);
+		printf("DWMMC: Can't get FIFO depth\n");
 		return -EINVAL;
 	}
 
-	/* Allocate the host */
-	host = calloc(1, sizeof(*host));
-	if (!host)
-		return -ENOMEM;
-
-	/* Allocate the priv */
-	priv = calloc(1, sizeof(*priv));
-	if (!priv) {
-		free(host);
-		return -ENOMEM;
-	}
-
-	host->name = "SOCFPGA DWMMC";
-	host->ioaddr = (void *)reg_base;
-	host->buswidth = bus_width;
+	host->name = dev->name;
+	host->ioaddr = (void *)dev_get_addr(dev);
+	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					"bus-width", 4);
 	host->clksel = socfpga_dwmci_clksel;
-	host->dev_index = idx;
+
+	/*
+	 * TODO(sjg@chromium.org): Remove the need for this hack.
+	 * We only have one dwmmc block on gen5 SoCFPGA.
+	 */
+	host->dev_index = 0;
 	/* Fixed clock divide by 4 which due to the SDMMC wrapper */
 	host->bus_hz = clk;
 	host->fifoth_val = MSIZE(0x2) |
 		RX_WMARK(fifo_depth / 2 - 1) | TX_WMARK(fifo_depth / 2);
-	priv->drvsel = fdtdec_get_uint(blob, node, "drvsel", 3);
-	priv->smplsel = fdtdec_get_uint(blob, node, "smplsel", 0);
+	priv->drvsel = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+				       "drvsel", 3);
+	priv->smplsel = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+					"smplsel", 0);
 	host->priv = priv;
 
-	return add_dwmci(host, host->bus_hz, 400000);
-}
-
-static int socfpga_dwmci_process_node(const void *blob, int nodes[],
-				      int count)
-{
-	int i, node, ret;
-
-	for (i = 0; i < count; i++) {
-		node = nodes[i];
-		if (node <= 0)
-			continue;
-
-		ret = socfpga_dwmci_of_probe(blob, node, i);
-		if (ret) {
-			printf("%s: failed to decode dev %d\n", __func__, i);
-			return ret;
-		}
-	}
 	return 0;
 }
 
-int socfpga_dwmmc_init(const void *blob)
+static int socfpga_dwmmc_probe(struct udevice *dev)
 {
-	int nodes[2];	/* Max. two controllers. */
-	int ret, count;
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
+	struct dwmci_host *host = &priv->host;
+	int ret;
 
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-					   COMPAT_ALTERA_SOCFPGA_DWMMC,
-					   nodes, ARRAY_SIZE(nodes));
+	ret = add_dwmci(host, host->bus_hz, 400000);
+	if (ret)
+		return ret;
 
-	ret = socfpga_dwmci_process_node(blob, nodes, count);
+	upriv->mmc = host->mmc;
 
-	return ret;
+	return 0;
 }
+
+static const struct udevice_id socfpga_dwmmc_ids[] = {
+	{ .compatible = "altr,socfpga-dw-mshc" },
+	{ }
+};
+
+U_BOOT_DRIVER(socfpga_dwmmc_drv) = {
+	.name		= "socfpga_dwmmc",
+	.id		= UCLASS_MMC,
+	.of_match	= socfpga_dwmmc_ids,
+	.ofdata_to_platdata = socfpga_dwmmc_ofdata_to_platdata,
+	.probe		= socfpga_dwmmc_probe,
+	.priv_auto_alloc_size = sizeof(struct dwmci_socfpga_priv_data),
+};
