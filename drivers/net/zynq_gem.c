@@ -241,7 +241,7 @@ static u32 phywrite(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 data)
 				ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
 }
 
-static void phy_detection(struct eth_device *dev)
+static int phy_detection(struct eth_device *dev)
 {
 	int i;
 	u16 phyreg;
@@ -254,7 +254,7 @@ static void phy_detection(struct eth_device *dev)
 			/* Found a valid PHY address */
 			debug("Default phy address %d is valid\n",
 			      priv->phyaddr);
-			return;
+			return 0;
 		} else {
 			debug("PHY address is not setup correctly %d\n",
 			      priv->phyaddr);
@@ -272,11 +272,12 @@ static void phy_detection(struct eth_device *dev)
 				/* Found a valid PHY address */
 				priv->phyaddr = i;
 				debug("Found valid phy address, %d\n", i);
-				return;
+				return 0;
 			}
 		}
 	}
 	printf("PHY is not detected\n");
+	return -1;
 }
 
 static int zynq_gem_setup_mac(struct eth_device *dev)
@@ -310,6 +311,7 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 {
 	u32 i;
+	int ret;
 	unsigned long clk_rate = 0;
 	struct phy_device *phydev;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
@@ -384,7 +386,11 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		priv->init++;
 	}
 
-	phy_detection(dev);
+	ret = phy_detection(dev);
+	if (ret) {
+		printf("GEM PHY init failed\n");
+		return ret;
+	}
 
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev,
