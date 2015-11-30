@@ -315,7 +315,6 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	u32 i;
 	int ret;
 	unsigned long clk_rate = 0;
-	struct phy_device *phydev;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 	struct zynq_gem_priv *priv = dev->priv;
 	struct emac_bd *dummy_tx_bd = &priv->tx_bd[TX_FREE_DESC];
@@ -394,23 +393,21 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		return ret;
 	}
 
-	/* interface - look at tsec */
-	phydev = phy_connect(priv->bus, priv->phyaddr, dev,
-			     priv->interface);
+	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
+				   priv->interface);
 
-	phydev->supported = supported | ADVERTISED_Pause |
-			    ADVERTISED_Asym_Pause;
-	phydev->advertising = phydev->supported;
-	priv->phydev = phydev;
-	phy_config(phydev);
-	phy_startup(phydev);
+	priv->phydev->supported = supported | ADVERTISED_Pause |
+				  ADVERTISED_Asym_Pause;
+	priv->phydev->advertising = priv->phydev->supported;
+	phy_config(priv->phydev);
+	phy_startup(priv->phydev);
 
-	if (!phydev->link) {
-		printf("%s: No link.\n", phydev->dev->name);
+	if (!priv->phydev->link) {
+		printf("%s: No link.\n", priv->phydev->dev->name);
 		return -1;
 	}
 
-	switch (phydev->speed) {
+	switch (priv->phydev->speed) {
 	case SPEED_1000:
 		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
 		       &regs->nwcfg);
