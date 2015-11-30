@@ -569,7 +569,7 @@ static void zynq_gem_halt(struct eth_device *dev)
 						ZYNQ_GEM_NWCTRL_TXEN_MASK, 0);
 }
 
-static int zynq_gem_miiphyread(const char *devname, uchar addr,
+static int zynq_gem_miiphy_read(const char *devname, uchar addr,
 							uchar reg, ushort *val)
 {
 	struct eth_device *dev = eth_get_dev();
@@ -645,7 +645,7 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 
 	eth_register(dev);
 
-	miiphy_register(dev->name, zynq_gem_miiphyread, zynq_gem_miiphy_write);
+	miiphy_register(dev->name, zynq_gem_miiphy_read, zynq_gem_miiphy_write);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 
 	ret = zynq_phy_init(dev);
