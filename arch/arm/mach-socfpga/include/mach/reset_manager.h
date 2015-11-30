@@ -25,6 +25,7 @@ struct socfpga_reset_manager {
 	u32	per2_mod_reset;
 	u32	brg_mod_reset;
 	u32	misc_mod_reset;
+	u32	padding2[12];
 	u32	tstscratch;
 };
 

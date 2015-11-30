@@ -6,7 +6,7 @@
 #ifndef __CONFIG_SOCFPGA_CYCLONE5_H__
 #define __CONFIG_SOCFPGA_CYCLONE5_H__
 
-#include <asm/arch/socfpga_base_addrs.h>
+#include <asm/arch/base_addr_ac5.h>
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
@@ -79,7 +79,6 @@
 	"bootimage=zImage\0" \
 	"fdt_addr=100\0" \
 	"fdtimage=socfpga.dtb\0" \
-		"fsloadcmd=ext2load\0" \
 	"bootm ${loadaddr} - ${fdt_addr}\0" \
 	"mmcroot=/dev/mmcblk0p2\0" \
 	"mmcboot=setenv bootargs " CONFIG_BOOTARGS \
