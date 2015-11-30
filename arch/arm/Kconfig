@@ -553,6 +553,7 @@ config ARCH_ZYNQ
 	select DM
 	select DM_ETH
 	select SPL_DM
+	select DM_MMC
 	select DM_SPI
 	select DM_SERIAL
 	select DM_SPI_FLASH
@@ -564,6 +565,7 @@ config ARCH_ZYNQMP
 	select DM
 	select OF_CONTROL
 	select DM_ETH
+	select DM_MMC
 	select DM_SERIAL
 
 config TEGRA
