@@ -130,17 +130,6 @@ int cpu_eth_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_DWMMC
-/*
- * Initializes MMC controllers.
- * to override, implement board_mmc_init()
- */
-int cpu_mmc_init(bd_t *bis)
-{
-	return socfpga_dwmmc_init(gd->fdt_blob);
-}
-#endif
-
 struct {
 	const char	*mode;
 	const char	*name;
