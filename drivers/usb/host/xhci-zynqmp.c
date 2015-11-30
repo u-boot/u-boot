@@ -139,5 +139,5 @@ void xhci_hcd_stop(int index)
 	 * sw. But this support may be added in future socs.
 	 */
 
-	return 0;
+	return;
 }
