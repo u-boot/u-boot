@@ -181,6 +181,7 @@ static inline bool has_erratum_a007792(void)
 	switch (soc) {
 	case SVR_T4240:
 	case SVR_T4160:
+	case SVR_T4080:
 		return IS_SVR_REV(svr, 2, 0);
 	case SVR_T1024:
 	case SVR_T1023:
