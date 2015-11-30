@@ -76,7 +76,7 @@ static int set_block_entry(const struct sys_mmu_table *list,
 				    index,
 				    block_addr,
 				    list->memory_type,
-				    list->share);
+				    list->attribute);
 		block_addr += block_size;
 		index++;
 	}
@@ -438,7 +438,7 @@ int print_cpuinfo(void)
 #ifdef CONFIG_SYS_DPAA_FMAN
 	printf("  FMAN:     %-4s MHz", strmhz(buf, sysinfo.freq_fman[0]));
 #endif
-#ifdef CONFIG_FSL_LSCH3
+#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	printf("     DP-DDR:   %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus2));
 #endif
 	puts("\n");
@@ -484,7 +484,13 @@ int arch_early_init_r(void)
 {
 #ifdef CONFIG_MP
 	int rv = 1;
+#endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009635
+	erratum_a009635();
+#endif
+
+#ifdef CONFIG_MP
 	rv = fsl_layerscape_wake_seconday_cores();
 	if (rv)
 		printf("Did not wake secondary cores\n");

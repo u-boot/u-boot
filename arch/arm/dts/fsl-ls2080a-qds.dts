@@ -1,0 +1,53 @@
+/*
+ * Freescale ls2080a QDS board device tree source
+ *
+ * Copyright 2013-2015 Freescale Semiconductor, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "fsl-ls2080a.dtsi"
+
+/ {
+	model = "Freescale Layerscape 2080a QDS Board";
+	compatible = "fsl,ls2080a-qds", "fsl,ls2080a";
+
+	aliases {
+		spi1 = &dspi;
+	};
+};
+
+&dspi {
+	bus-num = <0>;
+	status = "okay";
+
+	dflash0: n25q128a {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
+	dflash1: sst25wf040b {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <1>;
+	};
+	dflash2: en25s64 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <2>;
+	};
+};

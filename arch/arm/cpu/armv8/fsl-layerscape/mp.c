@@ -192,6 +192,12 @@ int cpu_release(int nr, int argc, char * const argv[])
 			   (unsigned long)table + SPIN_TABLE_ELEM_SIZE);
 	asm volatile("dsb st");
 	smp_kick_all_cpus();	/* only those with entry addr set will run */
+	/*
+	 * When the first release command runs, all cores are set to go. Those
+	 * without a valid entry address will be trapped by "wfe". "sev" kicks
+	 * them off to check the address again. When set, they continue to run.
+	 */
+	asm volatile("sev");
 
 	return 0;
 }

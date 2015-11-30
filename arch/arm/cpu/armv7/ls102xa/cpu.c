@@ -372,3 +372,13 @@ void reset_cpu(ulong addr)
 		 */
 	}
 }
+
+void arch_preboot_os(void)
+{
+	unsigned long ctrl;
+
+	/* Disable PL1 Physical Timer */
+	asm("mrc p15, 0, %0, c14, c2, 1" : "=r" (ctrl));
+	ctrl &= ~ARCH_TIMER_CTRL_ENABLE;
+	asm("mcr p15, 0, %0, c14, c2, 1" : : "r" (ctrl));
+}

@@ -13,6 +13,8 @@
 /* Command IDs */
 #define DPNI_CMDID_OPEN				0x801
 #define DPNI_CMDID_CLOSE			0x800
+#define DPNI_CMDID_CREATE			0x901
+#define DPNI_CMDID_DESTROY			0x900
 
 #define DPNI_CMDID_ENABLE			0x002
 #define DPNI_CMDID_DISABLE			0x003
@@ -48,6 +50,46 @@
 #define DPNI_CMD_OPEN(cmd, dpni_id) \
 	MC_CMD_OP(cmd,	 0,	0,	32,	int,	dpni_id)
 
+/*                cmd, param, offset, width, type, arg_name */
+#define DPNI_CMD_CREATE(cmd, cfg) \
+do { \
+	MC_CMD_OP(cmd, 0, 0,	8,  uint8_t,  cfg->adv.max_tcs); \
+	MC_CMD_OP(cmd, 0, 8,	8,  uint8_t,  cfg->adv.max_senders); \
+	MC_CMD_OP(cmd, 0, 16,	8,  uint8_t,  cfg->mac_addr[5]); \
+	MC_CMD_OP(cmd, 0, 24,	8,  uint8_t,  cfg->mac_addr[4]); \
+	MC_CMD_OP(cmd, 0, 32,	8,  uint8_t,  cfg->mac_addr[3]); \
+	MC_CMD_OP(cmd, 0, 40,	8,  uint8_t,  cfg->mac_addr[2]); \
+	MC_CMD_OP(cmd, 0, 48,	8,  uint8_t,  cfg->mac_addr[1]); \
+	MC_CMD_OP(cmd, 0, 56,	8,  uint8_t,  cfg->mac_addr[0]); \
+	MC_CMD_OP(cmd, 1, 0,	32, uint32_t, cfg->adv.options); \
+	MC_CMD_OP(cmd, 2, 0,	8,  uint8_t,  cfg->adv.max_unicast_filters); \
+	MC_CMD_OP(cmd, 2, 8,	8,  uint8_t,  cfg->adv.max_multicast_filters); \
+	MC_CMD_OP(cmd, 2, 16,	8,  uint8_t,  cfg->adv.max_vlan_filters); \
+	MC_CMD_OP(cmd, 2, 24,	8,  uint8_t,  cfg->adv.max_qos_entries); \
+	MC_CMD_OP(cmd, 2, 32,	8,  uint8_t,  cfg->adv.max_qos_key_size); \
+	MC_CMD_OP(cmd, 2, 48,	8,  uint8_t,  cfg->adv.max_dist_key_size); \
+	MC_CMD_OP(cmd, 2, 56,	8,  enum net_prot, cfg->adv.start_hdr); \
+	MC_CMD_OP(cmd, 3, 0,	8,  uint8_t,  cfg->adv.max_dist_per_tc[0]); \
+	MC_CMD_OP(cmd, 3, 8,	8,  uint8_t,  cfg->adv.max_dist_per_tc[1]); \
+	MC_CMD_OP(cmd, 3, 16,	8,  uint8_t,  cfg->adv.max_dist_per_tc[2]); \
+	MC_CMD_OP(cmd, 3, 24,	8,  uint8_t,  cfg->adv.max_dist_per_tc[3]); \
+	MC_CMD_OP(cmd, 3, 32,	8,  uint8_t,  cfg->adv.max_dist_per_tc[4]); \
+	MC_CMD_OP(cmd, 3, 40,	8,  uint8_t,  cfg->adv.max_dist_per_tc[5]); \
+	MC_CMD_OP(cmd, 3, 48,	8,  uint8_t,  cfg->adv.max_dist_per_tc[6]); \
+	MC_CMD_OP(cmd, 3, 56,	8,  uint8_t,  cfg->adv.max_dist_per_tc[7]); \
+	MC_CMD_OP(cmd, 4, 0,	16, uint16_t, \
+				    cfg->adv.ipr_cfg.max_reass_frm_size); \
+	MC_CMD_OP(cmd, 4, 16,	16, uint16_t, \
+				    cfg->adv.ipr_cfg.min_frag_size_ipv4); \
+	MC_CMD_OP(cmd, 4, 32,	16, uint16_t, \
+				    cfg->adv.ipr_cfg.min_frag_size_ipv6); \
+	MC_CMD_OP(cmd, 4, 48,	8,  uint8_t, cfg->adv.max_policers); \
+	MC_CMD_OP(cmd, 4, 56,	8,  uint8_t, cfg->adv.max_congestion_ctrl); \
+	MC_CMD_OP(cmd, 5, 0,	16, uint16_t, \
+				  cfg->adv.ipr_cfg.max_open_frames_ipv4); \
+	MC_CMD_OP(cmd, 5, 16,	16, uint16_t, \
+				  cfg->adv.ipr_cfg.max_open_frames_ipv6); \
+} while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPNI_CMD_SET_POOLS(cmd, cfg) \
@@ -475,6 +517,53 @@ int dpni_close(struct fsl_mc_io	*mc_io,
 	       uint32_t		cmd_flags,
 	       uint16_t		token);
 
+/* DPNI configuration options */
+
+/**
+ * Allow different distribution key profiles for different traffic classes;
+ * if not set, a single key profile is assumed
+ */
+#define DPNI_OPT_ALLOW_DIST_KEY_PER_TC		0x00000001
+
+/**
+ * Disable all non-error transmit confirmation; error frames are reported
+ * back to a common Tx error queue
+ */
+#define DPNI_OPT_TX_CONF_DISABLED		0x00000002
+
+/* Disable per-sender private Tx confirmation/error queue */
+#define DPNI_OPT_PRIVATE_TX_CONF_ERROR_DISABLED	0x00000004
+
+/**
+ * Support distribution based on hashed key;
+ * allows statistical distribution over receive queues in a traffic class
+ */
+#define DPNI_OPT_DIST_HASH			0x00000010
+
+/**
+ * Support distribution based on flow steering;
+ * allows explicit control of distribution over receive queues in a traffic
+ * class
+ */
+#define DPNI_OPT_DIST_FS			0x00000020
+
+/* Unicast filtering support */
+#define DPNI_OPT_UNICAST_FILTER			0x00000080
+/* Multicast filtering support */
+#define DPNI_OPT_MULTICAST_FILTER		0x00000100
+/* VLAN filtering support */
+#define DPNI_OPT_VLAN_FILTER			0x00000200
+/* Support IP reassembly on received packets */
+#define DPNI_OPT_IPR				0x00000800
+/* Support IP fragmentation on transmitted packets */
+#define DPNI_OPT_IPF				0x00001000
+/* VLAN manipulation support */
+#define DPNI_OPT_VLAN_MANIPULATION		0x00010000
+/* Support masking of QoS lookup keys */
+#define DPNI_OPT_QOS_MASK_SUPPORT		0x00020000
+/* Support masking of Flow Steering lookup keys */
+#define DPNI_OPT_FS_MASK_SUPPORT		0x00040000
+
 /**
  * struct dpni_ipr_cfg - Structure representing IP reassembly configuration
  * @max_reass_frm_size: Maximum size of the reassembled frame
@@ -490,6 +579,106 @@ struct dpni_ipr_cfg {
 	uint16_t max_open_frames_ipv4;
 	uint16_t max_open_frames_ipv6;
 };
+
+/**
+ * struct dpni_cfg - Structure representing DPNI configuration
+ * @mac_addr: Primary MAC address
+ * @adv: Advanced parameters; default is all zeros;
+ *		use this structure to change default settings
+ */
+struct dpni_cfg {
+	uint8_t mac_addr[6];
+	/**
+	 * struct adv - Advanced parameters
+	 * @options: Mask of available options; use 'DPNI_OPT_<X>' values
+	 * @start_hdr: Selects the packet starting header for parsing;
+	 *		'NET_PROT_NONE' is treated as default: 'NET_PROT_ETH'
+	 * @max_senders: Maximum number of different senders; used as the number
+	 *		of dedicated Tx flows; Non-power-of-2 values are rounded
+	 *		up to the next power-of-2 value as hardware demands it;
+	 *		'0' will be treated as '1'
+	 * @max_tcs: Maximum number of traffic classes (for both Tx and Rx);
+	 *		'0' will e treated as '1'
+	 * @max_dist_per_tc: Maximum distribution size per Rx traffic class;
+	 *			Must be set to the required value minus 1;
+	 *			i.e. 0->1, 1->2, ... ,255->256;
+	 *			Non-power-of-2 values are rounded up to the next
+	 *			power-of-2 value as hardware demands it
+	 * @max_unicast_filters: Maximum number of unicast filters;
+	 *			'0' is treated	as '16'
+	 * @max_multicast_filters: Maximum number of multicast filters;
+	 *			'0' is treated as '64'
+	 * @max_qos_entries: if 'max_tcs > 1', declares the maximum entries in
+	 *			the QoS	table; '0' is treated as '64'
+	 * @max_qos_key_size: Maximum key size for the QoS look-up;
+	 *			'0' is treated as '24' which is enough for IPv4
+	 *			5-tuple
+	 * @max_dist_key_size: Maximum key size for the distribution;
+	 *		'0' is treated as '24' which is enough for IPv4 5-tuple
+	 * @max_policers: Maximum number of policers;
+	 *		should be between '0' and max_tcs
+	 * @max_congestion_ctrl: Maximum number of congestion control groups
+	 *		(CGs); covers early drop and congestion notification
+	 *		requirements for traffic classes;
+	 *		should be between '0' and max_tcs
+	 * @ipr_cfg: IP reassembly configuration
+	 */
+	struct {
+		uint32_t		options;
+		enum net_prot		start_hdr;
+		uint8_t		max_senders;
+		uint8_t		max_tcs;
+		uint8_t			max_dist_per_tc[DPNI_MAX_TC];
+		uint8_t		max_unicast_filters;
+		uint8_t		max_multicast_filters;
+		uint8_t			max_vlan_filters;
+		uint8_t		max_qos_entries;
+		uint8_t		max_qos_key_size;
+		uint8_t		max_dist_key_size;
+		uint8_t		max_policers;
+		uint8_t		max_congestion_ctrl;
+		struct dpni_ipr_cfg	ipr_cfg;
+	} adv;
+};
+
+/**
+ * dpni_create() - Create the DPNI object
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @cfg:	Configuration structure
+ * @token:	Returned token; use in subsequent API calls
+ *
+ * Create the DPNI object, allocate required resources and
+ * perform required initialization.
+ *
+ * The object can be created either by declaring it in the
+ * DPL file, or by calling this function.
+ *
+ * This function returns a unique authentication token,
+ * associated with the specific object ID and the specific MC
+ * portal; this token must be used in all subsequent calls to
+ * this specific object. For objects that are created using the
+ * DPL file, call dpni_open() function to get an authentication
+ * token first.
+ *
+ * Return:	'0' on Success; Error code otherwise.
+ */
+int dpni_create(struct fsl_mc_io	*mc_io,
+		uint32_t		cmd_flags,
+		const struct dpni_cfg	*cfg,
+		uint16_t		*token);
+
+/**
+ * dpni_destroy() - Destroy the DPNI object and release all its resources.
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @token:	Token of DPNI object
+ *
+ * Return:	'0' on Success; error code otherwise.
+ */
+int dpni_destroy(struct fsl_mc_io	*mc_io,
+		 uint32_t		cmd_flags,
+		 uint16_t		token);
 
 /**
  * struct dpni_pools_cfg - Structure representing buffer pools configuration

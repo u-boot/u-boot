@@ -48,6 +48,46 @@ int dpni_close(struct fsl_mc_io *mc_io,
 	return mc_send_command(mc_io, &cmd);
 }
 
+int dpni_create(struct fsl_mc_io *mc_io,
+		uint32_t cmd_flags,
+		const struct dpni_cfg *cfg,
+		uint16_t *token)
+{
+	struct mc_command cmd = { 0 };
+	int err;
+
+	/* prepare command */
+	cmd.header = mc_encode_cmd_header(DPNI_CMDID_CREATE,
+					  cmd_flags,
+					  0);
+	DPNI_CMD_CREATE(cmd, cfg);
+
+	/* send command to mc*/
+	err = mc_send_command(mc_io, &cmd);
+	if (err)
+		return err;
+
+	/* retrieve response parameters */
+	*token = MC_CMD_HDR_READ_TOKEN(cmd.header);
+
+	return 0;
+}
+
+int dpni_destroy(struct fsl_mc_io *mc_io,
+		 uint32_t cmd_flags,
+		 uint16_t token)
+{
+	struct mc_command cmd = { 0 };
+
+	/* prepare command */
+	cmd.header = mc_encode_cmd_header(DPNI_CMDID_DESTROY,
+					  cmd_flags,
+					  token);
+
+	/* send command to mc*/
+	return mc_send_command(mc_io, &cmd);
+}
+
 int dpni_set_pools(struct fsl_mc_io *mc_io,
 		   uint32_t cmd_flags,
 		   uint16_t token,

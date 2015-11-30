@@ -611,6 +611,9 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 		Number of controllers used for other than main memory.
 
+		CONFIG_SYS_FSL_HAS_DP_DDR
+		Defines the SoC has DP-DDR used for DPAA.
+
 		CONFIG_SYS_FSL_SEC_BE
 		Defines the SEC controller register space as Big Endian
 

@@ -21,10 +21,14 @@ obj-$(CONFIG_SYS_HAS_SERDES) += fsl_lsch2_serdes.o
 endif
 endif
 
+ifneq ($(CONFIG_LS2080A),)
+obj-$(CONFIG_SYS_HAS_SERDES) += ls2080a_serdes.o
+endif
+
 ifneq ($(CONFIG_LS2085A),)
-obj-$(CONFIG_SYS_HAS_SERDES) += ls2085a_serdes.o
-else
+obj-$(CONFIG_SYS_HAS_SERDES) += ls2080a_serdes.o
+endif
+
 ifneq ($(CONFIG_LS1043A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1043a_serdes.o
-endif
 endif

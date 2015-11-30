@@ -20,6 +20,8 @@
 /* Command IDs */
 #define DPBP_CMDID_CLOSE				0x800
 #define DPBP_CMDID_OPEN					0x804
+#define DPBP_CMDID_CREATE				0x904
+#define DPBP_CMDID_DESTROY				0x900
 
 #define DPBP_CMDID_ENABLE				0x002
 #define DPBP_CMDID_DISABLE				0x003
@@ -81,6 +83,52 @@ int dpbp_open(struct fsl_mc_io	*mc_io,
 int dpbp_close(struct fsl_mc_io	*mc_io,
 	       uint32_t		cmd_flags,
 	       uint16_t	token);
+
+/**
+ * struct dpbp_cfg - Structure representing DPBP configuration
+ * @options:	place holder
+ */
+struct dpbp_cfg {
+	uint32_t options;
+};
+
+/**
+ * dpbp_create() - Create the DPBP object.
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @cfg:	Configuration structure
+ * @token:	Returned token; use in subsequent API calls
+ *
+ * Create the DPBP object, allocate required resources and
+ * perform required initialization.
+ *
+ * The object can be created either by declaring it in the
+ * DPL file, or by calling this function.
+ * This function returns a unique authentication token,
+ * associated with the specific object ID and the specific MC
+ * portal; this token must be used in all subsequent calls to
+ * this specific object. For objects that are created using the
+ * DPL file, call dpbp_open function to get an authentication
+ * token first.
+ *
+ * Return:	'0' on Success; Error code otherwise.
+ */
+int dpbp_create(struct fsl_mc_io	*mc_io,
+		uint32_t		cmd_flags,
+		const struct dpbp_cfg	*cfg,
+		uint16_t		*token);
+
+/**
+ * dpbp_destroy() - Destroy the DPBP object and release all its resources.
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @token:	Token of DPBP object
+ *
+ * Return:	'0' on Success; error code otherwise.
+ */
+int dpbp_destroy(struct fsl_mc_io	*mc_io,
+		 uint32_t		cmd_flags,
+		 uint16_t		token);
 
 /**
  * dpbp_enable() - Enable the DPBP.

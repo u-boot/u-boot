@@ -119,7 +119,7 @@
 
 void set_pgtable_section(u64 *page_table, u64 index,
 			 u64 section, u64 memory_type,
-			 u64 share);
+			 u64 attribute);
 void set_pgtable_table(u64 *page_table, u64 index,
 		       u64 *table_addr);
 
