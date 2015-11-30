@@ -56,12 +56,6 @@
 # define CONFIG_BOOTP_GATEWAY
 # define CONFIG_BOOTP_HOSTNAME
 # define CONFIG_BOOTP_MAY_FAIL
-# if !defined(CONFIG_ZYNQ_GEM_EMIO0)
-#  define CONFIG_ZYNQ_GEM_EMIO0	0
-# endif
-# if !defined(CONFIG_ZYNQ_GEM_EMIO1)
-#  define CONFIG_ZYNQ_GEM_EMIO1	0
-# endif
 #endif
 
 /* SPI */

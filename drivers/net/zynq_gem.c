@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <net.h>
 #include <netdev.h>
 #include <config.h>
@@ -22,6 +23,8 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm-generic/errno.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_PHYLIB)
 # error XILINX_GEM_ETHERNET requires PHYLIB
@@ -241,7 +244,7 @@ static u32 phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 			    ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
 }
 
-static int phy_detection(struct eth_device *dev)
+static int phy_detection(struct udevice *dev)
 {
 	int i;
 	u16 phyreg;
@@ -280,20 +283,22 @@ static int phy_detection(struct eth_device *dev)
 	return -1;
 }
 
-static int zynq_gem_setup_mac(struct eth_device *dev)
+static int zynq_gem_setup_mac(struct udevice *dev)
 {
 	u32 i, macaddrlow, macaddrhigh;
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	struct zynq_gem_regs *regs = priv->iobase;
 
 	/* Set the MAC bits [31:0] in BOT */
-	macaddrlow = dev->enetaddr[0];
-	macaddrlow |= dev->enetaddr[1] << 8;
-	macaddrlow |= dev->enetaddr[2] << 16;
-	macaddrlow |= dev->enetaddr[3] << 24;
+	macaddrlow = pdata->enetaddr[0];
+	macaddrlow |= pdata->enetaddr[1] << 8;
+	macaddrlow |= pdata->enetaddr[2] << 16;
+	macaddrlow |= pdata->enetaddr[3] << 24;
 
 	/* Set MAC bits [47:32] in TOP */
-	macaddrhigh = dev->enetaddr[4];
-	macaddrhigh |= dev->enetaddr[5] << 8;
+	macaddrhigh = pdata->enetaddr[4];
+	macaddrhigh |= pdata->enetaddr[5] << 8;
 
 	for (i = 0; i < 4; i++) {
 		writel(0, &regs->laddr[i][LADDR_LOW]);
@@ -308,11 +313,11 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 	return 0;
 }
 
-static int zynq_phy_init(struct eth_device *dev)
+static int zynq_phy_init(struct udevice *dev)
 {
 	int ret;
-	struct zynq_gem_priv *priv = dev->priv;
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	struct zynq_gem_regs *regs = priv->iobase;
 	const u32 supported = SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
@@ -342,12 +347,12 @@ static int zynq_phy_init(struct eth_device *dev)
 	return 0;
 }
 
-static int zynq_gem_init(struct eth_device *dev, bd_t *bis)
+static int zynq_gem_init(struct udevice *dev)
 {
 	u32 i;
 	unsigned long clk_rate = 0;
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
-	struct zynq_gem_priv *priv = dev->priv;
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	struct zynq_gem_regs *regs = priv->iobase;
 	struct emac_bd *dummy_tx_bd = &priv->tx_bd[TX_FREE_DESC];
 	struct emac_bd *dummy_rx_bd = &priv->tx_bd[TX_FREE_DESC + 2];
 
@@ -437,7 +442,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t *bis)
 
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
-		zynq_slcr_gem_clk_setup(dev->iobase !=
+		zynq_slcr_gem_clk_setup((ulong)priv->iobase !=
 					ZYNQ_GEM_BASEADDR0, clk_rate);
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
@@ -473,11 +478,11 @@ static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
 	return -ETIMEDOUT;
 }
 
-static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
+static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 {
 	u32 addr, size;
-	struct zynq_gem_priv *priv = dev->priv;
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	struct zynq_gem_regs *regs = priv->iobase;
 	struct emac_bd *current_bd = &priv->tx_bd[1];
 
 	/* Setup Tx BD */
@@ -518,10 +523,10 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 }
 
 /* Do not check frame_recd flag in rx_status register 0x20 - just poll BD */
-static int zynq_gem_recv(struct eth_device *dev)
+static int zynq_gem_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	int frame_len;
-	struct zynq_gem_priv *priv = dev->priv;
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct emac_bd *current_bd = &priv->rx_bd[priv->rxbd_current];
 	struct emac_bd *first_bd;
 
@@ -561,54 +566,41 @@ static int zynq_gem_recv(struct eth_device *dev)
 	return frame_len;
 }
 
-static void zynq_gem_halt(struct eth_device *dev)
+static void zynq_gem_halt(struct udevice *dev)
 {
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	struct zynq_gem_regs *regs = priv->iobase;
 
 	clrsetbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 						ZYNQ_GEM_NWCTRL_TXEN_MASK, 0);
 }
 
-static int zynq_gem_miiphy_read(const char *devname, uchar addr,
-							uchar reg, ushort *val)
+static int zynq_gem_miiphy_read(struct mii_dev *bus, int addr,
+				int devad, int reg)
 {
-	struct eth_device *dev = eth_get_dev();
-	struct zynq_gem_priv *priv = dev->priv;
+	struct zynq_gem_priv *priv = bus->priv;
 	int ret;
+	u16 val;
 
-	ret = phyread(priv, addr, reg, val);
-	debug("%s 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, *val);
-	return ret;
+	ret = phyread(priv, addr, reg, &val);
+	debug("%s 0x%x, 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, val, ret);
+	return val;
 }
 
-static int zynq_gem_miiphy_write(const char *devname, uchar addr,
-							uchar reg, ushort val)
+static int zynq_gem_miiphy_write(struct mii_dev *bus, int addr, int devad,
+				 int reg, u16 value)
 {
-	struct eth_device *dev = eth_get_dev();
-	struct zynq_gem_priv *priv = dev->priv;
+	struct zynq_gem_priv *priv = bus->priv;
 
-	debug("%s 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, val);
-	return phywrite(priv, addr, reg, val);
+	debug("%s 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, value);
+	return phywrite(priv, addr, reg, value);
 }
 
-int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
-			int phy_addr, u32 emio)
+static int zynq_gem_probe(struct udevice *dev)
 {
-	int ret;
-	struct eth_device *dev;
-	struct zynq_gem_priv *priv;
 	void *bd_space;
-
-	dev = calloc(1, sizeof(*dev));
-	if (dev == NULL)
-		return -1;
-
-	dev->priv = calloc(1, sizeof(struct zynq_gem_priv));
-	if (dev->priv == NULL) {
-		free(dev);
-		return -1;
-	}
-	priv = dev->priv;
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	/* Align rxbuffers to ARCH_DMA_MINALIGN */
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
@@ -623,8 +615,11 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	priv->tx_bd = (struct emac_bd *)bd_space;
 	priv->rx_bd = (struct emac_bd *)((ulong)bd_space + BD_SEPRN_SPACE);
 
-	priv->phyaddr = phy_addr;
-	priv->emio = emio;
+	priv->bus = mdio_alloc();
+	priv->bus->read = zynq_gem_miiphy_read;
+	priv->bus->write = zynq_gem_miiphy_write;
+	priv->bus->priv = priv;
+	strcpy(priv->bus->name, "gem");
 
 #ifndef CONFIG_ZYNQ_GEM_INTERFACE
 	priv->interface = PHY_INTERFACE_MODE_MII;
@@ -632,25 +627,71 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	priv->interface = CONFIG_ZYNQ_GEM_INTERFACE;
 #endif
 
-	sprintf(dev->name, "Gem.%lx", base_addr);
-
-	dev->iobase = base_addr;
-	priv->iobase = (struct zynq_gem_regs *)base_addr;
-
-	dev->init = zynq_gem_init;
-	dev->halt = zynq_gem_halt;
-	dev->send = zynq_gem_send;
-	dev->recv = zynq_gem_recv;
-	dev->write_hwaddr = zynq_gem_setup_mac;
-
-	eth_register(dev);
-
-	miiphy_register(dev->name, zynq_gem_miiphy_read, zynq_gem_miiphy_write);
-	priv->bus = miiphy_get_dev_by_name(dev->name);
-
-	ret = zynq_phy_init(dev);
+	ret = mdio_register(priv->bus);
 	if (ret)
 		return ret;
 
-	return 1;
+	zynq_phy_init(dev);
+
+	return 0;
 }
+
+static int zynq_gem_remove(struct udevice *dev)
+{
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+
+	free(priv->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
+	return 0;
+}
+
+static const struct eth_ops zynq_gem_ops = {
+	.start			= zynq_gem_init,
+	.send			= zynq_gem_send,
+	.recv			= zynq_gem_recv,
+	.stop			= zynq_gem_halt,
+	.write_hwaddr		= zynq_gem_setup_mac,
+};
+
+static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	int offset = 0;
+
+	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
+	/* Hardcode for now */
+	priv->emio = 0;
+
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+				       "phy-handle");
+	if (offset > 0)
+		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
+
+	printf("ZYNQ GEM: %lx, phyaddr %d\n", (ulong)priv->iobase,
+	       priv->phyaddr);
+
+	return 0;
+}
+
+static const struct udevice_id zynq_gem_ids[] = {
+	{ .compatible = "cdns,zynqmp-gem" },
+	{ .compatible = "cdns,zynq-gem" },
+	{ .compatible = "cdns,gem" },
+	{ }
+};
+
+U_BOOT_DRIVER(zynq_gem) = {
+	.name	= "zynq_gem",
+	.id	= UCLASS_ETH,
+	.of_match = zynq_gem_ids,
+	.ofdata_to_platdata = zynq_gem_ofdata_to_platdata,
+	.probe	= zynq_gem_probe,
+	.remove	= zynq_gem_remove,
+	.ops	= &zynq_gem_ops,
+	.priv_auto_alloc_size = sizeof(struct zynq_gem_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
