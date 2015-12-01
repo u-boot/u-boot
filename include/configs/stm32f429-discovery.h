@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2015
- * Kamil Lulko, <rev13@wp.pl>
+ * Kamil Lulko, <kamil.lulko@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -51,14 +51,6 @@
 
 #define CONFIG_STM32_GPIO
 #define CONFIG_STM32_SERIAL
-/*
- * Configuration of the USART
- * 1:   TX:PA9  RX:PA10
- * 2:   TX:PD5  RX:PD6
- * 3:   TX:PC10 RX:PC11
- * 6:   TX:PG14 RX:PG9
- */
-#define CONFIG_STM32_USART		1
 
 #define CONFIG_STM32_HSE_HZ		8000000
 

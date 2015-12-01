@@ -6,7 +6,7 @@
  * Pavel Boldin, Emcraft Systems, paboldin@emcraft.com
  *
  * (C) Copyright 2015
- * Kamil Lulko, <rev13@wp.pl>
+ * Kamil Lulko, <kamil.lulko@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,6 +17,8 @@
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/fmc.h>
+#include <dm/platdata.h>
+#include <dm/platform_data/serial_stm32.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -262,6 +264,15 @@ int dram_init(void)
 
 	return rv;
 }
+
+static const struct stm32_serial_platdata serial_platdata = {
+	.base = (struct stm32_usart *)STM32_USART1_BASE,
+};
+
+U_BOOT_DEVICE(stm32_serials) = {
+	.name = "serial_stm32",
+	.platdata = &serial_platdata,
+};
 
 u32 get_board_rev(void)
 {

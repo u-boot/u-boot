@@ -697,6 +697,8 @@ config ARCH_UNIPHIER
 config TARGET_STM32F429_DISCOVERY
 	bool "Support STM32F429 Discovery"
 	select CPU_V7M
+	select DM
+	select DM_SERIAL
 
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
