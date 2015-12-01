@@ -14,6 +14,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* The STATUS register */
+#define QUADSPI_SR_BP0				BIT(2)
+#define QUADSPI_SR_BP1				BIT(3)
+#define QUADSPI_SR_BP2				BIT(4)
+#define QUADSPI_SR_BP2_0			GENMASK(4, 2)
+#define QUADSPI_SR_BP3				BIT(6)
+#define QUADSPI_SR_TB				BIT(5)
+
 /*
  * The QUADSPI_MEM_OP register is used to do memory protect and erase operations
  */
@@ -46,10 +54,24 @@ struct altera_qspi_platdata {
 
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* FLASH chips info */
 
+static void altera_qspi_get_locked_range(struct mtd_info *mtd, loff_t *ofs,
+					 uint64_t *len);
+
 void flash_print_info(flash_info_t *info)
 {
+	struct mtd_info *mtd = info->mtd;
+	loff_t ofs;
+	u64 len;
+
 	printf("Altera QSPI flash  Size: %ld MB in %d Sectors\n",
 	       info->size >> 20, info->sector_count);
+	altera_qspi_get_locked_range(mtd, &ofs, &len);
+	printf("  %08lX +%lX", info->start[0], info->size);
+	if (len) {
+		printf(", protected %08llX +%llX",
+		       info->start[0] + ofs, len);
+	}
+	putc('\n');
 }
 
 int flash_erase(flash_info_t *info, int s_first, int s_last)
@@ -171,6 +193,77 @@ static void altera_qspi_sync(struct mtd_info *mtd)
 {
 }
 
+static void altera_qspi_get_locked_range(struct mtd_info *mtd, loff_t *ofs,
+					 uint64_t *len)
+{
+	struct udevice *dev = mtd->dev;
+	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_regs *regs = pdata->regs;
+	int shift0 = ffs(QUADSPI_SR_BP2_0) - 1;
+	int shift3 = ffs(QUADSPI_SR_BP3) - 1 - 3;
+	u32 stat = readl(&regs->rd_status);
+	unsigned pow = ((stat & QUADSPI_SR_BP2_0) >> shift0) |
+		((stat & QUADSPI_SR_BP3) >> shift3);
+
+	*ofs = 0;
+	*len = 0;
+	if (pow) {
+		*len = mtd->erasesize << (pow - 1);
+		if (*len > mtd->size)
+			*len = mtd->size;
+		if (!(stat & QUADSPI_SR_TB))
+			*ofs = mtd->size - *len;
+	}
+}
+
+static int altera_qspi_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+	struct udevice *dev = mtd->dev;
+	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_regs *regs = pdata->regs;
+	u32 sector_start, sector_end;
+	u32 num_sectors;
+	u32 mem_op;
+	u32 sr_bp;
+	u32 sr_tb;
+
+	num_sectors = mtd->size / mtd->erasesize;
+	sector_start = ofs / mtd->erasesize;
+	sector_end = (ofs + len) / mtd->erasesize;
+
+	if (sector_start >= num_sectors / 2) {
+		sr_bp = fls(num_sectors - 1 - sector_start) + 1;
+		sr_tb = 0;
+	} else if (sector_end < num_sectors / 2) {
+		sr_bp = fls(sector_end) + 1;
+		sr_tb = 1;
+	} else {
+		sr_bp = 15;
+		sr_tb = 0;
+	}
+
+	mem_op = (sr_tb << 12) | (sr_bp << 8);
+	mem_op |= QUADSPI_MEM_OP_SECTOR_PROTECT;
+	debug("lock %08x\n", mem_op);
+	writel(mem_op, &regs->mem_op);
+
+	return 0;
+}
+
+static int altera_qspi_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+	struct udevice *dev = mtd->dev;
+	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_regs *regs = pdata->regs;
+	u32 mem_op;
+
+	mem_op = QUADSPI_MEM_OP_SECTOR_PROTECT;
+	debug("unlock %08x\n", mem_op);
+	writel(mem_op, &regs->mem_op);
+
+	return 0;
+}
+
 static int altera_qspi_probe(struct udevice *dev)
 {
 	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
@@ -196,6 +289,8 @@ static int altera_qspi_probe(struct udevice *dev)
 	mtd->_read		= altera_qspi_read;
 	mtd->_write		= altera_qspi_write;
 	mtd->_sync		= altera_qspi_sync;
+	mtd->_lock		= altera_qspi_lock;
+	mtd->_unlock		= altera_qspi_unlock;
 	mtd->numeraseregions = 0;
 	mtd->erasesize = 0x10000;
 	if (add_mtd_device(mtd))
