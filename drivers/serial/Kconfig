@@ -95,7 +95,7 @@ config DEBUG_UART_S5P
 config DEBUG_UART_ZYNQ
 	bool "Xilinx Zynq"
 	help
-	  Select this to enable a debug UART using the serial_s5p driver. You
+	  Select this to enable a debug UART using the serial_zynq driver. You
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver-model serial is running.
 

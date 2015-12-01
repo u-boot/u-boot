@@ -180,7 +180,7 @@ static const struct udevice_id zynq_serial_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(serial_s5p) = {
+U_BOOT_DRIVER(serial_zynq) = {
 	.name	= "serial_zynq",
 	.id	= UCLASS_SERIAL,
 	.of_match = zynq_serial_ids,
