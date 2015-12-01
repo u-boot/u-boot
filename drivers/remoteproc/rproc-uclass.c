@@ -66,7 +66,7 @@ static int _rproc_name_is_unique(struct udevice *dev,
 	const char *check_name = data;
 
 	/* devices not yet populated with data - so skip them */
-	if (!uc_pdata->name && check_name)
+	if (!uc_pdata->name || !check_name)
 		return 0;
 
 	/* Return 0 to search further if we dont match */
