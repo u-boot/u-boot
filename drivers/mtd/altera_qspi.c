@@ -85,7 +85,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 	instr.len = mtd->erasesize * (s_last + 1 - s_first);
 	ret = mtd_erase(mtd, &instr);
 	if (ret)
-		return ERR_NOT_ERASED;
+		return ERR_PROTECTED;
 
 	return 0;
 }
@@ -102,7 +102,7 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 
 	ret = mtd_write(mtd, to, cnt, &retlen, src);
 	if (ret)
-		return ERR_NOT_ERASED;
+		return ERR_PROTECTED;
 
 	return 0;
 }
