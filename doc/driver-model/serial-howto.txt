@@ -16,7 +16,6 @@ is time for maintainers to start converting over the remaining serial drivers:
    serial_pxa.c
    serial_s3c24x0.c
    serial_sa1100.c
-   serial_xuartlite.c
    usbtty.c
 
 You should complete this by the end of January 2016.
