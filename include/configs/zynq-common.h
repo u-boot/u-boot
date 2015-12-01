@@ -369,7 +369,7 @@
 
 /* On the top of OCM space */
 #define CONFIG_SYS_SPL_MALLOC_START	OCM_HIGH_ADDR
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x2000
 
 /*
  * SPL stack position - and stack goes down
