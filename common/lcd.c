@@ -143,16 +143,6 @@ __weak int lcd_get_size(int *line_length)
 	return *line_length * panel_info.vl_row;
 }
 
-/*
- * Implement a weak default function for boards that optionally
- * need to skip the lcd console initialization.
- */
-__weak int board_lcd_console_skip(void)
-{
-	/* As default, don't skip cfb init */
-	return 0;
-}
-
 int drv_lcd_init(void)
 {
 	struct stdio_dev lcddev;
@@ -161,9 +151,6 @@ int drv_lcd_init(void)
 	lcd_base = map_sysmem(gd->fb_base, 0);
 
 	lcd_init(lcd_base);
-
-	if (board_lcd_console_skip())
-		return 0;
 
 	/* Device initialization */
 	memset(&lcddev, 0, sizeof(lcddev));
