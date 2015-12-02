@@ -27,23 +27,6 @@ __weak int __board_usb_init(int index, enum usb_init_type init)
 	return 0;
 }
 
-void usb_phy_reset(struct dwc3 *dwc3_reg)
-{
-	/* Assert USB3 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Assert USB2 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-
-	mdelay(200);
-
-	/* Clear USB3 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Clear USB2 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-}
-
 static int fsl_xhci_core_init(struct fsl_xhci *fsl_xhci)
 {
 	int ret = 0;
