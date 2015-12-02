@@ -248,7 +248,7 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 
 int spl_mmc_load_image(u32 boot_device)
 {
-	struct mmc *mmc;
+	struct mmc *mmc = NULL;
 	u32 boot_mode;
 	int err = 0;
 	__maybe_unused int part;
