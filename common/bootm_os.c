@@ -288,6 +288,8 @@ void do_bootvx_fdt(bootm_headers_t *images)
 		if (ret)
 			return;
 
+		fdt_fixup_ethernet(*of_flat_tree);
+
 		ret = fdt_add_subnode(*of_flat_tree, 0, "chosen");
 		if ((ret >= 0 || ret == -FDT_ERR_EXISTS)) {
 			bootline = getenv("bootargs");
