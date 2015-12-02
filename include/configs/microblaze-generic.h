@@ -68,10 +68,6 @@
 # define CONFIG_XILINX_EMACLITE	1
 # define CONFIG_SYS_ENET
 #endif
-#if defined(XILINX_LLTEMAC_BASEADDR)
-# define CONFIG_XILINX_LL_TEMAC	1
-# define CONFIG_SYS_ENET
-#endif
 #if defined(XILINX_AXIEMAC_BASEADDR)
 # define CONFIG_XILINX_AXIEMAC	1
 # define CONFIG_SYS_ENET
@@ -355,7 +351,7 @@
 #define CONFIG_FIT		1
 #define CONFIG_OF_LIBFDT	1
 
-#if defined(CONFIG_XILINX_LL_TEMAC) || defined(CONFIG_XILINX_AXIEMAC)
+#if defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_MII		1
 # define CONFIG_CMD_MII		1
 # define CONFIG_PHY_GIGE	1
