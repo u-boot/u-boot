@@ -65,23 +65,6 @@ static struct zynqmp_xhci zynqmp_xhci;
 
 unsigned long ctr_addr[] = CONFIG_ZYNQMP_XHCI_LIST;
 
-void usb_phy_reset(struct dwc3 *dwc3_reg)
-{
-	/* Assert USB3 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Assert USB2 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-
-	udelay(10);
-
-	/* Clear USB3 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Clear USB2 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-}
-
 static int zynqmp_xhci_core_init(struct zynqmp_xhci *zynqmp_xhci)
 {
 	int ret = 0;
