@@ -2,8 +2,13 @@ if ARCH_SOCFPGA
 
 config TARGET_SOCFPGA_ARRIA5
 	bool
+	select TARGET_SOCFPGA_GEN5
 
 config TARGET_SOCFPGA_CYCLONE5
+	bool
+	select TARGET_SOCFPGA_GEN5
+
+config TARGET_SOCFPGA_GEN5
 	bool
 
 choice
