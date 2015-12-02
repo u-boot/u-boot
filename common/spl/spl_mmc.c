@@ -79,7 +79,7 @@ int spl_mmc_get_device_index(u32 boot_device)
 }
 
 #ifdef CONFIG_DM_MMC
-static int spl_mmc_find_device(struct mmc **mmc, u32 boot_device)
+static int spl_mmc_find_device(struct mmc **mmcp, u32 boot_device)
 {
 	struct udevice *dev;
 	int err, mmc_dev;
@@ -104,12 +104,12 @@ static int spl_mmc_find_device(struct mmc **mmc, u32 boot_device)
 		return err;
 	}
 
-	*mmc = NULL;
-	*mmc = mmc_get_mmc_dev(dev);
-	return *mmc != NULL ? 0 : -ENODEV;
+	*mmcp = NULL;
+	*mmcp = mmc_get_mmc_dev(dev);
+	return *mmcp != NULL ? 0 : -ENODEV;
 }
 #else
-static int spl_mmc_find_device(struct mmc **mmc, u32 boot_device)
+static int spl_mmc_find_device(struct mmc **mmcp, u32 boot_device)
 {
 	int err, mmc_dev;
 
@@ -126,8 +126,8 @@ static int spl_mmc_find_device(struct mmc **mmc, u32 boot_device)
 	}
 
 	/* We register only one device. So, the dev id is always 0 */
-	*mmc = find_mmc_device(mmc_dev);
-	if (!*mmc) {
+	*mmcp = find_mmc_device(mmc_dev);
+	if (!*mmcp) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		puts("spl: mmc device not found\n");
 #endif
