@@ -196,11 +196,6 @@ struct ctrl_ioregs draco_ddr3_ioregs = {
 
 	config_ddr(DDR_PLL_FREQ, &draco_ddr3_ioregs, &draco_ddr3_data,
 		   &draco_ddr3_cmd_ctrl_data, &draco_ddr3_emif_reg_data, 0);
-
-	/* For Samsung 2Gbit RAM we need this delay otherwise config fails after
-	 * soft reset.
-	 */
-	udelay(2000);
 }
 
 static void spl_siemens_board_init(void)
