@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ifndef __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__
-#define __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__
+#ifndef __CONFIG_SOCFPGA_COMMON_H__
+#define __CONFIG_SOCFPGA_COMMON_H__
 
 
 /* Virtual target or real hardware */
@@ -323,4 +323,4 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  */
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 
-#endif	/* __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__ */
+#endif	/* __CONFIG_SOCFPGA_COMMON_H__ */
