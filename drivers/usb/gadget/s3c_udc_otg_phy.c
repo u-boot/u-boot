@@ -32,7 +32,7 @@
 
 #include <asm/mach-types.h>
 
-#include "regs-otg.h"
+#include "s3c_udc_otg_regs.h"
 #include <usb/lin_gadget_compat.h>
 
 #include <usb/s3c_udc.h>
