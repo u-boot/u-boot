@@ -311,21 +311,26 @@ NXTARG:		;
 		exit (retval);
 	}
 
-	dfd = open(params.datafile, O_RDONLY | O_BINARY);
-	if (dfd < 0) {
-		fprintf(stderr, "%s: Can't open %s: %s\n",
-			params.cmdname, params.datafile, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
+	if (!params.type == IH_TYPE_MULTI ||
+	    !params.type == IH_TYPE_SCRIPT) {
+		dfd = open(params.datafile, O_RDONLY | O_BINARY);
+		if (dfd < 0) {
+			fprintf(stderr, "%s: Can't open %s: %s\n",
+				params.cmdname, params.datafile,
+				strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 
-	if (fstat(dfd, &sbuf) < 0) {
-		fprintf(stderr, "%s: Can't stat %s: %s\n",
-			params.cmdname, params.datafile, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
+		if (fstat(dfd, &sbuf) < 0) {
+			fprintf(stderr, "%s: Can't stat %s: %s\n",
+				params.cmdname, params.datafile,
+				strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 
-	params.file_size = sbuf.st_size + tparams->header_size;
-	close(dfd);
+		params.file_size = sbuf.st_size + tparams->header_size;
+		close(dfd);
+	}
 
 	/*
 	 * In case there an header with a variable
