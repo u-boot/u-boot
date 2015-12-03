@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -30,10 +30,10 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_IDE
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_SATA
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_TFTPPUT
@@ -67,32 +67,12 @@
 #define CONFIG_SYS_ALT_MEMTEST
 
 /* SATA support */
-#ifdef CONFIG_CMD_IDE
-#define __io
-#define CONFIG_IDE_PREINIT
-#define CONFIG_MVSATA_IDE
-
-/* Needs byte-swapping for ATA data register */
-#define CONFIG_IDE_SWAP_IO
-
-#define CONFIG_SYS_ATA_REG_OFFSET	0x0100 /* Offset for register access */
-#define CONFIG_SYS_ATA_DATA_OFFSET	0x0100 /* Offset for data I/O */
-#define CONFIG_SYS_ATA_ALT_OFFSET	0x0100
-
-/* Each 8-bit ATA register is aligned to a 4-bytes address */
-#define CONFIG_SYS_ATA_STRIDE		4
-
-/* CONFIG_CMD_IDE requires some #defines for ATA registers */
-#define CONFIG_SYS_IDE_MAXBUS		2
-#define CONFIG_SYS_IDE_MAXDEVICE	CONFIG_SYS_IDE_MAXBUS
-
-/* ATA registers base is at SATA controller base */
-#define CONFIG_SYS_ATA_BASE_ADDR	MVEBU_AXP_SATA_BASE
-#define CONFIG_SYS_ATA_IDE0_OFFSET	0x2000
-#define CONFIG_SYS_ATA_IDE1_OFFSET	0x4000
-
+#define CONFIG_SYS_SATA_MAX_DEVICE	2
+#define CONFIG_SATA_MV
+#define CONFIG_LIBATA
+#define CONFIG_LBA48
+#define CONFIG_EFI_PARTITION
 #define CONFIG_DOS_PARTITION
-#endif /* CONFIG_CMD_IDE */
 
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
