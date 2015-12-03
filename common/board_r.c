@@ -168,6 +168,14 @@ static int initr_reloc_global_data(void)
 	 */
 	gd->env_addr += gd->relocaddr - CONFIG_SYS_MONITOR_BASE;
 #endif
+#ifdef CONFIG_OF_EMBED
+	/*
+	* The fdt_blob needs to be moved to new relocation address
+	* incase of FDT blob is embedded with in image
+	*/
+	gd->fdt_blob += gd->reloc_off;
+#endif
+
 	return 0;
 }
 

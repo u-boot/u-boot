@@ -524,6 +524,7 @@ static int reserve_global_data(void)
 
 static int reserve_fdt(void)
 {
+#ifndef CONFIG_OF_EMBED
 	/*
 	 * If the device tree is sitting immediately above our image then we
 	 * must relocate it. If it is embedded in the data section, then it
@@ -537,6 +538,7 @@ static int reserve_fdt(void)
 		debug("Reserving %lu Bytes for FDT at: %08lx\n",
 		      gd->fdt_size, gd->start_addr_sp);
 	}
+#endif
 
 	return 0;
 }
@@ -674,12 +676,14 @@ static int setup_dram_config(void)
 
 static int reloc_fdt(void)
 {
+#ifndef CONFIG_OF_EMBED
 	if (gd->flags & GD_FLG_SKIP_RELOC)
 		return 0;
 	if (gd->new_fdt) {
 		memcpy(gd->new_fdt, gd->fdt_blob, gd->fdt_size);
 		gd->fdt_blob = gd->new_fdt;
 	}
+#endif
 
 	return 0;
 }
