@@ -220,9 +220,11 @@ static void setup_usb_phys(void)
 	}
 }
 
+/*
+ * This function is not called from the SPL U-Boot version
+ */
 int arch_cpu_init(void)
 {
-#if !defined(CONFIG_SPL_BUILD)
 	struct pl310_regs *const pl310 =
 		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
@@ -233,13 +235,11 @@ int arch_cpu_init(void)
 	 * still locked to cache.
 	 */
 	mmu_disable();
-#endif
 
 	/* Linux expects the internal registers to be at 0xf1000000 */
 	writel(SOC_REGS_PHY_BASE, INTREG_BASE_ADDR_REG);
 	set_cbar(SOC_REGS_PHY_BASE + 0xC000);
 
-#if !defined(CONFIG_SPL_BUILD)
 	/*
 	 * From this stage on, the SoC detection is working. As we have
 	 * configured the internal register base to the value used
@@ -253,7 +253,6 @@ int arch_cpu_init(void)
 	icache_disable();
 	dcache_disable();
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-#endif
 
 	/*
 	 * We need to call mvebu_mbus_probe() before calling

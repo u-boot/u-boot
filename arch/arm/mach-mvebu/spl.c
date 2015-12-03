@@ -36,19 +36,6 @@ void board_init_f(ulong dummy)
 {
 	int ret;
 
-#ifndef CONFIG_MVEBU_BOOTROM_UARTBOOT
-	/*
-	 * Only call arch_cpu_init() when not returning to the
-	 * Marvell BootROM, which is done when booting via
-	 * the xmodem protocol (kwboot tool). Otherwise the
-	 * internal register will get remapped and the BootROM
-	 * can't continue to run correctly.
-	 */
-
-	/* Linux expects the internal registers to be at 0xf1000000 */
-	arch_cpu_init();
-#endif
-
 	/*
 	 * Pin muxing needs to be done before UART output, since
 	 * on A38x the UART pins need some re-muxing for output

@@ -33,10 +33,11 @@
 #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
 #if defined(CONFIG_SPL_BUILD)
 /*
- * On A38x switching the regs base address without running from
- * SDRAM doesn't seem to work. So let the SPL still use the
- * default base address and switch to the new address in the
- * main u-boot later.
+ * The SPL U-Boot version still runs with the default
+ * address for the internal registers, configured by
+ * the BootROM. Only the main U-Boot version uses the
+ * new internal register base address, that also is
+ * required for the Linux kernel.
  */
 #define SOC_REGS_PHY_BASE	0xd0000000
 #else
