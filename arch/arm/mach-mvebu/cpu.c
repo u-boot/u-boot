@@ -246,13 +246,15 @@ int arch_cpu_init(void)
 	 * in the macros / defines in the U-Boot header (soc.h).
 	 */
 
-	/*
-	 * To fully release / unlock this area from cache, we need
-	 * to flush all caches and disable the L2 cache.
-	 */
-	icache_disable();
-	dcache_disable();
-	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
+		/*
+		 * To fully release / unlock this area from cache, we need
+		 * to flush all caches and disable the L2 cache.
+		 */
+		icache_disable();
+		dcache_disable();
+		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+	}
 
 	/*
 	 * We need to call mvebu_mbus_probe() before calling
@@ -399,13 +401,12 @@ void enable_caches(void)
 
 void v7_outer_cache_enable(void)
 {
-	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
-
-	/* The L2 cache is already disabled at this point */
-
 	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		struct pl310_regs *const pl310 =
+			(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 		u32 u;
+
+		/* The L2 cache is already disabled at this point */
 
 		/*
 		 * For Aurora cache in no outer mode, enable via the CP15
