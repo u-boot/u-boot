@@ -674,9 +674,6 @@ static int setup_reloc(void)
 	gd->reloc_off = gd->relocaddr - (CONFIG_SYS_TEXT_BASE + 0x400);
 #endif
 #endif
-#ifdef CONFIG_OF_EMBED
-	gd->fdt_blob += gd->reloc_off;
-#endif
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
 	debug("Relocation Offset is: %08lx\n", gd->reloc_off);
