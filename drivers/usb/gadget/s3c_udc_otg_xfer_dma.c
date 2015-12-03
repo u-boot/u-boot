@@ -25,7 +25,7 @@ int clear_feature_flag;
 #define GET_MAX_LUN_REQUEST	0xFE
 #define BOT_RESET_REQUEST	0xFF
 
-static inline void s3c_udc_ep0_zlp(struct s3c_udc *dev)
+static inline void s3c_udc_ep0_zlp(struct dwc2_udc *dev)
 {
 	u32 ep_ctrl;
 
@@ -186,7 +186,7 @@ int setdma_tx(struct s3c_ep *ep, struct s3c_request *req)
 	return length;
 }
 
-static void complete_rx(struct s3c_udc *dev, u8 ep_num)
+static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 {
 	struct s3c_ep *ep = &dev->ep[ep_num];
 	struct s3c_request *req = NULL;
@@ -259,7 +259,7 @@ static void complete_rx(struct s3c_udc *dev, u8 ep_num)
 		setdma_rx(ep, req);
 }
 
-static void complete_tx(struct s3c_udc *dev, u8 ep_num)
+static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 {
 	struct s3c_ep *ep = &dev->ep[ep_num];
 	struct s3c_request *req;
@@ -335,7 +335,7 @@ static void complete_tx(struct s3c_udc *dev, u8 ep_num)
 	}
 }
 
-static inline void s3c_udc_check_tx_queue(struct s3c_udc *dev, u8 ep_num)
+static inline void s3c_udc_check_tx_queue(struct dwc2_udc *dev, u8 ep_num)
 {
 	struct s3c_ep *ep = &dev->ep[ep_num];
 	struct s3c_request *req;
@@ -362,7 +362,7 @@ static inline void s3c_udc_check_tx_queue(struct s3c_udc *dev, u8 ep_num)
 
 }
 
-static void process_ep_in_intr(struct s3c_udc *dev)
+static void process_ep_in_intr(struct dwc2_udc *dev)
 {
 	u32 ep_intr, ep_intr_status;
 	u8 ep_num = 0;
@@ -409,7 +409,7 @@ static void process_ep_in_intr(struct s3c_udc *dev)
 	}
 }
 
-static void process_ep_out_intr(struct s3c_udc *dev)
+static void process_ep_out_intr(struct dwc2_udc *dev)
 {
 	u32 ep_intr, ep_intr_status;
 	u8 ep_num = 0;
@@ -463,7 +463,7 @@ static void process_ep_out_intr(struct s3c_udc *dev)
  */
 static int s3c_udc_irq(int irq, void *_dev)
 {
-	struct s3c_udc *dev = _dev;
+	struct dwc2_udc *dev = _dev;
 	u32 intr_status;
 	u32 usb_status, gintmsk;
 	unsigned long flags = 0;
@@ -584,7 +584,7 @@ static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 {
 	struct s3c_request *req;
 	struct s3c_ep *ep;
-	struct s3c_udc *dev;
+	struct dwc2_udc *dev;
 	unsigned long flags = 0;
 	u32 ep_num, gintsts;
 
@@ -737,7 +737,7 @@ int s3c_fifo_read(struct s3c_ep *ep, u32 *cp, int max)
  * Called from control endpoint function
  * after it decodes a set address setup packet.
  */
-static void udc_set_address(struct s3c_udc *dev, unsigned char address)
+static void udc_set_address(struct dwc2_udc *dev, unsigned char address)
 {
 	u32 ctrl = readl(&reg->dcfg);
 	writel(DEVICE_ADDRESS(address) | ctrl, &reg->dcfg);
@@ -753,7 +753,7 @@ static void udc_set_address(struct s3c_udc *dev, unsigned char address)
 
 static inline void s3c_udc_ep0_set_stall(struct s3c_ep *ep)
 {
-	struct s3c_udc *dev;
+	struct dwc2_udc *dev;
 	u32		ep_ctrl = 0;
 
 	dev = ep->dev;
@@ -779,7 +779,7 @@ static inline void s3c_udc_ep0_set_stall(struct s3c_ep *ep)
 	s3c_udc_pre_setup();
 }
 
-static void s3c_ep0_read(struct s3c_udc *dev)
+static void s3c_ep0_read(struct dwc2_udc *dev)
 {
 	struct s3c_request *req;
 	struct s3c_ep *ep = &dev->ep[0];
@@ -816,7 +816,7 @@ static void s3c_ep0_read(struct s3c_udc *dev)
 /*
  * DATA_STATE_XMIT
  */
-static int s3c_ep0_write(struct s3c_udc *dev)
+static int s3c_ep0_write(struct dwc2_udc *dev)
 {
 	struct s3c_request *req;
 	struct s3c_ep *ep = &dev->ep[0];
@@ -859,7 +859,7 @@ static int s3c_ep0_write(struct s3c_udc *dev)
 	return 1;
 }
 
-int s3c_udc_get_status(struct s3c_udc *dev,
+int s3c_udc_get_status(struct dwc2_udc *dev,
 		struct usb_ctrlrequest *crq)
 {
 	u8 ep_num = crq->wIndex & 0x7F;
@@ -1032,7 +1032,7 @@ void s3c_udc_ep_clear_stall(struct s3c_ep *ep)
 static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 {
 	struct s3c_ep	*ep;
-	struct s3c_udc	*dev;
+	struct dwc2_udc	*dev;
 	unsigned long	flags = 0;
 	u8		ep_num;
 
@@ -1125,7 +1125,7 @@ void s3c_udc_ep_activate(struct s3c_ep *ep)
 
 static int s3c_udc_clear_feature(struct usb_ep *_ep)
 {
-	struct s3c_udc	*dev;
+	struct dwc2_udc	*dev;
 	struct s3c_ep	*ep;
 	u8		ep_num;
 
@@ -1189,7 +1189,7 @@ static int s3c_udc_clear_feature(struct usb_ep *_ep)
 
 static int s3c_udc_set_feature(struct usb_ep *_ep)
 {
-	struct s3c_udc	*dev;
+	struct dwc2_udc	*dev;
 	struct s3c_ep	*ep;
 	u8		ep_num;
 
@@ -1262,7 +1262,7 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 /*
  * WAIT_FOR_SETUP (OUT_PKT_RDY)
  */
-void s3c_ep0_setup(struct s3c_udc *dev)
+void s3c_ep0_setup(struct dwc2_udc *dev)
 {
 	struct s3c_ep *ep = &dev->ep[0];
 	int i;
@@ -1451,7 +1451,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 /*
  * handle ep0 interrupt
  */
-static void s3c_handle_ep0(struct s3c_udc *dev)
+static void s3c_handle_ep0(struct dwc2_udc *dev)
 {
 	if (dev->ep0state == WAIT_FOR_SETUP) {
 		debug_cond(DEBUG_OUT_EP != 0,
@@ -1465,7 +1465,7 @@ static void s3c_handle_ep0(struct s3c_udc *dev)
 	}
 }
 
-static void s3c_ep0_kick(struct s3c_udc *dev, struct s3c_ep *ep)
+static void s3c_ep0_kick(struct dwc2_udc *dev, struct s3c_ep *ep)
 {
 	debug_cond(DEBUG_EP0 != 0,
 		   "%s: ep_is_in = %d\n", __func__, ep_is_in(ep));

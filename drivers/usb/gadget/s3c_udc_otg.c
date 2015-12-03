@@ -65,7 +65,7 @@ static char *state_names[] = {
 #define DRIVER_DESC "S3C HS USB OTG Device Driver, (c) Samsung Electronics"
 #define DRIVER_VERSION "15 March 2009"
 
-struct s3c_udc	*the_controller;
+struct dwc2_udc	*the_controller;
 
 static const char driver_name[] = "s3c-udc";
 static const char driver_desc[] = DRIVER_DESC;
@@ -94,18 +94,18 @@ static int s3c_queue(struct usb_ep *ep, struct usb_request *, gfp_t gfp_flags);
 static int s3c_dequeue(struct usb_ep *ep, struct usb_request *);
 static int s3c_fifo_status(struct usb_ep *ep);
 static void s3c_fifo_flush(struct usb_ep *ep);
-static void s3c_ep0_read(struct s3c_udc *dev);
-static void s3c_ep0_kick(struct s3c_udc *dev, struct s3c_ep *ep);
-static void s3c_handle_ep0(struct s3c_udc *dev);
-static int s3c_ep0_write(struct s3c_udc *dev);
+static void s3c_ep0_read(struct dwc2_udc *dev);
+static void s3c_ep0_kick(struct dwc2_udc *dev, struct s3c_ep *ep);
+static void s3c_handle_ep0(struct dwc2_udc *dev);
+static int s3c_ep0_write(struct dwc2_udc *dev);
 static int write_fifo_ep0(struct s3c_ep *ep, struct s3c_request *req);
 static void done(struct s3c_ep *ep, struct s3c_request *req, int status);
-static void stop_activity(struct s3c_udc *dev,
+static void stop_activity(struct dwc2_udc *dev,
 			  struct usb_gadget_driver *driver);
-static int udc_enable(struct s3c_udc *dev);
-static void udc_set_address(struct s3c_udc *dev, unsigned char address);
-static void reconfig_usbd(struct s3c_udc *dev);
-static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed);
+static int udc_enable(struct dwc2_udc *dev);
+static void udc_set_address(struct dwc2_udc *dev, unsigned char address);
+static void reconfig_usbd(struct dwc2_udc *dev);
+static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed);
 static void nuke(struct s3c_ep *ep, int status);
 static int s3c_udc_set_halt(struct usb_ep *_ep, int value);
 static void s3c_udc_set_nak(struct s3c_ep *ep);
@@ -151,8 +151,8 @@ bool dfu_usb_get_reset(void)
 	return !!(readl(&reg->gintsts) & INT_RESET);
 }
 
-__weak void otg_phy_init(struct s3c_udc *dev) {}
-__weak void otg_phy_off(struct s3c_udc *dev) {}
+__weak void otg_phy_init(struct dwc2_udc *dev) {}
+__weak void otg_phy_off(struct dwc2_udc *dev) {}
 
 /***********************************************************/
 
@@ -161,7 +161,7 @@ __weak void otg_phy_off(struct s3c_udc *dev) {}
 /*
  *	udc_disable - disable USB device controller
  */
-static void udc_disable(struct s3c_udc *dev)
+static void udc_disable(struct dwc2_udc *dev)
 {
 	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
@@ -177,7 +177,7 @@ static void udc_disable(struct s3c_udc *dev)
 /*
  *	udc_reinit - initialize software state
  */
-static void udc_reinit(struct s3c_udc *dev)
+static void udc_reinit(struct dwc2_udc *dev)
 {
 	unsigned int i;
 
@@ -210,7 +210,7 @@ static void udc_reinit(struct s3c_udc *dev)
 /* until it's enabled, this UDC should be completely invisible
  * to any USB host.
  */
-static int udc_enable(struct s3c_udc *dev)
+static int udc_enable(struct dwc2_udc *dev)
 {
 	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
@@ -231,7 +231,7 @@ static int udc_enable(struct s3c_udc *dev)
 */
 int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
-	struct s3c_udc *dev = the_controller;
+	struct dwc2_udc *dev = the_controller;
 	int retval = 0;
 	unsigned long flags = 0;
 
@@ -280,7 +280,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
  */
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
-	struct s3c_udc *dev = the_controller;
+	struct dwc2_udc *dev = the_controller;
 	unsigned long flags = 0;
 
 	if (!dev)
@@ -368,7 +368,7 @@ static void nuke(struct s3c_ep *ep, int status)
 	}
 }
 
-static void stop_activity(struct s3c_udc *dev,
+static void stop_activity(struct dwc2_udc *dev,
 			  struct usb_gadget_driver *driver)
 {
 	int i;
@@ -396,7 +396,7 @@ static void stop_activity(struct s3c_udc *dev,
 	udc_reinit(dev);
 }
 
-static void reconfig_usbd(struct s3c_udc *dev)
+static void reconfig_usbd(struct dwc2_udc *dev)
 {
 	/* 2. Soft-reset OTG Core and then unreset again. */
 	int i;
@@ -496,7 +496,7 @@ static void reconfig_usbd(struct s3c_udc *dev)
 	writel(GAHBCFG_INIT, &reg->gahbcfg);
 }
 
-static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed)
+static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 {
 	unsigned int ep_ctrl;
 	int i;
@@ -530,7 +530,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 			 const struct usb_endpoint_descriptor *desc)
 {
 	struct s3c_ep *ep;
-	struct s3c_udc *dev;
+	struct dwc2_udc *dev;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
@@ -722,7 +722,7 @@ static const struct usb_gadget_ops s3c_udc_ops = {
 	/* current versions must always be self-powered */
 };
 
-static struct s3c_udc memory = {
+static struct dwc2_udc memory = {
 	.usb_address = 0,
 	.gadget = {
 		.ops = &s3c_udc_ops,
@@ -798,7 +798,7 @@ static struct s3c_udc memory = {
 
 int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 {
-	struct s3c_udc *dev = &memory;
+	struct dwc2_udc *dev = &memory;
 	int retval = 0;
 
 	debug("%s: %p\n", __func__, pdata);

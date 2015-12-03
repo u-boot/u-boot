@@ -12,7 +12,7 @@
 #include <usb/s3c_udc.h>
 #include "bcm_udc_otg.h"
 
-void otg_phy_init(struct s3c_udc *dev)
+void otg_phy_init(struct dwc2_udc *dev)
 {
 	/* set Phy to driving mode */
 	wfld_clear(HSOTG_CTRL_BASE_ADDR + HSOTG_CTRL_PHY_P1CTL_OFFSET,
@@ -37,7 +37,7 @@ void otg_phy_init(struct s3c_udc *dev)
 		 HSOTG_CTRL_PHY_P1CTL_SOFT_RESET_MASK);
 }
 
-void otg_phy_off(struct s3c_udc *dev)
+void otg_phy_off(struct dwc2_udc *dev)
 {
 	/* Soft Disconnect */
 	wfld_set(HSOTG_BASE_ADDR + HSOTG_DCTL_OFFSET,

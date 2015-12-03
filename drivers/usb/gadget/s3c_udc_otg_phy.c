@@ -37,7 +37,7 @@
 
 #include <usb/s3c_udc.h>
 
-void otg_phy_init(struct s3c_udc *dev)
+void otg_phy_init(struct dwc2_udc *dev)
 {
 	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
 	struct s3c_usbotg_phy *phy =
@@ -75,7 +75,7 @@ void otg_phy_init(struct s3c_udc *dev)
 	udelay(10);
 }
 
-void otg_phy_off(struct s3c_udc *dev)
+void otg_phy_off(struct dwc2_udc *dev)
 {
 	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
 	struct s3c_usbotg_phy *phy =

@@ -55,7 +55,7 @@ enum ep_type {
 
 struct s3c_ep {
 	struct usb_ep ep;
-	struct s3c_udc *dev;
+	struct dwc2_udc *dev;
 
 	const struct usb_endpoint_descriptor *desc;
 	struct list_head queue;
@@ -76,7 +76,7 @@ struct s3c_request {
 	struct list_head queue;
 };
 
-struct s3c_udc {
+struct dwc2_udc {
 	struct usb_gadget gadget;
 	struct usb_gadget_driver *driver;
 
@@ -90,14 +90,14 @@ struct s3c_udc {
 	unsigned req_pending:1, req_std:1;
 };
 
-extern struct s3c_udc *the_controller;
+extern struct dwc2_udc *the_controller;
 
 #define ep_is_in(EP) (((EP)->bEndpointAddress&USB_DIR_IN) == USB_DIR_IN)
 #define ep_index(EP) ((EP)->bEndpointAddress&0xF)
 #define ep_maxpacket(EP) ((EP)->ep.maxpacket)
 
-extern void otg_phy_init(struct s3c_udc *dev);
-extern void otg_phy_off(struct s3c_udc *dev);
+extern void otg_phy_init(struct dwc2_udc *dev);
+extern void otg_phy_off(struct dwc2_udc *dev);
 
 extern void s3c_udc_ep_set_stall(struct s3c_ep *ep);
 extern int s3c_udc_probe(struct s3c_plat_otg_data *pdata);
