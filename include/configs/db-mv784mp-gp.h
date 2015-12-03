@@ -29,6 +29,10 @@
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
@@ -73,6 +77,9 @@
 #define CONFIG_LBA48
 #define CONFIG_EFI_PARTITION
 #define CONFIG_DOS_PARTITION
+
+/* Additional FS support/configuration */
+#define CONFIG_SUPPORT_VFAT
 
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
