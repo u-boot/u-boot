@@ -389,20 +389,36 @@ void scsi_init(void)
 }
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
-	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
-
-	/* First disable L2 cache - may still be enable from BootROM */
-	if (mvebu_soc_family() == MVEBU_SOC_A38X)
-		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-
 	/* Avoid problem with e.g. neta ethernet driver */
 	invalidate_dcache_all();
 
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }
-#endif
+
+void v7_outer_cache_enable(void)
+{
+	struct pl310_regs *const pl310 =
+		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+
+	/* The L2 cache is already disabled at this point */
+
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		u32 u;
+
+		/*
+		 * For Aurora cache in no outer mode, enable via the CP15
+		 * coprocessor broadcasting of cache commands to L2.
+		 */
+		asm volatile("mrc p15, 1, %0, c15, c2, 0" : "=r" (u));
+		u |= BIT(8);		/* Set the FW bit */
+		asm volatile("mcr p15, 1, %0, c15, c2, 0" : : "r" (u));
+
+		isb();
+
+		/* Enable the L2 cache */
+		setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+	}
+}
