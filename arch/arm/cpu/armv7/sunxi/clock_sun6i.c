@@ -77,9 +77,6 @@ int clock_twi_onoff(int port, int state)
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-	if (port > 3)
-		return -1;
-
 	/* set the apb clock gate for twi */
 	if (state)
 		setbits_le32(&ccm->apb2_gate,
