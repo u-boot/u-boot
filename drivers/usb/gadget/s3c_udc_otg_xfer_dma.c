@@ -25,7 +25,7 @@ int clear_feature_flag;
 #define GET_MAX_LUN_REQUEST	0xFE
 #define BOT_RESET_REQUEST	0xFF
 
-static inline void s3c_udc_ep0_zlp(struct dwc2_udc *dev)
+static inline void dwc2_udc_ep0_zlp(struct dwc2_udc *dev)
 {
 	u32 ep_ctrl;
 
@@ -41,7 +41,7 @@ static inline void s3c_udc_ep0_zlp(struct dwc2_udc *dev)
 	dev->ep0state = WAIT_FOR_IN_COMPLETE;
 }
 
-static void s3c_udc_pre_setup(void)
+static void dwc2_udc_pre_setup(void)
 {
 	u32 ep_ctrl;
 
@@ -240,7 +240,7 @@ static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 	if (is_short || req->req.actual == req->req.length) {
 		if (ep_num == EP0_CON && dev->ep0state == DATA_STATE_RECV) {
 			debug_cond(DEBUG_OUT_EP != 0, "	=> Send ZLP\n");
-			s3c_udc_ep0_zlp(dev);
+			dwc2_udc_ep0_zlp(dev);
 			/* packet will be completed in complete_tx() */
 			dev->ep0state = WAIT_FOR_IN_COMPLETE;
 		} else {
@@ -335,7 +335,7 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 	}
 }
 
-static inline void s3c_udc_check_tx_queue(struct dwc2_udc *dev, u8 ep_num)
+static inline void dwc2_udc_check_tx_queue(struct dwc2_udc *dev, u8 ep_num)
 {
 	struct dwc2_ep *ep = &dev->ep[ep_num];
 	struct dwc2_request *req;
@@ -392,12 +392,12 @@ static void process_ep_in_intr(struct dwc2_udc *dev)
 						dev->ep0state = WAIT_FOR_SETUP;
 
 					if (dev->ep0state == WAIT_FOR_SETUP)
-						s3c_udc_pre_setup();
+						dwc2_udc_pre_setup();
 
 					/* continue transfer after
 					   set_clear_halt for DMA mode */
 					if (clear_feature_flag == 1) {
-						s3c_udc_check_tx_queue(dev,
+						dwc2_udc_check_tx_queue(dev,
 							clear_feature_num);
 						clear_feature_flag = 0;
 					}
@@ -438,7 +438,7 @@ static void process_ep_out_intr(struct dwc2_udc *dev)
 						complete_rx(dev, ep_num);
 					else {
 						dev->ep0state = WAIT_FOR_SETUP;
-						s3c_udc_pre_setup();
+						dwc2_udc_pre_setup();
 					}
 				}
 
@@ -461,7 +461,7 @@ static void process_ep_out_intr(struct dwc2_udc *dev)
 /*
  *	usb client interrupt handler.
  */
-static int s3c_udc_irq(int irq, void *_dev)
+static int dwc2_udc_irq(int irq, void *_dev)
 {
 	struct dwc2_udc *dev = _dev;
 	u32 intr_status;
@@ -554,7 +554,7 @@ static int s3c_udc_irq(int irq, void *_dev)
 				reconfig_usbd(dev);
 				dev->ep0state = WAIT_FOR_SETUP;
 				reset_available = 0;
-				s3c_udc_pre_setup();
+				dwc2_udc_pre_setup();
 			} else
 				reset_available = 1;
 
@@ -742,7 +742,7 @@ static void udc_set_address(struct dwc2_udc *dev, unsigned char address)
 	u32 ctrl = readl(&reg->dcfg);
 	writel(DEVICE_ADDRESS(address) | ctrl, &reg->dcfg);
 
-	s3c_udc_ep0_zlp(dev);
+	dwc2_udc_ep0_zlp(dev);
 
 	debug_cond(DEBUG_EP0 != 0,
 		   "%s: USB OTG 2.0 Device address=%d, DCFG=0x%x\n",
@@ -751,7 +751,7 @@ static void udc_set_address(struct dwc2_udc *dev, unsigned char address)
 	dev->usb_address = address;
 }
 
-static inline void s3c_udc_ep0_set_stall(struct dwc2_ep *ep)
+static inline void dwc2_udc_ep0_set_stall(struct dwc2_ep *ep)
 {
 	struct dwc2_udc *dev;
 	u32		ep_ctrl = 0;
@@ -776,7 +776,7 @@ static inline void s3c_udc_ep0_set_stall(struct dwc2_ep *ep)
 	 */
 	dev->ep0state = WAIT_FOR_SETUP;
 
-	s3c_udc_pre_setup();
+	dwc2_udc_pre_setup();
 }
 
 static void dwc2_ep0_read(struct dwc2_udc *dev)
@@ -802,7 +802,7 @@ static void dwc2_ep0_read(struct dwc2_udc *dev)
 		 * or Bulk-Only mass storge reset */
 
 		ep->len = 0;
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 
 		debug_cond(DEBUG_EP0 != 0,
 			   "%s: req.length = 0, bRequest = %d\n",
@@ -859,7 +859,7 @@ static int dwc2_ep0_write(struct dwc2_udc *dev)
 	return 1;
 }
 
-static int s3c_udc_get_status(struct dwc2_udc *dev,
+static int dwc2_udc_get_status(struct dwc2_udc *dev,
 		struct usb_ctrlrequest *crq)
 {
 	u8 ep_num = crq->wIndex & 0x7F;
@@ -920,7 +920,7 @@ static int s3c_udc_get_status(struct dwc2_udc *dev,
 	return 0;
 }
 
-static void s3c_udc_set_nak(struct dwc2_ep *ep)
+static void dwc2_udc_set_nak(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;
@@ -946,7 +946,7 @@ static void s3c_udc_set_nak(struct dwc2_ep *ep)
 }
 
 
-static void s3c_udc_ep_set_stall(struct dwc2_ep *ep)
+static void dwc2_udc_ep_set_stall(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;
@@ -981,7 +981,7 @@ static void s3c_udc_ep_set_stall(struct dwc2_ep *ep)
 	return;
 }
 
-static void s3c_udc_ep_clear_stall(struct dwc2_ep *ep)
+static void dwc2_udc_ep_clear_stall(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;
@@ -1029,7 +1029,7 @@ static void s3c_udc_ep_clear_stall(struct dwc2_ep *ep)
 	return;
 }
 
-static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
+static int dwc2_udc_set_halt(struct usb_ep *_ep, int value)
 {
 	struct dwc2_ep	*ep;
 	struct dwc2_udc	*dev;
@@ -1062,13 +1062,13 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 
 	if (value == 0) {
 		ep->stopped = 0;
-		s3c_udc_ep_clear_stall(ep);
+		dwc2_udc_ep_clear_stall(ep);
 	} else {
 		if (ep_num == 0)
 			dev->ep0state = WAIT_FOR_SETUP;
 
 		ep->stopped = 1;
-		s3c_udc_ep_set_stall(ep);
+		dwc2_udc_ep_set_stall(ep);
 	}
 
 	spin_unlock_irqrestore(&dev->lock, flags);
@@ -1076,7 +1076,7 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 	return 0;
 }
 
-static void s3c_udc_ep_activate(struct dwc2_ep *ep)
+static void dwc2_udc_ep_activate(struct dwc2_ep *ep)
 {
 	u8 ep_num;
 	u32 ep_ctrl = 0, daintmsk = 0;
@@ -1123,7 +1123,7 @@ static void s3c_udc_ep_activate(struct dwc2_ep *ep)
 
 }
 
-static int s3c_udc_clear_feature(struct usb_ep *_ep)
+static int dwc2_udc_clear_feature(struct usb_ep *_ep)
 {
 	struct dwc2_udc	*dev;
 	struct dwc2_ep	*ep;
@@ -1158,7 +1158,7 @@ static int s3c_udc_clear_feature(struct usb_ep *_ep)
 			break;
 		}
 
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 		break;
 
 	case USB_RECIP_ENDPOINT:
@@ -1168,14 +1168,14 @@ static int s3c_udc_clear_feature(struct usb_ep *_ep)
 
 		if (usb_ctrl->wValue == USB_ENDPOINT_HALT) {
 			if (ep_num == 0) {
-				s3c_udc_ep0_set_stall(ep);
+				dwc2_udc_ep0_set_stall(ep);
 				return 0;
 			}
 
-			s3c_udc_ep0_zlp(dev);
+			dwc2_udc_ep0_zlp(dev);
 
-			s3c_udc_ep_clear_stall(ep);
-			s3c_udc_ep_activate(ep);
+			dwc2_udc_ep_clear_stall(ep);
+			dwc2_udc_ep_activate(ep);
 			ep->stopped = 0;
 
 			clear_feature_num = ep_num;
@@ -1187,7 +1187,7 @@ static int s3c_udc_clear_feature(struct usb_ep *_ep)
 	return 0;
 }
 
-static int s3c_udc_set_feature(struct usb_ep *_ep)
+static int dwc2_udc_set_feature(struct usb_ep *_ep)
 {
 	struct dwc2_udc	*dev;
 	struct dwc2_ep	*ep;
@@ -1232,7 +1232,7 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 			break;
 		}
 
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 		return 0;
 
 	case USB_RECIP_INTERFACE:
@@ -1245,14 +1245,14 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 			   "\tSET_FEATURE: USB_RECIP_ENDPOINT\n");
 		if (usb_ctrl->wValue == USB_ENDPOINT_HALT) {
 			if (ep_num == 0) {
-				s3c_udc_ep0_set_stall(ep);
+				dwc2_udc_ep0_set_stall(ep);
 				return 0;
 			}
 			ep->stopped = 1;
-			s3c_udc_ep_set_stall(ep);
+			dwc2_udc_ep_set_stall(ep);
 		}
 
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 		return 0;
 	}
 
@@ -1306,7 +1306,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 			   "wLength = %d, setup returned\n",
 			   usb_ctrl->wLength);
 
-		s3c_udc_ep0_set_stall(ep);
+		dwc2_udc_ep0_set_stall(ep);
 		dev->ep0state = WAIT_FOR_SETUP;
 
 		return;
@@ -1317,7 +1317,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 			   "%s:BOT Rest:invalid wLength =%d, setup returned\n",
 			   __func__, usb_ctrl->wLength);
 
-		s3c_udc_ep0_set_stall(ep);
+		dwc2_udc_ep0_set_stall(ep);
 		dev->ep0state = WAIT_FOR_SETUP;
 
 		return;
@@ -1384,7 +1384,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 			break;
 
 		case USB_REQ_GET_STATUS:
-			if (!s3c_udc_get_status(dev, usb_ctrl))
+			if (!dwc2_udc_get_status(dev, usb_ctrl))
 				return;
 
 			break;
@@ -1392,7 +1392,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 		case USB_REQ_CLEAR_FEATURE:
 			ep_num = usb_ctrl->wIndex & 0x7f;
 
-			if (!s3c_udc_clear_feature(&dev->ep[ep_num].ep))
+			if (!dwc2_udc_clear_feature(&dev->ep[ep_num].ep))
 				return;
 
 			break;
@@ -1400,7 +1400,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 		case USB_REQ_SET_FEATURE:
 			ep_num = usb_ctrl->wIndex & 0x7f;
 
-			if (!s3c_udc_set_feature(&dev->ep[ep_num].ep))
+			if (!dwc2_udc_set_feature(&dev->ep[ep_num].ep))
 				return;
 
 			break;
@@ -1427,7 +1427,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 
 		if (i < 0) {
 			/* setup processing failed, force stall */
-			s3c_udc_ep0_set_stall(ep);
+			dwc2_udc_ep0_set_stall(ep);
 			dev->ep0state = WAIT_FOR_SETUP;
 
 			debug_cond(DEBUG_SETUP != 0,

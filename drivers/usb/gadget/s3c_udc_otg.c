@@ -108,8 +108,8 @@ static void udc_set_address(struct dwc2_udc *dev, unsigned char address);
 static void reconfig_usbd(struct dwc2_udc *dev);
 static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed);
 static void nuke(struct dwc2_ep *ep, int status);
-static int s3c_udc_set_halt(struct usb_ep *_ep, int value);
-static void s3c_udc_set_nak(struct dwc2_ep *ep);
+static int dwc2_udc_set_halt(struct usb_ep *_ep, int value);
+static void dwc2_udc_set_nak(struct dwc2_ep *ep);
 
 void set_udc_gadget_private_data(void *p)
 {
@@ -134,7 +134,7 @@ static struct usb_ep_ops dwc2_ep_ops = {
 	.queue = s3c_queue,
 	.dequeue = s3c_dequeue,
 
-	.set_halt = s3c_udc_set_halt,
+	.set_halt = dwc2_udc_set_halt,
 	.fifo_status = s3c_fifo_status,
 	.fifo_flush = s3c_fifo_flush,
 };
@@ -578,11 +578,11 @@ static int dwc2_ep_enable(struct usb_ep *_ep,
 	ep->ep.maxpacket = le16_to_cpu(get_unaligned(&desc->wMaxPacketSize));
 
 	/* Reset halt state */
-	s3c_udc_set_nak(ep);
-	s3c_udc_set_halt(_ep, 0);
+	dwc2_udc_set_nak(ep);
+	dwc2_udc_set_halt(_ep, 0);
 
 	spin_lock_irqsave(&ep->dev->lock, flags);
-	s3c_udc_ep_activate(ep);
+	dwc2_udc_ep_activate(ep);
 	spin_unlock_irqrestore(&ep->dev->lock, flags);
 
 	debug("%s: enabled %s, stopped = %d, maxpacket = %d\n",
@@ -719,14 +719,14 @@ static void s3c_fifo_flush(struct usb_ep *_ep)
 	debug("%s: %d\n", __func__, ep_index(ep));
 }
 
-static const struct usb_gadget_ops s3c_udc_ops = {
+static const struct usb_gadget_ops dwc2_udc_ops = {
 	/* current versions must always be self-powered */
 };
 
 static struct dwc2_udc memory = {
 	.usb_address = 0,
 	.gadget = {
-		.ops = &s3c_udc_ops,
+		.ops = &dwc2_udc_ops,
 		.ep0 = &memory.ep[0].ep,
 		.name = driver_name,
 	},
@@ -840,6 +840,6 @@ int usb_gadget_handle_interrupts(int index)
 	u32 gintmsk = readl(&reg->gintmsk);
 
 	if (intr_status & gintmsk)
-		return s3c_udc_irq(1, (void *)the_controller);
+		return dwc2_udc_irq(1, (void *)the_controller);
 	return 0;
 }
