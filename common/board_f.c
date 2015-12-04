@@ -324,6 +324,15 @@ static int setup_dest_addr(void)
 	 * Ram is setup, size stored in gd !!
 	 */
 	debug("Ram size: %08lX\n", (ulong)gd->ram_size);
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	/* Reserve memory for secure MMU tables, and/or security monitor */
+	gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+	/*
+	 * Record secure memory location. Need recalcuate if memory splits
+	 * into banks, or the ram base is not zero.
+	 */
+	gd->secure_ram = gd->ram_size;
+#endif
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
