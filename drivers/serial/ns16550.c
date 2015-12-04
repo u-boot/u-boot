@@ -451,5 +451,6 @@ U_BOOT_DRIVER(ns16550_serial) = {
 	.priv_auto_alloc_size = sizeof(struct NS16550),
 	.probe = ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,
+	.flags	= DM_FLAG_PRE_RELOC,
 };
 #endif /* CONFIG_DM_SERIAL */
