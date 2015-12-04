@@ -3508,9 +3508,9 @@ static char *insert_var_value_sub(char *inp, int tag_subst)
 	char *p, *p1, *res_str = NULL;
 
 	while ((p = strchr(inp, SPECIAL_VAR_SYMBOL))) {
-		/* check the beginning of the string for normal charachters */
+		/* check the beginning of the string for normal characters */
 		if (p != inp) {
-			/* copy any charachters to the result string */
+			/* copy any characters to the result string */
 			len = p - inp;
 			res_str = xrealloc(res_str, (res_str_len + len));
 			strncpy((res_str + res_str_len), inp, len);
