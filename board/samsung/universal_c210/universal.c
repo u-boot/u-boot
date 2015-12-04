@@ -179,7 +179,7 @@ static int s5pc210_phy_control(int on)
 	return 0;
 }
 
-struct s3c_plat_otg_data s5pc210_otg_data = {
+struct dwc2_plat_otg_data s5pc210_otg_data = {
 	.phy_control = s5pc210_phy_control,
 	.regs_phy = EXYNOS4_USBPHY_BASE,
 	.regs_otg = EXYNOS4_USBOTG_BASE,

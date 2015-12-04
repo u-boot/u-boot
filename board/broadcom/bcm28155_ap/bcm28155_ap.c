@@ -95,7 +95,7 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_USB_GADGET
-static struct s3c_plat_otg_data bcm_otg_data = {
+static struct dwc2_plat_otg_data bcm_otg_data = {
 	.regs_otg	= HSOTG_BASE_ADDR
 };
 

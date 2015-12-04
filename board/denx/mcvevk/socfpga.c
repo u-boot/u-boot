@@ -28,7 +28,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_USB_GADGET
-struct s3c_plat_otg_data socfpga_otg_data = {
+struct dwc2_plat_otg_data socfpga_otg_data = {
 	.regs_otg	= CONFIG_USB_DWC2_REG_ADDR,
 	.usb_gusbcfg	= 0x1417,
 };

@@ -78,7 +78,7 @@ struct dwc2_udc {
 	struct usb_gadget gadget;
 	struct usb_gadget_driver *driver;
 
-	struct s3c_plat_otg_data *pdata;
+	struct dwc2_plat_otg_data *pdata;
 
 	int ep0state;
 	struct dwc2_ep ep[DWC2_MAX_ENDPOINTS];

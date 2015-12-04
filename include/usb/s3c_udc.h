@@ -11,7 +11,7 @@
 
 #define PHY0_SLEEP              (1 << 5)
 
-struct s3c_plat_otg_data {
+struct dwc2_plat_otg_data {
 	int		(*phy_control)(int on);
 	unsigned int	regs_phy;
 	unsigned int	regs_otg;
@@ -20,6 +20,6 @@ struct s3c_plat_otg_data {
 	unsigned int	usb_gusbcfg;
 };
 
-int s3c_udc_probe(struct s3c_plat_otg_data *pdata);
+int s3c_udc_probe(struct dwc2_plat_otg_data *pdata);
 
 #endif

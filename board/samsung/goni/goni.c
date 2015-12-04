@@ -183,7 +183,7 @@ static int s5pc1xx_phy_control(int on)
 	return 0;
 }
 
-struct s3c_plat_otg_data s5pc110_otg_data = {
+struct dwc2_plat_otg_data s5pc110_otg_data = {
 	.phy_control = s5pc1xx_phy_control,
 	.regs_phy = S5PC110_PHY_BASE,
 	.regs_otg = S5PC110_OTG_BASE,

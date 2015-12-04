@@ -41,7 +41,7 @@ u32 get_board_rev(void)
 #endif
 
 static void check_hw_revision(void);
-struct s3c_plat_otg_data s5pc210_otg_data;
+struct dwc2_plat_otg_data s5pc210_otg_data;
 
 int exynos_init(void)
 {
@@ -419,7 +419,7 @@ static int s5pc210_phy_control(int on)
 	return 0;
 }
 
-struct s3c_plat_otg_data s5pc210_otg_data = {
+struct dwc2_plat_otg_data s5pc210_otg_data = {
 	.phy_control	= s5pc210_phy_control,
 	.regs_phy	= EXYNOS4_USBPHY_BASE,
 	.regs_otg	= EXYNOS4_USBOTG_BASE,
