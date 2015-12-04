@@ -1944,11 +1944,15 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(speed, 1, 1, do_i2c_bus_speed, "", ""),
 };
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-void i2c_reloc(void) {
-	fixup_cmdtable(cmd_i2c_sub, ARRAY_SIZE(cmd_i2c_sub));
+static __maybe_unused void i2c_reloc(void)
+{
+	static int relocated;
+
+	if (!relocated) {
+		fixup_cmdtable(cmd_i2c_sub, ARRAY_SIZE(cmd_i2c_sub));
+		relocated = 1;
+	};
 }
-#endif
 
 /**
  * do_i2c() - Handle the "i2c" command-line command
@@ -1963,6 +1967,10 @@ void i2c_reloc(void) {
 static int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
+
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	i2c_reloc();
+#endif
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
