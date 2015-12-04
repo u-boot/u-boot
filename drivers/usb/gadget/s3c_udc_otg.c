@@ -95,10 +95,10 @@ static int s3c_queue(struct usb_ep *ep, struct usb_request *, gfp_t gfp_flags);
 static int s3c_dequeue(struct usb_ep *ep, struct usb_request *);
 static int s3c_fifo_status(struct usb_ep *ep);
 static void s3c_fifo_flush(struct usb_ep *ep);
-static void s3c_ep0_read(struct dwc2_udc *dev);
-static void s3c_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep);
+static void dwc2_ep0_read(struct dwc2_udc *dev);
+static void dwc2_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep);
 static void s3c_handle_ep0(struct dwc2_udc *dev);
-static int s3c_ep0_write(struct dwc2_udc *dev);
+static int dwc2_ep0_write(struct dwc2_udc *dev);
 static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req);
 static void done(struct dwc2_ep *ep, struct dwc2_request *req, int status);
 static void stop_activity(struct dwc2_udc *dev,

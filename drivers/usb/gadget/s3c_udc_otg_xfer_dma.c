@@ -62,7 +62,7 @@ static void s3c_udc_pre_setup(void)
 
 }
 
-static inline void s3c_ep0_complete_out(void)
+static inline void dwc2_ep0_complete_out(void)
 {
 	u32 ep_ctrl;
 
@@ -268,7 +268,7 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 
 	if (dev->ep0state == WAIT_FOR_NULL_COMPLETE) {
 		dev->ep0state = WAIT_FOR_OUT_COMPLETE;
-		s3c_ep0_complete_out();
+		dwc2_ep0_complete_out();
 		return;
 	}
 
@@ -315,7 +315,7 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 				__func__, ep_num);
 			done(ep, req, 0);
 			dev->ep0state = WAIT_FOR_OUT_COMPLETE;
-			s3c_ep0_complete_out();
+			dwc2_ep0_complete_out();
 		} else {
 			debug_cond(DEBUG_IN_EP,
 				"%s: ep_num = %d, invalid ep state\n",
@@ -646,7 +646,7 @@ static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 		if (ep_num == 0) {
 			/* EP0 */
 			list_add_tail(&req->queue, &ep->queue);
-			s3c_ep0_kick(dev, ep);
+			dwc2_ep0_kick(dev, ep);
 			req = 0;
 
 		} else if (ep_is_in(ep)) {
@@ -779,7 +779,7 @@ static inline void s3c_udc_ep0_set_stall(struct dwc2_ep *ep)
 	s3c_udc_pre_setup();
 }
 
-static void s3c_ep0_read(struct dwc2_udc *dev)
+static void dwc2_ep0_read(struct dwc2_udc *dev)
 {
 	struct dwc2_request *req;
 	struct dwc2_ep *ep = &dev->ep[0];
@@ -816,7 +816,7 @@ static void s3c_ep0_read(struct dwc2_udc *dev)
 /*
  * DATA_STATE_XMIT
  */
-static int s3c_ep0_write(struct dwc2_udc *dev)
+static int dwc2_ep0_write(struct dwc2_udc *dev)
 {
 	struct dwc2_request *req;
 	struct dwc2_ep *ep = &dev->ep[0];
@@ -1262,7 +1262,7 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 /*
  * WAIT_FOR_SETUP (OUT_PKT_RDY)
  */
-static void s3c_ep0_setup(struct dwc2_udc *dev)
+static void dwc2_ep0_setup(struct dwc2_udc *dev)
 {
 	struct dwc2_ep *ep = &dev->ep[0];
 	int i;
@@ -1456,7 +1456,7 @@ static void s3c_handle_ep0(struct dwc2_udc *dev)
 	if (dev->ep0state == WAIT_FOR_SETUP) {
 		debug_cond(DEBUG_OUT_EP != 0,
 			   "%s: WAIT_FOR_SETUP\n", __func__);
-		s3c_ep0_setup(dev);
+		dwc2_ep0_setup(dev);
 
 	} else {
 		debug_cond(DEBUG_OUT_EP != 0,
@@ -1465,16 +1465,16 @@ static void s3c_handle_ep0(struct dwc2_udc *dev)
 	}
 }
 
-static void s3c_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep)
+static void dwc2_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep)
 {
 	debug_cond(DEBUG_EP0 != 0,
 		   "%s: ep_is_in = %d\n", __func__, ep_is_in(ep));
 	if (ep_is_in(ep)) {
 		dev->ep0state = DATA_STATE_XMIT;
-		s3c_ep0_write(dev);
+		dwc2_ep0_write(dev);
 
 	} else {
 		dev->ep0state = DATA_STATE_RECV;
-		s3c_ep0_read(dev);
+		dwc2_ep0_read(dev);
 	}
 }
