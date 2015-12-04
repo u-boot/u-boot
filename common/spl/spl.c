@@ -452,7 +452,7 @@ ulong spl_relocate_stack_gd(void)
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 	if (CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN) {
 		if (!(gd->flags & GD_FLG_SPL_INIT))
-			panic("spl_init must be called before heap reloc");
+			panic_str("spl_init must be called before heap reloc");
 
 		ptr -= CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN;
 		gd->malloc_base = ptr;
