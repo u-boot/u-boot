@@ -85,10 +85,11 @@
 #include <usb.h>
 #include "usb_uhci.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define USB_MAX_TEMP_TD      128	/* number of temporary TDs for bulk and control transfers */
 #define USB_MAX_TEMP_INT_TD  32	/* number of temporary TDs for Interrupt transfers */
 
-extern int leon3_snooping_avail;
 /*
 #define out16r(address,data) (*(unsigned short *)(address) = \
  (unsigned short)( \
@@ -573,7 +574,7 @@ void usb_check_skel(void)
 	if (qh_cntrl.dev_ptr != 0) {	/* it's a device assigned check if this caused IRQ */
 		dev = (struct usb_device *)qh_cntrl.dev_ptr;
 		/* Flush cache now that hardware updated DATA and TDs/QHs */
-		if (!leon3_snooping_avail)
+		if (!gd->arch.snooping_avail)
 			sparc_dcache_flush_all();
 		usb_get_td_status(&tmp_td[0], dev);	/* update status */
 		if (!(dev->status & USB_ST_NOT_PROC)) {	/* is not active anymore, disconnect devices */
@@ -584,7 +585,7 @@ void usb_check_skel(void)
 	if (qh_bulk.dev_ptr != 0) {	/* it's a device assigned check if this caused IRQ */
 		dev = (struct usb_device *)qh_bulk.dev_ptr;
 		/* Flush cache now that hardware updated DATA and TDs/QHs */
-		if (!leon3_snooping_avail)
+		if (!gd->arch.snooping_avail)
 			sparc_dcache_flush_all();
 		usb_get_td_status(&tmp_td[0], dev);	/* update status */
 		if (!(dev->status & USB_ST_NOT_PROC)) {	/* is not active anymore, disconnect devices */

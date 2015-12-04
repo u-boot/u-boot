@@ -3,14 +3,17 @@
  * (C) Copyright 2003-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com.
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
+
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * High Level Configuration Options
@@ -28,9 +31,6 @@
 
 /* CPU / AMBA BUS configuration */
 #define CONFIG_SYS_CLK_FREQ	40000000	/* 40MHz */
-
-/* Number of SPARC register windows */
-#define CONFIG_SYS_SPARC_NWINDOWS 8
 
 /*
  * Serial console configuration
@@ -291,6 +291,6 @@
 /* default kernel command line */
 #define CONFIG_DEFAULT_KERNEL_COMMAND_LINE "console=ttyS0,38400\0\0"
 
-#define CONFIG_IDENT_STRING "Gaisler GRSIM LEON2"
+#define CONFIG_IDENT_STRING " Gaisler GRSIM LEON2"
 
 #endif				/* __CONFIG_H */

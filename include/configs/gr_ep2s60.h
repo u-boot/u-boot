@@ -15,6 +15,9 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -25,9 +28,6 @@
 
 /* CPU / AMBA BUS configuration */
 #define CONFIG_SYS_CLK_FREQ	96000000	/* 96MHz */
-
-/* Number of SPARC register windows */
-#define CONFIG_SYS_SPARC_NWINDOWS 8
 
 /* Define this is the GR-2S60-MEZZ mezzanine is available and you
  * want to use the USB and GRETH functionality of the board
@@ -314,7 +314,7 @@
 #undef CONFIG_SYS_GRLIB_GAISLER_DDR2SPA1
 
 /* Identification string */
-#define CONFIG_IDENT_STRING "GAISLER LEON3 EP2S60"
+#define CONFIG_IDENT_STRING " Gaisler LEON3 EP2S60"
 
 /* default kernel command line */
 #define CONFIG_DEFAULT_KERNEL_COMMAND_LINE "console=ttyS0,38400\0\0"

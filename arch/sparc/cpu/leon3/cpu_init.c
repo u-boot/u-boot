@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/asi.h>
 #include <asm/leon.h>
+#include <asm/io.h>
 #include <ambapp.h>
 #include <grlib/irqmp.h>
 #include <grlib/gptimer.h>
@@ -22,23 +23,14 @@
 #define CONFIG_AMBAPP_IOAREA AMBA_DEFAULT_IOAREA
 #endif
 
-#define TIMER_BASE_CLK 1000000
-#define US_PER_TICK (1000000 / CONFIG_SYS_HZ)
+/* Select which TIMER that will become the time base */
+#ifndef CONFIG_SYS_GRLIB_GPTIMER_INDEX
+#define CONFIG_SYS_GRLIB_GPTIMER_INDEX 0
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* reset CPU (jump to 0, without reset) */
-void start(void);
-
 ambapp_dev_irqmp *irqmp = NULL;
-ambapp_dev_gptimer *gptimer = NULL;
-unsigned int gptimer_irq = 0;
-int leon3_snooping_avail = 0;
-
-struct {
-	gd_t gd_area;
-	bd_t bd;
-} global_data;
 
 /*
  * Breath some life into the CPU...
@@ -56,19 +48,62 @@ void cpu_init_f(void)
 #endif
 }
 
-/* Routine called from start.S,
- *
- * Run from FLASH/PROM:
- *  - memory controller has already been setup up, stack can be used
- *  - global variables available for read/writing
- *  - constants avaiable
-	 */
-void cpu_init_f2(void)
+/* If cache snooping is available in hardware the result will be set
+ * to 0x800000, otherwise 0.
+ */
+static unsigned int snoop_detect(void)
 {
+	unsigned int result;
+	asm("lda [%%g0] 2, %0" : "=r"(result));
+	return result & 0x00800000;
+}
+
+int arch_cpu_init(void)
+{
+	ambapp_apbdev apbdev;
+	int index;
+
+	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
+	gd->bus_clk = CONFIG_SYS_CLK_FREQ;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+
+	gd->arch.snooping_available = snoop_detect();
+
 	/* Initialize the AMBA Plug & Play bus structure, the bus
 	 * structure represents the AMBA bus that the CPU is located at.
 	 */
 	ambapp_bus_init(CONFIG_AMBAPP_IOAREA, CONFIG_SYS_CLK_FREQ, &ambapp_plb);
+
+	/* Initialize/clear all the timers in the system.
+	 */
+	for (index = 0; ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER,
+		GAISLER_GPTIMER, index, &apbdev) == 1; index++) {
+		ambapp_dev_gptimer *timer;
+		unsigned int bus_freq;
+		int i, ntimers;
+
+		timer = (ambapp_dev_gptimer *)apbdev.address;
+
+		/* Different buses may have different frequency, the
+		 * frequency of the bus tell in which frequency the timer
+		 * prescaler operates.
+		 */
+		bus_freq = ambapp_bus_freq(&ambapp_plb, apbdev.ahb_bus_index);
+
+		/* Initialize prescaler common to all timers to 1MHz */
+		timer->scalar = timer->scalar_reload =
+			(((bus_freq / 1000) + 500) / 1000) - 1;
+
+		/* Clear all timers */
+		ntimers = timer->config & 0x7;
+		for (i = 0; i < ntimers; i++) {
+			timer->e[i].ctrl = GPTIMER_CTRL_IP;
+			timer->e[i].rld = 0;
+			timer->e[i].ctrl = GPTIMER_CTRL_LD;
+		}
+	}
+
+	return 0;
 }
 
 /*
@@ -77,9 +112,7 @@ void cpu_init_f2(void)
 int cpu_init_r(void)
 {
 	ambapp_apbdev apbdev;
-	int index, cpu;
-	ambapp_dev_gptimer *timer = NULL;
-	unsigned int bus_freq;
+	int cpu;
 
 	/*
 	 * Find AMBA APB IRQMP Controller,
@@ -102,77 +135,41 @@ int cpu_init_r(void)
 		irqmp->cpu_force[cpu] = 0;
 	}
 
-	/* timer */
-	index = 0;
-	while (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_GPTIMER,
-		index, &apbdev) == 1) {
-		timer = (ambapp_dev_gptimer *)apbdev.address;
-		if (gptimer == NULL) {
-			gptimer = timer;
-			gptimer_irq = apbdev.irq;
-		}
-
-		/* Different buses may have different frequency, the
-		 * frequency of the bus tell in which frequency the timer
-		 * prescaler operates.
-		 */
-		bus_freq = ambapp_bus_freq(&ambapp_plb, apbdev.ahb_bus_index);
-
-		/* initialize prescaler common to all timers to 1MHz */
-		timer->scalar = timer->scalar_reload =
-		    (((bus_freq / 1000) + 500) / 1000) - 1;
-
-		index++;
-	}
-	if (!gptimer) {
-		printf("%s: gptimer not found!\n", __func__);
-		return 1;
-	}
 	return 0;
 }
 
-/* Uses Timer 0 to get accurate
- * pauses. Max 2 raised to 32 ticks
- *
- */
-void cpu_wait_ticks(unsigned long ticks)
+			;
+int timer_init(void)
 {
-	unsigned long start = get_timer(0);
-	while (get_timer(start) < ticks) ;
-}
+	ambapp_dev_gptimer_element *tmr;
+	ambapp_dev_gptimer *gptimer;
+	ambapp_apbdev apbdev;
+	unsigned bus_freq;
 
-/* initiate and setup timer0 interrupt to configured HZ. Base clock is 1MHz.
- * Return irq number for timer int or a negative number for
- * dealing with self
- */
-int timer_interrupt_init_cpu(void)
-{
-	/* SYS_HZ ticks per second */
-	gptimer->e[0].val = 0;
-	gptimer->e[0].rld = (TIMER_BASE_CLK / CONFIG_SYS_HZ) - 1;
-	gptimer->e[0].ctrl =
-	    (GPTIMER_CTRL_EN | GPTIMER_CTRL_RS |
-	     GPTIMER_CTRL_LD | GPTIMER_CTRL_IE);
+	if (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_GPTIMER,
+		CONFIG_SYS_GRLIB_GPTIMER_INDEX, &apbdev) != 1) {
+		panic("%s: gptimer not found!\n", __func__);
+		return -1;
+	}
 
-	return gptimer_irq;
-}
+	gptimer = (ambapp_dev_gptimer *) apbdev.address;
 
-ulong get_tbclk(void)
-{
-	return TIMER_BASE_CLK;
-}
+	/* Different buses may have different frequency, the
+	 * frequency of the bus tell in which frequency the timer
+	 * prescaler operates.
+	 */
+	bus_freq = ambapp_bus_freq(&ambapp_plb, apbdev.ahb_bus_index);
 
-/*
- * This function is intended for SHORT delays only.
- */
-unsigned long cpu_usec2ticks(unsigned long usec)
-{
-	if (usec < US_PER_TICK)
-		return 1;
-	return usec / US_PER_TICK;
-}
+	/* initialize prescaler common to all timers to 1MHz */
+	gptimer->scalar = gptimer->scalar_reload =
+		(((bus_freq / 1000) + 500) / 1000) - 1;
 
-unsigned long cpu_ticks2usec(unsigned long ticks)
-{
-	return ticks * US_PER_TICK;
+	tmr = (ambapp_dev_gptimer_element *)&gptimer->e[0];
+
+	tmr->val = 0;
+	tmr->rld = ~0;
+	tmr->ctrl = GPTIMER_CTRL_EN | GPTIMER_CTRL_RS | GPTIMER_CTRL_LD;
+
+	CONFIG_SYS_TIMER_COUNTER = (void *)&tmr->val;
+	return 0;
 }

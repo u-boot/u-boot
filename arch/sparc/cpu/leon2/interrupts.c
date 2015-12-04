@@ -118,20 +118,6 @@ int interrupt_init_cpu(void)
 
 /****************************************************************************/
 
-/* Handle Timer 0 IRQ */
-void timer_interrupt_cpu(void *arg)
-{
-	LEON2_regs *leon2 = (LEON2_regs *) LEON2_PREGS;
-
-	leon2->Timer_Control_1 =
-	    (LEON2_TIMER_CTRL_EN | LEON2_TIMER_CTRL_RS | LEON2_TIMER_CTRL_LD);
-
-	/* nothing to do here */
-	return;
-}
-
-/****************************************************************************/
-
 /*
  * Install and free a interrupt handler.
  */

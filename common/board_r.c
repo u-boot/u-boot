@@ -66,6 +66,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_SPARC)
+extern int prom_init(void);
+#endif
+
 ulong monitor_flash_len;
 
 __weak int board_flash_wp_on(void)
@@ -813,7 +817,8 @@ init_fnc_t init_sequence_r[] = {
 	initr_flash,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86) || \
+	defined(CONFIG_SPARC)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
 #endif
@@ -932,6 +937,9 @@ init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_PS2KBD
 	initr_kbd,
+#endif
+#if defined(CONFIG_SPARC)
+	prom_init,
 #endif
 	run_main_loop,
 };

@@ -12,6 +12,15 @@ config LEON3
 	bool
 	select LEON
 
+config SYS_SPARC_NWINDOWS
+	int "Number of SPARC register windows"
+	range 2 32
+	default "8"
+	help
+	  Specify the number of SPARC register windows implemented by this
+	  processor. A SPARC implementation can have from 2 to 32 windows.
+	  If unsure, choose 8.
+
 choice
 	prompt "Board select"
 	optional
