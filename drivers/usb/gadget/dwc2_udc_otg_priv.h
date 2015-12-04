@@ -1,5 +1,5 @@
 /*
- * Samsung S3C on-chip full/high speed USB device controllers
+ * Designware DWC2 on-chip full/high speed USB device controllers
  * Copyright (C) 2005 for Samsung Electronics
  *
  * SPDX-License-Identifier:	GPL-2.0+
