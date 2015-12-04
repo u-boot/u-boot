@@ -88,13 +88,11 @@ struct dwc2_udc {
 	unsigned req_pending:1, req_std:1;
 };
 
-extern struct dwc2_udc *the_controller;
-
 #define ep_is_in(EP) (((EP)->bEndpointAddress&USB_DIR_IN) == USB_DIR_IN)
 #define ep_index(EP) ((EP)->bEndpointAddress&0xF)
 #define ep_maxpacket(EP) ((EP)->ep.maxpacket)
 
-extern void otg_phy_init(struct dwc2_udc *dev);
-extern void otg_phy_off(struct dwc2_udc *dev);
+void otg_phy_init(struct dwc2_udc *dev);
+void otg_phy_off(struct dwc2_udc *dev);
 
 #endif	/* __S3C_UDC_OTG_PRIV__ */

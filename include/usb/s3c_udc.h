@@ -20,6 +20,6 @@ struct s3c_plat_otg_data {
 	unsigned int	usb_gusbcfg;
 };
 
-extern int s3c_udc_probe(struct s3c_plat_otg_data *pdata);
+int s3c_udc_probe(struct s3c_plat_otg_data *pdata);
 
 #endif
