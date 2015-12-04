@@ -17,6 +17,12 @@
 #define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
 #define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_5_0
 
+/*
+ * Reserve secure memory
+ * To be aligned with MMU block size
+ */
+#define CONFIG_SYS_MEM_RESERVE_SECURE	(2048 * 1024)	/* 2MB */
+
 #if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
 #define CONFIG_MAX_CPUS				16
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT		8

@@ -206,10 +206,64 @@ static inline void early_mmu_setup(void)
 	set_sctlr(get_sctlr() | CR_M);
 }
 
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+/*
+ * Called from final mmu setup. The phys_addr is new, non-existing
+ * address. A new sub table is created @level2_table_secure to cover
+ * size of CONFIG_SYS_MEM_RESERVE_SECURE memory.
+ */
+static inline int final_secure_ddr(u64 *level0_table,
+				   u64 *level2_table_secure,
+				   phys_addr_t phys_addr)
+{
+	int ret = -EINVAL;
+	struct table_info table = {};
+	struct sys_mmu_table ddr_entry = {
+		0, 0, BLOCK_SIZE_L1, MT_NORMAL,
+		PMD_SECT_OUTER_SHARE | PMD_SECT_NS
+	};
+	u64 index;
+
+	/* Need to create a new table */
+	ddr_entry.virt_addr = phys_addr & ~(BLOCK_SIZE_L1 - 1);
+	ddr_entry.phys_addr = phys_addr & ~(BLOCK_SIZE_L1 - 1);
+	ret = find_table(&ddr_entry, &table, level0_table);
+	if (ret)
+		return ret;
+	index = (ddr_entry.virt_addr - table.table_base) >> SECTION_SHIFT_L1;
+	set_pgtable_table(table.ptr, index, level2_table_secure);
+	table.ptr = level2_table_secure;
+	table.table_base = ddr_entry.virt_addr;
+	table.entry_size = BLOCK_SIZE_L2;
+	ret = set_block_entry(&ddr_entry, &table);
+	if (ret) {
+		printf("MMU error: could not fill non-secure ddr block entries\n");
+		return ret;
+	}
+	ddr_entry.virt_addr = phys_addr;
+	ddr_entry.phys_addr = phys_addr;
+	ddr_entry.size = CONFIG_SYS_MEM_RESERVE_SECURE;
+	ddr_entry.attribute = PMD_SECT_OUTER_SHARE;
+	ret = find_table(&ddr_entry, &table, level0_table);
+	if (ret) {
+		printf("MMU error: could not find secure ddr table\n");
+		return ret;
+	}
+	ret = set_block_entry(&ddr_entry, &table);
+	if (ret)
+		printf("MMU error: could not set secure ddr block entry\n");
+
+	return ret;
+}
+#endif
+
 /*
  * The final tables look similar to early tables, but different in detail.
  * These tables are in DRAM. Sub tables are added to enable cache for
  * QBMan and OCRAM.
+ *
+ * Put the MMU table in secure memory if gd->secure_ram is valid.
+ * OCRAM will be not used for this purpose so gd->secure_ram can't be 0.
  *
  * Level 1 table 0 contains 512 entries for each 1GB from 0 to 512GB.
  * Level 1 table 1 contains 512 entries for each 1GB from 512GB to 1TB.
@@ -223,18 +277,40 @@ static inline void early_mmu_setup(void)
  */
 static inline void final_mmu_setup(void)
 {
-	unsigned int el, i;
+	unsigned int el = current_el();
+	unsigned int i;
 	u64 *level0_table = (u64 *)gd->arch.tlb_addr;
-	u64 *level1_table0 = (u64 *)(gd->arch.tlb_addr + 0x1000);
-	u64 *level1_table1 = (u64 *)(gd->arch.tlb_addr + 0x2000);
-	u64 *level2_table0 = (u64 *)(gd->arch.tlb_addr + 0x3000);
-#ifdef CONFIG_FSL_LSCH3
-	u64 *level2_table1 = (u64 *)(gd->arch.tlb_addr + 0x4000);
-#elif defined(CONFIG_FSL_LSCH2)
-	u64 *level2_table1 = (u64 *)(gd->arch.tlb_addr + 0x4000);
-	u64 *level2_table2 = (u64 *)(gd->arch.tlb_addr + 0x5000);
+	u64 *level1_table0;
+	u64 *level1_table1;
+	u64 *level2_table0;
+	u64 *level2_table1;
+#ifdef CONFIG_FSL_LSCH2
+	u64 *level2_table2;
 #endif
-	struct table_info table = {level0_table, 0, BLOCK_SIZE_L0};
+	struct table_info table = {NULL, 0, BLOCK_SIZE_L0};
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	u64 *level2_table_secure;
+
+	if (el == 3) {
+		/*
+		 * Only use gd->secure_ram if the address is recalculated
+		 * Align to 4KB for MMU table
+		 */
+		if (gd->secure_ram & MEM_RESERVE_SECURE_MAINTAINED)
+			level0_table = (u64 *)(gd->secure_ram & ~0xfff);
+		else
+			printf("MMU warning: gd->secure_ram is not maintained, disabled.\n");
+	}
+#endif
+	level1_table0 = level0_table + 512;
+	level1_table1 = level1_table0 + 512;
+	level2_table0 = level1_table1 + 512;
+	level2_table1 = level2_table0 + 512;
+#ifdef CONFIG_FSL_LSCH2
+	level2_table2 = level2_table1 + 512;
+#endif
+	table.ptr = level0_table;
 
 	/* Invalidate all table entries */
 	memset(level0_table, 0, PGTABLE_SIZE);
@@ -269,17 +345,34 @@ static inline void final_mmu_setup(void)
 			       &final_mmu_table[i]);
 		}
 	}
+	/* Set the secure memory to secure in MMU */
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	if (el == 3 && gd->secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
+#ifdef CONFIG_FSL_LSCH3
+		level2_table_secure = level2_table1 + 512;
+#elif defined(CONFIG_FSL_LSCH2)
+		level2_table_secure = level2_table2 + 512;
+#endif
+		if (!final_secure_ddr(level0_table,
+				      level2_table_secure,
+				      gd->secure_ram & ~0x3)) {
+			gd->secure_ram |= MEM_RESERVE_SECURE_SECURED;
+			debug("Now MMU table is in secured memory at 0x%llx\n",
+			      gd->secure_ram & ~0x3);
+		} else {
+			printf("MMU warning: Failed to secure DDR\n");
+		}
+	}
+#endif
 
 	/* flush new MMU table */
-	flush_dcache_range(gd->arch.tlb_addr,
-			   gd->arch.tlb_addr + gd->arch.tlb_size);
+	flush_dcache_range((ulong)level0_table,
+			   (ulong)level0_table + gd->arch.tlb_size);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 	flush_dcache_all();
 #endif
 	/* point TTBR to the new table */
-	el = current_el();
-
 	set_ttbr_tcr_mair(el, (u64)level0_table, LAYERSCAPE_TCR_FINAL,
 			  MEMORY_ATTRIBUTES);
 	/*

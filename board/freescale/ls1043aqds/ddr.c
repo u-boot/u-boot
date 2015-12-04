@@ -126,6 +126,15 @@ phys_size_t initdram(int board_type)
 
 void dram_init_banksize(void)
 {
+	/*
+	 * gd->secure_ram tracks the location of secure memory.
+	 * It was set as if the memory starts from 0.
+	 * The address needs to add the offset of its bank.
+	 */
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = gd->ram_size;
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	gd->secure_ram = gd->bd->bi_dram[0].start + gd->secure_ram;
+	gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+#endif
 }
