@@ -19,7 +19,7 @@ struct dwc2_usbotg_phy {
 };
 
 /* Device Logical IN Endpoint-Specific Registers */
-struct s3c_dev_in_endp {
+struct dwc2_dev_in_endp {
 	u32 diepctl;
 	u8  res1[4];
 	u32 diepint;
@@ -31,7 +31,7 @@ struct s3c_dev_in_endp {
 };
 
 /* Device Logical OUT Endpoint-Specific Registers */
-struct s3c_dev_out_endp {
+struct dwc2_dev_out_endp {
 	u32 doepctl;
 	u8  res1[4];
 	u32 doepint;
@@ -74,8 +74,8 @@ struct dwc2_usbotg_reg {
 	u32 daint; /* Device All Endpoints Interrupt */
 	u32 daintmsk; /* Device All Endpoints Interrupt Mask */
 	u8  res4[224];
-	struct s3c_dev_in_endp in_endp[16];
-	struct s3c_dev_out_endp out_endp[16];
+	struct dwc2_dev_in_endp in_endp[16];
+	struct dwc2_dev_out_endp out_endp[16];
 	u8  res5[768];
 	struct ep_fifo ep[16];
 };
