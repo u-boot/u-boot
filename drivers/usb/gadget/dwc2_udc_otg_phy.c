@@ -1,5 +1,5 @@
 /*
- * drivers/usb/gadget/s3c_udc_otg.c
+ * drivers/usb/gadget/dwc2_udc_otg.c
  * Samsung S3C on-chip full/high speed USB OTG 2.0 device controllers
  *
  * Copyright (C) 2008 for Samsung Electronics
