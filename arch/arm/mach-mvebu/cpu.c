@@ -199,10 +199,10 @@ static void setup_usb_phys(void)
 	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0x3ff, 0x605);
 
 	/* Power up PLL and PHY channel */
-	clrsetbits_le32(MV_USB_PHY_PLL_REG(2), 0, BIT(9));
+	setbits_le32(MV_USB_PHY_PLL_REG(2), BIT(9));
 
 	/* Assert VCOCAL_START */
-	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0, BIT(21));
+	setbits_le32(MV_USB_PHY_PLL_REG(1), BIT(21));
 
 	mdelay(1);
 
@@ -211,12 +211,12 @@ static void setup_usb_phys(void)
 	 */
 
 	for (dev = 0; dev < 3; dev++) {
-		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 3), 0, BIT(15));
+		setbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 3), BIT(15));
 
 		/* Assert REG_RCAL_START in channel REG 1 */
-		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), 0, BIT(12));
+		setbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12));
 		udelay(40);
-		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12), 0);
+		clrbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12));
 	}
 }
 
