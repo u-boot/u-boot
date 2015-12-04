@@ -611,11 +611,9 @@ void ipu_dp_dc_enable(ipu_channel_t channel)
 	uint32_t reg;
 	uint32_t dc_chan;
 
-	if (channel == MEM_FG_SYNC)
-		dc_chan = 5;
 	if (channel == MEM_DC_SYNC)
 		dc_chan = 1;
-	else if (channel == MEM_BG_SYNC)
+	else if ((channel == MEM_BG_SYNC) || (channel == MEM_FG_SYNC))
 		dc_chan = 5;
 	else
 		return;

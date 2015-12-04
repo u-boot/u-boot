@@ -806,7 +806,7 @@ void setup_pmic(void)
 			/* Set SWBST to 5.0V and enable */
 			pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
 			reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
-			reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+			reg |= (SWBST_5_00V | (SWBST_MODE_AUTO << SWBST_MODE_SHIFT));
 			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
 		}
 	}

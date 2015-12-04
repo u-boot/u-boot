@@ -216,7 +216,7 @@ int power_init_board(void)
 	/* Set SWBST to 5.0V and enable (for USB) */
 	pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
 	reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
-	reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+	reg |= (SWBST_5_00V | (SWBST_MODE_AUTO << SWBST_MODE_SHIFT));
 	pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
 
 	return 0;
