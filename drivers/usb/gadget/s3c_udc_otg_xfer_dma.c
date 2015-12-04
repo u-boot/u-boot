@@ -41,7 +41,7 @@ static inline void s3c_udc_ep0_zlp(struct dwc2_udc *dev)
 	dev->ep0state = WAIT_FOR_IN_COMPLETE;
 }
 
-void s3c_udc_pre_setup(void)
+static void s3c_udc_pre_setup(void)
 {
 	u32 ep_ctrl;
 
@@ -128,7 +128,7 @@ static int setdma_rx(struct dwc2_ep *ep, struct dwc2_request *req)
 
 }
 
-int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
+static int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
 {
 	u32 *buf, ctrl = 0;
 	u32 length, pktcnt;
@@ -718,7 +718,7 @@ static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req)
 	return 0;
 }
 
-int s3c_fifo_read(struct dwc2_ep *ep, u32 *cp, int max)
+static int s3c_fifo_read(struct dwc2_ep *ep, u32 *cp, int max)
 {
 	invalidate_dcache_range((unsigned long)cp, (unsigned long)cp +
 				ROUND(max, CONFIG_SYS_CACHELINE_SIZE));
@@ -859,7 +859,7 @@ static int s3c_ep0_write(struct dwc2_udc *dev)
 	return 1;
 }
 
-int s3c_udc_get_status(struct dwc2_udc *dev,
+static int s3c_udc_get_status(struct dwc2_udc *dev,
 		struct usb_ctrlrequest *crq)
 {
 	u8 ep_num = crq->wIndex & 0x7F;
@@ -981,7 +981,7 @@ static void s3c_udc_ep_set_stall(struct dwc2_ep *ep)
 	return;
 }
 
-void s3c_udc_ep_clear_stall(struct dwc2_ep *ep)
+static void s3c_udc_ep_clear_stall(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;
@@ -1076,7 +1076,7 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 	return 0;
 }
 
-void s3c_udc_ep_activate(struct dwc2_ep *ep)
+static void s3c_udc_ep_activate(struct dwc2_ep *ep)
 {
 	u8 ep_num;
 	u32 ep_ctrl = 0, daintmsk = 0;
@@ -1262,7 +1262,7 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 /*
  * WAIT_FOR_SETUP (OUT_PKT_RDY)
  */
-void s3c_ep0_setup(struct dwc2_udc *dev)
+static void s3c_ep0_setup(struct dwc2_udc *dev)
 {
 	struct dwc2_ep *ep = &dev->ep[0];
 	int i;
