@@ -69,7 +69,7 @@ struct dwc2_ep {
 	int fifo_num;
 };
 
-struct s3c_request {
+struct dwc2_request {
 	struct usb_request req;
 	struct list_head queue;
 };

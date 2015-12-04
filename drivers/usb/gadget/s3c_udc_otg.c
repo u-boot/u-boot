@@ -99,8 +99,8 @@ static void s3c_ep0_read(struct dwc2_udc *dev);
 static void s3c_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep);
 static void s3c_handle_ep0(struct dwc2_udc *dev);
 static int s3c_ep0_write(struct dwc2_udc *dev);
-static int write_fifo_ep0(struct dwc2_ep *ep, struct s3c_request *req);
-static void done(struct dwc2_ep *ep, struct s3c_request *req, int status);
+static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req);
+static void done(struct dwc2_ep *ep, struct dwc2_request *req, int status);
 static void stop_activity(struct dwc2_udc *dev,
 			  struct usb_gadget_driver *driver);
 static int udc_enable(struct dwc2_udc *dev);
@@ -305,7 +305,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 /*
  *	done - retire a request; caller blocked irqs
  */
-static void done(struct dwc2_ep *ep, struct s3c_request *req, int status)
+static void done(struct dwc2_ep *ep, struct dwc2_request *req, int status)
 {
 	unsigned int stopped = ep->stopped;
 
@@ -358,13 +358,13 @@ static void done(struct dwc2_ep *ep, struct s3c_request *req, int status)
  */
 static void nuke(struct dwc2_ep *ep, int status)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 
 	debug("%s: %s %p\n", __func__, ep->ep.name, ep);
 
 	/* called with irqs blocked */
 	while (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 		done(ep, req, status);
 	}
 }
@@ -624,7 +624,7 @@ static int s3c_ep_disable(struct usb_ep *_ep)
 static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 					     gfp_t gfp_flags)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 
 	debug("%s: %s %p\n", __func__, ep->name, ep);
 
@@ -640,11 +640,11 @@ static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 
 static void s3c_free_request(struct usb_ep *ep, struct usb_request *_req)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 
 	debug("%s: %p\n", __func__, ep);
 
-	req = container_of(_req, struct s3c_request, req);
+	req = container_of(_req, struct dwc2_request, req);
 	WARN_ON(!list_empty(&req->queue));
 	kfree(req);
 }
@@ -653,7 +653,7 @@ static void s3c_free_request(struct usb_ep *ep, struct usb_request *_req)
 static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 {
 	struct dwc2_ep *ep;
-	struct s3c_request *req;
+	struct dwc2_request *req;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);

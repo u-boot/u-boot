@@ -90,7 +90,7 @@ static inline void s3c_ep0_complete_out(void)
 }
 
 
-static int setdma_rx(struct dwc2_ep *ep, struct s3c_request *req)
+static int setdma_rx(struct dwc2_ep *ep, struct dwc2_request *req)
 {
 	u32 *buf, ctrl;
 	u32 length, pktcnt;
@@ -128,7 +128,7 @@ static int setdma_rx(struct dwc2_ep *ep, struct s3c_request *req)
 
 }
 
-int setdma_tx(struct dwc2_ep *ep, struct s3c_request *req)
+int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
 {
 	u32 *buf, ctrl = 0;
 	u32 length, pktcnt;
@@ -189,7 +189,7 @@ int setdma_tx(struct dwc2_ep *ep, struct s3c_request *req)
 static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 {
 	struct dwc2_ep *ep = &dev->ep[ep_num];
-	struct s3c_request *req = NULL;
+	struct dwc2_request *req = NULL;
 	u32 ep_tsr = 0, xfer_size = 0, is_short = 0;
 
 	if (list_empty(&ep->queue)) {
@@ -200,7 +200,7 @@ static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 
 	}
 
-	req = list_entry(ep->queue.next, struct s3c_request, queue);
+	req = list_entry(ep->queue.next, struct dwc2_request, queue);
 	ep_tsr = readl(&reg->out_endp[ep_num].doeptsiz);
 
 	if (ep_num == EP0_CON)
@@ -248,7 +248,7 @@ static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 
 			if (!list_empty(&ep->queue)) {
 				req = list_entry(ep->queue.next,
-					struct s3c_request, queue);
+					struct dwc2_request, queue);
 				debug_cond(DEBUG_OUT_EP != 0,
 					   "%s: Next Rx request start...\n",
 					   __func__);
@@ -262,7 +262,7 @@ static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 {
 	struct dwc2_ep *ep = &dev->ep[ep_num];
-	struct s3c_request *req;
+	struct dwc2_request *req;
 	u32 ep_tsr = 0, xfer_size = 0, is_short = 0;
 	u32 last;
 
@@ -280,7 +280,7 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 
 	}
 
-	req = list_entry(ep->queue.next, struct s3c_request, queue);
+	req = list_entry(ep->queue.next, struct dwc2_request, queue);
 
 	ep_tsr = readl(&reg->in_endp[ep_num].dieptsiz);
 
@@ -328,7 +328,7 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 		done(ep, req, 0);
 
 	if (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 		debug_cond(DEBUG_IN_EP,
 			"%s: Next Tx request start...\n", __func__);
 		setdma_tx(ep, req);
@@ -338,13 +338,13 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 static inline void s3c_udc_check_tx_queue(struct dwc2_udc *dev, u8 ep_num)
 {
 	struct dwc2_ep *ep = &dev->ep[ep_num];
-	struct s3c_request *req;
+	struct dwc2_request *req;
 
 	debug_cond(DEBUG_IN_EP,
 		"%s: Check queue, ep_num = %d\n", __func__, ep_num);
 
 	if (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 		debug_cond(DEBUG_IN_EP,
 			"%s: Next Tx request(0x%p) start...\n",
 			__func__, req);
@@ -582,13 +582,13 @@ static int s3c_udc_irq(int irq, void *_dev)
 static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 			 gfp_t gfp_flags)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 	struct dwc2_ep *ep;
 	struct dwc2_udc *dev;
 	unsigned long flags = 0;
 	u32 ep_num, gintsts;
 
-	req = container_of(_req, struct s3c_request, req);
+	req = container_of(_req, struct dwc2_request, req);
 	if (unlikely(!_req || !_req->complete || !_req->buf
 		     || !list_empty(&req->queue))) {
 
@@ -680,7 +680,7 @@ static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 /****************************************************************/
 
 /* return:  0 = still running, 1 = completed, negative = errno */
-static int write_fifo_ep0(struct dwc2_ep *ep, struct s3c_request *req)
+static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req)
 {
 	u32 max;
 	unsigned count;
@@ -781,11 +781,11 @@ static inline void s3c_udc_ep0_set_stall(struct dwc2_ep *ep)
 
 static void s3c_ep0_read(struct dwc2_udc *dev)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 	struct dwc2_ep *ep = &dev->ep[0];
 
 	if (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 
 	} else {
 		debug("%s: ---> BUG\n", __func__);
@@ -818,14 +818,14 @@ static void s3c_ep0_read(struct dwc2_udc *dev)
  */
 static int s3c_ep0_write(struct dwc2_udc *dev)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 	struct dwc2_ep *ep = &dev->ep[0];
 	int ret, need_zlp = 0;
 
 	if (list_empty(&ep->queue))
 		req = 0;
 	else
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 
 	if (!req) {
 		debug_cond(DEBUG_EP0 != 0, "%s: NULL REQ\n", __func__);
@@ -1050,7 +1050,7 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 	if (value && ep_is_in(ep) && !list_empty(&ep->queue)) {
 		debug("%s: %s queue not empty, req = %p\n",
 			__func__, ep->ep.name,
-			list_entry(ep->queue.next, struct s3c_request, queue));
+			list_entry(ep->queue.next, struct dwc2_request, queue));
 
 		return -EAGAIN;
 	}
