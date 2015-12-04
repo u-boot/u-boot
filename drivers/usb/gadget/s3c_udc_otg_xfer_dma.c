@@ -946,7 +946,7 @@ static void s3c_udc_set_nak(struct dwc2_ep *ep)
 }
 
 
-void s3c_udc_ep_set_stall(struct dwc2_ep *ep)
+static void s3c_udc_ep_set_stall(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;

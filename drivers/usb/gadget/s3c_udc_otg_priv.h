@@ -97,6 +97,4 @@ extern struct dwc2_udc *the_controller;
 extern void otg_phy_init(struct dwc2_udc *dev);
 extern void otg_phy_off(struct dwc2_udc *dev);
 
-extern void s3c_udc_ep_set_stall(struct dwc2_ep *ep);
-
 #endif	/* __S3C_UDC_OTG_PRIV__ */
