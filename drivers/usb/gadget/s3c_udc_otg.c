@@ -87,17 +87,17 @@ static dma_addr_t usb_ctrl_dma_addr;
 static int dwc2_ep_enable(struct usb_ep *ep,
 			 const struct usb_endpoint_descriptor *);
 static int dwc2_ep_disable(struct usb_ep *ep);
-static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
+static struct usb_request *dwc2_alloc_request(struct usb_ep *ep,
 					     gfp_t gfp_flags);
-static void s3c_free_request(struct usb_ep *ep, struct usb_request *);
+static void dwc2_free_request(struct usb_ep *ep, struct usb_request *);
 
-static int s3c_queue(struct usb_ep *ep, struct usb_request *, gfp_t gfp_flags);
-static int s3c_dequeue(struct usb_ep *ep, struct usb_request *);
-static int s3c_fifo_status(struct usb_ep *ep);
-static void s3c_fifo_flush(struct usb_ep *ep);
+static int dwc2_queue(struct usb_ep *ep, struct usb_request *, gfp_t gfp_flags);
+static int dwc2_dequeue(struct usb_ep *ep, struct usb_request *);
+static int dwc2_fifo_status(struct usb_ep *ep);
+static void dwc2_fifo_flush(struct usb_ep *ep);
 static void dwc2_ep0_read(struct dwc2_udc *dev);
 static void dwc2_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep);
-static void s3c_handle_ep0(struct dwc2_udc *dev);
+static void dwc2_handle_ep0(struct dwc2_udc *dev);
 static int dwc2_ep0_write(struct dwc2_udc *dev);
 static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req);
 static void done(struct dwc2_ep *ep, struct dwc2_request *req, int status);
@@ -128,15 +128,15 @@ static struct usb_ep_ops dwc2_ep_ops = {
 	.enable = dwc2_ep_enable,
 	.disable = dwc2_ep_disable,
 
-	.alloc_request = s3c_alloc_request,
-	.free_request = s3c_free_request,
+	.alloc_request = dwc2_alloc_request,
+	.free_request = dwc2_free_request,
 
-	.queue = s3c_queue,
-	.dequeue = s3c_dequeue,
+	.queue = dwc2_queue,
+	.dequeue = dwc2_dequeue,
 
 	.set_halt = dwc2_udc_set_halt,
-	.fifo_status = s3c_fifo_status,
-	.fifo_flush = s3c_fifo_flush,
+	.fifo_status = dwc2_fifo_status,
+	.fifo_flush = dwc2_fifo_flush,
 };
 
 #define create_proc_files() do {} while (0)
@@ -621,7 +621,7 @@ static int dwc2_ep_disable(struct usb_ep *_ep)
 	return 0;
 }
 
-static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
+static struct usb_request *dwc2_alloc_request(struct usb_ep *ep,
 					     gfp_t gfp_flags)
 {
 	struct dwc2_request *req;
@@ -638,7 +638,7 @@ static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 	return &req->req;
 }
 
-static void s3c_free_request(struct usb_ep *ep, struct usb_request *_req)
+static void dwc2_free_request(struct usb_ep *ep, struct usb_request *_req)
 {
 	struct dwc2_request *req;
 
@@ -650,7 +650,7 @@ static void s3c_free_request(struct usb_ep *ep, struct usb_request *_req)
 }
 
 /* dequeue JUST ONE request */
-static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+static int dwc2_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 {
 	struct dwc2_ep *ep;
 	struct dwc2_request *req;
@@ -683,7 +683,7 @@ static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 /*
  * Return bytes in EP FIFO
  */
-static int s3c_fifo_status(struct usb_ep *_ep)
+static int dwc2_fifo_status(struct usb_ep *_ep)
 {
 	int count = 0;
 	struct dwc2_ep *ep;
@@ -706,7 +706,7 @@ static int s3c_fifo_status(struct usb_ep *_ep)
 /*
  * Flush EP FIFO
  */
-static void s3c_fifo_flush(struct usb_ep *_ep)
+static void dwc2_fifo_flush(struct usb_ep *_ep)
 {
 	struct dwc2_ep *ep;
 

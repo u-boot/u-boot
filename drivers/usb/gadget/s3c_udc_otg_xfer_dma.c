@@ -446,7 +446,7 @@ static void process_ep_out_intr(struct dwc2_udc *dev)
 				    CTRL_OUT_EP_SETUP_PHASE_DONE) {
 					debug_cond(DEBUG_OUT_EP != 0,
 						   "SETUP packet arrived\n");
-					s3c_handle_ep0(dev);
+					dwc2_handle_ep0(dev);
 				}
 			} else {
 				if (ep_intr_status & TRANSFER_DONE)
@@ -579,7 +579,7 @@ static int dwc2_udc_irq(int irq, void *_dev)
 /** Queue one request
  *  Kickstart transfer if needed
  */
-static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
+static int dwc2_queue(struct usb_ep *_ep, struct usb_request *_req,
 			 gfp_t gfp_flags)
 {
 	struct dwc2_request *req;
@@ -718,7 +718,7 @@ static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req)
 	return 0;
 }
 
-static int s3c_fifo_read(struct dwc2_ep *ep, u32 *cp, int max)
+static int dwc2_fifo_read(struct dwc2_ep *ep, u32 *cp, int max)
 {
 	invalidate_dcache_range((unsigned long)cp, (unsigned long)cp +
 				ROUND(max, CONFIG_SYS_CACHELINE_SIZE));
@@ -1272,7 +1272,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 	nuke(ep, -EPROTO);
 
 	/* read control req from fifo (8 bytes) */
-	s3c_fifo_read(ep, (u32 *)usb_ctrl, 8);
+	dwc2_fifo_read(ep, (u32 *)usb_ctrl, 8);
 
 	debug_cond(DEBUG_SETUP != 0,
 		   "%s: bRequestType = 0x%x(%s), bRequest = 0x%x"
@@ -1451,7 +1451,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 /*
  * handle ep0 interrupt
  */
-static void s3c_handle_ep0(struct dwc2_udc *dev)
+static void dwc2_handle_ep0(struct dwc2_udc *dev)
 {
 	if (dev->ep0state == WAIT_FOR_SETUP) {
 		debug_cond(DEBUG_OUT_EP != 0,
