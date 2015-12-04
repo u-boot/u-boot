@@ -797,7 +797,7 @@ static struct dwc2_udc memory = {
  *	probe - binds to the platform device
  */
 
-int s3c_udc_probe(struct dwc2_plat_otg_data *pdata)
+int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 {
 	struct dwc2_udc *dev = &memory;
 	int retval = 0;

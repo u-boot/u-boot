@@ -101,8 +101,8 @@ static struct dwc2_plat_otg_data bcm_otg_data = {
 
 int board_usb_init(int index, enum usb_init_type init)
 {
-	debug("%s: performing s3c_udc_probe\n", __func__);
-	return s3c_udc_probe(&bcm_otg_data);
+	debug("%s: performing dwc2_udc_probe\n", __func__);
+	return dwc2_udc_probe(&bcm_otg_data);
 }
 
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)

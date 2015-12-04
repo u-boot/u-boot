@@ -75,7 +75,7 @@ struct dwc2_plat_otg_data socfpga_otg_data = {
 
 int board_usb_init(int index, enum usb_init_type init)
 {
-	return s3c_udc_probe(&socfpga_otg_data);
+	return dwc2_udc_probe(&socfpga_otg_data);
 }
 
 int g_dnl_board_usb_cable_connected(void)

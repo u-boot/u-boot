@@ -191,7 +191,7 @@ struct dwc2_plat_otg_data s5pc210_otg_data = {
 int board_usb_init(int index, enum usb_init_type init)
 {
 	debug("USB_udc_probe\n");
-	return s3c_udc_probe(&s5pc210_otg_data);
+	return dwc2_udc_probe(&s5pc210_otg_data);
 }
 
 int exynos_early_init_f(void)
