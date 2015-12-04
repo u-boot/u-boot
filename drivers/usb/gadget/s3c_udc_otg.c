@@ -96,20 +96,20 @@ static int s3c_dequeue(struct usb_ep *ep, struct usb_request *);
 static int s3c_fifo_status(struct usb_ep *ep);
 static void s3c_fifo_flush(struct usb_ep *ep);
 static void s3c_ep0_read(struct dwc2_udc *dev);
-static void s3c_ep0_kick(struct dwc2_udc *dev, struct s3c_ep *ep);
+static void s3c_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep);
 static void s3c_handle_ep0(struct dwc2_udc *dev);
 static int s3c_ep0_write(struct dwc2_udc *dev);
-static int write_fifo_ep0(struct s3c_ep *ep, struct s3c_request *req);
-static void done(struct s3c_ep *ep, struct s3c_request *req, int status);
+static int write_fifo_ep0(struct dwc2_ep *ep, struct s3c_request *req);
+static void done(struct dwc2_ep *ep, struct s3c_request *req, int status);
 static void stop_activity(struct dwc2_udc *dev,
 			  struct usb_gadget_driver *driver);
 static int udc_enable(struct dwc2_udc *dev);
 static void udc_set_address(struct dwc2_udc *dev, unsigned char address);
 static void reconfig_usbd(struct dwc2_udc *dev);
 static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed);
-static void nuke(struct s3c_ep *ep, int status);
+static void nuke(struct dwc2_ep *ep, int status);
 static int s3c_udc_set_halt(struct usb_ep *_ep, int value);
-static void s3c_udc_set_nak(struct s3c_ep *ep);
+static void s3c_udc_set_nak(struct dwc2_ep *ep);
 
 void set_udc_gadget_private_data(void *p)
 {
@@ -191,7 +191,7 @@ static void udc_reinit(struct dwc2_udc *dev)
 
 	/* basic endpoint records init */
 	for (i = 0; i < S3C_MAX_ENDPOINTS; i++) {
-		struct s3c_ep *ep = &dev->ep[i];
+		struct dwc2_ep *ep = &dev->ep[i];
 
 		if (i != 0)
 			list_add_tail(&ep->ep.ep_list, &dev->gadget.ep_list);
@@ -305,7 +305,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 /*
  *	done - retire a request; caller blocked irqs
  */
-static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
+static void done(struct dwc2_ep *ep, struct s3c_request *req, int status)
 {
 	unsigned int stopped = ep->stopped;
 
@@ -356,7 +356,7 @@ static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
 /*
  *	nuke - dequeue ALL requests
  */
-static void nuke(struct s3c_ep *ep, int status)
+static void nuke(struct dwc2_ep *ep, int status)
 {
 	struct s3c_request *req;
 
@@ -381,7 +381,7 @@ static void stop_activity(struct dwc2_udc *dev,
 
 	/* prevent new request submissions, kill any outstanding requests  */
 	for (i = 0; i < S3C_MAX_ENDPOINTS; i++) {
-		struct s3c_ep *ep = &dev->ep[i];
+		struct dwc2_ep *ep = &dev->ep[i];
 		ep->stopped = 1;
 		nuke(ep, -ESHUTDOWN);
 	}
@@ -530,13 +530,13 @@ static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 static int s3c_ep_enable(struct usb_ep *_ep,
 			 const struct usb_endpoint_descriptor *desc)
 {
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 	struct dwc2_udc *dev;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep || !desc || ep->desc || _ep->name == ep0name
 	    || desc->bDescriptorType != USB_DT_ENDPOINT
 	    || ep->bEndpointAddress != desc->bEndpointAddress
@@ -595,12 +595,12 @@ static int s3c_ep_enable(struct usb_ep *_ep,
  */
 static int s3c_ep_disable(struct usb_ep *_ep)
 {
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep || !ep->desc) {
 		debug("%s: %s not enabled\n", __func__,
 		      _ep ? ep->ep.name : NULL);
@@ -652,13 +652,13 @@ static void s3c_free_request(struct usb_ep *ep, struct usb_request *_req)
 /* dequeue JUST ONE request */
 static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 {
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 	struct s3c_request *req;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep || ep->ep.name == ep0name)
 		return -EINVAL;
 
@@ -686,9 +686,9 @@ static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 static int s3c_fifo_status(struct usb_ep *_ep)
 {
 	int count = 0;
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep) {
 		debug("%s: bad ep\n", __func__);
 		return -ENODEV;
@@ -708,9 +708,9 @@ static int s3c_fifo_status(struct usb_ep *_ep)
  */
 static void s3c_fifo_flush(struct usb_ep *_ep)
 {
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (unlikely(!_ep || (!ep->desc && ep->ep.name != ep0name))) {
 		debug("%s: bad ep\n", __func__);
 		return;

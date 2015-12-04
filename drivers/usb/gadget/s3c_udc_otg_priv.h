@@ -51,7 +51,7 @@ enum ep_type {
 	ep_control, ep_bulk_in, ep_bulk_out, ep_interrupt
 };
 
-struct s3c_ep {
+struct dwc2_ep {
 	struct usb_ep ep;
 	struct dwc2_udc *dev;
 
@@ -81,7 +81,7 @@ struct dwc2_udc {
 	struct s3c_plat_otg_data *pdata;
 
 	int ep0state;
-	struct s3c_ep ep[S3C_MAX_ENDPOINTS];
+	struct dwc2_ep ep[S3C_MAX_ENDPOINTS];
 
 	unsigned char usb_address;
 
@@ -97,6 +97,6 @@ extern struct dwc2_udc *the_controller;
 extern void otg_phy_init(struct dwc2_udc *dev);
 extern void otg_phy_off(struct dwc2_udc *dev);
 
-extern void s3c_udc_ep_set_stall(struct s3c_ep *ep);
+extern void s3c_udc_ep_set_stall(struct dwc2_ep *ep);
 
 #endif	/* __S3C_UDC_OTG_PRIV__ */
