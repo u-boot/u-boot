@@ -9,7 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/sysmap.h>
 
-#include "s3c_udc_otg_priv.h"
+#include "dwc2_udc_otg_priv.h"
 #include "bcm_udc_otg.h"
 
 void otg_phy_init(struct dwc2_udc *dev)

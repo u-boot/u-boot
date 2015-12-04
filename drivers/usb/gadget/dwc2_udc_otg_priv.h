@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __S3C_UDC_OTG_PRIV__
-#define __S3C_UDC_OTG_PRIV__
+#ifndef __DWC2_UDC_OTG_PRIV__
+#define __DWC2_UDC_OTG_PRIV__
 
 #include <asm/errno.h>
 #include <linux/sizes.h>
@@ -95,4 +95,4 @@ struct dwc2_udc {
 void otg_phy_init(struct dwc2_udc *dev);
 void otg_phy_off(struct dwc2_udc *dev);
 
-#endif	/* __S3C_UDC_OTG_PRIV__ */
+#endif	/* __DWC2_UDC_OTG_PRIV__ */
