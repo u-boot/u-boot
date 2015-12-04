@@ -652,14 +652,14 @@ static int dwc2_queue(struct usb_ep *_ep, struct usb_request *_req,
 		} else if (ep_is_in(ep)) {
 			gintsts = readl(&reg->gintsts);
 			debug_cond(DEBUG_IN_EP,
-				   "%s: ep_is_in, S3C_UDC_OTG_GINTSTS=0x%x\n",
+				   "%s: ep_is_in, DWC2_UDC_OTG_GINTSTS=0x%x\n",
 				   __func__, gintsts);
 
 			setdma_tx(ep, req);
 		} else {
 			gintsts = readl(&reg->gintsts);
 			debug_cond(DEBUG_OUT_EP != 0,
-				   "%s:ep_is_out, S3C_UDC_OTG_GINTSTS=0x%x\n",
+				   "%s:ep_is_out, DWC2_UDC_OTG_GINTSTS=0x%x\n",
 				   __func__, gintsts);
 
 			setdma_rx(ep, req);

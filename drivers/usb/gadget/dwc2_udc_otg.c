@@ -190,7 +190,7 @@ static void udc_reinit(struct dwc2_udc *dev)
 	dev->ep0state = WAIT_FOR_SETUP;
 
 	/* basic endpoint records init */
-	for (i = 0; i < S3C_MAX_ENDPOINTS; i++) {
+	for (i = 0; i < DWC2_MAX_ENDPOINTS; i++) {
 		struct dwc2_ep *ep = &dev->ep[i];
 
 		if (i != 0)
@@ -380,7 +380,7 @@ static void stop_activity(struct dwc2_udc *dev,
 	dev->gadget.speed = USB_SPEED_UNKNOWN;
 
 	/* prevent new request submissions, kill any outstanding requests  */
-	for (i = 0; i < S3C_MAX_ENDPOINTS; i++) {
+	for (i = 0; i < DWC2_MAX_ENDPOINTS; i++) {
 		struct dwc2_ep *ep = &dev->ep[i];
 		ep->stopped = 1;
 		nuke(ep, -ESHUTDOWN);
@@ -448,7 +448,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->out_endp[EP0_CON].doepctl);
 	writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->in_endp[EP0_CON].diepctl);
 
-	for (i = 1; i < S3C_MAX_ENDPOINTS; i++) {
+	for (i = 1; i < DWC2_MAX_ENDPOINTS; i++) {
 		writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->out_endp[i].doepctl);
 		writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->in_endp[i].diepctl);
 	}
@@ -470,7 +470,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	writel((NPTX_FIFO_SIZE >> 2) << 16 | ((RX_FIFO_SIZE >> 2)) << 0,
 	       &reg->gnptxfsiz);
 
-	for (i = 1; i < S3C_MAX_HW_ENDPOINTS; i++)
+	for (i = 1; i < DWC2_MAX_HW_ENDPOINTS; i++)
 		writel((PTX_FIFO_SIZE >> 2) << 16 |
 		       ((RX_FIFO_SIZE + NPTX_FIFO_SIZE +
 			 PTX_FIFO_SIZE*(i-1)) >> 2) << 0,
@@ -479,13 +479,13 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	/* Flush the RX FIFO */
 	writel(RX_FIFO_FLUSH, &reg->grstctl);
 	while (readl(&reg->grstctl) & RX_FIFO_FLUSH)
-		debug("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
+		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
 
 	/* Flush all the Tx FIFO's */
 	writel(TX_FIFO_FLUSH_ALL, &reg->grstctl);
 	writel(TX_FIFO_FLUSH_ALL | TX_FIFO_FLUSH, &reg->grstctl);
 	while (readl(&reg->grstctl) & TX_FIFO_FLUSH)
-		debug("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
+		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
 
 	/* 13. Clear NAK bit of EP0, EP1, EP2*/
 	/* For Slave mode*/
@@ -515,7 +515,7 @@ static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 	}
 
 	dev->ep[0].ep.maxpacket = ep0_fifo_size;
-	for (i = 1; i < S3C_MAX_ENDPOINTS; i++)
+	for (i = 1; i < DWC2_MAX_ENDPOINTS; i++)
 		dev->ep[i].ep.maxpacket = ep_fifo_size;
 
 	/* EP0 - Control IN (64 bytes)*/
