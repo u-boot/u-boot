@@ -12,7 +12,7 @@
 #define __ASM_ARCH_REGS_USB_OTG_HS_H
 
 /* USB2.0 OTG Controller register */
-struct s3c_usbotg_phy {
+struct dwc2_usbotg_phy {
 	u32 phypwr;
 	u32 phyclk;
 	u32 rstcon;
