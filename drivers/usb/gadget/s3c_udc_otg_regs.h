@@ -48,7 +48,7 @@ struct ep_fifo {
 };
 
 /* USB2.0 OTG Controller register */
-struct s3c_usbotg_reg {
+struct dwc2_usbotg_reg {
 	/* Core Global Registers */
 	u32 gotgctl; /* OTG Control & Status */
 	u32 gotgint; /* OTG Interrupt */

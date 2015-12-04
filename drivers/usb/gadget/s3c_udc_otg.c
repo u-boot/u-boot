@@ -144,7 +144,7 @@ static struct usb_ep_ops s3c_ep_ops = {
 /***********************************************************/
 
 void __iomem		*regs_otg;
-struct s3c_usbotg_reg *reg;
+struct dwc2_usbotg_reg *reg;
 
 bool dfu_usb_get_reset(void)
 {
@@ -805,7 +805,7 @@ int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 
 	dev->pdata = pdata;
 
-	reg = (struct s3c_usbotg_reg *)pdata->regs_otg;
+	reg = (struct dwc2_usbotg_reg *)pdata->regs_otg;
 
 	/* regs_otg = (void *)pdata->regs_otg; */
 
