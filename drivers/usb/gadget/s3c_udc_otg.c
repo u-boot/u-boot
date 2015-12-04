@@ -84,9 +84,9 @@ static dma_addr_t usb_ctrl_dma_addr;
 /*
   Local declarations.
 */
-static int s3c_ep_enable(struct usb_ep *ep,
+static int dwc2_ep_enable(struct usb_ep *ep,
 			 const struct usb_endpoint_descriptor *);
-static int s3c_ep_disable(struct usb_ep *ep);
+static int dwc2_ep_disable(struct usb_ep *ep);
 static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 					     gfp_t gfp_flags);
 static void s3c_free_request(struct usb_ep *ep, struct usb_request *);
@@ -124,9 +124,9 @@ void *get_udc_gadget_private_data(struct usb_gadget *gadget)
 	return gadget->dev.device_data;
 }
 
-static struct usb_ep_ops s3c_ep_ops = {
-	.enable = s3c_ep_enable,
-	.disable = s3c_ep_disable,
+static struct usb_ep_ops dwc2_ep_ops = {
+	.enable = dwc2_ep_enable,
+	.disable = dwc2_ep_disable,
 
 	.alloc_request = s3c_alloc_request,
 	.free_request = s3c_free_request,
@@ -527,7 +527,7 @@ static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 	writel(ep_ctrl|(0<<0), &reg->out_endp[EP0_CON].doepctl);
 }
 
-static int s3c_ep_enable(struct usb_ep *_ep,
+static int dwc2_ep_enable(struct usb_ep *_ep,
 			 const struct usb_endpoint_descriptor *desc)
 {
 	struct dwc2_ep *ep;
@@ -593,7 +593,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 /*
  * Disable EP
  */
-static int s3c_ep_disable(struct usb_ep *_ep)
+static int dwc2_ep_disable(struct usb_ep *_ep)
 {
 	struct dwc2_ep *ep;
 	unsigned long flags = 0;
@@ -735,7 +735,7 @@ static struct dwc2_udc memory = {
 	.ep[0] = {
 		.ep = {
 			.name = ep0name,
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP0_FIFO_SIZE,
 		},
 		.dev = &memory,
@@ -750,7 +750,7 @@ static struct dwc2_udc memory = {
 	.ep[1] = {
 		.ep = {
 			.name = "ep1in-bulk",
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
@@ -765,7 +765,7 @@ static struct dwc2_udc memory = {
 	.ep[2] = {
 		.ep = {
 			.name = "ep2out-bulk",
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
@@ -780,7 +780,7 @@ static struct dwc2_udc memory = {
 	.ep[3] = {
 		.ep = {
 			.name = "ep3in-int",
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
