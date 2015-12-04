@@ -214,7 +214,7 @@ void board_init_uart_f(void)
 	setup_uarts(uart_ids);
 }
 
-#if CONFIG_IS_ENABLED(DM_SERIAL) && !CONFIG_IS_ENABLED(OF_CONTROL)
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 static struct ns16550_platdata ns16550_com1_pdata = {
 	.base = CONFIG_SYS_NS16550_COM1,
 	.reg_shift = 2,
