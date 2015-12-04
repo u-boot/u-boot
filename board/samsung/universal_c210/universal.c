@@ -17,7 +17,7 @@
 #include <ld9040.h>
 #include <power/pmic.h>
 #include <usb.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
 #include <libtizen.h>

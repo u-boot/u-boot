@@ -13,7 +13,7 @@
 #include <asm/arch/sysmap.h>
 
 #include <usb.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <g_dnl.h>
 
 #define SECWATCHDOG_SDOGCR_OFFSET	0x00000000

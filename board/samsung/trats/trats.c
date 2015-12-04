@@ -18,7 +18,7 @@
 #include <asm/arch/watchdog.h>
 #include <asm/arch/power.h>
 #include <power/pmic.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <power/max8997_pmic.h>
 #include <power/max8997_muic.h>
 #include <power/battery.h>

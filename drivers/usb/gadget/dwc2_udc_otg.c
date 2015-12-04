@@ -46,7 +46,7 @@
 #define DEBUG_OUT_EP 0
 #define DEBUG_IN_EP 0
 
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 
 #define EP0_CON		0
 #define EP_MASK		0xF

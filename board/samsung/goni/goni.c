@@ -10,7 +10,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <power/pmic.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
 #include <samsung/misc.h>

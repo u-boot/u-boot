@@ -1,13 +1,13 @@
 /*
- * drivers/usb/gadget/s3c_udc.h
+ * drivers/usb/gadget/dwc2_udc.h
  * Designware DWC2 on-chip full/high speed USB device controllers
  * Copyright (C) 2005 for Samsung Electronics
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __S3C_USB_GADGET
-#define __S3C_USB_GADGET
+#ifndef __DWC2_USB_GADGET
+#define __DWC2_USB_GADGET
 
 #define PHY0_SLEEP              (1 << 5)
 
@@ -22,4 +22,4 @@ struct dwc2_plat_otg_data {
 
 int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata);
 
-#endif
+#endif	/* __DWC2_USB_GADGET */

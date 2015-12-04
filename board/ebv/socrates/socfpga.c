@@ -9,7 +9,7 @@
 #include <asm/io.h>
 
 #include <usb.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <usb_mass_storage.h>
 
 #include <micrel.h>

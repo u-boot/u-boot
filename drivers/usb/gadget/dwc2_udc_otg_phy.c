@@ -36,7 +36,7 @@
 #include "dwc2_udc_otg_priv.h"
 #include <usb/lin_gadget_compat.h>
 
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 
 void otg_phy_init(struct dwc2_udc *dev)
 {

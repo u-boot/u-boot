@@ -14,7 +14,7 @@
 #include <linux/usb/gadget.h>
 #include <linux/list.h>
 #include <usb/lin_gadget_compat.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 
 /*-------------------------------------------------------------------------*/
 /* DMA bounce buffer size, 16K is enough even for mass storage */
