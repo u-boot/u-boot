@@ -56,9 +56,6 @@
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
 /* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
-#endif
 #define CONFIG_G_DNL_MANUFACTURER      "Terasic"
 
 /* Extra Environment */
