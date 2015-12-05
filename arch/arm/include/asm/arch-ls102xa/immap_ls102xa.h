@@ -230,7 +230,7 @@ struct ccsr_scfg {
 	u32 scfgrevcr;
 	u32 coresrencr;
 	u32 pex2pmrdsr;
-	u32 ddrc1cr;
+	u32 eddrtqcfg;
 	u32 ddrc2cr;
 	u32 ddrc3cr;
 	u32 ddrc4cr;

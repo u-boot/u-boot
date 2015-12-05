@@ -76,5 +76,15 @@ int arch_soc_init(void)
 				SCFG_SNPCNFGCR_DBG_RD_WR |
 				SCFG_SNPCNFGCR_EDMA_SNP);
 
+	/*
+	 * Memory controller require a register write before being enabled.
+	 * Affects: DDR
+	 * Register: EDDRTQCFG
+	 * Description: Memory controller performance is not optimal with
+	 *		default internal target queue register values.
+	 * Workaround: Write a value of 63b2_0042h to address: 157_020Ch.
+	 */
+	out_be32(&scfg->eddrtqcfg, 0x63b20042);
+
 	return 0;
 }
