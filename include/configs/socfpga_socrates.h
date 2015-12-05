@@ -43,15 +43,8 @@
 
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
-
-/* PHY */
 #define CONFIG_PHY_MICREL
 #define CONFIG_PHY_MICREL_KSZ9021
-#define CONFIG_KSZ9021_CLK_SKEW_ENV	"micrel-ksz9021-clk-skew"
-#define CONFIG_KSZ9021_CLK_SKEW_VAL	0xf0f0
-#define CONFIG_KSZ9021_DATA_SKEW_ENV	"micrel-ksz9021-data-skew"
-#define CONFIG_KSZ9021_DATA_SKEW_VAL	0x0
-
 #endif
 
 #define CONFIG_ENV_IS_IN_MMC
