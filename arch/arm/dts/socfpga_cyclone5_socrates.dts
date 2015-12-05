@@ -14,6 +14,10 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
+	aliases {
+		udc0 = &usb1;
+	};
+
 	memory {
 		name = "memory";
 		device_type = "memory";
@@ -71,4 +75,8 @@
 		tchsh-ns = <4>;
 		tslch-ns = <4>;
 	};
+};
+
+&usb1 {
+	status = "okay";
 };
