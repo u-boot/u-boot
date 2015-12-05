@@ -47,11 +47,8 @@
 
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
-
-/* PHY */
 #define CONFIG_PHY_MICREL
 #define CONFIG_PHY_MICREL_KSZ9031
-
 #endif
 
 #define CONFIG_ENV_IS_IN_MMC
