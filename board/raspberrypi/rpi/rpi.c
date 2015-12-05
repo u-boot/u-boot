@@ -77,29 +77,33 @@ struct msg_get_clock_rate {
 /*
  * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
  * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733
- * http://git.drogon.net/?p=wiringPi;a=blob_plain;f=wiringPi/wiringPi.c;hb=5edd177112c99416f68ba3e8c6c4db6ed942e796
+ * http://git.drogon.net/?p=wiringPi;a=blob;f=wiringPi/wiringPi.c;h=503151f61014418b9c42f4476a6086f75cd4e64b;hb=refs/heads/master#l922
  */
-static const struct {
+struct rpi_model {
 	const char *name;
 	const char *fdtfile;
 	bool has_onboard_eth;
-} models[] = {
-	[0] = {
-		"Unknown model",
+};
+
+static const struct rpi_model rpi_model_unknown = {
+	"Unknown model",
 #ifdef CONFIG_BCM2836
-		"bcm2836-rpi-other.dtb",
+	"bcm2836-rpi-other.dtb",
 #else
-		"bcm2835-rpi-other.dtb",
+	"bcm2835-rpi-other.dtb",
 #endif
-		false,
-	},
-#ifdef CONFIG_BCM2836
+	false,
+};
+
+static const struct rpi_model rpi_models_new_scheme[] = {
 	[0x4] = {
 		"2 Model B",
 		"bcm2836-rpi-2-b.dtb",
 		true,
 	},
-#else
+};
+
+static const struct rpi_model rpi_models_old_scheme[] = {
 	[0x2] = {
 		"Model B (no P5)",
 		"bcm2835-rpi-b-i2c0.dtb",
@@ -185,10 +189,12 @@ static const struct {
 		"bcm2835-rpi-a-plus.dtb",
 		false,
 	},
-#endif
 };
 
-u32 rpi_board_rev = 0;
+static uint32_t revision;
+static uint32_t rev_scheme;
+static uint32_t rev_type;
+static const struct rpi_model *model;
 
 int dram_init(void)
 {
@@ -216,7 +222,7 @@ static void set_fdtfile(void)
 	if (getenv("fdtfile"))
 		return;
 
-	fdtfile = models[rpi_board_rev].fdtfile;
+	fdtfile = model->fdtfile;
 	setenv("fdtfile", fdtfile);
 }
 
@@ -225,7 +231,7 @@ static void set_usbethaddr(void)
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_mac_address, msg, 1);
 	int ret;
 
-	if (!models[rpi_board_rev].has_onboard_eth)
+	if (!model->has_onboard_eth)
 		return;
 
 	if (getenv("usbethaddr"))
@@ -249,10 +255,16 @@ static void set_usbethaddr(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 static void set_board_info(void)
 {
-	char str_rev[11];
-	sprintf(str_rev, "0x%X", rpi_board_rev);
-	setenv("board_rev", str_rev);
-	setenv("board_name", models[rpi_board_rev].name);
+	char s[11];
+
+	snprintf(s, sizeof(s), "0x%X", revision);
+	setenv("board_revision", s);
+	snprintf(s, sizeof(s), "%d", rev_scheme);
+	setenv("board_rev_scheme", s);
+	/* Can't rename this to board_rev_type since it's an ABI for scripts */
+	snprintf(s, sizeof(s), "0x%X", rev_type);
+	setenv("board_rev", s);
+	setenv("board_name", model->name);
 }
 #endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
 
@@ -294,7 +306,8 @@ static void get_board_rev(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_board_rev, msg, 1);
 	int ret;
-	const char *name;
+	const struct rpi_model *models;
+	uint32_t models_count;
 
 	BCM2835_MBOX_INIT_HDR(msg);
 	BCM2835_MBOX_INIT_TAG(&msg->get_board_rev, GET_BOARD_REV);
@@ -317,23 +330,29 @@ static void get_board_rev(void)
 	 * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=98367&start=250
 	 * http://www.raspberrypi.org/forums/viewtopic.php?f=31&t=20594
 	 */
-	rpi_board_rev = msg->get_board_rev.body.resp.rev;
-	if (rpi_board_rev & 0x800000)
-		rpi_board_rev = (rpi_board_rev >> 4) & 0xff;
-	else
-		rpi_board_rev &= 0xff;
-	if (rpi_board_rev >= ARRAY_SIZE(models)) {
-		printf("RPI: Board rev %u outside known range\n",
-		       rpi_board_rev);
-		rpi_board_rev = 0;
+	revision = msg->get_board_rev.body.resp.rev;
+	if (revision & 0x800000) {
+		rev_scheme = 1;
+		rev_type = (revision >> 4) & 0xff;
+		models = rpi_models_new_scheme;
+		models_count = ARRAY_SIZE(rpi_models_new_scheme);
+	} else {
+		rev_scheme = 0;
+		rev_type = revision & 0xff;
+		models = rpi_models_old_scheme;
+		models_count = ARRAY_SIZE(rpi_models_old_scheme);
 	}
-	if (!models[rpi_board_rev].name) {
-		printf("RPI: Board rev %u unknown\n", rpi_board_rev);
-		rpi_board_rev = 0;
+	if (rev_type >= models_count) {
+		printf("RPI: Board rev 0x%x outside known range\n", rev_type);
+		model = &rpi_model_unknown;
+	} else if (!models[rev_type].name) {
+		printf("RPI: Board rev 0x%x unknown\n", rev_type);
+		model = &rpi_model_unknown;
+	} else {
+		model = &models[rev_type];
 	}
 
-	name = models[rpi_board_rev].name;
-	printf("RPI %s\n", name);
+	printf("RPI %s (0x%x)\n", model->name, revision);
 }
 
 int board_init(void)
