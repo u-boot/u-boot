@@ -51,9 +51,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
-/* USB */
-#define CONFIG_G_DNL_MANUFACTURER      "Terasic"
-
 /* Extra Environment */
 #define CONFIG_HOSTNAME		socfpga_de0_nano_soc
 
