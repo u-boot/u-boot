@@ -14,6 +14,41 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+/*
+ * This erratum requires setting a value to eddrtqcr1 to
+ * optimal the DDR performance.
+ */
+static void erratum_a008336(void)
+{
+	u32 *eddrtqcr1;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
+#ifdef CONFIG_SYS_FSL_DCSR_DDR_ADDR
+	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
+	out_le32(eddrtqcr1, 0x63b30002);
+#endif
+#ifdef CONFIG_SYS_FSL_DCSR_DDR2_ADDR
+	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
+	out_le32(eddrtqcr1, 0x63b30002);
+#endif
+#endif
+}
+
+/*
+ * This erratum requires a register write before being Memory
+ * controller 3 being enabled.
+ */
+static void erratum_a008514(void)
+{
+	u32 *eddrtqcr1;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
+#ifdef CONFIG_SYS_FSL_DCSR_DDR3_ADDR
+	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
+	out_le32(eddrtqcr1, 0x63b20002);
+#endif
+#endif
+}
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
 #define PLATFORM_CYCLE_ENV_VAR	"a009635_interval_val"
 
@@ -118,6 +153,8 @@ void fsl_lsch3_early_init_f(void)
 	erratum_rcw_src();
 	init_early_memctl_regs();	/* tighten IFC timing */
 	erratum_a009203();
+	erratum_a008514();
+	erratum_a008336();
 }
 
 #elif defined(CONFIG_LS1043A)

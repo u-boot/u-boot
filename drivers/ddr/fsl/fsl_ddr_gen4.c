@@ -49,10 +49,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	u32 temp_sdram_cfg;
 	u32 total_gb_size_per_controller;
 	int timeout;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-	u32 *eddrtqcr1;
-#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	u32 temp32, mr6;
 	u32 vref_seq1[3] = {0x80, 0x96, 0x16};	/* for range 1 */
@@ -70,36 +66,20 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	switch (ctrl_num) {
 	case 0:
 		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
-#endif
 		break;
 #if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	case 1:
 		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
-#endif
 		break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
 	case 2:
 		ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
-#endif
 		break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
 	case 3:
 		ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR4_ADDR + 0x800;
-#endif
 		break;
 #endif
 	default:
@@ -110,20 +90,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if (step == 2)
 		goto step2;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
-	/* A008336 only applies to general DDR controllers */
-	if ((ctrl_num == 0) || (ctrl_num == 1))
-#endif
-		ddr_out32(eddrtqcr1, 0x63b30002);
-#endif
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
-	/* A008514 only applies to DP-DDR controler */
-	if (ctrl_num == 2)
-#endif
-		ddr_out32(eddrtqcr1, 0x63b20002);
-#endif
 	if (regs->ddr_eor)
 		ddr_out32(&ddr->eor, regs->ddr_eor);
 
