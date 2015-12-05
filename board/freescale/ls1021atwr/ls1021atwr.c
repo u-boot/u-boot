@@ -12,6 +12,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
 #include <asm/arch/ls102xa_devdis.h>
+#include <asm/arch/ls102xa_soc.h>
 #include <asm/arch/ls102xa_sata.h>
 #include <hwconfig.h>
 #include <mmc.h>
@@ -136,17 +137,6 @@ int checkboard(void)
 #endif
 
 	return 0;
-}
-
-unsigned int get_soc_major_rev(void)
-{
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-	unsigned int svr, major;
-
-	svr = in_be32(&gur->svr);
-	major = SVR_MAJ(svr);
-
-	return major;
 }
 
 void ddrmc_init(void)
@@ -394,8 +384,6 @@ conflict:
 int board_early_init_f(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
-	unsigned int major;
 
 #ifdef CONFIG_TSEC_ENET
 	/* clear BD & FR bits for BE BD's and frame data */
@@ -407,33 +395,7 @@ int board_early_init_f(void)
 	init_early_memctl_regs();
 #endif
 
-#ifdef CONFIG_FSL_DCU_FB
-	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
-#endif
-
-#ifdef CONFIG_FSL_QSPI
-	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
-#endif
-
-	/* Configure Little endian for SAI, ASRC and SPDIF */
-	out_be32(&scfg->endiancr, SCFG_ENDIANCR_LE);
-
-	/*
-	 * Enable snoop requests and DVM message requests for
-	 * Slave insterface S4 (A7 core cluster)
-	 */
-	out_le32(&cci->slave[4].snoop_ctrl,
-		 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
-
-	major = get_soc_major_rev();
-	if (major == SOC_MAJOR_VER_1_0) {
-		/*
-		 * Set CCI-400 Slave interface S1, S2 Shareable Override
-		 * Register All transactions are treated as non-shareable
-		 */
-		out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-		out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-	}
+	arch_soc_init();
 
 #if defined(CONFIG_DEEP_SLEEP)
 	if (is_warm_boot()) {
