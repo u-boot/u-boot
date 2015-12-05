@@ -62,5 +62,13 @@ int arch_soc_init(void)
 		out_le32(&cci->ctrl_ord, CCI400_CTRLORD_TERM_BARRIER);
 	}
 
+	/* Enable all the snoop signal for various masters */
+	out_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SEC_RD_WR |
+				SCFG_SNPCNFGCR_DCU_RD_WR |
+				SCFG_SNPCNFGCR_SATA_RD_WR |
+				SCFG_SNPCNFGCR_USB3_RD_WR |
+				SCFG_SNPCNFGCR_DBG_RD_WR |
+				SCFG_SNPCNFGCR_EDMA_SNP);
+
 	return 0;
 }
