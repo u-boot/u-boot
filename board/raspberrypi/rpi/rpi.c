@@ -74,7 +74,11 @@ struct msg_get_clock_rate {
 	u32 end_tag;
 };
 
-/* See comments in mbox.h for data source */
+/*
+ * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
+ * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733
+ * http://git.drogon.net/?p=wiringPi;a=blob_plain;f=wiringPi/wiringPi.c;hb=5edd177112c99416f68ba3e8c6c4db6ed942e796
+ */
 static const struct {
 	const char *name;
 	const char *fdtfile;
@@ -90,93 +94,93 @@ static const struct {
 		false,
 	},
 #ifdef CONFIG_BCM2836
-	[BCM2836_BOARD_REV_2_B] = {
+	[0x4] = {
 		"2 Model B",
 		"bcm2836-rpi-2-b.dtb",
 		true,
 	},
 #else
-	[BCM2835_BOARD_REV_B_I2C0_2] = {
+	[0x2] = {
 		"Model B (no P5)",
 		"bcm2835-rpi-b-i2c0.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_B_I2C0_3] = {
+	[0x3] = {
 		"Model B (no P5)",
 		"bcm2835-rpi-b-i2c0.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_B_I2C1_4] = {
+	[0x4] = {
 		"Model B",
 		"bcm2835-rpi-b.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_B_I2C1_5] = {
+	[0x5] = {
 		"Model B",
 		"bcm2835-rpi-b.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_B_I2C1_6] = {
+	[0x6] = {
 		"Model B",
 		"bcm2835-rpi-b.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_A_7] = {
+	[0x7] = {
 		"Model A",
 		"bcm2835-rpi-a.dtb",
 		false,
 	},
-	[BCM2835_BOARD_REV_A_8] = {
+	[0x8] = {
 		"Model A",
 		"bcm2835-rpi-a.dtb",
 		false,
 	},
-	[BCM2835_BOARD_REV_A_9] = {
+	[0x9] = {
 		"Model A",
 		"bcm2835-rpi-a.dtb",
 		false,
 	},
-	[BCM2835_BOARD_REV_B_REV2_d] = {
+	[0xd] = {
 		"Model B rev2",
 		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_B_REV2_e] = {
+	[0xe] = {
 		"Model B rev2",
 		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_B_REV2_f] = {
+	[0xf] = {
 		"Model B rev2",
 		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_B_PLUS] = {
+	[0x10] = {
 		"Model B+",
 		"bcm2835-rpi-b-plus.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_CM] = {
+	[0x11] = {
 		"Compute Module",
 		"bcm2835-rpi-cm.dtb",
 		false,
 	},
-	[BCM2835_BOARD_REV_A_PLUS] = {
+	[0x12] = {
 		"Model A+",
 		"bcm2835-rpi-a-plus.dtb",
 		false,
 	},
-	[BCM2835_BOARD_REV_B_PLUS_13] = {
+	[0x13] = {
 		"Model B+",
 		"bcm2835-rpi-b-plus.dtb",
 		true,
 	},
-	[BCM2835_BOARD_REV_CM_14] = {
+	[0x14] = {
 		"Compute Module",
 		"bcm2835-rpi-cm.dtb",
 		false,
 	},
-	[BCM2835_BOARD_REV_A_PLUS_15] = {
+	[0x15] = {
 		"Model A+",
 		"bcm2835-rpi-a-plus.dtb",
 		false,
