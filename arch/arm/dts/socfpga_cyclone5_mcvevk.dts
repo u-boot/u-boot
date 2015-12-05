@@ -16,6 +16,7 @@
 
 	aliases {
 		ethernet0 = &gmac0;
+		udc0 = &usb1;
 	};
 
 	memory {
@@ -50,4 +51,8 @@
 	status = "okay";
 	bus-width = <8>;
 	u-boot,dm-pre-reloc;
+};
+
+&usb1 {
+	status = "okay";
 };
