@@ -52,8 +52,6 @@
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
 /* Extra Environment */
-#define CONFIG_HOSTNAME		socfpga_de0_nano_soc
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr= " __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramboot=setenv bootargs " CONFIG_BOOTARGS ";" \

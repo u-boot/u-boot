@@ -56,8 +56,6 @@
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
 /* Extra Environment */
-#define CONFIG_HOSTNAME		socfpga_arria5
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
 	"loadaddr= " __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \

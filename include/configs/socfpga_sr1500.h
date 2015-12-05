@@ -53,9 +53,6 @@
 #define CONFIG_PHY_MARVELL
 #define PHY_ANEG_TIMEOUT	8000
 
-/* Extra Environment */
-#define CONFIG_HOSTNAME		sr1500
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
 	"loadaddr= " __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \

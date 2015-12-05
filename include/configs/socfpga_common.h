@@ -69,6 +69,10 @@
 #define CONFIG_CMDLINE_EDITING			/* Command history etc */
 #define CONFIG_SYS_HUSH_PARSER
 
+#ifndef CONFIG_SYS_HOSTNAME
+#define CONFIG_SYS_HOSTNAME	CONFIG_SYS_BOARD
+#endif
+
 /*
  * Cache
  */

@@ -49,8 +49,6 @@
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
 /* Extra Environment */
-#define CONFIG_HOSTNAME			mcvevk
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttyS0\0"						\
 	"baudrate=115200\0"						\
