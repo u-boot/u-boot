@@ -23,7 +23,7 @@
  * @flashp: Pointer to place to put flash info, which may be NULL if the
  * space should be allocated
  */
-int spi_flash_probe_slave(struct spi_flash *flash)
+static int spi_flash_probe_slave(struct spi_flash *flash)
 {
 	struct spi_slave *spi = flash->spi;
 	int ret;
@@ -57,7 +57,7 @@ err_read_id:
 }
 
 #ifndef CONFIG_DM_SPI_FLASH
-struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
+static struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
 {
 	struct spi_flash *flash;
 
@@ -121,7 +121,7 @@ static int spi_flash_std_read(struct udevice *dev, u32 offset, size_t len,
 	return spi_flash_cmd_read_ops(flash, offset, len, buf);
 }
 
-int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
+static int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
 			const void *buf)
 {
 	struct spi_flash *flash = dev_get_uclass_priv(dev);
@@ -138,14 +138,14 @@ int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
 	return spi_flash_cmd_write_ops(flash, offset, len, buf);
 }
 
-int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
+static int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
 {
 	struct spi_flash *flash = dev_get_uclass_priv(dev);
 
 	return spi_flash_cmd_erase_ops(flash, offset, len);
 }
 
-int spi_flash_std_probe(struct udevice *dev)
+static int spi_flash_std_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
