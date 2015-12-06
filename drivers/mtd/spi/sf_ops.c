@@ -896,8 +896,9 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 }
 #endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
-int spi_flash_scan(struct spi_slave *spi, struct spi_flash *flash)
+int spi_flash_scan(struct spi_flash *flash)
 {
+	struct spi_slave *spi = flash->spi;
 	const struct spi_flash_params *params;
 	u16 jedec, ext_jedec;
 	u8 idcode[5];
@@ -946,7 +947,6 @@ int spi_flash_scan(struct spi_slave *spi, struct spi_flash *flash)
 		write_sr(flash, 0);
 
 	/* Assign spi data */
-	flash->spi = spi;
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
 	flash->dual_flash = flash->spi->option;

@@ -20,12 +20,12 @@
 /**
  * spi_flash_probe_slave() - Probe for a SPI flash device on a bus
  *
- * @spi: Bus to probe
  * @flashp: Pointer to place to put flash info, which may be NULL if the
  * space should be allocated
  */
-int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
+int spi_flash_probe_slave(struct spi_flash *flash)
 {
+	struct spi_slave *spi = flash->spi;
 	int ret;
 
 	/* Setup spi_slave */
@@ -41,7 +41,7 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 		return ret;
 	}
 
-	ret = spi_flash_scan(spi, flash);
+	ret = spi_flash_scan(flash);
 	if (ret) {
 		ret = -EINVAL;
 		goto err_read_id;
@@ -68,7 +68,8 @@ struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
 		return NULL;
 	}
 
-	if (spi_flash_probe_slave(bus, flash)) {
+	flash->spi = bus;
+	if (spi_flash_probe_slave(flash)) {
 		spi_free_slave(bus);
 		free(flash);
 		return NULL;
@@ -152,8 +153,9 @@ int spi_flash_std_probe(struct udevice *dev)
 
 	flash = dev_get_uclass_priv(dev);
 	flash->dev = dev;
+	flash->spi = slave;
 	debug("%s: slave=%p, cs=%d\n", __func__, slave, plat->cs);
-	return spi_flash_probe_slave(slave, flash);
+	return spi_flash_probe_slave(flash);
 }
 
 static const struct dm_spi_flash_ops spi_flash_std_ops = {
