@@ -40,6 +40,7 @@ config BLACKFIN
 
 config M68K
 	bool "M68000 architecture"
+	select HAVE_PRIVATE_LIBGCC
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
 
