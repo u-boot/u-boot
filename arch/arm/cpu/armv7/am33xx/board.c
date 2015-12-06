@@ -38,11 +38,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_DM_SERIAL) && !defined(CONFIG_OF_CONTROL)
-/*
- * TODO(sjg@chromium.org): When we can move SPL serial to DM, we can remove
- * the CONFIGs. At the same time, we should move this to the board files.
- */
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct ns16550_platdata am33xx_serial[] = {
 	{ CONFIG_SYS_NS16550_COM1, 2, CONFIG_SYS_NS16550_CLK },
 # ifdef CONFIG_SYS_NS16550_COM2
@@ -57,14 +53,14 @@ static const struct ns16550_platdata am33xx_serial[] = {
 };
 
 U_BOOT_DEVICES(am33xx_uarts) = {
-	{ "serial_omap", &am33xx_serial[0] },
+	{ "ns16550_serial", &am33xx_serial[0] },
 #  ifdef CONFIG_SYS_NS16550_COM2
-	{ "serial_omap", &am33xx_serial[1] },
+	{ "ns16550_serial", &am33xx_serial[1] },
 #   ifdef CONFIG_SYS_NS16550_COM3
-	{ "serial_omap", &am33xx_serial[2] },
-	{ "serial_omap", &am33xx_serial[3] },
-	{ "serial_omap", &am33xx_serial[4] },
-	{ "serial_omap", &am33xx_serial[5] },
+	{ "ns16550_serial", &am33xx_serial[2] },
+	{ "ns16550_serial", &am33xx_serial[3] },
+	{ "ns16550_serial", &am33xx_serial[4] },
+	{ "ns16550_serial", &am33xx_serial[5] },
 #   endif
 #  endif
 };
