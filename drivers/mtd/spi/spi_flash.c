@@ -1,9 +1,10 @@
 /*
- * SPI flash operations
+ * SPI Flash Core
  *
- * Copyright (C) 2008 Atmel Corporation
- * Copyright (C) 2010 Reinhard Meyer, EMK Elektronik
+ * Copyright (C) 2015 Jagan Teki <jteki@openedev.com>
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
+ * Copyright (C) 2010 Reinhard Meyer, EMK Elektronik
+ * Copyright (C) 2008 Atmel Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

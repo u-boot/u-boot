@@ -12,7 +12,7 @@ obj-$(CONFIG_SPL_SPI_LOAD)	+= spi_spl_load.o
 obj-$(CONFIG_SPL_SPI_BOOT)	+= fsl_espi_spl.o
 endif
 
-obj-$(CONFIG_SPI_FLASH) += sf_probe.o sf_ops.o sf_params.o sf.o
+obj-$(CONFIG_SPI_FLASH) += sf_probe.o spi_flash.o sf_params.o sf.o
 obj-$(CONFIG_SPI_FLASH_DATAFLASH) += sf_dataflash.o
 obj-$(CONFIG_SPI_FLASH_MTD) += sf_mtd.o
 obj-$(CONFIG_SPI_FLASH_SANDBOX) += sandbox.o
