@@ -117,7 +117,7 @@
 							"pci8086,8811",
 							"pciclass,070002",
 							"pciclass,0700",
-							"x86-uart";
+							"ns16550";
 					u-boot,dm-pre-reloc;
 					reg = <0x00025100 0x0 0x0 0x0 0x0
 					       0x01025110 0x0 0x0 0x0 0x0>;
@@ -131,7 +131,7 @@
 							"pci8086,8812",
 							"pciclass,070002",
 							"pciclass,0700",
-							"x86-uart";
+							"ns16550";
 					u-boot,dm-pre-reloc;
 					reg = <0x00025200 0x0 0x0 0x0 0x0
 					       0x01025210 0x0 0x0 0x0 0x0>;
@@ -145,7 +145,7 @@
 							"pci8086,8813",
 							"pciclass,070002",
 							"pciclass,0700",
-							"x86-uart";
+							"ns16550";
 					u-boot,dm-pre-reloc;
 					reg = <0x00025300 0x0 0x0 0x0 0x0
 					       0x01025310 0x0 0x0 0x0 0x0>;
@@ -159,7 +159,7 @@
 							"pci8086,8814",
 							"pciclass,070002",
 							"pciclass,0700",
-							"x86-uart";
+							"ns16550";
 					u-boot,dm-pre-reloc;
 					reg = <0x00025400 0x0 0x0 0x0 0x0
 					       0x01025410 0x0 0x0 0x0 0x0>;
