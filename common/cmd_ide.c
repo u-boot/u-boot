@@ -79,8 +79,8 @@ static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len
 
 #ifdef CONFIG_ATAPI
 static void	atapi_inquiry(block_dev_desc_t *dev_desc);
-static ulong atapi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
-			void *buffer);
+static ulong atapi_read(block_dev_desc_t *block_dev, lbaint_t blknr,
+			lbaint_t blkcnt, void *buffer);
 #endif
 
 
@@ -187,6 +187,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		if (strcmp(argv[1], "read") == 0) {
 			ulong addr = simple_strtoul(argv[2], NULL, 16);
 			ulong cnt = simple_strtoul(argv[4], NULL, 16);
+			block_dev_desc_t *dev_desc;
 			ulong n;
 
 #ifdef CONFIG_SYS_64BIT_LBA
@@ -201,9 +202,9 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				curr_device, blk, cnt);
 #endif
 
-			n = ide_dev_desc[curr_device].block_read(curr_device,
-								 blk, cnt,
-								 (ulong *)addr);
+			dev_desc = &ide_dev_desc[curr_device];
+			n = dev_desc->block_read(dev_desc, blk, cnt,
+						 (ulong *)addr);
 			/* flush cache after read */
 			flush_cache(addr,
 				    cnt * ide_dev_desc[curr_device].blksz);
@@ -230,7 +231,8 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			printf("\nIDE write: device %d block # %ld, count %ld ... ",
 				curr_device, blk, cnt);
 #endif
-			n = ide_write(curr_device, blk, cnt, (ulong *) addr);
+			n = ide_write(&ide_dev_desc[curr_device], blk, cnt,
+				      (ulong *)addr);
 
 			printf("%ld blocks written: %s\n",
 				n, (n == cnt) ? "OK" : "ERROR");
@@ -711,8 +713,10 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 
 /* ------------------------------------------------------------------------- */
 
-ulong ide_read(int device, lbaint_t blknr, lbaint_t blkcnt, void *buffer)
+ulong ide_read(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+	       void *buffer)
 {
+	int device = block_dev->dev;
 	ulong n = 0;
 	unsigned char c;
 	unsigned char pwrsave = 0;	/* power save */
@@ -835,8 +839,10 @@ IDE_READ_E:
 /* ------------------------------------------------------------------------- */
 
 
-ulong ide_write(int device, lbaint_t blknr, lbaint_t blkcnt, const void *buffer)
+ulong ide_write(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+		const void *buffer)
 {
+	int device = block_dev->dev;
 	ulong n = 0;
 	unsigned char c;
 
@@ -1388,8 +1394,10 @@ static void atapi_inquiry(block_dev_desc_t *dev_desc)
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK	(ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE)
 
-ulong atapi_read(int device, lbaint_t blknr, lbaint_t blkcnt, void *buffer)
+ulong atapi_read(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+		 void *buffer)
 {
+	int device = block_dev->dev;
 	ulong n = 0;
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;

@@ -38,7 +38,8 @@ void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
 	blk_start = ALIGN(offs, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt = ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
 
-	err = mmc->block_dev.block_read(0, blk_start, blk_cnt, vdst);
+	err = mmc->block_dev.block_read(&mmc->block_dev, blk_start, blk_cnt,
+					vdst);
 	if (err != blk_cnt) {
 		puts("spl: mmc read failed!!\n");
 		hang();
@@ -85,7 +86,8 @@ void __noreturn mmc_boot(void)
 	/*
 	* Read source addr from sd card
 	*/
-	err = mmc->block_dev.block_read(0, CONFIG_CFG_DATA_SECTOR, 1, tmp_buf);
+	err = mmc->block_dev.block_read(&mmc->block_dev,
+					CONFIG_CFG_DATA_SECTOR, 1, tmp_buf);
 	if (err != 1) {
 		puts("spl: mmc read failed!!\n");
 		free(tmp_buf);
@@ -126,7 +128,7 @@ void __noreturn mmc_boot(void)
 #endif
 	blk_start = ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt = ALIGN(code_len, mmc->read_bl_len) / mmc->read_bl_len;
-	err = mmc->block_dev.block_read(0, blk_start, blk_cnt,
+	err = mmc->block_dev.block_read(&mmc->block_dev, blk_start, blk_cnt,
 					(uchar *)CONFIG_SYS_MMC_U_BOOT_DST);
 	if (err != blk_cnt) {
 		puts("spl: mmc read failed!!\n");

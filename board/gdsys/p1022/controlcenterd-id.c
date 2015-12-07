@@ -232,7 +232,7 @@ static int ccdm_mmc_read(struct mmc *mmc, u64 src, u8 *dst, int size)
 	ofs = src % blk_len;
 
 	if (ofs) {
-		n = mmc->block_dev.block_read(mmc->block_dev.dev, block_no++, 1,
+		n = mmc->block_dev.block_read(&mmc->block_dev, block_no++, 1,
 			tmp_buf);
 		if (!n)
 			goto failure;
@@ -243,7 +243,7 @@ static int ccdm_mmc_read(struct mmc *mmc, u64 src, u8 *dst, int size)
 	}
 	cnt = size / blk_len;
 	if (cnt) {
-		n = mmc->block_dev.block_read(mmc->block_dev.dev, block_no, cnt,
+		n = mmc->block_dev.block_read(&mmc->block_dev, block_no, cnt,
 			dst);
 		if (n != cnt)
 			goto failure;
@@ -253,7 +253,7 @@ static int ccdm_mmc_read(struct mmc *mmc, u64 src, u8 *dst, int size)
 		block_no += cnt;
 	}
 	if (size) {
-		n = mmc->block_dev.block_read(mmc->block_dev.dev, block_no++, 1,
+		n = mmc->block_dev.block_read(&mmc->block_dev, block_no++, 1,
 			tmp_buf);
 		if (!n)
 			goto failure;

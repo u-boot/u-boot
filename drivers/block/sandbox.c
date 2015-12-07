@@ -22,9 +22,11 @@ static struct host_block_dev *find_host_device(int dev)
 	return NULL;
 }
 
-static unsigned long host_block_read(int dev, unsigned long start,
-				     lbaint_t blkcnt, void *buffer)
+static unsigned long host_block_read(block_dev_desc_t *block_dev,
+				     unsigned long start, lbaint_t blkcnt,
+				     void *buffer)
 {
+	int dev = block_dev->dev;
 	struct host_block_dev *host_dev = find_host_device(dev);
 
 	if (!host_dev)
@@ -42,9 +44,11 @@ static unsigned long host_block_read(int dev, unsigned long start,
 	return -1;
 }
 
-static unsigned long host_block_write(int dev, unsigned long start,
-				      lbaint_t blkcnt, const void *buffer)
+static unsigned long host_block_write(block_dev_desc_t *block_dev,
+				      unsigned long start, lbaint_t blkcnt,
+				      const void *buffer)
 {
+	int dev = block_dev->dev;
 	struct host_block_dev *host_dev = find_host_device(dev);
 	if (os_lseek(host_dev->fd,
 		     start * host_dev->blk_dev.blksz,

@@ -58,7 +58,7 @@ static int fb_mmc_sparse_write(struct sparse_storage *storage,
 	block_dev_desc_t *dev_desc = sparse->dev_desc;
 	int ret;
 
-	ret = dev_desc->block_write(dev_desc->dev, offset, size, data);
+	ret = dev_desc->block_write(dev_desc, offset, size, data);
 	if (!ret)
 		return -EIO;
 
@@ -84,8 +84,7 @@ static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
 
 	puts("Flashing Raw Image\n");
 
-	blks = dev_desc->block_write(dev_desc->dev, info->start, blkcnt,
-				     buffer);
+	blks = dev_desc->block_write(dev_desc, info->start, blkcnt, buffer);
 	if (blks != blkcnt) {
 		error("failed writing to device %d\n", dev_desc->dev);
 		fastboot_fail(response_str, "failed writing to device");
@@ -206,7 +205,7 @@ void fb_mmc_erase(const char *cmd, char *response)
 	printf("Erasing blocks " LBAFU " to " LBAFU " due to alignment\n",
 	       blks_start, blks_start + blks_size);
 
-	blks = dev_desc->block_erase(dev_desc->dev, blks_start, blks_size);
+	blks = dev_desc->block_erase(dev_desc, blks_start, blks_size);
 	if (blks != blks_size) {
 		error("failed erasing from device %d", dev_desc->dev);
 		fastboot_fail(response_str, "failed erasing from device");

@@ -395,7 +395,8 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 		printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
 				dev, blk, cnt);
 		mmc_init(mmc);
-		(void)mmc->block_dev.block_read(dev, blk, cnt, addr);
+		(void)mmc->block_dev.block_read(&mmc->block_dev, blk, cnt,
+						addr);
 		/* flush cache after read */
 		flush_cache((ulong)addr, cnt * 512);
 	}

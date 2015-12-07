@@ -18,6 +18,18 @@
 static int sata_curr_device = -1;
 block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
+static unsigned long sata_bread(block_dev_desc_t *block_dev, lbaint_t start,
+				lbaint_t blkcnt, void *dst)
+{
+	return sata_read(block_dev->dev, start, blkcnt, dst);
+}
+
+static unsigned long sata_bwrite(block_dev_desc_t *block_dev, lbaint_t start,
+				 lbaint_t blkcnt, const void *buffer)
+{
+	return sata_write(block_dev->dev, start, blkcnt, buffer);
+}
+
 int __sata_initialize(void)
 {
 	int rc;
@@ -32,8 +44,8 @@ int __sata_initialize(void)
 		sata_dev_desc[i].lba = 0;
 		sata_dev_desc[i].blksz = 512;
 		sata_dev_desc[i].log2blksz = LOG2(sata_dev_desc[i].blksz);
-		sata_dev_desc[i].block_read = sata_read;
-		sata_dev_desc[i].block_write = sata_write;
+		sata_dev_desc[i].block_read = sata_bread;
+		sata_dev_desc[i].block_write = sata_bwrite;
 
 		rc = init_sata(i);
 		if (!rc) {

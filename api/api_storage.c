@@ -345,19 +345,6 @@ int dev_close_stor(void *cookie)
 }
 
 
-static int dev_stor_index(block_dev_desc_t *dd)
-{
-	int i, type;
-
-	type = dev_stor_type(dd);
-	for (i = 0; i < specs[type].max_dev; i++)
-		if (dd == get_dev(specs[type].name, i))
-			return i;
-
-	return (specs[type].max_dev);
-}
-
-
 lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start)
 {
 	int type;
@@ -374,5 +361,5 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 		return 0;
 	}
 
-	return (dd->block_read(dev_stor_index(dd), start, len, buf));
+	return dd->block_read(dd, start, len, buf);
 }

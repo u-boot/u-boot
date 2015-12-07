@@ -51,8 +51,8 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 	if (!cur_dev || !cur_dev->block_read)
 		return -1;
 
-	ret = cur_dev->block_read(cur_dev->dev,
-				  cur_part_info.start + block, nr_blocks, buf);
+	ret = cur_dev->block_read(cur_dev, cur_part_info.start + block,
+				  nr_blocks, buf);
 
 	if (nr_blocks && ret == 0)
 		return -1;

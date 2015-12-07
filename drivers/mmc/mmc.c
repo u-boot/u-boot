@@ -234,8 +234,10 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	return blkcnt;
 }
 
-static ulong mmc_bread(int dev_num, lbaint_t start, lbaint_t blkcnt, void *dst)
+static ulong mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
+		       lbaint_t blkcnt, void *dst)
 {
+	int dev_num = block_dev->dev;
 	lbaint_t cur, blocks_todo = blkcnt;
 
 	if (blkcnt == 0)

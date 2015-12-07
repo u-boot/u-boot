@@ -56,7 +56,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 	      ", Block Size: %ld\n",
 	      info.start, info.size, info.blksz);
 
-	if (dev_desc->block_read(dev, info.start, 1, (ulong *) addr) != 1) {
+	if (dev_desc->block_read(dev_desc, info.start, 1, (ulong *)addr) != 1) {
 		printf("** Read error on %d:%d\n", dev, part);
 		bootstage_error(BOOTSTAGE_ID_IDE_PART_READ);
 		return 1;
@@ -100,8 +100,8 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 	cnt /= info.blksz;
 	cnt -= 1;
 
-	if (dev_desc->block_read(dev, info.start + 1, cnt,
-					 (ulong *)(addr + info.blksz)) != cnt) {
+	if (dev_desc->block_read(dev_desc, info.start + 1, cnt,
+				 (ulong *)(addr + info.blksz)) != cnt) {
 		printf("** Read error on %d:%d\n", dev, part);
 		bootstage_error(BOOTSTAGE_ID_IDE_READ);
 		return 1;

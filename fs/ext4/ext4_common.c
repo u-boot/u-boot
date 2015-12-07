@@ -82,26 +82,26 @@ void put_ext4(uint64_t off, void *buf, uint32_t size)
 
 	if (remainder) {
 		if (fs->dev_desc->block_read) {
-			fs->dev_desc->block_read(fs->dev_desc->dev,
+			fs->dev_desc->block_read(fs->dev_desc,
 						 startblock, 1, sec_buf);
 			temp_ptr = sec_buf;
 			memcpy((temp_ptr + remainder),
 			       (unsigned char *)buf, size);
-			fs->dev_desc->block_write(fs->dev_desc->dev,
+			fs->dev_desc->block_write(fs->dev_desc,
 						  startblock, 1, sec_buf);
 		}
 	} else {
 		if (size >> log2blksz != 0) {
-			fs->dev_desc->block_write(fs->dev_desc->dev,
+			fs->dev_desc->block_write(fs->dev_desc,
 						  startblock,
 						  size >> log2blksz,
 						  (unsigned long *)buf);
 		} else {
-			fs->dev_desc->block_read(fs->dev_desc->dev,
+			fs->dev_desc->block_read(fs->dev_desc,
 						 startblock, 1, sec_buf);
 			temp_ptr = sec_buf;
 			memcpy(temp_ptr, buf, size);
-			fs->dev_desc->block_write(fs->dev_desc->dev,
+			fs->dev_desc->block_write(fs->dev_desc,
 						  startblock, 1,
 						  (unsigned long *)sec_buf);
 		}

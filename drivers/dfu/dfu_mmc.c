@@ -77,11 +77,11 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	      dfu->data.mmc.dev_num, blk_start, blk_count, buf);
 	switch (op) {
 	case DFU_OP_READ:
-		n = mmc->block_dev.block_read(dfu->data.mmc.dev_num, blk_start,
+		n = mmc->block_dev.block_read(&mmc->block_dev, blk_start,
 					      blk_count, buf);
 		break;
 	case DFU_OP_WRITE:
-		n = mmc->block_dev.block_write(dfu->data.mmc.dev_num, blk_start,
+		n = mmc->block_dev.block_write(&mmc->block_dev, blk_start,
 					       blk_count, buf);
 		break;
 	default:
