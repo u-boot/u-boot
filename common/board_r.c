@@ -15,6 +15,7 @@
 #if defined(CONFIG_CMD_BEDBUG)
 #include <bedbug/type.h>
 #endif
+#include <command.h>
 #include <console.h>
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
