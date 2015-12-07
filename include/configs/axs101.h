@@ -95,7 +95,6 @@
 /*
  * Ethernet PHY configuration
  */
-#define CONFIG_PHYLIB
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE
 

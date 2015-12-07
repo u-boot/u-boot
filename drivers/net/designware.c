@@ -22,10 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_PHYLIB)
-# error "DesignWare Ether MAC requires PHYLIB - missing CONFIG_PHYLIB"
-#endif
-
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct eth_mac_regs *mac_p = bus->priv;

@@ -42,7 +42,6 @@
 /*
  * Ethernet PHY configuration
  */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_GIGE
 
 /*
