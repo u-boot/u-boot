@@ -444,8 +444,9 @@ static void set_bulk_out_req_length(struct fsg_common *common,
 
 /*-------------------------------------------------------------------------*/
 
-struct ums *ums;
-struct fsg_common *the_fsg_common;
+static struct ums *ums;
+static int ums_count;
+static struct fsg_common *the_fsg_common;
 
 static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
 {
@@ -772,7 +773,7 @@ static int do_read(struct fsg_common *common)
 		}
 
 		/* Perform the read */
-		rc = ums->read_sector(ums,
+		rc = ums[common->lun].read_sector(&ums[common->lun],
 				      file_offset / SECTOR_SIZE,
 				      amount / SECTOR_SIZE,
 				      (char __user *)bh->buf);
@@ -946,7 +947,7 @@ static int do_write(struct fsg_common *common)
 			amount = bh->outreq->actual;
 
 			/* Perform the write */
-			rc = ums->write_sector(ums,
+			rc = ums[common->lun].write_sector(&ums[common->lun],
 					       file_offset / SECTOR_SIZE,
 					       amount / SECTOR_SIZE,
 					       (char __user *)bh->buf);
@@ -1062,7 +1063,7 @@ static int do_verify(struct fsg_common *common)
 		}
 
 		/* Perform the read */
-		rc = ums->read_sector(ums,
+		rc = ums[common->lun].read_sector(&ums[common->lun],
 				      file_offset / SECTOR_SIZE,
 				      amount / SECTOR_SIZE,
 				      (char __user *)bh->buf);
@@ -1117,7 +1118,7 @@ static int do_inquiry(struct fsg_common *common, struct fsg_buffhd *bh)
 	buf[4] = 31;		/* Additional length */
 				/* No special options */
 	sprintf((char *) (buf + 8), "%-8s%-16s%04x", (char*) vendor_id ,
-			ums->name, (u16) 0xffff);
+			ums[common->lun].name, (u16) 0xffff);
 
 	return 36;
 }
@@ -2456,7 +2457,7 @@ static struct fsg_common *fsg_common_init(struct fsg_common *common,
 	int nluns, i, rc;
 
 	/* Find out how many LUNs there should be */
-	nluns = 1;
+	nluns = ums_count;
 	if (nluns < 1 || nluns > FSG_MAX_LUNS) {
 		printf("invalid number of LUNs: %u\n", nluns);
 		return ERR_PTR(-EINVAL);
@@ -2501,7 +2502,7 @@ static struct fsg_common *fsg_common_init(struct fsg_common *common,
 	for (i = 0; i < nluns; i++) {
 		common->luns[i].removable = 1;
 
-		rc = fsg_lun_open(&common->luns[i], "");
+		rc = fsg_lun_open(&common->luns[i], ums[i].num_sectors, "");
 		if (rc)
 			goto error_luns;
 	}
@@ -2775,9 +2776,10 @@ int fsg_add(struct usb_configuration *c)
 	return fsg_bind_config(c->cdev, c, fsg_common);
 }
 
-int fsg_init(struct ums *ums_dev)
+int fsg_init(struct ums *ums_devs, int count)
 {
-	ums = ums_dev;
+	ums = ums_devs;
+	ums_count = count;
 
 	return 0;
 }

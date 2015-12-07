@@ -2,6 +2,8 @@
  * Copyright (C) 2011 Samsung Electronics
  * Lukasz Majewski <l.majewski@samsung.com>
  *
+ * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -17,7 +19,7 @@
 static int ums_read_sector(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf)
 {
-	block_dev_desc_t *block_dev = ums_dev->block_dev;
+	block_dev_desc_t *block_dev = &ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 
 	return block_dev->block_read(block_dev, blkstart, blkcnt, buf);
@@ -26,39 +28,98 @@ static int ums_read_sector(struct ums *ums_dev,
 static int ums_write_sector(struct ums *ums_dev,
 			    ulong start, lbaint_t blkcnt, const void *buf)
 {
-	block_dev_desc_t *block_dev = ums_dev->block_dev;
+	block_dev_desc_t *block_dev = &ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 
 	return block_dev->block_write(block_dev, blkstart, blkcnt, buf);
 }
 
-static struct ums ums_dev = {
-	.read_sector = ums_read_sector,
-	.write_sector = ums_write_sector,
-	.name = "UMS disk",
-};
+static struct ums *ums;
+static int ums_count;
 
-struct ums *ums_init(const char *devtype, const char *devnum)
+static void ums_fini(void)
 {
+	int i;
+
+	for (i = 0; i < ums_count; i++)
+		free((void *)ums[i].name);
+	free(ums);
+	ums = 0;
+	ums_count = 0;
+}
+
+#define UMS_NAME_LEN 16
+
+static int ums_init(const char *devtype, const char *devnums)
+{
+	char *s, *t, *devnum, *name;
 	block_dev_desc_t *block_dev;
 	int ret;
+	struct ums *ums_new;
 
-	ret = get_device(devtype, devnum, &block_dev);
+	s = strdup(devnums);
+	if (!s)
+		return -1;
+
+	t = s;
+	ums_count = 0;
+
+	for (;;) {
+		devnum = strsep(&t, ",");
+		if (!devnum)
+			break;
+
+		ret = get_device(devtype, devnum, &block_dev);
+		if (ret < 0)
+			goto cleanup;
+
+		/* f_mass_storage.c assumes SECTOR_SIZE sectors */
+		if (block_dev->blksz != SECTOR_SIZE) {
+			ret = -1;
+			goto cleanup;
+		}
+
+		ums_new = realloc(ums, (ums_count + 1) * sizeof(*ums));
+		if (!ums_new) {
+			ret = -1;
+			goto cleanup;
+		}
+		ums = ums_new;
+
+		ums[ums_count].read_sector = ums_read_sector;
+		ums[ums_count].write_sector = ums_write_sector;
+		ums[ums_count].start_sector = 0;
+		ums[ums_count].num_sectors = block_dev->lba;
+		name = malloc(UMS_NAME_LEN);
+		if (!name) {
+			ret = -1;
+			goto cleanup;
+		}
+		snprintf(name, UMS_NAME_LEN, "UMS disk %d", ums_count);
+		ums[ums_count].name = name;
+		ums[ums_count].block_dev = *block_dev;
+
+		printf("UMS: LUN %d, dev %d, hwpart %d, sector %#x, count %#x\n",
+		       ums_count, ums[ums_count].block_dev.dev,
+		       ums[ums_count].block_dev.hwpart,
+		       ums[ums_count].start_sector,
+		       ums[ums_count].num_sectors);
+
+		ums_count++;
+	}
+
+	if (!ums_count)
+		ret = -1;
+	else
+		ret = 0;
+
+cleanup:
+	free(s);
+
 	if (ret < 0)
-		return NULL;
+		ums_fini();
 
-	/* f_mass_storage.c assumes SECTOR_SIZE sectors */
-	if (block_dev->blksz != SECTOR_SIZE)
-		return NULL;
-
-	ums_dev.block_dev = block_dev;
-	ums_dev.start_sector = 0;
-	ums_dev.num_sectors = block_dev->lba;
-
-	printf("UMS: disk start sector: %#x, count: %#x\n",
-	       ums_dev.start_sector, ums_dev.num_sectors);
-
-	return &ums_dev;
+	return ret;
 }
 
 int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
@@ -67,7 +128,6 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	const char *usb_controller;
 	const char *devtype;
 	const char *devnum;
-	struct ums *ums;
 	unsigned int controller_index;
 	int rc;
 	int cable_ready_timeout __maybe_unused;
@@ -84,27 +144,30 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 		devnum  = argv[2];
 	}
 
-	ums = ums_init(devtype, devnum);
-	if (!ums)
+	rc = ums_init(devtype, devnum);
+	if (rc < 0)
 		return CMD_RET_FAILURE;
 
 	controller_index = (unsigned int)(simple_strtoul(
 				usb_controller,	NULL, 0));
 	if (board_usb_init(controller_index, USB_INIT_DEVICE)) {
 		error("Couldn't init USB controller.");
-		return CMD_RET_FAILURE;
+		rc = CMD_RET_FAILURE;
+		goto cleanup_ums_init;
 	}
 
-	rc = fsg_init(ums);
+	rc = fsg_init(ums, ums_count);
 	if (rc) {
 		error("fsg_init failed");
-		return CMD_RET_FAILURE;
+		rc = CMD_RET_FAILURE;
+		goto cleanup_board;
 	}
 
 	rc = g_dnl_register("usb_dnl_ums");
 	if (rc) {
 		error("g_dnl_register failed");
-		return CMD_RET_FAILURE;
+		rc = CMD_RET_FAILURE;
+		goto cleanup_board;
 	}
 
 	/* Timeout unit: seconds */
@@ -120,12 +183,14 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 		while (!g_dnl_board_usb_cable_connected()) {
 			if (ctrlc()) {
 				puts("\rCTRL+C - Operation aborted.\n");
-				goto exit;
+				rc = CMD_RET_SUCCESS;
+				goto cleanup_register;
 			}
 			if (!cable_ready_timeout) {
 				puts("\rUSB cable not detected.\n" \
 				     "Command exit.\n");
-				goto exit;
+				rc = CMD_RET_SUCCESS;
+				goto cleanup_register;
 			}
 
 			printf("\rAuto exit in: %.2d s.", cable_ready_timeout);
@@ -148,13 +213,19 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 			if (rc == -EPIPE)
 				printf("\rCTRL+C - Operation aborted\n");
 
-			goto exit;
+			rc = CMD_RET_SUCCESS;
+			goto cleanup_register;
 		}
 	}
-exit:
+
+cleanup_register:
 	g_dnl_unregister();
+cleanup_board:
 	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
-	return CMD_RET_SUCCESS;
+cleanup_ums_init:
+	ums_fini();
+
+	return rc;
 }
 
 U_BOOT_CMD(ums, 4, 1, do_usb_mass_storage,
