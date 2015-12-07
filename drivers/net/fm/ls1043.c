@@ -54,11 +54,8 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 rcwsr13 = in_be32(&gur->rcwsr[13]);
 
-	if (is_device_disabled(port)) {
-		printf("%s:%d: port(%d) is disabled\n", __func__,
-		       __LINE__, port);
+	if (is_device_disabled(port))
 		return PHY_INTERFACE_MODE_NONE;
-	}
 
 	if ((port == FM1_10GEC1) && (is_serdes_configured(XFI_FM1_MAC9)))
 		return PHY_INTERFACE_MODE_XGMII;
@@ -69,15 +66,11 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	if (port == FM1_DTSEC3)
 		if ((rcwsr13 & FSL_CHASSIS2_RCWSR13_EC1) ==
 				FSL_CHASSIS2_RCWSR13_EC1_DTSEC3_RGMII) {
-			printf("%s:%d: port(FM1_DTSEC3) is OK\n",
-			       __func__, __LINE__);
 			return PHY_INTERFACE_MODE_RGMII;
 		}
 	if (port == FM1_DTSEC4)
 		if ((rcwsr13 & FSL_CHASSIS2_RCWSR13_EC2) ==
 				FSL_CHASSIS2_RCWSR13_EC2_DTSEC4_RGMII) {
-			printf("%s:%d: port(FM1_DTSEC4) is OK\n",
-			       __func__, __LINE__);
 			return PHY_INTERFACE_MODE_RGMII;
 		}
 
