@@ -44,6 +44,8 @@ void dwc3_core_soft_reset(struct dwc3 *dwc3_reg)
 	/* reset USB3 phy - if required */
 	dwc3_phy_reset(dwc3_reg);
 
+	mdelay(100);
+
 	/* After PHYs are stable we can take Core out of reset state */
 	clrbits_le32(&dwc3_reg->g_ctl, DWC3_GCTL_CORESOFTRESET);
 }

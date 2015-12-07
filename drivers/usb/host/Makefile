@@ -32,6 +32,7 @@ else
 obj-$(CONFIG_USB_EHCI_FSL) += ehci-fsl.o
 endif
 obj-$(CONFIG_USB_EHCI_FARADAY) += ehci-faraday.o
+obj-$(CONFIG_USB_EHCI_GENERIC) += ehci-generic.o
 obj-$(CONFIG_USB_EHCI_EXYNOS) += ehci-exynos.o
 obj-$(CONFIG_USB_EHCI_MXC) += ehci-mxc.o
 obj-$(CONFIG_USB_EHCI_MXS) += ehci-mxs.o
@@ -54,6 +55,7 @@ obj-$(CONFIG_USB_EHCI_ZYNQ) += ehci-zynq.o
 # xhci
 obj-$(CONFIG_USB_XHCI) += xhci.o xhci-mem.o xhci-ring.o
 obj-$(CONFIG_USB_XHCI_DWC3) += xhci-dwc3.o
+obj-$(CONFIG_USB_XHCI_ZYNQMP) += xhci-zynqmp.o
 obj-$(CONFIG_USB_XHCI_KEYSTONE) += xhci-keystone.o
 obj-$(CONFIG_USB_XHCI_EXYNOS) += xhci-exynos5.o
 obj-$(CONFIG_USB_XHCI_FSL) += xhci-fsl.o

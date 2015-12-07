@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct omap_xhci omap;
 
-inline int __board_usb_init(int index, enum usb_init_type init)
+__weak int __board_usb_init(int index, enum usb_init_type init)
 {
 	return 0;
 }

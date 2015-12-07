@@ -374,7 +374,7 @@ static void dwc3_omap_set_utmi_mode(struct dwc3_omap *omap, int utmi_mode)
 int dwc3_omap_uboot_init(struct dwc3_omap_device *omap_dev)
 {
 	u32			reg;
-	struct device		*dev;
+	struct device		*dev = NULL;
 	struct dwc3_omap	*omap;
 
 	omap = devm_kzalloc(dev, sizeof(*omap), GFP_KERNEL);
