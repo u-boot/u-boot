@@ -253,23 +253,6 @@ int arch_misc_init(void)
 }
 #endif
 
-unsigned long get_dram_size_to_hide(void)
-{
-	unsigned long dram_to_hide = 0;
-
-/* Carve the Debug Server private DRAM block from the end of DRAM */
-#ifdef CONFIG_FSL_DEBUG_SERVER
-	dram_to_hide += debug_server_get_dram_block_size();
-#endif
-
-/* Carve the MC private DRAM block from the end of DRAM */
-#ifdef CONFIG_FSL_MC_ENET
-	dram_to_hide += mc_get_dram_block_size();
-#endif
-
-	return roundup(dram_to_hide, CONFIG_SYS_MEM_TOP_HIDE_MIN);
-}
-
 #ifdef CONFIG_FSL_MC_ENET
 void fdt_fixup_board_enet(void *fdt)
 {

@@ -5056,8 +5056,8 @@ This firmware often needs to be loaded during U-Boot booting.
 - CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE
 	Define minimum DDR size required for debug server image
 
-- CONFIG_SYS_MEM_TOP_HIDE_MIN
-	Define minimum DDR size to be hided from top of the DDR memory
+- CONFIG_SYS_MC_RSV_MEM_ALIGN
+	Define alignment of reserved memory MC requires
 
 Reproducible builds
 -------------------
