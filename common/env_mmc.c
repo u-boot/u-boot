@@ -69,6 +69,8 @@ __weak uint mmc_get_env_part(struct mmc *mmc)
 	return CONFIG_SYS_MMC_ENV_PART;
 }
 
+static unsigned char env_mmc_orig_hwpart;
+
 static int mmc_set_env_part(struct mmc *mmc)
 {
 	uint part = mmc_get_env_part(mmc);
@@ -79,11 +81,10 @@ static int mmc_set_env_part(struct mmc *mmc)
 	dev = 0;
 #endif
 
-	if (part != mmc->part_num) {
-		ret = mmc_switch_part(dev, part);
-		if (ret)
-			puts("MMC partition switch failed\n");
-	}
+	env_mmc_orig_hwpart = mmc->block_dev.hwpart;
+	ret = mmc_select_hwpart(dev, part);
+	if (ret)
+		puts("MMC partition switch failed\n");
 
 	return ret;
 }
@@ -113,8 +114,7 @@ static void fini_mmc_for_env(struct mmc *mmc)
 #ifdef CONFIG_SPL_BUILD
 	dev = 0;
 #endif
-	if (mmc_get_env_part(mmc) != mmc->part_num)
-		mmc_switch_part(dev, mmc->part_num);
+	mmc_select_hwpart(dev, env_mmc_orig_hwpart);
 #endif
 }
 

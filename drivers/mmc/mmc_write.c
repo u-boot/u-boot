@@ -78,6 +78,10 @@ unsigned long mmc_berase(block_dev_desc_t *block_dev, lbaint_t start,
 	if (!mmc)
 		return -1;
 
+	err = mmc_select_hwpart(dev_num, block_dev->hwpart);
+	if (err < 0)
+		return -1;
+
 	/*
 	 * We want to see if the requested start or total block count are
 	 * unaligned.  We discard the whole numbers and only care about the
@@ -172,9 +176,14 @@ ulong mmc_bwrite(block_dev_desc_t *block_dev, lbaint_t start, lbaint_t blkcnt,
 {
 	int dev_num = block_dev->dev;
 	lbaint_t cur, blocks_todo = blkcnt;
+	int err;
 
 	struct mmc *mmc = find_mmc_device(dev_num);
 	if (!mmc)
+		return 0;
+
+	err = mmc_select_hwpart(dev_num, block_dev->hwpart);
+	if (err < 0)
 		return 0;
 
 	if (mmc_set_blocklen(mmc, mmc->write_bl_len))

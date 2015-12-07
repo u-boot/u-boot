@@ -20,23 +20,6 @@ static unsigned char *dfu_file_buf;
 static long dfu_file_buf_len;
 static long dfu_file_buf_filled;
 
-static int mmc_access_part(struct dfu_entity *dfu, struct mmc *mmc, int part)
-{
-	int ret;
-
-	if (part == mmc->part_num)
-		return 0;
-
-	ret = mmc_switch_part(dfu->data.mmc.dev_num, part);
-	if (ret) {
-		error("Cannot switch to partition %d\n", part);
-		return ret;
-	}
-	mmc->part_num = part;
-
-	return 0;
-}
-
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
@@ -66,8 +49,9 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	}
 
 	if (dfu->data.mmc.hw_partition >= 0) {
-		part_num_bkp = mmc->part_num;
-		ret = mmc_access_part(dfu, mmc, dfu->data.mmc.hw_partition);
+		part_num_bkp = mmc->block_dev.hwpart;
+		ret = mmc_select_hwpart(dfu->data.mmc.dev_num,
+					dfu->data.mmc.hw_partition);
 		if (ret)
 			return ret;
 	}
@@ -91,12 +75,12 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	if (n != blk_count) {
 		error("MMC operation failed");
 		if (dfu->data.mmc.hw_partition >= 0)
-			mmc_access_part(dfu, mmc, part_num_bkp);
+			mmc_select_hwpart(dfu->data.mmc.dev_num, part_num_bkp);
 		return -EIO;
 	}
 
 	if (dfu->data.mmc.hw_partition >= 0) {
-		ret = mmc_access_part(dfu, mmc, part_num_bkp);
+		ret = mmc_select_hwpart(dfu->data.mmc.dev_num, part_num_bkp);
 		if (ret)
 			return ret;
 	}

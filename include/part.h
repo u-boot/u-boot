@@ -18,6 +18,7 @@ struct block_dev_desc {
 	unsigned char	part_type;	/* partition type */
 	unsigned char	target;		/* target SCSI ID */
 	unsigned char	lun;		/* target LUN */
+	unsigned char	hwpart;		/* HW partition, e.g. for eMMC */
 	unsigned char	type;		/* device type */
 	unsigned char	removable;	/* removable device */
 #ifdef CONFIG_LBA48

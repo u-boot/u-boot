@@ -312,20 +312,14 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 	/* Switch to the RPMB partition */
-	original_part = mmc->part_num;
-	if (mmc->part_num != MMC_PART_RPMB) {
-		if (mmc_switch_part(curr_device, MMC_PART_RPMB) != 0)
-			return CMD_RET_FAILURE;
-		mmc->part_num = MMC_PART_RPMB;
-	}
+	original_part = mmc->block_dev.part_num;
+	if (mmc_select_hwpart(curr_device, MMC_PART_RPMB) != 0)
+		return CMD_RET_FAILURE;
 	ret = cp->cmd(cmdtp, flag, argc, argv);
 
 	/* Return to original partition */
-	if (mmc->part_num != original_part) {
-		if (mmc_switch_part(curr_device, original_part) != 0)
-			return CMD_RET_FAILURE;
-		mmc->part_num = original_part;
-	}
+	if (mmc_select_hwpart(curr_device, original_part) != 0)
+		return CMD_RET_FAILURE;
 	return ret;
 }
 #endif
@@ -483,7 +477,7 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		printf("mmc%d is current device\n", curr_device);
 	else
 		printf("mmc%d(part %d) is current device\n",
-		       curr_device, mmc->part_num);
+		       curr_device, mmc->block_dev.hwpart);
 
 	return CMD_RET_SUCCESS;
 }
