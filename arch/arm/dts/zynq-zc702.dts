@@ -18,6 +18,7 @@
 		i2c0 = &i2c0;
 		serial0 = &uart1;
 		spi0 = &qspi;
+		mmc0 = &sdhci0;
 	};
 
 	memory {
@@ -370,6 +371,7 @@
 };
 
 &sdhci0 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci0_default>;
@@ -383,6 +385,7 @@
 };
 
 &qspi {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 

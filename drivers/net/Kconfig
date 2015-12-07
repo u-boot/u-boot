@@ -101,4 +101,10 @@ config PCH_GBE
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
 	  supports 10/100/1000 Mbps operation.
 
+config ZYNQ_GEM
+	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP)
+	bool "Xilinx Ethernet GEM"
+	help
+	  This MAC is presetn in Xilinx Zynq and ZynqMP SoCs.
+
 endif # NETDEVICES

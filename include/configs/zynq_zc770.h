@@ -15,8 +15,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 #if defined(CONFIG_ZC770_XM010)
-# define CONFIG_ZYNQ_GEM0
-# define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
 # define CONFIG_ZYNQ_SDHCI0
 
 #elif defined(CONFIG_ZC770_XM011)
@@ -25,8 +23,6 @@
 # undef CONFIG_SYS_NO_FLASH
 
 #elif defined(CONFIG_ZC770_XM013)
-# define CONFIG_ZYNQ_GEM1
-# define CONFIG_ZYNQ_GEM_PHY_ADDR1	7
 
 #endif
 

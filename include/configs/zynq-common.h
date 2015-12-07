@@ -46,23 +46,15 @@
 #define CONFIG_ZYNQ_GPIO
 
 /* Ethernet driver */
-#if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
-# define CONFIG_ZYNQ_GEM
+#if defined(CONFIG_ZYNQ_GEM)
 # define CONFIG_MII
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-# define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
 # define CONFIG_BOOTP_SERVERIP
 # define CONFIG_BOOTP_BOOTPATH
 # define CONFIG_BOOTP_GATEWAY
 # define CONFIG_BOOTP_HOSTNAME
 # define CONFIG_BOOTP_MAY_FAIL
-# if !defined(CONFIG_ZYNQ_GEM_EMIO0)
-#  define CONFIG_ZYNQ_GEM_EMIO0	0
-# endif
-# if !defined(CONFIG_ZYNQ_GEM_EMIO1)
-#  define CONFIG_ZYNQ_GEM_EMIO1	0
-# endif
 #endif
 
 /* SPI */
@@ -298,7 +290,6 @@
 
 /* Boot FreeBSD/vxWorks from an ELF image */
 #if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
-# define CONFIG_API
 # define CONFIG_SYS_MMC_MAX_DEVICE	1
 #endif
 
@@ -376,16 +367,16 @@
 /* The highest 64k OCM address */
 #define OCM_HIGH_ADDR	0xffff0000
 
-/* Just define any reasonable size */
-#define CONFIG_SPL_STACK_SIZE	0x1000
-
-/* SPL stack position - and stack goes down */
-#define CONFIG_SPL_STACK	(OCM_HIGH_ADDR + CONFIG_SPL_STACK_SIZE)
-
 /* On the top of OCM space */
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_STACK + \
-					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000
+#define CONFIG_SYS_SPL_MALLOC_START	OCM_HIGH_ADDR
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x2000
+
+/*
+ * SPL stack position - and stack goes down
+ * 0xfffffe00 is used for putting wfi loop.
+ * Set it up as limit for now.
+ */
+#define CONFIG_SPL_STACK	0xfffffe00
 
 /* BSS setup */
 #define CONFIG_SPL_BSS_START_ADDR	0x100000

@@ -134,7 +134,7 @@ config SIMPLE_BUS
 config SPL_SIMPLE_BUS
 	bool "Support simple-bus driver in SPL"
 	depends on SPL_DM && SPL_OF_CONTROL
-	default n
+	default y
 	help
 	  Supports the 'simple-bus' driver, which is used on some systems
 	  in SPL.

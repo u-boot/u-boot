@@ -180,7 +180,7 @@ static const struct udevice_id zynq_serial_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(serial_s5p) = {
+U_BOOT_DRIVER(serial_zynq) = {
 	.name	= "serial_zynq",
 	.id	= UCLASS_SERIAL,
 	.of_match = zynq_serial_ids,
@@ -192,9 +192,6 @@ U_BOOT_DRIVER(serial_s5p) = {
 };
 
 #ifdef CONFIG_DEBUG_UART_ZYNQ
-
-#include <debug_uart.h>
-
 void _debug_uart_init(void)
 {
 	struct uart_zynq *regs = (struct uart_zynq *)CONFIG_DEBUG_UART_BASE;
