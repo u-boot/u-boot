@@ -3877,7 +3877,7 @@ Configuration Settings:
 		the RAM base is not zero, or RAM is divided into banks,
 		this variable needs to be recalcuated to get the address.
 
-- CONFIG_SYS_MEM_TOP_HIDE (PPC only):
+- CONFIG_SYS_MEM_TOP_HIDE:
 		If CONFIG_SYS_MEM_TOP_HIDE is defined in the board config header,
 		this specified memory area will get subtracted from the top
 		(end) of RAM and won't get "touched" at all by U-Boot. By
