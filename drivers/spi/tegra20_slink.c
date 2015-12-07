@@ -36,6 +36,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SLINK_CMD_ENB			(1 << 31)
 #define SLINK_CMD_GO			(1 << 30)
 #define SLINK_CMD_M_S			(1 << 28)
+#define SLINK_CMD_IDLE_SCLK_DRIVE_LOW	(0 << 24)
+#define SLINK_CMD_IDLE_SCLK_DRIVE_HIGH	(1 << 24)
+#define SLINK_CMD_IDLE_SCLK_PULL_LOW	(2 << 24)
+#define SLINK_CMD_IDLE_SCLK_PULL_HIGH	(3 << 24)
+#define SLINK_CMD_IDLE_SCLK_MASK	(3 << 24)
 #define SLINK_CMD_CK_SDA		(1 << 21)
 #define SLINK_CMD_CS_POL		(1 << 13)
 #define SLINK_CMD_CS_VAL		(1 << 12)
@@ -106,7 +111,7 @@ static int tegra30_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 
-	plat->base = fdtdec_get_addr(blob, node, "reg");
+	plat->base = dev_get_addr(bus);
 	plat->periph_id = clock_decode_periph_id(blob, node);
 
 	if (plat->periph_id == PERIPH_ID_NONE) {
@@ -331,6 +336,22 @@ static int tegra30_spi_set_speed(struct udevice *bus, uint speed)
 static int tegra30_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
+	struct spi_regs *regs = priv->regs;
+	u32 reg;
+
+	reg = readl(&regs->command);
+
+	/* Set CPOL and CPHA */
+	reg &= ~(SLINK_CMD_IDLE_SCLK_MASK | SLINK_CMD_CK_SDA);
+	if (mode & SPI_CPHA)
+		reg |= SLINK_CMD_CK_SDA;
+
+	if (mode & SPI_CPOL)
+		reg |= SLINK_CMD_IDLE_SCLK_DRIVE_HIGH;
+	else
+		reg |= SLINK_CMD_IDLE_SCLK_DRIVE_LOW;
+
+	writel(reg, &regs->command);
 
 	priv->mode = mode;
 	debug("%s: regs=%p, mode=%d\n", __func__, priv->regs, priv->mode);

@@ -4,7 +4,7 @@ S:	Maintained
 F:	board/freescale/t1040qds/
 F:	include/configs/T1040QDS.h
 F:	configs/T1040QDS_defconfig
-F:	configs/T1040QDS_D4_defconfig
+F:	configs/T1040QDS_DDR4_defconfig
 
 T1040QDS_SECURE_BOOT BOARD
 M:	Aneesh Bansal <aneesh.bansal@freescale.com>

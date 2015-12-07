@@ -1,0 +1,42 @@
+if ARCH_UNIPHIER
+
+config PINCTRL_UNIPHIER_CORE
+	bool
+
+config PINCTRL_UNIPHIER_PH1_LD4
+	bool "UniPhier PH1-LD4 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_PH1_LD4
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
+config PINCTRL_UNIPHIER_PH1_PRO4
+	bool "UniPhier PH1-Pro4 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_PH1_PRO4
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
+config PINCTRL_UNIPHIER_PH1_SLD8
+	bool "UniPhier PH1-sLD8 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_PH1_SLD8
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
+config PINCTRL_UNIPHIER_PH1_PRO5
+	bool "UniPhier PH1-Pro5 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_PH1_PRO5
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
+config PINCTRL_UNIPHIER_PROXSTREAM2
+	bool "UniPhier ProXstream2 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_PROXSTREAM2
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
+config PINCTRL_UNIPHIER_PH1_LD6B
+	bool "UniPhier PH1-LD6b SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_PH1_LD6B
+	default y
+	select PINCTRL_UNIPHIER_CORE
+
+endif

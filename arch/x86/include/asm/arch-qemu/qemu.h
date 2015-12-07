@@ -13,10 +13,18 @@
 #define PAM_NUM			7
 #define PAM_RW			0x33
 
+/* X-Bus Chip Select Register */
+#define XBCS			0x4e
+#define APIC_EN			(1 << 8)
+
 /* IDE Timing Register */
 #define IDE0_TIM		0x40
 #define IDE1_TIM		0x42
-#define IDE_DECODE_EN		0x8000
+#define IDE_DECODE_EN		(1 << 15)
+
+/* PCIe ECAM Base Address Register */
+#define PCIEX_BAR		0x60
+#define BAR_EN			(1 << 0)
 
 /* I/O Ports */
 #define CMOS_ADDR_PORT		0x70

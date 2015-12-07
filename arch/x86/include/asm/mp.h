@@ -59,7 +59,6 @@ struct mp_flight_record {
  * SMM support.
  */
 struct mp_params {
-	int num_cpus; /* Total cpus include BSP */
 	int parallel_microcode_load;
 	const void *microcode_pointer;
 	/* Flight plan  for APs and BSP */

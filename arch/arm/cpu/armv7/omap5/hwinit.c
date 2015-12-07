@@ -27,18 +27,20 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
+#ifndef CONFIG_DM_GPIO
 static struct gpio_bank gpio_bank_54xx[8] = {
-	{ (void *)OMAP54XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO3_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO5_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO6_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO7_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO8_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP54XX_GPIO1_BASE },
+	{ (void *)OMAP54XX_GPIO2_BASE },
+	{ (void *)OMAP54XX_GPIO3_BASE },
+	{ (void *)OMAP54XX_GPIO4_BASE },
+	{ (void *)OMAP54XX_GPIO5_BASE },
+	{ (void *)OMAP54XX_GPIO6_BASE },
+	{ (void *)OMAP54XX_GPIO7_BASE },
+	{ (void *)OMAP54XX_GPIO8_BASE },
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
+#endif
 
 void do_set_mux32(u32 base, struct pad_conf_entry const *array, int size)
 {
@@ -365,6 +367,9 @@ void init_omap_revision(void)
 	case DRA752_CONTROL_ID_CODE_ES1_1:
 		*omap_si_rev = DRA752_ES1_1;
 		break;
+	case DRA752_CONTROL_ID_CODE_ES2_0:
+		*omap_si_rev = DRA752_ES2_0;
+		break;
 	case DRA722_CONTROL_ID_CODE_ES1_0:
 		*omap_si_rev = DRA722_ES1_0;
 		break;
@@ -417,4 +422,21 @@ void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
 				 u32 cpu_rev)
 {
 	omap_smc1(OMAP5_SERVICE_L2ACTLR_SET, l2auxctrl);
+}
+
+void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
+			  u32 cpu_variant, u32 cpu_rev)
+{
+
+#ifdef CONFIG_ARM_ERRATA_801819
+	/*
+	 * DRA72x processors are uniprocessors and DONOT have
+	 * ACP (Accelerator Coherency Port) hooked to ACE (AXI Coherency
+	 * Extensions) Hence the erratum workaround is not applicable for
+	 * DRA72x processors.
+	 */
+	if (is_dra72x())
+		acr &= ~((0x3 << 23) | (0x3 << 25));
+#endif
+	omap_smc1(OMAP5_SERVICE_ACR_SET, acr);
 }

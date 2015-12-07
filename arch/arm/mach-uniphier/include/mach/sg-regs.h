@@ -25,52 +25,43 @@
 /* Memory Configuration */
 #define SG_MEMCONF			(SG_CTRL_BASE | 0x0400)
 
+#define SG_MEMCONF_CH0_SZ_MASK		((0x1 << 10) | (0x03 << 0))
 #define SG_MEMCONF_CH0_SZ_64M		((0x0 << 10) | (0x01 << 0))
 #define SG_MEMCONF_CH0_SZ_128M		((0x0 << 10) | (0x02 << 0))
 #define SG_MEMCONF_CH0_SZ_256M		((0x0 << 10) | (0x03 << 0))
 #define SG_MEMCONF_CH0_SZ_512M		((0x1 << 10) | (0x00 << 0))
 #define SG_MEMCONF_CH0_SZ_1G		((0x1 << 10) | (0x01 << 0))
+#define SG_MEMCONF_CH0_NUM_MASK		(0x1 << 8)
 #define SG_MEMCONF_CH0_NUM_1		(0x1 << 8)
 #define SG_MEMCONF_CH0_NUM_2		(0x0 << 8)
 
+#define SG_MEMCONF_CH1_SZ_MASK		((0x1 << 11) | (0x03 << 2))
 #define SG_MEMCONF_CH1_SZ_64M		((0x0 << 11) | (0x01 << 2))
 #define SG_MEMCONF_CH1_SZ_128M		((0x0 << 11) | (0x02 << 2))
 #define SG_MEMCONF_CH1_SZ_256M		((0x0 << 11) | (0x03 << 2))
 #define SG_MEMCONF_CH1_SZ_512M		((0x1 << 11) | (0x00 << 2))
 #define SG_MEMCONF_CH1_SZ_1G		((0x1 << 11) | (0x01 << 2))
+#define SG_MEMCONF_CH1_NUM_MASK		(0x1 << 9)
 #define SG_MEMCONF_CH1_NUM_1		(0x1 << 9)
 #define SG_MEMCONF_CH1_NUM_2		(0x0 << 9)
 
+#define SG_MEMCONF_CH2_SZ_MASK		((0x1 << 26) | (0x03 << 16))
 #define SG_MEMCONF_CH2_SZ_64M		((0x0 << 26) | (0x01 << 16))
 #define SG_MEMCONF_CH2_SZ_128M		((0x0 << 26) | (0x02 << 16))
 #define SG_MEMCONF_CH2_SZ_256M		((0x0 << 26) | (0x03 << 16))
 #define SG_MEMCONF_CH2_SZ_512M		((0x1 << 26) | (0x00 << 16))
+#define SG_MEMCONF_CH2_NUM_MASK		(0x1 << 24)
 #define SG_MEMCONF_CH2_NUM_1		(0x1 << 24)
 #define SG_MEMCONF_CH2_NUM_2		(0x0 << 24)
+/* PH1-LD6b, ProXstream2 only */
+#define SG_MEMCONF_CH2_DISABLE		(0x1 << 21)
 
 #define SG_MEMCONF_SPARSEMEM		(0x1 << 4)
 
 /* Pin Control */
 #define SG_PINCTRL_BASE			(SG_CTRL_BASE | 0x1000)
 
-#if defined(CONFIG_MACH_PH1_PRO4)
-# define SG_PINCTRL(n)			(SG_PINCTRL_BASE + (n) * 8)
-#elif defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
-# define SG_PINCTRL(n)			(SG_PINCTRL_BASE + (n) * 4)
-#endif
-
-#if defined(CONFIG_MACH_PH1_PRO4)
-#define SG_PINSELBITS			4
-#elif defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
-#define SG_PINSELBITS			8
-#endif
-
-#define SG_PINSEL_ADDR(n)		(SG_PINCTRL((n) * (SG_PINSELBITS) / 32))
-#define SG_PINSEL_MASK(n)		(~(((1 << (SG_PINSELBITS)) - 1) << \
-						((n) * (SG_PINSELBITS) % 32)))
-#define SG_PINSEL_MODE(n, mode)		((mode) << ((n) * (SG_PINSELBITS) % 32))
-
-/* Only for PH1-Pro4 */
+/* PH1-Pro4, PH1-Pro5 */
 #define SG_LOADPINCTRL			(SG_CTRL_BASE | 0x1700)
 
 /* Input Enable */
@@ -97,11 +88,11 @@
 
 #ifdef __ASSEMBLY__
 
-	.macro	set_pinsel, n, value, ra, rd
-	ldr	\ra, =SG_PINSEL_ADDR(\n)
+	.macro	sg_set_pinsel, pin, muxval, mux_bits, reg_stride, ra, rd
+	ldr	\ra, =(SG_PINCTRL_BASE + \pin * \mux_bits / 32 * \reg_stride)
 	ldr	\rd, [\ra]
-	and	\rd, \rd, #SG_PINSEL_MASK(\n)
-	orr	\rd, \rd, #SG_PINSEL_MODE(\n, \value)
+	and	\rd, \rd, #~(((1 << \mux_bits) - 1) << (\pin * \mux_bits % 32))
+	orr	\rd, \rd, #(\muxval << (\pin * \mux_bits % 32))
 	str	\rd, [\ra]
 	.endm
 
@@ -110,10 +101,18 @@
 #include <linux/types.h>
 #include <linux/io.h>
 
-static inline void sg_set_pinsel(int n, int value)
+static inline void sg_set_pinsel(unsigned pin, unsigned muxval,
+				 unsigned mux_bits, unsigned reg_stride)
 {
-	writel((readl(SG_PINSEL_ADDR(n)) & SG_PINSEL_MASK(n))
-	       | SG_PINSEL_MODE(n, value), SG_PINSEL_ADDR(n));
+	unsigned shift = pin * mux_bits % 32;
+	unsigned reg = SG_PINCTRL_BASE + pin * mux_bits / 32 * reg_stride;
+	u32 mask = (1U << mux_bits) - 1;
+	u32 tmp;
+
+	tmp = readl(reg);
+	tmp &= ~(mask << shift);
+	tmp |= (mask & muxval) << shift;
+	writel(tmp, reg);
 }
 
 #endif /* __ASSEMBLY__ */

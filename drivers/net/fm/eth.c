@@ -520,6 +520,7 @@ static int fm_eth_recv(struct eth_device *dev)
 	u16 status, len;
 	u8 *data;
 	u16 offset_out;
+	int ret = 1;
 
 	fm_eth = (struct fm_eth *)dev->priv;
 	pram = fm_eth->rx_pram;
@@ -533,7 +534,7 @@ static int fm_eth_recv(struct eth_device *dev)
 			net_process_received_packet(data, len);
 		} else {
 			printf("%s: Rx error\n", dev->name);
-			return 0;
+			ret = 0;
 		}
 
 		/* clear the RxBDs */
@@ -559,7 +560,7 @@ static int fm_eth_recv(struct eth_device *dev)
 	}
 	fm_eth->cur_rxbd = (void *)rxbd;
 
-	return 1;
+	return ret;
 }
 
 static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)

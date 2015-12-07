@@ -59,9 +59,6 @@
  */
 #include "mv-common.h"
 
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT	"ib62x0 => "
-
 /*
  * Environment variables configuration
  */

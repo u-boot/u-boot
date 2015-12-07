@@ -16,8 +16,8 @@
 
 #include <tsi148.h>
 
-#define PCI_VENDOR PCI_VENDOR_ID_TUNDRA
-#define PCI_DEVICE PCI_DEVICE_ID_TUNDRA_TSI148
+#define LPCI_VENDOR PCI_VENDOR_ID_TUNDRA
+#define LPCI_DEVICE PCI_DEVICE_ID_TUNDRA_TSI148
 
 typedef struct _TSI148_DEV TSI148_DEV;
 
@@ -41,7 +41,7 @@ int tsi148_init(void)
 	pci_dev_t busdevfn;
 	unsigned int val;
 
-	busdevfn = pci_find_device(PCI_VENDOR, PCI_DEVICE, 0);
+	busdevfn = pci_find_device(LPCI_VENDOR, LPCI_DEVICE, 0);
 	if (busdevfn == -1) {
 		puts("Tsi148: No Tundra Tsi148 found!\n");
 		return -1;
@@ -68,7 +68,7 @@ int tsi148_init(void)
 	/* check mapping */
 	debug("Tsi148: Read via mapping, PCI_ID = %08X\n",
 	      readl(&dev->uregs->pci_id));
-	if (((PCI_DEVICE << 16) | PCI_VENDOR) != readl(&dev->uregs->pci_id)) {
+	if (((LPCI_DEVICE << 16) | LPCI_VENDOR) != readl(&dev->uregs->pci_id)) {
 		printf("Tsi148: Cannot read PCI-ID via Mapping: %08x\n",
 		       readl(&dev->uregs->pci_id));
 		result = -1;

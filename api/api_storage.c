@@ -112,6 +112,11 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 		else
 			found = 1;
 
+		/* provide hint if there are more devices in
+		 * this group to enumerate */
+		if (1 < specs[type].max_dev)
+			*more = 1;
+
 	} else {
 		for (i = 0; i < specs[type].max_dev; i++)
 			if (di->cookie == (void *)get_dev(specs[type].name, i)) {

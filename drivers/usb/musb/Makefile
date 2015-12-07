@@ -5,8 +5,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_MUSB_HCD) += musb_hcd.o musb_core.o
-obj-$(CONFIG_MUSB_UDC) += musb_udc.o musb_core.o
+obj-$(CONFIG_USB_MUSB_HCD) += musb_hcd.o musb_core.o
+obj-$(CONFIG_USB_MUSB_UDC) += musb_udc.o musb_core.o
 obj-$(CONFIG_USB_BLACKFIN) += blackfin_usb.o
 obj-$(CONFIG_USB_DAVINCI) += davinci.o
 obj-$(CONFIG_USB_OMAP3) += omap3.o

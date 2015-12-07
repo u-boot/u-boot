@@ -111,6 +111,9 @@
 #define CONFIG_USB_ULPI_VIEWPORT_OMAP
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	57
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
+#define	CONFIG_USB_HOST_ETHER
+#define	CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
 
 /* commands to include */
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
@@ -267,11 +270,8 @@
 /*
  * Miscellaneous configurable options
  */
-#define V_PROMPT			"mcx # "
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		V_PROMPT
 #define CONFIG_SYS_CBSIZE		1024/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -309,7 +309,10 @@
  */
 
 /* **** PISMO SUPPORT *** */
+#define CONFIG_NAND
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_NAND_OMAP_GPMC_PREFETCH
 #define CONFIG_ENV_IS_IN_NAND
 #define SMNAND_ENV_OFFSET		0x180000 /* environment starts here */
 

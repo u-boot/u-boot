@@ -108,7 +108,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
  */
 int cli_simple_parse_line(char *line, char *argv[]);
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 /**
  * cli_process_fdt() - process the boot command from the FDT
  *

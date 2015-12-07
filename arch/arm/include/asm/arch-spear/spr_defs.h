@@ -13,9 +13,7 @@ extern void setfreq(unsigned int, unsigned int);
 extern unsigned int setfreq_sz;
 
 void plat_ddr_init(void);
-void soc_init(void);
 void spear_late_init(void);
-void plat_late_init(void);
 
 int snor_boot_selected(void);
 int nand_boot_selected(void);

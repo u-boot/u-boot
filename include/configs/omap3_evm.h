@@ -77,12 +77,12 @@
 
 /* USB
  *
- * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
- * Enable CONFIG_MUSB_UDD for Device functionalities.
+ * Enable CONFIG_USB_MUSB_HCD for Host functionalities MSC, keyboard
+ * Enable CONFIG_USB_MUSB_UDD for Device functionalities.
  */
 #define CONFIG_USB_OMAP3
-#define CONFIG_MUSB_HCD
-/* #define CONFIG_MUSB_UDC */
+#define CONFIG_USB_MUSB_HCD
+/* #define CONFIG_USB_MUSB_UDC */
 
 /* NAND SPL */
 #define CONFIG_SPL_NAND_SIMPLE

@@ -512,6 +512,13 @@ static int keystone2_eth_rcv_packet(struct eth_device *dev)
 	return pkt_size;
 }
 
+#ifdef CONFIG_MCAST_TFTP
+static int keystone2_eth_bcast_addr(struct eth_device *dev, u32 ip, u8 set)
+{
+	return 0;
+}
+#endif
+
 /*
  * This function initializes the EMAC hardware.
  */
@@ -537,6 +544,9 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 	dev->halt		= keystone2_eth_close;
 	dev->send		= keystone2_eth_send_packet;
 	dev->recv		= keystone2_eth_rcv_packet;
+#ifdef CONFIG_MCAST_TFTP
+	dev->mcast		= keystone2_eth_bcast_addr;
+#endif
 
 	eth_register(dev);
 

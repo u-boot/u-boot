@@ -33,7 +33,7 @@ source (ulong addr, const char *fit_uname)
 #if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	const image_header_t *hdr;
 #endif
-	ulong		*data;
+	u32		*data;
 	int		verify;
 	void *buf;
 #if defined(CONFIG_FIT)
@@ -74,7 +74,7 @@ source (ulong addr, const char *fit_uname)
 		}
 
 		/* get length of script */
-		data = (ulong *)image_get_data (hdr);
+		data = (u32 *)image_get_data (hdr);
 
 		if ((len = uimage_to_cpu (*data)) == 0) {
 			puts ("Empty Script\n");
@@ -128,7 +128,7 @@ source (ulong addr, const char *fit_uname)
 			return 1;
 		}
 
-		data = (ulong *)fit_data;
+		data = (u32 *)fit_data;
 		len = (ulong)fit_len;
 		break;
 #endif

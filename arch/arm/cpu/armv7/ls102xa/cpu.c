@@ -13,6 +13,8 @@
 #include <tsec.h>
 #include <netdev.h>
 #include <fsl_esdhc.h>
+#include <config.h>
+#include <fsl_wdog.h>
 
 #include "fsl_epu.h"
 
@@ -344,5 +346,26 @@ void smp_kick_all_cpus(void)
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 
 	out_be32(&gur->brrl, 0x2);
+
+	/*
+	 * LS1 STANDBYWFE is not captured outside the ARM module in the soc.
+	 * So add a delay to wait bootrom execute WFE.
+	 */
+	udelay(1);
+
+	asm volatile("sev");
 }
 #endif
+
+void reset_cpu(ulong addr)
+{
+	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
+
+	clrbits_be16(&wdog->wcr, WCR_SRS);
+
+	while (1) {
+		/*
+		 * Let the watchdog trigger
+		 */
+	}
+}

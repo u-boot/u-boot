@@ -36,7 +36,7 @@ static inline u8 uboot_loaded_by_spl(void)
 	 * variable by both SPL and u-boot.Check out for CHSETTINGS, which is a
 	 * mandatory section if CH is present.
 	 */
-	if ((gd->arch.omap_boot_params.ch_flags) & (CH_FLAGS_CHSETTINGS))
+	if (gd->arch.omap_ch_flags & CH_FLAGS_CHSETTINGS)
 		return 0;
 	else
 		return running_from_sdram();

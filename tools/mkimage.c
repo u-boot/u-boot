@@ -26,8 +26,48 @@ struct image_tool_params params = {
 	.imagename2 = "",
 };
 
-int
-main (int argc, char **argv)
+static int h_compare_image_name(const void *vtype1, const void *vtype2)
+{
+	const int *type1 = vtype1;
+	const int *type2 = vtype2;
+	const char *name1 = genimg_get_type_short_name(*type1);
+	const char *name2 = genimg_get_type_short_name(*type2);
+
+	return strcmp(name1, name2);
+}
+
+/* Show all image types supported by mkimage */
+static void show_image_types(void)
+{
+	struct image_type_params *tparams;
+	int order[IH_TYPE_COUNT];
+	int count;
+	int type;
+	int i;
+
+	/* Sort the names in order of short name for easier reading */
+	memset(order, '\0', sizeof(order));
+	for (count = 0, type = 0; type < IH_TYPE_COUNT; type++) {
+		tparams = imagetool_get_type(type);
+		if (tparams)
+			order[count++] = type;
+	}
+	qsort(order, count, sizeof(int), h_compare_image_name);
+
+	fprintf(stderr, "\nInvalid image type. Supported image types:\n");
+	for (i = 0; i < count; i++) {
+		type = order[i];
+		tparams = imagetool_get_type(type);
+		if (tparams) {
+			fprintf(stderr, "\t%-15s  %s\n",
+				genimg_get_type_short_name(type),
+				genimg_get_type_name(type));
+		}
+	}
+	fprintf(stderr, "\n");
+}
+
+int main(int argc, char **argv)
 {
 	int ifd = -1;
 	struct stat sbuf;
@@ -35,6 +75,7 @@ main (int argc, char **argv)
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
 	int pad_len = 0;
+	int dfd;
 
 	params.cmdname = *argv;
 	params.addr = params.ep = 0;
@@ -75,12 +116,16 @@ main (int argc, char **argv)
 					usage ();
 				goto NXTARG;
 			case 'T':
-				if ((--argc <= 0) ||
-					(params.type =
-					genimg_get_type_id (*++argv)) < 0)
-					usage ();
+				params.type = -1;
+				if (--argc >= 0 && argv[1]) {
+					params.type =
+						genimg_get_type_id(*++argv);
+				}
+				if (params.type < 0) {
+					show_image_types();
+					usage();
+				}
 				goto NXTARG;
-
 			case 'a':
 				if (--argc <= 0)
 					usage ();
@@ -266,6 +311,22 @@ NXTARG:		;
 		exit (retval);
 	}
 
+	dfd = open(params.datafile, O_RDONLY | O_BINARY);
+	if (dfd < 0) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			params.cmdname, params.datafile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if (fstat(dfd, &sbuf) < 0) {
+		fprintf(stderr, "%s: Can't stat %s: %s\n",
+			params.cmdname, params.datafile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	params.file_size = sbuf.st_size + tparams->header_size;
+	close(dfd);
+
 	/*
 	 * In case there an header with a variable
 	 * length will be added, the corresponding
@@ -365,6 +426,7 @@ NXTARG:		;
 			params.cmdname, params.imagefile, strerror(errno));
 		exit (EXIT_FAILURE);
 	}
+	params.file_size = sbuf.st_size;
 
 	ptr = mmap(0, sbuf.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, ifd, 0);
 	if (ptr == MAP_FAILED) {
@@ -425,12 +487,6 @@ copy_file (int ifd, const char *datafile, int pad)
 	int offset = 0;
 	int size;
 	struct image_type_params *tparams = imagetool_get_type(params.type);
-
-	if (pad >= sizeof(zeros)) {
-		fprintf(stderr, "%s: Can't pad to %d\n",
-			params.cmdname, pad);
-		exit(EXIT_FAILURE);
-	}
 
 	memset(zeros, 0, sizeof(zeros));
 
@@ -501,11 +557,18 @@ copy_file (int ifd, const char *datafile, int pad)
 			exit (EXIT_FAILURE);
 		}
 	} else if (pad > 1) {
-		if (write(ifd, (char *)&zeros, pad) != pad) {
-			fprintf(stderr, "%s: Write error on %s: %s\n",
-				params.cmdname, params.imagefile,
-				strerror(errno));
-			exit(EXIT_FAILURE);
+		while (pad > 0) {
+			int todo = sizeof(zeros);
+
+			if (todo > pad)
+				todo = pad;
+			if (write(ifd, (char *)&zeros, todo) != todo) {
+				fprintf(stderr, "%s: Write error on %s: %s\n",
+					params.cmdname, params.imagefile,
+					strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+			pad -= todo;
 		}
 	}
 
@@ -532,7 +595,7 @@ static void usage(void)
 		params.cmdname);
 	fprintf(stderr, "       %s [-D dtc_options] [-f fit-image.its|-F] fit-image\n",
 		params.cmdname);
-	fprintf(stderr, "          -D => set options for device tree compiler\n"
+	fprintf(stderr, "          -D => set all options for device tree compiler\n"
 			"          -f => input filename for FIT source\n");
 #ifdef CONFIG_FIT_SIGNATURE
 	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-r]\n"
@@ -546,6 +609,7 @@ static void usage(void)
 #endif
 	fprintf (stderr, "       %s -V ==> print version information and exit\n",
 		params.cmdname);
+	fprintf(stderr, "Use -T to see a list of available image types\n");
 
 	exit (EXIT_FAILURE);
 }

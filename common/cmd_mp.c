@@ -13,8 +13,10 @@ static int cpu_status_all(void)
 
 	for (cpuid = 0; ; cpuid++) {
 		if (!is_core_valid(cpuid)) {
-			if (cpuid == 0)
-				return CMD_RET_USAGE;
+			if (cpuid == 0) {
+				printf("Core num: %lu is not valid\n", cpuid);
+				return 1;
+			}
 			break;
 		}
 		cpu_status(cpuid);

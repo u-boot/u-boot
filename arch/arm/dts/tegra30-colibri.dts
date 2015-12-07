@@ -76,15 +76,15 @@
 	/* EHCI instance 0: USB1_DP/N -> USBC_P/N */
 	usb@7d000000 {
 		status = "okay";
-		dr_mode = "peripheral";
+		dr_mode = "otg";
 	};
 
 	/* EHCI instance 1: USB2_DP/N -> AX88772B */
 	usb@7d004000 {
 		status = "okay";
-		phy_type = "utmi";
 		/* VBUS_LAN */
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(DD, 2) GPIO_ACTIVE_HIGH>;
+		phy_type = "utmi";
 	};
 
 	/* EHCI instance 2: USB3_DP/N -> USBH_P/N */

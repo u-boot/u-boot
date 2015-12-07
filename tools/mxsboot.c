@@ -7,6 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <endian.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -271,23 +272,10 @@ static struct mx28_nand_fcb *mx28_nand_get_fcb(uint32_t size)
 	fcb->ecc_block_0_size =		512;
 	fcb->ecc_block_n_size =		512;
 	fcb->metadata_bytes =		10;
-
-	if (nand_writesize == 2048) {
-		fcb->ecc_block_n_ecc_type =		4;
-		fcb->ecc_block_0_ecc_type =		4;
-	} else if (nand_writesize == 4096) {
-		if (nand_oobsize == 128) {
-			fcb->ecc_block_n_ecc_type =	4;
-			fcb->ecc_block_0_ecc_type =	4;
-		} else if (nand_oobsize == 218) {
-			fcb->ecc_block_n_ecc_type =	8;
-			fcb->ecc_block_0_ecc_type =	8;
-		} else if (nand_oobsize == 224) {
-			fcb->ecc_block_n_ecc_type =	8;
-			fcb->ecc_block_0_ecc_type =	8;
-		}
-	}
-
+	fcb->ecc_block_n_ecc_type = mx28_nand_get_ecc_strength(
+					nand_writesize, nand_oobsize) >> 1;
+	fcb->ecc_block_0_ecc_type = mx28_nand_get_ecc_strength(
+					nand_writesize, nand_oobsize) >> 1;
 	if (fcb->ecc_block_n_ecc_type == 0) {
 		printf("MX28 NAND: Unsupported NAND geometry\n");
 		goto err;
@@ -569,15 +557,15 @@ static int mx28_create_sd_image(int infd, int outfd)
 
 	cb = (struct mx28_sd_config_block *)buf;
 
-	cb->signature = 0x00112233;
-	cb->primary_boot_tag = 0x1;
-	cb->secondary_boot_tag = 0x1;
-	cb->num_copies = 1;
-	cb->drv_info[0].chip_num = 0x0;
-	cb->drv_info[0].drive_type = 0x0;
-	cb->drv_info[0].tag = 0x1;
-	cb->drv_info[0].first_sector_number = sd_sector + 4;
-	cb->drv_info[0].sector_count = (size - 4) / 512;
+	cb->signature = htole32(0x00112233);
+	cb->primary_boot_tag = htole32(0x1);
+	cb->secondary_boot_tag = htole32(0x1);
+	cb->num_copies = htole32(1);
+	cb->drv_info[0].chip_num = htole32(0x0);
+	cb->drv_info[0].drive_type = htole32(0x0);
+	cb->drv_info[0].tag = htole32(0x1);
+	cb->drv_info[0].first_sector_number = htole32(sd_sector + 4);
+	cb->drv_info[0].sector_count = htole32((size - 4) / 512);
 
 	wr_size = write(outfd, buf, size);
 	if (wr_size != size) {

@@ -505,7 +505,6 @@
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 #undef CONFIG_RTL8139
-#define CONFIG_E1000			/* Define e1000 pci Ethernet card */
 
 #ifndef CONFIG_PCI_PNP
 	#define PCI_ENET0_IOADDR	CONFIG_SYS_PCIE3_IO_BUS

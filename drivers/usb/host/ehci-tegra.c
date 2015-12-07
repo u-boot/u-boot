@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
- * Copyright (c) 2009-2013 NVIDIA Corporation
+ * Copyright (c) 2009-2015 NVIDIA Corporation
  * Copyright (c) 2013 Lucas Stach
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -64,6 +64,7 @@ enum usb_ctlr_type {
 	USB_CTLR_T20,
 	USB_CTLR_T30,
 	USB_CTLR_T114,
+	USB_CTLR_T210,
 
 	USB_CTRL_COUNT,
 };
@@ -130,7 +131,9 @@ static const unsigned T20_usb_pll[CLOCK_OSC_FREQ_COUNT][PARAM_COUNT] = {
 	{ 0x3C0, 0x0D, 0x00, 0xC,   0,  0x02, 0x33, 0x05, 0x7F, 0x7EF4, 5 },
 	{ 0x0C8, 0x04, 0x00, 0x3,   0,  0x03, 0x4B, 0x06, 0xBB, 0xBB80, 7 },
 	{ 0x3C0, 0x0C, 0x00, 0xC,   0,  0x02, 0x2F, 0x04, 0x76, 0x7530, 5 },
-	{ 0x3C0, 0x1A, 0x00, 0xC,   0,  0x04, 0x66, 0x09, 0xFE, 0xFDE8, 9 }
+	{ 0x3C0, 0x1A, 0x00, 0xC,   0,  0x04, 0x66, 0x09, 0xFE, 0xFDE8, 9 },
+	{ 0x000, 0x00, 0x00, 0x0,   0,  0x00, 0x00, 0x00, 0x00, 0x0000, 0 },
+	{ 0x000, 0x00, 0x00, 0x0,   0,  0x00, 0x00, 0x00, 0x00, 0x0000, 0 }
 };
 
 static const unsigned T30_usb_pll[CLOCK_OSC_FREQ_COUNT][PARAM_COUNT] = {
@@ -138,7 +141,9 @@ static const unsigned T30_usb_pll[CLOCK_OSC_FREQ_COUNT][PARAM_COUNT] = {
 	{ 0x3C0, 0x0D, 0x00, 0xC,   1,  0x02, 0x33, 0x09, 0x7F, 0x7EF4, 5 },
 	{ 0x0C8, 0x04, 0x00, 0x3,   0,  0x03, 0x4B, 0x0C, 0xBB, 0xBB80, 7 },
 	{ 0x3C0, 0x0C, 0x00, 0xC,   1,  0x02, 0x2F, 0x08, 0x76, 0x7530, 5 },
-	{ 0x3C0, 0x1A, 0x00, 0xC,   1,  0x04, 0x66, 0x09, 0xFE, 0xFDE8, 9 }
+	{ 0x3C0, 0x1A, 0x00, 0xC,   1,  0x04, 0x66, 0x09, 0xFE, 0xFDE8, 9 },
+	{ 0x000, 0x00, 0x00, 0x0,   0,  0x00, 0x00, 0x00, 0x00, 0x0000, 0 },
+	{ 0x000, 0x00, 0x00, 0x0,   0,  0x00, 0x00, 0x00, 0x00, 0x0000, 0 }
 };
 
 static const unsigned T114_usb_pll[CLOCK_OSC_FREQ_COUNT][PARAM_COUNT] = {
@@ -146,7 +151,20 @@ static const unsigned T114_usb_pll[CLOCK_OSC_FREQ_COUNT][PARAM_COUNT] = {
 	{ 0x3C0, 0x0D, 0x00, 0xC,   2,  0x02, 0x33, 0x09, 0x7F, 0x7EF4, 6 },
 	{ 0x0C8, 0x04, 0x00, 0x3,   2,  0x03, 0x4B, 0x0C, 0xBB, 0xBB80, 8 },
 	{ 0x3C0, 0x0C, 0x00, 0xC,   2,  0x02, 0x2F, 0x08, 0x76, 0x7530, 5 },
-	{ 0x3C0, 0x1A, 0x00, 0xC,   2,  0x04, 0x66, 0x09, 0xFE, 0xFDE8, 0xB }
+	{ 0x3C0, 0x1A, 0x00, 0xC,   2,  0x04, 0x66, 0x09, 0xFE, 0xFDE8, 11 },
+	{ 0x000, 0x00, 0x00, 0x0,   0,  0x00, 0x00, 0x00, 0x00, 0x0000, 0 },
+	{ 0x000, 0x00, 0x00, 0x0,   0,  0x00, 0x00, 0x00, 0x00, 0x0000, 0 }
+};
+
+/* NOTE: 13/26MHz settings are N/A for T210, so dupe 12MHz settings for now */
+static const unsigned T210_usb_pll[CLOCK_OSC_FREQ_COUNT][PARAM_COUNT] = {
+	/* DivN, DivM, DivP, KCP,   KVCO,  Delays              Debounce, Bias */
+	{ 0x028, 0x01, 0x01, 0x0,   0,  0x02, 0x2F, 0x08, 0x76,  32500,  5 },
+	{ 0x019, 0x01, 0x01, 0x0,   0,  0x03, 0x4B, 0x0C, 0xBB,  48000,  8 },
+	{ 0x028, 0x01, 0x01, 0x0,   0,  0x02, 0x2F, 0x08, 0x76,  30000,  5 },
+	{ 0x028, 0x01, 0x01, 0x0,   0,  0x02, 0x2F, 0x08, 0x76,  65000,  5 },
+	{ 0x019, 0x02, 0x01, 0x0,   0,  0x05, 0x96, 0x18, 0x177, 96000, 15 },
+	{ 0x028, 0x04, 0x01, 0x0,   0,  0x04, 0x66, 0x09, 0xFE, 120000, 20 }
 };
 
 /* UTMIP Idle Wait Delay */
@@ -176,6 +194,10 @@ static struct fdt_usb_controller fdt_usb_controllers[USB_CTRL_COUNT] = {
 	{
 		.has_hostpc	= 1,
 		.pll_parameter	= (const unsigned *)T114_usb_pll,
+	},
+	{
+		.has_hostpc	= 1,
+		.pll_parameter	= (const unsigned *)T210_usb_pll,
 	},
 };
 
@@ -458,6 +480,16 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 		UTMIP_DEBOUNCE_CFG0_MASK,
 		timing[PARAM_DEBOUNCE_A_TIME] << UTMIP_DEBOUNCE_CFG0_SHIFT);
 
+	if (timing[PARAM_DEBOUNCE_A_TIME] > 0xFFFF) {
+		clrsetbits_le32(&usbctlr->utmip_debounce_cfg0,
+				UTMIP_DEBOUNCE_CFG0_MASK,
+				(timing[PARAM_DEBOUNCE_A_TIME] >> 1)
+				<< UTMIP_DEBOUNCE_CFG0_SHIFT);
+		clrsetbits_le32(&usbctlr->utmip_bias_cfg1,
+				UTMIP_BIAS_DEBOUNCE_TIMESCALE_MASK,
+				1 << UTMIP_BIAS_DEBOUNCE_TIMESCALE_SHIFT);
+	}
+
 	setbits_le32(&usbctlr->utmip_tx_cfg0, UTMIP_FS_PREAMBLE_J);
 
 	/* Disable battery charge enabling bit */
@@ -643,16 +675,22 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 
 static void config_clock(const u32 timing[])
 {
+	debug("%s: DIVM = %d, DIVN = %d, DIVP = %d, cpcon/lfcon = %d/%d\n",
+	      __func__, timing[PARAM_DIVM], timing[PARAM_DIVN],
+	      timing[PARAM_DIVP], timing[PARAM_CPCON], timing[PARAM_LFCON]);
+
 	clock_start_pll(CLOCK_ID_USB,
 		timing[PARAM_DIVM], timing[PARAM_DIVN], timing[PARAM_DIVP],
 		timing[PARAM_CPCON], timing[PARAM_LFCON]);
 }
 
-static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
+static int fdt_decode_usb(struct udevice *dev, struct fdt_usb *config)
 {
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
 	const char *phy, *mode;
 
-	config->reg = (struct usb_ctlr *)fdtdec_get_addr(blob, node, "reg");
+	config->reg = (struct usb_ctlr *)dev_get_addr(dev);
 	mode = fdt_getprop(blob, node, "dr_mode", NULL);
 	if (mode) {
 		if (0 == strcmp(mode, "host"))
@@ -776,7 +814,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	struct fdt_usb *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = fdt_decode_usb(gd->fdt_blob, dev->of_offset, priv);
+	ret = fdt_decode_usb(dev, priv);
 	if (ret)
 		return ret;
 
@@ -823,6 +861,7 @@ static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "nvidia,tegra20-ehci", .data = USB_CTLR_T20 },
 	{ .compatible = "nvidia,tegra30-ehci", .data = USB_CTLR_T30 },
 	{ .compatible = "nvidia,tegra114-ehci", .data = USB_CTLR_T114 },
+	{ .compatible = "nvidia,tegra210-ehci", .data = USB_CTLR_T210 },
 	{ }
 };
 

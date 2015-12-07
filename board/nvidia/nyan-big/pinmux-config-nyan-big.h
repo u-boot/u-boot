@@ -1,7 +1,15 @@
 /*
- * Copyright (c) 2014, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: GPL-2.0+
+ */
+
+/*
+ * THIS FILE IS AUTO-GENERATED - DO NOT EDIT!
+ *
+ * To generate this file, use the tegra-pinmux-scripts tool available from
+ * https://github.com/NVIDIA/tegra-pinmux-scripts
+ * Run "board-to-uboot.py nyan-big".
  */
 
 #ifndef _PINMUX_CONFIG_NYAN_BIG_H_
@@ -234,8 +242,8 @@ static const struct pmux_pingrp_config nyan_big_pingrps[] = {
 	PINCFG(SDMMC4_DAT6_PAA6,       SDMMC4,      UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(SDMMC4_DAT7_PAA7,       SDMMC4,      UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(PBB0,                   VGP6,        DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
-	PINCFG(CAM_I2C_SCL_PBB1,       RSVD3,       DOWN,   TRISTATE, OUTPUT,  DISABLE, DEFAULT),
-	PINCFG(CAM_I2C_SDA_PBB2,       RSVD3,       DOWN,   TRISTATE, OUTPUT,  DISABLE, DEFAULT),
+	PINCFG(CAM_I2C_SCL_PBB1,       I2C3,        NORMAL, NORMAL,   INPUT,   ENABLE,  DEFAULT),
+	PINCFG(CAM_I2C_SDA_PBB2,       I2C3,        NORMAL, NORMAL,   INPUT,   ENABLE,  DEFAULT),
 	PINCFG(PBB3,                   VGP3,        DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(PBB4,                   VGP4,        DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(PBB5,                   RSVD3,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
@@ -257,7 +265,7 @@ static const struct pmux_pingrp_config nyan_big_pingrps[] = {
 	PINCFG(HDMI_CEC_PEE3,          CEC,         NORMAL, NORMAL,   INPUT,   ENABLE,  DEFAULT),
 	PINCFG(SDMMC3_CLK_LB_OUT_PEE4, SDMMC3,      NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(SDMMC3_CLK_LB_IN_PEE5,  SDMMC3,      UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
-	PINCFG(DP_HPD_PFF0,            DP,          UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
+	PINCFG(DP_HPD_PFF0,            DP,          NORMAL, NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(USB_VBUS_EN2_PFF1,      RSVD2,       DOWN,   TRISTATE, OUTPUT,  DISABLE, DEFAULT),
 	PINCFG(PFF2,                   RSVD2,       DOWN,   TRISTATE, OUTPUT,  DISABLE, DEFAULT),
 	PINCFG(CORE_PWR_REQ,           PWRON,       NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),

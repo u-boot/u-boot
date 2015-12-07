@@ -10,6 +10,7 @@
 #include <fsl_ifc.h>
 #include <fsl_ddr.h>
 #include <asm/io.h>
+#include <hwconfig.h>
 #include <fdt_support.h>
 #include <libfdt.h>
 #include <fsl_debug_server.h>
@@ -21,7 +22,16 @@
 #include "../common/qixis.h"
 #include "ls2085ardb_qixis.h"
 
+#define PIN_MUX_SEL_SDHC	0x00
+#define PIN_MUX_SEL_DSPI	0x0a
+
+#define SET_SDHC_MUX_SEL(reg, value)	((reg & 0xf0) | value)
 DECLARE_GLOBAL_DATA_PTR;
+
+enum {
+	MUX_TYPE_SDHC,
+	MUX_TYPE_DSPI,
+};
 
 unsigned long long get_qixis_addr(void)
 {
@@ -44,11 +54,14 @@ unsigned long long get_qixis_addr(void)
 int checkboard(void)
 {
 	u8 sw;
+	char buf[15];
+
+	cpu_name(buf);
+	printf("Board: %s-RDB, ", buf);
 
 	sw = QIXIS_READ(arch);
-	printf("Board: %s, ", CONFIG_IDENT_STRING);
 	printf("Board Arch: V%d, ", sw >> 4);
-	printf("Board version: %c, boot from ", (sw & 0xf) + 'A' - 1);
+	printf("Board version: %c, boot from ", (sw & 0xf) + 'A');
 
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
@@ -109,9 +122,46 @@ int select_i2c_ch_pca9547(u8 ch)
 	return 0;
 }
 
+int config_board_mux(int ctrl_type)
+{
+	u8 reg5;
+
+	reg5 = QIXIS_READ(brdcfg[5]);
+
+	switch (ctrl_type) {
+	case MUX_TYPE_SDHC:
+		reg5 = SET_SDHC_MUX_SEL(reg5, PIN_MUX_SEL_SDHC);
+		break;
+	case MUX_TYPE_DSPI:
+		reg5 = SET_SDHC_MUX_SEL(reg5, PIN_MUX_SEL_DSPI);
+		break;
+	default:
+		printf("Wrong mux interface type\n");
+		return -1;
+	}
+
+	QIXIS_WRITE(brdcfg[5], reg5);
+
+	return 0;
+}
+
 int board_init(void)
 {
+	char *env_hwconfig;
+	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+	u32 val;
+
 	init_final_memctl_regs();
+
+	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
+
+	env_hwconfig = getenv("hwconfig");
+
+	if (hwconfig_f("dspi", env_hwconfig) &&
+	    DCFG_RCWSR13_DSPI == (val & (u32)(0xf << 8)))
+		config_board_mux(MUX_TYPE_DSPI);
+	else
+		config_board_mux(MUX_TYPE_SDHC);
 
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
@@ -126,6 +176,14 @@ int board_init(void)
 int board_early_init_f(void)
 {
 	fsl_lsch3_early_init_f();
+	return 0;
+}
+
+int misc_init_r(void)
+{
+	if (hwconfig("sdhc"))
+		config_board_mux(MUX_TYPE_SDHC);
+
 	return 0;
 }
 
@@ -173,20 +231,7 @@ unsigned long get_dram_size_to_hide(void)
 	dram_to_hide += mc_get_dram_block_size();
 #endif
 
-	return dram_to_hide;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	int error = 0;
-
-#ifdef CONFIG_FSL_MC_ENET
-	error = cpu_eth_init(bis);
-#endif
-
-	error = pci_eth_init(bis);
-
-	return error;
+	return roundup(dram_to_hide, CONFIG_SYS_MEM_TOP_HIDE_MIN);
 }
 
 #ifdef CONFIG_FSL_MC_ENET
@@ -215,15 +260,18 @@ void fdt_fixup_board_enet(void *fdt)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	phys_addr_t base;
-	phys_size_t size;
+	u64 base[CONFIG_NR_DRAM_BANKS];
+	u64 size[CONFIG_NR_DRAM_BANKS];
 
 	ft_cpu_setup(blob, bd);
 
-	/* limit the memory size to bank 1 until Linux can handle 40-bit PA */
-	base = getenv_bootm_low();
-	size = getenv_bootm_size();
-	fdt_fixup_memory(blob, (u64)base, (u64)size);
+	/* fixup DT for the two GPP DDR banks */
+	base[0] = gd->bd->bi_dram[0].start;
+	size[0] = gd->bd->bi_dram[0].size;
+	base[1] = gd->bd->bi_dram[1].start;
+	size[1] = gd->bd->bi_dram[1].size;
+
+	fdt_fixup_memory_banks(blob, base, size, 2);
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
@@ -245,5 +293,24 @@ void qixis_dump_switch(void)
 	for (i = 1; i <= nr_of_cfgsw; i++) {
 		QIXIS_WRITE(cms[0], i);
 		printf("SW%d = (0x%02x)\n", i, QIXIS_READ(cms[1]));
+	}
+}
+
+/*
+ * Board rev C and earlier has duplicated I2C addresses for 2nd controller.
+ * Both slots has 0x54, resulting 2nd slot unusable.
+ */
+void update_spd_address(unsigned int ctrl_num,
+			unsigned int slot,
+			unsigned int *addr)
+{
+	u8 sw;
+
+	sw = QIXIS_READ(arch);
+	if ((sw & 0xf) < 0x3) {
+		if (ctrl_num == 1 && slot == 0)
+			*addr = SPD_EEPROM_ADDRESS4;
+		else if (ctrl_num == 1 && slot == 1)
+			*addr = SPD_EEPROM_ADDRESS3;
 	}
 }

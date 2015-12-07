@@ -52,9 +52,8 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/compat.h>
 #include <linux/mbus.h>
-
-#define BIT(nr)			(1UL << (nr))
 
 /* DDR target is the same on all platforms */
 #define TARGET_DDR		0
@@ -407,6 +406,53 @@ int mvebu_mbus_del_window(phys_addr_t base, size_t size)
 	return 0;
 }
 
+static void mvebu_mbus_get_lowest_base(struct mvebu_mbus_state *mbus,
+				       phys_addr_t *base)
+{
+	int win;
+	*base = 0xffffffff;
+
+	for (win = 0; win < mbus->soc->num_wins; win++) {
+		u64 wbase;
+		u32 wsize;
+		u8 wtarget, wattr;
+		int enabled;
+
+		mvebu_mbus_read_window(mbus, win,
+				       &enabled, &wbase, &wsize,
+				       &wtarget, &wattr, NULL);
+
+		if (!enabled)
+			continue;
+
+		if (wbase < *base)
+			*base = wbase;
+	}
+}
+
+static void mvebu_config_mbus_bridge(struct mvebu_mbus_state *mbus)
+{
+	phys_addr_t base;
+	u32 val;
+	u32 size;
+
+	/* Set MBUS bridge base/ctrl */
+	mvebu_mbus_get_lowest_base(&mbus_state, &base);
+
+	size = 0xffffffff - base + 1;
+	if (!is_power_of_2(size)) {
+		/* Round up to next power of 2 */
+		size = 1 << (ffs(base) + 1);
+		base = 0xffffffff - size + 1;
+	}
+
+	/* Now write base and size */
+	writel(base, MBUS_BRIDGE_WIN_BASE_REG);
+	/* Align window size to 64KiB */
+	val = (size / (64 << 10)) - 1;
+	writel((val << 16) | 0x1, MBUS_BRIDGE_WIN_CTRL_REG);
+}
+
 int mbus_dt_setup_win(struct mvebu_mbus_state *mbus,
 		      u32 base, u32 size, u8 target, u8 attr)
 {
@@ -425,6 +471,13 @@ int mbus_dt_setup_win(struct mvebu_mbus_state *mbus,
 					    MVEBU_MBUS_NO_REMAP, target, attr))
 			return -ENOMEM;
 	}
+
+	/*
+	 * Re-configure the mbus bridge registers each time this function
+	 * is called. Since it may get called from the board code in
+	 * later boot stages as well.
+	 */
+	mvebu_config_mbus_bridge(mbus);
 
 	return 0;
 }

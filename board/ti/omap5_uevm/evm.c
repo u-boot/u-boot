@@ -8,9 +8,15 @@
  */
 #include <common.h>
 #include <palmas.h>
+#include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <tca642x.h>
+#include <usb.h>
+#include <linux/usb/gadget.h>
+#include <dwc3-uboot.h>
+#include <dwc3-omap-uboot.h>
+#include <ti-usb-phy-uboot.h>
 
 #include "mux_data.h"
 
@@ -52,6 +58,77 @@ struct tca642x_bank_info tca642x_init[] = {
 	  .polarity_reg = 0x00,
 	  .configuration_reg = 0x40 },
 };
+
+#ifdef CONFIG_USB_DWC3
+static struct dwc3_device usb_otg_ss = {
+	.maximum_speed = USB_SPEED_SUPER,
+	.base = OMAP5XX_USB_OTG_SS_BASE,
+	.tx_fifo_resize = false,
+	.index = 0,
+};
+
+static struct dwc3_omap_device usb_otg_ss_glue = {
+	.base = (void *)OMAP5XX_USB_OTG_SS_GLUE_BASE,
+	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
+	.index = 0,
+};
+
+static struct ti_usb_phy_device usb_phy_device = {
+	.pll_ctrl_base = (void *)OMAP5XX_USB3_PHY_PLL_CTRL,
+	.usb2_phy_power = (void *)OMAP5XX_USB2_PHY_POWER,
+	.usb3_phy_power = (void *)OMAP5XX_USB3_PHY_POWER,
+	.index = 0,
+};
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	if (index) {
+		printf("Invalid Controller Index\n");
+		return -EINVAL;
+	}
+
+	if (init == USB_INIT_DEVICE) {
+		usb_otg_ss.dr_mode = USB_DR_MODE_PERIPHERAL;
+		usb_otg_ss_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+	} else {
+		usb_otg_ss.dr_mode = USB_DR_MODE_HOST;
+		usb_otg_ss_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
+	}
+
+	enable_usb_clocks(index);
+	ti_usb_phy_uboot_init(&usb_phy_device);
+	dwc3_omap_uboot_init(&usb_otg_ss_glue);
+	dwc3_uboot_init(&usb_otg_ss);
+
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	if (index) {
+		printf("Invalid Controller Index\n");
+		return -EINVAL;
+	}
+
+	ti_usb_phy_uboot_exit(index);
+	dwc3_uboot_exit(index);
+	dwc3_omap_uboot_exit(index);
+	disable_usb_clocks(index);
+
+	return 0;
+}
+
+int usb_gadget_handle_interrupts(int index)
+{
+	u32 status;
+
+	status = dwc3_omap_uboot_interrupt_status(index);
+	if (status)
+		dwc3_uboot_handle_interrupt(index);
+
+	return 0;
+}
+#endif
 
 /**
  * @brief board_init

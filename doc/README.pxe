@@ -155,6 +155,13 @@ fdt <path>	    - if this label is chosen, use tftp to retrieve the fdt blob
 		      the fdt_addr_r environment variable, and that address will
 		      be passed to bootm.
 
+fdtdir <path>	    - if this label is chosen, use tftp to retrieve a fdt blob
+		      relative to <path>. If the fdtfile environment variable
+		      is set, <path>/<fdtfile> is retrieved. Otherwise, the
+		      filename is generated from the soc and board environment
+		      variables, i.e. <path>/<soc>-<board>.dtb is retrieved.
+		      If the fdt command is specified, fdtdir is ignored.
+
 localboot <flag>    - Run the command defined by "localcmd" in the environment.
 		      <flag> is ignored and is only here to match the syntax of
 		      PXELINUX config files.
@@ -163,7 +170,7 @@ Example
 -------
 Here's a couple of example files to show how this works.
 
-------------/tftpboot/pxelinux.cfg/menus/linux.list----------
+------------/tftpboot/pxelinux.cfg/menus/base.menu-----------
 menu title Linux selections
 
 # This is the default label

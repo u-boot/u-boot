@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2010-2012
+ *  (C) Copyright 2010-2015
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -21,5 +21,6 @@
 #define CHIPID_TEGRA30			0x30
 #define CHIPID_TEGRA114			0x35
 #define CHIPID_TEGRA124			0x40
+#define CHIPID_TEGRA210			0x21
 
 #endif	/* _TEGRA_GP_PADCTRL_H_ */

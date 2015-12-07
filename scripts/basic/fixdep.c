@@ -123,6 +123,7 @@
 char *target;
 char *depfile;
 char *cmdline;
+int is_spl_build = 0; /* hack for U-boot */
 
 static void usage(void)
 {
@@ -192,23 +193,6 @@ static void define_config(const char *name, int len, unsigned int hash)
 }
 
 /*
- * Clear the set of configuration strings.
- */
-static void clear_config(void)
-{
-	struct item *aux, *next;
-	unsigned int i;
-
-	for (i = 0; i < HASHSZ; i++) {
-		for (aux = hashtab[i]; aux; aux = next) {
-			next = aux->next;
-			free(aux);
-		}
-		hashtab[i] = NULL;
-	}
-}
-
-/*
  * Record the use of a CONFIG_* word.
  */
 static void use_config(const char *m, int slen)
@@ -239,6 +223,7 @@ static void parse_config_file(const char *map, size_t len)
 	/* start at +1, so that p can never be < map */
 	const int *m   = (const int *) map + 1;
 	const char *p, *q;
+	char tmp_buf[256] = "SPL_"; /* hack for U-Boot */
 
 	for (; m < end; m++) {
 		if (*m == INT_CONF) { p = (char *) m  ; goto conf; }
@@ -251,7 +236,8 @@ static void parse_config_file(const char *map, size_t len)
 			continue;
 		if (memcmp(p, "CONFIG_", 7))
 			continue;
-		for (q = p + 7; q < map + len; q++) {
+		p += 7;
+		for (q = p; q < map + len; q++) {
 			if (!(isalnum(*q) || *q == '_'))
 				goto found;
 		}
@@ -260,9 +246,29 @@ static void parse_config_file(const char *map, size_t len)
 	found:
 		if (!memcmp(q - 7, "_MODULE", 7))
 			q -= 7;
-		if( (q-p-7) < 0 )
+		if (q - p < 0)
 			continue;
-		use_config(p+7, q-p-7);
+
+		/* U-Boot also handles CONFIG_IS_{ENABLED/BUILTIN/MODULE} */
+		if ((q - p == 10 && !memcmp(p, "IS_ENABLED(", 11)) ||
+		    (q - p == 10 && !memcmp(p, "IS_BUILTIN(", 11)) ||
+		    (q - p == 9 && !memcmp(p, "IS_MODULE(", 10))) {
+			p = q + 1;
+			for (q = p; q < map + len; q++)
+				if (*q == ')')
+					goto found2;
+			continue;
+
+		found2:
+			if (is_spl_build) {
+				memcpy(tmp_buf + 4, p, q - p);
+				q = tmp_buf + 4 + (q - p);
+				p = tmp_buf;
+			}
+		}
+		/* end U-Boot hack */
+
+		use_config(p, q - p);
 	}
 }
 
@@ -323,8 +329,6 @@ static void parse_dep_file(void *map, size_t len)
 	int is_target;
 	int saw_any_target = 0;
 	int is_first_dep = 0;
-
-	clear_config();
 
 	while (m < end) {
 		/* Skip any "white space" */
@@ -454,6 +458,10 @@ int main(int argc, char *argv[])
 	depfile = argv[1];
 	target = argv[2];
 	cmdline = argv[3];
+
+	/* hack for U-boot */
+	if (!strncmp(target, "spl/", 4) || !strncmp(target, "tpl/", 4))
+		is_spl_build = 1;
 
 	print_cmdline();
 	print_deps();

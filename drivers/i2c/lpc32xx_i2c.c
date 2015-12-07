@@ -1,7 +1,7 @@
 /*
  * LPC32xx I2C interface driver
  *
- * (C) Copyright 2014  DENX Software Engineering GmbH
+ * (C) Copyright 2014-2015  DENX Software Engineering GmbH
  * Written-by: Albert ARIBAUD - 3ADEV <albert.aribaud@3adev.fr>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -60,7 +60,8 @@ struct lpc32xx_i2c_registers {
 
 static struct lpc32xx_i2c_registers *lpc32xx_i2c[] = {
 	(struct lpc32xx_i2c_registers *)I2C1_BASE,
-	(struct lpc32xx_i2c_registers *)I2C2_BASE
+	(struct lpc32xx_i2c_registers *)I2C2_BASE,
+	(struct lpc32xx_i2c_registers *)(USB_BASE + 0x300)
 };
 
 /* Set I2C bus speed */
@@ -72,10 +73,16 @@ static unsigned int lpc32xx_i2c_set_bus_speed(struct i2c_adapter *adap,
 	if (speed == 0)
 		return -EINVAL;
 
-	half_period = (105000000 / speed) / 2;
-
-	if ((half_period > 255) || (half_period < 0))
-		return -EINVAL;
+	/* OTG I2C clock source and CLK registers are different */
+	if (adap->hwadapnr == 2) {
+		half_period = (get_periph_clk_rate() / speed) / 2;
+		if (half_period > 0xFF)
+			return -EINVAL;
+	} else {
+		half_period = (get_hclk_clk_rate() / speed) / 2;
+		if (half_period > 0x3FF)
+			return -EINVAL;
+	}
 
 	writel(half_period, &lpc32xx_i2c[adap->hwadapnr]->clk_hi);
 	writel(half_period, &lpc32xx_i2c[adap->hwadapnr]->clk_lo);
@@ -90,7 +97,7 @@ static void _i2c_init(struct i2c_adapter *adap,
 
 	/* soft reset (auto-clears) */
 	writel(LPC32XX_I2C_SOFT_RESET, &i2c->ctrl);
-	/* set HI and LO periods for about 350 kHz */
+	/* set HI and LO periods for half of the default speed */
 	lpc32xx_i2c_set_bus_speed(adap, requested_speed);
 }
 
@@ -172,12 +179,12 @@ static int lpc32xx_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
 				*(data++) = readl(&i2c->rx);
 			}
 		}
+		/* wait for end of transation */
+		while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
+			;
+		/* clear end-of-transaction flag */
+		writel(1, &i2c->stat);
 	}
-	/* wait for end of transation */
-	while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
-		;
-	/* clear end-of-transaction flag */
-	writel(1, &i2c->stat);
 	/* success */
 	return 0;
 }
@@ -200,6 +207,8 @@ static int lpc32xx_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
 	if (alen | length)
 		/* Address slave in write mode */
 		writel((dev<<1) | LPC32XX_I2C_TX_START, &i2c->tx);
+	else
+		return 0;
 	/* write address bytes */
 	while (alen) {
 		/* wait for transmit fifo not full */
@@ -247,3 +256,10 @@ U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_1, _i2c_init, lpc32xx_i2c_probe,
 			 CONFIG_SYS_I2C_LPC32XX_SPEED,
 			 CONFIG_SYS_I2C_LPC32XX_SLAVE,
 			 1)
+
+U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_2, _i2c_init, NULL,
+			 lpc32xx_i2c_read, lpc32xx_i2c_write,
+			 lpc32xx_i2c_set_bus_speed,
+			 100000,
+			 0,
+			 2)

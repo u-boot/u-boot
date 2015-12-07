@@ -1,14 +1,9 @@
 /*
- *  vsc9953.h
+ * Copyright 2013, 2015 Freescale Semiconductor, Inc.
  *
- *  Driver for the Vitesse VSC9953 L2 Switch
+ * SPDX-License-Identifier:      GPL-2.0+
  *
- *  This software may be used and distributed according to the
- *  terms of the GNU Public License, Version 2, incorporated
- *  herein by reference.
- *
- * Copyright 2013  Freescale Semiconductor, Inc.
- *
+ * Driver for the Vitesse VSC9953 L2 Switch
  */
 
 #ifndef _VSC9953_H_
@@ -17,11 +12,11 @@
 #include <config.h>
 #include <miiphy.h>
 #include <asm/types.h>
-#include <malloc.h>
 
 #define VSC9953_OFFSET			(CONFIG_SYS_CCSRBAR_DEFAULT + 0x800000)
 
 #define VSC9953_SYS_OFFSET		0x010000
+#define VSC9953_REW_OFFSET		0x030000
 #define VSC9953_DEV_GMII_OFFSET		0x100000
 #define VSC9953_QSYS_OFFSET		0x200000
 #define VSC9953_ANA_OFFSET		0x280000
@@ -33,29 +28,131 @@
 #define T1040_SWITCH_GMII_DEV_OFFSET	0x010000
 #define VSC9953_PHY_REGS_OFFST		0x0000AC
 
-#define CONFIG_VSC9953_SOFT_SWC_RST_ENA	0x00000001
-#define CONFIG_VSC9953_CORE_ENABLE	0x80
-#define CONFIG_VSC9953_MEM_ENABLE	0x40
-#define CONFIG_VSC9953_MEM_INIT		0x20
+/* Macros for vsc9953_chip_regs.soft_rst register */
+#define VSC9953_SOFT_SWC_RST_ENA	0x00000001
 
-#define CONFIG_VSC9953_PORT_ENA		0x00003a00
-#define CONFIG_VSC9953_MAC_ENA_CFG	0x00000011
-#define CONFIG_VSC9953_MAC_MODE_CFG	0x00000011
-#define CONFIG_VSC9953_MAC_IFG_CFG	0x00000515
-#define CONFIG_VSC9953_MAC_HDX_CFG	0x00001043
-#define CONFIG_VSC9953_CLOCK_CFG	0x00000001
-#define CONFIG_VSC9953_CLOCK_CFG_1000M	0x00000001
-#define CONFIG_VSC9953_PFC_FC		0x00000001
-#define CONFIG_VSC9953_PFC_FC_QSGMII	0x00000000
-#define CONFIG_VSC9953_MAC_FC_CFG	0x04700000
-#define CONFIG_VSC9953_MAC_FC_CFG_QSGMII	0x00700000
-#define CONFIG_VSC9953_PAUSE_CFG	0x001ffffe
-#define CONFIG_VSC9953_TOT_TAIL_DROP_LVL	0x000003ff
-#define CONFIG_VSC9953_FRONT_PORT_MODE	0x00000000
-#define CONFIG_VSC9953_MAC_MAX_LEN	0x000005ee
+/* Macros for vsc9953_sys_sys.reset_cfg register */
+#define VSC9953_CORE_ENABLE		0x80
+#define VSC9953_MEM_ENABLE		0x40
+#define VSC9953_MEM_INIT		0x20
 
-#define	CONFIG_VSC9953_VCAP_MV_CFG	0x0000ffff
-#define	CONFIG_VSC9953_VCAP_UPDATE_CTRL	0x01000004
+/* Macros for vsc9953_dev_gmii_mac_cfg_status.mac_ena_cfg register */
+#define VSC9953_MAC_ENA_CFG		0x00000011
+
+/* Macros for vsc9953_dev_gmii_mac_cfg_status.mac_mode_cfg register */
+#define VSC9953_MAC_MODE_CFG		0x00000011
+
+/* Macros for vsc9953_dev_gmii_mac_cfg_status.mac_ifg_cfg register */
+#define VSC9953_MAC_IFG_CFG		0x00000515
+
+/* Macros for vsc9953_dev_gmii_mac_cfg_status.mac_hdx_cfg register */
+#define VSC9953_MAC_HDX_CFG		0x00001043
+
+/* Macros for vsc9953_dev_gmii_mac_cfg_status.mac_maxlen_cfg register */
+#define VSC9953_MAC_MAX_LEN		0x000005ee
+
+/* Macros for vsc9953_dev_gmii_port_mode.clock_cfg register */
+#define VSC9953_CLOCK_CFG		0x00000001
+#define VSC9953_CLOCK_CFG_1000M		0x00000001
+
+/* Macros for vsc9953_sys_sys.front_port_mode register */
+#define VSC9953_FRONT_PORT_MODE	0x00000000
+
+/* Macros for vsc9953_ana_pfc.pfc_cfg register */
+#define VSC9953_PFC_FC			0x00000001
+#define VSC9953_PFC_FC_QSGMII		0x00000000
+
+/* Macros for vsc9953_sys_pause_cfg.mac_fc_cfg register */
+#define VSC9953_MAC_FC_CFG		0x04700000
+#define VSC9953_MAC_FC_CFG_QSGMII	0x00700000
+
+/* Macros for vsc9953_sys_pause_cfg.pause_cfg register */
+#define VSC9953_PAUSE_CFG		0x001ffffe
+
+/* Macros for vsc9953_sys_pause_cfgtot_tail_drop_lvl register */
+#define VSC9953_TOT_TAIL_DROP_LVL	0x000003ff
+
+/* Macros for vsc9953_sys_sys.stat_cfg register */
+#define VSC9953_STAT_CLEAR_RX		0x00000400
+#define VSC9953_STAT_CLEAR_TX		0x00000800
+#define VSC9953_STAT_CLEAR_DR		0x00001000
+
+/* Macros for vsc9953_vcap_core_cfg.vcap_mv_cfg register */
+#define VSC9953_VCAP_MV_CFG		0x0000ffff
+#define VSC9953_VCAP_UPDATE_CTRL	0x01000004
+
+/* Macros for register vsc9953_ana_ana_tables.mac_access register */
+#define VSC9953_MAC_CMD_IDLE		0x00000000
+#define VSC9953_MAC_CMD_LEARN		0x00000001
+#define VSC9953_MAC_CMD_FORGET		0x00000002
+#define VSC9953_MAC_CMD_AGE		0x00000003
+#define VSC9953_MAC_CMD_NEXT		0x00000004
+#define VSC9953_MAC_CMD_READ		0x00000006
+#define VSC9953_MAC_CMD_WRITE		0x00000007
+#define VSC9953_MAC_CMD_MASK		0x00000007
+#define VSC9953_MAC_CMD_VALID		0x00000800
+#define VSC9953_MAC_ENTRYTYPE_NORMAL	0x00000000
+#define VSC9953_MAC_ENTRYTYPE_LOCKED	0x00000200
+#define VSC9953_MAC_ENTRYTYPE_IPV4MCAST	0x00000400
+#define VSC9953_MAC_ENTRYTYPE_IPV6MCAST	0x00000600
+#define VSC9953_MAC_ENTRYTYPE_MASK	0x00000600
+#define VSC9953_MAC_DESTIDX_MASK	0x000001f8
+#define VSC9953_MAC_VID_MASK		0x1fff0000
+#define VSC9953_MAC_MACH_MASK		0x0000ffff
+
+/* Macros for vsc9953_ana_port.vlan_cfg register */
+#define VSC9953_VLAN_CFG_AWARE_ENA	0x00100000
+#define VSC9953_VLAN_CFG_POP_CNT_MASK	0x000c0000
+#define VSC9953_VLAN_CFG_POP_CNT_NONE	0x00000000
+#define VSC9953_VLAN_CFG_POP_CNT_ONE	0x00040000
+#define VSC9953_VLAN_CFG_VID_MASK	0x00000fff
+
+/* Macros for vsc9953_rew_port.port_vlan_cfg register */
+#define VSC9953_PORT_VLAN_CFG_VID_MASK	0x00000fff
+
+/* Macros for vsc9953_ana_ana_tables.vlan_tidx register */
+#define VSC9953_ANA_TBL_VID_MASK	0x00000fff
+
+/* Macros for vsc9953_ana_ana_tables.vlan_access register */
+#define VSC9953_VLAN_PORT_MASK		0x00001ffc
+#define VSC9953_VLAN_CMD_MASK		0x00000003
+#define VSC9953_VLAN_CMD_IDLE		0x00000000
+#define VSC9953_VLAN_CMD_READ		0x00000001
+#define VSC9953_VLAN_CMD_WRITE		0x00000002
+#define VSC9953_VLAN_CMD_INIT		0x00000003
+
+/* Macros for vsc9953_ana_port.port_cfg register */
+#define VSC9953_PORT_CFG_LEARN_ENA	0x00000080
+#define VSC9953_PORT_CFG_LEARN_AUTO	0x00000100
+#define VSC9953_PORT_CFG_LEARN_CPU	0x00000200
+#define VSC9953_PORT_CFG_LEARN_DROP	0x00000400
+
+/* Macros for vsc9953_qsys_sys.switch_port_mode register */
+#define VSC9953_PORT_ENA		0x00002000
+
+/* Macros for vsc9953_ana_ana.agen_ctrl register */
+#define VSC9953_FID_MASK_ALL		0x00fff000
+
+/* Macros for vsc9953_ana_ana.adv_learn register */
+#define VSC9953_VLAN_CHK		0x00000400
+
+/* Macros for vsc9953_rew_port.port_tag_cfg register */
+#define VSC9953_TAG_CFG_MASK		0x00000180
+#define VSC9953_TAG_CFG_NONE		0x00000000
+#define VSC9953_TAG_CFG_ALL_BUT_PVID_ZERO	0x00000080
+#define VSC9953_TAG_CFG_ALL_BUT_ZERO		0x00000100
+#define VSC9953_TAG_CFG_ALL		0x00000180
+#define VSC9953_TAG_VID_PVID		0x00000010
+
+/* Macros for vsc9953_ana_ana.anag_efil register */
+#define VSC9953_AGE_PORT_EN		0x00080000
+#define VSC9953_AGE_PORT_MASK		0x0007c000
+#define VSC9953_AGE_VID_EN		0x00002000
+#define VSC9953_AGE_VID_MASK		0x00001fff
+
+/* Macros for vsc9953_ana_ana_tables.mach_data register */
+#define VSC9953_MACHDATA_VID_MASK	0x1fff0000
+
 #define VSC9953_MAX_PORTS		10
 #define VSC9953_PORT_CHECK(port)	\
 	(((port) < 0 || (port) >= VSC9953_MAX_PORTS) ? 0 : 1)
@@ -64,6 +161,9 @@
 		(port) < VSC9953_MAX_PORTS - 2 || (port) >= VSC9953_MAX_PORTS \
 	) ? 0 : 1 \
 )
+#define VSC9953_MAX_VLAN		4096
+#define VSC9953_VLAN_CHECK(vid)	\
+	(((vid) < 0 || (vid) >= VSC9953_MAX_VLAN) ? 0 : 1)
 
 #define DEFAULT_VSC9953_MDIO_NAME	"VSC9953_MDIO0"
 
@@ -74,9 +174,9 @@ struct vsc9953_mdio_info {
 	char	*name;
 };
 
-/* VSC9953 ANA structure for T1040 U-boot*/
+/* VSC9953 ANA structure */
 
-struct	vsc9953_ana_port {
+struct vsc9953_ana_port {
 	u32	vlan_cfg;
 	u32	drop_cfg;
 	u32	qos_cfg;
@@ -116,6 +216,7 @@ struct vsc9953_ana_ana_tables {
 struct vsc9953_ana_ana {
 	u32	adv_learn;
 	u32	vlan_mask;
+	u32	reserved;
 	u32	anag_efil;
 	u32	an_events;
 	u32	storm_limit_burst;
@@ -138,7 +239,7 @@ struct vsc9953_ana_pgid {
 	u32	port_grp_id[91];
 };
 
-struct	vsc9953_ana_pfc {
+struct vsc9953_ana_pfc {
 	u32	pfc_cfg;
 	u32	reserved1[15];
 };
@@ -149,7 +250,7 @@ struct vsc9953_ana_pol_misc {
 	u32	pol_hyst;
 };
 
-struct	vsc9953_ana_common {
+struct vsc9953_ana_common {
 	u32	aggr_cfg;
 	u32	cpuq_cfg;
 	u32	cpuq_8021_cfg;
@@ -176,18 +277,18 @@ struct vsc9953_analyzer {
 	u32	reserved5[196];
 	struct vsc9953_ana_common	common;
 };
-/* END VSC9953 ANA structure for T1040 U-boot*/
+/* END VSC9953 ANA structure t*/
 
-/* VSC9953 DEV_GMII structure for T1040 U-boot*/
+/* VSC9953 DEV_GMII structure */
 
-struct	vsc9953_dev_gmii_port_mode {
+struct vsc9953_dev_gmii_port_mode {
 	u32	clock_cfg;
 	u32	port_misc;
 	u32	reserved1;
 	u32	eee_cfg;
 };
 
-struct	vsc9953_dev_gmii_mac_cfg_status {
+struct vsc9953_dev_gmii_mac_cfg_status {
 	u32	mac_ena_cfg;
 	u32	mac_mode_cfg;
 	u32	mac_maxlen_cfg;
@@ -205,11 +306,11 @@ struct vsc9953_dev_gmii {
 	struct vsc9953_dev_gmii_mac_cfg_status	mac_cfg_status;
 };
 
-/* END VSC9953 DEV_GMII structure for T1040 U-boot*/
+/* END VSC9953 DEV_GMII structure */
 
-/* VSC9953 QSYS structure for T1040 U-boot*/
+/* VSC9953 QSYS structure */
 
-struct	vsc9953_qsys_hsch {
+struct vsc9953_qsys_hsch {
 	u32	cir_cfg;
 	u32	reserved1;
 	u32	se_cfg;
@@ -218,7 +319,7 @@ struct	vsc9953_qsys_hsch {
 	u32	reserved2[20];
 };
 
-struct	vsc9953_qsys_sys {
+struct vsc9953_qsys_sys {
 	u32	port_mode[12];
 	u32	switch_port_mode[11];
 	u32	stat_cnt_cfg;
@@ -232,32 +333,32 @@ struct	vsc9953_qsys_sys {
 	u32	reserved1[23];
 };
 
-struct	vsc9953_qsys_qos_cfg {
+struct vsc9953_qsys_qos_cfg {
 	u32	red_profile[16];
 	u32	res_qos_mode;
 };
 
-struct	vsc9953_qsys_drop_cfg {
+struct vsc9953_qsys_drop_cfg {
 	u32	egr_drop_mode;
 };
 
-struct	vsc9953_qsys_mmgt {
+struct vsc9953_qsys_mmgt {
 	u32	eq_cntrl;
 	u32	reserved1;
 };
 
-struct	vsc9953_qsys_hsch_misc {
+struct vsc9953_qsys_hsch_misc {
 	u32	hsch_misc_cfg;
 	u32	reserved1[546];
 };
 
-struct	vsc9953_qsys_res_ctrl {
+struct vsc9953_qsys_res_ctrl {
 	u32	res_cfg;
 	u32	res_stat;
 
 };
 
-struct	vsc9953_qsys_reg {
+struct vsc9953_qsys_reg {
 	struct vsc9953_qsys_hsch	hsch[108];
 	struct vsc9953_qsys_sys	sys;
 	struct vsc9953_qsys_qos_cfg	qos_cfg;
@@ -267,18 +368,123 @@ struct	vsc9953_qsys_reg {
 	struct vsc9953_qsys_res_ctrl	res_ctrl[1024];
 };
 
-/* END VSC9953 QSYS structure for T1040 U-boot*/
+/* END VSC9953 QSYS structure */
 
-/* VSC9953 SYS structure for T1040 U-boot*/
+/* VSC9953 SYS structure */
 
-struct	vsc9953_sys_stat {
-	u32	rx_cntrs[64];
-	u32	tx_cntrs[64];
-	u32	drop_cntrs[64];
+struct vsc9953_rx_cntrs {
+	u32	c_rx_oct;
+	u32	c_rx_uc;
+	u32	c_rx_mc;
+	u32	c_rx_bc;
+	u32	c_rx_short;
+	u32	c_rx_frag;
+	u32	c_rx_jabber;
+	u32	c_rx_crc;
+	u32	c_rx_symbol_err;
+	u32	c_rx_sz_64;
+	u32	c_rx_sz_65_127;
+	u32	c_rx_sz_128_255;
+	u32	c_rx_sz_256_511;
+	u32	c_rx_sz_512_1023;
+	u32	c_rx_sz_1024_1526;
+	u32	c_rx_sz_jumbo;
+	u32	c_rx_pause;
+	u32	c_rx_control;
+	u32	c_rx_long;
+	u32	c_rx_cat_drop;
+	u32	c_rx_red_prio_0;
+	u32	c_rx_red_prio_1;
+	u32	c_rx_red_prio_2;
+	u32	c_rx_red_prio_3;
+	u32	c_rx_red_prio_4;
+	u32	c_rx_red_prio_5;
+	u32	c_rx_red_prio_6;
+	u32	c_rx_red_prio_7;
+	u32	c_rx_yellow_prio_0;
+	u32	c_rx_yellow_prio_1;
+	u32	c_rx_yellow_prio_2;
+	u32	c_rx_yellow_prio_3;
+	u32	c_rx_yellow_prio_4;
+	u32	c_rx_yellow_prio_5;
+	u32	c_rx_yellow_prio_6;
+	u32	c_rx_yellow_prio_7;
+	u32	c_rx_green_prio_0;
+	u32	c_rx_green_prio_1;
+	u32	c_rx_green_prio_2;
+	u32	c_rx_green_prio_3;
+	u32	c_rx_green_prio_4;
+	u32	c_rx_green_prio_5;
+	u32	c_rx_green_prio_6;
+	u32	c_rx_green_prio_7;
+	u32	reserved[20];
+};
+
+struct vsc9953_tx_cntrs {
+	u32	c_tx_oct;
+	u32	c_tx_uc;
+	u32	c_tx_mc;
+	u32	c_tx_bc;
+	u32	c_tx_col;
+	u32	c_tx_drop;
+	u32	c_tx_pause;
+	u32	c_tx_sz_64;
+	u32	c_tx_sz_65_127;
+	u32	c_tx_sz_128_255;
+	u32	c_tx_sz_256_511;
+	u32	c_tx_sz_512_1023;
+	u32	c_tx_sz_1024_1526;
+	u32	c_tx_sz_jumbo;
+	u32	c_tx_yellow_prio_0;
+	u32	c_tx_yellow_prio_1;
+	u32	c_tx_yellow_prio_2;
+	u32	c_tx_yellow_prio_3;
+	u32	c_tx_yellow_prio_4;
+	u32	c_tx_yellow_prio_5;
+	u32	c_tx_yellow_prio_6;
+	u32	c_tx_yellow_prio_7;
+	u32	c_tx_green_prio_0;
+	u32	c_tx_green_prio_1;
+	u32	c_tx_green_prio_2;
+	u32	c_tx_green_prio_3;
+	u32	c_tx_green_prio_4;
+	u32	c_tx_green_prio_5;
+	u32	c_tx_green_prio_6;
+	u32	c_tx_green_prio_7;
+	u32	c_tx_aged;
+	u32	reserved[33];
+};
+
+struct vsc9953_drop_cntrs {
+	u32	c_dr_local;
+	u32	c_dr_tail;
+	u32	c_dr_yellow_prio_0;
+	u32	c_dr_yellow_prio_1;
+	u32	c_dr_yellow_prio_2;
+	u32	c_dr_yellow_prio_3;
+	u32	c_dr_yellow_prio_4;
+	u32	c_dr_yellow_prio_5;
+	u32	c_dr_yellow_prio_6;
+	u32	c_dr_yellow_prio_7;
+	u32	c_dr_green_prio_0;
+	u32	c_dr_green_prio_1;
+	u32	c_dr_green_prio_2;
+	u32	c_dr_green_prio_3;
+	u32	c_dr_green_prio_4;
+	u32	c_dr_green_prio_5;
+	u32	c_dr_green_prio_6;
+	u32	c_dr_green_prio_7;
+	u32	reserved[46];
+};
+
+struct vsc9953_sys_stat {
+	struct vsc9953_rx_cntrs	rx_cntrs;
+	struct vsc9953_tx_cntrs	tx_cntrs;
+	struct vsc9953_drop_cntrs	drop_cntrs;
 	u32	reserved1[6];
 };
 
-struct	vsc9953_sys_sys {
+struct vsc9953_sys_sys {
 	u32	reset_cfg;
 	u32	reserved1;
 	u32	vlan_etype_cfg;
@@ -289,7 +495,7 @@ struct	vsc9953_sys_sys {
 	u32	reserved2[50];
 };
 
-struct	vsc9953_sys_pause_cfg {
+struct vsc9953_sys_pause_cfg {
 	u32	pause_cfg[11];
 	u32	pause_tot_cfg;
 	u32	tail_drop_level[11];
@@ -297,29 +503,52 @@ struct	vsc9953_sys_pause_cfg {
 	u32	mac_fc_cfg[10];
 };
 
-struct	vsc9953_sys_mmgt {
+struct vsc9953_sys_mmgt {
 	u16	free_cnt;
 };
 
-struct	vsc9953_system_reg {
+struct vsc9953_system_reg {
 	struct vsc9953_sys_stat	stat;
 	struct vsc9953_sys_sys	sys;
 	struct vsc9953_sys_pause_cfg	pause_cfg;
 	struct vsc9953_sys_mmgt	mmgt;
 };
 
-/* END VSC9953 SYS structure for T1040 U-boot*/
+/* END VSC9953 SYS structure */
 
+/* VSC9953 REW structure */
 
-/* VSC9953 DEVCPU_GCB structure for T1040 U-boot*/
+struct	vsc9953_rew_port {
+	u32	port_vlan_cfg;
+	u32	port_tag_cfg;
+	u32	port_port_cfg;
+	u32	port_dscp_cfg;
+	u32	port_pcp_dei_qos_map_cfg[16];
+	u32	reserved[12];
+};
 
-struct	vsc9953_chip_regs {
+struct	vsc9953_rew_common {
+	u32	reserve[4];
+	u32	dscp_remap_dp1_cfg[64];
+	u32	dscp_remap_cfg[64];
+};
+
+struct	vsc9953_rew_reg {
+	struct vsc9953_rew_port	port[12];
+	struct vsc9953_rew_common	common;
+};
+
+/* END VSC9953 REW structure */
+
+/* VSC9953 DEVCPU_GCB structure */
+
+struct vsc9953_chip_regs {
 	u32	chipd_id;
 	u32	gpr;
 	u32	soft_rst;
 };
 
-struct	vsc9953_gpio {
+struct vsc9953_gpio {
 	u32	gpio_out_set[10];
 	u32	gpio_out_clr[10];
 	u32	gpio_out[10];
@@ -338,31 +567,31 @@ struct vsc9953_mii_mng {
 	u32	miiscan_lst_rslts_valid;
 };
 
-struct	vsc9953_mii_read_scan {
+struct vsc9953_mii_read_scan {
 	u32	mii_scan_results_sticky[2];
 };
 
-struct	vsc9953_devcpu_gcb {
+struct vsc9953_devcpu_gcb {
 	struct vsc9953_chip_regs	chip_regs;
 	struct vsc9953_gpio		gpio;
 	struct vsc9953_mii_mng	mii_mng[2];
 	struct vsc9953_mii_read_scan	mii_read_scan;
 };
 
-/* END VSC9953 DEVCPU_GCB structure for T1040 U-boot*/
+/* END VSC9953 DEVCPU_GCB structure */
 
-/* VSC9953 IS* structure for T1040 U-boot*/
+/* VSC9953 IS* structure */
 
-struct	vsc9953_vcap_core_cfg	{
+struct vsc9953_vcap_core_cfg {
 	u32	vcap_update_ctrl;
 	u32	vcap_mv_cfg;
 };
 
-struct	vsc9953_vcap {
-struct	vsc9953_vcap_core_cfg	vcap_core_cfg;
+struct vsc9953_vcap {
+	struct vsc9953_vcap_core_cfg	vcap_core_cfg;
 };
 
-/* END VSC9953 IS* structure for T1040 U-boot*/
+/* END VSC9953 IS* structure */
 
 #define VSC9953_PORT_INFO_INITIALIZER(idx) \
 {									\
@@ -388,15 +617,15 @@ struct vsc9953_port_info {
 
 /* Structure to describe a VSC9953 switch */
 struct vsc9953_info {
-	struct	vsc9953_port_info	port[VSC9953_MAX_PORTS];
+	struct vsc9953_port_info	port[VSC9953_MAX_PORTS];
 };
 
 void vsc9953_init(bd_t *bis);
 
-void vsc9953_port_info_set_mdio(int port, struct mii_dev *bus);
-void vsc9953_port_info_set_phy_address(int port, int address);
-void vsc9953_port_enable(int port);
-void vsc9953_port_disable(int port);
-void vsc9953_port_info_set_phy_int(int port, phy_interface_t phy_int);
+void vsc9953_port_info_set_mdio(int port_no, struct mii_dev *bus);
+void vsc9953_port_info_set_phy_address(int port_no, int address);
+void vsc9953_port_enable(int port_no);
+void vsc9953_port_disable(int port_no);
+void vsc9953_port_info_set_phy_int(int port_no, phy_interface_t phy_int);
 
 #endif /* _VSC9953_H_ */

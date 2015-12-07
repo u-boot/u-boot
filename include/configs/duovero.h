@@ -27,9 +27,6 @@
 #define CONFIG_SYS_AUTOMATIC_SDRAM_DETECTION
 #define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
 
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"duovero # "
-
 /* USB UHH support options */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_HOST

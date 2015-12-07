@@ -6,9 +6,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "tqc"
 
-config SYS_SOC
-	default "mx6"
-
 config SYS_CONFIG_NAME
 	default "tqma6"
 
@@ -63,6 +60,11 @@ config MBA6
 	help
 	  Select the MBa6 starterkit. This features a GigE Phy, USB, SD-Card
 	  etc.
+
+config WRU4
+	bool "OHB WRU-IV"
+	help
+	  Select the OHB Systems AG WRU-IV baseboard.
 
 endchoice
 

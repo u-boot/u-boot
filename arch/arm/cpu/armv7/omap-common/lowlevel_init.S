@@ -16,8 +16,9 @@
 #include <asm/arch/spl.h>
 #include <linux/linkage.h>
 
-#ifndef CONFIG_OMAP34XX
+#ifdef CONFIG_SPL
 ENTRY(save_boot_params)
+
 	ldr	r1, =OMAP_SRAM_SCRATCH_BOOT_PARAMS
 	str	r0, [r1]
 	b	save_boot_params_ret

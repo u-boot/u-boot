@@ -68,6 +68,8 @@ struct mxs_nand_info {
 };
 
 struct nand_ecclayout fake_ecc_layout;
+static int chunk_data_size = MXS_NAND_CHUNK_DATA_CHUNK_SIZE;
+static int galois_field = 13;
 
 /*
  * Cache management functions
@@ -130,12 +132,12 @@ static void mxs_nand_return_dma_descs(struct mxs_nand_info *info)
 
 static uint32_t mxs_nand_ecc_chunk_cnt(uint32_t page_data_size)
 {
-	return page_data_size / MXS_NAND_CHUNK_DATA_CHUNK_SIZE;
+	return page_data_size / chunk_data_size;
 }
 
 static uint32_t mxs_nand_ecc_size_in_bits(uint32_t ecc_strength)
 {
-	return ecc_strength * MXS_NAND_BITS_PER_ECC_LEVEL;
+	return ecc_strength * galois_field;
 }
 
 static uint32_t mxs_nand_aux_status_offset(void)
@@ -147,6 +149,13 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 						uint32_t page_oob_size)
 {
 	int ecc_strength;
+	int max_ecc_strength_supported;
+
+	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		max_ecc_strength_supported = 62;
+	else
+		max_ecc_strength_supported = 40;
 
 	/*
 	 * Determine the ECC layout with the formula:
@@ -157,10 +166,10 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 	 *		(page oob size - meta data size) * (bits per byte)
 	 */
 	ecc_strength = ((page_oob_size - MXS_NAND_METADATA_SIZE) * 8)
-			/ (MXS_NAND_BITS_PER_ECC_LEVEL *
-				mxs_nand_ecc_chunk_cnt(page_data_size));
+			/ (galois_field *
+			   mxs_nand_ecc_chunk_cnt(page_data_size));
 
-	return round_down(ecc_strength, 2);
+	return min(round_down(ecc_strength, 2), max_ecc_strength_supported);
 }
 
 static inline uint32_t mxs_nand_get_mark_offset(uint32_t page_data_size,
@@ -173,7 +182,7 @@ static inline uint32_t mxs_nand_get_mark_offset(uint32_t page_data_size,
 	uint32_t block_mark_chunk_bit_offset;
 	uint32_t block_mark_bit_offset;
 
-	chunk_data_size_in_bits = MXS_NAND_CHUNK_DATA_CHUNK_SIZE * 8;
+	chunk_data_size_in_bits = chunk_data_size * 8;
 	chunk_ecc_size_in_bits  = mxs_nand_ecc_size_in_bits(ecc_strength);
 
 	chunk_total_size_in_bits =
@@ -460,6 +469,9 @@ static void mxs_nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int length)
 
 	mxs_dma_desc_append(channel, d);
 
+	/* Invalidate caches */
+	mxs_nand_inval_data_buf(nand_info);
+
 	/* Execute the DMA chain. */
 	ret = mxs_dma_go(channel);
 	if (ret) {
@@ -625,6 +637,9 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 	d->cmd.address = 0;
 
 	mxs_dma_desc_append(channel, d);
+
+	/* Invalidate caches */
+	mxs_nand_inval_data_buf(nand_info);
 
 	/* Execute the DMA chain. */
 	ret = mxs_dma_go(channel);
@@ -972,6 +987,16 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	uint32_t tmp;
 
+	if (mtd->oobsize > MXS_NAND_CHUNK_DATA_CHUNK_SIZE) {
+		galois_field = 14;
+		chunk_data_size = MXS_NAND_CHUNK_DATA_CHUNK_SIZE * 2;
+	}
+
+	if (mtd->oobsize > chunk_data_size) {
+		printf("Not support the NAND chips whose oob size is larger then %d bytes!\n", chunk_data_size);
+		return -EINVAL;
+	}
+
 	/* Configure BCH and set NFC geometry */
 	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);
 
@@ -981,16 +1006,18 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 	tmp |= MXS_NAND_METADATA_SIZE << BCH_FLASHLAYOUT0_META_SIZE_OFFSET;
 	tmp |= (mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize) >> 1)
 		<< BCH_FLASHLAYOUT0_ECC0_OFFSET;
-	tmp |= MXS_NAND_CHUNK_DATA_CHUNK_SIZE
-		>> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
+	tmp |= chunk_data_size >> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
+	tmp |= (14 == galois_field ? 1 : 0) <<
+		BCH_FLASHLAYOUT0_GF13_0_GF14_1_OFFSET;
 	writel(tmp, &bch_regs->hw_bch_flash0layout0);
 
 	tmp = (mtd->writesize + mtd->oobsize)
 		<< BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET;
 	tmp |= (mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize) >> 1)
 		<< BCH_FLASHLAYOUT1_ECCN_OFFSET;
-	tmp |= MXS_NAND_CHUNK_DATA_CHUNK_SIZE
-		>> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
+	tmp |= chunk_data_size >> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
+	tmp |= (14 == galois_field ? 1 : 0) <<
+		BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;
 	writel(tmp, &bch_regs->hw_bch_flash0layout1);
 
 	/* Set *all* chip selects to use layout 0 */

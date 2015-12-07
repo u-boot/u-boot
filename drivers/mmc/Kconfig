@@ -1,5 +1,24 @@
 menu "MMC Host controller Support"
 
+config DM_MMC
+	bool "Enable MMC controllers using Driver Model"
+	depends on DM
+	help
+	  This enables the MultiMediaCard (MMC) uclass which suports MMC and
+	  Secure Digital I/O (SDIO) cards. Both removable (SD, micro-SD, etc.)
+	  and non-removable (e.g. eMMC chip) devices are supported. These
+	  appear as block devices in U-Boot and can support filesystems such
+	  as EXT4 and FAT.
+
+config ROCKCHIP_DWMMC
+	bool "Rockchip SD/MMC controller support"
+	depends on DM_MMC && OF_CONTROL
+	help
+	  This enables support for the Rockchip SD/MMM controller, which is
+	  based on Designware IP. The device is compatible with at least
+	  SD 3.0, SDIO 3.0 and MMC 4.5 and supports common eMMC chips as well
+	  as removeable SD and micro-SD cards.
+
 config SH_SDHI
 	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"
 	depends on RMOBILE

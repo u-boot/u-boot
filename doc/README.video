@@ -40,12 +40,15 @@ requires the CONFIG_VIDEO_LCD_MODE Kconfig value to be set.
 
 The sunxi u-boot driver supports the following video-mode options:
 
-- monitor=[none|dvi|hdmi|lcd] - Select the video output to use
+- monitor=[none|dvi|hdmi|lcd|vga|composite-*] - Select the video output to use
  none:     Disable video output.
  dvi/hdmi: Selects output over the hdmi connector with dvi resp. hdmi output
            format, if edid is used the format is automatically selected.
  lcd:      Selects video output to a LCD screen.
- vga:      Selects bideo output over the VGA connector.
+ vga:      Selects video output over the VGA connector.
+ composite-pal/composite-ntsc/composite-pal-m/composite-pal-nc:
+           Selects composite video output, note the specified resolution is
+           ignored with composite video output.
  Defaults to monitor=dvi.
 
 - hpd=[0|1] - Enable use of the hdmi HotPlug Detect feature
@@ -64,6 +67,11 @@ The sunxi u-boot driver supports the following video-mode options:
  1: Enabled. If valid EDID info was read from the monitor the EDID info will
     overrides the xres, yres and refresh from the video-mode env. variable.
  Defaults to edid=1.
+
+- overscan_x/overscan_y=<int> - Set x/y overscan value
+ This configures a black border on the left and right resp. top and bottom
+ to deal with overscanning displays. Defaults to overscan_x=32 and
+ overscan_y=20 for composite monitors, 0 for other monitors.
 
 For example to always use the hdmi connector, even if no cable is inserted,
 using edid info when available and otherwise initalizing it at 1024x768@60Hz,

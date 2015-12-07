@@ -48,8 +48,7 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 	return ret ? ret : -ENOENT;
 }
 
-int gpio_lookup_name(const char *name, struct udevice **devp,
-		     unsigned int *offsetp, unsigned int *gpiop)
+int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 {
 	struct gpio_dev_priv *uc_priv = NULL;
 	struct udevice *dev;
@@ -57,8 +56,6 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	int numeric;
 	int ret;
 
-	if (devp)
-		*devp = NULL;
 	numeric = isdigit(*name) ? simple_strtoul(name, NULL, 10) : -1;
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
@@ -84,12 +81,33 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	if (!dev)
 		return ret ? ret : -EINVAL;
 
+	desc->dev = dev;
+	desc->offset = offset;
+
+	return 0;
+}
+
+int gpio_lookup_name(const char *name, struct udevice **devp,
+		     unsigned int *offsetp, unsigned int *gpiop)
+{
+	struct gpio_desc desc;
+	int ret;
+
 	if (devp)
-		*devp = dev;
+		*devp = NULL;
+	ret = dm_gpio_lookup_name(name, &desc);
+	if (ret)
+		return ret;
+
+	if (devp)
+		*devp = desc.dev;
 	if (offsetp)
-		*offsetp = offset;
-	if (gpiop)
-		*gpiop = uc_priv->gpio_base + offset;
+		*offsetp = desc.offset;
+	if (gpiop) {
+		struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(desc.dev);
+
+		*gpiop = uc_priv->gpio_base + desc.offset;
+	}
 
 	return 0;
 }
@@ -109,7 +127,7 @@ static int gpio_find_and_xlate(struct gpio_desc *desc,
 	return ops->xlate ? ops->xlate(desc->dev, desc, args) : 0;
 }
 
-static int dm_gpio_request(struct gpio_desc *desc, const char *label)
+int dm_gpio_request(struct gpio_desc *desc, const char *label)
 {
 	struct udevice *dev = desc->dev;
 	struct gpio_dev_priv *uc_priv;
@@ -232,8 +250,12 @@ int gpio_free(unsigned gpio)
 
 static int check_reserved(struct gpio_desc *desc, const char *func)
 {
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(desc->dev);
+	struct gpio_dev_priv *uc_priv;
 
+	if (!dm_gpio_is_valid(desc))
+		return -ENOENT;
+
+	uc_priv = dev_get_uclass_priv(desc->dev);
 	if (!uc_priv->name[desc->offset]) {
 		printf("%s: %s: error: gpio %s%d not reserved\n",
 		       desc->dev->name, func,

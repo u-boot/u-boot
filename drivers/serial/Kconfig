@@ -1,3 +1,20 @@
+#
+# Serial device configuration
+#
+
+menu "Serial drivers"
+
+config REQUIRE_SERIAL_CONSOLE
+	bool "Require a serial port for console"
+	# Running without a serial console is not supported by the
+	# non-dm serial code
+	depends on DM_SERIAL
+	default y
+	help
+	  Require a serial port for the console, and panic if none is found
+	  during serial port initialization (default y). Set this to n on
+	  boards which have no debug serial port whatsoever.
+
 config DM_SERIAL
 	bool "Enable Driver Model for serial drivers"
 	depends on DM
@@ -44,6 +61,22 @@ config DEBUG_UART_NS16550
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_EFI_CONSOLE
+	bool "EFI"
+	depends on EFI_APP
+	help
+	  Select this to enable a debug console which calls back to EFI to
+	  output to the console. This can be useful for early debugging of
+	  U-Boot when running on top of EFI (Extensive Firmware Interface).
+	  This is a type of BIOS used by PCs.
+
+config DEBUG_UART_S5P
+	bool "Samsung S5P"
+	help
+	  Select this to enable a debug UART using the serial_s5p driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -76,9 +109,18 @@ config DEBUG_UART_SHIFT
 	  value. Use this value to specify the shift to use, where 0=byte
 	  registers, 2=32-bit word registers, etc.
 
+config ROCKCHIP_SERIAL
+	bool "Rockchip on-chip UART support"
+	depends on ARCH_ROCKCHIP && DM_SERIAL
+	help
+	  Select this to enable a debug UART for Rockchip devices. This uses
+	  the ns16550 driver. You will need to #define CONFIG_SYS_NS16550 in
+	  your board config header. The clock input is automatically set to
+	  use the oscillator (24MHz).
+
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"
-	depends on SANDBOX && DM
+	depends on SANDBOX
 	help
 	  Select this to enable a seral UART for sandbox. This is required to
 	  operate correctly, otherwise you will see no serial output from
@@ -98,7 +140,19 @@ config SANDBOX_SERIAL
 
 config UNIPHIER_SERIAL
 	bool "Support for UniPhier on-chip UART"
-	depends on ARCH_UNIPHIER && DM_SERIAL
+	depends on ARCH_UNIPHIER
 	help
 	  If you have a UniPhier based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
+
+config X86_SERIAL
+	bool "Support for 16550 serial port on x86 machines"
+	depends on X86
+	default y
+	help
+	  Most x86 machines have a ns16550 UART or compatible. This can be
+	  enabled in the device tree with the correct input clock frequency
+	  provided (default 1843200). Enable this to obtain serial console
+	  output.
+
+endmenu

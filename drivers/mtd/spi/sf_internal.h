@@ -37,7 +37,11 @@ enum spi_read_cmds {
 
 /* sf param flags */
 enum {
+#ifdef CONFIG_SPI_FLASH_USE_4K_SECTORS
 	SECT_4K		= 1 << 0,
+#else
+	SECT_4K		= 0 << 0,
+#endif
 	SECT_32K	= 1 << 1,
 	E_FSR		= 1 << 2,
 	SST_BP		= 1 << 3,

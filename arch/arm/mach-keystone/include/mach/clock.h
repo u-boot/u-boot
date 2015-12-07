@@ -24,13 +24,69 @@
 #include <asm/arch/clock-k2l.h>
 #endif
 
-#define MAIN_PLL CORE_PLL
+#define CORE_PLL MAIN_PLL
+#define DDR3_PLL DDR3A_PLL
+
+#define CLK_LIST(CLK)\
+	CLK(0, core_pll_clk)\
+	CLK(1, pass_pll_clk)\
+	CLK(2, tetris_pll_clk)\
+	CLK(3, ddr3a_pll_clk)\
+	CLK(4, ddr3b_pll_clk)\
+	CLK(5, sys_clk0_clk)\
+	CLK(6, sys_clk0_1_clk)\
+	CLK(7, sys_clk0_2_clk)\
+	CLK(8, sys_clk0_3_clk)\
+	CLK(9, sys_clk0_4_clk)\
+	CLK(10, sys_clk0_6_clk)\
+	CLK(11, sys_clk0_8_clk)\
+	CLK(12, sys_clk0_12_clk)\
+	CLK(13, sys_clk0_24_clk)\
+	CLK(14, sys_clk1_clk)\
+	CLK(15, sys_clk1_3_clk)\
+	CLK(16, sys_clk1_4_clk)\
+	CLK(17, sys_clk1_6_clk)\
+	CLK(18, sys_clk1_12_clk)\
+	CLK(19, sys_clk2_clk)\
+	CLK(20, sys_clk3_clk)
 
 #include <asm/types.h>
 
 #define GENERATE_ENUM(NUM, ENUM) ENUM = NUM,
 #define GENERATE_INDX_STR(NUM, STRING) #NUM"\t- "#STRING"\n"
 #define CLOCK_INDEXES_LIST	CLK_LIST(GENERATE_INDX_STR)
+
+enum {
+	SPD800,
+	SPD850,
+	SPD1000,
+	SPD1200,
+	SPD1250,
+	SPD1350,
+	SPD1400,
+	SPD1500,
+	NUM_SPDS,
+};
+
+/* PLL identifiers */
+enum {
+	MAIN_PLL,
+	TETRIS_PLL,
+	PASS_PLL,
+	DDR3A_PLL,
+	DDR3B_PLL,
+	MAX_PLL_COUNT,
+};
+
+enum ext_clk_e {
+	sys_clk,
+	alt_core_clk,
+	pa_clk,
+	tetris_clk,
+	ddr3a_clk,
+	ddr3b_clk,
+	ext_clk_count /* number of external clocks */
+};
 
 enum clk_e {
 	CLK_LIST(GENERATE_ENUM)
@@ -49,18 +105,20 @@ struct pll_init_data {
 	int pll_od;		/* PLL output divider */
 };
 
+extern unsigned int external_clk[ext_clk_count];
 extern const struct keystone_pll_regs keystone_pll_regs[];
-extern int dev_speeds[];
-extern int arm_speeds[];
+extern s16 divn_val[];
+extern int speeds[];
 
-void init_plls(int num_pll, struct pll_init_data *config);
+void init_plls(void);
 void init_pll(const struct pll_init_data *data);
+struct pll_init_data *get_pll_init_data(int pll);
 unsigned long clk_get_rate(unsigned int clk);
 unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
 int clk_set_rate(unsigned int clk, unsigned long hz);
-void pass_pll_pa_clk_enable(void);
 int get_max_dev_speed(void);
 int get_max_arm_speed(void);
+void pll_pa_clk_sel(void);
 
 #endif
 #endif

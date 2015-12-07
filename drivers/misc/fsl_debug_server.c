@@ -10,6 +10,7 @@
 #include <asm/system.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
 
+#include <fsl-mc/fsl_mc.h>
 #include <fsl_debug_server.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -59,29 +60,29 @@ int debug_server_parse_firmware_fit_image(const void **raw_image_addr,
 	/* Check if Image is in FIT format */
 	format = genimg_get_format(fit_hdr);
 	if (format != IMAGE_FORMAT_FIT) {
-		printf("Error! Not a FIT image\n");
+		printf("Debug Server FW: Not a FIT image\n");
 		goto out_error;
 	}
 
 	if (!fit_check_format(fit_hdr)) {
-		printf("Error! Bad FIT image format\n");
+		printf("Debug Server FW: Bad FIT image format\n");
 		goto out_error;
 	}
 
 	node_offset = fit_image_get_node(fit_hdr, uname);
 	if (node_offset < 0) {
-		printf("Error! Can not find %s subimage\n", uname);
+		printf("Debug Server FW:Can not find %s subimage\n", uname);
 		goto out_error;
 	}
 
 	/* Verify Debug Server firmware image */
 	if (!fit_image_verify(fit_hdr, node_offset)) {
-		printf("Error! Bad Debug Server firmware hash");
+		printf("Debug Server FW: Bad Debug Server firmware hash");
 		goto out_error;
 	}
 
 	if (fit_get_desc(fit_hdr, node_offset, &desc) < 0) {
-		printf("Error! Failed to get Debug Server fw description");
+		printf("Debug Server FW: Failed to get FW description");
 		goto out_error;
 	}
 
@@ -150,6 +151,10 @@ int debug_server_init(void)
 	else
 		debug_server_ram_addr =
 			gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
+
+#ifdef CONFIG_FSL_MC_ENET
+	debug_server_ram_addr += mc_get_dram_block_size();
+#endif
 
 	error = debug_server_parse_firmware_fit_image(&raw_image_addr,
 							&raw_image_size);

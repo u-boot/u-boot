@@ -14,12 +14,6 @@
 #include <errno.h>
 #include <pci.h>
 
-#ifdef DEBUG
-#define DEBUGF(x...) printf(x)
-#else
-#define DEBUGF(x...)
-#endif /* DEBUG */
-
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
 #ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE
 #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	8
@@ -50,20 +44,21 @@ int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 	pci_addr_t addr;
 
 	if (!res) {
-		DEBUGF("No resource");
+		debug("No resource");
 		goto error;
 	}
 
 	addr = ((res->bus_lower - 1) | (size - 1)) + 1;
 
 	if (addr - res->bus_start + size > res->size) {
-		DEBUGF("No room in resource");
+		debug("No room in resource");
 		goto error;
 	}
 
 	res->bus_lower = addr + size;
 
-	DEBUGF("address=0x%llx bus_lower=0x%llx", (u64)addr, (u64)res->bus_lower);
+	debug("address=0x%llx bus_lower=0x%llx", (unsigned long long)addr,
+	      (unsigned long long)res->bus_lower);
 
 	*bar = addr;
 	return 0;
@@ -88,6 +83,8 @@ void pciauto_setup_device(struct pci_controller *hose,
 	u16 cmdstat = 0;
 	int bar, bar_nr = 0;
 #ifndef CONFIG_PCI_ENUM_ONLY
+	u8 header_type;
+	int rom_addr;
 	pci_addr_t bar_value;
 	struct pci_region *bar_res;
 	int found_mem64 = 0;
@@ -120,7 +117,8 @@ void pciauto_setup_device(struct pci_controller *hose,
 			bar_res = io;
 #endif
 
-			DEBUGF("PCI Autoconfig: BAR %d, I/O, size=0x%llx, ", bar_nr, (u64)bar_size);
+			debug("PCI Autoconfig: BAR %d, I/O, size=0x%llx, ",
+			      bar_nr, (unsigned long long)bar_size);
 		} else {
 			if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
 			     PCI_BASE_ADDRESS_MEM_TYPE_64) {
@@ -150,7 +148,9 @@ void pciauto_setup_device(struct pci_controller *hose,
 				bar_res = mem;
 #endif
 
-			DEBUGF("PCI Autoconfig: BAR %d, Mem, size=0x%llx, ", bar_nr, (u64)bar_size);
+			debug("PCI Autoconfig: BAR %d, %s, size=0x%llx, ",
+			      bar_nr, bar_res == prefetch ? "Prf" : "Mem",
+			      (unsigned long long)bar_size);
 		}
 
 #ifndef CONFIG_PCI_ENUM_ONLY
@@ -177,10 +177,34 @@ void pciauto_setup_device(struct pci_controller *hose,
 		cmdstat |= (bar_response & PCI_BASE_ADDRESS_SPACE) ?
 			PCI_COMMAND_IO : PCI_COMMAND_MEMORY;
 
-		DEBUGF("\n");
+		debug("\n");
 
 		bar_nr++;
 	}
+
+#ifndef CONFIG_PCI_ENUM_ONLY
+	/* Configure the expansion ROM address */
+	pci_hose_read_config_byte(hose, dev, PCI_HEADER_TYPE, &header_type);
+	header_type &= 0x7f;
+	if (header_type != PCI_HEADER_TYPE_CARDBUS) {
+		rom_addr = (header_type == PCI_HEADER_TYPE_NORMAL) ?
+			   PCI_ROM_ADDRESS : PCI_ROM_ADDRESS1;
+		pci_hose_write_config_dword(hose, dev, rom_addr, 0xfffffffe);
+		pci_hose_read_config_dword(hose, dev, rom_addr, &bar_response);
+		if (bar_response) {
+			bar_size = -(bar_response & ~1);
+			debug("PCI Autoconfig: ROM, size=%#x, ",
+			      (unsigned int)bar_size);
+			if (pciauto_region_allocate(mem, bar_size,
+						    &bar_value) == 0) {
+				pci_hose_write_config_dword(hose, dev, rom_addr,
+							    bar_value);
+			}
+			cmdstat |= PCI_COMMAND_MEMORY;
+			debug("\n");
+		}
+	}
+#endif
 
 	pci_hose_write_config_word(hose, dev, PCI_COMMAND, cmdstat);
 	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE,
@@ -188,39 +212,26 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
 }
 
-int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev)
-{
-	pci_addr_t bar_value;
-	pci_size_t bar_size;
-	u32 bar_response;
-	u16 cmdstat = 0;
-
-	pci_hose_write_config_dword(hose, dev, PCI_ROM_ADDRESS, 0xfffffffe);
-	pci_hose_read_config_dword(hose, dev, PCI_ROM_ADDRESS, &bar_response);
-	if (!bar_response)
-		return -ENOENT;
-
-	bar_size = -(bar_response & ~1);
-	DEBUGF("PCI Autoconfig: ROM, size=%#x, ", bar_size);
-	if (pciauto_region_allocate(hose->pci_mem, bar_size, &bar_value) == 0) {
-		pci_hose_write_config_dword(hose, dev, PCI_ROM_ADDRESS,
-					    bar_value);
-	}
-	DEBUGF("\n");
-	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
-	cmdstat |= PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
-	pci_hose_write_config_word(hose, dev, PCI_COMMAND, cmdstat);
-
-	return 0;
-}
-
 void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 					 pci_dev_t dev, int sub_bus)
 {
-	struct pci_region *pci_mem = hose->pci_mem;
-	struct pci_region *pci_prefetch = hose->pci_prefetch;
-	struct pci_region *pci_io = hose->pci_io;
+	struct pci_region *pci_mem;
+	struct pci_region *pci_prefetch;
+	struct pci_region *pci_io;
 	u16 cmdstat, prefechable_64;
+
+#ifdef CONFIG_DM_PCI
+	/* The root controller has the region information */
+	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+
+	pci_mem = ctlr_hose->pci_mem;
+	pci_prefetch = ctlr_hose->pci_prefetch;
+	pci_io = ctlr_hose->pci_io;
+#else
+	pci_mem = hose->pci_mem;
+	pci_prefetch = hose->pci_prefetch;
+	pci_io = hose->pci_io;
+#endif
 
 	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
 	pci_hose_read_config_word(hose, dev, PCI_PREF_MEMORY_BASE,
@@ -228,10 +239,15 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 	prefechable_64 &= PCI_PREF_RANGE_TYPE_MASK;
 
 	/* Configure bus number registers */
+#ifdef CONFIG_DM_PCI
+	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS, PCI_BUS(dev));
+	pci_hose_write_config_byte(hose, dev, PCI_SECONDARY_BUS, sub_bus);
+#else
 	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS,
 				   PCI_BUS(dev) - hose->first_busno);
 	pci_hose_write_config_byte(hose, dev, PCI_SECONDARY_BUS,
 				   sub_bus - hose->first_busno);
+#endif
 	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS, 0xff);
 
 	if (pci_mem) {
@@ -294,13 +310,30 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 					  pci_dev_t dev, int sub_bus)
 {
-	struct pci_region *pci_mem = hose->pci_mem;
-	struct pci_region *pci_prefetch = hose->pci_prefetch;
-	struct pci_region *pci_io = hose->pci_io;
+	struct pci_region *pci_mem;
+	struct pci_region *pci_prefetch;
+	struct pci_region *pci_io;
+
+#ifdef CONFIG_DM_PCI
+	/* The root controller has the region information */
+	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+
+	pci_mem = ctlr_hose->pci_mem;
+	pci_prefetch = ctlr_hose->pci_prefetch;
+	pci_io = ctlr_hose->pci_io;
+#else
+	pci_mem = hose->pci_mem;
+	pci_prefetch = hose->pci_prefetch;
+	pci_io = hose->pci_io;
+#endif
 
 	/* Configure bus number registers */
+#ifdef CONFIG_DM_PCI
+	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS, sub_bus);
+#else
 	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS,
 				   sub_bus - hose->first_busno);
+#endif
 
 	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */
@@ -380,7 +413,7 @@ void pciauto_config_init(struct pci_controller *hose)
 	if (hose->pci_mem) {
 		pciauto_region_init(hose->pci_mem);
 
-		DEBUGF("PCI Autoconfig: Bus Memory region: [0x%llx-0x%llx],\n"
+		debug("PCI Autoconfig: Bus Memory region: [0x%llx-0x%llx],\n"
 		       "\t\tPhysical Memory [%llx-%llxx]\n",
 		    (u64)hose->pci_mem->bus_start,
 		    (u64)(hose->pci_mem->bus_start + hose->pci_mem->size - 1),
@@ -391,7 +424,7 @@ void pciauto_config_init(struct pci_controller *hose)
 	if (hose->pci_prefetch) {
 		pciauto_region_init(hose->pci_prefetch);
 
-		DEBUGF("PCI Autoconfig: Bus Prefetchable Mem: [0x%llx-0x%llx],\n"
+		debug("PCI Autoconfig: Bus Prefetchable Mem: [0x%llx-0x%llx],\n"
 		       "\t\tPhysical Memory [%llx-%llx]\n",
 		    (u64)hose->pci_prefetch->bus_start,
 		    (u64)(hose->pci_prefetch->bus_start +
@@ -404,7 +437,7 @@ void pciauto_config_init(struct pci_controller *hose)
 	if (hose->pci_io) {
 		pciauto_region_init(hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: Bus I/O region: [0x%llx-0x%llx],\n"
+		debug("PCI Autoconfig: Bus I/O region: [0x%llx-0x%llx],\n"
 		       "\t\tPhysical Memory: [%llx-%llx]\n",
 		    (u64)hose->pci_io->bus_start,
 		    (u64)(hose->pci_io->bus_start + hose->pci_io->size - 1),
@@ -420,19 +453,35 @@ void pciauto_config_init(struct pci_controller *hose)
  */
 int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 {
+	struct pci_region *pci_mem;
+	struct pci_region *pci_prefetch;
+	struct pci_region *pci_io;
 	unsigned int sub_bus = PCI_BUS(dev);
 	unsigned short class;
 	int n;
+
+#ifdef CONFIG_DM_PCI
+	/* The root controller has the region information */
+	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+
+	pci_mem = ctlr_hose->pci_mem;
+	pci_prefetch = ctlr_hose->pci_prefetch;
+	pci_io = ctlr_hose->pci_io;
+#else
+	pci_mem = hose->pci_mem;
+	pci_prefetch = hose->pci_prefetch;
+	pci_io = hose->pci_io;
+#endif
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
 	switch (class) {
 	case PCI_CLASS_BRIDGE_PCI:
-		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n",
-		       PCI_DEV(dev));
+		debug("PCI Autoconfig: Found P2P bridge, device %d\n",
+		      PCI_DEV(dev));
 
-		pciauto_setup_device(hose, dev, 2, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
+		pciauto_setup_device(hose, dev, 2, pci_mem,
+				     pci_prefetch, pci_io);
 
 #ifdef CONFIG_DM_PCI
 		n = dm_pci_hose_probe_bus(hose, dev);
@@ -462,11 +511,11 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		 * just do a minimal setup of the bridge,
 		 * let the OS take care of the rest
 		 */
-		pciauto_setup_device(hose, dev, 0, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
+		pciauto_setup_device(hose, dev, 0, pci_mem,
+				     pci_prefetch, pci_io);
 
-		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
-			PCI_DEV(dev));
+		debug("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
+		      PCI_DEV(dev));
 
 #ifndef CONFIG_DM_PCI
 		hose->current_busno++;
@@ -475,8 +524,8 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 
 #if defined(CONFIG_PCIAUTO_SKIP_HOST_BRIDGE)
 	case PCI_CLASS_BRIDGE_OTHER:
-		DEBUGF("PCI Autoconfig: Skipping bridge device %d\n",
-		       PCI_DEV(dev));
+		debug("PCI Autoconfig: Skipping bridge device %d\n",
+		      PCI_DEV(dev));
 		break;
 #endif
 #if defined(CONFIG_MPC834x) && !defined(CONFIG_VME8349)
@@ -487,18 +536,18 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		 * device claiming resources io/mem/irq.. we only allow for
 		 * the PIMMR window to be allocated (BAR0 - 1MB size)
 		 */
-		DEBUGF("PCI Autoconfig: Broken bridge found, only minimal config\n");
+		debug("PCI Autoconfig: Broken bridge found, only minimal config\n");
 		pciauto_setup_device(hose, dev, 0, hose->pci_mem,
 			hose->pci_prefetch, hose->pci_io);
 		break;
 #endif
 
 	case PCI_CLASS_PROCESSOR_POWERPC: /* an agent or end-point */
-		DEBUGF("PCI AutoConfig: Found PowerPC device\n");
+		debug("PCI AutoConfig: Found PowerPC device\n");
 
 	default:
-		pciauto_setup_device(hose, dev, 6, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
+		pciauto_setup_device(hose, dev, 6, pci_mem,
+				     pci_prefetch, pci_io);
 		break;
 	}
 

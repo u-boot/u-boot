@@ -10,6 +10,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <u-boot/zlib.h>
 #include "zlib/zutil.h"
 
@@ -25,7 +26,7 @@ static void *zalloc(void *x, unsigned items, unsigned size)
 	size *= items;
 	size = (size + ZALLOC_ALIGNMENT - 1) & ~(ZALLOC_ALIGNMENT - 1);
 
-	p = malloc (size);
+	p = malloc_cache_aligned(size);
 
 	return (p);
 }

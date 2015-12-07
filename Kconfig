@@ -146,7 +146,7 @@ config FIT
 	  Flattened Image Tree.  FIT is formally a FDT, which can include
 	  images of various types (kernel, FDT blob, ramdisk, etc.)
 	  in a single blob.  To boot this new uImage structure,
-	  pass the the address of the blob to the "bootm" command.
+	  pass the address of the blob to the "bootm" command.
 
 config FIT_VERBOSE
 	bool "Display verbose messages on FIT boot"
@@ -179,6 +179,7 @@ config SYS_EXTRA_OPTIONS
 
 config SYS_TEXT_BASE
 	depends on SPARC || ARC || X86 || ARCH_UNIPHIER || ARCH_ZYNQMP
+	depends on !EFI_APP
 	hex "Text Base"
 	help
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture

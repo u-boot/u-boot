@@ -75,7 +75,11 @@ found:
 	 * Factors to consider for half-strength driver enable:
 	 *	- number of DIMMs installed
 	 */
+#ifdef CONFIG_SYS_FSL_DDR4
+	popts->half_strength_driver_enable = 1;
+#else
 	popts->half_strength_driver_enable = 0;
+#endif
 	/*
 	 * Write leveling override
 	 */
@@ -91,8 +95,14 @@ found:
 	popts->zq_en = 1;
 
 	/* DHC_EN =1, ODT = 75 Ohm */
+#ifdef CONFIG_SYS_FSL_DDR4
+	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_120OHM);
+	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_120OHM) |
+		DDR_CDR2_VREF_OVRD(70);       /* Vref = 70% */
+#else
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_75ohm);
 	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_75ohm);
+#endif
 }
 
 #if defined(CONFIG_DEEP_SLEEP)

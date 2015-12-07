@@ -80,7 +80,7 @@ unsigned long get_dram_size_to_hide(void)
 	dram_to_hide += mc_get_dram_block_size();
 #endif
 
-	return dram_to_hide;
+	return roundup(dram_to_hide, CONFIG_SYS_MEM_TOP_HIDE_MIN);
 }
 
 int board_eth_init(bd_t *bis)
@@ -127,15 +127,18 @@ void fdt_fixup_board_enet(void *fdt)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	phys_addr_t base;
-	phys_size_t size;
+	u64 base[CONFIG_NR_DRAM_BANKS];
+	u64 size[CONFIG_NR_DRAM_BANKS];
 
 	ft_cpu_setup(blob, bd);
 
-	/* limit the memory size to bank 1 until Linux can handle 40-bit PA */
-	base = getenv_bootm_low();
-	size = getenv_bootm_size();
-	fdt_fixup_memory(blob, (u64)base, (u64)size);
+	/* fixup DT for the two GPP DDR banks */
+	base[0] = gd->bd->bi_dram[0].start;
+	size[0] = gd->bd->bi_dram[0].size;
+	base[1] = gd->bd->bi_dram[1].start;
+	size[1] = gd->bd->bi_dram[1].size;
+
+	fdt_fixup_memory_banks(blob, base, size, 2);
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);

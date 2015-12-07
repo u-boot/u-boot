@@ -43,6 +43,8 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	/* TLB 1 */
 	/* *I*** - Covers boot page */
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L3_ADDR)
+
+#if !defined(CONFIG_SECURE_BOOT)
 	/*
 	 * *I*G - L3SRAM. When L3 is used as 1M SRAM, the address of the
 	 * SRAM is at 0xfff00000, it covered the 0xfffff000.
@@ -50,6 +52,19 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, CONFIG_SYS_INIT_L3_ADDR, CONFIG_SYS_INIT_L3_ADDR,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 0, BOOKE_PAGESZ_1M, 1),
+#else
+	/*
+	 * *I*G - L3SRAM. When L3 is used as 1M SRAM, in case of Secure Boot
+	 * the physical address of the SRAM is at CONFIG_SYS_INIT_L3_ADDR,
+	 * and virtual address is CONFIG_SYS_MONITOR_BASE
+	 */
+
+	SET_TLB_ENTRY(1, CONFIG_SYS_MONITOR_BASE & 0xfff00000,
+			CONFIG_SYS_INIT_L3_ADDR & 0xfff00000,
+			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+			0, 0, BOOKE_PAGESZ_1M, 1),
+#endif
+
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 	/*
 	 * SRIO_PCIE_BOOT-SLAVE. When slave boot, the address of the

@@ -80,7 +80,7 @@
 #endif
 
 /* Now bring in the rest of the common code. */
-#include <configs/ti_armv7_common.h>
+#include <configs/ti_armv7_omap.h>
 
 /* Always 64 KiB env size */
 #define CONFIG_ENV_SIZE			(64 << 10)
@@ -110,6 +110,7 @@
 #define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_XHCI_OMAP
 #define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
@@ -127,7 +128,7 @@
 #define CONFIG_USB_DWC3_GADGET
 
 #define CONFIG_USB_GADGET
-#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USB_GADGET_VBUS_DRAW 2
 #define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
 #define CONFIG_G_DNL_VENDOR_NUM 0x0403
@@ -137,7 +138,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
-#define CONFIG_DFU_FUNCTION
+#define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
 #define CONFIG_CMD_DFU
 
@@ -215,6 +216,7 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
+	DEFAULT_MMC_TI_ARGS \
 	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
@@ -224,18 +226,11 @@
 		"uuid_disk=${uuid_gpt_disk};" \
 		"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}\0" \
 	"optargs=\0" \
-	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
-	"mmcrootfstype=ext4 rootwait\0" \
 	"usbroot=/dev/sda2 rw\0" \
 	"usbrootfstype=ext4 rootwait\0" \
 	"usbdev=0\0" \
 	"ramroot=/dev/ram0 rw\0" \
 	"ramrootfstype=ext2\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
 	"usbargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${usbroot} " \
@@ -267,7 +262,7 @@
 			"if run loadimage; then " \
 				"run loadfdt; " \
 				"echo Booting from mmc${mmcdev} ...; " \
-				"run mmcargs; " \
+				"run args_mmc; " \
 				"bootz ${loadaddr} - ${fdtaddr}; " \
 			"fi;" \
 		"fi;\0" \
@@ -291,6 +286,8 @@
 				"bootz ${loadaddr} - ${fdtaddr}; " \
 			"fi;" \
 		"fi\0" \
+		"fi;" \
+		"usb stop ${usbdev};\0" \
 	"findfdt="\
 		"if test $board_name = AM43EPOS; then " \
 			"setenv fdtfile am43x-epos-evm.dtb; fi; " \
@@ -332,6 +329,7 @@
 
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_PHYLIB
+#define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
 
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_NET_VCI_STRING	"AM43xx U-Boot SPL"

@@ -13,7 +13,6 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra20 (Medcom-Wide) # "
 #define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Medcom-Wide"
 
 /* Board-specific serial config */

@@ -330,10 +330,8 @@
 	"root=/dev/mtdblock7 rw rootfstype=jffs2"
 #endif
 
-#define CONFIG_SYS_PROMPT		"U-Boot> "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE

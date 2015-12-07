@@ -41,7 +41,6 @@
 	printf(fmt, ##args)
 
 #define CONFIG_NR_CPUS		1
-#define BIT(nr)			(1UL << (nr))
 #define ETH_HLEN		14	/* Total octets in header */
 
 /* 2(HW hdr) 14(MAC hdr) 4(CRC) 32(extra for cache prefetch) */

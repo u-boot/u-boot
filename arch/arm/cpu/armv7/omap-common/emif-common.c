@@ -294,8 +294,8 @@ static void dra7_ddr3_leveling(u32 base, const struct emif_regs *regs)
 			EMIF_REG_PHY_FIFO_WE_IN_MISALINED_CLR);
 
 	/* Disable refreshed before leveling */
-	clrsetbits_le32(&emif->emif_sdram_ref_ctrl, EMIF_REG_INITREF_DIS_SHIFT,
-			EMIF_REG_INITREF_DIS_SHIFT);
+	clrsetbits_le32(&emif->emif_sdram_ref_ctrl, EMIF_REG_INITREF_DIS_MASK,
+			EMIF_REG_INITREF_DIS_MASK);
 
 	/* Start Full leveling */
 	writel(DDR3_FULL_LVL, &emif->emif_rd_wr_lvl_ctl);
@@ -309,7 +309,7 @@ static void dra7_ddr3_leveling(u32 base, const struct emif_regs *regs)
 	}
 
 	/* Enable refreshes after leveling */
-	clrbits_le32(&emif->emif_sdram_ref_ctrl, EMIF_REG_INITREF_DIS_SHIFT);
+	clrbits_le32(&emif->emif_sdram_ref_ctrl, EMIF_REG_INITREF_DIS_MASK);
 
 	debug("HW leveling success\n");
 	/*

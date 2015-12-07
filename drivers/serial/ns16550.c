@@ -246,6 +246,17 @@ int NS16550_tstc(NS16550_t com_port)
 
 #include <debug_uart.h>
 
+#define serial_dout(reg, value)	\
+	serial_out_shift((char *)com_port + \
+		((char *)reg - (char *)com_port) * \
+			(1 << CONFIG_DEBUG_UART_SHIFT), \
+		CONFIG_DEBUG_UART_SHIFT, value)
+#define serial_din(reg) \
+	serial_in_shift((char *)com_port + \
+		((char *)reg - (char *)com_port) * \
+			(1 << CONFIG_DEBUG_UART_SHIFT), \
+		CONFIG_DEBUG_UART_SHIFT)
+
 void debug_uart_init(void)
 {
 	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
@@ -259,28 +270,23 @@ void debug_uart_init(void)
 	 */
 	baud_divisor = calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
 				    CONFIG_BAUDRATE);
-	serial_out_shift(&com_port->ier, CONFIG_DEBUG_UART_SHIFT,
-			 CONFIG_SYS_NS16550_IER);
-	serial_out_shift(&com_port->mcr, CONFIG_DEBUG_UART_SHIFT, UART_MCRVAL);
-	serial_out_shift(&com_port->fcr, CONFIG_DEBUG_UART_SHIFT, UART_FCRVAL);
+	serial_dout(&com_port->ier, CONFIG_SYS_NS16550_IER);
+	serial_dout(&com_port->mcr, UART_MCRVAL);
+	serial_dout(&com_port->fcr, UART_FCRVAL);
 
-	serial_out_shift(&com_port->lcr, CONFIG_DEBUG_UART_SHIFT,
-			 UART_LCR_BKSE | UART_LCRVAL);
-	serial_out_shift(&com_port->dll, CONFIG_DEBUG_UART_SHIFT,
-			 baud_divisor & 0xff);
-	serial_out_shift(&com_port->dlm, CONFIG_DEBUG_UART_SHIFT,
-			 (baud_divisor >> 8) & 0xff);
-	serial_out_shift(&com_port->lcr, CONFIG_DEBUG_UART_SHIFT,
-			 UART_LCRVAL);
+	serial_dout(&com_port->lcr, UART_LCR_BKSE | UART_LCRVAL);
+	serial_dout(&com_port->dll, baud_divisor & 0xff);
+	serial_dout(&com_port->dlm, (baud_divisor >> 8) & 0xff);
+	serial_dout(&com_port->lcr, UART_LCRVAL);
 }
 
 static inline void _debug_uart_putc(int ch)
 {
 	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
 
-	while (!(serial_in_shift(&com_port->lsr, 0) & UART_LSR_THRE))
+	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE))
 		;
-	serial_out_shift(&com_port->thr, CONFIG_DEBUG_UART_SHIFT, ch);
+	serial_dout(&com_port->thr, ch);
 }
 
 DEBUG_UART_FUNCS
@@ -351,14 +357,14 @@ int ns16550_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ns16550_platdata *plat = dev->platdata;
 	fdt_addr_t addr;
 
 	/* try Processor Local Bus device first */
-	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	addr = dev_get_addr(dev);
 #ifdef CONFIG_PCI
 	if (addr == FDT_ADDR_T_NONE) {
 		/* then try pci device */

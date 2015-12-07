@@ -12,6 +12,7 @@
 #include <environment.h>
 #include <linux/stddef.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <search.h>
 #include <errno.h>
@@ -93,13 +94,13 @@ static inline int mmc_set_env_part(struct mmc *mmc) {return 0; };
 static const char *init_mmc_for_env(struct mmc *mmc)
 {
 	if (!mmc)
-		return "No MMC card found";
+		return "!No MMC card found";
 
 	if (mmc_init(mmc))
-		return "MMC init failed";
+		return "!MMC init failed";
 
 	if (mmc_set_env_part(mmc))
-		return "MMC partition switch failed";
+		return "!MMC partition switch failed";
 
 	return NULL;
 }

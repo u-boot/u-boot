@@ -13,6 +13,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static bool i440fx;
+
 void board_pci_setup_hose(struct pci_controller *hose)
 {
 	hose->first_busno = 0;
@@ -50,7 +52,7 @@ void board_pci_setup_hose(struct pci_controller *hose)
 int board_pci_post_scan(struct pci_controller *hose)
 {
 	int ret = 0;
-	u16 device;
+	u16 device, xbcs;
 	int pam, i;
 	pci_dev_t vga;
 	ulong start;
@@ -61,7 +63,8 @@ int board_pci_post_scan(struct pci_controller *hose)
 	 * PCI device ID.
 	 */
 	device = x86_pci_read_config16(PCI_BDF(0, 0, 0), PCI_DEVICE_ID);
-	pam = (device == PCI_DEVICE_ID_INTEL_82441) ? I440FX_PAM : Q35_PAM;
+	i440fx = (device == PCI_DEVICE_ID_INTEL_82441);
+	pam = i440fx ? I440FX_PAM : Q35_PAM;
 
 	/*
 	 * Initialize Programmable Attribute Map (PAM) Registers
@@ -71,7 +74,7 @@ int board_pci_post_scan(struct pci_controller *hose)
 	for (i = 0; i < PAM_NUM; i++)
 		x86_pci_write_config8(PCI_BDF(0, 0, 0), pam + i, PAM_RW);
 
-	if (device == PCI_DEVICE_ID_INTEL_82441) {
+	if (i440fx) {
 		/*
 		 * Enable legacy IDE I/O ports decode
 		 *
@@ -82,6 +85,15 @@ int board_pci_post_scan(struct pci_controller *hose)
 		 */
 		x86_pci_write_config16(PIIX_IDE, IDE0_TIM, IDE_DECODE_EN);
 		x86_pci_write_config16(PIIX_IDE, IDE1_TIM, IDE_DECODE_EN);
+
+		/* Enable I/O APIC */
+		xbcs = x86_pci_read_config16(PIIX_ISA, XBCS);
+		xbcs |= APIC_EN;
+		x86_pci_write_config16(PIIX_ISA, XBCS, xbcs);
+	} else {
+		/* Configure PCIe ECAM base address */
+		x86_pci_write_config32(PCI_BDF(0, 0, 0), PCIEX_BAR,
+				       CONFIG_PCIE_ECAM_BASE | BAR_EN);
 	}
 
 	/*
@@ -92,10 +104,35 @@ int board_pci_post_scan(struct pci_controller *hose)
 	 * board, it shows as device 2, while for Q35 and ICH9 chipset board,
 	 * it shows as device 1.
 	 */
-	vga = (device == PCI_DEVICE_ID_INTEL_82441) ? I440FX_VGA : Q35_VGA;
+	vga = i440fx ? I440FX_VGA : Q35_VGA;
 	start = get_timer(0);
 	ret = pci_run_vga_bios(vga, NULL, PCI_ROM_USE_NATIVE);
 	debug("BIOS ran in %lums\n", get_timer(start));
 
 	return ret;
 }
+
+#ifdef CONFIG_GENERATE_MP_TABLE
+int mp_determine_pci_dstirq(int bus, int dev, int func, int pirq)
+{
+	u8 irq;
+
+	if (i440fx) {
+		/*
+		 * Not like most x86 platforms, the PIRQ[A-D] on PIIX3 are not
+		 * connected to I/O APIC INTPIN#16-19. Instead they are routed
+		 * to an irq number controled by the PIRQ routing register.
+		 */
+		irq = x86_pci_read_config8(PCI_BDF(bus, dev, func),
+					   PCI_INTERRUPT_LINE);
+	} else {
+		/*
+		 * ICH9's PIRQ[A-H] are not consecutive numbers from 0 to 7.
+		 * PIRQ[A-D] still maps to [0-3] but PIRQ[E-H] maps to [8-11].
+		 */
+		irq = pirq < 8 ? pirq + 16 : pirq + 12;
+	}
+
+	return irq;
+}
+#endif

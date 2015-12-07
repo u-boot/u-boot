@@ -12,6 +12,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <command.h>
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
@@ -79,25 +80,57 @@ void matrix_init(void)
 			&mat->scfg[3]);
 }
 
-void at91_spl_board_init(void)
+#if defined(CONFIG_BOARD_AXM)
+static int at91_is_recovery(void)
+{
+	if ((at91_get_gpio_value(AT91_PIN_PA26) == 0) &&
+	    (at91_get_gpio_value(AT91_PIN_PA27) == 0))
+		return 1;
+
+	return 0;
+}
+#elif defined(CONFIG_BOARD_TAURUS)
+static int at91_is_recovery(void)
+{
+	if (at91_get_gpio_value(AT91_PIN_PA31) == 0)
+		return 1;
+
+	return 0;
+}
+#endif
+
+void spl_board_init(void)
 {
 	taurus_nand_hw_init();
 	at91_spi0_hw_init(TAURUS_SPI_MASK);
 
-	/* Configure recovery button PINs */
-	at91_set_gpio_input(AT91_PIN_PA31, 1);
+#if defined(CONFIG_BOARD_AXM)
+	/* Configure LED PINs */
+	at91_set_gpio_output(AT91_PIN_PA6, 0);
+	at91_set_gpio_output(AT91_PIN_PA8, 0);
+	at91_set_gpio_output(AT91_PIN_PA9, 0);
+	at91_set_gpio_output(AT91_PIN_PA10, 0);
+	at91_set_gpio_output(AT91_PIN_PA11, 0);
+	at91_set_gpio_output(AT91_PIN_PA12, 0);
 
-	/* check if button is pressed */
-	if (at91_get_gpio_value(AT91_PIN_PA31) == 0) {
+	/* Configure recovery button PINs */
+	at91_set_gpio_input(AT91_PIN_PA26, 1);
+	at91_set_gpio_input(AT91_PIN_PA27, 1);
+#elif defined(CONFIG_BOARD_TAURUS)
+	at91_set_gpio_input(AT91_PIN_PA31, 1);
+#endif
+
+	/* check for recovery mode */
+	if (at91_is_recovery() == 1) {
 		struct spi_flash *flash;
 
-		debug("Recovery button pressed\n");
+		puts("Recovery button pressed\n");
 		nand_init();
 		spl_nand_erase_one(0, 0);
 		flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
 					0,
 					CONFIG_SF_DEFAULT_SPEED,
-					SPI_MODE_3);
+					CONFIG_SF_DEFAULT_MODE);
 		if (!flash) {
 			puts("no flash\n");
 		} else {
@@ -108,35 +141,72 @@ void at91_spl_board_init(void)
 	}
 }
 
-void mem_init(void)
+#define SDRAM_BASE_CONF	(AT91_SDRAMC_NR_13 | AT91_SDRAMC_CAS_3 \
+			 |AT91_SDRAMC_NB_4 | AT91_SDRAMC_DBW_32 \
+			 | AT91_SDRAMC_TWR_VAL(3) | AT91_SDRAMC_TRC_VAL(9) \
+			 | AT91_SDRAMC_TRP_VAL(3) | AT91_SDRAMC_TRCD_VAL(3) \
+			 | AT91_SDRAMC_TRAS_VAL(6) | AT91_SDRAMC_TXSR_VAL(10))
+
+void sdramc_configure(unsigned int mask)
 {
 	struct at91_matrix *ma = (struct at91_matrix *)ATMEL_BASE_MATRIX;
 	struct sdramc_reg setting;
 
 	at91_sdram_hw_init();
-	setting.cr = (AT91_SDRAMC_NC_9 |
-		      AT91_SDRAMC_NR_13 |
-		      AT91_SDRAMC_CAS_3 |
-		      AT91_SDRAMC_NB_4 |
-		      AT91_SDRAMC_DBW_32 |
-		      AT91_SDRAMC_TWR_VAL(3) |
-		      AT91_SDRAMC_TRC_VAL(9) |
-		      AT91_SDRAMC_TRP_VAL(3) |
-		      AT91_SDRAMC_TRCD_VAL(3) |
-		      AT91_SDRAMC_TRAS_VAL(6) |
-		      AT91_SDRAMC_TXSR_VAL(10));
+	setting.cr = SDRAM_BASE_CONF | mask;
 	setting.mdr = AT91_SDRAMC_MD_SDRAM;
 	setting.tr = (CONFIG_SYS_MASTER_CLOCK * 7) / 1000000;
-
 
 	writel(readl(&ma->ebicsa) | AT91_MATRIX_CS1A_SDRAMC |
 		AT91_MATRIX_VDDIOMSEL_3_3V | AT91_MATRIX_EBI_IOSR_SEL,
 		&ma->ebicsa);
+
 	sdramc_initialize(ATMEL_BASE_CS1, &setting);
+}
+
+void mem_init(void)
+{
+	unsigned int ram_size = 0;
+
+	/* Configure SDRAM for 128MB */
+	sdramc_configure(AT91_SDRAMC_NC_10);
+
+	/* Do memtest for 128MB */
+	ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
+				CONFIG_SYS_SDRAM_SIZE);
+
+	/*
+	 * If 32MB or 16MB should be supported check also for
+	 * expected mirroring at A16 and A17
+	 * To find mirror addresses depends how the collumns are connected
+	 * at RAM (internaly or externaly)
+	 * If the collumns are not in inverted order the mirror size effect
+	 * behaves like normal SRAM with A0,A1,A2,etc. connected incremantal
+	 */
+
+	/* Mirrors at A15 on ATMEL G20 SDRAM Controller with 64MB*/
+	if (ram_size == 0x800) {
+		printf("\n\r 64MB");
+		sdramc_configure(AT91_SDRAMC_NC_9);
+	} else {
+		/* Size already initialized */
+		printf("\n\r 128MB");
+	}
 }
 #endif
 
 #ifdef CONFIG_MACB
+static void siemens_phy_reset(void)
+{
+	/*
+	 * we need to reset PHY for 200us
+	 * because of bug in ATMEL G20 CPU (undefined initial state of GPIO)
+	 */
+	if ((readl(AT91_ASM_RSTC_SR) & AT91_RSTC_RSTTYP) ==
+	    AT91_RSTC_RSTTYP_GENERAL)
+		at91_set_gpio_value(AT91_PIN_PA25, 0); /* reset eth switch */
+}
+
 static void taurus_macb_hw_init(void)
 {
 	/* Enable EMAC clock */
@@ -159,6 +229,8 @@ static void taurus_macb_hw_init(void)
 	at91_set_pio_pullup(AT91_PIO_PORTA, 25, 0);
 	at91_set_pio_pullup(AT91_PIO_PORTA, 26, 0);
 	at91_set_pio_pullup(AT91_PIO_PORTA, 28, 0);
+
+	siemens_phy_reset();
 
 	at91_phy_reset();
 
@@ -213,6 +285,29 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	at91_set_gpio_value(TAURUS_SPI_CS_PIN, 1);
 }
 
+#ifdef CONFIG_USB_GADGET_AT91
+#include <linux/usb/at91_udc.h>
+
+void at91_udp_hw_init(void)
+{
+	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
+
+	/* Enable PLLB */
+	writel(get_pllb_init(), &pmc->pllbr);
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB)
+		;
+
+	/* Enable UDPCK clock, MCK is enabled in at91_clock_init() */
+	at91_periph_clk_enable(ATMEL_ID_UDP);
+
+	writel(AT91SAM926x_PMC_UDP, &pmc->scer);
+}
+
+struct at91_udc_data board_udc_data  = {
+	.baseaddr = ATMEL_BASE_UDP0,
+};
+#endif
+
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -225,6 +320,10 @@ int board_init(void)
 	taurus_macb_hw_init();
 #endif
 	at91_spi0_hw_init(TAURUS_SPI_MASK);
+#ifdef CONFIG_USB_GADGET_AT91
+	at91_udp_hw_init();
+	at91_udc_probe(&board_udc_data);
+#endif
 
 	return 0;
 }
@@ -244,3 +343,97 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
+
+#if !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_BOARD_AXM)
+/*
+ * Booting the Fallback Image.
+ *
+ *  The function is used to provide and
+ *  boot the image with the fallback
+ *  parameters, incase if the faulty image
+ *  in upgraded over the base firmware.
+ *
+ */
+static int upgrade_failure_fallback(void)
+{
+	char *partitionset_active = NULL;
+	char *rootfs = NULL;
+	char *rootfs_fallback = NULL;
+	char *kern_off;
+	char *kern_off_fb;
+	char *kern_size;
+	char *kern_size_fb;
+
+	partitionset_active = getenv("partitionset_active");
+	if (partitionset_active) {
+		if (partitionset_active[0] == 'A')
+			setenv("partitionset_active", "B");
+		else
+			setenv("partitionset_active", "A");
+	} else {
+		printf("partitionset_active missing.\n");
+		return -ENOENT;
+	}
+
+	rootfs = getenv("rootfs");
+	rootfs_fallback = getenv("rootfs_fallback");
+	setenv("rootfs", rootfs_fallback);
+	setenv("rootfs_fallback", rootfs);
+
+	kern_size = getenv("kernel_size");
+	kern_size_fb = getenv("kernel_size_fallback");
+	setenv("kernel_size", kern_size_fb);
+	setenv("kernel_size_fallback", kern_size);
+
+	kern_off = getenv("kernel_Off");
+	kern_off_fb = getenv("kernel_Off_fallback");
+	setenv("kernel_Off", kern_off_fb);
+	setenv("kernel_Off_fallback", kern_off);
+
+	setenv("bootargs", '\0');
+	setenv("upgrade_available", '\0');
+	setenv("boot_retries", '\0');
+	saveenv();
+
+	return 0;
+}
+
+static int do_upgrade_available(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	unsigned long upgrade_available = 0;
+	unsigned long boot_retry = 0;
+	char boot_buf[10];
+
+	upgrade_available = simple_strtoul(getenv("upgrade_available"), NULL,
+					   10);
+	if (upgrade_available) {
+		boot_retry = simple_strtoul(getenv("boot_retries"), NULL, 10);
+		boot_retry++;
+		sprintf(boot_buf, "%lx", boot_retry);
+		setenv("boot_retries", boot_buf);
+		saveenv();
+
+		/*
+		 * Here the boot_retries count is checked, and if the
+		 * count becomes greater than 2 switch back to the
+		 * fallback, and reset the board.
+		 */
+
+		if (boot_retry > 2) {
+			if (upgrade_failure_fallback() == 0)
+				do_reset(NULL, 0, 0, NULL);
+			return -1;
+		}
+	}
+	return 0;
+}
+
+U_BOOT_CMD(
+	upgrade_available,	1,	1,	do_upgrade_available,
+	"check Siemens update",
+	"no parameters"
+);
+#endif
+#endif

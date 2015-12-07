@@ -26,7 +26,6 @@
 #define CONFIG_ENV_OVERWRITE		1
 
 /*Misc*/
-#define CONFIG_SYS_PROMPT	"xlx-ppc405:/# " /* Monitor Command Prompt */
 #define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
 
 /*Flash*/

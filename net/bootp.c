@@ -11,8 +11,8 @@
 #include <common.h>
 #include <command.h>
 #include <net.h>
+#include <net/tftp.h>
 #include "bootp.h"
-#include "tftp.h"
 #include "nfs.h"
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>

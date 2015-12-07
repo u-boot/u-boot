@@ -7,6 +7,7 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <asm/arch-fsl-lsch3/fdt.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
@@ -58,6 +59,113 @@ void ft_fixup_cpu(void *blob)
 }
 #endif
 
+/*
+ * the burden is on the the caller to not request a count
+ * exceeding the bounds of the stream_ids[] array
+ */
+void alloc_stream_ids(int start_id, int count, u32 *stream_ids, int max_cnt)
+{
+	int i;
+
+	if (count > max_cnt) {
+		printf("\n%s: ERROR: max per-device stream ID count exceed\n",
+		       __func__);
+		return;
+	}
+
+	for (i = 0; i < count; i++)
+		stream_ids[i] = start_id++;
+}
+
+/*
+ * This function updates the mmu-masters property on the SMMU
+ * node as per the SMMU binding-- phandle and list of stream IDs
+ * for each MMU master.
+ */
+void append_mmu_masters(void *blob, const char *smmu_path,
+			const char *master_name, u32 *stream_ids, int count)
+{
+	u32 phandle;
+	int smmu_nodeoffset;
+	int master_nodeoffset;
+	int i;
+
+	/* get phandle of mmu master device */
+	master_nodeoffset = fdt_path_offset(blob, master_name);
+	if (master_nodeoffset < 0) {
+		printf("\n%s: ERROR: master not found\n", __func__);
+		return;
+	}
+	phandle = fdt_get_phandle(blob, master_nodeoffset);
+	if (!phandle) { /* if master has no phandle, create one */
+		phandle = fdt_create_phandle(blob, master_nodeoffset);
+		if (!phandle) {
+			printf("\n%s: ERROR: unable to create phandle\n",
+			       __func__);
+			return;
+		}
+	}
+
+	/* append it to mmu-masters */
+	smmu_nodeoffset = fdt_path_offset(blob, smmu_path);
+	if (fdt_appendprop_u32(blob, smmu_nodeoffset, "mmu-masters",
+			       phandle) < 0) {
+		printf("\n%s: ERROR: unable to update SMMU node\n", __func__);
+		return;
+	}
+
+	/* for each stream ID, append to mmu-masters */
+	for (i = 0; i < count; i++) {
+		fdt_appendprop_u32(blob, smmu_nodeoffset, "mmu-masters",
+				   stream_ids[i]);
+	}
+
+	/* fix up #stream-id-cells with stream ID count */
+	if (fdt_setprop_u32(blob, master_nodeoffset, "#stream-id-cells",
+			    count) < 0)
+		printf("\n%s: ERROR: unable to update #stream-id-cells\n",
+		       __func__);
+}
+
+
+/*
+ * The info below summarizes how streamID partitioning works
+ * for ls2085a and how it is conveyed to the OS via the device tree.
+ *
+ *  -non-PCI legacy, platform devices (USB, SD/MMC, SATA, DMA)
+ *     -all legacy devices get a unique ICID assigned and programmed in
+ *      their AMQR registers by u-boot
+ *     -u-boot updates the hardware device tree with streamID properties
+ *      for each platform/legacy device (smmu-masters property)
+ *
+ *  -PCIe
+ *     -for each PCI controller that is active (as per RCW settings),
+ *      u-boot will allocate a range of ICID and convey that to Linux via
+ *      the device tree (smmu-masters property)
+ *
+ *  -DPAA2
+ *     -u-boot will allocate a range of ICIDs to be used by the Management
+ *      Complex for containers and will set these values in the MC DPC image.
+ *     -the MC is responsible for allocating and setting up ICIDs
+ *      for all DPAA2 devices.
+ *
+ */
+static void fdt_fixup_smmu(void *blob)
+{
+	int nodeoffset;
+
+	nodeoffset = fdt_path_offset(blob, "/iommu@5000000");
+	if (nodeoffset < 0) {
+		printf("\n%s: WARNING: no SMMU node found\n", __func__);
+		return;
+	}
+
+	/* fixup for all PCI controllers */
+#ifdef CONFIG_PCI
+	fdt_fixup_smmu_pcie(blob);
+#endif
+}
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_MP
@@ -69,7 +177,13 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+
 #if defined(CONFIG_FSL_ESDHC)
 	fdt_fixup_esdhc(blob, bd);
 #endif
+
+	fdt_fixup_smmu(blob);
 }

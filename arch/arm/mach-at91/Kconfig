@@ -8,14 +8,6 @@ config TARGET_AT91RM9200EK
 	bool "Atmel AT91RM9200 evaluation kit"
 	select CPU_ARM920T
 
-config TARGET_EB_CPUX9K2
-	bool "Support eb_cpux9k2"
-	select CPU_ARM920T
-
-config TARGET_CPUAT91
-	bool "Support cpuat91"
-	select CPU_ARM920T
-
 config TARGET_AT91SAM9260EK
 	bool "Atmel at91sam9260 reference board"
 	select CPU_ARM926EJS
@@ -51,10 +43,6 @@ config TARGET_PM9263
 	bool "Ronetix pm9263 board"
 	select CPU_ARM926EJS
 
-config TARGET_STAMP9G20
-	bool "Support stamp9g20"
-	select CPU_ARM926EJS
-
 config TARGET_AT91SAM9M10G45EK
 	bool "Atmel AT91SAM9M10G45-EK board"
 	select CPU_ARM926EJS
@@ -63,6 +51,11 @@ config TARGET_AT91SAM9M10G45EK
 config TARGET_PM9G45
 	bool "Ronetix pm9g45 board"
 	select CPU_ARM926EJS
+
+config TARGET_PICOSAM9G45
+	bool "Mini-box picosam9g45 board"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
 
 config TARGET_AT91SAM9N12EK
 	bool "Atmel AT91SAM9N12-EK board"
@@ -98,20 +91,8 @@ config TARGET_SAMA5D4EK
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_VL_MA2SC
-	bool "Support vl_ma2sc"
-	select CPU_ARM926EJS
-
 config TARGET_MEESC
 	bool "Support meesc"
-	select CPU_ARM926EJS
-
-config TARGET_OTC570
-	bool "Support otc570"
-	select CPU_ARM926EJS
-
-config TARGET_CPU9260
-	bool "Support cpu9260"
 	select CPU_ARM926EJS
 
 config TARGET_CORVUS
@@ -121,6 +102,11 @@ config TARGET_CORVUS
 
 config TARGET_TAURUS
 	bool "Support taurus"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
+config TARGET_SMARTWEB
+	bool "Support smartweb"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
@@ -141,20 +127,16 @@ source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
 source "board/atmel/sama5d4_xplained/Kconfig"
 source "board/atmel/sama5d4ek/Kconfig"
-source "board/BuS/eb_cpux9k2/Kconfig"
-source "board/eukrea/cpuat91/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"
-source "board/BuS/vl_ma2sc/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
-source "board/esd/otc570/Kconfig"
-source "board/eukrea/cpu9260/Kconfig"
+source "board/mini-box/picosam9g45/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"
 source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
-source "board/taskit/stamp9g20/Kconfig"
+source "board/siemens/smartweb/Kconfig"
 
 endif

@@ -46,13 +46,28 @@ static char *get_reset_cause(void)
 	case 0x00008:
 		return "IPP USER";
 	case 0x00010:
+#ifdef	CONFIG_MX7
+		return "WDOG1";
+#else
 		return "WDOG";
+#endif
 	case 0x00020:
 		return "JTAG HIGH-Z";
 	case 0x00040:
 		return "JTAG SW";
+	case 0x00080:
+		return "WDOG3";
+#ifdef CONFIG_MX7
+	case 0x00100:
+		return "WDOG4";
+	case 0x00200:
+		return "TEMPSENSE";
+#else
+	case 0x00100:
+		return "TEMPSENSE";
 	case 0x10000:
 		return "WARM BOOT";
+#endif
 	default:
 		return "unknown reset";
 	}
@@ -122,6 +137,12 @@ unsigned imx_ddr_size(void)
 const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
+	case MXC_CPU_MX7D:
+		return "7D";	/* Dual-core version of the mx7 */
+	case MXC_CPU_MX6QP:
+		return "6QP";	/* Quad-Plus version of the mx6 */
+	case MXC_CPU_MX6DP:
+		return "6DP";	/* Dual-Plus version of the mx6 */
 	case MXC_CPU_MX6Q:
 		return "6Q";	/* Quad-core version of the mx6 */
 	case MXC_CPU_MX6D:
@@ -134,6 +155,8 @@ const char *get_imx_type(u32 imxtype)
 		return "6SL";	/* Solo-Lite version of the mx6 */
 	case MXC_CPU_MX6SX:
 		return "6SX";   /* SoloX version of the mx6 */
+	case MXC_CPU_MX6UL:
+		return "6UL";   /* Ultra-Lite version of the mx6 */
 	case MXC_CPU_MX51:
 		return "51";
 	case MXC_CPU_MX53:
@@ -148,14 +171,12 @@ int print_cpuinfo(void)
 	u32 cpurev;
 	__maybe_unused u32 max_freq;
 
-#if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
-	struct udevice *thermal_dev;
-	int cpu_tmp, minc, maxc, ret;
-#endif
-
 	cpurev = get_cpu_rev();
 
-#if defined(CONFIG_MX6)
+#if defined(CONFIG_IMX_THERMAL)
+	struct udevice *thermal_dev;
+	int cpu_tmp, minc, maxc, ret;
+
 	printf("CPU:   Freescale i.MX%s rev%d.%d",
 	       get_imx_type((cpurev & 0xFF000) >> 12),
 	       (cpurev & 0x000F0) >> 4,
@@ -175,7 +196,7 @@ int print_cpuinfo(void)
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
 #endif
 
-#if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
+#if defined(CONFIG_IMX_THERMAL)
 	puts("CPU:   ");
 	switch (get_cpu_temp_grade(&minc, &maxc)) {
 	case TEMP_AUTOMOTIVE:
@@ -199,9 +220,9 @@ int print_cpuinfo(void)
 		if (!ret)
 			printf(" at %dC\n", cpu_tmp);
 		else
-			puts(" - invalid sensor data\n");
+			debug(" - invalid sensor data\n");
 	} else {
-		puts(" - invalid sensor device\n");
+		debug(" - invalid sensor device\n");
 	}
 #endif
 
@@ -232,6 +253,7 @@ int cpu_mmc_init(bd_t *bis)
 }
 #endif
 
+#ifndef CONFIG_MX7
 u32 get_ahb_clk(void)
 {
 	struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -243,6 +265,7 @@ u32 get_ahb_clk(void)
 
 	return get_periph_clk() / (ahb_podf + 1);
 }
+#endif
 
 void arch_preboot_os(void)
 {

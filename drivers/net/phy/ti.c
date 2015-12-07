@@ -18,9 +18,6 @@
 #define DP83867_RGMIICTL        0x0032
 #define DP83867_RGMIIDCTL       0x0086
 
-/* FIXME this is consolidated in the latest U-Boot version */
-#define BIT(x)	(1UL << (x))
-
 #define DP83867_SW_RESET	(1 << 15)
 #define DP83867_SW_RESTART	(1 << 14)
 

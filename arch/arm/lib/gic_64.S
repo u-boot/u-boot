@@ -46,11 +46,19 @@ ENTRY(gic_init_secure)
 	ldr	w9, [x0, GICD_TYPER]
 	and	w10, w9, #0x1f		/* ITLinesNumber */
 	cbz	w10, 1f			/* No SPIs */
-	add	x11, x0, (GICD_IGROUPRn + 4)
+	add	x11, x0, GICD_IGROUPRn
 	mov	w9, #~0			/* Config SPIs as Grp1 */
+	str	w9, [x11], #0x4
 0:	str	w9, [x11], #0x4
 	sub	w10, w10, #0x1
 	cbnz	w10, 0b
+
+	ldr	x1, =GICC_BASE		/* GICC_CTLR */
+	mov	w0, #3			/* EnableGrp0 | EnableGrp1 */
+	str	w0, [x1]
+
+	mov	w0, #1 << 7		/* allow NS access to GICC_PMR */
+	str	w0, [x1, #4]		/* GICC_PMR */
 #endif
 1:
 	ret

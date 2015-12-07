@@ -19,6 +19,8 @@
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>
 
+#undef CONFIG_BOOTDELAY
+
 /*
  * Display CPU and Board information
  */
@@ -54,7 +56,7 @@
 #define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
 
 /* USB */
-#define CONFIG_MUSB_UDC			1
+#define CONFIG_USB_MUSB_UDC			1
 #define CONFIG_USB_OMAP3		1
 #define CONFIG_TWL4030_USB		1
 
@@ -81,74 +83,33 @@
 
 /*#undef CONFIG_ENV_IS_NOWHERE*/
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"usbtty=cdc_acm\0" \
-	"loadaddr=0x82000000\0" \
-	"dtbaddr=0x81600000\0" \
-	"bootdir=/boot\0" \
-	"bootfile=zImage\0" \
-	"usbtty=cdc_acm\0" \
-	"console=ttyO2,115200n8\0" \
-	"mpurate=auto\0" \
-	"vram=12M\0" \
-	"dvimode=1024x768MR-16@60\0" \
-	"defaultdisplay=dvi\0" \
-	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
-	"mmcrootfstype=ext4 rootwait\0" \
-	"nandroot=/dev/mtdblock4 rw\0" \
-	"nandrootfstype=jffs2\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"mpurate=${mpurate} " \
-		"vram=${vram} " \
-		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
-		"omapdss.def_disp=${defaultdisplay} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
-	"nandargs=setenv bootargs console=${console} " \
-		"mpurate=${mpurate} " \
-		"vram=${vram} " \
-		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
-		"omapdss.def_disp=${defaultdisplay} " \
-		"root=${nandroot} " \
-		"rootfstype=${nandrootfstype}\0" \
-	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
-	"importbootenv=echo Importing environment from mmc ...; " \
-		"env import -t $loadaddr $filesize\0" \
-	"loadzimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load mmc ${mmcdev}:2 ${dtbaddr} ${bootdir}/${dtbfile}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"bootz ${loadaddr}\0" \
-	"mmcbootfdt=echo Booting with DT from mmc ...; " \
-		"bootz ${loadaddr} - ${dtbaddr}\0" \
-	"nandboot=echo Booting from onenand ...; " \
-		"run nandargs; " \
-		"onenand read ${loadaddr} 280000 400000; " \
-		"bootz ${loadaddr}\0" \
+#ifndef CONFIG_SPL_BUILD
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"echo SD/MMC found on device ${mmcdev};" \
-		"if run loadbootenv; then " \
-			"run importbootenv;" \
-		"fi;" \
-		"if test -n $uenvcmd; then " \
-			"echo Running uenvcmd ...;" \
-			"run uenvcmd;" \
-		"fi;" \
-		"if run loadzimage; then " \
-			"if test -n $dtbfile; then " \
-				"if run loadfdt; then " \
-					"run mmcbootfdt;" \
-				"fi;" \
-			"fi;" \
-			"run mmcboot;" \
-		"fi;" \
-	"fi;" \
-	"run nandboot;" \
+#include <config_distro_defaults.h>
+
+/* Environment */
+#define ENV_DEVICE_SETTINGS \
+	"stdin=serial\0" \
+	"stdout=serial\0" \
+	"stderr=serial\0"
+
+#define MEM_LAYOUT_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
+	"scriptaddr=0x87E00000\0" \
+	"pxefile_addr_r=0x87F00000\0"
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0)
+
+#include <config_distro_bootcmd.h>
+
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	ENV_DEVICE_SETTINGS \
+	MEM_LAYOUT_SETTINGS \
+	BOOTENV
+
+#endif
 
 /*
  * FLASH and environment organization
@@ -193,18 +154,26 @@
 
 /* NAND boot config */
 #ifdef CONFIG_NAND
-#define CONFIG_SYS_NAND_BUSWIDTH_16BIT	16
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
-#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
-						10, 11, 12, 13}
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+#define CONFIG_SYS_NAND_ECCPOS		{ 2,  3,  4,  5,  6,  7,  8,  9, \
+					 10, 11, 12, 13, 14, 15, 16, 17, \
+					 18, 19, 20, 21, 22, 23, 24, 25, \
+					 26, 27, 28, 29, 30, 31, 32, 33, \
+					 34, 35, 36, 37, 38, 39, 40, 41, \
+					 42, 43, 44, 45, 46, 47, 48, 49, \
+					 50, 51, 52, 53, 54, 55, 56, 57, }
 #define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
+#define CONFIG_SYS_NAND_ECCBYTES	14
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
+#define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_BCH
+
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 /* NAND: SPL falcon mode configs */
 #ifdef CONFIG_SPL_OS_BOOT

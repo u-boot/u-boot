@@ -74,12 +74,10 @@ u-boot.csf: u-boot.ivt u-boot.bin board/$(VENDOR)/$(BOARD)/sign/u-boot.csf
 %.sig: %.csf
 	$(call if_changed,mkcst_mxs)
 
-quiet_cmd_mkimage_mxs = MKIMAGE $@
-cmd_mkimage_mxs = $(objtree)/tools/mkimage -n $< -T mxsimage $@ \
-	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
-
+MKIMAGEFLAGS_u-boot.sb = -n $< -T mxsimage
 u-boot.sb: $(src)/$(MKIMAGE_TARGET-y) u-boot.bin spl/u-boot-spl.bin FORCE
-	$(call if_changed,mkimage_mxs)
+	$(call if_changed,mkimage)
 
+MKIMAGEFLAGS_u-boot-signed.sb = -n $< -T mxsimage
 u-boot-signed.sb: $(src)/mxsimage-signed.cfg u-boot.ivt u-boot.sig spl/u-boot-spl.ivt spl/u-boot-spl.sig FORCE
-	$(call if_changed,mkimage_mxs)
+	$(call if_changed,mkimage)

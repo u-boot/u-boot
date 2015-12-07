@@ -10,6 +10,7 @@
 #include <fdt_support.h>
 #include <fdt_simplefb.h>
 #include <lcd.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <asm/gpio.h>
 #include <asm/arch/mbox.h>
@@ -175,6 +176,11 @@ static const struct {
 		"bcm2835-rpi-cm.dtb",
 		false,
 	},
+	[BCM2835_BOARD_REV_A_PLUS_15] = {
+		"Model A+",
+		"bcm2835-rpi-a-plus.dtb",
+		false,
+	},
 #endif
 };
 
@@ -182,7 +188,7 @@ u32 rpi_board_rev = 0;
 
 int dram_init(void)
 {
-	ALLOC_ALIGN_BUFFER(struct msg_get_arm_mem, msg, 1, 16);
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_arm_mem, msg, 1);
 	int ret;
 
 	BCM2835_MBOX_INIT_HDR(msg);
@@ -212,7 +218,7 @@ static void set_fdtfile(void)
 
 static void set_usbethaddr(void)
 {
-	ALLOC_ALIGN_BUFFER(struct msg_get_mac_address, msg, 1, 16);
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_mac_address, msg, 1);
 	int ret;
 
 	if (!models[rpi_board_rev].has_onboard_eth)
@@ -245,7 +251,7 @@ int misc_init_r(void)
 
 static int power_on_module(u32 module)
 {
-	ALLOC_ALIGN_BUFFER(struct msg_set_power_state, msg_pwr, 1, 16);
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_set_power_state, msg_pwr, 1);
 	int ret;
 
 	BCM2835_MBOX_INIT_HDR(msg_pwr);
@@ -269,7 +275,7 @@ static int power_on_module(u32 module)
 
 static void get_board_rev(void)
 {
-	ALLOC_ALIGN_BUFFER(struct msg_get_board_rev, msg, 1, 16);
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_board_rev, msg, 1);
 	int ret;
 	const char *name;
 
@@ -324,7 +330,7 @@ int board_init(void)
 
 int board_mmc_init(bd_t *bis)
 {
-	ALLOC_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1, 16);
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1);
 	int ret;
 
 	power_on_module(BCM2835_MBOX_POWER_DEVID_SDHCI);

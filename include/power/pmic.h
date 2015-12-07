@@ -264,6 +264,40 @@ int pmic_reg_count(struct udevice *dev);
  */
 int pmic_read(struct udevice *dev, uint reg, uint8_t *buffer, int len);
 int pmic_write(struct udevice *dev, uint reg, const uint8_t *buffer, int len);
+
+/**
+ * pmic_reg_read() - read a PMIC register value
+ *
+ * @dev:	PMIC device to read
+ * @reg:	Register to read
+ * @return value read on success or negative value of errno.
+ */
+int pmic_reg_read(struct udevice *dev, uint reg);
+
+/**
+ * pmic_reg_write() - write a PMIC register value
+ *
+ * @dev:	PMIC device to write
+ * @reg:	Register to write
+ * @value:	Value to write
+ * @return 0 on success or negative value of errno.
+ */
+int pmic_reg_write(struct udevice *dev, uint reg, uint value);
+
+/**
+ * pmic_clrsetbits() - clear and set bits in a PMIC register
+ *
+ * This reads a register, optionally clears some bits, optionally sets some
+ * bits, then writes the register.
+ *
+ * @dev:	PMIC device to update
+ * @reg:	Register to update
+ * @clr:	Bit mask to clear (set those bits that you want cleared)
+ * @set:	Bit mask to set (set those bits that you want set)
+ * @return 0 on success or negative value of errno.
+ */
+int pmic_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set);
+
 #endif /* CONFIG_DM_PMIC */
 
 #ifdef CONFIG_POWER

@@ -129,8 +129,24 @@
 /* quirks */
 #define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
 
+/**
+ * struct dwmci_host - Information about a designware MMC host
+ *
+ * @name:	Device name
+ * @ioaddr:	Base I/O address of controller
+ * @quirks:	Quick flags - see DWMCI_QUIRK_...
+ * @caps:	Capabilities - see MMC_MODE_...
+ * @bus_hz:	Bus speed in Hz, if @get_mmc_clk() is NULL
+ * @div:	Arbitrary clock divider value for use by controller
+ * @dev_index:	Arbitrary device index for use by controller
+ * @dev_id:	Arbitrary device ID for use by controller
+ * @buswidth:	Bus width in bits (8 or 4)
+ * @fifoth_val:	Value for FIFOTH register (or 0 to leave unset)
+ * @mmc:	Pointer to generic MMC structure for this device
+ * @priv:	Private pointer for use by controller
+ */
 struct dwmci_host {
-	char *name;
+	const char *name;
 	void *ioaddr;
 	unsigned int quirks;
 	unsigned int caps;
@@ -147,7 +163,21 @@ struct dwmci_host {
 
 	void (*clksel)(struct dwmci_host *host);
 	void (*board_init)(struct dwmci_host *host);
-	unsigned int (*get_mmc_clk)(struct dwmci_host *host);
+
+	/**
+	 * Get / set a particular MMC clock frequency
+	 *
+	 * This is used to request the current clock frequency of the clock
+	 * that drives the DWMMC peripheral. The caller will then use this
+	 * information to work out the divider it needs to achieve the
+	 * required MMC bus clock frequency. If you want to handle the
+	 * clock external to DWMMC, use @freq to select the frequency and
+	 * return that value too. Then DWMMC will put itself in bypass mode.
+	 *
+	 * @host:	DWMMC host
+	 * @freq:	Frequency the host is trying to achieve
+	 */
+	unsigned int (*get_mmc_clk)(struct dwmci_host *host, uint freq);
 
 	struct mmc_config cfg;
 };

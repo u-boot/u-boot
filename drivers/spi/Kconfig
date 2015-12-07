@@ -58,6 +58,14 @@ config ICH_SPI
 	  access the SPI NOR flash on platforms embedding this Intel
 	  ICH IP core.
 
+config ROCKCHIP_SPI
+	bool "Rockchip SPI driver"
+	help
+	  Enable the Rockchip SPI driver, used to access SPI NOR flash and
+	  other SPI peripherals (such as the Chrome OS EC) on Rockchip SoCs.
+	  This uses driver model and requires a device tree binding to
+	  operate.
+
 config SANDBOX_SPI
 	bool "Sandbox SPI driver"
 	depends on SANDBOX && DM

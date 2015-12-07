@@ -9,10 +9,10 @@
 #include <asm/io.h>
 #include <asm/arch/atmel_mpddrc.h>
 
-static inline void atmel_mpddr_op(int mode, u32 ram_address)
+static inline void atmel_mpddr_op(const struct atmel_mpddr *mpddr,
+	      int mode,
+	      u32 ram_address)
 {
-	struct atmel_mpddr *mpddr = (struct atmel_mpddr *)ATMEL_BASE_MPDDRC;
-
 	writel(mode, &mpddr->mr);
 	writel(0, ram_address);
 }
@@ -27,10 +27,13 @@ static int ddr2_decodtype_is_seq(u32 cr)
 	return 1;
 }
 
-int ddr2_init(const unsigned int ram_address,
+
+int ddr2_init(const unsigned int base,
+	      const unsigned int ram_address,
 	      const struct atmel_mpddr *mpddr_value)
 {
-	struct atmel_mpddr *mpddr = (struct atmel_mpddr *)ATMEL_BASE_MPDDRC;
+	const struct atmel_mpddr *mpddr = (struct atmel_mpddr *)base;
+
 	u32 ba_off, cr;
 
 	/* Compute bank offset according to NC in configuration register */
@@ -52,30 +55,30 @@ int ddr2_init(const unsigned int ram_address,
 	writel(mpddr_value->tpr2, &mpddr->tpr2);
 
 	/* Issue a NOP command */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_NOP_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_NOP_CMD, ram_address);
 
 	/* A 200 us is provided to precede any signal toggle */
 	udelay(200);
 
 	/* Issue a NOP command */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_NOP_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_NOP_CMD, ram_address);
 
 	/* Issue an all banks precharge command */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_PRCGALL_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_PRCGALL_CMD, ram_address);
 
 	/* Issue an extended mode register set(EMRS2) to choose operation */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
 		       ram_address + (0x2 << ba_off));
 
 	/* Issue an extended mode register set(EMRS3) to set EMSR to 0 */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
 		       ram_address + (0x3 << ba_off));
 
 	/*
 	 * Issue an extended mode register set(EMRS1) to enable DLL and
 	 * program D.I.C (output driver impedance control)
 	 */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
 		       ram_address + (0x1 << ba_off));
 
 	/* Enable DLL reset */
@@ -83,21 +86,21 @@ int ddr2_init(const unsigned int ram_address,
 	writel(cr | ATMEL_MPDDRC_CR_DLL_RESET_ENABLED, &mpddr->cr);
 
 	/* A mode register set(MRS) cycle is issued to reset DLL */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_LMR_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LMR_CMD, ram_address);
 
 	/* Issue an all banks precharge command */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_PRCGALL_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_PRCGALL_CMD, ram_address);
 
 	/* Two auto-refresh (CBR) cycles are provided */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_RFSH_CMD, ram_address);
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_RFSH_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_RFSH_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_RFSH_CMD, ram_address);
 
 	/* Disable DLL reset */
 	cr = readl(&mpddr->cr);
 	writel(cr & (~ATMEL_MPDDRC_CR_DLL_RESET_ENABLED), &mpddr->cr);
 
 	/* A mode register set (MRS) cycle is issued to disable DLL reset */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_LMR_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LMR_CMD, ram_address);
 
 	/* Set OCD calibration in default state */
 	cr = readl(&mpddr->cr);
@@ -107,7 +110,7 @@ int ddr2_init(const unsigned int ram_address,
 	 * An extended mode register set (EMRS1) cycle is issued
 	 * to OCD default value
 	 */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
 		       ram_address + (0x1 << ba_off));
 
 	 /* OCD calibration mode exit */
@@ -118,11 +121,11 @@ int ddr2_init(const unsigned int ram_address,
 	 * An extended mode register set (EMRS1) cycle is issued
 	 * to enable OCD exit
 	 */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_EXT_LMR_CMD,
 		       ram_address + (0x1 << ba_off));
 
 	/* A nornal mode command is provided */
-	atmel_mpddr_op(ATMEL_MPDDRC_MR_MODE_NORMAL_CMD, ram_address);
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_NORMAL_CMD, ram_address);
 
 	/* Perform a write access to any DDR2-SDRAM address */
 	writel(0, ram_address);

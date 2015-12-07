@@ -7,6 +7,7 @@
 #include <common.h>
 #include <mmc.h>
 #include <pci_ids.h>
+#include <asm/irq.h>
 #include <asm/post.h>
 
 static struct pci_device_id mmc_supported[] = {
@@ -20,6 +21,7 @@ int cpu_mmc_init(bd_t *bis)
 			    ARRAY_SIZE(mmc_supported));
 }
 
+#ifndef CONFIG_EFI_APP
 int arch_cpu_init(void)
 {
 	int ret;
@@ -35,3 +37,12 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+int arch_misc_init(void)
+{
+	if (!ll_boot_init())
+		return 0;
+
+	return pirq_init();
+}
+#endif

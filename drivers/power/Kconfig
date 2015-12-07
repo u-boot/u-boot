@@ -22,6 +22,15 @@ config AXP221_DCDC1_VOLT
 	things like GPIO-s, sdcard interfaces, etc. On most boards this is
 	undervolted to 3.0V to safe battery.
 
+config AXP221_DCDC2_VOLT
+	int "axp221 dcdc2 voltage"
+	depends on AXP221_POWER
+	default 1200
+	---help---
+	Set the voltage (mV) to program the axp221 dcdc2 at, set to 0 to
+	disable dcdc2. On A31 boards this is typically used for VDD-GPU,
+	on A23/A33 for VDD-SYS, this should normally be set to 1.2V.
+
 config AXP221_DLDO1_VOLT
 	int "axp221 dldo1 voltage"
 	depends on AXP221_POWER

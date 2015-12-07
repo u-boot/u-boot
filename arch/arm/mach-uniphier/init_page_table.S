@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2015 Panasonic Corporation
- * Copyright (C) 2015 Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -23,7 +21,7 @@
 ENTRY(init_page_table)
 	section = 0
 	.rept NR_SECTIONS
-	.if section == TEXT_SECTION || section == STACK_SECTION
+	.if section == 0 || section == 1 || section == STACK_SECTION
 	attr = NORMAL
 	.else
 	attr = DEVICE

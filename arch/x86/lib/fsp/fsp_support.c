@@ -147,8 +147,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 			fsp_hdr->cfg_region_off);
 
 	/* Verify the VPD data region is valid */
-	assert((fsp_vpd->img_rev == VPD_IMAGE_REV) &&
-	       (fsp_vpd->sign == VPD_IMAGE_ID));
+	assert(fsp_vpd->sign == VPD_IMAGE_ID);
 
 	/* Copy default data from Flash */
 	memcpy(fsp_upd, (void *)(fsp_hdr->img_base + fsp_vpd->upd_offset),
@@ -172,6 +171,9 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	shared_data.stack_top = (u32 *)stack_top;
 
 	post_code(POST_PRE_MRC);
+
+	/* Load GDT for FSP */
+	setup_fsp_gdt();
 
 	/*
 	 * Use ASM code to ensure the register value in EAX & ECX

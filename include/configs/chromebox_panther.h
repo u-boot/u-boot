@@ -14,4 +14,6 @@
 /* Avoid a warning in the Realtek Ethernet driver */
 #define CONFIG_SYS_CACHELINE_SIZE 16
 
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+
 #endif	/* __CONFIG_H */

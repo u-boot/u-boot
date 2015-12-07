@@ -30,11 +30,8 @@ u32 get_device_type(void)
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
-	char buf[32];
-
-	printf("CPU:\t%s%X@%sMHz\n",
-			s5p_get_cpu_name(), s5p_cpu_id,
-			strmhz(buf, get_arm_clk()));
+	printf("CPU:   %s%X @ ", s5p_get_cpu_name(), s5p_cpu_id);
+	print_freq(get_arm_clk(), "\n");
 
 	return 0;
 }

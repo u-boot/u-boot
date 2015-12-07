@@ -194,7 +194,7 @@ void save_boot_params_ret(void);
 static inline unsigned int get_cr(void)
 {
 	unsigned int val;
-	asm("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val) : : "cc");
+	asm volatile("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val) : : "cc");
 	return val;
 }
 
@@ -301,6 +301,7 @@ phys_addr_t noncached_alloc(size_t size, size_t align);
  */
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option);
+
 #endif /* __ASSEMBLY__ */
 
 #endif

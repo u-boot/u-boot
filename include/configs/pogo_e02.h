@@ -47,10 +47,6 @@
  */
 #include "mv-common.h"
 
-/* Remove or override few declarations from mv-common.h */
-#undef CONFIG_SYS_PROMPT	/* previously defined in mv-common.h */
-#define CONFIG_SYS_PROMPT	"PogoE02> "
-
 /*
  *  Environment variables configurations
  */

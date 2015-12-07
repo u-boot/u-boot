@@ -26,8 +26,6 @@
 
 #define CONFIG_HOSTNAME				titanium
 
-#define CONFIG_SYS_PROMPT			"titanium > "
-
 #define CONFIG_PLATFORM_ENV_SETTINGS		"\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS		CONFIG_COMMON_ENV_SETTINGS \

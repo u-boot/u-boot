@@ -460,10 +460,6 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio6_clkctrl,
 		(*prcm)->cm_l4per_gpio7_clkctrl,
 		(*prcm)->cm_l4per_gpio8_clkctrl,
-#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
-		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
-		(*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-#endif
 		0
 	};
 
@@ -494,16 +490,6 @@ void enable_basic_clocks(void)
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
-
-#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
-	/* Enable 960 MHz clock for dwc3 */
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-		     OPTFCLKEN_REFCLK960M);
-
-	/* Enable 32 KHz clock for dwc3 */
-	setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
-		     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
-#endif
 
 	/* Set the correct clock dividers for mmc */
 	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
@@ -564,6 +550,144 @@ void enable_basic_uboot_clocks(void)
 			 clk_modules_explicit_en_essential,
 			 1);
 }
+
+#ifdef CONFIG_TI_EDMA3
+void enable_edma3_clocks(void)
+{
+	u32 const clk_domains_edma3[] = {
+		0
+	};
+
+	u32 const clk_modules_hw_auto_edma3[] = {
+		(*prcm)->cm_l3main1_tptc1_clkctrl,
+		(*prcm)->cm_l3main1_tptc2_clkctrl,
+		0
+	};
+
+	u32 const clk_modules_explicit_en_edma3[] = {
+		0
+	};
+
+	do_enable_clocks(clk_domains_edma3,
+			 clk_modules_hw_auto_edma3,
+			 clk_modules_explicit_en_edma3,
+			 1);
+}
+
+void disable_edma3_clocks(void)
+{
+	u32 const clk_domains_edma3[] = {
+		0
+	};
+
+	u32 const clk_modules_disable_edma3[] = {
+		(*prcm)->cm_l3main1_tptc1_clkctrl,
+		(*prcm)->cm_l3main1_tptc2_clkctrl,
+		0
+	};
+
+	do_disable_clocks(clk_domains_edma3,
+			  clk_modules_disable_edma3,
+			  1);
+}
+#endif
+
+#ifdef CONFIG_USB_DWC3
+void enable_usb_clocks(int index)
+{
+	u32 cm_l3init_usb_otg_ss_clkctrl = 0;
+
+	if (index == 0) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss1_clkctrl;
+		/* Enable 960 MHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Enable 32 KHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+	} else if (index == 1) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
+		/* Enable 960 MHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_l3init_usb_otg_ss2_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Enable 32 KHz clock for dwc3 */
+		setbits_le32((*prcm)->cm_coreaon_usb_phy2_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Enable 60 MHz clock for USB2PHY2 */
+		setbits_le32((*prcm)->cm_coreaon_l3init_60m_gfclk_clkctrl,
+			     L3INIT_CLKCTRL_OPTFCLKEN_60M_GFCLK);
+	}
+
+	u32 const clk_domains_usb[] = {
+		0
+	};
+
+	u32 const clk_modules_hw_auto_usb[] = {
+		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
+		cm_l3init_usb_otg_ss_clkctrl,
+		0
+	};
+
+	u32 const clk_modules_explicit_en_usb[] = {
+		0
+	};
+
+	do_enable_clocks(clk_domains_usb,
+			 clk_modules_hw_auto_usb,
+			 clk_modules_explicit_en_usb,
+			 1);
+}
+
+void disable_usb_clocks(int index)
+{
+	u32 cm_l3init_usb_otg_ss_clkctrl = 0;
+
+	if (index == 0) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss1_clkctrl;
+		/* Disable 960 MHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Disable 32 KHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+	} else if (index == 1) {
+		cm_l3init_usb_otg_ss_clkctrl =
+			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
+		/* Disable 960 MHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_l3init_usb_otg_ss2_clkctrl,
+			     OPTFCLKEN_REFCLK960M);
+
+		/* Disable 32 KHz clock for dwc3 */
+		clrbits_le32((*prcm)->cm_coreaon_usb_phy2_core_clkctrl,
+			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Disable 60 MHz clock for USB2PHY2 */
+		clrbits_le32((*prcm)->cm_coreaon_l3init_60m_gfclk_clkctrl,
+			     L3INIT_CLKCTRL_OPTFCLKEN_60M_GFCLK);
+	}
+
+	u32 const clk_domains_usb[] = {
+		0
+	};
+
+	u32 const clk_modules_disable[] = {
+		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
+		cm_l3init_usb_otg_ss_clkctrl,
+		0
+	};
+
+	do_disable_clocks(clk_domains_usb,
+			  clk_modules_disable,
+			  1);
+}
+#endif
 
 const struct ctrl_ioregs ioregs_omap5430 = {
 	.ctrl_ddrch = DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
@@ -643,6 +767,7 @@ void __weak hw_data_init(void)
 
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
+	case DRA752_ES2_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
 	*omap_vcores = &dra752_volts;
@@ -678,6 +803,7 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 		break;
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
+	case DRA752_ES2_0:
 		*regs = &ioregs_dra7xx_es1;
 		break;
 	case DRA722_ES1_0:

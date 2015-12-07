@@ -8,8 +8,6 @@
 #define __LS2_RDB_H
 
 #include "ls2085a_common.h"
-#define CONFIG_IDENT_STRING		" LS2085A-RDB"
-#define CONFIG_BOOTP_VCI_STRING		"U-boot.LS2085A-RDB"
 
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX       2
@@ -30,8 +28,8 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS1	0x51
 #define SPD_EEPROM_ADDRESS2	0x52
-#define SPD_EEPROM_ADDRESS3	0x54
-#define SPD_EEPROM_ADDRESS4	0x53	/* Board error */
+#define SPD_EEPROM_ADDRESS3	0x53
+#define SPD_EEPROM_ADDRESS4	0x54
 #define SPD_EEPROM_ADDRESS5	0x55
 #define SPD_EEPROM_ADDRESS6	0x56	/* dummy address */
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1
@@ -235,15 +233,25 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_LS_MC_DPC_ADDR	0x580800000ULL
 
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
+#define CONFIG_SYS_LS_MC_AIOP_IMG_IN_NOR
+#define CONFIG_SYS_LS_MC_AIOP_IMG_ADDR	0x580900000ULL
 
 /*
  * I2C
  */
-#define I2C_MUX_PCA_ADDR		0x77
-#define I2C_MUX_PCA_ADDR_PRI		0x77 /* Primary Mux*/
+#define I2C_MUX_PCA_ADDR		0x75
+#define I2C_MUX_PCA_ADDR_PRI		0x75 /* Primary Mux*/
 
 /* I2C bus multiplexer */
 #define I2C_MUX_CH_DEFAULT      0x8
+
+/* SPI */
+#ifdef CONFIG_FSL_DSPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_BAR
+#endif
 
 /*
  * RTC configuration
@@ -251,6 +259,7 @@ unsigned long get_board_sys_clk(void);
 #define RTC
 #define CONFIG_RTC_DS3231               1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
+#define CONFIG_CMD_DATE
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM
@@ -268,7 +277,6 @@ unsigned long get_board_sys_clk(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_PNP
-#define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif
@@ -284,6 +292,21 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_DOS_PARTITION
 #endif
 
+#define CONFIG_MISC_INIT_R
+
+/*
+ * USB
+ */
+#define CONFIG_HAS_FSL_XHCI_USB
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_FSL
+#define CONFIG_USB_XHCI_DWC3
+#define CONFIG_USB_MAX_CONTROLLER_COUNT         2
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_EXT2
+
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
@@ -296,6 +319,36 @@ unsigned long get_board_sys_clk(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x1000000\0"
+	"kernel_size=0x2800000\0"
+
+#undef CONFIG_BOOTARGS
+#define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
+				"earlycon=uart8250,mmio,0x21c0600,115200 " \
+				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
+				" hugepagesz=2m hugepages=16"
+
+/* MAC/PHY configuration */
+#ifdef CONFIG_FSL_MC_ENET
+#define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_CORTINA
+#define CONFIG_PHYLIB
+#define	CONFIG_SYS_CORTINA_FW_IN_NOR
+#define CONFIG_CORTINA_FW_ADDR		0x581000000
+#define CONFIG_CORTINA_FW_LENGTH	0x40000
+
+#define CORTINA_PHY_ADDR1	0x10
+#define CORTINA_PHY_ADDR2	0x11
+#define CORTINA_PHY_ADDR3	0x12
+#define CORTINA_PHY_ADDR4	0x13
+#define AQ_PHY_ADDR1		0x00
+#define AQ_PHY_ADDR2		0x01
+#define AQ_PHY_ADDR3		0x02
+#define AQ_PHY_ADDR4		0x03
+
+#define CONFIG_MII
+#define CONFIG_ETHPRIME		"DPNI1"
+#define CONFIG_PHY_GIGE
+#define CONFIG_PHY_AQUANTIA
+#endif
 
 #endif /* __LS2_RDB_H */

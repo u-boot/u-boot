@@ -25,6 +25,7 @@
 #include <mmc.h>
 #include <power/pfuze100_pmic.h>
 #include <power/pmic.h>
+#include <spi_flash.h>
 
 #include "tqma6_bb.h"
 

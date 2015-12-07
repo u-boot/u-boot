@@ -6,11 +6,23 @@
  */
 
 #include <common.h>
-#include <asm/arch/pinmux.h>
 #include <asm/arch/gp_padctrl.h>
-#include "pinmux-config-colibri_t30.h"
-#include <i2c.h>
+#include <asm/arch/pinmux.h>
+#include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/tegra.h>
 #include <asm/gpio.h>
+#include <asm/io.h>
+#include <i2c.h>
+#include "pinmux-config-colibri_t30.h"
+
+int arch_misc_init(void)
+{
+	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
+	    NVBOOTTYPE_RECOVERY)
+		printf("USB recovery mode\n");
+
+	return 0;
+}
 
 /*
  * Routine: pinmux_init

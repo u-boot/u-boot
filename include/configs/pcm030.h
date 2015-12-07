@@ -15,6 +15,7 @@
 #define __CONFIG_H
 
 #define CONFIG_BOARDINFO	 "phyCORE-MPC5200B-tiny"
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*-----------------------------------------------------------------------------
 High Level Configuration Options
@@ -337,7 +338,6 @@ RTC configuration
  Miscellaneous configurable options
 -------------------------------------------------------------------------------*/
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define CONFIG_SYS_PROMPT "uboot> " /* Monitor Command Prompt */
 
 #define CONFIG_CMDLINE_EDITING 1 /* add command line history */
 

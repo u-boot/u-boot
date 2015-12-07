@@ -631,7 +631,8 @@ int board_init(void)
 int power_init_board(void)
 {
 	struct pmic *p;
-	unsigned int reg, ret;
+	unsigned int reg;
+	int ret;
 
 	p = pfuze_common_init(I2C_PMIC);
 	if (!p)
@@ -679,6 +680,16 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	setenv("board_name", "SABRESD");
+
+	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+		setenv("board_rev", "MX6Q");
+	else if (is_cpu_type(MXC_CPU_MX6DL) || is_cpu_type(MXC_CPU_MX6SOLO))
+		setenv("board_rev", "MX6DL");
+#endif
+
 	return 0;
 }
 
@@ -813,6 +824,7 @@ static void spl_dram_init(void)
 		.bi_on = 1,	/* Bank interleaving enabled */
 		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
+		.ddr_type = DDR_TYPE_DDR3,
 	};
 
 	mx6dq_dram_iocfg(64, &mx6_ddr_ioregs, &mx6_grp_ioregs);

@@ -119,7 +119,7 @@ B4860QDS Default Settings
 Switch Settings
 ----------------
 
-SW1	OFF [0]	OFF [1]	OFF [1]	OFF [0]	OFF [1]	OFF [0]	OFF [1]	OFF [1]
+SW1	OFF [0]	OFF [0]	OFF [0]	OFF [0]	OFF [0]	OFF [0]	OFF [0]	OFF [0]
 SW2	ON	ON	ON	ON	ON	ON	OFF	OFF
 SW3	OFF	OFF	OFF	ON	OFF	OFF	ON	OFF
 SW5	OFF	OFF	OFF	OFF	OFF	OFF	ON	ON

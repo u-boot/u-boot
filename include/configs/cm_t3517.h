@@ -36,6 +36,8 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 
+#define CONFIG_MACH_TYPE                MACH_TYPE_CM_T3517
+
 /*
  * Display CPU and Board information
  */
@@ -66,7 +68,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
+#define CONFIG_ENV_SIZE		(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 10))
 
 /*
@@ -112,8 +114,8 @@
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO 146
 #define CONFIG_OMAP_EHCI_PHY2_RESET_GPIO 147
 #else /* !CONFIG_USB_MUSB_AM35X */
-#define CONFIG_MUSB_HOST
-#define CONFIG_MUSB_PIO_ONLY
+#define CONFIG_USB_MUSB_HOST
+#define CONFIG_USB_MUSB_PIO_ONLY
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 #define CONFIG_USB_STORAGE
@@ -152,7 +154,6 @@
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_QUIET_TEST
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
@@ -170,6 +171,7 @@
 	"loadaddr=0x82000000\0" \
 	"baudrate=115200\0" \
 	"console=ttyO2,115200n8\0" \
+	"netretry=yes\0" \
 	"mpurate=auto\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
@@ -227,7 +229,6 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"CM-T3517 # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -275,6 +276,8 @@
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT
 #define CONFIG_SMC911X_BASE	(0x2C000000 + (16 << 20))
+#define CONFIG_ARP_TIMEOUT		200UL
+#define CONFIG_NET_RETRY_COUNT		5
 #endif /* CONFIG_CMD_NET */
 
 /* additions for new relocation code, must be added to all boards */

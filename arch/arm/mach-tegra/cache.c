@@ -21,6 +21,7 @@
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch/gp_padctrl.h>
 
+#ifndef CONFIG_ARM64
 void config_cache(void)
 {
 	u32 reg = 0;
@@ -44,3 +45,4 @@ void config_cache(void)
 	reg |= 2;
 	asm("mcr p15, 1, %0, c9, c0, 2" : : "r" (reg));
 }
+#endif

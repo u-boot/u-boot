@@ -170,6 +170,47 @@ void clock_set_pll5(unsigned int clk, bool sigma_delta_enable)
 	udelay(5500);
 }
 
+#ifdef CONFIG_MACH_SUN6I
+void clock_set_mipi_pll(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	unsigned int k, m, n, value, diff;
+	unsigned best_k = 0, best_m = 0, best_n = 0, best_diff = 0xffffffff;
+	unsigned int src = clock_get_pll3();
+
+	/* All calculations are in KHz to avoid overflows */
+	clk /= 1000;
+	src /= 1000;
+
+	/* Pick the closest lower clock */
+	for (k = 1; k <= 4; k++) {
+		for (m = 1; m <= 16; m++) {
+			for (n = 1; n <= 16; n++) {
+				value = src * n * k / m;
+				if (value > clk)
+					continue;
+
+				diff = clk - value;
+				if (diff < best_diff) {
+					best_diff = diff;
+					best_k = k;
+					best_m = m;
+					best_n = n;
+				}
+				if (diff == 0)
+					goto done;
+			}
+		}
+	}
+
+done:
+	writel(CCM_MIPI_PLL_CTRL_EN | CCM_MIPI_PLL_CTRL_LDO_EN |
+	       CCM_MIPI_PLL_CTRL_N(best_n) | CCM_MIPI_PLL_CTRL_K(best_k) |
+	       CCM_MIPI_PLL_CTRL_M(best_m), &ccm->mipi_pll_cfg);
+}
+#endif
+
 #ifdef CONFIG_MACH_SUN8I_A33
 void clock_set_pll11(unsigned int clk, bool sigma_delta_enable)
 {
@@ -188,6 +229,18 @@ void clock_set_pll11(unsigned int clk, bool sigma_delta_enable)
 }
 #endif
 
+unsigned int clock_get_pll3(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	uint32_t rval = readl(&ccm->pll3_cfg);
+	int n = ((rval & CCM_PLL3_CTRL_N_MASK) >> CCM_PLL3_CTRL_N_SHIFT) + 1;
+	int m = ((rval & CCM_PLL3_CTRL_M_MASK) >> CCM_PLL3_CTRL_M_SHIFT) + 1;
+
+	/* Multiply by 1000 after dividing by m to avoid integer overflows */
+	return (24000 * n / m) * 1000;
+}
+
 unsigned int clock_get_pll6(void)
 {
 	struct sunxi_ccm_reg *const ccm =
@@ -196,6 +249,20 @@ unsigned int clock_get_pll6(void)
 	int n = ((rval & CCM_PLL6_CTRL_N_MASK) >> CCM_PLL6_CTRL_N_SHIFT) + 1;
 	int k = ((rval & CCM_PLL6_CTRL_K_MASK) >> CCM_PLL6_CTRL_K_SHIFT) + 1;
 	return 24000000 * n * k / 2;
+}
+
+unsigned int clock_get_mipi_pll(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	uint32_t rval = readl(&ccm->mipi_pll_cfg);
+	unsigned int n = ((rval & CCM_MIPI_PLL_CTRL_N_MASK) >> CCM_MIPI_PLL_CTRL_N_SHIFT) + 1;
+	unsigned int k = ((rval & CCM_MIPI_PLL_CTRL_K_MASK) >> CCM_MIPI_PLL_CTRL_K_SHIFT) + 1;
+	unsigned int m = ((rval & CCM_MIPI_PLL_CTRL_M_MASK) >> CCM_MIPI_PLL_CTRL_M_SHIFT) + 1;
+	unsigned int src = clock_get_pll3();
+
+	/* Multiply by 1000 after dividing by m to avoid integer overflows */
+	return ((src / 1000) * n * k / m) * 1000;
 }
 
 void clock_set_de_mod_clock(u32 *clk_cfg, unsigned int hz)

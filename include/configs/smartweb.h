@@ -1,0 +1,319 @@
+/*
+ * (C) Copyright 2007-2008
+ * Stelian Pop <stelian@popies.net>
+ * Lead Tech Design <www.leadtechdesign.com>
+ *
+ * (C) Copyright 2010
+ * Achim Ehrlich <aehrlich@taskit.de>
+ * taskit GmbH <www.taskit.de>
+ *
+ * (C) Copyright 2012
+ * Markus Hubig <mhubig@imko.de>
+ * IMKO GmbH <www.imko.de>
+ *
+ * (C) Copyright 2014
+ * Heiko Schocher <hs@denx.de>
+ * DENX Software Engineering GmbH
+ *
+ * Configuation settings for the smartweb.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#ifndef __CONFIG_H
+#define __CONFIG_H
+
+/*
+ * SoC must be defined first, before hardware.h is included.
+ * In this case SoC is defined in boards.cfg.
+ */
+#include <asm/hardware.h>
+#include <linux/sizes.h>
+
+/*
+ * Warning: changing CONFIG_SYS_TEXT_BASE requires adapting the initial boot
+ * program. Since the linker has to swallow that define, we must use a pure
+ * hex number here!
+ */
+#define CONFIG_SYS_TEXT_BASE		0x23000000
+
+/* ARM asynchronous clock */
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432MHz crystal */
+
+/* misc settings */
+#define CONFIG_CMDLINE_TAG		/* pass commandline to Kernel */
+#define CONFIG_SETUP_MEMORY_TAGS	/* pass memory defs to kernel */
+#define CONFIG_INITRD_TAG		/* pass initrd param to kernel */
+#define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
+#define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f() */
+#define CONFIG_DISPLAY_CPUINFO		/* display CPU Info at startup */
+
+/* setting board specific options */
+# define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
+
+/* The LED PINs */
+#define CONFIG_RED_LED			AT91_PIN_PA9
+#define CONFIG_GREEN_LED		AT91_PIN_PA6
+
+/*
+ * SDRAM: 1 bank, 64 MB, base address 0x20000000
+ * Already initialized before u-boot gets started.
+ */
+#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
+#define CONFIG_SYS_SDRAM_SIZE		(64 * SZ_1M)
+
+/*
+ * Perform a SDRAM Memtest from the start of SDRAM
+ * till the beginning of the U-Boot position in RAM.
+ */
+#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_TEXT_BASE - 0x100000)
+
+/* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN \
+	ROUND(3 * CONFIG_ENV_SIZE + (4 * SZ_1M), 0x1000)
+
+/* NAND flash settings */
+#define CONFIG_NAND_ATMEL
+#define CONFIG_SYS_NO_FLASH
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
+#define CONFIG_SYS_NAND_DBW_8
+#define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
+#define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
+#define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
+#define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
+
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE
+#define MTDIDS_NAME_STR		"atmel_nand"
+#define MTDIDS_DEFAULT		"nand0=" MTDIDS_NAME_STR
+#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
+					"128k(Bootstrap),"		\
+					"896k(U-Boot),"	\
+					"512k(ENV0),"	\
+					"512k(ENV1),"	\
+					"4M(Linux),"	\
+					"-(Root-FS)"
+
+/* general purpose I/O */
+#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
+#define CONFIG_AT91_GPIO		/* enable the GPIO features */
+#define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
+
+/* serial console */
+#define CONFIG_ATMEL_USART
+#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CONFIG_BAUDRATE			115200
+
+/*
+ * Ethernet configuration
+ *
+ */
+#define CONFIG_MACB
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
+#define CONFIG_RMII			/* use reduced MII inteface */
+#define CONFIG_NET_RETRY_COUNT	20      /* # of DHCP/BOOTP retries */
+#define CONFIG_AT91_WANTS_COMMON_PHY
+
+/* BOOTP and DHCP options */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_NFSBOOTCOMMAND						\
+	"setenv autoload yes; setenv autoboot yes; "			\
+	"setenv bootargs ${basicargs} ${mtdparts} "			\
+	"root=/dev/nfs ip=dhcp nfsroot=${serverip}:/srv/nfs/rootfs; "	\
+	"dhcp"
+
+/* Enable the watchdog */
+#define CONFIG_AT91SAM9_WATCHDOG
+#if !defined(CONFIG_SPL_BUILD)
+#define CONFIG_HW_WATCHDOG
+#endif
+#define CONFIG_AT91_HW_WDT_TIMEOUT	15
+
+#if !defined(CONFIG_SPL_BUILD)
+/* USB configuration */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_ATMEL
+#define CONFIG_USB_ATMEL_CLK_SEL_PLLB
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_SYS_USB_OHCI_CPU_INIT
+#define CONFIG_SYS_USB_OHCI_REGS_BASE	ATMEL_UHP_BASE
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME	"at91sam9260"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
+
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
+
+/* USB DFU support */
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_AT91
+
+/* DFU class support */
+#define CONFIG_CMD_DFU
+#define CONFIG_USB_FUNCTION_DFU
+#define CONFIG_DFU_NAND
+#define CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_1M
+#define DFU_MANIFEST_POLL_TIMEOUT	25000
+
+/* USB DFU IDs */
+#define CONFIG_G_DNL_VENDOR_NUM 0x0908
+#define CONFIG_G_DNL_PRODUCT_NUM 0x02d2
+#define CONFIG_G_DNL_MANUFACTURER "Siemens AG"
+
+#define CONFIG_SYS_CACHELINE_SIZE	0x2000
+#endif
+
+/* General Boot Parameter */
+#define CONFIG_BOOTDELAY		3
+#define CONFIG_BOOTCOMMAND		"run flashboot"
+#define CONFIG_BOOT_RETRY_TIME          30
+#define CONFIG_SYS_CBSIZE		512
+#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_SYS_PBSIZE \
+	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_CMDLINE_EDITING
+
+/*
+ * RAM Memory address where to put the
+ * Linux Kernel befor starting.
+ */
+#define CONFIG_SYS_LOAD_ADDR		0x22000000
+
+/*
+ * The NAND Flash partitions:
+ */
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		(0x100000)
+#define CONFIG_ENV_OFFSET_REDUND	(0x180000)
+#define CONFIG_ENV_RANGE		(SZ_512K)
+#define CONFIG_ENV_SIZE			(SZ_128K)
+
+/*
+ * Predefined environment variables.
+ * Usefull to define some easy to use boot commands.
+ */
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+									\
+	"basicargs=console=ttyS0,115200\0"				\
+									\
+	"mtdparts="MTDPARTS_DEFAULT"\0"
+
+/* Command line & features configuration */
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_IMI
+#undef CONFIG_CMD_IMLS
+#undef CONFIG_CMD_LOADS
+
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_FAT
+
+#ifdef CONFIG_MACB
+# define CONFIG_CMD_PING
+# define CONFIG_CMD_DHCP
+#else
+# undef CONFIG_CMD_BOOTD
+# undef CONFIG_CMD_NET
+# undef CONFIG_CMD_NFS
+#endif /* CONFIG_MACB */
+
+#if !defined(CONFIG_SPL_BUILD)
+/* Enable Device-Tree (FDT) support */
+#define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_FDT
+#define CONFIG_FIT
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_INIT_SP_ADDR		0x301000
+#define CONFIG_SPL_STACK_R
+#define CONFIG_SPL_STACK_R_ADDR		CONFIG_SYS_TEXT_BASE
+#else
+/*
+ * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
+ * leaving the correct space for initial global data structure above that
+ * address while providing maximum stack area below.
+ */
+#define CONFIG_SYS_INIT_SP_ADDR \
+	(ATMEL_BASE_SRAM1 + 0x1000 - GENERATED_GBL_DATA_SIZE)
+#endif
+
+
+/* Defines for SPL */
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_TEXT_BASE		0x0
+#define CONFIG_SPL_MAX_SIZE		(SZ_4K)
+
+#define CONFIG_SPL_BSS_START_ADDR	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SPL_BSS_MAX_SIZE		(SZ_16K)
+#define CONFIG_SYS_SPL_MALLOC_START     (CONFIG_SPL_BSS_START_ADDR + \
+					CONFIG_SPL_BSS_MAX_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_SIZE      CONFIG_SYS_MALLOC_LEN
+#define CONFIG_SPL_LDSCRIPT	arch/arm/mach-at91/arm926ejs/u-boot-spl.lds
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_GPIO_SUPPORT
+#define CONFIG_SYS_NAND_ENABLE_PIN_SPL	(2*32 + 14)
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SYS_USE_NANDFLASH	1
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SPL_NAND_ECC
+#define CONFIG_SPL_NAND_RAW_ONLY
+#define CONFIG_SPL_NAND_SOFTECC
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	SZ_512K
+#define	CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+
+#define CONFIG_SYS_NAND_SIZE		(SZ_256M)
+#define CONFIG_SYS_NAND_PAGE_SIZE	SZ_2K
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(SZ_128K)
+#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
+					 CONFIG_SYS_NAND_PAGE_SIZE)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+#define CONFIG_SYS_NAND_ECCSIZE		256
+#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_ECCPOS		{ 40, 41, 42, 43, 44, 45, 46, 47, \
+					  48, 49, 50, 51, 52, 53, 54, 55, \
+					  56, 57, 58, 59, 60, 61, 62, 63, }
+
+#define CONFIG_SPL_ATMEL_SIZE
+#define CONFIG_SYS_MASTER_CLOCK		(198656000/2)
+#define AT91_PLL_LOCK_TIMEOUT		1000000
+#define CONFIG_SYS_AT91_PLLA		0x2060bf09
+#define CONFIG_SYS_MCKR			0x100
+#define CONFIG_SYS_MCKR_CSS		(0x02 | CONFIG_SYS_MCKR)
+#define CONFIG_SYS_AT91_PLLB		0x10483f0e
+
+#if defined(CONFIG_SPL_BUILD)
+#define CONFIG_SYS_THUMB_BUILD
+#define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_SYS_DCACHE_OFF
+#undef CONFIG_SPL_OS_BOOT		/* Not supported by existing map */
+#endif
+#endif /* __CONFIG_H */

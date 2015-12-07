@@ -287,12 +287,10 @@ struct pch_gbe_priv {
 	struct pch_gbe_rx_desc rx_desc[PCH_GBE_DESC_NUM];
 	struct pch_gbe_tx_desc tx_desc[PCH_GBE_DESC_NUM];
 	char rx_buff[PCH_GBE_DESC_NUM][PCH_GBE_RX_FRAME_LEN];
-	struct eth_device *dev;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 	struct pch_gbe_regs *mac_regs;
 	pci_dev_t bdf;
-	u32 interface;
 	int rx_idx;
 	int tx_idx;
 };

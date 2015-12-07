@@ -44,6 +44,7 @@ static struct sunxi_usb_phy {
 	int usb_rst_mask;
 	int gpio_vbus;
 	int gpio_vbus_det;
+	int gpio_id_det;
 	int id;
 	int init_count;
 	int power_on_count;
@@ -78,6 +79,14 @@ static int get_vbus_detect_gpio(int index)
 {
 	switch (index) {
 	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_DET);
+	}
+	return -EINVAL;
+}
+
+static int get_id_detect_gpio(int index)
+{
+	switch (index) {
+	case 0: return sunxi_name_to_gpio(CONFIG_USB0_ID_DET);
 	}
 	return -EINVAL;
 }
@@ -223,15 +232,20 @@ void sunxi_usb_phy_power_off(int index)
 		gpio_set_value(phy->gpio_vbus, 0);
 }
 
+int sunxi_usb_phy_power_is_on(int index)
+{
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
+
+	return phy->power_on_count > 0;
+}
+
 int sunxi_usb_phy_vbus_detect(int index)
 {
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	int err, retries = 3;
 
-	if (phy->gpio_vbus_det < 0) {
-		eprintf("Error: invalid vbus detection pin\n");
+	if (phy->gpio_vbus_det < 0)
 		return phy->gpio_vbus_det;
-	}
 
 	err = gpio_get_value(phy->gpio_vbus_det);
 	/*
@@ -245,6 +259,16 @@ int sunxi_usb_phy_vbus_detect(int index)
 	}
 
 	return err;
+}
+
+int sunxi_usb_phy_id_detect(int index)
+{
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
+
+	if (phy->gpio_id_det < 0)
+		return phy->gpio_id_det;
+
+	return gpio_get_value(phy->gpio_id_det);
 }
 
 int sunxi_usb_phy_probe(void)
@@ -275,6 +299,18 @@ int sunxi_usb_phy_probe(void)
 			if (ret)
 				return ret;
 		}
+
+		phy->gpio_id_det = get_id_detect_gpio(i);
+		if (phy->gpio_id_det >= 0) {
+			ret = gpio_request(phy->gpio_id_det, "usb_id_det");
+			if (ret)
+				return ret;
+			ret = gpio_direction_input(phy->gpio_id_det);
+			if (ret)
+				return ret;
+			sunxi_gpio_set_pull(phy->gpio_id_det,
+					    SUNXI_GPIO_PULL_UP);
+		}
 	}
 
 	setbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
@@ -298,6 +334,9 @@ int sunxi_usb_phy_remove(void)
 
 		if (phy->gpio_vbus_det >= 0)
 			gpio_free(phy->gpio_vbus_det);
+
+		if (phy->gpio_id_det >= 0)
+			gpio_free(phy->gpio_id_det);
 	}
 
 	return 0;

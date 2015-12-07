@@ -1,5 +1,5 @@
 /*
-* (C) Copyright 2010-2014
+* (C) Copyright 2010-2015
 * NVIDIA Corporation <www.nvidia.com>
 *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -92,6 +92,13 @@ int tegra_get_chip_sku(void)
 			return TEGRA_SOC_T124;
 		}
 		break;
+	case CHIPID_TEGRA210:
+		switch (sku_id) {
+		case SKU_ID_T210_ENG:
+		default:
+			return TEGRA_SOC_T210;
+		}
+		break;
 	}
 
 	/* unknown chip/sku id */
@@ -100,6 +107,7 @@ int tegra_get_chip_sku(void)
 	return TEGRA_SOC_UNKNOWN;
 }
 
+#ifndef CONFIG_ARM64
 static void enable_scu(void)
 {
 	struct scu_ctlr *scu = (struct scu_ctlr *)NV_PA_ARM_PERIPHBASE;
@@ -131,8 +139,8 @@ static u32 get_odmdata(void)
 	 * on BCTs for currently supported SoCs, which are locked down.
 	 * If this changes in new chips, we can revisit this algorithm.
 	 */
-
-	u32 bct_start, odmdata;
+	unsigned long bct_start;
+	u32 odmdata;
 
 	bct_start = readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BCTPTR);
 	odmdata = readl(bct_start + BCT_ODMDATA_OFFSET);
@@ -218,7 +226,5 @@ void s_init(void)
 
 	/* enable SMMU */
 	smmu_enable();
-
-	/* init vpr */
-	config_vpr();
 }
+#endif

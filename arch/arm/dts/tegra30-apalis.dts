@@ -267,7 +267,7 @@
 	/* EHCI instance 0: USB1_DP/N -> USBO1_DP/N */
 	usb@7d000000 {
 		status = "okay";
-		dr_mode = "peripheral";
+		dr_mode = "otg";
 		/* USBO1_EN */
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(T, 5) GPIO_ACTIVE_HIGH>;
 	};

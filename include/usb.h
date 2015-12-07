@@ -174,10 +174,10 @@ enum usb_init_type {
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
 
-#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_DM_USB)
-int usb_reset_root_port(void);
+#if defined(CONFIG_USB_MUSB_HOST) || defined(CONFIG_DM_USB)
+int usb_reset_root_port(struct usb_device *dev);
 #else
-#define usb_reset_root_port()
+#define usb_reset_root_port(dev)
 #endif
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
@@ -187,7 +187,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
 
-#if defined CONFIG_USB_EHCI || defined CONFIG_MUSB_HOST || defined(CONFIG_DM_USB)
+#if defined CONFIG_USB_EHCI || defined CONFIG_USB_MUSB_HOST || defined(CONFIG_DM_USB)
 struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
 	int queuesize, int elementsize, void *buffer, int interval);
 int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
@@ -493,15 +493,31 @@ struct usb_device_id {
 
 /**
  * struct usb_driver_entry - Matches a driver to its usb_device_ids
- * @compatible: Compatible string
- * @data: Data for this compatible string
+ * @driver: Driver to use
+ * @match: List of match records for this driver, terminated by {}
  */
 struct usb_driver_entry {
 	struct driver *driver;
 	const struct usb_device_id *match;
 };
 
-#define USB_DEVICE(__name, __match)					\
+#define USB_DEVICE_ID_MATCH_DEVICE \
+		(USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_PRODUCT)
+
+/**
+ * USB_DEVICE - macro used to describe a specific usb device
+ * @vend: the 16 bit USB Vendor ID
+ * @prod: the 16 bit USB Product ID
+ *
+ * This macro is used to create a struct usb_device_id that matches a
+ * specific device.
+ */
+#define USB_DEVICE(vend, prod) \
+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE, \
+	.idVendor = (vend), \
+	.idProduct = (prod)
+
+#define U_BOOT_USB_DEVICE(__name, __match) \
 	ll_entry_declare(struct usb_driver_entry, __name, usb_driver_entry) = {\
 		.driver = llsym(struct driver, __name, driver), \
 		.match = __match, \
@@ -705,14 +721,15 @@ struct dm_usb_ops {
 	 * is read). This should be NULL for EHCI, which does not need this.
 	 */
 	int (*alloc_device)(struct udevice *bus, struct usb_device *udev);
+
+	/**
+	 * reset_root_port() - Reset usb root port
+	 */
+	int (*reset_root_port)(struct udevice *bus, struct usb_device *udev);
 };
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
 #define usb_get_emul_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
-
-#ifdef CONFIG_MUSB_HOST
-int usb_reset_root_port(void);
-#endif
 
 /**
  * usb_get_dev_index() - look up a device index number
@@ -730,26 +747,18 @@ int usb_reset_root_port(void);
 struct usb_device *usb_get_dev_index(struct udevice *bus, int index);
 
 /**
- * usb_legacy_port_reset() - Legacy function to reset a hub port
- *
- * @hub:	Hub device
- * @portnr:	Port number (1=first)
- */
-int usb_legacy_port_reset(struct usb_device *hub, int portnr);
-
-/**
  * usb_setup_device() - set up a device ready for use
  *
  * @dev:	USB device pointer. This need not be a real device - it is
  *		common for it to just be a local variable with its ->dev
- *		member (i.e. @dev->dev) set to the parent device
+ *		member (i.e. @dev->dev) set to the parent device and
+ *		dev->portnr set to the port number on the hub (1=first)
  * @do_read:	true to read the device descriptor before an address is set
  *		(should be false for XHCI buses, true otherwise)
  * @parent:	Parent device (either UCLASS_USB or UCLASS_USB_HUB)
- * @portnr:	Port number on hub (1=first) or 0 for none
  * @return 0 if OK, -ve on error */
 int usb_setup_device(struct usb_device *dev, bool do_read,
-		     struct usb_device *parent, int portnr);
+		     struct usb_device *parent);
 
 /**
  * usb_hub_scan() - Scan a hub and find its devices

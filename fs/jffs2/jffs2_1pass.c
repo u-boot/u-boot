@@ -545,49 +545,19 @@ static struct b_node *
 insert_node(struct b_list *list, u32 offset)
 {
 	struct b_node *new;
-#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
-	struct b_node *b, *prev;
-#endif
 
 	if (!(new = add_node(list))) {
 		putstr("add_node failed!\r\n");
 		return NULL;
 	}
 	new->offset = offset;
+	new->next = NULL;
 
-#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
-	if (list->listTail != NULL && list->listCompare(new, list->listTail))
-		prev = list->listTail;
-	else if (list->listLast != NULL && list->listCompare(new, list->listLast))
-		prev = list->listLast;
+	if (list->listTail != NULL)
+		list->listTail->next = new;
 	else
-		prev = NULL;
-
-	for (b = (prev ? prev->next : list->listHead);
-	     b != NULL && list->listCompare(new, b);
-	     prev = b, b = b->next) {
-		list->listLoops++;
-	}
-	if (b != NULL)
-		list->listLast = prev;
-
-	if (b != NULL) {
-		new->next = b;
-		if (prev != NULL)
-			prev->next = new;
-		else
-			list->listHead = new;
-	} else
-#endif
-	{
-		new->next = (struct b_node *) NULL;
-		if (list->listTail != NULL) {
-			list->listTail->next = new;
-			list->listTail = new;
-		} else {
-			list->listTail = list->listHead = new;
-		}
-	}
+		list->listHead = new;
+	list->listTail = new;
 
 	return new;
 }
@@ -598,14 +568,18 @@ insert_node(struct b_list *list, u32 offset)
  */
 static int compare_inodes(struct b_node *new, struct b_node *old)
 {
-	struct jffs2_raw_inode ojNew;
-	struct jffs2_raw_inode ojOld;
-	struct jffs2_raw_inode *jNew =
-		(struct jffs2_raw_inode *)get_fl_mem(new->offset, sizeof(ojNew), &ojNew);
-	struct jffs2_raw_inode *jOld =
-		(struct jffs2_raw_inode *)get_fl_mem(old->offset, sizeof(ojOld), &ojOld);
+	/*
+	 * Only read in the version info from flash, not the entire inode.
+	 * This can make a big difference to speed if flash is slow.
+	 */
+	u32 new_version;
+	u32 old_version;
+	get_fl_mem(new->offset + offsetof(struct jffs2_raw_inode, version),
+		   sizeof(new_version), &new_version);
+	get_fl_mem(old->offset + offsetof(struct jffs2_raw_inode, version),
+		   sizeof(old_version), &old_version);
 
-	return jNew->version > jOld->version;
+	return new_version > old_version;
 }
 
 /* Sort directory entries so all entries in the same directory
@@ -615,42 +589,45 @@ static int compare_inodes(struct b_node *new, struct b_node *old)
  */
 static int compare_dirents(struct b_node *new, struct b_node *old)
 {
-	struct jffs2_raw_dirent ojNew;
-	struct jffs2_raw_dirent ojOld;
-	struct jffs2_raw_dirent *jNew =
-		(struct jffs2_raw_dirent *)get_fl_mem(new->offset, sizeof(ojNew), &ojNew);
-	struct jffs2_raw_dirent *jOld =
-		(struct jffs2_raw_dirent *)get_fl_mem(old->offset, sizeof(ojOld), &ojOld);
+	/*
+	 * Using NULL as the buffer for NOR flash prevents the entire node
+	 * being read. This makes most comparisons much quicker as only one
+	 * or two entries from the node will be used most of the time.
+	 */
+	struct jffs2_raw_dirent *jNew = get_node_mem(new->offset, NULL);
+	struct jffs2_raw_dirent *jOld = get_node_mem(old->offset, NULL);
 	int cmp;
+	int ret;
 
-	/* ascending sort by pino */
-	if (jNew->pino != jOld->pino)
-		return jNew->pino > jOld->pino;
-
-	/* pino is the same, so use ascending sort by nsize, so
-	 * we don't do strncmp unless we really must.
-	 */
-	if (jNew->nsize != jOld->nsize)
-		return jNew->nsize > jOld->nsize;
-
-	/* length is also the same, so use ascending sort by name
-	 */
-	cmp = strncmp((char *)jNew->name, (char *)jOld->name, jNew->nsize);
-	if (cmp != 0)
-		return cmp > 0;
-
-	/* we have duplicate names in this directory, so use ascending
-	 * sort by version
-	 */
-	if (jNew->version > jOld->version) {
-		/* since jNew is newer, we know jOld is not valid, so
-		 * mark it with inode 0 and it will not be used
+	if (jNew->pino != jOld->pino) {
+		/* ascending sort by pino */
+		ret = jNew->pino > jOld->pino;
+	} else if (jNew->nsize != jOld->nsize) {
+		/*
+		 * pino is the same, so use ascending sort by nsize,
+		 * so we don't do strncmp unless we really must.
 		 */
-		jOld->ino = 0;
-		return 1;
+		ret = jNew->nsize > jOld->nsize;
+	} else {
+		/*
+		 * length is also the same, so use ascending sort by name
+		 */
+		cmp = strncmp((char *)jNew->name, (char *)jOld->name,
+			jNew->nsize);
+		if (cmp != 0) {
+			ret = cmp > 0;
+		} else {
+			/*
+			 * we have duplicate names in this directory,
+			 * so use ascending sort by version
+			 */
+			ret = jNew->version > jOld->version;
+		}
 	}
+	put_fl_mem(jNew, NULL);
+	put_fl_mem(jOld, NULL);
 
-	return 0;
+	return ret;
 }
 #endif
 
@@ -719,11 +696,22 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 		}
 		put_fl_mem(jNode, pL->readbuf);
 	}
+	/*
+	 * If no destination is provided, we are done.
+	 * Just return the total size.
+	 */
+	if (!dest)
+		return totalSize;
 #endif
 
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
-		jNode = (struct jffs2_raw_inode *) get_node_mem(b->offset,
-								pL->readbuf);
+		/*
+		 * Copy just the node and not the data at this point,
+		 * since we don't yet know if we need this data.
+		 */
+		jNode = (struct jffs2_raw_inode *)get_fl_mem(b->offset,
+				sizeof(struct jffs2_raw_inode),
+				pL->readbuf);
 		if (inode == jNode->ino) {
 #if 0
 			putLabeledWord("\r\n\r\nread_inode: totlen = ", jNode->totlen);
@@ -747,7 +735,15 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 #endif
 
 			if(dest) {
-				src = ((uchar *) jNode) + sizeof(struct jffs2_raw_inode);
+				/*
+				 * Now that the inode has been checked,
+				 * read the entire inode, including data.
+				 */
+				put_fl_mem(jNode, pL->readbuf);
+				jNode = (struct jffs2_raw_inode *)
+					get_node_mem(b->offset, pL->readbuf);
+				src = ((uchar *)jNode) +
+					sizeof(struct jffs2_raw_inode);
 				/* ignore data behind latest known EOF */
 				if (jNode->offset > totalSize) {
 					put_fl_mem(jNode, pL->readbuf);
@@ -832,7 +828,6 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
 								pL->readbuf);
 		if ((pino == jDir->pino) && (len == jDir->nsize) &&
-		    (jDir->ino) &&	/* 0 for unlink */
 		    (!strncmp((char *)jDir->name, name, len))) {	/* a match */
 			if (jDir->version < version) {
 				put_fl_mem(jDir, pL->readbuf);
@@ -953,16 +948,47 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 	for (b = pL->dir.listHead; b; b = b->next) {
 		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
 								pL->readbuf);
-		if ((pino == jDir->pino) && (jDir->ino)) { /* ino=0 -> unlink */
+		if (pino == jDir->pino) {
 			u32 i_version = 0;
-			struct jffs2_raw_inode ojNode;
 			struct jffs2_raw_inode *jNode, *i = NULL;
-			struct b_node *b2 = pL->frag.listHead;
+			struct b_node *b2;
 
-			while (b2) {
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
+			/* Check for more recent versions of this file */
+			int match;
+			do {
+				struct b_node *next = b->next;
+				struct jffs2_raw_dirent *jDirNext;
+				if (!next)
+					break;
+				jDirNext = (struct jffs2_raw_dirent *)
+					get_node_mem(next->offset, NULL);
+				match = jDirNext->pino == jDir->pino &&
+					jDirNext->nsize == jDir->nsize &&
+					strncmp((char *)jDirNext->name,
+						(char *)jDir->name,
+						jDir->nsize) == 0;
+				if (match) {
+					/* Use next. It is more recent */
+					b = next;
+					/* Update buffer with the new info */
+					*jDir = *jDirNext;
+				}
+				put_fl_mem(jDirNext, NULL);
+			} while (match);
+#endif
+			if (jDir->ino == 0) {
+				/* Deleted file */
+				put_fl_mem(jDir, pL->readbuf);
+				continue;
+			}
+
+			for (b2 = pL->frag.listHead; b2; b2 = b2->next) {
 				jNode = (struct jffs2_raw_inode *)
-					get_fl_mem(b2->offset, sizeof(ojNode), &ojNode);
-				if (jNode->ino == jDir->ino && jNode->version >= i_version) {
+					get_fl_mem(b2->offset, sizeof(*jNode),
+						   NULL);
+				if (jNode->ino == jDir->ino &&
+				    jNode->version >= i_version) {
 					i_version = jNode->version;
 					if (i)
 						put_fl_mem(i, NULL);
@@ -975,7 +1001,7 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 							       sizeof(*i),
 							       NULL);
 				}
-				b2 = b2->next;
+				put_fl_mem(jNode, NULL);
 			}
 
 			dump_inode(pL, jDir, i);
@@ -1424,7 +1450,7 @@ dump_dirents(struct b_lists *pL)
 }
 #endif
 
-#define DEFAULT_EMPTY_SCAN_SIZE	4096
+#define DEFAULT_EMPTY_SCAN_SIZE	256
 
 static inline uint32_t EMPTY_SCAN_SIZE(uint32_t sector_size)
 {
@@ -1445,7 +1471,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 counterF = 0;
 	u32 counterN = 0;
 	u32 max_totlen = 0;
-	u32 buf_size = DEFAULT_EMPTY_SCAN_SIZE;
+	u32 buf_size;
 	char *buf;
 
 	nr_sectors = lldiv(part->size, part->sector_size);
@@ -1457,7 +1483,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	/* if we are building a list we need to refresh the cache. */
 	jffs_init_1pass_list(part);
 	pL = (struct b_lists *)part->jffs2_priv;
-	buf = malloc(buf_size);
+	buf = malloc(DEFAULT_EMPTY_SCAN_SIZE);
 	puts ("Scanning JFFS2 FS:   ");
 
 	/* start at the beginning of the partition */
@@ -1472,7 +1498,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 		uint32_t sumlen;
 		int ret;
 #endif
+		/* Indicates a sector with a CLEANMARKER was found */
+		int clean_sector = 0;
 
+		/* Set buf_size to maximum length */
+		buf_size = DEFAULT_EMPTY_SCAN_SIZE;
 		WATCHDOG_RESET();
 
 #ifdef CONFIG_JFFS2_SUMMARY
@@ -1547,6 +1577,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 
 		ofs += sector_ofs;
 		prevofs = ofs - 1;
+		/*
+		 * Set buf_size down to the minimum size required.
+		 * This prevents reading in chunks of flash data unnecessarily.
+		 */
+		buf_size = sizeof(union jffs2_node_union);
 
 	scan_more:
 		while (ofs < sector_ofs + part->sector_size) {
@@ -1589,6 +1624,14 @@ jffs2_1pass_build_lists(struct part_info * part)
 					ofs += 4;
 				}
 				/* Ran off end. */
+				/*
+				 * If this sector had a clean marker at the
+				 * beginning, and immediately following this
+				 * have been a bunch of FF bytes, treat the
+				 * entire sector as empty.
+				 */
+				if (clean_sector)
+					break;
 
 				/* See how much more there is to read in this
 				 * eraseblock...
@@ -1610,6 +1653,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 				buf_ofs = ofs;
 				goto more_empty;
 			}
+			/*
+			 * Found something not erased in the sector, so reset
+			 * the 'clean_sector' flag.
+			 */
+			clean_sector = 0;
 			if (node->magic != JFFS2_MAGIC_BITMASK ||
 					!hdr_crc(node)) {
 				ofs += 4;
@@ -1627,13 +1675,18 @@ jffs2_1pass_build_lists(struct part_info * part)
 			case JFFS2_NODETYPE_INODE:
 				if (buf_ofs + buf_len < ofs + sizeof(struct
 							jffs2_raw_inode)) {
+					buf_len = min_t(uint32_t,
+							sizeof(struct jffs2_raw_inode),
+							sector_ofs +
+							part->sector_size -
+							ofs);
 					get_fl_mem((u32)part->offset + ofs,
 						   buf_len, buf);
 					buf_ofs = ofs;
 					node = (void *)buf;
 				}
-				if (!inode_crc((struct jffs2_raw_inode *) node))
-				       break;
+				if (!inode_crc((struct jffs2_raw_inode *)node))
+					break;
 
 				if (insert_node(&pL->frag, (u32) part->offset +
 						ofs) == NULL) {
@@ -1650,6 +1703,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 							((struct
 							 jffs2_raw_dirent *)
 							node)->nsize) {
+					buf_len = min_t(uint32_t,
+							node->totlen,
+							sector_ofs +
+							part->sector_size -
+							ofs);
 					get_fl_mem((u32)part->offset + ofs,
 						   buf_len, buf);
 					buf_ofs = ofs;
@@ -1681,6 +1739,16 @@ jffs2_1pass_build_lists(struct part_info * part)
 						"%d != %zu\n",
 						node->totlen,
 						sizeof(struct jffs2_unknown_node));
+				if ((node->totlen ==
+				     sizeof(struct jffs2_unknown_node)) &&
+				    (ofs == sector_ofs)) {
+					/*
+					 * Found a CLEANMARKER at the beginning
+					 * of the sector. It's in the correct
+					 * place with correct size and CRC.
+					 */
+					clean_sector = 1;
+				}
 				break;
 			case JFFS2_NODETYPE_PADDING:
 				if (node->totlen < sizeof(struct jffs2_unknown_node))
@@ -1702,6 +1770,13 @@ jffs2_1pass_build_lists(struct part_info * part)
 	}
 
 	free(buf);
+#if defined(CONFIG_SYS_JFFS2_SORT_FRAGMENTS)
+	/*
+	 * Sort the lists.
+	 */
+	sort_list(&pL->frag);
+	sort_list(&pL->dir);
+#endif
 	putstr("\b\b done.\r\n");		/* close off the dots */
 
 	/* We don't care if malloc failed - then each read operation will

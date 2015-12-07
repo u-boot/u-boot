@@ -14,6 +14,7 @@
 #define CONFIG_MPC5200		1	/* This is an MPC5200 CPU */
 #define CONFIG_MPC5200_DDR	1	/* (with DDR-SDRAM) */
 #define CONFIG_MUNICES		1	/* ... on MUNICes board */
+#define CONFIG_SYS_GENERIC_BOARD
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFFF00000

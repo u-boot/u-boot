@@ -74,6 +74,49 @@ struct dm_i2c_bus {
 	int speed_hz;
 };
 
+/*
+ * Not all of these flags are implemented in the U-Boot API
+ */
+enum dm_i2c_msg_flags {
+	I2C_M_TEN		= 0x0010, /* ten-bit chip address */
+	I2C_M_RD		= 0x0001, /* read data, from slave to master */
+	I2C_M_STOP		= 0x8000, /* send stop after this message */
+	I2C_M_NOSTART		= 0x4000, /* no start before this message */
+	I2C_M_REV_DIR_ADDR	= 0x2000, /* invert polarity of R/W bit */
+	I2C_M_IGNORE_NAK	= 0x1000, /* continue after NAK */
+	I2C_M_NO_RD_ACK		= 0x0800, /* skip the Ack bit on reads */
+	I2C_M_RECV_LEN		= 0x0400, /* length is first received byte */
+};
+
+/**
+ * struct i2c_msg - an I2C message
+ *
+ * @addr:	Slave address
+ * @flags:	Flags (see enum dm_i2c_msg_flags)
+ * @len:	Length of buffer in bytes, may be 0 for a probe
+ * @buf:	Buffer to send/receive, or NULL if no data
+ */
+struct i2c_msg {
+	uint addr;
+	uint flags;
+	uint len;
+	u8 *buf;
+};
+
+/**
+ * struct i2c_msg_list - a list of I2C messages
+ *
+ * This is called i2c_rdwr_ioctl_data in Linux but the name does not seem
+ * appropriate in U-Boot.
+ *
+ * @msg:	Pointer to i2c_msg array
+ * @nmsgs:	Number of elements in the array
+ */
+struct i2c_msg_list {
+	struct i2c_msg *msgs;
+	uint nmsgs;
+};
+
 /**
  * dm_i2c_read() - read bytes from an I2C chip
  *
@@ -129,6 +172,7 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
  *
  * This reads a single value from the given address in an I2C chip
  *
+ * @dev:	Device to use for transfer
  * @addr:	Address to read from
  * @return value read, or -ve on error
  */
@@ -139,11 +183,25 @@ int dm_i2c_reg_read(struct udevice *dev, uint offset);
  *
  * This writes a single value to the given address in an I2C chip
  *
+ * @dev:	Device to use for transfer
  * @addr:	Address to write to
  * @val:	Value to write (normally a byte)
  * @return 0 on success, -ve on error
  */
 int dm_i2c_reg_write(struct udevice *dev, uint offset, unsigned int val);
+
+/**
+ * dm_i2c_xfer() - Transfer messages over I2C
+ *
+ * This transfers a raw message. It is best to use dm_i2c_reg_read/write()
+ * instead.
+ *
+ * @dev:	Device to use for transfer
+ * @msg:	List of messages to transfer
+ * @nmsgs:	Number of messages to transfer
+ * @return 0 on success, -ve on error
+ */
+int dm_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs);
 
 /**
  * dm_i2c_set_bus_speed() - set the speed of a bus
@@ -292,49 +350,6 @@ void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val);
 
 #endif
 
-/*
- * Not all of these flags are implemented in the U-Boot API
- */
-enum dm_i2c_msg_flags {
-	I2C_M_TEN		= 0x0010, /* ten-bit chip address */
-	I2C_M_RD		= 0x0001, /* read data, from slave to master */
-	I2C_M_STOP		= 0x8000, /* send stop after this message */
-	I2C_M_NOSTART		= 0x4000, /* no start before this message */
-	I2C_M_REV_DIR_ADDR	= 0x2000, /* invert polarity of R/W bit */
-	I2C_M_IGNORE_NAK	= 0x1000, /* continue after NAK */
-	I2C_M_NO_RD_ACK		= 0x0800, /* skip the Ack bit on reads */
-	I2C_M_RECV_LEN		= 0x0400, /* length is first received byte */
-};
-
-/**
- * struct i2c_msg - an I2C message
- *
- * @addr:	Slave address
- * @flags:	Flags (see enum dm_i2c_msg_flags)
- * @len:	Length of buffer in bytes, may be 0 for a probe
- * @buf:	Buffer to send/receive, or NULL if no data
- */
-struct i2c_msg {
-	uint addr;
-	uint flags;
-	uint len;
-	u8 *buf;
-};
-
-/**
- * struct i2c_msg_list - a list of I2C messages
- *
- * This is called i2c_rdwr_ioctl_data in Linux but the name does not seem
- * appropriate in U-Boot.
- *
- * @msg:	Pointer to i2c_msg array
- * @nmsgs:	Number of elements in the array
- */
-struct i2c_msg_list {
-	struct i2c_msg *msgs;
-	uint nmsgs;
-};
-
 /**
  * struct dm_i2c_ops - driver operations for I2C uclass
  *
@@ -430,6 +445,45 @@ struct dm_i2c_ops {
 #define i2c_get_ops(dev)	((struct dm_i2c_ops *)(dev)->driver->ops)
 
 /**
+ * struct i2c_mux_ops - operations for an I2C mux
+ *
+ * The current mux state is expected to be stored in the mux itself since
+ * it is the only thing that knows how to make things work. The mux can
+ * record the current state and then avoid switching unless it is necessary.
+ * So select() can be skipped if the mux is already in the correct state.
+ * Also deselect() can be made a nop if required.
+ */
+struct i2c_mux_ops {
+	/**
+	 * select() - select one of of I2C buses attached to a mux
+	 *
+	 * This will be called when there is no bus currently selected by the
+	 * mux. This method does not need to deselect the old bus since
+	 * deselect() will be already have been called if necessary.
+	 *
+	 * @mux:	Mux device
+	 * @bus:	I2C bus to select
+	 * @channel:	Channel number correponding to the bus to select
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*select)(struct udevice *mux, struct udevice *bus, uint channel);
+
+	/**
+	 * deselect() - select one of of I2C buses attached to a mux
+	 *
+	 * This is used to deselect the currently selected I2C bus.
+	 *
+	 * @mux:	Mux device
+	 * @bus:	I2C bus to deselect
+	 * @channel:	Channel number correponding to the bus to deselect
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*deselect)(struct udevice *mux, struct udevice *bus, uint channel);
+};
+
+#define i2c_mux_get_ops(dev)	((struct i2c_mux_ops *)(dev)->driver->ops)
+
+/**
  * i2c_get_chip() - get a device to use to access a chip on a bus
  *
  * This returns the device for the given chip address. The device can then
@@ -472,6 +526,16 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
  */
 int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 				struct dm_i2c_chip *chip);
+
+/**
+ * i2c_dump_msgs() - Dump a list of I2C messages
+ *
+ * This may be useful for debugging.
+ *
+ * @msg:	Message list to dump
+ * @nmsgs:	Number of messages
+ */
+void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs);
 
 #ifndef CONFIG_DM_I2C
 

@@ -354,9 +354,22 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
+static void setup_fec(void)
+{
+	if (is_mx6dqp()) {
+		/*
+		 * select ENET MAC0 TX clock from PLL
+		 */
+		imx_iomux_set_gpr_register(5, 9, 1, 1);
+		enable_fec_anatop_clock(0, ENET_125MHZ);
+	}
+
+	setup_iomux_enet();
+}
+
 int board_eth_init(bd_t *bis)
 {
-	setup_iomux_enet();
+	setup_fec();
 
 	return cpu_eth_init(bis);
 }
@@ -495,17 +508,21 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 int power_init_board(void)
 {
 	struct pmic *p;
-	unsigned int ret;
+	unsigned int value;
 
 	p = pfuze_common_init(I2C_PMIC);
 	if (!p)
 		return -ENODEV;
 
-	ret = pfuze_mode_init(p, APS_PFM);
-	if (ret < 0)
-		return ret;
+	if (is_mx6dqp()) {
+		/* set SW2 staby volatage 0.975V*/
+		pmic_reg_read(p, PFUZE100_SW2STBY, &value);
+		value &= ~0x3f;
+		value |= 0x17;
+		pmic_reg_write(p, PFUZE100_SW2STBY, value);
+	}
 
-	return 0;
+	return pfuze_mode_init(p, APS_PFM);
 }
 
 #ifdef CONFIG_CMD_BMODE
@@ -520,6 +537,17 @@ int board_late_init(void)
 {
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
+#endif
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	setenv("board_name", "SABREAUTO");
+
+	if (is_mx6dqp())
+		setenv("board_rev", "MX6QP");
+	else if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+		setenv("board_rev", "MX6Q");
+	else if (is_cpu_type(MXC_CPU_MX6DL) || is_cpu_type(MXC_CPU_MX6SOLO))
+		setenv("board_rev", "MX6DL");
 #endif
 
 	return 0;

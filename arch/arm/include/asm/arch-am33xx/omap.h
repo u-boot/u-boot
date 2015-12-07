@@ -33,4 +33,15 @@
 #define AM4372_BOARD_VERSION_END	SRAM_SCRATCH_SPACE_ADDR + 0x14
 #define QSPI_BASE              0x47900000
 #endif
+
+/* Boot parameters */
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	unsigned int reserved;
+	unsigned int boot_device_descriptor;
+	unsigned char boot_device;
+	unsigned char reset_reason;
+};
+#endif
+
 #endif

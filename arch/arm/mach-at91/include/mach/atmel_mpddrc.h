@@ -23,8 +23,10 @@ struct atmel_mpddr {
 	u32 md;
 };
 
-int ddr2_init(const unsigned int ram_address,
-	       const struct atmel_mpddr *mpddr);
+
+int ddr2_init(const unsigned int base,
+	      const unsigned int ram_address,
+	      const struct atmel_mpddr *mpddr);
 
 /* Bit field in mode register */
 #define ATMEL_MPDDRC_MR_MODE_NORMAL_CMD		0x0

@@ -2,7 +2,7 @@
  * (C) Copyright 2009
  * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
  *
- * Copyright (C) 2012 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2012, 2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,6 +17,7 @@
 #define CONFIG_SPEAR600				/* SPEAr600 SoC */
 #define CONFIG_X600				/* on X600 board */
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SYS_THUMB_BUILD
 
 #include <asm/arch/hardware.h>
 
@@ -30,6 +31,7 @@
 #define CONFIG_SYS_SPL_LEN			CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_UBOOT_BASE			(CONFIG_SYS_FLASH_BASE + \
 						 CONFIG_SYS_SPL_LEN)
+#define CONFIG_SYS_UBOOT_START			CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN			0x60000
 
@@ -66,6 +68,8 @@
 #define CONFIG_MTD_ECC_SOFT
 #define CONFIG_SYS_FSMC_NAND_8BIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_ECC_BCH
+#define CONFIG_BCH
 
 /* UBI/UBI config options */
 #define CONFIG_MTD_DEVICE
@@ -98,6 +102,12 @@
 #define CONFIG_FPGA_SPARTAN3
 #define CONFIG_FPGA_COUNT	1
 
+/* USB EHCI options */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_SPEAR
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+
 /*
  * Command support defines
  */
@@ -105,7 +115,9 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_FPGA_LOADMK
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
@@ -115,7 +127,12 @@
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+#define CONFIG_CMD_USB
 #define CONFIG_LZO
+
+/* Filesystem support (for USB key) */
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_DOS_PARTITION
 
 #define CONFIG_BOOTDELAY			3
 
@@ -148,11 +165,11 @@
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
-#define CONFIG_SYS_MALLOC_LEN			(1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN			(8 << 20)
 #define CONFIG_IDENT_STRING			"-SPEAr"
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT			"X600> "
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
 						 sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -163,7 +180,8 @@
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
 #define CONFIG_BOOTCOUNT_LIMIT
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0xd2801ff8
+#define CONFIG_SYS_BOOTCOUNT_ADDR		(CONFIG_SRAM_BASE + \
+						 CONFIG_SRAM_SIZE)
 
 #define CONFIG_HOSTNAME				x600
 #define CONFIG_UBI_PART				ubi0
@@ -240,17 +258,17 @@
 	"bootcmd=run nand_ubifs\0"					\
 	"\0"
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE			(512 * 1024)
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000
 #define PHYS_SDRAM_1_MAXSIZE			0x40000000
 
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_ADDR		0xD2800000
-#define CONFIG_SYS_INIT_RAM_SIZE		0x2000
+#define CONFIG_SRAM_BASE			0xd2800000
+/* Preserve the last 2 lwords for the boot-counter */
+#define CONFIG_SRAM_SIZE			((8 << 10) - 0x8)
+#define CONFIG_SYS_INIT_RAM_ADDR		CONFIG_SRAM_BASE
+#define CONFIG_SYS_INIT_RAM_SIZE		CONFIG_SRAM_SIZE
 
 #define CONFIG_SYS_INIT_SP_OFFSET		\
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
@@ -261,14 +279,16 @@
 /*
  * SPL related defines
  */
-#define CONFIG_SPL_TEXT_BASE	0xd2800b00
+#define CONFIG_SPL_TEXT_BASE		0xd2800b00
+#define CONFIG_SPL_MAX_SIZE		(CONFIG_SRAM_SIZE - 0xb00)
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/spear/u-boot-spl.lds"
 
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
-#define CONFIG_SPL_NO_PRINTF
 
 /*
  * Please select/define only one of the following

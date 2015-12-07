@@ -24,6 +24,8 @@
 #define CONFIG_VIDEO
 #define CONFIG_PREBOOT
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * SoC Configuration
  */
@@ -122,7 +124,6 @@
  * U-Boot general configuration
  */
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
-#define CONFIG_SYS_PROMPT	"ea20 > " /* Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */

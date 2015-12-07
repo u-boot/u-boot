@@ -7,24 +7,28 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
-*/
+ */
 
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/input/input.h>
 #include "exynos5250.dtsi"
 
 / {
 	model = "Google Snow";
-	compatible = "google,snow", "samsung,exynos5250";
+	compatible = "google,snow", "samsung,exynos5250", "samsung,exynos5";
 
 	aliases {
-		i2c0 = "/i2c@12c60000";
-		i2c1 = "/i2c@12c70000";
-		i2c2 = "/i2c@12c80000";
-		i2c3 = "/i2c@12c90000";
-		i2c4 = "/i2c@12ca0000";
-		i2c5 = "/i2c@12cb0000";
-		i2c6 = "/i2c@12cc0000";
-		i2c7 = "/i2c@12cd0000";
+		i2c0 = "/i2c@12C60000";
+		i2c1 = "/i2c@12C70000";
+		i2c2 = "/i2c@12C80000";
+		i2c3 = "/i2c@12C90000";
+		i2c4 = "/i2c@12CA0000";
+		i2c104 = &i2c_104;
+		i2c5 = "/i2c@12CB0000";
+		i2c6 = "/i2c@12CC0000";
+		i2c7 = "/i2c@12CD0000";
 		spi0 = "/spi@12d20000";
 		spi1 = "/spi@12d30000";
 		spi2 = "/spi@12d40000";
@@ -39,18 +43,175 @@
 		i2s = "/sound@3830000";
 	};
 
-	i2c4: i2c@12ca0000 {
-		cros_ec: cros-ec@1e {
-			reg = <0x1e>;
-			compatible = "google,cros-ec-i2c";
-			i2c-max-frequency = <100000>;
-			u-boot,i2c-offset-len = <0>;
-			ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
+        memory {
+		reg = <0x40000000 0x80000000>;
+	};
+
+	chosen {
+		bootargs = "console=tty1";
+		stdout-path = "serial3:115200n8";
+	};
+
+	iram {
+		reg = <0x02020000 0x60000>;
+	};
+
+	config {
+		samsung,bl1-offset = <0x1400>;
+		samsung,bl2-offset = <0x3400>;
+		u-boot-memory = "/memory";
+		u-boot-offset = <0x3e00000 0x100000>;
+	};
+
+	flash {
+		reg = <0 0x100000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		pre-boot {
+			label = "bl1 pre-boot";
+			reg = <0 0x2000>;
+			read-only;
+			filename = "e5250.nbl1.bin";
+			type = "blob exynos-bl1";
+			required;
 		};
 
-		power-regulator@48 {
-			compatible = "ti,tps65090";
-			reg = <0x48>;
+		spl {
+			label = "bl2 spl";
+			reg = <0x2000 0x4000>;
+			read-only;
+			filename = "bl2.bin";
+			type = "blob exynos-bl2 boot,dtb";
+			payload = "/flash/ro-boot";
+			required;
+		};
+
+		ro-boot {
+			label = "u-boot";
+			reg = <0x6000 0x9a000>;
+			read-only;
+			type = "blob boot,dtb";
+			required;
+		};
+	};
+
+	i2c-arbitrator {
+		compatible = "i2c-arb-gpio-challenge";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c-parent = <&{/i2c@12CA0000}>;
+
+		our-claim-gpio = <&gpf0 3 GPIO_ACTIVE_LOW>;
+		their-claim-gpios = <&gpe0 4 GPIO_ACTIVE_LOW>;
+		slew-delay-us = <10>;
+		wait-retry-us = <3000>;
+		wait-free-us = <50000>;
+
+		/* Use ID 104 as a hint that we're on physical bus 4 */
+		i2c_104: i2c@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			battery: sbs-battery@b {
+				compatible = "sbs,sbs-battery";
+				reg = <0xb>;
+				sbs,poll-retry-count = <1>;
+			};
+
+			cros_ec: embedded-controller {
+				compatible = "google,cros-ec-i2c";
+				reg = <0x1e>;
+				interrupts = <6 IRQ_TYPE_NONE>;
+				interrupt-parent = <&gpx1>;
+				wakeup-source;
+				i2c-max-frequency = <100000>;
+				u-boot,i2c-offset-len = <0>;
+				ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
+			};
+
+			power-regulator {
+				compatible = "ti,tps65090";
+				reg = <0x48>;
+
+				regulators {
+					dcdc1 {
+						ti,enable-ext-control;
+					};
+					dcdc2 {
+						ti,enable-ext-control;
+					};
+					dcdc3 {
+						ti,enable-ext-control;
+					};
+					fet1: fet1 {
+						regulator-name = "vcd_led";
+						ti,overcurrent-wait = <3>;
+					};
+					tps65090_fet2: fet2 {
+						regulator-name = "video_mid";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					fet3 {
+						regulator-name = "wwan_r";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					fet4 {
+						regulator-name = "sdcard";
+						ti,overcurrent-wait = <3>;
+					};
+					fet5 {
+						regulator-name = "camout";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					fet6: fet6 {
+						regulator-name = "lcd_vdd";
+						ti,overcurrent-wait = <3>;
+					};
+					tps65090_fet7: fet7 {
+						regulator-name = "video_mid_1a";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					ldo1 {
+					};
+					ldo2 {
+					};
+				};
+
+				charger {
+					compatible = "ti,tps65090-charger";
+				};
+			};
+		};
+	};
+
+	i2c@12CD0000 {
+		ptn3460: lvds-bridge@20 {
+			compatible = "nxp,ptn3460";
+			reg = <0x20>;
+			sleep-gpios = <&gpy2 5 GPIO_ACTIVE_LOW>;
+			reset-gpios = <&gpx1 5 GPIO_ACTIVE_LOW>;
+			hotplug-gpios = <&gpx0 7 GPIO_ACTIVE_HIGH>;
+			edid-emulation = <5>;
+		};
+
+		soundcodec@22 {
+			reg = <0x22>;
+			compatible = "maxim,max98095-codec";
+		};
+	};
+
+	i2c@12C90000 {
+		clock-frequency = <100000>;
+		tpm@20 {
+			reg = <0x20>;
+			u-boot,i2c-offset-len = <0>;
+			compatible = "infineon,slb9635tt";
 		};
 	};
 
@@ -66,6 +227,7 @@
 		spi-max-frequency = <1000000>;
 		spi-deactivate-delay = <100>;
 
+		/* Snow did support SPI but the released version used I2C */
 		embedded-controller {
 			compatible = "google,cros-ec-i2c";
 			reg = <0x1e>;
@@ -85,28 +247,8 @@
 		status = "disabled";
 	};
 
-	i2c@12cd0000 {
-		soundcodec@22 {
-			reg = <0x22>;
-			compatible = "maxim,max98095-codec";
-		};
-
-		ptn3460-bridge@20 {
-			compatible = "nxp,ptn3460";
-			reg = <0x20>;
-			/*
-			 * TODO(sjg@chromium.org): Use GPIOs here
-			 * powerdown-gpio = <&gpy2 5 0>;
-			 * reset-gpio = <&gpx1 5 0>;
-			 * edid-emulation = <5>;
-			 * pinctrl-names = "default";
-			 * pinctrl-0 = <&ptn3460_gpios>;
-			 */
-		};
-	};
-
-	i2c@12c60000 {
-		pmic@9 {
+	i2c@12C60000 {
+		max77686@09 {
 			reg = <0x9>;
 			compatible = "maxim,max77686";
 		};
@@ -197,6 +339,160 @@
 		samsung,color-depth = <1>;
 	};
 
+};
+
+&i2c_0 {
+	status = "okay";
+	samsung,i2c-sda-delay = <100>;
+	samsung,i2c-max-bus-freq = <378000>;
+
+	max77686: max77686@09 {
+		compatible = "maxim,max77686";
+		interrupt-parent = <&gpx3>;
+		interrupts = <2 IRQ_TYPE_NONE>;
+		wakeup-source;
+		reg = <0x09>;
+		#clock-cells = <1>;
+
+		voltage-regulators {
+			ldo1_reg: LDO1 {
+				regulator-name = "P1.0V_LDO_OUT1";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <1000000>;
+				regulator-always-on;
+			};
+
+			ldo2_reg: LDO2 {
+				regulator-name = "P1.8V_LDO_OUT2";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+
+			ldo3_reg: LDO3 {
+				regulator-name = "P1.8V_LDO_OUT3";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+
+			ldo7_reg: LDO7 {
+				regulator-name = "P1.1V_LDO_OUT7";
+				regulator-min-microvolt = <1100000>;
+				regulator-max-microvolt = <1100000>;
+				regulator-always-on;
+			};
+
+			ldo8_reg: LDO8 {
+				regulator-name = "P1.0V_LDO_OUT8";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <1000000>;
+				regulator-always-on;
+			};
+
+			ldo10_reg: LDO10 {
+				regulator-name = "P1.8V_LDO_OUT10";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+
+			ldo12_reg: LDO12 {
+				regulator-name = "P3.0V_LDO_OUT12";
+				regulator-min-microvolt = <3000000>;
+				regulator-max-microvolt = <3000000>;
+				regulator-always-on;
+			};
+
+			ldo14_reg: LDO14 {
+				regulator-name = "P1.8V_LDO_OUT14";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+
+			ldo15_reg: LDO15 {
+				regulator-name = "P1.0V_LDO_OUT15";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <1000000>;
+				regulator-always-on;
+			};
+
+			ldo16_reg: LDO16 {
+				regulator-name = "P1.8V_LDO_OUT16";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+
+			ldo17_reg: LDO17 {
+				regulator-name = "vdd_mydp";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+			};
+
+			buck1_reg: BUCK1 {
+				regulator-name = "vdd_mif";
+				regulator-min-microvolt = <950000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck2_reg: BUCK2 {
+				regulator-name = "vdd_arm";
+				regulator-min-microvolt = <850000>;
+				regulator-max-microvolt = <1350000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck3_reg: BUCK3 {
+				regulator-name = "vdd_int";
+				regulator-min-microvolt = <900000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck4_reg: BUCK4 {
+				regulator-name = "vdd_g3d";
+				regulator-min-microvolt = <850000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck5_reg: BUCK5 {
+				regulator-name = "P1.8V_BUCK_OUT5";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck6_reg: BUCK6 {
+				regulator-name = "P1.35V_BUCK_OUT6";
+				regulator-min-microvolt = <1350000>;
+				regulator-max-microvolt = <1350000>;
+				regulator-always-on;
+			};
+
+			buck7_reg: BUCK7 {
+				regulator-name = "P2.0V_BUCK_OUT7";
+				regulator-min-microvolt = <2000000>;
+				regulator-max-microvolt = <2000000>;
+				regulator-always-on;
+			};
+
+			buck8_reg: BUCK8 {
+				regulator-name = "P2.85V_BUCK_OUT8";
+				regulator-min-microvolt = <2850000>;
+				regulator-max-microvolt = <2850000>;
+				regulator-always-on;
+			};
+		};
+	};
 };
 
 #include "cros-ec-keyboard.dtsi"

@@ -10,6 +10,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -441,7 +444,6 @@ extern unsigned long get_clock_freq(void);
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
-#define CONFIG_E1000			/* Define e1000 pci Ethernet card */
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 

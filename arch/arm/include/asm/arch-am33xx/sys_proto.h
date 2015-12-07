@@ -11,7 +11,6 @@
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
 #include <linux/mtd/omap_gpmc.h>
-#include <asm/ti-common/sys_proto.h>
 #include <asm/arch/cpu.h>
 
 u32 get_cpu_rev(void);
@@ -43,3 +42,6 @@ void am33xx_spl_board_init(void);
 int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev);
 int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency);
 #endif
+
+void enable_usb_clocks(int index);
+void disable_usb_clocks(int index);

@@ -198,6 +198,15 @@ void clock_set_pll3(unsigned int clk)
 	       CCM_PLL3_CTRL_M(clk / 3000000), &ccm->pll3_cfg);
 }
 
+unsigned int clock_get_pll3(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	uint32_t rval = readl(&ccm->pll3_cfg);
+	int m = ((rval & CCM_PLL3_CTRL_M_MASK) >> CCM_PLL3_CTRL_M_SHIFT);
+	return 3000000 * m;
+}
+
 unsigned int clock_get_pll5p(void)
 {
 	struct sunxi_ccm_reg *const ccm =

@@ -131,7 +131,7 @@ static int atmel_verify_header(unsigned char *ptr, int image_size,
 
 	/* check the seven interrupt vectors of binary */
 	for (pos = 0; pos < 7; pos++) {
-		debug("atmelimage: interrupt vector #%d is 0x%08X\n", pos+1,
+		debug("atmelimage: interrupt vector #%zu is 0x%08X\n", pos+1,
 		      ints[pos]);
 		/*
 		 * all vectors except the 6'th one must contain valid

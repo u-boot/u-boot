@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <linux/mii.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <usb.h>
 
 #include "usb_ether.h"

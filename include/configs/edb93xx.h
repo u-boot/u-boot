@@ -25,6 +25,8 @@
 #error "no board defined"
 #endif
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* Initial environment and monitor configuration options. */
 #define CONFIG_BOOTDELAY		2
 #define CONFIG_CMDLINE_TAG		1
@@ -39,7 +41,7 @@
 
 #define CONFIG_SYS_LDSCRIPT	"board/cirrus/edb93xx/u-boot.lds"
 
-
+#undef CONFIG_SYS_PROMPT
 #ifdef CONFIG_EDB9301
 #define CONFIG_EP9301
 #define CONFIG_MACH_TYPE		MACH_TYPE_EDB9301

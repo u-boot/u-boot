@@ -2067,7 +2067,11 @@ int musb_urb_enqueue(
 
 	/* precompute addressing for external hub/tt ports */
 	if (musb->is_multipoint) {
+#ifndef __UBOOT__
 		struct usb_device	*parent = urb->dev->parent;
+#else
+		struct usb_device	*parent = usb_dev_get_parent(urb->dev);
+#endif
 
 #ifndef __UBOOT__
 		if (parent != hcd->self.root_hub) {

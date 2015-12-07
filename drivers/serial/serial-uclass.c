@@ -32,7 +32,7 @@ static void serial_find_console_or_panic(void)
 	struct udevice *dev;
 	int node;
 
-	if (OF_CONTROL && gd->fdt_blob) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && gd->fdt_blob) {
 		/* Check for a chosen console */
 		node = fdtdec_get_chosen_node(gd->fdt_blob, "stdout-path");
 		if (node < 0)
@@ -55,7 +55,7 @@ static void serial_find_console_or_panic(void)
 			}
 		}
 	}
-	if (!SPL_BUILD || !OF_CONTROL || !gd->fdt_blob) {
+	if (!SPL_BUILD || !CONFIG_IS_ENABLED(OF_CONTROL) || !gd->fdt_blob) {
 		/*
 		* Try to use CONFIG_CONS_INDEX if available (it is numbered
 		* from 1!).
@@ -71,14 +71,16 @@ static void serial_find_console_or_panic(void)
 #endif
 		if (!uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) ||
 		    !uclass_get_device(UCLASS_SERIAL, INDEX, &dev) ||
-		    (!uclass_first_device(UCLASS_SERIAL, &dev) || dev)) {
+		    (!uclass_first_device(UCLASS_SERIAL, &dev) && dev)) {
 			gd->cur_serial_dev = dev;
 			return;
 		}
 #undef INDEX
 	}
 
+#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 	panic_str("No serial driver found");
+#endif
 }
 
 /* Called prior to relocation */
@@ -140,28 +142,40 @@ static int _serial_tstc(struct udevice *dev)
 
 void serial_putc(char ch)
 {
-	_serial_putc(gd->cur_serial_dev, ch);
+	if (gd->cur_serial_dev)
+		_serial_putc(gd->cur_serial_dev, ch);
 }
 
 void serial_puts(const char *str)
 {
-	_serial_puts(gd->cur_serial_dev, str);
+	if (gd->cur_serial_dev)
+		_serial_puts(gd->cur_serial_dev, str);
 }
 
 int serial_getc(void)
 {
+	if (!gd->cur_serial_dev)
+		return 0;
+
 	return _serial_getc(gd->cur_serial_dev);
 }
 
 int serial_tstc(void)
 {
+	if (!gd->cur_serial_dev)
+		return 0;
+
 	return _serial_tstc(gd->cur_serial_dev);
 }
 
 void serial_setbrg(void)
 {
-	struct dm_serial_ops *ops = serial_get_ops(gd->cur_serial_dev);
+	struct dm_serial_ops *ops;
 
+	if (!gd->cur_serial_dev)
+		return;
+
+	ops = serial_get_ops(gd->cur_serial_dev);
 	if (ops->setbrg)
 		ops->setbrg(gd->cur_serial_dev, gd->baudrate);
 }

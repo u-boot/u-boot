@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+#include <errno.h>
 #include <common.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
@@ -230,7 +231,7 @@ void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 				enum fm_port port, int offset)
 	 __attribute__((weak, alias("__def_board_ft_fman_fixup_port")));
 
-static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
+int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 {
 	int off;
 	uint32_t ph;
@@ -239,11 +240,13 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 				CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET;
 
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
+	if (off == -FDT_ERR_NOTFOUND)
+		return -EINVAL;
 
 	if (info->enabled) {
 		fdt_fixup_phy_connection(blob, off, info->enet_if);
 		board_ft_fman_fixup_port(blob, prop, paddr, info->port, off);
-		return ;
+		return 0;
 	}
 
 #ifdef CONFIG_SYS_FMAN_V3
@@ -281,7 +284,7 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	    ((info->port == FM1_10GEC4) && (PORT_IS_ENABLED(FM1_DTSEC4)))
 #endif
 	)
-		return;
+		return 0;
 #endif
 	/* board code might have caused offset to change */
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
@@ -294,6 +297,8 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	ph = fdt_get_phandle(blob, off);
 	do_fixup_by_prop(blob, "fsl,fman-mac", &ph, sizeof(ph),
 		"status", "disabled", strlen("disabled") + 1, 1);
+
+	return 0;
 }
 
 void fdt_fixup_fman_ethernet(void *blob)
@@ -305,10 +310,18 @@ void fdt_fixup_fman_ethernet(void *blob)
 		ft_fixup_port(blob, &fm_info[i], "fsl,fman-memac");
 #else
 	for (i = 0; i < ARRAY_SIZE(fm_info); i++) {
-		if (fm_info[i].type == FM_ETH_1G_E)
-			ft_fixup_port(blob, &fm_info[i], "fsl,fman-1g-mac");
-		else
-			ft_fixup_port(blob, &fm_info[i], "fsl,fman-10g-mac");
+		/* Try the new compatible first.
+		 * If the node is missing, try the old.
+		 */
+		if (fm_info[i].type == FM_ETH_1G_E) {
+			if (ft_fixup_port(blob, &fm_info[i], "fsl,fman-dtsec"))
+				ft_fixup_port(blob, &fm_info[i],
+					      "fsl,fman-1g-mac");
+		} else {
+			if (ft_fixup_port(blob, &fm_info[i], "fsl,fman-tgec"))
+				ft_fixup_port(blob, &fm_info[i],
+					      "fsl,fman-10g-mac");
+		}
 	}
 #endif
 }

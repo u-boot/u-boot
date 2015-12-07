@@ -77,19 +77,6 @@ struct smc91111_priv{
 	if (__p & 2) __v >>= 8; \
 	else __v &= 0xff; \
 	__v; })
-#elif defined(CONFIG_XAENIAX)
-#define SMC_inl(a,r)	(*((volatile dword *)((a)->iobase+(r))))
-#define SMC_inw(a,z)	({ \
-	unsigned int __p = (unsigned int)((a)->iobase + (z)); \
-	unsigned int __v = *(volatile unsigned int *)((__p) & ~3); \
-	if (__p & 3) __v >>= 16; \
-	else __v &= 0xffff; \
-	__v; })
-#define SMC_inb(a,p)	({ \
-	unsigned int ___v = SMC_inw((a),(p) & ~1); \
-	if ((p) & 1) ___v >>= 8; \
-	else ___v &= 0xff; \
-	___v; })
 #else
 #define	SMC_inl(a,r)	(*((volatile dword *)((a)->iobase+(r))))
 #define	SMC_inw(a,r)	(*((volatile word *)((a)->iobase+(r))))
@@ -104,15 +91,6 @@ struct smc91111_priv{
 #ifdef CONFIG_XSENGINE
 #define	SMC_outl(a,d,r)	(*((volatile dword *)((a)->iobase+(r<<1))) = d)
 #define	SMC_outw(a,d,r)	(*((volatile word *)((a)->iobase+(r<<1))) = d)
-#elif defined (CONFIG_XAENIAX)
-#define SMC_outl(a,d,r)	(*((volatile dword *)((a)->iobase+(r))) = d)
-#define SMC_outw(a,d,p)	({ \
-	dword __dwo = SMC_inl((a),(p) & ~3); \
-	dword __dwn = (word)(d); \
-	__dwo &= ((p) & 3) ? 0x0000ffff : 0xffff0000; \
-	__dwo |= ((p) & 3) ? __dwn << 16 : __dwn; \
-	SMC_outl((a), __dwo, (p) & ~3); \
-})
 #else
 #define	SMC_outl(a,d,r)	(*((volatile dword *)((a)->iobase+(r))) = d)
 #define	SMC_outw(a,d,r)	(*((volatile word *)((a)->iobase+(r))) = d)

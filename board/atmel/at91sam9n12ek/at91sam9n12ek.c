@@ -316,7 +316,7 @@ void mem_init(void)
 	ddr2_conf(&ddr2);
 
 	/* enable DDR2 clock */
-	writel(0x4, &pmc->scer);
+	writel(AT91_PMC_DDR, &pmc->scer);
 
 	/* Chip select 1 is for DDR2/SDRAM */
 	csa = readl(&matrix->ebicsa);
@@ -327,6 +327,6 @@ void mem_init(void)
 	writel(csa, &matrix->ebicsa);
 
 	/* DDRAM2 Controller initialize */
-	ddr2_init(ATMEL_BASE_CS1, &ddr2);
+	ddr2_init(ATMEL_BASE_DDRSDRC, ATMEL_BASE_CS1, &ddr2);
 }
 #endif

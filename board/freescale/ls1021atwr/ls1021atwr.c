@@ -12,6 +12,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
+#include <asm/arch/ls102xa_devdis.h>
 #include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -21,7 +22,9 @@
 #include <fsl_mdio.h>
 #include <tsec.h>
 #include <fsl_sec.h>
+#include <fsl_devdis.h>
 #include <spl.h>
+#include "../common/sleep.h"
 #ifdef CONFIG_U_QE
 #include "../../../drivers/qe/qe.h"
 #endif
@@ -65,6 +68,92 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PIN_CAN3_USB2_MUX_CAN3	0x1
 #define PIN_QE_LCD_MUX_LCD	0x0
 #define PIN_QE_LCD_MUX_QE	0x1
+
+#ifdef CONFIG_LS102XA_NS_ACCESS
+static struct csu_ns_dev ns_dev[] = {
+	{ CSU_CSLX_PCIE2_IO, CSU_ALL_RW },
+	{ CSU_CSLX_PCIE1_IO, CSU_ALL_RW },
+	{ CSU_CSLX_MG2TPR_IP, CSU_ALL_RW },
+	{ CSU_CSLX_IFC_MEM, CSU_ALL_RW },
+	{ CSU_CSLX_OCRAM, CSU_ALL_RW },
+	{ CSU_CSLX_GIC, CSU_ALL_RW },
+	{ CSU_CSLX_PCIE1, CSU_ALL_RW },
+	{ CSU_CSLX_OCRAM2, CSU_ALL_RW },
+	{ CSU_CSLX_QSPI_MEM, CSU_ALL_RW },
+	{ CSU_CSLX_PCIE2, CSU_ALL_RW },
+	{ CSU_CSLX_SATA, CSU_ALL_RW },
+	{ CSU_CSLX_USB3, CSU_ALL_RW },
+	{ CSU_CSLX_SERDES, CSU_ALL_RW },
+	{ CSU_CSLX_QDMA, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART2, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART1, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART4, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART3, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART6, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART5, CSU_ALL_RW },
+	{ CSU_CSLX_DSPI2, CSU_ALL_RW },
+	{ CSU_CSLX_DSPI1, CSU_ALL_RW },
+	{ CSU_CSLX_QSPI, CSU_ALL_RW },
+	{ CSU_CSLX_ESDHC, CSU_ALL_RW },
+	{ CSU_CSLX_2D_ACE, CSU_ALL_RW },
+	{ CSU_CSLX_IFC, CSU_ALL_RW },
+	{ CSU_CSLX_I2C1, CSU_ALL_RW },
+	{ CSU_CSLX_USB2, CSU_ALL_RW },
+	{ CSU_CSLX_I2C3, CSU_ALL_RW },
+	{ CSU_CSLX_I2C2, CSU_ALL_RW },
+	{ CSU_CSLX_DUART2, CSU_ALL_RW },
+	{ CSU_CSLX_DUART1, CSU_ALL_RW },
+	{ CSU_CSLX_WDT2, CSU_ALL_RW },
+	{ CSU_CSLX_WDT1, CSU_ALL_RW },
+	{ CSU_CSLX_EDMA, CSU_ALL_RW },
+	{ CSU_CSLX_SYS_CNT, CSU_ALL_RW },
+	{ CSU_CSLX_DMA_MUX2, CSU_ALL_RW },
+	{ CSU_CSLX_DMA_MUX1, CSU_ALL_RW },
+	{ CSU_CSLX_DDR, CSU_ALL_RW },
+	{ CSU_CSLX_QUICC, CSU_ALL_RW },
+	{ CSU_CSLX_DCFG_CCU_RCPM, CSU_ALL_RW },
+	{ CSU_CSLX_SECURE_BOOTROM, CSU_ALL_RW },
+	{ CSU_CSLX_SFP, CSU_ALL_RW },
+	{ CSU_CSLX_TMU, CSU_ALL_RW },
+	{ CSU_CSLX_SECURE_MONITOR, CSU_ALL_RW },
+	{ CSU_CSLX_RESERVED0, CSU_ALL_RW },
+	{ CSU_CSLX_ETSEC1, CSU_ALL_RW },
+	{ CSU_CSLX_SEC5_5, CSU_ALL_RW },
+	{ CSU_CSLX_ETSEC3, CSU_ALL_RW },
+	{ CSU_CSLX_ETSEC2, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO2, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO1, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO4, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO3, CSU_ALL_RW },
+	{ CSU_CSLX_PLATFORM_CONT, CSU_ALL_RW },
+	{ CSU_CSLX_CSU, CSU_ALL_RW },
+	{ CSU_CSLX_ASRC, CSU_ALL_RW },
+	{ CSU_CSLX_SPDIF, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN2, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN1, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN4, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN3, CSU_ALL_RW },
+	{ CSU_CSLX_SAI2, CSU_ALL_RW },
+	{ CSU_CSLX_SAI1, CSU_ALL_RW },
+	{ CSU_CSLX_SAI4, CSU_ALL_RW },
+	{ CSU_CSLX_SAI3, CSU_ALL_RW },
+	{ CSU_CSLX_FTM2, CSU_ALL_RW },
+	{ CSU_CSLX_FTM1, CSU_ALL_RW },
+	{ CSU_CSLX_FTM4, CSU_ALL_RW },
+	{ CSU_CSLX_FTM3, CSU_ALL_RW },
+	{ CSU_CSLX_FTM6, CSU_ALL_RW },
+	{ CSU_CSLX_FTM5, CSU_ALL_RW },
+	{ CSU_CSLX_FTM8, CSU_ALL_RW },
+	{ CSU_CSLX_FTM7, CSU_ALL_RW },
+	{ CSU_CSLX_COP_DCSR, CSU_ALL_RW },
+	{ CSU_CSLX_EPU, CSU_ALL_RW },
+	{ CSU_CSLX_GDI, CSU_ALL_RW },
+	{ CSU_CSLX_DDI, CSU_ALL_RW },
+	{ CSU_CSLX_RESERVED1, CSU_ALL_RW },
+	{ CSU_CSLX_USB3_PHY, CSU_ALL_RW },
+	{ CSU_CSLX_RESERVED2, CSU_ALL_RW },
+};
+#endif
 
 struct cpld_data {
 	u8 cpld_ver;		/* cpld revision */
@@ -148,6 +237,7 @@ unsigned int get_soc_major_rev(void)
 void ddrmc_init(void)
 {
 	struct ccsr_ddr *ddr = (struct ccsr_ddr *)CONFIG_SYS_FSL_DDR_ADDR;
+	u32 temp_sdram_cfg;
 
 	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG);
 
@@ -161,7 +251,22 @@ void ddrmc_init(void)
 	out_be32(&ddr->timing_cfg_4, DDR_TIMING_CFG_4);
 	out_be32(&ddr->timing_cfg_5, DDR_TIMING_CFG_5);
 
-	out_be32(&ddr->sdram_cfg_2,  DDR_SDRAM_CFG_2);
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		out_be32(&ddr->sdram_cfg_2,
+			 DDR_SDRAM_CFG_2 & ~SDRAM_CFG2_D_INIT);
+		out_be32(&ddr->init_addr, CONFIG_SYS_SDRAM_BASE);
+		out_be32(&ddr->init_ext_addr, (1 << 31));
+
+		/* DRAM VRef will not be trained */
+		out_be32(&ddr->ddr_cdr2,
+			 DDR_DDR_CDR2 & ~DDR_CDR2_VREF_TRAIN_EN);
+	} else
+#endif
+	{
+		out_be32(&ddr->sdram_cfg_2, DDR_SDRAM_CFG_2);
+		out_be32(&ddr->ddr_cdr2, DDR_DDR_CDR2);
+	}
 
 	out_be32(&ddr->sdram_mode, DDR_SDRAM_MODE);
 	out_be32(&ddr->sdram_mode_2, DDR_SDRAM_MODE_2);
@@ -174,14 +279,35 @@ void ddrmc_init(void)
 	out_be32(&ddr->ddr_wrlvl_cntl_3, DDR_DDR_WRLVL_CNTL_3);
 
 	out_be32(&ddr->ddr_cdr1, DDR_DDR_CDR1);
-	out_be32(&ddr->ddr_cdr2, DDR_DDR_CDR2);
 
 	out_be32(&ddr->sdram_clk_cntl, DDR_SDRAM_CLK_CNTL);
 	out_be32(&ddr->ddr_zq_cntl, DDR_DDR_ZQ_CNTL);
 
 	out_be32(&ddr->cs0_config_2, DDR_CS0_CONFIG_2);
 	udelay(1);
-	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG | DDR_SDRAM_CFG_MEM_EN);
+
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		/* enter self-refresh */
+		temp_sdram_cfg = in_be32(&ddr->sdram_cfg_2);
+		temp_sdram_cfg |= SDRAM_CFG2_FRC_SR;
+		out_be32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+
+		temp_sdram_cfg = (DDR_SDRAM_CFG_MEM_EN | SDRAM_CFG_BI);
+	} else
+#endif
+		temp_sdram_cfg = (DDR_SDRAM_CFG_MEM_EN & ~SDRAM_CFG_BI);
+
+	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG | temp_sdram_cfg);
+
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		/* exit self-refresh */
+		temp_sdram_cfg = in_be32(&ddr->sdram_cfg_2);
+		temp_sdram_cfg &= ~SDRAM_CFG2_FRC_SR;
+		out_be32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+	}
+#endif
 }
 
 int dram_init(void)
@@ -191,6 +317,11 @@ int dram_init(void)
 #endif
 
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+
+#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_SPL_BUILD)
+	fsl_dp_resume();
+#endif
+
 	return 0;
 }
 
@@ -352,7 +483,8 @@ int board_early_init_f(void)
 	unsigned int major;
 
 #ifdef CONFIG_TSEC_ENET
-	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
+	/* clear BD & FR bits for BE BD's and frame data */
+	clrbits_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
 	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
 #endif
 
@@ -367,6 +499,9 @@ int board_early_init_f(void)
 #ifdef CONFIG_FSL_QSPI
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
+
+	/* Configure Little endian for SAI, ASRC and SPDIF */
+	out_be32(&scfg->endiancr, SCFG_ENDIANCR_LE);
 
 	/*
 	 * Enable snoop requests and DVM message requests for
@@ -385,6 +520,11 @@ int board_early_init_f(void)
 		out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
 	}
 
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
+
 	return 0;
 }
 
@@ -396,99 +536,25 @@ void board_init_f(ulong dummy)
 
 	get_clocks();
 
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
+
 	preloader_console_init();
 
 	dram_init();
+
+	/* Allow OCRAM access permission as R/W */
+#ifdef CONFIG_LS102XA_NS_ACCESS
+	enable_devices_ns_access(&ns_dev[4], 1);
+	enable_devices_ns_access(&ns_dev[7], 1);
+#endif
 
 	board_init_r(NULL, 0);
 }
 #endif
 
-#ifdef CONFIG_LS102XA_NS_ACCESS
-static struct csu_ns_dev ns_dev[] = {
-	{ CSU_CSLX_PCIE2_IO, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE1_IO, CSU_ALL_RW },
-	{ CSU_CSLX_MG2TPR_IP, CSU_ALL_RW },
-	{ CSU_CSLX_IFC_MEM, CSU_ALL_RW },
-	{ CSU_CSLX_OCRAM, CSU_ALL_RW },
-	{ CSU_CSLX_GIC, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE1, CSU_ALL_RW },
-	{ CSU_CSLX_OCRAM2, CSU_ALL_RW },
-	{ CSU_CSLX_QSPI_MEM, CSU_ALL_RW },
-	{ CSU_CSLX_PCIE2, CSU_ALL_RW },
-	{ CSU_CSLX_SATA, CSU_ALL_RW },
-	{ CSU_CSLX_USB3, CSU_ALL_RW },
-	{ CSU_CSLX_SERDES, CSU_ALL_RW },
-	{ CSU_CSLX_QDMA, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART2, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART1, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART4, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART3, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART6, CSU_ALL_RW },
-	{ CSU_CSLX_LPUART5, CSU_ALL_RW },
-	{ CSU_CSLX_DSPI2, CSU_ALL_RW },
-	{ CSU_CSLX_DSPI1, CSU_ALL_RW },
-	{ CSU_CSLX_QSPI, CSU_ALL_RW },
-	{ CSU_CSLX_ESDHC, CSU_ALL_RW },
-	{ CSU_CSLX_2D_ACE, CSU_ALL_RW },
-	{ CSU_CSLX_IFC, CSU_ALL_RW },
-	{ CSU_CSLX_I2C1, CSU_ALL_RW },
-	{ CSU_CSLX_USB2, CSU_ALL_RW },
-	{ CSU_CSLX_I2C3, CSU_ALL_RW },
-	{ CSU_CSLX_I2C2, CSU_ALL_RW },
-	{ CSU_CSLX_DUART2, CSU_ALL_RW },
-	{ CSU_CSLX_DUART1, CSU_ALL_RW },
-	{ CSU_CSLX_WDT2, CSU_ALL_RW },
-	{ CSU_CSLX_WDT1, CSU_ALL_RW },
-	{ CSU_CSLX_EDMA, CSU_ALL_RW },
-	{ CSU_CSLX_SYS_CNT, CSU_ALL_RW },
-	{ CSU_CSLX_DMA_MUX2, CSU_ALL_RW },
-	{ CSU_CSLX_DMA_MUX1, CSU_ALL_RW },
-	{ CSU_CSLX_DDR, CSU_ALL_RW },
-	{ CSU_CSLX_QUICC, CSU_ALL_RW },
-	{ CSU_CSLX_DCFG_CCU_RCPM, CSU_ALL_RW },
-	{ CSU_CSLX_SECURE_BOOTROM, CSU_ALL_RW },
-	{ CSU_CSLX_SFP, CSU_ALL_RW },
-	{ CSU_CSLX_TMU, CSU_ALL_RW },
-	{ CSU_CSLX_SECURE_MONITOR, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED0, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC1, CSU_ALL_RW },
-	{ CSU_CSLX_SEC5_5, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC3, CSU_ALL_RW },
-	{ CSU_CSLX_ETSEC2, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO2, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO1, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO4, CSU_ALL_RW },
-	{ CSU_CSLX_GPIO3, CSU_ALL_RW },
-	{ CSU_CSLX_PLATFORM_CONT, CSU_ALL_RW },
-	{ CSU_CSLX_CSU, CSU_ALL_RW },
-	{ CSU_CSLX_ASRC, CSU_ALL_RW },
-	{ CSU_CSLX_SPDIF, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN2, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN1, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN4, CSU_ALL_RW },
-	{ CSU_CSLX_FLEXCAN3, CSU_ALL_RW },
-	{ CSU_CSLX_SAI2, CSU_ALL_RW },
-	{ CSU_CSLX_SAI1, CSU_ALL_RW },
-	{ CSU_CSLX_SAI4, CSU_ALL_RW },
-	{ CSU_CSLX_SAI3, CSU_ALL_RW },
-	{ CSU_CSLX_FTM2, CSU_ALL_RW },
-	{ CSU_CSLX_FTM1, CSU_ALL_RW },
-	{ CSU_CSLX_FTM4, CSU_ALL_RW },
-	{ CSU_CSLX_FTM3, CSU_ALL_RW },
-	{ CSU_CSLX_FTM6, CSU_ALL_RW },
-	{ CSU_CSLX_FTM5, CSU_ALL_RW },
-	{ CSU_CSLX_FTM8, CSU_ALL_RW },
-	{ CSU_CSLX_FTM7, CSU_ALL_RW },
-	{ CSU_CSLX_COP_DCSR, CSU_ALL_RW },
-	{ CSU_CSLX_EPU, CSU_ALL_RW },
-	{ CSU_CSLX_GDI, CSU_ALL_RW },
-	{ CSU_CSLX_DDI, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED1, CSU_ALL_RW },
-	{ CSU_CSLX_USB3_PHY, CSU_ALL_RW },
-	{ CSU_CSLX_RESERVED2, CSU_ALL_RW },
-};
-#endif
 
 struct liodn_id_table sec_liodn_tbl[] = {
 	SET_SEC_JR_LIODN_ENTRY(0, 0x10, 0x10),
@@ -526,6 +592,37 @@ struct smmu_stream_id dev_stream_id[] = {
 	{ 0x18c, 0x0e, "DEBUG" },
 };
 
+#ifdef CONFIG_DEEP_SLEEP
+/* program the regulator (MC34VR500) to support deep sleep */
+void ls1twr_program_regulator(void)
+{
+	unsigned int i2c_bus;
+	u8 i2c_device_id;
+
+#define LS1TWR_I2C_BUS_MC34VR500	1
+#define MC34VR500_ADDR			0x8
+#define MC34VR500_DEVICEID		0x4
+#define MC34VR500_DEVICEID_MASK		0x0f
+
+	i2c_bus = i2c_get_bus_num();
+	i2c_set_bus_num(LS1TWR_I2C_BUS_MC34VR500);
+	i2c_device_id = i2c_reg_read(MC34VR500_ADDR, 0x0) &
+					MC34VR500_DEVICEID_MASK;
+	if (i2c_device_id != MC34VR500_DEVICEID) {
+		printf("The regulator (MC34VR500) does not exist. The device does not support deep sleep.\n");
+		return;
+	}
+
+	i2c_reg_write(MC34VR500_ADDR, 0x31, 0x4);
+	i2c_reg_write(MC34VR500_ADDR, 0x4d, 0x4);
+	i2c_reg_write(MC34VR500_ADDR, 0x6d, 0x38);
+	i2c_reg_write(MC34VR500_ADDR, 0x6f, 0x37);
+	i2c_reg_write(MC34VR500_ADDR, 0x71, 0x30);
+
+	i2c_set_bus_num(i2c_bus);
+}
+#endif
+
 int board_init(void)
 {
 #ifndef CONFIG_SYS_FSL_NO_SERDES
@@ -548,18 +645,33 @@ int board_init(void)
 	u_qe_init();
 #endif
 
+#ifdef CONFIG_DEEP_SLEEP
+	ls1twr_program_regulator();
+#endif
 	return 0;
 }
 
 #if defined(CONFIG_MISC_INIT_R)
 int misc_init_r(void)
 {
+#ifdef CONFIG_FSL_DEVICE_DISABLE
+	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
+#endif
 #ifndef CONFIG_QSPI_BOOT
 	config_board_mux();
 #endif
 
 #ifdef CONFIG_FSL_CAAM
 	return sec_init();
+#endif
+}
+#endif
+
+#if defined(CONFIG_DEEP_SLEEP)
+void board_sleep_prepare(void)
+{
+#ifdef CONFIG_LS102XA_NS_ACCESS
+	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
 #endif
 }
 #endif

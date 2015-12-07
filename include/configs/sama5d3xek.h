@@ -19,6 +19,9 @@
  */
 #include "at91-sama5_common.h"
 
+#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 /* serial console */
 #define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
@@ -153,33 +156,11 @@
 #define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
 
 #ifdef CONFIG_SYS_USE_SERIALFLASH
-/* bootstrap + u-boot + env + linux in serial flash */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET       0x5000
-#define CONFIG_ENV_SIZE         0x3000
-#define CONFIG_ENV_SECT_SIZE    0x1000
-#define CONFIG_BOOTCOMMAND      "sf probe 0; " \
-				"sf read 0x22000000 0x42000 0x300000; " \
-				"bootm 0x22000000"
+/* override the bootcmd, bootargs and other configuration for spi flash env*/
 #elif CONFIG_SYS_USE_NANDFLASH
-/* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0xc0000
-#define CONFIG_ENV_OFFSET_REDUND	0x100000
-#define CONFIG_ENV_SIZE			0x20000
-#define CONFIG_BOOTCOMMAND	"nand read 0x21000000 0x180000 0x80000;" \
-				"nand read 0x22000000 0x200000 0x600000;" \
-				"bootm 0x22000000 - 0x21000000"
+/* override the bootcmd, bootargs and other configuration nandflash env */
 #elif CONFIG_SYS_USE_MMC
-/* bootstrap + u-boot + env in sd card */
-#define CONFIG_ENV_IS_IN_FAT
-#define FAT_ENV_INTERFACE	"mmc"
-#define FAT_ENV_FILE		"uboot.env"
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define CONFIG_ENV_SIZE		0x4000
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 dtb; " \
-				"fatload mmc 0:1 0x22000000 uImage; " \
-				"bootm 0x22000000 - 0x21000000"
+/* override the bootcmd, bootargs and other configuration for sd/mmc env */
 #else
 #define CONFIG_ENV_IS_NOWHERE
 #endif
@@ -228,7 +209,7 @@
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
 
 #endif
 

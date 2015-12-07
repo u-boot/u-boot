@@ -23,24 +23,19 @@
 
 #include <asm/arch/cpu.h>
 
-enum gpio_method {
-	METHOD_GPIO_24XX	= 4,
-};
-
 #ifdef CONFIG_DM_GPIO
 
 /* Information about a GPIO bank */
 struct omap_gpio_platdata {
 	int bank_index;
 	ulong base;	/* address of registers in physical memory */
-	enum gpio_method method;
+	const char *port_name;
 };
 
 #else
 
 struct gpio_bank {
 	void *base;
-	int method;
 };
 
 extern const struct gpio_bank *const omap_gpio_bank;

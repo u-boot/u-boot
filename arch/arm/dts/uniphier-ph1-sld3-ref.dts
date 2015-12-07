@@ -1,9 +1,7 @@
 /*
  * Device Tree Source for UniPhier PH1-sLD3 Reference Board
  *
- * Copyright (C) 2014-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
@@ -18,30 +16,36 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x80000000 0x40000000>;
+		reg = <0x80000000 0x20000000
+		       0xc0000000 0x20000000>;
 	};
 
 	chosen {
-		bootargs = "console=ttyPS0,115200 earlyprintk";
-		stdout-path = &uart0;
+		bootargs = "console=ttyS0,115200";
+		stdout-path = &serial0;
 	};
 
 	aliases {
-		serial0 = &uart0;
-		serial1 = &uart1;
-		serial2 = &uart2;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
+		i2c4 = &i2c4;
 	};
 };
 
-&uart0 {
+&serial0 {
 	status = "okay";
 };
 
-&uart1 {
+&serial1 {
+	status = "okay";
+};
+
+&serial2 {
 	status = "okay";
 };
 
@@ -55,4 +59,17 @@
 
 &usb1 {
 	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};
+
+&usb3 {
+	status = "okay";
+};
+
+/* for U-boot only */
+&serial0 {
+       u-boot,dm-pre-reloc;
 };

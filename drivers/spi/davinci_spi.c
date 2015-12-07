@@ -15,8 +15,6 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
-#define BIT(x)			(1 << (x))
-
 /* SPIGCR0 */
 #define SPIGCR0_SPIENA_MASK	0x1
 #define SPIGCR0_SPIRST_MASK	0x0

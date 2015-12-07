@@ -8,8 +8,11 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <errno.h>
 #include <dm/lists.h>
 #include <dm/root.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 int cpu_get_desc(struct udevice *dev, char *buf, int size)
 {
@@ -25,10 +28,20 @@ int cpu_get_info(struct udevice *dev, struct cpu_info *info)
 {
 	struct cpu_ops *ops = cpu_get_ops(dev);
 
-	if (!ops->get_desc)
+	if (!ops->get_info)
 		return -ENOSYS;
 
 	return ops->get_info(dev, info);
+}
+
+int cpu_get_count(struct udevice *dev)
+{
+	struct cpu_ops *ops = cpu_get_ops(dev);
+
+	if (!ops->get_count)
+		return -ENOSYS;
+
+	return ops->get_count(dev);
 }
 
 U_BOOT_DRIVER(cpu_bus) = {

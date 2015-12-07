@@ -65,10 +65,14 @@ enum {
 /*
  * Default Device Address MAP BAR values
  */
-#define DEFADR_PCI_MEM		0x90000000
-#define DEFADR_PCI_IO		0xC0000000
-#define DEFADR_SPIF		0xF4000000
-#define DEFADR_BOOTROM		0xF8000000
+#define MBUS_PCI_MEM_BASE	0xE8000000
+#define MBUS_PCI_MEM_SIZE	(128 << 20)
+#define MBUS_PCI_IO_BASE	0xF1100000
+#define MBUS_PCI_IO_SIZE	(64 << 10)
+#define MBUS_SPI_BASE		0xF4000000
+#define MBUS_SPI_SIZE		(8 << 20)
+#define MBUS_BOOTROM_BASE	0xF8000000
+#define MBUS_BOOTROM_SIZE	(8 << 20)
 
 struct mbus_win {
 	u32 base;
@@ -113,6 +117,7 @@ unsigned int mvebu_sdram_bs(enum memory_bank bank);
 void mvebu_sdram_size_adjust(enum memory_bank bank);
 int mvebu_mbus_probe(struct mbus_win windows[], int count);
 int mvebu_soc_family(void);
+u32 mvebu_get_nand_clock(void);
 
 int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks);
 
@@ -125,7 +130,7 @@ int serdes_phy_config(void);
 /*
  * DDR3 init / training code ported from Marvell bin_hdr. Now
  * available in mainline U-Boot in:
- * drivers/ddr/mvebu/
+ * drivers/ddr/marvell
  */
 int ddr3_init(void);
 #endif /* __ASSEMBLY__ */

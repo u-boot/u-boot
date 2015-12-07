@@ -253,5 +253,6 @@ struct misc_regs {
 #define SOC_SPEAR320		203
 
 extern int get_socrev(void);
+int fsmc_nand_switch_ecc(uint32_t eccstrength);
 
 #endif

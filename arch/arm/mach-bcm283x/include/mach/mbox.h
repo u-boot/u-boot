@@ -150,6 +150,7 @@ struct bcm2835_mbox_tag_hdr {
 #define BCM2835_BOARD_REV_A_PLUS	0x12
 #define BCM2835_BOARD_REV_B_PLUS_13	0x13
 #define BCM2835_BOARD_REV_CM_14		0x14
+#define BCM2835_BOARD_REV_A_PLUS_15	0x15
 #endif
 
 struct bcm2835_mbox_tag_get_board_rev {
@@ -521,6 +522,9 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv);
  * to ensure some degree of type safety. However, some number of tags and
  * a termination value are expected to immediately follow the header in
  * memory, as required by the property protocol.
+ *
+ * Each struct bcm2835_mbox_hdr passed must be allocated with
+ * ALLOC_CACHE_ALIGN_BUFFER(x, y, z) to ensure proper cache flush/invalidate.
  *
  * Returns 0 for success, any other value for error.
  */

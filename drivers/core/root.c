@@ -122,7 +122,7 @@ int dm_init(void)
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	DM_ROOT_NON_CONST->of_offset = 0;
 #endif
 	ret = device_probe(DM_ROOT_NON_CONST);
@@ -153,7 +153,7 @@ int dm_scan_platdata(bool pre_reloc_only)
 	return ret;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 		     bool pre_reloc_only)
 {
@@ -170,8 +170,11 @@ int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 			continue;
 		}
 		err = lists_bind_fdt(parent, blob, offset, NULL);
-		if (err && !ret)
+		if (err && !ret) {
 			ret = err;
+			debug("%s: ret=%d\n", fdt_get_name(blob, offset, NULL),
+			      ret);
+		}
 	}
 
 	if (ret)
@@ -206,7 +209,7 @@ int dm_init_and_scan(bool pre_reloc_only)
 		return ret;
 	}
 
-	if (OF_CONTROL) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
 		ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
 		if (ret) {
 			debug("dm_scan_fdt() failed: %d\n", ret);

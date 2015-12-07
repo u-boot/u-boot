@@ -178,8 +178,6 @@ considered during boot */
 
 #endif
 
-#define CONFIG_SYS_PROMPT		"COBRA > "	/* Layout of u-boot prompt*/
-
 #define CONFIG_SYS_LOAD_ADDR		0x20000		/*Defines default RAM address
 from which user programs will be started */
 

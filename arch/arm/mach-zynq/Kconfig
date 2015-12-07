@@ -10,7 +10,7 @@ config ZYNQ_CUSTOM_INIT
 
 choice
 	prompt "Xilinx Zynq board select"
-	optional
+	default TARGET_ZYNQ_ZC702
 
 config TARGET_ZYNQ_ZED
 	bool "Zynq ZedBoard"

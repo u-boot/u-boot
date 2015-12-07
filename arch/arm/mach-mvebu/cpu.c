@@ -18,19 +18,13 @@
 #define DDR_SIZE_CS_OFF(n)	(0x0004 + ((n) << 3))
 
 static struct mbus_win windows[] = {
-	/* PCIE MEM address space */
-	{ DEFADR_PCI_MEM, 256 << 20, CPU_TARGET_PCIE13, CPU_ATTR_PCIE_MEM },
-
-	/* PCIE IO address space */
-	{ DEFADR_PCI_IO, 64 << 10, CPU_TARGET_PCIE13, CPU_ATTR_PCIE_IO },
-
 	/* SPI */
-	{ DEFADR_SPIF, 8 << 20, CPU_TARGET_DEVICEBUS_BOOTROM_SPI,
-	  CPU_ATTR_SPIFLASH },
+	{ MBUS_SPI_BASE, MBUS_SPI_SIZE,
+	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPIFLASH },
 
 	/* NOR */
-	{ DEFADR_BOOTROM, 8 << 20, CPU_TARGET_DEVICEBUS_BOOTROM_SPI,
-	  CPU_ATTR_BOOTROM },
+	{ MBUS_BOOTROM_BASE, MBUS_BOOTROM_SIZE,
+	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_BOOTROM },
 };
 
 void reset_cpu(unsigned long ignored)
@@ -163,18 +157,96 @@ static void update_sdram_window_sizes(void)
 	}
 }
 
+void mmu_disable(void)
+{
+	asm volatile(
+		"mrc p15, 0, r0, c1, c0, 0\n"
+		"bic r0, #1\n"
+		"mcr p15, 0, r0, c1, c0, 0\n");
+}
+
 #ifdef CONFIG_ARCH_CPU_INIT
 static void set_cbar(u32 addr)
 {
 	asm("mcr p15, 4, %0, c15, c0" : : "r" (addr));
 }
 
+#define MV_USB_PHY_BASE			(MVEBU_AXP_USB_BASE + 0x800)
+#define MV_USB_PHY_PLL_REG(reg)		(MV_USB_PHY_BASE | (((reg) & 0xF) << 2))
+#define MV_USB_X3_BASE(addr)		(MVEBU_AXP_USB_BASE | BIT(11) | \
+					 (((addr) & 0xF) << 6))
+#define MV_USB_X3_PHY_CHANNEL(dev, reg)	(MV_USB_X3_BASE((dev) + 1) |	\
+					 (((reg) & 0xF) << 2))
+
+static void setup_usb_phys(void)
+{
+	int dev;
+
+	/*
+	 * USB PLL init
+	 */
+
+	/* Setup PLL frequency */
+	/* USB REF frequency = 25 MHz */
+	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0x3ff, 0x605);
+
+	/* Power up PLL and PHY channel */
+	clrsetbits_le32(MV_USB_PHY_PLL_REG(2), 0, BIT(9));
+
+	/* Assert VCOCAL_START */
+	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0, BIT(21));
+
+	mdelay(1);
+
+	/*
+	 * USB PHY init (change from defaults) specific for 40nm (78X30 78X60)
+	 */
+
+	for (dev = 0; dev < 3; dev++) {
+		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 3), 0, BIT(15));
+
+		/* Assert REG_RCAL_START in channel REG 1 */
+		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), 0, BIT(12));
+		udelay(40);
+		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12), 0);
+	}
+}
 
 int arch_cpu_init(void)
 {
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_ARMADA_38X)
+	/*
+	 * Only with disabled MMU its possible to switch the base
+	 * register address on Armada 38x. Without this the SDRAM
+	 * located at >= 0x4000.0000 is also not accessible, as its
+	 * still locked to cache.
+	 */
+	mmu_disable();
+#endif
+
 	/* Linux expects the internal registers to be at 0xf1000000 */
 	writel(SOC_REGS_PHY_BASE, INTREG_BASE_ADDR_REG);
 	set_cbar(SOC_REGS_PHY_BASE + 0xC000);
+
+#if !defined(CONFIG_SPL_BUILD)
+	/*
+	 * From this stage on, the SoC detection is working. As we have
+	 * configured the internal register base to the value used
+	 * in the macros / defines in the U-Boot header (soc.h).
+	 */
+	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
+		struct pl310_regs *const pl310 =
+			(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+
+		/*
+		 * To fully release / unlock this area from cache, we need
+		 * to flush all caches and disable the L2 cache.
+		 */
+		icache_disable();
+		dcache_disable();
+		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+	}
+#endif
 
 	/*
 	 * We need to call mvebu_mbus_probe() before calling
@@ -209,9 +281,32 @@ int arch_cpu_init(void)
 	 */
 	mvebu_mbus_probe(windows, ARRAY_SIZE(windows));
 
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		/* Enable GBE0, GBE1, LCD and NFC PUP */
+		clrsetbits_le32(ARMADA_XP_PUP_ENABLE, 0,
+				GE0_PUP_EN | GE1_PUP_EN | LCD_PUP_EN |
+				NAND_PUP_EN | SPI_PUP_EN);
+
+		/* Configure USB PLL and PHYs on AXP */
+		setup_usb_phys();
+	}
+
+	/* Enable NAND and NAND arbiter */
+	clrsetbits_le32(MVEBU_SOC_DEV_MUX_REG, 0, NAND_EN | NAND_ARBITER_EN);
+
+	/* Disable MBUS error propagation */
+	clrsetbits_le32(SOC_COHERENCY_FABRIC_CTRL_REG, MBUS_ERR_PROP_EN, 0);
+
 	return 0;
 }
 #endif /* CONFIG_ARCH_CPU_INIT */
+
+u32 mvebu_get_nand_clock(void)
+{
+	return CONFIG_SYS_MVEBU_PLL_CLOCK /
+		((readl(MVEBU_CORE_DIV_CLK_CTRL(1)) &
+		  NAND_ECC_DIVCKL_RATIO_MASK) >> NAND_ECC_DIVCKL_RATIO_OFFS);
+}
 
 /*
  * SOC specific misc init

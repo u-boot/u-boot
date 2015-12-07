@@ -105,7 +105,6 @@
 	"save\0"				\
 	""
 
-#define CONFIG_SYS_PROMPT		"-> "
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #if defined(CONFIG_CMD_KGDB)

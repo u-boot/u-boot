@@ -17,6 +17,13 @@ config SYS_HUSH_PARSER
 	help
 	  Backward compatibility.
 
+config SYS_PROMPT
+	string "Shell prompt"
+	default "=> "
+	help
+	  This string is displayed in the command line to the left of the
+	  cursor.
+
 menu "Autoboot options"
 
 config AUTOBOOT_KEYED
@@ -620,6 +627,28 @@ config CMD_REGULATOR
 	  The '-f' (force) option can be used for set the value which exceeds
 	  the limits, which are found in device-tree and are kept in regulator's
 	  uclass platdata structure.
+
+endmenu
+
+menu "Security commands"
+config CMD_TPM
+	bool "Enable the 'tpm' command"
+	depends on TPM
+	help
+	  This provides a means to talk to a TPM from the command line. A wide
+	  range of commands if provided - see 'tpm help' for details. The
+	  command requires a suitable TPM on your board and the correct driver
+	  must be enabled.
+
+config CMD_TPM_TEST
+	bool "Enable the 'tpm test' command"
+	depends on CMD_TPM
+	help
+	  This provides a a series of tests to confirm that the TPM is working
+	  correctly. The tests cover initialisation, non-volatile RAM, extend,
+	  global lock and checking that timing is within expectations. The
+	  tests pass correctly on Infineon TPMs but may need to be adjusted
+	  for other devices.
 
 endmenu
 

@@ -17,6 +17,7 @@
 #include <common.h>
 #include <command.h>
 #include <ide.h>
+#include <memalign.h>
 #include "part_dos.h"
 
 #ifdef HAVE_BLOCK_DEVICE

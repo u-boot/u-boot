@@ -251,7 +251,7 @@ void exynos_fimd_window_off(unsigned int win_id)
 	writel(cfg, &fimd_ctrl->winshmap);
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 /*
 * The reset value for FIMD SYSMMU register MMU_CTRL is 3
 * on Exynos5420 and newer versions.
@@ -295,7 +295,7 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 {
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	unsigned int node;
 
 	node = fdtdec_next_compatible(gd->fdt_blob,

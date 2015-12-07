@@ -12,6 +12,87 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+lcd4_lwmon5      powerpc     ppc4xx         b6b5e394    2015-10-02  Stefan Roese <sr@denx.de>
+da830evm         arm         arm926ejs      d7e8b2b9    2015-09-12  Nick Thompson <nick.thompson@gefanuc.com>
+wireless_space   arm         arm926ejs      b352182a    2015-09-12  Albert ARIBAUD <albert.u.boot@aribaud.net>
+stxgp3           powerpc     mpc85xx        2ec69b88    2015-09-02  Dan Malek <dan@embeddedalley.com>
+stxssa           powerpc     mpc85xx        2ec69b88    2015-09-02  Dan Malek <dan@embeddedalley.com>
+cmi_mpc5xx       powerpc     mpc5xx         972f5320    2015-09-02
+zeus             powerpc     ppc4xx         eb5d1dc7    2015-09-02  Stefan Roese <sr@denx.de>
+sbc405           powerpc     ppc4xx         0e030593    2015-09-02
+pcs440ep         powerpc     ppc4xx         242836a8    2015-09-02  Stefan Roese <sr@denx.de>
+p3p440           powerpc     ppc4xx         c6999e5f    2015-09-02  Stefan Roese <sr@denx.de>
+csb272/csb472    powerpc     ppc4xx         54a3f260    2015-09-02  Tolunay Orkun <torkun@nextio.com>
+alpr             powerpc     ppc4xx         0d2fc811    2015-09-02  Stefan Roese <sr@denx.de>
+balloon3         arm         pxa            679d4456    2015-08-30  Marek Vasut <marex@denx.de>
+cpu9260_128M     arm         arm926ejs      af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+cpu9260          arm         arm926ejs      af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+cpu9260_nand_128M arm        arm926ejs      af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+cpu9260_nand     arm         arm926ejs      af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+cpu9G20_128M     arm         arm926ejs      af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+cpu9G20          arm         arm926ejs      af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+cpuat91          arm         arm920t        af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+cpuat91_ram      arm         arm920t        af7f884b    2015-08-30  Eric Benard <eric@eukrea.com>
+davinci_dm355evm arm         arm926ejs      6761946f    2015-08-30
+davinci_dm355leopard arm     arm926ejs      6761946f    2015-08-30
+davinci_dm365evm arm         arm926ejs      6761946f    2015-08-30
+davinci_dm6467evm arm        arm926ejs      6761946f    2015-08-30
+davinci_dm6467Tevm arm       arm926ejs      6761946f    2015-08-30
+davinci_dvevm    arm         arm926ejs      6761946f    2015-08-30
+davinci_schmoogie arm        arm926ejs      6761946f    2015-08-30
+davinci_sffsdr   arm         arm926ejs      6761946f    2015-08-30
+davinci_sonata   arm         arm926ejs      6761946f    2015-08-30
+dig297           arm         armv7          5ff33d04    2015-08-30  Luca Ceresoli <luca.ceresoli@comelit.it>
+ea20             arm         arm926ejs      6761946f    2015-08-30
+eb_cpux9k2       arm         arm920t        5522f12b    2015-08-30  Jens Scharsig <esw@bus-elektronik.de>
+eb_cpux9k2_ram   arm         arm920t        5522f12b    2015-08-30  Jens Scharsig <esw@bus-elektronik.de>
+enbw_cmc         arm         arm926ejs      a6f7f787    2015-08-30  Heiko Schocher <hs@denx.de>
+ima3-mx53        arm         armv7          3eb8f58d    2015-08-30
+imx27lite        arm         arm926ejs      bc0840bc    2015-08-30  Wolfgang Denk <wd@denx.de>
+imx31_litekit    arm         arm1136        36d14178    2015-08-30
+jornada          arm         sa1100         df0b116d    2015-08-30  Kristoffer Ericson <kristoffer.ericson@gmail.com>
+lp8x4x           arm         pxa            9f840b8d    2015-08-30  Sergey Yanovich <ynvich@gmail.com>
+magnesium        arm         arm926ejs      bc0840bc    2015-08-30  Heiko Schocher <hs@denx.de>
+mv88f6281gtw_ge  arm         arm926ejs      7cd768cf    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
+mx51_efikamx     arm         armv7          b6073fd2    2015-08-30
+mx51_efikasb     arm         armv7          b6073fd2    2015-08-30
+nhk8815          arm         arm926ejs      0abdd9d0    2015-08-30  Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
+nhk8815_onenand  arm         arm926ejs      0abdd9d0    2015-08-30  Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
+omap3_mvblx      arm         armv7          8dc372f9    2015-08-30  Michael Jones <michael.jones@matrix-vision.de>
+omap3_sdp3430    arm         armv7          93b25c08    2015-08-30  Nishanth Menon <nm@ti.com>
+openrd_base      arm         arm926ejs      7a2c1b13    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
+openrd_client    arm         arm926ejs      7a2c1b13    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
+openrd_ultimate  arm         arm926ejs      7a2c1b13    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
+otc570           arm         arm926ejs      819216dd    2015-08-30  Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
+otc570_dataflash arm         arm926ejs      819216dd    2015-08-30  Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
+palmld           arm         pxa            35782e9c    2015-08-30  Marek Vasut <marex@denx.de>
+palmtc           arm         pxa            8896325d    2015-08-30  Marek Vasut <marex@denx.de>
+palmtreo680      arm         pxa            ad4f54ea    2015-08-30  Mike Dunn <mikedunn@newsguy.com>
+polaris          arm         pxa            f6eac00a    2015-08-30  Stefano Babic <sbabic@denx.de>
+portuxg20        arm         arm926ejs      79d19734    2015-08-30  Markus Hubig <mhubig@imko.de>
+pxa255_idp       arm         pxa            49d8899b    2015-08-30  Marek Vasut <marex@denx.de>
+qong             arm         arm1136        daf77086    2015-08-30  Wolfgang Denk <wd@denx.de>
+rd6281a          arm         arm926ejs      47b87d2e    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
+scb9328          arm         arm920t        7650beb7    2015-08-30  Torsten Koschorrek <koschorrek@synertronixx.de>
+snowball         arm         armv7          7495e41b    2015-08-30  Mathieu Poirier <mathieu.poirier@linaro.org>
+stamp9g20        arm         arm926ejs      79d19734    2015-08-30  Markus Hubig <mhubig@imko.de>
+tk71             arm         arm926ejs      f73db66d    2015-08-30
+trizepsiv        arm         pxa            f6eac00a    2015-08-30  Stefano Babic <sbabic@denx.de>
+tt01             arm         arm1136        0c81f37d    2015-08-30  Helmut Raiger <helmut.raiger@hale.at>
+tx25             arm         arm926ejs      b9599dd8    2015-08-30  John Rigby <jcrigby@gmail.com>
+u8500_href       arm         armv7          7495e41b    2015-08-30
+versatileab      arm         arm926ejs      b928e658    2015-08-30
+versatilepb      arm         arm926ejs      b928e658    2015-08-30
+versatileqemu    arm         arm926ejs      b928e658    2015-08-30
+vision2          arm         armv7          bee2b99d    2015-08-30  Stefano Babic <sbabic@denx.de>
+vl_ma2sc         arm         arm926ejs      6e830dfc    2015-08-30  Jens Scharsig <esw@bus-elektronik.de>
+vl_ma2sc_ram     arm         arm926ejs      6e830dfc    2015-08-30  Jens Scharsig <esw@bus-elektronik.de>
+vpac270_nor_128  arm         pxa            452ef830    2015-08-30  Marek Vasut <marex@denx.de>
+vpac270_nor_256  arm         pxa            452ef830    2015-08-30  Marek Vasut <marex@denx.de>
+vpac270_ond_256  arm         pxa            452ef830    2015-08-30  Marek Vasut <marex@denx.de>
+xaeniax          arm         pxa            1c87dd76    2015-08-30
+zipitz2          arm         pxa            49d8899b    2015-08-30  Cliff Brake <cliff.brake@gmail.com>
+cam_enc_4xx      arm         arm926ejs      8d775763    2015-08-20  Heiko Schocher <hs@denx.de>
 atstk1003        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 atstk1004        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 atstk1006        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>

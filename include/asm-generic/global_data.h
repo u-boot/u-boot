@@ -93,6 +93,7 @@ typedef struct global_data {
 #endif
 #ifdef CONFIG_PCI
 	struct pci_controller *hose;	/* PCI hose for early use */
+	phys_addr_t pci_ram_top;	/* top of region accessible to PCI */
 #endif
 #ifdef CONFIG_PCI_BOOTDELAY
 	int pcidelay_done;
@@ -103,7 +104,7 @@ typedef struct global_data {
 #endif
 
 /*
- * Global Data Flags
+ * Global Data Flags - the top 16 bits are reserved for arch-specific flags
  */
 #define GD_FLG_RELOC		0x00001	/* Code was relocated to RAM	   */
 #define GD_FLG_DEVINIT		0x00002	/* Devices have been initialized   */
@@ -115,5 +116,7 @@ typedef struct global_data {
 #define GD_FLG_ENV_READY	0x00080	/* Env. imported into hash table   */
 #define GD_FLG_SERIAL_READY	0x00100	/* Pre-reloc serial console ready  */
 #define GD_FLG_FULL_MALLOC_INIT	0x00200	/* Full malloc() is ready	   */
+#define GD_FLG_SPL_INIT		0x00400	/* spl_init() has been called	   */
+#define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

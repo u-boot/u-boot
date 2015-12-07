@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += early_init.o
+obj-$(CONFIG_X86) += early_init.o

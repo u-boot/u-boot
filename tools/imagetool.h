@@ -59,6 +59,8 @@ struct image_tool_params {
 	const char *keydest;	/* Destination .dtb for public key */
 	const char *comment;	/* Comment to add to signature node */
 	int require_keys;	/* 1 to mark signing keys as 'required' */
+	int file_size;		/* Total size of output file */
+	int orig_file_size;	/* Original size for file before padding */
 };
 
 /*

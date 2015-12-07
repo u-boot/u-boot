@@ -327,8 +327,7 @@ static int gpio_exynos_bind(struct udevice *parent)
 	if (plat)
 		return 0;
 
-	base = (struct s5p_gpio_bank *)fdtdec_get_addr(gd->fdt_blob,
-						   parent->of_offset, "reg");
+	base = (struct s5p_gpio_bank *)dev_get_addr(parent);
 	for (node = fdt_first_subnode(blob, parent->of_offset), bank = base;
 	     node > 0;
 	     node = fdt_next_subnode(blob, node), bank++) {
@@ -342,18 +341,22 @@ static int gpio_exynos_bind(struct udevice *parent)
 		plat = calloc(1, sizeof(*plat));
 		if (!plat)
 			return -ENOMEM;
-		reg = fdtdec_get_addr(blob, node, "reg");
-		if (reg != FDT_ADDR_T_NONE)
-			bank = (struct s5p_gpio_bank *)((ulong)base + reg);
-		plat->bank = bank;
-		plat->bank_name = fdt_get_name(blob, node, NULL);
-		debug("dev at %p: %s\n", bank, plat->bank_name);
 
+		plat->bank_name = fdt_get_name(blob, node, NULL);
 		ret = device_bind(parent, parent->driver,
-					plat->bank_name, plat, -1, &dev);
+				  plat->bank_name, plat, -1, &dev);
 		if (ret)
 			return ret;
+
 		dev->of_offset = node;
+
+		reg = dev_get_addr(dev);
+		if (reg != FDT_ADDR_T_NONE)
+			bank = (struct s5p_gpio_bank *)((ulong)base + reg);
+
+		plat->bank = bank;
+
+		debug("dev at %p: %s\n", bank, plat->bank_name);
 	}
 
 	return 0;

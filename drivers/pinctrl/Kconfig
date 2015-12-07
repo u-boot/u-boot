@@ -1,0 +1,129 @@
+#
+# PINCTRL infrastructure and drivers
+#
+
+menu "Pin controllers"
+
+config PINCTRL
+	bool "Support pin controllers"
+	depends on DM
+	help
+	  This enables the basic support for pinctrl framework.  You may want
+	  to enable some more options depending on what you want to do.
+
+config PINCTRL_FULL
+	bool "Support full pin controllers"
+	depends on PINCTRL && OF_CONTROL
+	default y
+	help
+	  This provides Linux-compatible device tree interface for the pinctrl
+	  subsystem.  This feature depends on device tree configuration because
+	  it parses a device tree to look for the pinctrl device which the
+	  peripheral device is associated with.
+
+	  If this option is disabled (it is the only possible choice for non-DT
+	  boards), the pinctrl core provides no systematic mechanism for
+	  identifying peripheral devices, applying needed pinctrl settings.
+	  It is totally up to the implementation of each low-level driver.
+	  You can save memory footprint in return for some limitations.
+
+config PINCTRL_GENERIC
+	bool "Support generic pin controllers"
+	depends on PINCTRL_FULL
+	default y
+	help
+	  Say Y here if you want to use the pinctrl subsystem through the
+	  generic DT interface.  If enabled, some functions become available
+	  to parse common properties such as "pins", "groups", "functions" and
+	  some pin configuration parameters.  It would be easier if you only
+	  need the generic DT interface for pin muxing and pin configuration.
+	  If you need to handle vendor-specific DT properties, you can disable
+	  this option and implement your own set_state callback in the pinctrl
+	  operations.
+
+config PINMUX
+	bool "Support pin multiplexing controllers"
+	depends on PINCTRL_GENERIC
+	default y
+	help
+	  This option enables pin multiplexing through the generic pinctrl
+	  framework. Most SoCs have their own own multiplexing arrangement
+	  where a single pin can be used for several functions. An SoC pinctrl
+	  driver allows the required function to be selected for each pin.
+	  The driver is typically controlled by the device tree.
+
+config PINCONF
+	bool "Support pin configuration controllers"
+	depends on PINCTRL_GENERIC
+	help
+	  This option enables pin configuration through the generic pinctrl
+	  framework.
+
+config SPL_PINCTRL
+	bool "Support pin controlloers in SPL"
+	depends on SPL && SPL_DM
+	help
+	  This option is an SPL-variant of the PINCTRL option.
+	  See the help of PINCTRL for details.
+
+config SPL_PINCTRL_FULL
+	bool "Support full pin controllers in SPL"
+	depends on SPL_PINCTRL && SPL_OF_CONTROL
+	default y
+	help
+	  This option is an SPL-variant of the PINCTRL_FULL option.
+	  See the help of PINCTRL_FULL for details.
+
+config SPL_PINCTRL_GENERIC
+	bool "Support generic pin controllers in SPL"
+	depends on SPL_PINCTRL_FULL
+	default y
+	help
+	  This option is an SPL-variant of the PINCTRL_GENERIC option.
+	  See the help of PINCTRL_GENERIC for details.
+
+config SPL_PINMUX
+	bool "Support pin multiplexing controllers in SPL"
+	depends on SPL_PINCTRL_GENERIC
+	default y
+	help
+	  This option is an SPL-variant of the PINMUX option.
+	  See the help of PINMUX for details.
+	  The pinctrl subsystem can add a substantial overhead to the SPL
+	  image since it typically requires quite a few tables either in the
+	  driver or in the device tree. If this is acceptable and you need
+	  to adjust pin multiplexing in SPL in order to boot into U-Boot,
+	  enable this option. You will need to enable device tree in SPL
+	  for this to work.
+
+config SPL_PINCONF
+	bool "Support pin configuration controllers in SPL"
+	depends on SPL_PINCTRL_GENERIC
+	help
+	  This option is an SPL-variant of the PINCONF option.
+	  See the help of PINCONF for details.
+
+if PINCTRL || SPL_PINCTRL
+
+config ROCKCHIP_PINCTRL
+	bool "Rockchip pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip SoCs. The driver is
+	  controlled by a device tree node which contains both the GPIO
+	  definitions and pin control functions for each available multiplex
+	  function.
+
+config PINCTRL_SANDBOX
+	bool "Sandbox pinctrl driver"
+	depends on SANDBOX
+	help
+	  This enables pinctrl driver for sandbox.  Currently, this driver
+	  actually does nothing but print debug messages when pinctrl
+	  operations are invoked.
+
+endif
+
+source "drivers/pinctrl/uniphier/Kconfig"
+
+endmenu

@@ -170,4 +170,7 @@ struct pmecc_errloc_regs {
 
 #define PMECC_MAX_TIMEOUT_US		(100 * 1000)
 
+/* Reserved bytes in oob area */
+#define PMECC_OOB_RESERVED_BYTES		2
+
 #endif

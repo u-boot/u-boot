@@ -10,6 +10,7 @@
 
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
+/include/ "rtc.dtsi"
 
 / {
 	model = "Intel Crown Bay";
@@ -21,6 +22,26 @@
 
 	config {
 		silent_console = <0>;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <1>;
+			intel,apic-id = <1>;
+		};
+
 	};
 
 	gpioa {
@@ -69,20 +90,25 @@
 	pci {
 		#address-cells = <3>;
 		#size-cells = <2>;
-		compatible = "intel,pci";
-		device_type = "pci";
+		compatible = "pci-x86";
+		u-boot,dm-pre-reloc;
+		ranges = <0x02000000 0x0 0x40000000 0x40000000 0 0x80000000
+			  0x42000000 0x0 0xc0000000 0xc0000000 0 0x20000000
+			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
 
 		pcie@17,0 {
 			#address-cells = <3>;
 			#size-cells = <2>;
-			compatible = "intel,pci";
-			device_type = "pci";
+			compatible = "pci-bridge";
+			u-boot,dm-pre-reloc;
+			reg = <0x0000b800 0x0 0x0 0x0 0x0>;
 
 			topcliff@0,0 {
 				#address-cells = <3>;
 				#size-cells = <2>;
-				compatible = "intel,pci";
-				device_type = "pci";
+				compatible = "pci-bridge";
+				u-boot,dm-pre-reloc;
+				reg = <0x00010000 0x0 0x0 0x0 0x0>;
 
 				pciuart0: uart@a,1 {
 					compatible = "pci8086,8811.00",
@@ -90,6 +116,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025100 0x0 0x0 0x0 0x0
 					       0x01025110 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
@@ -103,6 +130,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025200 0x0 0x0 0x0 0x0
 					       0x01025210 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
@@ -116,6 +144,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025300 0x0 0x0 0x0 0x0
 					       0x01025310 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
@@ -129,6 +158,7 @@
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
+					u-boot,dm-pre-reloc;
 					reg = <0x00025400 0x0 0x0 0x0 0x0
 					       0x01025410 0x0 0x0 0x0 0x0>;
 					reg-shift = <0>;
@@ -143,15 +173,27 @@
 			compatible = "intel,irq-router";
 			intel,pirq-config = "pci";
 			intel,pirq-link = <0x60 8>;
-			intel,pirq-mask = <0xdee0>;
+			intel,pirq-mask = <0xcee0>;
 			intel,pirq-routing = <
 				/* TunnelCreek PCI devices */
 				PCI_BDF(0, 2, 0) INTA PIRQE
 				PCI_BDF(0, 3, 0) INTA PIRQF
-				PCI_BDF(0, 23, 0) INTA PIRQE
-				PCI_BDF(0, 24, 0) INTA PIRQF
-				PCI_BDF(0, 25, 0) INTA PIRQG
-				PCI_BDF(0, 26, 0) INTA PIRQH
+				PCI_BDF(0, 23, 0) INTA PIRQA
+				PCI_BDF(0, 23, 0) INTB PIRQB
+				PCI_BDF(0, 23, 0) INTC PIRQC
+				PCI_BDF(0, 23, 0) INTD PIRQD
+				PCI_BDF(0, 24, 0) INTA PIRQB
+				PCI_BDF(0, 24, 0) INTB PIRQC
+				PCI_BDF(0, 24, 0) INTC PIRQD
+				PCI_BDF(0, 24, 0) INTD PIRQA
+				PCI_BDF(0, 25, 0) INTA PIRQC
+				PCI_BDF(0, 25, 0) INTB PIRQD
+				PCI_BDF(0, 25, 0) INTC PIRQA
+				PCI_BDF(0, 25, 0) INTD PIRQB
+				PCI_BDF(0, 26, 0) INTA PIRQD
+				PCI_BDF(0, 26, 0) INTB PIRQA
+				PCI_BDF(0, 26, 0) INTC PIRQB
+				PCI_BDF(0, 26, 0) INTD PIRQC
 				PCI_BDF(0, 27, 0) INTA PIRQG
 				/*
 				 * Topcliff PCI devices
@@ -159,29 +201,29 @@
 				 * Note on the Crown Bay board, Topcliff chipset
 				 * is connected to TunnelCreek PCIe port 0, so
 				 * its bus number is 1 for its PCIe port and 2
-				 * for its PCI devices per U-Boot currnet PCI
+				 * for its PCI devices per U-Boot current PCI
 				 * bus enumeration algorithm.
 				 */
 				PCI_BDF(1, 0, 0) INTA PIRQA
 				PCI_BDF(2, 0, 1) INTA PIRQA
 				PCI_BDF(2, 0, 2) INTA PIRQA
-				PCI_BDF(2, 2, 0) INTB PIRQB
-				PCI_BDF(2, 2, 1) INTB PIRQB
-				PCI_BDF(2, 2, 2) INTB PIRQB
-				PCI_BDF(2, 2, 3) INTB PIRQB
-				PCI_BDF(2, 2, 4) INTB PIRQB
+				PCI_BDF(2, 2, 0) INTB PIRQD
+				PCI_BDF(2, 2, 1) INTB PIRQD
+				PCI_BDF(2, 2, 2) INTB PIRQD
+				PCI_BDF(2, 2, 3) INTB PIRQD
+				PCI_BDF(2, 2, 4) INTB PIRQD
 				PCI_BDF(2, 4, 0) INTC PIRQC
 				PCI_BDF(2, 4, 1) INTC PIRQC
-				PCI_BDF(2, 6, 0) INTD PIRQD
+				PCI_BDF(2, 6, 0) INTD PIRQB
 				PCI_BDF(2, 8, 0) INTA PIRQA
 				PCI_BDF(2, 8, 1) INTA PIRQA
 				PCI_BDF(2, 8, 2) INTA PIRQA
 				PCI_BDF(2, 8, 3) INTA PIRQA
-				PCI_BDF(2, 10, 0) INTB PIRQB
-				PCI_BDF(2, 10, 1) INTB PIRQB
-				PCI_BDF(2, 10, 2) INTB PIRQB
-				PCI_BDF(2, 10, 3) INTB PIRQB
-				PCI_BDF(2, 10, 4) INTB PIRQB
+				PCI_BDF(2, 10, 0) INTB PIRQD
+				PCI_BDF(2, 10, 1) INTB PIRQD
+				PCI_BDF(2, 10, 2) INTB PIRQD
+				PCI_BDF(2, 10, 3) INTB PIRQD
+				PCI_BDF(2, 10, 4) INTB PIRQD
 				PCI_BDF(2, 12, 0) INTC PIRQC
 				PCI_BDF(2, 12, 1) INTC PIRQC
 				PCI_BDF(2, 12, 2) INTC PIRQC

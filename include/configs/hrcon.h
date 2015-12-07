@@ -484,7 +484,6 @@ int fpga_gpio_get(unsigned int bus, int pin);
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 #undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */

@@ -7,8 +7,8 @@
 #define _FSL_DPNI_H
 
 /* DPNI Version */
-#define DPNI_VER_MAJOR				4
-#define DPNI_VER_MINOR				0
+#define DPNI_VER_MAJOR				5
+#define DPNI_VER_MINOR				1
 
 /* Command IDs */
 #define DPNI_CMDID_OPEN				0x801
@@ -78,7 +78,7 @@ do { \
 	MC_RSP_OP(cmd, 0, 32, 8,  uint8_t,  attr->max_tcs); \
 	MC_RSP_OP(cmd, 0, 40, 8,  uint8_t,  attr->max_senders); \
 	MC_RSP_OP(cmd, 0, 48, 8,  enum net_prot, attr->start_hdr); \
-	MC_RSP_OP(cmd, 1, 0,  64, uint64_t, attr->options); \
+	MC_RSP_OP(cmd, 1, 0,  32, uint32_t, attr->options); \
 	MC_RSP_OP(cmd, 2, 0,  8,  uint8_t,  attr->max_unicast_filters); \
 	MC_RSP_OP(cmd, 2, 8,  8,  uint8_t,  attr->max_multicast_filters);\
 	MC_RSP_OP(cmd, 2, 16, 8,  uint8_t,  attr->max_vlan_filters); \
@@ -98,7 +98,9 @@ do { \
 	MC_RSP_OP(cmd, 4, 16,	16, uint16_t, \
 				    attr->ipr_cfg.min_frag_size_ipv4); \
 	MC_RSP_OP(cmd, 4, 32,	16, uint16_t, \
-				    attr->ipr_cfg.min_frag_size_ipv6); \
+				    attr->ipr_cfg.min_frag_size_ipv6);\
+	MC_RSP_OP(cmd, 4, 48,	8,  uint8_t, attr->max_policers); \
+	MC_RSP_OP(cmd, 4, 56,	8,  uint8_t, attr->max_congestion_ctrl); \
 	MC_RSP_OP(cmd, 5, 0,	16, uint16_t, \
 				  attr->ipr_cfg.max_open_frames_ipv4); \
 	MC_RSP_OP(cmd, 5, 16,	16, uint16_t, \
@@ -208,7 +210,7 @@ do { \
 /*                cmd, param, offset, width, type, arg_name */
 #define DPNI_CMD_SET_LINK_CFG(cmd, cfg) \
 do { \
-	MC_CMD_OP(cmd, 1, 0,  64, uint64_t, cfg->rate);\
+	MC_CMD_OP(cmd, 1, 0,  32, uint32_t, cfg->rate);\
 	MC_CMD_OP(cmd, 2, 0,  64, uint64_t, cfg->options);\
 } while (0)
 
@@ -216,7 +218,7 @@ do { \
 #define DPNI_RSP_GET_LINK_STATE(cmd, state) \
 do { \
 	MC_RSP_OP(cmd, 0, 32,  1, int,      state->up);\
-	MC_RSP_OP(cmd, 1, 0,  64, uint64_t, state->rate);\
+	MC_RSP_OP(cmd, 1, 0,  32, uint32_t, state->rate);\
 	MC_RSP_OP(cmd, 2, 0,  64, uint64_t, state->options);\
 } while (0)
 
@@ -322,10 +324,18 @@ do { \
 	MC_CMD_OP(cmd, 0, 0,  32, int,      cfg->dest_cfg.dest_id); \
 	MC_CMD_OP(cmd, 0, 32, 8,  uint8_t,  cfg->dest_cfg.priority);\
 	MC_CMD_OP(cmd, 0, 40, 2,  enum dpni_dest, cfg->dest_cfg.dest_type);\
+	MC_CMD_OP(cmd, 0, 42, 1,  int,      cfg->order_preservation_en);\
 	MC_CMD_OP(cmd, 0, 48, 16, uint16_t, flow_id); \
 	MC_CMD_OP(cmd, 1, 0,  64, uint64_t, cfg->user_ctx); \
 	MC_CMD_OP(cmd, 2, 16, 8,  uint8_t,  tc_id); \
 	MC_CMD_OP(cmd, 2, 32,  32, uint32_t, cfg->options); \
+	MC_CMD_OP(cmd, 3, 0,  4,  enum dpni_flc_type, cfg->flc_cfg.flc_type); \
+	MC_CMD_OP(cmd, 3, 4,  4,  enum dpni_stash_size, \
+		cfg->flc_cfg.frame_data_size);\
+	MC_CMD_OP(cmd, 3, 8,  4,  enum dpni_stash_size, \
+		cfg->flc_cfg.flow_context_size);\
+	MC_CMD_OP(cmd, 3, 32, 32, uint32_t, cfg->flc_cfg.options);\
+	MC_CMD_OP(cmd, 4, 0,  64, uint64_t, cfg->flc_cfg.flow_context);\
 } while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
@@ -341,8 +351,16 @@ do { \
 	MC_RSP_OP(cmd, 0, 0,  32, int,      attr->dest_cfg.dest_id); \
 	MC_RSP_OP(cmd, 0, 32, 8,  uint8_t,  attr->dest_cfg.priority);\
 	MC_RSP_OP(cmd, 0, 40, 2,  enum dpni_dest, attr->dest_cfg.dest_type); \
+	MC_CMD_OP(cmd, 0, 42, 1,  int,      attr->order_preservation_en);\
 	MC_RSP_OP(cmd, 1, 0,  64, uint64_t, attr->user_ctx); \
 	MC_RSP_OP(cmd, 2, 32, 32, uint32_t, attr->fqid); \
+	MC_RSP_OP(cmd, 3, 0,  4,  enum dpni_flc_type, attr->flc_cfg.flc_type); \
+	MC_RSP_OP(cmd, 3, 4,  4,  enum dpni_stash_size, \
+		attr->flc_cfg.frame_data_size);\
+	MC_RSP_OP(cmd, 3, 8,  4,  enum dpni_stash_size, \
+		attr->flc_cfg.flow_context_size);\
+	MC_RSP_OP(cmd, 3, 32, 32, uint32_t, attr->flc_cfg.options);\
+	MC_RSP_OP(cmd, 4, 0,  64, uint64_t, attr->flc_cfg.flow_context);\
 } while (0)
 
 enum net_prot {
@@ -399,7 +417,8 @@ enum net_prot {
 	NET_PROT_DUMMY_LAST
 };
 
-/* Data Path Network Interface API
+/**
+ * Data Path Network Interface API
  * Contains initialization APIs and runtime control APIs for DPNI
  */
 
@@ -422,6 +441,7 @@ struct fsl_mc_io;
 /**
  * dpni_open() - Open a control session for the specified object
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @dpni_id:	DPNI unique ID
  * @token:	Returned token; use in subsequent API calls
  *
@@ -435,11 +455,15 @@ struct fsl_mc_io;
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_open(struct fsl_mc_io *mc_io, int dpni_id, uint16_t *token);
+int dpni_open(struct fsl_mc_io	*mc_io,
+	      uint32_t		cmd_flags,
+	      int		dpni_id,
+	      uint16_t		*token);
 
 /**
  * dpni_close() - Close the control session of the object
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  *
  * After this function is called, no further operations are
@@ -447,7 +471,9 @@ int dpni_open(struct fsl_mc_io *mc_io, int dpni_id, uint16_t *token);
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_close(struct fsl_mc_io *mc_io, uint16_t token);
+int dpni_close(struct fsl_mc_io	*mc_io,
+	       uint32_t		cmd_flags,
+	       uint16_t		token);
 
 /**
  * struct dpni_ipr_cfg - Structure representing IP reassembly configuration
@@ -477,16 +503,19 @@ struct dpni_pools_cfg {
 	 * struct pools - Buffer pools parameters
 	 * @dpbp_id: DPBP object ID
 	 * @buffer_size: Buffer size
+	 * @backup_pool: Backup pool
 	 */
 	struct {
-		int dpbp_id;
-		uint16_t buffer_size;
+		int		dpbp_id;
+		uint16_t	buffer_size;
+		int		backup_pool;
 	} pools[DPNI_MAX_DPBP];
 };
 
 /**
  * dpni_set_pools() - Set buffer pools configuration
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @cfg:	Buffer pools configuration
  *
@@ -496,36 +525,46 @@ struct dpni_pools_cfg {
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_set_pools(struct fsl_mc_io		*mc_io,
+		   uint32_t			cmd_flags,
 		   uint16_t			token,
 		   const struct dpni_pools_cfg	*cfg);
 
 /**
  * dpni_enable() - Enable the DPNI, allow sending and receiving frames.
- * @mc_io:		Pointer to MC portal's I/O object
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:		Token of DPNI object
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_enable(struct fsl_mc_io *mc_io, uint16_t token);
+int dpni_enable(struct fsl_mc_io	*mc_io,
+		uint32_t		cmd_flags,
+		uint16_t		token);
 
 /**
  * dpni_disable() - Disable the DPNI, stop sending and receiving frames.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_disable(struct fsl_mc_io *mc_io, uint16_t token);
+int dpni_disable(struct fsl_mc_io	*mc_io,
+		 uint32_t		cmd_flags,
+		 uint16_t		token);
 
 
 /**
- * @dpni_reset() - Reset the DPNI, returns the object to initial state.
+ * dpni_reset() - Reset the DPNI, returns the object to initial state.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_reset(struct fsl_mc_io *mc_io, uint16_t token);
+int dpni_reset(struct fsl_mc_io	*mc_io,
+	       uint32_t		cmd_flags,
+	       uint16_t		token);
 
 /**
  * struct dpni_attr - Structure representing DPNI attributes
@@ -545,6 +584,8 @@ int dpni_reset(struct fsl_mc_io *mc_io, uint16_t token);
  * @max_qos_entries: if 'max_tcs > 1', declares the maximum entries in QoS table
  * @max_qos_key_size: Maximum key size for the QoS look-up
  * @max_dist_key_size: Maximum key size for the distribution look-up
+ * @max_policers: Maximum number of policers;
+ * @max_congestion_ctrl: Maximum number of congestion control groups (CGs);
  * @ipr_cfg: IP reassembly configuration
  */
 struct dpni_attr {
@@ -559,7 +600,7 @@ struct dpni_attr {
 		uint16_t minor;
 	} version;
 	enum net_prot start_hdr;
-	uint64_t options;
+	uint32_t options;
 	uint8_t max_senders;
 	uint8_t max_tcs;
 	uint8_t max_dist_per_tc[DPNI_MAX_TC];
@@ -569,17 +610,22 @@ struct dpni_attr {
 	uint8_t max_qos_entries;
 	uint8_t max_qos_key_size;
 	uint8_t max_dist_key_size;
+	uint8_t max_policers;
+	uint8_t max_congestion_ctrl;
 	struct dpni_ipr_cfg ipr_cfg;
 };
+
 /**
  * dpni_get_attributes() - Retrieve DPNI attributes.
- * @mc_io:	Pointer to MC portal's I/O objec
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @attr:	Returned object's attributes
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_attributes(struct fsl_mc_io	*mc_io,
+			uint32_t		cmd_flags,
 			uint16_t		token,
 			struct dpni_attr	*attr);
 
@@ -626,17 +672,21 @@ struct dpni_buffer_layout {
 /**
  * dpni_get_rx_buffer_layout() - Retrieve Rx buffer layout attributes.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @layout:	Returns buffer layout attributes
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_rx_buffer_layout(struct fsl_mc_io		*mc_io,
+			      uint32_t			cmd_flags,
 			      uint16_t			token,
 			      struct dpni_buffer_layout	*layout);
+
 /**
  * dpni_set_rx_buffer_layout() - Set Rx buffer layout configuration.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @layout:	Buffer layout configuration
  *
@@ -645,51 +695,60 @@ int dpni_get_rx_buffer_layout(struct fsl_mc_io		*mc_io,
  * @warning	Allowed only when DPNI is disabled
  */
 int dpni_set_rx_buffer_layout(struct fsl_mc_io			*mc_io,
+			      uint32_t				cmd_flags,
 			      uint16_t				token,
 			      const struct dpni_buffer_layout	*layout);
 
 /**
  * dpni_get_tx_buffer_layout() - Retrieve Tx buffer layout attributes.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @layout:	Returns buffer layout attributes
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_tx_buffer_layout(struct fsl_mc_io		*mc_io,
+			      uint32_t			cmd_flags,
 			      uint16_t			token,
 			      struct dpni_buffer_layout	*layout);
 
 /**
- * @brief	Set Tx buffer layout configuration.
+ * dpni_set_tx_buffer_layout() - Set Tx buffer layout configuration.
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @token:	Token of DPNI object
+ * @layout:	Buffer layout configuration
  *
- * @param[in]	mc_io	Pointer to MC portal's I/O object
- * @param[in]   token	Token of DPNI object
- * @param[in]	layout	Buffer layout configuration
- *
- * @returns	'0' on Success; Error code otherwise.
+ * Return:	'0' on Success; Error code otherwise.
  *
  * @warning	Allowed only when DPNI is disabled
  */
 int dpni_set_tx_buffer_layout(struct fsl_mc_io			*mc_io,
+			      uint32_t				cmd_flags,
 			      uint16_t				token,
 			      const struct dpni_buffer_layout	*layout);
+
 /**
  * dpni_get_tx_conf_buffer_layout() - Retrieve Tx confirmation buffer layout
  *				attributes.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @layout:	Returns buffer layout attributes
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_tx_conf_buffer_layout(struct fsl_mc_io		*mc_io,
+				   uint32_t			cmd_flags,
 				   uint16_t			token,
 				   struct dpni_buffer_layout	*layout);
+
 /**
  * dpni_set_tx_conf_buffer_layout() - Set Tx confirmation buffer layout
  *					configuration.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @layout:	Buffer layout configuration
  *
@@ -698,29 +757,37 @@ int dpni_get_tx_conf_buffer_layout(struct fsl_mc_io		*mc_io,
  * @warning	Allowed only when DPNI is disabled
  */
 int dpni_set_tx_conf_buffer_layout(struct fsl_mc_io		   *mc_io,
+				   uint32_t			   cmd_flags,
 				   uint16_t			   token,
 				   const struct dpni_buffer_layout *layout);
+
 /**
- * dpni_get_spid() - Get the AIOP storage profile ID associated with the DPNI
+ * dpni_get_qdid() - Get the Queuing Destination ID (QDID) that should be used
+ *			for enqueue operations
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
- * @spid:	Returned aiop storage-profile ID
+ * @qdid:	Returned virtual QDID value that should be used as an argument
+ *			in all enqueue operations
  *
  * Return:	'0' on Success; Error code otherwise.
- *
- * @warning	Only relevant for DPNI that belongs to AIOP container.
  */
-int dpni_get_qdid(struct fsl_mc_io *mc_io, uint16_t token, uint16_t *qdid);
+int dpni_get_qdid(struct fsl_mc_io	*mc_io,
+		  uint32_t		cmd_flags,
+		  uint16_t		token,
+		  uint16_t		*qdid);
 
 /**
  * dpni_get_tx_data_offset() - Get the Tx data offset (from start of buffer)
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @data_offset: Tx data offset (from start of buffer)
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_tx_data_offset(struct fsl_mc_io	*mc_io,
+			    uint32_t		cmd_flags,
 			    uint16_t		token,
 			    uint16_t		*data_offset);
 
@@ -756,6 +823,7 @@ enum dpni_counter {
 /**
  * dpni_get_counter() - Read a specific DPNI counter
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @counter:	The requested counter
  * @value:	Returned counter's current value
@@ -763,6 +831,7 @@ enum dpni_counter {
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_counter(struct fsl_mc_io	*mc_io,
+		     uint32_t		cmd_flags,
 		     uint16_t		token,
 		     enum dpni_counter	counter,
 		     uint64_t		*value);
@@ -770,6 +839,7 @@ int dpni_get_counter(struct fsl_mc_io	*mc_io,
 /**
  * dpni_set_counter() - Set (or clear) a specific DPNI counter
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @counter:	The requested counter
  * @value:	New counter value; typically pass '0' for resetting
@@ -778,30 +848,43 @@ int dpni_get_counter(struct fsl_mc_io	*mc_io,
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_set_counter(struct fsl_mc_io	*mc_io,
+		     uint32_t		cmd_flags,
 		     uint16_t		token,
 		     enum dpni_counter	counter,
 		     uint64_t		value);
+
+/* Enable auto-negotiation */
+#define DPNI_LINK_OPT_AUTONEG		0x0000000000000001ULL
+/* Enable half-duplex mode */
+#define DPNI_LINK_OPT_HALF_DUPLEX	0x0000000000000002ULL
+/* Enable pause frames */
+#define DPNI_LINK_OPT_PAUSE		0x0000000000000004ULL
+/* Enable a-symmetric pause frames */
+#define DPNI_LINK_OPT_ASYM_PAUSE	0x0000000000000008ULL
+
 /**
  * struct - Structure representing DPNI link configuration
  * @rate: Rate
  * @options: Mask of available options; use 'DPNI_LINK_OPT_<X>' values
  */
 struct dpni_link_cfg {
-	uint64_t rate;
+	uint32_t rate;
 	uint64_t options;
 };
 
 /**
  * dpni_set_link_cfg() - set the link configuration.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @cfg:	Link configuration
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_set_link_cfg(struct fsl_mc_io *mc_io,
-		      uint16_t token,
-		      struct dpni_link_cfg *cfg);
+int dpni_set_link_cfg(struct fsl_mc_io			*mc_io,
+		      uint32_t				cmd_flags,
+		      uint16_t				token,
+		      const struct dpni_link_cfg	*cfg);
 
 /**
  * struct dpni_link_state - Structure representing DPNI link state
@@ -810,7 +893,7 @@ int dpni_set_link_cfg(struct fsl_mc_io *mc_io,
  * @up: Link state; '0' for down, '1' for up
  */
 struct dpni_link_state {
-	uint64_t rate;
+	uint32_t rate;
 	uint64_t options;
 	int up;
 };
@@ -818,64 +901,76 @@ struct dpni_link_state {
 /**
  * dpni_get_link_state() - Return the link state (either up or down)
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @state:	Returned link state;
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_get_link_state(struct fsl_mc_io *mc_io,
-			uint16_t token,
-			struct dpni_link_state *state);
+int dpni_get_link_state(struct fsl_mc_io	*mc_io,
+			uint32_t		cmd_flags,
+			uint16_t		token,
+			struct dpni_link_state	*state);
 
 /**
  * dpni_set_primary_mac_addr() - Set the primary MAC address
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @mac_addr:	MAC address to set as primary address
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpni_set_primary_mac_addr(struct fsl_mc_io	*mc_io,
+int dpni_set_primary_mac_addr(struct fsl_mc_io *mc_io,
+			      uint32_t		cmd_flags,
 			      uint16_t		token,
 			      const uint8_t	mac_addr[6]);
+
 /**
  * dpni_get_primary_mac_addr() - Get the primary MAC address
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @mac_addr:	Returned MAC address
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_primary_mac_addr(struct fsl_mc_io	*mc_io,
+			      uint32_t		cmd_flags,
 			      uint16_t		token,
 			      uint8_t		mac_addr[6]);
+
 /**
  * dpni_add_mac_addr() - Add MAC address filter
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @mac_addr:	MAC address to add
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_add_mac_addr(struct fsl_mc_io	*mc_io,
+		      uint32_t		cmd_flags,
 		      uint16_t		token,
 		      const uint8_t	mac_addr[6]);
 
 /**
  * dpni_remove_mac_addr() - Remove MAC address filter
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @mac_addr:	MAC address to remove
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_remove_mac_addr(struct fsl_mc_io	*mc_io,
+			 uint32_t		cmd_flags,
 			 uint16_t		token,
 			 const uint8_t		mac_addr[6]);
 
 /**
  * enum dpni_dest - DPNI destination types
- * DPNI_DEST_NONE: Unassigned destination; The queue is set in parked mode and
+ * @DPNI_DEST_NONE: Unassigned destination; The queue is set in parked mode and
  *		does not generate FQDAN notifications; user is expected to
  *		dequeue from the queue based on polling or other user-defined
  *		method
@@ -906,12 +1001,70 @@ struct dpni_dest_cfg {
 	uint8_t priority;
 };
 
+/**
+ * enum dpni_flc_type - DPNI FLC types
+ * @DPNI_FLC_USER_DEFINED: select the FLC to be used for user defined value
+ * @DPNI_FLC_STASH: select the FLC to be used for stash control
+ */
+enum dpni_flc_type {
+	DPNI_FLC_USER_DEFINED = 0,
+	DPNI_FLC_STASH = 1,
+};
+
+/**
+ * enum dpni_stash_size - DPNI FLC stashing size
+ * @DPNI_STASH_SIZE_0B: no stash
+ * @DPNI_STASH_SIZE_64B: stashes 64 bytes
+ * @DPNI_STASH_SIZE_128B: stashes 128 bytes
+ * @DPNI_STASH_SIZE_192B: stashes 192 bytes
+ */
+enum dpni_stash_size {
+	DPNI_STASH_SIZE_0B = 0,
+	DPNI_STASH_SIZE_64B = 1,
+	DPNI_STASH_SIZE_128B = 2,
+	DPNI_STASH_SIZE_192B = 3,
+};
+
+/* DPNI FLC stash options */
+
+/* stashes the whole annotation area (up to 192 bytes) */
+#define DPNI_FLC_STASH_FRAME_ANNOTATION	0x00000001
+
+/**
+ * struct dpni_flc_cfg - Structure representing DPNI FLC configuration
+ * @flc_type: FLC type
+ * @options: Mask of available options;
+ *	use 'DPNI_FLC_STASH_<X>' values
+ * @frame_data_size: Size of frame data to be stashed
+ * @flow_context_size: Size of flow context to be stashed
+ * @flow_context: 1. In case flc_type is 'DPNI_FLC_USER_DEFINED':
+ *			this value will be provided in the frame descriptor
+ *			(FD[FLC])
+ *		  2. In case flc_type is 'DPNI_FLC_STASH':
+ *			this value will be I/O virtual address of the
+ *			flow-context;
+ *			Must be cacheline-aligned and DMA-able memory
+ */
+struct dpni_flc_cfg {
+	enum dpni_flc_type flc_type;
+	uint32_t options;
+	enum dpni_stash_size frame_data_size;
+	enum dpni_stash_size flow_context_size;
+	uint64_t flow_context;
+};
+
 /* DPNI queue modification options */
 
 /* Select to modify the user's context associated with the queue */
 #define DPNI_QUEUE_OPT_USER_CTX		0x00000001
 /* Select to modify the queue's destination */
 #define DPNI_QUEUE_OPT_DEST		0x00000002
+/** Select to modify the flow-context parameters;
+ * not applicable for Tx-conf/Err queues as the FD comes from the user
+ */
+#define DPNI_QUEUE_OPT_FLC		0x00000004
+/* Select to modify the queue's order preservation */
+#define DPNI_QUEUE_OPT_ORDER_PRESERVATION 0x00000008
 
 /**
  * struct dpni_queue_cfg - Structure representing queue configuration
@@ -922,11 +1075,21 @@ struct dpni_dest_cfg {
  *		is contained in 'options'
  * @dest_cfg: Queue destination parameters;
  *		valid only if 'DPNI_QUEUE_OPT_DEST' is contained in 'options'
+ * @flc_cfg: Flow context configuration; in case the TC's distribution
+ *		is either NONE or HASH the FLC's settings of flow#0 are used.
+ *		in the case of FS (flow-steering) the flow's FLC settings
+ *		are used.
+ *		valid only if 'DPNI_QUEUE_OPT_FLC' is contained in 'options'
+ * @order_preservation_en: enable/disable order preservation;
+ *		valid only if 'DPNI_QUEUE_OPT_ORDER_PRESERVATION' is contained
+ *		in 'options'
  */
 struct dpni_queue_cfg {
 	uint32_t options;
 	uint64_t user_ctx;
 	struct dpni_dest_cfg dest_cfg;
+	struct dpni_flc_cfg flc_cfg;
+	int order_preservation_en;
 };
 
 /**
@@ -934,11 +1097,15 @@ struct dpni_queue_cfg {
  * @user_ctx: User context value provided in the frame descriptor of each
  *	dequeued frame
  * @dest_cfg: Queue destination configuration
+ * @flc_cfg: Flow context configuration
+ * @order_preservation_en: enable/disable order preservation
  * @fqid: Virtual fqid value to be used for dequeue operations
  */
 struct dpni_queue_attr {
 	uint64_t user_ctx;
 	struct dpni_dest_cfg dest_cfg;
+	struct dpni_flc_cfg flc_cfg;
+	int order_preservation_en;
 	uint32_t fqid;
 };
 
@@ -998,6 +1165,7 @@ struct dpni_tx_flow_cfg {
 /**
  * dpni_set_tx_flow() - Set Tx flow configuration
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @flow_id:	Provides (or returns) the sender's flow ID;
  *				for each new sender set (*flow_id) to
@@ -1009,6 +1177,7 @@ struct dpni_tx_flow_cfg {
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_set_tx_flow(struct fsl_mc_io			*mc_io,
+		     uint32_t				cmd_flags,
 		     uint16_t				token,
 		     uint16_t				*flow_id,
 		     const struct dpni_tx_flow_cfg	*cfg);
@@ -1042,6 +1211,7 @@ struct dpni_tx_flow_attr {
 /**
  * dpni_get_tx_flow() - Get Tx flow attributes
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @flow_id:	The sender's flow ID, as returned by the
  *			dpni_set_tx_flow() function
@@ -1050,6 +1220,7 @@ struct dpni_tx_flow_attr {
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_tx_flow(struct fsl_mc_io		*mc_io,
+		     uint32_t			cmd_flags,
 		     uint16_t			token,
 		     uint16_t			flow_id,
 		     struct dpni_tx_flow_attr	*attr);
@@ -1057,10 +1228,11 @@ int dpni_get_tx_flow(struct fsl_mc_io		*mc_io,
 /**
  * dpni_set_rx_flow() - Set Rx flow configuration
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @tc_id:	Traffic class selection (0-7);
  *			use 'DPNI_ALL_TCS' to set all TCs and all flows
- * @flow_id	Rx flow id within the traffic class; use
+ * @flow_id:	Rx flow id within the traffic class; use
  *			'DPNI_ALL_TC_FLOWS' to set all flows within
  *			this tc_id; ignored if tc_id is set to
  *			'DPNI_ALL_TCS';
@@ -1069,6 +1241,7 @@ int dpni_get_tx_flow(struct fsl_mc_io		*mc_io,
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_set_rx_flow(struct fsl_mc_io			*mc_io,
+		     uint32_t				cmd_flags,
 		     uint16_t				token,
 		     uint8_t				tc_id,
 		     uint16_t				flow_id,
@@ -1077,6 +1250,7 @@ int dpni_set_rx_flow(struct fsl_mc_io			*mc_io,
 /**
  * dpni_get_rx_flow() -	Get Rx flow attributes
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPNI object
  * @tc_id:	Traffic class selection (0-7)
  * @flow_id:	Rx flow id within the traffic class
@@ -1085,6 +1259,7 @@ int dpni_set_rx_flow(struct fsl_mc_io			*mc_io,
  * Return:	'0' on Success; Error code otherwise.
  */
 int dpni_get_rx_flow(struct fsl_mc_io		*mc_io,
+		     uint32_t			cmd_flags,
 		     uint16_t			token,
 		     uint8_t			tc_id,
 		     uint16_t			flow_id,

@@ -110,24 +110,43 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 #define CONFIG_BOOTDELAY		3
 
-#define CONFIG_LOADADDR			0x82000000
+#define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_SYS_TEXT_BASE		0x3f408000
 #define CONFIG_BOARD_SIZE_LIMIT		524288
 
+/*
+ * We do have 128MB of memory on the Vybrid Tower board. Leave the last
+ * 16MB alone to avoid conflicts with Cortex-M4 firmwares running from
+ * DDR3. Hence, limit the memory range for image processing to 112MB
+ * using bootm_size. All of the following must be within this range.
+ * We have the default load at 32MB into DDR (for the kernel), FDT at
+ * 64MB and the ramdisk 512KB above that (allowing for hopefully never
+ * seen large trees). This allows a reasonable split between ramdisk
+ * and kernel size, where the ram disk can be a bit larger.
+ */
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x07000000\0" \
+	"loadaddr=0x82000000\0" \
+	"kernel_addr_r=0x82000000\0" \
+	"fdt_addr=0x84000000\0" \
+	"fdt_addr_r=0x84000000\0" \
+	"rdaddr=0x84080000\0" \
+	"ramdisk_addr_r=0x84080000\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	MEM_LAYOUT_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttyLP1\0" \
-	"fdt_high=0xffffffff\0" \
-	"initrd_high=0xffffffff\0" \
 	"fdt_file=vf610-twr.dtb\0" \
-	"fdt_addr=0x81000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
@@ -221,8 +240,6 @@
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80010000
 #define CONFIG_SYS_MEMTEST_END		0x87C00000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /*
  * Stack sizes

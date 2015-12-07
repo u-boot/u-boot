@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <memalign.h>
 #include <ext4fs.h>
 #include <ext_common.h>
 #include "ext4_common.h"

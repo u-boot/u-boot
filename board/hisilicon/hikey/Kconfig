@@ -1,0 +1,22 @@
+if TARGET_HIKEY
+
+config SYS_BOARD
+	default "hikey"
+
+config SYS_VENDOR
+	default "hisilicon"
+
+config SYS_SOC
+	default "hi6220"
+
+config SYS_CONFIG_NAME
+	default "hikey"
+
+config CONS_INDEX
+	int "UART used for console"
+	range 1 4
+	default 4
+	help
+	  The hi6220 SoC has 5 UARTs. For example to use UART0 enter 1 here.
+
+endif

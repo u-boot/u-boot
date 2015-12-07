@@ -1,6 +1,7 @@
 CONFIG_ARM=y
+CONFIG_ARCH_MX6=y
 CONFIG_TARGET_TBS2910=y
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/boundary/nitrogen6x/nitrogen6q2g.cfg,MX6Q"
+CONFIG_SYS_PROMPT="Matrix U-Boot> "
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 CONFIG_DM=y

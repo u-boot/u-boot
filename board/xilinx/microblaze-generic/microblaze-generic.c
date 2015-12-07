@@ -24,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int reset_pin = -1;
 #endif
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 ulong ram_base;
 
 void dram_init_banksize(void)

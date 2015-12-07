@@ -14,12 +14,6 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
- 	aliases {
-		spi0 = "/spi@ff705000";		/* QSPI */
-		spi1 = "/spi@fff00000";
-		spi2 = "/spi@fff01000";
- 	};
-
 	memory {
 		name = "memory";
 		device_type = "memory";
@@ -29,6 +23,7 @@
 
 &gmac1 {
 	status = "okay";
+	phy-mode = "rgmii";
 };
 
 &i2c0 {
@@ -40,7 +35,7 @@
 	};
 };
 
-&mmc {
+&mmc0 {
 	status = "okay";
 };
 

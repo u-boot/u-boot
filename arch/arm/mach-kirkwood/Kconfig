@@ -4,15 +4,6 @@ choice
 	prompt "Marvell Kirkwood board select"
 	optional
 
-config TARGET_OPENRD
-	bool "Marvell OpenRD Board"
-
-config TARGET_MV88F6281GTW_GE
-	bool "MV88f6281GTW_GE Board"
-
-config TARGET_RD6281A
-	bool "RD6281A Board"
-
 config TARGET_DREAMPLUG
 	bool "DreamPlug Board"
 
@@ -34,9 +25,6 @@ config TARGET_DNS325
 config TARGET_ICONNECT
 	bool "iconnect Board"
 
-config TARGET_TK71
-	bool "TK71 Board"
-
 config TARGET_KM_KIRKWOOD
 	bool "KM_KIRKWOOD Board"
 
@@ -45,9 +33,6 @@ config TARGET_NET2BIG_V2
 
 config TARGET_NETSPACE_V2
 	bool "LaCie netspace_v2 Board"
-
-config TARGET_WIRELESS_SPACE
-	bool "LaCie Wireless_space Board"
 
 config TARGET_IB62X0
 	bool "ib62x0 Board"
@@ -66,9 +51,6 @@ endchoice
 config SYS_SOC
 	default "kirkwood"
 
-source "board/Marvell/openrd/Kconfig"
-source "board/Marvell/mv88f6281gtw_ge/Kconfig"
-source "board/Marvell/rd6281a/Kconfig"
 source "board/Marvell/dreamplug/Kconfig"
 source "board/Marvell/guruplug/Kconfig"
 source "board/Marvell/sheevaplug/Kconfig"
@@ -76,11 +58,9 @@ source "board/buffalo/lsxl/Kconfig"
 source "board/cloudengines/pogo_e02/Kconfig"
 source "board/d-link/dns325/Kconfig"
 source "board/iomega/iconnect/Kconfig"
-source "board/karo/tk71/Kconfig"
 source "board/keymile/km_arm/Kconfig"
 source "board/LaCie/net2big_v2/Kconfig"
 source "board/LaCie/netspace_v2/Kconfig"
-source "board/LaCie/wireless_space/Kconfig"
 source "board/raidsonic/ib62x0/Kconfig"
 source "board/Seagate/dockstar/Kconfig"
 source "board/Seagate/goflexhome/Kconfig"

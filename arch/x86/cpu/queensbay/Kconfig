@@ -38,4 +38,8 @@ config CMC_ADDR
 	  The default base address of 0xfffb0000 indicates that the binary must
 	  be located at offset 0xb0000 from the beginning of a 1MB flash device.
 
+config CPU_ADDR_BITS
+	int
+	default 32
+
 endif

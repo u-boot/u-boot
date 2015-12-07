@@ -22,6 +22,7 @@
 
 #define CONFIG_FEC_XCV_TYPE		RMII
 
+#define CONFIG_SF_DEFAULT_BUS		3
 #define CONFIG_SF_DEFAULT_CS		0
 
 #define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
@@ -32,7 +33,10 @@
 	"addmisc=setenv bootargs ${bootargs} consoleblank=0\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0" \
 	"ubiargs=setenv bootargs console=${console},${baudrate} " \
-		"ubi.mtd=0,2048 root=ubi0:rootfs rootfstype=ubifs\0 "
+		"ubi.mtd=0,2048 root=ubi0:rootfs rootfstype=ubifs\0 " \
+	"ubifs_load_fit=sf probe;ubi part ubi 2048;ubifsmount ubi:rootfs;" \
+		"ubifsload ${fit_addr_r} /boot/system.itb; " \
+		"imi ${fit_addr_r}\0 "
 
 #define ARISTAINETOS_USB_OTG_PWR	IMX_GPIO_NR(4, 15)
 #define ARISTAINETOS_USB_H1_PWR		IMX_GPIO_NR(3, 31)

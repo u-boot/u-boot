@@ -117,4 +117,8 @@
 	sdhci@12540000 {
 		status = "disabled";
 	};
+
+	dwmmc@12550000 {
+		status = "disabled";
+	};
 };

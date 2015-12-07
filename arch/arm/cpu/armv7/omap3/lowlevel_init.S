@@ -16,16 +16,6 @@
 #include <asm/arch/clocks_omap3.h>
 #include <linux/linkage.h>
 
-#ifdef CONFIG_SPL_BUILD
-ENTRY(save_boot_params)
-	ldr	r4, =omap3_boot_device
-	ldr	r5, [r0, #0x4]
-	and	r5, r5, #0xff
-	str	r5, [r4]
-	b	save_boot_params_ret
-ENDPROC(save_boot_params)
-#endif
-
 /*
  * Funtion for making PPA HAL API calls in secure devices
  * Input:

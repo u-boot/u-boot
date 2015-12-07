@@ -235,7 +235,7 @@ static int send_recv_packets(struct i2c_bus *i2c_bus,
 			if ((words == 1) && last_bytes) {
 				local = 0;
 				memcpy(&local, dptr, last_bytes);
-			} else if ((unsigned)dptr & 3) {
+			} else if ((unsigned long)dptr & 3) {
 				memcpy(&local, dptr, sizeof(u32));
 			} else {
 				local = *wptr;
@@ -258,7 +258,7 @@ static int send_recv_packets(struct i2c_bus *i2c_bus,
 			local = readl(&control->rx_fifo);
 			if ((words == 1) && last_bytes)
 				memcpy(dptr, (char *)&local, last_bytes);
-			else if ((unsigned)dptr & 3)
+			else if ((unsigned long)dptr & 3)
 				memcpy(dptr, &local, sizeof(u32));
 			else
 				*wptr = local;
@@ -339,7 +339,7 @@ static int tegra_i2c_probe(struct udevice *dev)
 
 	i2c_bus->id = dev->seq;
 	i2c_bus->type = dev_get_driver_data(dev);
-	i2c_bus->regs = (struct i2c_ctlr *)fdtdec_get_addr(blob, node, "reg");
+	i2c_bus->regs = (struct i2c_ctlr *)dev_get_addr(dev);
 
 	/*
 	 * We don't have a binding for pinmux yet. Leave it out for now. So

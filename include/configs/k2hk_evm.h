@@ -15,19 +15,17 @@
 #define CONFIG_K2HK_EVM
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_PROMPT               "K2HK EVM # "
-
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	"addr_mon=0x0c5f0000\0"						\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,2048\0"	\
-	"name_fdt=uImage-k2hk-evm.dtb\0"				\
-	"name_mon=skern-k2hk-evm.bin\0"					\
+	"name_fdt=k2hk-evm.dtb\0"				\
+	"name_mon=skern-k2hk.bin\0"					\
 	"name_ubi=k2hk-evm-ubifs.ubi\0"					\
 	"name_uboot=u-boot-spi-k2hk-evm.gph\0"				\
 	"name_fs=arago-console-image-k2hk-evm.cpio.gz\0"
 
-#include <configs/ks2_evm.h>
+#include <configs/ti_armv7_keystone2.h>
 
 /* SPL SPI Loader Configuration */
 #define CONFIG_SPL_TEXT_BASE		0x0c200000

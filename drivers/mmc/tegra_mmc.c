@@ -2,7 +2,7 @@
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Jaehoon Chung <jh80.chung@samsung.com>
- * Portions Copyright 2011-2013 NVIDIA Corporation
+ * Portions Copyright 2011-2015 NVIDIA Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct mmc_host mmc_host[CONFIG_SYS_MMC_MAX_DEVICE];
 
-#ifndef CONFIG_OF_CONTROL
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 #error "Please enable device tree support to use this driver"
 #endif
 
@@ -67,7 +67,7 @@ static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data,
 		bbstate->bounce_buffer, bbstate->user_buffer, data->blocks,
 		data->blocksize);
 
-	writel((u32)bbstate->bounce_buffer, &host->reg->sysad);
+	writel((u32)(unsigned long)bbstate->bounce_buffer, &host->reg->sysad);
 	/*
 	 * DMASEL[4:3]
 	 * 00 = Selects SDMA
@@ -233,8 +233,8 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 		if (cmd->resp_type & MMC_RSP_136) {
 			/* CRC is stripped so we need to do some shifting. */
 			for (i = 0; i < 4; i++) {
-				unsigned int offset =
-					(unsigned int)(&host->reg->rspreg3 - i);
+				unsigned long offset =
+					(unsigned long)(&host->reg->rspreg3 - i);
 				cmd->response[i] = readl(offset) << 8;
 
 				if (i != 3) {
@@ -667,6 +667,16 @@ void tegra_mmc_init(void)
 	int node_list[CONFIG_SYS_MMC_MAX_DEVICE], count;
 	const void *blob = gd->fdt_blob;
 	debug("%s entry\n", __func__);
+
+	/* See if any Tegra210 MMC controllers are present */
+	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+		COMPAT_NVIDIA_TEGRA210_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
+	debug("%s: count of Tegra210 sdhci nodes is %d\n", __func__, count);
+	if (process_nodes(blob, node_list, count)) {
+		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
+		return;
+	}
 
 	/* See if any Tegra124 MMC controllers are present */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",

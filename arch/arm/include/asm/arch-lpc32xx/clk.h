@@ -153,7 +153,9 @@ struct clk_pm_regs {
 #define CLK_DMA_ENABLE			(1 << 0)
 
 /* NAND Clock Control Register bits */
+#define CLK_NAND_SLC			(1 << 0)
 #define CLK_NAND_MLC			(1 << 1)
+#define CLK_NAND_SLC_SELECT		(1 << 2)
 #define CLK_NAND_MLC_INT		(1 << 5)
 
 /* SSP Clock Control Register bits */
@@ -161,6 +163,18 @@ struct clk_pm_regs {
 
 /* SDRAMCLK register bits */
 #define CLK_SDRAM_DDR_SEL		(1 << 1)
+
+/* USB control register definitions */
+#define CLK_USBCTRL_PLL_STS		(1 << 0)
+#define CLK_USBCTRL_FDBK_PLUS1(n)	(((n) & 0xFF) << 1)
+#define CLK_USBCTRL_POSTDIV_2POW(n)	(((n) & 0x3) << 11)
+#define CLK_USBCTRL_PLL_PWRUP		(1 << 16)
+#define CLK_USBCTRL_CLK_EN1		(1 << 17)
+#define CLK_USBCTRL_CLK_EN2		(1 << 18)
+#define CLK_USBCTRL_BUS_KEEPER		(0x1 << 19)
+#define CLK_USBCTRL_USBHSTND_EN		(1 << 21)
+#define CLK_USBCTRL_USBDVND_EN		(1 << 22)
+#define CLK_USBCTRL_HCLK_EN		(1 << 24)
 
 unsigned int get_sys_clk_rate(void);
 unsigned int get_hclk_pll_rate(void);

@@ -207,8 +207,6 @@
 #define CONFIG_BOOTARGS		" console=ttyS2,115200 rootfstype=romfs"\
 				" loaderversion=$loaderversion"
 
-#define CONFIG_SYS_PROMPT	"URMEL > "
-
 /* default RAM address for user programs */
 #define CONFIG_SYS_LOAD_ADDR	0x20000
 

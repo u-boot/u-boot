@@ -130,7 +130,7 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
 int uclass_get_device(enum uclass_id id, int index, struct udevice **devp);
 
 /**
- * uclass_get_device_by_name() - Get a uclass device by it's name
+ * uclass_get_device_by_name() - Get a uclass device by its name
  *
  * This searches the devices in the uclass for one with the exactly given name.
  *
@@ -175,6 +175,23 @@ int uclass_get_device_by_seq(enum uclass_id id, int seq, struct udevice **devp);
  */
 int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 				   struct udevice **devp);
+
+/**
+ * uclass_get_device_by_phandle() - Get a uclass device by phandle
+ *
+ * This searches the devices in the uclass for one with the given phandle.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: uclass ID to look up
+ * @parent: Parent device containing the phandle pointer
+ * @name: Name of property in the parent device node
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ENOENT if there is no @name present in the node, other
+ *	-ve on error
+ */
+int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				 const char *name, struct udevice **devp);
 
 /**
  * uclass_first_device() - Get the first device in a uclass
@@ -223,12 +240,7 @@ int uclass_resolve_seq(struct udevice *dev);
  * are no more devices.
  * @uc: uclass to scan
  */
-#define uclass_foreach_dev(pos, uc)					\
-	for (pos = list_entry((&(uc)->dev_head)->next, typeof(*pos),	\
-			uclass_node);					\
-	     prefetch(pos->uclass_node.next),				\
-			&pos->uclass_node != (&(uc)->dev_head);		\
-	     pos = list_entry(pos->uclass_node.next, typeof(*pos),	\
-			uclass_node))
+#define uclass_foreach_dev(pos, uc)	\
+	list_for_each_entry(pos, &uc->dev_head, uclass_node)
 
 #endif

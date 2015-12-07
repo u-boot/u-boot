@@ -217,6 +217,49 @@ extern char console_buffer[];
 /* arch/$(ARCH)/lib/board.c */
 void board_init_f(ulong);
 void board_init_r(gd_t *, ulong) __attribute__ ((noreturn));
+
+/**
+ * board_init_f_mem() - Allocate global data and set stack position
+ *
+ * This function is called by each architecture very early in the start-up
+ * code to set up the environment for board_init_f(). It allocates space for
+ * global_data (see include/asm-generic/global_data.h) and places the stack
+ * below this.
+ *
+ * This function requires a stack[1] Normally this is at @top. The function
+ * starts allocating space from 64 bytes below @top. First it creates space
+ * for global_data. Then it calls arch_setup_gd() which sets gd to point to
+ * the global_data space and can reserve additional bytes of space if
+ * required). Finally it allocates early malloc() memory
+ * (CONFIG_SYS_MALLOC_F_LEN). The new top of the stack is just below this,
+ * and it returned by this function.
+ *
+ * [1] Strictly speaking it would be possible to implement this function
+ * in C on many archs such that it does not require a stack. However this
+ * does not seem hugely important as only 64 byte are wasted. The 64 bytes
+ * are used to handle the calling standard which generally requires pushing
+ * addresses or registers onto the stack. We should be able to get away with
+ * less if this becomes important.
+ *
+ * @top:	Top of available memory, also normally the top of the stack
+ * @return:	New stack location
+ */
+ulong board_init_f_mem(ulong top);
+
+/**
+ * arch_setup_gd() - Set up the global_data pointer
+ *
+ * This pointer is special in some architectures and cannot easily be assigned
+ * to. For example on x86 it is implemented by adding a specific record to its
+ * Global Descriptor Table! So we we provide a function to carry out this task.
+ * For most architectures this can simply be:
+ *
+ *    gd = gd_ptr;
+ *
+ * @gd_ptr:	Pointer to global data
+ */
+void arch_setup_gd(gd_t *gd_ptr);
+
 int checkboard(void);
 int show_board_info(void);
 int checkflash(void);
@@ -783,6 +826,9 @@ int gzwrite(unsigned char *src, int len,
 	    u64 startoffs,
 	    u64 szexpected);
 
+/* lib/lz4_wrapper.c */
+int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
+
 /* lib/qsort.c */
 void qsort(void *base, size_t nmemb, size_t size,
 	   int(*compar)(const void *, const void *));
@@ -830,11 +876,18 @@ int	getc(void);
 int	tstc(void);
 
 /* stdout */
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_SERIAL_SUPPORT)
+#define	putc(...) do { } while (0)
+#define puts(...) do { } while (0)
+#define printf(...) do { } while (0)
+#define vprintf(...) do { } while (0)
+#else
 void	putc(const char c);
 void	puts(const char *s);
 int	printf(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
 int	vprintf(const char *fmt, va_list args);
+#endif
 
 /* stderr */
 #define eputc(c)		fputc(stderr, c)
@@ -924,91 +977,22 @@ int cpu_release(int nr, int argc, char * const argv[]);
 #define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
 
 /*
- * ARCH_DMA_MINALIGN is defined in asm/cache.h for each architecture.  It
- * is used to align DMA buffers.
+ * check_member() - Check the offset of a structure member
+ *
+ * @structure:	Name of structure (e.g. global_data)
+ * @member:	Name of member (e.g. baudrate)
+ * @offset:	Expected offset in bytes
  */
-#ifndef __ASSEMBLY__
-#include <asm/cache.h>
+#define check_member(structure, member, offset) _Static_assert( \
+	offsetof(struct structure, member) == offset, \
+	"`struct " #structure "` offset for `" #member "` is not " #offset)
+
+/* Avoid using CONFIG_EFI_STUB directly as we may boot from other loaders */
+#ifdef CONFIG_EFI_STUB
+#define ll_boot_init()	false
+#else
+#define ll_boot_init()	true
 #endif
-
-/*
- * The ALLOC_CACHE_ALIGN_BUFFER macro is used to allocate a buffer on the
- * stack that meets the minimum architecture alignment requirements for DMA.
- * Such a buffer is useful for DMA operations where flushing and invalidating
- * the cache before and after a read and/or write operation is required for
- * correct operations.
- *
- * When called the macro creates an array on the stack that is sized such
- * that:
- *
- * 1) The beginning of the array can be advanced enough to be aligned.
- *
- * 2) The size of the aligned portion of the array is a multiple of the minimum
- *    architecture alignment required for DMA.
- *
- * 3) The aligned portion contains enough space for the original number of
- *    elements requested.
- *
- * The macro then creates a pointer to the aligned portion of this array and
- * assigns to the pointer the address of the first element in the aligned
- * portion of the array.
- *
- * Calling the macro as:
- *
- *     ALLOC_CACHE_ALIGN_BUFFER(uint32_t, buffer, 1024);
- *
- * Will result in something similar to saying:
- *
- *     uint32_t    buffer[1024];
- *
- * The following differences exist:
- *
- * 1) The resulting buffer is guaranteed to be aligned to the value of
- *    ARCH_DMA_MINALIGN.
- *
- * 2) The buffer variable created by the macro is a pointer to the specified
- *    type, and NOT an array of the specified type.  This can be very important
- *    if you want the address of the buffer, which you probably do, to pass it
- *    to the DMA hardware.  The value of &buffer is different in the two cases.
- *    In the macro case it will be the address of the pointer, not the address
- *    of the space reserved for the buffer.  However, in the second case it
- *    would be the address of the buffer.  So if you are replacing hard coded
- *    stack buffers with this macro you need to make sure you remove the & from
- *    the locations where you are taking the address of the buffer.
- *
- * Note that the size parameter is the number of array elements to allocate,
- * not the number of bytes.
- *
- * This macro can not be used outside of function scope, or for the creation
- * of a function scoped static buffer.  It can not be used to create a cache
- * line aligned global buffer.
- */
-#define PAD_COUNT(s, pad) (((s) - 1) / (pad) + 1)
-#define PAD_SIZE(s, pad) (PAD_COUNT(s, pad) * pad)
-#define ALLOC_ALIGN_BUFFER_PAD(type, name, size, align, pad)		\
-	char __##name[ROUND(PAD_SIZE((size) * sizeof(type), pad), align)  \
-		      + (align - 1)];					\
-									\
-	type *name = (type *) ALIGN((uintptr_t)__##name, align)
-#define ALLOC_ALIGN_BUFFER(type, name, size, align)		\
-	ALLOC_ALIGN_BUFFER_PAD(type, name, size, align, 1)
-#define ALLOC_CACHE_ALIGN_BUFFER_PAD(type, name, size, pad)		\
-	ALLOC_ALIGN_BUFFER_PAD(type, name, size, ARCH_DMA_MINALIGN, pad)
-#define ALLOC_CACHE_ALIGN_BUFFER(type, name, size)			\
-	ALLOC_ALIGN_BUFFER(type, name, size, ARCH_DMA_MINALIGN)
-
-/*
- * DEFINE_CACHE_ALIGN_BUFFER() is similar to ALLOC_CACHE_ALIGN_BUFFER, but it's
- * purpose is to allow allocating aligned buffers outside of function scope.
- * Usage of this macro shall be avoided or used with extreme care!
- */
-#define DEFINE_ALIGN_BUFFER(type, name, size, align)			\
-	static char __##name[ALIGN(size * sizeof(type), align)]	\
-			__aligned(align);				\
-									\
-	static type *name = (type *)__##name
-#define DEFINE_CACHE_ALIGN_BUFFER(type, name, size)			\
-	DEFINE_ALIGN_BUFFER(type, name, size, ARCH_DMA_MINALIGN)
 
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY

@@ -147,7 +147,6 @@ static void program_ecc(u32 start_address,
  ************************************************************************/
 phys_size_t initdram (int board_type)
 {
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_LCD4_LWMON5)
 	/* CL=4 */
 	mtsdram(DDR0_02, 0x00000000);
 
@@ -241,7 +240,6 @@ phys_size_t initdram (int board_type)
 	 * exceptions are enabled.
 	 */
 	set_mcsr(get_mcsr());
-#endif /* CONFIG_SPL_BUILD */
 
 	return (CONFIG_SYS_MBYTES_SDRAM << 20);
 }

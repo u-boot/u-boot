@@ -101,6 +101,37 @@ u32 msg_port_io_read(u8 port, u32 reg);
  */
 void msg_port_io_write(u8 port, u32 reg, u32 value);
 
+/* clrbits, setbits, clrsetbits macros for message port access */
+
+#define msg_port_normal_read	msg_port_read
+#define msg_port_normal_write	msg_port_write
+
+#define msg_port_generic_clrsetbits(type, port, reg, clr, set)		\
+	msg_port_##type##_write(port, reg,				\
+				(msg_port_##type##_read(port, reg)	\
+				& ~(clr)) | (set))
+
+#define msg_port_clrbits(port, reg, clr)		\
+	msg_port_generic_clrsetbits(normal, port, reg, clr, 0)
+#define msg_port_setbits(port, reg, set)		\
+	msg_port_generic_clrsetbits(normal, port, reg, 0, set)
+#define msg_port_clrsetbits(port, reg, clr, set)	\
+	msg_port_generic_clrsetbits(normal, port, reg, clr, set)
+
+#define msg_port_alt_clrbits(port, reg, clr)		\
+	msg_port_generic_clrsetbits(alt, port, reg, clr, 0)
+#define msg_port_alt_setbits(port, reg, set)		\
+	msg_port_generic_clrsetbits(alt, port, reg, 0, set)
+#define msg_port_alt_clrsetbits(port, reg, clr, set)	\
+	msg_port_generic_clrsetbits(alt, port, reg, clr, set)
+
+#define msg_port_io_clrbits(port, reg, clr)		\
+	msg_port_generic_clrsetbits(io, port, reg, clr, 0)
+#define msg_port_io_setbits(port, reg, set)		\
+	msg_port_generic_clrsetbits(io, port, reg, 0, set)
+#define msg_port_io_clrsetbits(port, reg, clr, set)	\
+	msg_port_generic_clrsetbits(io, port, reg, clr, set)
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* _QUARK_MSG_PORT_H_ */

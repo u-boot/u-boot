@@ -187,6 +187,31 @@ static void skip_num(int hex, const char *value, const char **end,
 		*end = value;
 }
 
+#ifdef CONFIG_CMD_NET
+int eth_validate_ethaddr_str(const char *addr)
+{
+	const char *end;
+	const char *cur;
+	int i;
+
+	cur = addr;
+	for (i = 0; i < 6; i++) {
+		skip_num(1, cur, &end, 2);
+		if (cur == end)
+			return -1;
+		if (cur + 2 == end && is_hex_prefix(cur))
+			return -1;
+		if (i != 5 && *end != ':')
+			return -1;
+		if (i == 5 && *end != '\0')
+			return -1;
+		cur = end + 1;
+	}
+
+	return 0;
+}
+#endif
+
 /*
  * Based on the declared type enum, validate that the value string complies
  * with that format
@@ -239,19 +264,8 @@ static int _env_flags_validate_type(const char *value,
 		}
 		break;
 	case env_flags_vartype_macaddr:
-		cur = value;
-		for (i = 0; i < 6; i++) {
-			skip_num(1, cur, &end, 2);
-			if (cur == end)
-				return -1;
-			if (cur + 2 == end && is_hex_prefix(cur))
-				return -1;
-			if (i != 5 && *end != ':')
-				return -1;
-			if (i == 5 && *end != '\0')
-				return -1;
-			cur = end + 1;
-		}
+		if (eth_validate_ethaddr_str(value))
+			return -1;
 		break;
 #endif
 	case env_flags_vartype_end:

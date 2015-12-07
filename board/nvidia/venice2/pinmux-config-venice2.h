@@ -4,6 +4,14 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
+/*
+ * THIS FILE IS AUTO-GENERATED - DO NOT EDIT!
+ *
+ * To generate this file, use the tegra-pinmux-scripts tool available from
+ * https://github.com/NVIDIA/tegra-pinmux-scripts
+ * Run "board-to-uboot.py venice2".
+ */
+
 #ifndef _PINMUX_CONFIG_VENICE2_H_
 #define _PINMUX_CONFIG_VENICE2_H_
 

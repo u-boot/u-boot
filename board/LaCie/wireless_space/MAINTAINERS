@@ -1,6 +1,0 @@
-WIRELESS_SPACE BOARD
-M:	Albert ARIBAUD <albert.u.boot@aribaud.net>
-S:	Maintained
-F:	board/LaCie/wireless_space/
-F:	include/configs/wireless_space.h
-F:	configs/wireless_space_defconfig

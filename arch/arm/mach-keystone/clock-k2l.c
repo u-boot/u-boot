@@ -11,45 +11,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/clock_defs.h>
 
-const struct keystone_pll_regs keystone_pll_regs[] = {
-	[CORE_PLL] = {KS2_MAINPLLCTL0, KS2_MAINPLLCTL1},
-	[PASS_PLL] = {KS2_PASSPLLCTL0, KS2_PASSPLLCTL1},
-	[TETRIS_PLL] = {KS2_ARMPLLCTL0,  KS2_ARMPLLCTL1},
-	[DDR3_PLL] = {KS2_DDR3APLLCTL0, KS2_DDR3APLLCTL1},
-};
-
-int dev_speeds[] = {
-	SPD800,
-	SPD1000,
-	SPD1200,
-	SPD800,
-	SPD800,
-	SPD800,
-	SPD800,
-	SPD800,
-	SPD1200,
-	SPD1000,
-	SPD800,
-	SPD800,
-	SPD800,
-};
-
-int arm_speeds[] = {
-	SPD800,
-	SPD1000,
-	SPD1200,
-	SPD1350,
-	SPD1400,
-	SPD800,
-	SPD1400,
-	SPD1350,
-	SPD1200,
-	SPD1000,
-	SPD800,
-	SPD800,
-	SPD800,
-};
-
 /**
  * pll_freq_get - get pll frequency
  * Fout = Fref * NF(mult) / NR(prediv) / OD
@@ -86,7 +47,7 @@ static unsigned long pll_freq_get(int pll)
 			reg = KS2_ARMPLLCTL0;
 			break;
 		case DDR3_PLL:
-			ret = external_clk[ddr3_clk];
+			ret = external_clk[ddr3a_clk];
 			reg = KS2_DDR3APLLCTL0;
 			break;
 		default:

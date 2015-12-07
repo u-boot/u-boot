@@ -151,6 +151,10 @@ struct sunxi_de_be_reg {
 	u32 layer1_attr1_ctrl;		/* 0x8a4 */
 	u32 layer2_attr1_ctrl;		/* 0x8a8 */
 	u32 layer3_attr1_ctrl;		/* 0x8ac */
+	u8 res5[0x110];			/* 0x8b0 */
+	u32 output_color_ctrl;		/* 0x9c0 */
+	u8 res6[0xc];			/* 0x9c4 */
+	u32 output_color_coef[12];	/* 0x9d0 */
 };
 
 struct sunxi_lcdc_reg {
@@ -192,7 +196,9 @@ struct sunxi_lcdc_reg {
 	u8 res3[0x44];			/* 0xac */
 	u32 tcon1_io_polarity;		/* 0xf0 */
 	u32 tcon1_io_tristate;		/* 0xf4 */
-	u8 res4[0x128];			/* 0xf8 */
+	u8 res4[0x108];			/* 0xf8 */
+	u32 mux_ctrl;			/* 0x200 */
+	u8 res5[0x1c];			/* 0x204 */
 	u32 lvds_ana0;			/* 0x220 */
 	u32 lvds_ana1;			/* 0x224 */
 };
@@ -298,7 +304,7 @@ struct sunxi_tve_reg {
 	u32 cbr_level;			/* 0x10c */
 	u32 burst_phase;		/* 0x110 */
 	u32 burst_width;		/* 0x114 */
-	u8 res2[0x04];			/* 0x118 */
+	u32 unknown2;			/* 0x118 */
 	u32 sync_vbi_level;		/* 0x11c */
 	u32 white_level;		/* 0x120 */
 	u32 active_num;			/* 0x124 */
@@ -331,11 +337,14 @@ struct sunxi_tve_reg {
 #define SUNXI_DE_BE_HEIGHT(y)			(((y) - 1) << 16)
 #define SUNXI_DE_BE_MODE_ENABLE			(1 << 0)
 #define SUNXI_DE_BE_MODE_START			(1 << 1)
+#define SUNXI_DE_BE_MODE_DEFLICKER_ENABLE	(1 << 4)
 #define SUNXI_DE_BE_MODE_LAYER0_ENABLE		(1 << 8)
+#define SUNXI_DE_BE_MODE_INTERLACE_ENABLE	(1 << 28)
 #define SUNXI_DE_BE_LAYER_STRIDE(x)		((x) << 5)
 #define SUNXI_DE_BE_REG_CTRL_LOAD_REGS		(1 << 0)
 #define SUNXI_DE_BE_LAYER_ATTR0_SRC_FE0		0x00000002
 #define SUNXI_DE_BE_LAYER_ATTR1_FMT_XRGB8888	(0x09 << 8)
+#define SUNXI_DE_BE_OUTPUT_COLOR_CTRL_ENABLE	1
 
 /*
  * LCDC register constants.
@@ -372,11 +381,16 @@ struct sunxi_tve_reg {
 #define SUNXI_LCDC_TCON0_LVDS_INTF_ENABLE	(1 << 31)
 #define SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE(x)	((x) << 28)
 #define SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(n)	(((n) & 0x1f) << 4)
+#define SUNXI_LCDC_TCON1_CTRL_INTERLACE_ENABLE	(1 << 20)
 #define SUNXI_LCDC_TCON1_CTRL_ENABLE		(1 << 31)
 #define SUNXI_LCDC_TCON1_TIMING_H_BP(n)		(((n) - 1) << 0)
 #define SUNXI_LCDC_TCON1_TIMING_H_TOTAL(n)	(((n) - 1) << 16)
 #define SUNXI_LCDC_TCON1_TIMING_V_BP(n)		(((n) - 1) << 0)
-#define SUNXI_LCDC_TCON1_TIMING_V_TOTAL(n)	(((n) * 2) << 16)
+#define SUNXI_LCDC_TCON1_TIMING_V_TOTAL(n)	((n) << 16)
+#define SUNXI_LCDC_MUX_CTRL_SRC0_MASK		(0xf << 0)
+#define SUNXI_LCDC_MUX_CTRL_SRC0(x)		((x) << 0)
+#define SUNXI_LCDC_MUX_CTRL_SRC1_MASK		(0xf << 4)
+#define SUNXI_LCDC_MUX_CTRL_SRC1(x)		((x) << 4)
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 #define SUNXI_LCDC_LVDS_ANA0			0x40040320
 #define SUNXI_LCDC_LVDS_ANA0_EN_MB		(1 << 31)
@@ -494,9 +508,26 @@ struct sunxi_tve_reg {
  */
 #define SUNXI_TVE_GCTRL_DAC_INPUT_MASK(dac)	(0xf << (((dac) + 1) * 4))
 #define SUNXI_TVE_GCTRL_DAC_INPUT(dac, sel)	((sel) << (((dac) + 1) * 4))
-#define SUNXI_TVE_GCTRL_CFG0_VGA		0x20000000
-#define SUNXI_TVE_GCTRL_DAC_CFG0_VGA		0x403e1ac7
-#define SUNXI_TVE_GCTRL_UNKNOWN1_VGA		0x00000000
+#define SUNXI_TVE_CFG0_VGA			0x20000000
+#define SUNXI_TVE_CFG0_PAL			0x07030001
+#define SUNXI_TVE_CFG0_NTSC			0x07030000
+#define SUNXI_TVE_DAC_CFG0_VGA			0x403e1ac7
+#ifdef CONFIG_MACH_SUN5I
+#define SUNXI_TVE_DAC_CFG0_COMPOSITE		0x433f0009
+#else
+#define SUNXI_TVE_DAC_CFG0_COMPOSITE		0x403f0008
+#endif
+#define SUNXI_TVE_FILTER_COMPOSITE		0x00000120
+#define SUNXI_TVE_CHROMA_FREQ_PAL_M		0x21e6efe3
+#define SUNXI_TVE_CHROMA_FREQ_PAL_NC		0x21f69446
+#define SUNXI_TVE_PORCH_NUM_PAL			0x008a0018
+#define SUNXI_TVE_PORCH_NUM_NTSC		0x00760020
+#define SUNXI_TVE_LINE_NUM_PAL			0x00160271
+#define SUNXI_TVE_LINE_NUM_NTSC			0x0016020d
+#define SUNXI_TVE_BLANK_BLACK_LEVEL_PAL		0x00fc00fc
+#define SUNXI_TVE_BLANK_BLACK_LEVEL_NTSC	0x00f0011a
+#define SUNXI_TVE_UNKNOWN1_VGA			0x00000000
+#define SUNXI_TVE_UNKNOWN1_COMPOSITE		0x18181818
 #define SUNXI_TVE_AUTO_DETECT_EN_DET_EN(dac)	(1 << ((dac) + 0))
 #define SUNXI_TVE_AUTO_DETECT_EN_INT_EN(dac)	(1 << ((dac) + 16))
 #define SUNXI_TVE_AUTO_DETECT_INT_STATUS(dac)	(1 << ((dac) + 0))
@@ -512,6 +543,20 @@ struct sunxi_tve_reg {
 #define SUNXI_TVE_CSC_REG1			0x3b6dace1
 #define SUNXI_TVE_CSC_REG2			0x0e1d13dc
 #define SUNXI_TVE_CSC_REG3			0x00108080
+#define SUNXI_TVE_COLOR_BURST_PAL_M		0x00000000
+#define SUNXI_TVE_CBR_LEVEL_PAL			0x00002828
+#define SUNXI_TVE_CBR_LEVEL_NTSC		0x0000004f
+#define SUNXI_TVE_BURST_PHASE_NTSC		0x00000000
+#define SUNXI_TVE_BURST_WIDTH_COMPOSITE		0x0016447e
+#define SUNXI_TVE_UNKNOWN2_PAL			0x0000e0e0
+#define SUNXI_TVE_UNKNOWN2_NTSC			0x0000a0a0
+#define SUNXI_TVE_SYNC_VBI_LEVEL_NTSC		0x001000f0
+#define SUNXI_TVE_ACTIVE_NUM_COMPOSITE		0x000005a0
+#define SUNXI_TVE_CHROMA_BW_GAIN_COMP		0x00000002
+#define SUNXI_TVE_NOTCH_WIDTH_COMPOSITE		0x00000101
+#define SUNXI_TVE_RESYNC_NUM_PAL		0x800d000c
+#define SUNXI_TVE_RESYNC_NUM_NTSC		0x000e000c
+#define SUNXI_TVE_SLAVE_PARA_COMPOSITE		0x00000000
 
 int sunxi_simplefb_setup(void *blob);
 

@@ -3,9 +3,6 @@ if TARGET_ARISTAINETOS
 config SYS_BOARD
 	default "aristainetos"
 
-config SYS_SOC
-	default "mx6"
-
 config SYS_CONFIG_NAME
 	default "aristainetos"
 
@@ -16,10 +13,17 @@ if TARGET_ARISTAINETOS2
 config SYS_BOARD
 	default "aristainetos"
 
-config SYS_SOC
-	default "mx6"
-
 config SYS_CONFIG_NAME
 	default "aristainetos2"
+
+endif
+
+if TARGET_ARISTAINETOS2B
+
+config SYS_BOARD
+	default "aristainetos"
+
+config SYS_CONFIG_NAME
+	default "aristainetos2b"
 
 endif

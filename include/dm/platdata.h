@@ -16,6 +16,10 @@
 /**
  * struct driver_info - Information required to instantiate a device
  *
+ * NOTE: Avoid using this except in extreme circumstances, where device tree
+ * is not feasible (e.g. serial driver in SPL where <8KB of SRAM is
+ * available). U-Boot's driver model uses device tree for configuration.
+ *
  * @name:	Driver name
  * @platdata:	Driver-specific platform data
  */
@@ -24,6 +28,11 @@ struct driver_info {
 	const void *platdata;
 };
 
+/**
+ * NOTE: Avoid using these except in extreme circumstances, where device tree
+ * is not feasible (e.g. serial driver in SPL where <8KB of SRAM is
+ * available). U-Boot's driver model uses device tree for configuration.
+ */
 #define U_BOOT_DEVICE(__name)						\
 	ll_entry_declare(struct driver_info, __name, driver_info)
 

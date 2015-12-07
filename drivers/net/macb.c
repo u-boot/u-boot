@@ -54,6 +54,7 @@ struct macb_dma_desc {
 #define DMA_DESC_BYTES(n)	(n * sizeof(struct macb_dma_desc))
 #define MACB_TX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_TX_RING_SIZE))
 #define MACB_RX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_RX_RING_SIZE))
+#define MACB_TX_DUMMY_DMA_DESC_SIZE	(DMA_DESC_BYTES(1))
 
 #define RXADDR_USED		0x00000001
 #define RXADDR_WRAP		0x00000002
@@ -92,6 +93,9 @@ struct macb_device {
 	unsigned long		rx_buffer_dma;
 	unsigned long		rx_ring_dma;
 	unsigned long		tx_ring_dma;
+
+	struct macb_dma_desc	*dummy_desc;
+	unsigned long		dummy_desc_dma;
 
 	const struct device	*dev;
 	struct eth_device	netdev;
@@ -525,6 +529,30 @@ static int macb_phy_init(struct macb_device *macb)
 	return 1;
 }
 
+static int gmac_init_multi_queues(struct macb_device *macb)
+{
+	int i, num_queues = 1;
+	u32 queue_mask;
+
+	/* bit 0 is never set but queue 0 always exists */
+	queue_mask = gem_readl(macb, DCFG6) & 0xff;
+	queue_mask |= 0x1;
+
+	for (i = 1; i < MACB_MAX_QUEUES; i++)
+		if (queue_mask & (1 << i))
+			num_queues++;
+
+	macb->dummy_desc->ctrl = TXBUF_USED;
+	macb->dummy_desc->addr = 0;
+	flush_dcache_range(macb->dummy_desc_dma, macb->dummy_desc_dma +
+			MACB_TX_DUMMY_DMA_DESC_SIZE);
+
+	for (i = 1; i < num_queues; i++)
+		gem_writel_queue_TBQP(macb, macb->dummy_desc_dma, i - 1);
+
+	return 0;
+}
+
 static int macb_init(struct eth_device *netdev, bd_t *bd)
 {
 	struct macb_device *macb = to_macb(netdev);
@@ -565,6 +593,9 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
 
 	if (macb_is_gem(macb)) {
+		/* Check the multi queue and initialize the queue for tx */
+		gmac_init_multi_queues(macb);
+
 		/*
 		 * When the GMAC IP with GE feature, this bit is used to
 		 * select interface between RGMII and GMII.
@@ -712,6 +743,8 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 					   &macb->rx_ring_dma);
 	macb->tx_ring = dma_alloc_coherent(MACB_TX_DMA_DESC_SIZE,
 					   &macb->tx_ring_dma);
+	macb->dummy_desc = dma_alloc_coherent(MACB_TX_DUMMY_DMA_DESC_SIZE,
+					   &macb->dummy_desc_dma);
 
 	/* TODO: we need check the rx/tx_ring_dma is dcache line aligned */
 

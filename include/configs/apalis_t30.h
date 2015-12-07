@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 2014-2015 Marcel Ziswiler
  *
+ * Configuration settings for the Toradex Apalis T30 modules.
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -11,12 +13,12 @@
 
 #include "tegra30-common.h"
 
+#define CONFIG_ARCH_MISC_INIT
+
 /* High-level configuration options */
-#define V_PROMPT			"Apalis T30 # "
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Apalis T30"
 
 /* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
@@ -26,7 +28,7 @@
 #define CONFIG_SYS_I2C_TEGRA
 #define CONFIG_CMD_I2C
 
-/* SD/MMC */
+/* SD/MMC support */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
@@ -38,10 +40,10 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
 
-/* USB Host support */
+/* USB host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	3
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
@@ -53,11 +55,13 @@
 #define CONFIG_CMD_PCI_ENUM
 
 /* PCI networking support */
-#define CONFIG_E1000
 #define CONFIG_E1000_NO_NVM
 
 /* General networking support */
 #define CONFIG_CMD_DHCP
+#define CONFIG_IP_DEFRAG
+#define CONFIG_TFTP_BLOCKSIZE		16384
+#define CONFIG_TFTP_TSIZE
 
 /* Miscellaneous commands */
 #define CONFIG_FAT_WRITE

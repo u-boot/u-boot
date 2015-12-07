@@ -37,11 +37,18 @@
 	defined(CONFIG_T2080QDS) || \
 	defined(CONFIG_T2080RDB) || \
 	defined(CONFIG_T1040QDS) || \
+	defined(CONFIG_T104xD4QDS) || \
 	defined(CONFIG_T104xRDB) || \
+	defined(CONFIG_T104xD4RDB) || \
 	defined(CONFIG_PPC_T1023) || \
 	defined(CONFIG_PPC_T1024)
 #define CONFIG_SYS_CPC_REINIT_F
 #define CONFIG_KEY_REVOCATION
+#undef CONFIG_SYS_INIT_L3_ADDR
+#define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
+#endif
+
+#if defined(CONFIG_RAMBOOT_PBL)
 #undef CONFIG_SYS_INIT_L3_ADDR
 #define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
 #endif
@@ -58,16 +65,30 @@
 	#define	CONFIG_FSL_TRUST_ARCH_v1
 #endif
 
-#if defined(CONFIG_FSL_CORENET)
+#if defined(CONFIG_FSL_CORENET) && !defined(CONFIG_SYS_RAMBOOT)
 /* The key used for verification of next level images
  * is picked up from an Extension Table which has
  * been verified by the ISBC (Internal Secure boot Code)
- * in boot ROM of the SoC
+ * in boot ROM of the SoC.
+ * The feature is only applicable in case of NOR boot and is
+ * not applicable in case of RAMBOOT (NAND, SD, SPI).
  */
 #define CONFIG_FSL_ISBC_KEY_EXT
 #endif
 
 #ifndef CONFIG_FIT_SIGNATURE
+/* If Boot Script is not on NOR and is required to be copied on RAM */
+#ifdef CONFIG_BOOTSCRIPT_COPY_RAM
+#define CONFIG_BS_HDR_ADDR_RAM		0x00010000
+#define CONFIG_BS_HDR_ADDR_FLASH	0x00800000
+#define CONFIG_BS_HDR_SIZE		0x00002000
+#define CONFIG_BS_ADDR_RAM		0x00012000
+#define CONFIG_BS_ADDR_FLASH		0x00802000
+#define CONFIG_BS_SIZE			0x00001000
+
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_RAM
+#else
+
 /* The bootscript header address is different for B4860 because the NOR
  * mapping is different on B4 due to reduced NOR size.
  */
@@ -81,6 +102,8 @@
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xec020000
 #else
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xee020000
+#endif
+
 #endif
 
 #include <config_fsl_secboot.h>

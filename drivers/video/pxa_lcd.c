@@ -11,14 +11,13 @@
 /* ** HEADER FILES							*/
 /************************************************************************/
 
-#include <config.h>
 #include <common.h>
-#include <stdarg.h>
-#include <linux/types.h>
-#include <stdio_dev.h>
-#include <lcd.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/io.h>
+#include <lcd.h>
+#include <linux/types.h>
+#include <stdarg.h>
+#include <stdio_dev.h>
 
 /* #define DEBUG */
 

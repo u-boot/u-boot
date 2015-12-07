@@ -86,6 +86,7 @@
 #include <environment.h>
 #include <errno.h>
 #include <net.h>
+#include <net/tftp.h>
 #if defined(CONFIG_STATUS_LED)
 #include <miiphy.h>
 #include <status_led.h>
@@ -105,7 +106,6 @@
 #if defined(CONFIG_CMD_SNTP)
 #include "sntp.h"
 #endif
-#include "tftp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

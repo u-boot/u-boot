@@ -63,9 +63,19 @@ struct irq_regs {
 	/* Pushed by vector handler (irq_<num>) */
 	long irq_id;
 	/* Pushed by cpu in response to interrupt */
-	long eip;
-	long xcs;
-	long eflags;
+	union {
+		struct {
+			long eip;
+			long xcs;
+			long eflags;
+		} ctx1;
+		struct {
+			long err;
+			long eip;
+			long xcs;
+			long eflags;
+		} ctx2;
+	} context;
 }  __attribute__ ((packed));
 
 /* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */

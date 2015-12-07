@@ -24,8 +24,6 @@ typedef volatile unsigned int   *dv_reg_p;
 
 #endif
 
-#define		BIT(x)	(1 << (x))
-
 #define KS2_DDRPHY_PIR_OFFSET           0x04
 #define KS2_DDRPHY_PGCR0_OFFSET         0x08
 #define KS2_DDRPHY_PGCR1_OFFSET         0x0C
@@ -165,6 +163,8 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_PASSPLLCTL1			(KS2_DEVICE_STATE_CTRL_BASE + 0x35C)
 #define KS2_DDR3APLLCTL0		(KS2_DEVICE_STATE_CTRL_BASE + 0x360)
 #define KS2_DDR3APLLCTL1		(KS2_DEVICE_STATE_CTRL_BASE + 0x364)
+#define KS2_DDR3BPLLCTL0		(KS2_DEVICE_STATE_CTRL_BASE + 0x368)
+#define KS2_DDR3BPLLCTL1		(KS2_DEVICE_STATE_CTRL_BASE + 0x36C)
 #define KS2_ARMPLLCTL0			(KS2_DEVICE_STATE_CTRL_BASE + 0x370)
 #define KS2_ARMPLLCTL1			(KS2_DEVICE_STATE_CTRL_BASE + 0x374)
 
@@ -237,6 +237,24 @@ typedef volatile unsigned int   *dv_reg_p;
 /* SGMII SerDes */
 #define KS2_SGMII_SERDES_BASE		0x0232a000
 
+/* JTAG ID register */
+#define JTAGID_VARIANT_SHIFT	28
+#define JTAGID_VARIANT_MASK	(0xf << 28)
+#define JTAGID_PART_NUM_SHIFT	12
+#define JTAGID_PART_NUM_MASK	(0xffff << 12)
+
+/* PART NUMBER definitions */
+#define CPU_66AK2Hx	0xb981
+#define CPU_66AK2Ex	0xb9a6
+#define CPU_66AK2Lx	0xb9a7
+
+/* DEVSPEED register */
+#define DEVSPEED_DEVSPEED_SHIFT	16
+#define DEVSPEED_DEVSPEED_MASK	(0xfff << 16)
+#define DEVSPEED_ARMSPEED_SHIFT	0
+#define DEVSPEED_ARMSPEED_MASK	0xfff
+#define DEVSPEED_NUMSPDS	12
+
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>
 #endif
@@ -250,34 +268,33 @@ typedef volatile unsigned int   *dv_reg_p;
 #endif
 
 #ifndef __ASSEMBLY__
-static inline int cpu_is_k2hk(void)
-{
-	unsigned int jtag_id	= __raw_readl(KS2_JTAG_ID_REG);
-	unsigned int part_no	= (jtag_id >> 12) & 0xffff;
 
-	return (part_no == 0xb981) ? 1 : 0;
+static inline u16 get_part_number(void)
+{
+	u32 jtag_id = __raw_readl(KS2_JTAG_ID_REG);
+
+	return (jtag_id & JTAGID_PART_NUM_MASK) >> JTAGID_PART_NUM_SHIFT;
 }
 
-static inline int cpu_is_k2e(void)
+static inline u8 cpu_is_k2hk(void)
 {
-	unsigned int jtag_id    = __raw_readl(KS2_JTAG_ID_REG);
-	unsigned int part_no    = (jtag_id >> 12) & 0xffff;
-
-	return (part_no == 0xb9a6) ? 1 : 0;
+	return get_part_number() == CPU_66AK2Hx;
 }
 
-static inline int cpu_is_k2l(void)
+static inline u8 cpu_is_k2e(void)
 {
-	unsigned int jtag_id    = __raw_readl(KS2_JTAG_ID_REG);
-	unsigned int part_no    = (jtag_id >> 12) & 0xffff;
-
-	return (part_no == 0xb9a7) ? 1 : 0;
+	return get_part_number() == CPU_66AK2Ex;
 }
 
-static inline int cpu_revision(void)
+static inline u8 cpu_is_k2l(void)
 {
-	unsigned int jtag_id	= __raw_readl(KS2_JTAG_ID_REG);
-	unsigned int rev	= (jtag_id >> 28) & 0xf;
+	return get_part_number() == CPU_66AK2Lx;
+}
+
+static inline u8 cpu_revision(void)
+{
+	u32 jtag_id	= __raw_readl(KS2_JTAG_ID_REG);
+	u8 rev	= (jtag_id & JTAGID_VARIANT_MASK) >> JTAGID_VARIANT_SHIFT;
 
 	return rev;
 }

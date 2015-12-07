@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <version.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>
 #include <asm/gpio.h>

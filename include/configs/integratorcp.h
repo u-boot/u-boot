@@ -28,15 +28,6 @@
 #define CONFIG_SMC91111_BASE    0xC8000000
 #undef CONFIG_SMC91111_EXT_PHY
 
-/* PL011 configuration */
-#define CONFIG_PL011_SERIAL
-#define CONFIG_PL011_CLOCK	14745600
-#define CONFIG_PL01x_PORTS	{ (void *)CONFIG_SYS_SERIAL0, (void *)CONFIG_SYS_SERIAL1 }
-#define CONFIG_CONS_INDEX	0
-#define CONFIG_BAUDRATE		38400
-#define CONFIG_SYS_SERIAL0		0x16000000
-#define CONFIG_SYS_SERIAL1		0x17000000
-
 /*
  * Command line configuration.
  */
@@ -50,8 +41,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_PROMPT	"Integrator-CP # "	/* Monitor Command Prompt */
-
 #define PHYS_FLASH_SIZE			0x01000000	/* 16MB */
 #define CONFIG_SYS_MAX_FLASH_SECT	64
 #define CONFIG_ENV_IS_IN_FLASH	1

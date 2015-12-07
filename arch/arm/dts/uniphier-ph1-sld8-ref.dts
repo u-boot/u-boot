@@ -1,9 +1,7 @@
 /*
  * Device Tree Source for UniPhier PH1-sLD8 Reference Board
  *
- * Copyright (C) 2014-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+	X11
  */
@@ -22,15 +20,15 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyPS0,115200 earlyprintk";
-		stdout-path = &uart0;
+		bootargs = "console=ttyS0,115200";
+		stdout-path = &serial0;
 	};
 
 	aliases {
-		serial0 = &uart0;
-		serial1 = &uart1;
-		serial2 = &uart2;
-		serial3 = &uart3;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -38,11 +36,15 @@
 	};
 };
 
-&uart0 {
+&serial0 {
 	status = "okay";
 };
 
-&uart1 {
+&serial2 {
+	status = "okay";
+};
+
+&serial3 {
 	status = "okay";
 };
 
@@ -56,4 +58,27 @@
 
 &usb1 {
 	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};
+
+/* for U-boot only */
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&serial0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart0 {
+	u-boot,dm-pre-reloc;
 };

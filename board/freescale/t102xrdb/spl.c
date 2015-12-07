@@ -30,6 +30,30 @@ unsigned long get_board_ddr_clk(void)
 	return CONFIG_DDR_CLK_FREQ;
 }
 
+#if defined(CONFIG_SPL_MMC_BOOT)
+#define GPIO1_SD_SEL 0x00020000
+int board_mmc_getcd(struct mmc *mmc)
+{
+	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	u32 val = in_be32(&pgpio->gpdat);
+
+	/* GPIO1_14, 0: eMMC, 1: SD */
+	val &= GPIO1_SD_SEL;
+
+	return val ? -1 : 1;
+}
+
+int board_mmc_getwp(struct mmc *mmc)
+{
+	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	u32 val = in_be32(&pgpio->gpdat);
+
+	val &= GPIO1_SD_SEL;
+
+	return val ? -1 : 0;
+}
+#endif
+
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, sys_clk, ccb_clk;

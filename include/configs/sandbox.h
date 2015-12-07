@@ -187,7 +187,8 @@
 
 #define SANDBOX_ETH_SETTINGS		"ethaddr=00:00:11:22:33:44\0" \
 					"eth1addr=00:00:11:22:33:45\0" \
-					"eth5addr=00:00:11:22:33:46\0" \
+					"eth3addr=00:00:11:22:33:46\0" \
+					"eth5addr=00:00:11:22:33:47\0" \
 					"ipaddr=1.2.3.4\0"
 
 #define MEM_LAYOUT_ENV_SETTINGS \

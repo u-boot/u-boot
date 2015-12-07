@@ -40,14 +40,12 @@
 #define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_PALMAS_POWER
-#endif
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
 
-#include <configs/ti_armv7_common.h>
+#include <configs/ti_armv7_omap.h>
 
 /*
  * Hardware drivers
@@ -72,6 +70,7 @@
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
+	DEFAULT_MMC_TI_ARGS \
 	"console=" CONSOLEDEV ",115200n8\0" \
 	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
@@ -81,14 +80,7 @@
 	"vram=16M\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
 	"optargs=\0" \
-	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
-	"mmcrootfstype=ext4 rootwait\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"vram=${vram} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
+	"dofastboot=0\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
 		"source ${loadaddr}\0" \
@@ -111,7 +103,7 @@
 			"if run loadimage; then " \
 				"run loadfdt; " \
 				"echo Booting from mmc${mmcdev} ...; " \
-				"run mmcargs; " \
+				"run args_mmc; " \
 				"bootz ${loadaddr} - ${fdtaddr}; " \
 			"fi;" \
 		"fi;\0" \
@@ -135,7 +127,7 @@
 	"if test ${dofastboot} -eq 1; then " \
 		"echo Boot fastboot requested, resetting dofastboot ...;" \
 		"setenv dofastboot 0; saveenv;" \
-		"echo Booting into fastboot ...; fastboot;" \
+		"echo Booting into fastboot ...; fastboot 0;" \
 	"fi;" \
 	"run findfdt; " \
 	"run mmcboot;" \

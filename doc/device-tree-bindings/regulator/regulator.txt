@@ -15,21 +15,20 @@ For the node name e.g.: "prefix[:alpha:]num { ... }":
 
 Example the prefix "ldo" will pass for: "ldo1", "ldo@1", "LDO1", "LDOREG@1"...
 
-Required properties:
-- regulator-name: a string, required by the regulator uclass
-
-Note
-The "regulator-name" constraint is used for setting the device's uclass
-platform data '.name' field. And the regulator device name is set from
-it's node name.
-
 Optional properties:
+- regulator-name: a string, required by the regulator uclass
 - regulator-min-microvolt: a minimum allowed Voltage value
 - regulator-max-microvolt: a maximum allowed Voltage value
 - regulator-min-microamp: a minimum allowed Current value
 - regulator-max-microamp: a maximum allowed Current value
 - regulator-always-on: regulator should never be disabled
 - regulator-boot-on: enabled by bootloader/firmware
+
+Note
+The "regulator-name" constraint is used for setting the device's uclass
+platform data '.name' field. And the regulator device name is set from
+it's node name. If "regulator-name" is not provided in dts, node name
+is chosen for setting the device's uclass platform data '.name' field.
 
 Other kernel-style properties, are currently not used.
 
@@ -41,10 +40,8 @@ For the regulator autoset from constraints, the framework expects that:
 
 Example:
 ldo0 {
-	/* Mandatory */
-	regulator-name = "VDDQ_EMMC_1.8V";
-
 	/* Optional */
+	regulator-name = "VDDQ_EMMC_1.8V";
 	regulator-min-microvolt = <1800000>;
 	regulator-max-microvolt = <1800000>;
 	regulator-min-microamp = <100000>;

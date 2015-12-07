@@ -17,7 +17,12 @@
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
-#define	CONFIG_SYS_TEXT_BASE	0x04000000
+/*
+ * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
+ * for DDR ECC byte filling in the SPL before loading the main
+ * U-Boot into it.
+ */
+#define	CONFIG_SYS_TEXT_BASE	0x00800000
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*
@@ -27,11 +32,15 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_TFTPPUT
 #define CONFIG_CMD_TIME
+#define CONFIG_CMD_USB
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -39,6 +48,13 @@
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 #define CONFIG_SYS_I2C_SLAVE		0x0
 #define CONFIG_SYS_I2C_SPEED		100000
+
+/* USB/EHCI configuration */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_EHCI_MARVELL
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		1000000
@@ -59,6 +75,45 @@
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
+
+/* SATA support */
+#ifdef CONFIG_CMD_IDE
+#define __io
+#define CONFIG_IDE_PREINIT
+#define CONFIG_MVSATA_IDE
+
+/* Needs byte-swapping for ATA data register */
+#define CONFIG_IDE_SWAP_IO
+
+#define CONFIG_SYS_ATA_REG_OFFSET	0x0100 /* Offset for register access */
+#define CONFIG_SYS_ATA_DATA_OFFSET	0x0100 /* Offset for data I/O */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x0100
+
+/* Each 8-bit ATA register is aligned to a 4-bytes address */
+#define CONFIG_SYS_ATA_STRIDE		4
+
+/* CONFIG_CMD_IDE requires some #defines for ATA registers */
+#define CONFIG_SYS_IDE_MAXBUS		2
+#define CONFIG_SYS_IDE_MAXDEVICE	CONFIG_SYS_IDE_MAXBUS
+
+/* ATA registers base is at SATA controller base */
+#define CONFIG_SYS_ATA_BASE_ADDR	MVEBU_AXP_SATA_BASE
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x2000
+#define CONFIG_SYS_ATA_IDE1_OFFSET	0x4000
+
+#define CONFIG_DOS_PARTITION
+#endif /* CONFIG_CMD_IDE */
+
+/* PCIe support */
+#define CONFIG_PCI
+#define CONFIG_PCI_MVEBU
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_E1000	/* enable Intel E1000 support for testing */
+
+/* NAND */
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
+#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -107,9 +162,10 @@
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SYS_MVEBU_DDR
+#define CONFIG_SYS_MVEBU_DDR_AXP
 #define CONFIG_SPD_EEPROM		0x4e
 
 #endif /* _CONFIG_DB_MV7846MP_GP_H */

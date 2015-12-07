@@ -86,20 +86,20 @@ int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
 
 	drv = lists_driver_lookup_name(drv_name);
 	if (!drv) {
-		printf("Cannot find driver '%s'\n", drv_name);
+		debug("Cannot find driver '%s'\n", drv_name);
 		return -ENOENT;
 	}
 	ret = device_bind(parent, drv, dev_name, NULL, node, devp);
 	if (ret) {
-		printf("Cannot create device named '%s' (err=%d)\n",
-		       dev_name, ret);
+		debug("Cannot create device named '%s' (err=%d)\n",
+		      dev_name, ret);
 		return ret;
 	}
 
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 /**
  * driver_check_compatible() - Check if a driver is compatible with this node
  *

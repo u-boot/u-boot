@@ -1,0 +1,31 @@
+if TARGET_AM335X_SL50
+
+config SYS_BOARD
+	default "sl50"
+
+config SYS_VENDOR
+	default "tcl"
+
+config SYS_SOC
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	default "am335x_sl50"
+
+config CONS_INDEX
+	int "UART used for console"
+	range 1 6
+	default 1
+	help
+	  The AM335x SoC has a total of 6 UARTs (UART0 to UART5 as referenced
+	  in documentation, etc) available to it.  Depending on your specific
+	  board you may want something other than UART0 as for example the IDK
+	  uses UART3 so enter 4 here.
+
+config DM_GPIO
+	default y
+
+config DM_SERIAL
+	default y
+
+endif

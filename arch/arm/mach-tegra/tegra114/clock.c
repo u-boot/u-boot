@@ -1,17 +1,8 @@
 /*
- * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
+ * (C) Copyright 2010-2015
+ * NVIDIA Corporation <www.nvidia.com>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms and conditions of the GNU General Public License,
- * version 2, as published by the Free Software Foundation.
- *
- * This program is distributed in the hope it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier:     GPL-2.0+
  */
 
 /* Tegra114 Clock control functions */
@@ -435,6 +426,36 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 };
 
 /*
+ * PLL divider shift/mask tables for all PLL IDs.
+ */
+struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
+	/*
+	 * T114: some deviations from T2x/T30.
+	 * NOTE: If kcp_mask/kvco_mask == 0, they're not used in that PLL (PLLX, etc.)
+	 *       If lock_ena or lock_det are >31, they're not used in that PLL.
+	 */
+
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 20, .p_mask = 0x0F,
+	  .lock_ena = 24, .lock_det = 27, .kcp_shift = 28, .kcp_mask = 3, .kvco_shift = 27, .kvco_mask = 1 },	/* PLLC */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 0,  .p_mask = 0,
+	  .lock_ena = 0,  .lock_det = 27, .kcp_shift = 1, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLM */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLP */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLA */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x01,
+	  .lock_ena = 22, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLU */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 22, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLD */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 20, .p_mask = 0x0F,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 0, .kcp_mask = 0, .kvco_shift = 0, .kvco_mask = 0 },	/* PLLX */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 0,  .p_mask = 0,
+	  .lock_ena = 9,  .lock_det = 11, .kcp_shift = 6, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLE */
+	{ .m_shift = 0, .m_mask = 0x0F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLS (RESERVED) */
+};
+
+/*
  * Get the oscillator frequency, from the corresponding hardware configuration
  * field. Note that T30/T114 support 3 new higher freqs, but we map back
  * to the old T20 freqs. Support for the higher oscillators is TBD.
@@ -561,7 +582,7 @@ void reset_set_enable(enum periph_id periph_id, int enable)
 	writel(reg, reset);
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 /*
  * Convert a device tree clock ID to our peripheral ID. They are mostly
  * the same but we are very cautious so we check that a valid clock ID is
@@ -597,14 +618,21 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 		return clk_id;
 	}
 }
-#endif /* CONFIG_OF_CONTROL */
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 void clock_early_init(void)
 {
 	struct clk_rst_ctlr *clkrst =
 		(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	struct clk_pll_info *pllinfo;
+	u32 data;
 
 	tegra30_set_up_pllp();
+
+	/* clear IDDQ before accessing any other PLLC registers */
+	pllinfo = &tegra_pll_info_table[CLOCK_ID_CGENERAL];
+	clrbits_le32(&clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_misc, PLLC_IDDQ);
+	udelay(2);
 
 	/*
 	 * PLLC output frequency set to 600Mhz
@@ -639,11 +667,15 @@ void clock_early_init(void)
 	writel(0x00561600, &clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_out[1]);
 
 	/* PLLC_MISC: Set LOCK_ENABLE */
-	writel(0x01000000, &clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_misc);
+	pllinfo = &tegra_pll_info_table[CLOCK_ID_CGENERAL];
+	setbits_le32(&clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_misc, (1 << pllinfo->lock_ena));
 	udelay(2);
 
-	/* PLLD_MISC: Set CLKENABLE, CPCON 12, LFCON 1 */
-	writel(0x40000C10, &clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_misc);
+	/* PLLD_MISC: Set CLKENABLE, CPCON 12, LFCON 1, and enable lock */
+	pllinfo = &tegra_pll_info_table[CLOCK_ID_DISPLAY];
+	data = (12 << pllinfo->kcp_shift) | (1 << pllinfo->kvco_shift);
+	data |= (1 << PLLD_CLKENABLE) | (1 << pllinfo->lock_ena);
+	writel(data, &clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_misc);
 	udelay(2);
 }
 
@@ -652,8 +684,8 @@ void arch_timer_init(void)
 	struct sysctr_ctlr *sysctr = (struct sysctr_ctlr *)NV_PA_TSC_BASE;
 	u32 freq, val;
 
-	freq = clock_get_rate(CLOCK_ID_OSC);
-	debug("%s: osc freq is %dHz [0x%08X]\n", __func__, freq, freq);
+	freq = clock_get_rate(CLOCK_ID_CLK_M);
+	debug("%s: clk_m freq is %dHz [0x%08X]\n", __func__, freq, freq);
 
 	/* ARM CNTFRQ */
 	asm("mcr p15, 0, %0, c14, c0, 0\n" : : "r" (freq));

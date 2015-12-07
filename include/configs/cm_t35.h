@@ -100,7 +100,7 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_USB_STORAGE
-#define CONFIG_MUSB_UDC
+#define CONFIG_USB_MUSB_UDC
 #define CONFIG_TWL4030_USB
 #define CONFIG_CMD_USB
 
@@ -147,7 +147,6 @@
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_QUIET_TEST
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
@@ -222,7 +221,6 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"CM-T3x # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

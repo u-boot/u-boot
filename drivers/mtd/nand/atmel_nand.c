@@ -1378,9 +1378,7 @@ int spl_nand_erase_one(int block, int page)
 	hwctrl(&mtd, (page_addr >> 16) & 0x0f,
 	       NAND_CTRL_ALE | NAND_CTRL_CHANGE);
 #endif
-
 	hwctrl(&mtd, NAND_CMD_ERASE2, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
-	udelay(2000);
 
 	while (!this->dev_ready(&mtd))
 		;

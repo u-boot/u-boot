@@ -1,0 +1,69 @@
+/*
+ * Device Tree Source for UniPhier SoCs default pinctrl settings
+ *
+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+	X11
+ */
+
+&pinctrl {
+	pinctrl_i2c0: i2c0_grp {
+		groups = "i2c0";
+		function = "i2c0";
+	};
+
+	pinctrl_i2c1: i2c1_grp {
+		groups = "i2c1";
+		function = "i2c1";
+	};
+
+	pinctrl_i2c2: i2c2_grp {
+		groups = "i2c2";
+		function = "i2c2";
+	};
+
+	pinctrl_i2c3: i2c3_grp {
+		groups = "i2c3";
+		function = "i2c3";
+	};
+
+	pinctrl_uart0: uart0_grp {
+		groups = "uart0";
+		function = "uart0";
+	};
+
+	pinctrl_uart1: uart1_grp {
+		groups = "uart1";
+		function = "uart1";
+	};
+
+	pinctrl_uart2: uart2_grp {
+		groups = "uart2";
+		function = "uart2";
+	};
+
+	pinctrl_uart3: uart3_grp {
+		groups = "uart3";
+		function = "uart3";
+	};
+
+	pinctrl_usb0: usb0_grp {
+		groups = "usb0";
+		function = "usb0";
+	};
+
+	pinctrl_usb1: usb1_grp {
+		groups = "usb1";
+		function = "usb1";
+	};
+
+	pinctrl_usb2: usb2_grp {
+		groups = "usb2";
+		function = "usb2";
+	};
+
+	pinctrl_usb3: usb3_grp {
+		groups = "usb3";
+		function = "usb3";
+	};
+};

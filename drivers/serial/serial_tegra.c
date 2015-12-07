@@ -9,7 +9,7 @@
 #include <ns16550.h>
 #include <serial.h>
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id tegra_serial_ids[] = {
 	{ .compatible = "nvidia,tegra20-uart" },
 	{ }
@@ -42,7 +42,7 @@ U_BOOT_DEVICE(ns16550_serial) = {
 U_BOOT_DRIVER(serial_ns16550) = {
 	.name	= "serial_tegra20",
 	.id	= UCLASS_SERIAL,
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = tegra_serial_ids,
 	.ofdata_to_platdata = tegra_serial_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),

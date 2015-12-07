@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <malloc.h>
+#include <asm/arch-fsl-lsch3/fdt.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE
@@ -22,6 +23,10 @@
 
 #ifndef CONFIG_SYS_PCI_MEMORY_SIZE
 #define CONFIG_SYS_PCI_MEMORY_SIZE (2 * 1024 * 1024 * 1024UL) /* 2G */
+#endif
+
+#ifndef CONFIG_SYS_PCI_EP_MEMORY_BASE
+#define CONFIG_SYS_PCI_EP_MEMORY_BASE CONFIG_SYS_LOAD_ADDR
 #endif
 
 /* iATU registers */
@@ -40,6 +45,7 @@
 #define PCIE_ATU_CR2			0x908
 #define PCIE_ATU_ENABLE			(0x1 << 31)
 #define PCIE_ATU_BAR_MODE_ENABLE	(0x1 << 30)
+#define PCIE_ATU_BAR_NUM(bar)		((bar) << 8)
 #define PCIE_ATU_LOWER_BASE		0x90C
 #define PCIE_ATU_UPPER_BASE		0x910
 #define PCIE_ATU_LIMIT			0x914
@@ -51,6 +57,7 @@
 
 /* LUT registers */
 #define PCIE_LUT_BASE		0x80000
+#define PCIE_LUT_LCTRL0		0x7F8
 #define PCIE_LUT_DBG		0x7FC
 
 #define PCIE_DBI_RO_WR_EN	0x8bc
@@ -64,6 +71,25 @@
 
 #define PCIE_DBI_SIZE		0x100000 /* 1M */
 
+#define PCIE_LCTRL0_CFG2_ENABLE	(1 << 31)
+#define PCIE_LCTRL0_VF(vf)	((vf) << 22)
+#define PCIE_LCTRL0_PF(pf)	((pf) << 16)
+#define PCIE_LCTRL0_VF_ACTIVE	(1 << 21)
+#define PCIE_LCTRL0_VAL(pf, vf)	(PCIE_LCTRL0_PF(pf) |			   \
+				 PCIE_LCTRL0_VF(vf) |			   \
+				 ((vf) == 0 ? 0 : PCIE_LCTRL0_VF_ACTIVE) | \
+				 PCIE_LCTRL0_CFG2_ENABLE)
+
+#define PCIE_NO_SRIOV_BAR_BASE	0x1000
+
+#define PCIE_PF_NUM		2
+#define PCIE_VF_NUM		64
+
+#define PCIE_BAR0_SIZE		(4 * 1024) /* 4K */
+#define PCIE_BAR1_SIZE		(8 * 1024) /* 8K for MSIX */
+#define PCIE_BAR2_SIZE		(4 * 1024) /* 4K */
+#define PCIE_BAR4_SIZE		(1 * 1024 * 1024) /* 1M */
+
 struct ls_pcie {
 	int idx;
 	void __iomem *dbi;
@@ -75,6 +101,7 @@ struct ls_pcie {
 struct ls_pcie_info {
 	unsigned long regs;
 	int pci_num;
+	u64 phys_base;
 	u64 cfg0_phys;
 	u64 cfg0_size;
 	u64 cfg1_phys;
@@ -90,6 +117,7 @@ struct ls_pcie_info {
 #define SET_LS_PCIE_INFO(x, num)			\
 {							\
 	x.regs = CONFIG_SYS_PCIE##num##_ADDR;		\
+	x.phys_base = CONFIG_SYS_PCIE##num##_PHYS_ADDR;	\
 	x.cfg0_phys = CONFIG_SYS_PCIE_CFG0_PHYS_OFF +	\
 		      CONFIG_SYS_PCIE##num##_PHYS_ADDR;	\
 	x.cfg0_size = CONFIG_SYS_PCIE_CFG0_SIZE;	\
@@ -194,6 +222,18 @@ static void ls_pcie_iatu_outbound_set(struct ls_pcie *pcie, int idx, int type,
 	writel(bus_addr >> 32, pcie->dbi + PCIE_ATU_UPPER_TARGET);
 	writel(type, pcie->dbi + PCIE_ATU_CR1);
 	writel(PCIE_ATU_ENABLE, pcie->dbi + PCIE_ATU_CR2);
+}
+
+/* Use bar match mode and MEM type as default */
+static void ls_pcie_iatu_inbound_set(struct ls_pcie *pcie, int idx,
+				     int bar, u64 phys)
+{
+	writel(PCIE_ATU_REGION_INBOUND | idx, pcie->dbi + PCIE_ATU_VIEWPORT);
+	writel((u32)phys, pcie->dbi + PCIE_ATU_LOWER_TARGET);
+	writel(phys >> 32, pcie->dbi + PCIE_ATU_UPPER_TARGET);
+	writel(PCIE_ATU_TYPE_MEM, pcie->dbi + PCIE_ATU_CR1);
+	writel(PCIE_ATU_ENABLE | PCIE_ATU_BAR_MODE_ENABLE |
+	       PCIE_ATU_BAR_NUM(bar), pcie->dbi + PCIE_ATU_CR2);
 }
 
 static void ls_pcie_setup_atu(struct ls_pcie *pcie, struct ls_pcie_info *info)
@@ -349,6 +389,97 @@ static void ls_pcie_setup_ctrl(struct ls_pcie *pcie,
 #endif
 }
 
+static void ls_pcie_ep_setup_atu(struct ls_pcie *pcie,
+				 struct ls_pcie_info *info)
+{
+	u64 phys = CONFIG_SYS_PCI_EP_MEMORY_BASE;
+
+	/* ATU 0 : INBOUND : map BAR0 */
+	ls_pcie_iatu_inbound_set(pcie, PCIE_ATU_REGION_INDEX0, 0, phys);
+	/* ATU 1 : INBOUND : map BAR1 */
+	phys += PCIE_BAR1_SIZE;
+	ls_pcie_iatu_inbound_set(pcie, PCIE_ATU_REGION_INDEX1, 1, phys);
+	/* ATU 2 : INBOUND : map BAR2 */
+	phys += PCIE_BAR2_SIZE;
+	ls_pcie_iatu_inbound_set(pcie, PCIE_ATU_REGION_INDEX2, 2, phys);
+	/* ATU 3 : INBOUND : map BAR4 */
+	phys = CONFIG_SYS_PCI_EP_MEMORY_BASE + PCIE_BAR4_SIZE;
+	ls_pcie_iatu_inbound_set(pcie, PCIE_ATU_REGION_INDEX3, 4, phys);
+
+	/* ATU 0 : OUTBOUND : map 4G MEM */
+	ls_pcie_iatu_outbound_set(pcie, PCIE_ATU_REGION_INDEX0,
+				  PCIE_ATU_TYPE_MEM,
+				  info->phys_base,
+				  0,
+				  4 * 1024 * 1024 * 1024ULL);
+}
+
+/* BAR0 and BAR1 are 32bit BAR2 and BAR4 are 64bit */
+static void ls_pcie_ep_setup_bar(void *bar_base, int bar, u32 size)
+{
+	if (size < 4 * 1024)
+		return;
+
+	switch (bar) {
+	case 0:
+		writel(size - 1, bar_base + PCI_BASE_ADDRESS_0);
+		break;
+	case 1:
+		writel(size - 1, bar_base + PCI_BASE_ADDRESS_1);
+		break;
+	case 2:
+		writel(size - 1, bar_base + PCI_BASE_ADDRESS_2);
+		writel(0, bar_base + PCI_BASE_ADDRESS_3);
+		break;
+	case 4:
+		writel(size - 1, bar_base + PCI_BASE_ADDRESS_4);
+		writel(0, bar_base + PCI_BASE_ADDRESS_5);
+		break;
+	default:
+		break;
+	}
+}
+
+static void ls_pcie_ep_setup_bars(void *bar_base)
+{
+	/* BAR0 - 32bit - 4K configuration */
+	ls_pcie_ep_setup_bar(bar_base, 0, PCIE_BAR0_SIZE);
+	/* BAR1 - 32bit - 8K MSIX*/
+	ls_pcie_ep_setup_bar(bar_base, 1, PCIE_BAR1_SIZE);
+	/* BAR2 - 64bit - 4K MEM desciptor */
+	ls_pcie_ep_setup_bar(bar_base, 2, PCIE_BAR2_SIZE);
+	/* BAR4 - 64bit - 1M MEM*/
+	ls_pcie_ep_setup_bar(bar_base, 4, PCIE_BAR4_SIZE);
+}
+
+static void ls_pcie_setup_ep(struct ls_pcie *pcie, struct ls_pcie_info *info)
+{
+	struct pci_controller *hose = &pcie->hose;
+	pci_dev_t dev = PCI_BDF(hose->first_busno, 0, 0);
+	int sriov;
+
+	sriov = pci_hose_find_ext_capability(hose, dev, PCI_EXT_CAP_ID_SRIOV);
+	if (sriov) {
+		int pf, vf;
+
+		for (pf = 0; pf < PCIE_PF_NUM; pf++) {
+			for (vf = 0; vf <= PCIE_VF_NUM; vf++) {
+				writel(PCIE_LCTRL0_VAL(pf, vf),
+				       pcie->dbi + PCIE_LUT_BASE +
+				       PCIE_LUT_LCTRL0);
+				ls_pcie_ep_setup_bars(pcie->dbi);
+				ls_pcie_ep_setup_atu(pcie, info);
+			}
+		}
+
+		/* Disable CFG2 */
+		writel(0, pcie->dbi + PCIE_LUT_BASE + PCIE_LUT_LCTRL0);
+	} else {
+		ls_pcie_ep_setup_bars(pcie->dbi + PCIE_NO_SRIOV_BAR_BASE);
+		ls_pcie_ep_setup_atu(pcie, info);
+	}
+}
+
 int ls_pcie_init_ctrl(int busno, enum srds_prtcl dev, struct ls_pcie_info *info)
 {
 	struct ls_pcie *pcie;
@@ -425,6 +556,11 @@ int ls_pcie_init_ctrl(int busno, enum srds_prtcl dev, struct ls_pcie_info *info)
 	printf("PCIe%u: %s ", info->pci_num,
 	       ep_mode ? "Endpoint" : "Root Complex");
 
+	if (ep_mode)
+		ls_pcie_setup_ep(pcie, info);
+	else
+		ls_pcie_setup_ctrl(pcie, info);
+
 	linkup = ls_pcie_link_up(pcie);
 
 	if (!linkup) {
@@ -441,8 +577,6 @@ int ls_pcie_init_ctrl(int busno, enum srds_prtcl dev, struct ls_pcie_info *info)
 
 	if (ep_mode)
 		return busno;
-
-	ls_pcie_setup_ctrl(pcie, info);
 
 	pci_register_hose(hose);
 
@@ -526,5 +660,75 @@ void ft_pci_setup(void *blob, bd_t *bd)
 #else
 void ft_pci_setup(void *blob, bd_t *bd)
 {
+}
+#endif
+
+#ifdef CONFIG_LS2085A
+
+void pcie_set_available_streamids(void *blob, const char *pcie_path,
+				  u32 *stream_ids, int count)
+{
+	int nodeoffset;
+	int i;
+
+	nodeoffset = fdt_path_offset(blob, pcie_path);
+	if (nodeoffset < 0) {
+		printf("\n%s: ERROR: unable to update PCIe node\n", __func__);
+		return;
+	}
+
+	/* for each stream ID, append to mmu-masters */
+	for (i = 0; i < count; i++) {
+		fdt_appendprop_u32(blob, nodeoffset, "available-stream-ids",
+				   stream_ids[i]);
+	}
+}
+
+#define MAX_STREAM_IDS 4
+void fdt_fixup_smmu_pcie(void *blob)
+{
+	int count;
+	u32 stream_ids[MAX_STREAM_IDS];
+	u32 ctlr_streamid = 0x300;
+
+	#ifdef CONFIG_PCIE1
+	/* PEX1 stream ID fixup */
+	count =	FSL_PEX1_STREAM_ID_END - FSL_PEX1_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX1_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3400000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3400000",
+			   &ctlr_streamid, 1);
+	#endif
+
+	#ifdef CONFIG_PCIE2
+	/* PEX2 stream ID fixup */
+	count =	FSL_PEX2_STREAM_ID_END - FSL_PEX2_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX2_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3500000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3500000",
+			   &ctlr_streamid, 1);
+	#endif
+
+	#ifdef CONFIG_PCIE3
+	/* PEX3 stream ID fixup */
+	count =	FSL_PEX3_STREAM_ID_END - FSL_PEX3_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX3_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3600000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3600000",
+			   &ctlr_streamid, 1);
+	#endif
+
+	#ifdef CONFIG_PCIE4
+	/* PEX4 stream ID fixup */
+	count =	FSL_PEX4_STREAM_ID_END - FSL_PEX4_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX4_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3700000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3700000",
+			   &ctlr_streamid, 1);
+	#endif
 }
 #endif

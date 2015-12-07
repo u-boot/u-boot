@@ -152,6 +152,7 @@ static int mxs_ocotp_scale_hclk(bool enter, uint32_t *val)
 		/* Return the original HCLK clock speed. */
 		*val = readl(&clkctrl_regs->hw_clkctrl_hbus);
 		*val &= CLKCTRL_HBUS_DIV_MASK;
+		*val >>= CLKCTRL_HBUS_DIV_OFFSET;
 
 		/* Scale the HCLK to 454/19 = 23.9 MHz . */
 		scale_val = (~19) << CLKCTRL_HBUS_DIV_OFFSET;

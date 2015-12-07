@@ -12,7 +12,7 @@ import terminal
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
-                'cover-cc', 'process_log']
+                'cover_cc', 'process_log']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.

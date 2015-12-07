@@ -1,3 +1,5 @@
+menu "Demo for driver model"
+
 config DM_DEMO
 	bool "Enable demo uclass support"
 	depends on DM
@@ -24,3 +26,5 @@ config DM_DEMO_SHAPE
 	  a shape when the 'demo hello' command is executed which targets
 	  this device. It can be used to help understand how driver model
 	  works.
+
+endmenu

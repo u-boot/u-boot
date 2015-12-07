@@ -33,6 +33,7 @@ obj-$(CONFIG_VIDEO_COREBOOT) += coreboot_fb.o
 obj-$(CONFIG_VIDEO_CT69000) += ct69000.o videomodes.o
 obj-$(CONFIG_VIDEO_DA8XX) += da8xx-fb.o videomodes.o
 obj-$(CONFIG_VIDEO_IMX25LCDC) += imx25lcdc.o videomodes.o
+obj-$(CONFIG_VIDEO_LCD_ANX9804) += anx9804.o
 obj-$(CONFIG_VIDEO_LCD_HITACHI_TX18D42VM) += hitachi_tx18d42vm_lcd.o
 obj-$(CONFIG_VIDEO_LCD_SSD2828) += ssd2828.o
 obj-$(CONFIG_VIDEO_MB862xx) += mb862xx.o videomodes.o
@@ -51,6 +52,7 @@ obj-$(CONFIG_VIDEO_VESA) += vesa_fb.o
 obj-$(CONFIG_FORMIKE) += formike.o
 obj-$(CONFIG_LG4573) += lg4573.o
 obj-$(CONFIG_AM335X_LCD) += am335x-fb.o
-obj-$(CONFIG_VIDEO_PARADE) += parade.o
 
 obj-${CONFIG_VIDEO_TEGRA124} += tegra124/
+
+obj-y += bridge/

@@ -1,20 +1,48 @@
 if TEGRA
 
+config TEGRA_ARMV7_COMMON
+	bool "Tegra 32-bit"
+	select SUPPORT_SPL
+	select SPL
+	select OF_CONTROL
+	select CPU_V7
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_I2C
+	select DM_SPI
+	select DM_GPIO
+
 choice
 	prompt "Tegra SoC select"
 	optional
 
 config TEGRA20
 	bool "Tegra20 family"
+	select TEGRA_ARMV7_COMMON
 
 config TEGRA30
 	bool "Tegra30 family"
+	select TEGRA_ARMV7_COMMON
 
 config TEGRA114
 	bool "Tegra114 family"
+	select TEGRA_ARMV7_COMMON
 
 config TEGRA124
 	bool "Tegra124 family"
+	select TEGRA_ARMV7_COMMON
+
+config TEGRA210
+	bool "Tegra210 family"
+	select OF_CONTROL
+	select ARM64
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_I2C
+	select DM_SPI
+	select DM_GPIO
 
 endchoice
 
@@ -25,5 +53,6 @@ source "arch/arm/mach-tegra/tegra20/Kconfig"
 source "arch/arm/mach-tegra/tegra30/Kconfig"
 source "arch/arm/mach-tegra/tegra114/Kconfig"
 source "arch/arm/mach-tegra/tegra124/Kconfig"
+source "arch/arm/mach-tegra/tegra210/Kconfig"
 
 endif

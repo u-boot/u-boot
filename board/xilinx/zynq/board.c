@@ -166,7 +166,7 @@ int board_mmc_init(bd_t *bd)
 
 int dram_init(void)
 {
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	int node;
 	fdt_addr_t addr;
 	fdt_size_t size;

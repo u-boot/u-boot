@@ -25,8 +25,21 @@
 #define BM_CTRL_ERROR			0x00000200
 #define BM_CTRL_BUSY			0x00000100
 #define BO_CTRL_ADDR			0
+#ifdef CONFIG_MX7
+#define BM_CTRL_ADDR                    0x0000000f
+#define BM_CTRL_RELOAD                  0x00000400
+#else
 #define BM_CTRL_ADDR			0x0000007f
+#endif
 
+#ifdef CONFIG_MX7
+#define BO_TIMING_FSOURCE               12
+#define BM_TIMING_FSOURCE               0x0007f000
+#define BV_TIMING_FSOURCE_NS            1001
+#define BO_TIMING_PROG                  0
+#define BM_TIMING_PROG                  0x00000fff
+#define BV_TIMING_PROG_US               10
+#else
 #define BO_TIMING_STROBE_READ		16
 #define BM_TIMING_STROBE_READ		0x003f0000
 #define BV_TIMING_STROBE_READ_NS	37
@@ -36,12 +49,75 @@
 #define BO_TIMING_STROBE_PROG		0
 #define BM_TIMING_STROBE_PROG		0x00000fff
 #define BV_TIMING_STROBE_PROG_US	10
+#endif
 
 #define BM_READ_CTRL_READ_FUSE		0x00000001
 
 #define BF(value, field)		(((value) << BO_##field) & BM_##field)
 
 #define WRITE_POSTAMBLE_US		2
+
+#if defined(CONFIG_MX6) || defined(CONFIG_VF610)
+#define FUSE_BANK_SIZE	0x80
+#ifdef CONFIG_MX6SL
+#define FUSE_BANKS	8
+#else
+#define FUSE_BANKS	16
+#endif
+#elif defined CONFIG_MX7
+#define FUSE_BANK_SIZE	0x40
+#define FUSE_BANKS	16
+#else
+#error "Unsupported architecture\n"
+#endif
+
+#if defined(CONFIG_MX6)
+#include <asm/arch/sys_proto.h>
+
+/*
+ * There is a hole in shadow registers address map of size 0x100
+ * between bank 5 and bank 6 on iMX6QP, iMX6DQ, iMX6SDL, iMX6SX and iMX6UL.
+ * Bank 5 ends at 0x6F0 and Bank 6 starts at 0x800. When reading the fuses,
+ * we should account for this hole in address space.
+ *
+ * Similar hole exists between bank 14 and bank 15 of size
+ * 0x80 on iMX6QP, iMX6DQ, iMX6SDL and iMX6SX.
+ * Note: iMX6SL has only 0-7 banks and there is no hole.
+ * Note: iMX6UL doesn't have this one.
+ *
+ * This function is to covert user input to physical bank index.
+ * Only needed when read fuse, because we use register offset, so
+ * need to calculate real register offset.
+ * When write, no need to consider hole, always use the bank/word
+ * index from fuse map.
+ */
+u32 fuse_bank_physical(int index)
+{
+	u32 phy_index;
+
+	if (is_cpu_type(MXC_CPU_MX6SL)) {
+		phy_index = index;
+	} else if (is_cpu_type(MXC_CPU_MX6UL)) {
+		if (index >= 6)
+			phy_index = fuse_bank_physical(5) + (index - 6) + 3;
+		else
+			phy_index = index;
+	} else {
+		if (index >= 15)
+			phy_index = fuse_bank_physical(14) + (index - 15) + 2;
+		else if (index >= 6)
+			phy_index = fuse_bank_physical(5) + (index - 6) + 3;
+		else
+			phy_index = index;
+	}
+	return phy_index;
+}
+#else
+u32 fuse_bank_physical(int index)
+{
+	return index;
+}
+#endif
 
 static void wait_busy(struct ocotp_regs *regs, unsigned int delay_us)
 {
@@ -59,9 +135,9 @@ static int prepare_access(struct ocotp_regs **regs, u32 bank, u32 word,
 {
 	*regs = (struct ocotp_regs *)OCOTP_BASE_ADDR;
 
-	if (bank >= ARRAY_SIZE((*regs)->bank) ||
-			word >= ARRAY_SIZE((*regs)->bank[0].fuse_regs) >> 2 ||
-			!assert) {
+	if (bank >= FUSE_BANKS ||
+	    word >= ARRAY_SIZE((*regs)->bank[0].fuse_regs) >> 2 ||
+	    !assert) {
 		printf("mxc_ocotp %s(): Invalid argument\n", caller);
 		return -EINVAL;
 	}
@@ -99,16 +175,38 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 {
 	struct ocotp_regs *regs;
 	int ret;
+	u32 phy_bank;
 
 	ret = prepare_read(&regs, bank, word, val, __func__);
 	if (ret)
 		return ret;
 
-	*val = readl(&regs->bank[bank].fuse_regs[word << 2]);
+	phy_bank = fuse_bank_physical(bank);
+
+	*val = readl(&regs->bank[phy_bank].fuse_regs[word << 2]);
 
 	return finish_access(regs, __func__);
 }
 
+#ifdef CONFIG_MX7
+static void set_timing(struct ocotp_regs *regs)
+{
+	u32 ipg_clk;
+	u32 fsource, prog;
+	u32 timing;
+
+	ipg_clk = mxc_get_clock(MXC_IPG_CLK);
+
+	fsource = DIV_ROUND_UP((ipg_clk / 1000) * BV_TIMING_FSOURCE_NS,
+			+       1000000) + 1;
+	prog = DIV_ROUND_CLOSEST(ipg_clk * BV_TIMING_PROG_US, 1000000) + 1;
+
+	timing = BF(fsource, TIMING_FSOURCE) | BF(prog, TIMING_PROG);
+
+	clrsetbits_le32(&regs->timing, BM_TIMING_FSOURCE | BM_TIMING_PROG,
+			timing);
+}
+#else
 static void set_timing(struct ocotp_regs *regs)
 {
 	u32 ipg_clk;
@@ -130,12 +228,17 @@ static void set_timing(struct ocotp_regs *regs)
 	clrsetbits_le32(&regs->timing, BM_TIMING_STROBE_READ | BM_TIMING_RELAX |
 			BM_TIMING_STROBE_PROG, timing);
 }
+#endif
 
 static void setup_direct_access(struct ocotp_regs *regs, u32 bank, u32 word,
 				int write)
 {
 	u32 wr_unlock = write ? BV_CTRL_WR_UNLOCK_KEY : 0;
+#ifdef CONFIG_MX7
+	u32 addr = bank;
+#else
 	u32 addr = bank << 3 | word;
+#endif
 
 	set_timing(regs);
 	clrsetbits_le32(&regs->ctrl, BM_CTRL_WR_UNLOCK | BM_CTRL_ADDR,
@@ -155,7 +258,11 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 	setup_direct_access(regs, bank, word, false);
 	writel(BM_READ_CTRL_READ_FUSE, &regs->read_ctrl);
 	wait_busy(regs, 1);
+#ifdef CONFIG_MX7
+	*val = readl((&regs->read_fuse_data0) + (word << 2));
+#else
 	*val = readl(&regs->read_fuse_data);
+#endif
 
 	return finish_access(regs, __func__);
 }
@@ -176,8 +283,38 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 		return ret;
 
 	setup_direct_access(regs, bank, word, true);
+#ifdef CONFIG_MX7
+	switch (word) {
+	case 0:
+		writel(0, &regs->data1);
+		writel(0, &regs->data2);
+		writel(0, &regs->data3);
+		writel(val, &regs->data0);
+		break;
+	case 1:
+		writel(val, &regs->data1);
+		writel(0, &regs->data2);
+		writel(0, &regs->data3);
+		writel(0, &regs->data0);
+		break;
+	case 2:
+		writel(0, &regs->data1);
+		writel(val, &regs->data2);
+		writel(0, &regs->data3);
+		writel(0, &regs->data0);
+		break;
+	case 3:
+		writel(0, &regs->data1);
+		writel(0, &regs->data2);
+		writel(val, &regs->data3);
+		writel(0, &regs->data0);
+		break;
+	}
+	wait_busy(regs, BV_TIMING_PROG_US);
+#else
 	writel(val, &regs->data);
 	wait_busy(regs, BV_TIMING_STROBE_PROG_US);
+#endif
 	udelay(WRITE_POSTAMBLE_US);
 
 	return finish_access(regs, __func__);
@@ -187,12 +324,15 @@ int fuse_override(u32 bank, u32 word, u32 val)
 {
 	struct ocotp_regs *regs;
 	int ret;
+	u32 phy_bank;
 
 	ret = prepare_write(&regs, bank, word, __func__);
 	if (ret)
 		return ret;
 
-	writel(val, &regs->bank[bank].fuse_regs[word << 2]);
+	phy_bank = fuse_bank_physical(bank);
+
+	writel(val, &regs->bank[phy_bank].fuse_regs[word << 2]);
 
 	return finish_access(regs, __func__);
 }

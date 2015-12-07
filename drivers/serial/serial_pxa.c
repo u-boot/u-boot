@@ -18,12 +18,12 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
-#include <serial.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/arch/regs-uart.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
+#include <serial.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

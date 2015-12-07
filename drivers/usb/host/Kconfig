@@ -52,6 +52,13 @@ config USB_EHCI
 
 if USB_EHCI_HCD
 
+config USB_EHCI_MX6
+	bool "Support for i.MX6 on-chip EHCI USB controller"
+	depends on ARCH_MX6
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on i.MX6 SoCs.
+
 config USB_EHCI_UNIPHIER
 	bool "Support for UniPhier on-chip EHCI USB controller"
 	depends on ARCH_UNIPHIER && OF_CONTROL

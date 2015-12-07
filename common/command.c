@@ -445,7 +445,7 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
 		ulong addr;
 
 		addr = (ulong)(cmdtp->cmd) + gd->reloc_off;
-#if DEBUG_COMMANDS
+#ifdef DEBUG_COMMANDS
 		printf("Command \"%s\": 0x%08lx => 0x%08lx\n",
 		       cmdtp->name, (ulong)(cmdtp->cmd), addr);
 #endif
@@ -492,7 +492,7 @@ static int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	result = (cmdtp->cmd)(cmdtp, flag, argc, argv);
 	if (result)
-		debug("Command failed, result=%d", result);
+		debug("Command failed, result=%d\n", result);
 	return result;
 }
 

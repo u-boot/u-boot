@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <ns16550.h>
 #include <linux/compiler.h>
+#include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #ifdef CONFIG_LCD
@@ -29,6 +30,7 @@
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/uart.h>
 #include <asm/arch-tegra/warmboot.h>
+#include <asm/arch-tegra/gpu.h>
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
 #endif
@@ -60,6 +62,7 @@ __weak void pin_mux_usb(void) {}
 __weak void pin_mux_spi(void) {}
 __weak void gpio_early_init_uart(void) {}
 __weak void pin_mux_display(void) {}
+__weak void start_cpu_fan(void) {}
 
 #if defined(CONFIG_TEGRA_NAND)
 __weak void pin_mux_nand(void)
@@ -124,6 +127,8 @@ int board_init(void)
 	/* Do clocks and UART first so that printf() works */
 	clock_init();
 	clock_verify();
+
+	config_gpu();
 
 #ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();
@@ -196,6 +201,12 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
+	/* Do any special system timer/TSC setup */
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+	if (!tegra_cpu_is_non_secure())
+#endif
+		arch_timer_init();
+
 	pinmux_init();
 	board_init_uart_f();
 
@@ -224,6 +235,8 @@ int board_late_init(void)
 		setenv("cpu_ns_mode", "");
 	}
 #endif
+	start_cpu_fan();
+
 	return 0;
 }
 
@@ -274,3 +287,119 @@ void pad_init_mmc(struct mmc_host *host)
 #endif	/* T30 */
 }
 #endif	/* MMC */
+
+/*
+ * In some SW environments, a memory carve-out exists to house a secure
+ * monitor, a trusted OS, and/or various statically allocated media buffers.
+ *
+ * This carveout exists at the highest possible address that is within a
+ * 32-bit physical address space.
+ *
+ * This function returns the total size of this carve-out. At present, the
+ * returned value is hard-coded for simplicity. In the future, it may be
+ * possible to determine the carve-out size:
+ * - By querying some run-time information source, such as:
+ *   - A structure passed to U-Boot by earlier boot software.
+ *   - SoC registers.
+ *   - A call into the secure monitor.
+ * - In the per-board U-Boot configuration header, based on knowledge of the
+ *   SW environment that U-Boot is being built for.
+ *
+ * For now, we support two configurations in U-Boot:
+ * - 32-bit ports without any form of carve-out.
+ * - 64 bit ports which are assumed to use a carve-out of a conservatively
+ *   hard-coded size.
+ */
+static ulong carveout_size(void)
+{
+#ifdef CONFIG_ARM64
+	return SZ_512M;
+#else
+	return 0;
+#endif
+}
+
+/*
+ * Determine the amount of usable RAM below 4GiB, taking into account any
+ * carve-out that may be assigned.
+ */
+static ulong usable_ram_size_below_4g(void)
+{
+	ulong total_size_below_4g;
+	ulong usable_size_below_4g;
+
+	/*
+	 * The total size of RAM below 4GiB is the lesser address of:
+	 * (a) 2GiB itself (RAM starts at 2GiB, and 4GiB - 2GiB == 2GiB).
+	 * (b) The size RAM physically present in the system.
+	 */
+	if (gd->ram_size < SZ_2G)
+		total_size_below_4g = gd->ram_size;
+	else
+		total_size_below_4g = SZ_2G;
+
+	/* Calculate usable RAM by subtracting out any carve-out size */
+	usable_size_below_4g = total_size_below_4g - carveout_size();
+
+	return usable_size_below_4g;
+}
+
+/*
+ * Represent all available RAM in either one or two banks.
+ *
+ * The first bank describes any usable RAM below 4GiB.
+ * The second bank describes any RAM above 4GiB.
+ *
+ * This split is driven by the following requirements:
+ * - The NVIDIA L4T kernel requires separate entries in the DT /memory/reg
+ *   property for memory below and above the 4GiB boundary. The layout of that
+ *   DT property is directly driven by the entries in the U-Boot bank array.
+ * - The potential existence of a carve-out at the end of RAM below 4GiB can
+ *   only be represented using multiple banks.
+ *
+ * Explicitly removing the carve-out RAM from the bank entries makes the RAM
+ * layout a bit more obvious, e.g. when running "bdinfo" at the U-Boot
+ * command-line.
+ *
+ * This does mean that the DT U-Boot passes to the Linux kernel will not
+ * include this RAM in /memory/reg at all. An alternative would be to include
+ * all RAM in the U-Boot banks (and hence DT), and add a /memreserve/ node
+ * into DT to stop the kernel from using the RAM. IIUC, I don't /think/ the
+ * Linux kernel will ever need to access any RAM in* the carve-out via a CPU
+ * mapping, so either way is acceptable.
+ *
+ * On 32-bit systems, we never define a bank for RAM above 4GiB, since the
+ * start address of that bank cannot be represented in the 32-bit .size
+ * field.
+ */
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
+
+#ifdef CONFIG_PHYS_64BIT
+	if (gd->ram_size > SZ_2G) {
+		gd->bd->bi_dram[1].start = 0x100000000;
+		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+	} else
+#endif
+	{
+		gd->bd->bi_dram[1].start = 0;
+		gd->bd->bi_dram[1].size = 0;
+	}
+}
+
+/*
+ * Most hardware on 64-bit Tegra is still restricted to DMA to the lower
+ * 32-bits of the physical address space. Cap the maximum usable RAM area
+ * at 4 GiB to avoid DMA buffers from being allocated beyond the 32-bit
+ * boundary that most devices can address. Also, don't let U-Boot use any
+ * carve-out, as mentioned above.
+ *
+ * This function is called before dram_init_banksize(), so we can't simply
+ * return gd->bd->bi_dram[1].start + gd->bd->bi_dram[1].size.
+ */
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	return CONFIG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
+}

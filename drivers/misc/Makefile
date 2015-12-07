@@ -22,13 +22,17 @@ obj-$(CONFIG_MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NS87308) += ns87308.o
 obj-$(CONFIG_PDSP188x) += pdsp188x.o
+obj-$(CONFIG_SANDBOX) += reset_sandbox.o
 ifdef CONFIG_DM_I2C
 obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
 endif
 obj-$(CONFIG_SMSC_LPC47M) += smsc_lpc47m.o
 obj-$(CONFIG_STATUS_LED) += status_led.o
 obj-$(CONFIG_SANDBOX) += swap_case.o
+obj-$(CONFIG_SANDBOX) += syscon_sandbox.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
 obj-$(CONFIG_FSL_SEC_MON) += fsl_sec_mon.o
 obj-$(CONFIG_PCA9551_LED) += pca9551_led.o
+obj-$(CONFIG_RESET) += reset-uclass.o
+obj-$(CONFIG_FSL_DEVICE_DISABLE) += fsl_devdis.o

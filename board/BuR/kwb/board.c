@@ -283,16 +283,6 @@ int board_late_init(void)
 	}
 	/* setup vxworks bootline */
 	char *vxworksbootline = (char *)VXWORKS_BOOTLINE;
-
-	/* setup default IP, in case if there is nothing in environment */
-	if (!getenv("ipaddr")) {
-		setenv("ipaddr", "192.168.60.1");
-		setenv("netmask", "255.255.255.0");
-		setenv("serverip", "192.168.60.254");
-		setenv("gatewayip", "192.168.60.254");
-		puts("net: had no IP! made default setup.\n");
-	}
-
 	sprintf(vxworksbootline,
 		"%s h=%s e=%s:%s g=%s %s o=0x%08x;0x%08x;0x%08x;0x%08x",
 		DEFAULT_BOOTLINE,

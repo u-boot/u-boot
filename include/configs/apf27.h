@@ -40,6 +40,7 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048
 #define CONFIG_SPL_TEXT_BASE    0xA0000000
+#define CONFIG_SPL_SERIAL_SUPPORT
 
 /* NAND boot config */
 #define CONFIG_SPL_NAND_SUPPORT
@@ -139,7 +140,6 @@
  * U-Boot general configurations
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"BIOS> "	/* prompt string */
 #define CONFIG_SYS_CBSIZE		2048		/* console I/O buffer */
 #define CONFIG_SYS_PBSIZE		\
 				(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
@@ -317,6 +317,8 @@
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_MXC_I2C1_SPEED	100000	/* 100 kHz */
 #define CONFIG_SYS_MXC_I2C1_SLAVE	0x7F
 #define CONFIG_SYS_MXC_I2C2_SPEED	100000	/* 100 kHz */

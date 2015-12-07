@@ -2,6 +2,7 @@
 
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
+/include/ "rtc.dtsi"
 
 / {
 	model = "Google Link";
@@ -234,6 +235,11 @@
 				};
 			};
 		};
+	};
+
+	tpm {
+		reg = <0xfed40000 0x5000>;
+		compatible = "infineon,slb9635lpc";
 	};
 
 	microcode {

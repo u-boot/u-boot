@@ -14,7 +14,6 @@
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_BCM2835
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_SYS_DCACHE_OFF
 
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	\
@@ -116,7 +115,6 @@
 
 /* Shell */
 #define CONFIG_SYS_MAXARGS		8
-#define CONFIG_SYS_PROMPT		"U-Boot> "
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */
@@ -165,10 +163,10 @@
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
 #define ENV_MEM_LAYOUT_SETTINGS \
-	"scriptaddr=0x00000000\0" \
+	"fdt_addr_r=0x00000100\0" \
 	"pxefile_addr_r=0x00100000\0" \
 	"kernel_addr_r=0x01000000\0" \
-	"fdt_addr_r=0x02000000\0" \
+	"scriptaddr=0x02000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \

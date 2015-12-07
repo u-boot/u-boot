@@ -8,9 +8,6 @@
  */
 
 #include <common.h>
-#include <asm/armv7.h>
-#include <asm/bootm.h>
-#include <asm/pl310.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
@@ -38,7 +35,7 @@ struct scu_regs {
 	u32	fpga_rev;
 };
 
-#if defined(CONFIG_IMX6_THERMAL)
+#if defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx6_thermal_plat = {
 	.regs = (void *)ANATOP_BASE_ADDR,
 	.fuse_bank = 1,
@@ -62,12 +59,12 @@ u32 get_cpu_rev(void)
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	u32 reg = readl(&anatop->digprog_sololite);
 	u32 type = ((reg >> 16) & 0xff);
-	u32 major;
+	u32 major, cfg = 0;
 
 	if (type != MXC_CPU_MX6SL) {
 		reg = readl(&anatop->digprog);
 		struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
-		u32 cfg = readl(&scu->config) & 3;
+		cfg = readl(&scu->config) & 3;
 		type = ((reg >> 16) & 0xff);
 		if (type == MXC_CPU_MX6DL) {
 			if (!cfg)
@@ -81,6 +78,13 @@ u32 get_cpu_rev(void)
 
 	}
 	major = ((reg >> 8) & 0xff);
+	if ((major >= 1) &&
+	    ((type == MXC_CPU_MX6Q) || (type == MXC_CPU_MX6D))) {
+		major--;
+		type = MXC_CPU_MX6QP;
+		if (cfg == 1)
+			type = MXC_CPU_MX6DP;
+	}
 	reg &= 0xff;		/* mx6 silicon revision */
 	return (type << 12) | (reg + (0x10 * (major + 1)));
 }
@@ -179,65 +183,6 @@ u32 __weak get_board_rev(void)
 }
 #endif
 
-void init_aips(void)
-{
-	struct aipstz_regs *aips1, *aips2;
-#ifdef CONFIG_MX6SX
-	struct aipstz_regs *aips3;
-#endif
-
-	aips1 = (struct aipstz_regs *)AIPS1_BASE_ADDR;
-	aips2 = (struct aipstz_regs *)AIPS2_BASE_ADDR;
-#ifdef CONFIG_MX6SX
-	aips3 = (struct aipstz_regs *)AIPS3_CONFIG_BASE_ADDR;
-#endif
-
-	/*
-	 * Set all MPROTx to be non-bufferable, trusted for R/W,
-	 * not forced to user-mode.
-	 */
-	writel(0x77777777, &aips1->mprot0);
-	writel(0x77777777, &aips1->mprot1);
-	writel(0x77777777, &aips2->mprot0);
-	writel(0x77777777, &aips2->mprot1);
-
-	/*
-	 * Set all OPACRx to be non-bufferable, not require
-	 * supervisor privilege level for access,allow for
-	 * write access and untrusted master access.
-	 */
-	writel(0x00000000, &aips1->opacr0);
-	writel(0x00000000, &aips1->opacr1);
-	writel(0x00000000, &aips1->opacr2);
-	writel(0x00000000, &aips1->opacr3);
-	writel(0x00000000, &aips1->opacr4);
-	writel(0x00000000, &aips2->opacr0);
-	writel(0x00000000, &aips2->opacr1);
-	writel(0x00000000, &aips2->opacr2);
-	writel(0x00000000, &aips2->opacr3);
-	writel(0x00000000, &aips2->opacr4);
-
-#ifdef CONFIG_MX6SX
-	/*
-	 * Set all MPROTx to be non-bufferable, trusted for R/W,
-	 * not forced to user-mode.
-	 */
-	writel(0x77777777, &aips3->mprot0);
-	writel(0x77777777, &aips3->mprot1);
-
-	/*
-	 * Set all OPACRx to be non-bufferable, not require
-	 * supervisor privilege level for access,allow for
-	 * write access and untrusted master access.
-	 */
-	writel(0x00000000, &aips3->opacr0);
-	writel(0x00000000, &aips3->opacr1);
-	writel(0x00000000, &aips3->opacr2);
-	writel(0x00000000, &aips3->opacr3);
-	writel(0x00000000, &aips3->opacr4);
-#endif
-}
-
 static void clear_ldo_ramp(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
@@ -305,21 +250,6 @@ static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 	return 0;
 }
 
-static void imx_set_wdog_powerdown(bool enable)
-{
-	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
-	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
-
-#ifdef CONFIG_MX6SX
-	struct wdog_regs *wdog3 = (struct wdog_regs *)WDOG3_BASE_ADDR;
-	writew(enable, &wdog3->wmcr);
-#endif
-
-	/* Write to the PDE (Power Down Enable) bit */
-	writew(enable, &wdog1->wmcr);
-	writew(enable, &wdog2->wmcr);
-}
-
 static void set_ahb_rate(u32 val)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -335,9 +265,12 @@ static void set_ahb_rate(u32 val)
 static void clear_mmdc_ch_mask(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 reg;
+	reg = readl(&mxc_ccm->ccdr);
 
 	/* Clear MMDC channel mask */
-	writel(0, &mxc_ccm->ccdr);
+	reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK | MXC_CCM_CCDR_MMDC_CH0_HS_MASK);
+	writel(reg, &mxc_ccm->ccdr);
 }
 
 static void init_bandgap(void)
@@ -368,22 +301,6 @@ static void set_preclk_from_osc(void)
 	writel(reg, &mxc_ccm->cscmr1);
 }
 #endif
-
-#define SRC_SCR_WARM_RESET_ENABLE	0
-
-static void init_src(void)
-{
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-	u32 val;
-
-	/*
-	 * force warm reset sources to generate cold reset
-	 * for a more reliable restart
-	 */
-	val = readl(&src_regs->scr);
-	val &= ~(1 << SRC_SCR_WARM_RESET_ENABLE);
-	writel(val, &src_regs->scr);
-}
 
 int arch_cpu_init(void)
 {
@@ -431,31 +348,6 @@ int board_postclk_init(void)
 	return 0;
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-void enable_caches(void)
-{
-#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
-	enum dcache_option option = DCACHE_WRITETHROUGH;
-#else
-	enum dcache_option option = DCACHE_WRITEBACK;
-#endif
-
-	/* Avoid random hang when download by usb */
-	invalidate_dcache_all();
-
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-
-	/* Enable caching on OCRAM and ROM */
-	mmu_set_region_dcache_behaviour(ROMCP_ARB_BASE_ADDR,
-					ROMCP_ARB_END_ADDR,
-					option);
-	mmu_set_region_dcache_behaviour(IRAM_BASE_ADDR,
-					IRAM_SIZE,
-					option);
-}
-#endif
-
 #if defined(CONFIG_FEC_MXC)
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
@@ -477,18 +369,6 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
-void boot_mode_apply(unsigned cfg_val)
-{
-	unsigned reg;
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	writel(cfg_val, &psrc->gpr9);
-	reg = readl(&psrc->gpr10);
-	if (cfg_val)
-		reg |= 1 << 28;
-	else
-		reg &= ~(1 << 28);
-	writel(reg, &psrc->gpr10);
-}
 /*
  * cfg_val will be used for
  * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
@@ -520,7 +400,7 @@ void s_init(void)
 	u32 mask528;
 	u32 reg, periph1, periph2;
 
-	if (is_cpu_type(MXC_CPU_MX6SX))
+	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL))
 		return;
 
 	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
@@ -596,70 +476,3 @@ void imx_setup_hdmi(void)
 	writel(reg, &mxc_ccm->chsccdr);
 }
 #endif
-
-#ifndef CONFIG_SYS_L2CACHE_OFF
-#define IOMUXC_GPR11_L2CACHE_AS_OCRAM 0x00000002
-void v7_outer_cache_enable(void)
-{
-	struct pl310_regs *const pl310 = (struct pl310_regs *)L2_PL310_BASE;
-	unsigned int val;
-
-
-	/*
-	 * Set bit 22 in the auxiliary control register. If this bit
-	 * is cleared, PL310 treats Normal Shared Non-cacheable
-	 * accesses as Cacheable no-allocate.
-	 */
-	setbits_le32(&pl310->pl310_aux_ctrl, L310_SHARED_ATT_OVERRIDE_ENABLE);
-
-#if defined CONFIG_MX6SL
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	val = readl(&iomux->gpr[11]);
-	if (val & IOMUXC_GPR11_L2CACHE_AS_OCRAM) {
-		/* L2 cache configured as OCRAM, reset it */
-		val &= ~IOMUXC_GPR11_L2CACHE_AS_OCRAM;
-		writel(val, &iomux->gpr[11]);
-	}
-#endif
-
-	/* Must disable the L2 before changing the latency parameters */
-	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-
-	writel(0x132, &pl310->pl310_tag_latency_ctrl);
-	writel(0x132, &pl310->pl310_data_latency_ctrl);
-
-	val = readl(&pl310->pl310_prefetch_ctrl);
-
-	/* Turn on the L2 I/D prefetch */
-	val |= 0x30000000;
-
-	/*
-	 * The L2 cache controller(PL310) version on the i.MX6D/Q is r3p1-50rel0
-	 * The L2 cache controller(PL310) version on the i.MX6DL/SOLO/SL is r3p2
-	 * But according to ARM PL310 errata: 752271
-	 * ID: 752271: Double linefill feature can cause data corruption
-	 * Fault Status: Present in: r3p0, r3p1, r3p1-50rel0. Fixed in r3p2
-	 * Workaround: The only workaround to this erratum is to disable the
-	 * double linefill feature. This is the default behavior.
-	 */
-
-#ifndef CONFIG_MX6Q
-	val |= 0x40800000;
-#endif
-	writel(val, &pl310->pl310_prefetch_ctrl);
-
-	val = readl(&pl310->pl310_power_ctrl);
-	val |= L2X0_DYNAMIC_CLK_GATING_EN;
-	val |= L2X0_STNDBY_MODE_EN;
-	writel(val, &pl310->pl310_power_ctrl);
-
-	setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-}
-
-void v7_outer_cache_disable(void)
-{
-	struct pl310_regs *const pl310 = (struct pl310_regs *)L2_PL310_BASE;
-
-	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-}
-#endif /* !CONFIG_SYS_L2CACHE_OFF */

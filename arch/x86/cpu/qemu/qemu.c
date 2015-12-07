@@ -25,11 +25,13 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_EFI_STUB
 int print_cpuinfo(void)
 {
 	post_code(POST_CPU_INFO);
 	return default_print_cpuinfo();
 }
+#endif
 
 void reset_cpu(ulong addr)
 {
@@ -39,7 +41,5 @@ void reset_cpu(ulong addr)
 
 int arch_misc_init(void)
 {
-	pirq_init();
-
-	return 0;
+	return pirq_init();
 }

@@ -19,6 +19,7 @@
 #include <environment.h>
 #include <linux/stddef.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <nand.h>
 #include <search.h>
 #include <errno.h>

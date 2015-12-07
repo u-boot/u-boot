@@ -15,6 +15,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
+#include <linux/ctype.h>
 #include <atmel_hlcdc.h>
 #include <atmel_mci.h>
 #include <phy.h>
@@ -369,6 +370,25 @@ void spi_cs_deactivate(struct spi_slave *slave)
 }
 #endif /* CONFIG_ATMEL_SPI */
 
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	const int MAX_STR_LEN = 32;
+	char name[MAX_STR_LEN], *p;
+	int i;
+
+	strncpy(name, get_cpu_name(), MAX_STR_LEN);
+	for (i = 0, p = name; (*p) && (i < MAX_STR_LEN); p++, i++)
+		*p = tolower(*p);
+
+	strcat(name, "ek.dtb");
+	setenv("dtb_name", name);
+#endif
+	return 0;
+}
+#endif
+
 /* SPL */
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
@@ -430,10 +450,10 @@ void mem_init(void)
 
 	/* enable MPDDR clock */
 	at91_periph_clk_enable(ATMEL_ID_MPDDRC);
-	writel(0x4, &pmc->scer);
+	writel(AT91_PMC_DDR, &pmc->scer);
 
 	/* DDRAM2 Controller initialize */
-	ddr2_init(ATMEL_BASE_DDRCS, &ddr2);
+	ddr2_init(ATMEL_BASE_MPDDRC, ATMEL_BASE_DDRCS, &ddr2);
 }
 
 void at91_pmc_init(void)

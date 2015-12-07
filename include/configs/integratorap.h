@@ -21,17 +21,6 @@
 #define CONFIG_SYS_HZ_CLOCK		24000000	/* Timer 1 is clocked at 24Mhz */
 
 /*
- * PL010 Configuration
- */
-#define CONFIG_PL010_SERIAL
-#define CONFIG_CONS_INDEX	0
-#define CONFIG_BAUDRATE		38400
-#define CONFIG_PL01x_PORTS	{ (void *) (CONFIG_SYS_SERIAL0), (void *) (CONFIG_SYS_SERIAL1) }
-#define CONFIG_SYS_SERIAL0		0x16000000
-#define CONFIG_SYS_SERIAL1		0x17000000
-
-
-/*
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
@@ -46,11 +35,6 @@
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyAM0 console=tty"
 #define CONFIG_BOOTCOMMAND	""
-
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
 
 /* Flash settings */
 #define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */

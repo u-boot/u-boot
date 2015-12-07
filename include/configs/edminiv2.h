@@ -130,7 +130,6 @@
 #define CONFIG_INITRD_TAG	1	/* enable INITRD tag */
 #define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
 
-#define	CONFIG_SYS_PROMPT	"EDMiniV2> "	/* Command Prompt */
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
 		+sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */

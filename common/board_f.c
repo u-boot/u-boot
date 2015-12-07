@@ -144,7 +144,7 @@ static int init_baud_rate(void)
 
 static int display_text_info(void)
 {
-#ifndef CONFIG_SANDBOX
+#if !defined(CONFIG_SANDBOX) && !defined(CONFIG_EFI_APP)
 	ulong bss_start, bss_end, text_base;
 
 	bss_start = (ulong)&__bss_start;
@@ -206,7 +206,8 @@ static int show_dram_config(void)
 	debug("\nRAM Configuration:\n");
 	for (i = size = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size += gd->bd->bi_dram[i].size;
-		debug("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
+		debug("Bank #%d: %llx ", i,
+		      (unsigned long long)(gd->bd->bi_dram[i].start));
 #ifdef DEBUG
 		print_size(gd->bd->bi_dram[i].size, "\n");
 #endif
@@ -267,10 +268,12 @@ static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
-#elif defined(CONFIG_SANDBOX)
+#elif defined(CONFIG_SANDBOX) || defined(CONFIG_EFI_APP)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
 #elif defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
 	gd->mon_len = CONFIG_SYS_MONITOR_LEN;
+#elif defined(CONFIG_NDS32)
+	gd->mon_len = (ulong)(&__bss_end) - (ulong)(&_start);
 #else
 	/* TODO: use (ulong)&__bss_end - (ulong)&__text_start; ? */
 	gd->mon_len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
@@ -654,6 +657,8 @@ static int setup_dram_config(void)
 
 static int __maybe_unused reloc_fdt(void)
 {
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
 	if (gd->new_fdt) {
 		memcpy(gd->new_fdt, gd->fdt_blob, gd->fdt_size);
 		gd->fdt_blob = gd->new_fdt;
@@ -664,6 +669,11 @@ static int __maybe_unused reloc_fdt(void)
 
 static int setup_reloc(void)
 {
+	if (gd->flags & GD_FLG_SKIP_RELOC) {
+		debug("Skipping relocation due to flag\n");
+		return 0;
+	}
+
 #ifdef CONFIG_SYS_TEXT_BASE
 	gd->reloc_off = gd->relocaddr - CONFIG_SYS_TEXT_BASE;
 #ifdef CONFIG_M68K
@@ -689,6 +699,8 @@ static int setup_reloc(void)
 
 static int jump_to_copy(void)
 {
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
 	/*
 	 * x86 is special, but in a nice way. It uses a trampoline which
 	 * enables the dcache if possible.
@@ -704,6 +716,7 @@ static int jump_to_copy(void)
 	 * with the stack in SDRAM and Global Data in temporary memory
 	 * (CPU cache)
 	 */
+	arch_setup_gd(gd->new_gd);
 	board_init_f_r_trampoline(gd->start_addr_sp);
 #else
 	relocate_code(gd->start_addr_sp, gd->new_gd, gd->relocaddr);
@@ -761,6 +774,9 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can this go into arch_cpu_init()? */
 	probecpu,
 #endif
+#if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
+	x86_fsp_init,
+#endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 	mark_bootstage,
 	initf_dm,
@@ -778,7 +794,8 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif
-#if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || defined(CONFIG_BLACKFIN)
+#if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
+		defined(CONFIG_BLACKFIN) || defined(CONFIG_NDS32)
 	timer_init,		/* initialize timer */
 #endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
@@ -844,7 +861,8 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	announce_dram_init,
 	/* TODO: unify all these dram functions? */
-#if defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32)
+#if defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_NDS32) || \
+		defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32)
 	dram_init,		/* configure available RAM banks */
 #endif
 #if defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_M68K)
@@ -969,7 +987,8 @@ void board_init_f(ulong boot_flags)
 	if (initcall_run_list(init_sequence_f))
 		hang();
 
-#if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX)
+#if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX) && \
+		!defined(CONFIG_EFI_APP)
 	/* NOTREACHED - jump_to_copy() does not return */
 	hang();
 #endif
@@ -1016,16 +1035,26 @@ void board_init_f_r(void)
 }
 #endif /* CONFIG_X86 */
 
+/* Unfortunately x86 can't compile this code as gd cannot be assigned */
 #ifndef CONFIG_X86
+__weak void arch_setup_gd(struct global_data *gd_ptr)
+{
+	gd = gd_ptr;
+}
+#endif /* !CONFIG_X86 */
+
 ulong board_init_f_mem(ulong top)
 {
+	struct global_data *gd_ptr;
+
 	/* Leave space for the stack we are running with now */
 	top -= 0x40;
 
 	top -= sizeof(struct global_data);
 	top = ALIGN(top, 16);
-	gd = (struct global_data *)top;
-	memset((void *)gd, '\0', sizeof(*gd));
+	gd_ptr = (struct global_data *)top;
+	memset(gd_ptr, '\0', sizeof(*gd));
+	arch_setup_gd(gd_ptr);
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	top -= CONFIG_SYS_MALLOC_F_LEN;
@@ -1034,4 +1063,3 @@ ulong board_init_f_mem(ulong top)
 
 	return top;
 }
-#endif /* !CONFIG_X86 */

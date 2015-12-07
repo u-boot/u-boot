@@ -10,7 +10,7 @@
 #include <command.h>
 #include <mapmem.h>
 #include <net.h>
-#include "tftp.h"
+#include <net/tftp.h>
 #include "bootp.h"
 #ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
 #include <flash.h>
@@ -249,6 +249,8 @@ static void show_block_marker(void)
 	if (tftp_tsize) {
 		ulong pos = tftp_cur_block * tftp_block_size +
 			tftp_block_wrap_offset;
+		if (pos > tftp_tsize)
+			pos = tftp_tsize;
 
 		while (tftp_tsize_num_hash < pos * 50 / tftp_tsize) {
 			putc('#');

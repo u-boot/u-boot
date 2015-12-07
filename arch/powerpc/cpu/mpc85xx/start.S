@@ -1052,6 +1052,17 @@ create_init_ram_area:
 		CONFIG_SYS_MONITOR_BASE & 0xfff00000, MAS2_I|MAS2_G, \
 		CONFIG_SYS_PBI_FLASH_WINDOW & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
+
+#elif defined(CONFIG_RAMBOOT_PBL) && defined(CONFIG_SECURE_BOOT)
+	/* create a temp mapping in AS = 1 for mapping CONFIG_SYS_MONITOR_BASE
+	 * to L3 Address configured by PBL for ISBC code
+	*/
+	create_tlb1_entry 15, \
+		1, BOOKE_PAGESZ_1M, \
+		CONFIG_SYS_MONITOR_BASE & 0xfff00000, MAS2_I|MAS2_G, \
+		CONFIG_SYS_INIT_L3_ADDR & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
+		0, r6
+
 #else
 	/*
 	 * create a temp mapping in AS=1 to the 1M CONFIG_SYS_MONITOR_BASE space, the main
@@ -1105,7 +1116,11 @@ switch_as:
 	li	r0,0
 1:
 	dcbz	r0,r3
-	dcbtls	0,r0,r3
+#ifdef CONFIG_E6500	/* Lock/unlock L2 cache instead of L1 */
+	dcbtls	2, r0, r3
+#else
+	dcbtls	0, r0, r3
+#endif
 	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
 
@@ -1716,7 +1731,11 @@ unlock_ram_in_cache:
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r4
 1:	dcbi	r0,r3
+#ifdef CONFIG_E6500	/* lock/unlock L2 cache instead of L1 */
+	dcblc	2, r0, r3
+#else
 	dcblc	r0,r3
+#endif
 	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
 	sync

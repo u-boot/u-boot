@@ -61,8 +61,12 @@ static struct dm_regulator_mode max77686_buck_mode_onoff[] = {
 	MODE(OPMODE_ON, MAX77686_BUCK_MODE_ON, "ON"),
 };
 
-static const char max77686_buck_addr[] = {
+static const char max77686_buck_ctrl[] = {
 	0xff, 0x10, 0x12, 0x1c, 0x26, 0x30, 0x32, 0x34, 0x36, 0x38
+};
+
+static const char max77686_buck_out[] = {
+	0xff, 0x11, 0x14, 0x1e, 0x28, 0x31, 0x33, 0x35, 0x37, 0x39
 };
 
 static int max77686_buck_volt2hex(int buck, int uV)
@@ -77,13 +81,15 @@ static int max77686_buck_volt2hex(int buck, int uV)
 		/* hex = (uV - 600000) / 12500; */
 		hex = (uV - MAX77686_BUCK_UV_LMIN) / MAX77686_BUCK_UV_LSTEP;
 		hex_max = MAX77686_BUCK234_VOLT_MAX_HEX;
-		/**
-		 * Those use voltage scaller - temporary not implemented
-		 * so return just 0
-		 */
-		return -ENOSYS;
+		break;
 	default:
-		/* hex = (uV - 750000) / 50000; */
+		/*
+		 * hex = (uV - 750000) / 50000. We assume that dynamic voltage
+		 * scaling via GPIOs is not enabled and don't support that.
+		 * If this is enabled then the driver will need to take that
+		 * into account and check different registers depending on
+		 * the current setting. See the datasheet for details.
+		 */
 		hex = (uV - MAX77686_BUCK_UV_HMIN) / MAX77686_BUCK_UV_HSTEP;
 		hex_max = MAX77686_BUCK_VOLT_MAX_HEX;
 		break;
@@ -313,9 +319,9 @@ static int max77686_ldo_modes(int ldo, struct dm_regulator_mode **modesp,
 
 static int max77686_ldo_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int ret, hex, adr;
+	unsigned int hex, adr;
 	unsigned char val;
-	int ldo;
+	int ldo, ret;
 
 	if (op == PMIC_OP_GET)
 		*uV = 0;
@@ -354,9 +360,9 @@ static int max77686_ldo_val(struct udevice *dev, int op, int *uV)
 
 static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, ret, mask, adr;
+	unsigned int hex, mask, adr;
 	unsigned char val;
-	int buck;
+	int buck, ret;
 
 	buck = dev->driver_data;
 	if (buck < 1 || buck > MAX77686_BUCK_NUM) {
@@ -368,18 +374,18 @@ static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 		*uV = 0;
 
 	/* &buck_out = ctrl + 1 */
-	adr = max77686_buck_addr[buck] + 1;
+	adr = max77686_buck_out[buck];
 
 	/* mask */
 	switch (buck) {
 	case 2:
 	case 3:
 	case 4:
-		/* Those use voltage scallers - will support in the future */
 		mask = MAX77686_BUCK234_VOLT_MASK;
-		return -ENOSYS;
+		break;
 	default:
 		mask = MAX77686_BUCK_VOLT_MASK;
+		break;
 	}
 
 	ret = pmic_read(dev->parent, adr, &val, 1);
@@ -408,9 +414,9 @@ static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 
 static int max77686_ldo_mode(struct udevice *dev, int op, int *opmode)
 {
-	unsigned int ret, adr, mode;
+	unsigned int adr, mode;
 	unsigned char val;
-	int ldo;
+	int ldo, ret;
 
 	if (op == PMIC_OP_GET)
 		*opmode = -EINVAL;
@@ -539,9 +545,9 @@ static int max77686_ldo_enable(struct udevice *dev, int op, bool *enable)
 
 static int max77686_buck_mode(struct udevice *dev, int op, int *opmode)
 {
-	unsigned int ret, mask, adr, mode, mode_shift;
+	unsigned int mask, adr, mode, mode_shift;
 	unsigned char val;
-	int buck;
+	int buck, ret;
 
 	buck = dev->driver_data;
 	if (buck < 1 || buck > MAX77686_BUCK_NUM) {
@@ -549,7 +555,7 @@ static int max77686_buck_mode(struct udevice *dev, int op, int *opmode)
 		return -EINVAL;
 	}
 
-	adr = max77686_buck_addr[buck];
+	adr = max77686_buck_ctrl[buck];
 
 	/* mask */
 	switch (buck) {

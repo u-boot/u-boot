@@ -10,6 +10,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <asm/processor.h>
+
 enum pei_boot_mode_t {
 	PEI_BOOT_NONE = 0,
 	PEI_BOOT_SOFT_RESET,
@@ -44,6 +46,7 @@ struct mtrr_request {
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	u64 gdt[X86_GDT_NUM_ENTRIES] __aligned(16);
 	struct global_data *gd_addr;	/* Location of Global Data */
 	uint8_t x86;			/* CPU family */
 	uint8_t x86_vendor;		/* CPU vendor */
@@ -68,7 +71,7 @@ struct arch_global_data {
 	/* MRC training data to save for the next boot */
 	char *mrc_output;
 	unsigned int mrc_output_len;
-	void *gdt;			/* Global descriptor table */
+	ulong table;			/* Table pointer from previous loader */
 };
 
 #endif
@@ -76,6 +79,12 @@ struct arch_global_data {
 #include <asm-generic/global_data.h>
 
 #ifndef __ASSEMBLY__
+# ifdef CONFIG_EFI_APP
+
+#define gd global_data_ptr
+
+#define DECLARE_GLOBAL_DATA_PTR   extern struct global_data *global_data_ptr
+# else
 static inline __attribute__((no_instrument_function)) gd_t *get_fs_gd_ptr(void)
 {
 	gd_t *gd_ptr;
@@ -87,14 +96,15 @@ static inline __attribute__((no_instrument_function)) gd_t *get_fs_gd_ptr(void)
 
 #define gd	get_fs_gd_ptr()
 
+#define DECLARE_GLOBAL_DATA_PTR
+# endif
+
 #endif
 
 /*
  * Our private Global Data Flags
  */
-#define GD_FLG_COLD_BOOT	0x00100	/* Cold Boot */
-#define GD_FLG_WARM_BOOT	0x00200	/* Warm Boot */
-
-#define DECLARE_GLOBAL_DATA_PTR
+#define GD_FLG_COLD_BOOT	0x10000	/* Cold Boot */
+#define GD_FLG_WARM_BOOT	0x20000	/* Warm Boot */
 
 #endif /* __ASM_GBL_DATA_H */

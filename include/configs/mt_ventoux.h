@@ -30,12 +30,6 @@
 #define CONFIG_HOSTNAME mt_ventoux
 
 /*
- * Miscellaneous configurable options
- */
-#define V_PROMPT			"mt_ventoux => "
-#define CONFIG_SYS_PROMPT		V_PROMPT
-
-/*
  * Set its own mtdparts, different from common
  */
 #undef MTDIDS_DEFAULT

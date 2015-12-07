@@ -62,6 +62,8 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -99,10 +101,6 @@
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
-
-/* Fuses */
-#define CONFIG_MXC_OCOTP
-#define CONFIG_CMD_FUSE
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
@@ -393,6 +391,8 @@
  */
 #ifdef CONFIG_MBA6
 #include "tqma6_mba6.h"
+#elif CONFIG_WRU4
+#include "tqma6_wru4.h"
 #else
 #error "No baseboard for the TQMa6 defined!"
 #endif

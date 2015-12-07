@@ -37,12 +37,6 @@
 #define CONFIG_AUTO_COMPLETE
 
 /*
- * Miscellaneous configurable options
- */
-#define V_PROMPT		"ECO5-PK # "
-#define CONFIG_SYS_PROMPT	V_PROMPT
-
-/*
  * Set its own mtdparts, different from common
  */
 #undef MTDIDS_DEFAULT

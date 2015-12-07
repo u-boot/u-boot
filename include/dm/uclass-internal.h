@@ -116,7 +116,7 @@ int uclass_bind_device(struct udevice *dev);
  * @dev:	Pointer to the device
  * #return 0 on success, -ve on error
  */
-#ifdef CONFIG_DM_DEVICE_REMOVE
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int uclass_unbind_device(struct udevice *dev);
 #else
 static inline int uclass_unbind_device(struct udevice *dev) { return 0; }
@@ -153,7 +153,7 @@ int uclass_post_probe_device(struct udevice *dev);
  * @dev:	Pointer to the device
  * #return 0 on success, -ve on error
  */
-#ifdef CONFIG_DM_DEVICE_REMOVE
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int uclass_pre_remove_device(struct udevice *dev);
 #else
 static inline int uclass_pre_remove_device(struct udevice *dev) { return 0; }

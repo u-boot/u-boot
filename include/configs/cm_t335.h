@@ -27,9 +27,6 @@
 #undef CONFIG_MAX_RAM_BANK_SIZE
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 512MB */
 
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"CM-T335 # "
-
 #define CONFIG_OMAP_COMMON
 
 #define MACH_TYPE_CM_T335		4586	/* Until the next sync */

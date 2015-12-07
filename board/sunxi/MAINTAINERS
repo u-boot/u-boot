@@ -8,24 +8,32 @@ F:	configs/ba10_tv_box_defconfig
 F:	configs/Chuwi_V7_CW0825_defconfig
 F:	configs/Cubieboard_defconfig
 F:	configs/Hyundai_A7HD_defconfig
+F:	configs/inet1_defconfig
+F:	configs/inet97fv2_defconfig
+F:	configs/inet9f_rev03_defconfig
 F:	configs/jesurun_q5_defconfig
 F:	configs/Mele_A1000_defconfig
-F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M3_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/mk802_defconfig
 F:	configs/mk802ii_defconfig
+F:	configs/pov_protab2_ips9_defconfig
 F:	include/configs/sun5i.h
 F:	configs/A10s-OLinuXino-M_defconfig
 F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
+F:	configs/Auxtek-T003_defconfig
 F:	configs/Auxtek-T004_defconfig
+F:	configs/inet98v_rev2_defconfig
 F:	configs/mk802_a10s_defconfig
+F:	configs/q8_a13_tablet_defconfig
 F:	configs/r7-tv-dongle_defconfig
 F:	configs/UTOO_P66_defconfig
 F:	include/configs/sun6i.h
 F:	configs/CSQ_CS908_defconfig
+F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M9_defconfig
+F:	configs/Wobo_i5_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
@@ -39,10 +47,19 @@ F:	configs/qt840a_defconfig
 F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
+F:	configs/gt90h_v4_defconfig
 F:	configs/Ippo_q8h_v1_2_defconfig
 F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
+F:	configs/q8_a23_tablet_800x480_defconfig
+F:	configs/q8_a33_tablet_800x480_defconfig
+F:	configs/q8_a33_tablet_1024x600_defconfig
 F:	include/configs/sun9i.h
 F:	configs/Merrii_A80_Optimus_defconfig
+
+A20-OLIMEX-SOM-EVB BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/A20-Olimex-SOM-EVB_defconfig
 
 A20-OLINUXINO-LIME BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>

@@ -1,7 +1,7 @@
 /*
  * UniPhier SC (System Control) block registers
  *
- * Copyright (C) 2011-2015 Panasonic Corporation
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,7 +9,15 @@
 #ifndef ARCH_SC_REGS_H
 #define ARCH_SC_REGS_H
 
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
+#define SC_BASE_ADDR			0xf1840000
+#else
 #define SC_BASE_ADDR			0x61840000
+#endif
+
+#define SC_DPLLOSCCTRL			(SC_BASE_ADDR | 0x1110)
+#define SC_DPLLOSCCTRL_DPLLST		(0x1 << 1)
+#define SC_DPLLOSCCTRL_DPLLEN		(0x1 << 0)
 
 #define SC_DPLLCTRL			(SC_BASE_ADDR | 0x1200)
 #define SC_DPLLCTRL_SSC_EN		(0x1 << 31)
@@ -39,6 +47,7 @@
 #define SC_RSTCTRL_NRST_ETHER		(0x1 << 12)
 #define SC_RSTCTRL_NRST_STDMAC		(0x1 << 10)
 #define SC_RSTCTRL_NRST_GIO		(0x1 <<  6)
+/* Pro4 or older */
 #define SC_RSTCTRL_NRST_UMC1		(0x1 <<  5)
 #define SC_RSTCTRL_NRST_UMC0		(0x1 <<  4)
 #define SC_RSTCTRL_NRST_NAND		(0x1 <<  2)
@@ -49,6 +58,16 @@
 
 #define SC_RSTCTRL3			(SC_BASE_ADDR | 0x2008)
 
+/* Pro5 or newer */
+#define SC_RSTCTRL4			(SC_BASE_ADDR | 0x200c)
+#define SC_RSTCTRL4_NRST_UMCSB		(0x1 << 12)	/* UMC system bus */
+#define SC_RSTCTRL4_NRST_UMCA2		(0x1 << 10)	/* UMC ch2 standby */
+#define SC_RSTCTRL4_NRST_UMCA1		(0x1 <<  9)	/* UMC ch1 standby */
+#define SC_RSTCTRL4_NRST_UMCA0		(0x1 <<  8)	/* UMC ch0 standby */
+#define SC_RSTCTRL4_NRST_UMC32		(0x1 <<  6)	/* UMC ch2 */
+#define SC_RSTCTRL4_NRST_UMC31		(0x1 <<  5)	/* UMC ch1 */
+#define SC_RSTCTRL4_NRST_UMC30		(0x1 <<  4)	/* UMC ch0 */
+
 #define SC_CLKCTRL			(SC_BASE_ADDR | 0x2104)
 #define SC_CLKCTRL_CEN_USB31		(0x1 << 17)	/* USB3 #1 */
 #define SC_CLKCTRL_CEN_USB30		(0x1 << 16)	/* USB3 #0 */
@@ -56,10 +75,18 @@
 #define SC_CLKCTRL_CEN_MIO		(0x1 << 11)
 #define SC_CLKCTRL_CEN_STDMAC		(0x1 << 10)
 #define SC_CLKCTRL_CEN_GIO		(0x1 <<  6)
+/* Pro4 or older */
 #define SC_CLKCTRL_CEN_UMC		(0x1 <<  4)
 #define SC_CLKCTRL_CEN_NAND		(0x1 <<  2)
 #define SC_CLKCTRL_CEN_SBC		(0x1 <<  1)
 #define SC_CLKCTRL_CEN_PERI		(0x1 <<  0)
+
+/* Pro5 or newer */
+#define SC_CLKCTRL4			(SC_BASE_ADDR | 0x210c)
+#define SC_CLKCTRL4_CEN_UMCSB		(0x1 << 12)	/* UMC system bus */
+#define SC_CLKCTRL4_CEN_UMC2		(0x1 <<  2)	/* UMC ch2 */
+#define SC_CLKCTRL4_CEN_UMC1		(0x1 <<  1)	/* UMC ch1 */
+#define SC_CLKCTRL4_CEN_UMC0		(0x1 <<  0)	/* UMC ch0 */
 
 /* System reset control register */
 #define SC_IRQTIMSET			(SC_BASE_ADDR | 0x3000)

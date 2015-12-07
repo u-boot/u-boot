@@ -57,6 +57,23 @@ static void set_liodn(struct liodn_id_table *tbl, int size)
 	}
 }
 
+#ifdef CONFIG_SYS_DPAA_FMAN
+static void set_fman_liodn(struct fman_liodn_id_table *tbl, int size)
+{
+	int i;
+
+	for (i = 0; i < size; i++) {
+		u32 liodn;
+		if (tbl[i].num_ids == 2)
+			liodn = (tbl[i].id[0] << 16) | tbl[i].id[1];
+		else
+			liodn = tbl[i].id[0];
+
+		out_be32((volatile u32 *)(tbl[i].reg_offset), liodn);
+	}
+}
+#endif
+
 static void setup_sec_liodn_base(void)
 {
 	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
@@ -76,7 +93,7 @@ static void setup_sec_liodn_base(void)
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 static void setup_fman_liodn_base(enum fsl_dpaa_dev dev,
-				  struct liodn_id_table *tbl, int size)
+				  struct fman_liodn_id_table *tbl, int size)
 {
 	int i;
 	ccsr_fman_t *fm;
@@ -180,12 +197,12 @@ void set_liodns(void)
 
 	/* setup FMAN block(s) liodn bases & offsets if we have one */
 #ifdef CONFIG_SYS_DPAA_FMAN
-	set_liodn(fman1_liodn_tbl, fman1_liodn_tbl_sz);
+	set_fman_liodn(fman1_liodn_tbl, fman1_liodn_tbl_sz);
 	setup_fman_liodn_base(FSL_HW_PORTAL_FMAN1, fman1_liodn_tbl,
 				fman1_liodn_tbl_sz);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
-	set_liodn(fman2_liodn_tbl, fman2_liodn_tbl_sz);
+	set_fman_liodn(fman2_liodn_tbl, fman2_liodn_tbl_sz);
 	setup_fman_liodn_base(FSL_HW_PORTAL_FMAN2, fman2_liodn_tbl,
 				fman2_liodn_tbl_sz);
 #endif
@@ -315,6 +332,43 @@ static void fdt_fixup_liodn_tbl(void *blob, struct liodn_id_table *tbl, int sz)
 	}
 }
 
+#ifdef CONFIG_SYS_DPAA_FMAN
+static void fdt_fixup_liodn_tbl_fman(void *blob,
+				     struct fman_liodn_id_table *tbl,
+				     int sz)
+{
+	int i;
+
+	for (i = 0; i < sz; i++) {
+		int off;
+
+		if (tbl[i].compat == NULL)
+			continue;
+
+		/* Try the new compatible first.
+		 * If the node is missing, try the old.
+		 */
+		off = fdt_node_offset_by_compat_reg(blob,
+				tbl[i].compat[0], tbl[i].compat_offset);
+		if (off < 0)
+			off = fdt_node_offset_by_compat_reg(blob,
+					tbl[i].compat[1], tbl[i].compat_offset);
+
+		if (off >= 0) {
+			off = fdt_setprop(blob, off, "fsl,liodn",
+				&tbl[i].id[0],
+				sizeof(u32) * tbl[i].num_ids);
+			if (off > 0)
+				printf("WARNING unable to set fsl,liodn for FMan Port: %s\n",
+				       fdt_strerror(off));
+		} else {
+			debug("WARNING: could not set fsl,liodn for FMan Portport: %s.\n",
+			      fdt_strerror(off));
+		}
+	}
+}
+#endif
+
 void fdt_fixup_liodn(void *blob)
 {
 #ifdef CONFIG_SYS_SRIO
@@ -323,9 +377,9 @@ void fdt_fixup_liodn(void *blob)
 
 	fdt_fixup_liodn_tbl(blob, liodn_tbl, liodn_tbl_sz);
 #ifdef CONFIG_SYS_DPAA_FMAN
-	fdt_fixup_liodn_tbl(blob, fman1_liodn_tbl, fman1_liodn_tbl_sz);
+	fdt_fixup_liodn_tbl_fman(blob, fman1_liodn_tbl, fman1_liodn_tbl_sz);
 #if (CONFIG_SYS_NUM_FMAN == 2)
-	fdt_fixup_liodn_tbl(blob, fman2_liodn_tbl, fman2_liodn_tbl_sz);
+	fdt_fixup_liodn_tbl_fman(blob, fman2_liodn_tbl, fman2_liodn_tbl_sz);
 #endif
 #endif
 	fdt_fixup_liodn_tbl(blob, sec_liodn_tbl, sec_liodn_tbl_sz);

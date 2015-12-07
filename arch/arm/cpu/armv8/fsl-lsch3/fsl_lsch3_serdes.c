@@ -90,7 +90,38 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 		else {
 			serdes_prtcl_map[lane_prtcl] = 1;
 #ifdef CONFIG_FSL_MC_ENET
-			wriop_init_dpmac(sd, lane + 1, (int)lane_prtcl);
+			switch (lane_prtcl) {
+			case QSGMII_A:
+				wriop_init_dpmac(sd, 5, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 6, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 7, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 8, (int)lane_prtcl);
+				break;
+			case QSGMII_B:
+				wriop_init_dpmac(sd, 1, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 2, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 3, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 4, (int)lane_prtcl);
+				break;
+			case QSGMII_C:
+				wriop_init_dpmac(sd, 13, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 14, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 15, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 16, (int)lane_prtcl);
+				break;
+			case QSGMII_D:
+				wriop_init_dpmac(sd, 9, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 10, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 11, (int)lane_prtcl);
+				wriop_init_dpmac(sd, 12, (int)lane_prtcl);
+				break;
+			default:
+				 if (lane_prtcl >= SGMII1 &&
+					   lane_prtcl <= SGMII16)
+					wriop_init_dpmac(sd, lane + 1,
+							 (int)lane_prtcl);
+				break;
+			}
 #endif
 		}
 	}

@@ -2,6 +2,7 @@
 
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
+/include/ "rtc.dtsi"
 
 / {
 	model = "Google Panther";
@@ -41,6 +42,16 @@
 		stdout-path = "/serial";
 	};
 
+	pci {
+		compatible = "pci-x86";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		u-boot,dm-pre-reloc;
+		ranges = <0x02000000 0x0 0xe0000000 0xe0000000 0 0x10000000
+			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
+			0x01000000 0x0 0x1000 0x1000 0 0xf000>;
+	};
+
 	spi {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -59,6 +70,11 @@
 				wipe-value = [ff];
 			};
 		};
+	};
+
+	tpm {
+		reg = <0xfed40000 0x5000>;
+		compatible = "infineon,slb9635lpc";
 	};
 
 };

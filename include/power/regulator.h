@@ -46,6 +46,7 @@
  * Note: For the proper operation, at least name constraint is needed, since
  * it can be used when calling regulator_get_by_platname(). And the mandatory
  * rule for this name is, that it must be globally unique for the single dts.
+ * If regulator-name property is not provided, node name will be chosen.
  *
  * Regulator bind:
  * For each regulator device, the device_bind() should be called with passed
@@ -128,6 +129,11 @@ struct dm_regulator_mode {
 	const char *name;
 };
 
+enum regulator_flag {
+	REGULATOR_FLAG_AUTOSET_UV	= 1 << 0,
+	REGULATOR_FLAG_AUTOSET_UA	= 1 << 1,
+};
+
 /**
  * struct dm_regulator_uclass_platdata - pointed by dev->uclass_platdata, and
  * allocated on each regulator bind. This structure holds an information
@@ -143,6 +149,8 @@ struct dm_regulator_mode {
  * @max_uA*    - maximum amperage (micro Amps)
  * @always_on* - bool type, true or false
  * @boot_on*   - bool type, true or false
+ * TODO(sjg@chromium.org): Consider putting the above two into @flags
+ * @flags:     - flags value (see REGULATOR_FLAG_...)
  * @name**     - fdt regulator name - should be taken from the device tree
  *
  * Note:
@@ -162,6 +170,7 @@ struct dm_regulator_uclass_platdata {
 	bool always_on;
 	bool boot_on;
 	const char *name;
+	int flags;
 };
 
 /* Regulator device operations */
@@ -308,9 +317,39 @@ int regulator_get_mode(struct udevice *dev);
 int regulator_set_mode(struct udevice *dev, int mode_id);
 
 /**
- * regulator_autoset: setup the regulator given by its uclass's platform data
- * name field. The setup depends on constraints found in device's uclass's
- * platform data (struct dm_regulator_uclass_platdata):
+ * regulators_enable_boot_on() - enable regulators needed for boot
+ *
+ * This enables all regulators which are marked to be on at boot time. This
+ * only works for regulators which don't have a range for voltage/current,
+ * since in that case it is not possible to know which value to use.
+ *
+ * This effectively calls regulator_autoset() for every regulator.
+ */
+int regulators_enable_boot_on(bool verbose);
+
+/**
+ * regulator_autoset: setup the voltage/current on a regulator
+ *
+ * The setup depends on constraints found in device's uclass's platform data
+ * (struct dm_regulator_uclass_platdata):
+ *
+ * - Enable - will set - if any of: 'always_on' or 'boot_on' is set to true,
+ *   or if both are unset, then the function returns
+ * - Voltage value - will set - if '.min_uV' and '.max_uV' values are equal
+ * - Current limit - will set - if '.min_uA' and '.max_uA' values are equal
+ *
+ * The function returns on the first-encountered error.
+ *
+ * @platname - expected string for dm_regulator_uclass_platdata .name field
+ * @devp     - returned pointer to the regulator device - if non-NULL passed
+ * @return: 0 on success or negative value of errno.
+ */
+int regulator_autoset(struct udevice *dev);
+
+/**
+ * regulator_autoset_by_name: setup the regulator given by its uclass's
+ * platform data name field. The setup depends on constraints found in device's
+ * uclass's platform data (struct dm_regulator_uclass_platdata):
  * - Enable - will set - if any of: 'always_on' or 'boot_on' is set to true,
  *   or if both are unset, then the function returns
  * - Voltage value - will set - if '.min_uV' and '.max_uV' values are equal
@@ -320,21 +359,18 @@ int regulator_set_mode(struct udevice *dev, int mode_id);
  *
  * @platname - expected string for dm_regulator_uclass_platdata .name field
  * @devp     - returned pointer to the regulator device - if non-NULL passed
- * @verbose  - (true/false) print regulator setup info, or be quiet
  * @return: 0 on success or negative value of errno.
  *
  * The returned 'regulator' device can be used with:
  * - regulator_get/set_*
  */
-int regulator_autoset(const char *platname,
-		      struct udevice **devp,
-		      bool verbose);
+int regulator_autoset_by_name(const char *platname, struct udevice **devp);
 
 /**
  * regulator_list_autoset: setup the regulators given by list of their uclass's
  * platform data name field. The setup depends on constraints found in device's
  * uclass's platform data. The function loops with calls to:
- * regulator_autoset() for each name from the list.
+ * regulator_autoset_by_name() for each name from the list.
  *
  * @list_platname - an array of expected strings for .name field of each
  *                  regulator's uclass platdata
@@ -375,7 +411,7 @@ int regulator_get_by_devname(const char *devname, struct udevice **devp);
  * Search by name, found in regulator uclass platdata.
  *
  * @platname - expected string for uc_pdata->name of regulator uclass platdata
- * @devp     - returned pointer to the regulator device
+ * @devp     - returns pointer to the regulator device or NULL on error
  * @return 0 on success or negative value of errno.
  *
  * The returned 'regulator' device is probed and can be used with:

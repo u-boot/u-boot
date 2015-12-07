@@ -83,4 +83,7 @@ void sandbox_set_enable_pci_map(int enable);
  */
 int sandbox_read_fdt_from_file(void);
 
+/* Exit sandbox (quit U-Boot) */
+void sandbox_exit(void);
+
 #endif	/* _U_BOOT_SANDBOX_H_ */

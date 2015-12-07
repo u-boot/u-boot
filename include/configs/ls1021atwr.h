@@ -9,6 +9,8 @@
 
 #define CONFIG_LS102XA
 
+#define CONFIG_ARMV7_PSCI
+
 #define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_DISPLAY_CPUINFO
@@ -16,6 +18,10 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_DEEP_SLEEP
+#ifdef CONFIG_DEEP_SLEEP
+#define CONFIG_SILENT_CONSOLE
+#endif
 
 /*
  * Size of malloc() pool
@@ -24,6 +30,44 @@
 
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
+
+/*
+ * USB
+ */
+
+/*
+ * EHCI Support - disbaled by default as
+ * there is no signal coming out of soc on
+ * this board for this controller. However,
+ * the silicon still has this controller,
+ * and anyone can use this controller by
+ * taking signals out on their board.
+ */
+
+/*#define CONFIG_HAS_FSL_DR_USB*/
+
+#ifdef CONFIG_HAS_FSL_DR_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_FSL
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#endif
+
+/* XHCI Support - enabled by default */
+#define CONFIG_HAS_FSL_XHCI_USB
+
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+#define CONFIG_USB_XHCI_FSL
+#define CONFIG_USB_XHCI_DWC3
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT        1
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS     2
+#endif
+
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_EXT2
+#endif
 
 /*
  * Generic Timer Definitions
@@ -55,6 +99,10 @@
 #define DDR_DDR_ZQ_CNTL			0x89080600
 #define DDR_CS0_CONFIG_2		0
 #define DDR_SDRAM_CFG_MEM_EN		0x80000000
+#define SDRAM_CFG2_D_INIT		0x00000010
+#define DDR_CDR2_VREF_TRAIN_EN		0x00000080
+#define SDRAM_CFG2_FRC_SR		0x80000000
+#define SDRAM_CFG_BI			0x00000001
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI	board/freescale/ls1021atwr/ls102xa_pbi.cfg
@@ -81,7 +129,8 @@
 #define CONFIG_SPL_PAD_TO		0x1c000
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 
-#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE + \
+		CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
@@ -226,6 +275,8 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /* EEPROM */
@@ -259,11 +310,15 @@
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SPI_FLASH_STMICRO
 
+/* DSPI */
+#define CONFIG_FSL_DSPI
+#define CONFIG_SPI_FLASH_ATMEL
+#endif
+
 /* DM SPI */
 #if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
 #define CONFIG_CMD_SF
 #define CONFIG_DM_SPI_FLASH
-#endif
 #endif
 
 /*
@@ -346,7 +401,6 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_PNP
-#define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif
@@ -364,10 +418,11 @@
 #define CONFIG_LS102XA_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 #define CONFIG_TIMER_CLK_FREQ		12500000
-#define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
 #define CONFIG_HWCONFIG
-#define HWCONFIG_BUFFER_SIZE		128
+#define HWCONFIG_BUFFER_SIZE		256
+
+#define CONFIG_FSL_DEVICE_DISABLE
 
 #define CONFIG_BOOTDELAY		3
 
@@ -459,6 +514,7 @@
 
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CMD_BLOB
+#include <asm/fsl_secure_boot.h>
 #endif
 
 #endif

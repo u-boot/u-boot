@@ -56,6 +56,8 @@
 #define CONFIG_DISPLAY_CPUINFO			/* display cpu info and speed */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Hardware drivers
  */

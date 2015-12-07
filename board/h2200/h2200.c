@@ -59,3 +59,15 @@ int dram_init(void)
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 	return 0;
 }
+
+#ifdef CONFIG_USB_GADGET_PXA2XX
+int board_usb_init(int index, enum usb_init_type init)
+{
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
+}
+#endif

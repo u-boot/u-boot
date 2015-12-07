@@ -182,12 +182,10 @@ static int alt_sgdma_do_sync_transfer(volatile struct alt_sgdma_registers *dev,
 static int alt_sgdma_do_async_transfer(volatile struct alt_sgdma_registers *dev,
 				volatile struct alt_sgdma_descriptor *desc)
 {
-	unsigned int status;
 	int counter = 0;
 
 	/* Wait for any pending transfers to complete */
 	alt_sgdma_print_desc(desc);
-	status = dev->status;
 
 	counter = 0;
 	while (dev->status & ALT_SGDMA_STATUS_BUSY_MSK) {

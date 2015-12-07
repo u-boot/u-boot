@@ -406,10 +406,19 @@ static void kick_trng(int ent_delay)
 	sec_out32(&rng->rtsdctl, val);
 	/* min. freq. count, equal to 1/4 of the entropy sample length */
 	sec_out32(&rng->rtfreqmin, ent_delay >> 2);
-	/* max. freq. count, equal to 8 times the entropy sample length */
-	sec_out32(&rng->rtfreqmax, ent_delay << 3);
+	/* disable maximum frequency count */
+	sec_out32(&rng->rtfreqmax, RTFRQMAX_DISABLE);
+	/* read the control register */
+	val = sec_in32(&rng->rtmctl);
+	/*
+	 * select raw sampling in both entropy shifter
+	 * and statistical checker
+	 */
+	sec_setbits32(&val, RTMCTL_SAMP_MODE_RAW_ES_SC);
 	/* put RNG4 into run mode */
-	sec_clrbits32(&rng->rtmctl, RTMCTL_PRGM);
+	sec_clrbits32(&val, RTMCTL_PRGM);
+	/* write back the control register */
+	sec_out32(&rng->rtmctl, val);
 }
 
 static int rng_init(void)
@@ -459,14 +468,16 @@ static int rng_init(void)
 
 int sec_init(void)
 {
-	int ret = 0;
-
-#ifdef CONFIG_PHYS_64BIT
 	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
 	uint32_t mcr = sec_in32(&sec->mcfgr);
+	int ret = 0;
 
-	sec_out32(&sec->mcfgr, mcr | 1 << MCFGR_PS_SHIFT);
+	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0x2 << MCFGR_AWCACHE_SHIFT);
+#ifdef CONFIG_PHYS_64BIT
+	mcr |= (1 << MCFGR_PS_SHIFT);
 #endif
+	sec_out32(&sec->mcfgr, mcr);
+
 	ret = jr_init();
 	if (ret < 0) {
 		printf("SEC initialization failed\n");

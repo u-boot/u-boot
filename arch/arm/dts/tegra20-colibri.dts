@@ -4,17 +4,31 @@
 
 / {
 	model = "Toradex Colibri T20";
-	compatible = "toradex,t20", "nvidia,tegra20";
+	compatible = "toradex,colibri_t20", "nvidia,tegra20";
 
 	chosen {
 		stdout-path = &uarta;
 	};
 
 	aliases {
+		i2c0 = "/i2c@7000d000";
+		i2c1 = "/i2c@7000c000";
+		i2c2 = "/i2c@7000c400";
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
 		usb2 = "/usb@c5004000";
 		sdhci0 = "/sdhci@c8000600";
+	};
+
+	host1x {
+		status = "okay";
+		dc@54200000 {
+			status = "okay";
+			rgb {
+				status = "okay";
+				nvidia,panel = <&lcd_panel>;
+			};
+		};
 	};
 
 	usb@c5000000 {
@@ -22,11 +36,13 @@
 	};
 
 	usb@c5004000 {
+		/* VBUS_LAN */
 		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
 	};
 
 	usb@c5008000 {
+		/* USBH_PEN */
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
 
@@ -41,9 +57,52 @@
 		};
 	};
 
+	/*
+	 * GEN1_I2C: I2C_SDA/SCL on SODIMM pin 194/196 (e.g. RTC on carrier
+	 * board)
+	 */
+	i2c@7000c000 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/* GEN2_I2C: unused */
+
+	/* DDC_CLOCK/DATA on X3 pin 15/16 (e.g. display EDID) */
+	i2c@7000c400 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/*
+	 * PWR_I2C: power I2C to PMIC and temperature sensor
+	 */
+	i2c@7000d000 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
 	sdhci@c8000600 {
 		status = "okay";
-		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
 		bus-width = <4>;
+		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
+	};
+
+	lcd_panel: panel {
+		clock = <25175000>;
+		xres = <640>;
+		yres = <480>;
+		left-margin = <48>;	/* horizontal back porch */
+		right-margin = <16>;	/* horizontal front porch */
+		hsync-len = <96>;
+		lower-margin = <11>;	/* vertical front porch */
+		upper-margin = <31>;	/* vertical back porch */
+		vsync-len = <2>;
+		hsync-active-high;
+		vsync-active-high;
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 0 0>;
+		nvidia,backlight-enable-gpios = <&gpio TEGRA_GPIO(T, 4) GPIO_ACTIVE_HIGH>;
+		nvidia,panel-timings = <0 0 0 0>;
 	};
 };

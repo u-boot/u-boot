@@ -5,8 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_DFU_FUNCTION) += dfu.o
+obj-$(CONFIG_USB_FUNCTION_DFU) += dfu.o
 obj-$(CONFIG_DFU_MMC) += dfu_mmc.o
 obj-$(CONFIG_DFU_NAND) += dfu_nand.o
 obj-$(CONFIG_DFU_RAM) += dfu_ram.o
 obj-$(CONFIG_DFU_SF) += dfu_sf.o
+obj-$(CONFIG_DFU_TFTP) += dfu_tftp.o

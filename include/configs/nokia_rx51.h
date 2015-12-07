@@ -108,8 +108,8 @@
 #define CONFIG_DOS_PARTITION
 
 /* USB */
-#define CONFIG_MUSB_UDC
-#define CONFIG_MUSB_HDC
+#define CONFIG_USB_MUSB_UDC
+#define CONFIG_USB_MUSB_HCD
 #define CONFIG_USB_OMAP3
 #define CONFIG_TWL4030_USB
 
@@ -396,7 +396,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		"Nokia RX-51 # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

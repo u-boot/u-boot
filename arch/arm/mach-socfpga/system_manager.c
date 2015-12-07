@@ -57,9 +57,13 @@ static void populate_sysmgr_fpgaintf_module(void)
 void sysmgr_pinmux_init(void)
 {
 	uint32_t regs = (uint32_t)&sysmgr_regs->emacio[0];
+	const u8 *sys_mgr_init_table;
+	unsigned int len;
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(sys_mgr_init_table); i++) {
+	sysmgr_get_pinmux_table(&sys_mgr_init_table, &len);
+
+	for (i = 0; i < len; i++) {
 		writel(sys_mgr_init_table[i], regs);
 		regs += sizeof(regs);
 	}
@@ -70,8 +74,12 @@ void sysmgr_pinmux_init(void)
 /*
  * This bit allows the bootrom to configure the IOs after a warm reset.
  */
-void sysmgr_enable_warmrstcfgio(void)
+void sysmgr_config_warmrstcfgio(int enable)
 {
-	setbits_le32(&sysmgr_regs->romcodegrp_ctrl,
-		     SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO);
+	if (enable)
+		setbits_le32(&sysmgr_regs->romcodegrp_ctrl,
+			     SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO);
+	else
+		clrbits_le32(&sysmgr_regs->romcodegrp_ctrl,
+			     SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO);
 }

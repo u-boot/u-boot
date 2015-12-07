@@ -12,15 +12,13 @@
 
 #include <common.h>
 #include <command.h>
+#include <fat.h>
 #include <malloc.h>
 #include <image.h>
 #include <usb.h>
 #include <fat.h>
 
 #include "fwupdate.h"
-
-extern long do_fat_read(const char *, void *, unsigned long, int);
-extern int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 
 static int load_rescue_image(ulong);
 
@@ -124,7 +122,7 @@ static int load_rescue_image(ulong addr)
 				/* Check if rescue image is present */
 				FW_DEBUG("Looking for firmware directory '%s'"
 					" on partition %d\n", fwdir, i);
-				if (do_fat_read(fwdir, NULL, 0, LS_NO) == -1) {
+				if (!fat_exists(fwdir)) {
 					FW_DEBUG("No NX rescue image on "
 						"partition %d.\n", i);
 					partno = -2;

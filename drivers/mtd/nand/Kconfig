@@ -56,6 +56,21 @@ config SYS_NAND_VF610_NFC_60_ECC_BYTES
 
 endchoice
 
+config NAND_PXA3XX
+	bool "Support for NAND on PXA3xx and Armada 370/XP/38x"
+	select SYS_NAND_SELF_INIT
+	help
+	  This enables the driver for the NAND flash device found on
+	  PXA3xx processors (NFCv1) and also on Armada 370/XP (NFCv2).
+
+config NAND_SUNXI
+	bool "Support for NAND on Allwinner SoCs in SPL"
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	select SYS_NAND_SELF_INIT
+	---help---
+	Enable support for NAND. This option allows SPL to read from
+	sunxi NAND using DMA transfers.
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config
@@ -76,6 +91,15 @@ config SYS_NAND_BUSWIDTH_16BIT
 	    (nand_scan_ident + nand_scan_tail), thus device's ONFI parameters are
 	    not available while configuring controller. So a static CONFIG_NAND_xx
 	    is needed to know the device's bus-width in advance.
+
+# Enhance depends when converting drivers to Kconfig which use this config
+config SYS_NAND_U_BOOT_OFFS
+	hex "Location in NAND to read U-Boot from"
+	default 0x8000 if NAND_SUNXI
+	depends on NAND_SUNXI
+	help
+	Set the offset from the start of the nand where u-boot should be
+	loaded from.
 
 if SPL
 

@@ -10,6 +10,20 @@
 #include <config.h>
 #include <linux/linkage.h>
 
+#ifdef CONFIG_ARM64
+	.align	5
+ENTRY(reset_cpu)
+	/* get address for global reset register */
+	ldr	x1, =PRM_RSTCTRL
+	ldr	w3, [x1]
+	/* force reset */
+	orr	w3, w3, #0x10
+	str	w3, [x1]
+	mov	w0, w0
+1:
+	b	1b
+ENDPROC(reset_cpu)
+#else
 	.align	5
 ENTRY(reset_cpu)
 	ldr	r1, rstctl			@ get addr for global reset
@@ -23,3 +37,4 @@ _loop_forever:
 rstctl:
 	.word	PRM_RSTCTRL
 ENDPROC(reset_cpu)
+#endif

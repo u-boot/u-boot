@@ -29,6 +29,10 @@
 #include <netdev.h>
 #include <spi.h>
 
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+#include <asm/arch/atmel_usba_udc.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static void corvus_nand_hw_init(void)
@@ -73,7 +77,7 @@ static void corvus_nand_hw_init(void)
 #include <spl.h>
 #include <nand.h>
 
-void at91_spl_board_init(void)
+void spl_board_init(void)
 {
 	/*
 	 * For on the sam9m10g45ek board, the chip wm9711 stay in the test
@@ -144,23 +148,15 @@ static void ddr2_conf(struct atmel_mpddr *ddr2)
 void mem_init(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	struct at91_matrix *mat = (struct at91_matrix *)ATMEL_BASE_MATRIX;
 	struct atmel_mpddr ddr2;
-	unsigned long csa;
 
 	ddr2_conf(&ddr2);
 
 	/* enable DDR2 clock */
-	writel(0x4, &pmc->scer);
-
-	/* Chip select 1 is for DDR2/SDRAM */
-	csa = readl(&mat->ebicsa);
-	csa |= AT91_MATRIX_EBI_CS1A_SDRAMC;
-	csa &= ~AT91_MATRIX_EBI_VDDIOMSEL_3_3V;
-	writel(csa, &mat->ebicsa);
+	writel(AT91_PMC_DDR, &pmc->scer);
 
 	/* DDRAM2 Controller initialize */
-	ddr2_init(ATMEL_BASE_CS6, &ddr2);
+	ddr2_init(ATMEL_BASE_DDRSDRC0, ATMEL_BASE_CS6, &ddr2);
 }
 #endif
 
@@ -210,6 +206,19 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+/* from ./arch/arm/mach-at91/armv7/sama5d3_devices.c */
+void at91_udp_hw_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	/* Enable UPLL clock */
+	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	/* Enable UDPHS clock */
+	at91_periph_clk_enable(ATMEL_ID_UDPHS);
+}
+#endif
+
 int board_init(void)
 {
 	/* address of boot parameters */
@@ -229,6 +238,10 @@ int board_init(void)
 #endif
 #ifdef CONFIG_CMD_USB
 	taurus_usb_hw_init();
+#endif
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	at91_udp_hw_init();
+	usba_udc_probe(&pdata);
 #endif
 	return 0;
 }

@@ -7,24 +7,52 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/reset_manager.h>
 #include <asm/arch/fpga_manager.h>
+#include <asm/arch/reset_manager.h>
+#include <asm/arch/system_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct socfpga_reset_manager *reset_manager_base =
 		(void *)SOCFPGA_RSTMGR_ADDRESS;
+static struct socfpga_system_manager *sysmgr_regs =
+	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
-/* Toggle reset signal to watchdog (WDT is disabled after this operation!) */
-void socfpga_watchdog_reset(void)
+/* Assert or de-assert SoCFPGA reset manager reset. */
+void socfpga_per_reset(u32 reset, int set)
 {
-	/* assert reset for watchdog */
-	setbits_le32(&reset_manager_base->per_mod_reset,
-		     1 << RSTMGR_PERMODRST_L4WD0_LSB);
+	const void *reg;
 
-	/* deassert watchdog from reset (watchdog in not running state) */
-	clrbits_le32(&reset_manager_base->per_mod_reset,
-		     1 << RSTMGR_PERMODRST_L4WD0_LSB);
+	if (RSTMGR_BANK(reset) == 0)
+		reg = &reset_manager_base->mpu_mod_reset;
+	else if (RSTMGR_BANK(reset) == 1)
+		reg = &reset_manager_base->per_mod_reset;
+	else if (RSTMGR_BANK(reset) == 2)
+		reg = &reset_manager_base->per2_mod_reset;
+	else if (RSTMGR_BANK(reset) == 3)
+		reg = &reset_manager_base->brg_mod_reset;
+	else if (RSTMGR_BANK(reset) == 4)
+		reg = &reset_manager_base->misc_mod_reset;
+	else	/* Invalid reset register, do nothing */
+		return;
+
+	if (set)
+		setbits_le32(reg, 1 << RSTMGR_RESET(reset));
+	else
+		clrbits_le32(reg, 1 << RSTMGR_RESET(reset));
+}
+
+/*
+ * Assert reset on every peripheral but L4WD0.
+ * Watchdog must be kept intact to prevent glitches
+ * and/or hangs.
+ */
+void socfpga_per_reset_all(void)
+{
+	const u32 l4wd0 = 1 << RSTMGR_RESET(SOCFPGA_RESET(L4WD0));
+
+	writel(~l4wd0, &reset_manager_base->per_mod_reset);
+	writel(0xffffffff, &reset_manager_base->per2_mod_reset);
 }
 
 /*
@@ -72,11 +100,14 @@ void socfpga_bridges_reset(int enable)
 		/* brdmodrst */
 		writel(0xffffffff, &reset_manager_base->brg_mod_reset);
 	} else {
+		writel(0, &sysmgr_regs->iswgrp_handoff[0]);
+		writel(l3mask, &sysmgr_regs->iswgrp_handoff[1]);
+
 		/* Check signal from FPGA. */
-		if (fpgamgr_poll_fpga_ready()) {
-			/* FPGA not ready. Wait for watchdog timeout. */
-			printf("%s: fpga not ready, hanging.\n", __func__);
-			hang();
+		if (!fpgamgr_test_fpga_ready()) {
+			/* FPGA not ready, do nothing. */
+			printf("%s: FPGA not ready, aborting.\n", __func__);
+			return;
 		}
 
 		/* brdmodrst */
@@ -87,53 +118,3 @@ void socfpga_bridges_reset(int enable)
 	}
 }
 #endif
-
-/* Change the reset state for EMAC 0 and EMAC 1 */
-void socfpga_emac_reset(int enable)
-{
-	const void *reset = &reset_manager_base->per_mod_reset;
-
-	if (enable) {
-		setbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC0_LSB);
-		setbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC1_LSB);
-	} else {
-#if (CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS)
-		clrbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC0_LSB);
-#elif (CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS)
-		clrbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC1_LSB);
-#endif
-	}
-}
-
-/* SPI Master enable (its held in reset by the preloader) */
-void socfpga_spim_enable(void)
-{
-	const void *reset = &reset_manager_base->per_mod_reset;
-
-	clrbits_le32(reset, (1 << RSTMGR_PERMODRST_SPIM0_LSB) |
-		     (1 << RSTMGR_PERMODRST_SPIM1_LSB));
-}
-
-/* Bring UART0 out of reset. */
-void socfpga_uart0_enable(void)
-{
-	const void *reset = &reset_manager_base->per_mod_reset;
-
-	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_UART0_LSB);
-}
-
-/* Bring SDRAM controller out of reset. */
-void socfpga_sdram_enable(void)
-{
-	const void *reset = &reset_manager_base->per_mod_reset;
-
-	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_SDR_LSB);
-}
-
-/* Bring OSC1 timer out of reset. */
-void socfpga_osc1timer_enable(void)
-{
-	const void *reset = &reset_manager_base->per_mod_reset;
-
-	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_OSC1TIMER0_LSB);
-}

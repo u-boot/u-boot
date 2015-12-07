@@ -20,6 +20,9 @@
 		timer1 = &timer1;
 		timer2 = &timer2;
 		timer3 = &timer3;
+		spi0 = &qspi;
+		spi1 = &spi0;
+		spi2 = &spi1;
 	};
 
 	cpus {
@@ -546,6 +549,7 @@
 
 			porta: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
+				bank-name = "porta";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <29>;
@@ -566,6 +570,7 @@
 
 			portb: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
+				bank-name = "portb";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <29>;
@@ -586,6 +591,7 @@
 
 			portc: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
+				bank-name = "portc";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <27>;
@@ -617,7 +623,7 @@
 			arm,data-latency = <2 1 1>;
 		};
 
-		mmc: dwmmc0@ff704000 {
+		mmc0: dwmmc0@ff704000 {
 			compatible = "altr,socfpga-dw-mshc";
 			reg = <0xff704000 0x1000>;
 			interrupts = <0 139 4>;
@@ -639,6 +645,7 @@
 			ext-decoder = <0>;  /* external decoder */
 			num-cs = <4>;
 			fifo-depth = <128>;
+			sram-size = <128>;
 			bus-num = <2>;
 			status = "disabled";
 		};

@@ -71,7 +71,6 @@
 #define CONFIG_PREBOOT
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-#define	CONFIG_SYS_PROMPT		"pati=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else

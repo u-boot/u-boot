@@ -129,14 +129,6 @@
 #define TWL4030_PM_MASTER_BB_CFG			0x6D
 #define TWL4030_PM_MASTER_MISC_TST			0x6E
 #define TWL4030_PM_MASTER_TRIM1				0x6F
-/* P[1-3]_SW_EVENTS */
-#define TWL4030_PM_MASTER_SW_EVENTS_STOPON_PWRON	(1 << 6)
-#define TWL4030_PM_MASTER_SW_EVENTS_STOPON_SYSEN	(1 << 5)
-#define TWL4030_PM_MASTER_SW_EVENTS_ENABLE_WARMRESET	(1 << 4)
-#define TWL4030_PM_MASTER_SW_EVENTS_LVL_WAKEUP		(1 << 3)
-#define TWL4030_PM_MASTER_SW_EVENTS_DEVACT		(1 << 2)
-#define TWL4030_PM_MASTER_SW_EVENTS_DEVSLP		(1 << 1)
-#define TWL4030_PM_MASTER_SW_EVENTS_DEVOFF		(1 << 0)
 
 /* Power bus message definitions */
 
@@ -206,6 +198,34 @@
 #define RES_RESET               27
 /* Power Reference */
 #define RES_Main_Ref            28
+
+/* P[1-3]_SW_EVENTS */
+#define TWL4030_PM_MASTER_SW_EVENTS_STOPON_PWRON	(1 << 6)
+#define TWL4030_PM_MASTER_SW_EVENTS_STOPON_SYSEN	(1 << 5)
+#define TWL4030_PM_MASTER_SW_EVENTS_ENABLE_WARMRESET	(1 << 4)
+#define TWL4030_PM_MASTER_SW_EVENTS_LVL_WAKEUP		(1 << 3)
+#define TWL4030_PM_MASTER_SW_EVENTS_DEVACT		(1 << 2)
+#define TWL4030_PM_MASTER_SW_EVENTS_DEVSLP		(1 << 1)
+#define TWL4030_PM_MASTER_SW_EVENTS_DEVOFF		(1 << 0)
+
+/* HW conditions */
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_PWON	(1 << 0)
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_CHG		(1 << 1)
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_USB		(1 << 2)
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_VBUS	(1 << 7)
+
+/* Power transition */
+#define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_PWON	(1 << 0)
+#define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_CHG	(1 << 1)
+#define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_USB	(1 << 2)
+#define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_RTC	(1 << 3)
+#define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_VBAT	(1 << 4)
+#define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_VBUS	(1 << 5)
+#define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_SWBUG	(1 << 7)
+
+/* PWRANA2 */
+#define TWL4030_PM_MASTER_CFG_PWRANA2_LOJIT0_LOWV	(1 << 1)
+#define TWL4030_PM_MASTER_CFG_PWRANA2_LOJIT1_LOWV	(1 << 2)
 
 #define TOTAL_RESOURCES		28
 /*
@@ -645,6 +665,8 @@ static inline int twl4030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 
 /* For hardware resetting */
 void twl4030_power_reset_init(void);
+/* For power off */
+void twl4030_power_off(void);
 /* For setting device group and voltage */
 void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
 			     u8 dev_grp, u8 dev_grp_sel);
@@ -652,6 +674,17 @@ void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
 void twl4030_power_init(void);
 /* For initializing mmc power */
 void twl4030_power_mmc_init(int dev_index);
+
+/*
+ * Input
+ */
+
+int twl4030_input_power_button(void);
+int twl4030_input_charger(void);
+int twl4030_input_usb(void);
+
+int twl4030_keypad_scan(unsigned char *matrix);
+int twl4030_keypad_key(unsigned char *matrix, u8 c, u8 r);
 
 /*
  * LED

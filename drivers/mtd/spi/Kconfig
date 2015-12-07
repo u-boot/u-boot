@@ -42,6 +42,65 @@ config SPI_FLASH_BAR
 	  Bank/Extended address registers are used to access the flash
 	  which has size > 16MiB in 3-byte addressing.
 
+if SPI_FLASH
+
+config SPI_FLASH_ATMEL
+	bool "Atmel SPI flash support"
+	help
+	  Add support for various Atmel SPI flash chips (AT45xxx and AT25xxx)
+
+config SPI_FLASH_EON
+	bool "EON SPI flash support"
+	help
+	  Add support for various EON SPI flash chips (EN25xxx)
+
+config SPI_FLASH_GIGADEVICE
+	bool "GigaDevice SPI flash support"
+	help
+	  Add support for various GigaDevice SPI flash chips (GD25xxx)
+
+config SPI_FLASH_MACRONIX
+	bool "Macronix SPI flash support"
+	help
+	  Add support for various Macronix SPI flash chips (MX25Lxxx)
+
+config SPI_FLASH_SPANSION
+	bool "Spansion SPI flash support"
+	help
+	  Add support for various Spansion SPI flash chips (S25FLxxx)
+
+config SPI_FLASH_STMICRO
+	bool "STMicro SPI flash support"
+	help
+	  Add support for various STMicro SPI flash chips (M25Pxxx and N25Qxxx)
+
+config SPI_FLASH_SST
+	bool "SST SPI flash support"
+	help
+	  Add support for various SST SPI flash chips (SST25xxx)
+
+config SPI_FLASH_WINBOND
+	bool "Winbond SPI flash support"
+	help
+	  Add support for various Winbond SPI flash chips (W25xxx)
+
+endif
+
+config SPI_FLASH_USE_4K_SECTORS
+	bool "Use small 4096 B erase sectors"
+	depends on SPI_FLASH
+	default y
+	help
+	  Many flash memories support erasing small (4096 B) sectors. Depending
+	  on the usage this feature may provide performance gain in comparison
+	  to erasing whole blocks (32/64 KiB).
+	  Changing a small part of the flash's contents is usually faster with
+	  small sectors. On the other hand erasing should be faster when using
+	  64 KiB block instead of 16 × 4 KiB sectors.
+
+	  Please note that some tools/drivers/filesystems may not work with
+	  4096 B erase size (e.g. UBIFS requires 15 KiB as a minimum).
+
 config SPI_FLASH_DATAFLASH
 	bool "AT45xxx DataFlash support"
 	depends on SPI_FLASH && DM_SPI_FLASH

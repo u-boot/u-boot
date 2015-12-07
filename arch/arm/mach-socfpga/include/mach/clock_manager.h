@@ -15,9 +15,15 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned int cm_get_mmc_controller_clk_hz(void);
 unsigned int cm_get_qspi_controller_clk_hz(void);
 unsigned int cm_get_spi_controller_clk_hz(void);
+const unsigned int cm_get_osc_clk_hz(const int osc);
+const unsigned int cm_get_f2s_per_ref_clk_hz(void);
+const unsigned int cm_get_f2s_sdr_ref_clk_hz(void);
+
+/* Clock configuration accessors */
+const struct cm_config * const cm_get_default_config(void);
 #endif
 
-typedef struct {
+struct cm_config {
 	/* main group */
 	uint32_t main_vco_base;
 	uint32_t mpuclk;
@@ -49,9 +55,9 @@ typedef struct {
 	uint32_t ddr2xdqsclk;
 	uint32_t ddrdqclk;
 	uint32_t s2fuser2clk;
-} cm_config_t;
+};
 
-extern void cm_basic_init(const cm_config_t *cfg);
+void cm_basic_init(const struct cm_config * const cfg);
 
 struct socfpga_clock_manager_main_pll {
 	u32	vco;

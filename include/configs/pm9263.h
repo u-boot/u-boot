@@ -370,7 +370,6 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_SYS_PROMPT		"u-boot-pm9263> "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		\

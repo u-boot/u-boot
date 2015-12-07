@@ -120,17 +120,27 @@ static int mmc_set_mod_clk(struct sunxi_mmc_host *mmchost, unsigned int hz)
 	/* determine delays */
 	if (hz <= 400000) {
 		oclk_dly = 0;
-		sclk_dly = 7;
+		sclk_dly = 0;
 	} else if (hz <= 25000000) {
 		oclk_dly = 0;
 		sclk_dly = 5;
+#ifdef CONFIG_MACH_SUN9I
 	} else if (hz <= 50000000) {
-		oclk_dly = 3;
-		sclk_dly = 5;
+		oclk_dly = 5;
+		sclk_dly = 4;
 	} else {
 		/* hz > 50000000 */
 		oclk_dly = 2;
 		sclk_dly = 4;
+#else
+	} else if (hz <= 50000000) {
+		oclk_dly = 3;
+		sclk_dly = 4;
+	} else {
+		/* hz > 50000000 */
+		oclk_dly = 1;
+		sclk_dly = 4;
+#endif
 	}
 
 	writel(CCM_MMC_CTRL_ENABLE | pll | CCM_MMC_CTRL_SCLK_DLY(sclk_dly) |
@@ -257,9 +267,11 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 	const uint32_t status_bit = reading ? SUNXI_MMC_STATUS_FIFO_EMPTY :
 					      SUNXI_MMC_STATUS_FIFO_FULL;
 	unsigned i;
-	unsigned byte_cnt = data->blocksize * data->blocks;
-	unsigned timeout_msecs = 2000;
 	unsigned *buff = (unsigned int *)(reading ? data->dest : data->src);
+	unsigned byte_cnt = data->blocksize * data->blocks;
+	unsigned timeout_msecs = byte_cnt >> 8;
+	if (timeout_msecs < 2000)
+		timeout_msecs = 2000;
 
 	/* Always read / write data through the CPU */
 	setbits_le32(&mmchost->reg->gctrl, SUNXI_MMC_GCTRL_ACCESS_BY_AHB);
@@ -431,6 +443,23 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 		return 1;
 
 	return !gpio_get_value(cd_pin);
+}
+
+int sunxi_mmc_has_egon_boot_signature(struct mmc *mmc)
+{
+	char *buf = malloc(512);
+	int valid_signature = 0;
+
+	if (buf == NULL)
+		panic("Failed to allocate memory\n");
+
+	if (mmc_getcd(mmc) && mmc_init(mmc) == 0 &&
+	    mmc->block_dev.block_read(mmc->block_dev.dev, 16, 1, buf) == 1 &&
+	    strncmp(&buf[4], "eGON.BT0", 8) == 0)
+		valid_signature = 1;
+
+	free(buf);
+	return valid_signature;
 }
 
 static const struct mmc_ops sunxi_mmc_ops = {

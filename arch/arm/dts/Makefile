@@ -9,11 +9,15 @@ dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
 
 dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 	exynos5250-snow.dtb \
+	exynos5250-spring.dtb \
 	exynos5250-smdk5250.dtb \
 	exynos5420-smdk5420.dtb \
 	exynos5420-peach-pit.dtb \
 	exynos5800-peach-pi.dtb \
 	exynos5422-odroidxu3.dtb
+dtb-$(CONFIG_ARCH_ROCKCHIP) += \
+	rk3288-firefly.dtb \
+	rk3288-jerry.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
@@ -32,12 +36,20 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra114-dalmore.dtb \
 	tegra124-jetson-tk1.dtb \
 	tegra124-nyan-big.dtb \
-	tegra124-venice2.dtb
+	tegra124-venice2.dtb \
+	tegra210-e2220-1170.dtb \
+	tegra210-p2371-0000.dtb \
+	tegra210-p2371-2180.dtb \
+	tegra210-p2571.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
-	uniphier-ph1-sld3-ref.dtb \
-	uniphier-ph1-pro4-ref.dtb \
 	uniphier-ph1-ld4-ref.dtb \
-	uniphier-ph1-sld8-ref.dtb
+	uniphier-ph1-ld6b-ref.dtb \
+	uniphier-ph1-pro4-ref.dtb \
+	uniphier-ph1-pro5-4kbox.dtb \
+	uniphier-ph1-sld3-ref.dtb \
+	uniphier-ph1-sld8-ref.dtb \
+	uniphier-proxstream2-gentil.dtb \
+	uniphier-proxstream2-vodka.dtb
 dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc706.dtb \
 	zynq-zed.dtb \
@@ -61,16 +73,22 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += zynqmp-ep108.dtb	\
 	zynqmp-zc1751-xm016-dc2.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb		\
 	zynqmp-mini-qspi.dtb
-dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb
+dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-evm.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
+	socfpga_cyclone5_mcvevk.dtb			\
 	socfpga_cyclone5_socdk.dtb			\
+	socfpga_cyclone5_de0_nano_soc.dtb			\
+	socfpga_cyclone5_sockit.dtb			\
 	socfpga_cyclone5_socrates.dtb
+dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb
 dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
 
 dtb-$(CONFIG_LS102XA) += ls1021a-qds.dtb \
 	ls1021a-twr.dtb
+dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2085a-qds.dtb \
+	fsl-ls2085a-rdb.dtb
 
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-a1000.dtb \
@@ -80,27 +98,35 @@ dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-gemei-g9.dtb \
 	sun4i-a10-hackberry.dtb \
 	sun4i-a10-hyundai-a7hd.dtb \
+	sun4i-a10-inet1.dtb \
 	sun4i-a10-inet-3f.dtb \
 	sun4i-a10-inet-3w.dtb \
 	sun4i-a10-inet97fv2.dtb \
+	sun4i-a10-inet9f-rev03.dtb \
+	sun4i-a10-itead-iteaduino-plus.dtb \
 	sun4i-a10-jesurun-q5.dtb \
 	sun4i-a10-marsboard.dtb \
 	sun4i-a10-mini-xplus.dtb \
 	sun4i-a10-mk802.dtb \
 	sun4i-a10-mk802ii.dtb \
 	sun4i-a10-olinuxino-lime.dtb \
-	sun4i-a10-pcduino.dtb
+	sun4i-a10-pcduino.dtb \
+	sun4i-a10-pov-protab2-ips9.dtb
 dtb-$(CONFIG_MACH_SUN5I) += \
+	sun5i-a10s-auxtek-t003.dtb \
 	sun5i-a10s-auxtek-t004.dtb \
 	sun5i-a10s-mk802.dtb \
 	sun5i-a10s-olinuxino-micro.dtb \
 	sun5i-a10s-r7-tv-dongle.dtb \
+	sun5i-a10s-wobo-i5.dtb \
 	sun5i-a13-ampe-a76.dtb \
 	sun5i-a13-forfun-q88db.dtb \
 	sun5i-a13-hsg-h702.dtb \
 	sun5i-a13-inet-86vs.dtb \
+	sun5i-a13-inet-98v-rev2.dtb \
 	sun5i-a13-olinuxino.dtb \
 	sun5i-a13-olinuxino-micro.dtb \
+	sun5i-a13-q8-tablet.dtb \
 	sun5i-a13-tzx-q8-713b7.dtb \
 	sun5i-a13-utoo-p66.dtb
 dtb-$(CONFIG_MACH_SUN6I) += \
@@ -124,6 +150,7 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-m3.dtb \
 	sun7i-a20-m5.dtb \
 	sun7i-a20-mk808c.dtb \
+	sun7i-a20-olimex-som-evb.dtb \
 	sun7i-a20-olinuxino-lime.dtb \
 	sun7i-a20-olinuxino-lime2.dtb \
 	sun7i-a20-olinuxino-micro.dtb \
@@ -137,12 +164,15 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-yones-toptech-bd1078.dtb
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
 	sun8i-a23-evb.dtb \
+	sun8i-a23-gt90h-v4.dtb \
 	sun8i-a23-ippo-q8h-v5.dtb \
-	sun8i-a23-ippo-q8h-v1.2.dtb
+	sun8i-a23-ippo-q8h-v1.2.dtb \
+	sun8i-a23-q8-tablet.dtb
 dtb-$(CONFIG_MACH_SUN8I_A33) += \
 	sun8i-a33-et-q8-v1.6.dtb \
 	sun8i-a33-ga10h-v1.1.dtb \
 	sun8i-a33-ippo-q8h-v1.2.dtb \
+	sun8i-a33-q8-tablet.dtb \
 	sun8i-a33-sinlinx-sina33.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \

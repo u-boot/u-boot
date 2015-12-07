@@ -30,7 +30,7 @@ int board_mmc_init(bd_t *bis)
 	host->dev_index = 0;
 	host->bus_hz = 50000000;
 
-	add_dwmci(host, host->bus_hz, 400000);
+	add_dwmci(host, host->bus_hz / 2, 400000);
 
 	return 0;
 }

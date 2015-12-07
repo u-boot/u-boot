@@ -48,11 +48,11 @@ DECLARE_GLOBAL_DATA_PTR;
 struct clk;
 
 /**
- * struct clk_ops:
+ * struct zynq_clk_ops:
  * @set_rate:	Function pointer to set_rate() implementation
  * @get_rate:	Function pointer to get_rate() implementation
  */
-struct clk_ops {
+struct zynq_clk_ops {
 	int (*set_rate)(struct clk *clk, unsigned long rate);
 	unsigned long (*get_rate)(struct clk *clk);
 };
@@ -72,7 +72,7 @@ struct clk {
 	enum zynq_clk	parent;
 	unsigned int	flags;
 	u32		*reg;
-	struct clk_ops	ops;
+	struct zynq_clk_ops	ops;
 };
 #define ZYNQ_CLK_FLAGS_HAS_2_DIVS	1
 

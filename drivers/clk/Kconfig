@@ -1,0 +1,19 @@
+config CLK
+	bool "Enable clock driver support"
+	depends on DM
+	help
+	  This allows drivers to be provided for clock generators, including
+	  oscillators and PLLs. Devices can use a common clock API to request
+	  a particular clock rate and check on available clocks. Clocks can
+	  feed into other clocks in a tree structure, with multiplexers to
+	  choose the source for each clock.
+
+config SPL_CLK
+	bool "Enable clock support in SPL"
+	depends on CLK
+	help
+	  The clock subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use clock drivers in
+	  SPL, enable this option. It might provide a cleaner interface to
+	  setting up clocks within SPL, and allows the same drivers to be
+	  used as U-Boot proper.

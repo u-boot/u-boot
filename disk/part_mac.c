@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <memalign.h>
 #include <ide.h>
 #include "part_mac.h"
 

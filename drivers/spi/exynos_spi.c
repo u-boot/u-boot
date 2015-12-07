@@ -16,7 +16,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch-exynos/spi.h>
+#include <asm/arch/spi.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -190,9 +190,9 @@ static int spi_rx_tx(struct exynos_spi_priv *priv, int todo,
 			spi_request_bytes(regs, toread, step);
 		}
 		if (priv->skip_preamble && get_timer(start) > 100) {
-			printf("SPI timeout: in_bytes=%d, out_bytes=%d, ",
-			       in_bytes, out_bytes);
-			return -1;
+			debug("SPI timeout: in_bytes=%d, out_bytes=%d, ",
+			      in_bytes, out_bytes);
+			return -ETIMEDOUT;
 		}
 	}
 
@@ -255,7 +255,7 @@ static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 
-	plat->regs = (struct exynos_spi *)fdtdec_get_addr(blob, node, "reg");
+	plat->regs = (struct exynos_spi *)dev_get_addr(bus);
 	plat->periph_id = pinmux_decode_periph_id(blob, node);
 
 	if (plat->periph_id == PERIPH_ID_NONE) {

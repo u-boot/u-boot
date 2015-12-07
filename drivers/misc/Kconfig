@@ -1,3 +1,9 @@
+#
+# Multifunction miscellaneous devices
+#
+
+menu "Multifunction device drivers"
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC
@@ -53,7 +59,7 @@ config CROS_EC_SPI
 	  provides a faster and more robust interface than I2C but the bugs
 	  are less interesting.
 
-config CONFIG_FSL_SEC_MON
+config FSL_SEC_MON
 	bool "Enable FSL SEC_MON Driver"
 	help
 	  Freescale Security Monitor block is responsible for monitoring
@@ -73,3 +79,14 @@ config PCA9551_I2C_ADDR
 	default 0x60
 	help
 	  The I2C address of the PCA9551 LED controller.
+
+config RESET
+	bool "Enable support for reset drivers"
+	depends on DM
+	help
+	  Enable reset drivers which can be used to reset the CPU or board.
+	  Each driver can provide a reset method which will be called to
+	  effect a reset. The uclass will try all available drivers when
+	  reset_walk() is called.
+
+endmenu

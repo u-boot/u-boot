@@ -50,12 +50,12 @@ static struct omap_musb_board_data cm_t3517_musb_board_data = {
 };
 
 static struct musb_hdrc_platform_data cm_t3517_musb_pdata = {
-#if defined(CONFIG_MUSB_HOST)
+#if defined(CONFIG_USB_MUSB_HOST)
 	.mode           = MUSB_HOST,
-#elif defined(CONFIG_MUSB_GADGET)
+#elif defined(CONFIG_USB_MUSB_GADGET)
 	.mode		= MUSB_PERIPHERAL,
 #else
-#error "Please define either CONFIG_MUSB_HOST or CONFIG_MUSB_GADGET"
+#error "Please define either CONFIG_USB_MUSB_HOST or CONFIG_USB_MUSB_GADGET"
 #endif
 	.config         = &cm_t3517_musb_config,
 	.power          = 250,

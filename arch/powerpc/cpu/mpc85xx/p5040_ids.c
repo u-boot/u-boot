@@ -48,7 +48,7 @@ struct liodn_id_table liodn_tbl[] = {
 int liodn_tbl_sz = ARRAY_SIZE(liodn_tbl);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-struct liodn_id_table fman1_liodn_tbl[] = {
+struct fman_liodn_id_table fman1_liodn_tbl[] = {
 	SET_FMAN_RX_1G_LIODN(1, 0, 11),
 	SET_FMAN_RX_1G_LIODN(1, 1, 12),
 	SET_FMAN_RX_1G_LIODN(1, 2, 13),
@@ -59,7 +59,7 @@ struct liodn_id_table fman1_liodn_tbl[] = {
 int fman1_liodn_tbl_sz = ARRAY_SIZE(fman1_liodn_tbl);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
-struct liodn_id_table fman2_liodn_tbl[] = {
+struct fman_liodn_id_table fman2_liodn_tbl[] = {
 	SET_FMAN_RX_1G_LIODN(2, 0, 17),
 	SET_FMAN_RX_1G_LIODN(2, 1, 18),
 	SET_FMAN_RX_1G_LIODN(2, 2, 19),

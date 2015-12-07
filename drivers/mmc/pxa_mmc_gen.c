@@ -6,15 +6,13 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <config.h>
 #include <common.h>
-#include <malloc.h>
-
-#include <mmc.h>
-#include <asm/errno.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/regs-mmc.h>
+#include <asm/errno.h>
 #include <asm/io.h>
+#include <malloc.h>
+#include <mmc.h>
 
 /* PXAMMC Generic default config for various CPUs */
 #if defined(CONFIG_CPU_PXA25X)

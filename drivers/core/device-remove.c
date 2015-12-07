@@ -18,16 +18,7 @@
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
 
-/**
- * device_chld_unbind() - Unbind all device's children from the device
- *
- * On error, the function continues to unbind all children, and reports the
- * first error.
- *
- * @dev:	The device that is to be stripped of its children
- * @return 0 on success, -ve on error
- */
-static int device_chld_unbind(struct udevice *dev)
+int device_unbind_children(struct udevice *dev)
 {
 	struct udevice *pos, *n;
 	int ret, saved_ret = 0;
@@ -43,12 +34,7 @@ static int device_chld_unbind(struct udevice *dev)
 	return saved_ret;
 }
 
-/**
- * device_chld_remove() - Stop all device's children
- * @dev:	The device whose children are to be removed
- * @return 0 on success, -ve on error
- */
-static int device_chld_remove(struct udevice *dev)
+int device_remove_children(struct udevice *dev)
 {
 	struct udevice *pos, *n;
 	int ret;
@@ -75,6 +61,9 @@ int device_unbind(struct udevice *dev)
 	if (dev->flags & DM_FLAG_ACTIVATED)
 		return -EINVAL;
 
+	if (!(dev->flags & DM_FLAG_BOUND))
+		return -EINVAL;
+
 	drv = dev->driver;
 	assert(drv);
 
@@ -84,7 +73,7 @@ int device_unbind(struct udevice *dev)
 			return ret;
 	}
 
-	ret = device_chld_unbind(dev);
+	ret = device_unbind_children(dev);
 	if (ret)
 		return ret;
 
@@ -106,6 +95,9 @@ int device_unbind(struct udevice *dev)
 
 	if (dev->parent)
 		list_del(&dev->sibling_node);
+
+	devres_release_all(dev);
+
 	free(dev);
 
 	return 0;
@@ -139,6 +131,8 @@ void device_free(struct udevice *dev)
 			dev->parent_priv = NULL;
 		}
 	}
+
+	devres_release_probe(dev);
 }
 
 int device_remove(struct udevice *dev)
@@ -159,7 +153,7 @@ int device_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = device_chld_remove(dev);
+	ret = device_remove_children(dev);
 	if (ret)
 		goto err;
 

@@ -66,7 +66,7 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
 /* TWL4030 */
-#define CONFIG_TWL4030_POWER		1
+#define CONFIG_TWL4030_POWER
 
 /* SPL */
 #define CONFIG_SPL_TEXT_BASE		0x40200800
@@ -84,6 +84,6 @@
 #endif
 
 /* Now bring in the rest of the common code. */
-#include <configs/ti_armv7_common.h>
+#include <configs/ti_armv7_omap.h>
 
 #endif	/* __CONFIG_TI_OMAP3_COMMON_H__ */

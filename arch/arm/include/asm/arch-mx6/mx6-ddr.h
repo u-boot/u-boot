@@ -16,11 +16,24 @@
 #ifdef CONFIG_MX6SX
 #include "mx6sx-ddr.h"
 #else
+#ifdef CONFIG_MX6UL
+#include "mx6ul-ddr.h"
+#else
+#ifdef CONFIG_MX6SL
+#include "mx6sl-ddr.h"
+#else
 #error "Please select cpu"
+#endif	/* CONFIG_MX6SL */
+#endif	/* CONFIG_MX6UL */
 #endif	/* CONFIG_MX6SX */
 #endif	/* CONFIG_MX6DL or CONFIG_MX6S */
 #endif	/* CONFIG_MX6Q */
 #else
+
+enum {
+	DDR_TYPE_DDR3,
+	DDR_TYPE_LPDDR2,
+};
 
 /* MMDC P0/P1 Registers */
 struct mmdc_p_regs {
@@ -36,30 +49,158 @@ struct mmdc_p_regs {
 	u32 res1[2];
 	u32 mdrwd;
 	u32 mdor;
-	u32 res2[3];
+	u32 mdmrr;
+	u32 mdcfg3lp;
+	u32 mdmr4;
 	u32 mdasp;
-	u32 res3[240];
+	u32 res2[239];
+	u32 maarcr;
 	u32 mapsr;
-	u32 res4[254];
+	u32 maexidr0;
+	u32 maexidr1;
+	u32 madpcr0;
+	u32 madpcr1;
+	u32 madpsr0;
+	u32 madpsr1;
+	u32 madpsr2;
+	u32 madpsr3;
+	u32 madpsr4;
+	u32 madpsr5;
+	u32 masbs0;
+	u32 masbs1;
+	u32 res3[2];
+	u32 magenp;
+	u32 res4[239];
 	u32 mpzqhwctrl;
-	u32 res5[2];
+	u32 mpzqswctrl;
+	u32 mpwlgcr;
 	u32 mpwldectrl0;
 	u32 mpwldectrl1;
-	u32 res6;
+	u32 mpwldlst;
 	u32 mpodtctrl;
 	u32 mprddqby0dl;
 	u32 mprddqby1dl;
 	u32 mprddqby2dl;
 	u32 mprddqby3dl;
-	u32 res7[4];
+	u32 mpwrdqby0dl;
+	u32 mpwrdqby1dl;
+	u32 mpwrdqby2dl;
+	u32 mpwrdqby3dl;
 	u32 mpdgctrl0;
 	u32 mpdgctrl1;
-	u32 res8;
+	u32 mpdgdlst0;
 	u32 mprddlctl;
-	u32 res9;
+	u32 mprddlst;
 	u32 mpwrdlctl;
-	u32 res10[25];
+	u32 mpwrdlst;
+	u32 mpsdctrl;
+	u32 mpzqlp2ctl;
+	u32 mprddlhwctl;
+	u32 mpwrdlhwctl;
+	u32 mprddlhwst0;
+	u32 mprddlhwst1;
+	u32 mpwrdlhwst0;
+	u32 mpwrdlhwst1;
+	u32 mpwlhwerr;
+	u32 mpdghwst0;
+	u32 mpdghwst1;
+	u32 mpdghwst2;
+	u32 mpdghwst3;
+	u32 mppdcmpr1;
+	u32 mppdcmpr2;
+	u32 mpswdar0;
+	u32 mpswdrdr0;
+	u32 mpswdrdr1;
+	u32 mpswdrdr2;
+	u32 mpswdrdr3;
+	u32 mpswdrdr4;
+	u32 mpswdrdr5;
+	u32 mpswdrdr6;
+	u32 mpswdrdr7;
 	u32 mpmur0;
+	u32 mpwrcadl;
+	u32 mpdccr;
+};
+
+#define MX6SL_IOM_DDR_BASE     0x020e0300
+struct mx6sl_iomux_ddr_regs {
+	u32 dram_cas;
+	u32 dram_cs0_b;
+	u32 dram_cs1_b;
+	u32 dram_dqm0;
+	u32 dram_dqm1;
+	u32 dram_dqm2;
+	u32 dram_dqm3;
+	u32 dram_ras;
+	u32 dram_reset;
+	u32 dram_sdba0;
+	u32 dram_sdba1;
+	u32 dram_sdba2;
+	u32 dram_sdcke0;
+	u32 dram_sdcke1;
+	u32 dram_sdclk_0;
+	u32 dram_odt0;
+	u32 dram_odt1;
+	u32 dram_sdqs0;
+	u32 dram_sdqs1;
+	u32 dram_sdqs2;
+	u32 dram_sdqs3;
+	u32 dram_sdwe_b;
+};
+
+#define MX6SL_IOM_GRP_BASE     0x020e0500
+struct mx6sl_iomux_grp_regs {
+	u32 res1[43];
+	u32 grp_addds;
+	u32 grp_ddrmode_ctl;
+	u32 grp_ddrpke;
+	u32 grp_ddrpk;
+	u32 grp_ddrhys;
+	u32 grp_ddrmode;
+	u32 grp_b0ds;
+	u32 grp_ctlds;
+	u32 grp_b1ds;
+	u32 grp_ddr_type;
+	u32 grp_b2ds;
+	u32 grp_b3ds;
+};
+
+#define MX6UL_IOM_DDR_BASE	0x020e0200
+struct mx6ul_iomux_ddr_regs {
+	u32 res1[17];
+	u32 dram_dqm0;
+	u32 dram_dqm1;
+	u32 dram_ras;
+	u32 dram_cas;
+	u32 dram_cs0;
+	u32 dram_cs1;
+	u32 dram_sdwe_b;
+	u32 dram_odt0;
+	u32 dram_odt1;
+	u32 dram_sdba0;
+	u32 dram_sdba1;
+	u32 dram_sdba2;
+	u32 dram_sdcke0;
+	u32 dram_sdcke1;
+	u32 dram_sdclk_0;
+	u32 dram_sdqs0;
+	u32 dram_sdqs1;
+	u32 dram_reset;
+};
+
+#define MX6UL_IOM_GRP_BASE	0x020e0400
+struct mx6ul_iomux_grp_regs {
+	u32 res1[36];
+	u32 grp_addds;
+	u32 grp_ddrmode_ctl;
+	u32 grp_b0ds;
+	u32 grp_ddrpk;
+	u32 grp_ctlds;
+	u32 grp_b1ds;
+	u32 grp_ddrhys;
+	u32 grp_ddrpke;
+	u32 grp_ddrmode;
+	u32 grp_ddr_type;
 };
 
 #define MX6SX_IOM_DDR_BASE	0x020e0200
@@ -236,6 +377,21 @@ struct mx6_ddr3_cfg {
 	u8 SRT;		/* self-refresh temperature: 0=normal, 1=extended */
 };
 
+/* Device Information: Varies per LPDDR2 part number and speed grade */
+struct mx6_lpddr2_cfg {
+	u16 mem_speed;	/* ie 800 for LPDDR2-800 */
+	u8 density;	/* chip density (Gb) (1,2,4,8) */
+	u8 width;	/* bus width (bits) (4,8,16) */
+	u8 banks;	/* number of banks */
+	u8 rowaddr;	/* row address bits (11-16)*/
+	u8 coladdr;	/* col address bits (9-12) */
+	u16 trcd_lp;
+	u16 trppb_lp;
+	u16 trpab_lp;
+	u16 trcmin;	/* tRC min (ns*100) */
+	u16 trasmin;	/* tRAS min (ns*100) */
+};
+
 /* System Information: Varies per board design, layout, and term choices */
 struct mx6_ddr_sysinfo {
 	u8 dsize;	/* size of bus (in dwords: 0=16bit,1=32bit,2=64bit) */
@@ -251,6 +407,7 @@ struct mx6_ddr_sysinfo {
 	u8 rst_to_cke;	/* Time from SDE enable to CKE rise */
 	u8 sde_to_rst;	/* Time from SDE enable until DDR reset# is high */
 	u8 pd_fast_exit;/* enable precharge powerdown fast-exit */
+	u8 ddr_type;	/* DDR type: DDR3(0) or LPDDR2(1) */
 };
 
 /*
@@ -278,6 +435,8 @@ struct mx6_mmdc_calibration {
 	/* write delay */
 	u32 p0_mpwrdlctl;
 	u32 p1_mpwrdlctl;
+	/* lpddr2 zq hw calibration */
+	u32 mpzqlp2ctl;
 };
 
 /* configure iomux (pinctl/padctl) */
@@ -290,11 +449,17 @@ void mx6sdl_dram_iocfg(unsigned width,
 void mx6sx_dram_iocfg(unsigned width,
 		      const struct mx6sx_iomux_ddr_regs *,
 		      const struct mx6sx_iomux_grp_regs *);
+void mx6ul_dram_iocfg(unsigned width,
+		      const struct mx6ul_iomux_ddr_regs *,
+		      const struct mx6ul_iomux_grp_regs *);
+void mx6sl_dram_iocfg(unsigned width,
+		      const struct mx6sl_iomux_ddr_regs *,
+		      const struct mx6sl_iomux_grp_regs *);
 
 /* configure mx6 mmdc registers */
 void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,
 		  const struct mx6_mmdc_calibration *,
-		  const struct mx6_ddr3_cfg *);
+		  const void *);
 
 #endif /* CONFIG_SPL_BUILD */
 

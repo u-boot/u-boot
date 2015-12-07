@@ -15,10 +15,6 @@
 /* PA SS Registers */
 #define KS2_PASS_BASE			0x02000000
 
-/* PLL control registers */
-#define KS2_DDR3BPLLCTL0		(KS2_DEVICE_STATE_CTRL_BASE + 0x368)
-#define KS2_DDR3BPLLCTL1		(KS2_DEVICE_STATE_CTRL_BASE + 0x36C)
-
 /* Power and Sleep Controller (PSC) Domains */
 #define KS2_LPSC_MOD			0
 #define KS2_LPSC_DUMMY1			1

@@ -647,7 +647,7 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	return 1;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int zynq_gem_of_init(const void *blob)
 {
 	int offset = 0;

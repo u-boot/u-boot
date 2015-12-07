@@ -25,7 +25,8 @@
 	aliases {
 		serial0 = "/serial@12C30000";
 		console = "/serial@12C30000";
-		pmic = "/i2c@12ca0000";
+		pmic = "/i2c@12CA0000";
+		i2c104 = &i2c_tunnel;
 	};
 
 	dmc {
@@ -49,7 +50,7 @@
 	};
 
 	/* MAX77802 is on i2c bus 4 */
-	i2c@12ca0000 {
+	i2c@12CA0000 {
 		clock-frequency = <400000>;
 		power-regulator@9 {
 			compatible = "maxim,max77802-pmic";
@@ -57,7 +58,7 @@
 		};
 	};
 
-	i2c@12cd0000 { /* i2c7 */
+	i2c@12CD0000 { /* i2c7 */
 		clock-frequency = <100000>;
 	       soundcodec@20 {
 	              reg = <0x20>;
@@ -69,11 +70,11 @@
                 samsung,codec-type = "max98090";
         };
 
-	i2c@12e10000 { /* i2c9 */
+	i2c@12E10000 { /* i2c9 */
 		clock-frequency = <400000>;
-                tpm@20 {
-                        compatible = "infineon,slb9645tt";
-                        reg = <0x20>;
+		tpm@20 {
+			compatible = "infineon,slb9645tt";
+			reg = <0x20>;
 		};
 	};
 
@@ -90,29 +91,6 @@
 
 			elog-shrink-size = <0x400>;
 			elog-full-threshold = <0xc00>;
-		};
-	};
-
-	spi@12d40000 { /* spi2 */
-		spi-max-frequency = <4000000>;
-		spi-deactivate-delay = <200>;
-		cros_ec: cros-ec@0 {
-			compatible = "google,cros-ec-spi";
-			reg = <0>;
-			spi-half-duplex;
-			spi-max-timeout-ms = <1100>;
-			ec-interrupt = <&gpx1 5 GPIO_ACTIVE_LOW>;
-
-			/*
-			 * This describes the flash memory within the EC. Note
-			 * that the STM32L flash erases to 0, not 0xff.
-			 */
-			#address-cells = <1>;
-			#size-cells = <1>;
-			flash@8000000 {
-				reg = <0x08000000 0x20000>;
-				erase-value = <0>;
-			};
 		};
 	};
 
@@ -150,6 +128,105 @@
 		samsung,dual-lcd-enabled = <0>;
 
 		samsung,bl-en-gpio = <&gpx2 2 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&spi_2 {
+	spi-max-frequency = <3125000>;
+	spi-deactivate-delay = <200>;
+	status = "okay";
+	num-cs = <1>;
+	samsung,spi-src-clk = <0>;
+	cs-gpios = <&gpb1 2 0>;
+
+	cros_ec: cros-ec@0 {
+		compatible = "google,cros-ec-spi";
+		interrupt-parent = <&gpx1>;
+		interrupts = <5 0>;
+		reg = <0>;
+		spi-half-duplex;
+		spi-max-timeout-ms = <1100>;
+		ec-interrupt = <&gpx1 5 GPIO_ACTIVE_LOW>;
+
+		/*
+		 * This describes the flash memory within the EC. Note
+		 * that the STM32L flash erases to 0, not 0xff.
+		 */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		flash@8000000 {
+			reg = <0x08000000 0x20000>;
+			erase-value = <0>;
+		};
+
+		controller-data {
+			samsung,spi-feedback-delay = <1>;
+		};
+
+		i2c_tunnel: i2c-tunnel {
+			compatible = "google,cros-ec-i2c-tunnel";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			google,remote-bus = <0>;
+
+			battery: sbs-battery@b {
+				compatible = "sbs,sbs-battery";
+				reg = <0xb>;
+				sbs,poll-retry-count = <1>;
+				sbs,i2c-retry-count = <2>;
+			};
+
+			power-regulator@48 {
+				compatible = "ti,tps65090";
+				reg = <0x48>;
+
+				regulators {
+					tps65090_dcdc1: dcdc1 {
+						ti,enable-ext-control;
+					};
+					tps65090_dcdc2: dcdc2 {
+						ti,enable-ext-control;
+					};
+					tps65090_dcdc3: dcdc3 {
+						ti,enable-ext-control;
+					};
+					tps65090_fet1: fet1 {
+						regulator-name = "vcd_led";
+					};
+					tps65090_fet2: fet2 {
+						regulator-name = "video_mid";
+						regulator-always-on;
+					};
+					tps65090_fet3: fet3 {
+						regulator-name = "wwan_r";
+						regulator-always-on;
+					};
+					tps65090_fet4: fet4 {
+						regulator-name = "sdcard";
+						regulator-always-on;
+					};
+					tps65090_fet5: fet5 {
+						regulator-name = "camout";
+						regulator-always-on;
+					};
+					tps65090_fet6: fet6 {
+						regulator-name = "lcd_vdd";
+					};
+					tps65090_fet7: fet7 {
+						regulator-name = "video_mid_1a";
+						regulator-always-on;
+					};
+					tps65090_ldo1: ldo1 {
+					};
+					tps65090_ldo2: ldo2 {
+					};
+				};
+
+				charger {
+					compatible = "ti,tps65090-charger";
+				};
+			};
+		};
 	};
 };
 

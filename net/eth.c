@@ -107,7 +107,9 @@ static void eth_common_init(void)
 		if (cpu_eth_init(gd->bd) < 0)
 			printf("CPU Net Initialization Failed\n");
 	} else {
+#ifndef CONFIG_DM_ETH
 		printf("Net Initialization Skipped\n");
+#endif
 	}
 }
 
@@ -193,10 +195,11 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 	const char *startp = NULL;
 	struct udevice *it;
 	struct uclass *uc;
+	int len = strlen("eth");
 
 	/* Must be longer than 3 to be an alias */
-	if (strlen(devname) > strlen("eth")) {
-		startp = devname + strlen("eth");
+	if (!strncmp(devname, "eth", len) && strlen(devname) > len) {
+		startp = devname + len;
 		seq = simple_strtoul(startp, &endp, 10);
 	}
 
@@ -287,7 +290,13 @@ static int eth_write_hwaddr(struct udevice *dev)
 			return -EINVAL;
 		}
 
+		/*
+		 * Drivers are allowed to decide not to implement this at
+		 * run-time. E.g. Some devices may use it and some may not.
+		 */
 		ret = eth_get_ops(dev)->write_hwaddr(dev);
+		if (ret == -ENOSYS)
+			ret = 0;
 		if (ret)
 			printf("\nWarning: %s failed to set MAC address\n",
 			       dev->name);
@@ -380,6 +389,17 @@ void eth_halt(void)
 	priv->state = ETH_STATE_PASSIVE;
 }
 
+int eth_is_active(struct udevice *dev)
+{
+	struct eth_device_priv *priv;
+
+	if (!dev || !device_active(dev))
+		return 0;
+
+	priv = dev_get_uclass_priv(dev);
+	return priv->state == ETH_STATE_ACTIVE;
+}
+
 int eth_send(void *packet, int length)
 {
 	struct udevice *current;
@@ -404,6 +424,7 @@ int eth_rx(void)
 {
 	struct udevice *current;
 	uchar *packet;
+	int flags;
 	int ret;
 	int i;
 
@@ -415,8 +436,10 @@ int eth_rx(void)
 		return -EINVAL;
 
 	/* Process up to 32 packets at one time */
+	flags = ETH_RECV_CHECK_DEVICE;
 	for (i = 0; i < 32; i++) {
-		ret = eth_get_ops(current)->recv(current, &packet);
+		ret = eth_get_ops(current)->recv(current, flags, &packet);
+		flags = 0;
 		if (ret > 0)
 			net_process_received_packet(packet, ret);
 		if (ret >= 0 && eth_get_ops(current)->free_pkt)
@@ -568,7 +591,7 @@ UCLASS_DRIVER(eth) = {
 	.per_device_auto_alloc_size = sizeof(struct eth_device_priv),
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
-#endif
+#endif /* #ifdef CONFIG_DM_ETH */
 
 #ifndef CONFIG_DM_ETH
 
@@ -904,6 +927,11 @@ void eth_halt(void)
 	eth_current->halt(eth_current);
 
 	eth_current->state = ETH_STATE_PASSIVE;
+}
+
+int eth_is_active(struct eth_device *dev)
+{
+	return dev && dev->state == ETH_STATE_ACTIVE;
 }
 
 int eth_send(void *packet, int length)

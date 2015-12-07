@@ -1,5 +1,5 @@
 VERSION = 2015
-PATCHLEVEL = 07
+PATCHLEVEL = 10
 SUBLEVEL =
 EXTRAVERSION =
 NAME =
@@ -10,9 +10,10 @@ NAME =
 # Comments in this file are targeted only to the developer, do not
 # expect to learn how to build the kernel reading this file.
 
-# Do not use make's built-in rules and variables
-# (this increases performance and avoids hard-to-debug behaviour);
-MAKEFLAGS += -rR
+# o Do not use make's built-in rules and variables
+#   (this increases performance and avoids hard-to-debug behaviour);
+# o Look for make include files relative to root of kernel src
+MAKEFLAGS += -rR --include-dir=$(CURDIR)
 
 # Avoid funny character set dependencies
 unexport LC_ALL
@@ -319,12 +320,9 @@ endif
 export KBUILD_MODULES KBUILD_BUILTIN
 export KBUILD_CHECKSRC KBUILD_SRC KBUILD_EXTMOD
 
-# Look for make include files relative to root of kernel src
-MAKEFLAGS += --include-dir=$(srctree)
-
 # We need some generic definitions (do not try to remake the file).
-$(srctree)/scripts/Kbuild.include: ;
-include $(srctree)/scripts/Kbuild.include
+scripts/Kbuild.include: ;
+include scripts/Kbuild.include
 
 # Make variables (CC, etc...)
 
@@ -437,7 +435,7 @@ endif
 ifeq ($(KBUILD_EXTMOD),)
         ifneq ($(filter config %config,$(MAKECMDGOALS)),)
                 config-targets := 1
-                ifneq ($(filter-out config %config,$(MAKECMDGOALS)),)
+                ifneq ($(words $(MAKECMDGOALS)),1)
                         mixed-targets := 1
                 endif
         endif
@@ -518,8 +516,8 @@ ifneq ($(wildcard include/config/auto.conf),)
 autoconf_is_old := $(shell find . -path ./$(KCONFIG_CONFIG) -newer \
 						include/config/auto.conf)
 ifeq ($(autoconf_is_old),)
-include $(srctree)/config.mk
-include $(srctree)/arch/$(ARCH)/Makefile
+include config.mk
+include arch/$(ARCH)/Makefile
 endif
 endif
 endif
@@ -595,7 +593,7 @@ endif
 
 export CONFIG_SYS_TEXT_BASE
 
-include $(srctree)/scripts/Makefile.extrawarn
+include scripts/Makefile.extrawarn
 
 # Add user supplied CPPFLAGS, AFLAGS and CFLAGS as the last assignments
 KBUILD_CPPFLAGS += $(KCPPFLAGS)
@@ -651,6 +649,7 @@ libs-y += drivers/power/ \
 libs-y += drivers/spi/
 libs-$(CONFIG_FMAN_ENET) += drivers/net/fm/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
+libs-$(CONFIG_ALTERA_SDRAM) += drivers/ddr/altera/
 libs-y += drivers/serial/
 libs-y += drivers/usb/dwc3/
 libs-y += drivers/usb/emul/
@@ -738,7 +737,11 @@ ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
 else
+ifneq ($(CONFIG_SECURE_BOOT), y)
+# For Secure Boot The Image needs to be signed and Header must also
+# be included. So The image has to be built explicitly
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
+endif
 endif
 ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
@@ -752,6 +755,8 @@ ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
 ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
+ALL-$(CONFIG_EFI_APP) += u-boot-app.efi
+ALL-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 ifneq ($(BUILD_ROM),)
 ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
@@ -784,8 +789,17 @@ ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
 
+# Normally we fill empty space with 0xff
 quiet_cmd_objcopy = OBJCOPY $@
-cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+cmd_objcopy = $(OBJCOPY) --gap-fill=0xff $(OBJCOPYFLAGS) \
+	$(OBJCOPYFLAGS_$(@F)) $< $@
+
+# Provide a version which does not do this, for use by EFI
+quiet_cmd_zobjcopy = OBJCOPY $@
+cmd_zobjcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+
+quiet_cmd_efipayload = OBJCOPY $@
+cmd_efipayload = $(OBJCOPY) -I binary -O $(EFIPAYLOAD_BFDTARGET) -B $(EFIPAYLOAD_BFDARCH) $< $@
 
 quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
@@ -893,7 +907,7 @@ MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
 MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
-	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
+	-T kwbimage -a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE)
 
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
@@ -996,21 +1010,14 @@ OBJCOPYFLAGS_u-boot.spr = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
 u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
-MKIMAGEFLAGS_u-boot-spl.gph = -A $(ARCH) -T gpimage -C none \
-	-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n SPL
-spl/u-boot-spl.gph: spl/u-boot-spl.bin FORCE
-	$(call if_changed,mkimage)
-
-OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
-			  --gap-fill=0
-u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
-	$(call if_changed,pad_cat)
-
-MKIMAGEFLAGS_u-boot-nand.gph = -A $(ARCH) -T gpimage -C none \
-	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -n U-Boot
-u-boot-nand.gph: u-boot.bin FORCE
-	$(call if_changed,mkimage)
-	@dd if=/dev/zero bs=8 count=1 2>/dev/null >> $@
+ifneq ($(CONFIG_ARCH_SOCFPGA),)
+quiet_cmd_socboot = SOCBOOT $@
+cmd_socboot = cat	spl/u-boot-spl-dtb.sfp spl/u-boot-spl-dtb.sfp	\
+			spl/u-boot-spl-dtb.sfp spl/u-boot-spl-dtb.sfp	\
+			u-boot-dtb.img > $@ || rm -f $@
+u-boot-with-spl-dtb.sfp: spl/u-boot-spl-dtb.sfp u-boot-dtb.img FORCE
+	$(call if_changed,socboot)
+endif
 
 # x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
 # reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
@@ -1023,6 +1030,7 @@ IFDTOOL_FLAGS  = -f 0:$(objtree)/u-boot.dtb
 IFDTOOL_FLAGS += -m 0x$(shell $(NM) u-boot |grep _dt_ucode_base_size |cut -d' ' -f1)
 IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot.bin
 IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
+IFDTOOL_FLAGS += -C
 
 ifneq ($(CONFIG_HAVE_INTEL_ME),)
 IFDTOOL_ME_FLAGS  = -D $(srctree)/board/$(BOARDDIR)/descriptor.bin
@@ -1041,8 +1049,8 @@ ifneq ($(CONFIG_HAVE_CMC),)
 IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
 endif
 
-ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILE)
+ifneq ($(CONFIG_HAVE_VGA_BIOS),)
+IFDTOOL_FLAGS += -w $(CONFIG_VGA_BIOS_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_VGA_BIOS_FILE)
 endif
 
 quiet_cmd_ifdtool = IFDTOOL $@
@@ -1079,6 +1087,30 @@ u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 endif
 endif
+
+OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
+u-boot-app.efi: u-boot FORCE
+	$(call if_changed,zobjcopy)
+
+u-boot-dtb.bin.o: u-boot-dtb.bin FORCE
+	$(call if_changed,efipayload)
+
+u-boot-payload.lds: $(LDSCRIPT_EFI) FORCE
+	$(call if_changed_dep,cpp_lds)
+
+# Rule to link the EFI payload which contains a stub and a U-Boot binary
+quiet_cmd_u-boot_payload ?= LD      $@
+      cmd_u-boot_payload ?= $(LD) $(LDFLAGS_EFI_PAYLOAD) -o $@ \
+      -T u-boot-payload.lds arch/x86/cpu/call32.o \
+      lib/efi/efi.o lib/efi/efi_stub.o u-boot-dtb.bin.o \
+      $(addprefix arch/$(ARCH)/lib/efi/,$(EFISTUB))
+
+u-boot-payload: u-boot-dtb.bin.o u-boot-payload.lds FORCE
+	$(call if_changed,u-boot_payload)
+
+OBJCOPYFLAGS_u-boot-payload.efi := $(OBJCOPYFLAGS_EFI)
+u-boot-payload.efi: u-boot-payload FORCE
+	$(call if_changed,zobjcopy)
 
 u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
 	$(call if_changed,cat)
@@ -1240,10 +1272,29 @@ define filechk_version.h
 	echo \#define LD_VERSION_STRING \"$$($(LD) --version | head -n 1)\"; )
 endef
 
+# The SOURCE_DATE_EPOCH mechanism requires a date that behaves like GNU date.
+# The BSD date on the other hand behaves different and would produce errors
+# with the misused '-d' switch.  Respect that and search a working date with
+# well known pre- and suffixes for the GNU variant of date.
 define filechk_timestamp.h
-	(LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"'; \
-	LC_ALL=C date +'#define U_BOOT_TIME "%T"'; \
-	LC_ALL=C date +'#define U_BOOT_TZ "%z"')
+	(if test -n "$${SOURCE_DATE_EPOCH}"; then \
+		SOURCE_DATE="@$${SOURCE_DATE_EPOCH}"; \
+		DATE=""; \
+		for date in gdate date.gnu date; do \
+			$${date} -u -d "$${SOURCE_DATE}" >/dev/null 2>&1 && DATE="$${date}"; \
+		done; \
+		if test -n "$${DATE}"; then \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_DATE "%b %d %C%y"'; \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TIME "%T"'; \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TZ "%z"'; \
+		else \
+			return 42; \
+		fi; \
+	else \
+		LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"'; \
+		LC_ALL=C date +'#define U_BOOT_TIME "%T"'; \
+		LC_ALL=C date +'#define U_BOOT_TZ "%z"'; \
+	fi)
 endef
 
 $(version_h): include/config/uboot.release FORCE
@@ -1251,12 +1302,6 @@ $(version_h): include/config/uboot.release FORCE
 
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
-
-# ---------------------------------------------------------------------------
-
-PHONY += depend dep
-depend dep:
-	@echo '*** Warning: make $@ is unnecessary now.'
 
 # ---------------------------------------------------------------------------
 quiet_cmd_cpp_lds = LDS     $@
@@ -1268,10 +1313,13 @@ u-boot.lds: $(LDSCRIPT) prepare FORCE
 
 spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
-spl/u-boot-spl: tools prepare
+spl/u-boot-spl: tools prepare $(if $(CONFIG_OF_SEPARATE),dts/dt.dtb)
 	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
+	@:
+
+spl/u-boot-spl-dtb.sfp: spl/u-boot-spl
 	@:
 
 tpl/u-boot-tpl.bin: tools prepare
@@ -1557,11 +1605,6 @@ ifneq ($(cmd_files),)
   $(cmd_files): ;	# Do not try to update included dependency files
   include $(cmd_files)
 endif
-
-# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.clean obj=dir
-# Usage:
-# $(Q)$(MAKE) $(clean)=dir
-clean := -f $(srctree)/scripts/Makefile.clean obj
 
 endif	# skip-makefile
 

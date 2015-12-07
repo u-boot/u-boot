@@ -599,15 +599,6 @@ void *video_hw_init(void)
 	return (void *)&panel;
 }
 
-void video_set_lut(unsigned int index, /* color number */
-			unsigned char r,    /* red */
-			unsigned char g,    /* green */
-			unsigned char b     /* blue */
-			)
-{
-	return;
-}
-
 int ipuv3_fb_init(struct fb_videomode const *mode,
 		  uint8_t disp,
 		  uint32_t pixfmt)

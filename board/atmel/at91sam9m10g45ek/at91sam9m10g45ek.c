@@ -131,23 +131,15 @@ static void ddr2_conf(struct atmel_mpddr *ddr2)
 void mem_init(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	struct at91_matrix *mat = (struct at91_matrix *)ATMEL_BASE_MATRIX;
 	struct atmel_mpddr ddr2;
-	unsigned long csa;
 
 	ddr2_conf(&ddr2);
 
 	/* enable DDR2 clock */
-	writel(0x4, &pmc->scer);
-
-	/* Chip select 1 is for DDR2/SDRAM */
-	csa = readl(&mat->ebicsa);
-	csa |= AT91_MATRIX_EBI_CS1A_SDRAMC;
-	csa &= ~AT91_MATRIX_EBI_VDDIOMSEL_3_3V;
-	writel(csa, &mat->ebicsa);
+	writel(AT91_PMC_DDR, &pmc->scer);
 
 	/* DDRAM2 Controller initialize */
-	ddr2_init(ATMEL_BASE_CS6, &ddr2);
+	ddr2_init(ATMEL_BASE_DDRSDRC0, ATMEL_BASE_CS6, &ddr2);
 }
 #endif
 

@@ -92,7 +92,20 @@ struct pll_psc {
 #error "CONFIG_STM32_HSE_HZ not defined!"
 #else
 #if (CONFIG_STM32_HSE_HZ == 8000000)
-struct pll_psc pll_psc_168 = {
+#if (CONFIG_SYS_CLK_FREQ == 180000000)
+/* 180 MHz */
+struct pll_psc sys_pll_psc = {
+	.pll_m = 8,
+	.pll_n = 360,
+	.pll_p = 2,
+	.pll_q = 8,
+	.ahb_psc = AHB_PSC_1,
+	.apb1_psc = APB_PSC_4,
+	.apb2_psc = APB_PSC_2
+};
+#else
+/* default 168 MHz */
+struct pll_psc sys_pll_psc = {
 	.pll_m = 8,
 	.pll_n = 336,
 	.pll_p = 2,
@@ -101,6 +114,7 @@ struct pll_psc pll_psc_168 = {
 	.apb1_psc = APB_PSC_4,
 	.apb2_psc = APB_PSC_2
 };
+#endif
 #else
 #error "No PLL/Prescaler configuration for given CONFIG_STM32_HSE_HZ exists"
 #endif
@@ -122,19 +136,19 @@ int configure_clocks(void)
 	while (!(readl(&STM32_RCC->cr) & RCC_CR_HSERDY))
 		;
 
-	/* Enable high performance mode, System frequency up to 168 MHz */
+	/* Enable high performance mode, System frequency up to 180 MHz */
 	setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_PWREN);
 	writel(PWR_CR_VOS_SCALE_MODE_1, &STM32_PWR->cr);
 
 	setbits_le32(&STM32_RCC->cfgr, ((
-		pll_psc_168.ahb_psc << RCC_CFGR_HPRE_SHIFT)
-		| (pll_psc_168.apb1_psc << RCC_CFGR_PPRE1_SHIFT)
-		| (pll_psc_168.apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
+		sys_pll_psc.ahb_psc << RCC_CFGR_HPRE_SHIFT)
+		| (sys_pll_psc.apb1_psc << RCC_CFGR_PPRE1_SHIFT)
+		| (sys_pll_psc.apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
 
-	writel(pll_psc_168.pll_m
-		| (pll_psc_168.pll_n << RCC_PLLCFGR_PLLN_SHIFT)
-		| (((pll_psc_168.pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT)
-		| (pll_psc_168.pll_q << RCC_PLLCFGR_PLLQ_SHIFT),
+	writel(sys_pll_psc.pll_m
+		| (sys_pll_psc.pll_n << RCC_PLLCFGR_PLLN_SHIFT)
+		| (((sys_pll_psc.pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT)
+		| (sys_pll_psc.pll_q << RCC_PLLCFGR_PLLQ_SHIFT),
 		&STM32_RCC->pllcfgr);
 	setbits_le32(&STM32_RCC->pllcfgr, RCC_PLLCFGR_PLLSRC);
 

@@ -45,7 +45,6 @@ reset:
  * BSS area lies in the DDR location which is not yet initialized
  * bss is assumed to be uninitialized.
  */
-	bl	spl_boot
 	ldmia	sp!, {r0-r12,pc}
 
 /*
@@ -77,5 +76,5 @@ cpu_init_crit:
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
 	stmdb	sp!, {lr}
-	bl	lowlevel_init	/* go setup pll,mux,memory */
+	bl	_main	/* _main will call board_init_f */
 	ldmia	sp!, {pc}

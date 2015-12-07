@@ -152,7 +152,7 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 	return 0;
 }
 
-static int sb_eth_recv(struct udevice *dev, uchar **packetp)
+static int sb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
 

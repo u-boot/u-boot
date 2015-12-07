@@ -9,6 +9,8 @@
 
 #define CONFIG_LS102XA
 
+#define CONFIG_ARMV7_PSCI
+
 #define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_DISPLAY_CPUINFO
@@ -387,6 +389,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /*
@@ -430,18 +434,30 @@ unsigned long get_board_ddr_clk(void);
 /*
  * USB
  */
-#define CONFIG_HAS_FSL_DR_USB
+/* EHCI Support - disbaled by default */
+/*#define CONFIG_HAS_FSL_DR_USB*/
 
 #ifdef CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI
-
-#ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_CMD_EXT2
 #endif
+
+/*XHCI Support - enabled by default*/
+#define CONFIG_HAS_FSL_XHCI_USB
+
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+#define CONFIG_USB_XHCI_FSL
+#define CONFIG_USB_XHCI_DWC3
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT		1
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
+#endif
+
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_EXT2
 #endif
 
 /*
@@ -533,7 +549,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_PNP
-#define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
 #endif
@@ -551,10 +566,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_LS102XA_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 #define CONFIG_TIMER_CLK_FREQ		12500000
-#define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
 #define CONFIG_HWCONFIG
-#define HWCONFIG_BUFFER_SIZE		128
+#define HWCONFIG_BUFFER_SIZE		256
+
+#define CONFIG_FSL_DEVICE_DISABLE
 
 #define CONFIG_BOOTDELAY		3
 

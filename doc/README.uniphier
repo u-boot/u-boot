@@ -28,16 +28,32 @@ Tested toolchains
 Compile the source
 ------------------
 
-PH1-Pro4:
-    $ make ph1_pro4_defconfig
+PH1-sLD3:
+    $ make ph1_sld3_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
 PH1-LD4:
     $ make ph1_ld4_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
+PH1-Pro4:
+    $ make ph1_pro4_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
 PH1-sLD8:
     $ make ph1_sld8_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
+PH1-Pro5:
+    $ make ph1_pro5_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
+ProXstream2:
+    $ make pxs2_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
+PH1-LD6b:
+    $ make ph1_ld6b_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
 You may wish to change the "CROSS_COMPILE=arm-linux-gnueabi-"
@@ -48,12 +64,12 @@ Burn U-Boot images to NAND
 --------------------------
 
 Write two files to the NAND device as follows:
- - spl/u-boot-spl.bin at the offset address 0x00000000
- - u-boot-dtb.img     at the offset address 0x00010000
+ - spl/u-boot-spl-dtb.bin at the offset address 0x00000000
+ - u-boot-dtb.img         at the offset address 0x00010000
 
 If a TFTP server is available, the images can be easily updated.
-Just copy the u-boot-spl.bin and u-boot-dtb.img to the TFTP public directory,
-and then run the following command at the U-Boot command line:
+Just copy the u-boot-spl-dtb.bin and u-boot-dtb.img to the TFTP public
+directory, and then run the following command at the U-Boot command line:
 
   => run nandupdate
 
@@ -81,6 +97,48 @@ Supported devices
  - Support card (SRAM, NOR flash, some peripherals)
 
 
+Micro Support Card
+------------------
+
+The recommended bit switch settings are as follows:
+
+ SW2    OFF(1)/ON(0)   Description
+ ------------------------------------------
+ bit 1   <----         BKSZ[0]
+ bit 2   ---->         BKSZ[1]
+ bit 3   <----         SoC Bus Width 16/32
+ bit 4   <----         SERIAL_SEL[0]
+ bit 5   ---->         SERIAL_SEL[1]
+ bit 6   ---->         BOOTSWAP_EN
+ bit 7   <----         CS1/CS5
+ bit 8   <----         SOC_SERIAL_DISABLE
+
+ SW8    OFF(1)/ON(0)   Description
+ ------------------------------------------
+ bit 1    ---->        CS1_SPLIT
+ bit 2    <----        CASE9_ON
+ bit 3    <----        CASE10_ON
+ bit 4  Don't Care     Reserve
+ bit 5  Don't Care     Reserve
+ bit 6  Don't Care     Reserve
+ bit 7    ---->        BURST_EN
+ bit 8    ---->        FLASHBUS32_16
+
+The BKSZ[1:0] specifies the address range of memory slot and peripherals
+as follows:
+
+ BKSZ    Description              RAM slot            Peripherals
+ --------------------------------------------------------------------
+ 0b00   15MB RAM / 1MB Peri    00000000-00efffff    00f00000-00ffffff
+ 0b01   31MB RAM / 1MB Peri    00000000-01efffff    01f00000-01ffffff
+ 0b10   64MB RAM / 1MB Peri    00000000-03efffff    03f00000-03ffffff
+ 0b11  127MB RAM / 1MB Peri    00000000-07efffff    07f00000-07ffffff
+
+Set BSKZ[1:0] to 0b01 for U-Boot.
+This mode is the most handy because EA[24] is always supported by the save pin
+mode of the system bus.  On the other hand, EA[25] is not supported for some
+newer SoCs.  Even if it is, EA[25] is not connected on most of the boards.
+
 --
-Masahiro Yamada <yamada.m@jp.panasonic.com>
-Feb. 2015
+Masahiro Yamada <yamada.masahiro@socionext.com>
+Aug. 2015

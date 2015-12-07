@@ -23,7 +23,7 @@ static void enable_cpu_power_rail(void)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
-	debug("enable_cpu_power_rail entry\n");
+	debug("%s entry\n", __func__);
 
 	/* un-tristate PWR_I2C SCL/SDA, rest of the defaults are correct */
 	pinmux_tristate_disable(PMUX_PINGRP_PWR_I2C_SCL_PZ6);
@@ -45,15 +45,16 @@ static void enable_cpu_power_rail(void)
 static void enable_cpu_clocks(void)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[CLOCK_ID_XCPU];
 	u32 reg;
 
-	debug("enable_cpu_clocks entry\n");
+	debug("%s entry\n", __func__);
 
 	/* Wait for PLL-X to lock */
 	do {
 		reg = readl(&clkrst->crc_pll_simple[SIMPLE_PLLX].pll_base);
 		debug("%s: PLLX base = 0x%08X\n", __func__, reg);
-	} while ((reg & PLL_LOCK_MASK) == 0);
+	} while ((reg & (1 << pllinfo->lock_det)) == 0);
 
 	debug("%s: PLLX locked, delay for stable clocks\n", __func__);
 	/* Wait until all clocks are stable */
@@ -83,7 +84,7 @@ static void remove_cpu_resets(void)
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 	u32 reg;
 
-	debug("remove_cpu_resets entry\n");
+	debug("%s entry\n", __func__);
 
 	/* Take the slow and fast partitions out of reset */
 	reg = CLR_NONCPURESET;
@@ -105,7 +106,7 @@ static void remove_cpu_resets(void)
 }
 
 /**
- * The Tegra124 requires some special clock initialization, including setting up
+ * Tegra124 requires some special clock initialization, including setting up
  * the DVC I2C, turning on MSELECT and selecting the G CPU cluster
  */
 void tegra124_init_clocks(void)
@@ -116,7 +117,7 @@ void tegra124_init_clocks(void)
 			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 	u32 val;
 
-	debug("tegra124_init_clocks entry\n");
+	debug("%s entry\n", __func__);
 
 	/* Set active CPU cluster to G */
 	clrbits_le32(&flow->cluster_control, 1);
@@ -188,7 +189,7 @@ void tegra124_init_clocks(void)
 	reset_set_enable(PERIPH_ID_MSELECT, 0);
 	reset_set_enable(PERIPH_ID_DVFS, 0);
 
-	debug("tegra124_init_clocks exit\n");
+	debug("%s exit\n", __func__);
 }
 
 static bool is_partition_powered(u32 partid)
@@ -223,31 +224,29 @@ static void power_partition(u32 partid)
 
 void powerup_cpus(void)
 {
-	debug("powerup_cpus entry\n");
-
 	/* We boot to the fast cluster */
-	debug("powerup_cpus entry: G cluster\n");
+	debug("%s entry: G cluster\n", __func__);
 
 	/* Power up the fast cluster rail partition */
-	debug("powerup_cpus: CRAIL\n");
+	debug("%s: CRAIL\n", __func__);
 	power_partition(CRAIL);
 
 	/* Power up the fast cluster non-CPU partition */
-	debug("powerup_cpus: C0NC\n");
+	debug("%s: C0NC\n", __func__);
 	power_partition(C0NC);
 
 	/* Power up the fast cluster CPU0 partition */
-	debug("powerup_cpus: CE0\n");
+	debug("%s: CE0\n", __func__);
 	power_partition(CE0);
 
-	debug("powerup_cpus: done\n");
+	debug("%s: done\n", __func__);
 }
 
 void start_cpu(u32 reset_vector)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
-	debug("start_cpu entry, reset_vector = %x\n", reset_vector);
+	debug("%s entry, reset_vector = %x\n", __func__, reset_vector);
 
 	tegra124_init_clocks();
 
@@ -261,5 +260,5 @@ void start_cpu(u32 reset_vector)
 	remove_cpu_resets();
 	writel(reset_vector, EXCEP_VECTOR_CPU_RESET_VECTOR);
 	powerup_cpus();
-	debug("start_cpu exit, should continue @ reset_vector\n");
+	debug("%s exit, should continue @ reset_vector\n", __func__);
 }

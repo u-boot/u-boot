@@ -8,6 +8,8 @@
 #ifndef __FSP_HOB_H__
 #define __FSP_HOB_H__
 
+#include <efi.h>
+
 /* Type of HOB Header */
 #define HOB_TYPE_MEM_ALLOC	0x0002
 #define HOB_TYPE_RES_DESC	0x0003
@@ -23,63 +25,6 @@ struct hob_header {
 	u16	type;		/* HOB type */
 	u16	len;		/* HOB length */
 	u32	reserved;	/* always zero */
-};
-
-/* Enumeration of memory types introduced in UEFI */
-enum efi_mem_type {
-	EFI_RESERVED_MEMORY_TYPE,
-	/*
-	 * The code portions of a loaded application.
-	 * (Note that UEFI OS loaders are UEFI applications.)
-	 */
-	EFI_LOADER_CODE,
-	/*
-	 * The data portions of a loaded application and
-	 * the default data allocation type used by an application
-	 * to allocate pool memory.
-	 */
-	EFI_LOADER_DATA,
-	/* The code portions of a loaded Boot Services Driver */
-	EFI_BOOT_SERVICES_CODE,
-	/*
-	 * The data portions of a loaded Boot Serves Driver and
-	 * the default data allocation type used by a Boot Services
-	 * Driver to allocate pool memory.
-	 */
-	EFI_BOOT_SERVICES_DATA,
-	/* The code portions of a loaded Runtime Services Driver */
-	EFI_RUNTIME_SERVICES_CODE,
-	/*
-	 * The data portions of a loaded Runtime Services Driver and
-	 * the default data allocation type used by a Runtime Services
-	 * Driver to allocate pool memory.
-	 */
-	EFI_RUNTIME_SERVICES_DATA,
-	/* Free (unallocated) memory */
-	EFI_CONVENTIONAL_MEMORY,
-	/* Memory in which errors have been detected */
-	EFI_UNUSABLE_MEMORY,
-	/* Memory that holds the ACPI tables */
-	EFI_ACPI_RECLAIM_MEMORY,
-	/* Address space reserved for use by the firmware */
-	EFI_ACPI_MEMORY_NVS,
-	/*
-	 * Used by system firmware to request that a memory-mapped IO region
-	 * be mapped by the OS to a virtual address so it can be accessed by
-	 * EFI runtime services.
-	 */
-	EFI_MMAP_IO,
-	/*
-	 * System memory-mapped IO region that is used to translate
-	 * memory cycles to IO cycles by the processor.
-	 */
-	EFI_MMAP_IO_PORT,
-	/*
-	 * Address space reserved by the firmware for code that is
-	 * part of the processor.
-	 */
-	EFI_PAL_CODE,
-	EFI_MAX_MEMORY_TYPE
 };
 
 /*

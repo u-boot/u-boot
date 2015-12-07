@@ -11,6 +11,9 @@
 #ifndef _PCI_H
 #define _PCI_H
 
+#define PCI_CFG_SPACE_SIZE	256
+#define PCI_CFG_SPACE_EXP_SIZE	4096
+
 /*
  * Under PCI, each device has 256 bytes of configuration address space,
  * of which the first 64 bytes are standardized as follows:
@@ -228,6 +231,8 @@
 #define PCI_MIN_GNT		0x3e	/* 8 bits */
 #define PCI_MAX_LAT		0x3f	/* 8 bits */
 
+#define PCI_INTERRUPT_LINE_DISABLE	0xff
+
 /* Header type 1 (PCI-to-PCI bridges) */
 #define PCI_PRIMARY_BUS		0x18	/* Primary bus number */
 #define PCI_SECONDARY_BUS	0x19	/* Secondary bus number */
@@ -413,6 +418,39 @@
 #define PCI_FIND_CAP_TTL 0x48
 #define CAP_START_POS 0x40
 
+/* Extended Capabilities (PCI-X 2.0 and Express) */
+#define PCI_EXT_CAP_ID(header)		(header & 0x0000ffff)
+#define PCI_EXT_CAP_VER(header)		((header >> 16) & 0xf)
+#define PCI_EXT_CAP_NEXT(header)	((header >> 20) & 0xffc)
+
+#define PCI_EXT_CAP_ID_ERR	0x01	/* Advanced Error Reporting */
+#define PCI_EXT_CAP_ID_VC	0x02	/* Virtual Channel Capability */
+#define PCI_EXT_CAP_ID_DSN	0x03	/* Device Serial Number */
+#define PCI_EXT_CAP_ID_PWR	0x04	/* Power Budgeting */
+#define PCI_EXT_CAP_ID_RCLD	0x05	/* Root Complex Link Declaration */
+#define PCI_EXT_CAP_ID_RCILC	0x06	/* Root Complex Internal Link Control */
+#define PCI_EXT_CAP_ID_RCEC	0x07	/* Root Complex Event Collector */
+#define PCI_EXT_CAP_ID_MFVC	0x08	/* Multi-Function VC Capability */
+#define PCI_EXT_CAP_ID_VC9	0x09	/* same as _VC */
+#define PCI_EXT_CAP_ID_RCRB	0x0A	/* Root Complex RB? */
+#define PCI_EXT_CAP_ID_VNDR	0x0B	/* Vendor-Specific */
+#define PCI_EXT_CAP_ID_CAC	0x0C	/* Config Access - obsolete */
+#define PCI_EXT_CAP_ID_ACS	0x0D	/* Access Control Services */
+#define PCI_EXT_CAP_ID_ARI	0x0E	/* Alternate Routing ID */
+#define PCI_EXT_CAP_ID_ATS	0x0F	/* Address Translation Services */
+#define PCI_EXT_CAP_ID_SRIOV	0x10	/* Single Root I/O Virtualization */
+#define PCI_EXT_CAP_ID_MRIOV	0x11	/* Multi Root I/O Virtualization */
+#define PCI_EXT_CAP_ID_MCAST	0x12	/* Multicast */
+#define PCI_EXT_CAP_ID_PRI	0x13	/* Page Request Interface */
+#define PCI_EXT_CAP_ID_AMD_XXX	0x14	/* Reserved for AMD */
+#define PCI_EXT_CAP_ID_REBAR	0x15	/* Resizable BAR */
+#define PCI_EXT_CAP_ID_DPA	0x16	/* Dynamic Power Allocation */
+#define PCI_EXT_CAP_ID_TPH	0x17	/* TPH Requester */
+#define PCI_EXT_CAP_ID_LTR	0x18	/* Latency Tolerance Reporting */
+#define PCI_EXT_CAP_ID_SECPCI	0x19	/* Secondary PCIe Capability */
+#define PCI_EXT_CAP_ID_PMUX	0x1A	/* Protocol Multiplexing */
+#define PCI_EXT_CAP_ID_PASID	0x1B	/* Process Address Space ID */
+
 /* Include the ID list */
 
 #include <pci_ids.h>
@@ -468,7 +506,10 @@ typedef int pci_dev_t;
 #define PCI_ANY_ID		(~0)
 
 struct pci_device_id {
-	unsigned int vendor, device;		/* Vendor and device ID or PCI_ANY_ID */
+	unsigned int vendor, device;	/* Vendor and device ID or PCI_ANY_ID */
+	unsigned int subvendor, subdevice; /* Subsystem ID's or PCI_ANY_ID */
+	unsigned int class, class_mask;	/* (class,subclass,prog-if) triplet */
+	unsigned long driver_data;	/* Data private to the driver */
 };
 
 struct pci_controller;
@@ -513,6 +554,16 @@ struct pci_controller {
 
 	int indirect_type;
 
+	/*
+	 * TODO(sjg@chromium.org): With driver model we use struct
+	 * pci_controller for both the controller and any bridge devices
+	 * attached to it. But there is only one region list and it is in the
+	 * top-level controller.
+	 *
+	 * This could be changed so that struct pci_controller is only used
+	 * for PCI controllers and a separate UCLASS (or perhaps
+	 * UCLASS_PCI_GENERIC) is used for bridges.
+	 */
 	struct pci_region regions[MAX_PCI_REGIONS];
 	int region_count;
 
@@ -602,6 +653,7 @@ extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
 #define pci_io_to_virt(dev, addr, len, map_flags) \
 	pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
+/* For driver model these are defined in macros in pci_compat.c */
 extern int pci_hose_read_config_byte(struct pci_controller *hose,
 				     pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word(struct pci_controller *hose,
@@ -674,6 +726,11 @@ extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
 extern int pci_find_cap(struct pci_controller *hose, pci_dev_t dev, int pos,
 			int cap);
 
+int pci_find_next_ext_capability(struct pci_controller *hose,
+				 pci_dev_t dev, int start, int cap);
+int pci_hose_find_ext_capability(struct pci_controller *hose,
+				 pci_dev_t dev, int cap);
+
 #ifdef CONFIG_PCI_FIXUP_DEV
 extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
 				unsigned short vendor,
@@ -710,15 +767,6 @@ void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
  * @return address of the bar, masking out any control bits
  * */
 u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
-
-/**
- * pciauto_setup_rom() - Set up access to a device ROM
- *
- * @hose:	PCI hose to use
- * @dev:	PCI device to adjust
- * @return 0 if done, -ve on error
- */
-int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev);
 
 /**
  * pci_hose_find_devices() - Find devices by vendor/device ID
@@ -804,6 +852,14 @@ struct dm_pci_ops {
 #define pci_get_ops(dev)	((struct dm_pci_ops *)(dev)->driver->ops)
 
 /**
+ * pci_get_bdf() - Get the BDF value for a device
+ *
+ * @dev:	Device to check
+ * @return bus/device/function value (see PCI_BDF())
+ */
+pci_dev_t pci_get_bdf(struct udevice *dev);
+
+/**
  * pci_bind_bus_devices() - scan a PCI bus and bind devices
  *
  * Scan a PCI bus looking for devices. Bind each one that is found. If
@@ -853,6 +909,31 @@ int pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp);
  */
 int pci_bus_find_devfn(struct udevice *bus, pci_dev_t find_devfn,
 		       struct udevice **devp);
+
+/**
+ * pci_find_first_device() - return the first available PCI device
+ *
+ * This function and pci_find_first_device() allow iteration through all
+ * available PCI devices on all buses. Assuming there are any, this will
+ * return the first one.
+ *
+ * @devp:	Set to the first available device, or NULL if no more are left
+ *		or we got an error
+ * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ */
+int pci_find_first_device(struct udevice **devp);
+
+/**
+ * pci_find_next_device() - return the next available PCI device
+ *
+ * Finds the next available PCI device after the one supplied, or sets @devp
+ * to NULL if there are no more.
+ *
+ * @devp:	On entry, the last device returned. Set to the next available
+ *		device, or NULL if no more are left or we got an error
+ * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ */
+int pci_find_next_device(struct udevice **devp);
 
 /**
  * pci_get_ff() - Returns a mask for the given access size
@@ -932,6 +1013,24 @@ int pci_bus_read_config(struct udevice *bus, pci_dev_t bdf, int offset,
  */
 int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size);
+
+/**
+ * Driver model PCI config access functions. Use these in preference to others
+ * when you have a valid device
+ */
+int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
+		       enum pci_size_t size);
+
+int dm_pci_read_config8(struct udevice *dev, int offset, u8 *valuep);
+int dm_pci_read_config16(struct udevice *dev, int offset, u16 *valuep);
+int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep);
+
+int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
+			enum pci_size_t size);
+
+int dm_pci_write_config8(struct udevice *dev, int offset, u8 value);
+int dm_pci_write_config16(struct udevice *dev, int offset, u16 value);
+int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
 
 /*
  * The following functions provide access to the above without needing the
@@ -1100,7 +1199,79 @@ struct dm_pci_emul_ops {
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **emulp);
 
-#endif
+#endif /* CONFIG_DM_PCI */
+
+/**
+ * PCI_DEVICE - macro used to describe a specific pci device
+ * @vend: the 16 bit PCI Vendor ID
+ * @dev: the 16 bit PCI Device ID
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific device.  The subvendor and subdevice fields will be set to
+ * PCI_ANY_ID.
+ */
+#define PCI_DEVICE(vend, dev) \
+	.vendor = (vend), .device = (dev), \
+	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+
+/**
+ * PCI_DEVICE_SUB - macro used to describe a specific pci device with subsystem
+ * @vend: the 16 bit PCI Vendor ID
+ * @dev: the 16 bit PCI Device ID
+ * @subvend: the 16 bit PCI Subvendor ID
+ * @subdev: the 16 bit PCI Subdevice ID
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific device with subsystem information.
+ */
+#define PCI_DEVICE_SUB(vend, dev, subvend, subdev) \
+	.vendor = (vend), .device = (dev), \
+	.subvendor = (subvend), .subdevice = (subdev)
+
+/**
+ * PCI_DEVICE_CLASS - macro used to describe a specific pci device class
+ * @dev_class: the class, subclass, prog-if triple for this device
+ * @dev_class_mask: the class mask for this device
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific PCI class.  The vendor, device, subvendor, and subdevice
+ * fields will be set to PCI_ANY_ID.
+ */
+#define PCI_DEVICE_CLASS(dev_class, dev_class_mask) \
+	.class = (dev_class), .class_mask = (dev_class_mask), \
+	.vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
+	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+
+/**
+ * PCI_VDEVICE - macro used to describe a specific pci device in short form
+ * @vend: the vendor name
+ * @dev: the 16 bit PCI Device ID
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific PCI device.  The subvendor, and subdevice fields will be set
+ * to PCI_ANY_ID. The macro allows the next field to follow as the device
+ * private data.
+ */
+
+#define PCI_VDEVICE(vend, dev) \
+	.vendor = PCI_VENDOR_ID_##vend, .device = (dev), \
+	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID, 0, 0
+
+/**
+ * struct pci_driver_entry - Matches a driver to its pci_device_id list
+ * @driver: Driver to use
+ * @match: List of match records for this driver, terminated by {}
+ */
+struct pci_driver_entry {
+	struct driver *driver;
+	const struct pci_device_id *match;
+};
+
+#define U_BOOT_PCI_DEVICE(__name, __match)				\
+	ll_entry_declare(struct pci_driver_entry, __name, pci_driver_entry) = {\
+		.driver = llsym(struct driver, __name, driver), \
+		.match = __match, \
+		}
 
 #endif /* __ASSEMBLY__ */
 #endif /* _PCI_H */

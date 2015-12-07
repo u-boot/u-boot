@@ -517,7 +517,7 @@ int fdt_count_strings(const void *fdt, int node, const char *property)
 
 	list = fdt_getprop(fdt, node, property, &length);
 	if (!list)
-		return -length;
+		return length;
 
 	for (i = 0; i < length; i++) {
 		int len = strlen(list);
@@ -577,7 +577,7 @@ int fdt_get_string_index(const void *fdt, int node, const char *property,
 		index--;
 	}
 
-	return FDT_ERR_NOTFOUND;
+	return -FDT_ERR_NOTFOUND;
 }
 
 int fdt_get_string(const void *fdt, int node, const char *property,

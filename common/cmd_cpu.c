@@ -9,6 +9,7 @@
 #include <command.h>
 #include <cpu.h>
 #include <dm.h>
+#include <errno.h>
 
 static const char *cpu_feature_name[CPU_FEAT_COUNT] = {
 	"L1 cache",

@@ -22,7 +22,7 @@ struct exynos_dp *dp_regs;
 
 void exynos_dp_set_base_addr(void)
 {
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	unsigned int node = fdtdec_next_compatible(gd->fdt_blob,
 					0, COMPAT_SAMSUNG_EXYNOS5_DP);
 	if (node <= 0)
@@ -823,7 +823,7 @@ int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
 			reg = readl(&dp_regs->aux_rx_comm);
 			if (reg == AUX_RX_COMM_AUX_DEFER ||
 				reg == AUX_RX_COMM_I2C_DEFER) {
-				printf("DP Defer: %d\n\n", reg);
+				printf("DP Defer: %d\n", reg);
 				defer = 1;
 			}
 		}

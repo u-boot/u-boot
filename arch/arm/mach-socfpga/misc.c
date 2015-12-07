@@ -6,16 +6,22 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <errno.h>
+#include <fdtdec.h>
+#include <libfdt.h>
 #include <altera.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <watchdog.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/arch/scan_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/nic301.h>
 #include <asm/arch/scu.h>
 #include <asm/pl310.h>
+
+#include <dt-bindings/reset/altr,rst-mgr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,27 +52,36 @@ void enable_caches(void)
 #endif
 }
 
+void v7_outer_cache_enable(void)
+{
+	/* disable the L2 cache */
+	writel(0, &pl310->pl310_ctrl);
+
+	/* enable BRESP, instruction and data prefetch, full line of zeroes */
+	setbits_le32(&pl310->pl310_aux_ctrl,
+		     L310_AUX_CTRL_DATA_PREFETCH_MASK |
+		     L310_AUX_CTRL_INST_PREFETCH_MASK |
+		     L310_SHARED_ATT_OVERRIDE_ENABLE);
+}
+
 /*
  * DesignWare Ethernet initialization
  */
 #ifdef CONFIG_ETH_DESIGNWARE
-int cpu_eth_init(bd_t *bis)
+static void dwmac_deassert_reset(const unsigned int of_reset_id)
 {
-#if CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS
-	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
-#elif CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS
-	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
-#else
-#error "Incorrect CONFIG_EMAC_BASE value!"
-#endif
+	u32 physhift, reset;
 
-	/* Initialize EMAC. This needs to be done at least once per boot. */
-
-	/*
-	 * Putting the EMAC controller to reset when configuring the PHY
-	 * interface select at System Manager
-	 */
-	socfpga_emac_reset(1);
+	if (of_reset_id == EMAC0_RESET) {
+		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
+		reset = SOCFPGA_RESET(EMAC0);
+	} else if (of_reset_id == EMAC1_RESET) {
+		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
+		reset = SOCFPGA_RESET(EMAC1);
+	} else {
+		printf("GMAC: Invalid reset ID (%i)!\n", of_reset_id);
+		return;
+	}
 
 	/* Clearing emac0 PHY interface select to 0 */
 	clrbits_le32(&sysmgr_regs->emacgrp_ctrl,
@@ -77,11 +92,41 @@ int cpu_eth_init(bd_t *bis)
 		     SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII << physhift);
 
 	/* Release the EMAC controller from reset */
-	socfpga_emac_reset(0);
+	socfpga_per_reset(reset, 0);
+}
 
-	/* initialize and register the emac */
-	return designware_initialize(CONFIG_EMAC_BASE,
-				     CONFIG_PHY_INTERFACE_MODE);
+int cpu_eth_init(bd_t *bis)
+{
+	const void *fdt = gd->fdt_blob;
+	struct fdtdec_phandle_args args;
+	int nodes[2];	/* Max. two GMACs */
+	int ret, count;
+	int i, node;
+
+	/* Put both GMACs into RESET state. */
+	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
+	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
+
+	count = fdtdec_find_aliases_for_id(fdt, "ethernet",
+					   COMPAT_ALTERA_SOCFPGA_DWMAC,
+					   nodes, ARRAY_SIZE(nodes));
+	for (i = 0; i < count; i++) {
+		node = nodes[i];
+		if (node <= 0)
+			continue;
+
+		ret = fdtdec_parse_phandle_with_args(fdt, node, "resets",
+						     "#reset-cells", 1, 0,
+						     &args);
+		if (ret || (args.args_count != 1)) {
+			debug("GMAC%i: Failed to parse DT 'resets'!\n", i);
+			continue;
+		}
+
+		dwmac_deassert_reset(args.args[0]);
+	}
+
+	return 0;
 }
 #endif
 
@@ -92,18 +137,103 @@ int cpu_eth_init(bd_t *bis)
  */
 int cpu_mmc_init(bd_t *bis)
 {
-	return socfpga_dwmmc_init(SOCFPGA_SDMMC_ADDRESS,
-				  CONFIG_HPS_SDMMC_BUSWIDTH, 0);
+	return socfpga_dwmmc_init(gd->fdt_blob);
 }
 #endif
 
-#if defined(CONFIG_DISPLAY_CPUINFO)
+struct {
+	const char	*mode;
+	const char	*name;
+} bsel_str[] = {
+	{ "rsvd", "Reserved", },
+	{ "fpga", "FPGA (HPS2FPGA Bridge)", },
+	{ "nand", "NAND Flash (1.8V)", },
+	{ "nand", "NAND Flash (3.0V)", },
+	{ "sd", "SD/MMC External Transceiver (1.8V)", },
+	{ "sd", "SD/MMC Internal Transceiver (3.0V)", },
+	{ "qspi", "QSPI Flash (1.8V)", },
+	{ "qspi", "QSPI Flash (3.0V)", },
+};
+
+static const struct {
+	const u16	pn;
+	const char	*name;
+	const char	*var;
+} const socfpga_fpga_model[] = {
+	/* Cyclone V E */
+	{ 0x2b15, "Cyclone V, E/A2", "cv_e_a2" },
+	{ 0x2b05, "Cyclone V, E/A4", "cv_e_a4" },
+	{ 0x2b22, "Cyclone V, E/A5", "cv_e_a5" },
+	{ 0x2b13, "Cyclone V, E/A7", "cv_e_a7" },
+	{ 0x2b14, "Cyclone V, E/A9", "cv_e_a9" },
+	/* Cyclone V GX/GT */
+	{ 0x2b01, "Cyclone V, GX/C3", "cv_gx_c3" },
+	{ 0x2b12, "Cyclone V, GX/C4", "cv_gx_c4" },
+	{ 0x2b02, "Cyclone V, GX/C5 or GT/D5", "cv_gx_c5" },
+	{ 0x2b03, "Cyclone V, GX/C7 or GT/D7", "cv_gx_c7" },
+	{ 0x2b04, "Cyclone V, GX/C9 or GT/D9", "cv_gx_c9" },
+	/* Cyclone V SE/SX/ST */
+	{ 0x2d11, "Cyclone V, SE/A2 or SX/C2", "cv_se_a2" },
+	{ 0x2d01, "Cyclone V, SE/A4 or SX/C4", "cv_se_a4" },
+	{ 0x2d12, "Cyclone V, SE/A5 or SX/C5 or ST/D5", "cv_se_a5" },
+	{ 0x2d02, "Cyclone V, SE/A6 or SX/C6 or ST/D6", "cv_se_a6" },
+	/* Arria V */
+	{ 0x2d03, "Arria V, D5", "av_d5" },
+};
+
+static int socfpga_fpga_id(const bool print_id)
+{
+	const u32 altera_mi = 0x6e;
+	const u32 id = scan_mgr_get_fpga_id();
+
+	const u32 lsb = id & 0x00000001;
+	const u32 mi = (id >> 1) & 0x000007ff;
+	const u32 pn = (id >> 12) & 0x0000ffff;
+	const u32 version = (id >> 28) & 0x0000000f;
+	int i;
+
+	if ((mi != altera_mi) || (lsb != 1)) {
+		printf("FPGA:  Not Altera chip ID\n");
+		return -EINVAL;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(socfpga_fpga_model); i++)
+		if (pn == socfpga_fpga_model[i].pn)
+			break;
+
+	if (i == ARRAY_SIZE(socfpga_fpga_model)) {
+		printf("FPGA:  Unknown Altera chip, ID 0x%08x\n", id);
+		return -EINVAL;
+	}
+
+	if (print_id)
+		printf("FPGA:  Altera %s, version 0x%01x\n",
+		       socfpga_fpga_model[i].name, version);
+	return i;
+}
+
 /*
  * Print CPU information
  */
+#if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
+	const u32 bsel = readl(&sysmgr_regs->bootinfo) & 0x7;
 	puts("CPU:   Altera SoCFPGA Platform\n");
+	socfpga_fpga_id(1);
+	printf("BOOT:  %s\n", bsel_str[bsel].name);
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_ARCH_MISC_INIT
+int arch_misc_init(void)
+{
+	const u32 bsel = readl(&sysmgr_regs->bootinfo) & 0x7;
+	const int fpga_id = socfpga_fpga_id(0);
+	setenv("bootmode", bsel_str[bsel].mode);
+	if (fpga_id >= 0)
+		setenv("fpgatype", socfpga_fpga_model[fpga_id].var);
 	return 0;
 }
 #endif
@@ -164,8 +294,10 @@ int arch_cpu_init(void)
 	 * If the HW watchdog is NOT enabled, make sure it is not running,
 	 * for example because it was enabled in the preloader. This might
 	 * trigger a watchdog-triggered reboot of Linux kernel later.
+	 * Toggle watchdog reset, so watchdog in not running state.
 	 */
-	socfpga_watchdog_reset();
+	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 1);
+	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 0);
 #endif
 
 	return 0;
@@ -189,6 +321,16 @@ static uint32_t iswgrp_handoff[8];
 int arch_early_init_r(void)
 {
 	int i;
+
+	/*
+	 * Write magic value into magic register to unlock support for
+	 * issuing warm reset. The ancient kernel code expects this
+	 * value to be written into the register by the bootloader, so
+	 * to support that old code, we write it here instead of in the
+	 * reset_cpu() function just before reseting the CPU.
+	 */
+	writel(0xae9efebc, &sysmgr_regs->romcodegrp_warmramgrp_enable);
+
 	for (i = 0; i < 8; i++)	/* Cache initial SW setting regs */
 		iswgrp_handoff[i] = readl(&sysmgr_regs->iswgrp_handoff[i]);
 
@@ -215,7 +357,8 @@ int arch_early_init_r(void)
 
 #ifdef CONFIG_DESIGNWARE_SPI
 	/* Get Designware SPI controller out of reset */
-	socfpga_spim_enable();
+	socfpga_per_reset(SOCFPGA_RESET(SPIM0), 0);
+	socfpga_per_reset(SOCFPGA_RESET(SPIM1), 0);
 #endif
 
 	return 0;

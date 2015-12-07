@@ -4,11 +4,12 @@
 	model = "sandbox";
 	compatible = "sandbox";
 	#address-cells = <1>;
-	#size-cells = <0>;
+	#size-cells = <1>;
 
 	aliases {
 		console = &uart0;
 		eth0 = "/eth@10002000";
+		eth3 = &eth_3;
 		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
 		pci0 = &pci;
@@ -28,7 +29,7 @@
 	};
 
 	a-test {
-		reg = <0>;
+		reg = <0 1>;
 		compatible = "denx,u-boot-fdt-test";
 		ping-expect = <0>;
 		ping-add = <0>;
@@ -41,16 +42,16 @@
 	};
 
 	junk {
-		reg = <1>;
+		reg = <1 1>;
 		compatible = "not,compatible";
 	};
 
 	no-compatible {
-		reg = <2>;
+		reg = <2 1>;
 	};
 
 	b-test {
-		reg = <3>;
+		reg = <3 1>;
 		compatible = "denx,u-boot-fdt-test";
 		ping-expect = <3>;
 		ping-add = <3>;
@@ -60,7 +61,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "denx,u-boot-test-bus";
-		reg = <3>;
+		reg = <3 1>;
 		ping-expect = <4>;
 		ping-add = <4>;
 		c-test@5 {
@@ -84,14 +85,14 @@
 	};
 
 	d-test {
-		reg = <3>;
+		reg = <3 1>;
 		ping-expect = <6>;
 		ping-add = <6>;
 		compatible = "google,another-fdt-test";
 	};
 
 	e-test {
-		reg = <3>;
+		reg = <3 1>;
 		ping-expect = <6>;
 		ping-add = <6>;
 		compatible = "google,another-fdt-test";
@@ -105,6 +106,10 @@
 		compatible = "denx,u-boot-fdt-test";
 	};
 
+	clk@0 {
+		compatible = "sandbox,clk";
+	};
+
 	eth@10002000 {
 		compatible = "sandbox,eth";
 		reg = <0x10002000 0x1000>;
@@ -115,6 +120,12 @@
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
 		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x11>;
+	};
+
+	eth_3: sbe5 {
+		compatible = "sandbox,eth";
+		reg = <0x10005000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x33>;
 	};
 
 	eth@10004000 {
@@ -142,7 +153,7 @@
 	i2c@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0>;
+		reg = <0 1>;
 		compatible = "sandbox,i2c";
 		clock-frequency = <100000>;
 		eeprom@2c {
@@ -176,6 +187,24 @@
 		};
 	};
 
+	leds {
+		compatible = "gpio-leds";
+
+		iracibble {
+			gpios = <&gpio_a 1 0>;
+			label = "sandbox:red";
+		};
+
+		martinet {
+			gpios = <&gpio_a 2 0>;
+			label = "sandbox:green";
+		};
+	};
+
+	mmc {
+		compatible = "sandbox,mmc";
+	};
+
 	pci: pci-controller {
 		compatible = "sandbox,pci";
 		device_type = "pci";
@@ -192,10 +221,22 @@
 		};
 	};
 
+	ram {
+		compatible = "sandbox,ram";
+	};
+
+	reset@0 {
+		compatible = "sandbox,warm-reset";
+	};
+
+	reset@1 {
+		compatible = "sandbox,reset";
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0>;
+		reg = <0 1>;
 		compatible = "sandbox,spi";
 		cs-gpios = <0>, <&gpio_a 0>;
 		spi.bin@0 {
@@ -204,6 +245,19 @@
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
 		};
+	};
+
+	syscon@0 {
+		compatible = "sandbox,syscon0";
+		reg = <0x10 4>;
+	};
+
+	syscon@1 {
+		compatible = "sandbox,syscon1";
+		reg = <0x20 5
+			0x28 6
+			0x30 7
+			0x38 8>;
 	};
 
 	uart0: serial {

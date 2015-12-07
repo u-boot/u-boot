@@ -115,24 +115,9 @@
 #define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
 
 #if CONFIG_SYS_USE_NANDFLASH
-/* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0xc0000
-#define CONFIG_ENV_OFFSET_REDUND	0x100000
-#define CONFIG_ENV_SIZE			0x20000
-#define CONFIG_BOOTCOMMAND	"nand read 0x21000000 0x180000 0x80000;" \
-				"nand read 0x22000000 0x200000 0x600000;" \
-				"bootz 0x22000000 - 0x21000000"
+/* override the bootcmd, bootargs and other configuration for nandflash env */
 #elif CONFIG_SYS_USE_MMC
-/* bootstrap + u-boot + env in sd card */
-#define CONFIG_ENV_IS_IN_FAT
-#define FAT_ENV_INTERFACE	"mmc"
-#define FAT_ENV_FILE		"uboot.env"
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define CONFIG_ENV_SIZE		0x4000
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91-sama5d3_xplained.dtb; " \
-				"fatload mmc 0:1 0x22000000 zImage; " \
-				"bootz 0x22000000 - 0x21000000"
+/* override the bootcmd, bootargs and other configuration for sd/mmc env */
 #else
 #define CONFIG_ENV_IS_NOWHERE
 #endif

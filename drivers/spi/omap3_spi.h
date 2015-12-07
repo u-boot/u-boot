@@ -14,7 +14,7 @@
 #ifndef _OMAP3_SPI_H_
 #define _OMAP3_SPI_H_
 
-#ifdef CONFIG_AM33XX
+#if defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
 #define OMAP3_MCSPI1_BASE	0x48030100
 #define OMAP3_MCSPI2_BASE	0x481A0100
 #else

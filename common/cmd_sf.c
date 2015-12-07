@@ -223,7 +223,7 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 
 	if (end - buf >= 200)
 		scale = (end - buf) / 100;
-	cmp_buf = malloc(flash->sector_size);
+	cmp_buf = memalign(ARCH_DMA_MINALIGN, flash->sector_size);
 	if (cmp_buf) {
 		ulong last_update = get_timer(0);
 
@@ -303,8 +303,12 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 		else
 			ret = spi_flash_write(flash, offset, len, buf);
 
-		printf("SF: %zu bytes @ %#x %s: %s\n", (size_t)len, (u32)offset,
-		       read ? "Read" : "Written", ret ? "ERROR" : "OK");
+		printf("SF: %zu bytes @ %#x %s: ", (size_t)len, (u32)offset,
+		       read ? "Read" : "Written");
+		if (ret)
+			printf("ERROR %d\n", ret);
+		else
+			printf("OK\n");
 	}
 
 	unmap_physmem(buf, len);
@@ -480,12 +484,12 @@ static int do_spi_flash_test(int argc, char * const argv[])
 	if (*argv[2] == 0 || *endp != 0)
 		return -1;
 
-	vbuf = malloc(len);
+	vbuf = memalign(ARCH_DMA_MINALIGN, len);
 	if (!vbuf) {
 		printf("Cannot allocate memory (%lu bytes)\n", len);
 		return 1;
 	}
-	buf = malloc(len);
+	buf = memalign(ARCH_DMA_MINALIGN, len);
 	if (!buf) {
 		free(vbuf);
 		printf("Cannot allocate memory (%lu bytes)\n", len);

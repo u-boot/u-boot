@@ -32,7 +32,10 @@ struct pca9551_blink_rate {
 	u8 pwm;	/* Pulse width modulation, see PCA9551_7.pdf p. 6 */
 };
 
-static int freq0, freq1;
+static int freq_last = -1;
+static int mask_last = -1;
+static int idx_last = -1;
+static int mode_last;
 
 static int pca9551_led_get_state(int led, int *state)
 {
@@ -135,21 +138,30 @@ void __led_blink(led_id_t mask, int freq)
 {
 	struct pca9551_blink_rate rate;
 	int mode;
-	int blink;
+	int idx;
 
-	if ((freq0 == 0) || (freq == freq0)) {
-		blink = 0;
-		mode = PCA9551_LED_STATE_BLINK0;
-		freq0 = freq;
+	if ((freq == freq_last) || (mask == mask_last)) {
+		idx = idx_last;
+		mode = mode_last;
 	} else {
-		blink = 1;
-		mode = PCA9551_LED_STATE_BLINK1;
-		freq1 = freq;
+		/* Toggle blink index */
+		if (idx_last == 0) {
+			idx = 1;
+			mode = PCA9551_LED_STATE_BLINK1;
+		} else {
+			idx = 0;
+			mode = PCA9551_LED_STATE_BLINK0;
+		}
+
+		idx_last = idx;
+		mode_last = mode;
 	}
+	freq_last = freq;
+	mask_last = mask;
 
 	rate.psc = ((freq * 38) / 1000) - 1;
 	rate.pwm = 128;		/* 50% duty cycle */
 
-	pca9551_led_set_blink_rate(blink, rate);
+	pca9551_led_set_blink_rate(idx, rate);
 	pca9551_led_set_state(mask, mode);
 }

@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= vexpress64.o
+obj-y	:= vexpress64.o pcie.o

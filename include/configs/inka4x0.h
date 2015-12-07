@@ -18,6 +18,8 @@
 
 #define CONFIG_MPC5200		1	/* This is an MPC5200 CPU	*/
 #define CONFIG_INKA4X0		1	/* INKA4x0 board		*/
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:

@@ -557,7 +557,7 @@ static struct phy_driver *get_phy_driver(struct phy_device *phydev,
 }
 
 static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
-					    int phy_id,
+					    u32 phy_id,
 					    phy_interface_t interface)
 {
 	struct phy_device *dev;
@@ -574,7 +574,7 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 	memset(dev, 0, sizeof(*dev));
 
 	dev->duplex = -1;
-	dev->link = 1;
+	dev->link = 0;
 	dev->interface = interface;
 
 	dev->autoneg = AUTONEG_ENABLE;
@@ -766,11 +766,13 @@ struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
 		phy_interface_t interface)
 {
 	/* Reset the bus */
-	if (bus->reset)
+	if (bus->reset) {
 		bus->reset(bus);
 
-	/* Wait 15ms to make sure the PHY has come out of hard reset */
-	udelay(15000);
+		/* Wait 15ms to make sure the PHY has come out of hard reset */
+		udelay(15000);
+	}
+
 	return get_phy_device_by_mask(bus, phy_mask, interface);
 }
 

@@ -70,7 +70,7 @@ struct emc_regs {
 
 /* Static Memory Delay Registers */
 #define EMC_STAT_WAITWEN(n)		(((n) - 1) & 0x0F)
-#define EMC_STAT_WAITOEN(n)		(((n) - 1) & 0x0F)
+#define EMC_STAT_WAITOEN(n)		((n) & 0x0F)
 #define EMC_STAT_WAITRD(n)		(((n) - 1) & 0x1F)
 #define EMC_STAT_WAITPAGE(n)		(((n) - 1) & 0x1F)
 #define EMC_STAT_WAITWR(n)		(((n) - 2) & 0x1F)

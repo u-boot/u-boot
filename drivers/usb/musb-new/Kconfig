@@ -1,0 +1,26 @@
+#
+# MUSB Controller Driver
+#
+comment "MUSB Controller Driver"
+
+config USB_MUSB_HOST
+	bool "MUSB host mode support"
+	help
+	  Enables the MUSB USB dual-role controller in host mode.
+
+config USB_MUSB_GADGET
+	bool "MUSB gadget mode support"
+	help
+	  Enables the MUSB USB dual-role controller in gadget mode.
+
+if USB_MUSB_HOST || USB_MUSB_GADGET
+
+config USB_MUSB_SUNXI
+	bool "Enable sunxi OTG / DRC USB controller"
+	depends on ARCH_SUNXI
+	default y
+	---help---
+	Say y here to enable support for the sunxi OTG / DRC USB controller
+	used on almost all sunxi boards.
+
+endif

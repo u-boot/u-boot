@@ -17,8 +17,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct pmic_child_info pmic_children_info[] = {
-	{ .prefix = "ldo", .driver = MAX77686_LDO_DRIVER },
-	{ .prefix = "buck", .driver = MAX77686_BUCK_DRIVER },
+	{ .prefix = "LDO", .driver = MAX77686_LDO_DRIVER },
+	{ .prefix = "BUCK", .driver = MAX77686_BUCK_DRIVER },
 	{ },
 };
 
@@ -84,7 +84,7 @@ static const struct udevice_id max77686_ids[] = {
 };
 
 U_BOOT_DRIVER(pmic_max77686) = {
-	.name = "max77686 pmic",
+	.name = "max77686_pmic",
 	.id = UCLASS_PMIC,
 	.of_match = max77686_ids,
 	.bind = max77686_bind,

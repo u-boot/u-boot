@@ -75,13 +75,13 @@ struct __packed upd_region {
 	uint8_t emmc45_ddr50_enabled;		/* Offset 0x0051 */
 	uint8_t emmc45_hs200_enabled;		/* Offset 0x0052 */
 	uint8_t emmc45_retune_timer_value;	/* Offset 0x0053 */
-	uint8_t unused_upd_space1[156];		/* Offset 0x0054 */
+	uint8_t enable_igd;			/* Offset 0x0054 */
+	uint8_t unused_upd_space1[155];		/* Offset 0x0055 */
 	struct memory_down_data memory_params;	/* Offset 0x00f0 */
 	uint16_t terminator;			/* Offset 0x0100 */
 };
 
 #define VPD_IMAGE_ID		0x3157454956594C56	/* 'VLYVIEW1' */
-#define VPD_IMAGE_REV		0x00000303
 
 struct __packed vpd_region {
 	uint64_t sign;				/* Offset 0x0000 */

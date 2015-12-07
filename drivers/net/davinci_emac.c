@@ -598,7 +598,8 @@ static void davinci_eth_close(struct eth_device *dev)
 	debug_emac("+ emac_close\n");
 
 	davinci_eth_ch_teardown(EMAC_CH_TX);	/* TX Channel teardown */
-	davinci_eth_ch_teardown(EMAC_CH_RX);	/* RX Channel teardown */
+	if (readl(&adap_emac->RXCONTROL) & 1)
+		davinci_eth_ch_teardown(EMAC_CH_RX); /* RX Channel teardown */
 
 	/* Reset EMAC module and disable interrupts in wrapper */
 	writel(1, &adap_emac->SOFTRESET);

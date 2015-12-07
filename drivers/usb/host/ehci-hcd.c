@@ -5,20 +5,7 @@
  *
  * All rights reserved.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation version 2 of
- * the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0
  */
 #include <common.h>
 #include <dm.h>
@@ -28,6 +15,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <watchdog.h>
 #include <linux/compiler.h>
 
@@ -321,7 +309,7 @@ static void ehci_update_endpt2_dev_n_port(struct usb_device *udev,
 		struct udevice *dev = parent;
 
 		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
-			printf("ehci: Error cannot find high speed parent of usb-1 device\n");
+			printf("ehci: Error cannot find high-speed parent of usb-1 device\n");
 			return;
 		}
 
@@ -1658,8 +1646,10 @@ int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 	ctrl->hcor = hcor;
 	ctrl->priv = ctrl;
 
-	if (init == USB_INIT_DEVICE)
+	ctrl->init = init;
+	if (ctrl->init == USB_INIT_DEVICE)
 		goto done;
+
 	ret = ehci_reset(ctrl);
 	if (ret)
 		goto err;
@@ -1678,6 +1668,9 @@ err:
 int ehci_deregister(struct udevice *dev)
 {
 	struct ehci_ctrl *ctrl = dev_get_priv(dev);
+
+	if (ctrl->init == USB_INIT_DEVICE)
+		return 0;
 
 	ehci_shutdown(ctrl);
 

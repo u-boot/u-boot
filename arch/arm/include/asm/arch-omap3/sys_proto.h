@@ -52,7 +52,6 @@ void set_muxconf_regs(void);
 u32 get_cpu_family(void);
 u32 get_cpu_rev(void);
 u32 get_sku_id(void);
-u32 get_sysboot_value(void);
 u32 is_gpmc_muxed(void);
 u32 get_gpmc0_type(void);
 u32 get_gpmc0_width(void);
@@ -75,4 +74,6 @@ void get_dieid(u32 *id);
 void do_omap3_emu_romcode_call(u32 service_id, u32 parameters);
 void omap3_set_aux_cr_secure(u32 acr);
 u32 warm_reset(void);
+
+void save_omap_boot_params(void);
 #endif

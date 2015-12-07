@@ -65,6 +65,7 @@
 /*
  * Section
  */
+#define PMD_SECT_NON_SHARE	(0 << 8)
 #define PMD_SECT_OUTER_SHARE	(2 << 8)
 #define PMD_SECT_INNER_SHARE	(3 << 8)
 #define PMD_SECT_AF		(1 << 10)
@@ -93,8 +94,8 @@
 #define TCR_ORGN_WBNWA		(3 << 10)
 #define TCR_ORGN_MASK		(3 << 10)
 #define TCR_SHARED_NON		(0 << 12)
-#define TCR_SHARED_OUTER	(1 << 12)
-#define TCR_SHARED_INNER	(2 << 12)
+#define TCR_SHARED_OUTER	(2 << 12)
+#define TCR_SHARED_INNER	(3 << 12)
 #define TCR_TG0_4K		(0 << 14)
 #define TCR_TG0_64K		(1 << 14)
 #define TCR_TG0_16K		(2 << 14)
@@ -102,16 +103,25 @@
 #define TCR_EL2_IPS_BITS	(3 << 16)	/* 42 bits physical address */
 #define TCR_EL3_IPS_BITS	(3 << 16)	/* 42 bits physical address */
 
-/* PTWs cacheable, inner/outer WBWA and non-shareable */
+/* PTWs cacheable, inner/outer WBWA and inner shareable */
 #define TCR_FLAGS		(TCR_TG0_64K |		\
-				TCR_SHARED_NON |	\
+				TCR_SHARED_INNER |	\
 				TCR_ORGN_WBWA |		\
 				TCR_IRGN_WBWA |		\
 				TCR_T0SZ(VA_BITS))
 
+#define TCR_EL1_RSVD		(1 << 31)
+#define TCR_EL2_RSVD		(1 << 31 | 1 << 23)
+#define TCR_EL3_RSVD		(1 << 31 | 1 << 23)
+
 #ifndef __ASSEMBLY__
+
 void set_pgtable_section(u64 *page_table, u64 index,
-			 u64 section, u64 memory_type);
+			 u64 section, u64 memory_type,
+			 u64 share);
+void set_pgtable_table(u64 *page_table, u64 index,
+		       u64 *table_addr);
+
 static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
 {
 	asm volatile("dsb sy");

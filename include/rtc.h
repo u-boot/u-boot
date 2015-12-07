@@ -151,6 +151,7 @@ int rtc_write32(struct udevice *dev, unsigned int reg, u32 value);
 int rtc_get (struct rtc_time *);
 int rtc_set (struct rtc_time *);
 void rtc_reset (void);
+void rtc_enable_32khz_output(void);
 
 /**
  * rtc_read8() - Read an 8-bit register

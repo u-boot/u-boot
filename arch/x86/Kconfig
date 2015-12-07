@@ -11,6 +11,9 @@ choice
 config VENDOR_COREBOOT
 	bool "coreboot"
 
+config VENDOR_EFI
+	bool "efi"
+
 config VENDOR_EMULATION
 	bool "emulation"
 
@@ -24,6 +27,7 @@ endchoice
 
 # board-specific options below
 source "board/coreboot/Kconfig"
+source "board/efi/Kconfig"
 source "board/emulation/Kconfig"
 source "board/google/Kconfig"
 source "board/intel/Kconfig"
@@ -68,6 +72,21 @@ config SMM_TSEG_SIZE
 config X86_RESET_VECTOR
 	bool
 	default n
+
+config RESET_SEG_START
+	hex
+	depends on X86_RESET_VECTOR
+	default 0xffff0000
+
+config RESET_SEG_SIZE
+	hex
+	depends on X86_RESET_VECTOR
+	default 0x10000
+
+config RESET_VEC_LOC
+	hex
+	depends on X86_RESET_VECTOR
+	default 0xfffffff0
 
 config SYS_X86_START16
 	hex
@@ -173,16 +192,9 @@ config X86_RAMTEST
 	  to work correctly. It is not exhaustive but can save time by
 	  detecting obvious failures.
 
-config MARK_GRAPHICS_MEM_WRCOMB
-	bool "Mark graphics memory as write-combining"
-	default n
-	help
-	  The graphics performance may increase if the graphics
-	  memory is set as write-combining cache type. This option
-	  enables marking the graphics memory as write-combining.
-
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
+	depends on !EFI
 	help
 	  Select this option to add an Firmware Support Package binary to
 	  the resulting U-Boot image. It is a binary blob which U-Boot uses
@@ -217,19 +229,15 @@ config FSP_TEMP_RAM_ADDR
 	depends on HAVE_FSP
 	default 0x2000000
 	help
-	  Stack top address which is used in FspInit after DRAM is ready and
+	  Stack top address which is used in fsp_init() after DRAM is ready and
 	  CAR is disabled.
 
-config MAX_CPUS
-        int "Maximum number of CPUs permitted"
-        default 4
-        help
-          When using multi-CPU chips it is possible for U-Boot to start up
-          more than one CPU. The stack memory used by all of these CPUs is
-          pre-allocated so at present U-Boot wants to know the maximum
-          number of CPUs that may be present. Set this to at least as high
-          as the number of CPUs in your system (it uses about 4KB of RAM for
-          each CPU).
+config FSP_SYS_MALLOC_F_LEN
+	hex
+	depends on HAVE_FSP
+	default 0x100000
+	help
+	  Additional size of malloc() pool before relocation.
 
 config SMP
 	bool "Enable Symmetric Multiprocessing"
@@ -241,8 +249,21 @@ config SMP
 	  only one CPU will be enabled regardless of the number of CPUs
 	  available.
 
+config MAX_CPUS
+	int "Maximum number of CPUs permitted"
+	depends on SMP
+	default 4
+	help
+	  When using multi-CPU chips it is possible for U-Boot to start up
+	  more than one CPU. The stack memory used by all of these CPUs is
+	  pre-allocated so at present U-Boot wants to know the maximum
+	  number of CPUs that may be present. Set this to at least as high
+	  as the number of CPUs in your system (it uses about 4KB of RAM for
+	  each CPU).
+
 config AP_STACK_SIZE
 	hex
+	depends on SMP
 	default 0x1000
 	help
 	  Each additional CPU started by U-Boot requires its own stack. This
@@ -270,7 +291,30 @@ config TSC_FREQ_IN_MHZ
 	help
 	  The running frequency in MHz of Time-Stamp Counter (TSC).
 
+config HAVE_VGA_BIOS
+	bool "Add a VGA BIOS image"
+	help
+	  Select this option if you have a VGA BIOS image that you would
+	  like to add to your ROM.
+
+config VGA_BIOS_FILE
+	string "VGA BIOS image filename"
+	depends on HAVE_VGA_BIOS
+	default "vga.bin"
+	help
+	  The filename of the VGA BIOS image in the board directory.
+
+config VGA_BIOS_ADDR
+	hex "VGA BIOS image location"
+	depends on HAVE_VGA_BIOS
+	default 0xfff90000
+	help
+	  The location of VGA BIOS image in the SPI flash. For example, base
+	  address of 0xfff90000 indicates that the image will be put at offset
+	  0x90000 from the beginning of a 1MB flash device.
+
 menu "System tables"
+	depends on !EFI && !SYS_COREBOOT
 
 config GENERATE_PIRQ_TABLE
 	bool "Generate a PIRQ table"
@@ -295,6 +339,24 @@ config GENERATE_SFI_TABLE
 	  the OS.
 
 	  For more information, see http://simplefirmware.org
+
+config GENERATE_MP_TABLE
+	bool "Generate an MP (Multi-Processor) table"
+	default n
+	help
+	  Generate an MP (Multi-Processor) table for this board. The MP table
+	  provides a way for the operating system to support for symmetric
+	  multiprocessing as well as symmetric I/O interrupt handling with
+	  the local APIC and I/O APIC.
+
+config GENERATE_ACPI_TABLE
+	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
+	default n
+	help
+	  The Advanced Configuration and Power Interface (ACPI) specification
+	  provides an open standard for device configuration and management
+	  by the operating system. It defines platform-independent interfaces
+	  for configuration and power management monitoring.
 
 endmenu
 
@@ -328,5 +390,17 @@ config PCIE_ECAM_BASE
 	  should be set to a region that does not conflict with memory
 	  assigned to PCI devices - i.e. the memory and prefetch regions, as
 	  passed to pci_set_region().
+
+config PCIE_ECAM_SIZE
+	hex
+	default 0x10000000
+	help
+	  This is the size of memory-mapped address of PCI configuration space,
+	  which is only available through the Enhanced Configuration Access
+	  Mechanism (ECAM) with PCI Express. Each bus consumes 1 MiB memory,
+	  so a default 0x10000000 size covers all of the 256 buses which is the
+	  maximum number of PCI buses as defined by the PCI specification.
+
+source "arch/x86/lib/efi/Kconfig"
 
 endmenu

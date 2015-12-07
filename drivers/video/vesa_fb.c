@@ -1,6 +1,5 @@
 /*
- *
- * Vesa frame buffer driver for x86
+ * VESA frame buffer driver
  *
  * Copyright (C) 2014 Google, Inc
  *
@@ -17,16 +16,6 @@
  */
 GraphicDevice ctfb;
 
-/* Devices to allow - only the last one works fully */
-struct pci_device_id vesa_video_ids[] = {
-	{ .vendor = 0x102b, .device = 0x0525 },
-	{ .vendor = 0x1002, .device = 0x5159 },
-	{ .vendor = 0x1002, .device = 0x4752 },
-	{ .vendor = 0x1002, .device = 0x5452 },
-	{ .vendor = 0x8086, .device = 0x0f31 },
-	{},
-};
-
 void *video_hw_init(void)
 {
 	GraphicDevice *gdev = &ctfb;
@@ -35,9 +24,16 @@ void *video_hw_init(void)
 	int ret;
 
 	printf("Video: ");
+	if (!ll_boot_init()) {
+		/*
+		 * If we are running from EFI or coreboot, this driver can't
+		 * work.
+		 */
+		printf("Not available (previous bootloader prevents it)\n");
+		return NULL;
+	}
 	if (vbe_get_video_info(gdev)) {
-		/* TODO: Should we look these up by class? */
-		dev = pci_find_devices(vesa_video_ids, 0);
+		dev = pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, 0);
 		if (dev == -1) {
 			printf("no card detected\n");
 			return NULL;

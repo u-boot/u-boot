@@ -10,7 +10,6 @@
 #ifndef __CONFIG_5250_H
 #define __CONFIG_5250_H
 
-#include <configs/exynos5-common.h>
 #define CONFIG_EXYNOS5250
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
@@ -28,16 +27,13 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR	CONFIG_IRAM_STACK
 
-/* I2C */
-#define CONFIG_MAX_I2C_NUM	8
+/* USB */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_EXYNOS
 
-/* Display */
-#define CONFIG_LCD
-#ifdef CONFIG_LCD
-#define CONFIG_EXYNOS_FB
-#define CONFIG_EXYNOS_DP
-#define LCD_BPP			LCD_COLOR16
-#endif
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_ASIX88179
 
 /* DRAM Memory Banks */
 #define CONFIG_NR_DRAM_BANKS	8

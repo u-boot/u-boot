@@ -22,9 +22,6 @@ obj-y	+= relocate_64.o
 else
 obj-y	+= relocate.o
 endif
-ifndef CONFIG_SYS_GENERIC_BOARD
-obj-y	+= board.o
-endif
 
 obj-$(CONFIG_CPU_V7M) += cmd_boot.o
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
@@ -42,12 +39,15 @@ obj-y	+= stack.o
 ifdef CONFIG_CPU_V7M
 obj-y	+= interrupts_m.o
 else ifdef CONFIG_ARM64
+obj-y	+= ccn504.o
 obj-y	+= gic_64.o
 obj-y	+= interrupts_64.o
 else
 obj-y	+= interrupts.o
 endif
+ifndef CONFIG_RESET
 obj-y	+= reset.o
+endif
 
 obj-y	+= cache.o
 ifndef CONFIG_ARM64

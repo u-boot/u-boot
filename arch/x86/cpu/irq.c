@@ -58,17 +58,28 @@ void pirq_assign_irq(int link, u8 irq)
 		writeb(irq, irq_router.ibase + LINK_N2V(link, base));
 }
 
-static inline void fill_irq_info(struct irq_info **slotp, int *entries, u8 bus,
-				 u8 device, u8 func, u8 pin, u8 pirq)
+static struct irq_info *check_dup_entry(struct irq_info *slot_base,
+					int entry_num, int bus, int device)
 {
-	struct irq_info *slot = *slotp;
+	struct irq_info *slot = slot_base;
+	int i;
 
+	for (i = 0; i < entry_num; i++) {
+		if (slot->bus == bus && slot->devfn == (device << 3))
+			break;
+		slot++;
+	}
+
+	return (i == entry_num) ? NULL : slot;
+}
+
+static inline void fill_irq_info(struct irq_info *slot, int bus, int device,
+				 int pin, int pirq)
+{
 	slot->bus = bus;
-	slot->devfn = (device << 3) | func;
+	slot->devfn = (device << 3) | 0;
 	slot->irq[pin - 1].link = LINK_N2V(pirq, irq_router.link_base);
 	slot->irq[pin - 1].bitmap = irq_router.irq_mask;
-	(*entries)++;
-	(*slotp)++;
 }
 
 __weak void cpu_irq_init(void)
@@ -84,7 +95,7 @@ static int create_pirq_routing_table(void)
 	int len, count;
 	const u32 *cell;
 	struct irq_routing_table *rt;
-	struct irq_info *slot;
+	struct irq_info *slot, *slot_base;
 	int irq_entries = 0;
 	int i;
 	int ret;
@@ -114,10 +125,10 @@ static int create_pirq_routing_table(void)
 			return -EINVAL;
 	}
 
-	ret = fdtdec_get_int_array(blob, node, "intel,pirq-link",
-				   &irq_router.link_base, 1);
-	if (ret)
+	ret = fdtdec_get_int(blob, node, "intel,pirq-link", -1);
+	if (ret == -1)
 		return ret;
+	irq_router.link_base = ret;
 
 	irq_router.irq_mask = fdtdec_get_int(blob, node,
 					     "intel,pirq-mask", PIRQ_BITMAP);
@@ -145,32 +156,28 @@ static int create_pirq_routing_table(void)
 	}
 
 	cell = fdt_getprop(blob, node, "intel,pirq-routing", &len);
-	if (!cell)
+	if (!cell || len % sizeof(struct pirq_routing))
 		return -EINVAL;
+	count = len / sizeof(struct pirq_routing);
 
-	if ((len % sizeof(struct pirq_routing)) == 0)
-		count = len / sizeof(struct pirq_routing);
-	else
-		return -EINVAL;
-
-	rt = malloc(sizeof(struct irq_routing_table));
+	rt = calloc(1, sizeof(struct irq_routing_table));
 	if (!rt)
 		return -ENOMEM;
-	memset((char *)rt, 0, sizeof(struct irq_routing_table));
 
 	/* Populate the PIRQ table fields */
 	rt->signature = PIRQ_SIGNATURE;
 	rt->version = PIRQ_VERSION;
-	rt->rtr_bus = 0;
+	rt->rtr_bus = PCI_BUS(irq_router.bdf);
 	rt->rtr_devfn = (PCI_DEV(irq_router.bdf) << 3) |
 			PCI_FUNC(irq_router.bdf);
 	rt->rtr_vendor = PCI_VENDOR_ID_INTEL;
 	rt->rtr_device = PCI_DEVICE_ID_INTEL_ICH7_31;
 
-	slot = rt->slots;
+	slot_base = rt->slots;
 
 	/* Now fill in the irq_info entries in the PIRQ table */
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < count;
+	     i++, cell += sizeof(struct pirq_routing) / sizeof(u32)) {
 		struct pirq_routing pr;
 
 		pr.bdf = fdt_addr_to_cpu(cell[0]);
@@ -181,10 +188,34 @@ static int create_pirq_routing_table(void)
 		      i, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf),
 		      PCI_FUNC(pr.bdf), 'A' + pr.pin - 1,
 		      'A' + pr.pirq);
-		fill_irq_info(&slot, &irq_entries, PCI_BUS(pr.bdf),
-			      PCI_DEV(pr.bdf), PCI_FUNC(pr.bdf),
-			      pr.pin, pr.pirq);
-		cell += sizeof(struct pirq_routing) / sizeof(u32);
+
+		slot = check_dup_entry(slot_base, irq_entries,
+				       PCI_BUS(pr.bdf), PCI_DEV(pr.bdf));
+		if (slot) {
+			debug("found entry for bus %d device %d, ",
+			      PCI_BUS(pr.bdf), PCI_DEV(pr.bdf));
+
+			if (slot->irq[pr.pin - 1].link) {
+				debug("skipping\n");
+
+				/*
+				 * Sanity test on the routed PIRQ pin
+				 *
+				 * If they don't match, show a warning to tell
+				 * there might be something wrong with the PIRQ
+				 * routing information in the device tree.
+				 */
+				if (slot->irq[pr.pin - 1].link !=
+					LINK_N2V(pr.pirq, irq_router.link_base))
+					debug("WARNING: Inconsistent PIRQ routing information\n");
+				continue;
+			}
+		} else {
+			slot = slot_base + irq_entries++;
+		}
+		debug("writing INT%c\n", 'A' + pr.pin - 1);
+		fill_irq_info(slot, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf), pr.pin,
+			      pr.pirq);
 	}
 
 	rt->size = irq_entries * sizeof(struct irq_info) + 32;
@@ -194,17 +225,22 @@ static int create_pirq_routing_table(void)
 	return 0;
 }
 
-void pirq_init(void)
+int pirq_init(void)
 {
+	int ret;
+
 	cpu_irq_init();
 
-	if (create_pirq_routing_table()) {
+	ret = create_pirq_routing_table();
+	if (ret) {
 		debug("Failed to create pirq routing table\n");
-	} else {
-		/* Route PIRQ */
-		pirq_route_irqs(pirq_routing_table->slots,
-				get_irq_slot_count(pirq_routing_table));
+		return ret;
 	}
+	/* Route PIRQ */
+	pirq_route_irqs(pirq_routing_table->slots,
+			get_irq_slot_count(pirq_routing_table));
+
+	return 0;
 }
 
 u32 write_pirq_routing_table(u32 addr)

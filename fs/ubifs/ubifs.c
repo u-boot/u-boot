@@ -23,6 +23,8 @@
  *          Adrian Hunter
  */
 
+#include <common.h>
+#include <memalign.h>
 #include "ubifs.h"
 #include <u-boot/zlib.h>
 
@@ -108,7 +110,7 @@ static inline struct crypto_comp *crypto_alloc_comp(const char *alg_name,
 	struct crypto_comp *ptr;
 	int i = 0;
 
-	ptr = malloc(sizeof(struct crypto_comp));
+	ptr = malloc_cache_aligned(sizeof(struct crypto_comp));
 	while (i < UBIFS_COMPR_TYPES_CNT) {
 		comp = ubifs_compressors[i];
 		if (!comp) {
@@ -723,7 +725,7 @@ static int do_readpage(struct ubifs_info *c, struct inode *inode,
 				 * destination area to a multiple of
 				 * UBIFS_BLOCK_SIZE.
 				 */
-				buff = malloc(UBIFS_BLOCK_SIZE);
+				buff = malloc_cache_aligned(UBIFS_BLOCK_SIZE);
 				if (!buff) {
 					printf("%s: Error, malloc fails!\n",
 					       __func__);

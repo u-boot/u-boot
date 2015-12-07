@@ -245,6 +245,11 @@ struct lmb;
 #define IH_TYPE_X86_SETUP	20	/* x86 setup.bin Image		*/
 #define IH_TYPE_LPC32XXIMAGE	21	/* x86 setup.bin Image		*/
 #define IH_TYPE_LOADABLE	22	/* A list of typeless images	*/
+#define IH_TYPE_RKIMAGE		23	/* Rockchip Boot Image		*/
+#define IH_TYPE_RKSD		24	/* Rockchip SD card		*/
+#define IH_TYPE_RKSPI		25	/* Rockchip SPI image		*/
+
+#define IH_TYPE_COUNT		26	/* Number of image types */
 
 /*
  * Compression Types
@@ -254,6 +259,7 @@ struct lmb;
 #define IH_COMP_BZIP2		2	/* bzip2 Compression Used	*/
 #define IH_COMP_LZMA		3	/* lzma  Compression Used	*/
 #define IH_COMP_LZO		4	/* lzo   Compression Used	*/
+#define IH_COMP_LZ4		5	/* lz4   Compression Used	*/
 
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
 #define IH_NMLEN		32	/* Image Name Length		*/
@@ -411,6 +417,15 @@ char *get_table_entry_name(const table_entry_t *table, char *msg, int id);
 const char *genimg_get_os_name(uint8_t os);
 const char *genimg_get_arch_name(uint8_t arch);
 const char *genimg_get_type_name(uint8_t type);
+
+/**
+ * genimg_get_type_short_name() - get the short name for an image type
+ *
+ * @param type	Image type (IH_TYPE_...)
+ * @return image short name, or "unknown" if unknown
+ */
+const char *genimg_get_type_short_name(uint8_t type);
+
 const char *genimg_get_comp_name(uint8_t comp);
 int genimg_get_os_id(const char *name);
 int genimg_get_arch_id(const char *name);

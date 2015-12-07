@@ -25,7 +25,6 @@
 #define CONFIG_TEGRA_VDD_CORE_TPS62361B_SET3
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra30 (Cardhu) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Cardhu"
 
 #define BOARD_EXTRA_ENV_SETTINGS \
@@ -33,7 +32,6 @@
 	"fdtfile=tegra30-cardhu-a04.dtb\0"
 
 /* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 

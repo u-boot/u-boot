@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <memalign.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <part.h>
@@ -22,8 +23,8 @@
 #ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
 #endif
-#ifdef CONFIG_USB_HOST_ETHER
-static int usb_ether_curr_dev = -1; /* current ethernet device */
+#if defined(CONFIG_USB_HOST_ETHER) && !defined(CONFIG_DM_ETH)
+static int __maybe_unused usb_ether_curr_dev = -1; /* current ethernet device */
 #endif
 
 /* some display routines (info command) */
@@ -355,12 +356,12 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 #endif
 	/* check if we are the last one */
 #ifdef CONFIG_DM_USB
-	last_child = device_is_last_sibling(dev->dev);
+	/* Not the root of the usb tree? */
+	if (device_get_uclass_id(dev->dev->parent) != UCLASS_USB) {
+		last_child = device_is_last_sibling(dev->dev);
 #else
-	last_child = (dev->parent != NULL);
-#endif
-	if (last_child) {
-#ifndef CONFIG_DM_USB
+	if (dev->parent != NULL) { /* not root? */
+		last_child = 1;
 		for (i = 0; i < dev->parent->maxchild; i++) {
 			/* search for children */
 			if (dev->parent->children[i] == dev) {
@@ -532,8 +533,14 @@ static void do_usb_start(void)
 #endif
 #endif
 #ifdef CONFIG_USB_HOST_ETHER
+# ifdef CONFIG_DM_ETH
+#  ifndef CONFIG_DM_USB
+#   error "You must use CONFIG_DM_USB if you want to use CONFIG_USB_HOST_ETHER with CONFIG_DM_ETH"
+#  endif
+# else
 	/* try to recognize ethernet devices immediately */
 	usb_ether_curr_dev = usb_host_eth_scan(1);
+# endif
 #endif
 #ifdef CONFIG_USB_KEYBOARD
 	drv_usb_kbd_init();
@@ -630,12 +637,11 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		     bus;
 		     uclass_next_device(&bus)) {
 			struct usb_device *udev;
-			struct udevice *hub;
+			struct udevice *dev;
 
-			device_find_first_child(bus, &hub);
-			if (device_get_uclass_id(hub) == UCLASS_USB_HUB &&
-			    device_active(hub)) {
-				udev = dev_get_parentdata(hub);
+			device_find_first_child(bus, &dev);
+			if (dev && device_active(dev)) {
+				udev = dev_get_parentdata(dev);
 				usb_show_tree(udev);
 			}
 		}

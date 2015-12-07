@@ -475,13 +475,13 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
-#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe0ec000
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe03c000
 /* The assembler doesn't like typecast */
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS \
 	((CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH * 1ull << 32) | \
 	  CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW)
 #else
-#define CONFIG_SYS_INIT_RAM_ADDR_PHYS	0xfe0ec000 /* Initial L1 address */
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS	0xfe03c000 /* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW CONFIG_SYS_INIT_RAM_ADDR_PHYS
 #endif
@@ -668,7 +668,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
-#define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
 #endif	/* CONFIG_PCI */
@@ -871,7 +870,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else

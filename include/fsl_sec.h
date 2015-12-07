@@ -3,6 +3,7 @@
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
  *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FSL_SEC_H
@@ -32,10 +33,20 @@
 /* RNG4 TRNG test registers */
 struct rng4tst {
 #define RTMCTL_PRGM 0x00010000	/* 1 -> program mode, 0 -> run mode */
+#define RTMCTL_SAMP_MODE_VON_NEUMANN_ES_SC     0 /* use von Neumann data in
+						    both entropy shifter and
+						    statistical checker */
+#define RTMCTL_SAMP_MODE_RAW_ES_SC             1 /* use raw data in both
+						    entropy shifter and
+						    statistical checker */
+#define RTMCTL_SAMP_MODE_VON_NEUMANN_ES_RAW_SC 2 /* use von Neumann data in
+						    entropy shifter, raw data
+						    in statistical checker */
+#define RTMCTL_SAMP_MODE_INVALID               3 /* invalid combination */
 	u32 rtmctl;		/* misc. control register */
 	u32 rtscmisc;		/* statistical check misc. register */
 	u32 rtpkrrng;		/* poker range register */
-#define RTSDCTL_ENT_DLY_MIN	1200
+#define RTSDCTL_ENT_DLY_MIN	3200
 #define RTSDCTL_ENT_DLY_MAX	12800
 	union {
 		u32 rtpkrmax;	/* PRGM=1: poker max. limit register */
@@ -49,6 +60,7 @@ struct rng4tst {
 		u32 rttotsam;	/* PRGM=0: total samples register */
 	};
 	u32 rtfreqmin;		/* frequency count min. limit register */
+#define RTFRQMAX_DISABLE       (1 << 20)
 	union {
 		u32 rtfreqmax;	/* PRGM=1: freq. count max. limit register */
 		u32 rtfreqcnt;	/* PRGM=0: freq. count register */

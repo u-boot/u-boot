@@ -7,14 +7,7 @@
  */
 
 #include <common.h>
-#include <malloc.h>
 #include <asm/e820.h>
-#include <asm/u-boot-x86.h>
-#include <asm/global_data.h>
-#include <asm/init_helpers.h>
-#include <asm/processor.h>
-#include <asm/sections.h>
-#include <asm/zimage.h>
 #include <asm/arch/sysinfo.h>
 #include <asm/arch/tables.h>
 
@@ -22,9 +15,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 {
+	unsigned num_entries;
 	int i;
 
-	unsigned num_entries = min((unsigned)lib_sysinfo.n_memranges, max_entries);
+	num_entries = min((unsigned)lib_sysinfo.n_memranges, max_entries);
 	if (num_entries < lib_sysinfo.n_memranges) {
 		printf("Warning: Limiting e820 map to %d entries.\n",
 			num_entries);
@@ -34,8 +28,18 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 
 		entries[i].addr = memrange->base;
 		entries[i].size = memrange->size;
-		entries[i].type = memrange->type;
+
+		/*
+		 * coreboot has some extensions (type 6 & 16) to the E820 types.
+		 * When we detect this, mark it as E820_RESERVED.
+		 */
+		if (memrange->type == CB_MEM_VENDOR_RSVD ||
+		    memrange->type == CB_MEM_TABLE)
+			entries[i].type = E820_RESERVED;
+		else
+			entries[i].type = memrange->type;
 	}
+
 	return num_entries;
 }
 
@@ -90,15 +94,15 @@ int dram_init(void)
 		struct memrange *memrange = &lib_sysinfo.memrange[i];
 		unsigned long long end = memrange->base + memrange->size;
 
-		if (memrange->type == CB_MEM_RAM && end > ram_size &&
-		    memrange->base < (1ULL << 32))
-			ram_size = end;
+		if (memrange->type == CB_MEM_RAM && end > ram_size)
+			ram_size += memrange->size;
 	}
+
 	gd->ram_size = ram_size;
 	if (ram_size == 0)
 		return -1;
 
-	return calculate_relocation_address();
+	return 0;
 }
 
 void dram_init_banksize(void)
@@ -109,8 +113,7 @@ void dram_init_banksize(void)
 		for (i = 0, j = 0; i < lib_sysinfo.n_memranges; i++) {
 			struct memrange *memrange = &lib_sysinfo.memrange[i];
 
-			if (memrange->type == CB_MEM_RAM &&
-			    memrange->base < (1ULL << 32)) {
+			if (memrange->type == CB_MEM_RAM) {
 				gd->bd->bi_dram[j].start = memrange->base;
 				gd->bd->bi_dram[j].size = memrange->size;
 				j++;

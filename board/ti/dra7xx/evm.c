@@ -80,17 +80,36 @@ void set_muxconf_regs_essential(void)
 #ifdef CONFIG_IODELAY_RECALIBRATION
 void recalibrate_iodelay(void)
 {
-	if (is_dra72x()) {
-		__recalibrate_iodelay(core_padconf_array_essential,
-				      ARRAY_SIZE(core_padconf_array_essential),
-				      iodelay_cfg_array,
-				      ARRAY_SIZE(iodelay_cfg_array));
-	} else {
-		__recalibrate_iodelay(dra74x_core_padconf_array,
-				      ARRAY_SIZE(dra74x_core_padconf_array),
-				      dra742_iodelay_cfg_array,
-				      ARRAY_SIZE(dra742_iodelay_cfg_array));
+	struct pad_conf_entry const *pads;
+	struct iodelay_cfg_entry const *iodelay;
+	int npads, niodelays;
+
+	switch (omap_revision()) {
+	case DRA722_ES1_0:
+		pads = core_padconf_array_essential;
+		npads = ARRAY_SIZE(core_padconf_array_essential);
+		iodelay = iodelay_cfg_array;
+		niodelays = ARRAY_SIZE(iodelay_cfg_array);
+		break;
+	case DRA752_ES1_0:
+	case DRA752_ES1_1:
+		pads = dra74x_core_padconf_array;
+		npads = ARRAY_SIZE(dra74x_core_padconf_array);
+		iodelay = dra742_es1_1_iodelay_cfg_array;
+		niodelays = ARRAY_SIZE(dra742_es1_1_iodelay_cfg_array);
+		break;
+	default:
+	case DRA752_ES2_0:
+		pads = dra74x_core_padconf_array;
+		npads = ARRAY_SIZE(dra74x_core_padconf_array);
+		iodelay = dra742_es2_0_iodelay_cfg_array;
+		niodelays = ARRAY_SIZE(dra742_es2_0_iodelay_cfg_array);
+		/* Setup port1 and port2 for rgmii with 'no-id' mode */
+		clrset_spare_register(1, 0, RGMII2_ID_MODE_N_MASK |
+				      RGMII1_ID_MODE_N_MASK);
+		break;
 	}
+	__recalibrate_iodelay(pads, npads, iodelay, niodelays);
 }
 #endif
 
@@ -114,7 +133,6 @@ static struct dwc3_device usb_otg_ss1 = {
 static struct dwc3_omap_device usb_otg_ss1_glue = {
 	.base = (void *)DRA7_USB_OTG_SS1_GLUE_BASE,
 	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
-	.vbus_id_status = OMAP_DWC3_VBUS_VALID,
 	.index = 0,
 };
 
@@ -135,7 +153,6 @@ static struct dwc3_device usb_otg_ss2 = {
 static struct dwc3_omap_device usb_otg_ss2_glue = {
 	.base = (void *)DRA7_USB_OTG_SS2_GLUE_BASE,
 	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
-	.vbus_id_status = OMAP_DWC3_VBUS_VALID,
 	.index = 1,
 };
 
@@ -146,6 +163,7 @@ static struct ti_usb_phy_device usb_phy2_device = {
 
 int board_usb_init(int index, enum usb_init_type init)
 {
+	enable_usb_clocks(index);
 	switch (index) {
 	case 0:
 		if (init == USB_INIT_DEVICE) {
@@ -192,6 +210,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	default:
 		printf("Invalid Controller Index\n");
 	}
+	disable_usb_clocks(index);
 	return 0;
 }
 

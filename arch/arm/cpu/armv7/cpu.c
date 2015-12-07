@@ -36,12 +36,6 @@ int cleanup_before_linux_select(int flags)
 	disable_interrupts();
 #endif
 
-	/*
-	 * Turn off I-cache and invalidate it
-	 */
-	icache_disable();
-	invalidate_icache_all();
-
 	if (flags & CBL_DISABLE_CACHES) {
 		/*
 		* turn off D-cache
@@ -61,7 +55,16 @@ int cleanup_before_linux_select(int flags)
 		* to avoid coherency problems for kernel
 		*/
 		invalidate_dcache_all();
+
+		icache_disable();
+		invalidate_icache_all();
 	} else {
+		/*
+		 * Turn off I-cache and invalidate it
+		 */
+		icache_disable();
+		invalidate_icache_all();
+
 		flush_dcache_all();
 		invalidate_icache_all();
 		icache_enable();

@@ -179,7 +179,11 @@ struct sunxi_ccm_reg {
 #define CCM_PLL1_CTRL_P(n)		(((n) & 0x3) << 16)
 #define CCM_PLL1_CTRL_EN		(0x1 << 31)
 
+#define CCM_PLL3_CTRL_M_SHIFT		0
+#define CCM_PLL3_CTRL_M_MASK		(0xf << CCM_PLL3_CTRL_M_SHIFT)
 #define CCM_PLL3_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_PLL3_CTRL_N_SHIFT		8
+#define CCM_PLL3_CTRL_N_MASK		(0x7f << CCM_PLL3_CTRL_N_SHIFT)
 #define CCM_PLL3_CTRL_N(n)		((((n) - 1) & 0x7f) << 8)
 #define CCM_PLL3_CTRL_INTEGER_MODE	(0x1 << 24)
 #define CCM_PLL3_CTRL_EN		(0x1 << 31)
@@ -197,6 +201,18 @@ struct sunxi_ccm_reg {
 #define CCM_PLL6_CTRL_N_MASK		(0x1f << CCM_PLL6_CTRL_N_SHIFT)
 #define CCM_PLL6_CTRL_K_SHIFT		4
 #define CCM_PLL6_CTRL_K_MASK		(0x3 << CCM_PLL6_CTRL_K_SHIFT)
+
+#define CCM_MIPI_PLL_CTRL_M_SHIFT	0
+#define CCM_MIPI_PLL_CTRL_M_MASK	(0xf << CCM_MIPI_PLL_CTRL_M_SHIFT)
+#define CCM_MIPI_PLL_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_MIPI_PLL_CTRL_K_SHIFT	4
+#define CCM_MIPI_PLL_CTRL_K_MASK	(0x3 << CCM_MIPI_PLL_CTRL_K_SHIFT)
+#define CCM_MIPI_PLL_CTRL_K(n)		((((n) - 1) & 0x3) << 4)
+#define CCM_MIPI_PLL_CTRL_N_SHIFT	8
+#define CCM_MIPI_PLL_CTRL_N_MASK	(0xf << CCM_MIPI_PLL_CTRL_N_SHIFT)
+#define CCM_MIPI_PLL_CTRL_N(n)		((((n) - 1) & 0xf) << 8)
+#define CCM_MIPI_PLL_CTRL_LDO_EN	(0x3 << 22)
+#define CCM_MIPI_PLL_CTRL_EN		(0x1 << 31)
 
 #define CCM_PLL11_CTRL_N(n)		((((n) - 1) & 0x3f) << 8)
 #define CCM_PLL11_CTRL_SIGMA_DELTA_EN	(0x1 << 24)
@@ -290,6 +306,7 @@ struct sunxi_ccm_reg {
 #define CCM_LCD_CH0_CTRL_GATE		(0x1 << 31)
 
 #define CCM_LCD_CH1_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_LCD_CH1_CTRL_HALF_SCLK1	0 /* no seperate sclk1 & 2 on sun6i */
 #define CCM_LCD_CH1_CTRL_PLL3		(0 << 24)
 #define CCM_LCD_CH1_CTRL_PLL7		(1 << 24)
 #define CCM_LCD_CH1_CTRL_PLL3_2X	(2 << 24)
@@ -359,7 +376,10 @@ void clock_set_pll1(unsigned int hz);
 void clock_set_pll3(unsigned int hz);
 void clock_set_pll5(unsigned int clk, bool sigma_delta_enable);
 void clock_set_pll11(unsigned int clk, bool sigma_delta_enable);
+void clock_set_mipi_pll(unsigned int hz);
+unsigned int clock_get_pll3(void);
 unsigned int clock_get_pll6(void);
+unsigned int clock_get_mipi_pll(void);
 #endif
 
 #endif /* _SUNXI_CLOCK_SUN6I_H */

@@ -38,45 +38,22 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_DM_GPIO
-static const struct omap_gpio_platdata am33xx_gpio[] = {
-	{ 0, AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
-	{ 1, AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ 2, AM33XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ 3, AM33XX_GPIO3_BASE, METHOD_GPIO_24XX },
-#ifdef CONFIG_AM43XX
-	{ 4, AM33XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ 5, AM33XX_GPIO5_BASE, METHOD_GPIO_24XX },
-#endif
-};
-
-U_BOOT_DEVICES(am33xx_gpios) = {
-	{ "gpio_omap", &am33xx_gpio[0] },
-	{ "gpio_omap", &am33xx_gpio[1] },
-	{ "gpio_omap", &am33xx_gpio[2] },
-	{ "gpio_omap", &am33xx_gpio[3] },
-#ifdef CONFIG_AM43XX
-	{ "gpio_omap", &am33xx_gpio[4] },
-	{ "gpio_omap", &am33xx_gpio[5] },
-#endif
-};
-
-# ifndef CONFIG_OF_CONTROL
+#if defined(CONFIG_DM_SERIAL) && !defined(CONFIG_OF_CONTROL)
 /*
  * TODO(sjg@chromium.org): When we can move SPL serial to DM, we can remove
  * the CONFIGs. At the same time, we should move this to the board files.
  */
 static const struct ns16550_platdata am33xx_serial[] = {
 	{ CONFIG_SYS_NS16550_COM1, 2, CONFIG_SYS_NS16550_CLK },
-#  ifdef CONFIG_SYS_NS16550_COM2
+# ifdef CONFIG_SYS_NS16550_COM2
 	{ CONFIG_SYS_NS16550_COM2, 2, CONFIG_SYS_NS16550_CLK },
-#   ifdef CONFIG_SYS_NS16550_COM3
+#  ifdef CONFIG_SYS_NS16550_COM3
 	{ CONFIG_SYS_NS16550_COM3, 2, CONFIG_SYS_NS16550_CLK },
 	{ CONFIG_SYS_NS16550_COM4, 2, CONFIG_SYS_NS16550_CLK },
 	{ CONFIG_SYS_NS16550_COM5, 2, CONFIG_SYS_NS16550_CLK },
 	{ CONFIG_SYS_NS16550_COM6, 2, CONFIG_SYS_NS16550_CLK },
-#   endif
 #  endif
+# endif
 };
 
 U_BOOT_DEVICES(am33xx_uarts) = {
@@ -91,23 +68,22 @@ U_BOOT_DEVICES(am33xx_uarts) = {
 #   endif
 #  endif
 };
-# endif
+#endif
 
-#else
 
+#ifndef CONFIG_DM_GPIO
 static const struct gpio_bank gpio_bank_am33xx[] = {
-	{ (void *)AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO3_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO0_BASE },
+	{ (void *)AM33XX_GPIO1_BASE },
+	{ (void *)AM33XX_GPIO2_BASE },
+	{ (void *)AM33XX_GPIO3_BASE },
 #ifdef CONFIG_AM43XX
-	{ (void *)AM33XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO5_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO4_BASE },
+	{ (void *)AM33XX_GPIO5_BASE },
 #endif
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
-
 #endif
 
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
@@ -124,7 +100,7 @@ int cpu_mmc_init(bd_t *bis)
 #endif
 
 /* AM33XX has two MUSB controllers which can be host or gadget */
-#if (defined(CONFIG_MUSB_GADGET) || defined(CONFIG_MUSB_HOST)) && \
+#if (defined(CONFIG_USB_MUSB_GADGET) || defined(CONFIG_USB_MUSB_HOST)) && \
 	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1))
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 

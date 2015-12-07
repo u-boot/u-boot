@@ -11,6 +11,12 @@
 
 #include "mx6_common.h"
 
+#ifdef CONFIG_SPL
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#include "imx6_spl.h"
+#endif
+
 #define MACH_TYPE_MX6SLEVK		4307
 #define CONFIG_MACH_TYPE		MACH_TYPE_MX6SLEVK
 
@@ -29,6 +35,8 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		  100000
 
@@ -190,11 +198,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SDHC2*/
 #endif
 
-#define CONFIG_IMX6_THERMAL
-
-#define CONFIG_CMD_FUSE
-#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX6_THERMAL)
-#define CONFIG_MXC_OCOTP
-#endif
+#define CONFIG_IMX_THERMAL
 
 #endif				/* __CONFIG_H */

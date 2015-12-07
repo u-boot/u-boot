@@ -41,6 +41,7 @@
 #endif
 
 #include <malloc.h>
+#include <memalign.h>
 #include <usb.h>
 
 #include "ohci.h"
@@ -105,21 +106,13 @@ static struct pci_device_id ehci_pci_ids[] = {
 # define m32_swap(x) cpu_to_le32(x)
 #endif /* CONFIG_SYS_OHCI_BE_CONTROLLER */
 
-#ifdef CONFIG_DM_USB
-/*
- * We really should do proper cache flushing everywhere, but for now we only
- * do it for new (driver-model) usb code to avoid regressions.
- */
+/* We really should do proper cache flushing everywhere */
 #define flush_dcache_buffer(addr, size) \
 	flush_dcache_range((unsigned long)(addr), \
 		ALIGN((unsigned long)(addr) + size, ARCH_DMA_MINALIGN))
 #define invalidate_dcache_buffer(addr, size) \
 	invalidate_dcache_range((unsigned long)(addr), \
 		ALIGN((unsigned long)(addr) + size, ARCH_DMA_MINALIGN))
-#else
-#define flush_dcache_buffer(addr, size)
-#define invalidate_dcache_buffer(addr, size)
-#endif
 
 /* Do not use sizeof(ed / td) as our ed / td structs contain extra members */
 #define flush_dcache_ed(addr) flush_dcache_buffer(addr, 16)
@@ -763,12 +756,10 @@ static void periodic_unlink(struct ohci *ohci, volatile struct ed *ed,
 			if (((struct ed *)
 					m32_swap((unsigned long)ed_p)) == ed) {
 				*ed_p = ed->hwNextED;
-#ifdef CONFIG_DM_USB
 				aligned_ed_p = (unsigned long)ed_p;
 				aligned_ed_p &= ~(ARCH_DMA_MINALIGN - 1);
 				flush_dcache_range(aligned_ed_p,
 					aligned_ed_p + ARCH_DMA_MINALIGN);
-#endif
 				break;
 			}
 			ed_p = &(((struct ed *)

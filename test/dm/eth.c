@@ -106,6 +106,11 @@ static int _dm_test_eth_rotate2(struct unit_test_state *uts)
 	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
+	/* Make sure we can handle device name which is not eth# */
+	setenv("ethact", "sbe5");
+	ut_assertok(net_loop(PING));
+	ut_asserteq_str("sbe5", getenv("ethact"));
+
 	return 0;
 }
 

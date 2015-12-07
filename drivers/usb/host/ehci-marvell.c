@@ -21,9 +21,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define rdl(off)	readl(MVUSB0_BASE + (off))
-#define wrl(off, val)	writel((val), MVUSB0_BASE + (off))
-
 #define USB_WINDOW_CTRL(i)	(0x320 + ((i) << 4))
 #define USB_WINDOW_BASE(i)	(0x324 + ((i) << 4))
 #define USB_TARGET_DRAM		0x0
@@ -33,14 +30,22 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #ifdef CONFIG_ARMADA_XP
 
-#define MVUSB0_BASE		MVEBU_USB20_BASE
+/*
+ * Armada XP and Armada 38x have different base addresses for
+ * the USB 2.0 EHCI host controller. So we need to provide
+ * a mechnism to support both here.
+ */
+#define MVUSB0_BASE					\
+	(mvebu_soc_family() == MVEBU_SOC_A38X ?		\
+	 MVEBU_USB20_BASE : MVEBU_AXP_USB_BASE)
+#define MVUSB_BASE(port)	MVUSB0_BASE + ((port) << 12)
 
 /*
  * Once all the older Marvell SoC's (Orion, Kirkwood) are converted
  * to the common mvebu archticture including the mbus setup, this
  * will be the only function needed to configure the access windows
  */
-static void usb_brg_adrdec_setup(void)
+static void usb_brg_adrdec_setup(int index)
 {
 	const struct mbus_dram_target_info *dram;
 	int i;
@@ -48,24 +53,26 @@ static void usb_brg_adrdec_setup(void)
 	dram = mvebu_mbus_dram_info();
 
 	for (i = 0; i < 4; i++) {
-		wrl(USB_WINDOW_CTRL(i), 0);
-		wrl(USB_WINDOW_BASE(i), 0);
+		writel(0, MVUSB_BASE(index) + USB_WINDOW_CTRL(i));
+		writel(0, MVUSB_BASE(index) + USB_WINDOW_BASE(i));
 	}
 
 	for (i = 0; i < dram->num_cs; i++) {
 		const struct mbus_dram_window *cs = dram->cs + i;
 
 		/* Write size, attributes and target id to control register */
-		wrl(USB_WINDOW_CTRL(i),
-		    ((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
-		    (dram->mbus_dram_target_id << 4) | 1);
+		writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
+		       (dram->mbus_dram_target_id << 4) | 1,
+		       MVUSB_BASE(index) + USB_WINDOW_CTRL(i));
 
 		/* Write base address to base register */
-		wrl(USB_WINDOW_BASE(i), cs->base);
+		writel(cs->base, MVUSB_BASE(index) + USB_WINDOW_BASE(i));
 	}
 }
 #else
-static void usb_brg_adrdec_setup(void)
+#define MVUSB_BASE(port)	MVUSB0_BASE
+
+static void usb_brg_adrdec_setup(int index)
 {
 	int i;
 	u32 size, base, attrib;
@@ -95,13 +102,14 @@ static void usb_brg_adrdec_setup(void)
 		size = gd->bd->bi_dram[i].size;
 		base = gd->bd->bi_dram[i].start;
 		if ((size) && (attrib))
-			wrl(USB_WINDOW_CTRL(i),
-				MVCPU_WIN_CTRL_DATA(size, USB_TARGET_DRAM,
-					attrib, MVCPU_WIN_ENABLE));
+			writel(MVCPU_WIN_CTRL_DATA(size, USB_TARGET_DRAM,
+						   attrib, MVCPU_WIN_ENABLE),
+				MVUSB0_BASE + USB_WINDOW_CTRL(i));
 		else
-			wrl(USB_WINDOW_CTRL(i), MVCPU_WIN_DISABLE);
+			writel(MVCPU_WIN_DISABLE,
+			       MVUSB0_BASE + USB_WINDOW_CTRL(i));
 
-		wrl(USB_WINDOW_BASE(i), base);
+		writel(base, MVUSB0_BASE + USB_WINDOW_BASE(i));
 	}
 }
 #endif
@@ -113,9 +121,9 @@ static void usb_brg_adrdec_setup(void)
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	usb_brg_adrdec_setup();
+	usb_brg_adrdec_setup(index);
 
-	*hccr = (struct ehci_hccr *)(MVUSB0_BASE + 0x100);
+	*hccr = (struct ehci_hccr *)(MVUSB_BASE(index) + 0x100);
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
 			+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 

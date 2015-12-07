@@ -386,10 +386,10 @@ void mem_init(void)
 
 	/* enable MPDDR clock */
 	at91_periph_clk_enable(ATMEL_ID_MPDDRC);
-	writel(0x4, &pmc->scer);
+	writel(AT91_PMC_DDR, &pmc->scer);
 
 	/* DDRAM2 Controller initialize */
-	ddr2_init(ATMEL_BASE_DDRCS, &ddr2);
+	ddr2_init(ATMEL_BASE_MPDDRC, ATMEL_BASE_DDRCS, &ddr2);
 }
 
 void at91_pmc_init(void)

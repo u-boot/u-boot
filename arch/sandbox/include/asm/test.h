@@ -17,6 +17,25 @@
 #define SANDBOX_PCI_CLASS_CODE		PCI_CLASS_CODE_COMM
 #define SANDBOX_PCI_CLASS_SUB_CODE	PCI_CLASS_SUB_CODE_COMM_SERIAL
 
+#define SANDBOX_CLK_RATE		32768
+
+enum {
+	PERIPH_ID_FIRST = 0,
+	PERIPH_ID_SPI = PERIPH_ID_FIRST,
+	PERIPH_ID_I2C,
+	PERIPH_ID_PCI,
+
+	PERIPH_ID_COUNT,
+};
+
+/* System controller driver data */
+enum {
+	SYSCON0		= 32,
+	SYSCON1,
+
+	SYSCON_COUNT
+};
+
 /**
  * sandbox_i2c_set_test_mode() - set test mode for running unit tests
  *

@@ -26,3 +26,15 @@ i.MX5x SoCs.
 
 2.1 MAC Address: It is stored in the words 9 to 14 of fuse bank 1, using the
     natural MAC byte order (i.e. MSB first).
+
+    This is an example how to program an example MAC address 01:23:45:67:89:ab
+    into the eFuses. Assure that the programming voltage is available and then
+    execute:
+
+    => fuse prog -y 1 9 01 23 45 67 89 ab
+
+    After programming a MAC address, consider locking the MAC fuses. This is
+    done by programming the MAC_ADDR_LOCK fuse, which is bit 4 of word 0 in
+    bank 1:
+
+    => fuse prog -y 1 0 10

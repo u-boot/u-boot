@@ -93,6 +93,14 @@ struct eth_pdata {
 	int phy_interface;
 };
 
+enum eth_recv_flags {
+	/*
+	 * Check hardware device for new packets (otherwise only return those
+	 * which are already in the memory buffer ready to process)
+	 */
+	ETH_RECV_CHECK_DEVICE		= 1 << 0,
+};
+
 /**
  * struct eth_ops - functions of Ethernet MAC controllers
  *
@@ -111,7 +119,9 @@ struct eth_pdata {
  * mcast: Join or leave a multicast group (for TFTP) - optional
  * write_hwaddr: Write a MAC address to the hardware (used to pass it to Linux
  *		 on some platforms like ARM). This function expects the
- *		 eth_pdata::enetaddr field to be populated - optional
+ *		 eth_pdata::enetaddr field to be populated. The method can
+ *		 return -ENOSYS to indicate that this is not implemented for
+		 this hardware - optional.
  * read_rom_hwaddr: Some devices have a backup of the MAC address stored in a
  *		    ROM on the board. This is how the driver should expose it
  *		    to the network stack. This function should fill in the
@@ -120,7 +130,7 @@ struct eth_pdata {
 struct eth_ops {
 	int (*start)(struct udevice *dev);
 	int (*send)(struct udevice *dev, void *packet, int length);
-	int (*recv)(struct udevice *dev, uchar **packetp);
+	int (*recv)(struct udevice *dev, int flags, uchar **packetp);
 	int (*free_pkt)(struct udevice *dev, uchar *packet, int length);
 	void (*stop)(struct udevice *dev);
 #ifdef CONFIG_MCAST_TFTP
@@ -139,7 +149,9 @@ struct udevice *eth_get_dev(void); /* get the current device */
  */
 struct udevice *eth_get_dev_by_name(const char *devname);
 unsigned char *eth_get_ethaddr(void); /* get the current device MAC */
+
 /* Used only when NetConsole is enabled */
+int eth_is_active(struct udevice *dev); /* Test device for active state */
 int eth_init_state_only(void); /* Set active state */
 void eth_halt_state_only(void); /* Set passive state */
 #endif
@@ -185,6 +197,8 @@ static inline unsigned char *eth_get_ethaddr(void)
 	return NULL;
 }
 
+/* Used only when NetConsole is enabled */
+int eth_is_active(struct eth_device *dev); /* Test device for active state */
 /* Set active state */
 static inline __attribute__((always_inline)) int eth_init_state_only(void)
 {
@@ -803,8 +817,18 @@ void copy_filename(char *dst, const char *src, int size);
 /* get a random source port */
 unsigned int random_port(void);
 
-/* Update U-Boot over TFTP */
-int update_tftp(ulong addr);
+/**
+ * update_tftp - Update firmware over TFTP (via DFU)
+ *
+ * This function updates board's firmware via TFTP
+ *
+ * @param addr - memory address where data is stored
+ * @param interface - the DFU medium name - e.g. "mmc"
+ * @param devstring - the DFU medium number - e.g. "1"
+ *
+ * @return - 0 on success, other value on failure
+ */
+int update_tftp(ulong addr, char *interface, char *devstring);
 
 /**********************************************************************/
 

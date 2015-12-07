@@ -8,27 +8,11 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_CSB272
-	bool "Support csb272"
-
-config TARGET_CSB472
-	bool "Support csb472"
-
 config TARGET_LWMON5
 	bool "Support lwmon5"
-	select SUPPORT_SPL
-
-config TARGET_PCS440EP
-	bool "Support pcs440ep"
-
-config TARGET_SBC405
-	bool "Support sbc405"
 
 config TARGET_T3CORP
 	bool "Support t3corp"
-
-config TARGET_ZEUS
-	bool "Support zeus"
 
 config TARGET_ACADIA
 	bool "Support acadia"
@@ -140,12 +124,6 @@ config TARGET_MIP405
 config TARGET_PIP405
 	bool "Support PIP405"
 
-config TARGET_ALPR
-	bool "Support alpr"
-
-config TARGET_P3P440
-	bool "Support p3p440"
-
 config TARGET_XPEDITE1000
 	bool "Support xpedite1000"
 
@@ -179,8 +157,6 @@ source "board/amcc/yosemite/Kconfig"
 source "board/amcc/yucca/Kconfig"
 source "board/avnet/fx12mm/Kconfig"
 source "board/avnet/v5fx30teval/Kconfig"
-source "board/csb272/Kconfig"
-source "board/csb472/Kconfig"
 source "board/esd/cpci2dp/Kconfig"
 source "board/esd/cpci405/Kconfig"
 source "board/esd/plu405/Kconfig"
@@ -196,15 +172,10 @@ source "board/lwmon5/Kconfig"
 source "board/mosaixtech/icon/Kconfig"
 source "board/mpl/mip405/Kconfig"
 source "board/mpl/pip405/Kconfig"
-source "board/pcs440ep/Kconfig"
-source "board/prodrive/alpr/Kconfig"
-source "board/prodrive/p3p440/Kconfig"
-source "board/sbc405/Kconfig"
 source "board/t3corp/Kconfig"
 source "board/xes/xpedite1000/Kconfig"
 source "board/xilinx/ml507/Kconfig"
 source "board/xilinx/ppc405-generic/Kconfig"
 source "board/xilinx/ppc440-generic/Kconfig"
-source "board/zeus/Kconfig"
 
 endmenu

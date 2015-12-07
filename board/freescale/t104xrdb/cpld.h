@@ -21,7 +21,11 @@ struct cpld_data {
 	u8 int_status;		/* 0x12 - Interrupt status Register */
 	u8 flash_ctl_status;	/* 0x13 - Flash control and status register */
 	u8 fan_ctl_status;	/* 0x14 - Fan control and status register  */
+#if defined(CONFIG_T104XD4RDB)
+	u8 int_mask;		/* 0x15 - Interrupt mask Register */
+#else
 	u8 led_ctl_status;	/* 0x15 - LED control and status register */
+#endif
 	u8 sfp_ctl_status;	/* 0x16 - SFP control and status register  */
 	u8 misc_ctl_status;	/* 0x17 - Miscellanies ctrl & status register*/
 	u8 boot_override;	/* 0x18 - Boot override register */
@@ -38,3 +42,5 @@ void cpld_write(unsigned int reg, u8 value);
 #define CPLD_READ(reg) cpld_read(offsetof(struct cpld_data, reg))
 #define CPLD_WRITE(reg, value)\
 		cpld_write(offsetof(struct cpld_data, reg), value)
+#define MISC_CTL_SG_SEL		0x80
+#define MISC_CTL_AURORA_SEL	0x02

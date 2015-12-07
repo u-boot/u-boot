@@ -28,8 +28,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PLLC_PLLDIV8	0x170
 #define PLLC_PLLDIV9	0x174
 
-#define BIT(x)		(1 << (x))
-
 /* SOC-specific pll info */
 #ifdef CONFIG_SOC_DM355
 #define ARM_PLLDIV	PLLC_PLLDIV1

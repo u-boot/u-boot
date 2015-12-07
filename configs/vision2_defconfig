@@ -1,6 +1,0 @@
-CONFIG_ARM=y
-CONFIG_TARGET_VISION2=y
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/ttcontrol/vision2/imximage_hynix.cfg"
-# CONFIG_CMD_IMLS is not set
-# CONFIG_CMD_SETEXPR is not set
-CONFIG_SPI_FLASH=y

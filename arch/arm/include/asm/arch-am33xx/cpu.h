@@ -17,7 +17,6 @@
 
 #include <asm/arch/hardware.h>
 
-#define BIT(x)				(1 << x)
 #define CL_BIT(x)			(0 << x)
 
 /* Timer register bits */

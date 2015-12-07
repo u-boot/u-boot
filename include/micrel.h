@@ -20,6 +20,10 @@
 #define MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW	0x6
 #define MII_KSZ9031_EXT_RGMII_CLOCK_SKEW	0x8
 
+/* Registers */
+#define MMD_ACCESS_CONTROL	0xd
+#define MMD_ACCESS_REG_DATA	0xe
+
 struct phy_device;
 int ksz9021_phy_extended_write(struct phy_device *phydev, int regnum, u16 val);
 int ksz9021_phy_extended_read(struct phy_device *phydev, int regnum);

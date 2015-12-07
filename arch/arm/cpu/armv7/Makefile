@@ -12,7 +12,7 @@ obj-y	+= cache_v7.o
 obj-y	+= cpu.o cp15.o
 obj-y	+= syslib.o
 
-ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TEGRA)$(CONFIG_MX6)$(CONFIG_TI81XX)$(CONFIG_AT91FAMILY)$(CONFIG_SUNXI)$(CONFIG_ARCH_SOCFPGA),)
+ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TEGRA)$(CONFIG_MX6)$(CONFIG_MX7)$(CONFIG_TI81XX)$(CONFIG_AT91FAMILY)$(CONFIG_SUNXI)$(CONFIG_ARCH_SOCFPGA),)
 ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
 obj-y	+= lowlevel_init.o
 endif
@@ -41,10 +41,10 @@ obj-$(if $(filter am33xx,$(SOC)),y) += am33xx/
 obj-$(if $(filter bcm281xx,$(SOC)),y) += bcm281xx/
 obj-$(if $(filter bcmcygnus,$(SOC)),y) += bcmcygnus/
 obj-$(if $(filter bcmnsp,$(SOC)),y) += bcmnsp/
-obj-$(CONFIG_ARCH_EXYNOS) += exynos/
 obj-$(if $(filter ls102xa,$(SOC)),y) += ls102xa/
 obj-$(if $(filter mx5,$(SOC)),y) += mx5/
 obj-$(CONFIG_MX6) += mx6/
+obj-$(CONFIG_MX7) += mx7/
 obj-$(CONFIG_OMAP34XX) += omap3/
 obj-$(CONFIG_OMAP44XX) += omap4/
 obj-$(CONFIG_OMAP54XX) += omap5/
@@ -52,5 +52,4 @@ obj-$(CONFIG_RMOBILE) += rmobile/
 obj-$(CONFIG_ARCH_S5PC1XX) += s5pc1xx/
 obj-$(if $(filter stv0991,$(SOC)),y) += stv0991/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/
-obj-$(CONFIG_U8500) += u8500/
 obj-$(CONFIG_VF610) += vf610/

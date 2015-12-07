@@ -75,7 +75,8 @@ static int gpio_read_bit(struct pinmux_data_reg *dr,
 	debug("read_bit: addr = %lx, pos = %ld, "
 		 "r_width = %ld\n", dr->reg, pos, dr->reg_width);
 
-	return (gpio_read_raw_reg(dr->mapped_reg, dr->reg_width) >> pos) & 1;
+	return
+	    (gpio_read_raw_reg(dr->mapped_reg + 0x4, dr->reg_width) >> pos) & 1;
 }
 
 static void gpio_write_bit(struct pinmux_data_reg *dr,

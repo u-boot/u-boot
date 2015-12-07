@@ -32,17 +32,17 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-	.u_boot_list : {
-		KEEP(*(SORT(.u_boot_list*_i2c_*)));
-	}
-
-	. = .;
 #ifdef CONFIG_SPL_DM
 	.u_boot_list : {
 		KEEP(*(SORT(.u_boot_list_*_driver_*)));
 		KEEP(*(SORT(.u_boot_list_*_uclass_*)));
 	}
 #endif
+	. = .;
+	.u_boot_list : {
+		KEEP(*(SORT(.u_boot_list*_i2c_*)));
+	}
+
 	. = ALIGN(4);
 
 	__image_copy_end = .;
@@ -66,7 +66,7 @@ SECTIONS
 		 . = ALIGN(4);
 		__bss_end = .;
 	}
-
+	__bss_size = __bss_end - __bss_start;
 	.dynsym _image_binary_end : { *(.dynsym) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }

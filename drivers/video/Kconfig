@@ -1,3 +1,9 @@
+#
+# Video configuration
+#
+
+menu "Graphics support"
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
@@ -38,7 +44,7 @@ config FRAMEBUFFER_VESA_MODE_104
 	bool "1024x768 16-color"
 
 config FRAMEBUFFER_VESA_MODE_105
-	bool "1024x7686 256-color"
+	bool "1024x768 256-color"
 
 config FRAMEBUFFER_VESA_MODE_106
 	bool "1280x1024 16-color"
@@ -145,6 +151,14 @@ config FRAMEBUFFER_VESA_MODE
 	default 0x11B if FRAMEBUFFER_VESA_MODE_11B
 	default 0x117 if FRAMEBUFFER_VESA_MODE_USER
 
+config VIDEO_LCD_ANX9804
+	bool "ANX9804 bridge chip"
+	default n
+	---help---
+	Support for the ANX9804 bridge chip, which can take pixel data coming
+	from a parallel LCD interface and translate it on the fy into a DP
+	interface for driving eDP TFT displays. It uses I2C for configuration.
+
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
 	default n
@@ -240,3 +254,7 @@ config VIDEO_TEGRA124
 	   HDMI. At present only eDP is supported by U-Boot. This option
 	   enables this support which can be used on devices which
 	   have an eDP display connected.
+
+source "drivers/video/bridge/Kconfig"
+
+endmenu

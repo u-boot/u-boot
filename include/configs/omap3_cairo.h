@@ -70,7 +70,6 @@
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_QUIET_TEST	1
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
@@ -240,10 +239,6 @@
 #undef CONFIG_SERIAL3
 #define CONFIG_SERIAL2
 #endif
-
-/* Keep old prompt in case some existing script depends on it */
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"Cairo # "
 
 /* Provide MACH_TYPE for compatibility with non-DT kernels */
 #define MACH_TYPE_OMAP3_CAIRO	3063

@@ -123,8 +123,8 @@ void bad_mode (void)
 
 void show_regs (struct pt_regs *regs)
 {
-	unsigned long flags;
-	const char *processor_modes[] = {
+	unsigned long __maybe_unused flags;
+	const char __maybe_unused *processor_modes[] = {
 	"USER_26",	"FIQ_26",	"IRQ_26",	"SVC_26",
 	"UK4_26",	"UK5_26",	"UK6_26",	"UK7_26",
 	"UK8_26",	"UK9_26",	"UK10_26",	"UK11_26",

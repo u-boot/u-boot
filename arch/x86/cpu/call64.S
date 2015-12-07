@@ -82,8 +82,8 @@ lret_target:
 
 	.data
 gdt:
-	.word	gdt_end - gdt
-	.long	gdt
+	.word	gdt_end - gdt - 1
+	.long	gdt			/* Fixed up by code above */
 	.word	0
 	.quad	0x0000000000000000	/* NULL descriptor */
 	.quad	0x00af9a000000ffff	/* __KERNEL_CS */

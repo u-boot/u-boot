@@ -400,7 +400,11 @@ err1:
 	return status;
 }
 
+#ifndef __UBOOT__
 static void omap2430_musb_enable(struct musb *musb)
+#else
+static int omap2430_musb_enable(struct musb *musb)
+#endif
 {
 #ifndef __UBOOT__
 	u8		devctl;
@@ -445,6 +449,7 @@ static void omap2430_musb_enable(struct musb *musb)
 				__PRETTY_FUNCTION__);
 	}
 #endif
+	return 0;
 #endif
 }
 

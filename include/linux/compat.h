@@ -36,10 +36,25 @@ extern struct p_current *current;
 #define KERN_INFO
 #define KERN_DEBUG
 
+#define GFP_ATOMIC ((gfp_t) 0)
+#define GFP_KERNEL ((gfp_t) 0)
+#define GFP_NOFS ((gfp_t) 0)
+#define GFP_USER ((gfp_t) 0)
+#define __GFP_NOWARN ((gfp_t) 0)
+#define __GFP_ZERO	((__force gfp_t)0x8000u)	/* Return zeroed page on success */
+
 void *kmalloc(size_t size, int flags);
-void *kzalloc(size_t size, int flags);
+
+static inline void *kzalloc(size_t size, gfp_t flags)
+{
+	return kmalloc(size, flags | __GFP_ZERO);
+}
 #define vmalloc(size)	kmalloc(size, 0)
 #define __vmalloc(size, flags, pgsz)	kmalloc(size, flags)
+static inline void *vzalloc(unsigned long size)
+{
+	return kzalloc(size, 0);
+}
 #define kfree(ptr)	free(ptr)
 #define vfree(ptr)	free(ptr)
 
@@ -72,13 +87,6 @@ void *kmem_cache_alloc(struct kmem_cache *obj, int flag);
 
 /* drivers/char/random.c */
 #define get_random_bytes(...)
-
-/* idr.c */
-#define GFP_ATOMIC ((gfp_t) 0)
-#define GFP_KERNEL ((gfp_t) 0)
-#define GFP_NOFS ((gfp_t) 0)
-#define GFP_USER ((gfp_t) 0)
-#define __GFP_NOWARN ((gfp_t) 0)
 
 /* include/linux/leds.h */
 struct led_trigger {};
@@ -188,8 +196,6 @@ struct work_struct {};
 
 unsigned long copy_from_user(void *dest, const void *src,
 			     unsigned long count);
-
-void *vzalloc(unsigned long size);
 
 typedef unused_t spinlock_t;
 typedef int	wait_queue_head_t;
@@ -314,8 +320,6 @@ struct timer_list {};
 struct notifier_block {};
 
 typedef unsigned long dmaaddr_t;
-
-#define cpu_relax() do {} while (0)
 
 #define pm_runtime_get_sync(dev) do {} while (0)
 #define pm_runtime_put(dev) do {} while (0)

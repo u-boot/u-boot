@@ -13,12 +13,12 @@
 #include <asm/acpi.h>
 #include <asm/cpu.h>
 #include <asm/lapic.h>
-#include <asm/lapic_def.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm/speedstep.h>
 #include <asm/turbo.h>
+#include <asm/arch/bd82x6x.h>
 #include <asm/arch/model_206ax.h>
 
 static void enable_vmx(void)

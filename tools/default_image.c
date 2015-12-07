@@ -88,6 +88,8 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 				struct image_tool_params *params)
 {
 	uint32_t checksum;
+	char *source_date_epoch;
+	time_t time;
 
 	image_header_t * hdr = (image_header_t *)ptr;
 
@@ -96,9 +98,22 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 				sizeof(image_header_t)),
 			sbuf->st_size - sizeof(image_header_t));
 
+	source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+	if (source_date_epoch != NULL) {
+		time = (time_t) strtol(source_date_epoch, NULL, 10);
+
+		if (gmtime(&time) == NULL) {
+			fprintf(stderr, "%s: SOURCE_DATE_EPOCH is not valid\n",
+				__func__);
+			time = 0;
+		}
+	} else {
+		time = sbuf->st_mtime;
+	}
+
 	/* Build new header */
 	image_set_magic(hdr, IH_MAGIC);
-	image_set_time(hdr, sbuf->st_mtime);
+	image_set_time(hdr, time);
 	image_set_size(hdr, sbuf->st_size - sizeof(image_header_t));
 	image_set_load(hdr, params->addr);
 	image_set_ep(hdr, params->ep);

@@ -597,7 +597,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 					puts(tab_seq + (col & 07));
 					col += 8 - (col & 07);
 				} else {
-					char buf[2];
+					char __maybe_unused buf[2];
 
 					/*
 					 * Echo input using puts() to force an

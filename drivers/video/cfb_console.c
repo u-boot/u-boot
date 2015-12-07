@@ -283,9 +283,10 @@ void console_cursor(int state);
 
 #define VIDEO_COLS		VIDEO_VISIBLE_COLS
 #define VIDEO_ROWS		VIDEO_VISIBLE_ROWS
-#define VIDEO_SIZE		(VIDEO_ROWS*VIDEO_COLS*VIDEO_PIXEL_SIZE)
-#define VIDEO_PIX_BLOCKS	(VIDEO_SIZE >> 2)
-#define VIDEO_LINE_LEN		(VIDEO_COLS*VIDEO_PIXEL_SIZE)
+#ifndef VIDEO_LINE_LEN
+#define VIDEO_LINE_LEN		(VIDEO_COLS * VIDEO_PIXEL_SIZE)
+#endif
+#define VIDEO_SIZE		(VIDEO_ROWS * VIDEO_LINE_LEN)
 #define VIDEO_BURST_LEN		(VIDEO_COLS/8)
 
 #ifdef	CONFIG_VIDEO_LOGO
@@ -1306,7 +1307,7 @@ static int display_rle8_bitmap(struct bmp_image *img, int xoff, int yoff,
 	struct palette p[256];
 	struct bmp_color_table_entry cte;
 	int green_shift, red_off;
-	int limit = VIDEO_COLS * VIDEO_ROWS;
+	int limit = (VIDEO_LINE_LEN / VIDEO_PIXEL_SIZE) * VIDEO_ROWS;
 	int pixels = 0;
 
 	x = 0;
@@ -1314,7 +1315,8 @@ static int display_rle8_bitmap(struct bmp_image *img, int xoff, int yoff,
 	ncolors = __le32_to_cpu(img->header.colors_used);
 	bpp = VIDEO_PIXEL_SIZE;
 	fbp = (unsigned char *) ((unsigned int) video_fb_address +
-				 (((y + yoff) * VIDEO_COLS) + xoff) * bpp);
+				 (y + yoff) * VIDEO_LINE_LEN +
+				 xoff * bpp);
 
 	bm = (uchar *) img + __le32_to_cpu(img->header.data_offset);
 
@@ -1368,8 +1370,8 @@ static int display_rle8_bitmap(struct bmp_image *img, int xoff, int yoff,
 				y--;
 				fbp = (unsigned char *)
 					((unsigned int) video_fb_address +
-					 (((y + yoff) * VIDEO_COLS) +
-					  xoff) * bpp);
+					 (y + yoff) * VIDEO_LINE_LEN +
+					 xoff * bpp);
 				continue;
 			case 1:
 				/* end of bitmap data marker */
@@ -1381,8 +1383,8 @@ static int display_rle8_bitmap(struct bmp_image *img, int xoff, int yoff,
 				y -= bm[3];
 				fbp = (unsigned char *)
 					((unsigned int) video_fb_address +
-					 (((y + yoff) * VIDEO_COLS) +
-					  x + xoff) * bpp);
+					 (y + yoff) * VIDEO_LINE_LEN +
+					 xoff * bpp);
 				bm += 4;
 				break;
 			default:
@@ -1561,7 +1563,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 	bmap = (uchar *) bmp + le32_to_cpu(bmp->header.data_offset);
 	fb = (uchar *) (video_fb_address +
-			((y + height - 1) * VIDEO_COLS * VIDEO_PIXEL_SIZE) +
+			((y + height - 1) * VIDEO_LINE_LEN) +
 			x * VIDEO_PIXEL_SIZE);
 
 #ifdef CONFIG_VIDEO_BMP_RLE8
@@ -1597,7 +1599,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							   cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
+				fb -= VIDEO_LINE_LEN + width *
 					VIDEO_PIXEL_SIZE;
 			}
 			break;
@@ -1628,8 +1630,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					*fb++ = *bmap++;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF__8BIT_332RGB:
@@ -1642,8 +1644,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							 cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_15BIT_555RGB:
@@ -1666,8 +1668,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 #endif
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_16BIT_565RGB:
@@ -1680,8 +1682,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							  cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_32BIT_X888RGB:
@@ -1694,8 +1696,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							   cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_24BIT_888RGB:
@@ -1708,8 +1710,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							  cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		}
@@ -1728,8 +1730,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_15BIT_555RGB:
@@ -1751,8 +1753,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_16BIT_565RGB:
@@ -1765,8 +1767,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_32BIT_X888RGB:
@@ -1779,8 +1781,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_24BIT_888RGB:
@@ -1793,8 +1795,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		default:
@@ -1826,20 +1828,16 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 static int video_logo_xpos;
 static int video_logo_ypos;
 
-static void plot_logo_or_black(void *screen, int width, int x, int y,	\
-			int black);
+static void plot_logo_or_black(void *screen, int x, int y, int black);
 
-static void logo_plot(void *screen, int width, int x, int y)
+static void logo_plot(void *screen, int x, int y)
 {
-	plot_logo_or_black(screen, width, x, y, 0);
+	plot_logo_or_black(screen, x, y, 0);
 }
 
 static void logo_black(void)
 {
-	plot_logo_or_black(video_fb_address, \
-			VIDEO_COLS, \
-			video_logo_xpos, \
-			video_logo_ypos, \
+	plot_logo_or_black(video_fb_address, video_logo_xpos, video_logo_ypos,
 			1);
 }
 
@@ -1858,11 +1856,11 @@ U_BOOT_CMD(
 	   " "
 	   );
 
-static void plot_logo_or_black(void *screen, int width, int x, int y, int black)
+static void plot_logo_or_black(void *screen, int x, int y, int black)
 {
 
 	int xcount, i;
-	int skip = (width - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE;
+	int skip = VIDEO_LINE_LEN - VIDEO_LOGO_WIDTH * VIDEO_PIXEL_SIZE;
 	int ycount = video_logo_height;
 	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
 	unsigned char *source;
@@ -1880,7 +1878,7 @@ static void plot_logo_or_black(void *screen, int width, int x, int y, int black)
 		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1));
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
-	dest = (unsigned char *)screen + (y * width  + x) * VIDEO_PIXEL_SIZE;
+	dest = (unsigned char *)screen + y * VIDEO_LINE_LEN + x * VIDEO_PIXEL_SIZE;
 
 #ifdef CONFIG_VIDEO_BMP_LOGO
 	source = bmp_logo_bitmap;
@@ -2009,8 +2007,7 @@ static void *video_logo(void)
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
 
-	logo_plot(video_fb_address, VIDEO_COLS,
-		  video_logo_xpos, video_logo_ypos);
+	logo_plot(video_fb_address, video_logo_xpos, video_logo_ypos);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	/*
@@ -2250,16 +2247,17 @@ __weak int board_video_skip(void)
 
 int drv_video_init(void)
 {
-	int skip_dev_init;
 	struct stdio_dev console_dev;
 	bool have_keyboard;
+	bool __maybe_unused keyboard_ok = false;
 
 	/* Check if video initialization should be skipped */
 	if (board_video_skip())
 		return 0;
 
 	/* Init video chip - returns with framebuffer cleared */
-	skip_dev_init = (video_init() == -1);
+	if (video_init() == -1)
+		return 0;
 
 	if (board_cfb_skip())
 		return 0;
@@ -2275,11 +2273,9 @@ int drv_video_init(void)
 	if (have_keyboard) {
 		debug("KBD: Keyboard init ...\n");
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-		skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
+		keyboard_ok = !(VIDEO_KBD_INIT_FCT == -1);
 #endif
 	}
-	if (skip_dev_init)
-		return 0;
 
 	/* Init vga device */
 	memset(&console_dev, 0, sizeof(console_dev));
@@ -2290,7 +2286,7 @@ int drv_video_init(void)
 	console_dev.puts = video_puts;	/* 'puts' function */
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	if (have_keyboard) {
+	if (have_keyboard && keyboard_ok) {
 		/* Also init console device */
 		console_dev.flags |= DEV_FLAGS_INPUT;
 		console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */

@@ -17,9 +17,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"pepper# "
-
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 
 /* Mach type */
@@ -41,7 +38,7 @@
 	"optargs=\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
-	"mmcrootfstype=ext3 rootwait\0" \
+	"mmcrootfstype=ext4 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${mmcroot} " \

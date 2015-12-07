@@ -34,66 +34,6 @@ inline int __board_usb_init(int index, enum usb_init_type init)
 int board_usb_init(int index, enum usb_init_type init)
 	__attribute__((weak, alias("__board_usb_init")));
 
-static void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
-{
-	clrsetbits_le32(&dwc3_reg->g_ctl,
-			DWC3_GCTL_PRTCAPDIR(DWC3_GCTL_PRTCAP_OTG),
-			DWC3_GCTL_PRTCAPDIR(mode));
-}
-
-static void dwc3_core_soft_reset(struct dwc3 *dwc3_reg)
-{
-	/* Before Resetting PHY, put Core in Reset */
-	setbits_le32(&dwc3_reg->g_ctl, DWC3_GCTL_CORESOFTRESET);
-
-	omap_reset_usb_phy(dwc3_reg);
-
-	/* After PHYs are stable we can take Core out of reset state */
-	clrbits_le32(&dwc3_reg->g_ctl, DWC3_GCTL_CORESOFTRESET);
-}
-
-static int dwc3_core_init(struct dwc3 *dwc3_reg)
-{
-	u32 reg;
-	u32 revision;
-	unsigned int dwc3_hwparams1;
-
-	revision = readl(&dwc3_reg->g_snpsid);
-	/* This should read as U3 followed by revision number */
-	if ((revision & DWC3_GSNPSID_MASK) != 0x55330000) {
-		puts("this is not a DesignWare USB3 DRD Core\n");
-		return -1;
-	}
-
-	dwc3_core_soft_reset(dwc3_reg);
-
-	dwc3_hwparams1 = readl(&dwc3_reg->g_hwparams1);
-
-	reg = readl(&dwc3_reg->g_ctl);
-	reg &= ~DWC3_GCTL_SCALEDOWN_MASK;
-	reg &= ~DWC3_GCTL_DISSCRAMBLE;
-	switch (DWC3_GHWPARAMS1_EN_PWROPT(dwc3_hwparams1)) {
-	case DWC3_GHWPARAMS1_EN_PWROPT_CLK:
-		reg &= ~DWC3_GCTL_DSBLCLKGTNG;
-		break;
-	default:
-		debug("No power optimization available\n");
-	}
-
-	/*
-	 * WORKAROUND: DWC3 revisions <1.90a have a bug
-	 * where the device can fail to connect at SuperSpeed
-	 * and falls back to high-speed mode which causes
-	 * the device to enter a Connect/Disconnect loop
-	 */
-	if ((revision & DWC3_REVISION_MASK) < 0x190a)
-		reg |= DWC3_GCTL_U2RSTECN;
-
-	writel(reg, &dwc3_reg->g_ctl);
-
-	return 0;
-}
-
 static int omap_xhci_core_init(struct omap_xhci *omap)
 {
 	int ret = 0;
@@ -156,4 +96,5 @@ void xhci_hcd_stop(int index)
 	struct omap_xhci *ctx = &omap;
 
 	omap_xhci_core_exit(ctx);
+	board_usb_cleanup(index, USB_INIT_HOST);
 }

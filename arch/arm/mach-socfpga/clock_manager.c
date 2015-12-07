@@ -88,9 +88,9 @@ static void cm_write_with_phase(uint32_t value,
  * Ungate clocks
  */
 
-void cm_basic_init(const cm_config_t *cfg)
+void cm_basic_init(const struct cm_config * const cfg)
 {
-	uint32_t start, timeout;
+	unsigned long end;
 
 	/* Start by being paranoid and gate all sw managed clocks */
 
@@ -159,12 +159,10 @@ void cm_basic_init(const cm_config_t *cfg)
 	writel(cfg->sdram_vco_base, &clock_manager_base->sdr_pll.vco);
 
 	/*
-	 * Time starts here
-	 * must wait 7 us from BGPWRDN_SET(0) to VCO_ENABLE_SET(1)
+	 * Time starts here. Must wait 7 us from
+	 * BGPWRDN_SET(0) to VCO_ENABLE_SET(1).
 	 */
-	start = get_timer(0);
-	/* timeout in unit of us as CONFIG_SYS_HZ = 1000*1000 */
-	timeout = 7;
+	end = timer_get_us() + 7;
 
 	/* main mpu */
 	writel(cfg->mpuclk, &clock_manager_base->main_pll.mpuclk);
@@ -204,7 +202,7 @@ void cm_basic_init(const cm_config_t *cfg)
 	writel(cfg->s2fuser1clk, &clock_manager_base->per_pll.s2fuser1clk);
 
 	/* 7 us must have elapsed before we can enable the VCO */
-	while (get_timer(start) < timeout)
+	while (timer_get_us() < end)
 		;
 
 	/* Enable vco */
@@ -336,7 +334,7 @@ static unsigned int cm_get_main_vco_clk_hz(void)
 
 	/* get the main VCO clock */
 	reg = readl(&clock_manager_base->main_pll.vco);
-	clock = CONFIG_HPS_CLK_OSC1_HZ;
+	clock = cm_get_osc_clk_hz(1);
 	clock /= ((reg & CLKMGR_MAINPLLGRP_VCO_DENOM_MASK) >>
 		  CLKMGR_MAINPLLGRP_VCO_DENOM_OFFSET) + 1;
 	clock *= ((reg & CLKMGR_MAINPLLGRP_VCO_NUMER_MASK) >>
@@ -354,11 +352,11 @@ static unsigned int cm_get_per_vco_clk_hz(void)
 	reg = (reg & CLKMGR_PERPLLGRP_VCO_SSRC_MASK) >>
 	      CLKMGR_PERPLLGRP_VCO_SSRC_OFFSET;
 	if (reg == CLKMGR_VCO_SSRC_EOSC1)
-		clock = CONFIG_HPS_CLK_OSC1_HZ;
+		clock = cm_get_osc_clk_hz(1);
 	else if (reg == CLKMGR_VCO_SSRC_EOSC2)
-		clock = CONFIG_HPS_CLK_OSC2_HZ;
+		clock = cm_get_osc_clk_hz(2);
 	else if (reg == CLKMGR_VCO_SSRC_F2S)
-		clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
+		clock = cm_get_f2s_per_ref_clk_hz();
 
 	/* get the PER VCO clock */
 	reg = readl(&clock_manager_base->per_pll.vco);
@@ -393,11 +391,11 @@ unsigned long cm_get_sdram_clk_hz(void)
 	reg = (reg & CLKMGR_SDRPLLGRP_VCO_SSRC_MASK) >>
 	      CLKMGR_SDRPLLGRP_VCO_SSRC_OFFSET;
 	if (reg == CLKMGR_VCO_SSRC_EOSC1)
-		clock = CONFIG_HPS_CLK_OSC1_HZ;
+		clock = cm_get_osc_clk_hz(1);
 	else if (reg == CLKMGR_VCO_SSRC_EOSC2)
-		clock = CONFIG_HPS_CLK_OSC2_HZ;
+		clock = cm_get_osc_clk_hz(2);
 	else if (reg == CLKMGR_VCO_SSRC_F2S)
-		clock = CONFIG_HPS_CLK_F2S_SDR_REF_HZ;
+		clock = cm_get_f2s_sdr_ref_clk_hz();
 
 	/* get the SDRAM VCO clock */
 	reg = readl(&clock_manager_base->sdr_pll.vco);
@@ -459,7 +457,7 @@ unsigned int cm_get_mmc_controller_clk_hz(void)
 	      CLKMGR_PERPLLGRP_SRC_SDMMC_OFFSET;
 
 	if (reg == CLKMGR_SDMMC_CLK_SRC_F2S) {
-		clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
+		clock = cm_get_f2s_per_ref_clk_hz();
 	} else if (reg == CLKMGR_SDMMC_CLK_SRC_MAIN) {
 		clock = cm_get_main_vco_clk_hz();
 
@@ -489,7 +487,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void)
 	      CLKMGR_PERPLLGRP_SRC_QSPI_OFFSET;
 
 	if (reg == CLKMGR_QSPI_CLK_SRC_F2S) {
-		clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
+		clock = cm_get_f2s_per_ref_clk_hz();
 	} else if (reg == CLKMGR_QSPI_CLK_SRC_MAIN) {
 		clock = cm_get_main_vco_clk_hz();
 
@@ -524,10 +522,10 @@ static void cm_print_clock_quick_summary(void)
 {
 	printf("MPU       %10ld kHz\n", cm_get_mpu_clk_hz() / 1000);
 	printf("DDR       %10ld kHz\n", cm_get_sdram_clk_hz() / 1000);
-	printf("EOSC1       %8d kHz\n", CONFIG_HPS_CLK_OSC1_HZ / 1000);
-	printf("EOSC2       %8d kHz\n", CONFIG_HPS_CLK_OSC2_HZ / 1000);
-	printf("F2S_SDR_REF %8d kHz\n", CONFIG_HPS_CLK_F2S_SDR_REF_HZ / 1000);
-	printf("F2S_PER_REF %8d kHz\n", CONFIG_HPS_CLK_F2S_PER_REF_HZ / 1000);
+	printf("EOSC1       %8d kHz\n", cm_get_osc_clk_hz(1) / 1000);
+	printf("EOSC2       %8d kHz\n", cm_get_osc_clk_hz(2) / 1000);
+	printf("F2S_SDR_REF %8d kHz\n", cm_get_f2s_sdr_ref_clk_hz() / 1000);
+	printf("F2S_PER_REF %8d kHz\n", cm_get_f2s_per_ref_clk_hz() / 1000);
 	printf("MMC         %8d kHz\n", cm_get_mmc_controller_clk_hz() / 1000);
 	printf("QSPI        %8d kHz\n", cm_get_qspi_controller_clk_hz() / 1000);
 	printf("UART        %8d kHz\n", cm_get_l4_sp_clk_hz() / 1000);

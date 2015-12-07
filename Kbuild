@@ -36,7 +36,7 @@ endef
 generic-offsets-file := include/generated/generic-asm-offsets.h
 
 always  := $(generic-offsets-file)
-targets := $(generic-offsets-file) lib/asm-offsets.s
+targets := lib/asm-offsets.s
 
 # We use internal kbuild rules to avoid the "is up to date" message from make
 lib/asm-offsets.s: lib/asm-offsets.c FORCE
@@ -55,7 +55,6 @@ offsets-file := include/generated/asm-offsets.h
 endif
 
 always  += $(offsets-file)
-targets += $(offsets-file)
 targets += arch/$(ARCH)/lib/asm-offsets.s
 
 CFLAGS_asm-offsets.o := -DDO_DEPS_ONLY

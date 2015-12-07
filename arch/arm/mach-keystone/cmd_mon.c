@@ -55,8 +55,13 @@ U_BOOT_CMD(mon_install, 2, 0, do_mon_install,
 
 static void core_spin(void)
 {
-	while (1)
-		; /* forever */;
+	while (1) {
+		asm volatile (
+			"dsb\n"
+			"isb\n"
+			"wfi\n"
+		);
+	}
 }
 
 int mon_power_on(int core_id, void *ep)

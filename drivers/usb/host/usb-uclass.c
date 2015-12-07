@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <memalign.h>
 #include <usb.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -128,6 +129,17 @@ int usb_alloc_device(struct usb_device *udev)
 	return ops->alloc_device(bus, udev);
 }
 
+int usb_reset_root_port(struct usb_device *udev)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->reset_root_port)
+		return -ENOSYS;
+
+	return ops->reset_root_port(bus, udev);
+}
+
 int usb_stop(void)
 {
 	struct udevice *bus;
@@ -146,6 +158,9 @@ int usb_stop(void)
 		ret = device_remove(bus);
 		if (ret && !err)
 			err = ret;
+		ret = device_unbind_children(bus);
+		if (ret && !err)
+			err = ret;
 	}
 
 #ifdef CONFIG_SANDBOX
@@ -159,7 +174,9 @@ int usb_stop(void)
 	uclass_foreach_dev(dev, uc)
 		usb_emul_reset(dev);
 #endif
+#ifdef CONFIG_USB_STORAGE
 	usb_stor_reset();
+#endif
 	usb_hub_reset();
 	uc_priv->companion_device_count = 0;
 	usb_started = 0;
@@ -265,11 +282,6 @@ int usb_init(void)
 	return usb_started ? 0 : -1;
 }
 
-int usb_reset_root_port(void)
-{
-	return -ENOSYS;
-}
-
 static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
 {
 	struct usb_device *udev;
@@ -294,49 +306,20 @@ static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
 
 struct usb_device *usb_get_dev_index(struct udevice *bus, int index)
 {
-	struct udevice *hub;
+	struct udevice *dev;
 	int devnum = index + 1; /* Addresses are allocated from 1 on USB */
 
-	device_find_first_child(bus, &hub);
-	if (device_get_uclass_id(hub) == UCLASS_USB_HUB)
-		return find_child_devnum(hub, devnum);
+	device_find_first_child(bus, &dev);
+	if (!dev)
+		return NULL;
 
-	return NULL;
+	return find_child_devnum(dev, devnum);
 }
 
 int usb_post_bind(struct udevice *dev)
 {
 	/* Scan the bus for devices */
 	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
-}
-
-int usb_port_reset(struct usb_device *parent, int portnr)
-{
-	unsigned short portstatus;
-	int ret;
-
-	debug("%s: start\n", __func__);
-
-	if (parent) {
-		/* reset the port for the second time */
-		assert(portnr > 0);
-		debug("%s: reset %d\n", __func__, portnr - 1);
-		ret = legacy_hub_port_reset(parent, portnr - 1, &portstatus);
-		if (ret < 0) {
-			printf("\n     Couldn't reset port %i\n", portnr);
-			return ret;
-		}
-	} else {
-		debug("%s: reset root\n", __func__);
-		usb_reset_root_port();
-	}
-
-	return 0;
-}
-
-int usb_legacy_port_reset(struct usb_device *parent, int portnr)
-{
-	return usb_port_reset(parent, portnr);
 }
 
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
@@ -511,15 +494,14 @@ error:
 }
 
 /**
- * usb_find_child() - Find an existing device which matches our needs
- *
- *
+ * usb_find_emul_child() - Find an existing device for emulated devices
  */
-static int usb_find_child(struct udevice *parent,
-			  struct usb_device_descriptor *desc,
-			  struct usb_interface_descriptor *iface,
-			  struct udevice **devp)
+static int usb_find_emul_child(struct udevice *parent,
+			       struct usb_device_descriptor *desc,
+			       struct usb_interface_descriptor *iface,
+			       struct udevice **devp)
 {
+#ifdef CONFIG_SANDBOX
 	struct udevice *dev;
 
 	*devp = NULL;
@@ -538,7 +520,7 @@ static int usb_find_child(struct udevice *parent,
 			return 0;
 		}
 	}
-
+#endif
 	return -ENOENT;
 }
 
@@ -594,12 +576,12 @@ int usb_scan_device(struct udevice *parent, int port,
 	debug("Calling usb_setup_device(), portnr=%d\n", udev->portnr);
 	parent_udev = device_get_uclass_id(parent) == UCLASS_USB_HUB ?
 		dev_get_parentdata(parent) : NULL;
-	ret = usb_setup_device(udev, priv->desc_before_addr, parent_udev, port);
+	ret = usb_setup_device(udev, priv->desc_before_addr, parent_udev);
 	debug("read_descriptor for '%s': ret=%d\n", parent->name, ret);
 	if (ret)
 		return ret;
-	ret = usb_find_child(parent, &udev->descriptor, iface, &dev);
-	debug("** usb_find_child returns %d\n", ret);
+	ret = usb_find_emul_child(parent, &udev->descriptor, iface, &dev);
+	debug("** usb_find_emul_child returns %d\n", ret);
 	if (ret) {
 		if (ret != -ENOENT)
 			return ret;

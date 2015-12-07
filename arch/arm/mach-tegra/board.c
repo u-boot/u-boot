@@ -1,11 +1,12 @@
 /*
- *  (C) Copyright 2010-2014
+ *  (C) Copyright 2010-2015
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
@@ -16,6 +17,8 @@
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/warmboot.h>
+
+void save_boot_params_ret(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -28,6 +31,21 @@ enum {
 	UARTE	= 1 << 4,
 	UART_COUNT = 5,
 };
+
+static bool from_spl __attribute__ ((section(".data")));
+
+#ifndef CONFIG_SPL_BUILD
+void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+{
+	from_spl = r0 != UBOOT_NOT_LOADED_FROM_SPL;
+	save_boot_params_ret();
+}
+#endif
+
+bool spl_was_boot_source(void)
+{
+	return from_spl;
+}
 
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 #if !defined(CONFIG_TEGRA124)
@@ -48,10 +66,11 @@ bool tegra_cpu_is_non_secure(void)
 #endif
 
 /* Read the RAM size directly from the memory controller */
-unsigned int query_sdram_size(void)
+static phys_size_t query_sdram_size(void)
 {
 	struct mc_ctlr *const mc = (struct mc_ctlr *)NV_PA_MC_BASE;
-	u32 emem_cfg, size_bytes;
+	u32 emem_cfg;
+	phys_size_t size_bytes;
 
 	emem_cfg = readl(&mc->mc_emem_cfg);
 #if defined(CONFIG_TEGRA20)
@@ -59,6 +78,7 @@ unsigned int query_sdram_size(void)
 	size_bytes = get_ram_size((void *)PHYS_SDRAM_1, emem_cfg * 1024);
 #else
 	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", emem_cfg);
+#ifndef CONFIG_PHYS_64BIT
 	/*
 	 * If >=4GB RAM is present, the byte RAM size won't fit into 32-bits
 	 * and will wrap. Clip the reported size to the maximum that a 32-bit
@@ -66,9 +86,12 @@ unsigned int query_sdram_size(void)
 	 */
 	if (emem_cfg >= 4096) {
 		size_bytes = U32_MAX & ~(0x1000 - 1);
-	} else {
+	} else
+#endif
+	{
 		/* RAM size EMC is programmed to. */
-		size_bytes = emem_cfg * 1024 * 1024;
+		size_bytes = (phys_size_t)emem_cfg * 1024 * 1024;
+#ifndef CONFIG_ARM64
 		/*
 		 * If all RAM fits within 32-bits, it can be accessed without
 		 * LPAE, so go test the RAM size. Otherwise, we can't access
@@ -79,6 +102,7 @@ unsigned int query_sdram_size(void)
 		if (emem_cfg <= (0 - PHYS_SDRAM_1) / (1024 * 1024))
 			size_bytes = get_ram_size((void *)PHYS_SDRAM_1,
 						  size_bytes);
+#endif
 	}
 #endif
 
@@ -125,11 +149,17 @@ static int uart_configs[] = {
 	-1,
 	FUNCMUX_UART4_GMI,	/* UARTD */
 	-1,
-#else	/* Tegra124 */
+#elif defined(CONFIG_TEGRA124)
 	FUNCMUX_UART1_KBC,	/* UARTA */
 	-1,
 	-1,
 	FUNCMUX_UART4_GPIO,	/* UARTD */
+	-1,
+#else	/* Tegra210 */
+	FUNCMUX_UART1_UART1,	/* UARTA */
+	-1,
+	-1,
+	FUNCMUX_UART4_UART4,	/* UARTD */
 	-1,
 #endif
 };
@@ -182,7 +212,7 @@ void board_init_uart_f(void)
 	setup_uarts(uart_ids);
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */

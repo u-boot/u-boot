@@ -54,35 +54,12 @@ libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
 libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
 libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
-libs-$(CONFIG_SPL_DM) += drivers/core/
-libs-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
-libs-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/
-libs-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
-libs-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += drivers/ddr/fsl/
-libs-$(CONFIG_SYS_MVEBU_DDR) += drivers/ddr/mvebu/
-libs-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
-libs-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
-libs-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
+libs-y += drivers/
 libs-y += fs/
 libs-$(CONFIG_SPL_FPGA_SUPPORT) += drivers/fpga/
 libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
-libs-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ drivers/power/pmic/
-libs-$(CONFIG_SPL_MTD_SUPPORT) += drivers/mtd/
-libs-$(CONFIG_SPL_NAND_SUPPORT) += drivers/mtd/nand/
-libs-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
-libs-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
-libs-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
 libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
 libs-$(CONFIG_SPL_NET_SUPPORT) += net/
-libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/
-libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/
-libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/
-libs-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
-libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
-libs-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
-libs-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
-libs-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
-libs-$(CONFIG_SPL_SATA_SUPPORT) += drivers/block/
 
 head-y		:= $(addprefix $(obj)/,$(head-y))
 libs-y		:= $(addprefix $(obj)/,$(libs-y))
@@ -152,8 +129,14 @@ boot.bin: $(obj)/u-boot-spl.bin
 
 ALL-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).cfg
 
+ALL-$(CONFIG_OF_SEPARATE) += $(obj)/$(SPL_BIN)-pad.bin $(obj)/$(SPL_BIN)-dtb.bin
+
 ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
+endif
+
+ifdef CONFIG_ARCH_SOCFPGA
+ALL-y	+= $(obj)/$(SPL_BIN)-dtb.sfp
 endif
 
 ifdef CONFIG_SUNXI
@@ -165,6 +148,32 @@ ALL-y	+= boot.bin
 endif
 
 all:	$(ALL-y)
+
+quiet_cmd_cat = CAT     $@
+cmd_cat = cat $(filter-out $(PHONY), $^) > $@
+
+$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN)-pad.bin \
+		$(obj)/$(SPL_BIN).dtb FORCE
+	$(call if_changed,cat)
+
+# Create a file that pads from the end of u-boot-spl.bin to bss_end
+$(obj)/$(SPL_BIN)-pad.bin: $(obj)/$(SPL_BIN)
+	@bss_size_str=$(shell $(NM) $< | awk 'BEGIN {size = 0} /__bss_size/ {size = $$1} END {print "ibase=16; " toupper(size)}' | bc); \
+	dd if=/dev/zero of=$@ bs=1 count=$${bss_size_str} 2>/dev/null;
+
+# Pass the original device tree file through fdtgrep twice. The first pass
+# removes any unwanted nodes (i.e. those which don't have the
+# 'u-boot,dm-pre-reloc' property and thus are not needed by SPL. The second
+# pass removes various unused properties from the remaining nodes.
+# The output is typically a much smaller device tree file.
+quiet_cmd_fdtgrep = FDTGREP $@
+      cmd_fdtgrep = $(objtree)/tools/fdtgrep -b u-boot,dm-pre-reloc -RT $< \
+		-n /chosen -O dtb | \
+	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
+		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
+
+$(obj)/$(SPL_BIN).dtb: dts/dt.dtb
+	$(call cmd,fdtgrep)
 
 quiet_cmd_cpp_cfg = CFG     $@
 cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
@@ -196,6 +205,12 @@ $(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN) FORCE
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
+
+ifdef CONFIG_ARCH_SOCFPGA
+MKIMAGEFLAGS_$(SPL_BIN)-dtb.sfp = -T socfpgaimage
+$(obj)/$(SPL_BIN)-dtb.sfp: $(obj)/$(SPL_BIN)-dtb.bin FORCE
+	$(call if_changed,mkimage)
 endif
 
 ifdef CONFIG_SUNXI

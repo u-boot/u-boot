@@ -7,6 +7,8 @@
 #ifndef __TIS_H
 #define __TIS_H
 
+#ifndef CONFIG_DM_TPM
+
 #include <common.h>
 
 /* Low-level interface to access TPM */
@@ -53,5 +55,6 @@ int tis_close(void);
  */
 int tis_sendrecv(const uint8_t *sendbuf, size_t send_size, uint8_t *recvbuf,
 			size_t *recv_len);
+#endif
 
 #endif /* __TIS_H */

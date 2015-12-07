@@ -14,7 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <exports.h>
-
+#include <memalign.h>
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <linux/mtd/mtd.h>
@@ -363,7 +363,7 @@ int ubi_volume_read(char *volume, char *buf, size_t size)
 	tbuf_size = vol->usable_leb_size;
 	if (size < tbuf_size)
 		tbuf_size = ALIGN(size, ubi->min_io_size);
-	tbuf = malloc(tbuf_size);
+	tbuf = malloc_cache_aligned(tbuf_size);
 	if (!tbuf) {
 		printf("NO MEM\n");
 		return ENOMEM;

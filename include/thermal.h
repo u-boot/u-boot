@@ -13,7 +13,7 @@
 int thermal_get_temp(struct udevice *dev, int *temp);
 
 /**
- * struct struct dm_thermal_ops - Driver model Thermal operations
+ * struct dm_thermal_ops - Driver model Thermal operations
  *
  * The uclass interface is implemented by all Thermal devices which use
  * driver model.
@@ -22,19 +22,11 @@ struct dm_thermal_ops {
 	/**
 	 * Get the current temperature
 	 *
-	 * The device provided is the slave device. It's parent controller
-	 * will be used to provide the communication.
-	 *
-	 * This must be called before doing any transfers with a Thermal slave.
-	 * It will enable and initialize any Thermal hardware as necessary,
-	 * and make sure that the SCK line is in the correct idle state. It is
-	 * not allowed to claim the same bus for several slaves without
-	 * releasing the bus in between.
+	 * This must be called before doing any transfers with a Thermal device.
+	 * It will enable and initialize any Thermal hardware as necessary.
 	 *
 	 * @dev:	The Thermal device
-	 *
-	 * Returns: 0 if the bus was claimed successfully, or a negative value
-	 * if it wasn't.
+	 * @temp:	pointer that returns the measured temperature
 	 */
 	int (*get_temp)(struct udevice *dev, int *temp);
 };

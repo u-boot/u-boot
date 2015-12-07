@@ -92,6 +92,8 @@
 		reg = <0 0>;
 		compatible = "sandbox,i2c";
 		clock-frequency = <400000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c0>;
 		eeprom@2c {
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
@@ -136,6 +138,25 @@
 		};
 	};
 
+	pinctrl {
+		compatible = "sandbox,pinctrl";
+
+		pinctrl_i2c0: i2c0 {
+			groups = "i2c";
+			function = "i2c";
+			bias-pull-up;
+		};
+
+		pinctrl_serial0: uart0 {
+			groups = "serial_a";
+			function = "serial";
+		};
+	};
+
+	reset@1 {
+		compatible = "sandbox,reset";
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -156,6 +177,10 @@
 		sides = <4>;
 	};
 
+	tpm {
+		compatible = "google,sandbox-tpm";
+	};
+
 	triangle {
 		compatible = "demo-shape";
 		colour = "cyan";
@@ -168,6 +193,8 @@
 	uart0: serial {
 		compatible = "sandbox,serial";
 		sandbox,text-colour = "cyan";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_serial0>;
 	};
 
 	usb@0 {

@@ -62,19 +62,21 @@ config SEMIHOSTING
 	  the hosted environment to call out to the emulator to
 	  retrieve files from the host machine.
 
+config SYS_L2CACHE_OFF
+	bool "L2cache off"
+	help
+	  If SoC does not support L2CACHE or one do not want to enable
+	  L2CACHE, choose this option.
+
 choice
 	prompt "Target select"
-	optional
+	default TARGET_HIKEY
 
 config ARCH_AT91
 	bool "Atmel AT91"
 
 config TARGET_EDB93XX
 	bool "Support edb93xx"
-	select CPU_ARM920T
-
-config TARGET_SCB9328
-	bool "Support scb9328"
 	select CPU_ARM920T
 
 config TARGET_VCMA9
@@ -121,6 +123,7 @@ config TARGET_MAXBCM
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
 	select CPU_ARM926EJS
+	select SUPPORT_SPL
 
 config TARGET_WORK_92105
 	bool "Support work_92105"
@@ -131,11 +134,6 @@ config TARGET_MX25PDK
 	bool "Support mx25pdk"
 	select CPU_ARM926EJS
 
-config TARGET_TX25
-	bool "Support tx25"
-	select CPU_ARM926EJS
-	select SUPPORT_SPL
-
 config TARGET_ZMX25
 	bool "Support zmx25"
 	select CPU_ARM926EJS
@@ -144,14 +142,6 @@ config TARGET_APF27
 	bool "Support apf27"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
-
-config TARGET_IMX27LITE
-	bool "Support imx27lite"
-	select CPU_ARM926EJS
-
-config TARGET_MAGNESIUM
-	bool "Support magnesium"
-	select CPU_ARM926EJS
 
 config TARGET_APX4DEVKIT
 	bool "Support apx4devkit"
@@ -198,10 +188,6 @@ config TARGET_SC_SPS_1
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config ARCH_NOMADIK
-	bool "ST-Ericsson Nomadik"
-	select CPU_ARM926EJS
-
 config ORION5X
 	bool "Marvell Orion"
 	select CPU_ARM926EJS
@@ -227,22 +213,17 @@ config TARGET_STV0991
 	select CPU_V7
 	select DM
 	select DM_SERIAL
+	select DM_SPI
+	select DM_SPI_FLASH
+	select SPI_FLASH
 
 config TARGET_X600
 	bool "Support x600"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config ARCH_VERSATILE
-	bool "ARM Ltd. Versatile family"
-	select CPU_ARM926EJS
-
 config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore"
-	select CPU_ARM1136
-
-config TARGET_QONG
-	bool "Support qong"
 	select CPU_ARM1136
 
 config TARGET_MX31ADS
@@ -253,14 +234,6 @@ config TARGET_MX31PDK
 	bool "Support mx31pdk"
 	select CPU_ARM1136
 	select SUPPORT_SPL
-
-config TARGET_TT01
-	bool "Support tt01"
-	select CPU_ARM1136
-
-config TARGET_IMX31_LITEKIT
-	bool "Support imx31_litekit"
-	select CPU_ARM1136
 
 config TARGET_WOODBURN
 	bool "Support woodburn"
@@ -390,6 +363,13 @@ config TARGET_AM335X_EVM
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_AM335X_SL50
+	bool "Support am335x_sl50"
+	select CPU_V7
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
 	select CPU_V7
@@ -454,11 +434,17 @@ config ARCH_HIGHBANK
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
+	select DM
+	select DM_SERIAL
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
 	select CPU_V7
 	select SUPPORT_SPL
+
+config ARCH_MX7
+	bool "Freescale MX7"
+	select CPU_V7
 
 config ARCH_MX6
 	bool "Freescale MX6"
@@ -472,10 +458,6 @@ config TARGET_M53EVK
 	bool "Support m53evk"
 	select CPU_V7
 	select SUPPORT_SPL
-
-config TARGET_IMA3_MX53
-	bool "Support ima3-mx53"
-	select CPU_V7
 
 config TARGET_MX51EVK
 	bool "Support mx51evk"
@@ -497,113 +479,6 @@ config TARGET_MX53SMD
 	bool "Support mx53smd"
 	select CPU_V7
 
-config TARGET_MX51_EFIKAMX
-	bool "Support mx51_efikamx"
-	select CPU_V7
-
-config TARGET_VISION2
-	bool "Support vision2"
-	select CPU_V7
-
-config TARGET_UDOO
-	bool "Support udoo"
-	select CPU_V7
-
-config TARGET_WANDBOARD
-	bool "Support wandboard"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_WARP
-	bool "Support WaRP"
-	select CPU_V7
-
-config TARGET_TITANIUM
-	bool "Support titanium"
-	select CPU_V7
-
-config TARGET_NITROGEN6X
-	bool "Support nitrogen6x"
-	select CPU_V7
-
-config TARGET_CGTQMX6EVAL
-	bool "Support cgtqmx6eval"
-	select CPU_V7
-
-config TARGET_EMBESTMX6BOARDS
-	bool "Support embestmx6boards"
-	select CPU_V7
-
-config TARGET_ARISTAINETOS
-	bool "Support aristainetos"
-	select CPU_V7
-
-config TARGET_ARISTAINETOS2
-	bool "Support aristainetos2"
-	select CPU_V7
-
-config TARGET_MX6QARM2
-	bool "Support mx6qarm2"
-	select CPU_V7
-
-config TARGET_MX6QSABREAUTO
-	bool "Support mx6qsabreauto"
-	select CPU_V7
-	select DM
-	select DM_THERMAL
-
-config TARGET_MX6SABRESD
-	bool "Support mx6sabresd"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_THERMAL
-
-config TARGET_MX6CUBOXI
-	bool "Support Solid-run mx6 boards"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_MX6SLEVK
-	bool "Support mx6slevk"
-	select CPU_V7
-
-config TARGET_MX6SXSABRESD
-	bool "Support mx6sxsabresd"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_THERMAL
-
-config TARGET_GW_VENTANA
-	bool "Support gw_ventana"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_KOSAGI_NOVENA
-	bool "Support Kosagi Novena"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_TBS2910
-	bool "Support tbs2910"
-	select CPU_V7
-
-config TARGET_OT1200
-	bool "Bachmann OT1200"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_PLATINUM_PICON
-	bool "Support platinum-picon"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_PLATINUM_TITANIUM
-	bool "Support platinum-titanium"
-	select CPU_V7
-	select SUPPORT_SPL
-
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select CPU_V7
@@ -622,36 +497,37 @@ config RMOBILE
 	bool "Renesas ARM SoCs"
 	select CPU_V7
 
-config TARGET_CM_FX6
-	bool "Support cm_fx6"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"
 	select CPU_V7
 	select SUPPORT_SPL
+	select OF_CONTROL
+	select SPL_OF_CONTROL
 	select DM
 	select DM_SPI_FLASH
 	select DM_SPI
 
+config TARGET_CM_T43
+	bool "Support cm_t43"
+	select CPU_V7
+	select SUPPORT_SPL
+
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
+	select CMD_USB
 	select DM
 	select DM_GPIO
+	select DM_ETH
+	select DM_SERIAL
+	select DM_USB
 	select OF_CONTROL
 	select OF_SEPARATE
-	select SPL_DISABLE_OF_CONTROL
+	select USB
+	select USB_STORAGE
+	select USB_KEYBOARD
 
-config TARGET_SNOWBALL
-	bool "Support snowball"
-	select CPU_V7
-
-config TARGET_U8500_HREF
-	bool "Support u8500_href"
+config TARGET_TS4800
+	bool "Support TS4800"
 	select CPU_V7
 
 config TARGET_VF610TWR
@@ -662,12 +538,15 @@ config TARGET_COLIBRI_VF
 	bool "Support Colibri VF50/61"
 	select CPU_V7
 
+config TARGET_PCM052
+	bool "Support pcm-052"
+	select CPU_V7
+
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
 	select SUPPORT_SPL
 	select OF_CONTROL
-	select SPL_DISABLE_OF_CONTROL
 	select DM
 	select DM_SPI
 	select DM_SPI_FLASH
@@ -683,17 +562,6 @@ config ARCH_ZYNQMP
 
 config TEGRA
 	bool "NVIDIA Tegra"
-	select SUPPORT_SPL
-	select SPL
-	select OF_CONTROL
-	select SPL_DISABLE_OF_CONTROL
-	select CPU_V7
-	select DM
-	select DM_SPI_FLASH
-	select DM_SERIAL
-	select DM_I2C
-	select DM_SPI
-	select DM_GPIO
 
 config TARGET_VEXPRESS64_AEMV8A
 	bool "Support vexpress_aemv8a"
@@ -703,6 +571,15 @@ config TARGET_VEXPRESS64_BASE_FVP
 	bool "Support Versatile Express ARMv8a FVP BASE model"
 	select ARM64
 	select SEMIHOSTING
+
+config TARGET_VEXPRESS64_BASE_FVP_DRAM
+	bool "Support Versatile Express ARMv8a FVP BASE model booting from DRAM"
+	select ARM64
+	help
+	  This target is derived from TARGET_VEXPRESS64_BASE_FVP and over-rides
+	  the default config to allow the user to load the images directly into
+	  DRAM using model parameters rather than by using semi-hosting to load
+	  the files from the host filesystem.
 
 config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
@@ -740,69 +617,32 @@ config TARGET_LS2085ARDB
 	  development platform that supports the QorIQ LS2085A
 	  Layerscape Architecture processor.
 
+config TARGET_HIKEY
+	bool "Support HiKey 96boards Consumer Edition Platform"
+	select ARM64
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	  help
+	  Support for HiKey 96boards platform. It features a HI6220
+	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.
+
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
 	select SUPPORT_SPL
-
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr"
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_BALLOON3
-	bool "Support balloon3"
-	select CPU_PXA
-
 config TARGET_H2200
 	bool "Support h2200"
-	select CPU_PXA
-
-config TARGET_PALMLD
-	bool "Support palmld"
-	select CPU_PXA
-
-config TARGET_PALMTC
-	bool "Support palmtc"
-	select CPU_PXA
-
-config TARGET_PALMTREO680
-	bool "Support palmtreo680"
-	select CPU_PXA
-	select SUPPORT_SPL
-
-config TARGET_PXA255_IDP
-	bool "Support pxa255_idp"
-	select CPU_PXA
-
-config TARGET_TRIZEPSIV
-	bool "Support trizepsiv"
-	select CPU_PXA
-
-config TARGET_VPAC270
-	bool "Support vpac270"
-	select CPU_PXA
-	select SUPPORT_SPL
-
-config TARGET_XAENIAX
-	bool "Support xaeniax"
-	select CPU_PXA
-
-config TARGET_ZIPITZ2
-	bool "Support zipitz2"
-	select CPU_PXA
-
-config TARGET_LP8X4X
-	bool "Support lp8x4x"
 	select CPU_PXA
 
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
 	select CPU_PXA
-
-config TARGET_JORNADA
-	bool "Support jornada"
-	select CPU_SA1100
 
 config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
@@ -810,10 +650,11 @@ config ARCH_UNIPHIER
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
+	select SPL_OF_CONTROL
 	select DM
+	select SPL_DM
 	select DM_SERIAL
 	select DM_I2C
-	select SPL_DISABLE_OF_CONTROL
 	help
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)
@@ -821,6 +662,14 @@ config ARCH_UNIPHIER
 config TARGET_STM32F429_DISCOVERY
 	bool "Support STM32F429 Discovery"
 	select CPU_V7M
+
+config ARCH_ROCKCHIP
+	bool "Support Rockchip SoCs"
+	select SUPPORT_SPL
+	select SPL
+	select OF_CONTROL
+	select CPU_V7
+	select DM
 
 endchoice
 
@@ -830,7 +679,7 @@ source "arch/arm/mach-bcm283x/Kconfig"
 
 source "arch/arm/mach-davinci/Kconfig"
 
-source "arch/arm/cpu/armv7/exynos/Kconfig"
+source "arch/arm/mach-exynos/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
 
@@ -840,11 +689,11 @@ source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
 
+source "arch/arm/cpu/armv7/mx7/Kconfig"
+
 source "arch/arm/cpu/armv7/mx6/Kconfig"
 
 source "arch/arm/cpu/armv7/mx5/Kconfig"
-
-source "arch/arm/mach-nomadik/Kconfig"
 
 source "arch/arm/cpu/armv7/omap3/Kconfig"
 
@@ -856,6 +705,8 @@ source "arch/arm/mach-orion5x/Kconfig"
 
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
+source "arch/arm/mach-rockchip/Kconfig"
+
 source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
 
 source "arch/arm/mach-socfpga/Kconfig"
@@ -863,8 +714,6 @@ source "arch/arm/mach-socfpga/Kconfig"
 source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/mach-uniphier/Kconfig"
-
-source "arch/arm/mach-versatile/Kconfig"
 
 source "arch/arm/mach-zynq/Kconfig"
 
@@ -876,7 +725,6 @@ source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/imx-common/Kconfig"
 
-source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
@@ -887,25 +735,16 @@ source "board/Marvell/gplugd/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
-source "board/bachmann/ot1200/Kconfig"
-source "board/balloon3/Kconfig"
-source "board/barco/platinum/Kconfig"
-source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
-source "board/boundary/nitrogen6x/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
-source "board/compulab/cm_fx6/Kconfig"
-source "board/congatec/cgtqmx6eval/Kconfig"
+source "board/compulab/cm_t43/Kconfig"
 source "board/creative/xfi3/Kconfig"
-source "board/davedenx/qong/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
-source "board/embest/mx6boards/Kconfig"
-source "board/esg/ima3-mx53/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
 source "board/freescale/ls2085aqds/Kconfig"
 source "board/freescale/ls2085ardb/Kconfig"
@@ -922,55 +761,35 @@ source "board/freescale/mx53ard/Kconfig"
 source "board/freescale/mx53evk/Kconfig"
 source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
-source "board/freescale/mx6qarm2/Kconfig"
-source "board/freescale/mx6qsabreauto/Kconfig"
-source "board/freescale/mx6sabresd/Kconfig"
-source "board/freescale/mx6slevk/Kconfig"
-source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/vf610twr/Kconfig"
-source "board/gateworks/gw_ventana/Kconfig"
-source "board/genesi/mx51_efikamx/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
-source "board/hale/tt01/Kconfig"
-source "board/icpdas/lp8x4x/Kconfig"
+source "board/hisilicon/hikey/Kconfig"
 source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
-source "board/jornada/Kconfig"
-source "board/karo/tx25/Kconfig"
-source "board/kosagi/novena/Kconfig"
-source "board/logicpd/imx27lite/Kconfig"
-source "board/logicpd/imx31_litekit/Kconfig"
 source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
-source "board/palmld/Kconfig"
-source "board/palmtc/Kconfig"
-source "board/palmtreo680/Kconfig"
 source "board/phytec/pcm051/Kconfig"
+source "board/phytec/pcm052/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
-source "board/pxa255_idp/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
-source "board/scb9328/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"
 source "board/siemens/draco/Kconfig"
 source "board/siemens/pxm2/Kconfig"
 source "board/siemens/rut/Kconfig"
 source "board/silica/pengwyn/Kconfig"
-source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
 source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
-source "board/st-ericsson/snowball/Kconfig"
-source "board/st-ericsson/u8500/Kconfig"
 source "board/st/stm32f429-discovery/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/zmx25/Kconfig"
-source "board/tbs/tbs2910/Kconfig"
+source "board/tcl/sl50/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
 source "board/birdland/bav335x/Kconfig"
@@ -979,17 +798,10 @@ source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
-source "board/trizepsiv/Kconfig"
-source "board/ttcontrol/vision2/Kconfig"
-source "board/udoo/Kconfig"
-source "board/vpac270/Kconfig"
+source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
-source "board/wandboard/Kconfig"
-source "board/warp/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
-source "board/xaeniax/Kconfig"
-source "board/zipitz2/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

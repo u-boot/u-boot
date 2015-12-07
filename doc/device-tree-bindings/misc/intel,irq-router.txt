@@ -17,8 +17,8 @@ Required properties :
 - intel,pirq-link : Specifies the PIRQ link information with two cells. The
     first cell is the register offset that controls the first PIRQ link routing.
     The second cell is the total number of PIRQ links the router supports.
-- intel,pirq-mask : Specifies the IRQ mask reprenting the 16 IRQs in 8259 PIC.
-    Bit N is 1 means IRQ N is available to be routed.
+- intel,pirq-mask : Specifies the IRQ mask representing the 16 IRQs in the
+    8259 PIC. Bit N is 1 means IRQ N is available to be routed.
 - intel,pirq-routing : Specifies all PCI devices' IRQ routing information,
    encoded as 3 cells a group for a device. The first cell is the device's PCI
    bus number, device number and function number encoding with PCI_BDF() macro.

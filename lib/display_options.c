@@ -25,7 +25,7 @@ int display_options (void)
 
 void print_freq(uint64_t freq, const char *s)
 {
-	unsigned long m = 0, n;
+	unsigned long m = 0;
 	uint32_t f;
 	static const char names[] = {'G', 'M', 'K'};
 	unsigned long d = 1e9;
@@ -45,7 +45,6 @@ void print_freq(uint64_t freq, const char *s)
 	}
 
 	f = do_div(freq, d);
-	n = freq;
 
 	/* If there's a remainder, show the first few digits */
 	if (f) {
@@ -58,7 +57,7 @@ void print_freq(uint64_t freq, const char *s)
 			m = (m / 10) + (m % 100 >= 50);
 	}
 
-	printf("%lu", n);
+	printf("%lu", (unsigned long) freq);
 	if (m)
 		printf(".%ld", m);
 	printf(" %cHz%s", c, s);
@@ -121,9 +120,9 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 	} lb;
 	int i;
 #ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
-	uint64_t x;
+	uint64_t __maybe_unused x;
 #else
-	uint32_t x;
+	uint32_t __maybe_unused x;
 #endif
 
 	if (linelen*width > MAX_LINE_LENGTH_BYTES)

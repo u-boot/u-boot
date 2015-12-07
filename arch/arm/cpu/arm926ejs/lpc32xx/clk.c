@@ -54,12 +54,12 @@ unsigned int get_hclk_pll_rate(void)
 	if (fref > 27000000ULL || fref < 1000000ULL)
 		return 0;
 
-	fout = fref * m_div;
-	if (val & CLK_HCLK_PLL_FEEDBACK) {
-		fcco = fout;
+	fcco = fref * m_div;
+	fout = fcco;
+	if (val & CLK_HCLK_PLL_FEEDBACK)
+		fcco *= p_div;
+	else
 		do_div(fout, p_div);
-	} else
-		fcco = fout * p_div;
 
 	if (fcco > 320000000ULL || fcco < 156000000ULL)
 		return 0;

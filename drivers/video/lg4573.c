@@ -220,7 +220,8 @@ err_claim_bus:
 static int do_lgset(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	lg4573_spi_startup(0, 0, 10000000, SPI_MODE_0);
+	lg4573_spi_startup(CONFIG_LG4573_BUS, CONFIG_LG4573_CS, 10000000,
+			   SPI_MODE_0);
 	return 0;
 }
 

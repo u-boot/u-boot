@@ -18,10 +18,9 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_SYS_PROMPT		"Matrix U-Boot> "
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_IMX6_THERMAL
+#define CONFIG_IMX_THERMAL
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -133,10 +132,10 @@
 #define CONFIG_CI_UDC
 #define CONFIG_USBD_HS
 #define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_MASS_STORAGE
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_GADGET_VBUS_DRAW	0
-#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_G_DNL_VENDOR_NUM		0x0525
 #define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
 #define CONFIG_G_DNL_MANUFACTURER	"TBS"
@@ -168,15 +167,11 @@
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_I2C_EDID
-#endif
-
-/* Fuses */
-#define CONFIG_CMD_FUSE
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
 #endif
 
 /* Environment organization */
@@ -197,7 +192,7 @@
 	"bootargs_upd=setenv bootargs console=ttymxc0,115200 " \
 			"rdinit=/sbin/init enable_wait_mode=off\0" \
 	"bootcmd_mmc=run bootargs_mmc; mmc dev 2; " \
-			"mmc read 0x10800000 0x800 0x4000; bootm\0" \
+			"mmc read 0x10800000 0x800 0x4000; bootm 0x10800000\0" \
 	"bootcmd_up1=load mmc 1 0x10800000 uImage\0" \
 	"bootcmd_up2=load mmc 1 0x10d00000 uramdisk.img; " \
 			"run bootargs_upd; " \

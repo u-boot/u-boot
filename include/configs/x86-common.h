@@ -47,8 +47,6 @@
 #endif
 
 /* Generic TPM interfaced through LPC bus */
-#define CONFIG_TPM
-#define CONFIG_TPM_TIS_LPC
 #define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
 
 /*-----------------------------------------------------------------------
@@ -87,7 +85,9 @@
 #define CONFIG_ISO_PARTITION		/* Experimental */
 
 #define CONFIG_CMD_PART
+#ifdef CONFIG_SYS_COREBOOT
 #define CONFIG_CMD_CBFS
+#endif
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_PARTITION_UUIDS
@@ -190,6 +190,7 @@
  * PCI configuration
  */
 #define CONFIG_PCI
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /*-----------------------------------------------------------------------
  * USB configuration

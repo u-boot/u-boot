@@ -21,7 +21,10 @@
 static table_entry_t imximage_cmds[] = {
 	{CMD_BOOT_FROM,         "BOOT_FROM",            "boot command",	  },
 	{CMD_BOOT_OFFSET,       "BOOT_OFFSET",          "Boot offset",	  },
-	{CMD_DATA,              "DATA",                 "Reg Write Data", },
+	{CMD_WRITE_DATA,        "DATA",                 "Reg Write Data", },
+	{CMD_WRITE_CLR_BIT,     "CLR_BIT",              "Reg clear bit",  },
+	{CMD_CHECK_BITS_SET,    "CHECK_BITS_SET",   "Reg Check bits set", },
+	{CMD_CHECK_BITS_CLR,    "CHECK_BITS_CLR",   "Reg Check bits clr", },
 	{CMD_CSF,               "CSF",           "Command Sequence File", },
 	{CMD_IMAGE_VERSION,     "IMAGE_VERSION",        "image version",  },
 	{-1,                    "",                     "",	          },
@@ -62,7 +65,7 @@ static table_entry_t imximage_boot_loadsize[] = {
  */
 static table_entry_t imximage_versions[] = {
 	{IMXIMAGE_V1,	"",	" (i.MX25/35/51 compatible)", },
-	{IMXIMAGE_V2,	"",	" (i.MX53/6 compatible)",     },
+	{IMXIMAGE_V2,	"",	" (i.MX53/6/7 compatible)",   },
 	{-1,            "",     " (Invalid)",                 },
 };
 
@@ -79,6 +82,7 @@ static uint32_t imximage_csf_size = UNDEFINED;
 static uint32_t imximage_init_loadsize;
 
 static set_dcd_val_t set_dcd_val;
+static set_dcd_param_t set_dcd_param;
 static set_dcd_rst_t set_dcd_rst;
 static set_imx_hdr_t set_imx_hdr;
 static uint32_t max_dcd_entries;
@@ -156,17 +160,80 @@ static void set_dcd_val_v1(struct imx_header *imxhdr, char *name, int lineno,
 	}
 }
 
+static struct dcd_v2_cmd *gd_last_cmd;
+
+static void set_dcd_param_v2(struct imx_header *imxhdr, uint32_t dcd_len,
+		int32_t cmd)
+{
+	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
+	struct dcd_v2_cmd *d = gd_last_cmd;
+	struct dcd_v2_cmd *d2;
+	int len;
+
+	if (!d)
+		d = &dcd_v2->dcd_cmd;
+	d2 = d;
+	len = be16_to_cpu(d->write_dcd_command.length);
+	if (len > 4)
+		d2 = (struct dcd_v2_cmd *)(((char *)d) + len);
+
+	switch (cmd) {
+	case CMD_WRITE_DATA:
+		if ((d->write_dcd_command.tag == DCD_WRITE_DATA_COMMAND_TAG) &&
+		    (d->write_dcd_command.param == DCD_WRITE_DATA_PARAM))
+			break;
+		d = d2;
+		d->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_WRITE_DATA_PARAM;
+		break;
+	case CMD_WRITE_CLR_BIT:
+		if ((d->write_dcd_command.tag == DCD_WRITE_DATA_COMMAND_TAG) &&
+		    (d->write_dcd_command.param == DCD_WRITE_CLR_BIT_PARAM))
+			break;
+		d = d2;
+		d->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_WRITE_CLR_BIT_PARAM;
+		break;
+	/*
+	 * Check data command only supports one entry,
+	 */
+	case CMD_CHECK_BITS_SET:
+		d = d2;
+		d->write_dcd_command.tag = DCD_CHECK_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_CHECK_BITS_SET_PARAM;
+		break;
+	case CMD_CHECK_BITS_CLR:
+		d = d2;
+		d->write_dcd_command.tag = DCD_CHECK_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_CHECK_BITS_SET_PARAM;
+		break;
+	default:
+		break;
+	}
+	gd_last_cmd = d;
+}
+
 static void set_dcd_val_v2(struct imx_header *imxhdr, char *name, int lineno,
 					int fld, uint32_t value, uint32_t off)
 {
-	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
+	struct dcd_v2_cmd *d = gd_last_cmd;
+	int len;
+
+	len = be16_to_cpu(d->write_dcd_command.length);
+	off = (len - 4) >> 3;
 
 	switch (fld) {
 	case CFG_REG_ADDRESS:
-		dcd_v2->addr_data[off].addr = cpu_to_be32(value);
+		d->addr_data[off].addr = cpu_to_be32(value);
 		break;
 	case CFG_REG_VALUE:
-		dcd_v2->addr_data[off].value = cpu_to_be32(value);
+		d->addr_data[off].value = cpu_to_be32(value);
+		off++;
+		d->write_dcd_command.length = cpu_to_be16((off << 3) + 4);
 		break;
 	default:
 		break;
@@ -195,15 +262,20 @@ static void set_dcd_rst_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 						char *name, int lineno)
 {
 	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
+	struct dcd_v2_cmd *d = gd_last_cmd;
+	int len;
+
+	if (!d)
+		d = &dcd_v2->dcd_cmd;
+	len = be16_to_cpu(d->write_dcd_command.length);
+	if (len > 4)
+		d = (struct dcd_v2_cmd *)(((char *)d) + len);
+
+	len = (char *)d - (char *)&dcd_v2->header;
 
 	dcd_v2->header.tag = DCD_HEADER_TAG;
-	dcd_v2->header.length = cpu_to_be16(
-			dcd_len * sizeof(dcd_addr_data_t) + 8);
+	dcd_v2->header.length = cpu_to_be16(len);
 	dcd_v2->header.version = DCD_VERSION;
-	dcd_v2->write_dcd_command.tag = DCD_COMMAND_TAG;
-	dcd_v2->write_dcd_command.length = cpu_to_be16(
-			dcd_len * sizeof(dcd_addr_data_t) + 4);
-	dcd_v2->write_dcd_command.param = DCD_COMMAND_PARAM;
 }
 
 static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
@@ -250,7 +322,11 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 	hdr_base = entry_point - imximage_init_loadsize +
 		flash_offset;
 	fhdr_v2->self = hdr_base;
-	fhdr_v2->dcd_ptr = hdr_base + offsetof(imx_header_v2_t, dcd_table);
+	if (dcd_len > 0)
+		fhdr_v2->dcd_ptr = hdr_base
+			+ offsetof(imx_header_v2_t, dcd_table);
+	else
+		fhdr_v2->dcd_ptr = 0;
 	fhdr_v2->boot_data_ptr = hdr_base
 			+ offsetof(imx_header_v2_t, boot_data);
 	hdr_v2->boot_data.start = entry_point - imximage_init_loadsize;
@@ -266,12 +342,15 @@ static void set_hdr_func(void)
 	switch (imximage_version) {
 	case IMXIMAGE_V1:
 		set_dcd_val = set_dcd_val_v1;
+		set_dcd_param = NULL;
 		set_dcd_rst = set_dcd_rst_v1;
 		set_imx_hdr = set_imx_hdr_v1;
 		max_dcd_entries = MAX_HW_CFG_SIZE_V1;
 		break;
 	case IMXIMAGE_V2:
+		gd_last_cmd = NULL;
 		set_dcd_val = set_dcd_val_v2;
+		set_dcd_param = set_dcd_param_v2;
 		set_dcd_rst = set_dcd_rst_v2;
 		set_imx_hdr = set_imx_hdr_v2;
 		max_dcd_entries = MAX_HW_CFG_SIZE_V2;
@@ -317,8 +396,8 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 	dcd_v2_t *dcd_v2 = &hdr_v2->dcd_table;
 	uint32_t size, version;
 
-	size = be16_to_cpu(dcd_v2->header.length) - 8;
-	if (size > (MAX_HW_CFG_SIZE_V2 * sizeof(dcd_addr_data_t))) {
+	size = be16_to_cpu(dcd_v2->header.length);
+	if (size > (MAX_HW_CFG_SIZE_V2 * sizeof(dcd_addr_data_t)) + 8) {
 		fprintf(stderr,
 			"Error: Image corrupt DCD size %d exceed maximum %d\n",
 			(uint32_t)(size / sizeof(dcd_addr_data_t)),
@@ -396,8 +475,13 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
 		break;
-	case CMD_DATA:
+	case CMD_WRITE_DATA:
+	case CMD_WRITE_CLR_BIT:
+	case CMD_CHECK_BITS_SET:
+	case CMD_CHECK_BITS_CLR:
 		value = get_cfg_value(token, name, lineno);
+		if (set_dcd_param)
+			(*set_dcd_param)(imxhdr, dcd_len, cmd);
 		(*set_dcd_val)(imxhdr, name, lineno, fld, value, dcd_len);
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
@@ -436,20 +520,30 @@ static void parse_cfg_fld(struct imx_header *imxhdr, int32_t *cmd,
 		break;
 	case CFG_REG_ADDRESS:
 	case CFG_REG_VALUE:
-		if (*cmd != CMD_DATA)
-			return;
+		switch(*cmd) {
+		case CMD_WRITE_DATA:
+		case CMD_WRITE_CLR_BIT:
+		case CMD_CHECK_BITS_SET:
+		case CMD_CHECK_BITS_CLR:
 
-		value = get_cfg_value(token, name, lineno);
-		(*set_dcd_val)(imxhdr, name, lineno, fld, value, *dcd_len);
+			value = get_cfg_value(token, name, lineno);
+			if (set_dcd_param)
+				(*set_dcd_param)(imxhdr, *dcd_len, *cmd);
+			(*set_dcd_val)(imxhdr, name, lineno, fld, value,
+					*dcd_len);
 
-		if (fld == CFG_REG_VALUE) {
-			(*dcd_len)++;
-			if (*dcd_len > max_dcd_entries) {
-				fprintf(stderr, "Error: %s[%d] -"
-					"DCD table exceeds maximum size(%d)\n",
-					name, lineno, max_dcd_entries);
-				exit(EXIT_FAILURE);
+			if (fld == CFG_REG_VALUE) {
+				(*dcd_len)++;
+				if (*dcd_len > max_dcd_entries) {
+					fprintf(stderr, "Error: %s[%d] -"
+						"DCD table exceeds maximum size(%d)\n",
+						name, lineno, max_dcd_entries);
+					exit(EXIT_FAILURE);
+				}
 			}
+			break;
+		default:
+			break;
 		}
 		break;
 	default:

@@ -1,6 +1,0 @@
-PALMTC BOARD
-M:	Marek Vasut <marek.vasut@gmail.com>
-S:	Maintained
-F:	board/palmtc/
-F:	include/configs/palmtc.h
-F:	configs/palmtc_defconfig

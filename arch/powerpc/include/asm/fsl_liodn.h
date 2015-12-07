@@ -44,6 +44,18 @@ struct liodn_id_table {
 	unsigned long reg_offset;
 };
 
+struct fman_liodn_id_table {
+	/* Freescale FMan Device Tree binding was updated for FMan.
+	 * We need to support both new and old compatibles in order not to
+	 * break backward compatibility.
+	 */
+	const char *compat[2];
+	u32 id[2];
+	u8 num_ids;
+	phys_addr_t compat_offset;
+	unsigned long reg_offset;
+};
+
 extern u32 get_ppid_liodn(int ppid_tbl_idx, int ppid);
 extern void set_liodns(void);
 extern void fdt_fixup_liodn(void *blob);
@@ -53,6 +65,14 @@ extern void fdt_fixup_liodn(void *blob);
 
 #define SET_LIODN_BASE_2(idA, idB) \
 	{ .id = { idA, idB }, .num_ids = 2 }
+
+#define SET_FMAN_LIODN_ENTRY(name1, name2, idA, off, compatoff)\
+	{ .compat[0] = name1, \
+	  .compat[1] = name2, \
+	  .id = { idA }, .num_ids = 1, \
+	  .reg_offset = off + CONFIG_SYS_CCSRBAR, \
+	  .compat_offset = compatoff + CONFIG_SYS_CCSRBAR_PHYS, \
+	}
 
 #define SET_LIODN_ENTRY_1(name, idA, off, compatoff) \
 	{ .compat = name, \
@@ -133,18 +153,37 @@ extern void fdt_fixup_liodn(void *blob);
 	CONFIG_SYS_FSL_FM##fmNum##_OFFSET + \
 	offsetof(struct ccsr_fman, fm_bmi_common.fmbm_ppid[portID - 1])
 
+#ifdef CONFIG_SYS_FMAN_V3
 /* enetNum is 0, 1, 2... so we + 8 for 1g to get to HW Port ID */
 #define SET_FMAN_RX_1G_LIODN(fmNum, enetNum, liodn) \
-	SET_LIODN_ENTRY_1("fsl,fman-port-1g-rx", liodn, \
-		FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
-		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET) \
+	SET_FMAN_LIODN_ENTRY("fsl,fman-v3-port-rx", "fsl,fman-port-1g-rx", \
+		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
+		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
 
 /* enetNum is 0, 1, 2... so we + 16 for 10g to get to HW Port ID */
 #define SET_FMAN_RX_10G_LIODN(fmNum, enetNum, liodn) \
-	SET_LIODN_ENTRY_1("fsl,fman-port-10g-rx", liodn, \
-		FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
-		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET) \
+	SET_FMAN_LIODN_ENTRY("fsl,fman-v3-port-rx", "fsl,fman-port-10g-rx", \
+		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
+		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET)
 
+/* enetNum is 0, 1, 2... so we + 8 for type-2 10g to get to HW Port ID */
+#define SET_FMAN_RX_10G_TYPE2_LIODN(fmNum, enetNum, liodn) \
+	SET_FMAN_LIODN_ENTRY("fsl,fman-v3-port-rx", "fsl,fman-port-10g-rx", \
+		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
+		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
+#else
+/* enetNum is 0, 1, 2... so we + 8 for 1g to get to HW Port ID */
+#define SET_FMAN_RX_1G_LIODN(fmNum, enetNum, liodn) \
+	SET_FMAN_LIODN_ENTRY("fsl,fman-v2-port-rx", "fsl,fman-port-1g-rx", \
+		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
+		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
+
+/* enetNum is 0, 1, 2... so we + 16 for 10g to get to HW Port ID */
+#define SET_FMAN_RX_10G_LIODN(fmNum, enetNum, liodn) \
+	SET_FMAN_LIODN_ENTRY("fsl,fman-v2-port-rx", "fsl,fman-port-10g-rx", \
+		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
+		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET)
+#endif
 /*
  * handle both old and new versioned SEC properties:
  * "fsl,secX.Y" became "fsl,sec-vX.Y" during development
@@ -193,7 +232,7 @@ extern void fdt_fixup_liodn(void *blob);
 
 extern struct liodn_id_table liodn_tbl[], liodn_bases[], sec_liodn_tbl[];
 extern struct liodn_id_table raide_liodn_tbl[];
-extern struct liodn_id_table fman1_liodn_tbl[], fman2_liodn_tbl[];
+extern struct fman_liodn_id_table fman1_liodn_tbl[], fman2_liodn_tbl[];
 #ifdef CONFIG_SYS_SRIO
 extern struct srio_liodn_id_table srio_liodn_tbl[];
 extern int srio_liodn_tbl_sz;

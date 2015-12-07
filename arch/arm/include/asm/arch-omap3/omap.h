@@ -51,6 +51,9 @@ struct control_prog_io {
 /* Bit definition for CONTROL_PROG_IO1 */
 #define PRG_I2C2_PULLUPRESX		0x00000001
 
+/* Scratchpad memory */
+#define OMAP34XX_SCRATCHPAD		(OMAP34XX_CTRL_BASE + 0x910)
+
 /* UART */
 #define OMAP34XX_UART1			(OMAP34XX_L4_IO_BASE + 0x6a000)
 #define OMAP34XX_UART2			(OMAP34XX_L4_IO_BASE + 0x6c000)
@@ -142,6 +145,7 @@ struct gpio {
 
 #define NON_SECURE_SRAM_START		0x40208000 /* Works for GP & EMU */
 #define NON_SECURE_SRAM_END		0x40210000
+#define SRAM_SCRATCH_SPACE_ADDR		0x4020E000
 
 #define LOW_LEVEL_SRAM_STACK		0x4020FFFC
 
@@ -244,5 +248,21 @@ struct gpio {
 
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 26)
+
+/* Boot parameters */
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	unsigned int boot_message;
+	unsigned char boot_device;
+	unsigned char reserved;
+	unsigned char reset_reason;
+	unsigned char ch_flags;
+	unsigned int boot_device_descriptor;
+};
+
+char omap_reboot_mode(void);
+int omap_reboot_mode_clear(void);
+int omap_reboot_mode_store(char c);
+#endif
 
 #endif

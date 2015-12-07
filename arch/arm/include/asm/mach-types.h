@@ -150,7 +150,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_INTELMOTE2           775
 #define MACH_TYPE_TRIZEPS4             776
 #define MACH_TYPE_PNX4008              782
-#define MACH_TYPE_CPUAT91              787
 #define MACH_TYPE_IQ81340SC            799
 #define MACH_TYPE_IQ81340MC            801
 #define MACH_TYPE_MICRO9               811
@@ -197,7 +196,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_SMDK2412             1009
 #define MACH_TYPE_SMDK2413             1022
 #define MACH_TYPE_AML_M5900            1024
-#define MACH_TYPE_BALLOON3             1029
 #define MACH_TYPE_ECBAT91              1072
 #define MACH_TYPE_ONEARM               1075
 #define MACH_TYPE_SMDK2443             1084
@@ -276,6 +274,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_TRIZEPS4WL           1649
 #define MACH_TYPE_TS78XX               1652
 #define MACH_TYPE_SFFSDR               1657
+#define MACH_TYPE_SMARTWEB             1668
 #define MACH_TYPE_PCM037               1673
 #define MACH_TYPE_DB88F6281_BP         1680
 #define MACH_TYPE_RD88F6192_NAS        1681
@@ -403,7 +402,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_IGEP0020             2344
 #define MACH_TYPE_NUC932EVB            2356
 #define MACH_TYPE_OPENRD_CLIENT        2361
-#define MACH_TYPE_U8500                2368
 #define MACH_TYPE_MX51_EFIKASB         2370
 #define MACH_TYPE_MARVELL_JASPER       2382
 #define MACH_TYPE_FLINT                2383
@@ -975,7 +973,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_RHINO                3360
 #define MACH_TYPE_ARMLEX4210           3361
 #define MACH_TYPE_SWARCOEXTMODEM       3362
-#define MACH_TYPE_SNOWBALL             3363
 #define MACH_TYPE_PCM049               3364
 #define MACH_TYPE_VIGOR                3365
 #define MACH_TYPE_OSLO_AMUNDSEN        3366
@@ -1104,6 +1101,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_UBISYS_P9D_EVP       3493
 #define MACH_TYPE_ATDGP318             3494
 #define MACH_TYPE_OMAP5_SEVM           3777
+#define MACH_TYPE_PICOSAM9G45          3838
 #define MACH_TYPE_ARMADILLO_800EVA     3863
 #define MACH_TYPE_KZM9G                4140
 #define MACH_TYPE_COLIBRI_T30          4493
@@ -2766,18 +2764,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_pnx4008()	(0)
 #endif
 
-#ifdef CONFIG_MACH_CPUAT91
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_CPUAT91
-# endif
-# define machine_is_cpuat91()	(machine_arch_type == MACH_TYPE_CPUAT91)
-#else
-# define machine_is_cpuat91()	(0)
-#endif
-
 #ifdef CONFIG_MACH_IQ81340SC
 # ifdef machine_arch_type
 #  undef machine_arch_type
@@ -3328,18 +3314,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_aml_m5900()	(machine_arch_type == MACH_TYPE_AML_M5900)
 #else
 # define machine_is_aml_m5900()	(0)
-#endif
-
-#ifdef CONFIG_MACH_BALLOON3
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_BALLOON3
-# endif
-# define machine_is_balloon3()	(machine_arch_type == MACH_TYPE_BALLOON3)
-#else
-# define machine_is_balloon3()	(0)
 #endif
 
 #ifdef CONFIG_MACH_ECBAT91
@@ -5046,30 +5020,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_omap_zoom2()	(0)
 #endif
 
-#ifdef CONFIG_MACH_CPUAT9260
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_CPUAT9260
-# endif
-# define machine_is_cpuat9260()	(machine_arch_type == MACH_TYPE_CPUAT9260)
-#else
-# define machine_is_cpuat9260()	(0)
-#endif
-
-#ifdef CONFIG_MACH_EUKREA_CPUIMX27
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_EUKREA_CPUIMX27
-# endif
-# define machine_is_eukrea_cpuimx27()	(machine_arch_type == MACH_TYPE_EUKREA_CPUIMX27)
-#else
-# define machine_is_eukrea_cpuimx27()	(0)
-#endif
-
 #ifdef CONFIG_MACH_ACS5K
 # ifdef machine_arch_type
 #  undef machine_arch_type
@@ -5800,18 +5750,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_openrd_client()	(machine_arch_type == MACH_TYPE_OPENRD_CLIENT)
 #else
 # define machine_is_openrd_client()	(0)
-#endif
-
-#ifdef CONFIG_MACH_U8500
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_U8500
-# endif
-# define machine_is_u8500()	(machine_arch_type == MACH_TYPE_U8500)
-#else
-# define machine_is_u8500()	(0)
 #endif
 
 #ifdef CONFIG_MACH_MX51_EFIKASB
@@ -12664,18 +12602,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_swarcoextmodem()	(machine_arch_type == MACH_TYPE_SWARCOEXTMODEM)
 #else
 # define machine_is_swarcoextmodem()	(0)
-#endif
-
-#ifdef CONFIG_MACH_SNOWBALL
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_SNOWBALL
-# endif
-# define machine_is_snowball()	(machine_arch_type == MACH_TYPE_SNOWBALL)
-#else
-# define machine_is_snowball()	(0)
 #endif
 
 #ifdef CONFIG_MACH_PCM049

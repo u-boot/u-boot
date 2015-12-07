@@ -10,7 +10,7 @@
 #define _FSL_DPRC_H
 
 /* DPRC Version */
-#define DPRC_VER_MAJOR				2
+#define DPRC_VER_MAJOR				5
 #define DPRC_VER_MINOR				0
 
 /* Command IDs */
@@ -88,6 +88,22 @@ do { \
 	MC_RSP_OP(cmd, 4, 40, 8,  char,	    obj_desc->type[13]);\
 	MC_RSP_OP(cmd, 4, 48, 8,  char,	    obj_desc->type[14]);\
 	MC_RSP_OP(cmd, 4, 56, 8,  char,	    obj_desc->type[15]);\
+	MC_RSP_OP(cmd, 5, 0,  8,  char,	    obj_desc->label[0]);\
+	MC_RSP_OP(cmd, 5, 8,  8,  char,	    obj_desc->label[1]);\
+	MC_RSP_OP(cmd, 5, 16, 8,  char,	    obj_desc->label[2]);\
+	MC_RSP_OP(cmd, 5, 24, 8,  char,	    obj_desc->label[3]);\
+	MC_RSP_OP(cmd, 5, 32, 8,  char,	    obj_desc->label[4]);\
+	MC_RSP_OP(cmd, 5, 40, 8,  char,	    obj_desc->label[5]);\
+	MC_RSP_OP(cmd, 5, 48, 8,  char,	    obj_desc->label[6]);\
+	MC_RSP_OP(cmd, 5, 56, 8,  char,	    obj_desc->label[7]);\
+	MC_RSP_OP(cmd, 6, 0,  8,  char,	    obj_desc->label[8]);\
+	MC_RSP_OP(cmd, 6, 8,  8,  char,	    obj_desc->label[9]);\
+	MC_RSP_OP(cmd, 6, 16, 8,  char,	    obj_desc->label[10]);\
+	MC_RSP_OP(cmd, 6, 24, 8,  char,	    obj_desc->label[11]);\
+	MC_RSP_OP(cmd, 6, 32, 8,  char,	    obj_desc->label[12]);\
+	MC_RSP_OP(cmd, 6, 40, 8,  char,	    obj_desc->label[13]);\
+	MC_RSP_OP(cmd, 6, 48, 8,  char,	    obj_desc->label[14]);\
+	MC_RSP_OP(cmd, 6, 56, 8,  char,	    obj_desc->label[15]);\
 } while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
@@ -175,17 +191,57 @@ do { \
 /*	param, offset, width,	type,		arg_name */
 #define DPRC_RSP_GET_OBJ_REGION(cmd, region_desc) \
 do { \
-	MC_RSP_OP(cmd, 1, 0,  64, uint64_t, region_desc->base_paddr);\
+	MC_RSP_OP(cmd, 1, 0,  32, uint32_t, region_desc->base_offset);\
 	MC_RSP_OP(cmd, 2, 0,  32, uint32_t, region_desc->size); \
+	MC_RSP_OP(cmd, 2, 32, 4,  enum dprc_region_type, region_desc->type);\
+	MC_RSP_OP(cmd, 3, 0,  32, uint32_t, region_desc->flags);\
 } while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
-#define DPRC_CMD_CONNECT(cmd, endpoint1, endpoint2) \
+#define DPRC_CMD_SET_OBJ_LABEL(cmd, obj_type, obj_id, label) \
+do { \
+	MC_CMD_OP(cmd, 0, 0,  32, int,      obj_id); \
+	MC_CMD_OP(cmd, 1, 0,  8,  char,	    label[0]);\
+	MC_CMD_OP(cmd, 1, 8,  8,  char,	    label[1]);\
+	MC_CMD_OP(cmd, 1, 16, 8,  char,	    label[2]);\
+	MC_CMD_OP(cmd, 1, 24, 8,  char,	    label[3]);\
+	MC_CMD_OP(cmd, 1, 32, 8,  char,	    label[4]);\
+	MC_CMD_OP(cmd, 1, 40, 8,  char,	    label[5]);\
+	MC_CMD_OP(cmd, 1, 48, 8,  char,	    label[6]);\
+	MC_CMD_OP(cmd, 1, 56, 8,  char,	    label[7]);\
+	MC_CMD_OP(cmd, 2, 0,  8,  char,	    label[8]);\
+	MC_CMD_OP(cmd, 2, 8,  8,  char,	    label[9]);\
+	MC_CMD_OP(cmd, 2, 16, 8,  char,	    label[10]);\
+	MC_CMD_OP(cmd, 2, 24, 8,  char,	    label[11]);\
+	MC_CMD_OP(cmd, 2, 32, 8,  char,	    label[12]);\
+	MC_CMD_OP(cmd, 2, 40, 8,  char,	    label[13]);\
+	MC_CMD_OP(cmd, 2, 48, 8,  char,	    label[14]);\
+	MC_CMD_OP(cmd, 2, 56, 8,  char,	    label[15]);\
+	MC_CMD_OP(cmd, 3, 0,  8,  char,	    obj_type[0]);\
+	MC_CMD_OP(cmd, 3, 8,  8,  char,	    obj_type[1]);\
+	MC_CMD_OP(cmd, 3, 16, 8,  char,	    obj_type[2]);\
+	MC_CMD_OP(cmd, 3, 24, 8,  char,	    obj_type[3]);\
+	MC_CMD_OP(cmd, 3, 32, 8,  char,	    obj_type[4]);\
+	MC_CMD_OP(cmd, 3, 40, 8,  char,	    obj_type[5]);\
+	MC_CMD_OP(cmd, 3, 48, 8,  char,	    obj_type[6]);\
+	MC_CMD_OP(cmd, 3, 56, 8,  char,	    obj_type[7]);\
+	MC_CMD_OP(cmd, 4, 0,  8,  char,	    obj_type[8]);\
+	MC_CMD_OP(cmd, 4, 8,  8,  char,	    obj_type[9]);\
+	MC_CMD_OP(cmd, 4, 16, 8,  char,	    obj_type[10]);\
+	MC_CMD_OP(cmd, 4, 24, 8,  char,	    obj_type[11]);\
+	MC_CMD_OP(cmd, 4, 32, 8,  char,	    obj_type[12]);\
+	MC_CMD_OP(cmd, 4, 40, 8,  char,	    obj_type[13]);\
+	MC_CMD_OP(cmd, 4, 48, 8,  char,	    obj_type[14]);\
+	MC_CMD_OP(cmd, 4, 56, 8,  char,	    obj_type[15]);\
+} while (0)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPRC_CMD_CONNECT(cmd, endpoint1, endpoint2, cfg) \
 do { \
 	MC_CMD_OP(cmd, 0, 0,  32, int,      endpoint1->id); \
-	MC_CMD_OP(cmd, 0, 32, 32, int,	    endpoint1->interface_id); \
+	MC_CMD_OP(cmd, 0, 32, 16, uint16_t, endpoint1->if_id); \
 	MC_CMD_OP(cmd, 1, 0,  32, int,	    endpoint2->id); \
-	MC_CMD_OP(cmd, 1, 32, 32, int,	    endpoint2->interface_id); \
+	MC_CMD_OP(cmd, 1, 32, 16, uint16_t, endpoint2->if_id); \
 	MC_CMD_OP(cmd, 2, 0,  8,  char,     endpoint1->type[0]); \
 	MC_CMD_OP(cmd, 2, 8,  8,  char,	    endpoint1->type[1]); \
 	MC_CMD_OP(cmd, 2, 16, 8,  char,	    endpoint1->type[2]); \
@@ -202,6 +258,8 @@ do { \
 	MC_CMD_OP(cmd, 3, 40, 8,  char,	    endpoint1->type[13]); \
 	MC_CMD_OP(cmd, 3, 48, 8,  char,	    endpoint1->type[14]); \
 	MC_CMD_OP(cmd, 3, 56, 8,  char,	    endpoint1->type[15]); \
+	MC_CMD_OP(cmd, 4, 0,  32, uint32_t, cfg->max_rate); \
+	MC_CMD_OP(cmd, 4, 32, 32, uint32_t, cfg->committed_rate); \
 	MC_CMD_OP(cmd, 5, 0,  8,  char,	    endpoint2->type[0]); \
 	MC_CMD_OP(cmd, 5, 8,  8,  char,	    endpoint2->type[1]); \
 	MC_CMD_OP(cmd, 5, 16, 8,  char,	    endpoint2->type[2]); \
@@ -224,7 +282,7 @@ do { \
 #define DPRC_CMD_DISCONNECT(cmd, endpoint) \
 do { \
 	MC_CMD_OP(cmd, 0, 0,  32, int,	    endpoint->id); \
-	MC_CMD_OP(cmd, 0, 32, 32, int,	    endpoint->interface_id); \
+	MC_CMD_OP(cmd, 0, 32, 16, uint16_t, endpoint->if_id); \
 	MC_CMD_OP(cmd, 1, 0,  8,  char,	    endpoint->type[0]); \
 	MC_CMD_OP(cmd, 1, 8,  8,  char,	    endpoint->type[1]); \
 	MC_CMD_OP(cmd, 1, 16, 8,  char,	    endpoint->type[2]); \
@@ -247,7 +305,7 @@ do { \
 #define DPRC_CMD_GET_CONNECTION(cmd, endpoint1) \
 do { \
 	MC_CMD_OP(cmd, 0, 0,  32, int,      endpoint1->id); \
-	MC_CMD_OP(cmd, 0, 32, 32, int,	    endpoint1->interface_id); \
+	MC_CMD_OP(cmd, 0, 32, 16, uint16_t, endpoint1->if_id); \
 	MC_CMD_OP(cmd, 1, 0,  8,  char,     endpoint1->type[0]); \
 	MC_CMD_OP(cmd, 1, 8,  8,  char,	    endpoint1->type[1]); \
 	MC_CMD_OP(cmd, 1, 16, 8,  char,	    endpoint1->type[2]); \
@@ -266,12 +324,11 @@ do { \
 	MC_CMD_OP(cmd, 2, 56, 8,  char,	    endpoint1->type[15]); \
 } while (0)
 
-
 /*                cmd, param, offset, width, type, arg_name */
 #define DPRC_RSP_GET_CONNECTION(cmd, endpoint2, state) \
 do { \
 	MC_RSP_OP(cmd, 3, 0,  32, int,	    endpoint2->id); \
-	MC_RSP_OP(cmd, 3, 32, 32, int,	    endpoint2->interface_id); \
+	MC_RSP_OP(cmd, 3, 32, 16, uint16_t, endpoint2->if_id); \
 	MC_RSP_OP(cmd, 4, 0,  8,  char,	    endpoint2->type[0]); \
 	MC_RSP_OP(cmd, 4, 8,  8,  char,	    endpoint2->type[1]); \
 	MC_RSP_OP(cmd, 4, 16, 8,  char,	    endpoint2->type[2]); \
@@ -294,6 +351,7 @@ do { \
 /* Data Path Resource Container API
  * Contains DPRC API for managing and querying DPAA resources
  */
+
 struct fsl_mc_io;
 
 /**
@@ -312,16 +370,20 @@ struct fsl_mc_io;
 
 /**
  * dprc_get_container_id() - Get container ID associated with a given portal.
- * @mc_io:		Pointer to MC portal's I/O object
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @container_id:	Requested container ID
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dprc_get_container_id(struct fsl_mc_io *mc_io, int *container_id);
+int dprc_get_container_id(struct fsl_mc_io	*mc_io,
+			  uint32_t		cmd_flags,
+			  int			*container_id);
 
 /**
  * dprc_open() - Open DPRC object for use
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @container_id: Container ID to open
  * @token:	Returned token of DPRC object
  *
@@ -329,11 +391,15 @@ int dprc_get_container_id(struct fsl_mc_io *mc_io, int *container_id);
  *
  * @warning	Required before any operation on the object.
  */
-int dprc_open(struct fsl_mc_io *mc_io, int container_id, uint16_t *token);
+int dprc_open(struct fsl_mc_io	*mc_io,
+	      uint32_t		cmd_flags,
+	      int		container_id,
+	      uint16_t		*token);
 
 /**
  * dprc_close() - Close the control session of the object
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  *
  * After this function is called, no further operations are
@@ -341,7 +407,9 @@ int dprc_open(struct fsl_mc_io *mc_io, int container_id, uint16_t *token);
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dprc_close(struct fsl_mc_io *mc_io, uint16_t token);
+int dprc_close(struct fsl_mc_io	*mc_io,
+	       uint32_t		cmd_flags,
+	       uint16_t		token);
 
 /**
  * Container general options
@@ -366,7 +434,7 @@ int dprc_close(struct fsl_mc_io *mc_io, uint16_t token);
 /* Object initialization allowed - software context associated with this
  * container is allowed to invoke object initialization operations.
  */
-#define DPRC_CFG_OPT_OBJ_CREATE_ALLOWED	0x00000004
+#define DPRC_CFG_OPT_OBJ_CREATE_ALLOWED		0x00000004
 
 /* Topology change allowed - software context associated with this
  * container is allowed to invoke topology operations, such as attach/detach
@@ -389,16 +457,19 @@ int dprc_close(struct fsl_mc_io *mc_io, uint16_t token);
  * @portal_id: Portal ID; if set to 'DPRC_GET_PORTAL_ID_FROM_POOL', a free
  *		portal ID is allocated by the DPRC
  * @options: Combination of 'DPRC_CFG_OPT_<X>' options
+ * @label: Object's label
  */
 struct dprc_cfg {
 	uint16_t icid;
 	int portal_id;
 	uint64_t options;
+	char label[16];
 };
 
 /**
  * dprc_reset_container - Reset child container.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  * @child_container_id:	ID of the container to reset
  *
@@ -417,9 +488,10 @@ struct dprc_cfg {
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dprc_reset_container(struct fsl_mc_io *mc_io,
-			 uint16_t token,
-			 int child_container_id);
+int dprc_reset_container(struct fsl_mc_io	*mc_io,
+			 uint32_t		cmd_flags,
+			 uint16_t		token,
+			 int			child_container_id);
 
 /**
  * struct dprc_attributes - Container attributes
@@ -448,24 +520,30 @@ struct dprc_attributes {
 /**
  * dprc_get_attributes() - Obtains container attributes
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
- * @attributes	Returned container attributes
+ * @attributes:	Returned container attributes
  *
  * Return:     '0' on Success; Error code otherwise.
  */
 int dprc_get_attributes(struct fsl_mc_io	*mc_io,
+			uint32_t		cmd_flags,
 			uint16_t		token,
 			struct dprc_attributes	*attributes);
 
 /**
  * dprc_get_obj_count() - Obtains the number of objects in the DPRC
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  * @obj_count:	Number of objects assigned to the DPRC
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dprc_get_obj_count(struct fsl_mc_io *mc_io, uint16_t token, int *obj_count);
+int dprc_get_obj_count(struct fsl_mc_io	*mc_io,
+		       uint32_t		cmd_flags,
+		       uint16_t		token,
+		       int			*obj_count);
 
 /* Objects Attributes Flags */
 
@@ -484,6 +562,7 @@ int dprc_get_obj_count(struct fsl_mc_io *mc_io, uint16_t token, int *obj_count);
  * @irq_count: Number of interrupts supported by the object
  * @region_count: Number of mappable regions supported by the object
  * @state: Object state: combination of DPRC_OBJ_STATE_ states
+ * @label: Object label
  */
 struct dprc_obj_desc {
 	char type[16];
@@ -494,11 +573,13 @@ struct dprc_obj_desc {
 	uint8_t irq_count;
 	uint8_t region_count;
 	uint32_t state;
+	char label[16];
 };
 
 /**
  * dprc_get_obj() - Get general information on an object
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  * @obj_index:	Index of the object to be queried (< obj_count)
  * @obj_desc:	Returns the requested object descriptor
@@ -511,14 +592,16 @@ struct dprc_obj_desc {
  * Return:	'0' on Success; Error code otherwise.
  */
 int dprc_get_obj(struct fsl_mc_io	*mc_io,
+		 uint32_t		cmd_flags,
 		 uint16_t		token,
 		 int			obj_index,
 		 struct dprc_obj_desc	*obj_desc);
 
 /**
- * dprc_get_res_count() - Obtains the number of free resources that are assigned
- *		to this container, by pool type
+ * dprc_get_res_count() - Obtains the number of free resources that are
+ *		assigned to this container, by pool type
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  * @type:	pool type
  * @res_count:	Returned number of free resources of the given
@@ -526,7 +609,8 @@ int dprc_get_obj(struct fsl_mc_io	*mc_io,
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dprc_get_res_count(struct fsl_mc_io	*mc_io,
+int dprc_get_res_count(struct fsl_mc_io *mc_io,
+		       uint32_t	cmd_flags,
 		       uint16_t		token,
 		       char		*type,
 		       int		*res_count);
@@ -561,6 +645,7 @@ struct dprc_res_ids_range_desc {
 /**
  * dprc_get_res_ids() - Obtains IDs of free resources in the container
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  * @type:	pool type
  * @range_desc:	range descriptor
@@ -568,25 +653,48 @@ struct dprc_res_ids_range_desc {
  * Return:	'0' on Success; Error code otherwise.
  */
 int dprc_get_res_ids(struct fsl_mc_io			*mc_io,
+		     uint32_t				cmd_flags,
 		     uint16_t				token,
 		     char				*type,
 		     struct dprc_res_ids_range_desc	*range_desc);
 
+/* Region flags */
+/* Cacheable - Indicates that region should be mapped as cacheable */
+#define DPRC_REGION_CACHEABLE	0x00000001
+
+/**
+ * enum dprc_region_type - Region type
+ * @DPRC_REGION_TYPE_MC_PORTAL: MC portal region
+ * @DPRC_REGION_TYPE_QBMAN_PORTAL: Qbman portal region
+ */
+enum dprc_region_type {
+	DPRC_REGION_TYPE_MC_PORTAL,
+	DPRC_REGION_TYPE_QBMAN_PORTAL
+};
+
 /**
  * struct dprc_region_desc - Mappable region descriptor
- * @base_paddr: Region base physical address
+ * @base_offset: Region offset from region's base address.
+ *	For DPMCP and DPRC objects, region base is offset from SoC MC portals
+ *	base address; For DPIO, region base is offset from SoC QMan portals
+ *	base address
  * @size: Region size (in bytes)
+ * @flags: Region attributes
+ * @type: Portal region type
  */
 struct dprc_region_desc {
-	uint64_t base_paddr;
+	uint32_t base_offset;
 	uint32_t size;
+	uint32_t flags;
+	enum dprc_region_type type;
 };
 
 /**
  * dprc_get_obj_region() - Get region information for a specified object.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
- * @obj_type;	Object type as returned in dprc_get_obj()
+ * @obj_type:	Object type as returned in dprc_get_obj()
  * @obj_id:	Unique object instance as returned in dprc_get_obj()
  * @region_index: The specific region to query
  * @region_desc:  Returns the requested region descriptor
@@ -594,6 +702,7 @@ struct dprc_region_desc {
  * Return:	'0' on Success; Error code otherwise.
  */
 int dprc_get_obj_region(struct fsl_mc_io	*mc_io,
+			uint32_t		cmd_flags,
 			uint16_t		token,
 			char			*obj_type,
 			int			obj_id,
@@ -604,53 +713,74 @@ int dprc_get_obj_region(struct fsl_mc_io	*mc_io,
  *			operations
  * @type: Endpoint object type: NULL terminated string
  * @id: Endpoint object ID
- * @interface_id: Interface ID; should be set for endpoints with multiple
+ * @if_id: Interface ID; should be set for endpoints with multiple
  *		interfaces ("dpsw", "dpdmux"); for others, always set to 0
  */
 struct dprc_endpoint {
-	char type[16];
-	int id;
-	int interface_id;
+	char		type[16];
+	int		id;
+	uint16_t	if_id;
+};
+
+/**
+ * struct dprc_connection_cfg - Connection configuration.
+ *				Used for virtual connections only
+ * @committed_rate: Committed rate (Mbits/s)
+ * @max_rate: Maximum rate (Mbits/s)
+ */
+struct dprc_connection_cfg {
+	uint32_t committed_rate;
+	uint32_t max_rate;
 };
 
 /**
  * dprc_connect() - Connect two endpoints to create a network link between them
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  * @endpoint1:	Endpoint 1 configuration parameters
  * @endpoint2:	Endpoint 2 configuration parameters
+ * @cfg: Connection configuration. The connection configuration is ignored for
+ *	connections made to DPMAC objects, where rate is retrieved from the
+ *	MAC configuration.
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dprc_connect(struct fsl_mc_io		*mc_io,
-		 uint16_t			token,
-		 const struct dprc_endpoint	*endpoint1,
-		 const struct dprc_endpoint	*endpoint2);
+int dprc_connect(struct fsl_mc_io			*mc_io,
+		 uint32_t				cmd_flags,
+		 uint16_t				token,
+		 const struct dprc_endpoint		*endpoint1,
+		 const struct dprc_endpoint		*endpoint2,
+		 const struct dprc_connection_cfg	*cfg);
 
 /**
  * dprc_disconnect() - Disconnect one endpoint to remove its network connection
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPRC object
  * @endpoint:	Endpoint configuration parameters
  *
  * Return:	'0' on Success; Error code otherwise.
  */
 int dprc_disconnect(struct fsl_mc_io		*mc_io,
+		    uint32_t			cmd_flags,
 		    uint16_t			token,
 		    const struct dprc_endpoint	*endpoint);
 
 /**
 * dprc_get_connection() - Get connected endpoint and link status if connection
 *			exists.
-* @mc_io		Pointer to MC portal's I/O object
-* @token		Token of DPRC object
-* @endpoint1	Endpoint 1 configuration parameters
-* @endpoint2	Returned endpoint 2 configuration parameters
+* @mc_io:	Pointer to MC portal's I/O object
+* @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+* @token:	Token of DPRC object
+* @endpoint1:	Endpoint 1 configuration parameters
+* @endpoint2:	Returned endpoint 2 configuration parameters
 * @state:	Returned link state: 1 - link is up, 0 - link is down
 *
 * Return:     '0' on Success; -ENAVAIL if connection does not exist.
 */
 int dprc_get_connection(struct fsl_mc_io		*mc_io,
+			uint32_t			cmd_flags,
 			uint16_t			token,
 			const struct dprc_endpoint	*endpoint1,
 			struct dprc_endpoint		*endpoint2,

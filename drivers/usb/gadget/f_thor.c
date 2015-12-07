@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <common.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <version.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

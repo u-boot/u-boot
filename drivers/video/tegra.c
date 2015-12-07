@@ -49,7 +49,7 @@ vidinfo_t panel_info = {
 	.vl_col = -1,
 };
 
-#ifndef CONFIG_OF_CONTROL
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 #error "You must enable CONFIG_OF_CONTROL to get Tegra LCD support"
 #endif
 
@@ -92,7 +92,7 @@ void lcd_ctrl_init(void *lcdbase)
 	/* Enable flushing after LCD writes if requested */
 	lcd_set_flush_dcache(config.cache_type & FDT_LCD_CACHE_FLUSH);
 
-	debug("LCD frame buffer at %08X\n", disp_config->frame_buffer);
+	debug("LCD frame buffer at %pa\n", &disp_config->frame_buffer);
 }
 
 ulong calc_fbsize(void)

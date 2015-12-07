@@ -7,14 +7,17 @@
 #include <fsl-mc/fsl_dpmng.h>
 #include "fsl_dpmng_cmd.h"
 
-int mc_get_version(struct fsl_mc_io *mc_io, struct mc_version *mc_ver_info)
+int mc_get_version(struct fsl_mc_io *mc_io,
+		   uint32_t cmd_flags,
+		   struct mc_version *mc_ver_info)
 {
 	struct mc_command cmd = { 0 };
 	int err;
 
 	/* prepare command */
 	cmd.header = mc_encode_cmd_header(DPMNG_CMDID_GET_VERSION,
-					  MC_CMD_PRI_LOW, 0);
+					  cmd_flags,
+					  0);
 
 	/* send command to mc*/
 	err = mc_send_command(mc_io, &cmd);

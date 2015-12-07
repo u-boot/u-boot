@@ -23,3 +23,16 @@ config SYS_CONFIG_NAME
 	default "snow"
 
 endif
+
+if TARGET_SPRING
+
+config SYS_BOARD
+	default "smdk5250"
+
+config SYS_VENDOR
+	default "samsung"
+
+config SYS_CONFIG_NAME
+	default "spring"
+
+endif

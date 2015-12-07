@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2015, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -29,6 +29,7 @@ int get_num_cpus(void)
 {
 	struct apb_misc_gp_ctlr *gp;
 	uint rev;
+	debug("%s entry\n", __func__);
 
 	gp = (struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
 	rev = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >> HIDREV_CHIPID_SHIFT;
@@ -39,6 +40,8 @@ int get_num_cpus(void)
 		break;
 	case CHIPID_TEGRA30:
 	case CHIPID_TEGRA114:
+	case CHIPID_TEGRA124:
+	case CHIPID_TEGRA210:
 	default:
 		return 4;
 		break;
@@ -64,6 +67,8 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n =  625, .m = 12, .p = 0, .cpcon =  8 }, /* OSC: 19.2 MHz */
 		{ .n = 1000, .m = 12, .p = 0, .cpcon = 12 }, /* OSC: 12.0 MHz */
 		{ .n = 1000, .m = 26, .p = 0, .cpcon = 12 }, /* OSC: 26.0 MHz */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 38.4 MHz (N/A) */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 	/*
 	 * T25: 1.2 GHz
@@ -80,6 +85,8 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n = 750, .m = 12, .p = 0, .cpcon =  8 }, /* OSC: 19.2 MHz */
 		{ .n = 600, .m =  6, .p = 0, .cpcon = 12 }, /* OSC: 12.0 MHz */
 		{ .n = 600, .m = 13, .p = 0, .cpcon = 12 }, /* OSC: 26.0 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 38.4 MHz (N/A) */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 	/*
 	 * T30: 600 MHz
@@ -96,6 +103,8 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n = 500, .m = 16, .p = 0, .cpcon = 8 }, /* OSC: 19.2 MHz */
 		{ .n = 600, .m = 12, .p = 0, .cpcon = 8 }, /* OSC: 12.0 MHz */
 		{ .n = 600, .m = 26, .p = 0, .cpcon = 8 }, /* OSC: 26.0 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* OSC: 38.4 MHz (N/A) */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 	/*
 	 * T114: 700 MHz
@@ -111,6 +120,8 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz */
 		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
 		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 38.4 MHz (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 
 	/*
@@ -127,14 +138,35 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz */
 		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
 		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 38.4 MHz (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 48.0 MHz (N/A) */
+	},
+
+	/*
+	 * T210: 700 MHz
+	 *
+	 * Register   Field  Bits   Width
+	 * ------------------------------
+	 * PLLX_BASE  p      24:20    5
+	 * PLLX_BASE  n      15: 8    8
+	 * PLLX_BASE  m       7: 0    8
+	 */
+	{
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz = 702   MHz*/
+		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz = 700.8 MHz*/
+		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz = 696   MHz*/
+		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz = 702   MHz*/
+		{ .n =  36, .m = 1, .p = 1 }, /* OSC: 38.4 MHz = 691.2 MHz */
+		{ .n =  58, .m = 2, .p = 1 }, /* OSC: 48.0 MHz = 696   MHz */
 	},
 };
 
 static inline void pllx_set_iddq(void)
 {
-#if defined(CONFIG_TEGRA124)
+#if defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 	u32 reg;
+	debug("%s entry\n", __func__);
 
 	/* Disable IDDQ */
 	reg = readl(&clkrst->crc_pllx_misc3);
@@ -149,31 +181,35 @@ static inline void pllx_set_iddq(void)
 int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		u32 divp, u32 cpcon)
 {
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[CLOCK_ID_XCPU];
 	int chip = tegra_get_chip();
 	u32 reg;
+	debug("%s entry\n", __func__);
 
 	/* If PLLX is already enabled, just return */
 	if (readl(&pll->pll_base) & PLL_ENABLE_MASK) {
-		debug("pllx_set_rate: PLLX already enabled, returning\n");
+		debug("%s: PLLX already enabled, returning\n", __func__);
 		return 0;
 	}
-
-	debug(" pllx_set_rate entry\n");
 
 	pllx_set_iddq();
 
 	/* Set BYPASS, m, n and p to PLLX_BASE */
-	reg = PLL_BYPASS_MASK | (divm << PLL_DIVM_SHIFT);
-	reg |= ((divn << PLL_DIVN_SHIFT) | (divp << PLL_DIVP_SHIFT));
+	reg = PLL_BYPASS_MASK | (divm << pllinfo->m_shift);
+	reg |= (divn << pllinfo->n_shift) | (divp << pllinfo->p_shift);
 	writel(reg, &pll->pll_base);
 
 	/* Set cpcon to PLLX_MISC */
 	if (chip == CHIPID_TEGRA20 || chip == CHIPID_TEGRA30)
-		reg = (cpcon << PLL_CPCON_SHIFT);
+		reg = (cpcon << pllinfo->kcp_shift);
 	else
 		reg = 0;
 
-	/* Set dccon to PLLX_MISC if freq > 600MHz */
+	/*
+	 * TODO(twarren@nvidia.com) Check which SoCs use DCCON
+	 * and add to pllinfo table if needed!
+	 */
+	 /* Set dccon to PLLX_MISC if freq > 600MHz */
 	if (divn > 600)
 		reg |= (1 << PLL_DCCON_SHIFT);
 	writel(reg, &pll->pll_misc);
@@ -182,19 +218,20 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 	reg = readl(&pll->pll_base);
 	reg &= ~PLL_BYPASS_MASK;
 	writel(reg, &pll->pll_base);
-	debug("pllx_set_rate: base = 0x%08X\n", reg);
+	debug("%s: base = 0x%08X\n", __func__, reg);
 
-	/* Set lock_enable to PLLX_MISC */
+	/* Set lock_enable to PLLX_MISC if lock_ena is valid (i.e. 0-31) */
 	reg = readl(&pll->pll_misc);
-	reg |= PLL_LOCK_ENABLE_MASK;
+	if (pllinfo->lock_ena < 32)
+		reg |= (1 << pllinfo->lock_ena);
 	writel(reg, &pll->pll_misc);
-	debug("pllx_set_rate: misc = 0x%08X\n", reg);
+	debug("%s: misc = 0x%08X\n", __func__, reg);
 
 	/* Enable PLLX last, once it's all configured */
 	reg = readl(&pll->pll_base);
 	reg |= PLL_ENABLE_MASK;
 	writel(reg, &pll->pll_base);
-	debug("pllx_set_rate: base final = 0x%08X\n", reg);
+	debug("%s: base final = 0x%08X\n", __func__, reg);
 
 	return 0;
 }
@@ -206,24 +243,23 @@ void init_pllx(void)
 	int soc_type, sku_info, chip_sku;
 	enum clock_osc_freq osc;
 	struct clk_pll_table *sel;
-
-	debug("init_pllx entry\n");
+	debug("%s entry\n", __func__);
 
 	/* get SOC (chip) type */
 	soc_type = tegra_get_chip();
-	debug(" init_pllx: SoC = 0x%02X\n", soc_type);
+	debug("%s: SoC = 0x%02X\n", __func__, soc_type);
 
 	/* get SKU info */
 	sku_info = tegra_get_sku_info();
-	debug(" init_pllx: SKU info byte = 0x%02X\n", sku_info);
+	debug("%s: SKU info byte = 0x%02X\n", __func__, sku_info);
 
 	/* get chip SKU, combo of the above info */
 	chip_sku = tegra_get_chip_sku();
-	debug(" init_pllx: Chip SKU = %d\n", chip_sku);
+	debug("%s: Chip SKU = %d\n", __func__, chip_sku);
 
 	/* get osc freq */
 	osc = clock_get_osc_freq();
-	debug(" init_pllx: osc = %d\n", osc);
+	debug("%s: osc = %d\n", __func__, osc);
 
 	/* set pllx */
 	sel = &tegra_pll_x_table[chip_sku][osc];
@@ -234,6 +270,7 @@ void enable_cpu_clock(int enable)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 	u32 clk;
+	debug("%s entry\n", __func__);
 
 	/*
 	 * NOTE:
@@ -282,6 +319,7 @@ static void remove_cpu_io_clamps(void)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
+	debug("%s entry\n", __func__);
 
 	/* Remove the clamps on the CPU I/O signals */
 	reg = readl(&pmc->pmc_remove_clamping);
@@ -297,6 +335,7 @@ void powerup_cpu(void)
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 	int timeout = IO_STABILIZATION_DELAY;
+	debug("%s entry\n", __func__);
 
 	if (!is_cpu_powered()) {
 		/* Toggle the CPU power state (OFF -> ON) */
@@ -336,7 +375,7 @@ void reset_A9_cpu(int reset)
 	int num_cpus = get_num_cpus();
 	int cpu;
 
-	debug("reset_a9_cpu entry\n");
+	debug("%s entry\n", __func__);
 	/* Hold CPUs 1 onwards in reset, and CPU 0 if asked */
 	for (cpu = 1; cpu < num_cpus; cpu++)
 		reset_cmplx_set_enable(cpu, mask, 1);
@@ -350,7 +389,7 @@ void clock_enable_coresight(int enable)
 {
 	u32 rst, src = 2;
 
-	debug("clock_enable_coresight entry\n");
+	debug("%s entry\n", __func__);
 	clock_set_enable(PERIPH_ID_CORESIGHT, enable);
 	reset_set_enable(PERIPH_ID_CORESIGHT, !enable);
 
@@ -377,6 +416,8 @@ void clock_enable_coresight(int enable)
 
 void halt_avp(void)
 {
+	debug("%s entry\n", __func__);
+
 	for (;;) {
 		writel(HALT_COP_EVENT_JTAG | (FLOW_MODE_STOP << 29),
 		       FLOW_CTLR_HALT_COP_EVENTS);

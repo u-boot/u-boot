@@ -301,10 +301,8 @@ int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
 	unmap_sysmem(buf);
 
 	/* If we requested a specific number of bytes, check we got it */
-	if (ret == 0 && len && *actread != len) {
-		printf("** Unable to read file %s **\n", filename);
-		ret = -1;
-	}
+	if (ret == 0 && len && *actread != len)
+		printf("** %s shorter than offset + len **\n", filename);
 	fs_close();
 
 	return ret;

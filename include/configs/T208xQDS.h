@@ -430,7 +430,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xfdd00000 /* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
-#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe0ec000
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe03c000
 /* The assembler doesn't like typecast */
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS \
 			((CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH * 1ull << 32) | \
@@ -619,7 +619,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_FSL_PCIE_RESET	   /* need PCIe reset errata */
-#define CONFIG_E1000
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION

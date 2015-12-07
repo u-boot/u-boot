@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <ubi_uboot.h>
 #include <spi.h>
 #include <spi_flash.h>

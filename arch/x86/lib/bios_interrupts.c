@@ -161,15 +161,7 @@ int int1a_handler(void)
 		bus = M.x86.R_EBX >> 8;
 		reg = M.x86.R_EDI;
 		dev = PCI_BDF(bus, devfn >> 3, devfn & 7);
-		if (!dev) {
-			debug("0x%x: BAD DEVICE bus %d devfn 0x%x\n", func,
-			      bus, devfn);
-			/* Or are we supposed to return PCIBIOS_NODEV? */
-			M.x86.R_EAX &= 0xffff00ff; /* Clear AH */
-			M.x86.R_EAX |= PCIBIOS_BADREG;
-			retval = 0;
-			return retval;
-		}
+
 		switch (func) {
 		case 0xb108: /* Read Config Byte */
 			byte = x86_pci_read_config8(dev, reg);

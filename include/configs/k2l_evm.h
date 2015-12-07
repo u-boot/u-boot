@@ -15,19 +15,17 @@
 #define CONFIG_K2L_EVM
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_PROMPT		"K2L EVM # "
-
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	"addr_mon=0x0c140000\0"						\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,4096\0"	\
-	"name_fdt=uImage-k2l-evm.dtb\0"					\
-	"name_mon=skern-k2l-evm.bin\0"					\
+	"name_fdt=k2l-evm.dtb\0"					\
+	"name_mon=skern-k2l.bin\0"					\
 	"name_ubi=k2l-evm-ubifs.ubi\0"					\
 	"name_uboot=u-boot-spi-k2l-evm.gph\0"				\
 	"name_fs=arago-console-image-k2l-evm.cpio.gz\0"
 
-#include <configs/ks2_evm.h>
+#include <configs/ti_armv7_keystone2.h>
 
 /* SPL SPI Loader Configuration */
 #define CONFIG_SPL_TEXT_BASE		0x0c100000

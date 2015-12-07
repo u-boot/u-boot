@@ -12,11 +12,6 @@
 #define CONFIG_MACH_TYPE	3529
 #define CONFIG_MXC_UART_BASE	UART4_BASE
 #define CONFIG_CONSOLE_DEV		"ttymxc3"
-#if defined CONFIG_MX6Q
-#define CONFIG_DEFAULT_FDT_FILE	"imx6q-sabreauto.dtb"
-#elif defined CONFIG_MX6DL
-#define CONFIG_DEFAULT_FDT_FILE	"imx6dl-sabreauto.dtb"
-#endif
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
 #define PHYS_SDRAM_SIZE		(2u * 1024 * 1024 * 1024)
 
@@ -56,6 +51,8 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 

@@ -24,7 +24,6 @@
 #define CONFIG_ENV_ADDR		(XPAR_FLASH_MEM0_BASEADDR+CONFIG_ENV_OFFSET)
 
 /*Misc*/
-#define CONFIG_SYS_PROMPT		"board:/# "	/* Monitor Command Prompt    */
 #define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
 
 /*Flash*/

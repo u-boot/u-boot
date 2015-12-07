@@ -4,6 +4,14 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
+/*
+ * THIS FILE IS AUTO-GENERATED - DO NOT EDIT!
+ *
+ * To generate this file, use the tegra-pinmux-scripts tool available from
+ * https://github.com/NVIDIA/tegra-pinmux-scripts
+ * Run "board-to-uboot.py jetson-tk1".
+ */
+
 #ifndef _PINMUX_CONFIG_JETSON_TK1_H_
 #define _PINMUX_CONFIG_JETSON_TK1_H_
 

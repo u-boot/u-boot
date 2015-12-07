@@ -40,15 +40,21 @@ static unsigned long gpio_ports[] = {
 	[1] = GPIO2_BASE_ADDR,
 	[2] = GPIO3_BASE_ADDR,
 #if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
-		defined(CONFIG_MX53) || defined(CONFIG_MX6)
+		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
+		defined(CONFIG_MX7)
 	[3] = GPIO4_BASE_ADDR,
 #endif
-#if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6)
+#if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
+		defined(CONFIG_MX7)
 	[4] = GPIO5_BASE_ADDR,
+#ifndef CONFIG_MX6UL
 	[5] = GPIO6_BASE_ADDR,
 #endif
-#if defined(CONFIG_MX53) || defined(CONFIG_MX6)
+#endif
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6) || defined(CONFIG_MX7)
+#ifndef CONFIG_MX6UL
 	[6] = GPIO7_BASE_ADDR,
+#endif
 #endif
 };
 
@@ -332,7 +338,7 @@ U_BOOT_DRIVER(gpio_mxc) = {
 	.bind	= mxc_gpio_bind,
 };
 
-#ifndef CONFIG_OF_CONTROL
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct mxc_gpio_plat mxc_plat[] = {
 	{ 0, (struct gpio_regs *)GPIO1_BASE_ADDR },
 	{ 1, (struct gpio_regs *)GPIO2_BASE_ADDR },

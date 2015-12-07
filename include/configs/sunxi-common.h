@@ -13,6 +13,7 @@
 #ifndef _SUNXI_COMMON_CONFIG_H
 #define _SUNXI_COMMON_CONFIG_H
 
+#include <asm/arch/cpu.h>
 #include <linux/stringify.h>
 
 #ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
@@ -39,25 +40,14 @@
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
 #endif
 
-#include <asm/arch/cpu.h>	/* get chip and board defs */
-
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DM_SERIAL)
-# define CONFIG_DW_SERIAL
-#endif
-
-/*
- * Display CPU information
- */
-#define CONFIG_DISPLAY_CPUINFO
-
-#define CONFIG_SYS_PROMPT	"sunxi# "
-
 /* Serial & console */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
 #define CONFIG_SYS_NS16550_CLK		24000000
-#ifndef CONFIG_DM_SERIAL
+#ifdef CONFIG_DM_SERIAL
+# define CONFIG_DW_SERIAL
+#else
 # define CONFIG_SYS_NS16550_REG_SIZE	-4
 # define CONFIG_SYS_NS16550_COM1		SUNXI_UART0_BASE
 # define CONFIG_SYS_NS16550_COM2		SUNXI_UART1_BASE
@@ -67,6 +57,7 @@
 #endif
 
 /* CPU */
+#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
 /*
@@ -139,6 +130,10 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SERIAL_TAG
 
+#ifdef CONFIG_NAND_SUNXI
+#define CONFIG_SPL_NAND_SUPPORT 1
+#endif
+
 /* mmc config */
 #if !defined(CONFIG_UART0_PORT_F)
 #define CONFIG_MMC
@@ -150,8 +145,8 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
 #endif
 
-/* 4MB of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
+/* 64MB of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (64 << 20))
 
 /*
  * Miscellaneous configurable options
@@ -177,7 +172,7 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_SYS_MONITOR_LEN		(512 << 10)	/* 512 KiB */
+#define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
 #define CONFIG_IDENT_STRING		" Allwinner Technology"
 
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
@@ -252,6 +247,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_CONS_INDEX              1       /* UART0 */
 #endif
 
+#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 #if CONFIG_CONS_INDEX == 1
 #ifdef CONFIG_MACH_SUN9I
 #define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
@@ -267,6 +263,7 @@ extern int soft_i2c_gpio_scl;
 #else
 #error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
 #endif
+#endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
 
 /* GPIO */
 #define CONFIG_SUNXI_GPIO
@@ -278,7 +275,7 @@ extern int soft_i2c_gpio_scl;
  * The amount of RAM to keep free at the top of RAM when relocating u-boot,
  * to use as framebuffer. This must be a multiple of 4096.
  */
-#define CONFIG_SUNXI_MAX_FB_SIZE (9 << 20)
+#define CONFIG_SUNXI_MAX_FB_SIZE (16 << 20)
 
 /* Do we want to initialize a simple FB? */
 #define CONFIG_VIDEO_DT_SIMPLEFB
@@ -290,6 +287,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_STD_TIMINGS
 #define CONFIG_I2C_EDID
+#define VIDEO_LINE_LEN (pGD->plnSizeX)
 
 /* allow both serial and cfb console. */
 #define CONFIG_CONSOLE_MUX
@@ -318,7 +316,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PHYLIB
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_OHCI_SUNXI
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
@@ -326,13 +324,37 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_MUSB_SUNXI
-#define CONFIG_MUSB_HOST
-#define CONFIG_MUSB_PIO_ONLY
+#define CONFIG_USB_MUSB_PIO_ONLY
 #endif
 
-#if defined CONFIG_USB_EHCI || defined CONFIG_USB_MUSB_SUNXI
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
+#ifdef CONFIG_USB_MUSB_GADGET
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	0
+
+#define CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_USB_FUNCTION_FASTBOOT
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
+#endif
+
+#ifdef CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_G_DNL_VENDOR_NUM		0x1f3a
+#define CONFIG_G_DNL_PRODUCT_NUM	0x1010
+#define CONFIG_G_DNL_MANUFACTURER	"Allwinner Technology"
+#endif
+
+#ifdef CONFIG_USB_FUNCTION_FASTBOOT
+#define CONFIG_CMD_FASTBOOT
+#define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
+#define CONFIG_FASTBOOT_BUF_SIZE	0x2000000
+
+#define CONFIG_FASTBOOT_FLASH
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV	0
+#define CONFIG_EFI_PARTITION
+#endif
+
+#ifdef CONFIG_USB_FUNCTION_MASS_STORAGE
+#define CONFIG_CMD_USB_MASS_STORAGE
 #endif
 
 #ifdef CONFIG_USB_KEYBOARD
@@ -360,12 +382,12 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PRE_CON_BUF_SZ		4096 /* Aprox 2 80*25 screens */
 
 /*
- * 240M RAM (256M minimum minus space for the framebuffer),
+ * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
  * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
  * 1M script, 1M pxe and the ramdisk at the end.
  */
 #define MEM_LAYOUT_ENV_SETTINGS \
-	"bootm_size=0xf000000\0" \
+	"bootm_size=0xa000000\0" \
 	"kernel_addr_r=" __stringify(SDRAM_OFFSET(2000000)) "\0" \
 	"fdt_addr_r=" __stringify(SDRAM_OFFSET(3000000)) "\0" \
 	"scriptaddr=" __stringify(SDRAM_OFFSET(3100000)) "\0" \
@@ -384,13 +406,24 @@ extern int soft_i2c_gpio_scl;
 #define BOOT_TARGET_DEVICES_SCSI(func)
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_STORAGE
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
 #else
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+/* FEL boot support, auto-execute boot.scr if a script address was provided */
+#define BOOTENV_DEV_FEL(devtypeu, devtypel, instance) \
+	"bootcmd_fel=" \
+		"if test -n ${fel_booted} && test -n ${fel_scriptaddr}; then " \
+			"echo '(FEL boot)'; " \
+			"source ${fel_scriptaddr}; " \
+		"fi\0"
+#define BOOTENV_DEV_NAME_FEL(devtypeu, devtypel, instance) \
+	"fel "
+
 #define BOOT_TARGET_DEVICES(func) \
+	func(FEL, fel, na) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_USB(func) \

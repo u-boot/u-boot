@@ -54,8 +54,10 @@ reset:
 	orr	x0, x0, #0xf			/* SCR_EL3.NS|IRQ|FIQ|EA */
 	msr	scr_el3, x0
 	msr	cptr_el3, xzr			/* Enable FP/SIMD */
+#ifdef COUNTER_FREQUENCY
 	ldr	x0, =COUNTER_FREQUENCY
 	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
+#endif
 	b	0f
 2:	msr	vbar_el2, x0
 	mov	x0, #0x33ff
@@ -115,18 +117,18 @@ apply_a57_core_errata:
 #ifdef CONFIG_ARM_ERRATA_828024
 	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
 	/* Disable non-allocate hint of w-b-n-a memory type */
-	mov	x0, #0x1 << 49
+	orr	x0, x0, #1 << 49
 	/* Disable write streaming no L1-allocate threshold */
-	mov	x0, #0x3 << 25
+	orr	x0, x0, #3 << 25
 	/* Disable write streaming no-allocate threshold */
-	mov	x0, #0x3 << 27
+	orr	x0, x0, #3 << 27
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_826974
 	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
 	/* Disable speculative load execution ahead of a DMB */
-	mov	x0, #0x1 << 59
+	orr	x0, x0, #1 << 59
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
 #endif
 

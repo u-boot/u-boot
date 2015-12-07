@@ -3,11 +3,11 @@ CONFIG_ARCH_ZYNQ=y
 CONFIG_TARGET_ZYNQ_CSE=y
 CONFIG_DEFAULT_DEVICE_TREE="zynq-cse-qspi"
 CONFIG_SYS_EXTRA_OPTIONS="CSE_QSPI"
+# CONFIG_CMD_BDI is not set
+# CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_BOOTM is not set
 # CONFIG_CMD_GO is not set
-# CONFIG_CMD_BDI is not set
-# CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_RUN is not set
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_IMLS is not set

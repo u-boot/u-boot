@@ -40,6 +40,11 @@ config TARGET_PORTER
 	select DM
 	select DM_SERIAL
 
+config TARGET_STOUT
+	bool "Stout board"
+	select DM
+	select DM_SERIAL
+
 endchoice
 
 config SYS_SOC
@@ -47,7 +52,7 @@ config SYS_SOC
 
 config RMOBILE_EXTRAM_BOOT
 	bool "Enable boot from RAM"
-	depends on TARGET_ALT || TARGET_KOELSCH || TARGET_LAGER || TARGET_PORTER || TARGET_SILK
+	depends on TARGET_ALT || TARGET_KOELSCH || TARGET_LAGER || TARGET_PORTER || TARGET_SILK || TARGET_STOUT
 	default n
 
 choice
@@ -80,5 +85,6 @@ source "board/kmc/kzm9g/Kconfig"
 source "board/renesas/alt/Kconfig"
 source "board/renesas/silk/Kconfig"
 source "board/renesas/porter/Kconfig"
+source "board/renesas/stout/Kconfig"
 
 endif

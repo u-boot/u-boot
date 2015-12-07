@@ -88,7 +88,6 @@
 	""
 
 #define CONFIG_PRAM		512	/* 512 KB */
-#define CONFIG_SYS_PROMPT	"-> "
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
 
 #ifdef CONFIG_CMD_KGDB

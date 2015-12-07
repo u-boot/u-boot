@@ -196,10 +196,12 @@ u32 get_gpmc0_width(void)
  * get_board_rev() - setup to pass kernel board revision information
  * returns:(bit[0-3] sub version, higher bit[7-4] is higher version)
  *************************************************************************/
+#ifdef CONFIG_REVISION_TAG
 u32 __weak get_board_rev(void)
 {
 	return 0x20;
 }
+#endif
 
 /********************************************************
  *  get_base(); get upper addr of current execution

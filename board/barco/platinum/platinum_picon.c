@@ -148,7 +148,7 @@ int platinum_setup_enet(void)
 	/* set GPIO_16 as ENET_REF_CLK_OUT */
 	setbits_le32(&iomux->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
 
-	return enable_fec_anatop_clock(ENET_50MHZ);
+	return enable_fec_anatop_clock(0, ENET_50MHZ);
 }
 
 int platinum_setup_i2c(void)

@@ -127,3 +127,103 @@ b) NOR boot
 c) NAND boot
 d) SD boot
 e) QSPI boot
+
+Environment Variables
+---------------------
+- mcboottimeout: MC boot timeout in milliseconds. If this variable is not defined
+  the value CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS will be assumed.
+
+- mcmemsize: MC DRAM block size. If this variable is not defined
+  the value CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE will be assumed.
+
+Booting Linux flavors which do not support 48-bit VA (< Linux 3.18)
+-------------------------------------------------------------------
+One needs to use appropriate bootargs to boot Linux flavors which do
+not support 48-bit VA (for e.g. < Linux 3.18) by appending mem=2048M, as shown
+below:
+
+=> setenv bootargs 'console=ttyS1,115200 root=/dev/ram
+   earlycon=uart8250,mmio,0x21c0600,115200 default_hugepagesz=2m hugepagesz=2m
+   hugepages=16 mem=2048M'
+
+
+X-QSGMII-16PORT riser card
+----------------------------
+The X-QSGMII-16PORT is a 4xQSGMII/8xSGMII riser card with eighth SerDes
+interfaces implemented in PCIe form factor board.
+It supports followings
+ - Card can operate with up to 4 QSGMII lane simultaneously
+ - Card can operate with up to 8 SGMII lane simultaneously
+
+Supported card configuration
+	- CSEL  : ON ON ON ON
+	- MSEL1 : ON ON ON ON OFF OFF OFF OFF
+	- MSEL2 : OFF OFF OFF OFF ON ON ON ON
+
+To enable this card: modify hwconfig to add "xqsgmii" variable.
+
+Supported PHY addresses during SGMII:
+#define XQSGMII_CARD_PHY1_PORT0_ADDR 0x0
+#define XQSGMII_CARD_PHY1_PORT2_ADDR 0x2
+#define XQSGMII_CARD_PHY2_PORT0_ADDR 0x4
+#define XQSGMII_CARD_PHY2_PORT2_ADDR 0x6
+#define XQSGMII_CARD_PHY3_PORT0_ADDR 0x8
+#define XQSGMII_CARD_PHY3_PORT2_ADDR 0xa
+#define XQSGMII_CARD_PHY4_PORT0_ADDR 0xc
+#define XQSGMII_CARD_PHY4_PORT2_ADDR 0xe
+
+Mapping DPMACx to PHY during QSGMII
+DPMAC1 -> PHY1-P0
+DPMAC2 -> PHY2-P0
+DPMAC3 -> PHY3-P0
+DPMAC4 -> PHY4-P0
+DPMAC5 -> PHY3-P2
+DPMAC6 -> PHY1-P2
+DPMAC7 -> PHY4-P1
+DPMAC8 -> PHY2-P2
+DPMAC9 -> PHY1-P0
+DPMAC10 -> PHY2-P0
+DPMAC11 -> PHY3-P0
+DPMAC12 -> PHY4-P0
+DPMAC13 -> PHY3-P2
+DPMAC14 -> PHY1-P2
+DPMAC15 -> PHY4-P1
+DPMAC16 -> PHY2-P2
+
+
+Supported PHY address during QSGMII
+#define XQSGMII_CARD_PHY1_PORT0_ADDR 0x0
+#define XQSGMII_CARD_PHY1_PORT1_ADDR 0x1
+#define XQSGMII_CARD_PHY1_PORT2_ADDR 0x2
+#define XQSGMII_CARD_PHY1_PORT3_ADDR 0x3
+#define XQSGMII_CARD_PHY2_PORT0_ADDR 0x4
+#define XQSGMII_CARD_PHY2_PORT1_ADDR 0x5
+#define XQSGMII_CARD_PHY2_PORT2_ADDR 0x6
+#define XQSGMII_CARD_PHY2_PORT3_ADDR 0x7
+#define XQSGMII_CARD_PHY3_PORT0_ADDR 0x8
+#define XQSGMII_CARD_PHY3_PORT1_ADDR 0x9
+#define XQSGMII_CARD_PHY3_PORT2_ADDR 0xa
+#define XQSGMII_CARD_PHY3_PORT3_ADDR 0xb
+#define XQSGMII_CARD_PHY4_PORT0_ADDR 0xc
+#define XQSGMII_CARD_PHY4_PORT1_ADDR 0xd
+#define XQSGMII_CARD_PHY4_PORT2_ADDR 0xe
+#define XQSGMII_CARD_PHY4_PORT3_ADDR 0xf
+
+Mapping DPMACx to PHY during QSGMII
+DPMAC1 -> PHY1-P3
+DPMAC2 -> PHY1-P2
+DPMAC3 -> PHY1-P1
+DPMAC4 -> PHY1-P0
+DPMAC5 -> PHY2-P3
+DPMAC6 -> PHY2-P2
+DPMAC7 -> PHY2-P1
+DPMAC8 -> PHY2-P0
+DPMAC9 -> PHY3-P0
+DPMAC10 -> PHY3-P1
+DPMAC11 -> PHY3-P2
+DPMAC12 -> PHY3-P3
+DPMAC13 -> PHY4-P0
+DPMAC14 -> PHY4-P1
+DPMAC15 -> PHY4-P2
+DPMAC16 -> PHY4-P3
+

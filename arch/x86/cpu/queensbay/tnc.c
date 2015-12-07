@@ -25,7 +25,6 @@ static void unprotect_spi_flash(void)
 
 int arch_cpu_init(void)
 {
-	struct pci_controller *hose;
 	int ret;
 
 	post_code(POST_CPU_INIT);
@@ -36,12 +35,6 @@ int arch_cpu_init(void)
 	ret = x86_cpu_init_f();
 	if (ret)
 		return ret;
-
-	ret = pci_early_init_hose(&hose);
-	if (ret)
-		return ret;
-
-	unprotect_spi_flash();
 
 	return 0;
 }
@@ -69,22 +62,23 @@ void cpu_irq_init(void)
 	 * Route TunnelCreek PCI device interrupt pin to PIRQ
 	 *
 	 * Since PCIe downstream ports received INTx are routed to PIRQ
-	 * A/B/C/D directly and not configurable, we route internal PCI
-	 * device's INTx to PIRQ E/F/G/H.
+	 * A/B/C/D directly and not configurable, we have to route PCIe
+	 * root ports' INTx to PIRQ A/B/C/D as well. For other devices
+	 * on TunneCreek, route them to PIRQ E/F/G/H.
 	 */
 	writew(PIRQE, &rcba->d02ir);
 	writew(PIRQF, &rcba->d03ir);
 	writew(PIRQG, &rcba->d27ir);
 	writew(PIRQH, &rcba->d31ir);
-	writew(PIRQE, &rcba->d23ir);
-	writew(PIRQF, &rcba->d24ir);
-	writew(PIRQG, &rcba->d25ir);
-	writew(PIRQH, &rcba->d26ir);
+	writew(PIRQA, &rcba->d23ir);
+	writew(PIRQB, &rcba->d24ir);
+	writew(PIRQC, &rcba->d25ir);
+	writew(PIRQD, &rcba->d26ir);
 }
 
 int arch_misc_init(void)
 {
-	pirq_init();
+	unprotect_spi_flash();
 
-	return 0;
+	return pirq_init();
 }

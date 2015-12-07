@@ -175,7 +175,7 @@ DECLARE_PSSERIAL_FUNCTIONS(1);
 static struct serial_device uart_zynq_serial1_device =
 	INIT_PSSERIAL_STRUCTURE(1, "ttyPS1");
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 __weak struct serial_device *default_serial_console(void)
 {
 	const void *blob = gd->fdt_blob;

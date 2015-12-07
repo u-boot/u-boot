@@ -54,19 +54,14 @@
 #define CONFIG_CMD_DTT
 #define CONFIG_TMU_CMD_DTT
 
-/* TPM */
-#define CONFIG_TPM
-#define CONFIG_CMD_TPM
-#define CONFIG_TPM_TIS_I2C
-#define CONFIG_TPM_TIS_I2C_BUS_NUMBER	3
-#define CONFIG_TPM_TIS_I2C_SLAVE_ADDR	0x20
-
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
 
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
@@ -126,10 +121,6 @@
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
 
 /* I2C */
-
-/* TODO(sjg@chromium.org): Move these two options to Kconfig */
-#define CONFIG_DM_I2C
-#define CONFIG_DM_I2C_COMPAT
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C_S3C24X0
 #define CONFIG_SYS_I2C_S3C24X0_SPEED	100000		/* 100 Kbps */
@@ -145,13 +136,7 @@
 #define CONFIG_SPI_FLASH_GIGADEVICE
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		50000000
-#define EXYNOS5_SPI_NUM_CONTROLLERS	5
-#define CONFIG_OF_SPI
 #endif
-
-/* Power */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_MODE	SPI_MODE_0
@@ -182,6 +167,7 @@
 /* USB */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
+#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 
@@ -198,7 +184,6 @@
 /* Enable FIT support and comparison */
 #define CONFIG_FIT
 #define CONFIG_FIT_BEST_MATCH
-
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \

@@ -1,0 +1,287 @@
+/*
+ * Copyright (C) 2015  Masahiro Yamada <yamada.masahiro@socionext.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#ifndef __PINCTRL_H
+#define __PINCTRL_H
+
+/**
+ * struct pinconf_param - pin config parameters
+ *
+ * @property: property name in DT nodes
+ * @param: ID for this config parameter
+ * @default_value: default value for this config parameter used in case
+ *	no value is specified in DT nodes
+ */
+struct pinconf_param {
+	const char * const property;
+	unsigned int param;
+	u32 default_value;
+};
+
+/**
+ * struct pinctrl_ops - pin control operations, to be implemented by
+ * pin controller drivers.
+ *
+ * The @set_state is the only mandatory operation.  You can implement your
+ * pinctrl driver with its own @set_state.  In this case, the other callbacks
+ * are not required.  Otherwise, generic pinctrl framework is also available;
+ * use pinctrl_generic_set_state for @set_state, and implement other operations
+ * depending on your necessity.
+ *
+ * @get_pins_count: return number of selectable named pins available
+ *	in this driver.  (necessary to parse "pins" property in DTS)
+ * @get_pin_name: return the pin name of the pin selector,
+ *	called by the core to figure out which pin it shall do
+ *	operations to.  (necessary to parse "pins" property in DTS)
+ * @get_groups_count: return number of selectable named groups available
+ *	in this driver.  (necessary to parse "groups" property in DTS)
+ * @get_group_name: return the group name of the group selector,
+ *	called by the core to figure out which pin group it shall do
+ *	operations to.  (necessary to parse "groups" property in DTS)
+ * @get_functions_count: return number of selectable named functions available
+ *	in this driver.  (necessary for pin-muxing)
+ * @get_function_name: return the function name of the muxing selector,
+ *	called by the core to figure out which mux setting it shall map a
+ *	certain device to.  (necessary for pin-muxing)
+ * @pinmux_set: enable a certain muxing function with a certain pin.
+ *	The @func_selector selects a certain function whereas @pin_selector
+ *	selects a certain pin to be used. On simple controllers one of them
+ *	may be ignored.  (necessary for pin-muxing against a single pin)
+ * @pinmux_group_set: enable a certain muxing function with a certain pin
+ *	group.  The @func_selector selects a certain function whereas
+ *	@group_selector selects a certain set of pins to be used. On simple
+ *	controllers one of them may be ignored.
+ *	(necessary for pin-muxing against a pin group)
+ * @pinconf_num_params: number of driver-specific parameters to be parsed
+ *	from device trees  (necessary for pin-configuration)
+ * @pinconf_params: list of driver_specific parameters to be parsed from
+ *	device trees  (necessary for pin-configuration)
+ * @pinconf_set: configure an individual pin with a given parameter.
+ *	(necessary for pin-configuration against a single pin)
+ * @pinconf_group_set: configure all pins in a group with a given parameter.
+ *	(necessary for pin-configuration against a pin group)
+ * @set_state: do pinctrl operations specified by @config, a pseudo device
+ *	pointing a config node. (necessary for pinctrl_full)
+ * @set_state_simple: do needed pinctrl operations for a peripherl @periph.
+ *	(necessary for pinctrl_simple)
+ */
+struct pinctrl_ops {
+	int (*get_pins_count)(struct udevice *dev);
+	const char *(*get_pin_name)(struct udevice *dev, unsigned selector);
+	int (*get_groups_count)(struct udevice *dev);
+	const char *(*get_group_name)(struct udevice *dev, unsigned selector);
+	int (*get_functions_count)(struct udevice *dev);
+	const char *(*get_function_name)(struct udevice *dev,
+					 unsigned selector);
+	int (*pinmux_set)(struct udevice *dev, unsigned pin_selector,
+			  unsigned func_selector);
+	int (*pinmux_group_set)(struct udevice *dev, unsigned group_selector,
+				unsigned func_selector);
+	unsigned int pinconf_num_params;
+	const struct pinconf_param *pinconf_params;
+	int (*pinconf_set)(struct udevice *dev, unsigned pin_selector,
+			   unsigned param, unsigned argument);
+	int (*pinconf_group_set)(struct udevice *dev, unsigned group_selector,
+				 unsigned param, unsigned argument);
+	int (*set_state)(struct udevice *dev, struct udevice *config);
+
+	/* for pinctrl-simple */
+	int (*set_state_simple)(struct udevice *dev, struct udevice *periph);
+	/**
+	 * request() - Request a particular pinctrl function
+	 *
+	 * This activates the selected function.
+	 *
+	 * @dev:	Device to adjust (UCLASS_PINCTRL)
+	 * @func:	Function number (driver-specific)
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*request)(struct udevice *dev, int func, int flags);
+
+	/**
+	* get_periph_id() - get the peripheral ID for a device
+	*
+	* This generally looks at the peripheral's device tree node to work
+	* out the peripheral ID. The return value is normally interpreted as
+	* enum periph_id. so long as this is defined by the platform (which it
+	* should be).
+	*
+	* @dev:		Pinctrl device to use for decoding
+	* @periph:	Device to check
+	* @return peripheral ID of @periph, or -ENOENT on error
+	*/
+	int (*get_periph_id)(struct udevice *dev, struct udevice *periph);
+};
+
+#define pinctrl_get_ops(dev)	((struct pinctrl_ops *)(dev)->driver->ops)
+
+/**
+ * Generic pin configuration paramters
+ *
+ * @PIN_CONFIG_BIAS_DISABLE: disable any pin bias on the pin, a
+ *	transition from say pull-up to pull-down implies that you disable
+ *	pull-up in the process, this setting disables all biasing.
+ * @PIN_CONFIG_BIAS_HIGH_IMPEDANCE: the pin will be set to a high impedance
+ *	mode, also know as "third-state" (tristate) or "high-Z" or "floating".
+ *	On output pins this effectively disconnects the pin, which is useful
+ *	if for example some other pin is going to drive the signal connected
+ *	to it for a while. Pins used for input are usually always high
+ *	impedance.
+ * @PIN_CONFIG_BIAS_BUS_HOLD: the pin will be set to weakly latch so that it
+ *	weakly drives the last value on a tristate bus, also known as a "bus
+ *	holder", "bus keeper" or "repeater". This allows another device on the
+ *	bus to change the value by driving the bus high or low and switching to
+ *	tristate. The argument is ignored.
+ * @PIN_CONFIG_BIAS_PULL_UP: the pin will be pulled up (usually with high
+ *	impedance to VDD). If the argument is != 0 pull-up is enabled,
+ *	if it is 0, pull-up is total, i.e. the pin is connected to VDD.
+ * @PIN_CONFIG_BIAS_PULL_DOWN: the pin will be pulled down (usually with high
+ *	impedance to GROUND). If the argument is != 0 pull-down is enabled,
+ *	if it is 0, pull-down is total, i.e. the pin is connected to GROUND.
+ * @PIN_CONFIG_BIAS_PULL_PIN_DEFAULT: the pin will be pulled up or down based
+ *	on embedded knowledge of the controller hardware, like current mux
+ *	function. The pull direction and possibly strength too will normally
+ *	be decided completely inside the hardware block and not be readable
+ *	from the kernel side.
+ *	If the argument is != 0 pull up/down is enabled, if it is 0, the
+ *	configuration is ignored. The proper way to disable it is to use
+ *	@PIN_CONFIG_BIAS_DISABLE.
+ * @PIN_CONFIG_DRIVE_PUSH_PULL: the pin will be driven actively high and
+ *	low, this is the most typical case and is typically achieved with two
+ *	active transistors on the output. Setting this config will enable
+ *	push-pull mode, the argument is ignored.
+ * @PIN_CONFIG_DRIVE_OPEN_DRAIN: the pin will be driven with open drain (open
+ *	collector) which means it is usually wired with other output ports
+ *	which are then pulled up with an external resistor. Setting this
+ *	config will enable open drain mode, the argument is ignored.
+ * @PIN_CONFIG_DRIVE_OPEN_SOURCE: the pin will be driven with open source
+ *	(open emitter). Setting this config will enable open source mode, the
+ *	argument is ignored.
+ * @PIN_CONFIG_DRIVE_STRENGTH: the pin will sink or source at most the current
+ *	passed as argument. The argument is in mA.
+ * @PIN_CONFIG_INPUT_ENABLE: enable the pin's input.  Note that this does not
+ *	affect the pin's ability to drive output.  1 enables input, 0 disables
+ *	input.
+ * @PIN_CONFIG_INPUT_SCHMITT_ENABLE: control schmitt-trigger mode on the pin.
+ *      If the argument != 0, schmitt-trigger mode is enabled. If it's 0,
+ *      schmitt-trigger mode is disabled.
+ * @PIN_CONFIG_INPUT_SCHMITT: this will configure an input pin to run in
+ *	schmitt-trigger mode. If the schmitt-trigger has adjustable hysteresis,
+ *	the threshold value is given on a custom format as argument when
+ *	setting pins to this mode.
+ * @PIN_CONFIG_INPUT_DEBOUNCE: this will configure the pin to debounce mode,
+ *	which means it will wait for signals to settle when reading inputs. The
+ *	argument gives the debounce time in usecs. Setting the
+ *	argument to zero turns debouncing off.
+ * @PIN_CONFIG_POWER_SOURCE: if the pin can select between different power
+ *	supplies, the argument to this parameter (on a custom format) tells
+ *	the driver which alternative power source to use.
+ * @PIN_CONFIG_SLEW_RATE: if the pin can select slew rate, the argument to
+ *	this parameter (on a custom format) tells the driver which alternative
+ *	slew rate to use.
+ * @PIN_CONFIG_LOW_POWER_MODE: this will configure the pin for low power
+ *	operation, if several modes of operation are supported these can be
+ *	passed in the argument on a custom form, else just use argument 1
+ *	to indicate low power mode, argument 0 turns low power mode off.
+ * @PIN_CONFIG_OUTPUT: this will configure the pin as an output. Use argument
+ *	1 to indicate high level, argument 0 to indicate low level. (Please
+ *	see Documentation/pinctrl.txt, section "GPIO mode pitfalls" for a
+ *	discussion around this parameter.)
+ * @PIN_CONFIG_END: this is the last enumerator for pin configurations, if
+ *	you need to pass in custom configurations to the pin controller, use
+ *	PIN_CONFIG_END+1 as the base offset.
+ */
+#define PIN_CONFIG_BIAS_DISABLE			0
+#define PIN_CONFIG_BIAS_HIGH_IMPEDANCE		1
+#define PIN_CONFIG_BIAS_BUS_HOLD		2
+#define PIN_CONFIG_BIAS_PULL_UP			3
+#define PIN_CONFIG_BIAS_PULL_DOWN		4
+#define PIN_CONFIG_BIAS_PULL_PIN_DEFAULT	5
+#define PIN_CONFIG_DRIVE_PUSH_PULL		6
+#define PIN_CONFIG_DRIVE_OPEN_DRAIN		7
+#define PIN_CONFIG_DRIVE_OPEN_SOURCE		8
+#define PIN_CONFIG_DRIVE_STRENGTH		9
+#define PIN_CONFIG_INPUT_ENABLE			10
+#define PIN_CONFIG_INPUT_SCHMITT_ENABLE		11
+#define PIN_CONFIG_INPUT_SCHMITT		12
+#define PIN_CONFIG_INPUT_DEBOUNCE		13
+#define PIN_CONFIG_POWER_SOURCE			14
+#define PIN_CONFIG_SLEW_RATE			15
+#define PIN_CONFIG_LOW_POWER_MODE		16
+#define PIN_CONFIG_OUTPUT			17
+#define PIN_CONFIG_END				0x7FFF
+
+#if CONFIG_IS_ENABLED(PINCTRL_GENERIC)
+/**
+ * pinctrl_generic_set_state() - generic set_state operation
+ * Parse the DT node of @config and its children and handle generic properties
+ * such as "pins", "groups", "functions", and pin configuration parameters.
+ *
+ * @pctldev: pinctrl device
+ * @config: config device (pseudo device), pointing a config node in DTS
+ * @return: 0 on success, or negative error code on failure
+ */
+int pinctrl_generic_set_state(struct udevice *pctldev, struct udevice *config);
+#else
+static inline int pinctrl_generic_set_state(struct udevice *pctldev,
+					    struct udevice *config)
+{
+	return -EINVAL;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(PINCTRL)
+/**
+ * pinctrl_select_state() - set a device to a given state
+ *
+ * @dev: peripheral device
+ * @statename: state name, like "default"
+ * @return: 0 on success, or negative error code on failure
+ */
+int pinctrl_select_state(struct udevice *dev, const char *statename);
+#else
+static inline int pinctrl_select_state(struct udevice *dev,
+				       const char *statename)
+{
+	return -EINVAL;
+}
+#endif
+
+/**
+ * pinctrl_request() - Request a particular pinctrl function
+ *
+ * @dev:	Device to check (UCLASS_PINCTRL)
+ * @func:	Function number (driver-specific)
+ * @flags:	Flags (driver-specific)
+ * @return 0 if OK, -ve on error
+ */
+int pinctrl_request(struct udevice *dev, int func, int flags);
+
+/**
+ * pinctrl_request_noflags() - Request a particular pinctrl function
+ *
+ * This is similar to pinctrl_request() but uses 0 for @flags.
+ *
+ * @dev:	Device to check (UCLASS_PINCTRL)
+ * @func:	Function number (driver-specific)
+ * @return 0 if OK, -ve on error
+ */
+int pinctrl_request_noflags(struct udevice *dev, int func);
+
+/**
+ * pinctrl_get_periph_id() - get the peripheral ID for a device
+ *
+ * This generally looks at the peripheral's device tree node to work out the
+ * peripheral ID. The return value is normally interpreted as enum periph_id.
+ * so long as this is defined by the platform (which it should be).
+ *
+ * @dev:	Pinctrl device to use for decoding
+ * @periph:	Device to check
+ * @return peripheral ID of @periph, or -ENOENT on error
+ */
+int pinctrl_get_periph_id(struct udevice *dev, struct udevice *periph);
+
+#endif /* __PINCTRL_H */

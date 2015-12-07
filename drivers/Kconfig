@@ -2,59 +2,67 @@ menu "Device Drivers"
 
 source "drivers/core/Kconfig"
 
+# types of drivers sorted in alphabetical order
+
+source "drivers/block/Kconfig"
+
+source "drivers/clk/Kconfig"
+
 source "drivers/cpu/Kconfig"
 
+source "drivers/crypto/Kconfig"
+
 source "drivers/demo/Kconfig"
+
+source "drivers/dfu/Kconfig"
+
+source "drivers/dma/Kconfig"
+
+source "drivers/gpio/Kconfig"
+
+source "drivers/hwmon/Kconfig"
+
+source "drivers/i2c/Kconfig"
+
+source "drivers/input/Kconfig"
+
+source "drivers/led/Kconfig"
+
+source "drivers/misc/Kconfig"
+
+source "drivers/mmc/Kconfig"
+
+source "drivers/mtd/Kconfig"
+
+source "drivers/net/Kconfig"
 
 source "drivers/pci/Kconfig"
 
 source "drivers/pcmcia/Kconfig"
 
-source "drivers/mtd/Kconfig"
-
-source "drivers/block/Kconfig"
-
-source "drivers/misc/Kconfig"
-
-source "drivers/net/Kconfig"
-
-source "drivers/input/Kconfig"
-
-source "drivers/serial/Kconfig"
-
-source "drivers/tpm/Kconfig"
-
-source "drivers/i2c/Kconfig"
-
-source "drivers/spi/Kconfig"
-
-source "drivers/gpio/Kconfig"
+source "drivers/pinctrl/Kconfig"
 
 source "drivers/power/Kconfig"
 
-source "drivers/hwmon/Kconfig"
-
-source "drivers/watchdog/Kconfig"
-
-source "drivers/video/Kconfig"
-
-source "drivers/sound/Kconfig"
-
-source "drivers/usb/Kconfig"
-
-source "drivers/dfu/Kconfig"
-
-source "drivers/mmc/Kconfig"
+source "drivers/ram/Kconfig"
 
 source "drivers/rtc/Kconfig"
 
-source "drivers/dma/Kconfig"
+source "drivers/serial/Kconfig"
 
-source "drivers/crypto/Kconfig"
+source "drivers/sound/Kconfig"
+
+source "drivers/spi/Kconfig"
 
 source "drivers/thermal/Kconfig"
 
-endmenu
+source "drivers/tpm/Kconfig"
+
+source "drivers/usb/Kconfig"
+
+source "drivers/video/Kconfig"
+
+source "drivers/watchdog/Kconfig"
 
 config PHYS_TO_BUS
 	bool "Custom physical to bus address mapping"
@@ -63,3 +71,5 @@ config PHYS_TO_BUS
 	  peripheral DMA master accesses. If yours does, select this option in
 	  your platform's Kconfig, and implement the appropriate mapping
 	  functions in your platform's support code.
+
+endmenu

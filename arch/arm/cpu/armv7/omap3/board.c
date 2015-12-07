@@ -18,7 +18,6 @@
  */
 #include <common.h>
 #include <dm.h>
-#include <mmc.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
@@ -27,8 +26,6 @@
 #include <asm/armv7.h>
 #include <asm/gpio.h>
 #include <asm/omap_common.h>
-#include <asm/arch/mmc_host_def.h>
-#include <i2c.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -41,12 +38,12 @@ static void omap3_invalidate_l2_cache_secure(void);
 
 #ifdef CONFIG_DM_GPIO
 static const struct omap_gpio_platdata omap34xx_gpio[] = {
-	{ 0, OMAP34XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ 1, OMAP34XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ 2, OMAP34XX_GPIO3_BASE, METHOD_GPIO_24XX },
-	{ 3, OMAP34XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ 4, OMAP34XX_GPIO5_BASE, METHOD_GPIO_24XX },
-	{ 5, OMAP34XX_GPIO6_BASE, METHOD_GPIO_24XX },
+	{ 0, OMAP34XX_GPIO1_BASE },
+	{ 1, OMAP34XX_GPIO2_BASE },
+	{ 2, OMAP34XX_GPIO3_BASE },
+	{ 3, OMAP34XX_GPIO4_BASE },
+	{ 4, OMAP34XX_GPIO5_BASE },
+	{ 5, OMAP34XX_GPIO6_BASE },
 };
 
 U_BOOT_DEVICES(am33xx_gpios) = {
@@ -61,73 +58,17 @@ U_BOOT_DEVICES(am33xx_gpios) = {
 #else
 
 static const struct gpio_bank gpio_bank_34xx[6] = {
-	{ (void *)OMAP34XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO3_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO5_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO6_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP34XX_GPIO1_BASE },
+	{ (void *)OMAP34XX_GPIO2_BASE },
+	{ (void *)OMAP34XX_GPIO3_BASE },
+	{ (void *)OMAP34XX_GPIO4_BASE },
+	{ (void *)OMAP34XX_GPIO5_BASE },
+	{ (void *)OMAP34XX_GPIO6_BASE },
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
 
 #endif
-
-#ifdef CONFIG_SPL_BUILD
-/*
-* We use static variables because global data is not ready yet.
-* Initialized data is available in SPL right from the beginning.
-* We would not typically need to save these parameters in regular
-* U-Boot. This is needed only in SPL at the moment.
-*/
-u32 omap3_boot_device = BOOT_DEVICE_NAND;
-
-/* auto boot mode detection is not possible for OMAP3 - hard code */
-u32 spl_boot_mode(void)
-{
-	switch (spl_boot_device()) {
-	case BOOT_DEVICE_MMC2:
-		return MMCSD_MODE_RAW;
-	case BOOT_DEVICE_MMC1:
-		return MMCSD_MODE_FS;
-		break;
-	default:
-		puts("spl: ERROR:  unknown device - can't select boot mode\n");
-		hang();
-	}
-}
-
-u32 spl_boot_device(void)
-{
-	return omap3_boot_device;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	switch (spl_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-		omap_mmc_init(0, 0, 0, -1, -1);
-		break;
-	case BOOT_DEVICE_MMC2:
-	case BOOT_DEVICE_MMC2_2:
-		omap_mmc_init(1, 0, 0, -1, -1);
-		break;
-	}
-	return 0;
-}
-
-void spl_board_init(void)
-{
-	preloader_console_init();
-#if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
-	gpmc_init();
-#endif
-#ifdef CONFIG_SPL_I2C_SUPPORT
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
-#endif
-}
-#endif /* CONFIG_SPL_BUILD */
-
 
 /******************************************************************************
  * Routine: secure_unlock

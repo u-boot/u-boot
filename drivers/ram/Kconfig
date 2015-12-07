@@ -1,0 +1,18 @@
+config RAM
+	bool "Enable RAM drivers using Driver Model"
+	depends on DM
+	help
+	  This allows drivers to be provided for SDRAM and other RAM
+	  controllers and their type to be specified in the board's device
+	  tree. Generally some parameters are required to set up the RAM and
+	  the RAM size can either be statically defined or dynamically
+	  detected.
+
+config SPL_RAM
+	bool "Enable RAM support in SPL"
+	depends on RAM
+	help
+	  The RAM subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use RAM drivers in
+	  SPL, enable this option. It might provide a cleaner interface to
+	  setting up RAM (e.g. SDRAM / DDR) within SPL.

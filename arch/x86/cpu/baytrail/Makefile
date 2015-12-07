@@ -7,5 +7,4 @@
 obj-y += cpu.o
 obj-y += early_uart.o
 obj-y += fsp_configs.o
-obj-y += pci.o
 obj-y += valleyview.o

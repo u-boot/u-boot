@@ -18,7 +18,7 @@
 # define ohci_writel(a, b) (*((volatile u32 *)(b)) = ((volatile u32)a))
 #endif /* CONFIG_SYS_OHCI_SWAP_REG_ACCESS */
 
-#if defined CONFIG_DM_USB && ARCH_DMA_MINALIGN > 16
+#if ARCH_DMA_MINALIGN > 16
 #define ED_ALIGNMENT ARCH_DMA_MINALIGN
 #else
 #define ED_ALIGNMENT 16

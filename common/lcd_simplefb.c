@@ -16,11 +16,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int lcd_dt_simplefb_configure_node(void *blob, int off)
 {
-#if LCD_BPP == LCD_COLOR16
 	int vl_col = lcd_get_pixel_width();
 	int vl_row = lcd_get_pixel_height();
+#if LCD_BPP == LCD_COLOR16
 	return fdt_setup_simplefb_node(blob, off, gd->fb_base, vl_col, vl_row,
 				       vl_col * 2, "r5g6b5");
+#elif LCD_BPP == LCD_COLOR32
+	return fdt_setup_simplefb_node(blob, off, gd->fb_base, vl_col, vl_row,
+				       vl_col * 4, "a8r8g8b8");
 #else
 	return -1;
 #endif

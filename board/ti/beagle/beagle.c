@@ -306,12 +306,12 @@ static struct omap_musb_board_data musb_board_data = {
 };
 
 static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_MUSB_HOST)
+#if defined(CONFIG_USB_MUSB_HOST)
 	.mode           = MUSB_HOST,
-#elif defined(CONFIG_MUSB_GADGET)
+#elif defined(CONFIG_USB_MUSB_GADGET)
 	.mode		= MUSB_PERIPHERAL,
 #else
-#error "Please define either CONFIG_MUSB_HOST or CONFIG_MUSB_GADGET"
+#error "Please define either CONFIG_USB_MUSB_HOST or CONFIG_USB_MUSB_GADGET"
 #endif
 	.config         = &musb_config,
 	.power          = 100,
@@ -568,7 +568,7 @@ int ehci_hcd_stop(int index)
 
 #endif /* CONFIG_USB_EHCI */
 
-#if defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)
+#if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET)
 int board_eth_init(bd_t *bis)
 {
 	return usb_eth_initialize(bis);

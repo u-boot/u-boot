@@ -420,7 +420,6 @@
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 #define CONFIG_PCI_PNP	/* do pci plug-and-play */
-#define CONFIG_E1000	/* Defind e1000 pci Ethernet card*/
 #define CONFIG_CMD_PCI
 
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
@@ -550,7 +549,6 @@
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"B$ "		/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else

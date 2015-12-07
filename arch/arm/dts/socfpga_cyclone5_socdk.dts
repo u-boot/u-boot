@@ -25,10 +25,6 @@
 		 * to be added to the gmac1 device tree blob.
 		 */
 		ethernet0 = &gmac1;
-
-		spi0 = "/spi@ff705000";		/* QSPI */
-		spi1 = "/spi@fff00000";
-		spi2 = "/spi@fff01000";
 	};
 
 	regulator_3_3v: 3-3-v-regulator {
@@ -73,6 +69,9 @@
 };
 
 &mmc0 {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+
 	cd-gpios = <&portb 18 0>;
 	vmmc-supply = <&regulator_3_3v>;
 	vqmmc-supply = <&regulator_3_3v>;

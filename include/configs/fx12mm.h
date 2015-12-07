@@ -37,7 +37,6 @@
 #define CONFIG_ENV_OVERWRITE 	1
 
 /*Misc*/
-#define CONFIG_SYS_PROMPT	"FX12MM:/# " /* Monitor Command Prompt */
 #define CONFIG_PREBOOT      	"echo U-Boot is up and running;"
 
 /*Flash*/

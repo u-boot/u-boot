@@ -85,6 +85,36 @@ typedef u64 iomux_v3_cfg_t;
 
 #define NO_PAD_CTRL		(1 << 17)
 
+#ifdef CONFIG_MX7
+
+#define IOMUX_LPSR_SEL_INPUT_OFS 0x70000
+#define IOMUX_CONFIG_LPSR       0x8
+#define MUX_MODE_LPSR           ((iomux_v3_cfg_t)IOMUX_CONFIG_LPSR << \
+				MUX_MODE_SHIFT)
+
+#define PAD_CTL_DSE_1P8V_140OHM   (0x0<<0)
+#define PAD_CTL_DSE_1P8V_35OHM    (0x1<<0)
+#define PAD_CTL_DSE_1P8V_70OHM    (0x2<<0)
+#define PAD_CTL_DSE_1P8V_23OHM    (0x3<<0)
+
+#define PAD_CTL_DSE_3P3V_196OHM   (0x0<<0)
+#define PAD_CTL_DSE_3P3V_49OHM    (0x1<<0)
+#define PAD_CTL_DSE_3P3V_98OHM    (0x2<<0)
+#define PAD_CTL_DSE_3P3V_32OHM    (0x3<<0)
+
+#define PAD_CTL_SRE_FAST     (0 << 2)
+#define PAD_CTL_SRE_SLOW     (0x1 << 2)
+
+#define PAD_CTL_HYS       (0x1 << 3)
+#define PAD_CTL_PUE       (0x1 << 4)
+
+#define PAD_CTL_PUS_PD100KOHM  ((0x0 << 5) | PAD_CTL_PUE)
+#define PAD_CTL_PUS_PU5KOHM    ((0x1 << 5) | PAD_CTL_PUE)
+#define PAD_CTL_PUS_PU47KOHM   ((0x2 << 5) | PAD_CTL_PUE)
+#define PAD_CTL_PUS_PU100KOHM  ((0x3 << 5) | PAD_CTL_PUE)
+
+#else
+
 #ifdef CONFIG_MX6
 
 #define PAD_CTL_HYS		(1 << 16)
@@ -98,7 +128,11 @@ typedef u64 iomux_v3_cfg_t;
 
 #define PAD_CTL_ODE		(1 << 11)
 
+#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL)
+#define PAD_CTL_SPEED_LOW	(0 << 6)
+#else
 #define PAD_CTL_SPEED_LOW	(1 << 6)
+#endif
 #define PAD_CTL_SPEED_MED	(2 << 6)
 #define PAD_CTL_SPEED_HIGH	(3 << 6)
 
@@ -126,6 +160,8 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_SPEED_HIGH	(3 << 12)
 
 #define PAD_CTL_SRE		(1 << 11)
+
+#define PAD_CTL_ODE		(1 << 10)
 
 #define PAD_CTL_DSE_150ohm	(1 << 6)
 #define PAD_CTL_DSE_50ohm	(3 << 6)
@@ -166,6 +202,8 @@ typedef u64 iomux_v3_cfg_t;
 
 #define PAD_CTL_SRE_SLOW	(0 << 0)
 #define PAD_CTL_SRE_FAST	(1 << 0)
+
+#endif
 
 #define IOMUX_CONFIG_SION	0x10
 

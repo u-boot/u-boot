@@ -58,6 +58,14 @@ struct cpu_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*get_info)(struct udevice *dev, struct cpu_info *info);
+
+	/**
+	 * get_count() - Get number of CPUs
+	 *
+	 * @dev:	Device to check (UCLASS_CPU)
+	 * @return CPU count if OK, -ve on error
+	 */
+	int (*get_count)(struct udevice *dev);
 };
 
 #define cpu_get_ops(dev)        ((struct cpu_ops *)(dev)->driver->ops)
@@ -80,5 +88,13 @@ int cpu_get_desc(struct udevice *dev, char *buf, int size);
  * @return 0 if OK, -ve on error
  */
 int cpu_get_info(struct udevice *dev, struct cpu_info *info);
+
+/**
+ * cpu_get_count() - Get number of CPUs
+ *
+ * @dev:	Device to check (UCLASS_CPU)
+ * @return CPU count if OK, -ve on error
+ */
+int cpu_get_count(struct udevice *dev);
 
 #endif

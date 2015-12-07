@@ -20,7 +20,7 @@ static struct udevice *map_dev;
 unsigned long map_len;
 #endif
 
-void reset_cpu(ulong ignored)
+void sandbox_exit(void)
 {
 	/* Do this here while it still has an effect */
 	os_fd_restore();
@@ -32,13 +32,6 @@ void reset_cpu(ulong ignored)
 
 	/* This is considered normal termination for now */
 	os_exit(0);
-}
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	reset_cpu(0);
-
-	return 0;
 }
 
 /* delay x useconds */

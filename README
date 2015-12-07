@@ -681,8 +681,10 @@ The following options need to be configured:
 		CONFIG_ARM_ERRATA_742230
 		CONFIG_ARM_ERRATA_743622
 		CONFIG_ARM_ERRATA_751472
-		CONFIG_ARM_ERRATA_794072
 		CONFIG_ARM_ERRATA_761320
+		CONFIG_ARM_ERRATA_773022
+		CONFIG_ARM_ERRATA_774769
+		CONFIG_ARM_ERRATA_794072
 
 		If set, the workarounds for these ARM errata are applied early
 		during U-Boot startup. Note that these options force the
@@ -705,6 +707,7 @@ The following options need to be configured:
 		CONFIG_ARM_ERRATA_454179
 		CONFIG_ARM_ERRATA_621766
 		CONFIG_ARM_ERRATA_798870
+		CONFIG_ARM_ERRATA_801819
 
 - Tegra SoC options:
 		CONFIG_TEGRA_SUPPORT_NON_SECURE
@@ -838,18 +841,6 @@ The following options need to be configured:
 		If you have Amba PrimeCell PL010 or PL011 UARTs on your board,
 		define this to a list of base addresses for each (supported)
 		port. See e.g. include/configs/versatile.h
-
-		CONFIG_PL011_SERIAL_RLCR
-
-		Some vendor versions of PL011 serial ports (e.g. ST-Ericsson U8500)
-		have separate receive and transmit line control registers.  Set
-		this variable to initialize the extra register.
-
-		CONFIG_PL011_SERIAL_FLUSH_ON_INIT
-
-		On some platforms (e.g. U8500) U-Boot is loaded by a second stage
-		boot loader that has already initialized the UART.  Define this
-		variable to flush the UART at init time.
 
 		CONFIG_SERIAL_HW_FLOW_CONTROL
 
@@ -1384,9 +1375,6 @@ The following options need to be configured:
 		Management command for E1000 devices.  When used on devices
 		with SPI support you can reprogram the EEPROM from U-Boot.
 
-		CONFIG_E1000_FALLBACK_MAC
-		default MAC for empty EEPROM after production.
-
 		CONFIG_EEPRO100
 		Support for Intel 82557/82559/82559ER chips.
 		Optional CONFIG_EEPRO100_SROM_WRITE enables EEPROM
@@ -1498,12 +1486,6 @@ The following options need to be configured:
 		CONFIG_TPM_TIS_I2C
 		Support for i2c bus TPM devices. Only one device
 		per system is supported at this time.
-
-			CONFIG_TPM_TIS_I2C_BUS_NUMBER
-			Define the the i2c bus number for the TPM device
-
-			CONFIG_TPM_TIS_I2C_SLAVE_ADDRESS
-			Define the TPM's address on the i2c bus
 
 			CONFIG_TPM_TIS_I2C_BURST_LIMITATION
 			Define the burst count bytes upper limit
@@ -1674,7 +1656,7 @@ The following options need to be configured:
 		key for the Replay Protection Memory Block partition in eMMC.
 
 - USB Device Firmware Update (DFU) class support:
-		CONFIG_DFU_FUNCTION
+		CONFIG_USB_FUNCTION_DFU
 		This enables the USB portion of the DFU USB class
 
 		CONFIG_CMD_DFU
@@ -1719,6 +1701,9 @@ The following options need to be configured:
 		sending again an USB request to the device.
 
 - USB Device Android Fastboot support:
+		CONFIG_USB_FUNCTION_FASTBOOT
+		This enables the USB part of the fastboot gadget
+
 		CONFIG_CMD_FASTBOOT
 		This enables the command "fastboot" which enables the Android
 		fastboot mode for the platform's USB device. Fastboot is a USB
@@ -1730,12 +1715,12 @@ The following options need to be configured:
 		This enables support for booting images which use the Android
 		image format header.
 
-		CONFIG_USB_FASTBOOT_BUF_ADDR
+		CONFIG_FASTBOOT_BUF_ADDR
 		The fastboot protocol requires a large memory buffer for
 		downloads. Define this to the starting RAM address to use for
 		downloaded images.
 
-		CONFIG_USB_FASTBOOT_BUF_SIZE
+		CONFIG_FASTBOOT_BUF_SIZE
 		The fastboot protocol requires a large memory buffer for
 		downloads. This buffer should be as large as possible for a
 		platform. Define this to the size available RAM for fastboot.
@@ -2379,16 +2364,20 @@ CBFS (Coreboot Filesystem) support
 
 		- drivers/i2c/i2c_mxc.c
 		  - activate this driver with CONFIG_SYS_I2C_MXC
+		  - enable bus 1 with CONFIG_SYS_I2C_MXC_I2C1
+		  - enable bus 2 with CONFIG_SYS_I2C_MXC_I2C2
+		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
+		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 		  - define speed for bus 1 with CONFIG_SYS_MXC_I2C1_SPEED
 		  - define slave for bus 1 with CONFIG_SYS_MXC_I2C1_SLAVE
 		  - define speed for bus 2 with CONFIG_SYS_MXC_I2C2_SPEED
 		  - define slave for bus 2 with CONFIG_SYS_MXC_I2C2_SLAVE
 		  - define speed for bus 3 with CONFIG_SYS_MXC_I2C3_SPEED
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
+		  - define speed for bus 4 with CONFIG_SYS_MXC_I2C4_SPEED
+		  - define slave for bus 4 with CONFIG_SYS_MXC_I2C4_SLAVE
 		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
-		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
-		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 
 		- drivers/i2c/rcar_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_RCAR
@@ -5065,6 +5054,33 @@ within that device.
 	Specifies that MC firmware is located in NOR flash, mapped as
 	normal addressable memory via the LBC. CONFIG_SYS_LS_MC_FW_ADDR is the
 	virtual address in NOR flash.
+
+Freescale Layerscape Debug Server Support:
+-------------------------------------------
+The Freescale Layerscape Debug Server Support supports the loading of
+"Debug Server firmware" and triggering SP boot-rom.
+This firmware often needs to be loaded during U-Boot booting.
+
+- CONFIG_FSL_DEBUG_SERVER
+	Enable the Debug Server for Layerscape SoCs.
+
+- CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE
+	Define minimum DDR size required for debug server image
+
+- CONFIG_SYS_MEM_TOP_HIDE_MIN
+	Define minimum DDR size to be hided from top of the DDR memory
+
+Reproducible builds
+-------------------
+
+In order to achieve reproducible builds, timestamps used in the U-Boot build
+process have to be set to a fixed value.
+
+This is done using the SOURCE_DATE_EPOCH environment variable.
+SOURCE_DATE_EPOCH is to be set on the build host's shell, not as a configuration
+option for U-Boot or an environment variable in U-Boot.
+
+SOURCE_DATE_EPOCH should be set to a number of seconds since the epoch, in UTC.
 
 Building the Software:
 ======================

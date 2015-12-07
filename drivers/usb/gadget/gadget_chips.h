@@ -125,7 +125,7 @@
 #endif
 
 /* Mentor high speed "dual role" controller, in peripheral role */
-#ifdef CONFIG_MUSB_GADGET
+#ifdef CONFIG_USB_MUSB_GADGET
 #define gadget_is_musbhdrc(g)	(!strcmp("musb-hdrc", (g)->name))
 #else
 #define gadget_is_musbhdrc(g)	0

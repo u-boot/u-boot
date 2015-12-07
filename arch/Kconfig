@@ -1,3 +1,6 @@
+config CREATE_ARCH_SYMLINK
+	bool
+
 config HAVE_GENERIC_BOARD
 	bool
 
@@ -18,12 +21,14 @@ config ARC
 
 config ARM
 	bool "ARM architecture"
+	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select HAVE_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config AVR32
 	bool "AVR32 architecture"
+	select CREATE_ARCH_SYMLINK
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
 
@@ -51,6 +56,8 @@ config MIPS
 
 config NDS32
 	bool "NDS32 architecture"
+	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config NIOS2
 	bool "Nios II architecture"
@@ -84,9 +91,11 @@ config SH
 
 config SPARC
 	bool "SPARC architecture"
+	select CREATE_ARCH_SYMLINK
 
 config X86
 	bool "x86 architecture"
+	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD

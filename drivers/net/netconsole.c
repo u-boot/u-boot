@@ -170,7 +170,11 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 
 static void nc_send_packet(const char *buf, int len)
 {
+#ifdef CONFIG_DM_ETH
+	struct udevice *eth;
+#else
 	struct eth_device *eth;
+#endif
 	int inited = 0;
 	uchar *pkt;
 	uchar *ether;
@@ -183,7 +187,7 @@ static void nc_send_packet(const char *buf, int len)
 		return;
 
 	if (!memcmp(nc_ether, net_null_ethaddr, 6)) {
-		if (eth->state == ETH_STATE_ACTIVE)
+		if (eth_is_active(eth))
 			return;	/* inside net loop */
 		output_packet = buf;
 		output_packet_len = len;
@@ -194,7 +198,7 @@ static void nc_send_packet(const char *buf, int len)
 		return;
 	}
 
-	if (eth->state != ETH_STATE_ACTIVE) {
+	if (!eth_is_active(eth)) {
 		if (eth_is_on_demand_init()) {
 			if (eth_init() < 0)
 				return;
@@ -292,7 +296,11 @@ static int nc_stdio_getc(struct stdio_dev *dev)
 
 static int nc_stdio_tstc(struct stdio_dev *dev)
 {
+#ifdef CONFIG_DM_ETH
+	struct udevice *eth;
+#else
 	struct eth_device *eth;
+#endif
 
 	if (input_recursion)
 		return 0;
@@ -301,7 +309,7 @@ static int nc_stdio_tstc(struct stdio_dev *dev)
 		return 1;
 
 	eth = eth_get_dev();
-	if (eth && eth->state == ETH_STATE_ACTIVE)
+	if (eth_is_active(eth))
 		return 0;	/* inside net loop */
 
 	input_recursion = 1;

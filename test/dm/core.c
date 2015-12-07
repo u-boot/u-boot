@@ -77,7 +77,7 @@ void dm_leak_check_start(struct unit_test_state *uts)
 int dm_leak_check_end(struct unit_test_state *uts)
 {
 	struct mallinfo end;
-	int id;
+	int id, diff;
 
 	/* Don't delete the root class, since we started with that */
 	for (id = UCLASS_ROOT + 1; id < UCLASS_COUNT; id++) {
@@ -90,6 +90,11 @@ int dm_leak_check_end(struct unit_test_state *uts)
 	}
 
 	end = mallinfo();
+	diff = end.uordblks - uts->start.uordblks;
+	if (diff > 0)
+		printf("Leak: lost %#xd bytes\n", diff);
+	else if (diff < 0)
+		printf("Leak: gained %#xd bytes\n", -diff);
 	ut_asserteq(uts->start.uordblks, end.uordblks);
 
 	return 0;

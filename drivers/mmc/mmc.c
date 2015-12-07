@@ -10,10 +10,13 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <dm.h>
+#include <dm/device-internal.h>
 #include <errno.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <linux/list.h>
 #include <div64.h>
 #include "mmc_private.h"
@@ -250,14 +253,18 @@ static ulong mmc_bread(int dev_num, lbaint_t start, lbaint_t blkcnt, void *dst)
 		return 0;
 	}
 
-	if (mmc_set_blocklen(mmc, mmc->read_bl_len))
+	if (mmc_set_blocklen(mmc, mmc->read_bl_len)) {
+		debug("%s: Failed to set blocklen\n", __func__);
 		return 0;
+	}
 
 	do {
 		cur = (blocks_todo > mmc->cfg->b_max) ?
 			mmc->cfg->b_max : blocks_todo;
-		if(mmc_read_blocks(mmc, dst, start, cur) != cur)
+		if (mmc_read_blocks(mmc, dst, start, cur) != cur) {
+			debug("%s: Failed to read blocks\n", __func__);
 			return 0;
+		}
 		blocks_todo -= cur;
 		start += cur;
 		dst += cur * mmc->read_bl_len;
@@ -1755,14 +1762,54 @@ static void do_preinit(void)
 	}
 }
 
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_SPL_BUILD)
+static int mmc_probe(bd_t *bis)
+{
+	return 0;
+}
+#elif defined(CONFIG_DM_MMC)
+static int mmc_probe(bd_t *bis)
+{
+	int ret;
+	struct uclass *uc;
+	struct udevice *m;
+
+	ret = uclass_get(UCLASS_MMC, &uc);
+	if (ret)
+		return ret;
+
+	uclass_foreach_dev(m, uc) {
+		ret = device_probe(m);
+		if (ret)
+			printf("%s - probe failed: %d\n", m->name, ret);
+	}
+
+	return 0;
+}
+#else
+static int mmc_probe(bd_t *bis)
+{
+	if (board_mmc_init(bis) < 0)
+		cpu_mmc_init(bis);
+
+	return 0;
+}
+#endif
 
 int mmc_initialize(bd_t *bis)
 {
+	static int initialized = 0;
+	int ret;
+	if (initialized)	/* Avoid initializing mmc multiple times */
+		return 0;
+	initialized = 1;
+
 	INIT_LIST_HEAD (&mmc_devices);
 	cur_dev_num = 0;
 
-	if (board_mmc_init(bis) < 0)
-		cpu_mmc_init(bis);
+	ret = mmc_probe(bis);
+	if (ret)
+		return ret;
 
 #ifndef CONFIG_SPL_BUILD
 	print_mmc_devices(',');

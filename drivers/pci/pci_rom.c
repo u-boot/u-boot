@@ -31,6 +31,7 @@
 #include <pci_rom.h>
 #include <vbe.h>
 #include <video_fb.h>
+#include <linux/screen_info.h>
 
 #ifdef CONFIG_HAVE_ACPI_RESUME
 #include <asm/acpi.h>
@@ -79,14 +80,9 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	if (vendev != mapped_vendev)
 		debug("Device ID mapped to %#08x\n", mapped_vendev);
 
-#ifdef CONFIG_X86_OPTION_ROM_ADDR
-	rom_address = CONFIG_X86_OPTION_ROM_ADDR;
+#ifdef CONFIG_VGA_BIOS_ADDR
+	rom_address = CONFIG_VGA_BIOS_ADDR;
 #else
-
-	if (pciauto_setup_rom(pci_bus_to_hose(PCI_BUS(dev)), dev)) {
-		debug("Cannot find option ROM\n");
-		return -ENOENT;
-	}
 
 	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &rom_address);
 	if (rom_address == 0x00000000 || rom_address == 0xffffffff) {
@@ -108,6 +104,10 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	if (le16_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
 		printf("Incorrect expansion ROM header signature %04x\n",
 		       le16_to_cpu(rom_header->signature));
+#ifndef CONFIG_VGA_BIOS_ADDR
+		/* Disable expansion ROM address decoding */
+		pci_write_config_dword(dev, PCI_ROM_ADDRESS, rom_address);
+#endif
 		return -EINVAL;
 	}
 
@@ -187,7 +187,7 @@ int pci_rom_load(struct pci_rom_header *rom_header,
 	return 0;
 }
 
-static struct vbe_mode_info mode_info;
+struct vbe_mode_info mode_info;
 
 int vbe_get_video_info(struct graphic_device *gdev)
 {
@@ -203,6 +203,7 @@ int vbe_get_video_info(struct graphic_device *gdev)
 	gdev->gdfBytesPP = vesa->bits_per_pixel / 8;
 
 	switch (vesa->bits_per_pixel) {
+	case 32:
 	case 24:
 		gdev->gdfIndex = GDF_32BIT_X888RGB;
 		break;
@@ -227,6 +228,35 @@ int vbe_get_video_info(struct graphic_device *gdev)
 #else
 	return -ENOSYS;
 #endif
+}
+
+void setup_video(struct screen_info *screen_info)
+{
+	struct vesa_mode_info *vesa = &mode_info.vesa;
+
+	/* Sanity test on VESA parameters */
+	if (!vesa->x_resolution || !vesa->y_resolution)
+		return;
+
+	screen_info->orig_video_isVGA = VIDEO_TYPE_VLFB;
+
+	screen_info->lfb_width = vesa->x_resolution;
+	screen_info->lfb_height = vesa->y_resolution;
+	screen_info->lfb_depth = vesa->bits_per_pixel;
+	screen_info->lfb_linelength = vesa->bytes_per_scanline;
+	screen_info->lfb_base = vesa->phys_base_ptr;
+	screen_info->lfb_size =
+		ALIGN(screen_info->lfb_linelength * screen_info->lfb_height,
+		      65536);
+	screen_info->lfb_size >>= 16;
+	screen_info->red_size = vesa->red_mask_size;
+	screen_info->red_pos = vesa->red_mask_pos;
+	screen_info->green_size = vesa->green_mask_size;
+	screen_info->green_pos = vesa->green_mask_pos;
+	screen_info->blue_size = vesa->blue_mask_size;
+	screen_info->blue_pos = vesa->blue_mask_pos;
+	screen_info->rsvd_size = vesa->reserved_mask_size;
+	screen_info->rsvd_pos = vesa->reserved_mask_pos;
 }
 
 int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), int exec_method)

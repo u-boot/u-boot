@@ -54,6 +54,10 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #include <u-boot/md5.h>
 #include <time.h>
 #include <image.h>
+
+#ifndef __maybe_unused
+# define __maybe_unused		/* unimplemented */
+#endif
 #endif /* !USE_HOSTCC*/
 
 #include <u-boot/crc.h>
@@ -151,6 +155,9 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_ATMELIMAGE, "atmelimage", "ATMEL ROM-Boot Image",},
 	{	IH_TYPE_X86_SETUP,  "x86_setup",  "x86 setup.bin",    },
 	{	IH_TYPE_LPC32XXIMAGE, "lpc32xximage",  "LPC32XX Boot Image", },
+	{	IH_TYPE_RKIMAGE,    "rkimage",    "Rockchip Boot Image" },
+	{	IH_TYPE_RKSD,       "rksd",       "Rockchip SD Boot Image" },
+	{	IH_TYPE_RKSPI,      "rkspi",      "Rockchip SPI Boot Image" },
 	{	-1,		    "",		  "",			},
 };
 
@@ -160,6 +167,7 @@ static const table_entry_t uimage_comp[] = {
 	{	IH_COMP_GZIP,	"gzip",		"gzip compressed",	},
 	{	IH_COMP_LZMA,	"lzma",		"lzma compressed",	},
 	{	IH_COMP_LZO,	"lzo",		"lzo compressed",	},
+	{	IH_COMP_LZ4,	"lz4",		"lz4 compressed",	},
 	{	-1,		"",		"",			},
 };
 
@@ -274,7 +282,7 @@ void image_multi_getimg(const image_header_t *hdr, ulong idx,
 
 static void image_print_type(const image_header_t *hdr)
 {
-	const char *os, *arch, *type, *comp;
+	const char __maybe_unused *os, *arch, *type, *comp;
 
 	os = genimg_get_os_name(image_get_os(hdr));
 	arch = genimg_get_arch_name(image_get_arch(hdr));
@@ -299,7 +307,7 @@ static void image_print_type(const image_header_t *hdr)
 void image_print_contents(const void *ptr)
 {
 	const image_header_t *hdr = (const image_header_t *)ptr;
-	const char *p;
+	const char __maybe_unused *p;
 
 	p = IMAGE_INDENT_STRING;
 	printf("%sImage Name:   %.*s\n", p, IH_NMLEN, image_get_name(hdr));
@@ -543,6 +551,15 @@ void genimg_print_time(time_t timestamp)
 }
 #endif
 
+const table_entry_t *get_table_entry(const table_entry_t *table, int id)
+{
+	for (; table->id >= 0; ++table) {
+		if (table->id == id)
+			return table;
+	}
+	return NULL;
+}
+
 /**
  * get_table_entry_name - translate entry id to long name
  * @table: pointer to a translation table for entries of a specific type
@@ -559,15 +576,14 @@ void genimg_print_time(time_t timestamp)
  */
 char *get_table_entry_name(const table_entry_t *table, char *msg, int id)
 {
-	for (; table->id >= 0; ++table) {
-		if (table->id == id)
+	table = get_table_entry(table, id);
+	if (!table)
+		return msg;
 #if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
-			return table->lname;
+	return table->lname;
 #else
-			return table->lname + gd->reloc_off;
+	return table->lname + gd->reloc_off;
 #endif
-	}
-	return (msg);
 }
 
 const char *genimg_get_os_name(uint8_t os)
@@ -584,6 +600,20 @@ const char *genimg_get_arch_name(uint8_t arch)
 const char *genimg_get_type_name(uint8_t type)
 {
 	return (get_table_entry_name(uimage_type, "Unknown Image", type));
+}
+
+const char *genimg_get_type_short_name(uint8_t type)
+{
+	const table_entry_t *table;
+
+	table = get_table_entry(uimage_type, type);
+	if (!table)
+		return "unknown";
+#if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
+	return table->sname;
+#else
+	return table->sname + gd->reloc_off;
+#endif
 }
 
 const char *genimg_get_comp_name(uint8_t comp)
@@ -610,34 +640,18 @@ int get_table_entry_id(const table_entry_t *table,
 		const char *table_name, const char *name)
 {
 	const table_entry_t *t;
-#ifdef USE_HOSTCC
-	int first = 1;
 
-	for (t = table; t->id >= 0; ++t) {
-		if (t->sname && strcasecmp(t->sname, name) == 0)
-			return(t->id);
-	}
-
-	fprintf(stderr, "\nInvalid %s Type - valid names are", table_name);
-	for (t = table; t->id >= 0; ++t) {
-		if (t->sname == NULL)
-			continue;
-		fprintf(stderr, "%c %s", (first) ? ':' : ',', t->sname);
-		first = 0;
-	}
-	fprintf(stderr, "\n");
-#else
 	for (t = table; t->id >= 0; ++t) {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
-		if (t->sname && strcmp(t->sname + gd->reloc_off, name) == 0)
+		if (t->sname && strcasecmp(t->sname + gd->reloc_off, name) == 0)
 #else
-		if (t->sname && strcmp(t->sname, name) == 0)
+		if (t->sname && strcasecmp(t->sname, name) == 0)
 #endif
 			return (t->id);
 	}
 	debug("Invalid %s Type: %s\n", table_name, name);
-#endif /* USE_HOSTCC */
-	return (-1);
+
+	return -1;
 }
 
 int genimg_get_os_id(const char *name)
@@ -894,8 +908,18 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	*rd_start = 0;
 	*rd_end = 0;
 
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	/*
+	 * Look for an Android boot image.
+	 */
+	buf = map_sysmem(images->os.start, 0);
+	if (genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
+		select = argv[0];
+#endif
+
 	if (argc >= 2)
 		select = argv[1];
+
 	/*
 	 * Look for a '-' which indicates to ignore the
 	 * ramdisk argument
@@ -995,6 +1019,12 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			images->fit_noffset_rd = rd_noffset;
 			break;
 #endif
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+		case IMAGE_FORMAT_ANDROID:
+			android_image_get_ramdisk((void *)images->os.start,
+				&rd_data, &rd_len);
+			break;
+#endif
 		default:
 #ifdef CONFIG_SUPPORT_RAW_INITRD
 			end = NULL;
@@ -1025,16 +1055,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 				(ulong)images->legacy_hdr_os);
 
 		image_multi_getimg(images->legacy_hdr_os, 1, &rd_data, &rd_len);
-	}
-#ifdef CONFIG_ANDROID_BOOT_IMAGE
-	else if ((genimg_get_format((void *)images->os.start)
-			== IMAGE_FORMAT_ANDROID) &&
-		 (!android_image_get_ramdisk((void *)images->os.start,
-		 &rd_data, &rd_len))) {
-		/* empty */
-	}
-#endif
-	else {
+	} else {
 		/*
 		 * no initrd image
 		 */
@@ -1207,10 +1228,10 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 		conf_noffset = fit_conf_get_node(buf, images->fit_uname_cfg);
 
 		for (loadables_index = 0;
-		     !fdt_get_string_index(buf, conf_noffset,
+		     fdt_get_string_index(buf, conf_noffset,
 				FIT_LOADABLE_PROP,
 				loadables_index,
-				(const char **)&uname) > 0;
+				(const char **)&uname) == 0;
 		     loadables_index++)
 		{
 			fit_img_result = fit_image_load(images,

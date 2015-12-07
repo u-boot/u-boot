@@ -123,7 +123,6 @@
 #define CONFIG_SYS_L2CACHE_OFF		1
 #define CONFIG_INITRD_TAG		1
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_OF_LIBFDT		1
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
@@ -152,18 +151,6 @@
 #define CONFIG_SYS_SERIAL0		V2M_UART0
 #define CONFIG_SYS_SERIAL1		V2M_UART1
 
-/* Command line configuration */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PXE
-#define CONFIG_MENU
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_SUPPORT_RAW_INITRD
-
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION		1
 #define CONFIG_MMC			1
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
@@ -177,8 +164,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_PXE
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x8000)
@@ -200,9 +185,22 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_GBL_DATA_OFFSET
+#define CONFIG_CMD_ECHO
+
+#include <config_distro_defaults.h>
 
 /* Basic environment settings */
-#define CONFIG_BOOTCOMMAND		"run bootflash;"
+#define CONFIG_BOOTCOMMAND \
+	"run distro_bootcmd; " \
+	"run bootflash; "
+
+#define BOOT_TARGET_DEVICES(func) \
+        func(MMC, mmc, 1) \
+        func(MMC, mmc, 0) \
+        func(PXE, pxe, na) \
+        func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
+
 #ifdef CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
 #define CONFIG_PLATFORM_ENV_SETTINGS \
 		"loadaddr=0x80008000\0" \
@@ -211,6 +209,7 @@
 		"ramdisk_addr=0x44800000\0" \
 		"maxramdisk=0x1800000\0" \
 		"pxefile_addr_r=0x88000000\0" \
+		"scriptaddr=0x88000000\0" \
 		"kernel_addr_r=0x80008000\0"
 #elif defined(CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP)
 #define CONFIG_PLATFORM_ENV_SETTINGS \
@@ -220,10 +219,12 @@
 		"ramdisk_addr=0x0c800000\0" \
 		"maxramdisk=0x1800000\0" \
 		"pxefile_addr_r=0xa8000000\0" \
+		"scriptaddr=0xa8000000\0" \
 		"kernel_addr_r=0xa0008000\0"
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
 		CONFIG_PLATFORM_ENV_SETTINGS \
+                BOOTENV \
 		"console=ttyAMA0,38400n8\0" \
 		"dram=1024M\0" \
 		"root=/dev/sda1 rw\0" \
@@ -280,14 +281,12 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PROMPT		"VExpress# "
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_SYS_MAXARGS		16	/* max command args */
 
 #endif /* VEXPRESS_COMMON_H */

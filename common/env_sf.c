@@ -79,7 +79,7 @@ int saveenv(void)
 	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
 		saved_size = CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SIZE;
 		saved_offset = env_new_offset + CONFIG_ENV_SIZE;
-		saved_buffer = malloc(saved_size);
+		saved_buffer = memalign(ARCH_DMA_MINALIGN, saved_size);
 		if (!saved_buffer) {
 			ret = 1;
 			goto done;
@@ -142,9 +142,10 @@ void env_relocate_spec(void)
 	env_t *tmp_env2 = NULL;
 	env_t *ep = NULL;
 
-	tmp_env1 = (env_t *)malloc(CONFIG_ENV_SIZE);
-	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
-
+	tmp_env1 = (env_t *)memalign(ARCH_DMA_MINALIGN,
+			CONFIG_ENV_SIZE);
+	tmp_env2 = (env_t *)memalign(ARCH_DMA_MINALIGN,
+			CONFIG_ENV_SIZE);
 	if (!tmp_env1 || !tmp_env2) {
 		set_default_env("!malloc() failed");
 		goto out;
@@ -295,7 +296,7 @@ void env_relocate_spec(void)
 	int ret;
 	char *buf = NULL;
 
-	buf = (char *)malloc(CONFIG_ENV_SIZE);
+	buf = (char *)memalign(ARCH_DMA_MINALIGN, CONFIG_ENV_SIZE);
 	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 	if (!env_flash) {

@@ -56,9 +56,14 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 	*ucp = NULL;
 	uc_drv = lists_uclass_lookup(id);
 	if (!uc_drv) {
-		dm_warn("Cannot find uclass for id %d: please add the UCLASS_DRIVER() declaration for this UCLASS_... id\n",
-			id);
-		return -ENOENT;
+		debug("Cannot find uclass for id %d: please add the UCLASS_DRIVER() declaration for this UCLASS_... id\n",
+		      id);
+		/*
+		 * Use a strange error to make this case easier to find. When
+		 * a uclass is not available it can prevent driver model from
+		 * starting up and this failure is otherwise hard to debug.
+		 */
+		return -EPFNOSUPPORT;
 	}
 	uc = calloc(1, sizeof(*uc));
 	if (!uc)
@@ -153,6 +158,8 @@ int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 	ret = uclass_get(id, &uc);
 	if (ret)
 		return ret;
+	if (list_empty(&uc->dev_head))
+		return -ENODEV;
 
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
 		if (!index--) {
@@ -271,6 +278,37 @@ static int uclass_find_device_by_of_offset(enum uclass_id id, int node,
 	return -ENODEV;
 }
 
+static int uclass_find_device_by_phandle(enum uclass_id id,
+					 struct udevice *parent,
+					 const char *name,
+					 struct udevice **devp)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int find_phandle;
+	int ret;
+
+	*devp = NULL;
+	find_phandle = fdtdec_get_int(gd->fdt_blob, parent->of_offset, name,
+				      -1);
+	if (find_phandle <= 0)
+		return -ENOENT;
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		uint phandle = fdt_get_phandle(gd->fdt_blob, dev->of_offset);
+
+		if (phandle == find_phandle) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 int uclass_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)
 {
@@ -336,6 +374,17 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
+int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				 const char *name, struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_find_device_by_phandle(id, parent, name, &dev);
+	return uclass_get_device_tail(dev, ret, devp);
+}
+
 int uclass_first_device(enum uclass_id id, struct udevice **devp)
 {
 	struct udevice *dev;
@@ -391,7 +440,7 @@ err:
 	return ret;
 }
 
-#ifdef CONFIG_DM_DEVICE_REMOVE
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int uclass_unbind_device(struct udevice *dev)
 {
 	struct uclass *uc;
@@ -471,7 +520,7 @@ int uclass_post_probe_device(struct udevice *dev)
 	return 0;
 }
 
-#ifdef CONFIG_DM_DEVICE_REMOVE
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
 int uclass_pre_remove_device(struct udevice *dev)
 {
 	struct uclass_driver *uc_drv;

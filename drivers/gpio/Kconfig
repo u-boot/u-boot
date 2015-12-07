@@ -1,3 +1,9 @@
+#
+# GPIO infrastructure and drivers
+#
+
+menu "GPIO Support"
+
 config DM_GPIO
 	bool "Enable Driver Model for GPIO drivers"
 	depends on DM
@@ -8,12 +14,28 @@ config DM_GPIO
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
 
+config DWAPB_GPIO
+	bool "DWAPB GPIO driver"
+	depends on DM && DM_GPIO
+	default n
+	help
+	  Support for the Designware APB GPIO driver.
+
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM
 	default n
 	help
 	  Support for the LPC32XX GPIO driver.
+
+config ROCKCHIP_GPIO
+	bool "Rockchip GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support GPIO access on Rockchip SoCs. The GPIOs are arranged into
+	  a number of banks (different for each SoC type) each with 32 GPIOs.
+	  The GPIOs for a device are defined in the device tree with one node
+	  for each bank.
 
 config SANDBOX_GPIO
 	bool "Enable sandbox GPIO driver"
@@ -42,3 +64,5 @@ config VYBRID_GPIO
 	default n
 	help
 	  Say yes here to support Vybrid vf610 GPIOs.
+
+endmenu

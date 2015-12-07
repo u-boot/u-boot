@@ -42,103 +42,103 @@
 			#clock-cells = <1>;
 
 			voltage-regulators {
-				ldo1_reg: ldo1 {
+				ldo1_reg: LDO1 {
 					regulator-name = "VDD_ALIVE_1.0V";
 					regulator-min-microvolt = <1000000>;
 					regulator-max-microvolt = <1000000>;
 				};
 
-				ldo2_reg: ldo2 {
+				ldo2_reg: LDO2 {
 					regulator-name = "VDDQ_VM1M2_1.2V";
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
 				};
 
-				ldo3_reg: ldo3 {
+				ldo3_reg: LDO3 {
 					regulator-name = "VCC_1.8V_AP";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 				};
 
-				ldo4_reg: ldo4 {
+				ldo4_reg: LDO4 {
 					regulator-name = "VDDQ_MMC2_2.8V";
 					regulator-min-microvolt = <2800000>;
 					regulator-max-microvolt = <2800000>;
 				};
 
-				ldo5_reg: ldo5 {
+				ldo5_reg: LDO5 {
 					regulator-name = "VDDQ_MMC0/1/3_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 				};
 
-				ldo6_reg: ldo6 {
+				ldo6_reg: LDO6 {
 					regulator-name = "VMPLL_1.0V";
 					regulator-min-microvolt = <1100000>;
 					regulator-max-microvolt = <1100000>;
 				};
 
-				ldo7_reg: ldo7 {
+				ldo7_reg: LDO7 {
 					regulator-name = "VPLL_1.1V";
 					regulator-min-microvolt = <1100000>;
 					regulator-max-microvolt = <1100000>;
 				};
 
-				ldo8_reg: ldo8 {
+				ldo8_reg: LDO8 {
 					regulator-name = "VDD_MIPI/HDMI_1.0V";
 					regulator-min-microvolt = <1000000>;
 					regulator-max-microvolt = <1000000>;
 				};
 
-				ldo10_reg: ldo10 {
+				ldo10_reg: LDO10 {
 					regulator-name = "VDD_MIPI/HDMI_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 				};
 
-				ldo11_reg: ldo11 {
+				ldo11_reg: LDO11 {
 					regulator-name = "VDD_ABB1_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 				};
 
-				ldo12_reg: ldo12 {
+				ldo12_reg: LDO12 {
 					regulator-name = "VDD_UOTG_3.0V";
 					regulator-min-microvolt = <3000000>;
 					regulator-max-microvolt = <3000000>;
 				};
 
-				ldo13_reg: ldo13 {
+				ldo13_reg: LDO13 {
 					regulator-name = "VDD_C2C_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 				};
 
-				ldo14_reg: ldo14 {
+				ldo14_reg: LDO14 {
 					regulator-name = "VDD_ABB02_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 				};
 
-				ldo15_reg: ldo15 {
+				ldo15_reg: LDO15 {
 					regulator-name = "VDD_HSIC/OTG_1.0V";
 					regulator-min-microvolt = <1000000>;
 					regulator-max-microvolt = <1000000>;
 				};
 
-				ldo16_reg: ldo16 {
+				ldo16_reg: LDO16 {
 					regulator-name = "VDD_HSIC_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 				};
 
-				ldo17_reg: ldo17 {
+				ldo17_reg: LDO17 {
 					regulator-name = "VDDQ_CAM_1.2V";
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
 				};
 
-				ldo20_reg: ldo20 {
+				ldo20_reg: LDO20 {
 					regulator-name = "VDDQ_EMMC_1.8V";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
@@ -146,7 +146,7 @@
 					regulator-boot-on;
 				};
 
-				ldo21_reg: ldo21 {
+				ldo21_reg: LDO21 {
 					regulator-name = "TFLASH_2.8V";
 					regulator-min-microvolt = <2800000>;
 					regulator-max-microvolt = <2800000>;
@@ -154,7 +154,7 @@
 					regulator-boot-on;
 				};
 
-				ldo22_reg: ldo22 {
+				ldo22_reg: LDO22 {
 					regulator-name = "VDDQ_EMMC_2.8V";
 					regulator-min-microvolt = <2800000>;
 					regulator-max-microvolt = <2800000>;
@@ -162,56 +162,56 @@
 					regulator-boot-on;
 				};
 
-				ldo25_reg: ldo25 {
+				ldo25_reg: LDO25 {
 					regulator-compatible = "LDO25";
 					regulator-name = "VDDQ_LCD_3.0V";
 					regulator-min-microvolt = <3000000>;
 					regulator-max-microvolt = <3000000>;
 				};
 
-				buck1_reg: buck1 {
+				buck1_reg: BUCK1 {
 					regulator-name = "VDD_MIF_1.0V";
 					regulator-min-microvolt = <8500000>;
 					regulator-max-microvolt = <1100000>;
 				};
 
-				buck2_reg: buck2 {
+				buck2_reg: BUCK2 {
 					regulator-name = "VDD_ARM_1.0V";
 					regulator-min-microvolt = <850000>;
 					regulator-max-microvolt = <1500000>;
 				};
 
-				buck3_reg: buck3 {
+				buck3_reg: BUCK3 {
 					regulator-name = "VDD_INT_1.1V";
 					regulator-min-microvolt = <850000>;
 					regulator-max-microvolt = <1150000>;
 				};
 
-				buck4_reg: buck4 {
+				buck4_reg: BUCK4 {
 					regulator-name = "VDD_G3D_1.0V";
 					regulator-min-microvolt = <850000>;
 					regulator-max-microvolt = <1150000>;
 				};
 
-				buck5_reg: buck5 {
+				buck5_reg: BUCK5 {
 					regulator-name = "VDDQ_AP_1.2V";
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
 				};
 
-				buck6_reg: buck6 {
+				buck6_reg: BUCK6 {
 					regulator-name = "VCC_INL1/7_1.35V";
 					regulator-min-microvolt = <1350000>;
 					regulator-max-microvolt = <1350000>;
 				};
 
-				buck7_reg: buck7 {
+				buck7_reg: BUCK7 {
 					regulator-name = "VCC_INL2/3/5_2.0V";
 					regulator-min-microvolt = <2000000>;
 					regulator-max-microvolt = <2000000>;
 				};
 
-				buck8_reg: buck8 {
+				buck8_reg: BUCK8 {
 					regulator-name = "VCC_P3V3_2.85V";
 					regulator-min-microvolt = <2850000>;
 					regulator-max-microvolt = <3300000>;

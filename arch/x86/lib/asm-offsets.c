@@ -21,5 +21,6 @@ int main(void)
 #ifdef CONFIG_HAVE_FSP
 	DEFINE(GD_HOB_LIST, offsetof(gd_t, arch.hob_list));
 #endif
+	DEFINE(GD_TABLE, offsetof(gd_t, arch.table));
 	return 0;
 }

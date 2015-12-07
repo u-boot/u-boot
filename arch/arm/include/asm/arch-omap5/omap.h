@@ -33,7 +33,7 @@
 #define CONTROL_ID_CODE		CONTROL_CORE_ID_CODE
 #endif
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 #define DRA7_USB_OTG_SS1_BASE		0x48890000
 #define DRA7_USB_OTG_SS1_GLUE_BASE	0x48880000
 #define DRA7_USB3_PHY1_PLL_CTRL		0x4A084C00
@@ -43,6 +43,12 @@
 #define DRA7_USB_OTG_SS2_BASE		0x488D0000
 #define DRA7_USB_OTG_SS2_GLUE_BASE	0x488C0000
 #define DRA7_USB2_PHY2_POWER		0x4A002E74
+#else
+#define OMAP5XX_USB_OTG_SS_BASE		0x4A030000
+#define OMAP5XX_USB_OTG_SS_GLUE_BASE	0x4A020000
+#define OMAP5XX_USB3_PHY_PLL_CTRL	0x4A084C00
+#define OMAP5XX_USB3_PHY_POWER		0x4A002370
+#define OMAP5XX_USB2_PHY_POWER		0x4A002300
 #endif
 
 /* To be verified */
@@ -52,6 +58,7 @@
 #define OMAP5432_CONTROL_ID_CODE_ES2_0          0x1B99802F
 #define DRA752_CONTROL_ID_CODE_ES1_0		0x0B99002F
 #define DRA752_CONTROL_ID_CODE_ES1_1		0x1B99002F
+#define DRA752_CONTROL_ID_CODE_ES2_0		0x2B99002F
 #define DRA722_CONTROL_ID_CODE_ES1_0		0x0B9BC02F
 
 /* UART */
@@ -234,5 +241,19 @@ struct ctrl_ioregs {
 	u32 ctrl_ddr_ctrl_ext_0;
 };
 
+void clrset_spare_register(u8 spare_type, u32 clear_bits, u32 set_bits);
+
 #endif /* __ASSEMBLY__ */
+
+/* Boot parameters */
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	unsigned int boot_message;
+	unsigned int boot_device_descriptor;
+	unsigned char boot_device;
+	unsigned char reset_reason;
+	unsigned char ch_flags;
+};
+#endif
+
 #endif

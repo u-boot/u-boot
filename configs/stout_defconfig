@@ -1,0 +1,21 @@
+CONFIG_ARM=y
+CONFIG_RMOBILE=y
+CONFIG_TARGET_STOUT=y
+# CONFIG_CMD_BDI is not set
+# CONFIG_CMD_CONSOLE is not set
+# CONFIG_CMD_BOOTD is not set
+# CONFIG_CMD_IMI is not set
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_XIMG is not set
+# CONFIG_CMD_ENV_EXISTS is not set
+# CONFIG_CMD_LOADB is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_FPGA is not set
+# CONFIG_CMD_ECHO is not set
+# CONFIG_CMD_ITEST is not set
+# CONFIG_CMD_SOURCE is not set
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_MISC is not set
+CONFIG_SH_SDHI=y
+CONFIG_SPI_FLASH=y
+CONFIG_SPI_FLASH_BAR=y

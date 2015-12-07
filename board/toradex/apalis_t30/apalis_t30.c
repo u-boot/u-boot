@@ -6,10 +6,13 @@
  */
 
 #include <common.h>
-#include <dm.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/tegra.h>
 #include <asm/gpio.h>
+#include <asm/io.h>
+#include <dm.h>
 #include <i2c.h>
 #include <netdev.h>
 
@@ -17,6 +20,15 @@
 
 #define PMU_I2C_ADDRESS		0x2D
 #define MAX_I2C_RETRY		3
+
+int arch_misc_init(void)
+{
+	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
+	    NVBOOTTYPE_RECOVERY)
+		printf("USB recovery mode\n");
+
+	return 0;
+}
 
 /*
  * Routine: pinmux_init
@@ -47,6 +59,7 @@ int tegra_pcie_board_init(void)
 		debug("%s: Cannot find PMIC I2C chip\n", __func__);
 		return err;
 	}
+
 	/* TPS659110: VDD2_OP_REG = 1.05V */
 	data[0] = 0x27;
 	addr = 0x25;

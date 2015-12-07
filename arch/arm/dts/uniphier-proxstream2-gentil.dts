@@ -1,0 +1,62 @@
+/*
+ * Device Tree Source for UniPhier ProXstream2 Gentil Board
+ *
+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+/include/ "uniphier-proxstream2.dtsi"
+
+/ {
+	model = "UniPhier ProXstream2 Gentil Board";
+	compatible = "socionext,proxstream2-gentil", "socionext,proxstream2";
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x80000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyS2,115200";
+		stdout-path = &serial2;
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		i2c0 = &i2c0;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+	};
+};
+
+&serial2 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+/* for U-boot only */
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&serial2 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart2 {
+	u-boot,dm-pre-reloc;
+};

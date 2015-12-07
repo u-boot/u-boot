@@ -6,13 +6,10 @@
 #
 
 ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_DM_GPIO)		+= gpio-uclass.o
+obj-$(CONFIG_DWAPB_GPIO)	+= dwapb_gpio.o
 obj-$(CONFIG_AXP_GPIO)		+= axp_gpio.o
 endif
-/* TODO(sjg@chromium.org): Only tegra supports driver model in SPL */
-ifdef CONFIG_TEGRA_GPIO
 obj-$(CONFIG_DM_GPIO)		+= gpio-uclass.o
-endif
 
 obj-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
 obj-$(CONFIG_INTEL_ICH6_GPIO)	+= intel_ich6_gpio.o
@@ -24,6 +21,7 @@ obj-$(CONFIG_MXC_GPIO)	+= mxc_gpio.o
 obj-$(CONFIG_MXS_GPIO)	+= mxs_gpio.o
 obj-$(CONFIG_PCA953X)		+= pca953x.o
 obj-$(CONFIG_PCA9698)		+= pca9698.o
+obj-$(CONFIG_ROCKCHIP_GPIO)	+= rk_gpio.o
 obj-$(CONFIG_S5P)		+= s5p_gpio.o
 obj-$(CONFIG_SANDBOX_GPIO)	+= sandbox.o
 obj-$(CONFIG_SPEAR_GPIO)	+= spear_gpio.o
@@ -46,3 +44,5 @@ obj-$(CONFIG_LPC32XX_GPIO)	+= lpc32xx_gpio.o
 obj-$(CONFIG_STM32_GPIO)	+= stm32_gpio.o
 obj-$(CONFIG_ZYNQ_GPIO)		+= zynq_gpio.o
 obj-$(CONFIG_VYBRID_GPIO)	+= vybrid_gpio.o
+obj-$(CONFIG_HIKEY_GPIO)	+= hi6220_gpio.o
+

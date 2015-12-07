@@ -520,7 +520,7 @@ static int get_max98095_codec_values(struct sound_codec_info *pcodec_info,
 				const void *blob)
 {
 	int error = 0;
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	enum fdt_compat_id compat;
 	int node;
 	int parent;

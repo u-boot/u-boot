@@ -103,7 +103,7 @@ unsigned int compute_lowest_common_dimm_parameters(
 				const dimm_params_t *dimm_params,
 				common_timing_params_t *outpdimm,
 				unsigned int number_of_dimms);
-unsigned int populate_memctl_options(int all_dimms_registered,
+unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 				memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num);
@@ -136,4 +136,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 			unsigned int controller_number,
 			unsigned int dimm_number);
+void update_spd_address(unsigned int ctrl_num,
+			unsigned int slot,
+			unsigned int *addr);
 #endif

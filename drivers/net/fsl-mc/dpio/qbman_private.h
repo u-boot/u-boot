@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <linux/types.h>
-#include <linux/compat.h>
+#include <asm/atomic.h>
 #include <malloc.h>
 #include <fsl-mc/fsl_qbman_base.h>
 

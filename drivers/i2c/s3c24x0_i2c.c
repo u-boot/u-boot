@@ -258,9 +258,9 @@ static int hsi2c_wait_for_trx(struct exynos5_hsi2c *i2c)
 	return I2C_NOK_TOUT;
 }
 
-static void ReadWriteByte(struct s3c24x0_i2c *i2c)
+static void read_write_byte(struct s3c24x0_i2c *i2c)
 {
-	writel(readl(&i2c->iiccon) & ~I2CCON_IRPND, &i2c->iiccon);
+	clrbits_le32(&i2c->iiccon, I2CCON_IRPND);
 }
 
 #ifdef CONFIG_SYS_I2C
@@ -794,7 +794,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 	if (addr && addr_len) {
 		while ((i < addr_len) && (result == I2C_OK)) {
 			writel(addr[i++], &i2c->iicds);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 		}
 		i = 0;
@@ -806,7 +806,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 	case I2C_WRITE:
 		while ((i < data_len) && (result == I2C_OK)) {
 			writel(data[i++], &i2c->iicds);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 		}
 		break;
@@ -822,7 +822,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 			/* Generate a re-START. */
 			writel(I2C_MODE_MR | I2C_TXRX_ENA | I2C_START_STOP,
 				&i2c->iicstat);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 
 			if (result != I2C_OK)
@@ -835,7 +835,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 				writel(readl(&i2c->iiccon)
 				       & ~I2CCON_ACKGEN,
 				       &i2c->iiccon);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 			data[i++] = readl(&i2c->iicds);
 		}
@@ -852,7 +852,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 bailout:
 	/* Send STOP. */
 	writel(I2C_MODE_MR | I2C_TXRX_ENA, &i2c->iicstat);
-	ReadWriteByte(i2c);
+	read_write_byte(i2c);
 
 	return result;
 }
@@ -1002,7 +1002,7 @@ static int s3c24x0_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	}
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static void process_nodes(const void *blob, int node_list[], int count,
 			 int is_highspeed)
 {
@@ -1101,7 +1101,7 @@ int i2c_reset_port_fdt(const void *blob, int node)
 
 	return 0;
 }
-#endif /* CONFIG_OF_CONTROL */
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 #ifdef CONFIG_EXYNOS5
 static void exynos_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
@@ -1284,62 +1284,106 @@ U_BOOT_I2C_ADAP_COMPLETE(s3c0, s3c24x0_i2c_init, s3c24x0_i2c_probe,
 #endif /* CONFIG_SYS_I2C */
 
 #ifdef CONFIG_DM_I2C
-static int i2c_write_data(struct s3c24x0_i2c_bus *i2c_bus, uchar chip,
-			  uchar *buffer, int len, bool end_with_repeated_start)
+static int exynos_hs_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
+			      int nmsgs)
 {
+	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
+	struct exynos5_hsi2c *hsregs = i2c_bus->hsregs;
 	int ret;
 
-	if (i2c_bus->is_highspeed) {
-		ret = hsi2c_write(i2c_bus->hsregs, chip, 0, 0,
-				  buffer, len, true);
-		if (ret)
+	for (; nmsgs > 0; nmsgs--, msg++) {
+		if (msg->flags & I2C_M_RD) {
+			ret = hsi2c_read(hsregs, msg->addr, 0, 0, msg->buf,
+					 msg->len);
+		} else {
+			ret = hsi2c_write(hsregs, msg->addr, 0, 0, msg->buf,
+					  msg->len, true);
+		}
+		if (ret) {
 			exynos5_i2c_reset(i2c_bus);
-	} else {
-		ret = i2c_transfer(i2c_bus->regs, I2C_WRITE,
-				   chip << 1, 0, 0, buffer, len);
+			return -EREMOTEIO;
+		}
 	}
 
-	return ret != I2C_OK;
+	return 0;
 }
 
-static int i2c_read_data(struct s3c24x0_i2c_bus  *i2c_bus, uchar chip,
-			 uchar *buffer, int len)
+static int s3c24x0_do_msg(struct s3c24x0_i2c_bus *i2c_bus, struct i2c_msg *msg,
+			  int seq)
 {
-	int ret;
+	struct s3c24x0_i2c *i2c = i2c_bus->regs;
+	bool is_read = msg->flags & I2C_M_RD;
+	uint status;
+	uint addr;
+	int ret, i;
 
-	if (i2c_bus->is_highspeed) {
-		ret = hsi2c_read(i2c_bus->hsregs, chip, 0, 0, buffer, len);
-		if (ret)
-			exynos5_i2c_reset(i2c_bus);
+	if (!seq)
+		setbits_le32(&i2c->iiccon, I2CCON_ACKGEN);
+
+	/* Get the slave chip address going */
+	addr = msg->addr << 1;
+	writel(addr, &i2c->iicds);
+	status = I2C_TXRX_ENA | I2C_START_STOP;
+	if (is_read)
+		status |= I2C_MODE_MR;
+	else
+		status |= I2C_MODE_MT;
+	writel(status, &i2c->iicstat);
+	if (seq)
+		read_write_byte(i2c);
+
+	/* Wait for chip address to transmit */
+	ret = WaitForXfer(i2c);
+	if (ret)
+		goto err;
+
+	if (is_read) {
+		for (i = 0; !ret && i < msg->len; i++) {
+			/* disable ACK for final READ */
+			if (i == msg->len - 1)
+				clrbits_le32(&i2c->iiccon, I2CCON_ACKGEN);
+			read_write_byte(i2c);
+			ret = WaitForXfer(i2c);
+			msg->buf[i] = readl(&i2c->iicds);
+		}
+		if (ret == I2C_NACK)
+			ret = I2C_OK; /* Normal terminated read */
 	} else {
-		ret = i2c_transfer(i2c_bus->regs, I2C_READ,
-				   chip << 1, 0, 0, buffer, len);
+		for (i = 0; !ret && i < msg->len; i++) {
+			writel(msg->buf[i], &i2c->iicds);
+			read_write_byte(i2c);
+			ret = WaitForXfer(i2c);
+		}
 	}
 
-	return ret != I2C_OK;
+err:
+	return ret;
 }
 
 static int s3c24x0_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 			    int nmsgs)
 {
 	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
-	int ret;
+	struct s3c24x0_i2c *i2c = i2c_bus->regs;
+	ulong start_time;
+	int ret, i;
 
-	for (; nmsgs > 0; nmsgs--, msg++) {
-		bool next_is_read = nmsgs > 1 && (msg[1].flags & I2C_M_RD);
-
-		if (msg->flags & I2C_M_RD) {
-			ret = i2c_read_data(i2c_bus, msg->addr, msg->buf,
-					    msg->len);
-		} else {
-			ret = i2c_write_data(i2c_bus, msg->addr, msg->buf,
-					     msg->len, next_is_read);
+	start_time = get_timer(0);
+	while (readl(&i2c->iicstat) & I2CSTAT_BSY) {
+		if (get_timer(start_time) > I2C_TIMEOUT_MS) {
+			debug("Timeout\n");
+			return -ETIMEDOUT;
 		}
-		if (ret)
-			return -EREMOTEIO;
 	}
 
-	return 0;
+	for (ret = 0, i = 0; !ret && i < nmsgs; i++)
+		ret = s3c24x0_do_msg(i2c_bus, &msg[i], i);
+
+	/* Send STOP */
+	writel(I2C_MODE_MR | I2C_TXRX_ENA, &i2c->iicstat);
+	read_write_byte(i2c);
+
+	return ret ? -EREMOTEIO : 0;
 }
 
 static int s3c_i2c_ofdata_to_platdata(struct udevice *dev)
@@ -1353,19 +1397,16 @@ static int s3c_i2c_ofdata_to_platdata(struct udevice *dev)
 
 	if (i2c_bus->is_highspeed) {
 		flags = PINMUX_FLAG_HS_MODE;
-		i2c_bus->hsregs = (struct exynos5_hsi2c *)
-				fdtdec_get_addr(blob, node, "reg");
+		i2c_bus->hsregs = (struct exynos5_hsi2c *)dev_get_addr(dev);
 	} else {
 		flags = 0;
-		i2c_bus->regs = (struct s3c24x0_i2c *)
-				fdtdec_get_addr(blob, node, "reg");
+		i2c_bus->regs = (struct s3c24x0_i2c *)dev_get_addr(dev);
 	}
 
 	i2c_bus->id = pinmux_decode_periph_id(blob, node);
 
 	i2c_bus->clock_frequency = fdtdec_get_int(blob, node,
-						"clock-frequency",
-						CONFIG_SYS_I2C_S3C24X0_SPEED);
+						  "clock-frequency", 100000);
 	i2c_bus->node = node;
 	i2c_bus->bus_num = dev->seq;
 
@@ -1384,7 +1425,6 @@ static const struct dm_i2c_ops s3c_i2c_ops = {
 
 static const struct udevice_id s3c_i2c_ids[] = {
 	{ .compatible = "samsung,s3c2440-i2c", .data = EXYNOS_I2C_STD },
-	{ .compatible = "samsung,exynos5-hsi2c", .data = EXYNOS_I2C_HS },
 	{ }
 };
 
@@ -1396,5 +1436,30 @@ U_BOOT_DRIVER(i2c_s3c) = {
 	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
 	.priv_auto_alloc_size = sizeof(struct s3c24x0_i2c_bus),
 	.ops	= &s3c_i2c_ops,
+};
+
+/*
+ * TODO(sjg@chromium.org): Move this to a separate file when everything uses
+ * driver model
+ */
+static const struct dm_i2c_ops exynos_hs_i2c_ops = {
+	.xfer		= exynos_hs_i2c_xfer,
+	.probe_chip	= s3c24x0_i2c_probe,
+	.set_bus_speed	= s3c24x0_i2c_set_bus_speed,
+};
+
+static const struct udevice_id exynos_hs_i2c_ids[] = {
+	{ .compatible = "samsung,exynos5-hsi2c", .data = EXYNOS_I2C_HS },
+	{ }
+};
+
+U_BOOT_DRIVER(hs_i2c) = {
+	.name	= "i2c_s3c_hs",
+	.id	= UCLASS_I2C,
+	.of_match = exynos_hs_i2c_ids,
+	.ofdata_to_platdata = s3c_i2c_ofdata_to_platdata,
+	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
+	.priv_auto_alloc_size = sizeof(struct s3c24x0_i2c_bus),
+	.ops	= &exynos_hs_i2c_ops,
 };
 #endif /* CONFIG_DM_I2C */

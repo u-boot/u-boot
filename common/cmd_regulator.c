@@ -241,7 +241,8 @@ static int do_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	value = simple_strtoul(argv[1], NULL, 0);
 	if ((value < uc_pdata->min_uV || value > uc_pdata->max_uV) && !force) {
-		printf("Value exceeds regulator constraint limits\n");
+		printf("Value exceeds regulator constraint limits %d..%d uV\n",
+		       uc_pdata->min_uV, uc_pdata->max_uV);
 		return CMD_RET_FAILURE;
 	}
 

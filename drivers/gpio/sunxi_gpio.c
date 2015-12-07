@@ -266,16 +266,27 @@ static int gpio_sunxi_bind(struct udevice *parent)
 {
 	struct sunxi_gpio_platdata *plat = parent->platdata;
 	struct sunxi_gpio_reg *ctlr;
-	int bank;
-	int ret;
+	int bank, no_banks, ret, start;
 
 	/* If this is a child device, there is nothing to do here */
 	if (plat)
 		return 0;
 
-	ctlr = (struct sunxi_gpio_reg *)fdtdec_get_addr(gd->fdt_blob,
-						   parent->of_offset, "reg");
-	for (bank = 0; bank < SUNXI_GPIO_BANKS; bank++) {
+	if (fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
+				"allwinner,sun6i-a31-r-pinctrl") == 0) {
+		start = 'L' - 'A';
+		no_banks = 2; /* L & M */
+	} else if (fdt_node_check_compatible(gd->fdt_blob, parent->of_offset,
+				"allwinner,sun8i-a23-r-pinctrl") == 0) {
+		start = 'L' - 'A';
+		no_banks = 1; /* L only */
+	} else {
+		start = 0;
+		no_banks = SUNXI_GPIO_BANKS;
+	}
+
+	ctlr = (struct sunxi_gpio_reg *)dev_get_addr(parent);
+	for (bank = 0; bank < no_banks; bank++) {
 		struct sunxi_gpio_platdata *plat;
 		struct udevice *dev;
 
@@ -283,7 +294,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 		if (!plat)
 			return -ENOMEM;
 		plat->regs = &ctlr->gpio_bank[bank];
-		plat->bank_name = gpio_bank_name(bank);
+		plat->bank_name = gpio_bank_name(start + bank);
 		plat->gpio_count = SUNXI_GPIOS_PER_BANK;
 
 		ret = device_bind(parent, parent->driver,
@@ -306,6 +317,8 @@ static const struct udevice_id sunxi_gpio_ids[] = {
 	{ .compatible = "allwinner,sun8i-a23-pinctrl" },
 	{ .compatible = "allwinner,sun8i-a33-pinctrl" },
 	{ .compatible = "allwinner,sun9i-a80-pinctrl" },
+	{ .compatible = "allwinner,sun6i-a31-r-pinctrl" },
+	{ .compatible = "allwinner,sun8i-a23-r-pinctrl" },
 	{ }
 };
 

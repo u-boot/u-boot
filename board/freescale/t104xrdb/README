@@ -12,6 +12,17 @@ The T1042RDB_PI is a Freescale reference board that hosts the T1042 SoC.
 (a personality of T1040 SoC). The board is similar to T1040RDB but is
 designed specially with low power features targeted for Printing Image Market.
 
+The T1040D4RDB is a Freescale reference board that hosts the T1040 SoC.
+The board is re-designed T1040RDB board with following changes :
+    - Support of DDR4 memory and some enhancements
+
+The T1042D4RDB is a Freescale reference board that hosts the T1042 SoC.
+The board is re-designed T1040RDB board with following changes :
+    - Support of DDR4 memory
+    - Support for 0x86 serdes protocol which can support following interfaces
+        - 2 RGMII's on DTSEC4, DTSEC5
+        - 3 SGMII on DTSEC1, DTSEC2 & DTSEC3
+
 Basic difference's among T1040RDB, T1042RDB_PI, T1042RDB
 -------------------------------------------------------------------------
 Board		Si		Protocol		Targeted Market
@@ -19,6 +30,8 @@ Board		Si		Protocol		Targeted Market
 T1040RDB	T1040		0x66                    Networking
 T1040RDB	T1042		0x86                    Networking
 T1042RDB_PI	T1042		0x06                    Printing & Imaging
+T1040D4RDB	T1040		0x66                    Networking
+T1042D4RDB	T1042		0x86                    Networking
 
 
 T1040 SoC Overview
@@ -70,7 +83,6 @@ The T1040/T1042 SoC includes the following function and features:
 
 T1040 SoC Personalities
 -------------------------
-
 T1022 Personality:
 T1022 is a reduced personality of T1040 with less core/clusters.
 
@@ -268,8 +280,13 @@ SPI Flash memory Map on T104xRDB
 Please note QE Firmware is only valid for T1040RDB
 
 
-Switch Settings: (ON is 0, OFF is 1)
-===============
+Switch Settings for T104xRDB boards: (ON is 0, OFF is 1)
+==========================================================
+NOR boot SW setting:
+SW1: 00010011
+SW2: 10111011
+SW3: 11100001
+
 NAND boot SW setting:
 SW1: 10001000
 SW2: 00111011
@@ -284,3 +301,67 @@ SD boot SW setting:
 SW1: 00100000
 SW2: 00111011
 SW3: 11100001
+
+Switch Settings for T104xD4RDB boards: (ON is 0, OFF is 1)
+=============================================================
+NOR boot SW setting:
+SW1: 00010011
+SW2: 10111001
+SW3: 11100001
+
+NAND boot SW setting:
+SW1: 10001000
+SW2: 00111001
+SW3: 11110001
+
+SPI boot SW setting:
+SW1: 00100010
+SW2: 10111001
+SW3: 11100001
+
+SD boot SW setting:
+SW1: 00100000
+SW2: 00111001
+SW3: 11100001
+
+PBL-based image generation
+==========================
+Changes only the required register bit in in PBI commands.
+
+Provides reference code which might needs some
+modification as per requirement.
+example:
+By default PBI_SRC=14 (which is for IFC-NAND/NOR) in rcw.cfg file
+which needs to be changed for SPI and SD.
+
+For SD-boot
+==============
+1. Set RCW[192:195], PBI_SRC bits as 6 in RCW file (t1040d4_rcw.cfg type files)
+
+example:
+ RCW file: board/freescale/t104xrdb/t1040d4_rcw.cfg
+
+Change
+66000002 40000002 ec027000 01000000
+to
+66000002 40000002 6c027000 01000000
+
+2. SD does not support flush so remove flush from pbl, make changes in
+   tools/pblimage.c file, Update value of pbl_end_cmd[0] = 0x09138000
+   with 0x091380c0
+
+For SPI-boot
+==============
+1. Set RCW[192:195], PBI_SRC bits as 5 in RCW file (t1040d4_rcw.cfg type files)
+
+example:
+ RCW file: board/freescale/t104xrdb/t1040d4_rcw.cfg
+
+Change
+66000002 40000002 ec027000 01000000
+to
+66000002 40000002 5c027000 01000000
+
+2. SPI does not support flush so remove flush from pbl, make changes in
+   tools/pblimage.c file, Update value of pbl_end_cmd[0] = 0x09138000
+   with 0x091380c0

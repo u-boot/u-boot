@@ -156,7 +156,8 @@ struct ddrphy {
 /* SoC-specific parameters */
 #define NR_DATX8_PER_DDRPHY	2
 
-#if defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD4) || \
+	defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
 #define NR_DDRPHY_PER_CH		1
 #else
 #define NR_DDRPHY_PER_CH		2
@@ -167,7 +168,9 @@ struct ddrphy {
 #define DDRPHY_BASE(ch, phy)	(0x5bc01000 + 0x200000 * (ch) + 0x1000 * (phy))
 
 #ifndef __ASSEMBLY__
-void ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
+int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
+int ph1_pro4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
+int ph1_sld8_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank);
 int ddrphy_training(struct ddrphy __iomem *phy);
 #endif

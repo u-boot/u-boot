@@ -11,6 +11,7 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_ARMADA_XP		/* SOC Family Name */
+#define CONFIG_ARMADA_38X
 #define CONFIG_DB_88F6820_GP		/* Board target name for DDR training */
 
 #define CONFIG_SYS_L2_PL310
@@ -19,7 +20,12 @@
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
-#define	CONFIG_SYS_TEXT_BASE	0x04000000
+/*
+ * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
+ * for DDR ECC byte filling in the SPL before loading the main
+ * U-Boot into it.
+ */
+#define	CONFIG_SYS_TEXT_BASE	0x00800000
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*
@@ -35,6 +41,7 @@
 #define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_SF
@@ -100,6 +107,13 @@
 #define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
+/* PCIe support */
+#define CONFIG_PCI
+#define CONFIG_PCI_MVEBU
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_E1000	/* enable Intel E1000 support for testing */
+
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
 
@@ -107,6 +121,68 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
+
+/* SPL */
+/*
+ * Select the boot device here
+ *
+ * Currently supported are:
+ * SPL_BOOT_SPI_NOR_FLASH	- Booting via SPI NOR flash
+ * SPL_BOOT_SDIO_MMC_CARD	- Booting via SDIO/MMC card (partition 1)
+ */
+#define SPL_BOOT_SPI_NOR_FLASH		1
+#define SPL_BOOT_SDIO_MMC_CARD		2
+#define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
+
+/* Defines for SPL */
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_SIZE			(140 << 10)
+#define CONFIG_SPL_TEXT_BASE		0x40000030
+#define CONFIG_SPL_MAX_SIZE		(CONFIG_SPL_SIZE - 0x0030)
+
+#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + CONFIG_SPL_SIZE)
+#define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
+
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
+					 CONFIG_SPL_BSS_MAX_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_SIZE	(16 << 10)
+
+#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
+#define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+
+#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SPI_NOR_FLASH
+/* SPL related SPI defines */
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SPL_SPI_BUS		0
+#define CONFIG_SPL_SPI_CS		0
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
+#endif
+
+#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
+/* SPL related MMC defines */
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION 1
+#define CONFIG_SYS_MMC_U_BOOT_OFFS		(160 << 10)
+#define CONFIG_SYS_U_BOOT_OFFS			CONFIG_SYS_MMC_U_BOOT_OFFS
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	(CONFIG_SYS_U_BOOT_OFFS / 512)
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	((512 << 10) / 512) /* 512KiB */
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
+#endif
+#endif
+
+/* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
+#define CONFIG_SYS_MVEBU_DDR_A38X
+#define CONFIG_DDR3
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

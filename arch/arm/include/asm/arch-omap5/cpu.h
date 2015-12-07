@@ -56,8 +56,6 @@ struct watchdog {
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 
-#define BIT(x)				(1 << (x))
-
 #define WD_UNLOCK1		0xAAAA
 #define WD_UNLOCK2		0x5555
 

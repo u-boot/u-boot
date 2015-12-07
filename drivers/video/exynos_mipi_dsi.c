@@ -28,7 +28,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct exynos_platform_mipi_dsim *dsim_pd;
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static struct mipi_dsim_config dsim_config_dt;
 static struct exynos_platform_mipi_dsim dsim_platform_data_dt;
 static struct mipi_dsim_lcd_device mipi_lcd_device_dt;
@@ -249,7 +249,7 @@ void exynos_set_dsim_platform_data(struct exynos_platform_mipi_dsim *pd)
 	dsim_pd = pd;
 }
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int exynos_dsim_config_parse_dt(const void *blob)
 {
 	int node;

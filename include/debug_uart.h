@@ -10,8 +10,6 @@
 #ifndef _DEBUG_UART_H
 #define _DEBUG_UART_H
 
-#include <linux/linkage.h>
-
 /*
  * The debug UART is intended for use very early in U-Boot to debug problems
  * when an ICE or other debug mechanism is not available.
@@ -64,46 +62,46 @@ void debug_uart_init(void);
  *
  * @ch:		Character to output
  */
-asmlinkage void printch(int ch);
+void printch(int ch);
 
 /**
  * printascii() - Output an ASCII string to the debug UART
  *
  * @str:	String to output
  */
-asmlinkage void printascii(const char *str);
+void printascii(const char *str);
 
 /**
  * printhex2() - Output a 2-digit hex value
  *
  * @value:	Value to output
  */
-asmlinkage void printhex2(uint value);
+void printhex2(uint value);
 
 /**
  * printhex4() - Output a 4-digit hex value
  *
  * @value:	Value to output
  */
-asmlinkage void printhex4(uint value);
+void printhex4(uint value);
 
 /**
  * printhex8() - Output a 8-digit hex value
  *
  * @value:	Value to output
  */
-asmlinkage void printhex8(uint value);
+void printhex8(uint value);
 
 /*
  * Now define some functions - this should be inserted into the serial driver
  */
 #define DEBUG_UART_FUNCS \
-	asmlinkage void printch(int ch) \
+	void printch(int ch) \
 	{ \
 		_debug_uart_putc(ch); \
 	} \
 \
-	asmlinkage void printascii(const char *str) \
+	void printascii(const char *str) \
 	{ \
 		while (*str) \
 			_debug_uart_putc(*str++); \
@@ -121,17 +119,17 @@ asmlinkage void printhex8(uint value);
 			printhex1(value >> (4 * digits)); \
 	} \
 \
-	asmlinkage void printhex2(uint value) \
+	void printhex2(uint value) \
 	{ \
 		printhex(value, 2); \
 	} \
 \
-	asmlinkage void printhex4(uint value) \
+	void printhex4(uint value) \
 	{ \
 		printhex(value, 4); \
 	} \
 \
-	asmlinkage void printhex8(uint value) \
+	void printhex8(uint value) \
 	{ \
 		printhex(value, 8); \
 	}

@@ -294,6 +294,13 @@ config USB0_VBUS_DET
 	Set the Vbus detect pin for usb0 (otg). This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config USB0_ID_DET
+	string "ID detect pin for usb0 (otg)"
+	default ""
+	---help---
+	Set the ID detect pin for usb0 (otg). This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config USB1_VBUS_PIN
 	string "Vbus enable pin for usb1 (ehci0)"
 	default "PH6" if MACH_SUN4I || MACH_SUN7I
@@ -403,6 +410,13 @@ config VIDEO_VGA_EXTERNAL_DAC_EN
 	Set the enable pin for the external VGA DAC. This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config VIDEO_COMPOSITE
+	boolean "Composite video output support"
+	depends on VIDEO && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
+	default n
+	---help---
+	Say Y here to add support for outputting composite video.
+
 config VIDEO_LCD_MODE
 	string "LCD panel timing details"
 	depends on VIDEO
@@ -411,6 +425,7 @@ config VIDEO_LCD_MODE
 	LCD panel timing details string, leave empty if there is no LCD panel.
 	This is in drivers/video/videomodes.c: video_get_params() format, e.g.
 	x:800,y:480,depth:18,pclk_khz:33000,le:16,ri:209,up:22,lo:22,hs:30,vs:1,sync:0,vmode:0
+	Also see: http://linux-sunxi.org/LCD
 
 config VIDEO_LCD_DCLK_PHASE
 	int "LCD panel display clock phase"
@@ -512,7 +527,16 @@ config VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
 	select VIDEO_LCD_SSD2828
 	select VIDEO_LCD_IF_PARALLEL
 	---help---
-	 7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+	7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+
+config VIDEO_LCD_PANEL_EDP_4_LANE_1620M_VIA_ANX9804
+	bool "eDP 4-lane, 1.62G LCD panel via ANX9804 bridge chip"
+	select VIDEO_LCD_ANX9804
+	select VIDEO_LCD_IF_PARALLEL
+	select VIDEO_LCD_PANEL_I2C
+	---help---
+	Select this for eDP LCD panels with 4 lanes running at 1.62G,
+	connected via an ANX9804 bridge chip.
 
 config VIDEO_LCD_PANEL_HITACHI_TX18D42VM
 	bool "Hitachi tx18d42vm LCD panel"
@@ -531,22 +555,6 @@ config VIDEO_LCD_TL059WV5C0
 
 endchoice
 
-
-config USB_MUSB_SUNXI
-	bool "Enable sunxi OTG / DRC USB controller in host mode"
-	default n
-	---help---
-	Say y here to enable support for the sunxi OTG / DRC USB controller
-	used on almost all sunxi boards. Note currently u-boot can only have
-	one usb host controller enabled at a time, so enabling this on boards
-	which also use the ehci host controller will result in build errors.
-
-config USB_KEYBOARD
-	boolean "Enable USB keyboard support"
-	default y
-	---help---
-	Say Y here to add support for using a USB keyboard (typically used
-	in combination with a graphical console).
 
 config GMAC_TX_DELAY
 	int "GMAC Transmit Clock Delay Chain"

@@ -148,10 +148,37 @@ static void spl_ram_load_image(void)
 }
 #endif
 
+int spl_init(void)
+{
+	int ret;
+
+	debug("spl_init()\n");
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
+	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
+	gd->malloc_ptr = 0;
+#endif
+	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
+		ret = fdtdec_setup();
+		if (ret) {
+			debug("fdtdec_setup() returned error %d\n", ret);
+			return ret;
+		}
+	}
+	if (IS_ENABLED(CONFIG_SPL_DM)) {
+		ret = dm_init_and_scan(true);
+		if (ret) {
+			debug("dm_init_and_scan() returned error %d\n", ret);
+			return ret;
+		}
+	}
+	gd->flags |= GD_FLG_SPL_INIT;
+
+	return 0;
+}
+
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	u32 boot_device;
-	int ret;
 
 	debug(">>spl:board_init_r()\n");
 
@@ -159,26 +186,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
-#elif defined(CONFIG_SYS_MALLOC_F_LEN)
-	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
-	gd->malloc_ptr = 0;
 #endif
-	if (IS_ENABLED(CONFIG_OF_CONTROL) &&
-			!IS_ENABLED(CONFIG_SPL_DISABLE_OF_CONTROL)) {
-		ret = fdtdec_setup();
-		if (ret) {
-			debug("fdtdec_setup() returned error %d\n", ret);
+	if (!(gd->flags & GD_FLG_SPL_INIT)) {
+		if (spl_init())
 			hang();
-		}
 	}
-	if (IS_ENABLED(CONFIG_SPL_DM)) {
-		ret = dm_init_and_scan(true);
-		if (ret) {
-			debug("dm_init_and_scan() returned error %d\n", ret);
-			hang();
-		}
-	}
-
 #ifndef CONFIG_PPC
 	/*
 	 * timer_init() does not exist on PPC systems. The timer is initialized
@@ -285,6 +297,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	      gd->malloc_ptr / 1024);
 #endif
 
+	debug("loaded - jumping to U-Boot...");
 	jump_to_image_no_args(&spl_image);
 }
 

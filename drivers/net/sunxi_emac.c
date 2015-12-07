@@ -527,7 +527,7 @@ static int sunxi_emac_eth_send(struct udevice *dev, void *packet, int length)
 	return _sunxi_emac_eth_send(priv, packet, length);
 }
 
-static int sunxi_emac_eth_recv(struct udevice *dev, uchar **packetp)
+static int sunxi_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	int rx_len;

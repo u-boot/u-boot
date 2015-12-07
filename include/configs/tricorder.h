@@ -284,7 +284,6 @@
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_CMDLINE_EDITING		/* enable cmdline history */
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_PROMPT		"OMAP3 Tricorder # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

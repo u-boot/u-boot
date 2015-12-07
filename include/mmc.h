@@ -266,6 +266,28 @@
 #define MMC_NUM_BOOT_PARTITION	2
 #define MMC_PART_RPMB           3       /* RPMB partition number */
 
+/* Driver model support */
+
+/**
+ * struct mmc_uclass_priv - Holds information about a device used by the uclass
+ */
+struct mmc_uclass_priv {
+	struct mmc *mmc;
+};
+
+/**
+ * mmc_get_mmc_dev() - get the MMC struct pointer for a device
+ *
+ * Provided that the device is already probed and ready for use, this value
+ * will be available.
+ *
+ * @dev:	Device
+ * @return associated mmc struct pointer if available, else NULL
+ */
+struct mmc *mmc_get_mmc_dev(struct udevice *dev);
+
+/* End of driver model support */
+
 struct mmc_cid {
 	unsigned long psn;
 	unsigned short oid;

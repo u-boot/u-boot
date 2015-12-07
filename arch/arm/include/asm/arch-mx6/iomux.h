@@ -18,6 +18,8 @@
 #define IOMUXC_GPR1_REF_SSP_EN			(1 << 16)
 #define IOMUXC_GPR1_TEST_POWERDOWN		(1 << 18)
 
+#define IOMUXC_GPR1_PCIE_SW_RST		(1 << 29)
+
 /*
  * IOMUXC_GPR5 bit fields
  */

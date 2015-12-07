@@ -124,4 +124,15 @@ struct s32ktimer {
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 7)
 
+/* Boot parameters */
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	unsigned int boot_message;
+	unsigned int boot_device_descriptor;
+	unsigned char boot_device;
+	unsigned char reset_reason;
+	unsigned char ch_flags;
+};
+#endif
+
 #endif

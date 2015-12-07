@@ -614,9 +614,10 @@ static int
 kwboot_img_patch_hdr(void *img, size_t size)
 {
 	int rc;
-	bhr_t *hdr;
+	struct main_hdr_v1 *hdr;
 	uint8_t csum;
-	const size_t hdrsz = sizeof(*hdr);
+	size_t hdrsz = sizeof(*hdr);
+	int image_ver;
 
 	rc = -1;
 	hdr = img;
@@ -626,8 +627,20 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		goto out;
 	}
 
-	csum = kwboot_img_csum8(hdr, hdrsz) - hdr->checkSum;
-	if (csum != hdr->checkSum) {
+	image_ver = image_version(img);
+	if (image_ver < 0) {
+		fprintf(stderr, "Invalid image header version\n");
+		errno = EINVAL;
+		goto out;
+	}
+
+	if (image_ver == 0)
+		hdrsz = sizeof(*hdr);
+	else
+		hdrsz = KWBHEADER_V1_SIZE(hdr);
+
+	csum = kwboot_img_csum8(hdr, hdrsz) - hdr->checksum;
+	if (csum != hdr->checksum) {
 		errno = EINVAL;
 		goto out;
 	}
@@ -639,14 +652,18 @@ kwboot_img_patch_hdr(void *img, size_t size)
 
 	hdr->blockid = IBR_HDR_UART_ID;
 
-	hdr->nandeccmode = IBR_HDR_ECC_DISABLED;
-	hdr->nandpagesize = 0;
+	if (image_ver == 0) {
+		struct main_hdr_v0 *hdr_v0 = img;
 
-	hdr->srcaddr = hdr->ext
-		? sizeof(struct kwb_header)
-		: sizeof(*hdr);
+		hdr_v0->nandeccmode = IBR_HDR_ECC_DISABLED;
+		hdr_v0->nandpagesize = 0;
 
-	hdr->checkSum = kwboot_img_csum8(hdr, hdrsz) - csum;
+		hdr_v0->srcaddr = hdr_v0->ext
+			? sizeof(struct kwb_header)
+			: sizeof(*hdr_v0);
+	}
+
+	hdr->checksum = kwboot_img_csum8(hdr, hdrsz) - csum;
 
 	rc = 0;
 out:

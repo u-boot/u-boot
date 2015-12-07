@@ -1,3 +1,5 @@
+menu "Generic Driver Options"
+
 config DM
 	bool "Enable Driver Model"
 	help
@@ -38,6 +40,10 @@ config DM_DEVICE_REMOVE
 	  device. This is not normally required in SPL, so by default this
 	  option is disabled for SPL.
 
+	  Note that this may have undesirable results in the USB subsystem as
+	  it causes unplugged devices to linger around in the dm-tree, and it
+	  causes USB host controllers to not be stopped when booting the OS.
+
 config DM_STDIO
 	bool "Support stdio registration"
 	depends on DM
@@ -55,3 +61,63 @@ config DM_SEQ_ALIAS
 	  Most boards will have a '/aliases' node containing the path to
 	  numbered devices (e.g. serial0 = &serial0). This feature can be
 	  disabled if it is not required, to save code space in SPL.
+
+config REGMAP
+	bool "Support register maps"
+	depends on DM
+	help
+	  Hardware peripherals tend to have one or more sets of registers
+	  which can be accessed to control the hardware. A register map
+	  models this with a simple read/write interface. It can in principle
+	  support any bus type (I2C, SPI) but so far this only supports
+	  direct memory access.
+
+config SYSCON
+	bool "Support system controllers"
+	depends on REGMAP
+	help
+	  Many SoCs have a number of system controllers which are dealt with
+	  as a group by a single driver. Some common functionality is provided
+	  by this uclass, including accessing registers via regmap and
+	  assigning a unique number to each.
+
+config DEVRES
+	bool "Managed device resources"
+	depends on DM
+	help
+	  This option enables the Managed device resources core support.
+	  Device resources managed by the devres framework are automatically
+	  released whether initialization fails half-way or the device gets
+	  detached.
+
+	  If this option is disabled, devres functions fall back to
+	  non-managed variants.  For example, devres_alloc() to kzalloc(),
+	  devm_kmalloc() to kmalloc(), etc.
+
+config DEBUG_DEVRES
+	bool "Managed device resources debugging functions"
+	depends on DEVRES
+	help
+	  If this option is enabled, devres debug messages are printed.
+	  Also, a function is available to dump a list of device resources.
+	  Select this if you are having a problem with devres or want to
+	  debug resource management for a managed device.
+
+	  If you are unsure about this, Say N here.
+
+config SIMPLE_BUS
+	bool "Support simple-bus driver"
+	depends on DM && OF_CONTROL
+	default y
+	help
+	  Supports the 'simple-bus' driver, which is used on some systems.
+
+config SPL_SIMPLE_BUS
+	bool "Support simple-bus driver in SPL"
+	depends on SPL_DM && SPL_OF_CONTROL
+	default n
+	help
+	  Supports the 'simple-bus' driver, which is used on some systems
+	  in SPL.
+
+endmenu

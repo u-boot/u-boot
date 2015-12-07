@@ -1,3 +1,9 @@
+#
+# I2C subsystem configuration
+#
+
+menu "I2C support"
+
 config DM_I2C
 	bool "Enable Driver Model for I2C drivers"
 	depends on DM
@@ -19,6 +25,30 @@ config DM_I2C_COMPAT
 	  to convert all code for a board in a single commit. It should not
 	  be enabled for any board in an official release.
 
+config I2C_CROS_EC_TUNNEL
+	tristate "Chrome OS EC tunnel I2C bus"
+	depends on CROS_EC
+	help
+	  This provides an I2C bus that will tunnel i2c commands through to
+	  the other side of the Chrome OS EC to the I2C bus connected there.
+	  This will work whatever the interface used to talk to the EC (SPI,
+	  I2C or LPC). Some Chromebooks use this when the hardware design
+	  does not allow direct access to the main PMIC from the AP.
+
+config I2C_CROS_EC_LDO
+	bool "Provide access to LDOs on the Chrome OS EC"
+	depends on CROS_EC
+	---help---
+	On many Chromebooks the main PMIC is inaccessible to the AP. This is
+	often dealt with by using an I2C pass-through interface provided by
+	the EC. On some unfortunate models (e.g. Spring) the pass-through
+	is not available, and an LDO message is available instead. This
+	option enables a driver which provides very basic access to those
+	regulators, via the EC. We implement this as an I2C bus	which
+	emulates just the TPS65090 messages we know about. This is done to
+	avoid duplicating the logic in the TPS65090 regulator driver for
+	enabling/disabling an LDO.
+
 config DM_I2C_GPIO
 	bool "Enable Driver Model for software emulated I2C bus driver"
 	depends on DM_I2C && DM_GPIO
@@ -27,6 +57,15 @@ config DM_I2C_GPIO
 	  configuration is given by the device tree. Kernel-style device tree
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
+
+config SYS_I2C_ROCKCHIP
+	bool "Rockchip I2C driver"
+	depends on DM_I2C
+	help
+	  Add support for the Rockchip I2C driver. This is used with various
+	  Rockchip parts such as RK3126, RK3128, RK3036 and RK3288. All chips
+	  have several I2C ports and all are provided, controled by the
+	  device tree.
 
 config SYS_I2C_SANDBOX
 	bool "Sandbox I2C driver"
@@ -73,3 +112,7 @@ config SYS_I2C_UNIPHIER_F
 	help
 	  Support for UniPhier FIFO-builtin I2C controller driver.
 	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.
+
+source "drivers/i2c/muxes/Kconfig"
+
+endmenu

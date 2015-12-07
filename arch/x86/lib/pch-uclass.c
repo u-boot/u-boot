@@ -9,6 +9,8 @@
 #include <dm.h>
 #include <dm/root.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static int pch_uclass_post_bind(struct udevice *bus)
 {
 	/*

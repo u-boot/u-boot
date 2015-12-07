@@ -20,6 +20,7 @@
 
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
+/include/ "rtc.dtsi"
 
 / {
 	model = "QEMU x86 (Q35)";
@@ -32,6 +33,25 @@
 
 	chosen {
 		stdout-path = "/serial";
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <1>;
+			intel,apic-id = <1>;
+		};
 	};
 
 	pci {

@@ -453,6 +453,37 @@ static int do_i2c_flags(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return 0;
 }
+
+static int do_i2c_olen(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct udevice *dev;
+	uint olen;
+	int chip;
+	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	chip = simple_strtoul(argv[1], NULL, 16);
+	ret = i2c_get_cur_bus_chip(chip, &dev);
+	if (ret)
+		return i2c_report_err(ret, I2C_ERR_READ);
+
+	if (argc > 2) {
+		olen = simple_strtoul(argv[2], NULL, 16);
+		ret = i2c_set_chip_offset_len(dev, olen);
+	} else  {
+		ret = i2c_get_chip_offset_len(dev);
+		if (ret >= 0) {
+			printf("%x\n", ret);
+			ret = 0;
+		}
+	}
+	if (ret)
+		return i2c_report_err(ret, I2C_ERR_READ);
+
+	return 0;
+}
 #endif
 
 /**
@@ -1903,6 +1934,7 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(write, 6, 0, do_i2c_write, "", ""),
 #ifdef CONFIG_DM_I2C
 	U_BOOT_CMD_MKENT(flags, 2, 1, do_i2c_flags, "", ""),
+	U_BOOT_CMD_MKENT(olen, 2, 1, do_i2c_olen, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(reset, 0, 1, do_i2c_reset, "", ""),
 #if defined(CONFIG_CMD_SDRAM)
@@ -1971,6 +2003,7 @@ static char i2c_help_text[] =
 	"          to I2C; the -s option selects bulk write in a single transaction\n"
 #ifdef CONFIG_DM_I2C
 	"i2c flags chip [flags] - set or get chip flags\n"
+	"i2c olen chip [offset_length] - set or get chip offset length\n"
 #endif
 	"i2c reset - re-init the I2C Controller\n"
 #if defined(CONFIG_CMD_SDRAM)

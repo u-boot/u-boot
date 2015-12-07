@@ -1,6 +1,0 @@
-JORNADA BOARD
-M:	Kristoffer Ericson <kristoffer.ericson@gmail.com>
-S:	Maintained
-F:	board/jornada/
-F:	include/configs/jornada.h
-F:	configs/jornada_defconfig

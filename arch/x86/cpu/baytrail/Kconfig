@@ -6,4 +6,4 @@
 
 config INTEL_BAYTRAIL
 	bool
-	select HAVE_FSP
+	select HAVE_FSP if !EFI

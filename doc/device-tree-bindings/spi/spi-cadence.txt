@@ -1,0 +1,28 @@
+Cadence QSPI controller device tree bindings
+--------------------------------------------
+
+Required properties:
+- compatible		: should be "cadence,qspi".
+- reg			: 1.Physical base address and size of SPI registers map.
+			  2. Physical base address & size of NOR Flash.
+- clocks		: Clock phandles (see clock bindings for details).
+- sram-size		: spi controller sram size.
+- status		: enable in requried dts.
+
+connected flash properties
+--------------------------
+
+- spi-max-frequency	: Max supported spi frequency.
+- page-size		: Flash page size.
+- block-size		: Flash memory block size.
+- tshsl-ns		: Added delay in master reference clocks (ref_clk) for
+			  the length that the master mode chip select outputs
+			  are de-asserted between transactions.
+- tsd2d-ns		: Delay in master reference clocks (ref_clk) between one
+			  chip select being de-activated and the activation of
+			  another.
+- tchsh-ns		: Delay in master reference clocks between last bit of
+			  current transaction and de-asserting the device chip
+			  select (n_ss_out).
+- tslch-ns		: Delay in master reference clocks between setting
+			  n_ss_out low and first bit transfer

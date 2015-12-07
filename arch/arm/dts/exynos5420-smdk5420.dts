@@ -37,7 +37,7 @@
 	};
 
 	/* s2mps11 is on i2c bus 4 */
-	i2c@12ca0000 {
+	i2c@12CA0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		pmic@66 {
@@ -82,7 +82,7 @@
 		samsung,codec-type = "wm8994";
 	};
 
-	i2c@12c70000 {
+	i2c@12C70000 {
 		soundcodec@1a {
 			reg = <0x1a>;
 			compatible = "wolfson,wm8994-codec";

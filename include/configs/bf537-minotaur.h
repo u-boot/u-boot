@@ -159,7 +159,6 @@
 
 #define CONFIG_BOOTCOMMAND	"run ramboot"
 #define CONFIG_BOOTARGS	"root=/dev/mtdblock0 rw"
-#define CONFIG_SYS_PROMPT	"minotaur> "
 
 #define BOOT_ENV_SETTINGS \
 	"update=tftpboot $(loadaddr) u-boot.ldr;" \

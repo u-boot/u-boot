@@ -41,6 +41,8 @@
 #define timestamp			gd->arch.tbl
 #define lastdec				gd->arch.lastinc
 
+static int init_done __attribute__((section(".data"))) = 0;
+
 /* Timer reload and current value registers */
 struct kwtmr_val {
 	u32 reload;	/* Timer reload reg */
@@ -112,6 +114,11 @@ void __udelay(unsigned long usec)
  */
 int timer_init(void)
 {
+	/* Only init the timer once */
+	if (init_done)
+		return 0;
+	init_done = 1;
+
 	/* load value into timer */
 	writel(TIMER_LOAD_VAL, CNTMR_RELOAD_REG(UBOOT_CNTR));
 	writel(TIMER_LOAD_VAL, CNTMR_VAL_REG(UBOOT_CNTR));

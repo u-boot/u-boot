@@ -20,4 +20,34 @@
 		reg = <0x80406000 0x1000>;
 		clock = <2700000>;
 	};
+
+	aliases {
+		spi0 = "/spi@80203000";		/* QSPI */
+	};
+
+	qspi: spi@80203000 {
+			compatible = "cadence,qspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x80203000 0x100>,
+				<0x40000000 0x1000000>;
+			clocks = <3750000>;
+			sram-size = <256>;
+			status = "okay";
+
+			flash0: n25q32@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "spi-flash";
+				reg = <0>;		/* chip select */
+				spi-max-frequency = <50000000>;
+				m25p,fast-read;
+				page-size = <256>;
+				block-size = <16>; 	/* 2^16, 64KB */
+				tshsl-ns = <50>;
+				tsd2d-ns = <50>;
+				tchsh-ns = <4>;
+				tslch-ns = <4>;
+			};
+	};
 };

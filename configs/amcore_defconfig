@@ -1,5 +1,6 @@
 CONFIG_M68K=y
 CONFIG_TARGET_AMCORE=y
+CONFIG_SYS_PROMPT="amcore $ "
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_FPGA is not set

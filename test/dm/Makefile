@@ -15,13 +15,20 @@ obj-$(CONFIG_UT_DM) += test-uclass.o
 # subsystem you must add sandbox tests here.
 obj-$(CONFIG_UT_DM) += core.o
 ifneq ($(CONFIG_SANDBOX),)
+obj-$(CONFIG_CLK) += clk.o
 obj-$(CONFIG_DM_ETH) += eth.o
 obj-$(CONFIG_DM_GPIO) += gpio.o
 obj-$(CONFIG_DM_I2C) += i2c.o
+obj-$(CONFIG_LED) += led.o
+obj-$(CONFIG_DM_MMC) += mmc.o
 obj-$(CONFIG_DM_PCI) += pci.o
+obj-$(CONFIG_RAM) += ram.o
+obj-y += regmap.o
+obj-$(CONFIG_RESET) += reset.o
 obj-$(CONFIG_DM_RTC) += rtc.o
 obj-$(CONFIG_DM_SPI_FLASH) += sf.o
 obj-$(CONFIG_DM_SPI) += spi.o
+obj-y += syscon.o
 obj-$(CONFIG_DM_USB) += usb.o
 obj-$(CONFIG_DM_PMIC) += pmic.o
 obj-$(CONFIG_DM_REGULATOR) += regulator.o

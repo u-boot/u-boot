@@ -7,8 +7,10 @@
 #include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <asm/mtrr.h>
 #include <asm/post.h>
 #include <asm/arch/mrc.h>
+#include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -110,6 +112,14 @@ int dram_init(void)
 
 	gd->ram_size = mrc_params.mem_size;
 	post_code(POST_DRAM);
+
+	/* variable range MTRR#2: RAM area */
+	disable_caches();
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYBASE(MTRR_VAR_RAM),
+		       0 | MTRR_TYPE_WRBACK);
+	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYMASK(MTRR_VAR_RAM),
+		       (~(gd->ram_size - 1)) | MTRR_PHYS_MASK_VALID);
+	enable_caches();
 
 	return 0;
 }

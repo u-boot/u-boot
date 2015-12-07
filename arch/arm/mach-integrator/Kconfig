@@ -53,4 +53,7 @@ config SYS_CONFIG_NAME
 	default "integratorap" if ARCH_INTEGRATOR_AP
 	default "integratorcp" if ARCH_INTEGRATOR_CP
 
+config SYS_MALLOC_F_LEN
+	default 0x2000
+
 endmenu
