@@ -166,6 +166,7 @@
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
 
+#define CONFIG_SYS_FSL_ERRATUM_A009929
 #else
 #error SoC not defined
 #endif
