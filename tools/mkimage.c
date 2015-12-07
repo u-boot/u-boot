@@ -311,8 +311,7 @@ NXTARG:		;
 		exit (retval);
 	}
 
-	if (!params.type == IH_TYPE_MULTI ||
-	    !params.type == IH_TYPE_SCRIPT) {
+	if ((params.type != IH_TYPE_MULTI) && (params.type != IH_TYPE_SCRIPT)) {
 		dfd = open(params.datafile, O_RDONLY | O_BINARY);
 		if (dfd < 0) {
 			fprintf(stderr, "%s: Can't open %s: %s\n",
