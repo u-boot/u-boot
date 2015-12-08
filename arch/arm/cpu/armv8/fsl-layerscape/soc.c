@@ -161,10 +161,15 @@ void fsl_lsch3_early_init_f(void)
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_FSL_IFC
 	init_early_memctl_regs();	/* tighten IFC timing */
 #endif
+
+	/* Make SEC reads and writes snoopable */
+	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
+		     SCFG_SNPCNFGCR_SECWRSNP);
 
 	/*
 	 * Enable snoop requests and DVM message requests for
