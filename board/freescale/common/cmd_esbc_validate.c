@@ -21,10 +21,25 @@ loop:
 static int do_esbc_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
+	char *hash_str = NULL;
+	ulong haddr;
+	int ret;
+
 	if (argc < 2)
 		return cmd_usage(cmdtp);
+	else if (argc > 2)
+		/* Second arg - Optional - Hash Str*/
+		hash_str = argv[2];
 
-	return fsl_secboot_validate(cmdtp, flag, argc, argv);
+	/* First argument - header address -32/64bit */
+	haddr = simple_strtoul(argv[1], NULL, 16);
+
+	ret = fsl_secboot_validate(haddr, hash_str);
+	if (ret)
+		return 1;
+
+	printf("esbc_validate command successful\n");
+	return 0;
 }
 
 /***************************************************/

@@ -699,13 +699,11 @@ static inline int str2longbe(const char *p, ulong *num)
 	return *p != '\0' && *endptr == '\0';
 }
 
-int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
-		char * const argv[])
+int fsl_secboot_validate(ulong haddr, char *arg_hash_str)
 {
 	struct ccsr_sfp_regs *sfp_regs = (void *)(CONFIG_SYS_SFP_ADDR);
 	ulong hash[SHA256_BYTES/sizeof(ulong)];
 	char hash_str[NUM_HEX_CHARS + 1];
-	ulong addr = simple_strtoul(argv[1], NULL, 16);
 	struct fsl_secboot_img_priv *img;
 	struct fsl_secboot_img_hdr *hdr;
 	void *esbc;
@@ -717,8 +715,8 @@ int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 	struct udevice *mod_exp_dev;
 #endif
 
-	if (argc == 3) {
-		char *cp = argv[2];
+	if (arg_hash_str != NULL) {
+		const char *cp = arg_hash_str;
 		int i = 0;
 
 		if (*cp == '0' && *(cp + 1) == 'x')
@@ -731,7 +729,7 @@ int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 		 */
 		if (strlen(cp) != SHA256_NIBBLES) {
 			printf("%s is not a 256 bits hex string as expected\n",
-			       argv[2]);
+			       arg_hash_str);
 			return -1;
 		}
 
@@ -741,7 +739,7 @@ int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 			hash_str[NUM_HEX_CHARS] = '\0';
 			if (!str2longbe(hash_str, &hash[i])) {
 				printf("%s is not a 256 bits hex string ",
-				       argv[2]);
+				       arg_hash_str);
 				return -1;
 			}
 		}
@@ -757,7 +755,7 @@ int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 	memset(img, 0, sizeof(struct fsl_secboot_img_priv));
 
 	hdr = &img->hdr;
-	img->ehdrloc = addr;
+	img->ehdrloc = haddr;
 	esbc = (u8 *)(uintptr_t)img->ehdrloc;
 
 	memcpy(hdr, esbc, sizeof(struct fsl_secboot_img_hdr));
@@ -843,8 +841,6 @@ int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 		goto exit;
 	}
 
-	printf("esbc_validate command successful\n");
-
 exit:
-	return 0;
+	return ret;
 }
