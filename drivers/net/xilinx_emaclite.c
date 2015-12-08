@@ -575,33 +575,3 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 
 	return 1;
 }
-
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-int xilinx_emaclite_of_init(const void *blob)
-{
-	int offset = 0;
-	u32 ret = 0;
-	u32 reg;
-
-	do {
-		offset = fdt_node_offset_by_compatible(blob, offset,
-					"xlnx,xps-ethernetlite-1.00.a");
-		if (offset != -1) {
-			reg = fdtdec_get_addr(blob, offset, "reg");
-			if (reg != FDT_ADDR_T_NONE) {
-				u32 rxpp = fdtdec_get_int(blob, offset,
-							"xlnx,rx-ping-pong", 0);
-				u32 txpp = fdtdec_get_int(blob, offset,
-							"xlnx,tx-ping-pong", 0);
-				ret |= xilinx_emaclite_initialize(NULL, reg,
-								txpp, rxpp);
-			} else {
-				debug("EMACLITE: Can't get base address\n");
-				return -1;
-			}
-		}
-	} while (offset != -1);
-
-	return ret;
-}
-#endif
