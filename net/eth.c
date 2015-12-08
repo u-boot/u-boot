@@ -541,6 +541,34 @@ static int eth_post_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev->platdata;
 	unsigned char env_enetaddr[6];
 
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+	struct eth_ops *ops = eth_get_ops(dev);
+	static int reloc_done;
+
+	if (!reloc_done) {
+		if (ops->start)
+			ops->start += gd->reloc_off;
+		if (ops->send)
+			ops->send += gd->reloc_off;
+		if (ops->recv)
+			ops->recv += gd->reloc_off;
+		if (ops->free_pkt)
+			ops->free_pkt += gd->reloc_off;
+		if (ops->stop)
+			ops->stop += gd->reloc_off;
+#ifdef CONFIG_MCAST_TFTP
+		if (ops->mcast)
+			ops->mcast += gd->reloc_off;
+#endif
+		if (ops->write_hwaddr)
+			ops->write_hwaddr += gd->reloc_off;
+		if (ops->read_rom_hwaddr)
+			ops->read_rom_hwaddr += gd->reloc_off;
+
+		reloc_done++;
+	}
+#endif
+
 	priv->state = ETH_STATE_INIT;
 
 	/* Check if the device has a MAC address in ROM */
