@@ -536,13 +536,8 @@ static int calc_esbchdr_esbc_hash(struct fsl_secboot_img_priv *img)
 		return ret;
 
 	/* Update hash for actual Image */
-#ifdef CONFIG_ESBC_ADDR_64BIT
 	ret = algo->hash_update(algo, ctx,
-		(u8 *)(uintptr_t)img->hdr.pimg64, img->hdr.img_size, 1);
-#else
-	ret = algo->hash_update(algo, ctx,
-		(u8 *)(uintptr_t)img->hdr.pimg, img->hdr.img_size, 1);
-#endif
+		(u8 *)img->img_addr, img->img_size, 1);
 	if (ret)
 		return ret;
 
@@ -632,15 +627,24 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	if (memcmp(hdr->barker, barker_code, ESBC_BARKER_LEN))
 		return ERROR_ESBC_CLIENT_HEADER_BARKER;
 
-#ifdef CONFIG_ESBC_ADDR_64BIT
-	sprintf(buf, "%llx", hdr->pimg64);
-#else
-	sprintf(buf, "%x", hdr->pimg);
-#endif
+	/* If Image Address is not passed as argument to function,
+	 * then Address and Size must be read from the Header.
+	 */
+	if (img->img_addr == 0) {
+	#ifdef CONFIG_ESBC_ADDR_64BIT
+		img->img_addr = hdr->pimg64;
+	#else
+		img->img_addr = hdr->pimg;
+	#endif
+	}
+
+	sprintf(buf, "%lx", img->img_addr);
 	setenv("img_addr", buf);
 
 	if (!hdr->img_size)
 		return ERROR_ESBC_CLIENT_HEADER_IMG_SIZE;
+
+	img->img_size = hdr->img_size;
 
 	/* Key checking*/
 #ifdef CONFIG_KEY_REVOCATION
@@ -774,7 +778,8 @@ static int calculate_cmp_img_sig(struct fsl_secboot_img_priv *img)
 	return 0;
 }
 
-int fsl_secboot_validate(ulong haddr, char *arg_hash_str)
+int fsl_secboot_validate(uintptr_t haddr, char *arg_hash_str,
+			uintptr_t img_addr)
 {
 	struct ccsr_sfp_regs *sfp_regs = (void *)(CONFIG_SYS_SFP_ADDR);
 	ulong hash[SHA256_BYTES/sizeof(ulong)];
@@ -824,9 +829,11 @@ int fsl_secboot_validate(ulong haddr, char *arg_hash_str)
 
 	memset(img, 0, sizeof(struct fsl_secboot_img_priv));
 
+	/* Update the information in Private Struct */
 	hdr = &img->hdr;
 	img->ehdrloc = haddr;
-	esbc = (u8 *)(uintptr_t)img->ehdrloc;
+	img->img_addr = img_addr;
+	esbc = (u8 *)img->ehdrloc;
 
 	memcpy(hdr, esbc, sizeof(struct fsl_secboot_img_hdr));
 

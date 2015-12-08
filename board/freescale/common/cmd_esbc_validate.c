@@ -22,7 +22,7 @@ static int do_esbc_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
 	char *hash_str = NULL;
-	ulong haddr;
+	uintptr_t haddr;
 	int ret;
 
 	if (argc < 2)
@@ -32,9 +32,13 @@ static int do_esbc_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 		hash_str = argv[2];
 
 	/* First argument - header address -32/64bit */
-	haddr = simple_strtoul(argv[1], NULL, 16);
+	haddr = (uintptr_t)simple_strtoul(argv[1], NULL, 16);
 
-	ret = fsl_secboot_validate(haddr, hash_str);
+	/* With esbc_validate command, Image address must be
+	 * part of header. So, the function is called
+	 * by passing this argument as 0.
+	 */
+	ret = fsl_secboot_validate(haddr, hash_str, 0);
 	if (ret)
 		return 1;
 
