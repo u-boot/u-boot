@@ -1,5 +1,5 @@
 config I2C_MUX
-	bool "Suport I2C multiplexers"
+	bool "Support I2C multiplexers"
 	depends on DM_I2C
 	help
 	  This enables I2C buses to be multiplexed, so that you can select
