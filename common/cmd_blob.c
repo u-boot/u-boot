@@ -73,9 +73,9 @@ static int do_blob(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	len = simple_strtoul(argv[4], NULL, 16);
 	key_addr = simple_strtoul(argv[5], NULL, 16);
 
-	km_ptr = (uint8_t *)key_addr;
-	src_ptr = (uint8_t *)src_addr;
-	dst_ptr = (uint8_t *)dst_addr;
+	km_ptr = (uint8_t *)(uintptr_t)key_addr;
+	src_ptr = (uint8_t *)(uintptr_t)src_addr;
+	dst_ptr = (uint8_t *)(uintptr_t)dst_addr;
 
 	if (enc)
 		ret = blob_encap(km_ptr, src_ptr, dst_ptr, len);
