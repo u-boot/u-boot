@@ -121,7 +121,8 @@
 #endif
 
 /* Stack location before relocation */
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_TEXT_BASE - \
+					 CONFIG_SYS_MALLOC_F_LEN)
 
 /*
  * CFI flash memory layout - Example
