@@ -105,11 +105,6 @@ int board_eth_init(bd_t *bis)
 {
 	int ret = 0;
 
-#ifdef CONFIG_XILINX_AXIEMAC
-	ret |= xilinx_axiemac_initialize(bis, XILINX_AXIEMAC_BASEADDR,
-						XILINX_AXIDMA_BASEADDR);
-#endif
-
 #if defined(CONFIG_XILINX_EMACLITE) && defined(XILINX_EMACLITE_BASEADDR)
 	u32 txpp = 0;
 	u32 rxpp = 0;
