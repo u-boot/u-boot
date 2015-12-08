@@ -59,13 +59,9 @@
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
 # define CONFIG_CPU_ARMV8
-# define CONFIG_BOOTARGS	"setenv bootargs console=hvc0 " \
-				"earlycon=dcc; run nosmp;"
 #else
 # if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
 #  define CONFIG_ZYNQ_SERIAL
-#  define CONFIG_BOOTARGS	"setenv bootargs console=ttyPS0,${baudrate} " \
-				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"
 # endif
 #endif
 
@@ -227,7 +223,7 @@
 		     "booti $kernel_addr - $fdt_addr\0" \
 	DFU_ALT_INFO
 
-#define CONFIG_PREBOOT		"run bootargs; run sata_root; run setup"
+#define CONFIG_PREBOOT		"run setup"
 #define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	5
 
