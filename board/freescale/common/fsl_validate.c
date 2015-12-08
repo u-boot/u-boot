@@ -24,6 +24,10 @@
 #define SHA256_NIBBLES	(256/4)
 #define NUM_HEX_CHARS	(sizeof(ulong) * 2)
 
+#define CHECK_KEY_LEN(key_len)	(((key_len) == 2 * KEY_SIZE_BYTES / 4) || \
+				 ((key_len) == 2 * KEY_SIZE_BYTES / 2) || \
+				 ((key_len) == 2 * KEY_SIZE_BYTES))
+
 /* This array contains DER value for SHA-256 */
 static const u8 hash_identifier[] = { 0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60,
 		0x86, 0x48, 0x01, 0x65,	0x03, 0x04, 0x02, 0x01, 0x05, 0x00,
@@ -179,19 +183,96 @@ static u32 is_key_revoked(u32 keynum, u32 rev_flag)
 	return 0;
 }
 
-/* It validates srk_table key lengths.*/
-static u32 validate_srk_tbl(struct srk_table *tbl, u32 num_entries)
+/* It read validates srk_table key lengths.*/
+static u32 read_validate_srk_tbl(struct fsl_secboot_img_priv *img)
 {
 	int i = 0;
-	for (i = 0; i < num_entries; i++) {
-		if (!((tbl[i].key_len == 2 * KEY_SIZE_BYTES/4) ||
-		      (tbl[i].key_len == 2 * KEY_SIZE_BYTES/2) ||
-		      (tbl[i].key_len == 2 * KEY_SIZE_BYTES)))
+	u32 ret, key_num, key_revoc_flag, size;
+	struct fsl_secboot_img_hdr *hdr = &img->hdr;
+	void *esbc = (u8 *)(uintptr_t)img->ehdrloc;
+
+	if ((hdr->len_kr.num_srk == 0) ||
+	    (hdr->len_kr.num_srk > MAX_KEY_ENTRIES))
+		return ERROR_ESBC_CLIENT_HEADER_INVALID_SRK_NUM_ENTRY;
+
+	key_num = hdr->len_kr.srk_sel;
+	if (key_num == 0 || key_num > hdr->len_kr.num_srk)
+		return ERROR_ESBC_CLIENT_HEADER_INVALID_KEY_NUM;
+
+	/* Get revoc key from sfp */
+	key_revoc_flag = get_key_revoc();
+	ret = is_key_revoked(key_num, key_revoc_flag);
+	if (ret)
+		return ERROR_ESBC_CLIENT_HEADER_KEY_REVOKED;
+
+	size = hdr->len_kr.num_srk * sizeof(struct srk_table);
+
+	memcpy(&img->srk_tbl, esbc + hdr->srk_tbl_off, size);
+
+	for (i = 0; i < hdr->len_kr.num_srk; i++) {
+		if (!CHECK_KEY_LEN(img->srk_tbl[i].key_len))
 			return ERROR_ESBC_CLIENT_HEADER_INV_SRK_ENTRY_KEYLEN;
 	}
+
+	img->key_len = img->srk_tbl[key_num - 1].key_len;
+
+	memcpy(&img->img_key, &(img->srk_tbl[key_num - 1].pkey),
+	       img->key_len);
+
 	return 0;
 }
 #endif
+
+static u32 read_validate_single_key(struct fsl_secboot_img_priv *img)
+{
+	struct fsl_secboot_img_hdr *hdr = &img->hdr;
+	void *esbc = (u8 *)(uintptr_t)img->ehdrloc;
+
+	/* check key length */
+	if (!CHECK_KEY_LEN(hdr->key_len))
+		return ERROR_ESBC_CLIENT_HEADER_KEY_LEN;
+
+	memcpy(&img->img_key, esbc + hdr->pkey, hdr->key_len);
+
+	img->key_len = hdr->key_len;
+
+	return 0;
+}
+
+#if defined(CONFIG_FSL_ISBC_KEY_EXT)
+static u32 read_validate_ie_tbl(struct fsl_secboot_img_priv *img)
+{
+	struct fsl_secboot_img_hdr *hdr = &img->hdr;
+	u32 ie_key_len, ie_revoc_flag, ie_num;
+	struct ie_key_info *ie_info;
+
+	if (get_ie_info_addr(&img->ie_addr))
+		return ERROR_IE_TABLE_NOT_FOUND;
+	ie_info = (struct ie_key_info *)(uintptr_t)img->ie_addr;
+	if (ie_info->num_keys == 0 || ie_info->num_keys > 32)
+		return ERROR_ESBC_CLIENT_HEADER_INVALID_IE_NUM_ENTRY;
+
+	ie_num = hdr->ie_key_sel;
+	if (ie_num == 0 || ie_num > ie_info->num_keys)
+		return ERROR_ESBC_CLIENT_HEADER_INVALID_IE_KEY_NUM;
+
+	ie_revoc_flag = ie_info->key_revok;
+	if ((u32)(1 << (ie_num - 1)) & ie_revoc_flag)
+		return ERROR_ESBC_CLIENT_HEADER_IE_KEY_REVOKED;
+
+	ie_key_len = ie_info->ie_key_tbl[ie_num - 1].key_len;
+
+	if (!CHECK_KEY_LEN(ie_key_len))
+		return ERROR_ESBC_CLIENT_HEADER_INV_IE_ENTRY_KEYLEN;
+
+	memcpy(&img->img_key, &(ie_info->ie_key_tbl[ie_num - 1].pkey),
+	       ie_key_len);
+
+	img->key_len = ie_key_len;
+	return 0;
+}
+#endif
+
 
 /* This function return length of public key.*/
 static inline u32 get_key_len(struct fsl_secboot_img_priv *img)
@@ -541,13 +622,9 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	struct fsl_secboot_img_hdr *hdr = &img->hdr;
 	void *esbc = (u8 *)(uintptr_t)img->ehdrloc;
 	u8 *k, *s;
+	u32 ret = 0;
+
 #ifdef CONFIG_KEY_REVOCATION
-	u32 ret;
-	u32 key_num, key_revoc_flag, size;
-#endif
-#if defined(CONFIG_FSL_ISBC_KEY_EXT)
-	struct ie_key_info *ie_info;
-	u32 ie_num, ie_revoc_flag, ie_key_len;
 #endif
 	int  key_found = 0;
 
@@ -568,80 +645,26 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	/* Key checking*/
 #ifdef CONFIG_KEY_REVOCATION
 	if (check_srk(img)) {
-		if ((hdr->len_kr.num_srk == 0) ||
-		    (hdr->len_kr.num_srk > MAX_KEY_ENTRIES))
-			return ERROR_ESBC_CLIENT_HEADER_INVALID_SRK_NUM_ENTRY;
-
-		key_num = hdr->len_kr.srk_sel;
-		if (key_num == 0 || key_num > hdr->len_kr.num_srk)
-			return ERROR_ESBC_CLIENT_HEADER_INVALID_KEY_NUM;
-
-		/* Get revoc key from sfp */
-		key_revoc_flag = get_key_revoc();
-		ret = is_key_revoked(key_num, key_revoc_flag);
-		if (ret)
-			return ERROR_ESBC_CLIENT_HEADER_KEY_REVOKED;
-
-		size = hdr->len_kr.num_srk * sizeof(struct srk_table);
-
-		memcpy(&img->srk_tbl, esbc + hdr->srk_tbl_off, size);
-
-		ret = validate_srk_tbl(img->srk_tbl, hdr->len_kr.num_srk);
-
+		ret = read_validate_srk_tbl(img);
 		if (ret != 0)
 			return ret;
-
-		img->key_len = img->srk_tbl[key_num - 1].key_len;
-
-		memcpy(&img->img_key, &(img->srk_tbl[key_num - 1].pkey),
-		       img->key_len);
-
 		key_found = 1;
 	}
 #endif
 
 #if defined(CONFIG_FSL_ISBC_KEY_EXT)
 	if (!key_found && check_ie(img)) {
-		if (get_ie_info_addr(&img->ie_addr))
-			return ERROR_IE_TABLE_NOT_FOUND;
-		ie_info = (struct ie_key_info *)(uintptr_t)img->ie_addr;
-		if (ie_info->num_keys == 0 || ie_info->num_keys > 32)
-			return ERROR_ESBC_CLIENT_HEADER_INVALID_IE_NUM_ENTRY;
-
-		ie_num = hdr->ie_key_sel;
-		if (ie_num == 0 || ie_num > ie_info->num_keys)
-			return ERROR_ESBC_CLIENT_HEADER_INVALID_IE_KEY_NUM;
-
-		ie_revoc_flag = ie_info->key_revok;
-		if ((u32)(1 << (ie_num - 1)) & ie_revoc_flag)
-			return ERROR_ESBC_CLIENT_HEADER_IE_KEY_REVOKED;
-
-		ie_key_len = ie_info->ie_key_tbl[ie_num - 1].key_len;
-
-		if (!((ie_key_len == 2 * KEY_SIZE_BYTES / 4) ||
-		      (ie_key_len == 2 * KEY_SIZE_BYTES / 2) ||
-		      (ie_key_len == 2 * KEY_SIZE_BYTES)))
-			return ERROR_ESBC_CLIENT_HEADER_INV_IE_ENTRY_KEYLEN;
-
-		memcpy(&img->img_key, &(ie_info->ie_key_tbl[ie_num - 1].pkey),
-		       ie_key_len);
-
-		img->key_len = ie_key_len;
+		ret = read_validate_ie_tbl(img);
+		if (ret != 0)
+			return ret;
 		key_found = 1;
 	}
 #endif
 
 	if (key_found == 0) {
-		/* check key length */
-		if (!((hdr->key_len == 2 * KEY_SIZE_BYTES / 4) ||
-		      (hdr->key_len == 2 * KEY_SIZE_BYTES / 2) ||
-		      (hdr->key_len == 2 * KEY_SIZE_BYTES)))
-			return ERROR_ESBC_CLIENT_HEADER_KEY_LEN;
-
-		memcpy(&img->img_key, esbc + hdr->pkey, hdr->key_len);
-
-		img->key_len = hdr->key_len;
-
+		ret = read_validate_single_key(img);
+		if (ret != 0)
+			return ret;
 		key_found = 1;
 	}
 
