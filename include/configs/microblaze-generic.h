@@ -339,7 +339,6 @@
 # define CONFIG_CMD_MII		1
 # define CONFIG_PHY_GIGE	1
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
-# define CONFIG_PHYLIB		1
 # define CONFIG_PHY_ATHEROS	1
 # define CONFIG_PHY_BROADCOM	1
 # define CONFIG_PHY_DAVICOM	1
@@ -352,7 +351,6 @@
 #else
 # undef CONFIG_MII
 # undef CONFIG_CMD_MII
-# undef CONFIG_PHYLIB
 #endif
 
 /* SPL part */
