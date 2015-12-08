@@ -131,13 +131,25 @@ static void fec_mii_setspeed(struct ethernet_regs *eth)
 	/*
 	 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 	 * and do not drop the Preamble.
+	 *
+	 * The i.MX28 and i.MX6 types have another field in the MSCR (aka
+	 * MII_SPEED) register that defines the MDIO output hold time. Earlier
+	 * versions are RAZ there, so just ignore the difference and write the
+	 * register always.
+	 * The minimal hold time according to IEE802.3 (clause 22) is 10 ns.
+	 * HOLDTIME + 1 is the number of clk cycles the fec is holding the
+	 * output.
+	 * The HOLDTIME bitfield takes values between 0 and 7 (inclusive).
+	 * Given that ceil(clkrate / 5000000) <= 64, the calculation for
+	 * holdtime cannot result in a value greater than 3.
 	 */
-	register u32 speed = DIV_ROUND_UP(imx_get_fecclk(), 5000000);
+	u32 pclk = imx_get_fecclk();
+	u32 speed = DIV_ROUND_UP(pclk, 5000000);
+	u32 hold = DIV_ROUND_UP(pclk, 100000000) - 1;
 #ifdef FEC_QUIRK_ENET_MAC
 	speed--;
 #endif
-	speed <<= 1;
-	writel(speed, &eth->mii_speed);
+	writel(speed << 1 | hold << 8, &eth->mii_speed);
 	debug("%s: mii_speed %08x\n", __func__, readl(&eth->mii_speed));
 }
 
