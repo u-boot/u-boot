@@ -721,6 +721,58 @@ static inline int str2longbe(const char *p, ulong *num)
 
 	return *p != '\0' && *endptr == '\0';
 }
+/* Function to calculate the ESBC Image Hash
+ * and hash from Digital signature.
+ * The Two hash's are compared to yield the
+ * result of signature validation.
+ */
+static int calculate_cmp_img_sig(struct fsl_secboot_img_priv *img)
+{
+	int ret;
+	uint32_t key_len;
+	struct key_prop prop;
+#if !defined(USE_HOSTCC)
+	struct udevice *mod_exp_dev;
+#endif
+	ret = calc_esbchdr_esbc_hash(img);
+	if (ret)
+		return ret;
+
+	/* Construct encoded hash EM' wrt PKCSv1.5 */
+	construct_img_encoded_hash_second(img);
+
+	/* Fill prop structure for public key */
+	memset(&prop, 0, sizeof(struct key_prop));
+	key_len = get_key_len(img) / 2;
+	prop.modulus = img->img_key;
+	prop.public_exponent = img->img_key + key_len;
+	prop.num_bits = key_len * 8;
+	prop.exp_len = key_len;
+
+	ret = uclass_get_device(UCLASS_MOD_EXP, 0, &mod_exp_dev);
+	if (ret) {
+		printf("RSA: Can't find Modular Exp implementation\n");
+		return -EINVAL;
+	}
+
+	ret = rsa_mod_exp(mod_exp_dev, img->img_sign, img->hdr.sign_len,
+			  &prop, img->img_encoded_hash);
+	if (ret)
+		return ret;
+
+	/*
+	 * compare the encoded messages EM' and EM wrt RSA PKCSv1.5
+	 * memcmp returns zero on success
+	 * memcmp returns non-zero on failure
+	 */
+	ret = memcmp(&img->img_encoded_hash_second, &img->img_encoded_hash,
+		img->hdr.sign_len);
+
+	if (ret)
+		return ERROR_ESBC_CLIENT_HASH_COMPARE_EM;
+
+	return 0;
+}
 
 int fsl_secboot_validate(ulong haddr, char *arg_hash_str)
 {
@@ -732,11 +784,6 @@ int fsl_secboot_validate(ulong haddr, char *arg_hash_str)
 	void *esbc;
 	int ret, i, hash_cmd = 0;
 	u32 srk_hash[8];
-	uint32_t key_len;
-	struct key_prop prop;
-#if !defined(USE_HOSTCC)
-	struct udevice *mod_exp_dev;
-#endif
 
 	if (arg_hash_str != NULL) {
 		const char *cp = arg_hash_str;
@@ -821,46 +868,9 @@ int fsl_secboot_validate(ulong haddr, char *arg_hash_str)
 		goto exit;
 	}
 
-	ret = calc_esbchdr_esbc_hash(img);
+	ret = calculate_cmp_img_sig(img);
 	if (ret) {
-		fsl_secblk_handle_error(ret);
-		goto exit;
-	}
-
-	/* Construct encoded hash EM' wrt PKCSv1.5 */
-	construct_img_encoded_hash_second(img);
-
-	/* Fill prop structure for public key */
-	memset(&prop, 0, sizeof(struct key_prop));
-	key_len = get_key_len(img) / 2;
-	prop.modulus = img->img_key;
-	prop.public_exponent = img->img_key + key_len;
-	prop.num_bits = key_len * 8;
-	prop.exp_len = key_len;
-
-	ret = uclass_get_device(UCLASS_MOD_EXP, 0, &mod_exp_dev);
-	if (ret) {
-		printf("RSA: Can't find Modular Exp implementation\n");
-		return -EINVAL;
-	}
-
-	ret = rsa_mod_exp(mod_exp_dev, img->img_sign, img->hdr.sign_len,
-			  &prop, img->img_encoded_hash);
-	if (ret) {
-		fsl_secblk_handle_error(ret);
-		goto exit;
-	}
-
-	/*
-	 * compare the encoded messages EM' and EM wrt RSA PKCSv1.5
-	 * memcmp returns zero on success
-	 * memcmp returns non-zero on failure
-	 */
-	ret = memcmp(&img->img_encoded_hash_second, &img->img_encoded_hash,
-		img->hdr.sign_len);
-
-	if (ret) {
-		fsl_secboot_handle_error(ERROR_ESBC_CLIENT_HASH_COMPARE_EM);
+		fsl_secboot_handle_error(ret);
 		goto exit;
 	}
 
