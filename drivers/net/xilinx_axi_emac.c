@@ -221,11 +221,10 @@ static u32 phywrite(struct axidma_priv *priv, u32 phyaddress, u32 registernum,
 	return 0;
 }
 
-/* Setting axi emac and phy to proper setting */
-static int setup_phy(struct udevice *dev)
+static int axiemac_phy_init(struct udevice *dev)
 {
 	u16 phyreg;
-	u32 i, speed, emmc_reg, ret;
+	u32 i, ret;
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
 	struct phy_device *phydev;
@@ -236,6 +235,9 @@ static int setup_phy(struct udevice *dev)
 			SUPPORTED_100baseT_Full |
 			SUPPORTED_1000baseT_Half |
 			SUPPORTED_1000baseT_Full;
+
+	/* Set default MDIO divisor */
+	out_be32(&regs->mdio_mc, XAE_MDIO_DIV_DFT | XAE_MDIO_MC_MDIOEN_MASK);
 
 	if (priv->phyaddr == -1) {
 		/* Detect the PHY address */
@@ -259,6 +261,18 @@ static int setup_phy(struct udevice *dev)
 	phydev->advertising = phydev->supported;
 	priv->phydev = phydev;
 	phy_config(phydev);
+
+	return 0;
+}
+
+/* Setting axi emac and phy to proper setting */
+static int setup_phy(struct udevice *dev)
+{
+	u32 speed, emmc_reg;
+	struct axidma_priv *priv = dev_get_priv(dev);
+	struct axi_regs *regs = priv->iobase;
+	struct phy_device *phydev = priv->phydev;
+
 	if (phy_startup(phydev)) {
 		printf("axiemac: could not initialize PHY %s\n",
 		       phydev->dev->name);
@@ -620,6 +634,8 @@ static int axi_emac_probe(struct udevice *dev)
 	ret = mdio_register(priv->bus);
 	if (ret)
 		return ret;
+
+	axiemac_phy_init(dev);
 
 	return 0;
 }
