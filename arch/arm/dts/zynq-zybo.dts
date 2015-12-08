@@ -16,6 +16,7 @@
 	aliases {
 		ethernet0 = &gem0;
 		serial0 = &uart1;
+		spi0 = &qspi;
 		mmc0 = &sdhci0;
 	};
 
@@ -29,6 +30,10 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	usb_phy0: phy0 {
+		compatible = "usb-nop-xceiv";
+		#phy-cells = <0>;
+	};
 };
 
 &clkc {
@@ -53,4 +58,15 @@
 &uart1 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
+};
+
+&qspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+	usb-phy = <&usb_phy0>;
 };
