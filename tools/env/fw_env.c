@@ -208,7 +208,7 @@ char *fw_getdefenv(char *name)
 	return NULL;
 }
 
-static int parse_aes_key(char *key)
+static int parse_aes_key(char *key, uint8_t *bin_key)
 {
 	char tmp[5] = { '0', 'x', 0, 0, 0 };
 	unsigned long ul;
@@ -230,11 +230,9 @@ static int parse_aes_key(char *key)
 				"## Error: '-a' option requires valid AES key\n");
 			return -1;
 		}
-		aes_key[i] = ul & 0xff;
+		bin_key[i] = ul & 0xff;
 		key += 2;
 	}
-	aes_flag = 1;
-
 	return 0;
 }
 
@@ -267,9 +265,10 @@ int fw_printenv (int argc, char *argv[])
 				"## Error: '-a' option requires AES key\n");
 			return -1;
 		}
-		rc = parse_aes_key(argv[2]);
+		rc = parse_aes_key(argv[2], aes_key);
 		if (rc)
 			return rc;
+		aes_flag = 1;
 		argv += 2;
 		argc -= 2;
 	}
@@ -526,9 +525,10 @@ int fw_setenv(int argc, char *argv[])
 				"## Error: '-a' option requires AES key\n");
 			return -1;
 		}
-		rc = parse_aes_key(argv[2]);
+		rc = parse_aes_key(argv[2], aes_key);
 		if (rc)
 			return rc;
+		aes_flag = 1;
 		argv += 2;
 		argc -= 2;
 	}
