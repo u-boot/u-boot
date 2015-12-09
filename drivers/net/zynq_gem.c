@@ -666,11 +666,12 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
 	priv->emio = 0;
+	priv->phyaddr = -1;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
 				       "phy-handle");
 	if (offset > 0)
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
+		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
 	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
 	if (phy_mode)
