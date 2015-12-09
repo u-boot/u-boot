@@ -541,25 +541,47 @@ static int do_zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	u32 dstlen;
 	u8 imgtype = BIT_NONE;
 	int status;
+	u8 i = 1;
 
-	if (argc < 5)
+	if (argc < 4 && argc > 5)
 		goto usage;
 
-	srcaddr = simple_strtoul(argv[1], &endp, 16);
-	if (*argv[1] == 0 || *endp != 0)
-		return -1;
-	srclen = simple_strtoul(argv[2], &endp, 16);
-	if (*argv[2] == 0 || *endp != 0)
-		return -1;
-	dstaddr = simple_strtoul(argv[3], &endp, 16);
-	if (*argv[3] == 0 || *endp != 0)
-		return -1;
-	dstlen = simple_strtoul(argv[4], &endp, 16);
-	if (*argv[4] == 0 || *endp != 0)
-		return -1;
+	if (argc == 4) {
+		if (!strcmp("load", argv[i]))
+			imgtype = BIT_FULL;
+		else if (!strcmp("loadp", argv[i]))
+			imgtype = BIT_PARTIAL;
+		else
+			goto usage;
+		i++;
+	}
 
-	if (dstaddr == 0xFFFFFFFF)
-		imgtype = BIT_FULL;
+	srcaddr = simple_strtoul(argv[i], &endp, 16);
+	if (*argv[i++] == 0 || *endp != 0)
+		goto usage;
+	srclen = simple_strtoul(argv[i], &endp, 16);
+	if (*argv[i++] == 0 || *endp != 0)
+		goto usage;
+	if (argc == 4) {
+		dstaddr = 0xFFFFFFFF;
+		dstlen = srclen;
+	} else {
+		dstaddr = simple_strtoul(argv[i], &endp, 16);
+		if (*argv[i++] == 0 || *endp != 0)
+			goto usage;
+		dstlen = simple_strtoul(argv[i], &endp, 16);
+		if (*argv[i++] == 0 || *endp != 0)
+			goto usage;
+	}
+
+	/*
+	 * If the image is not bitstream but destination address is
+	 * 0xFFFFFFFF
+	 */
+	if (imgtype == BIT_NONE && dstaddr == 0xFFFFFFFF) {
+		printf("ERR:use zynqaes load/loadp encrypted bitstream\n");
+		goto usage;
+	}
 
 	status = zynq_decrypt_load(srcaddr, srclen, dstaddr, dstlen, imgtype);
 	if (status != 0)
@@ -573,11 +595,17 @@ usage:
 
 #ifdef CONFIG_SYS_LONGHELP
 static char zynqaes_help_text[] =
-"zynqaes <srcaddr> <srclen> <dstaddr> <dstlen>  -\n"
+"zynqaes [operation type] <srcaddr> <srclen> <dstaddr> <dstlen>  -\n"
 "Decrypts the encrypted image present in source address\n"
 "and places the decrypted image at destination address\n"
-"The destination address should be 0xFFFFFFFF for loading\n"
-"the encrypted bitstreams\n";
+"zynqaes operations:\n"
+"   zynqaes <srcaddr> <srclen> <dstaddr> <dstlen>\n"
+"   zynqaes load <srcaddr> <srclen>\n"
+"   zynqaes loadp <srcaddr> <srclen>\n"
+"if operation type is load or loadp, it loads the encrypted\n"
+"full or partial bitstream on to PL respectively. If no valid\n"
+"operation type specified then it loads decrypted image back\n"
+"to memory and it doesnt support loading PL bistsream\n";
 #endif
 
 U_BOOT_CMD(
