@@ -825,7 +825,7 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif
-#if defined(CONFIG_X86) || defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
+#if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || \
 		defined(CONFIG_BLACKFIN) || defined(CONFIG_NDS32) || \
 		defined(CONFIG_SPARC)
 	timer_init,		/* initialize timer */
