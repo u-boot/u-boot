@@ -102,6 +102,14 @@ config PCH_GBE
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
 	  supports 10/100/1000 Mbps operation.
 
+config XILINX_AXIEMAC
+	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	select PHYLIB
+	select MII
+	bool "Xilinx AXI Ethernet"
+	help
+	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
+
 config ZYNQ_GEM
 	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP)
 	select PHYLIB
