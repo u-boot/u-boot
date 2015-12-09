@@ -54,6 +54,15 @@
 	"bootm"
 #endif
 
+struct printenv_args {
+};
+extern struct printenv_args printenv_args;
+
+struct setenv_args {
+	char *script_file;
+};
+extern struct setenv_args setenv_args;
+
 extern int   fw_printenv(int argc, char *argv[]);
 extern char *fw_getenv  (char *name);
 extern int fw_setenv  (int argc, char *argv[]);

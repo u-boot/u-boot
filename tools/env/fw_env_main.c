@@ -45,6 +45,9 @@ static struct option long_options[] = {
 	{NULL, 0, NULL, 0}
 };
 
+struct printenv_args printenv_args;
+struct setenv_args setenv_args;
+
 void usage(void)
 {
 
@@ -77,31 +80,9 @@ void usage(void)
 	);
 }
 
-int main(int argc, char *argv[])
+int parse_printenv_args(int argc, char *argv[])
 {
-	char *p;
-	char *cmdname = *argv;
-	char *script_file = NULL;
 	int c;
-	const char *lockname = "/var/lock/" CMD_PRINTENV ".lock";
-	int lockfd = -1;
-	int retval = EXIT_SUCCESS;
-
-	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	if (-1 == lockfd) {
-		fprintf(stderr, "Error opening lock file %s\n", lockname);
-		return EXIT_FAILURE;
-	}
-
-	if (-1 == flock(lockfd, LOCK_EX)) {
-		fprintf(stderr, "Error locking file %s\n", lockname);
-		close(lockfd);
-		return EXIT_FAILURE;
-	}
-
-	if ((p = strrchr (cmdname, '/')) != NULL) {
-		cmdname = p + 1;
-	}
 
 	while ((c = getopt_long (argc, argv, "a:c:ns:h",
 		long_options, NULL)) != EOF) {
@@ -115,40 +96,96 @@ int main(int argc, char *argv[])
 		case 'n':
 			/* handled in fw_printenv */
 			break;
+		case 'h':
+			usage();
+			exit(EXIT_SUCCESS);
+			break;
+		default: /* '?' */
+			usage();
+			exit(EXIT_FAILURE);
+			break;
+		}
+	}
+	return 0;
+}
+
+int parse_setenv_args(int argc, char *argv[])
+{
+	int c;
+
+	while ((c = getopt_long (argc, argv, "a:c:ns:h",
+		long_options, NULL)) != EOF) {
+		switch (c) {
+		case 'a':
+			/* AES key, handled later */
+			break;
+		case 'c':
+			/* handled later */
+			break;
 		case 's':
-			script_file = optarg;
+			setenv_args.script_file = optarg;
 			break;
 		case 'h':
 			usage();
-			goto exit;
+			exit(EXIT_SUCCESS);
+			break;
 		default: /* '?' */
-			fprintf(stderr, "Try `%s --help' for more information."
-				"\n", cmdname);
-			retval = EXIT_FAILURE;
-			goto exit;
+			usage();
+			exit(EXIT_FAILURE);
+			break;
 		}
+	}
+	return 0;
+}
+
+int main(int argc, char *argv[])
+{
+	char *cmdname = *argv;
+	const char *lockname = "/var/lock/" CMD_PRINTENV ".lock";
+	int lockfd = -1;
+	int retval = EXIT_SUCCESS;
+
+	if (strrchr(cmdname, '/') != NULL)
+		cmdname = strrchr(cmdname, '/') + 1;
+
+	if (strcmp(cmdname, CMD_PRINTENV) == 0) {
+		if (parse_printenv_args(argc, argv))
+			exit(EXIT_FAILURE);
+	} else if (strcmp(cmdname, CMD_SETENV) == 0) {
+		if (parse_setenv_args(argc, argv))
+			exit(EXIT_FAILURE);
+	} else {
+		fprintf(stderr,
+			"Identity crisis - may be called as `%s' or as `%s' but not as `%s'\n",
+			CMD_PRINTENV, CMD_SETENV, cmdname);
+		exit(EXIT_FAILURE);
+	}
+
+	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	if (-1 == lockfd) {
+		fprintf(stderr, "Error opening lock file %s\n", lockname);
+		return EXIT_FAILURE;
+	}
+
+	if (-1 == flock(lockfd, LOCK_EX)) {
+		fprintf(stderr, "Error locking file %s\n", lockname);
+		close(lockfd);
+		return EXIT_FAILURE;
 	}
 
 	if (strcmp(cmdname, CMD_PRINTENV) == 0) {
 		if (fw_printenv(argc, argv) != 0)
 			retval = EXIT_FAILURE;
 	} else if (strcmp(cmdname, CMD_SETENV) == 0) {
-		if (!script_file) {
+		if (!setenv_args.script_file) {
 			if (fw_setenv(argc, argv) != 0)
 				retval = EXIT_FAILURE;
 		} else {
-			if (fw_parse_script(script_file) != 0)
+			if (fw_parse_script(setenv_args.script_file) != 0)
 				retval = EXIT_FAILURE;
 		}
-	} else {
-		fprintf(stderr,
-			"Identity crisis - may be called as `" CMD_PRINTENV
-			"' or as `" CMD_SETENV "' but not as `%s'\n",
-			cmdname);
-		retval = EXIT_FAILURE;
 	}
 
-exit:
 	flock(lockfd, LOCK_UN);
 	close(lockfd);
 	return retval;
