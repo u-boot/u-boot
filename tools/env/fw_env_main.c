@@ -45,6 +45,7 @@ static struct option long_options[] = {
 	{NULL, 0, NULL, 0}
 };
 
+struct common_args common_args;
 struct printenv_args printenv_args;
 struct setenv_args setenv_args;
 
@@ -84,17 +85,27 @@ int parse_printenv_args(int argc, char *argv[])
 {
 	int c;
 
+#ifdef CONFIG_FILE
+	common_args.config_file = CONFIG_FILE;
+#endif
+
 	while ((c = getopt_long (argc, argv, "a:c:ns:h",
 		long_options, NULL)) != EOF) {
 		switch (c) {
 		case 'a':
-			/* AES key, handled later */
+			if (parse_aes_key(optarg, common_args.aes_key)) {
+				fprintf(stderr, "AES key parse error\n");
+				return EXIT_FAILURE;
+			}
+			common_args.aes_flag = 1;
 			break;
+#ifdef CONFIG_FILE
 		case 'c':
-			/* handled later */
+			common_args.config_file = optarg;
 			break;
+#endif
 		case 'n':
-			/* handled in fw_printenv */
+			printenv_args.name_suppress = 1;
 			break;
 		case 'h':
 			usage();
@@ -113,15 +124,25 @@ int parse_setenv_args(int argc, char *argv[])
 {
 	int c;
 
+#ifdef CONFIG_FILE
+	common_args.config_file = CONFIG_FILE;
+#endif
+
 	while ((c = getopt_long (argc, argv, "a:c:ns:h",
 		long_options, NULL)) != EOF) {
 		switch (c) {
 		case 'a':
-			/* AES key, handled later */
+			if (parse_aes_key(optarg, common_args.aes_key)) {
+				fprintf(stderr, "AES key parse error\n");
+				return EXIT_FAILURE;
+			}
+			common_args.aes_flag = 1;
 			break;
+#ifdef CONFIG_FILE
 		case 'c':
-			/* handled later */
+			common_args.config_file = optarg;
 			break;
+#endif
 		case 's':
 			setenv_args.script_file = optarg;
 			break;

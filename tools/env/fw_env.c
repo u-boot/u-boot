@@ -34,8 +34,6 @@
 
 #include "fw_env.h"
 
-#include <aes.h>
-
 #define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
 
 #define WHITESPACE(c) ((c == '\t') || (c == ' '))
@@ -105,9 +103,6 @@ static struct environment environment = {
 	.flag_scheme = FLAG_NONE,
 };
 
-/* Is AES encryption used? */
-static int aes_flag;
-static uint8_t aes_key[AES_KEY_LENGTH] = { 0 };
 static int env_aes_cbc_crypt(char *data, const int enc);
 
 static int HaveRedundEnv = 0;
@@ -125,7 +120,6 @@ static int parse_config (void);
 
 #if defined(CONFIG_FILE)
 static int get_config (char *);
-static char *config_file = CONFIG_FILE;
 #endif
 static inline ulong getenvsize (void)
 {
@@ -134,7 +128,7 @@ static inline ulong getenvsize (void)
 	if (HaveRedundEnv)
 		rc -= sizeof (char);
 
-	if (aes_flag)
+	if (common_args.aes_flag)
 		rc &= ~(AES_KEY_LENGTH - 1);
 
 	return rc;
@@ -208,7 +202,7 @@ char *fw_getdefenv(char *name)
 	return NULL;
 }
 
-static int parse_aes_key(char *key, uint8_t *bin_key)
+int parse_aes_key(char *key, uint8_t *bin_key)
 {
 	char tmp[5] = { '0', 'x', 0, 0, 0 };
 	unsigned long ul;
@@ -243,32 +237,16 @@ static int parse_aes_key(char *key, uint8_t *bin_key)
 int fw_printenv (int argc, char *argv[])
 {
 	char *env, *nxt;
-	int i, n_flag;
-	int rc = 0;
+	int i, rc = 0;
 
 #ifdef CONFIG_FILE
 	if (argc >= 2 && strcmp(argv[1], "-c") == 0) {
-		if (argc < 3) {
-			fprintf(stderr,
-				"## Error: '-c' option requires the config file to use\n");
-			return -1;
-		}
-		config_file = argv[2];
 		argv += 2;
 		argc -= 2;
 	}
 #endif
 
 	if (argc >= 2 && strcmp(argv[1], "-a") == 0) {
-		if (argc < 3) {
-			fprintf(stderr,
-				"## Error: '-a' option requires AES key\n");
-			return -1;
-		}
-		rc = parse_aes_key(argv[2], aes_key);
-		if (rc)
-			return rc;
-		aes_flag = 1;
 		argv += 2;
 		argc -= 2;
 	}
@@ -292,7 +270,6 @@ int fw_printenv (int argc, char *argv[])
 	}
 
 	if (strcmp (argv[1], "-n") == 0) {
-		n_flag = 1;
 		++argv;
 		--argc;
 		if (argc != 2) {
@@ -300,8 +277,6 @@ int fw_printenv (int argc, char *argv[])
 				"`-n' option requires exactly one argument\n");
 			return -1;
 		}
-	} else {
-		n_flag = 0;
 	}
 
 	for (i = 1; i < argc; ++i) {	/* print single env variables   */
@@ -319,7 +294,7 @@ int fw_printenv (int argc, char *argv[])
 			}
 			val = envmatch (name, env);
 			if (val) {
-				if (!n_flag) {
+				if (!printenv_args.name_suppress) {
 					fputs (name, stdout);
 					putc ('=', stdout);
 				}
@@ -339,7 +314,7 @@ int fw_printenv (int argc, char *argv[])
 int fw_env_close(void)
 {
 	int ret;
-	if (aes_flag) {
+	if (common_args.aes_flag) {
 		ret = env_aes_cbc_crypt(environment.data, 1);
 		if (ret) {
 			fprintf(stderr,
@@ -495,7 +470,7 @@ int fw_env_write(char *name, char *value)
  */
 int fw_setenv(int argc, char *argv[])
 {
-	int i, rc;
+	int i;
 	size_t len;
 	char *name, **valv;
 	char *value = NULL;
@@ -503,12 +478,6 @@ int fw_setenv(int argc, char *argv[])
 
 #ifdef CONFIG_FILE
 	if (argc >= 2 && strcmp(argv[1], "-c") == 0) {
-		if (argc < 3) {
-			fprintf(stderr,
-				"## Error: '-c' option requires the config file to use\n");
-			return -1;
-		}
-		config_file = argv[2];
 		argv += 2;
 		argc -= 2;
 	}
@@ -520,15 +489,6 @@ int fw_setenv(int argc, char *argv[])
 	}
 
 	if (strcmp(argv[1], "-a") == 0) {
-		if (argc < 3) {
-			fprintf(stderr,
-				"## Error: '-a' option requires AES key\n");
-			return -1;
-		}
-		rc = parse_aes_key(argv[2], aes_key);
-		if (rc)
-			return rc;
-		aes_flag = 1;
 		argv += 2;
 		argc -= 2;
 	}
@@ -1026,7 +986,7 @@ static int env_aes_cbc_crypt(char *payload, const int enc)
 	uint32_t aes_blocks;
 
 	/* First we expand the key. */
-	aes_expand_key(aes_key, key_exp);
+	aes_expand_key(common_args.aes_key, key_exp);
 
 	/* Calculate the number of AES blocks to encrypt. */
 	aes_blocks = DIV_ROUND_UP(len, AES_KEY_LENGTH);
@@ -1254,7 +1214,7 @@ int fw_env_open(void)
 
 	crc0 = crc32 (0, (uint8_t *) environment.data, ENV_SIZE);
 
-	if (aes_flag) {
+	if (common_args.aes_flag) {
 		ret = env_aes_cbc_crypt(environment.data, 0);
 		if (ret)
 			return ret;
@@ -1311,7 +1271,7 @@ int fw_env_open(void)
 
 		crc1 = crc32 (0, (uint8_t *) redundant->data, ENV_SIZE);
 
-		if (aes_flag) {
+		if (common_args.aes_flag) {
 			ret = env_aes_cbc_crypt(redundant->data, 0);
 			if (ret)
 				return ret;
@@ -1395,9 +1355,9 @@ static int parse_config ()
 
 #if defined(CONFIG_FILE)
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
-	if (get_config (config_file)) {
-		fprintf (stderr,
-			"Cannot parse config file '%s': %s\n", config_file, strerror (errno));
+	if (get_config(common_args.config_file)) {
+		fprintf(stderr, "Cannot parse config file '%s': %m\n",
+			common_args.config_file);
 		return -1;
 	}
 #else
