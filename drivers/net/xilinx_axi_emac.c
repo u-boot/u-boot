@@ -315,9 +315,9 @@ static void axiemac_halt(struct eth_device *dev)
 	debug("axiemac: Halted\n");
 }
 
-static int axi_ethernet_init(struct eth_device *dev)
+static int axi_ethernet_init(struct axidma_priv *priv)
 {
-	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
+	struct axi_regs *regs = priv->iobase;
 	u32 timeout = 200;
 
 	/*
@@ -374,9 +374,8 @@ static int axiemac_setup_mac(struct eth_device *dev)
 }
 
 /* Reset DMA engine */
-static void axi_dma_init(struct eth_device *dev)
+static void axi_dma_init(struct axidma_priv *priv)
 {
-	struct axidma_priv *priv = dev->priv;
 	u32 timeout = 500;
 
 	/* Reset the engine so the hardware starts from a known state */
@@ -410,10 +409,10 @@ static int axiemac_init(struct eth_device *dev, bd_t * bis)
 	 * reset, and since AXIDMA reset line is connected to AxiEthernet, this
 	 * would ensure a reset of AxiEthernet.
 	 */
-	axi_dma_init(dev);
+	axi_dma_init(priv);
 
 	/* Initialize AxiEthernet hardware. */
-	if (axi_ethernet_init(dev))
+	if (axi_ethernet_init(priv))
 		return -1;
 
 	/* Disable all RX interrupts before RxBD space setup */
@@ -511,10 +510,9 @@ static int axiemac_send(struct eth_device *dev, void *ptr, int len)
 	return 0;
 }
 
-static int isrxready(struct eth_device *dev)
+static int isrxready(struct axidma_priv *priv)
 {
 	u32 status;
-	struct axidma_priv *priv = dev->priv;
 
 	/* Read pending interrupts */
 	status = in_be32(&priv->dmarx->status);
@@ -539,7 +537,7 @@ static int axiemac_recv(struct eth_device *dev)
 	u32 temp;
 
 	/* Wait for an incoming packet */
-	if (!isrxready(dev))
+	if (!isrxready(priv))
 		return 0;
 
 	debug("axiemac: RX data ready\n");
