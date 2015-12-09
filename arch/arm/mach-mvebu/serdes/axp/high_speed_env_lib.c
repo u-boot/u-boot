@@ -190,8 +190,15 @@ __weak MV_BIN_SERDES_CFG *board_serdes_cfg_get(u8 pex_mode)
 
 u16 ctrl_model_get(void)
 {
-	/* Right now only MV78460 supported */
+	/*
+	 * SoC version can't be autodetected. So we need to rely on a define
+	 * from the config system here.
+	 */
+#ifdef CONFIG_MV78260
+	return MV_78260_DEV_ID;
+#else
 	return MV_78460_DEV_ID;
+#endif
 }
 
 u32 get_line_cfg(u32 line_num, MV_BIN_SERDES_CFG *info)
@@ -200,6 +207,18 @@ u32 get_line_cfg(u32 line_num, MV_BIN_SERDES_CFG *info)
 		return (info->line0_7 >> (line_num << 2)) & 0xF;
 	else
 		return (info->line8_15 >> ((line_num - 8) << 2)) & 0xF;
+}
+
+static int serdes_max_lines_get(void)
+{
+	switch (ctrl_model_get()) {
+	case MV_78260_DEV_ID:
+		return 12;
+	case MV_78460_DEV_ID:
+		return 16;
+	}
+
+	return 0;
 }
 
 int serdes_phy_config(void)
@@ -226,10 +245,9 @@ int serdes_phy_config(void)
 	u32 pex_if_num;
 
 	/*
-	 * TODO:
-	 * Right now we only support the MV78460 with 16 serdes lines
+	 * Get max. serdes lines count
 	 */
-	max_serdes_lines = 16;
+	max_serdes_lines = serdes_max_lines_get();
 	if (max_serdes_lines == 0)
 		return MV_OK;
 
@@ -253,6 +271,8 @@ int serdes_phy_config(void)
 		if ((u8) MV_ERROR == (u8) satr11)
 			return MV_ERROR;
 		break;
+	default:
+		satr11 = 0;
 	}
 
 	board_modules_scan();

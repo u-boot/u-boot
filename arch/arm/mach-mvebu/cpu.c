@@ -50,7 +50,7 @@ int mvebu_soc_family(void)
 {
 	u16 devid = (readl(MVEBU_REG_PCIE_DEVID) >> 16) & 0xffff;
 
-	if (devid == SOC_MV78460_ID)
+	if ((devid == SOC_MV78260_ID) || (devid == SOC_MV78460_ID))
 		return MVEBU_SOC_AXP;
 
 	if (devid == SOC_88F6810_ID || devid == SOC_88F6820_ID ||
@@ -69,6 +69,9 @@ int print_cpuinfo(void)
 	puts("SoC:   ");
 
 	switch (devid) {
+	case SOC_MV78260_ID:
+		puts("MV78260-");
+		break;
 	case SOC_MV78460_ID:
 		puts("MV78460-");
 		break;
