@@ -86,7 +86,7 @@ struct axidma_priv {
 	struct axidma_reg *dmatx;
 	struct axidma_reg *dmarx;
 	int phyaddr;
-
+	struct axi_regs *iobase;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };
@@ -223,7 +223,7 @@ static int setup_phy(struct eth_device *dev)
 	u16 phyreg;
 	u32 i, speed, emmc_reg, ret;
 	struct axidma_priv *priv = dev->priv;
-	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
+	struct axi_regs *regs = priv->iobase;
 	struct phy_device *phydev;
 
 	u32 supported = SUPPORTED_10baseT_Half |
@@ -629,6 +629,7 @@ int xilinx_axiemac_initialize(bd_t *bis, unsigned long base_addr,
 	sprintf(dev->name, "aximac.%lx", base_addr);
 
 	dev->iobase = base_addr;
+	priv->iobase = (struct axi_regs *)base_addr;
 	priv->dmatx = (struct axidma_reg *)dma_addr;
 	/* RX channel offset is 0x30 */
 	priv->dmarx = (struct axidma_reg *)(dma_addr + 0x30);
