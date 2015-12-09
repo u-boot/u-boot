@@ -325,16 +325,6 @@ void __udelay(unsigned long usec)
 #endif
 }
 
-int timer_init(void)
-{
-#ifdef CONFIG_I8254_TIMER
-	/* Set up the i8254 timer if required */
-	i8254_init();
-#endif
-
-	return 0;
-}
-
 static int tsc_timer_get_count(struct udevice *dev, u64 *count)
 {
 	u64 now_tick = rdtsc();

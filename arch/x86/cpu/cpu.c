@@ -399,6 +399,11 @@ int x86_cpu_init_f(void)
 		}
 	}
 
+#ifdef CONFIG_I8254_TIMER
+	/* Set up the i8254 timer if required */
+	i8254_init();
+#endif
+
 	return 0;
 }
 
