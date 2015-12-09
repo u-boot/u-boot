@@ -569,7 +569,7 @@ static int zynq_gem_recv(struct udevice *dev, int flags, uchar **packetp)
 			priv->rxbd_current = 0;
 	}
 
-	return frame_len;
+	return 0;
 }
 
 static void zynq_gem_halt(struct udevice *dev)
