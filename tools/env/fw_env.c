@@ -498,8 +498,9 @@ int fw_setenv(int argc, char *argv[])
 {
 	int i, rc;
 	size_t len;
-	char *name;
+	char *name, **valv;
 	char *value = NULL;
+	int valc;
 
 #ifdef CONFIG_FILE
 	if (argc >= 2 && strcmp(argv[1], "-c") == 0) {
@@ -543,13 +544,15 @@ int fw_setenv(int argc, char *argv[])
 	}
 
 	name = argv[1];
+	valv = argv + 2;
+	valc = argc - 2;
 
-	if (env_flags_validate_env_set_params(argc, argv) < 0)
+	if (env_flags_validate_env_set_params(name, valv, valc) < 0)
 		return 1;
 
 	len = 0;
-	for (i = 2; i < argc; ++i) {
-		char *val = argv[i];
+	for (i = 0; i < valc; ++i) {
+		char *val = valv[i];
 		size_t val_len = strlen(val);
 
 		if (value)
