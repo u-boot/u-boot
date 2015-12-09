@@ -201,7 +201,7 @@ static int zynq_dma_xfer_init(bitstream_type bstype)
 	/* Clear loopback bit */
 	clrbits_le32(&devcfg_base->mctrl, DEVCFG_MCTRL_PCAP_LPBK);
 
-	if (bstype != BIT_PARTIAL) {
+	if (bstype != BIT_PARTIAL && bstype != BIT_NONE) {
 		zynq_slcr_devcfg_disable();
 
 		/* Setting PCFG_PROG_B signal to high */
@@ -508,7 +508,8 @@ struct xilinx_fpga_op zynq_op = {
  * Load the encrypted image from src addr and decrypt the image and
  * place it back the decrypted image into dstaddr.
  */
-int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
+int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
+		      u8 bstype)
 {
 	if (srcaddr < SZ_1M || dstaddr < SZ_1M) {
 		printf("%s: src and dst addr should be > 1M\n",
@@ -516,7 +517,7 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
 		return FPGA_FAIL;
 	}
 
-	if (zynq_dma_xfer_init(BIT_NONE)) {
+	if (zynq_dma_xfer_init(bstype)) {
 		printf("%s: zynq_dma_xfer_init FAIL\n", __func__);
 		return FPGA_FAIL;
 	}
