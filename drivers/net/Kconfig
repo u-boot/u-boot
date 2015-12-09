@@ -105,6 +105,6 @@ config ZYNQ_GEM
 	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP)
 	bool "Xilinx Ethernet GEM"
 	help
-	  This MAC is presetn in Xilinx Zynq and ZynqMP SoCs.
+	  This MAC is present in Xilinx Zynq and ZynqMP SoCs.
 
 endif # NETDEVICES
