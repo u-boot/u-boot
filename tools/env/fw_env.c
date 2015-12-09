@@ -239,22 +239,10 @@ int fw_printenv (int argc, char *argv[])
 	char *env, *nxt;
 	int i, rc = 0;
 
-#ifdef CONFIG_FILE
-	if (argc >= 2 && strcmp(argv[1], "-c") == 0) {
-		argv += 2;
-		argc -= 2;
-	}
-#endif
-
-	if (argc >= 2 && strcmp(argv[1], "-a") == 0) {
-		argv += 2;
-		argc -= 2;
-	}
-
 	if (fw_env_open())
 		return -1;
 
-	if (argc == 1) {		/* Print all env variables  */
+	if (argc == 0) {		/* Print all env variables  */
 		for (env = environment.data; *env; env = nxt + 1) {
 			for (nxt = env; *nxt; ++nxt) {
 				if (nxt >= &environment.data[ENV_SIZE]) {
@@ -269,17 +257,13 @@ int fw_printenv (int argc, char *argv[])
 		return 0;
 	}
 
-	if (strcmp (argv[1], "-n") == 0) {
-		++argv;
-		--argc;
-		if (argc != 2) {
-			fprintf (stderr, "## Error: "
-				"`-n' option requires exactly one argument\n");
-			return -1;
-		}
+	if (printenv_args.name_suppress && argc != 1) {
+		fprintf(stderr,
+			"## Error: `-n' option requires exactly one argument\n");
+		return -1;
 	}
 
-	for (i = 1; i < argc; ++i) {	/* print single env variables   */
+	for (i = 0; i < argc; ++i) {	/* print single env variables   */
 		char *name = argv[i];
 		char *val = NULL;
 
@@ -476,24 +460,8 @@ int fw_setenv(int argc, char *argv[])
 	char *value = NULL;
 	int valc;
 
-#ifdef CONFIG_FILE
-	if (argc >= 2 && strcmp(argv[1], "-c") == 0) {
-		argv += 2;
-		argc -= 2;
-	}
-#endif
-
-	if (argc < 2) {
-		errno = EINVAL;
-		return -1;
-	}
-
-	if (strcmp(argv[1], "-a") == 0) {
-		argv += 2;
-		argc -= 2;
-	}
-
-	if (argc < 2) {
+	if (argc < 1) {
+		fprintf(stderr, "## Error: variable name missing\n");
 		errno = EINVAL;
 		return -1;
 	}
@@ -503,9 +471,9 @@ int fw_setenv(int argc, char *argv[])
 		return -1;
 	}
 
-	name = argv[1];
-	valv = argv + 2;
-	valc = argc - 2;
+	name = argv[0];
+	valv = argv + 1;
+	valc = argc - 1;
 
 	if (env_flags_validate_env_set_params(name, valv, valc) < 0)
 		return 1;
