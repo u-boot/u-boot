@@ -147,9 +147,8 @@ struct axi_regs {
  */
 #define PHY_DETECT_MASK 0x1808
 
-static inline int mdio_wait(struct eth_device *dev)
+static inline int mdio_wait(struct axi_regs *regs)
 {
-	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
 	u32 timeout = 200;
 
 	/* Wait till MDIO interface is ready to accept a new transaction. */
@@ -171,7 +170,7 @@ static u32 phyread(struct eth_device *dev, u32 phyaddress, u32 registernum,
 	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
 	u32 mdioctrlreg = 0;
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	mdioctrlreg = ((phyaddress << XAE_MDIO_MCR_PHYAD_SHIFT) &
@@ -183,7 +182,7 @@ static u32 phyread(struct eth_device *dev, u32 phyaddress, u32 registernum,
 
 	out_be32(&regs->mdio_mcr, mdioctrlreg);
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	/* Read data */
@@ -197,7 +196,7 @@ static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
 	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
 	u32 mdioctrlreg = 0;
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	mdioctrlreg = ((phyaddress << XAE_MDIO_MCR_PHYAD_SHIFT) &
@@ -212,7 +211,7 @@ static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
 
 	out_be32(&regs->mdio_mcr, mdioctrlreg);
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	return 0;
