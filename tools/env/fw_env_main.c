@@ -81,7 +81,7 @@ void usage(void)
 	);
 }
 
-int parse_printenv_args(int argc, char *argv[])
+static void parse_common_args(int argc, char *argv[])
 {
 	int c;
 
@@ -89,13 +89,13 @@ int parse_printenv_args(int argc, char *argv[])
 	common_args.config_file = CONFIG_FILE;
 #endif
 
-	while ((c = getopt_long (argc, argv, "a:c:ns:h",
-		long_options, NULL)) != EOF) {
+	while ((c = getopt_long(argc, argv, ":a:c:h", long_options, NULL)) !=
+	       EOF) {
 		switch (c) {
 		case 'a':
 			if (parse_aes_key(optarg, common_args.aes_key)) {
 				fprintf(stderr, "AES key parse error\n");
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 			common_args.aes_flag = 1;
 			break;
@@ -104,12 +104,37 @@ int parse_printenv_args(int argc, char *argv[])
 			common_args.config_file = optarg;
 			break;
 #endif
-		case 'n':
-			printenv_args.name_suppress = 1;
-			break;
 		case 'h':
 			usage();
 			exit(EXIT_SUCCESS);
+			break;
+		default:
+			/* ignore unknown options */
+			break;
+		}
+	}
+
+	/* Reset getopt for the next pass. */
+	opterr = 1;
+	optind = 1;
+}
+
+int parse_printenv_args(int argc, char *argv[])
+{
+	int c;
+
+	parse_common_args(argc, argv);
+
+	while ((c = getopt_long(argc, argv, "a:c:ns:h", long_options, NULL)) !=
+	       EOF) {
+		switch (c) {
+		case 'n':
+			printenv_args.name_suppress = 1;
+			break;
+		case 'a':
+		case 'c':
+		case 'h':
+			/* ignore common options */
 			break;
 		default: /* '?' */
 			usage();
@@ -124,31 +149,18 @@ int parse_setenv_args(int argc, char *argv[])
 {
 	int c;
 
-#ifdef CONFIG_FILE
-	common_args.config_file = CONFIG_FILE;
-#endif
+	parse_common_args(argc, argv);
 
-	while ((c = getopt_long (argc, argv, "a:c:ns:h",
-		long_options, NULL)) != EOF) {
+	while ((c = getopt_long(argc, argv, "a:c:ns:h", long_options, NULL)) !=
+	       EOF) {
 		switch (c) {
-		case 'a':
-			if (parse_aes_key(optarg, common_args.aes_key)) {
-				fprintf(stderr, "AES key parse error\n");
-				return EXIT_FAILURE;
-			}
-			common_args.aes_flag = 1;
-			break;
-#ifdef CONFIG_FILE
-		case 'c':
-			common_args.config_file = optarg;
-			break;
-#endif
 		case 's':
 			setenv_args.script_file = optarg;
 			break;
+		case 'a':
+		case 'c':
 		case 'h':
-			usage();
-			exit(EXIT_SUCCESS);
+			/* ignore common options */
 			break;
 		default: /* '?' */
 			usage();
