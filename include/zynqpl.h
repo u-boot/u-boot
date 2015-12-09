@@ -13,7 +13,8 @@
 #include <xilinx.h>
 
 #ifdef CONFIG_CMD_ZYNQ_AES
-extern int zynq_decrypt_load(u32 srcaddr, u32 dstaddr, u32 srclen, u32 dstlen);
+extern int zynq_decrypt_load(u32 srcaddr, u32 dstaddr, u32 srclen, u32 dstlen,
+			     u8 bstype);
 #endif
 #if defined(CONFIG_FPGA_ZYNQPL)
 extern struct xilinx_fpga_op zynq_op;

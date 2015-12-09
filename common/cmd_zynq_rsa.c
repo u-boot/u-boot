@@ -14,6 +14,7 @@
 #include <u-boot/sha256.h>
 #include <spi_flash.h>
 #include <zynqpl.h>
+#include <fpga.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -553,7 +554,8 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 				status = zynq_decrypt_load(part_load_addr,
 							   part_img_len,
 							   part_load_addr,
-							   part_data_len);
+							   part_data_len,
+							   BIT_NONE);
 				if (status != 0) {
 					printf("DECRYPTION_FAIL\r\n");
 					return -1;
