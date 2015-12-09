@@ -243,7 +243,7 @@ static int setup_phy(struct eth_device *dev)
 				/* Found a valid PHY address */
 				priv->phyaddr = i;
 				debug("axiemac: Found valid phy address, %x\n",
-									phyreg);
+				      i);
 				break;
 			}
 		}
