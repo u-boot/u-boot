@@ -32,7 +32,7 @@
 #define BOARD_ID_BASE			0x0
 
 /* New board ID numbers */
-#define DB_88F78XX0_BP_ID		(BOARD_ID_BASE)
+#define DB_88F78XX0_BP_ID		(BOARD_ID_BASE + 1)
 #define RD_78460_SERVER_ID		(DB_88F78XX0_BP_ID + 1)
 #define DB_78X60_PCAC_ID		(RD_78460_SERVER_ID + 1)
 #define FPGA_88F78XX0_ID		(DB_78X60_PCAC_ID + 1)
