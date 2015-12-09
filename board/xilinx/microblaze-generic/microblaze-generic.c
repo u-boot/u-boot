@@ -69,6 +69,7 @@ int dram_init(void)
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_XILINX_GPIO
 	if (reset_pin != -1)
 		gpio_direction_output(reset_pin, 1);
@@ -77,7 +78,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_XILINX_TB_WATCHDOG
 	hw_watchdog_disable();
 #endif
-
+#endif
 	puts ("Reseting board\n");
 	__asm__ __volatile__ ("	mts rmsr, r0;" \
 				"bra r0");
