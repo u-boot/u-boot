@@ -37,7 +37,6 @@
 # define CONFIG_SERIAL_BASE	XILINX_UARTLITE_BASEADDR
 # define CONFIG_BAUDRATE	XILINX_UARTLITE_BAUDRATE
 # define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
-# define CONSOLE_ARG	"console=console=ttyUL0,115200\0"
 #elif XILINX_UART16550_BASEADDR
 # define CONFIG_SYS_NS16550_SERIAL
 # if defined(__MICROBLAZEEL__)
@@ -54,7 +53,6 @@
 /* The following table includes the supported baudrates */
 # define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
-# define CONSOLE_ARG	"console=console=ttyS0,115200\0"
 #else
 # error Undefined uart
 #endif
