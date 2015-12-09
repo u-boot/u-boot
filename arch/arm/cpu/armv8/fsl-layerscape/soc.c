@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <fsl_ifc.h>
+#include <ahci.h>
+#include <scsi.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>
 #include <asm/global_data.h>
@@ -157,7 +159,44 @@ void fsl_lsch3_early_init_f(void)
 	erratum_a008336();
 }
 
+#ifdef CONFIG_SCSI_AHCI_PLAT
+int sata_init(void)
+{
+	struct ccsr_ahci __iomem *ccsr_ahci;
+
+	ccsr_ahci  = (void *)CONFIG_SYS_SATA2;
+	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+
+	ccsr_ahci  = (void *)CONFIG_SYS_SATA1;
+	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+
+	ahci_init((void __iomem *)CONFIG_SYS_SATA1);
+	scsi_scan(0);
+
+	return 0;
+}
+#endif
+
 #elif defined(CONFIG_LS1043A)
+#ifdef CONFIG_SCSI_AHCI_PLAT
+int sata_init(void)
+{
+	struct ccsr_ahci __iomem *ccsr_ahci = (void *)CONFIG_SYS_SATA;
+
+	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY_2_CFG);
+	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY_3_CFG);
+	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+
+	ahci_init((void __iomem *)CONFIG_SYS_SATA);
+	scsi_scan(0);
+
+	return 0;
+}
+#endif
+
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
@@ -183,6 +222,10 @@ void fsl_lsch2_early_init_f(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+#ifdef CONFIG_SCSI_AHCI_PLAT
+	sata_init();
+#endif
+
 	return 0;
 }
 #endif
