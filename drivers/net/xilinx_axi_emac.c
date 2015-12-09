@@ -571,9 +571,14 @@ static int axiemac_recv(struct udevice *dev, int flags, uchar **packetp)
 #ifdef DEBUG
 	print_buffer(&rxframe, &rxframe[0], 1, length, 16);
 #endif
-	/* Pass the received frame up for processing */
-	if (length)
-		net_process_received_packet(rxframe, length);
+
+	*packetp = rxframe;
+	return length;
+}
+
+static int axiemac_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct axidma_priv *priv = dev_get_priv(dev);
 
 #ifdef DEBUG
 	/* It is useful to clear buffer to be sure that it is consistent */
@@ -655,6 +660,7 @@ static const struct eth_ops axi_emac_ops = {
 	.start			= axiemac_init,
 	.send			= axiemac_send,
 	.recv			= axiemac_recv,
+	.free_pkt		= axiemac_free_pkt,
 	.stop			= axiemac_halt,
 	.write_hwaddr		= axiemac_setup_mac,
 };
