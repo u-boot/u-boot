@@ -230,4 +230,11 @@ config UNIPHIER_SERIAL
 	  If you have a UniPhier based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
 
+config XILINX_UARTLITE
+	bool "Xilinx Uarlite support"
+	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	help
+	  If you have a Xilinx based board and want to use the uartlite
+	  serial ports, say Y to this option. If unsure, say N.
+
 endmenu
