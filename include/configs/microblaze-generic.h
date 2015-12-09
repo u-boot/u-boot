@@ -42,11 +42,7 @@
 
 /* ethernet */
 #undef CONFIG_SYS_ENET
-#if defined(CONFIG_XILINX_EMACLITE)
-# define CONFIG_SYS_ENET
-#endif
-#if defined(XILINX_AXIEMAC_BASEADDR)
-# define CONFIG_XILINX_AXIEMAC	1
+#if defined(CONFIG_XILINX_EMACLITE) || defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_SYS_ENET
 #endif
 
