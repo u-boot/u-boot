@@ -164,10 +164,10 @@ static inline int mdio_wait(struct axi_regs *regs)
 	return 0;
 }
 
-static u32 phyread(struct eth_device *dev, u32 phyaddress, u32 registernum,
-								u16 *val)
+static u32 phyread(struct axidma_priv *priv, u32 phyaddress, u32 registernum,
+		   u16 *val)
 {
-	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
+	struct axi_regs *regs = priv->iobase;
 	u32 mdioctrlreg = 0;
 
 	if (mdio_wait(regs))
@@ -190,10 +190,10 @@ static u32 phyread(struct eth_device *dev, u32 phyaddress, u32 registernum,
 	return 0;
 }
 
-static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
-								u32 data)
+static u32 phywrite(struct axidma_priv *priv, u32 phyaddress, u32 registernum,
+		    u32 data)
 {
-	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
+	struct axi_regs *regs = priv->iobase;
 	u32 mdioctrlreg = 0;
 
 	if (mdio_wait(regs))
@@ -236,7 +236,7 @@ static int setup_phy(struct eth_device *dev)
 	if (priv->phyaddr == -1) {
 		/* Detect the PHY address */
 		for (i = 31; i >= 0; i--) {
-			ret = phyread(dev, i, PHY_DETECT_REG, &phyreg);
+			ret = phyread(priv, i, PHY_DETECT_REG, &phyreg);
 			if (!ret && (phyreg != 0xFFFF) &&
 			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 				/* Found a valid PHY address */
@@ -589,7 +589,7 @@ static int axiemac_miiphy_read(const char *devname, uchar addr,
 	struct eth_device *dev = eth_get_dev();
 	u32 ret;
 
-	ret = phyread(dev, addr, reg, val);
+	ret = phyread(dev->priv, addr, reg, val);
 	debug("axiemac: Read MII 0x%x, 0x%x, 0x%x\n", addr, reg, *val);
 	return ret;
 }
@@ -600,7 +600,7 @@ static int axiemac_miiphy_write(const char *devname, uchar addr,
 	struct eth_device *dev = eth_get_dev();
 
 	debug("axiemac: Write MII 0x%x, 0x%x, 0x%x\n", addr, reg, val);
-	return phywrite(dev, addr, reg, val);
+	return phywrite(dev->priv, addr, reg, val);
 }
 
 static int axiemac_bus_reset(struct mii_dev *bus)
