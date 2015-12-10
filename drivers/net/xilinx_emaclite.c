@@ -379,28 +379,20 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	return 0;
 }
 
-static int xemaclite_txbufferavailable(struct eth_device *dev)
+static int xemaclite_txbufferavailable(struct xemaclite *emaclite)
 {
-	u32 reg;
-	u32 txpingbusy;
-	u32 txpongbusy;
-	struct xemaclite *emaclite = dev->priv;
+	u32 tmp;
+	struct emaclite_regs *regs = emaclite->regs;
 
 	/*
 	 * Read the other buffer register
 	 * and determine if the other buffer is available
 	 */
-	reg = in_be32 (dev->iobase +
-			emaclite->nexttxbuffertouse + 0);
-	txpingbusy = ((reg & XEL_TSR_XMIT_BUSY_MASK) ==
-			XEL_TSR_XMIT_BUSY_MASK);
+	tmp = ~in_be32(&regs->tx_ping_tsr);
+	if (emaclite->txpp)
+		tmp |= ~in_be32(&regs->tx_pong_tsr);
 
-	reg = in_be32 (dev->iobase +
-			(emaclite->nexttxbuffertouse ^ XEL_TSR_OFFSET) + 0);
-	txpongbusy = ((reg & XEL_TSR_XMIT_BUSY_MASK) ==
-			XEL_TSR_XMIT_BUSY_MASK);
-
-	return !(txpingbusy && txpongbusy);
+	return !(tmp & XEL_TSR_XMIT_BUSY_MASK);
 }
 
 static int emaclite_send(struct eth_device *dev, void *ptr, int len)
@@ -415,7 +407,7 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 	if (len > PKTSIZE)
 		len = PKTSIZE;
 
-	while (!xemaclite_txbufferavailable(dev) && maxtry) {
+	while (xemaclite_txbufferavailable(emaclite) && maxtry) {
 		udelay(10);
 		maxtry--;
 	}
