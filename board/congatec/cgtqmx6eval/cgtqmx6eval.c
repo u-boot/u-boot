@@ -404,7 +404,7 @@ static void setup_iomux_uart(void)
 #ifdef CONFIG_MXC_SPI
 static void setup_spi(void)
 {
-	imx_iomux_v3_setup_multiple_pads(ecspi1_pads, ARRAY_SIZE(ecspi1_pads));
+	SETUP_IOMUX_PADS(ecspi1_pads);
 	gpio_direction_output(IMX_GPIO_NR(3, 19), 0);
 }
 #endif
