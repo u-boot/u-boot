@@ -1287,11 +1287,11 @@ static void alloc_triple_indirect_block(struct ext2_inode *file_inode,
 		ti_gp_blockno = ext4fs_get_new_blk_no();
 		if (ti_gp_blockno == -1) {
 			printf("no block left to assign\n");
-			goto fail;
+			return;
 		}
 		ti_gp_buff = zalloc(fs->blksz);
 		if (!ti_gp_buff)
-			goto fail;
+			return;
 
 		ti_gp_buff_start_addr = ti_gp_buff;
 		(*no_blks_reqd)++;
@@ -1321,11 +1321,11 @@ static void alloc_triple_indirect_block(struct ext2_inode *file_inode,
 				ti_child_blockno = ext4fs_get_new_blk_no();
 				if (ti_child_blockno == -1) {
 					printf("no block left assign\n");
-					goto fail;
+					goto fail1;
 				}
 				ti_child_buff = zalloc(fs->blksz);
 				if (!ti_child_buff)
-					goto fail;
+					goto fail1;
 
 				ti_cbuff_start_addr = ti_child_buff;
 				*ti_parent_buff = ti_child_blockno;
@@ -1341,7 +1341,8 @@ static void alloc_triple_indirect_block(struct ext2_inode *file_inode,
 					    ext4fs_get_new_blk_no();
 					if (actual_block_no == -1) {
 						printf("no block left\n");
-						goto fail;
+						free(ti_cbuff_start_addr);
+						goto fail1;
 					}
 					*ti_child_buff = actual_block_no;
 					debug("TIAB %ld: %u\n", actual_block_no,
@@ -1373,7 +1374,11 @@ static void alloc_triple_indirect_block(struct ext2_inode *file_inode,
 		put_ext4(((uint64_t) ((uint64_t)ti_gp_blockno * (uint64_t)fs->blksz)),
 			 ti_gp_buff_start_addr, fs->blksz);
 		file_inode->b.blocks.triple_indir_block = ti_gp_blockno;
+		free(ti_gp_buff_start_addr);
+		return;
 	}
+fail1:
+	free(ti_pbuff_start_addr);
 fail:
 	free(ti_gp_buff_start_addr);
 }
