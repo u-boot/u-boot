@@ -17,15 +17,12 @@
 #include <miiphy.h>
 #include <fdtdec.h>
 #include <asm-generic/errno.h>
+#include <linux/kernel.h>
 
 #undef DEBUG
 
 #define ENET_ADDR_LENGTH	6
-
-/* EmacLite constants */
-#define XEL_BUFFER_OFFSET	0x0800	/* Next buffer's offset */
-#define XEL_RSR_OFFSET		0x17FC	/* Rx status */
-#define XEL_RXBUFF_OFFSET	0x1000	/* Receive Buffer */
+#define ETH_FCS_LEN		4 /* Octets in the FCS */
 
 /* Xmit complete */
 #define XEL_TSR_XMIT_BUSY_MASK		0x00000001UL
@@ -86,7 +83,7 @@ struct emaclite_regs {
 };
 
 struct xemaclite {
-	u32 nextrxbuffertouse;	/* Next RX buffer to read from */
+	bool use_rx_pong_buffer_next;	/* Next RX buffer to read from */
 	u32 txpp;		/* TX ping pong buffer */
 	u32 rxpp;		/* RX ping pong buffer */
 	int phyaddr;
@@ -453,63 +450,87 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 
 static int emaclite_recv(struct eth_device *dev)
 {
-	u32 length;
-	u32 reg;
-	u32 baseaddress;
+	u32 length, first_read, reg, attempt = 0;
+	void *addr, *ack;
 	struct xemaclite *emaclite = dev->priv;
+	struct emaclite_regs *regs = emaclite->regs;
+	struct ethernet_hdr *eth;
+	struct ip_udp_hdr *ip;
 
-	baseaddress = dev->iobase + emaclite->nextrxbuffertouse;
-	reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
-	debug("Testing data at address 0x%x\n", baseaddress);
-	if ((reg & XEL_RSR_RECV_DONE_MASK) == XEL_RSR_RECV_DONE_MASK) {
-		if (emaclite->rxpp)
-			emaclite->nextrxbuffertouse ^= XEL_BUFFER_OFFSET;
-	} else {
-
-		if (!emaclite->rxpp) {
-			debug("No data was available - address 0x%x\n",
-								baseaddress);
-			return 0;
+try_again:
+	if (!emaclite->use_rx_pong_buffer_next) {
+		reg = in_be32(&regs->rx_ping_rsr);
+		debug("Testing data at rx_ping\n");
+		if ((reg & XEL_RSR_RECV_DONE_MASK) == XEL_RSR_RECV_DONE_MASK) {
+			debug("Data found in rx_ping buffer\n");
+			addr = &regs->rx_ping;
+			ack = &regs->rx_ping_rsr;
 		} else {
-			baseaddress ^= XEL_BUFFER_OFFSET;
-			reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
-			if ((reg & XEL_RSR_RECV_DONE_MASK) !=
-						XEL_RSR_RECV_DONE_MASK) {
-				debug("No data was available - address 0x%x\n",
-						baseaddress);
-				return 0;
-			}
+			debug("Data not found in rx_ping buffer\n");
+			/* Pong buffer is not available - return immediately */
+			if (!emaclite->rxpp)
+				return -1;
+
+			/* Try pong buffer if this is first attempt */
+			if (attempt++)
+				return -1;
+			emaclite->use_rx_pong_buffer_next =
+					!emaclite->use_rx_pong_buffer_next;
+			goto try_again;
+		}
+	} else {
+		reg = in_be32(&regs->rx_pong_rsr);
+		debug("Testing data at rx_pong\n");
+		if ((reg & XEL_RSR_RECV_DONE_MASK) == XEL_RSR_RECV_DONE_MASK) {
+			debug("Data found in rx_pong buffer\n");
+			addr = &regs->rx_pong;
+			ack = &regs->rx_pong_rsr;
+		} else {
+			debug("Data not found in rx_pong buffer\n");
+			/* Try ping buffer if this is first attempt */
+			if (attempt++)
+				return -1;
+			emaclite->use_rx_pong_buffer_next =
+					!emaclite->use_rx_pong_buffer_next;
+			goto try_again;
 		}
 	}
-	/* Get the length of the frame that arrived */
-	switch(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0xC))) &
-			0xFFFF0000 ) >> 16) {
-		case 0x806:
-			length = 42 + 20; /* FIXME size of ARP */
-			debug("ARP Packet\n");
-			break;
-		case 0x800:
-			length = 14 + 14 +
-			(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET +
-						0x10))) & 0xFFFF0000) >> 16);
-			/* FIXME size of IP packet */
-			debug ("IP Packet\n");
-			break;
-		default:
-			debug("Other Packet\n");
-			length = PKTSIZE;
-			break;
+
+	/* Read all bytes for ARP packet with 32bit alignment - 48bytes  */
+	first_read = ALIGN(ETHER_HDR_SIZE + ARP_HDR_SIZE + ETH_FCS_LEN, 4);
+	xemaclite_alignedread(addr, etherrxbuff, first_read);
+
+	/* Detect real packet size */
+	eth = (struct ethernet_hdr *)etherrxbuff;
+	switch (ntohs(eth->et_protlen)) {
+	case PROT_ARP:
+		length = first_read;
+		debug("ARP Packet %x\n", length);
+		break;
+	case PROT_IP:
+		ip = (struct ip_udp_hdr *)(etherrxbuff + ETHER_HDR_SIZE);
+		length = ntohs(ip->ip_len);
+		length += ETHER_HDR_SIZE + ETH_FCS_LEN;
+		debug("IP Packet %x\n", length);
+		break;
+	default:
+		debug("Other Packet\n");
+		length = PKTSIZE;
+		break;
 	}
 
-	xemaclite_alignedread((u32 *) (baseaddress + XEL_RXBUFF_OFFSET),
-			etherrxbuff, length);
+	/* Read the rest of the packet which is longer then first read */
+	if (length != first_read)
+		xemaclite_alignedread(addr + first_read,
+				      etherrxbuff + first_read,
+				      length - first_read);
 
 	/* Acknowledge the frame */
-	reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
+	reg = in_be32(ack);
 	reg &= ~XEL_RSR_RECV_DONE_MASK;
-	out_be32 (baseaddress + XEL_RSR_OFFSET, reg);
+	out_be32(ack, reg);
 
-	debug("Packet receive from 0x%x, length %dB\n", baseaddress, length);
+	debug("Packet receive from 0x%p, length %dB\n", addr, length);
 	net_process_received_packet((uchar *)etherrxbuff, length);
 	return length;
 
