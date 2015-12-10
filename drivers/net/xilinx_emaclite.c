@@ -24,8 +24,6 @@
 
 /* EmacLite constants */
 #define XEL_BUFFER_OFFSET	0x0800	/* Next buffer's offset */
-#define XEL_TPLR_OFFSET		0x07F4	/* Tx packet length */
-#define XEL_TSR_OFFSET		0x07FC	/* Tx status */
 #define XEL_RSR_OFFSET		0x17FC	/* Rx status */
 #define XEL_RXBUFF_OFFSET	0x1000	/* Receive Buffer */
 
@@ -88,7 +86,6 @@ struct emaclite_regs {
 };
 
 struct xemaclite {
-	u32 nexttxbuffertouse;	/* Next TX buffer to write to */
 	u32 nextrxbuffertouse;	/* Next RX buffer to read from */
 	u32 txpp;		/* TX ping pong buffer */
 	u32 rxpp;		/* RX ping pong buffer */
@@ -126,7 +123,7 @@ static void xemaclite_alignedread(u32 *srcptr, void *destptr, u32 bytecount)
 		*to8ptr++ = *from8ptr++;
 }
 
-static void xemaclite_alignedwrite(void *srcptr, u32 destptr, u32 bytecount)
+static void xemaclite_alignedwrite(void *srcptr, u32 *destptr, u32 bytecount)
 {
 	u32 i;
 	u32 alignbuffer;
@@ -335,7 +332,7 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	/* Restart PING TX */
 	out_be32(&regs->tx_ping_tsr, 0);
 	/* Copy MAC address */
-	xemaclite_alignedwrite(dev->enetaddr, (u32)&regs->tx_ping,
+	xemaclite_alignedwrite(dev->enetaddr, &regs->tx_ping,
 			       ENET_ADDR_LENGTH);
 	/* Set the length */
 	out_be32(&regs->tx_ping_tplr, ENET_ADDR_LENGTH);
@@ -349,7 +346,7 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	if (emaclite->txpp) {
 		/* The same operation with PONG TX */
 		out_be32(&regs->tx_pong_tsr, 0);
-		xemaclite_alignedwrite(dev->enetaddr, (u32)&regs->tx_pong,
+		xemaclite_alignedwrite(dev->enetaddr, &regs->tx_pong,
 				       ENET_ADDR_LENGTH);
 		out_be32(&regs->tx_pong_tplr, ENET_ADDR_LENGTH);
 		out_be32(&regs->tx_pong_tsr, XEL_TSR_PROG_MAC_ADDR);
@@ -396,7 +393,6 @@ static int xemaclite_txbufferavailable(struct xemaclite *emaclite)
 static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 {
 	u32 reg;
-	u32 baseaddress;
 	struct xemaclite *emaclite = dev->priv;
 	struct emaclite_regs *regs = emaclite->regs;
 
@@ -420,41 +416,33 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 		return -1;
 	}
 
-	/* Determine the expected TX buffer address */
-	baseaddress = (dev->iobase + emaclite->nexttxbuffertouse);
-
 	/* Determine if the expected buffer address is empty */
-	reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
+	reg = in_be32(&regs->tx_ping_tsr);
 	if ((reg & XEL_TSR_XMIT_BUSY_MASK) == 0) {
-		if (emaclite->txpp)
-			emaclite->nexttxbuffertouse ^= XEL_BUFFER_OFFSET;
-
-		debug("Send packet from 0x%x\n", baseaddress);
+		debug("Send packet from tx_ping buffer\n");
 		/* Write the frame to the buffer */
-		xemaclite_alignedwrite(ptr, baseaddress, len);
-		out_be32 (baseaddress + XEL_TPLR_OFFSET,(len &
-			(XEL_TPLR_LENGTH_MASK_HI | XEL_TPLR_LENGTH_MASK_LO)));
-		reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
+		xemaclite_alignedwrite(ptr, &regs->tx_ping, len);
+		out_be32(&regs->tx_ping_tplr, len &
+			(XEL_TPLR_LENGTH_MASK_HI | XEL_TPLR_LENGTH_MASK_LO));
+		reg = in_be32(&regs->tx_ping_tsr);
 		reg |= XEL_TSR_XMIT_BUSY_MASK;
-		out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
+		out_be32(&regs->tx_ping_tsr, reg);
 		return 0;
 	}
 
 	if (emaclite->txpp) {
-		/* Switch to second buffer */
-		baseaddress ^= XEL_BUFFER_OFFSET;
 		/* Determine if the expected buffer address is empty */
-		reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
+		reg = in_be32(&regs->tx_pong_tsr);
 		if ((reg & XEL_TSR_XMIT_BUSY_MASK) == 0) {
-			debug("Send packet from 0x%x\n", baseaddress);
+			debug("Send packet from tx_pong buffer\n");
 			/* Write the frame to the buffer */
-			xemaclite_alignedwrite(ptr, baseaddress, len);
-			out_be32 (baseaddress + XEL_TPLR_OFFSET, (len &
-				(XEL_TPLR_LENGTH_MASK_HI |
-					XEL_TPLR_LENGTH_MASK_LO)));
-			reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
+			xemaclite_alignedwrite(ptr, &regs->tx_pong, len);
+			out_be32(&regs->tx_pong_tplr, len &
+				 (XEL_TPLR_LENGTH_MASK_HI |
+				  XEL_TPLR_LENGTH_MASK_LO));
+			reg = in_be32(&regs->tx_pong_tsr);
 			reg |= XEL_TSR_XMIT_BUSY_MASK;
-			out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
+			out_be32(&regs->tx_pong_tsr, reg);
 			return 0;
 		}
 	}
