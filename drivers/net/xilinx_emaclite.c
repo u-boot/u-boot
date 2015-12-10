@@ -50,12 +50,6 @@
 /* Recv interrupt enable bit */
 #define XEL_RSR_RECV_IE_MASK		0x00000008UL
 
-/* MDIO */
-#define XEL_MDIOADDR_OFFSET	0x07E4		/* MDIO Address Register */
-#define XEL_MDIOWR_OFFSET	0x07E8		/* MDIO Write Data Register */
-#define XEL_MDIORD_OFFSET	0x07EC		/* MDIO Read Data Register */
-#define XEL_MDIOCTRL_OFFSET	0x07F0		/* MDIO Control Register */
-
 /* MDIO Address Register Bit Masks */
 #define XEL_MDIOADDR_REGADR_MASK  0x0000001F	/* Register Address */
 #define XEL_MDIOADDR_PHYADR_MASK  0x000003E0	/* PHY Address */
@@ -72,12 +66,36 @@
 #define XEL_MDIOCTRL_MDIOSTS_MASK 0x00000001	/* MDIO Status Mask */
 #define XEL_MDIOCTRL_MDIOEN_MASK  0x00000008	/* MDIO Enable */
 
+struct emaclite_regs {
+	u32 tx_ping; /* 0x0 - TX Ping buffer */
+	u32 reserved1[504];
+	u32 mdioaddr; /* 0x7e4 - MDIO Address Register */
+	u32 mdiowr; /* 0x7e8 - MDIO Write Data Register */
+	u32 mdiord;/* 0x7ec - MDIO Read Data Register */
+	u32 mdioctrl; /* 0x7f0 - MDIO Control Register */
+	u32 tx_ping_tplr; /* 0x7f4 - Tx packet length */
+	u32 global_interrupt; /* 0x7f8 - Global interrupt enable */
+	u32 tx_ping_tsr; /* 0x7fc - Tx status */
+	u32 tx_pong; /* 0x800 - TX Pong buffer */
+	u32 reserved2[508];
+	u32 tx_pong_tplr; /* 0xff4 - Tx packet length */
+	u32 reserved3; /* 0xff8 */
+	u32 tx_pong_tsr; /* 0xffc - Tx status */
+	u32 rx_ping; /* 0x1000 - Receive Buffer */
+	u32 reserved4[510];
+	u32 rx_ping_rsr; /* 0x17fc - Rx status */
+	u32 rx_pong; /* 0x1800 - Receive Buffer */
+	u32 reserved5[510];
+	u32 rx_pong_rsr; /* 0x1ffc - Rx status */
+};
+
 struct xemaclite {
 	u32 nexttxbuffertouse;	/* Next TX buffer to write to */
 	u32 nextrxbuffertouse;	/* Next RX buffer to read from */
 	u32 txpp;		/* TX ping pong buffer */
 	u32 rxpp;		/* RX ping pong buffer */
 	int phyaddr;
+	struct emaclite_regs *regs;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };
@@ -169,38 +187,39 @@ static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
 	return -ETIMEDOUT;
 }
 
-static int mdio_wait(struct eth_device *dev)
+static int mdio_wait(struct emaclite_regs *regs)
 {
-	return wait_for_bit(__func__,
-			    (u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET),
+	return wait_for_bit(__func__, &regs->mdioctrl,
 			    XEL_MDIOCTRL_MDIOSTS_MASK, false, 2000);
 }
 
-static u32 phyread(struct eth_device *dev, u32 phyaddress, u32 registernum,
+static u32 phyread(struct xemaclite *emaclite, u32 phyaddress, u32 registernum,
 		   u16 *data)
 {
-	if (mdio_wait(dev))
+	struct emaclite_regs *regs = emaclite->regs;
+
+	if (mdio_wait(regs))
 		return 1;
 
-	u32 ctrl_reg = in_be32(dev->iobase + XEL_MDIOCTRL_OFFSET);
-	out_be32(dev->iobase + XEL_MDIOADDR_OFFSET,
-		 XEL_MDIOADDR_OP_MASK |
+	u32 ctrl_reg = in_be32(&regs->mdioctrl);
+	out_be32(&regs->mdioaddr, XEL_MDIOADDR_OP_MASK |
 		 ((phyaddress << XEL_MDIOADDR_PHYADR_SHIFT) | registernum));
-	out_be32(dev->iobase + XEL_MDIOCTRL_OFFSET,
-		 ctrl_reg | XEL_MDIOCTRL_MDIOSTS_MASK);
+	out_be32(&regs->mdioctrl, ctrl_reg | XEL_MDIOCTRL_MDIOSTS_MASK);
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	/* Read data */
-	*data = in_be32(dev->iobase + XEL_MDIORD_OFFSET);
+	*data = in_be32(&regs->mdiord);
 	return 0;
 }
 
-static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
+static u32 phywrite(struct xemaclite *emaclite, u32 phyaddress, u32 registernum,
 		    u16 data)
 {
-	if (mdio_wait(dev))
+	struct emaclite_regs *regs = emaclite->regs;
+
+	if (mdio_wait(regs))
 		return 1;
 
 	/*
@@ -209,15 +228,13 @@ static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
 	 * Data register. Finally, set the Status bit in the MDIO Control
 	 * register to start a MDIO write transaction.
 	 */
-	u32 ctrl_reg = in_be32(dev->iobase + XEL_MDIOCTRL_OFFSET);
-	out_be32(dev->iobase + XEL_MDIOADDR_OFFSET,
-		 ~XEL_MDIOADDR_OP_MASK &
+	u32 ctrl_reg = in_be32(&regs->mdioctrl);
+	out_be32(&regs->mdioaddr, ~XEL_MDIOADDR_OP_MASK &
 		 ((phyaddress << XEL_MDIOADDR_PHYADR_SHIFT) | registernum));
-	out_be32(dev->iobase + XEL_MDIOWR_OFFSET, data);
-	out_be32(dev->iobase + XEL_MDIOCTRL_OFFSET,
-		 ctrl_reg | XEL_MDIOCTRL_MDIOSTS_MASK);
+	out_be32(&regs->mdiowr, data);
+	out_be32(&regs->mdioctrl, ctrl_reg | XEL_MDIOCTRL_MDIOSTS_MASK);
 
-	if (mdio_wait(dev))
+	if (mdio_wait(regs))
 		return 1;
 
 	return 0;
@@ -254,7 +271,7 @@ static int setup_phy(struct eth_device *dev)
 			SUPPORTED_100baseT_Full;
 
 	if (emaclite->phyaddr != -1) {
-		phyread(dev, emaclite->phyaddr, PHY_DETECT_REG, &phyreg);
+		phyread(emaclite, emaclite->phyaddr, PHY_DETECT_REG, &phyreg);
 		if ((phyreg != 0xFFFF) &&
 		    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 			/* Found a valid PHY address */
@@ -270,7 +287,7 @@ static int setup_phy(struct eth_device *dev)
 	if (emaclite->phyaddr == -1) {
 		/* detect the PHY address */
 		for (i = 31; i >= 0; i--) {
-			phyread(dev, i, PHY_DETECT_REG, &phyreg);
+			phyread(emaclite, i, PHY_DETECT_REG, &phyreg);
 			if ((phyreg != 0xFFFF) &&
 			    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 				/* Found a valid PHY address */
@@ -310,6 +327,8 @@ static int setup_phy(struct eth_device *dev)
 static int emaclite_init(struct eth_device *dev, bd_t *bis)
 {
 	struct xemaclite *emaclite = dev->priv;
+	struct emaclite_regs *regs = emaclite->regs;
+
 	debug("EmacLite Initialization Started\n");
 
 /*
@@ -352,9 +371,8 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 			XEL_RSR_RECV_IE_MASK);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	out_be32(dev->iobase + XEL_MDIOCTRL_OFFSET, XEL_MDIOCTRL_MDIOEN_MASK);
-	if (in_be32(dev->iobase + XEL_MDIOCTRL_OFFSET) &
-		    XEL_MDIOCTRL_MDIOEN_MASK)
+	out_be32(&regs->mdioctrl, XEL_MDIOCTRL_MDIOEN_MASK);
+	if (in_be32(&regs->mdioctrl) & XEL_MDIOCTRL_MDIOEN_MASK)
 		if (!setup_phy(dev))
 			return -1;
 #endif
@@ -536,7 +554,7 @@ static int emaclite_miiphy_read(const char *devname, uchar addr,
 	u32 ret;
 	struct eth_device *dev = eth_get_dev();
 
-	ret = phyread(dev, addr, reg, val);
+	ret = phyread(dev->priv, addr, reg, val);
 	debug("emaclite: Read MII 0x%x, 0x%x, 0x%x\n", addr, reg, *val);
 	return ret;
 }
@@ -547,7 +565,7 @@ static int emaclite_miiphy_write(const char *devname, uchar addr,
 	struct eth_device *dev = eth_get_dev();
 
 	debug("emaclite: Write MII 0x%x, 0x%x, 0x%x\n", addr, reg, val);
-	return phywrite(dev, addr, reg, val);
+	return phywrite(dev->priv, addr, reg, val);
 }
 #endif
 
@@ -556,6 +574,7 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 {
 	struct eth_device *dev;
 	struct xemaclite *emaclite;
+	struct emaclite_regs *regs;
 
 	dev = calloc(1, sizeof(*dev));
 	if (dev == NULL)
@@ -574,6 +593,8 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 
 	sprintf(dev->name, "Xelite.%lx", base_addr);
 
+	emaclite->regs = (struct emaclite_regs *)base_addr;
+	regs = emaclite->regs;
 	dev->iobase = base_addr;
 	dev->init = emaclite_init;
 	dev->halt = emaclite_halt;
@@ -592,8 +613,7 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 	miiphy_register(dev->name, emaclite_miiphy_read, emaclite_miiphy_write);
 	emaclite->bus = miiphy_get_dev_by_name(dev->name);
 
-	out_be32(dev->iobase + XEL_MDIOCTRL_OFFSET,
-		 XEL_MDIOCTRL_MDIOEN_MASK);
+	out_be32(&regs->mdioctrl, XEL_MDIOCTRL_MDIOEN_MASK);
 #endif
 
 	return 1;
