@@ -408,6 +408,7 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 	u32 reg;
 	u32 baseaddress;
 	struct xemaclite *emaclite = dev->priv;
+	struct emaclite_regs *regs = emaclite->regs;
 
 	u32 maxtry = 1000;
 
@@ -422,10 +423,9 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 	if (!maxtry) {
 		printf("Error: Timeout waiting for ethernet TX buffer\n");
 		/* Restart PING TX */
-		out_be32 (dev->iobase + XEL_TSR_OFFSET, 0);
+		out_be32(&regs->tx_ping_tsr, 0);
 		if (emaclite->txpp) {
-			out_be32 (dev->iobase + XEL_TSR_OFFSET +
-				XEL_BUFFER_OFFSET, 0);
+			out_be32(&regs->tx_pong_tsr, 0);
 		}
 		return -1;
 	}
