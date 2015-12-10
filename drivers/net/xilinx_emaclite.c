@@ -10,6 +10,7 @@
 #include <common.h>
 #include <net.h>
 #include <config.h>
+#include <dm.h>
 #include <console.h>
 #include <malloc.h>
 #include <asm/io.h>
@@ -19,7 +20,7 @@
 #include <asm-generic/errno.h>
 #include <linux/kernel.h>
 
-#undef DEBUG
+DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_ADDR_LENGTH	6
 #define ETH_FCS_LEN		4 /* Octets in the FCS */
@@ -146,7 +147,6 @@ static void xemaclite_alignedwrite(void *srcptr, u32 *destptr, u32 bytecount)
 	*to32ptr++ = alignbuffer;
 }
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
 			bool set, unsigned int timeout)
 {
@@ -231,9 +231,8 @@ static u32 phywrite(struct xemaclite *emaclite, u32 phyaddress, u32 registernum,
 
 	return 0;
 }
-#endif
 
-static void emaclite_halt(struct eth_device *dev)
+static void emaclite_halt(struct udevice *dev)
 {
 	debug("eth_halt\n");
 }
@@ -249,12 +248,11 @@ static void emaclite_halt(struct eth_device *dev)
  */
 #define PHY_DETECT_MASK 0x1808
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-static int setup_phy(struct eth_device *dev)
+static int setup_phy(struct udevice *dev)
 {
 	int i;
 	u16 phyreg;
-	struct xemaclite *emaclite = dev->priv;
+	struct xemaclite *emaclite = dev_get_priv(dev);
 	struct phy_device *phydev;
 
 	u32 supported = SUPPORTED_10baseT_Half |
@@ -314,11 +312,11 @@ static int setup_phy(struct eth_device *dev)
 	/* Do not setup anything */
 	return 1;
 }
-#endif
 
-static int emaclite_init(struct eth_device *dev, bd_t *bis)
+static int emaclite_init(struct udevice *dev)
 {
-	struct xemaclite *emaclite = dev->priv;
+	struct xemaclite *emaclite = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct emaclite_regs *regs = emaclite->regs;
 
 	debug("EmacLite Initialization Started\n");
@@ -329,7 +327,7 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	/* Restart PING TX */
 	out_be32(&regs->tx_ping_tsr, 0);
 	/* Copy MAC address */
-	xemaclite_alignedwrite(dev->enetaddr, &regs->tx_ping,
+	xemaclite_alignedwrite(pdata->enetaddr, &regs->tx_ping,
 			       ENET_ADDR_LENGTH);
 	/* Set the length */
 	out_be32(&regs->tx_ping_tplr, ENET_ADDR_LENGTH);
@@ -343,7 +341,7 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	if (emaclite->txpp) {
 		/* The same operation with PONG TX */
 		out_be32(&regs->tx_pong_tsr, 0);
-		xemaclite_alignedwrite(dev->enetaddr, &regs->tx_pong,
+		xemaclite_alignedwrite(pdata->enetaddr, &regs->tx_pong,
 				       ENET_ADDR_LENGTH);
 		out_be32(&regs->tx_pong_tplr, ENET_ADDR_LENGTH);
 		out_be32(&regs->tx_pong_tsr, XEL_TSR_PROG_MAC_ADDR);
@@ -361,12 +359,11 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	if (emaclite->rxpp)
 		out_be32(&regs->rx_pong_rsr, XEL_RSR_RECV_IE_MASK);
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	out_be32(&regs->mdioctrl, XEL_MDIOCTRL_MDIOEN_MASK);
 	if (in_be32(&regs->mdioctrl) & XEL_MDIOCTRL_MDIOEN_MASK)
 		if (!setup_phy(dev))
 			return -1;
-#endif
+
 	debug("EmacLite Initialization complete\n");
 	return 0;
 }
@@ -387,10 +384,10 @@ static int xemaclite_txbufferavailable(struct xemaclite *emaclite)
 	return !(tmp & XEL_TSR_XMIT_BUSY_MASK);
 }
 
-static int emaclite_send(struct eth_device *dev, void *ptr, int len)
+static int emaclite_send(struct udevice *dev, void *ptr, int len)
 {
 	u32 reg;
-	struct xemaclite *emaclite = dev->priv;
+	struct xemaclite *emaclite = dev_get_priv(dev);
 	struct emaclite_regs *regs = emaclite->regs;
 
 	u32 maxtry = 1000;
@@ -448,7 +445,7 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 	return -1;
 }
 
-static int emaclite_recv(struct eth_device *dev)
+static int emaclite_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	u32 length, first_read, reg, attempt = 0;
 	void *addr, *ack;
@@ -532,78 +529,104 @@ try_again:
 
 	debug("Packet receive from 0x%p, length %dB\n", addr, length);
 	net_process_received_packet((uchar *)etherrxbuff, length);
-	return length;
-
+	return 0;
 }
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-static int emaclite_miiphy_read(const char *devname, uchar addr,
-				uchar reg, ushort *val)
+static int emaclite_miiphy_read(struct mii_dev *bus, int addr,
+				int devad, int reg)
 {
 	u32 ret;
-	struct eth_device *dev = eth_get_dev();
+	u16 val = 0;
 
-	ret = phyread(dev->priv, addr, reg, val);
-	debug("emaclite: Read MII 0x%x, 0x%x, 0x%x\n", addr, reg, *val);
-	return ret;
+	ret = phyread(bus->priv, addr, reg, &val);
+	debug("emaclite: Read MII 0x%x, 0x%x, 0x%x, %d\n", addr, reg, val, ret);
+	return val;
 }
 
-static int emaclite_miiphy_write(const char *devname, uchar addr,
-				 uchar reg, ushort val)
+static int emaclite_miiphy_write(struct mii_dev *bus, int addr, int devad,
+				 int reg, u16 value)
 {
-	struct eth_device *dev = eth_get_dev();
-
-	debug("emaclite: Write MII 0x%x, 0x%x, 0x%x\n", addr, reg, val);
-	return phywrite(dev->priv, addr, reg, val);
+	debug("emaclite: Write MII 0x%x, 0x%x, 0x%x\n", addr, reg, value);
+	return phywrite(bus->priv, addr, reg, value);
 }
-#endif
 
-int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
-							int txpp, int rxpp)
+static int emaclite_probe(struct udevice *dev)
 {
-	struct eth_device *dev;
-	struct xemaclite *emaclite;
-	struct emaclite_regs *regs;
+	struct xemaclite *emaclite = dev_get_priv(dev);
+	int ret;
 
-	dev = calloc(1, sizeof(*dev));
-	if (dev == NULL)
-		return -1;
+	emaclite->bus = mdio_alloc();
+	emaclite->bus->read = emaclite_miiphy_read;
+	emaclite->bus->write = emaclite_miiphy_write;
+	emaclite->bus->priv = emaclite;
+	strcpy(emaclite->bus->name, "emaclite");
 
-	emaclite = calloc(1, sizeof(struct xemaclite));
-	if (emaclite == NULL) {
-		free(dev);
-		return -1;
-	}
+	ret = mdio_register(emaclite->bus);
+	if (ret)
+		return ret;
 
-	dev->priv = emaclite;
+	return 0;
+}
 
-	emaclite->txpp = txpp;
-	emaclite->rxpp = rxpp;
+static int emaclite_remove(struct udevice *dev)
+{
+	struct xemaclite *emaclite = dev_get_priv(dev);
 
-	sprintf(dev->name, "Xelite.%lx", base_addr);
+	free(emaclite->phydev);
+	mdio_unregister(emaclite->bus);
+	mdio_free(emaclite->bus);
 
-	emaclite->regs = (struct emaclite_regs *)base_addr;
-	regs = emaclite->regs;
-	dev->iobase = base_addr;
-	dev->init = emaclite_init;
-	dev->halt = emaclite_halt;
-	dev->send = emaclite_send;
-	dev->recv = emaclite_recv;
+	return 0;
+}
 
-#ifdef CONFIG_PHY_ADDR
-	emaclite->phyaddr = CONFIG_PHY_ADDR;
-#else
+static const struct eth_ops emaclite_ops = {
+	.start = emaclite_init,
+	.send = emaclite_send,
+	.recv = emaclite_recv,
+	.stop = emaclite_halt,
+};
+
+static int emaclite_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct xemaclite *emaclite = dev_get_priv(dev);
+	int offset = 0;
+
+	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	emaclite->regs = (struct emaclite_regs *)pdata->iobase;
+
 	emaclite->phyaddr = -1;
-#endif
 
-	eth_register(dev);
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+				      "phy-handle");
+	if (offset > 0)
+		emaclite->phyaddr = fdtdec_get_int(gd->fdt_blob, offset,
+						   "reg", -1);
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	miiphy_register(dev->name, emaclite_miiphy_read, emaclite_miiphy_write);
-	emaclite->bus = miiphy_get_dev_by_name(dev->name);
+	emaclite->txpp = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					"xlnx,tx-ping-pong", 0);
+	emaclite->rxpp = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					"xlnx,rx-ping-pong", 0);
 
-	out_be32(&regs->mdioctrl, XEL_MDIOCTRL_MDIOEN_MASK);
-#endif
+	printf("EMACLITE: %lx, phyaddr %d, %d/%d\n", (ulong)emaclite->regs,
+	       emaclite->phyaddr, emaclite->txpp, emaclite->rxpp);
 
-	return 1;
+	return 0;
 }
+
+static const struct udevice_id emaclite_ids[] = {
+	{ .compatible = "xlnx,xps-ethernetlite-1.00.a" },
+	{ }
+};
+
+U_BOOT_DRIVER(emaclite) = {
+	.name   = "emaclite",
+	.id     = UCLASS_ETH,
+	.of_match = emaclite_ids,
+	.ofdata_to_platdata = emaclite_ofdata_to_platdata,
+	.probe  = emaclite_probe,
+	.remove = emaclite_remove,
+	.ops    = &emaclite_ops,
+	.priv_auto_alloc_size = sizeof(struct xemaclite),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
