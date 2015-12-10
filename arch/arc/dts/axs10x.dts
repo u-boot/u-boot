@@ -48,4 +48,10 @@
 		reg = < 0xe0040000 0x100 >;
 		interrupts = < 8 >;
 	};
+
+	ohci@0xe0060000 {
+		compatible = "generic-ohci";
+		reg = < 0xe0060000 0x100 >;
+		interrupts = < 8 >;
+	};
 };
