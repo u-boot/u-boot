@@ -33,7 +33,10 @@
 #define SAR1_CPU_CORE_MASK		0x00000018
 #define SAR1_CPU_CORE_OFFSET		3
 
+/* Only enable ECC if the board selects it */
+#ifdef CONFIG_BOARD_ECC_SUPPORT
 #define ECC_SUPPORT
+#endif
 #define NEW_FABRIC_TWSI_ADDR		0x4E
 #ifdef CONFIG_DB_784MP_GP
 #define BUS_WIDTH_ECC_TWSI_ADDR		0x4E
