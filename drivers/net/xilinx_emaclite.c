@@ -33,8 +33,6 @@
 #define XEL_TSR_XMIT_BUSY_MASK		0x00000001UL
 /* Xmit interrupt enable bit */
 #define XEL_TSR_XMIT_IE_MASK		0x00000008UL
-/* Buffer is active, SW bit only */
-#define XEL_TSR_XMIT_ACTIVE_MASK	0x80000000UL
 /* Program the MAC address */
 #define XEL_TSR_PROGRAM_MASK		0x00000002UL
 /* define for programming the MAC address into the EMAC Lite */
@@ -427,10 +425,7 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 
 	/* Determine if the expected buffer address is empty */
 	reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
-	if (((reg & XEL_TSR_XMIT_BUSY_MASK) == 0)
-		&& ((in_be32 ((baseaddress) + XEL_TSR_OFFSET)
-			& XEL_TSR_XMIT_ACTIVE_MASK) == 0)) {
-
+	if ((reg & XEL_TSR_XMIT_BUSY_MASK) == 0) {
 		if (emaclite->txpp)
 			emaclite->nexttxbuffertouse ^= XEL_BUFFER_OFFSET;
 
@@ -441,8 +436,6 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 			(XEL_TPLR_LENGTH_MASK_HI | XEL_TPLR_LENGTH_MASK_LO)));
 		reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
 		reg |= XEL_TSR_XMIT_BUSY_MASK;
-		if ((reg & XEL_TSR_XMIT_IE_MASK) != 0)
-			reg |= XEL_TSR_XMIT_ACTIVE_MASK;
 		out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
 		return 0;
 	}
@@ -452,9 +445,7 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 		baseaddress ^= XEL_BUFFER_OFFSET;
 		/* Determine if the expected buffer address is empty */
 		reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
-		if (((reg & XEL_TSR_XMIT_BUSY_MASK) == 0)
-			&& ((in_be32 ((baseaddress) + XEL_TSR_OFFSET)
-				& XEL_TSR_XMIT_ACTIVE_MASK) == 0)) {
+		if ((reg & XEL_TSR_XMIT_BUSY_MASK) == 0) {
 			debug("Send packet from 0x%x\n", baseaddress);
 			/* Write the frame to the buffer */
 			xemaclite_alignedwrite(ptr, baseaddress, len);
@@ -463,8 +454,6 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 					XEL_TPLR_LENGTH_MASK_LO)));
 			reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
 			reg |= XEL_TSR_XMIT_BUSY_MASK;
-			if ((reg & XEL_TSR_XMIT_IE_MASK) != 0)
-				reg |= XEL_TSR_XMIT_ACTIVE_MASK;
 			out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
 			return 0;
 		}
