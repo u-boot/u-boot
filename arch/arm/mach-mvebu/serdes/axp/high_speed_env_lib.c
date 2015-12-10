@@ -1376,19 +1376,19 @@ int serdes_phy_config(void)
 						 pex_if, PEX_DEVICE_AND_VENDOR_ID));
 			devId &= 0xFFFF;
 			devId |= ((ctrl_mode << 16) & 0xffff0000);
-			DEBUG_INIT_S("Update Device ID PEX");
-			DEBUG_INIT_D(pex_if, 1);
-			DEBUG_INIT_D(devId, 8);
-			DEBUG_INIT_S("\n");
+			DEBUG_INIT_FULL_S("Update Device ID PEX");
+			DEBUG_INIT_FULL_D(pex_if, 1);
+			DEBUG_INIT_FULL_D(devId, 8);
+			DEBUG_INIT_FULL_S("\n");
 			reg_write(PEX_CFG_DIRECT_ACCESS
 				  (pex_if, PEX_DEVICE_AND_VENDOR_ID), devId);
 			if ((pex_if < 8) &&
 			    (info->pex_mode[pex_unit] == PEX_BUS_MODE_X4))
 				pex_if += 3;
 		}
-		DEBUG_INIT_S("Update PEX Device ID 0x");
-		DEBUG_INIT_D(ctrl_mode, 4);
-		DEBUG_INIT_S("0\n");
+		DEBUG_INIT_FULL_S("Update PEX Device ID 0x");
+		DEBUG_INIT_FULL_D(ctrl_mode, 4);
+		DEBUG_INIT_FULL_S("0\n");
 	}
 	tmp = reg_read(PEX_DBG_STATUS_REG(0));
 	DEBUG_RD_REG(PEX_DBG_STATUS_REG(0), tmp);
