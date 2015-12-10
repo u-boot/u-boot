@@ -335,28 +335,28 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
  * TX - TX_PING & TX_PONG initialization
  */
 	/* Restart PING TX */
-	out_be32 (dev->iobase + XEL_TSR_OFFSET, 0);
+	out_be32(&regs->tx_ping_tsr, 0);
 	/* Copy MAC address */
-	xemaclite_alignedwrite(dev->enetaddr, dev->iobase, ENET_ADDR_LENGTH);
+	xemaclite_alignedwrite(dev->enetaddr, (u32)&regs->tx_ping,
+			       ENET_ADDR_LENGTH);
 	/* Set the length */
-	out_be32 (dev->iobase + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
+	out_be32(&regs->tx_ping_tplr, ENET_ADDR_LENGTH);
 	/* Update the MAC address in the EMAC Lite */
-	out_be32 (dev->iobase + XEL_TSR_OFFSET, XEL_TSR_PROG_MAC_ADDR);
+	out_be32(&regs->tx_ping_tsr, XEL_TSR_PROG_MAC_ADDR);
 	/* Wait for EMAC Lite to finish with the MAC address update */
-	while ((in_be32 (dev->iobase + XEL_TSR_OFFSET) &
+	while ((in_be32 (&regs->tx_ping_tsr) &
 		XEL_TSR_PROG_MAC_ADDR) != 0)
 		;
 
 	if (emaclite->txpp) {
 		/* The same operation with PONG TX */
-		out_be32 (dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET, 0);
-		xemaclite_alignedwrite(dev->enetaddr, dev->iobase +
-			XEL_BUFFER_OFFSET, ENET_ADDR_LENGTH);
-		out_be32 (dev->iobase + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
-		out_be32 (dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET,
-			XEL_TSR_PROG_MAC_ADDR);
-		while ((in_be32 (dev->iobase + XEL_TSR_OFFSET +
-			XEL_BUFFER_OFFSET) & XEL_TSR_PROG_MAC_ADDR) != 0)
+		out_be32(&regs->tx_pong_tsr, 0);
+		xemaclite_alignedwrite(dev->enetaddr, (u32)&regs->tx_pong,
+				       ENET_ADDR_LENGTH);
+		out_be32(&regs->tx_pong_tplr, ENET_ADDR_LENGTH);
+		out_be32(&regs->tx_pong_tsr, XEL_TSR_PROG_MAC_ADDR);
+		while ((in_be32(&regs->tx_pong_tsr) &
+		       XEL_TSR_PROG_MAC_ADDR) != 0)
 			;
 	}
 
