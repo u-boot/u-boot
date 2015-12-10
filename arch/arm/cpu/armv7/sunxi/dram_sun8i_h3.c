@@ -73,10 +73,10 @@ static void mctl_dq_delay(u32 read, u32 write)
 
 	for (i = 0; i < 4; i++) {
 		val = DATX_IOCR_WRITE_DELAY((write >> (i * 4)) & 0xf) |
-		      DATX_IOCR_READ_DELAY((read >> (i * 4)) & 0xf);
+		      DATX_IOCR_READ_DELAY(((read >> (i * 4)) & 0xf) * 2);
 
 		for (j = DATX_IOCR_DQ(0); j <= DATX_IOCR_DM; j++)
-			setbits_le32(&mctl_ctl->datx[i].iocr[j], val);
+			writel(val, &mctl_ctl->datx[i].iocr[j]);
 	}
 
 	clrbits_le32(&mctl_ctl->pgcr[0], 1 << 26);
@@ -85,8 +85,8 @@ static void mctl_dq_delay(u32 read, u32 write)
 		val = DATX_IOCR_WRITE_DELAY((write >> (16 + i * 4)) & 0xf) |
 		      DATX_IOCR_READ_DELAY((read >> (16 + i * 4)) & 0xf);
 
-		setbits_le32(&mctl_ctl->datx[i].iocr[DATX_IOCR_DQS], val);
-		setbits_le32(&mctl_ctl->datx[i].iocr[DATX_IOCR_DQSN], val);
+		writel(val, &mctl_ctl->datx[i].iocr[DATX_IOCR_DQS]);
+		writel(val, &mctl_ctl->datx[i].iocr[DATX_IOCR_DQSN]);
 	}
 
 	setbits_le32(&mctl_ctl->pgcr[0], 1 << 26);
@@ -436,8 +436,8 @@ unsigned long sunxi_dram_init(void)
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
 
 	struct dram_para para = {
-		.read_delays = 0x00007979,
-		.write_delays = 0x6aaa0000,
+		.read_delays = 0x00007979,	/* dram_tpr12 */
+		.write_delays = 0x6aaa0000,	/* dram_tpr11 */
 		.dual_rank = 0,
 		.bus_width = 32,
 		.row_bits = 15,
