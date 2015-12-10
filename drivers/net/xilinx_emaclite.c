@@ -364,11 +364,10 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
  * RX - RX_PING & RX_PONG initialization
  */
 	/* Write out the value to flush the RX buffer */
-	out_be32 (dev->iobase + XEL_RSR_OFFSET, XEL_RSR_RECV_IE_MASK);
+	out_be32(&regs->rx_ping_rsr, XEL_RSR_RECV_IE_MASK);
 
 	if (emaclite->rxpp)
-		out_be32 (dev->iobase + XEL_RSR_OFFSET + XEL_BUFFER_OFFSET,
-			XEL_RSR_RECV_IE_MASK);
+		out_be32(&regs->rx_pong_rsr, XEL_RSR_RECV_IE_MASK);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	out_be32(&regs->mdioctrl, XEL_MDIOCTRL_MDIOEN_MASK);
