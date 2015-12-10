@@ -80,8 +80,6 @@ int tsi108_eth_initialize(bd_t *bis);
 int uec_standard_init(bd_t *bis);
 int uli526x_initialize(bd_t *bis);
 int armada100_fec_register(unsigned long base_addr);
-int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
-							int txpp, int rxpp);
 int xilinx_ll_temac_eth_init(bd_t *bis, unsigned long base_addr, int flags,
 						unsigned long ctrl_addr);
 /*

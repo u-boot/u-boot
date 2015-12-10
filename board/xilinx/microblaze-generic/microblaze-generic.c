@@ -12,7 +12,6 @@
 #include <common.h>
 #include <config.h>
 #include <fdtdec.h>
-#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
@@ -99,24 +98,4 @@ int gpio_init (void)
 void board_init(void)
 {
 	gpio_init();
-}
-
-int board_eth_init(bd_t *bis)
-{
-	int ret = 0;
-
-#if defined(CONFIG_XILINX_EMACLITE) && defined(XILINX_EMACLITE_BASEADDR)
-	u32 txpp = 0;
-	u32 rxpp = 0;
-# ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
-	txpp = 1;
-# endif
-# ifdef CONFIG_XILINX_EMACLITE_RX_PING_PONG
-	rxpp = 1;
-# endif
-	ret |= xilinx_emaclite_initialize(bis, XILINX_EMACLITE_BASEADDR,
-			txpp, rxpp);
-#endif
-
-	return ret;
 }
