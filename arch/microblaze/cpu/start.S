@@ -155,6 +155,10 @@ clear_bss:
 	cmp     r6, r5, r4 /* check if we have reach the end */
 	bnei    r6, 2b
 3:	/* jumping to board_init */
+#ifdef CONFIG_DEBUG_UART
+	bralid	r15, debug_uart_init
+	nop
+#endif
 #ifndef CONFIG_SPL_BUILD
 	or	r5, r0, r0	/* flags - empty */
 	addi    r31, r0, _gd
