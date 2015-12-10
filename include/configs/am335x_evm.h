@@ -18,10 +18,6 @@
 
 #include <configs/ti_am335x_common.h>
 
-/* Don't override the distro default bootdelay */
-#undef CONFIG_BOOTDELAY
-#include <config_distro_defaults.h>
-
 #ifndef CONFIG_SPL_BUILD
 #ifndef CONFIG_FIT
 # define CONFIG_FIT
