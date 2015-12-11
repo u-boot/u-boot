@@ -95,9 +95,23 @@ def ParseHeaderFiles(fname_list):
         name = os.path.splitext(name)[0]
         data = []
         with open(fname) as fd:
+            license_start = False
+            license_end = False
             for line in fd:
                 line = line.rstrip()
 
+                if len(line) >= 2:
+                    if line[0] == '/' and line[1] == '*':
+                        license_start = True
+                        continue
+                    if line[0] == '*' and line[1] == '/':
+                        license_end = True
+                        continue
+                if license_start and not license_end:
+                    # Ignore blank line
+                    if len(line) > 0:
+                        license_text.append(line)
+                    continue
                 # Omit anything after the last comma
                 words = line.split(',')[:-1]
                 data += [word + ',' for word in words]
