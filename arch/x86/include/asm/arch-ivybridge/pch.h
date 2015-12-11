@@ -105,6 +105,8 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 #define GPIO_ROUT		0xb8
 
 #define LPC_IO_DEC		0x80 /* IO Decode Ranges Register */
+#define  COMB_DEC_RANGE		(1 << 4)  /* 0x2f8-0x2ff (COM2) */
+#define  COMA_DEC_RANGE		(0 << 0)  /* 0x3f8-0x3ff (COM1) */
 #define LPC_EN			0x82 /* LPC IF Enables Register */
 #define  CNF2_LPC_EN		(1 << 13) /* 0x4e/0x4f */
 #define  CNF1_LPC_EN		(1 << 12) /* 0x2e/0x2f */
@@ -121,6 +123,14 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 #define LPC_GEN3_DEC		0x8c /* LPC IF Generic Decode Range 3 */
 #define LPC_GEN4_DEC		0x90 /* LPC IF Generic Decode Range 4 */
 #define LPC_GENX_DEC(x)		(0x84 + 4 * (x))
+#define  GEN_DEC_RANGE_256B	0xfc0000  /* 256 Bytes */
+#define  GEN_DEC_RANGE_128B	0x7c0000  /* 128 Bytes */
+#define  GEN_DEC_RANGE_64B	0x3c0000  /* 64 Bytes */
+#define  GEN_DEC_RANGE_32B	0x1c0000  /* 32 Bytes */
+#define  GEN_DEC_RANGE_16B	0x0c0000  /* 16 Bytes */
+#define  GEN_DEC_RANGE_8B	0x040000  /* 8 Bytes */
+#define  GEN_DEC_RANGE_4B	0x000000  /* 4 Bytes */
+#define  GEN_DEC_RANGE_EN	(1 << 0)  /* Range Enable */
 
 /* PCI Configuration Space (D31:F1): IDE */
 #define PCH_IDE_DEV		PCI_BDF(0, 0x1f, 1)
