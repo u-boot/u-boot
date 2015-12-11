@@ -45,6 +45,7 @@
 # define CONFIG_XILINX_GPIO
 # define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
 #endif
+#define CONFIG_BOARD_LATE_INIT
 
 /* interrupt controller */
 #ifdef XILINX_INTC_BASEADDR
