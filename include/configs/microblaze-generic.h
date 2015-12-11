@@ -40,14 +40,6 @@
 /* setting reset address */
 /*#define	CONFIG_SYS_RESET_ADDRESS	CONFIG_SYS_TEXT_BASE*/
 
-/* ethernet */
-#undef CONFIG_SYS_ENET
-#if defined(CONFIG_XILINX_EMACLITE) || defined(CONFIG_XILINX_AXIEMAC)
-# define CONFIG_SYS_ENET
-#endif
-
-#undef ET_DEBUG
-
 /* gpio */
 #ifdef XILINX_GPIO_BASEADDR
 # define CONFIG_XILINX_GPIO
@@ -216,12 +208,6 @@
 # define CONFIG_CMD_CACHE
 #else
 # undef CONFIG_CMD_CACHE
-#endif
-
-#ifdef CONFIG_SYS_ENET
-# define CONFIG_CMD_PING
-# define CONFIG_CMD_DHCP
-# define CONFIG_CMD_TFTPPUT
 #endif
 
 #if defined(CONFIG_SYSTEMACE)
