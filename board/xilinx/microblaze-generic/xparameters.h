@@ -44,9 +44,6 @@
 #define XILINX_SYSACE_HIGHADDR	0x4180ffff
 #define XILINX_SYSACE_MEM_WIDTH	16
 
-/* Ethernet controller is Ethernet_MAC */
-#define XILINX_EMACLITE_BASEADDR       0x40C00000
-
 /* Watchdog IP is wxi_timebase_wdt_0 */
 #define XILINX_WATCHDOG_BASEADDR	0x50000000
 #define XILINX_WATCHDOG_IRQ		1
