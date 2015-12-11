@@ -12,4 +12,8 @@ struct fsp_config_data {
 	struct upd_region	fsp_upd;
 };
 
+struct fspinit_rtbuf {
+	struct common_buf	common;	/* FSP common runtime data structure */
+};
+
 #endif /* __FSP_CONFIGS_H__ */
