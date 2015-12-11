@@ -99,7 +99,7 @@ void fsp_continue(u32 status, void *hob_list)
 
 void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 {
-	struct shared_data shared_data;
+	struct fsp_config_data config_data;
 	fsp_init_f init;
 	struct fsp_init_params params;
 	struct fspinit_rtbuf rt_buf;
@@ -118,7 +118,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 		panic("Invalid FSP header");
 	}
 
-	fsp_upd = &shared_data.fsp_upd;
+	fsp_upd = &config_data.fsp_upd;
 	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
 
 	/* Reserve a gap in stack top */
@@ -151,9 +151,9 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	init = (fsp_init_f)(fsp_hdr->img_base + fsp_hdr->fsp_init);
 	params_ptr = &params;
 
-	shared_data.fsp_hdr = fsp_hdr;
-	shared_data.stack_top = stack_top;
-	shared_data.boot_mode = boot_mode;
+	config_data.common.fsp_hdr = fsp_hdr;
+	config_data.common.stack_top = stack_top;
+	config_data.common.boot_mode = boot_mode;
 
 	post_code(POST_PRE_MRC);
 

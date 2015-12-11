@@ -17,13 +17,7 @@
 #include "fsp_infoheader.h"
 #include "fsp_bootmode.h"
 #include <asm/arch/fsp/fsp_vpd.h>
-
-struct shared_data {
-	struct fsp_header	*fsp_hdr;
-	u32			stack_top;
-	u32			boot_mode;
-	struct upd_region	fsp_upd;
-};
+#include <asm/arch/fsp/fsp_configs.h>
 
 #define FSP_LOWMEM_BASE		0x100000UL
 #define FSP_HIGHMEM_BASE	0x100000000ULL
