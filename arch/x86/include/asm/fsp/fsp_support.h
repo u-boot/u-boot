@@ -192,13 +192,13 @@ void *fsp_get_nvs_data(const void *hob_list, u32 *len);
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
 
 /**
- * This function overrides the default configurations in the UPD data region.
+ * This function overrides the default configurations of FSP.
  *
- * @fsp_upd: A pointer to the upd_region data strcture
+ * @config:  A pointer to the FSP configuration data structure
  *
  * @return:  None
  */
-void update_fsp_upd(struct upd_region *fsp_upd);
+void update_fsp_configs(struct fsp_config_data *config);
 
 /**
  * fsp_init_phase_pci() - Tell the FSP that we have completed PCI init

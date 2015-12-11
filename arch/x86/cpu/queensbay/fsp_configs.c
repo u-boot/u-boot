@@ -8,7 +8,7 @@
 #include <common.h>
 #include <asm/fsp/fsp_support.h>
 
-void update_fsp_upd(struct upd_region *fsp_upd)
+void update_fsp_configs(struct fsp_config_data *config)
 {
 	/* Override any UPD setting if required */
 

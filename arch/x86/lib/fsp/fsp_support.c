@@ -118,6 +118,10 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 		panic("Invalid FSP header");
 	}
 
+	config_data.common.fsp_hdr = fsp_hdr;
+	config_data.common.stack_top = stack_top;
+	config_data.common.boot_mode = boot_mode;
+
 	fsp_upd = &config_data.fsp_upd;
 	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
 
@@ -140,8 +144,8 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	/* Verify the UPD data region is valid */
 	assert(fsp_upd->terminator == UPD_TERMINATOR);
 
-	/* Override any UPD setting if required */
-	update_fsp_upd(fsp_upd);
+	/* Override any configuration if required */
+	update_fsp_configs(&config_data);
 
 	memset(&params, 0, sizeof(struct fsp_init_params));
 	params.nvs_buf = nvs_buf;
@@ -150,10 +154,6 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 
 	init = (fsp_init_f)(fsp_hdr->img_base + fsp_hdr->fsp_init);
 	params_ptr = &params;
-
-	config_data.common.fsp_hdr = fsp_hdr;
-	config_data.common.stack_top = stack_top;
-	config_data.common.boot_mode = boot_mode;
 
 	post_code(POST_PRE_MRC);
 
