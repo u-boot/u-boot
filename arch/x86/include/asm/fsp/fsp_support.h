@@ -194,10 +194,12 @@ void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
  * This function overrides the default configurations of FSP.
  *
  * @config:  A pointer to the FSP configuration data structure
+ * @rt_buf:  A pointer to the FSP runtime buffer data structure
  *
  * @return:  None
  */
-void update_fsp_configs(struct fsp_config_data *config);
+void update_fsp_configs(struct fsp_config_data *config,
+			struct fspinit_rtbuf *rt_buf);
 
 /**
  * fsp_init_phase_pci() - Tell the FSP that we have completed PCI init

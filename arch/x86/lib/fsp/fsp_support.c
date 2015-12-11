@@ -144,13 +144,8 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 
 	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
 
-	/* Initialize runtime buffer for fsp_init() */
-	rt_buf.common.stack_top = stack_top - 32;
-	rt_buf.common.boot_mode = boot_mode;
-	rt_buf.common.upd_data = fsp_upd;
-
 	/* Override any configuration if required */
-	update_fsp_configs(&config_data);
+	update_fsp_configs(&config_data, &rt_buf);
 
 	memset(&params, 0, sizeof(struct fsp_init_params));
 	params.nvs_buf = nvs_buf;
