@@ -286,7 +286,6 @@
 
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_NETCONSOLE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* Use the HUSH parser */
