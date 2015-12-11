@@ -245,4 +245,18 @@ int spi_flash_mtd_register(struct spi_flash *flash);
 void spi_flash_mtd_unregister(void);
 #endif
 
+/**
+ * spi_flash_scan - scan the SPI FLASH
+ * @spi:	the spi slave structure
+ * @idcode:	idcode of spi flash
+ * @flash:	the spi flash structure
+ *
+ * The drivers can use this fuction to scan the SPI FLASH.
+ * In the scanning, it will try to get all the necessary information to
+ * fill the spi_flash{}.
+ *
+ * Return: 0 for success, others for failure.
+ */
+int spi_flash_scan(struct spi_slave *spi, u8 *idcode, struct spi_flash *flash);
+
 #endif /* _SF_INTERNAL_H_ */
