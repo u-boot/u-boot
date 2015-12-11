@@ -153,6 +153,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 
 	shared_data.fsp_hdr = fsp_hdr;
 	shared_data.stack_top = stack_top;
+	shared_data.boot_mode = boot_mode;
 
 	post_code(POST_PRE_MRC);
 

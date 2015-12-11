@@ -21,6 +21,7 @@
 struct shared_data {
 	struct fsp_header	*fsp_hdr;
 	u32			stack_top;
+	u32			boot_mode;
 	struct upd_region	fsp_upd;
 };
 
