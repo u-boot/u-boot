@@ -16,6 +16,9 @@
 #ifdef CONFIG_AXP221_POWER
 #include <axp221.h>
 #endif
+#ifdef CONFIG_AXP818_POWER
+#include <axp818.h>
+#endif
 
 int axp_set_dcdc1(unsigned int mvolt);
 int axp_set_dcdc2(unsigned int mvolt);
