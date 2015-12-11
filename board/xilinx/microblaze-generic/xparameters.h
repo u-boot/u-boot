@@ -39,11 +39,6 @@
 #define XILINX_RAM_START	0x28000000
 #define XILINX_RAM_SIZE	0x04000000
 
-/* Sysace Controller is SysACE_CompactFlash */
-#define XILINX_SYSACE_BASEADDR	0x41800000
-#define XILINX_SYSACE_HIGHADDR	0x4180ffff
-#define XILINX_SYSACE_MEM_WIDTH	16
-
 /* Watchdog IP is wxi_timebase_wdt_0 */
 #define XILINX_WATCHDOG_BASEADDR	0x50000000
 #define XILINX_WATCHDOG_IRQ		1
