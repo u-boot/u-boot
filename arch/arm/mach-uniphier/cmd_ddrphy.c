@@ -50,7 +50,7 @@ static void __wbdl_dump(struct ddrphy_datx8 __iomem *dx)
 	printf(FS "(+" PRINTF_FORMAT ")", readl(&dx->lcdlr[1]) & 0xff);
 }
 
-void wbdl_dump(void)
+static void wbdl_dump(void)
 {
 	printf("\n--- Write Bit Delay Line ---\n");
 	printf("           DQ0  DQ1  DQ2  DQ3  DQ4  DQ5  DQ6  DQ7   DM  DQS  (WDQD)\n");
@@ -68,7 +68,7 @@ static void __rbdl_dump(struct ddrphy_datx8 __iomem *dx)
 	printf(FS "(+" PRINTF_FORMAT ")", (readl(&dx->lcdlr[1]) >> 8) & 0xff);
 }
 
-void rbdl_dump(void)
+static void rbdl_dump(void)
 {
 	printf("\n--- Read Bit Delay Line ---\n");
 	printf("           DQ0  DQ1  DQ2  DQ3  DQ4  DQ5  DQ6  DQ7   DM  (RDQSD)\n");
@@ -91,7 +91,7 @@ static void __wld_dump(struct ddrphy_datx8 __iomem *dx)
 	}
 }
 
-void wld_dump(void)
+static void wld_dump(void)
 {
 	printf("\n--- Write Leveling Delay ---\n");
 	printf("            Rank0   Rank1   Rank2   Rank3\n");
@@ -113,7 +113,7 @@ static void __dqsgd_dump(struct ddrphy_datx8 __iomem *dx)
 	}
 }
 
-void dqsgd_dump(void)
+static void dqsgd_dump(void)
 {
 	printf("\n--- DQS Gating Delay ---\n");
 	printf("            Rank0   Rank1   Rank2   Rank3\n");
@@ -129,7 +129,7 @@ static void __mdl_dump(struct ddrphy_datx8 __iomem *dx)
 		printf(FS PRINTF_FORMAT, (mdl >> (8 * i)) & 0xff);
 }
 
-void mdl_dump(void)
+static void mdl_dump(void)
 {
 	printf("\n--- Master Delay Line ---\n");
 	printf("          IPRD TPRD MDLD\n");
@@ -141,7 +141,7 @@ void mdl_dump(void)
 	{ u32 __iomem *p = &phy->x; printf("%3d: %-10s: %p : %08x\n", \
 					p - (u32 *)phy, #x, p, readl(p)); }
 
-void reg_dump(void)
+static void reg_dump(void)
 {
 	int ch, p;
 	struct ddrphy __iomem *phy;
