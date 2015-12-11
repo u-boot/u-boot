@@ -156,7 +156,6 @@ aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 [toolchain-alias]
 x86: i386
 blackfin: bfin
-sh: sh4
 nds32: nds32le
 openrisc: or32
 
@@ -340,6 +339,28 @@ Testing
       - looking in '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/bin'
          - found '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/bin/or32-linux-gcc'
 Tool chain test:  OK
+
+Or download them all from kernel.org and move them to /toolchains directory,
+
+$ for i in aarch64 arm avr32 i386 m68k microblaze mips or32 powerpc sparc
+  do
+  ./tools/buildman/buildman --fetch-arch $i
+  done
+$ sudo mkdir -p /toolchains
+$ sudo mv ~/.buildman-toolchains/*/* /toolchains/
+
+For those not available from kernel.org, download from the following links.
+
+arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/
+    arc_gnu_2015.06_prebuilt_uclibc_le_archs_linux_install.tar.gz
+blackfin: http://sourceforge.net/projects/adi-toolchain/files/
+    blackfin-toolchain-elf-gcc-4.5-2014R1_45-RC2.x86_64.tar.bz2
+nds32: http://osdk.andestech.com/packages/
+    nds32le-linux-glibc-v1.tgz
+nios2: http://sourcery.mentor.com/public/gnu_toolchain/nios2-linux-gnu/
+    sourceryg++-2015.11-27-nios2-linux-gnu-i686-pc-linux-gnu.tar.bz2
+sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu/
+    renesas-4.4-200-sh-linux-gnu-i686-pc-linux-gnu.tar.bz2
 
 Buildman should now be set up to use your new toolchain.
 

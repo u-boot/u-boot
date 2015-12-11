@@ -64,9 +64,9 @@ static void serial_find_console_or_panic(void)
 		}
 
 		/*
-		* If the console is not marked to be bound before relocation,
-		* bind it anyway.
-		*/
+		 * If the console is not marked to be bound before relocation,
+		 * bind it anyway.
+		 */
 		if (node > 0 &&
 		    !lists_bind_fdt(gd->dm_root, blob, node, &dev)) {
 			if (!device_probe(dev)) {
@@ -77,13 +77,13 @@ static void serial_find_console_or_panic(void)
 	}
 	if (!SPL_BUILD || !CONFIG_IS_ENABLED(OF_CONTROL) || !blob) {
 		/*
-		* Try to use CONFIG_CONS_INDEX if available (it is numbered
-		* from 1!).
-		*
-		* Failing that, get the device with sequence number 0, or in
-		* extremis just the first serial device we can find. But we
-		* insist on having a console (even if it is silent).
-		*/
+		 * Try to use CONFIG_CONS_INDEX if available (it is numbered
+		 * from 1!).
+		 *
+		 * Failing that, get the device with sequence number 0, or in
+		 * extremis just the first serial device we can find. But we
+		 * insist on having a console (even if it is silent).
+		 */
 #ifdef CONFIG_CONS_INDEX
 #define INDEX (CONFIG_CONS_INDEX - 1)
 #else
