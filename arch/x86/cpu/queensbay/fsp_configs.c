@@ -11,10 +11,4 @@
 void update_fsp_configs(struct fsp_config_data *config)
 {
 	/* Override any UPD setting if required */
-
-	/* Uncomment the line below to enable DEBUG message */
-	/* fsp_upd->serial_dbgport_type = 1; */
-
-	/* Examples on how to initialize the pointers in UPD region */
-	/* fsp_upd->pcd_example = (EXAMPLE_DATA *)&example; */
 }
