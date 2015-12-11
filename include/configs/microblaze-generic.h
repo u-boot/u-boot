@@ -284,9 +284,6 @@
 
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* Enable flat device tree support */
 #define CONFIG_LMB		1
 #define CONFIG_OF_LIBFDT	1
