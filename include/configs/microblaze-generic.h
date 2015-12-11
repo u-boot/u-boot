@@ -68,13 +68,6 @@
 # endif
 #endif
 
-#if !defined(CONFIG_OF_CONTROL) || \
-	(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_OF_CONTROL))
-/* ddr sdram - main memory */
-# define CONFIG_SYS_SDRAM_BASE	XILINX_RAM_START
-# define CONFIG_SYS_SDRAM_SIZE	XILINX_RAM_SIZE
-#endif
-
 #define CONFIG_SYS_MALLOC_LEN	0xC0000
 
 /* Stack location before relocation */
@@ -262,7 +255,7 @@
 #define	CONFIG_SYS_MAXARGS	15
 #define	CONFIG_SYS_LONGHELP
 /* default load address */
-#define	CONFIG_SYS_LOAD_ADDR	XILINX_RAM_START
+#define	CONFIG_SYS_LOAD_ADDR	0
 
 #define	CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
 #define	CONFIG_BOOTARGS		"root=romfs"
