@@ -103,6 +103,7 @@ config PCH_GBE
 
 config ZYNQ_GEM
 	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP)
+	select PHYLIB
 	bool "Xilinx Ethernet GEM"
 	help
 	  This MAC is present in Xilinx Zynq and ZynqMP SoCs.
