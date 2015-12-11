@@ -163,16 +163,6 @@
 #endif /* !SPIFLASH */
 #endif /* !FLASH */
 
-/* system ace */
-#ifdef XILINX_SYSACE_BASEADDR
-# define CONFIG_SYSTEMACE
-/* #define DEBUG_SYSTEMACE */
-# define SYSTEMACE_CONFIG_FPGA
-# define CONFIG_SYS_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
-# define CONFIG_SYS_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
-# define CONFIG_DOS_PARTITION
-#endif
-
 #if defined(XILINX_USE_ICACHE)
 # define CONFIG_ICACHE
 #else
@@ -208,11 +198,6 @@
 # define CONFIG_CMD_CACHE
 #else
 # undef CONFIG_CMD_CACHE
-#endif
-
-#if defined(CONFIG_SYSTEMACE)
-# define CONFIG_CMD_EXT2
-# define CONFIG_CMD_FAT
 #endif
 
 #if defined(FLASH)
