@@ -103,10 +103,12 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	fsp_init_f init;
 	struct fsp_init_params params;
 	struct fspinit_rtbuf rt_buf;
-	struct vpd_region *fsp_vpd;
 	struct fsp_header *fsp_hdr;
 	struct fsp_init_params *params_ptr;
+#ifdef CONFIG_FSP_USE_UPD
+	struct vpd_region *fsp_vpd;
 	struct upd_region *fsp_upd;
+#endif
 
 #ifdef CONFIG_DEBUG_UART
 	setup_early_uart();
@@ -122,14 +124,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	config_data.common.stack_top = stack_top;
 	config_data.common.boot_mode = boot_mode;
 
-	fsp_upd = &config_data.fsp_upd;
-	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
-
-	/* Reserve a gap in stack top */
-	rt_buf.common.stack_top = stack_top - 32;
-	rt_buf.common.boot_mode = boot_mode;
-	rt_buf.common.upd_data = fsp_upd;
-
+#ifdef CONFIG_FSP_USE_UPD
 	/* Get VPD region start */
 	fsp_vpd = (struct vpd_region *)(fsp_hdr->img_base +
 			fsp_hdr->cfg_region_off);
@@ -137,12 +132,22 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	/* Verify the VPD data region is valid */
 	assert(fsp_vpd->sign == VPD_IMAGE_ID);
 
+	fsp_upd = &config_data.fsp_upd;
+
 	/* Copy default data from Flash */
 	memcpy(fsp_upd, (void *)(fsp_hdr->img_base + fsp_vpd->upd_offset),
 	       sizeof(struct upd_region));
 
 	/* Verify the UPD data region is valid */
 	assert(fsp_upd->terminator == UPD_TERMINATOR);
+#endif
+
+	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
+
+	/* Initialize runtime buffer for fsp_init() */
+	rt_buf.common.stack_top = stack_top - 32;
+	rt_buf.common.boot_mode = boot_mode;
+	rt_buf.common.upd_data = fsp_upd;
 
 	/* Override any configuration if required */
 	update_fsp_configs(&config_data);

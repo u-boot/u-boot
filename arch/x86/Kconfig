@@ -242,6 +242,15 @@ config FSP_SYS_MALLOC_F_LEN
 	help
 	  Additional size of malloc() pool before relocation.
 
+config FSP_USE_UPD
+	bool
+	depends on HAVE_FSP
+	default y
+	help
+	  Most FSPs use UPD data region for some FSP customization. But there
+	  are still some FSPs that might not even have UPD. For such FSPs,
+	  override this to n in their platform Kconfig files.
+
 config ENABLE_MRC_CACHE
 	bool "Enable MRC cache"
 	depends on !EFI && !SYS_COREBOOT
