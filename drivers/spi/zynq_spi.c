@@ -313,6 +313,7 @@ static const struct dm_spi_ops zynq_spi_ops = {
 
 static const struct udevice_id zynq_spi_ids[] = {
 	{ .compatible = "xlnx,zynq-spi-r1p6" },
+	{ .compatible = "cdns,spi-r1p6" },
 	{ }
 };
 

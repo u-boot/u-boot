@@ -378,6 +378,8 @@ int spi_slave_ofdata_to_platdata(const void *blob, int node,
 		mode |= SPI_CPHA;
 	if (fdtdec_get_bool(blob, node, "spi-cs-high"))
 		mode |= SPI_CS_HIGH;
+	if (fdtdec_get_bool(blob, node, "spi-3wire"))
+		mode |= SPI_3WIRE;
 	if (fdtdec_get_bool(blob, node, "spi-half-duplex"))
 		mode |= SPI_PREAMBLE;
 	plat->mode = mode;

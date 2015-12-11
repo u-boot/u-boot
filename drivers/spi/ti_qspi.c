@@ -293,7 +293,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	qslave->cmd = 0;
 	qslave->cmd |= QSPI_WLEN(8);
 	qslave->cmd |= QSPI_EN_CS(slave->cs);
-	if (flags & SPI_3WIRE)
+	if (qslave->mode & SPI_3WIRE)
 		qslave->cmd |= QSPI_3_PIN;
 	qslave->cmd |= 0xfff;
 

@@ -44,12 +44,9 @@ enum {
 #endif
 	SECT_32K	= 1 << 1,
 	E_FSR		= 1 << 2,
-	SST_BP		= 1 << 3,
-	SST_WP		= 1 << 4,
-	WR_QPP		= 1 << 5,
+	SST_WR		= 1 << 3,
+	WR_QPP		= 1 << 4,
 };
-
-#define SST_WR		(SST_BP | SST_WP)
 
 enum spi_nor_option_flags {
 	SNOR_F_SST_WR		= (1 << 0),
@@ -66,6 +63,7 @@ enum spi_nor_option_flags {
 #define SPI_FLASH_CFI_MFR_MACRONIX	0xc2
 #define SPI_FLASH_CFI_MFR_SST		0xbf
 #define SPI_FLASH_CFI_MFR_WINBOND	0xef
+#define SPI_FLASH_CFI_MFR_ATMEL		0x1f
 
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
@@ -171,12 +169,6 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 /* Flash erase(sectors) operation, support all possible erase commands */
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 
-/* Read the status register */
-int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs);
-
-/* Program the status register */
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws);
-
 /* Lock stmicro spi flash region */
 int stm_lock(struct spi_flash *flash, u32 ofs, size_t len);
 
@@ -185,12 +177,6 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len);
 
 /* Check if a stmicro spi flash region is completely locked */
 int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len);
-
-/* Read the config register */
-int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc);
-
-/* Program the config register */
-int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc);
 
 /* Enable writing on the SPI flash */
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
@@ -203,12 +189,6 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 {
 	return spi_flash_cmd(flash->spi, CMD_WRITE_DISABLE, NULL, 0);
 }
-
-/*
- * Send the read status command to the device and wait for the wip
- * (write-in-progress) bit to clear itself.
- */
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout);
 
 /*
  * Used for spi_flash write operation
@@ -244,5 +224,17 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 int spi_flash_mtd_register(struct spi_flash *flash);
 void spi_flash_mtd_unregister(void);
 #endif
+
+/**
+ * spi_flash_scan - scan the SPI FLASH
+ * @flash:	the spi flash structure
+ *
+ * The drivers can use this fuction to scan the SPI FLASH.
+ * In the scanning, it will try to get all the necessary information to
+ * fill the spi_flash{}.
+ *
+ * Return: 0 for success, others for failure.
+ */
+int spi_flash_scan(struct spi_flash *flash);
 
 #endif /* _SF_INTERNAL_H_ */
