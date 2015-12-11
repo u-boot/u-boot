@@ -122,7 +122,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
 
 	/* Reserve a gap in stack top */
-	rt_buf.common.stack_top = (u32 *)stack_top - 32;
+	rt_buf.common.stack_top = stack_top - 32;
 	rt_buf.common.boot_mode = boot_mode;
 	rt_buf.common.upd_data = fsp_upd;
 
@@ -152,7 +152,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	params_ptr = &params;
 
 	shared_data.fsp_hdr = fsp_hdr;
-	shared_data.stack_top = (u32 *)stack_top;
+	shared_data.stack_top = stack_top;
 
 	post_code(POST_PRE_MRC);
 

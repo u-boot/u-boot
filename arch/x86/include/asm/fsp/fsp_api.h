@@ -30,7 +30,7 @@ struct common_buf {
 	 * Stack top pointer used by the bootloader. The new stack frame will be
 	 * set up at this location after FspInit API call.
 	 */
-	u32	*stack_top;
+	u32	stack_top;
 	u32	boot_mode;	/* Current system boot mode */
 	void	*upd_data;	/* User platform configuraiton data region */
 	u32	reserved[7];	/* Reserved */
