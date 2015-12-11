@@ -49,14 +49,12 @@ void fsp_init_done(void *hob_list);
 /**
  * FSP Continuation function
  *
- * @shared_data: Shared data base before stack migration
  * @status:      Always 0
  * @hob_list:    HOB list pointer
  *
  * @retval:      Never returns
  */
-void fsp_continue(struct shared_data *shared_data, u32 status,
-		  void *hob_list);
+void fsp_continue(u32 status, void *hob_list);
 
 /**
  * Find FSP header offset in FSP image
