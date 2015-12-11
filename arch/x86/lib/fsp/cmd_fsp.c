@@ -69,7 +69,7 @@ static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("---|----------|-----------|------|-");
 	printf("------------------------------------------\n");
 	while (!end_of_hob(hdr)) {
-		printf("%-2d | %08x | ", i, (unsigned int)hdr);
+		printf("%02x | %08x | ", i, (unsigned int)hdr);
 		type = hdr->type;
 		if (type == HOB_TYPE_UNUSED)
 			desc = "*Unused*";
@@ -79,7 +79,7 @@ static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			desc = hob_type[type];
 		else
 			desc = "*Invalid*";
-		printf("%-9s | %-4d | ", desc, hdr->len);
+		printf("%-9s | %04x | ", desc, hdr->len);
 
 		if (type == HOB_TYPE_MEM_ALLOC || type == HOB_TYPE_RES_DESC ||
 		    type == HOB_TYPE_GUID_EXT) {
