@@ -279,6 +279,11 @@
 			0x38 8>;
 	};
 
+	timer {
+		compatible = "sandbox,timer";
+		clock-frequency = <1000000>;
+	};
+
 	uart0: serial {
 		compatible = "sandbox,serial";
 		u-boot,dm-pre-reloc;
