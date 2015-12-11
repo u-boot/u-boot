@@ -23,7 +23,6 @@ DECLARE_GLOBAL_DATA_PTR;
 static int reset_pin = -1;
 #endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 ulong ram_base;
 
 void dram_init_banksize(void)
@@ -57,14 +56,6 @@ int dram_init(void)
 
 	return 0;
 };
-#else
-int dram_init(void)
-{
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
-
-	return 0;
-}
-#endif
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
