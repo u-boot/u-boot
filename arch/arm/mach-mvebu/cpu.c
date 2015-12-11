@@ -5,7 +5,6 @@
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <ahci.h>
 #include <linux/mbus.h>
 #include <asm/io.h>
