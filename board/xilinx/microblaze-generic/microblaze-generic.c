@@ -76,7 +76,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int gpio_init (void)
+static int gpio_init(void)
 {
 #ifdef CONFIG_XILINX_GPIO
 	reset_pin = gpio_alloc(CONFIG_SYS_GPIO_0_ADDR, "reset", 1);
@@ -86,7 +86,9 @@ int gpio_init (void)
 	return 0;
 }
 
-void board_init(void)
+int board_late_init(void)
 {
 	gpio_init();
+
+	return 0;
 }
