@@ -177,13 +177,15 @@ bank_end:
 #ifdef CONFIG_SF_DUAL_FLASH
 static void spi_flash_dual(struct spi_flash *flash, u32 *addr)
 {
+	struct spi_slave *spi = flash->spi;
+
 	switch (flash->dual_flash) {
 	case SF_DUAL_STACKED_FLASH:
 		if (*addr >= (flash->size >> 1)) {
 			*addr -= flash->size >> 1;
-			flash->spi->flags |= SPI_XFER_U_PAGE;
+			spi->flags |= SPI_XFER_U_PAGE;
 		} else {
-			flash->spi->flags &= ~SPI_XFER_U_PAGE;
+			spi->flags &= ~SPI_XFER_U_PAGE;
 		}
 		break;
 	case SF_DUAL_PARALLEL_FLASH:
@@ -268,7 +270,7 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 	if (buf == NULL)
 		timeout = SPI_FLASH_PAGE_ERASE_TIMEOUT;
 
-	ret = spi_claim_bus(flash->spi);
+	ret = spi_claim_bus(spi);
 	if (ret) {
 		debug("SF: unable to claim SPI bus\n");
 		return ret;
@@ -353,6 +355,7 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
+	struct spi_slave *spi = flash->spi;
 	unsigned long byte_addr, page_size;
 	u32 write_addr;
 	size_t chunk_len, actual;
@@ -385,9 +388,9 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		byte_addr = offset % page_size;
 		chunk_len = min(len - actual, (size_t)(page_size - byte_addr));
 
-		if (flash->spi->max_write_size)
+		if (spi->max_write_size)
 			chunk_len = min(chunk_len,
-					(size_t)flash->spi->max_write_size);
+					(size_t)spi->max_write_size);
 
 		spi_flash_addr(write_addr, cmd);
 
@@ -413,7 +416,7 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	struct spi_slave *spi = flash->spi;
 	int ret;
 
-	ret = spi_claim_bus(flash->spi);
+	ret = spi_claim_bus(spi);
 	if (ret) {
 		debug("SF: unable to claim SPI bus\n");
 		return ret;
@@ -438,6 +441,7 @@ void __weak spi_flash_copy_mmap(void *data, void *offset, size_t len)
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
+	struct spi_slave *spi = flash->spi;
 	u8 *cmd, cmdsz;
 	u32 remain_len, read_len, read_addr;
 	int bank_sel = 0;
@@ -445,15 +449,15 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map) {
-		ret = spi_claim_bus(flash->spi);
+		ret = spi_claim_bus(spi);
 		if (ret) {
 			debug("SF: unable to claim SPI bus\n");
 			return ret;
 		}
-		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP);
+		spi_xfer(spi, 0, NULL, NULL, SPI_XFER_MMAP);
 		spi_flash_copy_mmap(data, flash->memory_map + offset, len);
-		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
-		spi_release_bus(flash->spi);
+		spi_xfer(spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
+		spi_release_bus(spi);
 		return 0;
 	}
 
@@ -505,6 +509,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 #ifdef CONFIG_SPI_FLASH_SST
 static int sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 {
+	struct spi_slave *spi = flash->spi;
 	int ret;
 	u8 cmd[4] = {
 		CMD_SST_BP,
@@ -514,13 +519,13 @@ static int sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	};
 
 	debug("BP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
-	      spi_w8r8(flash->spi, CMD_READ_STATUS), buf, cmd[0], offset);
+	      spi_w8r8(spi, CMD_READ_STATUS), buf, cmd[0], offset);
 
 	ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		return ret;
 
-	ret = spi_flash_cmd_write(flash->spi, cmd, sizeof(cmd), buf, 1);
+	ret = spi_flash_cmd_write(spi, cmd, sizeof(cmd), buf, 1);
 	if (ret)
 		return ret;
 
@@ -530,11 +535,12 @@ static int sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf)
 {
+	struct spi_slave *spi = flash->spi;
 	size_t actual, cmd_len;
 	int ret;
 	u8 cmd[4];
 
-	ret = spi_claim_bus(flash->spi);
+	ret = spi_claim_bus(spi);
 	if (ret) {
 		debug("SF: Unable to claim SPI bus\n");
 		return ret;
@@ -561,10 +567,10 @@ int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 
 	for (; actual < len - 1; actual += 2) {
 		debug("WP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
-		      spi_w8r8(flash->spi, CMD_READ_STATUS), buf + actual,
+		      spi_w8r8(spi, CMD_READ_STATUS), buf + actual,
 		      cmd[0], offset);
 
-		ret = spi_flash_cmd_write(flash->spi, cmd, cmd_len,
+		ret = spi_flash_cmd_write(spi, cmd, cmd_len,
 					buf + actual, 2);
 		if (ret) {
 			debug("SF: sst word program failed\n");
@@ -590,17 +596,18 @@ int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 	debug("SF: sst: program %s %zu bytes @ 0x%zx\n",
 	      ret ? "failure" : "success", len, offset - actual);
 
-	spi_release_bus(flash->spi);
+	spi_release_bus(spi);
 	return ret;
 }
 
 int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf)
 {
+	struct spi_slave *spi = flash->spi;
 	size_t actual;
 	int ret;
 
-	ret = spi_claim_bus(flash->spi);
+	ret = spi_claim_bus(spi);
 	if (ret) {
 		debug("SF: Unable to claim SPI bus\n");
 		return ret;
@@ -621,7 +628,7 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 	debug("SF: sst: program %s %zu bytes @ 0x%zx\n",
 	      ret ? "failure" : "success", len, offset - actual);
 
-	spi_release_bus(flash->spi);
+	spi_release_bus(spi);
 	return ret;
 }
 #endif
@@ -950,7 +957,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	/* Assign spi data */
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
-	flash->dual_flash = flash->spi->option;
+	flash->dual_flash = spi->option;
 
 	/* Assign spi flash flags */
 	if (params->flags & SST_WR)
@@ -961,7 +968,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->write = spi_flash_cmd_write_ops;
 #if defined(CONFIG_SPI_FLASH_SST)
 	if (flash->flags & SNOR_F_SST_WR) {
-		if (flash->spi->op_mode_tx & SPI_OPM_TX_BP)
+		if (spi->op_mode_tx & SPI_OPM_TX_BP)
 			flash->write = sst_write_bp;
 		else
 			flash->write = sst_write_wp;
@@ -1025,7 +1032,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->sector_size = flash->erase_size;
 
 	/* Look for the fastest read cmd */
-	cmd = fls(params->e_rd_cmd & flash->spi->op_mode_rx);
+	cmd = fls(params->e_rd_cmd & spi->op_mode_rx);
 	if (cmd) {
 		cmd = spi_read_cmds_array[cmd - 1];
 		flash->read_cmd = cmd;
@@ -1035,7 +1042,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	}
 
 	/* Not require to look for fastest only two write cmds yet */
-	if (params->flags & WR_QPP && flash->spi->op_mode_tx & SPI_OPM_TX_QPP)
+	if (params->flags & WR_QPP && spi->op_mode_tx & SPI_OPM_TX_QPP)
 		flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
 	else
 		/* Go for default supported write cmd */
