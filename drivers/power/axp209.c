@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
 
@@ -166,5 +167,16 @@ int axp_init(void)
 			return rc;
 	}
 
+	return 0;
+}
+
+int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	pmic_bus_write(AXP209_SHUTDOWN, AXP209_POWEROFF);
+
+	/* infinite loop during shutdown */
+	while (1) {}
+
+	/* not reached */
 	return 0;
 }

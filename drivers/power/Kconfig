@@ -28,6 +28,7 @@ config AXP152_POWER
 config AXP209_POWER
 	boolean "axp209 pmic support"
 	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp209 pmic found on most
 	A10, A13 and A20 boards.
