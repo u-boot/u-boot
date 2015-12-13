@@ -128,7 +128,7 @@ static int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
 
 #if defined(CONFIG_SPI_FLASH_SST)
 	if (flash->flags & SNOR_F_SST_WR) {
-		if (flash->spi->mode & SPI_TX_BP)
+		if (flash->spi->mode & SPI_TX_BYTE)
 			return sst_write_bp(flash, offset, len, buf);
 		else
 			return sst_write_wp(flash, offset, len, buf);

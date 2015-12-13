@@ -753,7 +753,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	 */
 	if (plat->ich_version == 7) {
 		slave->op_mode_rx = SPI_OPM_RX_AS;
-		slave->mode = SPI_TX_BP;
+		slave->mode = SPI_TX_BYTE;
 	}
 
 	return 0;

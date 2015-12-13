@@ -23,8 +23,8 @@
 #define	SPI_LOOP	0x20			/* loopback mode */
 #define	SPI_SLAVE	0x40			/* slave mode */
 #define	SPI_PREAMBLE	0x80			/* Skip preamble bytes */
-#define SPI_TX_BP	0x100			/* transmit with 1 wire byte */
-#define SPI_TX_QPP	0x200			/* transmit with 4 wires */
+#define SPI_TX_BYTE	0x100			/* transmit with 1 wire byte */
+#define SPI_TX_QUAD	0x200			/* transmit with 4 wires */
 
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
