@@ -29,16 +29,6 @@ static void spi_flash_addr(u32 addr, u8 *cmd)
 	cmd[3] = addr >> 0;
 }
 
-/* Read commands array */
-static u8 spi_read_cmds_array[] = {
-	CMD_READ_ARRAY_SLOW,
-	CMD_READ_ARRAY_FAST,
-	CMD_READ_DUAL_OUTPUT_FAST,
-	CMD_READ_DUAL_IO_FAST,
-	CMD_READ_QUAD_OUTPUT_FAST,
-	CMD_READ_QUAD_IO_FAST,
-};
-
 static int read_sr(struct spi_flash *flash, u8 *rs)
 {
 	int ret;
@@ -909,9 +899,15 @@ int spi_flash_scan(struct spi_flash *flash)
 	struct spi_slave *spi = flash->spi;
 	const struct spi_flash_params *params;
 	u16 jedec, ext_jedec;
-	u8 idcode[5];
-	u8 cmd;
+	u8 cmd, idcode[5];
 	int ret;
+	static u8 spi_read_cmds_array[] = {
+		CMD_READ_ARRAY_SLOW,
+		CMD_READ_ARRAY_FAST,
+		CMD_READ_DUAL_OUTPUT_FAST,
+		CMD_READ_DUAL_IO_FAST,
+		CMD_READ_QUAD_OUTPUT_FAST,
+		CMD_READ_QUAD_IO_FAST };
 
 	/* Read the ID codes */
 	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
