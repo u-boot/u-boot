@@ -968,7 +968,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->write = spi_flash_cmd_write_ops;
 #if defined(CONFIG_SPI_FLASH_SST)
 	if (flash->flags & SNOR_F_SST_WR) {
-		if (spi->op_mode_tx & SPI_OPM_TX_BP)
+		if (spi->mode & SPI_TX_BP)
 			flash->write = sst_write_bp;
 		else
 			flash->write = sst_write_wp;
@@ -1042,7 +1042,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	}
 
 	/* Not require to look for fastest only two write cmds yet */
-	if (params->flags & WR_QPP && spi->op_mode_tx & SPI_OPM_TX_QPP)
+	if (params->flags & WR_QPP && spi->mode & SPI_TX_QPP)
 		flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
 	else
 		/* Go for default supported write cmd */

@@ -23,6 +23,8 @@
 #define	SPI_LOOP	0x20			/* loopback mode */
 #define	SPI_SLAVE	0x40			/* slave mode */
 #define	SPI_PREAMBLE	0x80			/* Skip preamble bytes */
+#define SPI_TX_BP	0x100			/* transmit with 1 wire byte */
+#define SPI_TX_QPP	0x200			/* transmit with 4 wires */
 
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
@@ -31,10 +33,6 @@
 #define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 #define SPI_XFER_U_PAGE	(1 << 5)
-
-/* SPI TX operation modes */
-#define SPI_OPM_TX_QPP		(1 << 0)
-#define SPI_OPM_TX_BP		(1 << 1)
 
 /* SPI RX operation modes */
 #define SPI_OPM_RX_AS		(1 << 0)
@@ -107,7 +105,6 @@ struct dm_spi_slave_platdata {
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @op_mode_rx:		SPI RX operation mode.
- * @op_mode_tx:		SPI TX operation mode.
  * @wordlen:		Size of SPI word in number of bits
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
@@ -126,7 +123,6 @@ struct spi_slave {
 #endif
 	uint mode;
 	u8 op_mode_rx;
-	u8 op_mode_tx;
 	unsigned int wordlen;
 	unsigned int max_write_size;
 	void *memory_map;
