@@ -248,6 +248,39 @@ static void mxs_power_setup_5v_detect(void)
 }
 
 /**
+ * mxs_power_switch_dcdc_clocksource() - Switch PLL clock for DC-DC converters
+ * @freqsel:	One of the POWER_MISC_FREQSEL_xxx defines to select the clock
+ *
+ * This function configures and then enables an alternative PLL clock source
+ * for the DC-DC converters.
+ */
+void mxs_power_switch_dcdc_clocksource(uint32_t freqsel)
+{
+	struct mxs_power_regs *power_regs =
+		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	/* Select clocksource for DC-DC converters */
+	clrsetbits_le32(&power_regs->hw_power_misc,
+			POWER_MISC_FREQSEL_MASK,
+			freqsel);
+	setbits_le32(&power_regs->hw_power_misc,
+			POWER_MISC_SEL_PLLCLK);
+}
+
+/**
+ * mxs_power_setup_dcdc_clocksource() - Setup PLL clock source for DC-DC converters
+ *
+ * Normally, there is no need to switch DC-DC clocksource. This is the reason,
+ * why this function is a stub and does nothing. However, boards can implement
+ * this function when required and call mxs_power_switch_dcdc_clocksource() to
+ * switch to an alternative clock source.
+ */
+__weak void mxs_power_setup_dcdc_clocksource(void)
+{
+	debug("SPL: Using default DC-DC clocksource\n");
+}
+
+/**
  * mxs_src_power_init() - Preconfigure the power block
  *
  * This function configures reasonable values for the DC-DC control loop
@@ -872,6 +905,7 @@ static void mxs_power_configure_power_source(void)
 
 	debug("SPL: Configuring power source\n");
 
+	mxs_power_setup_dcdc_clocksource();
 	mxs_src_power_init();
 
 	if (readl(&power_regs->hw_power_sts) & POWER_STS_VDD5V_GT_VDDIO) {
