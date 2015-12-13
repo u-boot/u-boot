@@ -800,7 +800,7 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 
 
 #ifdef CONFIG_SPI_FLASH_MACRONIX
-static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
+static int macronix_quad_enable(struct spi_flash *flash)
 {
 	u8 qeb_status;
 	int ret;
@@ -822,7 +822,7 @@ static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
 #endif
 
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
-static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
+static int spansion_quad_enable(struct spi_flash *flash)
 {
 	u8 qeb_status;
 	int ret;
@@ -843,17 +843,17 @@ static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
 }
 #endif
 
-static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
+static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
 {
 	switch (idcode0) {
 #ifdef CONFIG_SPI_FLASH_MACRONIX
 	case SPI_FLASH_CFI_MFR_MACRONIX:
-		return spi_flash_set_qeb_mxic(flash);
+		return macronix_quad_enable(flash);
 #endif
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
 	case SPI_FLASH_CFI_MFR_SPANSION:
 	case SPI_FLASH_CFI_MFR_WINBOND:
-		return spi_flash_set_qeb_winspan(flash);
+		return spansion_quad_enable(flash);
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	case SPI_FLASH_CFI_MFR_STMICRO:
@@ -1048,7 +1048,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
 	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
 	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
-		ret = spi_flash_set_qeb(flash, idcode[0]);
+		ret = set_quad_mode(flash, idcode[0]);
 		if (ret) {
 			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
 			return -EINVAL;
