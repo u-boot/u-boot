@@ -139,7 +139,7 @@ static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 	int ret;
 
 	if (flash->size <= SPI_FLASH_16MB_BOUN)
-		goto bank_end;
+		goto bar_end;
 
 	switch (idcode0) {
 	case SPI_FLASH_CFI_MFR_SPANSION:
@@ -158,7 +158,7 @@ static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 		return ret;
 	}
 
-bank_end:
+bar_end:
 	flash->bank_curr = curr_bank;
 	return 0;
 }
