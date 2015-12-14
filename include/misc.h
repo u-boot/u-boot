@@ -32,7 +32,7 @@ int misc_write(struct udevice *dev, int offset, void *buf, int size);
  *
  * @dev: the device
  * @request: command to be sent to the device
- * @buf: pointer to buffer related to the requset
+ * @buf: pointer to buffer related to the request
  * @return: 0 if OK, -ve on error
  */
 int misc_ioctl(struct udevice *dev, unsigned long request, void *buf);
@@ -70,7 +70,7 @@ struct misc_ops {
 	 *
 	 * @dev: the device
 	 * @request: command to be sent to the device
-	 * @buf: pointer to buffer related to the requset
+	 * @buf: pointer to buffer related to the request
 	 * @return: 0 if OK, -ve on error
 	 */
 	int (*ioctl)(struct udevice *dev, unsigned long request, void *buf);
