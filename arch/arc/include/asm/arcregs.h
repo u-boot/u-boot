@@ -53,6 +53,13 @@
 #define ARC_AUX_SLC_INVALIDATE	0x905
 #define ARC_AUX_SLC_IVDL	0x910
 #define ARC_AUX_SLC_FLDL	0x912
+#define ARC_BCR_CLUSTER		0xcf
+
+/* IO coherency related auxiliary registers */
+#define ARC_AUX_IO_COH_ENABLE	0x500
+#define ARC_AUX_IO_COH_PARTIAL	0x501
+#define ARC_AUX_IO_COH_AP0_BASE	0x508
+#define ARC_AUX_IO_COH_AP0_SIZE	0x509
 
 #ifndef __ASSEMBLY__
 /* Accessors for auxiliary registers */

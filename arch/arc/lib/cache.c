@@ -39,6 +39,7 @@ int icache_exists __section(".data");
 #ifdef CONFIG_ISA_ARCV2
 int slc_line_sz __section(".data");
 int slc_exists __section(".data");
+int ioc_exists __section(".data");
 
 static unsigned int __before_slc_op(const int op)
 {
@@ -147,6 +148,21 @@ static void read_decode_cache_bcr_arcv2(void)
 		slc_exists = 1;
 		slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
 	}
+
+	union {
+		struct bcr_clust_cfg {
+#ifdef CONFIG_CPU_BIG_ENDIAN
+			unsigned int pad:7, c:1, num_entries:8, num_cores:8, ver:8;
+#else
+			unsigned int ver:8, num_cores:8, num_entries:8, c:1, pad:7;
+#endif
+		} fields;
+		unsigned int word;
+	} cbcr;
+
+	cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
+	if (cbcr.fields.c)
+		ioc_exists = 1;
 }
 #endif
 
@@ -191,6 +207,17 @@ void cache_init(void)
 
 #ifdef CONFIG_ISA_ARCV2
 	read_decode_cache_bcr_arcv2();
+
+	if (ioc_exists) {
+		/* IO coherency base - 0x8z */
+		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, 0x80000);
+		/* IO coherency aperture size - 512Mb: 0x8z-0xAz */
+		write_aux_reg(ARC_AUX_IO_COH_AP0_SIZE, 0x11);
+		/* Enable partial writes */
+		write_aux_reg(ARC_AUX_IO_COH_PARTIAL, 1);
+		/* Enable IO coherency */
+		write_aux_reg(ARC_AUX_IO_COH_ENABLE, 1);
+	}
 #endif
 }
 
@@ -359,18 +386,26 @@ static inline void __dc_line_op(unsigned long paddr, unsigned long sz,
 
 void invalidate_dcache_range(unsigned long start, unsigned long end)
 {
-	__dc_line_op(start, end - start, OP_INV);
 #ifdef CONFIG_ISA_ARCV2
-	if (slc_exists)
+	if (!ioc_exists)
+#endif
+		__dc_line_op(start, end - start, OP_INV);
+
+#ifdef CONFIG_ISA_ARCV2
+	if (slc_exists && !ioc_exists)
 		__slc_line_op(start, end - start, OP_INV);
 #endif
 }
 
 void flush_dcache_range(unsigned long start, unsigned long end)
 {
-	__dc_line_op(start, end - start, OP_FLUSH);
 #ifdef CONFIG_ISA_ARCV2
-	if (slc_exists)
+	if (!ioc_exists)
+#endif
+		__dc_line_op(start, end - start, OP_FLUSH);
+
+#ifdef CONFIG_ISA_ARCV2
+	if (slc_exists && !ioc_exists)
 		__slc_line_op(start, end - start, OP_FLUSH);
 #endif
 }
@@ -382,18 +417,26 @@ void flush_cache(unsigned long start, unsigned long size)
 
 void invalidate_dcache_all(void)
 {
-	__dc_entire_op(OP_INV);
 #ifdef CONFIG_ISA_ARCV2
-	if (slc_exists)
+	if (!ioc_exists)
+#endif
+		__dc_entire_op(OP_INV);
+
+#ifdef CONFIG_ISA_ARCV2
+	if (slc_exists && !ioc_exists)
 		__slc_entire_op(OP_INV);
 #endif
 }
 
 void flush_dcache_all(void)
 {
-	__dc_entire_op(OP_FLUSH);
 #ifdef CONFIG_ISA_ARCV2
-	if (slc_exists)
+	if (!ioc_exists)
+#endif
+		__dc_entire_op(OP_FLUSH);
+
+#ifdef CONFIG_ISA_ARCV2
+	if (slc_exists && !ioc_exists)
 		__slc_entire_op(OP_FLUSH);
 #endif
 }
