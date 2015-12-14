@@ -15,6 +15,26 @@ config REQUIRE_SERIAL_CONSOLE
 	  during serial port initialization (default y). Set this to n on
 	  boards which have no debug serial port whatsoever.
 
+config SERIAL_PRESENT
+	bool "Provide a serial driver"
+	depends on DM_SERIAL
+	default y
+	help
+	  In very space-constrained devices even the full UART driver is too
+	  large. In this case the debug UART can still be used in some cases.
+	  This option enables the full UART in U-Boot, so if is it disabled,
+	  the full UART driver will be omitted, thus saving space.
+
+config SPL_SERIAL_PRESENT
+	bool "Provide a serial driver in SPL"
+	depends on DM_SERIAL
+	default y
+	help
+	  In very space-constrained devices even the full UART driver is too
+	  large. In this case the debug UART can still be used in some cases.
+	  This option enables the full UART in SPL, so if is it disabled,
+	  the full UART driver will be omitted, thus saving space.
+
 config DM_SERIAL
 	bool "Enable Driver Model for serial drivers"
 	depends on DM
