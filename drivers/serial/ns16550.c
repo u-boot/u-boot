@@ -439,6 +439,7 @@ static const struct udevice_id ns16550_serial_ids[] = {
 };
 #endif
 
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 U_BOOT_DRIVER(ns16550_serial) = {
 	.name	= "ns16550_serial",
 	.id	= UCLASS_SERIAL,
@@ -452,4 +453,5 @@ U_BOOT_DRIVER(ns16550_serial) = {
 	.ops	= &ns16550_serial_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
 };
+#endif
 #endif /* CONFIG_DM_SERIAL */
