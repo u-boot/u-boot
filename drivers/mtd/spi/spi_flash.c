@@ -111,6 +111,37 @@ static int write_cr(struct spi_flash *flash, u8 wc)
 }
 #endif
 
+#ifdef CONFIG_SPI_FLASH_STMICRO
+static int read_evcr(struct spi_flash *flash, u8 *evcr)
+{
+	int ret;
+	const u8 cmd = CMD_READ_EVCR;
+
+	ret = spi_flash_read_common(flash, &cmd, 1, evcr, 1);
+	if (ret < 0) {
+		debug("SF: error reading EVCR\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+static int write_evcr(struct spi_flash *flash, u8 evcr)
+{
+	u8 cmd;
+	int ret;
+
+	cmd = CMD_WRITE_EVCR;
+	ret = spi_flash_write_common(flash, &cmd, 1, &evcr, 1);
+	if (ret < 0) {
+		debug("SF: error while writing EVCR register\n");
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_SPI_FLASH_BAR
 static int spi_flash_write_bar(struct spi_flash *flash, u32 offset)
 {
@@ -843,6 +874,34 @@ static int spansion_quad_enable(struct spi_flash *flash)
 }
 #endif
 
+#ifdef CONFIG_SPI_FLASH_STMICRO
+static int micron_quad_enable(struct spi_flash *flash)
+{
+	u8 qeb_status;
+	int ret;
+
+	ret = read_evcr(flash, &qeb_status);
+	if (ret < 0)
+		return ret;
+
+	if (!(qeb_status & STATUS_QEB_MICRON))
+		return 0;
+
+	ret = write_evcr(flash, qeb_status & ~STATUS_QEB_MICRON);
+	if (ret < 0)
+		return ret;
+
+	/* read EVCR and check it */
+	ret = read_evcr(flash, &qeb_status);
+	if (!(ret >= 0 && !(qeb_status & STATUS_QEB_MICRON))) {
+		printf("SF: Micron EVCR Quad bit not clear\n");
+		return -EINVAL;
+	}
+
+	return ret;
+}
+#endif
+
 static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
 {
 	switch (idcode0) {
@@ -857,8 +916,7 @@ static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	case SPI_FLASH_CFI_MFR_STMICRO:
-		debug("SF: QEB is volatile for %02x flash\n", idcode0);
-		return 0;
+		return micron_quad_enable(flash);
 #endif
 	default:
 		printf("SF: Need set QEB func for %02x flash\n", idcode0);
