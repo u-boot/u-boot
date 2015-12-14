@@ -99,13 +99,13 @@ struct dm_spi_slave_platdata {
  *
  * @dev:		SPI slave device
  * @max_hz:		Maximum speed for this slave
- * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @speed:		Current bus speed. This is 0 until the bus is first
  *			claimed.
  * @bus:		ID of the bus that the slave is attached to. For
  *			driver model this is the sequence number of the SPI
  *			bus (bus->seq) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
+ * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @op_mode_rx:		SPI RX operation mode.
  * @op_mode_tx:		SPI TX operation mode.
  * @wordlen:		Size of SPI word in number of bits
@@ -120,11 +120,11 @@ struct spi_slave {
 	struct udevice *dev;	/* struct spi_slave is dev->parentdata */
 	uint max_hz;
 	uint speed;
-	uint mode;
 #else
 	unsigned int bus;
 	unsigned int cs;
 #endif
+	uint mode;
 	u8 op_mode_rx;
 	u8 op_mode_tx;
 	unsigned int wordlen;
