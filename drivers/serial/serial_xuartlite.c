@@ -114,3 +114,29 @@ U_BOOT_DRIVER(serial_uartlite) = {
 	.ops	= &uartlite_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
+
+#ifdef CONFIG_DEBUG_UART_UARTLITE
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+	struct uartlite *regs = (struct uartlite *)CONFIG_DEBUG_UART_BASE;
+
+	out_be32(&regs->control, 0);
+	out_be32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
+	in_be32(&regs->control);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct uartlite *regs = (struct uartlite *)CONFIG_DEBUG_UART_BASE;
+
+	while (in_be32(&regs->status) & SR_TX_FIFO_FULL)
+		;
+
+	out_be32(&regs->tx_fifo, ch & 0xff);
+}
+
+DEBUG_UART_FUNCS
+#endif
