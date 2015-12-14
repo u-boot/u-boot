@@ -26,6 +26,14 @@ config USB_XHCI_UNIPHIER
 
 endif
 
+config USB_OHCI_GENERIC
+	bool "Support for generic OHCI USB controller"
+	depends on OF_CONTROL
+	depends on DM_USB
+	default n
+	---help---
+	  Enables support for generic OHCI controller.
+
 config USB_EHCI_HCD
 	bool "EHCI HCD (USB 2.0) support"
 	---help---
