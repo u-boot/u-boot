@@ -75,12 +75,8 @@ enum spi_nor_option_flags {
 #define CMD_WRITE_STATUS		0x01
 #define CMD_PAGE_PROGRAM		0x02
 #define CMD_WRITE_DISABLE		0x04
-#define CMD_READ_STATUS			0x05
-#define CMD_QUAD_PAGE_PROGRAM		0x32
-#define CMD_READ_STATUS1		0x35
 #define CMD_WRITE_ENABLE		0x06
-#define CMD_READ_CONFIG			0x35
-#define CMD_FLAG_STATUS			0x70
+#define CMD_QUAD_PAGE_PROGRAM		0x32
 
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
@@ -90,6 +86,10 @@ enum spi_nor_option_flags {
 #define CMD_READ_QUAD_OUTPUT_FAST	0x6b
 #define CMD_READ_QUAD_IO_FAST		0xeb
 #define CMD_READ_ID			0x9f
+#define CMD_READ_STATUS			0x05
+#define CMD_READ_STATUS1		0x35
+#define CMD_READ_CONFIG			0x35
+#define CMD_FLAG_STATUS			0x70
 
 /* Bank addr access commands */
 #ifdef CONFIG_SPI_FLASH_BAR
@@ -102,7 +102,7 @@ enum spi_nor_option_flags {
 /* Common status */
 #define STATUS_WIP			(1 << 0)
 #define STATUS_QEB_WINSPAN		(1 << 1)
-#define STATUS_QEB_MXIC		(1 << 6)
+#define STATUS_QEB_MXIC			(1 << 6)
 #define STATUS_PEC			(1 << 7)
 #define SR_BP0				BIT(2)  /* Block protect 0 */
 #define SR_BP1				BIT(3)  /* Block protect 1 */
