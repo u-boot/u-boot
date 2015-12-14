@@ -197,7 +197,7 @@ int eeprom_write(unsigned dev_addr, unsigned offset,
 	 * We must write the address again when changing pages
 	 * because the address counter only increments within a page.
 	 */
-	ret = eeprom_rw(dev_addr, offset, buffer, cnt, 1);
+	ret = eeprom_rw(dev_addr, offset, buffer, cnt, 0);
 
 	eeprom_write_enable(dev_addr, 0);
 	return ret;
