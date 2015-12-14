@@ -423,11 +423,15 @@ const struct dm_serial_ops ns16550_serial_ops = {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+/*
+ * Please consider existing compatible strings before adding a new
+ * one to keep this table compact. Or you may add a generic "ns16550"
+ * compatible string to your dts.
+ */
 static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "nvidia,tegra20-uart" },
-	{ .compatible = "rockchip,rk3036-uart" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "ti,omap2-uart" },
 	{ .compatible = "ti,omap3-uart" },
