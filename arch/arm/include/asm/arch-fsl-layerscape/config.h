@@ -17,6 +17,12 @@
 #define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
 #define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_5_0
 
+/*
+ * Reserve secure memory
+ * To be aligned with MMU block size
+ */
+#define CONFIG_SYS_MEM_RESERVE_SECURE	(2048 * 1024)	/* 2MB */
+
 #if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
 #define CONFIG_MAX_CPUS				16
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT		8
@@ -126,8 +132,8 @@
 #define CONFIG_SYS_FSL_OCRAM_BASE		0x10000000 /* initial RAM */
 #define CONFIG_SYS_FSL_OCRAM_SIZE		0x200000 /* 2 MiB */
 #define CONFIG_SYS_FSL_DDR_BE
-#define CONFIG_SYS_LS1_DDR_BLOCK1_SIZE  ((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED           CONFIG_SYS_LS1_DDR_BLOCK1_SIZE
+#define CONFIG_SYS_DDR_BLOCK1_SIZE		((phys_size_t)2 << 30)
+#define CONFIG_MAX_MEM_MAPPED			CONFIG_SYS_DDR_BLOCK1_SIZE
 
 #define CONFIG_SYS_FSL_CCSR_GUR_BE
 #define CONFIG_SYS_FSL_CCSR_SCFG_BE
@@ -147,8 +153,8 @@
 #define CONFIG_SYS_FSL_PCIE_COMPAT		"fsl,qoriq-pcie-v2.4"
 
 #define CONFIG_SYS_FSL_SFP_VER_3_2
-#define CONFIG_SYS_FSL_SNVS_LE
-#define CONFIG_SYS_FSL_SEC_LE
+#define CONFIG_SYS_FSL_SEC_MON_BE
+#define CONFIG_SYS_FSL_SEC_BE
 #define CONFIG_SYS_FSL_SFP_BE
 #define CONFIG_SYS_FSL_SRK_LE
 #define CONFIG_KEY_REVOCATION

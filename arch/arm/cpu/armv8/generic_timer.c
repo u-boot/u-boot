@@ -40,3 +40,14 @@ unsigned long timer_read_counter(void)
 #endif
 	return cntpct;
 }
+
+unsigned long usec2ticks(unsigned long usec)
+{
+	ulong ticks;
+	if (usec < 1000)
+		ticks = ((usec * (get_tbclk()/1000)) + 500) / 1000;
+	else
+		ticks = ((usec / 10) * (get_tbclk() / 100000));
+
+	return ticks;
+}

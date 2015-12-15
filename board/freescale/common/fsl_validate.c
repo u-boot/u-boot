@@ -15,7 +15,7 @@
 #include <u-boot/rsa-mod-exp.h>
 #include <hash.h>
 #include <fsl_secboot_err.h>
-#ifndef CONFIG_MPC85xx
+#ifdef CONFIG_LS102XA
 #include <asm/arch/immap_ls102xa.h>
 #endif
 
@@ -99,7 +99,8 @@ int get_csf_base_addr(u32 *csf_addr, u32 *flash_base_addr)
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 csf_hdr_addr = in_be32(&gur->scratchrw[0]);
 
-	if (memcmp((u8 *)csf_hdr_addr, barker_code, ESBC_BARKER_LEN))
+	if (memcmp((u8 *)(uintptr_t)csf_hdr_addr,
+		   barker_code, ESBC_BARKER_LEN))
 		return -1;
 
 	*csf_addr = csf_hdr_addr;
@@ -117,7 +118,7 @@ static int get_ie_info_addr(u32 *ie_addr)
 	if (get_csf_base_addr(&csf_addr, &flash_base_addr))
 		return -1;
 
-	hdr = (struct fsl_secboot_img_hdr *)csf_addr;
+	hdr = (struct fsl_secboot_img_hdr *)(uintptr_t)csf_addr;
 
 	/* For SoC's with Trust Architecture v1 with corenet bus
 	 * the sg table field in CSF header has absolute address
@@ -130,7 +131,7 @@ static int get_ie_info_addr(u32 *ie_addr)
 		 (((u32)hdr->psgtable & ~(CONFIG_SYS_PBI_FLASH_BASE)) +
 		  flash_base_addr);
 #else
-	sg_tbl = (struct fsl_secboot_sg_table *)(csf_addr +
+	sg_tbl = (struct fsl_secboot_sg_table *)(uintptr_t)(csf_addr +
 						 (u32)hdr->psgtable);
 #endif
 
@@ -379,8 +380,8 @@ static int calc_img_key_hash(struct fsl_secboot_img_priv *img)
 #ifdef CONFIG_KEY_REVOCATION
 	if (check_srk(img)) {
 		ret = algo->hash_update(algo, ctx,
-			(u8 *)(img->ehdrloc + img->hdr.srk_tbl_off),
-			img->hdr.len_kr.num_srk * sizeof(struct srk_table), 1);
+		      (u8 *)(uintptr_t)(img->ehdrloc + img->hdr.srk_tbl_off),
+		      img->hdr.len_kr.num_srk * sizeof(struct srk_table), 1);
 		srk = 1;
 	}
 #endif
@@ -438,8 +439,8 @@ static int calc_esbchdr_esbc_hash(struct fsl_secboot_img_priv *img)
 #ifdef CONFIG_KEY_REVOCATION
 	if (check_srk(img)) {
 		ret = algo->hash_update(algo, ctx,
-			(u8 *)(img->ehdrloc + img->hdr.srk_tbl_off),
-			img->hdr.len_kr.num_srk * sizeof(struct srk_table), 0);
+		      (u8 *)(uintptr_t)(img->ehdrloc + img->hdr.srk_tbl_off),
+		      img->hdr.len_kr.num_srk * sizeof(struct srk_table), 0);
 		key_hash = 1;
 	}
 #endif
@@ -454,8 +455,13 @@ static int calc_esbchdr_esbc_hash(struct fsl_secboot_img_priv *img)
 		return ret;
 
 	/* Update hash for actual Image */
+#ifdef CONFIG_ESBC_ADDR_64BIT
 	ret = algo->hash_update(algo, ctx,
-			(u8 *)img->hdr.pimg, img->hdr.img_size, 1);
+		(u8 *)(uintptr_t)img->hdr.pimg64, img->hdr.img_size, 1);
+#else
+	ret = algo->hash_update(algo, ctx,
+		(u8 *)(uintptr_t)img->hdr.pimg, img->hdr.img_size, 1);
+#endif
 	if (ret)
 		return ret;
 
@@ -533,7 +539,7 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 {
 	char buf[20];
 	struct fsl_secboot_img_hdr *hdr = &img->hdr;
-	void *esbc = (u8 *)img->ehdrloc;
+	void *esbc = (u8 *)(uintptr_t)img->ehdrloc;
 	u8 *k, *s;
 #ifdef CONFIG_KEY_REVOCATION
 	u32 ret;
@@ -549,7 +555,11 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	if (memcmp(hdr->barker, barker_code, ESBC_BARKER_LEN))
 		return ERROR_ESBC_CLIENT_HEADER_BARKER;
 
+#ifdef CONFIG_ESBC_ADDR_64BIT
+	sprintf(buf, "%llx", hdr->pimg64);
+#else
 	sprintf(buf, "%x", hdr->pimg);
+#endif
 	setenv("img_addr", buf);
 
 	if (!hdr->img_size)
@@ -594,7 +604,7 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	if (!key_found && check_ie(img)) {
 		if (get_ie_info_addr(&img->ie_addr))
 			return ERROR_IE_TABLE_NOT_FOUND;
-		ie_info = (struct ie_key_info *)img->ie_addr;
+		ie_info = (struct ie_key_info *)(uintptr_t)img->ie_addr;
 		if (ie_info->num_keys == 0 || ie_info->num_keys > 32)
 			return ERROR_ESBC_CLIENT_HEADER_INVALID_IE_NUM_ENTRY;
 
@@ -748,7 +758,7 @@ int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	hdr = &img->hdr;
 	img->ehdrloc = addr;
-	esbc = (u8 *)img->ehdrloc;
+	esbc = (u8 *)(uintptr_t)img->ehdrloc;
 
 	memcpy(hdr, esbc, sizeof(struct fsl_secboot_img_hdr));
 

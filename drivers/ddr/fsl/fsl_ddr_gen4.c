@@ -10,6 +10,7 @@
 #include <asm/processor.h>
 #include <fsl_immap.h>
 #include <fsl_ddr.h>
+#include <fsl_errata.h>
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 static void set_wait_for_bits_clear(void *ptr, u32 value, u32 bits)
@@ -48,12 +49,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	u32 temp_sdram_cfg;
 	u32 total_gb_size_per_controller;
 	int timeout;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-	u32 *eddrtqcr1;
-#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	u32 temp32, mr6;
+	u32 vref_seq1[3] = {0x80, 0x96, 0x16};	/* for range 1 */
+	u32 vref_seq2[3] = {0xc0, 0xf0, 0x70};	/* for range 2 */
+	u32 *vref_seq = vref_seq1;
 #endif
 #ifdef CONFIG_FSL_DDR_BIST
 	u32 mtcr, err_detect, err_sbe;
@@ -66,36 +66,20 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	switch (ctrl_num) {
 	case 0:
 		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
-#endif
 		break;
 #if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	case 1:
 		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
-#endif
 		break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
 	case 2:
 		ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
-#endif
 		break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
 	case 3:
 		ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
-#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
-		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR4_ADDR + 0x800;
-#endif
 		break;
 #endif
 	default:
@@ -106,20 +90,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if (step == 2)
 		goto step2;
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
-	/* A008336 only applies to general DDR controllers */
-	if ((ctrl_num == 0) || (ctrl_num == 1))
-#endif
-		ddr_out32(eddrtqcr1, 0x63b30002);
-#endif
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
-	/* A008514 only applies to DP-DDR controler */
-	if (ctrl_num == 2)
-#endif
-		ddr_out32(eddrtqcr1, 0x63b20002);
-#endif
 	if (regs->ddr_eor)
 		ddr_out32(&ddr->eor, regs->ddr_eor);
 
@@ -235,9 +205,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
 #define IS_ACC_ECC_EN(v) ((v) & 0x4)
 #define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
-	if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
-	    IS_DBI(regs->ddr_sdram_cfg_3))
-		ddr_setbits32(ddr->debug[28], 0x9 << 20);
+	if (has_erratum_a008378()) {
+		if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
+		    IS_DBI(regs->ddr_sdram_cfg_3))
+			ddr_setbits32(&ddr->debug[28], 0x9 << 20);
+	}
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
@@ -307,16 +279,21 @@ step2:
 	/* This erraum only applies to verion 5.2.0 */
 	if (fsl_ddr_get_version(ctrl_num) == 0x50200) {
 		/* Wait for idle */
-		timeout = 200;
+		timeout = 40;
 		while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
 		       (timeout > 0)) {
-			udelay(100);
+			udelay(1000);
 			timeout--;
 		}
 		if (timeout <= 0) {
 			printf("Controler %d timeout, debug_2 = %x\n",
 			       ctrl_num, ddr_in32(&ddr->debug[1]));
 		}
+
+		/* The vref setting sequence is different for range 2 */
+		if (regs->ddr_cdr2 & DDR_CDR2_VREF_RANGE_2)
+			vref_seq = vref_seq2;
+
 		/* Set VREF */
 		for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 			if (!(regs->cs[i].config & SDRAM_CS_CONFIG_EN))
@@ -327,17 +304,17 @@ step2:
 				 MD_CNTL_CS_SEL(i)			|
 				 MD_CNTL_MD_SEL(6)			|
 				 0x00200000;
-			temp32 = mr6 | 0xc0;
+			temp32 = mr6 | vref_seq[0];
 			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
 						temp32, MD_CNTL_MD_EN);
 			udelay(1);
 			debug("MR6 = 0x%08x\n", temp32);
-			temp32 = mr6 | 0xf0;
+			temp32 = mr6 | vref_seq[1];
 			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
 						temp32, MD_CNTL_MD_EN);
 			udelay(1);
 			debug("MR6 = 0x%08x\n", temp32);
-			temp32 = mr6 | 0x70;
+			temp32 = mr6 | vref_seq[2];
 			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
 						temp32, MD_CNTL_MD_EN);
 			udelay(1);
@@ -347,10 +324,10 @@ step2:
 		ddr_out32(&ddr->debug[28], 0);		/* Enable deskew */
 		ddr_out32(&ddr->debug[1], 0x400);	/* restart deskew */
 		/* wait for idle */
-		timeout = 200;
+		timeout = 40;
 		while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
 		       (timeout > 0)) {
-			udelay(100);
+			udelay(1000);
 			timeout--;
 		}
 		if (timeout <= 0) {

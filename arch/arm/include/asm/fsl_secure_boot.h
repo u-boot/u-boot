@@ -11,11 +11,15 @@
 #define CONFIG_CMD_ESBC_VALIDATE
 #define CONFIG_FSL_SEC_MON
 #define CONFIG_SHA_PROG_HW_ACCEL
-#define CONFIG_DM
 #define CONFIG_RSA
 #define CONFIG_RSA_FREESCALE_EXP
+
 #ifndef CONFIG_FSL_CAAM
 #define CONFIG_FSL_CAAM
+#endif
+
+#ifndef CONFIG_DM
+#define CONFIG_DM
 #endif
 
 #define CONFIG_KEY_REVOCATION

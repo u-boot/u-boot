@@ -33,6 +33,15 @@
 #define DDR3_RTT_20_OHM		4 /* RTT_Nom = RZQ/12 */
 #define DDR3_RTT_30_OHM		5 /* RTT_Nom = RZQ/8 */
 
+#define DDR4_RTT_OFF		0
+#define DDR4_RTT_60_OHM		1	/* RZQ/4 */
+#define DDR4_RTT_120_OHM	2	/* RZQ/2 */
+#define DDR4_RTT_40_OHM		3	/* RZQ/6 */
+#define DDR4_RTT_240_OHM	4	/* RZQ/1 */
+#define DDR4_RTT_48_OHM		5	/* RZQ/5 */
+#define DDR4_RTT_80_OHM		6	/* RZQ/3 */
+#define DDR4_RTT_34_OHM		7	/* RZQ/7 */
+
 #define DDR2_RTT_OFF		0
 #define DDR2_RTT_75_OHM		1
 #define DDR2_RTT_150_OHM	2

@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <fsl_ifc.h>
+#include <ahci.h>
+#include <scsi.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>
 #include <asm/global_data.h>
@@ -14,6 +16,41 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+/*
+ * This erratum requires setting a value to eddrtqcr1 to
+ * optimal the DDR performance.
+ */
+static void erratum_a008336(void)
+{
+	u32 *eddrtqcr1;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
+#ifdef CONFIG_SYS_FSL_DCSR_DDR_ADDR
+	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
+	out_le32(eddrtqcr1, 0x63b30002);
+#endif
+#ifdef CONFIG_SYS_FSL_DCSR_DDR2_ADDR
+	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
+	out_le32(eddrtqcr1, 0x63b30002);
+#endif
+#endif
+}
+
+/*
+ * This erratum requires a register write before being Memory
+ * controller 3 being enabled.
+ */
+static void erratum_a008514(void)
+{
+	u32 *eddrtqcr1;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
+#ifdef CONFIG_SYS_FSL_DCSR_DDR3_ADDR
+	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
+	out_le32(eddrtqcr1, 0x63b20002);
+#endif
+#endif
+}
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
 #define PLATFORM_CYCLE_ENV_VAR	"a009635_interval_val"
 
@@ -118,16 +155,60 @@ void fsl_lsch3_early_init_f(void)
 	erratum_rcw_src();
 	init_early_memctl_regs();	/* tighten IFC timing */
 	erratum_a009203();
+	erratum_a008514();
+	erratum_a008336();
 }
 
+#ifdef CONFIG_SCSI_AHCI_PLAT
+int sata_init(void)
+{
+	struct ccsr_ahci __iomem *ccsr_ahci;
+
+	ccsr_ahci  = (void *)CONFIG_SYS_SATA2;
+	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+
+	ccsr_ahci  = (void *)CONFIG_SYS_SATA1;
+	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+
+	ahci_init((void __iomem *)CONFIG_SYS_SATA1);
+	scsi_scan(0);
+
+	return 0;
+}
+#endif
+
 #elif defined(CONFIG_LS1043A)
+#ifdef CONFIG_SCSI_AHCI_PLAT
+int sata_init(void)
+{
+	struct ccsr_ahci __iomem *ccsr_ahci = (void *)CONFIG_SYS_SATA;
+
+	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY_2_CFG);
+	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY_3_CFG);
+	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
+
+	ahci_init((void __iomem *)CONFIG_SYS_SATA);
+	scsi_scan(0);
+
+	return 0;
+}
+#endif
+
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_FSL_IFC
 	init_early_memctl_regs();	/* tighten IFC timing */
 #endif
+
+	/* Make SEC reads and writes snoopable */
+	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
+		     SCFG_SNPCNFGCR_SECWRSNP);
 
 	/*
 	 * Enable snoop requests and DVM message requests for
@@ -141,6 +222,10 @@ void fsl_lsch2_early_init_f(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+#ifdef CONFIG_SCSI_AHCI_PLAT
+	sata_init();
+#endif
+
 	return 0;
 }
 #endif

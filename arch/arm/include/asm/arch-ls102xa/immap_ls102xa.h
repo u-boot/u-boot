@@ -11,6 +11,8 @@
 #define SVR_MIN(svr)		(((svr) >>  0) & 0xf)
 #define SVR_SOC_VER(svr)	(((svr) >> 8) & 0x7ff)
 #define IS_E_PROCESSOR(svr)	(svr & 0x80000)
+#define IS_SVR_REV(svr, maj, min) \
+		((SVR_MAJ(svr) == maj) && (SVR_MIN(svr) == min))
 
 #define SOC_VER_SLS1020		0x00
 #define SOC_VER_LS1020		0x10
@@ -150,6 +152,12 @@ struct ccsr_gur {
 #define SCFG_ETSECCMCR_GE1_CLK125	0x08000000
 #define SCFG_PIXCLKCR_PXCKEN		0x80000000
 #define SCFG_QSPI_CLKSEL		0xc0100000
+#define SCFG_SNPCNFGCR_SEC_RD_WR	0xc0000000
+#define SCFG_SNPCNFGCR_DCU_RD_WR	0x03000000
+#define SCFG_SNPCNFGCR_SATA_RD_WR	0x00c00000
+#define SCFG_SNPCNFGCR_USB3_RD_WR	0x00300000
+#define SCFG_SNPCNFGCR_DBG_RD_WR	0x000c0000
+#define SCFG_SNPCNFGCR_EDMA_SNP		0x00020000
 #define SCFG_ENDIANCR_LE		0x80000000
 
 /* Supplemental Configuration Unit */
@@ -222,7 +230,7 @@ struct ccsr_scfg {
 	u32 scfgrevcr;
 	u32 coresrencr;
 	u32 pex2pmrdsr;
-	u32 ddrc1cr;
+	u32 eddrtqcfg;
 	u32 ddrc2cr;
 	u32 ddrc3cr;
 	u32 ddrc4cr;
@@ -422,4 +430,7 @@ struct ccsr_ahci {
 	u32 pberr;	/* port 0/1 BIST error */
 	u32 cmds;	/* port 0/1 CMD status error */
 };
+
+uint get_svr(void);
+
 #endif	/* __ASM_ARCH_LS102XA_IMMAP_H_ */

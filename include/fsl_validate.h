@@ -83,7 +83,9 @@ struct fsl_secboot_img_hdr {
 	u32 sign_len;		/* length of the signature in bytes */
 	union {
 		u32 psgtable;	/* ptr to SG table */
+#ifndef CONFIG_ESBC_ADDR_64BIT
 		u32 pimg;	/* ptr to ESBC client image */
+#endif
 	};
 	union {
 		u32 sg_entries;	/* no of entries in SG table */
@@ -97,7 +99,12 @@ struct fsl_secboot_img_hdr {
 	u32 reserved1[2];
 	u32 fsl_uid_1;
 	u32 oem_uid_1;
-	u32 reserved2[2];
+	union {
+		u32 reserved2[2];
+#ifdef CONFIG_ESBC_ADDR_64BIT
+		u64 pimg64;	/* 64 bit pointer to ESBC Image */
+#endif
+	};
 	u32 ie_flag;
 	u32 ie_key_sel;
 };

@@ -382,6 +382,12 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 		print_num("-> size",	bd->bi_dram[i].size);
 	}
 
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	if (gd->secure_ram & MEM_RESERVE_SECURE_SECURED) {
+		print_num("Secure ram",
+			  gd->secure_ram & MEM_RESERVE_SECURE_ADDR_MASK);
+	}
+#endif
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
 	print_eths();
 #endif

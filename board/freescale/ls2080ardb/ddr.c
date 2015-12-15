@@ -134,10 +134,18 @@ found:
 	popts->zq_en = 1;
 
 	if (ddr_freq < 2350) {
-		popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
-				  DDR_CDR1_ODT(DDR_CDR_ODT_60ohm);
-		popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_60ohm) |
-				  DDR_CDR2_VREF_RANGE_2;
+		if (pdimm[0].n_ranks == 2 && pdimm[1].n_ranks == 2) {
+			/* four chip-selects */
+			popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
+					  DDR_CDR1_ODT(DDR_CDR_ODT_80ohm);
+			popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_80ohm);
+			popts->twot_en = 1;	/* enable 2T timing */
+		} else {
+			popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
+					  DDR_CDR1_ODT(DDR_CDR_ODT_60ohm);
+			popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_60ohm) |
+					  DDR_CDR2_VREF_RANGE_2;
+		}
 	} else {
 		popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
 				  DDR_CDR1_ODT(DDR_CDR_ODT_100ohm);
@@ -167,14 +175,29 @@ void dram_init_banksize(void)
 	phys_size_t dp_ddr_size;
 #endif
 
+	/*
+	 * gd->secure_ram tracks the location of secure memory.
+	 * It was set as if the memory starts from 0.
+	 * The address needs to add the offset of its bank.
+	 */
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	if (gd->ram_size > CONFIG_SYS_LS2_DDR_BLOCK1_SIZE) {
 		gd->bd->bi_dram[0].size = CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
 		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
 		gd->bd->bi_dram[1].size = gd->ram_size -
 					  CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+		gd->secure_ram = gd->bd->bi_dram[1].start +
+				 gd->secure_ram -
+				 CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
+		gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+#endif
 	} else {
 		gd->bd->bi_dram[0].size = gd->ram_size;
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+		gd->secure_ram = gd->bd->bi_dram[0].start + gd->secure_ram;
+		gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+#endif
 	}
 
 #ifdef CONFIG_SYS_DP_DDR_BASE_PHY

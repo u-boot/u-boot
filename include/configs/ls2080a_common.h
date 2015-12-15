@@ -195,10 +195,9 @@ unsigned long long get_qixis_addr(void);
  * 512MB aligned, so the min size to hide is 512MB.
  */
 #if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
-#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(256UL * 1024 * 1024)
+#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(254UL * 1024 * 1024)
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(256UL * 1024 * 1024)
-#define CONFIG_SYS_MEM_TOP_HIDE_MIN			(512UL * 1024 * 1024)
-#define CONFIG_SYS_MEM_TOP_HIDE		get_dram_size_to_hide()
+#define CONFIG_SYS_MC_RSV_MEM_ALIGN			(512UL * 1024 * 1024)
 #endif
 
 /* PCIe */
@@ -271,7 +270,7 @@ unsigned long long get_qixis_addr(void);
 	"console=ttyAMA0,38400n8\0"
 
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/ram0 " \
-				"earlycon=uart8250,mmio,0x21c0500,115200 " \
+				"earlycon=uart8250,mmio,0x21c0500" \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=16"
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
@@ -289,10 +288,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
-
-#ifndef __ASSEMBLY__
-unsigned long get_dram_size_to_hide(void);
-#endif
 
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
 

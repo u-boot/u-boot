@@ -42,6 +42,24 @@ unsigned long get_board_sys_clk(void);
 #endif
 #define CONFIG_FSL_DDR_BIST	/* enable built-in memory test */
 
+/* SATA */
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_CMD_SCSI
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_DOS_PARTITION
+#define CONFIG_BOARD_LATE_INIT
+
+#define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1
+#define CONFIG_SYS_SATA2			AHCI_BASE_ADDR2
+
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID		1
+#define CONFIG_SYS_SCSI_MAX_LUN			1
+#define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+						CONFIG_SYS_SCSI_MAX_LUN)
+
 /* undefined CONFIG_FSL_DDR_SYNC_REFRESH for simulator */
 
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
@@ -313,7 +331,7 @@ unsigned long get_board_sys_clk(void);
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
-				"earlycon=uart8250,mmio,0x21c0600,115200 " \
+				"earlycon=uart8250,mmio,0x21c0600" \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=16"
 

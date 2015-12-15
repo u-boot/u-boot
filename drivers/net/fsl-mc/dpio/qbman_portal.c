@@ -117,7 +117,7 @@ void qbman_swp_mc_submit(struct qbman_swp *p, void *cmd, uint32_t cmd_verb)
 {
 	uint32_t *v = cmd;
 #ifdef QBMAN_CHECKING
-	BUG_ON(!p->mc.check != swp_mc_can_submit);
+	BUG_ON(p->mc.check != swp_mc_can_submit);
 #endif
 	lwsync();
 	/* TBD: "|=" is going to hurt performance. Need to move as many fields

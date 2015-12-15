@@ -115,9 +115,6 @@ typedef unsigned int uint;
 #ifdef CONFIG_USE_STDINT
 /* Provided by gcc. */
 #include <stdint.h>
-#else
-/* Type for `void *' pointers. */
-typedef unsigned long int uintptr_t;
 #endif
 
 #include <linux/string.h>

@@ -3869,7 +3869,15 @@ Configuration Settings:
 		Scratch address used by the alternate memory test
 		You only need to set this if address zero isn't writeable
 
-- CONFIG_SYS_MEM_TOP_HIDE (PPC only):
+- CONFIG_SYS_MEM_RESERVE_SECURE
+		If defined, the size of CONFIG_SYS_MEM_RESERVE_SECURE memory
+		is substracted from total RAM and won't be reported to OS.
+		This memory can be used as secure memory. A variable
+		gd->secure_ram is used to track the location. In systems
+		the RAM base is not zero, or RAM is divided into banks,
+		this variable needs to be recalcuated to get the address.
+
+- CONFIG_SYS_MEM_TOP_HIDE:
 		If CONFIG_SYS_MEM_TOP_HIDE is defined in the board config header,
 		this specified memory area will get subtracted from the top
 		(end) of RAM and won't get "touched" at all by U-Boot. By
@@ -5048,8 +5056,8 @@ This firmware often needs to be loaded during U-Boot booting.
 - CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE
 	Define minimum DDR size required for debug server image
 
-- CONFIG_SYS_MEM_TOP_HIDE_MIN
-	Define minimum DDR size to be hided from top of the DDR memory
+- CONFIG_SYS_MC_RSV_MEM_ALIGN
+	Define alignment of reserved memory MC requires
 
 Reproducible builds
 -------------------
