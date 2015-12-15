@@ -71,7 +71,7 @@ static int ethsw_vlan_help_key_func(struct ethsw_command_def *parsed_cmd)
 
 #define ETHSW_PORT_UNTAG_HELP "ethsw [port <port_no>] untagged " \
 "{ [help] | show | all | none | pvid } " \
-" - set egress tagging mod for a port"
+" - set egress tagging mode for a port"
 
 static int ethsw_port_untag_help_key_func(struct ethsw_command_def *parsed_cmd)
 {
@@ -1010,7 +1010,7 @@ static int do_ethsw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #define ETHSW_PORT_CONF_HELP "[port <port_no>] { enable | disable | show } " \
-"- enable/disable a port; show shows a port's configuration"
+"- enable/disable a port; show a port's configuration"
 
 U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   "Ethernet l2 switch commands",
