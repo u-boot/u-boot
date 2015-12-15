@@ -269,7 +269,7 @@ struct vsc9953_analyzer {
 	struct vsc9953_ana_ana_tables	ana_tables;
 	u32	reserved2[14];
 	struct vsc9953_ana_ana	ana;
-	u32	reserved3[22];
+	u32	reserved3[21];
 	struct vsc9953_ana_pgid	port_id_tbl;
 	u32	reserved4[549];
 	struct vsc9953_ana_pfc	pfc[10];
