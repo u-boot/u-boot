@@ -54,19 +54,6 @@
 #define CONFIG_LMB
 
 /*
- * ENVIRONMENT -- Put environment in sector CONFIG_SYS_MONITOR_LEN above
- * CONFIG_SYS_RESET_ADDR, since we assume the monitor is stored at the
- * reset address, no? This will keep the environment in user region
- * of flash. NOTE: the monitor length must be multiple of sector size
- * (which is common practice).
- */
-#define CONFIG_ENV_IS_IN_FLASH
-
-#define CONFIG_ENV_SIZE			0x10000	/* 64k, 1 sector */
-#define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/
-#define CONFIG_ENV_ADDR			0xf4040000
-
-/*
  * MEMORY ORGANIZATION
  * -Monitor at top of sdram.
  * -The heap is placed below the monitor
@@ -81,6 +68,19 @@
 					 CONFIG_SYS_SDRAM_SIZE - \
 					 CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_SYS_MALLOC_LEN		0x20000
+
+/*
+ * ENVIRONMENT -- Put environment in sector CONFIG_SYS_MONITOR_LEN above
+ * CONFIG_SYS_RESET_ADDR, since we assume the monitor is stored at the
+ * reset address, no? This will keep the environment in user region
+ * of flash. NOTE: the monitor length must be multiple of sector size
+ * (which is common practice).
+ */
+#define CONFIG_ENV_IS_IN_FLASH
+
+#define CONFIG_ENV_SIZE			0x10000	/* 64k, 1 sector */
+#define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/
+#define CONFIG_ENV_ADDR			(0xf4000000 + CONFIG_SYS_MONITOR_LEN)
 
 /*
  * MISC
