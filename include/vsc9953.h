@@ -136,6 +136,9 @@
 /* Macros for vsc9953_ana_ana.adv_learn register */
 #define VSC9953_VLAN_CHK		0x00000400
 
+/* Macros for vsc9953_ana_ana.auto_age register */
+#define VSC9953_AUTOAGE_PERIOD_MASK	0x001ffffe
+
 /* Macros for vsc9953_rew_port.port_tag_cfg register */
 #define VSC9953_TAG_CFG_MASK		0x00000180
 #define VSC9953_TAG_CFG_NONE		0x00000000
@@ -164,6 +167,7 @@
 #define VSC9953_MAX_VLAN		4096
 #define VSC9953_VLAN_CHECK(vid)	\
 	(((vid) < 0 || (vid) >= VSC9953_MAX_VLAN) ? 0 : 1)
+#define VSC9953_DEFAULT_AGE_TIME	300
 
 #define DEFAULT_VSC9953_MDIO_NAME	"VSC9953_MDIO0"
 

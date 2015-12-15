@@ -593,6 +593,25 @@ static void vsc9953_port_all_vlan_egress_untagged_set(
 		vsc9953_port_vlan_egr_untag_set(i, mode);
 }
 
+static int vsc9953_autoage_time_set(int age_period)
+{
+	u32 autoage;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+						VSC9953_ANA_OFFSET);
+
+	if (age_period < 0 || age_period > VSC9953_AUTOAGE_PERIOD_MASK)
+		return -EINVAL;
+
+	autoage = bitfield_replace_by_mask(in_le32(&l2ana_reg->ana.auto_age),
+					   VSC9953_AUTOAGE_PERIOD_MASK,
+					   age_period);
+	out_le32(&l2ana_reg->ana.auto_age, autoage);
+
+	return 0;
+}
+
 #ifdef CONFIG_CMD_ETHSW
 
 /* Enable/disable status of a VSC9953 port */
@@ -2106,6 +2125,10 @@ At startup, the default configuration would be:
 void vsc9953_default_configuration(void)
 {
 	int i;
+
+	if (vsc9953_autoage_time_set(VSC9953_DEFAULT_AGE_TIME))
+		debug("VSC9953: failed to set AGE time to %d\n",
+		      VSC9953_DEFAULT_AGE_TIME);
 
 	for (i = 0; i < VSC9953_MAX_VLAN; i++)
 		vsc9953_vlan_table_membership_all_set(i, 0);
