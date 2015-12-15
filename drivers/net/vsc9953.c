@@ -469,6 +469,47 @@ static void vsc9953_vlan_ingr_fltr_learn_drop(int enable)
 		clrbits_le32(&l2ana_reg->ana.adv_learn, VSC9953_VLAN_CHK);
 }
 
+enum aggr_code_mode {
+	AGGR_CODE_RAND = 0,
+	AGGR_CODE_ALL,	/* S/D MAC, IPv4 S/D IP, IPv6 Flow Label, S/D PORT */
+};
+
+/* Set aggregation code generation mode */
+static int vsc9953_aggr_code_set(enum aggr_code_mode ac)
+{
+	int rc;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+						VSC9953_ANA_OFFSET);
+
+	switch (ac) {
+	case AGGR_CODE_RAND:
+		clrsetbits_le32(&l2ana_reg->common.aggr_cfg,
+				VSC9953_AC_DMAC_ENA | VSC9953_AC_SMAC_ENA |
+				VSC9953_AC_IP6_LBL_ENA |
+				VSC9953_AC_IP6_TCPUDP_ENA |
+				VSC9953_AC_IP4_SIPDIP_ENA |
+				VSC9953_AC_IP4_TCPUDP_ENA, VSC9953_AC_RND_ENA);
+		rc = 0;
+		break;
+	case AGGR_CODE_ALL:
+		clrsetbits_le32(&l2ana_reg->common.aggr_cfg, VSC9953_AC_RND_ENA,
+				VSC9953_AC_DMAC_ENA | VSC9953_AC_SMAC_ENA |
+				VSC9953_AC_IP6_LBL_ENA |
+				VSC9953_AC_IP6_TCPUDP_ENA |
+				VSC9953_AC_IP4_SIPDIP_ENA |
+				VSC9953_AC_IP4_TCPUDP_ENA);
+		rc = 0;
+		break;
+	default:
+		/* unknown mode for aggregation code */
+		rc = -EINVAL;
+	}
+
+	return rc;
+}
+
 /* Egress untag modes of a VSC9953 port */
 enum egress_untag_mode {
 	EGRESS_UNTAG_ALL = 0,
@@ -1493,6 +1534,224 @@ static int vsc9953_port_ingress_filtering_get(int port_no)
 	return !!(val & (1 << port_no));
 }
 
+/* Get the aggregation group of a port */
+static int vsc9953_port_aggr_grp_get(int port_no, int *aggr_grp)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	if (!VSC9953_PORT_CHECK(port_no))
+		return -EINVAL;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+						VSC9953_ANA_OFFSET);
+
+	val = in_le32(&l2ana_reg->port[port_no].port_cfg);
+	*aggr_grp = bitfield_extract_by_mask(val,
+					     VSC9953_PORT_CFG_PORTID_MASK);
+
+	return 0;
+}
+
+static void vsc9953_aggr_grp_members_get(int aggr_grp,
+					 u8 aggr_membr[VSC9953_MAX_PORTS])
+{
+	int port_no;
+	int aggr_membr_grp;
+
+	for (port_no = 0; port_no < VSC9953_MAX_PORTS; port_no++) {
+		aggr_membr[port_no] = 0;
+
+		if (vsc9953_port_aggr_grp_get(port_no, &aggr_membr_grp))
+			continue;
+
+		if (aggr_grp == aggr_membr_grp)
+			aggr_membr[port_no] = 1;
+	}
+}
+
+static void vsc9953_update_dest_members_masks(int port_no, u32 membr_bitfld_old,
+					      u32 membr_bitfld_new)
+{
+	int i;
+	u32 pgid;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+						VSC9953_ANA_OFFSET);
+
+	/*
+	 * NOTE: Only the unicast destination masks are updated, since
+	 * we do not support for now Layer-2 multicast entries
+	 */
+	for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+		if (i == port_no) {
+			clrsetbits_le32(&l2ana_reg->port_id_tbl.port_grp_id[i],
+					VSC9953_PGID_PORT_MASK,
+					membr_bitfld_new);
+			continue;
+		}
+
+		pgid = in_le32(&l2ana_reg->port_id_tbl.port_grp_id[i]);
+		if ((u32)(1 << i) & membr_bitfld_old & VSC9953_PGID_PORT_MASK)
+			pgid &= ~((u32)(1 << port_no));
+		if ((u32)(1 << i) & membr_bitfld_new & VSC9953_PGID_PORT_MASK)
+			pgid |= ((u32)(1 << port_no));
+
+		out_le32(&l2ana_reg->port_id_tbl.port_grp_id[i], pgid);
+	}
+}
+
+static void vsc9953_update_source_members_masks(int port_no,
+						u32 membr_bitfld_old,
+						u32 membr_bitfld_new)
+{
+	int i;
+	int index;
+	u32 pgid;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+						VSC9953_ANA_OFFSET);
+
+	for (i = 0; i < VSC9953_MAX_PORTS + 1; i++) {
+		index = PGID_SRC_START + i;
+		pgid = in_le32(&l2ana_reg->port_id_tbl.port_grp_id[index]);
+		if (i == port_no) {
+			pgid = (pgid | VSC9953_PGID_PORT_MASK) &
+			       ~membr_bitfld_new;
+			out_le32(&l2ana_reg->port_id_tbl.port_grp_id[index],
+				 pgid);
+			continue;
+		}
+
+		if ((u32)(1 << i) & membr_bitfld_old & VSC9953_PGID_PORT_MASK)
+			pgid |= (u32)(1 << port_no);
+
+		if ((u32)(1 << i) & membr_bitfld_new & VSC9953_PGID_PORT_MASK)
+			pgid &= ~(u32)(1 << port_no);
+		out_le32(&l2ana_reg->port_id_tbl.port_grp_id[index], pgid);
+	}
+}
+
+static u32 vsc9953_aggr_mask_get_next(u32 aggr_mask, u32 member_bitfield)
+{
+	if (!member_bitfield)
+		return 0;
+
+	if (!(aggr_mask & VSC9953_PGID_PORT_MASK))
+		aggr_mask = 1;
+	else
+		aggr_mask <<= 1;
+
+	while (!(aggr_mask & member_bitfield)) {
+		aggr_mask <<= 1;
+		if (!(aggr_mask & VSC9953_PGID_PORT_MASK))
+			aggr_mask = 1;
+	}
+
+	return aggr_mask;
+}
+
+static void vsc9953_update_aggr_members_masks(int port_no, u32 membr_bitfld_old,
+					      u32 membr_bitfld_new)
+{
+	int i;
+	u32 pgid;
+	u32 aggr_mask_old = 0;
+	u32 aggr_mask_new = 0;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+						VSC9953_ANA_OFFSET);
+
+	/* Update all the PGID aggregation masks */
+	for (i = PGID_AGGR_START; i < PGID_SRC_START; i++) {
+		pgid = in_le32(&l2ana_reg->port_id_tbl.port_grp_id[i]);
+
+		aggr_mask_old = vsc9953_aggr_mask_get_next(aggr_mask_old,
+							   membr_bitfld_old);
+		pgid = (pgid & ~membr_bitfld_old) | aggr_mask_old;
+
+		aggr_mask_new = vsc9953_aggr_mask_get_next(aggr_mask_new,
+							   membr_bitfld_new);
+		pgid = (pgid & ~membr_bitfld_new) | aggr_mask_new;
+
+		out_le32(&l2ana_reg->port_id_tbl.port_grp_id[i], pgid);
+	}
+}
+
+static u32 vsc9953_aggr_membr_bitfield_get(u8 member[VSC9953_MAX_PORTS])
+{
+	int i;
+	u32 member_bitfield = 0;
+
+	for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+		if (member[i])
+			member_bitfield |= 1 << i;
+	}
+	member_bitfield &= VSC9953_PGID_PORT_MASK;
+
+	return member_bitfield;
+}
+
+static void vsc9953_update_members_masks(int port_no,
+					 u8 member_old[VSC9953_MAX_PORTS],
+					 u8 member_new[VSC9953_MAX_PORTS])
+{
+	u32 membr_bitfld_old = vsc9953_aggr_membr_bitfield_get(member_old);
+	u32 membr_bitfld_new = vsc9953_aggr_membr_bitfield_get(member_new);
+
+	vsc9953_update_dest_members_masks(port_no, membr_bitfld_old,
+					  membr_bitfld_new);
+	vsc9953_update_source_members_masks(port_no, membr_bitfld_old,
+					    membr_bitfld_new);
+	vsc9953_update_aggr_members_masks(port_no, membr_bitfld_old,
+					  membr_bitfld_new);
+}
+
+/* Set the aggregation group of a port */
+static int vsc9953_port_aggr_grp_set(int port_no, int aggr_grp)
+{
+	u8 aggr_membr_old[VSC9953_MAX_PORTS];
+	u8 aggr_membr_new[VSC9953_MAX_PORTS];
+	int rc;
+	int aggr_grp_old;
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	if (!VSC9953_PORT_CHECK(port_no) || !VSC9953_PORT_CHECK(aggr_grp))
+		return -EINVAL;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+						VSC9953_ANA_OFFSET);
+
+	rc = vsc9953_port_aggr_grp_get(port_no, &aggr_grp_old);
+	if (rc)
+		return rc;
+
+	/* get all the members of the old aggregation group */
+	vsc9953_aggr_grp_members_get(aggr_grp_old, aggr_membr_old);
+
+	/* get all the members of the same aggregation group */
+	vsc9953_aggr_grp_members_get(aggr_grp, aggr_membr_new);
+
+	/* add current port as member to the new aggregation group */
+	aggr_membr_old[port_no] = 0;
+	aggr_membr_new[port_no] = 1;
+
+	/* update masks */
+	vsc9953_update_members_masks(port_no, aggr_membr_old, aggr_membr_new);
+
+	/* Change logical port number */
+	val = in_le32(&l2ana_reg->port[port_no].port_cfg);
+	val = bitfield_replace_by_mask(val,
+				       VSC9953_PORT_CFG_PORTID_MASK, aggr_grp);
+	out_le32(&l2ana_reg->port[port_no].port_cfg, val);
+
+	return 0;
+}
+
 static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -2083,6 +2342,72 @@ static int vsc9953_ingr_fltr_set_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+static int vsc9953_port_aggr_show_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	int aggr_grp;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+
+		if (vsc9953_port_aggr_grp_get(parsed_cmd->port, &aggr_grp))
+			return CMD_RET_FAILURE;
+		printf("%7s %10s\n", "Port", "Aggr grp");
+		printf("%7d %10d\n", parsed_cmd->port, aggr_grp);
+	} else {
+		printf("%7s %10s\n", "Port", "Aggr grp");
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			if (vsc9953_port_aggr_grp_get(i, &aggr_grp))
+				continue;
+			printf("%7d %10d\n", i, aggr_grp);
+		}
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_port_aggr_set_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+
+	/* Aggregation group number should be set in parsed_cmd->aggr_grp */
+	if (parsed_cmd->aggr_grp == ETHSW_CMD_AGGR_GRP_NONE) {
+		printf("Please set an aggregation group value\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (!VSC9953_PORT_CHECK(parsed_cmd->aggr_grp)) {
+		printf("Invalid aggregation group number: %d\n",
+		       parsed_cmd->aggr_grp);
+		return CMD_RET_FAILURE;
+	}
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		if (vsc9953_port_aggr_grp_set(parsed_cmd->port,
+					      parsed_cmd->aggr_grp)) {
+			printf("Port %d: failed to set aggr group %d\n",
+			       parsed_cmd->port, parsed_cmd->aggr_grp);
+		}
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			if (vsc9953_port_aggr_grp_set(i,
+						      parsed_cmd->aggr_grp)) {
+				printf("Port %d: failed to set aggr group %d\n",
+				       i, parsed_cmd->aggr_grp);
+			}
+		}
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct ethsw_command_func vsc9953_cmd_func = {
 		.ethsw_name = "L2 Switch VSC9953",
 		.port_enable = &vsc9953_port_status_key_func,
@@ -2107,7 +2432,9 @@ static struct ethsw_command_func vsc9953_cmd_func = {
 		.vlan_learn_show = &vsc9953_vlan_learn_show_key_func,
 		.vlan_learn_set = &vsc9953_vlan_learn_set_key_func,
 		.port_ingr_filt_show = &vsc9953_ingr_fltr_show_key_func,
-		.port_ingr_filt_set = &vsc9953_ingr_fltr_set_key_func
+		.port_ingr_filt_set = &vsc9953_ingr_fltr_set_key_func,
+		.port_aggr_show = &vsc9953_port_aggr_show_key_func,
+		.port_aggr_set = &vsc9953_port_aggr_set_key_func,
 };
 
 #endif /* CONFIG_CMD_ETHSW */
@@ -2138,6 +2465,8 @@ void vsc9953_default_configuration(void)
 	vsc9953_vlan_table_membership_all_set(1, 1);
 	vsc9953_vlan_ingr_fltr_learn_drop(1);
 	vsc9953_port_all_vlan_egress_untagged_set(EGRESS_UNTAG_PVID_AND_ZERO);
+	if (vsc9953_aggr_code_set(AGGR_CODE_ALL))
+		debug("VSC9953: failed to set default aggregation code mode\n");
 }
 
 void vsc9953_init(bd_t *bis)

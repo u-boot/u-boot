@@ -31,6 +31,7 @@ Commands supported
 	- Port-based VLAN
 	- Private/Shared VLAN learning
 	- VLAN ingress filtering
+	- Port LAG
 
 Commands syntax
 ethsw [port <port_no>] { enable | disable | show } - enable/disable a port; show a port's configuration
@@ -45,6 +46,7 @@ ethsw [port <port_no>] egress tag { [help] | show | pvid | classified } - config
 									  Tag's VID could be the frame's classified VID or the PVID of the port
 ethsw vlan fdb { [help] | show | shared | private } - make VLAN learning shared or private
 ethsw [port <port_no>] ingress filtering { [help] | show | enable | disable } - enable/disable VLAN ingress filtering on port
+ethsw [port <port_no>] aggr { [help] | show | <lag_group_no> } - get/set LAG group for a port
 
 => ethsw show
     Port   Status     Link    Speed   Duplex
