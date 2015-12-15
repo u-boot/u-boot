@@ -862,12 +862,18 @@ static int spansion_quad_enable(struct spi_flash *flash)
 	if (ret < 0)
 		return ret;
 
-	if (qeb_status & STATUS_QEB_WINSPAN) {
-		debug("SF: winspan: QEB is already set\n");
-	} else {
-		ret = write_cr(flash, STATUS_QEB_WINSPAN);
-		if (ret < 0)
-			return ret;
+	if (qeb_status & STATUS_QEB_WINSPAN)
+		return 0;
+
+	ret = write_cr(flash, STATUS_QEB_WINSPAN);
+	if (ret < 0)
+		return ret;
+
+	/* read CR and check it */
+	ret = read_cr(flash, &qeb_status);
+	if (!(ret >= 0 && (qeb_status & STATUS_QEB_WINSPAN))) {
+		printf("SF: Spansion CR Quad bit not clear\n");
+		return -EINVAL;
 	}
 
 	return ret;
