@@ -840,12 +840,18 @@ static int macronix_quad_enable(struct spi_flash *flash)
 	if (ret < 0)
 		return ret;
 
-	if (qeb_status & STATUS_QEB_MXIC) {
-		debug("SF: mxic: QEB is already set\n");
-	} else {
-		ret = write_sr(flash, STATUS_QEB_MXIC);
-		if (ret < 0)
-			return ret;
+	if (qeb_status & STATUS_QEB_MXIC)
+		return 0;
+
+	ret = write_sr(flash, STATUS_QEB_MXIC);
+	if (ret < 0)
+		return ret;
+
+	/* read SR and check it */
+	ret = read_sr(flash, &qeb_status);
+	if (!(ret >= 0 && (qeb_status & STATUS_QEB_MXIC))) {
+		printf("SF: Macronix SR Quad bit not clear\n");
+		return -EINVAL;
 	}
 
 	return ret;
