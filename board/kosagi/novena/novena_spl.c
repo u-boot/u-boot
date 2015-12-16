@@ -434,8 +434,8 @@ static struct mx6dq_iomux_ddr_regs novena_ddr_ioregs = {
 	.dram_ras		= 0x00000038,
 	.dram_reset		= 0x00000038,
 	/* SDCKE[0:1]: 100k pull-up */
-	.dram_sdcke0		= 0x00003000,
-	.dram_sdcke1		= 0x00003000,
+	.dram_sdcke0		= 0x00000038,
+	.dram_sdcke1		= 0x00000038,
 	/* SDBA2: pull-up disabled */
 	.dram_sdba2		= 0x00000000,
 	/* SDODT[0:1]: 100k pull-up, 40 ohm */
@@ -512,10 +512,10 @@ static struct mx6_ddr_sysinfo novena_ddr_info = {
 	/* Single chip select */
 	.ncs		= 1,
 	.cs1_mirror	= 0,
-	.rtt_wr		= 1,	/* RTT_Wr = RZQ/4 */
-	.rtt_nom	= 2,	/* RTT_Nom = RZQ/2 */
-	.walat		= 3,	/* Write additional latency */
-	.ralat		= 7,	/* Read additional latency */
+	.rtt_wr		= 0,	/* RTT_Wr = RZQ/4 */
+	.rtt_nom	= 1,	/* RTT_Nom = RZQ/2 */
+	.walat		= 0,	/* Write additional latency */
+	.ralat		= 5,	/* Read additional latency */
 	.mif3_mode	= 3,	/* Command prediction working mode */
 	.bi_on		= 1,	/* Bank interleaving enabled */
 	.sde_to_rst	= 0x10,	/* 14 cycles, 200us (JEDEC default) */
@@ -530,9 +530,9 @@ static struct mx6_ddr3_cfg elpida_4gib_1600 = {
 	.rowaddr	= 16,
 	.coladdr	= 10,
 	.pagesz		= 2,
-	.trcd		= 1300,
-	.trcmin		= 4900,
-	.trasmin	= 3590,
+	.trcd		= 1375,
+	.trcmin		= 4875,
+	.trasmin	= 3500,
 };
 
 static void ccgr_init(void)
@@ -600,6 +600,11 @@ void board_init_f(ulong dummy)
 	/* Start the DDR DRAM */
 	mx6dq_dram_iocfg(64, &novena_ddr_ioregs, &novena_grp_ioregs);
 	mx6_dram_cfg(&novena_ddr_info, &novena_mmdc_calib, &elpida_4gib_1600);
+
+	/* Perform DDR DRAM calibration */
+	udelay(100);
+	mmdc_do_write_level_calibration();
+	mmdc_do_dqs_calibration();
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
