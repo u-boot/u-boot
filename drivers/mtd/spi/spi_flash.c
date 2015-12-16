@@ -843,7 +843,7 @@ static int macronix_quad_enable(struct spi_flash *flash)
 	if (qeb_status & STATUS_QEB_MXIC)
 		return 0;
 
-	ret = write_sr(flash, STATUS_QEB_MXIC);
+	ret = write_sr(flash, qeb_status | STATUS_QEB_MXIC);
 	if (ret < 0)
 		return ret;
 
@@ -871,7 +871,7 @@ static int spansion_quad_enable(struct spi_flash *flash)
 	if (qeb_status & STATUS_QEB_WINSPAN)
 		return 0;
 
-	ret = write_cr(flash, STATUS_QEB_WINSPAN);
+	ret = write_cr(flash, qeb_status | STATUS_QEB_WINSPAN);
 	if (ret < 0)
 		return ret;
 
