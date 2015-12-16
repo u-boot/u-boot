@@ -13,6 +13,565 @@
 #include <asm/io.h>
 #include <asm/types.h>
 
+#if defined(CONFIG_MX6QDL) || defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
+
+static int wait_for_bit(void *reg, const uint32_t mask, bool set)
+{
+	unsigned int timeout = 1000;
+	u32 val;
+
+	while (--timeout) {
+		val = readl(reg);
+		if (!set)
+			val = ~val;
+
+		if ((val & mask) == mask)
+			return 0;
+
+		udelay(1);
+	}
+
+	printf("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
+	      __func__, reg, mask, set);
+	hang();	/* DRAM couldn't be calibrated, game over :-( */
+}
+
+static void reset_read_data_fifos(void)
+{
+	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
+
+	/* Reset data FIFOs twice. */
+	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
+	wait_for_bit(&mmdc0->mpdgctrl0, 1 << 31, 0);
+
+	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
+	wait_for_bit(&mmdc0->mpdgctrl0, 1 << 31, 0);
+}
+
+static void precharge_all(const bool cs0_enable, const bool cs1_enable)
+{
+	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
+
+	/*
+	 * Issue the Precharge-All command to the DDR device for both
+	 * chip selects. Note, CON_REQ bit should also remain set. If
+	 * only using one chip select, then precharge only the desired
+	 * chip select.
+	 */
+	if (cs0_enable) { /* CS0 */
+		writel(0x04008050, &mmdc0->mdscr);
+		wait_for_bit(&mmdc0->mdscr, 1 << 14, 1);
+	}
+
+	if (cs1_enable) { /* CS1 */
+		writel(0x04008058, &mmdc0->mdscr);
+		wait_for_bit(&mmdc0->mdscr, 1 << 14, 1);
+	}
+}
+
+static void force_delay_measurement(int bus_size)
+{
+	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
+	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
+
+	writel(0x800, &mmdc0->mpmur0);
+	if (bus_size == 0x2)
+		writel(0x800, &mmdc1->mpmur0);
+}
+
+static void modify_dg_result(u32 *reg_st0, u32 *reg_st1, u32 *reg_ctrl)
+{
+	u32 dg_tmp_val, dg_dl_abs_offset, dg_hc_del, val_ctrl;
+
+	/*
+	 * DQS gating absolute offset should be modified from reflecting
+	 * (HW_DG_LOWx + HW_DG_UPx)/2 to reflecting (HW_DG_UPx - 0x80)
+	 */
+
+	val_ctrl = readl(reg_ctrl);
+	val_ctrl &= 0xf0000000;
+
+	dg_tmp_val = ((readl(reg_st0) & 0x07ff0000) >> 16) - 0xc0;
+	dg_dl_abs_offset = dg_tmp_val & 0x7f;
+	dg_hc_del = (dg_tmp_val & 0x780) << 1;
+
+	val_ctrl |= dg_dl_abs_offset + dg_hc_del;
+
+	dg_tmp_val = ((readl(reg_st1) & 0x07ff0000) >> 16) - 0xc0;
+	dg_dl_abs_offset = dg_tmp_val & 0x7f;
+	dg_hc_del = (dg_tmp_val & 0x780) << 1;
+
+	val_ctrl |= (dg_dl_abs_offset + dg_hc_del) << 16;
+
+	writel(val_ctrl, reg_ctrl);
+}
+
+int mmdc_do_write_level_calibration(void)
+{
+	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
+	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
+	u32 esdmisc_val, zq_val;
+	u32 errors = 0;
+	u32 ldectrl[4];
+	u32 ddr_mr1 = 0x4;
+
+	/*
+	 * Stash old values in case calibration fails,
+	 * we need to restore them
+	 */
+	ldectrl[0] = readl(&mmdc0->mpwldectrl0);
+	ldectrl[1] = readl(&mmdc0->mpwldectrl1);
+	ldectrl[2] = readl(&mmdc1->mpwldectrl0);
+	ldectrl[3] = readl(&mmdc1->mpwldectrl1);
+
+	/* disable DDR logic power down timer */
+	clrbits_le32(&mmdc0->mdpdc, 0xff00);
+
+	/* disable Adopt power down timer */
+	setbits_le32(&mmdc0->mapsr, 0x1);
+
+	debug("Starting write leveling calibration.\n");
+
+	/*
+	 * 2. disable auto refresh and ZQ calibration
+	 * before proceeding with Write Leveling calibration
+	 */
+	esdmisc_val = readl(&mmdc0->mdref);
+	writel(0x0000C000, &mmdc0->mdref);
+	zq_val = readl(&mmdc0->mpzqhwctrl);
+	writel(zq_val & ~0x3, &mmdc0->mpzqhwctrl);
+
+	/* 3. increase walat and ralat to maximum */
+	setbits_le32(&mmdc0->mdmisc,
+		     (1 << 6) | (1 << 7) | (1 << 8) | (1 << 16) | (1 << 17));
+	setbits_le32(&mmdc1->mdmisc,
+		     (1 << 6) | (1 << 7) | (1 << 8) | (1 << 16) | (1 << 17));
+	/*
+	 * 4 & 5. Configure the external DDR device to enter write-leveling
+	 * mode through Load Mode Register command.
+	 * Register setting:
+	 * Bits[31:16] MR1 value (0x0080 write leveling enable)
+	 * Bit[9] set WL_EN to enable MMDC DQS output
+	 * Bits[6:4] set CMD bits for Load Mode Register programming
+	 * Bits[2:0] set CMD_BA to 0x1 for DDR MR1 programming
+	 */
+	writel(0x00808231, &mmdc0->mdscr);
+
+	/* 6. Activate automatic calibration by setting MPWLGCR[HW_WL_EN] */
+	writel(0x00000001, &mmdc0->mpwlgcr);
+
+	/*
+	 * 7. Upon completion of this process the MMDC de-asserts
+	 * the MPWLGCR[HW_WL_EN]
+	 */
+	wait_for_bit(&mmdc0->mpwlgcr, 1 << 0, 0);
+
+	/*
+	 * 8. check for any errors: check both PHYs for x64 configuration,
+	 * if x32, check only PHY0
+	 */
+	if (readl(&mmdc0->mpwlgcr) & 0x00000F00)
+		errors |= 1;
+	if (readl(&mmdc1->mpwlgcr) & 0x00000F00)
+		errors |= 2;
+
+	debug("Ending write leveling calibration. Error mask: 0x%x\n", errors);
+
+	/* check to see if cal failed */
+	if ((readl(&mmdc0->mpwldectrl0) == 0x001F001F) &&
+	    (readl(&mmdc0->mpwldectrl1) == 0x001F001F) &&
+	    (readl(&mmdc1->mpwldectrl0) == 0x001F001F) &&
+	    (readl(&mmdc1->mpwldectrl1) == 0x001F001F)) {
+		debug("Cal seems to have soft-failed due to memory not supporting write leveling on all channels. Restoring original write leveling values.\n");
+		writel(ldectrl[0], &mmdc0->mpwldectrl0);
+		writel(ldectrl[1], &mmdc0->mpwldectrl1);
+		writel(ldectrl[2], &mmdc1->mpwldectrl0);
+		writel(ldectrl[3], &mmdc1->mpwldectrl1);
+		errors |= 4;
+	}
+
+	/*
+	 * User should issue MRS command to exit write leveling mode
+	 * through Load Mode Register command
+	 * Register setting:
+	 * Bits[31:16] MR1 value "ddr_mr1" value from initialization
+	 * Bit[9] clear WL_EN to disable MMDC DQS output
+	 * Bits[6:4] set CMD bits for Load Mode Register programming
+	 * Bits[2:0] set CMD_BA to 0x1 for DDR MR1 programming
+	 */
+	writel((ddr_mr1 << 16) + 0x8031, &mmdc0->mdscr);
+
+	/* re-enable auto refresh and zq cal */
+	writel(esdmisc_val, &mmdc0->mdref);
+	writel(zq_val, &mmdc0->mpzqhwctrl);
+
+	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+	      readl(&mmdc0->mpwldectrl0));
+	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+	      readl(&mmdc0->mpwldectrl1));
+	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+	      readl(&mmdc1->mpwldectrl0));
+	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+	      readl(&mmdc1->mpwldectrl1));
+
+	/* We must force a readback of these values, to get them to stick */
+	readl(&mmdc0->mpwldectrl0);
+	readl(&mmdc0->mpwldectrl1);
+	readl(&mmdc1->mpwldectrl0);
+	readl(&mmdc1->mpwldectrl1);
+
+	/* enable DDR logic power down timer: */
+	setbits_le32(&mmdc0->mdpdc, 0x00005500);
+
+	/* Enable Adopt power down timer: */
+	clrbits_le32(&mmdc0->mapsr, 0x1);
+
+	/* Clear CON_REQ */
+	writel(0, &mmdc0->mdscr);
+
+	return errors;
+}
+
+int mmdc_do_dqs_calibration(void)
+{
+	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
+	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
+	struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux =
+		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
+	bool cs0_enable;
+	bool cs1_enable;
+	bool cs0_enable_initial;
+	bool cs1_enable_initial;
+	u32 esdmisc_val;
+	u32 bus_size;
+	u32 temp_ref;
+	u32 pddword = 0x00ffff00; /* best so far, place into MPPDCMPR1 */
+	u32 errors = 0;
+	u32 initdelay = 0x40404040;
+
+	/* check to see which chip selects are enabled */
+	cs0_enable_initial = readl(&mmdc0->mdctl) & 0x80000000;
+	cs1_enable_initial = readl(&mmdc0->mdctl) & 0x40000000;
+
+	/* disable DDR logic power down timer: */
+	clrbits_le32(&mmdc0->mdpdc, 0xff00);
+
+	/* disable Adopt power down timer: */
+	setbits_le32(&mmdc0->mapsr, 0x1);
+
+	/* set DQS pull ups */
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
+	setbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+
+	/* Save old RALAT and WALAT values */
+	esdmisc_val = readl(&mmdc0->mdmisc);
+
+	setbits_le32(&mmdc0->mdmisc,
+		     (1 << 6) | (1 << 7) | (1 << 8) | (1 << 16) | (1 << 17));
+
+	/* Disable auto refresh before proceeding with calibration */
+	temp_ref = readl(&mmdc0->mdref);
+	writel(0x0000c000, &mmdc0->mdref);
+
+	/*
+	 * Per the ref manual, issue one refresh cycle MDSCR[CMD]= 0x2,
+	 * this also sets the CON_REQ bit.
+	 */
+	if (cs0_enable_initial)
+		writel(0x00008020, &mmdc0->mdscr);
+	if (cs1_enable_initial)
+		writel(0x00008028, &mmdc0->mdscr);
+
+	/* poll to make sure the con_ack bit was asserted */
+	wait_for_bit(&mmdc0->mdscr, 1 << 14, 1);
+
+	/*
+	 * Check MDMISC register CALIB_PER_CS to see which CS calibration
+	 * is targeted to (under normal cases, it should be cleared
+	 * as this is the default value, indicating calibration is directed
+	 * to CS0).
+	 * Disable the other chip select not being target for calibration
+	 * to avoid any potential issues.  This will get re-enabled at end
+	 * of calibration.
+	 */
+	if ((readl(&mmdc0->mdmisc) & 0x00100000) == 0)
+		clrbits_le32(&mmdc0->mdctl, 1 << 30);	/* clear SDE_1 */
+	else
+		clrbits_le32(&mmdc0->mdctl, 1 << 31);	/* clear SDE_0 */
+
+	/*
+	 * Check to see which chip selects are now enabled for
+	 * the remainder of the calibration.
+	 */
+	cs0_enable = readl(&mmdc0->mdctl) & 0x80000000;
+	cs1_enable = readl(&mmdc0->mdctl) & 0x40000000;
+
+	/* Check to see what the data bus size is */
+	bus_size = (readl(&mmdc0->mdctl) & 0x30000) >> 16;
+	debug("Data bus size: %d (%d bits)\n", bus_size, 1 << (bus_size + 4));
+
+	precharge_all(cs0_enable, cs1_enable);
+
+	/* Write the pre-defined value into MPPDCMPR1 */
+	writel(pddword, &mmdc0->mppdcmpr1);
+
+	/*
+	 * Issue a write access to the external DDR device by setting
+	 * the bit SW_DUMMY_WR (bit 0) in the MPSWDAR0 and then poll
+	 * this bit until it clears to indicate completion of the write access.
+	 */
+	setbits_le32(&mmdc0->mpswdar0, 1);
+	wait_for_bit(&mmdc0->mpswdar0, 1 << 0, 0);
+
+	/* Set the RD_DL_ABS# bits to their default values
+	 * (will be calibrated later in the read delay-line calibration).
+	 * Both PHYs for x64 configuration, if x32, do only PHY0.
+	 */
+	writel(initdelay, &mmdc0->mprddlctl);
+	if (bus_size == 0x2)
+		writel(initdelay, &mmdc1->mprddlctl);
+
+	/* Force a measurment, for previous delay setup to take effect. */
+	force_delay_measurement(bus_size);
+
+	/*
+	 * ***************************
+	 * Read DQS Gating calibration
+	 * ***************************
+	 */
+	debug("Starting Read DQS Gating calibration.\n");
+
+	/*
+	 * Reset the read data FIFOs (two resets); only need to issue reset
+	 * to PHY0 since in x64 mode, the reset will also go to PHY1.
+	 */
+	reset_read_data_fifos();
+
+	/*
+	 * Start the automatic read DQS gating calibration process by
+	 * asserting MPDGCTRL0[HW_DG_EN] and MPDGCTRL0[DG_CMP_CYC]
+	 * and then poll MPDGCTRL0[HW_DG_EN]] until this bit clears
+	 * to indicate completion.
+	 * Also, ensure that MPDGCTRL0[HW_DG_ERR] is clear to indicate
+	 * no errors were seen during calibration.
+	 */
+
+	/*
+	 * Set bit 30: chooses option to wait 32 cycles instead of
+	 * 16 before comparing read data.
+	 */
+	setbits_le32(&mmdc0->mpdgctrl0, 1 << 30);
+
+	/* Set bit 28 to start automatic read DQS gating calibration */
+	setbits_le32(&mmdc0->mpdgctrl0, 5 << 28);
+
+	/* Poll for completion.  MPDGCTRL0[HW_DG_EN] should be 0 */
+	wait_for_bit(&mmdc0->mpdgctrl0, 1 << 28, 0);
+
+	/*
+	 * Check to see if any errors were encountered during calibration
+	 * (check MPDGCTRL0[HW_DG_ERR]).
+	 * Check both PHYs for x64 configuration, if x32, check only PHY0.
+	 */
+	if (readl(&mmdc0->mpdgctrl0) & 0x00001000)
+		errors |= 1;
+
+	if ((bus_size == 0x2) && (readl(&mmdc1->mpdgctrl0) & 0x00001000))
+		errors |= 2;
+
+	/*
+	 * DQS gating absolute offset should be modified from
+	 * reflecting (HW_DG_LOWx + HW_DG_UPx)/2 to
+	 * reflecting (HW_DG_UPx - 0x80)
+	 */
+	modify_dg_result(&mmdc0->mpdghwst0, &mmdc0->mpdghwst1,
+			 &mmdc0->mpdgctrl0);
+	modify_dg_result(&mmdc0->mpdghwst2, &mmdc0->mpdghwst3,
+			 &mmdc0->mpdgctrl1);
+	if (bus_size == 0x2) {
+		modify_dg_result(&mmdc1->mpdghwst0, &mmdc1->mpdghwst1,
+				 &mmdc1->mpdgctrl0);
+		modify_dg_result(&mmdc1->mpdghwst2, &mmdc1->mpdghwst3,
+				 &mmdc1->mpdgctrl1);
+	}
+	debug("Ending Read DQS Gating calibration. Error mask: 0x%x\n", errors);
+
+	/*
+	 * **********************
+	 * Read Delay calibration
+	 * **********************
+	 */
+	debug("Starting Read Delay calibration.\n");
+
+	reset_read_data_fifos();
+
+	/*
+	 * 4. Issue the Precharge-All command to the DDR device for both
+	 * chip selects.  If only using one chip select, then precharge
+	 * only the desired chip select.
+	 */
+	precharge_all(cs0_enable, cs1_enable);
+
+	/*
+	 * 9. Read delay-line calibration
+	 * Start the automatic read calibration process by asserting
+	 * MPRDDLHWCTL[HW_RD_DL_EN].
+	 */
+	writel(0x00000030, &mmdc0->mprddlhwctl);
+
+	/*
+	 * 10. poll for completion
+	 * MMDC indicates that the write data calibration had finished by
+	 * setting MPRDDLHWCTL[HW_RD_DL_EN] = 0.   Also, ensure that
+	 * no error bits were set.
+	 */
+	wait_for_bit(&mmdc0->mprddlhwctl, 1 << 4, 0);
+
+	/* check both PHYs for x64 configuration, if x32, check only PHY0 */
+	if (readl(&mmdc0->mprddlhwctl) & 0x0000000f)
+		errors |= 4;
+
+	if ((bus_size == 0x2) && (readl(&mmdc1->mprddlhwctl) & 0x0000000f))
+		errors |= 8;
+
+	debug("Ending Read Delay calibration. Error mask: 0x%x\n", errors);
+
+	/*
+	 * ***********************
+	 * Write Delay Calibration
+	 * ***********************
+	 */
+	debug("Starting Write Delay calibration.\n");
+
+	reset_read_data_fifos();
+
+	/*
+	 * 4. Issue the Precharge-All command to the DDR device for both
+	 * chip selects. If only using one chip select, then precharge
+	 * only the desired chip select.
+	 */
+	precharge_all(cs0_enable, cs1_enable);
+
+	/*
+	 * 8. Set the WR_DL_ABS# bits to their default values.
+	 * Both PHYs for x64 configuration, if x32, do only PHY0.
+	 */
+	writel(initdelay, &mmdc0->mpwrdlctl);
+	if (bus_size == 0x2)
+		writel(initdelay, &mmdc1->mpwrdlctl);
+
+	/*
+	 * XXX This isn't in the manual. Force a measurement,
+	 * for previous delay setup to effect.
+	 */
+	force_delay_measurement(bus_size);
+
+	/*
+	 * 9. 10. Start the automatic write calibration process
+	 * by asserting MPWRDLHWCTL0[HW_WR_DL_EN].
+	 */
+	writel(0x00000030, &mmdc0->mpwrdlhwctl);
+
+	/*
+	 * Poll for completion.
+	 * MMDC indicates that the write data calibration had finished
+	 * by setting MPWRDLHWCTL[HW_WR_DL_EN] = 0.
+	 * Also, ensure that no error bits were set.
+	 */
+	wait_for_bit(&mmdc0->mpwrdlhwctl, 1 << 4, 0);
+
+	/* Check both PHYs for x64 configuration, if x32, check only PHY0 */
+	if (readl(&mmdc0->mpwrdlhwctl) & 0x0000000f)
+		errors |= 16;
+
+	if ((bus_size == 0x2) && (readl(&mmdc1->mpwrdlhwctl) & 0x0000000f))
+		errors |= 32;
+
+	debug("Ending Write Delay calibration. Error mask: 0x%x\n", errors);
+
+	reset_read_data_fifos();
+
+	/* Enable DDR logic power down timer */
+	setbits_le32(&mmdc0->mdpdc, 0x00005500);
+
+	/* Enable Adopt power down timer */
+	clrbits_le32(&mmdc0->mapsr, 0x1);
+
+	/* Restore MDMISC value (RALAT, WALAT) to MMDCP1 */
+	writel(esdmisc_val, &mmdc0->mdmisc);
+
+	/* Clear DQS pull ups */
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
+	clrbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+
+	/* Re-enable SDE (chip selects) if they were set initially */
+	if (cs1_enable_initial)
+		/* Set SDE_1 */
+		setbits_le32(&mmdc0->mdctl, 1 << 30);
+
+	if (cs0_enable_initial)
+		/* Set SDE_0 */
+		setbits_le32(&mmdc0->mdctl, 1 << 31);
+
+	/* Re-enable to auto refresh */
+	writel(temp_ref, &mmdc0->mdref);
+
+	/* Clear the MDSCR (including the con_req bit) */
+	writel(0x0, &mmdc0->mdscr);	/* CS0 */
+
+	/* Poll to make sure the con_ack bit is clear */
+	wait_for_bit(&mmdc0->mdscr, 1 << 14, 0);
+
+	/*
+	 * Print out the registers that were updated as a result
+	 * of the calibration process.
+	 */
+	debug("MMDC registers updated from calibration\n");
+	debug("Read DQS gating calibration:\n");
+	debug("\tMPDGCTRL0 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl0));
+	debug("\tMPDGCTRL1 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl1));
+	debug("\tMPDGCTRL0 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl0));
+	debug("\tMPDGCTRL1 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl1));
+	debug("Read calibration:\n");
+	debug("\tMPRDDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mprddlctl));
+	debug("\tMPRDDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mprddlctl));
+	debug("Write calibration:\n");
+	debug("\tMPWRDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mpwrdlctl));
+	debug("\tMPWRDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mpwrdlctl));
+
+	/*
+	 * Registers below are for debugging purposes.  These print out
+	 * the upper and lower boundaries captured during
+	 * read DQS gating calibration.
+	 */
+	debug("Status registers bounds for read DQS gating:\n");
+	debug("\tMPDGHWST0 PHY0 = 0x%08x\n", readl(&mmdc0->mpdghwst0));
+	debug("\tMPDGHWST1 PHY0 = 0x%08x\n", readl(&mmdc0->mpdghwst1));
+	debug("\tMPDGHWST2 PHY0 = 0x%08x\n", readl(&mmdc0->mpdghwst2));
+	debug("\tMPDGHWST3 PHY0 = 0x%08x\n", readl(&mmdc0->mpdghwst3));
+	debug("\tMPDGHWST0 PHY1 = 0x%08x\n", readl(&mmdc1->mpdghwst0));
+	debug("\tMPDGHWST1 PHY1 = 0x%08x\n", readl(&mmdc1->mpdghwst1));
+	debug("\tMPDGHWST2 PHY1 = 0x%08x\n", readl(&mmdc1->mpdghwst2));
+	debug("\tMPDGHWST3 PHY1 = 0x%08x\n", readl(&mmdc1->mpdghwst3));
+
+	debug("Final do_dqs_calibration error mask: 0x%x\n", errors);
+
+	return errors;
+}
+#endif
+
 #if defined(CONFIG_MX6SX)
 /* Configure MX6SX mmdc iomux */
 void mx6sx_dram_iocfg(unsigned width,
