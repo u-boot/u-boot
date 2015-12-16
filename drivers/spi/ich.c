@@ -752,7 +752,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	 * and byte program command for SST flash
 	 */
 	if (plat->ich_version == 7) {
-		slave->op_mode_rx = SPI_OPM_RX_AS;
+		slave->op_mode_rx = SPI_RX_SLOW;
 		slave->mode = SPI_TX_BYTE;
 	}
 

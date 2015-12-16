@@ -115,7 +115,7 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 			QSPI_SETUP0_NUM_D_BYTES_8_BITS |
 			QSPI_SETUP0_READ_QUAD | QSPI_CMD_WRITE |
 			QSPI_NUM_DUMMY_BITS);
-	slave->op_mode_rx = SPI_OPM_RX_QOF;
+	slave->op_mode_rx = SPI_RX_QUAD;
 #else
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
 			QSPI_SETUP0_NUM_D_BYTES_NO_BITS |

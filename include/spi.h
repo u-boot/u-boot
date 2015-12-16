@@ -35,10 +35,10 @@
 #define SPI_XFER_U_PAGE	(1 << 5)
 
 /* SPI RX operation modes */
-#define SPI_OPM_RX_AS		(1 << 0)
-#define SPI_OPM_RX_AF		(1 << 1)
-#define SPI_OPM_RX_DOUT		(1 << 2)
-#define SPI_OPM_RX_QOF		(1 << 4)
+#define SPI_RX_SLOW		(1 << 0)
+#define SPI_RX_FAST		(1 << 1)
+#define SPI_RX_DUAL		(1 << 2)
+#define SPI_RX_QUAD		(1 << 4)
 
 /* SPI bus connection options - see enum spi_dual_flash */
 #define SPI_CONN_DUAL_SHARED		(1 << 0)
