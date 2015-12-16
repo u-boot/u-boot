@@ -419,8 +419,14 @@ extern int soft_i2c_gpio_scl;
 
 #ifdef CONFIG_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
+#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
+#define BOOT_TARGET_DEVICES_MMC_EXTRA(func) func(MMC, mmc, 1)
+#else
+#define BOOT_TARGET_DEVICES_MMC_EXTRA(func)
+#endif
 #else
 #define BOOT_TARGET_DEVICES_MMC(func)
+#define BOOT_TARGET_DEVICES_MMC_EXTRA(func)
 #endif
 
 #ifdef CONFIG_AHCI
@@ -448,6 +454,7 @@ extern int soft_i2c_gpio_scl;
 #define BOOT_TARGET_DEVICES(func) \
 	func(FEL, fel, na) \
 	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_MMC_EXTRA(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	func(PXE, pxe, na) \
