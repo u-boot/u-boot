@@ -47,7 +47,7 @@ void cpu_init_f (volatile immap_t * im)
 			   (CONFIG_SYS_SPCR_OPT << SPCR_OPT_SHIFT);
 #endif
 
-	/* Enable Time Base & Decrimenter (so we will have udelay()) */
+	/* Enable Time Base & Decrementer (so we will have udelay()) */
 	im->sysconf.spcr |= SPCR_TBEN;
 
 	/* DDR control driver register */

@@ -599,7 +599,7 @@ long int spd_sdram()
 
 	/*
 	 * Empirically set ~MCAS-to-preamble override for DDR 2.
-	 * Your milage will vary.
+	 * Your mileage will vary.
 	 */
 	cpo = 0;
 	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
@@ -843,7 +843,7 @@ long int spd_sdram()
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 /*
- * Use timebase counter, get_timer() is not availabe
+ * Use timebase counter, get_timer() is not available
  * at this point of initialization yet.
  */
 static __inline__ unsigned long get_tbms (void)
