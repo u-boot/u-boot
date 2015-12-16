@@ -44,7 +44,7 @@ struct ddrphy_init_sequence {
 	u32 err_flag;
 };
 
-static struct ddrphy_init_sequence init_sequence[] = {
+static const struct ddrphy_init_sequence init_sequence[] = {
 	{
 		"DRAM Initialization",
 		PIR_DRAMRST | PIR_DRAMINIT,
