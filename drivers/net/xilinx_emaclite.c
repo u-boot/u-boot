@@ -93,7 +93,7 @@ struct xemaclite {
 	struct mii_dev *bus;
 };
 
-static u32 etherrxbuff[PKTSIZE_ALIGN/4]; /* Receive buffer */
+static uchar etherrxbuff[PKTSIZE_ALIGN]; /* Receive buffer */
 
 static void xemaclite_alignedread(u32 *srcptr, void *destptr, u32 bytecount)
 {
@@ -528,8 +528,8 @@ try_again:
 	out_be32(ack, reg);
 
 	debug("Packet receive from 0x%p, length %dB\n", addr, length);
-	net_process_received_packet((uchar *)etherrxbuff, length);
-	return 0;
+	*packetp = etherrxbuff;
+	return length;
 }
 
 static int emaclite_miiphy_read(struct mii_dev *bus, int addr,
