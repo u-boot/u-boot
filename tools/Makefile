@@ -64,7 +64,7 @@ RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 					rsa-sign.o rsa-verify.o rsa-checksum.o \
 					rsa-mod-exp.o)
 
-ROCKCHIP_OBS = $(if $(CONFIG_ARCH_ROCKCHIP),lib/rc4.o rkcommon.o rkimage.o rksd.o,)
+ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
@@ -108,12 +108,6 @@ fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
 fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
-
-ifneq ($(CONFIG_ARCH_ROCKCHIP),)
-HOST_EXTRACFLAGS += \
-		-DCONFIG_ROCKCHIP_MAX_SPL_SIZE=$(CONFIG_ROCKCHIP_MAX_SPL_SIZE) \
-		-DCONFIG_ROCKCHIP_SPL_HDR="\"$(CONFIG_ROCKCHIP_SPL_HDR)\""
-endif
 
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register

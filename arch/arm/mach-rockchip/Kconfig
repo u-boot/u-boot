@@ -17,21 +17,6 @@ config ROCKCHIP_RK3036
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
 
-config ROCKCHIP_SPL_HDR
-	string "Header of rockchip's spl loader"
-	help
-	  Rockchip's bootrom requires the spl loader to start with a 4-bytes
-	  header. The content of this header depends on the chip type.
-
-config ROCKCHIP_MAX_SPL_SIZE
-	hex "Max size of rockchip's spl loader"
-	help
-	  Different chip may have different sram size. And if we want to jump
-	  back to the bootrom after spl, we may need to reserve some sram space
-	  for the bootrom.
-	  The max spl loader size should be sram size minus reserved
-	  size(if needed)
-
 config SYS_MALLOC_F
 	default y
 

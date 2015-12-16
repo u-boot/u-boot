@@ -40,16 +40,13 @@ static void div_out(unsigned int *num, unsigned int div)
 		out_dgt(dgt);
 }
 
-int printf(const char *fmt, ...)
+int vprintf(const char *fmt, va_list va)
 {
-	va_list va;
 	char ch;
 	char *p;
 	unsigned int num;
 	char buf[12];
 	unsigned int div;
-
-	va_start(va, fmt);
 
 	while ((ch = *(fmt++))) {
 		if (ch != '%') {
@@ -117,6 +114,17 @@ int printf(const char *fmt, ...)
 	}
 
 abort:
-	va_end(va);
 	return 0;
+}
+
+int printf(const char *fmt, ...)
+{
+	va_list va;
+	int ret;
+
+	va_start(va, fmt);
+	ret = vprintf(fmt, va);
+	va_end(va);
+
+	return ret;
 }
