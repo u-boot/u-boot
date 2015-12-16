@@ -120,6 +120,11 @@ config TARGET_SMARTWEB
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
+config TARGET_VINCO
+	bool "Support VINCO"
+	select CPU_V7
+	select SUPPORT_SPL
+
 endchoice
 
 config SYS_SOC
@@ -143,6 +148,7 @@ source "board/calao/usb_a9263/Kconfig"
 source "board/denx/ma5d4evk/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
+source "board/l+g/vinco/Kconfig"
 source "board/mini-box/picosam9g45/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
