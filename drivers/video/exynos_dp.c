@@ -207,7 +207,7 @@ static unsigned int exynos_dp_handle_edid(struct edp_device_info *edp_info)
 		return -EINVAL;
 	}
 
-	/*Refer VESA Display Port Stnadard Ver1.1a Page 120 */
+	/* Refer VESA Display Port Standard Ver1.1a Page 120 */
 	if (edp_info->dpcd_rev == DP_DPCD_REV_11) {
 		temp = buf[DPCD_MAX_LANE_COUNT] & 0x1f;
 		if (buf[DPCD_MAX_LANE_COUNT] & 0x80)
@@ -270,7 +270,7 @@ static unsigned int exynos_dp_link_start(struct edp_device_info *edp_info)
 		return ret;
 	}
 
-	/* Set link rate and count as you want to establish*/
+	/* Set link rate and count as you want to establish */
 	exynos_dp_set_link_bandwidth(edp_info->lane_bw);
 	exynos_dp_set_lane_count(edp_info->lane_cnt);
 
@@ -322,7 +322,7 @@ static unsigned int exynos_dp_training_pattern_dis(void)
 	ret = exynos_dp_write_byte_to_dpcd(DPCD_TRAINING_PATTERN_SET,
 			DPCD_TRAINING_PATTERN_DISABLED);
 	if (ret != EXYNOS_DP_SUCCESS) {
-		printf("DP requst_link_traninig_req failed\n");
+		printf("DP request_link_training_req failed\n");
 		return -EAGAIN;
 	}
 
@@ -412,7 +412,7 @@ static unsigned int exynos_dp_read_dpcd_adj_req(unsigned char lane_num,
 	unsigned int dpcd_addr;
 	unsigned char shift_val[DP_LANE_CNT_4] = {0, 4, 0, 4};
 
-	/*lane_num value is used as arry index, so this range 0 ~ 3 */
+	/* lane_num value is used as array index, so this range 0 ~ 3 */
 	dpcd_addr = DPCD_ADJUST_REQUEST_LANE0_1 + (lane_num / 2);
 
 	ret = exynos_dp_read_byte_from_dpcd(dpcd_addr, &buf);
@@ -433,7 +433,7 @@ static int exynos_dp_equalizer_err_link(struct edp_device_info *edp_info)
 
 	ret = exynos_dp_training_pattern_dis();
 	if (ret != EXYNOS_DP_SUCCESS) {
-		printf("DP training_patter_disable() failed\n");
+		printf("DP training_pattern_disable() failed\n");
 		edp_info->lt_info.lt_status = DP_LT_FAIL;
 	}
 
@@ -523,7 +523,7 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 		ret = exynos_dp_write_bytes_to_dpcd(
 				DPCD_TRAINING_PATTERN_SET, 5, buf);
 		if (ret != EXYNOS_DP_SUCCESS) {
-			printf("DP write traning pattern1 failed\n");
+			printf("DP write training pattern1 failed\n");
 			edp_info->lt_info.lt_status = DP_LT_FAIL;
 			return ret;
 		} else
@@ -567,7 +567,7 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 		ret = exynos_dp_write_bytes_to_dpcd(
 				DPCD_TRAINING_LANE0_SET, 4, lt_ctl_val);
 		if (ret != EXYNOS_DP_SUCCESS) {
-			printf("DP write traning pattern2 failed\n");
+			printf("DP write training pattern2 failed\n");
 			edp_info->lt_info.lt_status = DP_LT_FAIL;
 			return ret;
 		}
@@ -738,7 +738,7 @@ static unsigned int exynos_dp_set_link_train(struct edp_device_info *edp_info)
 
 	ret = exynos_dp_sw_link_training(edp_info);
 	if (ret != EXYNOS_DP_SUCCESS)
-		printf("DP dp_sw_link_traning() failed\n");
+		printf("DP dp_sw_link_training() failed\n");
 
 	return ret;
 }
