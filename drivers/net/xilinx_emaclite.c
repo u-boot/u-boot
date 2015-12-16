@@ -232,9 +232,9 @@ static u32 phywrite(struct xemaclite *emaclite, u32 phyaddress, u32 registernum,
 	return 0;
 }
 
-static void emaclite_halt(struct udevice *dev)
+static void emaclite_stop(struct udevice *dev)
 {
-	debug("eth_halt\n");
+	debug("eth_stop\n");
 }
 
 /* Use MII register 1 (MII status register) to detect PHY */
@@ -313,7 +313,7 @@ static int setup_phy(struct udevice *dev)
 	return 1;
 }
 
-static int emaclite_init(struct udevice *dev)
+static int emaclite_start(struct udevice *dev)
 {
 	struct xemaclite *emaclite = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
@@ -580,10 +580,10 @@ static int emaclite_remove(struct udevice *dev)
 }
 
 static const struct eth_ops emaclite_ops = {
-	.start = emaclite_init,
+	.start = emaclite_start,
 	.send = emaclite_send,
 	.recv = emaclite_recv,
-	.stop = emaclite_halt,
+	.stop = emaclite_stop,
 };
 
 static int emaclite_ofdata_to_platdata(struct udevice *dev)
