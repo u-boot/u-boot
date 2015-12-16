@@ -316,7 +316,7 @@ static int setup_phy(struct udevice *dev)
 }
 
 /* STOP DMA transfers */
-static void axiemac_halt(struct udevice *dev)
+static void axiemac_stop(struct udevice *dev)
 {
 	struct axidma_priv *priv = dev_get_priv(dev);
 	u32 temp;
@@ -376,7 +376,7 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 	return 0;
 }
 
-static int axiemac_setup_mac(struct udevice *dev)
+static int axiemac_write_hwaddr(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct axidma_priv *priv = dev_get_priv(dev);
@@ -416,7 +416,7 @@ static void axi_dma_init(struct axidma_priv *priv)
 		printf("%s: Timeout\n", __func__);
 }
 
-static int axiemac_init(struct udevice *dev)
+static int axiemac_start(struct udevice *dev)
 {
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
@@ -470,7 +470,7 @@ static int axiemac_init(struct udevice *dev)
 
 	/* PHY setup */
 	if (!setup_phy(dev)) {
-		axiemac_halt(dev);
+		axiemac_stop(dev);
 		return -1;
 	}
 
@@ -657,12 +657,12 @@ static int axi_emac_remove(struct udevice *dev)
 }
 
 static const struct eth_ops axi_emac_ops = {
-	.start			= axiemac_init,
+	.start			= axiemac_start,
 	.send			= axiemac_send,
 	.recv			= axiemac_recv,
 	.free_pkt		= axiemac_free_pkt,
-	.stop			= axiemac_halt,
-	.write_hwaddr		= axiemac_setup_mac,
+	.stop			= axiemac_stop,
+	.write_hwaddr		= axiemac_write_hwaddr,
 };
 
 static int axi_emac_ofdata_to_platdata(struct udevice *dev)
