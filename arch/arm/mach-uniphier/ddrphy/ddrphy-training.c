@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <linux/err.h>
 #include <linux/io.h>
 #include <mach/ddrphy-regs.h>
 
@@ -117,7 +118,7 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 		if (--timeout < 0) {
 			printf("%s: error: timeout during DDR training\n",
 								__func__);
-			return -1;
+			return -ETIMEDOUT;
 		}
 		udelay(1);
 		pgsr0 = readl(&phy->pgsr[0]);
@@ -127,7 +128,7 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 		if (pgsr0 & init_sequence[i].err_flag) {
 			printf("%s: error: %s failed\n", __func__,
 						init_sequence[i].description);
-			return -1;
+			return -EIO;
 		}
 	}
 
