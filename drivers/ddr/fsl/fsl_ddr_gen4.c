@@ -155,7 +155,12 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->sdram_mode_15, regs->ddr_sdram_mode_15);
 	ddr_out32(&ddr->sdram_mode_16, regs->ddr_sdram_mode_16);
 	ddr_out32(&ddr->sdram_md_cntl, regs->ddr_sdram_md_cntl);
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009663
+	ddr_out32(&ddr->sdram_interval,
+		  regs->ddr_sdram_interval & ~SDRAM_INTERVAL_BSTOPRE);
+#else
 	ddr_out32(&ddr->sdram_interval, regs->ddr_sdram_interval);
+#endif
 	ddr_out32(&ddr->sdram_data_init, regs->ddr_data_init);
 	ddr_out32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl);
 #ifndef CONFIG_SYS_FSL_DDR_EMU
@@ -397,6 +402,11 @@ step2:
 
 	if (timeout <= 0)
 		printf("Waiting for D_INIT timeout. Memory may not work.\n");
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009663
+	ddr_out32(&ddr->sdram_interval, regs->ddr_sdram_interval);
+#endif
+
 #ifdef CONFIG_DEEP_SLEEP
 	if (is_warm_boot()) {
 		/* exit self-refresh */
