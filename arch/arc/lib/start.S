@@ -78,7 +78,13 @@ ENTRY(_start)
 
 	/* Zero the one and only argument of "board_init_f" */
 	mov_s	%r0, 0
-	j	board_init_f
+	bl	board_init_f
+
+	/* We only get here if relocation is disabled by GD_FLG_SKIP_RELOC */
+	/* Make sure we don't lose GD overwritten by zero new GD */
+	mov	%r0, %r25
+	mov	%r1, 0
+	bl	board_init_r
 ENDPROC(_start)
 
 /*
