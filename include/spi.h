@@ -34,7 +34,7 @@
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 #define SPI_XFER_U_PAGE	(1 << 5)
 
-/* SPI RX operation modes */
+/* SPI mode_rx flags */
 #define SPI_RX_SLOW		(1 << 0)
 #define SPI_RX_FAST		(1 << 1)
 #define SPI_RX_DUAL		(1 << 2)
@@ -99,7 +99,7 @@ struct dm_spi_slave_platdata {
  *			bus (bus->seq) so does not need to be stored
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
- * @op_mode_rx:		SPI RX operation mode.
+ * @mode_rx:		SPI RX mode to use for this slave (see SPI mode_rx flags)
  * @wordlen:		Size of SPI word in number of bits
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
@@ -117,7 +117,7 @@ struct spi_slave {
 	unsigned int cs;
 #endif
 	uint mode;
-	u8 op_mode_rx;
+	u8 mode_rx;
 	unsigned int wordlen;
 	unsigned int max_write_size;
 	void *memory_map;

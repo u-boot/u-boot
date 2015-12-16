@@ -1098,7 +1098,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->sector_size = flash->erase_size;
 
 	/* Look for the fastest read cmd */
-	cmd = fls(params->e_rd_cmd & spi->op_mode_rx);
+	cmd = fls(params->e_rd_cmd & spi->mode_rx);
 	if (cmd) {
 		cmd = spi_read_cmds_array[cmd - 1];
 		flash->read_cmd = cmd;
