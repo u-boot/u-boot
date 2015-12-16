@@ -147,8 +147,8 @@ struct ddrphy {
 #define DTCR_DTRANK_SHIFT	4		/* Data Training Rank */
 #define DTCR_DTRANK_MASK	(0x3 << (DTCR_DTRANK_SHIFT))
 #define DTCR_DTMPR		(1 << 6)	/* Data Training using MPR */
-#define DTCR_RNKEN_SHIFT	24		/* Rank Enable */
-#define DTCR_RNKEN_MASK		(0xf << (DTCR_RNKEN_SHIFT))
+#define DTCR_RANKEN_SHIFT	24		/* Rank Enable */
+#define DTCR_RANKEN_MASK	(0xf << (DTCR_RANKEN_SHIFT))
 
 #define DXGCR_WLRKEN_SHIFT	26		/* Write Level Rank Enable */
 #define DXGCR_WLRKEN_MASK	(0xf << (DXGCR_WLRKEN_SHIFT))

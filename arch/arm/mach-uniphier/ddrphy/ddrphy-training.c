@@ -32,8 +32,8 @@ void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank)
 	/* Use Multi-Purpose Register for DQS gate training */
 	tmp |= DTCR_DTMPR;
 	/* Specify the rank enabled for data-training */
-	tmp &= ~DTCR_RNKEN_MASK;
-	tmp |= (1 << (DTCR_RNKEN_SHIFT + rank)) & DTCR_RNKEN_MASK;
+	tmp &= ~DTCR_RANKEN_MASK;
+	tmp |= (1 << (DTCR_RANKEN_SHIFT + rank)) & DTCR_RANKEN_MASK;
 	writel(tmp, p);
 }
 
