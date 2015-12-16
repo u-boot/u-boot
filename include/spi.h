@@ -41,9 +41,6 @@
 #define SPI_OPM_RX_DIO		(1 << 3)
 #define SPI_OPM_RX_QOF		(1 << 4)
 #define SPI_OPM_RX_QIOF		(1 << 5)
-#define SPI_OPM_RX_EXTN	(SPI_OPM_RX_AS | SPI_OPM_RX_AF | SPI_OPM_RX_DOUT | \
-				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
-				SPI_OPM_RX_QIOF)
 
 /* SPI bus connection options - see enum spi_dual_flash */
 #define SPI_CONN_DUAL_SHARED		(1 << 0)
