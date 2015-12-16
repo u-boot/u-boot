@@ -118,10 +118,10 @@ struct spi_slave {
 	u8 flags;
 #define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
 #define SPI_XFER_END		0x02	/* Deassert CS after transfer */
-#define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
-#define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
-#define SPI_XFER_U_PAGE		(1 << 5)
+#define SPI_XFER_MMAP		0x04	/* Memory Mapped start */
+#define SPI_XFER_MMAP_END	0x08	/* Memory Mapped End */
+#define SPI_XFER_U_PAGE		0x10
 };
 
 /**
