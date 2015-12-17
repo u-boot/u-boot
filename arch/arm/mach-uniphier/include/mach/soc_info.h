@@ -60,4 +60,7 @@ static inline enum uniphier_soc_id uniphier_get_soc_type(void)
 }
 #endif
 
+int uniphier_get_soc_model(void);
+int uniphier_get_soc_revision(void);
+
 #endif /* __MACH_SOC_INFO_H__ */
