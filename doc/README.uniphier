@@ -48,13 +48,17 @@ PH1-Pro5:
     $ make ph1_pro5_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-ProXstream2:
-    $ make pxs2_defconfig
+ProXstream2 Gentil board:
+    $ make uniphier_pxs2_ld6b_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-proxstream2-gentil
+
+ProXstream2 Vodka board:
+    $ make uniphier_pxs2_ld6b_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-LD6b:
-    $ make ph1_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
+PH1-LD6b reference board:
+    $ make uniphier_pxs2_ld6b_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-ld6b-ref
 
 You may wish to change the "CROSS_COMPILE=arm-linux-gnueabi-"
 to use your favorite compiler.
