@@ -19,8 +19,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS2,115200";
-		stdout-path = &serial2;
+		stdout-path = "serial2:115200n8";
 	};
 
 	aliases {
