@@ -4,8 +4,6 @@ How to port a serial driver to driver model
 About 16 of 33 serial drivers have been converted as at September 2015. It
 is time for maintainers to start converting over the remaining serial drivers:
 
-   altera_jtag_uart.c
-   altera_uart.c
    arm_dcc.c
    lpc32xx_hsuart.c
    mcfuart.c
