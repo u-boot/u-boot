@@ -4,9 +4,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <common.h>
 #include <libfdt.h>
 #include <linux/kernel.h>
 #include <mach/init.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
 static const struct uniphier_board_data ph1_sld3_data = {
@@ -116,12 +119,12 @@ static const struct uniphier_board_id uniphier_boards[] = {
 #endif
 };
 
-const struct uniphier_board_data *uniphier_get_board_param(const void *fdt)
+const struct uniphier_board_data *uniphier_get_board_param(void)
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(uniphier_boards); i++) {
-		if (!fdt_node_check_compatible(fdt, 0,
+		if (!fdt_node_check_compatible(gd->fdt_blob, 0,
 					       uniphier_boards[i].compatible))
 			return uniphier_boards[i].param;
 	}
