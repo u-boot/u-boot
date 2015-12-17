@@ -1113,8 +1113,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		if (initrd_high == ~0)
 			initrd_copy_to_ram = 0;
 	} else {
-		/* not set, no restrictions to load high */
-		initrd_high = ~0;
+		initrd_high = getenv_bootm_mapsize() + getenv_bootm_low();
 	}
 
 
