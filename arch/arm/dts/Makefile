@@ -72,7 +72,8 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += zynqmp-ep108.dtb	\
 	zynqmp-zc1751-xm015-dc1.dtb		\
 	zynqmp-zc1751-xm016-dc2.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb		\
-	zynqmp-mini-qspi.dtb
+	zynqmp-mini-qspi.dtb			\
+	zynqmp-mini-nand.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-evm.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
