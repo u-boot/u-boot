@@ -197,6 +197,19 @@ int sata_init(void)
 }
 #endif
 
+static void erratum_a009929(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009929
+	struct ccsr_gur *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	u32 __iomem *dcsr_cop_ccp = (void *)CONFIG_SYS_DCSR_COP_CCP_ADDR;
+	u32 rstrqmr1 = gur_in32(&gur->rstrqmr1);
+
+	rstrqmr1 |= 0x00000400;
+	gur_out32(&gur->rstrqmr1, rstrqmr1);
+	writel(0x01000000, dcsr_cop_ccp);
+#endif
+}
+
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
@@ -216,6 +229,9 @@ void fsl_lsch2_early_init_f(void)
 	 */
 	out_le32(&cci->slave[4].snoop_ctrl,
 		 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
+
+	/* Erratum */
+	erratum_a009929();
 }
 #endif
 
