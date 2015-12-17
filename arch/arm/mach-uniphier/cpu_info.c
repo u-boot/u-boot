@@ -54,8 +54,7 @@ int print_cpuinfo(void)
 		return -1;
 	}
 
-	if (model > 1)
-		printf(" model %d", model);
+	printf(" model %d", model);
 
 	printf(" (rev. %d)\n", rev);
 
