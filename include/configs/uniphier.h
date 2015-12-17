@@ -193,7 +193,6 @@
 	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x84100000\0" \
 	"fdt_size=0x00008000\0" \
-	"fdt_file=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"kernel_addr=0x00200000\0" \
 	"kernel_addr_r=0x84200000\0" \
 	"kernel_size=0x00800000\0" \
