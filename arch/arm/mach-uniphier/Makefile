@@ -6,7 +6,6 @@ ifdef CONFIG_SPL_BUILD
 
 obj-y += lowlevel_init.o
 obj-y += init_page_table.o
-obj-y += boards.o
 
 obj-y += init/ bcu/ memconf/ pll/ early-clk/ early-pinctrl/ umc/ ddrphy/
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += sbc/
@@ -33,6 +32,7 @@ obj-y += pinctrl/ clk/
 endif
 
 obj-y += timer.o
+obj-y += boards.o
 obj-y += soc_info.o
 obj-y += boot-mode/
 
