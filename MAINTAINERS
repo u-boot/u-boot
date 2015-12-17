@@ -162,6 +162,7 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-uniphier.git
 F:	arch/arm/mach-uniphier/
 F:	configs/ph1_*_defconfig
+F:	configs/uniphier_*_defconfig
 N:	uniphier
 
 ARM ZYNQ
