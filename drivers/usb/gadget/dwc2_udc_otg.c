@@ -1,6 +1,6 @@
 /*
- * drivers/usb/gadget/s3c_udc_otg.c
- * Samsung S3C on-chip full/high speed USB OTG 2.0 device controllers
+ * drivers/usb/gadget/dwc2_udc_otg.c
+ * Designware DWC2 on-chip full/high speed USB OTG 2.0 device controllers
  *
  * Copyright (C) 2008 for Samsung Electronics
  *
@@ -32,7 +32,8 @@
 
 #include <asm/mach-types.h>
 
-#include "regs-otg.h"
+#include "dwc2_udc_otg_regs.h"
+#include "dwc2_udc_otg_priv.h"
 #include <usb/lin_gadget_compat.h>
 
 /***********************************************************/
@@ -45,7 +46,7 @@
 #define DEBUG_OUT_EP 0
 #define DEBUG_IN_EP 0
 
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 
 #define EP0_CON		0
 #define EP_MASK		0xF
@@ -62,12 +63,12 @@ static char *state_names[] = {
 	"WAIT_FOR_NULL_COMPLETE",
 };
 
-#define DRIVER_DESC "S3C HS USB OTG Device Driver, (c) Samsung Electronics"
+#define DRIVER_DESC "DWC2 HS USB OTG Device Driver, (c) Samsung Electronics"
 #define DRIVER_VERSION "15 March 2009"
 
-struct s3c_udc	*the_controller;
+struct dwc2_udc	*the_controller;
 
-static const char driver_name[] = "s3c-udc";
+static const char driver_name[] = "dwc2-udc";
 static const char driver_desc[] = DRIVER_DESC;
 static const char ep0name[] = "ep0-control";
 
@@ -83,32 +84,32 @@ static dma_addr_t usb_ctrl_dma_addr;
 /*
   Local declarations.
 */
-static int s3c_ep_enable(struct usb_ep *ep,
+static int dwc2_ep_enable(struct usb_ep *ep,
 			 const struct usb_endpoint_descriptor *);
-static int s3c_ep_disable(struct usb_ep *ep);
-static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
+static int dwc2_ep_disable(struct usb_ep *ep);
+static struct usb_request *dwc2_alloc_request(struct usb_ep *ep,
 					     gfp_t gfp_flags);
-static void s3c_free_request(struct usb_ep *ep, struct usb_request *);
+static void dwc2_free_request(struct usb_ep *ep, struct usb_request *);
 
-static int s3c_queue(struct usb_ep *ep, struct usb_request *, gfp_t gfp_flags);
-static int s3c_dequeue(struct usb_ep *ep, struct usb_request *);
-static int s3c_fifo_status(struct usb_ep *ep);
-static void s3c_fifo_flush(struct usb_ep *ep);
-static void s3c_ep0_read(struct s3c_udc *dev);
-static void s3c_ep0_kick(struct s3c_udc *dev, struct s3c_ep *ep);
-static void s3c_handle_ep0(struct s3c_udc *dev);
-static int s3c_ep0_write(struct s3c_udc *dev);
-static int write_fifo_ep0(struct s3c_ep *ep, struct s3c_request *req);
-static void done(struct s3c_ep *ep, struct s3c_request *req, int status);
-static void stop_activity(struct s3c_udc *dev,
+static int dwc2_queue(struct usb_ep *ep, struct usb_request *, gfp_t gfp_flags);
+static int dwc2_dequeue(struct usb_ep *ep, struct usb_request *);
+static int dwc2_fifo_status(struct usb_ep *ep);
+static void dwc2_fifo_flush(struct usb_ep *ep);
+static void dwc2_ep0_read(struct dwc2_udc *dev);
+static void dwc2_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep);
+static void dwc2_handle_ep0(struct dwc2_udc *dev);
+static int dwc2_ep0_write(struct dwc2_udc *dev);
+static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req);
+static void done(struct dwc2_ep *ep, struct dwc2_request *req, int status);
+static void stop_activity(struct dwc2_udc *dev,
 			  struct usb_gadget_driver *driver);
-static int udc_enable(struct s3c_udc *dev);
-static void udc_set_address(struct s3c_udc *dev, unsigned char address);
-static void reconfig_usbd(struct s3c_udc *dev);
-static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed);
-static void nuke(struct s3c_ep *ep, int status);
-static int s3c_udc_set_halt(struct usb_ep *_ep, int value);
-static void s3c_udc_set_nak(struct s3c_ep *ep);
+static int udc_enable(struct dwc2_udc *dev);
+static void udc_set_address(struct dwc2_udc *dev, unsigned char address);
+static void reconfig_usbd(struct dwc2_udc *dev);
+static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed);
+static void nuke(struct dwc2_ep *ep, int status);
+static int dwc2_udc_set_halt(struct usb_ep *_ep, int value);
+static void dwc2_udc_set_nak(struct dwc2_ep *ep);
 
 void set_udc_gadget_private_data(void *p)
 {
@@ -123,19 +124,19 @@ void *get_udc_gadget_private_data(struct usb_gadget *gadget)
 	return gadget->dev.device_data;
 }
 
-static struct usb_ep_ops s3c_ep_ops = {
-	.enable = s3c_ep_enable,
-	.disable = s3c_ep_disable,
+static struct usb_ep_ops dwc2_ep_ops = {
+	.enable = dwc2_ep_enable,
+	.disable = dwc2_ep_disable,
 
-	.alloc_request = s3c_alloc_request,
-	.free_request = s3c_free_request,
+	.alloc_request = dwc2_alloc_request,
+	.free_request = dwc2_free_request,
 
-	.queue = s3c_queue,
-	.dequeue = s3c_dequeue,
+	.queue = dwc2_queue,
+	.dequeue = dwc2_dequeue,
 
-	.set_halt = s3c_udc_set_halt,
-	.fifo_status = s3c_fifo_status,
-	.fifo_flush = s3c_fifo_flush,
+	.set_halt = dwc2_udc_set_halt,
+	.fifo_status = dwc2_fifo_status,
+	.fifo_flush = dwc2_fifo_flush,
 };
 
 #define create_proc_files() do {} while (0)
@@ -144,24 +145,24 @@ static struct usb_ep_ops s3c_ep_ops = {
 /***********************************************************/
 
 void __iomem		*regs_otg;
-struct s3c_usbotg_reg *reg;
+struct dwc2_usbotg_reg *reg;
 
 bool dfu_usb_get_reset(void)
 {
 	return !!(readl(&reg->gintsts) & INT_RESET);
 }
 
-__weak void otg_phy_init(struct s3c_udc *dev) {}
-__weak void otg_phy_off(struct s3c_udc *dev) {}
+__weak void otg_phy_init(struct dwc2_udc *dev) {}
+__weak void otg_phy_off(struct dwc2_udc *dev) {}
 
 /***********************************************************/
 
-#include "s3c_udc_otg_xfer_dma.c"
+#include "dwc2_udc_otg_xfer_dma.c"
 
 /*
  *	udc_disable - disable USB device controller
  */
-static void udc_disable(struct s3c_udc *dev)
+static void udc_disable(struct dwc2_udc *dev)
 {
 	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
@@ -177,7 +178,7 @@ static void udc_disable(struct s3c_udc *dev)
 /*
  *	udc_reinit - initialize software state
  */
-static void udc_reinit(struct s3c_udc *dev)
+static void udc_reinit(struct dwc2_udc *dev)
 {
 	unsigned int i;
 
@@ -189,8 +190,8 @@ static void udc_reinit(struct s3c_udc *dev)
 	dev->ep0state = WAIT_FOR_SETUP;
 
 	/* basic endpoint records init */
-	for (i = 0; i < S3C_MAX_ENDPOINTS; i++) {
-		struct s3c_ep *ep = &dev->ep[i];
+	for (i = 0; i < DWC2_MAX_ENDPOINTS; i++) {
+		struct dwc2_ep *ep = &dev->ep[i];
 
 		if (i != 0)
 			list_add_tail(&ep->ep.ep_list, &dev->gadget.ep_list);
@@ -210,7 +211,7 @@ static void udc_reinit(struct s3c_udc *dev)
 /* until it's enabled, this UDC should be completely invisible
  * to any USB host.
  */
-static int udc_enable(struct s3c_udc *dev)
+static int udc_enable(struct dwc2_udc *dev)
 {
 	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
@@ -218,7 +219,7 @@ static int udc_enable(struct s3c_udc *dev)
 	reconfig_usbd(dev);
 
 	debug_cond(DEBUG_SETUP != 0,
-		   "S3C USB 2.0 OTG Controller Core Initialized : 0x%x\n",
+		   "DWC2 USB 2.0 OTG Controller Core Initialized : 0x%x\n",
 		    readl(&reg->gintmsk));
 
 	dev->gadget.speed = USB_SPEED_UNKNOWN;
@@ -231,7 +232,7 @@ static int udc_enable(struct s3c_udc *dev)
 */
 int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
-	struct s3c_udc *dev = the_controller;
+	struct dwc2_udc *dev = the_controller;
 	int retval = 0;
 	unsigned long flags = 0;
 
@@ -280,7 +281,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
  */
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
-	struct s3c_udc *dev = the_controller;
+	struct dwc2_udc *dev = the_controller;
 	unsigned long flags = 0;
 
 	if (!dev)
@@ -304,7 +305,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 /*
  *	done - retire a request; caller blocked irqs
  */
-static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
+static void done(struct dwc2_ep *ep, struct dwc2_request *req, int status)
 {
 	unsigned int stopped = ep->stopped;
 
@@ -355,20 +356,20 @@ static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
 /*
  *	nuke - dequeue ALL requests
  */
-static void nuke(struct s3c_ep *ep, int status)
+static void nuke(struct dwc2_ep *ep, int status)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 
 	debug("%s: %s %p\n", __func__, ep->ep.name, ep);
 
 	/* called with irqs blocked */
 	while (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 		done(ep, req, status);
 	}
 }
 
-static void stop_activity(struct s3c_udc *dev,
+static void stop_activity(struct dwc2_udc *dev,
 			  struct usb_gadget_driver *driver)
 {
 	int i;
@@ -379,8 +380,8 @@ static void stop_activity(struct s3c_udc *dev,
 	dev->gadget.speed = USB_SPEED_UNKNOWN;
 
 	/* prevent new request submissions, kill any outstanding requests  */
-	for (i = 0; i < S3C_MAX_ENDPOINTS; i++) {
-		struct s3c_ep *ep = &dev->ep[i];
+	for (i = 0; i < DWC2_MAX_ENDPOINTS; i++) {
+		struct dwc2_ep *ep = &dev->ep[i];
 		ep->stopped = 1;
 		nuke(ep, -ESHUTDOWN);
 	}
@@ -396,7 +397,7 @@ static void stop_activity(struct s3c_udc *dev,
 	udc_reinit(dev);
 }
 
-static void reconfig_usbd(struct s3c_udc *dev)
+static void reconfig_usbd(struct dwc2_udc *dev)
 {
 	/* 2. Soft-reset OTG Core and then unreset again. */
 	int i;
@@ -447,7 +448,7 @@ static void reconfig_usbd(struct s3c_udc *dev)
 	writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->out_endp[EP0_CON].doepctl);
 	writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->in_endp[EP0_CON].diepctl);
 
-	for (i = 1; i < S3C_MAX_ENDPOINTS; i++) {
+	for (i = 1; i < DWC2_MAX_ENDPOINTS; i++) {
 		writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->out_endp[i].doepctl);
 		writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->in_endp[i].diepctl);
 	}
@@ -469,7 +470,7 @@ static void reconfig_usbd(struct s3c_udc *dev)
 	writel((NPTX_FIFO_SIZE >> 2) << 16 | ((RX_FIFO_SIZE >> 2)) << 0,
 	       &reg->gnptxfsiz);
 
-	for (i = 1; i < S3C_MAX_HW_ENDPOINTS; i++)
+	for (i = 1; i < DWC2_MAX_HW_ENDPOINTS; i++)
 		writel((PTX_FIFO_SIZE >> 2) << 16 |
 		       ((RX_FIFO_SIZE + NPTX_FIFO_SIZE +
 			 PTX_FIFO_SIZE*(i-1)) >> 2) << 0,
@@ -478,13 +479,13 @@ static void reconfig_usbd(struct s3c_udc *dev)
 	/* Flush the RX FIFO */
 	writel(RX_FIFO_FLUSH, &reg->grstctl);
 	while (readl(&reg->grstctl) & RX_FIFO_FLUSH)
-		debug("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
+		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
 
 	/* Flush all the Tx FIFO's */
 	writel(TX_FIFO_FLUSH_ALL, &reg->grstctl);
 	writel(TX_FIFO_FLUSH_ALL | TX_FIFO_FLUSH, &reg->grstctl);
 	while (readl(&reg->grstctl) & TX_FIFO_FLUSH)
-		debug("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
+		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
 
 	/* 13. Clear NAK bit of EP0, EP1, EP2*/
 	/* For Slave mode*/
@@ -496,7 +497,7 @@ static void reconfig_usbd(struct s3c_udc *dev)
 	writel(GAHBCFG_INIT, &reg->gahbcfg);
 }
 
-static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed)
+static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 {
 	unsigned int ep_ctrl;
 	int i;
@@ -514,7 +515,7 @@ static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed)
 	}
 
 	dev->ep[0].ep.maxpacket = ep0_fifo_size;
-	for (i = 1; i < S3C_MAX_ENDPOINTS; i++)
+	for (i = 1; i < DWC2_MAX_ENDPOINTS; i++)
 		dev->ep[i].ep.maxpacket = ep_fifo_size;
 
 	/* EP0 - Control IN (64 bytes)*/
@@ -526,16 +527,16 @@ static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed)
 	writel(ep_ctrl|(0<<0), &reg->out_endp[EP0_CON].doepctl);
 }
 
-static int s3c_ep_enable(struct usb_ep *_ep,
+static int dwc2_ep_enable(struct usb_ep *_ep,
 			 const struct usb_endpoint_descriptor *desc)
 {
-	struct s3c_ep *ep;
-	struct s3c_udc *dev;
+	struct dwc2_ep *ep;
+	struct dwc2_udc *dev;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep || !desc || ep->desc || _ep->name == ep0name
 	    || desc->bDescriptorType != USB_DT_ENDPOINT
 	    || ep->bEndpointAddress != desc->bEndpointAddress
@@ -577,11 +578,11 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	ep->ep.maxpacket = le16_to_cpu(get_unaligned(&desc->wMaxPacketSize));
 
 	/* Reset halt state */
-	s3c_udc_set_nak(ep);
-	s3c_udc_set_halt(_ep, 0);
+	dwc2_udc_set_nak(ep);
+	dwc2_udc_set_halt(_ep, 0);
 
 	spin_lock_irqsave(&ep->dev->lock, flags);
-	s3c_udc_ep_activate(ep);
+	dwc2_udc_ep_activate(ep);
 	spin_unlock_irqrestore(&ep->dev->lock, flags);
 
 	debug("%s: enabled %s, stopped = %d, maxpacket = %d\n",
@@ -592,14 +593,14 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 /*
  * Disable EP
  */
-static int s3c_ep_disable(struct usb_ep *_ep)
+static int dwc2_ep_disable(struct usb_ep *_ep)
 {
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep || !ep->desc) {
 		debug("%s: %s not enabled\n", __func__,
 		      _ep ? ep->ep.name : NULL);
@@ -620,10 +621,10 @@ static int s3c_ep_disable(struct usb_ep *_ep)
 	return 0;
 }
 
-static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
+static struct usb_request *dwc2_alloc_request(struct usb_ep *ep,
 					     gfp_t gfp_flags)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 
 	debug("%s: %s %p\n", __func__, ep->name, ep);
 
@@ -637,27 +638,27 @@ static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 	return &req->req;
 }
 
-static void s3c_free_request(struct usb_ep *ep, struct usb_request *_req)
+static void dwc2_free_request(struct usb_ep *ep, struct usb_request *_req)
 {
-	struct s3c_request *req;
+	struct dwc2_request *req;
 
 	debug("%s: %p\n", __func__, ep);
 
-	req = container_of(_req, struct s3c_request, req);
+	req = container_of(_req, struct dwc2_request, req);
 	WARN_ON(!list_empty(&req->queue));
 	kfree(req);
 }
 
 /* dequeue JUST ONE request */
-static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+static int dwc2_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 {
-	struct s3c_ep *ep;
-	struct s3c_request *req;
+	struct dwc2_ep *ep;
+	struct dwc2_request *req;
 	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep || ep->ep.name == ep0name)
 		return -EINVAL;
 
@@ -682,12 +683,12 @@ static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 /*
  * Return bytes in EP FIFO
  */
-static int s3c_fifo_status(struct usb_ep *_ep)
+static int dwc2_fifo_status(struct usb_ep *_ep)
 {
 	int count = 0;
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (!_ep) {
 		debug("%s: bad ep\n", __func__);
 		return -ENODEV;
@@ -705,11 +706,11 @@ static int s3c_fifo_status(struct usb_ep *_ep)
 /*
  * Flush EP FIFO
  */
-static void s3c_fifo_flush(struct usb_ep *_ep)
+static void dwc2_fifo_flush(struct usb_ep *_ep)
 {
-	struct s3c_ep *ep;
+	struct dwc2_ep *ep;
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	if (unlikely(!_ep || (!ep->desc && ep->ep.name != ep0name))) {
 		debug("%s: bad ep\n", __func__);
 		return;
@@ -718,14 +719,14 @@ static void s3c_fifo_flush(struct usb_ep *_ep)
 	debug("%s: %d\n", __func__, ep_index(ep));
 }
 
-static const struct usb_gadget_ops s3c_udc_ops = {
+static const struct usb_gadget_ops dwc2_udc_ops = {
 	/* current versions must always be self-powered */
 };
 
-static struct s3c_udc memory = {
+static struct dwc2_udc memory = {
 	.usb_address = 0,
 	.gadget = {
-		.ops = &s3c_udc_ops,
+		.ops = &dwc2_udc_ops,
 		.ep0 = &memory.ep[0].ep,
 		.name = driver_name,
 	},
@@ -734,7 +735,7 @@ static struct s3c_udc memory = {
 	.ep[0] = {
 		.ep = {
 			.name = ep0name,
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP0_FIFO_SIZE,
 		},
 		.dev = &memory,
@@ -749,7 +750,7 @@ static struct s3c_udc memory = {
 	.ep[1] = {
 		.ep = {
 			.name = "ep1in-bulk",
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
@@ -764,7 +765,7 @@ static struct s3c_udc memory = {
 	.ep[2] = {
 		.ep = {
 			.name = "ep2out-bulk",
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
@@ -779,7 +780,7 @@ static struct s3c_udc memory = {
 	.ep[3] = {
 		.ep = {
 			.name = "ep3in-int",
-			.ops = &s3c_ep_ops,
+			.ops = &dwc2_ep_ops,
 			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
@@ -796,16 +797,16 @@ static struct s3c_udc memory = {
  *	probe - binds to the platform device
  */
 
-int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
+int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 {
-	struct s3c_udc *dev = &memory;
+	struct dwc2_udc *dev = &memory;
 	int retval = 0;
 
 	debug("%s: %p\n", __func__, pdata);
 
 	dev->pdata = pdata;
 
-	reg = (struct s3c_usbotg_reg *)pdata->regs_otg;
+	reg = (struct dwc2_usbotg_reg *)pdata->regs_otg;
 
 	/* regs_otg = (void *)pdata->regs_otg; */
 
@@ -839,6 +840,6 @@ int usb_gadget_handle_interrupts(int index)
 	u32 gintmsk = readl(&reg->gintmsk);
 
 	if (intr_status & gintmsk)
-		return s3c_udc_irq(1, (void *)the_controller);
+		return dwc2_udc_irq(1, (void *)the_controller);
 	return 0;
 }

@@ -243,7 +243,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  */
 #if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
 #define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_S3C_UDC_OTG
+#define CONFIG_USB_GADGET_DWC2_OTG
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 

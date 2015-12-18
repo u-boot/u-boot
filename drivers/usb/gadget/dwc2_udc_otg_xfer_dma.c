@@ -1,6 +1,6 @@
 /*
- * drivers/usb/gadget/s3c_udc_otg_xfer_dma.c
- * Samsung S3C on-chip full/high speed USB OTG 2.0 device controllers
+ * drivers/usb/gadget/dwc2_udc_otg_xfer_dma.c
+ * Designware DWC2 on-chip full/high speed USB OTG 2.0 device controllers
  *
  * Copyright (C) 2009 for Samsung Electronics
  *
@@ -25,7 +25,7 @@ int clear_feature_flag;
 #define GET_MAX_LUN_REQUEST	0xFE
 #define BOT_RESET_REQUEST	0xFF
 
-static inline void s3c_udc_ep0_zlp(struct s3c_udc *dev)
+static inline void dwc2_udc_ep0_zlp(struct dwc2_udc *dev)
 {
 	u32 ep_ctrl;
 
@@ -41,7 +41,7 @@ static inline void s3c_udc_ep0_zlp(struct s3c_udc *dev)
 	dev->ep0state = WAIT_FOR_IN_COMPLETE;
 }
 
-void s3c_udc_pre_setup(void)
+static void dwc2_udc_pre_setup(void)
 {
 	u32 ep_ctrl;
 
@@ -62,7 +62,7 @@ void s3c_udc_pre_setup(void)
 
 }
 
-static inline void s3c_ep0_complete_out(void)
+static inline void dwc2_ep0_complete_out(void)
 {
 	u32 ep_ctrl;
 
@@ -90,7 +90,7 @@ static inline void s3c_ep0_complete_out(void)
 }
 
 
-static int setdma_rx(struct s3c_ep *ep, struct s3c_request *req)
+static int setdma_rx(struct dwc2_ep *ep, struct dwc2_request *req)
 {
 	u32 *buf, ctrl;
 	u32 length, pktcnt;
@@ -128,7 +128,7 @@ static int setdma_rx(struct s3c_ep *ep, struct s3c_request *req)
 
 }
 
-int setdma_tx(struct s3c_ep *ep, struct s3c_request *req)
+static int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
 {
 	u32 *buf, ctrl = 0;
 	u32 length, pktcnt;
@@ -186,10 +186,10 @@ int setdma_tx(struct s3c_ep *ep, struct s3c_request *req)
 	return length;
 }
 
-static void complete_rx(struct s3c_udc *dev, u8 ep_num)
+static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 {
-	struct s3c_ep *ep = &dev->ep[ep_num];
-	struct s3c_request *req = NULL;
+	struct dwc2_ep *ep = &dev->ep[ep_num];
+	struct dwc2_request *req = NULL;
 	u32 ep_tsr = 0, xfer_size = 0, is_short = 0;
 
 	if (list_empty(&ep->queue)) {
@@ -200,7 +200,7 @@ static void complete_rx(struct s3c_udc *dev, u8 ep_num)
 
 	}
 
-	req = list_entry(ep->queue.next, struct s3c_request, queue);
+	req = list_entry(ep->queue.next, struct dwc2_request, queue);
 	ep_tsr = readl(&reg->out_endp[ep_num].doeptsiz);
 
 	if (ep_num == EP0_CON)
@@ -240,7 +240,7 @@ static void complete_rx(struct s3c_udc *dev, u8 ep_num)
 	if (is_short || req->req.actual == req->req.length) {
 		if (ep_num == EP0_CON && dev->ep0state == DATA_STATE_RECV) {
 			debug_cond(DEBUG_OUT_EP != 0, "	=> Send ZLP\n");
-			s3c_udc_ep0_zlp(dev);
+			dwc2_udc_ep0_zlp(dev);
 			/* packet will be completed in complete_tx() */
 			dev->ep0state = WAIT_FOR_IN_COMPLETE;
 		} else {
@@ -248,7 +248,7 @@ static void complete_rx(struct s3c_udc *dev, u8 ep_num)
 
 			if (!list_empty(&ep->queue)) {
 				req = list_entry(ep->queue.next,
-					struct s3c_request, queue);
+					struct dwc2_request, queue);
 				debug_cond(DEBUG_OUT_EP != 0,
 					   "%s: Next Rx request start...\n",
 					   __func__);
@@ -259,16 +259,16 @@ static void complete_rx(struct s3c_udc *dev, u8 ep_num)
 		setdma_rx(ep, req);
 }
 
-static void complete_tx(struct s3c_udc *dev, u8 ep_num)
+static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 {
-	struct s3c_ep *ep = &dev->ep[ep_num];
-	struct s3c_request *req;
+	struct dwc2_ep *ep = &dev->ep[ep_num];
+	struct dwc2_request *req;
 	u32 ep_tsr = 0, xfer_size = 0, is_short = 0;
 	u32 last;
 
 	if (dev->ep0state == WAIT_FOR_NULL_COMPLETE) {
 		dev->ep0state = WAIT_FOR_OUT_COMPLETE;
-		s3c_ep0_complete_out();
+		dwc2_ep0_complete_out();
 		return;
 	}
 
@@ -280,7 +280,7 @@ static void complete_tx(struct s3c_udc *dev, u8 ep_num)
 
 	}
 
-	req = list_entry(ep->queue.next, struct s3c_request, queue);
+	req = list_entry(ep->queue.next, struct dwc2_request, queue);
 
 	ep_tsr = readl(&reg->in_endp[ep_num].dieptsiz);
 
@@ -315,7 +315,7 @@ static void complete_tx(struct s3c_udc *dev, u8 ep_num)
 				__func__, ep_num);
 			done(ep, req, 0);
 			dev->ep0state = WAIT_FOR_OUT_COMPLETE;
-			s3c_ep0_complete_out();
+			dwc2_ep0_complete_out();
 		} else {
 			debug_cond(DEBUG_IN_EP,
 				"%s: ep_num = %d, invalid ep state\n",
@@ -328,23 +328,23 @@ static void complete_tx(struct s3c_udc *dev, u8 ep_num)
 		done(ep, req, 0);
 
 	if (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 		debug_cond(DEBUG_IN_EP,
 			"%s: Next Tx request start...\n", __func__);
 		setdma_tx(ep, req);
 	}
 }
 
-static inline void s3c_udc_check_tx_queue(struct s3c_udc *dev, u8 ep_num)
+static inline void dwc2_udc_check_tx_queue(struct dwc2_udc *dev, u8 ep_num)
 {
-	struct s3c_ep *ep = &dev->ep[ep_num];
-	struct s3c_request *req;
+	struct dwc2_ep *ep = &dev->ep[ep_num];
+	struct dwc2_request *req;
 
 	debug_cond(DEBUG_IN_EP,
 		"%s: Check queue, ep_num = %d\n", __func__, ep_num);
 
 	if (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 		debug_cond(DEBUG_IN_EP,
 			"%s: Next Tx request(0x%p) start...\n",
 			__func__, req);
@@ -362,7 +362,7 @@ static inline void s3c_udc_check_tx_queue(struct s3c_udc *dev, u8 ep_num)
 
 }
 
-static void process_ep_in_intr(struct s3c_udc *dev)
+static void process_ep_in_intr(struct dwc2_udc *dev)
 {
 	u32 ep_intr, ep_intr_status;
 	u8 ep_num = 0;
@@ -392,12 +392,12 @@ static void process_ep_in_intr(struct s3c_udc *dev)
 						dev->ep0state = WAIT_FOR_SETUP;
 
 					if (dev->ep0state == WAIT_FOR_SETUP)
-						s3c_udc_pre_setup();
+						dwc2_udc_pre_setup();
 
 					/* continue transfer after
 					   set_clear_halt for DMA mode */
 					if (clear_feature_flag == 1) {
-						s3c_udc_check_tx_queue(dev,
+						dwc2_udc_check_tx_queue(dev,
 							clear_feature_num);
 						clear_feature_flag = 0;
 					}
@@ -409,7 +409,7 @@ static void process_ep_in_intr(struct s3c_udc *dev)
 	}
 }
 
-static void process_ep_out_intr(struct s3c_udc *dev)
+static void process_ep_out_intr(struct dwc2_udc *dev)
 {
 	u32 ep_intr, ep_intr_status;
 	u8 ep_num = 0;
@@ -438,7 +438,7 @@ static void process_ep_out_intr(struct s3c_udc *dev)
 						complete_rx(dev, ep_num);
 					else {
 						dev->ep0state = WAIT_FOR_SETUP;
-						s3c_udc_pre_setup();
+						dwc2_udc_pre_setup();
 					}
 				}
 
@@ -446,7 +446,7 @@ static void process_ep_out_intr(struct s3c_udc *dev)
 				    CTRL_OUT_EP_SETUP_PHASE_DONE) {
 					debug_cond(DEBUG_OUT_EP != 0,
 						   "SETUP packet arrived\n");
-					s3c_handle_ep0(dev);
+					dwc2_handle_ep0(dev);
 				}
 			} else {
 				if (ep_intr_status & TRANSFER_DONE)
@@ -461,9 +461,9 @@ static void process_ep_out_intr(struct s3c_udc *dev)
 /*
  *	usb client interrupt handler.
  */
-static int s3c_udc_irq(int irq, void *_dev)
+static int dwc2_udc_irq(int irq, void *_dev)
 {
-	struct s3c_udc *dev = _dev;
+	struct dwc2_udc *dev = _dev;
 	u32 intr_status;
 	u32 usb_status, gintmsk;
 	unsigned long flags = 0;
@@ -554,7 +554,7 @@ static int s3c_udc_irq(int irq, void *_dev)
 				reconfig_usbd(dev);
 				dev->ep0state = WAIT_FOR_SETUP;
 				reset_available = 0;
-				s3c_udc_pre_setup();
+				dwc2_udc_pre_setup();
 			} else
 				reset_available = 1;
 
@@ -579,16 +579,16 @@ static int s3c_udc_irq(int irq, void *_dev)
 /** Queue one request
  *  Kickstart transfer if needed
  */
-static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
+static int dwc2_queue(struct usb_ep *_ep, struct usb_request *_req,
 			 gfp_t gfp_flags)
 {
-	struct s3c_request *req;
-	struct s3c_ep *ep;
-	struct s3c_udc *dev;
+	struct dwc2_request *req;
+	struct dwc2_ep *ep;
+	struct dwc2_udc *dev;
 	unsigned long flags = 0;
 	u32 ep_num, gintsts;
 
-	req = container_of(_req, struct s3c_request, req);
+	req = container_of(_req, struct dwc2_request, req);
 	if (unlikely(!_req || !_req->complete || !_req->buf
 		     || !list_empty(&req->queue))) {
 
@@ -596,7 +596,7 @@ static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 		return -EINVAL;
 	}
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 
 	if (unlikely(!_ep || (!ep->desc && ep->ep.name != ep0name))) {
 
@@ -646,20 +646,20 @@ static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 		if (ep_num == 0) {
 			/* EP0 */
 			list_add_tail(&req->queue, &ep->queue);
-			s3c_ep0_kick(dev, ep);
+			dwc2_ep0_kick(dev, ep);
 			req = 0;
 
 		} else if (ep_is_in(ep)) {
 			gintsts = readl(&reg->gintsts);
 			debug_cond(DEBUG_IN_EP,
-				   "%s: ep_is_in, S3C_UDC_OTG_GINTSTS=0x%x\n",
+				   "%s: ep_is_in, DWC2_UDC_OTG_GINTSTS=0x%x\n",
 				   __func__, gintsts);
 
 			setdma_tx(ep, req);
 		} else {
 			gintsts = readl(&reg->gintsts);
 			debug_cond(DEBUG_OUT_EP != 0,
-				   "%s:ep_is_out, S3C_UDC_OTG_GINTSTS=0x%x\n",
+				   "%s:ep_is_out, DWC2_UDC_OTG_GINTSTS=0x%x\n",
 				   __func__, gintsts);
 
 			setdma_rx(ep, req);
@@ -680,7 +680,7 @@ static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 /****************************************************************/
 
 /* return:  0 = still running, 1 = completed, negative = errno */
-static int write_fifo_ep0(struct s3c_ep *ep, struct s3c_request *req)
+static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req)
 {
 	u32 max;
 	unsigned count;
@@ -718,7 +718,7 @@ static int write_fifo_ep0(struct s3c_ep *ep, struct s3c_request *req)
 	return 0;
 }
 
-int s3c_fifo_read(struct s3c_ep *ep, u32 *cp, int max)
+static int dwc2_fifo_read(struct dwc2_ep *ep, u32 *cp, int max)
 {
 	invalidate_dcache_range((unsigned long)cp, (unsigned long)cp +
 				ROUND(max, CONFIG_SYS_CACHELINE_SIZE));
@@ -737,12 +737,12 @@ int s3c_fifo_read(struct s3c_ep *ep, u32 *cp, int max)
  * Called from control endpoint function
  * after it decodes a set address setup packet.
  */
-static void udc_set_address(struct s3c_udc *dev, unsigned char address)
+static void udc_set_address(struct dwc2_udc *dev, unsigned char address)
 {
 	u32 ctrl = readl(&reg->dcfg);
 	writel(DEVICE_ADDRESS(address) | ctrl, &reg->dcfg);
 
-	s3c_udc_ep0_zlp(dev);
+	dwc2_udc_ep0_zlp(dev);
 
 	debug_cond(DEBUG_EP0 != 0,
 		   "%s: USB OTG 2.0 Device address=%d, DCFG=0x%x\n",
@@ -751,9 +751,9 @@ static void udc_set_address(struct s3c_udc *dev, unsigned char address)
 	dev->usb_address = address;
 }
 
-static inline void s3c_udc_ep0_set_stall(struct s3c_ep *ep)
+static inline void dwc2_udc_ep0_set_stall(struct dwc2_ep *ep)
 {
-	struct s3c_udc *dev;
+	struct dwc2_udc *dev;
 	u32		ep_ctrl = 0;
 
 	dev = ep->dev;
@@ -776,16 +776,16 @@ static inline void s3c_udc_ep0_set_stall(struct s3c_ep *ep)
 	 */
 	dev->ep0state = WAIT_FOR_SETUP;
 
-	s3c_udc_pre_setup();
+	dwc2_udc_pre_setup();
 }
 
-static void s3c_ep0_read(struct s3c_udc *dev)
+static void dwc2_ep0_read(struct dwc2_udc *dev)
 {
-	struct s3c_request *req;
-	struct s3c_ep *ep = &dev->ep[0];
+	struct dwc2_request *req;
+	struct dwc2_ep *ep = &dev->ep[0];
 
 	if (!list_empty(&ep->queue)) {
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 
 	} else {
 		debug("%s: ---> BUG\n", __func__);
@@ -802,7 +802,7 @@ static void s3c_ep0_read(struct s3c_udc *dev)
 		 * or Bulk-Only mass storge reset */
 
 		ep->len = 0;
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 
 		debug_cond(DEBUG_EP0 != 0,
 			   "%s: req.length = 0, bRequest = %d\n",
@@ -816,16 +816,16 @@ static void s3c_ep0_read(struct s3c_udc *dev)
 /*
  * DATA_STATE_XMIT
  */
-static int s3c_ep0_write(struct s3c_udc *dev)
+static int dwc2_ep0_write(struct dwc2_udc *dev)
 {
-	struct s3c_request *req;
-	struct s3c_ep *ep = &dev->ep[0];
+	struct dwc2_request *req;
+	struct dwc2_ep *ep = &dev->ep[0];
 	int ret, need_zlp = 0;
 
 	if (list_empty(&ep->queue))
 		req = 0;
 	else
-		req = list_entry(ep->queue.next, struct s3c_request, queue);
+		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 
 	if (!req) {
 		debug_cond(DEBUG_EP0 != 0, "%s: NULL REQ\n", __func__);
@@ -859,7 +859,7 @@ static int s3c_ep0_write(struct s3c_udc *dev)
 	return 1;
 }
 
-int s3c_udc_get_status(struct s3c_udc *dev,
+static int dwc2_udc_get_status(struct dwc2_udc *dev,
 		struct usb_ctrlrequest *crq)
 {
 	u8 ep_num = crq->wIndex & 0x7F;
@@ -920,7 +920,7 @@ int s3c_udc_get_status(struct s3c_udc *dev,
 	return 0;
 }
 
-static void s3c_udc_set_nak(struct s3c_ep *ep)
+static void dwc2_udc_set_nak(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;
@@ -946,7 +946,7 @@ static void s3c_udc_set_nak(struct s3c_ep *ep)
 }
 
 
-void s3c_udc_ep_set_stall(struct s3c_ep *ep)
+static void dwc2_udc_ep_set_stall(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;
@@ -981,7 +981,7 @@ void s3c_udc_ep_set_stall(struct s3c_ep *ep)
 	return;
 }
 
-void s3c_udc_ep_clear_stall(struct s3c_ep *ep)
+static void dwc2_udc_ep_clear_stall(struct dwc2_ep *ep)
 {
 	u8		ep_num;
 	u32		ep_ctrl = 0;
@@ -1029,14 +1029,14 @@ void s3c_udc_ep_clear_stall(struct s3c_ep *ep)
 	return;
 }
 
-static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
+static int dwc2_udc_set_halt(struct usb_ep *_ep, int value)
 {
-	struct s3c_ep	*ep;
-	struct s3c_udc	*dev;
+	struct dwc2_ep	*ep;
+	struct dwc2_udc	*dev;
 	unsigned long	flags = 0;
 	u8		ep_num;
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	ep_num = ep_index(ep);
 
 	if (unlikely(!_ep || !ep->desc || ep_num == EP0_CON ||
@@ -1050,7 +1050,7 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 	if (value && ep_is_in(ep) && !list_empty(&ep->queue)) {
 		debug("%s: %s queue not empty, req = %p\n",
 			__func__, ep->ep.name,
-			list_entry(ep->queue.next, struct s3c_request, queue));
+			list_entry(ep->queue.next, struct dwc2_request, queue));
 
 		return -EAGAIN;
 	}
@@ -1062,13 +1062,13 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 
 	if (value == 0) {
 		ep->stopped = 0;
-		s3c_udc_ep_clear_stall(ep);
+		dwc2_udc_ep_clear_stall(ep);
 	} else {
 		if (ep_num == 0)
 			dev->ep0state = WAIT_FOR_SETUP;
 
 		ep->stopped = 1;
-		s3c_udc_ep_set_stall(ep);
+		dwc2_udc_ep_set_stall(ep);
 	}
 
 	spin_unlock_irqrestore(&dev->lock, flags);
@@ -1076,7 +1076,7 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 	return 0;
 }
 
-void s3c_udc_ep_activate(struct s3c_ep *ep)
+static void dwc2_udc_ep_activate(struct dwc2_ep *ep)
 {
 	u8 ep_num;
 	u32 ep_ctrl = 0, daintmsk = 0;
@@ -1123,13 +1123,13 @@ void s3c_udc_ep_activate(struct s3c_ep *ep)
 
 }
 
-static int s3c_udc_clear_feature(struct usb_ep *_ep)
+static int dwc2_udc_clear_feature(struct usb_ep *_ep)
 {
-	struct s3c_udc	*dev;
-	struct s3c_ep	*ep;
+	struct dwc2_udc	*dev;
+	struct dwc2_ep	*ep;
 	u8		ep_num;
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	ep_num = ep_index(ep);
 
 	dev = ep->dev;
@@ -1158,7 +1158,7 @@ static int s3c_udc_clear_feature(struct usb_ep *_ep)
 			break;
 		}
 
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 		break;
 
 	case USB_RECIP_ENDPOINT:
@@ -1168,14 +1168,14 @@ static int s3c_udc_clear_feature(struct usb_ep *_ep)
 
 		if (usb_ctrl->wValue == USB_ENDPOINT_HALT) {
 			if (ep_num == 0) {
-				s3c_udc_ep0_set_stall(ep);
+				dwc2_udc_ep0_set_stall(ep);
 				return 0;
 			}
 
-			s3c_udc_ep0_zlp(dev);
+			dwc2_udc_ep0_zlp(dev);
 
-			s3c_udc_ep_clear_stall(ep);
-			s3c_udc_ep_activate(ep);
+			dwc2_udc_ep_clear_stall(ep);
+			dwc2_udc_ep_activate(ep);
 			ep->stopped = 0;
 
 			clear_feature_num = ep_num;
@@ -1187,13 +1187,13 @@ static int s3c_udc_clear_feature(struct usb_ep *_ep)
 	return 0;
 }
 
-static int s3c_udc_set_feature(struct usb_ep *_ep)
+static int dwc2_udc_set_feature(struct usb_ep *_ep)
 {
-	struct s3c_udc	*dev;
-	struct s3c_ep	*ep;
+	struct dwc2_udc	*dev;
+	struct dwc2_ep	*ep;
 	u8		ep_num;
 
-	ep = container_of(_ep, struct s3c_ep, ep);
+	ep = container_of(_ep, struct dwc2_ep, ep);
 	ep_num = ep_index(ep);
 	dev = ep->dev;
 
@@ -1232,7 +1232,7 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 			break;
 		}
 
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 		return 0;
 
 	case USB_RECIP_INTERFACE:
@@ -1245,14 +1245,14 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 			   "\tSET_FEATURE: USB_RECIP_ENDPOINT\n");
 		if (usb_ctrl->wValue == USB_ENDPOINT_HALT) {
 			if (ep_num == 0) {
-				s3c_udc_ep0_set_stall(ep);
+				dwc2_udc_ep0_set_stall(ep);
 				return 0;
 			}
 			ep->stopped = 1;
-			s3c_udc_ep_set_stall(ep);
+			dwc2_udc_ep_set_stall(ep);
 		}
 
-		s3c_udc_ep0_zlp(dev);
+		dwc2_udc_ep0_zlp(dev);
 		return 0;
 	}
 
@@ -1262,9 +1262,9 @@ static int s3c_udc_set_feature(struct usb_ep *_ep)
 /*
  * WAIT_FOR_SETUP (OUT_PKT_RDY)
  */
-void s3c_ep0_setup(struct s3c_udc *dev)
+static void dwc2_ep0_setup(struct dwc2_udc *dev)
 {
-	struct s3c_ep *ep = &dev->ep[0];
+	struct dwc2_ep *ep = &dev->ep[0];
 	int i;
 	u8 ep_num;
 
@@ -1272,7 +1272,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 	nuke(ep, -EPROTO);
 
 	/* read control req from fifo (8 bytes) */
-	s3c_fifo_read(ep, (u32 *)usb_ctrl, 8);
+	dwc2_fifo_read(ep, (u32 *)usb_ctrl, 8);
 
 	debug_cond(DEBUG_SETUP != 0,
 		   "%s: bRequestType = 0x%x(%s), bRequest = 0x%x"
@@ -1306,7 +1306,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 			   "wLength = %d, setup returned\n",
 			   usb_ctrl->wLength);
 
-		s3c_udc_ep0_set_stall(ep);
+		dwc2_udc_ep0_set_stall(ep);
 		dev->ep0state = WAIT_FOR_SETUP;
 
 		return;
@@ -1317,7 +1317,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 			   "%s:BOT Rest:invalid wLength =%d, setup returned\n",
 			   __func__, usb_ctrl->wLength);
 
-		s3c_udc_ep0_set_stall(ep);
+		dwc2_udc_ep0_set_stall(ep);
 		dev->ep0state = WAIT_FOR_SETUP;
 
 		return;
@@ -1384,7 +1384,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 			break;
 
 		case USB_REQ_GET_STATUS:
-			if (!s3c_udc_get_status(dev, usb_ctrl))
+			if (!dwc2_udc_get_status(dev, usb_ctrl))
 				return;
 
 			break;
@@ -1392,7 +1392,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 		case USB_REQ_CLEAR_FEATURE:
 			ep_num = usb_ctrl->wIndex & 0x7f;
 
-			if (!s3c_udc_clear_feature(&dev->ep[ep_num].ep))
+			if (!dwc2_udc_clear_feature(&dev->ep[ep_num].ep))
 				return;
 
 			break;
@@ -1400,7 +1400,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 		case USB_REQ_SET_FEATURE:
 			ep_num = usb_ctrl->wIndex & 0x7f;
 
-			if (!s3c_udc_set_feature(&dev->ep[ep_num].ep))
+			if (!dwc2_udc_set_feature(&dev->ep[ep_num].ep))
 				return;
 
 			break;
@@ -1427,7 +1427,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 
 		if (i < 0) {
 			/* setup processing failed, force stall */
-			s3c_udc_ep0_set_stall(ep);
+			dwc2_udc_ep0_set_stall(ep);
 			dev->ep0state = WAIT_FOR_SETUP;
 
 			debug_cond(DEBUG_SETUP != 0,
@@ -1451,12 +1451,12 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 /*
  * handle ep0 interrupt
  */
-static void s3c_handle_ep0(struct s3c_udc *dev)
+static void dwc2_handle_ep0(struct dwc2_udc *dev)
 {
 	if (dev->ep0state == WAIT_FOR_SETUP) {
 		debug_cond(DEBUG_OUT_EP != 0,
 			   "%s: WAIT_FOR_SETUP\n", __func__);
-		s3c_ep0_setup(dev);
+		dwc2_ep0_setup(dev);
 
 	} else {
 		debug_cond(DEBUG_OUT_EP != 0,
@@ -1465,16 +1465,16 @@ static void s3c_handle_ep0(struct s3c_udc *dev)
 	}
 }
 
-static void s3c_ep0_kick(struct s3c_udc *dev, struct s3c_ep *ep)
+static void dwc2_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep)
 {
 	debug_cond(DEBUG_EP0 != 0,
 		   "%s: ep_is_in = %d\n", __func__, ep_is_in(ep));
 	if (ep_is_in(ep)) {
 		dev->ep0state = DATA_STATE_XMIT;
-		s3c_ep0_write(dev);
+		dwc2_ep0_write(dev);
 
 	} else {
 		dev->ep0state = DATA_STATE_RECV;
-		s3c_ep0_read(dev);
+		dwc2_ep0_read(dev);
 	}
 }

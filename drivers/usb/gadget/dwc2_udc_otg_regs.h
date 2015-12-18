@@ -12,14 +12,14 @@
 #define __ASM_ARCH_REGS_USB_OTG_HS_H
 
 /* USB2.0 OTG Controller register */
-struct s3c_usbotg_phy {
+struct dwc2_usbotg_phy {
 	u32 phypwr;
 	u32 phyclk;
 	u32 rstcon;
 };
 
 /* Device Logical IN Endpoint-Specific Registers */
-struct s3c_dev_in_endp {
+struct dwc2_dev_in_endp {
 	u32 diepctl;
 	u8  res1[4];
 	u32 diepint;
@@ -31,7 +31,7 @@ struct s3c_dev_in_endp {
 };
 
 /* Device Logical OUT Endpoint-Specific Registers */
-struct s3c_dev_out_endp {
+struct dwc2_dev_out_endp {
 	u32 doepctl;
 	u8  res1[4];
 	u32 doepint;
@@ -48,7 +48,7 @@ struct ep_fifo {
 };
 
 /* USB2.0 OTG Controller register */
-struct s3c_usbotg_reg {
+struct dwc2_usbotg_reg {
 	/* Core Global Registers */
 	u32 gotgctl; /* OTG Control & Status */
 	u32 gotgint; /* OTG Interrupt */
@@ -74,8 +74,8 @@ struct s3c_usbotg_reg {
 	u32 daint; /* Device All Endpoints Interrupt */
 	u32 daintmsk; /* Device All Endpoints Interrupt Mask */
 	u8  res4[224];
-	struct s3c_dev_in_endp in_endp[16];
-	struct s3c_dev_out_endp out_endp[16];
+	struct dwc2_dev_in_endp in_endp[16];
+	struct dwc2_dev_out_endp out_endp[16];
 	u8  res5[768];
 	struct ep_fifo ep[16];
 };
@@ -83,11 +83,11 @@ struct s3c_usbotg_reg {
 /*===================================================================== */
 /*definitions related to CSR setting */
 
-/* S3C_UDC_OTG_GOTGCTL */
+/* DWC2_UDC_OTG_GOTGCTL */
 #define B_SESSION_VALID		(0x1<<19)
 #define A_SESSION_VALID		(0x1<<18)
 
-/* S3C_UDC_OTG_GAHBCFG */
+/* DWC2_UDC_OTG_GAHBCFG */
 #define PTXFE_HALF			(0<<8)
 #define PTXFE_ZERO			(1<<8)
 #define NPTXFE_HALF			(0<<7)
@@ -102,11 +102,11 @@ struct s3c_usbotg_reg {
 #define GBL_INT_UNMASK			(1<<0)
 #define GBL_INT_MASK			(0<<0)
 
-/* S3C_UDC_OTG_GRSTCTL */
+/* DWC2_UDC_OTG_GRSTCTL */
 #define AHB_MASTER_IDLE		(1u<<31)
 #define CORE_SOFT_RESET		(0x1<<0)
 
-/* S3C_UDC_OTG_GINTSTS/S3C_UDC_OTG_GINTMSK core interrupt register */
+/* DWC2_UDC_OTG_GINTSTS/DWC2_UDC_OTG_GINTMSK core interrupt register */
 #define INT_RESUME			(1u<<31)
 #define INT_DISCONN			(0x1<<29)
 #define INT_CONN_ID_STS_CNG		(0x1<<28)
@@ -146,22 +146,22 @@ struct s3c_usbotg_reg {
 #define USB_LOW_6MHZ			(0x2<<1)
 #define USB_FULL_48MHZ			(0x3<<1)
 
-/* S3C_UDC_OTG_GRXSTSP STATUS */
+/* DWC2_UDC_OTG_GRXSTSP STATUS */
 #define OUT_PKT_RECEIVED		(0x2<<17)
 #define OUT_TRANSFER_COMPLELTED	(0x3<<17)
 #define SETUP_TRANSACTION_COMPLETED	(0x4<<17)
 #define SETUP_PKT_RECEIVED		(0x6<<17)
 #define GLOBAL_OUT_NAK			(0x1<<17)
 
-/* S3C_UDC_OTG_DCTL device control register */
+/* DWC2_UDC_OTG_DCTL device control register */
 #define NORMAL_OPERATION		(0x1<<0)
 #define SOFT_DISCONNECT		(0x1<<1)
 
-/* S3C_UDC_OTG_DAINT device all endpoint interrupt register */
+/* DWC2_UDC_OTG_DAINT device all endpoint interrupt register */
 #define DAINT_OUT_BIT			(16)
 #define DAINT_MASK			(0xFFFF)
 
-/* S3C_UDC_OTG_DIEPCTL0/DOEPCTL0 device
+/* DWC2_UDC_OTG_DIEPCTL0/DOEPCTL0 device
    control IN/OUT endpoint 0 control register */
 #define DEPCTL_EPENA			(0x1<<31)
 #define DEPCTL_EPDIS			(0x1<<30)
@@ -191,9 +191,9 @@ struct s3c_usbotg_reg {
 #define DIEPCTL0_NEXT_EP_BIT		(11)
 
 
-/* S3C_UDC_OTG_DIEPMSK/DOEPMSK device IN/OUT endpoint
+/* DWC2_UDC_OTG_DIEPMSK/DOEPMSK device IN/OUT endpoint
    common interrupt mask register */
-/* S3C_UDC_OTG_DIEPINTn/DOEPINTn device IN/OUT endpoint interrupt register */
+/* DWC2_UDC_OTG_DIEPINTn/DOEPINTn device IN/OUT endpoint interrupt register */
 #define BACK2BACK_SETUP_RECEIVED	(0x1<<6)
 #define INTKNEPMIS			(0x1<<5)
 #define INTKN_TXFEMP			(0x1<<4)

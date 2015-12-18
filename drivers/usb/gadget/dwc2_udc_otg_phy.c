@@ -1,6 +1,6 @@
 /*
- * drivers/usb/gadget/s3c_udc_otg.c
- * Samsung S3C on-chip full/high speed USB OTG 2.0 device controllers
+ * drivers/usb/gadget/dwc2_udc_otg.c
+ * Designware DWC2 on-chip full/high speed USB OTG 2.0 device controllers
  *
  * Copyright (C) 2008 for Samsung Electronics
  *
@@ -32,16 +32,17 @@
 
 #include <asm/mach-types.h>
 
-#include "regs-otg.h"
+#include "dwc2_udc_otg_regs.h"
+#include "dwc2_udc_otg_priv.h"
 #include <usb/lin_gadget_compat.h>
 
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 
-void otg_phy_init(struct s3c_udc *dev)
+void otg_phy_init(struct dwc2_udc *dev)
 {
 	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
-	struct s3c_usbotg_phy *phy =
-		(struct s3c_usbotg_phy *)dev->pdata->regs_phy;
+	struct dwc2_usbotg_phy *phy =
+		(struct dwc2_usbotg_phy *)dev->pdata->regs_phy;
 
 	dev->pdata->phy_control(1);
 
@@ -75,11 +76,11 @@ void otg_phy_init(struct s3c_udc *dev)
 	udelay(10);
 }
 
-void otg_phy_off(struct s3c_udc *dev)
+void otg_phy_off(struct dwc2_udc *dev)
 {
 	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
-	struct s3c_usbotg_phy *phy =
-		(struct s3c_usbotg_phy *)dev->pdata->regs_phy;
+	struct dwc2_usbotg_phy *phy =
+		(struct dwc2_usbotg_phy *)dev->pdata->regs_phy;
 
 	/* reset controller just in case */
 	writel(PHY_SW_RST0, &phy->rstcon);

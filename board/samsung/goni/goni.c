@@ -10,7 +10,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <power/pmic.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
 #include <samsung/misc.h>
@@ -183,7 +183,7 @@ static int s5pc1xx_phy_control(int on)
 	return 0;
 }
 
-struct s3c_plat_otg_data s5pc110_otg_data = {
+struct dwc2_plat_otg_data s5pc110_otg_data = {
 	.phy_control = s5pc1xx_phy_control,
 	.regs_phy = S5PC110_PHY_BASE,
 	.regs_otg = S5PC110_OTG_BASE,
@@ -193,7 +193,7 @@ struct s3c_plat_otg_data s5pc110_otg_data = {
 int board_usb_init(int index, enum usb_init_type init)
 {
 	debug("USB_udc_probe\n");
-	return s3c_udc_probe(&s5pc110_otg_data);
+	return dwc2_udc_probe(&s5pc110_otg_data);
 }
 #endif
 

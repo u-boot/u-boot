@@ -9,7 +9,7 @@
 #include <asm/io.h>
 
 #include <usb.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <usb_mass_storage.h>
 
 #include <micrel.h>
@@ -68,14 +68,14 @@ int board_phy_config(struct phy_device *phydev)
 #endif
 
 #ifdef CONFIG_USB_GADGET
-struct s3c_plat_otg_data socfpga_otg_data = {
+struct dwc2_plat_otg_data socfpga_otg_data = {
 	.regs_otg	= CONFIG_USB_DWC2_REG_ADDR,
 	.usb_gusbcfg	= 0x1417,
 };
 
 int board_usb_init(int index, enum usb_init_type init)
 {
-	return s3c_udc_probe(&socfpga_otg_data);
+	return dwc2_udc_probe(&socfpga_otg_data);
 }
 
 int g_dnl_board_usb_cable_connected(void)
