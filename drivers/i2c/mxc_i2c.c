@@ -581,8 +581,16 @@ void bus_i2c_init(int index, int speed, int unused,
 		return;
 	}
 
-	mxc_i2c_buses[index].idle_bus_fn = idle_bus_fn;
-	mxc_i2c_buses[index].idle_bus_data = idle_bus_data;
+	/*
+	 * Warning: Be careful to allow the assignment to a static
+	 * variable here. This function could be called while U-Boot is
+	 * still running in flash memory. So such assignment is equal
+	 * to write data to flash without erasing.
+	 */
+	if (idle_bus_fn)
+		mxc_i2c_buses[index].idle_bus_fn = idle_bus_fn;
+	if (idle_bus_data)
+		mxc_i2c_buses[index].idle_bus_data = idle_bus_data;
 
 	ret = enable_i2c_clk(1, index);
 	if (ret < 0) {
