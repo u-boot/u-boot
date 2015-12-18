@@ -212,8 +212,7 @@ static int zynqimage_check_params(struct image_tool_params *params)
 		return -1;
 	}
 
-	return !((params->lflag || params->dflag) ||
-			(params->dflag && params->eflag));
+	return !(params->lflag || params->dflag);
 }
 
 static int zynqimage_check_image_types(uint8_t type)

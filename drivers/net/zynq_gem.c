@@ -27,10 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_PHYLIB)
-# error XILINX_GEM_ETHERNET requires PHYLIB
-#endif
-
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
 #define ZYNQ_GEM_PHYMNTNC_OP_R_MASK	0x20000000 /* read operation */
@@ -532,44 +528,55 @@ static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 static int zynq_gem_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	int frame_len;
+	u32 addr;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct emac_bd *current_bd = &priv->rx_bd[priv->rxbd_current];
-	struct emac_bd *first_bd;
 
 	if (!(current_bd->addr & ZYNQ_GEM_RXBUF_NEW_MASK))
-		return 0;
+		return -1;
 
 	if (!(current_bd->status &
 			(ZYNQ_GEM_RXBUF_SOF_MASK | ZYNQ_GEM_RXBUF_EOF_MASK))) {
 		printf("GEM: SOF or EOF not set for last buffer received!\n");
-		return 0;
+		return -1;
 	}
 
 	frame_len = current_bd->status & ZYNQ_GEM_RXBUF_LEN_MASK;
-	if (frame_len) {
-		u32 addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
-		addr &= ~(ARCH_DMA_MINALIGN - 1);
-
-		net_process_received_packet((u8 *)(ulong)addr, frame_len);
-
-		if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK)
-			priv->rx_first_buf = priv->rxbd_current;
-		else {
-			current_bd->addr &= ~ZYNQ_GEM_RXBUF_NEW_MASK;
-			current_bd->status = 0xF0000000; /* FIXME */
-		}
-
-		if (current_bd->status & ZYNQ_GEM_RXBUF_EOF_MASK) {
-			first_bd = &priv->rx_bd[priv->rx_first_buf];
-			first_bd->addr &= ~ZYNQ_GEM_RXBUF_NEW_MASK;
-			first_bd->status = 0xF0000000;
-		}
-
-		if ((++priv->rxbd_current) >= RX_BUF)
-			priv->rxbd_current = 0;
+	if (!frame_len) {
+		printf("%s: Zero size packet?\n", __func__);
+		return -1;
 	}
 
+	addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
+	addr &= ~(ARCH_DMA_MINALIGN - 1);
+	*packetp = (uchar *)(uintptr_t)addr;
+
 	return frame_len;
+}
+
+static int zynq_gem_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	struct emac_bd *current_bd = &priv->rx_bd[priv->rxbd_current];
+	struct emac_bd *first_bd;
+
+	if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK) {
+		priv->rx_first_buf = priv->rxbd_current;
+	} else {
+		current_bd->addr &= ~ZYNQ_GEM_RXBUF_NEW_MASK;
+		current_bd->status = 0xF0000000; /* FIXME */
+	}
+
+	if (current_bd->status & ZYNQ_GEM_RXBUF_EOF_MASK) {
+		first_bd = &priv->rx_bd[priv->rx_first_buf];
+		first_bd->addr &= ~ZYNQ_GEM_RXBUF_NEW_MASK;
+		first_bd->status = 0xF0000000;
+	}
+
+	if ((++priv->rxbd_current) >= RX_BUF)
+		priv->rxbd_current = 0;
+
+	return 0;
 }
 
 static void zynq_gem_halt(struct udevice *dev)
@@ -651,6 +658,7 @@ static const struct eth_ops zynq_gem_ops = {
 	.start			= zynq_gem_init,
 	.send			= zynq_gem_send,
 	.recv			= zynq_gem_recv,
+	.free_pkt		= zynq_gem_free_pkt,
 	.stop			= zynq_gem_halt,
 	.write_hwaddr		= zynq_gem_setup_mac,
 };
@@ -666,11 +674,12 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
 	priv->emio = 0;
+	priv->phyaddr = -1;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
 				       "phy-handle");
 	if (offset > 0)
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
+		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
 	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
 	if (phy_mode)
