@@ -81,6 +81,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 	int ret;
 
 	memset(&instr, 0, sizeof(instr));
+	instr.mtd = mtd;
 	instr.addr = mtd->erasesize * s_first;
 	instr.len = mtd->erasesize * (s_last + 1 - s_first);
 	ret = mtd_erase(mtd, &instr);
