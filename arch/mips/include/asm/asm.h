@@ -45,6 +45,12 @@
 #define CPLOAD(register)
 #endif
 
+#define ENTRY(symbol)                                   \
+		.globl	symbol;                         \
+		.type	symbol, @function;              \
+		.ent	symbol, 0;                      \
+symbol:
+
 /*
  * LEAF - declare leaf routine
  */
