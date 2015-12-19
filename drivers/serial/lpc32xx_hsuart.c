@@ -1,89 +1,114 @@
 /*
- * Copyright (C) 2011 Vladimir Zapolskiy <vz@mleia.com>
+ * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/clk.h>
-#include <asm/arch/uart.h>
-#include <asm/io.h>
+#include <dm.h>
 #include <serial.h>
+#include <dm/platform_data/lpc32xx_hsuart.h>
+
+#include <asm/arch/uart.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct hsuart_regs *hsuart = (struct hsuart_regs *)HS_UART_BASE;
+struct lpc32xx_hsuart_priv {
+	struct hsuart_regs *hsuart;
+};
 
-static void lpc32xx_serial_setbrg(void)
+static int lpc32xx_serial_setbrg(struct udevice *dev, int baudrate)
 {
+	struct lpc32xx_hsuart_priv *priv = dev_get_priv(dev);
+	struct hsuart_regs *hsuart = priv->hsuart;
 	u32 div;
 
 	/* UART rate = PERIPH_CLK / ((HSU_RATE + 1) x 14) */
-	div = (get_serial_clock() / 14 + gd->baudrate / 2) / gd->baudrate - 1;
+	div = (get_serial_clock() / 14 + baudrate / 2) / baudrate - 1;
 	if (div > 255)
 		div = 255;
 
 	writel(div, &hsuart->rate);
+
+	return 0;
 }
 
-static int lpc32xx_serial_getc(void)
+static int lpc32xx_serial_getc(struct udevice *dev)
 {
-	while (!(readl(&hsuart->level) & HSUART_LEVEL_RX))
-		/* NOP */;
+	struct lpc32xx_hsuart_priv *priv = dev_get_priv(dev);
+	struct hsuart_regs *hsuart = priv->hsuart;
+
+	if (!(readl(&hsuart->level) & HSUART_LEVEL_RX))
+		return -EAGAIN;
 
 	return readl(&hsuart->rx) & HSUART_RX_DATA;
 }
 
-static void lpc32xx_serial_putc(const char c)
+static int lpc32xx_serial_putc(struct udevice *dev, const char c)
 {
-	if (c == '\n')
-		serial_putc('\r');
+	struct lpc32xx_hsuart_priv *priv = dev_get_priv(dev);
+	struct hsuart_regs *hsuart = priv->hsuart;
+
+	/* Wait for empty FIFO */
+	if (readl(&hsuart->level) & HSUART_LEVEL_TX)
+		return -EAGAIN;
 
 	writel(c, &hsuart->tx);
-
-	/* Wait for character to be sent */
-	while (readl(&hsuart->level) & HSUART_LEVEL_TX)
-		/* NOP */;
-}
-
-static int lpc32xx_serial_tstc(void)
-{
-	if (readl(&hsuart->level) & HSUART_LEVEL_RX)
-		return 1;
 
 	return 0;
 }
 
-static int lpc32xx_serial_init(void)
+static int lpc32xx_serial_pending(struct udevice *dev, bool input)
 {
-	lpc32xx_serial_setbrg();
+	struct lpc32xx_hsuart_priv *priv = dev_get_priv(dev);
+	struct hsuart_regs *hsuart = priv->hsuart;
 
+	if (input) {
+		if (readl(&hsuart->level) & HSUART_LEVEL_RX)
+			return 1;
+	} else {
+		if (readl(&hsuart->level) & HSUART_LEVEL_TX)
+			return 1;
+	}
+
+	return 0;
+}
+
+static int lpc32xx_serial_init(struct hsuart_regs *hsuart)
+{
 	/* Disable hardware RTS and CTS flow control, set up RX and TX FIFO */
 	writel(HSUART_CTRL_TMO_16 | HSUART_CTRL_HSU_OFFSET(20) |
 	       HSUART_CTRL_HSU_RX_TRIG_32 | HSUART_CTRL_HSU_TX_TRIG_0,
 	       &hsuart->ctrl);
+
 	return 0;
 }
 
-static struct serial_device lpc32xx_serial_drv = {
-	.name	= "lpc32xx_serial",
-	.start	= lpc32xx_serial_init,
-	.stop	= NULL,
+static int lpc32xx_hsuart_probe(struct udevice *dev)
+{
+	struct lpc32xx_hsuart_platdata *platdata = dev_get_platdata(dev);
+	struct lpc32xx_hsuart_priv *priv = dev_get_priv(dev);
+
+	priv->hsuart = (struct hsuart_regs *)platdata->base;
+
+	lpc32xx_serial_init(priv->hsuart);
+
+	return 0;
+}
+
+static const struct dm_serial_ops lpc32xx_hsuart_ops = {
 	.setbrg	= lpc32xx_serial_setbrg,
-	.putc	= lpc32xx_serial_putc,
-	.puts	= default_serial_puts,
 	.getc	= lpc32xx_serial_getc,
-	.tstc	= lpc32xx_serial_tstc,
+	.putc	= lpc32xx_serial_putc,
+	.pending = lpc32xx_serial_pending,
 };
 
-void lpc32xx_serial_initialize(void)
-{
-	serial_register(&lpc32xx_serial_drv);
-}
-
-__weak struct serial_device *default_serial_console(void)
-{
-	return &lpc32xx_serial_drv;
-}
+U_BOOT_DRIVER(lpc32xx_hsuart) = {
+	.name	= "lpc32xx_hsuart",
+	.id	= UCLASS_SERIAL,
+	.probe	= lpc32xx_hsuart_probe,
+	.ops	= &lpc32xx_hsuart_ops,
+	.priv_auto_alloc_size = sizeof(struct lpc32xx_hsuart_priv),
+	.flags	= DM_FLAG_PRE_RELOC,
+};
