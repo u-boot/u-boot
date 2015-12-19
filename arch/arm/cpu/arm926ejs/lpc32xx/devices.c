@@ -43,7 +43,7 @@ void lpc32xx_uart_init(unsigned int uart_id)
 	       &clk->u3clk + (uart_id - 3));
 }
 
-#if !CONFIG_IS_ENABLED(OF_CONTROL) && !defined(CONFIG_SPL_BUILD)
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct ns16550_platdata lpc32xx_uart[] = {
 	{ UART3_BASE, 2, CONFIG_SYS_NS16550_CLK },
 	{ UART4_BASE, 2, CONFIG_SYS_NS16550_CLK },
