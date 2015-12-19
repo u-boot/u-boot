@@ -63,10 +63,20 @@ PLATFORM_CPPFLAGS += -D__MIPS__
 # On the other hand, we want PIC in the U-Boot code to relocate it from ROM
 # to RAM. $28 is always used as gp.
 #
-PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic
+ifdef CONFIG_SPL_BUILD
+PF_ABICALLS			:= -mno-abicalls
+PF_PIC				:= -fno-pic
+PF_PIE				:=
+else
+PF_ABICALLS			:= -mabicalls
+PF_PIC				:= -fpic
+PF_PIE				:= -pie
+PF_OBJCOPY			:= -j .got -j .u_boot_list -j .rel.dyn -j .padding
+endif
+
+PLATFORM_CPPFLAGS		+= -G 0 $(PF_ABICALLS) $(PF_PIC)
 PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
-LDFLAGS_FINAL			+= --gc-sections -pie
-OBJCOPYFLAGS			+= -j .text -j .rodata -j .data -j .got
-OBJCOPYFLAGS			+= -j .u_boot_list -j .rel.dyn -j .padding
+LDFLAGS_FINAL			+= --gc-sections $(PF_PIE)
+OBJCOPYFLAGS			+= -j .text -j .rodata -j .data $(PF_OBJCOPY)
