@@ -34,12 +34,14 @@ In general, all boards for which a configuration option exists in the
 Makefile have been tested to some extent and can be considered
 "working". In fact, many of them are used in production systems.
 
-In case of problems see the CHANGELOG and CREDITS files to find out
-who contributed the specific port. The boards.cfg file lists board
-maintainers.
+In case of problems see the CHANGELOG file to find out who contributed
+the specific port. In addition, there are various MAINTAINERS files
+scattered throughout the U-Boot source identifying the people or
+companies responsible for various boards and subsystems.
 
-Note: There is no CHANGELOG file in the actual U-Boot source tree;
-it can be created dynamically from the Git log using:
+Note: As of August, 2010, there is no longer a CHANGELOG file in the
+actual U-Boot source tree; however, it can be created dynamically
+from the Git log using:
 
 	make CHANGELOG
 
@@ -48,7 +50,7 @@ Where to get help:
 ==================
 
 In case you have questions about, problems with or contributions for
-U-Boot you should send a message to the U-Boot mailing list at
+U-Boot, you should send a message to the U-Boot mailing list at
 <u-boot@lists.denx.de>. There is also an archive of previous traffic
 on the mailing list - please search the archive before asking FAQ's.
 Please see http://lists.denx.de/pipermail/u-boot and
@@ -58,7 +60,7 @@ http://dir.gmane.org/gmane.comp.boot-loaders.u-boot
 Where to get source code:
 =========================
 
-The U-Boot source code is maintained in the git repository at
+The U-Boot source code is maintained in the Git repository at
 git://www.denx.de/git/u-boot.git ; you can browse it online at
 http://www.denx.de/cgi-bin/gitweb.cgi?p=u-boot.git;a=summary
 
@@ -133,79 +135,24 @@ Directory Hierarchy:
 
 /arch			Architecture specific files
   /arc			Files generic to ARC architecture
-    /cpu		CPU specific files
-      /arc700		Files specific to ARC 700 CPUs
-    /lib		Architecture specific library files
   /arm			Files generic to ARM architecture
-    /cpu		CPU specific files
-      /arm720t		Files specific to ARM 720 CPUs
-      /arm920t		Files specific to ARM 920 CPUs
-	/at91		Files specific to Atmel AT91RM9200 CPU
-	/imx		Files specific to Freescale MC9328 i.MX CPUs
-	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
-      /arm926ejs	Files specific to ARM 926 CPUs
-      /arm1136		Files specific to ARM 1136 CPUs
-      /pxa		Files specific to Intel XScale PXA CPUs
-      /sa1100		Files specific to Intel StrongARM SA1100 CPUs
-    /lib		Architecture specific library files
   /avr32		Files generic to AVR32 architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
   /blackfin		Files generic to Analog Devices Blackfin architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
   /m68k			Files generic to m68k architecture
-    /cpu		CPU specific files
-      /mcf52x2		Files specific to Freescale ColdFire MCF52x2 CPUs
-      /mcf5227x		Files specific to Freescale ColdFire MCF5227x CPUs
-      /mcf532x		Files specific to Freescale ColdFire MCF5329 CPUs
-      /mcf5445x		Files specific to Freescale ColdFire MCF5445x CPUs
-      /mcf547x_8x	Files specific to Freescale ColdFire MCF547x_8x CPUs
-    /lib		Architecture specific library files
   /microblaze		Files generic to microblaze architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
   /mips			Files generic to MIPS architecture
-    /cpu		CPU specific files
-      /mips32		Files specific to MIPS32 CPUs
-      /mips64		Files specific to MIPS64 CPUs
-    /lib		Architecture specific library files
   /nds32		Files generic to NDS32 architecture
-    /cpu		CPU specific files
-      /n1213		Files specific to Andes Technology N1213 CPUs
-    /lib		Architecture specific library files
   /nios2		Files generic to Altera NIOS2 architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
   /openrisc		Files generic to OpenRISC architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
   /powerpc		Files generic to PowerPC architecture
-    /cpu		CPU specific files
-      /mpc5xx		Files specific to Freescale MPC5xx CPUs
-      /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
-      /mpc8xx		Files specific to Freescale MPC8xx CPUs
-      /mpc8260		Files specific to Freescale MPC8260 CPUs
-      /mpc85xx		Files specific to Freescale MPC85xx CPUs
-      /ppc4xx		Files specific to AMCC PowerPC 4xx CPUs
-    /lib		Architecture specific library files
+  /sandbox		Files generic to HW-independent "sandbox"
   /sh			Files generic to SH architecture
-    /cpu		CPU specific files
-      /sh2		Files specific to sh2 CPUs
-      /sh3		Files specific to sh3 CPUs
-      /sh4		Files specific to sh4 CPUs
-    /lib		Architecture specific library files
   /sparc		Files generic to SPARC architecture
-    /cpu		CPU specific files
-      /leon2		Files specific to Gaisler LEON2 SPARC CPU
-      /leon3		Files specific to Gaisler LEON3 SPARC CPU
-    /lib		Architecture specific library files
   /x86			Files generic to x86 architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
 /api			Machine/arch independent API for external apps
 /board			Board dependent files
 /common			Misc architecture independent functions
+/configs		Board default configuration files
 /disk			Code for disk drive partition handling
 /doc			Documentation (don't expect too much)
 /drivers		Commonly used device drivers
@@ -213,13 +160,12 @@ Directory Hierarchy:
 /examples		Example code for standalone applications, etc.
 /fs			Filesystem code (cramfs, ext2, jffs2, etc.)
 /include		Header Files
-/lib			Files generic to all architectures
-  /libfdt		Library files to support flattened device trees
-  /lzma			Library files to support LZMA decompression
-  /lzo			Library files to support LZO decompression
+/lib			Library routines generic to all architectures
+/Licenses		Various license files
 /net			Networking code
 /post			Power On Self Test
-/spl			Secondary Program Loader framework
+/scripts		Various build scripts and Makefiles
+/test			Various unit test files
 /tools			Tools to build S-Record or U-Boot images, etc.
 
 Software Configuration:
@@ -239,11 +185,11 @@ There are two classes of configuration variables:
   you don't know what you're doing; they have names beginning with
   "CONFIG_SYS_".
 
-Later we will add a configuration tool - probably similar to or even
-identical to what's used for the Linux kernel. Right now, we have to
-do the configuration by hand, which means creating some symbolic
-links and editing some configuration files. We use the TQM8xxL boards
-as an example here.
+Previously, all configuration was done by hand, which involved creating
+symbolic links and editing configuration files manually. More recently,
+U-Boot has added the Kbuild infrastructure used by the Linux kernel,
+allowing you to use the "make menuconfig" command to configure your
+build.
 
 
 Selection of Processor Architecture and Board Type:
@@ -257,10 +203,9 @@ Example: For a TQM823L module type:
 	cd u-boot
 	make TQM823L_defconfig
 
-For the Cogent platform, you need to specify the CPU type as well;
-e.g. "make cogent_mpc8xx_defconfig". And also configure the cogent
-directory according to the instructions in cogent/README.
-
+Note: If you're looking for the default configuration file for a board
+you're sure used to be there but is now missing, check the file
+doc/README.scrapyard for a list of no longer supported boards.
 
 Sandbox Environment:
 --------------------
@@ -277,13 +222,25 @@ Board Initialisation Flow:
 --------------------------
 
 This is the intended start-up flow for boards. This should apply for both
-SPL and U-Boot proper (i.e. they both follow the same rules). At present SPL
-mostly uses a separate code path, but the funtion names and roles of each
-function are the same. Some boards or architectures may not conform to this.
-At least most ARM boards which use CONFIG_SPL_FRAMEWORK conform to this.
+SPL and U-Boot proper (i.e. they both follow the same rules).
 
-Execution starts with start.S with three functions called during init after
-that. The purpose and limitations of each is described below.
+Note: "SPL" stands for "Secondary Program Loader," which is explained in
+more detail later in this file.
+
+At present, SPL mostly uses a separate code path, but the function names
+and roles of each function are the same. Some boards or architectures
+may not conform to this.  At least most ARM boards which use
+CONFIG_SPL_FRAMEWORK conform to this.
+
+Execution typically starts with an architecture-specific (and possibly
+CPU-specific) start.S file, such as:
+
+	- arch/arm/cpu/armv7/start.S
+	- arch/powerpc/cpu/mpc83xx/start.S
+	- arch/mips/cpu/start.S
+
+and so on. From there, three functions are called; the purpose and
+limitations of each of these functions are described below.
 
 lowlevel_init():
 	- purpose: essential init to permit execution to reach board_init_f()
@@ -6630,7 +6587,8 @@ it:
 
 * A CHANGELOG entry as plaintext (separate from the patch)
 
-* For major contributions, your entry to the CREDITS file
+* For major contributions, add a MAINTAINERS file with your
+  information and associated file and directory references.
 
 * When you add support for a new board, don't forget to add a
   maintainer e-mail address to the boards.cfg file, too.
