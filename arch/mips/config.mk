@@ -72,6 +72,7 @@ PF_ABICALLS			:= -mabicalls
 PF_PIC				:= -fpic
 PF_PIE				:= -pie
 PF_OBJCOPY			:= -j .got -j .u_boot_list -j .rel.dyn -j .padding
+PF_OBJCOPY			+= -j .dtb.init.rodata
 endif
 
 PLATFORM_CPPFLAGS		+= -G 0 $(PF_ABICALLS) $(PF_PIC)
