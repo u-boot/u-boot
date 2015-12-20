@@ -20,6 +20,7 @@ config SUNXI_NO_PMIC
 config AXP152_POWER
 	boolean "axp152 pmic support"
 	depends on MACH_SUN5I
+	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp152 pmic found on most
 	A10s boards.
