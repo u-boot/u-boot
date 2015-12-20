@@ -54,14 +54,23 @@ void enable_caches(void)
 
 void v7_outer_cache_enable(void)
 {
-	/* disable the L2 cache */
-	writel(0, &pl310->pl310_ctrl);
+	/* Disable the L2 cache */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 
 	/* enable BRESP, instruction and data prefetch, full line of zeroes */
 	setbits_le32(&pl310->pl310_aux_ctrl,
 		     L310_AUX_CTRL_DATA_PREFETCH_MASK |
 		     L310_AUX_CTRL_INST_PREFETCH_MASK |
 		     L310_SHARED_ATT_OVERRIDE_ENABLE);
+
+	/* Enable the L2 cache */
+	setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
+
+void v7_outer_cache_disable(void)
+{
+	/* Disable the L2 cache */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }
 
 /*
