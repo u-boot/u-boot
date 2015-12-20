@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <errno.h>
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
@@ -310,5 +311,16 @@ int axp_get_sid(unsigned int *sid)
 	for (i = 0; i < 4; i++)
 		sid[i] = be32_to_cpu(sid[i]);
 
+	return 0;
+}
+
+int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	pmic_bus_write(AXP221_SHUTDOWN, AXP221_SHUTDOWN_POWEROFF);
+
+	/* infinite loop during shutdown */
+	while (1) {}
+
+	/* not reached */
 	return 0;
 }
