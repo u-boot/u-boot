@@ -330,8 +330,12 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_WATCHDOG_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
+#ifdef CONFIG_DM_MMC
 #define CONFIG_SPL_MMC_SUPPORT
+#endif
+#ifdef CONFIG_DM_SPI
 #define CONFIG_SPL_SPI_SUPPORT
+#endif
 
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
