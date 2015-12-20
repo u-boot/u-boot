@@ -103,8 +103,8 @@ static void tx_descs_init(struct dw_eth_dev *priv)
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 		desc_p->txrx_status &= ~(DESC_TXSTS_TXINT | DESC_TXSTS_TXLAST |
-				DESC_TXSTS_TXFIRST | DESC_TXSTS_TXCRCDIS | \
-				DESC_TXSTS_TXCHECKINSCTRL | \
+				DESC_TXSTS_TXFIRST | DESC_TXSTS_TXCRCDIS |
+				DESC_TXSTS_TXCHECKINSCTRL |
 				DESC_TXSTS_TXRINGEND | DESC_TXSTS_TXPADDIS);
 
 		desc_p->txrx_status |= DESC_TXSTS_TXCHAIN;
@@ -151,7 +151,7 @@ static void rx_descs_init(struct dw_eth_dev *priv)
 		desc_p->dmamac_next = &desc_table_p[idx + 1];
 
 		desc_p->dmamac_cntl =
-			(MAC_MAX_FRAME_SZ & DESC_RXCTRL_SIZE1MASK) | \
+			(MAC_MAX_FRAME_SZ & DESC_RXCTRL_SIZE1MASK) |
 				      DESC_RXCTRL_RXCHAIN;
 
 		desc_p->txrx_status = DESC_RXSTS_OWNBYDMA;
@@ -317,14 +317,14 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;
-	desc_p->dmamac_cntl |= (length << DESC_TXCTRL_SIZE1SHFT) & \
+	desc_p->dmamac_cntl |= (length << DESC_TXCTRL_SIZE1SHFT) &
 			       DESC_TXCTRL_SIZE1MASK;
 
 	desc_p->txrx_status &= ~(DESC_TXSTS_MSK);
 	desc_p->txrx_status |= DESC_TXSTS_OWNBYDMA;
 #else
-	desc_p->dmamac_cntl |= ((length << DESC_TXCTRL_SIZE1SHFT) & \
-			       DESC_TXCTRL_SIZE1MASK) | DESC_TXCTRL_TXLAST | \
+	desc_p->dmamac_cntl |= ((length << DESC_TXCTRL_SIZE1SHFT) &
+			       DESC_TXCTRL_SIZE1MASK) | DESC_TXCTRL_TXLAST |
 			       DESC_TXCTRL_TXFIRST;
 
 	desc_p->txrx_status = DESC_TXSTS_OWNBYDMA;
@@ -364,7 +364,7 @@ static int _dw_eth_recv(struct dw_eth_dev *priv, uchar **packetp)
 	/* Check  if the owner is the CPU */
 	if (!(status & DESC_RXSTS_OWNBYDMA)) {
 
-		length = (status & DESC_RXSTS_FRMLENMSK) >> \
+		length = (status & DESC_RXSTS_FRMLENMSK) >>
 			 DESC_RXSTS_FRMLENSHFT;
 
 		/* Invalidate received data */
