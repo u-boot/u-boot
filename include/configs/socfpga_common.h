@@ -161,6 +161,19 @@
 #endif
 
 /*
+ * NAND Support
+ */
+#ifdef CONFIG_NAND_DENALI
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_MAX_CHIPS	1
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_DENALI_ECC_SIZE	512
+#define CONFIG_SYS_NAND_REGS_BASE	SOCFPGA_NANDREGS_ADDRESS
+#define CONFIG_SYS_NAND_DATA_BASE	SOCFPGA_NANDDATA_ADDRESS
+#define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_NAND_DATA_BASE + 0x10)
+#endif
+
+/*
  * I2C support
  */
 #define CONFIG_SYS_I2C
@@ -338,6 +351,9 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #ifdef CONFIG_DM_SPI
 #define CONFIG_SPL_SPI_SUPPORT
 #endif
+#ifdef CONFIG_SPL_NAND_DENALI
+#define CONFIG_SPL_NAND_SUPPORT
+#endif
 
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
@@ -358,6 +374,13 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
+#endif
+
+/* SPL NAND boot support */
+#ifdef CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #endif
 
 /*
