@@ -25,6 +25,7 @@ F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T003_defconfig
 F:	configs/Auxtek-T004_defconfig
 F:	configs/CHIP_defconfig
+F:	configs/Empire_electronix_d709_defconfig
 F:	configs/inet98v_rev2_defconfig
 F:	configs/mk802_a10s_defconfig
 F:	configs/q8_a13_tablet_defconfig
