@@ -278,6 +278,7 @@ static int uclass_find_device_by_of_offset(enum uclass_id id, int node,
 	return -ENODEV;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static int uclass_find_device_by_phandle(enum uclass_id id,
 					 struct udevice *parent,
 					 const char *name,
@@ -308,6 +309,7 @@ static int uclass_find_device_by_phandle(enum uclass_id id,
 
 	return -ENODEV;
 }
+#endif
 
 int uclass_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)
@@ -374,6 +376,7 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
 				 const char *name, struct udevice **devp)
 {
@@ -384,6 +387,7 @@ int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
 	ret = uclass_find_device_by_phandle(id, parent, name, &dev);
 	return uclass_get_device_tail(dev, ret, devp);
 }
+#endif
 
 int uclass_first_device(enum uclass_id id, struct udevice **devp)
 {
