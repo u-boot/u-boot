@@ -359,6 +359,10 @@ int arch_early_init_r(void)
 	socfpga_per_reset(SOCFPGA_RESET(SPIM1), 0);
 #endif
 
+#ifdef CONFIG_NAND_DENALI
+	socfpga_per_reset(SOCFPGA_RESET(NAND), 0);
+#endif
+
 	return 0;
 }
 
