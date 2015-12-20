@@ -16,3 +16,4 @@ struct watchdog_regs {
 #define WCR_WDT		0x08
 #define WCR_SRS		0x10
 #define SET_WCR_WT(x)	(x << 8)
+#define WCR_WT_MSK	SET_WCR_WT(0xFF)
