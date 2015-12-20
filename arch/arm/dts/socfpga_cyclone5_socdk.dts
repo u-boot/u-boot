@@ -25,6 +25,7 @@
 		 * to be added to the gmac1 device tree blob.
 		 */
 		ethernet0 = &gmac1;
+		udc0 = &usb1;
 	};
 
 	regulator_3_3v: 3-3-v-regulator {
@@ -77,10 +78,6 @@
 	vqmmc-supply = <&regulator_3_3v>;
 };
 
-&usb1 {
-	status = "okay";
-};
-
 &qspi {
 	status = "okay";
 
@@ -99,4 +96,8 @@
 		tchsh-ns = <4>;
 		tslch-ns = <4>;
 	};
+};
+
+&usb1 {
+	status = "okay";
 };

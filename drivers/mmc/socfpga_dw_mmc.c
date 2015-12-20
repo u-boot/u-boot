@@ -33,6 +33,8 @@ struct dwmci_socfpga_priv_data {
 static void socfpga_dwmci_clksel(struct dwmci_host *host)
 {
 	struct dwmci_socfpga_priv_data *priv = host->priv;
+	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
+			 ((priv->drvsel & 0x7) << SYSMGR_SDMMC_DRVSEL_SHIFT);
 
 	/* Disable SDMMC clock. */
 	clrbits_le32(&clock_manager_base->per_pll.en,
@@ -40,8 +42,7 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 
 	debug("%s: drvsel %d smplsel %d\n", __func__,
 	      priv->drvsel, priv->smplsel);
-	writel(SYSMGR_SDMMC_CTRL_SET(priv->smplsel, priv->drvsel),
-		&system_manager_base->sdmmcgrp_ctrl);
+	writel(sdmmc_mask, &system_manager_base->sdmmcgrp_ctrl);
 
 	debug("%s: SYSMGR_SDMMCGRP_CTRL_REG = 0x%x\n", __func__,
 		readl(&system_manager_base->sdmmcgrp_ctrl));

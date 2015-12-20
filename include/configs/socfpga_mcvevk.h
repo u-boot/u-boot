@@ -48,15 +48,7 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
-#endif
-#define CONFIG_G_DNL_MANUFACTURER	"DENX"
-
 /* Extra Environment */
-#define CONFIG_HOSTNAME			mcvevk
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttyS0\0"						\
 	"baudrate=115200\0"						\

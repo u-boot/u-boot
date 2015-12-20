@@ -47,30 +47,15 @@
 
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
-
-/* PHY */
 #define CONFIG_PHY_MICREL
 #define CONFIG_PHY_MICREL_KSZ9021
-#define CONFIG_KSZ9021_CLK_SKEW_ENV	"micrel-ksz9021-clk-skew"
-#define CONFIG_KSZ9021_CLK_SKEW_VAL	0xf0f0
-#define CONFIG_KSZ9021_DATA_SKEW_ENV	"micrel-ksz9021-data-skew"
-#define CONFIG_KSZ9021_DATA_SKEW_VAL	0x0
-
 #endif
 
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
-#endif
-#define CONFIG_G_DNL_MANUFACTURER      "Altera"
-
 /* Extra Environment */
-#define CONFIG_HOSTNAME		socfpga_arria5
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
 	"loadaddr= " __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \

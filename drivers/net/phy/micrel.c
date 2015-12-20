@@ -9,8 +9,13 @@
  */
 #include <config.h>
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
+#include <fdtdec.h>
 #include <micrel.h>
 #include <phy.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static struct phy_driver KSZ804_driver = {
 	.name = "Micrel KSZ804",
@@ -174,6 +179,73 @@ static int ksz90xx_startup(struct phy_device *phydev)
 	return 0;
 }
 
+/* Common OF config bits for KSZ9021 and KSZ9031 */
+#if defined(CONFIG_PHY_MICREL_KSZ9021) || defined(CONFIG_PHY_MICREL_KSZ9031)
+#ifdef CONFIG_DM_ETH
+struct ksz90x1_reg_field {
+	const char	*name;
+	const u8	size;	/* Size of the bitfield, in bits */
+	const u8	off;	/* Offset from bit 0 */
+	const u8	dflt;	/* Default value */
+};
+
+struct ksz90x1_ofcfg {
+	const u16			reg;
+	const u16			devad;
+	const struct ksz90x1_reg_field	*grp;
+	const u16			grpsz;
+};
+
+static const struct ksz90x1_reg_field ksz90x1_rxd_grp[] = {
+	{ "rxd0-skew-ps", 4, 0, 0x7 }, { "rxd1-skew-ps", 4, 4, 0x7 },
+	{ "rxd2-skew-ps", 4, 8, 0x7 }, { "rxd3-skew-ps", 4, 12, 0x7 }
+};
+
+static const struct ksz90x1_reg_field ksz90x1_txd_grp[] = {
+	{ "txd0-skew-ps", 4, 0, 0x7 }, { "txd1-skew-ps", 4, 4, 0x7 },
+	{ "txd2-skew-ps", 4, 8, 0x7 }, { "txd3-skew-ps", 4, 12, 0x7 },
+};
+
+static int ksz90x1_of_config_group(struct phy_device *phydev,
+				   struct ksz90x1_ofcfg *ofcfg)
+{
+	struct udevice *dev = phydev->dev;
+	struct phy_driver *drv = phydev->drv;
+	const int ps_to_regval = 200;
+	int val[4];
+	int i, changed = 0, offset, max;
+	u16 regval = 0;
+
+	if (!drv || !drv->writeext)
+		return -EOPNOTSUPP;
+
+	for (i = 0; i < ofcfg->grpsz; i++) {
+		val[i] = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+					 ofcfg->grp[i].name, -1);
+		offset = ofcfg->grp[i].off;
+		if (val[i] == -1) {
+			/* Default register value for KSZ9021 */
+			regval |= ofcfg->grp[i].dflt << offset;
+		} else {
+			changed = 1;	/* Value was changed in OF */
+			/* Calculate the register value and fix corner cases */
+			if (val[i] > ps_to_regval * 0xf) {
+				max = (1 << ofcfg->grp[i].size) - 1;
+				regval |= max << offset;
+			} else {
+				regval |= (val[i] / ps_to_regval) << offset;
+			}
+		}
+	}
+
+	if (!changed)
+		return 0;
+
+	return drv->writeext(phydev, 0, ofcfg->devad, ofcfg->reg, regval);
+}
+#endif
+#endif
+
 #ifdef CONFIG_PHY_MICREL_KSZ9021
 /*
  * KSZ9021
@@ -187,6 +259,35 @@ static int ksz90xx_startup(struct phy_device *phydev)
 #define CTRL1000_PREFER_MASTER		(1 << 10)
 #define CTRL1000_CONFIG_MASTER		(1 << 11)
 #define CTRL1000_MANUAL_CONFIG		(1 << 12)
+
+#ifdef CONFIG_DM_ETH
+static const struct ksz90x1_reg_field ksz9021_clk_grp[] = {
+	{ "txen-skew-ps", 4, 0, 0x7 }, { "txc-skew-ps", 4, 4, 0x7 },
+	{ "rxdv-skew-ps", 4, 8, 0x7 }, { "rxc-skew-ps", 4, 12, 0x7 },
+};
+
+static int ksz9021_of_config(struct phy_device *phydev)
+{
+	struct ksz90x1_ofcfg ofcfg[] = {
+		{ MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW, 0, ksz90x1_rxd_grp, 4 },
+		{ MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW, 0, ksz90x1_txd_grp, 4 },
+		{ MII_KSZ9021_EXT_RGMII_CLOCK_SKEW, 0, ksz9021_clk_grp, 4 },
+	};
+	int i, ret = 0;
+
+	for (i = 0; i < ARRAY_SIZE(ofcfg); i++)
+		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
+		if (ret)
+			return ret;
+
+	return 0;
+}
+#else
+static int ksz9021_of_config(struct phy_device *phydev)
+{
+	return 0;
+}
+#endif
 
 int ksz9021_phy_extended_write(struct phy_device *phydev, int regnum, u16 val)
 {
@@ -224,6 +325,11 @@ static int ksz9021_config(struct phy_device *phydev)
 	const unsigned master = CTRL1000_PREFER_MASTER |
 			CTRL1000_CONFIG_MASTER | CTRL1000_MANUAL_CONFIG;
 	unsigned features = phydev->drv->features;
+	int ret;
+
+	ret = ksz9021_of_config(phydev);
+	if (ret)
+		return ret;
 
 	if (getenv("disable_giga"))
 		features &= ~(SUPPORTED_1000baseT_Half |
@@ -259,6 +365,36 @@ static struct phy_driver ksz9021_driver = {
 /* PHY Registers */
 #define MII_KSZ9031_MMD_ACCES_CTRL	0x0d
 #define MII_KSZ9031_MMD_REG_DATA	0x0e
+
+#ifdef CONFIG_DM_ETH
+static const struct ksz90x1_reg_field ksz9031_ctl_grp[] =
+	{ { "txen-skew-ps", 4, 0, 0x7 }, { "rxdv-skew-ps", 4, 4, 0x7 } };
+static const struct ksz90x1_reg_field ksz9031_clk_grp[] =
+	{ { "rxc-skew-ps", 5, 0, 0xf }, { "txc-skew-ps", 5, 5, 0xf } };
+
+static int ksz9031_of_config(struct phy_device *phydev)
+{
+	struct ksz90x1_ofcfg ofcfg[] = {
+		{ MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW, 2, ksz9031_ctl_grp, 2 },
+		{ MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW, 2, ksz90x1_rxd_grp, 4 },
+		{ MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW, 2, ksz90x1_txd_grp, 4 },
+		{ MII_KSZ9031_EXT_RGMII_CLOCK_SKEW, 2, ksz9031_clk_grp, 2 },
+	};
+	int i, ret = 0;
+
+	for (i = 0; i < ARRAY_SIZE(ofcfg); i++)
+		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
+		if (ret)
+			return ret;
+
+	return 0;
+}
+#else
+static int ksz9031_of_config(struct phy_device *phydev)
+{
+	return 0;
+}
+#endif
 
 /* Accessors to extended registers*/
 int ksz9031_phy_extended_write(struct phy_device *phydev,
@@ -304,13 +440,21 @@ static int ksz9031_phy_extwrite(struct phy_device *phydev, int addr,
 					 MII_KSZ9031_MOD_DATA_POST_INC_RW, val);
 };
 
+static int ksz9031_config(struct phy_device *phydev)
+{
+	int ret;
+	ret = ksz9031_of_config(phydev);
+	if (ret)
+		return ret;
+	return genphy_config(phydev);
+}
 
 static struct phy_driver ksz9031_driver = {
 	.name = "Micrel ksz9031",
 	.uid  = 0x221620,
 	.mask = 0xfffff0,
 	.features = PHY_GBIT_FEATURES,
-	.config   = &genphy_config,
+	.config   = &ksz9031_config,
 	.startup  = &ksz90xx_startup,
 	.shutdown = &genphy_shutdown,
 	.writeext = &ksz9031_phy_extwrite,
