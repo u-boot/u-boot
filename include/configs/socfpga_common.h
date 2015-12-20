@@ -248,7 +248,9 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 #define CONFIG_USB_FUNCTION_DFU
+#ifdef CONFIG_DM_MMC
 #define CONFIG_DFU_MMC
+#endif
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(32 * 1024 * 1024)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
