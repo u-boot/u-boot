@@ -99,11 +99,6 @@
 #define CONFIG_PHY_GIGE
 
 /*
- * Ethernet configuration
- */
-#define CONFIG_DW_AUTONEG
-
-/*
  * Commands still not supported in Kconfig
  */
 #define CONFIG_CMD_FAT
