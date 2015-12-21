@@ -31,7 +31,7 @@ int timer_init(void)
 	writel(TIMER_LOAD_VAL, MVEBU_TIMER_BASE + 0x10);
 	writel(TIMER_LOAD_VAL, MVEBU_TIMER_BASE + 0x14);
 
-#if defined(CONFIG_ARMADA_XP)
+#if defined(CONFIG_ARCH_MVEBU)
 	/* On Armada XP / 38x ..., the 25MHz clock source needs to be enabled */
 	setbits_le32(MVEBU_TIMER_BASE + 0x00, BIT(11));
 #endif

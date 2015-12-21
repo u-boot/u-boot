@@ -17,7 +17,11 @@
 
 #include <asm/arch/soc.h>
 
-#if defined(CONFIG_ARMADA_XP)
+#if defined(CONFIG_ARMADA_XP) || defined(CONFIG_ARMADA_38X)
+/*
+ * Set this for the common xor register definitions needed in dram.c
+ * for A38x as well here.
+ */
 #define MV88F78X60 /* for the DDR training bin_hdr code */
 #endif
 

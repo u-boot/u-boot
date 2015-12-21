@@ -10,7 +10,6 @@
 /*
  * High Level Configuration Options (easy to change)
  */
-#define CONFIG_ARMADA_XP		/* SOC Family Name */
 #define CONFIG_DB_784MP_GP		/* Board target name for DDR training */
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE
@@ -144,7 +143,6 @@
 #define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SYS_MVEBU_DDR_AXP
 #define CONFIG_SPD_EEPROM		0x4e
 #define CONFIG_BOARD_ECC_SUPPORT	/* this board supports ECC */
 

@@ -10,7 +10,6 @@
 /*
  * High Level Configuration Options (easy to change)
  */
-#define CONFIG_ARMADA_XP		/* SOC Family Name */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
@@ -106,7 +105,6 @@
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SYS_MVEBU_DDR_AXP
 #define CONFIG_DDR_FIXED_SIZE		(1 << 20)	/* 1GiB */
 #define CONFIG_BOARD_ECC_SUPPORT	/* this board supports ECC */
 

@@ -1,20 +1,30 @@
 if ARCH_MVEBU
 
+config ARMADA_38X
+	bool
+
+config ARMADA_XP
+	bool
+
 choice
 	prompt "Marvell MVEBU (Armada XP/38x) board select"
 	optional
 
 config TARGET_CLEARFOG
 	bool "Support ClearFog"
+	select ARMADA_38X
 
 config TARGET_DB_88F6820_GP
 	bool "Support DB-88F6820-GP"
+	select ARMADA_38X
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
+	select ARMADA_XP
 
 config TARGET_MAXBCM
 	bool "Support maxbcm"
+	select ARMADA_XP
 
 endchoice
 

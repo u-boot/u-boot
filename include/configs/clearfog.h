@@ -10,8 +10,6 @@
 /*
  * High Level Configuration Options (easy to change)
  */
-#define CONFIG_ARMADA_XP		/* SOC Family Name */
-#define CONFIG_ARMADA_38X
 #define CONFIG_DB_88F6820_GP		/* Board target name for DDR training */
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE
@@ -169,10 +167,6 @@
 #define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
 #endif
 #endif
-
-/* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SYS_MVEBU_DDR_A38X
-#define CONFIG_DDR3
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
