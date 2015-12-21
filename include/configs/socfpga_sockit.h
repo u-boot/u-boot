@@ -48,8 +48,6 @@
 #endif
 
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
-#define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
