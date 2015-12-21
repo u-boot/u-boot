@@ -81,7 +81,7 @@ static int pci_map_region(void *fdt, int pci_node, int range_id,
 	ulong map_addr;
 	int r;
 
-	r = fdt_read_range(fdt, pci_node, 0, NULL, &addr, &size);
+	r = fdt_read_range(fdt, pci_node, range_id, NULL, &addr, &size);
 	if (r)
 		return r;
 
