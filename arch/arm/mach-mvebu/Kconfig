@@ -18,6 +18,23 @@ config TARGET_MAXBCM
 
 endchoice
 
+config SYS_BOARD
+	default "clearfog" if TARGET_CLEARFOG
+	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
+	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "maxbcm" if TARGET_MAXBCM
+
+config SYS_CONFIG_NAME
+	default "clearfog" if TARGET_CLEARFOG
+	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
+	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "maxbcm" if TARGET_MAXBCM
+
+config SYS_VENDOR
+	default "Marvell" if TARGET_DB_MV784MP_GP
+	default "Marvell" if TARGET_DB_88F6820_GP
+	default "solidrun" if TARGET_CLEARFOG
+
 config SYS_SOC
 	default "mvebu"
 
