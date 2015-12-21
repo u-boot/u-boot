@@ -292,11 +292,18 @@ void dram_init_banksize(void)
 	}
 }
 
+#if defined(CONFIG_ARMADA_XP)
 void board_add_ram_info(int use_default)
 {
+	struct sar_freq_modes sar_freq;
+
+	get_sar_freq(&sar_freq);
+	printf(" (%d MHz, ", sar_freq.d_clk);
+
 	if (ecc_enabled())
-		printf(" (ECC");
+		printf("ECC");
 	else
-		printf(" (ECC not");
+		printf("ECC not");
 	printf(" enabled)");
 }
+#endif

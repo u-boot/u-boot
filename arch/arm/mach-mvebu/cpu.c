@@ -60,10 +60,95 @@ int mvebu_soc_family(void)
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
+
+#if defined(CONFIG_ARMADA_38X)
+/* SAR values for Armada 38x */
+#define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18600))
+#define SAR_CPU_FREQ_OFFS	10
+#define SAR_CPU_FREQ_MASK	(0x1f << SAR_CPU_FREQ_OFFS)
+
+struct sar_freq_modes sar_freq_tab[] = {
+	{  0x0,  0x0,  666, 333, 333 },
+	{  0x2,  0x0,  800, 400, 400 },
+	{  0x4,  0x0, 1066, 533, 533 },
+	{  0x6,  0x0, 1200, 600, 600 },
+	{  0x8,  0x0, 1332, 666, 666 },
+	{  0xc,  0x0, 1600, 800, 800 },
+	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
+};
+#else
+/* SAR values for Armada XP */
+#define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18230))
+#define CONFIG_SAR2_REG		(MVEBU_REGISTER(0x18234))
+#define SAR_CPU_FREQ_OFFS	21
+#define SAR_CPU_FREQ_MASK	(0x7 << SAR_CPU_FREQ_OFFS)
+#define SAR_FFC_FREQ_OFFS	24
+#define SAR_FFC_FREQ_MASK	(0xf << SAR_FFC_FREQ_OFFS)
+#define SAR2_CPU_FREQ_OFFS	20
+#define SAR2_CPU_FREQ_MASK	(0x1 << SAR2_CPU_FREQ_OFFS)
+
+struct sar_freq_modes sar_freq_tab[] = {
+	{  0xa,  0x5,  800, 400, 400 },
+	{  0x1,  0x5, 1066, 533, 533 },
+	{  0x2,  0x5, 1200, 600, 600 },
+	{  0x2,  0x9, 1200, 600, 400 },
+	{  0x3,  0x5, 1333, 667, 667 },
+	{  0x4,  0x5, 1500, 750, 750 },
+	{  0x4,  0x9, 1500, 750, 500 },
+	{  0xb,  0x9, 1600, 800, 533 },
+	{  0xb,  0xa, 1600, 800, 640 },
+	{  0xb,  0x5, 1600, 800, 800 },
+	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
+};
+#endif
+
+void get_sar_freq(struct sar_freq_modes *sar_freq)
+{
+	u32 val;
+	u32 freq;
+	int i;
+
+	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+	freq = (val & SAR_CPU_FREQ_MASK) >> SAR_CPU_FREQ_OFFS;
+#if !defined(CONFIG_ARMADA_38X)
+	/*
+	 * Shift CPU0 clock frequency select bit from SAR2 register
+	 * into correct position
+	 */
+	freq |= ((readl(CONFIG_SAR2_REG) & SAR2_CPU_FREQ_MASK)
+		 >> SAR2_CPU_FREQ_OFFS) << 3;
+#endif
+	for (i = 0; sar_freq_tab[i].val != 0xff; i++) {
+		if (sar_freq_tab[i].val == freq) {
+#if defined(CONFIG_ARMADA_38X)
+			*sar_freq = sar_freq_tab[i];
+			return;
+#else
+			int k;
+			u8 ffc;
+
+			ffc = (val & SAR_FFC_FREQ_MASK) >>
+				SAR_FFC_FREQ_OFFS;
+			for (k = i; sar_freq_tab[k].ffc != 0xff; k++) {
+				if (sar_freq_tab[k].ffc == ffc) {
+					*sar_freq = sar_freq_tab[k];
+					return;
+				}
+			}
+			i = k;
+#endif
+		}
+	}
+
+	/* SAR value not found, return 0 for frequencies */
+	*sar_freq = sar_freq_tab[i - 1];
+}
+
 int print_cpuinfo(void)
 {
 	u16 devid = (readl(MVEBU_REG_PCIE_DEVID) >> 16) & 0xffff;
 	u8 revid = readl(MVEBU_REG_PCIE_REVID) & 0xff;
+	struct sar_freq_modes sar_freq;
 
 	puts("SoC:   ");
 
@@ -91,13 +176,13 @@ int print_cpuinfo(void)
 	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
 		switch (revid) {
 		case 1:
-			puts("A0\n");
+			puts("A0");
 			break;
 		case 2:
-			puts("B0\n");
+			puts("B0");
 			break;
 		default:
-			printf("?? (%x)\n", revid);
+			printf("?? (%x)", revid);
 			break;
 		}
 	}
@@ -105,16 +190,19 @@ int print_cpuinfo(void)
 	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
 		switch (revid) {
 		case MV_88F68XX_Z1_ID:
-			puts("Z1\n");
+			puts("Z1");
 			break;
 		case MV_88F68XX_A0_ID:
-			puts("A0\n");
+			puts("A0");
 			break;
 		default:
-			printf("?? (%x)\n", revid);
+			printf("?? (%x)", revid);
 			break;
 		}
 	}
+
+	get_sar_freq(&sar_freq);
+	printf(" at %d MHz\n", sar_freq.p_clk);
 
 	return 0;
 }
