@@ -1,8 +1,8 @@
 /* Memory sub-system initialization code */
 
 #include <config.h>
+#include <mach/au1x00.h>
 #include <asm/regdef.h>
-#include <asm/au1x00.h>
 #include <asm/mipsregs.h>
 
 #define AU1500_SYS_ADDR		0xB1900000
