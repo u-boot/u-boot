@@ -516,8 +516,9 @@ config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
 	select CMD_USB
 	select DM
-	select DM_GPIO
 	select DM_ETH
+	select DM_GPIO
+	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_USB
 	select OF_CONTROL
