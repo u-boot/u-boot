@@ -196,7 +196,7 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT			"nor0=ff705000.spi"
+#define MTDIDS_DEFAULT			"nor0=ff705000.spi.0"
 #endif
 /* QSPI reference clock */
 #ifndef __ASSEMBLY__
@@ -274,6 +274,29 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #if defined(CONFIG_ENV_IS_IN_MMC) && !defined(CONFIG_ENV_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
+#endif
+
+/*
+ * mtd partitioning for serial NOR flash
+ *
+ * device nor0 <ff705000.spi.0>, # parts = 6
+ * #: name                size            offset          mask_flags
+ * 0: u-boot              0x00100000      0x00000000      0
+ * 1: env1                0x00040000      0x00100000      0
+ * 2: env2                0x00040000      0x00140000      0
+ * 3: UBI                 0x03e80000      0x00180000      0
+ * 4: boot                0x00e80000      0x00180000      0
+ * 5: rootfs              0x01000000      0x01000000      0
+ *
+ */
+#if defined(CONFIG_CMD_SF) && !defined(MTDPARTS_DEFAULT)
+#define MTDPARTS_DEFAULT	"mtdparts=ff705000.spi.0:"\
+				"1m(u-boot),"		\
+				"256k(env1),"		\
+				"256k(env2),"		\
+				"14848k(boot),"		\
+				"16m(rootfs),"		\
+				"-@1536k(UBI)\0"
 #endif
 
 /*
