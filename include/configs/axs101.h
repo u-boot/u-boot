@@ -105,6 +105,12 @@
 #define CONFIG_DW_AUTONEG
 
 /*
+ * USB 1.1 configuration
+ */
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
+
+/*
  * Commands still not supported in Kconfig
  */
 #define CONFIG_CMD_FAT
