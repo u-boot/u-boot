@@ -299,6 +299,14 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 				"-@1536k(UBI)\0"
 #endif
 
+/* UBI and UBIFS support */
+#if defined(CONFIG_CMD_SF) || defined(CONFIG_CMD_NAND)
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_LZO
+#endif
+
 /*
  * SPL
  *
