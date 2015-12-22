@@ -87,12 +87,12 @@ const u8 sys_mgr_init_table[] = {
 	2, /* MIXED1IO12 */
 	2, /* MIXED1IO13 */
 	0, /* MIXED1IO14 */
-	1, /* MIXED1IO15 */
-	1, /* MIXED1IO16 */
-	1, /* MIXED1IO17 */
-	1, /* MIXED1IO18 */
-	0, /* MIXED1IO19 */
-	0, /* MIXED1IO20 */
+	3, /* MIXED1IO15 */
+	3, /* MIXED1IO16 */
+	3, /* MIXED1IO17 */
+	3, /* MIXED1IO18 */
+	3, /* MIXED1IO19 */
+	3, /* MIXED1IO20 */
 	0, /* MIXED1IO21 */
 	0, /* MIXED2IO0 */
 	0, /* MIXED2IO1 */
