@@ -72,20 +72,20 @@ const u8 sys_mgr_init_table[] = {
 	0, /* GENERALIO29 */
 	0, /* GENERALIO30 */
 	0, /* GENERALIO31 */
-	0, /* MIXED1IO0 */
-	1, /* MIXED1IO1 */
-	1, /* MIXED1IO2 */
-	1, /* MIXED1IO3 */
-	1, /* MIXED1IO4 */
-	0, /* MIXED1IO5 */
-	0, /* MIXED1IO6 */
-	0, /* MIXED1IO7 */
-	1, /* MIXED1IO8 */
-	1, /* MIXED1IO9 */
-	1, /* MIXED1IO10 */
-	1, /* MIXED1IO11 */
-	0, /* MIXED1IO12 */
-	0, /* MIXED1IO13 */
+	2, /* MIXED1IO0 */
+	2, /* MIXED1IO1 */
+	2, /* MIXED1IO2 */
+	2, /* MIXED1IO3 */
+	2, /* MIXED1IO4 */
+	2, /* MIXED1IO5 */
+	2, /* MIXED1IO6 */
+	2, /* MIXED1IO7 */
+	2, /* MIXED1IO8 */
+	2, /* MIXED1IO9 */
+	2, /* MIXED1IO10 */
+	2, /* MIXED1IO11 */
+	2, /* MIXED1IO12 */
+	2, /* MIXED1IO13 */
 	0, /* MIXED1IO14 */
 	1, /* MIXED1IO15 */
 	1, /* MIXED1IO16 */
