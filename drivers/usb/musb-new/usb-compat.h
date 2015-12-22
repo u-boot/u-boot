@@ -68,38 +68,6 @@ static inline int usb_hcd_unmap_urb_for_dma(struct usb_hcd *hcd,
 }
 
 #ifdef CONFIG_DM_USB
-static inline u16 find_tt(struct usb_device *udev)
-{
-	struct udevice *parent;
-	struct usb_device *uparent, *ttdev;
-
-	/*
-	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
-	 * to the parent udevice, not the actual udevice belonging to the
-	 * udev as the device is not instantiated yet. So when searching
-	 * for the first usb-2 parent start with udev->dev not
-	 * udev->dev->parent .
-	 */
-	ttdev = udev;
-	parent = udev->dev;
-	uparent = dev_get_parent_priv(parent);
-
-	while (uparent->speed != USB_SPEED_HIGH) {
-		struct udevice *dev = parent;
-
-		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
-			printf("musb: Error cannot find high speed parent of usb-1 device\n");
-			return 0;
-		}
-
-		ttdev = dev_get_parent_priv(dev);
-		parent = dev->parent;
-		uparent = dev_get_parent_priv(parent);
-	}
-
-	return (uparent->devnum << 8) | (ttdev->portnr - 1);
-}
-
 static inline struct usb_device *usb_dev_get_parent(struct usb_device *udev)
 {
 	struct udevice *parent = udev->dev->parent;
@@ -129,27 +97,6 @@ static inline struct usb_device *usb_dev_get_parent(struct usb_device *udev)
 	return NULL;
 }
 #else
-static inline u16 find_tt(struct usb_device *dev)
-{
-	u8 chid;
-	u8 hub;
-
-	/* Find out the nearest parent which is high speed */
-	while (dev->parent->parent != NULL)
-		if (dev->parent->speed != USB_SPEED_HIGH)
-			dev = dev->parent;
-		else
-			break;
-
-	/* determine the port address at that hub */
-	hub = dev->parent->devnum;
-	for (chid = 0; chid < USB_MAXCHILDREN; chid++)
-		if (dev->parent->children[chid] == dev)
-			break;
-
-	return (hub << 8) | chid;
-}
-
 static inline struct usb_device *usb_dev_get_parent(struct usb_device *dev)
 {
 	return dev->parent;

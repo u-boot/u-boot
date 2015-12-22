@@ -875,6 +875,18 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 
 int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat);
 
+/*
+ * usb_find_usb2_hub_address_port() - Get hub address and port for TT setting
+ *
+ * Searches for the first HS hub above the given device. If a
+ * HS hub is found, the hub address and the port the device is
+ * connected to is return, as required for SPLIT transactions
+ *
+ * @param: udev full speed or low speed device
+ */
+void usb_find_usb2_hub_address_port(struct usb_device *udev,
+				    uint8_t *hub_address, uint8_t *hub_port);
+
 /**
  * usb_alloc_new_device() - Allocate a new device
  *

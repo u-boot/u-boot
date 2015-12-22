@@ -1214,4 +1214,60 @@ bool usb_device_has_child_on_port(struct usb_device *parent, int port)
 #endif
 }
 
+#ifdef CONFIG_DM_USB
+void usb_find_usb2_hub_address_port(struct usb_device *udev,
+			       uint8_t *hub_address, uint8_t *hub_port)
+{
+	struct udevice *parent;
+	struct usb_device *uparent, *ttdev;
+
+	/*
+	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
+	 * to the parent udevice, not the actual udevice belonging to the
+	 * udev as the device is not instantiated yet. So when searching
+	 * for the first usb-2 parent start with udev->dev not
+	 * udev->dev->parent .
+	 */
+	ttdev = udev;
+	parent = udev->dev;
+	uparent = dev_get_parent_priv(parent);
+
+	while (uparent->speed != USB_SPEED_HIGH) {
+		struct udevice *dev = parent;
+
+		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
+			printf("Error: Cannot find high speed parent of usb-1 device\n");
+			*hub_address = 0;
+			*hub_port = 0;
+			return;
+		}
+
+		ttdev = dev_get_parent_priv(dev);
+		parent = dev->parent;
+		uparent = dev_get_parent_priv(parent);
+	}
+	*hub_address = uparent->devnum;
+	*hub_port = ttdev->portnr;
+}
+#else
+void usb_find_usb2_hub_address_port(struct usb_device *udev,
+			       uint8_t *hub_address, uint8_t *hub_port)
+{
+	/* Find out the nearest parent which is high speed */
+	while (udev->parent->parent != NULL)
+		if (udev->parent->speed != USB_SPEED_HIGH) {
+			udev = udev->parent;
+		} else {
+			*hub_address = udev->parent->devnum;
+			*hub_port = udev->portnr;
+			return;
+		}
+
+	printf("Error: Cannot find high speed parent of usb-1 device\n");
+	*hub_address = 0;
+	*hub_port = 0;
+}
+#endif
+
+
 /* EOF */
