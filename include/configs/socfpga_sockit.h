@@ -66,6 +66,7 @@
 	"mmcload=mmc rescan;" \
 		"load mmc 0:1 ${loadaddr} ${bootimage};" \
 		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
+	"qspiload=sf probe && mtdparts default && run ubiload\0" \
 	"ubiload=ubi part UBI && ubifsmount ubi0 && " \
 		"ubifsload ${loadaddr} /boot/${bootimage} && " \
 		"ubifsload ${fdt_addr} /boot/${fdtimage}\0"
