@@ -337,14 +337,30 @@ U_BOOT_ENV_CALLBACK(ethaddr, on_ethaddr);
 
 int eth_init(void)
 {
-	struct udevice *current;
+	char *ethact = getenv("ethact");
+	char *ethrotate = getenv("ethrotate");
+	struct udevice *current = NULL;
 	struct udevice *old_current;
 	int ret = -ENODEV;
 
-	current = eth_get_dev();
+	/*
+	 * When 'ethrotate' variable is set to 'no' and 'ethact' variable
+	 * is already set to an ethernet device, we should stick to 'ethact'.
+	 */
+	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0)) {
+		if (ethact) {
+			current = eth_get_dev_by_name(ethact);
+			if (!current)
+				return -EINVAL;
+		}
+	}
+
 	if (!current) {
-		printf("No ethernet found.\n");
-		return -ENODEV;
+		current = eth_get_dev();
+		if (!current) {
+			printf("No ethernet found.\n");
+			return -ENODEV;
+		}
 	}
 
 	old_current = current;
