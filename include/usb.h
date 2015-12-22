@@ -266,8 +266,9 @@ int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len, int interval);
 int usb_disable_asynch(int disable);
 int usb_maxpacket(struct usb_device *dev, unsigned long pipe);
-int usb_get_configuration_no(struct usb_device *dev, unsigned char *buffer,
-				int cfgno);
+int usb_get_configuration_no(struct usb_device *dev, int cfgno,
+			unsigned char *buffer, int length);
+int usb_get_configuration_len(struct usb_device *dev, int cfgno);
 int usb_get_report(struct usb_device *dev, int ifnum, unsigned char type,
 			unsigned char id, void *buf, int size);
 int usb_get_class_descriptor(struct usb_device *dev, int ifnum,
