@@ -1039,6 +1039,17 @@ int eth_receive(void *packet, int length)
 static void eth_current_changed(void)
 {
 	char *act = getenv("ethact");
+	char *ethrotate;
+
+	/*
+	 * The call to eth_get_dev() below has a side effect of rotating
+	 * ethernet device if uc_priv->current == NULL. This is not what
+	 * we want when 'ethrotate' variable is 'no'.
+	 */
+	ethrotate = getenv("ethrotate");
+	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
+		return;
+
 	/* update current ethernet name */
 	if (eth_get_dev()) {
 		if (act == NULL || strcmp(act, eth_get_name()) != 0)
