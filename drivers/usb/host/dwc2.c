@@ -823,12 +823,13 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 		       (*pid << DWC2_HCTSIZ_PID_OFFSET),
 		       &hc_regs->hctsiz);
 
-		if (!in) {
-			memcpy(priv->aligned_buffer, (char *)buffer + done, len);
+		if (!in && xfer_len) {
+			memcpy(priv->aligned_buffer, (char *)buffer + done,
+			       xfer_len);
 
 			flush_dcache_range((unsigned long)priv->aligned_buffer,
 				(unsigned long)((void *)priv->aligned_buffer +
-				roundup(len, ARCH_DMA_MINALIGN)));
+				roundup(xfer_len, ARCH_DMA_MINALIGN)));
 		}
 
 		writel(phys_to_bus((unsigned long)priv->aligned_buffer),
