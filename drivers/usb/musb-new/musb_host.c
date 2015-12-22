@@ -2098,7 +2098,7 @@ int musb_urb_enqueue(
 							       &hubaddr,
 							       &portnr);
 				qh->h_addr_reg = hubaddr;
-				qh->h_port_reg = portnr - 1;
+				qh->h_port_reg = portnr;
 			}
 #endif
 		}
