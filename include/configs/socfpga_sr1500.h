@@ -74,7 +74,10 @@
 	"qspirootfstype=jffs2\0" \
 	"qspiboot=setenv bootargs " CONFIG_BOOTARGS \
 		" root=${qspiroot} rw rootfstype=${qspirootfstype};"\
-		"bootm ${loadaddr} - ${fdt_addr}\0"
+		"bootm ${loadaddr} - ${fdt_addr}\0" \
+	"ubiload=ubi part UBI && ubifsmount ubi0 && " \
+		"ubifsload ${loadaddr} /boot/${bootimage} && " \
+		"ubifsload ${fdt_addr} /boot/${fdtimage}\0"
 
 /* Environment */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
