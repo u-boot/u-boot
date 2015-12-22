@@ -71,11 +71,9 @@
 		"load mmc 0:1 ${loadaddr} ${bootimage};" \
 		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
 	"qspiload=sf probe && mtdparts default && run ubiload\0" \
-	"qspiroot=/dev/mtdblock0\0" \
-	"qspirootfstype=jffs2\0" \
 	"qspiboot=setenv bootargs " CONFIG_BOOTARGS \
-		" root=${qspiroot} rw rootfstype=${qspirootfstype};"\
-		"bootm ${loadaddr} - ${fdt_addr}\0" \
+		" ubi.mtd=1,64 root=ubi0:rootfs rw rootfstype=ubifs;"\
+		"bootz ${loadaddr} - ${fdt_addr}\0" \
 	"ubiload=ubi part UBI && ubifsmount ubi0 && " \
 		"ubifsload ${loadaddr} /boot/${bootimage} && " \
 		"ubifsload ${fdt_addr} /boot/${fdtimage}\0"
