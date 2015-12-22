@@ -70,6 +70,7 @@
 	"mmcload=mmc rescan;" \
 		"load mmc 0:1 ${loadaddr} ${bootimage};" \
 		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
+	"qspiload=sf probe && mtdparts default && run ubiload\0" \
 	"qspiroot=/dev/mtdblock0\0" \
 	"qspirootfstype=jffs2\0" \
 	"qspiboot=setenv bootargs " CONFIG_BOOTARGS \
