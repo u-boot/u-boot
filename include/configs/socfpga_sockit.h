@@ -66,6 +66,9 @@
 	"mmcload=mmc rescan;" \
 		"load mmc 0:1 ${loadaddr} ${bootimage};" \
 		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
+	"ubiload=ubi part UBI && ubifsmount ubi0 && " \
+		"ubifsload ${loadaddr} /boot/${bootimage} && " \
+		"ubifsload ${fdt_addr} /boot/${fdtimage}\0"
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
