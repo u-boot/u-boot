@@ -126,19 +126,7 @@
  */
 
 #define CONFIG_PARTITION_UUIDS
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
-
 #define CONFIG_CMD_PART
-
-/*
- * Filesystems
- */
-
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
 
 /*
  * SPL
@@ -257,16 +245,24 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr_r=0x82000000\0" \
+	"loadaddr=0x82000000\0" \
+	"fdt_addr_r=0x88000000\0" \
+	"fdtaddr=0x88000000\0" \
+	"ramdisk_addr_r=0x88080000\0" \
+	"pxefile_addr_r=0x80100000\0" \
+	"scriptaddr=0x80000000\0" \
+	"bootm_size=0x10000000\0" \
 	"boot_mmc_dev=0\0" \
 	"kernel_mmc_part=3\0" \
 	"recovery_mmc_part=4\0" \
+	"fdtfile=omap3-sniper.dtb\0" \
+	"bootfile=/boot/extlinux/extlinux.conf\0" \
 	"bootargs=console=ttyO2 vram=5M,0x9FA00000 omapfb.vram=0:5M\0"
 
 /*
- * ATAGs / Device Tree
+ * ATAGs
  */
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
@@ -278,7 +274,6 @@
  */
 
 #define CONFIG_SYS_LOAD_ADDR	0x82000000
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_ANDROID_BOOT_IMAGE
 
@@ -299,5 +294,6 @@
  */
 
 #include <config_defaults.h>
+#include <config_distro_defaults.h>
 
 #endif
