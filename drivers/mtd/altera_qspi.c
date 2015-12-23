@@ -131,24 +131,35 @@ static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 	size_t end = addr + len;
 	u32 sect;
 	u32 stat;
+	u32 *flash, *last;
 
 	instr->state = MTD_ERASING;
 	addr &= ~(mtd->erasesize - 1); /* get lower aligned address */
 	while (addr < end) {
-		sect = addr / mtd->erasesize;
-		sect <<= 8;
-		sect |= QUADSPI_MEM_OP_SECTOR_ERASE;
-		debug("erase %08x\n", sect);
-		writel(sect, &regs->mem_op);
-		stat = readl(&regs->isr);
-		if (stat & QUADSPI_ISR_ILLEGAL_ERASE) {
-			/* erase failed, sector might be protected */
-			debug("erase %08x fail %x\n", sect, stat);
-			writel(stat, &regs->isr); /* clear isr */
-			instr->fail_addr = addr;
-			instr->state = MTD_ERASE_FAILED;
-			mtd_erase_callback(instr);
-			return -EIO;
+		flash = pdata->base + addr;
+		last = pdata->base + addr + mtd->erasesize;
+		/* skip erase if sector is blank */
+		while (flash < last) {
+			if (readl(flash) != 0xffffffff)
+				break;
+			flash++;
+		}
+		if (flash < last) {
+			sect = addr / mtd->erasesize;
+			sect <<= 8;
+			sect |= QUADSPI_MEM_OP_SECTOR_ERASE;
+			debug("erase %08x\n", sect);
+			writel(sect, &regs->mem_op);
+			stat = readl(&regs->isr);
+			if (stat & QUADSPI_ISR_ILLEGAL_ERASE) {
+				/* erase failed, sector might be protected */
+				debug("erase %08x fail %x\n", sect, stat);
+				writel(stat, &regs->isr); /* clear isr */
+				instr->fail_addr = addr;
+				instr->state = MTD_ERASE_FAILED;
+				mtd_erase_callback(instr);
+				return -EIO;
+			}
 		}
 		addr += mtd->erasesize;
 	}
