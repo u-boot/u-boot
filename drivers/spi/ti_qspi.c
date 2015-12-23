@@ -11,10 +11,13 @@
 #include <asm/arch/omap.h>
 #include <malloc.h>
 #include <spi.h>
+#include <dm.h>
 #include <asm/gpio.h>
 #include <asm/omap_gpio.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* ti qpsi register bit masks */
 #define QSPI_TIMEOUT                    2000000
@@ -48,12 +51,14 @@
 #define CORE_CTRL_IO                    0x4a002558
 
 #define QSPI_CMD_READ                   (0x3 << 0)
+#define QSPI_CMD_READ_DUAL		(0x6b << 0)
 #define QSPI_CMD_READ_QUAD              (0x6b << 0)
 #define QSPI_CMD_READ_FAST              (0x0b << 0)
 #define QSPI_SETUP0_NUM_A_BYTES         (0x2 << 8)
 #define QSPI_SETUP0_NUM_D_BYTES_NO_BITS (0x0 << 10)
 #define QSPI_SETUP0_NUM_D_BYTES_8_BITS  (0x1 << 10)
 #define QSPI_SETUP0_READ_NORMAL         (0x0 << 12)
+#define QSPI_SETUP0_READ_DUAL           (0x1 << 12)
 #define QSPI_SETUP0_READ_QUAD           (0x3 << 12)
 #define QSPI_CMD_WRITE                  (0x2 << 16)
 #define QSPI_NUM_DUMMY_BITS             (0x0 << 24)
@@ -87,7 +92,13 @@ struct ti_qspi_regs {
 
 /* ti qspi priv */
 struct ti_qspi_priv {
+#ifndef CONFIG_DM_SPI
 	struct spi_slave slave;
+#else
+	void *memory_map;
+	uint max_hz;
+	u32 num_cs;
+#endif
 	struct ti_qspi_regs *base;
 	void *ctrl_mod_mmap;
 	unsigned int mode;
@@ -288,6 +299,8 @@ void spi_flash_copy_mmap(void *data, void *offset, size_t len)
 }
 #endif
 
+#ifndef CONFIG_DM_SPI
+
 static inline struct ti_qspi_priv *to_ti_qspi_priv(struct spi_slave *slave)
 {
 	return container_of(slave, struct ti_qspi_priv, slave);
@@ -401,3 +414,177 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	      priv->slave.bus, priv->slave.cs, bitlen, flags);
 	return __ti_qspi_xfer(priv, bitlen, dout, din, flags, priv->slave.cs);
 }
+
+#else /* CONFIG_DM_SPI */
+
+static void __ti_qspi_setup_memorymap(struct ti_qspi_priv *priv,
+				      struct spi_slave *slave,
+				      bool enable)
+{
+	u32 memval;
+	u32 mode = slave->mode_rx & (SPI_RX_QUAD | SPI_RX_DUAL);
+
+	if (!enable) {
+		writel(0, &priv->base->setup0);
+		return;
+	}
+
+	memval = QSPI_SETUP0_NUM_A_BYTES | QSPI_CMD_WRITE | QSPI_NUM_DUMMY_BITS;
+
+	switch (mode) {
+	case SPI_RX_QUAD:
+		memval |= QSPI_CMD_READ_QUAD;
+		memval |= QSPI_SETUP0_NUM_D_BYTES_8_BITS;
+		memval |= QSPI_SETUP0_READ_QUAD;
+		slave->mode_rx = SPI_RX_QUAD;
+		break;
+	case SPI_RX_DUAL:
+		memval |= QSPI_CMD_READ_DUAL;
+		memval |= QSPI_SETUP0_NUM_D_BYTES_8_BITS;
+		memval |= QSPI_SETUP0_READ_DUAL;
+		break;
+	default:
+		memval |= QSPI_CMD_READ;
+		memval |= QSPI_SETUP0_NUM_D_BYTES_NO_BITS;
+		memval |= QSPI_SETUP0_READ_NORMAL;
+		break;
+	}
+
+	writel(memval, &priv->base->setup0);
+}
+
+
+static int ti_qspi_set_speed(struct udevice *bus, uint max_hz)
+{
+	struct ti_qspi_priv *priv = dev_get_priv(bus);
+
+	ti_spi_set_speed(priv, max_hz);
+
+	return 0;
+}
+
+static int ti_qspi_set_mode(struct udevice *bus, uint mode)
+{
+	struct ti_qspi_priv *priv = dev_get_priv(bus);
+	return __ti_qspi_set_mode(priv, mode);
+}
+
+static int ti_qspi_claim_bus(struct udevice *dev)
+{
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
+	struct ti_qspi_priv *priv;
+	struct udevice *bus;
+
+	bus = dev->parent;
+	priv = dev_get_priv(bus);
+
+	if (slave_plat->cs > priv->num_cs) {
+		debug("invalid qspi chip select\n");
+		return -EINVAL;
+	}
+
+	__ti_qspi_setup_memorymap(priv, slave, true);
+
+	return __ti_qspi_claim_bus(priv, slave_plat->cs);
+}
+
+static int ti_qspi_release_bus(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parent_priv(dev);
+	struct ti_qspi_priv *priv;
+	struct udevice *bus;
+
+	bus = dev->parent;
+	priv = dev_get_priv(bus);
+
+	__ti_qspi_setup_memorymap(priv, slave, false);
+	__ti_qspi_release_bus(priv);
+
+	return 0;
+}
+
+static int ti_qspi_xfer(struct udevice *dev, unsigned int bitlen,
+			const void *dout, void *din, unsigned long flags)
+{
+	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
+	struct ti_qspi_priv *priv;
+	struct udevice *bus;
+
+	bus = dev->parent;
+	priv = dev_get_priv(bus);
+
+	if (slave->cs > priv->num_cs) {
+		debug("invalid qspi chip select\n");
+		return -EINVAL;
+	}
+
+	return __ti_qspi_xfer(priv, bitlen, dout, din, flags, slave->cs);
+}
+
+static int ti_qspi_probe(struct udevice *bus)
+{
+	/* Nothing to do in probe */
+	return 0;
+}
+
+static int ti_qspi_ofdata_to_platdata(struct udevice *bus)
+{
+	struct ti_qspi_priv *priv = dev_get_priv(bus);
+	const void *blob = gd->fdt_blob;
+	int node = bus->of_offset;
+	fdt_addr_t addr;
+
+	priv->base = (struct ti_qspi_regs *)dev_get_addr(bus);
+	priv->memory_map = (void *)dev_get_addr_index(bus, 1);
+	addr = dev_get_addr_index(bus, 2);
+	priv->ctrl_mod_mmap = (addr == FDT_ADDR_T_NONE) ? NULL : (void *)addr;
+
+	priv->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency", -1);
+	if (priv->max_hz < 0) {
+		debug("Error: Max frequency missing\n");
+		return -ENODEV;
+	}
+	priv->num_cs = fdtdec_get_int(blob, node, "num-cs", 4);
+
+	debug("%s: regs=<0x%x>, max-frequency=%d\n", __func__,
+	      (int)priv->base, priv->max_hz);
+
+	return 0;
+}
+
+static int ti_qspi_child_pre_probe(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parent_priv(dev);
+	struct udevice *bus = dev_get_parent(dev);
+	struct ti_qspi_priv *priv = dev_get_priv(bus);
+
+	slave->memory_map = priv->memory_map;
+	return 0;
+}
+
+static const struct dm_spi_ops ti_qspi_ops = {
+	.claim_bus	= ti_qspi_claim_bus,
+	.release_bus	= ti_qspi_release_bus,
+	.xfer		= ti_qspi_xfer,
+	.set_speed	= ti_qspi_set_speed,
+	.set_mode	= ti_qspi_set_mode,
+};
+
+static const struct udevice_id ti_qspi_ids[] = {
+	{ .compatible = "ti,dra7xxx-qspi" },
+	{ .compatible = "ti,am4372-qspi" },
+	{ }
+};
+
+U_BOOT_DRIVER(ti_qspi) = {
+	.name	= "ti_qspi",
+	.id	= UCLASS_SPI,
+	.of_match = ti_qspi_ids,
+	.ops	= &ti_qspi_ops,
+	.ofdata_to_platdata = ti_qspi_ofdata_to_platdata,
+	.priv_auto_alloc_size = sizeof(struct ti_qspi_priv),
+	.probe	= ti_qspi_probe,
+	.child_pre_probe = ti_qspi_child_pre_probe,
+};
+#endif /* CONFIG_DM_SPI */
