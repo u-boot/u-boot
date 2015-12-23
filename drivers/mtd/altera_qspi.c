@@ -145,6 +145,7 @@ static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 			/* erase failed, sector might be protected */
 			debug("erase %08x fail %x\n", sect, stat);
 			writel(stat, &regs->isr); /* clear isr */
+			instr->fail_addr = addr;
 			instr->state = MTD_ERASE_FAILED;
 			mtd_erase_callback(instr);
 			return -EIO;
