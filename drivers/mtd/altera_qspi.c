@@ -52,6 +52,7 @@ struct altera_qspi_platdata {
 	unsigned long size;
 };
 
+static uint flash_verbose;
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* FLASH chips info */
 
 static void altera_qspi_get_locked_range(struct mtd_info *mtd, loff_t *ofs,
@@ -74,6 +75,11 @@ void flash_print_info(flash_info_t *info)
 	putc('\n');
 }
 
+void flash_set_verbose(uint v)
+{
+	flash_verbose = v;
+}
+
 int flash_erase(flash_info_t *info, int s_first, int s_last)
 {
 	struct mtd_info *mtd = info->mtd;
@@ -84,10 +90,13 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 	instr.mtd = mtd;
 	instr.addr = mtd->erasesize * s_first;
 	instr.len = mtd->erasesize * (s_last + 1 - s_first);
+	flash_set_verbose(1);
 	ret = mtd_erase(mtd, &instr);
+	flash_set_verbose(0);
 	if (ret)
 		return ERR_PROTECTED;
 
+	puts(" done\n");
 	return 0;
 }
 
@@ -160,6 +169,11 @@ static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 				mtd_erase_callback(instr);
 				return -EIO;
 			}
+			if (flash_verbose)
+				putc('.');
+		} else {
+			if (flash_verbose)
+				putc(',');
 		}
 		addr += mtd->erasesize;
 	}
