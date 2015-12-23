@@ -41,7 +41,7 @@
 #define QSPI_WC_BUSY                    (QSPI_WC | QSPI_BUSY)
 #define QSPI_XFER_DONE                  QSPI_WC
 #define MM_SWITCH                       0x01
-#define MEM_CS                          0x100
+#define MEM_CS(cs)                      ((cs + 1) << 8)
 #define MEM_CS_UNSELECT                 0xfffff0ff
 #define MMAP_START_ADDR_DRA		0x5c000000
 #define MMAP_START_ADDR_AM43x		0x30000000
@@ -267,7 +267,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		writel(MM_SWITCH, &qslave->base->memswitch);
 #if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 		val = readl(CORE_CTRL_IO);
-		val |= MEM_CS;
+		val |= MEM_CS(slave->cs);
 		writel(val, CORE_CTRL_IO);
 #endif
 		return 0;
