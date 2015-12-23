@@ -97,6 +97,7 @@ static int set_callback(const char *name, const char *value, void *priv)
 
 	e.key	= name;
 	e.data	= NULL;
+	e.callback = NULL;
 	hsearch_r(e, FIND, &ep, &env_htab, 0);
 
 	/* does the env variable actually exist? */
