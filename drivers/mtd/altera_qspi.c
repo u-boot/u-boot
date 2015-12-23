@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdt_support.h>
@@ -145,6 +146,14 @@ static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 	instr->state = MTD_ERASING;
 	addr &= ~(mtd->erasesize - 1); /* get lower aligned address */
 	while (addr < end) {
+		if (ctrlc()) {
+			if (flash_verbose)
+				putc('\n');
+			instr->fail_addr = MTD_FAIL_ADDR_UNKNOWN;
+			instr->state = MTD_ERASE_FAILED;
+			mtd_erase_callback(instr);
+			return -EIO;
+		}
 		flash = pdata->base + addr;
 		last = pdata->base + addr + mtd->erasesize;
 		/* skip erase if sector is blank */
