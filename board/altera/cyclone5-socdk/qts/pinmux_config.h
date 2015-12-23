@@ -9,19 +9,19 @@
 
 const u8 sys_mgr_init_table[] = {
 	3, /* EMACIO0 */
-	3, /* EMACIO1 */
-	3, /* EMACIO2 */
-	3, /* EMACIO3 */
-	3, /* EMACIO4 */
-	3, /* EMACIO5 */
-	3, /* EMACIO6 */
-	3, /* EMACIO7 */
-	3, /* EMACIO8 */
+	2, /* EMACIO1 */
+	2, /* EMACIO2 */
+	2, /* EMACIO3 */
+	2, /* EMACIO4 */
+	2, /* EMACIO5 */
+	2, /* EMACIO6 */
+	2, /* EMACIO7 */
+	2, /* EMACIO8 */
 	3, /* EMACIO9 */
-	3, /* EMACIO10 */
-	3, /* EMACIO11 */
-	3, /* EMACIO12 */
-	3, /* EMACIO13 */
+	2, /* EMACIO10 */
+	2, /* EMACIO11 */
+	2, /* EMACIO12 */
+	2, /* EMACIO13 */
 	0, /* EMACIO14 */
 	0, /* EMACIO15 */
 	0, /* EMACIO16 */
