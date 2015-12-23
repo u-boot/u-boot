@@ -581,17 +581,35 @@ const char *dev_get_uclass_name(struct udevice *dev)
 	return dev->uclass->uc_drv->name;
 }
 
-fdt_addr_t dev_get_addr(struct udevice *dev)
+fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr;
 
 	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {
 		const fdt32_t *reg;
+		int len = 0;
+		int na, ns;
 
-		reg = fdt_getprop(gd->fdt_blob, dev->of_offset, "reg", NULL);
-		if (!reg)
+		na = fdt_address_cells(gd->fdt_blob, dev->parent->of_offset);
+		if (na < 1) {
+			debug("bad #address-cells\n");
 			return FDT_ADDR_T_NONE;
+		}
+
+		ns = fdt_size_cells(gd->fdt_blob, dev->parent->of_offset);
+		if (ns < 0) {
+			debug("bad #size-cells\n");
+			return FDT_ADDR_T_NONE;
+		}
+
+		reg = fdt_getprop(gd->fdt_blob, dev->of_offset, "reg", &len);
+		if (!reg || (len <= (index * sizeof(fdt32_t) * (na + ns)))) {
+			debug("Req index out of range\n");
+			return FDT_ADDR_T_NONE;
+		}
+
+		reg += index * (na + ns);
 
 		/*
 		 * Use the full-fledged translate function for complex
@@ -607,7 +625,7 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 		addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 							dev->parent->of_offset,
 							dev->of_offset, "reg",
-							0, NULL);
+							index, NULL);
 		if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
 			if (device_get_uclass_id(dev->parent) ==
 			    UCLASS_SIMPLE_BUS)
@@ -627,6 +645,11 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 #else
 	return FDT_ADDR_T_NONE;
 #endif
+}
+
+fdt_addr_t dev_get_addr(struct udevice *dev)
+{
+	return dev_get_addr_index(dev, 0);
 }
 
 bool device_has_children(struct udevice *dev)
