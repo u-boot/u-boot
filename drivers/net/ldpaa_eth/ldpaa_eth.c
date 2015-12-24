@@ -100,6 +100,83 @@ static void ldpaa_eth_get_dpni_counter(void)
 	}
 	printf("DPNI_CNT_EGR_FRAME_DISCARD =%lld\n", value);
 }
+
+static void ldpaa_eth_get_dpmac_counter(struct eth_device *net_dev)
+{
+	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
+	int err = 0;
+	u64 value;
+
+	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     priv->dpmac_handle,
+		     DPMAC_CNT_ING_BYTE,
+		     &value);
+	if (err < 0) {
+		printf("dpmac_get_counter: DPMAC_CNT_ING_BYTE failed\n");
+		return;
+	}
+	printf("DPMAC_CNT_ING_BYTE=%lld\n", value);
+
+	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     priv->dpmac_handle,
+		     DPMAC_CNT_ING_FRAME_DISCARD,
+		     &value);
+	if (err < 0) {
+		printf("dpmac_get_counter: DPMAC_CNT_ING_FRAME_DISCARD failed\n");
+		return;
+	}
+	printf("DPMAC_CNT_ING_FRAME_DISCARD=%lld\n", value);
+
+	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     priv->dpmac_handle,
+		     DPMAC_CNT_ING_ALIGN_ERR,
+		     &value);
+	if (err < 0) {
+		printf("dpmac_get_counter: DPMAC_CNT_ING_ALIGN_ERR failed\n");
+		return;
+	}
+	printf("DPMAC_CNT_ING_ALIGN_ERR =%lld\n", value);
+
+	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     priv->dpmac_handle,
+		     DPMAC_CNT_ING_BYTE,
+		     &value);
+	if (err < 0) {
+		printf("dpmac_get_counter: DPMAC_CNT_ING_BYTE failed\n");
+		return;
+	}
+	printf("DPMAC_CNT_ING_BYTE=%lld\n", value);
+
+	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     priv->dpmac_handle,
+		     DPMAC_CNT_ING_ERR_FRAME,
+		     &value);
+	if (err < 0) {
+		printf("dpmac_get_counter: DPMAC_CNT_ING_ERR_FRAME failed\n");
+		return;
+	}
+	printf("DPMAC_CNT_ING_ERR_FRAME=%lld\n", value);
+
+	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     priv->dpmac_handle,
+		     DPMAC_CNT_EGR_BYTE ,
+		     &value);
+	if (err < 0) {
+		printf("dpmac_get_counter: DPMAC_CNT_EGR_BYTE failed\n");
+		return;
+	}
+	printf("DPMAC_CNT_EGR_BYTE =%lld\n", value);
+
+	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+		     priv->dpmac_handle,
+		     DPMAC_CNT_EGR_ERR_FRAME ,
+		     &value);
+	if (err < 0) {
+		printf("dpmac_get_counter: DPMAC_CNT_EGR_ERR_FRAME failed\n");
+		return;
+	}
+	printf("DPMAC_CNT_EGR_ERR_FRAME =%lld\n", value);
+}
 #endif
 
 static void ldpaa_eth_rx(struct ldpaa_eth_priv *priv,
@@ -436,6 +513,7 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 
 #ifdef DEBUG
 	ldpaa_eth_get_dpni_counter();
+	ldpaa_eth_get_dpmac_counter(net_dev);
 #endif
 
 	err = dprc_disconnect(dflt_mc_io, MC_CMD_NO_FLAGS,
