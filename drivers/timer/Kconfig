@@ -30,4 +30,10 @@ config X86_TSC_TIMER
 	help
 	  Select this to enable Time-Stamp Counter (TSC) timer for x86.
 
+config OMAP_TIMER
+	bool "Omap timer support"
+	depends on TIMER
+	help
+	  Select this to enable an timer for Omap devices.
+
 endmenu
