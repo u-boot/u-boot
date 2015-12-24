@@ -655,6 +655,26 @@ int fsl_mc_ldpaa_init(bd_t *bis)
 	return 0;
 }
 
+static int dprc_version_check(struct fsl_mc_io *mc_io, uint16_t handle)
+{
+	struct dprc_attributes attr;
+	int error;
+
+	memset(&attr, 0, sizeof(struct dprc_attributes));
+	error = dprc_get_attributes(mc_io, MC_CMD_NO_FLAGS, handle, &attr);
+	if (error == 0) {
+		if ((attr.version.major != DPRC_VER_MAJOR) ||
+		    (attr.version.minor != DPRC_VER_MINOR)) {
+			printf("DPRC version mismatch found %u.%u,",
+			       attr.version.major,
+			       attr.version.minor);
+			printf("supported version is %u.%u\n",
+			       DPRC_VER_MAJOR, DPRC_VER_MINOR);
+		}
+	}
+	return error;
+}
+
 static int dpio_init(void)
 {
 	struct qbman_swp_desc p_des;
@@ -688,11 +708,18 @@ static int dpio_init(void)
 		goto err_get_attr;
 	}
 
+	if ((attr.version.major != DPIO_VER_MAJOR) ||
+	    (attr.version.minor != DPIO_VER_MINOR)) {
+		printf("DPIO version mismatch found %u.%u,",
+		       attr.version.major, attr.version.minor);
+		printf("supported version is %u.%u\n",
+		       DPIO_VER_MAJOR, DPIO_VER_MINOR);
+	}
+
 	dflt_dpio->dpio_id = attr.id;
 #ifdef DEBUG
 	printf("Init: DPIO id=0x%d\n", dflt_dpio->dpio_id);
 #endif
-
 	err = dpio_enable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	if (err < 0) {
 		printf("dpio_enable() failed %d\n", err);
@@ -781,6 +808,12 @@ static int dprc_init(void)
 
 	if (!root_dprc_handle) {
 		printf("dprc_open(): Root Container Handle is not valid\n");
+		goto err_root_open;
+	}
+
+	err = dprc_version_check(root_mc_io, root_dprc_handle);
+	if (err < 0) {
+		printf("dprc_version_check() failed: %d\n", err);
 		goto err_root_open;
 	}
 
@@ -906,6 +939,14 @@ static int dpbp_init(void)
 		goto err_get_attr;
 	}
 
+	if ((dpbp_attr.version.major != DPBP_VER_MAJOR) ||
+	    (dpbp_attr.version.minor != DPBP_VER_MINOR)) {
+		printf("DPBP version mismatch found %u.%u,",
+		       dpbp_attr.version.major, dpbp_attr.version.minor);
+		printf("supported version is %u.%u\n",
+		       DPBP_VER_MAJOR, DPBP_VER_MINOR);
+	}
+
 	dflt_dpbp->dpbp_attr.id = dpbp_attr.id;
 #ifdef DEBUG
 	printf("Init: DPBP id=0x%d\n", dflt_dpbp->dpbp_attr.id);
@@ -992,6 +1033,14 @@ static int dpni_init(void)
 	if (err < 0) {
 		printf("dpni_get_attributes() failed: %d\n", err);
 		goto err_get_attr;
+	}
+
+	if ((dpni_attr.version.major != DPNI_VER_MAJOR) ||
+	    (dpni_attr.version.minor != DPNI_VER_MINOR)) {
+		printf("DPNI version mismatch found %u.%u,",
+		       dpni_attr.version.major, dpni_attr.version.minor);
+		printf("supported version is %u.%u\n",
+		       DPNI_VER_MAJOR, DPNI_VER_MINOR);
 	}
 
 	dflt_dpni->dpni_id = dpni_attr.id;

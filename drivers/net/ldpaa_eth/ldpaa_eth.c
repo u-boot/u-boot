@@ -599,6 +599,29 @@ static void ldpaa_dpbp_free(void)
 	dpbp_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpbp->dpbp_handle);
 }
 
+static int ldpaa_dpmac_version_check(struct fsl_mc_io *mc_io,
+				     struct ldpaa_eth_priv *priv)
+{
+	struct dpmac_attr attr;
+	int error;
+
+	memset(&attr, 0, sizeof(struct dpmac_attr));
+	error = dpmac_get_attributes(mc_io, MC_CMD_NO_FLAGS,
+				     priv->dpmac_handle,
+				     &attr);
+	if (error == 0) {
+		if ((attr.version.major != DPMAC_VER_MAJOR) ||
+		    (attr.version.minor != DPMAC_VER_MINOR)) {
+			printf("DPMAC version mismatch found %u.%u,",
+			       attr.version.major, attr.version.minor);
+			printf("supported version is %u.%u\n",
+			       DPMAC_VER_MAJOR, DPMAC_VER_MINOR);
+		}
+	}
+
+	return error;
+}
+
 static int ldpaa_dpmac_setup(struct ldpaa_eth_priv *priv)
 {
 	int err = 0;
@@ -609,6 +632,11 @@ static int ldpaa_dpmac_setup(struct ldpaa_eth_priv *priv)
 			  &priv->dpmac_handle);
 	if (err)
 		printf("dpmac_create() failed\n");
+
+	err = ldpaa_dpmac_version_check(dflt_mc_io, priv);
+	if (err < 0)
+		printf("ldpaa_dpmac_version_check() failed: %d\n", err);
+
 	return err;
 }
 
