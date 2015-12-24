@@ -14,7 +14,7 @@ struct fsl_mc_io;
 /**
  * Management Complex firmware version information
  */
-#define MC_VER_MAJOR 8
+#define MC_VER_MAJOR 9
 #define MC_VER_MINOR 0
 
 /**

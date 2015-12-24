@@ -12,7 +12,7 @@
 
 /* DPMAC Version */
 #define DPMAC_VER_MAJOR				3
-#define DPMAC_VER_MINOR				1
+#define DPMAC_VER_MINOR				2
 
 /* Command IDs */
 #define DPMAC_CMDID_CLOSE			0x800

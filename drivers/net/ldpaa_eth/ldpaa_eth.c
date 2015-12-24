@@ -798,9 +798,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 	priv->tx_flow_id = DPNI_NEW_FLOW_ID;
 	memset(&dflt_tx_flow, 0, sizeof(dflt_tx_flow));
 
-	dflt_tx_flow.options = DPNI_TX_FLOW_OPT_ONLY_TX_ERROR;
-	dflt_tx_flow.conf_err_cfg.use_default_queue = 0;
-	dflt_tx_flow.conf_err_cfg.errors_only = 1;
+	dflt_tx_flow.use_common_tx_conf_queue = 0;
 	err = dpni_set_tx_flow(dflt_mc_io, MC_CMD_NO_FLAGS,
 			       dflt_dpni->dpni_handle, &priv->tx_flow_id,
 			       &dflt_tx_flow);
