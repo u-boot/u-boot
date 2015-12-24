@@ -104,5 +104,6 @@ UCLASS_DRIVER(timer) = {
 	.id		= UCLASS_TIMER,
 	.name		= "timer",
 	.pre_probe	= timer_pre_probe,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.per_device_auto_alloc_size = sizeof(struct timer_dev_priv),
 };
