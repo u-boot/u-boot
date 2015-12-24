@@ -783,6 +783,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 {
 	struct dpni_pools_cfg pools_params;
 	struct dpni_tx_flow_cfg dflt_tx_flow;
+	struct dpni_tx_conf_cfg tx_conf_cfg;
 	int err = 0;
 
 	pools_params.num_dpbp = 1;
@@ -804,6 +805,17 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 			       &dflt_tx_flow);
 	if (err) {
 		printf("dpni_set_tx_flow() failed\n");
+		return err;
+	}
+
+	memset(&tx_conf_cfg, 0, sizeof(struct dpni_tx_conf_cfg));
+	tx_conf_cfg.errors_only = true;
+	/*Set tx-conf and error configuration*/
+	err = dpni_set_tx_conf(dflt_mc_io, MC_CMD_NO_FLAGS,
+			       dflt_dpni->dpni_handle,
+			       priv->tx_flow_id, &tx_conf_cfg);
+	if (err) {
+		printf("dpni_set_tx_conf() failed\n");
 		return err;
 	}
 
