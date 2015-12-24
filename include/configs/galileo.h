@@ -45,7 +45,6 @@
 /* 10/100M Ethernet support */
 #define CONFIG_DESIGNWARE_ETH
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_PHYLIB
 
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000

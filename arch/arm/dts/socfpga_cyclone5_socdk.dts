@@ -34,6 +34,10 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+	};
 };
 
 &gmac1 {

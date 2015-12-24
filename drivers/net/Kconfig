@@ -88,6 +88,7 @@ config ETH_SANDBOX_RAW
 
 config ETH_DESIGNWARE
 	bool "Synopsys Designware Ethernet MAC"
+	select PHYLIB
 	help
 	  This MAC is present in SoCs from various vendors. It supports
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to

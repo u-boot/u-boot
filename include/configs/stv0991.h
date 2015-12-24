@@ -53,7 +53,6 @@
 /* GMAC related configs */
 
 #define CONFIG_MII
-#define CONFIG_PHYLIB
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_PHY_MICREL
 

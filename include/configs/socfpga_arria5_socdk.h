@@ -52,8 +52,6 @@
 #endif
 
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
-#define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -72,11 +70,13 @@
 	"mmcload=mmc rescan;" \
 		"load mmc 0:1 ${loadaddr} ${bootimage};" \
 		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
-	"qspiroot=/dev/mtdblock0\0" \
-	"qspirootfstype=jffs2\0" \
+	"qspiload=sf probe && mtdparts default && run ubiload\0" \
 	"qspiboot=setenv bootargs " CONFIG_BOOTARGS \
-		" root=${qspiroot} rw rootfstype=${qspirootfstype};"\
-		"bootm ${loadaddr} - ${fdt_addr}\0"
+		" ubi.mtd=1,64 root=ubi0:rootfs rw rootfstype=ubifs;"\
+		"bootz ${loadaddr} - ${fdt_addr}\0" \
+	"ubiload=ubi part UBI && ubifsmount ubi0 && " \
+		"ubifsload ${loadaddr} /boot/${bootimage} && " \
+		"ubifsload ${fdt_addr} /boot/${fdtimage}\0"
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

@@ -95,14 +95,8 @@
 /*
  * Ethernet PHY configuration
  */
-#define CONFIG_PHYLIB
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE
-
-/*
- * Ethernet configuration
- */
-#define CONFIG_DW_AUTONEG
 
 /*
  * USB 1.1 configuration
