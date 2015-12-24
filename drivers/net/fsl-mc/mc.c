@@ -821,7 +821,7 @@ static int dprc_init(void)
 		      DPRC_CFG_OPT_OBJ_CREATE_ALLOWED |
 		      DPRC_CFG_OPT_ALLOC_ALLOWED;
 	cfg.icid = DPRC_GET_ICID_FROM_POOL;
-	cfg.portal_id = 250;
+	cfg.portal_id = DPRC_GET_PORTAL_ID_FROM_POOL;
 	err = dprc_create_container(root_mc_io, MC_CMD_NO_FLAGS,
 			root_dprc_handle,
 			&cfg,
