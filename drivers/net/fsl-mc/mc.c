@@ -1004,6 +1004,8 @@ static int dpni_init(void)
 {
 	int err;
 	struct dpni_attr dpni_attr;
+	uint8_t	ext_cfg_buf[256] = {0};
+	struct dpni_extended_cfg dpni_extended_cfg;
 	struct dpni_cfg dpni_cfg;
 
 	dflt_dpni = (struct fsl_dpni_obj *)malloc(sizeof(struct fsl_dpni_obj));
@@ -1013,10 +1015,19 @@ static int dpni_init(void)
 		goto err_malloc;
 	}
 
+	memset(&dpni_extended_cfg, 0, sizeof(dpni_extended_cfg));
+	err = dpni_prepare_extended_cfg(&dpni_extended_cfg, &ext_cfg_buf[0]);
+	if (err < 0) {
+		err = -ENODEV;
+		printf("dpni_prepare_extended_cfg() failed: %d\n", err);
+		goto err_prepare_extended_cfg;
+	}
+
 	memset(&dpni_cfg, 0, sizeof(dpni_cfg));
 	dpni_cfg.adv.options = DPNI_OPT_UNICAST_FILTER |
 			       DPNI_OPT_MULTICAST_FILTER;
 
+	dpni_cfg.adv.ext_cfg_iova = (uint64_t)&ext_cfg_buf[0];
 	err = dpni_create(dflt_mc_io, MC_CMD_NO_FLAGS, &dpni_cfg,
 			  &dflt_dpni->dpni_handle);
 
@@ -1057,11 +1068,12 @@ static int dpni_init(void)
 	return 0;
 
 err_close:
-	free(dflt_dpni);
 err_get_attr:
 	dpni_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 	dpni_destroy(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 err_create:
+err_prepare_extended_cfg:
+	free(dflt_dpni);
 err_malloc:
 	return err;
 }
