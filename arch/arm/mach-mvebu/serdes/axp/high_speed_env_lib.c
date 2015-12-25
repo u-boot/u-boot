@@ -75,16 +75,24 @@ static u32 board_id_get(void)
 #endif
 }
 
-static u8 board_sat_r_get(u8 dev_num, u8 reg)
+__weak u8 board_sat_r_get(u8 dev_num, u8 reg)
 {
 	u8 data;
 	u8 *dev;
 	u32 board_id = board_id_get();
 	int ret;
 
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
 	switch (board_id) {
+	case DB_78X60_AMC_ID:
+	case DB_78X60_PCAC_REV2_ID:
+	case RD_78460_CUSTOMER_ID:
+	case RD_78460_SERVER_ID:
+	case RD_78460_SERVER_REV2_ID:
+	case DB_78X60_PCAC_ID:
+		return (0x1 << 1) | 1;
+	case FPGA_88F78XX0_ID:
+	case RD_78460_NAS_ID:
+		return (0x0 << 1) | 1;
 	case DB_784MP_GP_ID:
 		dev = rd78460gp_twsi_dev;
 
@@ -94,15 +102,12 @@ static u8 board_sat_r_get(u8 dev_num, u8 reg)
 		dev = db88f78xx0rev2_twsi_dev;
 		break;
 
-	case DB_78X60_PCAC_ID:
-	case FPGA_88F78XX0_ID:
-	case DB_78X60_PCAC_REV2_ID:
-	case RD_78460_SERVER_REV2_ID:
 	default:
 		return 0;
 	}
 
 	/* Read MPP module ID */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	ret = i2c_read(dev[dev_num], 0, 1, (u8 *)&data, 1);
 	if (ret)
 		return MV_ERROR;
@@ -240,7 +245,6 @@ int serdes_phy_config(void)
 	u8 device_rev;
 	u32 rx_high_imp_mode;
 	u16 ctrl_mode;
-	u32 board_id = board_id_get();
 	u32 pex_if;
 	u32 pex_if_num;
 
@@ -251,29 +255,9 @@ int serdes_phy_config(void)
 	if (max_serdes_lines == 0)
 		return MV_OK;
 
-	switch (board_id) {
-	case DB_78X60_AMC_ID:
-	case DB_78X60_PCAC_REV2_ID:
-	case RD_78460_CUSTOMER_ID:
-	case RD_78460_SERVER_ID:
-	case RD_78460_SERVER_REV2_ID:
-	case DB_78X60_PCAC_ID:
-		satr11 = (0x1 << 1) | 1;
-		break;
-	case FPGA_88F78XX0_ID:
-	case RD_78460_NAS_ID:
-		satr11 = (0x0 << 1) | 1;
-		break;
-	case DB_88F78XX0_BP_REV2_ID:
-	case DB_784MP_GP_ID:
-	case DB_88F78XX0_BP_ID:
-		satr11 = board_sat_r_get(1, 1);
-		if ((u8) MV_ERROR == (u8) satr11)
-			return MV_ERROR;
-		break;
-	default:
-		satr11 = 0;
-	}
+	satr11 = board_sat_r_get(1, 1);
+	if ((u8) MV_ERROR == (u8) satr11)
+		return MV_ERROR;
 
 	board_modules_scan();
 	memset(addr, 0, sizeof(addr));
