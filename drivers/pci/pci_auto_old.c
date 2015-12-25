@@ -101,11 +101,11 @@ void pciauto_setup_device(struct pci_controller *hose,
 				bar_res = prefetch;
 			else
 				bar_res = mem;
-#endif
 
 			debug("PCI Autoconfig: BAR %d, %s, size=0x%llx, ",
 			      bar_nr, bar_res == prefetch ? "Prf" : "Mem",
 			      (unsigned long long)bar_size);
+#endif
 		}
 
 #ifndef CONFIG_PCI_ENUM_ONLY
