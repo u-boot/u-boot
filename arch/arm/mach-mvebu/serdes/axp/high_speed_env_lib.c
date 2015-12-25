@@ -199,7 +199,9 @@ u16 ctrl_model_get(void)
 	 * SoC version can't be autodetected. So we need to rely on a define
 	 * from the config system here.
 	 */
-#ifdef CONFIG_MV78260
+#if defined(CONFIG_MV78230)
+	return MV_78230_DEV_ID;
+#elif defined(CONFIG_MV78260)
 	return MV_78260_DEV_ID;
 #else
 	return MV_78460_DEV_ID;
@@ -217,6 +219,8 @@ u32 get_line_cfg(u32 line_num, MV_BIN_SERDES_CFG *info)
 static int serdes_max_lines_get(void)
 {
 	switch (ctrl_model_get()) {
+	case MV_78230_DEV_ID:
+		return 7;
 	case MV_78260_DEV_ID:
 		return 12;
 	case MV_78460_DEV_ID:

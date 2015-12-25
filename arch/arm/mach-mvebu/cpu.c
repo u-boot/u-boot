@@ -49,13 +49,16 @@ int mvebu_soc_family(void)
 {
 	u16 devid = (readl(MVEBU_REG_PCIE_DEVID) >> 16) & 0xffff;
 
-	if ((devid == SOC_MV78260_ID) || (devid == SOC_MV78460_ID))
+	switch (devid) {
+	case SOC_MV78230_ID:
+	case SOC_MV78260_ID:
+	case SOC_MV78460_ID:
 		return MVEBU_SOC_AXP;
-
-	if (devid == SOC_88F6810_ID || devid == SOC_88F6820_ID ||
-	    devid == SOC_88F6828_ID)
+	case SOC_88F6810_ID:
+	case SOC_88F6820_ID:
+	case SOC_88F6828_ID:
 		return MVEBU_SOC_A38X;
-
+	}
 	return MVEBU_SOC_UNKNOWN;
 }
 
@@ -140,6 +143,9 @@ int print_cpuinfo(void)
 	puts("SoC:   ");
 
 	switch (devid) {
+	case SOC_MV78230_ID:
+		puts("MV78230-");
+		break;
 	case SOC_MV78260_ID:
 		puts("MV78260-");
 		break;

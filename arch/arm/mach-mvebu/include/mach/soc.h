@@ -11,6 +11,7 @@
 #ifndef _MVEBU_SOC_H
 #define _MVEBU_SOC_H
 
+#define SOC_MV78230_ID		0x7823
 #define SOC_MV78260_ID		0x7826
 #define SOC_MV78460_ID		0x7846
 #define SOC_88F6810_ID		0x6810
