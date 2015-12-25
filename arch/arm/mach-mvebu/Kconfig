@@ -6,25 +6,41 @@ config ARMADA_38X
 config ARMADA_XP
 	bool
 
+config MV78230
+	bool
+	select ARMADA_XP
+
+config MV78260
+	bool
+	select ARMADA_XP
+
+config MV78460
+	bool
+	select ARMADA_XP
+
+config DB_88F6820_GP
+	bool
+	select ARMADA_38X
+
 choice
 	prompt "Marvell MVEBU (Armada XP/38x) board select"
 	optional
 
 config TARGET_CLEARFOG
 	bool "Support ClearFog"
-	select ARMADA_38X
+	select DB_88F6820_GP
 
 config TARGET_DB_88F6820_GP
 	bool "Support DB-88F6820-GP"
-	select ARMADA_38X
+	select DB_88F6820_GP
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
-	select ARMADA_XP
+	select MV78460
 
 config TARGET_MAXBCM
 	bool "Support maxbcm"
-	select ARMADA_XP
+	select MV78460
 
 endchoice
 

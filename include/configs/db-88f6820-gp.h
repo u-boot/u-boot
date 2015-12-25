@@ -10,7 +10,6 @@
 /*
  * High Level Configuration Options (easy to change)
  */
-#define CONFIG_DB_88F6820_GP		/* Board target name for DDR training */
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
