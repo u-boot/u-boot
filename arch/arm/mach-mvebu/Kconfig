@@ -38,6 +38,10 @@ config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
 	select MV78460
 
+config TARGET_DS414
+	bool "Support Synology DS414"
+	select MV78230
+
 config TARGET_MAXBCM
 	bool "Support maxbcm"
 	select MV78460
@@ -48,18 +52,21 @@ config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
 	default "Marvell" if TARGET_DB_88F6820_GP
 	default "solidrun" if TARGET_CLEARFOG
+	default "Synology" if TARGET_DS414
 
 config SYS_SOC
 	default "mvebu"

@@ -44,7 +44,7 @@
 #define DB_784MP_GP_ID			(RD_78460_SERVER_REV2_ID + 1)
 #define RD_78460_CUSTOMER_ID		(DB_784MP_GP_ID + 1)
 #define MV_MAX_BOARD_ID			(RD_78460_CUSTOMER_ID + 1)
-#define INVALID_BAORD_ID		0xFFFFFFFF
+#define INVALID_BOARD_ID		0xFFFFFFFF
 
 /* Sample at Reset */
 #define MPP_SAMPLE_AT_RESET(id)		(0x18230 + (id * 4))
