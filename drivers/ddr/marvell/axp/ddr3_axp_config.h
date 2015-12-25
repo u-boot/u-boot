@@ -51,7 +51,7 @@
 #define DRAM_ECC				0
 #endif
 
-#ifdef MV_DDR_32BIT
+#ifdef CONFIG_DDR_32BIT
 #define BUS_WIDTH                               32
 #else
 #define BUS_WIDTH				64
