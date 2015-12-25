@@ -96,6 +96,8 @@
 #define MVCPU_WIN_ENABLE	CPU_WIN_ENABLE
 #define MVCPU_WIN_DISABLE	CPU_WIN_DISABLE
 
+#define COMPHY_REFCLK_ALIGNMENT	(MVEBU_REGISTER(0x182f8))
+
 /* BootROM error register (also includes some status infos) */
 #define CONFIG_BOOTROM_ERR_REG	(MVEBU_REGISTER(0x182d0))
 #define BOOTROM_ERR_MODE_OFFS	28
