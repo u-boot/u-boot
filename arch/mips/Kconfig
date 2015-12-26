@@ -43,6 +43,7 @@ config TARGET_DBAU1X00
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
+	select MIPS_TUNE_4KC
 
 config TARGET_PB1X00
 	bool "Support pb1x00"
@@ -50,7 +51,7 @@ config TARGET_PB1X00
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
-
+	select MIPS_TUNE_4KC
 
 endchoice
 
@@ -173,6 +174,15 @@ config CPU_MIPS32
 config CPU_MIPS64
 	bool
 	default y if CPU_MIPS64_R1 || CPU_MIPS64_R2
+
+config MIPS_TUNE_4KC
+	bool
+
+config MIPS_TUNE_14KC
+	bool
+
+config MIPS_TUNE_24KC
+	bool
 
 config 32BIT
 	bool

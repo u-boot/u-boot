@@ -35,12 +35,6 @@ PLATFORM_LDFLAGS	+= -m$(64bit-emul)
 OBJCOPYFLAGS		+= -O $(64bit-bfd)
 endif
 
-cpuflags-$(CONFIG_CPU_MIPS32_R1) += -march=mips32 -Wa,-mips32
-cpuflags-$(CONFIG_CPU_MIPS32_R2) += -march=mips32r2 -Wa,-mips32r2
-cpuflags-$(CONFIG_CPU_MIPS64_R1) += -march=mips64 -Wa,-mips64
-cpuflags-$(CONFIG_CPU_MIPS64_R2) += -march=mips64r2 -Wa,-mips64r2
-PLATFORM_CPPFLAGS += $(cpuflags-y)
-
 PLATFORM_CPPFLAGS += -D__MIPS__
 
 #
