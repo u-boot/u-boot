@@ -24,7 +24,8 @@
 #define SPI_SLAVE	BIT(6)			/* slave mode */
 #define SPI_PREAMBLE	BIT(7)			/* Skip preamble bytes */
 #define SPI_TX_BYTE	BIT(8)			/* transmit with 1 wire byte */
-#define SPI_TX_QUAD	BIT(9)			/* transmit with 4 wires */
+#define SPI_TX_DUAL	BIT(9)			/* transmit with 2 wires */
+#define SPI_TX_QUAD	BIT(10)			/* transmit with 4 wires */
 
 /* SPI mode_rx flags */
 #define SPI_RX_SLOW	BIT(0)			/* receive with 1 wire slow */
