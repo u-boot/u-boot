@@ -25,8 +25,8 @@ enum spi_read_cmds {
 	ARRAY_SLOW		= BIT(0),
 	ARRAY_FAST		= BIT(1),
 	DUAL_OUTPUT_FAST	= BIT(2),
-	DUAL_IO_FAST		= BIT(3),
-	QUAD_OUTPUT_FAST	= BIT(4),
+	QUAD_OUTPUT_FAST	= BIT(3),
+	DUAL_IO_FAST		= BIT(4),
 	QUAD_IO_FAST		= BIT(5),
 };
 

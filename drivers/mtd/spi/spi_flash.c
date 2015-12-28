@@ -975,8 +975,8 @@ int spi_flash_scan(struct spi_flash *flash)
 		CMD_READ_ARRAY_SLOW,
 		CMD_READ_ARRAY_FAST,
 		CMD_READ_DUAL_OUTPUT_FAST,
-		CMD_READ_DUAL_IO_FAST,
 		CMD_READ_QUAD_OUTPUT_FAST,
+		CMD_READ_DUAL_IO_FAST,
 		CMD_READ_QUAD_IO_FAST };
 
 	/* Read the ID codes */
