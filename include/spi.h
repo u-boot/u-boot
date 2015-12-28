@@ -26,14 +26,6 @@
 #define SPI_TX_BYTE	0x100			/* transmit with 1 wire byte */
 #define SPI_TX_QUAD	0x200			/* transmit with 4 wires */
 
-/* SPI transfer flags */
-#define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
-#define SPI_XFER_END		0x02	/* Deassert CS after transfer */
-#define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
-#define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
-#define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
-#define SPI_XFER_U_PAGE	(1 << 5)
-
 /* SPI mode_rx flags */
 #define SPI_RX_SLOW		(1 << 0)
 #define SPI_RX_FAST		(1 << 1)
@@ -122,7 +114,14 @@ struct spi_slave {
 	unsigned int max_write_size;
 	void *memory_map;
 	u8 option;
+
 	u8 flags;
+#define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
+#define SPI_XFER_END		0x02	/* Deassert CS after transfer */
+#define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
+#define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
+#define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
+#define SPI_XFER_U_PAGE		(1 << 5)
 };
 
 /**
