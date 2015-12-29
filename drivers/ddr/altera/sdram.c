@@ -218,6 +218,7 @@ static void sdram_dump_protection_config(void)
 	      readl(&sdr_ctrl->protport_default));
 
 	for (rules = 0; rules < 20; rules++) {
+		rule.rule = rules;
 		sdram_get_rule(&rule);
 		debug("Rule %d, rules ...\n", rules);
 		debug("    sdram start %x\n", rule.sdram_start);
