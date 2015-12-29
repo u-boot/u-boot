@@ -11,26 +11,26 @@
 #define _SPI_H_
 
 /* SPI mode flags */
-#define	SPI_CPHA	BIT(0)			/* clock phase */
-#define	SPI_CPOL	BIT(1)			/* clock polarity */
-#define	SPI_MODE_0	(0|0)			/* (original MicroWire) */
-#define	SPI_MODE_1	(0|SPI_CPHA)
-#define	SPI_MODE_2	(SPI_CPOL|0)
-#define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
-#define	SPI_CS_HIGH	BIT(2)			/* CS active high */
-#define	SPI_LSB_FIRST	BIT(3)			/* per-word bits-on-wire */
-#define	SPI_3WIRE	BIT(4)			/* SI/SO signals shared */
-#define	SPI_LOOP	BIT(5)			/* loopback mode */
-#define	SPI_SLAVE	BIT(6)			/* slave mode */
-#define	SPI_PREAMBLE	BIT(7)			/* Skip preamble bytes */
+#define SPI_CPHA	BIT(0)			/* clock phase */
+#define SPI_CPOL	BIT(1)			/* clock polarity */
+#define SPI_MODE_0	(0|0)			/* (original MicroWire) */
+#define SPI_MODE_1	(0|SPI_CPHA)
+#define SPI_MODE_2	(SPI_CPOL|0)
+#define SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
+#define SPI_CS_HIGH	BIT(2)			/* CS active high */
+#define SPI_LSB_FIRST	BIT(3)			/* per-word bits-on-wire */
+#define SPI_3WIRE	BIT(4)			/* SI/SO signals shared */
+#define SPI_LOOP	BIT(5)			/* loopback mode */
+#define SPI_SLAVE	BIT(6)			/* slave mode */
+#define SPI_PREAMBLE	BIT(7)			/* Skip preamble bytes */
 #define SPI_TX_BYTE	BIT(8)			/* transmit with 1 wire byte */
 #define SPI_TX_QUAD	BIT(9)			/* transmit with 4 wires */
 
 /* SPI mode_rx flags */
-#define SPI_RX_SLOW		BIT(0)
-#define SPI_RX_FAST		BIT(1)
-#define SPI_RX_DUAL		BIT(2)
-#define SPI_RX_QUAD		BIT(4)
+#define SPI_RX_SLOW	BIT(0)			/* receive with 1 wire slow */
+#define SPI_RX_FAST	BIT(1)			/* receive with 1 wire fast */
+#define SPI_RX_DUAL	BIT(2)			/* receive with 2 wires */
+#define SPI_RX_QUAD	BIT(4)			/* receive with 4 wires */
 
 /* SPI bus connection options - see enum spi_dual_flash */
 #define SPI_CONN_DUAL_SHARED		(1 << 0)
