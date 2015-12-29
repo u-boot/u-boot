@@ -96,7 +96,7 @@ static inline void mmu_setup(void)
 		dram_bank_mmu_setup(i);
 	}
 
-#ifdef CONFIG_ARMV7
+#ifdef CONFIG_CPU_V7
 	/* Set TTBR0 */
 	reg = gd->arch.tlb_addr & TTBR0_BASE_ADDR_MASK;
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
