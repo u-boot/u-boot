@@ -108,8 +108,10 @@ int vprintf(const char *fmt, va_list va)
 				w--;
 			while (w-- > 0)
 				putc(lz ? '0' : ' ');
-			while ((ch = *p++))
-				putc(ch);
+			if (p) {
+				while ((ch = *p++))
+					putc(ch);
+			}
 		}
 	}
 
