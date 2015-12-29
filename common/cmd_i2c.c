@@ -1809,7 +1809,8 @@ static int do_i2c_bus_num(cmd_tbl_t *cmdtp, int flag, int argc,
 		if (ret)
 			printf("Failure changing bus number (%d)\n", ret);
 	}
-	return ret;
+
+	return ret ? CMD_RET_FAILURE : 0;
 }
 #endif  /* defined(CONFIG_SYS_I2C) */
 
@@ -1852,7 +1853,8 @@ static int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 		if (ret)
 			printf("Failure changing bus speed (%d)\n", ret);
 	}
-	return ret;
+
+	return ret ? CMD_RET_FAILURE : 0;
 }
 
 /**
