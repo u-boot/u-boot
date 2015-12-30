@@ -252,8 +252,15 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	 * Rounding up to next power of 2
 	 * => timeout + 13 = log2(mmc->clock/4) + 1
 	 * => timeout + 13 = fls(mmc->clock/4)
+	 *
+	 * However, the MMC spec "It is strongly recommended for hosts to
+	 * implement more than 500ms timeout value even if the card
+	 * indicates the 250ms maximum busy length."  Even the previous
+	 * value of 300ms is known to be insufficient for some cards.
+	 * So, we use
+	 * => timeout + 13 = fls(mmc->clock/2)
 	 */
-	timeout = fls(mmc->clock/4);
+	timeout = fls(mmc->clock/2);
 	timeout -= 13;
 
 	if (timeout > 14)
