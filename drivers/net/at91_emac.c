@@ -490,7 +490,7 @@ int at91emac_register(bd_t *bis, unsigned long iobase)
 	memset(emacfix, 0, sizeof(emac_device));
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "emac");
+	strcpy(dev->name, "emac");
 	dev->iobase = iobase;
 	dev->priv = emacfix;
 	dev->init = at91emac_init;

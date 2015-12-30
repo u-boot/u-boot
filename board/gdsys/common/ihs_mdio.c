@@ -80,7 +80,7 @@ int ihs_mdio_init(struct ihs_mdio_info *info)
 	bus->read = ihs_mdio_read;
 	bus->write = ihs_mdio_write;
 	bus->reset = ihs_mdio_reset;
-	sprintf(bus->name, info->name);
+	strcpy(bus->name, info->name);
 
 	bus->priv = info;
 

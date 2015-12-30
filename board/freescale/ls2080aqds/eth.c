@@ -412,7 +412,7 @@ static int ls2080a_qds_mdio_init(char *realbusname, u8 muxval)
 	bus->read = ls2080a_qds_mdio_read;
 	bus->write = ls2080a_qds_mdio_write;
 	bus->reset = ls2080a_qds_mdio_reset;
-	sprintf(bus->name, ls2080a_qds_mdio_name_for_muxval(muxval));
+	strcpy(bus->name, ls2080a_qds_mdio_name_for_muxval(muxval));
 
 	pmdio->realbus = miiphy_get_dev_by_name(realbusname);
 

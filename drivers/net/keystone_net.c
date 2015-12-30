@@ -586,7 +586,7 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 		mdio_bus->write	= keystone2_mdio_write;
 		mdio_bus->reset	= keystone2_mdio_reset;
 		mdio_bus->priv	= (void *)EMAC_MDIO_BASE_ADDR;
-		sprintf(mdio_bus->name, "ethernet-mdio");
+		strcpy(mdio_bus->name, "ethernet-mdio");
 
 		res = mdio_register(mdio_bus);
 		if (res)

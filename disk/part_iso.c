@@ -137,7 +137,7 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	/* the validation entry seems to be ok, now search the "partition" */
 	entry_num=0;
 	offset=0x20;
-	sprintf ((char *)info->type, "U-Boot");
+	strcpy((char *)info->type, "U-Boot");
 	switch(dev_desc->if_type) {
 		case IF_TYPE_IDE:
 		case IF_TYPE_SATA:

@@ -168,7 +168,7 @@ static int do_setboardid(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("can't get the IVM_Boardid\n");
 		return 1;
 	}
-	sprintf((char *)buf, "%s", p);
+	strcpy((char *)buf, p);
 	setenv("boardid", (char *)buf);
 	printf("set boardid=%s\n", buf);
 
@@ -177,7 +177,7 @@ static int do_setboardid(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("can't get the IVM_HWKey\n");
 		return 1;
 	}
-	sprintf((char *)buf, "%s", p);
+	strcpy((char *)buf, p);
 	setenv("hwkey", (char *)buf);
 	printf("set hwkey=%s\n", buf);
 	printf("Execute manually saveenv for persistent storage.\n");

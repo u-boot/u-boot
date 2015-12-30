@@ -722,7 +722,7 @@ int ax88180_initialize (bd_t * bis)
 
 	memset (priv, 0, sizeof *priv);
 
-	sprintf (dev->name, "ax88180");
+	strcpy(dev->name, "ax88180");
 	dev->iobase = AX88180_BASE;
 	dev->priv = priv;
 	dev->init = ax88180_init;

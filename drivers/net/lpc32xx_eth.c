@@ -582,7 +582,7 @@ int lpc32xx_eth_phylib_init(struct eth_device *dev, int phyid)
 	}
 	bus->read = lpc32xx_eth_phy_read;
 	bus->write = lpc32xx_eth_phy_write;
-	sprintf(bus->name, dev->name);
+	strcpy(bus->name, dev->name);
 
 	ret = mdio_register(bus);
 	if (ret) {

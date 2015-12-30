@@ -81,7 +81,7 @@ static int dw_mdio_init(const char *name, struct eth_mac_regs *mac_regs_p)
 
 	bus->read = dw_mdio_read;
 	bus->write = dw_mdio_write;
-	snprintf(bus->name, sizeof(bus->name), name);
+	snprintf(bus->name, sizeof(bus->name), "%s", name);
 
 	bus->priv = (void *)mac_regs_p;
 

@@ -175,7 +175,7 @@ static int super_hydra_mdio_init(char *realbusname, char *fakebusname)
 	bus->read = super_hydra_mdio_read;
 	bus->write = super_hydra_mdio_write;
 	bus->reset = super_hydra_mdio_reset;
-	sprintf(bus->name, fakebusname);
+	strcpy(bus->name, fakebusname);
 
 	hmdio->realbus = miiphy_get_dev_by_name(realbusname);
 

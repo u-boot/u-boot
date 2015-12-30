@@ -136,7 +136,7 @@ static int ls1043aqds_mdio_init(char *realbusname, u8 muxval)
 	bus->read = ls1043aqds_mdio_read;
 	bus->write = ls1043aqds_mdio_write;
 	bus->reset = ls1043aqds_mdio_reset;
-	sprintf(bus->name, ls1043aqds_mdio_name_for_muxval(muxval));
+	strcpy(bus->name, ls1043aqds_mdio_name_for_muxval(muxval));
 
 	pmdio->realbus = miiphy_get_dev_by_name(realbusname);
 

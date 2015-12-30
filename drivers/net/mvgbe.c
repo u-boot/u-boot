@@ -675,7 +675,7 @@ int mvgbe_phylib_init(struct eth_device *dev, int phyid)
 	}
 	bus->read = mvgbe_phy_read;
 	bus->write = mvgbe_phy_write;
-	sprintf(bus->name, dev->name);
+	strcpy(bus->name, dev->name);
 
 	ret = mdio_register(bus);
 	if (ret) {

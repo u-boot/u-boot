@@ -698,12 +698,12 @@ void video_get_info_str (int line_number, char *info)
 		s=getenv ("serial#");
 #ifdef CONFIG_PIP405
 		if (!s || strncmp (s, "PIP405", 6)) {
-			sprintf(buf,"### No HW ID - assuming PIP405");
+			strcpy(buf,"### No HW ID - assuming PIP405");
 		}
 #endif
 #ifdef CONFIG_MIP405
 		if (!s || strncmp (s, "MIP405", 6)) {
-			sprintf(buf,"### No HW ID - assuming MIP405");
+			strcpy(buf,"### No HW ID - assuming MIP405");
 		}
 #endif
 		else {
@@ -718,7 +718,7 @@ void video_get_info_str (int line_number, char *info)
 				}
 				buf[i++] = *s;
 			}
-			sprintf(&buf[i]," SN ");
+			strcpy(&buf[i]," SN ");
 			i+=4;
 			for (; s < e; ++s) {
 				buf[i++] = *s;
@@ -744,7 +744,7 @@ void video_get_info_str (int line_number, char *info)
 			ctfb.modeIdent);
 		return;
 	case 1:
-		sprintf	(buf, "%s",CONFIG_IDENT_STRING);
+		strcpy(buf, CONFIG_IDENT_STRING);
 		sprintf (info, " %s", &buf[1]);
 		return;
     }

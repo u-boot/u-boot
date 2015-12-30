@@ -288,9 +288,10 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						  (size_t)255));
 		} else {
 			tmp = getenv("bootdev");
-			if (tmp)
-				ptr = sprintf(build_buf, tmp);
-			else
+			if (tmp) {
+				strcpy(build_buf, tmp);
+				ptr = strlen(tmp);
+			} else
 				printf("## VxWorks boot device not specified\n");
 
 			tmp = getenv("bootfile");
@@ -331,8 +332,10 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
 
 			tmp = getenv("othbootargs");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr, tmp);
+			if (tmp) {
+				strcpy(build_buf + ptr, tmp);
+				ptr += strlen(tmp);
+			}
 
 			memcpy((void *)bootaddr, build_buf,
 			       max(strlen(build_buf), (size_t)255));

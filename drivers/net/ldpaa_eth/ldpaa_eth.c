@@ -628,11 +628,11 @@ static int ldpaa_dpmac_bind(struct ldpaa_eth_priv *priv)
 #endif
 
 	memset(&dpmac_endpoint, 0, sizeof(struct dprc_endpoint));
-	sprintf(dpmac_endpoint.type, "dpmac");
+	strcpy(dpmac_endpoint.type, "dpmac");
 	dpmac_endpoint.id = priv->dpmac_id;
 
 	memset(&dpni_endpoint, 0, sizeof(struct dprc_endpoint));
-	sprintf(dpni_endpoint.type, "dpni");
+	strcpy(dpni_endpoint.type, "dpni");
 	dpni_endpoint.id = dflt_dpni->dpni_id;
 
 	err = dprc_connect(dflt_mc_io, MC_CMD_NO_FLAGS,

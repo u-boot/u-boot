@@ -346,7 +346,7 @@ int board_late_init(void)
 
 	/* get production data */
 	if (read_eeprom(&header)) {
-		sprintf(model, "211");
+		strcpy(model, "211");
 	} else {
 		sprintf(model, "%d", header.SystemId);
 		if (header.SystemId == 215) {

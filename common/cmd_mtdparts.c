@@ -1086,7 +1086,7 @@ static int generate_mtdparts(char *buf, u32 buflen)
 		return 0;
 	}
 
-	sprintf(p, "mtdparts=");
+	strcpy(p, "mtdparts=");
 	p += 9;
 
 	list_for_each(dentry, &devices) {

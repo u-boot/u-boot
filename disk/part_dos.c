@@ -237,7 +237,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc,
 					break;
 			}
 			/* sprintf(info->type, "%d, pt->sys_ind); */
-			sprintf ((char *)info->type, "U-Boot");
+			strcpy((char *)info->type, "U-Boot");
 			info->bootable = is_bootable(pt);
 #ifdef CONFIG_PARTITION_UUIDS
 			sprintf(info->uuid, "%08x-%02x", disksig, part_num);
@@ -273,7 +273,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc,
 		info->size = dev_desc->lba;
 		info->blksz = DOS_PART_DEFAULT_SECTOR;
 		info->bootable = 0;
-		sprintf ((char *)info->type, "U-Boot");
+		strcpy((char *)info->type, "U-Boot");
 #ifdef CONFIG_PARTITION_UUIDS
 		info->uuid[0] = 0;
 #endif

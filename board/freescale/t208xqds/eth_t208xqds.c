@@ -176,7 +176,7 @@ static int t208xqds_mdio_init(char *realbusname, u8 muxval)
 	bus->read = t208xqds_mdio_read;
 	bus->write = t208xqds_mdio_write;
 	bus->reset = t208xqds_mdio_reset;
-	sprintf(bus->name, t208xqds_mdio_name_for_muxval(muxval));
+	strcpy(bus->name, t208xqds_mdio_name_for_muxval(muxval));
 
 	pmdio->realbus = miiphy_get_dev_by_name(realbusname);
 

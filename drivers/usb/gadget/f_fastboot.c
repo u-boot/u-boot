@@ -477,7 +477,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 		req->complete = rx_handler_command;
 		req->length = EP_BUFFER_SIZE;
 
-		sprintf(response, "OKAY");
+		strcpy(response, "OKAY");
 		fastboot_tx_write_str(response);
 
 		printf("\ndownloading of %d bytes finished\n", download_bytes);
@@ -506,10 +506,10 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 	printf("Starting download of %d bytes\n", download_size);
 
 	if (0 == download_size) {
-		sprintf(response, "FAILdata invalid size");
+		strcpy(response, "FAILdata invalid size");
 	} else if (download_size > CONFIG_FASTBOOT_BUF_SIZE) {
 		download_size = 0;
-		sprintf(response, "FAILdata too large");
+		strcpy(response, "FAILdata too large");
 	} else {
 		sprintf(response, "DATA%08x", download_size);
 		req->complete = rx_handler_dl_image;

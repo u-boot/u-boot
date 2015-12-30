@@ -560,7 +560,7 @@ int sh_eth_initialize(bd_t *bd)
 	dev->recv = sh_eth_recv;
 	eth->port_info[eth->port].dev = dev;
 
-	sprintf(dev->name, SHETHER_NAME);
+	strcpy(dev->name, SHETHER_NAME);
 
 	/* Register Device to EtherNet subsystem  */
 	eth_register(dev);

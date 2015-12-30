@@ -386,7 +386,7 @@ static int pch_gbe_mdio_init(const char *name, struct pch_gbe_regs *mac_regs)
 
 	bus->read = pch_gbe_mdio_read;
 	bus->write = pch_gbe_mdio_write;
-	sprintf(bus->name, name);
+	strcpy(bus->name, name);
 
 	bus->priv = (void *)mac_regs;
 

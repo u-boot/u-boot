@@ -632,7 +632,7 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	priv->phyaddr = tsec_info->phyaddr;
 	priv->flags = tsec_info->flags;
 
-	sprintf(dev->name, tsec_info->devname);
+	strcpy(dev->name, tsec_info->devname);
 	priv->interface = tsec_info->interface;
 	priv->bus = miiphy_get_dev_by_name(tsec_info->mii_devname);
 	dev->iobase = 0;

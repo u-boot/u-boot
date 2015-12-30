@@ -630,7 +630,7 @@ int dm9000_initialize(bd_t *bis)
 	dev->halt = dm9000_halt;
 	dev->send = dm9000_send;
 	dev->recv = dm9000_rx;
-	sprintf(dev->name, "dm9000");
+	strcpy(dev->name, "dm9000");
 
 	eth_register(dev);
 

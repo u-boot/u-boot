@@ -417,7 +417,7 @@ static int tse_mdio_init(const char *name, struct altera_tse_priv *priv)
 
 	bus->read = tse_mdio_read;
 	bus->write = tse_mdio_write;
-	snprintf(bus->name, sizeof(bus->name), name);
+	snprintf(bus->name, sizeof(bus->name), "%s", name);
 
 	bus->priv = (void *)priv;
 

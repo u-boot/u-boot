@@ -118,7 +118,7 @@ int fm_tgec_mdio_init(bd_t *bis, struct tgec_mdio_info *info)
 	bus->read = tgec_mdio_read;
 	bus->write = tgec_mdio_write;
 	bus->reset = tgec_mdio_reset;
-	sprintf(bus->name, info->name);
+	strcpy(bus->name, info->name);
 
 	bus->priv = info->regs;
 

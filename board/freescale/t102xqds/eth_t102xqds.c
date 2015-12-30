@@ -148,7 +148,7 @@ static int t1024qds_mdio_init(char *realbusname, u8 muxval)
 	bus->read = t1024qds_mdio_read;
 	bus->write = t1024qds_mdio_write;
 	bus->reset = t1024qds_mdio_reset;
-	sprintf(bus->name, t1024qds_mdio_name_for_muxval(muxval));
+	strcpy(bus->name, t1024qds_mdio_name_for_muxval(muxval));
 
 	pmdio->realbus = miiphy_get_dev_by_name(realbusname);
 
