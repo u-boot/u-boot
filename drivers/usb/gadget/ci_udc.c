@@ -1018,18 +1018,10 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 		return ret;
 
 	ret = ci_udc_probe();
-#if defined(CONFIG_USB_EHCI_MX6) || defined(CONFIG_USB_EHCI_MXS)
-	/*
-	 * FIXME: usb_lowlevel_init()->ehci_hcd_init() should be doing all
-	 * HW-specific initialization, e.g. ULPI-vs-UTMI PHY selection
-	 */
-	if (!ret) {
-		struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
-
-		/* select ULPI phy */
-		writel(PTS(PTS_ENABLE) | PFSC, &udc->portsc);
+	if (ret) {
+		DBG("udc probe failed, returned %d\n", ret);
+		return ret;
 	}
-#endif
 
 	ret = driver->bind(&controller.gadget);
 	if (ret) {
