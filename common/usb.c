@@ -566,13 +566,12 @@ static int usb_get_descriptor(struct usb_device *dev, unsigned char type,
 }
 
 /**********************************************************************
- * gets configuration cfgno and store it in the buffer
+ * gets len of configuration cfgno
  */
-int usb_get_configuration_no(struct usb_device *dev,
-			     unsigned char *buffer, int cfgno)
+int usb_get_configuration_len(struct usb_device *dev, int cfgno)
 {
 	int result;
-	unsigned int length;
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, 9);
 	struct usb_config_descriptor *config;
 
 	config = (struct usb_config_descriptor *)&buffer[0];
@@ -586,17 +585,23 @@ int usb_get_configuration_no(struct usb_device *dev,
 				"(expected %i, got %i)\n", 9, result);
 		return -EIO;
 	}
-	length = le16_to_cpu(config->wTotalLength);
+	return le16_to_cpu(config->wTotalLength);
+}
 
-	if (length > USB_BUFSIZ) {
-		printf("%s: failed to get descriptor - too long: %d\n",
-			__func__, length);
-		return -EIO;
-	}
+/**********************************************************************
+ * gets configuration cfgno and store it in the buffer
+ */
+int usb_get_configuration_no(struct usb_device *dev, int cfgno,
+			     unsigned char *buffer, int length)
+{
+	int result;
+	struct usb_config_descriptor *config;
 
+	config = (struct usb_config_descriptor *)&buffer[0];
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, length);
-	debug("get_conf_no %d Result %d, wLength %d\n", cfgno, result, length);
-	config->wTotalLength = length; /* validated, with CPU byte order */
+	debug("get_conf_no %d Result %d, wLength %d\n", cfgno, result,
+	      le16_to_cpu(config->wTotalLength));
+	config->wTotalLength = result; /* validated, with CPU byte order */
 
 	return result;
 }
@@ -1070,7 +1075,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 
 int usb_select_config(struct usb_device *dev)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
+	unsigned char *tmpbuf = 0;
 	int err;
 
 	err = get_descriptor_len(dev, USB_DT_DEVICE_SIZE, USB_DT_DEVICE_SIZE);
@@ -1084,14 +1089,23 @@ int usb_select_config(struct usb_device *dev)
 	le16_to_cpus(&dev->descriptor.bcdDevice);
 
 	/* only support for one config for now */
-	err = usb_get_configuration_no(dev, tmpbuf, 0);
+	err = usb_get_configuration_len(dev, 0);
+	if (err >= 0) {
+		tmpbuf = (unsigned char *)malloc_cache_aligned(err);
+		if (!tmpbuf)
+			err = -ENOMEM;
+		else
+			err = usb_get_configuration_no(dev, 0, tmpbuf, err);
+	}
 	if (err < 0) {
 		printf("usb_new_device: Cannot read configuration, " \
 		       "skipping device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
+		free(tmpbuf);
 		return err;
 	}
 	usb_parse_config(dev, tmpbuf, 0);
+	free(tmpbuf);
 	usb_set_maxpacket(dev);
 	/*
 	 * we set the default configuration here
@@ -1199,5 +1213,61 @@ bool usb_device_has_child_on_port(struct usb_device *parent, int port)
 	return parent->children[port] != NULL;
 #endif
 }
+
+#ifdef CONFIG_DM_USB
+void usb_find_usb2_hub_address_port(struct usb_device *udev,
+			       uint8_t *hub_address, uint8_t *hub_port)
+{
+	struct udevice *parent;
+	struct usb_device *uparent, *ttdev;
+
+	/*
+	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
+	 * to the parent udevice, not the actual udevice belonging to the
+	 * udev as the device is not instantiated yet. So when searching
+	 * for the first usb-2 parent start with udev->dev not
+	 * udev->dev->parent .
+	 */
+	ttdev = udev;
+	parent = udev->dev;
+	uparent = dev_get_parent_priv(parent);
+
+	while (uparent->speed != USB_SPEED_HIGH) {
+		struct udevice *dev = parent;
+
+		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
+			printf("Error: Cannot find high speed parent of usb-1 device\n");
+			*hub_address = 0;
+			*hub_port = 0;
+			return;
+		}
+
+		ttdev = dev_get_parent_priv(dev);
+		parent = dev->parent;
+		uparent = dev_get_parent_priv(parent);
+	}
+	*hub_address = uparent->devnum;
+	*hub_port = ttdev->portnr;
+}
+#else
+void usb_find_usb2_hub_address_port(struct usb_device *udev,
+			       uint8_t *hub_address, uint8_t *hub_port)
+{
+	/* Find out the nearest parent which is high speed */
+	while (udev->parent->parent != NULL)
+		if (udev->parent->speed != USB_SPEED_HIGH) {
+			udev = udev->parent;
+		} else {
+			*hub_address = udev->parent->devnum;
+			*hub_port = udev->portnr;
+			return;
+		}
+
+	printf("Error: Cannot find high speed parent of usb-1 device\n");
+	*hub_address = 0;
+	*hub_port = 0;
+}
+#endif
+
 
 /* EOF */

@@ -266,8 +266,9 @@ int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len, int interval);
 int usb_disable_asynch(int disable);
 int usb_maxpacket(struct usb_device *dev, unsigned long pipe);
-int usb_get_configuration_no(struct usb_device *dev, unsigned char *buffer,
-				int cfgno);
+int usb_get_configuration_no(struct usb_device *dev, int cfgno,
+			unsigned char *buffer, int length);
+int usb_get_configuration_len(struct usb_device *dev, int cfgno);
 int usb_get_report(struct usb_device *dev, int ifnum, unsigned char type,
 			unsigned char id, void *buf, int size);
 int usb_get_class_descriptor(struct usb_device *dev, int ifnum,
@@ -873,6 +874,18 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 			  unsigned short *portstat);
 
 int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat);
+
+/*
+ * usb_find_usb2_hub_address_port() - Get hub address and port for TT setting
+ *
+ * Searches for the first HS hub above the given device. If a
+ * HS hub is found, the hub address and the port the device is
+ * connected to is return, as required for SPLIT transactions
+ *
+ * @param: udev full speed or low speed device
+ */
+void usb_find_usb2_hub_address_port(struct usb_device *udev,
+				    uint8_t *hub_address, uint8_t *hub_port);
 
 /**
  * usb_alloc_new_device() - Allocate a new device
