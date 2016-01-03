@@ -1351,7 +1351,6 @@ static int self_check_write(struct ubi_device *ubi, const void *buf, int pnum,
 		ubi_err(ubi, "self-check failed for PEB %d:%d, len %d",
 			pnum, offset, len);
 		ubi_msg(ubi, "data differ at position %d", i);
-		dump_len = max_t(int, 128, len - i);
 		ubi_msg(ubi, "hex dump of the original buffer from %d to %d",
 			i, i + dump_len);
 		print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1,
