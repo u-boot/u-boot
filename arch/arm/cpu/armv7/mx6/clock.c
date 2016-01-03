@@ -727,6 +727,8 @@ int enable_lcdif_clock(u32 base_addr)
 	reg = readl(&imx_ccm->CCGR2);
 	reg |= MXC_CCM_CCGR2_LCD_MASK;
 	writel(reg, &imx_ccm->CCGR2);
+
+	return 0;
 }
 #endif
 

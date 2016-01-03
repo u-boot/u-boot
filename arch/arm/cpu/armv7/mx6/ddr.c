@@ -796,7 +796,6 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	debug("Rtt_wr=%d\n", sysinfo->rtt_wr);
 	debug("Rtt_nom=%d\n", sysinfo->rtt_nom);
 	debug("SRT=%d\n", ddr3_cfg->SRT);
-	debug("tcl=%d\n", tcl);
 	debug("twr=%d\n", twr);
 
 	/*

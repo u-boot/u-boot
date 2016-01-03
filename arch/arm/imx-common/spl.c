@@ -20,7 +20,15 @@ u32 spl_boot_device(void)
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned int gpr10_boot = readl(&psrc->gpr10) & (1 << 28);
 	unsigned reg = gpr10_boot ? readl(&psrc->gpr9) : readl(&psrc->sbmr1);
+	unsigned int bmode = readl(&psrc->sbmr2);
 
+	/*
+	 * Check for BMODE if serial downloader is enabled
+	 * BOOT_MODE - see IMX6DQRM Table 8-1
+	 */
+	if ((((bmode >> 24) & 0x03)  == 0x01) || /* Serial Downloader */
+		(gpr10_boot && (reg == 1)))
+		return BOOT_DEVICE_UART;
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
 	switch ((reg & 0x000000FF) >> 4) {
 	 /* EIM: See 8.5.1, Table 8-9 */

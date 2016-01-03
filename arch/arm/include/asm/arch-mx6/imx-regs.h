@@ -335,10 +335,10 @@
 #include <asm/types.h>
 
 /* only for i.MX6SX/UL */
-#define WDOG3_BASE_ADDR (is_cpu_type(MXC_CPU_MX6UL) ?	\
-			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR)
-#define LCDIF1_BASE_ADDR (is_cpu_type(MXC_CPU_MX6UL)) ?	\
-			  MX6UL_LCDIF1_BASE_ADDR : MX6SX_LCDIF1_BASE_ADDR
+#define WDOG3_BASE_ADDR ((is_cpu_type(MXC_CPU_MX6UL) ?	\
+			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR))
+#define LCDIF1_BASE_ADDR ((is_cpu_type(MXC_CPU_MX6UL)) ?	\
+			  MX6UL_LCDIF1_BASE_ADDR : MX6SX_LCDIF1_BASE_ADDR)
 
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);

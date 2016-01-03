@@ -150,10 +150,14 @@ static int setup_fec(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	int reg;
+	int reg, ret;
 
 	/* Use 125MHz anatop loopback REF_CLK1 for ENET1 */
 	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC1_MASK, 0);
+
+	ret = enable_fec_anatop_clock(0, ENET_125MHZ);
+	if (ret)
+		return ret;
 
 	imx_iomux_v3_setup_multiple_pads(phy_control_pads,
 					 ARRAY_SIZE(phy_control_pads));
@@ -163,14 +167,14 @@ static int setup_fec(void)
 
 	/* Reset AR8031 PHY */
 	gpio_direction_output(IMX_GPIO_NR(2, 7) , 0);
-	udelay(500);
+	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(2, 7), 1);
 
 	reg = readl(&anatop->pll_enet);
 	reg |= BM_ANADIG_PLL_ENET_REF_25M_ENABLE;
 	writel(reg, &anatop->pll_enet);
 
-	return enable_fec_anatop_clock(0, ENET_125MHZ);
+	return 0;
 }
 
 int board_eth_init(bd_t *bis)
