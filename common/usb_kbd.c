@@ -611,6 +611,41 @@ static int usb_kbd_probe(struct udevice *dev)
 	return ret;
 }
 
+static int usb_kbd_remove(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+	struct usb_kbd_pdata *data;
+	struct stdio_dev *sdev;
+	int ret;
+
+	sdev = stdio_get_by_name(DEVNAME);
+	if (!sdev) {
+		ret = -ENXIO;
+		goto err;
+	}
+	data = udev->privptr;
+	if (stdio_deregister_dev(sdev, true)) {
+		ret = -EPERM;
+		goto err;
+	}
+#ifdef CONFIG_CONSOLE_MUX
+	if (iomux_doenv(stdin, getenv("stdin"))) {
+		ret = -ENOLINK;
+		goto err;
+	}
+#endif
+#ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+	destroy_int_queue(udev, data->intq);
+#endif
+	free(data->new);
+	free(data);
+
+	return 0;
+err:
+	printf("%s: warning, ret=%d", __func__, ret);
+	return ret;
+}
+
 static const struct udevice_id usb_kbd_ids[] = {
 	{ .compatible = "usb-keyboard" },
 	{ }
@@ -621,6 +656,7 @@ U_BOOT_DRIVER(usb_kbd) = {
 	.id	= UCLASS_KEYBOARD,
 	.of_match = usb_kbd_ids,
 	.probe = usb_kbd_probe,
+	.remove = usb_kbd_remove,
 };
 
 static const struct usb_device_id kbd_id_table[] = {
