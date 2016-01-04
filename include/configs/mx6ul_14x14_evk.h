@@ -241,6 +241,7 @@
 
 #define CONFIG_IMX_THERMAL
 
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define CONFIG_CFB_CONSOLE
@@ -256,6 +257,7 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
+#endif
 #endif
 
 #endif
