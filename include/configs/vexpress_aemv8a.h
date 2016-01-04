@@ -189,7 +189,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=norkern\0"	\
 				"kernel_alt_name=Image\0"	\
-				"kernel_addr=0x80000000\0" \
+				"kernel_addr=0x80080000\0" \
 				"initrd_name=ramdisk.img\0"	\
 				"initrd_addr=0x84000000\0"	\
 				"fdt_name=board.dtb\0" \
@@ -233,7 +233,7 @@
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=Image\0"		\
-				"kernel_addr=0x80000000\0"	\
+				"kernel_addr=0x80080000\0"	\
 				"initrd_name=ramdisk.img\0"	\
 				"initrd_addr=0x88000000\0"	\
 				"fdt_name=devtree.dtb\0"	\
