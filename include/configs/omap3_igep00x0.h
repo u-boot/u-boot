@@ -85,8 +85,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 
-#include <config_distro_defaults.h>
-
 /* Environment */
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial\0" \
