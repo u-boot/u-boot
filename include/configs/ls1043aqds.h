@@ -33,7 +33,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 /* Physical Memory Map */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_NR_DRAM_BANKS		2
 
 #define CONFIG_DDR_SPD
 #define SPD_EEPROM_ADDRESS		0x51
