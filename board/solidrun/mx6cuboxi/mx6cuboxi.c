@@ -143,8 +143,9 @@ static void setup_iomux_enet(void)
 	SETUP_IOMUX_PADS(enet_pads);
 
 	gpio_direction_output(ETH_PHY_RESET, 0);
-	mdelay(2);
+	mdelay(10);
 	gpio_set_value(ETH_PHY_RESET, 1);
+	udelay(100);
 }
 
 int board_phy_config(struct phy_device *phydev)
