@@ -777,8 +777,6 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 	} else if (is_valid_ethaddr(dev->enetaddr)) {
 		eth_setenv_enetaddr_by_index(base_name, eth_number,
 					     dev->enetaddr);
-		printf("\nWarning: %s using MAC address from net device\n",
-		       dev->name);
 	} else if (is_zero_ethaddr(dev->enetaddr)) {
 #ifdef CONFIG_NET_RANDOM_ETHADDR
 		net_random_ethaddr(dev->enetaddr);
