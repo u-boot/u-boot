@@ -86,7 +86,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			debug("*  fpga: cmdline image address = 0x%08lx\n",
 			      (ulong)fpga_data);
 		}
-		debug("%s: fpga_data = 0x%x\n", __func__, (uint)fpga_data);
+		debug("%s: fpga_data = 0x%lx\n", __func__, (ulong)fpga_data);
 
 	case 3:		/* fpga <op> <dev | data addr> */
 		dev = (int)simple_strtoul(argv[2], NULL, 16);
@@ -107,13 +107,13 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			} else
 #endif
 			{
-				fpga_data = (void *)dev;
+				fpga_data = (void *)(uintptr_t)dev;
 				debug("*  fpga: cmdline image addr = 0x%08lx\n",
 				      (ulong)fpga_data);
 			}
 
-			debug("%s: fpga_data = 0x%x\n",
-			      __func__, (uint)fpga_data);
+			debug("%s: fpga_data = 0x%lx\n",
+			      __func__, (ulong)fpga_data);
 			dev = FPGA_INVALID_DEVICE;	/* reset device num */
 		}
 
