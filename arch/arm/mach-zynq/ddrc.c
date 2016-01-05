@@ -42,8 +42,6 @@ void zynq_ddrc_init(void)
 		 */
 		/* cppcheck-suppress nullPointer */
 		memset((void *)0, 0, 1 * 1024 * 1024);
-
-		gd->ram_size /= 2;
 	} else {
 		puts("ECC disabled ");
 	}
