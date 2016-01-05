@@ -109,6 +109,12 @@ T:	git git://git.denx.de/u-boot-pxa.git
 F:	arch/arm/cpu/pxa/
 F:	arch/arm/include/asm/arch-pxa/
 
+ARM ROCKCHIP
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-rockchip.git
+F:	arch/arm/mach-rockchip/
+
 ARM SAMSUNG
 M:	Minkyu Kang <mk7.kang@samsung.com>
 S:	Maintained
