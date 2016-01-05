@@ -430,11 +430,6 @@ int uclass_bind_device(struct udevice *dev)
 				goto err;
 		}
 	}
-	if (uc->uc_drv->post_bind) {
-		ret = uc->uc_drv->post_bind(dev);
-		if (ret)
-			goto err;
-	}
 
 	return 0;
 err:
