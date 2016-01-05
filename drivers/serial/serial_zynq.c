@@ -192,7 +192,7 @@ U_BOOT_DRIVER(serial_zynq) = {
 };
 
 #ifdef CONFIG_DEBUG_UART_ZYNQ
-void _debug_uart_init(void)
+static inline void _debug_uart_init(void)
 {
 	struct uart_zynq *regs = (struct uart_zynq *)CONFIG_DEBUG_UART_BASE;
 
