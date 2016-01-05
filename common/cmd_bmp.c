@@ -15,6 +15,7 @@
 #include <command.h>
 #include <asm/byteorder.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <splash.h>
 #include <video.h>
 
@@ -57,7 +58,8 @@ struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 	/* align to 32-bit-aligned-address + 2 */
 	bmp = (struct bmp_image *)((((unsigned int)dst + 1) & ~3) + 2);
 
-	if (gunzip(bmp, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE, (uchar *)addr, &len) != 0) {
+	if (gunzip(bmp, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE, map_sysmem(addr, 0),
+		   &len) != 0) {
 		free(dst);
 		return NULL;
 	}
@@ -187,7 +189,7 @@ U_BOOT_CMD(
  */
 static int bmp_info(ulong addr)
 {
-	struct bmp_image *bmp = (struct bmp_image *)addr;
+	struct bmp_image *bmp = (struct bmp_image *)map_sysmem(addr, 0);
 	void *bmp_alloc_addr = NULL;
 	unsigned long len;
 
@@ -224,7 +226,7 @@ static int bmp_info(ulong addr)
 int bmp_display(ulong addr, int x, int y)
 {
 	int ret;
-	struct bmp_image *bmp = (struct bmp_image *)addr;
+	struct bmp_image *bmp = map_sysmem(addr, 0);
 	void *bmp_alloc_addr = NULL;
 	unsigned long len;
 
@@ -236,11 +238,12 @@ int bmp_display(ulong addr, int x, int y)
 		printf("There is no valid bmp file at the given address\n");
 		return 1;
 	}
+	addr = map_to_sysmem(bmp);
 
 #if defined(CONFIG_LCD)
-	ret = lcd_display_bitmap((ulong)bmp, x, y);
+	ret = lcd_display_bitmap(addr, x, y);
 #elif defined(CONFIG_VIDEO)
-	ret = video_display_bitmap((unsigned long)bmp, x, y);
+	ret = video_display_bitmap(addr, x, y);
 #else
 # error bmp_display() requires CONFIG_LCD or CONFIG_VIDEO
 #endif
