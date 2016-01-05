@@ -196,6 +196,7 @@
 # define CONFIG_PHY_NATSEMI
 # define CONFIG_PHY_TI
 # define CONFIG_PHY_GIGE
+# define PHY_ANEG_TIMEOUT       20000
 #endif
 
 /* I2C */
