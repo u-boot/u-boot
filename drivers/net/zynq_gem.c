@@ -397,6 +397,17 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	phydev->supported = supported | ADVERTISED_Pause |
 			    ADVERTISED_Asym_Pause;
 	phydev->advertising = phydev->supported;
+
+#ifdef CONFIG_TARGET_ZYNQMP_EP
+	/*
+	 * Phy can support 1000baseT but ep does not
+	 * support hence dont advertise 1000baseT incase
+	 * of ep
+	 */
+	phydev->advertising &= ~(SUPPORTED_1000baseT_Half |
+				 SUPPORTED_1000baseT_Full);
+#endif
+
 	priv->phydev = phydev;
 	phy_config(phydev);
 	phy_startup(phydev);
