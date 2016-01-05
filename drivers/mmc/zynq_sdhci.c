@@ -13,6 +13,10 @@
 #include <malloc.h>
 #include <sdhci.h>
 
+#ifndef CONFIG_ZYNQ_SDHCI_MIN_FREQ
+# define CONFIG_ZYNQ_SDHCI_MIN_FREQ	0
+#endif
+
 static int arasan_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -22,7 +26,8 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		       SDHCI_QUIRK_BROKEN_R1B;
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
-	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ, 0);
+	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
+		  CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 
 	upriv->mmc = host->mmc;
 
