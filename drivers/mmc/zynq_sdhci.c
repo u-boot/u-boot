@@ -13,6 +13,10 @@
 #include <sdhci.h>
 #include <asm/arch/sys_proto.h>
 
+#ifndef CONFIG_ZYNQ_SDHCI_MIN_FREQ
+# define CONFIG_ZYNQ_SDHCI_MIN_FREQ	0
+#endif
+
 int zynq_sdhci_init(phys_addr_t regbase)
 {
 	struct sdhci_host *host = NULL;
@@ -29,7 +33,8 @@ int zynq_sdhci_init(phys_addr_t regbase)
 		       SDHCI_QUIRK_BROKEN_R1B;
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
-	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ, 0);
+	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
+		  CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 	return 0;
 }
 
