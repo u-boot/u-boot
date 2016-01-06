@@ -767,8 +767,8 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 		return ret;
 
 	/* Cannot unlock; would unlock larger region than requested */
-	if (stm_is_locked_sr(flash, status_old, ofs - flash->erase_size,
-			     flash->erase_size))
+	if (stm_is_locked_sr(flash, ofs - flash->erase_size, flash->erase_size,
+			     status_old))
 		return -EINVAL;
 	/*
 	 * Need largest pow such that:
