@@ -137,6 +137,8 @@ struct sunxi_ccm_reg {
 	u32 apb1_reset_cfg;	/* 0x2d0 APB1 Reset config */
 	u32 reserved24;
 	u32 apb2_reset_cfg;	/* 0x2d8 APB2 Reset config */
+	u32 reserved25[5];
+	u32 ccu_sec_switch;	/* 0x2f0 CCU Security Switch, H3 only */
 };
 
 /* apb2 bit field */
@@ -374,6 +376,11 @@ struct sunxi_ccm_reg {
 #define CCM_DE_CTRL_PLL9		(4 << 24)
 #define CCM_DE_CTRL_PLL10		(5 << 24)
 #define CCM_DE_CTRL_GATE		(1 << 31)
+
+/* CCU security switch, H3 only */
+#define CCM_SEC_SWITCH_MBUS_NONSEC	(1 << 2)
+#define CCM_SEC_SWITCH_BUS_NONSEC	(1 << 1)
+#define CCM_SEC_SWITCH_PLL_NONSEC	(1 << 0)
 
 #ifndef __ASSEMBLY__
 void clock_set_pll1(unsigned int hz);
