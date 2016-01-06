@@ -595,10 +595,6 @@ static void gpr_init(void)
 	writel(0x007F007F, &iomux->gpr[7]);
 }
 
-/*
- * This section requires the differentiation between Solidrun mx6 boards, but
- * for now, it will configure only for the mx6dual hummingboard version.
- */
 static void spl_dram_init(int width)
 {
 	struct mx6_ddr_sysinfo sysinfo = {
