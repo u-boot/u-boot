@@ -49,6 +49,16 @@ static int timer_pre_probe(struct udevice *dev)
 	return 0;
 }
 
+static int timer_post_probe(struct udevice *dev)
+{
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (!uc_priv->clock_rate)
+		return -EINVAL;
+
+	return 0;
+}
+
 u64 timer_conv_64(u32 count)
 {
 	/* increment tbh if tbl has rolled over */
@@ -105,5 +115,6 @@ UCLASS_DRIVER(timer) = {
 	.name		= "timer",
 	.pre_probe	= timer_pre_probe,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+	.post_probe	= timer_post_probe,
 	.per_device_auto_alloc_size = sizeof(struct timer_dev_priv),
 };
