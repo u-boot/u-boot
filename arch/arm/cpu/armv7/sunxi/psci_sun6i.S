@@ -106,7 +106,7 @@ psci_fiq_enter:
 	str	r10, [r8, #0x100]
 	timer_wait r10, ONE_MS
 
-#ifdef CONFIG_MACH_SUN6I
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I_H3)
 	@ Activate power clamp
 	lsl	r12, r9, #2		@ x4
 	add	r12, r12, r8
@@ -170,7 +170,7 @@ psci_cpu_on:
 	movw	r0, #(SUNXI_PRCM_BASE & 0xffff)
 	movt	r0, #(SUNXI_PRCM_BASE >> 16)
 
-#ifdef CONFIG_MACH_SUN6I
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I_H3)
 	@ Release power clamp
 	lsl	r5, r1, #2	@ 1 register per CPU
 	add	r5, r5, r0	@ PRCM
