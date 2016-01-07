@@ -11,6 +11,7 @@
 #include <asm/processor.h>
 #include <asm/arch/device.h>
 #include <asm/arch/qemu.h>
+#include <asm/fw_cfg.h>
 
 static bool i440fx;
 
@@ -57,6 +58,8 @@ static void qemu_chipset_init(void)
 		x86_pci_write_config32(PCI_BDF(0, 0, 0), PCIEX_BAR,
 				       CONFIG_PCIE_ECAM_BASE | BAR_EN);
 	}
+
+	qemu_fwcfg_init();
 }
 
 int arch_cpu_init(void)
