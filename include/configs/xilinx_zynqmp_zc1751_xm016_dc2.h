@@ -25,7 +25,8 @@
 	"kernel_offset=0x400000\0" \
 	"fdt_offset=0x2400000\0" \
 	"kernel_size=0x2000000\0" \
-	"fdt_size=0x80000\0"
+	"fdt_size=0x80000\0" \
+	"board=zc1751-dc2\0"
 
 #include <configs/xilinx_zynqmp.h>
 
