@@ -161,6 +161,7 @@
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
+	no-1-8-v;       /* for 1.0 silicon */
 };
 
 &uart0 {
