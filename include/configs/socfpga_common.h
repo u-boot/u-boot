@@ -370,7 +370,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 
 /* SPL QSPI boot support */
 #ifdef CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_DM_SEQ_ALIAS		1
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
