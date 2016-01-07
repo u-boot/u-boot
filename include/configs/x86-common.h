@@ -208,6 +208,7 @@
 #define CONFIG_HOSTNAME		x86
 #define CONFIG_BOOTFILE		"bzImage"
 #define CONFIG_LOADADDR		0x1000000
+#define CONFIG_RAMDISK_ADDR		0x4000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	CONFIG_STD_DEVICES_SETTINGS			\
@@ -215,7 +216,7 @@
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\
 	"othbootargs=acpi=off\0"			\
-	"ramdiskaddr=0x2000000\0"			\
+	"ramdiskaddr=0x4000000\0"			\
 	"ramdiskfile=initramfs.gz\0"
 
 #define CONFIG_RAMBOOTCOMMAND				\
