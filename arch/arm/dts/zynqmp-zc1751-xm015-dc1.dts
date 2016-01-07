@@ -146,6 +146,7 @@
 /* eMMC */
 &sdhci0 {
 	status = "okay";
+	bus-width = <8>;
 };
 
 /* SD1 with level shifter */
