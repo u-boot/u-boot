@@ -29,7 +29,6 @@
 #endif
 
 #undef CONFIG_DM_WARN
-#undef CONFIG_DM_SEQ_ALIAS
 #undef CONFIG_DM_STDIO
 
 #endif /* CONFIG_SPL_BUILD */
