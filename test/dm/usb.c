@@ -108,9 +108,9 @@ static int dm_test_usb_remove(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 1, &dev));
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 2, &dev));
-	ut_asserteq(5, count_usb_devices());
+	ut_asserteq(6, count_usb_devices());
 	ut_assertok(usb_stop());
-	ut_asserteq(5, count_usb_devices());
+	ut_asserteq(6, count_usb_devices());
 
 	/* Remove the second emulation device */
 	ut_assertok(uclass_find_device_by_name(UCLASS_USB_EMUL, "flash-stick@1",
@@ -128,9 +128,9 @@ static int dm_test_usb_remove(struct unit_test_state *uts)
 
 	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_MASS_STORAGE, 2, &dev));
 
-	ut_asserteq(4, count_usb_devices());
+	ut_asserteq(5, count_usb_devices());
 	ut_assertok(usb_stop());
-	ut_asserteq(4, count_usb_devices());
+	ut_asserteq(5, count_usb_devices());
 
 	return 0;
 }
@@ -147,7 +147,10 @@ const char usb_tree_base[] =
 "  |    sandbox flash flash-stick@1\n"
 "  |  \n"
 "  |\b+-4  Mass Storage (12 Mb/s, 100mA)\n"
-"       sandbox flash flash-stick@2\n"
+"  |    sandbox flash flash-stick@2\n"
+"  |  \n"
+"  |\b+-5  Human Interface (12 Mb/s, 100mA)\n"
+"       sandbox keyboard keyb@3\n"
 "     \n";
 
 /* test that the 'usb tree' command output looks correct */
@@ -178,7 +181,10 @@ const char usb_tree_remove[] =
 "  |    sandbox flash flash-stick@0\n"
 "  |  \n"
 "  |\b+-3  Mass Storage (12 Mb/s, 100mA)\n"
-"       sandbox flash flash-stick@2\n"
+"  |    sandbox flash flash-stick@2\n"
+"  |  \n"
+"  |\b+-4  Human Interface (12 Mb/s, 100mA)\n"
+"       sandbox keyboard keyb@3\n"
 "     \n";
 
 /*
@@ -220,7 +226,10 @@ const char usb_tree_reorder[] =
 "  |\b+-3  Mass Storage (12 Mb/s, 100mA)\n"
 "  |    sandbox flash flash-stick@2\n"
 "  |  \n"
-"  |\b+-4  Mass Storage (12 Mb/s, 100mA)\n"
+"  |\b+-4  Human Interface (12 Mb/s, 100mA)\n"
+"  |    sandbox keyboard keyb@3\n"
+"  |  \n"
+"  |\b+-5  Mass Storage (12 Mb/s, 100mA)\n"
 "       sandbox flash flash-stick@1\n"
 "     \n";
 
