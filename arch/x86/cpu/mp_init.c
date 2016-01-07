@@ -104,7 +104,7 @@ static void ap_do_flight_plan(struct udevice *cpu)
 	}
 }
 
-static int find_cpu_by_apid_id(int apic_id, struct udevice **devp)
+static int find_cpu_by_apic_id(int apic_id, struct udevice **devp)
 {
 	struct udevice *dev;
 
@@ -137,7 +137,7 @@ static void ap_init(unsigned int cpu_index)
 	enable_lapic();
 
 	apic_id = lapicid();
-	ret = find_cpu_by_apid_id(apic_id, &dev);
+	ret = find_cpu_by_apic_id(apic_id, &dev);
 	if (ret) {
 		debug("Unknown CPU apic_id %x\n", apic_id);
 		goto done;
@@ -432,7 +432,7 @@ static int init_bsp(struct udevice **devp)
 	lapic_setup();
 
 	apic_id = lapicid();
-	ret = find_cpu_by_apid_id(apic_id, devp);
+	ret = find_cpu_by_apic_id(apic_id, devp);
 	if (ret) {
 		printf("Cannot find boot CPU, APIC ID %d\n", apic_id);
 		return ret;
