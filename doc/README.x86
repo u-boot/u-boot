@@ -295,9 +295,37 @@ show QEMU's VGA console window. Note this will disable QEMU's serial output.
 If you want to check both consoles, use '-serial stdio'.
 
 Multicore is also supported by QEMU via '-smp n' where n is the number of cores
-to instantiate. Currently the default U-Boot built for QEMU supports 2 cores.
-In order to support more cores, you need add additional cpu nodes in the device
-tree and change CONFIG_MAX_CPUS accordingly.
+to instantiate. Note, the maximum supported CPU number in QEMU is 255.
+
+The fw_cfg interface in QEMU also provides information about kernel data, initrd,
+command-line arguments and more. U-Boot supports directly accessing these informtion
+from fw_cfg interface, this saves the time of loading them from hard disk or
+network again, through emulated devices. To use it , simply providing them in
+QEMU command line:
+
+$ qemu-system-i386 -nographic -bios path/to/u-boot.rom -m 1024 -kernel /path/to/bzImage
+    -append 'root=/dev/ram console=ttyS0' -initrd /path/to/initrd -smp 8
+
+Note: -initrd and -smp are both optional
+
+Then start QEMU, in U-Boot command line use the following U-Boot command to setup kernel:
+
+ => qfw
+qfw - QEMU firmware interface
+
+Usage:
+qfw <command>
+    - list                             : print firmware(s) currently loaded
+    - cpus                             : print online cpu number
+    - load <kernel addr> <initrd addr> : load kernel and initrd (if any) and setup for zboot
+
+=> qfw load
+loading kernel to address 01000000 size 5d9d30 initrd 04000000 size 1b1ab50
+
+Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then, 'zboot'
+can be used to boot the kernel:
+
+=> zboot 02000000 - 04000000 1b1ab50
 
 CPU Microcode
 -------------
