@@ -210,7 +210,7 @@ static int save_bsp_msrs(char *start, int size)
 	return msr_count;
 }
 
-static int load_sipi_vector(atomic_t **ap_countp)
+static int load_sipi_vector(atomic_t **ap_countp, int num_cpus)
 {
 	struct sipi_params_16bit *params16;
 	struct sipi_params *params;
@@ -239,7 +239,7 @@ static int load_sipi_vector(atomic_t **ap_countp)
 	params->idt_ptr = (uint32_t)x86_get_idt();
 
 	params->stack_size = CONFIG_AP_STACK_SIZE;
-	size = params->stack_size * CONFIG_MAX_CPUS;
+	size = params->stack_size * num_cpus;
 	stack = memalign(size, 4096);
 	if (!stack)
 		return -ENOMEM;
@@ -483,7 +483,7 @@ int mp_init(struct mp_params *p)
 	mp_info.records = p->flight_plan;
 
 	/* Load the SIPI vector */
-	ret = load_sipi_vector(&ap_count);
+	ret = load_sipi_vector(&ap_count, num_cpus);
 	if (ap_count == NULL)
 		return -1;
 
