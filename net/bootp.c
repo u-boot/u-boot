@@ -995,6 +995,9 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	debug("DHCPHandler: got DHCP packet: (src=%d, dst=%d, len=%d) state: "
 	      "%d\n", src, dest, len, dhcp_state);
 
+	if (net_read_ip(&bp->bp_yiaddr).s_addr == 0)
+		return;
+
 	switch (dhcp_state) {
 	case SELECTING:
 		/*
