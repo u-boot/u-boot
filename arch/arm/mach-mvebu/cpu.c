@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2014-2016 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -62,11 +62,7 @@ int mvebu_soc_family(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 
 #if defined(CONFIG_ARMADA_38X)
-/* SAR values for Armada 38x */
-#define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18600))
-#define SAR_CPU_FREQ_OFFS	10
-#define SAR_CPU_FREQ_MASK	(0x1f << SAR_CPU_FREQ_OFFS)
-
+/* SAR frequency values for Armada 38x */
 struct sar_freq_modes sar_freq_tab[] = {
 	{  0x0,  0x0,  666, 333, 333 },
 	{  0x2,  0x0,  800, 400, 400 },
@@ -77,16 +73,7 @@ struct sar_freq_modes sar_freq_tab[] = {
 	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
 };
 #else
-/* SAR values for Armada XP */
-#define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18230))
-#define CONFIG_SAR2_REG		(MVEBU_REGISTER(0x18234))
-#define SAR_CPU_FREQ_OFFS	21
-#define SAR_CPU_FREQ_MASK	(0x7 << SAR_CPU_FREQ_OFFS)
-#define SAR_FFC_FREQ_OFFS	24
-#define SAR_FFC_FREQ_MASK	(0xf << SAR_FFC_FREQ_OFFS)
-#define SAR2_CPU_FREQ_OFFS	20
-#define SAR2_CPU_FREQ_MASK	(0x1 << SAR2_CPU_FREQ_OFFS)
-
+/* SAR frequency values for Armada XP */
 struct sar_freq_modes sar_freq_tab[] = {
 	{  0xa,  0x5,  800, 400, 400 },
 	{  0x1,  0x5, 1066, 533, 533 },
