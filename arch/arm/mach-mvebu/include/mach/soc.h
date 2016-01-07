@@ -96,6 +96,12 @@
 #define MVCPU_WIN_ENABLE	CPU_WIN_ENABLE
 #define MVCPU_WIN_DISABLE	CPU_WIN_DISABLE
 
+/* BootROM error register (also includes some status infos) */
+#define CONFIG_BOOTROM_ERR_REG	(MVEBU_REGISTER(0x182d0))
+#define BOOTROM_ERR_MODE_OFFS	28
+#define BOOTROM_ERR_MODE_MASK	(0xf << BOOTROM_ERR_MODE_OFFS)
+#define BOOTROM_ERR_MODE_UART	0x6
+
 #if defined(CONFIG_ARMADA_38X)
 /* SAR values for Armada 38x */
 #define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18600))
@@ -106,7 +112,7 @@
 #define SAR_BOOT_DEVICE_MASK	(0x1f << SAR_BOOT_DEVICE_OFFS)
 
 #define BOOT_DEV_SEL_OFFS	4
-#define BOOT_DEV_SEL_MASK	(0x1f << BOOT_DEV_SEL_OFFS)
+#define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
 #define BOOT_FROM_UART		0x28
 #define BOOT_FROM_SPI		0x32

@@ -20,8 +20,23 @@ static u32 get_boot_device(void)
 	u32 val;
 	u32 boot_device;
 
+	/*
+	 * First check, if UART boot-mode is active. This can only
+	 * be done, via the bootrom error register. Here the
+	 * MSB marks if the UART mode is active.
+	 */
+	val = readl(CONFIG_BOOTROM_ERR_REG);
+	boot_device = (val & BOOTROM_ERR_MODE_MASK) >> BOOTROM_ERR_MODE_OFFS;
+	debug("BOOTROM_REG=0x%08x boot_device=0x%x\n", val, boot_device);
+	if (boot_device == BOOTROM_ERR_MODE_UART)
+		return BOOT_DEVICE_UART;
+
+	/*
+	 * Now check the SAR register for the strapped boot-device
+	 */
 	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
 	boot_device = (val & BOOT_DEV_SEL_MASK) >> BOOT_DEV_SEL_OFFS;
+	debug("SAR_REG=0x%08x boot_device=0x%x\n", val, boot_device);
 	switch (boot_device) {
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_FROM_MMC:
@@ -90,7 +105,6 @@ void board_init_f(ulong dummy)
 	/* Setup DDR */
 	ddr3_init();
 
-#ifdef CONFIG_MVEBU_BOOTROM_UARTBOOT
 	/*
 	 * Return to the BootROM to continue the Marvell xmodem
 	 * UART boot protocol. As initiated by the kwboot tool.
@@ -102,6 +116,6 @@ void board_init_f(ulong dummy)
 	 * need to return to the BootROM to enable this xmodem
 	 * UART download.
 	 */
-	return_to_bootrom();
-#endif
+	if (get_boot_device() == BOOT_DEVICE_UART)
+		return_to_bootrom();
 }

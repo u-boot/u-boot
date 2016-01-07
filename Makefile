@@ -915,18 +915,8 @@ MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
 	$(call if_changed,mkimage)
 
-# If the kwboot xmodem protocol is used, to boot U-Boot on the MVEBU
-# SoC's, the SPL U-Boot returns to the BootROM after it completes
-# the SDRAM setup. The BootROM expects no U-Boot header in the main
-# U-Boot image. So we need to combine SPL and u-boot.bin instead of
-# u-boot.img in this case.
-ifdef CONFIG_MVEBU_BOOTROM_UARTBOOT
-u-boot-spl.kwb: u-boot-dtb.bin spl/u-boot-spl.bin FORCE
-	$(call if_changed,mkimage)
-else
 u-boot-spl.kwb: u-boot-dtb.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
-endif
 
 MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
 

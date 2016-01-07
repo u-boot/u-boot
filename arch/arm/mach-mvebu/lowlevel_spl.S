@@ -5,7 +5,6 @@
 #include <config.h>
 #include <linux/linkage.h>
 
-#ifdef CONFIG_MVEBU_BOOTROM_UARTBOOT
 ENTRY(save_boot_params)
 	stmfd	sp!, {r0 - r12, lr}	/* @ save registers on stack */
 	ldr	r12, =CONFIG_SPL_BOOTROM_SAVE
@@ -19,11 +18,6 @@ ENTRY(return_to_bootrom)
 	mov	r0, #0x0		/* @ return value: 0x0 NO_ERR */
 	ldmfd	sp!, {r0 - r12, pc}	/* @ restore regs and return */
 ENDPROC(return_to_bootrom)
-#else
-ENTRY(save_boot_params)
-	b	save_boot_params_ret
-ENDPROC(save_boot_params)
-#endif
 
 /*
  * cache_inv - invalidate Cache line

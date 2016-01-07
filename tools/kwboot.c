@@ -9,10 +9,14 @@
  *   2008. Chapter 24.2 "BootROM Firmware".
  */
 
+#include "kwbimage.h"
+#include "mkimage.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <image.h>
 #include <libgen.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -21,8 +25,6 @@
 #include <termios.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-
-#include "kwbimage.h"
 
 #ifdef __GNUC__
 #define PACKED __attribute((packed))
@@ -651,6 +653,14 @@ kwboot_img_patch_hdr(void *img, size_t size)
 	}
 
 	hdr->blockid = IBR_HDR_UART_ID;
+
+	/*
+	 * Subtract mkimage header size from destination address
+	 * as this header is not expected by the Marvell BootROM.
+	 * This way, the execution address is identical to the
+	 * one the image is compiled for (TEXT_BASE).
+	 */
+	hdr->destaddr = hdr->destaddr - sizeof(struct image_header);
 
 	if (image_ver == 0) {
 		struct main_hdr_v0 *hdr_v0 = img;
