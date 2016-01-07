@@ -63,7 +63,7 @@ int mvebu_soc_family(void)
 
 #if defined(CONFIG_ARMADA_38X)
 /* SAR frequency values for Armada 38x */
-struct sar_freq_modes sar_freq_tab[] = {
+static const struct sar_freq_modes sar_freq_tab[] = {
 	{  0x0,  0x0,  666, 333, 333 },
 	{  0x2,  0x0,  800, 400, 400 },
 	{  0x4,  0x0, 1066, 533, 533 },
@@ -74,7 +74,7 @@ struct sar_freq_modes sar_freq_tab[] = {
 };
 #else
 /* SAR frequency values for Armada XP */
-struct sar_freq_modes sar_freq_tab[] = {
+static const struct sar_freq_modes sar_freq_tab[] = {
 	{  0xa,  0x5,  800, 400, 400 },
 	{  0x1,  0x5, 1066, 533, 533 },
 	{  0x2,  0x5, 1200, 600, 600 },
