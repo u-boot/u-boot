@@ -7,5 +7,5 @@
 ifndef CONFIG_EFI_STUB
 obj-y += car.o dram.o
 endif
-obj-y += fw_cfg.o qemu.o
+obj-y += cpu.o fw_cfg.o qemu.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi.o dsdt.o
