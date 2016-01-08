@@ -70,7 +70,6 @@ int board_eth_init(bd_t *bis)
 #if !defined(CONFIG_SYS_NO_FLASH)
 
 #include <mtd/cfi_flash.h>
-#include <mach/sbc-regs.h>
 
 struct memory_bank {
 	phys_addr_t base;

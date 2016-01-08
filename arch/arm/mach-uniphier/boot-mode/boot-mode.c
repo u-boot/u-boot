@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <spl.h>
-#include <linux/io.h>
 #include <mach/boot-device.h>
 #include <mach/sbc-regs.h>
 #include <mach/soc_info.h>

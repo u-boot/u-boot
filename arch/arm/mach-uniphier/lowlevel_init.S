@@ -8,8 +8,6 @@
 #include <linux/linkage.h>
 #include <linux/sizes.h>
 #include <asm/system.h>
-#include <mach/arm-mpcore.h>
-#include <mach/sbc-regs.h>
 #include <mach/ssc-regs.h>
 
 ENTRY(lowlevel_init)

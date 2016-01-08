@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <spl.h>
-#include <linux/compiler.h>
 #include <mach/init.h>
 #include <mach/micro-support-card.h>
 
