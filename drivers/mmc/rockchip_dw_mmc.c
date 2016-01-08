@@ -52,6 +52,8 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 	/* use non-removeable as sdcard and emmc as judgement */
 	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "non-removable"))
+		host->dev_index = 0;
+	else
 		host->dev_index = 1;
 
 	return 0;
