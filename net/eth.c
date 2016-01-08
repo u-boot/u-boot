@@ -337,14 +337,30 @@ U_BOOT_ENV_CALLBACK(ethaddr, on_ethaddr);
 
 int eth_init(void)
 {
-	struct udevice *current;
+	char *ethact = getenv("ethact");
+	char *ethrotate = getenv("ethrotate");
+	struct udevice *current = NULL;
 	struct udevice *old_current;
 	int ret = -ENODEV;
 
-	current = eth_get_dev();
+	/*
+	 * When 'ethrotate' variable is set to 'no' and 'ethact' variable
+	 * is already set to an ethernet device, we should stick to 'ethact'.
+	 */
+	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0)) {
+		if (ethact) {
+			current = eth_get_dev_by_name(ethact);
+			if (!current)
+				return -EINVAL;
+		}
+	}
+
 	if (!current) {
-		printf("No ethernet found.\n");
-		return -ENODEV;
+		current = eth_get_dev();
+		if (!current) {
+			printf("No ethernet found.\n");
+			return -ENODEV;
+		}
 	}
 
 	old_current = current;
@@ -1039,6 +1055,17 @@ int eth_receive(void *packet, int length)
 static void eth_current_changed(void)
 {
 	char *act = getenv("ethact");
+	char *ethrotate;
+
+	/*
+	 * The call to eth_get_dev() below has a side effect of rotating
+	 * ethernet device if uc_priv->current == NULL. This is not what
+	 * we want when 'ethrotate' variable is 'no'.
+	 */
+	ethrotate = getenv("ethrotate");
+	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
+		return;
+
 	/* update current ethernet name */
 	if (eth_get_dev()) {
 		if (act == NULL || strcmp(act, eth_get_name()) != 0)

@@ -157,7 +157,7 @@ static int sb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
 
 	if (skip_timeout) {
-		sandbox_timer_add_offset(10000UL);
+		sandbox_timer_add_offset(11000UL);
 		skip_timeout = false;
 	}
 
