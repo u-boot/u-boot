@@ -201,15 +201,18 @@
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
-	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
+	"norboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
+		"setexpr kernel_addr $nor_base + $kernel_addr &&" \
 		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
 		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
 		"bootz $kernel_addr $ramdisk_addr $fdt_addr\0" \
-	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
+	"nandboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
+		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
 		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
-	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
+	"tftpboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
+		"tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
