@@ -13,7 +13,8 @@
 int pfuze_mode_init(struct pmic *p, u32 mode)
 {
 	unsigned char offset, i, switch_num;
-	u32 id, ret;
+	u32 id;
+	int ret;
 
 	pmic_reg_read(p, PFUZE100_DEVICEID, &id);
 	id = id & 0xf;
