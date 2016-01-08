@@ -80,6 +80,7 @@ int ph1_sld3_early_pin_init(const struct uniphier_board_data *bd);
 int ph1_ld4_umc_init(const struct uniphier_board_data *bd);
 int ph1_pro4_umc_init(const struct uniphier_board_data *bd);
 int ph1_sld8_umc_init(const struct uniphier_board_data *bd);
+int proxstream2_umc_init(const struct uniphier_board_data *bd);
 
 void ph1_sld3_pin_init(void);
 void ph1_ld4_pin_init(void);

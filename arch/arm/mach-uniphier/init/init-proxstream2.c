@@ -12,6 +12,8 @@
 
 int proxstream2_init(const struct uniphier_board_data *bd)
 {
+	int ret;
+
 	proxstream2_sbc_init(bd);
 
 	support_card_reset();
@@ -36,6 +38,12 @@ int proxstream2_init(const struct uniphier_board_data *bd)
 #endif
 
 	led_puts("L4");
+
+	ret = proxstream2_umc_init(bd);
+	if (ret)
+		return ret;
+
+	led_puts("L5");
 
 	return 0;
 }
