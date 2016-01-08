@@ -226,6 +226,8 @@
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
 	LINUXBOOT_ENV_SETTINGS
 
+#define CONFIG_SYS_BOOTMAPSZ			0x20000000
+
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT
 
