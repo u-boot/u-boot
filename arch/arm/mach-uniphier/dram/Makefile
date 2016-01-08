@@ -12,3 +12,4 @@ obj-$(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)	+= umc-proxstream2.o
 obj-$(CONFIG_ARCH_UNIPHIER_PH1_LD6B)	+= umc-proxstream2.o
 
 obj-$(CONFIG_CMD_DDRPHY_DUMP) += cmd_ddrphy.o
+obj-$(CONFIG_CMD_DDRMPHY_DUMP) += cmd_ddrmphy.o
