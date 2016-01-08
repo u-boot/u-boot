@@ -135,9 +135,10 @@ Booting from SPI
 
 To write an image that boots from SPI flash (e.g. for the Haier Chromebook):
 
-   ./chromebook_jerry/tools/mkimage -n rk3036 -T rkspi -d chromebook_jerry/spl/u-boot-spl-dtb.bin out
-   dd if=spl.bin of=out.bin bs=128K conv=sync
-   cat chromebook_jerry/u-boot-dtb.img out.bin
+   ./chromebook_jerry/tools/mkimage -n rk3288 -T rkspi \
+	-d chromebook_jerry/spl/u-boot-spl-dtb.bin spl.bin && \
+   dd if=spl.bin of=spl-out.bin bs=128K conv=sync && \
+   cat spl-out.bin chromebook_jerry/u-boot-dtb.img >out.bin && \
    dd if=out.bin of=out.bin.pad bs=4M conv=sync
 
 This converts the SPL image to the required SPI format by adding the Rockchip

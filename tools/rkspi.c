@@ -54,7 +54,7 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 	 * boot ROM. Its rationale is unknown.
 	 */
 	for (sector = size / RKSPI_SECT_LEN - 1; sector >= 0; sector--) {
-		printf("sector %u\n", sector);
+		debug("sector %u\n", sector);
 		memmove(buf + sector * RKSPI_SECT_LEN * 2,
 			buf + sector * RKSPI_SECT_LEN,
 			RKSPI_SECT_LEN);
