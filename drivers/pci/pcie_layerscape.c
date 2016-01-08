@@ -314,7 +314,7 @@ static int ls_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 
 	if (ls_pcie_addr_valid(hose, d)) {
 		*val = 0xffffffff;
-		return -EINVAL;
+		return 0;
 	}
 
 	if (PCI_BUS(d) == hose->first_busno) {
