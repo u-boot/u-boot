@@ -119,7 +119,7 @@ The recommended bit switch settings are as follows:
 
  SW8    OFF(1)/ON(0)   Description
  ------------------------------------------
- bit 1    ---->        CS1_SPLIT
+ bit 1    <----        CS1_SPLIT
  bit 2    <----        CASE9_ON
  bit 3    <----        CASE10_ON
  bit 4  Don't Care     Reserve
