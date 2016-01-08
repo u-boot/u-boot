@@ -427,6 +427,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	}
 	puts("\n");
 
+	setenv_hex("fileaddr", addr);
 	setenv_hex("filesize", len_read);
 
 	return 0;
