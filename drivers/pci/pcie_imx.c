@@ -381,7 +381,7 @@ static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 	ret = imx_pcie_addr_valid(d);
 	if (ret) {
 		*val = 0xffffffff;
-		return ret;
+		return 0;
 	}
 
 	va_address = get_bus_address(d, where);
