@@ -7,9 +7,10 @@
 #include <common.h>
 #include <linux/err.h>
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sc-regs.h>
-#include <mach/sg-regs.h>
+
+#include "../init.h"
+#include "../sc-regs.h"
+#include "../sg-regs.h"
 
 #undef DPLL_SSC_RATE_1PER
 

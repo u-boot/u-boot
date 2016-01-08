@@ -5,9 +5,10 @@
  */
 
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sbc-regs.h>
-#include <mach/sg-regs.h>
+
+#include "../init.h"
+#include "../sg-regs.h"
+#include "sbc-regs.h"
 
 int proxstream2_sbc_init(const struct uniphier_board_data *bd)
 {

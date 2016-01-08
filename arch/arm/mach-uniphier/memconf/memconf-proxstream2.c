@@ -8,8 +8,9 @@
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
-#include <mach/init.h>
-#include <mach/sg-regs.h>
+
+#include "../init.h"
+#include "../sg-regs.h"
 
 int proxstream2_memconf_init(const struct uniphier_board_data *bd)
 {

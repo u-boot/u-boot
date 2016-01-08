@@ -6,7 +6,8 @@
 
 #include <common.h>
 #include <linux/io.h>
-#include <mach/ddrphy-regs.h>
+
+#include "ddrphy-regs.h"
 
 /* Select either decimal or hexadecimal */
 #if 1

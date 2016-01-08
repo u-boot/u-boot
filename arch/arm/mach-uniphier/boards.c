@@ -7,7 +7,8 @@
 #include <common.h>
 #include <libfdt.h>
 #include <linux/kernel.h>
-#include <mach/init.h>
+
+#include "init.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <mach/init.h>
-#include <mach/sg-regs.h>
+#include "../init.h"
+#include "../sg-regs.h"
 
 int ph1_sld3_early_pin_init(const struct uniphier_board_data *bd)
 {

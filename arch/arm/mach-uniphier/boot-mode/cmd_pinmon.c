@@ -5,9 +5,10 @@
  */
 
 #include <common.h>
-#include <mach/boot-device.h>
-#include <mach/sbc-regs.h>
-#include <mach/soc_info.h>
+
+#include "../sbc/sbc-regs.h"
+#include "../soc-info.h"
+#include "boot-device.h"
 
 static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

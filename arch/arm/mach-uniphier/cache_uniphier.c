@@ -7,7 +7,8 @@
 #include <common.h>
 #include <linux/io.h>
 #include <asm/armv7.h>
-#include <mach/ssc-regs.h>
+
+#include "ssc-regs.h"
 
 #ifdef CONFIG_UNIPHIER_L2CACHE_ON
 static void uniphier_cache_maint_all(u32 operation)

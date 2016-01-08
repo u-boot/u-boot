@@ -6,9 +6,10 @@
 
 #include <common.h>
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sbc-regs.h>
-#include <mach/sg-regs.h>
+
+#include "../init.h"
+#include "../sg-regs.h"
+#include "sbc-regs.h"
 
 int ph1_pro4_sbc_init(const struct uniphier_board_data *bd)
 {

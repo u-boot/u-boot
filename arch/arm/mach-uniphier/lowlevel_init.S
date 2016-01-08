@@ -8,7 +8,8 @@
 #include <linux/linkage.h>
 #include <linux/sizes.h>
 #include <asm/system.h>
-#include <mach/ssc-regs.h>
+
+#include "ssc-regs.h"
 
 ENTRY(lowlevel_init)
 	mov	r8, lr			@ persevere link reg across call

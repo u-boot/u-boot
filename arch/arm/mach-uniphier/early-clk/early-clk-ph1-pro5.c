@@ -5,8 +5,9 @@
  */
 
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sc-regs.h>
+
+#include "../init.h"
+#include "../sc-regs.h"
 
 int ph1_pro5_early_clk_init(const struct uniphier_board_data *bd)
 {

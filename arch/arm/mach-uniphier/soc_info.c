@@ -6,8 +6,9 @@
 
 #include <linux/io.h>
 #include <linux/types.h>
-#include <mach/sg-regs.h>
-#include <mach/soc_info.h>
+
+#include "sg-regs.h"
+#include "soc-info.h"
 
 #if UNIPHIER_MULTI_SOC
 enum uniphier_soc_id uniphier_get_soc_type(void)

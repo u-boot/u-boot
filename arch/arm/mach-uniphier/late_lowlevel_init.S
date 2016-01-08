@@ -6,7 +6,8 @@
  */
 
 #include <linux/linkage.h>
-#include <mach/ssc-regs.h>
+
+#include "ssc-regs.h"
 
 ENTRY(lowlevel_init)
 	ldr	r1, = SSCC

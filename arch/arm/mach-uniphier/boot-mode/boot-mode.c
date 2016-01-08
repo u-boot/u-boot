@@ -6,9 +6,10 @@
 
 #include <common.h>
 #include <spl.h>
-#include <mach/boot-device.h>
-#include <mach/sbc-regs.h>
-#include <mach/soc_info.h>
+
+#include "../sbc/sbc-regs.h"
+#include "../soc-info.h"
+#include "boot-device.h"
 
 u32 spl_boot_device(void)
 {

@@ -6,8 +6,9 @@
 
 #include <common.h>
 #include <spl.h>
-#include <mach/init.h>
-#include <mach/micro-support-card.h>
+
+#include "../init.h"
+#include "../micro-support-card.h"
 
 int ph1_pro5_init(const struct uniphier_board_data *bd)
 {

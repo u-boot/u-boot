@@ -7,7 +7,8 @@
 #include <config.h>
 #include <linux/types.h>
 #include <linux/io.h>
-#include <mach/ddrphy-regs.h>
+
+#include "ddrphy-regs.h"
 
 int ph1_sld8_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size)
 {

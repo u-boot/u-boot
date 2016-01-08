@@ -6,7 +6,8 @@
 
 #include <common.h>
 #include <linux/io.h>
-#include <mach/sg-regs.h>
+
+#include "sg-regs.h"
 
 int print_cpuinfo(void)
 {

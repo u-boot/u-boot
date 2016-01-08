@@ -7,7 +7,8 @@
 #include <common.h>
 #include <linux/ctype.h>
 #include <linux/io.h>
-#include <mach/micro-support-card.h>
+
+#include "micro-support-card.h"
 
 #define MICRO_SUPPORT_CARD_BASE		0x43f00000
 #define SMC911X_BASE			((MICRO_SUPPORT_CARD_BASE) + 0x00000)

@@ -8,9 +8,10 @@
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
-#include <mach/init.h>
-#include <mach/umc-regs.h>
-#include <mach/ddrphy-regs.h>
+
+#include "../init.h"
+#include "ddrphy-regs.h"
+#include "umc-regs.h"
 
 static void umc_start_ssif(void __iomem *ssif_base)
 {
