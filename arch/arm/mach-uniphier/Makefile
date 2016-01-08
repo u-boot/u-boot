@@ -25,7 +25,6 @@ obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
 obj-y += reset.o
 obj-y += cache_uniphier.o
 obj-$(CONFIG_CMD_PINMON) += cmd_pinmon.o
-obj-$(CONFIG_CMD_DDRPHY_DUMP) += cmd_ddrphy.o
 
 obj-y += pinctrl/ clk/
 
