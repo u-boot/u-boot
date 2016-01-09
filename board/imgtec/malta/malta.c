@@ -53,8 +53,9 @@ static void malta_lcd_puts(const char *str)
 static enum core_card malta_core_card(void)
 {
 	u32 corid, rev;
+	const void *reg = (const void *)CKSEG1ADDR(MALTA_REVISION);
 
-	rev = __raw_readl(CKSEG1ADDR(MALTA_REVISION));
+	rev = __raw_readl(reg);
 	corid = (rev & MALTA_REVISION_CORID_MSK) >> MALTA_REVISION_CORID_SHF;
 
 	switch (corid) {
