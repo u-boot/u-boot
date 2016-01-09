@@ -28,6 +28,7 @@ config TARGET_MALTA
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select SWAP_IO_SPACE
+	select MIPS_L1_CACHE_SHIFT_6
 
 config TARGET_VCT
 	bool "Support vct"
@@ -195,6 +196,26 @@ config SWAP_IO_SPACE
 
 config SYS_MIPS_CACHE_INIT_RAM_LOAD
 	bool
+
+config MIPS_L1_CACHE_SHIFT_4
+	bool
+
+config MIPS_L1_CACHE_SHIFT_5
+	bool
+
+config MIPS_L1_CACHE_SHIFT_6
+	bool
+
+config MIPS_L1_CACHE_SHIFT_7
+	bool
+
+config MIPS_L1_CACHE_SHIFT
+	int
+	default "7" if MIPS_L1_CACHE_SHIFT_7
+	default "6" if MIPS_L1_CACHE_SHIFT_6
+	default "5" if MIPS_L1_CACHE_SHIFT_5
+	default "4" if MIPS_L1_CACHE_SHIFT_4
+	default "5"
 
 endif
 
