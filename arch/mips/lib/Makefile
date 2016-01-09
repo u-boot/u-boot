@@ -7,6 +7,7 @@
 
 obj-y	+= cache.o
 obj-y	+= cache_init.o
+obj-y	+= stack.o
 
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 
