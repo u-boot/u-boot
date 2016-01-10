@@ -25,11 +25,15 @@ host PC (/tftpboot , for example).
 
 => sf probe
 
+=> setenv serverip <server_ip_address>
+
+=> setenv ipaddr <board_ip_address>
+
 => tftp 0x12000000 SPL
 
 => sf erase 0x0 0x10000
 
-=> sf write 0x12000000 0x400 0x100
+=> sf write 0x12000000 0x400 0x10000
 
 => tftp 0x12000000 u-boot.img
 
