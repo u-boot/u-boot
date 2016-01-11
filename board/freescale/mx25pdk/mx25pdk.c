@@ -186,3 +186,6 @@ int checkboard(void)
 
 	return 0;
 }
+
+/* Lowlevel init isn't used on mx25pdk, so just provide a dummy one here */
+void lowlevel_init(void) {}
