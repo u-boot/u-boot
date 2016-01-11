@@ -45,6 +45,176 @@
 		};
 	};
 
+	power-domains {
+		compatible = "xlnx,zynqmp-genpd";
+
+		pd_usb0: pd-usb0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x16>;
+		};
+
+		pd_usb1: pd-usb1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x17>;
+		};
+
+		pd_sata: pd-sata {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x1c>;
+		};
+
+		pd_spi0: pd-spi0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x23>;
+		};
+
+		pd_spi1: pd-spi1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x24>;
+		};
+
+		pd_uart0: pd-uart0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x21>;
+		};
+
+		pd_uart1: pd-uart1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x22>;
+		};
+
+		pd_eth0: pd-eth0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x1d>;
+		};
+
+		pd_eth1: pd-eth1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x1e>;
+		};
+
+		pd_eth2: pd-eth2 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x1f>;
+		};
+
+		pd_eth3: pd-eth3 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x20>;
+		};
+
+		pd_i2c0: pd-i2c0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x25>;
+		};
+
+		pd_i2c1: pd-i2c1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x26>;
+		};
+
+		pd_dp: pd-dp {
+			/* fixme: what to attach to */
+			#power-domain-cells = <0x0>;
+			pd-id = <0x29>;
+		};
+
+		pd_gdma: pd-gdma {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x2a>;
+		};
+
+		pd_adma: pd-adma {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x2b>;
+		};
+
+		pd_ttc0: pd-ttc0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x18>;
+		};
+
+		pd_ttc1: pd-ttc1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x19>;
+		};
+
+		pd_ttc2: pd-ttc2 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x1a>;
+		};
+
+		pd_ttc3: pd-ttc3 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x1b>;
+		};
+
+		pd_sd0: pd-sd0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x27>;
+		};
+
+		pd_sd1: pd-sd1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x28>;
+		};
+
+		pd_nand: pd-nand {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x2c>;
+		};
+
+		pd_qspi: pd-qspi {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x2d>;
+		};
+
+		pd_gpio: pd-gpio {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x2e>;
+		};
+
+		pd_can0: pd-can0 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x2f>;
+		};
+
+		pd_can1: pd-can1 {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x30>;
+		};
+
+		pd_ddr: pd-ddr {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x37>;
+		};
+
+		pd_apll: pd-apll {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x32>;
+		};
+
+		pd_vpll: pd-vpll {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x33>;
+		};
+
+		pd_dpll: pd-dpll {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x34>;
+		};
+
+		pd_rpll: pd-rpll {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x35>;
+		};
+
+		pd_iopll: pd-iopll {
+			#power-domain-cells = <0x0>;
+			pd-id = <0x36>;
+		};
+	};
+
 	pmu {
 		compatible = "arm,armv8-pmuv3";
 		interrupts = <0 143 4>,
@@ -106,6 +276,7 @@
 			interrupt-parent = <&gic>;
 			tx-fifo-depth = <0x40>;
 			rx-fifo-depth = <0x40>;
+			power-domains = <&pd_can0>;
 		};
 
 		can1: can@ff070000 {
@@ -117,6 +288,7 @@
 			interrupt-parent = <&gic>;
 			tx-fifo-depth = <0x40>;
 			rx-fifo-depth = <0x40>;
+			power-domains = <&pd_can1>;
 		};
 
 		/* GDMA */
@@ -128,6 +300,7 @@
 			interrupts = <0 124 4>;
 			xlnx,id = <0>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		fpd_dma_chan2: dma@fd510000 {
@@ -138,6 +311,7 @@
 			interrupts = <0 125 4>;
 			xlnx,id = <1>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		fpd_dma_chan3: dma@fd520000 {
@@ -148,6 +322,7 @@
 			interrupts = <0 126 4>;
 			xlnx,id = <2>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		fpd_dma_chan4: dma@fd530000 {
@@ -158,6 +333,7 @@
 			interrupts = <0 127 4>;
 			xlnx,id = <3>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		fpd_dma_chan5: dma@fd540000 {
@@ -168,6 +344,7 @@
 			interrupts = <0 128 4>;
 			xlnx,id = <4>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		fpd_dma_chan6: dma@fd550000 {
@@ -178,6 +355,7 @@
 			interrupts = <0 129 4>;
 			xlnx,id = <5>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		fpd_dma_chan7: dma@fd560000 {
@@ -188,6 +366,7 @@
 			interrupts = <0 130 4>;
 			xlnx,id = <6>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		fpd_dma_chan8: dma@fd570000 {
@@ -198,6 +377,7 @@
 			interrupts = <0 131 4>;
 			xlnx,id = <7>;
 			xlnx,bus-width = <128>;
+			power-domains = <&pd_gdma>;
 		};
 
 		gpu: gpu@fd4b0000 {
@@ -218,6 +398,7 @@
 			interrupts = <0 77 4>;
 			xlnx,id = <0>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		lpd_dma_chan2: dma@ffa90000 {
@@ -228,6 +409,7 @@
 			interrupts = <0 78 4>;
 			xlnx,id = <1>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		lpd_dma_chan3: dma@ffaa0000 {
@@ -238,6 +420,7 @@
 			interrupts = <0 79 4>;
 			xlnx,id = <2>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		lpd_dma_chan4: dma@ffab0000 {
@@ -248,6 +431,7 @@
 			interrupts = <0 80 4>;
 			xlnx,id = <3>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		lpd_dma_chan5: dma@ffac0000 {
@@ -258,6 +442,7 @@
 			interrupts = <0 81 4>;
 			xlnx,id = <4>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		lpd_dma_chan6: dma@ffad0000 {
@@ -268,6 +453,7 @@
 			interrupts = <0 82 4>;
 			xlnx,id = <5>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		lpd_dma_chan7: dma@ffae0000 {
@@ -278,6 +464,7 @@
 			interrupts = <0 83 4>;
 			xlnx,id = <6>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		lpd_dma_chan8: dma@ffaf0000 {
@@ -288,6 +475,7 @@
 			interrupts = <0 84 4>;
 			xlnx,id = <7>;
 			xlnx,bus-width = <64>;
+			power-domains = <&pd_adma>;
 		};
 
 		nand0: nand@ff100000 {
@@ -299,6 +487,7 @@
 			interrupts = <0 14 4>;
 			#address-cells = <2>;
 			#size-cells = <1>;
+			power-domains = <&pd_nand>;
 		};
 
 		gem0: ethernet@ff0b0000 {
@@ -311,6 +500,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			power-domains = <&pd_eth0>;
 		};
 
 		gem1: ethernet@ff0c0000 {
@@ -323,6 +513,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			power-domains = <&pd_eth1>;
 		};
 
 		gem2: ethernet@ff0d0000 {
@@ -335,6 +526,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			power-domains = <&pd_eth2>;
 		};
 
 		gem3: ethernet@ff0e0000 {
@@ -347,6 +539,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			power-domains = <&pd_eth3>;
 		};
 
 		gpio: gpio@ff0a0000 {
@@ -356,6 +549,7 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 16 4>;
 			reg = <0x0 0xff0a0000 0x1000>;
+			power-domains = <&pd_gpio>;
 		};
 
 		i2c0: i2c@ff020000 {
@@ -366,6 +560,7 @@
 			reg = <0x0 0xff020000 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			power-domains = <&pd_i2c0>;
 		};
 
 		i2c1: i2c@ff030000 {
@@ -376,6 +571,7 @@
 			reg = <0x0 0xff030000 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			power-domains = <&pd_i2c1>;
 		};
 
 		pcie: pcie@fd0e0000 {
@@ -408,6 +604,7 @@
 			reg = <0x0 0xff0f0000 0x1000 0x0 0xc0000000 0x8000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			power-domains = <&pd_qspi>;
 		};
 
 		rtc: rtc@ffa60000 {
@@ -425,6 +622,7 @@
 			reg = <0x0 0xfd0c0000 0x2000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 133 4>;
+			power-domains = <&pd_sata>;
 		};
 
 		sdhci0: sdhci@ff160000 {
@@ -435,6 +633,7 @@
 			reg = <0x0 0xff160000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 			broken-tuning;
+			power-domains = <&pd_sd0>;
 		};
 
 		sdhci1: sdhci@ff170000 {
@@ -445,6 +644,7 @@
 			reg = <0x0 0xff170000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 			broken-tuning;
+			power-domains = <&pd_sd1>;
 		};
 
 		smmu: smmu@fd800000 {
@@ -472,6 +672,7 @@
 			clock-names = "ref_clk", "pclk";
 			#address-cells = <1>;
 			#size-cells = <0>;
+			power-domains = <&pd_spi0>;
 		};
 
 		spi1: spi@ff050000 {
@@ -483,6 +684,7 @@
 			clock-names = "ref_clk", "pclk";
 			#address-cells = <1>;
 			#size-cells = <0>;
+			power-domains = <&pd_spi1>;
 		};
 
 		ttc0: timer@ff110000 {
@@ -492,6 +694,7 @@
 			interrupts = <0 36 4>, <0 37 4>, <0 38 4>;
 			reg = <0x0 0xff110000 0x1000>;
 			timer-width = <32>;
+			power-domains = <&pd_ttc0>;
 		};
 
 		ttc1: timer@ff120000 {
@@ -501,6 +704,7 @@
 			interrupts = <0 39 4>, <0 40 4>, <0 41 4>;
 			reg = <0x0 0xff120000 0x1000>;
 			timer-width = <32>;
+			power-domains = <&pd_ttc1>;
 		};
 
 		ttc2: timer@ff130000 {
@@ -510,6 +714,7 @@
 			interrupts = <0 42 4>, <0 43 4>, <0 44 4>;
 			reg = <0x0 0xff130000 0x1000>;
 			timer-width = <32>;
+			power-domains = <&pd_ttc2>;
 		};
 
 		ttc3: timer@ff140000 {
@@ -519,6 +724,7 @@
 			interrupts = <0 45 4>, <0 46 4>, <0 47 4>;
 			reg = <0x0 0xff140000 0x1000>;
 			timer-width = <32>;
+			power-domains = <&pd_ttc3>;
 		};
 
 		uart0: serial@ff000000 {
@@ -528,6 +734,7 @@
 			interrupts = <0 21 4>;
 			reg = <0x0 0xff000000 0x1000>;
 			clock-names = "uart_clk", "pclk";
+			power-domains = <&pd_uart0>;
 		};
 
 		uart1: serial@ff010000 {
@@ -537,6 +744,7 @@
 			interrupts = <0 22 4>;
 			reg = <0x0 0xff010000 0x1000>;
 			clock-names = "uart_clk", "pclk";
+			power-domains = <&pd_uart1>;
 		};
 
 		usb0: usb@fe200000 {
@@ -546,6 +754,7 @@
 			interrupts = <0 65 4>;
 			reg = <0x0 0xfe200000 0x40000>;
 			clock-names = "clk_xin", "clk_ahb";
+			power-domains = <&pd_usb0>;
 		};
 
 		usb1: usb@fe300000 {
@@ -555,6 +764,7 @@
 			interrupts = <0 70 4>;
 			reg = <0x0 0xfe300000 0x40000>;
 			clock-names = "clk_xin", "clk_ahb";
+			power-domains = <&pd_usb1>;
 		};
 
 		watchdog0: watchdog@fd4d0000 {
