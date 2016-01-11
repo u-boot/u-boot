@@ -366,11 +366,6 @@ static void mctl_sys_init(struct dram_para *para)
 			CCM_DRAMCLK_CFG_RST | CCM_DRAMCLK_CFG_UPD);
 	mctl_await_completion(&ccm->dram_clk_cfg, CCM_DRAMCLK_CFG_UPD, 0);
 
-	setbits_le32(&ccm->ahb_reset0_cfg, 1 << 14);
-	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MCTL);
-	setbits_le32(&ccm->mbus_reset, CCM_MBUS_RESET_RESET);
-	setbits_le32(&ccm->mbus_clk_cfg, MBUS_CLK_GATE);
-
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MCTL);
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MCTL);
 	setbits_le32(&ccm->mbus_reset, CCM_MBUS_RESET_RESET);
