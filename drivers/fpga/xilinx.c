@@ -75,8 +75,8 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 		buffer[i] = *dataptr++;
 
 	if (xdesc->name) {
-		i = strncmp(buffer, xdesc->name, strlen(xdesc->name));
-		if (i) {
+		i = (ulong)strstr(buffer, xdesc->name);
+		if (!i) {
 			printf("%s: Wrong bitstream ID for this device\n",
 			       __func__);
 			printf("%s: Bitstream ID %s, current device ID %d/%s\n",
