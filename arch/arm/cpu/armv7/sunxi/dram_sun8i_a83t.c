@@ -131,10 +131,42 @@ static void auto_set_timing_para(struct dram_para *para)
 	/* Set work mode register */
 	mctl_set_cr(para);
 	/* Set mode register */
-	writel(MCTL_MR0, &mctl_ctl->mr0);
-	writel(MCTL_MR1, &mctl_ctl->mr1);
-	writel(MCTL_MR2, &mctl_ctl->mr2);
-	writel(MCTL_MR3, &mctl_ctl->mr3);
+	if (para->dram_type == DRAM_TYPE_DDR3) {
+		writel(MCTL_MR0, &mctl_ctl->mr0);
+		writel(MCTL_MR1, &mctl_ctl->mr1);
+		writel(MCTL_MR2, &mctl_ctl->mr2);
+		writel(MCTL_MR3, &mctl_ctl->mr3);
+	} else if (para->dram_type == DRAM_TYPE_LPDDR3) {
+		writel(MCTL_LPDDR3_MR0, &mctl_ctl->mr0);
+		writel(MCTL_LPDDR3_MR1, &mctl_ctl->mr1);
+		writel(MCTL_LPDDR3_MR2, &mctl_ctl->mr2);
+		writel(MCTL_LPDDR3_MR3, &mctl_ctl->mr3);
+
+		/* timing parameters for LPDDR3 */
+		tfaw = max(ns_to_t(50), 4);
+		trrd = max(ns_to_t(10), 2);
+		trcd = max(ns_to_t(24), 2);
+		trc = ns_to_t(70);
+		txp = max(ns_to_t(8), 2);
+		twtr = max(ns_to_t(8), 2);
+		trtp = max(ns_to_t(8), 2);
+		trp = max(ns_to_t(27), 2);
+		tras = ns_to_t(42);
+		trefi = ns_to_t(3900) / 32;
+		trfc = ns_to_t(210);
+		tmrw		= 5;
+		tmrd		= 5;
+		tckesr		= 5;
+		tcwl		= 3;	/* CWL 8 */
+		t_rdata_en	= 5;
+		tdinit0	= (200 * CONFIG_DRAM_CLK) + 1;		/* 200us */
+		tdinit1	= (100 * CONFIG_DRAM_CLK) / 1000 + 1;	/* 100ns */
+		tdinit2	= (11 * CONFIG_DRAM_CLK) + 1;	/* 200us */
+		tdinit3	= (1 * CONFIG_DRAM_CLK) + 1;	/* 1us */
+		twtp	= tcwl + 4 + twr + 1;	/* CWL + BL/2 + tWR */
+		twr2rd	= tcwl + 4 + 1 + twtr;	/* WL + BL / 2 + tWTR */
+		trd2wr	= tcl + 4 + 5 - tcwl + 1; /* RL + BL / 2 + 2 - WL */
+	}
 	/* Set dram timing */
 	reg_val = (twtp << 24) | (tfaw << 16) | (trasmax << 8) | (tras << 0);
 	writel(reg_val, &mctl_ctl->dramtmg0);
@@ -289,6 +321,9 @@ static int mctl_channel_init(struct dram_para *para)
 	clrbits_le32(&mctl_ctl->pgcr2, (0x3 << 6));
 	clrbits_le32(&mctl_ctl->dqsgmr, (0x1 << 8) | (0x7));
 
+	if (para->dram_type == DRAM_TYPE_LPDDR3)
+		clrsetbits_le32(&mctl_ctl->dxccr, (0x1 << 27) | (0x3<<6) ,
+				0x1 << 31);
 	if (readl(&mctl_com->cr) & 0x1)
 		writel(0x00000303, &mctl_ctl->odtmap);
 	else
@@ -299,7 +334,11 @@ static int mctl_channel_init(struct dram_para *para)
 	clrsetbits_le32(ZQnPR(0), 0x000000ff, CONFIG_DRAM_ZQ & 0xff);
 	clrsetbits_le32(ZQnPR(1), 0x000000ff, (CONFIG_DRAM_ZQ >> 8) & 0xff);
 	/* CA calibration */
-	mctl_set_pir(0x0201f3 | 0x1<<10);
+
+	if (para->dram_type == DRAM_TYPE_DDR3)
+		mctl_set_pir(0x0201f3 | 0x1<<10);
+	else
+		mctl_set_pir(0x020173 | 0x1<<10);
 
 	/* DQS gate training */
 	if (mctl_train_dram(para) != 0) {
@@ -359,6 +398,7 @@ static void mctl_sys_init(struct dram_para *para)
 	clrbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MCTL);
 	clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MCTL);
 	clrbits_le32(&ccm->pll5_cfg, CCM_PLL5_CTRL_EN);
+	udelay(1000);
 	clrbits_le32(&ccm->dram_clk_cfg, 0x01<<31);
 
 	clock_set_pll5(CONFIG_DRAM_CLK * 1000000 * DRAM_CLK_MUL);
@@ -372,6 +412,10 @@ static void mctl_sys_init(struct dram_para *para)
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MCTL);
 	setbits_le32(&ccm->mbus_reset, CCM_MBUS_RESET_RESET);
 	setbits_le32(&ccm->mbus_clk_cfg, MBUS_CLK_GATE);
+
+	para->rank = 2;
+	para->bus_width = 16;
+	mctl_set_cr(para);
 
 	/* Set dram master access priority */
 	writel(0x0000e00f, &mctl_ctl->clken);	/* normal */

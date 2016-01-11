@@ -198,6 +198,11 @@ struct sunxi_mctl_ctl_reg {
 #define MCTL_MR2			0x18 /* CWL=8 */
 #define MCTL_MR3			0x0
 
+#define MCTL_LPDDR3_MR0			0x0
+#define MCTL_LPDDR3_MR1			0xc3	/* twr=8, bl=8 */
+#define MCTL_LPDDR3_MR2			0xa	/* RL=12, CWL=6 */
+#define MCTL_LPDDR3_MR3			0x0
+
 #define DRAM_TYPE_DDR3		3
 #define DRAM_TYPE_LPDDR3	7
 #endif /* _SUNXI_DRAM_SUN8I_A83T_H */
