@@ -95,6 +95,12 @@ config MACH_SUN8I
 	bool
 	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3 || MACH_SUN8I_A83T
 
+config DRAM_TYPE
+	int "sunxi dram type"
+	depends on MACH_SUN8I_A83T
+	default 3
+	---help---
+	Set the dram type, 3: DDR3, 7: LPDDR3
 
 config DRAM_CLK
 	int "sunxi dram clock speed"

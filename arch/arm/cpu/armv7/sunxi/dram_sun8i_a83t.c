@@ -25,6 +25,7 @@ struct dram_para {
 	u8 rank;
 	u8 rows;
 	u8 bus_width;
+	u8 dram_type;
 	u16 page_size;
 };
 
@@ -34,7 +35,7 @@ static void mctl_set_cr(struct dram_para *para)
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 
 	writel(MCTL_CR_CS1_CONTROL(para->cs1) | MCTL_CR_UNKNOWN |
-		MCTL_CR_CHANNEL(1) | MCTL_CR_DDR3 |
+		MCTL_CR_CHANNEL(1) | MCTL_CR_DRAM_TYPE(para->dram_type) |
 		(para->seq ? MCTL_CR_SEQUENCE : 0) |
 		((para->bus_width == 16) ? MCTL_CR_BUSW16 : MCTL_CR_BUSW8) |
 		MCTL_CR_PAGE_SIZE(para->page_size) | MCTL_CR_ROW(para->rows) |
@@ -86,6 +87,7 @@ static void auto_set_timing_para(struct dram_para *para)
 {
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 		(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
+
 	u32 reg_val;
 
 	u8 tccd		= 2;
@@ -393,6 +395,13 @@ unsigned long sunxi_dram_init(void)
 		.page_size = 2048,
 	};
 
+#if defined(CONFIG_MACH_SUN8I_A83T)
+#if (CONFIG_DRAM_TYPE == 3) || (CONFIG_DRAM_TYPE == 7)
+	para.dram_type = CONFIG_DRAM_TYPE;
+#else
+#error Unsupported DRAM type, Please set DRAM type (3:DDR3, 7:LPDDR3)
+#endif
+#endif
 	setbits_le32(SUNXI_PRCM_BASE + 0x1e0, 0x1 << 8);
 
 	writel(0, (SUNXI_PRCM_BASE + 0x1e8));
