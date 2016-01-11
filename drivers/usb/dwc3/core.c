@@ -19,6 +19,7 @@
 #include <dwc3-uboot.h>
 #include <asm/dma-mapping.h>
 #include <linux/ioport.h>
+#include <dm.h>
 
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
@@ -111,7 +112,8 @@ static struct dwc3_event_buffer *dwc3_alloc_one_event_buffer(struct dwc3 *dwc,
 {
 	struct dwc3_event_buffer	*evt;
 
-	evt = devm_kzalloc(dwc->dev, sizeof(*evt), GFP_KERNEL);
+	evt = devm_kzalloc((struct udevice *)dwc->dev, sizeof(*evt),
+			   GFP_KERNEL);
 	if (!evt)
 		return ERR_PTR(-ENOMEM);
 
@@ -622,7 +624,8 @@ int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 
 	void			*mem;
 
-	mem = devm_kzalloc(dev, sizeof(*dwc) + DWC3_ALIGN_MASK, GFP_KERNEL);
+	mem = devm_kzalloc((struct udevice *)dev,
+			   sizeof(*dwc) + DWC3_ALIGN_MASK, GFP_KERNEL);
 	if (!mem)
 		return -ENOMEM;
 
