@@ -152,7 +152,7 @@ enum env_flags_varaccess env_flags_parse_varaccess_from_binflags(int binflags)
 {
 	int i;
 
-	for (i = 0; i < sizeof(env_flags_varaccess_mask); i++)
+	for (i = 0; i < ARRAY_SIZE(env_flags_varaccess_mask); i++)
 		if (env_flags_varaccess_mask[i] ==
 		    (binflags & ENV_FLAGS_VARACCESS_BIN_MASK))
 			return (enum env_flags_varaccess)i;
