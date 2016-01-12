@@ -14,29 +14,29 @@
 	 */
 	pinctrl@14010000 {
 		#address-cells = <1>;
-		#size-cells = <0>;
+		#size-cells = <1>;
 	};
 	pinctrl@13400000 {
 		#address-cells = <1>;
-		#size-cells = <0>;
+		#size-cells = <1>;
 		gpy7 {
 		};
 
 		gpx0 {
-			reg = <0xc00>;
+			reg = <0xc00 0x0>;
 		};
 	};
 	pinctrl@13410000 {
 		#address-cells = <1>;
-		#size-cells = <0>;
+		#size-cells = <1>;
 	};
 	pinctrl@14000000 {
 		#address-cells = <1>;
-		#size-cells = <0>;
+		#size-cells = <1>;
 	};
 	pinctrl@03860000 {
 		#address-cells = <1>;
-		#size-cells = <0>;
+		#size-cells = <1>;
 	};
 
 };
