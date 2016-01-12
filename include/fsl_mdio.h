@@ -5,6 +5,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
 #ifndef __FSL_PHY_H__
 #define __FSL_PHY_H__
 
@@ -27,9 +28,9 @@ int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc);
 #define PHY_EXT_PAGE_ACCESS	0x1f
 
 /* MII Management Configuration Register */
-#define MIIMCFG_RESET_MGMT          0x80000000
-#define MIIMCFG_MGMT_CLOCK_SELECT   0x00000007
-#define MIIMCFG_INIT_VALUE	    0x00000003
+#define MIIMCFG_RESET_MGMT		0x80000000
+#define MIIMCFG_MGMT_CLOCK_SELECT	0x00000007
+#define MIIMCFG_INIT_VALUE		0x00000003
 
 /* MII Management Command Register */
 #define MIIMCOM_READ_CYCLE	0x00000001

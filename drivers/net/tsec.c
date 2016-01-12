@@ -1,14 +1,11 @@
 /*
  * Freescale Three Speed Ethernet Controller driver
  *
- * This software may be used and distributed according to the
- * terms of the GNU Public License, Version 2, incorporated
- * herein by reference.
- *
  * Copyright 2004-2011, 2013 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -84,8 +81,10 @@ static struct tsec_info_struct tsec_info[] = {
 /* Configure the TBI for SGMII operation */
 static void tsec_configure_serdes(struct tsec_private *priv)
 {
-	/* Access TBI PHY registers at given TSEC register offset as opposed
-	 * to the register offset used for external PHY accesses */
+	/*
+	 * Access TBI PHY registers at given TSEC register offset as opposed
+	 * to the register offset used for external PHY accesses
+	 */
 	tsec_local_mdio_write(priv->phyregs_sgmii, in_be32(&priv->regs->tbipa),
 			0, TBI_ANA, TBIANA_SETTINGS);
 	tsec_local_mdio_write(priv->phyregs_sgmii, in_be32(&priv->regs->tbipa),
@@ -100,7 +99,8 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 
 /* Set the appropriate hash bit for the given addr */
 
-/* The algorithm works like so:
+/*
+ * The algorithm works like so:
  * 1) Take the Destination Address (ie the multicast address), and
  * do a CRC on it (little endian), and reverse the bits of the
  * result.
@@ -111,9 +111,9 @@ static void tsec_configure_serdes(struct tsec_private *priv)
  * hash index which gaddr register to use, and the 5 other bits
  * indicate which bit (assuming an IBM numbering scheme, which
  * for PowerPC (tm) is usually the case) in the register holds
- * the entry. */
-static int
-tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
+ * the entry.
+ */
+static int tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
@@ -135,7 +135,8 @@ tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
 }
 #endif /* Multicast TFTP ? */
 
-/* Initialized required registers to appropriate values, zeroing
+/*
+ * Initialized required registers to appropriate values, zeroing
  * those we don't care about (unless zero is bad, in which case,
  * choose a more appropriate value)
  */
@@ -181,7 +182,8 @@ static void init_registers(struct tsec __iomem *regs)
 
 }
 
-/* Configure maccfg2 based on negotiated speed and duplex
+/*
+ * Configure maccfg2 based on negotiated speed and duplex
  * reported by PHY handling code
  */
 static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
@@ -212,7 +214,8 @@ static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 	case 10:
 		maccfg2 |= MACCFG2_MII;
 
-		/* Set R100 bit in all modes although
+		/*
+		 * Set R100 bit in all modes although
 		 * it is only used in RGMII mode
 		 */
 		if (phydev->speed == 100)
@@ -315,7 +318,8 @@ void redundant_init(struct eth_device *dev)
 }
 #endif
 
-/* Set up the buffers and their descriptors, and bring up the
+/*
+ * Set up the buffers and their descriptors, and bring up the
  * interface
  */
 static void startup_tsec(struct eth_device *dev)
@@ -369,9 +373,10 @@ static void startup_tsec(struct eth_device *dev)
 	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 }
 
-/* This returns the status bits of the device.	The return value
+/*
+ * This returns the status bits of the device. The return value
  * is never checked, and this is what the 8260 driver did, so we
- * do the same.	 Presumably, this would be zero if there were no
+ * do the same. Presumably, this would be zero if there were no
  * errors
  */
 static int tsec_send(struct eth_device *dev, void *packet, int length)
@@ -446,7 +451,6 @@ static int tsec_recv(struct eth_device *dev)
 	}
 
 	return -1;
-
 }
 
 /* Stop the interface */
@@ -468,10 +472,11 @@ static void tsec_halt(struct eth_device *dev)
 	phy_shutdown(priv->phydev);
 }
 
-/* Initializes data structures and registers for the controller,
- * and brings the interface up.	 Returns the link status, meaning
+/*
+ * Initializes data structures and registers for the controller,
+ * and brings the interface up. Returns the link status, meaning
  * that it returns success if the link is up, failure otherwise.
- * This allows u-boot to find the first active controller.
+ * This allows U-Boot to find the first active controller.
  */
 static int tsec_init(struct eth_device *dev, bd_t * bd)
 {
@@ -489,7 +494,8 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	/* Init ECNTRL */
 	out_be32(&regs->ecntrl, ECNTRL_INIT_SETTINGS);
 
-	/* Copy the station address into the address registers.
+	/*
+	 * Copy the station address into the address registers.
 	 * For a station address of 0x12345678ABCD in transmission
 	 * order (BE), MACnADDR1 is set to 0xCDAB7856 and
 	 * MACnADDR2 is set to 0x34120000.
@@ -551,8 +557,8 @@ static phy_interface_t tsec_get_interface(struct tsec_private *priv)
 			 * be set by the platform code.
 			 */
 			if ((interface == PHY_INTERFACE_MODE_RGMII_ID) ||
-				 (interface == PHY_INTERFACE_MODE_RGMII_TXID) ||
-				 (interface == PHY_INTERFACE_MODE_RGMII_RXID))
+			    (interface == PHY_INTERFACE_MODE_RGMII_TXID) ||
+			    (interface == PHY_INTERFACE_MODE_RGMII_RXID))
 				return interface;
 
 			return PHY_INTERFACE_MODE_RGMII;
@@ -565,8 +571,8 @@ static phy_interface_t tsec_get_interface(struct tsec_private *priv)
 	return PHY_INTERFACE_MODE_MII;
 }
 
-
-/* Discover which PHY is attached to the device, and configure it
+/*
+ * Discover which PHY is attached to the device, and configure it
  * properly.  If the PHY is not recognized, then return 0
  * (failure).  Otherwise, return 1
  */
@@ -605,7 +611,8 @@ static int init_phy(struct eth_device *dev)
 	return 1;
 }
 
-/* Initialize device structure. Returns success if PHY
+/*
+ * Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
  */
 static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
@@ -645,7 +652,7 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	dev->mcast = tsec_mcast_addr;
 #endif
 
-	/* Tell u-boot to get the addr from the env */
+	/* Tell U-Boot to get the addr from the env */
 	for (i = 0; i < 6; i++)
 		dev->enetaddr[i] = 0;
 
