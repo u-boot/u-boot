@@ -396,6 +396,8 @@ struct tsec_private {
 	uint phyaddr;
 	char mii_devname[16];
 	u32 flags;
+	uint rx_idx;	/* index of the current RX buffer */
+	uint tx_idx;	/* index of the current TX buffer */
 };
 
 struct tsec_info_struct {
