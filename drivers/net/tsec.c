@@ -328,9 +328,8 @@ static void tsec_halt(struct eth_device *dev)
  * of the eTSEC port initialization sequence,
  * the eTSEC Rx logic may not be properly initialized.
  */
-void redundant_init(struct eth_device *dev)
+void redundant_init(struct tsec_private *priv)
 {
-	struct tsec_private *priv = dev->priv;
 	struct tsec __iomem *regs = priv->regs;
 	uint t, count = 0;
 	int fail = 1;
@@ -365,14 +364,14 @@ void redundant_init(struct eth_device *dev)
 
 	do {
 		uint16_t status;
-		tsec_send(dev, (void *)pkt, sizeof(pkt));
+		tsec_send(priv->dev, (void *)pkt, sizeof(pkt));
 
 		/* Wait for buffer to be received */
 		for (t = 0;
 		     in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY;
 		     t++) {
 			if (t >= 10 * TOUT_LOOP) {
-				printf("%s: tsec: rx error\n", dev->name);
+				printf("%s: tsec: rx error\n", priv->dev->name);
 				break;
 			}
 		}
@@ -412,9 +411,8 @@ void redundant_init(struct eth_device *dev)
  * Set up the buffers and their descriptors, and bring up the
  * interface
  */
-static void startup_tsec(struct eth_device *dev)
+static void startup_tsec(struct tsec_private *priv)
 {
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
 	uint16_t status;
 	int i;
@@ -451,7 +449,7 @@ static void startup_tsec(struct eth_device *dev)
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 	svr = get_svr();
 	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0))
-		redundant_init(dev);
+		redundant_init(priv);
 #endif
 	/* Enable Transmit and Receive */
 	setbits_be32(&regs->maccfg1, MACCFG1_RX_EN | MACCFG1_TX_EN);
@@ -504,7 +502,7 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	init_registers(regs);
 
 	/* Ready the device for tx/rx */
-	startup_tsec(dev);
+	startup_tsec(priv);
 
 	/* Start up the PHY */
 	ret = phy_startup(priv->phydev);
@@ -567,9 +565,8 @@ static phy_interface_t tsec_get_interface(struct tsec_private *priv)
  * properly.  If the PHY is not recognized, then return 0
  * (failure).  Otherwise, return 1
  */
-static int init_phy(struct eth_device *dev)
+static int init_phy(struct tsec_private *priv)
 {
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct phy_device *phydev;
 	struct tsec __iomem *regs = priv->regs;
 	u32 supported = (SUPPORTED_10baseT_Half |
@@ -588,7 +585,8 @@ static int init_phy(struct eth_device *dev)
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
 		tsec_configure_serdes(priv);
 
-	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
+	phydev = phy_connect(priv->bus, priv->phyaddr, priv->dev,
+			     priv->interface);
 	if (!phydev)
 		return 0;
 
@@ -633,6 +631,7 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	sprintf(dev->name, tsec_info->devname);
 	priv->interface = tsec_info->interface;
 	priv->bus = miiphy_get_dev_by_name(tsec_info->mii_devname);
+	priv->dev = dev;
 	dev->iobase = 0;
 	dev->priv = priv;
 	dev->init = tsec_init;
@@ -655,7 +654,7 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	clrbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
 
 	/* Try to initialize PHY here, and return */
-	return init_phy(dev);
+	return init_phy(priv);
 }
 
 /*

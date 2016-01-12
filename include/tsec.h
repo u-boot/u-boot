@@ -402,6 +402,7 @@ struct tsec_private {
 	u32 flags;
 	uint rx_idx;	/* index of the current RX buffer */
 	uint tx_idx;	/* index of the current TX buffer */
+	struct eth_device *dev;
 };
 
 struct tsec_info_struct {
