@@ -940,7 +940,8 @@ void fdt_del_node_and_alias(void *blob, const char *alias)
 /* Max address size we deal with */
 #define OF_MAX_ADDR_CELLS	4
 #define OF_BAD_ADDR	FDT_ADDR_T_NONE
-#define OF_CHECK_COUNTS(na)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS)
+#define OF_CHECK_COUNTS(na, ns)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS && \
+			(ns) > 0)
 
 /* Debug utility */
 #ifdef DEBUG
@@ -1108,7 +1109,7 @@ static u64 __of_translate_address(void *blob, int node_offset, const fdt32_t *in
 
 	/* Cound address cells & copy address locally */
 	bus->count_cells(blob, parent, &na, &ns);
-	if (!OF_CHECK_COUNTS(na)) {
+	if (!OF_CHECK_COUNTS(na, ns)) {
 		printf("%s: Bad cell count for %s\n", __FUNCTION__,
 		       fdt_get_name(blob, node_offset, NULL));
 		goto bail;
@@ -1135,7 +1136,7 @@ static u64 __of_translate_address(void *blob, int node_offset, const fdt32_t *in
 		/* Get new parent bus and counts */
 		pbus = &of_busses[0];
 		pbus->count_cells(blob, parent, &pna, &pns);
-		if (!OF_CHECK_COUNTS(pna)) {
+		if (!OF_CHECK_COUNTS(pna, pns)) {
 			printf("%s: Bad cell count for %s\n", __FUNCTION__,
 				fdt_get_name(blob, node_offset, NULL));
 			break;
