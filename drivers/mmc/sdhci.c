@@ -530,6 +530,10 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 		if (caps & SDHCI_CAN_DO_8BIT)
 			host->cfg.host_caps |= MMC_MODE_8BIT;
 	}
+
+	if (host->quirks & SDHCI_QUIRK_NO_HISPD_BIT)
+		host->cfg.host_caps &= ~(MMC_MODE_HS | MMC_MODE_HS_52MHz);
+
 	if (host->host_caps)
 		host->cfg.host_caps |= host->host_caps;
 
