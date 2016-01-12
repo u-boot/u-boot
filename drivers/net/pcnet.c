@@ -134,8 +134,17 @@ static int pcnet_recv (struct eth_device *dev);
 static void pcnet_halt (struct eth_device *dev);
 static int pcnet_probe (struct eth_device *dev, bd_t * bis, int dev_num);
 
-#define PCI_TO_MEM(d, a) pci_virt_to_mem((pci_dev_t)d->priv, (a))
-#define PCI_TO_MEM_LE(d,a) (u32)(cpu_to_le32(PCI_TO_MEM(d,a)))
+static inline pci_addr_t pcnet_virt_to_mem(const struct eth_device *dev,
+						void *addr, bool uncached)
+{
+	pci_dev_t devbusfn = (pci_dev_t)dev->priv;
+	void *virt_addr = addr;
+
+	if (uncached)
+		virt_addr = (void *)CKSEG0ADDR(addr);
+
+	return pci_virt_to_mem(devbusfn, virt_addr);
+}
 
 static struct pci_device_id supported[] = {
 	{PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LANCE},
@@ -352,7 +361,8 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 */
 	lp->cur_rx = 0;
 	for (i = 0; i < RX_RING_SIZE; i++) {
-		uc->rx_ring[i].base = PCI_TO_MEM_LE(dev, (*lp->rx_buf)[i]);
+		addr = pcnet_virt_to_mem(dev, (*lp->rx_buf)[i], false);
+		uc->rx_ring[i].base = cpu_to_le32(addr);
 		uc->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
 		uc->rx_ring[i].status = cpu_to_le16(0x8000);
 		PCNET_DEBUG1
@@ -383,8 +393,10 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 
 	uc->init_block.tlen_rlen = cpu_to_le16(TX_RING_LEN_BITS |
 					       RX_RING_LEN_BITS);
-	uc->init_block.rx_ring = PCI_TO_MEM_LE(dev, uc->rx_ring);
-	uc->init_block.tx_ring = PCI_TO_MEM_LE(dev, uc->tx_ring);
+	addr = pcnet_virt_to_mem(dev, uc->rx_ring, true);
+	uc->init_block.rx_ring = cpu_to_le32(addr);
+	addr = pcnet_virt_to_mem(dev, uc->tx_ring, true);
+	uc->init_block.tx_ring = cpu_to_le32(addr);
 
 	PCNET_DEBUG1("\ntlen_rlen=0x%x rx_ring=0x%x tx_ring=0x%x\n",
 		     uc->init_block.tlen_rlen,
@@ -394,7 +406,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * Tell the controller where the Init Block is located.
 	 */
 	barrier();
-	addr = PCI_TO_MEM(dev, &lp->uc->init_block);
+	addr = pcnet_virt_to_mem(dev, &lp->uc->init_block, true);
 	pcnet_write_csr(dev, 1, addr & 0xffff);
 	pcnet_write_csr(dev, 2, (addr >> 16) & 0xffff);
 
@@ -424,6 +436,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 {
 	int i, status;
+	u32 addr;
 	struct pcnet_tx_head *entry = &lp->uc->tx_ring[lp->cur_tx];
 
 	PCNET_DEBUG2("Tx%d: %d bytes from 0x%p ", lp->cur_tx, pkt_len,
@@ -451,9 +464,10 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	 * Setup Tx ring. Caution: the write order is important here,
 	 * set the status with the "ownership" bits last.
 	 */
+	addr = pcnet_virt_to_mem(dev, packet, false);
 	writew(-pkt_len, &entry->length);
 	writel(0, &entry->misc);
-	writel(PCI_TO_MEM(dev, packet), &entry->base);
+	writel(addr, &entry->base);
 	writew(0x8300, &entry->status);
 
 	/* Trigger an immediate send poll. */
