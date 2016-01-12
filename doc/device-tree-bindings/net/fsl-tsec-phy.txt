@@ -41,3 +41,24 @@ Example:
 			reg = <0>;
 		};
 	};
+
+* TBI Internal MDIO bus
+
+As of this writing, every tsec is associated with an internal TBI PHY.
+This PHY is accessed through the local MDIO bus.  These buses are defined
+similarly to the mdio buses.  The TBI PHYs underneath them are similar to
+normal PHYs, but the reg property is considered instructive, rather than
+descriptive.  The reg property should be chosen so it doesn't interfere
+with other PHYs on the bus.  The TBI PHYs are referred to by a "tbi-handle"
+property under the tsec node, which has a similar meaning of "phy-handle".
+
+Example:
+	ethernet@24000 {
+		phy-handle = <&tbi1>;
+	};
+
+	mdio@24520 {
+		tbi1: tbi-phy@1f {
+			reg = <0x1f>;
+		};
+	};

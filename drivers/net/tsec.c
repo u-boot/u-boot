@@ -658,7 +658,7 @@ static int init_phy(struct tsec_private *priv)
 		supported |= SUPPORTED_1000baseT_Full;
 
 	/* Assign a Physical address to the TBI */
-	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
+	out_be32(&regs->tbipa, priv->tbiaddr);
 
 	priv->interface = tsec_get_interface(priv);
 
@@ -707,6 +707,7 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
 
 	priv->phyaddr = tsec_info->phyaddr;
+	priv->tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	priv->flags = tsec_info->flags;
 
 	sprintf(dev->name, tsec_info->devname);
@@ -799,6 +800,16 @@ int tsec_probe(struct udevice *dev)
 	} else {
 		debug("No parent node for PHY?\n");
 		return -ENOENT;
+	}
+
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+				       "tbi-handle");
+	if (offset > 0) {
+		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg",
+				     CONFIG_SYS_TBIPA_VALUE);
+		priv->tbiaddr = reg;
+	} else {
+		priv->tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	}
 
 	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset,

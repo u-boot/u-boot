@@ -402,6 +402,7 @@ struct tsec_private {
 	phy_interface_t interface;
 	struct mii_dev *bus;
 	uint phyaddr;
+	uint tbiaddr;
 	char mii_devname[16];
 	u32 flags;
 	uint rx_idx;	/* index of the current RX buffer */
