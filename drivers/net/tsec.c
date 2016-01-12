@@ -10,6 +10,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <net.h>
 #include <command.h>
@@ -21,6 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_DM_ETH
 /* Default initializations for TSEC controllers. */
 
 static struct tsec_info_struct tsec_info[] = {
@@ -46,6 +48,7 @@ static struct tsec_info_struct tsec_info[] = {
 	STD_TSEC_INFO(4),	/* TSEC4 */
 #endif
 };
+#endif /* CONFIG_DM_ETH */
 
 #define TBIANA_SETTINGS ( \
 		TBIANA_ASYMMETRIC_PAUSE \
@@ -98,7 +101,11 @@ static void tsec_configure_serdes(struct tsec_private *priv)
  * for PowerPC (tm) is usually the case) in the register holds
  * the entry.
  */
+#ifndef CONFIG_DM_ETH
 static int tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
+#else
+static int tsec_mcast_addr(struct udevice *dev, const u8 *mcast_mac, int set)
+#endif
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
@@ -225,7 +232,11 @@ static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
  * do the same. Presumably, this would be zero if there were no
  * errors
  */
+#ifndef CONFIG_DM_ETH
 static int tsec_send(struct eth_device *dev, void *packet, int length)
+#else
+static int tsec_send(struct udevice *dev, void *packet, int length)
+#endif
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
@@ -268,6 +279,7 @@ static int tsec_send(struct eth_device *dev, void *packet, int length)
 	return result;
 }
 
+#ifndef CONFIG_DM_ETH
 static int tsec_recv(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
@@ -302,9 +314,61 @@ static int tsec_recv(struct eth_device *dev)
 
 	return -1;
 }
+#else
+static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	struct tsec __iomem *regs = priv->regs;
+	int ret = -1;
+
+	if (!(in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY)) {
+		int length = in_be16(&priv->rxbd[priv->rx_idx].length);
+		uint16_t status = in_be16(&priv->rxbd[priv->rx_idx].status);
+		uint32_t buf;
+
+		/* Send the packet up if there were no errors */
+		if (!(status & RXBD_STATS)) {
+			buf = in_be32(&priv->rxbd[priv->rx_idx].bufptr);
+			*packetp = (uchar *)buf;
+			ret = length - 4;
+		} else {
+			printf("Got error %x\n", (status & RXBD_STATS));
+		}
+	}
+
+	if (in_be32(&regs->ievent) & IEVENT_BSY) {
+		out_be32(&regs->ievent, IEVENT_BSY);
+		out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
+	}
+
+	return ret;
+}
+
+static int tsec_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	uint16_t status;
+
+	out_be16(&priv->rxbd[priv->rx_idx].length, 0);
+
+	status = RXBD_EMPTY;
+	/* Set the wrap bit if this is the last element in the list */
+	if ((priv->rx_idx + 1) == PKTBUFSRX)
+		status |= RXBD_WRAP;
+	out_be16(&priv->rxbd[priv->rx_idx].status, status);
+
+	priv->rx_idx = (priv->rx_idx + 1) % PKTBUFSRX;
+
+	return 0;
+}
+#endif
 
 /* Stop the interface */
+#ifndef CONFIG_DM_ETH
 static void tsec_halt(struct eth_device *dev)
+#else
+static void tsec_halt(struct udevice *dev)
+#endif
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
@@ -467,9 +531,16 @@ static void startup_tsec(struct tsec_private *priv)
  * that it returns success if the link is up, failure otherwise.
  * This allows U-Boot to find the first active controller.
  */
+#ifndef CONFIG_DM_ETH
 static int tsec_init(struct eth_device *dev, bd_t * bd)
+#else
+static int tsec_init(struct udevice *dev)
+#endif
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+#ifdef CONFIG_DM_ETH
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+#endif
 	struct tsec __iomem *regs = priv->regs;
 	u32 tempval;
 	int ret;
@@ -489,12 +560,21 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	 * order (BE), MACnADDR1 is set to 0xCDAB7856 and
 	 * MACnADDR2 is set to 0x34120000.
 	 */
+#ifndef CONFIG_DM_ETH
 	tempval = (dev->enetaddr[5] << 24) | (dev->enetaddr[4] << 16) |
 		  (dev->enetaddr[3] << 8)  |  dev->enetaddr[2];
+#else
+	tempval = (pdata->enetaddr[5] << 24) | (pdata->enetaddr[4] << 16) |
+		  (pdata->enetaddr[3] << 8)  |  pdata->enetaddr[2];
+#endif
 
 	out_be32(&regs->macstnaddr1, tempval);
 
+#ifndef CONFIG_DM_ETH
 	tempval = (dev->enetaddr[1] << 24) | (dev->enetaddr[0] << 16);
+#else
+	tempval = (pdata->enetaddr[1] << 24) | (pdata->enetaddr[0] << 16);
+#endif
 
 	out_be32(&regs->macstnaddr2, tempval);
 
@@ -600,6 +680,7 @@ static int init_phy(struct tsec_private *priv)
 	return 1;
 }
 
+#ifndef CONFIG_DM_ETH
 /*
  * Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
@@ -687,3 +768,108 @@ int tsec_standard_init(bd_t *bis)
 
 	return tsec_eth_init(bis, tsec_info, ARRAY_SIZE(tsec_info));
 }
+#else /* CONFIG_DM_ETH */
+int tsec_probe(struct udevice *dev)
+{
+	struct tsec_private *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct fsl_pq_mdio_info mdio_info;
+	int offset = 0;
+	int reg;
+	const char *phy_mode;
+	int ret;
+
+	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	priv->regs = (struct tsec *)pdata->iobase;
+
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+				       "phy-handle");
+	if (offset > 0) {
+		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
+		priv->phyaddr = reg;
+	} else {
+		debug("phy-handle does not exist under tsec %s\n", dev->name);
+		return -ENOENT;
+	}
+
+	offset = fdt_parent_offset(gd->fdt_blob, offset);
+	if (offset > 0) {
+		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
+		priv->phyregs_sgmii = (struct tsec_mii_mng *)(reg + 0x520);
+	} else {
+		debug("No parent node for PHY?\n");
+		return -ENOENT;
+	}
+
+	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset,
+			       "phy-connection-type", NULL);
+	if (phy_mode)
+		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	if (pdata->phy_interface == -1) {
+		debug("Invalid PHY interface '%s'\n", phy_mode);
+		return -EINVAL;
+	}
+	priv->interface = pdata->phy_interface;
+
+	/* Initialize flags */
+	priv->flags = TSEC_GIGABIT;
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
+		priv->flags |= TSEC_SGMII;
+
+	mdio_info.regs = priv->phyregs_sgmii;
+	mdio_info.name = (char *)dev->name;
+	ret = fsl_pq_mdio_init(NULL, &mdio_info);
+	if (ret)
+		return ret;
+
+	/* Reset the MAC */
+	setbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
+	udelay(2);  /* Soft Reset must be asserted for 3 TX clocks */
+	clrbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
+
+	priv->dev = dev;
+	priv->bus = miiphy_get_dev_by_name(dev->name);
+
+	/* Try to initialize PHY here, and return */
+	return !init_phy(priv);
+}
+
+int tsec_remove(struct udevice *dev)
+{
+	struct tsec_private *priv = dev->priv;
+
+	free(priv->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
+	return 0;
+}
+
+static const struct eth_ops tsec_ops = {
+	.start = tsec_init,
+	.send = tsec_send,
+	.recv = tsec_recv,
+	.free_pkt = tsec_free_pkt,
+	.stop = tsec_halt,
+#ifdef CONFIG_MCAST_TFTP
+	.mcast = tsec_mcast_addr,
+#endif
+};
+
+static const struct udevice_id tsec_ids[] = {
+	{ .compatible = "fsl,tsec" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_tsec) = {
+	.name = "tsec",
+	.id = UCLASS_ETH,
+	.of_match = tsec_ids,
+	.probe = tsec_probe,
+	.remove = tsec_remove,
+	.ops = &tsec_ops,
+	.priv_auto_alloc_size = sizeof(struct tsec_private),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif /* CONFIG_DM_ETH */

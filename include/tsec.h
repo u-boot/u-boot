@@ -18,6 +18,8 @@
 #include <config.h>
 #include <phy.h>
 
+#ifndef CONFIG_DM_ETH
+
 #ifdef CONFIG_LS102XA
 #define TSEC_SIZE		0x40000
 #define TSEC_MDIO_OFFSET	0x40000
@@ -63,6 +65,8 @@
 	x.flags = TSEC##num##_FLAGS;\
 	x.mii_devname = DEFAULT_MII_NAME;\
 }
+
+#endif /* CONFIG_DM_ETH */
 
 #define MAC_ADDR_LEN		6
 
@@ -402,7 +406,11 @@ struct tsec_private {
 	u32 flags;
 	uint rx_idx;	/* index of the current RX buffer */
 	uint tx_idx;	/* index of the current TX buffer */
+#ifndef CONFIG_DM_ETH
 	struct eth_device *dev;
+#else
+	struct udevice *dev;
+#endif
 };
 
 struct tsec_info_struct {
@@ -415,7 +423,9 @@ struct tsec_info_struct {
 	u32 flags;
 };
 
+#ifndef CONFIG_DM_ETH
 int tsec_standard_init(bd_t *bis);
 int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsec_info, int num);
+#endif
 
 #endif /* __TSEC_H */
