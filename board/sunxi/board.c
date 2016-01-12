@@ -466,10 +466,10 @@ void sunxi_board_init(void)
 #endif
 
 #ifdef CONFIG_AXP221_POWER
-	power_failed |= axp_set_dldo1(CONFIG_AXP_DLDO1_VOLT);
-	power_failed |= axp_set_dldo2(CONFIG_AXP_DLDO2_VOLT);
-	power_failed |= axp_set_dldo3(CONFIG_AXP_DLDO3_VOLT);
-	power_failed |= axp_set_dldo4(CONFIG_AXP_DLDO4_VOLT);
+	power_failed |= axp_set_dldo(1, CONFIG_AXP_DLDO1_VOLT);
+	power_failed |= axp_set_dldo(2, CONFIG_AXP_DLDO2_VOLT);
+	power_failed |= axp_set_dldo(3, CONFIG_AXP_DLDO3_VOLT);
+	power_failed |= axp_set_dldo(4, CONFIG_AXP_DLDO4_VOLT);
 	power_failed |= axp_set_eldo(1, CONFIG_AXP_ELDO1_VOLT);
 	power_failed |= axp_set_eldo(2, CONFIG_AXP_ELDO2_VOLT);
 	power_failed |= axp_set_eldo(3, CONFIG_AXP_ELDO3_VOLT);

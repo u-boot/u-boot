@@ -116,74 +116,6 @@ int axp_set_dcdc5(unsigned int mvolt)
 				AXP221_OUTPUT_CTRL1_DCDC5_EN);
 }
 
-int axp_set_dldo1(unsigned int mvolt)
-{
-	int ret;
-	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
-
-	if (mvolt == 0)
-		return pmic_bus_clrbits(AXP221_OUTPUT_CTRL2,
-					AXP221_OUTPUT_CTRL2_DLDO1_EN);
-
-	ret = pmic_bus_write(AXP221_DLDO1_CTRL, cfg);
-	if (ret)
-		return ret;
-
-	return pmic_bus_setbits(AXP221_OUTPUT_CTRL2,
-				AXP221_OUTPUT_CTRL2_DLDO1_EN);
-}
-
-int axp_set_dldo2(unsigned int mvolt)
-{
-	int ret;
-	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
-
-	if (mvolt == 0)
-		return pmic_bus_clrbits(AXP221_OUTPUT_CTRL2,
-					AXP221_OUTPUT_CTRL2_DLDO2_EN);
-
-	ret = pmic_bus_write(AXP221_DLDO2_CTRL, cfg);
-	if (ret)
-		return ret;
-
-	return pmic_bus_setbits(AXP221_OUTPUT_CTRL2,
-				AXP221_OUTPUT_CTRL2_DLDO2_EN);
-}
-
-int axp_set_dldo3(unsigned int mvolt)
-{
-	int ret;
-	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
-
-	if (mvolt == 0)
-		return pmic_bus_clrbits(AXP221_OUTPUT_CTRL2,
-					AXP221_OUTPUT_CTRL2_DLDO3_EN);
-
-	ret = pmic_bus_write(AXP221_DLDO3_CTRL, cfg);
-	if (ret)
-		return ret;
-
-	return pmic_bus_setbits(AXP221_OUTPUT_CTRL2,
-				AXP221_OUTPUT_CTRL2_DLDO3_EN);
-}
-
-int axp_set_dldo4(unsigned int mvolt)
-{
-	int ret;
-	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
-
-	if (mvolt == 0)
-		return pmic_bus_clrbits(AXP221_OUTPUT_CTRL2,
-					AXP221_OUTPUT_CTRL2_DLDO4_EN);
-
-	ret = pmic_bus_write(AXP221_DLDO4_CTRL, cfg);
-	if (ret)
-		return ret;
-
-	return pmic_bus_setbits(AXP221_OUTPUT_CTRL2,
-				AXP221_OUTPUT_CTRL2_DLDO4_EN);
-}
-
 int axp_set_aldo1(unsigned int mvolt)
 {
 	int ret;
@@ -233,6 +165,26 @@ int axp_set_aldo3(unsigned int mvolt)
 
 	return pmic_bus_setbits(AXP221_OUTPUT_CTRL3,
 				AXP221_OUTPUT_CTRL3_ALDO3_EN);
+}
+
+int axp_set_dldo(int dldo_num, unsigned int mvolt)
+{
+	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
+	int ret;
+
+	if (dldo_num < 1 || dldo_num > 4)
+		return -EINVAL;
+
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP221_OUTPUT_CTRL2,
+				AXP221_OUTPUT_CTRL2_DLDO1_EN << (dldo_num - 1));
+
+	ret = pmic_bus_write(AXP221_DLDO1_CTRL + (dldo_num - 1), cfg);
+	if (ret)
+		return ret;
+
+	return pmic_bus_setbits(AXP221_OUTPUT_CTRL2,
+				AXP221_OUTPUT_CTRL2_DLDO1_EN << (dldo_num - 1));
 }
 
 int axp_set_eldo(int eldo_num, unsigned int mvolt)
