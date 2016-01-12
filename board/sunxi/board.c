@@ -452,20 +452,18 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_dcdc5(CONFIG_AXP_DCDC5_VOLT);
 #endif
 
-#ifdef CONFIG_AXP221_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_aldo1(CONFIG_AXP_ALDO1_VOLT);
 #endif
-#ifndef CONFIG_AXP818_POWER
 	power_failed |= axp_set_aldo2(CONFIG_AXP_ALDO2_VOLT);
-#endif
-#if !defined(CONFIG_AXP152_POWER) && !defined(CONFIG_AXP818_POWER)
+#if !defined(CONFIG_AXP152_POWER)
 	power_failed |= axp_set_aldo3(CONFIG_AXP_ALDO3_VOLT);
 #endif
 #ifdef CONFIG_AXP209_POWER
 	power_failed |= axp_set_aldo4(CONFIG_AXP_ALDO4_VOLT);
 #endif
 
-#ifdef CONFIG_AXP221_POWER
+#if defined(CONFIG_AXP221_POWER) || defined(CONFIG_AXP818_POWER)
 	power_failed |= axp_set_dldo(1, CONFIG_AXP_DLDO1_VOLT);
 	power_failed |= axp_set_dldo(2, CONFIG_AXP_DLDO2_VOLT);
 	power_failed |= axp_set_dldo(3, CONFIG_AXP_DLDO3_VOLT);

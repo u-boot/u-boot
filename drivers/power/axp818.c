@@ -110,6 +110,43 @@ int axp_set_dcdc5(unsigned int mvolt)
 				AXP818_OUTPUT_CTRL1_DCDC5_EN);
 }
 
+int axp_set_aldo(int aldo_num, unsigned int mvolt)
+{
+	int ret;
+	u8 cfg;
+
+	if (aldo_num < 1 || aldo_num > 3)
+		return -EINVAL;
+
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP818_OUTPUT_CTRL3,
+				AXP818_OUTPUT_CTRL3_ALDO1_EN << (aldo_num - 1));
+
+	cfg = axp818_mvolt_to_cfg(mvolt, 700, 3300, 100);
+	ret = pmic_bus_write(AXP818_ALDO1_CTRL + (aldo_num - 1), cfg);
+	if (ret)
+		return ret;
+
+	return pmic_bus_setbits(AXP818_OUTPUT_CTRL3,
+				AXP818_OUTPUT_CTRL3_ALDO1_EN << (aldo_num - 1));
+}
+
+/* TODO: re-work other AXP drivers to consolidate ALDO functions. */
+int axp_set_aldo1(unsigned int mvolt)
+{
+	return axp_set_aldo(1, mvolt);
+}
+
+int axp_set_aldo2(unsigned int mvolt)
+{
+	return axp_set_aldo(2, mvolt);
+}
+
+int axp_set_aldo3(unsigned int mvolt)
+{
+	return axp_set_aldo(3, mvolt);
+}
+
 int axp_set_dldo(int dldo_num, unsigned int mvolt)
 {
 	int ret;
