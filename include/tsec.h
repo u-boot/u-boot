@@ -387,7 +387,11 @@ struct tsec {
 #define TSEC_REDUCED	(1 << 1)	/* MAC-PHY interface uses RGMII */
 #define TSEC_SGMII	(1 << 2)	/* MAC-PHY interface uses SGMII */
 
+#define TX_BUF_CNT	2
+
 struct tsec_private {
+	struct txbd8 __iomem txbd[TX_BUF_CNT];
+	struct rxbd8 __iomem rxbd[PKTBUFSRX];
 	struct tsec __iomem *regs;
 	struct tsec_mii_mng __iomem *phyregs_sgmii;
 	struct phy_device *phydev;

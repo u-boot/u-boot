@@ -21,16 +21,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define TX_BUF_CNT		2
-
-#ifdef __GNUC__
-static struct txbd8 __iomem txbd[TX_BUF_CNT] __aligned(8);
-static struct rxbd8 __iomem rxbd[PKTBUFSRX] __aligned(8);
-
-#else
-#error "rtx must be 64-bit aligned"
-#endif
-
 static int tsec_send(struct eth_device *dev, void *packet, int length);
 
 /* Default initializations for TSEC controllers. */
@@ -277,7 +267,8 @@ void redundant_init(struct eth_device *dev)
 		tsec_send(dev, (void *)pkt, sizeof(pkt));
 
 		/* Wait for buffer to be received */
-		for (t = 0; in_be16(&rxbd[priv->rx_idx].status) & RXBD_EMPTY;
+		for (t = 0;
+		     in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY;
 		     t++) {
 			if (t >= 10 * TOUT_LOOP) {
 				printf("%s: tsec: rx error\n", dev->name);
@@ -288,11 +279,11 @@ void redundant_init(struct eth_device *dev)
 		if (!memcmp(pkt, net_rx_packets[priv->rx_idx], sizeof(pkt)))
 			fail = 0;
 
-		out_be16(&rxbd[priv->rx_idx].length, 0);
+		out_be16(&priv->rxbd[priv->rx_idx].length, 0);
 		status = RXBD_EMPTY;
 		if ((priv->rx_idx + 1) == PKTBUFSRX)
 			status |= RXBD_WRAP;
-		out_be16(&rxbd[priv->rx_idx].status, status);
+		out_be16(&priv->rxbd[priv->rx_idx].status, status);
 		priv->rx_idx = (priv->rx_idx + 1) % PKTBUFSRX;
 
 		if (in_be32(&regs->ievent) & IEVENT_BSY) {
@@ -335,26 +326,26 @@ static void startup_tsec(struct eth_device *dev)
 #endif
 
 	/* Point to the buffer descriptors */
-	out_be32(&regs->tbase, (u32)&txbd[0]);
-	out_be32(&regs->rbase, (u32)&rxbd[0]);
+	out_be32(&regs->tbase, (u32)&priv->txbd[0]);
+	out_be32(&regs->rbase, (u32)&priv->rxbd[0]);
 
 	/* Initialize the Rx Buffer descriptors */
 	for (i = 0; i < PKTBUFSRX; i++) {
-		out_be16(&rxbd[i].status, RXBD_EMPTY);
-		out_be16(&rxbd[i].length, 0);
-		out_be32(&rxbd[i].bufptr, (u32)net_rx_packets[i]);
+		out_be16(&priv->rxbd[i].status, RXBD_EMPTY);
+		out_be16(&priv->rxbd[i].length, 0);
+		out_be32(&priv->rxbd[i].bufptr, (u32)net_rx_packets[i]);
 	}
-	status = in_be16(&rxbd[PKTBUFSRX - 1].status);
-	out_be16(&rxbd[PKTBUFSRX - 1].status, status | RXBD_WRAP);
+	status = in_be16(&priv->rxbd[PKTBUFSRX - 1].status);
+	out_be16(&priv->rxbd[PKTBUFSRX - 1].status, status | RXBD_WRAP);
 
 	/* Initialize the TX Buffer Descriptors */
 	for (i = 0; i < TX_BUF_CNT; i++) {
-		out_be16(&txbd[i].status, 0);
-		out_be16(&txbd[i].length, 0);
-		out_be32(&txbd[i].bufptr, 0);
+		out_be16(&priv->txbd[i].status, 0);
+		out_be16(&priv->txbd[i].length, 0);
+		out_be32(&priv->txbd[i].bufptr, 0);
 	}
-	status = in_be16(&txbd[TX_BUF_CNT - 1].status);
-	out_be16(&txbd[TX_BUF_CNT - 1].status, status | TXBD_WRAP);
+	status = in_be16(&priv->txbd[TX_BUF_CNT - 1].status);
+	out_be16(&priv->txbd[TX_BUF_CNT - 1].status, status | TXBD_WRAP);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 	svr = get_svr();
@@ -386,24 +377,28 @@ static int tsec_send(struct eth_device *dev, void *packet, int length)
 	int i;
 
 	/* Find an empty buffer descriptor */
-	for (i = 0; in_be16(&txbd[priv->tx_idx].status) & TXBD_READY; i++) {
+	for (i = 0;
+	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
+	     i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx buffers full\n", dev->name);
 			return result;
 		}
 	}
 
-	out_be32(&txbd[priv->tx_idx].bufptr, (u32)packet);
-	out_be16(&txbd[priv->tx_idx].length, length);
-	status = in_be16(&txbd[priv->tx_idx].status);
-	out_be16(&txbd[priv->tx_idx].status, status |
+	out_be32(&priv->txbd[priv->tx_idx].bufptr, (u32)packet);
+	out_be16(&priv->txbd[priv->tx_idx].length, length);
+	status = in_be16(&priv->txbd[priv->tx_idx].status);
+	out_be16(&priv->txbd[priv->tx_idx].status, status |
 		(TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT));
 
 	/* Tell the DMA to go */
 	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
 
 	/* Wait for buffer to be transmitted */
-	for (i = 0; in_be16(&txbd[priv->tx_idx].status) & TXBD_READY; i++) {
+	for (i = 0;
+	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
+	     i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx error\n", dev->name);
 			return result;
@@ -411,7 +406,7 @@ static int tsec_send(struct eth_device *dev, void *packet, int length)
 	}
 
 	priv->tx_idx = (priv->tx_idx + 1) % TX_BUF_CNT;
-	result = in_be16(&txbd[priv->tx_idx].status) & TXBD_STATS;
+	result = in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_STATS;
 
 	return result;
 }
@@ -421,9 +416,9 @@ static int tsec_recv(struct eth_device *dev)
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
 
-	while (!(in_be16(&rxbd[priv->rx_idx].status) & RXBD_EMPTY)) {
-		int length = in_be16(&rxbd[priv->rx_idx].length);
-		uint16_t status = in_be16(&rxbd[priv->rx_idx].status);
+	while (!(in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY)) {
+		int length = in_be16(&priv->rxbd[priv->rx_idx].length);
+		uint16_t status = in_be16(&priv->rxbd[priv->rx_idx].status);
 		uchar *packet = net_rx_packets[priv->rx_idx];
 
 		/* Send the packet up if there were no errors */
@@ -432,13 +427,13 @@ static int tsec_recv(struct eth_device *dev)
 		else
 			printf("Got error %x\n", (status & RXBD_STATS));
 
-		out_be16(&rxbd[priv->rx_idx].length, 0);
+		out_be16(&priv->rxbd[priv->rx_idx].length, 0);
 
 		status = RXBD_EMPTY;
 		/* Set the wrap bit if this is the last element in the list */
 		if ((priv->rx_idx + 1) == PKTBUFSRX)
 			status |= RXBD_WRAP;
-		out_be16(&rxbd[priv->rx_idx].status, status);
+		out_be16(&priv->rxbd[priv->rx_idx].status, status);
 
 		priv->rx_idx = (priv->rx_idx + 1) % PKTBUFSRX;
 	}
