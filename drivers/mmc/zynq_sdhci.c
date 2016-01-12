@@ -24,6 +24,11 @@ static int arasan_sdhci_probe(struct udevice *dev)
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD |
 		       SDHCI_QUIRK_BROKEN_R1B;
+
+#ifdef CONFIG_ZYNQ_HISPD_BROKEN
+	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
+#endif
+
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
