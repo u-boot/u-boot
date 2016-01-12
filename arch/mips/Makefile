@@ -25,4 +25,7 @@ tune-$(CONFIG_MIPS_TUNE_4KC) += -mtune=4kc
 tune-$(CONFIG_MIPS_TUNE_14KC) += -mtune=14kc
 tune-$(CONFIG_MIPS_TUNE_24KC) += -mtune=24kc
 
-PLATFORM_CPPFLAGS += $(arch-y) $(tune-y)
+# Include default header files
+cflags-y += -I$(srctree)/arch/mips/include/asm/mach-generic
+
+PLATFORM_CPPFLAGS += $(arch-y) $(tune-y) $(cflags-y)
