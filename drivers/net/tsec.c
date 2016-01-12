@@ -21,8 +21,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int tsec_send(struct eth_device *dev, void *packet, int length);
-
 /* Default initializations for TSEC controllers. */
 
 static struct tsec_info_struct tsec_info[] = {
@@ -221,6 +219,109 @@ static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 			(phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 }
 
+/*
+ * This returns the status bits of the device. The return value
+ * is never checked, and this is what the 8260 driver did, so we
+ * do the same. Presumably, this would be zero if there were no
+ * errors
+ */
+static int tsec_send(struct eth_device *dev, void *packet, int length)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	struct tsec __iomem *regs = priv->regs;
+	uint16_t status;
+	int result = 0;
+	int i;
+
+	/* Find an empty buffer descriptor */
+	for (i = 0;
+	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
+	     i++) {
+		if (i >= TOUT_LOOP) {
+			debug("%s: tsec: tx buffers full\n", dev->name);
+			return result;
+		}
+	}
+
+	out_be32(&priv->txbd[priv->tx_idx].bufptr, (u32)packet);
+	out_be16(&priv->txbd[priv->tx_idx].length, length);
+	status = in_be16(&priv->txbd[priv->tx_idx].status);
+	out_be16(&priv->txbd[priv->tx_idx].status, status |
+		(TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT));
+
+	/* Tell the DMA to go */
+	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
+
+	/* Wait for buffer to be transmitted */
+	for (i = 0;
+	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
+	     i++) {
+		if (i >= TOUT_LOOP) {
+			debug("%s: tsec: tx error\n", dev->name);
+			return result;
+		}
+	}
+
+	priv->tx_idx = (priv->tx_idx + 1) % TX_BUF_CNT;
+	result = in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_STATS;
+
+	return result;
+}
+
+static int tsec_recv(struct eth_device *dev)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	struct tsec __iomem *regs = priv->regs;
+
+	while (!(in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY)) {
+		int length = in_be16(&priv->rxbd[priv->rx_idx].length);
+		uint16_t status = in_be16(&priv->rxbd[priv->rx_idx].status);
+		uchar *packet = net_rx_packets[priv->rx_idx];
+
+		/* Send the packet up if there were no errors */
+		if (!(status & RXBD_STATS))
+			net_process_received_packet(packet, length - 4);
+		else
+			printf("Got error %x\n", (status & RXBD_STATS));
+
+		out_be16(&priv->rxbd[priv->rx_idx].length, 0);
+
+		status = RXBD_EMPTY;
+		/* Set the wrap bit if this is the last element in the list */
+		if ((priv->rx_idx + 1) == PKTBUFSRX)
+			status |= RXBD_WRAP;
+		out_be16(&priv->rxbd[priv->rx_idx].status, status);
+
+		priv->rx_idx = (priv->rx_idx + 1) % PKTBUFSRX;
+	}
+
+	if (in_be32(&regs->ievent) & IEVENT_BSY) {
+		out_be32(&regs->ievent, IEVENT_BSY);
+		out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
+	}
+
+	return -1;
+}
+
+/* Stop the interface */
+static void tsec_halt(struct eth_device *dev)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	struct tsec __iomem *regs = priv->regs;
+
+	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
+	setbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
+
+	while ((in_be32(&regs->ievent) & (IEVENT_GRSC | IEVENT_GTSC))
+			!= (IEVENT_GRSC | IEVENT_GTSC))
+		;
+
+	clrbits_be32(&regs->maccfg1, MACCFG1_TX_EN | MACCFG1_RX_EN);
+
+	/* Shut down the PHY, as needed */
+	phy_shutdown(priv->phydev);
+}
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 /*
  * When MACCFG1[Rx_EN] is enabled during system boot as part
@@ -360,109 +461,6 @@ static void startup_tsec(struct eth_device *dev)
 	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
 	out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
 	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
-}
-
-/*
- * This returns the status bits of the device. The return value
- * is never checked, and this is what the 8260 driver did, so we
- * do the same. Presumably, this would be zero if there were no
- * errors
- */
-static int tsec_send(struct eth_device *dev, void *packet, int length)
-{
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	struct tsec __iomem *regs = priv->regs;
-	uint16_t status;
-	int result = 0;
-	int i;
-
-	/* Find an empty buffer descriptor */
-	for (i = 0;
-	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
-	     i++) {
-		if (i >= TOUT_LOOP) {
-			debug("%s: tsec: tx buffers full\n", dev->name);
-			return result;
-		}
-	}
-
-	out_be32(&priv->txbd[priv->tx_idx].bufptr, (u32)packet);
-	out_be16(&priv->txbd[priv->tx_idx].length, length);
-	status = in_be16(&priv->txbd[priv->tx_idx].status);
-	out_be16(&priv->txbd[priv->tx_idx].status, status |
-		(TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT));
-
-	/* Tell the DMA to go */
-	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
-
-	/* Wait for buffer to be transmitted */
-	for (i = 0;
-	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
-	     i++) {
-		if (i >= TOUT_LOOP) {
-			debug("%s: tsec: tx error\n", dev->name);
-			return result;
-		}
-	}
-
-	priv->tx_idx = (priv->tx_idx + 1) % TX_BUF_CNT;
-	result = in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_STATS;
-
-	return result;
-}
-
-static int tsec_recv(struct eth_device *dev)
-{
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	struct tsec __iomem *regs = priv->regs;
-
-	while (!(in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY)) {
-		int length = in_be16(&priv->rxbd[priv->rx_idx].length);
-		uint16_t status = in_be16(&priv->rxbd[priv->rx_idx].status);
-		uchar *packet = net_rx_packets[priv->rx_idx];
-
-		/* Send the packet up if there were no errors */
-		if (!(status & RXBD_STATS))
-			net_process_received_packet(packet, length - 4);
-		else
-			printf("Got error %x\n", (status & RXBD_STATS));
-
-		out_be16(&priv->rxbd[priv->rx_idx].length, 0);
-
-		status = RXBD_EMPTY;
-		/* Set the wrap bit if this is the last element in the list */
-		if ((priv->rx_idx + 1) == PKTBUFSRX)
-			status |= RXBD_WRAP;
-		out_be16(&priv->rxbd[priv->rx_idx].status, status);
-
-		priv->rx_idx = (priv->rx_idx + 1) % PKTBUFSRX;
-	}
-
-	if (in_be32(&regs->ievent) & IEVENT_BSY) {
-		out_be32(&regs->ievent, IEVENT_BSY);
-		out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
-	}
-
-	return -1;
-}
-
-/* Stop the interface */
-static void tsec_halt(struct eth_device *dev)
-{
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	struct tsec __iomem *regs = priv->regs;
-
-	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
-	setbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
-
-	while ((in_be32(&regs->ievent) & (IEVENT_GRSC | IEVENT_GTSC))
-			!= (IEVENT_GRSC | IEVENT_GTSC))
-		;
-
-	clrbits_be32(&regs->maccfg1, MACCFG1_TX_EN | MACCFG1_RX_EN);
-
-	/* Shut down the PHY, as needed */
-	phy_shutdown(priv->phydev);
 }
 
 /*
