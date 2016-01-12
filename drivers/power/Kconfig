@@ -167,7 +167,7 @@ config AXP_ALDO4_VOLT
 
 config AXP_DLDO1_VOLT
 	int "axp pmic dldo1 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic dldo1 at, set to 0 to
@@ -177,7 +177,7 @@ config AXP_DLDO1_VOLT
 
 config AXP_DLDO2_VOLT
 	int "axp pmic dldo2 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic dldo2 at, set to 0 to
@@ -185,7 +185,7 @@ config AXP_DLDO2_VOLT
 
 config AXP_DLDO3_VOLT
 	int "axp pmic dldo3 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic dldo3 at, set to 0 to
@@ -201,7 +201,7 @@ config AXP_DLDO4_VOLT
 
 config AXP_ELDO1_VOLT
 	int "axp pmic eldo1 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic eldo1 at, set to 0 to
@@ -209,7 +209,7 @@ config AXP_ELDO1_VOLT
 
 config AXP_ELDO2_VOLT
 	int "axp pmic eldo2 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic eldo2 at, set to 0 to
@@ -217,7 +217,7 @@ config AXP_ELDO2_VOLT
 
 config AXP_ELDO3_VOLT
 	int "axp pmic eldo3 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic eldo3 at, set to 0 to
