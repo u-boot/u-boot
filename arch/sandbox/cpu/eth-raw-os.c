@@ -76,6 +76,10 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 		printf("Failed to set promiscuous mode: %d %s\n"
 		       "Falling back to the old \"flags\" way...\n",
 			errno, strerror(errno));
+		if (strlen(ifname) >= IFNAMSIZ) {
+			printf("Interface name %s is too long.\n", ifname);
+			return -EINVAL;
+		}
 		strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
 		if (ioctl(priv->sd, SIOCGIFFLAGS, &ifr) < 0) {
 			printf("Failed to read flags: %d %s\n", errno,

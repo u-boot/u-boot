@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <i2c.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
@@ -72,10 +71,5 @@ int tegra_pcie_board_init(void)
 		printf("i2c_write 0 0x3c 0x25 failed: %d\n", ret);
 
 	return 0;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
 }
 #endif /* PCI */

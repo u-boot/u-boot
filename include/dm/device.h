@@ -776,4 +776,25 @@ static inline void devm_kfree(struct udevice *dev, void *ptr)
 
 #endif /* ! CONFIG_DEVRES */
 
+/**
+ * dm_set_translation_offset() - Set translation offset
+ * @offs: Translation offset
+ *
+ * Some platforms need a special address translation. Those
+ * platforms (e.g. mvebu in SPL) can configure a translation
+ * offset in the DM by calling this function. It will be
+ * added to all addresses returned in dev_get_addr().
+ */
+void dm_set_translation_offset(fdt_addr_t offs);
+
+/**
+ * dm_get_translation_offset() - Get translation offset
+ *
+ * This function returns the translation offset that can
+ * be configured by calling dm_set_translation_offset().
+ *
+ * @return translation offset for the device address (0 as default).
+ */
+fdt_addr_t dm_get_translation_offset(void);
+
 #endif

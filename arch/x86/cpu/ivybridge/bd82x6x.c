@@ -86,8 +86,10 @@ static int bd82x6x_probe(struct udevice *dev)
 		debug("%s: Cannot find GMA node\n", __func__);
 		return -EINVAL;
 	}
-	ret = gma_func0_init(PCH_VIDEO_DEV, pci_bus_to_hose(0), blob,
-			     gma_node);
+	ret = dm_pci_bus_find_bdf(PCH_VIDEO_DEV, &dev);
+	if (ret)
+		return ret;
+	ret = gma_func0_init(dev, blob, gma_node);
 	if (ret)
 		return ret;
 

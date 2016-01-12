@@ -11,26 +11,25 @@
 #include <sdhci.h>
 #include <asm/pci.h>
 
-int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported,
-		 int num_ids)
+int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported)
 {
 	struct sdhci_host *mmc_host;
-	pci_dev_t devbusfn;
 	u32 iobase;
 	int ret;
 	int i;
 
-	for (i = 0; i < num_ids; i++) {
-		devbusfn = pci_find_devices(mmc_supported, i);
-		if (devbusfn == -1)
-			return -ENODEV;
+	for (i = 0; ; i++) {
+		struct udevice *dev;
 
+		ret = pci_find_device_id(mmc_supported, i, &dev);
+		if (ret)
+			return ret;
 		mmc_host = malloc(sizeof(struct sdhci_host));
 		if (!mmc_host)
 			return -ENOMEM;
 
 		mmc_host->name = (char *)name;
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &iobase);
+		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
 		mmc_host->ioaddr = (void *)iobase;
 		mmc_host->quirks = 0;
 		ret = add_sdhci(mmc_host, 0, 0);

@@ -12,8 +12,7 @@ void bd82x6x_sata_enable(pci_dev_t dev, const void *blob, int node);
 void bd82x6x_pci_init(pci_dev_t dev);
 void bd82x6x_usb_ehci_init(pci_dev_t dev);
 void bd82x6x_usb_xhci_init(pci_dev_t dev);
-int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
-		   const void *blob, int node);
+int gma_func0_init(struct udevice *dev, const void *blob, int node);
 int bd82x6x_init(void);
 
 /**

@@ -597,22 +597,31 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 		 * Use the full-fledged translate function for complex
 		 * bus setups.
 		 */
-		return fdt_translate_address((void *)gd->fdt_blob,
+		addr = fdt_translate_address((void *)gd->fdt_blob,
 					     dev->of_offset, reg);
+	} else {
+		/*
+		 * Use the "simple" translate function for less complex
+		 * bus setups.
+		 */
+		addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
+							dev->parent->of_offset,
+							dev->of_offset, "reg",
+							0, NULL);
+		if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
+			if (device_get_uclass_id(dev->parent) ==
+			    UCLASS_SIMPLE_BUS)
+				addr = simple_bus_translate(dev->parent, addr);
+		}
 	}
 
 	/*
-	 * Use the "simple" translate function for less complex
-	 * bus setups.
+	 * Some platforms need a special address translation. Those
+	 * platforms (e.g. mvebu in SPL) can configure a translation
+	 * offset in the DM by calling dm_set_translation_offset() that
+	 * will get added to all addresses returned by dev_get_addr().
 	 */
-	addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
-						dev->parent->of_offset,
-						dev->of_offset, "reg",
-						0, NULL);
-	if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
-		if (device_get_uclass_id(dev->parent) == UCLASS_SIMPLE_BUS)
-			addr = simple_bus_translate(dev->parent, addr);
-	}
+	addr += dm_get_translation_offset();
 
 	return addr;
 #else

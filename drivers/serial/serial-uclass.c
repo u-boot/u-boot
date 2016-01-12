@@ -204,7 +204,7 @@ void serial_stdio_init(void)
 {
 }
 
-#ifdef CONFIG_DM_STDIO
+#if defined(CONFIG_DM_STDIO) && CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
 {
 	_serial_putc(sdev->priv, ch);
@@ -287,6 +287,7 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(baudrate, on_baudrate);
 
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static int serial_post_probe(struct udevice *dev)
 {
 	struct dm_serial_ops *ops = serial_get_ops(dev);
@@ -356,3 +357,4 @@ UCLASS_DRIVER(serial) = {
 	.pre_remove	= serial_pre_remove,
 	.per_device_auto_alloc_size = sizeof(struct serial_dev_priv),
 };
+#endif

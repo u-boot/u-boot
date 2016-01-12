@@ -35,20 +35,17 @@ DM_TEST(dm_test_pci_busnum, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 /* Test that we can use the swapcase device correctly */
 static int dm_test_pci_swapcase(struct unit_test_state *uts)
 {
-	pci_dev_t pci_dev = PCI_BDF(0, 0x1f, 0);
-	struct pci_controller *hose;
-	struct udevice *bus, *swap;
+	struct udevice *emul, *swap;
 	ulong io_addr, mem_addr;
 	char *ptr;
 
 	/* Check that asking for the device automatically fires up PCI */
-	ut_assertok(uclass_get_device(UCLASS_PCI_EMUL, 0, &swap));
-
-	ut_assertok(uclass_get_device(UCLASS_PCI, 0, &bus));
-	hose = dev_get_uclass_priv(bus);
+	ut_assertok(uclass_get_device(UCLASS_PCI_EMUL, 0, &emul));
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap));
+	ut_assert(device_active(swap));
 
 	/* First test I/O */
-	io_addr = pci_read_bar32(hose, pci_dev, 0);
+	io_addr = dm_pci_read_bar32(swap, 0);
 	outb(2, io_addr);
 	ut_asserteq(2, inb(io_addr));
 
@@ -56,7 +53,7 @@ static int dm_test_pci_swapcase(struct unit_test_state *uts)
 	 * Now test memory mapping - note we must unmap and remap to cause
 	 * the swapcase emulation to see our data and response.
 	 */
-	mem_addr = pci_read_bar32(hose, pci_dev, 1);
+	mem_addr = dm_pci_read_bar32(swap, 1);
 	ptr = map_sysmem(mem_addr, 20);
 	strcpy(ptr, "This is a TesT");
 	unmap_sysmem(ptr);

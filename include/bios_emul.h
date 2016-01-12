@@ -42,7 +42,7 @@ struct vbe_mode_info;
 int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo **pVGAInfo, int cleanUp);
 
 /* Run a BIOS ROM natively (only supported on x86 machines) */
-void bios_run_on_x86(pci_dev_t pcidev, unsigned long addr, int vesa_mode,
+void bios_run_on_x86(struct udevice *dev, unsigned long addr, int vesa_mode,
 		     struct vbe_mode_info *mode_info);
 
 /**

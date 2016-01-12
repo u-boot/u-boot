@@ -14,7 +14,6 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <i2c.h>
-#include <netdev.h>
 
 #include "pinmux-config-apalis_t30.h"
 
@@ -91,10 +90,5 @@ int tegra_pcie_board_init(void)
 	}
 
 	return 0;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
 }
 #endif /* CONFIG_PCI_TEGRA */

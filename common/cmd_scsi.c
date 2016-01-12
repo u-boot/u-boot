@@ -184,7 +184,7 @@ int scsi_get_disk_count(void)
 #if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
 void scsi_init(void)
 {
-	int busdevfunc;
+	int busdevfunc = -1;
 	int i;
 	/*
 	 * Find a device from the list, this driver will support a single
@@ -192,9 +192,21 @@ void scsi_init(void)
 	 */
 	for (i = 0; i < ARRAY_SIZE(scsi_device_list); i++) {
 		/* get PCI Device ID */
+#ifdef CONFIG_DM_PCI
+		struct udevice *dev;
+		int ret;
+
+		ret = dm_pci_find_device(scsi_device_list[i].vendor,
+					 scsi_device_list[i].device, 0, &dev);
+		if (!ret) {
+			busdevfunc = dm_pci_get_bdf(dev);
+			break;
+		}
+#else
 		busdevfunc = pci_find_device(scsi_device_list[i].vendor,
 					     scsi_device_list[i].device,
 					     0);
+#endif
 		if (busdevfunc != -1)
 			break;
 	}

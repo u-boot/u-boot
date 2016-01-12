@@ -19,6 +19,7 @@
 
 static struct pci_device_id mmc_supported[] = {
 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_QRK_SDIO },
+	{},
 };
 
 /*
@@ -337,8 +338,7 @@ int arch_early_init_r(void)
 
 int cpu_mmc_init(bd_t *bis)
 {
-	return pci_mmc_init("Quark SDHCI", mmc_supported,
-			    ARRAY_SIZE(mmc_supported));
+	return pci_mmc_init("Quark SDHCI", mmc_supported);
 }
 
 void cpu_irq_init(void)
