@@ -33,6 +33,15 @@ struct clk_ops {
 	ulong (*set_rate)(struct udevice *dev, ulong rate);
 
 	/**
+	 * enable() - Enable the clock for a peripheral
+	 *
+	 * @dev:	clock provider
+	 * @periph:	Peripheral ID to enable
+	 * @return zero on success, or -ve error code
+	 */
+	int (*enable)(struct udevice *dev, int periph);
+
+	/**
 	 * get_periph_rate() - Get clock rate for a peripheral
 	 *
 	 * @dev:	Device to check (UCLASS_CLK)
@@ -69,6 +78,15 @@ ulong clk_get_rate(struct udevice *dev);
  * @return new rate, or -ve error code
  */
 ulong clk_set_rate(struct udevice *dev, ulong rate);
+
+/**
+ * clk_enable() - Enable the clock for a peripheral
+ *
+ * @dev:	clock provider
+ * @periph:	Peripheral ID to enable
+ * @return zero on success, or -ve error code
+ */
+int clk_enable(struct udevice *dev, int periph);
 
 /**
  * clk_get_periph_rate() - Get current clock rate for a peripheral

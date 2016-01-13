@@ -32,6 +32,16 @@ ulong clk_set_rate(struct udevice *dev, ulong rate)
 	return ops->set_rate(dev, rate);
 }
 
+int clk_enable(struct udevice *dev, int periph)
+{
+	struct clk_ops *ops = clk_get_ops(dev);
+
+	if (!ops->enable)
+		return -ENOSYS;
+
+	return ops->enable(dev, periph);
+}
+
 ulong clk_get_periph_rate(struct udevice *dev, int periph)
 {
 	struct clk_ops *ops = clk_get_ops(dev);
