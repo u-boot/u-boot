@@ -32,7 +32,7 @@ static ulong sandbox_clk_set_rate(struct udevice *dev, ulong rate)
 	return 0;
 }
 
-ulong sandbox_get_periph_rate(struct udevice *dev, int periph)
+static ulong sandbox_get_periph_rate(struct udevice *dev, int periph)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(dev);
 
@@ -41,7 +41,8 @@ ulong sandbox_get_periph_rate(struct udevice *dev, int periph)
 	return priv->periph_rate[periph];
 }
 
-ulong sandbox_set_periph_rate(struct udevice *dev, int periph, ulong rate)
+static ulong sandbox_set_periph_rate(struct udevice *dev, int periph,
+				     ulong rate)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(dev);
 	ulong old_rate;

@@ -508,7 +508,7 @@ static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
 	return rockchip_spi_get_clk(cru, clk_general_rate, periph);
 }
 
-ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
+static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
 	ulong new_rate;
