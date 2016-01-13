@@ -118,6 +118,7 @@ config ARCH_MVEBU
 	select OF_SEPARATE
 	select DM
 	select DM_SERIAL
+	select SPL_DM_SEQ_ALIAS
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"

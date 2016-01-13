@@ -64,7 +64,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	dev->seq = -1;
 	dev->req_seq = -1;
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && IS_ENABLED(CONFIG_DM_SEQ_ALIAS)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS)) {
 		/*
 		* Some devices, such as a SPI bus, I2C bus and serial ports
 		* are numbered using aliases.
