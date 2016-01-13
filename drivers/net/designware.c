@@ -406,7 +406,7 @@ static int _dw_free_pkt(struct dw_eth_dev *priv)
 static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 {
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
+	int mask = 0xffffffff, ret;
 
 #ifdef CONFIG_PHY_ADDR
 	mask = 1 << CONFIG_PHY_ADDR;
@@ -419,6 +419,11 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 	phy_connect_dev(phydev, dev);
 
 	phydev->supported &= PHY_GBIT_FEATURES;
+	if (priv->max_speed) {
+		ret = phy_set_supported(phydev, priv->max_speed);
+		if (ret)
+			return ret;
+	}
 	phydev->advertising = phydev->supported;
 
 	priv->phydev = phydev;
@@ -601,6 +606,7 @@ static int designware_eth_probe(struct udevice *dev)
 	priv->mac_regs_p = (struct eth_mac_regs *)iobase;
 	priv->dma_regs_p = (struct eth_dma_regs *)(iobase + DW_DMA_BASE_OFFSET);
 	priv->interface = pdata->phy_interface;
+	priv->max_speed = pdata->max_speed;
 
 	dw_mdio_init(dev->name, priv->mac_regs_p);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
@@ -635,6 +641,7 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const char *phy_mode;
+	const fdt32_t *cell;
 
 	pdata->iobase = dev_get_addr(dev);
 	pdata->phy_interface = -1;
@@ -645,6 +652,11 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
+
+	pdata->max_speed = 0;
+	cell = fdt_getprop(gd->fdt_blob, dev->of_offset, "max-speed", NULL);
+	if (cell)
+		pdata->max_speed = fdt32_to_cpu(*cell);
 
 	return 0;
 }
