@@ -199,6 +199,9 @@ int xilinx_info(xilinx_desc *desc)
 		case xilinx_zynq:
 			printf("Zynq PL\n");
 			break;
+		case xilinx_zynqmp:
+			printf("ZynqMP PL\n");
+			break;
 			/* Add new family types here */
 		default:
 			printf ("Unknown family type, %d\n", desc->family);
@@ -226,6 +229,9 @@ int xilinx_info(xilinx_desc *desc)
 			break;
 		case devcfg:
 			printf("Device configuration interface (Zynq)\n");
+			break;
+		case csu_dma:
+			printf("csu_dma configuration interface (ZynqMP)\n");
 			break;
 			/* Add new interface types here */
 		default:

@@ -21,6 +21,7 @@ typedef enum {			/* typedef xilinx_iface */
 	master_selectmap,	/* master SelectMap (virtex2)           */
 	slave_selectmap,	/* slave SelectMap (virtex2)            */
 	devcfg,			/* devcfg interface (zynq) */
+	csu_dma,		/* csu_dma interface (zynqmp) */
 	max_xilinx_iface_type	/* insert all new types before this */
 } xilinx_iface;			/* end, typedef xilinx_iface */
 
@@ -31,6 +32,7 @@ typedef enum {			/* typedef xilinx_family */
 	xilinx_virtex2,		/* Virtex2 Family */
 	xilinx_spartan3,	/* Spartan-III Family */
 	xilinx_zynq,		/* Zynq Family */
+	xilinx_zynqmp,		/* ZynqMP Family */
 	max_xilinx_type		/* insert all new types before this */
 } xilinx_family;		/* end, typedef xilinx_family */
 
