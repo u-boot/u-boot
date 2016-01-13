@@ -1,0 +1,43 @@
+/*
+ * dts file for Xilinx ZynqMP ZCU102 RevB
+ *
+ * (C) Copyright 2016, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ */
+
+/include/ "zynqmp-zcu102.dts"
+/ {
+	model = "ZynqMP ZCU102 RevB";
+};
+
+&gem3 {
+	phy-handle = <&phyc>;
+	phyc: phy@c {
+		reg = <0xc>;
+		ti,rx-internal-delay = <0x8>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <0x1>;
+	};
+	/* Cleanup from RevA */
+	/delete-node/ phy@21;
+};
+
+/* Different qspi 512Mbit version */
+
+/* Fix collision with u61 */
+&i2c0 {
+	i2cswitch@75 {
+		i2c@2 {
+			max15303@1b { /* u6 */
+				reg = <0x1b>;
+			};
+			/delete-node/ max15303@15;
+		};
+	};
+};
