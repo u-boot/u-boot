@@ -8,6 +8,10 @@
 #ifndef _CLK_H_
 #define _CLK_H_
 
+#include <linux/types.h>
+
+struct udevice;
+
 int soc_clk_dump(void);
 
 struct clk_ops {
