@@ -29,19 +29,19 @@ struct clk_ops {
 	ulong (*set_rate)(struct udevice *dev, ulong rate);
 
 	/**
-	* clk_set_periph_rate() - Set clock rate for a peripheral
-	*
-	* @dev:	Device to adjust (UCLASS_CLK)
-	* @rate:	New clock rate in Hz
-	* @return new clock rate in Hz, or -ve error code
-	*/
+	 * get_periph_rate() - Get clock rate for a peripheral
+	 *
+	 * @dev:	Device to check (UCLASS_CLK)
+	 * @periph:	Peripheral ID to check
+	 * @return clock rate in Hz, or -ve error code
+	 */
 	ulong (*get_periph_rate)(struct udevice *dev, int periph);
 
 	/**
-	 * clk_set_periph_rate() - Set current clock rate for a peripheral
+	 * set_periph_rate() - Set current clock rate for a peripheral
 	 *
 	 * @dev:	Device to update (UCLASS_CLK)
-	 * @periph:	Peripheral ID to cupdate
+	 * @periph:	Peripheral ID to update
 	 * @return new clock rate in Hz, or -ve error code
 	 */
 	ulong (*set_periph_rate)(struct udevice *dev, int periph, ulong rate);
@@ -58,7 +58,7 @@ struct clk_ops {
 ulong clk_get_rate(struct udevice *dev);
 
 /**
- * set_rate() - Set current clock rate
+ * clk_set_rate() - Set current clock rate
  *
  * @dev:	Device to adjust
  * @rate:	New clock rate in Hz
@@ -78,7 +78,7 @@ ulong clk_get_periph_rate(struct udevice *dev, int periph);
  * clk_set_periph_rate() - Set current clock rate for a peripheral
  *
  * @dev:	Device to update (UCLASS_CLK)
- * @periph:	Peripheral ID to cupdate
+ * @periph:	Peripheral ID to update
  * @return new clock rate in Hz, or -ve error code
  */
 ulong clk_set_periph_rate(struct udevice *dev, int periph, ulong rate);
