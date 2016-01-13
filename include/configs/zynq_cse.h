@@ -19,10 +19,7 @@
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_FIT_DISABLE_SHA256
 
-#if defined(CONFIG_CSE_QSPI)
-# define CONFIG_ZYNQ_QSPI
-
-#elif defined(CONFIG_CSE_NAND)
+#if defined(CONFIG_CSE_NAND)
 # define CONFIG_NAND_ZYNQ
 
 #elif defined(CONFIG_CSE_NOR)

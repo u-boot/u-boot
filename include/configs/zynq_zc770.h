@@ -25,9 +25,6 @@
 #elif defined(CONFIG_ZC770_XM012)
 # undef CONFIG_SYS_NO_FLASH
 
-#elif defined(CONFIG_ZC770_XM013)
-# define CONFIG_ZYNQ_QSPI
-
 #endif
 
 #include <configs/zynq-common.h>

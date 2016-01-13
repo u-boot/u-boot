@@ -34,7 +34,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_ZYNQ_SDHCI1
-#define CONFIG_ZYNQ_QSPI
 #define CONFIG_ZYNQ_BOOT_FREEBSD
 
 #include <configs/zynq-common.h>
