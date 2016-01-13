@@ -15,12 +15,23 @@
 #include <asm/io.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
+#include <zynqmppl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
+static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
+#endif
 
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
+
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
+	fpga_init();
+	/* FIXME FPGA size/id will be handled via SMCs */
+	fpga_add(fpga_xilinx, &zynqmppl);
+#endif
 
 	return 0;
 }
