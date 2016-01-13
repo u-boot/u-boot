@@ -382,8 +382,6 @@ int genphy_config(struct phy_device *phydev)
 	int val;
 	u32 features;
 
-	/* For now, I'll claim that the generic driver supports
-	 * all possible port types */
 	features = (SUPPORTED_TP | SUPPORTED_MII
 			| SUPPORTED_AUI | SUPPORTED_FIBRE |
 			SUPPORTED_BNC);
@@ -422,8 +420,8 @@ int genphy_config(struct phy_device *phydev)
 			features |= SUPPORTED_1000baseX_Half;
 	}
 
-	phydev->supported = features;
-	phydev->advertising = features;
+	phydev->supported &= features;
+	phydev->advertising &= features;
 
 	genphy_config_aneg(phydev);
 
@@ -447,7 +445,9 @@ static struct phy_driver genphy_driver = {
 	.uid		= 0xffffffff,
 	.mask		= 0xffffffff,
 	.name		= "Generic PHY",
-	.features	= 0,
+	.features	= PHY_GBIT_FEATURES | SUPPORTED_MII |
+			  SUPPORTED_AUI | SUPPORTED_FIBRE |
+			  SUPPORTED_BNC,
 	.config		= genphy_config,
 	.startup	= genphy_startup,
 	.shutdown	= genphy_shutdown,
