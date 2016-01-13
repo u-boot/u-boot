@@ -482,47 +482,49 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 void fdt_fixup_ethernet(void *fdt)
 {
 	int node, i, j;
-	char enet[16], *tmp, *end;
+	char *tmp, *end;
 	char mac[16];
 	const char *path;
 	unsigned char mac_addr[6];
+	int offset;
 
 	node = fdt_path_offset(fdt, "/aliases");
 	if (node < 0)
 		return;
 
-	if (!getenv("ethaddr")) {
-		if (getenv("usbethaddr")) {
-			strcpy(mac, "usbethaddr");
-		} else {
-			debug("No ethernet MAC Address defined\n");
-			return;
+	for (offset = fdt_first_property_offset(fdt, node);
+	     offset > 0;
+	     offset = fdt_next_property_offset(fdt, offset)) {
+		const char *name;
+		int len = strlen("ethernet");
+
+		path = fdt_getprop_by_offset(fdt, offset, &name, NULL);
+		if (!strncmp(name, "ethernet", len)) {
+			i = trailing_strtol(name);
+			if (i != -1) {
+				if (i == 0)
+					strcpy(mac, "ethaddr");
+				else
+					sprintf(mac, "eth%daddr", i);
+			} else {
+				continue;
+			}
+			tmp = getenv(mac);
+			if (!tmp)
+				continue;
+
+			for (j = 0; j < 6; j++) {
+				mac_addr[j] = tmp ?
+					      simple_strtoul(tmp, &end, 16) : 0;
+				if (tmp)
+					tmp = (*end) ? end + 1 : end;
+			}
+
+			do_fixup_by_path(fdt, path, "mac-address",
+					 &mac_addr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+					 &mac_addr, 6, 1);
 		}
-	} else {
-		strcpy(mac, "ethaddr");
-	}
-
-	i = 0;
-	while ((tmp = getenv(mac)) != NULL) {
-		sprintf(enet, "ethernet%d", i);
-		path = fdt_getprop(fdt, node, enet, NULL);
-		if (!path) {
-			debug("No alias for %s\n", enet);
-			sprintf(mac, "eth%daddr", ++i);
-			continue;
-		}
-
-		for (j = 0; j < 6; j++) {
-			mac_addr[j] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
-			if (tmp)
-				tmp = (*end) ? end+1 : end;
-		}
-
-		do_fixup_by_path(fdt, path, "mac-address", &mac_addr, 6, 0);
-		do_fixup_by_path(fdt, path, "local-mac-address",
-				&mac_addr, 6, 1);
-
-		sprintf(mac, "eth%daddr", ++i);
 	}
 }
 
