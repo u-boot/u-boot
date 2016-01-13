@@ -184,6 +184,9 @@ config CMD_XIMG
 	help
 	  Extract a part of a multi-image.
 
+config CMD_POWEROFF
+	bool
+
 endmenu
 
 menu "Environment commands"

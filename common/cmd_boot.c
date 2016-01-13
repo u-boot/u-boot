@@ -61,3 +61,11 @@ U_BOOT_CMD(
 	"Perform RESET of the CPU",
 	""
 );
+
+#ifdef CONFIG_CMD_POWEROFF
+U_BOOT_CMD(
+	poweroff, 1, 0,	do_poweroff,
+	"Perform POWEROFF of the device",
+	""
+);
+#endif
