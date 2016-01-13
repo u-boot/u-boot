@@ -196,6 +196,8 @@ static void dw_adjust_link(struct eth_mac_regs *mac_p,
 
 	if (phydev->speed != 1000)
 		conf |= MII_PORTSELECT;
+	else
+		conf &= ~MII_PORTSELECT;
 
 	if (phydev->speed == 100)
 		conf |= FES_100;
