@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 dtb-$(CONFIG_TARGET_CANYONLANDS) += arches.dtb canyonlands.dtb glacier.dtb
 
 targets += $(dtb-y)

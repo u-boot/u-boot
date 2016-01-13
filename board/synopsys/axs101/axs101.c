@@ -7,8 +7,6 @@
 #include <common.h>
 #include <dwmmc.h>
 #include <malloc.h>
-#include <netdev.h>
-#include <phy.h>
 #include "axs10x.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -34,16 +32,6 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 }
-
-int board_eth_init(bd_t *bis)
-{
-	if (designware_initialize(ARC_DWGMAC_BASE,
-				  PHY_INTERFACE_MODE_RGMII) >= 0)
-		return 1;
-
-	return 0;
-}
-
 
 #define AXS_MB_CREG	0xE0011000
 

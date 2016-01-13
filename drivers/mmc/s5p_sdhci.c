@@ -106,6 +106,12 @@ static int do_sdhci_init(struct sdhci_host *host)
 	flag = host->bus_width == 8 ? PINMUX_FLAG_8BIT_MODE : PINMUX_FLAG_NONE;
 	dev_id = host->index + PERIPH_ID_SDMMC0;
 
+	ret = exynos_pinmux_config(dev_id, flag);
+	if (ret) {
+		printf("external SD not configured\n");
+		return ret;
+	}
+
 	if (dm_gpio_is_valid(&host->pwr_gpio)) {
 		dm_gpio_set_value(&host->pwr_gpio, 1);
 		ret = exynos_pinmux_config(dev_id, flag);
@@ -120,12 +126,6 @@ static int do_sdhci_init(struct sdhci_host *host)
 		if (ret) {
 			debug("no SD card detected (%d)\n", ret);
 			return -ENODEV;
-		}
-
-		ret = exynos_pinmux_config(dev_id, flag);
-		if (ret) {
-			printf("external SD not configured\n");
-			return ret;
 		}
 	}
 
@@ -193,7 +193,7 @@ static int process_nodes(const void *blob, int node_list[], int count)
 		}
 
 		ret = do_sdhci_init(host);
-		if (ret) {
+		if (ret && ret != -ENODEV) {
 			printf("%s: failed to initialize dev %d (%d)\n", __func__, i, ret);
 			failed++;
 		}

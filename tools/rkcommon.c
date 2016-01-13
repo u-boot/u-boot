@@ -25,7 +25,7 @@ enum {
  *
  * @signature:		Signature (must be RKSD_SIGNATURE)
  * @disable_rc4:	0 to use rc4 for boot image,  1 to use plain binary
- * @code1_offset:	Offset in blocks of the SPL code from this header
+ * @init_offset:	Offset in blocks of the SPL code from this header
  *			block. E.g. 4 means 2KB after the start of this header.
  * Other fields are not used by U-Boot
  */
@@ -33,12 +33,29 @@ struct header0_info {
 	uint32_t signature;
 	uint8_t reserved[4];
 	uint32_t disable_rc4;
-	uint16_t code1_offset;
-	uint16_t code2_offset;
-	uint8_t reserved1[490];
-	uint16_t usflashdatasize;
-	uint16_t ucflashbootsize;
+	uint16_t init_offset;
+	uint8_t reserved1[492];
+	uint16_t init_size;
+	uint16_t init_boot_size;
 	uint8_t reserved2[2];
+};
+
+/**
+ * struct spl_info - spl info for each chip
+ *
+ * @imagename:		Image name(passed by "mkimage -n")
+ * @spl_hdr:		Boot ROM requires a 4-bytes spl header
+ * @spl_size:		Spl size(include extra 4-bytes spl header)
+ */
+struct spl_info {
+	const char *imagename;
+	const char *spl_hdr;
+	const uint32_t spl_size;
+};
+
+static struct spl_info spl_infos[] = {
+	{ "rk3036", "RK30", 0x1000 },
+	{ "rk3288", "RK32", 0x8000 },
 };
 
 static unsigned char rc4_key[16] = {
@@ -46,25 +63,72 @@ static unsigned char rc4_key[16] = {
 	45, 44, 123, 56, 23, 13, 23, 17
 };
 
-int rkcommon_set_header(void *buf, uint file_size)
+static struct spl_info *rkcommon_get_spl_info(char *imagename)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(spl_infos); i++)
+		if (!strncmp(imagename, spl_infos[i].imagename, 6))
+			return spl_infos + i;
+
+	return NULL;
+}
+
+int rkcommon_check_params(struct image_tool_params *params)
+{
+	int i;
+
+	if (rkcommon_get_spl_info(params->imagename) != NULL)
+		return 0;
+
+	fprintf(stderr, "ERROR: imagename (%s) is not supported!\n",
+		strlen(params->imagename) > 0 ? params->imagename : "NULL");
+
+	fprintf(stderr, "Available imagename:");
+	for (i = 0; i < ARRAY_SIZE(spl_infos); i++)
+		fprintf(stderr, "\t%s", spl_infos[i].imagename);
+	fprintf(stderr, "\n");
+
+	return -1;
+}
+
+const char *rkcommon_get_spl_hdr(struct image_tool_params *params)
+{
+	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
+
+	/*
+	 * info would not be NULL, because of we checked params before.
+	 */
+	return info->spl_hdr;
+}
+
+int rkcommon_get_spl_size(struct image_tool_params *params)
+{
+	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
+
+	/*
+	 * info would not be NULL, because of we checked params before.
+	 */
+	return info->spl_size;
+}
+
+int rkcommon_set_header(void *buf, uint file_size,
+			struct image_tool_params *params)
 {
 	struct header0_info *hdr;
 
-	if (file_size > RK_MAX_CODE1_SIZE)
+	if (file_size > rkcommon_get_spl_size(params))
 		return -ENOSPC;
 
-	memset(buf,  '\0', RK_CODE1_OFFSET * RK_BLK_SIZE);
+	memset(buf,  '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
 	hdr = (struct header0_info *)buf;
 	hdr->signature = RK_SIGNATURE;
 	hdr->disable_rc4 = 1;
-	hdr->code1_offset = RK_CODE1_OFFSET;
-	hdr->code2_offset = 8;
+	hdr->init_offset = RK_INIT_OFFSET;
 
-	hdr->usflashdatasize = (file_size + RK_BLK_SIZE - 1) / RK_BLK_SIZE;
-	hdr->usflashdatasize = (hdr->usflashdatasize + 3) & ~3;
-	hdr->ucflashbootsize = hdr->usflashdatasize;
-
-	debug("size=%x, %x\n", params->file_size, hdr->usflashdatasize);
+	hdr->init_size = (file_size + RK_BLK_SIZE - 1) / RK_BLK_SIZE;
+	hdr->init_size = (hdr->init_size + 3) & ~3;
+	hdr->init_boot_size = hdr->init_size + RK_MAX_BOOT_SIZE / RK_BLK_SIZE;
 
 	rc4_encode(buf, RK_BLK_SIZE, rc4_key);
 

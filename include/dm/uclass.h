@@ -243,4 +243,19 @@ int uclass_resolve_seq(struct udevice *dev);
 #define uclass_foreach_dev(pos, uc)	\
 	list_for_each_entry(pos, &uc->dev_head, uclass_node)
 
+/**
+ * uclass_foreach_dev_safe() - Helper function to safely iteration through devs
+ *
+ * This creates a for() loop which works through the available devices in
+ * a uclass in order from start to end. Inside the loop, it is safe to remove
+ * @pos if required.
+ *
+ * @pos: struct udevice * to hold the current device. Set to NULL when there
+ * are no more devices.
+ * @next: struct udevice * to hold the next next
+ * @uc: uclass to scan
+ */
+#define uclass_foreach_dev_safe(pos, next, uc)	\
+	list_for_each_entry_safe(pos, next, &uc->dev_head, uclass_node)
+
 #endif

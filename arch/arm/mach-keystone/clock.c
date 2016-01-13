@@ -31,6 +31,7 @@ const struct keystone_pll_regs keystone_pll_regs[] = {
 	[TETRIS_PLL]	= {KS2_ARMPLLCTL0, KS2_ARMPLLCTL1},
 	[DDR3A_PLL]	= {KS2_DDR3APLLCTL0, KS2_DDR3APLLCTL1},
 	[DDR3B_PLL]	= {KS2_DDR3BPLLCTL0, KS2_DDR3BPLLCTL1},
+	[UART_PLL]	= {KS2_UARTPLLCTL0, KS2_UARTPLLCTL1},
 };
 
 inline void pll_pa_clk_sel(void)
@@ -313,6 +314,10 @@ static unsigned long pll_freq_get(int pll)
 			ret = external_clk[ddr3b_clk];
 			reg = KS2_DDR3BPLLCTL0;
 			break;
+		case UART_PLL:
+			ret = external_clk[uart_clk];
+			reg = KS2_UARTPLLCTL0;
+			break;
 		default:
 			return 0;
 		}
@@ -354,6 +359,10 @@ unsigned long clk_get_rate(unsigned int clk)
 	case ddr3b_pll_clk:
 		if (cpu_is_k2hk())
 			freq = pll_freq_get(DDR3B_PLL);
+		break;
+	case uart_pll_clk:
+		if (cpu_is_k2g())
+			freq = pll_freq_get(UART_PLL);
 		break;
 	case sys_clk0_1_clk:
 	case sys_clk0_clk:

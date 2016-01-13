@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/arch/rmobile.h>
@@ -21,19 +22,19 @@
 #define SPPCR_IO3FV	0x04
 #define SPPCR_IO2FV	0x02
 #define SPPCR_IO1FV	0x01
-#define SPBDCR_RXBC0	(1 << 0)
-#define SPCMD_SCKDEN	(1 << 15)
-#define SPCMD_SLNDEN	(1 << 14)
-#define SPCMD_SPNDEN	(1 << 13)
-#define SPCMD_SSLKP	(1 << 7)
-#define SPCMD_BRDV0	(1 << 2)
+#define SPBDCR_RXBC0	BIT(0)
+#define SPCMD_SCKDEN	BIT(15)
+#define SPCMD_SLNDEN	BIT(14)
+#define SPCMD_SPNDEN	BIT(13)
+#define SPCMD_SSLKP	BIT(7)
+#define SPCMD_BRDV0	BIT(2)
 #define SPCMD_INIT1	SPCMD_SCKDEN | SPCMD_SLNDEN | \
 			SPCMD_SPNDEN | SPCMD_SSLKP | \
 			SPCMD_BRDV0
 #define SPCMD_INIT2	SPCMD_SPNDEN | SPCMD_SSLKP | \
 			SPCMD_BRDV0
-#define SPBFCR_TXRST	(1 << 7)
-#define SPBFCR_RXRST	(1 << 6)
+#define SPBFCR_TXRST	BIT(7)
+#define SPBFCR_RXRST	BIT(6)
 
 /* SH QSPI register set */
 struct sh_qspi_regs {

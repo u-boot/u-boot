@@ -2,8 +2,22 @@
 #define _LINUX_BITOPS_H
 
 #include <asm/types.h>
+#include <linux/compiler.h>
 
-#define BIT(nr)		(1UL << (nr))
+#define BIT(nr)			(1UL << (nr))
+#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
+#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
+
+/*
+ * Create a contiguous bitmask starting at bit position @l and ending at
+ * position @h. For example
+ * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
+ */
+#define GENMASK(h, l) \
+	(((~0UL) << (l)) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
+
+#define GENMASK_ULL(h, l) \
+	(((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
 
 /*
  * ffs: find first bit set. This is defined the same way as
@@ -106,9 +120,6 @@ static inline unsigned int generic_hweight8(unsigned int w)
 	return (res & 0x0F) + ((res >> 4) & 0x0F);
 }
 
-#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
-#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
-
 #include <asm/bitops.h>
 
 /* linux/include/asm-generic/bitops/non-atomic.h */
@@ -128,6 +139,32 @@ static inline unsigned int generic_hweight8(unsigned int w)
 #ifndef PLATFORM_FLS
 # define fls generic_fls
 #endif
+
+static inline unsigned fls_long(unsigned long l)
+{
+	if (sizeof(l) == 4)
+		return fls(l);
+	return fls64(l);
+}
+
+/**
+ * __ffs64 - find first set bit in a 64 bit word
+ * @word: The 64 bit word
+ *
+ * On 64 bit arches this is a synomyn for __ffs
+ * The result is not defined if no bits are set, so check that @word
+ * is non-zero before calling this.
+ */
+static inline unsigned long __ffs64(u64 word)
+{
+#if BITS_PER_LONG == 32
+	if (((u32)word) == 0UL)
+		return __ffs((u32)(word >> 32)) + 32;
+#elif BITS_PER_LONG != 64
+#error BITS_PER_LONG not 32 or 64
+#endif
+	return __ffs((unsigned long)word);
+}
 
 /**
  * __set_bit - Set a bit in memory

@@ -12,7 +12,6 @@
  */
 #define CONFIG_T104xRDB
 #define CONFIG_PHYS_64BIT
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_E500			/* BOOKE e500 family */
@@ -451,7 +450,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
  * shorted - index 1
  */
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0)/2)
@@ -539,8 +537,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
@@ -742,7 +738,9 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #ifdef CONFIG_FMAN_ENET
 #if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x03
-#elif defined(CONFIG_T1040D4RDB) || defined(CONFIG_T1042D4RDB)
+#elif defined(CONFIG_T1040D4RDB)
+#define CONFIG_SYS_SGMII1_PHY_ADDR             0x01
+#elif defined(CONFIG_T1042D4RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x02
 #define CONFIG_SYS_SGMII2_PHY_ADDR             0x03
 #define CONFIG_SYS_SGMII3_PHY_ADDR             0x01
@@ -787,7 +785,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define CONFIG_CMD_DATE
 #endif
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IRQ

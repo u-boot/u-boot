@@ -35,7 +35,6 @@
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 /* SPI */
-#define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 #define CONFIG_CMD_SPI
@@ -52,6 +51,14 @@
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
+
+/* PCI host support */
+#define CONFIG_PCI
+#define CONFIG_PCI_PNP
+#define CONFIG_CMD_PCI
+
+/* PCI networking support */
+#define CONFIG_RTL8169
 
 /* General networking support */
 #define CONFIG_CMD_DHCP

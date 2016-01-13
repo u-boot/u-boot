@@ -9,11 +9,19 @@ config ROCKCHIP_RK3288
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART,s, SPI, I2C and PWMs.
 
+config ROCKCHIP_RK3036
+	bool "Support Rockchip RK3036"
+	help
+	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
+	  including NEON and GPU, Mali-400 graphics, several DDR3 options
+	  and video codec support. Peripherals include Gigabit Ethernet,
+	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
+
 config SYS_MALLOC_F
 	default y
 
-config SYS_MALLOC_F_LEN
-	default 0x800
+config SPL_SYS_MALLOC_SIMPLE
+	default y
 
 config SPL_DM
 	default y
@@ -33,9 +41,6 @@ config DM_I2C
 config DM_GPIO
 	default y
 
-config ROCKCHIP_SERIAL
-	default y
-
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
-
+source "arch/arm/mach-rockchip/rk3036/Kconfig"
 endif

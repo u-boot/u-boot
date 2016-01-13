@@ -76,6 +76,7 @@ struct eth_priv_t eth_priv_cfg[] = {
 		.phy_addr	= 0,
 		.slave_port	= 1,
 		.sgmii_link_type = SGMII_LINK_MAC_PHY,
+		.phy_if          = PHY_INTERFACE_MODE_SGMII,
 	},
 	{
 		.int_name	= "K2HK_EMAC1",
@@ -83,6 +84,7 @@ struct eth_priv_t eth_priv_cfg[] = {
 		.phy_addr	= 1,
 		.slave_port	= 2,
 		.sgmii_link_type = SGMII_LINK_MAC_PHY,
+		.phy_if          = PHY_INTERFACE_MODE_SGMII,
 	},
 	{
 		.int_name	= "K2HK_EMAC2",
@@ -90,6 +92,7 @@ struct eth_priv_t eth_priv_cfg[] = {
 		.phy_addr	= 2,
 		.slave_port	= 3,
 		.sgmii_link_type = SGMII_LINK_MAC_MAC_FORCED,
+		.phy_if          = PHY_INTERFACE_MODE_SGMII,
 	},
 	{
 		.int_name	= "K2HK_EMAC3",
@@ -97,6 +100,7 @@ struct eth_priv_t eth_priv_cfg[] = {
 		.phy_addr	= 3,
 		.slave_port	= 4,
 		.sgmii_link_type = SGMII_LINK_MAC_MAC_FORCED,
+		.phy_if          = PHY_INTERFACE_MODE_SGMII,
 	},
 };
 

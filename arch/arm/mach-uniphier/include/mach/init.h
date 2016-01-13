@@ -20,7 +20,7 @@ struct uniphier_board_data {
 	unsigned int  dram_freq;
 };
 
-const struct uniphier_board_data *uniphier_get_board_param(const void *fdt);
+const struct uniphier_board_data *uniphier_get_board_param(void);
 
 int ph1_sld3_init(const struct uniphier_board_data *bd);
 int ph1_ld4_init(const struct uniphier_board_data *bd);

@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <mmc.h>
 
 static int curr_device = -1;
@@ -746,7 +747,7 @@ static int do_mmc_rst_func(cmd_tbl_t *cmdtp, int flag,
 	dev = simple_strtoul(argv[1], NULL, 10);
 	enable = simple_strtoul(argv[2], NULL, 10);
 
-	if (enable > 2 || enable < 0) {
+	if (enable > 2) {
 		puts("Invalid RST_n_ENABLE value\n");
 		return CMD_RET_USAGE;
 	}

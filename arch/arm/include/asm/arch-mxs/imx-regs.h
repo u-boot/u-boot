@@ -15,8 +15,8 @@
 #include <asm/imx-common/regs-bch.h>
 #include <asm/arch/regs-digctl.h>
 #include <asm/imx-common/regs-gpmi.h>
+#include <asm/imx-common/regs-lcdif.h>
 #include <asm/arch/regs-i2c.h>
-#include <asm/arch/regs-lcdif.h>
 #include <asm/arch/regs-lradc.h>
 #include <asm/arch/regs-ocotp.h>
 #include <asm/arch/regs-pinctrl.h>

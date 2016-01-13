@@ -131,38 +131,8 @@ int board_eth_init(bd_t *bis)
 	ret |= xilinx_emaclite_initialize(bis, XILINX_EMACLITE_BASEADDR,
 			txpp, rxpp);
 #endif
-
-#if defined(CONFIG_ZYNQ_GEM)
-# if defined(CONFIG_ZYNQ_GEM0)
-	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR0,
-				   CONFIG_ZYNQ_GEM_PHY_ADDR0,
-				   CONFIG_ZYNQ_GEM_EMIO0);
-# endif
-# if defined(CONFIG_ZYNQ_GEM1)
-	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR1,
-				   CONFIG_ZYNQ_GEM_PHY_ADDR1,
-				   CONFIG_ZYNQ_GEM_EMIO1);
-# endif
-#endif
 	return ret;
 }
-
-#ifdef CONFIG_CMD_MMC
-int board_mmc_init(bd_t *bd)
-{
-	int ret = 0;
-
-#if defined(CONFIG_ZYNQ_SDHCI)
-# if defined(CONFIG_ZYNQ_SDHCI0)
-	ret = zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR0);
-# endif
-# if defined(CONFIG_ZYNQ_SDHCI1)
-	ret |= zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR1);
-# endif
-#endif
-	return ret;
-}
-#endif
 
 int dram_init(void)
 {

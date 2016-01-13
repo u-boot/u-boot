@@ -25,6 +25,7 @@ struct socfpga_reset_manager {
 	u32	per2_mod_reset;
 	u32	brg_mod_reset;
 	u32	misc_mod_reset;
+	u32	padding2[12];
 	u32	tstscratch;
 };
 
@@ -64,14 +65,15 @@ struct socfpga_reset_manager {
  */
 #define RSTMGR_EMAC0		RSTMGR_DEFINE(1, 0)
 #define RSTMGR_EMAC1		RSTMGR_DEFINE(1, 1)
+#define RSTMGR_NAND		RSTMGR_DEFINE(1, 4)
+#define RSTMGR_QSPI		RSTMGR_DEFINE(1, 5)
 #define RSTMGR_L4WD0		RSTMGR_DEFINE(1, 6)
 #define RSTMGR_OSC1TIMER0	RSTMGR_DEFINE(1, 8)
 #define RSTMGR_UART0		RSTMGR_DEFINE(1, 16)
 #define RSTMGR_SPIM0		RSTMGR_DEFINE(1, 18)
 #define RSTMGR_SPIM1		RSTMGR_DEFINE(1, 19)
-#define RSTMGR_QSPI		RSTMGR_DEFINE(0, 5)
-#define RSTMGR_SDMMC		RSTMGR_DEFINE(0, 22)
-#define RSTMGR_DMA		RSTMGR_DEFINE(0, 28)
+#define RSTMGR_SDMMC		RSTMGR_DEFINE(1, 22)
+#define RSTMGR_DMA		RSTMGR_DEFINE(1, 28)
 #define RSTMGR_SDR		RSTMGR_DEFINE(1, 29)
 
 /* Create a human-readable reference to SoCFPGA reset. */

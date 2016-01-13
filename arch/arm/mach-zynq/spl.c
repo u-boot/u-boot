@@ -4,11 +4,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <debug_uart.h>
 #include <spl.h>
 
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
 #include <asm/spl.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -17,17 +18,18 @@ void board_init_f(ulong dummy)
 {
 	ps7_init();
 
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	preloader_console_init();
 	arch_cpu_init();
-	board_init_r(NULL, 0);
+	/*
+	 * The debug UART can be used from this point:
+	 * debug_uart_init();
+	 * printch('x');
+	 */
 }
 
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void)
 {
+	preloader_console_init();
 	board_init();
 }
 #endif

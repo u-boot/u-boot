@@ -252,7 +252,7 @@ int interrupt_init(void)
 	/* Just in case... */
 	disable_interrupts();
 
-#ifdef CONFIG_SYS_PCAT_INTERRUPTS
+#ifdef CONFIG_I8259_PIC
 	/* Initialize the master/slave i8259 pic */
 	i8259_init();
 #endif

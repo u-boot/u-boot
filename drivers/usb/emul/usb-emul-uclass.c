@@ -108,9 +108,8 @@ static int usb_emul_get_descriptor(struct usb_dev_platdata *plat, int value,
 	return upto ? upto : length ? -EIO : 0;
 }
 
-int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp)
+static int usb_emul_find_devnum(int devnum, struct udevice **emulp)
 {
-	int devnum = usb_pipedevice(pipe);
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
@@ -132,6 +131,20 @@ int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp)
 
 	debug("%s: No emulator found, addr %d\n", __func__, devnum);
 	return -ENOENT;
+}
+
+int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp)
+{
+	int devnum = usb_pipedevice(pipe);
+
+	return usb_emul_find_devnum(devnum, emulp);
+}
+
+int usb_emul_find_for_dev(struct udevice *dev, struct udevice **emulp)
+{
+	struct usb_dev_platdata *udev = dev_get_parent_platdata(dev);
+
+	return usb_emul_find_devnum(udev->devnum, emulp);
 }
 
 int usb_emul_control(struct udevice *emul, struct usb_device *udev,
@@ -203,6 +216,18 @@ int usb_emul_bulk(struct udevice *emul, struct usb_device *udev,
 	if (ret)
 		return ret;
 	return ops->bulk(emul, udev, pipe, buffer, length);
+}
+
+int usb_emul_int(struct udevice *emul, struct usb_device *udev,
+		  unsigned long pipe, void *buffer, int length, int interval)
+{
+	struct dm_usb_ops *ops = usb_get_emul_ops(emul);
+
+	if (!ops->interrupt)
+		return -ENOSYS;
+	debug("%s: dev=%s\n", __func__, emul->name);
+
+	return ops->interrupt(emul, udev, pipe, buffer, length, interval);
 }
 
 int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,

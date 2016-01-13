@@ -24,7 +24,6 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll   */
 
@@ -68,7 +67,6 @@
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_DIAG
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_ELF
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
 

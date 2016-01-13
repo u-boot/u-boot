@@ -13,6 +13,7 @@
 #include <config.h>
 #include <common.h>
 #include <errno.h>
+#include <fastboot.h>
 #include <malloc.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
@@ -22,6 +23,9 @@
 #include <g_dnl.h>
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 #include <fb_mmc.h>
+#endif
+#ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+#include <fb_nand.h>
 #endif
 
 #define FASTBOOT_VERSION		"0.4"
@@ -33,9 +37,6 @@
 #define RX_ENDPOINT_MAXIMUM_PACKET_SIZE_2_0  (0x0200)
 #define RX_ENDPOINT_MAXIMUM_PACKET_SIZE_1_1  (0x0040)
 #define TX_ENDPOINT_MAXIMUM_PACKET_SIZE      (0x0040)
-
-/* The 64 defined bytes plus \0 */
-#define RESPONSE_LEN	(64 + 1)
 
 #define EP_BUFFER_SIZE			4096
 
@@ -53,6 +54,7 @@ static inline struct f_fastboot *func_to_fastboot(struct usb_function *f)
 }
 
 static struct f_fastboot *fastboot_func;
+static unsigned int fastboot_flash_session_id;
 static unsigned int download_size;
 static unsigned int download_bytes;
 static bool is_high_speed;
@@ -124,6 +126,19 @@ static struct usb_gadget_strings *fastboot_strings[] = {
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
 static int strcmp_l1(const char *s1, const char *s2);
+
+
+void fastboot_fail(char *response, const char *reason)
+{
+	strncpy(response, "FAIL\0", 5);
+	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
+}
+
+void fastboot_okay(char *response, const char *reason)
+{
+	strncpy(response, "OKAY\0", 5);
+	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
+}
 
 static void fastboot_complete(struct usb_ep *ep, struct usb_request *req)
 {
@@ -358,7 +373,7 @@ static int strcmp_l1(const char *s1, const char *s2)
 static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 	const char *s;
 	size_t chars_left;
 
@@ -382,6 +397,15 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 
 		sprintf(str_num, "0x%08x", CONFIG_FASTBOOT_BUF_SIZE);
 		strncat(response, str_num, chars_left);
+
+		/*
+		 * This also indicates the start of a new flashing
+		 * "session", in which we could have 1-N buffers to
+		 * write to a partition.
+		 *
+		 * Reset our session counter.
+		 */
+		fastboot_flash_session_id = 0;
 	} else if (!strcmp_l1("serialno", cmd)) {
 		s = getenv("serial#");
 		if (s)
@@ -415,7 +439,7 @@ static unsigned int rx_bytes_expected(unsigned int maxpacket)
 #define BYTES_PER_DOT	0x20000
 static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 {
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 	unsigned int transfer_size = download_size - download_bytes;
 	const unsigned char *buffer = req->buf;
 	unsigned int buffer_size = req->actual;
@@ -472,7 +496,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 static void cb_download(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 	unsigned int max;
 
 	strsep(&cmd, ":");
@@ -533,7 +557,7 @@ static void cb_continue(struct usb_ep *ep, struct usb_request *req)
 static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 
 	strsep(&cmd, ":");
 	if (!cmd) {
@@ -544,9 +568,16 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 
 	strcpy(response, "FAILno flash device defined");
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-	fb_mmc_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
+	fb_mmc_flash_write(cmd, fastboot_flash_session_id,
+			   (void *)CONFIG_FASTBOOT_BUF_ADDR,
 			   download_bytes, response);
 #endif
+#ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+	fb_nand_flash_write(cmd, fastboot_flash_session_id,
+			    (void *)CONFIG_FASTBOOT_BUF_ADDR,
+			    download_bytes, response);
+#endif
+	fastboot_flash_session_id++;
 	fastboot_tx_write_str(response);
 }
 #endif
@@ -554,7 +585,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 static void cb_oem(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-#ifdef CONFIG_FASTBOOT_FLASH
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 	if (strncmp("format", cmd + 4, 6) == 0) {
 		char cmdbuf[32];
                 sprintf(cmdbuf, "gpt write mmc %x $partitions",
@@ -577,7 +608,7 @@ static void cb_oem(struct usb_ep *ep, struct usb_request *req)
 static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
+	char response[FASTBOOT_RESPONSE_LEN];
 
 	strsep(&cmd, ":");
 	if (!cmd) {
@@ -590,6 +621,9 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 	fb_mmc_erase(cmd, response);
+#endif
+#ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+	fb_nand_erase(cmd, response);
 #endif
 	fastboot_tx_write_str(response);
 }

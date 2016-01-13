@@ -79,7 +79,7 @@ static const struct ns16550_platdata beagle_serial = {
 };
 
 U_BOOT_DEVICE(beagle_uart) = {
-	"serial_omap",
+	"ns16550_serial",
 	&beagle_serial
 };
 
@@ -494,7 +494,7 @@ int misc_init_r(void)
 	writel(~(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
 		GPIO15 | GPIO14 | GPIO13 | GPIO12), &gpio5_base->oe);
 
-	dieid_num_r();
+	omap_die_id_display();
 
 #ifdef CONFIG_VIDEO_OMAP3
 	beagle_dvi_pup();
@@ -506,12 +506,8 @@ int misc_init_r(void)
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
 #endif
 
-	if (generate_fake_mac) {
-		u32 id[4];
-
-		get_dieid(id);
-		usb_fake_mac_from_die_id(id);
-	}
+	if (generate_fake_mac)
+		omap_die_id_usbethaddr();
 
 	return 0;
 }

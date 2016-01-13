@@ -1,8 +1,8 @@
 /* Initializes CPU and basic hardware such as memory
  * controllers, IRQ controller and system timer 0.
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,93 +10,100 @@
 #include <common.h>
 #include <asm/asi.h>
 #include <asm/leon.h>
+#include <asm/io.h>
 #include <ambapp.h>
+#include <grlib/irqmp.h>
+#include <grlib/gptimer.h>
+#include <debug_uart.h>
 
 #include <config.h>
 
-#define TIMER_BASE_CLK 1000000
-#define US_PER_TICK (1000000 / CONFIG_SYS_HZ)
+/* Default Plug&Play I/O area */
+#ifndef CONFIG_AMBAPP_IOAREA
+#define CONFIG_AMBAPP_IOAREA AMBA_DEFAULT_IOAREA
+#endif
+
+/* Select which TIMER that will become the time base */
+#ifndef CONFIG_SYS_GRLIB_GPTIMER_INDEX
+#define CONFIG_SYS_GRLIB_GPTIMER_INDEX 0
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* reset CPU (jump to 0, without reset) */
-void start(void);
-
-/* find & initialize the memory controller */
-int init_memory_ctrl(void);
-
 ambapp_dev_irqmp *irqmp = NULL;
-ambapp_dev_mctrl memctrl;
-ambapp_dev_gptimer *gptimer = NULL;
-unsigned int gptimer_irq = 0;
-int leon3_snooping_avail = 0;
-
-struct {
-	gd_t gd_area;
-	bd_t bd;
-} global_data;
 
 /*
  * Breath some life into the CPU...
  *
- * Set up the memory map,
- * initialize a bunch of registers.
- *
  * Run from FLASH/PROM:
  *  - until memory controller is set up, only registers available
+ *  - memory controller has already been setup up, stack can be used
  *  - no global variables available for writing
  *  - constants available
  */
-
 void cpu_init_f(void)
 {
-	/* these varaiable must not be initialized */
-	ambapp_dev_irqmp *irqmp;
-	ambapp_apbdev apbdev;
-	register unsigned int apbmst;
-
-	/* find AMBA APB Master */
-	apbmst = (unsigned int)
-	    ambapp_ahb_next_nomem(VENDOR_GAISLER, GAISLER_APBMST, 1, 0);
-	if (!apbmst) {
-		/*
-		 * no AHB/APB bridge, something is wrong
-		 * ==> jump to start (or hang)
-		 */
-		while (1) ;
-	}
-	/* Init memory controller */
-	if (init_memory_ctrl()) {
-		while (1) ;
-	}
-
-	/****************************************************
-	 * From here we can use the main memory and the stack.
-	 */
-
-	/* Find AMBA APB IRQMP Controller */
-	if (ambapp_apb_first(VENDOR_GAISLER, GAISLER_IRQMP, &apbdev) != 1) {
-		/* no IRQ controller, something is wrong
-		 * ==> jump to start (or hang)
-		 */
-		while (1) ;
-	}
-	irqmp = (ambapp_dev_irqmp *) apbdev.address;
-
-	/* initialize the IRQMP */
-	irqmp->ilevel = 0xf;	/* all IRQ off */
-	irqmp->iforce = 0;
-	irqmp->ipend = 0;
-	irqmp->iclear = 0xfffe;	/* clear all old pending interrupts */
-	irqmp->cpu_mask[0] = 0;	/* mask all IRQs on CPU 0 */
-	irqmp->cpu_force[0] = 0;	/* no force IRQ on CPU 0 */
-
-	/* cache */
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 }
 
-void cpu_init_f2(void)
+/* If cache snooping is available in hardware the result will be set
+ * to 0x800000, otherwise 0.
+ */
+static unsigned int snoop_detect(void)
 {
+	unsigned int result;
+	asm("lda [%%g0] 2, %0" : "=r"(result));
+	return result & 0x00800000;
+}
 
+int arch_cpu_init(void)
+{
+	ambapp_apbdev apbdev;
+	int index;
+
+	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
+	gd->bus_clk = CONFIG_SYS_CLK_FREQ;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+
+	gd->arch.snooping_available = snoop_detect();
+
+	/* Initialize the AMBA Plug & Play bus structure, the bus
+	 * structure represents the AMBA bus that the CPU is located at.
+	 */
+	ambapp_bus_init(CONFIG_AMBAPP_IOAREA, CONFIG_SYS_CLK_FREQ, &ambapp_plb);
+
+	/* Initialize/clear all the timers in the system.
+	 */
+	for (index = 0; ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER,
+		GAISLER_GPTIMER, index, &apbdev) == 1; index++) {
+		ambapp_dev_gptimer *timer;
+		unsigned int bus_freq;
+		int i, ntimers;
+
+		timer = (ambapp_dev_gptimer *)apbdev.address;
+
+		/* Different buses may have different frequency, the
+		 * frequency of the bus tell in which frequency the timer
+		 * prescaler operates.
+		 */
+		bus_freq = ambapp_bus_freq(&ambapp_plb, apbdev.ahb_bus_index);
+
+		/* Initialize prescaler common to all timers to 1MHz */
+		timer->scalar = timer->scalar_reload =
+			(((bus_freq / 1000) + 500) / 1000) - 1;
+
+		/* Clear all timers */
+		ntimers = timer->config & 0x7;
+		for (i = 0; i < ntimers; i++) {
+			timer->e[i].ctrl = GPTIMER_CTRL_IP;
+			timer->e[i].rld = 0;
+			timer->e[i].ctrl = GPTIMER_CTRL_LD;
+		}
+	}
+
+	return 0;
 }
 
 /*
@@ -105,139 +112,64 @@ void cpu_init_f2(void)
 int cpu_init_r(void)
 {
 	ambapp_apbdev apbdev;
+	int cpu;
 
 	/*
 	 * Find AMBA APB IRQMP Controller,
-	 * When we come so far we know there is a IRQMP available
 	 */
-	ambapp_apb_first(VENDOR_GAISLER, GAISLER_IRQMP, &apbdev);
-	irqmp = (ambapp_dev_irqmp *) apbdev.address;
-
-	/* timer */
-	if (ambapp_apb_first(VENDOR_GAISLER, GAISLER_GPTIMER, &apbdev) != 1) {
-		printf("cpu_init_r: gptimer not found!\n");
-		return 1;
+	if (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER,
+		GAISLER_IRQMP, 0, &apbdev) != 1) {
+		panic("%s: IRQ controller not found\n", __func__);
+		return -1;
 	}
+	irqmp = (ambapp_dev_irqmp *)apbdev.address;
+
+	/* initialize the IRQMP */
+	irqmp->ilevel = 0xf;	/* all IRQ off */
+	irqmp->iforce = 0;
+	irqmp->ipend = 0;
+	irqmp->iclear = 0xfffe;	/* clear all old pending interrupts */
+	for (cpu = 0; cpu < 16; cpu++) {
+		/* mask and clear force for all IRQs on CPU[N] */
+		irqmp->cpu_mask[cpu] = 0;
+		irqmp->cpu_force[cpu] = 0;
+	}
+
+	return 0;
+}
+
+			;
+int timer_init(void)
+{
+	ambapp_dev_gptimer_element *tmr;
+	ambapp_dev_gptimer *gptimer;
+	ambapp_apbdev apbdev;
+	unsigned bus_freq;
+
+	if (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_GPTIMER,
+		CONFIG_SYS_GRLIB_GPTIMER_INDEX, &apbdev) != 1) {
+		panic("%s: gptimer not found!\n", __func__);
+		return -1;
+	}
+
 	gptimer = (ambapp_dev_gptimer *) apbdev.address;
-	gptimer_irq = apbdev.irq;
+
+	/* Different buses may have different frequency, the
+	 * frequency of the bus tell in which frequency the timer
+	 * prescaler operates.
+	 */
+	bus_freq = ambapp_bus_freq(&ambapp_plb, apbdev.ahb_bus_index);
 
 	/* initialize prescaler common to all timers to 1MHz */
 	gptimer->scalar = gptimer->scalar_reload =
-	    (((CONFIG_SYS_CLK_FREQ / 1000) + 500) / 1000) - 1;
+		(((bus_freq / 1000) + 500) / 1000) - 1;
 
-	return (0);
-}
+	tmr = (ambapp_dev_gptimer_element *)&gptimer->e[0];
 
-/* find & setup memory controller */
-int init_memory_ctrl()
-{
-	register ambapp_dev_mctrl *mctrl;
-	register ambapp_dev_sdctrl *sdctrl;
-	register ambapp_dev_ddrspa *ddrspa;
-	register ambapp_dev_ddr2spa *ddr2spa;
-	register ahbctrl_pp_dev *ahb;
-	register unsigned int base;
-	register int not_found_mctrl = -1;
+	tmr->val = 0;
+	tmr->rld = ~0;
+	tmr->ctrl = GPTIMER_CTRL_EN | GPTIMER_CTRL_RS | GPTIMER_CTRL_LD;
 
-	/* find ESA Memory controller */
-	base = ambapp_apb_next_nomem(VENDOR_ESA, ESA_MCTRL, 0);
-	if (base) {
-		mctrl = (ambapp_dev_mctrl *) base;
-
-		/* config MCTRL memory controller */
-		mctrl->mcfg1 = CONFIG_SYS_GRLIB_MEMCFG1 | (mctrl->mcfg1 & 0x300);
-		mctrl->mcfg2 = CONFIG_SYS_GRLIB_MEMCFG2;
-		mctrl->mcfg3 = CONFIG_SYS_GRLIB_MEMCFG3;
-		not_found_mctrl = 0;
-	}
-
-	/* find Gaisler Fault Tolerant Memory controller */
-	base = ambapp_apb_next_nomem(VENDOR_GAISLER, GAISLER_FTMCTRL, 0);
-	if (base) {
-		mctrl = (ambapp_dev_mctrl *) base;
-
-		/* config MCTRL memory controller */
-		mctrl->mcfg1 = CONFIG_SYS_GRLIB_FT_MEMCFG1 | (mctrl->mcfg1 & 0x300);
-		mctrl->mcfg2 = CONFIG_SYS_GRLIB_FT_MEMCFG2;
-		mctrl->mcfg3 = CONFIG_SYS_GRLIB_FT_MEMCFG3;
-		not_found_mctrl = 0;
-	}
-
-	/* find SDRAM controller */
-	base = ambapp_apb_next_nomem(VENDOR_GAISLER, GAISLER_SDCTRL, 0);
-	if (base) {
-		sdctrl = (ambapp_dev_sdctrl *) base;
-
-		/* config memory controller */
-		sdctrl->sdcfg = CONFIG_SYS_GRLIB_SDRAM;
-		not_found_mctrl = 0;
-	}
-
-	ahb = ambapp_ahb_next_nomem(VENDOR_GAISLER, GAISLER_DDR2SPA, 1, 0);
-	if (ahb) {
-		ddr2spa = (ambapp_dev_ddr2spa *) ambapp_ahb_get_info(ahb, 1);
-
-		/* Config DDR2 memory controller */
-		ddr2spa->cfg1 = CONFIG_SYS_GRLIB_DDR2_CFG1;
-		ddr2spa->cfg3 = CONFIG_SYS_GRLIB_DDR2_CFG3;
-		not_found_mctrl = 0;
-	}
-
-	ahb = ambapp_ahb_next_nomem(VENDOR_GAISLER, GAISLER_DDRSPA, 1, 0);
-	if (ahb) {
-		ddrspa = (ambapp_dev_ddrspa *) ambapp_ahb_get_info(ahb, 1);
-
-		/* Config DDR memory controller */
-		ddrspa->ctrl = CONFIG_SYS_GRLIB_DDR_CFG;
-		not_found_mctrl = 0;
-	}
-
-	/* failed to find any memory controller */
-	return not_found_mctrl;
-}
-
-/* Uses Timer 0 to get accurate
- * pauses. Max 2 raised to 32 ticks
- *
- */
-void cpu_wait_ticks(unsigned long ticks)
-{
-	unsigned long start = get_timer(0);
-	while (get_timer(start) < ticks) ;
-}
-
-/* initiate and setup timer0 interrupt to configured HZ. Base clock is 1MHz.
- * Return irq number for timer int or a negative number for
- * dealing with self
- */
-int timer_interrupt_init_cpu(void)
-{
-	/* SYS_HZ ticks per second */
-	gptimer->e[0].val = 0;
-	gptimer->e[0].rld = (TIMER_BASE_CLK / CONFIG_SYS_HZ) - 1;
-	gptimer->e[0].ctrl =
-	    (LEON3_GPTIMER_EN |
-	     LEON3_GPTIMER_RL | LEON3_GPTIMER_LD | LEON3_GPTIMER_IRQEN);
-
-	return gptimer_irq;
-}
-
-ulong get_tbclk(void)
-{
-	return TIMER_BASE_CLK;
-}
-
-/*
- * This function is intended for SHORT delays only.
- */
-unsigned long cpu_usec2ticks(unsigned long usec)
-{
-	if (usec < US_PER_TICK)
-		return 1;
-	return usec / US_PER_TICK;
-}
-
-unsigned long cpu_ticks2usec(unsigned long ticks)
-{
-	return ticks * US_PER_TICK;
+	CONFIG_SYS_TIMER_COUNTER = (void *)&tmr->val;
+	return 0;
 }

@@ -109,8 +109,6 @@ U_BOOT_ENV_CALLBACK(baudrate, on_baudrate);
 	void name(void)						\
 		__attribute__((weak, alias("serial_null")));
 
-serial_initfunc(altera_jtag_serial_initialize);
-serial_initfunc(altera_serial_initialize);
 serial_initfunc(amirix_serial_initialize);
 serial_initfunc(arc_serial_initialize);
 serial_initfunc(arm_dcc_initialize);
@@ -202,8 +200,6 @@ void serial_register(struct serial_device *dev)
  */
 void serial_initialize(void)
 {
-	altera_jtag_serial_initialize();
-	altera_serial_initialize();
 	amirix_serial_initialize();
 	arc_serial_initialize();
 	arm_dcc_initialize();
@@ -531,7 +527,7 @@ static const int bauds[] = CONFIG_SYS_BAUDRATE_TABLE;
  *
  * Do a loopback test of the currently selected serial port. This
  * function is only useful in the context of the POST testing framwork.
- * The serial port is firstly configured into loopback mode and then
+ * The serial port is first configured into loopback mode and then
  * characters are sent through it.
  *
  * Returns 0 on success, value otherwise.

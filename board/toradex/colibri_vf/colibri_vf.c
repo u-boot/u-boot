@@ -21,6 +21,7 @@
 #include <i2c.h>
 #include <g_dnl.h>
 #include <asm/gpio.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -34,6 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
 
 #define USB_PEN_GPIO           83
+#define USB_CDET_GPIO		102
 
 static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
 	/* levelling */
@@ -92,6 +94,7 @@ static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
 
 static const iomux_v3_cfg_t usb_pads[] = {
 	VF610_PAD_PTD4__GPIO_83,
+	VF610_PAD_PTC29__GPIO_102,
 };
 
 int dram_init(void)
@@ -280,7 +283,6 @@ static void setup_iomux_gpio(void)
 		VF610_PAD_PTB23__GPIO_93,
 		VF610_PAD_PTB26__GPIO_96,
 		VF610_PAD_PTB28__GPIO_98,
-		VF610_PAD_PTC29__GPIO_102,
 		VF610_PAD_PTC30__GPIO_103,
 		VF610_PAD_PTA7__GPIO_134,
 	};
@@ -509,6 +511,10 @@ int board_init(void)
 
 	setbits_le32(&scsc->sosc_ctr, SCSC_SOSC_CTR_SOSC_EN);
 
+#ifdef CONFIG_USB_EHCI_VF
+	gpio_request(USB_CDET_GPIO, "usb-cdet-gpio");
+#endif
+
 	return 0;
 }
 
@@ -553,5 +559,30 @@ int board_ehci_hcd_init(int port)
 		break;
 	}
 	return 0;
+}
+
+int board_usb_phy_mode(int port)
+{
+	switch (port) {
+	case 0:
+		/*
+		 * Port 0 is used only in client mode on Colibri Vybrid modules
+		 * Check for state of USB client gpio pin and accordingly return
+		 * USB_INIT_DEVICE or USB_INIT_HOST.
+		 */
+		if (gpio_get_value(USB_CDET_GPIO))
+			return USB_INIT_DEVICE;
+		else
+			return USB_INIT_HOST;
+	case 1:
+		/* Port 1 is used only in host mode on Colibri Vybrid modules */
+		return USB_INIT_HOST;
+	default:
+		/*
+		 * There are only two USB controllers on Vybrid. Ideally we will
+		 * not reach here. However return USB_INIT_HOST if we do.
+		 */
+		return USB_INIT_HOST;
+	}
 }
 #endif

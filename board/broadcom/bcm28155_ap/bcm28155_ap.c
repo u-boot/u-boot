@@ -13,7 +13,7 @@
 #include <asm/arch/sysmap.h>
 
 #include <usb.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <g_dnl.h>
 
 #define SECWATCHDOG_SDOGCR_OFFSET	0x00000000
@@ -95,14 +95,14 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_USB_GADGET
-static struct s3c_plat_otg_data bcm_otg_data = {
+static struct dwc2_plat_otg_data bcm_otg_data = {
 	.regs_otg	= HSOTG_BASE_ADDR
 };
 
 int board_usb_init(int index, enum usb_init_type init)
 {
-	debug("%s: performing s3c_udc_probe\n", __func__);
-	return s3c_udc_probe(&bcm_otg_data);
+	debug("%s: performing dwc2_udc_probe\n", __func__);
+	return dwc2_udc_probe(&bcm_otg_data);
 }
 
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)

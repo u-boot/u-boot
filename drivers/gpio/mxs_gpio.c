@@ -114,3 +114,18 @@ int gpio_free(unsigned gpio)
 {
 	return 0;
 }
+
+int name_to_gpio(const char *name)
+{
+	unsigned bank, pin;
+	char *end;
+
+	bank = simple_strtoul(name, &end, 10);
+
+	if (!*end || *end != ':')
+		return bank;
+
+	pin = simple_strtoul(end + 1, NULL, 10);
+
+	return (bank << MXS_PAD_BANK_SHIFT) | (pin << MXS_PAD_PIN_SHIFT);
+}

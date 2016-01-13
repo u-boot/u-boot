@@ -95,7 +95,7 @@ struct dm_spi_slave_platdata {
  * struct spi_slave - Representation of a SPI slave
  *
  * For driver model this is the per-child data used by the SPI bus. It can
- * be accessed using dev_get_parentdata() on the slave device. The SPI uclass
+ * be accessed using dev_get_parent_priv() on the slave device. The SPI uclass
  * sets uip per_child_auto_alloc_size to sizeof(struct spi_slave), and the
  * driver should not override it. Two platform data fields (max_hz and mode)
  * are copied into this structure to provide an initial value. This allows

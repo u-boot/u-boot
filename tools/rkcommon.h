@@ -10,9 +10,38 @@
 
 enum {
 	RK_BLK_SIZE		= 512,
-	RK_CODE1_OFFSET		= 4,
-	RK_MAX_CODE1_SIZE	= 32 << 10,
+	RK_INIT_OFFSET		= 4,
+	RK_MAX_BOOT_SIZE	= 512 << 10,
+	RK_SPL_HDR_START	= RK_INIT_OFFSET * RK_BLK_SIZE,
+	RK_SPL_HDR_SIZE		= 4,
+	RK_SPL_START		= RK_SPL_HDR_START + RK_SPL_HDR_SIZE,
+	RK_IMAGE_HEADER_LEN	= RK_SPL_START,
 };
+
+/**
+ * rkcommon_check_params() - check params
+ *
+ * @return 0 if OK, -1 if ERROR.
+ */
+int rkcommon_check_params(struct image_tool_params *params);
+
+/**
+ * rkcommon_get_spl_hdr() - get 4-bytes spl hdr for a Rockchip boot image
+ *
+ * Rockchip's bootrom requires the spl loader to start with a 4-bytes
+ * header. The content of this header depends on the chip type.
+ */
+const char *rkcommon_get_spl_hdr(struct image_tool_params *params);
+
+/**
+ * rkcommon_get_spl_size() - get spl size for a Rockchip boot image
+ *
+ * Different chip may have different sram size. And if we want to jump
+ * back to the bootrom after spl, we may need to reserve some sram space
+ * for the bootrom.
+ * The spl loader size should be sram size minus reserved size(if needed)
+ */
+int rkcommon_get_spl_size(struct image_tool_params *params);
 
 /**
  * rkcommon_set_header() - set up the header for a Rockchip boot image
@@ -23,6 +52,7 @@ enum {
  * @file_size:	Size of the file we want the boot ROM to load, in bytes
  * @return 0 if OK, -ENOSPC if too large
  */
-int rkcommon_set_header(void *buf, uint file_size);
+int rkcommon_set_header(void *buf, uint file_size,
+			struct image_tool_params *params);
 
 #endif

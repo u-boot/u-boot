@@ -36,27 +36,19 @@
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
-#define CONFIG_ZYNQ_GPIO
-#define CONFIG_CMD_GPIO
-
 /* DCC driver */
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
 #else
-# if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
-#  define CONFIG_ZYNQ_SERIAL
-# endif
+# define CONFIG_ZYNQ_SERIAL
 #endif
 
 #define CONFIG_ZYNQ_GPIO
-#define CONFIG_CMD_GPIO
 
 /* Ethernet driver */
-#if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
-# define CONFIG_ZYNQ_GEM
+#if defined(CONFIG_ZYNQ_GEM)
 # define CONFIG_MII
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-# define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
 # define CONFIG_SYS_ENET
 # define CONFIG_BOOTP_SERVERIP
@@ -64,22 +56,23 @@
 # define CONFIG_BOOTP_GATEWAY
 # define CONFIG_BOOTP_HOSTNAME
 # define CONFIG_BOOTP_MAY_FAIL
-# if !defined(CONFIG_ZYNQ_GEM_EMIO0)
-#  define CONFIG_ZYNQ_GEM_EMIO0	0
-# endif
-# if !defined(CONFIG_ZYNQ_GEM_EMIO1)
-#  define CONFIG_ZYNQ_GEM_EMIO1	0
-# endif
 #endif
 
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
-# define CONFIG_SPI_FLASH_SST
+# define CONFIG_CMD_SF
 #endif
 
-#if defined(CONFIG_ZYNQ_SPI) || defined(CONFIG_ZYNQ_QSPI)
-# define CONFIG_CMD_SPI
+/* QSPI */
+#ifdef CONFIG_ZYNQ_QSPI
+# define CONFIG_SF_DEFAULT_SPEED	30000000
+# define CONFIG_SPI_FLASH_STMICRO
+# define CONFIG_SPI_FLASH_WINBOND
+# define CONFIG_SPI_FLASH_ISSI
+# define CONFIG_SPI_FLASH_MACRONIX
+# define CONFIG_SPI_FLASH_BAR
 # define CONFIG_CMD_SF
+# define CONFIG_SF_DUAL_FLASH
 #endif
 
 /* NOR */
@@ -179,17 +172,6 @@
 # define CONFIG_CMD_EXT4
 # define CONFIG_CMD_EXT4_WRITE
 # define CONFIG_CMD_FS_GENERIC
-#endif
-
-/* QSPI */
-#ifdef CONFIG_ZYNQ_QSPI
-# define CONFIG_SF_DEFAULT_SPEED	30000000
-# define CONFIG_SPI_FLASH_SPANSION
-# define CONFIG_SPI_FLASH_STMICRO
-# define CONFIG_SPI_FLASH_WINBOND
-# define CONFIG_SPI_FLASH_ISSI
-# define CONFIG_SPI_FLASH_MACRONIX
-# define CONFIG_SF_DUAL_FLASH
 #endif
 
 /* NAND */
@@ -434,8 +416,6 @@
 
 /* Boot FreeBSD/vxWorks from an ELF image */
 #if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
-# define CONFIG_API
-# define CONFIG_CMD_ELF
 # define CONFIG_SYS_MMC_MAX_DEVICE	1
 #endif
 
@@ -499,7 +479,11 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
+#ifdef CONFIG_OF_SEPARATE
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
+#else
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
+#endif
 #endif
 
 /* Disable dcache for SPL just for sure */
@@ -510,8 +494,6 @@
 
 /* Address in RAM where the parameters must be copied by SPL. */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
-#define CONFIG_SYS_SPI_ARGS_OFFS	0 /* FIXME */
-#define CONFIG_SYS_SPI_ARGS_SIZE	0 /* FIXME */
 
 #define CONFIG_SPL_FS_LOAD_ARGS_NAME		"system.dtb"
 #define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
@@ -522,13 +504,15 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0
 
 /* qspi mode is working fine */
-#if 0
 #ifdef CONFIG_ZYNQ_QSPI
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x100000
-#endif
+#define CONFIG_SYS_SPI_ARGS_OFFS	0x200000
+#define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
+#define CONFIG_SYS_SPI_KERNEL_OFFS	(CONFIG_SYS_SPI_ARGS_OFFS + \
+					CONFIG_SYS_SPI_ARGS_SIZE)
 #endif
 
 #ifdef DEBUG
@@ -541,7 +525,6 @@
 
 /* for booting directly linux */
 #define CONFIG_SPL_OS_BOOT
-#define CONFIG_SYS_SPI_KERNEL_OFFS	0 /* FIXME */
 
 /* SP location before relocation, must use scratch RAM */
 #define CONFIG_SPL_TEXT_BASE	0x0
@@ -553,16 +536,16 @@
 /* The highest 64k OCM address */
 #define OCM_HIGH_ADDR	0xffff0000
 
-/* Just define any reasonable size */
-#define CONFIG_SPL_STACK_SIZE	0x1000
-
-/* SPL stack position - and stack goes down */
-#define CONFIG_SPL_STACK	(OCM_HIGH_ADDR + CONFIG_SPL_STACK_SIZE)
-
 /* On the top of OCM space */
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_STACK + \
-					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000
+#define CONFIG_SYS_SPL_MALLOC_START	OCM_HIGH_ADDR
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x2000
+
+/*
+ * SPL stack position - and stack goes down
+ * 0xfffffe00 is used for putting wfi loop.
+ * Set it up as limit for now.
+ */
+#define CONFIG_SPL_STACK	0xfffffe00
 
 /* BSS setup */
 #define CONFIG_SPL_BSS_START_ADDR	0x100000
@@ -570,6 +553,5 @@
 
 #define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

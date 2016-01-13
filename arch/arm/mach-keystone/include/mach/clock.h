@@ -24,8 +24,13 @@
 #include <asm/arch/clock-k2l.h>
 #endif
 
+#ifdef CONFIG_SOC_K2G
+#include <asm/arch/clock-k2g.h>
+#endif
+
 #define CORE_PLL MAIN_PLL
 #define DDR3_PLL DDR3A_PLL
+#define NSS_PLL PASS_PLL
 
 #define CLK_LIST(CLK)\
 	CLK(0, core_pll_clk)\
@@ -48,7 +53,8 @@
 	CLK(17, sys_clk1_6_clk)\
 	CLK(18, sys_clk1_12_clk)\
 	CLK(19, sys_clk2_clk)\
-	CLK(20, sys_clk3_clk)
+	CLK(20, sys_clk3_clk)\
+	CLK(21, uart_pll_clk)
 
 #include <asm/types.h>
 
@@ -75,6 +81,7 @@ enum {
 	PASS_PLL,
 	DDR3A_PLL,
 	DDR3B_PLL,
+	UART_PLL,
 	MAX_PLL_COUNT,
 };
 
@@ -85,6 +92,7 @@ enum ext_clk_e {
 	tetris_clk,
 	ddr3a_clk,
 	ddr3b_clk,
+	uart_clk,
 	ext_clk_count /* number of external clocks */
 };
 

@@ -41,7 +41,6 @@
 /*
  * Command line configuration
  */
-#define CONFIG_CMD_ELF
 
 #define CONFIG_OF_LIBFDT
 

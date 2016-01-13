@@ -37,6 +37,27 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REG_IRQ_CIRQ2		0x2d
 #define MASK_RBI_DEFECT_16	0x01
 
+/*
+ * PHY registers definitions
+ */
+#define PHY_MARVELL_OUI					0x5043
+#define PHY_MARVELL_88E1118_MODEL			0x0022
+#define PHY_MARVELL_88E1118R_MODEL			0x0024
+
+#define PHY_MARVELL_PAGE_REG				0x0016
+#define PHY_MARVELL_DEFAULT_PAGE			0x0000
+
+#define PHY_MARVELL_88E1118R_LED_CTRL_PAGE		0x0003
+#define PHY_MARVELL_88E1118R_LED_CTRL_REG		0x0010
+
+#define PHY_MARVELL_88E1118R_LED_CTRL_RESERVED		0x1000
+#define PHY_MARVELL_88E1118R_LED_CTRL_LED0_1000MB	(0x7<<0)
+#define PHY_MARVELL_88E1118R_LED_CTRL_LED1_ACT		(0x3<<4)
+#define PHY_MARVELL_88E1118R_LED_CTRL_LED2_LINK		(0x0<<8)
+
+/* I/O pin to erase flash RGPP09 = MPP43 */
+#define KM_FLASH_ERASE_ENABLE	43
+
 /* Multi-Purpose Pins Functionality configuration */
 static const u32 kwmpp_config[] = {
 	MPP0_NF_IO2,
@@ -183,8 +204,10 @@ int misc_init_r(void)
 {
 #if defined(CONFIG_KM_MGCOGE3UN)
 	char *wait_for_ne;
+	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
 	wait_for_ne = getenv("waitforne");
-	if (wait_for_ne != NULL) {
+
+	if ((wait_for_ne != NULL) && (dip_switch == 0)) {
 		if (strcmp(wait_for_ne, "true") == 0) {
 			int cnt = 0;
 			int abort = 0;
@@ -273,9 +296,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#if defined(CONFIG_KMCOGE5UN)
-/* I/O pin to erase flash RGPP09 = MPP43 */
-#define KM_FLASH_ERASE_ENABLE	43
+#if (defined(CONFIG_KM_COGE5UN) | defined(CONFIG_KM_MGCOGE3UN))
 	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
 
 	/* if pin 1 do full erase */
@@ -409,6 +430,9 @@ void reset_phy(void)
 /* Configure and enable MV88E1118 PHY on the piggy*/
 void reset_phy(void)
 {
+	unsigned int oui;
+	unsigned char model, rev;
+
 	char *name = "egiga0";
 
 	if (miiphy_set_current_dev(name))
@@ -416,6 +440,40 @@ void reset_phy(void)
 
 	/* reset the phy */
 	miiphy_reset(name, CONFIG_PHY_BASE_ADR);
+
+	/* get PHY model */
+	if (miiphy_info(name, CONFIG_PHY_BASE_ADR, &oui, &model, &rev))
+		return;
+
+	/* check for Marvell 88E1118R Gigabit PHY (PIGGY3) */
+	if ((oui == PHY_MARVELL_OUI) &&
+	    (model == PHY_MARVELL_88E1118R_MODEL)) {
+		/* set page register to 3 */
+		if (miiphy_write(name, CONFIG_PHY_BASE_ADR,
+				 PHY_MARVELL_PAGE_REG,
+				 PHY_MARVELL_88E1118R_LED_CTRL_PAGE))
+			printf("Error writing PHY page reg\n");
+
+		/*
+		 * leds setup as printed on PCB:
+		 * LED2 (Link): 0x0 (On Link, Off No Link)
+		 * LED1 (Activity): 0x3 (On Activity, Off No Activity)
+		 * LED0 (Speed): 0x7 (On 1000 MBits, Off Else)
+		 */
+		if (miiphy_write(name, CONFIG_PHY_BASE_ADR,
+				 PHY_MARVELL_88E1118R_LED_CTRL_REG,
+				 PHY_MARVELL_88E1118R_LED_CTRL_RESERVED |
+				 PHY_MARVELL_88E1118R_LED_CTRL_LED0_1000MB |
+				 PHY_MARVELL_88E1118R_LED_CTRL_LED1_ACT |
+				 PHY_MARVELL_88E1118R_LED_CTRL_LED2_LINK))
+			printf("Error writing PHY LED reg\n");
+
+		/* set page register back to 0 */
+		if (miiphy_write(name, CONFIG_PHY_BASE_ADR,
+				 PHY_MARVELL_PAGE_REG,
+				 PHY_MARVELL_DEFAULT_PAGE))
+			printf("Error writing PHY page reg\n");
+	}
 }
 #endif
 

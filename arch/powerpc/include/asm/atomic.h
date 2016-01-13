@@ -19,7 +19,7 @@ typedef struct { int counter; } atomic_t;
 extern void atomic_clear_mask(unsigned long mask, unsigned long *addr);
 extern void atomic_set_mask(unsigned long mask, unsigned long *addr);
 
-extern __inline__ int atomic_add_return(int a, atomic_t *v)
+static __inline__ int atomic_add_return(int a, atomic_t *v)
 {
 	int t;
 
@@ -35,7 +35,7 @@ extern __inline__ int atomic_add_return(int a, atomic_t *v)
 	return t;
 }
 
-extern __inline__ int atomic_sub_return(int a, atomic_t *v)
+static __inline__ int atomic_sub_return(int a, atomic_t *v)
 {
 	int t;
 
@@ -51,7 +51,7 @@ extern __inline__ int atomic_sub_return(int a, atomic_t *v)
 	return t;
 }
 
-extern __inline__ int atomic_inc_return(atomic_t *v)
+static __inline__ int atomic_inc_return(atomic_t *v)
 {
 	int t;
 
@@ -67,7 +67,7 @@ extern __inline__ int atomic_inc_return(atomic_t *v)
 	return t;
 }
 
-extern __inline__ int atomic_dec_return(atomic_t *v)
+static __inline__ int atomic_dec_return(atomic_t *v)
 {
 	int t;
 

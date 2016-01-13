@@ -7,6 +7,7 @@
 #include <common.h>
 #include <errno.h>
 #include <asm/io.h>
+#include <asm/mrccache.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/fsp/fsp_support.h>
@@ -34,11 +35,6 @@ int fsp_init_phase_pci(void)
 	return status ? -EPERM : 0;
 }
 
-int board_pci_post_scan(struct pci_controller *hose)
-{
-	return fsp_init_phase_pci();
-}
-
 void board_final_cleanup(void)
 {
 	u32 status;
@@ -54,15 +50,42 @@ void board_final_cleanup(void)
 	return;
 }
 
+static __maybe_unused void *fsp_prepare_mrc_cache(void)
+{
+	struct mrc_data_container *cache;
+	struct mrc_region entry;
+	int ret;
+
+	ret = mrccache_get_region(NULL, &entry);
+	if (ret)
+		return NULL;
+
+	cache = mrccache_find_current(&entry);
+	if (!cache)
+		return NULL;
+
+	debug("%s: mrc cache at %p, size %x checksum %04x\n", __func__,
+	      cache->data, cache->data_size, cache->checksum);
+
+	return cache->data;
+}
+
 int x86_fsp_init(void)
 {
+	void *nvs;
+
 	if (!gd->arch.hob_list) {
+#ifdef CONFIG_ENABLE_MRC_CACHE
+		nvs = fsp_prepare_mrc_cache();
+#else
+		nvs = NULL;
+#endif
 		/*
 		 * The first time we enter here, call fsp_init().
 		 * Note the execution does not return to this function,
 		 * instead it jumps to fsp_continue().
 		 */
-		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, BOOT_FULL_CONFIG, NULL);
+		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, BOOT_FULL_CONFIG, nvs);
 	} else {
 		/*
 		 * The second time we enter here, adjust the size of malloc()

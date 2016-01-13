@@ -43,7 +43,8 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
 	aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
-	ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE, ddr3_size);
+	if (ddr3_size)
+		ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE, ddr3_size);
 	return 0;
 }
 
@@ -74,9 +75,14 @@ int board_eth_init(bd_t *bis)
 	int port_num;
 	char link_type_name[32];
 
+	if (cpu_is_k2g())
+		writel(KS2_ETHERNET_RGMII, KS2_ETHERNET_CFG);
+
 	/* By default, select PA PLL clock as PA clock source */
+#ifndef CONFIG_SOC_K2G
 	if (psc_enable_module(KS2_LPSC_PA))
 		return -1;
+#endif
 	if (psc_enable_module(KS2_LPSC_CPGMAC))
 		return -1;
 	if (psc_enable_module(KS2_LPSC_CRYPTO))

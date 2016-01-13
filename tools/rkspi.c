@@ -14,18 +14,10 @@
 #include "rkcommon.h"
 
 enum {
-	RKSPI_SPL_HDR_START	= RK_CODE1_OFFSET * RK_BLK_SIZE,
-	RKSPI_SPL_START		= RKSPI_SPL_HDR_START + 4,
-	RKSPI_HEADER_LEN	= RKSPI_SPL_START,
 	RKSPI_SECT_LEN		= RK_BLK_SIZE * 4,
 };
 
-static char dummy_hdr[RKSPI_HEADER_LEN];
-
-static int rkspi_check_params(struct image_tool_params *params)
-{
-	return 0;
-}
+static char dummy_hdr[RK_IMAGE_HEADER_LEN];
 
 static int rkspi_verify_header(unsigned char *buf, int size,
 			       struct image_tool_params *params)
@@ -45,7 +37,7 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 	int ret;
 
 	size = params->orig_file_size;
-	ret = rkcommon_set_header(buf, size);
+	ret = rkcommon_set_header(buf, size, params);
 	debug("size %x\n", size);
 	if (ret) {
 		/* TODO(sjg@chromium.org): This method should return an error */
@@ -53,7 +45,8 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 		       size);
 	}
 
-	memcpy(buf + RKSPI_SPL_HDR_START, "RK32", 4);
+	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
+	       RK_SPL_HDR_SIZE);
 
 	/*
 	 * Spread the image out so we only use the first 2KB of each 4KB
@@ -61,7 +54,7 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 	 * boot ROM. Its rationale is unknown.
 	 */
 	for (sector = size / RKSPI_SECT_LEN - 1; sector >= 0; sector--) {
-		printf("sector %u\n", sector);
+		debug("sector %u\n", sector);
 		memmove(buf + sector * RKSPI_SECT_LEN * 2,
 			buf + sector * RKSPI_SECT_LEN,
 			RKSPI_SECT_LEN);
@@ -89,12 +82,12 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 {
 	int pad_size;
 
-	pad_size = (RK_MAX_CODE1_SIZE + 0x7ff) / 0x800 * 0x800;
+	pad_size = (rkcommon_get_spl_size(params) + 0x7ff) / 0x800 * 0x800;
 	params->orig_file_size = pad_size;
 
 	/* We will double the image size due to the SPI format */
 	pad_size *= 2;
-	pad_size += RKSPI_SPL_HDR_START;
+	pad_size += RK_SPL_HDR_START;
 	debug("pad_size %x\n", pad_size);
 
 	return pad_size - params->file_size;
@@ -106,9 +99,9 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 U_BOOT_IMAGE_TYPE(
 	rkspi,
 	"Rockchip SPI Boot Image support",
-	RKSPI_HEADER_LEN,
+	RK_IMAGE_HEADER_LEN,
 	dummy_hdr,
-	rkspi_check_params,
+	rkcommon_check_params,
 	rkspi_verify_header,
 	rkspi_print_header,
 	rkspi_set_header,

@@ -79,6 +79,7 @@
 #include <malloc.h>         /* malloc, free, realloc*/
 #include <linux/ctype.h>    /* isalpha, isdigit */
 #include <common.h>        /* readline */
+#include <console.h>
 #include <bootretry.h>
 #include <cli.h>
 #include <cli_hush.h>
@@ -2161,7 +2162,7 @@ int set_local_var(const char *s, int flg_export)
 	 * NAME=VALUE format.  So the first order of business is to
 	 * split 's' on the '=' into 'name' and 'value' */
 	value = strchr(name, '=');
-	if (value == NULL && ++value == NULL) {
+	if (value == NULL || *(value + 1) == 0) {
 		free(name);
 		return -1;
 	}
@@ -2470,11 +2471,16 @@ static int done_word(o_string *dest, struct p_context *ctx)
 		}
 		argc = ++child->argc;
 		child->argv = realloc(child->argv, (argc+1)*sizeof(*child->argv));
-		if (child->argv == NULL) return 1;
+		if (child->argv == NULL) {
+			free(str);
+			return 1;
+		}
 		child->argv_nonnull = realloc(child->argv_nonnull,
 					(argc+1)*sizeof(*child->argv_nonnull));
-		if (child->argv_nonnull == NULL)
+		if (child->argv_nonnull == NULL) {
+			free(str);
 			return 1;
+		}
 		child->argv[argc-1]=str;
 		child->argv_nonnull[argc-1] = dest->nonnull;
 		child->argv[argc]=NULL;
@@ -3502,9 +3508,9 @@ static char *insert_var_value_sub(char *inp, int tag_subst)
 	char *p, *p1, *res_str = NULL;
 
 	while ((p = strchr(inp, SPECIAL_VAR_SYMBOL))) {
-		/* check the beginning of the string for normal charachters */
+		/* check the beginning of the string for normal characters */
 		if (p != inp) {
-			/* copy any charachters to the result string */
+			/* copy any characters to the result string */
 			len = p - inp;
 			res_str = xrealloc(res_str, (res_str_len + len));
 			strncpy((res_str + res_str_len), inp, len);

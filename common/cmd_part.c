@@ -100,7 +100,7 @@ static int do_part_list(int argc, char * const argv[])
 			if (bootable && !info.bootable)
 				continue;
 
-			sprintf(t, "%s%d", str[0] ? " " : "", p);
+			sprintf(t, "%s%x", str[0] ? " " : "", p);
 			strcat(str, t);
 		}
 		setenv(var, str);

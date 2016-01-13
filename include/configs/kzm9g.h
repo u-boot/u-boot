@@ -14,7 +14,6 @@
 #define CONFIG_KZM_A9_GT
 #define CONFIG_RMOBILE_BOARD_STRING	"KMC KZM-A9-GT"
 #define CONFIG_MACH_TYPE MACH_TYPE_KZM9G
-#define CONFIG_SYS_GENERIC_BOARD
 
 #include <asm/arch/rmobile.h>
 

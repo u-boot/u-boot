@@ -88,7 +88,8 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		image_print_contents(hdr);
 #endif
 
-		if (!image_check_type(hdr, IH_TYPE_MULTI)) {
+		if (!image_check_type(hdr, IH_TYPE_MULTI) &&
+		    !image_check_type(hdr, IH_TYPE_SCRIPT)) {
 			printf("Wrong Image Type for %s command\n",
 					cmdtp->name);
 			return 1;

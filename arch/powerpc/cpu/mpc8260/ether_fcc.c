@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <malloc.h>
 #include <asm/cpm_8260.h>
 #include <mpc8260.h>

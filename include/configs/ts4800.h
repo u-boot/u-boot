@@ -24,6 +24,8 @@
 
 #define CONFIG_HW_WATCHDOG
 
+#define CONFIG_OF_LIBFDT
+
 #define CONFIG_MACH_TYPE	MACH_TYPE_TS48XX
 
 /* text base address used when linking */
@@ -36,9 +38,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
-
-/* use common/board_f.c instead of arch/<arch>/lib/<board>.c */
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Size of malloc() pool

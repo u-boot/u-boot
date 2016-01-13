@@ -75,7 +75,6 @@
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_CMD_MII
 #define CONFIG_MII
-#define CONFIG_PHYLIB
 
 /* i2c Settings */
 #define CONFIG_SYS_I2C

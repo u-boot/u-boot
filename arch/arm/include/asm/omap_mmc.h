@@ -26,6 +26,9 @@
 #define OMAP_MMC_H_
 
 struct hsmmc {
+#ifdef CONFIG_DM_MMC
+	unsigned char res0[0x100];
+#endif
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
 	unsigned int sysstatus;		/* 0x14 */

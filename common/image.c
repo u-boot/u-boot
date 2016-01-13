@@ -158,6 +158,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_RKIMAGE,    "rkimage",    "Rockchip Boot Image" },
 	{	IH_TYPE_RKSD,       "rksd",       "Rockchip SD Boot Image" },
 	{	IH_TYPE_RKSPI,      "rkspi",      "Rockchip SPI Boot Image" },
+	{	IH_TYPE_ZYNQIMAGE,  "zynqimage",  "Xilinx Zynq Boot Image" },
 	{	-1,		    "",		  "",			},
 };
 
@@ -913,7 +914,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	 * Look for an Android boot image.
 	 */
 	buf = map_sysmem(images->os.start, 0);
-	if (genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
+	if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
 		select = argv[0];
 #endif
 

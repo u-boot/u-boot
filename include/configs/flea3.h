@@ -22,7 +22,6 @@
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 #define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Only in case the value is not present in mach-types.h */
 #ifndef MACH_TYPE_FLEA3
@@ -250,5 +249,9 @@
 		"fi;"							\
 		"else echo U-Boot not downloaded..exiting;fi\0"		\
 	"bootcmd=run net_nfs\0"
+
+/* Enable FIT images support */
+#define CONFIG_CMD_FDT
+#define CONFIG_FIT
 
 #endif				/* __CONFIG_H */

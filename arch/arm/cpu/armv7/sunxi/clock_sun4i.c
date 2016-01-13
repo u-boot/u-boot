@@ -59,7 +59,7 @@ void clock_init_uart(void)
 
 	/* open the clock for uart */
 	setbits_le32(&ccm->apb1_gate,
-		CLK_GATE_OPEN << (APB1_GATE_UART_SHIFT+CONFIG_CONS_INDEX-1));
+		CLK_GATE_OPEN << (APB1_GATE_UART_SHIFT+CONFIG_CONS_INDEX - 1));
 }
 
 int clock_twi_onoff(int port, int state)
@@ -67,16 +67,13 @@ int clock_twi_onoff(int port, int state)
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-	if (port > 2)
-		return -1;
-
 	/* set the apb clock gate for twi */
 	if (state)
 		setbits_le32(&ccm->apb1_gate,
-			     CLK_GATE_OPEN << (APB1_GATE_TWI_SHIFT+port));
+			     CLK_GATE_OPEN << (APB1_GATE_TWI_SHIFT + port));
 	else
 		clrbits_le32(&ccm->apb1_gate,
-			     CLK_GATE_OPEN << (APB1_GATE_TWI_SHIFT+port));
+			     CLK_GATE_OPEN << (APB1_GATE_TWI_SHIFT + port));
 
 	return 0;
 }

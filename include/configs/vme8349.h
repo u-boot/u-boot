@@ -18,7 +18,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 /*
@@ -201,7 +200,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -373,7 +371,6 @@
     #undef CONFIG_CMD_ENV
 #endif
 
-#define CONFIG_CMD_ELF
 /* Pass Ethernet MAC to VxWorks */
 #define CONFIG_SYS_VXWORKS_MAC_PTR	0x000043f0
 

@@ -13,6 +13,8 @@
 		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
 		pci0 = &pci;
+		remoteproc1 = &rproc_1;
+		remoteproc2 = &rproc_2;
 		rtc0 = &rtc_0;
 		rtc1 = &rtc_1;
 		spi0 = "/spi@0";
@@ -187,6 +189,12 @@
 		};
 	};
 
+	adc@0 {
+		compatible = "sandbox,adc";
+		vdd-supply = <&buck2>;
+		vss-microvolts = <0>;
+	};
+
 	leds {
 		compatible = "gpio-leds";
 
@@ -233,6 +241,17 @@
 		compatible = "sandbox,reset";
 	};
 
+	rproc_1: rproc@1 {
+		compatible = "sandbox,test-processor";
+		remoteproc-name = "remoteproc-test-dev1";
+	};
+
+	rproc_2: rproc@2 {
+		compatible = "sandbox,test-processor";
+		internal-memory-mapped;
+		remoteproc-name = "remoteproc-test-dev2";
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -258,6 +277,11 @@
 			0x28 6
 			0x30 7
 			0x38 8>;
+	};
+
+	timer {
+		compatible = "sandbox,timer";
+		clock-frequency = <1000000>;
 	};
 
 	uart0: serial {
@@ -288,10 +312,27 @@
 				compatible = "sandbox,usb-hub";
 				#address-cells = <1>;
 				#size-cells = <0>;
-				flash-stick {
+				flash-stick@0 {
 					reg = <0>;
 					compatible = "sandbox,usb-flash";
 					sandbox,filepath = "testflash.bin";
+				};
+
+				flash-stick@1 {
+					reg = <1>;
+					compatible = "sandbox,usb-flash";
+					sandbox,filepath = "testflash1.bin";
+				};
+
+				flash-stick@2 {
+					reg = <2>;
+					compatible = "sandbox,usb-flash";
+					sandbox,filepath = "testflash2.bin";
+				};
+
+				keyb@3 {
+					reg = <3>;
+					compatible = "sandbox,usb-keyb";
 				};
 
 			};

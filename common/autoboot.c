@@ -9,6 +9,7 @@
 #include <autoboot.h>
 #include <bootretry.h>
 #include <cli.h>
+#include <console.h>
 #include <fdtdec.h>
 #include <menu.h>
 #include <post.h>

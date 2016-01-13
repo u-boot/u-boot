@@ -83,6 +83,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <environment.h>
 #include <errno.h>
 #include <net.h>
@@ -164,7 +165,7 @@ ushort		net_our_vlan = 0xFFFF;
 ushort		net_native_vlan = 0xFFFF;
 
 /* Boot File name */
-char net_boot_file_name[128];
+char net_boot_file_name[1024];
 /* The actual transferred size of the bootfile (in bytes) */
 u32 net_boot_file_size;
 /* Boot file size in blocks as reported by the DHCP server */
@@ -541,6 +542,9 @@ restart:
 #ifdef CONFIG_SHOW_ACTIVITY
 		show_activity(1);
 #endif
+		if (arp_timeout_check() > 0)
+			time_start = get_timer(0);
+
 		/*
 		 *	Check the ethernet for a new packet.  The ethernet
 		 *	receive routine will process it.
@@ -568,8 +572,6 @@ restart:
 			ret = -EINTR;
 			goto done;
 		}
-
-		arp_timeout_check();
 
 		/*
 		 *	Check for a timeout, and run the timeout handler

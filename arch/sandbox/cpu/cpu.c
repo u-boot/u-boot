@@ -37,7 +37,10 @@ void sandbox_exit(void)
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
-	os_usleep(usec);
+	struct sandbox_state *state = state_get_current();
+
+	if (!state->skip_delays)
+		os_usleep(usec);
 }
 
 int cleanup_before_linux(void)

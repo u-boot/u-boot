@@ -9,7 +9,6 @@
 #ifndef _LPC32XX_CONFIG_H
 #define _LPC32XX_CONFIG_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Basic CPU architecture */
 #define CONFIG_ARCH_CPU_INIT
@@ -28,7 +27,6 @@
 #endif
 
 #if defined(CONFIG_SYS_NS16550_SERIAL)
-#define CONFIG_SYS_NS16550
 
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()

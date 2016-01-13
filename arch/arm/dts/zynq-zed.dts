@@ -17,6 +17,7 @@
 		ethernet0 = &gem0;
 		serial0 = &uart1;
 		spi0 = &qspi;
+		mmc0 = &sdhci0;
 	};
 
 	memory {
@@ -26,8 +27,7 @@
 
 	chosen {
 		bootargs = "earlyprintk";
-		linux,stdout-path = &uart1;
-		stdout-path = &uart1;
+		stdout-path = "serial0:115200n8";
 	};
 
 	usb_phy0: phy0 {
@@ -86,10 +86,16 @@
 };
 
 &sdhci0 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
 &uart1 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&qspi {
 	status = "okay";
 };
 

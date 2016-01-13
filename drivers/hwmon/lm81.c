@@ -90,7 +90,7 @@ int dtt_init_one(int sensor)
 	if (adr < 0)
 		return 1;
 	rev = dtt_read (sensor, DTT_REV);
-	if (adr < 0)
+	if (rev < 0)
 		return 1;
 
 	debug ("DTT:   Found LM81@%x Rev: %d\n", adr, rev);

@@ -14,16 +14,33 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
+	aliases {
+		udc0 = &usb1;
+	};
+
 	memory {
 		name = "memory";
 		device_type = "memory";
 		reg = <0x0 0x40000000>; /* 1GB */
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
 	};
 };
 
 &gmac1 {
 	status = "okay";
 	phy-mode = "rgmii";
+
+	rxd0-skew-ps = <0>;
+	rxd1-skew-ps = <0>;
+	rxd2-skew-ps = <0>;
+	rxd3-skew-ps = <0>;
+	txen-skew-ps = <0>;
+	txc-skew-ps = <2600>;
+	rxdv-skew-ps = <0>;
+	rxc-skew-ps = <2000>;
 };
 
 &i2c0 {
@@ -37,6 +54,7 @@
 
 &mmc0 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &qspi {
@@ -57,4 +75,8 @@
 		tchsh-ns = <4>;
 		tslch-ns = <4>;
 	};
+};
+
+&usb1 {
+	status = "okay";
 };

@@ -8,6 +8,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
@@ -399,7 +400,7 @@ static int usb_kbd_getc(struct stdio_dev *sdev)
 }
 
 /* probes the USB device dev for keyboard type. */
-static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
+static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 {
 	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
@@ -410,13 +411,13 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 
 	iface = &dev->config.if_desc[ifnum];
 
-	if (iface->desc.bInterfaceClass != 3)
+	if (iface->desc.bInterfaceClass != USB_CLASS_HID)
 		return 0;
 
-	if (iface->desc.bInterfaceSubClass != 1)
+	if (iface->desc.bInterfaceSubClass != USB_SUB_HID_BOOT)
 		return 0;
 
-	if (iface->desc.bInterfaceProtocol != 1)
+	if (iface->desc.bInterfaceProtocol != USB_PROT_HID_KEYBOARD)
 		return 0;
 
 	if (iface->desc.bNumEndpoints != 1)
@@ -475,6 +476,9 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 				      USB_KBD_BOOT_REPORT_SIZE, data->new,
 				      data->intinterval);
 	if (!data->intq) {
+#elif defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
+	if (usb_get_report(dev, iface->desc.bInterfaceNumber,
+			   1, 0, data->new, USB_KBD_BOOT_REPORT_SIZE) < 0) {
 #else
 	if (usb_submit_int_msg(dev, data->intpipe, data->new, data->intpktsize,
 			       data->intinterval) < 0) {
@@ -496,14 +500,14 @@ static int probe_usb_keyboard(struct usb_device *dev)
 	int error;
 
 	/* Try probing the keyboard */
-	if (usb_kbd_probe(dev, 0) != 1)
+	if (usb_kbd_probe_dev(dev, 0) != 1)
 		return -ENOENT;
 
 	/* Register the keyboard */
 	debug("USB KBD: register.\n");
 	memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
 	strcpy(usb_kbd_dev.name, DEVNAME);
-	usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	usb_kbd_dev.flags =  DEV_FLAGS_INPUT;
 	usb_kbd_dev.getc = usb_kbd_getc;
 	usb_kbd_dev.tstc = usb_kbd_testc;
 	usb_kbd_dev.priv = (void *)dev;
@@ -533,41 +537,13 @@ static int probe_usb_keyboard(struct usb_device *dev)
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
 /* Search for keyboard and register it if found. */
 int drv_usb_kbd_init(void)
 {
 	int error, i;
 
 	debug("%s: Probing for keyboard\n", __func__);
-#ifdef CONFIG_DM_USB
-	/*
-	 * TODO: We should add U_BOOT_USB_DEVICE() declarations to each USB
-	 * keyboard driver and then most of this file can be removed.
-	 */
-	struct udevice *bus;
-	struct uclass *uc;
-	int ret;
-
-	ret = uclass_get(UCLASS_USB, &uc);
-	if (ret)
-		return ret;
-	uclass_foreach_dev(bus, uc) {
-		for (i = 0; i < USB_MAX_DEVICE; i++) {
-			struct usb_device *dev;
-
-			dev = usb_get_dev_index(bus, i); /* get device */
-			debug("i=%d, %p\n", i, dev);
-			if (!dev)
-				break; /* no more devices available */
-
-			error = probe_usb_keyboard(dev);
-			if (!error)
-				return 1;
-			if (error && error != -ENOENT)
-				return error;
-		} /* for */
-	}
-#else
 	/* Scan all USB Devices */
 	for (i = 0; i < USB_MAX_DEVICE; i++) {
 		struct usb_device *dev;
@@ -586,11 +562,11 @@ int drv_usb_kbd_init(void)
 		if (error && error != -ENOENT)
 			return error;
 	}
-#endif
 
 	/* No USB Keyboard found */
 	return -1;
 }
+#endif
 
 /* Deregister the keyboard. */
 int usb_kbd_deregister(int force)
@@ -622,3 +598,79 @@ int usb_kbd_deregister(int force)
 	return 1;
 #endif
 }
+
+#ifdef CONFIG_DM_USB
+
+static int usb_kbd_probe(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+	int ret;
+
+	ret = probe_usb_keyboard(udev);
+
+	return ret;
+}
+
+static int usb_kbd_remove(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parent_priv(dev);
+	struct usb_kbd_pdata *data;
+	struct stdio_dev *sdev;
+	int ret;
+
+	sdev = stdio_get_by_name(DEVNAME);
+	if (!sdev) {
+		ret = -ENXIO;
+		goto err;
+	}
+	data = udev->privptr;
+	if (stdio_deregister_dev(sdev, true)) {
+		ret = -EPERM;
+		goto err;
+	}
+#ifdef CONFIG_CONSOLE_MUX
+	if (iomux_doenv(stdin, getenv("stdin"))) {
+		ret = -ENOLINK;
+		goto err;
+	}
+#endif
+#ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+	destroy_int_queue(udev, data->intq);
+#endif
+	free(data->new);
+	free(data);
+
+	return 0;
+err:
+	printf("%s: warning, ret=%d", __func__, ret);
+	return ret;
+}
+
+static const struct udevice_id usb_kbd_ids[] = {
+	{ .compatible = "usb-keyboard" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_kbd) = {
+	.name	= "usb_kbd",
+	.id	= UCLASS_KEYBOARD,
+	.of_match = usb_kbd_ids,
+	.probe = usb_kbd_probe,
+	.remove = usb_kbd_remove,
+};
+
+static const struct usb_device_id kbd_id_table[] = {
+	{
+		.match_flags = USB_DEVICE_ID_MATCH_INT_CLASS |
+			USB_DEVICE_ID_MATCH_INT_SUBCLASS |
+			USB_DEVICE_ID_MATCH_INT_PROTOCOL,
+		.bInterfaceClass = USB_CLASS_HID,
+		.bInterfaceSubClass = USB_SUB_HID_BOOT,
+		.bInterfaceProtocol = USB_PROT_HID_KEYBOARD,
+	},
+	{ }		/* Terminating entry */
+};
+
+U_BOOT_USB_DEVICE(usb_kbd, kbd_id_table);
+
+#endif

@@ -1,0 +1,9 @@
+LS1043AQDS BOARD
+M:	Mingkai Hu <Mingkai.Hu@freescale.com>
+S:	Maintained
+F:	board/freescale/ls1043aqds/
+F:	include/configs/ls1043aqds.h
+F:	configs/ls1043aqds_defconfig
+F:	configs/ls1043aqds_nor_ddr3_defconfig
+F:	configs/ls1043aqds_nand_defconfig
+F:	configs/ls1043aqds_sdcard_ifc_defconfig

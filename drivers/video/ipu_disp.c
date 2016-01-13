@@ -611,11 +611,9 @@ void ipu_dp_dc_enable(ipu_channel_t channel)
 	uint32_t reg;
 	uint32_t dc_chan;
 
-	if (channel == MEM_FG_SYNC)
-		dc_chan = 5;
 	if (channel == MEM_DC_SYNC)
 		dc_chan = 1;
-	else if (channel == MEM_BG_SYNC)
+	else if ((channel == MEM_BG_SYNC) || (channel == MEM_FG_SYNC))
 		dc_chan = 5;
 	else
 		return;
@@ -1119,7 +1117,7 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 		reg &= 0x0000FFFF;
 		__raw_writel(reg, DI_STP_REP(disp, 6));
 		__raw_writel(0, DI_STP_REP(disp, 7));
-		__raw_writel(0, DI_STP_REP(disp, 9));
+		__raw_writel(0, DI_STP_REP9(disp));
 
 		/* Init template microcode */
 		if (disp) {

@@ -7,6 +7,8 @@
 #include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <malloc.h>
+#include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
 #include <asm/arch/mrc.h>
@@ -14,6 +16,29 @@
 #include <asm/arch/quark.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static __maybe_unused int prepare_mrc_cache(struct mrc_params *mrc_params)
+{
+	struct mrc_data_container *cache;
+	struct mrc_region entry;
+	int ret;
+
+	ret = mrccache_get_region(NULL, &entry);
+	if (ret)
+		return ret;
+
+	cache = mrccache_find_current(&entry);
+	if (!cache)
+		return -ENOENT;
+
+	debug("%s: mrc cache at %p, size %x checksum %04x\n", __func__,
+	      cache->data, cache->data_size, cache->checksum);
+
+	/* copy mrc cache to the mrc_params */
+	memcpy(&mrc_params->timings, cache->data, cache->data_size);
+
+	return 0;
+}
 
 static int mrc_configure_params(struct mrc_params *mrc_params)
 {
@@ -27,14 +52,15 @@ static int mrc_configure_params(struct mrc_params *mrc_params)
 		return -EINVAL;
 	}
 
-	/*
-	 * TODO:
-	 *
-	 * We need support fast boot (MRC cache) in the future.
-	 *
-	 * Set boot mode to cold boot for now
-	 */
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	mrc_params->boot_mode = prepare_mrc_cache(mrc_params);
+	if (mrc_params->boot_mode)
+		mrc_params->boot_mode = BM_COLD;
+	else
+		mrc_params->boot_mode = BM_FAST;
+#else
 	mrc_params->boot_mode = BM_COLD;
+#endif
 
 	/*
 	 * TODO:
@@ -98,6 +124,9 @@ static int mrc_configure_params(struct mrc_params *mrc_params)
 int dram_init(void)
 {
 	struct mrc_params mrc_params;
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	char *cache;
+#endif
 	int ret;
 
 	memset(&mrc_params, 0, sizeof(struct mrc_params));
@@ -120,6 +149,15 @@ int dram_init(void)
 	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYMASK(MTRR_VAR_RAM),
 		       (~(gd->ram_size - 1)) | MTRR_PHYS_MASK_VALID);
 	enable_caches();
+
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	cache = malloc(sizeof(struct mrc_timings));
+	if (cache) {
+		memcpy(cache, &mrc_params.timings, sizeof(struct mrc_timings));
+		gd->arch.mrc_output = cache;
+		gd->arch.mrc_output_len = sizeof(struct mrc_timings);
+	}
+#endif
 
 	return 0;
 }

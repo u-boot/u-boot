@@ -68,7 +68,7 @@ int rtc_read32(struct udevice *dev, unsigned int reg, u32 *valuep)
 
 	for (i = 0; i < sizeof(value); i++) {
 		ret = rtc_read8(dev, reg + i);
-		if (ret)
+		if (ret < 0)
 			return ret;
 		value |= ret << (i << 3);
 	}

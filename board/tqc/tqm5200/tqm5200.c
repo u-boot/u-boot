@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <asm/processor.h>

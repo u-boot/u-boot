@@ -39,7 +39,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		2
 
 /* SPI */
-#define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 #define CONFIG_CMD_SPI
@@ -59,10 +58,8 @@
 
 /* PCI host support */
 #define CONFIG_PCI
-#define CONFIG_PCI_TEGRA
 #define CONFIG_PCI_PNP
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PCI_ENUM
 
 /* PCI networking support */
 #define CONFIG_RTL8169
@@ -77,7 +74,5 @@
 /* Reserve top 1M for secure RAM */
 #define CONFIG_ARMV7_SECURE_BASE		0xfff00000
 #define CONFIG_ARMV7_SECURE_RESERVE_SIZE	0x00100000
-
-#define CONFIG_OF_BOARD_SETUP
 
 #endif /* __CONFIG_H */

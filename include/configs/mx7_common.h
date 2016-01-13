@@ -21,6 +21,7 @@
 #define CONFIG_MXC_GPT_HCLK
 #define CONFIG_SYSCOUNTER_TIMER
 #define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
+#define CONFIG_SYS_FSL_CLK
 
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR
@@ -32,10 +33,10 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_ROM_UNIFIED_SECTIONS
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+
+#define CONFIG_FSL_CLK
 
 #define CONFIG_LOADADDR                 0x80800000
 #define CONFIG_SYS_TEXT_BASE            0x87800000
@@ -74,7 +75,6 @@
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
-#define CONFIG_CMD_GPIO
 
 /* UART */
 #define CONFIG_MXC_UART
@@ -91,5 +91,16 @@
 /* Fuses */
 #define CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
+
+/*
+ * Default boot linux kernel in no secure mode.
+ * If want to boot kernel in secure mode, please define CONFIG_MX7_SEC
+ */
+#ifndef CONFIG_MX7_SEC
+#define CONFIG_ARMV7_NONSEC
+#define CONFIG_ARMV7_PSCI
+#define CONFIG_ARMV7_PSCI_NR_CPUS	2
+#define CONFIG_ARMV7_SECURE_BASE	0x00900000
+#endif
 
 #endif

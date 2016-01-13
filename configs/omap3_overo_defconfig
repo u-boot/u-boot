@@ -7,5 +7,7 @@ CONFIG_SYS_PROMPT="Overo # "
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
+CONFIG_CMD_GPIO=y
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NFS is not set
+CONFIG_SYS_NS16550=y

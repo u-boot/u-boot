@@ -117,7 +117,6 @@
 #define CONFIG_CMD_CPLBINFO
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_SF
-#define CONFIG_CMD_ELF
 
 #define CONFIG_BOOTDELAY     5
 #define CONFIG_BOOTCOMMAND   "run ramboot"
@@ -217,7 +216,6 @@
 /* For the M25P64 SCK Should be Kept < 15Mhz */
 #define CONFIG_ENV_SPI_MAX_HZ	15000000
 #define CONFIG_SF_DEFAULT_SPEED	15000000
-#define CONFIG_SPI_FLASH_STMICRO
 
 /*
  * FLASH organization and environment definitions

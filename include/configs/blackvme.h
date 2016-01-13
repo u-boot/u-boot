@@ -142,7 +142,6 @@
 
 #define CONFIG_ENV_SPI_MAX_HZ	15000000
 #define CONFIG_SF_DEFAULT_SPEED	15000000
-#define CONFIG_SPI_FLASH_STMICRO
 
 /*
  * Interactive command settings
@@ -156,7 +155,6 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_CPLBINFO
 #define CONFIG_CMD_SF
-#define CONFIG_CMD_ELF
 
 /*
  * Default: boot from SPI flash.

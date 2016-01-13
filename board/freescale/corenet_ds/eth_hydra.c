@@ -55,7 +55,7 @@
 #include <fsl_mdio.h>
 #include <malloc.h>
 #include <fdt_support.h>
-#include <asm/fsl_dtsec.h>
+#include <fsl_dtsec.h>
 
 #include "../common/ngpixis.h"
 #include "../common/fman.h"

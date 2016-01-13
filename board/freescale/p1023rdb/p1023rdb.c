@@ -26,7 +26,7 @@
 #include <fsl_mdio.h>
 #include <miiphy.h>
 #include <phy.h>
-#include <asm/fsl_dtsec.h>
+#include <fsl_dtsec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

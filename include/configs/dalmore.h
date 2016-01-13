@@ -49,7 +49,6 @@
 #define MACH_TYPE_DALMORE	4304	/* not yet in mach-types.h */
 
 /* SPI */
-#define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_MODE         SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED        24000000
 #define CONFIG_CMD_SPI

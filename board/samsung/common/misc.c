@@ -85,6 +85,9 @@ void set_board_info(void)
 
 #ifdef CONFIG_BOARD_TYPES
 	bdtype = get_board_type();
+	if (!bdtype)
+		bdtype = "";
+
 	sprintf(info, "%s%s", bdname, bdtype);
 	setenv("boardname", info);
 #endif
@@ -256,9 +259,9 @@ static int mode_leave_menu(int mode)
 		cmd = find_cmd(mode_name[mode][1]);
 		if (cmd) {
 			printf("Enter: %s %s\n", mode_name[mode][0],
-						 mode_info[mode]);
+			       mode_info[mode]);
 			lcd_printf("\n\n\t%s %s\n", mode_name[mode][0],
-						    mode_info[mode]);
+				   mode_info[mode]);
 			lcd_puts("\n\tDo not turn off device before finish!\n");
 
 			cmd_result = run_command(mode_cmd[mode], 0);
@@ -315,8 +318,7 @@ static void display_download_menu(int mode)
 
 	for (i = 0; i <= BOOT_MODE_EXIT; i++)
 		lcd_printf("\t%s  %s - %s\n\n", selection[i],
-						mode_name[i][0],
-						mode_info[i]);
+			   mode_name[i][0], mode_info[i]);
 }
 
 static void download_menu(void)

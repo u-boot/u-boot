@@ -13,18 +13,7 @@
 #include "mkimage.h"
 #include "rkcommon.h"
 
-enum {
-	RKSD_SPL_HDR_START	= RK_CODE1_OFFSET * RK_BLK_SIZE,
-	RKSD_SPL_START		= RKSD_SPL_HDR_START + 4,
-	RKSD_HEADER_LEN		= RKSD_SPL_START,
-};
-
-static char dummy_hdr[RKSD_HEADER_LEN];
-
-static int rksd_check_params(struct image_tool_params *params)
-{
-	return 0;
-}
+static char dummy_hdr[RK_IMAGE_HEADER_LEN];
 
 static int rksd_verify_header(unsigned char *buf,  int size,
 				 struct image_tool_params *params)
@@ -42,15 +31,16 @@ static void rksd_set_header(void *buf,  struct stat *sbuf,  int ifd,
 	unsigned int size;
 	int ret;
 
-	size = params->file_size - RKSD_SPL_HDR_START;
-	ret = rkcommon_set_header(buf, size);
+	size = params->file_size - RK_SPL_HDR_START;
+	ret = rkcommon_set_header(buf, size, params);
 	if (ret) {
 		/* TODO(sjg@chromium.org): This method should return an error */
 		printf("Warning: SPL image is too large (size %#x) and will not boot\n",
 		       size);
 	}
 
-	memcpy(buf + RKSD_SPL_HDR_START, "RK32", 4);
+	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
+	       RK_SPL_HDR_SIZE);
 }
 
 static int rksd_extract_subimage(void *buf,  struct image_tool_params *params)
@@ -72,7 +62,7 @@ static int rksd_vrec_header(struct image_tool_params *params,
 {
 	int pad_size;
 
-	pad_size = RKSD_SPL_HDR_START + RK_MAX_CODE1_SIZE;
+	pad_size = RK_SPL_HDR_START + rkcommon_get_spl_size(params);
 	debug("pad_size %x\n", pad_size);
 
 	return pad_size - params->file_size;
@@ -84,9 +74,9 @@ static int rksd_vrec_header(struct image_tool_params *params,
 U_BOOT_IMAGE_TYPE(
 	rksd,
 	"Rockchip SD Boot Image support",
-	RKSD_HEADER_LEN,
+	RK_IMAGE_HEADER_LEN,
 	dummy_hdr,
-	rksd_check_params,
+	rkcommon_check_params,
 	rksd_verify_header,
 	rksd_print_header,
 	rksd_set_header,

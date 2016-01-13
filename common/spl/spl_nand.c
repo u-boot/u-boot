@@ -11,7 +11,7 @@
 #include <nand.h>
 
 #if defined(CONFIG_SPL_NAND_RAW_ONLY)
-void spl_nand_load_image(void)
+int spl_nand_load_image(void)
 {
 	nand_init();
 
@@ -20,10 +20,26 @@ void spl_nand_load_image(void)
 			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
 	spl_set_header_raw_uboot();
 	nand_deselect();
+
+	return 0;
 }
 #else
-void spl_nand_load_image(void)
+static int spl_nand_load_element(int offset, struct image_header *header)
 {
+	int err;
+
+	err = nand_spl_load_image(offset, sizeof(*header), (void *)header);
+	if (err)
+		return err;
+
+	spl_parse_image_header(header);
+	return nand_spl_load_image(offset, spl_image.size,
+				   (void *)(unsigned long)spl_image.load_addr);
+}
+
+int spl_nand_load_image(void)
+{
+	int err;
 	struct image_header *header;
 	int *src __attribute__((unused));
 	int *dst __attribute__((unused));
@@ -60,10 +76,12 @@ void spl_nand_load_image(void)
 		spl_parse_image_header(header);
 		if (header->ih_os == IH_OS_LINUX) {
 			/* happy - was a linux */
-			nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
-				spl_image.size, (void *)spl_image.load_addr);
+			err = nand_spl_load_image(
+				CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
+				spl_image.size,
+				(void *)spl_image.load_addr);
 			nand_deselect();
-			return;
+			return err;
 		} else {
 			puts("The Expected Linux image was not "
 				"found. Please check your NAND "
@@ -73,25 +91,14 @@ void spl_nand_load_image(void)
 	}
 #endif
 #ifdef CONFIG_NAND_ENV_DST
-	nand_spl_load_image(CONFIG_ENV_OFFSET,
-		sizeof(*header), (void *)header);
-	spl_parse_image_header(header);
-	nand_spl_load_image(CONFIG_ENV_OFFSET, spl_image.size,
-		(void *)spl_image.load_addr);
+	spl_nand_load_element(CONFIG_ENV_OFFSET, header);
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND,
-		sizeof(*header), (void *)header);
-	spl_parse_image_header(header);
-	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, spl_image.size,
-		(void *)spl_image.load_addr);
+	spl_nand_load_element(CONFIG_ENV_OFFSET_REDUND, header);
 #endif
 #endif
 	/* Load u-boot */
-	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-		sizeof(*header), (void *)header);
-	spl_parse_image_header(header);
-	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-		spl_image.size, (void *)(unsigned long)spl_image.load_addr);
+	err = spl_nand_load_element(CONFIG_SYS_NAND_U_BOOT_OFFS, header);
 	nand_deselect();
+	return err;
 }
 #endif

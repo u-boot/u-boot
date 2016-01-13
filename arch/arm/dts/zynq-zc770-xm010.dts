@@ -89,6 +89,10 @@
 	};
 };
 
+&qspi {
+	status = "okay";
+};
+
 &can0 {
 	status = "okay";
 };
@@ -119,6 +123,7 @@
 };
 
 &uart1 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 

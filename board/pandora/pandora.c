@@ -102,7 +102,7 @@ int misc_init_r(void)
 		TWL4030_BB_CFG_BBCHEN | TWL4030_BB_CFG_BBSEL_3200MV |
 		TWL4030_BB_CFG_BBISEL_500UA);
 
-	dieid_num_r();
+	omap_die_id_display();
 
 	return 0;
 }

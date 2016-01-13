@@ -25,7 +25,7 @@
 
 static bool _configured;
 
-void config_gpu(void)
+void tegra_gpu_config(void)
 {
 	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
 
@@ -41,18 +41,13 @@ void config_gpu(void)
 	_configured = true;
 }
 
-bool vpr_configured(void)
-{
-	return _configured;
-}
-
 #if defined(CONFIG_OF_LIBFDT)
 
-int gpu_enable_node(void *blob, const char *gpupath)
+int tegra_gpu_enable_node(void *blob, const char *gpupath)
 {
 	int offset;
 
-	if (vpr_configured()) {
+	if (_configured) {
 		offset = fdt_path_offset(blob, gpupath);
 		if (offset > 0) {
 			fdt_status_okay(blob, offset);

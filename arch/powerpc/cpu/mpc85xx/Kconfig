@@ -149,6 +149,9 @@ config TARGET_XPEDITE550X
 config TARGET_UCP1020
 	bool "Support uCP1020"
 
+config TARGET_CYRUS
+	bool "Support Varisys Cyrus"
+
 endchoice
 
 source "board/freescale/b4860qds/Kconfig"
@@ -185,6 +188,7 @@ source "board/gdsys/p1022/Kconfig"
 source "board/keymile/kmp204x/Kconfig"
 source "board/sbc8548/Kconfig"
 source "board/socrates/Kconfig"
+source "board/varisys/cyrus/Kconfig"
 source "board/xes/xpedite520x/Kconfig"
 source "board/xes/xpedite537x/Kconfig"
 source "board/xes/xpedite550x/Kconfig"

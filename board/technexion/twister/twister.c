@@ -92,7 +92,7 @@ int misc_init_r(void)
 	struct tam3517_module_info info;
 	int ret;
 
-	dieid_num_r();
+	omap_die_id_display();
 
 	eth_addr = getenv("ethaddr");
 	if (eth_addr)

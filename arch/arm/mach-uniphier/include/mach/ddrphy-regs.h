@@ -9,6 +9,7 @@
 #ifndef ARCH_DDRPHY_REGS_H
 #define ARCH_DDRPHY_REGS_H
 
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 
 #ifndef __ASSEMBLY__
@@ -79,52 +80,52 @@ struct ddrphy {
 
 #endif /* __ASSEMBLY__ */
 
-#define PIR_INIT		(1 <<  0)	/* Initialization Trigger */
-#define PIR_ZCAL		(1 <<  1)	/* Impedance Calibration */
-#define PIR_PLLINIT		(1 <<  4)	/* PLL Initialization */
-#define PIR_DCAL		(1 <<  5)	/* DDL Calibration */
-#define PIR_PHYRST		(1 <<  6)	/* PHY Reset */
-#define PIR_DRAMRST		(1 <<  7)	/* DRAM Reset */
-#define PIR_DRAMINIT		(1 <<  8)	/* DRAM Initialization */
-#define PIR_WL			(1 <<  9)	/* Write Leveling */
-#define PIR_QSGATE		(1 << 10)	/* Read DQS Gate Training */
-#define PIR_WLADJ		(1 << 11)	/* Write Leveling Adjust */
-#define PIR_RDDSKW		(1 << 12)	/* Read Data Bit Deskew */
-#define PIR_WRDSKW		(1 << 13)	/* Write Data Bit Deskew */
-#define PIR_RDEYE		(1 << 14)	/* Read Data Eye Training */
-#define PIR_WREYE		(1 << 15)	/* Write Data Eye Training */
-#define PIR_LOCKBYP		(1 << 28)	/* PLL Lock Bypass */
-#define PIR_DCALBYP		(1 << 29)	/* DDL Calibration Bypass */
-#define PIR_ZCALBYP		(1 << 30)	/* Impedance Calib Bypass */
-#define PIR_INITBYP		(1 << 31)	/* Initialization Bypass */
+#define PIR_INIT		BIT(0)		/* Initialization Trigger */
+#define PIR_ZCAL		BIT(1)		/* Impedance Calibration */
+#define PIR_PLLINIT		BIT(4)		/* PLL Initialization */
+#define PIR_DCAL		BIT(5)		/* DDL Calibration */
+#define PIR_PHYRST		BIT(6)		/* PHY Reset */
+#define PIR_DRAMRST		BIT(7)		/* DRAM Reset */
+#define PIR_DRAMINIT		BIT(8)		/* DRAM Initialization */
+#define PIR_WL			BIT(9)		/* Write Leveling */
+#define PIR_QSGATE		BIT(10)		/* Read DQS Gate Training */
+#define PIR_WLADJ		BIT(11)		/* Write Leveling Adjust */
+#define PIR_RDDSKW		BIT(12)		/* Read Data Bit Deskew */
+#define PIR_WRDSKW		BIT(13)		/* Write Data Bit Deskew */
+#define PIR_RDEYE		BIT(14)		/* Read Data Eye Training */
+#define PIR_WREYE		BIT(15)		/* Write Data Eye Training */
+#define PIR_LOCKBYP		BIT(28)		/* PLL Lock Bypass */
+#define PIR_DCALBYP		BIT(29)		/* DDL Calibration Bypass */
+#define PIR_ZCALBYP		BIT(30)		/* Impedance Calib Bypass */
+#define PIR_INITBYP		BIT(31)		/* Initialization Bypass */
 
-#define PGSR0_IDONE		(1 <<  0)	/* Initialization Done */
-#define PGSR0_PLDONE		(1 <<  1)	/* PLL Lock Done */
-#define PGSR0_DCDONE		(1 <<  2)	/* DDL Calibration Done */
-#define PGSR0_ZCDONE		(1 <<  3)	/* Impedance Calibration Done */
-#define PGSR0_DIDONE		(1 <<  4)	/* DRAM Initialization Done */
-#define PGSR0_WLDONE		(1 <<  5)	/* Write Leveling Done */
-#define PGSR0_QSGDONE		(1 <<  6)	/* DQS Gate Training Done */
-#define PGSR0_WLADONE		(1 <<  7)	/* Write Leveling Adjust Done */
-#define PGSR0_RDDONE		(1 <<  8)	/* Read Bit Deskew Done */
-#define PGSR0_WDDONE		(1 <<  9)	/* Write Bit Deskew Done */
-#define PGSR0_REDONE		(1 << 10)	/* Read Eye Training Done */
-#define PGSR0_WEDONE		(1 << 11)	/* Write Eye Training Done */
-#define PGSR0_IERR		(1 << 16)	/* Initialization Error */
-#define PGSR0_PLERR		(1 << 17)	/* PLL Lock Error */
-#define PGSR0_DCERR		(1 << 18)	/* DDL Calibration Error */
-#define PGSR0_ZCERR		(1 << 19)	/* Impedance Calib Error */
-#define PGSR0_DIERR		(1 << 20)	/* DRAM Initialization Error */
-#define PGSR0_WLERR		(1 << 21)	/* Write Leveling Error */
-#define PGSR0_QSGERR		(1 << 22)	/* DQS Gate Training Error */
-#define PGSR0_WLAERR		(1 << 23)	/* Write Leveling Adj Error */
-#define PGSR0_RDERR		(1 << 24)	/* Read Bit Deskew Error */
-#define PGSR0_WDERR		(1 << 25)	/* Write Bit Deskew Error */
-#define PGSR0_REERR		(1 << 26)	/* Read Eye Training Error */
-#define PGSR0_WEERR		(1 << 27)	/* Write Eye Training Error */
+#define PGSR0_IDONE		BIT(0)		/* Initialization Done */
+#define PGSR0_PLDONE		BIT(1)		/* PLL Lock Done */
+#define PGSR0_DCDONE		BIT(2)		/* DDL Calibration Done */
+#define PGSR0_ZCDONE		BIT(3)		/* Impedance Calibration Done */
+#define PGSR0_DIDONE		BIT(4)		/* DRAM Initialization Done */
+#define PGSR0_WLDONE		BIT(5)		/* Write Leveling Done */
+#define PGSR0_QSGDONE		BIT(6)		/* DQS Gate Training Done */
+#define PGSR0_WLADONE		BIT(7)		/* Write Leveling Adjust Done */
+#define PGSR0_RDDONE		BIT(8)		/* Read Bit Deskew Done */
+#define PGSR0_WDDONE		BIT(9)		/* Write Bit Deskew Done */
+#define PGSR0_REDONE		BIT(10)		/* Read Eye Training Done */
+#define PGSR0_WEDONE		BIT(11)		/* Write Eye Training Done */
+#define PGSR0_IERR		BIT(16)		/* Initialization Error */
+#define PGSR0_PLERR		BIT(17)		/* PLL Lock Error */
+#define PGSR0_DCERR		BIT(18)		/* DDL Calibration Error */
+#define PGSR0_ZCERR		BIT(19)		/* Impedance Calib Error */
+#define PGSR0_DIERR		BIT(20)		/* DRAM Initialization Error */
+#define PGSR0_WLERR		BIT(21)		/* Write Leveling Error */
+#define PGSR0_QSGERR		BIT(22)		/* DQS Gate Training Error */
+#define PGSR0_WLAERR		BIT(23)		/* Write Leveling Adj Error */
+#define PGSR0_RDERR		BIT(24)		/* Read Bit Deskew Error */
+#define PGSR0_WDERR		BIT(25)		/* Write Bit Deskew Error */
+#define PGSR0_REERR		BIT(26)		/* Read Eye Training Error */
+#define PGSR0_WEERR		BIT(27)		/* Write Eye Training Error */
 #define PGSR0_DTERR_SHIFT	28		/* Data Training Error Status*/
 #define PGSR0_DTERR		(7 << (PGSR0_DTERR_SHIFT))
-#define PGSR0_APLOCK		(1 << 31)	/* AC PLL Lock */
+#define PGSR0_APLOCK		BIT(31)		/* AC PLL Lock */
 
 #define DXCCR_DQSRES_OPEN	(0 << 5)
 #define DXCCR_DQSRES_688_OHM	(1 << 5)
@@ -146,9 +147,9 @@ struct ddrphy {
 
 #define DTCR_DTRANK_SHIFT	4		/* Data Training Rank */
 #define DTCR_DTRANK_MASK	(0x3 << (DTCR_DTRANK_SHIFT))
-#define DTCR_DTMPR		(1 << 6)	/* Data Training using MPR */
-#define DTCR_RNKEN_SHIFT	24		/* Rank Enable */
-#define DTCR_RNKEN_MASK		(0xf << (DTCR_RNKEN_SHIFT))
+#define DTCR_DTMPR		BIT(6)		/* Data Training using MPR */
+#define DTCR_RANKEN_SHIFT	24		/* Rank Enable */
+#define DTCR_RANKEN_MASK	(0xf << (DTCR_RANKEN_SHIFT))
 
 #define DXGCR_WLRKEN_SHIFT	26		/* Write Level Rank Enable */
 #define DXGCR_WLRKEN_MASK	(0xf << (DXGCR_WLRKEN_SHIFT))

@@ -19,10 +19,6 @@ extern image_header_t header;
 extern void srmmu_init_cpu(unsigned int entry);
 extern void prepare_bootargs(char *bootargs);
 
-#ifdef CONFIG_USB_UHCI
-extern int usb_lowlevel_stop(int index);
-#endif
-
 /* sparc kernel argument (the ROM vector) */
 struct linux_romvec *kernel_arg_promvec;
 
@@ -109,10 +105,6 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t * im
 	printf("## Found SPARC Linux kernel %d.%d.%d ...\n",
 	       linux_hdr->linuxver_major,
 	       linux_hdr->linuxver_minor, linux_hdr->linuxver_revision);
-#endif
-
-#ifdef CONFIG_USB_UHCI
-	usb_lowlevel_stop();
 #endif
 
 	/* set basic boot params in kernel header now that it has been

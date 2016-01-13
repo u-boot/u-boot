@@ -28,10 +28,10 @@ enum ldpaa_eth_type {
 #define LDPAA_ETH_REFILL_THRESH		(LDPAA_ETH_NUM_BUFS/2)
 #define LDPAA_ETH_RX_BUFFER_SIZE	2048
 
-/* Hardware requires alignment for ingress/egress buffer addresses
- * and ingress buffer lengths.
+/* Hardware requires alignment for buffer address and length: 256-byte
+ * for ingress, 64-byte for egress. Using 256 for both.
  */
-#define LDPAA_ETH_BUF_ALIGN		64
+#define LDPAA_ETH_BUF_ALIGN		256
 
 /* So far we're only accomodating a skb backpointer in the frame's
  * software annotation, but the hardware options are either 0 or 64.
@@ -117,13 +117,9 @@ struct ldpaa_fas {
 
 struct ldpaa_eth_priv {
 	struct eth_device *net_dev;
-	int dpni_id;
-	uint16_t dpni_handle;
-	struct dpni_attr dpni_attrs;
-	/* Insofar as the MC is concerned, we're using one layout on all 3 types
-	 * of buffers (Rx, Tx, Tx-Conf).
-	 */
-	struct dpni_buffer_layout buf_layout;
+	int dpmac_id;
+	uint16_t dpmac_handle;
+
 	uint16_t tx_data_offset;
 
 	uint32_t rx_dflt_fqid;
@@ -134,9 +130,14 @@ struct ldpaa_eth_priv {
 	struct phy_device *phydev;
 };
 
+struct dprc_endpoint dpmac_endpoint;
+struct dprc_endpoint dpni_endpoint;
+
 extern struct fsl_mc_io *dflt_mc_io;
 extern struct fsl_dpbp_obj *dflt_dpbp;
 extern struct fsl_dpio_obj *dflt_dpio;
+extern struct fsl_dpni_obj *dflt_dpni;
+extern uint16_t dflt_dprc_handle;
 
 static void ldpaa_dpbp_drain_cnt(int count);
 static void ldpaa_dpbp_drain(void);
@@ -145,4 +146,6 @@ static void ldpaa_dpbp_free(void);
 static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv);
 static int ldpaa_dpbp_setup(void);
 static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv);
+static int ldpaa_dpmac_setup(struct ldpaa_eth_priv *priv);
+static int ldpaa_dpmac_bind(struct ldpaa_eth_priv *priv);
 #endif	/* __LDPAA_H */

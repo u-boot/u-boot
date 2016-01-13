@@ -20,7 +20,6 @@
 #define CONFIG_MPC860		1
 #define CONFIG_MPC860T		1
 #define CONFIG_MPC862		1
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_TQM862L		1	/* ...on a TQM8xxL module	*/
@@ -103,7 +102,6 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2

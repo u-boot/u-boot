@@ -29,6 +29,7 @@
  **********************************************************************************/
 
 #include <common.h>
+#include <console.h>
 #include <mpc5xx.h>
 #include <stdio_dev.h>
 #include <pci_ids.h>
@@ -566,7 +567,7 @@ void pci_con_connect(void)
 	irq_install_handler (0x2, (interrupt_handler_t *) pci_dorbell_irq,NULL);
 	memset (&pci_con_dev, 0, sizeof (pci_con_dev));
 	strcpy (pci_con_dev.name, "pci_con");
-	pci_con_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	pci_con_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 	pci_con_dev.putc = pci_con_putc;
 	pci_con_dev.puts = pci_con_puts;
 	pci_con_dev.getc = pci_con_getc;

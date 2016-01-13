@@ -52,7 +52,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
-#include <linux/compat.h>
+#include <linux/log2.h>
 #include <linux/mbus.h>
 
 /* DDR target is the same on all platforms */

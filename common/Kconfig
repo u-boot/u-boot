@@ -148,6 +148,12 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_ELF
+	bool "bootelf, bootvx"
+	default y
+	help
+	  Boot an ELF/vxWorks image from the memory.
+
 config CMD_GO
 	bool "go"
 	default y
@@ -344,6 +350,17 @@ config CMD_FPGA
 	help
 	  FPGA support.
 
+config CMD_REMOTEPROC
+	bool "remoteproc"
+	depends on REMOTEPROC
+	help
+	  Support for Remote Processor control
+
+config CMD_GPIO
+	bool "gpio"
+	help
+	  GPIO support.
+
 endmenu
 
 
@@ -443,6 +460,20 @@ config CMD_LINK_LOCAL
 endmenu
 
 menu "Misc commands"
+
+config CMD_AMBAPP
+	bool "ambapp"
+	depends on LEON3
+	default y
+	help
+	  Lists AMBA Plug-n-Play information.
+
+config SYS_AMBAPP_PRINT_ON_STARTUP
+	bool "Show AMBA PnP info on startup"
+	depends on CMD_AMBAPP
+	default n
+	help
+	  Show AMBA Plug-n-Play information on startup.
 
 config CMD_TIME
 	bool "time"
@@ -653,3 +684,31 @@ config CMD_TPM_TEST
 endmenu
 
 endmenu
+
+config CONSOLE_RECORD
+	bool "Console recording"
+	help
+	  This provides a way to record console output (and provide console
+	  input) through cirular buffers. This is mostly useful for testing.
+	  Console output is recorded even when the console is silent.
+	  To enable console recording, call console_record_reset_enable()
+	  from your code.
+
+config CONSOLE_RECORD_OUT_SIZE
+	hex "Output buffer size"
+	depends on CONSOLE_RECORD
+	default 0x400 if CONSOLE_RECORD
+	help
+	  Set the size of the console output buffer. When this fills up, no
+	  more data will be recorded until some is removed. The buffer is
+	  allocated immediately after the malloc() region is ready.
+
+config CONSOLE_RECORD_IN_SIZE
+	hex "Input buffer size"
+	depends on CONSOLE_RECORD
+	default 0x100 if CONSOLE_RECORD
+	help
+	  Set the size of the console input buffer. When this contains data,
+	  tstc() and getc() will use this in preference to real device input.
+	  The buffer is allocated immediately after the malloc() region is
+	  ready.

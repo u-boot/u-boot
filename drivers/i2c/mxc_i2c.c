@@ -523,8 +523,8 @@ static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 #endif
 
 static struct mxc_i2c_bus mxc_i2c_buses[] = {
-#if defined(CONFIG_LS102XA) || defined(CONFIG_FSL_LSCH3) || \
-		defined(CONFIG_VF610)
+#if defined(CONFIG_LS102XA) || defined(CONFIG_VF610) || \
+	defined(CONFIG_FSL_LAYERSCAPE)
 	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 2, I2C3_BASE_ADDR, I2C_QUIRK_FLAG },
@@ -581,8 +581,16 @@ void bus_i2c_init(int index, int speed, int unused,
 		return;
 	}
 
-	mxc_i2c_buses[index].idle_bus_fn = idle_bus_fn;
-	mxc_i2c_buses[index].idle_bus_data = idle_bus_data;
+	/*
+	 * Warning: Be careful to allow the assignment to a static
+	 * variable here. This function could be called while U-Boot is
+	 * still running in flash memory. So such assignment is equal
+	 * to write data to flash without erasing.
+	 */
+	if (idle_bus_fn)
+		mxc_i2c_buses[index].idle_bus_fn = idle_bus_fn;
+	if (idle_bus_data)
+		mxc_i2c_buses[index].idle_bus_data = idle_bus_data;
 
 	ret = enable_i2c_clk(1, index);
 	if (ret < 0) {

@@ -11,7 +11,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Memory configuration
@@ -46,7 +45,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* Serial Info */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 
 #define CONFIG_BAUDRATE			115200

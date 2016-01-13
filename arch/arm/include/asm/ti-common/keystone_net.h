@@ -11,6 +11,7 @@
 #define _KEYSTONE_NET_H_
 
 #include <asm/io.h>
+#include <phy.h>
 
 /* EMAC */
 #ifdef CONFIG_KSNET_NETCP_V1_0
@@ -49,7 +50,11 @@
 #define MAC_ID_BASE_ADDR		CONFIG_KSNET_MAC_ID_BASE
 
 /* MDIO module input frequency */
+#ifdef CONFIG_SOC_K2G
+#define EMAC_MDIO_BUS_FREQ		(clk_get_rate(sys_clk0_3_clk))
+#else
 #define EMAC_MDIO_BUS_FREQ		(clk_get_rate(pass_pll_clk))
+#endif
 /* MDIO clock output frequency */
 #define EMAC_MDIO_CLOCK_FREQ		2500000	/* 2.5 MHz */
 
@@ -188,6 +193,11 @@ struct mac_sl_cfg {
 #define SGMII_RXCFG_REG(x)	(EMAC_SGMII_BASE_ADDR + SGMII_OFFSET(x) + 0x034)
 #define SGMII_AUXCFG_REG(x)	(EMAC_SGMII_BASE_ADDR + SGMII_OFFSET(x) + 0x038)
 
+/* RGMII */
+#define RGMII_REG_STATUS_LINK		BIT(0)
+
+#define RGMII_STATUS_REG		(GBETH_BASE + 0x18)
+
 /* PSS */
 #ifdef CONFIG_KSNET_NETCP_V1_0
 
@@ -239,6 +249,7 @@ struct eth_priv_t {
 	int phy_addr;
 	int slave_port;
 	int sgmii_link_type;
+	phy_interface_t phy_if;
 	struct phy_device *phy_dev;
 };
 

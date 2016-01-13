@@ -12,6 +12,7 @@ hw-platform-$(CONFIG_TARGET_ZYNQ_ZED)		:= zed_hw_platform
 hw-platform-$(CONFIG_TARGET_ZYNQ_MICROZED)	:= MicroZed_hw_platform
 hw-platform-$(CONFIG_TARGET_ZYNQ_ZC702)		:= ZC702_hw_platform
 hw-platform-$(CONFIG_TARGET_ZYNQ_ZC706)		:= ZC706_hw_platform
+hw-platform-$(CONFIG_TARGET_ZYNQ_ZYBO)		:= zybo_hw_platform
 # If you want to use customized ps7_init_gpl.c/h,
 # enable CONFIG_ZYNQ_CUSTOM_INIT and put them into custom_hw_platform/.
 # This line must be placed at the bottom of the list because

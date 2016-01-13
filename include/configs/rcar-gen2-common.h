@@ -26,7 +26,6 @@
 #define CONFIG_CMD_EXT4_WRITE
 
 #define CONFIG_SYS_THUMB_BUILD
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Support File sytems */
 #define CONFIG_FAT_WRITE

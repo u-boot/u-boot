@@ -15,8 +15,7 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
-
-#include "../fs/ubifs/ubifs.h"
+#include <ubifs_uboot.h>
 
 static int ubifs_initialized;
 static int ubifs_mounted;
@@ -54,14 +53,7 @@ int ubifs_is_mounted(void)
 
 void cmd_ubifs_umount(void)
 {
-
-	if (ubifs_sb) {
-		printf("Unmounting UBIFS volume %s!\n",
-		       ((struct ubifs_info *)(ubifs_sb->s_fs_info))->vi.name);
-		ubifs_umount(ubifs_sb->s_fs_info);
-	}
-
-	ubifs_sb = NULL;
+	uboot_ubifs_umount();
 	ubifs_mounted = 0;
 	ubifs_initialized = 0;
 }

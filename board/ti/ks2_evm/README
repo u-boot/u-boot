@@ -59,8 +59,8 @@ Supported boot modes:
  - UART boot
 
 Supported image formats:
- - u-boot.bin: for loading and running u-boot.bin through Texas instruments
-               code composure studio (CCS) and for UART boot.
+ - u-boot-dtb.bin: for loading and running u-boot-dtb.bin through
+		Texas Instruments code composure studio (CCS) and for UART boot.
  - u-boot-spi.gph: gpimage for programming SPI NOR flash for SPI NOR boot
  - MLO: gpimage for programming AEMIF NAND flash for NAND boot
 
@@ -69,18 +69,18 @@ Build instructions:
 Examples for k2hk, for k2e and k2l just replace k2hk prefix accordingly.
 Don't forget to add ARCH=arm and CROSS_COMPILE.
 
-To build u-boot.bin, u-boot-spi.gph, MLO:
+To build u-boot-dtb.bin, u-boot-spi.gph, MLO:
   >make k2hk_evm_defconfig
   >make
 
 Load and Run U-Boot on keystone EVMs using CCS
 =========================================
 
-Need Code Composer Studio (CCS) installed on a PC to load and run u-boot.bin
+Need Code Composer Studio (CCS) installed on a PC to load and run u-boot-dtb.bin
 on EVM. See instructions at below link for installing CCS on a Windows PC.
 http://processors.wiki.ti.com/index.php/MCSDK_UG_Chapter_Getting_Started#
 Installing_Code_Composer_Studio
-Use u-boot.bin from the build folder for loading and running u-boot binary
+Use u-boot-dtb.bin from the build folder for loading and running u-boot binary
 on EVM. Follow instructions at
 K2HK http://processors.wiki.ti.com/index.php/EVMK2H_Hardware_Setup
 K2E  http://processors.wiki.ti.com/index.php/EVMK2E_Hardware_Setup
@@ -100,7 +100,7 @@ loading the u-boot binary on the target EVM. Instead do the following:-
    is connected: Unknown)" at the debug window (This is created once Target
    configuration is launched) and select "Connect Target".
 2. Once target connect is successful, choose Tools->Load Memory option from the
-   top level menu. At the Load Memory window, choose the file u-boot.bin
+   top level menu. At the Load Memory window, choose the file u-boot-dtb.bin
    through "Browse" button and click "next >" button. In the next window, enter
    Start address as 0xc001000, choose Type-size "32 bits" and click "Finish"
    button.
@@ -167,7 +167,7 @@ Load and Run U-Boot on keystone EVMs using UART download
 
 Open BMC and regular UART terminals.
 
-1. On the regular UART port start xmodem transfer of the u-boot.bin
+1. On the regular UART port start xmodem transfer of the u-boot-dtb.bin
 2. Using BMC terminal set the ARM-UART bootmode and reboot the EVM
    BMC> bootmode #4
    MBC> reboot

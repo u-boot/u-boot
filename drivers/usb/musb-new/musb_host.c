@@ -2092,9 +2092,13 @@ int musb_urb_enqueue(
 			}
 #else
 			if (tt_needed(musb, urb->dev)) {
-				u16 hub_port = find_tt(urb->dev);
-				qh->h_addr_reg = (u8) (hub_port >> 8);
-				qh->h_port_reg = (u8) (hub_port & 0xff);
+				uint8_t portnr = 0;
+				uint8_t hubaddr = 0;
+				usb_find_usb2_hub_address_port(urb->dev,
+							       &hubaddr,
+							       &portnr);
+				qh->h_addr_reg = hubaddr;
+				qh->h_port_reg = portnr;
 			}
 #endif
 		}

@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -46,10 +47,24 @@ static cmd_tbl_t test_commands[] = {
 	U_BOOT_CMD_MKENT(devres, 1, 1, do_dm_dump_devres, "", ""),
 };
 
+static __maybe_unused void dm_reloc(void)
+{
+	static int relocated;
+
+	if (!relocated) {
+		fixup_cmdtable(test_commands, ARRAY_SIZE(test_commands));
+		relocated = 1;
+	}
+}
+
 static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *test_cmd;
 	int ret;
+
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	dm_reloc();
+#endif
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

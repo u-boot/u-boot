@@ -10,7 +10,6 @@
 #ifndef __CONFIG_KM8309_COMMON_H
 #define __CONFIG_KM8309_COMMON_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 /*
@@ -29,8 +28,10 @@
 
 /* QE microcode/firmware address */
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-/* at end of uboot partition, before env */
-#define CONFIG_SYS_QE_FW_ADDR   0xF00B0000
+/* between the u-boot partition and env */
+#ifndef CONFIG_SYS_QE_FW_ADDR
+#define CONFIG_SYS_QE_FW_ADDR   0xF00C0000
+#endif
 
 /*
  * System IO Config
@@ -98,6 +99,12 @@
 	HRCWH_ROM_LOC_LOCAL_16BIT | \
 	HRCWH_BIG_ENDIAN | \
 	HRCWH_LALE_NORMAL)
+
+#define CONFIG_SYS_DDRCDR (\
+	DDRCDR_EN | \
+	DDRCDR_PZ_MAXZ | \
+	DDRCDR_NZ_MAXZ | \
+	DDRCDR_M_ODR)
 
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000007f
 #define CONFIG_SYS_DDR_SDRAM_CFG	(SDRAM_CFG_SDRAM_TYPE_DDR2 | \

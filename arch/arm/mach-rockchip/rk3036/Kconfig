@@ -1,0 +1,21 @@
+if ROCKCHIP_RK3036
+
+config TARGET_EVB_RK3036
+	bool "EVB_RK3036"
+
+config TARGET_KYLIN_RK3036
+	bool "KYLIN_RK3036"
+
+config SYS_SOC
+	default "rockchip"
+
+config SYS_MALLOC_F_LEN
+	default 0x400
+
+config ROCKCHIP_COMMON
+	bool "Support rk common fuction"
+
+source "board/evb_rk3036/evb_rk3036/Kconfig"
+source "board/kylin/kylin_rk3036/Kconfig"
+
+endif

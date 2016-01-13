@@ -1,0 +1,6 @@
+LWMON5 BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/liebherr/lwmon5/
+F:	include/configs/lwmon5.h
+F:	configs/lwmon5_defconfig

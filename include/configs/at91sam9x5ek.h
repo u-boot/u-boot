@@ -29,7 +29,6 @@
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -93,7 +92,6 @@
 /* DataFlash */
 #ifdef CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
-#define CONFIG_SPI_FLASH_ATMEL
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #endif
 

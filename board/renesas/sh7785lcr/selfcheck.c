@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/pci.h>

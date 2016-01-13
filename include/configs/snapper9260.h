@@ -20,7 +20,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000 /* External Crystal, in Hz */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* CPU */
 #define CONFIG_ARCH_CPU_INIT
@@ -152,7 +151,6 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND

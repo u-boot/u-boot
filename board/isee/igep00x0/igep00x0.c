@@ -40,7 +40,7 @@ static const struct ns16550_platdata igep_serial = {
 };
 
 U_BOOT_DEVICE(igep_uart) = {
-	"serial_omap",
+	"ns16550_serial",
 	&igep_serial
 };
 
@@ -171,7 +171,7 @@ int misc_init_r(void)
 
 	setup_net_chip();
 
-	dieid_num_r();
+	omap_die_id_display();
 
 	set_fdt();
 

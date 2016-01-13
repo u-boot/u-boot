@@ -574,7 +574,3 @@ int spl_start_uboot(void)
 	return ret;
 }
 #endif
-
-void reset_cpu(ulong addr)
-{
-}

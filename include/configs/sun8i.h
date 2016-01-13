@@ -20,14 +20,20 @@
 
 #define CONFIG_SUNXI_USB_PHYS	2
 
+
+#ifndef CONFIG_MACH_SUN8I_A83T
 #define CONFIG_ARMV7_PSCI		1
 #if defined(CONFIG_MACH_SUN8I_A23)
 #define CONFIG_ARMV7_PSCI_NR_CPUS	2
 #elif defined(CONFIG_MACH_SUN8I_A33)
 #define CONFIG_ARMV7_PSCI_NR_CPUS	4
+#elif defined(CONFIG_MACH_SUN8I_H3)
+#define CONFIG_ARMV7_PSCI_NR_CPUS	4
 #else
 #error Unsupported sun8i variant
 #endif
+#endif
+
 #define CONFIG_TIMER_CLK_FREQ		24000000
 
 /*

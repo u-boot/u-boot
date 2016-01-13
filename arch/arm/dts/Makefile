@@ -1,3 +1,7 @@
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
 dtb-$(CONFIG_S5PC100) += s5pc1xx-smdkc100.dtb
 dtb-$(CONFIG_S5PC110) += s5pc1xx-goni.dtb
 dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
@@ -17,7 +21,8 @@ dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 	exynos5422-odroidxu3.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3288-firefly.dtb \
-	rk3288-jerry.dtb
+	rk3288-jerry.dtb \
+	rk3036-sdk.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
@@ -41,6 +46,11 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p2371-0000.dtb \
 	tegra210-p2371-2180.dtb \
 	tegra210-p2571.dtb
+
+dtb-$(CONFIG_ARCH_MVEBU) +=			\
+	armada-388-gp.dtb			\
+	armada-xp-gp.dtb
+
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
 	uniphier-ph1-ld4-ref.dtb \
 	uniphier-ph1-ld6b-ref.dtb \
@@ -67,7 +77,8 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc770-xm011.dtb \
 	zynq-zc770-xm012.dtb \
 	zynq-zc770-xm013.dtb
-dtb-$(CONFIG_ARCH_ZYNQMP) += zynqmp-ep108.dtb	\
+dtb-$(CONFIG_ARCH_ZYNQMP) += \
+	zynqmp-ep108.dtb			\
 	zynqmp-zcu102.dtb			\
 	zynqmp-zc1751-xm015-dc1.dtb		\
 	zynqmp-zc1751-xm016-dc2.dtb		\
@@ -75,6 +86,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += zynqmp-ep108.dtb	\
 	zynqmp-mini-qspi.dtb			\
 	zynqmp-mini-nand.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-evm.dtb
+dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
@@ -82,14 +94,19 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_de0_nano_soc.dtb			\
 	socfpga_cyclone5_sockit.dtb			\
-	socfpga_cyclone5_socrates.dtb
-dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb
+	socfpga_cyclone5_socrates.dtb			\
+	socfpga_cyclone5_sr1500.dtb
+
+dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb dra7-evm.dtb
+dtb-$(CONFIG_TARGET_BEAGLE_X15) += am57xx-beagle-x15.dtb
 dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
 
 dtb-$(CONFIG_LS102XA) += ls1021a-qds.dtb \
 	ls1021a-twr.dtb
-dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2085a-qds.dtb \
-	fsl-ls2085a-rdb.dtb
+dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
+	fsl-ls2080a-rdb.dtb
+dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds.dtb \
+	fsl-ls1043a-rdb.dtb
 
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-a1000.dtb \
@@ -121,15 +138,15 @@ dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a10s-r7-tv-dongle.dtb \
 	sun5i-a10s-wobo-i5.dtb \
 	sun5i-a13-ampe-a76.dtb \
-	sun5i-a13-forfun-q88db.dtb \
+	sun5i-a13-empire-electronix-d709.dtb \
 	sun5i-a13-hsg-h702.dtb \
 	sun5i-a13-inet-86vs.dtb \
 	sun5i-a13-inet-98v-rev2.dtb \
 	sun5i-a13-olinuxino.dtb \
 	sun5i-a13-olinuxino-micro.dtb \
 	sun5i-a13-q8-tablet.dtb \
-	sun5i-a13-tzx-q8-713b7.dtb \
-	sun5i-a13-utoo-p66.dtb
+	sun5i-a13-utoo-p66.dtb \
+	sun5i-r8-chip.dtb
 dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-app4-evb1.dtb \
 	sun6i-a31-colombus.dtb \
@@ -139,7 +156,8 @@ dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-mele-a1000g-quad.dtb \
 	sun6i-a31-mixtile-loftq.dtb \
 	sun6i-a31s-cs908.dtb \
-	sun6i-a31s-primo81.dtb
+	sun6i-a31s-primo81.dtb \
+	sun6i-a31s-sinovoip-bpi-m2.dtb
 dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-ainol-aw1.dtb \
 	sun7i-a20-bananapi.dtb \
@@ -148,6 +166,7 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-cubietruck.dtb \
 	sun7i-a20-hummingbird.dtb \
 	sun7i-a20-i12-tvbox.dtb \
+	sun7i-a20-lamobo-r1.dtb \
 	sun7i-a20-m3.dtb \
 	sun7i-a20-m5.dtb \
 	sun7i-a20-mk808c.dtb \
@@ -166,21 +185,27 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
 	sun8i-a23-evb.dtb \
 	sun8i-a23-gt90h-v4.dtb \
-	sun8i-a23-ippo-q8h-v5.dtb \
-	sun8i-a23-ippo-q8h-v1.2.dtb \
 	sun8i-a23-q8-tablet.dtb
 dtb-$(CONFIG_MACH_SUN8I_A33) += \
-	sun8i-a33-et-q8-v1.6.dtb \
 	sun8i-a33-ga10h-v1.1.dtb \
-	sun8i-a33-ippo-q8h-v1.2.dtb \
 	sun8i-a33-q8-tablet.dtb \
 	sun8i-a33-sinlinx-sina33.dtb
+dtb-$(CONFIG_MACH_SUN8I_A83T) += \
+	sun8i-a83t-allwinner-h8homlet-v2.dtb
+dtb-$(CONFIG_MACH_SUN8I_H3) += \
+	sun8i-h3-orangepi-pc.dtb \
+	sun8i-h3-orangepi-plus.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \
 	sun9i-a80-cubieboard4.dtb
 
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb
+
+dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
+	k2l-evm.dtb \
+	k2e-evm.dtb \
+	k2g-evm.dtb
 
 targets += $(dtb-y)
 

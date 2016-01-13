@@ -20,8 +20,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200";
-		stdout-path = &serial0;
+		stdout-path = "serial0:115200n8";
 	};
 
 	aliases {
@@ -51,6 +50,14 @@
 };
 
 &i2c0 {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+};
+
+&usb1 {
 	status = "okay";
 };
 

@@ -19,4 +19,17 @@
  * ctrl, memory controllers etc.
  */
 
+
+#ifndef __ASSEMBLER__
+/* The frequency of the CPU */
+extern unsigned int leon_cpu_freq;
+
+/* Number of LEON processors in system */
+extern int leon_cpu_cnt;
+
+/* Ver/subversion of CPU */
+extern int leon_ver;
+
+#endif /* __ASSEMBLER__ */
+
 #endif

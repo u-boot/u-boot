@@ -2,8 +2,13 @@ if ARCH_SOCFPGA
 
 config TARGET_SOCFPGA_ARRIA5
 	bool
+	select TARGET_SOCFPGA_GEN5
 
 config TARGET_SOCFPGA_CYCLONE5
+	bool
+	select TARGET_SOCFPGA_GEN5
+
+config TARGET_SOCFPGA_GEN5
 	bool
 
 choice
@@ -22,6 +27,14 @@ config TARGET_SOCFPGA_DENX_MCVEVK
 	bool "DENX MCVEVK (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
 
+config TARGET_SOCFPGA_SR1500
+	bool "SR1500 (Cyclone V)"
+	select TARGET_SOCFPGA_CYCLONE5
+
+config TARGET_SOCFPGA_EBV_SOCRATES
+	bool "EBV SoCrates (Cyclone V)"
+	select TARGET_SOCFPGA_CYCLONE5
+
 config TARGET_SOCFPGA_TERASIC_DE0_NANO
 	bool "Terasic DE0-Nano-Atlas (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
@@ -38,11 +51,14 @@ config SYS_BOARD
 	default "de0-nano-soc" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "mcvevk" if TARGET_SOCFPGA_DENX_MCVEVK
 	default "sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT
+	default "socrates" if TARGET_SOCFPGA_EBV_SOCRATES
+	default "sr1500" if TARGET_SOCFPGA_SR1500
 
 config SYS_VENDOR
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "altera" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 	default "denx" if TARGET_SOCFPGA_DENX_MCVEVK
+	default "ebv" if TARGET_SOCFPGA_EBV_SOCRATES
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "terasic" if TARGET_SOCFPGA_TERASIC_SOCKIT
 
@@ -55,5 +71,7 @@ config SYS_CONFIG_NAME
 	default "socfpga_de0_nano_soc" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "socfpga_mcvevk" if TARGET_SOCFPGA_DENX_MCVEVK
 	default "socfpga_sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT
+	default "socfpga_socrates" if TARGET_SOCFPGA_EBV_SOCRATES
+	default "socfpga_sr1500" if TARGET_SOCFPGA_SR1500
 
 endif

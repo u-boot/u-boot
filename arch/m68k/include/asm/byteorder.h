@@ -22,25 +22,25 @@
 		(((__u32)(x) & (__u32)0x00ff0000UL) >>  8) | \
 		(((__u32)(x)) >> 24) ))
 
-extern __inline__ unsigned ld_le16(const volatile unsigned short *addr)
+static __inline__ unsigned ld_le16(const volatile unsigned short *addr)
 {
 	unsigned result = *addr;
 	return __sw16(result);
 }
 
-extern __inline__ void st_le16(volatile unsigned short *addr,
+static __inline__ void st_le16(volatile unsigned short *addr,
 			       const unsigned val)
 {
 	*addr = __sw16(val);
 }
 
-extern __inline__ unsigned ld_le32(const volatile unsigned *addr)
+static __inline__ unsigned ld_le32(const volatile unsigned *addr)
 {
 	unsigned result = *addr;
 	return __sw32(result);
 }
 
-extern __inline__ void st_le32(volatile unsigned *addr, const unsigned val)
+static __inline__ void st_le32(volatile unsigned *addr, const unsigned val)
 {
 	*addr = __sw32(val);
 }

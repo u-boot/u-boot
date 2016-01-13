@@ -27,6 +27,14 @@ static struct mbus_win windows[] = {
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_BOOTROM },
 };
 
+void lowlevel_init(void)
+{
+	/*
+	 * Dummy implementation, we only need LOWLEVEL_INIT
+	 * on Armada to configure CP15 in start.S / cpu_init_cp15()
+	 */
+}
+
 void reset_cpu(unsigned long ignored)
 {
 	struct mvebu_system_registers *reg =
@@ -214,7 +222,10 @@ static void setup_usb_phys(void)
 
 int arch_cpu_init(void)
 {
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_ARMADA_38X)
+#if !defined(CONFIG_SPL_BUILD)
+	struct pl310_regs *const pl310 =
+		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+
 	/*
 	 * Only with disabled MMU its possible to switch the base
 	 * register address on Armada 38x. Without this the SDRAM
@@ -234,18 +245,14 @@ int arch_cpu_init(void)
 	 * configured the internal register base to the value used
 	 * in the macros / defines in the U-Boot header (soc.h).
 	 */
-	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
-		struct pl310_regs *const pl310 =
-			(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
-		/*
-		 * To fully release / unlock this area from cache, we need
-		 * to flush all caches and disable the L2 cache.
-		 */
-		icache_disable();
-		dcache_disable();
-		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-	}
+	/*
+	 * To fully release / unlock this area from cache, we need
+	 * to flush all caches and disable the L2 cache.
+	 */
+	icache_disable();
+	dcache_disable();
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 #endif
 
 	/*

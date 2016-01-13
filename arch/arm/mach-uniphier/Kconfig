@@ -3,12 +3,8 @@ if ARCH_UNIPHIER
 config SYS_CONFIG_NAME
 	default "uniphier"
 
-config UNIPHIER_SMP
-	bool
-
 config ARCH_UNIPHIER_PH1_SLD3
 	bool "UniPhier PH1-sLD3 SoC"
-	select UNIPHIER_SMP
 	help
 	  This enables support for UniPhier PH1-sLD3 SoC.
 
@@ -20,7 +16,6 @@ config ARCH_UNIPHIER_PH1_LD4
 
 config ARCH_UNIPHIER_PH1_PRO4
 	bool "UniPhier PH1-Pro4 SoC"
-	select UNIPHIER_SMP
 	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
 		   !ARCH_UNIPHIER_PH1_LD4 && \
 		   !ARCH_UNIPHIER_PH1_SLD8
@@ -35,7 +30,6 @@ config ARCH_UNIPHIER_PH1_SLD8
 
 config ARCH_UNIPHIER_PH1_PRO5
 	bool "UniPhier PH1-Pro5 SoC"
-	select UNIPHIER_SMP
 	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
 		   !ARCH_UNIPHIER_PH1_LD4 && \
 		   !ARCH_UNIPHIER_PH1_SLD8
@@ -44,7 +38,6 @@ config ARCH_UNIPHIER_PH1_PRO5
 
 config ARCH_UNIPHIER_PROXSTREAM2
 	bool "UniPhier ProXstream2 SoC"
-	select UNIPHIER_SMP
 	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
 		   !ARCH_UNIPHIER_PH1_LD4 && \
 		   !ARCH_UNIPHIER_PH1_SLD8
@@ -53,7 +46,6 @@ config ARCH_UNIPHIER_PROXSTREAM2
 
 config ARCH_UNIPHIER_PH1_LD6B
 	bool "UniPhier PH1-LD6b SoC"
-	select UNIPHIER_SMP
 	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
 		   !ARCH_UNIPHIER_PH1_LD4 && \
 		   !ARCH_UNIPHIER_PH1_SLD8

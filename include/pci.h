@@ -537,6 +537,8 @@ extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev
 
 /*
  * Structure of a PCI controller (host bridge)
+ *
+ * With driver model this is dev_get_uclass_priv(bus)
  */
 struct pci_controller {
 #ifdef CONFIG_DM_PCI
@@ -654,6 +656,7 @@ extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
 	pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
 /* For driver model these are defined in macros in pci_compat.c */
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte(struct pci_controller *hose,
 				     pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word(struct pci_controller *hose,
@@ -666,6 +669,7 @@ extern int pci_hose_write_config_word(struct pci_controller *hose,
 				      pci_dev_t dev, int where, u16 val);
 extern int pci_hose_write_config_dword(struct pci_controller *hose,
 				       pci_dev_t dev, int where, u32 val);
+#endif
 
 #ifndef CONFIG_DM_PCI
 extern int pci_read_config_byte(pci_dev_t dev, int where, u8 *val);
@@ -676,6 +680,13 @@ extern int pci_write_config_word(pci_dev_t dev, int where, u16 val);
 extern int pci_write_config_dword(pci_dev_t dev, int where, u32 val);
 #endif
 
+void pciauto_region_init(struct pci_region *res);
+void pciauto_region_align(struct pci_region *res, pci_size_t size);
+void pciauto_config_init(struct pci_controller *hose);
+int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
+			    pci_addr_t *bar);
+
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte_via_dword(struct pci_controller *hose,
 					       pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word_via_dword(struct pci_controller *hose,
@@ -694,9 +705,6 @@ extern int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev);
 extern int pci_hose_scan(struct pci_controller *hose);
 extern int pci_hose_scan_bus(struct pci_controller *hose, int bus);
 
-extern void pciauto_region_init(struct pci_region* res);
-extern void pciauto_region_align(struct pci_region *res, pci_size_t size);
-extern int pciauto_region_allocate(struct pci_region* res, pci_size_t size, pci_addr_t *bar);
 extern void pciauto_setup_device(struct pci_controller *hose,
 				 pci_dev_t dev, int bars_num,
 				 struct pci_region *mem,
@@ -706,7 +714,6 @@ extern void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 				 pci_dev_t dev, int sub_bus);
 extern void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 				 pci_dev_t dev, int sub_bus);
-extern void pciauto_config_init(struct pci_controller *hose);
 extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int index);
@@ -737,6 +744,7 @@ extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
 				unsigned short device,
 				unsigned short class);
 #endif
+#endif /* !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT) */
 
 const char * pci_class_str(u8 class);
 int pci_last_busno(void);
@@ -745,6 +753,7 @@ int pci_last_busno(void);
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif
 
+#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 /**
  * pci_write_bar32() - Write the address of a BAR including control bits
  *
@@ -781,6 +790,7 @@ u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
  */
 pci_dev_t pci_hose_find_devices(struct pci_controller *hose, int busnum,
 				struct pci_device_id *ids, int *indexp);
+#endif /* !CONFIG_DM_PCI || CONFIG_DM_PCI_COMPAT */
 
 /* Access sizes for PCI reads and writes */
 enum pci_size_t {
@@ -797,7 +807,7 @@ struct udevice;
  *
  * Every device on a PCI bus has this per-child data.
  *
- * It can be accessed using dev_get_parentdata(dev) if dev->parent is a
+ * It can be accessed using dev_get_parent_priv(dev) if dev->parent is a
  * PCI bus (i.e. UCLASS_PCI)
  *
  * @devfn:	Encoded device and function index - see PCI_DEVFN()
@@ -1039,6 +1049,7 @@ int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
  */
 int pci_write_config32(pci_dev_t pcidev, int offset, u32 value);
 
+#ifdef CONFIG_DM_PCI_COMPAT
 /* Compatibility with old naming */
 static inline int pci_write_config_dword(pci_dev_t pcidev, int offset,
 					 u32 value)
@@ -1090,6 +1101,70 @@ static inline int pci_read_config_byte(pci_dev_t pcidev, int offset,
 {
 	return pci_read_config8(pcidev, offset, valuep);
 }
+
+#endif /* CONFIG_DM_PCI_COMPAT */
+
+/**
+ * dm_pciauto_config_device() - configure a device ready for use
+ *
+ * Space is allocated for each PCI base address register (BAR) so that the
+ * devices are mapped into memory and I/O space ready for use.
+ *
+ * @dev:	Device to configure
+ * @return 0 if OK, -ve on error
+ */
+int dm_pciauto_config_device(struct udevice *dev);
+
+/**
+ * pci_conv_32_to_size() - convert a 32-bit read value to the given size
+ *
+ * Some PCI buses must always perform 32-bit reads. The data must then be
+ * shifted and masked to reflect the required access size and offset. This
+ * function performs this transformation.
+ *
+ * @value:	Value to transform (32-bit value read from @offset & ~3)
+ * @offset:	Register offset that was read
+ * @size:	Required size of the result
+ * @return the value that would have been obtained if the read had been
+ * performed at the given offset with the correct size
+ */
+ulong pci_conv_32_to_size(ulong value, uint offset, enum pci_size_t size);
+
+/**
+ * pci_conv_size_to_32() - update a 32-bit value to prepare for a write
+ *
+ * Some PCI buses must always perform 32-bit writes. To emulate a smaller
+ * write the old 32-bit data must be read, updated with the required new data
+ * and written back as a 32-bit value. This function performs the
+ * transformation from the old value to the new value.
+ *
+ * @value:	Value to transform (32-bit value read from @offset & ~3)
+ * @offset:	Register offset that should be written
+ * @size:	Required size of the write
+ * @return the value that should be written as a 32-bit access to @offset & ~3.
+ */
+ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
+			  enum pci_size_t size);
+
+/**
+ * pci_get_controller() - obtain the controller to use for a bus
+ *
+ * @dev:	Device to check
+ * @return pointer to the controller device for this bus
+ */
+struct udevice *pci_get_controller(struct udevice *dev);
+
+/**
+ * pci_get_regions() - obtain pointers to all the region types
+ *
+ * @dev:	Device to check
+ * @iop:	Returns a pointer to the I/O region, or NULL if none
+ * @memp:	Returns a pointer to the memory region, or NULL if none
+ * @prefp:	Returns a pointer to the pre-fetch region, or NULL if none
+ * @return the number of non-NULL regions returned, normally 3
+ */
+int pci_get_regions(struct udevice *dev, struct pci_region **iop,
+		    struct pci_region **memp, struct pci_region **prefp);
 
 /**
  * struct dm_pci_emul_ops - PCI device emulator operations

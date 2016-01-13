@@ -14,6 +14,8 @@
 /* Command IDs */
 #define DPIO_CMDID_CLOSE					0x800
 #define DPIO_CMDID_OPEN						0x803
+#define DPIO_CMDID_CREATE					0x903
+#define DPIO_CMDID_DESTROY					0x900
 
 #define DPIO_CMDID_ENABLE					0x002
 #define DPIO_CMDID_DISABLE					0x003
@@ -23,6 +25,14 @@
 /*                cmd, param, offset, width, type, arg_name */
 #define DPIO_CMD_OPEN(cmd, dpio_id) \
 	MC_CMD_OP(cmd, 0, 0,  32, int,     dpio_id)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPIO_CMD_CREATE(cmd, cfg) \
+do { \
+	MC_CMD_OP(cmd, 0, 16, 2,  enum dpio_channel_mode,	\
+					   cfg->channel_mode);\
+	MC_CMD_OP(cmd, 0, 32, 8,  uint8_t, cfg->num_priorities);\
+} while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPIO_RSP_GET_ATTR(cmd, attr) \
@@ -88,6 +98,56 @@ enum dpio_channel_mode {
 	DPIO_NO_CHANNEL = 0,
 	DPIO_LOCAL_CHANNEL = 1,
 };
+
+/**
+ * struct dpio_cfg - Structure representing DPIO configuration
+ * @channel_mode: Notification channel mode
+ * @num_priorities: Number of priorities for the notification channel (1-8);
+ *			relevant only if 'channel_mode = DPIO_LOCAL_CHANNEL'
+ */
+struct dpio_cfg {
+	enum dpio_channel_mode	channel_mode;
+	uint8_t		num_priorities;
+};
+
+/**
+ * dpio_create() - Create the DPIO object.
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @cfg:	Configuration structure
+ * @token:	Returned token; use in subsequent API calls
+ *
+ * Create the DPIO object, allocate required resources and
+ * perform required initialization.
+ *
+ * The object can be created either by declaring it in the
+ * DPL file, or by calling this function.
+ *
+ * This function returns a unique authentication token,
+ * associated with the specific object ID and the specific MC
+ * portal; this token must be used in all subsequent calls to
+ * this specific object. For objects that are created using the
+ * DPL file, call dpio_open() function to get an authentication
+ * token first.
+ *
+ * Return:	'0' on Success; Error code otherwise.
+ */
+int dpio_create(struct fsl_mc_io	*mc_io,
+		uint32_t		cmd_flags,
+		const struct dpio_cfg	*cfg,
+		uint16_t		*token);
+
+/**
+ * dpio_destroy() - Destroy the DPIO object and release all its resources.
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @token:	Token of DPIO object
+ *
+ * Return:	'0' on Success; Error code otherwise
+ */
+int dpio_destroy(struct fsl_mc_io	*mc_io,
+		 uint32_t		cmd_flags,
+		 uint16_t		token);
 
 /**
  * dpio_enable() - Enable the DPIO, allow I/O portal operations.

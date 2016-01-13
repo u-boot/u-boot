@@ -13,15 +13,22 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  * (easy to change)
  *
  * Select between TSIM or GRSIM by setting CONFIG_GRSIM or CONFIG_TSIM to 1.
  *
- * TSIM command
- *  tsim-leon3 -sdram 0 -ram 32000 -rom 8192 -mmu
+ * TSIM command:
+ * $ tsim-leon3 -sdram 32768 -ram 4096 -rom 2048 -mmu -cas
  *
+ * In the evaluation version of TSIM, the -sdram/-ram/-rom arguments are
+ * hard-coded to these values and need not be specified. (see below)
+ *
+ * Get TSIM from http://www.gaisler.com/index.php/downloads/simulators
  */
 
 #define CONFIG_GRSIM		0	/* ... not running on GRSIM */
@@ -29,9 +36,6 @@
 
 /* CPU / AMBA BUS configuration */
 #define CONFIG_SYS_CLK_FREQ	40000000	/* 40MHz */
-
-/* Number of SPARC register windows */
-#define CONFIG_SYS_SPARC_NWINDOWS 8
 
 /*
  * Serial console configuration
@@ -47,7 +51,6 @@
 /*
  * Supported commands
  */
-#define CONFIG_CMD_AMBAPP	/* AMBA Plyg&Play information	*/
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IRQ
@@ -184,18 +187,18 @@
 /*
  * Memory map
  */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_SDRAM_SIZE		0x02000000
-#define CONFIG_SYS_SDRAM_END		(CONFIG_SYS_SDRAM_BASE+CONFIG_SYS_SDRAM_SIZE)
+#define CONFIG_SYS_SDRAM_BASE		0x60000000
+#define CONFIG_SYS_SDRAM_SIZE		0x02000000 /* 32MiB SDRAM */
+#define CONFIG_SYS_SDRAM_END		(CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_SDRAM_SIZE)
 
-/* no SRAM available */
-#undef CONFIG_SYS_SRAM_BASE
-#undef CONFIG_SYS_SRAM_SIZE
+#define CONFIG_SYS_SRAM_BASE		0x40000000
+#define CONFIG_SYS_SRAM_SIZE		0x00400000 /* 4MiB SRAM */
+#define CONFIG_SYS_SRAM_END		(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_SRAM_SIZE)
 
 /* Always Run U-Boot from SDRAM */
-#define CONFIG_SYS_RAM_BASE CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_RAM_SIZE CONFIG_SYS_SDRAM_SIZE
-#define CONFIG_SYS_RAM_END CONFIG_SYS_SDRAM_END
+#define CONFIG_SYS_RAM_BASE		CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_RAM_SIZE		CONFIG_SYS_SDRAM_SIZE
+#define CONFIG_SYS_RAM_END		CONFIG_SYS_SDRAM_END
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_RAM_END - GENERATED_GBL_DATA_SIZE)
 
@@ -224,6 +227,7 @@
 /* make un relocated address from relocated address */
 #define UN_RELOC(address) (address-(CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE))
 
+#ifdef CONFIG_CMD_NET
 /*
  * Ethernet configuration
  */
@@ -234,6 +238,8 @@
  */
 /* #define CONFIG_GRETH_10MBIT 1 */
 #define CONFIG_PHY_ADDR		0x00
+
+#endif /* CONFIG_CMD_NET */
 
 /*
  * Miscellaneous configurable options
@@ -255,37 +261,65 @@
 
 /***** Gaisler GRLIB IP-Cores Config ********/
 
-/* AMBA Plug & Play info display on startup */
-/*#define CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP*/
-
 #define CONFIG_SYS_GRLIB_SDRAM     0
+
 #define CONFIG_SYS_GRLIB_MEMCFG1   (0x000000ff | (1<<11))
+
+/* No SDRAM Configuration */
+#undef CONFIG_SYS_GRLIB_GAISLER_SDCTRL1
+
+/* LEON2 MCTRL configuration */
+#define CONFIG_SYS_GRLIB_ESA_MCTRL1
+#define CONFIG_SYS_GRLIB_ESA_MCTRL1_CFG1   (0x000000ff | (1<<11))
 #if CONFIG_GRSIM
 /* GRSIM configuration */
-#define CONFIG_SYS_GRLIB_MEMCFG2   0x82206000
+#define CONFIG_SYS_GRLIB_ESA_MCTRL1_CFG2   0x82206000
 #else
 /* TSIM configuration */
-#define CONFIG_SYS_GRLIB_MEMCFG2   0x00001820
+#define CONFIG_SYS_GRLIB_ESA_MCTRL1_CFG2   0x81805220
 #endif
-#define CONFIG_SYS_GRLIB_MEMCFG3   0x00136000
+#define CONFIG_SYS_GRLIB_ESA_MCTRL1_CFG3   0x00136000
 
-#define CONFIG_SYS_GRLIB_FT_MEMCFG1   (0x000000ff | (1<<11))
-#define CONFIG_SYS_GRLIB_FT_MEMCFG2   0x82206000
-#define CONFIG_SYS_GRLIB_FT_MEMCFG3   0x00136000
+/* GRLIB FT-MCTRL configuration */
+#define CONFIG_SYS_GRLIB_GAISLER_FTMCTRL1
+#define CONFIG_SYS_GRLIB_GAISLER_FTMCTRL1_CFG1   (0x000000ff | (1<<11))
+#define CONFIG_SYS_GRLIB_GAISLER_FTMCTRL1_CFG2   0x82206000
+#define CONFIG_SYS_GRLIB_GAISLER_FTMCTRL1_CFG3   0x00136000
 
 /* no DDR controller */
-#define CONFIG_SYS_GRLIB_DDR_CFG   0x00000000
+#undef CONFIG_SYS_GRLIB_GAISLER_DDRSPA1
 
 /* no DDR2 Controller */
-#define CONFIG_SYS_GRLIB_DDR2_CFG1 0x00000000
-#define CONFIG_SYS_GRLIB_DDR2_CFG3 0x00000000
-
-#define CONFIG_SYS_GRLIB_APBUART_SCALER \
- ((((CONFIG_SYS_CLK_FREQ*10)/(CONFIG_BAUDRATE*8))-5)/10)
+#undef CONFIG_SYS_GRLIB_GAISLER_DDR2SPA1
 
 /* default kernel command line */
 #define CONFIG_DEFAULT_KERNEL_COMMAND_LINE "console=ttyS0,38400\0\0"
 
-#define CONFIG_IDENT_STRING "Gaisler GRSIM"
+#define CONFIG_IDENT_STRING " Gaisler GRSIM"
+
+/* TSIM command:
+ * $ ./tsim-leon3 -mmu -cas
+ *
+ *  This TSIM evaluation version will expire 2015-04-02
+ *
+ *
+ *  TSIM/LEON3 SPARC simulator, version 2.0.35 (evaluation version)
+ *
+ *  Copyright (C) 2014, Aeroflex Gaisler - all rights reserved.
+ *  This software may only be used with a valid license.
+ *  For latest updates, go to http://www.gaisler.com/
+ *  Comments or bug-reports to support@gaisler.com
+ *
+ * serial port A on stdin/stdout
+ * allocated 4096 K SRAM memory, in 1 bank
+ * allocated 32 M SDRAM memory, in 1 bank
+ * allocated 2048 K ROM memory
+ * icache: 1 * 4 kbytes, 16 bytes/line (4 kbytes total)
+ * dcache: 1 * 4 kbytes, 16 bytes/line (4 kbytes total)
+ * tsim> leon
+ * 0x80000000   Memory configuration register 1   0x000002ff
+ * 0x80000004   Memory configuration register 2   0x81805220
+ * 0x80000008   Memory configuration register 3   0x00000000
+ */
 
 #endif				/* __CONFIG_H */

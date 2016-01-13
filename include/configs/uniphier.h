@@ -13,7 +13,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
 #ifdef CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_COM1		CONFIG_SUPPORT_CARD_UART_BASE
 #define CONFIG_SYS_NS16550_CLK		12288000
 #define CONFIG_SYS_NS16550_REG_SIZE	-2
@@ -82,7 +81,6 @@
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #if !defined(CONFIG_SPL_BUILD)
 #define CONFIG_USE_ARCH_MEMSET
@@ -190,14 +188,14 @@
 	"tftpboot=tftpboot $fit_addr_r $bootfile &&" \
 		"bootm $fit_addr_r\0"
 #else
-#define CONFIG_BOOTFILE			"uImage"
+#define CONFIG_CMD_BOOTZ
+#define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_ENV_SETTINGS \
 	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x84100000\0" \
 	"fdt_size=0x00008000\0" \
-	"fdt_file=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"kernel_addr=0x00200000\0" \
-	"kernel_addr_r=0x84200000\0" \
+	"kernel_addr_r=0x80208000\0" \
 	"kernel_size=0x00800000\0" \
 	"ramdisk_addr=0x00a00000\0" \
 	"ramdisk_addr_r=0x84a00000\0" \
@@ -206,15 +204,15 @@
 	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
 		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
 		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
-		"bootm $kernel_addr $ramdisk_addr $fdt_addr\0" \
+		"bootz $kernel_addr $ramdisk_addr $fdt_addr\0" \
 	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
-		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
+		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
 	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
-		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
+		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\

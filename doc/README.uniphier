@@ -28,33 +28,37 @@ Tested toolchains
 Compile the source
 ------------------
 
-PH1-sLD3:
-    $ make ph1_sld3_defconfig
+PH1-sLD3 reference board:
+    $ make uniphier_sld3_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-LD4:
-    $ make ph1_ld4_defconfig
+PH1-LD4 reference board:
+    $ make uniphier_ld4_sld8_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-Pro4:
-    $ make ph1_pro4_defconfig
+PH1-sLD8 reference board:
+    $ make uniphier_ld4_sld8_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-sld8-ref
+
+PH1-Pro4 reference board:
+    $ make uniphier_pro4_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-sLD8:
-    $ make ph1_sld8_defconfig
+PH1-Pro5 4KBOX Board:
+    $ make uniphier_pro5_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-PH1-Pro5:
-    $ make ph1_pro5_defconfig
+ProXstream2 Gentil board:
+    $ make uniphier_pxs2_ld6b_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-proxstream2-gentil
+
+ProXstream2 Vodka board:
+    $ make uniphier_pxs2_ld6b_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
-ProXstream2:
-    $ make pxs2_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
-
-PH1-LD6b:
-    $ make ph1_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
+PH1-LD6b reference board:
+    $ make uniphier_pxs2_ld6b_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-ld6b-ref
 
 You may wish to change the "CROSS_COMPILE=arm-linux-gnueabi-"
 to use your favorite compiler.

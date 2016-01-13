@@ -16,6 +16,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <exports.h>
+#include <fdtdec.h>
 
 /**
  * fdt_getprop_u32_default_node - Return a node's property or a default
@@ -158,25 +159,30 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 	aliasoff = fdt_path_offset(fdt, "/aliases");
 	if (aliasoff < 0) {
 		err = aliasoff;
-		goto error;
+		goto noalias;
 	}
 
 	path = fdt_getprop(fdt, aliasoff, sername, &len);
 	if (!path) {
 		err = len;
-		goto error;
+		goto noalias;
 	}
 
 	/* fdt_setprop may break "path" so we copy it to tmp buffer */
 	memcpy(tmp, path, len);
 
 	err = fdt_setprop(fdt, chosenoff, "linux,stdout-path", tmp, len);
-error:
 	if (err < 0)
 		printf("WARNING: could not set linux,stdout-path %s.\n",
 		       fdt_strerror(err));
 
 	return err;
+
+noalias:
+	printf("WARNING: %s: could not read %s alias: %s\n",
+	       __func__, sername, fdt_strerror(err));
+
+	return 0;
 }
 #else
 static int fdt_fixup_stdout(void *fdt, int chosenoff)
@@ -945,9 +951,8 @@ void fdt_del_node_and_alias(void *blob, const char *alias)
 
 /* Max address size we deal with */
 #define OF_MAX_ADDR_CELLS	4
-#define OF_BAD_ADDR	((u64)-1)
-#define OF_CHECK_COUNTS(na, ns)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS && \
-			(ns) > 0)
+#define OF_BAD_ADDR	FDT_ADDR_T_NONE
+#define OF_CHECK_COUNTS(na)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS)
 
 /* Debug utility */
 #ifdef DEBUG
@@ -1115,7 +1120,7 @@ static u64 __of_translate_address(void *blob, int node_offset, const fdt32_t *in
 
 	/* Cound address cells & copy address locally */
 	bus->count_cells(blob, parent, &na, &ns);
-	if (!OF_CHECK_COUNTS(na, ns)) {
+	if (!OF_CHECK_COUNTS(na)) {
 		printf("%s: Bad cell count for %s\n", __FUNCTION__,
 		       fdt_get_name(blob, node_offset, NULL));
 		goto bail;
@@ -1142,7 +1147,7 @@ static u64 __of_translate_address(void *blob, int node_offset, const fdt32_t *in
 		/* Get new parent bus and counts */
 		pbus = &of_busses[0];
 		pbus->count_cells(blob, parent, &pna, &pns);
-		if (!OF_CHECK_COUNTS(pna, pns)) {
+		if (!OF_CHECK_COUNTS(pna)) {
 			printf("%s: Bad cell count for %s\n", __FUNCTION__,
 				fdt_get_name(blob, node_offset, NULL));
 			break;

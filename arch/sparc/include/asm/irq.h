@@ -12,7 +12,7 @@
 #include <asm/psr.h>
 
 /* Set SPARC Processor Interrupt Level */
-extern inline void set_pil(unsigned int level)
+static inline void set_pil(unsigned int level)
 {
 	unsigned int psr = get_psr();
 
@@ -20,7 +20,7 @@ extern inline void set_pil(unsigned int level)
 }
 
 /* Get SPARC Processor Interrupt Level */
-extern inline unsigned int get_pil(void)
+static inline unsigned int get_pil(void)
 {
 	unsigned int psr = get_psr();
 	return (psr & PSR_PIL) >> PSR_PIL_OFS;
@@ -31,5 +31,8 @@ extern int intLock(void);
 
 /* Sets the PIL to oldLevel */
 extern void intUnlock(int oldLevel);
+
+/* Return non-zero if interrupts are currently enabled */
+extern int interrupt_is_enabled(void);
 
 #endif

@@ -39,8 +39,7 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_TEGRA_SERIAL
-#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 
 /*
  * Common HW configuration.
@@ -113,7 +112,6 @@
 						GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_TEGRA_GPIO
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_ENTERRCM
 
 /* Defines for SPL */
@@ -130,7 +128,6 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
@@ -143,5 +140,7 @@
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_FAT_WRITE
 #endif
+
+#define CONFIG_OF_SYSTEM_SETUP
 
 #endif /* _TEGRA_COMMON_H_ */

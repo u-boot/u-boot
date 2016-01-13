@@ -36,3 +36,21 @@ int fdtdec_get_int(const void *blob, int node, const char *prop_name,
 	debug("(not found)\n");
 	return default_val;
 }
+
+unsigned int fdtdec_get_uint(const void *blob, int node, const char *prop_name,
+			unsigned int default_val)
+{
+	const int *cell;
+	int len;
+
+	debug("%s: %s: ", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (cell && len >= sizeof(unsigned int)) {
+		unsigned int val = fdt32_to_cpu(cell[0]);
+
+		debug("%#x (%d)\n", val, val);
+		return val;
+	}
+	debug("(not found)\n");
+	return default_val;
+}

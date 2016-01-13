@@ -3,6 +3,7 @@
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
 /include/ "rtc.dtsi"
+/include/ "tsc_timer.dtsi"
 
 / {
 	model = "Google Panther";
@@ -64,10 +65,7 @@
 			memory-map = <0xff800000 0x00800000>;
 			rw-mrc-cache {
 				label = "rw-mrc-cache";
-				/* Alignment: 4k (for updating) */
 				reg = <0x003e0000 0x00010000>;
-				type = "wiped";
-				wipe-value = [ff];
 			};
 		};
 	};

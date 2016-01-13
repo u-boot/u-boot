@@ -40,8 +40,8 @@ enum wriop_port {
 struct wriop_dpmac_info {
 	u8 enabled;
 	u8 id;
-	u8 phy_addr;
 	u8 board_mux;
+	int phy_addr;
 	void *phy_regs;
 	phy_interface_t enet_if;
 	struct phy_device *phydev;
@@ -56,6 +56,7 @@ extern struct wriop_dpmac_info dpmac_info[NUM_WRIOP_PORTS];
 void wriop_init_dpmac(int, int, int);
 void wriop_disable_dpmac(int);
 void wriop_enable_dpmac(int);
+u8 wriop_is_enabled_dpmac(int dpmac_id);
 void wriop_set_mdio(int, struct mii_dev *);
 struct mii_dev *wriop_get_mdio(int);
 void wriop_set_phy_address(int, int);

@@ -1,0 +1,7 @@
+AM57XX EVM
+M:	Felipe Balbi <balbi@ti.com>
+S:	Maintained
+F:	board/ti/am57xx/
+F:	include/configs/am57xx_evm.h
+F:	configs/am57xx_evm_defconfig
+F:	configs/am57xx_evm_nodt_defconfig

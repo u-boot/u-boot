@@ -9,6 +9,7 @@
 #ifndef _KWBIMAGE_H_
 #define _KWBIMAGE_H_
 
+#include <compiler.h>
 #include <stdint.h>
 
 #define KWBIMAGE_MAX_CONFIG	((0x1dc - 0x20)/sizeof(struct reg_config))
@@ -115,7 +116,7 @@ struct opt_hdr_v1 {
 #define OPT_HDR_V1_REGISTER_TYPE 0x3
 
 #define KWBHEADER_V1_SIZE(hdr) \
-	(((hdr)->headersz_msb << 16) | (hdr)->headersz_lsb)
+	(((hdr)->headersz_msb << 16) | le16_to_cpu((hdr)->headersz_lsb))
 
 enum kwbimage_cmd {
 	CMD_INVALID,

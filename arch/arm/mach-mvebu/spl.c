@@ -31,11 +31,18 @@ u32 spl_boot_mode(void)
 
 void board_init_f(ulong dummy)
 {
-	/* Set global data pointer */
-	gd = &gdata;
+#ifndef CONFIG_MVEBU_BOOTROM_UARTBOOT
+	/*
+	 * Only call arch_cpu_init() when not returning to the
+	 * Marvell BootROM, which is done when booting via
+	 * the xmodem protocol (kwboot tool). Otherwise the
+	 * internal register will get remapped and the BootROM
+	 * can't continue to run correctly.
+	 */
 
 	/* Linux expects the internal registers to be at 0xf1000000 */
 	arch_cpu_init();
+#endif
 
 	/*
 	 * Pin muxing needs to be done before UART output, since
@@ -54,5 +61,18 @@ void board_init_f(ulong dummy)
 	/* Setup DDR */
 	ddr3_init();
 
-	board_init_r(NULL, 0);
+#ifdef CONFIG_MVEBU_BOOTROM_UARTBOOT
+	/*
+	 * Return to the BootROM to continue the Marvell xmodem
+	 * UART boot protocol. As initiated by the kwboot tool.
+	 *
+	 * This can only be done by the BootROM and not by the
+	 * U-Boot SPL infrastructure, since the beginning of the
+	 * image is already read and interpreted by the BootROM.
+	 * SPL has no chance to receive this information. So we
+	 * need to return to the BootROM to enable this xmodem
+	 * UART download.
+	 */
+	return_to_bootrom();
+#endif
 }

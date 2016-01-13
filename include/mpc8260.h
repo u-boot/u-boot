@@ -892,7 +892,7 @@
 #define UPMC			3
 
 #if !defined(__ASSEMBLY__) && defined(CONFIG_WATCHDOG)
-extern __inline__ void
+static __inline__ void
 reset_8260_watchdog(volatile immap_t *immr)
 {
     immr->im_siu_conf.sc_swsr = 0x556c;

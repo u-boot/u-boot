@@ -4,15 +4,6 @@
 
 menu "TPM support"
 
-config DM_TPM
-	bool "Enable driver model for Trusted Platform Module drivers"
-	depends on DM && TPM
-	help
-          Enable driver model for TPMs. The TIS interface (tis_open(),
-	  tis_sendrecv(), etc.) is then implemented by the TPM uclass. Note
-	  that even with driver model only a single TPM is currently
-	  supported, since the tpm library assumes this.
-
 config TPM_TIS_SANDBOX
 	bool "Enable sandbox TPM driver"
 	depends on SANDBOX
@@ -24,14 +15,14 @@ config TPM_TIS_SANDBOX
 
 config TPM_ATMEL_TWI
 	bool "Enable Atmel TWI TPM device driver"
-	depends on TPM
+	depends on TPM && DM_I2C
 	help
 	  This driver supports an Atmel TPM device connected on the I2C bus.
 	  The usual tpm operations and the 'tpm' command can be used to talk
 	  to the device using the standard TPM Interface Specification (TIS)
 	  protocol
 
-config TPM_TIS_I2C
+config TPM_TIS_INFINEON
 	bool "Enable support for Infineon SLB9635/45 TPMs on I2C"
 	depends on TPM && DM_I2C
 	help
@@ -42,7 +33,7 @@ config TPM_TIS_I2C
 
 config TPM_TIS_I2C_BURST_LIMITATION
 	bool "Enable I2C burst length limitation"
-	depends on TPM_TIS_I2C
+	depends on TPM_TIS_INFINEON
 	help
 	  Some broken TPMs have a limitation on the number of bytes they can
 	  receive in one message. Enable this option to allow you to set this

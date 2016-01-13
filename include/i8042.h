@@ -87,10 +87,4 @@ void i8042_flush(void);
  */
 int i8042_disable(void);
 
-struct stdio_dev;
-
-int i8042_kbd_init(void);
-int i8042_tstc(struct stdio_dev *dev);
-int i8042_getc(struct stdio_dev *dev);
-
 #endif /* _I8042_H_ */

@@ -93,6 +93,9 @@ config SYS_X86_START16
 	depends on X86_RESET_VECTOR
 	default 0xfffff800
 
+config DM_PCI_COMPAT
+	default y	# Until we finish moving over to the new API
+
 config BOARD_ROMSIZE_KB_512
 	bool
 config BOARD_ROMSIZE_KB_1024
@@ -239,6 +242,14 @@ config FSP_SYS_MALLOC_F_LEN
 	help
 	  Additional size of malloc() pool before relocation.
 
+config ENABLE_MRC_CACHE
+	bool "Enable MRC cache"
+	depends on !EFI && !SYS_COREBOOT
+	help
+	  Enable this feature to cause MRC data to be cached in NV storage
+	  to be used for speeding up boot time on future reboots and/or
+	  power cycles.
+
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
@@ -270,26 +281,6 @@ config AP_STACK_SIZE
 	  option sets the stack size used by each CPU and directly affects
 	  the memory used by this initialisation process. Typically 4KB is
 	  enough space.
-
-config TSC_CALIBRATION_BYPASS
-	bool "Bypass Time-Stamp Counter (TSC) calibration"
-	default n
-	help
-	  By default U-Boot automatically calibrates Time-Stamp Counter (TSC)
-	  running frequency via Model-Specific Register (MSR) and Programmable
-	  Interval Timer (PIT). If the calibration does not work on your board,
-	  select this option and provide a hardcoded TSC running frequency with
-	  CONFIG_TSC_FREQ_IN_MHZ below.
-
-	  Normally this option should be turned on in a simulation environment
-	  like qemu.
-
-config TSC_FREQ_IN_MHZ
-	int "Time-Stamp Counter (TSC) running frequency in MHz"
-	depends on TSC_CALIBRATION_BYPASS
-	default 1000
-	help
-	  The running frequency in MHz of Time-Stamp Counter (TSC).
 
 config HAVE_VGA_BIOS
 	bool "Add a VGA BIOS image"
@@ -358,6 +349,17 @@ config GENERATE_ACPI_TABLE
 	  by the operating system. It defines platform-independent interfaces
 	  for configuration and power management monitoring.
 
+config GENERATE_SMBIOS_TABLE
+	bool "Generate an SMBIOS (System Management BIOS) table"
+	default y
+	help
+	  The System Management BIOS (SMBIOS) specification addresses how
+	  motherboard and system vendors present management information about
+	  their products in a standard format by extending the BIOS interface
+	  on Intel architecture systems.
+
+	  Check http://www.dmtf.org/standards/smbios for details.
+
 endmenu
 
 config MAX_PIRQ_LINKS
@@ -400,6 +402,27 @@ config PCIE_ECAM_SIZE
 	  Mechanism (ECAM) with PCI Express. Each bus consumes 1 MiB memory,
 	  so a default 0x10000000 size covers all of the 256 buses which is the
 	  maximum number of PCI buses as defined by the PCI specification.
+
+config I8259_PIC
+	bool
+	default y
+	help
+	  Intel 8259 ISA compatible chipset incorporates two 8259 (master and
+	  slave) interrupt controllers. Include this to have U-Boot set up
+	  the interrupt correctly.
+
+config I8254_TIMER
+	bool
+	default y
+	help
+	  Intel 8254 timer contains three counters which have fixed uses.
+	  Include this to have U-Boot set up the timer correctly.
+
+config I8042_KEYB
+	default y
+
+config DM_KEYBOARD
+	default y
 
 source "arch/x86/lib/efi/Kconfig"
 

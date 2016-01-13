@@ -76,6 +76,12 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_SOC_DA8XX
 #include <asm/arch/hardware.h>
 #endif
+#ifdef CONFIG_FSL_LSCH3
+#include <asm/arch/immap_lsch3.h>
+#endif
+#ifdef CONFIG_FSL_LSCH2
+#include <asm/arch/immap_lsch2.h>
+#endif
 
 #include <part.h>
 #include <flash.h>
@@ -212,7 +218,6 @@ int run_command_repeatable(const char *cmd, int flag);
  * @return 0 on success, or != 0 on error.
  */
 int run_command_list(const char *cmd, int len, int flag);
-extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */
 void board_init_f(ulong);
@@ -427,7 +432,6 @@ int get_env_id (void);
 
 void	pci_init      (void);
 void	pci_init_board(void);
-void	pciinfo	      (int, int);
 
 #if defined(CONFIG_PCI) && defined(CONFIG_4xx)
     int	   pci_pre_init	       (struct pci_controller *);
@@ -469,10 +473,7 @@ void	reset_phy     (void);
 void	fdc_hw_init   (void);
 
 /* $(BOARD)/eeprom.c */
-void eeprom_init  (void);
-#ifndef CONFIG_SPI
-int  eeprom_probe (unsigned dev_addr, unsigned offset);
-#endif
+void eeprom_init  (int bus);
 int  eeprom_read  (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 int  eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 
@@ -856,15 +857,6 @@ void srand(unsigned int seed);
 unsigned int rand(void);
 unsigned int rand_r(unsigned int *seedp);
 
-/* common/console.c */
-int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
-int	console_init_r(void);	/* After  relocation; uses the console stuff	*/
-int	console_assign(int file, const char *devname);	/* Assign the console	*/
-int	ctrlc (void);
-int	had_ctrlc (void);	/* have we had a Control-C since last clear? */
-void	clear_ctrlc (void);	/* clear the Control-C condition */
-int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
-int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
 /*
  * STDIO based functions (can always be used)
  */
@@ -922,13 +914,6 @@ static inline struct in_addr getenv_ip(char *var)
 {
 	return string_to_ip(getenv(var));
 }
-
-/*
- * CONSOLE multiplexing.
- */
-#ifdef CONFIG_CONSOLE_MUX
-#include <iomux.h>
-#endif
 
 int	pcmcia_init (void);
 

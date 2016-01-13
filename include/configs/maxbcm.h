@@ -11,8 +11,9 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_ARMADA_XP		/* SOC Family Name */
+#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_SYS_GENERIC_BOARD
+#endif
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
@@ -46,8 +47,6 @@
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		1000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_SPANSION
 
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_IS_IN_SPI_FLASH

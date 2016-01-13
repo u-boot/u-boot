@@ -25,6 +25,15 @@ menuconfig NETDEVICES
 
 if NETDEVICES
 
+config ALTERA_TSE
+	bool "Altera Triple-Speed Ethernet MAC support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the Altera Triple-Speed (TSE) Ethernet MAC.
+	  Please find details on the "Triple-Speed Ethernet MegaCore Function
+	  Resource Center" of Altera.
+
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
 	help
@@ -79,6 +88,7 @@ config ETH_SANDBOX_RAW
 
 config ETH_DESIGNWARE
 	bool "Synopsys Designware Ethernet MAC"
+	select PHYLIB
 	help
 	  This MAC is present in SoCs from various vendors. It supports
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
@@ -91,5 +101,12 @@ config PCH_GBE
 	help
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
 	  supports 10/100/1000 Mbps operation.
+
+config ZYNQ_GEM
+	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP)
+	select PHYLIB
+	bool "Xilinx Ethernet GEM"
+	help
+	  This MAC is present in Xilinx Zynq and ZynqMP SoCs.
 
 endif # NETDEVICES

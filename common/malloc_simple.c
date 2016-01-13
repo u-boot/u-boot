@@ -19,10 +19,13 @@ void *malloc_simple(size_t bytes)
 	void *ptr;
 
 	new_ptr = gd->malloc_ptr + bytes;
+	debug("%s: size=%zx, ptr=%lx, limit=%lx\n", __func__, bytes, new_ptr,
+	      gd->malloc_limit);
 	if (new_ptr > gd->malloc_limit)
 		return NULL;
 	ptr = map_sysmem(gd->malloc_base + gd->malloc_ptr, bytes);
 	gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
+
 	return ptr;
 }
 
@@ -37,10 +40,11 @@ void *memalign_simple(size_t align, size_t bytes)
 		return NULL;
 	ptr = map_sysmem(addr, bytes);
 	gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
+
 	return ptr;
 }
 
-#ifdef CONFIG_SYS_MALLOC_SIMPLE
+#if CONFIG_IS_ENABLED(SYS_MALLOC_SIMPLE)
 void *calloc(size_t nmemb, size_t elem_size)
 {
 	size_t size = nmemb * elem_size;

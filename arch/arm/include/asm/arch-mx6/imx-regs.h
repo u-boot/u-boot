@@ -264,6 +264,7 @@
 #define CSU_BASE_ADDR               (AIPS2_OFF_BASE_ADDR + 0x40000)
 #define IP2APB_PERFMON1_BASE_ADDR   (AIPS2_OFF_BASE_ADDR + 0x44000)
 #define IP2APB_PERFMON2_BASE_ADDR   (AIPS2_OFF_BASE_ADDR + 0x48000)
+#define MX6UL_LCDIF1_BASE_ADDR      (AIPS2_OFF_BASE_ADDR + 0x48000)
 #ifdef CONFIG_MX6SX
 #define DEBUG_MONITOR_BASE_ADDR     (AIPS2_OFF_BASE_ADDR + 0x4C000)
 #else
@@ -300,8 +301,6 @@
 #define CSI1_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x14000)
 #define PXP_BASE_ADDR               (AIPS3_ARB_BASE_ADDR + 0x18000)
 #define CSI2_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x1C000)
-#define LCDIF1_BASE_ADDR            (AIPS3_ARB_BASE_ADDR + 0x20000)
-#define LCDIF2_BASE_ADDR            (AIPS3_ARB_BASE_ADDR + 0x24000)
 #define VADC_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x28000)
 #define VDEC_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x2C000)
 #define SPBA_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0x3C000)
@@ -319,16 +318,11 @@
 #define PWM7_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0xAC000)
 #define PWM8_BASE_ADDR              (AIPS3_ARB_BASE_ADDR + 0xB0000)
 #endif
+/* Only for i.MX6SX */
+#define LCDIF2_BASE_ADDR            (AIPS3_ARB_BASE_ADDR + 0x24000)
+#define MX6SX_LCDIF1_BASE_ADDR      (AIPS3_ARB_BASE_ADDR + 0x20000)
 #define MX6SX_WDOG3_BASE_ADDR       (AIPS3_ARB_BASE_ADDR + 0x88000)
 
-/* only for i.MX6SX/UL */
-#define WDOG3_BASE_ADDR (is_cpu_type(MXC_CPU_MX6UL) ?	\
-			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR)
-
-#define CHIP_REV_1_0                 0x10
-#define CHIP_REV_1_2                 0x12
-#define CHIP_REV_1_5                 0x15
-#define CHIP_REV_2_0                 0x20
 #if !(defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL))
 #define IRAM_SIZE                    0x00040000
 #else
@@ -336,8 +330,16 @@
 #endif
 #define FEC_QUIRK_ENET_MAC
 
+#include <asm/imx-common/regs-lcdif.h>
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
+
+/* only for i.MX6SX/UL */
+#define WDOG3_BASE_ADDR ((is_cpu_type(MXC_CPU_MX6UL) ?	\
+			 MX6UL_WDOG3_BASE_ADDR :  MX6SX_WDOG3_BASE_ADDR))
+#define LCDIF1_BASE_ADDR ((is_cpu_type(MXC_CPU_MX6UL)) ?	\
+			  MX6UL_LCDIF1_BASE_ADDR : MX6SX_LCDIF1_BASE_ADDR)
+
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
@@ -413,10 +415,37 @@ struct src {
 };
 
 /* GPR1 bitfields */
+#define IOMUXC_GPR1_APP_CLK_REQ_N		BIT(30)
+#define IOMUXC_GPR1_PCIE_EXIT_L1		BIT(28)
+#define IOMUXC_GPR1_PCIE_RDY_L23		BIT(27)
+#define IOMUXC_GPR1_PCIE_ENTER_L1		BIT(26)
+#define IOMUXC_GPR1_MIPI_COLOR_SW		BIT(25)
+#define IOMUXC_GPR1_DPI_OFF			BIT(24)
+#define IOMUXC_GPR1_EXC_MON_SLVE		BIT(22)
 #define IOMUXC_GPR1_ENET_CLK_SEL_OFFSET		21
 #define IOMUXC_GPR1_ENET_CLK_SEL_MASK		(1 << IOMUXC_GPR1_ENET_CLK_SEL_OFFSET)
+#define IOMUXC_GPR1_MIPI_IPU2_MUX_IOMUX		BIT(20)
+#define IOMUXC_GPR1_MIPI_IPU1_MUX_IOMUX		BIT(19)
+#define IOMUXC_GPR1_PCIE_TEST_PD			BIT(18)
+#define IOMUXC_GPR1_IPU_VPU_MUX_IPU2		BIT(17)
+#define IOMUXC_GPR1_PCIE_REF_CLK_EN		BIT(16)
+#define IOMUXC_GPR1_USB_EXP_MODE			BIT(15)
+#define IOMUXC_GPR1_PCIE_INT			BIT(14)
 #define IOMUXC_GPR1_USB_OTG_ID_OFFSET		13
 #define IOMUXC_GPR1_USB_OTG_ID_SEL_MASK		(1 << IOMUXC_GPR1_USB_OTG_ID_OFFSET)
+#define IOMUXC_GPR1_GINT				BIT(12)
+#define IOMUXC_GPR1_ADDRS3_MASK			(0x3 << 10)
+#define IOMUXC_GPR1_ADDRS3_32MB			(0x0 << 10)
+#define IOMUXC_GPR1_ADDRS3_64MB			(0x1 << 10)
+#define IOMUXC_GPR1_ADDRS3_128MB			(0x2 << 10)
+#define IOMUXC_GPR1_ACT_CS3			BIT(9)
+#define IOMUXC_GPR1_ADDRS2_MASK			(0x3 << 7)
+#define IOMUXC_GPR1_ACT_CS2			BIT(6)
+#define IOMUXC_GPR1_ADDRS1_MASK			(0x3 << 4)
+#define IOMUXC_GPR1_ACT_CS1			BIT(3)
+#define IOMUXC_GPR1_ADDRS0_OFFSET		(1)
+#define IOMUXC_GPR1_ADDRS0_MASK			(0x3 << 1)
+#define IOMUXC_GPR1_ACT_CS0			BIT(0)
 
 /* GPR3 bitfields */
 #define IOMUXC_GPR3_GPU_DBG_OFFSET		29
@@ -465,6 +494,14 @@ struct src {
 #define IOMUXC_GPR3_HDMI_MUX_CTL_OFFSET		2
 #define IOMUXC_GPR3_HDMI_MUX_CTL_MASK		(3<<IOMUXC_GPR3_HDMI_MUX_CTL_OFFSET)
 
+/* gpr12 bitfields */
+#define IOMUXC_GPR12_ARMP_IPG_CLK_EN		BIT(27)
+#define IOMUXC_GPR12_ARMP_AHB_CLK_EN		BIT(26)
+#define IOMUXC_GPR12_ARMP_ATB_CLK_EN		BIT(25)
+#define IOMUXC_GPR12_ARMP_APB_CLK_EN		BIT(24)
+#define IOMUXC_GPR12_DEVICE_TYPE		(0xf << 12)
+#define IOMUXC_GPR12_PCIE_CTL_2			BIT(10)
+#define IOMUXC_GPR12_LOS_LEVEL			(0x1f << 4)
 
 struct iomuxc {
 #if (defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL))

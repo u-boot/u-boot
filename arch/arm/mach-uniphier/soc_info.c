@@ -51,6 +51,16 @@ enum uniphier_soc_id uniphier_get_soc_type(void)
 		ret = SOC_UNIPHIER_PH1_LD6B;
 		break;
 #endif
+#ifdef CONFIG_ARCH_UNIPHIER_PH1_SLD11
+	case 0x31:
+		ret = SOC_UNIPHIER_PH1_SLD11;
+		break;
+#endif
+#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD10
+	case 0x32:
+		ret = SOC_UNIPHIER_PH1_LD10;
+		break;
+#endif
 	default:
 		ret = SOC_UNIPHIER_UNKNOWN;
 		break;
@@ -59,3 +69,15 @@ enum uniphier_soc_id uniphier_get_soc_type(void)
 	return ret;
 }
 #endif
+
+int uniphier_get_soc_model(void)
+{
+	return (readl(SG_REVISION) & SG_REVISION_MODEL_MASK) >>
+						SG_REVISION_MODEL_SHIFT;
+}
+
+int uniphier_get_soc_revision(void)
+{
+	return (readl(SG_REVISION) & SG_REVISION_REV_MASK) >>
+						SG_REVISION_REV_SHIFT;
+}

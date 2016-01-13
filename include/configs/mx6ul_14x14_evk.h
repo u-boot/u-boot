@@ -77,6 +77,7 @@
 	"fdt_addr=0x83000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
+	"videomode=video=ctfb:x:480,y:272,depth:24,pclk:108695,le:8,ri:4,up:2,lo:4,hs:41,vs:10,sync:0,vmode:0\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
@@ -194,11 +195,9 @@
 #define CONFIG_CMD_CACHE
 #endif
 
-#define CONFIG_FSL_QSPI
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
@@ -241,5 +240,24 @@
 #endif
 
 #define CONFIG_IMX_THERMAL
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_VIDEO
+#ifdef CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_MXS
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_LOGO
+#define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
+#endif
+#endif
 
 #endif

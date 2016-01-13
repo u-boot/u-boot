@@ -63,6 +63,8 @@ struct sandbox_state {
 	enum reset_t last_reset;	/* Last reset type */
 	bool reset_allowed[RESET_COUNT];	/* Allowed reset types */
 	enum state_terminal_raw term_raw;	/* Terminal raw/cooked */
+	bool skip_delays;		/* Ignore any time delays (for test) */
+	bool show_test_output;		/* Don't suppress stdout in tests */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
@@ -183,6 +185,24 @@ int sandbox_write_state(struct sandbox_state *state, const char *fname);
  * @param size		Size of data to write into property
  */
 int state_setprop(int node, const char *prop_name, const void *data, int size);
+
+/**
+ * Control skipping of time delays
+ *
+ * Some tests have unnecessay time delays (e.g. USB). Allow these to be
+ * skipped to speed up testing
+ *
+ * @param skip_delays	true to skip delays from now on, false to honour delay
+ *			requests
+ */
+void state_set_skip_delays(bool skip_delays);
+
+/**
+ * See if delays should be skipped
+ *
+ * @return true if delays should be skipped, false if they should be honoured
+ */
+bool state_get_skip_delays(void);
 
 /**
  * Initialize the test system state

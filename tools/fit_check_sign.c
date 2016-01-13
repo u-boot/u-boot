@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	if (ffd < 0)
 		return EXIT_FAILURE;
 	kfd = mmap_fdt(cmdname, keyfile, 0, &key_blob, &ksbuf, false);
-	if (ffd < 0)
+	if (kfd < 0)
 		return EXIT_FAILURE;
 
 	image_set_host_blob(key_blob);

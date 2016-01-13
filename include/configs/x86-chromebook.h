@@ -14,7 +14,6 @@
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_X86_MRC_ADDR			0xfffa0000
-#define CONFIG_CACHE_MRC_SIZE_KB		512
 
 #define CONFIG_SCSI_DEV_LIST	\
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_NM10_AHCI}, \
@@ -35,7 +34,6 @@
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0xefff
 
-#define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_PCI_PNP
 
 #define CONFIG_BIOSEMU
@@ -51,7 +49,7 @@
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET		0x003f8000
 
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
+#define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,i8042-kbd,serial\0" \
 					"stdout=vga,serial\0" \
 					"stderr=vga,serial\0"
 

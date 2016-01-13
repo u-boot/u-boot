@@ -54,7 +54,6 @@
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
-#define CONFIG_CMD_GPIO
 
 /* Thermal */
 #define CONFIG_IMX_THERMAL
@@ -71,7 +70,6 @@
   #define CONFIG_MXC_SPI
   #define CONFIG_SPI_FLASH_MTD
   #define CONFIG_SPI_FLASH_BAR
-  #define CONFIG_SPI_FLASH_WINBOND
   #define CONFIG_SF_DEFAULT_BUS              0
   #define CONFIG_SF_DEFAULT_CS               0
 					     /* GPIO 3-19 (21248) */

@@ -101,7 +101,6 @@
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 
 #undef CONFIG_CMD_SPI
-#undef CONFIG_CMD_GPIO
 #undef CONFIG_CMD_ASKENV
 #undef CONFIG_CMD_BOOTZ
 #undef CONFIG_SUPPORT_RAW_INITRD

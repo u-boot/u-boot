@@ -7,7 +7,12 @@
 #include <common.h>
 #include <command.h>
 #include <i2c.h>
+#include <asm/io.h>
+#ifdef CONFIG_LS1043A
+#include <asm/arch/immap_lsch2.h>
+#else
 #include <asm/immap_85xx.h>
+#endif
 #include "vid.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -240,7 +245,11 @@ static int set_voltage_to_IR(int i2caddress, int vdd)
 	 * SoC before converting into an IR VID value
 	 */
 	vdd += board_vdd_drop_compensation();
+#ifdef CONFIG_LS1043A
+	vid = DIV_ROUND_UP(vdd - 265, 5);
+#else
 	vid = DIV_ROUND_UP(vdd - 245, 5);
+#endif
 
 	ret = i2c_write(i2caddress, IR36021_LOOP1_MANUAL_ID_OFFSET,
 			1, (void *)&vid, sizeof(vid));
@@ -276,8 +285,12 @@ static int set_voltage(int i2caddress, int vdd)
 int adjust_vdd(ulong vdd_override)
 {
 	int re_enable = disable_interrupts();
+#ifdef CONFIG_LS1043A
+	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+#else
 	ccsr_gur_t __iomem *gur =
 		(void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#endif
 	u32 fusesr;
 	u8 vid;
 	int vdd_target, vdd_current, vdd_last;
@@ -352,12 +365,21 @@ int adjust_vdd(ulong vdd_override)
 	 * | T |          |         |                 |         |
 	 * ------------------------------------------------------
 	 */
+#ifdef CONFIG_LS1043A
+	vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_ALTVID_SHIFT) &
+		FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK;
+	if ((vid == 0) || (vid == FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK)) {
+		vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_VID_SHIFT) &
+			FSL_CHASSIS2_DCFG_FUSESR_VID_MASK;
+	}
+#else
 	vid = (fusesr >> FSL_CORENET_DCFG_FUSESR_ALTVID_SHIFT) &
 		FSL_CORENET_DCFG_FUSESR_ALTVID_MASK;
 	if ((vid == 0) || (vid == FSL_CORENET_DCFG_FUSESR_ALTVID_MASK)) {
 		vid = (fusesr >> FSL_CORENET_DCFG_FUSESR_VID_SHIFT) &
 			FSL_CORENET_DCFG_FUSESR_VID_MASK;
 	}
+#endif
 	vdd_target = vdd[vid];
 
 	/* check override variable for overriding VDD */

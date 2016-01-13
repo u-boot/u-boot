@@ -17,103 +17,279 @@
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
+#include <dm.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>
 
-/*
- * Follows routines for the output of infos about devices on PCI bus.
- */
+struct pci_reg_info {
+	const char *name;
+	enum pci_size_t size;
+	u8 offset;
+};
 
-void pci_header_show(pci_dev_t dev);
-void pci_header_show_brief(pci_dev_t dev);
-
-/*
- * Subroutine:  pciinfo
- *
- * Description: Show information about devices on PCI bus.
- *				Depending on the define CONFIG_SYS_SHORT_PCI_LISTING
- *				the output will be more or less exhaustive.
- *
- * Inputs:	bus_no		the number of the bus to be scanned.
- *
- * Return:      None
- *
- */
-void pciinfo(int BusNum, int ShortPCIListing)
+static int pci_byte_size(enum pci_size_t size)
 {
-	struct pci_controller *hose = pci_bus_to_hose(BusNum);
-	int Device;
-	int Function;
-	unsigned char HeaderType;
-	unsigned short VendorID;
-	pci_dev_t dev;
-	int ret;
+	switch (size) {
+	case PCI_SIZE_8:
+		return 1;
+	case PCI_SIZE_16:
+		return 2;
+	case PCI_SIZE_32:
+	default:
+		return 4;
+	}
+}
 
-	if (!hose)
-		return;
+static int pci_field_width(enum pci_size_t size)
+{
+	return pci_byte_size(size) * 2;
+}
 
-	printf("Scanning PCI devices on bus %d\n", BusNum);
+#ifdef CONFIG_DM_PCI
+static void pci_show_regs(struct udevice *dev, struct pci_reg_info *regs)
+{
+	for (; regs->name; regs++) {
+		unsigned long val;
 
-	if (ShortPCIListing) {
+		dm_pci_read_config(dev, regs->offset, &val, regs->size);
+		printf("  %s =%*s%#.*lx\n", regs->name,
+		       (int)(28 - strlen(regs->name)), "",
+		       pci_field_width(regs->size), val);
+	}
+}
+#else
+static unsigned long pci_read_config(pci_dev_t dev, int offset,
+				     enum pci_size_t size)
+{
+	u32 val32;
+	u16 val16;
+	u8 val8;
+
+	switch (size) {
+	case PCI_SIZE_8:
+		pci_read_config_byte(dev, offset, &val8);
+		return val8;
+	case PCI_SIZE_16:
+		pci_read_config_word(dev, offset, &val16);
+		return val16;
+	case PCI_SIZE_32:
+	default:
+		pci_read_config_dword(dev, offset, &val32);
+		return val32;
+	}
+}
+
+static void pci_show_regs(pci_dev_t dev, struct pci_reg_info *regs)
+{
+	for (; regs->name; regs++) {
+		printf("  %s =%*s%#.*lx\n", regs->name,
+		       (int)(28 - strlen(regs->name)), "",
+		       pci_field_width(regs->size),
+		       pci_read_config(dev, regs->offset, regs->size));
+	}
+}
+#endif
+
+static struct pci_reg_info regs_start[] = {
+	{ "vendor ID", PCI_SIZE_16, PCI_VENDOR_ID },
+	{ "device ID", PCI_SIZE_16, PCI_DEVICE_ID },
+	{ "command register ID", PCI_SIZE_16, PCI_COMMAND },
+	{ "status register", PCI_SIZE_16, PCI_STATUS },
+	{ "revision ID", PCI_SIZE_8, PCI_REVISION_ID },
+	{},
+};
+
+static struct pci_reg_info regs_rest[] = {
+	{ "sub class code", PCI_SIZE_8, PCI_CLASS_SUB_CODE },
+	{ "programming interface", PCI_SIZE_8, PCI_CLASS_PROG },
+	{ "cache line", PCI_SIZE_8, PCI_CACHE_LINE_SIZE },
+	{ "latency time", PCI_SIZE_8, PCI_LATENCY_TIMER },
+	{ "header type", PCI_SIZE_8, PCI_HEADER_TYPE },
+	{ "BIST", PCI_SIZE_8, PCI_BIST },
+	{ "base address 0", PCI_SIZE_32, PCI_BASE_ADDRESS_0 },
+	{},
+};
+
+static struct pci_reg_info regs_normal[] = {
+	{ "base address 1", PCI_SIZE_32, PCI_BASE_ADDRESS_1 },
+	{ "base address 2", PCI_SIZE_32, PCI_BASE_ADDRESS_2 },
+	{ "base address 3", PCI_SIZE_32, PCI_BASE_ADDRESS_3 },
+	{ "base address 4", PCI_SIZE_32, PCI_BASE_ADDRESS_4 },
+	{ "base address 5", PCI_SIZE_32, PCI_BASE_ADDRESS_5 },
+	{ "cardBus CIS pointer", PCI_SIZE_32, PCI_CARDBUS_CIS },
+	{ "sub system vendor ID", PCI_SIZE_16, PCI_SUBSYSTEM_VENDOR_ID },
+	{ "sub system ID", PCI_SIZE_16, PCI_SUBSYSTEM_ID },
+	{ "expansion ROM base address", PCI_SIZE_32, PCI_ROM_ADDRESS },
+	{ "interrupt line", PCI_SIZE_8, PCI_INTERRUPT_LINE },
+	{ "interrupt pin", PCI_SIZE_8, PCI_INTERRUPT_PIN },
+	{ "min Grant", PCI_SIZE_8, PCI_MIN_GNT },
+	{ "max Latency", PCI_SIZE_8, PCI_MAX_LAT },
+	{},
+};
+
+static struct pci_reg_info regs_bridge[] = {
+	{ "base address 1", PCI_SIZE_32, PCI_BASE_ADDRESS_1 },
+	{ "primary bus number", PCI_SIZE_8, PCI_PRIMARY_BUS },
+	{ "secondary bus number", PCI_SIZE_8, PCI_SECONDARY_BUS },
+	{ "subordinate bus number", PCI_SIZE_8, PCI_SUBORDINATE_BUS },
+	{ "secondary latency timer", PCI_SIZE_8, PCI_SEC_LATENCY_TIMER },
+	{ "IO base", PCI_SIZE_8, PCI_IO_BASE },
+	{ "IO limit", PCI_SIZE_8, PCI_IO_LIMIT },
+	{ "secondary status", PCI_SIZE_16, PCI_SEC_STATUS },
+	{ "memory base", PCI_SIZE_16, PCI_MEMORY_BASE },
+	{ "memory limit", PCI_SIZE_16, PCI_MEMORY_LIMIT },
+	{ "prefetch memory base", PCI_SIZE_16, PCI_PREF_MEMORY_BASE },
+	{ "prefetch memory limit", PCI_SIZE_16, PCI_PREF_MEMORY_LIMIT },
+	{ "prefetch memory base upper", PCI_SIZE_32, PCI_PREF_BASE_UPPER32 },
+	{ "prefetch memory limit upper", PCI_SIZE_32, PCI_PREF_LIMIT_UPPER32 },
+	{ "IO base upper 16 bits", PCI_SIZE_16, PCI_IO_BASE_UPPER16 },
+	{ "IO limit upper 16 bits", PCI_SIZE_16, PCI_IO_LIMIT_UPPER16 },
+	{ "expansion ROM base address", PCI_SIZE_32, PCI_ROM_ADDRESS1 },
+	{ "interrupt line", PCI_SIZE_8, PCI_INTERRUPT_LINE },
+	{ "interrupt pin", PCI_SIZE_8, PCI_INTERRUPT_PIN },
+	{ "bridge control", PCI_SIZE_16, PCI_BRIDGE_CONTROL },
+	{},
+};
+
+static struct pci_reg_info regs_cardbus[] = {
+	{ "capabilities", PCI_SIZE_8, PCI_CB_CAPABILITY_LIST },
+	{ "secondary status", PCI_SIZE_16, PCI_CB_SEC_STATUS },
+	{ "primary bus number", PCI_SIZE_8, PCI_CB_PRIMARY_BUS },
+	{ "CardBus number", PCI_SIZE_8, PCI_CB_CARD_BUS },
+	{ "subordinate bus number", PCI_SIZE_8, PCI_CB_SUBORDINATE_BUS },
+	{ "CardBus latency timer", PCI_SIZE_8, PCI_CB_LATENCY_TIMER },
+	{ "CardBus memory base 0", PCI_SIZE_32, PCI_CB_MEMORY_BASE_0 },
+	{ "CardBus memory limit 0", PCI_SIZE_32, PCI_CB_MEMORY_LIMIT_0 },
+	{ "CardBus memory base 1", PCI_SIZE_32, PCI_CB_MEMORY_BASE_1 },
+	{ "CardBus memory limit 1", PCI_SIZE_32, PCI_CB_MEMORY_LIMIT_1 },
+	{ "CardBus IO base 0", PCI_SIZE_16, PCI_CB_IO_BASE_0 },
+	{ "CardBus IO base high 0", PCI_SIZE_16, PCI_CB_IO_BASE_0_HI },
+	{ "CardBus IO limit 0", PCI_SIZE_16, PCI_CB_IO_LIMIT_0 },
+	{ "CardBus IO limit high 0", PCI_SIZE_16, PCI_CB_IO_LIMIT_0_HI },
+	{ "CardBus IO base 1", PCI_SIZE_16, PCI_CB_IO_BASE_1 },
+	{ "CardBus IO base high 1", PCI_SIZE_16, PCI_CB_IO_BASE_1_HI },
+	{ "CardBus IO limit 1", PCI_SIZE_16, PCI_CB_IO_LIMIT_1 },
+	{ "CardBus IO limit high 1", PCI_SIZE_16, PCI_CB_IO_LIMIT_1_HI },
+	{ "interrupt line", PCI_SIZE_8, PCI_INTERRUPT_LINE },
+	{ "interrupt pin", PCI_SIZE_8, PCI_INTERRUPT_PIN },
+	{ "bridge control", PCI_SIZE_16, PCI_CB_BRIDGE_CONTROL },
+	{ "subvendor ID", PCI_SIZE_16, PCI_CB_SUBSYSTEM_VENDOR_ID },
+	{ "subdevice ID", PCI_SIZE_16, PCI_CB_SUBSYSTEM_ID },
+	{ "PC Card 16bit base address", PCI_SIZE_32, PCI_CB_LEGACY_MODE_BASE },
+	{},
+};
+
+/**
+ * pci_header_show() - Show the header of the specified PCI device.
+ *
+ * @dev: Bus+Device+Function number
+ */
+#ifdef CONFIG_DM_PCI
+void pci_header_show(struct udevice *dev)
+#else
+void pci_header_show(pci_dev_t dev)
+#endif
+{
+#ifdef CONFIG_DM_PCI
+	unsigned long class, header_type;
+
+	dm_pci_read_config(dev, PCI_CLASS_CODE, &class, PCI_SIZE_8);
+	dm_pci_read_config(dev, PCI_HEADER_TYPE, &header_type, PCI_SIZE_8);
+#else
+	u8 class, header_type;
+
+	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
+	pci_read_config_byte(dev, PCI_HEADER_TYPE, &header_type);
+#endif
+	pci_show_regs(dev, regs_start);
+	printf("  class code =                  0x%.2x (%s)\n", (int)class,
+	       pci_class_str(class));
+	pci_show_regs(dev, regs_rest);
+
+	switch (header_type & 0x03) {
+	case PCI_HEADER_TYPE_NORMAL:	/* "normal" PCI device */
+		pci_show_regs(dev, regs_normal);
+		break;
+	case PCI_HEADER_TYPE_BRIDGE:	/* PCI-to-PCI bridge */
+		pci_show_regs(dev, regs_bridge);
+		break;
+	case PCI_HEADER_TYPE_CARDBUS:	/* PCI-to-CardBus bridge */
+		pci_show_regs(dev, regs_cardbus);
+		break;
+
+	default:
+		printf("unknown header\n");
+		break;
+    }
+}
+
+void pciinfo_header(int busnum, bool short_listing)
+{
+	printf("Scanning PCI devices on bus %d\n", busnum);
+
+	if (short_listing) {
 		printf("BusDevFun  VendorId   DeviceId   Device Class       Sub-Class\n");
 		printf("_____________________________________________________________\n");
 	}
-
-	for (Device = 0; Device < PCI_MAX_PCI_DEVICES; Device++) {
-		HeaderType = 0;
-		VendorID = 0;
-		for (Function = 0; Function < PCI_MAX_PCI_FUNCTIONS; Function++) {
-			/*
-			 * If this is not a multi-function device, we skip the rest.
-			 */
-			if (Function && !(HeaderType & 0x80))
-				break;
-
-			dev = PCI_BDF(BusNum, Device, Function);
-
-			if (pci_skip_dev(hose, dev))
-				continue;
-
-			ret = pci_read_config_word(dev, PCI_VENDOR_ID,
-						   &VendorID);
-			if (ret)
-				goto error;
-			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))
-				continue;
-
-			if (!Function) pci_read_config_byte(dev, PCI_HEADER_TYPE, &HeaderType);
-
-			if (ShortPCIListing)
-			{
-				printf("%02x.%02x.%02x   ", BusNum, Device, Function);
-				pci_header_show_brief(dev);
-			}
-			else
-			{
-				printf("\nFound PCI device %02x.%02x.%02x:\n",
-				       BusNum, Device, Function);
-				pci_header_show(dev);
-			}
-		}
-	}
-
-	return;
-error:
-	printf("Cannot read bus configuration: %d\n", ret);
 }
 
+#ifdef CONFIG_DM_PCI
+/**
+ * pci_header_show_brief() - Show the short-form PCI device header
+ *
+ * Reads and prints the header of the specified PCI device in short form.
+ *
+ * @dev: PCI device to show
+ */
+static void pci_header_show_brief(struct udevice *dev)
+{
+	ulong vendor, device;
+	ulong class, subclass;
 
-/*
- * Subroutine:  pci_header_show_brief
+	dm_pci_read_config(dev, PCI_VENDOR_ID, &vendor, PCI_SIZE_16);
+	dm_pci_read_config(dev, PCI_DEVICE_ID, &device, PCI_SIZE_16);
+	dm_pci_read_config(dev, PCI_CLASS_CODE, &class, PCI_SIZE_8);
+	dm_pci_read_config(dev, PCI_CLASS_SUB_CODE, &subclass, PCI_SIZE_8);
+
+	printf("0x%.4lx     0x%.4lx     %-23s 0x%.2lx\n",
+	       vendor, device,
+	       pci_class_str(class), subclass);
+}
+
+static void pciinfo(struct udevice *bus, bool short_listing)
+{
+	struct udevice *dev;
+
+	pciinfo_header(bus->seq, short_listing);
+
+	for (device_find_first_child(bus, &dev);
+	     dev;
+	     device_find_next_child(&dev)) {
+		struct pci_child_platdata *pplat;
+
+		pplat = dev_get_parent_platdata(dev);
+		if (short_listing) {
+			printf("%02x.%02x.%02x   ", bus->seq,
+			       PCI_DEV(pplat->devfn), PCI_FUNC(pplat->devfn));
+			pci_header_show_brief(dev);
+		} else {
+			printf("\nFound PCI device %02x.%02x.%02x:\n", bus->seq,
+			       PCI_DEV(pplat->devfn), PCI_FUNC(pplat->devfn));
+			pci_header_show(dev);
+		}
+	}
+}
+
+#else
+
+/**
+ * pci_header_show_brief() - Show the short-form PCI device header
  *
- * Description: Reads and prints the header of the
- *		specified PCI device in short form.
+ * Reads and prints the header of the specified PCI device in short form.
  *
- * Inputs:	dev      Bus+Device+Function number
- *
- * Return:      None
- *
+ * @dev: Bus+Device+Function number
  */
 void pci_header_show_brief(pci_dev_t dev)
 {
@@ -130,128 +306,85 @@ void pci_header_show_brief(pci_dev_t dev)
 	       pci_class_str(class), subclass);
 }
 
-/*
- * Subroutine:  PCI_Header_Show
+/**
+ * pciinfo() - Show a list of devices on the PCI bus
  *
- * Description: Reads the header of the specified PCI device.
+ * Show information about devices on PCI bus. Depending on @short_pci_listing
+ * the output will be more or less exhaustive.
  *
- * Inputs:		BusDevFunc      Bus+Device+Function number
- *
- * Return:      None
- *
+ * @bus_num: The number of the bus to be scanned
+ * @short_pci_listing: true to use short form, showing only a brief header
+ * for each device
  */
-void pci_header_show(pci_dev_t dev)
+void pciinfo(int bus_num, int short_pci_listing)
 {
-	u8 _byte, header_type;
-	u16 _word;
-	u32 _dword;
+	struct pci_controller *hose = pci_bus_to_hose(bus_num);
+	int device;
+	int function;
+	unsigned char header_type;
+	unsigned short vendor_id;
+	pci_dev_t dev;
+	int ret;
 
-#define PRINT(msg, type, reg) \
-	pci_read_config_##type(dev, reg, &_##type); \
-	printf(msg, _##type)
+	if (!hose)
+		return;
 
-#define PRINT2(msg, type, reg, func) \
-	pci_read_config_##type(dev, reg, &_##type); \
-	printf(msg, _##type, func(_##type))
+	pciinfo_header(bus_num, short_pci_listing);
 
-	pci_read_config_byte(dev, PCI_HEADER_TYPE, &header_type);
+	for (device = 0; device < PCI_MAX_PCI_DEVICES; device++) {
+		header_type = 0;
+		vendor_id = 0;
+		for (function = 0; function < PCI_MAX_PCI_FUNCTIONS;
+		     function++) {
+			/*
+			 * If this is not a multi-function device, we skip
+			 * the rest.
+			 */
+			if (function && !(header_type & 0x80))
+				break;
 
-	PRINT ("  vendor ID =                   0x%.4x\n", word, PCI_VENDOR_ID);
-	PRINT ("  device ID =                   0x%.4x\n", word, PCI_DEVICE_ID);
-	PRINT ("  command register =            0x%.4x\n", word, PCI_COMMAND);
-	PRINT ("  status register =             0x%.4x\n", word, PCI_STATUS);
-	PRINT ("  revision ID =                 0x%.2x\n", byte, PCI_REVISION_ID);
-	PRINT2("  class code =                  0x%.2x (%s)\n", byte, PCI_CLASS_CODE,
-								pci_class_str);
-	PRINT ("  sub class code =              0x%.2x\n", byte, PCI_CLASS_SUB_CODE);
-	PRINT ("  programming interface =       0x%.2x\n", byte, PCI_CLASS_PROG);
-	PRINT ("  cache line =                  0x%.2x\n", byte, PCI_CACHE_LINE_SIZE);
-	PRINT ("  latency time =                0x%.2x\n", byte, PCI_LATENCY_TIMER);
-	PRINT ("  header type =                 0x%.2x\n", byte, PCI_HEADER_TYPE);
-	PRINT ("  BIST =                        0x%.2x\n", byte, PCI_BIST);
-	PRINT ("  base address 0 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_0);
+			dev = PCI_BDF(bus_num, device, function);
 
-	switch (header_type & 0x03) {
-	case PCI_HEADER_TYPE_NORMAL:	/* "normal" PCI device */
-		PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
-		PRINT ("  base address 2 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_2);
-		PRINT ("  base address 3 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_3);
-		PRINT ("  base address 4 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_4);
-		PRINT ("  base address 5 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_5);
-		PRINT ("  cardBus CIS pointer =         0x%.8x\n", dword, PCI_CARDBUS_CIS);
-		PRINT ("  sub system vendor ID =        0x%.4x\n", word, PCI_SUBSYSTEM_VENDOR_ID);
-		PRINT ("  sub system ID =               0x%.4x\n", word, PCI_SUBSYSTEM_ID);
-		PRINT ("  expansion ROM base address =  0x%.8x\n", dword, PCI_ROM_ADDRESS);
-		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
-		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
-		PRINT ("  min Grant =                   0x%.2x\n", byte, PCI_MIN_GNT);
-		PRINT ("  max Latency =                 0x%.2x\n", byte, PCI_MAX_LAT);
-		break;
+			if (pci_skip_dev(hose, dev))
+				continue;
 
-	case PCI_HEADER_TYPE_BRIDGE:	/* PCI-to-PCI bridge */
+			ret = pci_read_config_word(dev, PCI_VENDOR_ID,
+						   &vendor_id);
+			if (ret)
+				goto error;
+			if ((vendor_id == 0xFFFF) || (vendor_id == 0x0000))
+				continue;
 
-		PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
-		PRINT ("  primary bus number =          0x%.2x\n", byte, PCI_PRIMARY_BUS);
-		PRINT ("  secondary bus number =        0x%.2x\n", byte, PCI_SECONDARY_BUS);
-		PRINT ("  subordinate bus number =      0x%.2x\n", byte, PCI_SUBORDINATE_BUS);
-		PRINT ("  secondary latency timer =     0x%.2x\n", byte, PCI_SEC_LATENCY_TIMER);
-		PRINT ("  IO base =                     0x%.2x\n", byte, PCI_IO_BASE);
-		PRINT ("  IO limit =                    0x%.2x\n", byte, PCI_IO_LIMIT);
-		PRINT ("  secondary status =            0x%.4x\n", word, PCI_SEC_STATUS);
-		PRINT ("  memory base =                 0x%.4x\n", word, PCI_MEMORY_BASE);
-		PRINT ("  memory limit =                0x%.4x\n", word, PCI_MEMORY_LIMIT);
-		PRINT ("  prefetch memory base =        0x%.4x\n", word, PCI_PREF_MEMORY_BASE);
-		PRINT ("  prefetch memory limit =       0x%.4x\n", word, PCI_PREF_MEMORY_LIMIT);
-		PRINT ("  prefetch memory base upper =  0x%.8x\n", dword, PCI_PREF_BASE_UPPER32);
-		PRINT ("  prefetch memory limit upper = 0x%.8x\n", dword, PCI_PREF_LIMIT_UPPER32);
-		PRINT ("  IO base upper 16 bits =       0x%.4x\n", word, PCI_IO_BASE_UPPER16);
-		PRINT ("  IO limit upper 16 bits =      0x%.4x\n", word, PCI_IO_LIMIT_UPPER16);
-		PRINT ("  expansion ROM base address =  0x%.8x\n", dword, PCI_ROM_ADDRESS1);
-		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
-		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
-		PRINT ("  bridge control =              0x%.4x\n", word, PCI_BRIDGE_CONTROL);
-		break;
+			if (!function) {
+				pci_read_config_byte(dev, PCI_HEADER_TYPE,
+						     &header_type);
+			}
 
-	case PCI_HEADER_TYPE_CARDBUS:	/* PCI-to-CardBus bridge */
+			if (short_pci_listing) {
+				printf("%02x.%02x.%02x   ", bus_num, device,
+				       function);
+				pci_header_show_brief(dev);
+			} else {
+				printf("\nFound PCI device %02x.%02x.%02x:\n",
+				       bus_num, device, function);
+				pci_header_show(dev);
+			}
+		}
+	}
 
-		PRINT ("  capabilities =                0x%.2x\n", byte, PCI_CB_CAPABILITY_LIST);
-		PRINT ("  secondary status =            0x%.4x\n", word, PCI_CB_SEC_STATUS);
-		PRINT ("  primary bus number =          0x%.2x\n", byte, PCI_CB_PRIMARY_BUS);
-		PRINT ("  CardBus number =              0x%.2x\n", byte, PCI_CB_CARD_BUS);
-		PRINT ("  subordinate bus number =      0x%.2x\n", byte, PCI_CB_SUBORDINATE_BUS);
-		PRINT ("  CardBus latency timer =       0x%.2x\n", byte, PCI_CB_LATENCY_TIMER);
-		PRINT ("  CardBus memory base 0 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_0);
-		PRINT ("  CardBus memory limit 0 =      0x%.8x\n", dword, PCI_CB_MEMORY_LIMIT_0);
-		PRINT ("  CardBus memory base 1 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_1);
-		PRINT ("  CardBus memory limit 1 =      0x%.8x\n", dword, PCI_CB_MEMORY_LIMIT_1);
-		PRINT ("  CardBus IO base 0 =           0x%.4x\n", word, PCI_CB_IO_BASE_0);
-		PRINT ("  CardBus IO base high 0 =      0x%.4x\n", word, PCI_CB_IO_BASE_0_HI);
-		PRINT ("  CardBus IO limit 0 =          0x%.4x\n", word, PCI_CB_IO_LIMIT_0);
-		PRINT ("  CardBus IO limit high 0 =     0x%.4x\n", word, PCI_CB_IO_LIMIT_0_HI);
-		PRINT ("  CardBus IO base 1 =           0x%.4x\n", word, PCI_CB_IO_BASE_1);
-		PRINT ("  CardBus IO base high 1 =      0x%.4x\n", word, PCI_CB_IO_BASE_1_HI);
-		PRINT ("  CardBus IO limit 1 =          0x%.4x\n", word, PCI_CB_IO_LIMIT_1);
-		PRINT ("  CardBus IO limit high 1 =     0x%.4x\n", word, PCI_CB_IO_LIMIT_1_HI);
-		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
-		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
-		PRINT ("  bridge control =              0x%.4x\n", word, PCI_CB_BRIDGE_CONTROL);
-		PRINT ("  subvendor ID =                0x%.4x\n", word, PCI_CB_SUBSYSTEM_VENDOR_ID);
-		PRINT ("  subdevice ID =                0x%.4x\n", word, PCI_CB_SUBSYSTEM_ID);
-		PRINT ("  PC Card 16bit base address =  0x%.8x\n", dword, PCI_CB_LEGACY_MODE_BASE);
-		break;
-
-	default:
-		printf("unknown header\n");
-		break;
-    }
-
-#undef PRINT
-#undef PRINT2
+	return;
+error:
+	printf("Cannot read bus configuration: %d\n", ret);
 }
+#endif
 
-/* Convert the "bus.device.function" identifier into a number.
+/**
+ * get_pci_dev() - Convert the "bus.device.function" identifier into a number
+ *
+ * @name: Device string in the form "bus.device.function" where each is in hex
+ * @return encoded pci_dev_t or -1 if the string was invalid
  */
-static pci_dev_t get_pci_dev(char* name)
+static pci_dev_t get_pci_dev(char *name)
 {
 	char cnum[12];
 	int len, i, iold, n;
@@ -272,41 +405,44 @@ static pci_dev_t get_pci_dev(char* name)
 	if (n == 0)
 		n = 1;
 	bdfs[n] = simple_strtoul(cnum, NULL, 16);
+
 	return PCI_BDF(bdfs[0], bdfs[1], bdfs[2]);
 }
 
-static int pci_cfg_display(pci_dev_t bdf, ulong addr, ulong size, ulong length)
+#ifdef CONFIG_DM_PCI
+static int pci_cfg_display(struct udevice *dev, ulong addr,
+			   enum pci_size_t size, ulong length)
+#else
+static int pci_cfg_display(pci_dev_t bdf, ulong addr, enum pci_size_t size,
+			   ulong length)
+#endif
 {
 #define DISP_LINE_LEN	16
 	ulong i, nbytes, linebytes;
+	int byte_size;
 	int rc = 0;
 
+	byte_size = pci_byte_size(size);
 	if (length == 0)
-		length = 0x40 / size; /* Standard PCI configuration space */
+		length = 0x40 / byte_size; /* Standard PCI config space */
 
 	/* Print the lines.
 	 * once, and all accesses are with the specified bus width.
 	 */
-	nbytes = length * size;
+	nbytes = length * byte_size;
 	do {
-		uint	val4;
-		ushort  val2;
-		u_char	val1;
-
 		printf("%08lx:", addr);
-		linebytes = (nbytes>DISP_LINE_LEN)?DISP_LINE_LEN:nbytes;
-		for (i=0; i<linebytes; i+= size) {
-			if (size == 4) {
-				pci_read_config_dword(bdf, addr, &val4);
-				printf(" %08x", val4);
-			} else if (size == 2) {
-				pci_read_config_word(bdf, addr, &val2);
-				printf(" %04x", val2);
-			} else {
-				pci_read_config_byte(bdf, addr, &val1);
-				printf(" %02x", val1);
-			}
-			addr += size;
+		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
+		for (i = 0; i < linebytes; i += byte_size) {
+			unsigned long val;
+
+#ifdef CONFIG_DM_PCI
+			dm_pci_read_config(dev, addr, &val, size);
+#else
+			val = pci_read_config(bdf, addr, size);
+#endif
+			printf(" %0*lx", pci_field_width(size), val);
+			addr += byte_size;
 		}
 		printf("\n");
 		nbytes -= linebytes;
@@ -319,6 +455,7 @@ static int pci_cfg_display(pci_dev_t bdf, ulong addr, ulong size, ulong length)
 	return (rc);
 }
 
+#ifndef CONFIG_DM_PCI
 static int pci_cfg_write (pci_dev_t bdf, ulong addr, ulong size, ulong value)
 {
 	if (size == 4) {
@@ -334,33 +471,31 @@ static int pci_cfg_write (pci_dev_t bdf, ulong addr, ulong size, ulong value)
 	}
 	return 0;
 }
+#endif
 
-static int
-pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag)
+#ifdef CONFIG_DM_PCI
+static int pci_cfg_modify(struct udevice *dev, ulong addr, ulong size,
+			  ulong value, int incrflag)
+#else
+static int pci_cfg_modify(pci_dev_t bdf, ulong addr, ulong size, ulong value,
+			  int incrflag)
+#endif
 {
 	ulong	i;
 	int	nbytes;
-	uint	val4;
-	ushort  val2;
-	u_char	val1;
+	ulong val;
 
 	/* Print the address, followed by value.  Then accept input for
 	 * the next value.  A non-converted value exits.
 	 */
 	do {
 		printf("%08lx:", addr);
-		if (size == 4) {
-			pci_read_config_dword(bdf, addr, &val4);
-			printf(" %08x", val4);
-		}
-		else if (size == 2) {
-			pci_read_config_word(bdf, addr, &val2);
-			printf(" %04x", val2);
-		}
-		else {
-			pci_read_config_byte(bdf, addr, &val1);
-			printf(" %02x", val1);
-		}
+#ifdef CONFIG_DM_PCI
+		dm_pci_read_config(dev, addr, &val, size);
+#else
+		val = pci_read_config(bdf, addr, size);
+#endif
+		printf(" %0*lx", pci_field_width(size), val);
 
 		nbytes = cli_readline(" ? ");
 		if (nbytes == 0 || (nbytes == 1 && console_buffer[0] == '-')) {
@@ -386,7 +521,11 @@ pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag
 				/* good enough to not time out
 				 */
 				bootretry_reset_cmd_timeout();
-				pci_cfg_write (bdf, addr, size, i);
+#ifdef CONFIG_DM_PCI
+				dm_pci_write_config(dev, addr, i, size);
+#else
+				pci_cfg_write(bdf, addr, size, i);
+#endif
 				if (incrflag)
 					addr += size;
 			}
@@ -406,9 +545,17 @@ pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag
  */
 static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong addr = 0, value = 0, size = 0;
+	ulong addr = 0, value = 0, cmd_size = 0;
+	enum pci_size_t size = PCI_SIZE_32;
+#ifdef CONFIG_DM_PCI
+	struct udevice *dev, *bus;
+#else
+	pci_dev_t dev;
+#endif
+	int busnum = 0;
 	pci_dev_t bdf = 0;
 	char cmd = 's';
+	int ret = 0;
 
 	if (argc > 1)
 		cmd = argv[1][0];
@@ -419,7 +566,8 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 'm':		/* modify */
 	case 'w':		/* write */
 		/* Check for a size specification. */
-		size = cmd_get_data_size(argv[1], 4);
+		cmd_size = cmd_get_data_size(argv[1], 4);
+		size = (cmd_size == 4) ? PCI_SIZE_32 : cmd_size - 1;
 		if (argc > 3)
 			addr = simple_strtoul(argv[3], NULL, 16);
 		if (argc > 4)
@@ -436,45 +584,77 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	default:		/* scan bus */
 		value = 1; /* short listing */
-		bdf = 0;   /* bus number  */
 		if (argc > 1) {
 			if (argv[argc-1][0] == 'l') {
 				value = 0;
 				argc--;
 			}
 			if (argc > 1)
-				bdf = simple_strtoul(argv[1], NULL, 16);
+				busnum = simple_strtoul(argv[1], NULL, 16);
 		}
-		pciinfo(bdf, value);
+#ifdef CONFIG_DM_PCI
+		ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus);
+		if (ret) {
+			printf("No such bus\n");
+			return CMD_RET_FAILURE;
+		}
+		pciinfo(bus, value);
+#else
+		pciinfo(busnum, value);
+#endif
 		return 0;
 	}
 
+#ifdef CONFIG_DM_PCI
+	ret = pci_bus_find_bdf(bdf, &dev);
+	if (ret) {
+		printf("No such device\n");
+		return CMD_RET_FAILURE;
+	}
+#else
+	dev = bdf;
+#endif
+
 	switch (argv[1][0]) {
 	case 'h':		/* header */
-		pci_header_show(bdf);
-		return 0;
+		pci_header_show(dev);
+		break;
 	case 'd':		/* display */
-		return pci_cfg_display(bdf, addr, size, value);
+		return pci_cfg_display(dev, addr, size, value);
 #ifdef CONFIG_CMD_PCI_ENUM
 	case 'e':
+# ifdef CONFIG_DM_PCI
+		printf("This command is not yet supported with driver model\n");
+# else
 		pci_init();
-		return 0;
+# endif
+		break;
 #endif
 	case 'n':		/* next */
 		if (argc < 4)
 			goto usage;
-		return pci_cfg_modify(bdf, addr, size, value, 0);
+		ret = pci_cfg_modify(dev, addr, size, value, 0);
+		break;
 	case 'm':		/* modify */
 		if (argc < 4)
 			goto usage;
-		return pci_cfg_modify(bdf, addr, size, value, 1);
+		ret = pci_cfg_modify(dev, addr, size, value, 1);
+		break;
 	case 'w':		/* write */
 		if (argc < 5)
 			goto usage;
-		return pci_cfg_write(bdf, addr, size, value);
+#ifdef CONFIG_DM_PCI
+		ret = dm_pci_write_config(dev, addr, value, size);
+#else
+		ret = pci_cfg_write(dev, addr, size, value);
+#endif
+		break;
+	default:
+		ret = CMD_RET_USAGE;
+		break;
 	}
 
-	return 1;
+	return ret;
  usage:
 	return CMD_RET_USAGE;
 }

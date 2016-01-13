@@ -1,8 +1,0 @@
-LS2085A BOARD
-M:	Prabhakar Kushwaha <prabhakar@freescale.com>
-S:	Maintained
-F:	board/freescale/ls2085aqds/
-F:	board/freescale/ls2085a/ls2085aqds.c
-F:	include/configs/ls2085aqds.h
-F:	configs/ls2085aqds_defconfig
-F:	configs/ls2085aqds_nand_defconfig

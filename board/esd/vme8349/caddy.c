@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <asm/mpc8349_pci.h>

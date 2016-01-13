@@ -29,6 +29,9 @@
 	((void __iomem *)((uintptr_t)SOC_MC_PORTALS_BASE_ADDR + \
 	 (_portal_id) * SOC_MC_PORTAL_STRIDE))
 
+#define MC_PORTAL_OFFSET_TO_PORTAL_ID(_portal_offset) \
+	((_portal_offset) / SOC_MC_PORTAL_STRIDE)
+
 struct mc_ccsr_registers {
 	u32 reg_gcr1;
 	u32 reserved1;
@@ -50,7 +53,12 @@ struct mc_ccsr_registers {
 };
 
 int get_mc_boot_status(void);
+int get_dpl_apply_status(void);
+#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+int get_aiop_apply_status(void);
+#endif
+u64 mc_get_dram_addr(void);
 unsigned long mc_get_dram_block_size(void);
 int fsl_mc_ldpaa_init(bd_t *bis);
-void fsl_mc_ldpaa_exit(bd_t *bis);
+int fsl_mc_ldpaa_exit(bd_t *bd);
 #endif

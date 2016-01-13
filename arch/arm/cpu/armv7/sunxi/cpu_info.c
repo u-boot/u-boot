@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
-#include <axp221.h>
+#include <axp_pmic.h>
 #include <errno.h>
 
 #ifdef CONFIG_MACH_SUN6I
@@ -69,8 +69,12 @@ int print_cpuinfo(void)
 	puts("CPU:   Allwinner A23 (SUN8I)\n");
 #elif defined CONFIG_MACH_SUN8I_A33
 	puts("CPU:   Allwinner A33 (SUN8I)\n");
+#elif defined CONFIG_MACH_SUN8I_H3
+	puts("CPU:   Allwinner H3 (SUN8I)\n");
 #elif defined CONFIG_MACH_SUN9I
 	puts("CPU:   Allwinner A80 (SUN9I)\n");
+#elif defined CONFIG_MACH_SUN8I_A83T
+	puts("CPU:   Allwinner A83T (SUN8I)\n");
 #else
 #warning Please update cpu_info.c with correct CPU information
 	puts("CPU:   SUNXI Family\n");
@@ -82,7 +86,7 @@ int print_cpuinfo(void)
 int sunxi_get_sid(unsigned int *sid)
 {
 #ifdef CONFIG_AXP221_POWER
-	return axp221_get_sid(sid);
+	return axp_get_sid(sid);
 #elif defined SUNXI_SID_BASE
 	int i;
 

@@ -129,11 +129,8 @@
 
 /* SPI */
 #ifdef CONFIG_SPI_FLASH
-#define CONFIG_EXYNOS_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
-#define CONFIG_SPI_FLASH_WINBOND
-#define CONFIG_SPI_FLASH_GIGADEVICE
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		50000000
 #endif
@@ -162,7 +159,6 @@
 /* Enable Time Command */
 #define CONFIG_CMD_TIME
 
-#define CONFIG_CMD_GPIO
 
 /* USB */
 #define CONFIG_CMD_USB

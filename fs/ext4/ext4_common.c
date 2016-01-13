@@ -1920,6 +1920,11 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 		if (status < 0)
 			return 0;
 
+		if (dirent.direntlen == 0) {
+			printf("Failed to iterate over directory %s\n", name);
+			return 0;
+		}
+
 		if (dirent.namelen != 0) {
 			char filename[dirent.namelen + 1];
 			struct ext2fs_node *fdiro;

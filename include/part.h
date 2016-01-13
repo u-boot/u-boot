@@ -93,6 +93,9 @@ typedef struct disk_partition {
 #ifdef CONFIG_PARTITION_UUIDS
 	char	uuid[37];	/* filesystem UUID as string, if exists	*/
 #endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	char	type_guid[37];	/* type GUID as string, if exists	*/
+#endif
 } disk_partition_t;
 
 /* Misc _get_dev functions */
@@ -264,6 +267,41 @@ int is_valid_gpt_buf(block_dev_desc_t *dev_desc, void *buf);
  * @return - '0' on success, otherwise error
  */
 int write_mbr_and_gpt_partitions(block_dev_desc_t *dev_desc, void *buf);
+
+/**
+ * gpt_verify_headers() - Function to read and CRC32 check of the GPT's header
+ *                        and partition table entries (PTE)
+ *
+ * As a side effect if sets gpt_head and gpt_pte so they point to GPT data.
+ *
+ * @param dev_desc - block device descriptor
+ * @param gpt_head - pointer to GPT header data read from medium
+ * @param gpt_pte - pointer to GPT partition table enties read from medium
+ *
+ * @return - '0' on success, otherwise error
+ */
+int gpt_verify_headers(block_dev_desc_t *dev_desc, gpt_header *gpt_head,
+		       gpt_entry **gpt_pte);
+
+/**
+ * gpt_verify_partitions() - Function to check if partitions' name, start and
+ *                           size correspond to '$partitions' env variable
+ *
+ * This function checks if on medium stored GPT data is in sync with information
+ * provided in '$partitions' environment variable. Specificially, name, start
+ * and size of the partition is checked.
+ *
+ * @param dev_desc - block device descriptor
+ * @param partitions - partition data read from '$partitions' env variable
+ * @param parts - number of partitions read from '$partitions' env variable
+ * @param gpt_head - pointer to GPT header data read from medium
+ * @param gpt_pte - pointer to GPT partition table enties read from medium
+ *
+ * @return - '0' on success, otherwise error
+ */
+int gpt_verify_partitions(block_dev_desc_t *dev_desc,
+			  disk_partition_t *partitions, int parts,
+			  gpt_header *gpt_head, gpt_entry **gpt_pte);
 #endif
 
 #endif /* _PART_H */

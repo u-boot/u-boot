@@ -125,7 +125,7 @@ static void exynos5420_set_usbdev_phy_ctrl(unsigned int enable)
 void set_usbdrd_phy_ctrl(unsigned int enable)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420() || proid_is_exynos5800())
+		if (proid_is_exynos5420() || proid_is_exynos5422())
 			exynos5420_set_usbdev_phy_ctrl(enable);
 		else
 			exynos5_set_usbdrd_phy_ctrl(enable);

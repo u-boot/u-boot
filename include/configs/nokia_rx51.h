@@ -28,7 +28,6 @@
 #define CONFIG_OMAP3_RX51		/* working with RX51 */
 #define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
 #define CONFIG_OMAP_COMMON
-#define CONFIG_SYS_GENERIC_BOARD
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973
@@ -86,7 +85,6 @@
  */
 #define V_NS16550_CLK		48000000		/* 48MHz (APLL96/2) */
 
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
@@ -130,7 +128,6 @@
 
 #define CONFIG_CMD_I2C			/* I2C serial bus support */
 #define CONFIG_CMD_MMC			/* MMC support */
-#define CONFIG_CMD_GPIO			/* Enable gpio command */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */

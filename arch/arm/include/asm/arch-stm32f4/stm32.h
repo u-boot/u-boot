@@ -3,7 +3,7 @@
  * Yuri Tikhonov, Emcraft Systems, yur@emcraft.com
  *
  * (C) Copyright 2015
- * Kamil Lulko, <rev13@wp.pl>
+ * Kamil Lulko, <kamil.lulko@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -104,6 +104,15 @@ struct stm32_flash_regs {
 #define STM32_FLASH_CR_STRT		(1 << 16)
 #define STM32_FLASH_CR_LOCK		(1 << 31)
 #define STM32_FLASH_CR_SNB_OFFSET	3
+#define STM32_FLASH_CR_SNB_MASK		(15 << STM32_FLASH_CR_SNB_OFFSET)
+
+/*
+ * Peripheral base addresses
+ */
+#define STM32_USART1_BASE	(STM32_APB2PERIPH_BASE + 0x1000)
+#define STM32_USART2_BASE	(STM32_APB1PERIPH_BASE + 0x4400)
+#define STM32_USART3_BASE	(STM32_APB1PERIPH_BASE + 0x4800)
+#define STM32_USART6_BASE	(STM32_APB2PERIPH_BASE + 0x1400)
 
 enum clock {
 	CLOCK_CORE,

@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <malloc.h>
 #include <net.h>
@@ -674,8 +675,16 @@ static struct phy_device *get_phy_device_by_mask(struct mii_dev *bus,
 		if (phydev)
 			return phydev;
 	}
-	printf("Phy %d not found\n", ffs(phy_mask) - 1);
-	return phy_device_create(bus, ffs(phy_mask) - 1, 0xffffffff, interface);
+
+	debug("\n%s PHY: ", bus->name);
+	while (phy_mask) {
+		int addr = ffs(phy_mask) - 1;
+		debug("%d ", addr);
+		phy_mask &= ~(1 << addr);
+	}
+	debug("not found\n");
+
+	return NULL;
 }
 
 /**
@@ -784,7 +793,7 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
 {
 	/* Soft Reset the PHY */
 	phy_reset(phydev);
-	if (phydev->dev) {
+	if (phydev->dev && phydev->dev != dev) {
 		printf("%s:%d is connected to %s.  Reconnecting to %s\n",
 				phydev->bus->name, phydev->addr,
 				phydev->dev->name, dev->name);

@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_AMBAPP	/* AMBA Plug & Play Bus print utility */
 #define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
 #define CONFIG_CMD_BMP		/* BMP support			*/
@@ -29,7 +28,6 @@
 #define CONFIG_CMD_DOC		/* Disk-On-Chip Support		*/
 #define CONFIG_CMD_DTT		/* Digital Therm and Thermostat */
 #define CONFIG_CMD_EEPROM	/* EEPROM read/write support	*/
-#define CONFIG_CMD_ELF		/* ELF (VxWorks) load/boot cmd	*/
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_FDC		/* Floppy Disk Support		*/

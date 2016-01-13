@@ -64,7 +64,7 @@ RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 					rsa-sign.o rsa-verify.o rsa-checksum.o \
 					rsa-mod-exp.o)
 
-ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o
+ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
@@ -98,6 +98,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			lib/sha256.o \
 			common/hash.o \
 			ublimage.o \
+			zynqimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
 

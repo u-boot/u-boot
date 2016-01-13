@@ -114,10 +114,6 @@ RTC
 ----
 CONFIG_RTC_MC146818		MC146818 RTC support
 
-Keyboard:
----------
-CONFIG_ISA_KEYBOARD		Standard (PC-Style) Keyboard support
-
 Video:
 ------
 CONFIG_VIDEO_CT69000		Enable Chips & Technologies 69000 Video chip

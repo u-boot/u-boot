@@ -12,9 +12,6 @@
 #ifndef _CONFIG_EDMINIV2_H
 #define _CONFIG_EDMINIV2_H
 
-/* general settings */
-#define CONFIG_SYS_GENERIC_BOARD
-
 /*
  * SPL
  */
@@ -91,7 +88,6 @@
  * NS16550 Configuration
  */
 
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK

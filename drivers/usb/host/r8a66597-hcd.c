@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <usb.h>
 #include <asm/io.h>
 

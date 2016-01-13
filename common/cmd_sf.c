@@ -348,6 +348,37 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 	return ret == 0 ? 0 : 1;
 }
 
+static int do_spi_protect(int argc, char * const argv[])
+{
+	int ret = 0;
+	loff_t start, len;
+	bool prot = false;
+
+	if (argc != 4)
+		return -1;
+
+	if (!str2off(argv[2], &start)) {
+		puts("start sector is not a valid number\n");
+		return 1;
+	}
+
+	if (!str2off(argv[3], &len)) {
+		puts("len is not a valid number\n");
+		return 1;
+	}
+
+	if (strcmp(argv[1], "lock") == 0)
+		prot = true;
+	else if (strcmp(argv[1], "unlock") == 0)
+		prot = false;
+	else
+		return -1;  /* Unknown parameter */
+
+	ret = spi_flash_protect(flash, start, len, prot);
+
+	return ret == 0 ? 0 : 1;
+}
+
 #ifdef CONFIG_CMD_SF_TEST
 enum {
 	STAGE_ERASE,
@@ -540,6 +571,8 @@ static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc,
 		ret = do_spi_flash_read_write(argc, argv);
 	else if (strcmp(cmd, "erase") == 0)
 		ret = do_spi_flash_erase(argc, argv);
+	else if (strcmp(cmd, "protect") == 0)
+		ret = do_spi_protect(argc, argv);
 #ifdef CONFIG_CMD_SF_TEST
 	else if (!strcmp(cmd, "test"))
 		ret = do_spi_flash_test(argc, argv);
@@ -579,5 +612,7 @@ U_BOOT_CMD(
 	"sf update addr offset|partition len	- erase and write `len' bytes from memory\n"
 	"					  at `addr' to flash at `offset'\n"
 	"					  or to start of mtd `partition'\n"
+	"sf protect lock/unlock sector len	- protect/unprotect 'len' bytes starting\n"
+	"					  at address 'sector'\n"
 	SF_TEST_HELP
 );

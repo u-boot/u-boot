@@ -11,7 +11,6 @@
 #include <asm/arch/timer.h>
 
 /* Architecture, CPU, etc.*/
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_BCM2835
 #define CONFIG_ARCH_CPU_INIT
 
@@ -118,7 +117,6 @@
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MMC
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
@@ -133,6 +131,7 @@
 #include <config_distro_defaults.h>
 
 /* Environment */
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,lcd\0" \
 	"stdout=serial,lcd\0" \

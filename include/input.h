@@ -17,8 +17,8 @@ enum {
 enum {
 	/* Keyboard LEDs */
 	INPUT_LED_SCROLL	= 1 << 0,
-	INPUT_LED_CAPS		= 1 << 1,
-	INPUT_LED_NUM		= 1 << 2,
+	INPUT_LED_NUM		= 1 << 1,
+	INPUT_LED_CAPS		= 1 << 2,
 };
 
 /*
@@ -36,13 +36,15 @@ struct input_key_xlate {
 };
 
 struct input_config {
+	struct udevice *dev;
 	uchar fifo[INPUT_BUFFER_LEN];
 	int fifo_in, fifo_out;
 
 	/* Which modifiers are active (1 bit for each MOD_... value) */
 	uchar modifiers;
 	uchar flags;		/* active state keys (FLAGS_...) */
-	uchar leds;		/* active LEDS (INPUT_LED_...) */
+	uchar leds;		/* active LEDs (INPUT_LED_...) */
+	uchar leds_changed;	/* LEDs that just changed */
 	uchar num_tables;	/* number of modifier tables */
 	int prev_keycodes[INPUT_BUFFER_LEN];	/* keys held last time */
 	int num_prev_keycodes;	/* number of prev keys */
@@ -56,6 +58,7 @@ struct input_config {
 	 *		unknown
 	 */
 	int (*read_keys)(struct input_config *config);
+	bool allow_repeats;		/* Don't filter out repeats */
 	unsigned int next_repeat_ms;	/* Next time we repeat a key */
 	unsigned int repeat_delay_ms;	/* Time before autorepeat starts */
 	unsigned int repeat_rate_ms;	/* Autorepeat rate in ms */
@@ -73,6 +76,26 @@ struct stdio_dev;
  *	internal error
  */
 int input_send_keycodes(struct input_config *config, int keycode[], int count);
+
+/**
+ * Add a new keycode to an existing list of keycodes
+ *
+ * This can be used to handle keyboards which do their own scanning. An
+ * internal list of depressed keys is maintained by the input library. Then
+ * this function is called to add a new key to the list (when a 'make code' is
+ * received), or remove a key (when a 'break code' is received).
+ *
+ * This function looks after maintenance of the list of active keys, and calls
+ * input_send_keycodes() with its updated list.
+ *
+ * @param config	Input state
+ * @param new_keycode	New keycode to add/remove
+ * @param release	true if this key was released, false if depressed
+ * @return number of ascii characters sent, or 0 if none, or -1 for an
+ *	internal error
+ */
+int input_add_keycode(struct input_config *config, int new_keycode,
+		      bool release);
 
 /**
  * Add a new key translation table to the input
@@ -120,6 +143,46 @@ int input_stdio_register(struct stdio_dev *dev);
  */
 void input_set_delays(struct input_config *config, int repeat_delay_ms,
 	       int repeat_rate_ms);
+
+/**
+ * Tell the input layer whether to allow the caller to determine repeats
+ *
+ * Generally the input library handles processing of a list of scanned keys.
+ * Repeated keys need to be generated based on a timer in this case, since all
+ * that is provided is a list of keys current depressed.
+ *
+ * Keyboards which do their own scanning will resend codes when they want to
+ * inject a repeating key. This function can be called at start-up to select
+ * this behaviour.
+ *
+ * @param config	Input state
+ * @param allow_repeats	true to repeat depressed keys every time
+ *			input_send_keycodes() is called, false to do normal
+ *			keyboard repeat processing with a timer.
+ */
+void input_allow_repeats(struct input_config *config, bool allow_repeats);
+
+/**
+ * Check if keyboard LEDs need to be updated
+ *
+ * This can be called after input_tstc() to see if keyboard LEDs need
+ * updating.
+ *
+ * @param config	Input state
+ * @return -1 if no LEDs need updating, other value if they do
+ */
+int input_leds_changed(struct input_config *config);
+
+/**
+ * Set up the key map tables
+ *
+ * This must be called after input_init() or keycode decoding will not work.
+ *
+ * @param config	Input state
+ * @param german	true to use German keyboard layout, false for US
+ * @return 0 if ok, -1 on error
+ */
+int input_add_tables(struct input_config *config, bool german);
 
 /**
  * Set up the input handler with basic key maps.

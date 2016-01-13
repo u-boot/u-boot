@@ -72,6 +72,52 @@ int dprc_close(struct fsl_mc_io *mc_io,
 	return mc_send_command(mc_io, &cmd);
 }
 
+int dprc_create_container(struct fsl_mc_io *mc_io,
+			  uint32_t cmd_flags,
+			  uint16_t token,
+			  struct dprc_cfg *cfg,
+			  int *child_container_id,
+			  uint64_t *child_portal_paddr)
+{
+	struct mc_command cmd = { 0 };
+	int err;
+
+	/* prepare command */
+	DPRC_CMD_CREATE_CONTAINER(cmd, cfg);
+
+	cmd.header = mc_encode_cmd_header(DPRC_CMDID_CREATE_CONT,
+					  cmd_flags,
+					  token);
+
+	/* send command to mc*/
+	err = mc_send_command(mc_io, &cmd);
+	if (err)
+		return err;
+
+	/* retrieve response parameters */
+	DPRC_RSP_CREATE_CONTAINER(cmd, *child_container_id,
+				  *child_portal_paddr);
+
+	return 0;
+}
+
+int dprc_destroy_container(struct fsl_mc_io *mc_io,
+			   uint32_t cmd_flags,
+			   uint16_t token,
+			   int child_container_id)
+{
+	struct mc_command cmd = { 0 };
+
+	/* prepare command */
+	cmd.header = mc_encode_cmd_header(DPRC_CMDID_DESTROY_CONT,
+					  cmd_flags,
+					  token);
+	DPRC_CMD_DESTROY_CONTAINER(cmd, child_container_id);
+
+	/* send command to mc*/
+	return mc_send_command(mc_io, &cmd);
+}
+
 int dprc_reset_container(struct fsl_mc_io *mc_io,
 			 uint32_t cmd_flags,
 			 uint16_t token,

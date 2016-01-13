@@ -31,6 +31,8 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
 	register long result asm("r0");
 #if defined(CONFIG_ARM64)
 	asm volatile ("hlt #0xf000" : "=r" (result) : "0"(sysnum), "r"(addr));
+#elif defined(CONFIG_CPU_V7M)
+	asm volatile ("bkpt #0xAB" : "=r" (result) : "0"(sysnum), "r"(addr));
 #else
 	/* Note - untested placeholder */
 	asm volatile ("svc #0x123456" : "=r" (result) : "0"(sysnum), "r"(addr));
@@ -90,7 +92,7 @@ static long smh_read(long fd, void *memp, size_t len)
 		size_t len;
 	} read;
 
-	debug("%s: fd %ld, memp %p, len %lu\n", __func__, fd, memp, len);
+	debug("%s: fd %ld, memp %p, len %zu\n", __func__, fd, memp, len);
 
 	read.fd = fd;
 	read.memp = memp;
@@ -104,7 +106,7 @@ static long smh_read(long fd, void *memp, size_t len)
 		 * hard to maintain partial read loops and such, just fail
 		 * with an error message.
 		 */
-		printf("%s: ERROR ret %ld, fd %ld, len %lu memp %p\n",
+		printf("%s: ERROR ret %ld, fd %ld, len %zu memp %p\n",
 		       __func__, ret, fd, len, memp);
 		return -1;
 	}

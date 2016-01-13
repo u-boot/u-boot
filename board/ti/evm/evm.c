@@ -159,7 +159,7 @@ int misc_init_r(void)
 #if defined(CONFIG_CMD_NET)
 	reset_net_chip();
 #endif
-	dieid_num_r();
+	omap_die_id_display();
 
 	return 0;
 }

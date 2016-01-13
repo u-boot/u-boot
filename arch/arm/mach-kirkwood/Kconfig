@@ -4,6 +4,9 @@ choice
 	prompt "Marvell Kirkwood board select"
 	optional
 
+config TARGET_OPENRD
+	bool "Marvell OpenRD Board"
+
 config TARGET_DREAMPLUG
 	bool "DreamPlug Board"
 
@@ -46,11 +49,15 @@ config TARGET_GOFLEXHOME
 config TARGET_NAS220
 	bool "BlackArmor NAS220"
 
+config TARGET_NSA310S
+	bool "Zyxel NSA310S"
+
 endchoice
 
 config SYS_SOC
 	default "kirkwood"
 
+source "board/Marvell/openrd/Kconfig"
 source "board/Marvell/dreamplug/Kconfig"
 source "board/Marvell/guruplug/Kconfig"
 source "board/Marvell/sheevaplug/Kconfig"
@@ -65,5 +72,6 @@ source "board/raidsonic/ib62x0/Kconfig"
 source "board/Seagate/dockstar/Kconfig"
 source "board/Seagate/goflexhome/Kconfig"
 source "board/Seagate/nas220/Kconfig"
+source "board/zyxel/nsa310s/Kconfig"
 
 endif

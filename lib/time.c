@@ -6,6 +6,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
+#include <timer.h>
 #include <watchdog.h>
 #include <div64.h>
 #include <asm/io.h>
@@ -37,6 +40,53 @@ unsigned long notrace timer_read_counter(void)
 extern unsigned long __weak timer_read_counter(void);
 #endif
 
+#ifdef CONFIG_TIMER
+static int notrace dm_timer_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	if (!gd->timer) {
+		ret = uclass_first_device(UCLASS_TIMER, &dev);
+		if (ret)
+			return ret;
+		if (!dev)
+			return -ENODEV;
+		gd->timer = dev;
+	}
+
+	return 0;
+}
+
+ulong notrace get_tbclk(void)
+{
+	int ret;
+
+	ret = dm_timer_init();
+	if (ret)
+		return ret;
+
+	return timer_get_rate(gd->timer);
+}
+
+uint64_t notrace get_ticks(void)
+{
+	u64 count;
+	int ret;
+
+	ret = dm_timer_init();
+	if (ret)
+		return ret;
+
+	ret = timer_get_count(gd->timer, &count);
+	if (ret)
+		return ret;
+
+	return count;
+}
+
+#else /* !CONFIG_TIMER */
+
 uint64_t __weak notrace get_ticks(void)
 {
 	unsigned long now = timer_read_counter();
@@ -47,6 +97,8 @@ uint64_t __weak notrace get_ticks(void)
 	gd->timebase_l = now;
 	return ((uint64_t)gd->timebase_h << 32) | gd->timebase_l;
 }
+
+#endif /* CONFIG_TIMER */
 
 /* Returns time in milliseconds */
 static uint64_t notrace tick_to_time(uint64_t tick)

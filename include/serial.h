@@ -164,8 +164,6 @@ struct serial_dev_priv {
 /* Access the serial operations for a device */
 #define serial_get_ops(dev)	((struct dm_serial_ops *)(dev)->driver->ops)
 
-void altera_jtag_serial_initialize(void);
-void altera_serial_initialize(void);
 void amirix_serial_initialize(void);
 void arc_serial_initialize(void);
 void arm_dcc_initialize(void);

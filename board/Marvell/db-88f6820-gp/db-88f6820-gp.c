@@ -13,6 +13,7 @@
 #include <asm/arch/soc.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_a38x_topology.h"
+#include <../serdes/a38x/high_speed_env_spec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,6 +55,22 @@ static struct marvell_io_exp io_exp[] = {
 	{ 0x21, 2, 0x08 }, /* Output Data, register#0 */
 	{ 0x21, 3, 0xC0 }  /* Output Data, register#1 */
 };
+
+static struct serdes_map board_serdes_map[] = {
+	{PEX0, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
+	{SATA0, SERDES_SPEED_3_GBPS, SERDES_DEFAULT_MODE, 0, 0},
+	{SATA1, SERDES_SPEED_3_GBPS, SERDES_DEFAULT_MODE, 0, 0},
+	{SATA3, SERDES_SPEED_3_GBPS, SERDES_DEFAULT_MODE, 0, 0},
+	{SATA2, SERDES_SPEED_3_GBPS, SERDES_DEFAULT_MODE, 0, 0},
+	{USB3_HOST1, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0}
+};
+
+int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
+{
+	*serdes_map_array = board_serdes_map;
+	*count = ARRAY_SIZE(board_serdes_map);
+	return 0;
+}
 
 /*
  * Define the DDR layout / topology here in the board file. This will

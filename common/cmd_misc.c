@@ -10,6 +10,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <console.h>
 
 static int do_sleep(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

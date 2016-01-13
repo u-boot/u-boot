@@ -62,19 +62,3 @@
 #define AXP_GPIO_CTRL_INPUT			0x02 /* Input */
 #define AXP_GPIO_STATE			0x94
 #define AXP_GPIO_STATE_OFFSET			0
-
-int axp221_set_dcdc1(unsigned int mvolt);
-int axp221_set_dcdc2(unsigned int mvolt);
-int axp221_set_dcdc3(unsigned int mvolt);
-int axp221_set_dcdc4(unsigned int mvolt);
-int axp221_set_dcdc5(unsigned int mvolt);
-int axp221_set_dldo1(unsigned int mvolt);
-int axp221_set_dldo2(unsigned int mvolt);
-int axp221_set_dldo3(unsigned int mvolt);
-int axp221_set_dldo4(unsigned int mvolt);
-int axp221_set_aldo1(unsigned int mvolt);
-int axp221_set_aldo2(unsigned int mvolt);
-int axp221_set_aldo3(unsigned int mvolt);
-int axp221_set_eldo(int eldo_num, unsigned int mvolt);
-int axp221_init(void);
-int axp221_get_sid(unsigned int *sid);

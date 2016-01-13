@@ -13,7 +13,7 @@ static uint8_t saved_state[2] = {STATUS_LED_OFF, STATUS_LED_OFF};
 static uint32_t gpio_pin[2] = {1 << STATUS_LED_GREEN,
 			       1 << STATUS_LED_RED};
 
-inline void switch_LED_on(uint8_t led)
+static inline void switch_LED_on(uint8_t led)
 {
 	register struct gpio_regs *gpio = (struct gpio_regs *)GPIO_BASE;
 
@@ -21,7 +21,7 @@ inline void switch_LED_on(uint8_t led)
 	saved_state[led] = STATUS_LED_ON;
 }
 
-inline void switch_LED_off(uint8_t led)
+static inline void switch_LED_off(uint8_t led)
 {
 	register struct gpio_regs *gpio = (struct gpio_regs *)GPIO_BASE;
 

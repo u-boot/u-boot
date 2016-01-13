@@ -130,7 +130,7 @@ static int read_cpu_temperature(struct udevice *dev)
 #elif defined(CONFIG_MX7)
 static int read_cpu_temperature(struct udevice *dev)
 {
-	unsigned int reg, tmp, start;
+	unsigned int reg, tmp;
 	unsigned int raw_25c, te1;
 	int temperature;
 	unsigned int *priv = dev_get_priv(dev);
@@ -169,18 +169,25 @@ static int read_cpu_temperature(struct udevice *dev)
 	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_FINISHED_MASK, &ccm_anatop->tempsense1_clr);
 	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_MEASURE_TEMP_MASK, &ccm_anatop->tempsense1_set);
 
-	start = get_timer(0);
-	/* Wait max 100ms */
-	do {
-		/*
-		 * Since we can not rely on finish bit, use 1ms delay to get
-		 * temperature. From RM, 17us is enough to get data, but
-		 * to gurantee to get the data, delay 100ms here.
-		 */
+	if (soc_rev() >= CHIP_REV_1_1) {
+		while ((readl(&ccm_anatop->tempsense1) &
+		       TEMPMON_HW_ANADIG_TEMPSENSE1_FINISHED_MASK) == 0)
+			;
 		reg = readl(&ccm_anatop->tempsense1);
 		tmp = (reg & TEMPMON_HW_ANADIG_TEMPSENSE1_TEMP_VALUE_MASK)
 		       >> TEMPMON_HW_ANADIG_TEMPSENSE1_TEMP_VALUE_SHIFT;
-	} while (get_timer(0) < (start + 100));
+	} else {
+		/*
+		 * Since we can not rely on finish bit, use 10ms
+		 * delay to get temperature. From RM, 17us is
+		 * enough to get data, but to gurantee to get
+		 * the data, delay 10ms here.
+		 */
+		udelay(10000);
+		reg = readl(&ccm_anatop->tempsense1);
+		tmp = (reg & TEMPMON_HW_ANADIG_TEMPSENSE1_TEMP_VALUE_MASK)
+		       >> TEMPMON_HW_ANADIG_TEMPSENSE1_TEMP_VALUE_SHIFT;
+	}
 
 	writel(TEMPMON_HW_ANADIG_TEMPSENSE1_FINISHED_MASK, &ccm_anatop->tempsense1_clr);
 

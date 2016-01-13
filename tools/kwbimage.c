@@ -232,11 +232,12 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	main_hdr = image;
 
 	/* Fill in the main header */
-	main_hdr->blocksize = payloadsz + sizeof(uint32_t) - headersz;
-	main_hdr->srcaddr   = headersz;
+	main_hdr->blocksize =
+		cpu_to_le32(payloadsz + sizeof(uint32_t) - headersz);
+	main_hdr->srcaddr   = cpu_to_le32(headersz);
 	main_hdr->ext       = has_ext;
-	main_hdr->destaddr  = params->addr;
-	main_hdr->execaddr  = params->ep;
+	main_hdr->destaddr  = cpu_to_le32(params->addr);
+	main_hdr->execaddr  = cpu_to_le32(params->ep);
 
 	e = image_find_option(IMAGE_CFG_BOOT_FROM);
 	if (e)
@@ -246,7 +247,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 		main_hdr->nandeccmode = e->nandeccmode;
 	e = image_find_option(IMAGE_CFG_NAND_PAGESZ);
 	if (e)
-		main_hdr->nandpagesize = e->nandpagesz;
+		main_hdr->nandpagesize = cpu_to_le16(e->nandpagesz);
 	main_hdr->checksum = image_checksum8(image,
 					     sizeof(struct main_hdr_v0));
 
@@ -255,15 +256,17 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 		int cfgi, datai;
 
 		ext_hdr = image + sizeof(struct main_hdr_v0);
-		ext_hdr->offset = 0x40;
+		ext_hdr->offset = cpu_to_le32(0x40);
 
 		for (cfgi = 0, datai = 0; cfgi < cfgn; cfgi++) {
 			e = &image_cfg[cfgi];
 			if (e->type != IMAGE_CFG_DATA)
 				continue;
 
-			ext_hdr->rcfg[datai].raddr = e->regdata.raddr;
-			ext_hdr->rcfg[datai].rdata = e->regdata.rdata;
+			ext_hdr->rcfg[datai].raddr =
+				cpu_to_le32(e->regdata.raddr);
+			ext_hdr->rcfg[datai].rdata =
+				cpu_to_le32(e->regdata.rdata);
 			datai++;
 		}
 
@@ -321,8 +324,9 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 			return 0;
 		}
 
-		headersz += s.st_size +
-			binarye->binary.nargs * sizeof(unsigned int);
+		headersz += sizeof(struct opt_hdr_v1) +
+			s.st_size +
+			(binarye->binary.nargs + 2) * sizeof(uint32_t);
 		if (hasext)
 			*hasext = 1;
 	}
@@ -376,12 +380,13 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	cur += sizeof(struct main_hdr_v1);
 
 	/* Fill the main header */
-	main_hdr->blocksize    = payloadsz - headersz + sizeof(uint32_t);
-	main_hdr->headersz_lsb = headersz & 0xFFFF;
+	main_hdr->blocksize    =
+		cpu_to_le32(payloadsz - headersz + sizeof(uint32_t));
+	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
-	main_hdr->destaddr     = params->addr;
-	main_hdr->execaddr     = params->ep;
-	main_hdr->srcaddr      = headersz;
+	main_hdr->destaddr     = cpu_to_le32(params->addr);
+	main_hdr->execaddr     = cpu_to_le32(params->ep);
+	main_hdr->srcaddr      = cpu_to_le32(headersz);
 	main_hdr->ext          = hasext;
 	main_hdr->version      = 1;
 	e = image_find_option(IMAGE_CFG_BOOT_FROM);
@@ -397,7 +402,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	binarye = image_find_option(IMAGE_CFG_BINARY);
 	if (binarye) {
 		struct opt_hdr_v1 *hdr = cur;
-		unsigned int *args;
+		uint32_t *args;
 		size_t binhdrsz;
 		struct stat s;
 		int argi;
@@ -415,21 +420,27 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		fstat(fileno(bin), &s);
 
 		binhdrsz = sizeof(struct opt_hdr_v1) +
-			(binarye->binary.nargs + 1) * sizeof(unsigned int) +
+			(binarye->binary.nargs + 2) * sizeof(uint32_t) +
 			s.st_size;
-		binhdrsz = ALIGN_SUP(binhdrsz, 32);
-		hdr->headersz_lsb = binhdrsz & 0xFFFF;
+
+		/*
+		 * The size includes the binary image size, rounded
+		 * up to a 4-byte boundary. Plus 4 bytes for the
+		 * next-header byte and 3-byte alignment at the end.
+		 */
+		binhdrsz = ALIGN_SUP(binhdrsz, 4) + 4;
+		hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
 		hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
 
 		cur += sizeof(struct opt_hdr_v1);
 
 		args = cur;
-		*args = binarye->binary.nargs;
+		*args = cpu_to_le32(binarye->binary.nargs);
 		args++;
 		for (argi = 0; argi < binarye->binary.nargs; argi++)
-			args[argi] = binarye->binary.args[argi];
+			args[argi] = cpu_to_le32(binarye->binary.args[argi]);
 
-		cur += (binarye->binary.nargs + 1) * sizeof(unsigned int);
+		cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
 
 		ret = fread(cur, s.st_size, 1, bin);
 		if (ret != 1) {
@@ -441,7 +452,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 		fclose(bin);
 
-		cur += s.st_size;
+		cur += ALIGN_SUP(s.st_size, 4);
 
 		/*
 		 * For now, we don't support more than one binary
@@ -449,7 +460,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		 * supported. So, the binary header is necessarily the
 		 * last one
 		 */
-		*((unsigned char *)cur) = 0;
+		*((uint32_t *)cur) = 0x00000000;
 
 		cur += sizeof(uint32_t);
 	}
@@ -681,6 +692,9 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		exit(EXIT_FAILURE);
 	}
 
+	/* The MVEBU BootROM does not allow non word aligned payloads */
+	sbuf->st_size = ALIGN_SUP(sbuf->st_size, 4);
+
 	version = image_get_version();
 	switch (version) {
 		/*
@@ -711,7 +725,8 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	free(image_cfg);
 
 	/* Build and add image checksum header */
-	checksum = image_checksum32((uint32_t *)ptr, sbuf->st_size);
+	checksum =
+		cpu_to_le32(image_checksum32((uint32_t *)ptr, sbuf->st_size));
 	size = write(ifd, &checksum, sizeof(uint32_t));
 	if (size != sizeof(uint32_t)) {
 		fprintf(stderr, "Error:%s - Checksum write %d bytes %s\n",
@@ -801,7 +816,15 @@ static int kwbimage_generate(struct image_tool_params *params,
 	tparams->header_size = alloc_len;
 	tparams->hdr = hdr;
 
-	return 0;
+	/*
+	 * The resulting image needs to be 4-byte aligned. At least
+	 * the Marvell hdrparser tool complains if its unaligned.
+	 * By returning 1 here in this function, called via
+	 * tparams->vrec_header() in mkimage.c, mkimage will
+	 * automatically pad the the resulting image to a 4-byte
+	 * size if necessary.
+	 */
+	return 1;
 }
 
 /*

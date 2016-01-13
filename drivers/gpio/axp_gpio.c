@@ -10,21 +10,12 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/pmic_bus.h>
 #include <asm/gpio.h>
+#include <axp_pmic.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <errno.h>
-
-#ifdef CONFIG_AXP152_POWER
-#include <axp152.h>
-#elif defined CONFIG_AXP209_POWER
-#include <axp209.h>
-#elif defined CONFIG_AXP221_POWER
-#include <axp221.h>
-#else
-#error Unknown AXP model
-#endif
 
 static int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val);
 

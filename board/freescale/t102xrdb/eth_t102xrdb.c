@@ -21,7 +21,7 @@
 #include <fsl_mdio.h>
 #include <miiphy.h>
 #include <phy.h>
-#include <asm/fsl_dtsec.h>
+#include <fsl_dtsec.h>
 #include <asm/fsl_serdes.h>
 #include "../common/fman.h"
 

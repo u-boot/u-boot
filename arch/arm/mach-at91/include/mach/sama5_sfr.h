@@ -32,7 +32,6 @@ struct atmel_sfr {
 #define ATMEL_SFR_DDRCFG_FDQSIEN	0x00020000
 
 /* Bit field in AICREDIR */
-#define ATMEL_SFR_AICREDIR_KEY		0x5F67B102
 #define ATMEL_SFR_AICREDIR_NSAIC	0x00000001
 
 #endif

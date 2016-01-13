@@ -144,6 +144,9 @@
 #define ATMEL_BASE_PIOE		0xfc06d000
 #define ATMEL_BASE_AIC		0xfc06e000
 
+#define ATMEL_CHIPID_CIDR	0xfc069040
+#define ATMEL_CHIPID_EXID	0xfc069044
+
 /*
  * Internal Memory.
  */
@@ -175,6 +178,34 @@
 #define PIO_SCDR_DIV		0x3fff
 #define CPU_HAS_PCR
 #define CPU_HAS_H32MXDIV
+
+/* MATRIX0(H64MX) slave id definitions */
+#define H64MX_SLAVE_AXIMX_BRIDGE	0	/* Bridge from H64MX to AXIMX */
+#define H64MX_SLAVE_PERIPH_BRIDGE	1	/* H64MX Peripheral Bridge */
+#define H64MX_SLAVE_VDEC		2	/* Video Decoder */
+#define H64MX_SLAVE_DDRC_PORT0		3	/* DDR2 Port0-AESOTF */
+#define H64MX_SLAVE_DDRC_PORT1		4	/* DDR2 Port1 */
+#define H64MX_SLAVE_DDRC_PORT2		5	/* DDR2 Port2 */
+#define H64MX_SLAVE_DDRC_PORT3		6	/* DDR2 Port3 */
+#define H64MX_SLAVE_DDRC_PORT4		7	/* DDR2 Port4 */
+#define H64MX_SLAVE_DDRC_PORT5		8	/* DDR2 Port5 */
+#define H64MX_SLAVE_DDRC_PORT6		9	/* DDR2 Port6 */
+#define H64MX_SLAVE_DDRC_PORT7		10	/* DDR2 Port7 */
+#define H64MX_SLAVE_SRAM		11	/* Internal SRAM 128K */
+#define H64MX_SLAVE_H32MX_BRIDGE	12	/* Bridge from H64MX to H32MX */
+
+/* MATRIX1(H32MX) slave id definitions */
+#define H32MX_SLAVE_H64MX_BRIDGE	0	/* Bridge from H32MX to H64MX */
+#define H32MX_SLAVE_PERIPH_BRIDGE0	1	/* H32MX Peripheral Bridge 0 */
+#define H32MX_SLAVE_PERIPH_BRIDGE1	2	/* H32MX Peripheral Bridge 1 */
+#define H32MX_SLAVE_EBI			3	/* External Bus Interface */
+#define H32MX_SLAVE_NFC_CMD		3	/* NFC command Register */
+#define H32MX_SLAVE_NFC_SRAM		4	/* NFC SRAM */
+#define H32MX_SLAVE_USB			5	/* USB Device & Host */
+#define H32MX_SLAVE_SMD			6	/* Soft Modem (SMD) */
+
+/* AICREDIR Unlock Key */
+#define ATMEL_SFR_AICREDIR_KEY		0x5F67B102
 
 /* sama5d4 series chip id definitions */
 #define ARCH_ID_SAMA5D4		0x8a5c07c0

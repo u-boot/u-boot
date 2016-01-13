@@ -26,7 +26,6 @@
 #define CONFIG_PREBOOT			"run brdefaultip"
 #define CONFIG_CMD_TIME
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_AM33XX
 #define CONFIG_OMAP
@@ -47,7 +46,6 @@
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000
@@ -114,7 +112,6 @@
 #define CONFIG_CMD_I2C
 /* GPIO */
 #define CONFIG_OMAP_GPIO
-#define CONFIG_CMD_GPIO
 /*
  * ----------------------------------------------------------------------------
  * The following are general good-enough settings for U-Boot.  We set a

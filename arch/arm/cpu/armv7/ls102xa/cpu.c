@@ -218,6 +218,14 @@ void enable_caches(void)
 }
 #endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
 
+
+uint get_svr(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+
+	return in_be32(&gur->svr);
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
@@ -301,6 +309,7 @@ int arch_cpu_init(void)
 	void *epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
 	void *rcpm2_base =
 		(void *)(CONFIG_SYS_DCSRBAR + DCSR_RCPM2_BLOCK_OFFSET);
+	struct ccsr_scfg *scfg = (void *)CONFIG_SYS_FSL_SCFG_ADDR;
 	u32 state;
 
 	/*
@@ -327,6 +336,8 @@ int arch_cpu_init(void)
 	 * It's also safe to clear at normal boot.
 	 */
 	fsl_epu_clean(epu_base);
+
+	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SEC_RD_WR);
 
 	return 0;
 }
@@ -368,4 +379,14 @@ void reset_cpu(ulong addr)
 		 * Let the watchdog trigger
 		 */
 	}
+}
+
+void arch_preboot_os(void)
+{
+	unsigned long ctrl;
+
+	/* Disable PL1 Physical Timer */
+	asm("mrc p15, 0, %0, c14, c2, 1" : "=r" (ctrl));
+	ctrl &= ~ARCH_TIMER_CTRL_ENABLE;
+	asm("mcr p15, 0, %0, c14, c2, 1" : : "r" (ctrl));
 }

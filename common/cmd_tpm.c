@@ -443,7 +443,6 @@ TPM_COMMAND_NO_ARG(tpm_force_clear)
 TPM_COMMAND_NO_ARG(tpm_physical_enable)
 TPM_COMMAND_NO_ARG(tpm_physical_disable)
 
-#ifdef CONFIG_DM_TPM
 static int get_tpm(struct udevice **devp)
 {
 	int rc;
@@ -476,11 +475,11 @@ static int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return 0;
 }
-#endif
 
 static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
+	struct udevice *dev;
 	void *command;
 	uint8_t response[1024];
 	size_t count, response_length = sizeof(response);
@@ -492,17 +491,11 @@ static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-#ifdef CONFIG_DM_TPM
-	struct udevice *dev;
-
 	rc = get_tpm(&dev);
 	if (rc)
 		return rc;
 
 	rc = tpm_xfer(dev, command, count, response, &response_length);
-#else
-	rc = tis_sendrecv(command, count, response, &response_length);
-#endif
 	free(command);
 	if (!rc) {
 		puts("tpm response:\n");
@@ -657,9 +650,7 @@ TPM_COMMAND_NO_ARG(tpm_end_oiap)
 	U_BOOT_CMD_MKENT(cmd, 0, 1, do_tpm_ ## cmd, "", "")
 
 static cmd_tbl_t tpm_commands[] = {
-#ifdef CONFIG_DM_TPM
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
-#endif
 	U_BOOT_CMD_MKENT(init, 0, 1,
 			do_tpm_init, "", ""),
 	U_BOOT_CMD_MKENT(startup, 0, 1,
@@ -730,9 +721,7 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "cmd args...\n"
 "    - Issue TPM command <cmd> with arguments <args...>.\n"
 "Admin Startup and State Commands:\n"
-#ifdef CONFIG_DM_TPM
 "  info - Show information about the TPM\n"
-#endif
 "  init\n"
 "    - Put TPM into a state where it waits for 'startup' command.\n"
 "  startup mode\n"

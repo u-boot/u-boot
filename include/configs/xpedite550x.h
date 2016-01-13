@@ -22,7 +22,6 @@
 #define CONFIG_SYS_FORM_PMC_XMC	1
 #define CONFIG_PRPMC_PCI_ALIAS	"pci0"	/* Processor PMC interface on pci0 */
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -205,7 +204,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Serial Port
  */
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -371,7 +369,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII

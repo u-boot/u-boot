@@ -30,14 +30,14 @@
 	dp_aclk: clock0 {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <50000000>; /* 316 663 000 DC2 hw design */
+		clock-frequency = <50000000>;
 		clock-accuracy = <100>;
 	};
 
 	dp_aud_clk: clock1 {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <22579200>; /* 2483600 DC2 hw design */
+		clock-frequency = <22579200>;
 		clock-accuracy = <100>;
 	};
 };

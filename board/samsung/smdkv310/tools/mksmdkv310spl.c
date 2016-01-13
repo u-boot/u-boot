@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	}
 
 	ofd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, FILE_PERM);
-	if (ifd < 0) {
+	if (ofd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			argv[0], argv[2], strerror(errno));
 		if (ifd)

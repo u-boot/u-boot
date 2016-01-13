@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2013 Inc.
+ * (C) Copyright 2013 - 2015 Xilinx, Inc.
  *
  * Xilinx Zynq SD Host Controller Interface
  *
@@ -7,60 +7,53 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <asm/arch/sys_proto.h>
 
 #ifndef CONFIG_ZYNQ_SDHCI_MIN_FREQ
 # define CONFIG_ZYNQ_SDHCI_MIN_FREQ	0
 #endif
 
-int zynq_sdhci_init(phys_addr_t regbase)
+static int arasan_sdhci_probe(struct udevice *dev)
 {
-	struct sdhci_host *host = NULL;
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct sdhci_host *host = dev_get_priv(dev);
 
-	host = (struct sdhci_host *)malloc(sizeof(struct sdhci_host));
-	if (!host) {
-		printf("zynq_sdhci_init: sdhci_host malloc fail\n");
-		return 1;
-	}
-
-	host->name = "zynq_sdhci";
-	host->ioaddr = (void *)regbase;
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD |
 		       SDHCI_QUIRK_BROKEN_R1B;
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	add_sdhci(host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
 		  CONFIG_ZYNQ_SDHCI_MIN_FREQ);
+
+	upriv->mmc = host->mmc;
+
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-int zynq_sdhci_of_init(const void *blob)
+static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 {
-	int offset = 0;
-	u32 ret = 0;
-	phys_addr_t reg;
+	struct sdhci_host *host = dev_get_priv(dev);
 
-	debug("ZYNQ SDHCI: Initialization\n");
+	host->name = (char *)dev->name;
+	host->ioaddr = (void *)dev_get_addr(dev);
 
-	do {
-		offset = fdt_node_offset_by_compatible(blob, offset,
-					"arasan,sdhci-8.9a");
-		if (offset != -1) {
-			reg = fdtdec_get_addr(blob, offset, "reg");
-			if (reg != FDT_ADDR_T_NONE) {
-				ret |= zynq_sdhci_init(reg);
-			} else {
-				debug("ZYNQ SDHCI: Can't get base address\n");
-				return -1;
-			}
-		}
-	} while (offset != -1);
-
-	return ret;
+	return 0;
 }
-#endif
+
+static const struct udevice_id arasan_sdhci_ids[] = {
+	{ .compatible = "arasan,sdhci-8.9a" },
+	{ }
+};
+
+U_BOOT_DRIVER(arasan_sdhci_drv) = {
+	.name		= "arasan_sdhci",
+	.id		= UCLASS_MMC,
+	.of_match	= arasan_sdhci_ids,
+	.ofdata_to_platdata = arasan_sdhci_ofdata_to_platdata,
+	.probe		= arasan_sdhci_probe,
+	.priv_auto_alloc_size = sizeof(struct sdhci_host),
+};

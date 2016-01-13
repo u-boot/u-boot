@@ -125,34 +125,6 @@ struct bcm2835_mbox_tag_hdr {
 
 #define BCM2835_MBOX_TAG_GET_BOARD_REV	0x00010002
 
-#ifdef CONFIG_BCM2836
-#define BCM2836_BOARD_REV_2_B		0x4
-#else
-/*
- * 0x2..0xf from:
- * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
- * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733
- * http://git.drogon.net/?p=wiringPi;a=blob_plain;f=wiringPi/wiringPi.c;hb=5edd177112c99416f68ba3e8c6c4db6ed942e796
- */
-#define BCM2835_BOARD_REV_B_I2C0_2	0x2
-#define BCM2835_BOARD_REV_B_I2C0_3	0x3
-#define BCM2835_BOARD_REV_B_I2C1_4	0x4
-#define BCM2835_BOARD_REV_B_I2C1_5	0x5
-#define BCM2835_BOARD_REV_B_I2C1_6	0x6
-#define BCM2835_BOARD_REV_A_7		0x7
-#define BCM2835_BOARD_REV_A_8		0x8
-#define BCM2835_BOARD_REV_A_9		0x9
-#define BCM2835_BOARD_REV_B_REV2_d	0xd
-#define BCM2835_BOARD_REV_B_REV2_e	0xe
-#define BCM2835_BOARD_REV_B_REV2_f	0xf
-#define BCM2835_BOARD_REV_B_PLUS	0x10
-#define BCM2835_BOARD_REV_CM		0x11
-#define BCM2835_BOARD_REV_A_PLUS	0x12
-#define BCM2835_BOARD_REV_B_PLUS_13	0x13
-#define BCM2835_BOARD_REV_CM_14		0x14
-#define BCM2835_BOARD_REV_A_PLUS_15	0x15
-#endif
-
 struct bcm2835_mbox_tag_get_board_rev {
 	struct bcm2835_mbox_tag_hdr tag_hdr;
 	union {

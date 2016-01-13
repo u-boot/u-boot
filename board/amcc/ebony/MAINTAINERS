@@ -1,6 +1,0 @@
-EBONY BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/amcc/ebony/
-F:	include/configs/ebony.h
-F:	configs/ebony_defconfig

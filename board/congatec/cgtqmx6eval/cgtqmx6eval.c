@@ -18,6 +18,7 @@
 #include <asm/imx-common/sata.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 #include <mmc.h>
@@ -31,6 +32,8 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <micrel.h>
+#include <spi_flash.h>
+#include <spi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -45,6 +48,10 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_DSE_40ohm | PAD_CTL_HYS |			\
 	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
+#define SPI_PAD_CTRL (PAD_CTL_HYS |				\
+	PAD_CTL_SPEED_MED |		\
+	PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
+
 #define MX6Q_QMX6_PFUZE_MUX		IMX_GPIO_NR(6, 9)
 
 
@@ -54,114 +61,134 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
 
 static iomux_v3_cfg_t const uart2_pads[] = {
-	MX6_PAD_EIM_D26__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D27__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+	IOMUX_PADS(PAD_EIM_D26__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D27__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_SD2_CLK__SD2_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_CMD__SD2_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT0__SD2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT1__SD2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT2__SD2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT3__SD2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_GPIO_4__GPIO1_IO04      | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	IOMUX_PADS(PAD_SD2_CLK__SD2_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_CMD__SD2_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT0__SD2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT1__SD2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT2__SD2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_4__GPIO1_IO04      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usdhc3_pads[] = {
-	MX6_PAD_SD3_CLK__SD3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_CMD__SD3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT4__SD3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_RST__SD3_RESET | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT4__SD3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_RST__SD3_RESET | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usdhc4_pads[] = {
-	MX6_PAD_SD4_CLK__SD4_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_CMD__SD4_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT0__SD4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT1__SD4_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT2__SD4_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT3__SD4_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT4__SD4_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT5__SD4_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT6__SD4_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DAT7__SD4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NANDF_D6__GPIO2_IO06    | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
+	IOMUX_PADS(PAD_SD4_CLK__SD4_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_CMD__SD4_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT0__SD4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT1__SD4_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT2__SD4_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT3__SD4_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT4__SD4_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT5__SD4_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT6__SD4_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT7__SD4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_NANDF_D6__GPIO2_IO06    | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usb_otg_pads[] = {
-	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+	IOMUX_PADS(PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t enet_pads_ksz9031[] = {
-	MX6_PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RXC__GPIO6_IO30 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_RGMII_RD0__GPIO6_IO25 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_RGMII_RD1__GPIO6_IO27 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_RGMII_RD2__GPIO6_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_RGMII_RD3__GPIO6_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_RGMII_RX_CTL__GPIO6_IO24 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RXC__GPIO6_IO30 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD0__GPIO6_IO25 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD1__GPIO6_IO27 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD2__GPIO6_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD3__GPIO6_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RX_CTL__GPIO6_IO24 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t enet_pads_final_ksz9031[] = {
-	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t enet_pads_ar8035[] = {
-	MX6_PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+};
+
+static iomux_v3_cfg_t const ecspi1_pads[] = {
+	IOMUX_PADS(PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D17__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D18__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D19__GPIO3_IO19 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-struct i2c_pads_info i2c_pad_info1 = {
+struct i2c_pads_info mx6q_i2c_pad_info1 = {
 	.scl = {
-		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | PC,
-		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | PC,
+		.i2c_mode = MX6Q_PAD_KEY_COL3__I2C2_SCL | PC,
+		.gpio_mode = MX6Q_PAD_KEY_COL3__GPIO4_IO12 | PC,
 		.gp = IMX_GPIO_NR(4, 12)
 	},
 	.sda = {
-		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | PC,
-		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | PC,
+		.i2c_mode = MX6Q_PAD_KEY_ROW3__I2C2_SDA | PC,
+		.gpio_mode = MX6Q_PAD_KEY_ROW3__GPIO4_IO13 | PC,
+		.gp = IMX_GPIO_NR(4, 13)
+	}
+};
+
+struct i2c_pads_info mx6dl_i2c_pad_info1 = {
+	.scl = {
+		.i2c_mode = MX6DL_PAD_KEY_COL3__I2C2_SCL | PC,
+		.gpio_mode = MX6DL_PAD_KEY_COL3__GPIO4_IO12 | PC,
+		.gp = IMX_GPIO_NR(4, 12)
+	},
+	.sda = {
+		.i2c_mode = MX6DL_PAD_KEY_ROW3__I2C2_SDA | PC,
+		.gpio_mode = MX6DL_PAD_KEY_ROW3__GPIO4_IO13 | PC,
 		.gp = IMX_GPIO_NR(4, 13)
 	}
 };
@@ -230,13 +257,8 @@ int board_eth_init(bd_t *bis)
 	unsigned short id1, id2;
 	int ret;
 
-	iomux_v3_cfg_t enet_reset = MX6_PAD_EIM_D23__GPIO3_IO23 |
-				    MUX_PAD_CTRL(NO_PAD_CTRL);
-
 	/* check whether KSZ9031 or AR8035 has to be configured */
-	imx_iomux_v3_setup_multiple_pads(enet_pads_ar8035,
-					 ARRAY_SIZE(enet_pads_ar8035));
-	imx_iomux_v3_setup_pad(enet_reset);
+	SETUP_IOMUX_PADS(enet_pads_ar8035);
 
 	/* phy reset */
 	gpio_direction_output(IMX_GPIO_NR(3, 23), 0);
@@ -270,13 +292,11 @@ int board_eth_init(bd_t *bis)
 		gpio_set_value(IMX_GPIO_NR(6, 27), 1);
 		gpio_set_value(IMX_GPIO_NR(6, 28), 1);
 		gpio_set_value(IMX_GPIO_NR(6, 29), 1);
-		imx_iomux_v3_setup_multiple_pads(enet_pads_ksz9031,
-						 ARRAY_SIZE(enet_pads_ksz9031));
+		SETUP_IOMUX_PADS(enet_pads_ksz9031);
 		gpio_set_value(IMX_GPIO_NR(6, 24), 1);
 		udelay(500);
 		gpio_set_value(IMX_GPIO_NR(3, 23), 1);
-		imx_iomux_v3_setup_multiple_pads(enet_pads_final_ksz9031,
-						 ARRAY_SIZE(enet_pads_final_ksz9031));
+		SETUP_IOMUX_PADS(enet_pads_final_ksz9031);
 	} else if ((id1 == 0x004d) && (id2 == 0xd072)) {
 		/* configure Atheros AR8035 - actually nothing to do */
 		printf("configure Atheros AR8035 Ethernet Phy at address %d\n",
@@ -378,8 +398,16 @@ int board_phy_config(struct phy_device *phydev)
  
 static void setup_iomux_uart(void)
 {
-	imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
+	SETUP_IOMUX_PADS(uart2_pads);
 }
+
+#ifdef CONFIG_MXC_SPI
+static void setup_spi(void)
+{
+	SETUP_IOMUX_PADS(ecspi1_pads);
+	gpio_direction_output(IMX_GPIO_NR(3, 19), 0);
+}
+#endif
 
 #ifdef CONFIG_FSL_ESDHC
 static struct fsl_esdhc_cfg usdhc_cfg[] = {
@@ -414,6 +442,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
+#ifndef CONFIG_SPL_BUILD
 	s32 status = 0;
 	int i;
 
@@ -421,9 +450,9 @@ int board_mmc_init(bd_t *bis)
 	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 	usdhc_cfg[2].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
 
-	imx_iomux_v3_setup_multiple_pads(usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-	imx_iomux_v3_setup_multiple_pads(usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-	imx_iomux_v3_setup_multiple_pads(usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
+	SETUP_IOMUX_PADS(usdhc2_pads);
+	SETUP_IOMUX_PADS(usdhc3_pads);
+	SETUP_IOMUX_PADS(usdhc4_pads);
 
 	for (i = 0; i < ARRAY_SIZE(usdhc_cfg); i++) {
 		status = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
@@ -432,6 +461,14 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return 0;
+#else
+	SETUP_IOMUX_PADS(usdhc4_pads);
+	usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+	gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+#endif
 }
 #endif
 
@@ -439,8 +476,7 @@ int board_ehci_hcd_init(int port)
 {
 	switch (port) {
 	case 0:
-		imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
-						 ARRAY_SIZE(usb_otg_pads));
+		SETUP_IOMUX_PADS(usb_otg_pads);
 		/*
 		 * set daisy chain for otg_pin_id on 6q.
 		 * for 6dl, this bit is reserved
@@ -642,11 +678,22 @@ int overwrite_console(void)
 	return 1;
 }
 
+static bool is_mx6q(void)
+{
+	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+		return true;
+	else
+		return false;
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
 	setup_display();
 
+#ifdef CONFIG_MXC_SPI
+	setup_spi();
+#endif
 	return 0;
 }
 
@@ -655,7 +702,11 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+
+	if (is_mx6q())
+		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info1);
+	else
+		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info1);
 
 #ifdef CONFIG_CMD_SATA
 	setup_sata();
@@ -666,10 +717,28 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: Conga-QEVAL QMX6 Quad\n");
+	char *type = "unknown";
+
+	if (is_cpu_type(MXC_CPU_MX6Q))
+		type = "Quad";
+	else if (is_cpu_type(MXC_CPU_MX6D))
+		type = "Dual";
+	else if (is_cpu_type(MXC_CPU_MX6DL))
+		type = "Dual-Lite";
+	else if (is_cpu_type(MXC_CPU_MX6SOLO))
+		type = "Solo";
+
+	printf("Board: conga-QMX6 %s\n", type);
 
 	return 0;
 }
+
+#ifdef CONFIG_MXC_SPI
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(3, 19)) : -EINVAL;
+}
+#endif
 
 #ifdef CONFIG_CMD_BMODE
 static const struct boot_mode board_boot_modes[] = {
@@ -687,3 +756,347 @@ int misc_init_r(void)
 #endif
 	return 0;
 }
+
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	if (is_mx6q())
+		setenv("board_rev", "MX6Q");
+	else
+		setenv("board_rev", "MX6DL");
+#endif
+
+	return 0;
+}
+
+#ifdef CONFIG_SPL_BUILD
+#include <asm/arch/mx6-ddr.h>
+#include <spl.h>
+#include <libfdt.h>
+#include <spi_flash.h>
+#include <spi.h>
+
+const struct mx6dq_iomux_ddr_regs mx6q_ddr_ioregs = {
+	.dram_sdclk_0 =  0x00000030,
+	.dram_sdclk_1 =  0x00000030,
+	.dram_cas =  0x00000030,
+	.dram_ras =  0x00000030,
+	.dram_reset =  0x00000030,
+	.dram_sdcke0 =  0x00003000,
+	.dram_sdcke1 =  0x00003000,
+	.dram_sdba2 =  0x00000000,
+	.dram_sdodt0 =  0x00000030,
+	.dram_sdodt1 =  0x00000030,
+	.dram_sdqs0 =  0x00000030,
+	.dram_sdqs1 =  0x00000030,
+	.dram_sdqs2 =  0x00000030,
+	.dram_sdqs3 =  0x00000030,
+	.dram_sdqs4 =  0x00000030,
+	.dram_sdqs5 =  0x00000030,
+	.dram_sdqs6 =  0x00000030,
+	.dram_sdqs7 =  0x00000030,
+	.dram_dqm0 =  0x00000030,
+	.dram_dqm1 =  0x00000030,
+	.dram_dqm2 =  0x00000030,
+	.dram_dqm3 =  0x00000030,
+	.dram_dqm4 =  0x00000030,
+	.dram_dqm5 =  0x00000030,
+	.dram_dqm6 =  0x00000030,
+	.dram_dqm7 =  0x00000030,
+};
+
+static const struct mx6sdl_iomux_ddr_regs mx6dl_ddr_ioregs = {
+	.dram_sdclk_0 = 0x00000030,
+	.dram_sdclk_1 = 0x00000030,
+	.dram_cas =	0x00000030,
+	.dram_ras =	0x00000030,
+	.dram_reset =	0x00000030,
+	.dram_sdcke0 =	0x00003000,
+	.dram_sdcke1 =	0x00003000,
+	.dram_sdba2 =	0x00000000,
+	.dram_sdodt0 =	0x00000030,
+	.dram_sdodt1 =	0x00000030,
+	.dram_sdqs0 =	0x00000030,
+	.dram_sdqs1 =	0x00000030,
+	.dram_sdqs2 =	0x00000030,
+	.dram_sdqs3 =	0x00000030,
+	.dram_sdqs4 =	0x00000030,
+	.dram_sdqs5 =	0x00000030,
+	.dram_sdqs6 =	0x00000030,
+	.dram_sdqs7 =	0x00000030,
+	.dram_dqm0 =	0x00000030,
+	.dram_dqm1 =	0x00000030,
+	.dram_dqm2 =	0x00000030,
+	.dram_dqm3 =	0x00000030,
+	.dram_dqm4 =	0x00000030,
+	.dram_dqm5 =	0x00000030,
+	.dram_dqm6 =	0x00000030,
+	.dram_dqm7 =	0x00000030,
+};
+
+const struct mx6dq_iomux_grp_regs mx6q_grp_ioregs = {
+	.grp_ddr_type =  0x000C0000,
+	.grp_ddrmode_ctl =  0x00020000,
+	.grp_ddrpke =  0x00000000,
+	.grp_addds =  0x00000030,
+	.grp_ctlds =  0x00000030,
+	.grp_ddrmode =  0x00020000,
+	.grp_b0ds =  0x00000030,
+	.grp_b1ds =  0x00000030,
+	.grp_b2ds =  0x00000030,
+	.grp_b3ds =  0x00000030,
+	.grp_b4ds =  0x00000030,
+	.grp_b5ds =  0x00000030,
+	.grp_b6ds =  0x00000030,
+	.grp_b7ds =  0x00000030,
+};
+
+static const struct mx6sdl_iomux_grp_regs mx6sdl_grp_ioregs = {
+	.grp_ddr_type = 0x000c0000,
+	.grp_ddrmode_ctl = 0x00020000,
+	.grp_ddrpke = 0x00000000,
+	.grp_addds = 0x00000030,
+	.grp_ctlds = 0x00000030,
+	.grp_ddrmode = 0x00020000,
+	.grp_b0ds = 0x00000030,
+	.grp_b1ds = 0x00000030,
+	.grp_b2ds = 0x00000030,
+	.grp_b3ds = 0x00000030,
+	.grp_b4ds = 0x00000030,
+	.grp_b5ds = 0x00000030,
+	.grp_b6ds = 0x00000030,
+	.grp_b7ds = 0x00000030,
+};
+
+const struct mx6_mmdc_calibration mx6q_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x0016001A,
+	.p0_mpwldectrl1 =  0x0023001C,
+	.p1_mpwldectrl0 =  0x0028003A,
+	.p1_mpwldectrl1 =  0x001F002C,
+	.p0_mpdgctrl0 =  0x43440354,
+	.p0_mpdgctrl1 =  0x033C033C,
+	.p1_mpdgctrl0 =  0x43300368,
+	.p1_mpdgctrl1 =  0x03500330,
+	.p0_mprddlctl =  0x3228242E,
+	.p1_mprddlctl =  0x2C2C2636,
+	.p0_mpwrdlctl =  0x36323A38,
+	.p1_mpwrdlctl =  0x42324440,
+};
+
+const struct mx6_mmdc_calibration mx6q_2g_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x00080016,
+	.p0_mpwldectrl1 =  0x001D0016,
+	.p1_mpwldectrl0 =  0x0018002C,
+	.p1_mpwldectrl1 =  0x000D001D,
+	.p0_mpdgctrl0 =    0x43200334,
+	.p0_mpdgctrl1 =    0x0320031C,
+	.p1_mpdgctrl0 =    0x0344034C,
+	.p1_mpdgctrl1 =    0x03380314,
+	.p0_mprddlctl =    0x3E36383A,
+	.p1_mprddlctl =    0x38363240,
+	.p0_mpwrdlctl =	   0x36364238,
+	.p1_mpwrdlctl =    0x4230423E,
+};
+
+static const struct mx6_mmdc_calibration mx6s_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x00480049,
+	.p0_mpwldectrl1 =  0x00410044,
+	.p0_mpdgctrl0 =    0x42480248,
+	.p0_mpdgctrl1 =    0x023C023C,
+	.p0_mprddlctl =    0x40424644,
+	.p0_mpwrdlctl =    0x34323034,
+};
+
+const struct mx6_mmdc_calibration mx6dl_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x0043004B,
+	.p0_mpwldectrl1 =  0x003A003E,
+	.p1_mpwldectrl0 =  0x0047004F,
+	.p1_mpwldectrl1 =  0x004E0061,
+	.p0_mpdgctrl0 =    0x42500250,
+	.p0_mpdgctrl1 =	   0x0238023C,
+	.p1_mpdgctrl0 =    0x42640264,
+	.p1_mpdgctrl1 =    0x02500258,
+	.p0_mprddlctl =    0x40424846,
+	.p1_mprddlctl =    0x46484842,
+	.p0_mpwrdlctl =    0x38382C30,
+	.p1_mpwrdlctl =    0x34343430,
+};
+
+static struct mx6_ddr3_cfg mem_ddr_2g = {
+	.mem_speed = 1600,
+	.density = 2,
+	.width = 16,
+	.banks = 8,
+	.rowaddr = 14,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1310,
+	.trcmin = 4875,
+	.trasmin = 3500,
+};
+
+static struct mx6_ddr3_cfg mem_ddr_4g = {
+	.mem_speed = 1600,
+	.density = 4,
+	.width = 16,
+	.banks = 8,
+	.rowaddr = 15,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1310,
+	.trcmin = 4875,
+	.trasmin = 3500,
+};
+
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	writel(0x00C03F3F, &ccm->CCGR0);
+	writel(0x0030FC03, &ccm->CCGR1);
+	writel(0x0FFFC000, &ccm->CCGR2);
+	writel(0x3FF00000, &ccm->CCGR3);
+	writel(0x00FFF300, &ccm->CCGR4);
+	writel(0x0F0000C3, &ccm->CCGR5);
+	writel(0x000003FF, &ccm->CCGR6);
+}
+
+static void gpr_init(void)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	/* enable AXI cache for VDOA/VPU/IPU */
+	writel(0xF00000CF, &iomux->gpr[4]);
+	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
+	writel(0x007F007F, &iomux->gpr[6]);
+	writel(0x007F007F, &iomux->gpr[7]);
+}
+
+/* Define a minimal structure so that the part number can be read via SPL */
+struct mfgdata {
+	unsigned char tsize;
+	/* size of checksummed part in bytes */
+	unsigned char ckcnt;
+	/* checksum corrected byte */
+	unsigned char cksum;
+	/* decimal serial number, packed BCD */
+	unsigned char serial[6];
+	 /* part number, right justified, ASCII */
+	unsigned char pn[16];
+};
+
+static void conv_ascii(unsigned char *dst, unsigned char *src, int len)
+{
+	int remain = len;
+	unsigned char *sptr = src;
+	unsigned char *dptr = dst;
+
+	while (remain) {
+		if (*sptr) {
+			*dptr = *sptr;
+			dptr++;
+		}
+		sptr++;
+		remain--;
+	}
+	*dptr = 0x0;
+}
+
+#define CFG_MFG_ADDR_OFFSET	(spi->size - SZ_16K)
+static bool is_2gb(void)
+{
+	struct spi_flash *spi;
+	int ret;
+	char buf[sizeof(struct mfgdata)];
+	struct mfgdata *data = (struct mfgdata *)buf;
+	unsigned char outbuf[32];
+
+	spi = spi_flash_probe(CONFIG_ENV_SPI_BUS,
+			      CONFIG_ENV_SPI_CS,
+			      CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
+	ret = spi_flash_read(spi, CFG_MFG_ADDR_OFFSET, sizeof(struct mfgdata),
+			     buf);
+	if (ret)
+		return false;
+
+	/* Congatec Part Numbers 104 and 105 have 2GiB of RAM */
+	conv_ascii(outbuf, data->pn, sizeof(data->pn));
+	if (!memcmp(outbuf, "016104", 6) || !memcmp(outbuf, "016105", 6))
+		return true;
+	else
+		return false;
+}
+
+static void spl_dram_init(int width)
+{
+	struct mx6_ddr_sysinfo sysinfo = {
+		/* width of data bus:0=16,1=32,2=64 */
+		.dsize = width / 32,
+		/* config for full 4GB range so that get_mem_size() works */
+		.cs_density = 32, /* 32Gb per CS */
+		/* single chip select */
+		.ncs = 1,
+		.cs1_mirror = 0,
+		.rtt_wr = 2,
+		.rtt_nom = 2,
+		.walat = 0,
+		.ralat = 5,
+		.mif3_mode = 3,
+		.bi_on = 1,
+		.sde_to_rst = 0x0d,
+		.rst_to_cke = 0x20,
+	};
+
+	if (is_cpu_type(MXC_CPU_MX6Q) && is_2gb()) {
+		mx6dq_dram_iocfg(width, &mx6q_ddr_ioregs, &mx6q_grp_ioregs);
+		mx6_dram_cfg(&sysinfo, &mx6q_2g_mmcd_calib, &mem_ddr_4g);
+		return;
+	}
+
+	if (is_mx6q()) {
+		mx6dq_dram_iocfg(width, &mx6q_ddr_ioregs, &mx6q_grp_ioregs);
+		mx6_dram_cfg(&sysinfo, &mx6q_mmcd_calib, &mem_ddr_2g);
+	} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
+		sysinfo.walat = 1;
+		mx6sdl_dram_iocfg(width, &mx6dl_ddr_ioregs, &mx6sdl_grp_ioregs);
+		mx6_dram_cfg(&sysinfo, &mx6s_mmcd_calib, &mem_ddr_4g);
+	} else if (is_cpu_type(MXC_CPU_MX6DL)) {
+		sysinfo.walat = 1;
+		mx6sdl_dram_iocfg(width, &mx6dl_ddr_ioregs, &mx6sdl_grp_ioregs);
+		mx6_dram_cfg(&sysinfo, &mx6dl_mmcd_calib, &mem_ddr_2g);
+	}
+}
+
+void board_init_f(ulong dummy)
+{
+	/* setup AIPS and disable watchdog */
+	arch_cpu_init();
+
+	ccgr_init();
+	gpr_init();
+
+	/* iomux and setup of i2c */
+	board_early_init_f();
+
+	/* setup GP timer */
+	timer_init();
+
+	/* UART clocks enabled and gd valid - init serial console */
+	preloader_console_init();
+
+	/* Needed for malloc() to work in SPL prior to board_init_r() */
+	spl_init();
+
+	/* DDR initialization */
+	if (is_cpu_type(MXC_CPU_MX6SOLO))
+		spl_dram_init(32);
+	else
+		spl_dram_init(64);
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* load/boot image from boot device */
+	board_init_r(NULL, 0);
+}
+#endif

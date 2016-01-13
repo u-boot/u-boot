@@ -20,7 +20,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* High Level Configuration Options */
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
@@ -248,7 +247,6 @@
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE    1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)

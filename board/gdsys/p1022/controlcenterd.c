@@ -57,6 +57,8 @@ struct ihs_fpga {
 	u32 versions;		/* 0x0004 */
 	u32 fpga_version;	/* 0x0008 */
 	u32 fpga_features;	/* 0x000c */
+	u32 reserved[4];	/* 0x0010 */
+	u32 control;		/* 0x0020 */
 };
 
 #ifndef CONFIG_TRAILBLAZER
@@ -383,6 +385,9 @@ static void hydra_initialize(void)
 		/* read FPGA details */
 		fpga = pci_map_bar(devno, PCI_BASE_ADDRESS_0,
 			PCI_REGION_MEM);
+
+		/* disable sideband clocks */
+		writel(1, &fpga->control);
 
 		versions = readl(&fpga->versions);
 		fpga_version = readl(&fpga->fpga_version);

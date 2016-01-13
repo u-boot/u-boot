@@ -77,7 +77,7 @@ int drv_keyboard_init(void)
 	int error;
 	struct stdio_dev dev = {
 		.name	= "button",
-		.flags	= DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM,
+		.flags	= DEV_FLAGS_INPUT,
 		.start	= novena_gpio_button_init,
 		.getc	= novena_gpio_button_getc,
 		.tstc	= novena_gpio_button_tstc,
@@ -88,6 +88,7 @@ int drv_keyboard_init(void)
 		debug("%s: Cannot set up input\n", __func__);
 		return -1;
 	}
+	input_add_tables(&button_input, false);
 	button_input.read_keys = novena_gpio_button_read_keys;
 
 	error = input_stdio_register(&dev);
@@ -215,7 +216,7 @@ int power_init_board(void)
 	/* Set SWBST to 5.0V and enable (for USB) */
 	pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
 	reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
-	reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+	reg |= (SWBST_5_00V | (SWBST_MODE_AUTO << SWBST_MODE_SHIFT));
 	pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
 
 	return 0;

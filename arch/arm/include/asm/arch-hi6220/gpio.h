@@ -21,7 +21,7 @@ struct gpio_bank {
 /* Information about a GPIO bank */
 struct hikey_gpio_platdata {
 	int bank_index;
-	unsigned int base;     /* address of registers in physical memory */
+	ulong base;     /* address of registers in physical memory */
 };
 
 #endif /* _HI6220_GPIO_H_ */

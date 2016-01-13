@@ -10,8 +10,10 @@
 #include <dt-bindings/interrupt-router/intel-irq.h>
 
 /include/ "skeleton.dtsi"
+/include/ "keyboard.dtsi"
 /include/ "serial.dtsi"
 /include/ "rtc.dtsi"
+/include/ "tsc_timer.dtsi"
 
 / {
 	model = "Intel Bayley Bay";
@@ -68,9 +70,15 @@
 		#size-cells = <0>;
 		compatible = "intel,ich-spi";
 		spi-flash@0 {
+			#address-cells = <1>;
+			#size-cells = <1>;
 			reg = <0>;
 			compatible = "winbond,w25q64dw", "spi-flash";
 			memory-map = <0xff800000 0x00800000>;
+			rw-mrc-cache {
+				label = "rw-mrc-cache";
+				reg = <0x006e0000 0x00010000>;
+			};
 		};
 	};
 

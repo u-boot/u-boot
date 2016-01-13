@@ -42,6 +42,10 @@ At present three RK3288 boards are supported:
    - Radxa Rock 2 - also uses firefly-rk3288 configuration
    - Haier Chromebook - use chromebook_jerry configuration
 
+one RK3036 board is support:
+
+   - EVB RK3036 - use evb-rk3036_defconfig configuration
+
 For example:
 
    CROSS_COMPILE=arm-linux-gnueabi- make O=firefly firefly-rk3288_defconfig all
@@ -67,7 +71,7 @@ Connect your board's OTG port to your computer.
 
 To create a suitable image and write it to the board:
 
-   ./firefly-rk3288/tools/mkimage -T rkimage -d \
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rkimage -d \
 	./firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
    cat out | openssl rc4 -K 7c4e0304550509072d2c7b38170d1711 | rkflashtool l
 
@@ -90,7 +94,7 @@ Booting from an SD card
 
 To write an image that boots from an SD card (assumed to be /dev/sdc):
 
-   ./firefly-rk3288/tools/mkimage -T rksd -d \
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
 	firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
    sudo dd if=out of=/dev/sdc seek=64 && \
    sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=256
@@ -118,15 +122,23 @@ something like:
    Err:   serial@ff690000
    =>
 
+For evb_rk3036 board:
+	./evb-rk3036/tools/mkimage -n rk3036 -T rksd  -d evb-rk3036/spl/u-boot-spl.bin out && \
+	cat evb-rk3036/u-boot-dtb.bin >> out && \
+	sudo dd if=out of=/dev/sdc seek=64
+
+Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the
+      debug uart must be disabled
 
 Booting from SPI
 ================
 
 To write an image that boots from SPI flash (e.g. for the Haier Chromebook):
 
-   ./chromebook_jerry/tools/mkimage -T rkspi -d chromebook_jerry/spl/u-boot-spl-dtb.bin out
-   dd if=spl.bin of=out.bin bs=128K conv=sync
-   cat chromebook_jerry/u-boot-dtb.img out.bin
+   ./chromebook_jerry/tools/mkimage -n rk3288 -T rkspi \
+	-d chromebook_jerry/spl/u-boot-spl-dtb.bin spl.bin && \
+   dd if=spl.bin of=spl-out.bin bs=128K conv=sync && \
+   cat spl-out.bin chromebook_jerry/u-boot-dtb.img >out.bin && \
    dd if=out.bin of=out.bin.pad bs=4M conv=sync
 
 This converts the SPL image to the required SPI format by adding the Rockchip

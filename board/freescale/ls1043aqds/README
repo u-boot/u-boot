@@ -1,0 +1,96 @@
+Overview
+--------
+The LS1043A Development System (QDS) is a high-performance computing,
+evaluation, and development platform that supports the QorIQ LS1043A
+LayerScape Architecture processor. The LS1043AQDS provides SW development
+platform for the Freescale LS1043A processor series, with a complete
+debugging environment.
+
+LS1043A SoC Overview
+--------------------
+The LS1043A integrated multicore processor combines four ARM Cortex-A53
+processor cores with datapath acceleration optimized for L2/3 packet
+processing, single pass security offload and robust traffic management
+and quality of service.
+
+The LS1043A SoC includes the following function and features:
+ - Four 64-bit ARM Cortex-A53 CPUs
+ - 1 MB unified L2 Cache
+ - One 32-bit DDR3L/DDR4 SDRAM memory controllers with ECC and interleaving
+   support
+ - Data Path Acceleration Architecture (DPAA) incorporating acceleration the
+   the following functions:
+   - Packet parsing, classification, and distribution (FMan)
+   - Queue management for scheduling, packet sequencing, and congestion
+     management (QMan)
+   - Hardware buffer management for buffer allocation and de-allocation (BMan)
+   - Cryptography acceleration (SEC)
+ - Ethernet interfaces by FMan
+   - Up to 1 x XFI supporting 10G interface
+   - Up to 1 x QSGMII
+   - Up to 4 x SGMII supporting 1000Mbps
+   - Up to 2 x SGMII supporting 2500Mbps
+   - Up to 2 x RGMII supporting 1000Mbps
+ - High-speed peripheral interfaces
+   - Three PCIe 2.0 controllers, one supporting x4 operation
+   - One serial ATA (SATA 3.0) controllers
+ - Additional peripheral interfaces
+   - Three high-speed USB 3.0 controllers with integrated PHY
+   - Enhanced secure digital host controller (eSDXC/eMMC)
+   - Quad Serial Peripheral Interface (QSPI) Controller
+   - Serial peripheral interface (SPI) controller
+   - Four I2C controllers
+   - Two DUARTs
+   - Integrated flash controller supporting NAND and NOR flash
+ - QorIQ platform's trust architecture 2.1
+
+ LS1043AQDS board Overview
+ -----------------------
+ - SERDES Connections, 4 lanes supporting:
+      - PCI Express - 3.0
+      - SGMII, SGMII 2.5
+      - QSGMII
+      - SATA 3.0
+      - XFI
+ - DDR Controller
+     - 2GB 40bits (8-bits ECC) DDR4 SDRAM. Support rates of up to 1600MT/s
+ -IFC/Local Bus
+    - One in-socket 128 MB NOR flash 16-bit data bus
+    - One 512 MB NAND flash with ECC support
+    - PromJet Port
+    - FPGA connection
+ - USB 3.0
+    - Three high speed USB 3.0 ports
+    - First USB 3.0 port configured as Host with Type-A connector
+    - The other two USB 3.0 ports configured as OTG with micro-AB connector
+ - SDHC port connects directly to an adapter card slot, featuring:
+    - Optional clock feedback paths, and optional high-speed voltage translation assistance
+    - SD slots for SD, SDHC (1x, 4x, 8x), and/or MMC
+    - eMMC memory devices
+ - DSPI: Onboard support for three SPI flash memory devices
+ - 4 I2C controllers
+ - One SATA onboard connectors
+ - UART
+   - Two 4-pin serial ports at up to 115.2 Kbit/s
+   - Two DB9 D-Type connectors supporting one Serial port each
+ - ARM JTAG support
+
+Memory map from core's view
+----------------------------
+Start Address	End Address	Description		Size
+0x00_0000_0000	0x00_000F_FFFF	Secure Boot ROM		1MB
+0x00_0100_0000	0x00_0FFF_FFFF	CCSRBAR			240MB
+0x00_1000_0000	0x00_1000_FFFF	OCRAM0			64KB
+0x00_1001_0000	0x00_1001_FFFF	OCRAM1			64KB
+0x00_2000_0000	0x00_20FF_FFFF	DCSR			16MB
+0x00_6000_0000	0x00_67FF_FFFF	IFC - NOR Flash		128MB
+0x00_7E80_0000	0x00_7E80_FFFF	IFC - NAND Flash	64KB
+0x00_7FB0_0000	0x00_7FB0_0FFF	IFC - FPGA		4KB
+0x00_8000_0000	0x00_FFFF_FFFF	DRAM1			2GB
+
+Booting Options
+---------------
+a) Promjet Boot
+b) NOR boot
+c) NAND boot
+d) SD boot

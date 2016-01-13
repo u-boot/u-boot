@@ -98,9 +98,4 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	mem_init();
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	board_init_r(NULL, 0);
 }

@@ -17,6 +17,7 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
+#define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_OMAP			/* in a TI OMAP core */
 #define CONFIG_OMAP_COMMON
 /* Common ARM Erratas */
@@ -38,7 +39,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO
@@ -86,7 +86,6 @@
 #define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 2)
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000 /* 48MHz (APLL96/2) */
@@ -113,7 +112,6 @@
  
 
 /* EEPROM */
-#define CONFIG_SYS_I2C_MULTI_EEPROMS
 #define CONFIG_CMD_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #define CONFIG_SYS_EEPROM_BUS_NUM	1

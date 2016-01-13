@@ -8,6 +8,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <console.h>
 #include <image.h>
 #include <malloc.h>
 #include <u-boot/zlib.h>

@@ -44,13 +44,18 @@ enum {
 #endif
 	SECT_32K	= 1 << 1,
 	E_FSR		= 1 << 2,
-	SST_BP		= 1 << 3,
-	SST_WP		= 1 << 4,
-	WR_QPP		= 1 << 5,
+	SST_WP		= 1 << 3,
+	WR_QPP		= 1 << 4,
+	SST_BP		= 1 << 5,
 	SST_LOCKBP	= 1 << 6,
 };
 
 #define SST_WR		(SST_BP | SST_WP)
+
+enum spi_nor_option_flags {
+	SNOR_F_SST_WR		= (1 << 0),
+	SNOR_F_USE_FSR		= (1 << 1),
+};
 
 #define SPI_FLASH_3B_ADDR_LEN		3
 #define SPI_FLASH_CMD_LEN		(1 + SPI_FLASH_3B_ADDR_LEN)
@@ -60,7 +65,9 @@ enum {
 #define SPI_FLASH_CFI_MFR_SPANSION	0x01
 #define SPI_FLASH_CFI_MFR_STMICRO	0x20
 #define SPI_FLASH_CFI_MFR_MACRONIX	0xc2
+#define SPI_FLASH_CFI_MFR_SST		0xbf
 #define SPI_FLASH_CFI_MFR_WINBOND	0xef
+#define SPI_FLASH_CFI_MFR_ATMEL		0x1f
 #define SPI_FLASH_CFI_MFR_ISSI		0x9d
 
 #define SPI_FLASH_SPANSION_S25FS_FMLY	0x81
@@ -107,6 +114,9 @@ enum {
 #define STATUS_QEB_WINSPAN		(1 << 1)
 #define STATUS_QEB_MXIC		(1 << 6)
 #define STATUS_PEC			(1 << 7)
+#define SR_BP0				BIT(2)  /* Block protect 0 */
+#define SR_BP1				BIT(3)  /* Block protect 1 */
+#define SR_BP2				BIT(4)  /* Block protect 2 */
 
 /* Flash timeout values */
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
@@ -170,17 +180,14 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 /* Flash erase(sectors) operation, support all possible erase commands */
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 
-/* Read the status register */
-int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs);
+/* Lock stmicro spi flash region */
+int stm_lock(struct spi_flash *flash, u32 ofs, size_t len);
 
-/* Program the status register */
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws);
+/* Unlock stmicro spi flash region */
+int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len);
 
-/* Read the config register */
-int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc);
-
-/* Program the config register */
-int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc);
+/* Check if a stmicro spi flash region is completely locked */
+int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len);
 
 /* Enable writing on the SPI flash */
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
@@ -195,12 +202,6 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 }
 
 int spi_flash_cmd_bp_unlock(struct spi_flash *flash);
-
-/*
- * Send the read status command to the device and wait for the wip
- * (write-in-progress) bit to clear itself.
- */
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout);
 
 /*
  * Used for spi_flash write operation
@@ -239,5 +240,17 @@ int spi_flash_cmd_4B_addr_switch(struct spi_flash *flash,
 int spi_flash_mtd_register(struct spi_flash *flash);
 void spi_flash_mtd_unregister(void);
 #endif
+
+/**
+ * spi_flash_scan - scan the SPI FLASH
+ * @flash:	the spi flash structure
+ *
+ * The drivers can use this fuction to scan the SPI FLASH.
+ * In the scanning, it will try to get all the necessary information to
+ * fill the spi_flash{}.
+ *
+ * Return: 0 for success, others for failure.
+ */
+int spi_flash_scan(struct spi_flash *flash);
 
 #endif /* _SF_INTERNAL_H_ */

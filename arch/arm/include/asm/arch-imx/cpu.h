@@ -27,6 +27,18 @@
 #define MXC_SOC_MX6		0x60
 #define MXC_SOC_MX7		0x70
 
+#define CHIP_REV_1_0            0x10
+#define CHIP_REV_1_1            0x11
+#define CHIP_REV_1_2            0x12
+#define CHIP_REV_1_5            0x15
+#define CHIP_REV_2_0            0x20
+#define CHIP_REV_2_5            0x25
+#define CHIP_REV_3_0            0x30
+
+#define BOARD_REV_1_0           0x0
+#define BOARD_REV_2_0           0x1
+#define BOARD_VER_OFFSET        0x8
+
 #define CS0_128					0
 #define CS0_64M_CS1_64M				1
 #define CS0_64M_CS1_32M_CS2_32M			2

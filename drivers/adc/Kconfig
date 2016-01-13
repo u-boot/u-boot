@@ -1,0 +1,30 @@
+config ADC
+	bool "Enable ADC drivers using Driver Model"
+	help
+	  This enables ADC API for drivers, which allows driving ADC features
+	  by single and multi-channel methods for:
+	  - start/stop/get data for conversion of a single-channel selected by
+	    a number or multi-channels selected by a bitmask
+	  - get data mask (ADC resolution)
+	  ADC reference Voltage supply options:
+	  - methods for get Vdd/Vss reference Voltage values with polarity
+	  - support supply's phandle with auto-enable
+	  - supply polarity setting in fdt
+
+config ADC_EXYNOS
+	bool "Enable Exynos 54xx ADC driver"
+	help
+	  This enables basic driver for Exynos ADC compatible with Exynos54xx.
+	  It provides:
+	  - 10 analog input channels
+	  - 12-bit resolution
+	  - 600 KSPS of sample rate
+
+config ADC_SANDBOX
+	bool "Enable Sandbox ADC test driver"
+	help
+	  This enables driver for Sandbox ADC device emulation.
+	  It provides:
+	  - 4 analog input channels
+	  - 16-bit resolution
+	  - single and multi-channel conversion mode

@@ -67,6 +67,9 @@ config TARGET_TQM834X
 config TARGET_HRCON
 	bool "Support hrcon"
 
+config TARGET_STRIDER
+	bool "Support strider"
+
 endchoice
 
 source "board/esd/vme8349/Kconfig"

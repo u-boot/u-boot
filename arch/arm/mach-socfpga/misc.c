@@ -54,14 +54,23 @@ void enable_caches(void)
 
 void v7_outer_cache_enable(void)
 {
-	/* disable the L2 cache */
-	writel(0, &pl310->pl310_ctrl);
+	/* Disable the L2 cache */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 
 	/* enable BRESP, instruction and data prefetch, full line of zeroes */
 	setbits_le32(&pl310->pl310_aux_ctrl,
 		     L310_AUX_CTRL_DATA_PREFETCH_MASK |
 		     L310_AUX_CTRL_INST_PREFETCH_MASK |
 		     L310_SHARED_ATT_OVERRIDE_ENABLE);
+
+	/* Enable the L2 cache */
+	setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
+
+void v7_outer_cache_disable(void)
+{
+	/* Disable the L2 cache */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }
 
 /*
@@ -127,17 +136,6 @@ int cpu_eth_init(bd_t *bis)
 	}
 
 	return 0;
-}
-#endif
-
-#ifdef CONFIG_DWMMC
-/*
- * Initializes MMC controllers.
- * to override, implement board_mmc_init()
- */
-int cpu_mmc_init(bd_t *bis)
-{
-	return socfpga_dwmmc_init(gd->fdt_blob);
 }
 #endif
 
@@ -359,6 +357,10 @@ int arch_early_init_r(void)
 	/* Get Designware SPI controller out of reset */
 	socfpga_per_reset(SOCFPGA_RESET(SPIM0), 0);
 	socfpga_per_reset(SOCFPGA_RESET(SPIM1), 0);
+#endif
+
+#ifdef CONFIG_NAND_DENALI
+	socfpga_per_reset(SOCFPGA_RESET(NAND), 0);
 #endif
 
 	return 0;

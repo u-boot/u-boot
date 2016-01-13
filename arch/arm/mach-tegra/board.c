@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -211,6 +213,18 @@ void board_init_uart_f(void)
 #endif
 	setup_uarts(uart_ids);
 }
+
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
+static struct ns16550_platdata ns16550_com1_pdata = {
+	.base = CONFIG_SYS_NS16550_COM1,
+	.reg_shift = 2,
+	.clock = CONFIG_SYS_NS16550_CLK,
+};
+
+U_BOOT_DEVICE(ns16550_com1) = {
+	"ns16550_serial", &ns16550_com1_pdata
+};
+#endif
 
 #if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)

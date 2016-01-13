@@ -21,6 +21,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <membuff.h>
 #include <linux/list.h>
 
 typedef struct global_data {
@@ -58,6 +59,20 @@ typedef struct global_data {
 
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t ram_size;	/* RAM size */
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#define MEM_RESERVE_SECURE_SECURED	0x1
+#define MEM_RESERVE_SECURE_MAINTAINED	0x2
+#define MEM_RESERVE_SECURE_ADDR_MASK	(~0x3)
+	/*
+	 * Secure memory addr
+	 * This variable needs maintenance if the RAM base is not zero,
+	 * or if RAM splits into non-consecutive banks. It also has a
+	 * flag indicating the secure memory is marked as secure by MMU.
+	 * Flags used: 0x1 secured
+	 *             0x2 maintained
+	 */
+	phys_addr_t secure_ram;
+#endif
 	unsigned long mon_len;	/* monitor len */
 	unsigned long irq_sp;		/* irq stack pointer */
 	unsigned long start_addr_sp;	/* start_addr_stackpointer */
@@ -68,6 +83,9 @@ typedef struct global_data {
 	struct udevice	*dm_root;	/* Root instance for Driver Model */
 	struct udevice	*dm_root_f;	/* Pre-relocation root instance */
 	struct list_head uclass_root;	/* Head of core tree */
+#endif
+#ifdef CONFIG_TIMER
+	struct udevice	*timer;	/* Timer instance for Driver Model */
 #endif
 
 	const void *fdt_blob;	/* Our device tree, NULL if none */
@@ -100,6 +118,10 @@ typedef struct global_data {
 #endif
 	struct udevice *cur_serial_dev;	/* current serial device */
 	struct arch_global_data arch;	/* architecture-specific data */
+#ifdef CONFIG_CONSOLE_RECORD
+	struct membuff console_out;	/* console output */
+	struct membuff console_in;	/* console input */
+#endif
 } gd_t;
 #endif
 
@@ -118,5 +140,6 @@ typedef struct global_data {
 #define GD_FLG_FULL_MALLOC_INIT	0x00200	/* Full malloc() is ready	   */
 #define GD_FLG_SPL_INIT		0x00400	/* spl_init() has been called	   */
 #define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate */
+#define GD_FLG_RECORD		0x01000	/* Record console */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

@@ -12,6 +12,7 @@
 #include <common.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <errno.h>
 #include <spl.h>
 
 #ifdef CONFIG_SPL_OS_BOOT
@@ -48,8 +49,9 @@ static int spi_load_image_os(struct spi_flash *flash,
  * configured and available since this code loads the main U-Boot image
  * from SPI into SDRAM and starts it from there.
  */
-void spl_spi_load_image(void)
+int spl_spi_load_image(void)
 {
+	int err = 0;
 	struct spi_flash *flash;
 	struct image_header *header;
 
@@ -63,7 +65,7 @@ void spl_spi_load_image(void)
 				CONFIG_SF_DEFAULT_MODE);
 	if (!flash) {
 		puts("SPI probe failed.\n");
-		hang();
+		return -ENODEV;
 	}
 
 	/* use CONFIG_SYS_TEXT_BASE as temporary storage area */
@@ -74,10 +76,15 @@ void spl_spi_load_image(void)
 #endif
 	{
 		/* Load u-boot, mkimage header is 64 bytes. */
-		spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40,
-			       (void *)header);
+		err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40,
+				     (void *)header);
+		if (err)
+			return err;
+
 		spl_parse_image_header(header);
-		spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,
+		err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,
 			       spl_image.size, (void *)spl_image.load_addr);
 	}
+
+	return err;
 }

@@ -51,7 +51,7 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 		goto err_out;
 
 	cmd.cmdidx = MMC_CMD_ERASE;
-	cmd.cmdarg = SECURE_ERASE;
+	cmd.cmdarg = MMC_ERASE_ARG;
 	cmd.resp_type = MMC_RSP_R1b;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);

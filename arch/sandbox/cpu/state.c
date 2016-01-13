@@ -337,6 +337,20 @@ struct sandbox_state *state_get_current(void)
 	return state;
 }
 
+void state_set_skip_delays(bool skip_delays)
+{
+	struct sandbox_state *state = state_get_current();
+
+	state->skip_delays = skip_delays;
+}
+
+bool state_get_skip_delays(void)
+{
+	struct sandbox_state *state = state_get_current();
+
+	return state->skip_delays;
+}
+
 int state_init(void)
 {
 	state = &main_state;

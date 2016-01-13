@@ -43,13 +43,18 @@ int print_cpuinfo(void)
 	case 0x2F:
 		puts("PH1-LD6b (MN2WS0320)");
 		break;
+	case 0x31:
+		puts("PH1-sLD11 ()");
+		break;
+	case 0x32:
+		puts("PH1-LD10 ()");
+		break;
 	default:
 		printf("Unknown Processor ID (0x%x)\n", revision);
 		return -1;
 	}
 
-	if (model > 1)
-		printf(" model %d", model);
+	printf(" model %d", model);
 
 	printf(" (rev. %d)\n", rev);
 

@@ -114,6 +114,16 @@ config SPL
 	help
 	  If you want to build SPL as well as the normal image, say Y.
 
+config SPL_SYS_MALLOC_SIMPLE
+	bool
+	depends on SPL
+	prompt "Only use malloc_simple functions in the spl"
+	help
+	  Say Y here to only use the *_simple malloc functions from
+	  malloc_simple.c, rather then using the versions from dlmalloc.c
+	  this will make the SPL binary smaller at the cost of more heap
+	  usage as the *_simple malloc functions do not re-use free-ed mem.
+
 config SPL_STACK_R
 	depends on SPL
 	bool "Enable SDRAM location for SPL stack"
@@ -131,6 +141,26 @@ config SPL_STACK_R_ADDR
 	help
 	  Specify the address in SDRAM for the SPL stack. This will be set up
 	  before board_init_r() is called.
+
+config SPL_STACK_R_MALLOC_SIMPLE_LEN
+	depends on SPL_STACK_R && SPL_SYS_MALLOC_SIMPLE
+	hex "Size of malloc_simple heap after switching to DRAM SPL stack"
+	default 0x100000
+	help
+	  Specify the amount of the stack to use as memory pool for
+	  malloc_simple after switching the stack to DRAM. This may be set
+	  to give board_init_r() a larger heap then the initial heap in
+	  SRAM which is limited to SYS_MALLOC_F_LEN bytes.
+
+config SPL_SEPARATE_BSS
+	depends on SPL
+	bool "BSS section is in a different memory region from text"
+	help
+	  Some platforms need a large BSS region in SPL and can provide this
+	  because RAM is already set up. In this case BSS can be moved to RAM.
+	  This option should then be enabled so that the correct device tree
+	  location is used. Normally we put the device tree at the end of BSS
+	  but with this option enabled, it goes at _image_binary_end.
 
 config TPL
 	bool

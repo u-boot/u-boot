@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <fdt_support.h>
 #include <malloc.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
@@ -394,7 +395,7 @@ void *dev_get_uclass_priv(struct udevice *dev)
 	return dev->uclass_priv;
 }
 
-void *dev_get_parentdata(struct udevice *dev)
+void *dev_get_parent_priv(struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
@@ -585,6 +586,25 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr;
 
+	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {
+		const fdt32_t *reg;
+
+		reg = fdt_getprop(gd->fdt_blob, dev->of_offset, "reg", NULL);
+		if (!reg)
+			return FDT_ADDR_T_NONE;
+
+		/*
+		 * Use the full-fledged translate function for complex
+		 * bus setups.
+		 */
+		return fdt_translate_address((void *)gd->fdt_blob,
+					     dev->of_offset, reg);
+	}
+
+	/*
+	 * Use the "simple" translate function for less complex
+	 * bus setups.
+	 */
 	addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 						dev->parent->of_offset,
 						dev->of_offset, "reg",

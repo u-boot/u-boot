@@ -177,6 +177,11 @@
 		sides = <4>;
 	};
 
+	timer {
+		compatible = "sandbox,timer";
+		clock-frequency = <1000000>;
+	};
+
 	tpm {
 		compatible = "google,sandbox-tpm";
 	};

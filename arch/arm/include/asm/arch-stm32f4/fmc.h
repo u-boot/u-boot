@@ -3,7 +3,7 @@
  * Pavel Boldin, Emcraft Systems, paboldin@emcraft.com
  *
  * (C) Copyright 2015
- * Kamil Lulko, <rev13@wp.pl>
+ * Kamil Lulko, <kamil.lulko@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

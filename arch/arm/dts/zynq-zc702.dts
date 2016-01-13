@@ -18,6 +18,7 @@
 		i2c0 = &i2c0;
 		serial0 = &uart1;
 		spi0 = &qspi;
+		mmc0 = &sdhci0;
 	};
 
 	memory {
@@ -27,8 +28,7 @@
 
 	chosen {
 		bootargs = "earlyprintk";
-		linux,stdout-path = &uart1;
-		stdout-path = &uart1;
+		stdout-path = "serial0:115200n8";
 	};
 
 	gpio-keys {
@@ -427,15 +427,22 @@
 };
 
 &sdhci0 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci0_default>;
 };
 
 &uart1 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1_default>;
+};
+
+&qspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
 };
 
 &usb0 {

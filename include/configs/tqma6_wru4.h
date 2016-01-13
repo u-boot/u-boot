@@ -38,7 +38,6 @@
 #define CONFIG_SYS_RTC_DS1337_NOOSC
 #define CONFIG_CMD_DATE
 
-#define CONFIG_CMD_GPIO
 
 /* LED */
 #define CONFIG_CMD_LED

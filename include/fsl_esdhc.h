@@ -25,10 +25,12 @@
 #define SYSCTL_INITA		0x08000000
 #define SYSCTL_TIMEOUT_MASK	0x000f0000
 #define SYSCTL_CLOCK_MASK	0x0000fff0
+#if !defined(CONFIG_FSL_USDHC)
 #define SYSCTL_CKEN		0x00000008
 #define SYSCTL_PEREN		0x00000004
 #define SYSCTL_HCKEN		0x00000002
 #define SYSCTL_IPGEN		0x00000001
+#endif
 #define SYSCTL_RSTA		0x01000000
 #define SYSCTL_RSTC		0x02000000
 #define SYSCTL_RSTD		0x04000000
@@ -166,7 +168,7 @@
 #define ESDHC_VENDORSPEC_VSELECT 0x00000002 /* Use 1.8V */
 
 struct fsl_esdhc_cfg {
-#ifdef CONFIG_LS2085A
+#ifdef CONFIG_FSL_LAYERSCAPE
 	u64	esdhc_base;
 #else
 	u32	esdhc_base;

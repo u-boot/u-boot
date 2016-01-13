@@ -35,8 +35,6 @@
 /*
  * UART configuration
  */
-#define CONFIG_DW_SERIAL
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		166666666
 #define CONFIG_BAUDRATE			115200
@@ -44,7 +42,6 @@
 /*
  * Ethernet PHY configuration
  */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_GIGE
 
 /*
@@ -69,7 +66,6 @@
  * Command line configuration
  */
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_PING
 
 #define CONFIG_OF_LIBFDT

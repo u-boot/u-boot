@@ -144,7 +144,7 @@ static int spi_post_probe(struct udevice *bus)
 static int spi_child_pre_probe(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
-	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	/*
 	 * This is needed because we pass struct spi_slave around the place
@@ -302,7 +302,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		ret = device_probe(dev);
 		if (ret)
 			goto err;
-		slave = dev_get_parentdata(dev);
+		slave = dev_get_parent_priv(dev);
 		slave->dev = dev;
 	}
 
@@ -311,7 +311,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		goto err;
 
 	*busp = bus;
-	*devp = dev_get_parentdata(dev);
+	*devp = dev_get_parent_priv(dev);
 	debug("%s: bus=%p, slave=%p\n", __func__, bus, *devp);
 
 	return 0;
@@ -340,7 +340,7 @@ struct spi_slave *spi_setup_slave_fdt(const void *blob, int node,
 	ret = device_get_child_by_of_offset(bus, node, &dev);
 	if (ret)
 		return NULL;
-	return dev_get_parentdata(dev);
+	return dev_get_parent_priv(dev);
 }
 
 /* Compatibility function - to be removed */
@@ -378,6 +378,8 @@ int spi_slave_ofdata_to_platdata(const void *blob, int node,
 		mode |= SPI_CPHA;
 	if (fdtdec_get_bool(blob, node, "spi-cs-high"))
 		mode |= SPI_CS_HIGH;
+	if (fdtdec_get_bool(blob, node, "spi-3wire"))
+		mode |= SPI_3WIRE;
 	if (fdtdec_get_bool(blob, node, "spi-half-duplex"))
 		mode |= SPI_PREAMBLE;
 	plat->mode = mode;

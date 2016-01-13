@@ -11,6 +11,7 @@
 #include <linux/compiler.h>
 #include <asm/fsl_law.h>
 #include <asm/io.h>
+#include <linux/log2.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -187,7 +188,7 @@ int set_ddr_laws(u64 start, u64 sz, enum law_trgt_if id)
 	if (start == 0)
 		start_align = 1ull << (LAW_SIZE_32G + 1);
 	else
-		start_align = 1ull << (ffs64(start) - 1);
+		start_align = 1ull << (__ffs64(start) - 1);
 	law_sz = min(start_align, sz);
 	law_sz_enc = __ilog2_u64(law_sz) - 1;
 
@@ -202,7 +203,7 @@ int set_ddr_laws(u64 start, u64 sz, enum law_trgt_if id)
 	if (sz) {
 		start += law_sz;
 
-		start_align = 1ull << (ffs64(start) - 1);
+		start_align = 1ull << (__ffs64(start) - 1);
 		law_sz = min(start_align, sz);
 		law_sz_enc = __ilog2_u64(law_sz) - 1;
 

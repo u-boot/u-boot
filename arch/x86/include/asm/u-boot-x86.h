@@ -29,7 +29,7 @@ typedef void (timer_fnc_t) (void);
 int register_timer_isr (timer_fnc_t *isr_func);
 unsigned long get_tbclk_mhz(void);
 void timer_set_base(uint64_t base);
-int pcat_timer_init(void);
+int i8254_init(void);
 
 /* cpu/.../interrupts.c */
 int cpu_init_interrupts(void);

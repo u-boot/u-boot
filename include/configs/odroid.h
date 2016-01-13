@@ -194,7 +194,6 @@
 #define CONFIG_EXYNOS_ACE_SHA
 #define CONFIG_LIB_HW_RAND
 
-#define CONFIG_CMD_GPIO
 
 /* USB */
 #define CONFIG_CMD_USB

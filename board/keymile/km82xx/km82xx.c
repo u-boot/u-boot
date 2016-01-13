@@ -11,10 +11,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#endif
-
 #include <i2c.h>
 #include "../common/common.h"
 
@@ -332,8 +329,8 @@ int last_stage_init(void)
 
 	dip_switch = in_8(&base->mswitch);
 	dip_switch &= BFTICU_DIPSWITCH_MASK;
-	/* dip switch 'full reset' or 'db erase' */
-	if (dip_switch & 0x1 || dip_switch & 0x2) {
+	/* dip switch 'full reset' or 'db erase' or 'Local mgmt IP' or any */
+	if (dip_switch != 0) {
 		/* start bootloader */
 		puts("DIP:   Enabled\n");
 		setenv("actual_bank", "0");
@@ -343,7 +340,7 @@ int last_stage_init(void)
 }
 
 #ifdef CONFIG_MGCOGE3NE
-static void set_pin(int state, unsigned long mask);
+static void set_pin(int state, unsigned long mask, int port);
 
 /*
  * For mgcoge3ne boards, the mgcoge3un control is controlled from
@@ -357,11 +354,11 @@ static void handle_mgcoge3un_reset(void)
 	if (bobcatreset) {
 		if (strcmp(bobcatreset, "true") == 0) {
 			puts("Forcing bobcat reset\n");
-			set_pin(0, 0x00000004);	/* clear PD29 to reset arm */
+			set_pin(0, 0x00000004, 3); /* clear PD29 (reset arm) */
 			udelay(1000);
-			set_pin(1, 0x00000004);
+			set_pin(1, 0x00000004, 3);
 		} else
-			set_pin(1, 0x00000004);	/* set PD29 to not reset arm */
+			set_pin(1, 0x00000004, 3); /* don't reset arm */
 	}
 }
 #endif
@@ -410,9 +407,9 @@ int hush_init_var(void)
 #define SDA_MASK	0x00010000
 #define SCL_MASK	0x00020000
 
-static void set_pin(int state, unsigned long mask)
+static void set_pin(int state, unsigned long mask, int port)
 {
-	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
+	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, port);
 
 	if (state)
 		setbits_be32(&iop->pdat, mask);
@@ -422,9 +419,9 @@ static void set_pin(int state, unsigned long mask)
 	setbits_be32(&iop->pdir, mask);
 }
 
-static int get_pin(unsigned long mask)
+static int get_pin(unsigned long mask, int port)
 {
-	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
+	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, port);
 
 	clrbits_be32(&iop->pdir, mask);
 	return 0 != (in_be32(&iop->pdat) & mask);
@@ -432,44 +429,36 @@ static int get_pin(unsigned long mask)
 
 void set_sda(int state)
 {
-	set_pin(state, SDA_MASK);
+	set_pin(state, SDA_MASK, 3);
 }
 
 void set_scl(int state)
 {
-	set_pin(state, SCL_MASK);
+	set_pin(state, SCL_MASK, 3);
 }
 
 int get_sda(void)
 {
-	return get_pin(SDA_MASK);
+	return get_pin(SDA_MASK, 3);
 }
 
 int get_scl(void)
 {
-	return get_pin(SCL_MASK);
+	return get_pin(SCL_MASK, 3);
 }
 
-#if defined(CONFIG_HARD_I2C)
-static void setports(int gpio)
-{
-	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
-
-	if (gpio) {
-		clrbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
-		clrbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
-	} else {
-		setbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
-		clrbits_be32(&iop->pdir, (SDA_MASK | SCL_MASK));
-		setbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
-	}
-}
-#endif
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
+
+#if defined(CONFIG_MGCOGE3NE)
+int get_testpin(void)
+{
+	/* Testpin is Port C pin 29 - enable = low */
+	int testpin = !get_pin(0x00000004, 2);
+	return testpin;
+}
+#endif

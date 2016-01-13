@@ -98,10 +98,19 @@ int board_init(void)
 	return 0;
 }
 
+/*
+ * Routine: get_board_rev
+ * Description: read system revision
+ */
+u32 get_board_rev(void)
+{
+	return cl_eeprom_get_board_rev(CONFIG_SYS_I2C_EEPROM_BUS);
+};
+
 int misc_init_r(void)
 {
 	cl_print_pcb_info();
-	dieid_num_r();
+	omap_die_id_display();
 
 	return 0;
 }

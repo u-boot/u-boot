@@ -103,7 +103,6 @@
 /*
  * U-Boot General Configurations
  */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_PBSIZE		\
@@ -154,7 +153,6 @@
  * GPIO
  */
 
-#define CONFIG_CMD_GPIO
 #define CONFIG_LPC32XX_GPIO
 
 /*

@@ -133,7 +133,6 @@
 /*
  * Serial Driver info
  */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4	/* NS16550 register size */
 #define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
@@ -142,8 +141,6 @@
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 
 #define CONFIG_SPI
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_CMD_SF
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
@@ -258,7 +255,6 @@
 /*
  * U-Boot general configuration
  */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */

@@ -12,6 +12,7 @@
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
 /include/ "rtc.dtsi"
+/include/ "tsc_timer.dtsi"
 
 / {
 	model = "Intel Minnowboard Max";
@@ -273,9 +274,15 @@
 		#size-cells = <0>;
 		compatible = "intel,ich-spi";
 		spi-flash@0 {
+			#address-cells = <1>;
+			#size-cells = <1>;
 			reg = <0>;
 			compatible = "stmicro,n25q064a", "spi-flash";
 			memory-map = <0xff800000 0x00800000>;
+			rw-mrc-cache {
+				label = "rw-mrc-cache";
+				reg = <0x006f0000 0x00010000>;
+			};
 		};
 	};
 

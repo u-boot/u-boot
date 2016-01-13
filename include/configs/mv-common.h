@@ -39,11 +39,12 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
+#if !defined(CONFIG_DM_SERIAL)
+#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_COM1		MV_UART_CONSOLE_BASE
+#endif
 
 /*
  * Serial Port configuration
@@ -122,13 +123,12 @@
  * Common SPI Flash configuration
  */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_MACRONIX	1
 #endif
 
 /*
  * Common USB/EHCI configuration
  */
-#ifdef CONFIG_CMD_USB
+#if defined(CONFIG_CMD_USB) && !defined(CONFIG_DM)
 #define CONFIG_USB_EHCI		/* Enable EHCI USB support */
 #define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION

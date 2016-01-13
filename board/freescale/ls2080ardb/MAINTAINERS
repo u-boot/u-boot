@@ -1,0 +1,10 @@
+LS2080A BOARD
+M:	Prabhakar Kushwaha <prabhakar@freescale.com>
+S:	Maintained
+F:	board/freescale/ls2080ardb/
+F:	board/freescale/ls2080a/ls2080ardb.c
+F:	include/configs/ls2080ardb.h
+F:	configs/ls2080ardb_defconfig
+F:	configs/ls2080ardb_nand_defconfig
+F:	configs/ls2085ardb_defconfig
+F:	configs/ls2085ardb_nand_defconfig

@@ -19,7 +19,7 @@
 
 int usb_ether_register(struct udevice *dev, struct ueth_data *ueth, int rxsize)
 {
-	struct usb_device *udev = dev_get_parentdata(dev);
+	struct usb_device *udev = dev_get_parent_priv(dev);
 	struct usb_interface_descriptor *iface_desc;
 	bool ep_in_found = false, ep_out_found = false;
 	struct usb_interface *iface;

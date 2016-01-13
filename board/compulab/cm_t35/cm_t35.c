@@ -64,6 +64,7 @@ struct splash_location splash_locations[] = {
 	{
 		.name = "nand",
 		.storage = SPLASH_STORAGE_NAND,
+		.flags = SPLASH_STORAGE_RAW,
 		.offset = 0x100000,
 	},
 };
@@ -110,7 +111,7 @@ u32 get_board_rev(void)
 int misc_init_r(void)
 {
 	cl_print_pcb_info();
-	dieid_num_r();
+	omap_die_id_display();
 
 	return 0;
 }

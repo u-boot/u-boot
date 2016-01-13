@@ -1,13 +1,17 @@
 /*
- * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <errno.h>
 #include <common.h>
 #include <asm/io.h>
-#include <asm/fsl_serdes.h>
 #include <fsl_mdio.h>
+#ifdef CONFIG_FSL_LAYERSCAPE
+#include <asm/arch/fsl_serdes.h>
+#else
+#include <asm/fsl_serdes.h>
+#endif
 
 #include "fm.h"
 
@@ -153,7 +157,9 @@ void fm_disable_port(enum fm_port port)
 		return;
 
 	fm_info[i].enabled = 0;
+#ifndef CONFIG_SYS_FMAN_V3
 	fman_disable_port(port);
+#endif
 }
 
 void fm_enable_port(enum fm_port port)
@@ -236,8 +242,10 @@ int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	int off;
 	uint32_t ph;
 	phys_addr_t paddr = CONFIG_SYS_CCSRBAR_PHYS + info->compat_offset;
+#ifndef CONFIG_SYS_FMAN_V3
 	u64 dtsec1_addr = (u64)CONFIG_SYS_CCSRBAR_PHYS +
 				CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET;
+#endif
 
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
 	if (off == -FDT_ERR_NOTFOUND)
@@ -289,8 +297,10 @@ int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	/* board code might have caused offset to change */
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
 
+#ifndef CONFIG_SYS_FMAN_V3
 	/* Don't disable FM1-DTSEC1 MAC as its used for MDIO */
 	if (paddr != dtsec1_addr)
+#endif
 		fdt_status_disabled(blob, off); /* disable the MAC node */
 
 	/* disable the fsl,dpa-ethernet node that points to the MAC */

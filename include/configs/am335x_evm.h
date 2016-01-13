@@ -18,6 +18,10 @@
 
 #include <configs/ti_am335x_common.h>
 
+/* Don't override the distro default bootdelay */
+#undef CONFIG_BOOTDELAY
+#include <config_distro_defaults.h>
+
 #ifndef CONFIG_SPL_BUILD
 #ifndef CONFIG_FIT
 # define CONFIG_FIT
@@ -66,6 +70,37 @@
 #endif
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
+#define BOOTENV_DEV_LEGACY_MMC(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=" \
+	"setenv mmcdev " #instance"; "\
+	"setenv bootpart " #instance":2 ; "\
+	"run mmcboot\0"
+
+#define BOOTENV_DEV_NAME_LEGACY_MMC(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
+
+#define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel "=" \
+	"run nandboot\0"
+
+#define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(LEGACY_MMC, legacy_mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(LEGACY_MMC, legacy_mmc, 1) \
+	func(NAND, nand, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#define CONFIG_BOOTCOMMAND \
+	"run findfdt; " \
+	"run distro_bootcmd"
+
+#include <config_distro_bootcmd.h>
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -151,7 +186,12 @@
 		"if test $board_name = A335BONE; then " \
 			"setenv fdtfile am335x-bone.dtb; fi; " \
 		"if test $board_name = A335BNLT; then " \
-			"setenv fdtfile am335x-boneblack.dtb; fi; " \
+			"if test $board_rev = BBG1; then " \
+				"setenv fdtfile am335x-bonegreen.dtb; " \
+			"else " \
+				"setenv fdtfile am335x-boneblack.dtb; " \
+			"fi; " \
+		"fi; " \
 		"if test $board_name = A33515BB; then " \
 			"setenv fdtfile am335x-evm.dtb; fi; " \
 		"if test $board_name = A335X_SK; then " \
@@ -160,16 +200,10 @@
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	NANDARGS \
 	NETARGS \
-	DFUARGS
+	DFUARGS \
+	BOOTENV
 #endif
 
-#define CONFIG_BOOTCOMMAND \
-	"run findfdt; " \
-	"run mmcboot;" \
-	"setenv mmcdev 1; " \
-	"setenv bootpart 1:2; " \
-	"run mmcboot;" \
-	"run nandboot;"
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
@@ -184,7 +218,6 @@
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-#define CONFIG_SYS_I2C_MULTI_EEPROMS
 
 /* PMIC support */
 #define CONFIG_POWER_TPS65217
@@ -309,15 +342,26 @@
 #endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
+/* Removing USB gadget and can be enabled adter adding support usb DM */
+#ifndef CONFIG_DM_ETH
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
+#endif /* CONFIG_DM_ETH */
 
 /* USB TI's IDs */
 #define CONFIG_G_DNL_VENDOR_NUM 0x0451
 #define CONFIG_G_DNL_PRODUCT_NUM 0xD022
 #define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
 #endif /* CONFIG_USB_MUSB_GADGET */
+
+/*
+ * Disable MMC DM for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_MMC
+#endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* Remove other SPL modes. */
@@ -424,7 +468,6 @@
 
 /* SPI flash. */
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */

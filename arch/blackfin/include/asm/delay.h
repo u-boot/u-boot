@@ -16,7 +16,7 @@
  * Delay routines, using a pre-computed "loops_per_second" value.
  */
 
-extern __inline__ void __delay(unsigned long loops)
+static __inline__ void __delay(unsigned long loops)
 {
 	__asm__ __volatile__("1:\t%0 += -1;\n\t"
 			     "cc = %0 == 0;\n\t"
@@ -31,7 +31,7 @@ extern __inline__ void __delay(unsigned long loops)
  * first constant multiplications gets optimized away if the delay is
  * a constant)
  */
-extern __inline__ void __udelay(unsigned long usecs)
+static __inline__ void __udelay(unsigned long usecs)
 {
 	__delay(usecs);
 }

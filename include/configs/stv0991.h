@@ -13,7 +13,6 @@
 
 #define CONFIG_SYS_CORTEX_R4
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_SYS_NO_FLASH
 
 /* ram memory-related information */
@@ -54,7 +53,6 @@
 /* GMAC related configs */
 
 #define CONFIG_MII
-#define CONFIG_PHYLIB
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_PHY_MICREL
 
@@ -79,13 +77,10 @@
 + * QSPI support
 + */
 #ifdef CONFIG_OF_CONTROL		/* QSPI is controlled via DT */
-#define CONFIG_CADENCE_QSPI
 #define CONFIG_CQSPI_DECODER		0
 #define CONFIG_CQSPI_REF_CLK		((30/4)/2)*1000*1000
 #define CONFIG_CMD_SPI
 
-#define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
-#define CONFIG_SPI_FLASH_WINBOND	/* WINBOND */
 #define CONFIG_CMD_SF
 #endif
 

@@ -16,7 +16,6 @@
 #define CONFIG_OMAP	/* in a TI OMAP core */
 #define CONFIG_CM_T3517	/* working with CM-T3517 */
 #define CONFIG_OMAP_COMMON
-#define CONFIG_SYS_GENERIC_BOARD
 /* Common ARM Erratas */
 #define CONFIG_ARM_ERRATA_454179
 #define CONFIG_ARM_ERRATA_430973
@@ -78,7 +77,6 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000	/* 48MHz (APLL96/2) */
@@ -138,7 +136,6 @@
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_GPIO
 
 
 #define CONFIG_SYS_NO_FLASH

@@ -6,4 +6,5 @@
 #
 
 extra-y	= start.o
-obj-y	= cpu_init.o serial.o cpu.o ambapp.o interrupts.o prom.o usb_uhci.o
+obj-y	= cpu_init.o serial.o cpu.o ambapp.o ambapp_low.o ambapp_low_c.o \
+	interrupts.o prom.o usb_uhci.o memcfg.o memcfg_low.o

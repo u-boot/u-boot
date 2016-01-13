@@ -1,6 +1,25 @@
+config DM_KEYBOARD
+	bool "Enable driver model keyboard support"
+	depends on DM
+	help
+	  This adds a uclass for keyboards and implements keyboard support
+	  using driver model. The API is implemented by keyboard.h and
+	  includes methods to start/stop the device, check for available
+	  input and update LEDs if the keyboard has them.
+
 config CROS_EC_KEYB
 	bool "Enable Chrome OS EC keyboard support"
 	help
 	  Most ARM Chromebooks use an EC to provide access to the keyboard.
 	  Messages are used to request key scans from the EC and these are
 	  then decoded into keys by this driver.
+
+config I8042_KEYB
+	bool "Enable Intel i8042 keyboard support"
+	depends on DM_KEYBOARD
+	help
+	  This adds a driver for the i8042 keyboard controller, allowing the
+	  keyboard to be used on devices which support this controller. The
+	  driver handles English and German keyboards - set the environment
+	  variable 'keymap' to "de" to select German. Keyboard repeat is
+	  handled by the keyboard itself.

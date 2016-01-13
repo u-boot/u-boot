@@ -3,10 +3,9 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ifndef __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__
-#define __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__
+#ifndef __CONFIG_SOCFPGA_COMMON_H__
+#define __CONFIG_SOCFPGA_COMMON_H__
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Virtual target or real hardware */
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET
@@ -70,6 +69,10 @@
 #define CONFIG_CMDLINE_EDITING			/* Command history etc */
 #define CONFIG_SYS_HUSH_PARSER
 
+#ifndef CONFIG_SYS_HOSTNAME
+#define CONFIG_SYS_HOSTNAME	CONFIG_SYS_BOARD
+#endif
+
 /*
  * Cache
  */
@@ -89,7 +92,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 /*
  * The base address is configurable in QSys, each board must specify the
@@ -107,7 +109,6 @@
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_MII
 #define CONFIG_AUTONEG_TIMEOUT		(15 * CONFIG_SYS_HZ)
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_GIGE
 #endif
 
@@ -154,11 +155,22 @@
 #define CONFIG_DWMMC
 #define CONFIG_SOCFPGA_DWMMC
 #define CONFIG_SOCFPGA_DWMMC_FIFO_DEPTH	1024
-#define CONFIG_SOCFPGA_DWMMC_DRVSEL	3
-#define CONFIG_SOCFPGA_DWMMC_SMPSEL	0
 /* FIXME */
 /* using smaller max blk cnt to avoid flooding the limited stack we have */
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256	/* FIXME -- SPL only? */
+#endif
+
+/*
+ * NAND Support
+ */
+#ifdef CONFIG_NAND_DENALI
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_MAX_CHIPS	1
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_DENALI_ECC_SIZE	512
+#define CONFIG_SYS_NAND_REGS_BASE	SOCFPGA_NANDREGS_ADDRESS
+#define CONFIG_SYS_NAND_DATA_BASE	SOCFPGA_NANDDATA_ADDRESS
+#define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_NAND_DATA_BASE + 0x10)
 #endif
 
 /*
@@ -191,16 +203,13 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 /*
  * QSPI support
  */
-#define CONFIG_CADENCE_QSPI
 /* Enable multiple SPI NOR flash manufacturers */
-#define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
-#define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SPI_FLASH_MTD
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT			"nor0=ff705000.spi"
+#define MTDIDS_DEFAULT			"nor0=ff705000.spi.0"
 #endif
 /* QSPI reference clock */
 #ifndef __ASSEMBLY__
@@ -214,13 +223,11 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * Designware SPI support
  */
-#define CONFIG_DESIGNWARE_SPI
 #define CONFIG_CMD_SPI
 
 /*
  * Serial Driver
  */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
 #define CONFIG_SYS_NS16550_COM1		SOCFPGA_UART0_ADDRESS
@@ -238,13 +245,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2
 #define CONFIG_USB_STORAGE
-/*
- * NOTE: User must define either of the following to select which
- *       of the two USB controllers available on SoCFPGA to use.
- *       The DWC2 driver doesn't support multiple USB controllers.
- * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB0_ADDRESS
- * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
- */
 #endif
 
 /*
@@ -252,7 +252,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  */
 #if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
 #define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_S3C_UDC_OTG
+#define CONFIG_USB_GADGET_DWC2_OTG
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 
@@ -261,7 +261,9 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 #define CONFIG_USB_FUNCTION_DFU
+#ifdef CONFIG_DM_MMC
 #define CONFIG_DFU_MMC
+#endif
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(32 * 1024 * 1024)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
@@ -271,7 +273,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_G_DNL_UMS_VENDOR_NUM	CONFIG_G_DNL_VENDOR_NUM
 #define CONFIG_G_DNL_UMS_PRODUCT_NUM	CONFIG_G_DNL_PRODUCT_NUM
 #ifndef CONFIG_G_DNL_MANUFACTURER
-#define CONFIG_G_DNL_MANUFACTURER	"Altera"
+#define CONFIG_G_DNL_MANUFACTURER	CONFIG_SYS_VENDOR
 #endif
 #endif
 
@@ -282,6 +284,43 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 #define CONFIG_ENV_SIZE			4096
+
+/* Environment for SDMMC boot */
+#if defined(CONFIG_ENV_IS_IN_MMC) && !defined(CONFIG_ENV_OFFSET)
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
+#define CONFIG_ENV_OFFSET		512	/* just after the MBR */
+#endif
+
+/*
+ * mtd partitioning for serial NOR flash
+ *
+ * device nor0 <ff705000.spi.0>, # parts = 6
+ * #: name                size            offset          mask_flags
+ * 0: u-boot              0x00100000      0x00000000      0
+ * 1: env1                0x00040000      0x00100000      0
+ * 2: env2                0x00040000      0x00140000      0
+ * 3: UBI                 0x03e80000      0x00180000      0
+ * 4: boot                0x00e80000      0x00180000      0
+ * 5: rootfs              0x01000000      0x01000000      0
+ *
+ */
+#if defined(CONFIG_CMD_SF) && !defined(MTDPARTS_DEFAULT)
+#define MTDPARTS_DEFAULT	"mtdparts=ff705000.spi.0:"\
+				"1m(u-boot),"		\
+				"256k(env1),"		\
+				"256k(env2),"		\
+				"14848k(boot),"		\
+				"16m(rootfs),"		\
+				"-@1536k(UBI)\0"
+#endif
+
+/* UBI and UBIFS support */
+#if defined(CONFIG_CMD_SF) || defined(CONFIG_CMD_NAND)
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_LZO
+#endif
 
 /*
  * SPL
@@ -306,8 +345,15 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_WATCHDOG_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
+#ifdef CONFIG_DM_MMC
 #define CONFIG_SPL_MMC_SUPPORT
+#endif
+#ifdef CONFIG_DM_SPI
 #define CONFIG_SPL_SPI_SUPPORT
+#endif
+#ifdef CONFIG_SPL_NAND_DENALI
+#define CONFIG_SPL_NAND_SUPPORT
+#endif
 
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
@@ -330,9 +376,16 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
 #endif
 
+/* SPL NAND boot support */
+#ifdef CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
+#endif
+
 /*
  * Stack setup
  */
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 
-#endif	/* __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__ */
+#endif	/* __CONFIG_SOCFPGA_COMMON_H__ */

@@ -132,7 +132,7 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 }
 
 #ifdef CONFIG_SPL_RAM_DEVICE
-static void spl_ram_load_image(void)
+static int spl_ram_load_image(void)
 {
 	const struct image_header *header;
 
@@ -145,6 +145,8 @@ static void spl_ram_load_image(void)
 		(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
 
 	spl_parse_image_header(header);
+
+	return 0;
 }
 #endif
 
@@ -176,9 +178,171 @@ int spl_init(void)
 	return 0;
 }
 
+#ifndef BOOT_DEVICE_NONE
+#define BOOT_DEVICE_NONE 0xdeadbeef
+#endif
+
+static u32 spl_boot_list[] = {
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+	BOOT_DEVICE_NONE,
+};
+
+__weak void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+}
+
+#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
+__weak void spl_board_announce_boot_device(void) { }
+#endif
+
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+struct boot_device_name {
+	u32 boot_dev;
+	const char *name;
+};
+
+struct boot_device_name boot_name_table[] = {
+#ifdef CONFIG_SPL_RAM_DEVICE
+	{ BOOT_DEVICE_RAM, "RAM" },
+#endif
+#ifdef CONFIG_SPL_MMC_SUPPORT
+	{ BOOT_DEVICE_MMC1, "MMC" },
+	{ BOOT_DEVICE_MMC2, "MMC" },
+	{ BOOT_DEVICE_MMC2_2, "MMC" },
+#endif
+#ifdef CONFIG_SPL_NAND_SUPPORT
+	{ BOOT_DEVICE_NAND, "NAND" },
+#endif
+#ifdef CONFIG_SPL_ONENAND_SUPPORT
+	{ BOOT_DEVICE_ONENAND, "OneNAND" },
+#endif
+#ifdef CONFIG_SPL_NOR_SUPPORT
+	{ BOOT_DEVICE_NOR, "NOR" },
+#endif
+#ifdef CONFIG_SPL_YMODEM_SUPPORT
+	{ BOOT_DEVICE_UART, "UART" },
+#endif
+#ifdef CONFIG_SPL_SPI_SUPPORT
+	{ BOOT_DEVICE_SPI, "SPI" },
+#endif
+#ifdef CONFIG_SPL_ETH_SUPPORT
+#ifdef CONFIG_SPL_ETH_DEVICE
+	{ BOOT_DEVICE_CPGMAC, "eth device" },
+#else
+	{ BOOT_DEVICE_CPGMAC, "net" },
+#endif
+#endif
+#ifdef CONFIG_SPL_USBETH_SUPPORT
+	{ BOOT_DEVICE_USBETH, "USB eth" },
+#endif
+#ifdef CONFIG_SPL_USB_SUPPORT
+	{ BOOT_DEVICE_USB, "USB" },
+#endif
+#ifdef CONFIG_SPL_SATA_SUPPORT
+	{ BOOT_DEVICE_SATA, "SATA" },
+#endif
+	/* Keep this entry last */
+	{ BOOT_DEVICE_NONE, "unknown boot device" },
+};
+
+static void announce_boot_device(u32 boot_device)
+{
+	int i;
+
+	puts("Trying to boot from ");
+
+#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
+	if (boot_device == BOOT_DEVICE_BOARD) {
+		spl_board_announce_boot_device();
+		puts("\n");
+		return;
+	}
+#endif
+	for (i = 0; i < ARRAY_SIZE(boot_name_table) - 1; i++) {
+		if (boot_name_table[i].boot_dev == boot_device)
+			break;
+	}
+
+	printf("%s\n", boot_name_table[i].name);
+}
+#else
+static inline void announce_boot_device(u32 boot_device) { }
+#endif
+
+static int spl_load_image(u32 boot_device)
+{
+	switch (boot_device) {
+#ifdef CONFIG_SPL_RAM_DEVICE
+	case BOOT_DEVICE_RAM:
+		return spl_ram_load_image();
+#endif
+#ifdef CONFIG_SPL_MMC_SUPPORT
+	case BOOT_DEVICE_MMC1:
+	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
+		return spl_mmc_load_image(boot_device);
+#endif
+#ifdef CONFIG_SPL_NAND_SUPPORT
+	case BOOT_DEVICE_NAND:
+		return spl_nand_load_image();
+#endif
+#ifdef CONFIG_SPL_ONENAND_SUPPORT
+	case BOOT_DEVICE_ONENAND:
+		return spl_onenand_load_image();
+#endif
+#ifdef CONFIG_SPL_NOR_SUPPORT
+	case BOOT_DEVICE_NOR:
+		return spl_nor_load_image();
+#endif
+#ifdef CONFIG_SPL_YMODEM_SUPPORT
+	case BOOT_DEVICE_UART:
+		return spl_ymodem_load_image();
+#endif
+#ifdef CONFIG_SPL_SPI_SUPPORT
+	case BOOT_DEVICE_SPI:
+		return spl_spi_load_image();
+#endif
+#ifdef CONFIG_SPL_ETH_SUPPORT
+	case BOOT_DEVICE_CPGMAC:
+#ifdef CONFIG_SPL_ETH_DEVICE
+		return spl_net_load_image(CONFIG_SPL_ETH_DEVICE);
+#else
+		return spl_net_load_image(NULL);
+#endif
+#endif
+#ifdef CONFIG_SPL_USBETH_SUPPORT
+	case BOOT_DEVICE_USBETH:
+		return spl_net_load_image("usb_ether");
+#endif
+#ifdef CONFIG_SPL_USB_SUPPORT
+	case BOOT_DEVICE_USB:
+		return spl_usb_load_image();
+#endif
+#ifdef CONFIG_SPL_SATA_SUPPORT
+	case BOOT_DEVICE_SATA:
+		return spl_sata_load_image();
+#endif
+#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
+	case BOOT_DEVICE_BOARD:
+		return spl_board_load_image();
+#endif
+	default:
+#if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		puts("SPL: Unsupported Boot Device!\n");
+#endif
+		return -ENODEV;
+	}
+
+	return -EINVAL;
+}
+
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
-	u32 boot_device;
+	int i;
 
 	debug(">>spl:board_init_r()\n");
 
@@ -203,79 +367,17 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
-	boot_device = spl_boot_device();
-	debug("boot device - %d\n", boot_device);
-	switch (boot_device) {
-#ifdef CONFIG_SPL_RAM_DEVICE
-	case BOOT_DEVICE_RAM:
-		spl_ram_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_MMC_SUPPORT
-	case BOOT_DEVICE_MMC1:
-	case BOOT_DEVICE_MMC2:
-	case BOOT_DEVICE_MMC2_2:
-		spl_mmc_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_NAND_SUPPORT
-	case BOOT_DEVICE_NAND:
-		spl_nand_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_ONENAND_SUPPORT
-	case BOOT_DEVICE_ONENAND:
-		spl_onenand_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_NOR_SUPPORT
-	case BOOT_DEVICE_NOR:
-		spl_nor_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_YMODEM_SUPPORT
-	case BOOT_DEVICE_UART:
-		spl_ymodem_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_SPI_SUPPORT
-	case BOOT_DEVICE_SPI:
-		spl_spi_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_ETH_SUPPORT
-	case BOOT_DEVICE_CPGMAC:
-#ifdef CONFIG_SPL_ETH_DEVICE
-		spl_net_load_image(CONFIG_SPL_ETH_DEVICE);
-#else
-		spl_net_load_image(NULL);
-#endif
-		break;
-#endif
-#ifdef CONFIG_SPL_USBETH_SUPPORT
-	case BOOT_DEVICE_USBETH:
-		spl_net_load_image("usb_ether");
-		break;
-#endif
-#ifdef CONFIG_SPL_USB_SUPPORT
-	case BOOT_DEVICE_USB:
-		spl_usb_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
-	case BOOT_DEVICE_SATA:
-		spl_sata_load_image();
-		break;
-#endif
-#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
-	case BOOT_DEVICE_BOARD:
-		spl_board_load_image();
-		break;
-#endif
-	default:
-#if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		puts("SPL: Unsupported Boot Device!\n");
-#endif
+	board_boot_order(spl_boot_list);
+	for (i = 0; i < ARRAY_SIZE(spl_boot_list) &&
+			spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
+		announce_boot_device(spl_boot_list[i]);
+		if (!spl_load_image(spl_boot_list[i]))
+			break;
+	}
+
+	if (i == ARRAY_SIZE(spl_boot_list) ||
+	    spl_boot_list[i] == BOOT_DEVICE_NONE) {
+		puts("SPL: failed to boot from all boot devices\n");
 		hang();
 	}
 
@@ -347,8 +449,17 @@ ulong spl_relocate_stack_gd(void)
 	memcpy(new_gd, (void *)gd, sizeof(gd_t));
 	gd = new_gd;
 
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
+#ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
+	if (CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN) {
+		if (!(gd->flags & GD_FLG_SPL_INIT))
+			panic_str("spl_init must be called before heap reloc");
+
+		ptr -= CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN;
+		gd->malloc_base = ptr;
+		gd->malloc_limit = CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN;
+		gd->malloc_ptr = 0;
+	}
+#endif
 
 	return ptr;
 #else

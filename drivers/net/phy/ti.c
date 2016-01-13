@@ -15,11 +15,11 @@
 #define DP83867_CTRL		0x1f
 
 /* Extended Registers */
-#define DP83867_RGMIICTL        0x0032
-#define DP83867_RGMIIDCTL       0x0086
+#define DP83867_RGMIICTL	0x0032
+#define DP83867_RGMIIDCTL	0x0086
 
-#define DP83867_SW_RESET	(1 << 15)
-#define DP83867_SW_RESTART	(1 << 14)
+#define DP83867_SW_RESET	BIT(15)
+#define DP83867_SW_RESTART	BIT(14)
 
 /* MICR Interrupt bits */
 #define MII_DP83867_MICR_AN_ERR_INT_EN		BIT(15)
@@ -36,11 +36,11 @@
 #define MII_DP83867_MICR_JABBER_INT_EN		BIT(0)
 
 /* RGMIICTL bits */
-#define DP83867_RGMII_TX_CLK_DELAY_EN	BIT(1)
-#define DP83867_RGMII_RX_CLK_DELAY_EN	BIT(0)
+#define DP83867_RGMII_TX_CLK_DELAY_EN		BIT(1)
+#define DP83867_RGMII_RX_CLK_DELAY_EN		BIT(0)
 
 /* PHY CTRL bits */
-#define DP83867_PHYCR_FIFO_DEPTH_SHIFT	14
+#define DP83867_PHYCR_FIFO_DEPTH_SHIFT		14
 #define DP83867_MDI_CROSSOVER		5
 #define DP83867_MDI_CROSSOVER_AUTO	0b10
 
@@ -57,8 +57,6 @@
 #define MII_MMD_CTRL_INCR_RDWT	0x8000 /* post increment on reads & writes */
 #define MII_MMD_CTRL_INCR_ON_WT	0xC000 /* post increment on writes only */
 
-/* FIXME: These indirect PHY writes should go into common code.  */
-
 /**
  * phy_read_mmd_indirect - reads data from the MMD registers
  * @phydev: The PHY device bus
@@ -68,7 +66,7 @@
  *
  * Description: it reads data from the MMD registers (clause 22 to access to
  * clause 45) of the specified phy address.
- * To read these register we have:
+ * To read these registers we have:
  * 1) Write reg 13 // DEVAD
  * 2) Write reg 14 // MMD Address
  * 3) Write reg 13 // MMD Data Command for MMD DEVAD
@@ -103,7 +101,7 @@ int phy_read_mmd_indirect(struct phy_device *phydev, int prtad,
  *
  * Description: Write data from the MMD registers of the specified
  * phy address.
- * To write these register we have:
+ * To write these registers we have:
  * 1) Write reg 13 // DEVAD
  * 2) Write reg 14 // MMD Address
  * 3) Write reg 13 // MMD Data Command for MMD DEVAD

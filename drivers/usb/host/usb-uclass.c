@@ -158,9 +158,6 @@ int usb_stop(void)
 		ret = device_remove(bus);
 		if (ret && !err)
 			err = ret;
-		ret = device_unbind_children(bus);
-		if (ret && !err)
-			err = ret;
 	}
 
 #ifdef CONFIG_SANDBOX
@@ -203,6 +200,20 @@ static void usb_scan_bus(struct udevice *bus, bool recurse)
 		printf("No USB Device found\n");
 	else
 		printf("%d USB Device(s) found\n", priv->next_addr);
+}
+
+static void remove_inactive_children(struct uclass *uc, struct udevice *bus)
+{
+	uclass_foreach_dev(bus, uc) {
+		struct udevice *dev, *next;
+
+		if (!device_active(bus))
+			continue;
+		device_foreach_child_safe(dev, next, bus) {
+			if (!device_active(dev))
+				device_unbind(dev);
+		}
+	}
 }
 
 int usb_init(void)
@@ -273,6 +284,15 @@ int usb_init(void)
 	}
 
 	debug("scan end\n");
+
+	/* Remove any devices that were not found on this scan */
+	remove_inactive_children(uc, bus);
+
+	ret = uclass_get(UCLASS_USB_HUB, &uc);
+	if (ret)
+		return ret;
+	remove_inactive_children(uc, bus);
+
 	/* if we were not able to find at least one working bus, bail out */
 	if (!count)
 		printf("No controllers found\n");
@@ -282,6 +302,14 @@ int usb_init(void)
 	return usb_started ? 0 : -1;
 }
 
+/*
+ * TODO(sjg@chromium.org): Remove this legacy function. At present it is needed
+ * to support boards which use driver model for USB but not Ethernet, and want
+ * to use USB Ethernet.
+ *
+ * The #if clause is here to ensure that remains the only case.
+ */
+#if !defined(CONFIG_DM_ETH) && defined(CONFIG_USB_HOST_ETHER)
 static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
 {
 	struct usb_device *udev;
@@ -289,7 +317,7 @@ static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
 
 	if (!device_active(parent))
 		return NULL;
-	udev = dev_get_parentdata(parent);
+	udev = dev_get_parent_priv(parent);
 	if (udev->devnum == devnum)
 		return udev;
 
@@ -315,6 +343,7 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index)
 
 	return find_child_devnum(dev, devnum);
 }
+#endif
 
 int usb_post_bind(struct udevice *dev)
 {
@@ -494,14 +523,15 @@ error:
 }
 
 /**
- * usb_find_emul_child() - Find an existing device for emulated devices
+ * usb_find_child() - Find an existing device which matches our needs
+ *
+ *
  */
-static int usb_find_emul_child(struct udevice *parent,
-			       struct usb_device_descriptor *desc,
-			       struct usb_interface_descriptor *iface,
-			       struct udevice **devp)
+static int usb_find_child(struct udevice *parent,
+			  struct usb_device_descriptor *desc,
+			  struct usb_interface_descriptor *iface,
+			  struct udevice **devp)
 {
-#ifdef CONFIG_SANDBOX
 	struct udevice *dev;
 
 	*devp = NULL;
@@ -520,7 +550,7 @@ static int usb_find_emul_child(struct udevice *parent,
 			return 0;
 		}
 	}
-#endif
+
 	return -ENOENT;
 }
 
@@ -575,13 +605,13 @@ int usb_scan_device(struct udevice *parent, int port,
 	udev->portnr = port;
 	debug("Calling usb_setup_device(), portnr=%d\n", udev->portnr);
 	parent_udev = device_get_uclass_id(parent) == UCLASS_USB_HUB ?
-		dev_get_parentdata(parent) : NULL;
+		dev_get_parent_priv(parent) : NULL;
 	ret = usb_setup_device(udev, priv->desc_before_addr, parent_udev);
 	debug("read_descriptor for '%s': ret=%d\n", parent->name, ret);
 	if (ret)
 		return ret;
-	ret = usb_find_emul_child(parent, &udev->descriptor, iface, &dev);
-	debug("** usb_find_emul_child returns %d\n", ret);
+	ret = usb_find_child(parent, &udev->descriptor, iface, &dev);
+	debug("** usb_find_child returns %d\n", ret);
 	if (ret) {
 		if (ret != -ENOENT)
 			return ret;
@@ -638,7 +668,7 @@ int usb_detect_change(void)
 			if (!device_active(dev))
 				continue;
 
-			udev = dev_get_parentdata(dev);
+			udev = dev_get_parent_priv(dev);
 			if (usb_get_port_status(udev, udev->portnr, &status)
 					< 0)
 				/* USB request failed */
@@ -694,7 +724,7 @@ struct udevice *usb_get_bus(struct udevice *dev)
 
 int usb_child_pre_probe(struct udevice *dev)
 {
-	struct usb_device *udev = dev_get_parentdata(dev);
+	struct usb_device *udev = dev_get_parent_priv(dev);
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
 	int ret;
 

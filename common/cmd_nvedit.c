@@ -27,6 +27,7 @@
 #include <common.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
 #include <environment.h>
 #include <search.h>
 #include <errno.h>
@@ -594,7 +595,7 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 	/* Set read buffer to initial value or empty sting */
 	init_val = getenv(argv[1]);
 	if (init_val)
-		sprintf(buffer, "%s", init_val);
+		snprintf(buffer, CONFIG_SYS_CBSIZE, "%s", init_val);
 	else
 		buffer[0] = '\0';
 

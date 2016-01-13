@@ -243,6 +243,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <common.h>
+#include <console.h>
 #include <g_dnl.h>
 
 #include <linux/err.h>

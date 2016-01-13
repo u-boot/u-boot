@@ -364,8 +364,6 @@ u8 sys_env_device_rev_get(void);
 u32 sys_env_device_id_get(void);
 u16 sys_env_model_get(void);
 struct dlb_config *sys_env_dlb_config_ptr_get(void);
-u32 sys_env_get_topology_update_info(
-	struct topology_update_info *topology_update_info);
 u32 sys_env_get_cs_ena_from_reg(void);
 
 #endif /* _SYS_ENV_LIB_H */

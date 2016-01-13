@@ -8,6 +8,7 @@
 #include <mmc.h>
 #include <pci_ids.h>
 #include <asm/irq.h>
+#include <asm/mrccache.h>
 #include <asm/post.h>
 
 static struct pci_device_id mmc_supported[] = {
@@ -27,9 +28,6 @@ int arch_cpu_init(void)
 	int ret;
 
 	post_code(POST_CPU_INIT);
-#ifdef CONFIG_SYS_X86_TSC_TIMER
-	timer_set_base(rdtsc());
-#endif
 
 	ret = x86_cpu_init_f();
 	if (ret)
@@ -43,6 +41,30 @@ int arch_misc_init(void)
 	if (!ll_boot_init())
 		return 0;
 
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	/*
+	 * We intend not to check any return value here, as even MRC cache
+	 * is not saved successfully, it is not a severe error that will
+	 * prevent system from continuing to boot.
+	 */
+	mrccache_save();
+#endif
+
 	return pirq_init();
 }
+
+int reserve_arch(void)
+{
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	return mrccache_reserve();
+#else
+	return 0;
 #endif
+}
+#endif
+
+void reset_cpu(ulong addr)
+{
+	/* cold reset */
+	x86_full_reset();
+}

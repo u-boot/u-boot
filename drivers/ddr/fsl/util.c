@@ -385,3 +385,43 @@ void fsl_ddr_sync_memctl_refresh(unsigned int first_ctrl,
 		ddr_out32(ddrc_debug2_p[i], ddrc_debug2[i]);
 }
 #endif /* CONFIG_FSL_DDR_SYNC_REFRESH */
+
+void remove_unused_controllers(fsl_ddr_info_t *info)
+{
+#ifdef CONFIG_FSL_LSCH3
+	int i;
+	u64 nodeid;
+	void *hnf_sam_ctrl = (void *)(CCI_HN_F_0_BASE + CCN_HN_F_SAM_CTL);
+	bool ddr0_used = false;
+	bool ddr1_used = false;
+
+	for (i = 0; i < 8; i++) {
+		nodeid = in_le64(hnf_sam_ctrl) & CCN_HN_F_SAM_NODEID_MASK;
+		if (nodeid == CCN_HN_F_SAM_NODEID_DDR0) {
+			ddr0_used = true;
+		} else if (nodeid == CCN_HN_F_SAM_NODEID_DDR1) {
+			ddr1_used = true;
+		} else {
+			printf("Unknown nodeid in HN-F SAM control: 0x%llx\n",
+			       nodeid);
+		}
+		hnf_sam_ctrl += (CCI_HN_F_1_BASE - CCI_HN_F_0_BASE);
+	}
+	if (!ddr0_used && !ddr1_used) {
+		printf("Invalid configuration in HN-F SAM control\n");
+		return;
+	}
+
+	if (!ddr0_used && info->first_ctrl == 0) {
+		info->first_ctrl = 1;
+		info->num_ctrls = 1;
+		debug("First DDR controller disabled\n");
+		return;
+	}
+
+	if (!ddr1_used && info->first_ctrl + info->num_ctrls > 1) {
+		info->num_ctrls = 1;
+		debug("Second DDR controller disabled\n");
+	}
+#endif
+}

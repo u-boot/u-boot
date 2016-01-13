@@ -22,7 +22,6 @@
 #include <asm/hardware.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #if defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_THUMB_BUILD
@@ -160,7 +159,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
-#define CONFIG_SPI_FLASH_STMICRO
 #define TAURUS_SPI_MASK (1 << 4)
 #define TAURUS_SPI_CS_PIN	AT91_PIN_PA3
 

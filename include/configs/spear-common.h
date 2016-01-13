@@ -11,14 +11,12 @@
  * Common configurations used for both spear3xx as well as spear6xx
  */
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* U-boot Load Address */
 #define CONFIG_SYS_TEXT_BASE			0x00700000
 
 /* Ethernet driver configuration */
 #define CONFIG_MII
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 

@@ -13,8 +13,9 @@
 #define CONFIG_ARMADA_XP		/* SOC Family Name */
 #define CONFIG_DB_784MP_GP		/* Board target name for DDR training */
 
+#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_SYS_GENERIC_BOARD
+#endif
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
@@ -40,7 +41,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_TFTPPUT
 #define CONFIG_CMD_TIME
-#define CONFIG_CMD_USB
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -50,16 +50,12 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* USB/EHCI configuration */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_STORAGE
-#define CONFIG_USB_EHCI_MARVELL
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		1000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
-#define CONFIG_SPI_FLASH_STMICRO
 
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_IS_IN_SPI_FLASH

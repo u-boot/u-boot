@@ -214,7 +214,7 @@ void board_init_f(ulong dummy)
  */
 int __weak misc_init_r(void)
 {
-	dieid_num_r();
+	omap_die_id_display();
 
 	return 0;
 }

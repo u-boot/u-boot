@@ -81,7 +81,7 @@ int cros_ec_read_id(struct cros_ec_dev *dev, char *id, int maxlen);
  * @param scan		Place to put the scan results
  * @return 0 if ok, -1 on error
  */
-int cros_ec_scan_keyboard(struct cros_ec_dev *dev, struct mbkp_keyscan *scan);
+int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan);
 
 /**
  * Read which image is currently running on the CROS-EC device.
@@ -125,7 +125,7 @@ int cros_ec_reboot(struct cros_ec_dev *dev, enum ec_reboot_cmd cmd,
  * @param dev		CROS-EC device
  * @return 0 if no interrupt is pending
  */
-int cros_ec_interrupt_pending(struct cros_ec_dev *dev);
+int cros_ec_interrupt_pending(struct udevice *dev);
 
 enum {
 	CROS_EC_OK,

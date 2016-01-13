@@ -39,7 +39,6 @@
 /* Command line configuration */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
@@ -132,7 +131,6 @@
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 #ifdef CONFIG_CMD_SPI
 #	define CONFIG_SYS_DSPI_CS2
-#	define CONFIG_SPI_FLASH_STMICRO
 
 #	define CONFIG_SYS_DSPI_CTAR0	(DSPI_CTAR_TRSZ(7) | \
 					 DSPI_CTAR_PCSSCK_1CLK | \

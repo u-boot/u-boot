@@ -164,6 +164,13 @@ void config_sdram(const struct emif_regs *regs, int nr)
 		writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
 		writel(regs->sdram_config, &cstat->secure_emif_sdram_config);
 		writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
+
+		/* Trigger initialization */
+		writel(0x00003100, &emif_reg[nr]->emif_sdram_ref_ctrl);
+		/* Wait 1ms because of L3 timeout error */
+		udelay(1000);
+
+		/* Write proper sdram_ref_cref_ctrl value */
 		writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
 		writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
 	}
@@ -292,7 +299,9 @@ void config_ddr_phy(const struct emif_regs *regs, int nr)
 		     EMIF_REG_INITREF_DIS_MASK);
 #endif
 	if (regs->zq_config)
-		writel(0x80003100, &emif_reg[nr]->emif_sdram_ref_ctrl);
+		/* Set time between rising edge of DDR_RESET to rising
+		 * edge of DDR_CKE to > 500us per memory spec. */
+		writel(0x00003100, &emif_reg[nr]->emif_sdram_ref_ctrl);
 
 	writel(regs->emif_ddr_phy_ctlr_1,
 		&emif_reg[nr]->emif_ddr_phy_ctrl_1);

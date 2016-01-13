@@ -229,6 +229,8 @@ struct usb_ctrlrequest {
 #define USB_DT_PIPE_USAGE		0x24
 /* From the USB 3.0 spec */
 #define	USB_DT_SS_ENDPOINT_COMP		0x30
+/* From HID 1.11 spec */
+#define USB_DT_HID_REPORT		0x22
 
 /* Conventional codes for class-specific descriptors.  The convention is
  * defined in the USB "Common Class" Spec (3.11).  Individual class specs
@@ -383,6 +385,24 @@ struct usb_endpoint_descriptor {
 struct usb_generic_descriptor {
 	__u8  bLength;
 	__u8  bDescriptorType;
+};
+
+struct __packed usb_class_hid_descriptor {
+	u8 bLength;
+	u8 bDescriptorType;
+	u16 bcdCDC;
+	u8 bCountryCode;
+	u8 bNumDescriptors;	/* 0x01 */
+	u8 bDescriptorType0;
+	u16 wDescriptorLength0;
+	/* optional descriptors are not supported. */
+};
+
+struct __packed usb_class_report_descriptor {
+	u8 bLength;	/* dummy */
+	u8 bDescriptorType;
+	u16 wLength;
+	u8 bData[0];
 };
 
 /*

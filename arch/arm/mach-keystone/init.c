@@ -103,7 +103,9 @@ int arch_cpu_init(void)
 
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_TETRIS);
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_NETCP);
+#ifdef KS2_MSMC_SEGMENT_QM_PDSP
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_QM_PDSP);
+#endif
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE0);
 
 	/* Initialize the PCIe-0 to work as Root Complex */
@@ -122,8 +124,10 @@ int arch_cpu_init(void)
 	 * UART register PWREMU_MGMT is initialized. Linux UART
 	 * driver doesn't handle this.
 	 */
+#ifndef CONFIG_DM_SERIAL
 	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM2),
 		     CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
+#endif
 
 	return 0;
 }
@@ -166,6 +170,9 @@ int print_cpuinfo(void)
 		break;
 	case CPU_66AK2Ex:
 		puts("66AK2Ex SR");
+		break;
+	case CPU_66AK2Gx:
+		puts("66AK2Gx SR");
 		break;
 	default:
 		puts("Unknown\n");

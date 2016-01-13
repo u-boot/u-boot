@@ -13,7 +13,6 @@
 
 #define CONFIG_VF610
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_THUMB_BUILD
@@ -98,12 +97,10 @@
 #define CONFIG_PHY_MICREL
 
 /* QSPI Configs*/
-#define CONFIG_FSL_QSPI
 
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SYS_FSL_QSPI_LE
@@ -215,9 +212,6 @@
 		"then mtdparts default; " \
 		"nand erase.part ramdisk; " \
 		"nand write ${ram_addr} ramdisk ${filesize}; fi\0"
-
-/* miscellaneous commands */
-#define CONFIG_CMD_ELF
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */

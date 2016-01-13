@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <i2c.h>
 
 #include <asm/clock.h>

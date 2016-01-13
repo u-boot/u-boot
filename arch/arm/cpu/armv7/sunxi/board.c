@@ -72,6 +72,14 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUN8I_A33_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUN8I_A33_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(1), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_H3)
+	sunxi_gpio_set_cfgpin(SUNXI_GPA(4), SUN8I_H3_GPA_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPA(5), SUN8I_H3_GPA_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPA(5), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_A83T)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_A83T_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(10), SUN8I_A83T_GPB_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPB(10), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN9I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(12), SUN9I_GPH_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(13), SUN9I_GPH_UART0);
@@ -95,10 +103,12 @@ static int gpio_init(void)
 	return 0;
 }
 
-void spl_board_load_image(void)
+int spl_board_load_image(void)
 {
 	debug("Returning to FEL sp=%x, lr=%x\n", fel_stash.sp, fel_stash.lr);
 	return_to_fel(fel_stash.sp, fel_stash.lr);
+
+	return 0;
 }
 
 void s_init(void)
@@ -136,7 +146,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 u32 spl_boot_device(void)
 {
-	struct mmc *mmc0, *mmc1;
+	__maybe_unused struct mmc *mmc0, *mmc1;
 	/*
 	 * When booting from the SD card or NAND memory, the "eGON.BT0"
 	 * signature is expected to be found in memory at the address 0x0004
@@ -157,28 +167,24 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_BOARD;
 
 	/* The BROM will try to boot from mmc0 first, so try that first. */
+#ifdef CONFIG_MMC
 	mmc_initialize(gd->bd);
 	mmc0 = find_mmc_device(0);
 	if (sunxi_mmc_has_egon_boot_signature(mmc0))
 		return BOOT_DEVICE_MMC1;
+#endif
 
 	/* Fallback to booting NAND if enabled. */
 	if (IS_ENABLED(CONFIG_SPL_NAND_SUPPORT))
 		return BOOT_DEVICE_NAND;
 
+#ifdef CONFIG_MMC
 	if (CONFIG_MMC_SUNXI_SLOT_EXTRA == 2) {
 		mmc1 = find_mmc_device(1);
-		if (sunxi_mmc_has_egon_boot_signature(mmc1)) {
-			/*
-			 * spl_mmc.c: spl_mmc_load_image() is hard-coded to
-			 * use find_mmc_device(0), no matter what we
-			 * return. Swap mmc0 and mmc2 to make this work.
-			 */
-			mmc0->block_dev.dev = 1;
-			mmc1->block_dev.dev = 0;
+		if (sunxi_mmc_has_egon_boot_signature(mmc1))
 			return BOOT_DEVICE_MMC2;
-		}
 	}
+#endif
 
 	panic("Could not determine boot source\n");
 	return -1;		/* Never reached */
@@ -192,6 +198,7 @@ u32 spl_boot_mode(void)
 
 void board_init_f(ulong dummy)
 {
+	spl_init();
 	preloader_console_init();
 
 #ifdef CONFIG_SPL_I2C_SUPPORT

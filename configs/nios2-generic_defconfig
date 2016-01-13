@@ -1,9 +1,0 @@
-CONFIG_NIOS2=y
-CONFIG_TARGET_NIOS2_GENERIC=y
-# CONFIG_CMD_BOOTD is not set
-# CONFIG_CMD_IMLS is not set
-# CONFIG_CMD_XIMG is not set
-# CONFIG_CMD_FPGA is not set
-# CONFIG_CMD_ITEST is not set
-# CONFIG_CMD_SETEXPR is not set
-# CONFIG_CMD_NFS is not set

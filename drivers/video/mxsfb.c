@@ -55,7 +55,7 @@ static void mxs_lcd_init(GraphicDevice *panel,
 	uint8_t valid_data = 0;
 
 	/* Kick in the LCDIF clock */
-	mxs_set_lcdclk(PS2KHZ(mode->pixclock));
+	mxs_set_lcdclk(MXS_LCDIF_BASE, PS2KHZ(mode->pixclock));
 
 	/* Restart the LCDIF block */
 	mxs_reset_block(&regs->hw_lcdif_ctrl_reg);
@@ -129,6 +129,23 @@ static void mxs_lcd_init(GraphicDevice *panel,
 
 	/* RUN! */
 	writel(LCDIF_CTRL_RUN, &regs->hw_lcdif_ctrl_set);
+}
+
+void lcdif_power_down(void)
+{
+	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
+	int timeout = 1000000;
+
+	writel(panel.frameAdrs, &regs->hw_lcdif_cur_buf_reg);
+	writel(panel.frameAdrs, &regs->hw_lcdif_next_buf_reg);
+	writel(LCDIF_CTRL1_VSYNC_EDGE_IRQ, &regs->hw_lcdif_ctrl1_clr);
+	while (--timeout) {
+		if (readl(&regs->hw_lcdif_ctrl1_reg) &
+		    LCDIF_CTRL1_VSYNC_EDGE_IRQ)
+			break;
+		udelay(1);
+	}
+	mxs_reset_block((struct mxs_register_32 *)&regs->hw_lcdif_ctrl_reg);
 }
 
 void *video_hw_init(void)

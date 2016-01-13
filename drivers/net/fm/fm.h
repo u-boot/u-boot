@@ -10,7 +10,7 @@
 #include <common.h>
 #include <phy.h>
 #include <fm_eth.h>
-#include <asm/fsl_fman.h>
+#include <fsl_fman.h>
 
 /* Port ID */
 #define OH_PORT_ID_BASE		0x01
@@ -26,10 +26,10 @@
 #define MIIM_TIMEOUT    0xFFFF
 
 struct fm_muram {
-	u32 base;
-	u32 top;
-	u32 size;
-	u32 alloc;
+	void *base;
+	void *top;
+	size_t size;
+	void *alloc;
 };
 #define FM_MURAM_RES_SIZE	0x01000
 
@@ -95,8 +95,8 @@ struct fm_port_global_pram {
 #endif
 #define FM_FREE_POOL_ALIGN	256
 
-u32 fm_muram_alloc(int fm_idx, u32 size, u32 align);
-u32 fm_muram_base(int fm_idx);
+void *fm_muram_alloc(int fm_idx, size_t size, ulong align);
+void *fm_muram_base(int fm_idx);
 int fm_init_common(int index, struct ccsr_fman *reg);
 int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info);
 phy_interface_t fman_port_enet_if(enum fm_port port);

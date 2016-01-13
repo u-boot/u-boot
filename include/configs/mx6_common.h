@@ -45,7 +45,7 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SYS_FSL_CLK
 
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
@@ -103,7 +103,6 @@
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
-#define CONFIG_CMD_GPIO
 
 /* MMC */
 #define CONFIG_MMC

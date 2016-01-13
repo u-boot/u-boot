@@ -70,6 +70,8 @@
 #define CONFIG_PHYLIB
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_PHY_GIGE		/* GbE speed/duplex detect */
+#define CONFIG_ARP_TIMEOUT	200
+#define CONFIG_NET_RETRY_COUNT	50
 #endif /* CONFIG_CMD_NET */
 
 /*

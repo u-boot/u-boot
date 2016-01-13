@@ -12,6 +12,10 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+ocotea           powerpc     ppc4xx         29155e73    2015-10-27  Stefan Roese <sr@denx.de>
+taishan          powerpc     ppc4xx         bb5553c6    2015-10-27  Stefan Roese <sr@denx.de>
+ebony            powerpc     ppc4xx         9d9e2f5d    2015-10-27  Stefan Roese <sr@denx.de>
+taihu            powerpc     ppc4xx         123b6cd7    2015-10-27  John Otken <jotken@softadvances.com>
 lcd4_lwmon5      powerpc     ppc4xx         b6b5e394    2015-10-02  Stefan Roese <sr@denx.de>
 da830evm         arm         arm926ejs      d7e8b2b9    2015-09-12  Nick Thompson <nick.thompson@gefanuc.com>
 wireless_space   arm         arm926ejs      b352182a    2015-09-12  Albert ARIBAUD <albert.u.boot@aribaud.net>
@@ -60,9 +64,6 @@ nhk8815          arm         arm926ejs      0abdd9d0    2015-08-30  Nomadik Linu
 nhk8815_onenand  arm         arm926ejs      0abdd9d0    2015-08-30  Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
 omap3_mvblx      arm         armv7          8dc372f9    2015-08-30  Michael Jones <michael.jones@matrix-vision.de>
 omap3_sdp3430    arm         armv7          93b25c08    2015-08-30  Nishanth Menon <nm@ti.com>
-openrd_base      arm         arm926ejs      7a2c1b13    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
-openrd_client    arm         arm926ejs      7a2c1b13    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
-openrd_ultimate  arm         arm926ejs      7a2c1b13    2015-08-30  Prafulla Wadaskar <prafulla@marvell.com>
 otc570           arm         arm926ejs      819216dd    2015-08-30  Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 otc570_dataflash arm         arm926ejs      819216dd    2015-08-30  Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 palmld           arm         pxa            35782e9c    2015-08-30  Marek Vasut <marex@denx.de>

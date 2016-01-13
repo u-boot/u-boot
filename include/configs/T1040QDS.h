@@ -28,7 +28,6 @@
  */
 #define CONFIG_T1040QDS
 #define CONFIG_PHYS_64BIT
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_RAMBOOT_PBL
@@ -399,7 +398,6 @@ unsigned long get_board_ddr_clk(void);
  * shorted - index 1
  */
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0)/2)
@@ -484,10 +482,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_SST
-#define CONFIG_SPI_FLASH_EON
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
@@ -593,12 +587,14 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
+#define CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#define CONFIG_FSL_ESDHC_ADAPTER_IDENT
 #endif
 
 /* Qman/Bman */
@@ -723,7 +719,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IRQ

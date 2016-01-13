@@ -36,7 +36,6 @@
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 /* SPI */
-#define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 #define CONFIG_CMD_SPI
@@ -59,7 +58,5 @@
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
-
-#define CONFIG_OF_BOARD_SETUP
 
 #endif /* _P2571_H */

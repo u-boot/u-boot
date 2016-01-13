@@ -7,6 +7,7 @@
 
 # core
 ifndef CONFIG_SPL_BUILD
+obj-y += init/
 obj-y += main.o
 obj-y += exports.o
 obj-y += hash.o
@@ -154,6 +155,7 @@ obj-$(CONFIG_CMD_PXE) += cmd_pxe.o
 obj-$(CONFIG_CMD_READ) += cmd_read.o
 obj-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
 obj-$(CONFIG_CMD_REISER) += cmd_reiser.o
+obj-$(CONFIG_CMD_REMOTEPROC) += cmd_remoteproc.o
 obj-$(CONFIG_SANDBOX) += cmd_host.o
 obj-$(CONFIG_CMD_SATA) += cmd_sata.o
 obj-$(CONFIG_CMD_SF) += cmd_sf.o
@@ -226,6 +228,7 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
+obj-$(CONFIG_SPL_OF_TRANSLATE) += fdt_support.o
 ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
@@ -275,9 +278,14 @@ obj-y += memsize.o
 obj-y += stdio.o
 
 # This option is not just y/n - it can have a numeric value
+ifdef CONFIG_FASTBOOT_FLASH
+obj-y += image-sparse.o
 ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-obj-y += aboot.o
 obj-y += fb_mmc.o
+endif
+ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+obj-y += fb_nand.o
+endif
 endif
 
 obj-$(CONFIG_CMD_BLOB) += cmd_blob.o

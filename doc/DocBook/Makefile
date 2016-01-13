@@ -5,6 +5,9 @@
 # to document the SRC - and how to read it.
 # To add a new book the only step required is to add the book to the
 # list of DOCBOOKS.
+#
+# SPDX-License-Identifier:	GPL-2.0
+#
 
 DOCBOOKS := linker_lists.xml stdio.xml
 

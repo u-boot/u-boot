@@ -38,7 +38,10 @@ DECLARE_GLOBAL_DATA_PTR;
 /* GPIO that controls power to DDR on EVM-SK */
 #define GPIO_DDR_VTT_EN		7
 
+#if defined(CONFIG_SPL_BUILD) || \
+	(defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_DM_ETH))
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
+#endif
 
 /*
  * Read header information from EEPROM into global structure.
@@ -504,14 +507,22 @@ int board_late_init(void)
 	safe_string[sizeof(header.name)] = 0;
 	setenv("board_name", safe_string);
 
-	strncpy(safe_string, (char *)header.version, sizeof(header.version));
-	safe_string[sizeof(header.version)] = 0;
-	setenv("board_rev", safe_string);
+	/* BeagleBone Green eeprom, board_rev: 0x1a 0x00 0x00 0x00 */
+	if ( (header.version[0] == 0x1a) && (header.version[1] == 0x00) &&
+	     (header.version[2] == 0x00) && (header.version[3] == 0x00) ) {
+		setenv("board_rev", "BBG1");
+	} else {
+		strncpy(safe_string, (char *)header.version, sizeof(header.version));
+		safe_string[sizeof(header.version)] = 0;
+		setenv("board_rev", safe_string);
+	}
 #endif
 
 	return 0;
 }
 #endif
+
+#ifndef CONFIG_DM_ETH
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
@@ -670,3 +681,5 @@ int board_eth_init(bd_t *bis)
 	return n;
 }
 #endif
+
+#endif /* CONFIG_DM_ETH */

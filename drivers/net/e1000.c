@@ -5165,11 +5165,11 @@ _e1000_poll(struct e1000_hw *hw)
 	inval_end = inval_start + roundup(sizeof(*rd), ARCH_DMA_MINALIGN);
 	invalidate_dcache_range(inval_start, inval_end);
 
-	if (!(le32_to_cpu(rd->status)) & E1000_RXD_STAT_DD)
+	if (!(rd->status & E1000_RXD_STAT_DD))
 		return 0;
 	/* DEBUGOUT("recv: packet len=%d\n", rd->length); */
 	/* Packet received, make sure the data are re-loaded from RAM. */
-	len = le32_to_cpu(rd->length);
+	len = le16_to_cpu(rd->length);
 	invalidate_dcache_range((unsigned long)packet,
 				(unsigned long)packet +
 				roundup(len, ARCH_DMA_MINALIGN));

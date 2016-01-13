@@ -9,13 +9,11 @@
 #include <mach/init.h>
 #include <mach/soc_info.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void spl_board_init(void)
 {
 	const struct uniphier_board_data *param;
 
-	param = uniphier_get_board_param(gd->fdt_blob);
+	param = uniphier_get_board_param();
 	if (!param)
 		hang();
 

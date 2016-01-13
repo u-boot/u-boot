@@ -31,7 +31,7 @@
 /* SOC specific definations */
 #define INTREG_BASE		0xd0000000
 #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYS_MVEBU_DDR_A38X)
+#if defined(CONFIG_SPL_BUILD)
 /*
  * On A38x switching the regs base address without running from
  * SDRAM doesn't seem to work. So let the SPL still use the

@@ -4,9 +4,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <common.h>
 #include <libfdt.h>
 #include <linux/kernel.h>
 #include <mach/init.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
 static const struct uniphier_board_data ph1_sld3_data = {
@@ -71,9 +74,23 @@ static const struct uniphier_board_data ph1_pro5_data = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2) || \
-	defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)
 static const struct uniphier_board_data proxstream2_data = {
+	.dram_ch0_base  = 0x80000000,
+	.dram_ch0_size  = 0x40000000,
+	.dram_ch0_width = 32,
+	.dram_ch1_base  = 0xc0000000,
+	.dram_ch1_size  = 0x20000000,
+	.dram_ch1_width = 32,
+	.dram_ch2_base  = 0xe0000000,
+	.dram_ch2_size  = 0x20000000,
+	.dram_ch2_width = 16,
+	.dram_freq      = 2133,
+};
+#endif
+
+#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+static const struct uniphier_board_data ph1_ld6b_data = {
 	.dram_ch0_base  = 0x80000000,
 	.dram_ch0_size  = 0x40000000,
 	.dram_ch0_width = 32,
@@ -112,16 +129,16 @@ static const struct uniphier_board_id uniphier_boards[] = {
 	{ "socionext,proxstream2", &proxstream2_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
-	{ "socionext,ph1-ld6b", &proxstream2_data, },
+	{ "socionext,ph1-ld6b", &ph1_ld6b_data, },
 #endif
 };
 
-const struct uniphier_board_data *uniphier_get_board_param(const void *fdt)
+const struct uniphier_board_data *uniphier_get_board_param(void)
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(uniphier_boards); i++) {
-		if (!fdt_node_check_compatible(fdt, 0,
+		if (!fdt_node_check_compatible(gd->fdt_blob, 0,
 					       uniphier_boards[i].compatible))
 			return uniphier_boards[i].param;
 	}

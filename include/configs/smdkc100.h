@@ -68,7 +68,6 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_MTDPARTS
 
@@ -215,6 +214,5 @@
 
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 #endif	/* __CONFIG_H */

@@ -94,7 +94,6 @@
 /*
  * Misc Settings
  */
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_STRINGS
 #define CONFIG_MISC_INIT_R
 #define CONFIG_RTC_BFIN

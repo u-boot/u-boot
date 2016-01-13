@@ -26,6 +26,14 @@ config USB_XHCI_UNIPHIER
 
 endif
 
+config USB_OHCI_GENERIC
+	bool "Support for generic OHCI USB controller"
+	depends on OF_CONTROL
+	depends on DM_USB
+	default n
+	---help---
+	  Enables support for generic OHCI controller.
+
 config USB_EHCI_HCD
 	bool "EHCI HCD (USB 2.0) support"
 	---help---
@@ -52,6 +60,13 @@ config USB_EHCI
 
 if USB_EHCI_HCD
 
+config USB_EHCI_MARVELL
+	bool "Support for MVEBU (AXP / A38x) on-chip EHCI USB controller"
+	depends on ARCH_MVEBU
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
+
 config USB_EHCI_MX6
 	bool "Support for i.MX6 on-chip EHCI USB controller"
 	depends on ARCH_MX6
@@ -65,5 +80,13 @@ config USB_EHCI_UNIPHIER
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on UniPhier SoCs.
+
+config USB_EHCI_GENERIC
+	bool "Support for generic EHCI USB controller"
+	depends on OF_CONTROL
+	depends on DM_USB
+	default n
+	---help---
+	  Enables support for generic EHCI controller.
 
 endif

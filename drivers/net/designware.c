@@ -22,10 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_PHYLIB)
-# error "DesignWare Ether MAC requires PHYLIB - missing CONFIG_PHYLIB"
-#endif
-
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct eth_mac_regs *mac_p = bus->priv;
@@ -107,8 +103,8 @@ static void tx_descs_init(struct dw_eth_dev *priv)
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 		desc_p->txrx_status &= ~(DESC_TXSTS_TXINT | DESC_TXSTS_TXLAST |
-				DESC_TXSTS_TXFIRST | DESC_TXSTS_TXCRCDIS | \
-				DESC_TXSTS_TXCHECKINSCTRL | \
+				DESC_TXSTS_TXFIRST | DESC_TXSTS_TXCRCDIS |
+				DESC_TXSTS_TXCHECKINSCTRL |
 				DESC_TXSTS_TXRINGEND | DESC_TXSTS_TXPADDIS);
 
 		desc_p->txrx_status |= DESC_TXSTS_TXCHAIN;
@@ -155,7 +151,7 @@ static void rx_descs_init(struct dw_eth_dev *priv)
 		desc_p->dmamac_next = &desc_table_p[idx + 1];
 
 		desc_p->dmamac_cntl =
-			(MAC_MAX_FRAME_SZ & DESC_RXCTRL_SIZE1MASK) | \
+			(MAC_MAX_FRAME_SZ & DESC_RXCTRL_SIZE1MASK) |
 				      DESC_RXCTRL_RXCHAIN;
 
 		desc_p->txrx_status = DESC_RXSTS_OWNBYDMA;
@@ -321,14 +317,14 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;
-	desc_p->dmamac_cntl |= (length << DESC_TXCTRL_SIZE1SHFT) & \
+	desc_p->dmamac_cntl |= (length << DESC_TXCTRL_SIZE1SHFT) &
 			       DESC_TXCTRL_SIZE1MASK;
 
 	desc_p->txrx_status &= ~(DESC_TXSTS_MSK);
 	desc_p->txrx_status |= DESC_TXSTS_OWNBYDMA;
 #else
-	desc_p->dmamac_cntl |= ((length << DESC_TXCTRL_SIZE1SHFT) & \
-			       DESC_TXCTRL_SIZE1MASK) | DESC_TXCTRL_TXLAST | \
+	desc_p->dmamac_cntl |= ((length << DESC_TXCTRL_SIZE1SHFT) &
+			       DESC_TXCTRL_SIZE1MASK) | DESC_TXCTRL_TXLAST |
 			       DESC_TXCTRL_TXFIRST;
 
 	desc_p->txrx_status = DESC_TXSTS_OWNBYDMA;
@@ -368,7 +364,7 @@ static int _dw_eth_recv(struct dw_eth_dev *priv, uchar **packetp)
 	/* Check  if the owner is the CPU */
 	if (!(status & DESC_RXSTS_OWNBYDMA)) {
 
-		length = (status & DESC_RXSTS_FRMLENMSK) >> \
+		length = (status & DESC_RXSTS_FRMLENMSK) >>
 			 DESC_RXSTS_FRMLENSHFT;
 
 		/* Invalidate received data */
@@ -613,6 +609,17 @@ static int designware_eth_probe(struct udevice *dev)
 	return ret;
 }
 
+static int designware_eth_remove(struct udevice *dev)
+{
+	struct dw_eth_dev *priv = dev_get_priv(dev);
+
+	free(priv->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
+	return 0;
+}
+
 static const struct eth_ops designware_eth_ops = {
 	.start			= designware_eth_start,
 	.send			= designware_eth_send,
@@ -653,6 +660,7 @@ U_BOOT_DRIVER(eth_designware) = {
 	.ofdata_to_platdata = designware_eth_ofdata_to_platdata,
 	.bind	= designware_eth_bind,
 	.probe	= designware_eth_probe,
+	.remove	= designware_eth_remove,
 	.ops	= &designware_eth_ops,
 	.priv_auto_alloc_size = sizeof(struct dw_eth_dev),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),

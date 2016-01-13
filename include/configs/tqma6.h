@@ -48,7 +48,6 @@
 #define CONFIG_MXC_SPI
 
 /* SPI Flash */
-#define CONFIG_SPI_FLASH_STMICRO
 
 #define TQMA6_SPI_FLASH_SECTOR_SIZE	SZ_64K
 

@@ -8,8 +8,10 @@
 ifneq (,$(findstring y,$(CONFIG_MTD_DEVICE)$(CONFIG_CMD_NAND)$(CONFIG_CMD_ONENAND)$(CONFIG_CMD_SF)))
 obj-y += mtdcore.o mtd_uboot.o
 endif
+obj-$(CONFIG_MTD) += mtd-uclass.o
 obj-$(CONFIG_MTD_PARTITIONS) += mtdpart.o
 obj-$(CONFIG_MTD_CONCAT) += mtdconcat.o
+obj-$(CONFIG_ALTERA_QSPI) += altera_qspi.o
 obj-$(CONFIG_HAS_DATAFLASH) += at45.o
 obj-$(CONFIG_FLASH_CFI_DRIVER) += cfi_flash.o
 obj-$(CONFIG_FLASH_CFI_MTD) += cfi_mtd.o

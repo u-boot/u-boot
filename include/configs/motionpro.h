@@ -17,7 +17,6 @@
 /* CPU and board */
 #define CONFIG_MPC5200		1	/* This is a MPC5200 CPU */
 #define CONFIG_MOTIONPRO	1	/* ... on Promess Motion-PRO board */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
@@ -41,7 +40,6 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
@@ -287,7 +285,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	1	/* 2 bytes per write cycle */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5	/* 2ms/cycle + 3ms extra */
-#define CONFIG_SYS_I2C_MULTI_EEPROMS		1	/* 2 EEPROMs (addr:50,52) */
 
 /*
  * RTC configuration

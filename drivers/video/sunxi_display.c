@@ -15,7 +15,7 @@
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <axp221.h>
+#include <axp_pmic.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
@@ -1217,10 +1217,10 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		if (IS_ENABLED(CONFIG_VIDEO_LCD_PANEL_EDP_4_LANE_1620M_VIA_ANX9804)) {
 			/*
 			 * The anx9804 needs 1.8V from eldo3, we do this here
-			 * and not via CONFIG_AXP221_ELDO3 from board_init()
+			 * and not via CONFIG_AXP_ELDO3_VOLT from board_init()
 			 * to avoid turning this on when using hdmi output.
 			 */
-			axp221_set_eldo(3, 1800);
+			axp_set_eldo(3, 1800);
 			anx9804_init(CONFIG_VIDEO_LCD_I2C_BUS, 4,
 				     ANX9804_DATA_RATE_1620M,
 				     sunxi_display.depth);

@@ -34,9 +34,11 @@ void clock_init_safe(void)
 
 	clock_set_pll1(408000000);
 
-	writel(AHB1_ABP1_DIV_DEFAULT, &ccm->ahb1_apb1_div);
-
 	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);
+	while (!(readl(&ccm->pll6_cfg) & CCM_PLL6_CTRL_LOCK))
+		;
+
+	writel(AHB1_ABP1_DIV_DEFAULT, &ccm->ahb1_apb1_div);
 
 	writel(MBUS_CLK_DEFAULT, &ccm->mbus0_clk_cfg);
 	writel(MBUS_CLK_DEFAULT, &ccm->mbus1_clk_cfg);
@@ -74,9 +76,6 @@ int clock_twi_onoff(int port, int state)
 {
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
-	if (port > 3)
-		return -1;
 
 	/* set the apb clock gate for twi */
 	if (state)

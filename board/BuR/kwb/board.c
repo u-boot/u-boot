@@ -47,10 +47,6 @@
 #define	RSTCTRL_FORCE_PWR_NEN			0x0404
 #define	RSTCTRL_CAN_STB				0x4040
 
-#define VXWORKS_BOOTLINE			0x80001100
-#define DEFAULT_BOOTLINE	"cpsw(0,0):pme/vxWorks"
-#define VXWORKS_USER		"u=vxWorksFTP pw=vxWorks tn=vxtarget"
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_SPL_BUILD)
@@ -281,20 +277,15 @@ int board_late_init(void)
 	} else {
 		puts("ERROR: i2c_set_bus_speed failed! (scratchregister)\n");
 	}
-	/* setup vxworks bootline */
-	char *vxworksbootline = (char *)VXWORKS_BOOTLINE;
-	sprintf(vxworksbootline,
-		"%s h=%s e=%s:%s g=%s %s o=0x%08x;0x%08x;0x%08x;0x%08x",
-		DEFAULT_BOOTLINE,
-		getenv("serverip"),
-		getenv("ipaddr"), getenv("netmask"),
-		getenv("gatewayip"),
-		VXWORKS_USER,
-		(unsigned int) gd->fb_base-0x20,
-		(u32)getenv_ulong("vx_memtop", 16, gd->fb_base-0x20),
-		(u32)getenv_ulong("vx_romfsbase", 16, 0),
-		(u32)getenv_ulong("vx_romfssize", 16, 0));
-
+	/* setup othbootargs for bootvx-command (vxWorks bootline) */
+	char othbootargs[128];
+	snprintf(othbootargs, sizeof(othbootargs),
+		 "u=vxWorksFTP pw=vxWorks o=0x%08x;0x%08x;0x%08x;0x%08x",
+		 (unsigned int) gd->fb_base-0x20,
+		 (u32)getenv_ulong("vx_memtop", 16, gd->fb_base-0x20),
+		 (u32)getenv_ulong("vx_romfsbase", 16, 0),
+		 (u32)getenv_ulong("vx_romfssize", 16, 0));
+	setenv("othbootargs", othbootargs);
 	/*
 	 * reset VBAR registers to its reset location, VxWorks 6.9.3.2 does
 	 * expect that vectors are there, original u-boot moves them to _start

@@ -23,10 +23,12 @@ config MX6SL
 	bool
 
 config MX6SX
+	select ROM_UNIFIED_SECTIONS
 	bool
 
 config MX6UL
 	select SYS_L2CACHE_OFF
+	select ROM_UNIFIED_SECTIONS
 	bool
 
 choice
@@ -44,6 +46,9 @@ config TARGET_ARISTAINETOS2B
 
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
 
 config TARGET_CM_FX6
 	bool "CM-FX6"

@@ -9,6 +9,7 @@
 
 #include "imagetool.h"
 #include <image.h>
+#include "rkcommon.h"
 
 static uint32_t header;
 
@@ -30,7 +31,8 @@ static void rkimage_print_header(const void *buf)
 static void rkimage_set_header(void *buf, struct stat *sbuf, int ifd,
 			       struct image_tool_params *params)
 {
-	memcpy(buf, "RK32", 4);
+	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
+	       RK_SPL_HDR_SIZE);
 }
 
 static int rkimage_extract_subimage(void *buf, struct image_tool_params *params)

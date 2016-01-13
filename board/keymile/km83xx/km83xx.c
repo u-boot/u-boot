@@ -361,14 +361,12 @@ int checkboard(void)
 	return 0;
 }
 
-#if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
 	return 0;
 }
-#endif
 
 #if defined(CONFIG_HUSH_INIT_VAR)
 int hush_init_var(void)

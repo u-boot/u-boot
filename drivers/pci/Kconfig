@@ -9,6 +9,15 @@ config DM_PCI
 	  available PCI devices, allows scanning of PCI buses and provides
 	  device configuration support.
 
+config DM_PCI_COMPAT
+	bool "Enable compatible functions for PCI"
+	depends on DM_PCI
+	help
+	  Enable compatibility functions for PCI so that old code can be used
+	  with CONFIG_DM_PCI enabled. This should be used as an interim
+	  measure when porting a board to use driver model for PCI. Once the
+	  board is fully supported, this option should be disabled.
+
 config PCI_SANDBOX
 	bool "Sandbox PCI support"
 	depends on SANDBOX && DM_PCI
@@ -18,5 +27,15 @@ config PCI_SANDBOX
 	  access. The available (emulated) devices are defined statically in
 	  the device tree but the normal PCI scan technique is used to find
 	  then.
+
+config PCI_TEGRA
+	bool "Tegra PCI support"
+	depends on TEGRA
+	help
+	  Enable support for the PCIe controller found on some generations of
+	  Tegra. Tegra20 has 2 root ports with a total of 4 lanes, Tegra30 has
+	  3 root ports with a total of 6 lanes and Tegra124 has 2 root ports
+	  with a total of 5 lanes. Some boards require this for Ethernet
+	  support to work (e.g. beaver, jetson-tk1).
 
 endmenu

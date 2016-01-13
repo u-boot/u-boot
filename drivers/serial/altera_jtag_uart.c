@@ -6,98 +6,149 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
-#include <asm/io.h>
-#include <linux/compiler.h>
+#include <dm.h>
+#include <errno.h>
 #include <serial.h>
-
-typedef volatile struct {
-	unsigned	data;			/* Data register */
-	unsigned	control;		/* Control register */
-} nios_jtag_t;
-
-/* data register */
-#define NIOS_JTAG_RVALID	(1<<15)		/* Read valid */
-#define NIOS_JTAG_DATA(d)	((d)&0x0ff)	/* Read data */
-#define NIOS_JTAG_RAVAIL(d)	((d)>>16)	/* Read space avail */
-
-/* control register */
-#define NIOS_JTAG_RE		(1 << 0)	/* read intr enable */
-#define NIOS_JTAG_WE		(1 << 1)	/* write intr enable */
-#define NIOS_JTAG_RI		(1 << 8)	/* read intr pending */
-#define NIOS_JTAG_WI		(1 << 9)	/* write intr pending*/
-#define NIOS_JTAG_AC		(1 << 10)	/* activity indicator */
-#define NIOS_JTAG_RRDY		(1 << 12)	/* read available */
-#define NIOS_JTAG_WSPACE(d)	((d)>>16)	/* Write space avail */
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*------------------------------------------------------------------
- * JTAG acts as the serial port
- *-----------------------------------------------------------------*/
-static nios_jtag_t *jtag = (nios_jtag_t *)CONFIG_SYS_NIOS_CONSOLE;
+/* data register */
+#define ALTERA_JTAG_RVALID	BIT(15)	/* Read valid */
 
-static void altera_jtag_serial_setbrg(void)
-{
-}
+/* control register */
+#define ALTERA_JTAG_AC		BIT(10)	/* activity indicator */
+#define ALTERA_JTAG_RRDY	BIT(12)	/* read available */
+#define ALTERA_JTAG_WSPACE(d)	((d) >> 16)	/* Write space avail */
+/* Write fifo size. FIXME: this should be extracted with sopc2dts */
+#define ALTERA_JTAG_WRITE_DEPTH	64
 
-static int altera_jtag_serial_init(void)
+struct altera_jtaguart_regs {
+	u32	data;			/* Data register */
+	u32	control;		/* Control register */
+};
+
+struct altera_jtaguart_platdata {
+	struct altera_jtaguart_regs *regs;
+};
+
+static int altera_jtaguart_setbrg(struct udevice *dev, int baudrate)
 {
 	return 0;
 }
 
-static void altera_jtag_serial_putc(char c)
+static int altera_jtaguart_putc(struct udevice *dev, const char ch)
 {
-	while (1) {
-		unsigned st = readl(&jtag->control);
-		if (NIOS_JTAG_WSPACE(st))
-			break;
+	struct altera_jtaguart_platdata *plat = dev->platdata;
+	struct altera_jtaguart_regs *const regs = plat->regs;
+	u32 st = readl(&regs->control);
+
 #ifdef CONFIG_ALTERA_JTAG_UART_BYPASS
-		if (!(st & NIOS_JTAG_AC)) /* no connection */
-			return;
+	if (!(st & ALTERA_JTAG_AC)) /* no connection yet */
+		return -ENETUNREACH;
 #endif
-		WATCHDOG_RESET();
-	}
-	writel ((unsigned char)c, &jtag->data);
+
+	if (ALTERA_JTAG_WSPACE(st) == 0)
+		return -EAGAIN;
+
+	writel(ch, &regs->data);
+
+	return 0;
 }
 
-static int altera_jtag_serial_tstc(void)
+static int altera_jtaguart_pending(struct udevice *dev, bool input)
 {
-	return ( readl (&jtag->control) & NIOS_JTAG_RRDY);
+	struct altera_jtaguart_platdata *plat = dev->platdata;
+	struct altera_jtaguart_regs *const regs = plat->regs;
+	u32 st = readl(&regs->control);
+
+	if (input)
+		return st & ALTERA_JTAG_RRDY ? 1 : 0;
+	else
+		return !(ALTERA_JTAG_WSPACE(st) == ALTERA_JTAG_WRITE_DEPTH);
 }
 
-static int altera_jtag_serial_getc(void)
+static int altera_jtaguart_getc(struct udevice *dev)
 {
-	int c;
-	unsigned val;
+	struct altera_jtaguart_platdata *plat = dev->platdata;
+	struct altera_jtaguart_regs *const regs = plat->regs;
+	u32 val;
 
-	while (1) {
-		WATCHDOG_RESET ();
-		val = readl (&jtag->data);
-		if (val & NIOS_JTAG_RVALID)
-			break;
-	}
-	c = val & 0x0ff;
-	return (c);
+	val = readl(&regs->data);
+
+	if (!(val & ALTERA_JTAG_RVALID))
+		return -EAGAIN;
+
+	return val & 0xff;
 }
 
-static struct serial_device altera_jtag_serial_drv = {
-	.name	= "altera_jtag_uart",
-	.start	= altera_jtag_serial_init,
-	.stop	= NULL,
-	.setbrg	= altera_jtag_serial_setbrg,
-	.putc	= altera_jtag_serial_putc,
-	.puts	= default_serial_puts,
-	.getc	= altera_jtag_serial_getc,
-	.tstc	= altera_jtag_serial_tstc,
+static int altera_jtaguart_probe(struct udevice *dev)
+{
+#ifdef CONFIG_ALTERA_JTAG_UART_BYPASS
+	struct altera_jtaguart_platdata *plat = dev->platdata;
+	struct altera_jtaguart_regs *const regs = plat->regs;
+
+	writel(ALTERA_JTAG_AC, &regs->control); /* clear AC flag */
+#endif
+	return 0;
+}
+
+static int altera_jtaguart_ofdata_to_platdata(struct udevice *dev)
+{
+	struct altera_jtaguart_platdata *plat = dev_get_platdata(dev);
+
+	plat->regs = map_physmem(dev_get_addr(dev),
+				 sizeof(struct altera_jtaguart_regs),
+				 MAP_NOCACHE);
+
+	return 0;
+}
+
+static const struct dm_serial_ops altera_jtaguart_ops = {
+	.putc = altera_jtaguart_putc,
+	.pending = altera_jtaguart_pending,
+	.getc = altera_jtaguart_getc,
+	.setbrg = altera_jtaguart_setbrg,
 };
 
-void altera_jtag_serial_initialize(void)
+static const struct udevice_id altera_jtaguart_ids[] = {
+	{ .compatible = "altr,juart-1.0" },
+	{}
+};
+
+U_BOOT_DRIVER(altera_jtaguart) = {
+	.name	= "altera_jtaguart",
+	.id	= UCLASS_SERIAL,
+	.of_match = altera_jtaguart_ids,
+	.ofdata_to_platdata = altera_jtaguart_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct altera_jtaguart_platdata),
+	.probe = altera_jtaguart_probe,
+	.ops	= &altera_jtaguart_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+#ifdef CONFIG_DEBUG_UART_ALTERA_JTAGUART
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
 {
-	serial_register(&altera_jtag_serial_drv);
 }
 
-__weak struct serial_device *default_serial_console(void)
+static inline void _debug_uart_putc(int ch)
 {
-	return &altera_jtag_serial_drv;
+	struct altera_jtaguart_regs *regs = (void *)CONFIG_DEBUG_UART_BASE;
+
+	while (1) {
+		u32 st = readl(&regs->control);
+
+		if (ALTERA_JTAG_WSPACE(st))
+			break;
+	}
+
+	writel(ch, &regs->data);
 }
+
+DEBUG_UART_FUNCS
+
+#endif

@@ -128,7 +128,7 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
-	config_gpu();
+	tegra_gpu_config();
 
 #ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();
@@ -377,6 +377,10 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
 
+#ifdef CONFIG_PCI
+	gd->pci_ram_top = gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
+#endif
+
 #ifdef CONFIG_PHYS_64BIT
 	if (gd->ram_size > SZ_2G) {
 		gd->bd->bi_dram[1].start = 0x100000000;
@@ -402,4 +406,24 @@ void dram_init_banksize(void)
 ulong board_get_usable_ram_top(ulong total_size)
 {
 	return CONFIG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
+}
+
+/*
+ * This function is called right before the kernel is booted. "blob" is the
+ * device tree that will be passed to the kernel.
+ */
+int ft_system_setup(void *blob, bd_t *bd)
+{
+	const char *gpu_path =
+#if defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
+		"/gpu@0,57000000";
+#else
+		NULL;
+#endif
+
+	/* Enable GPU node if GPU setup has been performed */
+	if (gpu_path != NULL)
+		return tegra_gpu_enable_node(blob, gpu_path);
+
+	return 0;
 }

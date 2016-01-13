@@ -16,3 +16,13 @@ obj-y	+= timer.o
 ifndef CONFIG_SKIP_LOWLEVEL_INIT
 obj-y	+= lowlevel_init.o
 endif
+
+# some files can only build in ARM or THUMB2, not THUMB1
+
+ifdef CONFIG_SYS_THUMB_BUILD
+ifndef CONFIG_HAS_THUMB2
+
+CFLAGS_cpu.o := -marm
+
+endif
+endif

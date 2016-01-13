@@ -807,6 +807,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define MAX_QE_RISC			1
 #define QE_NUM_OF_SNUM			28
 #define CONFIG_SYS_FSL_SFP_VER_3_0
+#define CONFIG_SYS_FSL_ERRATUM_A008378
 
 #elif defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023) ||\
 defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
@@ -854,6 +855,7 @@ defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
 #define MAX_QE_RISC			1
 #define QE_NUM_OF_SNUM			28
 #define CONFIG_SYS_FSL_SFP_VER_3_0
+#define CONFIG_SYS_FSL_ERRATUM_A008378
 
 #elif defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T2081)
 #define CONFIG_E6500

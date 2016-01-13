@@ -49,10 +49,8 @@
 
 /* PCI host support */
 #define CONFIG_PCI
-#define CONFIG_PCI_TEGRA
 #define CONFIG_PCI_PNP
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PCI_ENUM
 
 /* PCI networking support */
 #define CONFIG_E1000_NO_NVM

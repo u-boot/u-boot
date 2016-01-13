@@ -14,8 +14,6 @@
 
 #include <linux/sizes.h>
 
-/* We use generic board for hikey */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_POWER
 #define CONFIG_POWER_HI6553
 
@@ -81,7 +79,6 @@
 #endif
 
 #define CONFIG_HIKEY_GPIO
-#define CONFIG_CMD_GPIO
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC

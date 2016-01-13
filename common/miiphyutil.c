@@ -114,6 +114,8 @@ void miiphy_register(const char *name,
 	if (new_dev == NULL || ldev == NULL) {
 		printf("miiphy_register: cannot allocate memory for '%s'\n",
 			name);
+		free(ldev);
+		mdio_free(new_dev);
 		return;
 	}
 
@@ -152,9 +154,14 @@ struct mii_dev *mdio_alloc(void)
 	return bus;
 }
 
+void mdio_free(struct mii_dev *bus)
+{
+	free(bus);
+}
+
 int mdio_register(struct mii_dev *bus)
 {
-	if (!bus || !bus->name || !bus->read || !bus->write)
+	if (!bus || !bus->read || !bus->write)
 		return -1;
 
 	/* check if we have unique name */
@@ -169,6 +176,20 @@ int mdio_register(struct mii_dev *bus)
 
 	if (!current_mii)
 		current_mii = bus;
+
+	return 0;
+}
+
+int mdio_unregister(struct mii_dev *bus)
+{
+	if (!bus)
+		return 0;
+
+	/* delete it from the list */
+	list_del(&bus->link);
+
+	if (current_mii == bus)
+		current_mii = NULL;
 
 	return 0;
 }

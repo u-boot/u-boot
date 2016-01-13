@@ -74,12 +74,24 @@ obj-y += div64.o
 obj-y += hang.o
 obj-y += linux_compat.o
 obj-y += linux_string.o
+obj-y += membuff.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o
 obj-y += time.o
 obj-$(CONFIG_TRACE) += trace.o
 obj-$(CONFIG_LIB_UUID) += uuid.o
-obj-y += vsprintf.o
 obj-$(CONFIG_LIB_RAND) += rand.o
+
+ifdef CONFIG_SPL_BUILD
+# SPL U-Boot may use full-printf, tiny-printf or none at all
+ifdef CONFIG_USE_TINY_PRINTF
+obj-$(CONFIG_SPL_SERIAL_SUPPORT) += tiny-printf.o panic.o strto.o
+else
+obj-$(CONFIG_SPL_SERIAL_SUPPORT) += vsprintf.o panic.o strto.o
+endif
+else
+# Main U-Boot always uses the full printf support
+obj-y += vsprintf.o panic.o strto.o
+endif
 
 subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2

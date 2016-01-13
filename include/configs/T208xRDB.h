@@ -11,7 +11,6 @@
 #ifndef __T2080RDB_H
 #define __T2080RDB_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_T2080RDB
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
@@ -406,7 +405,6 @@ unsigned long get_board_ddr_clk(void);
  * Serial Port
  */
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0)/2)
@@ -506,8 +504,6 @@ unsigned long get_board_ddr_clk(void);
  * eSPI - Enhanced SPI
  */
 #ifdef CONFIG_SPI_FLASH
-#define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED	 10000000
@@ -748,7 +744,6 @@ unsigned long get_board_ddr_clk(void);
  * Command line configuration.
  */
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_I2C

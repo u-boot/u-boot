@@ -42,4 +42,12 @@ config CPU_ADDR_BITS
 	int
 	default 32
 
+config DISABLE_IGD
+	bool "Disable Integrated Graphics Device (IGD)"
+	help
+	  Disable the Integrated Graphics Device (IGD) so that it does not
+	  show in the PCI configuration space as a VGA disaplay controller.
+	  This gives a chance for U-Boot to run PCI/PCIe based graphics
+	  card's VGA BIOS and use that card for the graphics console.
+
 endif

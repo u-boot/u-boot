@@ -8,6 +8,7 @@
 #include <mmc.h>
 #include <asm/io.h>
 #include <asm/irq.h>
+#include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/post.h>
@@ -232,9 +233,6 @@ int arch_cpu_init(void)
 	int ret;
 
 	post_code(POST_CPU_INIT);
-#ifdef CONFIG_SYS_X86_TSC_TIMER
-	timer_set_base(rdtsc());
-#endif
 
 	ret = x86_cpu_init_f();
 	if (ret)
@@ -368,6 +366,15 @@ void cpu_irq_init(void)
 
 int arch_misc_init(void)
 {
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	/*
+	 * We intend not to check any return value here, as even MRC cache
+	 * is not saved successfully, it is not a severe error that will
+	 * prevent system from continuing to boot.
+	 */
+	mrccache_save();
+#endif
+
 	return pirq_init();
 }
 
@@ -389,4 +396,13 @@ void board_final_cleanup(void)
 	msg_port_setbits(MSG_PORT_HOST_BRIDGE, HM_BOUND, HM_BOUND_LOCK);
 
 	return;
+}
+
+int reserve_arch(void)
+{
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	return mrccache_reserve();
+#else
+	return 0;
+#endif
 }

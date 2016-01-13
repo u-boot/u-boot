@@ -13,6 +13,7 @@
 #include <cli.h>
 #include <config.h>
 #include <command.h>
+#include <console.h>
 
 unsigned long get_dcr (unsigned short);
 unsigned long set_dcr (unsigned short, unsigned long);

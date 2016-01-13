@@ -305,7 +305,7 @@ static void zynq_qspi_check_is_dual_flash(struct zynq_qspi_priv *priv)
 
 static int zynq_qspi_child_pre_probe(struct udevice *bus)
 {
-	struct spi_slave *slave = dev_get_parentdata(bus);
+	struct spi_slave *slave = dev_get_parent_priv(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus->parent);
 
 	slave->option = priv->is_dual;

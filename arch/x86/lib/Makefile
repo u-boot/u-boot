@@ -10,16 +10,17 @@ obj-y += bios_asm.o
 obj-y += bios_interrupts.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= cmd_boot.o
-obj-$(CONFIG_HAVE_FSP) += cmd_hob.o
 obj-$(CONFIG_EFI) += efi/
+obj-y	+= e820.o
 obj-y	+= gcc.o
 obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
 obj-y	+= lpc-uclass.o
 obj-y	+= mpspec.o
+obj-$(CONFIG_ENABLE_MRC_CACHE) += mrccache.o
 obj-y += cmd_mtrr.o
-obj-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
-obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
+obj-$(CONFIG_I8259_PIC) += i8259.o
+obj-$(CONFIG_I8254_TIMER) += i8254.o
 ifndef CONFIG_DM_PCI
 obj-$(CONFIG_PCI) += pci_type1.o
 endif
@@ -29,10 +30,10 @@ obj-y	+= relocate.o
 obj-y += physmem.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o
 obj-y += sfi.o
+obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y	+= string.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 obj-y	+= tables.o
-obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 obj-$(CONFIG_HAVE_FSP) += fsp/
 

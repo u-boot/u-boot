@@ -1,0 +1,31 @@
+if ARCH_MVEBU
+
+choice
+	prompt "Marvell MVEBU (Armada XP/38x) board select"
+	optional
+
+config TARGET_DB_88F6820_GP
+	bool "Support DB-88F6820-GP"
+
+config TARGET_DB_MV784MP_GP
+	bool "Support db-mv784mp-gp"
+
+config TARGET_MAXBCM
+	bool "Support maxbcm"
+
+endchoice
+
+config SYS_SOC
+	default "mvebu"
+
+config MVEBU_BOOTROM_UARTBOOT
+	bool "Use kwboot to boot via BootROM xmodem protocol"
+	help
+	  This option provides support for booting via the Marvell
+	  xmodem protocol, used by the kwboot tool.
+
+	  Please don't forget to configure the boot device in
+	  the board specific kwbimage.cfg file this way:
+	      BOOT_FROM uart
+
+endif

@@ -1,5 +1,5 @@
 WANDBOARD BOARD
-M:	Fabio Estevam <fabio.estevam@freescale.com>
+M:	Fabio Estevam <fabio.estevam@nxp.com>
 S:	Maintained
 F:	board/wandboard/
 F:	include/configs/wandboard.h

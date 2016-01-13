@@ -12,7 +12,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 /*
@@ -159,7 +158,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -184,7 +182,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2	/* 16 bit */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	5	/* 32 bytes/write */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	12	/* 10ms +/- 20% */
-#define CONFIG_SYS_I2C_MULTI_EEPROMS		/* more than one eeprom */
 
 /* I2C RTC */
 #define CONFIG_RTC_DS1337			/* use ds1337 rtc via i2c */

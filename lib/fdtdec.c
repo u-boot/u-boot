@@ -24,7 +24,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(UNKNOWN, "<none>"),
 	COMPAT(NVIDIA_TEGRA20_EMC, "nvidia,tegra20-emc"),
 	COMPAT(NVIDIA_TEGRA20_EMC_TABLE, "nvidia,tegra20-emc-table"),
-	COMPAT(NVIDIA_TEGRA20_KBC, "nvidia,tegra20-kbc"),
 	COMPAT(NVIDIA_TEGRA20_NAND, "nvidia,tegra20-nand"),
 	COMPAT(NVIDIA_TEGRA20_PWM, "nvidia,tegra20-pwm"),
 	COMPAT(NVIDIA_TEGRA124_DC, "nvidia,tegra124-dc"),
@@ -35,9 +34,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA124_SDMMC, "nvidia,tegra124-sdhci"),
 	COMPAT(NVIDIA_TEGRA30_SDMMC, "nvidia,tegra30-sdhci"),
 	COMPAT(NVIDIA_TEGRA20_SDMMC, "nvidia,tegra20-sdhci"),
-	COMPAT(NVIDIA_TEGRA124_PCIE, "nvidia,tegra124-pcie"),
-	COMPAT(NVIDIA_TEGRA30_PCIE, "nvidia,tegra30-pcie"),
-	COMPAT(NVIDIA_TEGRA20_PCIE, "nvidia,tegra20-pcie"),
 	COMPAT(NVIDIA_TEGRA124_XUSB_PADCTL, "nvidia,tegra124-xusb-padctl"),
 	COMPAT(NVIDIA_TEGRA210_XUSB_PADCTL, "nvidia,tegra210-xusb-padctl"),
 	COMPAT(SMSC_LAN9215, "smsc,lan9215"),
@@ -75,6 +71,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(COMPAT_INTEL_IRQ_ROUTER, "intel,irq-router"),
 	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),
 	COMPAT(ALTERA_SOCFPGA_DWMMC, "altr,socfpga-dw-mshc"),
+	COMPAT(ALTERA_SOCFPGA_DWC2USB, "snps,dwc2"),
 	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP, "intel,baytrail-fsp"),
 	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP_MDP, "intel,baytrail-fsp-mdp"),
 };
@@ -219,13 +216,13 @@ int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 
 		for (i = 0; i < num; i++) {
 			debug("pci address #%d: %08lx %08lx %08lx\n", i,
-			      (ulong)fdt_addr_to_cpu(cell[0]),
-			      (ulong)fdt_addr_to_cpu(cell[1]),
-			      (ulong)fdt_addr_to_cpu(cell[2]));
-			if ((fdt_addr_to_cpu(*cell) & type) == type) {
-				addr->phys_hi = fdt_addr_to_cpu(cell[0]);
-				addr->phys_mid = fdt_addr_to_cpu(cell[1]);
-				addr->phys_lo = fdt_addr_to_cpu(cell[2]);
+			      (ulong)fdt32_to_cpu(cell[0]),
+			      (ulong)fdt32_to_cpu(cell[1]),
+			      (ulong)fdt32_to_cpu(cell[2]));
+			if ((fdt32_to_cpu(*cell) & type) == type) {
+				addr->phys_hi = fdt32_to_cpu(cell[0]);
+				addr->phys_mid = fdt32_to_cpu(cell[1]);
+				addr->phys_lo = fdt32_to_cpu(cell[1]);
 				break;
 			} else {
 				cell += (FDT_PCI_ADDR_CELLS +
@@ -601,16 +598,21 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 	return -ENOENT;
 }
 
+const char *fdtdec_get_chosen_prop(const void *blob, const char *name)
+{
+	int chosen_node;
+
+	if (!blob)
+		return NULL;
+	chosen_node = fdt_path_offset(blob, "/chosen");
+	return fdt_getprop(blob, chosen_node, name, NULL);
+}
+
 int fdtdec_get_chosen_node(const void *blob, const char *name)
 {
 	const char *prop;
-	int chosen_node;
-	int len;
 
-	if (!blob)
-		return -FDT_ERR_NOTFOUND;
-	chosen_node = fdt_path_offset(blob, "/chosen");
-	prop = fdt_getprop(blob, chosen_node, name, &len);
+	prop = fdtdec_get_chosen_prop(blob, name);
 	if (!prop)
 		return -FDT_ERR_NOTFOUND;
 	return fdt_path_offset(blob, prop);
@@ -1217,8 +1219,11 @@ int fdtdec_setup(void)
 	gd->fdt_blob = __dtb_dt_begin;
 # elif defined CONFIG_OF_SEPARATE
 #  ifdef CONFIG_SPL_BUILD
-	/* FDT is at end of BSS */
-	gd->fdt_blob = (ulong *)&__bss_end;
+	/* FDT is at end of BSS unless it is in a different memory region */
+	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
+		gd->fdt_blob = (ulong *)&_image_binary_end;
+	else
+		gd->fdt_blob = (ulong *)&__bss_end;
 #  else
 	/* FDT is at end of image */
 	gd->fdt_blob = (ulong *)&_end;

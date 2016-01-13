@@ -24,7 +24,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_PING
@@ -130,7 +129,6 @@
 #define CONFIG_SF_DEFAULT_BUS		2
 #define CONFIG_SF_DEFAULT_CS		0
 /* this may vary and depends on the installed chip */
-#define CONFIG_SPI_FLASH_SST
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 #endif

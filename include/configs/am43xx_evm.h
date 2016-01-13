@@ -22,17 +22,17 @@
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_CLK		48000000
+#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		48000000
+#endif
 
 /* I2C Configuration */
 #define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-#define CONFIG_SYS_I2C_MULTI_EEPROMS
 
 /* Power */
 #define CONFIG_POWER
@@ -136,6 +136,14 @@
 #define CONFIG_USB_GADGET_DUALSPEED
 #endif
 
+/*
+ * Disable MMC DM for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_MMC
+#endif
+
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
@@ -165,11 +173,22 @@
 	"fdt ram 0x80f80000 0x80000;" \
 	"ramdisk ram 0x81000000 0x4000000\0"
 
+#define CONFIG_DFU_SF
+#define DFU_ALT_INFO_QSPI \
+	"dfu_alt_info_qspi=" \
+	"u-boot.bin raw 0x0 0x080000;" \
+	"u-boot.backup raw 0x080000 0x080000;" \
+	"u-boot-spl-os raw 0x100000 0x010000;" \
+	"u-boot-env raw 0x110000 0x010000;" \
+	"u-boot-env.backup raw 0x120000 0x010000;" \
+	"kernel raw 0x130000 0x800000\0"
+
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_EMMC \
-	DFU_ALT_INFO_RAM
+	DFU_ALT_INFO_RAM \
+	DFU_ALT_INFO_QSPI
 #else
 #define DFUARGS
 #endif
@@ -200,14 +219,14 @@
 
 /* SPI */
 #undef CONFIG_OMAP3_SPI
-#define CONFIG_TI_QSPI
-#define CONFIG_SPI_FLASH_MACRONIX
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_QSPI_SEL_GPIO                   48
 #define CONFIG_SF_DEFAULT_SPEED                48000000
 #define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
+#define CONFIG_QSPI_QUAD_SUPPORT
+#define CONFIG_TI_EDMA3
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT

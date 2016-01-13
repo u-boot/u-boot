@@ -57,6 +57,8 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
+"bootaddr=0x80001100\0" \
+"bootdev=cpsw(0,0)\0" \
 "vx_romfsbase=0x800E0000\0" \
 "vx_romfssize=0x20000\0" \
 "vx_memtop=0x8FBEF000\0" \
@@ -66,7 +68,7 @@ BUR_COMMON_ENV \
 "logoaddr=0x82000000\0" \
 "defaultARlen=0x8000\0" \
 "loaddefaultAR=mmc read ${loadaddr} 800 ${defaultARlen}\0" \
-"defaultAR=run loadromfs; run loaddefaultAR; go ${loadaddr}\0" \
+"defaultAR=run loadromfs; run loaddefaultAR; bootvx ${loadaddr}\0" \
 "logo0=fatload mmc 0:1 ${logoaddr} SYSTEM/ADDON/Bootlogo/Bootlogo.bmp.gz && " \
 	"bmp display ${logoaddr} 0 0\0" \
 "logo1=fatload mmc 0:1 ${logoaddr} SYSTEM/BASE/Bootlogo/Bootlogo.bmp.gz && " \
@@ -74,11 +76,11 @@ BUR_COMMON_ENV \
 "mmcboot=echo booting AR from eMMC-flash ...; "\
 	"run logo0 || run logo1; " \
 	"run loadromfs; " \
-	"fatload mmc 0:1 ${loadaddr} arimg && go ${loadaddr}; " \
+	"fatload mmc 0:1 ${loadaddr} arimg && bootvx ${loadaddr}; " \
 	"run defaultAR;\0" \
 "netboot=echo booting AR from network ...; " \
 	"run loadromfs; " \
-	"tftp ${loadaddr} arimg && go ${loadaddr}; " \
+	"tftp ${loadaddr} arimg && bootvx ${loadaddr}; " \
 	"puts 'networkboot failed!';\0" \
 "netscript=echo running script from network (tftp) ...; " \
 	"tftp 0x80000000 netscript.img && source; " \

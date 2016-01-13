@@ -101,7 +101,7 @@ int get_board_revision(void)
 		board_id4 = gpio_get_value(PANDA_ES_BOARD_ID_4_GPIO);
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-		setenv("board_name", strcat(CONFIG_SYS_BOARD, "-es"));
+		setenv("board_name", "panda-es");
 #endif
 		board_id = ((board_id4 << 4) | (board_id3 << 3) |
 			(board_id2 << 2) | (board_id1 << 1) | (board_id0));
@@ -115,7 +115,7 @@ int get_board_revision(void)
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 		if ((board_id >= 0x3) && (processor_rev == OMAP4430_ES2_3))
-			setenv("board_name", strcat(CONFIG_SYS_BOARD, "-a4"));
+			setenv("board_name", "panda-a4");
 #endif
 	}
 
@@ -209,7 +209,6 @@ int misc_init_r(void)
 {
 	int phy_type;
 	u32 auxclk, altclksrc;
-	u32 id[4];
 
 	/* EHCI is not supported on ES1.0 */
 	if (omap_revision() == OMAP4430_ES1_0)
@@ -263,11 +262,7 @@ int misc_init_r(void)
 
 	writel(altclksrc, &scrm->altclksrc);
 
-	id[0] = readl(STD_FUSE_DIE_ID_0);
-	id[1] = readl(STD_FUSE_DIE_ID_1);
-	id[2] = readl(STD_FUSE_DIE_ID_2);
-	id[3] = readl(STD_FUSE_DIE_ID_3);
-	usb_fake_mac_from_die_id(id);
+	omap_die_id_usbethaddr();
 
 	return 0;
 }

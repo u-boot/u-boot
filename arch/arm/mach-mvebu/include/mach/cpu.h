@@ -119,6 +119,8 @@ int mvebu_mbus_probe(struct mbus_win windows[], int count);
 int mvebu_soc_family(void);
 u32 mvebu_get_nand_clock(void);
 
+void return_to_bootrom(void);
+
 int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks);
 
 /*

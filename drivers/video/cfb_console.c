@@ -15,8 +15,10 @@
  * logo can be placed in the upper left corner and additional board
  * information strings (that normally goes to serial port) can be drawn.
  *
- * The console driver can use the standard PC keyboard interface (i8042)
- * for character input. Character output goes to a memory mapped video
+ * The console driver can use a keyboard interface for character input
+ * but this is deprecated. Only rk51 uses it.
+ *
+ * Character output goes to a memory-mapped video
  * framebuffer with little or big-endian organisation.
  * With environment setting 'console=serial' the console i/o can be
  * forced to serial port.
@@ -38,18 +40,10 @@
  * VIDEO_DATA_FORMAT	      - graphical data format GDF
  * VIDEO_FB_ADRS	      - start of video memory
  *
- * CONFIG_I8042_KBD	      - AT Keyboard driver for i8042
  * VIDEO_KBD_INIT_FCT	      - init function for keyboard
  * VIDEO_TSTC_FCT	      - keyboard_tstc function
  * VIDEO_GETC_FCT	      - keyboard_getc function
  *
- * CONFIG_CONSOLE_CURSOR      - on/off drawing cursor is done with
- *				delay loop in VIDEO_TSTC_FCT (i8042)
- *
- * CONFIG_SYS_CONSOLE_BLINK_COUNT - value for delay loop - blink rate
- * CONFIG_CONSOLE_TIME	      - display time/date in upper right
- *				corner, needs CONFIG_CMD_DATE and
- *				CONFIG_CONSOLE_CURSOR
  * CONFIG_VIDEO_LOGO	      - display Linux Logo in upper left corner.
  *				Use CONFIG_SPLASH_SCREEN_ALIGN with
  *				environment variable "splashpos" to place
@@ -165,19 +159,6 @@
 #define VIDEO_FB_ADRS		(pGD->frameAdrs)
 
 /*
- * Console device defines with i8042 keyboard controller
- * Any other keyboard controller must change this section
- */
-
-#ifdef	CONFIG_I8042_KBD
-#include <i8042.h>
-
-#define VIDEO_KBD_INIT_FCT	i8042_kbd_init()
-#define VIDEO_TSTC_FCT		i8042_tstc
-#define VIDEO_GETC_FCT		i8042_getc
-#endif
-
-/*
  * Console device
  */
 
@@ -198,9 +179,6 @@
 
 /*
  * Cursor definition:
- * CONFIG_CONSOLE_CURSOR:  Uses a timer function (see drivers/input/i8042.c)
- *			   to let the cursor blink. Uses the macros
- *			   CURSOR_OFF and CURSOR_ON.
  * CONFIG_VIDEO_SW_CURSOR: Draws a cursor after the last character. No
  *			   blinking is provided. Uses the macros CURSOR_SET
  *			   and CURSOR_OFF.
@@ -210,42 +188,29 @@
  *			   must disable the hardware register of the graphic
  *			   chip. Otherwise a blinking field is displayed
  */
-#if !defined(CONFIG_CONSOLE_CURSOR) && \
-    !defined(CONFIG_VIDEO_SW_CURSOR) && \
-    !defined(CONFIG_VIDEO_HW_CURSOR)
+#if !defined(CONFIG_VIDEO_SW_CURSOR) && !defined(CONFIG_VIDEO_HW_CURSOR)
 /* no Cursor defined */
 #define CURSOR_ON
 #define CURSOR_OFF
 #define CURSOR_SET
 #endif
 
-#if defined(CONFIG_CONSOLE_CURSOR) || defined(CONFIG_VIDEO_SW_CURSOR)
-#if defined(CURSOR_ON) || \
-	(defined(CONFIG_CONSOLE_CURSOR) && defined(CONFIG_VIDEO_SW_CURSOR))
-#error	only one of CONFIG_CONSOLE_CURSOR, CONFIG_VIDEO_SW_CURSOR, \
-	or CONFIG_VIDEO_HW_CURSOR can be defined
+#if defined(CONFIG_VIDEO_SW_CURSOR)
+#if defined(CONFIG_VIDEO_HW_CURSOR)
+#error	only one of CONFIG_VIDEO_SW_CURSOR or CONFIG_VIDEO_HW_CURSOR can be \
+	defined
 #endif
 void console_cursor(int state);
 
 #define CURSOR_ON  console_cursor(1)
 #define CURSOR_OFF console_cursor(0)
 #define CURSOR_SET video_set_cursor()
-#endif /* CONFIG_CONSOLE_CURSOR || CONFIG_VIDEO_SW_CURSOR */
-
-#ifdef	CONFIG_CONSOLE_CURSOR
-#ifndef	CONFIG_CONSOLE_TIME
-#error	CONFIG_CONSOLE_CURSOR must be defined for CONFIG_CONSOLE_TIME
-#endif
-#ifndef CONFIG_I8042_KBD
-#warning Cursor drawing on/off needs timer function s.a. drivers/input/i8042.c
-#endif
-#endif /* CONFIG_CONSOLE_CURSOR */
-
+#endif /* CONFIG_VIDEO_SW_CURSOR */
 
 #ifdef CONFIG_VIDEO_HW_CURSOR
 #ifdef	CURSOR_ON
-#error	only one of CONFIG_CONSOLE_CURSOR, CONFIG_VIDEO_SW_CURSOR, \
-	or CONFIG_VIDEO_HW_CURSOR can be defined
+#error	only one of CONFIG_VIDEO_SW_CURSOR or CONFIG_VIDEO_HW_CURSOR can be \
+	defined
 #endif
 #define CURSOR_ON
 #define CURSOR_OFF
@@ -626,7 +591,7 @@ static void video_putchar(int xx, int yy, unsigned char c)
 	video_drawchars(xx, yy + video_logo_height, &c, 1);
 }
 
-#if defined(CONFIG_CONSOLE_CURSOR) || defined(CONFIG_VIDEO_SW_CURSOR)
+#if defined(CONFIG_VIDEO_SW_CURSOR)
 static void video_set_cursor(void)
 {
 	if (cursor_state)
@@ -651,27 +616,6 @@ static void video_invertchar(int xx, int yy)
 
 void console_cursor(int state)
 {
-#ifdef CONFIG_CONSOLE_TIME
-	struct rtc_time tm;
-	char info[16];
-
-	/* time update only if cursor is on (faster scroll) */
-	if (state) {
-		rtc_get(&tm);
-
-		sprintf(info, " %02d:%02d:%02d ", tm.tm_hour, tm.tm_min,
-			tm.tm_sec);
-		video_drawstring(VIDEO_VISIBLE_COLS - 10 * VIDEO_FONT_WIDTH,
-				 VIDEO_INFO_Y, (uchar *) info);
-
-		sprintf(info, "%02d.%02d.%04d", tm.tm_mday, tm.tm_mon,
-			tm.tm_year);
-		video_drawstring(VIDEO_VISIBLE_COLS - 10 * VIDEO_FONT_WIDTH,
-				 VIDEO_INFO_Y + 1 * VIDEO_FONT_HEIGHT,
-				 (uchar *) info);
-	}
-#endif
-
 	if (cursor_state != state) {
 		if (cursor_state) {
 			/* turn off the cursor */
@@ -2280,8 +2224,7 @@ int drv_video_init(void)
 	/* Init vga device */
 	memset(&console_dev, 0, sizeof(console_dev));
 	strcpy(console_dev.name, "vga");
-	console_dev.ext = DEV_EXT_VIDEO;	/* Video extensions */
-	console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
+	console_dev.flags = DEV_FLAGS_OUTPUT;
 	console_dev.putc = video_putc;	/* 'putc' function */
 	console_dev.puts = video_puts;	/* 'puts' function */
 

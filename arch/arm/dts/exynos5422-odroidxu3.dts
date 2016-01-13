@@ -31,6 +31,18 @@
 			0xb0000000 0xea00000>;
 	};
 
+	adc@12D10000 {
+		u-boot,dm-pre-reloc;
+		status = "okay";
+	};
+
+	i2c@12CA0000 {
+		s2mps11_pmic@66 {
+			compatible = "samsung,s2mps11-pmic";
+			reg = <0x66>;
+		};
+	};
+
 	ehci@12110000 {
 		samsung,vbus-gpio = <&gpx2 6 GPIO_ACTIVE_HIGH>;
 	};

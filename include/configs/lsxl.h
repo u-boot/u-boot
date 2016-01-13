@@ -8,7 +8,6 @@
 #ifndef _CONFIG_LSXL_H
 #define _CONFIG_LSXL_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Version number information
@@ -55,7 +54,6 @@
  */
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
@@ -80,8 +78,6 @@
 #define CONFIG_SUPPORT_RAW_INITRD
 
 /* ST M25P40 */
-#undef CONFIG_SPI_FLASH_MACRONIX
-#define CONFIG_SPI_FLASH_STMICRO
 #undef CONFIG_ENV_SPI_MAX_HZ
 #define CONFIG_ENV_SPI_MAX_HZ		25000000
 #undef CONFIG_SF_DEFAULT_SPEED

@@ -169,20 +169,4 @@ void northbridge_init(pci_dev_t dev)
 
 void northbridge_enable(pci_dev_t dev)
 {
-#if CONFIG_HAVE_ACPI_RESUME
-	switch (x86_pci_read_config32(dev, SKPAD)) {
-	case 0xcafebabe:
-		debug("Normal boot.\n");
-		apci_set_slp_type(0);
-		break;
-	case 0xcafed00d:
-		debug("S3 Resume.\n");
-		apci_set_slp_type(3);
-		break;
-	default:
-		debug("Unknown boot method, assuming normal.\n");
-		apci_set_slp_type(0);
-		break;
-	}
-#endif
 }

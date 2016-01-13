@@ -15,22 +15,11 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 #define CONFIG_ARCH_MISC_INIT
-
-#define CONFIG_PCI_MEM_BUS		0xc0000000
-#define CONFIG_PCI_MEM_PHYS		CONFIG_PCI_MEM_BUS
-#define CONFIG_PCI_MEM_SIZE		0x10000000
-
-#define CONFIG_PCI_PREF_BUS		0xd0000000
-#define CONFIG_PCI_PREF_PHYS		CONFIG_PCI_PREF_BUS
-#define CONFIG_PCI_PREF_SIZE		0x10000000
-
-#define CONFIG_PCI_IO_BUS		0x2000
-#define CONFIG_PCI_IO_PHYS		CONFIG_PCI_IO_BUS
-#define CONFIG_PCI_IO_SIZE		0xe000
+#define CONFIG_ARCH_EARLY_INIT_R
 
 #define CONFIG_PCI_PNP
 
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,vga\0" \
+#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd\0" \
 					"stdout=serial,vga\0" \
 					"stderr=serial,vga\0"
 
@@ -63,10 +52,8 @@
 
 /* GPIO is not supported */
 #undef CONFIG_INTEL_ICH6_GPIO
-#undef CONFIG_CMD_GPIO
 
 /* SPI is not supported */
-#undef CONFIG_ICH_SPI
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 

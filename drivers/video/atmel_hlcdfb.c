@@ -162,6 +162,10 @@ void lcd_ctrl_init(void *lcdbase)
 		lcdc_writel(&regs->lcdc_basecfg1,
 			LCDC_BASECFG1_RGBMODE_16BPP_RGB_565);
 		break;
+	case 32:
+		lcdc_writel(&regs->lcdc_basecfg1,
+			LCDC_BASECFG1_RGBMODE_24BPP_RGB_888);
+		break;
 	default:
 		BUG();
 		break;

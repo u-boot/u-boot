@@ -10,6 +10,7 @@
 #include <common.h>
 #include <cli.h>
 #include <command.h>
+#include <console.h>
 #include "yucca.h"
 #include <i2c.h>
 #include <asm/byteorder.h>

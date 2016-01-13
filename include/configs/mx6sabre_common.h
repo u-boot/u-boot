@@ -39,7 +39,6 @@
 
 #define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
@@ -158,6 +157,8 @@
 					"setenv fdt_file imx6q-sabreauto.dtb; fi; " \
 				"if test $board_name = SABREAUTO && test $board_rev = MX6DL; then " \
 					"setenv fdt_file imx6dl-sabreauto.dtb; fi; " \
+				"if test $board_name = SABRESD && test $board_rev = MX6QP; then " \
+					"setenv fdt_file imx6qp-sabresd.dtb; fi; " \
 				"if test $board_name = SABRESD && test $board_rev = MX6Q; then " \
 					"setenv fdt_file imx6q-sabresd.dtb; fi; " \
 				"if test $board_name = SABRESD && test $board_rev = MX6DL; then " \

@@ -35,7 +35,7 @@ static const struct ns16550_platdata serial_omap_platdata = {
 };
 
 U_BOOT_DEVICE(sniper_serial) = {
-	.name = "serial_omap",
+	.name = "ns16550_serial",
 	.platdata = &serial_omap_platdata
 };
 
@@ -92,9 +92,7 @@ int board_init(void)
 int misc_init_r(void)
 {
 	unsigned char keypad_matrix[64] = { 0 };
-	char serial_string[17] = { 0 };
 	char reboot_mode[2] = { 0 };
-	u32 dieid[4] = { 0 };
 	unsigned char keys[3];
 	unsigned char data = 0;
 
@@ -140,14 +138,7 @@ int misc_init_r(void)
 
 	/* Serial number */
 
-	get_dieid((u32 *)&dieid);
-
-	if (!getenv("serial#")) {
-		snprintf(serial_string, sizeof(serial_string),
-			"%08x%08x", dieid[0], dieid[3]);
-
-		setenv("serial#", serial_string);
-	}
+	omap_die_id_serial();
 
 	/* MUSB */
 
@@ -158,20 +149,7 @@ int misc_init_r(void)
 
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	char *serial_string;
-	unsigned long long serial;
-
-	serial_string = getenv("serial#");
-
-	if (serial_string) {
-		serial = simple_strtoull(serial_string, NULL, 16);
-
-		serialnr->high = (unsigned int) (serial >> 32);
-		serialnr->low = (unsigned int) (serial & 0xffffffff);
-	} else {
-		serialnr->high = 0;
-		serialnr->low = 0;
-	}
+	omap_die_id_get_board_serial(serialnr);
 }
 
 void reset_misc(void)

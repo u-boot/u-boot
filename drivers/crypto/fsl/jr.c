@@ -11,6 +11,7 @@
 #include "fsl_sec.h"
 #include "jr.h"
 #include "jobdesc.h"
+#include "desc_constr.h"
 
 #define CIRC_CNT(head, tail, size)	(((head) - (tail)) & (size - 1))
 #define CIRC_SPACE(head, tail, size)	CIRC_CNT((tail), (head) + 1, (size))
@@ -154,19 +155,35 @@ static int jr_hw_reset(void)
 
 /* -1 --- error, can't enqueue -- no space available */
 static int jr_enqueue(uint32_t *desc_addr,
-	       void (*callback)(uint32_t desc, uint32_t status, void *arg),
+	       void (*callback)(uint32_t status, void *arg),
 	       void *arg)
 {
 	struct jr_regs *regs = (struct jr_regs *)CONFIG_SYS_FSL_JR0_ADDR;
 	int head = jr.head;
-	dma_addr_t desc_phys_addr = virt_to_phys(desc_addr);
+	uint32_t desc_word;
+	int length = desc_len(desc_addr);
+	int i;
+#ifdef CONFIG_PHYS_64BIT
+	uint32_t *addr_hi, *addr_lo;
+#endif
+
+	/* The descriptor must be submitted to SEC block as per endianness
+	 * of the SEC Block.
+	 * So, if the endianness of Core and SEC block is different, each word
+	 * of the descriptor will be byte-swapped.
+	 */
+	for (i = 0; i < length; i++) {
+		desc_word = desc_addr[i];
+		sec_out32((uint32_t *)&desc_addr[i], desc_word);
+	}
+
+	phys_addr_t desc_phys_addr = virt_to_phys(desc_addr);
 
 	if (sec_in32(&regs->irsa) == 0 ||
 	    CIRC_SPACE(jr.head, jr.tail, jr.size) <= 0)
 		return -1;
 
 	jr.info[head].desc_phys_addr = desc_phys_addr;
-	jr.info[head].desc_addr = (uint32_t)desc_addr;
 	jr.info[head].callback = (void *)callback;
 	jr.info[head].arg = arg;
 	jr.info[head].op_done = 0;
@@ -177,9 +194,29 @@ static int jr_enqueue(uint32_t *desc_addr,
 					ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
-	jr.input_ring[head] = desc_phys_addr;
+#ifdef CONFIG_PHYS_64BIT
+	/* Write the 64 bit Descriptor address on Input Ring.
+	 * The 32 bit hign and low part of the address will
+	 * depend on endianness of SEC block.
+	 */
+#ifdef CONFIG_SYS_FSL_SEC_LE
+	addr_lo = (uint32_t *)(&jr.input_ring[head]);
+	addr_hi = (uint32_t *)(&jr.input_ring[head]) + 1;
+#elif defined(CONFIG_SYS_FSL_SEC_BE)
+	addr_hi = (uint32_t *)(&jr.input_ring[head]);
+	addr_lo = (uint32_t *)(&jr.input_ring[head]) + 1;
+#endif /* ifdef CONFIG_SYS_FSL_SEC_LE */
+
+	sec_out32(addr_hi, (uint32_t)(desc_phys_addr >> 32));
+	sec_out32(addr_lo, (uint32_t)(desc_phys_addr));
+
+#else
+	/* Write the 32 bit Descriptor address on Input Ring. */
+	sec_out32(&jr.input_ring[head], desc_phys_addr);
+#endif /* ifdef CONFIG_PHYS_64BIT */
+
 	start = (unsigned long)&jr.input_ring[head] & ~(ARCH_DMA_MINALIGN - 1);
-	end = ALIGN(start + sizeof(dma_addr_t), ARCH_DMA_MINALIGN);
+	end = ALIGN(start + sizeof(phys_addr_t), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
 	jr.head = (head + 1) & (jr.size - 1);
@@ -195,8 +232,13 @@ static int jr_dequeue(void)
 	int head = jr.head;
 	int tail = jr.tail;
 	int idx, i, found;
-	void (*callback)(uint32_t desc, uint32_t status, void *arg);
+	void (*callback)(uint32_t status, void *arg);
 	void *arg = NULL;
+#ifdef CONFIG_PHYS_64BIT
+	uint32_t *addr_hi, *addr_lo;
+#else
+	uint32_t *addr;
+#endif
 
 	while (sec_in32(&regs->orsf) && CIRC_CNT(jr.head, jr.tail, jr.size)) {
 		unsigned long start = (unsigned long)jr.output_ring &
@@ -208,14 +250,34 @@ static int jr_dequeue(void)
 
 		found = 0;
 
-		dma_addr_t op_desc = jr.output_ring[jr.tail].desc;
-		uint32_t status = jr.output_ring[jr.tail].status;
-		uint32_t desc_virt;
+		phys_addr_t op_desc;
+	#ifdef CONFIG_PHYS_64BIT
+		/* Read the 64 bit Descriptor address from Output Ring.
+		 * The 32 bit hign and low part of the address will
+		 * depend on endianness of SEC block.
+		 */
+	#ifdef CONFIG_SYS_FSL_SEC_LE
+		addr_lo = (uint32_t *)(&jr.output_ring[jr.tail].desc);
+		addr_hi = (uint32_t *)(&jr.output_ring[jr.tail].desc) + 1;
+	#elif defined(CONFIG_SYS_FSL_SEC_BE)
+		addr_hi = (uint32_t *)(&jr.output_ring[jr.tail].desc);
+		addr_lo = (uint32_t *)(&jr.output_ring[jr.tail].desc) + 1;
+	#endif /* ifdef CONFIG_SYS_FSL_SEC_LE */
+
+		op_desc = ((u64)sec_in32(addr_hi) << 32) |
+			  ((u64)sec_in32(addr_lo));
+
+	#else
+		/* Read the 32 bit Descriptor address from Output Ring. */
+		addr = (uint32_t *)&jr.output_ring[jr.tail].desc;
+		op_desc = sec_in32(addr);
+	#endif /* ifdef CONFIG_PHYS_64BIT */
+
+		uint32_t status = sec_in32(&jr.output_ring[jr.tail].status);
 
 		for (i = 0; CIRC_CNT(head, tail + i, jr.size) >= 1; i++) {
 			idx = (tail + i) & (jr.size - 1);
 			if (op_desc == jr.info[idx].desc_phys_addr) {
-				desc_virt = jr.info[idx].desc_addr;
 				found = 1;
 				break;
 			}
@@ -244,13 +306,13 @@ static int jr_dequeue(void)
 		sec_out32(&regs->orjr, 1);
 		jr.info[idx].op_done = 0;
 
-		callback(desc_virt, status, arg);
+		callback(status, arg);
 	}
 
 	return 0;
 }
 
-static void desc_done(uint32_t desc, uint32_t status, void *arg)
+static void desc_done(uint32_t status, void *arg)
 {
 	struct result *x = arg;
 	x->status = status;
@@ -408,17 +470,13 @@ static void kick_trng(int ent_delay)
 	sec_out32(&rng->rtfreqmin, ent_delay >> 2);
 	/* disable maximum frequency count */
 	sec_out32(&rng->rtfreqmax, RTFRQMAX_DISABLE);
-	/* read the control register */
-	val = sec_in32(&rng->rtmctl);
 	/*
 	 * select raw sampling in both entropy shifter
 	 * and statistical checker
 	 */
-	sec_setbits32(&val, RTMCTL_SAMP_MODE_RAW_ES_SC);
+	sec_setbits32(&rng->rtmctl, RTMCTL_SAMP_MODE_RAW_ES_SC);
 	/* put RNG4 into run mode */
-	sec_clrbits32(&val, RTMCTL_PRGM);
-	/* write back the control register */
-	sec_out32(&rng->rtmctl, val);
+	sec_clrbits32(&rng->rtmctl, RTMCTL_PRGM);
 }
 
 static int rng_init(void)

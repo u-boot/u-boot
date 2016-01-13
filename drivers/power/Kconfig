@@ -4,87 +4,220 @@ source "drivers/power/pmic/Kconfig"
 
 source "drivers/power/regulator/Kconfig"
 
+choice
+	prompt "Select Sunxi PMIC Variant"
+	depends on ARCH_SUNXI
+	default AXP209_POWER if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
+	default AXP818_POWER if MACH_SUN8I_A83T
+	default SUNXI_NO_PMIC if MACH_SUN8I_H3
+
+config SUNXI_NO_PMIC
+	boolean "board without a pmic"
+	---help---
+	Select this for boards which do not use a PMIC.
+
+config AXP152_POWER
+	boolean "axp152 pmic support"
+	depends on MACH_SUN5I
+	---help---
+	Select this to enable support for the axp152 pmic found on most
+	A10s boards.
+
+config AXP209_POWER
+	boolean "axp209 pmic support"
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	---help---
+	Select this to enable support for the axp209 pmic found on most
+	A10, A13 and A20 boards.
+
 config AXP221_POWER
 	boolean "axp221 / axp223 pmic support"
-	depends on MACH_SUN6I || MACH_SUN8I
-	default y
+	depends on MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
 	---help---
-	Say y here to enable support for the axp221 / axp223 pmic found on most
-	sun6i (A31) / sun8i (A23) boards.
+	Select this to enable support for the axp221/axp223 pmic found on most
+	A23 and A31 boards.
 
-config AXP221_DCDC1_VOLT
-	int "axp221 dcdc1 voltage"
-	depends on AXP221_POWER
-	default 3000
+config AXP818_POWER
+	boolean "axp818 pmic support"
+	depends on MACH_SUN8I_A83T
 	---help---
-	Set the voltage (mV) to program the axp221 dcdc1 at, set to 0 to
-	disable dcdc1. This is typically used as generic 3.3V IO voltage for
-	things like GPIO-s, sdcard interfaces, etc. On most boards this is
-	undervolted to 3.0V to safe battery.
+	Say y here to enable support for the axp818 pmic found on
+	A83T dev board.
 
-config AXP221_DCDC2_VOLT
-	int "axp221 dcdc2 voltage"
-	depends on AXP221_POWER
-	default 1200
+endchoice
+
+config AXP_DCDC1_VOLT
+	int "axp pmic dcdc1 voltage"
+	depends on AXP221_POWER || AXP818_POWER
+	default 3300 if AXP818_POWER
+	default 3000 if MACH_SUN6I || MACH_SUN8I
 	---help---
-	Set the voltage (mV) to program the axp221 dcdc2 at, set to 0 to
-	disable dcdc2. On A31 boards this is typically used for VDD-GPU,
-	on A23/A33 for VDD-SYS, this should normally be set to 1.2V.
+	Set the voltage (mV) to program the axp pmic dcdc1 at, set to 0 to
+	disable dcdc1. On A23 / A31 / A33 (axp221) boards dcdc1 is used for
+	generic 3.3V IO voltage for external devices like the lcd-panal and
+	sdcard interfaces, etc. On most boards dcdc1 is undervolted to 3.0V to
+	safe battery. On A31 devices dcdc1 is also used for VCC-IO. On A83T
+	dcdc1 is used for VCC-IO, nand, usb0, sd , etc.
 
-config AXP221_DLDO1_VOLT
-	int "axp221 dldo1 voltage"
-	depends on AXP221_POWER
-	default 0
+config AXP_DCDC2_VOLT
+	int "axp pmic dcdc2 voltage"
+	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP818_POWER
+	default 900 if AXP818_POWER
+	default 1400 if AXP152_POWER || AXP209_POWER
+	default 1200 if MACH_SUN6I
+	default 1100 if MACH_SUN8I
 	---help---
-	Set the voltage (mV) to program the axp221 dldo1 at, set to 0 to
-	disable dldo1. On sun6i (A31) boards with ethernet this is often used
-	to power the ethernet phy. On sun8i (A23) boards this is often used to
-	power the wifi.
+	Set the voltage (mV) to program the axp pmic dcdc2 at, set to 0 to
+	disable dcdc2.
+	On A10(s) / A13 / A20 boards dcdc2 is VDD-CPU and should be 1.4V.
+	On A31 boards dcdc2 is used for VDD-GPU and should be 1.2V.
+	On A23/A33 boards dcdc2 is used for VDD-SYS and should be 1.1V.
+	On A83T boards dcdc2 is used for VDD-CPUA(cluster 0) and should be 0.9V.
 
-config AXP221_DLDO4_VOLT
-	int "axp221 dldo4 voltage"
-	depends on AXP221_POWER
-	default 0
+config AXP_DCDC3_VOLT
+	int "axp pmic dcdc3 voltage"
+	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP818_POWER
+	default 900 if AXP818_POWER
+	default 1500 if AXP152_POWER
+	default 1250 if AXP209_POWER
+	default 1200 if MACH_SUN6I || MACH_SUN8I
 	---help---
-	Set the voltage (mV) to program the axp221 dldo4 at, set to 0 to
-	disable dldo4.
+	Set the voltage (mV) to program the axp pmic dcdc3 at, set to 0 to
+	disable dcdc3.
+	On A10(s) / A13 / A20 boards with an axp209 dcdc3 is VDD-INT-DLL and
+	should be 1.25V.
+	On A10s boards with an axp152 dcdc3 is VCC-DRAM and should be 1.5V.
+	On A23 / A31 / A33 boards dcdc3 is VDD-CPU and should be 1.2V.
+	On A83T boards dcdc3 is used for VDD-CPUB(cluster 1) and should be 0.9V.
 
-config AXP221_ALDO1_VOLT
-	int "axp221 aldo1 voltage"
-	depends on AXP221_POWER
-	default 0
+config AXP_DCDC4_VOLT
+	int "axp pmic dcdc4 voltage"
+	depends on AXP152_POWER || AXP221_POWER || AXP818_POWER
+	default 1250 if AXP152_POWER
+	default 1200 if MACH_SUN6I
+	default 0 if MACH_SUN8I
 	---help---
-	Set the voltage (mV) to program the axp221 aldo1 at, set to 0 to
-	disable aldo1. On sun6i (A31) boards which have a wifi module this is
-	often used to power the wifi module.
+	Set the voltage (mV) to program the axp pmic dcdc4 at, set to 0 to
+	disable dcdc4.
+	On A10s boards with an axp152 dcdc4 is VDD-INT-DLL and should be 1.25V.
+	On A31 boards dcdc4 is used for VDD-SYS and should be 1.2V.
+	On A23 / A33 boards dcdc4 is unused and should be disabled.
+	On A83T boards dcdc4 is used for VDD-GPU.
 
-config AXP221_ALDO2_VOLT
-	int "axp221 aldo2 voltage"
+config AXP_DCDC5_VOLT
+	int "axp pmic dcdc5 voltage"
+	depends on AXP221_POWER || AXP818_POWER
+	default 1800 if AXP818_POWER
+	default 1500 if MACH_SUN6I || MACH_SUN8I
+	---help---
+	Set the voltage (mV) to program the axp pmic dcdc5 at, set to 0 to
+	disable dcdc5.
+	On A23 / A31 / A33 / A83T boards dcdc5 is VCC-DRAM and should be 1.5V,
+	1.8V for A83T.
+
+config AXP_ALDO1_VOLT
+	int "axp pmic (a)ldo1 voltage"
 	depends on AXP221_POWER
+	default 0 if MACH_SUN6I
+	default 3000 if MACH_SUN8I
+	---help---
+	Set the voltage (mV) to program the axp pmic aldo1 at, set to 0 to
+	disable aldo1.
+	On A31 boards aldo1 is often used to power the wifi module.
+	On A23 / A33 boards aldo1 is used for VCC-IO and should be 3.0V.
+
+config AXP_ALDO2_VOLT
+	int "axp pmic (a)ldo2 voltage"
+	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP818_POWER
+	default 3000 if AXP152_POWER || AXP209_POWER
 	default 0 if MACH_SUN6I
 	default 2500 if MACH_SUN8I
 	---help---
-	Set the voltage (mV) to program the axp221 aldo2 at, set to 0 to
-	disable aldo2. On sun6i (A31) boards this is typically unused and
-	should be disabled, if it is used for LPDDR2 it should be set to 1.8V.
-	On sun8i (A23) this is typically connected to VDD-DLL and must be set
-	to 2.5V.
+	Set the voltage (mV) to program the axp pmic aldo2 at, set to 0 to
+	disable aldo2.
+	On A10(s) / A13 / A20 boards aldo2 is AVCC and should be 3.0V.
+	On A31 boards aldo2 is typically unused and should be disabled.
+	On A31 boards aldo2 may be used for LPDDR2 then it should be 1.8V.
+	On A23 / A33 boards aldo2 is used for VDD-DLL and should be 2.5V.
 
-config AXP221_ALDO3_VOLT
-	int "axp221 aldo3 voltage"
-	depends on AXP221_POWER
-	default 3000
+config AXP_ALDO3_VOLT
+	int "axp pmic (a)ldo3 voltage"
+	depends on AXP209_POWER || AXP221_POWER || AXP818_POWER
+	default 0 if AXP209_POWER || AXP818_POWER
+	default 3000 if MACH_SUN6I || MACH_SUN8I
 	---help---
-	Set the voltage (mV) to program the axp221 aldo3 at, set to 0 to
-	disable aldo3. This is typically connected to VCC-PLL and AVCC and
-	must be set to 3V.
+	Set the voltage (mV) to program the axp pmic aldo3 at, set to 0 to
+	disable aldo3.
+	On A10(s) / A13 / A20 boards aldo3 should be 2.8V.
+	On A23 / A31 / A33 boards aldo3 is VCC-PLL and AVCC and should be 3.0V.
+	On A83T aldo3 is used for LVDS, DSI, MIPI, HDMI, etc.
 
-config AXP221_ELDO3_VOLT
-	int "axp221 eldo3 voltage"
+config AXP_ALDO4_VOLT
+	int "axp pmic (a)ldo4 voltage"
+	depends on AXP209_POWER
+	default 0 if AXP209_POWER
+	---help---
+	Set the voltage (mV) to program the axp pmic aldo4 at, set to 0 to
+	disable aldo4.
+	On A10(s) / A13 / A20 boards aldo4 should be 2.8V.
+
+config AXP_DLDO1_VOLT
+	int "axp pmic dldo1 voltage"
 	depends on AXP221_POWER
 	default 0
 	---help---
-	Set the voltage (mV) to program the axp221 eldo3 at, set to 0 to
+	Set the voltage (mV) to program the axp pmic dldo1 at, set to 0 to
+	disable dldo1. On sun6i (A31) boards with ethernet dldo1 is often used
+	to power the ethernet phy. On sun8i (A23) boards this is often used to
+	power the wifi.
+
+config AXP_DLDO2_VOLT
+	int "axp pmic dldo2 voltage"
+	depends on AXP221_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic dldo2 at, set to 0 to
+	disable dldo2.
+
+config AXP_DLDO3_VOLT
+	int "axp pmic dldo3 voltage"
+	depends on AXP221_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic dldo3 at, set to 0 to
+	disable dldo3.
+
+config AXP_DLDO4_VOLT
+	int "axp pmic dldo4 voltage"
+	depends on AXP221_POWER || AXP818_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic dldo4 at, set to 0 to
+	disable dldo4.
+
+config AXP_ELDO1_VOLT
+	int "axp pmic eldo1 voltage"
+	depends on AXP221_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic eldo1 at, set to 0 to
+	disable eldo1.
+
+config AXP_ELDO2_VOLT
+	int "axp pmic eldo2 voltage"
+	depends on AXP221_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic eldo2 at, set to 0 to
+	disable eldo2.
+
+config AXP_ELDO3_VOLT
+	int "axp pmic eldo3 voltage"
+	depends on AXP221_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic eldo3 at, set to 0 to
 	disable eldo3. On some A31(s) tablets it might be used to supply
 	1.2V for the SSD2828 chip (converter of parallel LCD interface
 	into MIPI DSI).

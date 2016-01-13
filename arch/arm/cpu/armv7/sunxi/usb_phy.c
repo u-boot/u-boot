@@ -17,15 +17,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <errno.h>
-#ifdef CONFIG_AXP152_POWER
-#include <axp152.h>
-#endif
-#ifdef CONFIG_AXP209_POWER
-#include <axp209.h>
-#endif
-#ifdef CONFIG_AXP221_POWER
-#include <axp221.h>
-#endif
 
 #define SUNXI_USB_PMU_IRQ_ENABLE	0x800
 #ifdef CONFIG_MACH_SUN8I_A33

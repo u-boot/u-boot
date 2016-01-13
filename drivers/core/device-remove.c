@@ -18,7 +18,16 @@
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
 
-int device_unbind_children(struct udevice *dev)
+/**
+ * device_chld_unbind() - Unbind all device's children from the device
+ *
+ * On error, the function continues to unbind all children, and reports the
+ * first error.
+ *
+ * @dev:	The device that is to be stripped of its children
+ * @return 0 on success, -ve on error
+ */
+static int device_chld_unbind(struct udevice *dev)
 {
 	struct udevice *pos, *n;
 	int ret, saved_ret = 0;
@@ -34,7 +43,12 @@ int device_unbind_children(struct udevice *dev)
 	return saved_ret;
 }
 
-int device_remove_children(struct udevice *dev)
+/**
+ * device_chld_remove() - Stop all device's children
+ * @dev:	The device whose children are to be removed
+ * @return 0 on success, -ve on error
+ */
+static int device_chld_remove(struct udevice *dev)
 {
 	struct udevice *pos, *n;
 	int ret;
@@ -73,7 +87,7 @@ int device_unbind(struct udevice *dev)
 			return ret;
 	}
 
-	ret = device_unbind_children(dev);
+	ret = device_chld_unbind(dev);
 	if (ret)
 		return ret;
 
@@ -153,7 +167,7 @@ int device_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = device_remove_children(dev);
+	ret = device_chld_remove(dev);
 	if (ret)
 		goto err;
 

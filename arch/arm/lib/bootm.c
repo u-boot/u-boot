@@ -290,7 +290,10 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	s = getenv("machid");
 	if (s) {
-		strict_strtoul(s, 16, &machid);
+		if (strict_strtoul(s, 16, &machid) < 0) {
+			debug("strict_strtoul failed!\n");
+			return;
+		}
 		printf("Using machid 0x%lx from environment\n", machid);
 	}
 

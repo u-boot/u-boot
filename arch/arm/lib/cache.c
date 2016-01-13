@@ -88,3 +88,14 @@ phys_addr_t noncached_alloc(size_t size, size_t align)
 	return next;
 }
 #endif /* CONFIG_SYS_NONCACHED_MEMORY */
+
+#if defined(CONFIG_SYS_THUMB_BUILD)
+void invalidate_l2_cache(void)
+{
+	unsigned int val = 0;
+
+	asm volatile("mcr p15, 1, %0, c15, c11, 0 @ invl l2 cache"
+		: : "r" (val) : "cc");
+	isb();
+}
+#endif

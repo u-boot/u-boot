@@ -46,7 +46,7 @@ struct arch_global_data {
 	u32 omap_boot_mode;
 	u8 omap_ch_flags;
 #endif
-#ifdef CONFIG_FSL_LSCH3
+#if defined(CONFIG_FSL_LSCH3) && defined(CONFIG_SYS_FSL_HAS_DP_DDR)
 	unsigned long mem2_clk;
 #endif
 };

@@ -11,6 +11,8 @@
 #define SVR_MIN(svr)		(((svr) >>  0) & 0xf)
 #define SVR_SOC_VER(svr)	(((svr) >> 8) & 0x7ff)
 #define IS_E_PROCESSOR(svr)	(svr & 0x80000)
+#define IS_SVR_REV(svr, maj, min) \
+		((SVR_MAJ(svr) == maj) && (SVR_MIN(svr) == min))
 
 #define SOC_VER_SLS1020		0x00
 #define SOC_VER_LS1020		0x10
@@ -31,7 +33,7 @@
 #define RCWSR4_SRDS1_PRTCL_SHIFT	24
 #define RCWSR4_SRDS1_PRTCL_MASK		0xff000000
 
-#define TIMER_COMP_VAL			0xffffffff
+#define TIMER_COMP_VAL			0xffffffffffffffffull
 #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
 #define SYS_COUNTER_CTRL_ENABLE		(1 << 24)
 
@@ -144,11 +146,18 @@ struct ccsr_gur {
 };
 
 #define SCFG_ETSECDMAMCR_LE_BD_FR	0x00000c00
+#define SCFG_SNPCNFGCR_SEC_RD_WR	0xc0000000
 #define SCFG_ETSECCMCR_GE2_CLK125	0x04000000
 #define SCFG_ETSECCMCR_GE0_CLK125	0x00000000
 #define SCFG_ETSECCMCR_GE1_CLK125	0x08000000
 #define SCFG_PIXCLKCR_PXCKEN		0x80000000
 #define SCFG_QSPI_CLKSEL		0xc0100000
+#define SCFG_SNPCNFGCR_SEC_RD_WR	0xc0000000
+#define SCFG_SNPCNFGCR_DCU_RD_WR	0x03000000
+#define SCFG_SNPCNFGCR_SATA_RD_WR	0x00c00000
+#define SCFG_SNPCNFGCR_USB3_RD_WR	0x00300000
+#define SCFG_SNPCNFGCR_DBG_RD_WR	0x000c0000
+#define SCFG_SNPCNFGCR_EDMA_SNP		0x00020000
 #define SCFG_ENDIANCR_LE		0x80000000
 
 /* Supplemental Configuration Unit */
@@ -221,7 +230,7 @@ struct ccsr_scfg {
 	u32 scfgrevcr;
 	u32 coresrencr;
 	u32 pex2pmrdsr;
-	u32 ddrc1cr;
+	u32 eddrtqcfg;
 	u32 ddrc2cr;
 	u32 ddrc3cr;
 	u32 ddrc4cr;
@@ -396,5 +405,32 @@ struct ccsr_cci400 {
 	} pcounter[4];			/* Performance Counter */
 	u8 res_e004[0x10000 - 0xe004];
 };
+
+/* AHCI (sata) register map */
+struct ccsr_ahci {
+	u32 res1[0xa4/4];	/* 0x0 - 0xa4 */
+	u32 pcfg;	/* port config */
+	u32 ppcfg;	/* port phy1 config */
+	u32 pp2c;	/* port phy2 config */
+	u32 pp3c;	/* port phy3 config */
+	u32 pp4c;	/* port phy4 config */
+	u32 pp5c;	/* port phy5 config */
+	u32 paxic;	/* port AXI config */
+	u32 axicc;	/* AXI cache control */
+	u32 axipc;	/* AXI PROT control */
+	u32 ptc;	/* port Trans Config */
+	u32 pts;	/* port Trans Status */
+	u32 plc;	/* port link config */
+	u32 plc1;	/* port link config1 */
+	u32 plc2;	/* port link config2 */
+	u32 pls;	/* port link status */
+	u32 pls1;	/* port link status1 */
+	u32 pcmdc;	/* port CMD config */
+	u32 ppcs;	/* port phy control status */
+	u32 pberr;	/* port 0/1 BIST error */
+	u32 cmds;	/* port 0/1 CMD status error */
+};
+
+uint get_svr(void);
 
 #endif	/* __ASM_ARCH_LS102XA_IMMAP_H_ */

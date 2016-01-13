@@ -1,0 +1,46 @@
+/*
+ * (C) Copyright 2015 Rockchip Electronics Co., Ltd
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "rk3036.dtsi"
+
+/ {
+	model = "SDK-RK3036";
+	compatible = "sdk,sdk-rk3036", "rockchip,rk3036";
+
+	chosen {
+		stdout-path = &uart2;
+	};
+
+	usb_control {
+		compatible = "rockchip,rk3036-usb-control";
+		host_drv_gpio = <&gpio2 23 GPIO_ACTIVE_LOW>;
+		otg_drv_gpio = <&gpio0 26 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+
+        hym8563: hym8563@51 {
+		compatible = "haoyu,hym8563";
+		reg = <0x51>;
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+		clock-output-names = "xin32k";
+	};
+};
+
+&usb_host {
+	status = "okay";
+};
+
+&usb_otg {
+	status = "okay";
+
+	dr_mode = "host";
+};

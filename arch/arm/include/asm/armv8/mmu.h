@@ -65,6 +65,7 @@
 /*
  * Section
  */
+#define PMD_SECT_NS		(1 << 5)
 #define PMD_SECT_NON_SHARE	(0 << 8)
 #define PMD_SECT_OUTER_SHARE	(2 << 8)
 #define PMD_SECT_INNER_SHARE	(3 << 8)
@@ -118,7 +119,7 @@
 
 void set_pgtable_section(u64 *page_table, u64 index,
 			 u64 section, u64 memory_type,
-			 u64 share);
+			 u64 attribute);
 void set_pgtable_table(u64 *page_table, u64 index,
 		       u64 *table_addr);
 

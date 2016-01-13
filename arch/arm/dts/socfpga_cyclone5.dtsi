@@ -25,6 +25,8 @@
 			bus-width = <4>;
 			cap-mmc-highspeed;
 			cap-sd-highspeed;
+			drvsel = <3>;
+			smplsel = <0>;
 		};
 
 		sysmgr@ffd08000 {

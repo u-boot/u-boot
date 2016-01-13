@@ -94,8 +94,9 @@ static void setup_iomux_enet(void)
 
 	/* Reset AR8031 PHY */
 	gpio_direction_output(IMX_GPIO_NR(1, 25) , 0);
-	udelay(500);
+	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(1, 25), 1);
+	udelay(100);
 }
 
 static iomux_v3_cfg_t const usdhc2_pads[] = {
@@ -339,39 +340,6 @@ int board_mmc_init(bd_t *bis)
 #endif
 }
 #endif
-
-int mx6_rgmii_rework(struct phy_device *phydev)
-{
-	unsigned short val;
-
-	/* To enable AR8031 ouput a 125MHz clk from CLK_25M */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
-	val &= 0xffe3;
-	val |= 0x18;
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
-
-	/* introduce tx clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
-	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
-	val |= 0x0100;
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
-
-	return 0;
-}
-
-int board_phy_config(struct phy_device *phydev)
-{
-	mx6_rgmii_rework(phydev);
-
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
 
 #if defined(CONFIG_VIDEO_IPUV3)
 static void disable_lvds(struct display_info_t const *dev)
@@ -684,7 +652,9 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	setenv("board_name", "SABRESD");
 
-	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+	if (is_mx6dqp())
+		setenv("board_rev", "MX6QP");
+	else if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
 		setenv("board_rev", "MX6Q");
 	else if (is_cpu_type(MXC_CPU_MX6DL) || is_cpu_type(MXC_CPU_MX6SOLO))
 		setenv("board_rev", "MX6DL");
@@ -732,6 +702,35 @@ const struct mx6dq_iomux_ddr_regs mx6_ddr_ioregs = {
 	.dram_dqm7 =  0x00020030,
 };
 
+const struct mx6dq_iomux_ddr_regs mx6dqp_ddr_ioregs = {
+	.dram_sdclk_0 =  0x00000030,
+	.dram_sdclk_1 =  0x00000030,
+	.dram_cas =  0x00000030,
+	.dram_ras =  0x00000030,
+	.dram_reset =  0x00000030,
+	.dram_sdcke0 =  0x00003000,
+	.dram_sdcke1 =  0x00003000,
+	.dram_sdba2 =  0x00000000,
+	.dram_sdodt0 =  0x00003030,
+	.dram_sdodt1 =  0x00003030,
+	.dram_sdqs0 =  0x00000030,
+	.dram_sdqs1 =  0x00000030,
+	.dram_sdqs2 =  0x00000030,
+	.dram_sdqs3 =  0x00000030,
+	.dram_sdqs4 =  0x00000030,
+	.dram_sdqs5 =  0x00000030,
+	.dram_sdqs6 =  0x00000030,
+	.dram_sdqs7 =  0x00000030,
+	.dram_dqm0 =  0x00000030,
+	.dram_dqm1 =  0x00000030,
+	.dram_dqm2 =  0x00000030,
+	.dram_dqm3 =  0x00000030,
+	.dram_dqm4 =  0x00000030,
+	.dram_dqm5 =  0x00000030,
+	.dram_dqm6 =  0x00000030,
+	.dram_dqm7 =  0x00000030,
+};
+
 const struct mx6dq_iomux_grp_regs mx6_grp_ioregs = {
 	.grp_ddr_type =  0x000C0000,
 	.grp_ddrmode_ctl =  0x00020000,
@@ -762,6 +761,21 @@ const struct mx6_mmdc_calibration mx6_mmcd_calib = {
 	.p1_mprddlctl =  0x39393341,
 	.p0_mpwrdlctl =  0x35373933,
 	.p1_mpwrdlctl =  0x48254A36,
+};
+
+const struct mx6_mmdc_calibration mx6dqp_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x001B001E,
+	.p0_mpwldectrl1 =  0x002E0029,
+	.p1_mpwldectrl0 =  0x001B002A,
+	.p1_mpwldectrl1 =  0x0019002C,
+	.p0_mpdgctrl0 =  0x43240334,
+	.p0_mpdgctrl1 =  0x0324031A,
+	.p1_mpdgctrl0 =  0x43340344,
+	.p1_mpdgctrl1 =  0x03280276,
+	.p0_mprddlctl =  0x44383A3E,
+	.p1_mprddlctl =  0x3C3C3846,
+	.p0_mpwrdlctl =  0x2E303230,
+	.p1_mpwrdlctl =  0x38283E34,
 };
 
 /* MT41K128M16JT-125 */
@@ -797,9 +811,15 @@ static void gpr_init(void)
 
 	/* enable AXI cache for VDOA/VPU/IPU */
 	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
+	if (is_mx6dqp()) {
+		/* set IPU AXI-id1 Qos=0x1 AXI-id0/2/3 Qos=0x7 */
+		writel(0x007F007F, &iomux->gpr[6]);
+		writel(0x007F007F, &iomux->gpr[7]);
+	} else {
+		/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
+		writel(0x007F007F, &iomux->gpr[6]);
+		writel(0x007F007F, &iomux->gpr[7]);
+	}
 }
 
 /*
@@ -827,8 +847,13 @@ static void spl_dram_init(void)
 		.ddr_type = DDR_TYPE_DDR3,
 	};
 
-	mx6dq_dram_iocfg(64, &mx6_ddr_ioregs, &mx6_grp_ioregs);
-	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
+	if (is_mx6dqp()) {
+		mx6dq_dram_iocfg(64, &mx6dqp_ddr_ioregs, &mx6_grp_ioregs);
+		mx6_dram_cfg(&sysinfo, &mx6dqp_mmcd_calib, &mem_ddr);
+	} else {
+		mx6dq_dram_iocfg(64, &mx6_ddr_ioregs, &mx6_grp_ioregs);
+		mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
+	}
 }
 
 void board_init_f(ulong dummy)
@@ -856,9 +881,5 @@ void board_init_f(ulong dummy)
 
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
-}
-
-void reset_cpu(ulong addr)
-{
 }
 #endif

@@ -1,0 +1,12 @@
+if TARGET_BEAGLE_X15
+
+config SYS_BOARD
+	default "am57xx"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_CONFIG_NAME
+	default "am57xx_evm"
+
+endif

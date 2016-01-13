@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <malloc.h>
 #include <ns16550.h>
 #include <nand.h>

@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <mmc.h>
 #include <usb.h>
-#include <usb/s3c_udc.h>
+#include <usb/dwc2_udc.h>
 #include <samsung/misc.h>
 #include "setup.h"
 
@@ -31,13 +31,6 @@ enum {
 	ODROID_TYPE_U3,
 	ODROID_TYPE_X2,
 	ODROID_TYPES,
-};
-
-static const char *mmc_regulators[] = {
-	"VDDQ_EMMC_1.8V",
-	"VDDQ_EMMC_2.8V",
-	"TFLASH_2.8V",
-	NULL,
 };
 
 void set_board_type(void)
@@ -428,6 +421,13 @@ int exynos_init(void)
 
 int exynos_power_init(void)
 {
+	const char *mmc_regulators[] = {
+		"VDDQ_EMMC_1.8V",
+		"VDDQ_EMMC_2.8V",
+		"TFLASH_2.8V",
+		NULL,
+	};
+
 	if (regulator_list_autoset(mmc_regulators, NULL, true))
 		error("Unable to init all mmc regulators");
 
@@ -450,10 +450,9 @@ static int s5pc210_phy_control(int on)
 		return regulator_set_mode(dev, OPMODE_ON);
 	else
 		return regulator_set_mode(dev, OPMODE_LPM);
-
 }
 
-struct s3c_plat_otg_data s5pc210_otg_data = {
+struct dwc2_plat_otg_data s5pc210_otg_data = {
 	.phy_control	= s5pc210_phy_control,
 	.regs_phy	= EXYNOS4X12_USBPHY_BASE,
 	.regs_otg	= EXYNOS4X12_USBOTG_BASE,
@@ -511,6 +510,6 @@ int board_usb_init(int index, enum usb_init_type init)
 	}
 #endif
 	debug("USB_udc_probe\n");
-	return s3c_udc_probe(&s5pc210_otg_data);
+	return dwc2_udc_probe(&s5pc210_otg_data);
 }
 #endif

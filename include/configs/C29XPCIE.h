@@ -12,7 +12,6 @@
 #define __CONFIG_H
 
 #define CONFIG_PHYS_64BIT
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_C29XPCIE
@@ -378,7 +377,6 @@
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -421,7 +419,6 @@
 /* I2C EEPROM */
 /* enable read and write access to EEPROM */
 #define CONFIG_CMD_EEPROM
-#define CONFIG_SYS_I2C_MULTI_EEPROMS
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
@@ -429,9 +426,6 @@
 #define CONFIG_CMD_I2C
 
 /* eSPI - Enhanced SPI */
-#define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_EON
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
@@ -494,7 +488,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING

@@ -24,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int cros_ec_spi_packet(struct udevice *udev, int out_bytes, int in_bytes)
 {
 	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
-	struct spi_slave *slave = dev_get_parentdata(dev->dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev->dev);
 	ulong start;
 	uint8_t byte;
 	int rv;
@@ -84,7 +84,7 @@ int cros_ec_spi_command(struct udevice *udev, uint8_t cmd, int cmd_version,
 		     uint8_t **dinp, int din_len)
 {
 	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
-	struct spi_slave *slave = dev_get_parentdata(dev->dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev->dev);
 	int in_bytes = din_len + 4;	/* status, length, checksum, trailer */
 	uint8_t *out;
 	uint8_t *p;

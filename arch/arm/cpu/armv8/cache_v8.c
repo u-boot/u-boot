@@ -13,13 +13,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 inline void set_pgtable_section(u64 *page_table, u64 index, u64 section,
-			 u64 memory_type, u64 share)
+			 u64 memory_type, u64 attribute)
 {
 	u64 value;
 
 	value = section | PMD_TYPE_SECT | PMD_SECT_AF;
 	value |= PMD_ATTRINDX(memory_type);
-	value |= share;
+	value |= attribute;
 	page_table[index] = value;
 }
 
@@ -32,7 +32,7 @@ inline void set_pgtable_table(u64 *page_table, u64 index, u64 *table_addr)
 }
 
 /* to activate the MMU we need to set up virtual memory */
-static void mmu_setup(void)
+__weak void mmu_setup(void)
 {
 	bd_t *bd = gd->bd;
 	u64 *page_table = (u64 *)gd->arch.tlb_addr, i, j;

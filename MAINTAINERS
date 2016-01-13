@@ -112,12 +112,10 @@ M:	Minkyu Kang <mk7.kang@samsung.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-samsung.git
 F:	arch/arm/cpu/arm920t/s3c24x0/
-F:	arch/arm/cpu/armv7/exynos/
-F:	arch/arm/cpu/armv7/s5pc1xx/
+F:	arch/arm/mach-exynos/
+F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
-F:	arch/arm/include/asm/arch-exynos/
 F:	arch/arm/include/asm/arch-s3c24x0/
-F:	arch/arm/include/asm/arch-s5pc1xx/
 
 ARM STM SPEAR
 M:	Vipin Kumar <vipin.kumar@st.com>
@@ -163,7 +161,7 @@ M:	Masahiro Yamada <yamada.masahiro@socionext.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-uniphier.git
 F:	arch/arm/mach-uniphier/
-F:	configs/ph1_*_defconfig
+F:	configs/uniphier_*_defconfig
 N:	uniphier
 
 ARM ZYNQ
@@ -241,7 +239,7 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-freebsd.git
 
 FREESCALE QORIQ
-M:	York Sun <yorksun@freescale.com>
+M:	York Sun <york.sun@nxp.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-fsl-qoriq.git
 
@@ -310,13 +308,13 @@ F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
 
 POWERPC MPC85XX
-M:	York Sun <yorksun@freescale.com>
+M:	York Sun <york.sun@nxp.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
 
 POWERPC MPC86XX
-M:	York Sun <yorksun@freescale.com>
+M:	York Sun <york.sun@nxp.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc86xx.git
 F:	arch/powerpc/cpu/mpc86xx/
@@ -370,7 +368,7 @@ T:	git git://git.denx.de/u-boot-sh.git
 F:	arch/sh/
 
 SPARC
-M:	Daniel Hellstrom <daniel@gaisler.com>
+M:	Francois Retief <fgretief@spaceteq.co.za>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-sparc.git
 F:	arch/sparc/

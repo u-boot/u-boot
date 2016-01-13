@@ -1,0 +1,21 @@
+/*
+ * Copyright 2014 Texas Instruments, Inc.
+ *
+ * Keystone 2 Galileo EVM device tree
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+/dts-v1/;
+
+#include "k2g.dtsi"
+
+/ {
+	compatible =  "ti,k2g-evm","ti,keystone";
+	model = "Texas Instruments Keystone 2 Galileo EVM";
+
+	chosen {
+		stdout-path = &uart0;
+	};
+};

@@ -78,7 +78,7 @@ static int spi_flash_post_bind(struct udevice *dev)
 {
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_spi_flash_ops *ops = sf_get_ops(dev);
-	static int reloc_done = 0;
+	static int reloc_done;
 
 	if (!reloc_done) {
 		if (ops->read)

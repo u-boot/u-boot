@@ -118,7 +118,6 @@ enum fdt_compat_id {
 	COMPAT_UNKNOWN,
 	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra20 memory controller */
 	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra20 memory timing table */
-	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra20 Keyboard */
 	COMPAT_NVIDIA_TEGRA20_NAND,	/* Tegra2 NAND controller */
 	COMPAT_NVIDIA_TEGRA20_PWM,	/* Tegra 2 PWM controller */
 	COMPAT_NVIDIA_TEGRA124_DC,	/* Tegra 124 Display controller */
@@ -129,9 +128,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA124_SDMMC,	/* Tegra124 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA30_SDMMC,	/* Tegra30 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA20_SDMMC,	/* Tegra20 SDMMC controller */
-	COMPAT_NVIDIA_TEGRA124_PCIE,	/* Tegra 124 PCIe controller */
-	COMPAT_NVIDIA_TEGRA30_PCIE,	/* Tegra 30 PCIe controller */
-	COMPAT_NVIDIA_TEGRA20_PCIE,	/* Tegra 20 PCIe controller */
 	COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL,
 					/* Tegra124 XUSB pad controller */
 	COMPAT_NVIDIA_TEGRA210_XUSB_PADCTL,
@@ -171,6 +167,7 @@ enum fdt_compat_id {
 	COMPAT_INTEL_IRQ_ROUTER,	/* Intel Interrupt Router */
 	COMPAT_ALTERA_SOCFPGA_DWMAC,	/* SoCFPGA Ethernet controller */
 	COMPAT_ALTERA_SOCFPGA_DWMMC,	/* SoCFPGA DWMMC controller */
+	COMPAT_ALTERA_SOCFPGA_DWC2USB,	/* SoCFPGA DWC2 USB controller */
 	COMPAT_INTEL_BAYTRAIL_FSP,	/* Intel Bay Trail FSP */
 	COMPAT_INTEL_BAYTRAIL_FSP_MDP,	/* Intel FSP memory-down params */
 
@@ -490,6 +487,19 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 		s32 default_val);
 
 /**
+ * Unsigned version of fdtdec_get_int. The property must have at least
+ * 4 bytes of data. The value of the first cell is returned.
+ *
+ * @param blob	FDT blob
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @param default_val	default value to return if the property is not found
+ * @return unsigned integer value, if found, or default_val if not
+ */
+unsigned int fdtdec_get_uint(const void *blob, int node, const char *prop_name,
+			unsigned int default_val);
+
+/**
  * Get a variable-sized number from a property
  *
  * This reads a number from one or more cells.
@@ -628,7 +638,16 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int node,
 			 int *seqp);
 
 /**
- * Get the offset of the given chosen node
+ * Get a property from the /chosen node
+ *
+ * @param blob		Device tree blob (if NULL, then NULL is returned)
+ * @param name		Property name to look up
+ * @return Value of property, or NULL if it does not exist
+ */
+const char *fdtdec_get_chosen_prop(const void *blob, const char *name);
+
+/**
+ * Get the offset of the given /chosen node
  *
  * This looks up a property in /chosen containing the path to another node,
  * then finds the offset of that node.

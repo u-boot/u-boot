@@ -31,13 +31,13 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 	}
 }
 
-int eth_getenv_enetaddr(char *name, uchar *enetaddr)
+int eth_getenv_enetaddr(const char *name, uchar *enetaddr)
 {
 	eth_parse_enetaddr(getenv(name), enetaddr);
 	return is_valid_ethaddr(enetaddr);
 }
 
-int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
+int eth_setenv_enetaddr(const char *name, const uchar *enetaddr)
 {
 	char buf[20];
 
@@ -179,8 +179,12 @@ struct udevice *eth_get_dev(void)
  */
 static void eth_set_dev(struct udevice *dev)
 {
-	if (dev && !device_active(dev))
+	if (dev && !device_active(dev)) {
 		eth_errno = device_probe(dev);
+		if (eth_errno)
+			dev = NULL;
+	}
+
 	eth_get_uclass_priv()->current = dev;
 }
 
@@ -213,10 +217,9 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 		 * match an alias or it will match a literal name and we'll pick
 		 * up the error when we try to probe again in eth_set_dev().
 		 */
-		device_probe(it);
-		/*
-		 * Check for the name or the sequence number to match
-		 */
+		if (device_probe(it))
+			continue;
+		/* Check for the name or the sequence number to match */
 		if (strcmp(it->name, devname) == 0 ||
 		    (endp > startp && it->seq == seq))
 			return it;
@@ -334,34 +337,54 @@ U_BOOT_ENV_CALLBACK(ethaddr, on_ethaddr);
 
 int eth_init(void)
 {
-	struct udevice *current;
+	char *ethact = getenv("ethact");
+	char *ethrotate = getenv("ethrotate");
+	struct udevice *current = NULL;
 	struct udevice *old_current;
 	int ret = -ENODEV;
 
-	current = eth_get_dev();
+	/*
+	 * When 'ethrotate' variable is set to 'no' and 'ethact' variable
+	 * is already set to an ethernet device, we should stick to 'ethact'.
+	 */
+	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0)) {
+		if (ethact) {
+			current = eth_get_dev_by_name(ethact);
+			if (!current)
+				return -EINVAL;
+		}
+	}
+
 	if (!current) {
-		printf("No ethernet found.\n");
-		return -ENODEV;
+		current = eth_get_dev();
+		if (!current) {
+			printf("No ethernet found.\n");
+			return -ENODEV;
+		}
 	}
 
 	old_current = current;
 	do {
-		debug("Trying %s\n", current->name);
+		if (current) {
+			debug("Trying %s\n", current->name);
 
-		if (device_active(current)) {
-			ret = eth_get_ops(current)->start(current);
-			if (ret >= 0) {
-				struct eth_device_priv *priv =
-					current->uclass_priv;
+			if (device_active(current)) {
+				ret = eth_get_ops(current)->start(current);
+				if (ret >= 0) {
+					struct eth_device_priv *priv =
+						current->uclass_priv;
 
-				priv->state = ETH_STATE_ACTIVE;
-				return 0;
+					priv->state = ETH_STATE_ACTIVE;
+					return 0;
+				}
+			} else {
+				ret = eth_errno;
 			}
-		} else {
-			ret = eth_errno;
-		}
 
-		debug("FAIL\n");
+			debug("FAIL\n");
+		} else {
+			debug("PROBE FAIL\n");
+		}
 
 		/*
 		 * If ethrotate is enabled, this will change "current",
@@ -534,6 +557,34 @@ static int eth_post_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev->platdata;
 	unsigned char env_enetaddr[6];
 
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+	struct eth_ops *ops = eth_get_ops(dev);
+	static int reloc_done;
+
+	if (!reloc_done) {
+		if (ops->start)
+			ops->start += gd->reloc_off;
+		if (ops->send)
+			ops->send += gd->reloc_off;
+		if (ops->recv)
+			ops->recv += gd->reloc_off;
+		if (ops->free_pkt)
+			ops->free_pkt += gd->reloc_off;
+		if (ops->stop)
+			ops->stop += gd->reloc_off;
+#ifdef CONFIG_MCAST_TFTP
+		if (ops->mcast)
+			ops->mcast += gd->reloc_off;
+#endif
+		if (ops->write_hwaddr)
+			ops->write_hwaddr += gd->reloc_off;
+		if (ops->read_rom_hwaddr)
+			ops->read_rom_hwaddr += gd->reloc_off;
+
+		reloc_done++;
+	}
+#endif
+
 	priv->state = ETH_STATE_INIT;
 
 	/* Check if the device has a MAC address in ROM */
@@ -575,7 +626,12 @@ static int eth_post_probe(struct udevice *dev)
 
 static int eth_pre_remove(struct udevice *dev)
 {
+	struct eth_pdata *pdata = dev->platdata;
+
 	eth_get_ops(dev)->stop(dev);
+
+	/* clear the MAC address */
+	memset(pdata->enetaddr, 0, 6);
 
 	return 0;
 }
@@ -691,6 +747,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 				memset(dev->enetaddr, 0, 6);
 			}
 		}
+		dev = dev->next;
 	} while (dev != eth_devices);
 
 	return 0;
@@ -720,8 +777,6 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 	} else if (is_valid_ethaddr(dev->enetaddr)) {
 		eth_setenv_enetaddr_by_index(base_name, eth_number,
 					     dev->enetaddr);
-		printf("\nWarning: %s using MAC address from net device\n",
-		       dev->name);
 	} else if (is_zero_ethaddr(dev->enetaddr)) {
 #ifdef CONFIG_NET_RANDOM_ETHADDR
 		net_random_ethaddr(dev->enetaddr);
@@ -998,6 +1053,17 @@ int eth_receive(void *packet, int length)
 static void eth_current_changed(void)
 {
 	char *act = getenv("ethact");
+	char *ethrotate;
+
+	/*
+	 * The call to eth_get_dev() below has a side effect of rotating
+	 * ethernet device if uc_priv->current == NULL. This is not what
+	 * we want when 'ethrotate' variable is 'no'.
+	 */
+	ethrotate = getenv("ethrotate");
+	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
+		return;
+
 	/* update current ethernet name */
 	if (eth_get_dev()) {
 		if (act == NULL || strcmp(act, eth_get_name()) != 0)

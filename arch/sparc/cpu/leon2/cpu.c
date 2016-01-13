@@ -1,7 +1,7 @@
 /* CPU specific code for the LEON2 CPU
  *
- * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com
+ * (C) Copyright 2007, 2015
+ * Daniel Hellstrom, Cobham Gaisler, daniel@gaisler.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -21,6 +21,16 @@ int checkcpu(void)
 	printf("CPU: LEON2\n");
 	return 0;
 }
+
+#ifdef CONFIG_DISPLAY_CPUINFO
+
+int print_cpuinfo(void)
+{
+	printf("CPU:   LEON2\n");
+	return 0;
+}
+
+#endif
 
 /* ------------------------------------------------------------------------- */
 

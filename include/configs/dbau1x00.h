@@ -75,7 +75,6 @@
  * Command line configuration.
  */
 #undef CONFIG_CMD_BEDBUG
-#undef CONFIG_CMD_ELF
 #undef CONFIG_CMD_FAT
 #undef CONFIG_CMD_MII
 

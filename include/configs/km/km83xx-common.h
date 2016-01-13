@@ -8,7 +8,6 @@
 #ifndef __CONFIG_KM83XX_H
 #define __CONFIG_KM83XX_H
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* include common defines/options for all Keymile boards */
@@ -145,7 +144,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -153,9 +151,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
 
-/* Pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_OF_STDOUT_VIA_ALIAS
 
 /*
@@ -185,10 +180,14 @@
 
 #ifndef CONFIG_SYS_RAMBOOT
 #define CONFIG_ENV_IS_IN_FLASH
+#ifndef CONFIG_ENV_ADDR
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + \
 					CONFIG_SYS_MONITOR_LEN)
+#endif
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
+#ifndef CONFIG_ENV_OFFSET
 #define CONFIG_ENV_OFFSET	(CONFIG_SYS_MONITOR_LEN)
+#endif
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
@@ -323,8 +322,8 @@
 	CONFIG_KM_DEF_ENV						\
 	CONFIG_KM_DEF_ARCH						\
 	"newenv="							\
-		"prot off 0xF00C0000 +0x40000 && "			\
-		"era 0xF00C0000 +0x40000\0"				\
+		"prot off "__stringify(CONFIG_ENV_ADDR)" +0x40000 && "	\
+		"era "__stringify(CONFIG_ENV_ADDR)" +0x40000\0"		\
 	"unlock=yes\0"							\
 	""
 

@@ -1,4 +1,4 @@
-Freescale ARM64 SoCs like LS2085A have ARM TrustZone components like
+Freescale ARM64 SoCs like LS2080A have ARM TrustZone components like
 TZPC-BP147 (TrustZone Protection Controller) and TZASC-400 (TrustZone
 Address Space Controller).
 
@@ -7,7 +7,7 @@ is left to a root-of-trust security software layer (running in EL3
 privilege mode), but still some configurations of these peripherals
 might be required while the bootloader is executing in EL3 privilege
 mode. The following sections define how to turn on these features for
-LS2085A like SoCs.
+LS2080A like SoCs.
 
 TZPC-BP147 (TrustZone Protection Controller)
 ============================================

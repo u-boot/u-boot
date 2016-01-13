@@ -7,7 +7,9 @@ F:	configs/kmcoge5ne_defconfig
 F:	configs/kmeter1_defconfig
 F:	include/configs/tuxx1.h
 F:	configs/kmopti2_defconfig
+F:	configs/kmtepr2_defconfig
 F:	include/configs/suvd3.h
+F:	configs/kmtegr1_defconfig
 F:	configs/kmvect1_defconfig
 F:	configs/suvd3_defconfig
 F:	configs/tuge1_defconfig

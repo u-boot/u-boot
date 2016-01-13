@@ -142,6 +142,7 @@ enum command_ret_t {
 int cmd_process(int flag, int argc, char * const argv[],
 			       int *repeatable, unsigned long *ticks);
 
+void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
 #endif	/* __ASSEMBLY__ */
 
 /*
@@ -178,9 +179,5 @@ int cmd_process(int flag, int argc, char * const argv[],
 
 #define U_BOOT_CMD(_name, _maxargs, _rep, _cmd, _usage, _help)		\
 	U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, NULL)
-
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
-#endif
 
 #endif	/* __COMMAND_H */

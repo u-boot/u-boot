@@ -7,6 +7,8 @@
 #ifndef _FSL_SRIO_H_
 #define _FSL_SRIO_H_
 
+#include <linux/log2.h>
+
 enum atmu_size {
 	ATMU_SIZE_4K = 0xb,
 	ATMU_SIZE_8K,

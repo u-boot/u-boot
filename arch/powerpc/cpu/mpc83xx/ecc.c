@@ -37,7 +37,7 @@ void ecc_print_status(void)
 	printf("Memory Error Disable:\n");
 	printf("  Multiple-Bit Error Disable: %d\n",
 	       (ddr->err_disable & ECC_ERROR_DISABLE_MBED) ? 1 : 0);
-	printf("  Sinle-Bit Error Disable: %d\n",
+	printf("  Single-Bit Error Disable: %d\n",
 	       (ddr->err_disable & ECC_ERROR_DISABLE_SBED) ? 1 : 0);
 	printf("  Memory Select Error Disable: %d\n\n",
 	       (ddr->err_disable & ECC_ERROR_DISABLE_MSED) ? 1 : 0);
@@ -273,7 +273,7 @@ int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			count = simple_strtoul(argv[3], NULL, 16);
 
 			if ((u32) addr % 8) {
-				printf("Address not alligned on "
+				printf("Address not aligned on "
 				       "double word boundary\n");
 				return 1;
 			}
@@ -312,7 +312,7 @@ int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			count = simple_strtoul(argv[3], NULL, 16);
 
 			if ((u32) addr % 8) {
-				printf("Address not alligned on "
+				printf("Address not aligned on "
 				       "double word boundary\n");
 				return 1;
 			}

@@ -299,7 +299,7 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 
 static int zynqmp_qspi_child_pre_probe(struct udevice *bus)
 {
-	struct spi_slave *slave = dev_get_parentdata(bus);
+	struct spi_slave *slave = dev_get_parent_priv(bus);
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus->parent);
 
 	slave->option = priv->is_dual;

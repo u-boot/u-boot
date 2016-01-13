@@ -1,3 +1,35 @@
+menu "MTD Support"
+
+config MTD
+	bool "Enable Driver Model for MTD drivers"
+	depends on DM
+	help
+	  Enable driver model for Memory Technology Devices (MTD), such as
+	  flash, RAM and similar chips, often used for solid state file
+	  systems on embedded devices.
+
+config CFI_FLASH
+	bool "Enable Driver Model for CFI Flash driver"
+	depends on MTD
+	help
+	  The Common Flash Interface specification was developed by Intel,
+	  AMD and other flash manufactures. It provides a universal method
+	  for probing the capabilities of flash devices. If you wish to
+	  support any device that is CFI-compliant, you need to enable this
+	  option. Visit <http://www.amd.com/products/nvd/overview/cfi.html>
+	  for more information on CFI.
+
+config ALTERA_QSPI
+	bool "Altera Generic Quad SPI Controller"
+	depends on MTD
+	help
+	  This enables access to Altera EPCQ/EPCS flash chips using the
+	  Altera Generic Quad SPI Controller. The controller converts SPI
+	  NOR flash to parallel flash interface. Please find details on the
+	  "Embedded Peripherals IP User Guide" of Altera.
+
+endmenu
+
 source "drivers/mtd/nand/Kconfig"
 
 source "drivers/mtd/spi/Kconfig"
