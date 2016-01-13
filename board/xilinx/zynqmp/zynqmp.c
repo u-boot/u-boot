@@ -57,11 +57,6 @@ int dram_init(void)
 	return 0;
 }
 
-int timer_init(void)
-{
-	return 0;
-}
-
 void reset_cpu(ulong addr)
 {
 }
