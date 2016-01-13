@@ -12,6 +12,7 @@ ifdef CONFIG_CPU_V7M
 obj-y	+= vectors_m.o crt0.o
 else ifdef CONFIG_ARM64
 obj-y	+= crt0_64.o
+obj-$(CONFIG_ARM_SMC) += smc.o
 else
 obj-y	+= vectors.o crt0.o
 endif
