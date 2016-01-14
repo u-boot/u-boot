@@ -166,8 +166,6 @@
 		"booti $kernel_addr - $fdt_addr\0" \
 	DFU_ALT_INFO
 
-#define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
-				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"
 #define CONFIG_PREBOOT		"run bootargs"
 #define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	5
