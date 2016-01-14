@@ -1,9 +1,0 @@
-if TARGET_MAXBCM
-
-config SYS_BOARD
-	default "maxbcm"
-
-config SYS_CONFIG_NAME
-	default "maxbcm"
-
-endif

@@ -10,15 +10,7 @@
 /*
  * High Level Configuration Options (easy to change)
  */
-#define CONFIG_ARMADA_XP		/* SOC Family Name */
-#define CONFIG_ARMADA_38X
-#define CONFIG_DB_88F6820_GP		/* Board target name for DDR training */
 
-#define CONFIG_SYS_L2_PL310
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#endif
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
@@ -99,16 +91,15 @@
 #define CONFIG_ENV_SECT_SIZE		(256 << 10) /* 256KiB sectors */
 
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
-#define CONFIG_PHY_ADDR			{ 1, 0 }
-#define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* PCIe support */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI
 #define CONFIG_PCI_MVEBU
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
-#define CONFIG_E1000	/* enable Intel E1000 support for testing */
+#endif
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
@@ -139,9 +130,9 @@
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + CONFIG_SPL_SIZE)
 #define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
 
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
-					 CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(16 << 10)
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MALLOC_SIMPLE
+#endif
 
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
@@ -158,7 +149,7 @@
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x24000
 #define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 #endif
 
@@ -175,10 +166,6 @@
 #define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
 #endif
 #endif
-
-/* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SYS_MVEBU_DDR_A38X
-#define CONFIG_DDR3
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

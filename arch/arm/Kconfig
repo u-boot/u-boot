@@ -117,8 +117,14 @@ config ARCH_MVEBU
 	select OF_CONTROL
 	select OF_SEPARATE
 	select DM
+	select DM_ETH
 	select DM_SERIAL
+	select DM_SPI
+	select DM_SPI_FLASH
+	select SPL_DM
 	select SPL_DM_SEQ_ALIAS
+	select SPL_OF_CONTROL
+	select SPL_SIMPLE_BUS
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
@@ -770,8 +776,6 @@ source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
-source "board/Marvell/db-88f6820-gp/Kconfig"
-source "board/Marvell/db-mv784mp-gp/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
@@ -810,7 +814,6 @@ source "board/h2200/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
 source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
-source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/phytec/pcm051/Kconfig"

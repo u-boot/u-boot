@@ -32,7 +32,7 @@
 #define BOARD_ID_BASE			0x0
 
 /* New board ID numbers */
-#define DB_88F78XX0_BP_ID		(BOARD_ID_BASE)
+#define DB_88F78XX0_BP_ID		(BOARD_ID_BASE + 1)
 #define RD_78460_SERVER_ID		(DB_88F78XX0_BP_ID + 1)
 #define DB_78X60_PCAC_ID		(RD_78460_SERVER_ID + 1)
 #define FPGA_88F78XX0_ID		(DB_78X60_PCAC_ID + 1)
@@ -44,7 +44,7 @@
 #define DB_784MP_GP_ID			(RD_78460_SERVER_REV2_ID + 1)
 #define RD_78460_CUSTOMER_ID		(DB_784MP_GP_ID + 1)
 #define MV_MAX_BOARD_ID			(RD_78460_CUSTOMER_ID + 1)
-#define INVALID_BAORD_ID		0xFFFFFFFF
+#define INVALID_BOARD_ID		0xFFFFFFFF
 
 /* Sample at Reset */
 #define MPP_SAMPLE_AT_RESET(id)		(0x18230 + (id * 4))

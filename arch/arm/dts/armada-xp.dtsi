@@ -63,6 +63,7 @@
 
 	soc {
 		compatible = "marvell,armadaxp-mbus", "simple-bus";
+		u-boot,dm-pre-reloc;
 
 		bootrom {
 			compatible = "marvell,bootrom";

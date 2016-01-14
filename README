@@ -5118,14 +5118,11 @@ If the system board that you have is not listed, then you will need
 to port U-Boot to your hardware platform. To do this, follow these
 steps:
 
-1.  Add a new configuration option for your board to the toplevel
-    "boards.cfg" file, using the existing entries as examples.
-    Follow the instructions there to keep the boards in order.
-2.  Create a new directory to hold your board specific code. Add any
+1.  Create a new directory to hold your board specific code. Add any
     files you need. In your board directory, you will need at least
-    the "Makefile", a "<board>.c", "flash.c" and "u-boot.lds".
-3.  Create a new configuration file "include/configs/<board>.h" for
-    your board
+    the "Makefile" and a "<board>.c".
+2.  Create a new configuration file "include/configs/<board>.h" for
+    your board.
 3.  If you're porting U-Boot to a new CPU, then also create a new
     directory to hold your CPU specific code. Add any files you need.
 4.  Run "make <board>_defconfig" with your new name.

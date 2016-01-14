@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,12 +10,8 @@
 /*
  * High Level Configuration Options (easy to change)
  */
-#define CONFIG_ARMADA_XP		/* SOC Family Name */
 #define CONFIG_DB_784MP_GP		/* Board target name for DDR training */
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#endif
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
@@ -30,13 +26,18 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_IDE
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_SATA
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_TFTPPUT
@@ -64,48 +65,29 @@
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
-#define CONFIG_PHY_ADDR			{ 0x10, 0x11, 0x12, 0x13 }
-#define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_QSGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
-#define CONFIG_RESET_PHY_R
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
 
 /* SATA support */
-#ifdef CONFIG_CMD_IDE
-#define __io
-#define CONFIG_IDE_PREINIT
-#define CONFIG_MVSATA_IDE
-
-/* Needs byte-swapping for ATA data register */
-#define CONFIG_IDE_SWAP_IO
-
-#define CONFIG_SYS_ATA_REG_OFFSET	0x0100 /* Offset for register access */
-#define CONFIG_SYS_ATA_DATA_OFFSET	0x0100 /* Offset for data I/O */
-#define CONFIG_SYS_ATA_ALT_OFFSET	0x0100
-
-/* Each 8-bit ATA register is aligned to a 4-bytes address */
-#define CONFIG_SYS_ATA_STRIDE		4
-
-/* CONFIG_CMD_IDE requires some #defines for ATA registers */
-#define CONFIG_SYS_IDE_MAXBUS		2
-#define CONFIG_SYS_IDE_MAXDEVICE	CONFIG_SYS_IDE_MAXBUS
-
-/* ATA registers base is at SATA controller base */
-#define CONFIG_SYS_ATA_BASE_ADDR	MVEBU_AXP_SATA_BASE
-#define CONFIG_SYS_ATA_IDE0_OFFSET	0x2000
-#define CONFIG_SYS_ATA_IDE1_OFFSET	0x4000
-
+#define CONFIG_SYS_SATA_MAX_DEVICE	2
+#define CONFIG_SATA_MV
+#define CONFIG_LIBATA
+#define CONFIG_LBA48
+#define CONFIG_EFI_PARTITION
 #define CONFIG_DOS_PARTITION
-#endif /* CONFIG_CMD_IDE */
+
+/* Additional FS support/configuration */
+#define CONFIG_SUPPORT_VFAT
 
 /* PCIe support */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI
 #define CONFIG_PCI_MVEBU
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
-#define CONFIG_E1000	/* enable Intel E1000 support for testing */
+#endif
 
 /* NAND */
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
@@ -139,9 +121,9 @@
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
 #define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
 
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
-					 CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(16 << 10)
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MALLOC_SIMPLE
+#endif
 
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
@@ -161,7 +143,7 @@
 #define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SYS_MVEBU_DDR_AXP
 #define CONFIG_SPD_EEPROM		0x4e
+#define CONFIG_BOARD_ECC_SUPPORT	/* this board supports ECC */
 
 #endif /* _CONFIG_DB_MV7846MP_GP_H */

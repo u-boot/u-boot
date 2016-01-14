@@ -165,21 +165,6 @@ int ddr3_tip_init_config_func(u32 dev_num,
 }
 
 /*
- * Read training result table
- */
-int hws_ddr3_tip_read_training_result(
-	u32 dev_num, enum hws_result result[MAX_STAGE_LIMIT][MAX_INTERFACE_NUM])
-{
-	dev_num = dev_num;
-
-	if (result == NULL)
-		return MV_BAD_PARAM;
-	memcpy(result, training_result, sizeof(result));
-
-	return MV_OK;
-}
-
-/*
  * Get training result info pointer
  */
 enum hws_result *ddr3_tip_get_result_ptr(u32 stage)

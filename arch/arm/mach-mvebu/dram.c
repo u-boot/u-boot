@@ -12,11 +12,8 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
-#ifdef CONFIG_SYS_MVEBU_DDR_A38X
-#include "../../../drivers/ddr/marvell/axp/xor.h"
-#include "../../../drivers/ddr/marvell/axp/xor_regs.h"
-#endif
-#ifdef CONFIG_SYS_MVEBU_DDR_AXP
+#if defined(CONFIG_ARCH_MVEBU)
+/* Use common XOR definitions for A3x and AXP */
 #include "../../../drivers/ddr/marvell/axp/xor.h"
 #include "../../../drivers/ddr/marvell/axp/xor_regs.h"
 #endif
@@ -112,7 +109,7 @@ void mvebu_sdram_size_adjust(enum memory_bank bank)
 	mvebu_sdram_bs_set(bank, size);
 }
 
-#if defined(CONFIG_SYS_MVEBU_DDR_A38X) || defined(CONFIG_SYS_MVEBU_DDR_AXP)
+#if defined(CONFIG_ARCH_MVEBU)
 static u32 xor_ctrl_save;
 static u32 xor_base_save;
 static u32 xor_mask_save;
@@ -292,11 +289,18 @@ void dram_init_banksize(void)
 	}
 }
 
+#if defined(CONFIG_ARCH_MVEBU)
 void board_add_ram_info(int use_default)
 {
+	struct sar_freq_modes sar_freq;
+
+	get_sar_freq(&sar_freq);
+	printf(" (%d MHz, ", sar_freq.d_clk);
+
 	if (ecc_enabled())
-		printf(" (ECC");
+		printf("ECC");
 	else
-		printf(" (ECC not");
+		printf("ECC not");
 	printf(" enabled)");
 }
+#endif

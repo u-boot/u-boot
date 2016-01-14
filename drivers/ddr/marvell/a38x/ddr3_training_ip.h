@@ -171,8 +171,6 @@ int hws_ddr3_tip_load_topology_map(u32 dev_num,
 				   struct hws_topology_map *topology);
 int hws_ddr3_tip_run_alg(u32 dev_num, enum hws_algo_type algo_type);
 int hws_ddr3_tip_mode_read(u32 dev_num, struct mode_info *mode_info);
-int hws_ddr3_tip_read_training_result(u32 dev_num,
-		enum hws_result result[MAX_STAGE_LIMIT][MAX_INTERFACE_NUM]);
 int ddr3_tip_is_pup_lock(u32 *pup_buf, enum hws_training_result read_mode);
 u8 ddr3_tip_get_buf_min(u8 *buf_ptr);
 u8 ddr3_tip_get_buf_max(u8 *buf_ptr);
