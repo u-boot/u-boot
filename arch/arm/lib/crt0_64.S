@@ -78,6 +78,8 @@ ENTRY(_main)
 	mov	x0, sp
 	bl	board_init_f_alloc_reserve
 	mov	sp, x0
+	/* set up gd here, outside any C code */
+	mov	x18, x0
 	bl	board_init_f_init_reserve
 
 	mov	x0, #0
