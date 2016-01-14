@@ -19,6 +19,10 @@
 		spi0 = &qspi;
 		spi1 = &dspi1;
 	};
+
+	chosen {
+		stdout-path = &uart0;
+	};
 };
 
 &qspi {
