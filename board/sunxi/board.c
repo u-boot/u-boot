@@ -422,6 +422,12 @@ void i2c_init_board(void)
 	clock_twi_onoff(4, 1);
 #endif
 #endif
+
+#ifdef CONFIG_R_I2C_ENABLE
+	clock_twi_onoff(5, 1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN8I_H3_GPL_R_TWI);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN8I_H3_GPL_R_TWI);
+#endif
 }
 
 #ifdef CONFIG_SPL_BUILD

@@ -128,6 +128,10 @@ static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 	case 4:
 		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE4;
 #endif
+#ifdef CONFIG_I2C_MVTWSI_BASE5
+	case 5:
+		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE5;
+#endif
 	default:
 		printf("Missing mvtwsi controller %d base\n", adap->hwadapnr);
 		break;
@@ -485,5 +489,12 @@ U_BOOT_I2C_ADAP_COMPLETE(twsi4, twsi_i2c_init, twsi_i2c_probe,
 			 twsi_i2c_read, twsi_i2c_write,
 			 twsi_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 4)
+
+#endif
+#ifdef CONFIG_I2C_MVTWSI_BASE5
+U_BOOT_I2C_ADAP_COMPLETE(twsi5, twsi_i2c_init, twsi_i2c_probe,
+			 twsi_i2c_read, twsi_i2c_write,
+			 twsi_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 5)
 
 #endif
