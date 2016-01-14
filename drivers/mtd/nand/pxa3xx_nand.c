@@ -1600,9 +1600,9 @@ void board_nand_init(void)
 	struct pxa3xx_nand_host *host;
 	int ret;
 
-	info = kzalloc(sizeof(*info) + (sizeof(struct mtd_info) +
-					sizeof(*host)) *
-		       CONFIG_SYS_MAX_NAND_DEVICE, GFP_KERNEL);
+	info = kzalloc(sizeof(*info) +
+				sizeof(*host) * CONFIG_SYS_MAX_NAND_DEVICE,
+			GFP_KERNEL);
 	if (!info)
 		return;
 
