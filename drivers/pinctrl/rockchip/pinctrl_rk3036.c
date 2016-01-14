@@ -15,6 +15,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
 #include <dm/pinctrl.h>
+#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -252,6 +253,12 @@ static struct pinctrl_ops rk3036_pinctrl_ops = {
 	.get_periph_id	= rk3036_pinctrl_get_periph_id,
 };
 
+static int rk3036_pinctrl_bind(struct udevice *dev)
+{
+	/* scan child GPIO banks */
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+}
+
 static int rk3036_pinctrl_probe(struct udevice *dev)
 {
 	struct rk3036_pinctrl_priv *priv = dev_get_priv(dev);
@@ -272,5 +279,6 @@ U_BOOT_DRIVER(pinctrl_rk3036) = {
 	.of_match	= rk3036_pinctrl_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3036_pinctrl_priv),
 	.ops		= &rk3036_pinctrl_ops,
+	.bind		= rk3036_pinctrl_bind,
 	.probe		= rk3036_pinctrl_probe,
 };
