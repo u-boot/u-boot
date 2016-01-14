@@ -1486,8 +1486,8 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 	info->variant = pxa3xx_nand_get_variant();
 	for (cs = 0; cs < pdata->num_cs; cs++) {
 		mtd = &nand_info[cs];
-		chip = (struct nand_chip *)info +
-			sizeof(struct pxa3xx_nand_host);
+		chip = (struct nand_chip *)
+			((u8 *)&info[1] + sizeof(*host) * cs);
 		host = (struct pxa3xx_nand_host *)chip;
 		info->host[cs] = host;
 		host->mtd = mtd;
