@@ -177,6 +177,7 @@ static const struct dm_serial_ops zynq_serial_ops = {
 static const struct udevice_id zynq_serial_ids[] = {
 	{ .compatible = "xlnx,xuartps" },
 	{ .compatible = "cdns,uart-r1p8" },
+	{ .compatible = "cdns,uart-r1p12" },
 	{ }
 };
 
