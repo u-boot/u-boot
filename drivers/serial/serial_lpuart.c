@@ -12,15 +12,15 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 
-#define US1_TDRE        (1 << 7)
-#define US1_RDRF        (1 << 5)
-#define US1_OR          (1 << 3)
-#define UC2_TE          (1 << 3)
-#define UC2_RE          (1 << 2)
-#define CFIFO_TXFLUSH   (1 << 7)
-#define CFIFO_RXFLUSH   (1 << 6)
-#define SFIFO_RXOF      (1 << 2)
-#define SFIFO_RXUF      (1 << 0)
+#define US1_TDRE	(1 << 7)
+#define US1_RDRF	(1 << 5)
+#define US1_OR		(1 << 3)
+#define UC2_TE		(1 << 3)
+#define UC2_RE		(1 << 2)
+#define CFIFO_TXFLUSH	(1 << 7)
+#define CFIFO_RXFLUSH	(1 << 6)
+#define SFIFO_RXOF	(1 << 2)
+#define SFIFO_RXUF	(1 << 0)
 
 #define STAT_LBKDIF	(1 << 31)
 #define STAT_RXEDGIF	(1 << 30)
@@ -34,7 +34,7 @@
 #define STAT_MA1F	(1 << 15)
 #define STAT_MA2F	(1 << 14)
 #define STAT_FLAGS	(STAT_LBKDIF | STAT_RXEDGIF | STAT_IDLE | STAT_OR | \
-			STAT_NF | STAT_FE | STAT_PF | STAT_MA1F | STAT_MA2F)
+			 STAT_NF | STAT_FE | STAT_PF | STAT_MA1F | STAT_MA2F)
 
 #define CTRL_TE		(1 << 19)
 #define CTRL_RE		(1 << 18)
@@ -59,8 +59,8 @@ static void lpuart_serial_setbrg(void)
 		gd->baudrate = CONFIG_BAUDRATE;
 
 	sbr = (u16)(clk / (16 * gd->baudrate));
-	/* place adjustment later - n/32 BRFA */
 
+	/* place adjustment later - n/32 BRFA */
 	__raw_writeb(sbr >> 8, &base->ubdh);
 	__raw_writeb(sbr & 0xff, &base->ubdl);
 }
@@ -86,9 +86,7 @@ static void lpuart_serial_putc(const char c)
 	__raw_writeb(c, &base->ud);
 }
 
-/*
- * Test whether a character is in the RX buffer
- */
+/* Test whether a character is in the RX buffer */
 static int lpuart_serial_tstc(void)
 {
 	if (__raw_readb(&base->urcfifo) == 0)
@@ -120,7 +118,6 @@ static int lpuart_serial_init(void)
 	__raw_writeb(CFIFO_TXFLUSH | CFIFO_RXFLUSH, &base->ucfifo);
 
 	/* provide data bits, parity, stop bit, etc */
-
 	serial_setbrg();
 
 	__raw_writeb(UC2_RE | UC2_TE, &base->uc2);
@@ -148,8 +145,8 @@ static void lpuart32_serial_setbrg(void)
 		gd->baudrate = CONFIG_BAUDRATE;
 
 	sbr = (clk / (16 * gd->baudrate));
-	/* place adjustment later - n/32 BRFA */
 
+	/* place adjustment later - n/32 BRFA */
 	out_be32(&base->baud, sbr);
 }
 
@@ -176,9 +173,7 @@ static void lpuart32_serial_putc(const char c)
 	out_be32(&base->data, c);
 }
 
-/*
- * Test whether a character is in the RX buffer
- */
+/* Test whether a character is in the RX buffer */
 static int lpuart32_serial_tstc(void)
 {
 	if ((in_be32(&base->water) >> 24) == 0)
@@ -204,8 +199,8 @@ static int lpuart32_serial_init(void)
 	out_be32(&base->fifo, ~(FIFO_TXFE | FIFO_RXFE));
 
 	out_be32(&base->match, 0);
-	/* provide data bits, parity, stop bit, etc */
 
+	/* provide data bits, parity, stop bit, etc */
 	serial_setbrg();
 
 	out_be32(&base->ctrl, CTRL_RE | CTRL_TE);
