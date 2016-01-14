@@ -19,6 +19,9 @@
 # qconf-objs      := menu.o
 # Will compile qconf as a C++ program, and menu as a C program.
 # They are linked as C++ code to the executable qconf
+#
+# SPDX-License-Identifier:	GPL-2.0
+#
 
 __hostprogs := $(sort $(hostprogs-y) $(hostprogs-m))
 

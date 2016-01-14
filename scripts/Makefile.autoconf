@@ -6,6 +6,9 @@
 # When our migration to Kconfig is done
 # (= When we move all CONFIGs from header files to Kconfig)
 # this makefile can be deleted.
+#
+# SPDX-License-Identifier:	GPL-2.0
+#
 
 __all: include/autoconf.mk include/autoconf.mk.dep
 

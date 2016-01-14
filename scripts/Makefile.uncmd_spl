@@ -1,5 +1,7 @@
 # Makefile version of include/config_uncmd_spl.h
 #
+# SPDX-License-Identifier:	GPL-2.0+
+#
 # TODO: Invent a better way
 
 ifdef CONFIG_SPL_BUILD
