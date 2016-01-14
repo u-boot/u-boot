@@ -78,7 +78,7 @@ static int lpuart_serial_getc(void)
 static void lpuart_serial_putc(const char c)
 {
 	if (c == '\n')
-		serial_putc('\r');
+		lpuart_serial_putc('\r');
 
 	while (!(__raw_readb(&base->us1) & US1_TDRE))
 		WATCHDOG_RESET();
@@ -118,7 +118,7 @@ static int lpuart_serial_init(void)
 	__raw_writeb(CFIFO_TXFLUSH | CFIFO_RXFLUSH, &base->ucfifo);
 
 	/* provide data bits, parity, stop bit, etc */
-	serial_setbrg();
+	lpuart_serial_setbrg();
 
 	__raw_writeb(UC2_RE | UC2_TE, &base->uc2);
 
@@ -165,7 +165,7 @@ static int lpuart32_serial_getc(void)
 static void lpuart32_serial_putc(const char c)
 {
 	if (c == '\n')
-		serial_putc('\r');
+		lpuart32_serial_putc('\r');
 
 	while (!(in_be32(&base->stat) & STAT_TDRE))
 		WATCHDOG_RESET();
@@ -201,7 +201,7 @@ static int lpuart32_serial_init(void)
 	out_be32(&base->match, 0);
 
 	/* provide data bits, parity, stop bit, etc */
-	serial_setbrg();
+	lpuart32_serial_setbrg();
 
 	out_be32(&base->ctrl, CTRL_RE | CTRL_TE);
 
