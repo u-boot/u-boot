@@ -1606,13 +1606,6 @@ void board_nand_init(void)
 	if (!info)
 		return;
 
-	/*
-	 * If CONFIG_SYS_NAND_SELF_INIT is defined, each driver is responsible
-	 * for instantiating struct nand_chip, while drivers/mtd/nand/nand.c
-	 * still provides a "struct mtd_info nand_info" instance.
-	 */
-	info->host[0]->mtd = &nand_info[0];
-
 	ret = pxa3xx_nand_probe(info);
 	if (ret)
 		return;
