@@ -93,12 +93,14 @@ F:	arch/arm/include/asm/arch-mx*/
 F:	arch/arm/include/asm/arch-vf610/
 F:	arch/arm/include/asm/imx-common/
 
-ARM MARVELL KIRKWOOD
+ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X
 M:	Prafulla Wadaskar <prafulla@marvell.com>
 M:	Luka Perkov <luka.perkov@sartura.hr>
+M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
+F:	arch/arm/mach-mvebu/
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
