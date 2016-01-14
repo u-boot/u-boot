@@ -10,11 +10,13 @@
 #include <common.h>
 #include <net.h>
 #include <config.h>
+#include <console.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <fdtdec.h>
+#include <asm-generic/errno.h>
 
 #undef DEBUG
 
@@ -76,7 +78,6 @@ struct xemaclite {
 	u32 txpp;		/* TX ping pong buffer */
 	u32 rxpp;		/* RX ping pong buffer */
 	int phyaddr;
-
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };
@@ -136,24 +137,47 @@ static void xemaclite_alignedwrite(void *srcptr, u32 destptr, u32 bytecount)
 }
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
+static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
+			bool set, unsigned int timeout)
+{
+	u32 val;
+	unsigned long start = get_timer(0);
+
+	while (1) {
+		val = readl(reg);
+
+		if (!set)
+			val = ~val;
+
+		if ((val & mask) == mask)
+			return 0;
+
+		if (get_timer(start) > timeout)
+			break;
+
+		if (ctrlc()) {
+			puts("Abort\n");
+			return -EINTR;
+		}
+
+		udelay(1);
+	}
+
+	debug("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
+	      func, reg, mask, set);
+
+	return -ETIMEDOUT;
+}
+
 static int mdio_wait(struct eth_device *dev)
 {
-	u32 timeout = 200;
-
-	/* Wait till MDIO interface is ready to accept a new transaction. */
-	while (timeout && in_be32(dev->iobase + XEL_MDIOCTRL_OFFSET)
-			& XEL_MDIOCTRL_MDIOSTS_MASK)
-		timeout--;
-
-	if (!timeout) {
-		printf("%s: Timeout\n", __func__);
-		return 1;
-	}
-	return 0;
+	return wait_for_bit(__func__,
+			    (u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET),
+			    XEL_MDIOCTRL_MDIOSTS_MASK, false, 2000);
 }
 
 static u32 phyread(struct eth_device *dev, u32 phyaddress, u32 registernum,
-								u16 *data)
+		   u16 *data)
 {
 	if (mdio_wait(dev))
 		return 1;
@@ -174,7 +198,7 @@ static u32 phyread(struct eth_device *dev, u32 phyaddress, u32 registernum,
 }
 
 static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
-								u16 data)
+		    u16 data)
 {
 	if (mdio_wait(dev))
 		return 1;
@@ -229,14 +253,16 @@ static int setup_phy(struct eth_device *dev)
 			SUPPORTED_100baseT_Half |
 			SUPPORTED_100baseT_Full;
 
-	if (emaclite->phyaddr != -1 ) {
+	if (emaclite->phyaddr != -1) {
 		phyread(dev, emaclite->phyaddr, PHY_DETECT_REG, &phyreg);
 		if ((phyreg != 0xFFFF) &&
-		((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+		    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 			/* Found a valid PHY address */
-			debug("Default phy address %d is valid\n", emaclite->phyaddr);
+			debug("Default phy address %d is valid\n",
+			      emaclite->phyaddr);
 		} else {
-			debug("PHY address is not setup correctly %d\n", emaclite->phyaddr);
+			debug("PHY address is not setup correctly %d\n",
+			      emaclite->phyaddr);
 			emaclite->phyaddr = -1;
 		}
 	}
@@ -246,11 +272,11 @@ static int setup_phy(struct eth_device *dev)
 		for (i = 31; i >= 0; i--) {
 			phyread(dev, i, PHY_DETECT_REG, &phyreg);
 			if ((phyreg != 0xFFFF) &&
-			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+			    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 				/* Found a valid PHY address */
 				emaclite->phyaddr = i;
 				debug("emaclite: Found valid phy address, %d\n",
-									phyreg);
+				      i);
 				break;
 			}
 		}
@@ -284,38 +310,34 @@ static int setup_phy(struct eth_device *dev)
 static int emaclite_init(struct eth_device *dev, bd_t *bis)
 {
 	struct xemaclite *emaclite = dev->priv;
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	u32 temp;
-#endif
-
-	debug("EmacLite: Initialization Started\n");
+	debug("EmacLite Initialization Started\n");
 
 /*
  * TX - TX_PING & TX_PONG initialization
  */
 	/* Restart PING TX */
-	out_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET), 0);
+	out_be32 (dev->iobase + XEL_TSR_OFFSET, 0);
 	/* Copy MAC address */
 	xemaclite_alignedwrite(dev->enetaddr, dev->iobase, ENET_ADDR_LENGTH);
 	/* Set the length */
-	out_be32 ((u32 *)(dev->iobase + XEL_TPLR_OFFSET), ENET_ADDR_LENGTH);
+	out_be32 (dev->iobase + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
 	/* Update the MAC address in the EMAC Lite */
-	out_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET), XEL_TSR_PROG_MAC_ADDR);
+	out_be32 (dev->iobase + XEL_TSR_OFFSET, XEL_TSR_PROG_MAC_ADDR);
 	/* Wait for EMAC Lite to finish with the MAC address update */
-	while ((in_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET)) &
+	while ((in_be32 (dev->iobase + XEL_TSR_OFFSET) &
 		XEL_TSR_PROG_MAC_ADDR) != 0)
 		;
 
 	if (emaclite->txpp) {
 		/* The same operation with PONG TX */
-		out_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET), 0);
+		out_be32 (dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET, 0);
 		xemaclite_alignedwrite(dev->enetaddr, dev->iobase +
 			XEL_BUFFER_OFFSET, ENET_ADDR_LENGTH);
-		out_be32 ((u32 *)(dev->iobase + XEL_TPLR_OFFSET), ENET_ADDR_LENGTH);
-		out_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET),
+		out_be32 (dev->iobase + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
+		out_be32 (dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET,
 			XEL_TSR_PROG_MAC_ADDR);
-		while ((in_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET +
-			XEL_BUFFER_OFFSET)) & XEL_TSR_PROG_MAC_ADDR) != 0)
+		while ((in_be32 (dev->iobase + XEL_TSR_OFFSET +
+			XEL_BUFFER_OFFSET) & XEL_TSR_PROG_MAC_ADDR) != 0)
 			;
 	}
 
@@ -323,21 +345,19 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
  * RX - RX_PING & RX_PONG initialization
  */
 	/* Write out the value to flush the RX buffer */
-	out_be32 ((u32 *)(dev->iobase + XEL_RSR_OFFSET), XEL_RSR_RECV_IE_MASK);
+	out_be32 (dev->iobase + XEL_RSR_OFFSET, XEL_RSR_RECV_IE_MASK);
 
 	if (emaclite->rxpp)
-		out_be32 ((u32 *)(dev->iobase + XEL_RSR_OFFSET + XEL_BUFFER_OFFSET),
+		out_be32 (dev->iobase + XEL_RSR_OFFSET + XEL_BUFFER_OFFSET,
 			XEL_RSR_RECV_IE_MASK);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	/* Enable MII PHY */
-	out_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET), XEL_MDIOCTRL_MDIOEN_MASK);
-	temp = in_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET));
-	if (temp & XEL_MDIOCTRL_MDIOEN_MASK)
+	out_be32(dev->iobase + XEL_MDIOCTRL_OFFSET, XEL_MDIOCTRL_MDIOEN_MASK);
+	if (in_be32(dev->iobase + XEL_MDIOCTRL_OFFSET) &
+		    XEL_MDIOCTRL_MDIOEN_MASK)
 		if (!setup_phy(dev))
 			return -1;
 #endif
-
 	debug("EmacLite Initialization complete\n");
 	return 0;
 }
@@ -353,13 +373,13 @@ static int xemaclite_txbufferavailable(struct eth_device *dev)
 	 * Read the other buffer register
 	 * and determine if the other buffer is available
 	 */
-	reg = in_be32 ((u32 *)(dev->iobase +
-			emaclite->nexttxbuffertouse + 0));
+	reg = in_be32 (dev->iobase +
+			emaclite->nexttxbuffertouse + 0);
 	txpingbusy = ((reg & XEL_TSR_XMIT_BUSY_MASK) ==
 			XEL_TSR_XMIT_BUSY_MASK);
 
-	reg = in_be32 ((u32 *)(dev->iobase +
-			(emaclite->nexttxbuffertouse ^ XEL_TSR_OFFSET) + 0));
+	reg = in_be32 (dev->iobase +
+			(emaclite->nexttxbuffertouse ^ XEL_TSR_OFFSET) + 0);
 	txpongbusy = ((reg & XEL_TSR_XMIT_BUSY_MASK) ==
 			XEL_TSR_XMIT_BUSY_MASK);
 
@@ -385,10 +405,10 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 	if (!maxtry) {
 		printf("Error: Timeout waiting for ethernet TX buffer\n");
 		/* Restart PING TX */
-		out_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET), 0);
+		out_be32 (dev->iobase + XEL_TSR_OFFSET, 0);
 		if (emaclite->txpp) {
-			out_be32 ((u32 *)(dev->iobase + XEL_TSR_OFFSET +
-				XEL_BUFFER_OFFSET), 0);
+			out_be32 (dev->iobase + XEL_TSR_OFFSET +
+				XEL_BUFFER_OFFSET, 0);
 		}
 		return -1;
 	}
@@ -397,9 +417,9 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 	baseaddress = (dev->iobase + emaclite->nexttxbuffertouse);
 
 	/* Determine if the expected buffer address is empty */
-	reg = in_be32 ((u32 *)(baseaddress + XEL_TSR_OFFSET));
+	reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
 	if (((reg & XEL_TSR_XMIT_BUSY_MASK) == 0)
-		&& ((in_be32 (((u32 *)(baseaddress) + XEL_TSR_OFFSET))
+		&& ((in_be32 ((baseaddress) + XEL_TSR_OFFSET)
 			& XEL_TSR_XMIT_ACTIVE_MASK) == 0)) {
 
 		if (emaclite->txpp)
@@ -408,13 +428,13 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 		debug("Send packet from 0x%x\n", baseaddress);
 		/* Write the frame to the buffer */
 		xemaclite_alignedwrite(ptr, baseaddress, len);
-		out_be32 ((u32 *)(baseaddress + XEL_TPLR_OFFSET), (len &
+		out_be32 (baseaddress + XEL_TPLR_OFFSET,(len &
 			(XEL_TPLR_LENGTH_MASK_HI | XEL_TPLR_LENGTH_MASK_LO)));
-		reg = in_be32 ((u32 *)(baseaddress + XEL_TSR_OFFSET));
+		reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
 		reg |= XEL_TSR_XMIT_BUSY_MASK;
 		if ((reg & XEL_TSR_XMIT_IE_MASK) != 0)
 			reg |= XEL_TSR_XMIT_ACTIVE_MASK;
-		out_be32 ((u32 *)(baseaddress + XEL_TSR_OFFSET), reg);
+		out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
 		return 0;
 	}
 
@@ -422,21 +442,21 @@ static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 		/* Switch to second buffer */
 		baseaddress ^= XEL_BUFFER_OFFSET;
 		/* Determine if the expected buffer address is empty */
-		reg = in_be32 ((u32 *)(baseaddress + XEL_TSR_OFFSET));
+		reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
 		if (((reg & XEL_TSR_XMIT_BUSY_MASK) == 0)
-			&& ((in_be32 ((u32 *)(baseaddress + XEL_TSR_OFFSET))
+			&& ((in_be32 ((baseaddress) + XEL_TSR_OFFSET)
 				& XEL_TSR_XMIT_ACTIVE_MASK) == 0)) {
 			debug("Send packet from 0x%x\n", baseaddress);
 			/* Write the frame to the buffer */
 			xemaclite_alignedwrite(ptr, baseaddress, len);
-			out_be32 ((u32 *)(baseaddress + XEL_TPLR_OFFSET), (len &
+			out_be32 (baseaddress + XEL_TPLR_OFFSET, (len &
 				(XEL_TPLR_LENGTH_MASK_HI |
 					XEL_TPLR_LENGTH_MASK_LO)));
-			reg = in_be32 ((u32 *)(baseaddress + XEL_TSR_OFFSET));
+			reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
 			reg |= XEL_TSR_XMIT_BUSY_MASK;
 			if ((reg & XEL_TSR_XMIT_IE_MASK) != 0)
 				reg |= XEL_TSR_XMIT_ACTIVE_MASK;
-			out_be32 ((u32 *)(baseaddress + XEL_TSR_OFFSET), reg);
+			out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
 			return 0;
 		}
 	}
@@ -453,7 +473,7 @@ static int emaclite_recv(struct eth_device *dev)
 	struct xemaclite *emaclite = dev->priv;
 
 	baseaddress = dev->iobase + emaclite->nextrxbuffertouse;
-	reg = in_be32 ((u32 *)(baseaddress + XEL_RSR_OFFSET));
+	reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
 	debug("Testing data at address 0x%x\n", baseaddress);
 	if ((reg & XEL_RSR_RECV_DONE_MASK) == XEL_RSR_RECV_DONE_MASK) {
 		if (emaclite->rxpp)
@@ -466,7 +486,7 @@ static int emaclite_recv(struct eth_device *dev)
 			return 0;
 		} else {
 			baseaddress ^= XEL_BUFFER_OFFSET;
-			reg = in_be32 ((u32 *)(baseaddress + XEL_RSR_OFFSET));
+			reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
 			if ((reg & XEL_RSR_RECV_DONE_MASK) !=
 						XEL_RSR_RECV_DONE_MASK) {
 				debug("No data was available - address 0x%x\n",
@@ -476,7 +496,7 @@ static int emaclite_recv(struct eth_device *dev)
 		}
 	}
 	/* Get the length of the frame that arrived */
-	switch(((ntohl(in_be32 ((u32 *)(baseaddress + XEL_RXBUFF_OFFSET + 0xC)))) &
+	switch(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0xC))) &
 			0xFFFF0000 ) >> 16) {
 		case 0x806:
 			length = 42 + 20; /* FIXME size of ARP */
@@ -484,8 +504,8 @@ static int emaclite_recv(struct eth_device *dev)
 			break;
 		case 0x800:
 			length = 14 + 14 +
-			(((ntohl(in_be32 ((u32 *)(baseaddress + XEL_RXBUFF_OFFSET +
-						0x10)))) & 0xFFFF0000) >> 16);
+			(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET +
+						0x10))) & 0xFFFF0000) >> 16);
 			/* FIXME size of IP packet */
 			debug ("IP Packet\n");
 			break;
@@ -499,9 +519,9 @@ static int emaclite_recv(struct eth_device *dev)
 			etherrxbuff, length);
 
 	/* Acknowledge the frame */
-	reg = in_be32 ((u32 *)(baseaddress + XEL_RSR_OFFSET));
+	reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
 	reg &= ~XEL_RSR_RECV_DONE_MASK;
-	out_be32 ((u32 *)(baseaddress + XEL_RSR_OFFSET), reg);
+	out_be32 (baseaddress + XEL_RSR_OFFSET, reg);
 
 	debug("Packet receive from 0x%x, length %dB\n", baseaddress, length);
 	net_process_received_packet((uchar *)etherrxbuff, length);
@@ -511,7 +531,7 @@ static int emaclite_recv(struct eth_device *dev)
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 static int emaclite_miiphy_read(const char *devname, uchar addr,
-							uchar reg, ushort *val)
+				uchar reg, ushort *val)
 {
 	u32 ret;
 	struct eth_device *dev = eth_get_dev();
@@ -522,7 +542,7 @@ static int emaclite_miiphy_read(const char *devname, uchar addr,
 }
 
 static int emaclite_miiphy_write(const char *devname, uchar addr,
-							uchar reg, ushort val)
+				 uchar reg, ushort val)
 {
 	struct eth_device *dev = eth_get_dev();
 
@@ -571,6 +591,9 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	miiphy_register(dev->name, emaclite_miiphy_read, emaclite_miiphy_write);
 	emaclite->bus = miiphy_get_dev_by_name(dev->name);
+
+	out_be32(dev->iobase + XEL_MDIOCTRL_OFFSET,
+		 XEL_MDIOCTRL_MDIOEN_MASK);
 #endif
 
 	return 1;
