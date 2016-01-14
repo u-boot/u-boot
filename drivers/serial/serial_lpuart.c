@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <serial.h>
@@ -48,6 +49,10 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct lpuart_fsl *base = (struct lpuart_fsl *)LPUART_BASE;
+
+struct lpuart_serial_platdata {
+	struct lpuart_fsl *reg;
+};
 
 #ifndef CONFIG_LPUART_32B_REG
 static void _lpuart_serial_setbrg(struct lpuart_fsl *base, int baudrate)
@@ -122,6 +127,7 @@ static int _lpuart_serial_init(struct lpuart_fsl *base)
 	return 0;
 }
 
+#ifndef CONFIG_DM_SERIAL
 static void lpuart_serial_setbrg(void)
 {
 	_lpuart_serial_setbrg(base, gd->baudrate);
@@ -157,6 +163,54 @@ static struct serial_device lpuart_serial_drv = {
 	.getc = lpuart_serial_getc,
 	.tstc = lpuart_serial_tstc,
 };
+#else /* CONFIG_DM_SERIAL */
+static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	_lpuart_serial_setbrg(reg, baudrate);
+
+	return 0;
+}
+
+static int lpuart_serial_getc(struct udevice *dev)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	return _lpuart_serial_getc(reg);
+}
+
+static int lpuart_serial_putc(struct udevice *dev, const char c)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	_lpuart_serial_putc(reg, c);
+
+	return 0;
+}
+
+static int lpuart_serial_pending(struct udevice *dev, bool input)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	if (input)
+		return _lpuart_serial_tstc(reg);
+	else
+		return __raw_readb(&reg->us1) & US1_TDRE ? 0 : 1;
+}
+
+static int lpuart_serial_probe(struct udevice *dev)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	return _lpuart_serial_init(reg);
+}
+#endif /* CONFIG_DM_SERIAL */
 #else
 static void _lpuart32_serial_setbrg(struct lpuart_fsl *base, int baudrate)
 {
@@ -227,6 +281,7 @@ static int _lpuart32_serial_init(struct lpuart_fsl *base)
 	return 0;
 }
 
+#ifndef CONFIG_DM_SERIAL
 static void lpuart32_serial_setbrg(void)
 {
 	_lpuart32_serial_setbrg(base, gd->baudrate);
@@ -262,8 +317,57 @@ static struct serial_device lpuart32_serial_drv = {
 	.getc = lpuart32_serial_getc,
 	.tstc = lpuart32_serial_tstc,
 };
+#else /* CONFIG_DM_SERIAL */
+static int lpuart32_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	_lpuart32_serial_setbrg(reg, baudrate);
+
+	return 0;
+}
+
+static int lpuart32_serial_getc(struct udevice *dev)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	return _lpuart32_serial_getc(reg);
+}
+
+static int lpuart32_serial_putc(struct udevice *dev, const char c)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	_lpuart32_serial_putc(reg, c);
+
+	return 0;
+}
+
+static int lpuart32_serial_pending(struct udevice *dev, bool input)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	if (input)
+		return _lpuart32_serial_tstc(reg);
+	else
+		return in_be32(&reg->stat) & STAT_TDRE ? 0 : 1;
+}
+
+static int lpuart32_serial_probe(struct udevice *dev)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	struct lpuart_fsl *reg = plat->reg;
+
+	return _lpuart32_serial_init(reg);
+}
+#endif /* CONFIG_DM_SERIAL */
 #endif
 
+#ifndef CONFIG_DM_SERIAL
 void lpuart_serial_initialize(void)
 {
 #ifdef CONFIG_LPUART_32B_REG
@@ -281,3 +385,66 @@ __weak struct serial_device *default_serial_console(void)
 	return &lpuart_serial_drv;
 #endif
 }
+#else /* CONFIG_DM_SERIAL */
+static int lpuart_serial_ofdata_to_platdata(struct udevice *dev)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+	fdt_addr_t addr;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->reg = (struct lpuart_fsl *)addr;
+
+	return 0;
+}
+
+#ifndef CONFIG_LPUART_32B_REG
+static const struct dm_serial_ops lpuart_serial_ops = {
+	.putc = lpuart_serial_putc,
+	.pending = lpuart_serial_pending,
+	.getc = lpuart_serial_getc,
+	.setbrg = lpuart_serial_setbrg,
+};
+
+static const struct udevice_id lpuart_serial_ids[] = {
+	{ .compatible = "fsl,vf610-lpuart" },
+	{ }
+};
+
+U_BOOT_DRIVER(serial_lpuart) = {
+	.name	= "serial_lpuart",
+	.id	= UCLASS_SERIAL,
+	.of_match = lpuart_serial_ids,
+	.ofdata_to_platdata = lpuart_serial_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct lpuart_serial_platdata),
+	.probe = lpuart_serial_probe,
+	.ops	= &lpuart_serial_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+#else /* CONFIG_LPUART_32B_REG */
+static const struct dm_serial_ops lpuart32_serial_ops = {
+	.putc = lpuart32_serial_putc,
+	.pending = lpuart32_serial_pending,
+	.getc = lpuart32_serial_getc,
+	.setbrg = lpuart32_serial_setbrg,
+};
+
+static const struct udevice_id lpuart32_serial_ids[] = {
+	{ .compatible = "fsl,ls1021a-lpuart" },
+	{ }
+};
+
+U_BOOT_DRIVER(serial_lpuart32) = {
+	.name	= "serial_lpuart32",
+	.id	= UCLASS_SERIAL,
+	.of_match = lpuart32_serial_ids,
+	.ofdata_to_platdata = lpuart_serial_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct lpuart_serial_platdata),
+	.probe = lpuart32_serial_probe,
+	.ops	= &lpuart32_serial_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+#endif /* CONFIG_LPUART_32B_REG */
+#endif /* CONFIG_DM_SERIAL */

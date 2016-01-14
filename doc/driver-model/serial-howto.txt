@@ -11,7 +11,6 @@ is time for maintainers to start converting over the remaining serial drivers:
    opencores_yanu.c
    serial_bfin.c
    serial_imx.c
-   serial_lpuart.c
    serial_max3100.c
    serial_pxa.c
    serial_s3c24x0.c
