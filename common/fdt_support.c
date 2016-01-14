@@ -131,18 +131,6 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 			      OF_STDOUT_PATH, strlen(OF_STDOUT_PATH) + 1);
 }
 #elif defined(CONFIG_OF_STDOUT_VIA_ALIAS) && defined(CONFIG_CONS_INDEX)
-static void fdt_fill_multisername(char *sername, size_t maxlen)
-{
-	const char *outname = stdio_devices[stdout]->name;
-
-	if (strcmp(outname, "serial") > 0)
-		strncpy(sername, outname, maxlen);
-
-	/* eserial? */
-	if (strcmp(outname + 1, "serial") > 0)
-		strncpy(sername, outname + 1, maxlen);
-}
-
 static int fdt_fixup_stdout(void *fdt, int chosenoff)
 {
 	int err;
@@ -152,9 +140,7 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 	int len;
 	char tmp[256]; /* long enough */
 
-	fdt_fill_multisername(sername, sizeof(sername) - 1);
-	if (!sername[0])
-		sprintf(sername, "serial%d", CONFIG_CONS_INDEX - 1);
+	sprintf(sername, "serial%d", CONFIG_CONS_INDEX - 1);
 
 	aliasoff = fdt_path_offset(fdt, "/aliases");
 	if (aliasoff < 0) {
