@@ -70,6 +70,7 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 	return zunzip(dst, dstlen, src, lenp, 1, i);
 }
 
+#ifdef CONFIG_CMD_UNZIP
 __weak
 void gzwrite_progress_init(u64 expectedsize)
 {
@@ -258,6 +259,7 @@ out:
 
 	return r;
 }
+#endif
 
 /*
  * Uncompress blocks compressed with zlib without headers
