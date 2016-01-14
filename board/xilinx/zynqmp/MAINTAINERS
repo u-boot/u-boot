@@ -11,6 +11,7 @@ F:	include/configs/xilinx_zynqmp_zc1751_xm019_dc5.h
 F:	include/configs/xilinx_zynqmp_zcu102.h
 F:	configs/xilinx_zynqmp_ep_defconfig
 F:	configs/xilinx_zynqmp_mini_qspi_defconfig
+F:	configs/xilinx_zynqmp_mini_nand_defconfig
 F:	configs/xilinx_zynqmp_zc1751_xm015_dc1_defconfig
 F:	configs/xilinx_zynqmp_zc1751_xm016_dc2_defconfig
 F:	configs/xilinx_zynqmp_zc1751_xm019_dc5_defconfig
