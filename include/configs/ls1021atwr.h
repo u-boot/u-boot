@@ -266,7 +266,6 @@
  * Serial Port
  */
 #ifdef CONFIG_LPUART
-#define CONFIG_FSL_LPUART
 #define CONFIG_LPUART_32B_REG
 #else
 #define CONFIG_CONS_INDEX		1
