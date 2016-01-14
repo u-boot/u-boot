@@ -73,6 +73,17 @@ struct  mvtwsi_registers {
 #define	MVTWSI_CONTROL_INTEN	0x00000080
 
 /*
+ * On sun6i and newer IFLG is a write-clear bit which is cleared by writing 1,
+ * on other platforms it is a normal r/w bit which is cleared by writing 0.
+ */
+
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+#define	MVTWSI_CONTROL_CLEAR_IFLG	0x00000008
+#else
+#define	MVTWSI_CONTROL_CLEAR_IFLG	0x00000000
+#endif
+
+/*
  * Status register values -- only those expected in normal master
  * operation on non-10-bit-address devices; whatever status we don't
  * expect in nominal conditions (bus errors, arbitration losses,
@@ -189,7 +200,8 @@ static int twsi_start(struct i2c_adapter *adap, int expected_status)
 	/* globally set TWSIEN in case it was not */
 	twsi_control_flags |= MVTWSI_CONTROL_TWSIEN;
 	/* assert START */
-	writel(twsi_control_flags | MVTWSI_CONTROL_START, &twsi->control);
+	twsi_control_flags |= MVTWSI_CONTROL_START | MVTWSI_CONTROL_CLEAR_IFLG;
+	writel(twsi_control_flags, &twsi->control);
 	/* wait for controller to process START */
 	return twsi_wait(adap, expected_status);
 }
@@ -204,7 +216,7 @@ static int twsi_send(struct i2c_adapter *adap, u8 byte, int expected_status)
 	/* put byte in data register for sending */
 	writel(byte, &twsi->data);
 	/* clear any pending interrupt -- that'll cause sending */
-	writel(twsi_control_flags, &twsi->control);
+	writel(twsi_control_flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to receive byte and check ACK */
 	return twsi_wait(adap, expected_status);
 }
@@ -224,7 +236,7 @@ static int twsi_recv(struct i2c_adapter *adap, u8 *byte)
 	else
 		expected_status = MVTWSI_STATUS_DATA_R_NAK;
 	/* acknowledge *previous state* and launch receive */
-	writel(twsi_control_flags, &twsi->control);
+	writel(twsi_control_flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to receive byte and assert ACK or NAK */
 	status = twsi_wait(adap, expected_status);
 	/* if we did receive expected byte then store it */
@@ -246,7 +258,7 @@ static int twsi_stop(struct i2c_adapter *adap, int status)
 
 	/* assert STOP */
 	control = MVTWSI_CONTROL_TWSIEN | MVTWSI_CONTROL_STOP;
-	writel(control, &twsi->control);
+	writel(control | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for IDLE; IFLG won't rise so twsi_wait() is no use. */
 	do {
 		stop_status = readl(&twsi->status);
