@@ -375,6 +375,7 @@ int dm_pciauto_config_device(struct udevice *dev)
 
 	case PCI_CLASS_PROCESSOR_POWERPC: /* an agent or end-point */
 		debug("PCI AutoConfig: Found PowerPC device\n");
+		/* fall through */
 
 	default:
 		dm_pciauto_setup_device(dev, 6, pci_mem, pci_prefetch, pci_io,
