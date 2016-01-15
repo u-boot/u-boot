@@ -27,6 +27,7 @@
  * @y_charsize:	Character height in pixels
  * @tab_width_frac:	Tab width in fractional units
  * @xsize_frac:	Width of the display in fractional units
+ * @xstart_frac:	Left margin for the text console in fractional units
  */
 struct vidconsole_priv {
 	struct stdio_dev sdev;
@@ -38,6 +39,7 @@ struct vidconsole_priv {
 	int y_charsize;
 	int tab_width_frac;
 	int xsize_frac;
+	int xstart_frac;
 };
 
 /**

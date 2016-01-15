@@ -53,7 +53,7 @@ static void vidconsole_back(struct udevice *dev)
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 
 	priv->xcur_frac -= VID_TO_POS(priv->x_charsize);
-	if (priv->xcur_frac < 0) {
+	if (priv->xcur_frac < priv->xstart_frac) {
 		priv->xcur_frac = (priv->cols - 1) *
 			VID_TO_POS(priv->x_charsize);
 		priv->ycur -= priv->y_charsize;
@@ -71,7 +71,7 @@ static void vidconsole_newline(struct udevice *dev)
 	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
 	int i;
 
-	priv->xcur_frac = 0;
+	priv->xcur_frac = priv->xstart_frac;
 	priv->ycur += priv->y_charsize;
 
 	/* Check if we need to scroll the terminal */
@@ -95,7 +95,7 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		/* beep */
 		break;
 	case '\r':
-		priv->xcur_frac = 0;
+		priv->xcur_frac = priv->xstart_frac;
 		break;
 	case '\n':
 		vidconsole_newline(dev);
