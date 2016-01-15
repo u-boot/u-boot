@@ -129,14 +129,26 @@ static int pci_rom_probe(struct udevice *dev, struct pci_rom_header **hdrp)
 	return 0;
 }
 
-int pci_rom_load(struct pci_rom_header *rom_header,
-		 struct pci_rom_header **ram_headerp)
+/**
+ * pci_rom_load() - Load a ROM image and return a pointer to it
+ *
+ * @rom_header:		Pointer to ROM image
+ * @ram_headerp:	Returns a pointer to the image in RAM
+ * @allocedp:		Returns true if @ram_headerp was allocated and needs
+ *			to be freed
+ * @return 0 if OK, -ve on error. Note that @allocedp is set up regardless of
+ * the error state. Even if this function returns an error, it may have
+ * allocated memory.
+ */
+static int pci_rom_load(struct pci_rom_header *rom_header,
+			struct pci_rom_header **ram_headerp, bool *allocedp)
 {
 	struct pci_rom_data *rom_data;
 	unsigned int rom_size;
 	unsigned int image_size = 0;
 	void *target;
 
+	*allocedp = false;
 	do {
 		/* Get next image, until we see an x86 version */
 		rom_header = (struct pci_rom_header *)((void *)rom_header +
@@ -159,6 +171,7 @@ int pci_rom_load(struct pci_rom_header *rom_header,
 	target = (void *)malloc(rom_size);
 	if (!target)
 		return -ENOMEM;
+	*allocedp = true;
 #endif
 	if (target != rom_header) {
 		ulong start = get_timer(0);
@@ -255,7 +268,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
 	struct pci_rom_header *rom, *ram;
 	int vesa_mode = -1;
-	bool emulate;
+	bool emulate, alloced;
 	int ret;
 
 	/* Only execute VGA ROMs */
@@ -272,12 +285,14 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 	if (ret)
 		return ret;
 
-	ret = pci_rom_load(rom, &ram);
+	ret = pci_rom_load(rom, &ram, &alloced);
 	if (ret)
-		return ret;
+		goto err;
 
-	if (!board_should_run_oprom(dev))
-		return -ENXIO;
+	if (!board_should_run_oprom(dev)) {
+		ret = -ENXIO;
+		goto err;
+	}
 
 #if defined(CONFIG_FRAMEBUFFER_SET_VESA_MODE) && \
 		defined(CONFIG_FRAMEBUFFER_VESA_MODE)
@@ -291,7 +306,8 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 #else
 		if (!(exec_method & PCI_ROM_ALLOW_FALLBACK)) {
 			printf("BIOS native execution is only available on x86\n");
-			return -ENOSYS;
+			ret = -ENOSYS;
+			goto err;
 		}
 		emulate = true;
 #endif
@@ -301,7 +317,8 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 #else
 		if (!(exec_method & PCI_ROM_ALLOW_FALLBACK)) {
 			printf("BIOS emulation not available - see CONFIG_BIOSEMU\n");
-			return -ENOSYS;
+			ret = -ENOSYS;
+			goto err;
 		}
 		emulate = false;
 #endif
@@ -313,12 +330,12 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 
 		ret = biosemu_setup(dm_pci_get_bdf(dev), &info);
 		if (ret)
-			return ret;
+			goto err;
 		biosemu_set_interrupt_handler(0x15, int15_handler);
 		ret = biosemu_run(dm_pci_get_bdf(dev), (uchar *)ram, 1 << 16,
 				  info, true, vesa_mode, &mode_info);
 		if (ret)
-			return ret;
+			goto err;
 #endif
 	} else {
 #ifdef CONFIG_X86
@@ -329,6 +346,10 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 #endif
 	}
 	debug("Final vesa mode %#x\n", mode_info.video_mode);
+	ret = 0;
 
-	return 0;
+err:
+	if (alloced)
+		free(ram);
+	return ret;
 }
