@@ -445,10 +445,14 @@ struct font_info {
 	}
 
 FONT_DECL(nimbus_sans_l_regular);
+FONT_DECL(ankacoder_c75_r);
 
 static struct font_info font_table[] = {
 #ifdef CONFIG_CONSOLE_TRUETYPE_NIMBUS
 	FONT_ENTRY(nimbus_sans_l_regular),
+#endif
+#ifdef CONFIG_CONSOLE_TRUETYPE_ANKACODER
+	FONT_ENTRY(ankacoder_c75_r),
 #endif
 	{} /* sentinel */
 };

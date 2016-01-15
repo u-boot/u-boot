@@ -17,4 +17,16 @@ config CONSOLE_TRUETYPE_NIMBUS
 	  License: GNU GPL v3
 	  http://www.gnu.org/copyleft/gpl.html
 
+config CONSOLE_TRUETYPE_ANKACODER
+	bool "Anka Coder Narrow"
+	depends on CONSOLE_TRUETYPE
+	help
+	  The Anka/Coder family is a monospaced, courier-width font for source
+	  code and terminals, in two styles and weights. Anka/Coder Narrow was
+	  developed for printing source code.
+	  https://code.google.com/p/anka-coder-fonts/
+	  From: https://fontlibrary.org/en/font/anka-coder-narrow
+	  License: SIL Open Font Licence
+	  http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL
+
 endmenu
