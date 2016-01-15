@@ -1,0 +1,7 @@
+#
+# Video fonts
+#
+
+menu "TrueType Fonts"
+
+endmenu

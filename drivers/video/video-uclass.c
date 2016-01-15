@@ -201,11 +201,18 @@ static int video_post_probe(struct udevice *dev)
 	 * it might be useful to support only bitmap drawing on the device
 	 * for boards that don't need to display text.
 	 */
-	snprintf(name, sizeof(name), "%s.vidconsole", dev->name);
+	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE)) {
+		snprintf(name, sizeof(name), "%s.vidconsole_tt", dev->name);
+		strcpy(drv, "vidconsole_tt");
+	} else {
+		snprintf(name, sizeof(name), "%s.vidconsole%d", dev->name,
+			 priv->rot);
+		snprintf(drv, sizeof(drv), "vidconsole%d", priv->rot);
+	}
+
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	snprintf(drv, sizeof(drv), "vidconsole%d", priv->rot);
 	ret = device_bind_driver(dev, drv, str, &cons);
 	if (ret) {
 		debug("%s: Cannot bind console driver\n", __func__);

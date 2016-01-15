@@ -16,6 +16,7 @@ obj-$(CONFIG_DM_PWM) += pwm_backlight.o
 endif
 obj-$(CONFIG_CONSOLE_NORMAL) += console_normal.o
 obj-$(CONFIG_CONSOLE_ROTATION) += console_rotate.o
+obj-$(CONFIG_CONSOLE_TRUETYPE) += console_truetype.o fonts/
 endif
 
 obj-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o

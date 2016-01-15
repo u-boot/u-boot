@@ -67,6 +67,30 @@ config CONSOLE_ROTATION
 	  struct video_priv: 0=unrotated, 1=90 degrees clockwise, 2=180
 	  degrees, 3=270 degrees.
 
+config CONSOLE_TRUETYPE
+	bool "Support a console that uses TrueType fonts"
+	depends on DM_VIDEO
+	help
+	  TrueTrype fonts can provide outline-drawing capability rather than
+	  needing to provide a bitmap for each font and size that is needed.
+	  With this option you can adjust the text size and use a variety of
+	  fonts. Note that this is noticeably slower than with normal console.
+
+config CONSOLE_TRUETYPE_SIZE
+	int "TrueType font size"
+	depends on CONSOLE_TRUETYPE
+	default 18
+	help
+	  This sets the font size for the console. The size is measured in
+	  pixels and is the nominal height of a character. Note that fonts
+	  are commonly measured in 'points', being 1/72 inch (about 3.52mm).
+	  However that measurement depends on the size of your display and
+	  there is no standard display density. At present there is not a
+	  method to select the display's physical size, which would allow
+	  U-Boot to calculate the correct font size.
+
+source "drivers/video/fonts/Kconfig"
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
