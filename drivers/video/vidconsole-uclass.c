@@ -91,6 +91,9 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 	int ret;
 
 	switch (ch) {
+	case '\a':
+		/* beep */
+		break;
 	case '\r':
 		priv->xcur_frac = 0;
 		break;

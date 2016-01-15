@@ -124,7 +124,7 @@ DM_TEST(dm_test_video_text, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 static int dm_test_video_chars(struct unit_test_state *uts)
 {
 	struct udevice *dev, *con;
-	const char *test_string = "Well\b\b\b\bxhe is\r \n\ta very modest  \bman\n\t\tand Has much to\b\bto be modest about.";
+	const char *test_string = "Well\b\b\b\bxhe is\r \n\ta very \amodest  \bman\n\t\tand Has much to\b\bto be modest about.";
 	const char *s;
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
