@@ -101,6 +101,20 @@ struct vidconsole_ops {
 	 * positions.
 	 */
 	int (*entry_start)(struct udevice *dev);
+
+	/**
+	 * backspace() - Handle erasing the last character
+	 *
+	 * With proportional fonts the vidconsole uclass cannot itself erase
+	 * the previous character. This optional method will be called when
+	 * a backspace is needed. The driver should erase the previous
+	 * character and update the cursor position (xcur_frac, ycur) to the
+	 * start of the previous character.
+	 *
+	 * If not implement, default behaviour will work for fixed-width
+	 * characters.
+	 */
+	int (*backspace)(struct udevice *dev);
 };
 
 /* Get a pointer to the driver operations for a video console device */

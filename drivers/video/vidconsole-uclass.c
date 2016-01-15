@@ -57,9 +57,17 @@ static int vidconsole_entry_start(struct udevice *dev)
 }
 
 /* Move backwards one space */
-static void vidconsole_back(struct udevice *dev)
+static int vidconsole_back(struct udevice *dev)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->backspace) {
+		ret = ops->backspace(dev);
+		if (ret != -ENOSYS)
+			return ret;
+	}
 
 	priv->xcur_frac -= VID_TO_POS(priv->x_charsize);
 	if (priv->xcur_frac < priv->xstart_frac) {
@@ -69,6 +77,8 @@ static void vidconsole_back(struct udevice *dev)
 		if (priv->ycur < 0)
 			priv->ycur = 0;
 	}
+
+	return 0;
 }
 
 /* Move to a newline, scrolling the display if necessary */
