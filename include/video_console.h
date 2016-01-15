@@ -28,6 +28,7 @@
  * @tab_width_frac:	Tab width in fractional units
  * @xsize_frac:	Width of the display in fractional units
  * @xstart_frac:	Left margin for the text console in fractional units
+ * @last_ch:	Last character written to the text console on this line
  */
 struct vidconsole_priv {
 	struct stdio_dev sdev;
@@ -40,6 +41,7 @@ struct vidconsole_priv {
 	int tab_width_frac;
 	int xsize_frac;
 	int xstart_frac;
+	int last_ch;
 };
 
 /**
@@ -87,6 +89,18 @@ struct vidconsole_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*set_row)(struct udevice *dev, uint row, int clr);
+
+	/**
+	 * entry_start() - Indicate that text entry is starting afresh
+	 *
+	 * Consoles which use proportional fonts need to track the position of
+	 * each character output so that backspace will return to the correct
+	 * place. This method signals to the console driver that a new entry
+	 * line is being start (e.g. the user pressed return to start a new
+	 * command). The driver can use this signal to empty its list of
+	 * positions.
+	 */
+	int (*entry_start)(struct udevice *dev);
 };
 
 /* Get a pointer to the driver operations for a video console device */

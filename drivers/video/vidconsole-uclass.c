@@ -47,6 +47,15 @@ int vidconsole_set_row(struct udevice *dev, uint row, int clr)
 	return ops->set_row(dev, row, clr);
 }
 
+static int vidconsole_entry_start(struct udevice *dev)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+
+	if (!ops->entry_start)
+		return -ENOSYS;
+	return ops->entry_start(dev);
+}
+
 /* Move backwards one space */
 static void vidconsole_back(struct udevice *dev)
 {
@@ -82,6 +91,8 @@ static void vidconsole_newline(struct udevice *dev)
 					   vid_priv->colour_bg);
 		priv->ycur -= rows * priv->y_charsize;
 	}
+	priv->last_ch = 0;
+
 	video_sync(dev->parent);
 }
 
@@ -99,6 +110,7 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		break;
 	case '\n':
 		vidconsole_newline(dev);
+		vidconsole_entry_start(dev);
 		break;
 	case '\t':	/* Tab (8 chars alignment) */
 		priv->xcur_frac = ((priv->xcur_frac / priv->tab_width_frac)
@@ -109,6 +121,7 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		break;
 	case '\b':
 		vidconsole_back(dev);
+		priv->last_ch = 0;
 		break;
 	default:
 		/*
@@ -125,6 +138,7 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		if (ret < 0)
 			return ret;
 		priv->xcur_frac += ret;
+		priv->last_ch = ch;
 		if (priv->xcur_frac >= priv->xsize_frac)
 			vidconsole_newline(dev);
 		break;
