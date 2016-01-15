@@ -447,6 +447,7 @@ struct font_info {
 FONT_DECL(nimbus_sans_l_regular);
 FONT_DECL(ankacoder_c75_r);
 FONT_DECL(rufscript010);
+FONT_DECL(cantoraone_regular);
 
 static struct font_info font_table[] = {
 #ifdef CONFIG_CONSOLE_TRUETYPE_NIMBUS
@@ -457,6 +458,9 @@ static struct font_info font_table[] = {
 #endif
 #ifdef CONFIG_CONSOLE_TRUETYPE_RUFSCRIPT
 	FONT_ENTRY(rufscript010),
+#endif
+#ifdef CONFIG_CONSOLE_TRUETYPE_CANTORAONE
+	FONT_ENTRY(cantoraone_regular),
 #endif
 	{} /* sentinel */
 };

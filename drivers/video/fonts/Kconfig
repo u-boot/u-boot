@@ -38,4 +38,14 @@ config CONSOLE_TRUETYPE_RUFSCRIPT
 	  License: GPL with font exception
 	  http://www.gnu.org/copyleft/gpl.html
 
+config CONSOLE_TRUETYPE_CANTORAONE
+	bool "Cantoraone"
+	depends on CONSOLE_TRUETYPE
+	help
+	  Cantora is a friendly semi formal, semi condensed, semi sans-serif
+	  with a hint of handwriting. Perfect for headlines.
+	  From https://fontlibrary.org/en/font/cantora
+	  License: SIL Open Font Licence
+	  http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL
+
 endmenu
