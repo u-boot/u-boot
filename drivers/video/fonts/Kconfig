@@ -4,4 +4,17 @@
 
 menu "TrueType Fonts"
 
+config CONSOLE_TRUETYPE_NIMBUS
+	bool "Nimbus Sans Regular"
+	depends on CONSOLE_TRUETYPE
+	help
+	  Nimbus Sans L is a version of Nimbus Sans using Adobe font sources.
+	  It was designed in 1987. A subset of Nimbus Sans L were released
+	  under the GPL. Although the characters are not exactly the same,
+	  Nimbus Sans L has metrics almost identical to Helvetica and Arial.
+	  (From Wikipedia, the free encyclopedia)
+	  From: https://fontlibrary.org/en/font/nimbus-sans-l
+	  License: GNU GPL v3
+	  http://www.gnu.org/copyleft/gpl.html
+
 endmenu

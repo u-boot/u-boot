@@ -4,3 +4,5 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
+
+obj-$(CONFIG_CONSOLE_TRUETYPE_NIMBUS) += nimbus_sans_l_regular.o

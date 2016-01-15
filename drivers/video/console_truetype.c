@@ -444,7 +444,12 @@ struct font_info {
 	.end = __ttf_ ## _name ## _end, \
 	}
 
+FONT_DECL(nimbus_sans_l_regular);
+
 static struct font_info font_table[] = {
+#ifdef CONFIG_CONSOLE_TRUETYPE_NIMBUS
+	FONT_ENTRY(nimbus_sans_l_regular),
+#endif
 	{} /* sentinel */
 };
 
