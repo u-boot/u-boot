@@ -52,14 +52,14 @@ static void vidconsole_back(struct udevice *dev)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 
-	if (--priv->curr_col < 0) {
-		priv->curr_col = priv->cols - 1;
-		if (--priv->curr_row < 0)
-			priv->curr_row = 0;
+	priv->xcur_frac -= VID_TO_POS(priv->x_charsize);
+	if (priv->xcur_frac < 0) {
+		priv->xcur_frac = (priv->cols - 1) *
+			VID_TO_POS(priv->x_charsize);
+		priv->ycur -= priv->y_charsize;
+		if (priv->ycur < 0)
+			priv->ycur = 0;
 	}
-
-	vidconsole_putc_xy(dev, priv->curr_col * VIDEO_FONT_WIDTH,
-			   priv->curr_row * VIDEO_FONT_HEIGHT, ' ');
 }
 
 /* Move to a newline, scrolling the display if necessary */
@@ -71,15 +71,16 @@ static void vidconsole_newline(struct udevice *dev)
 	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
 	int i;
 
-	priv->curr_col = 0;
+	priv->xcur_frac = 0;
+	priv->ycur += priv->y_charsize;
 
 	/* Check if we need to scroll the terminal */
-	if (++priv->curr_row >= priv->rows) {
+	if ((priv->ycur + priv->y_charsize) / priv->y_charsize > priv->rows) {
 		vidconsole_move_rows(dev, 0, rows, priv->rows - rows);
 		for (i = 0; i < rows; i++)
 			vidconsole_set_row(dev, priv->rows - i - 1,
 					   vid_priv->colour_bg);
-		priv->curr_row -= rows;
+		priv->ycur -= rows * priv->y_charsize;
 	}
 	video_sync(dev->parent);
 }
@@ -91,16 +92,16 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 
 	switch (ch) {
 	case '\r':
-		priv->curr_col = 0;
+		priv->xcur_frac = 0;
 		break;
 	case '\n':
 		vidconsole_newline(dev);
 		break;
 	case '\t':	/* Tab (8 chars alignment) */
-		priv->curr_col +=  8;
-		priv->curr_col &= ~7;
+		priv->xcur_frac = ((priv->xcur_frac / priv->tab_width_frac)
+				+ 1) * priv->tab_width_frac;
 
-		if (priv->curr_col >= priv->cols)
+		if (priv->xcur_frac >= priv->xsize_frac)
 			vidconsole_newline(dev);
 		break;
 	case '\b':
@@ -112,13 +113,16 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		 * colour depth. Check this and return an error to help with
 		 * diagnosis.
 		 */
-		ret = vidconsole_putc_xy(dev,
-					 priv->curr_col * VIDEO_FONT_WIDTH,
-					 priv->curr_row * VIDEO_FONT_HEIGHT,
-					 ch);
-		if (ret)
+		ret = vidconsole_putc_xy(dev, priv->xcur_frac, priv->ycur, ch);
+		if (ret == -EAGAIN) {
+			vidconsole_newline(dev);
+			ret = vidconsole_putc_xy(dev, priv->xcur_frac,
+						 priv->ycur, ch);
+		}
+		if (ret < 0)
 			return ret;
-		if (++priv->curr_col >= priv->cols)
+		priv->xcur_frac += ret;
+		if (priv->xcur_frac >= priv->xsize_frac)
 			vidconsole_newline(dev);
 		break;
 	}
@@ -148,8 +152,7 @@ static int vidconsole_pre_probe(struct udevice *dev)
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
 
-	priv->rows = vid_priv->ysize / VIDEO_FONT_HEIGHT;
-	priv->cols = vid_priv->xsize / VIDEO_FONT_WIDTH;
+	priv->xsize_frac = VID_TO_POS(vid_priv->xsize);
 
 	return 0;
 }
@@ -161,12 +164,16 @@ static int vidconsole_post_probe(struct udevice *dev)
 	struct stdio_dev *sdev = &priv->sdev;
 	int ret;
 
+	if (!priv->tab_width_frac)
+		priv->tab_width_frac = VID_TO_POS(priv->x_charsize) * 8;
+
 	if (dev->seq) {
 		snprintf(sdev->name, sizeof(sdev->name), "vidconsole%d",
 			 dev->seq);
 	} else {
 		strcpy(sdev->name, "vidconsole");
 	}
+
 	sdev->flags = DEV_FLAGS_OUTPUT;
 	sdev->putc = vidconsole_putc;
 	sdev->puts = vidconsole_puts;
@@ -189,9 +196,11 @@ UCLASS_DRIVER(vidconsole) = {
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	struct udevice *vid_dev = dev->parent;
+	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
 
-	priv->curr_col = min_t(short, col, priv->cols - 1);
-	priv->curr_row = min_t(short, row, priv->rows - 1);
+	priv->xcur_frac = VID_TO_POS(min_t(short, col, vid_priv->xsize - 1));
+	priv->ycur = min_t(short, row, vid_priv->ysize - 1);
 }
 
 static int do_video_setcursor(cmd_tbl_t *cmdtp, int flag, int argc,

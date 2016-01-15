@@ -7,21 +7,37 @@
 #ifndef __video_console_h
 #define __video_console_h
 
+#define VID_FRAC_DIV	256
+
+#define VID_TO_PIXEL(x)	((x) / VID_FRAC_DIV)
+#define VID_TO_POS(x)	((x) * VID_FRAC_DIV)
+
 /**
  * struct vidconsole_priv - uclass-private data about a console device
  *
+ * Drivers must set up @rows, @cols, @x_charsize, @y_charsize in their probe()
+ * method. Drivers may set up @xstart_frac if desired.
+ *
  * @sdev:	stdio device, acting as an output sink
- * @curr_col:	Current text column (0=left)
- * @curr_row:	Current row (0=top)
+ * @xcur_frac:	Current X position, in fractional units (VID_TO_POS(x))
+ * @curr_row:	Current Y position in pixels (0=top)
  * @rows:	Number of text rows
  * @cols:	Number of text columns
+ * @x_charsize:	Character width in pixels
+ * @y_charsize:	Character height in pixels
+ * @tab_width_frac:	Tab width in fractional units
+ * @xsize_frac:	Width of the display in fractional units
  */
 struct vidconsole_priv {
 	struct stdio_dev sdev;
-	int curr_col;
-	int curr_row;
+	int xcur_frac;
+	int ycur;
 	int rows;
 	int cols;
+	int x_charsize;
+	int y_charsize;
+	int tab_width_frac;
+	int xsize_frac;
 };
 
 /**
@@ -36,12 +52,15 @@ struct vidconsole_ops {
 	 * putc_xy() - write a single character to a position
 	 *
 	 * @dev:	Device to write to
-	 * @x:		Pixel X position (0=left-most pixel)
+	 * @x_frac:	Fractional pixel X position (0=left-most pixel) which
+	 *		is the X position multipled by VID_FRAC_DIV.
 	 * @y:		Pixel Y position (0=top-most pixel)
 	 * @ch:		Character to write
-	 * @return 0 if OK, -ve on error
+	 * @return number of fractional pixels that the cursor should move,
+	 * if all is OK, -EAGAIN if we ran out of space on this line, other -ve
+	 * on error
 	 */
-	int (*putc_xy)(struct udevice *dev, uint x, uint y, char ch);
+	int (*putc_xy)(struct udevice *dev, uint x_frac, uint y, char ch);
 
 	/**
 	 * move_rows() - Move text rows from one place to another
@@ -75,10 +94,13 @@ struct vidconsole_ops {
  * vidconsole_putc_xy() - write a single character to a position
  *
  * @dev:	Device to write to
- * @x:		Pixel X position (0=left-most pixel)
+ * @x_frac:	Fractional pixel X position (0=left-most pixel) which
+ *		is the X position multipled by VID_FRAC_DIV.
  * @y:		Pixel Y position (0=top-most pixel)
  * @ch:		Character to write
- * @return 0 if OK, -ve on error
+ * @return number of fractional pixels that the cursor should move,
+ * if all is OK, -EAGAIN if we ran out of space on this line, other -ve
+ * on error
  */
 int vidconsole_putc_xy(struct udevice *dev, uint x, uint y, char ch);
 

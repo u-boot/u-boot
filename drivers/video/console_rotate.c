@@ -82,16 +82,21 @@ static int console_move_rows_1(struct udevice *dev, uint rowdst, uint rowsrc,
 	return 0;
 }
 
-static int console_putc_xy_1(struct udevice *dev, uint x, uint y, char ch)
+static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, char ch)
 {
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
 	int pbytes = VNBYTES(vid_priv->bpix);
 	int i, col;
 	int mask = 0x80;
-	void *line = vid_priv->fb + (x + 1) * vid_priv->line_length -
-		(y + 1) * pbytes;
+	void *line;
 	uchar *pfont = video_fontdata + ch * VIDEO_FONT_HEIGHT;
+
+	line = vid_priv->fb + (VID_TO_PIXEL(x_frac) + 1) *
+			vid_priv->line_length - (y + 1) * pbytes;
+	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
+		return -EAGAIN;
 
 	for (col = 0; col < VIDEO_FONT_HEIGHT; col++) {
 		switch (vid_priv->bpix) {
@@ -135,7 +140,7 @@ static int console_putc_xy_1(struct udevice *dev, uint x, uint y, char ch)
 		mask >>= 1;
 	}
 
-	return 0;
+	return VID_TO_POS(VIDEO_FONT_WIDTH);
 }
 
 
@@ -201,17 +206,21 @@ static int console_move_rows_2(struct udevice *dev, uint rowdst, uint rowsrc,
 	return 0;
 }
 
-static int console_putc_xy_2(struct udevice *dev, uint x, uint y, char ch)
+static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, char ch)
 {
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
 	int i, row;
 	void *line;
 
+	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
+		return -EAGAIN;
+
 	line = vid_priv->fb + (vid_priv->ysize - y - 1) *
-		vid_priv->line_length +
-		(vid_priv->xsize - x - VIDEO_FONT_WIDTH - 1) *
-		VNBYTES(vid_priv->bpix);
+			vid_priv->line_length +
+			(vid_priv->xsize - VID_TO_PIXEL(x_frac) -
+			VIDEO_FONT_WIDTH - 1) * VNBYTES(vid_priv->bpix);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {
 		uchar bits = video_fontdata[ch * VIDEO_FONT_HEIGHT + row];
@@ -259,7 +268,7 @@ static int console_putc_xy_2(struct udevice *dev, uint x, uint y, char ch)
 		line -= vid_priv->line_length;
 	}
 
-	return 0;
+	return VID_TO_POS(VIDEO_FONT_WIDTH);
 }
 
 static int console_set_row_3(struct udevice *dev, uint row, int clr)
@@ -329,16 +338,21 @@ static int console_move_rows_3(struct udevice *dev, uint rowdst, uint rowsrc,
 	return 0;
 }
 
-static int console_putc_xy_3(struct udevice *dev, uint x, uint y, char ch)
+static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, char ch)
 {
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
 	int pbytes = VNBYTES(vid_priv->bpix);
 	int i, col;
 	int mask = 0x80;
-	void *line = vid_priv->fb + (vid_priv->ysize - x - 1) *
+	void *line = vid_priv->fb +
+		(vid_priv->ysize - VID_TO_PIXEL(x_frac) - 1) *
 		vid_priv->line_length + y * pbytes;
 	uchar *pfont = video_fontdata + ch * VIDEO_FONT_HEIGHT;
+
+	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
+		return -EAGAIN;
 
 	for (col = 0; col < VIDEO_FONT_HEIGHT; col++) {
 		switch (vid_priv->bpix) {
@@ -382,17 +396,35 @@ static int console_putc_xy_3(struct udevice *dev, uint x, uint y, char ch)
 		mask >>= 1;
 	}
 
-	return 0;
+	return VID_TO_POS(VIDEO_FONT_WIDTH);
 }
 
 
+static int console_probe_2(struct udevice *dev)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct udevice *vid_dev = dev->parent;
+	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
+
+	vc_priv->x_charsize = VIDEO_FONT_WIDTH;
+	vc_priv->y_charsize = VIDEO_FONT_HEIGHT;
+	vc_priv->cols = vid_priv->xsize / VIDEO_FONT_WIDTH;
+	vc_priv->rows = vid_priv->ysize / VIDEO_FONT_HEIGHT;
+
+	return 0;
+}
+
 static int console_probe_1_3(struct udevice *dev)
 {
-	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
-	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct udevice *vid_dev = dev->parent;
+	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
 
-	priv->cols = vid_priv->ysize / VIDEO_FONT_WIDTH;
-	priv->rows = vid_priv->xsize / VIDEO_FONT_HEIGHT;
+	vc_priv->x_charsize = VIDEO_FONT_WIDTH;
+	vc_priv->y_charsize = VIDEO_FONT_HEIGHT;
+	vc_priv->cols = vid_priv->ysize / VIDEO_FONT_WIDTH;
+	vc_priv->rows = vid_priv->xsize / VIDEO_FONT_HEIGHT;
+	vc_priv->xsize_frac = VID_TO_POS(vid_priv->ysize);
 
 	return 0;
 }
@@ -426,6 +458,7 @@ U_BOOT_DRIVER(vidconsole_2) = {
 	.name	= "vidconsole2",
 	.id	= UCLASS_VIDEO_CONSOLE,
 	.ops	= &console_ops_2,
+	.probe	= console_probe_2,
 };
 
 U_BOOT_DRIVER(vidconsole_3) = {

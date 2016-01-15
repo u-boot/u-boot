@@ -106,14 +106,14 @@ static int dm_test_video_text(struct unit_test_state *uts)
 	ut_asserteq(46, compress_frame_buffer(dev));
 
 	for (i = 0; i < 20; i++)
-		vidconsole_putc_xy(con, i * 8, 0, ' ' + i);
+		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
 	ut_asserteq(273, compress_frame_buffer(dev));
 
 	vidconsole_set_row(con, 0, WHITE);
 	ut_asserteq(46, compress_frame_buffer(dev));
 
 	for (i = 0; i < 20; i++)
-		vidconsole_putc_xy(con, i * 8, 0, ' ' + i);
+		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
 	ut_asserteq(273, compress_frame_buffer(dev));
 
 	return 0;
