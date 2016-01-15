@@ -35,6 +35,8 @@ static int sandbox_sdl_probe(struct udevice *dev)
 	uc_priv->ysize = plat->yres;
 	uc_priv->bpix = plat->bpix;
 	uc_priv->rot = plat->rot;
+	uc_priv->vidconsole_drv_name = plat->vidconsole_drv_name;
+	uc_priv->font_size = plat->font_size;
 
 	return 0;
 }

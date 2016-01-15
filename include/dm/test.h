@@ -161,6 +161,8 @@ struct sandbox_sdl_plat {
 	int yres;
 	int bpix;
 	int rot;
+	const char *vidconsole_drv_name;
+	int font_size;
 };
 
 /* Declare ping methods for the drivers */
