@@ -29,4 +29,13 @@ config CONSOLE_TRUETYPE_ANKACODER
 	  License: SIL Open Font Licence
 	  http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL
 
+config CONSOLE_TRUETYPE_RUFSCRIPT
+	bool "Ruf Script"
+	depends on CONSOLE_TRUETYPE
+	help
+	  A laid-back handwritten font.
+	  Font: https://fontlibrary.org/en/font/rufscript
+	  License: GPL with font exception
+	  http://www.gnu.org/copyleft/gpl.html
+
 endmenu
