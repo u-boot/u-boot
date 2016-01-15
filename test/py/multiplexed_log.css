@@ -1,0 +1,88 @@
+/*
+ * Copyright (c) 2015 Stephen Warren
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ *
+ * SPDX-License-Identifier: GPL-2.0
+ */
+
+/*
+ * This provides pretty formatting of the HTML log file, e.g.
+ * - colored bars beside/above log sections for easily parsed delineation.
+ * - color highlighting of various messages.
+ */
+
+body {
+    background-color: black;
+    color: #ffffff;
+}
+
+pre {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.implicit {
+    color: #808080;
+}
+
+.section {
+    border-style: solid;
+    border-color: #303030;
+    border-width: 0px 0px 0px 5px;
+    padding-left: 5px
+}
+
+.section-header {
+    background-color: #303030;
+    margin-left: -5px;
+    margin-top: 5px;
+}
+
+.section-trailer {
+    display: none;
+}
+
+.stream {
+    border-style: solid;
+    border-color: #303030;
+    border-width: 0px 0px 0px 5px;
+    padding-left: 5px
+}
+
+.stream-header {
+    background-color: #303030;
+    margin-left: -5px;
+    margin-top: 5px;
+}
+
+.stream-trailer {
+    display: none;
+}
+
+.error {
+    color: #ff0000
+}
+
+.warning {
+    color: #ffff00
+}
+
+.info {
+    color: #808080
+}
+
+.action {
+    color: #8080ff
+}
+
+.status-pass {
+    color: #00ff00
+}
+
+.status-skipped {
+    color: #ffff00
+}
+
+.status-fail {
+    color: #ff0000
+}
