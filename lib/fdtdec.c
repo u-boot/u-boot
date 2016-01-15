@@ -75,6 +75,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(ALTERA_SOCFPGA_DWC2USB, "snps,dwc2"),
 	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP, "intel,baytrail-fsp"),
 	COMPAT(COMPAT_INTEL_BAYTRAIL_FSP_MDP, "intel,baytrail-fsp-mdp"),
+	COMPAT(COMPAT_INTEL_IVYBRIDGE_FSP, "intel,ivybridge-fsp"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)

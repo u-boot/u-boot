@@ -121,15 +121,22 @@ const struct pch_azalia_config azalia_config = {
 };
 
 /**
- * Override the FSP's UPD.
+ * Override the FSP's configuration data.
  * If the device tree does not specify an integer setting, use the default
  * provided in Intel's Baytrail_FSP_Gold4.tgz release FSP/BayleyBayFsp.bsf file.
  */
-void update_fsp_upd(struct upd_region *fsp_upd)
+void update_fsp_configs(struct fsp_config_data *config,
+			struct fspinit_rtbuf *rt_buf)
 {
+	struct upd_region *fsp_upd = &config->fsp_upd;
 	struct memory_down_data *mem;
 	const void *blob = gd->fdt_blob;
 	int node;
+
+	/* Initialize runtime buffer for fsp_init() */
+	rt_buf->common.stack_top = config->common.stack_top - 32;
+	rt_buf->common.boot_mode = config->common.boot_mode;
+	rt_buf->common.upd_data = &config->fsp_upd;
 
 	fsp_upd->azalia_config_ptr = (uint32_t)&azalia_config;
 

@@ -87,27 +87,11 @@ struct fsp_header *__attribute__((optimize("O0"))) find_fsp_header(void)
 	return (struct fsp_header *)fsp;
 }
 
-void fsp_continue(struct shared_data *shared_data, u32 status, void *hob_list)
+void fsp_continue(u32 status, void *hob_list)
 {
-	u32 stack_len;
-	u32 stack_base;
-	u32 stack_top;
-
 	post_code(POST_MRC);
 
 	assert(status == 0);
-
-	/* Get the migrated stack in normal memory */
-	stack_base = (u32)fsp_get_bootloader_tmp_mem(hob_list, &stack_len);
-	assert(stack_base != 0);
-	stack_top  = stack_base + stack_len - sizeof(u32);
-
-	/*
-	 * Old stack base is stored at the very end of the stack top,
-	 * use it to calculate the migrated shared data base
-	 */
-	shared_data = (struct shared_data *)(stack_base +
-			((u32)shared_data - *(u32 *)stack_top));
 
 	/* The boot loader main function entry */
 	fsp_init_done(hob_list);
@@ -115,14 +99,16 @@ void fsp_continue(struct shared_data *shared_data, u32 status, void *hob_list)
 
 void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 {
-	struct shared_data shared_data;
+	struct fsp_config_data config_data;
 	fsp_init_f init;
 	struct fsp_init_params params;
 	struct fspinit_rtbuf rt_buf;
-	struct vpd_region *fsp_vpd;
 	struct fsp_header *fsp_hdr;
 	struct fsp_init_params *params_ptr;
+#ifdef CONFIG_FSP_USE_UPD
+	struct vpd_region *fsp_vpd;
 	struct upd_region *fsp_upd;
+#endif
 
 #ifdef CONFIG_DEBUG_UART
 	setup_early_uart();
@@ -134,14 +120,11 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 		panic("Invalid FSP header");
 	}
 
-	fsp_upd = &shared_data.fsp_upd;
-	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
+	config_data.common.fsp_hdr = fsp_hdr;
+	config_data.common.stack_top = stack_top;
+	config_data.common.boot_mode = boot_mode;
 
-	/* Reserve a gap in stack top */
-	rt_buf.common.stack_top = (u32 *)stack_top - 32;
-	rt_buf.common.boot_mode = boot_mode;
-	rt_buf.common.upd_data = fsp_upd;
-
+#ifdef CONFIG_FSP_USE_UPD
 	/* Get VPD region start */
 	fsp_vpd = (struct vpd_region *)(fsp_hdr->img_base +
 			fsp_hdr->cfg_region_off);
@@ -149,15 +132,20 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	/* Verify the VPD data region is valid */
 	assert(fsp_vpd->sign == VPD_IMAGE_ID);
 
+	fsp_upd = &config_data.fsp_upd;
+
 	/* Copy default data from Flash */
 	memcpy(fsp_upd, (void *)(fsp_hdr->img_base + fsp_vpd->upd_offset),
 	       sizeof(struct upd_region));
 
 	/* Verify the UPD data region is valid */
 	assert(fsp_upd->terminator == UPD_TERMINATOR);
+#endif
 
-	/* Override any UPD setting if required */
-	update_fsp_upd(fsp_upd);
+	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
+
+	/* Override any configuration if required */
+	update_fsp_configs(&config_data, &rt_buf);
 
 	memset(&params, 0, sizeof(struct fsp_init_params));
 	params.nvs_buf = nvs_buf;
@@ -167,28 +155,24 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	init = (fsp_init_f)(fsp_hdr->img_base + fsp_hdr->fsp_init);
 	params_ptr = &params;
 
-	shared_data.fsp_hdr = fsp_hdr;
-	shared_data.stack_top = (u32 *)stack_top;
-
 	post_code(POST_PRE_MRC);
 
 	/* Load GDT for FSP */
 	setup_fsp_gdt();
 
 	/*
-	 * Use ASM code to ensure the register value in EAX & ECX
-	 * will be passed into BlContinuationFunc
+	 * Use ASM code to ensure the register value in EAX & EDX
+	 * will be passed into fsp_continue
 	 */
 	asm volatile (
 		"pushl	%0;"
 		"call	*%%eax;"
 		".global asm_continuation;"
 		"asm_continuation:;"
-		"movl	%%ebx, %%eax;"		/* shared_data */
-		"movl	4(%%esp), %%edx;"	/* status */
-		"movl	8(%%esp), %%ecx;"	/* hob_list */
+		"movl	4(%%esp), %%eax;"	/* status */
+		"movl	8(%%esp), %%edx;"	/* hob_list */
 		"jmp	fsp_continue;"
-		: : "m"(params_ptr), "a"(init), "b"(&shared_data)
+		: : "m"(params_ptr), "a"(init)
 	);
 
 	/*

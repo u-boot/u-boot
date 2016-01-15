@@ -48,7 +48,6 @@ config DCACHE_RAM_MRC_VAR_SIZE
 config CPU_SPECIFIC_OPTIONS
 	def_bool y
 	select SMM_TSEG
-	select HAVE_INTEL_ME
 	select X86_RAMTEST
 
 config SMM_TSEG_SIZE
