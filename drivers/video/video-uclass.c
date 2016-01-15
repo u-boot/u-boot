@@ -180,6 +180,7 @@ static int video_post_probe(struct udevice *dev)
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	char name[30], drv[15], *str;
+	const char *drv_name = drv;
 	struct udevice *cons;
 	int ret;
 
@@ -197,11 +198,19 @@ static int video_post_probe(struct udevice *dev)
 	video_clear(dev);
 
 	/*
-	 * Create a text console devices. For now we always do this, although
+	 * Create a text console device. For now we always do this, although
 	 * it might be useful to support only bitmap drawing on the device
-	 * for boards that don't need to display text.
+	 * for boards that don't need to display text. We create a TrueType
+	 * console if enabled, a rotated console if the video driver requests
+	 * it, otherwise a normal console.
+	 *
+	 * The console can be override by setting vidconsole_drv_name before
+	 * probing this video driver, or in the probe() method.
+	 *
+	 * TrueType does not support rotation at present so fall back to the
+	 * rotated console in that case.
 	 */
-	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE)) {
+	if (!priv->rot && IS_ENABLED(CONFIG_CONSOLE_TRUETYPE)) {
 		snprintf(name, sizeof(name), "%s.vidconsole_tt", dev->name);
 		strcpy(drv, "vidconsole_tt");
 	} else {
@@ -213,11 +222,14 @@ static int video_post_probe(struct udevice *dev)
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	ret = device_bind_driver(dev, drv, str, &cons);
+	if (priv->vidconsole_drv_name)
+		drv_name = priv->vidconsole_drv_name;
+	ret = device_bind_driver(dev, drv_name, str, &cons);
 	if (ret) {
 		debug("%s: Cannot bind console driver\n", __func__);
 		return ret;
 	}
+
 	ret = device_probe(cons);
 	if (ret) {
 		debug("%s: Cannot probe console driver\n", __func__);

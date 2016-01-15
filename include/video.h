@@ -51,6 +51,9 @@ enum video_log2_bpp {
  * @ysize:	Number of pixels rows (e.g.. 768)
  * @tor:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
  * @bpix:	Encoded bits per pixel
+ * @vidconsole_drv_name:	Driver to use for the text console, NULL to
+ *		select automatically
+ * @font_size:	Font size in pixels (0 to use a default value)
  * @fb:		Frame buffer
  * @fb_size:	Frame buffer size
  * @line_length:	Length of each frame buffer line, in bytes
@@ -66,6 +69,8 @@ struct video_priv {
 	ushort ysize;
 	ushort rot;
 	enum video_log2_bpp bpix;
+	const char *vidconsole_drv_name;
+	int font_size;
 
 	/*
 	 * Things that are private to the uclass: don't use these in the
