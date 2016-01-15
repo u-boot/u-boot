@@ -86,6 +86,20 @@ static void __maybe_unused see_output(void)
 	while (1);
 }
 
+/* Select the video console driver to use for a video device */
+static int select_vidconsole(struct unit_test_state *uts, const char *drv_name)
+{
+	struct sandbox_sdl_plat *plat;
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
+	ut_assert(!device_active(dev));
+	plat = dev_get_platdata(dev);
+	plat->vidconsole_drv_name = "vidconsole0";
+
+	return 0;
+}
+
 /* Test text output works on the video console */
 static int dm_test_video_text(struct unit_test_state *uts)
 {
@@ -95,6 +109,7 @@ static int dm_test_video_text(struct unit_test_state *uts)
 #define WHITE		0xffff
 #define SCROLL_LINES	100
 
+	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_asserteq(46, compress_frame_buffer(dev));
 
@@ -127,6 +142,7 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 	const char *test_string = "Well\b\b\b\bxhe is\r \n\ta very \amodest  \bman\n\t\tand Has much to\b\bto be modest about.";
 	const char *s;
 
+	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	for (s = test_string; *s; s++)
@@ -185,7 +201,10 @@ static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 /* Test text output through the console uclass */
 static int dm_test_video_context(struct unit_test_state *uts)
 {
-	return check_vidconsole_output(uts, 0, 788, 453);
+	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(check_vidconsole_output(uts, 0, 788, 453));
+
+	return 0;
 }
 DM_TEST(dm_test_video_context, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
