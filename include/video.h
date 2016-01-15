@@ -49,7 +49,7 @@ enum video_log2_bpp {
  *
  * @xsize:	Number of pixel columns (e.g. 1366)
  * @ysize:	Number of pixels rows (e.g.. 768)
- * @tor:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
+ * @rot:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
  * @bpix:	Encoded bits per pixel
  * @vidconsole_drv_name:	Driver to use for the text console, NULL to
  *		select automatically
