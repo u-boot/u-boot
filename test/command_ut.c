@@ -20,10 +20,6 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("%s: Testing commands\n", __func__);
 	run_command("env default -f -a", 0);
 
-	/* run a single command */
-	run_command("setenv single 1", 0);
-	assert(!strcmp("1", getenv("single")));
-
 	/* make sure that compound statements work */
 #ifdef CONFIG_SYS_HUSH_PARSER
 	run_command("if test -n ${single} ; then setenv check 1; fi", 0);
