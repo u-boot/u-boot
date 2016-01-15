@@ -4,10 +4,6 @@
  * Authors:	Benedikt Spranger, Pengutronix
  *		Robert Schwebel, Pengutronix
  *
- *              This program is free software; you can redistribute it and/or
- *              modify it under the terms of the GNU General Public License
- *              version 2, as published by the Free Software Foundation.
- *
  *		This software was originally developed in conformance with
  *		Microsoft's Remote NDIS Specification License Agreement.
  *
@@ -19,6 +15,8 @@
  *
  * Copyright (C) 2004 by David Brownell
  *		updates to merge with Linux 2.6, better match RNDIS spec
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
