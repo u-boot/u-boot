@@ -288,3 +288,66 @@ static int dm_test_video_bmp_comp(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_video_bmp_comp, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test TrueType console */
+static int dm_test_video_truetype(struct unit_test_state *uts)
+{
+	struct udevice *dev, *con;
+	const char *test_string = "Criticism may not be agreeable, but it is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things. Some see private enterprise as a predatory target to be shot, others as a cow to be milked, but few are those who see it as a sturdy horse pulling the wagon. The \aprice OF\b\bof greatness\n\tis responsibility.\n\nBye";
+	const char *s;
+
+	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	for (s = test_string; *s; s++)
+		vidconsole_put_char(con, *s);
+	ut_asserteq(12619, compress_frame_buffer(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_truetype, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test scrolling TrueType console */
+static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
+{
+	struct sandbox_sdl_plat *plat;
+	struct udevice *dev, *con;
+	const char *test_string = "Criticism may not be agreeable, but it is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things. Some see private enterprise as a predatory target to be shot, others as a cow to be milked, but few are those who see it as a sturdy horse pulling the wagon. The \aprice OF\b\bof greatness\n\tis responsibility.\n\nBye";
+	const char *s;
+
+	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
+	ut_assert(!device_active(dev));
+	plat = dev_get_platdata(dev);
+	plat->font_size = 100;
+
+	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	for (s = test_string; *s; s++)
+		vidconsole_put_char(con, *s);
+	ut_asserteq(33849, compress_frame_buffer(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_truetype_scroll, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test TrueType backspace, within and across lines */
+static int dm_test_video_truetype_bs(struct unit_test_state *uts)
+{
+	struct sandbox_sdl_plat *plat;
+	struct udevice *dev, *con;
+	const char *test_string = "...Criticism may or may\b\b\b\b\b\bnot be agreeable, but seldom it is necessary\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bit is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things.";
+	const char *s;
+
+	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
+	ut_assert(!device_active(dev));
+	plat = dev_get_platdata(dev);
+	plat->font_size = 100;
+
+	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	for (s = test_string; *s; s++)
+		vidconsole_put_char(con, *s);
+	ut_asserteq(34871, compress_frame_buffer(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_truetype_bs, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
