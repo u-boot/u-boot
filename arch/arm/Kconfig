@@ -702,8 +702,8 @@ config ARCH_UNIPHIER
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)
 
-config TARGET_STM32F429_DISCOVERY
-	bool "Support STM32F429 Discovery"
+config STM32
+	bool "Support STM32"
 	select CPU_V7M
 	select DM
 	select DM_SERIAL
@@ -761,6 +761,8 @@ source "arch/arm/mach-rockchip/Kconfig"
 source "arch/arm/mach-s5pc1xx/Kconfig"
 
 source "arch/arm/mach-socfpga/Kconfig"
+
+source "arch/arm/mach-stm32/Kconfig"
 
 source "arch/arm/mach-tegra/Kconfig"
 
@@ -836,7 +838,6 @@ source "board/spear/spear310/Kconfig"
 source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
-source "board/st/stm32f429-discovery/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/zmx25/Kconfig"
