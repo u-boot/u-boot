@@ -266,7 +266,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 			int exec_method)
 {
 	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
-	struct pci_rom_header *rom, *ram;
+	struct pci_rom_header *rom, *ram = NULL;
 	int vesa_mode = -1;
 	bool emulate, alloced;
 	int ret;
