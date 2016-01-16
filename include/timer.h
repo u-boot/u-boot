@@ -8,6 +8,15 @@
 #define _TIMER_H_
 
 /*
+ * dm_timer_init - initialize a timer for time keeping. On success
+ * initializes gd->timer so that lib/timer can use it for future
+ * referrence.
+ *
+ * @return - 0 on success or error number
+ */
+int dm_timer_init(void);
+
+/*
  * timer_conv_64 - convert 32-bit counter value to 64-bit
  *
  * @count: 32-bit counter value

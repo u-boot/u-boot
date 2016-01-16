@@ -41,23 +41,6 @@ extern unsigned long __weak timer_read_counter(void);
 #endif
 
 #ifdef CONFIG_TIMER
-static int notrace dm_timer_init(void)
-{
-	struct udevice *dev;
-	int ret;
-
-	if (!gd->timer) {
-		ret = uclass_first_device(UCLASS_TIMER, &dev);
-		if (ret)
-			return ret;
-		if (!dev)
-			return -ENODEV;
-		gd->timer = dev;
-	}
-
-	return 0;
-}
-
 ulong notrace get_tbclk(void)
 {
 	int ret;
