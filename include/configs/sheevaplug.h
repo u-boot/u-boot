@@ -65,7 +65,7 @@
 #define CONFIG_MTDPARTS		\
 	"mtdparts=orion_nand:512K(uboot),"				\
 	"512K(env),1M(script),6M(kernel),"				\
-	"12M(ramdisk),4M(spare),-(rootfs)"
+	"12M(ramdisk),4M(spare),-(rootfs)\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
 	"=ttyS0,115200 mtdparts="CONFIG_MTDPARTS	\
