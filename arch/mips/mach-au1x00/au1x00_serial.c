@@ -11,7 +11,7 @@
 
 #include <config.h>
 #include <common.h>
-#include <asm/au1x00.h>
+#include <mach/au1x00.h>
 #include <serial.h>
 #include <linux/compiler.h>
 

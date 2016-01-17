@@ -1,14 +1,14 @@
 /*
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING" in the main directory of this archive
- * for more details.
- *
  * Copyright (C) 1996, 99 Ralf Baechle
  * Copyright (C) 2000, 2002  Maciej W. Rozycki
  * Copyright (C) 1990, 1999 by Silicon Graphics, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_ADDRSPACE_H
 #define _ASM_ADDRSPACE_H
+
+#include <spaces.h>
 
 /*
  *  Configure language
@@ -50,7 +50,7 @@
  */
 #define CPHYSADDR(a)		((_ACAST32_(a)) & 0x1fffffff)
 #define XPHYSADDR(a)		((_ACAST64_(a)) &			\
-				 _CONST64_(0x000000ffffffffff))
+				 _CONST64_(0x0000ffffffffffff))
 
 #ifdef CONFIG_64BIT
 

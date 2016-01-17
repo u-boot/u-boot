@@ -1,9 +1,7 @@
 /*
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING" in the main directory of this archive
- * for more details.
- *
  * Copyright (C) 2007 Ralf Baechle (ralf@linux-mips.org)
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_MIPS_UNALIGNED_H
 #define _ASM_MIPS_UNALIGNED_H

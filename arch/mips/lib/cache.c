@@ -27,7 +27,7 @@ static inline unsigned long icache_line_size(void)
 {
 	unsigned long conf1, il;
 	conf1 = read_c0_config1();
-	il = (conf1 & MIPS_CONF1_IL) >> MIPS_CONF1_IL_SHIFT;
+	il = (conf1 & MIPS_CONF1_IL) >> MIPS_CONF1_IL_SHF;
 	if (!il)
 		return 0;
 	return 2 << il;
@@ -37,7 +37,7 @@ static inline unsigned long dcache_line_size(void)
 {
 	unsigned long conf1, dl;
 	conf1 = read_c0_config1();
-	dl = (conf1 & MIPS_CONF1_DL) >> MIPS_CONF1_DL_SHIFT;
+	dl = (conf1 & MIPS_CONF1_DL) >> MIPS_CONF1_DL_SHF;
 	if (!dl)
 		return 0;
 	return 2 << dl;

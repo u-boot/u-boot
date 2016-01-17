@@ -2,12 +2,10 @@
  * Various register offset definitions for debuggers, core file
  * examiners and whatnot.
  *
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING" in the main directory of this archive
- * for more details.
- *
  * Copyright (C) 1995, 1999 by Ralf Baechle
  * Copyright (C) 1995, 1999 Silicon Graphics
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef __ASM_MIPS_REG_H
 #define __ASM_MIPS_REG_H

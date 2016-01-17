@@ -23,7 +23,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/au1x00.h>
+#include <mach/au1x00.h>
 #include <usb.h>
 #include "au1x00_usb_ohci.h"
 

@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <asm/au1x00.h>
+#include <mach/au1x00.h>
 #include <asm/mipsregs.h>
 #include <asm/io.h>
 
