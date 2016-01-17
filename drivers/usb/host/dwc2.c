@@ -786,9 +786,20 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	uint32_t xfer_len;
 	uint32_t num_packets;
 	int stop_transfer = 0;
+	uint32_t max_xfer_len;
 
 	debug("%s: msg: pipe %lx pid %d in %d len %d\n", __func__, pipe, *pid,
 	      in, len);
+
+	max_xfer_len = CONFIG_DWC2_MAX_PACKET_COUNT * max;
+	if (max_xfer_len > CONFIG_DWC2_MAX_TRANSFER_SIZE)
+		max_xfer_len = CONFIG_DWC2_MAX_TRANSFER_SIZE;
+	if (max_xfer_len > DWC2_DATA_BUF_SIZE)
+		max_xfer_len = DWC2_DATA_BUF_SIZE;
+
+	/* Make sure that max_xfer_len is a multiple of max packet size. */
+	num_packets = max_xfer_len / max;
+	max_xfer_len = num_packets * max;
 
 	do {
 		/* Initialize channel */
@@ -796,24 +807,13 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 				eptype, max);
 
 		xfer_len = len - done;
-		if (xfer_len > CONFIG_DWC2_MAX_TRANSFER_SIZE)
-			xfer_len = CONFIG_DWC2_MAX_TRANSFER_SIZE - max + 1;
-		if (xfer_len > DWC2_DATA_BUF_SIZE)
-			xfer_len = DWC2_DATA_BUF_SIZE - max + 1;
 
-		/* Make sure that xfer_len is a multiple of max packet size. */
-		if (xfer_len > 0) {
+		if (xfer_len > max_xfer_len)
+			xfer_len = max_xfer_len;
+		else if (xfer_len > max)
 			num_packets = (xfer_len + max - 1) / max;
-			if (num_packets > CONFIG_DWC2_MAX_PACKET_COUNT) {
-				num_packets = CONFIG_DWC2_MAX_PACKET_COUNT;
-				xfer_len = num_packets * max;
-			}
-		} else {
+		else
 			num_packets = 1;
-		}
-
-		if (in)
-			xfer_len = num_packets * max;
 
 		debug("%s: chunk: pid %d xfer_len %u pkts %u\n", __func__,
 		      *pid, xfer_len, num_packets);
