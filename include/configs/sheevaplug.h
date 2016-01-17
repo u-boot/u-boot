@@ -60,7 +60,7 @@
  */
 #define CONFIG_BOOTCOMMAND		"${x_bootcmd_kernel}; "	\
 	"setenv bootargs ${x_bootargs} ${x_bootargs_root}; "	\
-	"${x_bootcmd_usb}; bootm 0x6400000;"
+	"bootm 0x6400000;"
 
 #define CONFIG_MTDPARTS		\
 	"orion_nand:512K(uboot),"				\
