@@ -11,6 +11,12 @@
 #include "ssc-regs.h"
 
 #ifdef CONFIG_UNIPHIER_L2CACHE_ON
+static void uniphier_cache_sync(void)
+{
+	writel(SSCOPE_CM_SYNC, SSCOPE); /* drain internal buffers */
+	readl(SSCOPE); /* need a read back to confirm */
+}
+
 static void uniphier_cache_maint_all(u32 operation)
 {
 	/* try until the command is successfully set */
@@ -25,8 +31,7 @@ static void uniphier_cache_maint_all(u32 operation)
 	/* clear the complete notification flag */
 	writel(SSCOLPQS_EF, SSCOLPQS);
 
-	writel(SSCOPE_CM_SYNC, SSCOPE); /* drain internal buffers */
-	readl(SSCOPE); /* need a read back to confirm */
+	uniphier_cache_sync();
 }
 
 void v7_outer_cache_flush_all(void)
@@ -90,8 +95,7 @@ static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
 		size -= chunk_size;
 	}
 
-	writel(SSCOPE_CM_SYNC, SSCOPE); /* drain internal buffers */
-	readl(SSCOPE); /* need a read back to confirm */
+	uniphier_cache_sync();
 }
 
 void v7_outer_cache_flush_range(u32 start, u32 end)
