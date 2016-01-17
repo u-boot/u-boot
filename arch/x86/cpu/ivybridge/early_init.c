@@ -14,20 +14,6 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
-static void sandybridge_setup_lpc_bars(pci_dev_t lpc_dev)
-{
-	/* Setting up Southbridge. In the northbridge code. */
-	debug("Setting up static southbridge registers\n");
-	x86_pci_write_config32(lpc_dev, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
-
-	x86_pci_write_config32(lpc_dev, PMBASE, DEFAULT_PMBASE | 1);
-	x86_pci_write_config8(lpc_dev, ACPI_CNTL, 0x80); /* Enable ACPI BAR */
-
-	debug("Disabling watchdog reboot\n");
-	setbits_le32(RCB_REG(GCS), 1 >> 5);	/* No reset */
-	outw(1 << 11, DEFAULT_PMBASE | 0x60 | 0x08);	/* halt timer */
-}
-
 static void sandybridge_setup_northbridge_bars(struct udevice *dev)
 {
 	/* Set up all hardcoded northbridge BARs */
@@ -73,8 +59,6 @@ static int bd82x6x_northbridge_probe(struct udevice *dev)
 
 		dm_pci_write_config8(dev, 0xf3, reg8);
 	}
-
-	sandybridge_setup_lpc_bars(PCH_LPC_DEV);
 
 	sandybridge_setup_northbridge_bars(dev);
 

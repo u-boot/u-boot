@@ -609,6 +609,23 @@ void lpc_enable(pci_dev_t dev)
 	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
 }
 
+static int bd82x6x_lpc_early_init(struct udevice *dev)
+{
+	/* Setting up Southbridge. In the northbridge code. */
+	debug("Setting up static southbridge registers\n");
+	dm_pci_write_config32(dev->parent, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
+	dm_pci_write_config32(dev->parent, PMBASE, DEFAULT_PMBASE | 1);
+
+	/* Enable ACPI BAR */
+	dm_pci_write_config8(dev->parent, ACPI_CNTL, 0x80);
+
+	debug("Disabling watchdog reboot\n");
+	setbits_le32(RCB_REG(GCS), 1 >> 5);	/* No reset */
+	outw(1 << 11, DEFAULT_PMBASE | 0x60 | 0x08);	/* halt timer */
+
+	return 0;
+}
+
 static int bd82x6x_lpc_probe(struct udevice *dev)
 {
 	int ret;
@@ -622,7 +639,7 @@ static int bd82x6x_lpc_probe(struct udevice *dev)
 		return ret;
 	}
 
-	return 0;
+	return bd82x6x_lpc_early_init(dev);
 }
 
 static const struct udevice_id bd82x6x_lpc_ids[] = {
