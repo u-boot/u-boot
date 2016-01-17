@@ -16,6 +16,7 @@
 #include <asm/errno.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include "eth_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -84,34 +85,6 @@ static int __def_eth_init(bd_t *bis)
 }
 int cpu_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
-
-static void eth_common_init(void)
-{
-	bootstage_mark(BOOTSTAGE_ID_NET_ETH_START);
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	miiphy_init();
-#endif
-
-#ifdef CONFIG_PHYLIB
-	phy_init();
-#endif
-
-#ifndef CONFIG_DM_ETH
-	/*
-	 * If board-specific initialization exists, call it.
-	 * If not, call a CPU-specific one
-	 */
-	if (board_eth_init != __def_eth_init) {
-		if (board_eth_init(gd->bd) < 0)
-			printf("Board Net Initialization Failed\n");
-	} else if (cpu_eth_init != __def_eth_init) {
-		if (cpu_eth_init(gd->bd) < 0)
-			printf("CPU Net Initialization Failed\n");
-	} else {
-		printf("Net Initialization Skipped\n");
-	}
-#endif
-}
 
 #ifdef CONFIG_DM_ETH
 /**
@@ -865,6 +838,19 @@ int eth_initialize(void)
 	eth_devices = NULL;
 	eth_current = NULL;
 	eth_common_init();
+	/*
+	 * If board-specific initialization exists, call it.
+	 * If not, call a CPU-specific one
+	 */
+	if (board_eth_init != __def_eth_init) {
+		if (board_eth_init(gd->bd) < 0)
+			printf("Board Net Initialization Failed\n");
+	} else if (cpu_eth_init != __def_eth_init) {
+		if (cpu_eth_init(gd->bd) < 0)
+			printf("CPU Net Initialization Failed\n");
+	} else {
+		printf("Net Initialization Skipped\n");
+	}
 
 	if (!eth_devices) {
 		puts("No ethernet found.\n");
