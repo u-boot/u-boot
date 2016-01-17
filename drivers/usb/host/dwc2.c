@@ -837,6 +837,8 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	int eptype = dwc2_eptype[usb_pipetype(pipe)];
 	int done = 0;
 	int ret = 0;
+	int do_split = 0;
+	int complete_split = 0;
 	uint32_t xfer_len;
 	uint32_t num_packets;
 	int stop_transfer = 0;
@@ -859,8 +861,26 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, dev, devnum, ep, in,
 			eptype, max);
 
+	/* Check if the target is a FS/LS device behind a HS hub */
+	if (dev->speed != USB_SPEED_HIGH) {
+		uint8_t hub_addr;
+		uint8_t hub_port;
+		uint32_t hprt0 = readl(&regs->hprt0);
+		if ((hprt0 & DWC2_HPRT0_PRTSPD_MASK) ==
+		     DWC2_HPRT0_PRTSPD_HIGH) {
+			usb_find_usb2_hub_address_port(dev, &hub_addr,
+						       &hub_port);
+			dwc_otg_hc_init_split(hc_regs, hub_addr, hub_port);
+
+			do_split = 1;
+			num_packets = 1;
+			max_xfer_len = max;
+		}
+	}
+
 	do {
 		int actual_len = 0;
+		uint32_t hcint;
 		xfer_len = len - done;
 
 		if (xfer_len > max_xfer_len)
@@ -870,9 +890,28 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 		else
 			num_packets = 1;
 
+		if (complete_split)
+			setbits_le32(&hc_regs->hcsplt, DWC2_HCSPLT_COMPSPLT);
+		else if (do_split)
+			clrbits_le32(&hc_regs->hcsplt, DWC2_HCSPLT_COMPSPLT);
+
 		ret = transfer_chunk(hc_regs, priv->aligned_buffer, pid,
 				     in, (char *)buffer + done, num_packets,
 				     xfer_len, &actual_len);
+
+		hcint = readl(&hc_regs->hcint);
+		if (complete_split) {
+			stop_transfer = 0;
+			if (hcint & DWC2_HCINT_NYET)
+				ret = 0;
+			else
+				complete_split = 0;
+		} else if (do_split) {
+			if (hcint & DWC2_HCINT_ACK) {
+				ret = 0;
+				complete_split = 1;
+			}
+		}
 
 		if (ret)
 			break;
@@ -882,7 +921,11 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 
 		done += actual_len;
 
-	} while ((done < len) && !stop_transfer);
+	/* Transactions are done when when either all data is transferred or
+	 * there is a short transfer. In case of a SPLIT make sure the CSPLIT
+	 * is executed.
+	 */
+	} while (((done < len) && !stop_transfer) || complete_split);
 
 	writel(0, &hc_regs->hcintmsk);
 	writel(0xFFFFFFFF, &hc_regs->hcint);
@@ -925,31 +968,39 @@ static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
 					     setup);
 	}
 
+	/* SETUP stage */
 	pid = DWC2_HC_PID_SETUP;
-	ret = chunk_msg(priv, dev, pipe, &pid, 0, setup, 8);
+	do {
+		ret = chunk_msg(priv, dev, pipe, &pid, 0, setup, 8);
+	} while (ret == -EAGAIN);
 	if (ret)
 		return ret;
 
+	/* DATA stage */
+	act_len = 0;
 	if (buffer) {
 		pid = DWC2_HC_PID_DATA1;
-		ret = chunk_msg(priv, dev, pipe, &pid, usb_pipein(pipe), buffer,
-				len);
+		do {
+			ret = chunk_msg(priv, dev, pipe, &pid, usb_pipein(pipe),
+					buffer, len);
+			act_len += dev->act_len;
+			buffer += dev->act_len;
+			len -= dev->act_len;
+		} while (ret == -EAGAIN);
 		if (ret)
 			return ret;
-		act_len = dev->act_len;
-	} /* End of DATA stage */
-	else
-		act_len = 0;
+		status_direction = usb_pipeout(pipe);
+	} else {
+		/* No-data CONTROL always ends with an IN transaction */
+		status_direction = 1;
+	}
 
 	/* STATUS stage */
-	if ((len == 0) || usb_pipeout(pipe))
-		status_direction = 1;
-	else
-		status_direction = 0;
-
 	pid = DWC2_HC_PID_DATA1;
-	ret = chunk_msg(priv, dev, pipe, &pid, status_direction,
-			priv->status_buffer, 0);
+	do {
+		ret = chunk_msg(priv, dev, pipe, &pid, status_direction,
+				priv->status_buffer, 0);
+	} while (ret == -EAGAIN);
 	if (ret)
 		return ret;
 
