@@ -22,7 +22,7 @@ static int bd82x6x_probe(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
-	int sata_node, gma_node;
+	int gma_node;
 	int ret;
 
 	if (!(gd->flags & GD_FLG_RELOC))
@@ -31,13 +31,10 @@ static int bd82x6x_probe(struct udevice *dev)
 	hose = pci_bus_to_hose(0);
 	lpc_enable(PCH_LPC_DEV);
 	lpc_init_extra(hose, PCH_LPC_DEV);
-	sata_node = fdtdec_next_compatible(blob, 0,
-					   COMPAT_INTEL_PANTHERPOINT_AHCI);
-	if (sata_node < 0) {
-		debug("%s: Cannot find SATA node\n", __func__);
-		return -EINVAL;
-	}
-	bd82x6x_sata_init(PCH_SATA_DEV, blob, sata_node);
+
+	/* Cause the SATA device to do its init */
+	uclass_first_device(UCLASS_DISK, &dev);
+
 	bd82x6x_usb_ehci_init(PCH_EHCI1_DEV);
 	bd82x6x_usb_ehci_init(PCH_EHCI2_DEV);
 

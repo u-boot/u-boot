@@ -47,7 +47,7 @@ static void common_sata_init(pci_dev_t dev, unsigned int port_map)
 	x86_pci_write_config32(dev, 0x94, ((port_map ^ 0x3f) << 24) | 0x183);
 }
 
-void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
+static void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
 {
 	unsigned int port_map, speed_support, port_tx;
 	struct pci_controller *hose = pci_bus_to_hose(0);
@@ -232,6 +232,8 @@ static int bd82x6x_sata_probe(struct udevice *dev)
 {
 	if (!(gd->flags & GD_FLG_RELOC))
 		bd82x6x_sata_enable(PCH_SATA_DEV, gd->fdt_blob, dev->of_offset);
+	else
+		bd82x6x_sata_init(PCH_SATA_DEV, gd->fdt_blob, dev->of_offset);
 
 	return 0;
 }
