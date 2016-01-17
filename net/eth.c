@@ -96,6 +96,7 @@ static void eth_common_init(void)
 	phy_init();
 #endif
 
+#ifndef CONFIG_DM_ETH
 	/*
 	 * If board-specific initialization exists, call it.
 	 * If not, call a CPU-specific one
@@ -107,10 +108,9 @@ static void eth_common_init(void)
 		if (cpu_eth_init(gd->bd) < 0)
 			printf("CPU Net Initialization Failed\n");
 	} else {
-#ifndef CONFIG_DM_ETH
 		printf("Net Initialization Skipped\n");
-#endif
 	}
+#endif
 }
 
 #ifdef CONFIG_DM_ETH
