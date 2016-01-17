@@ -24,13 +24,13 @@
 #define ENABLE_ACPI_MODE_IN_COREBOOT	0
 #define TEST_SMM_FLASH_LOCKDOWN		0
 
-static int pch_enable_apic(pci_dev_t dev)
+static int pch_enable_apic(struct udevice *pch)
 {
 	u32 reg32;
 	int i;
 
 	/* Enable ACPI I/O and power management. Set SCI IRQ to IRQ9 */
-	x86_pci_write_config8(dev, ACPI_CNTL, 0x80);
+	dm_pci_write_config8(pch, ACPI_CNTL, 0x80);
 
 	writel(0, IO_APIC_INDEX);
 	writel(1 << 25, IO_APIC_DATA);
@@ -66,36 +66,36 @@ static int pch_enable_apic(pci_dev_t dev)
 	return 0;
 }
 
-static void pch_enable_serial_irqs(pci_dev_t dev)
+static void pch_enable_serial_irqs(struct udevice *pch)
 {
 	u32 value;
 
 	/* Set packet length and toggle silent mode bit for one frame. */
 	value = (1 << 7) | (1 << 6) | ((21 - 17) << 2) | (0 << 0);
 #ifdef CONFIG_SERIRQ_CONTINUOUS_MODE
-	x86_pci_write_config8(dev, SERIRQ_CNTL, value);
+	dm_pci_write_config8(pch, SERIRQ_CNTL, value);
 #else
-	x86_pci_write_config8(dev, SERIRQ_CNTL, value | (1 << 6));
+	dm_pci_write_config8(pch, SERIRQ_CNTL, value | (1 << 6));
 #endif
 }
 
-static int pch_pirq_init(const void *blob, int node, pci_dev_t dev)
+static int pch_pirq_init(struct udevice *pch)
 {
 	uint8_t route[8], *ptr;
 
-	if (fdtdec_get_byte_array(blob, node, "intel,pirq-routing", route,
-				  sizeof(route)))
+	if (fdtdec_get_byte_array(gd->fdt_blob, pch->of_offset,
+				  "intel,pirq-routing", route, sizeof(route)))
 		return -EINVAL;
 	ptr = route;
-	x86_pci_write_config8(dev, PIRQA_ROUT, *ptr++);
-	x86_pci_write_config8(dev, PIRQB_ROUT, *ptr++);
-	x86_pci_write_config8(dev, PIRQC_ROUT, *ptr++);
-	x86_pci_write_config8(dev, PIRQD_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQA_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQB_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQC_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQD_ROUT, *ptr++);
 
-	x86_pci_write_config8(dev, PIRQE_ROUT, *ptr++);
-	x86_pci_write_config8(dev, PIRQF_ROUT, *ptr++);
-	x86_pci_write_config8(dev, PIRQG_ROUT, *ptr++);
-	x86_pci_write_config8(dev, PIRQH_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQE_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQF_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQG_ROUT, *ptr++);
+	dm_pci_write_config8(pch, PIRQH_ROUT, *ptr++);
 
 	/*
 	 * TODO(sjg@chromium.org): U-Boot does not set up the interrupts
@@ -104,26 +104,28 @@ static int pch_pirq_init(const void *blob, int node, pci_dev_t dev)
 	return 0;
 }
 
-static int pch_gpi_routing(const void *blob, int node, pci_dev_t dev)
+static int pch_gpi_routing(struct udevice *pch)
 {
 	u8 route[16];
 	u32 reg;
 	int gpi;
 
-	if (fdtdec_get_byte_array(blob, node, "intel,gpi-routing", route,
-				  sizeof(route)))
+	if (fdtdec_get_byte_array(gd->fdt_blob, pch->of_offset,
+				  "intel,gpi-routing", route, sizeof(route)))
 		return -EINVAL;
 
 	for (reg = 0, gpi = 0; gpi < ARRAY_SIZE(route); gpi++)
 		reg |= route[gpi] << (gpi * 2);
 
-	x86_pci_write_config32(dev, 0xb8, reg);
+	dm_pci_write_config32(pch, 0xb8, reg);
 
 	return 0;
 }
 
-static int pch_power_options(const void *blob, int node, pci_dev_t dev)
+static int pch_power_options(struct udevice *pch)
 {
+	const void *blob = gd->fdt_blob;
+	int node = pch->of_offset;
 	u8 reg8;
 	u16 reg16, pmbase;
 	u32 reg32;
@@ -142,7 +144,7 @@ static int pch_power_options(const void *blob, int node, pci_dev_t dev)
 	 */
 	pwr_on = MAINBOARD_POWER_ON;
 
-	reg16 = x86_pci_read_config16(dev, GEN_PMCON_3);
+	dm_pci_read_config16(pch, GEN_PMCON_3, &reg16);
 	reg16 &= 0xfffe;
 	switch (pwr_on) {
 	case MAINBOARD_POWER_OFF:
@@ -169,7 +171,7 @@ static int pch_power_options(const void *blob, int node, pci_dev_t dev)
 
 	reg16 |= (1 << 12);	/* Disable SLP stretch after SUS well */
 
-	x86_pci_write_config16(dev, GEN_PMCON_3, reg16);
+	dm_pci_write_config16(pch, GEN_PMCON_3, reg16);
 	debug("Set power %s after power failure.\n", state);
 
 	/* Set up NMI on errors. */
@@ -193,21 +195,22 @@ static int pch_power_options(const void *blob, int node, pci_dev_t dev)
 	outb(reg8, 0x70);
 
 	/* Enable CPU_SLP# and Intel Speedstep, set SMI# rate down */
-	reg16 = x86_pci_read_config16(dev, GEN_PMCON_1);
+	dm_pci_read_config16(pch, GEN_PMCON_1, &reg16);
 	reg16 &= ~(3 << 0);	/* SMI# rate 1 minute */
 	reg16 &= ~(1 << 10);	/* Disable BIOS_PCI_EXP_EN for native PME */
 #if DEBUG_PERIODIC_SMIS
 	/* Set DEBUG_PERIODIC_SMIS in pch.h to debug using periodic SMIs */
 	reg16 |= (3 << 0);	/* Periodic SMI every 8s */
 #endif
-	x86_pci_write_config16(dev, GEN_PMCON_1, reg16);
+	dm_pci_write_config16(pch, GEN_PMCON_1, reg16);
 
 	/* Set the board's GPI routing. */
-	ret = pch_gpi_routing(blob, node, dev);
+	ret = pch_gpi_routing(pch);
 	if (ret)
 		return ret;
 
-	pmbase = x86_pci_read_config16(dev, 0x40) & 0xfffe;
+	dm_pci_read_config16(pch, 0x40, &pmbase);
+	pmbase &= 0xfffe;
 
 	writel(pmbase + GPE0_EN, fdtdec_get_int(blob, node,
 						"intel,gpe0-enable", 0));
@@ -227,16 +230,16 @@ static int pch_power_options(const void *blob, int node, pci_dev_t dev)
 	return 0;
 }
 
-static void pch_rtc_init(pci_dev_t dev)
+static void pch_rtc_init(struct udevice *pch)
 {
 	int rtc_failed;
 	u8 reg8;
 
-	reg8 = x86_pci_read_config8(dev, GEN_PMCON_3);
+	dm_pci_read_config8(pch, GEN_PMCON_3, &reg8);
 	rtc_failed = reg8 & RTC_BATTERY_DEAD;
 	if (rtc_failed) {
 		reg8 &= ~RTC_BATTERY_DEAD;
-		x86_pci_write_config8(dev, GEN_PMCON_3, reg8);
+		dm_pci_write_config8(pch, GEN_PMCON_3, reg8);
 	}
 	debug("rtc_failed = 0x%x\n", rtc_failed);
 
@@ -246,10 +249,10 @@ static void pch_rtc_init(pci_dev_t dev)
 }
 
 /* CougarPoint PCH Power Management init */
-static void cpt_pm_init(pci_dev_t dev)
+static void cpt_pm_init(struct udevice *pch)
 {
 	debug("CougarPoint PM init\n");
-	x86_pci_write_config8(dev, 0xa9, 0x47);
+	dm_pci_write_config8(pch, 0xa9, 0x47);
 	setbits_le32(RCB_REG(0x2238), (1 << 6) | (1 << 0));
 
 	setbits_le32(RCB_REG(0x228c), 1 << 0);
@@ -290,10 +293,10 @@ static void cpt_pm_init(pci_dev_t dev)
 }
 
 /* PantherPoint PCH Power Management init */
-static void ppt_pm_init(pci_dev_t dev)
+static void ppt_pm_init(struct udevice *pch)
 {
 	debug("PantherPoint PM init\n");
-	x86_pci_write_config8(dev, 0xa9, 0x47);
+	dm_pci_write_config8(pch, 0xa9, 0x47);
 	setbits_le32(RCB_REG(0x2238), 1 << 0);
 	setbits_le32(RCB_REG(0x228c), 1 << 0);
 	setbits_le16(RCB_REG(0x1100), (1 << 13) | (1 << 14));
@@ -340,16 +343,16 @@ static void enable_hpet(void)
 	clrsetbits_le32(RCB_REG(HPTC), 3 << 0, 1 << 7);
 }
 
-static void enable_clock_gating(pci_dev_t dev)
+static void enable_clock_gating(struct udevice *pch)
 {
 	u32 reg32;
 	u16 reg16;
 
 	setbits_le32(RCB_REG(0x2234), 0xf);
 
-	reg16 = x86_pci_read_config16(dev, GEN_PMCON_1);
+	dm_pci_read_config16(pch, GEN_PMCON_1, &reg16);
 	reg16 |= (1 << 2) | (1 << 11);
-	x86_pci_write_config16(dev, GEN_PMCON_1, reg16);
+	dm_pci_write_config16(pch, GEN_PMCON_1, reg16);
 
 	pch_iobp_update(0xEB007F07, ~0UL, (1 << 31));
 	pch_iobp_update(0xEB004000, ~0UL, (1 << 7));
@@ -429,24 +432,24 @@ static void pch_lock_smm(pci_dev_t dev)
 }
 #endif
 
-static void pch_disable_smm_only_flashing(pci_dev_t dev)
+static void pch_disable_smm_only_flashing(struct udevice *pch)
 {
 	u8 reg8;
 
 	debug("Enabling BIOS updates outside of SMM... ");
-	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
+	dm_pci_read_config8(pch, 0xdc, &reg8);	/* BIOS_CNTL */
 	reg8 &= ~(1 << 5);
-	x86_pci_write_config8(dev, 0xdc, reg8);
+	dm_pci_write_config8(pch, 0xdc, reg8);
 }
 
-static void pch_fixups(pci_dev_t dev)
+static void pch_fixups(struct udevice *pch)
 {
 	u8 gen_pmcon_2;
 
 	/* Indicate DRAM init done for MRC S3 to know it can resume */
-	gen_pmcon_2 = x86_pci_read_config8(dev, GEN_PMCON_2);
+	dm_pci_read_config8(pch, GEN_PMCON_2, &gen_pmcon_2);
 	gen_pmcon_2 |= (1 << 7);
-	x86_pci_write_config8(dev, GEN_PMCON_2, gen_pmcon_2);
+	dm_pci_write_config8(pch, GEN_PMCON_2, gen_pmcon_2);
 
 	/* Enable DMI ASPM in the PCH */
 	clrbits_le32(RCB_REG(0x2304), 1 << 10);
@@ -538,66 +541,66 @@ static int lpc_early_init(struct udevice *dev)
 	return 0;
 }
 
-static int lpc_init_extra(struct pci_controller *hose, pci_dev_t dev)
+static int lpc_init_extra(struct udevice *dev)
 {
+	struct udevice *pch = dev->parent;
 	const void *blob = gd->fdt_blob;
 	int node;
 
 	debug("pch: lpc_init\n");
-	pci_write_bar32(hose, dev, 0, 0);
-	pci_write_bar32(hose, dev, 1, 0xff800000);
-	pci_write_bar32(hose, dev, 2, 0xfec00000);
-	pci_write_bar32(hose, dev, 3, 0x800);
-	pci_write_bar32(hose, dev, 4, 0x900);
+	dm_pci_write_bar32(pch, 0, 0);
+	dm_pci_write_bar32(pch, 1, 0xff800000);
+	dm_pci_write_bar32(pch, 2, 0xfec00000);
+	dm_pci_write_bar32(pch, 3, 0x800);
+	dm_pci_write_bar32(pch, 4, 0x900);
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_PCH);
 	if (node < 0)
 		return -ENOENT;
 
 	/* Set the value for PCI command register. */
-	x86_pci_write_config16(dev, PCI_COMMAND, 0x000f);
+	dm_pci_write_config16(pch, PCI_COMMAND, 0x000f);
 
 	/* IO APIC initialization. */
-	pch_enable_apic(dev);
+	pch_enable_apic(pch);
 
-	pch_enable_serial_irqs(dev);
+	pch_enable_serial_irqs(pch);
 
 	/* Setup the PIRQ. */
-	pch_pirq_init(blob, node, dev);
+	pch_pirq_init(pch);
 
 	/* Setup power options. */
-	pch_power_options(blob, node, dev);
+	pch_power_options(pch);
 
 	/* Initialize power management */
 	switch (pch_silicon_type()) {
 	case PCH_TYPE_CPT: /* CougarPoint */
-		cpt_pm_init(dev);
+		cpt_pm_init(pch);
 		break;
 	case PCH_TYPE_PPT: /* PantherPoint */
-		ppt_pm_init(dev);
+		ppt_pm_init(pch);
 		break;
 	default:
-		printf("Unknown Chipset: %#02x.%dx\n", PCI_DEV(dev),
-		       PCI_FUNC(dev));
+		printf("Unknown Chipset: %s\n", pch->name);
 		return -ENOSYS;
 	}
 
 	/* Initialize the real time clock. */
-	pch_rtc_init(dev);
+	pch_rtc_init(pch);
 
 	/* Initialize the High Precision Event Timers, if present. */
 	enable_hpet();
 
 	/* Initialize Clock Gating */
-	enable_clock_gating(dev);
+	enable_clock_gating(pch);
 
-	pch_disable_smm_only_flashing(dev);
+	pch_disable_smm_only_flashing(pch);
 
 #if CONFIG_HAVE_SMI_HANDLER
 	pch_lock_smm(dev);
 #endif
 
-	pch_fixups(dev);
+	pch_fixups(pch);
 
 	return 0;
 }
@@ -636,7 +639,7 @@ static int bd82x6x_lpc_probe(struct udevice *dev)
 		return bd82x6x_lpc_early_init(dev);
 	}
 
-	return lpc_init_extra(pci_bus_to_hose(0), PCH_LPC_DEV);
+	return lpc_init_extra(dev);
 }
 
 static const struct udevice_id bd82x6x_lpc_ids[] = {
