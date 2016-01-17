@@ -15,19 +15,4 @@ void bd82x6x_usb_xhci_init(pci_dev_t dev);
 int gma_func0_init(struct udevice *dev, const void *blob, int node);
 int bd82x6x_init_extra(void);
 
-/**
- * struct x86_cpu_priv - Information about a single CPU
- *
- * @apic_id: Advanced Programmable Interrupt Controller Identifier, which is
- * just a number representing the CPU core
- *
- * TODO: Move this to driver model once lifecycle is understood
- */
-struct x86_cpu_priv {
-	int apic_id;
-	int start_err;
-};
-
-int model_206ax_init(struct x86_cpu_priv *cpu);
-
 #endif

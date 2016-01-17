@@ -61,7 +61,6 @@ static int bd82x6x_probe(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
-	struct x86_cpu_priv *cpu;
 	int sata_node, gma_node;
 	int ret;
 
@@ -80,11 +79,6 @@ static int bd82x6x_probe(struct udevice *dev)
 	bd82x6x_sata_init(PCH_SATA_DEV, blob, sata_node);
 	bd82x6x_usb_ehci_init(PCH_EHCI1_DEV);
 	bd82x6x_usb_ehci_init(PCH_EHCI2_DEV);
-
-	cpu = calloc(1, sizeof(*cpu));
-	if (!cpu)
-		return -ENOMEM;
-	model_206ax_init(cpu);
 
 	gma_node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_GMA);
 	if (gma_node < 0) {
