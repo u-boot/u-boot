@@ -67,7 +67,9 @@ static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
 	 */
 	start = start & ~(SSC_LINE_SIZE - 1);
 
-	if (start == 0 && end >= (u32)(-SSC_LINE_SIZE)) {
+	size = end - start;
+
+	if (unlikely(size >= (u32)(-SSC_LINE_SIZE))) {
 		/* this means cache operation for all range */
 		uniphier_cache_maint_all(operation);
 		return;
@@ -77,7 +79,7 @@ static void uniphier_cache_maint_range(u32 start, u32 end, u32 operation)
 	 * If end address is not aligned to cache-line,
 	 * do cache operation for the last cache-line
 	 */
-	size = (end - start + SSC_LINE_SIZE - 1) & ~(SSC_LINE_SIZE - 1);
+	size = ALIGN(size, SSC_LINE_SIZE);
 
 	while (size) {
 		u32 chunk_size = size > SSC_RANGE_OP_MAX_SIZE ?
