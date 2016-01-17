@@ -688,7 +688,7 @@ static int x86_mp_init(void)
 }
 #endif
 
-__weak int x86_init_cpus(void)
+static int x86_init_cpus(void)
 {
 #ifdef CONFIG_SMP
 	debug("Init additional CPUs\n");
