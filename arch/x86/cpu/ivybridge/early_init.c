@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
@@ -145,3 +146,20 @@ void sandybridge_early_init(int chipset_type)
 
 	sandybridge_setup_graphics(pch_dev, video_dev);
 }
+
+static int bd82x6x_northbridge_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct udevice_id bd82x6x_northbridge_ids[] = {
+	{ .compatible = "intel,bd82x6x-northbridge" },
+	{ }
+};
+
+U_BOOT_DRIVER(bd82x6x_northbridge_drv) = {
+	.name		= "bd82x6x_northbridge",
+	.id		= UCLASS_NORTHBRIDGE,
+	.of_match	= bd82x6x_northbridge_ids,
+	.probe		= bd82x6x_northbridge_probe,
+};
