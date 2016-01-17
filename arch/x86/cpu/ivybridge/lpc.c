@@ -538,7 +538,7 @@ static int lpc_early_init(struct udevice *dev)
 	return 0;
 }
 
-int lpc_init_extra(struct pci_controller *hose, pci_dev_t dev)
+static int lpc_init_extra(struct pci_controller *hose, pci_dev_t dev)
 {
 	const void *blob = gd->fdt_blob;
 	int node;
@@ -626,16 +626,17 @@ static int bd82x6x_lpc_probe(struct udevice *dev)
 {
 	int ret;
 
-	if (gd->flags & GD_FLG_RELOC)
-		return 0;
+	if (!(gd->flags & GD_FLG_RELOC)) {
+		ret = lpc_early_init(dev);
+		if (ret) {
+			debug("%s: lpc_early_init() failed\n", __func__);
+			return ret;
+		}
 
-	ret = lpc_early_init(dev);
-	if (ret) {
-		debug("%s: lpc_early_init() failed\n", __func__);
-		return ret;
+		return bd82x6x_lpc_early_init(dev);
 	}
 
-	return bd82x6x_lpc_early_init(dev);
+	return lpc_init_extra(pci_bus_to_hose(0), PCH_LPC_DEV);
 }
 
 static const struct udevice_id bd82x6x_lpc_ids[] = {

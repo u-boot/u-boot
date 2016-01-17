@@ -21,15 +21,11 @@
 static int bd82x6x_probe(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
-	struct pci_controller *hose;
 	int gma_node;
 	int ret;
 
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
-
-	hose = pci_bus_to_hose(0);
-	lpc_init_extra(hose, PCH_LPC_DEV);
 
 	/* Cause the SATA device to do its init */
 	uclass_first_device(UCLASS_DISK, &dev);

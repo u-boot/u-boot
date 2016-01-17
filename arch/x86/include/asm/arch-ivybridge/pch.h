@@ -470,6 +470,4 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 #define   DMISCI_STS	(1 << 9)
 #define TCO2_STS	0x66
 
-int lpc_init_extra(struct pci_controller *hose, pci_dev_t dev);
-
 #endif
