@@ -243,8 +243,12 @@ int mrccache_save(void)
 		goto err_entry;
 	data  = (struct mrc_data_container *)gd->arch.mrc_output;
 	ret = mrccache_update(sf, &entry, data);
-	if (!ret)
+	if (!ret) {
 		debug("Saved MRC data with checksum %04x\n", data->checksum);
+	} else if (ret == -EEXIST) {
+		debug("MRC data is the same as last time, skipping save\n");
+		ret = 0;
+	}
 
 err_entry:
 	if (ret)
