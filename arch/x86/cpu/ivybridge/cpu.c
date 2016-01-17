@@ -250,7 +250,6 @@ int print_cpuinfo(void)
 		return ret;
 	if (!dev)
 		return -ENODEV;
-	sandybridge_early_init(SANDYBRIDGE_MOBILE);
 
 	/* Check PM1_STS[15] to see if we are waking from Sx */
 	pm1_sts = inw(DEFAULT_PMBASE + PM1_STS);

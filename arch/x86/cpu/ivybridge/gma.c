@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <bios_emul.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <pci_rom.h>
@@ -728,15 +729,87 @@ static int int15_handler(void)
 	return res;
 }
 
+void sandybridge_setup_graphics(struct udevice *dev, struct udevice *video_dev)
+{
+	u32 reg32;
+	u16 reg16;
+	u8 reg8;
+
+	dm_pci_read_config16(video_dev, PCI_DEVICE_ID, &reg16);
+	switch (reg16) {
+	case 0x0102: /* GT1 Desktop */
+	case 0x0106: /* GT1 Mobile */
+	case 0x010a: /* GT1 Server */
+	case 0x0112: /* GT2 Desktop */
+	case 0x0116: /* GT2 Mobile */
+	case 0x0122: /* GT2 Desktop >=1.3GHz */
+	case 0x0126: /* GT2 Mobile >=1.3GHz */
+	case 0x0156: /* IvyBridge */
+	case 0x0166: /* IvyBridge */
+		break;
+	default:
+		debug("Graphics not supported by this CPU/chipset\n");
+		return;
+	}
+
+	debug("Initialising Graphics\n");
+
+	/* Setup IGD memory by setting GGC[7:3] = 1 for 32MB */
+	dm_pci_read_config16(dev, GGC, &reg16);
+	reg16 &= ~0x00f8;
+	reg16 |= 1 << 3;
+	/* Program GTT memory by setting GGC[9:8] = 2MB */
+	reg16 &= ~0x0300;
+	reg16 |= 2 << 8;
+	/* Enable VGA decode */
+	reg16 &= ~0x0002;
+	dm_pci_write_config16(dev, GGC, reg16);
+
+	/* Enable 256MB aperture */
+	dm_pci_read_config8(video_dev, MSAC, &reg8);
+	reg8 &= ~0x06;
+	reg8 |= 0x02;
+	dm_pci_write_config8(video_dev, MSAC, reg8);
+
+	/* Erratum workarounds */
+	reg32 = readl(MCHBAR_REG(0x5f00));
+	reg32 |= (1 << 9) | (1 << 10);
+	writel(reg32, MCHBAR_REG(0x5f00));
+
+	/* Enable SA Clock Gating */
+	reg32 = readl(MCHBAR_REG(0x5f00));
+	writel(reg32 | 1, MCHBAR_REG(0x5f00));
+
+	/* GPU RC6 workaround for sighting 366252 */
+	reg32 = readl(MCHBAR_REG(0x5d14));
+	reg32 |= (1 << 31);
+	writel(reg32, MCHBAR_REG(0x5d14));
+
+	/* VLW */
+	reg32 = readl(MCHBAR_REG(0x6120));
+	reg32 &= ~(1 << 0);
+	writel(reg32, MCHBAR_REG(0x6120));
+
+	reg32 = readl(MCHBAR_REG(0x5418));
+	reg32 |= (1 << 4) | (1 << 5);
+	writel(reg32, MCHBAR_REG(0x5418));
+}
+
 int gma_func0_init(struct udevice *dev, const void *blob, int node)
 {
 #ifdef CONFIG_VIDEO
 	ulong start;
 #endif
+	struct udevice *nbridge;
 	void *gtt_bar;
 	ulong base;
 	u32 reg32;
 	int ret;
+
+	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &nbridge);
+	if (!nbridge)
+		return -ENODEV;
+	sandybridge_setup_graphics(nbridge, dev);
 
 	/* IGD needs to be Bus Master */
 	dm_pci_read_config32(dev, PCI_COMMAND, &reg32);
