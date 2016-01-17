@@ -20,18 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int eth_mac_skip(int index)
-{
-	char enetvar[15];
-	char *skip_state;
-
-	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
-	skip_state = getenv(enetvar);
-	return skip_state != NULL;
-}
-
-static void eth_current_changed(void);
-
 /*
  * CPU and board-specific Ethernet initializations.  Aliased function
  * signals caller to move on
@@ -74,7 +62,7 @@ static struct eth_uclass_priv *eth_get_uclass_priv(void)
 	return uc->priv;
 }
 
-static void eth_set_current_to_next(void)
+void eth_set_current_to_next(void)
 {
 	struct eth_uclass_priv *uc_priv;
 
@@ -107,7 +95,7 @@ struct udevice *eth_get_dev(void)
  * In case it was not probed, we will attempt to do so.
  * dev may be NULL to unset the active device.
  */
-static void eth_set_dev(struct udevice *dev)
+void eth_set_dev(struct udevice *dev)
 {
 	if (dev && !device_active(dev)) {
 		eth_errno = device_probe(dev);
@@ -593,12 +581,12 @@ static unsigned int eth_rcv_current, eth_rcv_last;
 static struct eth_device *eth_devices;
 struct eth_device *eth_current;
 
-static void eth_set_current_to_next(void)
+void eth_set_current_to_next(void)
 {
 	eth_current = eth_current->next;
 }
 
-static void eth_set_dev(struct eth_device *dev)
+void eth_set_dev(struct eth_device *dev)
 {
 	eth_current = dev;
 }
@@ -992,91 +980,3 @@ int eth_receive(void *packet, int length)
 	return length;
 }
 #endif /* CONFIG_API */
-
-static void eth_current_changed(void)
-{
-	char *act = getenv("ethact");
-	char *ethrotate;
-
-	/*
-	 * The call to eth_get_dev() below has a side effect of rotating
-	 * ethernet device if uc_priv->current == NULL. This is not what
-	 * we want when 'ethrotate' variable is 'no'.
-	 */
-	ethrotate = getenv("ethrotate");
-	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
-		return;
-
-	/* update current ethernet name */
-	if (eth_get_dev()) {
-		if (act == NULL || strcmp(act, eth_get_name()) != 0)
-			setenv("ethact", eth_get_name());
-	}
-	/*
-	 * remove the variable completely if there is no active
-	 * interface
-	 */
-	else if (act != NULL)
-		setenv("ethact", NULL);
-}
-
-void eth_try_another(int first_restart)
-{
-	static void *first_failed;
-	char *ethrotate;
-
-	/*
-	 * Do not rotate between network interfaces when
-	 * 'ethrotate' variable is set to 'no'.
-	 */
-	ethrotate = getenv("ethrotate");
-	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
-		return;
-
-	if (!eth_get_dev())
-		return;
-
-	if (first_restart)
-		first_failed = eth_get_dev();
-
-	eth_set_current_to_next();
-
-	eth_current_changed();
-
-	if (first_failed == eth_get_dev())
-		net_restart_wrap = 1;
-}
-
-void eth_set_current(void)
-{
-	static char *act;
-	static int  env_changed_id;
-	int	env_id;
-
-	env_id = get_env_id();
-	if ((act == NULL) || (env_changed_id != env_id)) {
-		act = getenv("ethact");
-		env_changed_id = env_id;
-	}
-
-	if (act == NULL) {
-		char *ethprime = getenv("ethprime");
-		void *dev = NULL;
-
-		if (ethprime)
-			dev = eth_get_dev_by_name(ethprime);
-		if (dev)
-			eth_set_dev(dev);
-		else
-			eth_set_dev(NULL);
-	} else {
-		eth_set_dev(eth_get_dev_by_name(act));
-	}
-
-	eth_current_changed();
-}
-
-const char *eth_get_name(void)
-{
-	return eth_get_dev() ? eth_get_dev()->name : "unknown";
-}

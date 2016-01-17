@@ -28,4 +28,13 @@ void eth_common_init(void);
 int eth_setenv_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr);
 
+int eth_mac_skip(int index);
+void eth_current_changed(void);
+#ifdef CONFIG_DM_ETH
+void eth_set_dev(struct udevice *dev);
+#else
+void eth_set_dev(struct eth_device *dev);
+#endif
+void eth_set_current_to_next(void);
+
 #endif
