@@ -123,20 +123,6 @@ void sandybridge_early_init(int chipset_type)
 	pci_dev_t pch_dev = PCH_DEV;
 	pci_dev_t video_dev = PCH_VIDEO_DEV;
 	pci_dev_t lpc_dev = PCH_LPC_DEV;
-	u32 capid0_a;
-	u8 reg8;
-
-	/* Device ID Override Enable should be done very early */
-	capid0_a = x86_pci_read_config32(pch_dev, 0xe4);
-	if (capid0_a & (1 << 10)) {
-		reg8 = x86_pci_read_config8(pch_dev, 0xf3);
-		reg8 &= ~7; /* Clear 2:0 */
-
-		if (chipset_type == SANDYBRIDGE_MOBILE)
-			reg8 |= 1; /* Set bit 0 */
-
-		x86_pci_write_config8(pch_dev, 0xf3, reg8);
-	}
 
 	/* Setup all BARs required for early PCIe and raminit */
 	sandybridge_setup_bars(pch_dev, lpc_dev);
@@ -149,6 +135,25 @@ void sandybridge_early_init(int chipset_type)
 
 static int bd82x6x_northbridge_probe(struct udevice *dev)
 {
+	const int chipset_type = SANDYBRIDGE_MOBILE;
+	u32 capid0_a;
+	u8 reg8;
+
+	if (gd->flags & GD_FLG_RELOC)
+		return 0;
+
+	/* Device ID Override Enable should be done very early */
+	dm_pci_read_config32(dev, 0xe4, &capid0_a);
+	if (capid0_a & (1 << 10)) {
+		dm_pci_read_config8(dev, 0xf3, &reg8);
+		reg8 &= ~7; /* Clear 2:0 */
+
+		if (chipset_type == SANDYBRIDGE_MOBILE)
+			reg8 |= 1; /* Set bit 0 */
+
+		dm_pci_write_config8(dev, 0xf3, reg8);
+	}
+
 	return 0;
 }
 

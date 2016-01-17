@@ -243,6 +243,8 @@ int print_cpuinfo(void)
 	}
 
 	/* Early chipset init required before RAM init can work */
+	uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
+
 	ret = uclass_first_device(UCLASS_PCH, &dev);
 	if (ret)
 		return ret;
