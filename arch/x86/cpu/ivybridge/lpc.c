@@ -602,13 +602,6 @@ int lpc_init_extra(struct pci_controller *hose, pci_dev_t dev)
 	return 0;
 }
 
-void lpc_enable(pci_dev_t dev)
-{
-	/* Enable PCH Display Port */
-	writew(0x0010, RCB_REG(DISPBDF));
-	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
-}
-
 static int bd82x6x_lpc_early_init(struct udevice *dev)
 {
 	/* Setting up Southbridge. In the northbridge code. */

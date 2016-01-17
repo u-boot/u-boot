@@ -806,6 +806,10 @@ int gma_func0_init(struct udevice *dev, const void *blob, int node)
 	u32 reg32;
 	int ret;
 
+	/* Enable PCH Display Port */
+	writew(0x0010, RCB_REG(DISPBDF));
+	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
+
 	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &nbridge);
 	if (!nbridge)
 		return -ENODEV;

@@ -29,7 +29,6 @@ static int bd82x6x_probe(struct udevice *dev)
 		return 0;
 
 	hose = pci_bus_to_hose(0);
-	lpc_enable(PCH_LPC_DEV);
 	lpc_init_extra(hose, PCH_LPC_DEV);
 
 	/* Cause the SATA device to do its init */
