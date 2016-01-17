@@ -172,7 +172,8 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 		dm_dbg("   - found match at '%s'\n", entry->name);
 		ret = device_bind(parent, entry, name, NULL, offset, &dev);
 		if (ret) {
-			dm_warn("Error binding driver '%s'\n", entry->name);
+			dm_warn("Error binding driver '%s': %d\n", entry->name,
+				ret);
 			return ret;
 		} else {
 			dev->driver_data = id->data;
