@@ -220,6 +220,12 @@
 			intel,pch-backlight = <0x04000000>;
 		};
 
+		me@16,0 {
+			reg = <0x0000b000 0 0 0 0>;
+			compatible = "intel,me";
+			u-boot,dm-pre-reloc;
+		};
+
 		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,bd82x6x", "intel,pch9";

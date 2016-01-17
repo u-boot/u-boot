@@ -286,7 +286,8 @@ static int recovery_mode_enabled(void)
  * @dev: Northbridge device
  * @pei_data: configuration data for UEFI PEI reference code
  */
-int sdram_initialise(struct udevice *dev, struct pei_data *pei_data)
+int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
+		     struct pei_data *pei_data)
 {
 	unsigned version;
 	const char *data;
@@ -296,10 +297,10 @@ int sdram_initialise(struct udevice *dev, struct pei_data *pei_data)
 	report_platform_info();
 
 	/* Wait for ME to be ready */
-	ret = intel_early_me_init();
+	ret = intel_early_me_init(me_dev);
 	if (ret)
 		return ret;
-	ret = intel_early_me_uma_size();
+	ret = intel_early_me_uma_size(me_dev);
 	if (ret < 0)
 		return ret;
 
@@ -378,9 +379,9 @@ int sdram_initialise(struct udevice *dev, struct pei_data *pei_data)
 	dm_pci_read_config16(dev, PCI_DEVICE_ID, &done);
 	done &= BASE_REV_MASK;
 	if (BASE_REV_SNB == done)
-		intel_early_me_init_done(ME_INIT_STATUS_SUCCESS);
+		intel_early_me_init_done(dev, me_dev, ME_INIT_STATUS_SUCCESS);
 	else
-		intel_early_me_status();
+		intel_early_me_status(me_dev);
 
 	post_system_agent_init(pei_data);
 	report_memory_config();
@@ -730,7 +731,7 @@ int dram_init(void)
 			{ 0, 4, 0x0000 }, /* P13= Empty */
 		},
 	};
-	struct udevice *dev;
+	struct udevice *dev, *me_dev;
 	int ret;
 
 	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
@@ -738,12 +739,17 @@ int dram_init(void)
 		return ret;
 	if (!dev)
 		return -ENODEV;
+	ret = uclass_first_device(UCLASS_SYSCON, &me_dev);
+	if (ret)
+		return ret;
+	if (!me_dev)
+		return -ENODEV;
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
 	debug("mrc_input %p\n", pei_data.mrc_input);
 	pei_data.boot_mode = gd->arch.pei_boot_mode;
 	ret = copy_spd(&pei_data);
 	if (!ret)
-		ret = sdram_initialise(dev, &pei_data);
+		ret = sdram_initialise(dev, me_dev, &pei_data);
 	if (ret)
 		return ret;
 
