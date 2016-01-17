@@ -10,6 +10,7 @@
 #include <asm/cpu.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
+#include <asm/arch/sandybridge.h>
 
 static void report_cpu_info(void)
 {
@@ -63,27 +64,27 @@ static struct {
 	{0x1E5F, "NM70"},
 };
 
-static void report_pch_info(void)
+static void report_pch_info(struct udevice *dev)
 {
 	const char *pch_type = "Unknown";
 	int i;
 	u16 dev_id;
 	uint8_t rev_id;
 
-	dev_id = x86_pci_read_config16(PCH_LPC_DEV, 2);
+	dm_pci_read_config16(dev, 2, &dev_id);
 	for (i = 0; i < ARRAY_SIZE(pch_table); i++) {
 		if (pch_table[i].dev_id == dev_id) {
 			pch_type = pch_table[i].dev_name;
 			break;
 		}
 	}
-	rev_id = x86_pci_read_config8(PCH_LPC_DEV, 8);
+	dm_pci_read_config8(dev, 8, &rev_id);
 	debug("PCH type: %s, device id: %x, rev id %x\n", pch_type, dev_id,
 	      rev_id);
 }
 
-void report_platform_info(void)
+void report_platform_info(struct udevice *dev)
 {
 	report_cpu_info();
-	report_pch_info();
+	report_pch_info(dev);
 }

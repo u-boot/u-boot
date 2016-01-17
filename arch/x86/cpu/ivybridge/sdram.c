@@ -294,7 +294,7 @@ int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
 	uint16_t done;
 	int ret;
 
-	report_platform_info();
+	report_platform_info(dev);
 
 	/* Wait for ME to be ready */
 	ret = intel_early_me_init(me_dev);
