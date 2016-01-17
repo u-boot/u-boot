@@ -134,6 +134,8 @@ void v7_outer_cache_inval_range(u32 start, u32 end)
 void v7_outer_cache_enable(void)
 {
 	u32 tmp;
+
+	writel(U32_MAX, SSCLPDAWCR);	/* activate all ways */
 	tmp = readl(SSCC);
 	tmp |= SSCC_ON;
 	writel(tmp, SSCC);
