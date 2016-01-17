@@ -15,7 +15,7 @@ obj-$(CONFIG_CMD_DNS)  += dns.o
 ifdef CONFIG_DM_ETH
 obj-$(CONFIG_CMD_NET)  += eth-uclass.o
 else
-obj-$(CONFIG_CMD_NET)  += eth.o
+obj-$(CONFIG_CMD_NET)  += eth_legacy.o
 endif
 obj-$(CONFIG_CMD_NET)  += eth_common.o
 obj-$(CONFIG_CMD_LINK_LOCAL) += link_local.o
