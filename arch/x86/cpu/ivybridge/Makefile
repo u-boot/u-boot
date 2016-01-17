@@ -7,7 +7,6 @@
 obj-y += bd82x6x.o
 obj-y += car.o
 obj-y += cpu.o
-obj-y += early_init.o
 obj-y += early_me.o
 obj-y += gma.o
 obj-y += lpc.o
