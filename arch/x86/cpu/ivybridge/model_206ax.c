@@ -8,10 +8,13 @@
  */
 
 #include <common.h>
+#include <cpu.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/acpi.h>
 #include <asm/cpu.h>
+#include <asm/cpu_x86.h>
 #include <asm/lapic.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -400,55 +403,6 @@ static void configure_mca(void)
 static unsigned ehci_debug_addr;
 #endif
 
-/*
- * Initialize any extra cores/threads in this package.
- */
-static int intel_cores_init(struct x86_cpu_priv *cpu)
-{
-	struct cpuid_result result;
-	unsigned threads_per_package, threads_per_core, i;
-
-	/* Logical processors (threads) per core */
-	result = cpuid_ext(0xb, 0);
-	threads_per_core = result.ebx & 0xffff;
-
-	/* Logical processors (threads) per package */
-	result = cpuid_ext(0xb, 1);
-	threads_per_package = result.ebx & 0xffff;
-
-	debug("CPU: %u has %u cores, %u threads per core\n",
-	      cpu->apic_id, threads_per_package / threads_per_core,
-	      threads_per_core);
-
-	for (i = 1; i < threads_per_package; ++i) {
-		struct x86_cpu_priv *new_cpu;
-
-		new_cpu = calloc(1, sizeof(*new_cpu));
-		if (!new_cpu)
-			return -ENOMEM;
-
-		new_cpu->apic_id = cpu->apic_id + i;
-
-		/* Update APIC ID if no hyperthreading */
-		if (threads_per_core == 1)
-			new_cpu->apic_id <<= 1;
-
-		debug("CPU: %u has core %u\n", cpu->apic_id, new_cpu->apic_id);
-
-#if 0 && CONFIG_SMP && CONFIG_MAX_CPUS > 1
-		/* TODO(sjg@chromium.org): Start the new cpu */
-		if (!start_cpu(new_cpu)) {
-			/* Record the error in cpu? */
-			printk(BIOS_ERR, "CPU %u would not start!\n",
-			       new_cpu->apic_id);
-			new_cpu->start_err = 1;
-		}
-#endif
-	}
-
-	return 0;
-}
-
 int model_206ax_init(struct x86_cpu_priv *cpu)
 {
 	int ret;
@@ -492,8 +446,10 @@ int model_206ax_init(struct x86_cpu_priv *cpu)
 
 	/* Thermal throttle activation offset */
 	ret = configure_thermal_target();
-	if (ret)
+	if (ret) {
+		debug("Cannot set thermal target\n");
 		return ret;
+	}
 
 	/* Enable Direct Cache Access */
 	configure_dca_cap();
@@ -507,8 +463,42 @@ int model_206ax_init(struct x86_cpu_priv *cpu)
 	/* Enable Turbo */
 	turbo_enable();
 
-	/* Start up extra cores */
-	intel_cores_init(cpu);
+	return 0;
+}
+
+static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
+{
+	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU;
 
 	return 0;
 }
+
+static int model_206ax_get_count(struct udevice *dev)
+{
+	return 4;
+}
+
+static int cpu_x86_model_206ax_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct cpu_ops cpu_x86_model_206ax_ops = {
+	.get_desc	= cpu_x86_get_desc,
+	.get_info	= model_206ax_get_info,
+	.get_count	= model_206ax_get_count,
+};
+
+static const struct udevice_id cpu_x86_model_206ax_ids[] = {
+	{ .compatible = "intel,core-gen3" },
+	{ }
+};
+
+U_BOOT_DRIVER(cpu_x86_model_206ax_drv) = {
+	.name		= "cpu_x86_model_206ax",
+	.id		= UCLASS_CPU,
+	.of_match	= cpu_x86_model_206ax_ids,
+	.bind		= cpu_x86_bind,
+	.probe		= cpu_x86_model_206ax_probe,
+	.ops		= &cpu_x86_model_206ax_ops,
+};
