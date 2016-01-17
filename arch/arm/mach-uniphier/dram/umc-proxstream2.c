@@ -16,54 +16,7 @@
 #include "../init.h"
 #include "../soc-info.h"
 #include "ddrmphy-regs.h"
-
-/* UM registers */
-#define UMC_MBUS0		0x00080004
-#define UMC_MBUS1		0x00081004
-#define UMC_MBUS2		0x00082004
-#define UMC_MBUS3		0x00083004
-
-/* UD registers */
-#define UMC_BITPERPIXELMODE_D0	0x010
-#define UMC_PAIR1DOFF_D0	0x054
-
-/* DC registers */
-#define UMC_INITSET		0x014
-#define UMC_INITSTAT		0x018
-#define UMC_CMDCTLA		0x000
-#define UMC_CMDCTLB		0x004
-#define UMC_SPCCTLA		0x030
-#define UMC_SPCCTLB		0x034
-#define UMC_SPCSETB		0x03c
-#define   UMC_SPCSETB_AREFMD_MASK	(0x3)	/* Auto Refresh Mode */
-#define   UMC_SPCSETB_AREFMD_ARB	(0x0)	/* control by arbitor */
-#define   UMC_SPCSETB_AREFMD_CONT	(0x1)	/* control by DRAMCONT */
-#define   UMC_SPCSETB_AREFMD_REG	(0x2)	/* control by register */
-#define UMC_ACSSETA		0x060
-#define UMC_FLOWCTLA		0x400
-#define UMC_FLOWCTLB		0x404
-#define UMC_FLOWCTLC		0x408
-#define UMC_FLOWCTLG		0x508
-#define UMC_FLOWCTLOB0		0x520
-#define UMC_FLOWCTLOB1		0x524
-#define UMC_RDATACTL_D0		0x600
-#define   UMC_RDATACTL_RADLTY_SHIFT	4
-#define   UMC_RDATACTL_RADLTY_MASK	(0xf << (UMC_RDATACTL_RADLTY_SHIFT))
-#define   UMC_RDATACTL_RAD2LTY_SHIFT	8
-#define   UMC_RDATACTL_RAD2LTY_MASK	(0xf << (UMC_RDATACTL_RAD2LTY_SHIFT))
-#define UMC_WDATACTL_D0		0x604
-#define UMC_RDATACTL_D1		0x608
-#define UMC_WDATACTL_D1		0x60c
-#define UMC_DATASET		0x610
-#define UMC_RESPCTL		0x624
-#define UMC_DCCGCTL		0x720
-#define UMC_ERRMASKA		0x958
-#define UMC_ERRMASKB		0x95c
-#define UMC_BSICMAPSET		0x988
-#define UMC_DIOCTLA		0xc00
-#define   UMC_DIOCTLA_CTL_NRST		BIT(8)	/* ctl_rst_n */
-#define   UMC_DIOCTLA_CFG_NRST		BIT(0)	/* cfg_rst_n */
-#define UMC_DFICUPDCTLA		0xc20
+#include "umc-regs.h"
 
 enum dram_freq {
 	FREQ_1866M,
