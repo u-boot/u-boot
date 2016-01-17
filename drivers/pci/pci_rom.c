@@ -328,12 +328,12 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 #ifdef CONFIG_BIOSEMU
 		BE_VGAInfo *info;
 
-		ret = biosemu_setup(dm_pci_get_bdf(dev), &info);
+		ret = biosemu_setup(dev, &info);
 		if (ret)
 			goto err;
 		biosemu_set_interrupt_handler(0x15, int15_handler);
-		ret = biosemu_run(dm_pci_get_bdf(dev), (uchar *)ram, 1 << 16,
-				  info, true, vesa_mode, &mode_info);
+		ret = biosemu_run(dev, (uchar *)ram, 1 << 16, info,
+				  true, vesa_mode, &mode_info);
 		if (ret)
 			goto err;
 #endif

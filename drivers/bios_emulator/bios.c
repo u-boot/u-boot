@@ -185,12 +185,21 @@ static void X86API int1A(int unused)
 	case 0xB103:		/* Find PCI class code */
 		M.x86.R_AH = DEVICE_NOT_FOUND;
 #ifdef __KERNEL__
+#ifdef CONFIG_DM_PCI
+		dm_pci_read_config8(_BE_env.vgaInfo.pcidev, PCI_CLASS_PROG,
+				    &interface);
+		dm_pci_read_config8(_BE_env.vgaInfo.pcidev, PCI_CLASS_DEVICE,
+				    &subclass);
+		dm_pci_read_config8(_BE_env.vgaInfo.pcidev,
+				    PCI_CLASS_DEVICE + 1, &baseclass);
+#else
 		pci_read_config_byte(_BE_env.vgaInfo.pcidev, PCI_CLASS_PROG,
 				     &interface);
 		pci_read_config_byte(_BE_env.vgaInfo.pcidev, PCI_CLASS_DEVICE,
 				     &subclass);
 		pci_read_config_byte(_BE_env.vgaInfo.pcidev,
 				     PCI_CLASS_DEVICE + 1, &baseclass);
+#endif
 		if (M.x86.R_CL == interface && M.x86.R_CH == subclass
 		    && (u8) (M.x86.R_ECX >> 16) == baseclass) {
 #else
@@ -209,8 +218,13 @@ static void X86API int1A(int unused)
 		if (M.x86.R_BX == pciSlot) {
 			M.x86.R_AH = SUCCESSFUL;
 #ifdef __KERNEL__
+# ifdef CONFIG_DM_PCI
+			dm_pci_read_config8(_BE_env.vgaInfo.pcidev, M.x86.R_DI,
+					    &M.x86.R_CL);
+# else
 			pci_read_config_byte(_BE_env.vgaInfo.pcidev, M.x86.R_DI,
 					     &M.x86.R_CL);
+# endif
 #else
 			M.x86.R_CL =
 			    (u8) PCI_accessReg(M.x86.R_DI, 0, PCI_READ_BYTE,
@@ -224,8 +238,13 @@ static void X86API int1A(int unused)
 		if (M.x86.R_BX == pciSlot) {
 			M.x86.R_AH = SUCCESSFUL;
 #ifdef __KERNEL__
+# ifdef CONFIG_DM_PCI
+			dm_pci_read_config16(_BE_env.vgaInfo.pcidev, M.x86.R_DI,
+					     &M.x86.R_CX);
+# else
 			pci_read_config_word(_BE_env.vgaInfo.pcidev, M.x86.R_DI,
 					     &M.x86.R_CX);
+# endif
 #else
 			M.x86.R_CX =
 			    (u16) PCI_accessReg(M.x86.R_DI, 0, PCI_READ_WORD,
@@ -239,8 +258,13 @@ static void X86API int1A(int unused)
 		if (M.x86.R_BX == pciSlot) {
 			M.x86.R_AH = SUCCESSFUL;
 #ifdef __KERNEL__
+# ifdef CONFIG_DM_PCI
+			dm_pci_read_config32(_BE_env.vgaInfo.pcidev,
+					     M.x86.R_DI, &M.x86.R_ECX);
+# else
 			pci_read_config_dword(_BE_env.vgaInfo.pcidev,
 					      M.x86.R_DI, &M.x86.R_ECX);
+# endif
 #else
 			M.x86.R_ECX =
 			    (u32) PCI_accessReg(M.x86.R_DI, 0, PCI_READ_DWORD,
@@ -254,8 +278,13 @@ static void X86API int1A(int unused)
 		if (M.x86.R_BX == pciSlot) {
 			M.x86.R_AH = SUCCESSFUL;
 #ifdef __KERNEL__
+# ifdef CONFIG_DM_PCI
+			dm_pci_write_config8(_BE_env.vgaInfo.pcidev,
+					     M.x86.R_DI, M.x86.R_CL);
+# else
 			pci_write_config_byte(_BE_env.vgaInfo.pcidev,
 					      M.x86.R_DI, M.x86.R_CL);
+# endif
 #else
 			PCI_accessReg(M.x86.R_DI, M.x86.R_CL, PCI_WRITE_BYTE,
 				      _BE_env.vgaInfo.pciInfo);
@@ -268,8 +297,13 @@ static void X86API int1A(int unused)
 		if (M.x86.R_BX == pciSlot) {
 			M.x86.R_AH = SUCCESSFUL;
 #ifdef __KERNEL__
+# ifdef CONFIG_DM_PCI
+			dm_pci_write_config32(_BE_env.vgaInfo.pcidev,
+					      M.x86.R_DI, M.x86.R_CX);
+# else
 			pci_write_config_word(_BE_env.vgaInfo.pcidev,
 					      M.x86.R_DI, M.x86.R_CX);
+# endif
 #else
 			PCI_accessReg(M.x86.R_DI, M.x86.R_CX, PCI_WRITE_WORD,
 				      _BE_env.vgaInfo.pciInfo);
@@ -282,8 +316,13 @@ static void X86API int1A(int unused)
 		if (M.x86.R_BX == pciSlot) {
 			M.x86.R_AH = SUCCESSFUL;
 #ifdef __KERNEL__
+# ifdef CONFIG_DM_PCI
+			dm_pci_write_config32(_BE_env.vgaInfo.pcidev,
+					      M.x86.R_DI, M.x86.R_ECX);
+# else
 			pci_write_config_dword(_BE_env.vgaInfo.pcidev,
 					       M.x86.R_DI, M.x86.R_ECX);
+# endif
 #else
 			PCI_accessReg(M.x86.R_DI, M.x86.R_ECX, PCI_WRITE_DWORD,
 				      _BE_env.vgaInfo.pciInfo);
