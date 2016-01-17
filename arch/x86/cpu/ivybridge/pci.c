@@ -22,7 +22,6 @@ static int pci_ivybridge_probe(struct udevice *bus)
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 	post_code(0x50);
-	bd82x6x_init_extra();
 	post_code(0x51);
 
 	return 0;

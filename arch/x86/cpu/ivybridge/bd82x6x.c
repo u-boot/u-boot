@@ -56,22 +56,6 @@ static int bd82x6x_probe(struct udevice *dev)
 	return 0;
 }
 
-/* TODO(sjg@chromium.org): Move this to the PCH init() method */
-int bd82x6x_init_extra(void)
-{
-	const void *blob = gd->fdt_blob;
-	int sata_node;
-
-	sata_node = fdtdec_next_compatible(blob, 0,
-					   COMPAT_INTEL_PANTHERPOINT_AHCI);
-	if (sata_node < 0) {
-		debug("%s: Cannot find SATA node\n", __func__);
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
 static int bd82x6x_pch_get_sbase(struct udevice *dev, ulong *sbasep)
 {
 	u32 rcba;
