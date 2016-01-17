@@ -14,32 +14,34 @@
 static int pch_revision_id = -1;
 static int pch_type = -1;
 
-int pch_silicon_revision(void)
+int pch_silicon_revision(struct udevice *dev)
 {
-	pci_dev_t dev;
+	u8 val;
 
-	dev = PCH_LPC_DEV;
+	if (pch_revision_id < 0) {
+		dm_pci_read_config8(dev, PCI_REVISION_ID, &val);
+		pch_revision_id = val;
+	}
 
-	if (pch_revision_id < 0)
-		pch_revision_id = x86_pci_read_config8(dev, PCI_REVISION_ID);
 	return pch_revision_id;
 }
 
-int pch_silicon_type(void)
+int pch_silicon_type(struct udevice *dev)
 {
-	pci_dev_t dev;
+	u8 val;
 
-	dev = PCH_LPC_DEV;
+	if (pch_type < 0) {
+		dm_pci_read_config8(dev, PCI_DEVICE_ID + 1, &val);
+		pch_type = val;
+	}
 
-	if (pch_type < 0)
-		pch_type = x86_pci_read_config8(dev, PCI_DEVICE_ID + 1);
 	return pch_type;
 }
 
-int pch_silicon_supported(int type, int rev)
+int pch_silicon_supported(struct udevice *dev, int type, int rev)
 {
-	int cur_type = pch_silicon_type();
-	int cur_rev = pch_silicon_revision();
+	int cur_type = pch_silicon_type(dev);
+	int cur_rev = pch_silicon_revision(dev);
 
 	switch (type) {
 	case PCH_TYPE_CPT:
@@ -78,7 +80,8 @@ static inline int iobp_poll(void)
 	return 0;
 }
 
-void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue)
+void pch_iobp_update(struct udevice *dev, u32 address, u32 andvalue,
+		     u32 orvalue)
 {
 	u32 data;
 
@@ -86,7 +89,7 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue)
 	writel(address, RCB_REG(IOBPIRI));
 
 	/* READ OPCODE */
-	if (pch_silicon_supported(PCH_TYPE_CPT, PCH_STEP_B0))
+	if (pch_silicon_supported(dev, PCH_TYPE_CPT, PCH_STEP_B0))
 		writel(IOBPS_RW_BX, RCB_REG(IOBPS));
 	else
 		writel(IOBPS_READ_AX, RCB_REG(IOBPS));
@@ -109,7 +112,7 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue)
 	data |= orvalue;
 
 	/* WRITE OPCODE */
-	if (pch_silicon_supported(PCH_TYPE_CPT, PCH_STEP_B0))
+	if (pch_silicon_supported(dev, PCH_TYPE_CPT, PCH_STEP_B0))
 		writel(IOBPS_RW_BX, RCB_REG(IOBPS));
 	else
 		writel(IOBPS_WRITE_AX, RCB_REG(IOBPS));

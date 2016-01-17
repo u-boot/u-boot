@@ -30,11 +30,6 @@
 
 #define SMBUS_IO_BASE		0x0400
 
-int pch_silicon_revision(void);
-int pch_silicon_type(void);
-int pch_silicon_supported(int type, int rev);
-void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
-
 #define MAINBOARD_POWER_OFF	0
 #define MAINBOARD_POWER_ON	1
 #define MAINBOARD_POWER_KEEP	2
@@ -469,5 +464,42 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 #define TCO1_STS	0x64
 #define   DMISCI_STS	(1 << 9)
 #define TCO2_STS	0x66
+
+/**
+ * pch_silicon_revision() - Read silicon revision ID from the PCH
+ *
+ * @dev:	PCH device
+ * @return silicon revision ID
+ */
+int pch_silicon_revision(struct udevice *dev);
+
+/**
+ * pch_silicon_revision() - Read silicon device ID from the PCH
+ *
+ * @dev:	PCH device
+ * @return silicon device ID
+ */
+int pch_silicon_type(struct udevice *dev);
+
+/**
+ * pch_silicon_supported() - Check if a certain revision is supported
+ *
+ * @dev:	PCH device
+ * @type:	PCH type
+ * @rev:	Minimum required resion
+ * @return 0 if not supported, 1 if supported
+ */
+int pch_silicon_supported(struct udevice *dev, int type, int rev);
+
+/**
+ * pch_pch_iobp_update() - Update a pch register
+ *
+ * @dev:	PCH device
+ * @address:	Address to update
+ * @andvalue:	Value to AND with existing value
+ * @orvalue:	Value to OR with existing value
+ */
+void pch_iobp_update(struct udevice *dev, u32 address, u32 andvalue,
+			     u32 orvalue);
 
 #endif

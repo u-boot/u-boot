@@ -354,10 +354,10 @@ static void enable_clock_gating(struct udevice *pch)
 	reg16 |= (1 << 2) | (1 << 11);
 	dm_pci_write_config16(pch, GEN_PMCON_1, reg16);
 
-	pch_iobp_update(0xEB007F07, ~0UL, (1 << 31));
-	pch_iobp_update(0xEB004000, ~0UL, (1 << 7));
-	pch_iobp_update(0xEC007F07, ~0UL, (1 << 31));
-	pch_iobp_update(0xEC004000, ~0UL, (1 << 7));
+	pch_iobp_update(pch, 0xEB007F07, ~0UL, (1 << 31));
+	pch_iobp_update(pch, 0xEB004000, ~0UL, (1 << 7));
+	pch_iobp_update(pch, 0xEC007F07, ~0UL, (1 << 31));
+	pch_iobp_update(pch, 0xEC004000, ~0UL, (1 << 7));
 
 	reg32 = readl(RCB_REG(CG));
 	reg32 |= (1 << 31);
@@ -573,7 +573,7 @@ static int lpc_init_extra(struct udevice *dev)
 	pch_power_options(pch);
 
 	/* Initialize power management */
-	switch (pch_silicon_type()) {
+	switch (pch_silicon_type(pch)) {
 	case PCH_TYPE_CPT: /* CougarPoint */
 		cpt_pm_init(pch);
 		break;

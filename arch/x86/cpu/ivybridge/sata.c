@@ -51,7 +51,7 @@ static void common_sata_init(struct udevice *dev, unsigned int port_map)
 	dm_pci_write_config32(dev, 0x94, ((port_map ^ 0x3f) << 24) | 0x183);
 }
 
-static void bd82x6x_sata_init(struct udevice *dev)
+static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 {
 	unsigned int port_map, speed_support, port_tx;
 	const void *blob = gd->fdt_blob;
@@ -170,11 +170,11 @@ static void bd82x6x_sata_init(struct udevice *dev)
 	/* Set Gen3 Transmitter settings if needed */
 	port_tx = fdtdec_get_int(blob, node, "intel,sata-port0-gen3-tx", 0);
 	if (port_tx)
-		pch_iobp_update(SATA_IOBP_SP0G3IR, 0, port_tx);
+		pch_iobp_update(pch, SATA_IOBP_SP0G3IR, 0, port_tx);
 
 	port_tx = fdtdec_get_int(blob, node, "intel,sata-port1-gen3-tx", 0);
 	if (port_tx)
-		pch_iobp_update(SATA_IOBP_SP1G3IR, 0, port_tx);
+		pch_iobp_update(pch, SATA_IOBP_SP1G3IR, 0, port_tx);
 
 	/* Additional Programming Requirements */
 	sir_write(dev, 0x04, 0x00001600);
@@ -199,8 +199,8 @@ static void bd82x6x_sata_init(struct udevice *dev)
 	sir_write(dev, 0xc8, 0x0c0c0c0c);
 	sir_write(dev, 0xd4, 0x10000000);
 
-	pch_iobp_update(0xea004001, 0x3fffffff, 0xc0000000);
-	pch_iobp_update(0xea00408a, 0xfffffcff, 0x00000100);
+	pch_iobp_update(pch, 0xea004001, 0x3fffffff, 0xc0000000);
+	pch_iobp_update(pch, 0xea00408a, 0xfffffcff, 0x00000100);
 }
 
 static void bd82x6x_sata_enable(struct udevice *dev)
@@ -226,10 +226,19 @@ static void bd82x6x_sata_enable(struct udevice *dev)
 
 static int bd82x6x_sata_probe(struct udevice *dev)
 {
+	struct udevice *pch;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_PCH, &pch);
+	if (ret)
+		return ret;
+	if (!pch)
+		return -ENODEV;
+
 	if (!(gd->flags & GD_FLG_RELOC))
 		bd82x6x_sata_enable(dev);
 	else
-		bd82x6x_sata_init(dev);
+		bd82x6x_sata_init(dev, pch);
 
 	return 0;
 }
