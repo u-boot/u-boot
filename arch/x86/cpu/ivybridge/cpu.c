@@ -278,10 +278,6 @@ int print_cpuinfo(void)
 
 	gd->arch.pei_boot_mode = boot_mode;
 
-	/* TODO: Move this to the board or driver */
-	x86_pci_write_config32(PCH_LPC_DEV, GPIO_BASE, DEFAULT_GPIOBASE | 1);
-	x86_pci_write_config32(PCH_LPC_DEV, GPIO_CNTL, 0x10);
-
 	/* Print processor name */
 	name = cpu_get_name(processor_name);
 	printf("CPU:   %s\n", name);

@@ -623,6 +623,9 @@ static int bd82x6x_lpc_early_init(struct udevice *dev)
 	setbits_le32(RCB_REG(GCS), 1 >> 5);	/* No reset */
 	outw(1 << 11, DEFAULT_PMBASE | 0x60 | 0x08);	/* halt timer */
 
+	dm_pci_write_config32(dev->parent, GPIO_BASE, DEFAULT_GPIOBASE | 1);
+	dm_pci_write_config32(dev->parent, GPIO_CNTL, 0x10);
+
 	return 0;
 }
 
