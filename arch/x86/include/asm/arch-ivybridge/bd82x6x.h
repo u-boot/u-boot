@@ -7,6 +7,6 @@
 #ifndef _ASM_ARCH_BD82X6X_H
 #define _ASM_ARCH_BD82X6X_H
 
-int gma_func0_init(struct udevice *dev, const void *blob, int node);
+int gma_func0_init(struct udevice *dev);
 
 #endif

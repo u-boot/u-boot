@@ -538,8 +538,10 @@ static int gma_pm_init_pre_vbios(void *gtt_bar, int rev)
 	return 0;
 }
 
-int gma_pm_init_post_vbios(int rev, void *gtt_bar, const void *blob, int node)
+int gma_pm_init_post_vbios(struct udevice *dev, int rev, void *gtt_bar)
 {
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
 	u32 reg32, cycle_delay;
 
 	debug("GT Power Management Init (post VBIOS)\n");
@@ -794,7 +796,7 @@ void sandybridge_setup_graphics(struct udevice *dev, struct udevice *video_dev)
 	writel(reg32, MCHBAR_REG(0x5418));
 }
 
-int gma_func0_init(struct udevice *dev, const void *blob, int node)
+int gma_func0_init(struct udevice *dev)
 {
 #ifdef CONFIG_VIDEO
 	ulong start;
@@ -839,7 +841,7 @@ int gma_func0_init(struct udevice *dev, const void *blob, int node)
 	debug("BIOS ran in %lums\n", get_timer(start));
 #endif
 	/* Post VBIOS init */
-	ret = gma_pm_init_post_vbios(rev, gtt_bar, blob, node);
+	ret = gma_pm_init_post_vbios(dev, rev, gtt_bar);
 	if (ret)
 		return ret;
 

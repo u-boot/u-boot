@@ -209,7 +209,8 @@
 			u-boot,dm-pre-reloc;
 		};
 
-		gma {
+		gma@2,0 {
+			reg = <0x00001000 0 0 0 0>;
 			compatible = "intel,gma";
 			intel,dp_hotplug = <0 0 0x06>;
 			intel,panel-port-select = <1>;

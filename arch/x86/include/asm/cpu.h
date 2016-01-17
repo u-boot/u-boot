@@ -47,11 +47,13 @@ enum {
 
 /*
  * System controllers in an x86 system. We mostly need to just find these and
- * use them on PCI. At some point these might have their own uclass.
+ * use them on PCI. At some point these might have their own uclass (e.g.
+ * UCLASS_VIDEO for the GMA device).
  */
 enum {
 	X86_NONE,
 	X86_SYSCON_ME,		/* Intel Management Engine */
+	X86_SYSCON_GMA,		/* Intel Graphics Media Accelerator */
 };
 
 struct cpuid_result {

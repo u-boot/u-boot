@@ -9,6 +9,8 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <pch.h>
+#include <syscon.h>
+#include <asm/cpu.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
 #include <asm/pci.h>
@@ -149,8 +151,7 @@ void pch_iobp_update(struct udevice *dev, u32 address, u32 andvalue,
 
 static int bd82x6x_probe(struct udevice *dev)
 {
-	const void *blob = gd->fdt_blob;
-	int gma_node;
+	struct udevice *gma_dev;
 	int ret;
 
 	if (!(gd->flags & GD_FLG_RELOC))
@@ -159,15 +160,10 @@ static int bd82x6x_probe(struct udevice *dev)
 	/* Cause the SATA device to do its init */
 	uclass_first_device(UCLASS_DISK, &dev);
 
-	gma_node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_GMA);
-	if (gma_node < 0) {
-		debug("%s: Cannot find GMA node\n", __func__);
-		return -EINVAL;
-	}
-	ret = dm_pci_bus_find_bdf(PCH_VIDEO_DEV, &dev);
+	ret = syscon_get_by_driver_data(X86_SYSCON_GMA, &gma_dev);
 	if (ret)
 		return ret;
-	ret = gma_func0_init(dev, blob, gma_node);
+	ret = gma_func0_init(gma_dev);
 	if (ret)
 		return ret;
 
