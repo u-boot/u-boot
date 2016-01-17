@@ -18,45 +18,6 @@
 
 #define BIOS_CTRL	0xdc
 
-void bd82x6x_pci_init(pci_dev_t dev)
-{
-	u16 reg16;
-	u8 reg8;
-
-	debug("bd82x6x PCI init.\n");
-	/* Enable Bus Master */
-	reg16 = x86_pci_read_config16(dev, PCI_COMMAND);
-	reg16 |= PCI_COMMAND_MASTER;
-	x86_pci_write_config16(dev, PCI_COMMAND, reg16);
-
-	/* This device has no interrupt */
-	x86_pci_write_config8(dev, INTR, 0xff);
-
-	/* disable parity error response and SERR */
-	reg16 = x86_pci_read_config16(dev, BCTRL);
-	reg16 &= ~(1 << 0);
-	reg16 &= ~(1 << 1);
-	x86_pci_write_config16(dev, BCTRL, reg16);
-
-	/* Master Latency Count must be set to 0x04! */
-	reg8 = x86_pci_read_config8(dev, SMLT);
-	reg8 &= 0x07;
-	reg8 |= (0x04 << 3);
-	x86_pci_write_config8(dev, SMLT, reg8);
-
-	/* Will this improve throughput of bus masters? */
-	x86_pci_write_config8(dev, PCI_MIN_GNT, 0x06);
-
-	/* Clear errors in status registers */
-	reg16 = x86_pci_read_config16(dev, PSTS);
-	/* reg16 |= 0xf900; */
-	x86_pci_write_config16(dev, PSTS, reg16);
-
-	reg16 = x86_pci_read_config16(dev, SECSTS);
-	/* reg16 |= 0xf900; */
-	x86_pci_write_config16(dev, SECSTS, reg16);
-}
-
 static int bd82x6x_probe(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
@@ -108,10 +69,7 @@ int bd82x6x_init_extra(void)
 		return -EINVAL;
 	}
 
-	bd82x6x_pci_init(PCH_DEV);
 	bd82x6x_sata_enable(PCH_SATA_DEV, blob, sata_node);
-	northbridge_enable(PCH_DEV);
-	northbridge_init(PCH_DEV);
 
 	return 0;
 }

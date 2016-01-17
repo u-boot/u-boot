@@ -197,14 +197,11 @@ static void sandybridge_setup_northbridge_bars(struct udevice *dev)
 	dm_pci_write_config8(dev, PAM6, 0x33);
 }
 
-static int bd82x6x_northbridge_probe(struct udevice *dev)
+static int bd82x6x_northbridge_early_init(struct udevice *dev)
 {
 	const int chipset_type = SANDYBRIDGE_MOBILE;
 	u32 capid0_a;
 	u8 reg8;
-
-	if (gd->flags & GD_FLG_RELOC)
-		return 0;
 
 	/* Device ID Override Enable should be done very early */
 	dm_pci_read_config32(dev, 0xe4, &capid0_a);
@@ -222,6 +219,17 @@ static int bd82x6x_northbridge_probe(struct udevice *dev)
 
 	/* Device Enable */
 	dm_pci_write_config32(dev, DEVEN, DEVEN_HOST | DEVEN_IGD);
+
+	return 0;
+}
+
+static int bd82x6x_northbridge_probe(struct udevice *dev)
+{
+	if (!(gd->flags & GD_FLG_RELOC))
+		return bd82x6x_northbridge_early_init(dev);
+
+	northbridge_enable(PCH_DEV);
+	northbridge_init(PCH_DEV);
 
 	return 0;
 }
