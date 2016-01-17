@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <pch.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
@@ -211,6 +212,7 @@ int print_cpuinfo(void)
 {
 	enum pei_boot_mode_t boot_mode = PEI_BOOT_NONE;
 	char processor_name[CPU_MAX_NAME_LEN];
+	struct udevice *dev;
 	const char *name;
 	uint32_t pm1_cnt;
 	uint16_t pm1_sts;
@@ -241,6 +243,12 @@ int print_cpuinfo(void)
 	}
 
 	/* Early chipset init required before RAM init can work */
+	ret = uclass_first_device(UCLASS_PCH, &dev);
+	if (ret)
+		return ret;
+	if (!dev)
+		return -ENODEV;
+
 	sandybridge_early_init(SANDYBRIDGE_MOBILE);
 
 	/* Check PM1_STS[15] to see if we are waking from Sx */

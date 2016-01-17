@@ -102,7 +102,7 @@ static int bd82x6x_probe(struct udevice *dev)
 }
 
 /* TODO(sjg@chromium.org): Move this to the PCH init() method */
-int bd82x6x_init(void)
+int bd82x6x_init_extra(void)
 {
 	const void *blob = gd->fdt_blob;
 	int sata_node;
