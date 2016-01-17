@@ -379,59 +379,6 @@ static void enable_clock_gating(struct udevice *pch)
 	setbits_le32(RCB_REG(0x3564), 0x3);
 }
 
-#if CONFIG_HAVE_SMI_HANDLER
-static void pch_lock_smm(pci_dev_t dev)
-{
-#if TEST_SMM_FLASH_LOCKDOWN
-	u8 reg8;
-#endif
-
-	if (acpi_slp_type != 3) {
-#if ENABLE_ACPI_MODE_IN_COREBOOT
-		debug("Enabling ACPI via APMC:\n");
-		outb(0xe1, 0xb2); /* Enable ACPI mode */
-		debug("done.\n");
-#else
-		debug("Disabling ACPI via APMC:\n");
-		outb(0x1e, 0xb2); /* Disable ACPI mode */
-		debug("done.\n");
-#endif
-	}
-
-	/* Don't allow evil boot loaders, kernels, or
-	 * userspace applications to deceive us:
-	 */
-	smm_lock();
-
-#if TEST_SMM_FLASH_LOCKDOWN
-	/* Now try this: */
-	debug("Locking BIOS to RO... ");
-	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
-	debug(" BLE: %s; BWE: %s\n", (reg8 & 2) ? "on" : "off",
-	      (reg8 & 1) ? "rw" : "ro");
-	reg8 &= ~(1 << 0);			/* clear BIOSWE */
-	x86_pci_write_config8(dev, 0xdc, reg8);
-	reg8 |= (1 << 1);			/* set BLE */
-	x86_pci_write_config8(dev, 0xdc, reg8);
-	debug("ok.\n");
-	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
-	debug(" BLE: %s; BWE: %s\n", (reg8 & 2) ? "on" : "off",
-	      (reg8 & 1) ? "rw" : "ro");
-
-	debug("Writing:\n");
-	writeb(0, 0xfff00000);
-	debug("Testing:\n");
-	reg8 |= (1 << 0);			/* set BIOSWE */
-	x86_pci_write_config8(dev, 0xdc, reg8);
-
-	reg8 = x86_pci_read_config8(dev, 0xdc);	/* BIOS_CNTL */
-	debug(" BLE: %s; BWE: %s\n", (reg8 & 2) ? "on" : "off",
-	      (reg8 & 1) ? "rw" : "ro");
-	debug("Done.\n");
-#endif
-}
-#endif
-
 static void pch_disable_smm_only_flashing(struct udevice *pch)
 {
 	u8 reg8;
@@ -595,10 +542,6 @@ static int lpc_init_extra(struct udevice *dev)
 	enable_clock_gating(pch);
 
 	pch_disable_smm_only_flashing(pch);
-
-#if CONFIG_HAVE_SMI_HANDLER
-	pch_lock_smm(dev);
-#endif
 
 	pch_fixups(pch);
 
