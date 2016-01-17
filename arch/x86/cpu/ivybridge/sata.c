@@ -6,11 +6,14 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/bd82x6x.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static inline u32 sir_read(pci_dev_t dev, int idx)
 {
@@ -206,7 +209,7 @@ void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
 	pch_iobp_update(0xea00408a, 0xfffffcff, 0x00000100);
 }
 
-void bd82x6x_sata_enable(pci_dev_t dev, const void *blob, int node)
+static void bd82x6x_sata_enable(pci_dev_t dev, const void *blob, int node)
 {
 	unsigned port_map;
 	const char *mode;
@@ -224,3 +227,23 @@ void bd82x6x_sata_enable(pci_dev_t dev, const void *blob, int node)
 	map |= (port_map ^ 0x3f) << 8;
 	x86_pci_write_config16(dev, 0x90, map);
 }
+
+static int bd82x6x_sata_probe(struct udevice *dev)
+{
+	if (!(gd->flags & GD_FLG_RELOC))
+		bd82x6x_sata_enable(PCH_SATA_DEV, gd->fdt_blob, dev->of_offset);
+
+	return 0;
+}
+
+static const struct udevice_id bd82x6x_ahci_ids[] = {
+	{ .compatible = "intel,pantherpoint-ahci" },
+	{ }
+};
+
+U_BOOT_DRIVER(ahci_ivybridge_drv) = {
+	.name		= "ahci_ivybridge",
+	.id		= UCLASS_DISK,
+	.of_match	= bd82x6x_ahci_ids,
+	.probe		= bd82x6x_sata_probe,
+};

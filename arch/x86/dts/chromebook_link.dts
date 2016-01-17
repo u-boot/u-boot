@@ -207,13 +207,6 @@
 			u-boot,dm-pre-reloc;
 		};
 
-		sata {
-			compatible = "intel,pantherpoint-ahci";
-			intel,sata-mode = "ahci";
-			intel,sata-port-map = <1>;
-			intel,sata-port0-gen3-tx = <0x00880a7f>;
-		};
-
 		gma {
 			compatible = "intel,gma";
 			intel,dp_hotplug = <0 0 0x06>;
@@ -280,6 +273,15 @@
 					};
 				};
 			};
+		};
+
+		sata@1f,2 {
+			compatible = "intel,pantherpoint-ahci";
+			reg = <0x0000fa00 0 0 0 0>;
+			u-boot,dm-pre-reloc;
+			intel,sata-mode = "ahci";
+			intel,sata-port-map = <1>;
+			intel,sata-port0-gen3-tx = <0x00880a7f>;
 		};
 	};
 

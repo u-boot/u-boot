@@ -69,8 +69,6 @@ int bd82x6x_init_extra(void)
 		return -EINVAL;
 	}
 
-	bd82x6x_sata_enable(PCH_SATA_DEV, blob, sata_node);
-
 	return 0;
 }
 

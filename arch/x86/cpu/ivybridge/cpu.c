@@ -251,6 +251,9 @@ int print_cpuinfo(void)
 	if (!dev)
 		return -ENODEV;
 
+	/* Cause the SATA device to do its early init */
+	uclass_first_device(UCLASS_DISK, &dev);
+
 	/* Check PM1_STS[15] to see if we are waking from Sx */
 	pm1_sts = inw(DEFAULT_PMBASE + PM1_STS);
 
