@@ -110,9 +110,6 @@
 
 int bridge_silicon_revision(void);
 
-void northbridge_enable(pci_dev_t dev);
-void northbridge_init(pci_dev_t dev);
-
 void report_platform_info(void);
 
 void sandybridge_early_init(int chipset_type);

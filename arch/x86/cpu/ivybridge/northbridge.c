@@ -48,15 +48,14 @@ int bridge_silicon_revision(void)
 static const int legacy_hole_base_k = 0xa0000 / 1024;
 static const int legacy_hole_size_k = 384;
 
-static int get_pcie_bar(u32 *base, u32 *len)
+static int get_pcie_bar(struct udevice *dev, u32 *base, u32 *len)
 {
-	pci_dev_t dev = PCI_BDF(0, 0, 0);
 	u32 pciexbar_reg;
 
 	*base = 0;
 	*len = 0;
 
-	pciexbar_reg = x86_pci_read_config32(dev, PCIEXBAR);
+	dm_pci_read_config32(dev, PCIEXBAR, &pciexbar_reg);
 
 	if (!(pciexbar_reg & (1 << 0)))
 		return 0;
@@ -82,17 +81,17 @@ static int get_pcie_bar(u32 *base, u32 *len)
 	return 0;
 }
 
-static void add_fixed_resources(pci_dev_t dev, int index)
+static void add_fixed_resources(struct udevice *dev, int index)
 {
 	u32 pcie_config_base, pcie_config_size;
 
-	if (get_pcie_bar(&pcie_config_base, &pcie_config_size)) {
+	if (get_pcie_bar(dev, &pcie_config_base, &pcie_config_size)) {
 		debug("Adding PCIe config bar base=0x%08x size=0x%x\n",
 		      pcie_config_base, pcie_config_size);
 	}
 }
 
-static void northbridge_dmi_init(pci_dev_t dev)
+static void northbridge_dmi_init(struct udevice *dev)
 {
 	/* Clear error status bits */
 	writel(0xffffffff, DMIBAR_REG(0x1c4));
@@ -120,7 +119,7 @@ static void northbridge_dmi_init(pci_dev_t dev)
 	setbits_le32(DMIBAR_REG(0x88), (1 << 1) | (1 << 0));
 }
 
-void northbridge_init(pci_dev_t dev)
+static void northbridge_init(struct udevice *dev)
 {
 	u32 bridge_type;
 
@@ -166,10 +165,6 @@ void northbridge_init(pci_dev_t dev)
 
 	/* Set here before graphics PM init */
 	writel(0x00100001, MCHBAR_REG(0x5500));
-}
-
-void northbridge_enable(pci_dev_t dev)
-{
 }
 
 static void sandybridge_setup_northbridge_bars(struct udevice *dev)
@@ -228,8 +223,7 @@ static int bd82x6x_northbridge_probe(struct udevice *dev)
 	if (!(gd->flags & GD_FLG_RELOC))
 		return bd82x6x_northbridge_early_init(dev);
 
-	northbridge_enable(PCH_DEV);
-	northbridge_init(PCH_DEV);
+	northbridge_init(dev);
 
 	return 0;
 }
