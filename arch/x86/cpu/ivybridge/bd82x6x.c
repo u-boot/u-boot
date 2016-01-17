@@ -70,7 +70,7 @@ static int bd82x6x_probe(struct udevice *dev)
 
 	hose = pci_bus_to_hose(0);
 	lpc_enable(PCH_LPC_DEV);
-	lpc_init(hose, PCH_LPC_DEV);
+	lpc_init_extra(hose, PCH_LPC_DEV);
 	sata_node = fdtdec_next_compatible(blob, 0,
 					   COMPAT_INTEL_PANTHERPOINT_AHCI);
 	if (sata_node < 0) {

@@ -538,7 +538,7 @@ static int lpc_early_init(struct udevice *dev)
 	return 0;
 }
 
-int lpc_init(struct pci_controller *hose, pci_dev_t dev)
+int lpc_init_extra(struct pci_controller *hose, pci_dev_t dev)
 {
 	const void *blob = gd->fdt_blob;
 	int node;
