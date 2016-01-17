@@ -729,10 +729,8 @@ static int dwc_otg_submit_rh_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	return stat;
 }
 
-int wait_for_chhltd(struct dwc2_core_regs *regs, uint32_t *sub, int *toggle,
-		    bool ignore_ack)
+int wait_for_chhltd(struct dwc2_core_regs *regs, uint32_t *sub, int *toggle)
 {
-	uint32_t hcint_comp_hlt_ack = DWC2_HCINT_XFERCOMP | DWC2_HCINT_CHHLTD;
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
 	int ret;
 	uint32_t hcint, hctsiz;
@@ -742,25 +740,22 @@ int wait_for_chhltd(struct dwc2_core_regs *regs, uint32_t *sub, int *toggle,
 		return ret;
 
 	hcint = readl(&hc_regs->hcint);
-	if (hcint & (DWC2_HCINT_NAK | DWC2_HCINT_FRMOVRUN))
-		return -EAGAIN;
-	if (ignore_ack)
-		hcint &= ~DWC2_HCINT_ACK;
-	else
-		hcint_comp_hlt_ack |= DWC2_HCINT_ACK;
-	if (hcint != hcint_comp_hlt_ack) {
-		debug("%s: Error (HCINT=%08x)\n", __func__, hcint);
-		return -EINVAL;
-	}
-
 	hctsiz = readl(&hc_regs->hctsiz);
 	*sub = (hctsiz & DWC2_HCTSIZ_XFERSIZE_MASK) >>
 		DWC2_HCTSIZ_XFERSIZE_OFFSET;
 	*toggle = (hctsiz & DWC2_HCTSIZ_PID_MASK) >> DWC2_HCTSIZ_PID_OFFSET;
 
-	debug("%s: sub=%u toggle=%d\n", __func__, *sub, *toggle);
+	debug("%s: HCINT=%08x sub=%u toggle=%d\n", __func__, hcint, *sub,
+	      *toggle);
 
-	return 0;
+	if (hcint & DWC2_HCINT_XFERCOMP)
+		return 0;
+
+	if (hcint & (DWC2_HCINT_NAK | DWC2_HCINT_FRMOVRUN))
+		return -EAGAIN;
+
+	debug("%s: Error (HCINT=%08x)\n", __func__, hcint);
+	return -EINVAL;
 }
 
 static int dwc2_eptype[] = {
@@ -771,8 +766,7 @@ static int dwc2_eptype[] = {
 };
 
 int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
-	      unsigned long pipe, int *pid, int in, void *buffer, int len,
-	      bool ignore_ack)
+	      unsigned long pipe, int *pid, int in, void *buffer, int len)
 {
 	struct dwc2_core_regs *regs = priv->regs;
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
@@ -841,7 +835,7 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
 				DWC2_HCCHAR_CHEN);
 
-		ret = wait_for_chhltd(regs, &sub, pid, ignore_ack);
+		ret = wait_for_chhltd(regs, &sub, pid);
 		if (ret)
 			break;
 
@@ -883,7 +877,7 @@ int _submit_bulk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	}
 
 	return chunk_msg(priv, dev, pipe, &priv->bulk_data_toggle[devnum][ep],
-			 usb_pipein(pipe), buffer, len, true);
+			 usb_pipein(pipe), buffer, len);
 }
 
 static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
@@ -903,14 +897,14 @@ static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	}
 
 	pid = DWC2_HC_PID_SETUP;
-	ret = chunk_msg(priv, dev, pipe, &pid, 0, setup, 8, true);
+	ret = chunk_msg(priv, dev, pipe, &pid, 0, setup, 8);
 	if (ret)
 		return ret;
 
 	if (buffer) {
 		pid = DWC2_HC_PID_DATA1;
 		ret = chunk_msg(priv, dev, pipe, &pid, usb_pipein(pipe), buffer,
-				len, false);
+				len);
 		if (ret)
 			return ret;
 		act_len = dev->act_len;
@@ -926,7 +920,7 @@ static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
 
 	pid = DWC2_HC_PID_DATA1;
 	ret = chunk_msg(priv, dev, pipe, &pid, status_direction,
-			priv->status_buffer, 0, false);
+			priv->status_buffer, 0);
 	if (ret)
 		return ret;
 
