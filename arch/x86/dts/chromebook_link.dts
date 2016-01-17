@@ -283,6 +283,12 @@
 			intel,sata-port-map = <1>;
 			intel,sata-port0-gen3-tx = <0x00880a7f>;
 		};
+
+		smbus: smbus@1f,3 {
+			compatible = "intel,ich-i2c";
+			reg = <0x0000fb00 0 0 0 0>;
+			u-boot,dm-pre-reloc;
+		};
 	};
 
 	tpm {

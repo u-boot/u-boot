@@ -120,41 +120,6 @@ int arch_cpu_init_dm(void)
 	return 0;
 }
 
-static int enable_smbus(void)
-{
-	pci_dev_t dev;
-	uint16_t value;
-
-	/* Set the SMBus device statically. */
-	dev = PCI_BDF(0x0, 0x1f, 0x3);
-
-	/* Check to make sure we've got the right device. */
-	value = x86_pci_read_config16(dev, 0x0);
-	if (value != 0x8086) {
-		printf("SMBus controller not found\n");
-		return -ENOSYS;
-	}
-
-	/* Set SMBus I/O base. */
-	x86_pci_write_config32(dev, SMB_BASE,
-			       SMBUS_IO_BASE | PCI_BASE_ADDRESS_SPACE_IO);
-
-	/* Set SMBus enable. */
-	x86_pci_write_config8(dev, HOSTC, HST_EN);
-
-	/* Set SMBus I/O space enable. */
-	x86_pci_write_config16(dev, PCI_COMMAND, PCI_COMMAND_IO);
-
-	/* Disable interrupt generation. */
-	outb(0, SMBUS_IO_BASE + SMBHSTCTL);
-
-	/* Clear any lingering errors, so transactions can run. */
-	outb(inb(SMBUS_IO_BASE + SMBHSTSTAT), SMBUS_IO_BASE + SMBHSTSTAT);
-	debug("SMBus controller enabled\n");
-
-	return 0;
-}
-
 #define PCH_EHCI0_TEMP_BAR0 0xe8000000
 #define PCH_EHCI1_TEMP_BAR0 0xe8000400
 #define PCH_XHCI_TEMP_BAR0  0xe8001000
@@ -271,9 +236,11 @@ int print_cpuinfo(void)
 	post_code(POST_EARLY_INIT);
 
 	/* Enable SPD ROMs and DDR-III DRAM */
-	ret = enable_smbus();
+	ret = uclass_first_device(UCLASS_I2C, &dev);
 	if (ret)
 		return ret;
+	if (!dev)
+		return -ENODEV;
 
 	/* Prepare USB controller early in S3 resume */
 	if (boot_mode == PEI_BOOT_RESUME)
