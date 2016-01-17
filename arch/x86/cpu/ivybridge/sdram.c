@@ -495,8 +495,10 @@ static int add_memory_area(struct memory_info *info,
  *
  * This is a bit complicated since on x86 there are system memory holes all
  * over the place. We create a list of available memory blocks
+ *
+ * @dev:	Northbridge device
  */
-static int sdram_find(pci_dev_t dev)
+static int sdram_find(struct udevice *dev)
 {
 	struct memory_info *info = &gd->arch.meminfo;
 	uint32_t tseg_base, uma_size, tolud;
@@ -505,6 +507,7 @@ static int sdram_find(pci_dev_t dev)
 	uint64_t uma_memory_size;
 	unsigned long long tomk;
 	uint16_t ggc;
+	u32 val;
 
 	/* Total Memory 2GB example:
 	 *
@@ -533,24 +536,27 @@ static int sdram_find(pci_dev_t dev)
 	 */
 
 	/* Top of Upper Usable DRAM, including remap */
-	touud = x86_pci_read_config32(dev, TOUUD+4);
-	touud <<= 32;
-	touud |= x86_pci_read_config32(dev, TOUUD);
+	dm_pci_read_config32(dev, TOUUD + 4, &val);
+	touud = (uint64_t)val << 32;
+	dm_pci_read_config32(dev, TOUUD, &val);
+	touud |= val;
 
 	/* Top of Lower Usable DRAM */
-	tolud = x86_pci_read_config32(dev, TOLUD);
+	dm_pci_read_config32(dev, TOLUD, &tolud);
 
 	/* Top of Memory - does not account for any UMA */
-	tom = x86_pci_read_config32(dev, 0xa4);
-	tom <<= 32;
-	tom |= x86_pci_read_config32(dev, 0xa0);
+	dm_pci_read_config32(dev, 0xa4, &val);
+	tom = (uint64_t)val << 32;
+	dm_pci_read_config32(dev, 0xa0, &val);
+	tom |= val;
 
 	debug("TOUUD %llx TOLUD %08x TOM %llx\n", touud, tolud, tom);
 
 	/* ME UMA needs excluding if total memory <4GB */
-	me_base = x86_pci_read_config32(dev, 0x74);
-	me_base <<= 32;
-	me_base |= x86_pci_read_config32(dev, 0x70);
+	dm_pci_read_config32(dev, 0x74, &val);
+	me_base = (uint64_t)val << 32;
+	dm_pci_read_config32(dev, 0x70, &val);
+	me_base |= val;
 
 	debug("MEBASE %llx\n", me_base);
 
@@ -568,7 +574,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Graphics memory comes next */
-	ggc = x86_pci_read_config16(dev, GGC);
+	dm_pci_read_config16(dev, GGC, &ggc);
 	if (!(ggc & 2)) {
 		debug("IGD decoded, subtracting ");
 
@@ -588,7 +594,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Calculate TSEG size from its base which must be below GTT */
-	tseg_base = x86_pci_read_config32(dev, 0xb8);
+	dm_pci_read_config32(dev, 0xb8, &tseg_base);
 	uma_size = (uma_memory_base - tseg_base) >> 10;
 	tomk -= uma_size;
 	uma_memory_base = tomk * 1024ULL;
@@ -723,7 +729,7 @@ int dram_init(void)
 			{ 0, 4, 0x0000 }, /* P13= Empty */
 		},
 	};
-	pci_dev_t dev = PCI_BDF(0, 0, 0);
+	struct udevice *dev;
 	int ret;
 
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
@@ -742,6 +748,11 @@ int dram_init(void)
 
 	post_code(POST_DRAM);
 
+	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
+	if (ret)
+		return ret;
+	if (!dev)
+		return -ENODEV;
 	ret = sdram_find(dev);
 	if (ret)
 		return ret;
