@@ -283,9 +283,10 @@ static int recovery_mode_enabled(void)
 /**
  * Find the PEI executable in the ROM and execute it.
  *
- * @param pei_data: configuration data for UEFI PEI reference code
+ * @dev: Northbridge device
+ * @pei_data: configuration data for UEFI PEI reference code
  */
-int sdram_initialise(struct pei_data *pei_data)
+int sdram_initialise(struct udevice *dev, struct pei_data *pei_data)
 {
 	unsigned version;
 	const char *data;
@@ -374,7 +375,7 @@ int sdram_initialise(struct pei_data *pei_data)
 	 * Send ME init done for SandyBridge here.  This is done inside the
 	 * SystemAgent binary on IvyBridge
 	 */
-	done = x86_pci_read_config32(PCH_DEV, PCI_DEVICE_ID);
+	dm_pci_read_config16(dev, PCI_DEVICE_ID, &done);
 	done &= BASE_REV_MASK;
 	if (BASE_REV_SNB == done)
 		intel_early_me_init_done(ME_INIT_STATUS_SUCCESS);
@@ -732,12 +733,17 @@ int dram_init(void)
 	struct udevice *dev;
 	int ret;
 
+	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
+	if (ret)
+		return ret;
+	if (!dev)
+		return -ENODEV;
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
 	debug("mrc_input %p\n", pei_data.mrc_input);
 	pei_data.boot_mode = gd->arch.pei_boot_mode;
 	ret = copy_spd(&pei_data);
 	if (!ret)
-		ret = sdram_initialise(&pei_data);
+		ret = sdram_initialise(dev, &pei_data);
 	if (ret)
 		return ret;
 
@@ -748,11 +754,6 @@ int dram_init(void)
 
 	post_code(POST_DRAM);
 
-	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
-	if (ret)
-		return ret;
-	if (!dev)
-		return -ENODEV;
 	ret = sdram_find(dev);
 	if (ret)
 		return ret;
