@@ -283,18 +283,13 @@ static void configure_c_states(void)
 	msr_write(MSR_PP1_CURRENT_CONFIG, msr);
 }
 
-static int configure_thermal_target(void)
+static int configure_thermal_target(struct udevice *dev)
 {
 	int tcc_offset;
 	msr_t msr;
-	int node;
 
-	/* Find pointer to CPU configuration */
-	node = fdtdec_next_compatible(gd->fdt_blob, 0,
-				      COMPAT_INTEL_MODEL_206AX);
-	if (node < 0)
-		return -ENOENT;
-	tcc_offset = fdtdec_get_int(gd->fdt_blob, node, "tcc-offset", 0);
+	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "tcc-offset",
+				    0);
 
 	/* Set TCC activaiton offset if supported */
 	msr = msr_read(MSR_PLATFORM_INFO);
@@ -403,7 +398,7 @@ static void configure_mca(void)
 static unsigned ehci_debug_addr;
 #endif
 
-static int model_206ax_init(void)
+static int model_206ax_init(struct udevice *dev)
 {
 	int ret;
 
@@ -445,7 +440,7 @@ static int model_206ax_init(void)
 	configure_misc();
 
 	/* Thermal throttle activation offset */
-	ret = configure_thermal_target();
+	ret = configure_thermal_target(dev);
 	if (ret) {
 		debug("Cannot set thermal target\n");
 		return ret;
@@ -468,6 +463,10 @@ static int model_206ax_init(void)
 
 static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
 {
+	msr_t msr;
+
+	msr = msr_read(IA32_PERF_CTL);
+	info->cpu_freq = ((msr.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK * 1000000;
 	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU;
 
 	return 0;
@@ -481,7 +480,7 @@ static int model_206ax_get_count(struct udevice *dev)
 static int cpu_x86_model_206ax_probe(struct udevice *dev)
 {
 	if (dev->seq == 0)
-		model_206ax_init();
+		model_206ax_init(dev);
 
 	return 0;
 }
