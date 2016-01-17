@@ -20,49 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
-{
-	char *end;
-	int i;
-
-	for (i = 0; i < 6; ++i) {
-		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
-		if (addr)
-			addr = (*end) ? end + 1 : end;
-	}
-}
-
-int eth_getenv_enetaddr(const char *name, uchar *enetaddr)
-{
-	eth_parse_enetaddr(getenv(name), enetaddr);
-	return is_valid_ethaddr(enetaddr);
-}
-
-int eth_setenv_enetaddr(const char *name, const uchar *enetaddr)
-{
-	char buf[20];
-
-	sprintf(buf, "%pM", enetaddr);
-
-	return setenv(name, buf);
-}
-
-int eth_getenv_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr)
-{
-	char enetvar[32];
-	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);
-	return eth_getenv_enetaddr(enetvar, enetaddr);
-}
-
-static inline int eth_setenv_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr)
-{
-	char enetvar[32];
-	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);
-	return eth_setenv_enetaddr(enetvar, enetaddr);
-}
-
 static int eth_mac_skip(int index)
 {
 	char enetvar[15];
