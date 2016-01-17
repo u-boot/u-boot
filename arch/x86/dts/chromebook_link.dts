@@ -223,6 +223,7 @@
 				compatible = "intel,bd82x6x-lpc";
 				#address-cells = <1>;
 				#size-cells = <0>;
+				u-boot,dm-pre-reloc;
 				cros-ec@200 {
 					compatible = "google,cros-ec";
 					reg = <0x204 1 0x200 1 0x880 0x80>;

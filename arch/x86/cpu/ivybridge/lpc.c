@@ -559,6 +559,11 @@ void lpc_enable(pci_dev_t dev)
 	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
 }
 
+static int bd82x6x_lpc_probe(struct udevice *dev)
+{
+	return 0;
+}
+
 static const struct udevice_id bd82x6x_lpc_ids[] = {
 	{ .compatible = "intel,bd82x6x-lpc" },
 	{ }
@@ -568,4 +573,5 @@ U_BOOT_DRIVER(bd82x6x_lpc_drv) = {
 	.name		= "lpc",
 	.id		= UCLASS_LPC,
 	.of_match	= bd82x6x_lpc_ids,
+	.probe		= bd82x6x_lpc_probe,
 };

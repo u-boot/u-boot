@@ -65,6 +65,9 @@ static int bd82x6x_probe(struct udevice *dev)
 	int sata_node, gma_node;
 	int ret;
 
+	if (!(gd->flags & GD_FLG_RELOC))
+		return 0;
+
 	hose = pci_bus_to_hose(0);
 	lpc_enable(PCH_LPC_DEV);
 	lpc_init(hose, PCH_LPC_DEV);
