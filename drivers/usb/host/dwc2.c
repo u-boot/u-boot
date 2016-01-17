@@ -776,7 +776,7 @@ static int dwc2_eptype[] = {
 
 static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
 			  int *pid, int in, void *buffer, int num_packets,
-			  int xfer_len, int *actual_len)
+			  int xfer_len, int *actual_len, int odd_frame)
 {
 	int ret = 0;
 	uint32_t sub;
@@ -804,8 +804,10 @@ static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
 
 	/* Set host channel enable after all other setup is complete. */
 	clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
-			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
+			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS |
+			DWC2_HCCHAR_ODDFRM,
 			(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
+			(odd_frame << DWC2_HCCHAR_ODDFRM_OFFSET) |
 			DWC2_HCCHAR_CHEN);
 
 	ret = wait_for_chhltd(hc_regs, &sub, pid);
@@ -831,6 +833,7 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 {
 	struct dwc2_core_regs *regs = priv->regs;
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
+	struct dwc2_host_regs *host_regs = &regs->host_regs;
 	int devnum = usb_pipedevice(pipe);
 	int ep = usb_pipeendpoint(pipe);
 	int max = usb_maxpacket(dev, pipe);
@@ -843,6 +846,7 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	uint32_t num_packets;
 	int stop_transfer = 0;
 	uint32_t max_xfer_len;
+	int ssplit_frame_num = 0;
 
 	debug("%s: msg: pipe %lx pid %d in %d len %d\n", __func__, pipe, *pid,
 	      in, len);
@@ -881,6 +885,7 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	do {
 		int actual_len = 0;
 		uint32_t hcint;
+		int odd_frame = 0;
 		xfer_len = len - done;
 
 		if (xfer_len > max_xfer_len)
@@ -895,19 +900,32 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 		else if (do_split)
 			clrbits_le32(&hc_regs->hcsplt, DWC2_HCSPLT_COMPSPLT);
 
+		if (eptype == DWC2_HCCHAR_EPTYPE_INTR) {
+			int uframe_num = readl(&host_regs->hfnum);
+			if (!(uframe_num & 0x1))
+				odd_frame = 1;
+		}
+
 		ret = transfer_chunk(hc_regs, priv->aligned_buffer, pid,
 				     in, (char *)buffer + done, num_packets,
-				     xfer_len, &actual_len);
+				     xfer_len, &actual_len, odd_frame);
 
 		hcint = readl(&hc_regs->hcint);
 		if (complete_split) {
 			stop_transfer = 0;
-			if (hcint & DWC2_HCINT_NYET)
+			if (hcint & DWC2_HCINT_NYET) {
 				ret = 0;
-			else
+				int frame_num = DWC2_HFNUM_MAX_FRNUM &
+						readl(&host_regs->hfnum);
+				if (((frame_num - ssplit_frame_num) &
+				    DWC2_HFNUM_MAX_FRNUM) > 4)
+					ret = -EAGAIN;
+			} else
 				complete_split = 0;
 		} else if (do_split) {
 			if (hcint & DWC2_HCINT_ACK) {
+				ssplit_frame_num = DWC2_HFNUM_MAX_FRNUM &
+						   readl(&host_regs->hfnum);
 				ret = 0;
 				complete_split = 1;
 			}
