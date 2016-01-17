@@ -105,6 +105,29 @@ void v7_outer_cache_flush_range(u32 start, u32 end)
 
 void v7_outer_cache_inval_range(u32 start, u32 end)
 {
+	if (start & (SSC_LINE_SIZE - 1)) {
+		start &= ~(SSC_LINE_SIZE - 1);
+		__uniphier_cache_maint_range(start, SSC_LINE_SIZE,
+					     SSCOQM_CM_WB_INV);
+		start += SSC_LINE_SIZE;
+	}
+
+	if (start >= end) {
+		uniphier_cache_sync();
+		return;
+	}
+
+	if (end & (SSC_LINE_SIZE - 1)) {
+		end &= ~(SSC_LINE_SIZE - 1);
+		__uniphier_cache_maint_range(end, SSC_LINE_SIZE,
+					     SSCOQM_CM_WB_INV);
+	}
+
+	if (start >= end) {
+		uniphier_cache_sync();
+		return;
+	}
+
 	uniphier_cache_maint_range(start, end, SSCOQM_CM_INV);
 }
 
