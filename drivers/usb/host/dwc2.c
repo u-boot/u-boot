@@ -426,9 +426,6 @@ static void dwc_otg_hc_init(struct dwc2_core_regs *regs, uint8_t hc_num,
 	if (dev->speed == USB_SPEED_LOW)
 		hcchar |= DWC2_HCCHAR_LSPDDEV;
 
-	/* Clear old interrupt conditions for this host channel. */
-	writel(0x3fff, &hc_regs->hcint);
-
 	/*
 	 * Program the HCCHARn register with the endpoint characteristics
 	 * for the current transfer.
@@ -729,9 +726,8 @@ static int dwc_otg_submit_rh_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	return stat;
 }
 
-int wait_for_chhltd(struct dwc2_core_regs *regs, uint32_t *sub, int *toggle)
+int wait_for_chhltd(struct dwc2_hc_regs *hc_regs, uint32_t *sub, int *toggle)
 {
-	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
 	int ret;
 	uint32_t hcint, hctsiz;
 
@@ -765,6 +761,58 @@ static int dwc2_eptype[] = {
 	DWC2_HCCHAR_EPTYPE_BULK,
 };
 
+static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
+			  int *pid, int in, void *buffer, int num_packets,
+			  int xfer_len, int *actual_len)
+{
+	int ret = 0;
+	uint32_t sub;
+
+	debug("%s: chunk: pid %d xfer_len %u pkts %u\n", __func__,
+	      *pid, xfer_len, num_packets);
+
+	writel((xfer_len << DWC2_HCTSIZ_XFERSIZE_OFFSET) |
+	       (num_packets << DWC2_HCTSIZ_PKTCNT_OFFSET) |
+	       (*pid << DWC2_HCTSIZ_PID_OFFSET),
+	       &hc_regs->hctsiz);
+
+	if (!in && xfer_len) {
+		memcpy(aligned_buffer, buffer, xfer_len);
+
+		flush_dcache_range((unsigned long)aligned_buffer,
+				   (unsigned long)aligned_buffer +
+				   roundup(xfer_len, ARCH_DMA_MINALIGN));
+	}
+
+	writel(phys_to_bus((unsigned long)aligned_buffer), &hc_regs->hcdma);
+
+	/* Clear old interrupt conditions for this host channel. */
+	writel(0x3fff, &hc_regs->hcint);
+
+	/* Set host channel enable after all other setup is complete. */
+	clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
+			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
+			(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
+			DWC2_HCCHAR_CHEN);
+
+	ret = wait_for_chhltd(hc_regs, &sub, pid);
+	if (ret < 0)
+		return ret;
+
+	if (in) {
+		xfer_len -= sub;
+
+		invalidate_dcache_range((unsigned long)aligned_buffer,
+					(unsigned long)aligned_buffer +
+					roundup(xfer_len, ARCH_DMA_MINALIGN));
+
+		memcpy(buffer, aligned_buffer, xfer_len);
+	}
+	*actual_len = xfer_len;
+
+	return ret;
+}
+
 int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	      unsigned long pipe, int *pid, int in, void *buffer, int len)
 {
@@ -776,7 +824,6 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	int eptype = dwc2_eptype[usb_pipetype(pipe)];
 	int done = 0;
 	int ret = 0;
-	uint32_t sub;
 	uint32_t xfer_len;
 	uint32_t num_packets;
 	int stop_transfer = 0;
@@ -795,11 +842,12 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	num_packets = max_xfer_len / max;
 	max_xfer_len = num_packets * max;
 
-	do {
-		/* Initialize channel */
-		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, dev, devnum, ep, in,
-				eptype, max);
+	/* Initialize channel */
+	dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, dev, devnum, ep, in,
+			eptype, max);
 
+	do {
+		int actual_len = 0;
 		xfer_len = len - done;
 
 		if (xfer_len > max_xfer_len)
@@ -809,49 +857,17 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 		else
 			num_packets = 1;
 
-		debug("%s: chunk: pid %d xfer_len %u pkts %u\n", __func__,
-		      *pid, xfer_len, num_packets);
+		ret = transfer_chunk(hc_regs, priv->aligned_buffer, pid,
+				     in, (char *)buffer + done, num_packets,
+				     xfer_len, &actual_len);
 
-		writel((xfer_len << DWC2_HCTSIZ_XFERSIZE_OFFSET) |
-		       (num_packets << DWC2_HCTSIZ_PKTCNT_OFFSET) |
-		       (*pid << DWC2_HCTSIZ_PID_OFFSET),
-		       &hc_regs->hctsiz);
-
-		if (!in && xfer_len) {
-			memcpy(priv->aligned_buffer, (char *)buffer + done,
-			       xfer_len);
-
-			flush_dcache_range((unsigned long)priv->aligned_buffer,
-				(unsigned long)((void *)priv->aligned_buffer +
-				roundup(xfer_len, ARCH_DMA_MINALIGN)));
-		}
-
-		writel(phys_to_bus((unsigned long)priv->aligned_buffer),
-		       &hc_regs->hcdma);
-
-		/* Set host channel enable after all other setup is complete. */
-		clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
-				DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
-				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
-				DWC2_HCCHAR_CHEN);
-
-		ret = wait_for_chhltd(regs, &sub, pid);
 		if (ret)
 			break;
 
-		if (in) {
-			xfer_len -= sub;
+		if (actual_len < xfer_len)
+			stop_transfer = 1;
 
-			invalidate_dcache_range((unsigned long)priv->aligned_buffer,
-				(unsigned long)((void *)priv->aligned_buffer +
-				roundup(xfer_len, ARCH_DMA_MINALIGN)));
-
-			memcpy(buffer + done, priv->aligned_buffer, xfer_len);
-			if (sub)
-				stop_transfer = 1;
-		}
-
-		done += xfer_len;
+		done += actual_len;
 
 	} while ((done < len) && !stop_transfer);
 
