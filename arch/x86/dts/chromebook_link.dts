@@ -12,6 +12,8 @@
 
 	aliases {
 		spi0 = "/pci/pch/spi";
+		usb0 = &usb_0;
+		usb1 = &usb_1;
 	};
 
 	config {
@@ -224,6 +226,16 @@
 			reg = <0x0000b000 0 0 0 0>;
 			compatible = "intel,me";
 			u-boot,dm-pre-reloc;
+		};
+
+		usb_1: usb@1a,0 {
+			reg = <0x0000d000 0 0 0 0>;
+			compatible = "ehci-pci";
+		};
+
+		usb_0: usb@1d,0 {
+			reg = <0x0000e800 0 0 0 0>;
+			compatible = "ehci-pci";
 		};
 
 		pch@1f,0 {

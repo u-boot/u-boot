@@ -159,9 +159,6 @@ static int bd82x6x_probe(struct udevice *dev)
 	/* Cause the SATA device to do its init */
 	uclass_first_device(UCLASS_DISK, &dev);
 
-	bd82x6x_usb_ehci_init(PCH_EHCI1_DEV);
-	bd82x6x_usb_ehci_init(PCH_EHCI2_DEV);
-
 	gma_node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_GMA);
 	if (gma_node < 0) {
 		debug("%s: Cannot find GMA node\n", __func__);
