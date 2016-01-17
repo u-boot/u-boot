@@ -18,6 +18,8 @@
 #include <rtc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <syscon.h>
+#include <asm/cpu.h>
 #include <asm/processor.h>
 #include <asm/gpio.h>
 #include <asm/global_data.h>
@@ -739,11 +741,9 @@ int dram_init(void)
 		return ret;
 	if (!dev)
 		return -ENODEV;
-	ret = uclass_first_device(UCLASS_SYSCON, &me_dev);
+	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
 	if (ret)
 		return ret;
-	if (!me_dev)
-		return -ENODEV;
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
 	debug("mrc_input %p\n", pei_data.mrc_input);
 	pei_data.boot_mode = gd->arch.pei_boot_mode;

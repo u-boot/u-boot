@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <asm/pci.h>
+#include <asm/cpu.h>
 #include <asm/processor.h>
 #include <asm/arch/me.h>
 #include <asm/arch/pch.h>
@@ -189,7 +190,7 @@ int intel_early_me_init_done(struct udevice *dev, struct udevice *me_dev,
 }
 
 static const struct udevice_id ivybridge_syscon_ids[] = {
-	{ .compatible = "intel,me", },
+	{ .compatible = "intel,me", .data = X86_SYSCON_ME },
 	{ }
 };
 
