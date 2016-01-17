@@ -192,8 +192,6 @@
 			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
-			gen-dec = <0x800 0xfc 0x900 0xfc>;
-			intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
 			intel,pirq-routing = <0x8b 0x8a 0x8b 0x8b
 						0x80 0x80 0x80 0x80>;
 			intel,gpi-routing = <0 0 0 0 0 0 0 2
@@ -224,6 +222,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				u-boot,dm-pre-reloc;
+				intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
 				cros-ec@200 {
 					compatible = "google,cros-ec";
 					reg = <0x204 1 0x200 1 0x880 0x80>;

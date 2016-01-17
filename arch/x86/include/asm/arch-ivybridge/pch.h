@@ -473,14 +473,4 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 int lpc_init(struct pci_controller *hose, pci_dev_t dev);
 void lpc_enable(pci_dev_t dev);
 
-/**
- * lpc_early_init() - set up LPC serial ports and other early things
- *
- * @blob:	Device tree blob
- * @node:	Offset of LPC node
- * @dev:	PCH PCI device containing the LPC
- * @return 0 if OK, -ve on error
- */
-int lpc_early_init(const void *blob, int node, pci_dev_t dev);
-
 #endif

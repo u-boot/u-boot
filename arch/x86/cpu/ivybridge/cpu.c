@@ -124,10 +124,8 @@ int arch_cpu_init(void)
 
 int arch_cpu_init_dm(void)
 {
-	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
 	struct udevice *bus, *dev;
-	int node;
 	int ret;
 
 	post_code(0x70);
@@ -144,13 +142,6 @@ int arch_cpu_init_dm(void)
 	ret = uclass_first_device(UCLASS_LPC, &dev);
 	if (!dev)
 		return -ENODEV;
-
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_PCH);
-	if (node < 0)
-		return -ENOENT;
-	ret = lpc_early_init(gd->fdt_blob, node, PCH_LPC_DEV);
-	if (ret)
-		return ret;
 
 	enable_spi_prefetch(hose, PCH_LPC_DEV);
 

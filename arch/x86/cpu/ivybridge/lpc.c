@@ -454,7 +454,13 @@ static void pch_fixups(pci_dev_t dev)
 	setbits_le32(RCB_REG(0x21a8), 0x3);
 }
 
-int lpc_early_init(const void *blob, int node, pci_dev_t dev)
+/**
+ * lpc_early_init() - set up LPC serial ports and other early things
+ *
+ * @dev:	LPC device
+ * @return 0 if OK, -ve on error
+ */
+static int lpc_early_init(struct udevice *dev)
 {
 	struct reg_info {
 		u32 base;
@@ -463,17 +469,18 @@ int lpc_early_init(const void *blob, int node, pci_dev_t dev)
 	int count;
 	int i;
 
-	count = fdtdec_get_int_array_count(blob, node, "intel,gen-dec",
-			(u32 *)values, sizeof(values) / sizeof(u32));
+	count = fdtdec_get_int_array_count(gd->fdt_blob, dev->of_offset,
+			"intel,gen-dec", (u32 *)values,
+			sizeof(values) / sizeof(u32));
 	if (count < 0)
 		return -EINVAL;
 
 	/* Set COM1/COM2 decode range */
-	x86_pci_write_config16(dev, LPC_IO_DEC, 0x0010);
+	dm_pci_write_config16(dev->parent, LPC_IO_DEC, 0x0010);
 
 	/* Enable PS/2 Keyboard/Mouse, EC areas and COM1 */
-	x86_pci_write_config16(dev, LPC_EN, KBC_LPC_EN | MC_LPC_EN |
-			   GAMEL_LPC_EN | COMA_LPC_EN);
+	dm_pci_write_config16(dev->parent, LPC_EN, KBC_LPC_EN | MC_LPC_EN |
+			      GAMEL_LPC_EN | COMA_LPC_EN);
 
 	/* Write all registers but use 0 if we run out of data */
 	count = count * sizeof(u32) / sizeof(values[0]);
@@ -482,7 +489,7 @@ int lpc_early_init(const void *blob, int node, pci_dev_t dev)
 
 		if (i < count)
 			reg = ptr->base | PCI_COMMAND_IO | (ptr->size << 16);
-		x86_pci_write_config32(dev, LPC_GENX_DEC(i), reg);
+		dm_pci_write_config32(dev->parent, LPC_GENX_DEC(i), reg);
 	}
 
 	return 0;
@@ -561,6 +568,17 @@ void lpc_enable(pci_dev_t dev)
 
 static int bd82x6x_lpc_probe(struct udevice *dev)
 {
+	int ret;
+
+	if (gd->flags & GD_FLG_RELOC)
+		return 0;
+
+	ret = lpc_early_init(dev);
+	if (ret) {
+		debug("%s: lpc_early_init() failed\n", __func__);
+		return ret;
+	}
+
 	return 0;
 }
 
