@@ -158,6 +158,7 @@ static int spi_child_pre_probe(struct udevice *dev)
 	slave->max_hz = plat->max_hz;
 	slave->mode = plat->mode;
 	slave->mode_rx = plat->mode_rx;
+	slave->wordlen = SPI_DEFAULT_WORDLEN;
 
 	return 0;
 }
