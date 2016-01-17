@@ -412,16 +412,6 @@ static int model_206ax_init(struct udevice *dev)
 	set_ehci_debug(0);
 #endif
 
-	/* Setup MTRRs based on physical address size */
-#if 0 /* TODO: Implement this */
-	struct cpuid_result cpuid_regs;
-
-	cpuid_regs = cpuid(0x80000008);
-	x86_setup_fixed_mtrrs();
-	x86_setup_var_mtrrs(cpuid_regs.eax & 0xff, 2);
-	x86_mtrr_check();
-#endif
-
 #if CONFIG_USBDEBUG
 	set_ehci_debug(ehci_debug_addr);
 #endif
