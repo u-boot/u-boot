@@ -133,33 +133,33 @@ int arch_cpu_init_dm(void)
  *
  * This is used to speed up the resume path.
  */
-static void enable_usb_bar(void)
+static void enable_usb_bar(struct udevice *bus)
 {
 	pci_dev_t usb0 = PCH_EHCI1_DEV;
 	pci_dev_t usb1 = PCH_EHCI2_DEV;
 	pci_dev_t usb3 = PCH_XHCI_DEV;
-	u32 cmd;
+	ulong cmd;
 
 	/* USB Controller 1 */
-	x86_pci_write_config32(usb0, PCI_BASE_ADDRESS_0,
-			       PCH_EHCI0_TEMP_BAR0);
-	cmd = x86_pci_read_config32(usb0, PCI_COMMAND);
+	pci_bus_write_config(bus, usb0, PCI_BASE_ADDRESS_0,
+			     PCH_EHCI0_TEMP_BAR0, PCI_SIZE_32);
+	pci_bus_read_config(bus, usb0, PCI_COMMAND, &cmd, PCI_SIZE_32);
 	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	x86_pci_write_config32(usb0, PCI_COMMAND, cmd);
+	pci_bus_write_config(bus, usb0, PCI_COMMAND, cmd, PCI_SIZE_32);
 
-	/* USB Controller 1 */
-	x86_pci_write_config32(usb1, PCI_BASE_ADDRESS_0,
-			       PCH_EHCI1_TEMP_BAR0);
-	cmd = x86_pci_read_config32(usb1, PCI_COMMAND);
+	/* USB Controller 2 */
+	pci_bus_write_config(bus, usb1, PCI_BASE_ADDRESS_0,
+			     PCH_EHCI1_TEMP_BAR0, PCI_SIZE_32);
+	pci_bus_read_config(bus, usb1, PCI_COMMAND, &cmd, PCI_SIZE_32);
 	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	x86_pci_write_config32(usb1, PCI_COMMAND, cmd);
+	pci_bus_write_config(bus, usb1, PCI_COMMAND, cmd, PCI_SIZE_32);
 
-	/* USB3 Controller */
-	x86_pci_write_config32(usb3, PCI_BASE_ADDRESS_0,
-			       PCH_XHCI_TEMP_BAR0);
-	cmd = x86_pci_read_config32(usb3, PCI_COMMAND);
+	/* USB3 Controller 1 */
+	pci_bus_write_config(bus, usb3, PCI_BASE_ADDRESS_0,
+			     PCH_XHCI_TEMP_BAR0, PCI_SIZE_32);
+	pci_bus_read_config(bus, usb3, PCI_COMMAND, &cmd, PCI_SIZE_32);
 	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	x86_pci_write_config32(usb3, PCI_COMMAND, cmd);
+	pci_bus_write_config(bus, usb3, PCI_COMMAND, cmd, PCI_SIZE_32);
 }
 
 static int report_bist_failure(void)
@@ -244,7 +244,7 @@ int print_cpuinfo(void)
 
 	/* Prepare USB controller early in S3 resume */
 	if (boot_mode == PEI_BOOT_RESUME)
-		enable_usb_bar();
+		enable_usb_bar(pci_get_controller(lpc->parent));
 
 	gd->arch.pei_boot_mode = boot_mode;
 
