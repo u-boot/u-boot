@@ -14,7 +14,7 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
-static void sandybridge_setup_bars(pci_dev_t pch_dev, pci_dev_t lpc_dev)
+static void sandybridge_setup_lpc_bars(pci_dev_t lpc_dev)
 {
 	/* Setting up Southbridge. In the northbridge code. */
 	debug("Setting up static southbridge registers\n");
@@ -26,30 +26,31 @@ static void sandybridge_setup_bars(pci_dev_t pch_dev, pci_dev_t lpc_dev)
 	debug("Disabling watchdog reboot\n");
 	setbits_le32(RCB_REG(GCS), 1 >> 5);	/* No reset */
 	outw(1 << 11, DEFAULT_PMBASE | 0x60 | 0x08);	/* halt timer */
+}
 
+static void sandybridge_setup_northbridge_bars(struct udevice *dev)
+{
 	/* Set up all hardcoded northbridge BARs */
 	debug("Setting up static registers\n");
-	x86_pci_write_config32(pch_dev, EPBAR, DEFAULT_EPBAR | 1);
-	x86_pci_write_config32(pch_dev, EPBAR + 4, (0LL + DEFAULT_EPBAR) >> 32);
-	x86_pci_write_config32(pch_dev, MCHBAR, DEFAULT_MCHBAR | 1);
-	x86_pci_write_config32(pch_dev, MCHBAR + 4,
-			       (0LL + DEFAULT_MCHBAR) >> 32);
+	dm_pci_write_config32(dev, EPBAR, DEFAULT_EPBAR | 1);
+	dm_pci_write_config32(dev, EPBAR + 4, (0LL + DEFAULT_EPBAR) >> 32);
+	dm_pci_write_config32(dev, MCHBAR, DEFAULT_MCHBAR | 1);
+	dm_pci_write_config32(dev, MCHBAR + 4, (0LL + DEFAULT_MCHBAR) >> 32);
 	/* 64MB - busses 0-63 */
-	x86_pci_write_config32(pch_dev, PCIEXBAR, DEFAULT_PCIEXBAR | 5);
-	x86_pci_write_config32(pch_dev, PCIEXBAR + 4,
-			       (0LL + DEFAULT_PCIEXBAR) >> 32);
-	x86_pci_write_config32(pch_dev, DMIBAR, DEFAULT_DMIBAR | 1);
-	x86_pci_write_config32(pch_dev, DMIBAR + 4,
-			       (0LL + DEFAULT_DMIBAR) >> 32);
+	dm_pci_write_config32(dev, PCIEXBAR, DEFAULT_PCIEXBAR | 5);
+	dm_pci_write_config32(dev, PCIEXBAR + 4,
+			      (0LL + DEFAULT_PCIEXBAR) >> 32);
+	dm_pci_write_config32(dev, DMIBAR, DEFAULT_DMIBAR | 1);
+	dm_pci_write_config32(dev, DMIBAR + 4, (0LL + DEFAULT_DMIBAR) >> 32);
 
 	/* Set C0000-FFFFF to access RAM on both reads and writes */
-	x86_pci_write_config8(pch_dev, PAM0, 0x30);
-	x86_pci_write_config8(pch_dev, PAM1, 0x33);
-	x86_pci_write_config8(pch_dev, PAM2, 0x33);
-	x86_pci_write_config8(pch_dev, PAM3, 0x33);
-	x86_pci_write_config8(pch_dev, PAM4, 0x33);
-	x86_pci_write_config8(pch_dev, PAM5, 0x33);
-	x86_pci_write_config8(pch_dev, PAM6, 0x33);
+	dm_pci_write_config8(dev, PAM0, 0x30);
+	dm_pci_write_config8(dev, PAM1, 0x33);
+	dm_pci_write_config8(dev, PAM2, 0x33);
+	dm_pci_write_config8(dev, PAM3, 0x33);
+	dm_pci_write_config8(dev, PAM4, 0x33);
+	dm_pci_write_config8(dev, PAM5, 0x33);
+	dm_pci_write_config8(dev, PAM6, 0x33);
 }
 
 static void sandybridge_setup_graphics(pci_dev_t pch_dev, pci_dev_t video_dev)
@@ -122,10 +123,6 @@ void sandybridge_early_init(int chipset_type)
 {
 	pci_dev_t pch_dev = PCH_DEV;
 	pci_dev_t video_dev = PCH_VIDEO_DEV;
-	pci_dev_t lpc_dev = PCH_LPC_DEV;
-
-	/* Setup all BARs required for early PCIe and raminit */
-	sandybridge_setup_bars(pch_dev, lpc_dev);
 
 	/* Device Enable */
 	x86_pci_write_config32(pch_dev, DEVEN, DEVEN_HOST | DEVEN_IGD);
@@ -153,6 +150,10 @@ static int bd82x6x_northbridge_probe(struct udevice *dev)
 
 		dm_pci_write_config8(dev, 0xf3, reg8);
 	}
+
+	sandybridge_setup_lpc_bars(PCH_LPC_DEV);
+
+	sandybridge_setup_northbridge_bars(dev);
 
 	return 0;
 }
