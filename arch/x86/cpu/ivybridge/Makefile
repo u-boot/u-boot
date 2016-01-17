@@ -14,7 +14,6 @@ obj-y += me_status.o
 obj-y += model_206ax.o
 obj-y += microcode_intel.o
 obj-y += northbridge.o
-obj-y += pch.o
 obj-y += report_platform.o
 obj-y += sata.o
 obj-y += sdram.o

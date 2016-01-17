@@ -466,30 +466,12 @@
 #define TCO2_STS	0x66
 
 /**
- * pch_silicon_revision() - Read silicon revision ID from the PCH
- *
- * @dev:	PCH device
- * @return silicon revision ID
- */
-int pch_silicon_revision(struct udevice *dev);
-
-/**
  * pch_silicon_revision() - Read silicon device ID from the PCH
  *
  * @dev:	PCH device
  * @return silicon device ID
  */
 int pch_silicon_type(struct udevice *dev);
-
-/**
- * pch_silicon_supported() - Check if a certain revision is supported
- *
- * @dev:	PCH device
- * @type:	PCH type
- * @rev:	Minimum required resion
- * @return 0 if not supported, 1 if supported
- */
-int pch_silicon_supported(struct udevice *dev, int type, int rev);
 
 /**
  * pch_pch_iobp_update() - Update a pch register
