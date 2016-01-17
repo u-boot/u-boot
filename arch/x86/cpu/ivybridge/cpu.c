@@ -30,26 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void enable_port80_on_lpc(struct pci_controller *hose, pci_dev_t dev)
-{
-	/* Enable port 80 POST on LPC */
-	pci_hose_write_config_dword(hose, dev, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
-	clrbits_le32(RCB_REG(GCS), 4);
-}
-
-/*
- * Enable Prefetching and Caching.
- */
-static void enable_spi_prefetch(struct pci_controller *hose, pci_dev_t dev)
-{
-	u8 reg8;
-
-	pci_hose_read_config_byte(hose, dev, 0xdc, &reg8);
-	reg8 &= ~(3 << 2);
-	reg8 |= (2 << 2); /* Prefetching and Caching Enabled */
-	pci_hose_write_config_byte(hose, dev, 0xdc, reg8);
-}
-
 static int set_flex_ratio_to_tdp_nominal(void)
 {
 	msr_t flex_ratio, msr;
@@ -99,22 +79,6 @@ static int set_flex_ratio_to_tdp_nominal(void)
 	return -EINVAL;
 }
 
-static void set_spi_speed(void)
-{
-	u32 fdod;
-
-	/* Observe SPI Descriptor Component Section 0 */
-	writel(0x1000, RCB_REG(SPI_DESC_COMP0));
-
-	/* Extract the1 Write/Erase SPI Frequency from descriptor */
-	fdod = readl(RCB_REG(SPI_FREQ_WR_ERA));
-	fdod >>= 24;
-	fdod &= 7;
-
-	/* Set Software Sequence frequency to match */
-	clrsetbits_8(RCB_REG(SPI_FREQ_SWSEQ), 7, fdod);
-}
-
 int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
@@ -142,13 +106,6 @@ int arch_cpu_init_dm(void)
 	ret = uclass_first_device(UCLASS_LPC, &dev);
 	if (!dev)
 		return -ENODEV;
-
-	enable_spi_prefetch(hose, PCH_LPC_DEV);
-
-	/* This is already done in start.S, but let's do it in C */
-	enable_port80_on_lpc(hose, PCH_LPC_DEV);
-
-	set_spi_speed();
 
 	/*
 	 * We should do as little as possible before the serial console is

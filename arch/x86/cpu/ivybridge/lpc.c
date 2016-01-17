@@ -454,6 +454,42 @@ static void pch_fixups(pci_dev_t dev)
 	setbits_le32(RCB_REG(0x21a8), 0x3);
 }
 
+/*
+ * Enable Prefetching and Caching.
+ */
+static void enable_spi_prefetch(struct udevice *pch)
+{
+	u8 reg8;
+
+	dm_pci_read_config8(pch, 0xdc, &reg8);
+	reg8 &= ~(3 << 2);
+	reg8 |= (2 << 2); /* Prefetching and Caching Enabled */
+	dm_pci_write_config8(pch, 0xdc, reg8);
+}
+
+static void enable_port80_on_lpc(struct udevice *pch)
+{
+	/* Enable port 80 POST on LPC */
+	dm_pci_write_config32(pch, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
+	clrbits_le32(RCB_REG(GCS), 4);
+}
+
+static void set_spi_speed(void)
+{
+	u32 fdod;
+
+	/* Observe SPI Descriptor Component Section 0 */
+	writel(0x1000, RCB_REG(SPI_DESC_COMP0));
+
+	/* Extract the1 Write/Erase SPI Frequency from descriptor */
+	fdod = readl(RCB_REG(SPI_FREQ_WR_ERA));
+	fdod >>= 24;
+	fdod &= 7;
+
+	/* Set Software Sequence frequency to match */
+	clrsetbits_8(RCB_REG(SPI_FREQ_SWSEQ), 7, fdod);
+}
+
 /**
  * lpc_early_init() - set up LPC serial ports and other early things
  *
@@ -491,6 +527,13 @@ static int lpc_early_init(struct udevice *dev)
 			reg = ptr->base | PCI_COMMAND_IO | (ptr->size << 16);
 		dm_pci_write_config32(dev->parent, LPC_GENX_DEC(i), reg);
 	}
+
+	enable_spi_prefetch(dev->parent);
+
+	/* This is already done in start.S, but let's do it in C */
+	enable_port80_on_lpc(dev->parent);
+
+	set_spi_speed();
 
 	return 0;
 }
