@@ -212,7 +212,7 @@ int print_cpuinfo(void)
 {
 	enum pei_boot_mode_t boot_mode = PEI_BOOT_NONE;
 	char processor_name[CPU_MAX_NAME_LEN];
-	struct udevice *dev;
+	struct udevice *dev, *lpc;
 	const char *name;
 	uint32_t pm1_cnt;
 	uint16_t pm1_sts;
@@ -245,12 +245,11 @@ int print_cpuinfo(void)
 	/* Early chipset init required before RAM init can work */
 	uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
 
-	ret = uclass_first_device(UCLASS_PCH, &dev);
+	ret = uclass_first_device(UCLASS_LPC, &lpc);
 	if (ret)
 		return ret;
 	if (!dev)
 		return -ENODEV;
-
 	sandybridge_early_init(SANDYBRIDGE_MOBILE);
 
 	/* Check PM1_STS[15] to see if we are waking from Sx */
