@@ -193,7 +193,7 @@
 	};
 
 	pci {
-		compatible = "intel,pci-ivybridge", "pci-x86";
+		compatible = "pci-x86";
 		#address-cells = <3>;
 		#size-cells = <2>;
 		u-boot,dm-pre-reloc;
