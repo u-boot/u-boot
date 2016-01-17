@@ -63,7 +63,7 @@
 	"${x_bootcmd_usb}; bootm 0x6400000;"
 
 #define CONFIG_MTDPARTS		\
-	"mtdparts=orion_nand:512K(uboot),"				\
+	"orion_nand:512K(uboot),"				\
 	"512K(env),1M(script),6M(kernel),"				\
 	"12M(ramdisk),4M(spare),-(rootfs)\0"
 
