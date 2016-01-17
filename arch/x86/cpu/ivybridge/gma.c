@@ -353,14 +353,13 @@ static int gtt_poll(void *bar, u32 reg, u32 mask, u32 value)
 	return 0;
 }
 
-static int gma_pm_init_pre_vbios(void *gtt_bar)
+static int gma_pm_init_pre_vbios(void *gtt_bar, int rev)
 {
 	u32 reg32;
 
-	debug("GT Power Management Init, silicon = %#x\n",
-	      bridge_silicon_revision());
+	debug("GT Power Management Init, silicon = %#x\n", rev);
 
-	if (bridge_silicon_revision() < IVB_STEP_C0) {
+	if (rev < IVB_STEP_C0) {
 		/* 1: Enable force wake */
 		gtt_write(gtt_bar, 0xa18c, 0x00000001);
 		gtt_poll(gtt_bar, 0x130090, (1 << 0), (1 << 0));
@@ -370,14 +369,14 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 		gtt_poll(gtt_bar, 0x130040, (1 << 0), (1 << 0));
 	}
 
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_SNB) {
 		/* 1d: Set GTT+0x42004 [15:14]=11 (SnB C1+) */
 		reg32 = gtt_read(gtt_bar, 0x42004);
 		reg32 |= (1 << 14) | (1 << 15);
 		gtt_write(gtt_bar, 0x42004, reg32);
 	}
 
-	if (bridge_silicon_revision() >= IVB_STEP_A0) {
+	if (rev >= IVB_STEP_A0) {
 		/* Display Reset Acknowledge Settings */
 		reg32 = gtt_read(gtt_bar, 0x45010);
 		reg32 |= (1 << 1) | (1 << 0);
@@ -386,7 +385,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 
 	/* 2: Get GT SKU from GTT+0x911c[13] */
 	reg32 = gtt_read(gtt_bar, 0x911c);
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_SNB) {
 		if (reg32 & (1 << 13)) {
 			debug("SNB GT1 Power Meter Weights\n");
 			gtt_write_powermeter(gtt_bar, snb_pm_gt1);
@@ -435,13 +434,13 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 	reg32 = gtt_read(gtt_bar, 0xa180);
 	reg32 |= (1 << 26) | (1 << 31);
 	/* (bit 20=1 for SNB step D1+ / IVB A0+) */
-	if (bridge_silicon_revision() >= SNB_STEP_D1)
+	if (rev >= SNB_STEP_D1)
 		reg32 |= (1 << 20);
 	gtt_write(gtt_bar, 0xa180, reg32);
 
 	/* 6a: for SnB step D2+ only */
-	if (((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) &&
-	    (bridge_silicon_revision() >= SNB_STEP_D2)) {
+	if (((rev & BASE_REV_MASK) == BASE_REV_SNB) &&
+	    (rev >= SNB_STEP_D2)) {
 		reg32 = gtt_read(gtt_bar, 0x9400);
 		reg32 |= (1 << 7);
 		gtt_write(gtt_bar, 0x9400, reg32);
@@ -453,7 +452,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 		gtt_poll(gtt_bar, 0x941c, (1 << 1), (0 << 1));
 	}
 
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_IVB) {
 		reg32 = gtt_read(gtt_bar, 0x907c);
 		reg32 |= (1 << 16);
 		gtt_write(gtt_bar, 0x907c, reg32);
@@ -505,7 +504,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 	gtt_write(gtt_bar, 0xa070, 0x0000000a); /* RP Idle Hysteresis */
 
 	/* 11a: Enable Render Standby (RC6) */
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_IVB) {
 		/*
 		 * IvyBridge should also support DeepRenderStandby.
 		 *
@@ -539,14 +538,14 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 	return 0;
 }
 
-int gma_pm_init_post_vbios(void *gtt_bar, const void *blob, int node)
+int gma_pm_init_post_vbios(int rev, void *gtt_bar, const void *blob, int node)
 {
 	u32 reg32, cycle_delay;
 
 	debug("GT Power Management Init (post VBIOS)\n");
 
 	/* 15: Deassert Force Wake */
-	if (bridge_silicon_revision() < IVB_STEP_C0) {
+	if (rev < IVB_STEP_C0) {
 		gtt_write(gtt_bar, 0xa18c, gtt_read(gtt_bar, 0xa18c) & ~1);
 		gtt_poll(gtt_bar, 0x130090, (1 << 0), (0 << 0));
 	} else {
@@ -805,6 +804,7 @@ int gma_func0_init(struct udevice *dev, const void *blob, int node)
 	ulong base;
 	u32 reg32;
 	int ret;
+	int rev;
 
 	/* Enable PCH Display Port */
 	writew(0x0010, RCB_REG(DISPBDF));
@@ -813,6 +813,7 @@ int gma_func0_init(struct udevice *dev, const void *blob, int node)
 	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &nbridge);
 	if (!nbridge)
 		return -ENODEV;
+	rev = bridge_silicon_revision(nbridge);
 	sandybridge_setup_graphics(nbridge, dev);
 
 	/* IGD needs to be Bus Master */
@@ -827,7 +828,7 @@ int gma_func0_init(struct udevice *dev, const void *blob, int node)
 
 	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
 	debug("GT bar %p\n", gtt_bar);
-	ret = gma_pm_init_pre_vbios(gtt_bar);
+	ret = gma_pm_init_pre_vbios(gtt_bar, rev);
 	if (ret)
 		return ret;
 
@@ -838,7 +839,7 @@ int gma_func0_init(struct udevice *dev, const void *blob, int node)
 	debug("BIOS ran in %lums\n", get_timer(start));
 #endif
 	/* Post VBIOS init */
-	ret = gma_pm_init_post_vbios(gtt_bar, blob, node);
+	ret = gma_pm_init_post_vbios(rev, gtt_bar, blob, node);
 	if (ret)
 		return ret;
 

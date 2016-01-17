@@ -19,23 +19,17 @@
 #include <asm/arch/model_206ax.h>
 #include <asm/arch/sandybridge.h>
 
-static int bridge_revision_id = -1;
-
-int bridge_silicon_revision(void)
+int bridge_silicon_revision(struct udevice *dev)
 {
-	if (bridge_revision_id < 0) {
-		struct cpuid_result result;
-		uint8_t stepping, bridge_id;
-		pci_dev_t dev;
+	struct cpuid_result result;
+	u16 bridge_id;
+	u8 stepping;
 
-		result = cpuid(1);
-		stepping = result.eax & 0xf;
-		dev = PCI_BDF(0, 0, 0);
-		bridge_id = x86_pci_read_config16(dev, PCI_DEVICE_ID) & 0xf0;
-		bridge_revision_id = bridge_id | stepping;
-	}
-
-	return bridge_revision_id;
+	result = cpuid(1);
+	stepping = result.eax & 0xf;
+	dm_pci_read_config16(dev, PCI_DEVICE_ID, &bridge_id);
+	bridge_id &= 0xf0;
+	return bridge_id | stepping;
 }
 
 /*
@@ -91,45 +85,45 @@ static void add_fixed_resources(struct udevice *dev, int index)
 	}
 }
 
-static void northbridge_dmi_init(struct udevice *dev)
+static void northbridge_dmi_init(struct udevice *dev, int rev)
 {
 	/* Clear error status bits */
 	writel(0xffffffff, DMIBAR_REG(0x1c4));
 	writel(0xffffffff, DMIBAR_REG(0x1d0));
 
 	/* Steps prior to DMI ASPM */
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_SNB) {
 		clrsetbits_le32(DMIBAR_REG(0x250), (1 << 22) | (1 << 20),
 				1 << 21);
 	}
 
 	setbits_le32(DMIBAR_REG(0x238), 1 << 29);
 
-	if (bridge_silicon_revision() >= SNB_STEP_D0) {
+	if (rev >= SNB_STEP_D0) {
 		setbits_le32(DMIBAR_REG(0x1f8), 1 << 16);
-	} else if (bridge_silicon_revision() >= SNB_STEP_D1) {
+	} else if (rev >= SNB_STEP_D1) {
 		clrsetbits_le32(DMIBAR_REG(0x1f8), 1 << 26, 1 << 16);
 		setbits_le32(DMIBAR_REG(0x1fc), (1 << 12) | (1 << 23));
 	}
 
 	/* Enable ASPM on SNB link, should happen before PCH link */
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB)
+	if ((rev & BASE_REV_MASK) == BASE_REV_SNB)
 		setbits_le32(DMIBAR_REG(0xd04), 1 << 4);
 
 	setbits_le32(DMIBAR_REG(0x88), (1 << 1) | (1 << 0));
 }
 
-static void northbridge_init(struct udevice *dev)
+static void northbridge_init(struct udevice *dev, int rev)
 {
 	u32 bridge_type;
 
 	add_fixed_resources(dev, 6);
-	northbridge_dmi_init(dev);
+	northbridge_dmi_init(dev, rev);
 
 	bridge_type = readl(MCHBAR_REG(0x5f10));
 	bridge_type &= ~0xff;
 
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_IVB) {
 		/* Enable Power Aware Interrupt Routing - fixed priority */
 		clrsetbits_8(MCHBAR_REG(0x5418), 0xf, 0x4);
 
@@ -220,10 +214,13 @@ static int bd82x6x_northbridge_early_init(struct udevice *dev)
 
 static int bd82x6x_northbridge_probe(struct udevice *dev)
 {
+	int rev;
+
 	if (!(gd->flags & GD_FLG_RELOC))
 		return bd82x6x_northbridge_early_init(dev);
 
-	northbridge_init(dev);
+	rev = bridge_silicon_revision(dev);
+	northbridge_init(dev, rev);
 
 	return 0;
 }
