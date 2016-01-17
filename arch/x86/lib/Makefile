@@ -19,6 +19,7 @@ obj-y	+= lpc-uclass.o
 obj-y	+= mpspec.o
 obj-$(CONFIG_ENABLE_MRC_CACHE) += mrccache.o
 obj-y += cmd_mtrr.o
+obj-y	+= northbridge-uclass.o
 obj-$(CONFIG_I8259_PIC) += i8259.o
 obj-$(CONFIG_I8254_TIMER) += i8254.o
 ifndef CONFIG_DM_PCI
