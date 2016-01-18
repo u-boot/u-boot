@@ -252,17 +252,6 @@ int arch_cpu_init(void)
 	 */
 	quark_setup_bars();
 
-	/*
-	 * Initialize PCIe controller
-	 *
-	 * Quark SoC holds the PCIe controller in reset following a power on.
-	 * U-Boot needs to release the PCIe controller from reset. The PCIe
-	 * controller (D23:F0/F1) will not be visible in PCI configuration
-	 * space and any access to its PCI configuration registers will cause
-	 * system hang while it is held in reset.
-	 */
-	quark_pcie_early_init();
-
 	/* Initialize USB2 PHY */
 	quark_usb_early_init();
 
@@ -273,6 +262,22 @@ int arch_cpu_init(void)
 	quark_enable_legacy_seg();
 
 	unprotect_spi_flash();
+
+	return 0;
+}
+
+int arch_cpu_init_dm(void)
+{
+	/*
+	 * Initialize PCIe controller
+	 *
+	 * Quark SoC holds the PCIe controller in reset following a power on.
+	 * U-Boot needs to release the PCIe controller from reset. The PCIe
+	 * controller (D23:F0/F1) will not be visible in PCI configuration
+	 * space and any access to its PCI configuration registers will cause
+	 * system hang while it is held in reset.
+	 */
+	quark_pcie_early_init();
 
 	return 0;
 }
