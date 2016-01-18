@@ -11,7 +11,7 @@
  * the License, or (at your option) any later version.
  */
 
-/include/ "zynqmp-zcu102.dts"
+#include "zynqmp-zcu102.dts"
 / {
 	model = "ZynqMP ZCU102 RevB";
 };

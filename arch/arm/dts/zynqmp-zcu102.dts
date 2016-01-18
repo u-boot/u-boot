@@ -10,8 +10,9 @@
 
 /dts-v1/;
 
-/include/ "zynqmp.dtsi"
-/include/ "zynqmp-clk.dtsi"
+#include "zynqmp.dtsi"
+#include "zynqmp-clk.dtsi"
+
 / {
 	model = "ZynqMP ZCU102 RevA";
 	compatible = "xlnx,zynqmp-zcu102", "xlnx,zynqmp";
