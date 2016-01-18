@@ -110,7 +110,13 @@
 	status = "okay";
 	clock-frequency = <400000>;
 
-	tca6416_u97: gpio@20 { /* FIXME enable it by i2c mw 20 6 1 */
+	tca6416_u97: gpio@20 {
+		/*
+		 * Enable all GTs to out from U-Boot
+		 * i2c mw 20 6 0  - setup IO to output
+		 * i2c mw 20 2 ef - setup output values on pins 0-7
+		 * i2c mw 20 3 ff - setup output values on pins 10-17
+		 */
 		compatible = "ti,tca6416";
 		reg = <0x20>;
 		gpio-controller;
