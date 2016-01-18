@@ -100,6 +100,7 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IO
 #define CONFIG_CMD_IRQ
