@@ -299,39 +299,51 @@
 			reg = <2>;
 			/* MAXIM_PMBUS - 00 */
 			max15301@a { /* u46 */
+				compatible = "max15301";
 				reg = <0xa>;
 			};
 			max15303@b { /* u4 */
+				compatible = "max15303";
 				reg = <0xb>;
 			};
 			max15303@10 { /* u13 */
+				compatible = "max15303";
 				reg = <0x10>;
 			};
 			max15301@13 { /* u47 */
+				compatible = "max15301";
 				reg = <0x13>;
 			};
 			max15303@14 { /* u7 */
+				compatible = "max15303";
 				reg = <0x14>;
 			};
 			max15303@15 { /* u6 */
+				compatible = "max15303";
 				reg = <0x15>;
 			};
 			max15303@16 { /* u10 */
+				compatible = "max15303";
 				reg = <0x16>;
 			};
 			max15303@17 { /* u9 */
+				compatible = "max15303";
 				reg = <0x17>;
 			};
 			max15301@18 { /* u63 */
+				compatible = "max15301";
 				reg = <0x18>;
 			};
 			max15303@1a { /* u49 */
+				compatible = "max15303";
 				reg = <0x1a>;
 			};
 			max15303@1d { /* u18 */
+				compatible = "max15303";
 				reg = <0x1d>;
 			};
 			max15303@20 { /* u8 */
+				compatible = "max15303";
 				reg = <0x20>;
 			};
 
@@ -394,6 +406,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#size-cells = <0>;
 			reg = <1>;
 			si5341: clock-generato@36 { /* SI5341 - u69 */
+				compatible = "si5341";
 				reg = <0x36>;
 			};
 
@@ -465,18 +478,23 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			reg = <3>;
 			/* DDR4 SODIMM */
 			dev@19 { /* u-boot detection */
+				compatible = "xxx";
 				reg = <0x19>;
 			};
 			dev@30 { /* u-boot detection */
+				compatible = "xxx";
 				reg = <0x30>;
 			};
 			dev@35 { /* u-boot detection */
+				compatible = "xxx";
 				reg = <0x35>;
 			};
 			dev@36 { /* u-boot detection */
+				compatible = "xxx";
 				reg = <0x36>;
 			};
 			dev@51 { /* u-boot detection - maybe SPD */
+				compatible = "xxx";
 				reg = <0x51>;
 			};
 		};
