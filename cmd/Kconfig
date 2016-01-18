@@ -1,0 +1,585 @@
+menu "Command line interface"
+
+config HUSH_PARSER
+	bool "Use hush shell"
+	select SYS_HUSH_PARSER
+	help
+	  This option enables the "hush" shell (from Busybox) as command line
+	  interpreter, thus enabling powerful command line syntax like
+	  if...then...else...fi conditionals or `&&' and '||'
+	  constructs ("shell scripts").
+
+	  If disabled, you get the old, much simpler behaviour with a somewhat
+	  smaller memory footprint.
+
+config SYS_HUSH_PARSER
+	bool
+	help
+	  Backward compatibility.
+
+config SYS_PROMPT
+	string "Shell prompt"
+	default "=> "
+	help
+	  This string is displayed in the command line to the left of the
+	  cursor.
+
+menu "Autoboot options"
+
+config AUTOBOOT_KEYED
+	bool "Stop autobooting via specific input key / string"
+	default n
+	help
+	  This option enables stopping (aborting) of the automatic
+	  boot feature only by issuing a specific input key or
+	  string. If not enabled, any input key will abort the
+	  U-Boot automatic booting process and bring the device
+	  to the U-Boot prompt for user input.
+
+config AUTOBOOT_PROMPT
+	string "Autoboot stop prompt"
+	depends on AUTOBOOT_KEYED
+	default "Autoboot in %d seconds\\n"
+	help
+	  This string is displayed before the boot delay selected by
+	  CONFIG_BOOTDELAY starts. If it is not defined	there is no
+	  output indicating that autoboot is in progress.
+
+	  Note that this define is used as the (only) argument to a
+	  printf() call, so it may contain '%' format specifications,
+	  provided that it also includes, sepearated by commas exactly
+	  like in a printf statement, the required arguments. It is
+	  the responsibility of the user to select only such arguments
+	  that are valid in the given context.
+
+config AUTOBOOT_ENCRYPTION
+	bool "Enable encryption in autoboot stopping"
+	depends on AUTOBOOT_KEYED
+	default n
+
+config AUTOBOOT_DELAY_STR
+	string "Delay autobooting via specific input key / string"
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	help
+	  This option delays the automatic boot feature by issuing
+	  a specific input key or string. If CONFIG_AUTOBOOT_DELAY_STR
+	  or the environment variable "bootdelaykey" is specified
+	  and this string is received from console input before
+	  autoboot starts booting, U-Boot gives a command prompt. The
+	  U-Boot prompt will time out if CONFIG_BOOT_RETRY_TIME is
+	  used, otherwise it never times out.
+
+config AUTOBOOT_STOP_STR
+	string "Stop autobooting via specific input key / string"
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	help
+	  This option enables stopping (aborting) of the automatic
+	  boot feature only by issuing a specific input key or
+	  string. If CONFIG_AUTOBOOT_STOP_STR or the environment
+	  variable "bootstopkey" is specified and this string is
+	  received from console input before autoboot starts booting,
+	  U-Boot gives a command prompt. The U-Boot prompt never
+	  times out, even if CONFIG_BOOT_RETRY_TIME is used.
+
+config AUTOBOOT_KEYED_CTRLC
+	bool "Enable Ctrl-C autoboot interruption"
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	default n
+	help
+	  This option allows for the boot sequence to be interrupted
+	  by ctrl-c, in addition to the "bootdelaykey" and "bootstopkey".
+	  Setting this variable	provides an escape sequence from the
+	  limited "password" strings.
+
+config AUTOBOOT_STOP_STR_SHA256
+	string "Stop autobooting via SHA256 encrypted password"
+	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	help
+	  This option adds the feature to only stop the autobooting,
+	  and therefore boot into the U-Boot prompt, when the input
+	  string / password matches a values that is encypted via
+	  a SHA256 hash and saved in the environment.
+
+endmenu
+
+comment "Commands"
+
+menu "Info commands"
+
+config CMD_BDI
+	bool "bdinfo"
+	default y
+	help
+	  Print board info
+
+config CMD_CONSOLE
+	bool "coninfo"
+	default y
+	help
+	  Print console devices and information.
+
+config CMD_CPU
+	bool "cpu"
+	help
+	  Print information about available CPUs. This normally shows the
+	  number of CPUs, type (e.g. manufacturer, architecture, product or
+	  internal name) and clock frequency. Other information may be
+	  available depending on the CPU driver.
+
+config CMD_LICENSE
+	bool "license"
+	help
+	  Print GPL license text
+
+endmenu
+
+menu "Boot commands"
+
+config CMD_BOOTD
+	bool "bootd"
+	default y
+	help
+	  Run the command stored in the environment "bootcmd", i.e.
+	  "bootd" does the same thing as "run bootcmd".
+
+config CMD_BOOTM
+	bool "bootm"
+	default y
+	help
+	  Boot an application image from the memory.
+
+config CMD_ELF
+	bool "bootelf, bootvx"
+	default y
+	help
+	  Boot an ELF/vxWorks image from the memory.
+
+config CMD_GO
+	bool "go"
+	default y
+	help
+	  Start an application at a given address.
+
+config CMD_RUN
+	bool "run"
+	default y
+	help
+	  Run the command in the given environment variable.
+
+config CMD_IMI
+	bool "iminfo"
+	default y
+	help
+	  Print header information for application image.
+
+config CMD_IMLS
+	bool "imls"
+	default y
+	help
+	  List all images found in flash
+
+config CMD_XIMG
+	bool "imxtract"
+	default y
+	help
+	  Extract a part of a multi-image.
+
+config CMD_POWEROFF
+	bool
+
+endmenu
+
+menu "Environment commands"
+
+config CMD_EXPORTENV
+	bool "env export"
+	default y
+	help
+	  Export environments.
+
+config CMD_IMPORTENV
+	bool "env import"
+	default y
+	help
+	  Import environments.
+
+config CMD_EDITENV
+	bool "editenv"
+	default y
+	help
+	  Edit environment variable.
+
+config CMD_SAVEENV
+	bool "saveenv"
+	default y
+	help
+	  Save all environment variables into the compiled-in persistent
+	  storage.
+
+config CMD_ENV_EXISTS
+	bool "env exists"
+	default y
+	help
+	  Check if a variable is defined in the environment for use in
+	  shell scripting.
+
+endmenu
+
+menu "Memory commands"
+
+config CMD_MEMORY
+	bool "md, mm, nm, mw, cp, cmp, base, loop"
+	default y
+	help
+	  Memeory commands.
+	    md - memory display
+	    mm - memory modify (auto-incrementing address)
+	    nm - memory modify (constant address)
+	    mw - memory write (fill)
+	    cp - memory copy
+	    cmp - memory compare
+	    base - print or set address offset
+	    loop - initinite loop on address range
+
+config CMD_CRC32
+	bool "crc32"
+	default y
+	help
+	  Compute CRC32.
+
+config LOOPW
+	bool "loopw"
+	help
+	  Infinite write loop on address range
+
+config CMD_MEMTEST
+	bool "memtest"
+	help
+	  Simple RAM read/write test.
+
+config CMD_MX_CYCLIC
+	bool "mdc, mwc"
+	help
+	  mdc - memory display cyclic
+	  mwc - memory write cyclic
+
+config CMD_MEMINFO
+	bool "meminfo"
+	help
+	  Display memory information.
+
+endmenu
+
+menu "Device access commands"
+
+config CMD_DM
+	bool "dm - Access to driver model information"
+	depends on DM
+	default y
+	help
+	  Provides access to driver model data structures and information,
+	  such as a list of devices, list of uclasses and the state of each
+	  device (e.g. activated). This is not required for operation, but
+	  can be useful to see the state of driver model for debugging or
+	  interest.
+
+config CMD_DEMO
+	bool "demo - Demonstration commands for driver model"
+	depends on DM
+	help
+	  Provides a 'demo' command which can be used to play around with
+	  driver model. To use this properly you will need to enable one or
+	  both of the demo devices (DM_DEMO_SHAPE and DM_DEMO_SIMPLE).
+	  Otherwise you will always get an empty list of devices. The demo
+	  devices are defined in the sandbox device tree, so the easiest
+	  option is to use sandbox and pass the -d point to sandbox's
+	  u-boot.dtb file.
+
+config CMD_LOADB
+	bool "loadb"
+	default y
+	help
+	  Load a binary file over serial line.
+
+config CMD_LOADS
+	bool "loads"
+	default y
+	help
+	  Load an S-Record file over serial line
+
+config CMD_FLASH
+	bool "flinfo, erase, protect"
+	default y
+	help
+	  NOR flash support.
+	    flinfo - print FLASH memory information
+	    erase - FLASH memory
+	    protect - enable or disable FLASH write protection
+
+config CMD_ARMFLASH
+	depends on FLASH_CFI_DRIVER
+	bool "armflash"
+	help
+	  ARM Ltd reference designs flash partition access
+
+config CMD_NAND
+	bool "nand"
+	help
+	  NAND support.
+
+config CMD_SF
+	bool "sf"
+	help
+	  SPI Flash support
+
+config CMD_SPI
+	bool "sspi"
+	help
+	  SPI utility command.
+
+config CMD_I2C
+	bool "i2c"
+	help
+	  I2C support.
+
+config CMD_USB
+	bool "usb"
+	help
+	  USB support.
+
+config CMD_FPGA
+	bool "fpga"
+	default y
+	help
+	  FPGA support.
+
+config CMD_REMOTEPROC
+	bool "remoteproc"
+	depends on REMOTEPROC
+	help
+	  Support for Remote Processor control
+
+config CMD_GPIO
+	bool "gpio"
+	help
+	  GPIO support.
+
+endmenu
+
+
+menu "Shell scripting commands"
+
+config CMD_ECHO
+	bool "echo"
+	default y
+	help
+	  Echo args to console
+
+config CMD_ITEST
+	bool "itest"
+	default y
+	help
+	  Return true/false on integer compare.
+
+config CMD_SOURCE
+	bool "source"
+	default y
+	help
+	  Run script from memory
+
+config CMD_SETEXPR
+	bool "setexpr"
+	default y
+	help
+	  Evaluate boolean and math expressions and store the result in an env
+	    variable.
+	  Also supports loading the value at a memory location into a variable.
+	  If CONFIG_REGEX is enabled, setexpr also supports a gsub function.
+
+endmenu
+
+menu "Network commands"
+
+config CMD_NET
+	bool "bootp, tftpboot"
+        select NET
+	default y
+	help
+	  Network commands.
+	  bootp - boot image via network using BOOTP/TFTP protocol
+	  tftpboot - boot image via network using TFTP protocol
+
+config CMD_TFTPPUT
+	bool "tftp put"
+	help
+	  TFTP put command, for uploading files to a server
+
+config CMD_TFTPSRV
+	bool "tftpsrv"
+	help
+	  Act as a TFTP server and boot the first received file
+
+config CMD_RARP
+	bool "rarpboot"
+	help
+	  Boot image via network using RARP/TFTP protocol
+
+config CMD_DHCP
+	bool "dhcp"
+	help
+	  Boot image via network using DHCP/TFTP protocol
+
+config CMD_NFS
+	bool "nfs"
+	default y
+	help
+	  Boot image via network using NFS protocol.
+
+config CMD_PING
+	bool "ping"
+	help
+	  Send ICMP ECHO_REQUEST to network host
+
+config CMD_CDP
+	bool "cdp"
+	help
+	  Perform CDP network configuration
+
+config CMD_SNTP
+	bool "sntp"
+	help
+	  Synchronize RTC via network
+
+config CMD_DNS
+	bool "dns"
+	help
+	  Lookup the IP of a hostname
+
+config CMD_LINK_LOCAL
+	bool "linklocal"
+	help
+	  Acquire a network IP address using the link-local protocol
+
+endmenu
+
+menu "Misc commands"
+
+config CMD_AMBAPP
+	bool "ambapp"
+	depends on LEON3
+	default y
+	help
+	  Lists AMBA Plug-n-Play information.
+
+config SYS_AMBAPP_PRINT_ON_STARTUP
+	bool "Show AMBA PnP info on startup"
+	depends on CMD_AMBAPP
+	default n
+	help
+	  Show AMBA Plug-n-Play information on startup.
+
+config CMD_TIME
+	bool "time"
+	help
+	  Run commands and summarize execution time.
+
+# TODO: rename to CMD_SLEEP
+config CMD_MISC
+	bool "sleep"
+	default y
+	help
+	  Delay execution for some time
+
+config CMD_TIMER
+	bool "timer"
+	help
+	  Access the system timer.
+
+config CMD_SETGETDCR
+	bool "getdcr, setdcr, getidcr, setidcr"
+	depends on 4xx
+	default y
+	help
+	  getdcr - Get an AMCC PPC 4xx DCR's value
+	  setdcr - Set an AMCC PPC 4xx DCR's value
+	  getidcr - Get a register value via indirect DCR addressing
+	  setidcr - Set a register value via indirect DCR addressing
+
+config CMD_SOUND
+	bool "sound"
+	depends on SOUND
+	help
+	  This provides basic access to the U-Boot's sound support. The main
+	  feature is to play a beep.
+
+	     sound init   - set up sound system
+	     sound play   - play a sound
+
+endmenu
+
+config CMD_BOOTSTAGE
+	bool "Enable the 'bootstage' command"
+	depends on BOOTSTAGE
+	help
+	  Add a 'bootstage' command which supports printing a report
+	  and un/stashing of bootstage data.
+
+menu "Power commands"
+config CMD_PMIC
+	bool "Enable Driver Model PMIC command"
+	depends on DM_PMIC
+	help
+	  This is the pmic command, based on a driver model pmic's API.
+	  Command features are unchanged:
+	  - list               - list pmic devices
+	  - pmic dev <id>      - show or [set] operating pmic device (NEW)
+	  - pmic dump          - dump registers
+	  - pmic read address  - read byte of register at address
+	  - pmic write address - write byte to register at address
+	  The only one change for this command is 'dev' subcommand.
+
+config CMD_REGULATOR
+	bool "Enable Driver Model REGULATOR command"
+	depends on DM_REGULATOR
+	help
+	  This command is based on driver model regulator's API.
+	  User interface features:
+	  - list               - list regulator devices
+	  - regulator dev <id> - show or [set] operating regulator device
+	  - regulator info     - print constraints info
+	  - regulator status   - print operating status
+	  - regulator value <val] <-f> - print/[set] voltage value [uV]
+	  - regulator current <val>    - print/[set] current value [uA]
+	  - regulator mode <id>        - print/[set] operating mode id
+	  - regulator enable           - enable the regulator output
+	  - regulator disable          - disable the regulator output
+
+	  The '-f' (force) option can be used for set the value which exceeds
+	  the limits, which are found in device-tree and are kept in regulator's
+	  uclass platdata structure.
+
+endmenu
+
+menu "Security commands"
+config CMD_TPM
+	bool "Enable the 'tpm' command"
+	depends on TPM
+	help
+	  This provides a means to talk to a TPM from the command line. A wide
+	  range of commands if provided - see 'tpm help' for details. The
+	  command requires a suitable TPM on your board and the correct driver
+	  must be enabled.
+
+config CMD_TPM_TEST
+	bool "Enable the 'tpm test' command"
+	depends on CMD_TPM
+	help
+	  This provides a a series of tests to confirm that the TPM is working
+	  correctly. The tests cover initialisation, non-volatile RAM, extend,
+	  global lock and checking that timing is within expectations. The
+	  tests pass correctly on Infineon TPMs but may need to be adjusted
+	  for other devices.
+
+endmenu
+
+endmenu

@@ -225,6 +225,8 @@ endmenu		# Boot images
 
 source "common/Kconfig"
 
+source "cmd/Kconfig"
+
 source "dts/Kconfig"
 
 source "net/Kconfig"
