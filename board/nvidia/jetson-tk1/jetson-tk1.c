@@ -57,19 +57,6 @@ int tegra_pcie_board_init(void)
 		return err;
 	}
 
-	err = as3722_gpio_configure(pmic, 1, AS3722_GPIO_OUTPUT_VDDH |
-					     AS3722_GPIO_INVERT);
-	if (err < 0) {
-		error("failed to configure GPIO#1 as output: %d\n", err);
-		return err;
-	}
-
-	err = as3722_gpio_direction_output(pmic, 2, 1);
-	if (err < 0) {
-		error("failed to set GPIO#2 high: %d\n", err);
-		return err;
-	}
-
 	return 0;
 }
 #endif /* PCI */
