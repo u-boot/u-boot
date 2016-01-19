@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int pci_get_bus(int busnum, struct udevice **busp)
+int pci_get_bus(int busnum, struct udevice **busp)
 {
 	int ret;
 
@@ -39,20 +39,6 @@ static int pci_get_bus(int busnum, struct udevice **busp)
 	}
 
 	return ret;
-}
-
-struct pci_controller *pci_bus_to_hose(int busnum)
-{
-	struct udevice *bus;
-	int ret;
-
-	ret = pci_get_bus(busnum, &bus);
-	if (ret) {
-		debug("%s: Cannot get bus %d: ret=%d\n", __func__, busnum, ret);
-		return NULL;
-	}
-
-	return dev_get_uclass_priv(bus);
 }
 
 struct udevice *pci_get_controller(struct udevice *dev)

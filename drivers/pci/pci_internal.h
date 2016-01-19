@@ -47,4 +47,16 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus);
  */
 int dm_pciauto_config_device(struct udevice *dev);
 
+/**
+ * pci_get_bus() - Get a pointer to a bus, given its number
+ *
+ * This looks up a PCI bus based on its bus number. The bus is probed if
+ * necessary.
+ *
+ * @busnum:	PCI bus number to look up
+ * @busp:	Returns PCI bus on success
+ * @return 0 on success, or -ve error
+ */
+int pci_get_bus(int busnum, struct udevice **busp);
+
 #endif
