@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <pci.h>
 
@@ -167,8 +168,8 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 	struct pci_region *pci_prefetch;
 	struct pci_region *pci_io;
 	u16 cmdstat, prefechable_64;
-	/* The root controller has the region information */
-	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+	struct udevice *ctlr = pci_get_controller(dev);
+	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
 
 	pci_mem = ctlr_hose->pci_mem;
 	pci_prefetch = ctlr_hose->pci_prefetch;
@@ -248,9 +249,8 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus)
 	struct pci_region *pci_mem;
 	struct pci_region *pci_prefetch;
 	struct pci_region *pci_io;
-
-	/* The root controller has the region information */
-	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+	struct udevice *ctlr = pci_get_controller(dev);
+	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
 
 	pci_mem = ctlr_hose->pci_mem;
 	pci_prefetch = ctlr_hose->pci_prefetch;
@@ -311,13 +311,13 @@ int dm_pciauto_config_device(struct udevice *dev)
 	unsigned int sub_bus = PCI_BUS(dm_pci_get_bdf(dev));
 	unsigned short class;
 	bool enum_only = false;
+	struct udevice *ctlr = pci_get_controller(dev);
+	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
 	int n;
 
 #ifdef CONFIG_PCI_ENUM_ONLY
 	enum_only = true;
 #endif
-	/* The root controller has the region information */
-	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
 
 	pci_mem = ctlr_hose->pci_mem;
 	pci_prefetch = ctlr_hose->pci_prefetch;
