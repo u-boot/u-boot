@@ -10,7 +10,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <lcd.h>
+#include <mapmem.h>
 #include <bmp_layout.h>
 #include <command.h>
 #include <asm/byteorder.h>
@@ -225,6 +227,9 @@ static int bmp_info(ulong addr)
  */
 int bmp_display(ulong addr, int x, int y)
 {
+#ifdef CONFIG_DM_VIDEO
+	struct udevice *dev;
+#endif
 	int ret;
 	struct bmp_image *bmp = map_sysmem(addr, 0);
 	void *bmp_alloc_addr = NULL;
@@ -240,7 +245,22 @@ int bmp_display(ulong addr, int x, int y)
 	}
 	addr = map_to_sysmem(bmp);
 
-#if defined(CONFIG_LCD)
+#ifdef CONFIG_DM_VIDEO
+	ret = uclass_first_device(UCLASS_VIDEO, &dev);
+	if (!ret) {
+		if (!dev)
+			ret = -ENODEV;
+		if (!ret) {
+			bool align = false;
+
+# ifdef CONFIG_SPLASH_SCREEN_ALIGN
+			align = true;
+# endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+			ret = video_bmp_display(dev, addr, x, y, align);
+		}
+	}
+	return ret ? CMD_RET_FAILURE : 0;
+#elif defined(CONFIG_LCD)
 	ret = lcd_display_bitmap(addr, x, y);
 #elif defined(CONFIG_VIDEO)
 	ret = video_display_bitmap(addr, x, y);
