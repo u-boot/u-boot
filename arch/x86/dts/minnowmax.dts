@@ -150,66 +150,91 @@
 			  0x42000000 0x0 0xc0000000 0xc0000000 0 0x20000000
 			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
 
-		irq-router@1f,0 {
+		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
-			compatible = "intel,irq-router";
-			intel,pirq-config = "ibase";
-			intel,ibase-offset = <0x50>;
-			intel,pirq-link = <8 8>;
-			intel,pirq-mask = <0xdee0>;
-			intel,pirq-routing = <
-				/* BayTrail PCI devices */
-				PCI_BDF(0, 2, 0) INTA PIRQA
-				PCI_BDF(0, 3, 0) INTA PIRQA
-				PCI_BDF(0, 16, 0) INTA PIRQA
-				PCI_BDF(0, 17, 0) INTA PIRQA
-				PCI_BDF(0, 18, 0) INTA PIRQA
-				PCI_BDF(0, 19, 0) INTA PIRQA
-				PCI_BDF(0, 20, 0) INTA PIRQA
-				PCI_BDF(0, 21, 0) INTA PIRQA
-				PCI_BDF(0, 22, 0) INTA PIRQA
-				PCI_BDF(0, 23, 0) INTA PIRQA
-				PCI_BDF(0, 24, 0) INTA PIRQA
-				PCI_BDF(0, 24, 1) INTC PIRQC
-				PCI_BDF(0, 24, 2) INTD PIRQD
-				PCI_BDF(0, 24, 3) INTB PIRQB
-				PCI_BDF(0, 24, 4) INTA PIRQA
-				PCI_BDF(0, 24, 5) INTC PIRQC
-				PCI_BDF(0, 24, 6) INTD PIRQD
-				PCI_BDF(0, 24, 7) INTB PIRQB
-				PCI_BDF(0, 26, 0) INTA PIRQA
-				PCI_BDF(0, 27, 0) INTA PIRQA
-				PCI_BDF(0, 28, 0) INTA PIRQA
-				PCI_BDF(0, 28, 1) INTB PIRQB
-				PCI_BDF(0, 28, 2) INTC PIRQC
-				PCI_BDF(0, 28, 3) INTD PIRQD
-				PCI_BDF(0, 29, 0) INTA PIRQA
-				PCI_BDF(0, 30, 0) INTA PIRQA
-				PCI_BDF(0, 30, 1) INTD PIRQD
-				PCI_BDF(0, 30, 2) INTB PIRQB
-				PCI_BDF(0, 30, 3) INTC PIRQC
-				PCI_BDF(0, 30, 4) INTD PIRQD
-				PCI_BDF(0, 30, 5) INTB PIRQB
-				PCI_BDF(0, 31, 3) INTB PIRQB
+			compatible = "pci8086,0f1c", "intel,pch9";
 
-				/* PCIe root ports downstream interrupts */
-				PCI_BDF(1, 0, 0) INTA PIRQA
-				PCI_BDF(1, 0, 0) INTB PIRQB
-				PCI_BDF(1, 0, 0) INTC PIRQC
-				PCI_BDF(1, 0, 0) INTD PIRQD
-				PCI_BDF(2, 0, 0) INTA PIRQB
-				PCI_BDF(2, 0, 0) INTB PIRQC
-				PCI_BDF(2, 0, 0) INTC PIRQD
-				PCI_BDF(2, 0, 0) INTD PIRQA
-				PCI_BDF(3, 0, 0) INTA PIRQC
-				PCI_BDF(3, 0, 0) INTB PIRQD
-				PCI_BDF(3, 0, 0) INTC PIRQA
-				PCI_BDF(3, 0, 0) INTD PIRQB
-				PCI_BDF(4, 0, 0) INTA PIRQD
-				PCI_BDF(4, 0, 0) INTB PIRQA
-				PCI_BDF(4, 0, 0) INTC PIRQB
-				PCI_BDF(4, 0, 0) INTD PIRQC
-			>;
+			irq-router {
+				compatible = "intel,irq-router";
+				intel,pirq-config = "ibase";
+				intel,ibase-offset = <0x50>;
+				intel,pirq-link = <8 8>;
+				intel,pirq-mask = <0xdee0>;
+				intel,pirq-routing = <
+					/* BayTrail PCI devices */
+					PCI_BDF(0, 2, 0) INTA PIRQA
+					PCI_BDF(0, 3, 0) INTA PIRQA
+					PCI_BDF(0, 16, 0) INTA PIRQA
+					PCI_BDF(0, 17, 0) INTA PIRQA
+					PCI_BDF(0, 18, 0) INTA PIRQA
+					PCI_BDF(0, 19, 0) INTA PIRQA
+					PCI_BDF(0, 20, 0) INTA PIRQA
+					PCI_BDF(0, 21, 0) INTA PIRQA
+					PCI_BDF(0, 22, 0) INTA PIRQA
+					PCI_BDF(0, 23, 0) INTA PIRQA
+					PCI_BDF(0, 24, 0) INTA PIRQA
+					PCI_BDF(0, 24, 1) INTC PIRQC
+					PCI_BDF(0, 24, 2) INTD PIRQD
+					PCI_BDF(0, 24, 3) INTB PIRQB
+					PCI_BDF(0, 24, 4) INTA PIRQA
+					PCI_BDF(0, 24, 5) INTC PIRQC
+					PCI_BDF(0, 24, 6) INTD PIRQD
+					PCI_BDF(0, 24, 7) INTB PIRQB
+					PCI_BDF(0, 26, 0) INTA PIRQA
+					PCI_BDF(0, 27, 0) INTA PIRQA
+					PCI_BDF(0, 28, 0) INTA PIRQA
+					PCI_BDF(0, 28, 1) INTB PIRQB
+					PCI_BDF(0, 28, 2) INTC PIRQC
+					PCI_BDF(0, 28, 3) INTD PIRQD
+					PCI_BDF(0, 29, 0) INTA PIRQA
+					PCI_BDF(0, 30, 0) INTA PIRQA
+					PCI_BDF(0, 30, 1) INTD PIRQD
+					PCI_BDF(0, 30, 2) INTB PIRQB
+					PCI_BDF(0, 30, 3) INTC PIRQC
+					PCI_BDF(0, 30, 4) INTD PIRQD
+					PCI_BDF(0, 30, 5) INTB PIRQB
+					PCI_BDF(0, 31, 3) INTB PIRQB
+
+					/*
+					 * PCIe root ports downstream
+					 * interrupts
+					 */
+					PCI_BDF(1, 0, 0) INTA PIRQA
+					PCI_BDF(1, 0, 0) INTB PIRQB
+					PCI_BDF(1, 0, 0) INTC PIRQC
+					PCI_BDF(1, 0, 0) INTD PIRQD
+					PCI_BDF(2, 0, 0) INTA PIRQB
+					PCI_BDF(2, 0, 0) INTB PIRQC
+					PCI_BDF(2, 0, 0) INTC PIRQD
+					PCI_BDF(2, 0, 0) INTD PIRQA
+					PCI_BDF(3, 0, 0) INTA PIRQC
+					PCI_BDF(3, 0, 0) INTB PIRQD
+					PCI_BDF(3, 0, 0) INTC PIRQA
+					PCI_BDF(3, 0, 0) INTD PIRQB
+					PCI_BDF(4, 0, 0) INTA PIRQD
+					PCI_BDF(4, 0, 0) INTB PIRQA
+					PCI_BDF(4, 0, 0) INTC PIRQB
+					PCI_BDF(4, 0, 0) INTD PIRQC
+				>;
+			};
+
+			spi {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "intel,ich-spi";
+				spi-flash@0 {
+					#address-cells = <1>;
+					#size-cells = <1>;
+					reg = <0>;
+					compatible = "stmicro,n25q064a",
+						"spi-flash";
+					memory-map = <0xff800000 0x00800000>;
+					rw-mrc-cache {
+						label = "rw-mrc-cache";
+						reg = <0x006f0000 0x00010000>;
+					};
+				};
+			};
 		};
 	};
 
@@ -266,23 +291,6 @@
 			fsp,dimm-trrd = <6>;
 			fsp,dimm-trtp = <6>;
 			fsp,dimm-tfaw = <0x14>;
-		};
-	};
-
-	spi {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "intel,ich-spi";
-		spi-flash@0 {
-			#address-cells = <1>;
-			#size-cells = <1>;
-			reg = <0>;
-			compatible = "stmicro,n25q064a", "spi-flash";
-			memory-map = <0xff800000 0x00800000>;
-			rw-mrc-cache {
-				label = "rw-mrc-cache";
-				reg = <0x006f0000 0x00010000>;
-			};
 		};
 	};
 

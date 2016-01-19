@@ -3,18 +3,20 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <pch.h>
 #include <asm/lapic.h>
 #include <asm/pci.h>
 #include <asm/arch/bd82x6x.h>
 #include <asm/arch/model_206ax.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
+
+#define BIOS_CTRL	0xdc
 
 void bd82x6x_pci_init(pci_dev_t dev)
 {
@@ -96,6 +98,7 @@ static int bd82x6x_probe(struct udevice *dev)
 	return 0;
 }
 
+/* TODO(sjg@chromium.org): Move this to the PCH init() method */
 int bd82x6x_init(void)
 {
 	const void *blob = gd->fdt_blob;
@@ -116,6 +119,47 @@ int bd82x6x_init(void)
 	return 0;
 }
 
+static int bd82x6x_pch_get_sbase(struct udevice *dev, ulong *sbasep)
+{
+	u32 rcba;
+
+	dm_pci_read_config32(dev, PCH_RCBA, &rcba);
+	/* Bits 31-14 are the base address, 13-1 are reserved, 0 is enable */
+	rcba = rcba & 0xffffc000;
+	*sbasep = rcba + 0x3800;
+
+	return 0;
+}
+
+static enum pch_version bd82x6x_pch_get_version(struct udevice *dev)
+{
+	return PCHV_9;
+}
+
+static int bd82x6x_set_spi_protect(struct udevice *dev, bool protect)
+{
+	uint8_t bios_cntl;
+
+	/* Adjust the BIOS write protect and SMM BIOS Write Protect Disable */
+	dm_pci_read_config8(dev, BIOS_CTRL, &bios_cntl);
+	if (protect) {
+		bios_cntl &= ~BIOS_CTRL_BIOSWE;
+		bios_cntl |= BIT(5);
+	} else {
+		bios_cntl |= BIOS_CTRL_BIOSWE;
+		bios_cntl &= ~BIT(5);
+	}
+	dm_pci_write_config8(dev, BIOS_CTRL, bios_cntl);
+
+	return 0;
+}
+
+static const struct pch_ops bd82x6x_pch_ops = {
+	.get_sbase	= bd82x6x_pch_get_sbase,
+	.get_version	= bd82x6x_pch_get_version,
+	.set_spi_protect = bd82x6x_set_spi_protect,
+};
+
 static const struct udevice_id bd82x6x_ids[] = {
 	{ .compatible = "intel,bd82x6x" },
 	{ }
@@ -126,4 +170,5 @@ U_BOOT_DRIVER(bd82x6x_drv) = {
 	.id		= UCLASS_PCH,
 	.of_match	= bd82x6x_ids,
 	.probe		= bd82x6x_probe,
+	.ops		= &bd82x6x_pch_ops,
 };

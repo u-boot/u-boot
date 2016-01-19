@@ -186,9 +186,9 @@
 			intel,pch-backlight = <0x04000000>;
 		};
 
-		pch {
+		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
-			compatible = "intel,bd82x6x", "intel,pch";
+			compatible = "intel,bd82x6x", "intel,pch9";
 			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -200,6 +200,7 @@
 						1 0 0 0 0 0 0 0>;
 			/* Enable EC SMI source */
 			intel,alt-gp-smi-enable = <0x0100>;
+
 			spi {
 				#address-cells = <1>;
 				#size-cells = <0>;

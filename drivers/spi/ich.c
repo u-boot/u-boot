@@ -5,14 +5,14 @@
  *
  * This file is derived from the flashrom project.
  */
-
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
-#include <spi.h>
+#include <pch.h>
 #include <pci.h>
 #include <pci_ids.h>
+#include <spi.h>
 #include <asm/io.h>
 
 #include "ich.h"
@@ -27,9 +27,7 @@
 #endif
 
 struct ich_spi_platdata {
-	pci_dev_t dev;		/* PCI device number */
-	int ich_version;	/* Controller version, 7 or 9 */
-	bool use_sbase;		/* Use SBASE instead of RCB */
+	enum pch_version ich_version;	/* Controller version, 7 or 9 */
 };
 
 struct ich_spi_priv {
@@ -122,40 +120,16 @@ static void ich_set_bbar(struct ich_spi_priv *ctlr, uint32_t minaddr)
 	ich_writel(ctlr, ichspi_bbar, ctlr->bbar);
 }
 
-/*
- * Check if this device ID matches one of supported Intel PCH devices.
- *
- * Return the ICH version if there is a match, or zero otherwise.
- */
-static int get_ich_version(uint16_t device_id)
-{
-	if (device_id == PCI_DEVICE_ID_INTEL_TGP_LPC ||
-	    device_id == PCI_DEVICE_ID_INTEL_ITC_LPC ||
-	    device_id == PCI_DEVICE_ID_INTEL_QRK_ILB)
-		return 7;
-
-	if ((device_id >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN &&
-	     device_id <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX) ||
-	    (device_id >= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MIN &&
-	     device_id <= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MAX) ||
-	    device_id == PCI_DEVICE_ID_INTEL_VALLEYVIEW_LPC ||
-	    device_id == PCI_DEVICE_ID_INTEL_LYNXPOINT_LPC ||
-	    device_id == PCI_DEVICE_ID_INTEL_WILDCATPOINT_LPC)
-		return 9;
-
-	return 0;
-}
-
 /* @return 1 if the SPI flash supports the 33MHz speed */
-static int ich9_can_do_33mhz(pci_dev_t dev)
+static int ich9_can_do_33mhz(struct udevice *dev)
 {
 	u32 fdod, speed;
 
 	/* Observe SPI Descriptor Component Section 0 */
-	pci_write_config_dword(dev, 0xb0, 0x1000);
+	dm_pci_write_config32(dev->parent, 0xb0, 0x1000);
 
 	/* Extract the Write/Erase SPI Frequency from descriptor */
-	pci_read_config_dword(dev, 0xb4, &fdod);
+	dm_pci_read_config32(dev->parent, 0xb4, &fdod);
 
 	/* Bits 23:21 have the fast read clock frequency, 0=20MHz, 1=33MHz */
 	speed = (fdod >> 21) & 7;
@@ -163,59 +137,22 @@ static int ich9_can_do_33mhz(pci_dev_t dev)
 	return speed == 1;
 }
 
-static int ich_find_spi_controller(struct ich_spi_platdata *ich)
-{
-	int last_bus = pci_last_busno();
-	int bus;
-
-	if (last_bus == -1) {
-		debug("No PCI busses?\n");
-		return -ENODEV;
-	}
-
-	for (bus = 0; bus <= last_bus; bus++) {
-		uint16_t vendor_id, device_id;
-		uint32_t ids;
-		pci_dev_t dev;
-
-		dev = PCI_BDF(bus, 31, 0);
-		pci_read_config_dword(dev, 0, &ids);
-		vendor_id = ids;
-		device_id = ids >> 16;
-
-		if (vendor_id == PCI_VENDOR_ID_INTEL) {
-			ich->dev = dev;
-			ich->ich_version = get_ich_version(device_id);
-			if (device_id == PCI_DEVICE_ID_INTEL_VALLEYVIEW_LPC)
-				ich->use_sbase = true;
-			return ich->ich_version == 0 ? -ENODEV : 0;
-		}
-	}
-
-	debug("ICH SPI: No ICH found.\n");
-	return -ENODEV;
-}
-
-static int ich_init_controller(struct ich_spi_platdata *plat,
+static int ich_init_controller(struct udevice *dev,
+			       struct ich_spi_platdata *plat,
 			       struct ich_spi_priv *ctlr)
 {
-	uint8_t *rcrb; /* Root Complex Register Block */
-	uint32_t rcba; /* Root Complex Base Address */
-	uint32_t sbase_addr;
-	uint8_t *sbase;
-
-	pci_read_config_dword(plat->dev, 0xf0, &rcba);
-	/* Bits 31-14 are the base address, 13-1 are reserved, 0 is enable. */
-	rcrb = (uint8_t *)(rcba & 0xffffc000);
+	ulong sbase_addr;
+	void *sbase;
 
 	/* SBASE is similar */
-	pci_read_config_dword(plat->dev, 0x54, &sbase_addr);
-	sbase = (uint8_t *)(sbase_addr & 0xfffffe00);
+	pch_get_sbase(dev->parent, &sbase_addr);
+	sbase = (void *)sbase_addr;
+	debug("%s: sbase=%p\n", __func__, sbase);
 
-	if (plat->ich_version == 7) {
-		struct ich7_spi_regs *ich7_spi;
+	if (plat->ich_version == PCHV_7) {
+		struct ich7_spi_regs *ich7_spi = sbase;
 
-		ich7_spi = (struct ich7_spi_regs *)(rcrb + 0x3020);
+		ich7_spi = (struct ich7_spi_regs *)sbase;
 		ctlr->ichspi_lock = readw(&ich7_spi->spis) & SPIS_LOCK;
 		ctlr->opmenu = offsetof(struct ich7_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich7_spi->opmenu);
@@ -228,13 +165,9 @@ static int ich_init_controller(struct ich_spi_platdata *plat,
 		ctlr->bbar = offsetof(struct ich7_spi_regs, bbar);
 		ctlr->preop = offsetof(struct ich7_spi_regs, preop);
 		ctlr->base = ich7_spi;
-	} else if (plat->ich_version == 9) {
-		struct ich9_spi_regs *ich9_spi;
+	} else if (plat->ich_version == PCHV_9) {
+		struct ich9_spi_regs *ich9_spi = sbase;
 
-		if (plat->use_sbase)
-			ich9_spi = (struct ich9_spi_regs *)sbase;
-		else
-			ich9_spi = (struct ich9_spi_regs *)(rcrb + 0x3800);
 		ctlr->ichspi_lock = readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
 		ctlr->opmenu = offsetof(struct ich9_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich9_spi->opmenu);
@@ -258,9 +191,9 @@ static int ich_init_controller(struct ich_spi_platdata *plat,
 
 	/* Work out the maximum speed we can support */
 	ctlr->max_speed = 20000000;
-	if (plat->ich_version == 9 && ich9_can_do_33mhz(plat->dev))
+	if (plat->ich_version == PCHV_9 && ich9_can_do_33mhz(dev))
 		ctlr->max_speed = 33000000;
-	debug("ICH SPI: Version %d detected at %p, speed %ld\n",
+	debug("ICH SPI: Version ID %d detected at %p, speed %ld\n",
 	      plat->ich_version, ctlr->base, ctlr->max_speed);
 
 	ich_set_bbar(ctlr, 0);
@@ -487,7 +420,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (ret < 0)
 		return ret;
 
-	if (plat->ich_version == 7)
+	if (plat->ich_version == PCHV_7)
 		ich_writew(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
 	else
 		ich_writeb(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
@@ -682,45 +615,33 @@ int spi_write_protect_region(struct udevice *dev, uint32_t lower_limit,
 	return 0;
 }
 
-static int ich_spi_probe(struct udevice *bus)
+static int ich_spi_probe(struct udevice *dev)
 {
-	struct ich_spi_platdata *plat = dev_get_platdata(bus);
-	struct ich_spi_priv *priv = dev_get_priv(bus);
+	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	struct ich_spi_priv *priv = dev_get_priv(dev);
 	uint8_t bios_cntl;
 	int ret;
 
-	ret = ich_init_controller(plat, priv);
+	/* Check the ICH version */
+	plat->ich_version = pch_get_version(dev->parent);
+
+	ret = ich_init_controller(dev, plat, priv);
 	if (ret)
 		return ret;
-	/*
-	 * Disable the BIOS write protect so write commands are allowed.  On
-	 * v9, deassert SMM BIOS Write Protect Disable.
-	 */
-	if (plat->use_sbase) {
+	/* Disable the BIOS write protect so write commands are allowed */
+	ret = pch_set_spi_protect(dev->parent, false);
+	if (ret == -ENOSYS) {
 		bios_cntl = ich_readb(priv, priv->bcr);
 		bios_cntl &= ~BIT(5);	/* clear Enable InSMM_STS (EISS) */
 		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
 		ich_writeb(priv, bios_cntl, priv->bcr);
-	} else {
-		pci_read_config_byte(plat->dev, 0xdc, &bios_cntl);
-		if (plat->ich_version == 9)
-			bios_cntl &= ~BIT(5);
-		pci_write_config_byte(plat->dev, 0xdc, bios_cntl | 0x1);
+	} else if (ret) {
+		debug("%s: Failed to disable write-protect: err=%d\n",
+		      __func__, ret);
+		return ret;
 	}
 
 	priv->cur_speed = priv->max_speed;
-
-	return 0;
-}
-
-static int ich_spi_ofdata_to_platdata(struct udevice *bus)
-{
-	struct ich_spi_platdata *plat = dev_get_platdata(bus);
-	int ret;
-
-	ret = ich_find_spi_controller(plat);
-	if (ret)
-		return ret;
 
 	return 0;
 }
@@ -757,7 +678,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	 * ICH 7 SPI controller only supports array read command
 	 * and byte program command for SST flash
 	 */
-	if (plat->ich_version == 7) {
+	if (plat->ich_version == PCHV_7) {
 		slave->mode_rx = SPI_RX_SLOW;
 		slave->mode = SPI_TX_BYTE;
 	}
@@ -785,7 +706,6 @@ U_BOOT_DRIVER(ich_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = ich_spi_ids,
 	.ops	= &ich_spi_ops,
-	.ofdata_to_platdata = ich_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct ich_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct ich_spi_priv),
 	.child_pre_probe = ich_spi_child_pre_probe,

@@ -97,6 +97,7 @@ static int create_pirq_routing_table(void)
 	struct irq_routing_table *rt;
 	struct irq_info *slot, *slot_base;
 	int irq_entries = 0;
+	int parent;
 	int i;
 	int ret;
 
@@ -106,7 +107,11 @@ static int create_pirq_routing_table(void)
 		return -EINVAL;
 	}
 
-	ret = fdtdec_get_pci_addr(blob, node, FDT_PCI_SPACE_CONFIG,
+	/* TODO(sjg@chromium.org): Drop this when PIRQ is a driver */
+	parent = fdt_parent_offset(blob, node);
+	if (parent < 0)
+		return -EINVAL;
+	ret = fdtdec_get_pci_addr(blob, parent, FDT_PCI_SPACE_CONFIG,
 				  "reg", &addr);
 	if (ret)
 		return ret;
