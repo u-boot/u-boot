@@ -40,18 +40,12 @@ int ph1_pro4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size)
 	writel(0x0000040B, &phy->dcr);
 	if (freq == 1333) {
 		writel(0x85589955, &phy->dtpr[0]);
-		if (size == 1)
-			writel(0x1a8363c0, &phy->dtpr[1]);
-		else
-			writel(0x1a8363c0, &phy->dtpr[1]);
+		writel(0x1a8363c0, &phy->dtpr[1]);
 		writel(0x5002c200, &phy->dtpr[2]);
 		writel(0x00000b51, &phy->mr0);
 	} else {
 		writel(0x999cbb66, &phy->dtpr[0]);
-		if (size == 1)
-			writel(0x1a878400, &phy->dtpr[1]);
-		else
-			writel(0x1a878400, &phy->dtpr[1]);
+		writel(0x1a878400, &phy->dtpr[1]);
 		writel(0xa00214f8, &phy->dtpr[2]);
 		writel(0x00000d71, &phy->mr0);
 	}
