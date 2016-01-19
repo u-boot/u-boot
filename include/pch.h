@@ -14,6 +14,10 @@ enum pch_version {
 	PCHV_9,
 };
 
+#define PCH_RCBA		0xf0
+
+#define BIOS_CTRL_BIOSWE	BIT(0)
+
 /* Operations for the Platform Controller Hub */
 struct pch_ops {
 	/**
