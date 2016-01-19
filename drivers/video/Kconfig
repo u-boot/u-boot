@@ -300,6 +300,15 @@ config DISPLAY_PORT
 	   to drive LCD panels. This framework provides support for enabling
 	   these displays where supported by the video hardware.
 
+config VIDEO_SANDBOX_SDL
+	bool "Enable sandbox video console using SDL"
+	depends on SANDBOX
+	help
+	  When using sandbox you can enable an emulated LCD display which
+	  appears as an SDL (Simple DirectMedia Layer) window. This is a
+	  console device and can display stdout output. Within U-Boot is is
+	  a normal bitmap display and can display images as well as text.
+
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
 	help

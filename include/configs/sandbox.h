@@ -159,7 +159,6 @@
 /* LCD and keyboard require SDL support */
 #ifdef CONFIG_SANDBOX_SDL
 #define CONFIG_LCD
-#define CONFIG_VIDEO_SANDBOX_SDL
 #define CONFIG_CMD_BMP
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_CONSOLE_MUX
