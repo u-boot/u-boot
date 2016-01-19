@@ -20,15 +20,6 @@ enum {
 	LCD_MAX_HEIGHT		= 768,
 };
 
-
-/* This platform data is needed in tests, so declare it here */
-struct sandbox_sdl_plat {
-	int xres;
-	int yres;
-	int bpix;
-	int rot;
-};
-
 static int sandbox_sdl_probe(struct udevice *dev)
 {
 	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
