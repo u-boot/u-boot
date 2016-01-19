@@ -451,6 +451,19 @@ static int reserve_lcd(void)
 }
 #endif /* CONFIG_LCD */
 
+#if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) && \
+		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
+		!defined(CONFIG_BLACKFIN) && !defined(CONFIG_M68K)
+static int reserve_legacy_video(void)
+{
+	/* reserve memory for video display (always full pages) */
+	gd->relocaddr = video_setmem(gd->relocaddr);
+	gd->fb_base = gd->relocaddr;
+
+	return 0;
+}
+#endif
+
 static int reserve_trace(void)
 {
 #ifdef CONFIG_TRACE
@@ -462,19 +475,6 @@ static int reserve_trace(void)
 
 	return 0;
 }
-
-#if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) && \
-		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
-		!defined(CONFIG_BLACKFIN) && !defined(CONFIG_M68K)
-static int reserve_video(void)
-{
-	/* reserve memory for video display (always full pages) */
-	gd->relocaddr = video_setmem(gd->relocaddr);
-	gd->fb_base = gd->relocaddr;
-
-	return 0;
-}
-#endif
 
 static int reserve_uboot(void)
 {
@@ -960,13 +960,13 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_LCD
 	reserve_lcd,
 #endif
-	reserve_trace,
 	/* TODO: Why the dependency on CONFIG_8xx? */
 #if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) && \
 		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
 		!defined(CONFIG_BLACKFIN) && !defined(CONFIG_M68K)
 	reserve_video,
 #endif
+	reserve_trace,
 #if !defined(CONFIG_BLACKFIN)
 	reserve_uboot,
 #endif
