@@ -706,7 +706,7 @@ the board, then you can use post_code() calls from C or assembler to monitor
 boot progress. This can be good for debugging.
 
 If not, you can try to get serial working as early as possible. The early
-debug serial port may be useful here. See setup_early_uart() for an example.
+debug serial port may be useful here. See setup_internal_uart() for an example.
 
 During the U-Boot porting, one of the important steps is to write correct PIRQ
 routing information in the board device tree. Without it, device drivers in the
