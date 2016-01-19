@@ -47,23 +47,6 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_BOARD_EARLY_INIT_F
-int board_early_init_f(void)
-{
-#ifdef CONFIG_VIDEO_SANDBOX_SDL
-	int ret;
-
-	ret = sandbox_lcd_sdl_early_init();
-	if (ret) {
-		puts("Could not init sandbox LCD emulation\n");
-		return ret;
-	}
-#endif
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
