@@ -188,3 +188,30 @@ static int dm_test_video_context(struct unit_test_state *uts)
 	return check_vidconsole_output(uts, 0, 788, 453);
 }
 DM_TEST(dm_test_video_context, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test rotated text output through the console uclass */
+static int dm_test_video_rotation1(struct unit_test_state *uts)
+{
+	ut_assertok(check_vidconsole_output(uts, 1, 1112, 680));
+
+	return 0;
+}
+DM_TEST(dm_test_video_rotation1, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test rotated text output through the console uclass */
+static int dm_test_video_rotation2(struct unit_test_state *uts)
+{
+	ut_assertok(check_vidconsole_output(uts, 2, 785, 446));
+
+	return 0;
+}
+DM_TEST(dm_test_video_rotation2, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test rotated text output through the console uclass */
+static int dm_test_video_rotation3(struct unit_test_state *uts)
+{
+	ut_assertok(check_vidconsole_output(uts, 3, 1134, 681));
+
+	return 0;
+}
+DM_TEST(dm_test_video_rotation3, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
