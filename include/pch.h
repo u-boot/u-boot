@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2015 Google, Inc
+ * Written by Simon Glass <sjg@chromium.org>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#ifndef __pch_h
+#define __pch_h
+
+enum pch_version {
+	PCHV_UNKNOWN,
+	PCHV_7,
+	PCHV_9,
+};
+
+/* Operations for the Platform Controller Hub */
+struct pch_ops {
+	/**
+	 * get_sbase() - get the address of SPI base
+	 *
+	 * @dev:	PCH device to check
+	 * @sbasep:	Returns address of SPI base if available, else 0
+	 * @return 0 if OK, -ve on error (e.g. there is no SPI base)
+	 */
+	int (*get_sbase)(struct udevice *dev, ulong *sbasep);
+
+	/**
+	 * get_version() - get the PCH version
+	 *
+	 * @return version, or -ENOSYS if unknown
+	 */
+	enum pch_version (*get_version)(struct udevice *dev);
+
+	/**
+	 * set_spi_protect() - set whether SPI flash is protected or not
+	 *
+	 * @dev:	PCH device to adjust
+	 * @protect:	true to protect, false to unprotect
+	 *
+	 * @return 0 on success, -ENOSYS if not implemented
+	 */
+	int (*set_spi_protect)(struct udevice *dev, bool protect);
+};
+
+#define pch_get_ops(dev)        ((struct pch_ops *)(dev)->driver->ops)
+
+/**
+ * pch_get_sbase() - get the address of SPI base
+ *
+ * @dev:	PCH device to check
+ * @sbasep:	Returns address of SPI base if available, else 0
+ * @return 0 if OK, -ve on error (e.g. there is no SPI base)
+ */
+int pch_get_sbase(struct udevice *dev, ulong *sbasep);
+
+/**
+ * pch_get_version() - get the PCH version
+ *
+ * @return version, or -ENOSYS if unknown
+ */
+enum pch_version pch_get_version(struct udevice *dev);
+
+/**
+ * set_spi_protect() - set whether SPI flash is protected or not
+ *
+ * @dev:	PCH device to adjust
+ * @protect:	true to protect, false to unprotect
+ *
+ * @return 0 on success, -ENOSYS if not implemented
+ */
+int pch_set_spi_protect(struct udevice *dev, bool protect);
+
+#endif

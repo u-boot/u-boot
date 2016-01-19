@@ -51,6 +51,7 @@ obj-y += hwmon/
 obj-y += misc/
 obj-y += pcmcia/
 obj-y += dfu/
+obj-$(CONFIG_X86) += pch/
 obj-y += rtc/
 obj-y += sound/
 obj-y += timer/
