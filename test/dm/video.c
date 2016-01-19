@@ -215,3 +215,57 @@ static int dm_test_video_rotation3(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_video_rotation3, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Read a file into memory and return a pointer to it */
+static int read_file(struct unit_test_state *uts, const char *fname,
+		     ulong *addrp)
+{
+	int buf_size = 100000;
+	ulong addr = 0;
+	int size, fd;
+	char *buf;
+
+	buf = map_sysmem(addr, 0);
+	ut_assert(buf != NULL);
+	fd = os_open(fname, OS_O_RDONLY);
+	ut_assert(fd >= 0);
+	size = os_read(fd, buf, buf_size);
+	ut_assert(size >= 0);
+	ut_assert(size < buf_size);
+	os_close(fd);
+	*addrp = addr;
+
+	return 0;
+}
+
+/* Test drawing a bitmap file */
+static int dm_test_video_bmp(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ulong addr;
+
+	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
+
+	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
+	ut_asserteq(1368, compress_frame_buffer(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_bmp, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test drawing a compressed bitmap file */
+static int dm_test_video_bmp_comp(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ulong addr;
+
+	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(read_file(uts, "tools/logos/denx-comp.bmp", &addr));
+
+	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
+	ut_asserteq(1368, compress_frame_buffer(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_bmp_comp, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
