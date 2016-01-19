@@ -20,6 +20,12 @@
 #define SPI_OPCODE_WREN      0x06
 #define SPI_OPCODE_FAST_READ 0x0b
 
+#ifdef DEBUG_TRACE
+#define debug_trace(fmt, args...) debug(fmt, ##args)
+#else
+#define debug_trace(x, args...)
+#endif
+
 struct ich_spi_platdata {
 	pci_dev_t dev;		/* PCI device number */
 	int ich_version;	/* Controller version, 7 or 9 */
@@ -52,7 +58,7 @@ static u8 ich_readb(struct ich_spi_priv *priv, int reg)
 {
 	u8 value = readb(priv->base + reg);
 
-	debug("read %2.2x from %4.4x\n", value, reg);
+	debug_trace("read %2.2x from %4.4x\n", value, reg);
 
 	return value;
 }
@@ -61,7 +67,7 @@ static u16 ich_readw(struct ich_spi_priv *priv, int reg)
 {
 	u16 value = readw(priv->base + reg);
 
-	debug("read %4.4x from %4.4x\n", value, reg);
+	debug_trace("read %4.4x from %4.4x\n", value, reg);
 
 	return value;
 }
@@ -70,7 +76,7 @@ static u32 ich_readl(struct ich_spi_priv *priv, int reg)
 {
 	u32 value = readl(priv->base + reg);
 
-	debug("read %8.8x from %4.4x\n", value, reg);
+	debug_trace("read %8.8x from %4.4x\n", value, reg);
 
 	return value;
 }
@@ -78,19 +84,19 @@ static u32 ich_readl(struct ich_spi_priv *priv, int reg)
 static void ich_writeb(struct ich_spi_priv *priv, u8 value, int reg)
 {
 	writeb(value, priv->base + reg);
-	debug("wrote %2.2x to %4.4x\n", value, reg);
+	debug_trace("wrote %2.2x to %4.4x\n", value, reg);
 }
 
 static void ich_writew(struct ich_spi_priv *priv, u16 value, int reg)
 {
 	writew(value, priv->base + reg);
-	debug("wrote %4.4x to %4.4x\n", value, reg);
+	debug_trace("wrote %4.4x to %4.4x\n", value, reg);
 }
 
 static void ich_writel(struct ich_spi_priv *priv, u32 value, int reg)
 {
 	writel(value, priv->base + reg);
-	debug("wrote %8.8x to %4.4x\n", value, reg);
+	debug_trace("wrote %8.8x to %4.4x\n", value, reg);
 }
 
 static void write_reg(struct ich_spi_priv *priv, const void *value,
@@ -447,7 +453,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		}
 		memcpy(trans->cmd, dout, bytes);
 		trans->cmd_len = bytes;
-		debug("ICH SPI: Saved %d bytes\n", bytes);
+		debug_trace("ICH SPI: Saved %d bytes\n", bytes);
 		return 0;
 	}
 
@@ -462,7 +468,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		trans->out = trans->cmd;
 		trans->bytesout = trans->cmd_len;
 		using_cmd = 1;
-		debug("ICH SPI: Using %d bytes\n", trans->cmd_len);
+		debug_trace("ICH SPI: Using %d bytes\n", trans->cmd_len);
 	} else {
 		trans->out = dout;
 		trans->bytesout = dout ? bytes : 0;
@@ -520,7 +526,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (using_cmd && dout && bytes) {
 		trans->out = dout;
 		trans->bytesout = bytes;
-		debug("ICH SPI: Moving to data, %d bytes\n", bytes);
+		debug_trace("ICH SPI: Moving to data, %d bytes\n", bytes);
 	}
 
 	/* Preset control fields */
