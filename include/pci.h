@@ -757,7 +757,9 @@ extern void pci_mpc85xx_init (struct pci_controller *hose);
 /**
  * pci_write_bar32() - Write the address of a BAR including control bits
  *
- * This writes a raw address (with control bits) to a bar
+ * This writes a raw address (with control bits) to a bar. This can be used
+ * with devices which require hard-coded addresses, not part of the normal
+ * PCI enumeration process.
  *
  * @hose:	PCI hose to use
  * @dev:	PCI device to update
@@ -765,7 +767,7 @@ extern void pci_mpc85xx_init (struct pci_controller *hose);
  * @addr:	BAR address with control bits
  */
 void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
-		     u32 addr_and_ctrl);
+		     u32 addr);
 
 /**
  * pci_read_bar32() - read the address of a bar
@@ -1165,6 +1167,17 @@ struct udevice *pci_get_controller(struct udevice *dev);
  */
 int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 		    struct pci_region **memp, struct pci_region **prefp);
+
+/**
+ * dm_pci_write_bar32() - Write the address of a BAR
+ *
+ * This writes a raw address to a bar
+ *
+ * @dev:	PCI device to update
+ * @barnum:	BAR number (0-5)
+ * @addr:	BAR address
+ */
+void dm_pci_write_bar32(struct udevice *dev, int barnum, u32 addr);
 
 /**
  * dm_pci_read_bar32() - read a base address register from a device

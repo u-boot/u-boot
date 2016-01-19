@@ -1053,6 +1053,14 @@ u32 dm_pci_read_bar32(struct udevice *dev, int barnum)
 		return addr & PCI_BASE_ADDRESS_MEM_MASK;
 }
 
+void dm_pci_write_bar32(struct udevice *dev, int barnum, u32 addr)
+{
+	int bar;
+
+	bar = PCI_BASE_ADDRESS_0 + barnum * 4;
+	dm_pci_write_config32(dev, bar, addr);
+}
+
 static int _dm_pci_bus_to_phys(struct udevice *ctlr,
 			       pci_addr_t bus_addr, unsigned long flags,
 			       unsigned long skip_mask, phys_addr_t *pa)
