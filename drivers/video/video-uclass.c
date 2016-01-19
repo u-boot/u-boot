@@ -189,6 +189,27 @@ static int video_post_probe(struct udevice *dev)
 #endif
 	video_clear(dev);
 
+	/*
+	 * Create a text console devices. For now we always do this, although
+	 * it might be useful to support only bitmap drawing on the device
+	 * for boards that don't need to display text.
+	 */
+	snprintf(name, sizeof(name), "%s.vidconsole", dev->name);
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
+	snprintf(drv, sizeof(drv), "vidconsole%d", priv->rot);
+	ret = device_bind_driver(dev, drv, str, &cons);
+	if (ret) {
+		debug("%s: Cannot bind console driver\n", __func__);
+		return ret;
+	}
+	ret = device_probe(cons);
+	if (ret) {
+		debug("%s: Cannot probe console driver\n", __func__);
+		return ret;
+	}
+
 	return 0;
 };
 
