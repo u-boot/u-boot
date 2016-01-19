@@ -7,7 +7,7 @@
 
 ifdef CONFIG_DM
 obj-$(CONFIG_DISPLAY_PORT) += dp-uclass.o
-obj-$(CONFIG_DM_VIDEO) += video-uclass.o vidconsole-uclass.o
+obj-$(CONFIG_DM_VIDEO) += video-uclass.o vidconsole-uclass.o console_normal.o
 endif
 
 obj-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
