@@ -13,6 +13,8 @@
 #define PIIX_ISA	PCI_BDF(0, 1, 0)
 #define PIIX_IDE	PCI_BDF(0, 1, 1)
 #define PIIX_USB	PCI_BDF(0, 1, 2)
+#define PIIX_PM	PCI_BDF(0, 1, 3)
+#define ICH9_PM	PCI_BDF(0, 0x1f, 0)
 #define I440FX_VGA	PCI_BDF(0, 2, 0)
 
 #define QEMU_Q35	PCI_BDF(0, 0, 0)

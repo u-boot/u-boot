@@ -17,4 +17,11 @@ config SYS_CAR_SIZE
 	hex
 	default 0x10000
 
+config ACPI_PM1_BASE
+	hex
+	default 0xe400
+	help
+	  ACPI Power Managment 1 (PM1) i/o-mapped base address.
+	  This device is defined in ACPI specification, with 16 bytes in size.
+
 endif
