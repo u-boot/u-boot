@@ -20,6 +20,7 @@
 
 #include "ls2080aqds_qixis.h"
 
+#define MC_BOOT_ENV_VAR "mcinitcmd"
 
 #ifdef CONFIG_FSL_MC_ENET
  /* - In LS2080A there are only 16 SERDES lanes, spread across 2 SERDES banks.
@@ -714,6 +715,7 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 int board_eth_init(bd_t *bis)
 {
 	int error;
+	char *mc_boot_env_var;
 #ifdef CONFIG_FSL_MC_ENET
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 	int serdes1_prtcl = (in_le32(&gur->rcwsr[28]) &
@@ -781,6 +783,9 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
+	mc_boot_env_var = getenv(MC_BOOT_ENV_VAR);
+	if (mc_boot_env_var)
+		run_command_list(mc_boot_env_var, -1, 0);
 	error = cpu_eth_init(bis);
 
 	if (hwconfig_f("xqsgmii", env_hwconfig)) {

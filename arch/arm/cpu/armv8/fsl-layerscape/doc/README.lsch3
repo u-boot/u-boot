@@ -121,6 +121,35 @@ mcboottimeout:	MC boot timeout in milliseconds. If this variable is not defined
 mcmemsize:	MC DRAM block size. If this variable is not defined, the value
 		CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE will be assumed.
 
+mcinitcmd:	This environment variable is defined to initiate MC and DPL deployment
+		from the location where it is stored(NOR, NAND, SD, SATA, USB)during
+		u-boot booting.If this variable is not defined then MC_BOOT_ENV_VAR
+		will be null and MC will not be booted and DPL will not be applied
+		during U-boot booting.However the MC, DPC and DPL can be applied from
+		console independently.
+		The variable needs to be set from the console once and then on
+		rebooting the parameters set in the varible will automatically be
+		executed. The commmand is demostrated taking an example of mc boot
+		using NOR Flash i.e. MC, DPL, and DPC is stored in the NOR flash:
+
+		cp.b 0xa0000000 0x580300000 $filesize
+		cp.b 0x80000000 0x580800000 $filesize
+		cp.b 0x90000000 0x580700000 $filesize
+
+		setenv mcinitcmd 'fsl_mc start mc 0x580300000 0x580800000'
+
+		If only linux is to be booted then the mcinitcmd environment should be set as
+
+		setenv mcinitcmd 'fsl_mc start mc 0x580300000 0x580800000;fsl_mc apply DPL 0x580700000'
+
+		Here the addresses 0xa0000000, 0x80000000, 0x80000000 are of DDR to where
+		MC binary, DPC binary and DPL binary are stored and 0x580300000, 0x580800000
+		and 0x580700000 are addresses in NOR where these are copied. It is to be
+		noted that these addresses in 'fsl_mc start mc 0x580300000 0x580800000;fsl_mc apply DPL 0x580700000'
+		can be replaced with the addresses of DDR to
+		which these will be copied in case of these binaries being stored in other
+		devices like SATA, USB, NAND, SD etc.
+
 Booting from NAND
 -------------------
 Booting from NAND requires two images, RCW and u-boot-with-spl.bin.
