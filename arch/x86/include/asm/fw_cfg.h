@@ -12,6 +12,8 @@
 #define FW_DMA_PORT_LOW	0x514
 #define FW_DMA_PORT_HIGH	0x518
 
+#include <linux/list.h>
+
 enum qemu_fwcfg_items {
 	FW_CFG_SIGNATURE	= 0x00,
 	FW_CFG_ID		= 0x01,
@@ -67,9 +69,10 @@ struct fw_cfg_file {
 	char name[FW_CFG_MAX_FILE_PATH];
 };
 
-struct fw_cfg_files {
-	__be32 count;
-	struct fw_cfg_file files[];
+struct fw_file {
+	struct fw_cfg_file cfg; /* firmware file information */
+	unsigned long addr;     /* firmware file in-memory address */
+	struct list_head list;  /* list node to link to fw_list */
 };
 
 struct fw_cfg_dma_access {

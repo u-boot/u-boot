@@ -10,9 +10,12 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/fw_cfg.h>
+#include <linux/list.h>
 
 static bool fwcfg_present;
 static bool fwcfg_dma_present;
+
+static LIST_HEAD(fw_list);
 
 /* Read configuration item using fw_cfg PIO interface */
 static void qemu_fwcfg_read_entry_pio(uint16_t entry,
@@ -162,29 +165,61 @@ static int qemu_fwcfg_setup_kernel(void *load_addr, void *initrd_addr)
 	return 0;
 }
 
-static int qemu_fwcfg_list_firmware(void)
+static int qemu_fwcfg_read_firmware_list(void)
 {
 	int i;
 	uint32_t count;
-	struct fw_cfg_files *files;
+	struct fw_file *file;
+	struct list_head *entry;
+
+	/* don't read it twice */
+	if (!list_empty(&fw_list))
+		return 0;
 
 	qemu_fwcfg_read_entry(FW_CFG_FILE_DIR, 4, &count);
 	if (!count)
 		return 0;
 
 	count = be32_to_cpu(count);
-	files = malloc(count * sizeof(struct fw_cfg_file));
-	if (!files)
-		return -ENOMEM;
+	for (i = 0; i < count; i++) {
+		file = malloc(sizeof(*file));
+		if (!file) {
+			printf("error: allocating resource\n");
+			goto err;
+		}
+		qemu_fwcfg_read_entry(FW_CFG_INVALID,
+				      sizeof(struct fw_cfg_file), &file->cfg);
+		file->addr = 0;
+		list_add_tail(&file->list, &fw_list);
+	}
 
-	files->count = count;
-	qemu_fwcfg_read_entry(FW_CFG_INVALID,
-			      count * sizeof(struct fw_cfg_file),
-			      files->files);
+	return 0;
 
-	for (i = 0; i < files->count; i++)
-		printf("%-56s\n", files->files[i].name);
-	free(files);
+err:
+	list_for_each(entry, &fw_list) {
+		file = list_entry(entry, struct fw_file, list);
+		free(file);
+	}
+
+	return -ENOMEM;
+}
+
+static int qemu_fwcfg_list_firmware(void)
+{
+	int ret;
+	struct list_head *entry;
+	struct fw_file *file;
+
+	/* make sure fw_list is loaded */
+	ret = qemu_fwcfg_read_firmware_list();
+	if (ret)
+		return ret;
+
+	list_for_each(entry, &fw_list) {
+		file = list_entry(entry, struct fw_file, list);
+		printf("%-56s\n", file->cfg.name);
+	}
+
 	return 0;
 }
 
