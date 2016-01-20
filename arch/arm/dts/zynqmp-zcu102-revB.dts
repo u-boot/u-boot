@@ -34,11 +34,11 @@
 &i2c0 {
 	i2cswitch@75 {
 		i2c@2 {
-			max15303@1b { /* u6 */
+			max15303@1b { /* u8 */
 				compatible = "max15303";
 				reg = <0x1b>;
 			};
-			/delete-node/ max15303@15;
+			/delete-node/ max15303@20;
 		};
 	};
 };

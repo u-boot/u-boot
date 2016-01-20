@@ -344,6 +344,7 @@
 			};
 			max15303@20 { /* u8 */
 				compatible = "max15303";
+				status = "disabled"; /* unreachable */
 				reg = <0x20>;
 			};
 
