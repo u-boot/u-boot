@@ -231,7 +231,7 @@ static int create_pirq_routing_table(void)
 	return 0;
 }
 
-int irq_router_probe(struct udevice *dev)
+int irq_router_common_init(struct udevice *dev)
 {
 	int ret;
 
@@ -247,6 +247,11 @@ int irq_router_probe(struct udevice *dev)
 			get_irq_slot_count(pirq_routing_table));
 
 	return 0;
+}
+
+int irq_router_probe(struct udevice *dev)
+{
+	return irq_router_common_init(dev);
 }
 
 u32 write_pirq_routing_table(u32 addr)
