@@ -1161,7 +1161,7 @@ int fsl_mc_ldpaa_exit(bd_t *bd)
 
 	err = dpbp_exit();
 	if (err < 0) {
-		printf("dpni_exit() failed: %d\n", err);
+		printf("dpbp_exit() failed: %d\n", err);
 		goto err;
 	}
 
