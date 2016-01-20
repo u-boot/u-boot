@@ -53,7 +53,8 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-388-gp.dtb			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
-	armada-xp-synology-ds414.dtb
+	armada-xp-synology-ds414.dtb		\
+	armada-xp-theadorable.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
 	uniphier-ph1-ld4-ref.dtb \

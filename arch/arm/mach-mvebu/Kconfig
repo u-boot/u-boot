@@ -46,6 +46,10 @@ config TARGET_MAXBCM
 	bool "Support maxbcm"
 	select MV78460
 
+config TARGET_THEADORABLE
+	bool "Support theadorable Armada XP"
+	select MV78260
+
 endchoice
 
 config SYS_BOARD
@@ -54,6 +58,7 @@ config SYS_BOARD
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
+	default "theadorable" if TARGET_THEADORABLE
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
@@ -61,6 +66,7 @@ config SYS_CONFIG_NAME
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
+	default "theadorable" if TARGET_THEADORABLE
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
