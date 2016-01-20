@@ -818,6 +818,7 @@ static int dprc_init(void)
 		goto err_root_open;
 	}
 
+	memset(&cfg, 0, sizeof(struct dprc_cfg));
 	cfg.options = DPRC_CFG_OPT_TOPOLOGY_CHANGES_ALLOWED |
 		      DPRC_CFG_OPT_OBJ_CREATE_ALLOWED |
 		      DPRC_CFG_OPT_ALLOC_ALLOWED;
