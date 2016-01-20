@@ -203,18 +203,6 @@ void serial_putc_dev(unsigned int idx, const char c)
 	out_8(&psc->tfdata_8, c);
 }
 
-void serial_putc_raw_dev(unsigned int idx, const char c)
-{
-	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	volatile psc512x_t *psc = (psc512x_t *) &im->psc[idx];
-
-	/* Wait for last character to go. */
-	while (!(in_be16(&psc->psc_status) & PSC_SR_TXEMP))
-		;
-
-	out_8(&psc->tfdata_8, c);
-}
-
 void serial_puts_dev(unsigned int idx, const char *s)
 {
 	while (*s)

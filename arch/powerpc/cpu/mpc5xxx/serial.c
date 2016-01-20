@@ -112,17 +112,6 @@ void serial_putc_dev (unsigned long dev_base, const char c)
 	psc->psc_buffer_8 = c;
 }
 
-void serial_putc_raw_dev(unsigned long dev_base, const char c)
-{
-	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)dev_base;
-	/* Wait for last character to go. */
-	while (!(psc->psc_status & PSC_SR_TXEMP))
-		;
-
-	psc->psc_buffer_8 = c;
-}
-
-
 void serial_puts_dev (unsigned long dev_base, const char *s)
 {
 	while (*s) {
