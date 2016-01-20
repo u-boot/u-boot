@@ -56,16 +56,6 @@ struct pirq_routing {
 #define PIRQ_BITMAP		0xdef8
 
 /**
- * cpu_irq_init() - Initialize CPU IRQ routing
- *
- * This initializes some platform-specific registers related to IRQ routing,
- * like configuring internal PCI devices to use which PCI interrupt pin,
- * and which PCI interrupt pin is mapped to which PIRQ line. Note on some
- * platforms, such IRQ routing might be hard-coded thus cannot configure.
- */
-void cpu_irq_init(void);
-
-/**
  * irq_router_common_init() - Perform common x86 interrupt init
  *
  * This creates the PIRQ routing table and routes the IRQs
