@@ -88,7 +88,7 @@ __weak void cpu_irq_init(void)
 	return;
 }
 
-static int create_pirq_routing_table(void)
+static int create_pirq_routing_table(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct fdt_pci_addr addr;
@@ -102,16 +102,8 @@ static int create_pirq_routing_table(void)
 	int i;
 	int ret;
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_IRQ_ROUTER);
-	if (node < 0) {
-		debug("%s: Cannot find irq router node\n", __func__);
-		return -EINVAL;
-	}
-
-	/* TODO(sjg@chromium.org): Drop this when PIRQ is a driver */
-	parent = fdt_parent_offset(blob, node);
-	if (parent < 0)
-		return -EINVAL;
+	node = dev->of_offset;
+	parent = dev->parent->of_offset;
 	ret = fdtdec_get_pci_addr(blob, parent, FDT_PCI_SPACE_CONFIG,
 				  "reg", &addr);
 	if (ret)
@@ -237,7 +229,7 @@ int irq_router_common_init(struct udevice *dev)
 
 	cpu_irq_init();
 
-	ret = create_pirq_routing_table();
+	ret = create_pirq_routing_table(dev);
 	if (ret) {
 		debug("Failed to create pirq routing table\n");
 		return ret;
