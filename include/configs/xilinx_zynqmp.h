@@ -189,6 +189,7 @@
 	"sdbootdev=0\0"\
 	CONFIG_KERNEL_FDT_OFST_SIZE \
 	"sata_root=if test $scsidevs -gt 0; then setenv bootargs $bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
+	"sataboot=load scsi 0 80000 boot/Image && load scsi 0 $fdt_addr boot/system.dtb && booti 80000 - $fdt_addr\0" \
 	"veloce=fdt addr f000000 && " \
 		"fdt set /amba/misc_clk clock-frequency <48000> && "\
 		"fdt set /timer clock-frequency <240000> && " \
