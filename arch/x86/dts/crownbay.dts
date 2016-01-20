@@ -164,7 +164,7 @@
 			compatible = "intel,pch7";
 
 			irq-router {
-				compatible = "intel,irq-router";
+				compatible = "intel,queensbay-irq-router";
 				intel,pirq-config = "pci";
 				intel,pirq-link = <0x60 8>;
 				intel,pirq-mask = <0xcee0>;
