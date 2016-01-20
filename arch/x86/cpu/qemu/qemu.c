@@ -96,11 +96,6 @@ int arch_early_init_r(void)
 	return 0;
 }
 
-int arch_misc_init(void)
-{
-	return pirq_init();
-}
-
 #ifdef CONFIG_GENERATE_MP_TABLE
 int mp_determine_pci_dstirq(int bus, int dev, int func, int pirq)
 {

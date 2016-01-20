@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/cache.h>
 #include <asm/control_regs.h>
 #include <asm/interrupt.h>
@@ -244,6 +245,14 @@ int disable_interrupts(void)
 
 int interrupt_init(void)
 {
+	struct udevice *dev;
+	int ret;
+
+	/* Try to set up the interrupt router, but don't require one */
+	ret = uclass_first_device(UCLASS_IRQ, &dev);
+	if (ret && ret != -ENODEV)
+		return ret;
+
 	/*
 	 * When running as an EFI application we are not in control of
 	 * interrupts and should leave them alone.

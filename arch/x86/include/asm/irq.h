@@ -65,14 +65,4 @@ struct pirq_routing {
  */
 void cpu_irq_init(void);
 
-/**
- * pirq_init() - Initialize platform PIRQ routing
- *
- * This initializes the PIRQ routing on the platform and configures all PCI
- * devices' interrupt line register to a working IRQ number on the 8259 PIC.
- *
- * @return 0 if OK, -ve on error
- */
-int pirq_init(void);
-
 #endif /* _ARCH_IRQ_H_ */

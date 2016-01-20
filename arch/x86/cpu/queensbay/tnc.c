@@ -110,5 +110,5 @@ int arch_misc_init(void)
 {
 	unprotect_spi_flash();
 
-	return pirq_init();
+	return 0;
 }

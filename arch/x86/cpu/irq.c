@@ -231,13 +231,6 @@ static int create_pirq_routing_table(void)
 	return 0;
 }
 
-int pirq_init(void)
-{
-	struct udevice *dev;
-
-	return uclass_first_device(UCLASS_IRQ, &dev);
-}
-
 int irq_router_probe(struct udevice *dev)
 {
 	int ret;

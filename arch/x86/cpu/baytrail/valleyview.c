@@ -50,7 +50,7 @@ int arch_misc_init(void)
 	mrccache_save();
 #endif
 
-	return pirq_init();
+	return 0;
 }
 
 int reserve_arch(void)
