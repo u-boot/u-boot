@@ -40,7 +40,8 @@ ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
 archprepare: checkthumb
 
 checkthumb:
-	@if test "$(call cc-version)" -lt "0404"; then \
+	@if test "$(call cc-name)" = "gcc" -a \
+			"$(call cc-version)" -lt "0404"; then \
 		echo -n '*** Your GCC does not produce working '; \
 		echo 'binaries in THUMB mode.'; \
 		echo '*** Your board is configured for THUMB mode.'; \
