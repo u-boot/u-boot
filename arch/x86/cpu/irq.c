@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -232,6 +233,13 @@ static int create_pirq_routing_table(void)
 
 int pirq_init(void)
 {
+	struct udevice *dev;
+
+	return uclass_first_device(UCLASS_IRQ, &dev);
+}
+
+int irq_router_probe(struct udevice *dev)
+{
 	int ret;
 
 	cpu_irq_init();
@@ -255,3 +263,20 @@ u32 write_pirq_routing_table(u32 addr)
 
 	return copy_pirq_routing_table(addr, pirq_routing_table);
 }
+
+static const struct udevice_id irq_router_ids[] = {
+	{ .compatible = "intel,irq-router" },
+	{ }
+};
+
+U_BOOT_DRIVER(irq_router_drv) = {
+	.name		= "intel_irq",
+	.id		= UCLASS_IRQ,
+	.of_match	= irq_router_ids,
+	.probe		= irq_router_probe,
+};
+
+UCLASS_DRIVER(irq) = {
+	.id		= UCLASS_IRQ,
+	.name		= "irq",
+};
