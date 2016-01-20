@@ -145,5 +145,18 @@ int serdes_phy_config(void);
  * drivers/ddr/marvell
  */
 int ddr3_init(void);
+
+struct mvebu_lcd_info {
+	u32 fb_base;
+	int x_res;
+	int y_res;
+	int x_fp;		/* frontporch */
+	int y_fp;
+	int x_bp;		/* backporch */
+	int y_bp;
+};
+
+int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info);
+
 #endif /* __ASSEMBLY__ */
 #endif /* _MVEBU_CPU_H */
