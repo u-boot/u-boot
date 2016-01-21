@@ -169,3 +169,41 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
     runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
     runner.run(cmd, ignore_errors=ignore_errors)
     runner.close()
+
+ram_base = None
+def find_ram_base(u_boot_console):
+    '''Find the running U-Boot's RAM location.
+
+    Probe the running U-Boot to determine the address of the first bank
+    of RAM. This is useful for tests that test reading/writing RAM, or
+    load/save files that aren't associated with some standard address
+    typically represented in an environment variable such as
+    ${kernel_addr_r}. The value is cached so that it only needs to be
+    actively read once.
+
+    Args:
+        u_boot_console: A console connection to U-Boot.
+
+    Returns:
+        The address of U-Boot's first RAM bank, as an integer.
+    '''
+
+    global ram_base
+    if u_boot_console.config.buildconfig.get('config_cmd_bdi', 'n') != 'y':
+        pytest.skip('bdinfo command not supported')
+    if ram_base == -1:
+        pytest.skip('Previously failed to find RAM bank start')
+    if ram_base is not None:
+        return ram_base
+
+    with u_boot_console.log.section('find_ram_base'):
+        response = u_boot_console.run_command('bdinfo')
+        for l in response.split('\n'):
+            if '-> start' in l:
+                ram_base = int(l.split('=')[1].strip(), 16)
+                break
+        if ram_base is None:
+            ram_base = -1
+            raise Exception('Failed to find RAM bank start in `bdinfo`')
+
+    return ram_base

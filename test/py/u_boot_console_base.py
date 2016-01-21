@@ -86,7 +86,6 @@ class ConsoleBase(object):
 
         self.at_prompt = False
         self.at_prompt_logevt = None
-        self.ram_base = None
 
     def close(self):
         '''Terminate the connection to the U-Boot console.
@@ -378,39 +377,3 @@ class ConsoleBase(object):
         '''
 
         return ConsoleDisableCheck(self, check_type)
-
-    def find_ram_base(self):
-        '''Find the running U-Boot's RAM location.
-
-        Probe the running U-Boot to determine the address of the first bank
-        of RAM. This is useful for tests that test reading/writing RAM, or
-        load/save files that aren't associated with some standard address
-        typically represented in an environment variable such as
-        ${kernel_addr_r}. The value is cached so that it only needs to be
-        actively read once.
-
-        Args:
-            None.
-
-        Returns:
-            The address of U-Boot's first RAM bank, as an integer.
-        '''
-
-        if self.config.buildconfig.get('config_cmd_bdi', 'n') != 'y':
-            pytest.skip('bdinfo command not supported')
-        if self.ram_base == -1:
-            pytest.skip('Previously failed to find RAM bank start')
-        if self.ram_base is not None:
-            return self.ram_base
-
-        with self.log.section('find_ram_base'):
-            response = self.run_command('bdinfo')
-            for l in response.split('\n'):
-                if '-> start' in l:
-                    self.ram_base = int(l.split('=')[1].strip(), 16)
-                    break
-            if self.ram_base is None:
-                self.ram_base = -1
-                raise Exception('Failed to find RAM bank start in `bdinfo`')
-
-        return self.ram_base
