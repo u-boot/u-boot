@@ -203,9 +203,10 @@
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"norboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
 		"setexpr kernel_addr $nor_base + $kernel_addr &&" \
+		"cp.b $kernel_addr $kernel_addr_r $kernel_size &&" \
 		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
 		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
-		"bootz $kernel_addr $ramdisk_addr $fdt_addr\0" \
+		"bootz $kernel_addr_r $ramdisk_addr $fdt_addr\0" \
 	"nandboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
 		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
@@ -221,7 +222,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
-	"norbase=0x42000000\0"					\
+	"nor_base=0x42000000\0"					\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl-dtb.bin &&"		\
 		"nand write $loadaddr 0 0x00010000 &&"		\
