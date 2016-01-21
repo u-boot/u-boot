@@ -10,7 +10,6 @@
  * warranty of any kind, whether express or implied.
  */
 
-/dts-v1/;
 /include/ "fsl-ls1043a.dtsi"
 
 / {
