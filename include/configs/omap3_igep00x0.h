@@ -19,8 +19,6 @@
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>
 
-#undef CONFIG_BOOTDELAY
-
 /*
  * Display CPU and Board information
  */
