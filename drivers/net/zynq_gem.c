@@ -179,6 +179,7 @@ struct zynq_gem_priv {
 	phy_interface_t interface;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
+	int dma_coherent;
 };
 
 static inline int mdio_wait(struct zynq_gem_regs *regs)
@@ -415,10 +416,14 @@ static int zynq_gem_init(struct udevice *dev)
 		dummy_rx_bd->addr = ZYNQ_GEM_RXBUF_WRAP_MASK |
 				ZYNQ_GEM_RXBUF_NEW_MASK;
 		dummy_rx_bd->status = 0;
-		flush_dcache_range((ulong)&dummy_tx_bd, (ulong)&dummy_tx_bd +
-				   sizeof(dummy_tx_bd));
-		flush_dcache_range((ulong)&dummy_rx_bd, (ulong)&dummy_rx_bd +
-				   sizeof(dummy_rx_bd));
+		if (!priv->dma_coherent) {
+			flush_dcache_range((ulong)&dummy_tx_bd,
+					   (ulong)&dummy_tx_bd +
+					   sizeof(dummy_tx_bd));
+			flush_dcache_range((ulong)&dummy_rx_bd,
+					   (ulong)&dummy_rx_bd +
+					   sizeof(dummy_rx_bd));
+		}
 
 		writel((ulong)dummy_tx_bd, &regs->transmit_q1_ptr);
 		writel((ulong)dummy_rx_bd, &regs->receive_q1_ptr);
@@ -528,13 +533,16 @@ static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 	addr = (ulong) ptr;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup(len, ARCH_DMA_MINALIGN);
-	flush_dcache_range(addr, addr + size);
+	if (!priv->dma_coherent)
+		flush_dcache_range(addr, addr + size);
 
 	addr = (ulong)priv->rxbuffers;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup((RX_BUF * PKTSIZE_ALIGN), ARCH_DMA_MINALIGN);
-	flush_dcache_range(addr, addr + size);
-	barrier();
+	if (!priv->dma_coherent) {
+		flush_dcache_range(addr, addr + size);
+		barrier();
+	}
 
 	/* Start transmit */
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_STARTTX_MASK);
@@ -644,8 +652,9 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
-	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
-					BD_SPACE, DCACHE_OFF);
+	if (!priv->dma_coherent)
+		mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
+						BD_SPACE, DCACHE_OFF);
 
 	/* Initialize the bd spaces for tx and rx bd's */
 	priv->tx_bd = (struct emac_bd *)bd_space;
@@ -713,8 +722,12 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 
 	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
 
-	printf("ZYNQ GEM: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
-	       priv->phyaddr, phy_string_for_interface(priv->interface));
+	priv->dma_coherent = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+					     "dma-coherent");
+
+	printf("ZYNQ GEM: %lx, phyaddr %d, interface %s%s\n", (ulong)priv->iobase,
+	       priv->phyaddr, phy_string_for_interface(priv->interface),
+	       priv->dma_coherent ? ", coherent" : "");
 
 	return 0;
 }
