@@ -173,7 +173,7 @@
 	"setenv bootargs $bootargs root=/dev/nfs rw "			\
 	"nfsroot=$serverip:$rootpath "					\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \
-	"tftpboot; bootm;"
+		"run __nfsboot"
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
@@ -186,7 +186,8 @@
 	"nandboot=nand read $fit_addr_r $fit_addr $fit_size &&" \
 		"bootm $fit_addr_r\0" \
 	"tftpboot=tftpboot $fit_addr_r $bootfile &&" \
-		"bootm $fit_addr_r\0"
+		"bootm $fit_addr_r\0" \
+	"__nfsboot=run tftpboot\0"
 #else
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTFILE			"zImage"
@@ -215,6 +216,11 @@
 	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"run boot_common\0" \
+	"__nfsboot=tftpboot $kernel_addr_r $bootfile &&" \
+		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"setenv ramdisk_addr_r - &&" \
 		"run boot_common\0"
 #endif
 
