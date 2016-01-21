@@ -1430,6 +1430,10 @@ The following options need to be configured:
 			Support for STMicroelectronics ST33ZP24 I2C devices.
 			Requires TPM_ST33ZP24 and I2C.
 
+			CONFIG_TPM_ST33ZP24_SPI
+			Support for STMicroelectronics ST33ZP24 SPI devices.
+			Requires TPM_ST33ZP24 and SPI.
+
 		CONFIG_TPM_ATMEL_TWI
 		Support for Atmel TWI TPM device. Requires I2C support.
 
