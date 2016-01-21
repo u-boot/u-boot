@@ -10,8 +10,6 @@
 #include <ide.h>
 #include <common.h>
 
-typedef struct block_dev_desc block_dev_desc_t;
-
 struct block_dev_desc {
 	int		if_type;	/* type of the interface */
 	int		dev;		/* device number */
