@@ -1423,6 +1423,13 @@ The following options need to be configured:
 			CONFIG_TPM_TIS_I2C_BURST_LIMITATION
 			Define the burst count bytes upper limit
 
+		CONFIG_TPM_ST33ZP24
+		Support for STMicroelectronics TPM devices. Requires DM_TPM support.
+
+			CONFIG_TPM_ST33ZP24_I2C
+			Support for STMicroelectronics ST33ZP24 I2C devices.
+			Requires TPM_ST33ZP24 and I2C.
+
 		CONFIG_TPM_ATMEL_TWI
 		Support for Atmel TWI TPM device. Requires I2C support.
 
