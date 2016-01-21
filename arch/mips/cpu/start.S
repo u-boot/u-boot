@@ -185,7 +185,7 @@ reset:
 	PTR_ADDU t0, k0, GD_MALLOC_BASE	# gd->malloc_base offset
 	sw	sp, 0(t0)
 #endif
-
+	move	a0, zero		# a0 <-- boot_flags = 0
 	PTR_LA	t9, board_init_f
 	jr	t9
 	 move	ra, zero
