@@ -31,10 +31,6 @@
 #endif
 #endif
 
-#ifdef CONFIG_SANDBOX
-#include <asm/sdl.h>
-#endif
-
 #ifndef CONFIG_LCD_ALIGNMENT
 #define CONFIG_LCD_ALIGNMENT PAGE_SIZE
 #endif
@@ -72,13 +68,6 @@ void lcd_sync(void)
 	if (lcd_flush_dcache)
 		flush_dcache_range((u32)lcd_base,
 			(u32)(lcd_base + lcd_get_size(&line_length)));
-#elif defined(CONFIG_SANDBOX) && defined(CONFIG_VIDEO_SANDBOX_SDL)
-	static ulong last_sync;
-
-	if (get_timer(last_sync) > 10) {
-		sandbox_sdl_sync(lcd_base);
-		last_sync = get_timer(0);
-	}
 #endif
 }
 

@@ -1780,18 +1780,28 @@ static int mmc_probe(bd_t *bis)
 #elif defined(CONFIG_DM_MMC)
 static int mmc_probe(bd_t *bis)
 {
-	int ret;
+	int ret, i;
 	struct uclass *uc;
-	struct udevice *m;
+	struct udevice *dev;
 
 	ret = uclass_get(UCLASS_MMC, &uc);
 	if (ret)
 		return ret;
 
-	uclass_foreach_dev(m, uc) {
-		ret = device_probe(m);
+	/*
+	 * Try to add them in sequence order. Really with driver model we
+	 * should allow holes, but the current MMC list does not allow that.
+	 * So if we request 0, 1, 3 we will get 0, 1, 2.
+	 */
+	for (i = 0; ; i++) {
+		ret = uclass_get_device_by_seq(UCLASS_MMC, i, &dev);
+		if (ret == -ENODEV)
+			break;
+	}
+	uclass_foreach_dev(dev, uc) {
+		ret = device_probe(dev);
 		if (ret)
-			printf("%s - probe failed: %d\n", m->name, ret);
+			printf("%s - probe failed: %d\n", dev->name, ret);
 	}
 
 	return 0;

@@ -68,7 +68,10 @@
 
 /* Configure for U-Boot environment */
 #define BZ_NO_STDIO
+
+#ifndef CONFIG_SANDBOX
 #define BZ_NO_COMPRESS
+#endif
 /* End of configuration for U-Boot environment */
 
 #ifdef __cplusplus

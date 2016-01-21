@@ -18,6 +18,12 @@
 #include <asm/byteorder.h>
 #endif
 
+int bmp_display(ulong addr, int x, int y);
+struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
+			     void **alloc_addr);
+
+#ifndef CONFIG_DM_VIDEO
+
 extern char lcd_is_enabled;
 extern int lcd_line_length;
 extern struct vidinfo panel_info;
@@ -25,10 +31,6 @@ extern struct vidinfo panel_info;
 void lcd_ctrl_init(void *lcdbase);
 void lcd_enable(void);
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue);
-
-struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
-			     void **alloc_addr);
-int bmp_display(ulong addr, int x, int y);
 
 /**
  * Set whether we need to flush the dcache when changing the LCD image. This
@@ -208,5 +210,7 @@ void lcd_sync(void);
 #ifndef PAGE_SIZE
 #define PAGE_SIZE	4096
 #endif
+
+#endif /* !CONFIG_DM_VIDEO */
 
 #endif	/* _LCD_H_ */

@@ -111,12 +111,16 @@ static int pinconfig_post_bind(struct udevice *dev)
 {
 	const void *fdt = gd->fdt_blob;
 	int offset = dev->of_offset;
+	bool pre_reloc_only = !(gd->flags & GD_FLG_RELOC);
 	const char *name;
 	int ret;
 
 	for (offset = fdt_first_subnode(fdt, offset);
 	     offset > 0;
 	     offset = fdt_next_subnode(fdt, offset)) {
+		if (pre_reloc_only &&
+		    !fdt_getprop(fdt, offset, "u-boot,dm-pre-reloc", NULL))
+			continue;
 		/*
 		 * If this node has "compatible" property, this is not
 		 * a pin configuration node, but a normal device. skip.

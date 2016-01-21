@@ -27,6 +27,11 @@ static int sandbox_timer_get_count(struct udevice *dev, u64 *count)
 
 static int sandbox_timer_probe(struct udevice *dev)
 {
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (!uc_priv->clock_rate)
+		uc_priv->clock_rate = 1000000;
+
 	return 0;
 }
 
@@ -46,4 +51,9 @@ U_BOOT_DRIVER(sandbox_timer) = {
 	.probe = sandbox_timer_probe,
 	.ops	= &sandbox_timer_ops,
 	.flags = DM_FLAG_PRE_RELOC,
+};
+
+/* This is here in case we don't have a device tree */
+U_BOOT_DEVICE(sandbox_timer_non_fdt) = {
+	.name = "sandbox_timer",
 };

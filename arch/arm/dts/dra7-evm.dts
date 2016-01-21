@@ -16,6 +16,7 @@
 
 	chosen {
 		stdout-path = &uart1;
+		tick-timer = &timer2;
 	};
 
 	memory {

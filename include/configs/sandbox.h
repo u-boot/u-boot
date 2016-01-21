@@ -158,24 +158,23 @@
 
 /* LCD and keyboard require SDL support */
 #ifdef CONFIG_SANDBOX_SDL
-#define CONFIG_LCD
-#define CONFIG_VIDEO_SANDBOX_SDL
 #define CONFIG_CMD_BMP
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define LCD_BPP			LCD_COLOR16
 #define CONFIG_LCD_BMP_RLE8
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN_ALIGN
 
 #define CONFIG_KEYBOARD
 
 #define SANDBOX_SERIAL_SETTINGS		"stdin=serial,cros-ec-keyb,usbkbd\0" \
-					"stdout=serial,lcd\0" \
-					"stderr=serial,lcd\0"
+					"stdout=serial,lcd.vidconsole\0" \
+					"stderr=serial,lcd.vidconsole\0"
 #else
 #define SANDBOX_SERIAL_SETTINGS		"stdin=serial\0" \
-					"stdout=serial,lcd\0" \
-					"stderr=serial,lcd\0"
+					"stdout=serial,lcd.vidconsole\0" \
+					"stderr=serial,lcd.vidconsole\0"
 #endif
 
 #define SANDBOX_ETH_SETTINGS		"ethaddr=00:00:11:22:33:44\0" \

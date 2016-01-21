@@ -155,6 +155,14 @@ enum {
 /* Declare a new driver model test */
 #define DM_TEST(_name, _flags)	UNIT_TEST(_name, _flags, dm_test)
 
+/* This platform data is needed in tests, so declare it here */
+struct sandbox_sdl_plat {
+	int xres;
+	int yres;
+	int bpix;
+	int rot;
+};
+
 /* Declare ping methods for the drivers */
 int test_ping(struct udevice *dev, int pingval, int *pingret);
 int testfdt_ping(struct udevice *dev, int pingval, int *pingret);

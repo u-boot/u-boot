@@ -65,7 +65,6 @@ static const unsigned char us_direction[256/8] = {
 static ccb usb_ccb __attribute__((aligned(ARCH_DMA_MINALIGN)));
 static __u32 CBWTag;
 
-#define USB_MAX_STOR_DEV 7
 static int usb_max_devs; /* number of highest available usb device */
 
 static block_dev_desc_t usb_dev_desc[USB_MAX_STOR_DEV];

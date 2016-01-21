@@ -16,6 +16,7 @@
 #include <lcd.h>
 #include <os.h>
 #include <serial.h>
+#include <video.h>
 #include <linux/compiler.h>
 #include <asm/state.h>
 
@@ -114,9 +115,7 @@ static int sandbox_serial_pending(struct udevice *dev, bool input)
 		return 0;
 
 	os_usleep(100);
-#ifdef CONFIG_LCD
-	lcd_sync();
-#endif
+	video_sync_all();
 	if (next_index == serial_buf_read)
 		return 1;	/* buffer full */
 

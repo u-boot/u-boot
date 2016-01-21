@@ -135,6 +135,11 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 		if (ret)
 			goto fail_child_post_bind;
 	}
+	if (uc->uc_drv->post_bind) {
+		ret = uc->uc_drv->post_bind(dev);
+		if (ret)
+			goto fail_uclass_post_bind;
+	}
 
 	if (parent)
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
@@ -145,6 +150,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	return 0;
 
+fail_uclass_post_bind:
+	/* There is no child unbind() method, so no clean-up required */
 fail_child_post_bind:
 	if (CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)) {
 		if (drv->unbind && drv->unbind(dev)) {

@@ -61,6 +61,8 @@ parser.add_option('--no-check', action='store_false', dest='check_patch',
                   help="Don't check for patch compliance")
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliaes")
+parser.add_option('-T', '--thread', action='store_true', dest='thread',
+                  default=False, help='Create patches as a single thread')
 
 parser.usage += """
 
@@ -161,7 +163,7 @@ else:
     if its_a_go:
         cmd = gitutil.EmailPatches(series, cover_fname, args,
                 options.dry_run, not options.ignore_bad_tags, cc_file,
-                in_reply_to=options.in_reply_to)
+                in_reply_to=options.in_reply_to, thread=options.thread)
     else:
         print col.Color(col.RED, "Not sending emails due to errors/warnings")
 

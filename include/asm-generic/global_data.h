@@ -122,6 +122,10 @@ typedef struct global_data {
 	struct membuff console_out;	/* console output */
 	struct membuff console_in;	/* console input */
 #endif
+#ifdef CONFIG_DM_VIDEO
+	ulong video_top;		/* Top of video frame buffer area */
+	ulong video_bottom;		/* Bottom of video frame buffer area */
+#endif
 } gd_t;
 #endif
 

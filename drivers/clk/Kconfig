@@ -1,3 +1,5 @@
+menu "Clock"
+
 config CLK
 	bool "Enable clock driver support"
 	depends on DM
@@ -17,3 +19,5 @@ config SPL_CLK
 	  SPL, enable this option. It might provide a cleaner interface to
 	  setting up clocks within SPL, and allows the same drivers to be
 	  used as U-Boot proper.
+
+endmenu

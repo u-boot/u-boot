@@ -66,7 +66,9 @@ enum uclass_id {
 	UCLASS_USB,		/* USB bus */
 	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
 	UCLASS_USB_HUB,		/* USB hub */
+	UCLASS_VIDEO,		/* Video or LCD device */
 	UCLASS_VIDEO_BRIDGE,	/* Video bridge, e.g. DisplayPort to LVDS */
+	UCLASS_VIDEO_CONSOLE,	/* Text console driver for video device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

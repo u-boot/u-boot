@@ -15,6 +15,7 @@
 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 	chosen {
 		stdout-path = &uart0;
+		tick-timer = &timer2;
 	};
 };
 

@@ -27,7 +27,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_FSL_LPUART
 #define LPUART_BASE			UART1_BASE
 
 /* Allow to overwrite serial and ethaddr */

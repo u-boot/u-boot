@@ -4,6 +4,59 @@
 
 menu "Graphics support"
 
+config DM_VIDEO
+	bool "Enable driver model support for LCD/video"
+	depends on DM
+	help
+	  This enables driver model for LCD and video devices. These support
+	  a bitmap display of various sizes and depths which can be drawn on
+	  to display a command-line console or splash screen. Enabling this
+	  option compiles in the video uclass and routes all LCD/video access
+	  through this.
+
+config VIDEO_BPP8
+	bool "Support 8-bit-per-pixel displays"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text and bitmaps onto a 8-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config VIDEO_BPP16
+	bool "Support 16-bit-per-pixel displays"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text and bitmaps onto a 16-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config VIDEO_BPP32
+	bool "Support 32-bit-per-pixel displays"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text and bitmaps onto a 32-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config VIDEO_ROTATION
+	bool "Support rotated displays"
+	depends on DM_VIDEO
+	help
+	  Sometimes, for example if the display is mounted in portrait
+	  mode or even if it's mounted landscape but rotated by 180degree,
+	  we need to rotate our content of the display relative to the
+	  framebuffer, so that user can read the messages which are
+	  printed out. Enable this option to include a text driver which can
+	  support this. The rotation is set by the 'rot' parameter in
+	  struct video_priv: 0=unrotated, 1=90 degrees clockwise, 2=180
+	  degrees, 3=270 degrees.
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
@@ -246,6 +299,15 @@ config DISPLAY_PORT
 	   eDP (Embedded DisplayPort) is a standard widely used in laptops
 	   to drive LCD panels. This framework provides support for enabling
 	   these displays where supported by the video hardware.
+
+config VIDEO_SANDBOX_SDL
+	bool "Enable sandbox video console using SDL"
+	depends on SANDBOX
+	help
+	  When using sandbox you can enable an emulated LCD display which
+	  appears as an SDL (Simple DirectMedia Layer) window. This is a
+	  console device and can display stdout output. Within U-Boot is is
+	  a normal bitmap display and can display images as well as text.
 
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"

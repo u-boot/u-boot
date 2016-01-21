@@ -228,6 +228,12 @@ config ALTERA_UART
 	  Select this to enable an UART for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config FSL_LPUART
+	bool "Freescale LPUART support"
+	help
+	  Select this to enable a Low Power UART for Freescale VF610 and
+	  QorIQ Layerscape devices.
+
 config SYS_NS16550
 	bool "NS16550 UART or compatible"
 	help
