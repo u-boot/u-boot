@@ -448,7 +448,7 @@ static int get_tpm(struct udevice **devp)
 	int rc;
 
 	rc = uclass_first_device(UCLASS_TPM, devp);
-	if (rc) {
+	if (rc || !*devp) {
 		printf("Could not find TPM (ret=%d)\n", rc);
 		return CMD_RET_FAILURE;
 	}
