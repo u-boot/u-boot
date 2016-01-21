@@ -88,6 +88,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_sd_ifc.cfg
 #endif
 
+/* LPUART */
+#ifdef CONFIG_LPUART
+#define CONFIG_LPUART_32B_REG
+#endif
+
 /* SATA */
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
