@@ -8,6 +8,7 @@
 #ifndef _CLK_H_
 #define _CLK_H_
 
+#include <errno.h>
 #include <linux/types.h>
 
 struct udevice;
@@ -104,5 +105,28 @@ ulong clk_get_periph_rate(struct udevice *dev, int periph);
  * @return new clock rate in Hz, or -ve error code
  */
 ulong clk_set_periph_rate(struct udevice *dev, int periph, ulong rate);
+
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+/**
+ * clk_get_by_index() - look up a clock referenced by a device
+ *
+ * Parse a device's 'clocks' list, returning information on the indexed clock,
+ * ensuring that it is activated.
+ *
+ * @dev:	Device containing the clock reference
+ * @index:	Clock index to return (0 = first)
+ * @clk_devp:	Returns clock device
+ * @return:	Peripheral ID for the device to control. This is the first
+ *		argument after the clock node phandle. If there is no arguemnt,
+ *		returns 0. Return -ve error code on any error
+ */
+int clk_get_by_index(struct udevice *dev, int index, struct udevice **clk_devp);
+#else
+static inline int clk_get_by_index(struct udevice *dev, int index,
+				   struct udevice **clk_devp)
+{
+	return -ENOSYS;
+}
+#endif
 
 #endif /* _CLK_H_ */
