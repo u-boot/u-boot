@@ -400,7 +400,7 @@ end_flush_dcache:
 	! FIXME: Other way to get PC?
 	! FIXME: Update according to the newest spec!!
 1:
-	la	 $r28, 1
+	li	 $r28, 1
 	push $r28
 	mfsr $r28, PSW			! $PSW
 	push $r28

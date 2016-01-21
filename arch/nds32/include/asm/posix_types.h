@@ -33,7 +33,11 @@ typedef int			__kernel_pid_t;
 typedef unsigned short		__kernel_ipc_pid_t;
 typedef unsigned short		__kernel_uid_t;
 typedef unsigned short		__kernel_gid_t;
+#ifdef __GNUC__
+typedef __SIZE_TYPE__		__kernel_size_t;
+#else
 typedef unsigned int		__kernel_size_t;
+#endif
 typedef int			__kernel_ssize_t;
 typedef int			__kernel_ptrdiff_t;
 typedef long			__kernel_time_t;
