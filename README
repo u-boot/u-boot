@@ -3712,12 +3712,6 @@ Modem Support:
 - RTS/CTS Flow control enable:
 		CONFIG_HWFLOW
 
-- Modem debug support:
-		CONFIG_MODEM_SUPPORT_DEBUG
-
-		Enables debugging stuff (char screen[1024], dbg())
-		for modem support. Useful only with BDI2000.
-
 - Interrupt support (PPC):
 
 		There are common interrupt_init() and timer_interrupt()
