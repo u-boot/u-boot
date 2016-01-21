@@ -40,6 +40,9 @@ enum {
 #define CFG_SD_MUX3_MUX4	0x1 /* MUX4 */
 #define CFG_SD_MUX4_SLOT3	0x0 /* SLOT3 TX/RX1 */
 #define CFG_SD_MUX4_SLOT1	0x1 /* SLOT1 TX/RX3 */
+#define CFG_UART_MUX_MASK	0x6
+#define CFG_UART_MUX_SHIFT	1
+#define CFG_LPUART_EN		0x1
 
 int checkboard(void)
 {
@@ -218,7 +221,17 @@ void board_retimer_init(void)
 
 int board_early_init_f(void)
 {
+#ifdef CONFIG_LPUART
+	u8 uart;
+#endif
 	fsl_lsch2_early_init_f();
+#ifdef CONFIG_LPUART
+	/* We use lpuart0 as system console */
+	uart = QIXIS_READ(brdcfg[14]);
+	uart &= ~CFG_UART_MUX_MASK;
+	uart |= CFG_LPUART_EN << CFG_UART_MUX_SHIFT;
+	QIXIS_WRITE(brdcfg[14], uart);
+#endif
 
 	return 0;
 }
