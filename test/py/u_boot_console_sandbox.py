@@ -51,7 +51,6 @@ class ConsoleSandbox(ConsoleBase):
             Nothing.
         '''
 
-        self.ensure_spawned()
         self.log.action('kill %d' % sig)
         self.p.kill(sig)
 

@@ -144,8 +144,6 @@ class ConsoleBase(object):
                 command string and emitted the subsequent command prompts.
         '''
 
-        self.ensure_spawned()
-
         if self.at_prompt and \
                 self.at_prompt_logevt != self.logstream.logfile.cur_evt:
             self.logstream.write(self.prompt, implicit=True)

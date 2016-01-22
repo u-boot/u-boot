@@ -77,11 +77,15 @@ class StateTestEnv(object):
                 return var
             n += 1
 
-@pytest.fixture(scope='module')
+ste = None
+@pytest.fixture(scope='function')
 def state_test_env(u_boot_console):
     '''pytest fixture to provide a StateTestEnv object to tests.'''
 
-    return StateTestEnv(u_boot_console)
+    global ste
+    if not ste:
+        ste = StateTestEnv(u_boot_console)
+    return ste
 
 def unset_var(state_test_env, var):
     '''Unset an environment variable.

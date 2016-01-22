@@ -13,7 +13,6 @@ def test_reset(u_boot_console):
 
     u_boot_console.run_command('reset', wait_for_prompt=False)
     assert(u_boot_console.validate_exited())
-    u_boot_console.ensure_spawned()
 
 @pytest.mark.boardspec('sandbox')
 def test_ctrl_c(u_boot_console):
@@ -21,4 +20,3 @@ def test_ctrl_c(u_boot_console):
 
     u_boot_console.kill(signal.SIGINT)
     assert(u_boot_console.validate_exited())
-    u_boot_console.ensure_spawned()

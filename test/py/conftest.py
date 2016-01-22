@@ -227,7 +227,7 @@ def pytest_generate_tests(metafunc):
             vals = subconfig.get(fn + 's', [])
         metafunc.parametrize(fn, vals)
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def u_boot_console(request):
     '''Generate the value of a test's u_boot_console fixture.
 
@@ -238,6 +238,7 @@ def u_boot_console(request):
         The fixture value.
     '''
 
+    console.ensure_spawned()
     return console
 
 tests_not_run = set()

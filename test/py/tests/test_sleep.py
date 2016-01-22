@@ -9,10 +9,6 @@ def test_sleep(u_boot_console):
     '''Test the sleep command, and validate that it sleeps for approximately
     the correct amount of time.'''
 
-    # Do this before we time anything, to make sure U-Boot is already running.
-    # Otherwise, the system boot time is included in the time measurement.
-    u_boot_console.ensure_spawned()
-
     # 3s isn't too long, but is enough to cross a few second boundaries.
     sleep_time = 3
     tstart = time.time()
