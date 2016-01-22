@@ -16,6 +16,15 @@ config DM_REGULATOR
 	for this purpose if PMIC I/O driver is implemented or dm_scan_fdt_node()
 	otherwise. Detailed information can be found in the header file.
 
+config SPL_DM_REGULATOR
+	bool "Enable regulators for SPL"
+	depends on DM_REGULATOR
+	---help---
+	Regulators are seldom needed in SPL. Even if they are accessed, some
+	code space can be saved by accessing the PMIC registers directly.
+	Enable this option if you need regulators in SPL and can cope with
+	the extra code size.
+
 config REGULATOR_ACT8846
 	bool "Enable driver for ACT8846 regulator"
 	depends on DM_REGULATOR && PMIC_ACT8846

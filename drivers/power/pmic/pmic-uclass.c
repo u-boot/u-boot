@@ -18,6 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_IS_ENABLED(PMIC_CHILDREN)
 int pmic_bind_children(struct udevice *pmic, int offset,
 		       const struct pmic_child_info *child_info)
 {
@@ -84,6 +85,7 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 	debug("Bound: %d childs for PMIC: '%s'\n", bind_count, pmic->name);
 	return bind_count;
 }
+#endif
 
 int pmic_get(const char *name, struct udevice **devp)
 {
