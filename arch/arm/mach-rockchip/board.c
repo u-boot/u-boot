@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
@@ -49,3 +50,26 @@ void enable_caches(void)
 void lowlevel_init(void)
 {
 }
+
+static int do_clock(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	struct udevice *dev;
+
+	for (uclass_first_device(UCLASS_CLK, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		ulong rate;
+
+		rate = clk_get_rate(dev);
+		printf("%s: %lu\n", dev->name, rate);
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	clock, 2, 1, do_clock,
+	"display information about clocks",
+	""
+);
