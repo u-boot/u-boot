@@ -215,6 +215,25 @@ class ConsoleBase(object):
         self.log.action('Sending Ctrl-C')
         self.run_command(chr(3), wait_for_echo=False, send_nl=False)
 
+    def wait_for(self, text):
+        '''Wait for a pattern to be emitted by U-Boot.
+
+        This is useful when a long-running command such as "dfu" is executing,
+        and it periodically emits some text that should show up at a specific
+        location in the log file.
+
+        Args:
+            text: The text to wait for; either a string (containing raw text,
+                not a regular expression) or an re object.
+
+        Returns:
+            Nothing.
+        '''
+
+        if type(text) == type(''):
+            text = re.escape(text)
+        self.p.expect([text])
+
     def drain_console(self):
         '''Read from and log the U-Boot console for a short time.
 
