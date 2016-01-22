@@ -4,14 +4,26 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_FSL_SECBOOT_H
-#define __CONFIG_FSL_SECBOOT_H
+#ifndef __CONFIG_FSL_CHAIN_TRUST_H
+#define __CONFIG_FSL_CHAIN_TRUST_H
 
+/* For secure boot, since ENVIRONMENT in flash/external memories is
+ * not verified, undef CONFIG_ENV_xxx and set default env
+ * (CONFIG_ENV_IS_NOWHERE)
+ */
 #ifdef CONFIG_SECURE_BOOT
 
-#ifndef CONFIG_CMD_ESBC_VALIDATE
-#define CONFIG_CMD_ESBC_VALIDATE
+#undef CONFIG_ENV_IS_IN_EEPROM
+#undef CONFIG_ENV_IS_IN_NAND
+#undef CONFIG_ENV_IS_IN_MMC
+#undef CONFIG_ENV_IS_IN_SPI_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
+
+#define CONFIG_ENV_IS_NOWHERE
+
 #endif
+
+#ifdef CONFIG_CHAIN_OF_TRUST
 
 #ifndef CONFIG_EXTRA_ENV
 #define CONFIG_EXTRA_ENV	""
@@ -71,18 +83,7 @@
 #endif /* CONFIG_RAMBOOT_NAND */
 #endif /* CONFIG_BOOTSCRIPT_COPY_RAM */
 
-#if defined(CONFIG_RAMBOOT_SPIFLASH)
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
-#elif defined(CONFIG_RAMBOOT_NAND)
-#undef CONFIG_ENV_IS_IN_NAND
-#elif defined(CONFIG_RAMBOOT_SDCARD)
-#undef CONFIG_ENV_IS_IN_MMC
 #endif
-#else /*CONFIG_SYS_RAMBOOT*/
-#undef CONFIG_ENV_IS_IN_FLASH
-#endif
-
-#define CONFIG_ENV_IS_NOWHERE
 
 #ifndef CONFIG_BS_COPY_ENV
 #define CONFIG_BS_COPY_ENV
@@ -92,25 +93,9 @@
 #define CONFIG_BS_COPY_CMD
 #endif
 
-#define CONFIG_SECBOOT_CMD	CONFIG_BS_COPY_ENV \
+#define CONFIG_CHAIN_BOOT_CMD	CONFIG_BS_COPY_ENV \
 				CONFIG_BS_COPY_CMD \
 				CONFIG_SECBOOT
-/*
- * We don't want boot delay for secure boot flow
- * before autoboot starts
- */
-#undef CONFIG_BOOTDELAY
-#define CONFIG_BOOTDELAY	0
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND		CONFIG_SECBOOT_CMD
-
-/*
- * CONFIG_ZERO_BOOTDELAY_CHECK should not be defined for
- * secure boot flow as defining this would enable a user to
- * reach uboot prompt by pressing some key before start of
- * autoboot
- */
-#undef CONFIG_ZERO_BOOTDELAY_CHECK
 
 #endif
 #endif

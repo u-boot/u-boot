@@ -9,19 +9,11 @@
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_SECURE_BOOT
-#define CONFIG_CMD_ESBC_VALIDATE
-#define CONFIG_CMD_BLOB
-#define CONFIG_FSL_SEC_MON
-#define CONFIG_SHA_PROG_HW_ACCEL
-#define CONFIG_DM
-#define CONFIG_RSA
-#define CONFIG_RSA_FREESCALE_EXP
-#ifndef CONFIG_FSL_CAAM
-#define CONFIG_FSL_CAAM
-#endif
+
+#ifndef CONFIG_FIT_SIGNATURE
+#define CONFIG_CHAIN_OF_TRUST
 #endif
 
-#ifdef CONFIG_SECURE_BOOT
 #if defined(CONFIG_FSL_CORENET)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc0000000
 #elif defined(CONFIG_BSC9132QDS)
@@ -76,8 +68,25 @@
  */
 #define CONFIG_FSL_ISBC_KEY_EXT
 #endif
+#endif /* #ifdef CONFIG_SECURE_BOOT */
 
-#ifndef CONFIG_FIT_SIGNATURE
+#ifdef CONFIG_CHAIN_OF_TRUST
+
+#define CONFIG_CMD_ESBC_VALIDATE
+#define CONFIG_CMD_BLOB
+#define CONFIG_FSL_SEC_MON
+#define CONFIG_SHA_PROG_HW_ACCEL
+#define CONFIG_RSA
+#define CONFIG_RSA_FREESCALE_EXP
+
+#ifndef CONFIG_DM
+#define CONFIG_DM
+#endif
+
+#ifndef CONFIG_FSL_CAAM
+#define CONFIG_FSL_CAAM
+#endif
+
 /* If Boot Script is not on NOR and is required to be copied on RAM */
 #ifdef CONFIG_BOOTSCRIPT_COPY_RAM
 #define CONFIG_BS_HDR_ADDR_RAM		0x00010000
@@ -105,10 +114,8 @@
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xee020000
 #endif
 
-#endif
+#endif /* #ifdef CONFIG_BOOTSCRIPT_COPY_RAM */
 
-#include <config_fsl_secboot.h>
-#endif
-
-#endif
+#include <config_fsl_chain_trust.h>
+#endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
 #endif

@@ -8,6 +8,14 @@
 #define __FSL_SECURE_BOOT_H
 
 #ifdef CONFIG_SECURE_BOOT
+
+#ifndef CONFIG_FIT_SIGNATURE
+#define CONFIG_CHAIN_OF_TRUST
+#endif
+
+#endif
+
+#ifdef CONFIG_CHAIN_OF_TRUST
 #define CONFIG_CMD_ESBC_VALIDATE
 #define CONFIG_CMD_BLOB
 #define CONFIG_FSL_SEC_MON
@@ -40,8 +48,6 @@
 #define CONFIG_ESBC_ADDR_64BIT
 #endif
 
-#ifndef CONFIG_FIT_SIGNATURE
-
 #define CONFIG_EXTRA_ENV \
 	"setenv fdt_high 0xcfffffff;"	\
 	"setenv initrd_high 0xcfffffff;"	\
@@ -50,8 +56,6 @@
 /* The address needs to be modified according to NOR memory map */
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0x600a0000
 
-#include <config_fsl_secboot.h>
-#endif
-#endif
-
+#include <config_fsl_chain_trust.h>
+#endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
 #endif
