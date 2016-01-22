@@ -53,7 +53,7 @@ static int rockchip_gpio_get_value(struct udevice *dev, unsigned offset)
 	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
 	struct rockchip_gpio_regs *regs = priv->regs;
 
-	return readl(&regs->ext_port) & OFFSET_TO_BIT(offset);
+	return readl(&regs->ext_port) & OFFSET_TO_BIT(offset) ? 1 : 0;
 }
 
 static int rockchip_gpio_set_value(struct udevice *dev, unsigned offset,
