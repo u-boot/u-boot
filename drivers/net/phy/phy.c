@@ -235,7 +235,8 @@ int genphy_update_link(struct phy_device *phydev)
 	if (phydev->link && mii_reg & BMSR_LSTATUS)
 		return 0;
 
-	if ((mii_reg & BMSR_ANEGCAPABLE) && !(mii_reg & BMSR_ANEGCOMPLETE)) {
+	if ((phydev->autoneg == AUTONEG_ENABLE) &&
+	    !(mii_reg & BMSR_ANEGCOMPLETE)) {
 		int i = 0;
 
 		printf("%s Waiting for PHY auto negotiation to complete",
@@ -291,7 +292,7 @@ int genphy_parse_link(struct phy_device *phydev)
 	int mii_reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMSR);
 
 	/* We're using autonegotiation */
-	if (phydev->supported & SUPPORTED_Autoneg) {
+	if (phydev->autoneg == AUTONEG_ENABLE) {
 		u32 lpa = 0;
 		int gblpa = 0;
 		u32 estatus = 0;
