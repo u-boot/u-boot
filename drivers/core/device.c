@@ -299,9 +299,11 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 
 	/*
 	 * Process pinctrl for everything except the root device, and
-	 * continue regardless of the result of pinctrl.
+	 * continue regardless of the result of pinctrl. Don't process pinctrl
+	 * settings for pinctrl devices since the device may not yet be
+	 * probed.
 	 */
-	if (dev->parent)
+	if (dev->parent && device_get_uclass_id(dev) != UCLASS_PINCTRL)
 		pinctrl_select_state(dev, "default");
 
 	ret = uclass_pre_probe_device(dev);
