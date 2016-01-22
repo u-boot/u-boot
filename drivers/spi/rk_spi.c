@@ -286,6 +286,11 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 
 static int rockchip_spi_release_bus(struct udevice *dev)
 {
+	struct udevice *bus = dev->parent;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+
+	rkspi_enable_chip(priv->regs, false);
+
 	return 0;
 }
 
@@ -314,7 +319,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	while (len > 0) {
 		int todo = min(len, 0xffff);
 
-		rkspi_enable_chip(regs, true);
+		rkspi_enable_chip(regs, false);
 		writel(todo - 1, &regs->ctrlr1);
 		rkspi_enable_chip(regs, true);
 
