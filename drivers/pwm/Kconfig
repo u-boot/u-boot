@@ -1,0 +1,10 @@
+config DM_PWM
+	bool "Enable support for pulse-width modulation devices (PWM)"
+	depends on DM
+	help
+	  A pulse-width modulator emits a pulse of varying width and provides
+	  control over the duty cycle (high and low time) of the signal. This
+	  is often used to control a voltage level. The more time the PWM
+	  spends in the 'high' state, the higher the voltage. The PWM's
+	  frequency/period can be controlled along with the proportion of that
+	  time that the signal is high.
