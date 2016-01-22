@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEBUG_RK_SPI	0
 
 struct rockchip_spi_platdata {
-	enum periph_id periph_id;
+	int periph_id;
 	struct udevice *pinctrl;
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	fdt_addr_t base;
@@ -36,10 +36,10 @@ struct rockchip_spi_platdata {
 
 struct rockchip_spi_priv {
 	struct rockchip_spi *regs;
-	struct udevice *clk_gpll;
+	struct udevice *clk;
+	int clk_id;
 	unsigned int max_freq;
 	unsigned int mode;
-	enum periph_id periph_id;	/* Peripheral ID for this device */
 	ulong last_transaction_us;	/* Time of last transaction end */
 	u8 bits_per_word;		/* max 16 bits per word */
 	u8 n_bytes;
@@ -114,6 +114,7 @@ static void spi_cs_deactivate(struct rockchip_spi *regs, uint cs)
 static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct rockchip_spi_platdata *plat = bus->platdata;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 	int ret;
@@ -127,16 +128,23 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 	if (ret < 0) {
 		debug("%s: Could not get peripheral ID for %s: %d\n", __func__,
 		      bus->name, ret);
-		return -FDT_ERR_NOTFOUND;
+		return ret;
 	}
 	plat->periph_id = ret;
+	ret = clk_get_by_index(bus, 0, &priv->clk);
+	if (ret < 0) {
+		debug("%s: Could not get clock for %s: %d\n", __func__,
+		      bus->name, ret);
+		return ret;
+	}
+	priv->clk_id = ret;
 
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					50000000);
+					 50000000);
 	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
 					"spi-deactivate-delay", 0);
-	debug("%s: base=%lx, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
-	      __func__, plat->base, plat->periph_id, plat->frequency,
+	debug("%s: base=%x, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
+	      __func__, (uint)plat->base, plat->periph_id, plat->frequency,
 	      plat->deactivate_delay_us);
 
 	return 0;
@@ -153,18 +161,12 @@ static int rockchip_spi_probe(struct udevice *bus)
 
 	priv->last_transaction_us = timer_get_us();
 	priv->max_freq = plat->frequency;
-	priv->periph_id = plat->periph_id;
-	ret = uclass_get_device(UCLASS_CLK, CLK_GENERAL, &priv->clk_gpll);
-	if (ret) {
-		debug("%s: Failed to find CLK_GENERAL: %d\n", __func__, ret);
-		return ret;
-	}
 
 	/*
 	 * Use 99 MHz as our clock since it divides nicely into 594 MHz which
 	 * is the assumed speed for CLK_GENERAL.
 	 */
-	ret = clk_set_periph_rate(priv->clk_gpll, plat->periph_id, 99000000);
+	ret = clk_set_periph_rate(priv->clk, priv->clk_id, 99000000);
 	if (ret < 0) {
 		debug("%s: Failed to set clock: %d\n", __func__, ret);
 		return ret;
@@ -248,7 +250,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 
 	writel(ctrlr0, &regs->ctrlr0);
 
-	ret = pinctrl_request(plat->pinctrl, priv->periph_id, slave_plat->cs);
+	ret = pinctrl_request(plat->pinctrl, plat->periph_id, slave_plat->cs);
 	if (ret) {
 		debug("%s: Cannot request pinctrl: %d\n", __func__, ret);
 		return ret;
