@@ -254,8 +254,8 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 	return -ENODEV;
 }
 
-static int uclass_find_device_by_of_offset(enum uclass_id id, int node,
-					   struct udevice **devp)
+int uclass_find_device_by_of_offset(enum uclass_id id, int node,
+				    struct udevice **devp)
 {
 	struct uclass *uc;
 	struct udevice *dev;

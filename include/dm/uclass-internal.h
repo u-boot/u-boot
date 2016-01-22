@@ -99,6 +99,22 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 			      bool find_req_seq, struct udevice **devp);
 
 /**
+ * uclass_find_device_by_of_offset() - Find a uclass device by device tree node
+ *
+ * This searches the devices in the uclass for one attached to the given
+ * device tree node.
+ *
+ * The device is NOT probed, it is merely returned.
+ *
+ * @id: ID to look up
+ * @node: Device tree offset to search for (if -ve then -ENODEV is returned)
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_find_device_by_of_offset(enum uclass_id id, int node,
+				    struct udevice **devp);
+
+/**
  * uclass_bind_device() - Associate device with a uclass
  *
  * Connect the device into uclass's list of devices.
