@@ -50,6 +50,9 @@
  * Hardware drivers
  */
 
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
+
 /*
  * select serial console configuration
  */
