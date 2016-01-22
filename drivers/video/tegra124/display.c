@@ -10,7 +10,7 @@
 #include <dm.h>
 #include <edid.h>
 #include <errno.h>
-#include <displayport.h>
+#include <display.h>
 #include <edid.h>
 #include <fdtdec.h>
 #include <lcd.h>
@@ -324,19 +324,11 @@ static int display_update_config_from_edid(struct udevice *dp_dev,
 					   int *panel_bppp,
 					   struct display_timing *timing)
 {
-	u8 buf[EDID_SIZE];
-	int bpc, ret;
+	int ret;
 
-	ret = display_port_read_edid(dp_dev, buf, sizeof(buf));
-	if (ret < 0)
-		return ret;
-	ret = edid_get_timing(buf, ret, timing, &bpc);
+	ret = display_read_timing(dp_dev, timing);
 	if (ret)
 		return ret;
-
-	/* Use this information if valid */
-	if (bpc != -1)
-		*panel_bppp = bpc * 3;
 
 	return 0;
 }
@@ -398,7 +390,7 @@ int display_init(void *lcdbase, int fb_bits_per_pixel,
 	int node;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_DISPLAY_PORT, 0, &dp_dev);
+	ret = uclass_get_device(UCLASS_DISPLAY, 0, &dp_dev);
 	if (ret)
 		return ret;
 
@@ -450,7 +442,7 @@ int display_init(void *lcdbase, int fb_bits_per_pixel,
 	}
 
 	/* Enable dp */
-	ret = display_port_enable(dp_dev, panel_bpp, timing);
+	ret = display_enable(dp_dev, panel_bpp, timing);
 	if (ret)
 		return ret;
 

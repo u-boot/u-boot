@@ -293,12 +293,15 @@ config VIDEO_LCD_SPI_MISO
 	option takes a string in the format understood by 'name_to_gpio'
 	function, e.g. PH1 for pin 1 of port H.
 
-config DISPLAY_PORT
-	bool "Enable DisplayPort support"
+config DISPLAY
+	bool "Enable Display support"
+	depends on DM
+	default y
 	help
-	   eDP (Embedded DisplayPort) is a standard widely used in laptops
-	   to drive LCD panels. This framework provides support for enabling
-	   these displays where supported by the video hardware.
+	   This supports drivers that provide a display, such as eDP (Embedded
+	   DisplayPort) and HDMI (High Definition Multimedia Interface).
+	   The devices provide a simple interface to start up the display,
+	   read display information and enable it.
 
 config VIDEO_SANDBOX_SDL
 	bool "Enable sandbox video console using SDL"

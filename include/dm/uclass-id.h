@@ -29,7 +29,7 @@ enum uclass_id {
 	UCLASS_CLK,		/* Clock source, e.g. used by peripherals */
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */
-	UCLASS_DISPLAY_PORT,	/* Display port video */
+	UCLASS_DISPLAY,		/* Display (e.g. DisplayPort, HDMI) */
 	UCLASS_RAM,		/* RAM controller */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */

@@ -17,6 +17,7 @@
 
 /* Size of the EDID data */
 #define EDID_SIZE	128
+#define EDID_EXT_SIZE	256
 
 #define GET_BIT(_x, _pos) \
 	(((_x) >> (_pos)) & 1)

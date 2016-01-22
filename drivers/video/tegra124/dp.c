@@ -6,16 +6,17 @@
  */
 
 #include <common.h>
-#include <displayport.h>
+#include <display.h>
 #include <dm.h>
 #include <div64.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/dc.h>
-#include "displayport.h"
+#include "display.h"
 #include "edid.h"
 #include "sor.h"
+#include "displayport.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1573,7 +1574,7 @@ static int tegra_dp_read_edid(struct udevice *dev, u8 *buf, int buf_size)
 				     buf_size, &aux_stat);
 }
 
-static const struct dm_display_port_ops dp_tegra_ops = {
+static const struct dm_display_ops dp_tegra_ops = {
 	.read_edid = tegra_dp_read_edid,
 	.enable = tegra_dp_enable,
 };
@@ -1596,7 +1597,7 @@ static const struct udevice_id tegra_dp_ids[] = {
 
 U_BOOT_DRIVER(dp_tegra) = {
 	.name	= "dpaux_tegra",
-	.id	= UCLASS_DISPLAY_PORT,
+	.id	= UCLASS_DISPLAY,
 	.of_match = tegra_dp_ids,
 	.ofdata_to_platdata = tegra_dp_ofdata_to_platdata,
 	.probe	= dp_tegra_probe,
