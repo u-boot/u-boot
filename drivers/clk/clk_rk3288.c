@@ -83,8 +83,13 @@ enum {
 	 * peripheral bus pclk div:
 	 * aclk_bus: pclk_bus = 1:1 or 2:1 or 4:1 or 8:1
 	 */
+	PERI_SEL_PLL_MASK	 = 1,
+	PERI_SEL_PLL_SHIFT	 = 15,
+	PERI_SEL_CPLL		= 0,
+	PERI_SEL_GPLL,
+
 	PERI_PCLK_DIV_SHIFT	= 12,
-	PERI_PCLK_DIV_MASK	= 7,
+	PERI_PCLK_DIV_MASK	= 3,
 
 	/* peripheral bus hclk div: aclk_bus: hclk_bus = 1:1 or 2:1 or 4:1 */
 	PERI_HCLK_DIV_SHIFT	= 8,
@@ -160,13 +165,13 @@ static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 	uint vco_hz = OSC_HZ / 1000 * div->nf / div->nr * 1000;
 	uint output_hz = vco_hz / div->no;
 
-	debug("PLL at %p: nf=%d, nr=%d, no=%d, vco=%u Hz, output=%u Hz\n",
-	      pll, div->nf, div->nr, div->no, vco_hz, output_hz);
+	debug("PLL at %x: nf=%d, nr=%d, no=%d, vco=%u Hz, output=%u Hz\n",
+	      (uint)pll, div->nf, div->nr, div->no, vco_hz, output_hz);
 	assert(vco_hz >= VCO_MIN_HZ && vco_hz <= VCO_MAX_HZ &&
 	       output_hz >= OUTPUT_MIN_HZ && output_hz <= OUTPUT_MAX_HZ &&
 	       (div->no == 1 || !(div->no % 2)));
 
-	/* enter rest */
+	/* enter reset */
 	rk_setreg(&pll->con3, 1 << PLL_RESET_SHIFT);
 
 	rk_clrsetreg(&pll->con0,
@@ -177,7 +182,7 @@ static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 
 	udelay(10);
 
-	/* return form rest */
+	/* return from reset */
 	rk_clrreg(&pll->con3, 1 << PLL_RESET_SHIFT);
 
 	return 0;
@@ -199,7 +204,6 @@ static int rkclk_configure_ddr(struct rk3288_cru *cru, struct rk3288_grf *grf,
 	};
 	int cfg;
 
-	debug("%s: cru=%p, grf=%p, hz=%u\n", __func__, cru, grf, hz);
 	switch (hz) {
 	case 300000000:
 		cfg = 0;
@@ -214,7 +218,7 @@ static int rkclk_configure_ddr(struct rk3288_cru *cru, struct rk3288_grf *grf,
 		cfg = 3;
 		break;
 	default:
-		debug("Unsupported SDRAM frequency, add to clock.c!");
+		debug("Unsupported SDRAM frequency");
 		return -EINVAL;
 	}
 
@@ -420,6 +424,7 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 		     PERI_PCLK_DIV_MASK << PERI_PCLK_DIV_SHIFT |
 		     PERI_HCLK_DIV_MASK << PERI_HCLK_DIV_SHIFT |
 		     PERI_ACLK_DIV_MASK << PERI_ACLK_DIV_SHIFT,
+		     PERI_SEL_GPLL << PERI_SEL_PLL_SHIFT |
 		     pclk_div << PERI_PCLK_DIV_SHIFT |
 		     hclk_div << PERI_HCLK_DIV_SHIFT |
 		     aclk_div << PERI_ACLK_DIV_SHIFT);
@@ -787,7 +792,7 @@ static const char *const clk_name[CLK_COUNT] = {
 	"dpll",
 	"cpll",
 	"gpll",
-	"mpll",
+	"npll",
 };
 
 static int rk3288_clk_bind(struct udevice *dev)
