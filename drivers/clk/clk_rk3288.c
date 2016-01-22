@@ -15,7 +15,9 @@
 #include <asm/arch/grf_rk3288.h>
 #include <asm/arch/hardware.h>
 #include <dt-bindings/clock/rk3288-cru.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -138,6 +140,24 @@ enum {
 static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 1);
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2);
+
+int rkclk_get_clk(enum rk_clk_id clk_id, struct udevice **devp)
+{
+	struct udevice *dev;
+
+	for (uclass_find_first_device(UCLASS_CLK, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		struct rk3288_clk_plat *plat = dev_get_platdata(dev);
+
+		if (plat->clk_id == clk_id) {
+			*devp = dev;
+			return device_probe(dev);
+		}
+	}
+
+	return -ENODEV;
+}
 
 static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 			 const struct pll_div *div)
@@ -515,7 +535,7 @@ static ulong rk3288_get_periph_rate(struct udevice *dev, int periph)
 	ulong new_rate, gclk_rate;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_CLK, CLK_GENERAL, &gclk);
+	ret = rkclk_get_clk(CLK_GENERAL, &gclk);
 	if (ret)
 		return ret;
 	gclk_rate = clk_get_rate(gclk);
@@ -551,7 +571,7 @@ static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 	ulong new_rate, gclk_rate;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_CLK, CLK_GENERAL, &gclk);
+	ret = rkclk_get_clk(CLK_GENERAL, &gclk);
 	if (ret)
 		return ret;
 	gclk_rate = clk_get_rate(gclk);
