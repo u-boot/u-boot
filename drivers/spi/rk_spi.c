@@ -44,6 +44,7 @@ struct rockchip_spi_priv {
 	u8 bits_per_word;		/* max 16 bits per word */
 	u8 n_bytes;
 	unsigned int speed_hz;
+	unsigned int last_speed_hz;
 	unsigned int tmode;
 	uint input_rate;
 };
@@ -82,6 +83,7 @@ static void rkspi_set_clk(struct rockchip_spi_priv *priv, uint speed)
 	debug("spi speed %u, div %u\n", speed, clk_div);
 
 	writel(clk_div, &priv->regs->baudr);
+	priv->last_speed_hz = speed;
 }
 
 static int rkspi_wait_till_not_busy(struct rockchip_spi *regs)
@@ -212,7 +214,8 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 		return -EPROTONOSUPPORT;
 	}
 
-	rkspi_set_clk(priv, priv->speed_hz);
+	if (priv->speed_hz != priv->last_speed_hz)
+		rkspi_set_clk(priv, priv->speed_hz);
 
 	/* Operation Mode */
 	ctrlr0 = OMOD_MASTER << OMOD_SHIFT;
