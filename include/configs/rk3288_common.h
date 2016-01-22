@@ -42,6 +42,12 @@
 #define CONFIG_ROCKCHIP_COMMON
 #define CONFIG_SPL_ROCKCHIP_COMMON
 
+#define CONFIG_SILENT_CONSOLE
+#ifndef CONFIG_SPL_BUILD
+# define CONFIG_SYS_CONSOLE_IS_IN_ENV
+# define CONFIG_CONSOLE_MUX
+#endif
+
 /* MMC/SD IP block */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
@@ -110,6 +116,7 @@
 	"fdt_high=0x1fffffff\0" \
 	"initrd_high=0x1fffffff\0" \
 	ENV_MEM_LAYOUT_SETTINGS \
+	ROCKCHIP_DEVICE_SETTINGS \
 	BOOTENV
 #endif
 

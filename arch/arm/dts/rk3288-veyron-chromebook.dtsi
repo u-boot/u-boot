@@ -91,12 +91,16 @@
 
 &spi0 {
 	status = "okay";
+	spi-activate-delay = <100>;
+	spi-max-frequency = <3000000>;
+	spi-deactivate-delay = <200>;
 
 	cros_ec: ec@0 {
 		compatible = "google,cros-ec-spi";
 		spi-max-frequency = <3000000>;
 		interrupt-parent = <&gpio7>;
 		interrupts = <7 IRQ_TYPE_LEVEL_LOW>;
+		ec-interrupt = <&gpio7 7 GPIO_ACTIVE_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ec_int>;
 		reg = <0>;

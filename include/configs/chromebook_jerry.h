@@ -7,6 +7,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define ROCKCHIP_DEVICE_SETTINGS \
+		"stdin=serial,cros-ec-keyb\0" \
+		"stdout=serial\0" \
+		"stderr=serial\0"
+
 #include <configs/rk3288_common.h>
 
 #define CONFIG_ENV_IS_NOWHERE
@@ -16,5 +21,7 @@
 #define CONFIG_SPI_FLASH_GIGADEVICE
 
 #undef CONFIG_SPL_GPIO_SUPPORT
+
+#define CONFIG_KEYBOARD
 
 #endif
