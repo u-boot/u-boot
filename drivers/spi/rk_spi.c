@@ -32,6 +32,7 @@ struct rockchip_spi_platdata {
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	fdt_addr_t base;
 	uint deactivate_delay_us;	/* Delay to wait after deactivate */
+	uint activate_delay_us;		/* Delay to wait after activate */
 };
 
 struct rockchip_spi_priv {
@@ -101,16 +102,32 @@ static int rkspi_wait_till_not_busy(struct rockchip_spi *regs)
 	return 0;
 }
 
-static void spi_cs_activate(struct rockchip_spi *regs, uint cs)
+static void spi_cs_activate(struct udevice *dev, uint cs)
 {
+	struct udevice *bus = dev->parent;
+	struct rockchip_spi_platdata *plat = bus->platdata;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+	struct rockchip_spi *regs = priv->regs;
+
 	debug("activate cs%u\n", cs);
 	writel(1 << cs, &regs->ser);
+	if (plat->activate_delay_us)
+		udelay(plat->activate_delay_us);
 }
 
-static void spi_cs_deactivate(struct rockchip_spi *regs, uint cs)
+static void spi_cs_deactivate(struct udevice *dev, uint cs)
 {
+	struct udevice *bus = dev->parent;
+	struct rockchip_spi_platdata *plat = bus->platdata;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+	struct rockchip_spi *regs = priv->regs;
+
 	debug("deactivate cs%u\n", cs);
 	writel(0, &regs->ser);
+
+	/* Remember time of this transaction so we can honour the bus delay */
+	if (plat->deactivate_delay_us)
+		priv->last_transaction_us = timer_get_us();
 }
 
 static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
@@ -145,6 +162,8 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 					 50000000);
 	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
 					"spi-deactivate-delay", 0);
+	plat->activate_delay_us = fdtdec_get_int(blob, node,
+						 "spi-activate-delay", 0);
 	debug("%s: base=%x, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
 	      __func__, (uint)plat->base, plat->periph_id, plat->frequency,
 	      plat->deactivate_delay_us);
@@ -290,7 +309,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Assert CS before transfer */
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(regs, slave_plat->cs);
+		spi_cs_activate(dev, slave_plat->cs);
 
 	while (len > 0) {
 		int todo = min(len, 0xffff);
@@ -324,7 +343,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Deassert CS after transfer */
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(regs, slave_plat->cs);
+		spi_cs_deactivate(dev, slave_plat->cs);
 
 	rkspi_enable_chip(regs, false);
 
