@@ -939,14 +939,10 @@ static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 {
+#ifdef CONFIG_DM_SPI_FLASH
 	fdt_addr_t addr;
 	fdt_size_t size;
-	int node;
-
-	/* If there is no node, do nothing */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
-	if (node < 0)
-		return 0;
+	int node = flash->dev->of_offset;
 
 	addr = fdtdec_get_addr_size(blob, node, "memory-map", &size);
 	if (addr == FDT_ADDR_T_NONE) {
@@ -959,6 +955,7 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 		return -1;
 	}
 	flash->memory_map = map_sysmem(addr, size);
+#endif
 
 	return 0;
 }
