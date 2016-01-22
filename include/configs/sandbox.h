@@ -169,12 +169,12 @@
 #define CONFIG_KEYBOARD
 
 #define SANDBOX_SERIAL_SETTINGS		"stdin=serial,cros-ec-keyb,usbkbd\0" \
-					"stdout=serial,lcd.vidconsole\0" \
-					"stderr=serial,lcd.vidconsole\0"
+					"stdout=serial,vidconsole\0" \
+					"stderr=serial,vidconsole\0"
 #else
 #define SANDBOX_SERIAL_SETTINGS		"stdin=serial\0" \
-					"stdout=serial,lcd.vidconsole\0" \
-					"stderr=serial,lcd.vidconsole\0"
+					"stdout=serial,vidconsole\0" \
+					"stderr=serial,vidconsole\0"
 #endif
 
 #define SANDBOX_ETH_SETTINGS		"ethaddr=00:00:11:22:33:44\0" \

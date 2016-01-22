@@ -161,7 +161,12 @@ static int vidconsole_post_probe(struct udevice *dev)
 	struct stdio_dev *sdev = &priv->sdev;
 	int ret;
 
-	strlcpy(sdev->name, dev->name, sizeof(sdev->name));
+	if (dev->seq) {
+		snprintf(sdev->name, sizeof(sdev->name), "vidconsole%d",
+			 dev->seq);
+	} else {
+		strcpy(sdev->name, "vidconsole");
+	}
 	sdev->flags = DEV_FLAGS_OUTPUT;
 	sdev->putc = vidconsole_putc;
 	sdev->puts = vidconsole_puts;
