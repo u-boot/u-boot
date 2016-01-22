@@ -22,6 +22,8 @@
 #include <asm/arch/pmu_rk3288.h>
 #include <asm/arch/sdram.h>
 #include <linux/err.h>
+#include <power/regulator.h>
+#include <power/rk808_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -748,6 +750,32 @@ size_t sdram_size_mb(struct rk3288_pmu *pmu)
 }
 
 #ifdef CONFIG_SPL_BUILD
+# ifdef CONFIG_ROCKCHIP_FAST_SPL
+static int veyron_init(struct dram_info *priv)
+{
+	struct udevice *pmic;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_PMIC, &pmic);
+	if (ret)
+		return ret;
+
+	/* Slowly raise to max CPU voltage to prevent overshoot */
+	ret = rk808_spl_configure_buck(pmic, 1, 1200000);
+	if (ret)
+		return ret;
+	udelay(175);/* Must wait for voltage to stabilize, 2mV/us */
+	ret = rk808_spl_configure_buck(pmic, 1, 1400000);
+	if (ret)
+		return ret;
+	udelay(100);/* Must wait for voltage to stabilize, 2mV/us */
+
+	rkclk_configure_cpu(priv->cru, priv->grf);
+
+	return 0;
+}
+# endif
+
 static int setup_sdram(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
@@ -790,6 +818,14 @@ static int setup_sdram(struct udevice *dev)
 		debug("%s: Cannot read rockchip,sdram-params\n", __func__);
 		return -EINVAL;
 	}
+
+# ifdef CONFIG_ROCKCHIP_FAST_SPL
+	if (!fdt_node_check_compatible(blob, 0, "google,veyron")) {
+		ret = veyron_init(priv);
+		if (ret)
+			return ret;
+	}
+# endif
 
 	return sdram_init(priv, &params);
 }

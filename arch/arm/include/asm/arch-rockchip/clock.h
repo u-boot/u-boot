@@ -74,4 +74,9 @@ void *rockchip_get_cru(void);
  */
 int rkclk_get_clk(enum rk_clk_id clk_id, struct udevice **devp);
 
+struct rk3288_cru;
+struct rk3288_grf;
+
+void rkclk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf);
+
 #endif

@@ -59,6 +59,16 @@ enum {
 	/* PLL CON3 */
 	PLL_RESET_SHIFT		= 5,
 
+	/* CLKSEL0 */
+	CORE_SEL_PLL_MASK	= 1,
+	CORE_SEL_PLL_SHIFT	= 15,
+	A17_DIV_MASK		= 0x1f,
+	A17_DIV_SHIFT		= 8,
+	MP_DIV_MASK		= 0xf,
+	MP_DIV_SHIFT		= 4,
+	M0_DIV_MASK		= 0xf,
+	M0_DIV_SHIFT		= 0,
+
 	/* CLKSEL1: pd bus clk pll sel: codec or general */
 	PD_BUS_SEL_PLL_MASK	= 15,
 	PD_BUS_SEL_CPLL		= 0,
@@ -437,6 +447,52 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 		     CPLL_MODE_NORMAL << CPLL_MODE_SHIFT);
 }
 #endif
+
+void rkclk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf)
+{
+	/* pll enter slow-mode */
+	rk_clrsetreg(&cru->cru_mode_con,
+		     APLL_MODE_MASK << APLL_MODE_SHIFT,
+		     APLL_MODE_SLOW << APLL_MODE_SHIFT);
+
+	rkclk_set_pll(cru, CLK_ARM, &apll_init_cfg);
+
+	/* waiting for pll lock */
+	while (!(readl(&grf->soc_status[1]) & SOCSTS_APLL_LOCK))
+		udelay(1);
+
+	/*
+	 * core clock pll source selection and
+	 * set up dependent divisors for MPAXI/M0AXI and ARM clocks.
+	 * core clock select apll, apll clk = 1800MHz
+	 * arm clk = 1800MHz, mpclk = 450MHz, m0clk = 900MHz
+	 */
+	rk_clrsetreg(&cru->cru_clksel_con[0],
+		     CORE_SEL_PLL_MASK << CORE_SEL_PLL_SHIFT |
+		     A17_DIV_MASK << A17_DIV_SHIFT |
+		     MP_DIV_MASK << MP_DIV_SHIFT |
+		     M0_DIV_MASK << M0_DIV_SHIFT,
+		     0 << A17_DIV_SHIFT |
+		     3 << MP_DIV_SHIFT |
+		     1 << M0_DIV_SHIFT);
+
+	/*
+	 * set up dependent divisors for L2RAM/ATCLK and PCLK clocks.
+	 * l2ramclk = 900MHz, atclk = 450MHz, pclk_dbg = 450MHz
+	 */
+	rk_clrsetreg(&cru->cru_clksel_con[37],
+		     CLK_L2RAM_DIV_MASK << CLK_L2RAM_DIV_SHIFT |
+		     ATCLK_CORE_DIV_CON_MASK << ATCLK_CORE_DIV_CON_SHIFT |
+		     PCLK_CORE_DBG_DIV_MASK >> PCLK_CORE_DBG_DIV_SHIFT,
+		     1 << CLK_L2RAM_DIV_SHIFT |
+		     3 << ATCLK_CORE_DIV_CON_SHIFT |
+		     3 << PCLK_CORE_DBG_DIV_SHIFT);
+
+	/* PLL enter normal-mode */
+	rk_clrsetreg(&cru->cru_mode_con,
+		     APLL_MODE_MASK << APLL_MODE_SHIFT,
+		     APLL_MODE_NORMAL << APLL_MODE_SHIFT);
+}
 
 /* Get pll rate by id */
 static uint32_t rkclk_pll_get_rate(struct rk3288_cru *cru,

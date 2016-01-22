@@ -24,4 +24,7 @@
 
 #define CONFIG_KEYBOARD
 
+#define CONFIG_SPL_POWER_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+
 #endif
