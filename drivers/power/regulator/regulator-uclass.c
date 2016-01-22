@@ -178,7 +178,7 @@ static void regulator_show(struct udevice *dev, int ret)
 		printf("; set %d uA", uc_pdata->min_uA);
 	printf("; enabling");
 	if (ret)
-		printf(" (ret: %d)\n", ret);
+		printf(" (ret: %d)", ret);
 	printf("\n");
 }
 

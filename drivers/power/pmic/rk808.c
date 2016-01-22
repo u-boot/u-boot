@@ -30,9 +30,12 @@ static int rk808_reg_count(struct udevice *dev)
 static int rk808_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
-	if (dm_i2c_write(dev, reg, buff, len)) {
+	int ret;
+
+	ret = dm_i2c_write(dev, reg, buff, len);
+	if (ret) {
 		debug("write error to device: %p register: %#x!", dev, reg);
-		return -EIO;
+		return ret;
 	}
 
 	return 0;
@@ -40,9 +43,12 @@ static int rk808_write(struct udevice *dev, uint reg, const uint8_t *buff,
 
 static int rk808_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
-	if (dm_i2c_read(dev, reg, buff, len)) {
+	int ret;
+
+	ret = dm_i2c_read(dev, reg, buff, len);
+	if (ret) {
 		debug("read error from device: %p register: %#x!", dev, reg);
-		return -EIO;
+		return ret;
 	}
 
 	return 0;
