@@ -174,8 +174,10 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * GPIO compatibility layer.
 	 */
 	ret = gpio_lookup_name(str_gpio, NULL, NULL, &gpio);
-	if (ret)
+	if (ret) {
+		printf("GPIO: '%s' not found\n", str_gpio);
 		return cmd_process_error(cmdtp, ret);
+	}
 #else
 	/* turn the gpio name into a gpio number */
 	gpio = name_to_gpio(str_gpio);
