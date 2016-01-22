@@ -97,27 +97,6 @@ enum {
 	PERI_ACLK_DIV_SHIFT	= 0,
 	PERI_ACLK_DIV_MASK	= 0x1f,
 
-	/* CLKSEL37 */
-	DPLL_MODE_MASK		= 0x3,
-	DPLL_MODE_SHIFT		= 4,
-	DPLL_MODE_SLOW		= 0,
-	DPLL_MODE_NORM,
-
-	CPLL_MODE_MASK		= 3,
-	CPLL_MODE_SHIFT		= 8,
-	CPLL_MODE_SLOW		= 0,
-	CPLL_MODE_NORM,
-
-	GPLL_MODE_MASK		= 3,
-	GPLL_MODE_SHIFT		= 12,
-	GPLL_MODE_SLOW		= 0,
-	GPLL_MODE_NORM,
-
-	NPLL_MODE_MASK		= 3,
-	NPLL_MODE_SHIFT		= 14,
-	NPLL_MODE_SLOW		= 0,
-	NPLL_MODE_NORM,
-
 	SOCSTS_DPLL_LOCK	= 1 << 5,
 	SOCSTS_APLL_LOCK	= 1 << 6,
 	SOCSTS_CPLL_LOCK	= 1 << 7,
@@ -251,7 +230,7 @@ static int rkclk_configure_ddr(struct rk3288_cru *cru, struct rk3288_grf *grf,
 
 	/* PLL enter normal-mode */
 	rk_clrsetreg(&cru->cru_mode_con, DPLL_MODE_MASK << DPLL_MODE_SHIFT,
-		     DPLL_MODE_NORM << DPLL_MODE_SHIFT);
+		     DPLL_MODE_NORMAL << DPLL_MODE_SHIFT);
 
 	return 0;
 }
@@ -331,8 +310,8 @@ static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 	rk_clrsetreg(&cru->cru_mode_con,
 		     GPLL_MODE_MASK << GPLL_MODE_SHIFT |
 		     CPLL_MODE_MASK << CPLL_MODE_SHIFT,
-		     GPLL_MODE_NORM << GPLL_MODE_SHIFT |
-		     GPLL_MODE_NORM << CPLL_MODE_SHIFT);
+		     GPLL_MODE_NORMAL << GPLL_MODE_SHIFT |
+		     CPLL_MODE_NORMAL << CPLL_MODE_SHIFT);
 }
 #endif
 
@@ -345,17 +324,17 @@ static uint32_t rkclk_pll_get_rate(struct rk3288_cru *cru,
 	int pll_id = rk_pll_id(clk_id);
 	struct rk3288_pll *pll = &cru->pll[pll_id];
 	static u8 clk_shift[CLK_COUNT] = {
-		0xff, APLL_WORK_SHIFT, DPLL_WORK_SHIFT, CPLL_WORK_SHIFT,
-		GPLL_WORK_SHIFT, NPLL_WORK_SHIFT
+		0xff, APLL_MODE_SHIFT, DPLL_MODE_SHIFT, CPLL_MODE_SHIFT,
+		GPLL_MODE_SHIFT, NPLL_MODE_SHIFT
 	};
 	uint shift;
 
 	con = readl(&cru->cru_mode_con);
 	shift = clk_shift[clk_id];
-	switch ((con >> shift) & APLL_WORK_MASK) {
-	case APLL_WORK_SLOW:
+	switch ((con >> shift) & APLL_MODE_MASK) {
+	case APLL_MODE_SLOW:
 		return OSC_HZ;
-	case APLL_WORK_NORMAL:
+	case APLL_MODE_NORMAL:
 		/* normal mode */
 		con = readl(&pll->con0);
 		no = ((con >> CLKOD_SHIFT) & CLKOD_MASK) + 1;
@@ -364,7 +343,7 @@ static uint32_t rkclk_pll_get_rate(struct rk3288_cru *cru,
 		nf = ((con >> CLKF_SHIFT) & CLKF_MASK) + 1;
 
 		return (24 * nf / (nr * no)) * 1000000;
-	case APLL_WORK_DEEP:
+	case APLL_MODE_DEEP:
 	default:
 		return 32768;
 	}
