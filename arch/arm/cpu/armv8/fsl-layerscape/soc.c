@@ -12,6 +12,9 @@
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/arch-fsl-layerscape/config.h>
+#ifdef CONFIG_CHAIN_OF_TRUST
+#include <fsl_validate.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -240,6 +243,9 @@ int board_late_init(void)
 {
 #ifdef CONFIG_SCSI_AHCI_PLAT
 	sata_init();
+#endif
+#ifdef CONFIG_CHAIN_OF_TRUST
+	fsl_setenv_chain_of_trust();
 #endif
 
 	return 0;

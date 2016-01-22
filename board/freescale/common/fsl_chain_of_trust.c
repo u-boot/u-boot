@@ -51,3 +51,20 @@ int fsl_check_boot_mode_secure(void)
 #endif
 	return 0;
 }
+
+int fsl_setenv_chain_of_trust(void)
+{
+	/* Check Boot Mode
+	 * If Boot Mode is Non-Secure, no changes are required
+	 */
+	if (fsl_check_boot_mode_secure() == 0)
+		return 0;
+
+	/* If Boot mode is Secure, set the environment variables
+	 * bootdelay = 0 (To disable Boot Prompt)
+	 * bootcmd = CONFIG_CHAIN_BOOT_CMD (Validate and execute Boot script)
+	 */
+	setenv("bootdelay", "0");
+	setenv("bootcmd", CONFIG_CHAIN_BOOT_CMD);
+	return 0;
+}

@@ -205,4 +205,6 @@ int fsl_secboot_blob_encap(cmd_tbl_t *cmdtp, int flag, int argc,
 int fsl_secboot_blob_decap(cmd_tbl_t *cmdtp, int flag, int argc,
 	char * const argv[]);
 
+int fsl_check_boot_mode_secure(void);
+int fsl_setenv_chain_of_trust(void);
 #endif

@@ -30,6 +30,7 @@
 #ifdef CONFIG_U_QE
 #include "../../../drivers/qe/qe.h"
 #endif
+#include <fsl_validate.h>
 
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -548,6 +549,9 @@ int board_late_init(void)
 {
 #ifdef CONFIG_SCSI_AHCI_PLAT
 	ls1021a_sata_init();
+#endif
+#ifdef CONFIG_CHAIN_OF_TRUST
+	fsl_setenv_chain_of_trust();
 #endif
 
 	return 0;
