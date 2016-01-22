@@ -283,6 +283,9 @@ int stdio_add_devices(void)
 #endif
 #ifdef CONFIG_DM_VIDEO
 	struct udevice *vdev;
+# ifndef CONFIG_DM_KEYBOARD
+	int ret;
+# endif
 
 	for (ret = uclass_first_device(UCLASS_VIDEO, &vdev);
 	     vdev;
