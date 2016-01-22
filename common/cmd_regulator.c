@@ -180,17 +180,12 @@ static int do_info(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static void do_status_detail(struct udevice *dev,
+			     struct dm_regulator_uclass_platdata *uc_pdata)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
-	int current, value, mode, ret;
-	const char *mode_name = NULL;
-	struct udevice *dev;
+	int current, value, mode;
+	const char *mode_name;
 	bool enabled;
-
-	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
-	if (ret)
-		return ret;
 
 	printf("Regulator %s status:\n", uc_pdata->name);
 
@@ -206,6 +201,57 @@ static int do_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	mode = regulator_get_mode(dev);
 	mode_name = get_mode_name(uc_pdata->mode, uc_pdata->mode_count, mode);
 	constraint(" * mode id:", mode, mode_name);
+}
+
+static void do_status_line(struct udevice *dev)
+{
+	struct dm_regulator_uclass_platdata *pdata;
+	int current, value, mode;
+	const char *mode_name;
+	bool enabled;
+
+	pdata = dev_get_uclass_platdata(dev);
+	enabled = regulator_get_enable(dev);
+	value = regulator_get_value(dev);
+	current = regulator_get_current(dev);
+	mode = regulator_get_mode(dev);
+	mode_name = get_mode_name(pdata->mode, pdata->mode_count, mode);
+	printf("%-20s %-10s ", pdata->name, enabled ? "enabled" : "disabled");
+	if (value >= 0)
+		printf("%10d ", value);
+	else
+		printf("%10s ", "-");
+	if (current >= 0)
+		printf("%10d ", current);
+	else
+		printf("%10s ", "-");
+	if (mode >= 0)
+		printf("%-10s", mode_name);
+	else
+		printf("%-10s", "-");
+	printf("\n");
+}
+
+static int do_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct udevice *dev;
+	int ret;
+
+	if (currdev && (argc < 2 || strcmp(argv[1], "-a"))) {
+		ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
+		if (ret)
+			return CMD_RET_FAILURE;
+		do_status_detail(dev, uc_pdata);
+		return 0;
+	}
+
+	/* Show all of them in a list, probing them as needed */
+	printf("%-20s %-10s %10s %10s %-10s\n", "Name", "Enabled", "uV", "mA",
+	       "Mode");
+	for (ret = uclass_first_device(UCLASS_REGULATOR, &dev); dev;
+	     ret = uclass_next_device(&dev))
+		do_status_line(dev);
 
 	return CMD_RET_SUCCESS;
 }
@@ -400,7 +446,7 @@ U_BOOT_CMD(regulator, CONFIG_SYS_MAXARGS, 1, do_regulator,
 	"list             - list UCLASS regulator devices\n"
 	"regulator dev [regulator-name] - show/[set] operating regulator device\n"
 	"regulator info                 - print constraints info\n"
-	"regulator status               - print operating status\n"
+	"regulator status [-a]          - print operating status [for all]\n"
 	"regulator value [val] [-f]     - print/[set] voltage value [uV] (force)\n"
 	"regulator current [val]        - print/[set] current value [uA]\n"
 	"regulator mode [id]            - print/[set] operating mode id\n"
