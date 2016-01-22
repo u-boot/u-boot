@@ -334,6 +334,8 @@ int regulators_enable_boot_on(bool verbose)
 		}
 		if (verbose)
 			regulator_show(dev, ret);
+		if (ret == -ENOSYS)
+			ret = 0;
 	}
 
 	return ret;
