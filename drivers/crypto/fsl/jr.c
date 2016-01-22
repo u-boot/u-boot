@@ -95,14 +95,16 @@ static int jr_init(void)
 				JR_SIZE * sizeof(dma_addr_t));
 	if (!jr.input_ring)
 		return -1;
+
+	jr.op_size = roundup(JR_SIZE * sizeof(struct op_ring),
+			     ARCH_DMA_MINALIGN);
 	jr.output_ring =
-	    (struct op_ring *)memalign(ARCH_DMA_MINALIGN,
-				JR_SIZE * sizeof(struct op_ring));
+	    (struct op_ring *)memalign(ARCH_DMA_MINALIGN, jr.op_size);
 	if (!jr.output_ring)
 		return -1;
 
 	memset(jr.input_ring, 0, JR_SIZE * sizeof(dma_addr_t));
-	memset(jr.output_ring, 0, JR_SIZE * sizeof(struct op_ring));
+	memset(jr.output_ring, 0, jr.op_size);
 
 	start_jr0();
 
@@ -190,8 +192,8 @@ static int jr_enqueue(uint32_t *desc_addr,
 
 	unsigned long start = (unsigned long)&jr.info[head] &
 					~(ARCH_DMA_MINALIGN - 1);
-	unsigned long end = ALIGN(start + sizeof(struct jr_info),
-					ARCH_DMA_MINALIGN);
+	unsigned long end = ALIGN((unsigned long)&jr.info[head] +
+				  sizeof(struct jr_info), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
 #ifdef CONFIG_PHYS_64BIT
@@ -216,10 +218,18 @@ static int jr_enqueue(uint32_t *desc_addr,
 #endif /* ifdef CONFIG_PHYS_64BIT */
 
 	start = (unsigned long)&jr.input_ring[head] & ~(ARCH_DMA_MINALIGN - 1);
-	end = ALIGN(start + sizeof(phys_addr_t), ARCH_DMA_MINALIGN);
+	end = ALIGN((unsigned long)&jr.input_ring[head] +
+		     sizeof(dma_addr_t), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
 	jr.head = (head + 1) & (jr.size - 1);
+
+	/* Invalidate output ring */
+	start = (unsigned long)jr.output_ring &
+					~(ARCH_DMA_MINALIGN - 1);
+	end = ALIGN((unsigned long)jr.output_ring + jr.op_size,
+		     ARCH_DMA_MINALIGN);
+	invalidate_dcache_range(start, end);
 
 	sec_out32(&regs->irja, 1);
 
@@ -241,12 +251,6 @@ static int jr_dequeue(void)
 #endif
 
 	while (sec_in32(&regs->orsf) && CIRC_CNT(jr.head, jr.tail, jr.size)) {
-		unsigned long start = (unsigned long)jr.output_ring &
-					~(ARCH_DMA_MINALIGN - 1);
-		unsigned long end = ALIGN(start +
-					  sizeof(struct op_ring)*JR_SIZE,
-					  ARCH_DMA_MINALIGN);
-		invalidate_dcache_range(start, end);
 
 		found = 0;
 
