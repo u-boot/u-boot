@@ -44,7 +44,17 @@ config VIDEO_BPP32
 	  this option, such displays will not be supported and console output
 	  will be empty.
 
-config VIDEO_ROTATION
+config CONSOLE_NORMAL
+	bool "Support a simple text console"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text on the frame buffer console so that it can be
+	  used as a console. Rotation is not supported by this driver (see
+	  CONFIG_CONSOLE_ROTATION for that). A built-in 8x16 font is used
+	  for the display.
+
+config CONSOLE_ROTATION
 	bool "Support rotated displays"
 	depends on DM_VIDEO
 	help
