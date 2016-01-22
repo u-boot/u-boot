@@ -1935,7 +1935,6 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 	u8	res24[64];
 	u32	pblsr;		/* Preboot loader status */
 	u32	pamubypenr;	/* PAMU bypass enable */
-#define FSL_CORENET_PAMU_BYPASS		0xffff0000
 	u32	dmacr1;		/* DMA control */
 	u8	res25[4];
 	u32	gensr1;		/* General status */
@@ -2774,6 +2773,21 @@ typedef struct ccsr_pme {
 	u8	res4[0x400];
 } ccsr_pme_t;
 
+struct ccsr_pamu {
+	u32 ppbah;
+	u32 ppbal;
+	u32 pplah;
+	u32 pplal;
+	u32 spbah;
+	u32 spbal;
+	u32 splah;
+	u32 splal;
+	u32 obah;
+	u32 obal;
+	u32 olah;
+	u32 olal;
+};
+
 #ifdef CONFIG_SYS_FSL_RAID_ENGINE
 struct ccsr_raide {
 	u8	res0[0x543];
@@ -2854,6 +2868,7 @@ struct ccsr_pman {
 #define CONFIG_SYS_FSL_CORENET_SERDES4_OFFSET	0xED000
 #define CONFIG_SYS_FSL_CPC_OFFSET		0x10000
 #define CONFIG_SYS_FSL_SCFG_OFFSET		0xFC000
+#define CONFIG_SYS_FSL_PAMU_OFFSET		0x20000
 #define CONFIG_SYS_MPC85xx_DMA1_OFFSET		0x100000
 #define CONFIG_SYS_MPC85xx_DMA2_OFFSET		0x101000
 #define CONFIG_SYS_MPC85xx_DMA3_OFFSET		0x102000
@@ -3067,6 +3082,8 @@ struct ccsr_pman {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_FM2_OFFSET)
 #define CONFIG_SYS_FSL_SRIO_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_SRIO_OFFSET)
+#define CONFIG_SYS_PAMU_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_PAMU_OFFSET)
 
 #define CONFIG_SYS_PCI1_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PCI1_OFFSET)

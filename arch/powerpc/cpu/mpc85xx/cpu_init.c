@@ -37,6 +37,10 @@
 #ifdef CONFIG_FSL_CAAM
 #include <fsl_sec.h>
 #endif
+#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_CORENET)
+#include <asm/fsl_pamu.h>
+#include <fsl_secboot_err.h>
+#endif
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #include <nand.h>
 #include <errno.h>
@@ -432,8 +436,7 @@ void fsl_erratum_a007212_workaround(void)
 ulong cpu_init_f(void)
 {
 	extern void m8560_cpm_reset (void);
-#if defined(CONFIG_SYS_DCSRBAR_PHYS) || \
-	(defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_CORENET))
+#ifdef CONFIG_SYS_DCSRBAR_PHYS
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #if defined(CONFIG_SECURE_BOOT)
@@ -465,12 +468,6 @@ ulong cpu_init_f(void)
 #if defined(CONFIG_SYS_CPC_REINIT_F)
 	disable_cpc_sram();
 #endif
-
-#if defined(CONFIG_FSL_CORENET)
-	/* Put PAMU in bypass mode */
-	out_be32(&gur->pamubypenr, FSL_CORENET_PAMU_BYPASS);
-#endif
-
 #endif
 
 #ifdef CONFIG_CPM2
@@ -952,6 +949,11 @@ int cpu_init_r(void)
 
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
+#endif
+
+#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_CORENET)
+	if (pamu_init() < 0)
+		fsl_secboot_handle_error(ERROR_ESBC_PAMU_INIT);
 #endif
 
 #ifdef CONFIG_FSL_CAAM
