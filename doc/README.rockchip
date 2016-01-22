@@ -39,7 +39,7 @@ Building
 At present three RK3288 boards are supported:
 
    - Firefly RK3288 - use firefly-rk3288 configuration
-   - Radxa Rock 2 - also uses firefly-rk3288 configuration
+   - Radxa Rock 2 - use rock2 configuration
    - Haier Chromebook - use chromebook_jerry configuration
 
 one RK3036 board is support:
@@ -51,11 +51,6 @@ For example:
    CROSS_COMPILE=arm-linux-gnueabi- make O=firefly firefly-rk3288_defconfig all
 
 (or you can use another cross compiler if you prefer)
-
-Note that the Radxa Rock 2 uses the Firefly configuration for now as
-device tree files are not yet available for the Rock 2. Clearly the two
-have hardware differences, so this approach will break down as more drivers
-are added.
 
 
 Writing to the board with USB
