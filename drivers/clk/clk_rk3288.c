@@ -363,7 +363,7 @@ static ulong rk3288_clk_set_rate(struct udevice *dev, ulong rate)
 	return 0;
 }
 
-static ulong rockchip_mmc_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
+static ulong rockchip_mmc_get_clk(struct rk3288_cru *cru, uint gclk_rate,
 				  int periph)
 {
 	uint src_rate;
@@ -390,18 +390,18 @@ static ulong rockchip_mmc_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
 		return -EINVAL;
 	}
 
-	src_rate = mux == EMMC_PLL_SELECT_24MHZ ? OSC_HZ : clk_general_rate;
+	src_rate = mux == EMMC_PLL_SELECT_24MHZ ? OSC_HZ : gclk_rate;
 	return DIV_TO_RATE(src_rate, div);
 }
 
-static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
+static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 				  int  periph, uint freq)
 {
 	int src_clk_div;
 	int mux;
 
-	debug("%s: clk_general_rate=%u\n", __func__, clk_general_rate);
-	src_clk_div = RATE_TO_DIV(clk_general_rate, freq);
+	debug("%s: gclk_rate=%u\n", __func__, gclk_rate);
+	src_clk_div = RATE_TO_DIV(gclk_rate, freq);
 
 	if (src_clk_div > 0x3f) {
 		src_clk_div = RATE_TO_DIV(OSC_HZ, freq);
@@ -439,10 +439,10 @@ static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
 		return -EINVAL;
 	}
 
-	return rockchip_mmc_get_clk(cru, clk_general_rate, periph);
+	return rockchip_mmc_get_clk(cru, gclk_rate, periph);
 }
 
-static ulong rockchip_spi_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
+static ulong rockchip_spi_get_clk(struct rk3288_cru *cru, uint gclk_rate,
 				  int periph)
 {
 	uint div, mux;
@@ -469,16 +469,16 @@ static ulong rockchip_spi_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
 	}
 	assert(mux == SPI0_PLL_SELECT_GENERAL);
 
-	return DIV_TO_RATE(clk_general_rate, div);
+	return DIV_TO_RATE(gclk_rate, div);
 }
 
-static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
+static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 				  int periph, uint freq)
 {
 	int src_clk_div;
 
-	debug("%s: clk_general_rate=%u\n", __func__, clk_general_rate);
-	src_clk_div = RATE_TO_DIV(clk_general_rate, freq);
+	debug("%s: clk_general_rate=%u\n", __func__, gclk_rate);
+	src_clk_div = RATE_TO_DIV(gclk_rate, freq);
 	switch (periph) {
 	case SCLK_SPI0:
 		rk_clrsetreg(&cru->cru_clksel_con[25],
@@ -505,7 +505,7 @@ static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
 		return -EINVAL;
 	}
 
-	return rockchip_spi_get_clk(cru, clk_general_rate, periph);
+	return rockchip_spi_get_clk(cru, gclk_rate, periph);
 }
 
 static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
