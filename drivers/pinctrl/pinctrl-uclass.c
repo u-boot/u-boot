@@ -246,6 +246,16 @@ int pinctrl_get_periph_id(struct udevice *dev, struct udevice *periph)
 	return ops->get_periph_id(dev, periph);
 }
 
+int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_gpio_mux)
+		return -ENOSYS;
+
+	return ops->get_gpio_mux(dev, banknum, index);
+}
+
 /**
  * pinconfig_post-bind() - post binding for PINCTRL uclass
  * Recursively bind child nodes as pinconfig devices in case of full pinctrl.
