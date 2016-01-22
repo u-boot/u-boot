@@ -8,11 +8,16 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
+#include <syscon.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <asm/arch/clock.h>
+#include <dm/pinctrl.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/clock/rk3288-cru.h>
 
 enum {
 	ROCKCHIP_GPIOS_PER_BANK		= 32,
@@ -22,6 +27,8 @@ enum {
 
 struct rockchip_gpio_priv {
 	struct rockchip_gpio_regs *regs;
+	struct udevice *pinctrl;
+	int bank;
 	char name[2];
 };
 
@@ -70,7 +77,25 @@ static int rockchip_gpio_set_value(struct udevice *dev, unsigned offset,
 
 static int rockchip_gpio_get_function(struct udevice *dev, unsigned offset)
 {
-	return -ENOSYS;
+#ifdef CONFIG_SPL_BUILD
+	return -ENODATA;
+#else
+	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
+	struct rockchip_gpio_regs *regs = priv->regs;
+	bool is_output;
+	int ret;
+
+	ret = pinctrl_get_gpio_mux(priv->pinctrl, priv->bank, offset);
+	if (ret)
+		return ret;
+
+	/* If it's not 0, then it is not a GPIO */
+	if (ret)
+		return GPIOF_FUNC;
+	is_output = readl(&regs->swport_ddr) & OFFSET_TO_BIT(offset);
+
+	return is_output ? GPIOF_OUTPUT : GPIOF_INPUT;
+#endif
 }
 
 static int rockchip_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
@@ -87,13 +112,20 @@ static int rockchip_gpio_probe(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
 	char *end;
-	int bank;
+	int ret;
 
+	/* This only supports RK3288 at present */
 	priv->regs = (struct rockchip_gpio_regs *)dev_get_addr(dev);
+	ret = uclass_first_device(UCLASS_PINCTRL, &priv->pinctrl);
+	if (ret)
+		return ret;
+	if (!priv->pinctrl)
+		return -ENODEV;
+
 	uc_priv->gpio_count = ROCKCHIP_GPIOS_PER_BANK;
 	end = strrchr(dev->name, '@');
-	bank = trailing_strtoln(dev->name, end);
-	priv->name[0] = 'A' + bank;
+	priv->bank = trailing_strtoln(dev->name, end);
+	priv->name[0] = 'A' + priv->bank;
 	uc_priv->bank_name = priv->name;
 
 	return 0;
