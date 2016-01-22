@@ -212,6 +212,7 @@ class ConsoleBase(object):
             Nothing.
         '''
 
+        self.log.action('Sending Ctrl-C')
         self.run_command(chr(3), wait_for_echo=False, send_nl=False)
 
     def drain_console(self):
