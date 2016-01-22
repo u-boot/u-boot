@@ -14,7 +14,7 @@
 #include <asm/arch/cru_rk3288.h>
 #include <asm/arch/grf_rk3288.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/periph.h>
+#include <dt-bindings/clock/rk3288-cru.h>
 #include <dm/lists.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -364,24 +364,24 @@ static ulong rk3288_clk_set_rate(struct udevice *dev, ulong rate)
 }
 
 static ulong rockchip_mmc_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
-				  enum periph_id periph)
+				  int periph)
 {
 	uint src_rate;
 	uint div, mux;
 	u32 con;
 
 	switch (periph) {
-	case PERIPH_ID_EMMC:
+	case HCLK_EMMC:
 		con = readl(&cru->cru_clksel_con[12]);
 		mux = (con >> EMMC_PLL_SHIFT) & EMMC_PLL_MASK;
 		div = (con >> EMMC_DIV_SHIFT) & EMMC_DIV_MASK;
 		break;
-	case PERIPH_ID_SDCARD:
-		con = readl(&cru->cru_clksel_con[12]);
+	case HCLK_SDMMC:
+		con = readl(&cru->cru_clksel_con[11]);
 		mux = (con >> MMC0_PLL_SHIFT) & MMC0_PLL_MASK;
 		div = (con >> MMC0_DIV_SHIFT) & MMC0_DIV_MASK;
 		break;
-	case PERIPH_ID_SDMMC2:
+	case HCLK_SDIO0:
 		con = readl(&cru->cru_clksel_con[12]);
 		mux = (con >> SDIO0_PLL_SHIFT) & SDIO0_PLL_MASK;
 		div = (con >> SDIO0_DIV_SHIFT) & SDIO0_DIV_MASK;
@@ -395,7 +395,7 @@ static ulong rockchip_mmc_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
 }
 
 static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
-				  enum periph_id periph, uint freq)
+				  int  periph, uint freq)
 {
 	int src_clk_div;
 	int mux;
@@ -414,21 +414,21 @@ static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
 		       (int)MMC0_PLL_SELECT_GENERAL);
 	}
 	switch (periph) {
-	case PERIPH_ID_EMMC:
+	case HCLK_EMMC:
 		rk_clrsetreg(&cru->cru_clksel_con[12],
 			     EMMC_PLL_MASK << EMMC_PLL_SHIFT |
 			     EMMC_DIV_MASK << EMMC_DIV_SHIFT,
 			     mux << EMMC_PLL_SHIFT |
 			     (src_clk_div - 1) << EMMC_DIV_SHIFT);
 		break;
-	case PERIPH_ID_SDCARD:
+	case HCLK_SDMMC:
 		rk_clrsetreg(&cru->cru_clksel_con[11],
 			     MMC0_PLL_MASK << MMC0_PLL_SHIFT |
 			     MMC0_DIV_MASK << MMC0_DIV_SHIFT,
 			     mux << MMC0_PLL_SHIFT |
 			     (src_clk_div - 1) << MMC0_DIV_SHIFT);
 		break;
-	case PERIPH_ID_SDMMC2:
+	case HCLK_SDIO0:
 		rk_clrsetreg(&cru->cru_clksel_con[12],
 			     SDIO0_PLL_MASK << SDIO0_PLL_SHIFT |
 			     SDIO0_DIV_MASK << SDIO0_DIV_SHIFT,
@@ -443,23 +443,23 @@ static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
 }
 
 static ulong rockchip_spi_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
-				  enum periph_id periph)
+				  int periph)
 {
 	uint div, mux;
 	u32 con;
 
 	switch (periph) {
-	case PERIPH_ID_SPI0:
+	case SCLK_SPI0:
 		con = readl(&cru->cru_clksel_con[25]);
 		mux = (con >> SPI0_PLL_SHIFT) & SPI0_PLL_MASK;
 		div = (con >> SPI0_DIV_SHIFT) & SPI0_DIV_MASK;
 		break;
-	case PERIPH_ID_SPI1:
+	case SCLK_SPI1:
 		con = readl(&cru->cru_clksel_con[25]);
 		mux = (con >> SPI1_PLL_SHIFT) & SPI1_PLL_MASK;
 		div = (con >> SPI1_DIV_SHIFT) & SPI1_DIV_MASK;
 		break;
-	case PERIPH_ID_SPI2:
+	case SCLK_SPI2:
 		con = readl(&cru->cru_clksel_con[39]);
 		mux = (con >> SPI2_PLL_SHIFT) & SPI2_PLL_MASK;
 		div = (con >> SPI2_DIV_SHIFT) & SPI2_DIV_MASK;
@@ -473,28 +473,28 @@ static ulong rockchip_spi_get_clk(struct rk3288_cru *cru, uint clk_general_rate,
 }
 
 static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
-				  enum periph_id periph, uint freq)
+				  int periph, uint freq)
 {
 	int src_clk_div;
 
 	debug("%s: clk_general_rate=%u\n", __func__, clk_general_rate);
 	src_clk_div = RATE_TO_DIV(clk_general_rate, freq);
 	switch (periph) {
-	case PERIPH_ID_SPI0:
+	case SCLK_SPI0:
 		rk_clrsetreg(&cru->cru_clksel_con[25],
 			     SPI0_PLL_MASK << SPI0_PLL_SHIFT |
 			     SPI0_DIV_MASK << SPI0_DIV_SHIFT,
 			     SPI0_PLL_SELECT_GENERAL << SPI0_PLL_SHIFT |
 			     src_clk_div << SPI0_DIV_SHIFT);
 		break;
-	case PERIPH_ID_SPI1:
+	case SCLK_SPI1:
 		rk_clrsetreg(&cru->cru_clksel_con[25],
 			     SPI1_PLL_MASK << SPI1_PLL_SHIFT |
 			     SPI1_DIV_MASK << SPI1_DIV_SHIFT,
 			     SPI1_PLL_SELECT_GENERAL << SPI1_PLL_SHIFT |
 			     src_clk_div << SPI1_DIV_SHIFT);
 		break;
-	case PERIPH_ID_SPI2:
+	case SCLK_SPI2:
 		rk_clrsetreg(&cru->cru_clksel_con[39],
 			     SPI2_PLL_MASK << SPI2_PLL_SHIFT |
 			     SPI2_DIV_MASK << SPI2_DIV_SHIFT,
@@ -511,19 +511,26 @@ static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint clk_general_rate,
 static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
-	ulong new_rate;
+	struct udevice *gclk;
+	ulong new_rate, gclk_rate;
+	int ret;
 
+	ret = uclass_get_device(UCLASS_CLK, CLK_GENERAL, &gclk);
+	if (ret)
+		return ret;
+	gclk_rate = clk_get_rate(gclk);
 	switch (periph) {
-	case PERIPH_ID_EMMC:
-	case PERIPH_ID_SDCARD:
-		new_rate = rockchip_mmc_set_clk(priv->cru, clk_get_rate(dev),
-						periph, rate);
+	case HCLK_EMMC:
+	case HCLK_SDMMC:
+	case HCLK_SDIO0:
+		new_rate = rockchip_mmc_set_clk(priv->cru, gclk_rate, periph,
+						rate);
 		break;
-	case PERIPH_ID_SPI0:
-	case PERIPH_ID_SPI1:
-	case PERIPH_ID_SPI2:
-		new_rate = rockchip_spi_set_clk(priv->cru, clk_get_rate(dev),
-						periph, rate);
+	case SCLK_SPI0:
+	case SCLK_SPI1:
+	case SCLK_SPI2:
+		new_rate = rockchip_spi_set_clk(priv->cru, gclk_rate, periph,
+						rate);
 		break;
 	default:
 		return -ENOENT;

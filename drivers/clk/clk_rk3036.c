@@ -13,8 +13,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/cru_rk3036.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/periph.h>
 #include <dm/lists.h>
+#include <dt-bindings/clock/rk3036-cru.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -233,19 +233,19 @@ static uint32_t rkclk_pll_get_rate(struct rk3036_cru *cru,
 }
 
 static ulong rockchip_mmc_get_clk(struct rk3036_cru *cru, uint clk_general_rate,
-				  enum periph_id periph)
+				  int periph)
 {
 	uint src_rate;
 	uint div, mux;
 	u32 con;
 
 	switch (periph) {
-	case PERIPH_ID_EMMC:
+	case HCLK_EMMC:
 		con = readl(&cru->cru_clksel_con[12]);
 		mux = (con >> EMMC_PLL_SHIFT) & EMMC_PLL_MASK;
 		div = (con >> EMMC_DIV_SHIFT) & EMMC_DIV_MASK;
 		break;
-	case PERIPH_ID_SDCARD:
+	case HCLK_SDIO:
 		con = readl(&cru->cru_clksel_con[12]);
 		mux = (con >> MMC0_PLL_SHIFT) & MMC0_PLL_MASK;
 		div = (con >> MMC0_DIV_SHIFT) & MMC0_DIV_MASK;
@@ -259,7 +259,7 @@ static ulong rockchip_mmc_get_clk(struct rk3036_cru *cru, uint clk_general_rate,
 }
 
 static ulong rockchip_mmc_set_clk(struct rk3036_cru *cru, uint clk_general_rate,
-				  enum periph_id periph, uint freq)
+				  int periph, uint freq)
 {
 	int src_clk_div;
 	int mux;
@@ -277,14 +277,14 @@ static ulong rockchip_mmc_set_clk(struct rk3036_cru *cru, uint clk_general_rate,
 	}
 
 	switch (periph) {
-	case PERIPH_ID_EMMC:
+	case HCLK_EMMC:
 		rk_clrsetreg(&cru->cru_clksel_con[12],
 			     EMMC_PLL_MASK << EMMC_PLL_SHIFT |
 			     EMMC_DIV_MASK << EMMC_DIV_SHIFT,
 			     mux << EMMC_PLL_SHIFT |
 			     (src_clk_div - 1) << EMMC_DIV_SHIFT);
 		break;
-	case PERIPH_ID_SDCARD:
+	case HCLK_SDIO:
 		rk_clrsetreg(&cru->cru_clksel_con[11],
 			     MMC0_PLL_MASK << MMC0_PLL_SHIFT |
 			     MMC0_DIV_MASK << MMC0_DIV_SHIFT,
@@ -320,7 +320,7 @@ static ulong rk3036_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 	ulong new_rate;
 
 	switch (periph) {
-	case PERIPH_ID_EMMC:
+	case HCLK_EMMC:
 		new_rate = rockchip_mmc_set_clk(priv->cru, clk_get_rate(dev),
 						periph, rate);
 		break;
