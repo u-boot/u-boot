@@ -218,6 +218,9 @@ struct ccsr_gur {
 #define FSL_CHASSIS2_RCWSR0_MEM_PLL_RAT_MASK	0x3f
 #define FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK	0xffff0000
 #define FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT	16
+#define RCW_SB_EN_REG_INDEX	7
+#define RCW_SB_EN_MASK		0x00200000
+
 	u8      res_140[0x200-0x140];
 	u32     scratchrw[4];  /* Scratch Read/Write */
 	u8      res_210[0x300-0x210];
