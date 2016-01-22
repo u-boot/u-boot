@@ -158,6 +158,14 @@ int video_get_xsize(struct udevice *dev);
  */
 int video_get_ysize(struct udevice *dev);
 
+/**
+ * Set whether we need to flush the dcache when changing the image. This
+ * defaults to off.
+ *
+ * @param flush		non-zero to flush cache after update, 0 to skip
+ */
+void video_set_flush_dcache(struct udevice *dev, bool flush);
+
 #endif /* CONFIG_DM_VIDEO */
 
 #ifndef CONFIG_DM_VIDEO

@@ -42,6 +42,13 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+void video_set_flush_dcache(struct udevice *dev, bool flush)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	priv->flush_dcache = flush;
+}
+
 static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
