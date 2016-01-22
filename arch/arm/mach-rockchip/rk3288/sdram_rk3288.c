@@ -808,20 +808,9 @@ static int rk3288_dmc_probe(struct udevice *dev)
 	priv->chan[1].msch = (struct rk3288_msch *)
 			(regmap_get_range(map, 0) + 0x80);
 
-	map = syscon_get_regmap_by_driver_data(ROCKCHIP_SYSCON_GRF);
-	if (IS_ERR(map))
-		return PTR_ERR(map);
-	priv->grf = regmap_get_range(map, 0);
-
-	map = syscon_get_regmap_by_driver_data(ROCKCHIP_SYSCON_SGRF);
-	if (IS_ERR(map))
-		return PTR_ERR(map);
-	priv->sgrf = regmap_get_range(map, 0);
-
-	map = syscon_get_regmap_by_driver_data(ROCKCHIP_SYSCON_PMU);
-	if (IS_ERR(map))
-		return PTR_ERR(map);
-	priv->pmu = regmap_get_range(map, 0);
+	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	priv->sgrf = syscon_get_first_range(ROCKCHIP_SYSCON_SGRF);
+	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
 
 	ret = regmap_init_mem(dev, &map);
 	if (ret)
