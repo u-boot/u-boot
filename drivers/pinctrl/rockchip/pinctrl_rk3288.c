@@ -158,6 +158,7 @@ static void pinctrl_rk3288_i2c_config(struct rk3288_grf *grf,
 				GPIO0_C0_MASK << GPIO0_C0_SHIFT,
 				GPIO0_C0_I2C0PMU_SCL << GPIO0_C0_SHIFT);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_I2C1:
 		rk_clrsetreg(&grf->gpio8a_iomux,
 			     GPIO8A4_MASK << GPIO8A4_SHIFT |
@@ -194,12 +195,14 @@ static void pinctrl_rk3288_i2c_config(struct rk3288_grf *grf,
 			     GPIO7C4_MASK << GPIO7C4_SHIFT,
 			     GPIO7C4_I2C5HDMI_SCL << GPIO7C4_SHIFT);
 		break;
+#endif
 	default:
 		debug("i2c id = %d iomux error!\n", i2c_id);
 		break;
 	}
 }
 
+#ifndef CONFIG_SPL_BUILD
 static void pinctrl_rk3288_lcdc_config(struct rk3288_grf *grf, int lcd_id)
 {
 	switch (lcd_id) {
@@ -219,11 +222,13 @@ static void pinctrl_rk3288_lcdc_config(struct rk3288_grf *grf, int lcd_id)
 		break;
 	}
 }
+#endif
 
 static int pinctrl_rk3288_spi_config(struct rk3288_grf *grf,
 				     enum periph_id spi_id, int cs)
 {
 	switch (spi_id) {
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_SPI0:
 		switch (cs) {
 		case 0:
@@ -260,6 +265,7 @@ static int pinctrl_rk3288_spi_config(struct rk3288_grf *grf,
 			     GPIO7B5_SPI1_CSN0 << GPIO7B5_SHIFT |
 			     GPIO7B4_SPI1_CLK << GPIO7B4_SHIFT);
 		break;
+#endif
 	case PERIPH_ID_SPI2:
 		switch (cs) {
 		case 0:
@@ -297,6 +303,7 @@ err:
 static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 {
 	switch (uart_id) {
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_UART_BT:
 		rk_clrsetreg(&grf->gpio4c_iomux,
 			     GPIO4C3_MASK << GPIO4C3_SHIFT |
@@ -319,6 +326,7 @@ static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 			     GPIO5B1_UART1BB_SOUT << GPIO5B1_SHIFT |
 			     GPIO5B0_UART1BB_SIN << GPIO5B0_SHIFT);
 		break;
+#endif
 	case PERIPH_ID_UART_DBG:
 		rk_clrsetreg(&grf->gpio7ch_iomux,
 			     GPIO7C7_MASK << GPIO7C7_SHIFT |
@@ -326,6 +334,7 @@ static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 			     GPIO7C7_UART2DBG_SOUT << GPIO7C7_SHIFT |
 			     GPIO7C6_UART2DBG_SIN << GPIO7C6_SHIFT);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_UART_GPS:
 		rk_clrsetreg(&grf->gpio7b_iomux,
 			     GPIO7B2_MASK << GPIO7B2_SHIFT |
@@ -349,6 +358,7 @@ static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 			     GPIO5B6_UART4EXP_SOUT << GPIO5B6_SHIFT |
 			     GPIO5B7_UART4EXP_SIN << GPIO5B7_SHIFT);
 		break;
+#endif
 	default:
 		debug("uart id = %d iomux error!\n", uart_id);
 		break;
@@ -393,6 +403,7 @@ static void pinctrl_rk3288_sdmmc_config(struct rk3288_grf *grf, int mmc_id)
 	}
 }
 
+#ifndef CONFIG_SPL_BUILD
 static void pinctrl_rk3288_hdmi_config(struct rk3288_grf *grf, int hdmi_id)
 {
 	switch (hdmi_id) {
@@ -407,6 +418,7 @@ static void pinctrl_rk3288_hdmi_config(struct rk3288_grf *grf, int hdmi_id)
 		break;
 	}
 }
+#endif
 
 static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
 {
@@ -441,16 +453,18 @@ static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_UART4:
 		pinctrl_rk3288_uart_config(priv->grf, func);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_LCDC0:
 	case PERIPH_ID_LCDC1:
 		pinctrl_rk3288_lcdc_config(priv->grf, func);
 		break;
+	case PERIPH_ID_HDMI:
+		pinctrl_rk3288_hdmi_config(priv->grf, func);
+		break;
+#endif
 	case PERIPH_ID_SDMMC0:
 	case PERIPH_ID_SDMMC1:
 		pinctrl_rk3288_sdmmc_config(priv->grf, func);
-		break;
-	case PERIPH_ID_HDMI:
-		pinctrl_rk3288_hdmi_config(priv->grf, func);
 		break;
 	default:
 		return -EINVAL;
