@@ -503,6 +503,8 @@ static int rk3288_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_I2C4;
 	case 65:
 		return PERIPH_ID_I2C5;
+	case 103:
+		return PERIPH_ID_HDMI;
 	}
 
 	return -ENOENT;
