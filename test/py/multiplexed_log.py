@@ -106,13 +106,17 @@ class RunAndLog(object):
         '''Clean up any resources managed by this object.'''
         pass
 
-    def run(self, cmd, cwd=None):
+    def run(self, cmd, cwd=None, ignore_errors=False):
         '''Run a command as a sub-process, and log the results.
 
         Args:
             cmd: The command to execute.
             cwd: The directory to run the command in. Can be None to use the
                 current directory.
+            ignore_errors: Indicate whether to ignore errors. If True, the
+                function will simply return if the command cannot be executed
+                or exits with an error code, otherwise an exception will be
+                raised if such problems occur.
 
         Returns:
             Nothing.
@@ -148,7 +152,7 @@ class RunAndLog(object):
             exception = e
         if output and not output.endswith('\n'):
             output += '\n'
-        if exit_status and not exception:
+        if exit_status and not exception and not ignore_errors:
             exception = Exception('Exit code: ' + str(exit_status))
         if exception:
             output += str(exception) + '\n'
