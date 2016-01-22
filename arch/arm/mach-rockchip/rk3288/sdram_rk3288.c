@@ -405,7 +405,7 @@ static void set_bandwidth_ratio(const struct chan_info *chan, u32 channel,
 		/* Data Byte disable*/
 		clrbits_le32(&publ->datx8[2].dxgcr, 1);
 		clrbits_le32(&publ->datx8[3].dxgcr, 1);
-		/*disable DLL */
+		/* disable DLL */
 		setbits_le32(&publ->datx8[2].dxdllcr, DXDLLCR_DLLDIS);
 		setbits_le32(&publ->datx8[3].dxdllcr, DXDLLCR_DLLDIS);
 	} else {
@@ -416,7 +416,7 @@ static void set_bandwidth_ratio(const struct chan_info *chan, u32 channel,
 		setbits_le32(&publ->datx8[2].dxgcr, 1);
 		setbits_le32(&publ->datx8[3].dxgcr, 1);
 
-		/*enable DLL */
+		/* enable DLL */
 		clrbits_le32(&publ->datx8[2].dxdllcr, DXDLLCR_DLLDIS);
 		clrbits_le32(&publ->datx8[3].dxdllcr, DXDLLCR_DLLDIS);
 		/* reset DLL */
