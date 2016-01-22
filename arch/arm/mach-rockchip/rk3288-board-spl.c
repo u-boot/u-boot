@@ -270,3 +270,7 @@ err:
 	/* No way to report error here */
 	hang();
 }
+
+void lowlevel_init(void)
+{
+}
