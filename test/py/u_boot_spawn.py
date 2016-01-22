@@ -122,6 +122,7 @@ class Spawn(object):
             if type(patterns[pi]) == type(''):
                 patterns[pi] = re.compile(patterns[pi])
 
+        tstart_s = time.time()
         try:
             while True:
                 earliest_m = None
@@ -142,7 +143,11 @@ class Spawn(object):
                     self.after = self.buf[pos:posafter]
                     self.buf = self.buf[posafter:]
                     return earliest_pi
-                events = self.poll.poll(self.timeout)
+                tnow_s = time.time()
+                tdelta_ms = (tnow_s - tstart_s) * 1000
+                if tdelta_ms > self.timeout:
+                    raise Timeout()
+                events = self.poll.poll(self.timeout - tdelta_ms)
                 if not events:
                     raise Timeout()
                 c = os.read(self.fd, 1024)
