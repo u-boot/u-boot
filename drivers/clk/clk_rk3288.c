@@ -541,8 +541,8 @@ static ulong rk3288_get_periph_rate(struct udevice *dev, int periph)
 	gclk_rate = clk_get_rate(gclk);
 	switch (periph) {
 	case HCLK_EMMC:
+	case HCLK_SDMMC:
 	case HCLK_SDIO0:
-	case HCLK_SDIO1:
 		new_rate = rockchip_mmc_get_clk(priv->cru, gclk_rate, periph);
 		break;
 	case SCLK_SPI0:
