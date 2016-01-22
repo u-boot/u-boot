@@ -11,6 +11,11 @@
 static int do_esbc_halt(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
+	if (fsl_check_boot_mode_secure() == 0) {
+		printf("Boot Mode is Non-Secure. Not entering spin loop.\n");
+		return 0;
+	}
+
 	printf("Core is entering spin loop.\n");
 loop:
 	goto loop;
@@ -64,6 +69,6 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	esbc_halt,	1,	0,	do_esbc_halt,
-	"Put the core in spin loop ",
+	"Put the core in spin loop (Secure Boot Only)",
 	""
 );

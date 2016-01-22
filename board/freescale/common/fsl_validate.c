@@ -370,6 +370,13 @@ void fsl_secboot_handle_error(int error)
 			printf("ERROR :: %x :: %s\n", error, e->name);
 	}
 
+	/* If Boot Mode is secure, transition the SNVS state and issue
+	 * reset based on type of failure and ITS setting.
+	 * If Boot mode is non-secure, return from this function.
+	 */
+	if (fsl_check_boot_mode_secure() == 0)
+		return;
+
 	switch (error) {
 	case ERROR_ESBC_CLIENT_HEADER_BARKER:
 	case ERROR_ESBC_CLIENT_HEADER_IMG_SIZE:
