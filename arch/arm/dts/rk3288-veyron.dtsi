@@ -715,7 +715,10 @@
 
 	pmic {
 		pmic_int_l: pmic-int-l {
-			rockchip,pins = <RK_GPIO0 4 RK_FUNC_GPIO &pcfg_pull_up>;
+			/*
+			 * Causes jerry to hang when probing bus 0
+			 * rockchip,pins = <RK_GPIO0 4 RK_FUNC_GPIO &pcfg_pull_up>;
+			 */
 		};
 	};
 
