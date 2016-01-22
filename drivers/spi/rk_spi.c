@@ -182,13 +182,15 @@ static int rockchip_spi_probe(struct udevice *bus)
 static int rockchip_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	u8 spi_dfs, spi_tf;
 	uint ctrlr0;
+#if !CONFIG_IS_ENABLED(PINCTRL_FULL)
+	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	int ret;
+#endif
 
 	/* Disable the SPI hardware */
 	rkspi_enable_chip(regs, 0);
@@ -249,12 +251,13 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= (priv->tmode & TMOD_MASK) << TMOD_SHIFT;
 
 	writel(ctrlr0, &regs->ctrlr0);
-
+#if !CONFIG_IS_ENABLED(PINCTRL_FULL)
 	ret = pinctrl_request(plat->pinctrl, plat->periph_id, slave_plat->cs);
 	if (ret) {
 		debug("%s: Cannot request pinctrl: %d\n", __func__, ret);
 		return ret;
 	}
+#endif
 
 	return 0;
 }
