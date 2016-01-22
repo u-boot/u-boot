@@ -42,7 +42,7 @@ int __weak board_vdd_drop_compensation(void)
  * The IR chip can show up under the following addresses:
  * 0x08 (Verified on T1040RDB-PA,T4240RDB-PB,X-T4240RDB-16GPA)
  * 0x09 (Verified on T1040RDB-PA)
- * 0x38 (Verified on T2080QDS, T2081QDS)
+ * 0x38 (Verified on T2080QDS, T2081QDS, T4240RDB)
  */
 static int find_ir_chip_on_i2c(void)
 {

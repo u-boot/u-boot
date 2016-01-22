@@ -20,6 +20,7 @@
 
 #include "t4rdb.h"
 #include "cpld.h"
+#include "../common/vid.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -73,6 +74,13 @@ int board_early_init_r(void)
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);
+
+	/*
+	 * Adjust core voltage according to voltage ID
+	 * This function changes I2C mux to channel 2.
+	*/
+	if (adjust_vdd(0))
+		printf("Warning: Adjusting core voltage failed.\n");
 
 	return 0;
 }
