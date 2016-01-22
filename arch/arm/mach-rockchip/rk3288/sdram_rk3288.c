@@ -400,7 +400,7 @@ static void set_bandwidth_ratio(const struct chan_info *chan, u32 channel,
 
 	if (n == 1) {
 		setbits_le32(&pctl->ppcfg, 1);
-		writel(RK_SETBITS(1 << (8 + channel)), &grf->soc_con0);
+		rk_setreg(&grf->soc_con0, 1 << (8 + channel));
 		setbits_le32(&msch->ddrtiming, 1 << 31);
 		/* Data Byte disable*/
 		clrbits_le32(&publ->datx8[2].dxgcr, 1);
@@ -410,7 +410,7 @@ static void set_bandwidth_ratio(const struct chan_info *chan, u32 channel,
 		setbits_le32(&publ->datx8[3].dxdllcr, DXDLLCR_DLLDIS);
 	} else {
 		clrbits_le32(&pctl->ppcfg, 1);
-		writel(RK_CLRBITS(1 << (8 + channel)), &grf->soc_con0);
+		rk_clrreg(&grf->soc_con0, 1 << (8 + channel));
 		clrbits_le32(&msch->ddrtiming, 1 << 31);
 		/* Data Byte enable*/
 		setbits_le32(&publ->datx8[2].dxgcr, 1);
@@ -571,8 +571,7 @@ static void dram_all_config(const struct dram_info *dram,
 		dram_cfg_rbc(&dram->chan[chan], chan, sdram_params);
 	}
 	writel(sys_reg, &dram->pmu->sys_reg[2]);
-	writel(RK_CLRSETBITS(0x1F, sdram_params->base.stride),
-	       &dram->sgrf->soc_con2);
+	rk_clrsetreg(&dram->sgrf->soc_con2, 0x1f, sdram_params->base.stride);
 }
 
 static int sdram_init(const struct dram_info *dram,
