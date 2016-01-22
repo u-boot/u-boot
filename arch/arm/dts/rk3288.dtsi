@@ -692,6 +692,7 @@
 		iommus = <&vopl_mmu>;
 		power-domains = <&power RK3288_PD_VIO>;
 		status = "disabled";
+		u-boot,dm-pre-reloc;
 		vopl_out: port {
 			#address-cells = <1>;
 			#size-cells = <0>;

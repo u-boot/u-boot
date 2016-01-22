@@ -108,6 +108,11 @@
 	pinctrl-0 = <&vcc50_hdmi_en>;
 };
 
+&vopb {
+	/* Disable this so that we use vopl */
+	status = "disabled";
+};
+
 &edp {
 	pinctrl-names = "default";
 	pinctrl-0 = <&edp_hpd>;
