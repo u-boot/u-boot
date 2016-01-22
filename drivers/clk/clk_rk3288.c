@@ -508,6 +508,42 @@ static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 	return rockchip_spi_get_clk(cru, gclk_rate, periph);
 }
 
+static ulong rk3288_get_periph_rate(struct udevice *dev, int periph)
+{
+	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+	struct udevice *gclk;
+	ulong new_rate, gclk_rate;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_CLK, CLK_GENERAL, &gclk);
+	if (ret)
+		return ret;
+	gclk_rate = clk_get_rate(gclk);
+	switch (periph) {
+	case HCLK_EMMC:
+	case HCLK_SDIO0:
+	case HCLK_SDIO1:
+		new_rate = rockchip_mmc_get_clk(priv->cru, gclk_rate, periph);
+		break;
+	case SCLK_SPI0:
+	case SCLK_SPI1:
+	case SCLK_SPI2:
+		new_rate = rockchip_spi_get_clk(priv->cru, gclk_rate, periph);
+		break;
+	case PCLK_I2C0:
+	case PCLK_I2C1:
+	case PCLK_I2C2:
+	case PCLK_I2C3:
+	case PCLK_I2C4:
+	case PCLK_I2C5:
+		return gclk_rate;
+	default:
+		return -ENOENT;
+	}
+
+	return new_rate;
+}
+
 static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
@@ -543,6 +579,7 @@ static struct clk_ops rk3288_clk_ops = {
 	.get_rate	= rk3288_clk_get_rate,
 	.set_rate	= rk3288_clk_set_rate,
 	.set_periph_rate = rk3288_set_periph_rate,
+	.get_periph_rate = rk3288_get_periph_rate,
 };
 
 static int rk3288_clk_probe(struct udevice *dev)
