@@ -90,6 +90,24 @@ config MXC_OCOTP
 	  Programmable memory pages that are stored on the some
 	  Freescale i.MX processors.
 
+config PWRSEQ
+	bool "Enable power-sequencing drivers"
+	depends on DM
+	help
+	  Power-sequencing drivers provide support for controlling power for
+	  devices. They are typically referenced by a phandle from another
+	  device. When the device is started up, its power sequence can be
+	  initiated.
+
+config SPL_PWRSEQ
+	bool "Enable power-sequencing drivers for SPL"
+	depends on PWRSEQ
+	help
+	  Power-sequencing drivers provide support for controlling power for
+	  devices. They are typically referenced by a phandle from another
+	  device. When the device is started up, its power sequence can be
+	  initiated.
+
 config PCA9551_LED
 	bool "Enable PCA9551 LED driver"
 	help

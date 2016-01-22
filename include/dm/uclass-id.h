@@ -51,6 +51,7 @@ enum uclass_id {
 	UCLASS_PINCTRL,		/* Pinctrl (pin muxing/configuration) device */
 	UCLASS_PINCONFIG,	/* Pin configuration node device */
 	UCLASS_PMIC,		/* PMIC I/O device */
+	UCLASS_PWRSEQ,		/* Power sequence device */
 	UCLASS_REGULATOR,	/* Regulator device */
 	UCLASS_RESET,		/* Reset device */
 	UCLASS_REMOTEPROC,	/* Remote Processor device */
