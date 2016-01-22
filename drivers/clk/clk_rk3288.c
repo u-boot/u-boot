@@ -235,6 +235,124 @@ static int rkclk_configure_ddr(struct rk3288_cru *cru, struct rk3288_grf *grf,
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
+#define VCO_MAX_KHZ	2200000
+#define VCO_MIN_KHZ	440000
+#define FREF_MAX_KHZ	2200000
+#define FREF_MIN_KHZ	269
+
+static int pll_para_config(ulong freq_hz, struct pll_div *div, uint *ext_div)
+{
+	uint ref_khz = OSC_HZ / 1000, nr, nf = 0;
+	uint fref_khz;
+	uint diff_khz, best_diff_khz;
+	const uint max_nr = 1 << 6, max_nf = 1 << 12, max_no = 1 << 4;
+	uint vco_khz;
+	uint no = 1;
+	uint freq_khz = freq_hz / 1000;
+
+	if (!freq_hz) {
+		printf("%s: the frequency can not be 0 Hz\n", __func__);
+		return -EINVAL;
+	}
+
+	no = DIV_ROUND_UP(VCO_MIN_KHZ, freq_khz);
+	if (ext_div) {
+		*ext_div = DIV_ROUND_UP(no, max_no);
+		no = DIV_ROUND_UP(no, *ext_div);
+	}
+
+	/* only even divisors (and 1) are supported */
+	if (no > 1)
+		no = DIV_ROUND_UP(no, 2) * 2;
+
+	vco_khz = freq_khz * no;
+	if (ext_div)
+		vco_khz *= *ext_div;
+
+	if (vco_khz < VCO_MIN_KHZ || vco_khz > VCO_MAX_KHZ || no > max_no) {
+		printf("%s: Cannot find out a supported VCO for Frequency (%luHz).\n",
+		       __func__, freq_hz);
+		return -1;
+	}
+
+	div->no = no;
+
+	best_diff_khz = vco_khz;
+	for (nr = 1; nr < max_nr && best_diff_khz; nr++) {
+		fref_khz = ref_khz / nr;
+		if (fref_khz < FREF_MIN_KHZ)
+			break;
+		if (fref_khz > FREF_MAX_KHZ)
+			continue;
+
+		nf = vco_khz / fref_khz;
+		if (nf >= max_nf)
+			continue;
+		diff_khz = vco_khz - nf * fref_khz;
+		if (nf + 1 < max_nf && diff_khz > fref_khz / 2) {
+			nf++;
+			diff_khz = fref_khz - diff_khz;
+		}
+
+		if (diff_khz >= best_diff_khz)
+			continue;
+
+		best_diff_khz = diff_khz;
+		div->nr = nr;
+		div->nf = nf;
+	}
+
+	if (best_diff_khz > 4 * 1000) {
+		printf("%s: Failed to match output frequency %lu, difference is %u Hz, exceed 4MHZ\n",
+		       __func__, freq_hz, best_diff_khz * 1000);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
+				int periph, unsigned int rate_hz)
+{
+	struct pll_div npll_config = {0};
+	u32 lcdc_div;
+	int ret;
+
+	ret = pll_para_config(rate_hz, &npll_config, &lcdc_div);
+	if (ret)
+		return ret;
+
+	rk_clrsetreg(&cru->cru_mode_con, NPLL_MODE_MASK << NPLL_MODE_SHIFT,
+		     NPLL_MODE_SLOW << NPLL_MODE_SHIFT);
+	rkclk_set_pll(cru, CLK_NEW, &npll_config);
+
+	/* waiting for pll lock */
+	while (1) {
+		if (readl(&grf->soc_status[1]) & SOCSTS_NPLL_LOCK)
+			break;
+		udelay(1);
+	}
+
+	rk_clrsetreg(&cru->cru_mode_con, NPLL_MODE_MASK << NPLL_MODE_SHIFT,
+		     NPLL_MODE_NORMAL << NPLL_MODE_SHIFT);
+
+	/* vop dclk source clk: npll,dclk_div: 1 */
+	switch (periph) {
+	case DCLK_VOP0:
+		rk_clrsetreg(&cru->cru_clksel_con[27], 0xff << 8 | 3 << 0,
+			     (lcdc_div - 1) << 8 | 2 << 0);
+		break;
+	case DCLK_VOP1:
+		rk_clrsetreg(&cru->cru_clksel_con[29], 0xff << 8 | 3 << 6,
+			     (lcdc_div - 1) << 8 | 2 << 6);
+		break;
+	}
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_SPL_BUILD
 static void rkclk_init(struct rk3288_cru *cru, struct rk3288_grf *grf)
 {
@@ -559,6 +677,7 @@ static ulong rk3288_get_periph_rate(struct udevice *dev, int periph)
 static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+	struct rk3288_cru *cru = priv->cru;
 	struct udevice *gclk;
 	ulong new_rate, gclk_rate;
 	int ret;
@@ -571,15 +690,62 @@ static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 	case HCLK_EMMC:
 	case HCLK_SDMMC:
 	case HCLK_SDIO0:
-		new_rate = rockchip_mmc_set_clk(priv->cru, gclk_rate, periph,
-						rate);
+		new_rate = rockchip_mmc_set_clk(cru, gclk_rate, periph, rate);
 		break;
 	case SCLK_SPI0:
 	case SCLK_SPI1:
 	case SCLK_SPI2:
-		new_rate = rockchip_spi_set_clk(priv->cru, gclk_rate, periph,
-						rate);
+		new_rate = rockchip_spi_set_clk(cru, gclk_rate, periph, rate);
 		break;
+#ifndef CONFIG_SPL_BUILD
+	case DCLK_VOP0:
+	case DCLK_VOP1:
+		new_rate = rockchip_vop_set_clk(cru, priv->grf, periph, rate);
+		break;
+	case SCLK_EDP_24M:
+		/* clk_edp_24M source: 24M */
+		rk_setreg(&cru->cru_clksel_con[28], 1 << 15);
+
+		/* rst edp */
+		rk_setreg(&cru->cru_clksel_con[6], 1 << 15);
+		udelay(1);
+		rk_clrreg(&cru->cru_clksel_con[6], 1 << 15);
+		new_rate = rate;
+		break;
+	case ACLK_VOP0:
+	case ACLK_VOP1: {
+		u32 div;
+
+		/* vop aclk source clk: cpll */
+		div = CPLL_HZ / rate;
+		assert((div - 1 < 64) && (div * rate == CPLL_HZ));
+
+		switch (periph) {
+		case ACLK_VOP0:
+			rk_clrsetreg(&cru->cru_clksel_con[31],
+				     3 << 6 | 0x1f << 0,
+				     0 << 6 | (div - 1) << 0);
+			break;
+		case ACLK_VOP1:
+			rk_clrsetreg(&cru->cru_clksel_con[31],
+				     3 << 14 | 0x1f << 8,
+				     0 << 14 | (div - 1) << 8);
+			break;
+		}
+		new_rate = rate;
+		break;
+	}
+	case PCLK_HDMI_CTRL:
+		/* enable pclk hdmi ctrl */
+		rk_clrreg(&cru->cru_clkgate_con[16], 1 << 9);
+
+		/* software reset hdmi */
+		rk_setreg(&cru->cru_clkgate_con[7], 1 << 9);
+		udelay(1);
+		rk_clrreg(&cru->cru_clkgate_con[7], 1 << 9);
+		new_rate = rate;
+		break;
+#endif
 	default:
 		return -ENOENT;
 	}
