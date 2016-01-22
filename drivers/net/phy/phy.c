@@ -128,7 +128,7 @@ static int genphy_config_advert(struct phy_device *phydev)
 static int genphy_setup_forced(struct phy_device *phydev)
 {
 	int err;
-	int ctl = 0;
+	int ctl = BMCR_ANRESTART;
 
 	phydev->pause = phydev->asym_pause = 0;
 
