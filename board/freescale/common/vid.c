@@ -292,7 +292,7 @@ int adjust_vdd(ulong vdd_override)
 		(void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 	u32 fusesr;
-	u8 vid;
+	u8 vid, buf;
 	int vdd_target, vdd_current, vdd_last;
 	int ret, i2caddress;
 	unsigned long vdd_string_override;
@@ -344,6 +344,21 @@ int adjust_vdd(ulong vdd_override)
 	} else {
 		i2caddress = ret;
 		debug("VID: IR Chip found on I2C address 0x%02x\n", i2caddress);
+	}
+
+	/* check IR chip work on Intel mode*/
+	ret = i2c_read(i2caddress,
+		       IR36021_INTEL_MODE_OOFSET,
+		       1, (void *)&buf, 1);
+	if (ret) {
+		printf("VID: failed to read IR chip mode.\n");
+		ret = -1;
+		goto exit;
+	}
+	if ((buf & IR36021_MODE_MASK) != IR36021_INTEL_MODE) {
+		printf("VID: IR Chip is not used in Intel mode.\n");
+		ret = -1;
+		goto exit;
 	}
 
 	/* get the voltage ID from fuse status register */
