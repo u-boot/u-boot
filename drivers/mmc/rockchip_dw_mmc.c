@@ -9,7 +9,9 @@
 #include <dm.h>
 #include <dwmmc.h>
 #include <errno.h>
+#include <pwrseq.h>
 #include <syscon.h>
+#include <asm/gpio.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/periph.h>
 #include <linux/err.h>
@@ -64,6 +66,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+	struct udevice *pwr_dev __maybe_unused;
 	u32 minmax[2];
 	int ret;
 	int fifo_depth;
@@ -90,6 +93,16 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "fifo-mode"))
 		host->fifo_mode = true;
 
+#ifdef CONFIG_PWRSEQ
+	/* Enable power if needed */
+	ret = uclass_get_device_by_phandle(UCLASS_PWRSEQ, dev, "mmc-pwrseq",
+					   &pwr_dev);
+	if (!ret) {
+		ret = pwrseq_set_power(pwr_dev, true);
+		if (ret)
+			return ret;
+	}
+#endif
 	ret = add_dwmci(host, minmax[1], minmax[0]);
 	if (ret)
 		return ret;
@@ -112,3 +125,37 @@ U_BOOT_DRIVER(rockchip_dwmmc_drv) = {
 	.probe		= rockchip_dwmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct rockchip_dwmmc_priv),
 };
+
+#ifdef CONFIG_PWRSEQ
+static int rockchip_dwmmc_pwrseq_set_power(struct udevice *dev, bool enable)
+{
+	struct gpio_desc reset;
+	int ret;
+
+	ret = gpio_request_by_name(dev, "reset-gpios", 0, &reset, GPIOD_IS_OUT);
+	if (ret)
+		return ret;
+	dm_gpio_set_value(&reset, 1);
+	udelay(1);
+	dm_gpio_set_value(&reset, 0);
+	udelay(200);
+
+	return 0;
+}
+
+static const struct pwrseq_ops rockchip_dwmmc_pwrseq_ops = {
+	.set_power	= rockchip_dwmmc_pwrseq_set_power,
+};
+
+static const struct udevice_id rockchip_dwmmc_pwrseq_ids[] = {
+	{ .compatible = "mmc-pwrseq-emmc" },
+	{ }
+};
+
+U_BOOT_DRIVER(rockchip_dwmmc_pwrseq_drv) = {
+	.name		= "mmc_pwrseq_emmc",
+	.id		= UCLASS_PWRSEQ,
+	.of_match	= rockchip_dwmmc_pwrseq_ids,
+	.ops		= &rockchip_dwmmc_pwrseq_ops,
+};
+#endif
