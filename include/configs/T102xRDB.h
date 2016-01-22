@@ -33,6 +33,8 @@
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
+
 /* support deep sleep */
 #ifdef CONFIG_PPC_T1024
 #define CONFIG_DEEP_SLEEP
@@ -948,8 +950,16 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_BOOTCOMMAND	CONFIG_LINUX
 
-#ifdef CONFIG_SECURE_BOOT
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 #include <asm/fsl_secure_boot.h>
+
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CMD_BLOB
 #endif
 
 #endif	/* __T1024RDB_H */

@@ -291,14 +291,6 @@
 #define CONFIG_CMD_EXT2
 #endif
 
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_CMD_HASH
-#define CONFIG_SHA_HW_ACCEL
-#define CONFIG_CMD_BLOB
-/* For LS1043 (ARMv8), ESBC image Address in Header is 64 bit */
-#define CONFIG_ESBC_ADDR_64BIT
-#endif
-
 #include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1043ARDB_H__ */

@@ -197,6 +197,8 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
+
 /* FMan ucode */
 #define CONFIG_SYS_DPAA_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -251,5 +253,11 @@
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
+
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
 
 #endif /* __LS1043A_COMMON_H */

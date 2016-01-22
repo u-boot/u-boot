@@ -34,6 +34,11 @@
 #define CONFIG_FSL_ISBC_KEY_EXT
 #endif
 
+#ifdef CONFIG_LS1043A
+/* For LS1043 (ARMv8), ESBC image Address in Header is 64 bit */
+#define CONFIG_ESBC_ADDR_64BIT
+#endif
+
 #ifndef CONFIG_FIT_SIGNATURE
 
 #define CONFIG_EXTRA_ENV \

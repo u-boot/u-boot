@@ -39,6 +39,8 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #endif
 
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
+
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xqds/t1024_pbi.cfg
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xqds/t1024_rcw.cfg
@@ -936,8 +938,16 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_BOOTCOMMAND	CONFIG_LINUX
 
-#ifdef CONFIG_SECURE_BOOT
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 #include <asm/fsl_secure_boot.h>
+
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CMD_BLOB
 #endif
 
 #endif	/* __T1024QDS_H */

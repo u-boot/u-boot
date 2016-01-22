@@ -835,8 +835,9 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_BOOTCOMMAND		CONFIG_LINUX
 
-#ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
+
+#ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CMD_BLOB
 #endif
 

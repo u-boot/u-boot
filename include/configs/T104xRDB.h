@@ -938,8 +938,9 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 
 #define CONFIG_BOOTCOMMAND		CONFIG_LINUX
 
-#ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
+
+#ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CMD_BLOB
 #endif
 
