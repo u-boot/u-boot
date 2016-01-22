@@ -520,18 +520,16 @@ static int rk3288_pinctrl_set_state_simple(struct udevice *dev,
 }
 
 #ifndef CONFIG_SPL_BUILD
-static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
-				   int muxval, int flags)
+int rk3288_pinctrl_get_pin_info(struct rk3288_pinctrl_priv *priv,
+				int banknum, int ind, u32 **addrp, uint *shiftp,
+				uint *maskp)
 {
-	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
 	struct rockchip_pin_bank *bank = &rk3288_pin_banks[banknum];
-	uint shift, muxnum, ind = index;
+	uint muxnum;
 	u32 *addr;
 
-	debug("%s: %x %x %x %x\n", __func__, banknum, index, muxval, flags);
 	for (muxnum = 0; muxnum < 4; muxnum++) {
 		struct rockchip_iomux *mux = &bank->iomux[muxnum];
-		uint mask;
 
 		if (ind >= 8) {
 			ind -= 8;
@@ -543,24 +541,61 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 		else
 			addr = (u32 *)priv->grf - 4;
 		addr += mux->offset;
-		shift = ind & 7;
+		*shiftp = ind & 7;
 		if (mux->type & IOMUX_WIDTH_4BIT) {
-			mask = 0xf;
-			shift *= 4;
-			if (shift >= 16) {
-				shift -= 16;
+			*maskp = 0xf;
+			*shiftp *= 4;
+			if (*shiftp >= 16) {
+				*shiftp -= 16;
 				addr++;
 			}
 		} else {
-			mask = 3;
-			shift *= 2;
+			*maskp = 3;
+			*shiftp *= 2;
 		}
 
 		debug("%s: addr=%p, mask=%x, shift=%x\n", __func__, addr,
-		      mask, shift);
-		rk_clrsetreg(addr, mask << shift, muxval << shift);
-		break;
+		      *maskp, *shiftp);
+		*addrp = addr;
+		return 0;
 	}
+
+	return -EINVAL;
+}
+
+static int rk3288_pinctrl_get_gpio_mux(struct udevice *dev, int banknum,
+				       int index)
+{
+	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
+	uint shift;
+	uint mask;
+	u32 *addr;
+	int ret;
+
+	ret = rk3288_pinctrl_get_pin_info(priv, banknum, index, &addr, &shift,
+					  &mask);
+	if (ret)
+		return ret;
+	return (readl(addr) & mask) >> shift;
+}
+
+static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
+				   int muxval, int flags)
+{
+	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
+	uint shift, ind = index;
+	uint mask;
+	u32 *addr;
+	int ret;
+
+	debug("%s: %x %x %x %x\n", __func__, banknum, index, muxval, flags);
+	ret = rk3288_pinctrl_get_pin_info(priv, banknum, index, &addr, &shift,
+					  &mask);
+	if (ret)
+		return ret;
+	rk_clrsetreg(addr, mask << shift, muxval << shift);
+
+	/* Handle pullup/pulldown */
 	if (flags) {
 		uint val = 0;
 
@@ -618,6 +653,7 @@ static int rk3288_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 static struct pinctrl_ops rk3288_pinctrl_ops = {
 #ifndef CONFIG_SPL_BUILD
 	.set_state	= rk3288_pinctrl_set_state,
+	.get_gpio_mux	= rk3288_pinctrl_get_gpio_mux,
 #endif
 	.set_state_simple	= rk3288_pinctrl_set_state_simple,
 	.request	= rk3288_pinctrl_request,
