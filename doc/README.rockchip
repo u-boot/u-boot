@@ -243,6 +243,12 @@ SPI flash.
 
 See above for instructions on how to write a SPI image.
 
+rkmux.py
+--------
+
+You can use this script to create #defines for SoC register access. See the
+script for usage.
+
 
 Device tree and driver model
 ----------------------------
