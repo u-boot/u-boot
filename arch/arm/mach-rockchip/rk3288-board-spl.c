@@ -113,6 +113,7 @@ static void configure_l2ctlr(void)
 
 static int configure_emmc(struct udevice *pinctrl)
 {
+#ifdef CONFIG_SPL_MMC_SUPPORT
 	struct gpio_desc desc;
 	int ret;
 
@@ -142,6 +143,7 @@ static int configure_emmc(struct udevice *pinctrl)
 		debug("gpio value ret=%d\n", ret);
 		return ret;
 	}
+#endif
 
 	return 0;
 }
