@@ -386,6 +386,7 @@ def pytest_runtest_protocol(item, nextitem):
                 skipped = report
 
     if failed:
+        console.drain_console()
         tests_failed.add(item.name)
     elif skipped:
         tests_skipped.add(item.name)

@@ -14,6 +14,7 @@ import os
 import pytest
 import re
 import sys
+import u_boot_spawn
 
 # Regexes for text we expect U-Boot to send to the console.
 pattern_u_boot_spl_signon = re.compile('(U-Boot SPL \\d{4}\\.\\d{2}-[^\r\n]*)')
@@ -212,6 +213,43 @@ class ConsoleBase(object):
         '''
 
         self.run_command(chr(3), wait_for_echo=False, send_nl=False)
+
+    def drain_console(self):
+        '''Read from and log the U-Boot console for a short time.
+
+        U-Boot's console output is only logged when the test code actively
+        waits for U-Boot to emit specific data. There are cases where tests
+        can fail without doing this. For example, if a test asks U-Boot to
+        enable USB device mode, then polls until a host-side device node
+        exists. In such a case, it is useful to log U-Boot's console output
+        in case U-Boot printed clues as to why the host-side even did not
+        occur. This function will do that.
+
+        Args:
+            None.
+
+        Returns:
+            Nothing.
+        '''
+
+        # If we are already not connected to U-Boot, there's nothing to drain.
+        # This should only happen when a previous call to run_command() or
+        # wait_for() failed (and hence the output has already been logged), or
+        # the system is shutting down.
+        if not self.p:
+            return
+
+        orig_timeout = self.p.timeout
+        try:
+            # Drain the log for a relatively short time.
+            self.p.timeout = 1000
+            # Wait for something U-Boot will likely never send. This will
+            # cause the console output to be read and logged.
+            self.p.expect(['This should never match U-Boot output'])
+        except u_boot_spawn.Timeout:
+            pass
+        finally:
+            self.p.timeout = orig_timeout
 
     def ensure_spawned(self):
         '''Ensure a connection to a correctly running U-Boot instance.
