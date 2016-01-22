@@ -284,4 +284,17 @@ int pinctrl_request_noflags(struct udevice *dev, int func);
  */
 int pinctrl_get_periph_id(struct udevice *dev, struct udevice *periph);
 
+/**
+ * pinctrl_decode_pin_config() - decode pin configuration flags
+ *
+ * This decodes some of the PIN_CONFIG values into flags, with each value
+ * being (1 << pin_cfg). This does not support things with values like the
+ * slew rate.
+ *
+ * @blob:	Device tree blob
+ * @node:	Node containing the PIN_CONFIG values
+ * @return decoded flag value, or -ve on error
+ */
+int pinctrl_decode_pin_config(const void *blob, int node);
+
 #endif /* __PINCTRL_H */
