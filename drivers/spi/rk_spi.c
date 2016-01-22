@@ -27,8 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEBUG_RK_SPI	0
 
 struct rockchip_spi_platdata {
-	int periph_id;
-	struct udevice *pinctrl;
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	fdt_addr_t base;
 	uint deactivate_delay_us;	/* Delay to wait after deactivate */
@@ -139,17 +137,7 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 	int ret;
 
 	plat->base = dev_get_addr(bus);
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &plat->pinctrl);
-	if (ret)
-		return ret;
-	ret = pinctrl_get_periph_id(plat->pinctrl, bus);
 
-	if (ret < 0) {
-		debug("%s: Could not get peripheral ID for %s: %d\n", __func__,
-		      bus->name, ret);
-		return ret;
-	}
-	plat->periph_id = ret;
 	ret = clk_get_by_index(bus, 0, &priv->clk);
 	if (ret < 0) {
 		debug("%s: Could not get clock for %s: %d\n", __func__,
@@ -164,8 +152,8 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 					"spi-deactivate-delay", 0);
 	plat->activate_delay_us = fdtdec_get_int(blob, node,
 						 "spi-activate-delay", 0);
-	debug("%s: base=%x, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
-	      __func__, (uint)plat->base, plat->periph_id, plat->frequency,
+	debug("%s: base=%x, max-frequency=%d, deactivate_delay=%d\n",
+	      __func__, (uint)plat->base, plat->frequency,
 	      plat->deactivate_delay_us);
 
 	return 0;
@@ -207,11 +195,6 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	struct rockchip_spi *regs = priv->regs;
 	u8 spi_dfs, spi_tf;
 	uint ctrlr0;
-#if !CONFIG_IS_ENABLED(PINCTRL_FULL)
-	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
-	int ret;
-#endif
 
 	/* Disable the SPI hardware */
 	rkspi_enable_chip(regs, 0);
@@ -273,13 +256,6 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= (priv->tmode & TMOD_MASK) << TMOD_SHIFT;
 
 	writel(ctrlr0, &regs->ctrlr0);
-#if !CONFIG_IS_ENABLED(PINCTRL_FULL)
-	ret = pinctrl_request(plat->pinctrl, plat->periph_id, slave_plat->cs);
-	if (ret) {
-		debug("%s: Cannot request pinctrl: %d\n", __func__, ret);
-		return ret;
-	}
-#endif
 
 	return 0;
 }
