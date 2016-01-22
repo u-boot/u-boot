@@ -87,6 +87,13 @@
 #define CONFIG_FSL_CAAM
 #endif
 
+/* fsl_setenv_chain_of_trust() must be called from
+ * board_late_init()
+ */
+#ifndef CONFIG_BOARD_LATE_INIT
+#define CONFIG_BOARD_LATE_INIT
+#endif
+
 /* If Boot Script is not on NOR and is required to be copied on RAM */
 #ifdef CONFIG_BOOTSCRIPT_COPY_RAM
 #define CONFIG_BS_HDR_ADDR_RAM		0x00010000

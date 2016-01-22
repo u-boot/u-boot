@@ -27,6 +27,9 @@
 #include <hwconfig.h>
 #include <linux/compiler.h>
 #include "mp.h"
+#ifdef CONFIG_CHAIN_OF_TRUST
+#include <fsl_validate.h>
+#endif
 #ifdef CONFIG_FSL_CAAM
 #include <fsl_sec.h>
 #endif
@@ -1009,3 +1012,14 @@ void cpu_secondary_init_r(void)
 	qe_reset();
 #endif
 }
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_CHAIN_OF_TRUST
+	fsl_setenv_chain_of_trust();
+#endif
+
+	return 0;
+}
+#endif
