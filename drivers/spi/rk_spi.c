@@ -221,7 +221,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 = OMOD_MASTER << OMOD_SHIFT;
 
 	/* Data Frame Size */
-	ctrlr0 |= spi_dfs & DFS_MASK << DFS_SHIFT;
+	ctrlr0 |= spi_dfs << DFS_SHIFT;
 
 	/* set SPI mode 0..3 */
 	if (priv->mode & SPI_CPOL)
@@ -242,7 +242,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= FBM_MSB << FBM_SHIFT;
 
 	/* Byte and Halfword Transform */
-	ctrlr0 |= (spi_tf & HALF_WORD_MASK) << HALF_WORD_TX_SHIFT;
+	ctrlr0 |= spi_tf << HALF_WORD_TX_SHIFT;
 
 	/* Rxd Sample Delay */
 	ctrlr0 |= 0 << RXDSD_SHIFT;
