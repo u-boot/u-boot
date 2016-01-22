@@ -303,6 +303,16 @@ config DISPLAY
 	   The devices provide a simple interface to start up the display,
 	   read display information and enable it.
 
+config VIDEO_ROCKCHIP
+	bool "Enable Rockchip video support"
+	depends on DM_VIDEO
+	help
+	   Rockchip SoCs provide video output capabilities for High-Definition
+	   Multimedia Interface (HDMI), Low-voltage Differential Signalling
+	   (LVDS), embedded DisplayPort (eDP) and Display Serial Interface
+	   (DSI). This driver supports the on-chip video output device, and
+	   targets the Rockchip RK3288.
+
 config VIDEO_SANDBOX_SDL
 	bool "Enable sandbox video console using SDL"
 	depends on SANDBOX
