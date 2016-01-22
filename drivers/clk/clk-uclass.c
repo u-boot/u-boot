@@ -67,8 +67,23 @@ ulong clk_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 int clk_get_by_index(struct udevice *dev, int index, struct udevice **clk_devp)
 {
-	struct fdtdec_phandle_args args;
 	int ret;
+#ifdef CONFIG_SPL_BUILD
+	u32 cell[2];
+
+	if (index != 0)
+		return -ENOSYS;
+	assert(*clk_devp);
+	ret = uclass_get_device(UCLASS_CLK, 0, clk_devp);
+	if (ret)
+		return ret;
+	ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset, "clocks",
+				   cell, 2);
+	if (ret)
+		return ret;
+	return cell[1];
+#else
+	struct fdtdec_phandle_args args;
 
 	assert(*clk_devp);
 	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
@@ -87,6 +102,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct udevice **clk_devp)
 		return ret;
 	}
 	return args.args_count > 0 ? args.args[0] : 0;
+#endif
 }
 #endif
 
