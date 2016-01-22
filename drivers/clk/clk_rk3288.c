@@ -159,6 +159,19 @@ int rkclk_get_clk(enum rk_clk_id clk_id, struct udevice **devp)
 	return -ENODEV;
 }
 
+void *rockchip_get_cru(void)
+{
+	struct rk3288_clk_priv *priv;
+	struct udevice *dev;
+	int ret;
+
+	ret = rkclk_get_clk(CLK_GENERAL, &dev);
+	if (ret)
+		return ERR_PTR(ret);
+	priv = dev_get_priv(dev);
+	return priv->cru;
+}
+
 static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 			 const struct pll_div *div)
 {
