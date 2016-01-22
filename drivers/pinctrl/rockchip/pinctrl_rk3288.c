@@ -56,10 +56,10 @@ static void pinctrl_rk3288_i2c_config(struct rk3288_grf *grf,
 {
 	switch (i2c_id) {
 	case PERIPH_ID_I2C0:
-		clrsetbits_le32(&pmu->gpio0b_iomux,
+		clrsetbits_le32(&pmu->gpio0_iomux[PMU_GPIO0_B],
 				GPIO0_B7_MASK << GPIO0_B7_SHIFT,
 				GPIO0_B7_I2C0PMU_SDA << GPIO0_B7_SHIFT);
-		clrsetbits_le32(&pmu->gpio0b_iomux,
+		clrsetbits_le32(&pmu->gpio0_iomux[PMU_GPIO0_C],
 				GPIO0_C0_MASK << GPIO0_C0_SHIFT,
 				GPIO0_C0_I2C0PMU_SCL << GPIO0_C0_SHIFT);
 		break;
