@@ -13,6 +13,7 @@
 #include <memalign.h>
 #include <phys2bus.h>
 #include <usbroothubdes.h>
+#include <wait_bit.h>
 #include <asm/io.h>
 
 #include "dwc2.h"
@@ -52,27 +53,6 @@ static struct dwc2_priv local;
 /*
  * DWC2 IP interface
  */
-static int wait_for_bit(void *reg, const uint32_t mask, bool set)
-{
-	unsigned int timeout = 1000000;
-	uint32_t val;
-
-	while (--timeout) {
-		val = readl(reg);
-		if (!set)
-			val = ~val;
-
-		if ((val & mask) == mask)
-			return 0;
-
-		udelay(1);
-	}
-
-	debug("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
-	      __func__, reg, mask, set);
-
-	return -ETIMEDOUT;
-}
 
 /*
  * Initializes the FSLSPClkSel field of the HCFG register
@@ -117,7 +97,8 @@ static void dwc_otg_flush_tx_fifo(struct dwc2_core_regs *regs, const int num)
 
 	writel(DWC2_GRSTCTL_TXFFLSH | (num << DWC2_GRSTCTL_TXFNUM_OFFSET),
 	       &regs->grstctl);
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_TXFFLSH, 0);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_TXFFLSH,
+			   false, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
@@ -135,7 +116,8 @@ static void dwc_otg_flush_rx_fifo(struct dwc2_core_regs *regs)
 	int ret;
 
 	writel(DWC2_GRSTCTL_RXFFLSH, &regs->grstctl);
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_RXFFLSH, 0);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_RXFFLSH,
+			   false, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
@@ -152,13 +134,15 @@ static void dwc_otg_core_reset(struct dwc2_core_regs *regs)
 	int ret;
 
 	/* Wait for AHB master IDLE state. */
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_AHBIDLE, 1);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_AHBIDLE,
+			   true, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
 	/* Core Soft Reset */
 	writel(DWC2_GRSTCTL_CSFTRST, &regs->grstctl);
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_CSFTRST, 0);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_CSFTRST,
+			   false, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
@@ -243,8 +227,8 @@ static void dwc_otg_core_host_init(struct dwc2_core_regs *regs)
 		clrsetbits_le32(&regs->hc_regs[i].hcchar,
 				DWC2_HCCHAR_EPDIR,
 				DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS);
-		ret = wait_for_bit(&regs->hc_regs[i].hcchar,
-				   DWC2_HCCHAR_CHEN, 0);
+		ret = wait_for_bit(__func__, &regs->hc_regs[i].hcchar,
+				   DWC2_HCCHAR_CHEN, false, 1000, false);
 		if (ret)
 			printf("%s: Timeout!\n", __func__);
 	}
@@ -737,7 +721,8 @@ int wait_for_chhltd(struct dwc2_core_regs *regs, uint32_t *sub, int *toggle,
 	int ret;
 	uint32_t hcint, hctsiz;
 
-	ret = wait_for_bit(&hc_regs->hcint, DWC2_HCINT_CHHLTD, true);
+	ret = wait_for_bit(__func__, &hc_regs->hcint, DWC2_HCINT_CHHLTD, true,
+			   1000, false);
 	if (ret)
 		return ret;
 
