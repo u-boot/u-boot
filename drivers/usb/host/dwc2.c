@@ -34,7 +34,8 @@ struct dwc2_priv {
 	uint8_t *aligned_buffer;
 	uint8_t *status_buffer;
 #endif
-	int bulk_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
+	u8 in_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
+	u8 out_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
 };
@@ -739,7 +740,7 @@ static int dwc_otg_submit_rh_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	return stat;
 }
 
-int wait_for_chhltd(struct dwc2_hc_regs *hc_regs, uint32_t *sub, int *toggle)
+int wait_for_chhltd(struct dwc2_hc_regs *hc_regs, uint32_t *sub, u8 *toggle)
 {
 	int ret;
 	uint32_t hcint, hctsiz;
@@ -775,7 +776,7 @@ static int dwc2_eptype[] = {
 };
 
 static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
-			  int *pid, int in, void *buffer, int num_packets,
+			  u8 *pid, int in, void *buffer, int num_packets,
 			  int xfer_len, int *actual_len, int odd_frame)
 {
 	int ret = 0;
@@ -829,7 +830,7 @@ static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
 }
 
 int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
-	      unsigned long pipe, int *pid, int in, void *buffer, int len)
+	      unsigned long pipe, u8 *pid, int in, void *buffer, int len)
 {
 	struct dwc2_core_regs *regs = priv->regs;
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
@@ -960,14 +961,19 @@ int _submit_bulk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 {
 	int devnum = usb_pipedevice(pipe);
 	int ep = usb_pipeendpoint(pipe);
+	u8* pid;
 
-	if (devnum == priv->root_hub_devnum) {
+	if ((devnum >= MAX_DEVICE) || (devnum == priv->root_hub_devnum)) {
 		dev->status = 0;
 		return -EINVAL;
 	}
 
-	return chunk_msg(priv, dev, pipe, &priv->bulk_data_toggle[devnum][ep],
-			 usb_pipein(pipe), buffer, len);
+	if (usb_pipein(pipe))
+		pid = &priv->in_data_toggle[devnum][ep];
+	else
+		pid = &priv->out_data_toggle[devnum][ep];
+
+	return chunk_msg(priv, dev, pipe, pid, usb_pipein(pipe), buffer, len);
 }
 
 static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
@@ -975,7 +981,8 @@ static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
 			       struct devrequest *setup)
 {
 	int devnum = usb_pipedevice(pipe);
-	int pid, ret, act_len;
+	int ret, act_len;
+	u8 pid;
 	/* For CONTROL endpoint pid should start with DATA1 */
 	int status_direction;
 
@@ -1075,8 +1082,10 @@ static int dwc2_init_common(struct dwc2_priv *priv)
 		     DWC2_HPRT0_PRTRST);
 
 	for (i = 0; i < MAX_DEVICE; i++) {
-		for (j = 0; j < MAX_ENDPOINT; j++)
-			priv->bulk_data_toggle[i][j] = DWC2_HC_PID_DATA0;
+		for (j = 0; j < MAX_ENDPOINT; j++) {
+			priv->in_data_toggle[i][j] = DWC2_HC_PID_DATA0;
+			priv->out_data_toggle[i][j] = DWC2_HC_PID_DATA0;
+		}
 	}
 
 	return 0;
