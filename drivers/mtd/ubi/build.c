@@ -30,6 +30,7 @@
 #include <linux/slab.h>
 #include <linux/major.h>
 #else
+#include <linux/bug.h>
 #include <linux/log2.h>
 #endif
 #include <linux/err.h>

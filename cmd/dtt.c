@@ -12,6 +12,7 @@
 #include <dtt.h>
 #include <i2c.h>
 #include <tmu.h>
+#include <linux/bug.h>
 
 #if defined CONFIG_DTT_SENSORS
 static unsigned long sensor_initialized;

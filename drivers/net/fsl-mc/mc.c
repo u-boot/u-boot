@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <errno.h>
+#include <linux/bug.h>
 #include <asm/io.h>
 #include <libfdt.h>
 #include <fdt_support.h>

@@ -8,6 +8,7 @@
 /* Tegra AP (Application Processor) code */
 
 #include <common.h>
+#include <linux/bug.h>
 #include <asm/io.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/mc.h>
