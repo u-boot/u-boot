@@ -954,7 +954,7 @@ int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 #endif
 
 
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
 {
 	u8 qeb_status;
@@ -1039,8 +1039,9 @@ static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
 static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
 {
 	switch (idcode0) {
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 	case SPI_FLASH_CFI_MFR_MACRONIX:
+	case SPI_FLASH_CFI_MFR_ISSI:
 		return spi_flash_set_qeb_mxic(flash);
 #endif
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
