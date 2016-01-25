@@ -901,7 +901,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 			return -EINVAL;
 		}
 
-		if (nand->ecc.bytes > mtd->oobsize - 2) {
+		if (nand->ecc.bytes > mtd->oobsize - PMECC_OOB_RESERVED_BYTES) {
 			dev_err(host->dev, "No room for ECC bytes\n");
 			return -EINVAL;
 		}
