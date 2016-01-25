@@ -93,7 +93,7 @@ int board_late_init(void)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-	puts("Board:\tXilinx Zynq\n");
+	puts("Board: Xilinx Zynq\n");
 	return 0;
 }
 #endif
