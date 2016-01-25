@@ -91,6 +91,8 @@
 #define CCI_S1_QOS_CONTROL_BASE(x) ((CCI_RN_I_0_BASE + (x * 0x10000)) + 0x110)
 #define CCI_S2_QOS_CONTROL_BASE(x) ((CCI_RN_I_0_BASE + (x * 0x10000)) + 0x210)
 
+#define CCI_AUX_CONTROL_BASE(x) ((CCI_RN_I_0_BASE + (x * 0x10000)) + 0x0500)
+
 /* TZ Protection Controller Definitions */
 #define TZPC_BASE				0x02200000
 #define TZPCR0SIZE_BASE				(TZPC_BASE)
