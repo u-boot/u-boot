@@ -2829,6 +2829,28 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
   nb = request2size(bytes);
   m  = (char*)(mALLOc(nb + alignment + MINSIZE));
 
+  /*
+  * The attempt to over-allocate (with a size large enough to guarantee the
+  * ability to find an aligned region within allocated memory) failed.
+  *
+  * Try again, this time only allocating exactly the size the user wants. If
+  * the allocation now succeeds and just happens to be aligned, we can still
+  * fulfill the user's request.
+  */
+  if (m == NULL) {
+    /*
+     * Use bytes not nb, since mALLOc internally calls request2size too, and
+     * each call increases the size to allocate, to account for the header.
+     */
+    m  = (char*)(mALLOc(bytes));
+    /* Aligned -> return it */
+    if ((((unsigned long)(m)) % alignment) == 0)
+      return m;
+    /* Otherwise, fail */
+    fREe(m);
+    return NULL;
+  }
+
   if (m == NULL) return NULL; /* propagate failure */
 
   p = mem2chunk(m);
