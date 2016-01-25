@@ -150,12 +150,11 @@ class ConsoleBase(object):
 
         bad_patterns = []
         bad_pattern_ids = []
-        if (self.disable_check_count['spl_signon'] == 0 and
-                self.u_boot_spl_signon):
-            bad_patterns.append(self.u_boot_spl_signon_escaped)
+        if (self.disable_check_count['spl_signon'] == 0):
+            bad_patterns.append(pattern_u_boot_spl_signon)
             bad_pattern_ids.append('SPL signon')
         if self.disable_check_count['main_signon'] == 0:
-            bad_patterns.append(self.u_boot_main_signon_escaped)
+            bad_patterns.append(pattern_u_boot_main_signon)
             bad_pattern_ids.append('U-Boot main signon')
         if self.disable_check_count['unknown_command'] == 0:
             bad_patterns.append(pattern_unknown_command)
@@ -299,18 +298,13 @@ class ConsoleBase(object):
             self.p.logfile_read = self.logstream
             if self.config.buildconfig.get('CONFIG_SPL', False) == 'y':
                 self.p.expect([pattern_u_boot_spl_signon])
-                self.u_boot_spl_signon = self.p.after
-                self.u_boot_spl_signon_escaped = re.escape(self.p.after)
-            else:
-                self.u_boot_spl_signon = None
             self.p.expect([pattern_u_boot_main_signon])
-            self.u_boot_main_signon = self.p.after
-            self.u_boot_main_signon_escaped = re.escape(self.p.after)
-            build_idx = self.u_boot_main_signon.find(', Build:')
+            signon = self.p.after
+            build_idx = signon.find(', Build:')
             if build_idx == -1:
-                self.u_boot_version_string = self.u_boot_main_signon
+                self.u_boot_version_string = signon
             else:
-                self.u_boot_version_string = self.u_boot_main_signon[:build_idx]
+                self.u_boot_version_string = signon[:build_idx]
             while True:
                 match = self.p.expect([self.prompt_escaped,
                                        pattern_stop_autoboot_prompt])
