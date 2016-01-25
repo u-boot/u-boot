@@ -121,7 +121,7 @@
 #endif
 
 /* IFC */
-#ifndef CONFIG_SD_BOOT_QSPI
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_FSL_IFC
 /*
  * CONFIG_SYS_FLASH_BASE has the final address (core view)
@@ -207,7 +207,7 @@
 #define CONFIG_SPI_FLASH_STMICRO	/* cs0 */
 #define CONFIG_SPI_FLASH_SST		/* cs1 */
 #define CONFIG_SPI_FLASH_EON		/* cs2 */
-#ifndef CONFIG_SD_BOOT_QSPI
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SF_DEFAULT_BUS		1
 #define CONFIG_SF_DEFAULT_CS		0
 #endif
@@ -220,7 +220,7 @@
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 
-#ifdef CONFIG_SD_BOOT_QSPI
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
 #define CONFIG_ENV_SPI_BUS		0

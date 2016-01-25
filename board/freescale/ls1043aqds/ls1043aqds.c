@@ -47,7 +47,7 @@ enum {
 int checkboard(void)
 {
 	char buf[64];
-#ifndef CONFIG_SD_BOOT
+#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_QSPI_BOOT)
 	u8 sw;
 #endif
 
@@ -55,6 +55,8 @@ int checkboard(void)
 
 #ifdef CONFIG_SD_BOOT
 	puts("SD\n");
+#elif defined(CONFIG_QSPI_BOOT)
+	puts("QSPI\n");
 #else
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
