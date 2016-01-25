@@ -606,6 +606,16 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_VOL_MONITOR_BUS_V_OVF	0x1
 #define I2C_VOL_MONITOR_BUS_V_SHIFT	3
 
+#define CONFIG_VID_FLS_ENV		"t4240rdb_vdd_mv"
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_VID
+#endif
+#define CONFIG_VOL_MONITOR_IR36021_SET
+#define CONFIG_VOL_MONITOR_IR36021_READ
+/* The lowest and highest voltage allowed for T4240RDB */
+#define VDD_MV_MIN			819
+#define VDD_MV_MAX			1212
+
 /*
  * eSPI - Enhanced SPI
  */

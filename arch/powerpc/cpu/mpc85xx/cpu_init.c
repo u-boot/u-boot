@@ -23,6 +23,10 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
+#ifdef CONFIG_FSL_CORENET
+#include <asm/fsl_portals.h>
+#include <asm/fsl_liodn.h>
+#endif
 #include <fsl_usb.h>
 #include <hwconfig.h>
 #include <linux/compiler.h>
@@ -786,6 +790,13 @@ int cpu_init_r(void)
 		spin_table_compat = 0;
 	else
 		spin_table_compat = 1;
+#endif
+
+#ifdef CONFIG_FSL_CORENET
+	set_liodns();
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	setup_portals();
+#endif
 #endif
 
 	l2cache_init();
