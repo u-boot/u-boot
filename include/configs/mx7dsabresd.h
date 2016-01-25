@@ -179,8 +179,33 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
+
+/*
+ * If want to use nand, define CONFIG_NAND_MXS and rework board
+ * to support nand, since emmc has pin conflicts with nand
+ */
+#ifdef CONFIG_NAND_MXS
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND_TRIMFFS
+
+/* NAND stuff */
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+
+/* DMA stuff, needed for GPMI/MXS NAND support */
+#define CONFIG_APBH_DMA
+#define CONFIG_APBH_DMA_BURST
+#define CONFIG_APBH_DMA_BURST8
+#endif
+
 #define CONFIG_ENV_OFFSET		(8 * SZ_64K)
+#ifdef CONFIG_NAND_MXS
+#define CONFIG_SYS_FSL_USDHC_NUM	1
+#else
 #define CONFIG_SYS_FSL_USDHC_NUM	2
+#endif
 
 #define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC1 */
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
