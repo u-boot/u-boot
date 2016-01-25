@@ -7,3 +7,4 @@ F:	configs/ls1043aqds_defconfig
 F:	configs/ls1043aqds_nor_ddr3_defconfig
 F:	configs/ls1043aqds_nand_defconfig
 F:	configs/ls1043aqds_sdcard_ifc_defconfig
+F:	configs/ls1043aqds_sdcard_qspi_defconfig

@@ -121,6 +121,7 @@
 #endif
 
 /* IFC */
+#ifndef CONFIG_SD_BOOT_QSPI
 #define CONFIG_FSL_IFC
 /*
  * CONFIG_SYS_FLASH_BASE has the final address (core view)
@@ -138,6 +139,7 @@
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
+#endif
 #endif
 
 /* I2C */
@@ -205,8 +207,10 @@
 #define CONFIG_SPI_FLASH_STMICRO	/* cs0 */
 #define CONFIG_SPI_FLASH_SST		/* cs1 */
 #define CONFIG_SPI_FLASH_EON		/* cs2 */
+#ifndef CONFIG_SD_BOOT_QSPI
 #define CONFIG_SF_DEFAULT_BUS		1
 #define CONFIG_SF_DEFAULT_CS		0
+#endif
 #endif
 
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
@@ -216,9 +220,18 @@
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_SYS_QE_FW_IN_SPIFLASH
+#define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+#define CONFIG_ENV_SPI_MAX_HZ		1000000
+#define CONFIG_ENV_SPI_MODE		0x03
+#else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 /* FMan fireware Pre-load address */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x60300000
+#endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif

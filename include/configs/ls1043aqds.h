@@ -85,7 +85,12 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_SD_BOOT
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_SYS_FSL_PBL_RCW \
+	board/freescale/ls1043aqds/ls1043aqds_rcw_sd_qspi.cfg
+#else
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_sd_ifc.cfg
+#endif
 #endif
 
 /* LPUART */
@@ -113,6 +118,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * IFC Definitions
  */
+#ifndef CONFIG_SD_BOOT_QSPI
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR0_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | \
 				CSPR_PORT_SIZE_16 | \
@@ -196,11 +202,18 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#endif
 
 #ifdef CONFIG_NAND_BOOT
 #define CONFIG_SPL_PAD_TO		0x20000		/* block aligned */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 << 10)
+#endif
+
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_NO_FLASH
+#undef CONFIG_CMD_IMLS
 #endif
 
 /*
@@ -219,6 +232,7 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_ALTBANK		0x04
 #define QIXIS_LBMAP_NAND		0x09
 #define QIXIS_LBMAP_SD			0x00
+#define QIXIS_LBMAP_SD_QSPI		0xff
 #define QIXIS_RCW_SRC_NAND		0x106
 #define QIXIS_RCW_SRC_SD		0x040
 #define QIXIS_RST_CTL_RESET		0x41
@@ -346,6 +360,16 @@ unsigned long get_board_ddr_clk(void);
 /* The lowest and highest voltage allowed for LS1043AQDS */
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
+
+/* QSPI device */
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_FSL_QSPI
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SPI_FLASH_SPANSION
+#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_NUM		2
+#endif
+#endif
 
 /*
  * Miscellaneous configurable options
