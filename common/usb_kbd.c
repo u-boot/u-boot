@@ -199,7 +199,7 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 		}
 	}
 
-	if ((scancode > 0x1d) && (scancode < 0x3a)) {
+	if ((scancode > 0x1d) && (scancode < 0x39)) {
 		/* Shift pressed */
 		if (modifier & (LEFT_SHIFT | RIGHT_SHIFT))
 			keycode = usb_kbd_numkey_shifted[scancode - 0x1e];
