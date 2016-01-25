@@ -43,7 +43,7 @@ ulong flash_get_size (ulong base, int banknum);
 /* Local functions */
 static int detect_num_flash_banks(void);
 static long int get_ddr_bank_size(short cs, long *base);
-static void set_cs_bounds(short cs, long base, long size);
+static void set_cs_bounds(short cs, ulong base, ulong size);
 static void set_cs_config(short cs, long config);
 static void set_ddr_config(void);
 
@@ -314,7 +314,7 @@ static long int get_ddr_bank_size(short cs, long *base)
 /**************************************************************************
  * Sets DDR bank CS bounds.
  */
-static void set_cs_bounds(short cs, long base, long size)
+static void set_cs_bounds(short cs, ulong base, ulong size)
 {
 	debug("Setting bounds %08lx, %08lx for cs %d\n", base, size, cs);
 	if(size == 0){
