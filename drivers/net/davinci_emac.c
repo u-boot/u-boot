@@ -459,11 +459,11 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 
 	/* Set DMA 8 TX / 8 RX Head pointers to 0 */
 	addr = &adap_emac->TX0HDP;
-	for(cnt = 0; cnt < 16; cnt++)
+	for (cnt = 0; cnt < 8; cnt++)
 		writel(0, addr++);
 
 	addr = &adap_emac->RX0HDP;
-	for(cnt = 0; cnt < 16; cnt++)
+	for (cnt = 0; cnt < 8; cnt++)
 		writel(0, addr++);
 
 	/* Clear Statistics (do this before setting MacControl register) */
