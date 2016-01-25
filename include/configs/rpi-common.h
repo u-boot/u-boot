@@ -88,6 +88,9 @@
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_MISC_INIT_R
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_SYS_STDIO_DEREGISTER
 #endif
 
 /* Console UART */
@@ -111,6 +114,7 @@
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_PREBOOT			"usb start"
 
 /* Shell */
 #define CONFIG_SYS_MAXARGS		8
@@ -133,7 +137,7 @@
 /* Environment */
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define ENV_DEVICE_SETTINGS \
-	"stdin=serial,lcd\0" \
+	"stdin=serial,usbkbd\0" \
 	"stdout=serial,lcd\0" \
 	"stderr=serial,lcd\0"
 
