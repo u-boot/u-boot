@@ -300,10 +300,18 @@ config VIDEO_MVEBU
 	Support for the LCD controller integrated in the Marvell
 	Armada XP SoC.
 
+config I2C_EDID
+	bool "Enable EDID library"
+	depends on DM_I2C
+	default n
+	help
+	   This enables library for accessing EDID data from an LCD panel.
+
 config DISPLAY
 	bool "Enable Display support"
 	depends on DM
-	default y
+	default n
+	select I2C_EDID
 	help
 	   This supports drivers that provide a display, such as eDP (Embedded
 	   DisplayPort) and HDMI (High Definition Multimedia Interface).

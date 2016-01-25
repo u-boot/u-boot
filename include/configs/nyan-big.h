@@ -37,8 +37,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
-#define CONFIG_I2C_EDID
-
 /* LCD support */
 #define CONFIG_LCD
 #define CONFIG_PWM_TEGRA
