@@ -66,6 +66,11 @@ config SPI_FLASH_GIGADEVICE
 	help
 	  Add support for various GigaDevice SPI flash chips (GD25xxx)
 
+config SPI_FLASH_ISSI
+	bool "ISSI SPI flash support"
+	help
+	  Add support for various ISSI SPI flash chips (ISxxx)
+
 config SPI_FLASH_MACRONIX
 	bool "Macronix SPI flash support"
 	help
