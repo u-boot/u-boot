@@ -145,7 +145,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board:\tXilinx ZynqMP\n");
+	puts("Board: Xilinx ZynqMP\n");
 	return 0;
 }
 
