@@ -197,6 +197,18 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
+/*  DSPI  */
+#define CONFIG_FSL_DSPI
+#ifdef CONFIG_FSL_DSPI
+#define CONFIG_CMD_SF
+#define CONFIG_DM_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO	/* cs0 */
+#define CONFIG_SPI_FLASH_SST		/* cs1 */
+#define CONFIG_SPI_FLASH_EON		/* cs2 */
+#define CONFIG_SF_DEFAULT_BUS		1
+#define CONFIG_SF_DEFAULT_CS		0
+#endif
+
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 
 /* FMan ucode */
