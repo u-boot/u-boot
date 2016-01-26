@@ -122,7 +122,7 @@ class RunAndLog(object):
             Nothing.
         """
 
-        msg = "+" + " ".join(cmd) + "\n"
+        msg = '+' + ' '.join(cmd) + '\n'
         if self.chained_file:
             self.chained_file.write(msg)
         self.logfile.write(self, msg)
@@ -202,19 +202,19 @@ class Logfile(object):
             Nothing.
         """
 
-        self.f = open(fn, "wt")
+        self.f = open(fn, 'wt')
         self.last_stream = None
         self.blocks = []
         self.cur_evt = 1
-        shutil.copy(mod_dir + "/multiplexed_log.css", os.path.dirname(fn))
-        self.f.write("""\
+        shutil.copy(mod_dir + '/multiplexed_log.css', os.path.dirname(fn))
+        self.f.write('''\
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="multiplexed_log.css">
 </head>
 <body>
 <tt>
-""")
+''')
 
     def close(self):
         """Close the log file.
@@ -228,17 +228,17 @@ class Logfile(object):
             Nothing.
         """
 
-        self.f.write("""\
+        self.f.write('''\
 </tt>
 </body>
 </html>
-""")
+''')
         self.f.close()
 
     # The set of characters that should be represented as hexadecimal codes in
     # the log file.
-    _nonprint = ("%" + "".join(chr(c) for c in range(0, 32) if c not in (9, 10)) +
-                 "".join(chr(c) for c in range(127, 256)))
+    _nonprint = ('%' + ''.join(chr(c) for c in range(0, 32) if c not in (9, 10)) +
+                 ''.join(chr(c) for c in range(127, 256)))
 
     def _escape(self, data):
         """Render data format suitable for inclusion in an HTML document.
@@ -253,8 +253,8 @@ class Logfile(object):
             An escaped version of the data.
         """
 
-        data = data.replace(chr(13), "")
-        data = "".join((c in self._nonprint) and ("%%%02x" % ord(c)) or
+        data = data.replace(chr(13), '')
+        data = ''.join((c in self._nonprint) and ('%%%02x' % ord(c)) or
                        c for c in data)
         data = cgi.escape(data)
         return data
@@ -272,11 +272,11 @@ class Logfile(object):
         self.cur_evt += 1
         if not self.last_stream:
             return
-        self.f.write("</pre>\n")
-        self.f.write("<div class=\"stream-trailer\" id=\"" +
-                     self.last_stream.name + "\">End stream: " +
-                     self.last_stream.name + "</div>\n")
-        self.f.write("</div>\n")
+        self.f.write('</pre>\n')
+        self.f.write('<div class="stream-trailer" id="' +
+                     self.last_stream.name + '">End stream: ' +
+                     self.last_stream.name + '</div>\n')
+        self.f.write('</div>\n')
         self.last_stream = None
 
     def _note(self, note_type, msg):
@@ -292,9 +292,9 @@ class Logfile(object):
         """
 
         self._terminate_stream()
-        self.f.write("<div class=\"" + note_type + "\">\n<pre>")
+        self.f.write('<div class="' + note_type + '">\n<pre>')
         self.f.write(self._escape(msg))
-        self.f.write("\n</pre></div>\n")
+        self.f.write('\n</pre></div>\n')
 
     def start_section(self, marker):
         """Begin a new nested section in the log file.
@@ -308,10 +308,10 @@ class Logfile(object):
 
         self._terminate_stream()
         self.blocks.append(marker)
-        blk_path = "/".join(self.blocks)
-        self.f.write("<div class=\"section\" id=\"" + blk_path + "\">\n")
-        self.f.write("<div class=\"section-header\" id=\"" + blk_path +
-                     "\">Section: " + blk_path + "</div>\n")
+        blk_path = '/'.join(self.blocks)
+        self.f.write('<div class="section" id="' + blk_path + '">\n')
+        self.f.write('<div class="section-header" id="' + blk_path +
+                     '">Section: ' + blk_path + '</div>\n')
 
     def end_section(self, marker):
         """Terminate the current nested section in the log file.
@@ -327,13 +327,13 @@ class Logfile(object):
         """
 
         if (not self.blocks) or (marker != self.blocks[-1]):
-            raise Exception("Block nesting mismatch: \"%s\" \"%s\"" %
-                            (marker, "/".join(self.blocks)))
+            raise Exception('Block nesting mismatch: "%s" "%s"' %
+                            (marker, '/'.join(self.blocks)))
         self._terminate_stream()
-        blk_path = "/".join(self.blocks)
-        self.f.write("<div class=\"section-trailer\" id=\"section-trailer-" +
-                     blk_path + "\">End section: " + blk_path + "</div>\n")
-        self.f.write("</div>\n")
+        blk_path = '/'.join(self.blocks)
+        self.f.write('<div class="section-trailer" id="section-trailer-' +
+                     blk_path + '">End section: ' + blk_path + '</div>\n')
+        self.f.write('</div>\n')
         self.blocks.pop()
 
     def section(self, marker):
@@ -495,15 +495,15 @@ class Logfile(object):
 
         if stream != self.last_stream:
             self._terminate_stream()
-            self.f.write("<div class=\"stream\" id=\"%s\">\n" % stream.name)
-            self.f.write("<div class=\"stream-header\" id=\"" + stream.name +
-                         "\">Stream: " + stream.name + "</div>\n")
-            self.f.write("<pre>")
+            self.f.write('<div class="stream" id="%s">\n' % stream.name)
+            self.f.write('<div class="stream-header" id="' + stream.name +
+                         '">Stream: ' + stream.name + '</div>\n')
+            self.f.write('<pre>')
         if implicit:
-            self.f.write("<span class=\"implicit\">")
+            self.f.write('<span class="implicit">')
         self.f.write(self._escape(data))
         if implicit:
-            self.f.write("</span>")
+            self.f.write('</span>')
         self.last_stream = stream
 
     def flush(self):

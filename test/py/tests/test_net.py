@@ -112,7 +112,7 @@ def test_net_ping(u_boot_console):
     """
 
     if not net_set_up:
-        pytest.skip("Network not initialized")
+        pytest.skip('Network not initialized')
 
     output = u_boot_console.run_command('ping $serverip')
     assert 'is alive' in output
@@ -129,7 +129,7 @@ def test_net_tftpboot(u_boot_console):
     """
 
     if not net_set_up:
-        pytest.skip("Network not initialized")
+        pytest.skip('Network not initialized')
 
     f = u_boot_console.config.env.get('env__net_tftp_readable_file', None)
     if not f:

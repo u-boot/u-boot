@@ -31,7 +31,7 @@ def test_shell_semicolon_three(u_boot_console):
 def test_shell_run(u_boot_console):
     """Test the "run" shell command."""
 
-    u_boot_console.run_command('setenv foo \"setenv monty 1; setenv python 2\"')
+    u_boot_console.run_command('setenv foo "setenv monty 1; setenv python 2"')
     u_boot_console.run_command('run foo')
     response = u_boot_console.run_command('echo $monty')
     assert response.strip() == '1'

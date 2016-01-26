@@ -258,7 +258,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
         dfu_write(0, dummy_f.abs_fn)
 
         for size in sizes:
-            with u_boot_console.log.section("Data size %d" % size):
+            with u_boot_console.log.section('Data size %d' % size):
                 dfu_write_read_check(size)
                 # Make the status of each sub-test obvious. If the test didn't
                 # pass, an exception was thrown so this code isn't executed.
