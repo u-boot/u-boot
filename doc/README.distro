@@ -349,6 +349,14 @@ boot_net_usb_start:
   device is not attached to USB, and you wish to increase boot speed by
   avoiding unnecessary actions.
 
+boot_net_pci_enum:
+
+  If you want to prevent PCI enumeration by distro boot commands which execute
+  network operations, set the value to something innocuous, e.g. setenv
+  boot_net_pci_enum true. This would be useful if you know your Ethernet
+  device is not attached to PCI, and you wish to increase boot speed by
+  avoiding unnecessary actions.
+
 Interactively booting from a specific device at the u-boot prompt
 =================================================================
 
