@@ -638,10 +638,6 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 	}
 
 	temp = freq * max_pred * max_postd;
-	if (temp > max) {
-		puts("Please decrease freq, too large!\n");
-		return;
-	}
 	if (temp < min) {
 		/*
 		 * Register: PLL_VIDEO
