@@ -9,5 +9,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= ../../xilinx/ppc440-generic/xilinx_ppc440_generic.o
-extra-y 	+= ../../xilinx/ppc440-generic/init.o
+obj-y	+= xilinx_ppc440_generic.o
+extra-y += init.o
