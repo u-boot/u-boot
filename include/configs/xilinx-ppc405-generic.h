@@ -14,6 +14,9 @@
 
 #include "../board/xilinx/ppc405-generic/xparameters.h"
 
+#define CONFIG_405		1
+#define CONFIG_XILINX_405	1
+
 /* sdram */
 #define CONFIG_SYS_SDRAM_SIZE_MB	256
 
@@ -37,5 +40,5 @@
 #define MTDIDS_DEFAULT			"nor0=ppc405-flash"
 #define MTDPARTS_DEFAULT		"mtdpartsa=ppc405-flash:-(user)"
 
-#include <configs/xilinx-ppc405.h>
+#include <configs/xilinx-ppc.h>
 #endif			/* __CONFIG_H */
