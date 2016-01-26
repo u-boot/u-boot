@@ -115,9 +115,6 @@ config TARGET_PIP405
 config TARGET_XPEDITE1000
 	bool "Support xpedite1000"
 
-config TARGET_ML507
-	bool "Support ml507"
-
 config TARGET_XILINX_PPC405_GENERIC
 	bool "Support xilinx-ppc405-generic"
 
@@ -158,7 +155,6 @@ source "board/mpl/mip405/Kconfig"
 source "board/mpl/pip405/Kconfig"
 source "board/t3corp/Kconfig"
 source "board/xes/xpedite1000/Kconfig"
-source "board/xilinx/ml507/Kconfig"
 source "board/xilinx/ppc405-generic/Kconfig"
 source "board/xilinx/ppc440-generic/Kconfig"
 
