@@ -111,9 +111,17 @@ config TARGET_XPEDITE1000
 
 config TARGET_XILINX_PPC405_GENERIC
 	bool "Support xilinx-ppc405-generic"
+	select SUPPORT_SPL
+	select OF_CONTROL
+	select DM
+	select DM_SERIAL
 
 config TARGET_XILINX_PPC440_GENERIC
 	bool "Support xilinx-ppc440-generic"
+	select SUPPORT_SPL
+	select OF_CONTROL
+	select DM
+	select DM_SERIAL
 
 endchoice
 

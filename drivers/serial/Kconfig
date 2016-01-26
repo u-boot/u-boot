@@ -280,7 +280,7 @@ config UNIPHIER_SERIAL
 
 config XILINX_UARTLITE
 	bool "Xilinx Uarlite support"
-	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || 4xx)
 	help
 	  If you have a Xilinx based board and want to use the uartlite
 	  serial ports, say Y to this option. If unsure, say N.

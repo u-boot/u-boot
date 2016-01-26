@@ -39,3 +39,7 @@ void __get_sys_info(sys_info_t *sysInfo)
 	return;
 }
 void get_sys_info(sys_info_t *) __attribute__((weak, alias("__get_sys_info")));
+
+int get_serial_clock(void){
+	return XPAR_UARTNS550_0_CLOCK_FREQ_HZ;
+}
