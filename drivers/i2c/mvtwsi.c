@@ -204,8 +204,8 @@ static int twsi_start(struct i2c_adapter *adap, int expected_status)
 	/* globally set TWSIEN in case it was not */
 	twsi_control_flags |= MVTWSI_CONTROL_TWSIEN;
 	/* assert START */
-	twsi_control_flags |= MVTWSI_CONTROL_START | MVTWSI_CONTROL_CLEAR_IFLG;
-	writel(twsi_control_flags, &twsi->control);
+	writel(twsi_control_flags | MVTWSI_CONTROL_START |
+				    MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to process START */
 	return twsi_wait(adap, expected_status);
 }

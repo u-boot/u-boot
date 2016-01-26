@@ -20,6 +20,7 @@ config SUNXI_NO_PMIC
 config AXP152_POWER
 	boolean "axp152 pmic support"
 	depends on MACH_SUN5I
+	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp152 pmic found on most
 	A10s boards.
@@ -27,6 +28,7 @@ config AXP152_POWER
 config AXP209_POWER
 	boolean "axp209 pmic support"
 	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp209 pmic found on most
 	A10, A13 and A20 boards.
@@ -34,6 +36,7 @@ config AXP209_POWER
 config AXP221_POWER
 	boolean "axp221 / axp223 pmic support"
 	depends on MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
+	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp221/axp223 pmic found on most
 	A23 and A31 boards.
@@ -118,20 +121,24 @@ config AXP_DCDC5_VOLT
 
 config AXP_ALDO1_VOLT
 	int "axp pmic (a)ldo1 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0 if MACH_SUN6I
+	default 1800 if MACH_SUN8I_A83T
 	default 3000 if MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic aldo1 at, set to 0 to
 	disable aldo1.
 	On A31 boards aldo1 is often used to power the wifi module.
 	On A23 / A33 boards aldo1 is used for VCC-IO and should be 3.0V.
+	On A83T / H8 boards aldo1 is used for MIPI CSI, DSI, HDMI, EFUSE, and
+	should be 1.8V.
 
 config AXP_ALDO2_VOLT
 	int "axp pmic (a)ldo2 voltage"
 	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP818_POWER
 	default 3000 if AXP152_POWER || AXP209_POWER
 	default 0 if MACH_SUN6I
+	default 1800 if MACH_SUN8I_A83T
 	default 2500 if MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic aldo2 at, set to 0 to
@@ -140,18 +147,21 @@ config AXP_ALDO2_VOLT
 	On A31 boards aldo2 is typically unused and should be disabled.
 	On A31 boards aldo2 may be used for LPDDR2 then it should be 1.8V.
 	On A23 / A33 boards aldo2 is used for VDD-DLL and should be 2.5V.
+	On A83T / H8 boards aldo2 powers VDD-DLL, VCC18-PLL, CPVDD, VDD18-ADC,
+	LPDDR2, and the codec. It should be 1.8V.
 
 config AXP_ALDO3_VOLT
 	int "axp pmic (a)ldo3 voltage"
 	depends on AXP209_POWER || AXP221_POWER || AXP818_POWER
-	default 0 if AXP209_POWER || AXP818_POWER
+	default 0 if AXP209_POWER
 	default 3000 if MACH_SUN6I || MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic aldo3 at, set to 0 to
 	disable aldo3.
 	On A10(s) / A13 / A20 boards aldo3 should be 2.8V.
 	On A23 / A31 / A33 boards aldo3 is VCC-PLL and AVCC and should be 3.0V.
-	On A83T aldo3 is used for LVDS, DSI, MIPI, HDMI, etc.
+	On A83T / H8 boards aldo3 is AVCC, VCC-PL, and VCC-LED, and should be
+	3.0V.
 
 config AXP_ALDO4_VOLT
 	int "axp pmic (a)ldo4 voltage"
@@ -164,7 +174,7 @@ config AXP_ALDO4_VOLT
 
 config AXP_DLDO1_VOLT
 	int "axp pmic dldo1 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic dldo1 at, set to 0 to
@@ -174,7 +184,7 @@ config AXP_DLDO1_VOLT
 
 config AXP_DLDO2_VOLT
 	int "axp pmic dldo2 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic dldo2 at, set to 0 to
@@ -182,7 +192,7 @@ config AXP_DLDO2_VOLT
 
 config AXP_DLDO3_VOLT
 	int "axp pmic dldo3 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic dldo3 at, set to 0 to
@@ -198,7 +208,7 @@ config AXP_DLDO4_VOLT
 
 config AXP_ELDO1_VOLT
 	int "axp pmic eldo1 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic eldo1 at, set to 0 to
@@ -206,7 +216,7 @@ config AXP_ELDO1_VOLT
 
 config AXP_ELDO2_VOLT
 	int "axp pmic eldo2 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic eldo2 at, set to 0 to
@@ -214,7 +224,7 @@ config AXP_ELDO2_VOLT
 
 config AXP_ELDO3_VOLT
 	int "axp pmic eldo3 voltage"
-	depends on AXP221_POWER
+	depends on AXP221_POWER || AXP818_POWER
 	default 0
 	---help---
 	Set the voltage (mV) to program the axp pmic eldo3 at, set to 0 to

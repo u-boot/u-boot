@@ -127,8 +127,8 @@ void s_init(void)
 		"orr r0, r0, #1 << 6\n"
 		"mcr p15, 0, r0, c1, c0, 1\n");
 #endif
-#if defined CONFIG_MACH_SUN6I
-	/* Enable non-secure access to the RTC */
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
+	/* Enable non-secure access to some peripherals */
 	tzpc_init();
 #endif
 

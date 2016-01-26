@@ -33,6 +33,7 @@ obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
 endif
 obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o
 obj-$(CONFIG_MACH_SUN6I)	+= tzpc.o
+obj-$(CONFIG_MACH_SUN8I_H3)	+= tzpc.o
 
 obj-$(CONFIG_AXP152_POWER)	+= pmic_bus.o
 obj-$(CONFIG_AXP209_POWER)	+= pmic_bus.o

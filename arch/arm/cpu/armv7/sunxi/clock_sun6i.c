@@ -45,6 +45,19 @@ void clock_init_safe(void)
 }
 #endif
 
+void clock_init_sec(void)
+{
+#ifdef CONFIG_MACH_SUN8I_H3
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	setbits_le32(&ccm->ccu_sec_switch,
+		     CCM_SEC_SWITCH_MBUS_NONSEC |
+		     CCM_SEC_SWITCH_BUS_NONSEC |
+		     CCM_SEC_SWITCH_PLL_NONSEC);
+#endif
+}
+
 void clock_init_uart(void)
 {
 #if CONFIG_CONS_INDEX < 5

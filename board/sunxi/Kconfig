@@ -71,8 +71,11 @@ config MACH_SUN8I_A33
 config MACH_SUN8I_H3
 	bool "sun8i (Allwinner H3)"
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
@@ -92,6 +95,12 @@ config MACH_SUN8I
 	bool
 	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_H3 || MACH_SUN8I_A83T
 
+config DRAM_TYPE
+	int "sunxi dram type"
+	depends on MACH_SUN8I_A83T
+	default 3
+	---help---
+	Set the dram type, 3: DDR3, 7: LPDDR3
 
 config DRAM_CLK
 	int "sunxi dram clock speed"
