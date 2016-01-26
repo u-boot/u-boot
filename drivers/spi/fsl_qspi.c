@@ -936,7 +936,7 @@ static int fsl_qspi_probe(struct udevice *bus)
 
 	dm_spi_bus->max_hz = plat->speed_hz;
 
-	priv->regs = (struct fsl_qspi_regs *)plat->reg_base;
+	priv->regs = (struct fsl_qspi_regs *)(uintptr_t)plat->reg_base;
 	priv->flags = plat->flags;
 
 	priv->speed_hz = plat->speed_hz;
