@@ -477,8 +477,8 @@ static void qspi_op_rdbank(struct fsl_qspi_priv *priv, u8 *rxbuf, u32 len)
 static void qspi_op_rdid(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 {
 	struct fsl_qspi_regs *regs = priv->regs;
-	u32 mcr_reg, rbsr_reg, data;
-	int i, size;
+	u32 mcr_reg, rbsr_reg, data, size;
+	int i;
 
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
@@ -494,15 +494,15 @@ static void qspi_op_rdid(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 		;
 
 	i = 0;
-	size = len;
-	while ((RX_BUFFER_SIZE >= size) && (size > 0)) {
+	while ((RX_BUFFER_SIZE >= len) && (len > 0)) {
 		rbsr_reg = qspi_read32(priv->flags, &regs->rbsr);
 		if (rbsr_reg & QSPI_RBSR_RDBFL_MASK) {
 			data = qspi_read32(priv->flags, &regs->rbdr[i]);
 			data = qspi_endian_xchg(data);
-			memcpy(rxbuf, &data, 4);
+			size = (len < 4) ? len : 4;
+			memcpy(rxbuf, &data, size);
+			len -= size;
 			rxbuf++;
-			size -= 4;
 			i++;
 		}
 	}
