@@ -1241,3 +1241,18 @@ U_BOOT_DRIVER(pci_generic_drv) = {
 	.id		= UCLASS_PCI_GENERIC,
 	.of_match	= pci_generic_ids,
 };
+
+void pci_init(void)
+{
+	struct udevice *bus;
+
+	/*
+	 * Enumerate all known controller devices. Enumeration has the side-
+	 * effect of probing them, so PCIe devices will be enumerated too.
+	 */
+	for (uclass_first_device(UCLASS_PCI, &bus);
+	     bus;
+	     uclass_next_device(&bus)) {
+		;
+	}
+}
