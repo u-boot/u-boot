@@ -1,5 +1,5 @@
 PPC405-GENERIC BOARD
-M:	Ricardo Ribalda <ricardo.ribalda@uam.es>
+M:	Ricardo Ribalda <ricardo.ribalda@gmail.com>
 S:	Maintained
 F:	board/xilinx/ppc405-generic/
 F:	include/configs/xilinx-ppc405-generic.h
