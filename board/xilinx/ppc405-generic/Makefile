@@ -9,4 +9,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= ../../xilinx/ppc405-generic/xilinx_ppc405_generic.o
+obj-y	+= xilinx_ppc405_generic.o
