@@ -692,8 +692,10 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 	davinci_invalidate_rx_descs();
 
 	rx_curr_desc = emac_rx_active_head;
+	if (!rx_curr_desc)
+		return 0;
 	status = rx_curr_desc->pkt_flag_len;
-	if ((rx_curr_desc) && ((status & EMAC_CPPI_OWNERSHIP_BIT) == 0)) {
+	if ((status & EMAC_CPPI_OWNERSHIP_BIT) == 0) {
 		if (status & EMAC_CPPI_RX_ERROR_FRAME) {
 			/* Error in packet - discard it and requeue desc */
 			printf ("WARN: emac_rcv_pkt: Error in packet\n");
