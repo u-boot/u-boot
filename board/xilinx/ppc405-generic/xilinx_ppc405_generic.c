@@ -15,11 +15,6 @@ ulong get_PCI_freq(void)
 	return 0;
 }
 
-int board_pre_init(void)
-{
-	return 0;
-}
-
 int checkboard(void)
 {
 	puts("Xilinx PPC405 Generic Board\n");
