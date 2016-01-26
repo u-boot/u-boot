@@ -55,9 +55,6 @@ config TARGET_YOSEMITE
 config TARGET_YUCCA
 	bool "Support yucca"
 
-config TARGET_FX12MM
-	bool "Support fx12mm"
-
 config TARGET_V5FX30TEVAL
 	bool "Support v5fx30teval"
 
@@ -136,7 +133,6 @@ source "board/amcc/sequoia/Kconfig"
 source "board/amcc/walnut/Kconfig"
 source "board/amcc/yosemite/Kconfig"
 source "board/amcc/yucca/Kconfig"
-source "board/avnet/fx12mm/Kconfig"
 source "board/avnet/v5fx30teval/Kconfig"
 source "board/esd/cpci2dp/Kconfig"
 source "board/esd/cpci405/Kconfig"
