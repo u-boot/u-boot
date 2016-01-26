@@ -8,6 +8,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <netdev.h>
 #include <asm/processor.h>
 
 int checkboard(void)
@@ -33,4 +34,25 @@ void get_sys_info(sys_info_t *sys_info)
 
 int get_serial_clock(void){
 	return XPAR_UARTNS550_0_CLOCK_FREQ_HZ;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int ret = 0;
+
+	puts("Init xilinx temac\n");
+#ifdef XPAR_LLTEMAC_0_BASEADDR
+	ret |= xilinx_ll_temac_eth_init(bis, XPAR_LLTEMAC_0_BASEADDR,
+			XILINX_LL_TEMAC_M_SDMA_DCR | XILINX_LL_TEMAC_M_SDMA_PLB,
+			XPAR_LLTEMAC_0_LLINK_CONNECTED_BASEADDR);
+
+#endif
+
+#ifdef XPAR_LLTEMAC_1_BASEADDR
+	ret |= xilinx_ll_temac_eth_init(bis, XPAR_LLTEMAC_1_BASEADDR,
+			XILINX_LL_TEMAC_M_SDMA_DCR | XILINX_LL_TEMAC_M_SDMA_PLB,
+			XPAR_LLTEMAC_1_LLINK_CONNECTED_BASEADDR);
+#endif
+
+	return ret;
 }
