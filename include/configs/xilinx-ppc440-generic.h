@@ -10,6 +10,7 @@
 
 /*CPU*/
 #define CONFIG_440			1
+#define CONFIG_XILINX_440		1
 #define CONFIG_XILINX_PPC440_GENERIC	1
 #include "../board/xilinx/ppc440-generic/xparameters.h"
 
@@ -33,6 +34,6 @@
 #define MTDPARTS_DEFAULT	"mtdparts=ml507-flash:-(user)"
 
 /*Generic Configs*/
-#include <configs/xilinx-ppc440.h>
+#include <configs/xilinx-ppc.h>
 
 #endif						/* __CONFIG_H */
