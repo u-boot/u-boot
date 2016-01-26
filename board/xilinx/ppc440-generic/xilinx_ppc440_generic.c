@@ -10,11 +10,6 @@
 #include <common.h>
 #include <asm/processor.h>
 
-int board_pre_init(void)
-{
-	return 0;
-}
-
 int checkboard(void)
 {
 	puts("Xilinx PPC440 Generic Board\n");
