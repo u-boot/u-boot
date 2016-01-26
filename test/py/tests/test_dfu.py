@@ -100,6 +100,12 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
             Nothing.
         '''
 
+        fh = u_boot_utils.attempt_to_open_file(
+            env__usb_dev_port['host_usb_dev_node'])
+        if fh:
+            fh.close()
+            raise Exception('USB device present before dfu command invoked')
+
         u_boot_console.log.action(
             'Starting long-running U-Boot dfu shell command')
 
