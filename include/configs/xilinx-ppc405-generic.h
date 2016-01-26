@@ -29,16 +29,16 @@
 #define CONFIG_ENV_OVERWRITE		1
 
 /*Misc*/
-#define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
+#define CONFIG_PREBOOT		"echo U-Boot is up and running;"
 
 /*Flash*/
-#define CONFIG_SYS_FLASH_BASE			XPAR_FLASH_MEM0_BASEADDR
-#define CONFIG_SYS_FLASH_SIZE		(32*1024*1024)
-#define CONFIG_SYS_MAX_FLASH_SECT	71
+#define CONFIG_SYS_FLASH_BASE		XPAR_FLASH_MEM0_BASEADDR
+#define CONFIG_SYS_FLASH_SIZE		(128*1024*1024)
+#define CONFIG_SYS_MAX_FLASH_SECT	1024
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
-#define MTDIDS_DEFAULT			"nor0=ppc405-flash"
-#define MTDPARTS_DEFAULT		"mtdpartsa=ppc405-flash:-(user)"
+#define MTDIDS_DEFAULT			"nor0=flash"
+#define MTDPARTS_DEFAULT		"mtdparts=flash:-(user)"
 
 #include <configs/xilinx-ppc.h>
 #endif			/* __CONFIG_H */
