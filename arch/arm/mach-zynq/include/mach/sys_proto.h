@@ -19,6 +19,8 @@ extern int zynq_slcr_get_mio_pin_status(const char *periph);
 extern void zynq_ddrc_init(void);
 extern unsigned int zynq_get_silicon_version(void);
 
+int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
+
 /* Driver extern functions */
 extern void ps7_init(void);
 
