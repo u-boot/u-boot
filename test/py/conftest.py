@@ -29,7 +29,7 @@ log = None
 console = None
 
 def mkdir_p(path):
-    '''Create a directory path.
+    """Create a directory path.
 
     This includes creating any intermediate/parent directories. Any errors
     caused due to already extant directories are ignored.
@@ -39,7 +39,7 @@ def mkdir_p(path):
 
     Returns:
         Nothing.
-    '''
+    """
 
     try:
         os.makedirs(path)
@@ -50,14 +50,14 @@ def mkdir_p(path):
             raise
 
 def pytest_addoption(parser):
-    '''pytest hook: Add custom command-line options to the cmdline parser.
+    """pytest hook: Add custom command-line options to the cmdline parser.
 
     Args:
         parser: The pytest command-line parser.
 
     Returns:
         Nothing.
-    '''
+    """
 
     parser.addoption('--build-dir', default=None,
         help='U-Boot build directory (O=)')
@@ -73,14 +73,14 @@ def pytest_addoption(parser):
         help='Compile U-Boot before running tests')
 
 def pytest_configure(config):
-    '''pytest hook: Perform custom initialization at startup time.
+    """pytest hook: Perform custom initialization at startup time.
 
     Args:
         config: The pytest configuration.
 
     Returns:
         Nothing.
-    '''
+    """
 
     global log
     global console
@@ -190,7 +190,7 @@ def pytest_configure(config):
         console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
 
 def pytest_generate_tests(metafunc):
-    '''pytest hook: parameterize test functions based on custom rules.
+    """pytest hook: parameterize test functions based on custom rules.
 
     If a test function takes parameter(s) (fixture names) of the form brd__xxx
     or env__xxx, the brd and env configuration dictionaries are consulted to
@@ -202,7 +202,7 @@ def pytest_generate_tests(metafunc):
 
     Returns:
         Nothing.
-    '''
+    """
 
     subconfigs = {
         'brd': console.config.brd,
@@ -229,14 +229,14 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture(scope='function')
 def u_boot_console(request):
-    '''Generate the value of a test's u_boot_console fixture.
+    """Generate the value of a test's u_boot_console fixture.
 
     Args:
         request: The pytest request.
 
     Returns:
         The fixture value.
-    '''
+    """
 
     console.ensure_spawned()
     return console
@@ -247,7 +247,7 @@ tests_skipped = set()
 tests_passed = set()
 
 def pytest_itemcollected(item):
-    '''pytest hook: Called once for each test found during collection.
+    """pytest hook: Called once for each test found during collection.
 
     This enables our custom result analysis code to see the list of all tests
     that should eventually be run.
@@ -257,12 +257,12 @@ def pytest_itemcollected(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     tests_not_run.add(item.name)
 
 def cleanup():
-    '''Clean up all global state.
+    """Clean up all global state.
 
     Executed (via atexit) once the entire test process is complete. This
     includes logging the status of all tests, and the identity of any failed
@@ -273,7 +273,7 @@ def cleanup():
 
     Returns:
         Nothing.
-    '''
+    """
 
     if console:
         console.close()
@@ -295,7 +295,7 @@ def cleanup():
 atexit.register(cleanup)
 
 def setup_boardspec(item):
-    '''Process any 'boardspec' marker for a test.
+    """Process any 'boardspec' marker for a test.
 
     Such a marker lists the set of board types that a test does/doesn't
     support. If tests are being executed on an unsupported board, the test is
@@ -306,7 +306,7 @@ def setup_boardspec(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     mark = item.get_marker('boardspec')
     if not mark:
@@ -323,7 +323,7 @@ def setup_boardspec(item):
         pytest.skip('board not supported')
 
 def setup_buildconfigspec(item):
-    '''Process any 'buildconfigspec' marker for a test.
+    """Process any 'buildconfigspec' marker for a test.
 
     Such a marker lists some U-Boot configuration feature that the test
     requires. If tests are being executed on an U-Boot build that doesn't
@@ -334,7 +334,7 @@ def setup_buildconfigspec(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     mark = item.get_marker('buildconfigspec')
     if not mark:
@@ -344,7 +344,7 @@ def setup_buildconfigspec(item):
             pytest.skip('.config feature not enabled')
 
 def pytest_runtest_setup(item):
-    '''pytest hook: Configure (set up) a test item.
+    """pytest hook: Configure (set up) a test item.
 
     Called once for each test to perform any custom configuration. This hook
     is used to skip the test if certain conditions apply.
@@ -354,14 +354,14 @@ def pytest_runtest_setup(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     log.start_section(item.name)
     setup_boardspec(item)
     setup_buildconfigspec(item)
 
 def pytest_runtest_protocol(item, nextitem):
-    '''pytest hook: Called to execute a test.
+    """pytest hook: Called to execute a test.
 
     This hook wraps the standard pytest runtestprotocol() function in order
     to acquire visibility into, and record, each test function's result.
@@ -372,7 +372,7 @@ def pytest_runtest_protocol(item, nextitem):
 
     Returns:
         A list of pytest reports (test result data).
-    '''
+    """
 
     reports = runtestprotocol(item, nextitem=nextitem)
     failed = None

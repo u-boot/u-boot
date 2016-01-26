@@ -8,7 +8,7 @@
 import pytest
 import u_boot_utils
 
-'''
+"""
 Note: This test relies on boardenv_* containing configuration values to define
 which the network environment available for testing. Without this, this test
 will be automatically skipped.
@@ -46,16 +46,16 @@ env__net_tftp_readable_file = {
     "size": 5058624,
     "crc32": "c2244b26",
 }
-'''
+"""
 
 net_set_up = False
 
 def test_net_pre_commands(u_boot_console):
-    '''Execute any commands required to enable network hardware.
+    """Execute any commands required to enable network hardware.
 
     These commands are provided by the boardenv_* file; see the comment at the
     beginning of this file.
-    '''
+    """
 
     init_usb = u_boot_console.config.env.get('env__net_uses_usb', False)
     if init_usb:
@@ -67,11 +67,11 @@ def test_net_pre_commands(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_dhcp')
 def test_net_dhcp(u_boot_console):
-    '''Test the dhcp command.
+    """Test the dhcp command.
 
     The boardenv_* file may be used to enable/disable this test; see the
     comment at the beginning of this file.
-    '''
+    """
 
     test_dhcp = u_boot_console.config.env.get('env__net_dhcp_server', False)
     if not test_dhcp:
@@ -86,11 +86,11 @@ def test_net_dhcp(u_boot_console):
 
 @pytest.mark.buildconfigspec('net')
 def test_net_setup_static(u_boot_console):
-    '''Set up a static IP configuration.
+    """Set up a static IP configuration.
 
     The configuration is provided by the boardenv_* file; see the comment at
     the beginning of this file.
-    '''
+    """
 
     env_vars = u_boot_console.config.env.get('env__net_static_env_vars', None)
     if not env_vars:
@@ -104,12 +104,12 @@ def test_net_setup_static(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_ping')
 def test_net_ping(u_boot_console):
-    '''Test the ping command.
+    """Test the ping command.
 
     The $serverip (as set up by either test_net_dhcp or test_net_setup_static)
     is pinged. The test validates that the host is alive, as reported by the
     ping command's output.
-    '''
+    """
 
     if not net_set_up:
         pytest.skip("Network not initialized")
@@ -119,14 +119,14 @@ def test_net_ping(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_net')
 def test_net_tftpboot(u_boot_console):
-    '''Test the tftpboot command.
+    """Test the tftpboot command.
 
     A file is downloaded from the TFTP server, its size and optionally its
     CRC32 are validated.
 
     The details of the file to download are provided by the boardenv_* file;
     see the comment at the beginning of this file.
-    '''
+    """
 
     if not net_set_up:
         pytest.skip("Network not initialized")

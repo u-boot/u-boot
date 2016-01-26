@@ -14,7 +14,7 @@ import re
 import time
 import u_boot_utils
 
-'''
+"""
 Note: This test relies on:
 
 a) boardenv_* to contain configuration values to define which USB ports are
@@ -69,11 +69,11 @@ root permissions. For example:
 
 This entry is only needed if any block_devs above contain a
 writable_fs_partition value.
-'''
+"""
 
 @pytest.mark.buildconfigspec('cmd_usb_mass_storage')
 def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
-    '''Test the "ums" command; the host system must be able to enumerate a UMS
+    """Test the "ums" command; the host system must be able to enumerate a UMS
     device when "ums" is running, block and optionally file I/O are tested,
     and this device must disappear when "ums" is aborted.
 
@@ -88,7 +88,7 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
 
     Returns:
         Nothing.
-    '''
+    """
 
     have_writable_fs_partition = 'writable_fs_partition' in env__block_devs[0]
     if not have_writable_fs_partition:
@@ -120,7 +120,7 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
         mounted_test_fn = mount_point + '/' + mount_subdir + test_f.fn
 
     def start_ums():
-        '''Start U-Boot's ums shell command.
+        """Start U-Boot's ums shell command.
 
         This also waits for the host-side USB enumeration process to complete.
 
@@ -129,7 +129,7 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
 
         Returns:
             Nothing.
-        '''
+        """
 
         u_boot_console.log.action(
             'Starting long-running U-Boot ums shell command')
@@ -142,21 +142,21 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
         fh.close()
 
     def mount():
-        '''Mount the block device that U-Boot exports.
+        """Mount the block device that U-Boot exports.
 
         Args:
             None.
 
         Returns:
             Nothing.
-        '''
+        """
 
         u_boot_console.log.action('Mounting exported UMS device')
         cmd = ('/bin/mount', host_ums_part_node)
         u_boot_utils.run_and_log(u_boot_console, cmd)
 
     def umount(ignore_errors):
-        '''Unmount the block device that U-Boot exports.
+        """Unmount the block device that U-Boot exports.
 
         Args:
             ignore_errors: Ignore any errors. This is useful if an error has
@@ -166,14 +166,14 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
 
         Returns:
             Nothing.
-        '''
+        """
 
         u_boot_console.log.action('Unmounting UMS device')
         cmd = ('/bin/umount', host_ums_part_node)
         u_boot_utils.run_and_log(u_boot_console, cmd, ignore_errors)
 
     def stop_ums(ignore_errors):
-        '''Stop U-Boot's ums shell command from executing.
+        """Stop U-Boot's ums shell command from executing.
 
         This also waits for the host-side USB de-enumeration process to
         complete.
@@ -186,7 +186,7 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
 
         Returns:
             Nothing.
-        '''
+        """
 
         u_boot_console.log.action(
             'Stopping long-running U-Boot ums shell command')

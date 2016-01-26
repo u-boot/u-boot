@@ -12,7 +12,7 @@ import os.path
 import pytest
 import u_boot_utils
 
-'''
+"""
 Note: This test relies on:
 
 a) boardenv_* to contain configuration values to define which USB ports are
@@ -44,7 +44,7 @@ ACTION=="add", SUBSYSTEM=="block", SUBSYSTEMS=="usb", KERNELS=="3-13", MODE:="66
 (You may wish to change the group ID instead of setting the permissions wide
 open. All that matters is that the user ID running the test can access the
 device.)
-'''
+"""
 
 # The set of file sizes to test. These values trigger various edge-cases such
 # as one less than, equal to, and one greater than typical USB max packet
@@ -71,7 +71,7 @@ first_usb_dev_port = None
 
 @pytest.mark.buildconfigspec('cmd_dfu')
 def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
-    '''Test the "dfu" command; the host system must be able to enumerate a USB
+    """Test the "dfu" command; the host system must be able to enumerate a USB
     device when "dfu" is running, various DFU transfers are tested, and the
     USB device must disappear when "dfu" is aborted.
 
@@ -86,10 +86,10 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
     Returns:
         Nothing.
-    '''
+    """
 
     def start_dfu():
-        '''Start U-Boot's dfu shell command.
+        """Start U-Boot's dfu shell command.
 
         This also waits for the host-side USB enumeration process to complete.
 
@@ -98,7 +98,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         Returns:
             Nothing.
-        '''
+        """
 
         fh = u_boot_utils.attempt_to_open_file(
             env__usb_dev_port['host_usb_dev_node'])
@@ -120,7 +120,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
         fh.close()
 
     def stop_dfu(ignore_errors):
-        '''Stop U-Boot's dfu shell command from executing.
+        """Stop U-Boot's dfu shell command from executing.
 
         This also waits for the host-side USB de-enumeration process to
         complete.
@@ -133,7 +133,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         Returns:
             Nothing.
-        '''
+        """
 
         try:
             u_boot_console.log.action(
@@ -148,7 +148,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
                 raise
 
     def run_dfu_util(alt_setting, fn, up_dn_load_arg):
-        '''Invoke dfu-util on the host.
+        """Invoke dfu-util on the host.
 
         Args:
             alt_setting: The DFU "alternate setting" identifier to interact
@@ -159,7 +159,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         Returns:
             Nothing.
-        '''
+        """
 
         cmd = ['dfu-util', '-a', str(alt_setting), up_dn_load_arg, fn]
         if 'host_usb_port_path' in env__usb_dev_port:
@@ -168,7 +168,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
         u_boot_console.wait_for('Ctrl+C to exit ...')
 
     def dfu_write(alt_setting, fn):
-        '''Write a file to the target board using DFU.
+        """Write a file to the target board using DFU.
 
         Args:
             alt_setting: The DFU "alternate setting" identifier to interact
@@ -177,12 +177,12 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         Returns:
             Nothing.
-        '''
+        """
 
         run_dfu_util(alt_setting, fn, '-D')
 
     def dfu_read(alt_setting, fn):
-        '''Read a file from the target board using DFU.
+        """Read a file from the target board using DFU.
 
         Args:
             alt_setting: The DFU "alternate setting" identifier to interact
@@ -191,7 +191,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         Returns:
             Nothing.
-        '''
+        """
 
         # dfu-util fails reads/uploads if the host file already exists
         if os.path.exists(fn):
@@ -199,7 +199,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
         run_dfu_util(alt_setting, fn, '-U')
 
     def dfu_write_read_check(size):
-        '''Test DFU transfers of a specific size of data
+        """Test DFU transfers of a specific size of data
 
         This function first writes data to the board then reads it back and
         compares the written and read back data. Measures are taken to avoid
@@ -210,7 +210,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         Returns:
             Nothing.
-        '''
+        """
 
         test_f = u_boot_utils.PersistentRandomFile(u_boot_console,
             'dfu_%d.bin' % size, size)

@@ -6,8 +6,8 @@ import pytest
 import time
 
 def test_sleep(u_boot_console):
-    '''Test the sleep command, and validate that it sleeps for approximately
-    the correct amount of time.'''
+    """Test the sleep command, and validate that it sleeps for approximately
+    the correct amount of time."""
 
     # 3s isn't too long, but is enough to cross a few second boundaries.
     sleep_time = 3

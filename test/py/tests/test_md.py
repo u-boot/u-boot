@@ -8,8 +8,8 @@ import u_boot_utils
 
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_md(u_boot_console):
-    '''Test that md reads memory as expected, and that memory can be modified
-    using the mw command.'''
+    """Test that md reads memory as expected, and that memory can be modified
+    using the mw command."""
 
     ram_base = u_boot_utils.find_ram_base(u_boot_console)
     addr = '%08x' % ram_base
@@ -24,8 +24,8 @@ def test_md(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_md_repeat(u_boot_console):
-    '''Test command repeat (via executing an empty command) operates correctly
-    for "md"; the command must repeat and dump an incrementing address.'''
+    """Test command repeat (via executing an empty command) operates correctly
+    for "md"; the command must repeat and dump an incrementing address."""
 
     ram_base = u_boot_utils.find_ram_base(u_boot_console)
     addr_base = '%08x' % ram_base

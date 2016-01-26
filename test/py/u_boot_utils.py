@@ -11,21 +11,21 @@ import sys
 import time
 
 def md5sum_data(data):
-    '''Calculate the MD5 hash of some data.
+    """Calculate the MD5 hash of some data.
 
     Args:
         data: The data to hash.
 
     Returns:
         The hash of the data, as a binary string.
-    '''
+    """
 
     h = hashlib.md5()
     h.update(data)
     return h.digest()
 
 def md5sum_file(fn, max_length=None):
-    '''Calculate the MD5 hash of the contents of a file.
+    """Calculate the MD5 hash of the contents of a file.
 
     Args:
         fn: The filename of the file to hash.
@@ -35,7 +35,7 @@ def md5sum_file(fn, max_length=None):
 
     Returns:
         The hash of the file content, as a binary string.
-    '''
+    """
 
     with open(fn, 'rb') as fh:
         if max_length:
@@ -46,11 +46,11 @@ def md5sum_file(fn, max_length=None):
     return md5sum_data(data)
 
 class PersistentRandomFile(object):
-    '''Generate and store information about a persistent file containing
-    random data.'''
+    """Generate and store information about a persistent file containing
+    random data."""
 
     def __init__(self, u_boot_console, fn, size):
-        '''Create or process the persistent file.
+        """Create or process the persistent file.
 
         If the file does not exist, it is generated.
 
@@ -66,7 +66,7 @@ class PersistentRandomFile(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         self.fn = fn
 
@@ -85,7 +85,7 @@ class PersistentRandomFile(object):
             self.content_hash = md5sum_data(data)
 
 def attempt_to_open_file(fn):
-    '''Attempt to open a file, without throwing exceptions.
+    """Attempt to open a file, without throwing exceptions.
 
     Any errors (exceptions) that occur during the attempt to open the file
     are ignored. This is useful in order to test whether a file (in
@@ -98,7 +98,7 @@ def attempt_to_open_file(fn):
     Returns:
         An open file handle to the file, or None if the file could not be
             opened.
-    '''
+    """
 
     try:
         return open(fn, 'rb')
@@ -106,7 +106,7 @@ def attempt_to_open_file(fn):
         return None
 
 def wait_until_open_succeeds(fn):
-    '''Poll until a file can be opened, or a timeout occurs.
+    """Poll until a file can be opened, or a timeout occurs.
 
     Continually attempt to open a file, and return when this succeeds, or
     raise an exception after a timeout.
@@ -116,7 +116,7 @@ def wait_until_open_succeeds(fn):
 
     Returns:
         An open file handle to the file.
-    '''
+    """
 
     for i in xrange(100):
         fh = attempt_to_open_file(fn)
@@ -126,7 +126,7 @@ def wait_until_open_succeeds(fn):
     raise Exception('File could not be opened')
 
 def wait_until_file_open_fails(fn, ignore_errors):
-    '''Poll until a file cannot be opened, or a timeout occurs.
+    """Poll until a file cannot be opened, or a timeout occurs.
 
     Continually attempt to open a file, and return when this fails, or
     raise an exception after a timeout.
@@ -139,7 +139,7 @@ def wait_until_file_open_fails(fn, ignore_errors):
 
     Returns:
         Nothing.
-    '''
+    """
 
     for i in xrange(100):
         fh = attempt_to_open_file(fn)
@@ -152,7 +152,7 @@ def wait_until_file_open_fails(fn, ignore_errors):
     raise Exception('File can still be opened')
 
 def run_and_log(u_boot_console, cmd, ignore_errors=False):
-    '''Run a command and log its output.
+    """Run a command and log its output.
 
     Args:
         u_boot_console: A console connection to U-Boot.
@@ -164,7 +164,7 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
 
     Returns:
         Nothing.
-    '''
+    """
 
     runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
     runner.run(cmd, ignore_errors=ignore_errors)
@@ -172,7 +172,7 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
 
 ram_base = None
 def find_ram_base(u_boot_console):
-    '''Find the running U-Boot's RAM location.
+    """Find the running U-Boot's RAM location.
 
     Probe the running U-Boot to determine the address of the first bank
     of RAM. This is useful for tests that test reading/writing RAM, or
@@ -186,7 +186,7 @@ def find_ram_base(u_boot_console):
 
     Returns:
         The address of U-Boot's first RAM bank, as an integer.
-    '''
+    """
 
     global ram_base
     if u_boot_console.config.buildconfig.get('config_cmd_bdi', 'n') != 'y':

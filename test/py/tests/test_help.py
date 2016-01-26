@@ -4,6 +4,6 @@
 # SPDX-License-Identifier: GPL-2.0
 
 def test_help(u_boot_console):
-    '''Test that the "help" command can be executed.'''
+    """Test that the "help" command can be executed."""
 
     u_boot_console.run_command('help')

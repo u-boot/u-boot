@@ -24,12 +24,12 @@ pattern_unknown_command = re.compile('Unknown command \'.*\' - try \'help\'')
 pattern_error_notification = re.compile('## Error: ')
 
 class ConsoleDisableCheck(object):
-    '''Context manager (for Python's with statement) that temporarily disables
+    """Context manager (for Python's with statement) that temporarily disables
     the specified console output error check. This is useful when deliberately
     executing a command that is known to trigger one of the error checks, in
     order to test that the error condition is actually raised. This class is
     used internally by ConsoleBase::disable_check(); it is not intended for
-    direct usage.'''
+    direct usage."""
 
     def __init__(self, console, check_type):
         self.console = console
@@ -42,13 +42,13 @@ class ConsoleDisableCheck(object):
         self.console.disable_check_count[self.check_type] -= 1
 
 class ConsoleBase(object):
-    '''The interface through which test functions interact with the U-Boot
+    """The interface through which test functions interact with the U-Boot
     console. This primarily involves executing shell commands, capturing their
     results, and checking for common error conditions. Some common utilities
-    are also provided too.'''
+    are also provided too."""
 
     def __init__(self, log, config, max_fifo_fill):
-        '''Initialize a U-Boot console connection.
+        """Initialize a U-Boot console connection.
 
         Can only usefully be called by sub-classes.
 
@@ -65,7 +65,7 @@ class ConsoleBase(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         self.log = log
         self.config = config
@@ -88,7 +88,7 @@ class ConsoleBase(object):
         self.at_prompt_logevt = None
 
     def close(self):
-        '''Terminate the connection to the U-Boot console.
+        """Terminate the connection to the U-Boot console.
 
         This function is only useful once all interaction with U-Boot is
         complete. Once this function is called, data cannot be sent to or
@@ -99,7 +99,7 @@ class ConsoleBase(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         if self.p:
             self.p.close()
@@ -107,7 +107,7 @@ class ConsoleBase(object):
 
     def run_command(self, cmd, wait_for_echo=True, send_nl=True,
             wait_for_prompt=True):
-        '''Execute a command via the U-Boot console.
+        """Execute a command via the U-Boot console.
 
         The command is always sent to U-Boot.
 
@@ -142,7 +142,7 @@ class ConsoleBase(object):
                 The output from U-Boot during command execution. In other
                 words, the text U-Boot emitted between the point it echod the
                 command string and emitted the subsequent command prompts.
-        '''
+        """
 
         if self.at_prompt and \
                 self.at_prompt_logevt != self.logstream.logfile.cur_evt:
@@ -198,7 +198,7 @@ class ConsoleBase(object):
             raise
 
     def ctrlc(self):
-        '''Send a CTRL-C character to U-Boot.
+        """Send a CTRL-C character to U-Boot.
 
         This is useful in order to stop execution of long-running synchronous
         commands such as "ums".
@@ -208,13 +208,13 @@ class ConsoleBase(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         self.log.action('Sending Ctrl-C')
         self.run_command(chr(3), wait_for_echo=False, send_nl=False)
 
     def wait_for(self, text):
-        '''Wait for a pattern to be emitted by U-Boot.
+        """Wait for a pattern to be emitted by U-Boot.
 
         This is useful when a long-running command such as "dfu" is executing,
         and it periodically emits some text that should show up at a specific
@@ -226,14 +226,14 @@ class ConsoleBase(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         if type(text) == type(''):
             text = re.escape(text)
         self.p.expect([text])
 
     def drain_console(self):
-        '''Read from and log the U-Boot console for a short time.
+        """Read from and log the U-Boot console for a short time.
 
         U-Boot's console output is only logged when the test code actively
         waits for U-Boot to emit specific data. There are cases where tests
@@ -248,7 +248,7 @@ class ConsoleBase(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         # If we are already not connected to U-Boot, there's nothing to drain.
         # This should only happen when a previous call to run_command() or
@@ -270,7 +270,7 @@ class ConsoleBase(object):
             self.p.timeout = orig_timeout
 
     def ensure_spawned(self):
-        '''Ensure a connection to a correctly running U-Boot instance.
+        """Ensure a connection to a correctly running U-Boot instance.
 
         This may require spawning a new Sandbox process or resetting target
         hardware, as defined by the implementation sub-class.
@@ -282,7 +282,7 @@ class ConsoleBase(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         if self.p:
             return
@@ -320,7 +320,7 @@ class ConsoleBase(object):
             raise
 
     def cleanup_spawn(self):
-        '''Shut down all interaction with the U-Boot instance.
+        """Shut down all interaction with the U-Boot instance.
 
         This is used when an error is detected prior to re-establishing a
         connection with a fresh U-Boot instance.
@@ -332,7 +332,7 @@ class ConsoleBase(object):
 
         Returns:
             Nothing.
-        '''
+        """
 
         try:
             if self.p:
@@ -342,7 +342,7 @@ class ConsoleBase(object):
         self.p = None
 
     def validate_version_string_in_text(self, text):
-        '''Assert that a command's output includes the U-Boot signon message.
+        """Assert that a command's output includes the U-Boot signon message.
 
         This is primarily useful for validating the "version" command without
         duplicating the signon text regex in a test function.
@@ -352,12 +352,12 @@ class ConsoleBase(object):
 
         Returns:
             Nothing. An exception is raised if the validation fails.
-        '''
+        """
 
         assert(self.u_boot_version_string in text)
 
     def disable_check(self, check_type):
-        '''Temporarily disable an error check of U-Boot's output.
+        """Temporarily disable an error check of U-Boot's output.
 
         Create a new context manager (for use with the "with" statement) which
         temporarily disables a particular console output error check.
@@ -368,6 +368,6 @@ class ConsoleBase(object):
 
         Returns:
             A context manager object.
-        '''
+        """
 
         return ConsoleDisableCheck(self, check_type)
