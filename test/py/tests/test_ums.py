@@ -29,6 +29,7 @@ env__mount_points = (
 
 env__usb_dev_ports = (
     {
+        "fixture_id": "micro_b",
         "tgt_usb_ctlr": "0",
         "host_ums_dev_node": "/dev/disk/by-path/pci-0000:00:14.0-usb-0:13:1.0-scsi-0:0:0:0",
     },
@@ -37,6 +38,7 @@ env__usb_dev_ports = (
 env__block_devs = (
     # eMMC; always present
     {
+        "fixture_id": "emmc",
         "type": "mmc",
         "id": "0",
         # The following two properties are optional.
@@ -48,6 +50,7 @@ env__block_devs = (
     },
     # SD card; present since I plugged one in
     {
+        "fixture_id": "sd",
         "type": "mmc",
         "id": "1"
     },

@@ -225,7 +225,13 @@ def pytest_generate_tests(metafunc):
             # ... otherwise, see if there's a key that contains a list of
             # values to use instead.
             vals = subconfig.get(fn + 's', [])
-        metafunc.parametrize(fn, vals)
+        def fixture_id(index, val):
+            try:
+                return val["fixture_id"]
+            except:
+                return fn + str(index)
+        ids = [fixture_id(index, val) for (index, val) in enumerate(vals)]
+        metafunc.parametrize(fn, vals, ids=ids)
 
 @pytest.fixture(scope='function')
 def u_boot_console(request):

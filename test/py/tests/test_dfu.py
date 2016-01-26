@@ -21,6 +21,7 @@ For example:
 
 env__usb_dev_ports = (
     {
+        "fixture_id": "micro_b",
         "tgt_usb_ctlr": "0",
         "host_usb_dev_node": "/dev/usbdev-p2371-2180",
         # This parameter is optional /if/ you only have a single board
@@ -32,10 +33,12 @@ env__usb_dev_ports = (
 env__dfu_configs = (
     # eMMC, partition 1
     {
+        "fixture_id": "emmc",
         "alt_info": "/dfu_test.bin ext4 0 1;/dfu_dummy.bin ext4 0 1",
         "cmd_params": "mmc 0",
     },
 )
+
 b) udev rules to set permissions on devices nodes, so that sudo is not
 required. For example:
 
