@@ -34,8 +34,8 @@
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
 #endif
-#ifdef CONFIG_USB_EHCI_TEGRA
 #include <asm/arch-tegra/usb.h>
+#ifdef CONFIG_USB_EHCI_TEGRA
 #include <usb.h>
 #endif
 #ifdef CONFIG_TEGRA_MMC
@@ -201,6 +201,14 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
+#if defined(CONFIG_TEGRA_DISCONNECT_UDC_ON_BOOT)
+#define USBCMD_FS2 (1 << 15)
+	{
+		struct usb_ctlr *usbctlr = (struct usb_ctlr *)0x7d000000;
+		writel(USBCMD_FS2, &usbctlr->usb_cmd);
+	}
+#endif
+
 	/* Do any special system timer/TSC setup */
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (!tegra_cpu_is_non_secure())
