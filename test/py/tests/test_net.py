@@ -15,14 +15,15 @@ will be automatically skipped.
 
 For example:
 
-# Any commands that need to be executed prior to testing,
-# to get the network hardware into an operational state.
-#
-# If no commands are required, this variable may be omitted, or set to an
-# empty list.
-env__net_pre_commands = [
-    "usb start",
-]
+# Boolean indicating whether the Ethernet device is attached to USB, and hence
+# USB enumeration needs to be performed prior to network tests.
+# This variable may be omitted if its value is False.
+env__net_uses_usb = False
+
+# Boolean indicating whether the Ethernet device is attached to PCI, and hence
+# PCI enumeration needs to be performed prior to network tests.
+# This variable may be omitted if its value is False.
+env__net_uses_pci = True
 
 # True if a DHCP server is attached to the network, and should be tested.
 # If DHCP testing is not possible or desired, this variable may be omitted or
@@ -56,12 +57,13 @@ def test_net_pre_commands(u_boot_console):
     beginning of this file.
     '''
 
-    cmds = u_boot_console.config.env.get('env__net_pre_commands', None)
-    if not cmds:
-        pytest.skip('No network pre-commands defined')
+    init_usb = u_boot_console.config.env.get('env__net_uses_usb', False)
+    if init_usb:
+        u_boot_console.run_command('usb start')
 
-    for cmd in cmds:
-        u_boot_console.run_command(cmd)
+    init_pci = u_boot_console.config.env.get('env__net_uses_pci', False)
+    if init_pci:
+        u_boot_console.run_command('pci enum')
 
 @pytest.mark.buildconfigspec('cmd_dhcp')
 def test_net_dhcp(u_boot_console):
