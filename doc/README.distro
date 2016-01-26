@@ -341,6 +341,13 @@ scan_dev_for_scripts:
   If you want to disable boot.scr on all disks, set the value to something
   innocuous, e.g. setenv scan_dev_for_scripts true.
 
+boot_net_usb_start:
+
+  If you want to prevent USB enumeration by distro boot commands which execute
+  network operations, set the value to something innocuous, e.g. setenv
+  boot_net_usb_start true. This would be useful if you know your Ethernet
+  device is not attached to USB, and you wish to increase boot speed by
+  avoiding unnecessary actions.
 
 Interactively booting from a specific device at the u-boot prompt
 =================================================================
