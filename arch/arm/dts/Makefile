@@ -195,7 +195,8 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-cubieboard4.dtb
 
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
-	vf610-colibri.dtb
+	vf610-colibri.dtb \
+	vf610-twr.dtb
 
 dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
 	k2l-evm.dtb \
