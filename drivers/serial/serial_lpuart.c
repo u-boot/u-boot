@@ -48,8 +48,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct lpuart_fsl *base = (struct lpuart_fsl *)LPUART_BASE;
-
 struct lpuart_serial_platdata {
 	struct lpuart_fsl *reg;
 };
@@ -127,43 +125,6 @@ static int _lpuart_serial_init(struct lpuart_fsl *base)
 	return 0;
 }
 
-#ifndef CONFIG_DM_SERIAL
-static void lpuart_serial_setbrg(void)
-{
-	_lpuart_serial_setbrg(base, gd->baudrate);
-}
-
-static int lpuart_serial_getc(void)
-{
-	return _lpuart_serial_getc(base);
-}
-
-static void lpuart_serial_putc(const char c)
-{
-	_lpuart_serial_putc(base, c);
-}
-
-static int lpuart_serial_tstc(void)
-{
-	return _lpuart_serial_tstc(base);
-}
-
-static int lpuart_serial_init(void)
-{
-	return _lpuart_serial_init(base);
-}
-
-static struct serial_device lpuart_serial_drv = {
-	.name = "lpuart_serial",
-	.start = lpuart_serial_init,
-	.stop = NULL,
-	.setbrg = lpuart_serial_setbrg,
-	.putc = lpuart_serial_putc,
-	.puts = default_serial_puts,
-	.getc = lpuart_serial_getc,
-	.tstc = lpuart_serial_tstc,
-};
-#else /* CONFIG_DM_SERIAL */
 static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct lpuart_serial_platdata *plat = dev->platdata;
@@ -210,8 +171,8 @@ static int lpuart_serial_probe(struct udevice *dev)
 
 	return _lpuart_serial_init(reg);
 }
-#endif /* CONFIG_DM_SERIAL */
 #else
+
 static void _lpuart32_serial_setbrg(struct lpuart_fsl *base, int baudrate)
 {
 	u32 clk = CONFIG_SYS_CLK_FREQ;
@@ -281,43 +242,6 @@ static int _lpuart32_serial_init(struct lpuart_fsl *base)
 	return 0;
 }
 
-#ifndef CONFIG_DM_SERIAL
-static void lpuart32_serial_setbrg(void)
-{
-	_lpuart32_serial_setbrg(base, gd->baudrate);
-}
-
-static int lpuart32_serial_getc(void)
-{
-	return _lpuart32_serial_getc(base);
-}
-
-static void lpuart32_serial_putc(const char c)
-{
-	_lpuart32_serial_putc(base, c);
-}
-
-static int lpuart32_serial_tstc(void)
-{
-	return _lpuart32_serial_tstc(base);
-}
-
-static int lpuart32_serial_init(void)
-{
-	return _lpuart32_serial_init(base);
-}
-
-static struct serial_device lpuart32_serial_drv = {
-	.name = "lpuart32_serial",
-	.start = lpuart32_serial_init,
-	.stop = NULL,
-	.setbrg = lpuart32_serial_setbrg,
-	.putc = lpuart32_serial_putc,
-	.puts = default_serial_puts,
-	.getc = lpuart32_serial_getc,
-	.tstc = lpuart32_serial_tstc,
-};
-#else /* CONFIG_DM_SERIAL */
 static int lpuart32_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct lpuart_serial_platdata *plat = dev->platdata;
@@ -364,28 +288,8 @@ static int lpuart32_serial_probe(struct udevice *dev)
 
 	return _lpuart32_serial_init(reg);
 }
-#endif /* CONFIG_DM_SERIAL */
-#endif
+#endif /* CONFIG_LPUART_32B_REG */
 
-#ifndef CONFIG_DM_SERIAL
-void lpuart_serial_initialize(void)
-{
-#ifdef CONFIG_LPUART_32B_REG
-	serial_register(&lpuart32_serial_drv);
-#else
-	serial_register(&lpuart_serial_drv);
-#endif
-}
-
-__weak struct serial_device *default_serial_console(void)
-{
-#ifdef CONFIG_LPUART_32B_REG
-	return &lpuart32_serial_drv;
-#else
-	return &lpuart_serial_drv;
-#endif
-}
-#else /* CONFIG_DM_SERIAL */
 static int lpuart_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct lpuart_serial_platdata *plat = dev->platdata;
@@ -447,4 +351,3 @@ U_BOOT_DRIVER(serial_lpuart32) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 #endif /* CONFIG_LPUART_32B_REG */
-#endif /* CONFIG_DM_SERIAL */
