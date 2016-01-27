@@ -205,7 +205,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("sram start     ",	(ulong)bd->bi_sramstart);
 	print_num("sram size      ",	(ulong)bd->bi_sramsize);
 #endif
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
 	print_eths();
 #endif
 	printf("baudrate    = %u bps\n", gd->baudrate);

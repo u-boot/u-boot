@@ -20,10 +20,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "xilinx_zynqmp_ep" if TARGET_ZYNQMP_EP
 
-config SECURE_IOU
-	bool "Configure ZynqMP secure IOU"
-	default n
-
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 

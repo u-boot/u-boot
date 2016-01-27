@@ -41,6 +41,8 @@
 
 /* PHY CTRL bits */
 #define DP83867_PHYCR_FIFO_DEPTH_SHIFT		14
+#define DP83867_MDI_CROSSOVER		5
+#define DP83867_MDI_CROSSOVER_AUTO	2
 
 /* RGMIIDCTL bits */
 #define DP83867_RGMII_TX_CLK_DELAY_SHIFT	4
@@ -149,6 +151,7 @@ static int dp83867_config(struct phy_device *phydev)
 
 	if (phy_interface_is_rgmii(phydev)) {
 		ret = phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL,
+			(DP83867_MDI_CROSSOVER_AUTO << DP83867_MDI_CROSSOVER) |
 			(FIFO_DEPTH << DP83867_PHYCR_FIFO_DEPTH_SHIFT));
 		if (ret)
 			return ret;

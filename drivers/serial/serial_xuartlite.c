@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2011 Michal Simek <monstr@monstr.eu>
+ * (C) Copyright 2008 - 2015 Michal Simek <monstr@monstr.eu>
  * Clean driver and add xilinx constant from header file
  *
  * (C) Copyright 2004 Atmark Techno, Inc.
@@ -10,13 +10,17 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
 
-#define SR_TX_FIFO_FULL		0x08 /* transmit FIFO full */
-#define SR_RX_FIFO_VALID_DATA	0x01 /* data in receive FIFO */
-#define SR_RX_FIFO_FULL		0x02 /* receive FIFO full */
+DECLARE_GLOBAL_DATA_PTR;
+
+#define SR_TX_FIFO_FULL		BIT(3) /* transmit FIFO full */
+#define SR_TX_FIFO_EMPTY	BIT(2) /* transmit FIFO empty */
+#define SR_RX_FIFO_VALID_DATA	BIT(0) /* data in receive FIFO */
+#define SR_RX_FIFO_FULL		BIT(1) /* receive FIFO full */
 
 #define ULITE_CONTROL_RST_TX	0x01
 #define ULITE_CONTROL_RST_RX	0x02
@@ -28,135 +32,111 @@ struct uartlite {
 	unsigned int control;
 };
 
-static struct uartlite *userial_ports[4] = {
-#ifdef XILINX_UARTLITE_BASEADDR
-	[0] = (struct uartlite *)XILINX_UARTLITE_BASEADDR,
-#endif
-#ifdef XILINX_UARTLITE_BASEADDR1
-	[1] = (struct uartlite *)XILINX_UARTLITE_BASEADDR1,
-#endif
-#ifdef XILINX_UARTLITE_BASEADDR2
-	[2] = (struct uartlite *)XILINX_UARTLITE_BASEADDR2,
-#endif
-#ifdef XILINX_UARTLITE_BASEADDR3
-	[3] = (struct uartlite *)XILINX_UARTLITE_BASEADDR3
-#endif
+struct uartlite_platdata {
+	struct uartlite *regs;
 };
 
-static void uartlite_serial_putc(const char c, const int port)
+static int uartlite_serial_putc(struct udevice *dev, const char ch)
 {
-	struct uartlite *regs = userial_ports[port];
+	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite *regs = plat->regs;
 
-	if (c == '\n')
-		uartlite_serial_putc('\r', port);
+	if (in_be32(&regs->status) & SR_TX_FIFO_FULL)
+		return -EAGAIN;
 
-	while (in_be32(&regs->status) & SR_TX_FIFO_FULL)
-		;
-	out_be32(&regs->tx_fifo, c & 0xff);
+	out_be32(&regs->tx_fifo, ch & 0xff);
+
+	return 0;
 }
 
-static void uartlite_serial_puts(const char *s, const int port)
+static int uartlite_serial_getc(struct udevice *dev)
 {
-	while (*s)
-		uartlite_serial_putc(*s++, port);
-}
+	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite *regs = plat->regs;
 
-static int uartlite_serial_getc(const int port)
-{
-	struct uartlite *regs = userial_ports[port];
+	if (!(in_be32(&regs->status) & SR_RX_FIFO_VALID_DATA))
+		return -EAGAIN;
 
-	while (!(in_be32(&regs->status) & SR_RX_FIFO_VALID_DATA))
-		;
 	return in_be32(&regs->rx_fifo) & 0xff;
 }
 
-static int uartlite_serial_tstc(const int port)
+static int uartlite_serial_pending(struct udevice *dev, bool input)
 {
-	struct uartlite *regs = userial_ports[port];
+	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite *regs = plat->regs;
 
-	return in_be32(&regs->status) & SR_RX_FIFO_VALID_DATA;
+	if (input)
+		return in_be32(&regs->status) & SR_RX_FIFO_VALID_DATA;
+
+	return !(in_be32(&regs->status) & SR_TX_FIFO_EMPTY);
 }
 
-static int uartlite_serial_init(const int port)
+static int uartlite_serial_probe(struct udevice *dev)
 {
-	struct uartlite *regs = userial_ports[port];
+	struct uartlite_platdata *plat = dev_get_platdata(dev);
+	struct uartlite *regs = plat->regs;
 
-	if (regs) {
-		out_be32(&regs->control, 0);
-		out_be32(&regs->control,
-			 ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
-		in_be32(&regs->control);
-		return 0;
-	}
+	out_be32(&regs->control, 0);
+	out_be32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
+	in_be32(&regs->control);
 
-	return -1;
+	return 0;
 }
 
-/* Multi serial device functions */
-#define DECLARE_ESERIAL_FUNCTIONS(port) \
-	static int userial##port##_init(void) \
-				{ return uartlite_serial_init(port); } \
-	static void userial##port##_setbrg(void) {} \
-	static int userial##port##_getc(void) \
-				{ return uartlite_serial_getc(port); } \
-	static int userial##port##_tstc(void) \
-				{ return uartlite_serial_tstc(port); } \
-	static void userial##port##_putc(const char c) \
-				{ uartlite_serial_putc(c, port); } \
-	static void userial##port##_puts(const char *s) \
-				{ uartlite_serial_puts(s, port); }
-
-/* Serial device descriptor */
-#define INIT_ESERIAL_STRUCTURE(port, __name) {	\
-	.name	= __name,			\
-	.start	= userial##port##_init,		\
-	.stop	= NULL,				\
-	.setbrg	= userial##port##_setbrg,	\
-	.getc	= userial##port##_getc,		\
-	.tstc	= userial##port##_tstc,		\
-	.putc	= userial##port##_putc,		\
-	.puts	= userial##port##_puts,		\
-}
-
-DECLARE_ESERIAL_FUNCTIONS(0);
-struct serial_device uartlite_serial0_device =
-	INIT_ESERIAL_STRUCTURE(0, "ttyUL0");
-DECLARE_ESERIAL_FUNCTIONS(1);
-struct serial_device uartlite_serial1_device =
-	INIT_ESERIAL_STRUCTURE(1, "ttyUL1");
-DECLARE_ESERIAL_FUNCTIONS(2);
-struct serial_device uartlite_serial2_device =
-	INIT_ESERIAL_STRUCTURE(2, "ttyUL2");
-DECLARE_ESERIAL_FUNCTIONS(3);
-struct serial_device uartlite_serial3_device =
-	INIT_ESERIAL_STRUCTURE(3, "ttyUL3");
-
-__weak struct serial_device *default_serial_console(void)
+static int uartlite_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	if (userial_ports[0])
-		return &uartlite_serial0_device;
-	if (userial_ports[1])
-		return &uartlite_serial1_device;
-	if (userial_ports[2])
-		return &uartlite_serial2_device;
-	if (userial_ports[3])
-		return &uartlite_serial3_device;
+	struct uartlite_platdata *plat = dev_get_platdata(dev);
 
-	return NULL;
+	plat->regs = (struct uartlite *)dev_get_addr(dev);
+
+	return 0;
 }
 
-void uartlite_serial_initialize(void)
+static const struct dm_serial_ops uartlite_serial_ops = {
+	.putc = uartlite_serial_putc,
+	.pending = uartlite_serial_pending,
+	.getc = uartlite_serial_getc,
+};
+
+static const struct udevice_id uartlite_serial_ids[] = {
+	{ .compatible = "xlnx,opb-uartlite-1.00.b", },
+	{ .compatible = "xlnx,xps-uartlite-1.00.a" },
+	{ }
+};
+
+U_BOOT_DRIVER(serial_uartlite) = {
+	.name	= "serial_uartlite",
+	.id	= UCLASS_SERIAL,
+	.of_match = uartlite_serial_ids,
+	.ofdata_to_platdata = uartlite_serial_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct uartlite_platdata),
+	.probe = uartlite_serial_probe,
+	.ops	= &uartlite_serial_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+#ifdef CONFIG_DEBUG_UART_UARTLITE
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
 {
-#ifdef XILINX_UARTLITE_BASEADDR
-	serial_register(&uartlite_serial0_device);
-#endif /* XILINX_UARTLITE_BASEADDR */
-#ifdef XILINX_UARTLITE_BASEADDR1
-	serial_register(&uartlite_serial1_device);
-#endif /* XILINX_UARTLITE_BASEADDR1 */
-#ifdef XILINX_UARTLITE_BASEADDR2
-	serial_register(&uartlite_serial2_device);
-#endif /* XILINX_UARTLITE_BASEADDR2 */
-#ifdef XILINX_UARTLITE_BASEADDR3
-	serial_register(&uartlite_serial3_device);
-#endif /* XILINX_UARTLITE_BASEADDR3 */
+	struct uartlite *regs = (struct uartlite *)CONFIG_DEBUG_UART_BASE;
+
+	out_be32(&regs->control, 0);
+	out_be32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
+	in_be32(&regs->control);
 }
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct uartlite *regs = (struct uartlite *)CONFIG_DEBUG_UART_BASE;
+
+	while (in_be32(&regs->status) & SR_TX_FIFO_FULL)
+		;
+
+	out_be32(&regs->tx_fifo, ch & 0xff);
+}
+
+DEBUG_UART_FUNCS
+#endif

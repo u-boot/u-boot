@@ -13,6 +13,7 @@ config TARGET_MICROBLAZE_GENERIC
 	select SUPPORT_SPL
 	select OF_CONTROL
 	select DM
+	select DM_SERIAL
 
 endchoice
 

@@ -18,9 +18,8 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
-		linux,stdout-path = &uart1;
-		stdout-path = &uart1;
+		bootargs = "root=/dev/ram rw earlyprintk";
+		stdout-path = "serial0:115200n8";
 	};
 
 	memory {
@@ -32,12 +31,6 @@
 		compatible = "usb-nop-xceiv";
 		#phy-cells = <0>;
 	};
-};
-
-&spi0 {
-	status = "okay";
-	num-cs = <4>;
-	is-decoded-cs = <0>;
 };
 
 &can0 {
@@ -52,6 +45,12 @@
 		compatible = "at,24c02";
 		reg = <0x52>;
 	};
+};
+
+&spi0 {
+	status = "okay";
+	num-cs = <4>;
+	is-decoded-cs = <0>;
 };
 
 &uart1 {

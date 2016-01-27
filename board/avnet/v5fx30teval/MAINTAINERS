@@ -1,7 +1,0 @@
-V5FX30TEVAL BOARD
-M:	Ricardo Ribalda <ricardo.ribalda@uam.es>
-S:	Maintained
-F:	board/avnet/v5fx30teval/
-F:	include/configs/v5fx30teval.h
-F:	configs/v5fx30teval_defconfig
-F:	configs/v5fx30teval_flash_defconfig
