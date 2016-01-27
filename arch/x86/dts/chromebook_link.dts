@@ -11,7 +11,7 @@
 	compatible = "google,link", "intel,celeron-ivybridge";
 
 	aliases {
-		spi0 = "/pci/pch/spi";
+		spi0 = &spi;
 		usb0 = &usb_0;
 		usb1 = &usb_1;
 	};
@@ -252,7 +252,7 @@
 			/* Enable EC SMI source */
 			intel,alt-gp-smi-enable = <0x0100>;
 
-			spi {
+			spi: spi {
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich-spi";

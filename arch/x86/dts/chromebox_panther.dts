@@ -10,7 +10,7 @@
 	compatible = "google,panther", "intel,haswell";
 
 	aliases {
-		spi0 = "/spi";
+		spi0 = &spi;
 	};
 
 	config {
@@ -56,7 +56,7 @@
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,pch9";
 
-			spi {
+			spi: spi {
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich-spi";
