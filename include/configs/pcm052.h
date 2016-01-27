@@ -29,11 +29,8 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define LPUART_BASE			UART1_BASE
-
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SYS_UART_PORT		(1)
 #define CONFIG_BAUDRATE			115200
 
 #undef CONFIG_CMD_IMLS
