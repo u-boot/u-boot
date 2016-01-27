@@ -974,6 +974,20 @@ static inline void setup_prompt_string(int promptmode, char **prompt_str)
 }
 #endif
 
+#ifdef __U_BOOT__
+static int uboot_cli_readline(struct in_str *i)
+{
+	char *prompt;
+
+	if (i->promptmode == 1)
+		prompt = CONFIG_SYS_PROMPT;
+	else
+		prompt = CONFIG_SYS_PROMPT_HUSH_PS2;
+
+	return cli_readline(prompt);
+}
+#endif
+
 static void get_user_input(struct in_str *i)
 {
 #ifndef __U_BOOT__
@@ -1003,11 +1017,8 @@ static void get_user_input(struct in_str *i)
 
 	bootretry_reset_cmd_timeout();
 	i->__promptme = 1;
-	if (i->promptmode == 1) {
-		n = cli_readline(CONFIG_SYS_PROMPT);
-	} else {
-		n = cli_readline(CONFIG_SYS_PROMPT_HUSH_PS2);
-	}
+	n = uboot_cli_readline(i);
+
 #ifdef CONFIG_BOOT_RETRY_TIME
 	if (n == -2) {
 	  puts("\nTimeout waiting for command\n");
