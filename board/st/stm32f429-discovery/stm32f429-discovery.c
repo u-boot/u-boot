@@ -19,6 +19,8 @@
 #include <asm/arch/fmc.h>
 #include <dm/platdata.h>
 #include <dm/platform_data/serial_stm32.h>
+#include <asm/arch/stm32_periph.h>
+#include <asm/arch/stm32_defs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -286,6 +288,7 @@ int board_early_init_f(void)
 	res = uart_setup_gpio();
 	if (res)
 		return res;
+	clock_setup(USART1_CLOCK_CFG);
 
 	return 0;
 }

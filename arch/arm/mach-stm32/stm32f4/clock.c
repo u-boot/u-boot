@@ -11,6 +11,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
+#include <asm/arch/stm32_periph.h>
 
 #define RCC_CR_HSION		(1 << 0)
 #define RCC_CR_HSEON		(1 << 16)
@@ -49,6 +50,14 @@
 #define RCC_CFGR_PPRE2_SHIFT	13
 
 #define RCC_APB1ENR_PWREN	(1 << 28)
+
+/*
+ * RCC USART specific definitions
+ */
+#define RCC_ENR_USART1EN		(1 << 4)
+#define RCC_ENR_USART2EN		(1 << 17)
+#define RCC_ENR_USART3EN		(1 << 18)
+#define RCC_ENR_USART6EN		(1 <<  5)
 
 #define PWR_CR_VOS0		(1 << 14)
 #define PWR_CR_VOS1		(1 << 15)
@@ -218,6 +227,17 @@ unsigned long clock_get(enum clock clck)
 		break;
 	default:
 		return 0;
+		break;
+	}
+}
+
+void clock_setup(int peripheral)
+{
+	switch (peripheral) {
+	case USART1_CLOCK_CFG:
+		setbits_le32(&STM32_RCC->apb2enr, RCC_ENR_USART1EN);
+		break;
+	default:
 		break;
 	}
 }
