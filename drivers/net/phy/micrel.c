@@ -230,7 +230,7 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 {
 	struct udevice *dev = phydev->dev;
 	struct phy_driver *drv = phydev->drv;
-	const int ps_to_regval = 200;
+	const int ps_to_regval = 60;
 	int val[4];
 	int i, changed = 0, offset, max;
 	u16 regval = 0;
