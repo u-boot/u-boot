@@ -904,22 +904,22 @@
 			clock-names = "axi_clk";
 			dma-channels = <6>;
 			#dma-cells = <1>;
-			dma-video0channel@43c10000 {
+			dma-video0channel@fd4c0000 {
 				compatible = "xlnx,video0";
 			};
-			dma-video1channel@43c10000 {
+			dma-video1channel@fd4c0000 {
 				compatible = "xlnx,video1";
 			};
-			dma-video2channel@43c10000 {
+			dma-video2channel@fd4c0000 {
 				compatible = "xlnx,video2";
 			};
-			dma-graphicschannel@43c10000 {
+			dma-graphicschannel@fd4c0000 {
 				compatible = "xlnx,graphics";
 			};
-			dma-audio0channel@43c10000 {
+			dma-audio0channel@fd4c0000 {
 				compatible = "xlnx,audio0";
 			};
-			dma-audio1channel@43c10000 {
+			dma-audio1channel@fd4c0000 {
 				compatible = "xlnx,audio1";
 			};
 		};
