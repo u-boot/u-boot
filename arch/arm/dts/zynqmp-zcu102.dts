@@ -406,7 +406,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
-			si5341: clock-generato@36 { /* SI5341 - u69 */
+			si5341: clock-generator1@36 { /* SI5341 - u69 */
 				compatible = "si5341";
 				reg = <0x36>;
 			};
@@ -416,7 +416,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			si570_1: clock-generator@5d { /* USER SI570 - u42 */
+			si570_1: clock-generator2@5d { /* USER SI570 - u42 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x5d>;
@@ -429,7 +429,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
-			si570_2: clock-generator@5d { /* USER MGT SI570 - u56 */
+			si570_2: clock-generator3@5d { /* USER MGT SI570 - u56 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x5d>;
@@ -442,7 +442,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			si5328: clock-generator@69 {/* SI5328 - u20 */
+			si5328: clock-generator4@69 {/* SI5328 - u20 */
 				reg = <0x69>;
 			};
 		};
