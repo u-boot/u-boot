@@ -978,11 +978,21 @@ static inline void setup_prompt_string(int promptmode, char **prompt_str)
 static int uboot_cli_readline(struct in_str *i)
 {
 	char *prompt;
+	char __maybe_unused *ps_prompt = NULL;
 
 	if (i->promptmode == 1)
 		prompt = CONFIG_SYS_PROMPT;
 	else
 		prompt = CONFIG_SYS_PROMPT_HUSH_PS2;
+
+#ifdef CONFIG_CMDLINE_PS_SUPPORT
+	if (i->promptmode == 1)
+		ps_prompt = getenv("PS1");
+	else
+		ps_prompt = getenv("PS2");
+	if (ps_prompt)
+		prompt = ps_prompt;
+#endif
 
 	return cli_readline(prompt);
 }

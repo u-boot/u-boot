@@ -2905,6 +2905,14 @@ CBFS (Coreboot Filesystem) support
 		Enable editing and History functions for interactive
 		command line input operations
 
+- Command Line PS1/PS2 support:
+		CONFIG_CMDLINE_PS_SUPPORT
+
+		Enable support for changing the command prompt string
+		at run-time. Only static string is supported so far.
+		The string is obtained from environment variables PS1
+		and PS2.
+
 - Default Environment:
 		CONFIG_EXTRA_ENV_SETTINGS
 
