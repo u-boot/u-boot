@@ -82,7 +82,14 @@
 #define SUNXI_AD_DA_BASE		0x01c22c00
 #define SUNXI_KEYPAD_BASE		0x01c23000
 #define SUNXI_TZPC_BASE			0x01c23400
+
+#if defined(CONFIG_MACH_SUN8I_A83T) || defined(CONFIG_MACH_SUN8I_H3)
+/* SID address space starts at 0x01c1400, but e-fuse is at offset 0x200 */
+#define SUNXI_SID_BASE			0x01c14200
+#else
 #define SUNXI_SID_BASE			0x01c23800
+#endif
+
 #define SUNXI_SJTAG_BASE		0x01c23c00
 
 #define SUNXI_TP_BASE			0x01c25000
