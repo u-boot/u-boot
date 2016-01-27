@@ -14,6 +14,11 @@
 #ifndef __CONFIG_TI_OMAP3_COMMON_H__
 #define __CONFIG_TI_OMAP3_COMMON_H__
 
+/*
+ * High Level Configuration Options
+ */
+
+#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
