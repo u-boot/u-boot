@@ -49,10 +49,18 @@
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f() */
 #define CONFIG_DISPLAY_CPUINFO		/* display CPU Info at startup */
 
+/* We set the max number of command args high to avoid HUSH bugs. */
+#define CONFIG_SYS_MAXARGS    32
+
 /* setting board specific options */
-# define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
-#define CONFIG_CMDLINE_EDITING
+#define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
 #define CONFIG_AUTO_COMPLETE
+#define CONFIG_ENV_OVERWRITE    1 /* Overwrite ethaddr / serial# */
+#define CONFIG_SYS_HUSH_PARSER    /* use "hush" command parser */
+#define CONFIG_SYS_PROMPT_HUSH_PS2  "> "
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_SYS_AUTOLOAD "yes"
+#define CONFIG_RESET_TO_RETRY
 
 /* The LED PINs */
 #define CONFIG_RED_LED			AT91_PIN_PA9
@@ -184,9 +192,7 @@
 /* General Boot Parameter */
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTCOMMAND		"run flashboot"
-#define CONFIG_BOOT_RETRY_TIME          30
 #define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE \
 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP
