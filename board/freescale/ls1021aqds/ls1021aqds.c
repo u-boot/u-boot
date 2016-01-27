@@ -22,6 +22,7 @@
 #include <fsl_sec.h>
 #include <spl.h>
 #include <fsl_devdis.h>
+#include <fsl_validate.h>
 
 #include "../common/sleep.h"
 #include "../common/qixis.h"
@@ -368,6 +369,9 @@ int board_late_init(void)
 {
 #ifdef CONFIG_SCSI_AHCI_PLAT
 	ls1021a_sata_init();
+#endif
+#ifdef CONFIG_CHAIN_OF_TRUST
+	fsl_setenv_chain_of_trust();
 #endif
 
 	return 0;

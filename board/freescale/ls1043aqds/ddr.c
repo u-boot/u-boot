@@ -132,9 +132,22 @@ void dram_init_banksize(void)
 	 * The address needs to add the offset of its bank.
 	 */
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
+		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
+		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
+		gd->bd->bi_dram[1].size = gd->ram_size -
+					  CONFIG_SYS_DDR_BLOCK1_SIZE;
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-	gd->secure_ram = gd->bd->bi_dram[0].start + gd->secure_ram;
-	gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+		gd->secure_ram = gd->bd->bi_dram[1].start +
+				 gd->secure_ram -
+				 CONFIG_SYS_DDR_BLOCK1_SIZE;
+		gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
 #endif
+	} else {
+		gd->bd->bi_dram[0].size = gd->ram_size;
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+		gd->secure_ram = gd->bd->bi_dram[0].start + gd->secure_ram;
+		gd->secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+#endif
+	}
 }

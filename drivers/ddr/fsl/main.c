@@ -857,6 +857,7 @@ fsl_ddr_sdram_size(void)
 	info.num_ctrls = CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS;
 	info.dimm_slots_per_ctrl = CONFIG_DIMM_SLOTS_PER_CTLR;
 	info.board_need_mem_reset = NULL;
+	remove_unused_controllers(&info);
 
 	/* Compute it once normally. */
 	total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 1);

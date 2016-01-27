@@ -10,10 +10,16 @@
 #include "ls1043a_common.h"
 
 #define CONFIG_DISPLAY_CPUINFO
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_DISPLAY_BOARDINFO_LATE
+#else
 #define CONFIG_DISPLAY_BOARDINFO
+#endif
 
 #if defined(CONFIG_NAND_BOOT) || defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_TEXT_BASE		0x82000000
+#elif defined(CONFIG_QSPI_BOOT)
+#define CONFIG_SYS_TEXT_BASE		0x40010000
 #else
 #define CONFIG_SYS_TEXT_BASE		0x60100000
 #endif
@@ -33,7 +39,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 /* Physical Memory Map */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_NR_DRAM_BANKS		2
 
 #define CONFIG_DDR_SPD
 #define SPD_EEPROM_ADDRESS		0x51
@@ -85,7 +91,17 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_SD_BOOT
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_SYS_FSL_PBL_RCW \
+	board/freescale/ls1043aqds/ls1043aqds_rcw_sd_qspi.cfg
+#else
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_sd_ifc.cfg
+#endif
+#endif
+
+/* LPUART */
+#ifdef CONFIG_LPUART
+#define CONFIG_LPUART_32B_REG
 #endif
 
 /* SATA */
@@ -108,6 +124,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * IFC Definitions
  */
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR0_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | \
 				CSPR_PORT_SIZE_16 | \
@@ -191,11 +208,18 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#endif
 
 #ifdef CONFIG_NAND_BOOT
 #define CONFIG_SPL_PAD_TO		0x20000		/* block aligned */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 << 10)
+#endif
+
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_NO_FLASH
+#undef CONFIG_CMD_IMLS
 #endif
 
 /*
@@ -212,7 +236,14 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_SHIFT		0
 #define QIXIS_LBMAP_DFLTBANK		0x00
 #define QIXIS_LBMAP_ALTBANK		0x04
-#define QIXIS_RST_CTL_RESET		0x44
+#define QIXIS_LBMAP_NAND		0x09
+#define QIXIS_LBMAP_SD			0x00
+#define QIXIS_LBMAP_SD_QSPI		0xff
+#define QIXIS_LBMAP_QSPI		0xff
+#define QIXIS_RCW_SRC_NAND		0x106
+#define QIXIS_RCW_SRC_SD		0x040
+#define QIXIS_RCW_SRC_QSPI		0x045
+#define QIXIS_RST_CTL_RESET		0x41
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
 #define QIXIS_RCFG_CTL_RECONFIG_START	0x21
 #define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
@@ -338,6 +369,16 @@ unsigned long get_board_ddr_clk(void);
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
 
+/* QSPI device */
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#define CONFIG_FSL_QSPI
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SPI_FLASH_SPANSION
+#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_NUM		2
+#endif
+#endif
+
 /*
  * Miscellaneous configurable options
  */
@@ -388,6 +429,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
+#elif defined(CONFIG_QSPI_BOOT)
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
+#define CONFIG_ENV_OFFSET		0x100000        /* 1MB */
+#define CONFIG_ENV_SECT_SIZE		0x10000
 #else
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x200000)
@@ -400,5 +446,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_MII
 #define CONFIG_CMDLINE_TAG
+
+#include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1043AQDS_H__ */

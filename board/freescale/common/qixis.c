@@ -216,6 +216,39 @@ int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #else
 		printf("Not implemented\n");
 #endif
+	} else if (strcmp(argv[1], "sd") == 0) {
+#ifdef QIXIS_LBMAP_SD
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_SD);
+		set_rcw_src(QIXIS_RCW_SRC_SD);
+		QIXIS_WRITE(rcfg_ctl, 0x20);
+		QIXIS_WRITE(rcfg_ctl, 0x21);
+#else
+		printf("Not implemented\n");
+#endif
+	} else if (strcmp(argv[1], "sd_qspi") == 0) {
+#ifdef QIXIS_LBMAP_SD_QSPI
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_SD_QSPI);
+		set_rcw_src(QIXIS_RCW_SRC_SD);
+		qixis_write_i2c(offsetof(struct qixis, rcfg_ctl), 0x20);
+		qixis_write_i2c(offsetof(struct qixis, rcfg_ctl), 0x21);
+#else
+		printf("Not implemented\n");
+#endif
+	} else if (strcmp(argv[1], "qspi") == 0) {
+#ifdef QIXIS_LBMAP_QSPI
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_QSPI);
+		set_rcw_src(QIXIS_RCW_SRC_QSPI);
+		qixis_write_i2c(offsetof(struct qixis, rcfg_ctl), 0x20);
+		qixis_write_i2c(offsetof(struct qixis, rcfg_ctl), 0x21);
+#else
+		printf("Not implemented\n");
+#endif
 	} else if (strcmp(argv[1], "watchdog") == 0) {
 		static char *period[9] = {"2s", "4s", "8s", "16s", "32s",
 					  "1min", "2min", "4min", "8min"};
@@ -255,6 +288,9 @@ U_BOOT_CMD(
 	"- hard reset to default bank\n"
 	"qixis_reset altbank - reset to alternate bank\n"
 	"qixis_reset nand - reset to nand\n"
+	"qixis_reset sd - reset to sd\n"
+	"qixis_reset sd_qspi - reset to sd with qspi support\n"
+	"qixis_reset qspi - reset to qspi\n"
 	"qixis watchdog <watchdog_period> - set the watchdog period\n"
 	"	period: 1s 2s 4s 8s 16s 32s 1min 2min 4min 8min\n"
 	"qixis_reset dump - display the QIXIS registers\n"

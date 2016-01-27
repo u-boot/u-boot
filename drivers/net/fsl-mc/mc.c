@@ -656,6 +656,26 @@ int fsl_mc_ldpaa_init(bd_t *bis)
 	return 0;
 }
 
+static int dprc_version_check(struct fsl_mc_io *mc_io, uint16_t handle)
+{
+	struct dprc_attributes attr;
+	int error;
+
+	memset(&attr, 0, sizeof(struct dprc_attributes));
+	error = dprc_get_attributes(mc_io, MC_CMD_NO_FLAGS, handle, &attr);
+	if (error == 0) {
+		if ((attr.version.major != DPRC_VER_MAJOR) ||
+		    (attr.version.minor != DPRC_VER_MINOR)) {
+			printf("DPRC version mismatch found %u.%u,",
+			       attr.version.major,
+			       attr.version.minor);
+			printf("supported version is %u.%u\n",
+			       DPRC_VER_MAJOR, DPRC_VER_MINOR);
+		}
+	}
+	return error;
+}
+
 static int dpio_init(void)
 {
 	struct qbman_swp_desc p_des;
@@ -689,11 +709,18 @@ static int dpio_init(void)
 		goto err_get_attr;
 	}
 
+	if ((attr.version.major != DPIO_VER_MAJOR) ||
+	    (attr.version.minor != DPIO_VER_MINOR)) {
+		printf("DPIO version mismatch found %u.%u,",
+		       attr.version.major, attr.version.minor);
+		printf("supported version is %u.%u\n",
+		       DPIO_VER_MAJOR, DPIO_VER_MINOR);
+	}
+
 	dflt_dpio->dpio_id = attr.id;
 #ifdef DEBUG
 	printf("Init: DPIO id=0x%d\n", dflt_dpio->dpio_id);
 #endif
-
 	err = dpio_enable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	if (err < 0) {
 		printf("dpio_enable() failed %d\n", err);
@@ -785,11 +812,17 @@ static int dprc_init(void)
 		goto err_root_open;
 	}
 
+	err = dprc_version_check(root_mc_io, root_dprc_handle);
+	if (err < 0) {
+		printf("dprc_version_check() failed: %d\n", err);
+		goto err_root_open;
+	}
+
 	cfg.options = DPRC_CFG_OPT_TOPOLOGY_CHANGES_ALLOWED |
 		      DPRC_CFG_OPT_OBJ_CREATE_ALLOWED |
 		      DPRC_CFG_OPT_ALLOC_ALLOWED;
 	cfg.icid = DPRC_GET_ICID_FROM_POOL;
-	cfg.portal_id = 250;
+	cfg.portal_id = DPRC_GET_PORTAL_ID_FROM_POOL;
 	err = dprc_create_container(root_mc_io, MC_CMD_NO_FLAGS,
 			root_dprc_handle,
 			&cfg,
@@ -907,6 +940,14 @@ static int dpbp_init(void)
 		goto err_get_attr;
 	}
 
+	if ((dpbp_attr.version.major != DPBP_VER_MAJOR) ||
+	    (dpbp_attr.version.minor != DPBP_VER_MINOR)) {
+		printf("DPBP version mismatch found %u.%u,",
+		       dpbp_attr.version.major, dpbp_attr.version.minor);
+		printf("supported version is %u.%u\n",
+		       DPBP_VER_MAJOR, DPBP_VER_MINOR);
+	}
+
 	dflt_dpbp->dpbp_attr.id = dpbp_attr.id;
 #ifdef DEBUG
 	printf("Init: DPBP id=0x%d\n", dflt_dpbp->dpbp_attr.id);
@@ -964,6 +1005,8 @@ static int dpni_init(void)
 {
 	int err;
 	struct dpni_attr dpni_attr;
+	uint8_t	ext_cfg_buf[256] = {0};
+	struct dpni_extended_cfg dpni_extended_cfg;
 	struct dpni_cfg dpni_cfg;
 
 	dflt_dpni = (struct fsl_dpni_obj *)malloc(sizeof(struct fsl_dpni_obj));
@@ -973,10 +1016,19 @@ static int dpni_init(void)
 		goto err_malloc;
 	}
 
+	memset(&dpni_extended_cfg, 0, sizeof(dpni_extended_cfg));
+	err = dpni_prepare_extended_cfg(&dpni_extended_cfg, &ext_cfg_buf[0]);
+	if (err < 0) {
+		err = -ENODEV;
+		printf("dpni_prepare_extended_cfg() failed: %d\n", err);
+		goto err_prepare_extended_cfg;
+	}
+
 	memset(&dpni_cfg, 0, sizeof(dpni_cfg));
 	dpni_cfg.adv.options = DPNI_OPT_UNICAST_FILTER |
 			       DPNI_OPT_MULTICAST_FILTER;
 
+	dpni_cfg.adv.ext_cfg_iova = (uint64_t)&ext_cfg_buf[0];
 	err = dpni_create(dflt_mc_io, MC_CMD_NO_FLAGS, &dpni_cfg,
 			  &dflt_dpni->dpni_handle);
 
@@ -995,6 +1047,14 @@ static int dpni_init(void)
 		goto err_get_attr;
 	}
 
+	if ((dpni_attr.version.major != DPNI_VER_MAJOR) ||
+	    (dpni_attr.version.minor != DPNI_VER_MINOR)) {
+		printf("DPNI version mismatch found %u.%u,",
+		       dpni_attr.version.major, dpni_attr.version.minor);
+		printf("supported version is %u.%u\n",
+		       DPNI_VER_MAJOR, DPNI_VER_MINOR);
+	}
+
 	dflt_dpni->dpni_id = dpni_attr.id;
 #ifdef DEBUG
 	printf("Init: DPNI id=0x%d\n", dflt_dpni->dpni_id);
@@ -1009,11 +1069,12 @@ static int dpni_init(void)
 	return 0;
 
 err_close:
-	free(dflt_dpni);
 err_get_attr:
 	dpni_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 	dpni_destroy(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 err_create:
+err_prepare_extended_cfg:
+	free(dflt_dpni);
 err_malloc:
 	return err;
 }

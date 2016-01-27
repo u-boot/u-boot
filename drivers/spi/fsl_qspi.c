@@ -477,8 +477,8 @@ static void qspi_op_rdbank(struct fsl_qspi_priv *priv, u8 *rxbuf, u32 len)
 static void qspi_op_rdid(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 {
 	struct fsl_qspi_regs *regs = priv->regs;
-	u32 mcr_reg, rbsr_reg, data;
-	int i, size;
+	u32 mcr_reg, rbsr_reg, data, size;
+	int i;
 
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
@@ -494,15 +494,15 @@ static void qspi_op_rdid(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 		;
 
 	i = 0;
-	size = len;
-	while ((RX_BUFFER_SIZE >= size) && (size > 0)) {
+	while ((RX_BUFFER_SIZE >= len) && (len > 0)) {
 		rbsr_reg = qspi_read32(priv->flags, &regs->rbsr);
 		if (rbsr_reg & QSPI_RBSR_RDBFL_MASK) {
 			data = qspi_read32(priv->flags, &regs->rbdr[i]);
 			data = qspi_endian_xchg(data);
-			memcpy(rxbuf, &data, 4);
+			size = (len < 4) ? len : 4;
+			memcpy(rxbuf, &data, size);
+			len -= size;
 			rxbuf++;
-			size -= 4;
 			i++;
 		}
 	}
@@ -639,7 +639,7 @@ static void qspi_op_write(struct fsl_qspi_priv *priv, u8 *txbuf, u32 len)
 	qspi_write32(priv->flags, &regs->mcr, mcr_reg);
 }
 
-static void qspi_op_rdsr(struct fsl_qspi_priv *priv, u32 *rxbuf)
+static void qspi_op_rdsr(struct fsl_qspi_priv *priv, void *rxbuf, u32 len)
 {
 	struct fsl_qspi_regs *regs = priv->regs;
 	u32 mcr_reg, reg, data;
@@ -662,7 +662,7 @@ static void qspi_op_rdsr(struct fsl_qspi_priv *priv, u32 *rxbuf)
 		if (reg & QSPI_RBSR_RDBFL_MASK) {
 			data = qspi_read32(priv->flags, &regs->rbdr[0]);
 			data = qspi_endian_xchg(data);
-			memcpy(rxbuf, &data, 4);
+			memcpy(rxbuf, &data, len);
 			qspi_write32(priv->flags, &regs->mcr,
 				     qspi_read32(priv->flags, &regs->mcr) |
 				     QSPI_MCR_CLR_RXF_MASK);
@@ -751,7 +751,7 @@ int qspi_xfer(struct fsl_qspi_priv *priv, unsigned int bitlen,
 		} else if (priv->cur_seqid == QSPI_CMD_RDID)
 			qspi_op_rdid(priv, din, bytes);
 		else if (priv->cur_seqid == QSPI_CMD_RDSR)
-			qspi_op_rdsr(priv, din);
+			qspi_op_rdsr(priv, din, bytes);
 #ifdef CONFIG_SPI_FLASH_BAR
 		else if ((priv->cur_seqid == QSPI_CMD_BRRD) ||
 			 (priv->cur_seqid == QSPI_CMD_RDEAR)) {
@@ -936,7 +936,7 @@ static int fsl_qspi_probe(struct udevice *bus)
 
 	dm_spi_bus->max_hz = plat->speed_hz;
 
-	priv->regs = (struct fsl_qspi_regs *)plat->reg_base;
+	priv->regs = (struct fsl_qspi_regs *)(uintptr_t)plat->reg_base;
 	priv->flags = plat->flags;
 
 	priv->speed_hz = plat->speed_hz;
