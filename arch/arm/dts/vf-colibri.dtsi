@@ -5,6 +5,12 @@
  */
 #include "vf.dtsi"
 
+/ {
+	chosen {
+		stdout-path = &uart0;
+	};
+};
+
 &dspi1 {
 	status = "okay";
 	bus-num = <1>;
@@ -13,4 +19,8 @@
 		reg = <0>;
 		spi-max-frequency = <50000000>;
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
