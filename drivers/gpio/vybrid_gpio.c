@@ -135,24 +135,6 @@ static int vybrid_gpio_bind(struct udevice *dev)
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
-static const struct vybrid_gpio_platdata vybrid_gpio[] = {
-	{0, GPIO0_BASE_ADDR, "GPIO0 "},
-	{1, GPIO1_BASE_ADDR, "GPIO1 "},
-	{2, GPIO2_BASE_ADDR, "GPIO2 "},
-	{3, GPIO3_BASE_ADDR, "GPIO3 "},
-	{4, GPIO4_BASE_ADDR, "GPIO4 "},
-};
-
-U_BOOT_DEVICES(vybrid_gpio) = {
-	{ "gpio_vybrid", &vybrid_gpio[0] },
-	{ "gpio_vybrid", &vybrid_gpio[1] },
-	{ "gpio_vybrid", &vybrid_gpio[2] },
-	{ "gpio_vybrid", &vybrid_gpio[3] },
-	{ "gpio_vybrid", &vybrid_gpio[4] },
-};
-#endif
-
 static const struct udevice_id vybrid_gpio_ids[] = {
 	{ .compatible = "fsl,vf610-gpio" },
 	{ }
