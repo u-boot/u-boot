@@ -71,7 +71,7 @@ static int ethsw_vlan_help_key_func(struct ethsw_command_def *parsed_cmd)
 
 #define ETHSW_PORT_UNTAG_HELP "ethsw [port <port_no>] untagged " \
 "{ [help] | show | all | none | pvid } " \
-" - set egress tagging mod for a port"
+" - set egress tagging mode for a port"
 
 static int ethsw_port_untag_help_key_func(struct ethsw_command_def *parsed_cmd)
 {
@@ -110,6 +110,17 @@ static int ethsw_vlan_learn_help_key_func(struct ethsw_command_def *parsed_cmd)
 static int ethsw_ingr_fltr_help_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	printf(ETHSW_PORT_INGR_FLTR_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
+#define ETHSW_PORT_AGGR_HELP "ethsw [port <port_no>] aggr" \
+" { [help] | show | <lag_group_no> } " \
+"- get/set LAG group for a port"
+
+static int ethsw_port_aggr_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_PORT_AGGR_HELP"\n");
 
 	return CMD_RET_SUCCESS;
 }
@@ -532,6 +543,39 @@ static struct keywords_to_function {
 			.cmd_func_offset = offsetof(struct ethsw_command_func,
 						    port_ingr_filt_set),
 			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_aggr,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_port_aggr_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_aggr,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_port_aggr_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_aggr,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_aggr_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_aggr,
+					ethsw_id_aggr_no,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_aggr_set),
+			.keyword_function = NULL,
 		},
 };
 
@@ -576,6 +620,9 @@ static int keyword_match_pvid(enum ethsw_keyword_id key_id, int argc,
 static int keyword_match_mac_addr(enum ethsw_keyword_id key_id, int argc,
 				  char *const argv[], int *argc_nr,
 				  struct ethsw_command_def *parsed_cmd);
+static int keyword_match_aggr(enum ethsw_keyword_id key_id, int argc,
+			      char *const argv[], int *argc_nr,
+			      struct ethsw_command_def *parsed_cmd);
 
 /*
  * Define properties for each keyword;
@@ -661,6 +708,9 @@ struct keyword_def {
 		}, {
 				.keyword_name = "filtering",
 				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "aggr",
+				.match = &keyword_match_aggr,
 		},
 };
 
@@ -826,6 +876,28 @@ static int keyword_match_mac_addr(enum ethsw_keyword_id key_id, int argc,
 	return 1;
 }
 
+/* Function used to match the command's aggregation number */
+static int keyword_match_aggr(enum ethsw_keyword_id key_id, int argc,
+			      char *const argv[], int *argc_nr,
+			      struct ethsw_command_def *parsed_cmd)
+{
+	unsigned long val;
+
+	if (!keyword_match_gen(key_id, argc, argv, argc_nr, parsed_cmd))
+		return 0;
+
+	if (*argc_nr + 1 >= argc)
+		return 1;
+
+	if (strict_strtoul(argv[*argc_nr + 1], 10, &val) != -EINVAL) {
+		parsed_cmd->aggr_grp = val;
+		(*argc_nr)++;
+		parsed_cmd->cmd_to_keywords[*argc_nr] = ethsw_id_aggr_no;
+	}
+
+	return 1;
+}
+
 /* Finds optional keywords and modifies *argc_va to skip them */
 static void cmd_keywords_opt_check(const struct ethsw_command_def *parsed_cmd,
 				   int *argc_val)
@@ -984,6 +1056,7 @@ static void command_def_init(struct ethsw_command_def *parsed_cmd)
 
 	parsed_cmd->port = ETHSW_CMD_PORT_ALL;
 	parsed_cmd->vid = ETHSW_CMD_VLAN_ALL;
+	parsed_cmd->aggr_grp = ETHSW_CMD_AGGR_GRP_NONE;
 	parsed_cmd->cmd_function = NULL;
 
 	/* We initialize the MAC address with the Broadcast address */
@@ -1010,7 +1083,7 @@ static int do_ethsw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #define ETHSW_PORT_CONF_HELP "[port <port_no>] { enable | disable | show } " \
-"- enable/disable a port; show shows a port's configuration"
+"- enable/disable a port; show a port's configuration"
 
 U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   "Ethernet l2 switch commands",
@@ -1024,4 +1097,5 @@ U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   ETHSW_EGR_VLAN_TAG_HELP"\n"
 	   ETHSW_VLAN_FDB_HELP"\n"
 	   ETHSW_PORT_INGR_FLTR_HELP"\n"
+	   ETHSW_PORT_AGGR_HELP"\n"
 );

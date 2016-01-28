@@ -24,16 +24,31 @@ Switch interfaces:
 Commands Overview:
 =============
 Commands supported
-	- enable/disable a port
-	- check a port's link speed, duplexity and status.
+	- enable/disable a port or show its configuration (speed, duplexity, status, etc.)
+	- port statistics
+	- MAC learning
+	- add/remove FDB entries
+	- Port-based VLAN
+	- Private/Shared VLAN learning
+	- VLAN ingress filtering
+	- Port LAG
 
 Commands syntax
-	ethsw port <port_nr> enable|disable		- enable/disable an l2 switch port
-	ethsw port <port_nr> show			- show an l2 switch port's configuration
+ethsw [port <port_no>] { enable | disable | show } - enable/disable a port; show a port's configuration
+ethsw [port <port_no>] statistics { [help] | [clear] } - show an l2 switch port's statistics
+ethsw [port <port_no>] learning { [help] | show | auto | disable } - enable/disable/show learning configuration on a port
+ethsw [port <port_no>] [vlan <vid>] fdb { [help] | show | flush | { add | del } <mac> } - add/delete a mac entry in FDB; use show to see FDB entries;
+											  if [vlan <vid>] is missing, VID 1 will be used
+ethsw [port <port_no>] pvid { [help] | show | <pvid> } - set/show PVID (ingress and egress VLAN tagging) for a port
+ethsw [port <port_no>] vlan { [help] | show | add <vid> | del <vid> } - add a VLAN to a port (VLAN members)
+ethsw [port <port_no>] untagged { [help] | show | all | none | pvid } - set egress tagging mode for a port
+ethsw [port <port_no>] egress tag { [help] | show | pvid | classified } - configure VID source for egress tag.
+									  Tag's VID could be the frame's classified VID or the PVID of the port
+ethsw vlan fdb { [help] | show | shared | private } - make VLAN learning shared or private
+ethsw [port <port_no>] ingress filtering { [help] | show | enable | disable } - enable/disable VLAN ingress filtering on port
+ethsw [port <port_no>] aggr { [help] | show | <lag_group_no> } - get/set LAG group for a port
 
-	port_nr=0..9; use "all" for all ports
-
-=> ethsw port all show
+=> ethsw show
     Port   Status     Link    Speed   Duplex
        0  enabled     down       10     half
        1  enabled     down       10     half

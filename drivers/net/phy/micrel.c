@@ -27,12 +27,31 @@ static struct phy_driver KSZ804_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+#define MII_KSZPHY_OMSO		0x16
+#define KSZPHY_OMSO_B_CAST_OFF	(1 << 9)
+
+static int ksz_genconfig_bcastoff(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = phy_read(phydev, MDIO_DEVAD_NONE, MII_KSZPHY_OMSO);
+	if (ret < 0)
+		return ret;
+
+	ret = phy_write(phydev, MDIO_DEVAD_NONE, MII_KSZPHY_OMSO,
+			ret | KSZPHY_OMSO_B_CAST_OFF);
+	if (ret < 0)
+		return ret;
+
+	return genphy_config(phydev);
+}
+
 static struct phy_driver KSZ8031_driver = {
 	.name = "Micrel KSZ8021/KSZ8031",
 	.uid = 0x221550,
 	.mask = 0xfffff0,
 	.features = PHY_BASIC_FEATURES,
-	.config = &genphy_config,
+	.config = &ksz_genconfig_bcastoff,
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
@@ -70,7 +89,7 @@ static struct phy_driver KSZ8081_driver = {
 	.uid = 0x221560,
 	.mask = 0xfffff0,
 	.features = PHY_BASIC_FEATURES,
-	.config = &genphy_config,
+	.config = &ksz_genconfig_bcastoff,
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
@@ -211,7 +230,7 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 {
 	struct udevice *dev = phydev->dev;
 	struct phy_driver *drv = phydev->drv;
-	const int ps_to_regval = 200;
+	const int ps_to_regval = 60;
 	int val[4];
 	int i, changed = 0, offset, max;
 	u16 regval = 0;

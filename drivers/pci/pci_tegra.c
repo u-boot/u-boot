@@ -465,7 +465,11 @@ static int tegra_pcie_parse_dt(const void *fdt, int node, enum tegra_pci_id id,
 		return err;
 	}
 
-	tegra_pcie_board_init();
+	err = tegra_pcie_board_init();
+	if (err < 0) {
+		error("tegra_pcie_board_init() failed: err=%d", err);
+		return err;
+	}
 
 	pcie->phy = tegra_xusb_phy_get(TEGRA_XUSB_PADCTL_PCIE);
 	if (pcie->phy) {
