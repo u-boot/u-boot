@@ -36,6 +36,14 @@ env__dfu_configs = (
         "fixture_id": "emmc",
         "alt_info": "/dfu_test.bin ext4 0 1;/dfu_dummy.bin ext4 0 1",
         "cmd_params": "mmc 0",
+        # This value is optional.
+        # If present, it specified the set of transfer sizes tested.
+        # If missing, a default list of sizes will be used, which covers
+        #   various useful corner cases.
+        # Manually specifying test sizes is useful if you wish to test 4 DFU
+        # configurations, but don't want to test every single transfer size
+        # on each, to avoid bloating the overall time taken by testing.
+        "test_sizes": (63, 64, 65),
     },
 )
 
@@ -52,7 +60,7 @@ device.)
 # The set of file sizes to test. These values trigger various edge-cases such
 # as one less than, equal to, and one greater than typical USB max packet
 # sizes, and similar boundary conditions.
-test_sizes = (
+test_sizes_default = (
     64 - 1,
     64,
     64 + 1,
@@ -245,7 +253,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
     if not first_usb_dev_port:
         first_usb_dev_port = env__usb_dev_port
     if env__usb_dev_port == first_usb_dev_port:
-        sizes = test_sizes
+        sizes = env__dfu_config.get('test_sizes', test_sizes_default)
     else:
         sizes = []
 
