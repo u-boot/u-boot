@@ -438,6 +438,11 @@ struct src {
 	u32     gpr10;
 };
 
+#define SRC_SCR_M4_ENABLE_OFFSET                22
+#define SRC_SCR_M4_ENABLE_MASK                  (1 << 22)
+#define SRC_SCR_M4C_NON_SCLR_RST_OFFSET         4
+#define SRC_SCR_M4C_NON_SCLR_RST_MASK           (1 << 4)
+
 /* GPR1 bitfields */
 #define IOMUXC_GPR1_APP_CLK_REQ_N		BIT(30)
 #define IOMUXC_GPR1_PCIE_EXIT_L1		BIT(28)

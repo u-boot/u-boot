@@ -567,3 +567,41 @@ void imx_setup_hdmi(void)
 	writel(reg, &mxc_ccm->chsccdr);
 }
 #endif
+
+#ifdef CONFIG_IMX_BOOTAUX
+int arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
+{
+	struct src *src_reg;
+	u32 stack, pc;
+
+	if (!boot_private_data)
+		return -EINVAL;
+
+	stack = *(u32 *)boot_private_data;
+	pc = *(u32 *)(boot_private_data + 4);
+
+	/* Set the stack and pc to M4 bootROM */
+	writel(stack, M4_BOOTROM_BASE_ADDR);
+	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
+
+	/* Enable M4 */
+	src_reg = (struct src *)SRC_BASE_ADDR;
+	clrsetbits_le32(&src_reg->scr, SRC_SCR_M4C_NON_SCLR_RST_MASK,
+			SRC_SCR_M4_ENABLE_MASK);
+
+	return 0;
+}
+
+int arch_auxiliary_core_check_up(u32 core_id)
+{
+	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
+	unsigned val;
+
+	val = readl(&src_reg->scr);
+
+	if (val & SRC_SCR_M4C_NON_SCLR_RST_MASK)
+		return 0;  /* assert in reset */
+
+	return 1;
+}
+#endif
