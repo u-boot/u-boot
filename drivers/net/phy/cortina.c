@@ -256,6 +256,12 @@ int cs4340_config(struct phy_device *phydev)
 	return 0;
 }
 
+int cs4340_probe(struct phy_device *phydev)
+{
+	phydev->flags = PHY_FLAG_BROKEN_RESET;
+	return 0;
+}
+
 int cs4340_startup(struct phy_device *phydev)
 {
 	phydev->link = 1;
@@ -275,6 +281,7 @@ struct phy_driver cs4340_driver = {
 		 MDIO_DEVS_PHYXS | MDIO_DEVS_AN |
 		 MDIO_DEVS_VEND1 | MDIO_DEVS_VEND2),
 	.config = &cs4340_config,
+	.probe	= &cs4340_probe,
 	.startup = &cs4340_startup,
 	.shutdown = &gen10g_shutdown,
 };
