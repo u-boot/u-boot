@@ -328,22 +328,12 @@ static struct fsl_esdhc_cfg usdhc_cfg[3] = {
 	{USDHC3_BASE_ADDR},
 };
 
-static int mmc_get_env_devno(void)
+int board_mmc_get_env_dev(int devno)
 {
-	struct bootrom_sw_info **p =
-		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR;
+	if (devno == 2)
+		devno--;
 
-	u8 boot_type = (*p)->boot_dev_type;
-	u8 dev_no = (*p)->boot_dev_instance;
-
-	/* If not boot from sd/mmc, use default value */
-	if ((boot_type != BOOT_TYPE_SD) && (boot_type != BOOT_TYPE_MMC))
-		return CONFIG_SYS_MMC_ENV_DEV;
-
-	if (dev_no == 2)
-		dev_no--;
-
-	return dev_no;
+	return devno;
 }
 
 static int mmc_map_to_kernel_blk(int dev_no)
@@ -432,7 +422,7 @@ static void mmc_late_init(void)
 {
 	char cmd[32];
 	char mmcblk[32];
-	u32 dev_no = mmc_get_env_devno();
+	u32 dev_no = mmc_get_env_dev();
 
 	if (!check_mmc_autodetect())
 		return;

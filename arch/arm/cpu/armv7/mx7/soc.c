@@ -288,6 +288,27 @@ enum boot_device get_boot_device(void)
 	return boot_dev;
 }
 
+#ifdef CONFIG_ENV_IS_IN_MMC
+__weak int board_mmc_get_env_dev(int devno)
+{
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
+int mmc_get_env_dev(void)
+{
+	struct bootrom_sw_info **p =
+		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR;
+	int devno = (*p)->boot_dev_instance;
+	u8 boot_type = (*p)->boot_dev_type;
+
+	/* If not boot from sd/mmc, use default value */
+	if ((boot_type != BOOT_TYPE_SD) && (boot_type != BOOT_TYPE_MMC))
+		return CONFIG_SYS_MMC_ENV_DEV;
+
+	return board_mmc_get_env_dev(devno);
+}
+#endif
+
 void s_init(void)
 {
 #if !defined CONFIG_SPL_BUILD
