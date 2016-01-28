@@ -349,6 +349,38 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_ENV_IS_IN_MMC
+__weak int board_mmc_get_env_dev(int devno)
+{
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
+int mmc_get_env_dev(void)
+{
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	u32 soc_sbmr = readl(&src_regs->sbmr1);
+	u32 bootsel;
+	int devno;
+
+	/*
+	 * Refer to
+	 * "i.MX 6Dual/6Quad Applications Processor Reference Manual"
+	 * Chapter "8.5.3.1 Expansion Device eFUSE Configuration"
+	 * i.MX6SL/SX/UL has same layout.
+	 */
+	bootsel = (soc_sbmr & 0x000000FF) >> 6;
+
+	/* If not boot from sd/mmc, use default value */
+	if (bootsel != 1)
+		return CONFIG_SYS_MMC_ENV_DEV;
+
+	/* BOOT_CFG2[3] and BOOT_CFG2[4] */
+	devno = (soc_sbmr & 0x00001800) >> 11;
+
+	return board_mmc_get_env_dev(devno);
+}
+#endif
+
 int board_postclk_init(void)
 {
 	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
