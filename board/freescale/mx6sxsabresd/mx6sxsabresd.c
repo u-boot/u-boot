@@ -316,6 +316,11 @@ static struct fsl_esdhc_cfg usdhc_cfg[3] = {
 #define USDHC3_PWR_GPIO	IMX_GPIO_NR(2, 11)
 #define USDHC4_CD_GPIO	IMX_GPIO_NR(6, 21)
 
+int board_mmc_get_env_dev(int devno)
+{
+	return devno - 1;
+}
+
 int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
