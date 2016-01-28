@@ -12,6 +12,8 @@
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/dma.h>
 #include <asm/imx-common/hab.h>
+#include <asm/imx-common/rdc-sema.h>
+#include <asm/arch/imx-rdc.h>
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
 #include <imx_thermal.h>
@@ -27,6 +29,65 @@ U_BOOT_DEVICE(imx7_thermal) = {
 	.name = "imx_thermal",
 	.platdata = &imx7_thermal_plat,
 };
+#endif
+
+#ifdef CONFIG_IMX_RDC
+/*
+ * In current design, if any peripheral was assigned to both A7 and M4,
+ * it will receive ipg_stop or ipg_wait when any of the 2 platforms enter
+ * low power mode. So M4 sleep will cause some peripherals fail to work
+ * at A7 core side. At default, all resources are in domain 0 - 3.
+ *
+ * There are 26 peripherals impacted by this IC issue:
+ * SIM2(sim2/emvsim2)
+ * SIM1(sim1/emvsim1)
+ * UART1/UART2/UART3/UART4/UART5/UART6/UART7
+ * SAI1/SAI2/SAI3
+ * WDOG1/WDOG2/WDOG3/WDOG4
+ * GPT1/GPT2/GPT3/GPT4
+ * PWM1/PWM2/PWM3/PWM4
+ * ENET1/ENET2
+ * Software Workaround:
+ * Here we setup some resources to domain 0 where M4 codes will move
+ * the M4 out of this domain. Then M4 is not able to access them any longer.
+ * This is a workaround for ic issue. So the peripherals are not shared
+ * by them. This way requires the uboot implemented the RDC driver and
+ * set the 26 IPs above to domain 0 only. M4 code will assign resource
+ * to its own domain, if it want to use the resource.
+ */
+static rdc_peri_cfg_t const resources[] = {
+	(RDC_PER_SIM1 | RDC_DOMAIN(0)),
+	(RDC_PER_SIM2 | RDC_DOMAIN(0)),
+	(RDC_PER_UART1 | RDC_DOMAIN(0)),
+	(RDC_PER_UART2 | RDC_DOMAIN(0)),
+	(RDC_PER_UART3 | RDC_DOMAIN(0)),
+	(RDC_PER_UART4 | RDC_DOMAIN(0)),
+	(RDC_PER_UART5 | RDC_DOMAIN(0)),
+	(RDC_PER_UART6 | RDC_DOMAIN(0)),
+	(RDC_PER_UART7 | RDC_DOMAIN(0)),
+	(RDC_PER_SAI1 | RDC_DOMAIN(0)),
+	(RDC_PER_SAI2 | RDC_DOMAIN(0)),
+	(RDC_PER_SAI3 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG1 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG2 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG3 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG4 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT1 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT2 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT3 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT4 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM1 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM2 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM3 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM4 | RDC_DOMAIN(0)),
+	(RDC_PER_ENET1 | RDC_DOMAIN(0)),
+	(RDC_PER_ENET2 | RDC_DOMAIN(0)),
+};
+
+static void isolate_resource(void)
+{
+	imx_rdc_setup_peripherals(resources, ARRAY_SIZE(resources));
+}
 #endif
 
 #if defined(CONFIG_SECURE_BOOT)
@@ -162,6 +223,9 @@ int arch_cpu_init(void)
 	/* Start APBH DMA */
 	mxs_dma_init();
 #endif
+
+	if (IS_ENABLED(CONFIG_IMX_RDC))
+		isolate_resource();
 
 	return 0;
 }
