@@ -44,7 +44,7 @@ class ConsoleSandbox(ConsoleBase):
             '-d',
             self.config.build_dir + '/arch/sandbox/dts/test.dtb'
         ]
-        return Spawn(cmd)
+        return Spawn(cmd, cwd=self.config.source_dir)
 
     def kill(self, sig):
         """Send a specific Unix signal to the sandbox process.

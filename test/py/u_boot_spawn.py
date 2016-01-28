@@ -20,11 +20,13 @@ class Spawn(object):
     sent to the process, and responses waited for.
     """
 
-    def __init__(self, args):
+    def __init__(self, args, cwd=None):
         """Spawn (fork/exec) the sub-process.
 
         Args:
-            args: array of processs arguments. argv[0] is the command to execute.
+            args: array of processs arguments. argv[0] is the command to
+              execute.
+            cwd: the directory to run the process in, or None for no change.
 
         Returns:
             Nothing.
@@ -44,6 +46,8 @@ class Spawn(object):
                 # run under "go" (www.go.cd). Perhaps this happens under any
                 # background (non-interactive) system?
                 signal.signal(signal.SIGHUP, signal.SIG_DFL)
+                if cwd:
+                    os.chdir(cwd)
                 os.execvp(args[0], args)
             except:
                 print 'CHILD EXECEPTION:'
