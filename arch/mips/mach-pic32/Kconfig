@@ -19,4 +19,17 @@ config SOC_PIC32MZDA
 
 endchoice
 
+choice
+	prompt "Board select"
+
+config TARGET_PIC32MZDASK
+	bool "Microchip PIC32MZ[DA] Starter Kit"
+	depends on SOC_PIC32MZDA
+	help
+	  This supports Microchip PIC32MZ[DA] Starter Kit.
+
+endchoice
+
+source "board/microchip/pic32mzda/Kconfig"
+
 endmenu

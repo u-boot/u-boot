@@ -1,0 +1,38 @@
+/*
+ * Copyright (C) 2015 Purna Chandra Mandal, purna.mandal@microchip.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "pic32mzda.dtsi"
+
+/ {
+	model = "Microchip PIC32MZDASK";
+	compatible = "microchip,pic32mzdask", "microchip,pic32mzda";
+
+	aliases {
+		console = &uart2;
+		serial0 = &uart2;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&clock {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+};
+
+&uart2 {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+};
