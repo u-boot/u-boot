@@ -131,6 +131,16 @@ config PINCTRL_SANDBOX
 	  actually does nothing but print debug messages when pinctrl
 	  operations are invoked.
 
+config PIC32_PINCTRL
+	bool "Microchip PIC32 pin-control and pin-mux driver"
+	depends on DM && MACH_PIC32
+	default y
+	help
+	  Supports individual pin selection and configuration for each remappable
+	  peripheral available on Microchip PIC32 SoCs. This driver is controlled
+	  by a device tree node which contains both GPIO defintion and pin control
+	  functions.
+
 endif
 
 source "drivers/pinctrl/uniphier/Kconfig"
