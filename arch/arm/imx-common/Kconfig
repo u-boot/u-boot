@@ -11,3 +11,9 @@ config IMX_RDC
 	  i.MX Resource domain controller is used to assign masters
 	  and peripherals to differet domains. This can be used to
 	  isolate resources.
+
+config IMX_BOOTAUX
+	bool "Support boot auxiliary core"
+	depends on ARCH_MX7 || ARCH_MX6
+	help
+	  bootaux [addr] to boot auxiliary core.
