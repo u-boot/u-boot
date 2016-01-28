@@ -94,7 +94,7 @@ def unset_var(state_test_env, var):
     object.
 
     Args:
-        state_test_env: The StateTestEnv object to updata.
+        state_test_env: The StateTestEnv object to update.
         var: The variable name to unset.
 
     Returns:
@@ -112,7 +112,7 @@ def set_var(state_test_env, var, value):
     object.
 
     Args:
-        state_test_env: The StateTestEnv object to updata.
+        state_test_env: The StateTestEnv object to update.
         var: The variable name to set.
         value: The value to set the variable to.
 
