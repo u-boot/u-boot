@@ -39,7 +39,12 @@ class ConsoleSandbox(ConsoleBase):
             A u_boot_spawn.Spawn object that is attached to U-Boot.
         """
 
-        return Spawn([self.config.build_dir + '/u-boot'])
+        cmd = [
+            self.config.build_dir + '/u-boot',
+            '-d',
+            self.config.build_dir + '/arch/sandbox/dts/test.dtb'
+        ]
+        return Spawn(cmd)
 
     def kill(self, sig):
         """Send a specific Unix signal to the sandbox process.
