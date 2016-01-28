@@ -249,6 +249,8 @@ def u_boot_console(request):
 
 tests_not_run = set()
 tests_failed = set()
+tests_xpassed = set()
+tests_xfailed = set()
 tests_skipped = set()
 tests_passed = set()
 
@@ -289,6 +291,14 @@ def cleanup():
             log.status_skipped('%d skipped' % len(tests_skipped))
             for test in tests_skipped:
                 log.status_skipped('... ' + test)
+        if tests_xpassed:
+            log.status_xpass('%d xpass' % len(tests_xpassed))
+            for test in tests_xpassed:
+                log.status_xpass('... ' + test)
+        if tests_xfailed:
+            log.status_xfail('%d xfail' % len(tests_xfailed))
+            for test in tests_xfailed:
+                log.status_xfail('... ' + test)
         if tests_failed:
             log.status_fail('%d failed' % len(tests_failed))
             for test in tests_failed:
@@ -381,34 +391,42 @@ def pytest_runtest_protocol(item, nextitem):
     """
 
     reports = runtestprotocol(item, nextitem=nextitem)
-    failed = None
-    skipped = None
+
+    failure_cleanup = False
+    test_list = tests_passed
+    msg = 'OK'
+    msg_log = log.status_pass
     for report in reports:
         if report.outcome == 'failed':
-            failed = report
+            if hasattr(report, 'wasxfail'):
+                test_list = tests_xpassed
+                msg = 'XPASSED'
+                msg_log = log.status_xpass
+            else:
+                failure_cleanup = True
+                test_list = tests_failed
+                msg = 'FAILED:\n' + str(report.longrepr)
+                msg_log = log.status_fail
             break
         if report.outcome == 'skipped':
-            if not skipped:
-                skipped = report
+            if hasattr(report, 'wasxfail'):
+                failure_cleanup = True
+                test_list = tests_xfailed
+                msg = 'XFAILED:\n' + str(report.longrepr)
+                msg_log = log.status_xfail
+                break
+            test_list = tests_skipped
+            msg = 'SKIPPED:\n' + str(report.longrepr)
+            msg_log = log.status_skipped
 
-    if failed:
+    if failure_cleanup:
         console.drain_console()
-        tests_failed.add(item.name)
-    elif skipped:
-        tests_skipped.add(item.name)
-    else:
-        tests_passed.add(item.name)
+
+    test_list.add(item.name)
     tests_not_run.remove(item.name)
 
     try:
-        if failed:
-            msg = 'FAILED:\n' + str(failed.longrepr)
-            log.status_fail(msg)
-        elif skipped:
-            msg = 'SKIPPED:\n' + str(skipped.longrepr)
-            log.status_skipped(msg)
-        else:
-            log.status_pass('OK')
+        msg_log(msg)
     except:
         # If something went wrong with logging, it's better to let the test
         # process continue, which may report other exceptions that triggered
@@ -424,7 +442,7 @@ def pytest_runtest_protocol(item, nextitem):
 
     log.end_section(item.name)
 
-    if failed:
+    if failure_cleanup:
         console.cleanup_spawn()
 
     return reports

@@ -83,6 +83,14 @@ pre {
     color: #ffff00
 }
 
+.status-xfail {
+    color: #ff7f00
+}
+
+.status-xpass {
+    color: #ff7f00
+}
+
 .status-fail {
     color: #ff0000
 }

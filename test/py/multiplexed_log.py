@@ -408,7 +408,7 @@ class Logfile(object):
         """Write a note to the log file describing test(s) which passed.
 
         Args:
-            msg: A message describing passed test(s).
+            msg: A message describing the passed test(s).
 
         Returns:
             Nothing.
@@ -420,7 +420,7 @@ class Logfile(object):
         """Write a note to the log file describing skipped test(s).
 
         Args:
-            msg: A message describing passed test(s).
+            msg: A message describing the skipped test(s).
 
         Returns:
             Nothing.
@@ -428,11 +428,35 @@ class Logfile(object):
 
         self._note("status-skipped", msg)
 
+    def status_xfail(self, msg):
+        """Write a note to the log file describing xfailed test(s).
+
+        Args:
+            msg: A message describing the xfailed test(s).
+
+        Returns:
+            Nothing.
+        """
+
+        self._note("status-xfail", msg)
+
+    def status_xpass(self, msg):
+        """Write a note to the log file describing xpassed test(s).
+
+        Args:
+            msg: A message describing the xpassed test(s).
+
+        Returns:
+            Nothing.
+        """
+
+        self._note("status-xpass", msg)
+
     def status_fail(self, msg):
         """Write a note to the log file describing failed test(s).
 
         Args:
-            msg: A message describing passed test(s).
+            msg: A message describing the failed test(s).
 
         Returns:
             Nothing.
