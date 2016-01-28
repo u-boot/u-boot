@@ -23,6 +23,17 @@ pattern_stop_autoboot_prompt = re.compile('Hit any key to stop autoboot: ')
 pattern_unknown_command = re.compile('Unknown command \'.*\' - try \'help\'')
 pattern_error_notification = re.compile('## Error: ')
 
+PAT_ID = 0
+PAT_RE = 1
+
+bad_pattern_defs = (
+    ('spl_signon', pattern_u_boot_spl_signon),
+    ('main_signon', pattern_u_boot_main_signon),
+    ('stop_autoboot_prompt', pattern_stop_autoboot_prompt),
+    ('unknown_command', pattern_unknown_command),
+    ('error_notification', pattern_error_notification),
+)
+
 class ConsoleDisableCheck(object):
     """Context manager (for Python's with statement) that temporarily disables
     the specified console output error check. This is useful when deliberately
@@ -37,9 +48,11 @@ class ConsoleDisableCheck(object):
 
     def __enter__(self):
         self.console.disable_check_count[self.check_type] += 1
+        self.console.eval_bad_patterns()
 
     def __exit__(self, extype, value, traceback):
         self.console.disable_check_count[self.check_type] -= 1
+        self.console.eval_bad_patterns()
 
 class ConsoleBase(object):
     """The interface through which test functions interact with the U-Boot
@@ -77,15 +90,17 @@ class ConsoleBase(object):
         self.prompt = self.config.buildconfig['config_sys_prompt'][1:-1]
         self.prompt_escaped = re.escape(self.prompt)
         self.p = None
-        self.disable_check_count = {
-            'spl_signon': 0,
-            'main_signon': 0,
-            'unknown_command': 0,
-            'error_notification': 0,
-        }
+        self.disable_check_count = {pat[PAT_ID]: 0 for pat in bad_pattern_defs}
+        self.eval_bad_patterns()
 
         self.at_prompt = False
         self.at_prompt_logevt = None
+
+    def eval_bad_patterns(self):
+        self.bad_patterns = [pat[PAT_RE] for pat in bad_pattern_defs \
+            if self.disable_check_count[pat[PAT_ID]] == 0]
+        self.bad_pattern_ids = [pat[PAT_ID] for pat in bad_pattern_defs \
+            if self.disable_check_count[pat[PAT_ID]] == 0]
 
     def close(self):
         """Terminate the connection to the U-Boot console.
@@ -148,20 +163,6 @@ class ConsoleBase(object):
                 self.at_prompt_logevt != self.logstream.logfile.cur_evt:
             self.logstream.write(self.prompt, implicit=True)
 
-        bad_patterns = []
-        bad_pattern_ids = []
-        if (self.disable_check_count['spl_signon'] == 0):
-            bad_patterns.append(pattern_u_boot_spl_signon)
-            bad_pattern_ids.append('SPL signon')
-        if self.disable_check_count['main_signon'] == 0:
-            bad_patterns.append(pattern_u_boot_main_signon)
-            bad_pattern_ids.append('U-Boot main signon')
-        if self.disable_check_count['unknown_command'] == 0:
-            bad_patterns.append(pattern_unknown_command)
-            bad_pattern_ids.append('Unknown command')
-        if self.disable_check_count['error_notification'] == 0:
-            bad_patterns.append(pattern_error_notification)
-            bad_pattern_ids.append('Error notification')
         try:
             self.at_prompt = False
             if send_nl:
@@ -175,18 +176,18 @@ class ConsoleBase(object):
                     continue
                 chunk = re.escape(chunk)
                 chunk = chunk.replace('\\\n', '[\r\n]')
-                m = self.p.expect([chunk] + bad_patterns)
+                m = self.p.expect([chunk] + self.bad_patterns)
                 if m != 0:
                     self.at_prompt = False
                     raise Exception('Bad pattern found on console: ' +
-                                    bad_pattern_ids[m - 1])
+                                    self.bad_pattern_ids[m - 1])
             if not wait_for_prompt:
                 return
-            m = self.p.expect([self.prompt_escaped] + bad_patterns)
+            m = self.p.expect([self.prompt_escaped] + self.bad_patterns)
             if m != 0:
                 self.at_prompt = False
                 raise Exception('Bad pattern found on console: ' +
-                                bad_pattern_ids[m - 1])
+                                self.bad_pattern_ids[m - 1])
             self.at_prompt = True
             self.at_prompt_logevt = self.logstream.logfile.cur_evt
             # Only strip \r\n; space/TAB might be significant if testing
