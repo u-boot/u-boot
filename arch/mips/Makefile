@@ -8,6 +8,7 @@ libs-y += arch/mips/cpu/
 libs-y += arch/mips/lib/
 
 machine-$(CONFIG_SOC_AU1X00) += au1x00
+machine-$(CONFIG_MACH_PIC32) += pic32
 
 machdirs := $(patsubst %,arch/mips/mach-%/,$(machine-y))
 libs-y += $(machdirs)

@@ -55,6 +55,11 @@ config TARGET_PB1X00
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select MIPS_TUNE_4KC
 
+config MACH_PIC32
+	bool "Support Microchip PIC32"
+	select OF_CONTROL
+	select DM
+
 endchoice
 
 source "board/dbau1x00/Kconfig"
@@ -62,6 +67,7 @@ source "board/imgtec/malta/Kconfig"
 source "board/micronas/vct/Kconfig"
 source "board/pb1x00/Kconfig"
 source "board/qemu-mips/Kconfig"
+source "arch/mips/mach-pic32/Kconfig"
 
 if MIPS
 

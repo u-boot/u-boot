@@ -1,0 +1,7 @@
+menu "Microchip PIC32 platforms"
+	depends on MACH_PIC32
+
+config SYS_SOC
+	default "none"
+
+endmenu
