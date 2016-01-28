@@ -98,6 +98,10 @@
 #define DCFG_DCSR_BASE		0X700100000ULL
 #define DCFG_DCSR_PORCR1		0x000
 
+/* Interrupt Sampling Control */
+#define ISC_BASE		0x01F70000
+#define IRQCR_OFFSET		0x14
+
 /* Supplemental Configuration */
 #define SCFG_BASE		0x01fc0000
 #define SCFG_USB3PRM1CR			0x000

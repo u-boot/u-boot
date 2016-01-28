@@ -355,6 +355,7 @@ unsigned long get_board_sys_clk(void);
 #define AQ_PHY_ADDR2		0x01
 #define AQ_PHY_ADDR3		0x02
 #define AQ_PHY_ADDR4		0x03
+#define AQR405_IRQ_MASK		0x36
 
 #define CONFIG_MII
 #define CONFIG_ETHPRIME		"DPNI1"
