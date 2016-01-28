@@ -130,4 +130,12 @@ config RESET
 	  effect a reset. The uclass will try all available drivers when
 	  reset_walk() is called.
 
+config WINBOND_W83627
+	bool "Enable Winbond Super I/O driver"
+	help
+	  If you say Y here, you will get support for the Winbond
+	  W83627 Super I/O driver. This can be used to enable the
+	  legacy UART or other devices in the Winbond Super IO chips
+	  on X86 platforms.
+
 endmenu

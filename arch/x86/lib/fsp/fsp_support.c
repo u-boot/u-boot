@@ -111,7 +111,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 #endif
 
 #ifdef CONFIG_DEBUG_UART
-	setup_early_uart();
+	setup_internal_uart(1);
 #endif
 
 	fsp_hdr = find_fsp_header();

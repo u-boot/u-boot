@@ -21,7 +21,7 @@
 
 	aliases {
 		serial0 = &serial;
-		spi0 = "/spi";
+		spi0 = &spi;
 	};
 
 	config {
@@ -184,7 +184,7 @@
 				>;
 			};
 
-			spi {
+			spi: spi {
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich-spi";

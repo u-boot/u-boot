@@ -12,6 +12,8 @@
 #define FW_DMA_PORT_LOW	0x514
 #define FW_DMA_PORT_HIGH	0x518
 
+#include <linux/list.h>
+
 enum qemu_fwcfg_items {
 	FW_CFG_SIGNATURE	= 0x00,
 	FW_CFG_ID		= 0x01,
@@ -45,11 +47,23 @@ enum qemu_fwcfg_items {
 	FW_CFG_INVALID		= 0xffff,
 };
 
+enum {
+	BIOS_LINKER_LOADER_COMMAND_ALLOCATE	= 0x1,
+	BIOS_LINKER_LOADER_COMMAND_ADD_POINTER  = 0x2,
+	BIOS_LINKER_LOADER_COMMAND_ADD_CHECKSUM = 0x3,
+};
+
+enum {
+	BIOS_LINKER_LOADER_ALLOC_ZONE_HIGH = 0x1,
+	BIOS_LINKER_LOADER_ALLOC_ZONE_FSEG = 0x2,
+};
+
 #define FW_CFG_FILE_SLOTS	0x10
 #define FW_CFG_MAX_ENTRY	(FW_CFG_FILE_FIRST + FW_CFG_FILE_SLOTS)
 #define FW_CFG_ENTRY_MASK	 ~(FW_CFG_WRITE_CHANNEL | FW_CFG_ARCH_LOCAL)
 
 #define FW_CFG_MAX_FILE_PATH	56
+#define BIOS_LINKER_LOADER_FILESZ FW_CFG_MAX_FILE_PATH
 
 #define QEMU_FW_CFG_SIGNATURE	(('Q' << 24) | ('E' << 16) | ('M' << 8) | 'U')
 
@@ -67,9 +81,10 @@ struct fw_cfg_file {
 	char name[FW_CFG_MAX_FILE_PATH];
 };
 
-struct fw_cfg_files {
-	__be32 count;
-	struct fw_cfg_file files[];
+struct fw_file {
+	struct fw_cfg_file cfg; /* firmware file information */
+	unsigned long addr;     /* firmware file in-memory address */
+	struct list_head list;  /* list node to link to fw_list */
 };
 
 struct fw_cfg_dma_access {
@@ -77,6 +92,55 @@ struct fw_cfg_dma_access {
 	__be32 length;
 	__be64 address;
 };
+
+struct bios_linker_entry {
+	__le32 command;
+	union {
+		/*
+		 * COMMAND_ALLOCATE - allocate a table from @alloc.file
+		 * subject to @alloc.align alignment (must be power of 2)
+		 * and @alloc.zone (can be HIGH or FSEG) requirements.
+		 *
+		 * Must appear exactly once for each file, and before
+		 * this file is referenced by any other command.
+		 */
+		struct {
+			char file[BIOS_LINKER_LOADER_FILESZ];
+			__le32 align;
+			uint8_t zone;
+		} alloc;
+
+		/*
+		 * COMMAND_ADD_POINTER - patch the table (originating from
+		 * @dest_file) at @pointer.offset, by adding a pointer to the
+		 * table originating from @src_file. 1,2,4 or 8 byte unsigned
+		 * addition is used depending on @pointer.size.
+		 */
+		struct {
+			char dest_file[BIOS_LINKER_LOADER_FILESZ];
+			char src_file[BIOS_LINKER_LOADER_FILESZ];
+			__le32 offset;
+			uint8_t size;
+		} pointer;
+
+		/*
+		 * COMMAND_ADD_CHECKSUM - calculate checksum of the range
+		 * specified by @cksum_start and @cksum_length fields,
+		 * and then add the value at @cksum.offset.
+		 * Checksum simply sums -X for each byte X in the range
+		 * using 8-bit math.
+		 */
+		struct {
+			char file[BIOS_LINKER_LOADER_FILESZ];
+			__le32 offset;
+			__le32 start;
+			__le32 length;
+		} cksum;
+
+		/* padding */
+		char pad[124];
+	};
+} __packed;
 
 /**
  * Initialize QEMU fw_cfg interface

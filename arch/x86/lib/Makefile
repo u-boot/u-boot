@@ -32,7 +32,9 @@ obj-$(CONFIG_X86_RAMTEST) += ramtest.o
 obj-y += sfi.o
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y	+= string.o
+ifndef CONFIG_QEMU_ACPI_TABLE
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
+endif
 obj-y	+= tables.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 obj-$(CONFIG_HAVE_FSP) += fsp/
