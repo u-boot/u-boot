@@ -949,6 +949,7 @@ static void dhcp_send_request_packet(struct bootp_hdr *bp_offer)
 	net_write_ip(&bp->bp_giaddr, zero_ip);
 
 	memcpy(bp->bp_chaddr, net_ethaddr, 6);
+	copy_filename(bp->bp_file, net_boot_file_name, sizeof(bp->bp_file));
 
 	/*
 	 * ID is the id of the OFFER packet
