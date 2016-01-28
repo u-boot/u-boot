@@ -132,7 +132,7 @@ class Spawn(object):
                     m = pattern.search(self.buf)
                     if not m:
                         continue
-                    if earliest_m and m.start() > earliest_m.start():
+                    if earliest_m and m.start() >= earliest_m.start():
                         continue
                     earliest_m = m
                     earliest_pi = pi
