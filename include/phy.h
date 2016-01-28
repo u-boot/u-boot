@@ -17,6 +17,8 @@
 
 #define PHY_MAX_ADDR 32
 
+#define PHY_FLAG_BROKEN_RESET	(1 << 0) /* soft reset not supported */
+
 #define PHY_DEFAULT_FEATURES	(SUPPORTED_Autoneg | \
 				 SUPPORTED_TP | \
 				 SUPPORTED_MII)

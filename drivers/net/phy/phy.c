@@ -743,6 +743,9 @@ int phy_reset(struct phy_device *phydev)
 	int timeout = 500;
 	int devad = MDIO_DEVAD_NONE;
 
+	if (phydev->flags & PHY_FLAG_BROKEN_RESET)
+		return 0;
+
 #ifdef CONFIG_PHYLIB_10G
 	/* If it's 10G, we need to issue reset through one of the MMDs */
 	if (is_10g_interface(phydev->interface)) {
