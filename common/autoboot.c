@@ -287,7 +287,7 @@ static int abortboot(int bootdelay)
 
 static void process_fdt_options(const void *blob)
 {
-#if defined(CONFIG_OF_CONTROL)
+#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_SYS_TEXT_BASE)
 	ulong addr;
 
 	/* Add an env variable to point to a kernel payload, if available */
@@ -299,7 +299,7 @@ static void process_fdt_options(const void *blob)
 	addr = fdtdec_get_config_int(gd->fdt_blob, "rootdisk-offset", 0);
 	if (addr)
 		setenv_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
-#endif /* CONFIG_OF_CONTROL */
+#endif /* CONFIG_OF_CONTROL && CONFIG_SYS_TEXT_BASE */
 }
 
 const char *bootdelay_process(void)
