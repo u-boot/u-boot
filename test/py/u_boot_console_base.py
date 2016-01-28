@@ -22,6 +22,7 @@ pattern_u_boot_main_signon = re.compile('(U-Boot \\d{4}\\.\\d{2}-[^\r\n]*)')
 pattern_stop_autoboot_prompt = re.compile('Hit any key to stop autoboot: ')
 pattern_unknown_command = re.compile('Unknown command \'.*\' - try \'help\'')
 pattern_error_notification = re.compile('## Error: ')
+pattern_error_please_reset = re.compile('### ERROR ### Please RESET the board ###')
 
 PAT_ID = 0
 PAT_RE = 1
@@ -32,6 +33,7 @@ bad_pattern_defs = (
     ('stop_autoboot_prompt', pattern_stop_autoboot_prompt),
     ('unknown_command', pattern_unknown_command),
     ('error_notification', pattern_error_notification),
+    ('error_please_reset', pattern_error_please_reset),
 )
 
 class ConsoleDisableCheck(object):
