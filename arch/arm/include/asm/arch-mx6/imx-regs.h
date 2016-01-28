@@ -356,6 +356,30 @@ extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 #define SRC_SCR_CORE_3_ENABLE_OFFSET    24
 #define SRC_SCR_CORE_3_ENABLE_MASK      (1<<SRC_SCR_CORE_3_ENABLE_OFFSET)
 
+struct rdc_regs {
+	u32	vir;		/* Version information */
+	u32	reserved1[8];
+	u32	stat;		/* Status */
+	u32	intctrl;	/* Interrupt and Control */
+	u32	intstat;	/* Interrupt Status */
+	u32	reserved2[116];
+	u32	mda[32];	/* Master Domain Assignment */
+	u32	reserved3[96];
+	u32	pdap[104];	/* Peripheral Domain Access Permissions */
+	u32	reserved4[88];
+	struct {
+		u32 mrsa;	/* Memory Region Start Address */
+		u32 mrea;	/* Memory Region End Address */
+		u32 mrc;	/* Memory Region Control */
+		u32 mrvs;	/* Memory Region Violation Status */
+	} mem_region[55];
+};
+
+struct rdc_sema_regs {
+	u8	gate[64];	/* Gate */
+	u16	rstgt;		/* Reset Gate */
+};
+
 /* WEIM registers */
 struct weim {
 	u32 cs0gcr1;
