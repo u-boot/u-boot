@@ -73,4 +73,7 @@ static inline void __iomem *pic32_get_syscfg_base(void)
 	return (void __iomem *)CKSEG1ADDR(PIC32_CFG_BASE);
 }
 
+/* Core */
+const char *get_core_name(void);
+
 #endif	/* __PIC32_REGS_H__ */
