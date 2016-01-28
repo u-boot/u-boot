@@ -83,4 +83,11 @@ config VYBRID_GPIO
 	help
 	  Say yes here to support Vybrid vf610 GPIOs.
 
+config PIC32_GPIO
+	bool "Microchip PIC32 GPIO driver"
+	depends on DM_GPIO && MACH_PIC32
+	default y
+	help
+	  Say yes here to support Microchip PIC32 GPIOs.
+
 endmenu
