@@ -211,6 +211,42 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
+#ifdef CONFIG_IMX_BOOTAUX
+int arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
+{
+	u32 stack, pc;
+	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
+
+	if (!boot_private_data)
+		return 1;
+
+	stack = *(u32 *)boot_private_data;
+	pc = *(u32 *)(boot_private_data + 4);
+
+	/* Set the stack and pc to M4 bootROM */
+	writel(stack, M4_BOOTROM_BASE_ADDR);
+	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
+
+	/* Enable M4 */
+	clrsetbits_le32(&src_reg->m4rcr, SRC_M4RCR_M4C_NON_SCLR_RST_MASK,
+			SRC_M4RCR_ENABLE_M4_MASK);
+
+	return 0;
+}
+
+int arch_auxiliary_core_check_up(u32 core_id)
+{
+	uint32_t val;
+	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
+
+	val = readl(&src_reg->m4rcr);
+	if (val & 0x00000001)
+		return 0; /* assert in reset */
+
+	return 1;
+}
+#endif
+
 void set_wdog_reset(struct wdog_regs *wdog)
 {
 	u32 reg = readw(&wdog->wcr);

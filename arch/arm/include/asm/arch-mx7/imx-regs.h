@@ -263,6 +263,11 @@ struct src {
 	u32 ddrc_rcr;
 };
 
+#define SRC_M4RCR_M4C_NON_SCLR_RST_OFFSET	0
+#define SRC_M4RCR_M4C_NON_SCLR_RST_MASK		(1 << 0)
+#define SRC_M4RCR_ENABLE_M4_OFFSET		3
+#define SRC_M4RCR_ENABLE_M4_MASK		(1 << 3)
+
 /* GPR0 Bit Fields */
 #define IOMUXC_GPR_GPR0_DMAREQ_MUX_SEL0_MASK     0x1u
 #define IOMUXC_GPR_GPR0_DMAREQ_MUX_SEL0_SHIFT    0
