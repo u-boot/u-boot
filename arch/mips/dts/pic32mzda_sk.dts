@@ -23,6 +23,9 @@
 };
 
 &clock {
+	microchip,refo2-frequency = <50000000>;
+	microchip,refo4-frequency = <25000000>;
+	microchip,refo5-frequency = <40000000>;
 	status = "okay";
 	u-boot,dm-pre-reloc;
 };
@@ -35,4 +38,8 @@
 &uart2 {
 	status = "okay";
 	u-boot,dm-pre-reloc;
+};
+
+&sdhci {
+	status = "okay";
 };

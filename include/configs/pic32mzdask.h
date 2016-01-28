@@ -46,6 +46,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x88500000 /* default load address */
 #define CONFIG_SYS_ENV_ADDR		0x88300000
+#define CONFIG_SYS_FDT_ADDR		0x89d00000
 
 /* Memory Test */
 #define CONFIG_SYS_MEMTEST_START	0x88000000
@@ -77,6 +78,33 @@
  */
 #define CONFIG_OF_LIBFDT	1
 
+/*-----------------------------------------------------------------------
+ * SDHC Configuration
+ */
+#define CONFIG_SDHCI
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_MMC
+
+/*-----------------------------------------------------------------------
+ * File System Configuration
+ */
+/* FAT FS */
+#define CONFIG_DOS_PARTITION
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_FS_FAT
+#define CONFIG_FAT_WRITE
+#define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_PART
+#define CONFIG_CMD_FAT
+
+/* EXT4 FS */
+#define CONFIG_FS_EXT4
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
+
 /* -------------------------------------------------
  * Environment
  */
@@ -87,7 +115,34 @@
  * Board boot configuration
  */
 #define CONFIG_TIMESTAMP	/* Print image info with timestamp */
-#define CONFIG_BOOTDELAY	5 /* autoboot after X seconds     */
-#undef	CONFIG_BOOTARGS
+#define CONFIG_BOOTDELAY	5
+
+#define MEM_LAYOUT_ENV_SETTINGS					\
+	"kernel_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"	\
+	"fdt_addr_r="__stringify(CONFIG_SYS_FDT_ADDR)"\0"	\
+	"scriptaddr="__stringify(CONFIG_SYS_ENV_ADDR)"\0"
+
+#define CONFIG_LEGACY_BOOTCMD_ENV					\
+	"legacy_bootcmd= "						\
+		"if load mmc 0 ${scriptaddr} uEnv.txt; then "		\
+			"env import -tr ${scriptaddr} ${filesize}; "	\
+			"if test -n \"${bootcmd_uenv}\" ; then "	\
+				"echo Running bootcmd_uenv ...; "	\
+				"run bootcmd_uenv; "			\
+			"fi; "						\
+		"fi; \0"
+
+#define BOOT_TARGET_DEVICES(func)	\
+	func(MMC, mmc, 0)
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	MEM_LAYOUT_ENV_SETTINGS		\
+	CONFIG_LEGACY_BOOTCMD_ENV	\
+	BOOTENV
+
+#undef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND	"run distro_bootcmd || run legacy_bootcmd"
 
 #endif	/* __PIC32MZDASK_CONFIG_H */
