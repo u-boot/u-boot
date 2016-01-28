@@ -231,7 +231,10 @@ class ConsoleBase(object):
 
         if type(text) == type(''):
             text = re.escape(text)
-        self.p.expect([text])
+        m = self.p.expect([text] + self.bad_patterns)
+        if m != 0:
+            raise Exception('Bad pattern found on console: ' +
+                            self.bad_pattern_ids[m - 1])
 
     def drain_console(self):
         """Read from and log the U-Boot console for a short time.
@@ -298,8 +301,14 @@ class ConsoleBase(object):
             self.p.timeout = 30000
             self.p.logfile_read = self.logstream
             if self.config.buildconfig.get('CONFIG_SPL', False) == 'y':
-                self.p.expect([pattern_u_boot_spl_signon])
-            self.p.expect([pattern_u_boot_main_signon])
+                m = self.p.expect([pattern_u_boot_spl_signon] + self.bad_patterns)
+                if m != 0:
+                    raise Exception('Bad pattern found on console: ' +
+                                    self.bad_pattern_ids[m - 1])
+            m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
+            if m != 0:
+                raise Exception('Bad pattern found on console: ' +
+                                self.bad_pattern_ids[m - 1])
             signon = self.p.after
             build_idx = signon.find(', Build:')
             if build_idx == -1:
@@ -307,12 +316,15 @@ class ConsoleBase(object):
             else:
                 self.u_boot_version_string = signon[:build_idx]
             while True:
-                match = self.p.expect([self.prompt_escaped,
-                                       pattern_stop_autoboot_prompt])
-                if match == 1:
+                m = self.p.expect([self.prompt_escaped,
+                    pattern_stop_autoboot_prompt] + self.bad_patterns)
+                if m == 0:
+                    break
+                if m == 1:
                     self.p.send(chr(3)) # CTRL-C
                     continue
-                break
+                raise Exception('Bad pattern found on console: ' +
+                                self.bad_pattern_ids[m - 2])
             self.at_prompt = True
             self.at_prompt_logevt = self.logstream.logfile.cur_evt
         except Exception as ex:
