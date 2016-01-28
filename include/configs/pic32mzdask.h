@@ -73,6 +73,25 @@
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_CMDLINE_EDITING		1
 
+/*-----------------------------------------------------------------------
+ * Networking Configuration
+ */
+#define CONFIG_MII
+#define CONFIG_PHY_SMSC
+#define CONFIG_SYS_RX_ETH_BUFFER	8
+#define CONFIG_NET_RETRY_COUNT		20
+#define CONFIG_ARP_TIMEOUT		500 /* millisec */
+
+#define CONFIG_CMD_MII
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
 /*
  * Handover flattened device tree (dtb file) to Linux kernel
  */
@@ -133,7 +152,8 @@
 		"fi; \0"
 
 #define BOOT_TARGET_DEVICES(func)	\
-	func(MMC, mmc, 0)
+	func(MMC, mmc, 0)		\
+	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
 

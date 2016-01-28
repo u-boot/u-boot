@@ -43,3 +43,13 @@
 &sdhci {
 	status = "okay";
 };
+
+&ethernet {
+	reset-gpios = <&gpioJ 15 0>;
+	status = "okay";
+	phy-mode = "rmii";
+	phy-handle = <&ethernet_phy>;
+	ethernet_phy: lan8740_phy@0 {
+		reg = <0>;
+	};
+};

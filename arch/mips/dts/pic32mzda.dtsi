@@ -161,4 +161,14 @@
 		bus-width = <4>;
 		status = "disabled";
 	};
+
+	ethernet: ethernet@1f882000 {
+		compatible = "microchip,pic32mzda-eth";
+		reg = <0x1f882000 0x1000>;
+		interrupts = <153 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock PB5CLK>;
+		status = "disabled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
 };
