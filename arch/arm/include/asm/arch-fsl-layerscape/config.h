@@ -177,6 +177,7 @@
 
 #define CONFIG_SYS_FSL_ERRATUM_A009663
 #define CONFIG_SYS_FSL_ERRATUM_A009929
+#define CONFIG_SYS_FSL_ERRATUM_A009942
 #else
 #error SoC not defined
 #endif
