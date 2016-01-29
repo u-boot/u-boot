@@ -130,26 +130,26 @@ void _machine_restart(void)
 
 int board_early_init_f(void)
 {
-	void *io_base;
+	ulong io_base;
 
 	/* choose correct PCI I/O base */
 	switch (malta_sys_con()) {
 	case SYSCON_GT64120:
-		io_base = (void *)CKSEG1ADDR(MALTA_GT_PCIIO_BASE);
+		io_base = CKSEG1ADDR(MALTA_GT_PCIIO_BASE);
 		break;
 
 	case SYSCON_MSC01:
-		io_base = (void *)CKSEG1ADDR(MALTA_MSC01_PCIIO_BASE);
+		io_base = CKSEG1ADDR(MALTA_MSC01_PCIIO_BASE);
 		break;
 
 	default:
 		return -1;
 	}
 
-	set_io_port_base((ulong)io_base);
+	set_io_port_base(io_base);
 
 	/* setup FDC37M817 super I/O controller */
-	malta_superio_init(io_base);
+	malta_superio_init();
 
 	return 0;
 }
