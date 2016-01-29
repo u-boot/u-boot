@@ -59,7 +59,7 @@ static long evalexp(char *s, int w)
 	if (s[0] == '*') {
 		addr = simple_strtoul(&s[1], NULL, 16);
 		buf = map_physmem(addr, w, MAP_WRBACK);
-		if (!buf) {
+		if (!buf && addr) {
 			puts("Failed to map physical memory\n");
 			return 0;
 		}
