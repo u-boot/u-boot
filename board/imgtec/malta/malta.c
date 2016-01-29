@@ -146,6 +146,8 @@ int board_early_init_f(void)
 		return -1;
 	}
 
+	set_io_port_base((ulong)io_base);
+
 	/* setup FDC37M817 super I/O controller */
 	malta_superio_init(io_base);
 
@@ -179,8 +181,6 @@ void pci_init_board(void)
 
 	switch (malta_sys_con()) {
 	case SYSCON_GT64120:
-		set_io_port_base(CKSEG1ADDR(MALTA_GT_PCIIO_BASE));
-
 		gt64120_pci_init((void *)CKSEG1ADDR(MALTA_GT_BASE),
 				 0x00000000, 0x00000000, CONFIG_SYS_MEM_SIZE,
 				 0x10000000, 0x10000000, 128 * 1024 * 1024,
@@ -189,8 +189,6 @@ void pci_init_board(void)
 
 	default:
 	case SYSCON_MSC01:
-		set_io_port_base(CKSEG1ADDR(MALTA_MSC01_PCIIO_BASE));
-
 		msc01_pci_init((void *)CKSEG1ADDR(MALTA_MSC01_PCI_BASE),
 			       0x00000000, 0x00000000, CONFIG_SYS_MEM_SIZE,
 			       MALTA_MSC01_PCIMEM_MAP,
