@@ -115,28 +115,28 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 
 static const struct rpi_model rpi_models_old_scheme[] = {
 	[0x2] = {
-		"Model B (no P5)",
-		"bcm2835-rpi-b-i2c0.dtb",
+		"Model B",
+		"bcm2835-rpi-b.dtb",
 		true,
 	},
 	[0x3] = {
-		"Model B (no P5)",
-		"bcm2835-rpi-b-i2c0.dtb",
+		"Model B",
+		"bcm2835-rpi-b.dtb",
 		true,
 	},
 	[0x4] = {
-		"Model B",
-		"bcm2835-rpi-b.dtb",
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
 	[0x5] = {
-		"Model B",
-		"bcm2835-rpi-b.dtb",
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
 	[0x6] = {
-		"Model B",
-		"bcm2835-rpi-b.dtb",
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
 	[0x7] = {
