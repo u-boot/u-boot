@@ -1,5 +1,8 @@
 if ARCH_MVEBU
 
+config ARMADA_375
+	bool
+
 config ARMADA_38X
 	bool
 
@@ -23,12 +26,16 @@ config DB_88F6820_GP
 	select ARMADA_38X
 
 choice
-	prompt "Marvell MVEBU (Armada XP/38x) board select"
+	prompt "Marvell MVEBU (Armada XP/375/38x) board select"
 	optional
 
 config TARGET_CLEARFOG
 	bool "Support ClearFog"
 	select DB_88F6820_GP
+
+config TARGET_DB_88F6720
+	bool "Support DB-88F6720 Armada 375"
+	select ARMADA_375
 
 config TARGET_DB_88F6820_GP
 	bool "Support DB-88F6820-GP"
@@ -54,6 +61,7 @@ endchoice
 
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
+	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
 	default "ds414" if TARGET_DS414
@@ -62,6 +70,7 @@ config SYS_BOARD
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
+	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
 	default "ds414" if TARGET_DS414
@@ -70,6 +79,7 @@ config SYS_CONFIG_NAME
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
+	default "Marvell" if TARGET_DB_88F6720
 	default "Marvell" if TARGET_DB_88F6820_GP
 	default "solidrun" if TARGET_CLEARFOG
 	default "Synology" if TARGET_DS414

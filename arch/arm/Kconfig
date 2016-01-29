@@ -115,7 +115,7 @@ config KIRKWOOD
 	select CPU_ARM926EJS
 
 config ARCH_MVEBU
-	bool "Marvell MVEBU family (Armada XP/38x)"
+	bool "Marvell MVEBU family (Armada XP/375/38x)"
 	select CPU_V7
 	select SUPPORT_SPL
 	select OF_CONTROL
