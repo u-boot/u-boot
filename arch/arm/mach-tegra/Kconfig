@@ -52,6 +52,19 @@ config TEGRA210
 
 endchoice
 
+config TEGRA_DISCONNECT_UDC_ON_BOOT
+	bool "Disconnect USB device mode controller on boot"
+	default y
+	help
+	  When loading U-Boot into RAM over USB protocols using tools such as
+	  tegrarcm or L4T's exec-uboot.sh/tegraflash.py, Tegra's USB device
+	  mode controller is initialized and enumerated by the host PC running
+	  the tool. Unfortunately, these tools do not shut down the USB
+	  controller before executing the downloaded code, and so the host PC
+	  does not "de-enumerate" the USB device. This option shuts down the
+	  USB controller when U-Boot boots to avoid leaving a stale USB device
+	  present.
+
 config SYS_MALLOC_F_LEN
 	default 0x1800
 

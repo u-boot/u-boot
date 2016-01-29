@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: GPL-2.0
 
 def test_unknown_command(u_boot_console):
-    '''Test that executing an unknown command causes U-Boot to print an
-    error.'''
+    """Test that executing an unknown command causes U-Boot to print an
+    error."""
 
     # The "unknown command" error is actively expected here,
     # so error detection for it is disabled.

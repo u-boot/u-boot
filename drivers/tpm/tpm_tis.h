@@ -37,18 +37,12 @@ enum tpm_timeout {
 #define TPM_RSP_SIZE_BYTE	2
 #define TPM_RSP_RC_BYTE		6
 
-enum i2c_chip_type {
-	SLB9635,
-	SLB9645,
-	UNKNOWN,
-};
-
 struct tpm_chip {
 	int is_open;
 	int locality;
 	u32 vend_dev;
 	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
-	enum i2c_chip_type chip_type;
+	ulong chip_type;
 };
 
 struct tpm_input_header {
@@ -133,14 +127,5 @@ enum tis_status {
 	TPM_STS_DATA_AVAIL		= 0x10,
 	TPM_STS_DATA_EXPECT		= 0x08,
 };
-
-/* expected value for DIDVID register */
-#define TPM_TIS_I2C_DID_VID_9635 0x000b15d1L
-#define TPM_TIS_I2C_DID_VID_9645 0x001a15d1L
-
-#define	TPM_ACCESS(l)			(0x0000 | ((l) << 4))
-#define	TPM_STS(l)			(0x0001 | ((l) << 4))
-#define	TPM_DATA_FIFO(l)		(0x0005 | ((l) << 4))
-#define	TPM_DID_VID(l)			(0x0006 | ((l) << 4))
 
 #endif

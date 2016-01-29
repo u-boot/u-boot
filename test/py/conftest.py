@@ -29,7 +29,7 @@ log = None
 console = None
 
 def mkdir_p(path):
-    '''Create a directory path.
+    """Create a directory path.
 
     This includes creating any intermediate/parent directories. Any errors
     caused due to already extant directories are ignored.
@@ -39,7 +39,7 @@ def mkdir_p(path):
 
     Returns:
         Nothing.
-    '''
+    """
 
     try:
         os.makedirs(path)
@@ -50,14 +50,14 @@ def mkdir_p(path):
             raise
 
 def pytest_addoption(parser):
-    '''pytest hook: Add custom command-line options to the cmdline parser.
+    """pytest hook: Add custom command-line options to the cmdline parser.
 
     Args:
         parser: The pytest command-line parser.
 
     Returns:
         Nothing.
-    '''
+    """
 
     parser.addoption('--build-dir', default=None,
         help='U-Boot build directory (O=)')
@@ -73,14 +73,14 @@ def pytest_addoption(parser):
         help='Compile U-Boot before running tests')
 
 def pytest_configure(config):
-    '''pytest hook: Perform custom initialization at startup time.
+    """pytest hook: Perform custom initialization at startup time.
 
     Args:
         config: The pytest configuration.
 
     Returns:
         Nothing.
-    '''
+    """
 
     global log
     global console
@@ -190,7 +190,7 @@ def pytest_configure(config):
         console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
 
 def pytest_generate_tests(metafunc):
-    '''pytest hook: parameterize test functions based on custom rules.
+    """pytest hook: parameterize test functions based on custom rules.
 
     If a test function takes parameter(s) (fixture names) of the form brd__xxx
     or env__xxx, the brd and env configuration dictionaries are consulted to
@@ -202,7 +202,7 @@ def pytest_generate_tests(metafunc):
 
     Returns:
         Nothing.
-    '''
+    """
 
     subconfigs = {
         'brd': console.config.brd,
@@ -225,28 +225,37 @@ def pytest_generate_tests(metafunc):
             # ... otherwise, see if there's a key that contains a list of
             # values to use instead.
             vals = subconfig.get(fn + 's', [])
-        metafunc.parametrize(fn, vals)
+        def fixture_id(index, val):
+            try:
+                return val["fixture_id"]
+            except:
+                return fn + str(index)
+        ids = [fixture_id(index, val) for (index, val) in enumerate(vals)]
+        metafunc.parametrize(fn, vals, ids=ids)
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def u_boot_console(request):
-    '''Generate the value of a test's u_boot_console fixture.
+    """Generate the value of a test's u_boot_console fixture.
 
     Args:
         request: The pytest request.
 
     Returns:
         The fixture value.
-    '''
+    """
 
+    console.ensure_spawned()
     return console
 
 tests_not_run = set()
 tests_failed = set()
+tests_xpassed = set()
+tests_xfailed = set()
 tests_skipped = set()
 tests_passed = set()
 
 def pytest_itemcollected(item):
-    '''pytest hook: Called once for each test found during collection.
+    """pytest hook: Called once for each test found during collection.
 
     This enables our custom result analysis code to see the list of all tests
     that should eventually be run.
@@ -256,12 +265,12 @@ def pytest_itemcollected(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     tests_not_run.add(item.name)
 
 def cleanup():
-    '''Clean up all global state.
+    """Clean up all global state.
 
     Executed (via atexit) once the entire test process is complete. This
     includes logging the status of all tests, and the identity of any failed
@@ -272,7 +281,7 @@ def cleanup():
 
     Returns:
         Nothing.
-    '''
+    """
 
     if console:
         console.close()
@@ -282,6 +291,14 @@ def cleanup():
             log.status_skipped('%d skipped' % len(tests_skipped))
             for test in tests_skipped:
                 log.status_skipped('... ' + test)
+        if tests_xpassed:
+            log.status_xpass('%d xpass' % len(tests_xpassed))
+            for test in tests_xpassed:
+                log.status_xpass('... ' + test)
+        if tests_xfailed:
+            log.status_xfail('%d xfail' % len(tests_xfailed))
+            for test in tests_xfailed:
+                log.status_xfail('... ' + test)
         if tests_failed:
             log.status_fail('%d failed' % len(tests_failed))
             for test in tests_failed:
@@ -294,7 +311,7 @@ def cleanup():
 atexit.register(cleanup)
 
 def setup_boardspec(item):
-    '''Process any 'boardspec' marker for a test.
+    """Process any 'boardspec' marker for a test.
 
     Such a marker lists the set of board types that a test does/doesn't
     support. If tests are being executed on an unsupported board, the test is
@@ -305,7 +322,7 @@ def setup_boardspec(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     mark = item.get_marker('boardspec')
     if not mark:
@@ -322,7 +339,7 @@ def setup_boardspec(item):
         pytest.skip('board not supported')
 
 def setup_buildconfigspec(item):
-    '''Process any 'buildconfigspec' marker for a test.
+    """Process any 'buildconfigspec' marker for a test.
 
     Such a marker lists some U-Boot configuration feature that the test
     requires. If tests are being executed on an U-Boot build that doesn't
@@ -333,7 +350,7 @@ def setup_buildconfigspec(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     mark = item.get_marker('buildconfigspec')
     if not mark:
@@ -343,7 +360,7 @@ def setup_buildconfigspec(item):
             pytest.skip('.config feature not enabled')
 
 def pytest_runtest_setup(item):
-    '''pytest hook: Configure (set up) a test item.
+    """pytest hook: Configure (set up) a test item.
 
     Called once for each test to perform any custom configuration. This hook
     is used to skip the test if certain conditions apply.
@@ -353,14 +370,14 @@ def pytest_runtest_setup(item):
 
     Returns:
         Nothing.
-    '''
+    """
 
     log.start_section(item.name)
     setup_boardspec(item)
     setup_buildconfigspec(item)
 
 def pytest_runtest_protocol(item, nextitem):
-    '''pytest hook: Called to execute a test.
+    """pytest hook: Called to execute a test.
 
     This hook wraps the standard pytest runtestprotocol() function in order
     to acquire visibility into, and record, each test function's result.
@@ -371,36 +388,45 @@ def pytest_runtest_protocol(item, nextitem):
 
     Returns:
         A list of pytest reports (test result data).
-    '''
+    """
 
     reports = runtestprotocol(item, nextitem=nextitem)
-    failed = None
-    skipped = None
+
+    failure_cleanup = False
+    test_list = tests_passed
+    msg = 'OK'
+    msg_log = log.status_pass
     for report in reports:
         if report.outcome == 'failed':
-            failed = report
+            if hasattr(report, 'wasxfail'):
+                test_list = tests_xpassed
+                msg = 'XPASSED'
+                msg_log = log.status_xpass
+            else:
+                failure_cleanup = True
+                test_list = tests_failed
+                msg = 'FAILED:\n' + str(report.longrepr)
+                msg_log = log.status_fail
             break
         if report.outcome == 'skipped':
-            if not skipped:
-                skipped = report
+            if hasattr(report, 'wasxfail'):
+                failure_cleanup = True
+                test_list = tests_xfailed
+                msg = 'XFAILED:\n' + str(report.longrepr)
+                msg_log = log.status_xfail
+                break
+            test_list = tests_skipped
+            msg = 'SKIPPED:\n' + str(report.longrepr)
+            msg_log = log.status_skipped
 
-    if failed:
-        tests_failed.add(item.name)
-    elif skipped:
-        tests_skipped.add(item.name)
-    else:
-        tests_passed.add(item.name)
+    if failure_cleanup:
+        console.drain_console()
+
+    test_list.add(item.name)
     tests_not_run.remove(item.name)
 
     try:
-        if failed:
-            msg = 'FAILED:\n' + str(failed.longrepr)
-            log.status_fail(msg)
-        elif skipped:
-            msg = 'SKIPPED:\n' + str(skipped.longrepr)
-            log.status_skipped(msg)
-        else:
-            log.status_pass('OK')
+        msg_log(msg)
     except:
         # If something went wrong with logging, it's better to let the test
         # process continue, which may report other exceptions that triggered
@@ -416,7 +442,7 @@ def pytest_runtest_protocol(item, nextitem):
 
     log.end_section(item.name)
 
-    if failed:
+    if failure_cleanup:
         console.cleanup_spawn()
 
     return reports

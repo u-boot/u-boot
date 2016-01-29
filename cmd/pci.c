@@ -578,9 +578,10 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((bdf = get_pci_dev(argv[2])) == -1)
 			return 1;
 		break;
-#ifdef CONFIG_CMD_PCI_ENUM
+#if defined(CONFIG_CMD_PCI_ENUM) || defined(CONFIG_DM_PCI)
 	case 'e':
-		break;
+		pci_init();
+		return 0;
 #endif
 	default:		/* scan bus */
 		value = 1; /* short listing */
@@ -621,15 +622,6 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 	case 'd':		/* display */
 		return pci_cfg_display(dev, addr, size, value);
-#ifdef CONFIG_CMD_PCI_ENUM
-	case 'e':
-# ifdef CONFIG_DM_PCI
-		printf("This command is not yet supported with driver model\n");
-# else
-		pci_init();
-# endif
-		break;
-#endif
 	case 'n':		/* next */
 		if (argc < 4)
 			goto usage;
@@ -665,9 +657,9 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static char pci_help_text[] =
 	"[bus] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"
-#ifdef CONFIG_CMD_PCI_ENUM
+#if defined(CONFIG_CMD_PCI_ENUM) || defined(CONFIG_DM_PCI)
 	"pci enum\n"
-	"    - re-enumerate PCI buses\n"
+	"    - Enumerate PCI buses\n"
 #endif
 	"pci header b.d.f\n"
 	"    - show header of PCI device 'bus.device.function'\n"

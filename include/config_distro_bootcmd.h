@@ -139,16 +139,26 @@
 	BOOT_TARGET_DEVICES_references_IDE_without_CONFIG_CMD_IDE
 #endif
 
+#if defined(CONFIG_CMD_PCI_ENUM) || defined(CONFIG_DM_PCI)
+#define BOOTENV_RUN_NET_PCI_ENUM "run boot_net_pci_enum; "
+#define BOOTENV_SHARED_PCI \
+	"boot_net_pci_enum=pci enum\0"
+#else
+#define BOOTENV_RUN_NET_PCI_ENUM
+#define BOOTENV_SHARED_PCI
+#endif
+
 #ifdef CONFIG_CMD_USB
-#define BOOTENV_RUN_USB_INIT "usb start; "
+#define BOOTENV_RUN_NET_USB_START "run boot_net_usb_start; "
 #define BOOTENV_SHARED_USB \
+	"boot_net_usb_start=usb start\0" \
 	"usb_boot=" \
-		BOOTENV_RUN_USB_INIT \
+		"usb start; " \
 		BOOTENV_SHARED_BLKDEV_BODY(usb)
 #define BOOTENV_DEV_USB		BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_USB	BOOTENV_DEV_NAME_BLKDEV
 #else
-#define BOOTENV_RUN_USB_INIT
+#define BOOTENV_RUN_NET_USB_START
 #define BOOTENV_SHARED_USB
 #define BOOTENV_DEV_USB \
 	BOOT_TARGET_DEVICES_references_USB_without_CONFIG_CMD_USB
@@ -159,7 +169,8 @@
 #if defined(CONFIG_CMD_DHCP)
 #define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance) \
 	"bootcmd_dhcp=" \
-		BOOTENV_RUN_USB_INIT \
+		BOOTENV_RUN_NET_USB_START \
+		BOOTENV_RUN_NET_PCI_ENUM \
 		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then " \
 			"source ${scriptaddr}; " \
 		"fi\0"
@@ -175,7 +186,8 @@
 #if defined(CONFIG_CMD_DHCP) && defined(CONFIG_CMD_PXE)
 #define BOOTENV_DEV_PXE(devtypeu, devtypel, instance) \
 	"bootcmd_pxe=" \
-		BOOTENV_RUN_USB_INIT \
+		BOOTENV_RUN_NET_USB_START \
+		BOOTENV_RUN_NET_PCI_ENUM \
 		"dhcp; " \
 		"if pxe get; then " \
 			"pxe boot; " \
@@ -199,6 +211,7 @@
 #define BOOTENV \
 	BOOTENV_SHARED_HOST \
 	BOOTENV_SHARED_MMC \
+	BOOTENV_SHARED_PCI \
 	BOOTENV_SHARED_USB \
 	BOOTENV_SHARED_SATA \
 	BOOTENV_SHARED_SCSI \

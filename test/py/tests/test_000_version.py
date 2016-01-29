@@ -9,7 +9,7 @@
 # command prompt.
 
 def test_version(u_boot_console):
-    '''Test that the "version" command prints the U-Boot version.'''
+    """Test that the "version" command prints the U-Boot version."""
 
     # "version" prints the U-Boot sign-on message. This is usually considered
     # an error, so that any unexpected reboot causes an error. Here, this
