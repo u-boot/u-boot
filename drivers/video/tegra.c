@@ -34,10 +34,44 @@ enum stage_t {
 static enum stage_t stage;	/* Current stage we are at */
 static unsigned long timer_next; /* Time we can move onto next stage */
 
+/* Information about the display controller */
+struct tegra_lcd_priv {
+	int valid;			/* config is valid */
+	int width;			/* width in pixels */
+	int height;			/* height in pixels */
+	int bpp;			/* number of bits per pixel */
+
+	/*
+	 * log2 of number of bpp, in general, unless it bpp is 24 in which
+	 * case this field holds 24 also! This is a U-Boot thing.
+	 */
+	int log2_bpp;
+	struct disp_ctlr *disp;		/* Display controller to use */
+	fdt_addr_t frame_buffer;	/* Address of frame buffer */
+	unsigned pixel_clock;		/* Pixel clock in Hz */
+	uint horiz_timing[FDT_LCD_TIMING_COUNT];	/* Horizontal timing */
+	uint vert_timing[FDT_LCD_TIMING_COUNT];		/* Vertical timing */
+	int panel_node;			/* node offset of panel information */
+	int pwm_channel;		/* PWM channel to use for backlight */
+	enum lcd_cache_t cache_type;
+
+	struct gpio_desc backlight_en;	/* GPIO for backlight enable */
+	struct gpio_desc lvds_shutdown;	/* GPIO for lvds shutdown */
+	struct gpio_desc backlight_vdd;	/* GPIO for backlight vdd */
+	struct gpio_desc panel_vdd;	/* GPIO for panel vdd */
+	/*
+	 * Panel required timings
+	 * Timing 1: delay between panel_vdd-rise and data-rise
+	 * Timing 2: delay between data-rise and backlight_vdd-rise
+	 * Timing 3: delay between backlight_vdd and pwm-rise
+	 * Timing 4: delay between pwm-rise and backlight_en-rise
+	 */
+	uint panel_timings[FDT_LCD_TIMINGS];
+};
+
 /* Our LCD config, set up in handle_stage() */
-static struct fdt_panel_config config;
-struct fdt_disp_config *disp_config;	/* Display controller config */
-static struct fdt_disp_config dconfig;
+static struct tegra_lcd_priv config;
+struct tegra_lcd_priv *disp_config;	/* Display controller config */
 
 enum {
 	/* Maximum LCD size we support */
@@ -107,14 +141,14 @@ static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
 	writel(val, &dc->cmd.state_ctrl);
 }
 
-static void write_pair(struct fdt_disp_config *config, int item, u32 *reg)
+static void write_pair(struct tegra_lcd_priv *config, int item, u32 *reg)
 {
 	writel(config->horiz_timing[item] |
 			(config->vert_timing[item] << 16), reg);
 }
 
 static int update_display_mode(struct dc_disp_reg *disp,
-		struct fdt_disp_config *config)
+		struct tegra_lcd_priv *config)
 {
 	unsigned long val;
 	unsigned long rate;
@@ -230,7 +264,7 @@ static void rgb_enable(struct dc_com_reg *com)
 }
 
 static int setup_window(struct disp_ctl_win *win,
-			struct fdt_disp_config *config)
+			struct tegra_lcd_priv *config)
 {
 	win->x = 0;
 	win->y = 0;
@@ -268,9 +302,9 @@ static int setup_window(struct disp_ctl_win *win,
  * @return pointer to display configuration, or NULL if there is no valid
  * config
  */
-struct fdt_disp_config *tegra_display_get_config(void)
+struct tegra_lcd_priv *tegra_display_get_config(void)
 {
-	return dconfig.valid ? &dconfig : NULL;
+	return config.valid ? &config : NULL;
 }
 
 static void debug_timing(const char *name, unsigned int timing[])
@@ -294,7 +328,7 @@ static void debug_timing(const char *name, unsigned int timing[])
  * @return 0 if ok, -ve on error
  */
 static int tegra_decode_panel(const void *blob, int node,
-			      struct fdt_disp_config *config)
+			      struct tegra_lcd_priv *config)
 {
 	int front, back, ref;
 
@@ -349,7 +383,7 @@ static int tegra_decode_panel(const void *blob, int node,
  * @return 0 if ok, -ve on error
  */
 static int tegra_display_decode_config(const void *blob,
-				       struct fdt_disp_config *config)
+				       struct tegra_lcd_priv *config)
 {
 	int node, rgb;
 	int bpp, bit;
@@ -403,7 +437,7 @@ static int tegra_display_decode_config(const void *blob,
  *
  * The frame buffer can be positioned by U-Boot or overriden by the fdt.
  * You should pass in the U-Boot address here, and check the contents of
- * struct fdt_disp_config to see what was actually chosen.
+ * struct tegra_lcd_priv to see what was actually chosen.
  *
  * @param blob			Device tree blob
  * @param default_lcd_base	Default address of LCD frame buffer
@@ -414,12 +448,12 @@ static int tegra_display_probe(const void *blob, void *default_lcd_base)
 	struct disp_ctl_win window;
 	struct dc_ctlr *dc;
 
-	if (tegra_display_decode_config(blob, &dconfig))
+	if (tegra_display_decode_config(blob, &config))
 		return -1;
 
-	dconfig.frame_buffer = (u32)default_lcd_base;
+	config.frame_buffer = (u32)default_lcd_base;
 
-	dc = (struct dc_ctlr *)dconfig.disp;
+	dc = (struct dc_ctlr *)config.disp;
 
 	/*
 	 * A header file for clock constants was NAKed upstream.
@@ -434,10 +468,10 @@ static int tegra_display_probe(const void *blob, void *default_lcd_base)
 	basic_init_timer(&dc->disp);
 	rgb_enable(&dc->com);
 
-	if (dconfig.pixel_clock)
-		update_display_mode(&dc->disp, &dconfig);
+	if (config.pixel_clock)
+		update_display_mode(&dc->disp, &config);
 
-	if (setup_window(&window, &dconfig))
+	if (setup_window(&window, &config))
 		return -1;
 
 	update_window(dc, &window);
@@ -445,7 +479,7 @@ static int tegra_display_probe(const void *blob, void *default_lcd_base)
 	return 0;
 }
 
-static void update_panel_size(struct fdt_disp_config *config)
+static void update_panel_size(struct tegra_lcd_priv *config)
 {
 	panel_info.vl_col = config->width;
 	panel_info.vl_row = config->height;
@@ -515,7 +549,7 @@ void tegra_lcd_early_init(const void *blob)
  * @param config	structure to store fdt config into
  * @return 0 if ok, -ve on error
  */
-static int fdt_decode_lcd(const void *blob, struct fdt_panel_config *config)
+static int fdt_decode_lcd(const void *blob, struct tegra_lcd_priv *config)
 {
 	int display_node;
 

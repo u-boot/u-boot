@@ -48,45 +48,6 @@ enum lcd_cache_t {
 						FDT_LCD_CACHE_FLUSH,
 };
 
-/* Information about the display controller */
-struct fdt_disp_config {
-	int valid;			/* config is valid */
-	int width;			/* width in pixels */
-	int height;			/* height in pixels */
-	int bpp;			/* number of bits per pixel */
-
-	/*
-	 * log2 of number of bpp, in general, unless it bpp is 24 in which
-	 * case this field holds 24 also! This is a U-Boot thing.
-	 */
-	int log2_bpp;
-	struct disp_ctlr *disp;		/* Display controller to use */
-	fdt_addr_t frame_buffer;	/* Address of frame buffer */
-	unsigned pixel_clock;		/* Pixel clock in Hz */
-	uint horiz_timing[FDT_LCD_TIMING_COUNT];	/* Horizontal timing */
-	uint vert_timing[FDT_LCD_TIMING_COUNT];		/* Vertical timing */
-	int panel_node;			/* node offset of panel information */
-};
-
-/* Information about the LCD panel */
-struct fdt_panel_config {
-	int pwm_channel;		/* PWM channel to use for backlight */
-	enum lcd_cache_t cache_type;
-
-	struct gpio_desc backlight_en;	/* GPIO for backlight enable */
-	struct gpio_desc lvds_shutdown;	/* GPIO for lvds shutdown */
-	struct gpio_desc backlight_vdd;	/* GPIO for backlight vdd */
-	struct gpio_desc panel_vdd;	/* GPIO for panel vdd */
-	/*
-	 * Panel required timings
-	 * Timing 1: delay between panel_vdd-rise and data-rise
-	 * Timing 2: delay between data-rise and backlight_vdd-rise
-	 * Timing 3: delay between backlight_vdd and pwm-rise
-	 * Timing 4: delay between pwm-rise and backlight_en-rise
-	 */
-	uint panel_timings[FDT_LCD_TIMINGS];
-};
-
 /**
  * Perform the next stage of the LCD init if it is time to do so.
  *
