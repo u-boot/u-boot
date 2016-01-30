@@ -312,6 +312,7 @@ static int tegra_kbd_probe(struct udevice *dev)
 		      __func__, ret);
 		return ret;
 	}
+	input_add_tables(input, false);
 	if (priv->matrix.fn_keycode) {
 		ret = input_add_table(input, KEY_FN, -1,
 				      priv->matrix.fn_keycode,
@@ -326,7 +327,6 @@ static int tegra_kbd_probe(struct udevice *dev)
 	priv->input = input;
 	input->dev = dev;
 	input->read_keys = tegra_kbc_check;
-	input_add_tables(input, false);
 	strcpy(sdev->name, "tegra-kbc");
 	ret = input_stdio_register(sdev);
 	if (ret) {
