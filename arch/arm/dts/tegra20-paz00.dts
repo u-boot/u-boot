@@ -65,6 +65,10 @@
 		};
 	};
 
+	pwm: pwm@7000a000 {
+		status = "okay";
+	};
+
 	lcd_panel: panel {
 		/* PAZ00 has 1024x600 */
 		clock = <54030000>;

@@ -104,6 +104,10 @@
 		};
 	};
 
+	pwm: pwm@7000a000 {
+		status = "okay";
+	};
+
 	lcd_panel: panel {
 		clock = <25175000>;
 		xres = <640>;

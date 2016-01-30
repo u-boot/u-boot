@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <pwm.h>
 #include <video.h>
 #include <asm/system.h>
 #include <asm/gpio.h>
@@ -68,6 +69,7 @@ struct tegra_lcd_priv {
 	unsigned pixel_clock;		/* Pixel clock in Hz */
 	uint horiz_timing[FDT_LCD_TIMING_COUNT];	/* Horizontal timing */
 	uint vert_timing[FDT_LCD_TIMING_COUNT];		/* Vertical timing */
+	struct udevice *pwm;
 	int pwm_channel;		/* PWM channel to use for backlight */
 	enum lcd_cache_t cache_type;
 
@@ -400,7 +402,8 @@ static int handle_stage(const void *blob, struct tegra_lcd_priv *priv)
 		pinmux_set_func(PMUX_PINGRP_GPU, PMUX_FUNC_PWM);
 		pinmux_tristate_disable(PMUX_PINGRP_GPU);
 
-		pwm_enable(priv->pwm_channel, 32768, 0xdf, 1);
+		pwm_set_config(priv->pwm, priv->pwm_channel, 0xdf, 0xff);
+		pwm_set_enable(priv->pwm, priv->pwm_channel, true);
 		break;
 	case STAGE_BACKLIGHT_EN:
 		if (dm_gpio_is_valid(&priv->backlight_en))
@@ -504,12 +507,14 @@ static int tegra_lcd_probe(struct udevice *dev)
 static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
 {
 	struct tegra_lcd_priv *priv = dev_get_priv(dev);
+	struct fdtdec_phandle_args args;
 	const void *blob = gd->fdt_blob;
 	int node = dev->of_offset;
 	int front, back, ref;
 	int panel_node;
 	int rgb;
 	int bpp, bit;
+	int ret;
 
 	priv->disp = (struct disp_ctlr *)dev_get_addr(dev);
 	if (!priv->disp) {
@@ -575,11 +580,18 @@ static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	priv->pwm_channel = pwm_request(blob, panel_node, "nvidia,pwm");
-	if (priv->pwm_channel < 0) {
-		debug("%s: Unable to request PWM channel\n", __func__);
+	if (fdtdec_parse_phandle_with_args(blob, panel_node, "nvidia,pwm",
+					   "#pwm-cells", 0, 0, &args)) {
+		debug("%s: Unable to decode PWM\n", __func__);
 		return -EINVAL;
 	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_PWM, args.node, &priv->pwm);
+	if (ret) {
+		debug("%s: Unable to find PWM\n", __func__);
+		return -EINVAL;
+	}
+	priv->pwm_channel = args.args[0];
 
 	priv->cache_type = fdtdec_get_int(blob, panel_node, "nvidia,cache-type",
 					  FDT_LCD_CACHE_WRITE_BACK_FLUSH);

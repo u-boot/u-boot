@@ -52,6 +52,10 @@
 		status = "disabled";
 	};
 
+	pwm: pwm@7000a000 {
+		status = "okay";
+	};
+
 	lcd_panel: panel {
 		clock = <33260000>;
 		xres = <800>;

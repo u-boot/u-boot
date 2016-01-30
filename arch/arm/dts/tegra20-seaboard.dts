@@ -200,6 +200,10 @@
 		};
 	};
 
+	pwm: pwm@7000a000 {
+		status = "okay";
+	};
+
 	lcd_panel: panel {
 		/* Seaboard has 1366x768 */
 		clock = <70600000>;
