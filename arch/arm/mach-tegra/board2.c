@@ -134,7 +134,8 @@ int board_init(void)
 	pin_mux_spi();
 #endif
 
-#ifdef CONFIG_PWM_TEGRA
+	/* Init is handled automatically in the driver-model case */
+#if defined(CONFIG_PWM_TEGRA) && !defined(CONFIG_PWM)
 	if (pwm_init(gd->fdt_blob))
 		debug("%s: Failed to init pwm\n", __func__);
 #endif
