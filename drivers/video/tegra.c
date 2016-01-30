@@ -57,7 +57,6 @@ struct tegra_lcd_priv {
 	unsigned long timer_next; /* Time we can move onto next stage */
 	int width;			/* width in pixels */
 	int height;			/* height in pixels */
-	int bpp;			/* number of bits per pixel */
 
 	/*
 	 * log2 of number of bpp, in general, unless it bpp is 24 in which
@@ -69,7 +68,6 @@ struct tegra_lcd_priv {
 	unsigned pixel_clock;		/* Pixel clock in Hz */
 	uint horiz_timing[FDT_LCD_TIMING_COUNT];	/* Horizontal timing */
 	uint vert_timing[FDT_LCD_TIMING_COUNT];		/* Vertical timing */
-	int panel_node;			/* node offset of panel information */
 	int pwm_channel;		/* PWM channel to use for backlight */
 	enum lcd_cache_t cache_type;
 
@@ -318,109 +316,6 @@ static void debug_timing(const char *name, unsigned int timing[])
 }
 
 /**
- * Decode panel information from the fdt, according to a standard binding
- *
- * @param blob		fdt blob
- * @param node		offset of fdt node to read from
- * @param priv		structure to store fdt config into
- * @return 0 if ok, -ve on error
- */
-static int tegra_decode_panel(const void *blob, int node,
-			      struct tegra_lcd_priv *priv)
-{
-	int front, back, ref;
-
-	priv->width = fdtdec_get_int(blob, node, "xres", -1);
-	priv->height = fdtdec_get_int(blob, node, "yres", -1);
-	priv->pixel_clock = fdtdec_get_int(blob, node, "clock", 0);
-	if (!priv->pixel_clock || priv->width == -1 || priv->height == -1) {
-		debug("%s: Pixel parameters missing\n", __func__);
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	back = fdtdec_get_int(blob, node, "left-margin", -1);
-	front = fdtdec_get_int(blob, node, "right-margin", -1);
-	ref = fdtdec_get_int(blob, node, "hsync-len", -1);
-	if ((back | front | ref) == -1) {
-		debug("%s: Horizontal parameters missing\n", __func__);
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	/* Use a ref-to-sync of 1 always, and take this from the front porch */
-	priv->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
-	priv->horiz_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
-	priv->horiz_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
-	priv->horiz_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
-		priv->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC];
-	debug_timing("horiz", priv->horiz_timing);
-
-	back = fdtdec_get_int(blob, node, "upper-margin", -1);
-	front = fdtdec_get_int(blob, node, "lower-margin", -1);
-	ref = fdtdec_get_int(blob, node, "vsync-len", -1);
-	if ((back | front | ref) == -1) {
-		debug("%s: Vertical parameters missing\n", __func__);
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	priv->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
-	priv->vert_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
-	priv->vert_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
-	priv->vert_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
-		priv->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC];
-	debug_timing("vert", priv->vert_timing);
-
-	return 0;
-}
-
-/**
- * Decode the display controller information from the fdt.
- *
- * @param blob		fdt blob
- * @param priv		structure to store fdt priv into
- * @return 0 if ok, -ve on error
- */
-static int tegra_display_decode_config(const void *blob, int node,
-				       struct tegra_lcd_priv *priv)
-{
-	int rgb;
-	int bpp, bit;
-
-	priv->disp = (struct disp_ctlr *)fdtdec_get_addr(blob, node, "reg");
-	if (!priv->disp) {
-		debug("%s: No display controller address\n", __func__);
-		return -1;
-	}
-
-	rgb = fdt_subnode_offset(blob, node, "rgb");
-
-	priv->panel_node = fdtdec_lookup_phandle(blob, rgb, "nvidia,panel");
-	if (priv->panel_node < 0) {
-		debug("%s: Cannot find panel information\n", __func__);
-		return -1;
-	}
-
-	if (tegra_decode_panel(blob, priv->panel_node, priv)) {
-		debug("%s: Failed to decode panel information\n", __func__);
-		return -1;
-	}
-
-	bpp = fdtdec_get_int(blob, priv->panel_node, "nvidia,bits-per-pixel",
-			     -1);
-	bit = ffs(bpp) - 1;
-	if (bpp == (1 << bit))
-		priv->log2_bpp = bit;
-	else
-		priv->log2_bpp = bpp;
-	if (bpp == -1) {
-		debug("%s: Pixel bpp parameters missing\n", __func__);
-		return -FDT_ERR_NOTFOUND;
-	}
-	priv->bpp = bpp;
-
-	return 0;
-}
-
-/**
  * Register a new display based on device tree configuration.
  *
  * The frame buffer can be positioned by U-Boot or overriden by the fdt.
@@ -464,51 +359,6 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 	update_window(dc, &window);
 
 	return 0;
-}
-
-/**
- * Decode the panel information from the fdt.
- *
- * @param blob		fdt blob
- * @param priv		structure to store fdt config into
- * @return 0 if ok, -ve on error
- */
-static int fdt_decode_lcd(const void *blob, struct tegra_lcd_priv *priv)
-{
-	int display_node;
-
-	display_node = priv->panel_node;
-	if (display_node < 0) {
-		debug("%s: No panel configuration available\n", __func__);
-		return -1;
-	}
-
-	priv->pwm_channel = pwm_request(blob, display_node, "nvidia,pwm");
-	if (priv->pwm_channel < 0) {
-		debug("%s: Unable to request PWM channel\n", __func__);
-		return -1;
-	}
-
-	priv->cache_type = fdtdec_get_int(blob, display_node,
-					    "nvidia,cache-type",
-					    FDT_LCD_CACHE_WRITE_BACK_FLUSH);
-
-	/* These GPIOs are all optional */
-	gpio_request_by_name_nodev(blob, display_node,
-				   "nvidia,backlight-enable-gpios", 0,
-				   &priv->backlight_en, GPIOD_IS_OUT);
-	gpio_request_by_name_nodev(blob, display_node,
-				   "nvidia,lvds-shutdown-gpios", 0,
-				   &priv->lvds_shutdown, GPIOD_IS_OUT);
-	gpio_request_by_name_nodev(blob, display_node,
-				   "nvidia,backlight-vdd-gpios", 0,
-				   &priv->backlight_vdd, GPIOD_IS_OUT);
-	gpio_request_by_name_nodev(blob, display_node,
-				   "nvidia,panel-vdd-gpios", 0,
-				   &priv->panel_vdd, GPIOD_IS_OUT);
-
-	return fdtdec_get_int_array(blob, display_node, "nvidia,panel-timings",
-			priv->panel_timings, FDT_LCD_TIMINGS);
 }
 
 /**
@@ -624,15 +474,6 @@ static int tegra_lcd_probe(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int type = DCACHE_OFF;
 
-	if (tegra_display_decode_config(blob, dev->of_offset, priv))
-		return -1;
-
-	/* get panel details */
-	if (fdt_decode_lcd(blob, priv)) {
-		printf("No valid LCD information in device tree\n");
-		return -1;
-	}
-
 	/* Initialize the Tegra display controller */
 	if (tegra_display_probe(blob, priv, (void *)plat->base)) {
 		printf("%s: Failed to probe display driver\n", __func__);
@@ -656,6 +497,110 @@ static int tegra_lcd_probe(struct udevice *dev)
 	uc_priv->bpix = priv->log2_bpp;
 	debug("LCD frame buffer at %pa, size %x\n", &priv->frame_buffer,
 	      plat->size);
+
+	return 0;
+}
+
+static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
+{
+	struct tegra_lcd_priv *priv = dev_get_priv(dev);
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
+	int front, back, ref;
+	int panel_node;
+	int rgb;
+	int bpp, bit;
+
+	priv->disp = (struct disp_ctlr *)dev_get_addr(dev);
+	if (!priv->disp) {
+		debug("%s: No display controller address\n", __func__);
+		return -EINVAL;
+	}
+
+	rgb = fdt_subnode_offset(blob, node, "rgb");
+
+	panel_node = fdtdec_lookup_phandle(blob, rgb, "nvidia,panel");
+	if (panel_node < 0) {
+		debug("%s: Cannot find panel information\n", __func__);
+		return -EINVAL;
+	}
+
+	priv->width = fdtdec_get_int(blob, panel_node, "xres", -1);
+	priv->height = fdtdec_get_int(blob, panel_node, "yres", -1);
+	priv->pixel_clock = fdtdec_get_int(blob, panel_node, "clock", 0);
+	if (!priv->pixel_clock || priv->width == -1 || priv->height == -1) {
+		debug("%s: Pixel parameters missing\n", __func__);
+		return -EINVAL;
+	}
+
+	back = fdtdec_get_int(blob, panel_node, "left-margin", -1);
+	front = fdtdec_get_int(blob, panel_node, "right-margin", -1);
+	ref = fdtdec_get_int(blob, panel_node, "hsync-len", -1);
+	if ((back | front | ref) == -1) {
+		debug("%s: Horizontal parameters missing\n", __func__);
+		return -EINVAL;
+	}
+
+	/* Use a ref-to-sync of 1 always, and take this from the front porch */
+	priv->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
+	priv->horiz_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
+	priv->horiz_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
+	priv->horiz_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
+		priv->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC];
+	debug_timing("horiz", priv->horiz_timing);
+
+	back = fdtdec_get_int(blob, panel_node, "upper-margin", -1);
+	front = fdtdec_get_int(blob, panel_node, "lower-margin", -1);
+	ref = fdtdec_get_int(blob, panel_node, "vsync-len", -1);
+	if ((back | front | ref) == -1) {
+		debug("%s: Vertical parameters missing\n", __func__);
+		return -EINVAL;
+	}
+
+	priv->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
+	priv->vert_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
+	priv->vert_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
+	priv->vert_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
+		priv->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC];
+	debug_timing("vert", priv->vert_timing);
+
+	bpp = fdtdec_get_int(blob, panel_node, "nvidia,bits-per-pixel", -1);
+	bit = ffs(bpp) - 1;
+	if (bpp == (1 << bit))
+		priv->log2_bpp = bit;
+	else
+		priv->log2_bpp = bpp;
+	if (bpp == -1) {
+		debug("%s: Pixel bpp parameters missing\n", __func__);
+		return -EINVAL;
+	}
+
+	priv->pwm_channel = pwm_request(blob, panel_node, "nvidia,pwm");
+	if (priv->pwm_channel < 0) {
+		debug("%s: Unable to request PWM channel\n", __func__);
+		return -EINVAL;
+	}
+
+	priv->cache_type = fdtdec_get_int(blob, panel_node, "nvidia,cache-type",
+					  FDT_LCD_CACHE_WRITE_BACK_FLUSH);
+
+	/* These GPIOs are all optional */
+	gpio_request_by_name_nodev(blob, panel_node,
+				   "nvidia,backlight-enable-gpios", 0,
+				   &priv->backlight_en, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(blob, panel_node,
+				   "nvidia,lvds-shutdown-gpios", 0,
+				   &priv->lvds_shutdown, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(blob, panel_node,
+				   "nvidia,backlight-vdd-gpios", 0,
+				   &priv->backlight_vdd, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(blob, panel_node,
+				   "nvidia,panel-vdd-gpios", 0,
+				   &priv->panel_vdd, GPIOD_IS_OUT);
+
+	if (fdtdec_get_int_array(blob, panel_node, "nvidia,panel-timings",
+				 priv->panel_timings, FDT_LCD_TIMINGS))
+		return -EINVAL;
 
 	return 0;
 }
@@ -685,5 +630,6 @@ U_BOOT_DRIVER(tegra_lcd) = {
 	.ops	= &tegra_lcd_ops,
 	.bind	= tegra_lcd_bind,
 	.probe	= tegra_lcd_probe,
+	.ofdata_to_platdata	= tegra_lcd_ofdata_to_platdata,
 	.priv_auto_alloc_size	= sizeof(struct tegra_lcd_priv),
 };
