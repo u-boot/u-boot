@@ -51,10 +51,6 @@ vidinfo_t panel_info = {
 	.vl_col = -1,
 };
 
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
-#error "You must enable CONFIG_OF_CONTROL to get Tegra LCD support"
-#endif
-
 static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
 {
 	unsigned h_dda, v_dda;
