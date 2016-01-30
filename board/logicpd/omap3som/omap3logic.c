@@ -26,9 +26,14 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
+#include <linux/mtd/nand.h>
 #include "omap3logic.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define CONTROL_WKUP_CTRL	0x48002a5c
+#define GPIO_IO_PWRDNZ	(1 << 6)
+#define PBIASLITEVMODE1	(1 << 8)
 
 /*
  * two dimensional array of strucures containining board name and Linux
@@ -72,6 +77,57 @@ static struct board_id {
 		},
 	},
 };
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	return serial_tstc() && serial_getc() == 'c';
+}
+#endif
+
+#if defined(CONFIG_SPL_BUILD)
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on the first bank.  This
+ * provides the timing values back to the function that configures
+ * the memory.
+ */
+void get_board_mem_timings(struct board_sdrc_timings *timings)
+{
+	timings->mr = MICRON_V_MR_165;
+	/* 256MB DDR */
+	timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+	timings->ctrla = MICRON_V_ACTIMA_200;
+	timings->ctrlb = MICRON_V_ACTIMB_200;
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+}
+#endif
+
+/*
+ * Routine: misc_init_r
+ * Description: Configure board specific parts
+ */
+int misc_init_r(void)
+{
+	t2_t *t2_base = (t2_t *)T2_BASE;
+	u32 pbias_lite;
+	/* set up dual-voltage GPIOs to 1.8V */
+	pbias_lite = readl(&t2_base->pbias_lite);
+	pbias_lite &= ~PBIASLITEVMODE1;
+	pbias_lite |= PBIASLITEPWRDNZ1;
+	writel(pbias_lite, &t2_base->pbias_lite);
+	if (get_cpu_family() == CPU_OMAP36XX)
+		writel(readl(CONTROL_WKUP_CTRL) | GPIO_IO_PWRDNZ,
+				CONTROL_WKUP_CTRL);
+	twl4030_power_init();
+
+	omap_die_id_display();
+	putc('\n');
+
+	return 0;
+}
 
 /*
  * BOARD_ID_GPIO - GPIO of pin with optional pulldown resistor on SOM LV
