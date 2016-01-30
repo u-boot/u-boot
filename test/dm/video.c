@@ -249,9 +249,9 @@ static int read_file(struct unit_test_state *uts, const char *fname,
 	fd = os_open(fname, OS_O_RDONLY);
 	ut_assert(fd >= 0);
 	size = os_read(fd, buf, buf_size);
+	os_close(fd);
 	ut_assert(size >= 0);
 	ut_assert(size < buf_size);
-	os_close(fd);
 	*addrp = addr;
 
 	return 0;
