@@ -13,15 +13,9 @@
 #include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
-#ifdef CONFIG_LCD
-#include <asm/arch/display.h>
-#endif
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/pmu.h>
-#ifdef CONFIG_PWM_TEGRA
-#include <asm/arch/pwm.h>
-#endif
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
@@ -135,15 +129,8 @@ int board_init(void)
 #endif
 
 	/* Init is handled automatically in the driver-model case */
-#if defined(CONFIG_PWM_TEGRA) && !defined(CONFIG_PWM)
-	if (pwm_init(gd->fdt_blob))
-		debug("%s: Failed to init pwm\n", __func__);
-#endif
-#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_DM_VIDEO)
 	pin_mux_display();
-#endif
-#ifdef CONFIG_LCD
-	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
@@ -171,14 +158,11 @@ int board_init(void)
 	pin_mux_usb();
 #endif
 
-#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_DM_VIDEO)
 	board_id = tegra_board_id();
 	err = tegra_lcd_pmic_init(board_id);
 	if (err)
 		return err;
-#endif
-#ifdef CONFIG_LCD
-	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 
 #ifdef CONFIG_TEGRA_NAND
@@ -226,9 +210,6 @@ int board_early_init_f(void)
 	/* Initialize periph GPIOs */
 	gpio_early_init();
 	gpio_early_init_uart();
-#ifdef CONFIG_LCD
-	tegra_lcd_early_init(gd->fdt_blob);
-#endif
 
 	return 0;
 }
@@ -236,10 +217,6 @@ int board_early_init_f(void)
 
 int board_late_init(void)
 {
-#ifdef CONFIG_LCD
-	/* Make sure we finish initing the LCD */
-	tegra_lcd_check_next_stage(gd->fdt_blob, 1);
-#endif
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (tegra_cpu_is_non_secure()) {
 		printf("CPU is in NS mode\n");
