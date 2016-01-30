@@ -381,6 +381,14 @@ config VIDEO_SANDBOX_SDL
 	  console device and can display stdout output. Within U-Boot is is
 	  a normal bitmap display and can display images as well as text.
 
+config VIDEO_TEGRA20
+	bool "Enable LCD support on Tegra20"
+	help
+	   Tegra20 supports video output to an attached LCD panel as well as
+	   other options such as HDMI. Only the LCD is supported in U-Boot.
+	   This option enables this support which can be used on devices which
+	   have an LCD display connected.
+
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
 	depends on DM_VIDEO
