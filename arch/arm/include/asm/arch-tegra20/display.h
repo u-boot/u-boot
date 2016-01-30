@@ -88,27 +88,6 @@ struct fdt_panel_config {
 };
 
 /**
- * Register a new display based on device tree configuration.
- *
- * The frame buffer can be positioned by U-Boot or overriden by the fdt.
- * You should pass in the U-Boot address here, and check the contents of
- * struct fdt_disp_config to see what was actually chosen.
- *
- * @param blob			Device tree blob
- * @param default_lcd_base	Default address of LCD frame buffer
- * @return 0 if ok, -1 on error (unsupported bits per pixel)
- */
-int tegra_display_probe(const void *blob, void *default_lcd_base);
-
-/**
- * Return the current display configuration
- *
- * @return pointer to display configuration, or NULL if there is no valid
- * config
- */
-struct fdt_disp_config *tegra_display_get_config(void);
-
-/**
  * Perform the next stage of the LCD init if it is time to do so.
  *
  * LCD init can be time-consuming because of the number of delays we need
