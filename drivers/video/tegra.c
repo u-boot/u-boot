@@ -2,7 +2,7 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#define DEBUG
+
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -31,11 +31,10 @@ enum stage_t {
 	STAGE_DONE,
 };
 
-static enum stage_t stage;	/* Current stage we are at */
-static unsigned long timer_next; /* Time we can move onto next stage */
-
 /* Information about the display controller */
 struct tegra_lcd_priv {
+	enum stage_t stage;	/* Current stage we are at */
+	unsigned long timer_next; /* Time we can move onto next stage */
 	int width;			/* width in pixels */
 	int height;			/* height in pixels */
 	int bpp;			/* number of bits per pixel */
@@ -497,10 +496,10 @@ static int fdt_decode_lcd(const void *blob, struct tegra_lcd_priv *priv)
  */
 static int handle_stage(const void *blob, struct tegra_lcd_priv *priv)
 {
-	debug("%s: stage %d\n", __func__, stage);
+	debug("%s: stage %d\n", __func__, priv->stage);
 
 	/* do the things for this stage */
-	switch (stage) {
+	switch (priv->stage) {
 	case STAGE_START:
 		/*
 		 * It is possible that the FDT has requested that the LCD be
@@ -542,12 +541,12 @@ static int handle_stage(const void *blob, struct tegra_lcd_priv *priv)
 	}
 
 	/* set up timer for next stage */
-	timer_next = timer_get_us();
-	if (stage < FDT_LCD_TIMINGS)
-		timer_next += priv->panel_timings[stage] * 1000;
+	priv->timer_next = timer_get_us();
+	if (priv->stage < FDT_LCD_TIMINGS)
+		priv->timer_next += priv->panel_timings[priv->stage] * 1000;
 
 	/* move to next stage */
-	stage++;
+	priv->stage++;
 	return 0;
 }
 
@@ -571,14 +570,14 @@ static int handle_stage(const void *blob, struct tegra_lcd_priv *priv)
 static int tegra_lcd_check_next_stage(const void *blob,
 				      struct tegra_lcd_priv *priv, int wait)
 {
-	if (stage == STAGE_DONE)
+	if (priv->stage == STAGE_DONE)
 		return 0;
 
 	do {
 		/* wait if we need to */
-		debug("%s: stage %d\n", __func__, stage);
-		if (stage != STAGE_START) {
-			int delay = timer_next - timer_get_us();
+		debug("%s: stage %d\n", __func__, priv->stage);
+		if (priv->stage != STAGE_START) {
+			int delay = priv->timer_next - timer_get_us();
 
 			if (delay > 0) {
 				if (wait)
@@ -590,8 +589,8 @@ static int tegra_lcd_check_next_stage(const void *blob,
 
 		if (handle_stage(blob, priv))
 			return -1;
-	} while (wait && stage != STAGE_DONE);
-	if (stage == STAGE_DONE)
+	} while (wait && priv->stage != STAGE_DONE);
+	if (priv->stage == STAGE_DONE)
 		debug("%s: LCD init complete\n", __func__);
 
 	return 0;
