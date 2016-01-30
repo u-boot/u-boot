@@ -139,8 +139,10 @@ int board_init(void)
 	if (pwm_init(gd->fdt_blob))
 		debug("%s: Failed to init pwm\n", __func__);
 #endif
-#ifdef CONFIG_LCD
+#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
 	pin_mux_display();
+#endif
+#ifdef CONFIG_LCD
 	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 	/* boot param addr */
@@ -169,11 +171,13 @@ int board_init(void)
 	pin_mux_usb();
 #endif
 
-#ifdef CONFIG_LCD
+#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
 	board_id = tegra_board_id();
 	err = tegra_lcd_pmic_init(board_id);
 	if (err)
 		return err;
+#endif
+#ifdef CONFIG_LCD
 	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 
