@@ -48,30 +48,4 @@ enum lcd_cache_t {
 						FDT_LCD_CACHE_FLUSH,
 };
 
-/**
- * Perform the next stage of the LCD init if it is time to do so.
- *
- * LCD init can be time-consuming because of the number of delays we need
- * while waiting for the backlight power supply, etc. This function can
- * be called at various times during U-Boot operation to advance the
- * initialization of the LCD to the next stage if sufficient time has
- * passed since the last stage. It keeps track of what stage it is up to
- * and the time that it is permitted to move to the next stage.
- *
- * The final call should have wait=1 to complete the init.
- *
- * @param blob	fdt blob containing LCD information
- * @param wait	1 to wait until all init is complete, and then return
- *		0 to return immediately, potentially doing nothing if it is
- *		not yet time for the next init.
- */
-int tegra_lcd_check_next_stage(const void *blob, int wait);
-
-/**
- * Set up the maximum LCD size so we can size the frame buffer.
- *
- * @param blob	fdt blob containing LCD information
- */
-void tegra_lcd_early_init(const void *blob);
-
 #endif /*__ASM_ARCH_TEGRA_DISPLAY_H*/

@@ -40,6 +40,10 @@
 				nvidia,panel = <&lcd_panel>;
 			};
 		};
+
+		dc@54240000 {
+			status = "disabled";
+		};
 	};
 
 	/* This is not used in U-Boot, but is expected to be in kernel .dts */

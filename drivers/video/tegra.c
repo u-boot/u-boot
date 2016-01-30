@@ -2,11 +2,11 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
+#define DEBUG
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
-#include <lcd.h>
-
+#include <video.h>
 #include <asm/system.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -36,7 +36,6 @@ static unsigned long timer_next; /* Time we can move onto next stage */
 
 /* Information about the display controller */
 struct tegra_lcd_priv {
-	int valid;			/* config is valid */
 	int width;			/* width in pixels */
 	int height;			/* height in pixels */
 	int bpp;			/* number of bits per pixel */
@@ -69,20 +68,11 @@ struct tegra_lcd_priv {
 	uint panel_timings[FDT_LCD_TIMINGS];
 };
 
-/* Our LCD config, set up in handle_stage() */
-static struct tegra_lcd_priv config;
-struct tegra_lcd_priv *disp_config;	/* Display controller config */
-
 enum {
 	/* Maximum LCD size we support */
 	LCD_MAX_WIDTH		= 1366,
 	LCD_MAX_HEIGHT		= 768,
-	LCD_MAX_LOG2_BPP	= 4,		/* 2^4 = 16 bpp */
-};
-
-vidinfo_t panel_info = {
-	/* Insert a value here so that we don't end up in the BSS */
-	.vl_col = -1,
+	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
 };
 
 static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
@@ -141,26 +131,26 @@ static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
 	writel(val, &dc->cmd.state_ctrl);
 }
 
-static void write_pair(struct tegra_lcd_priv *config, int item, u32 *reg)
+static void write_pair(struct tegra_lcd_priv *priv, int item, u32 *reg)
 {
-	writel(config->horiz_timing[item] |
-			(config->vert_timing[item] << 16), reg);
+	writel(priv->horiz_timing[item] |
+			(priv->vert_timing[item] << 16), reg);
 }
 
 static int update_display_mode(struct dc_disp_reg *disp,
-		struct tegra_lcd_priv *config)
+			       struct tegra_lcd_priv *priv)
 {
 	unsigned long val;
 	unsigned long rate;
 	unsigned long div;
 
 	writel(0x0, &disp->disp_timing_opt);
-	write_pair(config, FDT_LCD_TIMING_REF_TO_SYNC, &disp->ref_to_sync);
-	write_pair(config, FDT_LCD_TIMING_SYNC_WIDTH, &disp->sync_width);
-	write_pair(config, FDT_LCD_TIMING_BACK_PORCH, &disp->back_porch);
-	write_pair(config, FDT_LCD_TIMING_FRONT_PORCH, &disp->front_porch);
+	write_pair(priv, FDT_LCD_TIMING_REF_TO_SYNC, &disp->ref_to_sync);
+	write_pair(priv, FDT_LCD_TIMING_SYNC_WIDTH, &disp->sync_width);
+	write_pair(priv, FDT_LCD_TIMING_BACK_PORCH, &disp->back_porch);
+	write_pair(priv, FDT_LCD_TIMING_FRONT_PORCH, &disp->front_porch);
 
-	writel(config->width | (config->height << 16), &disp->disp_active);
+	writel(priv->width | (priv->height << 16), &disp->disp_active);
 
 	val = DE_SELECT_ACTIVE << DE_SELECT_SHIFT;
 	val |= DE_CONTROL_NORMAL << DE_CONTROL_SHIFT;
@@ -178,7 +168,7 @@ static int update_display_mode(struct dc_disp_reg *disp,
 	 * up or down as requried.
 	 */
 	rate = clock_get_periph_rate(PERIPH_ID_DISP1, CLOCK_ID_CGENERAL);
-	div = ((rate * 2 + config->pixel_clock / 2) / config->pixel_clock) - 2;
+	div = ((rate * 2 + priv->pixel_clock / 2) / priv->pixel_clock) - 2;
 	debug("Display clock %lu, divider %lu\n", rate, div);
 
 	writel(0x00010001, &disp->shift_clk_opt);
@@ -264,20 +254,20 @@ static void rgb_enable(struct dc_com_reg *com)
 }
 
 static int setup_window(struct disp_ctl_win *win,
-			struct tegra_lcd_priv *config)
+			struct tegra_lcd_priv *priv)
 {
 	win->x = 0;
 	win->y = 0;
-	win->w = config->width;
-	win->h = config->height;
+	win->w = priv->width;
+	win->h = priv->height;
 	win->out_x = 0;
 	win->out_y = 0;
-	win->out_w = config->width;
-	win->out_h = config->height;
-	win->phys_addr = config->frame_buffer;
-	win->stride = config->width * (1 << config->log2_bpp) / 8;
-	debug("%s: depth = %d\n", __func__, config->log2_bpp);
-	switch (config->log2_bpp) {
+	win->out_w = priv->width;
+	win->out_h = priv->height;
+	win->phys_addr = priv->frame_buffer;
+	win->stride = priv->width * (1 << priv->log2_bpp) / 8;
+	debug("%s: depth = %d\n", __func__, priv->log2_bpp);
+	switch (priv->log2_bpp) {
 	case 5:
 	case 24:
 		win->fmt = COLOR_DEPTH_R8G8B8A8;
@@ -294,17 +284,6 @@ static int setup_window(struct disp_ctl_win *win,
 	}
 
 	return 0;
-}
-
-/**
- * Return the current display configuration
- *
- * @return pointer to display configuration, or NULL if there is no valid
- * config
- */
-struct tegra_lcd_priv *tegra_display_get_config(void)
-{
-	return config.valid ? &config : NULL;
 }
 
 static void debug_timing(const char *name, unsigned int timing[])
@@ -324,19 +303,18 @@ static void debug_timing(const char *name, unsigned int timing[])
  *
  * @param blob		fdt blob
  * @param node		offset of fdt node to read from
- * @param config	structure to store fdt config into
+ * @param priv		structure to store fdt config into
  * @return 0 if ok, -ve on error
  */
 static int tegra_decode_panel(const void *blob, int node,
-			      struct tegra_lcd_priv *config)
+			      struct tegra_lcd_priv *priv)
 {
 	int front, back, ref;
 
-	config->width = fdtdec_get_int(blob, node, "xres", -1);
-	config->height = fdtdec_get_int(blob, node, "yres", -1);
-	config->pixel_clock = fdtdec_get_int(blob, node, "clock", 0);
-	if (!config->pixel_clock || config->width == -1 ||
-	    config->height == -1) {
+	priv->width = fdtdec_get_int(blob, node, "xres", -1);
+	priv->height = fdtdec_get_int(blob, node, "yres", -1);
+	priv->pixel_clock = fdtdec_get_int(blob, node, "clock", 0);
+	if (!priv->pixel_clock || priv->width == -1 || priv->height == -1) {
 		debug("%s: Pixel parameters missing\n", __func__);
 		return -FDT_ERR_NOTFOUND;
 	}
@@ -350,12 +328,12 @@ static int tegra_decode_panel(const void *blob, int node,
 	}
 
 	/* Use a ref-to-sync of 1 always, and take this from the front porch */
-	config->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
-	config->horiz_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
-	config->horiz_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
-	config->horiz_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
-		config->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC];
-	debug_timing("horiz", config->horiz_timing);
+	priv->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
+	priv->horiz_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
+	priv->horiz_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
+	priv->horiz_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
+		priv->horiz_timing[FDT_LCD_TIMING_REF_TO_SYNC];
+	debug_timing("horiz", priv->horiz_timing);
 
 	back = fdtdec_get_int(blob, node, "upper-margin", -1);
 	front = fdtdec_get_int(blob, node, "lower-margin", -1);
@@ -365,12 +343,12 @@ static int tegra_decode_panel(const void *blob, int node,
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	config->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
-	config->vert_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
-	config->vert_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
-	config->vert_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
-		config->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC];
-	debug_timing("vert", config->vert_timing);
+	priv->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC] = 1;
+	priv->vert_timing[FDT_LCD_TIMING_SYNC_WIDTH] = ref;
+	priv->vert_timing[FDT_LCD_TIMING_BACK_PORCH] = back;
+	priv->vert_timing[FDT_LCD_TIMING_FRONT_PORCH] = front -
+		priv->vert_timing[FDT_LCD_TIMING_REF_TO_SYNC];
+	debug_timing("vert", priv->vert_timing);
 
 	return 0;
 }
@@ -379,55 +357,46 @@ static int tegra_decode_panel(const void *blob, int node,
  * Decode the display controller information from the fdt.
  *
  * @param blob		fdt blob
- * @param config	structure to store fdt config into
+ * @param priv		structure to store fdt priv into
  * @return 0 if ok, -ve on error
  */
-static int tegra_display_decode_config(const void *blob,
-				       struct tegra_lcd_priv *config)
+static int tegra_display_decode_config(const void *blob, int node,
+				       struct tegra_lcd_priv *priv)
 {
-	int node, rgb;
+	int rgb;
 	int bpp, bit;
 
-	/* TODO: Support multiple controllers */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA20_DC);
-	if (node < 0) {
-		debug("%s: Cannot find display controller node in fdt\n",
-		      __func__);
-		return node;
-	}
-	config->disp = (struct disp_ctlr *)fdtdec_get_addr(blob, node, "reg");
-	if (!config->disp) {
+	priv->disp = (struct disp_ctlr *)fdtdec_get_addr(blob, node, "reg");
+	if (!priv->disp) {
 		debug("%s: No display controller address\n", __func__);
 		return -1;
 	}
 
 	rgb = fdt_subnode_offset(blob, node, "rgb");
 
-	config->panel_node = fdtdec_lookup_phandle(blob, rgb, "nvidia,panel");
-	if (config->panel_node < 0) {
+	priv->panel_node = fdtdec_lookup_phandle(blob, rgb, "nvidia,panel");
+	if (priv->panel_node < 0) {
 		debug("%s: Cannot find panel information\n", __func__);
 		return -1;
 	}
 
-	if (tegra_decode_panel(blob, config->panel_node, config)) {
+	if (tegra_decode_panel(blob, priv->panel_node, priv)) {
 		debug("%s: Failed to decode panel information\n", __func__);
 		return -1;
 	}
 
-	bpp = fdtdec_get_int(blob, config->panel_node, "nvidia,bits-per-pixel",
+	bpp = fdtdec_get_int(blob, priv->panel_node, "nvidia,bits-per-pixel",
 			     -1);
 	bit = ffs(bpp) - 1;
 	if (bpp == (1 << bit))
-		config->log2_bpp = bit;
+		priv->log2_bpp = bit;
 	else
-		config->log2_bpp = bpp;
+		priv->log2_bpp = bpp;
 	if (bpp == -1) {
 		debug("%s: Pixel bpp parameters missing\n", __func__);
 		return -FDT_ERR_NOTFOUND;
 	}
-	config->bpp = bpp;
-
-	config->valid = 1;	/* we have a valid configuration */
+	priv->bpp = bpp;
 
 	return 0;
 }
@@ -440,20 +409,19 @@ static int tegra_display_decode_config(const void *blob,
  * struct tegra_lcd_priv to see what was actually chosen.
  *
  * @param blob			Device tree blob
+ * @param priv			Driver's private data
  * @param default_lcd_base	Default address of LCD frame buffer
  * @return 0 if ok, -1 on error (unsupported bits per pixel)
  */
-static int tegra_display_probe(const void *blob, void *default_lcd_base)
+static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
+			       void *default_lcd_base)
 {
 	struct disp_ctl_win window;
 	struct dc_ctlr *dc;
 
-	if (tegra_display_decode_config(blob, &config))
-		return -1;
+	priv->frame_buffer = (u32)default_lcd_base;
 
-	config.frame_buffer = (u32)default_lcd_base;
-
-	dc = (struct dc_ctlr *)config.disp;
+	dc = (struct dc_ctlr *)priv->disp;
 
 	/*
 	 * A header file for clock constants was NAKed upstream.
@@ -468,10 +436,10 @@ static int tegra_display_probe(const void *blob, void *default_lcd_base)
 	basic_init_timer(&dc->disp);
 	rgb_enable(&dc->com);
 
-	if (config.pixel_clock)
-		update_display_mode(&dc->disp, &config);
+	if (priv->pixel_clock)
+		update_display_mode(&dc->disp, priv);
 
-	if (setup_window(&window, &config))
+	if (setup_window(&window, priv))
 		return -1;
 
 	update_window(dc, &window);
@@ -479,142 +447,61 @@ static int tegra_display_probe(const void *blob, void *default_lcd_base)
 	return 0;
 }
 
-static void update_panel_size(struct tegra_lcd_priv *config)
-{
-	panel_info.vl_col = config->width;
-	panel_info.vl_row = config->height;
-	panel_info.vl_bpix = config->log2_bpp;
-}
-
-/*
- *  Main init function called by lcd driver.
- *  Inits and then prints test pattern if required.
- */
-
-void lcd_ctrl_init(void *lcdbase)
-{
-	int type = DCACHE_OFF;
-	int size;
-
-	assert(disp_config);
-
-	/* Make sure that we can acommodate the selected LCD */
-	assert(disp_config->width <= LCD_MAX_WIDTH);
-	assert(disp_config->height <= LCD_MAX_HEIGHT);
-	assert(disp_config->log2_bpp <= LCD_MAX_LOG2_BPP);
-	if (disp_config->width <= LCD_MAX_WIDTH
-			&& disp_config->height <= LCD_MAX_HEIGHT
-			&& disp_config->log2_bpp <= LCD_MAX_LOG2_BPP)
-		update_panel_size(disp_config);
-	size = lcd_get_size(&lcd_line_length);
-
-	/* Set up the LCD caching as requested */
-	if (config.cache_type & FDT_LCD_CACHE_WRITE_THROUGH)
-		type = DCACHE_WRITETHROUGH;
-	else if (config.cache_type & FDT_LCD_CACHE_WRITE_BACK)
-		type = DCACHE_WRITEBACK;
-	mmu_set_region_dcache_behaviour(disp_config->frame_buffer, size, type);
-
-	/* Enable flushing after LCD writes if requested */
-	lcd_set_flush_dcache(config.cache_type & FDT_LCD_CACHE_FLUSH);
-
-	debug("LCD frame buffer at %pa\n", &disp_config->frame_buffer);
-}
-
-ulong calc_fbsize(void)
-{
-	return (panel_info.vl_col * panel_info.vl_row *
-		NBITS(panel_info.vl_bpix)) / 8;
-}
-
-void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
-{
-}
-
-void tegra_lcd_early_init(const void *blob)
-{
-	/*
-	 * Go with the maximum size for now. We will fix this up after
-	 * relocation. These values are only used for memory alocation.
-	 */
-	panel_info.vl_col = LCD_MAX_WIDTH;
-	panel_info.vl_row = LCD_MAX_HEIGHT;
-	panel_info.vl_bpix = LCD_MAX_LOG2_BPP;
-}
-
 /**
  * Decode the panel information from the fdt.
  *
  * @param blob		fdt blob
- * @param config	structure to store fdt config into
+ * @param priv		structure to store fdt config into
  * @return 0 if ok, -ve on error
  */
-static int fdt_decode_lcd(const void *blob, struct tegra_lcd_priv *config)
+static int fdt_decode_lcd(const void *blob, struct tegra_lcd_priv *priv)
 {
 	int display_node;
 
-	disp_config = tegra_display_get_config();
-	if (!disp_config) {
-		debug("%s: Display controller is not configured\n", __func__);
-		return -1;
-	}
-	display_node = disp_config->panel_node;
+	display_node = priv->panel_node;
 	if (display_node < 0) {
 		debug("%s: No panel configuration available\n", __func__);
 		return -1;
 	}
 
-	config->pwm_channel = pwm_request(blob, display_node, "nvidia,pwm");
-	if (config->pwm_channel < 0) {
+	priv->pwm_channel = pwm_request(blob, display_node, "nvidia,pwm");
+	if (priv->pwm_channel < 0) {
 		debug("%s: Unable to request PWM channel\n", __func__);
 		return -1;
 	}
 
-	config->cache_type = fdtdec_get_int(blob, display_node,
+	priv->cache_type = fdtdec_get_int(blob, display_node,
 					    "nvidia,cache-type",
 					    FDT_LCD_CACHE_WRITE_BACK_FLUSH);
 
 	/* These GPIOs are all optional */
 	gpio_request_by_name_nodev(blob, display_node,
 				   "nvidia,backlight-enable-gpios", 0,
-				   &config->backlight_en, GPIOD_IS_OUT);
+				   &priv->backlight_en, GPIOD_IS_OUT);
 	gpio_request_by_name_nodev(blob, display_node,
 				   "nvidia,lvds-shutdown-gpios", 0,
-				   &config->lvds_shutdown, GPIOD_IS_OUT);
+				   &priv->lvds_shutdown, GPIOD_IS_OUT);
 	gpio_request_by_name_nodev(blob, display_node,
 				   "nvidia,backlight-vdd-gpios", 0,
-				   &config->backlight_vdd, GPIOD_IS_OUT);
+				   &priv->backlight_vdd, GPIOD_IS_OUT);
 	gpio_request_by_name_nodev(blob, display_node,
 				   "nvidia,panel-vdd-gpios", 0,
-				   &config->panel_vdd, GPIOD_IS_OUT);
+				   &priv->panel_vdd, GPIOD_IS_OUT);
 
 	return fdtdec_get_int_array(blob, display_node, "nvidia,panel-timings",
-			config->panel_timings, FDT_LCD_TIMINGS);
+			priv->panel_timings, FDT_LCD_TIMINGS);
 }
 
 /**
  * Handle the next stage of device init
  */
-static int handle_stage(const void *blob)
+static int handle_stage(const void *blob, struct tegra_lcd_priv *priv)
 {
 	debug("%s: stage %d\n", __func__, stage);
 
 	/* do the things for this stage */
 	switch (stage) {
 	case STAGE_START:
-		/* Initialize the Tegra display controller */
-		if (tegra_display_probe(gd->fdt_blob, (void *)gd->fb_base)) {
-			printf("%s: Failed to probe display driver\n",
-			__func__);
-			return -1;
-		}
-
-		/* get panel details */
-		if (fdt_decode_lcd(blob, &config)) {
-			printf("No valid LCD information in device tree\n");
-			return -1;
-		}
-
 		/*
 		 * It is possible that the FDT has requested that the LCD be
 		 * disabled. We currently don't support this. It would require
@@ -628,27 +515,27 @@ static int handle_stage(const void *blob)
 		funcmux_select(PERIPH_ID_DISP1, FUNCMUX_DEFAULT);
 		break;
 	case STAGE_PANEL_VDD:
-		if (dm_gpio_is_valid(&config.panel_vdd))
-			dm_gpio_set_value(&config.panel_vdd, 1);
+		if (dm_gpio_is_valid(&priv->panel_vdd))
+			dm_gpio_set_value(&priv->panel_vdd, 1);
 		break;
 	case STAGE_LVDS:
-		if (dm_gpio_is_valid(&config.lvds_shutdown))
-			dm_gpio_set_value(&config.lvds_shutdown, 1);
+		if (dm_gpio_is_valid(&priv->lvds_shutdown))
+			dm_gpio_set_value(&priv->lvds_shutdown, 1);
 		break;
 	case STAGE_BACKLIGHT_VDD:
-		if (dm_gpio_is_valid(&config.backlight_vdd))
-			dm_gpio_set_value(&config.backlight_vdd, 1);
+		if (dm_gpio_is_valid(&priv->backlight_vdd))
+			dm_gpio_set_value(&priv->backlight_vdd, 1);
 		break;
 	case STAGE_PWM:
 		/* Enable PWM at 15/16 high, 32768 Hz with divider 1 */
 		pinmux_set_func(PMUX_PINGRP_GPU, PMUX_FUNC_PWM);
 		pinmux_tristate_disable(PMUX_PINGRP_GPU);
 
-		pwm_enable(config.pwm_channel, 32768, 0xdf, 1);
+		pwm_enable(priv->pwm_channel, 32768, 0xdf, 1);
 		break;
 	case STAGE_BACKLIGHT_EN:
-		if (dm_gpio_is_valid(&config.backlight_en))
-			dm_gpio_set_value(&config.backlight_en, 1);
+		if (dm_gpio_is_valid(&priv->backlight_en))
+			dm_gpio_set_value(&priv->backlight_en, 1);
 		break;
 	case STAGE_DONE:
 		break;
@@ -657,14 +544,32 @@ static int handle_stage(const void *blob)
 	/* set up timer for next stage */
 	timer_next = timer_get_us();
 	if (stage < FDT_LCD_TIMINGS)
-		timer_next += config.panel_timings[stage] * 1000;
+		timer_next += priv->panel_timings[stage] * 1000;
 
 	/* move to next stage */
 	stage++;
 	return 0;
 }
 
-int tegra_lcd_check_next_stage(const void *blob, int wait)
+/**
+ * Perform the next stage of the LCD init if it is time to do so.
+ *
+ * LCD init can be time-consuming because of the number of delays we need
+ * while waiting for the backlight power supply, etc. This function can
+ * be called at various times during U-Boot operation to advance the
+ * initialization of the LCD to the next stage if sufficient time has
+ * passed since the last stage. It keeps track of what stage it is up to
+ * and the time that it is permitted to move to the next stage.
+ *
+ * The final call should have wait=1 to complete the init.
+ *
+ * @param blob	fdt blob containing LCD information
+ * @param wait	1 to wait until all init is complete, and then return
+ *		0 to return immediately, potentially doing nothing if it is
+ *		not yet time for the next init.
+ */
+static int tegra_lcd_check_next_stage(const void *blob,
+				      struct tegra_lcd_priv *priv, int wait)
 {
 	if (stage == STAGE_DONE)
 		return 0;
@@ -683,7 +588,7 @@ int tegra_lcd_check_next_stage(const void *blob, int wait)
 			}
 		}
 
-		if (handle_stage(blob))
+		if (handle_stage(blob, priv))
 			return -1;
 	} while (wait && stage != STAGE_DONE);
 	if (stage == STAGE_DONE)
@@ -692,20 +597,74 @@ int tegra_lcd_check_next_stage(const void *blob, int wait)
 	return 0;
 }
 
-void lcd_enable(void)
+static int tegra_lcd_probe(struct udevice *dev)
 {
-	/*
-	 * Backlight and power init will be done separately in
-	 * tegra_lcd_check_next_stage(), which should be called in
-	 * board_late_init().
-	 *
-	 * U-Boot code supports only colour depth, selected at compile time.
-	 * The device tree setting should match this. Otherwise the display
-	 * will not look right, and U-Boot may crash.
-	 */
-	if (disp_config->log2_bpp != LCD_BPP) {
-		printf("%s: Error: LCD depth configured in FDT (%d = %dbpp)"
-			" must match setting of LCD_BPP (%d)\n", __func__,
-		       disp_config->log2_bpp, disp_config->bpp, LCD_BPP);
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct tegra_lcd_priv *priv = dev_get_priv(dev);
+	const void *blob = gd->fdt_blob;
+	int type = DCACHE_OFF;
+
+	if (tegra_display_decode_config(blob, dev->of_offset, priv))
+		return -1;
+
+	/* get panel details */
+	if (fdt_decode_lcd(blob, priv)) {
+		printf("No valid LCD information in device tree\n");
+		return -1;
 	}
+
+	/* Initialize the Tegra display controller */
+	if (tegra_display_probe(blob, priv, (void *)plat->base)) {
+		printf("%s: Failed to probe display driver\n", __func__);
+		return -1;
+	}
+
+	tegra_lcd_check_next_stage(blob, priv, 1);
+
+	/* Set up the LCD caching as requested */
+	if (priv->cache_type & FDT_LCD_CACHE_WRITE_THROUGH)
+		type = DCACHE_WRITETHROUGH;
+	else if (priv->cache_type & FDT_LCD_CACHE_WRITE_BACK)
+		type = DCACHE_WRITEBACK;
+	mmu_set_region_dcache_behaviour(priv->frame_buffer, plat->size, type);
+
+	/* Enable flushing after LCD writes if requested */
+	video_set_flush_dcache(dev, priv->cache_type & FDT_LCD_CACHE_FLUSH);
+
+	uc_priv->xsize = priv->width;
+	uc_priv->ysize = priv->height;
+	uc_priv->bpix = priv->log2_bpp;
+	debug("LCD frame buffer at %pa, size %x\n", &priv->frame_buffer,
+	      plat->size);
+
+	return 0;
 }
+
+static int tegra_lcd_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+
+	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
+		(1 << LCD_MAX_LOG2_BPP) / 8;
+
+	return 0;
+}
+
+static const struct video_ops tegra_lcd_ops = {
+};
+
+static const struct udevice_id tegra_lcd_ids[] = {
+	{ .compatible = "nvidia,tegra20-dc" },
+	{ }
+};
+
+U_BOOT_DRIVER(tegra_lcd) = {
+	.name	= "tegra_lcd",
+	.id	= UCLASS_VIDEO,
+	.of_match = tegra_lcd_ids,
+	.ops	= &tegra_lcd_ops,
+	.bind	= tegra_lcd_bind,
+	.probe	= tegra_lcd_probe,
+	.priv_auto_alloc_size	= sizeof(struct tegra_lcd_priv),
+};
