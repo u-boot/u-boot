@@ -107,6 +107,7 @@ ALL-y += checkarmreloc
 # instruction. Relocation is not supported for that case, so disable
 # such usage by requiring word relocations.
 PLATFORM_CPPFLAGS += $(call cc-option, -mword-relocations)
+PLATFORM_CPPFLAGS += $(call cc-option, -fno-pic)
 endif
 
 # limit ourselves to the sections we want in the .bin.
