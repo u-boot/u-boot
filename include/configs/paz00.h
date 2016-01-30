@@ -48,7 +48,6 @@
 #define CONFIG_CMD_DHCP
 
 /* LCD support */
-#define CONFIG_PWM_TEGRA
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_CONSOLE_SCROLL_LINES	10
 

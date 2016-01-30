@@ -17,3 +17,11 @@ config PWM_ROCKCHIP
 	  programmable period and duty cycle. A 32-bit counter is used.
 	  Various options provided in the hardware (such as capture mode and
 	  continuous/single-shot) are not supported by the driver.
+
+config PWM_TEGRA
+	bool "Enable support for the Tegra PWM"
+	help
+	  This PWM is found on Tegra 20 and other Nvidia SoCs. It supports
+	  four channels with a programmable period and duty cycle. Only a
+	  32KHz clock is supported by the driver but the duty cycle is
+	  configurable.
