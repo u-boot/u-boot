@@ -27,6 +27,7 @@ struct pwm_ctlr {
 #define PWM_DIVIDER_SHIFT	0
 #define PWM_DIVIDER_MASK	(0x1FFF << PWM_DIVIDER_SHIFT)
 
+#ifndef CONFIG_PWM
 /**
  * Program the PWM with the given parameters.
  *
@@ -56,5 +57,6 @@ int pwm_request(const void *blob, int node, const char *prop_name);
  * @return 0 if ok, -1 if the device tree node was not found or invalid.
  */
 int pwm_init(const void *blob);
+#endif
 
 #endif	/* __ASM_ARCH_TEGRA_PWM_H */
