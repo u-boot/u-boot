@@ -31,6 +31,26 @@ enum stage_t {
 	STAGE_DONE,
 };
 
+#define FDT_LCD_TIMINGS	4
+
+enum {
+	FDT_LCD_TIMING_REF_TO_SYNC,
+	FDT_LCD_TIMING_SYNC_WIDTH,
+	FDT_LCD_TIMING_BACK_PORCH,
+	FDT_LCD_TIMING_FRONT_PORCH,
+
+	FDT_LCD_TIMING_COUNT,
+};
+
+enum lcd_cache_t {
+	FDT_LCD_CACHE_OFF		= 0,
+	FDT_LCD_CACHE_WRITE_THROUGH	= 1 << 0,
+	FDT_LCD_CACHE_WRITE_BACK	= 1 << 1,
+	FDT_LCD_CACHE_FLUSH		= 1 << 2,
+	FDT_LCD_CACHE_WRITE_BACK_FLUSH	= FDT_LCD_CACHE_WRITE_BACK |
+						FDT_LCD_CACHE_FLUSH,
+};
+
 /* Information about the display controller */
 struct tegra_lcd_priv {
 	enum stage_t stage;	/* Current stage we are at */
