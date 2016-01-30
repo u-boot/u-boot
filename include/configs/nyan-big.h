@@ -38,10 +38,8 @@
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 /* LCD support */
-#define CONFIG_LCD
 #define CONFIG_PWM_TEGRA
 #define CONFIG_AS3722_POWER
-#define LCD_BPP				LCD_COLOR16
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_CMD_BMP
 

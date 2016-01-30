@@ -383,6 +383,7 @@ config VIDEO_SANDBOX_SDL
 
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
+	depends on DM_VIDEO
 	help
 	   Tegra124 supports many video output options including eDP and
 	   HDMI. At present only eDP is supported by U-Boot. This option

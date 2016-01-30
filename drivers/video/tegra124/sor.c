@@ -5,9 +5,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <panel.h>
+#include <video_bridge.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/dc.h>
@@ -37,6 +40,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define APBDEV_PMC_IO_DPD2_STATUS_LVDS_OFF		(0 << 25)
 #define APBDEV_PMC_IO_DPD2_STATUS_LVDS_ON		(1 << 25)
 
+struct tegra_dc_sor_data {
+	void *base;
+	void *pmc_base;
+	u8 portnum;	/* 0 or 1 */
+	int power_is_up;
+	struct udevice *panel;
+};
+
 static inline u32 tegra_sor_readl(struct tegra_dc_sor_data *sor, u32 reg)
 {
 	return readl((u32 *)sor->base + reg);
@@ -57,15 +68,19 @@ static inline void tegra_sor_write_field(struct tegra_dc_sor_data *sor,
 	tegra_sor_writel(sor, reg, reg_val);
 }
 
-void tegra_dp_disable_tx_pu(struct tegra_dc_sor_data *sor)
+void tegra_dp_disable_tx_pu(struct udevice *dev)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
+
 	tegra_sor_write_field(sor, DP_PADCTL(sor->portnum),
 			      DP_PADCTL_TX_PU_MASK, DP_PADCTL_TX_PU_DISABLE);
 }
 
-void tegra_dp_set_pe_vs_pc(struct tegra_dc_sor_data *sor, u32 mask, u32 pe_reg,
+void tegra_dp_set_pe_vs_pc(struct udevice *dev, u32 mask, u32 pe_reg,
 			   u32 vs_reg, u32 pc_reg, u8 pc_supported)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
+
 	tegra_sor_write_field(sor, PR(sor->portnum), mask, pe_reg);
 	tegra_sor_write_field(sor, DC(sor->portnum), mask, vs_reg);
 	if (pc_supported) {
@@ -95,8 +110,9 @@ static int tegra_dc_sor_poll_register(struct tegra_dc_sor_data *sor, u32 reg,
 	return -ETIMEDOUT;
 }
 
-int tegra_dc_sor_set_power_state(struct tegra_dc_sor_data *sor, int pu_pd)
+int tegra_dc_sor_set_power_state(struct udevice *dev, int pu_pd)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 	u32 orig_val;
 
@@ -123,10 +139,11 @@ int tegra_dc_sor_set_power_state(struct tegra_dc_sor_data *sor, int pu_pd)
 	return 0;
 }
 
-void tegra_dc_sor_set_dp_linkctl(struct tegra_dc_sor_data *sor, int ena,
+void tegra_dc_sor_set_dp_linkctl(struct udevice *dev, int ena,
 				 u8 training_pattern,
 				 const struct tegra_dp_link_config *link_cfg)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 
 	reg_val = tegra_sor_readl(sor, DP_LINKCTL(sor->portnum));
@@ -194,9 +211,10 @@ static int tegra_dc_sor_enable_lane_sequencer(struct tegra_dc_sor_data *sor,
 	return 0;
 }
 
-static int tegra_dc_sor_power_dplanes(struct tegra_dc_sor_data *sor,
+static int tegra_dc_sor_power_dplanes(struct udevice *dev,
 				      u32 lane_count, int pu)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 
 	reg_val = tegra_sor_readl(sor, DP_PADCTL(sor->portnum));
@@ -218,15 +236,15 @@ static int tegra_dc_sor_power_dplanes(struct tegra_dc_sor_data *sor,
 		}
 
 		tegra_sor_writel(sor, DP_PADCTL(sor->portnum), reg_val);
-		tegra_dc_sor_set_lane_count(sor, lane_count);
+		tegra_dc_sor_set_lane_count(dev, lane_count);
 	}
 
 	return tegra_dc_sor_enable_lane_sequencer(sor, pu, 0);
 }
 
-void tegra_dc_sor_set_panel_power(struct tegra_dc_sor_data *sor,
-				  int power_up)
+void tegra_dc_sor_set_panel_power(struct udevice *dev, int power_up)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 
 	reg_val = tegra_sor_readl(sor, DP_PADCTL(sor->portnum));
@@ -255,14 +273,15 @@ static void tegra_dc_sor_config_pwm(struct tegra_dc_sor_data *sor, u32 pwm_div,
 	}
 }
 
-static void tegra_dc_sor_set_dp_mode(struct tegra_dc_sor_data *sor,
+static void tegra_dc_sor_set_dp_mode(struct udevice *dev,
 				const struct tegra_dp_link_config *link_cfg)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 
-	tegra_dc_sor_set_link_bandwidth(sor, link_cfg->link_bw);
+	tegra_dc_sor_set_link_bandwidth(dev, link_cfg->link_bw);
 
-	tegra_dc_sor_set_dp_linkctl(sor, 1, training_pattern_none, link_cfg);
+	tegra_dc_sor_set_dp_linkctl(dev, 1, training_pattern_none, link_cfg);
 	reg_val = tegra_sor_readl(sor, DP_CONFIG(sor->portnum));
 	reg_val &= ~DP_CONFIG_WATERMARK_MASK;
 	reg_val |= link_cfg->watermark;
@@ -351,8 +370,9 @@ static int tegra_dc_sor_io_set_dpd(struct tegra_dc_sor_data *sor, int up)
 	return 0;
 }
 
-void tegra_dc_sor_set_internal_panel(struct tegra_dc_sor_data *sor, int is_int)
+void tegra_dc_sor_set_internal_panel(struct udevice *dev, int is_int)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 
 	reg_val = tegra_sor_readl(sor, DP_SPARE(sor->portnum));
@@ -366,9 +386,10 @@ void tegra_dc_sor_set_internal_panel(struct tegra_dc_sor_data *sor, int is_int)
 	tegra_sor_writel(sor, DP_SPARE(sor->portnum), reg_val);
 }
 
-void tegra_dc_sor_read_link_config(struct tegra_dc_sor_data *sor, u8 *link_bw,
+void tegra_dc_sor_read_link_config(struct udevice *dev, u8 *link_bw,
 				   u8 *lane_count)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 
 	reg_val = tegra_sor_readl(sor, CLK_CNTRL);
@@ -395,15 +416,18 @@ void tegra_dc_sor_read_link_config(struct tegra_dc_sor_data *sor, u8 *link_bw,
 	}
 }
 
-void tegra_dc_sor_set_link_bandwidth(struct tegra_dc_sor_data *sor, u8 link_bw)
+void tegra_dc_sor_set_link_bandwidth(struct udevice *dev, u8 link_bw)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
+
 	tegra_sor_write_field(sor, CLK_CNTRL,
 			      CLK_CNTRL_DP_LINK_SPEED_MASK,
 			      link_bw << CLK_CNTRL_DP_LINK_SPEED_SHIFT);
 }
 
-void tegra_dc_sor_set_lane_count(struct tegra_dc_sor_data *sor, u8 lane_count)
+void tegra_dc_sor_set_lane_count(struct udevice *dev, u8 lane_count)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 reg_val;
 
 	reg_val = tegra_sor_readl(sor, DP_LINKCTL(sor->portnum));
@@ -439,15 +463,16 @@ void tegra_dc_sor_set_lane_count(struct tegra_dc_sor_data *sor, u8 lane_count)
  * 4	1	0	0	0	0	0	1
  * 5	0	0	0	0	0	0	1
  */
-static int tegra_dc_sor_power_up(struct tegra_dc_sor_data *sor, int is_lvds)
+static int tegra_dc_sor_power_up(struct udevice *dev, int is_lvds)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	int ret;
 
 	if (sor->power_is_up)
 		return 0;
 
 	/* Set link bw */
-	tegra_dc_sor_set_link_bandwidth(sor, is_lvds ?
+	tegra_dc_sor_set_link_bandwidth(dev, is_lvds ?
 					CLK_CNTRL_DP_LINK_SPEED_LVDS :
 					CLK_CNTRL_DP_LINK_SPEED_G1_62);
 
@@ -655,9 +680,10 @@ static void tegra_dc_sor_enable_dc(struct dc_ctlr *disp_ctrl)
 	writel(reg_val, &disp_ctrl->cmd.state_access);
 }
 
-int tegra_dc_sor_enable_dp(struct tegra_dc_sor_data *sor,
+int tegra_dc_sor_enable_dp(struct udevice *dev,
 			   const struct tegra_dp_link_config *link_cfg)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	int ret;
 
 	tegra_sor_write_field(sor, CLK_CNTRL,
@@ -701,7 +727,7 @@ int tegra_dc_sor_enable_dp(struct tegra_dc_sor_data *sor,
 			      PLL2_AUX2_OVERRIDE_POWERDOWN |
 			      PLL2_AUX7_PORT_POWERDOWN_DISABLE);
 
-	ret = tegra_dc_sor_power_up(sor, 0);
+	ret = tegra_dc_sor_power_up(dev, 0);
 	if (ret) {
 		debug("DP failed to power up\n");
 		return ret;
@@ -711,18 +737,19 @@ int tegra_dc_sor_enable_dp(struct tegra_dc_sor_data *sor,
 	clock_sor_enable_edp_clock();
 
 	/* Power up lanes */
-	tegra_dc_sor_power_dplanes(sor, link_cfg->lane_count, 1);
+	tegra_dc_sor_power_dplanes(dev, link_cfg->lane_count, 1);
 
-	tegra_dc_sor_set_dp_mode(sor, link_cfg);
+	tegra_dc_sor_set_dp_mode(dev, link_cfg);
 	debug("%s ret\n", __func__);
 
 	return 0;
 }
 
-int tegra_dc_sor_attach(struct tegra_dc_sor_data *sor,
+int tegra_dc_sor_attach(struct udevice *dc_dev, struct udevice *dev,
 			const struct tegra_dp_link_config *link_cfg,
 			const struct display_timing *timing)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
 	struct dc_ctlr *disp_ctrl;
 	u32 reg_val;
@@ -730,9 +757,7 @@ int tegra_dc_sor_attach(struct tegra_dc_sor_data *sor,
 
 	/* Use the first display controller */
 	debug("%s\n", __func__);
-	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_DC);
-	if (node < 0)
-		return -ENOENT;
+	node = dc_dev->of_offset;
 	disp_ctrl = (struct dc_ctlr *)fdtdec_get_addr(blob, node, "reg");
 
 	tegra_dc_sor_enable_dc(disp_ctrl);
@@ -798,9 +823,11 @@ int tegra_dc_sor_attach(struct tegra_dc_sor_data *sor,
 	return 0;
 }
 
-void tegra_dc_sor_set_lane_parm(struct tegra_dc_sor_data *sor,
+void tegra_dc_sor_set_lane_parm(struct udevice *dev,
 		const struct tegra_dp_link_config *link_cfg)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
+
 	tegra_sor_writel(sor, LANE_DRIVE_CURRENT(sor->portnum),
 			 link_cfg->drive_current);
 	tegra_sor_writel(sor, PR(sor->portnum),
@@ -809,8 +836,8 @@ void tegra_dc_sor_set_lane_parm(struct tegra_dc_sor_data *sor,
 			 link_cfg->postcursor);
 	tegra_sor_writel(sor, LVDS, 0);
 
-	tegra_dc_sor_set_link_bandwidth(sor, link_cfg->link_bw);
-	tegra_dc_sor_set_lane_count(sor, link_cfg->lane_count);
+	tegra_dc_sor_set_link_bandwidth(dev, link_cfg->link_bw);
+	tegra_dc_sor_set_lane_count(dev, link_cfg->lane_count);
 
 	tegra_sor_write_field(sor, DP_PADCTL(sor->portnum),
 			      DP_PADCTL_TX_PU_ENABLE |
@@ -825,9 +852,10 @@ void tegra_dc_sor_set_lane_parm(struct tegra_dc_sor_data *sor,
 	tegra_sor_write_field(sor, DP_PADCTL(sor->portnum), 0xf0, 0x0);
 }
 
-int tegra_dc_sor_set_voltage_swing(struct tegra_dc_sor_data *sor,
+int tegra_dc_sor_set_voltage_swing(struct udevice *dev,
 				    const struct tegra_dp_link_config *link_cfg)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 drive_current = 0;
 	u32 pre_emphasis = 0;
 
@@ -851,9 +879,10 @@ int tegra_dc_sor_set_voltage_swing(struct tegra_dc_sor_data *sor,
 	return 0;
 }
 
-void tegra_dc_sor_power_down_unused_lanes(struct tegra_dc_sor_data *sor,
+void tegra_dc_sor_power_down_unused_lanes(struct udevice *dev,
 			const struct tegra_dp_link_config *link_cfg)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 pad_ctrl = 0;
 	int err = 0;
 
@@ -891,9 +920,10 @@ void tegra_dc_sor_power_down_unused_lanes(struct tegra_dc_sor_data *sor,
 	}
 }
 
-int tegra_sor_precharge_lanes(struct tegra_dc_sor_data *sor,
+int tegra_sor_precharge_lanes(struct udevice *dev,
 			      const struct tegra_dp_link_config *cfg)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	u32 val = 0;
 
 	switch (cfg->lane_count) {
@@ -931,8 +961,9 @@ static void tegra_dc_sor_enable_sor(struct dc_ctlr *disp_ctrl, bool enable)
 	writel(reg_val, &disp_ctrl->disp.disp_win_opt);
 }
 
-int tegra_dc_sor_detach(struct tegra_dc_sor_data *sor)
+int tegra_dc_sor_detach(struct udevice *dc_dev, struct udevice *dev)
 {
+	struct tegra_dc_sor_data *sor = dev_get_priv(dev);
 	int dc_reg_ctx[DC_REG_SAVE_SPACE];
 	const void *blob = gd->fdt_blob;
 	struct dc_ctlr *disp_ctrl;
@@ -942,11 +973,7 @@ int tegra_dc_sor_detach(struct tegra_dc_sor_data *sor)
 
 	debug("%s\n", __func__);
 	/* Use the first display controller */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_DC);
-	if (node < 0) {
-		ret = -ENOENT;
-		goto err;
-	}
+	node = dc_dev->of_offset;
 	disp_ctrl = (struct dc_ctlr *)fdtdec_get_addr(blob, node, "reg");
 
 	/* Sleep mode */
@@ -997,28 +1024,61 @@ err:
 	return ret;
 }
 
-int tegra_dc_sor_init(struct tegra_dc_sor_data **sorp)
+static int tegra_sor_set_backlight(struct udevice *dev, int percent)
 {
-	const void *blob = gd->fdt_blob;
-	struct tegra_dc_sor_data *sor;
-	int node;
+	struct tegra_dc_sor_data *priv = dev_get_priv(dev);
+	int ret;
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_SOR);
-	if (node < 0)
-		return -ENOENT;
-	sor = calloc(1, sizeof(*sor));
-	if (!sor)
-		return -ENOMEM;
-	sor->base = (void *)fdtdec_get_addr(blob, node, "reg");
-
-	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_PMC);
-	if (node < 0)
-		return -ENOENT;
-	sor->pmc_base = (void *)fdtdec_get_addr(blob, node, "reg");
-
-	sor->power_is_up = 0;
-	sor->portnum = 0;
-	*sorp = sor;
+	ret = panel_enable_backlight(priv->panel);
+	if (ret) {
+		debug("sor: Cannot enable panel backlight\n");
+		return ret;
+	}
 
 	return 0;
 }
+
+static int tegra_sor_ofdata_to_platdata(struct udevice *dev)
+{
+	struct tegra_dc_sor_data *priv = dev_get_priv(dev);
+	const void *blob = gd->fdt_blob;
+	int node;
+	int ret;
+
+	priv->base = (void *)fdtdec_get_addr(blob, dev->of_offset, "reg");
+
+	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_PMC);
+	if (node < 0) {
+		debug("%s: Cannot find PMC\n", __func__);
+		return -ENOENT;
+	}
+	priv->pmc_base = (void *)fdtdec_get_addr(blob, node, "reg");
+
+	ret = uclass_get_device_by_phandle(UCLASS_PANEL, dev, "nvidia,panel",
+					   &priv->panel);
+	if (ret) {
+		debug("%s: Cannot find panel for '%s' (ret=%d)\n", __func__,
+		      dev->name, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static const struct video_bridge_ops tegra_sor_ops = {
+	.set_backlight	= tegra_sor_set_backlight,
+};
+
+static const struct udevice_id tegra_sor_ids[] = {
+	{ .compatible = "nvidia,tegra124-sor" },
+	{ }
+};
+
+U_BOOT_DRIVER(sor_tegra) = {
+	.name	= "sor_tegra",
+	.id	= UCLASS_VIDEO_BRIDGE,
+	.of_match = tegra_sor_ids,
+	.ofdata_to_platdata = tegra_sor_ofdata_to_platdata,
+	.ops	= &tegra_sor_ops,
+	.priv_auto_alloc_size = sizeof(struct tegra_dc_sor_data),
+};
