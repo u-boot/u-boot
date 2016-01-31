@@ -24,7 +24,6 @@ obj-$(CONFIG_LPC32XX_HSUART) += lpc32xx_hsuart.o
 obj-$(CONFIG_MCFUART) += mcfuart.o
 obj-$(CONFIG_SYS_NS16550) += ns16550.o
 obj-$(CONFIG_S5P) += serial_s5p.o
-obj-$(CONFIG_MAX3100_SERIAL) += serial_max3100.o
 obj-$(CONFIG_MXC_UART) += serial_mxc.o
 obj-$(CONFIG_PXA_SERIAL) += serial_pxa.o
 obj-$(CONFIG_SA1100_SERIAL) += serial_sa1100.o
