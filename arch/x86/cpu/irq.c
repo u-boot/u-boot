@@ -16,19 +16,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct irq_router irq_router;
 static struct irq_routing_table *pirq_routing_table;
 
-bool pirq_check_irq_routed(int link, u8 irq)
+bool pirq_check_irq_routed(struct udevice *dev, int link, u8 irq)
 {
+	struct irq_router *priv = dev_get_priv(dev);
 	u8 pirq;
-	int base = irq_router.link_base;
+	int base = priv->link_base;
 
-	if (irq_router.config == PIRQ_VIA_PCI)
-		pirq = x86_pci_read_config8(irq_router.bdf,
-					    LINK_N2V(link, base));
+	if (priv->config == PIRQ_VIA_PCI)
+		pirq = x86_pci_read_config8(priv->bdf, LINK_N2V(link, base));
 	else
-		pirq = readb(irq_router.ibase + LINK_N2V(link, base));
+		pirq = readb(priv->ibase + LINK_N2V(link, base));
 
 	pirq &= 0xf;
 
@@ -39,24 +38,26 @@ bool pirq_check_irq_routed(int link, u8 irq)
 	return pirq == irq ? true : false;
 }
 
-int pirq_translate_link(int link)
+int pirq_translate_link(struct udevice *dev, int link)
 {
-	return LINK_V2N(link, irq_router.link_base);
+	struct irq_router *priv = dev_get_priv(dev);
+
+	return LINK_V2N(link, priv->link_base);
 }
 
-void pirq_assign_irq(int link, u8 irq)
+void pirq_assign_irq(struct udevice *dev, int link, u8 irq)
 {
-	int base = irq_router.link_base;
+	struct irq_router *priv = dev_get_priv(dev);
+	int base = priv->link_base;
 
 	/* IRQ# 0/1/2/8/13 are reserved */
 	if (irq < 3 || irq == 8 || irq == 13)
 		return;
 
-	if (irq_router.config == PIRQ_VIA_PCI)
-		x86_pci_write_config8(irq_router.bdf,
-				      LINK_N2V(link, base), irq);
+	if (priv->config == PIRQ_VIA_PCI)
+		x86_pci_write_config8(priv->bdf, LINK_N2V(link, base), irq);
 	else
-		writeb(irq, irq_router.ibase + LINK_N2V(link, base));
+		writeb(irq, priv->ibase + LINK_N2V(link, base));
 }
 
 static struct irq_info *check_dup_entry(struct irq_info *slot_base,
@@ -74,17 +75,18 @@ static struct irq_info *check_dup_entry(struct irq_info *slot_base,
 	return (i == entry_num) ? NULL : slot;
 }
 
-static inline void fill_irq_info(struct irq_info *slot, int bus, int device,
-				 int pin, int pirq)
+static inline void fill_irq_info(struct irq_router *priv, struct irq_info *slot,
+				 int bus, int device, int pin, int pirq)
 {
 	slot->bus = bus;
 	slot->devfn = (device << 3) | 0;
-	slot->irq[pin - 1].link = LINK_N2V(pirq, irq_router.link_base);
-	slot->irq[pin - 1].bitmap = irq_router.irq_mask;
+	slot->irq[pin - 1].link = LINK_N2V(pirq, priv->link_base);
+	slot->irq[pin - 1].bitmap = priv->irq_mask;
 }
 
 static int create_pirq_routing_table(struct udevice *dev)
 {
+	struct irq_router *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
 	int node;
 	int len, count;
@@ -98,15 +100,15 @@ static int create_pirq_routing_table(struct udevice *dev)
 	node = dev->of_offset;
 
 	/* extract the bdf from fdt_pci_addr */
-	irq_router.bdf = dm_pci_get_bdf(dev->parent);
+	priv->bdf = dm_pci_get_bdf(dev->parent);
 
 	ret = fdt_find_string(blob, node, "intel,pirq-config", "pci");
 	if (!ret) {
-		irq_router.config = PIRQ_VIA_PCI;
+		priv->config = PIRQ_VIA_PCI;
 	} else {
 		ret = fdt_find_string(blob, node, "intel,pirq-config", "ibase");
 		if (!ret)
-			irq_router.config = PIRQ_VIA_IBASE;
+			priv->config = PIRQ_VIA_IBASE;
 		else
 			return -EINVAL;
 	}
@@ -114,12 +116,12 @@ static int create_pirq_routing_table(struct udevice *dev)
 	ret = fdtdec_get_int(blob, node, "intel,pirq-link", -1);
 	if (ret == -1)
 		return ret;
-	irq_router.link_base = ret;
+	priv->link_base = ret;
 
-	irq_router.irq_mask = fdtdec_get_int(blob, node,
-					     "intel,pirq-mask", PIRQ_BITMAP);
+	priv->irq_mask = fdtdec_get_int(blob, node,
+					"intel,pirq-mask", PIRQ_BITMAP);
 
-	if (irq_router.config == PIRQ_VIA_IBASE) {
+	if (priv->config == PIRQ_VIA_IBASE) {
 		int ibase_off;
 
 		ibase_off = fdtdec_get_int(blob, node, "intel,ibase-offset", 0);
@@ -136,9 +138,8 @@ static int create_pirq_routing_table(struct udevice *dev)
 		 *   2) memory range decoding is enabled.
 		 * Hence we don't do any santify test here.
 		 */
-		irq_router.ibase = x86_pci_read_config32(irq_router.bdf,
-							 ibase_off);
-		irq_router.ibase &= ~0xf;
+		priv->ibase = x86_pci_read_config32(priv->bdf, ibase_off);
+		priv->ibase &= ~0xf;
 	}
 
 	cell = fdt_getprop(blob, node, "intel,pirq-routing", &len);
@@ -153,9 +154,8 @@ static int create_pirq_routing_table(struct udevice *dev)
 	/* Populate the PIRQ table fields */
 	rt->signature = PIRQ_SIGNATURE;
 	rt->version = PIRQ_VERSION;
-	rt->rtr_bus = PCI_BUS(irq_router.bdf);
-	rt->rtr_devfn = (PCI_DEV(irq_router.bdf) << 3) |
-			PCI_FUNC(irq_router.bdf);
+	rt->rtr_bus = PCI_BUS(priv->bdf);
+	rt->rtr_devfn = (PCI_DEV(priv->bdf) << 3) | PCI_FUNC(priv->bdf);
 	rt->rtr_vendor = PCI_VENDOR_ID_INTEL;
 	rt->rtr_device = PCI_DEVICE_ID_INTEL_ICH7_31;
 
@@ -192,7 +192,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 				 * routing information in the device tree.
 				 */
 				if (slot->irq[pr.pin - 1].link !=
-					LINK_N2V(pr.pirq, irq_router.link_base))
+					LINK_N2V(pr.pirq, priv->link_base))
 					debug("WARNING: Inconsistent PIRQ routing information\n");
 				continue;
 			}
@@ -200,8 +200,8 @@ static int create_pirq_routing_table(struct udevice *dev)
 			slot = slot_base + irq_entries++;
 		}
 		debug("writing INT%c\n", 'A' + pr.pin - 1);
-		fill_irq_info(slot, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf), pr.pin,
-			      pr.pirq);
+		fill_irq_info(priv, slot, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf),
+			      pr.pin, pr.pirq);
 	}
 
 	rt->size = irq_entries * sizeof(struct irq_info) + 32;
@@ -221,7 +221,7 @@ int irq_router_common_init(struct udevice *dev)
 		return ret;
 	}
 	/* Route PIRQ */
-	pirq_route_irqs(pirq_routing_table->slots,
+	pirq_route_irqs(dev, pirq_routing_table->slots,
 			get_irq_slot_count(pirq_routing_table));
 
 	return 0;
@@ -250,6 +250,7 @@ U_BOOT_DRIVER(irq_router_drv) = {
 	.id		= UCLASS_IRQ,
 	.of_match	= irq_router_ids,
 	.probe		= irq_router_probe,
+	.priv_auto_alloc_size = sizeof(struct irq_router),
 };
 
 UCLASS_DRIVER(irq) = {

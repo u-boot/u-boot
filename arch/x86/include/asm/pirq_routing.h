@@ -72,12 +72,13 @@ static inline int get_irq_slot_count(struct irq_routing_table *rt)
  * Note: this function should be provided by the platform codes, as the
  * implementation of interrupt router may be different.
  *
+ * @dev:	irq router's udevice
  * @link:	link number which represents a PIRQ
  * @irq:	the 8259 IRQ number
  * @return:	true if the irq is already routed to 8259 for a given link,
  *		false elsewise
  */
-bool pirq_check_irq_routed(int link, u8 irq);
+bool pirq_check_irq_routed(struct udevice *dev, int link, u8 irq);
 
 /**
  * pirq_translate_link() - Translate a link value
@@ -89,10 +90,11 @@ bool pirq_check_irq_routed(int link, u8 irq);
  * Note: this function should be provided by the platform codes, as the
  * implementation of interrupt router may be different.
  *
+ * @dev:	irq router's udevice
  * @link:	platform-specific link value
  * @return:	link number which represents a PIRQ
  */
-int pirq_translate_link(int link);
+int pirq_translate_link(struct udevice *dev, int link);
 
 /**
  * pirq_assign_irq() - Assign an IRQ to a PIRQ link
@@ -103,10 +105,11 @@ int pirq_translate_link(int link);
  * Note: this function should be provided by the platform codes, as the
  * implementation of interrupt router may be different.
  *
+ * @dev:	irq router's udevice
  * @link:	link number which represents a PIRQ
  * @irq:	IRQ to which the PIRQ is routed
  */
-void pirq_assign_irq(int link, u8 irq);
+void pirq_assign_irq(struct udevice *dev, int link, u8 irq);
 
 /**
  * pirq_route_irqs() - Route PIRQs to 8259 PIC
@@ -117,10 +120,11 @@ void pirq_assign_irq(int link, u8 irq);
  * The configuration source is taken from a struct irq_info table, the format
  * of which is defined in PIRQ routing table spec and PCI BIOS spec.
  *
+ * @dev:	irq router's udevice
  * @irq:	pointer to the base address of the struct irq_info
  * @num:	number of entries in the struct irq_info
  */
-void pirq_route_irqs(struct irq_info *irq, int num);
+void pirq_route_irqs(struct udevice *dev, struct irq_info *irq, int num);
 
 /**
  * copy_pirq_routing_table() - Copy a PIRQ routing table
