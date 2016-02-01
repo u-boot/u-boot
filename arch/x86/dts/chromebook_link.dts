@@ -255,7 +255,7 @@
 			spi: spi {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				compatible = "intel,ich-spi";
+				compatible = "intel,ich9-spi";
 				spi-flash@0 {
 					#size-cells = <1>;
 					#address-cells = <1>;

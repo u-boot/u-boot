@@ -230,7 +230,7 @@
 			spi: spi {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				compatible = "intel,ich-spi";
+				compatible = "intel,ich7-spi";
 				spi-flash@0 {
 					reg = <0>;
 					compatible = "sst,25vf016b",

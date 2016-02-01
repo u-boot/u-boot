@@ -18,6 +18,8 @@
 
 #include "ich.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef DEBUG_TRACE
 #define debug_trace(fmt, args...) debug(fmt, ##args)
 #else
@@ -594,9 +596,6 @@ static int ich_spi_probe(struct udevice *dev)
 	uint8_t bios_cntl;
 	int ret;
 
-	/* Check the ICH version */
-	plat->ich_version = pch_get_version(dev->parent);
-
 	ret = ich_init_controller(dev, plat, priv);
 	if (ret)
 		return ret;
@@ -658,6 +657,25 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	return 0;
 }
 
+static int ich_spi_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	int ret;
+
+	ret = fdt_node_check_compatible(gd->fdt_blob, dev->of_offset,
+					"intel,ich7-spi");
+	if (ret == 0) {
+		plat->ich_version = PCHV_7;
+	} else {
+		ret = fdt_node_check_compatible(gd->fdt_blob, dev->of_offset,
+						"intel,ich9-spi");
+		if (ret == 0)
+			plat->ich_version = PCHV_9;
+	}
+
+	return ret;
+}
+
 static const struct dm_spi_ops ich_spi_ops = {
 	.xfer		= ich_spi_xfer,
 	.set_speed	= ich_spi_set_speed,
@@ -669,7 +687,8 @@ static const struct dm_spi_ops ich_spi_ops = {
 };
 
 static const struct udevice_id ich_spi_ids[] = {
-	{ .compatible = "intel,ich-spi" },
+	{ .compatible = "intel,ich7-spi" },
+	{ .compatible = "intel,ich9-spi" },
 	{ }
 };
 
@@ -678,6 +697,7 @@ U_BOOT_DRIVER(ich_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = ich_spi_ids,
 	.ops	= &ich_spi_ops,
+	.ofdata_to_platdata = ich_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct ich_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct ich_spi_priv),
 	.child_pre_probe = ich_spi_child_pre_probe,
