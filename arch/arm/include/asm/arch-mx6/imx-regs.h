@@ -715,39 +715,22 @@ struct fuse_bank1_regs {
 	u32	rsvd7[3];
 };
 
-#if (defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL))
 struct fuse_bank4_regs {
 	u32 sjc_resp_low;
 	u32 rsvd0[3];
 	u32 sjc_resp_high;
 	u32 rsvd1[3];
-	u32 mac_addr_low;
+	u32 mac_addr0;
 	u32 rsvd2[3];
-	u32 mac_addr_high;
+	u32 mac_addr1;
 	u32 rsvd3[3];
-	u32 mac_addr2;
+	u32 mac_addr2; /*For i.MX6SX and i.MX6UL*/
 	u32 rsvd4[7];
 	u32 gp1;
 	u32 rsvd5[3];
 	u32 gp2;
 	u32 rsvd6[3];
 };
-#else
-struct fuse_bank4_regs {
-	u32	sjc_resp_low;
-	u32     rsvd0[3];
-	u32     sjc_resp_high;
-	u32     rsvd1[3];
-	u32	mac_addr_low;
-	u32     rsvd2[3];
-	u32     mac_addr_high;
-	u32	rsvd3[0xb];
-	u32	gp1;
-	u32	rsvd4[3];
-	u32	gp2;
-	u32	rsvd5[3];
-};
-#endif
 
 struct aipstz_regs {
 	u32	mprot0;
