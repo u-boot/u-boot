@@ -747,7 +747,7 @@ endif
 ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
-ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb u-boot-dtb.bin
+ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb
 ifeq ($(CONFIG_SPL_FRAMEWORK),y)
 ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
 endif
@@ -823,14 +823,22 @@ PHONY += dtbs
 dtbs dts/dt.dtb: checkdtc u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
 
-u-boot-dtb.bin: u-boot.bin dts/dt.dtb FORCE
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
+
+ifeq ($(CONFIG_OF_SEPARATE),y)
+u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
+
+u-boot.bin: u-boot-dtb.bin FORCE
+	$(call if_changed,copy)
+else
+u-boot.bin: u-boot-nodtb.bin FORCE
+	$(call if_changed,copy)
+endif
 
 %.imx: %.bin
 	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
-
-quiet_cmd_copy = COPY    $@
-      cmd_copy = cp $< $@
 
 u-boot.dtb: dts/dt.dtb
 	$(call cmd,copy)
@@ -842,11 +850,11 @@ OBJCOPYFLAGS_u-boot.srec := -O srec
 u-boot.hex u-boot.srec: u-boot FORCE
 	$(call if_changed,objcopy)
 
-OBJCOPYFLAGS_u-boot.bin := -O binary \
+OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
 		$(if $(CONFIG_X86_RESET_VECTOR),-R .start16 -R .resetvec)
 
-binary_size_check: u-boot.bin FORCE
-	@file_size=$(shell wc -c u-boot.bin | awk '{print $$1}') ; \
+binary_size_check: u-boot-nodtb.bin FORCE
+	@file_size=$(shell wc -c u-boot-nodtb.bin | awk '{print $$1}') ; \
 	map_size=$(shell cat u-boot.map | \
 		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
 		| sed 's/0X//g' \
@@ -854,12 +862,12 @@ binary_size_check: u-boot.bin FORCE
 	if [ "" != "$$map_size" ]; then \
 		if test $$map_size -ne $$file_size; then \
 			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
-			echo "  but u-boot.bin shows $$file_size" >&2 ; \
+			echo "  but u-boot-nodtb.bin shows $$file_size" >&2 ; \
 			exit 1; \
 		fi \
 	fi
 
-u-boot.bin: u-boot FORCE
+u-boot-nodtb.bin: u-boot FORCE
 	$(call if_changed,objcopy)
 	$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
 	$(BOARD_SIZE_CHECK)
@@ -1018,7 +1026,7 @@ rom: u-boot.rom FORCE
 IFDTOOL=$(objtree)/tools/ifdtool
 IFDTOOL_FLAGS  = -f 0:$(objtree)/u-boot.dtb
 IFDTOOL_FLAGS += -m 0x$(shell $(NM) u-boot |grep _dt_ucode_base_size |cut -d' ' -f1)
-IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot.bin
+IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot-nodtb.bin
 IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
 IFDTOOL_FLAGS += -C
 
@@ -1069,7 +1077,7 @@ endif
 
 ifneq ($(CONFIG_TEGRA),)
 OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
-u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot.bin FORCE
+u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot-nodtb.bin FORCE
 	$(call if_changed,pad_cat)
 
 OBJCOPYFLAGS_u-boot-dtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
