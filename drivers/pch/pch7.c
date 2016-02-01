@@ -22,11 +22,6 @@ static int pch7_get_sbase(struct udevice *dev, ulong *sbasep)
 	return 0;
 }
 
-static enum pch_version pch7_get_version(struct udevice *dev)
-{
-	return PCHV_7;
-}
-
 static int pch7_set_spi_protect(struct udevice *dev, bool protect)
 {
 	uint8_t bios_cntl;
@@ -44,7 +39,6 @@ static int pch7_set_spi_protect(struct udevice *dev, bool protect)
 
 static const struct pch_ops pch7_ops = {
 	.get_sbase	= pch7_get_sbase,
-	.get_version	= pch7_get_version,
 	.set_spi_protect = pch7_set_spi_protect,
 };
 

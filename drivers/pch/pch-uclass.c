@@ -23,16 +23,6 @@ int pch_get_sbase(struct udevice *dev, ulong *sbasep)
 	return ops->get_sbase(dev, sbasep);
 }
 
-enum pch_version pch_get_version(struct udevice *dev)
-{
-	struct pch_ops *ops = pch_get_ops(dev);
-
-	if (!ops->get_version)
-		return -ENOSYS;
-
-	return ops->get_version(dev);
-}
-
 int pch_set_spi_protect(struct udevice *dev, bool protect)
 {
 	struct pch_ops *ops = pch_get_ops(dev);

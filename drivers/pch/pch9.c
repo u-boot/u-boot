@@ -20,14 +20,8 @@ static int pch9_get_sbase(struct udevice *dev, ulong *sbasep)
 	return 0;
 }
 
-static enum pch_version pch9_get_version(struct udevice *dev)
-{
-	return PCHV_9;
-}
-
 static const struct pch_ops pch9_ops = {
 	.get_sbase	= pch9_get_sbase,
-	.get_version	= pch9_get_version,
 };
 
 static const struct udevice_id pch9_ids[] = {

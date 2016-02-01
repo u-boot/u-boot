@@ -182,11 +182,6 @@ static int bd82x6x_pch_get_sbase(struct udevice *dev, ulong *sbasep)
 	return 0;
 }
 
-static enum pch_version bd82x6x_pch_get_version(struct udevice *dev)
-{
-	return PCHV_9;
-}
-
 static int bd82x6x_set_spi_protect(struct udevice *dev, bool protect)
 {
 	uint8_t bios_cntl;
@@ -207,7 +202,6 @@ static int bd82x6x_set_spi_protect(struct udevice *dev, bool protect)
 
 static const struct pch_ops bd82x6x_pch_ops = {
 	.get_sbase	= bd82x6x_pch_get_sbase,
-	.get_version	= bd82x6x_pch_get_version,
 	.set_spi_protect = bd82x6x_set_spi_protect,
 };
 

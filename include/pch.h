@@ -8,12 +8,6 @@
 #ifndef __pch_h
 #define __pch_h
 
-enum pch_version {
-	PCHV_UNKNOWN,
-	PCHV_7,
-	PCHV_9,
-};
-
 #define PCH_RCBA		0xf0
 
 #define BIOS_CTRL_BIOSWE	BIT(0)
@@ -28,13 +22,6 @@ struct pch_ops {
 	 * @return 0 if OK, -ve on error (e.g. there is no SPI base)
 	 */
 	int (*get_sbase)(struct udevice *dev, ulong *sbasep);
-
-	/**
-	 * get_version() - get the PCH version
-	 *
-	 * @return version, or -ENOSYS if unknown
-	 */
-	enum pch_version (*get_version)(struct udevice *dev);
 
 	/**
 	 * set_spi_protect() - set whether SPI flash is protected or not
@@ -57,13 +44,6 @@ struct pch_ops {
  * @return 0 if OK, -ve on error (e.g. there is no SPI base)
  */
 int pch_get_sbase(struct udevice *dev, ulong *sbasep);
-
-/**
- * pch_get_version() - get the PCH version
- *
- * @return version, or -ENOSYS if unknown
- */
-enum pch_version pch_get_version(struct udevice *dev);
 
 /**
  * set_spi_protect() - set whether SPI flash is protected or not
