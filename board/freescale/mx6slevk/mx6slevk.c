@@ -156,7 +156,7 @@ static void setup_iomux_fec(void)
 
 	/* Reset LAN8720 PHY */
 	gpio_direction_output(ETH_PHY_RESET , 0);
-	udelay(1000);
+	udelay(25000);
 	gpio_set_value(ETH_PHY_RESET, 1);
 }
 
