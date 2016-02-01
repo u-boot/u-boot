@@ -119,11 +119,11 @@ void pci_assign_irqs(int bus, int device, u8 irq[4])
 
 	for (func = 0; func < 8; func++) {
 		bdf = PCI_BDF(bus, device, func);
-		vendor = x86_pci_read_config16(bdf, PCI_VENDOR_ID);
+		pci_read_config16(bdf, PCI_VENDOR_ID, &vendor);
 		if (vendor == 0xffff || vendor == 0x0000)
 			continue;
 
-		pin = x86_pci_read_config8(bdf, PCI_INTERRUPT_PIN);
+		pci_read_config8(bdf, PCI_INTERRUPT_PIN, &pin);
 
 		/* PCI spec says all values except 1..4 are reserved */
 		if ((pin < 1) || (pin > 4))
@@ -136,6 +136,6 @@ void pci_assign_irqs(int bus, int device, u8 irq[4])
 		debug("Assigning IRQ %d to PCI device %d.%x.%d (INT%c)\n",
 		      line, bus, device, func, 'A' + pin - 1);
 
-		x86_pci_write_config8(bdf, PCI_INTERRUPT_LINE, line);
+		pci_write_config8(bdf, PCI_INTERRUPT_LINE, line);
 	}
 }
