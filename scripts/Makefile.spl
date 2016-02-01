@@ -131,15 +131,11 @@ boot.bin: $(obj)/u-boot-spl.bin
 else
 MKIMAGEFLAGS_boot.bin = -T zynqimage
 
-spl/boot.bin: $(obj)/u-boot-spl-dtb.bin
+spl/boot.bin: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkimage)
 endif
 
 ALL-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).cfg
-
-ifdef CONFIG_SPL_OF_CONTROL
-ALL-$(CONFIG_OF_SEPARATE) += $(obj)/$(SPL_BIN)-pad.bin $(obj)/$(SPL_BIN)-dtb.bin
-endif
 
 ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
@@ -166,11 +162,22 @@ all:	$(ALL-y)
 quiet_cmd_cat = CAT     $@
 cmd_cat = cat $(filter-out $(PHONY), $^) > $@
 
-$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN)-pad.bin \
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
+
+ifeq ($(CONFIG_SPL_OF_CONTROL),y)
+$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin $(obj)/$(SPL_BIN)-pad.bin \
 		$(obj)/$(SPL_BIN).dtb FORCE
 	$(call if_changed,cat)
 
-# Create a file that pads from the end of u-boot-spl.bin to bss_end
+$(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN)-dtb.bin FORCE
+	$(call if_changed,copy)
+else
+$(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN)-nodtb.bin FORCE
+	$(call if_changed,copy)
+endif
+
+# Create a file that pads from the end of u-boot-spl-nodtb.bin to bss_end
 $(obj)/$(SPL_BIN)-pad.bin: $(obj)/$(SPL_BIN)
 	@bss_size_str=$(shell $(NM) $< | awk 'BEGIN {size = 0} /__bss_size/ {size = $$1} END {print "ibase=16; " toupper(size)}' | bc); \
 	dd if=/dev/zero of=$@ bs=1 count=$${bss_size_str} 2>/dev/null;
@@ -211,9 +218,9 @@ endif
 quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
-OBJCOPYFLAGS_$(SPL_BIN).bin = $(SPL_OBJCFLAGS) -O binary
+OBJCOPYFLAGS_$(SPL_BIN)-nodtb.bin = $(SPL_OBJCFLAGS) -O binary
 
-$(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN) FORCE
+$(obj)/$(SPL_BIN)-nodtb.bin: $(obj)/$(SPL_BIN) FORCE
 	$(call if_changed,objcopy)
 
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
