@@ -10,6 +10,7 @@
 
 #include <xilinx.h>
 
+#define ZYNQMP_SIP_SVC_CSU_DMA_CHIPID		0xC2000018
 #define ZYNQMP_SIP_SVC_PM_FPGA_LOAD		0xC2000016
 #define ZYNQMP_FPGA_OP_INIT			(1 << 0)
 #define ZYNQMP_FPGA_OP_LOAD			(1 << 1)
