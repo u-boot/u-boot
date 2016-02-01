@@ -41,6 +41,15 @@ struct pch_ops {
 	 * @return 0 if OK, -ve on error (e.g. there is no GPIO base)
 	 */
 	int (*get_gpio_base)(struct udevice *dev, u32 *gbasep);
+
+	/**
+	 * get_io_base() - get the address of IO base
+	 *
+	 * @dev:	PCH device to check
+	 * @iobasep:	Returns address of IO base if available, else 0
+	 * @return 0 if OK, -ve on error (e.g. there is no IO base)
+	 */
+	int (*get_io_base)(struct udevice *dev, u32 *iobasep);
 };
 
 #define pch_get_ops(dev)        ((struct pch_ops *)(dev)->driver->ops)
@@ -72,5 +81,14 @@ int pch_set_spi_protect(struct udevice *dev, bool protect);
  * @return 0 if OK, -ve on error (e.g. there is no GPIO base)
  */
 int pch_get_gpio_base(struct udevice *dev, u32 *gbasep);
+
+/**
+ * pch_get_io_base() - get the address of IO base
+ *
+ * @dev:	PCH device to check
+ * @iobasep:	Returns address of IO base if available, else 0
+ * @return 0 if OK, -ve on error (e.g. there is no IO base)
+ */
+int pch_get_io_base(struct udevice *dev, u32 *iobasep);
 
 #endif

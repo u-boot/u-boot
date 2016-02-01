@@ -44,6 +44,17 @@ int pch_get_gpio_base(struct udevice *dev, u32 *gbasep)
 	return ops->get_gpio_base(dev, gbasep);
 }
 
+int pch_get_io_base(struct udevice *dev, u32 *iobasep)
+{
+	struct pch_ops *ops = pch_get_ops(dev);
+
+	*iobasep = 0;
+	if (!ops->get_io_base)
+		return -ENOSYS;
+
+	return ops->get_io_base(dev, iobasep);
+}
+
 static int pch_uclass_post_bind(struct udevice *bus)
 {
 	/*
