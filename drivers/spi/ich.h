@@ -127,8 +127,13 @@ struct spi_trans {
 #define SPI_OPCODE_WREN		0x06
 #define SPI_OPCODE_FAST_READ	0x0b
 
+enum ich_version {
+	ICHV_7,
+	ICHV_9,
+};
+
 struct ich_spi_platdata {
-	enum pch_version ich_version;	/* Controller version, 7 or 9 */
+	enum ich_version ich_version;	/* Controller version, 7 or 9 */
 };
 
 struct ich_spi_priv {

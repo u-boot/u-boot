@@ -123,7 +123,7 @@ static int ich_init_controller(struct udevice *dev,
 	sbase = (void *)sbase_addr;
 	debug("%s: sbase=%p\n", __func__, sbase);
 
-	if (plat->ich_version == PCHV_7) {
+	if (plat->ich_version == ICHV_7) {
 		struct ich7_spi_regs *ich7_spi = sbase;
 
 		ich7_spi = (struct ich7_spi_regs *)sbase;
@@ -139,7 +139,7 @@ static int ich_init_controller(struct udevice *dev,
 		ctlr->bbar = offsetof(struct ich7_spi_regs, bbar);
 		ctlr->preop = offsetof(struct ich7_spi_regs, preop);
 		ctlr->base = ich7_spi;
-	} else if (plat->ich_version == PCHV_9) {
+	} else if (plat->ich_version == ICHV_9) {
 		struct ich9_spi_regs *ich9_spi = sbase;
 
 		ctlr->ichspi_lock = readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
@@ -165,7 +165,7 @@ static int ich_init_controller(struct udevice *dev,
 
 	/* Work out the maximum speed we can support */
 	ctlr->max_speed = 20000000;
-	if (plat->ich_version == PCHV_9 && ich9_can_do_33mhz(dev))
+	if (plat->ich_version == ICHV_9 && ich9_can_do_33mhz(dev))
 		ctlr->max_speed = 33000000;
 	debug("ICH SPI: Version ID %d detected at %p, speed %ld\n",
 	      plat->ich_version, ctlr->base, ctlr->max_speed);
@@ -394,7 +394,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (ret < 0)
 		return ret;
 
-	if (plat->ich_version == PCHV_7)
+	if (plat->ich_version == ICHV_7)
 		ich_writew(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
 	else
 		ich_writeb(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
@@ -649,7 +649,7 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	 * ICH 7 SPI controller only supports array read command
 	 * and byte program command for SST flash
 	 */
-	if (plat->ich_version == PCHV_7) {
+	if (plat->ich_version == ICHV_7) {
 		slave->mode_rx = SPI_RX_SLOW;
 		slave->mode = SPI_TX_BYTE;
 	}
@@ -665,12 +665,12 @@ static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 	ret = fdt_node_check_compatible(gd->fdt_blob, dev->of_offset,
 					"intel,ich7-spi");
 	if (ret == 0) {
-		plat->ich_version = PCHV_7;
+		plat->ich_version = ICHV_7;
 	} else {
 		ret = fdt_node_check_compatible(gd->fdt_blob, dev->of_offset,
 						"intel,ich9-spi");
 		if (ret == 0)
-			plat->ich_version = PCHV_9;
+			plat->ich_version = ICHV_9;
 	}
 
 	return ret;
