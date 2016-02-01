@@ -65,48 +65,6 @@
 		};
 	};
 
-	gpioa {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0 0x20>;
-		bank-name = "A";
-	};
-
-	gpiob {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x20 0x20>;
-		bank-name = "B";
-	};
-
-	gpioc {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x40 0x20>;
-		bank-name = "C";
-	};
-
-	gpiod {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x60 0x20>;
-		bank-name = "D";
-	};
-
-	gpioe {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x80 0x20>;
-		bank-name = "E";
-	};
-
-	gpiof {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0xA0 0x20>;
-		bank-name = "F";
-	};
-
 	pci {
 		compatible = "pci-x86";
 		#address-cells = <3>;
@@ -119,6 +77,8 @@
 		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,pch9";
+			#address-cells = <1>;
+			#size-cells = <1>;
 
 			irq-router {
 				compatible = "intel,irq-router";
@@ -200,6 +160,48 @@
 						reg = <0x006e0000 0x00010000>;
 					};
 				};
+			};
+
+			gpioa {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0 0x20>;
+				bank-name = "A";
+			};
+
+			gpiob {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x20 0x20>;
+				bank-name = "B";
+			};
+
+			gpioc {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x40 0x20>;
+				bank-name = "C";
+			};
+
+			gpiod {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x60 0x20>;
+				bank-name = "D";
+			};
+
+			gpioe {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x80 0x20>;
+				bank-name = "E";
+			};
+
+			gpiof {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0xA0 0x20>;
+				bank-name = "F";
 			};
 		};
 	};

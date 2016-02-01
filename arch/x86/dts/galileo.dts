@@ -82,6 +82,8 @@
 		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,pch7";
+			#address-cells = <1>;
+			#size-cells = <1>;
 
 			irq-router {
 				compatible = "intel,quark-irq-router";
@@ -132,21 +134,21 @@
 					};
 				};
 			};
+
+			gpioa {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0 0x20>;
+				bank-name = "A";
+			};
+
+			gpiob {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x20 0x20>;
+				bank-name = "B";
+			};
 		};
-	};
-
-	gpioa {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0 0x20>;
-		bank-name = "A";
-	};
-
-	gpiob {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x20 0x20>;
-		bank-name = "B";
 	};
 
 };

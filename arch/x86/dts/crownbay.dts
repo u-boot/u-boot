@@ -46,20 +46,6 @@
 
 	};
 
-	gpioa {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0 0x20>;
-		bank-name = "A";
-	};
-
-	gpiob {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x20 0x20>;
-		bank-name = "B";
-	};
-
 	chosen {
 		/*
 		 * By default the legacy superio serial port is used as the
@@ -162,6 +148,8 @@
 		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,pch7";
+			#address-cells = <1>;
+			#size-cells = <1>;
 
 			irq-router {
 				compatible = "intel,queensbay-irq-router";
@@ -237,6 +225,20 @@
 						"spi-flash";
 					memory-map = <0xffe00000 0x00200000>;
 				};
+			};
+
+			gpioa {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0 0x20>;
+				bank-name = "A";
+			};
+
+			gpiob {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x20 0x20>;
+				bank-name = "B";
 			};
 		};
 	};

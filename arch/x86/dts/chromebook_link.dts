@@ -54,27 +54,6 @@
 
 	};
 
-	gpioa {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0 0x10>;
-		bank-name = "A";
-	};
-
-	gpiob {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x30 0x10>;
-		bank-name = "B";
-	};
-
-	gpioc {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x40 0x10>;
-		bank-name = "C";
-	};
-
 	chosen {
 		stdout-path = "/serial";
 	};
@@ -268,6 +247,27 @@
 						reg = <0x003e0000 0x00010000>;
 					};
 				};
+			};
+
+			gpioa {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0 0x10>;
+				bank-name = "A";
+			};
+
+			gpiob {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x30 0x10>;
+				bank-name = "B";
+			};
+
+			gpioc {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x40 0x10>;
+				bank-name = "C";
 			};
 
 			lpc {
