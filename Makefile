@@ -764,14 +764,9 @@ ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
 endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
-ifneq ($(CONFIG_TEGRA),)
-ifeq ($(CONFIG_SPL),y)
-ifeq ($(CONFIG_OF_SEPARATE),y)
-ALL-y += u-boot-dtb-tegra.bin
-else
+ifeq ($(CONFIG_TEGRA)$(CONFIG_SPL),yy)
 ALL-y += u-boot-nodtb-tegra.bin
-endif
-endif
+ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb-tegra.bin
 endif
 
 # Add optional build target if defined in board/cpu/soc headers
@@ -1077,10 +1072,9 @@ OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
 u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot.bin FORCE
 	$(call if_changed,pad_cat)
 
-ifeq ($(CONFIG_OF_SEPARATE),y)
-u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin dts/dt.dtb FORCE
-	$(call if_changed,cat)
-endif
+OBJCOPYFLAGS_u-boot-dtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
+u-boot-dtb-tegra.bin: spl/u-boot-spl u-boot-dtb.bin FORCE
+	$(call if_changed,pad_cat)
 endif
 
 OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
