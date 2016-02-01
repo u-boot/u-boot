@@ -765,7 +765,7 @@ endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifeq ($(CONFIG_TEGRA)$(CONFIG_SPL),yy)
-ALL-y += u-boot-nodtb-tegra.bin
+ALL-y += u-boot-tegra.bin u-boot-nodtb-tegra.bin
 ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb-tegra.bin
 endif
 
@@ -1080,9 +1080,12 @@ OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
 u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot-nodtb.bin FORCE
 	$(call if_changed,pad_cat)
 
-OBJCOPYFLAGS_u-boot-dtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
-u-boot-dtb-tegra.bin: spl/u-boot-spl u-boot-dtb.bin FORCE
+OBJCOPYFLAGS_u-boot-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
+u-boot-tegra.bin: spl/u-boot-spl u-boot-dtb.bin FORCE
 	$(call if_changed,pad_cat)
+
+u-boot-dtb-tegra.bin: u-boot-tegra.bin FORCE
+	$(call if_changed,copy)
 endif
 
 OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
