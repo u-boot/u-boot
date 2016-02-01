@@ -8,6 +8,16 @@
 #ifndef __ATMEL_MPDDRC_H__
 #define __ATMEL_MPDDRC_H__
 
+struct atmel_mpddrc_config {
+	u32 mr;
+	u32 rtr;
+	u32 cr;
+	u32 tpr0;
+	u32 tpr1;
+	u32 tpr2;
+	u32 md;
+};
+
 /*
  * Only define the needed register in mpddr
  * If other register needed, will add them later
@@ -26,7 +36,7 @@ struct atmel_mpddr {
 
 int ddr2_init(const unsigned int base,
 	      const unsigned int ram_address,
-	      const struct atmel_mpddr *mpddr);
+	      const struct atmel_mpddrc_config *mpddr_value);
 
 /* Bit field in mode register */
 #define ATMEL_MPDDRC_MR_MODE_NORMAL_CMD		0x0
