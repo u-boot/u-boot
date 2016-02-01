@@ -19,59 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct pci_controller *get_hose(void)
-{
-	if (gd->hose)
-		return gd->hose;
-
-	return pci_bus_to_hose(0);
-}
-
-unsigned int x86_pci_read_config8(pci_dev_t dev, unsigned where)
-{
-	uint8_t value;
-
-	if (pci_hose_read_config_byte(get_hose(), dev, where, &value))
-		return -1U;
-
-	return value;
-}
-
-unsigned int x86_pci_read_config16(pci_dev_t dev, unsigned where)
-{
-	uint16_t value;
-
-	if (pci_hose_read_config_word(get_hose(), dev, where, &value))
-		return -1U;
-
-	return value;
-}
-
-unsigned int x86_pci_read_config32(pci_dev_t dev, unsigned where)
-{
-	uint32_t value;
-
-	if (pci_hose_read_config_dword(get_hose(), dev, where, &value))
-		return -1U;
-
-	return value;
-}
-
-void x86_pci_write_config8(pci_dev_t dev, unsigned where, unsigned value)
-{
-	pci_hose_write_config_byte(get_hose(), dev, where, value);
-}
-
-void x86_pci_write_config16(pci_dev_t dev, unsigned where, unsigned value)
-{
-	pci_hose_write_config_word(get_hose(), dev, where, value);
-}
-
-void x86_pci_write_config32(pci_dev_t dev, unsigned where, unsigned value)
-{
-	pci_hose_write_config_dword(get_hose(), dev, where, value);
-}
-
 int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 			ulong *valuep, enum pci_size_t size)
 {
