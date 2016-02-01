@@ -33,6 +33,17 @@ int pch_set_spi_protect(struct udevice *dev, bool protect)
 	return ops->set_spi_protect(dev, protect);
 }
 
+int pch_get_gpio_base(struct udevice *dev, u32 *gbasep)
+{
+	struct pch_ops *ops = pch_get_ops(dev);
+
+	*gbasep = 0;
+	if (!ops->get_gpio_base)
+		return -ENOSYS;
+
+	return ops->get_gpio_base(dev, gbasep);
+}
+
 static int pch_uclass_post_bind(struct udevice *bus)
 {
 	/*

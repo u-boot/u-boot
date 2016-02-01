@@ -32,6 +32,15 @@ struct pch_ops {
 	 * @return 0 on success, -ENOSYS if not implemented
 	 */
 	int (*set_spi_protect)(struct udevice *dev, bool protect);
+
+	/**
+	 * get_gpio_base() - get the address of GPIO base
+	 *
+	 * @dev:	PCH device to check
+	 * @gbasep:	Returns address of GPIO base if available, else 0
+	 * @return 0 if OK, -ve on error (e.g. there is no GPIO base)
+	 */
+	int (*get_gpio_base)(struct udevice *dev, u32 *gbasep);
 };
 
 #define pch_get_ops(dev)        ((struct pch_ops *)(dev)->driver->ops)
@@ -54,5 +63,14 @@ int pch_get_spi_base(struct udevice *dev, ulong *sbasep);
  * @return 0 on success, -ENOSYS if not implemented
  */
 int pch_set_spi_protect(struct udevice *dev, bool protect);
+
+/**
+ * pch_get_gpio_base() - get the address of GPIO base
+ *
+ * @dev:	PCH device to check
+ * @gbasep:	Returns address of GPIO base if available, else 0
+ * @return 0 if OK, -ve on error (e.g. there is no GPIO base)
+ */
+int pch_get_gpio_base(struct udevice *dev, u32 *gbasep);
 
 #endif
