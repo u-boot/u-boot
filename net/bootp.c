@@ -60,6 +60,8 @@ char net_nis_domain[32] = {0,}; /* Our NIS domain */
 char net_hostname[32] = {0,}; /* Our hostname */
 char net_root_path[64] = {0,}; /* Our bootpath */
 
+static ulong time_taken_max;
+
 #if defined(CONFIG_CMD_DHCP)
 static dhcp_state_t dhcp_state = INIT;
 static u32 dhcp_leasetime;
@@ -380,7 +382,7 @@ static void bootp_timeout_handler(void)
 {
 	ulong time_taken = get_timer(bootp_start);
 
-	if (time_taken >= TIMEOUT_MS) {
+	if (time_taken >= time_taken_max) {
 #ifdef CONFIG_BOOTP_MAY_FAIL
 		puts("\nRetry time exceeded\n");
 		net_set_state(NETLOOP_FAIL);
@@ -675,11 +677,18 @@ void bootp_request(void)
 	u32 bootp_id;
 	struct in_addr zero_ip;
 	struct in_addr bcast_ip;
+	char *ep;  /* Environment pointer */
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = INIT;
 #endif
+
+	ep = getenv("bootpretryperiod");
+	if (ep != NULL)
+		time_taken_max = simple_strtoul(ep, NULL, 10);
+	else
+		time_taken_max = TIMEOUT_MS;
 
 #ifdef CONFIG_BOOTP_RANDOM_DELAY		/* Random BOOTP delay */
 	if (bootp_try == 0)
