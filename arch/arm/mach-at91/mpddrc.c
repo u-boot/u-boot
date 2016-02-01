@@ -12,6 +12,8 @@
 #include <asm/io.h>
 #include <asm/arch/atmel_mpddrc.h>
 
+#define SAMA5D3_MPDDRC_VERSION		0x140
+
 static inline void atmel_mpddr_op(const struct atmel_mpddr *mpddr,
 	      int mode,
 	      u32 ram_address)
@@ -20,13 +22,15 @@ static inline void atmel_mpddr_op(const struct atmel_mpddr *mpddr,
 	writel(0, ram_address);
 }
 
-static int ddr2_decodtype_is_seq(u32 cr)
+static int ddr2_decodtype_is_seq(const unsigned int base, u32 cr)
 {
-#if defined(CONFIG_SAMA5D3) || defined(CONFIG_SAMA5D4) || \
-	defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12)
-	if (cr & ATMEL_MPDDRC_CR_DECOD_INTERLEAVED)
+	struct atmel_mpddr *mpddr = (struct atmel_mpddr *)base;
+	u16 version = readl(&mpddr->version) & 0xffff;
+
+	if ((version >= SAMA5D3_MPDDRC_VERSION) &&
+	    (cr & ATMEL_MPDDRC_CR_DECOD_INTERLEAVED))
 		return 0;
-#endif
+
 	return 1;
 }
 
@@ -41,7 +45,7 @@ int ddr2_init(const unsigned int base,
 
 	/* Compute bank offset according to NC in configuration register */
 	ba_off = (mpddr_value->cr & ATMEL_MPDDRC_CR_NC_MASK) + 9;
-	if (ddr2_decodtype_is_seq(mpddr_value->cr))
+	if (ddr2_decodtype_is_seq(base, mpddr_value->cr))
 		ba_off += ((mpddr_value->cr & ATMEL_MPDDRC_CR_NR_MASK) >> 2) + 11;
 
 	ba_off += (mpddr_value->md & ATMEL_MPDDRC_MD_DBW_MASK) ? 1 : 2;
@@ -148,7 +152,7 @@ int ddr3_init(const unsigned int base,
 
 	/* Compute bank offset according to NC in configuration register */
 	ba_off = (mpddr_value->cr & ATMEL_MPDDRC_CR_NC_MASK) + 9;
-	if (ddr2_decodtype_is_seq(mpddr_value->cr))
+	if (ddr2_decodtype_is_seq(base, mpddr_value->cr))
 		ba_off += ((mpddr_value->cr &
 			   ATMEL_MPDDRC_CR_NR_MASK) >> 2) + 11;
 
