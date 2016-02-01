@@ -226,7 +226,7 @@
 
 #define CONFIG_PREBOOT		"run setup"
 #define CONFIG_BOOTCOMMAND	"run $modeboot"
-#define CONFIG_BOOTDELAY	5
+#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_BOARD_LATE_INIT
 
