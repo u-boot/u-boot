@@ -95,6 +95,10 @@ void flush_dcache_range(ulong start_addr, ulong stop)
 	const void *addr = (const void *)(start_addr & ~(lsize - 1));
 	const void *aend = (const void *)((stop - 1) & ~(lsize - 1));
 
+	/* aend will be miscalculated when size is zero, so we return here */
+	if (start_addr == stop)
+		return;
+
 	while (1) {
 		mips_cache(HIT_WRITEBACK_INV_D, addr);
 		if (addr == aend)
@@ -108,6 +112,10 @@ void invalidate_dcache_range(ulong start_addr, ulong stop)
 	unsigned long lsize = dcache_line_size();
 	const void *addr = (const void *)(start_addr & ~(lsize - 1));
 	const void *aend = (const void *)((stop - 1) & ~(lsize - 1));
+
+	/* aend will be miscalculated when size is zero, so we return here */
+	if (start_addr == stop)
+		return;
 
 	while (1) {
 		mips_cache(HIT_INVALIDATE_D, addr);

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-dtb-y +=
+dtb-$(CONFIG_TARGET_PIC32MZDASK) += pic32mzda_sk.dtb
 
 targets += $(dtb-y)
 

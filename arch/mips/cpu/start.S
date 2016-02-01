@@ -115,7 +115,7 @@ reset:
 
 	/* Clear watch registers */
 	MTC0	zero, CP0_WATCHLO
-	MTC0	zero, CP0_WATCHHI
+	mtc0	zero, CP0_WATCHHI
 
 	/* WP(Watch Pending), SW0/1 should be cleared */
 	mtc0	zero, CP0_CAUSE
@@ -161,14 +161,14 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	PTR_LI	t0, -16
+	li	t0, -16
 	PTR_LI	t1, CONFIG_SYS_INIT_SP_ADDR
 	and	sp, t1, t0		# force 16 byte alignment
 	PTR_SUB	sp, sp, GD_SIZE		# reserve space for gd
 	and	sp, sp, t0		# force 16 byte alignment
 	move	k0, sp			# save gd pointer
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	PTR_LI	t2, CONFIG_SYS_MALLOC_F_LEN
+	li	t2, CONFIG_SYS_MALLOC_F_LEN
 	PTR_SUB	sp, sp, t2		# reserve space for early malloc
 	and	sp, sp, t0		# force 16 byte alignment
 #endif
@@ -177,15 +177,15 @@ reset:
 	/* Clear gd */
 	move	t0, k0
 1:
-	sw	zero, 0(t0)
+	PTR_S	zero, 0(t0)
 	blt	t0, t1, 1b
-	 PTR_ADDI t0, 4
+	 PTR_ADDI t0, PTRSIZE
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	PTR_ADDU t0, k0, GD_MALLOC_BASE	# gd->malloc_base offset
-	sw	sp, 0(t0)
+	PTR_S	sp, GD_MALLOC_BASE(k0)	# gd->malloc_base offset
 #endif
 
+	move	a0, zero		# a0 <-- boot_flags = 0
 	PTR_LA	t9, board_init_f
 	jr	t9
 	 move	ra, zero
@@ -224,11 +224,11 @@ ENTRY(relocate_code)
 	 * t2 = source end address
 	 */
 1:
-	lw	t3, 0(t0)
-	sw	t3, 0(t1)
-	PTR_ADDU t0, 4
+	PTR_L	t3, 0(t0)
+	PTR_S	t3, 0(t1)
+	PTR_ADDU t0, PTRSIZE
 	blt	t0, t2, 1b
-	 PTR_ADDU t1, 4
+	 PTR_ADDU t1, PTRSIZE
 
 	/* If caches were enabled, we would have to flush them here. */
 	PTR_SUB	a1, t1, s2		# a1 <-- size

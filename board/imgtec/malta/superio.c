@@ -45,19 +45,19 @@ static struct {
 	{ SIOCONF_ACTIVATE,	0x01 },
 };
 
-void malta_superio_init(void *io_base)
+void malta_superio_init(void)
 {
 	unsigned i;
 
 	/* enter config state */
-	writeb(SIOCONF_ENTER_SETUP, io_base + SIO_CONF_PORT);
+	outb(SIOCONF_ENTER_SETUP, SIO_CONF_PORT);
 
 	/* configure peripherals */
 	for (i = 0; i < ARRAY_SIZE(sio_config); i++) {
-		writeb(sio_config[i].key, io_base + SIO_CONF_PORT);
-		writeb(sio_config[i].data, io_base + SIO_DATA_PORT);
+		outb(sio_config[i].key, SIO_CONF_PORT);
+		outb(sio_config[i].data, SIO_DATA_PORT);
 	}
 
 	/* exit config state */
-	writeb(SIOCONF_EXIT_SETUP, io_base + SIO_CONF_PORT);
+	outb(SIOCONF_EXIT_SETUP, SIO_CONF_PORT);
 }

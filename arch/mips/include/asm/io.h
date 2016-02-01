@@ -26,11 +26,6 @@
 #include <spaces.h>
 
 /*
- * Slowdown I/O port space accesses for antique hardware.
- */
-#undef CONF_SLOWDOWN_IO
-
-/*
  * Raw operations are never swapped in software.  OTOH values that raw
  * operations are working on may or may not have been swapped by the bus
  * hardware.  An example use would be for flash memory that's used for
@@ -46,57 +41,36 @@
 
 #define IO_SPACE_LIMIT 0xffff
 
-/*
- * On MIPS I/O ports are memory mapped, so we access them using normal
- * load/store instructions. mips_io_port_base is the virtual address to
- * which all ports are being mapped.  For sake of efficiency some code
- * assumes that this is an address that can be loaded with a single lui
- * instruction, so the lower 16 bits must be zero.  Should be true on
- * on any sane architecture; generic code does not use this assumption.
- */
-extern const unsigned long mips_io_port_base;
+#ifdef CONFIG_DYNAMIC_IO_PORT_BASE
 
-/*
- * Gcc will generate code to load the value of mips_io_port_base after each
- * function call which may be fairly wasteful in some cases.  So we don't
- * play quite by the book.  We tell gcc mips_io_port_base is a long variable
- * which solves the code generation issue.  Now we need to violate the
- * aliasing rules a little to make initialization possible and finally we
- * will need the barrier() to fight side effects of the aliasing chat.
- * This trickery will eventually collapse under gcc's optimizer.  Oh well.
- */
+static inline ulong mips_io_port_base(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	return gd->arch.io_port_base;
+}
+
 static inline void set_io_port_base(unsigned long base)
 {
-	* (unsigned long *) &mips_io_port_base = base;
+	DECLARE_GLOBAL_DATA_PTR;
+
+	gd->arch.io_port_base = base;
 	barrier();
 }
 
-/*
- * Thanks to James van Artsdalen for a better timing-fix than
- * the two short jumps: using outb's to a nonexistent port seems
- * to guarantee better timings even on fast machines.
- *
- * On the other hand, I'd like to be sure of a non-existent port:
- * I feel a bit unsafe about using 0x80 (should be safe, though)
- *
- *		Linus
- *
- */
+#else /* !CONFIG_DYNAMIC_IO_PORT_BASE */
 
-#define __SLOW_DOWN_IO \
-	__asm__ __volatile__( \
-		"sb\t$0,0x80(%0)" \
-		: : "r" (mips_io_port_base));
+static inline ulong mips_io_port_base(void)
+{
+	return 0;
+}
 
-#ifdef CONF_SLOWDOWN_IO
-#ifdef REALLY_SLOW_IO
-#define SLOW_DOWN_IO { __SLOW_DOWN_IO; __SLOW_DOWN_IO; __SLOW_DOWN_IO; __SLOW_DOWN_IO; }
-#else
-#define SLOW_DOWN_IO __SLOW_DOWN_IO
-#endif
-#else
-#define SLOW_DOWN_IO
-#endif
+static inline void set_io_port_base(unsigned long base)
+{
+	BUG_ON(base);
+}
+
+#endif /* !CONFIG_DYNAMIC_IO_PORT_BASE */
 
 /*
  *     virt_to_phys    -       map virtual addresses to physical
@@ -316,7 +290,7 @@ static inline type pfx##read##bwlq(const volatile void __iomem *mem)	\
 	return pfx##ioswab##bwlq(__mem, __val);				\
 }
 
-#define __BUILD_IOPORT_SINGLE(pfx, bwlq, type, p, slow)			\
+#define __BUILD_IOPORT_SINGLE(pfx, bwlq, type, p)			\
 									\
 static inline void pfx##out##bwlq##p(type val, unsigned long port)	\
 {									\
@@ -325,7 +299,7 @@ static inline void pfx##out##bwlq##p(type val, unsigned long port)	\
 									\
 	war_octeon_io_reorder_wmb();					\
 									\
-	__addr = (void *)__swizzle_addr_##bwlq(mips_io_port_base + port); \
+	__addr = (void *)__swizzle_addr_##bwlq(mips_io_port_base() + port); \
 									\
 	__val = pfx##ioswab##bwlq(__addr, val);				\
 									\
@@ -333,7 +307,6 @@ static inline void pfx##out##bwlq##p(type val, unsigned long port)	\
 	BUILD_BUG_ON(sizeof(type) > sizeof(unsigned long));		\
 									\
 	*__addr = __val;						\
-	slow;								\
 }									\
 									\
 static inline type pfx##in##bwlq##p(unsigned long port)			\
@@ -341,12 +314,11 @@ static inline type pfx##in##bwlq##p(unsigned long port)			\
 	volatile type *__addr;						\
 	type __val;							\
 									\
-	__addr = (void *)__swizzle_addr_##bwlq(mips_io_port_base + port); \
+	__addr = (void *)__swizzle_addr_##bwlq(mips_io_port_base() + port); \
 									\
 	BUILD_BUG_ON(sizeof(type) > sizeof(unsigned long));		\
 									\
 	__val = *__addr;						\
-	slow;								\
 									\
 	return pfx##ioswab##bwlq(__addr, __val);			\
 }
@@ -367,8 +339,8 @@ BUILDIO_MEM(l, u32)
 BUILDIO_MEM(q, u64)
 
 #define __BUILD_IOPORT_PFX(bus, bwlq, type)				\
-	__BUILD_IOPORT_SINGLE(bus, bwlq, type, ,)			\
-	__BUILD_IOPORT_SINGLE(bus, bwlq, type, _p, SLOW_DOWN_IO)
+	__BUILD_IOPORT_SINGLE(bus, bwlq, type, )			\
+	__BUILD_IOPORT_SINGLE(bus, bwlq, type, _p)
 
 #define BUILDIO_IOPORT(bwlq, type)					\
 	__BUILD_IOPORT_PFX(, bwlq, type)				\

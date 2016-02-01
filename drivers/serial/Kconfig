@@ -150,6 +150,14 @@ config DEBUG_UART_PL011
 	  work. The driver will be available until the real driver model
 	  serial is running.
 
+config DEBUG_UART_PIC32
+	bool "Microchip PIC32"
+	depends on PIC32_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_pic32 driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -240,6 +248,13 @@ config FSL_LPUART
 	help
 	  Select this to enable a Low Power UART for Freescale VF610 and
 	  QorIQ Layerscape devices.
+
+config PIC32_SERIAL
+	bool "Support for Microchip PIC32 on-chip UART"
+	depends on DM_SERIAL && MACH_PIC32
+	default y
+	help
+	  Support for the UART found on Microchip PIC32 SoC's.
 
 config SYS_NS16550
 	bool "NS16550 UART or compatible"

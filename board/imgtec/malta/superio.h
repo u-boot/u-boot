@@ -10,6 +10,6 @@
 #ifndef __BOARD_MALTA_SUPERIO_H__
 #define __BOARD_MALTA_SUPERIO_H__
 
-extern void malta_superio_init(void *io_base);
+void malta_superio_init(void);
 
 #endif /* __BOARD_MALTA_SUPERIO_H__ */
