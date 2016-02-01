@@ -14,15 +14,6 @@
 #include <asm/fsp/fsp_support.h>
 #include <asm/processor.h>
 
-static void unprotect_spi_flash(void)
-{
-	u32 bc;
-
-	bc = x86_pci_read_config32(TNC_LPC, 0xd8);
-	bc |= 0x1;	/* unprotect the flash */
-	x86_pci_write_config32(TNC_LPC, 0xd8, bc);
-}
-
 static void __maybe_unused disable_igd(void)
 {
 	/*
@@ -65,13 +56,6 @@ int arch_early_init_r(void)
 #ifdef CONFIG_DISABLE_IGD
 	disable_igd();
 #endif
-
-	return 0;
-}
-
-int arch_misc_init(void)
-{
-	unprotect_spi_flash();
 
 	return 0;
 }
