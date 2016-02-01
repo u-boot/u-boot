@@ -14,7 +14,7 @@
 #include <asm/fsp/fsp_support.h>
 #include <asm/processor.h>
 
-static void __maybe_unused disable_igd(void)
+static int __maybe_unused disable_igd(void)
 {
 	/*
 	 * According to Atom E6xx datasheet, setting VGA Disable (bit17)
@@ -36,6 +36,8 @@ static void __maybe_unused disable_igd(void)
 	 */
 	x86_pci_write_config32(TNC_IGD, IGD_FD, FUNC_DISABLE);
 	x86_pci_write_config32(TNC_SDVO, IGD_FD, FUNC_DISABLE);
+
+	return 0;
 }
 
 int arch_cpu_init(void)
@@ -53,9 +55,11 @@ int arch_cpu_init(void)
 
 int arch_early_init_r(void)
 {
+	int ret = 0;
+
 #ifdef CONFIG_DISABLE_IGD
-	disable_igd();
+	ret = disable_igd();
 #endif
 
-	return 0;
+	return ret;
 }
