@@ -722,6 +722,15 @@ const u32 *fdtdec_locate_array(const void *blob, int node,
  */
 int fdtdec_get_bool(const void *blob, int node, const char *prop_name);
 
+/*
+ * Count child nodes of one parent node.
+ *
+ * @param blob	FDT blob
+ * @param node	parent node
+ * @return number of child node; 0 if there is not child node
+ */
+int fdtdec_get_child_count(const void *blob, int node);
+
 /**
  * Look in the FDT for a config item with the given name and return its value
  * as a 32-bit integer. The property must have at least 4 bytes of data. The
