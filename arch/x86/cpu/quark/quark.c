@@ -20,21 +20,6 @@ static struct pci_device_id mmc_supported[] = {
 	{},
 };
 
-/*
- * TODO:
- *
- * This whole routine should be removed until we fully convert the ICH SPI
- * driver to DM and make use of DT to pass the bios control register offset
- */
-static void unprotect_spi_flash(void)
-{
-	u32 bc;
-
-	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, &bc);
-	bc |= 0x1;	/* unprotect the flash */
-	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, bc);
-}
-
 static void quark_setup_mtrr(void)
 {
 	u32 base, mask;
@@ -258,8 +243,6 @@ int arch_cpu_init(void)
 
 	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
 	quark_enable_legacy_seg();
-
-	unprotect_spi_flash();
 
 	return 0;
 }
