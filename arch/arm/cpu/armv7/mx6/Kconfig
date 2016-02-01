@@ -96,6 +96,11 @@ config TARGET_MX6SXSABRESD
 	select DM
 	select DM_THERMAL
 
+config TARGET_MX6SXSABREAUTO
+        bool "mx6sxsabreauto"
+        select DM
+        select DM_THERMAL
+
 config TARGET_MX6UL_9X9_EVK
 	bool "mx6ul_9x9_evk"
 	select MX6UL
@@ -166,6 +171,7 @@ source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
 source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sxsabresd/Kconfig"
+source "board/freescale/mx6sxsabreauto/Kconfig"
 source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
