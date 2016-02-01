@@ -999,12 +999,13 @@ static void arasan_nand_ecc_init(struct mtd_info *mtd)
 	}
 
 	if (found) {
-		regval = ecc_matrix[i].eccaddr | (ecc_matrix[i].eccsize << 16) |
-			 (ecc_matrix[i].slcmlc << 27);
+		regval = ecc_matrix[found].eccaddr |
+			 (ecc_matrix[found].eccsize << 16) |
+			 (ecc_matrix[found].slcmlc << 27);
 		writel(regval, &arasan_nand_base->ecc_reg);
 
-		if (ecc_matrix[i].slcmlc) {
-			switch (ecc_matrix[i].eccbits) {
+		if (ecc_matrix[found].slcmlc) {
+			switch (ecc_matrix[found].eccbits) {
 			case 16:
 				bchmodeval = 0x0;
 				break;
@@ -1030,7 +1031,7 @@ static void arasan_nand_ecc_init(struct mtd_info *mtd)
 			writel(regval, &arasan_nand_base->memadr_reg2);
 		}
 
-		nand_oob.eccbytes = ecc_matrix[i].eccsize;
+		nand_oob.eccbytes = ecc_matrix[found].eccsize;
 		eccpos_start = mtd->oobsize - nand_oob.eccbytes;
 
 		for (i = 0; i < nand_oob.eccbytes; i++)
@@ -1039,12 +1040,12 @@ static void arasan_nand_ecc_init(struct mtd_info *mtd)
 		nand_oob.oobfree[0].offset = 2;
 		nand_oob.oobfree[0].length = eccpos_start - 2;
 
-		if (ecc_matrix[i].eccbits == 24)
+		if (ecc_matrix[found].eccbits == 24)
 			nand_chip->ecc.size = 1024;
 		else
 			nand_chip->ecc.size = 512;
 
-		nand_chip->ecc.bytes = ecc_matrix[i].eccsize;
+		nand_chip->ecc.bytes = ecc_matrix[found].eccsize;
 		nand_chip->ecc.layout = &nand_oob;
 	}
 }
