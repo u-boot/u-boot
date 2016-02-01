@@ -5,9 +5,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <pci.h>
 #include <asm/io.h>
 #include <asm/irq.h>
-#include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/arch/device.h>
 #include <asm/arch/tnc.h>
@@ -16,6 +17,21 @@
 
 static int __maybe_unused disable_igd(void)
 {
+	struct udevice *igd, *sdvo;
+	int ret;
+
+	ret = dm_pci_bus_find_bdf(TNC_IGD, &igd);
+	if (ret)
+		return ret;
+	if (!igd)
+		return 0;
+
+	ret = dm_pci_bus_find_bdf(TNC_SDVO, &sdvo);
+	if (ret)
+		return ret;
+	if (!sdvo)
+		return 0;
+
 	/*
 	 * According to Atom E6xx datasheet, setting VGA Disable (bit17)
 	 * of Graphics Controller register (offset 0x50) prevents IGD
@@ -34,8 +50,8 @@ static int __maybe_unused disable_igd(void)
 	 * two devices will be completely disabled (invisible in the PCI
 	 * configuration space) unless a system reset is performed.
 	 */
-	x86_pci_write_config32(TNC_IGD, IGD_FD, FUNC_DISABLE);
-	x86_pci_write_config32(TNC_SDVO, IGD_FD, FUNC_DISABLE);
+	dm_pci_write_config32(igd, IGD_FD, FUNC_DISABLE);
+	dm_pci_write_config32(sdvo, IGD_FD, FUNC_DISABLE);
 
 	return 0;
 }
