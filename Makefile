@@ -1010,10 +1010,10 @@ u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
 
 ifneq ($(CONFIG_ARCH_SOCFPGA),)
 quiet_cmd_socboot = SOCBOOT $@
-cmd_socboot = cat	spl/u-boot-spl-dtb.sfp spl/u-boot-spl-dtb.sfp	\
-			spl/u-boot-spl-dtb.sfp spl/u-boot-spl-dtb.sfp	\
-			u-boot-dtb.img > $@ || rm -f $@
-u-boot-with-spl-dtb.sfp: spl/u-boot-spl-dtb.sfp u-boot-dtb.img FORCE
+cmd_socboot = cat	spl/u-boot-spl.sfp spl/u-boot-spl.sfp	\
+			spl/u-boot-spl.sfp spl/u-boot-spl.sfp	\
+			u-boot.img > $@ || rm -f $@
+u-boot-with-spl.sfp: spl/u-boot-spl.sfp u-boot.img FORCE
 	$(call if_changed,socboot)
 endif
 
@@ -1322,7 +1322,7 @@ spl/u-boot-spl: tools prepare $(if $(CONFIG_OF_SEPARATE),dts/dt.dtb)
 spl/sunxi-spl.bin: spl/u-boot-spl
 	@:
 
-spl/u-boot-spl-dtb.sfp: spl/u-boot-spl
+spl/u-boot-spl.sfp: spl/u-boot-spl
 	@:
 
 spl/boot.bin: spl/u-boot-spl

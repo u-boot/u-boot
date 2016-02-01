@@ -142,7 +142,7 @@ ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
 ifdef CONFIG_ARCH_SOCFPGA
-ALL-y	+= $(obj)/$(SPL_BIN)-dtb.sfp
+ALL-y	+= $(obj)/$(SPL_BIN).sfp
 endif
 
 ifdef CONFIG_SUNXI
@@ -229,8 +229,8 @@ LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
 ifdef CONFIG_ARCH_SOCFPGA
-MKIMAGEFLAGS_$(SPL_BIN)-dtb.sfp = -T socfpgaimage
-$(obj)/$(SPL_BIN)-dtb.sfp: $(obj)/$(SPL_BIN)-dtb.bin FORCE
+MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage
+$(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
 endif
 
