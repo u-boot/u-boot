@@ -177,7 +177,7 @@ static void setup_iomuxc_enet(void)
 	ret = gpio_request(ENET_PHY_RESET_GPIO, "phy-reset");
 	if (!ret)
 		gpio_direction_output(ENET_PHY_RESET_GPIO , 0);
-	udelay(1000);
+	udelay(25000);
 	gpio_set_value(ENET_PHY_RESET_GPIO, 1);
 }
 
