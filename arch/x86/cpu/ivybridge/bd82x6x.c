@@ -19,6 +19,7 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
+#define GPIO_BASE	0x48
 #define BIOS_CTRL	0xdc
 
 static int pch_revision_id = -1;
@@ -200,9 +201,41 @@ static int bd82x6x_set_spi_protect(struct udevice *dev, bool protect)
 	return 0;
 }
 
+static int bd82x6x_get_gpio_base(struct udevice *dev, u32 *gbasep)
+{
+	u32 base;
+
+	/*
+	 * GPIO_BASE moved to its current offset with ICH6, but prior to
+	 * that it was unused (or undocumented). Check that it looks
+	 * okay: not all ones or zeros.
+	 *
+	 * Note we don't need check bit0 here, because the Tunnel Creek
+	 * GPIO base address register bit0 is reserved (read returns 0),
+	 * while on the Ivybridge the bit0 is used to indicate it is an
+	 * I/O space.
+	 */
+	dm_pci_read_config32(dev, GPIO_BASE, &base);
+	if (base == 0x00000000 || base == 0xffffffff) {
+		debug("%s: unexpected BASE value\n", __func__);
+		return -ENODEV;
+	}
+
+	/*
+	 * Okay, I guess we're looking at the right device. The actual
+	 * GPIO registers are in the PCI device's I/O space, starting
+	 * at the offset that we just read. Bit 0 indicates that it's
+	 * an I/O address, not a memory address, so mask that off.
+	 */
+	*gbasep = base & 1 ? base & ~3 : base & ~15;
+
+	return 0;
+}
+
 static const struct pch_ops bd82x6x_pch_ops = {
 	.get_spi_base	= bd82x6x_pch_get_spi_base,
 	.set_spi_protect = bd82x6x_set_spi_protect,
+	.get_gpio_base	= bd82x6x_get_gpio_base,
 };
 
 static const struct udevice_id bd82x6x_ids[] = {
