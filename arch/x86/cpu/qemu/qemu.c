@@ -5,8 +5,8 @@
  */
 
 #include <common.h>
+#include <pci.h>
 #include <asm/irq.h>
-#include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/arch/device.h>
@@ -21,23 +21,23 @@ static void enable_pm_piix(void)
 	u16 cmd;
 
 	/* Set the PM I/O base */
-	x86_pci_write_config32(PIIX_PM, PMBA, CONFIG_ACPI_PM1_BASE | 1);
+	pci_write_config32(PIIX_PM, PMBA, CONFIG_ACPI_PM1_BASE | 1);
 
 	/* Enable access to the PM I/O space */
-	cmd = x86_pci_read_config16(PIIX_PM, PCI_COMMAND);
+	pci_read_config16(PIIX_PM, PCI_COMMAND, &cmd);
 	cmd |= PCI_COMMAND_IO;
-	x86_pci_write_config16(PIIX_PM, PCI_COMMAND, cmd);
+	pci_write_config16(PIIX_PM, PCI_COMMAND, cmd);
 
 	/* PM I/O Space Enable (PMIOSE) */
-	en = x86_pci_read_config8(PIIX_PM, PMREGMISC);
+	pci_read_config8(PIIX_PM, PMREGMISC, &en);
 	en |= PMIOSE;
-	x86_pci_write_config8(PIIX_PM, PMREGMISC, en);
+	pci_write_config8(PIIX_PM, PMREGMISC, en);
 }
 
 static void enable_pm_ich9(void)
 {
 	/* Set the PM I/O base */
-	x86_pci_write_config32(ICH9_PM, PMBA, CONFIG_ACPI_PM1_BASE | 1);
+	pci_write_config32(ICH9_PM, PMBA, CONFIG_ACPI_PM1_BASE | 1);
 }
 
 static void qemu_chipset_init(void)
@@ -50,7 +50,7 @@ static void qemu_chipset_init(void)
 	 * the same bitfield layout. Here we determine the offset based on its
 	 * PCI device ID.
 	 */
-	device = x86_pci_read_config16(PCI_BDF(0, 0, 0), PCI_DEVICE_ID);
+	pci_read_config16(PCI_BDF(0, 0, 0), PCI_DEVICE_ID, &device);
 	i440fx = (device == PCI_DEVICE_ID_INTEL_82441);
 	pam = i440fx ? I440FX_PAM : Q35_PAM;
 
@@ -60,7 +60,7 @@ static void qemu_chipset_init(void)
 	 * Configure legacy segments C/D/E/F to system RAM
 	 */
 	for (i = 0; i < PAM_NUM; i++)
-		x86_pci_write_config8(PCI_BDF(0, 0, 0), pam + i, PAM_RW);
+		pci_write_config8(PCI_BDF(0, 0, 0), pam + i, PAM_RW);
 
 	if (i440fx) {
 		/*
@@ -71,19 +71,19 @@ static void qemu_chipset_init(void)
 		 * registers to see whether legacy ports decode is turned on.
 		 * This is to make Linux ata_piix driver happy.
 		 */
-		x86_pci_write_config16(PIIX_IDE, IDE0_TIM, IDE_DECODE_EN);
-		x86_pci_write_config16(PIIX_IDE, IDE1_TIM, IDE_DECODE_EN);
+		pci_write_config16(PIIX_IDE, IDE0_TIM, IDE_DECODE_EN);
+		pci_write_config16(PIIX_IDE, IDE1_TIM, IDE_DECODE_EN);
 
 		/* Enable I/O APIC */
-		xbcs = x86_pci_read_config16(PIIX_ISA, XBCS);
+		pci_read_config16(PIIX_ISA, XBCS, &xbcs);
 		xbcs |= APIC_EN;
-		x86_pci_write_config16(PIIX_ISA, XBCS, xbcs);
+		pci_write_config16(PIIX_ISA, XBCS, xbcs);
 
 		enable_pm_piix();
 	} else {
 		/* Configure PCIe ECAM base address */
-		x86_pci_write_config32(PCI_BDF(0, 0, 0), PCIEX_BAR,
-				       CONFIG_PCIE_ECAM_BASE | BAR_EN);
+		pci_write_config32(PCI_BDF(0, 0, 0), PCIEX_BAR,
+				   CONFIG_PCIE_ECAM_BASE | BAR_EN);
 
 		enable_pm_ich9();
 	}
@@ -136,8 +136,8 @@ int mp_determine_pci_dstirq(int bus, int dev, int func, int pirq)
 		 * connected to I/O APIC INTPIN#16-19. Instead they are routed
 		 * to an irq number controled by the PIRQ routing register.
 		 */
-		irq = x86_pci_read_config8(PCI_BDF(bus, dev, func),
-					   PCI_INTERRUPT_LINE);
+		pci_read_config8(PCI_BDF(bus, dev, func),
+				 PCI_INTERRUPT_LINE, &irq);
 	} else {
 		/*
 		 * ICH9's PIRQ[A-H] are not consecutive numbers from 0 to 7.
