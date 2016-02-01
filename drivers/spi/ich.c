@@ -119,7 +119,7 @@ static int ich_init_controller(struct udevice *dev,
 	void *sbase;
 
 	/* SBASE is similar */
-	pch_get_sbase(dev->parent, &sbase_addr);
+	pch_get_spi_base(dev->parent, &sbase_addr);
 	sbase = (void *)sbase_addr;
 	debug("%s: sbase=%p\n", __func__, sbase);
 

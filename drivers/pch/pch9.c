@@ -10,7 +10,7 @@
 
 #define SBASE_ADDR	0x54
 
-static int pch9_get_sbase(struct udevice *dev, ulong *sbasep)
+static int pch9_get_spi_base(struct udevice *dev, ulong *sbasep)
 {
 	uint32_t sbase_addr;
 
@@ -21,7 +21,7 @@ static int pch9_get_sbase(struct udevice *dev, ulong *sbasep)
 }
 
 static const struct pch_ops pch9_ops = {
-	.get_sbase	= pch9_get_sbase,
+	.get_spi_base	= pch9_get_spi_base,
 };
 
 static const struct udevice_id pch9_ids[] = {

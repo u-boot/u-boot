@@ -15,13 +15,13 @@
 /* Operations for the Platform Controller Hub */
 struct pch_ops {
 	/**
-	 * get_sbase() - get the address of SPI base
+	 * get_spi_base() - get the address of SPI base
 	 *
 	 * @dev:	PCH device to check
 	 * @sbasep:	Returns address of SPI base if available, else 0
 	 * @return 0 if OK, -ve on error (e.g. there is no SPI base)
 	 */
-	int (*get_sbase)(struct udevice *dev, ulong *sbasep);
+	int (*get_spi_base)(struct udevice *dev, ulong *sbasep);
 
 	/**
 	 * set_spi_protect() - set whether SPI flash is protected or not
@@ -37,13 +37,13 @@ struct pch_ops {
 #define pch_get_ops(dev)        ((struct pch_ops *)(dev)->driver->ops)
 
 /**
- * pch_get_sbase() - get the address of SPI base
+ * pch_get_spi_base() - get the address of SPI base
  *
  * @dev:	PCH device to check
  * @sbasep:	Returns address of SPI base if available, else 0
  * @return 0 if OK, -ve on error (e.g. there is no SPI base)
  */
-int pch_get_sbase(struct udevice *dev, ulong *sbasep);
+int pch_get_spi_base(struct udevice *dev, ulong *sbasep);
 
 /**
  * set_spi_protect() - set whether SPI flash is protected or not

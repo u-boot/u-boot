@@ -170,7 +170,7 @@ static int bd82x6x_probe(struct udevice *dev)
 	return 0;
 }
 
-static int bd82x6x_pch_get_sbase(struct udevice *dev, ulong *sbasep)
+static int bd82x6x_pch_get_spi_base(struct udevice *dev, ulong *sbasep)
 {
 	u32 rcba;
 
@@ -201,7 +201,7 @@ static int bd82x6x_set_spi_protect(struct udevice *dev, bool protect)
 }
 
 static const struct pch_ops bd82x6x_pch_ops = {
-	.get_sbase	= bd82x6x_pch_get_sbase,
+	.get_spi_base	= bd82x6x_pch_get_spi_base,
 	.set_spi_protect = bd82x6x_set_spi_protect,
 };
 

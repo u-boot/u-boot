@@ -12,15 +12,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int pch_get_sbase(struct udevice *dev, ulong *sbasep)
+int pch_get_spi_base(struct udevice *dev, ulong *sbasep)
 {
 	struct pch_ops *ops = pch_get_ops(dev);
 
 	*sbasep = 0;
-	if (!ops->get_sbase)
+	if (!ops->get_spi_base)
 		return -ENOSYS;
 
-	return ops->get_sbase(dev, sbasep);
+	return ops->get_spi_base(dev, sbasep);
 }
 
 int pch_set_spi_protect(struct udevice *dev, bool protect)

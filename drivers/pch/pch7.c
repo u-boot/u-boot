@@ -10,7 +10,7 @@
 
 #define BIOS_CTRL	0xd8
 
-static int pch7_get_sbase(struct udevice *dev, ulong *sbasep)
+static int pch7_get_spi_base(struct udevice *dev, ulong *sbasep)
 {
 	u32 rcba;
 
@@ -38,7 +38,7 @@ static int pch7_set_spi_protect(struct udevice *dev, bool protect)
 }
 
 static const struct pch_ops pch7_ops = {
-	.get_sbase	= pch7_get_sbase,
+	.get_spi_base	= pch7_get_spi_base,
 	.set_spi_protect = pch7_set_spi_protect,
 };
 
