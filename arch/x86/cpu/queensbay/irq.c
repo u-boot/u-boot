@@ -18,7 +18,7 @@ int queensbay_irq_router_probe(struct udevice *dev)
 	struct tnc_rcba *rcba;
 	u32 base;
 
-	base = x86_pci_read_config32(TNC_LPC, LPC_RCBA);
+	dm_pci_read_config32(dev->parent, LPC_RCBA, &base);
 	base &= ~MEM_BAR_EN;
 	rcba = (struct tnc_rcba *)base;
 

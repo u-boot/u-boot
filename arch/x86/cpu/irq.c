@@ -25,7 +25,7 @@ bool pirq_check_irq_routed(struct udevice *dev, int link, u8 irq)
 	int base = priv->link_base;
 
 	if (priv->config == PIRQ_VIA_PCI)
-		pirq = x86_pci_read_config8(priv->bdf, LINK_N2V(link, base));
+		dm_pci_read_config8(dev->parent, LINK_N2V(link, base), &pirq);
 	else
 		pirq = readb(priv->ibase + LINK_N2V(link, base));
 
@@ -55,7 +55,7 @@ void pirq_assign_irq(struct udevice *dev, int link, u8 irq)
 		return;
 
 	if (priv->config == PIRQ_VIA_PCI)
-		x86_pci_write_config8(priv->bdf, LINK_N2V(link, base), irq);
+		dm_pci_write_config8(dev->parent, LINK_N2V(link, base), irq);
 	else
 		writeb(irq, priv->ibase + LINK_N2V(link, base));
 }
@@ -138,7 +138,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 		 *   2) memory range decoding is enabled.
 		 * Hence we don't do any santify test here.
 		 */
-		priv->ibase = x86_pci_read_config32(priv->bdf, ibase_off);
+		dm_pci_read_config32(dev->parent, ibase_off, &priv->ibase);
 		priv->ibase &= ~0xf;
 	}
 
