@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <pci.h>
 #include <asm/io.h>
 #include <asm/irq.h>
@@ -52,6 +53,41 @@ static int __maybe_unused disable_igd(void)
 	 */
 	dm_pci_write_config32(igd, IGD_FD, FUNC_DISABLE);
 	dm_pci_write_config32(sdvo, IGD_FD, FUNC_DISABLE);
+
+	/*
+	 * After setting the function disable bit, IGD and SDVO devices will
+	 * disappear in the PCI configuration space. This however creates an
+	 * inconsistent state from a driver model PCI controller point of view,
+	 * as these two PCI devices are still attached to its parent's child
+	 * device list as maintained by the driver model. Some driver model PCI
+	 * APIs like dm_pci_find_class(), are referring to the list to speed up
+	 * the finding process instead of re-enumerating the whole PCI bus, so
+	 * it gets the stale cached data which is wrong.
+	 *
+	 * Note x86 PCI enueration normally happens twice, in pre-relocation
+	 * phase and post-relocation. One option might be to call disable_igd()
+	 * in one of the pre-relocation initialization hooks so that it gets
+	 * disabled in the first round, and when it comes to the second round
+	 * driver model PCI will construct a correct list. Unfortunately this
+	 * does not work as Intel FSP is used on this platform to perform low
+	 * level initialization, and fsp_init_phase_pci() is called only once
+	 * in the post-relocation phase. If we disable IGD and SDVO devices,
+	 * fsp_init_phase_pci() simply hangs and never returns.
+	 *
+	 * So the only option we have is to manually remove these two devices.
+	 */
+	ret = device_remove(igd);
+	if (ret)
+		return ret;
+	ret = device_unbind(igd);
+	if (ret)
+		return ret;
+	ret = device_remove(sdvo);
+	if (ret)
+		return ret;
+	ret = device_unbind(sdvo);
+	if (ret)
+		return ret;
 
 	return 0;
 }
