@@ -13,10 +13,11 @@
 #define ZYNQMP_SIP_SVC_CSU_DMA_INFO		0x82002004
 #define ZYNQMP_SIP_SVC_CSU_DMA_LOAD		0x82002005
 #define ZYNQMP_SIP_SVC_CSU_DMA_DUMP		0x82002006
+#define ZYNQMP_SIP_SVC_CSU_DMA_CHIPID		0x82002007
 
 extern struct xilinx_fpga_op zynqmp_op;
 
 #define XILINX_ZYNQMP_DESC \
-{ xilinx_zynqmp, csu_dma, 1, &zynqmp_op, 0, &zynqmp_op, "xczu9eg" }
+{ xilinx_zynqmp, csu_dma, 1, &zynqmp_op, 0, &zynqmp_op }
 
 #endif /* _ZYNQMPPL_H_ */
