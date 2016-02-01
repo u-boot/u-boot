@@ -74,6 +74,7 @@ config TARGET_AT91SAM9X5EK
 config TARGET_SAMA5D2_XPLAINED
 	bool "SAMA5D2 Xplained board"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D3_XPLAINED
 	bool "SAMA5D3 Xplained board"
