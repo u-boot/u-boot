@@ -86,26 +86,19 @@ static inline void fill_irq_info(struct irq_info *slot, int bus, int device,
 static int create_pirq_routing_table(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
-	struct fdt_pci_addr addr;
 	int node;
 	int len, count;
 	const u32 *cell;
 	struct irq_routing_table *rt;
 	struct irq_info *slot, *slot_base;
 	int irq_entries = 0;
-	int parent;
 	int i;
 	int ret;
 
 	node = dev->of_offset;
-	parent = dev->parent->of_offset;
-	ret = fdtdec_get_pci_addr(blob, parent, FDT_PCI_SPACE_CONFIG,
-				  "reg", &addr);
-	if (ret)
-		return ret;
 
 	/* extract the bdf from fdt_pci_addr */
-	irq_router.bdf = addr.phys_hi & 0xffff00;
+	irq_router.bdf = dm_pci_get_bdf(dev->parent);
 
 	ret = fdt_find_string(blob, node, "intel,pirq-config", "pci");
 	if (!ret) {
