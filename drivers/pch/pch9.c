@@ -9,6 +9,7 @@
 #include <pch.h>
 
 #define GPIO_BASE	0x48
+#define IO_BASE		0x4c
 #define SBASE_ADDR	0x54
 
 static int pch9_get_spi_base(struct udevice *dev, ulong *sbasep)
@@ -52,9 +53,25 @@ static int pch9_get_gpio_base(struct udevice *dev, u32 *gbasep)
 	return 0;
 }
 
+static int pch9_get_io_base(struct udevice *dev, u32 *iobasep)
+{
+	u32 base;
+
+	dm_pci_read_config32(dev, IO_BASE, &base);
+	if (base == 0x00000000 || base == 0xffffffff) {
+		debug("%s: unexpected BASE value\n", __func__);
+		return -ENODEV;
+	}
+
+	*iobasep = base & 1 ? base & ~3 : base & ~15;
+
+	return 0;
+}
+
 static const struct pch_ops pch9_ops = {
 	.get_spi_base	= pch9_get_spi_base,
 	.get_gpio_base	= pch9_get_gpio_base,
+	.get_io_base	= pch9_get_io_base,
 };
 
 static const struct udevice_id pch9_ids[] = {
