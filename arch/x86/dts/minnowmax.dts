@@ -29,7 +29,6 @@
 
 	pch_pinctrl {
 		compatible = "intel,x86-pinctrl";
-		io-base = <0x4c>;
 
 		/* GPIO E0 */
 		soc_gpio_s5_0@0 {
