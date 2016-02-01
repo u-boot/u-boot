@@ -901,6 +901,8 @@ MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
 
+MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
+
 MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
@@ -910,15 +912,10 @@ MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
-u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
+u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
 	$(call if_changed,mkimage)
 
 u-boot-spl.kwb: u-boot-dtb.img spl/u-boot-spl.bin FORCE
-	$(call if_changed,mkimage)
-
-MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
-
-u-boot-dtb.img: u-boot-dtb.bin FORCE
 	$(call if_changed,mkimage)
 
 u-boot.sha1:	u-boot.bin
@@ -1126,11 +1123,7 @@ spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
 ifeq ($(ARCH),arm)
-ifdef CONFIG_OF_CONTROL
-UBOOT_BINLOAD := u-boot-dtb.img
-else
 UBOOT_BINLOAD := u-boot.img
-endif
 else
 UBOOT_BINLOAD := u-boot.bin
 endif
