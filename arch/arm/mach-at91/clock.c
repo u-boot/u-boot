@@ -112,3 +112,10 @@ void at91_usb_clk_init(u32 value)
 
 	writel(value, &pmc->usb);
 }
+
+void at91_pllicpr_init(u32 icpr)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	writel(icpr, &pmc->pllicpr);
+}

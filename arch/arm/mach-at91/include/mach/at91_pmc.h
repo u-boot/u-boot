@@ -246,4 +246,11 @@ typedef struct at91_pmc {
 #define		AT91_PMC_GCKRDY		(1 << 24)
 
 #define		AT91_PMC_PROTKEY	0x504d4301	/* Activation Code */
+
+/* PLL Charge Pump Current Register (PMC_PLLICPR) */
+#define AT91_PMC_ICP_PLLA(x)		(((x) & 0x3) << 0)
+#define AT91_PMC_IPLL_PLLA(x)		(((x) & 0x7) << 8)
+#define AT91_PMC_ICP_PLLU(x)		(((x) & 0x3) << 16)
+#define AT91_PMC_IVCO_PLLU(x)		(((x) & 0x3) << 24)
+
 #endif

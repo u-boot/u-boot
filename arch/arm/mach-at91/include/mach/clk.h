@@ -135,5 +135,6 @@ int at91_upll_clk_disable(void);
 void at91_usb_clk_init(u32 value);
 int at91_pllb_clk_enable(u32 pllbr);
 int at91_pllb_clk_disable(void);
+void at91_pllicpr_init(u32 icpr);
 
 #endif /* __ASM_ARM_ARCH_CLK_H__ */
