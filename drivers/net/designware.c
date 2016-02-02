@@ -591,11 +591,9 @@ static int designware_eth_probe(struct udevice *dev)
 	 * or via a PCI bridge, fill in platdata before we probe the hardware.
 	 */
 	if (device_is_on_pci_bus(dev)) {
-		pci_dev_t bdf = dm_pci_get_bdf(dev);
-
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-		iobase = pci_mem_to_phys(bdf, iobase);
+		iobase = dm_pci_mem_to_phys(dev, iobase);
 
 		pdata->iobase = iobase;
 		pdata->phy_interface = PHY_INTERFACE_MODE_RMII;
