@@ -14,7 +14,7 @@
 #include "jobdesc.h"
 #include "rsa_caam.h"
 
-#ifdef CONFIG_MX6
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7)
 /*!
  * Secure memory run command
  *
@@ -25,10 +25,14 @@ uint32_t secmem_set_cmd(uint32_t sec_mem_cmd)
 {
 	uint32_t temp_reg;
 
-	sec_out32(CAAM_SMCJR0, sec_mem_cmd);
+	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	uint32_t sm_vid = SM_VERSION(sec_in32(&sec->smvid));
+	uint32_t jr_id = 0;
+
+	sec_out32(CAAM_SMCJR(sm_vid, jr_id), sec_mem_cmd);
 
 	do {
-		temp_reg = sec_in32(CAAM_SMCSJR0);
+		temp_reg = sec_in32(CAAM_SMCSJR(sm_vid, jr_id));
 	} while (temp_reg & CMD_COMPLETE);
 
 	return temp_reg;
@@ -51,6 +55,10 @@ int caam_page_alloc(uint8_t page_num, uint8_t partition_num)
 {
 	uint32_t temp_reg;
 
+	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	uint32_t sm_vid = SM_VERSION(sec_in32(&sec->smvid));
+	uint32_t jr_id = 0;
+
 	/*
 	 * De-Allocate partition_num if already allocated to ARM core
 	 */
@@ -64,9 +72,9 @@ int caam_page_alloc(uint8_t page_num, uint8_t partition_num)
 	}
 
 	/* set the access rights to allow full access */
-	sec_out32(CAAM_SMAG1JR0(partition_num), 0xF);
-	sec_out32(CAAM_SMAG2JR0(partition_num), 0xF);
-	sec_out32(CAAM_SMAPJR0(partition_num), 0xFF);
+	sec_out32(CAAM_SMAG1JR(sm_vid, jr_id, partition_num), 0xF);
+	sec_out32(CAAM_SMAG2JR(sm_vid, jr_id, partition_num), 0xF);
+	sec_out32(CAAM_SMAPJR(sm_vid, jr_id, partition_num), 0xFF);
 
 	/* Now need to allocate partition_num of secure RAM. */
 	/* De-Allocate page_num by starting with a page inquiry command */
@@ -105,6 +113,10 @@ int caam_page_alloc(uint8_t page_num, uint8_t partition_num)
 int inline_cnstr_jobdesc_blob_dek(uint32_t *desc, const uint8_t *plain_txt,
 				       uint8_t *dek_blob, uint32_t in_sz)
 {
+	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	uint32_t sm_vid = SM_VERSION(sec_in32(&sec->smvid));
+	uint32_t jr_id = 0;
+
 	uint32_t ret = 0;
 	u32 aad_w1, aad_w2;
 	/* output blob will have 32 bytes key blob in beginning and
@@ -133,9 +145,9 @@ int inline_cnstr_jobdesc_blob_dek(uint32_t *desc, const uint8_t *plain_txt,
 	flush_dcache_range(start, end);
 
 	/* Now configure the access rights of the partition */
-	sec_out32(CAAM_SMAG1JR0(PARTITION_1), KS_G1); /* set group 1 */
-	sec_out32(CAAM_SMAG2JR0(PARTITION_1), 0);     /* clear group 2 */
-	sec_out32(CAAM_SMAPJR0(PARTITION_1), PERM);   /* set perm & locks */
+	sec_out32(CAAM_SMAG1JR(sm_vid, jr_id, PARTITION_1), KS_G1);
+	sec_out32(CAAM_SMAG2JR(sm_vid, jr_id, PARTITION_1), 0);
+	sec_out32(CAAM_SMAPJR(sm_vid, jr_id, PARTITION_1), PERM);
 
 	/* construct aad for AES */
 	aad_w1 = (in_sz << OP_ALG_ALGSEL_SHIFT) | KEY_AES_SRC | LD_CCM_MODE;
