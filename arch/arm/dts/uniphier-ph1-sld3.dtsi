@@ -206,6 +206,14 @@
 			interrupts = <0 83 4>;
 		};
 
+		sysctrl: sysctrl@f1840000 {
+			compatible = "socionext,ph1-sld3-sysctrl";
+			reg = <0xf1840000 0x4000>;
+			#clock-cells = <1>;
+			clock-names = "ref";
+			clocks = <&refclk>;
+		};
+
 		nand: nand@f8000000 {
 			compatible = "denali,denali-nand-dt";
 			reg = <0xf8000000 0x20>, <0xf8100000 0x1000>;

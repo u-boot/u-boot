@@ -194,3 +194,7 @@
 &pinctrl {
 	compatible = "socionext,ph1-pro5-pinctrl", "syscon";
 };
+
+&sysctrl {
+	compatible = "socionext,ph1-pro5-sysctrl";
+};

@@ -101,6 +101,14 @@
 			reg = <0x5f801000 0xe00>;
 		};
 
+		sysctrl: sysctrl@61840000 {
+			/* specify compatible in each SoC DTSI */
+			reg = <0x61840000 0x4000>;
+			#clock-cells = <1>;
+			clock-names = "ref";
+			clocks = <&refclk>;
+		};
+
 		nand: nand@68000000 {
 			compatible = "denali,denali-nand-dt";
 			reg = <0x68000000 0x20>, <0x68100000 0x1000>;
