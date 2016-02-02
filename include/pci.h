@@ -1050,6 +1050,11 @@ int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
  * functions, rather than byte/word/dword. But both are supported.
  */
 int pci_write_config32(pci_dev_t pcidev, int offset, u32 value);
+int pci_write_config16(pci_dev_t pcidev, int offset, u16 value);
+int pci_write_config8(pci_dev_t pcidev, int offset, u8 value);
+int pci_read_config32(pci_dev_t pcidev, int offset, u32 *valuep);
+int pci_read_config16(pci_dev_t pcidev, int offset, u16 *valuep);
+int pci_read_config8(pci_dev_t pcidev, int offset, u8 *valuep);
 
 #ifdef CONFIG_DM_PCI_COMPAT
 /* Compatibility with old naming */
@@ -1059,16 +1064,12 @@ static inline int pci_write_config_dword(pci_dev_t pcidev, int offset,
 	return pci_write_config32(pcidev, offset, value);
 }
 
-int pci_write_config16(pci_dev_t pcidev, int offset, u16 value);
-
 /* Compatibility with old naming */
 static inline int pci_write_config_word(pci_dev_t pcidev, int offset,
 					u16 value)
 {
 	return pci_write_config16(pcidev, offset, value);
 }
-
-int pci_write_config8(pci_dev_t pcidev, int offset, u8 value);
 
 /* Compatibility with old naming */
 static inline int pci_write_config_byte(pci_dev_t pcidev, int offset,
@@ -1077,16 +1078,12 @@ static inline int pci_write_config_byte(pci_dev_t pcidev, int offset,
 	return pci_write_config8(pcidev, offset, value);
 }
 
-int pci_read_config32(pci_dev_t pcidev, int offset, u32 *valuep);
-
 /* Compatibility with old naming */
 static inline int pci_read_config_dword(pci_dev_t pcidev, int offset,
 					u32 *valuep)
 {
 	return pci_read_config32(pcidev, offset, valuep);
 }
-
-int pci_read_config16(pci_dev_t pcidev, int offset, u16 *valuep);
 
 /* Compatibility with old naming */
 static inline int pci_read_config_word(pci_dev_t pcidev, int offset,
@@ -1095,15 +1092,12 @@ static inline int pci_read_config_word(pci_dev_t pcidev, int offset,
 	return pci_read_config16(pcidev, offset, valuep);
 }
 
-int pci_read_config8(pci_dev_t pcidev, int offset, u8 *valuep);
-
 /* Compatibility with old naming */
 static inline int pci_read_config_byte(pci_dev_t pcidev, int offset,
 				       u8 *valuep)
 {
 	return pci_read_config8(pcidev, offset, valuep);
 }
-
 #endif /* CONFIG_DM_PCI_COMPAT */
 
 /**
