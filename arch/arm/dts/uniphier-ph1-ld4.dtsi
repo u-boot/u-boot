@@ -115,6 +115,7 @@
 		interrupts = <0 80 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb0>;
+		clocks = <&mio 3>, <&mio 6>;
 	};
 
 	usb1: usb@5a810100 {
@@ -124,6 +125,7 @@
 		interrupts = <0 81 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb1>;
+		clocks = <&mio 4>, <&mio 6>;
 	};
 
 	usb2: usb@5a820100 {
@@ -133,6 +135,7 @@
 		interrupts = <0 82 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb2>;
+		clocks = <&mio 5>, <&mio 6>;
 	};
 };
 
