@@ -68,8 +68,8 @@ Burn U-Boot images to NAND
 --------------------------
 
 Write two files to the NAND device as follows:
- - spl/u-boot-spl-dtb.bin at the offset address 0x00000000
- - u-boot-dtb.img         at the offset address 0x00010000
+ - spl/u-boot-spl.bin at the offset address 0x00000000
+ - u-boot.img         at the offset address 0x00010000
 
 If a TFTP server is available, the images can be easily updated.
 Just copy the u-boot-spl-dtb.bin and u-boot-dtb.img to the TFTP public
@@ -145,4 +145,4 @@ newer SoCs.  Even if it is, EA[25] is not connected on most of the boards.
 
 --
 Masahiro Yamada <yamada.masahiro@socionext.com>
-Aug. 2015
+Feb. 2016

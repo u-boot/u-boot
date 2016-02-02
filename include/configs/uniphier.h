@@ -230,9 +230,9 @@
 	"nor_base=0x42000000\0"					\
 	"bootm_low=0x80000000\0"				\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
-		"tftpboot u-boot-spl-dtb.bin &&"		\
+		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
-		"tftpboot u-boot-dtb.img &&"			\
+		"tftpboot u-boot.img &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
 	LINUXBOOT_ENV_SETTINGS
 
