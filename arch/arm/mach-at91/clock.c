@@ -10,6 +10,8 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
 
+#define EN_UPLL_TIMEOUT		500
+
 void at91_periph_clk_enable(int id)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
@@ -63,4 +65,50 @@ void at91_system_clk_disable(int sys_clk)
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	writel(sys_clk, &pmc->scdr);
+}
+
+int at91_upll_clk_enable(void)
+{
+	struct at91_pmc *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
+	ulong start_time, tmp_time;
+
+	if ((readl(&pmc->uckr) & AT91_PMC_UPLLEN) == AT91_PMC_UPLLEN)
+		return 0;
+
+	start_time = get_timer(0);
+	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) != AT91_PMC_LOCKU) {
+		tmp_time = get_timer(0);
+		if ((tmp_time - start_time) > EN_UPLL_TIMEOUT) {
+			printf("ERROR: failed to enable UPLL\n");
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+int at91_upll_clk_disable(void)
+{
+	struct at91_pmc *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
+	ulong start_time, tmp_time;
+
+	start_time = get_timer(0);
+	writel(readl(&pmc->uckr) & ~AT91_PMC_UPLLEN, &pmc->uckr);
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) == AT91_PMC_LOCKU) {
+		tmp_time = get_timer(0);
+		if ((tmp_time - start_time) > EN_UPLL_TIMEOUT) {
+			printf("ERROR: failed to stop UPLL\n");
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+void at91_usb_clk_init(u32 value)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	writel(value, &pmc->usb);
 }
