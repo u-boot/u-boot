@@ -534,7 +534,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 &qspi {
 	status = "okay";
 	flash@0 {
-		compatible = "m25p80"; /* Micron MT25QU512ABB8ESF */
+		compatible = "m25p80"; /* 32MB */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
