@@ -207,10 +207,8 @@ int board_early_init_f(void)
 /* from ./arch/arm/mach-at91/armv7/sama5d3_devices.c */
 void at91_udp_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	/* Enable UPLL clock */
-	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	at91_upll_clk_enable();
 
 	/* Enable UDPHS clock */
 	at91_periph_clk_enable(ATMEL_ID_UDPHS);
