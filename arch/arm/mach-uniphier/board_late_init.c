@@ -11,6 +11,8 @@
 #include <linux/io.h>
 #include <../drivers/mtd/nand/denali.h>
 
+#include "boot-mode/boot-device.h"
+
 static void nand_denali_wp_disable(void)
 {
 #ifdef CONFIG_NAND_DENALI
@@ -62,7 +64,7 @@ int board_late_init(void)
 {
 	puts("MODE:  ");
 
-	switch (spl_boot_device()) {
+	switch (spl_boot_device_raw()) {
 	case BOOT_DEVICE_MMC1:
 		printf("eMMC Boot\n");
 		setenv("bootmode", "emmcboot");
@@ -75,6 +77,10 @@ int board_late_init(void)
 	case BOOT_DEVICE_NOR:
 		printf("NOR Boot\n");
 		setenv("bootmode", "norboot");
+		break;
+	case BOOT_DEVICE_USB:
+		printf("USB Boot\n");
+		setenv("bootmode", "usbboot");
 		break;
 	default:
 		printf("Unsupported Boot Mode\n");

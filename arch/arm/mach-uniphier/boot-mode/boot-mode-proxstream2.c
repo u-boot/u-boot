@@ -55,6 +55,9 @@ u32 proxstream2_boot_device(void)
 {
 	int boot_mode;
 
+	if (readl(SG_PINMON0) & BIT(6))
+		return BOOT_DEVICE_USB;
+
 	boot_mode = get_boot_mode_sel();
 
 	return boot_device_table[boot_mode].type;
