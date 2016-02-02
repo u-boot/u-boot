@@ -38,8 +38,13 @@ tested on both gig copper and gig fiber boards
 
 #define TOUT_LOOP   100000
 
+#ifdef CONFIG_DM_ETH
+#define virt_to_bus(devno, v)	dm_pci_virt_to_mem(devno, (void *) (v))
+#define bus_to_phys(devno, a)	dm_pci_mem_to_phys(devno, a)
+#else
 #define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
 #define bus_to_phys(devno, a)	pci_mem_to_phys(devno, a)
+#endif
 
 #define E1000_DEFAULT_PCI_PBA	0x00000030
 #define E1000_DEFAULT_PCIE_PBA	0x000a0026
@@ -1395,8 +1400,13 @@ e1000_reset_hw(struct e1000_hw *hw)
 	/* For 82542 (rev 2.0), disable MWI before issuing a device reset */
 	if (hw->mac_type == e1000_82542_rev2_0) {
 		DEBUGOUT("Disabling MWI on 82542 rev 2.0\n");
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND,
+				hw->pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND,
 				hw->pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#endif
 	}
 
 	/* Clear interrupt mask to stop board from generating interrupts */
@@ -1469,7 +1479,11 @@ e1000_reset_hw(struct e1000_hw *hw)
 
 	/* If MWI was previously enabled, reenable it. */
 	if (hw->mac_type == e1000_82542_rev2_0) {
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#endif
 	}
 	if (hw->mac_type != e1000_igb)
 		E1000_WRITE_REG(hw, PBA, pba);
@@ -1655,9 +1669,15 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 	/* For 82542 (rev 2.0), disable MWI and put the receiver into reset */
 	if (hw->mac_type == e1000_82542_rev2_0) {
 		DEBUGOUT("Disabling MWI on 82542 rev 2.0\n");
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND,
+				      hw->
+				      pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND,
 				      hw->
 				      pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#endif
 		E1000_WRITE_REG(hw, RCTL, E1000_RCTL_RST);
 		E1000_WRITE_FLUSH(hw);
 		mdelay(5);
@@ -1673,7 +1693,11 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 		E1000_WRITE_REG(hw, RCTL, 0);
 		E1000_WRITE_FLUSH(hw);
 		mdelay(1);
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#endif
 	}
 
 	/* Zero out the Multicast HASH table */
@@ -1696,10 +1720,17 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 	default:
 	/* Workaround for PCI-X problem when BIOS sets MMRBC incorrectly. */
 	if (hw->bus_type == e1000_bus_type_pcix) {
+#ifdef CONFIG_DM_ETH
+		dm_pci_read_config16(hw->pdev, PCIX_COMMAND_REGISTER,
+				     &pcix_cmd_word);
+		dm_pci_read_config16(hw->pdev, PCIX_STATUS_REGISTER_HI,
+				     &pcix_stat_hi_word);
+#else
 		pci_read_config_word(hw->pdev, PCIX_COMMAND_REGISTER,
 				     &pcix_cmd_word);
 		pci_read_config_word(hw->pdev, PCIX_STATUS_REGISTER_HI,
 				     &pcix_stat_hi_word);
+#endif
 		cmd_mmrbc =
 		    (pcix_cmd_word & PCIX_COMMAND_MMRBC_MASK) >>
 		    PCIX_COMMAND_MMRBC_SHIFT;
@@ -1711,8 +1742,13 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 		if (cmd_mmrbc > stat_mmrbc) {
 			pcix_cmd_word &= ~PCIX_COMMAND_MMRBC_MASK;
 			pcix_cmd_word |= stat_mmrbc << PCIX_COMMAND_MMRBC_SHIFT;
+#ifdef CONFIG_DM_ETH
+			dm_pci_write_config16(hw->pdev, PCIX_COMMAND_REGISTER,
+					      pcix_cmd_word);
+#else
 			pci_write_config_word(hw->pdev, PCIX_COMMAND_REGISTER,
 					      pcix_cmd_word);
+#endif
 		}
 	}
 		break;
@@ -4809,6 +4845,16 @@ e1000_sw_init(struct e1000_hw *hw)
 	int result;
 
 	/* PCI config space info */
+#ifdef CONFIG_DM_ETH
+	dm_pci_read_config16(hw->pdev, PCI_VENDOR_ID, &hw->vendor_id);
+	dm_pci_read_config16(hw->pdev, PCI_DEVICE_ID, &hw->device_id);
+	dm_pci_read_config16(hw->pdev, PCI_SUBSYSTEM_VENDOR_ID,
+			     &hw->subsystem_vendor_id);
+	dm_pci_read_config16(hw->pdev, PCI_SUBSYSTEM_ID, &hw->subsystem_id);
+
+	dm_pci_read_config8(hw->pdev, PCI_REVISION_ID, &hw->revision_id);
+	dm_pci_read_config16(hw->pdev, PCI_COMMAND, &hw->pci_cmd_word);
+#else
 	pci_read_config_word(hw->pdev, PCI_VENDOR_ID, &hw->vendor_id);
 	pci_read_config_word(hw->pdev, PCI_DEVICE_ID, &hw->device_id);
 	pci_read_config_word(hw->pdev, PCI_SUBSYSTEM_VENDOR_ID,
@@ -4817,6 +4863,7 @@ e1000_sw_init(struct e1000_hw *hw)
 
 	pci_read_config_byte(hw->pdev, PCI_REVISION_ID, &hw->revision_id);
 	pci_read_config_word(hw->pdev, PCI_COMMAND, &hw->pci_cmd_word);
+#endif
 
 	/* identify the MAC */
 	result = e1000_set_mac_type(hw);
@@ -5232,25 +5279,46 @@ void e1000_get_bus_type(struct e1000_hw *hw)
 static LIST_HEAD(e1000_hw_list);
 #endif
 
+#ifdef CONFIG_DM_ETH
+static int e1000_init_one(struct e1000_hw *hw, int cardnum,
+			  struct udevice *devno, unsigned char enetaddr[6])
+#else
 static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 			  unsigned char enetaddr[6])
+#endif
 {
 	u32 val;
 
 	/* Assign the passed-in values */
+#ifdef CONFIG_DM_ETH
 	hw->pdev = devno;
+#else
+	hw->pdev = devno;
+#endif
 	hw->cardnum = cardnum;
 
 	/* Print a debug message with the IO base address */
+#ifdef CONFIG_DM_ETH
+	dm_pci_read_config32(devno, PCI_BASE_ADDRESS_0, &val);
+#else
 	pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &val);
+#endif
 	E1000_DBG(hw, "iobase 0x%08x\n", val & 0xfffffff0);
 
 	/* Try to enable I/O accesses and bus-mastering */
 	val = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+#ifdef CONFIG_DM_ETH
+	dm_pci_write_config32(devno, PCI_COMMAND, val);
+#else
 	pci_write_config_dword(devno, PCI_COMMAND, val);
+#endif
 
 	/* Make sure it worked */
+#ifdef CONFIG_DM_ETH
+	dm_pci_read_config32(devno, PCI_COMMAND, &val);
+#else
 	pci_read_config_dword(devno, PCI_COMMAND, &val);
+#endif
 	if (!(val & PCI_COMMAND_MEMORY)) {
 		E1000_ERR(hw, "Can't enable I/O memory\n");
 		return -ENOSPC;
@@ -5269,8 +5337,13 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 #ifndef CONFIG_E1000_NO_NVM
 	hw->eeprom_semaphore_present = true;
 #endif
+#ifdef CONFIG_DM_ETH
+	hw->hw_addr = dm_pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
+						PCI_REGION_MEM);
+#else
 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
 						PCI_REGION_MEM);
+#endif
 	hw->mac_type = e1000_undefined;
 
 	/* MAC and Phy settings */
@@ -5554,7 +5627,7 @@ static int e1000_eth_probe(struct udevice *dev)
 
 	hw->name = dev->name;
 	ret = e1000_init_one(hw, trailing_strtol(dev->name),
-			     dm_pci_get_bdf(dev), plat->enetaddr);
+			     dev, plat->enetaddr);
 	if (ret < 0) {
 		printf(pr_fmt("failed to initialize card: %d\n"), ret);
 		return ret;

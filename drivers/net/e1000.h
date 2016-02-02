@@ -1084,7 +1084,11 @@ struct e1000_hw {
 #endif
 	unsigned int cardnum;
 
+#ifdef CONFIG_DM_ETH
+	struct udevice *pdev;
+#else
 	pci_dev_t pdev;
+#endif
 	uint8_t *hw_addr;
 	e1000_mac_type mac_type;
 	e1000_phy_type phy_type;
