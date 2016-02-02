@@ -46,7 +46,7 @@ static struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NONE, "Reserved"},
 };
 
-int get_boot_mode_sel(void)
+static int get_boot_mode_sel(void)
 {
 	return (readl(SG_PINMON0) >> 1) & 0x1f;
 }
