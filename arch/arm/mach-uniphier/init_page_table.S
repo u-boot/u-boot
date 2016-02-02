@@ -13,15 +13,12 @@
 #define DEVICE	0x00002002 /* Non-shareable Device */
 #define NORMAL	0x0000000e /* Normal Memory Write-Back, No Write-Allocate */
 
-#define TEXT_SECTION	((CONFIG_SPL_TEXT_BASE) >> (SECTION_SHIFT))
-#define STACK_SECTION	((CONFIG_SPL_STACK) >> (SECTION_SHIFT))
-
 	.section ".rodata"
 	.align 14
 ENTRY(init_page_table)
 	section = 0
 	.rept NR_SECTIONS
-	.if section == 0 || section == 1 || section == STACK_SECTION
+	.if section == 0 || section == 1
 	attr = NORMAL
 	.else
 	attr = DEVICE
