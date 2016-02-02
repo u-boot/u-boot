@@ -20,6 +20,7 @@
 #undef CONFIG_SCSI_AHCI
 #undef CONFIG_CMD_SCSI
 #undef CONFIG_INTEL_ICH6_GPIO
+#undef CONFIG_USB_EHCI_PCI
 
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial\0" \
