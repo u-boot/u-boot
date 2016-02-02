@@ -157,6 +157,12 @@
 	clock-frequency = <80000000>;
 };
 
+&peri {
+	compatible = "socionext,ph1-sld8-perictrl";
+	clock-names = "uart", "i2c";
+	clocks = <&sysctrl 3>, <&sysctrl 4>;
+};
+
 &pinctrl {
 	compatible = "socionext,ph1-sld8-pinctrl", "syscon";
 };

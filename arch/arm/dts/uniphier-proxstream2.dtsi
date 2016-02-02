@@ -202,6 +202,12 @@
 	clock-frequency = <88900000>;
 };
 
+&peri {
+	compatible = "socionext,proxstream2-perictrl";
+	clock-names = "uart", "fi2c";
+	clocks = <&sysctrl 3>, <&sysctrl 4>;
+};
+
 &pinctrl {
 	compatible = "socionext,proxstream2-pinctrl", "syscon";
 };
