@@ -10,7 +10,6 @@
 #include <asm/io.h>
 #include <asm/arch/sama5d3_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
@@ -198,7 +197,6 @@ void mem_init(void)
 
 void at91_pmc_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	u32 tmp;
 
 	tmp = AT91_PMC_PLLAR_29 |
@@ -207,7 +205,7 @@ void at91_pmc_init(void)
 	      AT91_PMC_PLLXR_DIV(1);
 	at91_plla_init(tmp);
 
-	writel(0x3 << 8, &pmc->pllicpr);
+	at91_pllicpr_init(AT91_PMC_IPLL_PLLA(0x3));
 
 	tmp = AT91_PMC_MCKR_MDIV_4 |
 	      AT91_PMC_MCKR_CSS_PLLA;

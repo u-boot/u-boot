@@ -8,7 +8,6 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/atmel_mpddrc.h>
 #include <asm/arch/atmel_usba_udc.h>
@@ -397,7 +396,6 @@ void mem_init(void)
 
 void at91_pmc_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	u32 tmp;
 
 	tmp = AT91_PMC_PLLAR_29 |
@@ -406,7 +404,7 @@ void at91_pmc_init(void)
 	      AT91_PMC_PLLXR_DIV(1);
 	at91_plla_init(tmp);
 
-	writel(0x0 << 8, &pmc->pllicpr);
+	at91_pllicpr_init(AT91_PMC_IPLL_PLLA(0x0));
 
 	tmp = AT91_PMC_MCKR_H32MXDIV |
 	      AT91_PMC_MCKR_PLLADIV_2 |
