@@ -179,6 +179,12 @@ ulong mmc_bwrite(int dev_num, lbaint_t start, lbaint_t blkcnt, const void *src)
 	do {
 		cur = (blocks_todo > mmc->cfg->b_max) ?
 			mmc->cfg->b_max : blocks_todo;
+		/*
+		 * FIXME: Workaround to always use
+		 * single block write instead of
+		 * multiple block.
+		 */
+		cur = 1;
 		if (mmc_write_blocks(mmc, start, cur, src) != cur)
 			return 0;
 		blocks_todo -= cur;
