@@ -109,6 +109,23 @@ static int macb_is_gem(struct macb_device *macb)
 	return MACB_BFEXT(IDNUM, macb_readl(macb, MID)) == 0x2;
 }
 
+#ifndef cpu_is_sama5d2
+#define cpu_is_sama5d2() 0
+#endif
+
+#ifndef cpu_is_sama5d4
+#define cpu_is_sama5d4() 0
+#endif
+
+static int gem_is_gigabit_capable(struct macb_device *macb)
+{
+	/*
+	 * The GEM controllers embeded in SAMA5D2 and SAMA5D4 are
+	 * configured to support only 10/100.
+	 */
+	return macb_is_gem(macb) && !cpu_is_sama5d2() && !cpu_is_sama5d4();
+}
+
 static void macb_mdio_write(struct macb_device *macb, u8 reg, u16 value)
 {
 	unsigned long netctl;
@@ -480,8 +497,8 @@ static int macb_phy_init(struct macb_device *macb)
 		return 0;
 	}
 
-	/* First check for GMAC */
-	if (macb_is_gem(macb)) {
+	/* First check for GMAC and that it is GiB capable */
+	if (gem_is_gigabit_capable(macb)) {
 		lpa = macb_mdio_read(macb, MII_STAT1000);
 
 		if (lpa & (LPA_1000FULL | LPA_1000HALF)) {

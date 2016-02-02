@@ -2,31 +2,69 @@
  * Copyright (C) 2013 Atmel Corporation
  *		      Bo Shen <voice.shen@atmel.com>
  *
+ * Copyright (C) 2015 Atmel Corporation
+ *		      Wenyou Yang <wenyou.yang@atmel.com>
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ATMEL_MPDDRC_H__
 #define __ATMEL_MPDDRC_H__
 
-/*
- * Only define the needed register in mpddr
- * If other register needed, will add them later
- */
-struct atmel_mpddr {
+struct atmel_mpddrc_config {
 	u32 mr;
 	u32 rtr;
 	u32 cr;
 	u32 tpr0;
 	u32 tpr1;
 	u32 tpr2;
-	u32 reserved[2];
 	u32 md;
+};
+
+/*
+ * Only define the needed register in mpddr
+ * If other register needed, will add them later
+ */
+struct atmel_mpddr {
+	u32 mr;			/* 0x00: Mode Register */
+	u32 rtr;		/* 0x04: Refresh Timer Register */
+	u32 cr;			/* 0x08: Configuration Register */
+	u32 tpr0;		/* 0x0c: Timing Parameter 0 Register */
+	u32 tpr1;		/* 0x10: Timing Parameter 1 Register */
+	u32 tpr2;		/* 0x14: Timing Parameter 2 Register */
+	u32 reserved;		/* 0x18: Reserved */
+	u32 lpr;		/* 0x1c: Low-power Register */
+	u32 md;			/* 0x20: Memory Device Register */
+	u32 reserved1;		/* 0x24: Reserved */
+	u32 lpddr23_lpr;	/* 0x28: LPDDR2-LPDDR3 Low-power Register*/
+	u32 cal_mr4;		/* 0x2c: Calibration and MR4 Register */
+	u32 tim_cal;		/* 0x30: Timing Calibration Register */
+	u32 io_calibr;		/* 0x34: IO Calibration */
+	u32 ocms;		/* 0x38: OCMS Register */
+	u32 ocms_key1;		/* 0x3c: OCMS KEY1 Register */
+	u32 ocms_key2;		/* 0x40: OCMS KEY2 Register */
+	u32 conf_arbiter;	/* 0x44: Configuration Arbiter Register */
+	u32 timeout;		/* 0x48: Timeout Port 0/1/2/3 Register */
+	u32 req_port0123;	/* 0x4c: Request Port 0/1/2/3 Register */
+	u32 req_port4567;	/* 0x50: Request Port 4/5/6/7 Register */
+	u32 bdw_port0123;	/* 0x54: Bandwidth Port 0/1/2/3 Register */
+	u32 bdw_port4567;	/* 0x58: Bandwidth Port 4/5/6/7 Register */
+	u32 rd_data_path;	/* 0x5c: Read Datapath Register */
+	u32 reserved2[33];
+	u32 wpmr;		/* 0xe4: Write Protection Mode Register */
+	u32 wpsr;		/* 0xe8: Write Protection Status Register */
+	u32 reserved3[4];
+	u32 version;		/* 0xfc: IP version */
 };
 
 
 int ddr2_init(const unsigned int base,
 	      const unsigned int ram_address,
-	      const struct atmel_mpddr *mpddr);
+	      const struct atmel_mpddrc_config *mpddr_value);
+
+int ddr3_init(const unsigned int base,
+	      const unsigned int ram_address,
+	      const struct atmel_mpddrc_config *mpddr_value);
 
 /* Bit field in mode register */
 #define ATMEL_MPDDRC_MR_MODE_NORMAL_CMD		0x0
@@ -110,9 +148,51 @@ int ddr2_init(const unsigned int base,
 
 /* Bit field in Memory Device Register */
 #define ATMEL_MPDDRC_MD_LPDDR_SDRAM	0x3
+#define ATMEL_MPDDRC_MD_DDR3_SDRAM	0x4
+#define ATMEL_MPDDRC_MD_LPDDR3_SDRAM	0x5
 #define ATMEL_MPDDRC_MD_DDR2_SDRAM	0x6
 #define ATMEL_MPDDRC_MD_DBW_MASK	(0x1 << 4)
 #define ATMEL_MPDDRC_MD_DBW_32_BITS	(0x0 << 4)
 #define ATMEL_MPDDRC_MD_DBW_16_BITS	(0x1 << 4)
+
+/* Bit field in I/O Calibration Register */
+#define ATMEL_MPDDRC_IO_CALIBR_RDIV		0x7
+
+#define ATMEL_MPDDRC_IO_CALIBR_LPDDR2_RZQ_34_3	0x1
+#define ATMEL_MPDDRC_IO_CALIBR_LPDDR2_RZQ_40	0x2
+#define ATMEL_MPDDRC_IO_CALIBR_LPDDR2_RZQ_48	0x3
+#define ATMEL_MPDDRC_IO_CALIBR_LPDDR2_RZQ_60	0x4
+#define ATMEL_MPDDRC_IO_CALIBR_LPDDR2_RZQ_80	0x6
+#define ATMEL_MPDDRC_IO_CALIBR_LPDDR2_RZQ_120	0x7
+
+#define ATMEL_MPDDRC_IO_CALIBR_DDR2_RZQ_35	0x2
+#define ATMEL_MPDDRC_IO_CALIBR_DDR2_RZQ_43	0x3
+#define ATMEL_MPDDRC_IO_CALIBR_DDR2_RZQ_52	0x4
+#define ATMEL_MPDDRC_IO_CALIBR_DDR2_RZQ_70	0x6
+#define ATMEL_MPDDRC_IO_CALIBR_DDR2_RZQ_105	0x7
+
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_37	0x2
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_44	0x3
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_55	0x4
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_73	0x6
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_110	0x7
+
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_37	0x2
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_44	0x3
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_55	0x4
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_73	0x6
+#define ATMEL_MPDDRC_IO_CALIBR_DDR3_RZQ_110	0x7
+
+#define ATMEL_MPDDRC_IO_CALIBR_TZQIO		0x7f
+#define ATMEL_MPDDRC_IO_CALIBR_TZQIO_(x)	(((x) & 0x7f) << 8)
+
+#define ATMEL_MPDDRC_IO_CALIBR_EN_CALIB		(0x1 << 4)
+
+/* Bit field in Read Data Path Register */
+#define ATMEL_MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING	0x3
+#define ATMEL_MPDDRC_RD_DATA_PATH_NO_SHIFT		0x0
+#define ATMEL_MPDDRC_RD_DATA_PATH_SHIFT_ONE_CYCLE	0x1
+#define ATMEL_MPDDRC_RD_DATA_PATH_SHIFT_TWO_CYCLE	0x2
+#define ATMEL_MPDDRC_RD_DATA_PATH_SHIFT_THREE_CYCLE	0x3
 
 #endif

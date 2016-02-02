@@ -402,7 +402,7 @@ void spl_board_init(void)
 #endif
 }
 
-static void ddr2_conf(struct atmel_mpddr *ddr2)
+static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 {
 	ddr2->md = (ATMEL_MPDDRC_MD_DBW_32_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
 
@@ -444,7 +444,7 @@ static void ddr2_conf(struct atmel_mpddr *ddr2)
 void mem_init(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	struct atmel_mpddr ddr2;
+	struct atmel_mpddrc_config ddr2;
 
 	ddr2_conf(&ddr2);
 

@@ -36,6 +36,7 @@ struct atmel_mci_priv {
 	struct mmc_config	cfg;
 	struct atmel_mci	*mci;
 	unsigned int		initialized:1;
+	unsigned int		curr_clk;
 };
 
 /* Read Atmel MCI IP version */
@@ -91,7 +92,10 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 
 		}
 	}
-
+	if (version >= 0x500)
+		priv->curr_clk = bus_hz / (clkdiv * 2 + clkodd + 2);
+	else
+		priv->curr_clk = (bus_hz / (clkdiv + 1)) / 2;
 	blklen &= 0xfffc;
 
 	mr = MMCI_BF(CLKDIV, clkdiv);
@@ -117,8 +121,6 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 
 	if (mmc->card_caps & mmc->cfg->host_caps & MMC_MODE_HS)
 		writel(MMCI_BIT(HSMODE), &mci->cfg);
-
-	udelay(50);
 
 	priv->initialized = 1;
 }
@@ -322,6 +324,13 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 				"XFER DTIP never unset, ignoring");
 		}
 	}
+
+	/*
+	 * After the switch command, wait for 8 clocks before the next
+	 * command
+	 */
+	if (cmd->cmdidx == MMC_CMD_SWITCH)
+		udelay(8*1000000 / priv->curr_clk); /* 8 clk in us */
 
 	return 0;
 }

@@ -310,7 +310,7 @@ void at91_spl_board_init(void)
 }
 
 #include <asm/arch/atmel_mpddrc.h>
-static void ddr2_conf(struct atmel_mpddr *ddr2)
+static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 {
 	ddr2->md = (ATMEL_MPDDRC_MD_DBW_16_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
 
@@ -347,7 +347,7 @@ void mem_init(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
-	struct atmel_mpddr ddr2;
+	struct atmel_mpddrc_config ddr2;
 	unsigned long csa;
 
 	ddr2_conf(&ddr2);
