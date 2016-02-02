@@ -24,17 +24,13 @@ int usb_cpu_init(void)
 	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB)
 		;
 #ifdef CONFIG_AT91SAM9N12
-	writel(AT91_PMC_USBS_USB_PLLB | AT91_PMC_USB_DIV_2, &pmc->usb);
+	at91_usb_clk_init(AT91_PMC_USBS_USB_PLLB | AT91_PMC_USB_DIV_2);
 #endif
 #elif defined(CONFIG_USB_ATMEL_CLK_SEL_UPLL)
-	/* Enable UPLL */
-	writel(readl(&pmc->uckr) | AT91_PMC_UPLLEN | AT91_PMC_BIASEN,
-		&pmc->uckr);
-	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) != AT91_PMC_LOCKU)
-		;
+	if (at91_upll_clk_enable())
+		return -1;
 
-	/* Select PLLA as input clock of OHCI */
-	writel(AT91_PMC_USBS_USB_UPLL | AT91_PMC_USBDIV_10, &pmc->usb);
+	at91_usb_clk_init(AT91_PMC_USBS_USB_UPLL | AT91_PMC_USBDIV_10);
 #endif
 
 	at91_periph_clk_enable(ATMEL_ID_UHP);
@@ -60,17 +56,15 @@ int usb_cpu_stop(void)
 
 #ifdef CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #ifdef CONFIG_AT91SAM9N12
-	writel(0, &pmc->usb);
+	at91_usb_clk_init(0);
 #endif
 	/* Disable PLLB */
 	writel(0, &pmc->pllbr);
 	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != 0)
 		;
 #elif defined(CONFIG_USB_ATMEL_CLK_SEL_UPLL)
-	/* Disable UPLL */
-	writel(readl(&pmc->uckr) & (~AT91_PMC_UPLLEN), &pmc->uckr);
-	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) == AT91_PMC_LOCKU)
-		;
+	if (at91_upll_clk_disable())
+		return -1;
 #endif
 
 	return 0;

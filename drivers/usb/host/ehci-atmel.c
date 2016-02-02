@@ -7,37 +7,18 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
 #include <usb.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
 
 #include "ehci.h"
 
-/* Enable UTMI PLL time out 500us
- * 10 times as datasheet specified
- */
-#define EN_UPLL_TIMEOUT	500UL
-
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
-	ulong start_time, tmp_time;
-
-	start_time = get_timer(0);
 	/* Enable UTMI PLL */
-	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
-	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) != AT91_PMC_LOCKU) {
-		WATCHDOG_RESET();
-		tmp_time = get_timer(0);
-		if ((tmp_time - start_time) > EN_UPLL_TIMEOUT) {
-			printf("ERROR: failed to enable UPLL\n");
-			return -1;
-		}
-	}
+	if (at91_upll_clk_enable())
+		return -1;
 
 	/* Enable USB Host clock */
 	at91_periph_clk_enable(ATMEL_ID_UHPHS);
@@ -51,23 +32,12 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 int ehci_hcd_stop(int index)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
-	ulong start_time, tmp_time;
-
 	/* Disable USB Host Clock */
 	at91_periph_clk_disable(ATMEL_ID_UHPHS);
 
-	start_time = get_timer(0);
 	/* Disable UTMI PLL */
-	writel(readl(&pmc->uckr) & ~AT91_PMC_UPLLEN, &pmc->uckr);
-	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) == AT91_PMC_LOCKU) {
-		WATCHDOG_RESET();
-		tmp_time = get_timer(0);
-		if ((tmp_time - start_time) > EN_UPLL_TIMEOUT) {
-			printf("ERROR: failed to stop UPLL\n");
-			return -1;
-		}
-	}
+	if (at91_upll_clk_disable())
+		return -1;
 
 	return 0;
 }
