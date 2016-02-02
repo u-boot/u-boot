@@ -61,7 +61,7 @@ enum {
 
 int checkboard(void)
 {
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	char buf[64];
 #endif
 #if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_QSPI_BOOT)
@@ -90,7 +90,7 @@ int checkboard(void)
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
 #endif
 
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 	printf("Sys ID:0x%02x, Sys Ver: 0x%02x\n",
 	       QIXIS_READ(id), QIXIS_READ(arch));
 
