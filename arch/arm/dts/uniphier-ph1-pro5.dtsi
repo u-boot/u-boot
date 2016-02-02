@@ -171,6 +171,10 @@
 	};
 };
 
+&refclk {
+	clock-frequency = <20000000>;
+};
+
 &serial0 {
 	clock-frequency = <73728000>;
 };
