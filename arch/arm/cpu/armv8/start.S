@@ -168,6 +168,25 @@ apply_a57_core_errata:
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
 #endif
 
+#ifdef CONFIG_ARM_ERRATA_833471
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* FPSCR write flush.
+	 * Note that in some cases where a flush is unnecessary this
+	    could impact performance. */
+	orr	x0, x0, #1 << 38
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_829520
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* Disable Indirect Predictor bit will prevent this erratum
+	    from occurring
+	 * Note that in some cases where a flush is unnecessary this
+	    could impact performance. */
+	orr	x0, x0, #1 << 4
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+
 #ifdef CONFIG_ARM_ERRATA_833069
 	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
 	/* Disable Enable Invalidates of BTB bit */

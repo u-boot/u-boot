@@ -523,5 +523,6 @@
 #endif
 
 #include <asm/fsl_secure_boot.h>
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */
 
 #endif

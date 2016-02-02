@@ -818,6 +818,7 @@ static int dprc_init(void)
 		goto err_root_open;
 	}
 
+	memset(&cfg, 0, sizeof(struct dprc_cfg));
 	cfg.options = DPRC_CFG_OPT_TOPOLOGY_CHANGES_ALLOWED |
 		      DPRC_CFG_OPT_OBJ_CREATE_ALLOWED |
 		      DPRC_CFG_OPT_ALLOC_ALLOWED;
@@ -1160,7 +1161,7 @@ int fsl_mc_ldpaa_exit(bd_t *bd)
 
 	err = dpbp_exit();
 	if (err < 0) {
-		printf("dpni_exit() failed: %d\n", err);
+		printf("dpbp_exit() failed: %d\n", err);
 		goto err;
 	}
 
