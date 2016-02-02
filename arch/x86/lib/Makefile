@@ -22,9 +22,6 @@ obj-y += cmd_mtrr.o
 obj-y	+= northbridge-uclass.o
 obj-$(CONFIG_I8259_PIC) += i8259.o
 obj-$(CONFIG_I8254_TIMER) += i8254.o
-ifndef CONFIG_DM_PCI
-obj-$(CONFIG_PCI) += pci_type1.o
-endif
 obj-y	+= pirq_routing.o
 obj-y	+= relocate.o
 obj-y += physmem.o

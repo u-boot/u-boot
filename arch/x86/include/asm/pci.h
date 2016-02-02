@@ -18,13 +18,6 @@
 
 #ifndef __ASSEMBLY__
 
-#define DEFINE_PCI_DEVICE_TABLE(_table) \
-	const struct pci_device_id _table[]
-
-struct pci_controller;
-
-void pci_setup_type1(struct pci_controller *hose);
-
 int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 			ulong *valuep, enum pci_size_t size);
 
