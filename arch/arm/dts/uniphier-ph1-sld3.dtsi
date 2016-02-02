@@ -178,6 +178,14 @@
 			reg = <0x59800000 0x2000>;
 		};
 
+		mio: mioctrl@59810000 {
+			compatible = "socionext,ph1-sld3-mioctrl";
+			reg = <0x59810000 0x800>;
+			#clock-cells = <1>;
+			clock-names = "stdmac", "ehci";
+			clocks = <&sysctrl 10>, <&sysctrl 18>;
+		};
+
 		usb0: usb@5a800100 {
 			compatible = "socionext,uniphier-ehci", "generic-ehci";
 			status = "disabled";

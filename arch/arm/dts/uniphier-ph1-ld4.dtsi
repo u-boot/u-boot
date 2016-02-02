@@ -157,6 +157,12 @@
 	clock-frequency = <36864000>;
 };
 
+&mio {
+	compatible = "socionext,ph1-ld4-mioctrl";
+	clock-names = "stdmac", "ehci";
+	clocks = <&sysctrl 10>, <&sysctrl 18>;
+};
+
 &peri {
 	compatible = "socionext,ph1-ld4-perictrl";
 	clock-names = "uart", "i2c";
