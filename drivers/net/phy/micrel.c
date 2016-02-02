@@ -279,7 +279,8 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 #define CTRL1000_CONFIG_MASTER		(1 << 11)
 #define CTRL1000_MANUAL_CONFIG		(1 << 12)
 
-#ifdef CONFIG_DM_ETH
+#if defined(CONFIG_DM_ETH) && (defined(CONFIG_PHY_MICREL_KSZ9021) || \
+			       defined(CONFIG_PHY_MICREL_KSZ9031))
 static const struct ksz90x1_reg_field ksz9021_clk_grp[] = {
 	{ "txen-skew-ps", 4, 0, 0x7 }, { "txc-skew-ps", 4, 4, 0x7 },
 	{ "rxdv-skew-ps", 4, 8, 0x7 }, { "rxc-skew-ps", 4, 12, 0x7 },
@@ -385,7 +386,8 @@ static struct phy_driver ksz9021_driver = {
 #define MII_KSZ9031_MMD_ACCES_CTRL	0x0d
 #define MII_KSZ9031_MMD_REG_DATA	0x0e
 
-#ifdef CONFIG_DM_ETH
+#if defined(CONFIG_DM_ETH) && (defined(CONFIG_PHY_MICREL_KSZ9021) || \
+			       defined(CONFIG_PHY_MICREL_KSZ9031))
 static const struct ksz90x1_reg_field ksz9031_ctl_grp[] =
 	{ { "txen-skew-ps", 4, 0, 0x7 }, { "rxdv-skew-ps", 4, 4, 0x7 } };
 static const struct ksz90x1_reg_field ksz9031_clk_grp[] =
