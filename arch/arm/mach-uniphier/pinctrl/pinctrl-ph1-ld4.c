@@ -35,7 +35,7 @@ void ph1_ld4_pin_init(void)
 	sg_set_pinsel(31, 0, 8, 4);	/* MMCDAT7 -> NFD7_GB */
 #endif
 
-#ifdef CONFIG_USB_EHCI_UNIPHIER
+#ifdef CONFIG_USB_EHCI
 	sg_set_pinsel(53, 0, 8, 4);	/* USB0VBUS -> USB0VBUS */
 	sg_set_pinsel(54, 0, 8, 4);	/* USB0OD   -> USB0OD */
 	sg_set_pinsel(55, 0, 8, 4);	/* USB1VBUS -> USB1VBUS */
