@@ -242,10 +242,3 @@ void at91_mck_init(u32 mckr)
 	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))
 		;
 }
-
-void at91_periph_clk_enable(int id)
-{
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
-	writel(1 << id, &pmc->pcer);
-}
