@@ -37,17 +37,11 @@ int usb_cpu_init(void)
 	writel(AT91_PMC_USBS_USB_UPLL | AT91_PMC_USBDIV_10, &pmc->usb);
 #endif
 
-	/* Enable USB host clock. */
-#ifdef CPU_HAS_PCR
 	at91_periph_clk_enable(ATMEL_ID_UHP);
-#else
-	writel(1 << ATMEL_ID_UHP, &pmc->pcer);
-#endif
 
+	at91_system_clk_enable(ATMEL_PMC_UHP);
 #if defined(CONFIG_AT91SAM9261) || defined(CONFIG_AT91SAM9G10)
-	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scer);
-#else
-	writel(ATMEL_PMC_UHP, &pmc->scer);
+	at91_system_clk_enable(AT91_PMC_HCK0);
 #endif
 
 	return 0;
@@ -57,17 +51,11 @@ int usb_cpu_stop(void)
 {
 	at91_pmc_t *pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
 
-	/* Disable USB host clock. */
-#ifdef CPU_HAS_PCR
 	at91_periph_clk_disable(ATMEL_ID_UHP);
-#else
-	writel(1 << ATMEL_ID_UHP, &pmc->pcdr);
-#endif
 
+	at91_system_clk_disable(ATMEL_PMC_UHP);
 #if defined(CONFIG_AT91SAM9261) || defined(CONFIG_AT91SAM9G10)
-	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scdr);
-#else
-	writel(ATMEL_PMC_UHP, &pmc->scdr);
+	at91_system_clk_disable(AT91_PMC_HCK0);
 #endif
 
 #ifdef CONFIG_USB_ATMEL_CLK_SEL_PLLB
