@@ -18,6 +18,8 @@
 # error You need to define CONFIG_AT91FAMILY in your board config!
 #endif
 
+#define EN_PLLB_TIMEOUT	500
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned long at91_css_to_rate(unsigned long css)
@@ -152,6 +154,42 @@ int at91_clock_init(unsigned long main_clock)
 	gd->arch.mck_rate_hz = freq /
 			(1 + ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
 	gd->arch.cpu_clk_rate_hz = freq;
+
+	return 0;
+}
+
+int at91_pllb_clk_enable(u32 pllbr)
+{
+	struct at91_pmc *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
+	ulong start_time, tmp_time;
+
+	start_time = get_timer(0);
+	writel(pllbr, &pmc->pllbr);
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB) {
+		tmp_time = get_timer(0);
+		if ((tmp_time - start_time) > EN_PLLB_TIMEOUT) {
+			printf("ERROR: failed to enable PLLB\n");
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+int at91_pllb_clk_disable(void)
+{
+	struct at91_pmc *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
+	ulong start_time, tmp_time;
+
+	start_time = get_timer(0);
+	writel(0, &pmc->pllbr);
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != 0) {
+		tmp_time = get_timer(0);
+		if ((tmp_time - start_time) > EN_PLLB_TIMEOUT) {
+			printf("ERROR: failed to disable PLLB\n");
+			return -1;
+		}
+	}
 
 	return 0;
 }
