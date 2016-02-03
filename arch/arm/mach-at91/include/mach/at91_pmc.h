@@ -51,19 +51,15 @@ typedef struct at91_pmc {
 	u32	imr;		/* 0x6C Interrupt Mask Register */
 	u32	reserved4[4];
 	u32	pllicpr;	/* 0x80 Change Pump Current Register (SAM9) */
-	u32	reserved5[21];
+	u32	reserved5[24];
 	u32	wpmr;		/* 0xE4 Write Protect Mode Register (CAP0) */
 	u32	wpsr;		/* 0xE8 Write Protect Status Register (CAP0) */
-#ifdef CPU_HAS_PCR
-	u32	reserved6[8];
+	u32	reserved6[5];
 	u32	pcer1;		/* 0x100 Periperial Clock Enable Register 1 */
 	u32	pcdr1;		/* 0x104 Periperial Clock Disable Register 1 */
 	u32	pcsr1;		/* 0x108 Periperial Clock Status Register 1 */
 	u32	pcr;		/* 0x10c Periperial Control Register */
 	u32	ocr;		/* 0x110 Oscillator Calibration Register */
-#else
-	u32	reserved8[5];
-#endif
 } at91_pmc_t;
 
 #endif	/* end not assembly */
