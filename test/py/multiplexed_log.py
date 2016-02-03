@@ -168,12 +168,13 @@ class SectionCtxMgr(object):
     Objects of this type should be created by factory functions in the Logfile
     class rather than directly."""
 
-    def __init__(self, log, marker):
+    def __init__(self, log, marker, anchor):
         """Initialize a new object.
 
         Args:
             log: The Logfile object to log to.
             marker: The name of the nested log section.
+            anchor: The anchor value to pass to start_section().
 
         Returns:
             Nothing.
@@ -181,9 +182,10 @@ class SectionCtxMgr(object):
 
         self.log = log
         self.marker = marker
+        self.anchor = anchor
 
     def __enter__(self):
-        self.log.start_section(self.marker)
+        self.anchor = self.log.start_section(self.marker, self.anchor)
 
     def __exit__(self, extype, value, traceback):
         self.log.end_section(self.marker)
@@ -206,11 +208,70 @@ class Logfile(object):
         self.last_stream = None
         self.blocks = []
         self.cur_evt = 1
+        self.anchor = 0
+
         shutil.copy(mod_dir + '/multiplexed_log.css', os.path.dirname(fn))
         self.f.write('''\
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="multiplexed_log.css">
+<script src="http://code.jquery.com/jquery.min.js"></script>
+<script>
+$(document).ready(function () {
+    // Copy status report HTML to start of log for easy access
+    sts = $(".block#status_report")[0].outerHTML;
+    $("tt").prepend(sts);
+
+    // Add expand/contract buttons to all block headers
+    btns = "<span class=\\\"block-expand hidden\\\">[+] </span>" +
+        "<span class=\\\"block-contract\\\">[-] </span>";
+    $(".block-header").prepend(btns);
+
+    // Pre-contract all blocks which passed, leaving only problem cases
+    // expanded, to highlight issues the user should look at.
+    // Only top-level blocks (sections) should have any status
+    passed_bcs = $(".block-content:has(.status-pass)");
+    // Some blocks might have multiple status entries (e.g. the status
+    // report), so take care not to hide blocks with partial success.
+    passed_bcs = passed_bcs.not(":has(.status-fail)");
+    passed_bcs = passed_bcs.not(":has(.status-xfail)");
+    passed_bcs = passed_bcs.not(":has(.status-xpass)");
+    passed_bcs = passed_bcs.not(":has(.status-skipped)");
+    // Hide the passed blocks
+    passed_bcs.addClass("hidden");
+    // Flip the expand/contract button hiding for those blocks.
+    bhs = passed_bcs.parent().children(".block-header")
+    bhs.children(".block-expand").removeClass("hidden");
+    bhs.children(".block-contract").addClass("hidden");
+
+    // Add click handler to block headers.
+    // The handler expands/contracts the block.
+    $(".block-header").on("click", function (e) {
+        var header = $(this);
+        var content = header.next(".block-content");
+        var expanded = !content.hasClass("hidden");
+        if (expanded) {
+            content.addClass("hidden");
+            header.children(".block-expand").first().removeClass("hidden");
+            header.children(".block-contract").first().addClass("hidden");
+        } else {
+            header.children(".block-contract").first().removeClass("hidden");
+            header.children(".block-expand").first().addClass("hidden");
+            content.removeClass("hidden");
+        }
+    });
+
+    // When clicking on a link, expand the target block
+    $("a").on("click", function (e) {
+        var block = $($(this).attr("href"));
+        var header = block.children(".block-header");
+        var content = block.children(".block-content").first();
+        header.children(".block-contract").first().removeClass("hidden");
+        header.children(".block-expand").first().addClass("hidden");
+        content.removeClass("hidden");
+    });
+});
+</script>
 </head>
 <body>
 <tt>
@@ -273,45 +334,60 @@ class Logfile(object):
         if not self.last_stream:
             return
         self.f.write('</pre>\n')
-        self.f.write('<div class="stream-trailer" id="' +
-                     self.last_stream.name + '">End stream: ' +
+        self.f.write('<div class="stream-trailer block-trailer">End stream: ' +
                      self.last_stream.name + '</div>\n')
+        self.f.write('</div>\n')
         self.f.write('</div>\n')
         self.last_stream = None
 
-    def _note(self, note_type, msg):
+    def _note(self, note_type, msg, anchor=None):
         """Write a note or one-off message to the log file.
 
         Args:
             note_type: The type of note. This must be a value supported by the
                 accompanying multiplexed_log.css.
             msg: The note/message to log.
+            anchor: Optional internal link target.
 
         Returns:
             Nothing.
         """
 
         self._terminate_stream()
-        self.f.write('<div class="' + note_type + '">\n<pre>')
+        self.f.write('<div class="' + note_type + '">\n')
+        if anchor:
+            self.f.write('<a href="#%s">\n' % anchor)
+        self.f.write('<pre>')
         self.f.write(self._escape(msg))
-        self.f.write('\n</pre></div>\n')
+        self.f.write('\n</pre>\n')
+        if anchor:
+            self.f.write('</a>\n')
+        self.f.write('</div>\n')
 
-    def start_section(self, marker):
+    def start_section(self, marker, anchor=None):
         """Begin a new nested section in the log file.
 
         Args:
             marker: The name of the section that is starting.
+            anchor: The value to use for the anchor. If None, a unique value
+              will be calculated and used
 
         Returns:
-            Nothing.
+            Name of the HTML anchor emitted before section.
         """
 
         self._terminate_stream()
         self.blocks.append(marker)
+        if not anchor:
+            self.anchor += 1
+            anchor = str(self.anchor)
         blk_path = '/'.join(self.blocks)
-        self.f.write('<div class="section" id="' + blk_path + '">\n')
-        self.f.write('<div class="section-header" id="' + blk_path +
-                     '">Section: ' + blk_path + '</div>\n')
+        self.f.write('<div class="section block" id="' + anchor + '">\n')
+        self.f.write('<div class="section-header block-header">Section: ' +
+                     blk_path + '</div>\n')
+        self.f.write('<div class="section-content block-content">\n')
+
+        return anchor
 
     def end_section(self, marker):
         """Terminate the current nested section in the log file.
@@ -331,12 +407,13 @@ class Logfile(object):
                             (marker, '/'.join(self.blocks)))
         self._terminate_stream()
         blk_path = '/'.join(self.blocks)
-        self.f.write('<div class="section-trailer" id="section-trailer-' +
-                     blk_path + '">End section: ' + blk_path + '</div>\n')
+        self.f.write('<div class="section-trailer block-trailer">' +
+                     'End section: ' + blk_path + '</div>\n')
+        self.f.write('</div>\n')
         self.f.write('</div>\n')
         self.blocks.pop()
 
-    def section(self, marker):
+    def section(self, marker, anchor=None):
         """Create a temporary section in the log file.
 
         This function creates a context manager for Python's "with" statement,
@@ -349,12 +426,13 @@ class Logfile(object):
 
         Args:
             marker: The name of the nested section.
+            anchor: The anchor value to pass to start_section().
 
         Returns:
             A context manager object.
         """
 
-        return SectionCtxMgr(self, marker)
+        return SectionCtxMgr(self, marker, anchor)
 
     def error(self, msg):
         """Write an error note to the log file.
@@ -404,65 +482,70 @@ class Logfile(object):
 
         self._note("action", msg)
 
-    def status_pass(self, msg):
+    def status_pass(self, msg, anchor=None):
         """Write a note to the log file describing test(s) which passed.
 
         Args:
             msg: A message describing the passed test(s).
+            anchor: Optional internal link target.
 
         Returns:
             Nothing.
         """
 
-        self._note("status-pass", msg)
+        self._note("status-pass", msg, anchor)
 
-    def status_skipped(self, msg):
+    def status_skipped(self, msg, anchor=None):
         """Write a note to the log file describing skipped test(s).
 
         Args:
             msg: A message describing the skipped test(s).
+            anchor: Optional internal link target.
 
         Returns:
             Nothing.
         """
 
-        self._note("status-skipped", msg)
+        self._note("status-skipped", msg, anchor)
 
-    def status_xfail(self, msg):
+    def status_xfail(self, msg, anchor=None):
         """Write a note to the log file describing xfailed test(s).
 
         Args:
             msg: A message describing the xfailed test(s).
+            anchor: Optional internal link target.
 
         Returns:
             Nothing.
         """
 
-        self._note("status-xfail", msg)
+        self._note("status-xfail", msg, anchor)
 
-    def status_xpass(self, msg):
+    def status_xpass(self, msg, anchor=None):
         """Write a note to the log file describing xpassed test(s).
 
         Args:
             msg: A message describing the xpassed test(s).
+            anchor: Optional internal link target.
 
         Returns:
             Nothing.
         """
 
-        self._note("status-xpass", msg)
+        self._note("status-xpass", msg, anchor)
 
-    def status_fail(self, msg):
+    def status_fail(self, msg, anchor=None):
         """Write a note to the log file describing failed test(s).
 
         Args:
             msg: A message describing the failed test(s).
+            anchor: Optional internal link target.
 
         Returns:
             Nothing.
         """
 
-        self._note("status-fail", msg)
+        self._note("status-fail", msg, anchor)
 
     def get_stream(self, name, chained_file=None):
         """Create an object to log a single stream's data into the log file.
@@ -519,9 +602,10 @@ class Logfile(object):
 
         if stream != self.last_stream:
             self._terminate_stream()
-            self.f.write('<div class="stream" id="%s">\n' % stream.name)
-            self.f.write('<div class="stream-header" id="' + stream.name +
-                         '">Stream: ' + stream.name + '</div>\n')
+            self.f.write('<div class="stream block">\n')
+            self.f.write('<div class="stream-header block-header">Stream: ' +
+                         stream.name + '</div>\n')
+            self.f.write('<div class="stream-content block-content">\n')
             self.f.write('<pre>')
         if implicit:
             self.f.write('<span class="implicit">')

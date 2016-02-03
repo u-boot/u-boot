@@ -129,10 +129,12 @@ def pytest_configure(config):
             ['make', o_opt, '-s', board_type + '_defconfig'],
             ['make', o_opt, '-s', '-j8'],
         )
-        runner = log.get_runner('make', sys.stdout)
-        for cmd in cmds:
-            runner.run(cmd, cwd=source_dir)
-        runner.close()
+        with log.section('make'):
+            runner = log.get_runner('make', sys.stdout)
+            for cmd in cmds:
+                runner.run(cmd, cwd=source_dir)
+            runner.close()
+            log.status_pass('OK')
 
     class ArbitraryAttributeContainer(object):
         pass
@@ -255,6 +257,7 @@ def u_boot_console(request):
     console.ensure_spawned()
     return console
 
+anchors = {}
 tests_not_run = set()
 tests_failed = set()
 tests_xpassed = set()
@@ -294,27 +297,33 @@ def cleanup():
     if console:
         console.close()
     if log:
-        log.status_pass('%d passed' % len(tests_passed))
-        if tests_skipped:
-            log.status_skipped('%d skipped' % len(tests_skipped))
-            for test in tests_skipped:
-                log.status_skipped('... ' + test)
-        if tests_xpassed:
-            log.status_xpass('%d xpass' % len(tests_xpassed))
-            for test in tests_xpassed:
-                log.status_xpass('... ' + test)
-        if tests_xfailed:
-            log.status_xfail('%d xfail' % len(tests_xfailed))
-            for test in tests_xfailed:
-                log.status_xfail('... ' + test)
-        if tests_failed:
-            log.status_fail('%d failed' % len(tests_failed))
-            for test in tests_failed:
-                log.status_fail('... ' + test)
-        if tests_not_run:
-            log.status_fail('%d not run' % len(tests_not_run))
-            for test in tests_not_run:
-                log.status_fail('... ' + test)
+        with log.section('Status Report', 'status_report'):
+            log.status_pass('%d passed' % len(tests_passed))
+            if tests_skipped:
+                log.status_skipped('%d skipped' % len(tests_skipped))
+                for test in tests_skipped:
+                    anchor = anchors.get(test, None)
+                    log.status_skipped('... ' + test, anchor)
+            if tests_xpassed:
+                log.status_xpass('%d xpass' % len(tests_xpassed))
+                for test in tests_xpassed:
+                    anchor = anchors.get(test, None)
+                    log.status_xpass('... ' + test, anchor)
+            if tests_xfailed:
+                log.status_xfail('%d xfail' % len(tests_xfailed))
+                for test in tests_xfailed:
+                    anchor = anchors.get(test, None)
+                    log.status_xfail('... ' + test, anchor)
+            if tests_failed:
+                log.status_fail('%d failed' % len(tests_failed))
+                for test in tests_failed:
+                    anchor = anchors.get(test, None)
+                    log.status_fail('... ' + test, anchor)
+            if tests_not_run:
+                log.status_fail('%d not run' % len(tests_not_run))
+                for test in tests_not_run:
+                    anchor = anchors.get(test, None)
+                    log.status_fail('... ' + test, anchor)
         log.close()
 atexit.register(cleanup)
 
@@ -380,7 +389,7 @@ def pytest_runtest_setup(item):
         Nothing.
     """
 
-    log.start_section(item.name)
+    anchors[item.name] = log.start_section(item.name)
     setup_boardspec(item)
     setup_buildconfigspec(item)
 
