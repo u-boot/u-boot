@@ -19,7 +19,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ZYNQ_UART_SR_TXFULL	0x00000010 /* TX FIFO full */
+#define ZYNQ_UART_SR_TXEMPTY	(1 << 3) /* TX FIFO empty */
 #define ZYNQ_UART_SR_TXACTIVE	(1 << 11)  /* TX active */
 #define ZYNQ_UART_SR_RXEMPTY	0x00000002 /* RX FIFO empty */
 
@@ -97,7 +97,7 @@ static void _uart_zynq_serial_init(struct uart_zynq *regs)
 
 static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 {
-	if (readl(&regs->channel_sts) & ZYNQ_UART_SR_TXFULL)
+	if (!(readl(&regs->channel_sts) & ZYNQ_UART_SR_TXEMPTY))
 		return -EAGAIN;
 
 	writel(c, &regs->tx_rx_fifo);
