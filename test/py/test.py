@@ -30,3 +30,4 @@ except:
     print >>sys.stderr, '''
 exec(py.test) failed; perhaps you are missing some dependencies?
 See test/py/README.md for the list.'''
+    sys.exit(1)
