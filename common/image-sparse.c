@@ -64,7 +64,8 @@ static unsigned int sparse_block_size_to_storage(unsigned int size,
 						 sparse_storage_t *storage,
 						 sparse_header_t *sparse)
 {
-	return size * sparse->blk_sz / storage->block_sz;
+	return (unsigned int)lldiv((uint64_t)size * sparse->blk_sz,
+				   storage->block_sz);
 }
 
 static bool sparse_chunk_has_buffer(chunk_header_t *chunk)
