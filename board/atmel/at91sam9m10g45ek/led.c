@@ -9,15 +9,12 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9g45.h>
-#include <asm/arch/at91_pmc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 
 void coloured_LED_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
-	/* Enable clock */
-	writel(1 << ATMEL_ID_PIODE, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIODE);
 
 	at91_set_gpio_output(CONFIG_RED_LED, 1);
 	at91_set_gpio_output(CONFIG_GREEN_LED, 1);

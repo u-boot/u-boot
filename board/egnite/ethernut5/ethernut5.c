@@ -67,8 +67,8 @@
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_spi.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -151,12 +151,10 @@ static void ethernut5_nand_hw_init(void)
  */
 int board_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	at91_periph_clk_enable(ATMEL_ID_PIOA);
+	at91_periph_clk_enable(ATMEL_ID_PIOB);
+	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
-	/* Enable clocks for all PIOs */
-	writel((1 << ATMEL_ID_PIOA) | (1 << ATMEL_ID_PIOB) |
-		(1 << ATMEL_ID_PIOC),
-		&pmc->pcer);
 	/* Set adress of boot parameters. */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 	/* Initialize UARTs and power management. */
@@ -179,10 +177,9 @@ int board_eth_init(bd_t *bis)
 {
 	const char *devname;
 	unsigned short mode;
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
-	/* Enable on-chip EMAC clock. */
-	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC0);
+
 	/* Need to reset PHY via power management. */
 	ethernut5_phy_reset();
 	/* Set peripheral pins. */
@@ -211,10 +208,8 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 int board_mmc_init(bd_t *bd)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	at91_periph_clk_enable(ATMEL_ID_MCI);
 
-	/* Enable MCI clock. */
-	writel(1 << ATMEL_ID_MCI, &pmc->pcer);
 	/* Initialize MCI hardware. */
 	at91_mci_hw_init();
 	/* Register the device. */
@@ -229,6 +224,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 #ifdef CONFIG_ATMEL_SPI
 /*
+
  * Note, that u-boot uses different code for SPI bus access. While
  * memory routines use automatic chip select control, the serial
  * flash support requires 'manual' GPIO control. Thus, we switch

@@ -18,7 +18,6 @@
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/at91sam9_sdramc.h>
@@ -300,7 +299,7 @@ void at91_udp_hw_init(void)
 	/* Enable UDPCK clock, MCK is enabled in at91_clock_init() */
 	at91_periph_clk_enable(ATMEL_ID_UDP);
 
-	writel(AT91SAM926x_PMC_UDP, &pmc->scer);
+	at91_system_clk_enable(AT91SAM926x_PMC_UDP);
 }
 
 struct at91_udc_data board_udc_data  = {

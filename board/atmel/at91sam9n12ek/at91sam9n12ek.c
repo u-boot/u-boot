@@ -10,7 +10,6 @@
 #include <asm/arch/at91sam9x5_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
@@ -208,9 +207,8 @@ void at91sam9n12ek_usb_hw_init(void)
 
 int board_early_init_f(void)
 {
-	/* Enable clocks for all PIOs */
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	writel((1 << ATMEL_ID_PIOAB) | (1 << ATMEL_ID_PIOCD), &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOAB);
+	at91_periph_clk_enable(ATMEL_ID_PIOCD);
 
 	at91_seriald_hw_init();
 	return 0;
