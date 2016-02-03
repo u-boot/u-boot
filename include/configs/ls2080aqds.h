@@ -346,7 +346,9 @@ unsigned long get_board_ddr_clk(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2800000\0"
+	"kernel_size=0x2800000\0"		\
+	"mcinitcmd=fsl_mc start mc 0x580300000"	\
+	" 0x580800000 \0"
 
 #ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_FSL_MEMAC

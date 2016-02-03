@@ -264,7 +264,9 @@ unsigned long long get_qixis_addr(void);
 	"kernel_start=0x581200000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
-	"console=ttyAMA0,38400n8\0"
+	"console=ttyAMA0,38400n8\0"		\
+	"mcinitcmd=fsl_mc start mc 0x580300000"	\
+	" 0x580800000 \0"
 
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0500" \

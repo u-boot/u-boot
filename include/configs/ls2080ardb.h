@@ -327,7 +327,9 @@ unsigned long get_board_sys_clk(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2800000\0"
+	"kernel_size=0x2800000\0"		\
+	"mcinitcmd=fsl_mc start mc 0x580300000"	\
+	" 0x580800000 \0"
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
