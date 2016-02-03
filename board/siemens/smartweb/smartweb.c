@@ -115,12 +115,8 @@ static void smartweb_macb_hw_init(void)
 
 void at91_udp_hw_init(void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
-
 	/* Enable PLLB */
-	writel(get_pllb_init(), &pmc->pllbr);
-	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB)
-		;
+	at91_pllb_clk_enable(get_pllb_init());
 
 	/* Enable UDPCK clock, MCK is enabled in at91_clock_init() */
 	at91_periph_clk_enable(ATMEL_ID_UDP);
