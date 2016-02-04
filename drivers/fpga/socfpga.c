@@ -269,7 +269,7 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 	/* Prior programming the FPGA, all bridges need to be shut off */
 
 	/* Disable all signals from hps peripheral controller to fpga */
-	writel(0, &sysmgr_regs->fpgaintfgrp_gbl);
+	writel(0, &sysmgr_regs->fpgaintfgrp_module);
 
 	/* Disable all signals from FPGA to HPS SDRAM */
 #define SDR_CTRLGRP_FPGAPORTRST_ADDRESS	0x5080
