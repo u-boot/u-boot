@@ -257,6 +257,17 @@ int board_mmc_init(bd_t *bis)
 	}
 	return 0;
 }
+
+/* set environment device to boot device when booting from SD */
+int board_mmc_get_env_dev(int devno)
+{
+	return devno - 1;
+}
+
+int board_mmc_get_env_part(int devno)
+{
+	return (devno == 3) ? 1 : 0; /* part 0 for SD2 / SD3, part 1 for eMMC */
+}
 #endif /* CONFIG_FSL_ESDHC */
 
 #ifdef CONFIG_VIDEO_IPUV3
