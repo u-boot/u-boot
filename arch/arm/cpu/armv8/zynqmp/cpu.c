@@ -28,8 +28,7 @@ static unsigned int zynqmp_get_silicon_version_secure(void)
 
 unsigned int zynqmp_get_silicon_version(void)
 {
-
-      if (current_el() == 3)
+	if (current_el() == 3)
 		return zynqmp_get_silicon_version_secure();
 
 	gd->cpu_clk = get_tbclk();
