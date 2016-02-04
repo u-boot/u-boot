@@ -14,7 +14,7 @@ endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x80F00000
 
-PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__ -fgnu89-inline
+PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
 
 ifeq ($(CONFIG_SPL_BUILD),)
 PLATFORM_CPPFLAGS += -fPIC
