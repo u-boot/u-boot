@@ -669,10 +669,6 @@ The following options need to be configured:
 		CONFIG_ARM_ERRATA_798870
 		CONFIG_ARM_ERRATA_801819
 
-		CONFIG_ARM_SMC
-
-		Enable compilation of helper ASM code for calling SMC instructions.
-
 - Tegra SoC options:
 		CONFIG_TEGRA_SUPPORT_NON_SECURE
 
