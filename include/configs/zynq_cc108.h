@@ -18,8 +18,6 @@
 #ifndef __CONFIG_ZYNQ_CC108_H
 #define __CONFIG_ZYNQ_CC108_H
 
-#define CONFIG_SYS_SDRAM_SIZE (512 * 1024 * 1024)
-
 /*
  * UART is connected to EMIO, making it very likely that this board uses a
  * boot.bin which includes a bitstream, whose file size  exceeds the default
