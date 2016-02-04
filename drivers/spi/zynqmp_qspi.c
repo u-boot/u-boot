@@ -162,9 +162,11 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 	struct zynqmp_qspi_platdata *plat = bus->platdata;
 
 	debug("%s\n", __func__);
-	plat->regs = (struct zynqmp_qspi_regs *)(ZYNQMP_QSPI_BASEADDR + 0x100);
-	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)(ZYNQMP_QSPI_BASEADDR +
+
+	plat->regs = (struct zynqmp_qspi_regs *)(dev_get_addr(bus) + 0x100);
+	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)(dev_get_addr(bus) +
 							 0x800);
+
 	plat->frequency = 166666666;
 	plat->speed_hz = plat->frequency / 2;
 
