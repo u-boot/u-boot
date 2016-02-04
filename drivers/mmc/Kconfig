@@ -37,4 +37,10 @@ config PIC32_SDHCI
 	help
 	  Support for Microchip PIC32 SDHCI controller.
 
+config ZYNQ_SDHCI
+	bool "Arasan SDHCI controller support"
+	depends on DM_MMC && OF_CONTROL
+	help
+	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
+
 endmenu

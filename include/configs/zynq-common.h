@@ -86,11 +86,10 @@
 #endif
 
 /* MMC */
-#if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+#if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
 # define CONFIG_SDHCI
-# define CONFIG_ZYNQ_SDHCI
 # define CONFIG_CMD_MMC
 # define CONFIG_ZYNQ_SDHCI_MAX_FREQ	52000000
 #endif
@@ -131,7 +130,7 @@
 	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
 	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
 
-# if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+# if defined(CONFIG_ZYNQ_SDHCI)
 #  define CONFIG_DFU_MMC
 #  define DFU_ALT_INFO_MMC \
 	"dfu_mmc_info=" \
@@ -311,7 +310,7 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-zynq/u-boot-spl.lds"
 
 /* MMC support */
-#ifdef CONFIG_ZYNQ_SDHCI0
+#ifdef CONFIG_ZYNQ_SDHCI
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS      0x200 /* 256 KB */

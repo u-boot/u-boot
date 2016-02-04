@@ -14,8 +14,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_ZYNQ_SDHCI0
-
 #include <configs/zynq-common.h>
 
 #endif /* __CONFIG_ZYNQ_MICROZED_H */
