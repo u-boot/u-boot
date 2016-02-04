@@ -9,7 +9,6 @@
 #include <console.h>
 #include <common.h>
 #include <zynqmppl.h>
-#include <asm/smc.h>
 #include <linux/sizes.h>
 
 #define DUMMY_WORD	0xffffffff
@@ -190,6 +189,19 @@ static int zynqmp_validate_bitstream(xilinx_desc *desc, const void *buf,
 	}
 
 	return 0;
+}
+
+static int invoke_smc(ulong id, ulong reg0, ulong reg1, ulong reg2)
+{
+	struct pt_regs regs;
+	regs.regs[0] = id;
+	regs.regs[1] = reg0;
+	regs.regs[2] = reg1;
+	regs.regs[3] = reg2;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
 }
 
 static int zynqmp_info(xilinx_desc *desc)
