@@ -100,7 +100,6 @@ int checkboard(void)
 
 int dram_init(void)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 	int node;
 	fdt_addr_t addr;
 	fdt_size_t size;
@@ -118,9 +117,6 @@ int dram_init(void)
 		return -1;
 	}
 	gd->ram_size = size;
-#else
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
-#endif
 	zynq_ddrc_init();
 
 	return 0;

@@ -10,8 +10,6 @@
 #ifndef __CONFIG_ZYNQ_MICROZED_H
 #define __CONFIG_ZYNQ_MICROZED_H
 
-#define CONFIG_SYS_SDRAM_SIZE		(1024 * 1024 * 1024)
-
 #define CONFIG_SYS_NO_FLASH
 
 #include <configs/zynq-common.h>
