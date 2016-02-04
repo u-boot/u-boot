@@ -300,7 +300,8 @@ class ConsoleBase(object):
             # text if LCD is enabled. This value may need tweaking in the
             # future, possibly per-test to be optimal. This works for 'help'
             # on board 'seaboard'.
-            self.p.timeout = 30000
+            if not self.config.gdbserver:
+                self.p.timeout = 30000
             self.p.logfile_read = self.logstream
             if self.config.buildconfig.get('CONFIG_SPL', False) == 'y':
                 m = self.p.expect([pattern_u_boot_spl_signon] + self.bad_patterns)

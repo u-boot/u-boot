@@ -148,10 +148,14 @@ class Spawn(object):
                     self.buf = self.buf[posafter:]
                     return earliest_pi
                 tnow_s = time.time()
-                tdelta_ms = (tnow_s - tstart_s) * 1000
-                if tdelta_ms > self.timeout:
-                    raise Timeout()
-                events = self.poll.poll(self.timeout - tdelta_ms)
+                if self.timeout:
+                    tdelta_ms = (tnow_s - tstart_s) * 1000
+                    poll_maxwait = self.timeout - tdelta_ms
+                    if tdelta_ms > self.timeout:
+                        raise Timeout()
+                else:
+                    poll_maxwait = None
+                events = self.poll.poll(poll_maxwait)
                 if not events:
                     raise Timeout()
                 c = os.read(self.fd, 1024)

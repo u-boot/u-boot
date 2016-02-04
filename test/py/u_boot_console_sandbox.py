@@ -39,7 +39,10 @@ class ConsoleSandbox(ConsoleBase):
             A u_boot_spawn.Spawn object that is attached to U-Boot.
         """
 
-        cmd = [
+        cmd = []
+        if self.config.gdbserver:
+            cmd += ['gdbserver', self.config.gdbserver]
+        cmd += [
             self.config.build_dir + '/u-boot',
             '-d',
             self.config.build_dir + '/arch/sandbox/dts/test.dtb'

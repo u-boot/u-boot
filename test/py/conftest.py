@@ -71,6 +71,9 @@ def pytest_addoption(parser):
         help='U-Boot board identity/instance')
     parser.addoption('--build', default=False, action='store_true',
         help='Compile U-Boot before running tests')
+    parser.addoption('--gdbserver', default=None,
+        help='Run sandbox under gdbserver. The argument is the channel '+
+        'over which gdbserver should communicate, e.g. localhost:1234')
 
 def pytest_configure(config):
     """pytest hook: Perform custom initialization at startup time.
@@ -109,6 +112,10 @@ def pytest_configure(config):
     if not persistent_data_dir:
         persistent_data_dir = build_dir + '/persistent-data'
     mkdir_p(persistent_data_dir)
+
+    gdbserver = config.getoption('gdbserver')
+    if gdbserver and board_type != 'sandbox':
+        raise Exception('--gdbserver only supported with sandbox')
 
     import multiplexed_log
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')
@@ -169,6 +176,7 @@ def pytest_configure(config):
     ubconfig.persistent_data_dir = persistent_data_dir
     ubconfig.board_type = board_type
     ubconfig.board_identity = board_identity
+    ubconfig.gdbserver = gdbserver
 
     env_vars = (
         'board_type',
