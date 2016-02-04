@@ -287,9 +287,7 @@
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
 /* Boot FreeBSD/vxWorks from an ELF image */
-#if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
-# define CONFIG_SYS_MMC_MAX_DEVICE	1
-#endif
+#define CONFIG_SYS_MMC_MAX_DEVICE	1
 
 #define CONFIG_SYS_LDSCRIPT  "arch/arm/mach-zynq/u-boot.lds"
 

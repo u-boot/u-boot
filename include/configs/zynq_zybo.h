@@ -14,7 +14,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_ZYNQ_USB
-#define CONFIG_ZYNQ_BOOT_FREEBSD
 
 /* Define ZYBO PS Clock Frequency to 50MHz */
 #define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
