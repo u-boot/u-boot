@@ -443,6 +443,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#size-cells = <0>;
 			reg = <4>;
 			si5328: clock-generator4@69 {/* SI5328 - u20 */
+				compatible = "silabs,si5328";
 				reg = <0x69>;
 			};
 		};
