@@ -2848,7 +2848,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
       return m;
     /* Otherwise, fail */
     fREe(m);
-    return NULL;
+    m = NULL;
   }
 
   if (m == NULL) return NULL; /* propagate failure */
