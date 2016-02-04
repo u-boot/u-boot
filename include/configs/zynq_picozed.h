@@ -16,7 +16,6 @@
 
 #define CONFIG_ZYNQ_SDHCI1
 #define CONFIG_ZYNQ_USB
-#define CONFIG_ZYNQ_BOOT_FREEBSD
 
 #include <configs/zynq-common.h>
 
