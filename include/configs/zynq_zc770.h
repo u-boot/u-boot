@@ -17,12 +17,8 @@
 #if defined(CONFIG_ZC770_XM010)
 # define CONFIG_ZYNQ_SDHCI0
 
-#elif defined(CONFIG_ZC770_XM011)
-
 #elif defined(CONFIG_ZC770_XM012)
 # undef CONFIG_SYS_NO_FLASH
-
-#elif defined(CONFIG_ZC770_XM013)
 
 #endif
 
