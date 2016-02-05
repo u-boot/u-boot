@@ -458,24 +458,29 @@ ulong getenv_bootm_low(void)
 
 phys_size_t getenv_bootm_size(void)
 {
-	phys_size_t tmp;
+	phys_size_t tmp, size;
+	phys_addr_t start;
 	char *s = getenv("bootm_size");
 	if (s) {
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 		return tmp;
 	}
+
+#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
+	start = gd->bd->bi_dram[0].start;
+	size = gd->bd->bi_dram[0].size;
+#else
+	start = gd->bd->bi_memstart;
+	size = gd->bd->bi_memsize;
+#endif
+
 	s = getenv("bootm_low");
 	if (s)
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 	else
-		tmp = 0;
+		tmp = start;
 
-
-#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
-	return gd->bd->bi_dram[0].size - (tmp - gd->bd->bi_dram[0].start);
-#else
-	return gd->bd->bi_memsize - (tmp - gd->bd->bi_memstart);
-#endif
+	return size - (tmp - start);
 }
 
 phys_size_t getenv_bootm_mapsize(void)
