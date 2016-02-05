@@ -93,7 +93,7 @@ int board_eth_init(bd_t *bis)
 
 static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC3_BASE_ADDR},
-	{USDHC2_BASE_ADDR},
+	{USDHC4_BASE_ADDR},
 };
 
 int board_mmc_init(bd_t *bis)
