@@ -114,7 +114,7 @@ MKIMAGEFLAGS_MLO = -T omapimage -a $(CONFIG_SPL_TEXT_BASE)
 
 MKIMAGEFLAGS_MLO.byteswap = -T omapimage -n byteswap -a $(CONFIG_SPL_TEXT_BASE)
 
-MLO MLO.byteswap: $(obj)/u-boot-spl.bin
+MLO MLO.byteswap: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
 ifeq ($(CONFIG_SYS_SOC),"at91")
@@ -126,12 +126,12 @@ MKIMAGEFLAGS_boot.bin += -n $(shell $(obj)/../tools/atmel_pmecc_params)
 boot.bin: $(obj)/../tools/atmel_pmecc_params
 endif
 
-boot.bin: $(obj)/u-boot-spl.bin
+boot.bin: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 else
 MKIMAGEFLAGS_boot.bin = -T zynqimage
 
-spl/boot.bin: $(obj)/u-boot-spl.bin
+spl/boot.bin: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 endif
 
@@ -200,7 +200,7 @@ quiet_cmd_cpp_cfg = CFG     $@
 cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 	-DDO_DEPS_ONLY -D__ASSEMBLY__ -x assembler-with-cpp -P -dM -E -o $@ $<
 
-$(obj)/$(SPL_BIN).cfg:	include/config.h
+$(obj)/$(SPL_BIN).cfg:	include/config.h FORCE
 	$(call if_changed,cpp_cfg)
 
 ifdef CONFIG_SAMSUNG
@@ -234,7 +234,7 @@ $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 
 quiet_cmd_mksunxiboot = MKSUNXI $@
 cmd_mksunxiboot = $(objtree)/tools/mksunxiboot $< $@
-$(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin
+$(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mksunxiboot)
 
 quiet_cmd_u-boot-spl = LD      $@

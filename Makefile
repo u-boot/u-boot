@@ -924,7 +924,7 @@ u-boot.sha1:	u-boot.bin
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
-u-boot.cfg:	include/config.h
+u-boot.cfg:	include/config.h FORCE
 	$(call if_changed,cpp_cfg)
 
 ifdef CONFIG_TPL
@@ -945,15 +945,15 @@ lpc32xx-spl.img: spl/u-boot-spl.bin FORCE
 
 OBJCOPYFLAGS_lpc32xx-boot-0.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO)
 
-lpc32xx-boot-0.bin: lpc32xx-spl.img
+lpc32xx-boot-0.bin: lpc32xx-spl.img FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_lpc32xx-boot-1.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO)
 
-lpc32xx-boot-1.bin: lpc32xx-spl.img
+lpc32xx-boot-1.bin: lpc32xx-spl.img FORCE
 	$(call if_changed,objcopy)
 
-lpc32xx-full.bin: lpc32xx-boot-0.bin lpc32xx-boot-1.bin u-boot.img
+lpc32xx-full.bin: lpc32xx-boot-0.bin lpc32xx-boot-1.bin u-boot.img FORCE
 	$(call if_changed,cat)
 
 CLEAN_FILES += lpc32xx-*
@@ -1056,7 +1056,7 @@ endif
 cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_FLAGS) u-boot.tmp;
 cmd_ifdtool += mv u-boot.tmp $@
 
-u-boot.rom: u-boot-x86-16bit.bin u-boot.bin
+u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE
 	$(call if_changed,ifdtool)
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
@@ -1171,7 +1171,7 @@ cmd_smap = \
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
 
-u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
+u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds FORCE
 	$(call if_changed,u-boot__)
 ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,smap)
