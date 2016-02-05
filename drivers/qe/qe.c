@@ -20,7 +20,9 @@
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
 
 qe_map_t		*qe_immr = NULL;
+#ifdef CONFIG_QE
 static qe_snum_t	snums[QE_NUM_OF_SNUM];
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -81,6 +83,7 @@ void *qe_muram_addr(uint offset)
 	return (void *)&qe_immr->muram[offset];
 }
 
+#ifdef CONFIG_QE
 static void qe_sdma_init(void)
 {
 	volatile sdma_t	*p;
@@ -184,6 +187,7 @@ void qe_init(uint qe_base)
 	qe_sdma_init();
 	qe_snums_init();
 }
+#endif
 
 #ifdef CONFIG_U_QE
 void u_qe_init(void)
@@ -214,6 +218,7 @@ void qe_reset(void)
 			 (u8) QE_CR_PROTOCOL_UNSPECIFIED, 0);
 }
 
+#ifdef CONFIG_QE
 void qe_assign_page(uint snum, uint para_ram_base)
 {
 	u32	cecr;
@@ -229,6 +234,7 @@ void qe_assign_page(uint snum, uint para_ram_base)
 
 	return;
 }
+#endif
 
 /*
  * brg: 0~15 as BRG1~BRG16
