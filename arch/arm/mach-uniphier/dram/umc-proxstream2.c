@@ -18,6 +18,8 @@
 #include "ddrmphy-regs.h"
 #include "umc-regs.h"
 
+#define CH_NR	3
+
 enum dram_freq {
 	FREQ_1866M,
 	FREQ_2133M,
@@ -42,6 +44,9 @@ static u32 ddrphy_dtpr2[FREQ_NR] = {0x50005e00, 0x50006a00};
 static u32 ddrphy_dtpr3[FREQ_NR] = {0x0010cb49, 0x0010ec89};
 static u32 ddrphy_mr0[FREQ_NR] = {0x00000115, 0x00000125};
 static u32 ddrphy_mr2[FREQ_NR] = {0x000002a0, 0x000002a8};
+
+/* dependent on package and board design */
+static u32 ddrphy_acbdlr0[CH_NR] = {0x0000000c, 0x0000000c, 0x00000009};
 
 static u32 umc_cmdctla[FREQ_NR] = {0x66DD131D, 0x77EE1722};
 /*
@@ -150,7 +155,8 @@ static int ddrphy_get_system_latency(void __iomem *phy_base, int width)
 	return dgsl_max;
 }
 
-static void ddrphy_init(void __iomem *phy_base, enum dram_freq freq, int width)
+static void ddrphy_init(void __iomem *phy_base, enum dram_freq freq, int width,
+			int ch)
 {
 	u32 tmp;
 	void __iomem *zq_base, *dx_base;
@@ -177,6 +183,8 @@ static void ddrphy_init(void __iomem *phy_base, enum dram_freq freq, int width)
 	writel(0x00083def,         phy_base + DMPHY_PTR2);
 	writel(ddrphy_ptr3[freq],  phy_base + DMPHY_PTR3);
 	writel(ddrphy_ptr4[freq],  phy_base + DMPHY_PTR4);
+
+	writel(ddrphy_acbdlr0[ch], phy_base + DMPHY_ACBDLR0);
 
 	writel(0x55555555, phy_base + DMPHY_ACIOCR1);
 	writel(0x00000000, phy_base + DMPHY_ACIOCR2);
@@ -528,7 +536,7 @@ static int umc_init(void __iomem *umc_base, enum dram_freq freq, int ch,
 	writel(UMC_DIOCTLA_CTL_NRST | UMC_DIOCTLA_CFG_NRST,
 	       umc_dc_base + UMC_DIOCTLA);
 
-	ddrphy_init(phy_base, freq, width);
+	ddrphy_init(phy_base, freq, width, ch);
 
 	ret = ddrphy_impedance_calibration(phy_base);
 	if (ret)
