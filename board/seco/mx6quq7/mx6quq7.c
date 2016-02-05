@@ -92,8 +92,8 @@ int board_eth_init(bd_t *bis)
 }
 
 static struct fsl_esdhc_cfg usdhc_cfg[2] = {
-	{USDHC3_BASE_ADDR},
-	{USDHC4_BASE_ADDR},
+	{USDHC3_BASE_ADDR, 0, 4},
+	{USDHC4_BASE_ADDR, 0, 4},
 };
 
 int board_mmc_init(bd_t *bis)
@@ -112,12 +112,10 @@ int board_mmc_init(bd_t *bis)
 		case 0:
 			seco_mx6_setup_usdhc_iomux(3);
 			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-			usdhc_cfg[0].max_bus_width = 4;
 			break;
 		case 1:
 			seco_mx6_setup_usdhc_iomux(4);
 			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-			usdhc_cfg[1].max_bus_width = 4;
 			break;
 
 		default:
