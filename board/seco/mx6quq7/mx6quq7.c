@@ -91,10 +91,29 @@ int board_eth_init(bd_t *bis)
 	return ret;
 }
 
+#define USDHC4_CD_GPIO		IMX_GPIO_NR(2, 6)
+
 static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC3_BASE_ADDR, 0, 4},
 	{USDHC4_BASE_ADDR, 0, 4},
 };
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret = 0;
+
+	switch (cfg->esdhc_base) {
+	case USDHC3_BASE_ADDR:
+		ret = 1; /* Assume eMMC is always present */
+		break;
+	case USDHC4_BASE_ADDR:
+		ret = !gpio_get_value(USDHC4_CD_GPIO);
+		break;
+	}
+
+	return ret;
+}
 
 int board_mmc_init(bd_t *bis)
 {
