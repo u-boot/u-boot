@@ -6,7 +6,7 @@ ifdef CONFIG_SPL_BUILD
 
 obj-y += lowlevel_init.o
 
-obj-y += init/ bcu/ memconf/ pll/ early-clk/ early-pinctrl/ dram/
+obj-y += init/ bcu/ memconf/ pll/ early-clk/ early-pinctrl/
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += sbc/
 
 obj-$(CONFIG_DEBUG_LL) += debug_ll.o
@@ -32,5 +32,6 @@ obj-y += timer.o
 obj-y += boards.o
 obj-y += soc_info.o
 obj-y += boot-mode/
+obj-y += dram/
 
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += micro-support-card.o
