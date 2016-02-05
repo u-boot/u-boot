@@ -57,6 +57,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
 #define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
+#define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x080000000 /* SGMII Enable */
+#define ZYNQ_GEM_NWCFG_PCS_SEL		0x000000800 /* PCS select */
 #ifdef CONFIG_ARM64
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000100000 /* Div pclk by 64, max 160MHz */
 #else
@@ -330,10 +332,12 @@ static int zynq_phy_init(struct udevice *dev)
 	/* Enable only MDIO bus */
 	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs->nwctrl);
 
-	ret = phy_detection(dev);
-	if (ret) {
-		printf("GEM PHY init failed\n");
-		return ret;
+	if (priv->interface != PHY_INTERFACE_MODE_SGMII) {
+		ret = phy_detection(dev);
+		if (ret) {
+			printf("GEM PHY init failed\n");
+			return ret;
+		}
 	}
 
 	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
@@ -351,7 +355,7 @@ static int zynq_phy_init(struct udevice *dev)
 
 static int zynq_gem_init(struct udevice *dev)
 {
-	u32 i;
+	u32 i, nwconfig;
 	unsigned long clk_rate = 0;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
@@ -426,14 +430,20 @@ static int zynq_gem_init(struct udevice *dev)
 		return -1;
 	}
 
+	nwconfig = ZYNQ_GEM_NWCFG_INIT;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
+		nwconfig |= ZYNQ_GEM_NWCFG_SGMII_ENBL |
+			    ZYNQ_GEM_NWCFG_PCS_SEL;
+
 	switch (priv->phydev->speed) {
 	case SPEED_1000:
-		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
+		writel(nwconfig | ZYNQ_GEM_NWCFG_SPEED1000,
 		       &regs->nwcfg);
 		clk_rate = ZYNQ_GEM_FREQUENCY_1000;
 		break;
 	case SPEED_100:
-		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100,
+		writel(nwconfig | ZYNQ_GEM_NWCFG_SPEED100,
 		       &regs->nwcfg);
 		clk_rate = ZYNQ_GEM_FREQUENCY_100;
 		break;
@@ -662,6 +672,8 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 	priv->interface = pdata->phy_interface;
+
+	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
 
 	printf("ZYNQ GEM: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));
