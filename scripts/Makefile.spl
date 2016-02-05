@@ -228,18 +228,14 @@ ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
-ifdef CONFIG_ARCH_SOCFPGA
 MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage
 $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
-endif
 
-ifdef CONFIG_SUNXI
 quiet_cmd_mksunxiboot = MKSUNXI $@
 cmd_mksunxiboot = $(objtree)/tools/mksunxiboot $< $@
 $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin
 	$(call if_changed,mksunxiboot)
-endif
 
 quiet_cmd_u-boot-spl = LD      $@
       cmd_u-boot-spl = (cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
