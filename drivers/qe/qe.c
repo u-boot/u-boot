@@ -192,8 +192,7 @@ void qe_init(uint qe_base)
 #ifdef CONFIG_U_QE
 void u_qe_init(void)
 {
-	uint qe_base = CONFIG_SYS_IMMR + 0x01400000; /* QE immr base */
-	qe_immr = (qe_map_t *)qe_base;
+	qe_immr = (qe_map_t *)(CONFIG_SYS_IMMR + QE_IMMR_OFFSET);
 
 	u_qe_upload_firmware((const void *)CONFIG_SYS_QE_FW_ADDR);
 	out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
@@ -204,9 +203,8 @@ void u_qe_init(void)
 void u_qe_resume(void)
 {
 	qe_map_t *qe_immrr;
-	uint qe_base = CONFIG_SYS_IMMR + QE_IMMR_OFFSET; /* QE immr base */
-	qe_immrr = (qe_map_t *)qe_base;
 
+	qe_immrr = (qe_map_t *)(CONFIG_SYS_IMMR + QE_IMMR_OFFSET);
 	u_qe_firmware_resume((const void *)CONFIG_SYS_QE_FW_ADDR, qe_immrr);
 	out_be32(&qe_immrr->iram.iready, QE_IRAM_READY);
 }

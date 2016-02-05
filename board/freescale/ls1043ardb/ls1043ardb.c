@@ -21,6 +21,10 @@
 #include <environment.h>
 #include <fsl_sec.h>
 #include "cpld.h"
+#ifdef CONFIG_U_QE
+#include <fsl_qe.h>
+#endif
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -111,6 +115,10 @@ int board_init(void)
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 	enable_layerscape_ns_access();
+#endif
+
+#ifdef CONFIG_U_QE
+	u_qe_init();
 #endif
 
 	return 0;
