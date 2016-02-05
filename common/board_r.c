@@ -456,7 +456,7 @@ static int initr_dataflash(void)
 /*
  * Tell if it's OK to load the environment early in boot.
  *
- * If CONFIG_OF_CONFIG is defined, we'll check with the FDT to see
+ * If CONFIG_OF_CONTROL is defined, we'll check with the FDT to see
  * if this is OK (defaulting to saying it's OK).
  *
  * NOTE: Loading the environment early can be a bad idea if security is
