@@ -193,8 +193,8 @@ quiet_cmd_fdtgrep = FDTGREP $@
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
 
-$(obj)/$(SPL_BIN).dtb: dts/dt.dtb
-	$(call cmd,fdtgrep)
+$(obj)/$(SPL_BIN).dtb: dts/dt.dtb $(objtree)/tools/fdtgrep FORCE
+	$(call if_changed,fdtgrep)
 
 quiet_cmd_cpp_cfg = CFG     $@
 cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
