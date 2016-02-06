@@ -17,8 +17,8 @@ import sys
 import u_boot_spawn
 
 # Regexes for text we expect U-Boot to send to the console.
-pattern_u_boot_spl_signon = re.compile('(U-Boot SPL \\d{4}\\.\\d{2}-[^\r\n]*)')
-pattern_u_boot_main_signon = re.compile('(U-Boot \\d{4}\\.\\d{2}-[^\r\n]*)')
+pattern_u_boot_spl_signon = re.compile('(U-Boot SPL \\d{4}\\.\\d{2}[^\r\n]*\\))')
+pattern_u_boot_main_signon = re.compile('(U-Boot \\d{4}\\.\\d{2}[^\r\n]*\\))')
 pattern_stop_autoboot_prompt = re.compile('Hit any key to stop autoboot: ')
 pattern_unknown_command = re.compile('Unknown command \'.*\' - try \'help\'')
 pattern_error_notification = re.compile('## Error: ')
@@ -312,12 +312,7 @@ class ConsoleBase(object):
             if m != 0:
                 raise Exception('Bad pattern found on console: ' +
                                 self.bad_pattern_ids[m - 1])
-            signon = self.p.after
-            build_idx = signon.find(', Build:')
-            if build_idx == -1:
-                self.u_boot_version_string = signon
-            else:
-                self.u_boot_version_string = signon[:build_idx]
+            self.u_boot_version_string = self.p.after
             while True:
                 m = self.p.expect([self.prompt_escaped,
                     pattern_stop_autoboot_prompt] + self.bad_patterns)
