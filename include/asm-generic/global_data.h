@@ -48,10 +48,6 @@ typedef struct global_data {
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
 #endif
-#ifdef CONFIG_MODEM_SUPPORT
-	unsigned long do_mdm_init;
-	unsigned long be_quiet;
-#endif
 	unsigned long env_addr;	/* Address  of Environment struct */
 	unsigned long env_valid;	/* Checksum of Environment valid? */
 
