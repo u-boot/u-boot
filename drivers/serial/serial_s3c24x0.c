@@ -103,12 +103,6 @@ static int serial_init_dev(const int dev_index)
 	 */
 	writel(0x245, &uart->ucon);
 
-	/* FIXME: This is sooooooooooooooooooo ugly */
-#if defined(CONFIG_ARCH_GTA02_v1) || defined(CONFIG_ARCH_GTA02_v2)
-	/* we need auto hw flow control on the gsm and gps port */
-	if (dev_index == 0 || dev_index == 1)
-		writel(0x10, &uart->umcon);
-#endif
 	_serial_setbrg(dev_index);
 
 	return (0);
