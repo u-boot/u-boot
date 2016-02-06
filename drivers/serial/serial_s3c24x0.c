@@ -65,10 +65,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	.puts	= s3serial##port##_puts,		\
 }
 
-#ifdef CONFIG_HWFLOW
-static int hwflow;
-#endif
-
 static void _serial_setbrg(const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
@@ -95,10 +91,6 @@ static int serial_init_dev(const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 
-#ifdef CONFIG_HWFLOW
-	hwflow = 0;	/* turned off by default */
-#endif
-
 	/* FIFO enable, Tx/Rx FIFO clear */
 	writel(0x07, &uart->ufcon);
 	writel(0x0, &uart->umcon);
@@ -110,10 +102,6 @@ static int serial_init_dev(const int dev_index)
 	 * normal,interrupt or polling
 	 */
 	writel(0x245, &uart->ucon);
-
-#ifdef CONFIG_HWFLOW
-	writel(0x1, &uart->umcon);	/* rts up */
-#endif
 
 	/* FIXME: This is sooooooooooooooooooo ugly */
 #if defined(CONFIG_ARCH_GTA02_v1) || defined(CONFIG_ARCH_GTA02_v2)
@@ -146,24 +134,6 @@ static inline int serial_getc_dev(unsigned int dev_index)
 	return _serial_getc(dev_index);
 }
 
-#ifdef CONFIG_HWFLOW
-int hwflow_onoff(int on)
-{
-	switch (on) {
-	case 0:
-	default:
-		break;		/* return current */
-	case 1:
-		hwflow = 1;	/* turn on */
-		break;
-	case -1:
-		hwflow = 0;	/* turn off */
-		break;
-	}
-	return hwflow;
-}
-#endif
-
 /*
  * Output a single byte to the serial port.
  */
@@ -173,11 +143,6 @@ static void _serial_putc(const char c, const int dev_index)
 
 	while (!(readl(&uart->utrstat) & 0x2))
 		/* wait for room in the tx FIFO */ ;
-
-#ifdef CONFIG_HWFLOW
-	while (hwflow && !(readl(&uart->umstat) & 0x1))
-		/* Wait for CTS up */ ;
-#endif
 
 	writeb(c, &uart->utxh);
 
