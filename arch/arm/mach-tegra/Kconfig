@@ -13,6 +13,7 @@ config TEGRA_COMMON
 	select DM_SPI
 	select DM_SPI_FLASH
 	select OF_CONTROL
+	select VIDCONSOLE_AS_LCD
 
 config TEGRA_ARMV7_COMMON
 	bool "Tegra 32-bit common options"
