@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for SSV DNP5370 board
+ * U-Boot - Configuration file for SSV DNP5370 board
  */
 
 #ifndef __CONFIG_DNP5370_H__

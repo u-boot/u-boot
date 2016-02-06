@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/* U-boot - Common settings for UniPhier Family */
+/* U-Boot - Common settings for UniPhier Family */
 
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__

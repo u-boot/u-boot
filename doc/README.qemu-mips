@@ -157,7 +157,7 @@ This GDB was configured as "--host=i486-linux-gnu --target=mipsel-unknown-linux-
 (gdb)  target remote localhost:1234
 Remote debugging using localhost:1234
 _start () at start.S:64
-64		RVECENT(reset,0)	/* U-boot entry point */
+64		RVECENT(reset,0)	/* U-Boot entry point */
 Current language:  auto; currently asm
 (gdb)  b board.c:289
 Breakpoint 1 at 0xbfc00cc8: file board.c, line 289.

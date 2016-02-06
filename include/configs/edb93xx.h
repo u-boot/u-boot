@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for Cirrus Logic EDB93xx boards
+ * U-Boot - Configuration file for Cirrus Logic EDB93xx boards
  */
 
 #ifndef __CONFIG_H

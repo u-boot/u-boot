@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF533 STAMP board
+ * U-Boot - Configuration file for BF533 STAMP board
  */
 
 #ifndef __CONFIG_BF533_STAMP_H__

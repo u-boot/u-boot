@@ -236,7 +236,7 @@ int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 
 /*
  * Main entrypoint for NAND Boot. It's necessary that SDRAM is already
- * configured and available since this code loads the main U-boot image
+ * configured and available since this code loads the main U-Boot image
  * from NAND into SDRAM and starts from there.
  */
 void nand_boot(void)

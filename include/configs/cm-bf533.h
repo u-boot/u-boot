@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for CM-BF533 board
+ * U-Boot - Configuration file for CM-BF533 board
  */
 
 #ifndef __CONFIG_CM_BF533_H__

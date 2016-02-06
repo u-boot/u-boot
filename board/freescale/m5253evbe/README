@@ -13,7 +13,7 @@ Created 06/05/2007
 
 2. MEMORY MAP UNDER U-BOOT AND LINUX KERNEL
 ===========================================
-2.1. For the initial bringup, we adopted a consistent memory scheme between u-boot and
+2.1. For the initial bringup, we adopted a consistent memory scheme between U-Boot and
 	linux kernel, you can customize it based on your system requirements:
 	SDR:	0x00000000-0x00ffffff
 	SRAM0:	0x20010000-0x20017fff

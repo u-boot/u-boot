@@ -61,7 +61,7 @@ The ways to configure the ddr interleaving mode
 	 "hwconfig=fsl_ddr:ctlr_intlv=bank"			\
 	 ......
 
-2. Run u-boot "setenv" command to configure the memory interleaving mode.
+2. Run U-Boot "setenv" command to configure the memory interleaving mode.
    Either numerical or string value is accepted.
 
   # disable memory controller interleaving
@@ -125,7 +125,7 @@ hwconfig=fsl_ddr:ecc=off
 
 Memory testing options for mpc85xx
 ==================================
-1. Memory test can be done once U-boot prompt comes up using mtest, or
+1. Memory test can be done once U-Boot prompt comes up using mtest, or
 2. Memory test can be done with Power-On-Self-Test function, activated at
    compile time.
 
@@ -267,7 +267,7 @@ For DDR parameter tuning up and debugging, the interactive DDR debugger can
 be activated by setting the environment variable "ddr_interactive" to any
 value.  (The value of ddr_interactive may have a meaning in the future, but,
 for now, the presence of the variable will cause the debugger to run.)  Once
-activated, U-boot will show the prompt "FSL DDR>" before enabling the DDR
+activated, U-Boot will show the prompt "FSL DDR>" before enabling the DDR
 controller.  The available commands are printed by typing "help".
 
 Another way to enter the interactive DDR debugger without setting the
@@ -275,7 +275,7 @@ environment variable is to send the 'd' character early during the boot
 process.  To save booting time, no additional delay is added, so the window
 to send the key press is very short -- basically, it is the time before the
 memory controller code starts to run.  For example, when rebooting from
-within u-boot, the user must press 'd' IMMEDIATELY after hitting enter to
+within U-Boot, the user must press 'd' IMMEDIATELY after hitting enter to
 initiate a 'reset' command.  In case of power on/reset, the user can hold
 down the 'd' key while applying power or hitting the board's reset button.
 
@@ -341,7 +341,7 @@ help
 	no argument	- print a list of all commands
 
 go
-	no argument	- program memory controller(s) and continue with U-boot
+	no argument	- program memory controller(s) and continue with U-Boot
 
 Examples of debugging flow
 

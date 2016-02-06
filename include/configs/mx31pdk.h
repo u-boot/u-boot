@@ -165,7 +165,7 @@
 
 /* NAND configuration for the NAND_SPL */
 
-/* Start copying real U-boot from the second page */
+/* Start copying real U-Boot from the second page */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x3f800
 /* Load U-Boot to this address */

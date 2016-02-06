@@ -7,10 +7,10 @@ memory. It also has 128MB SDRAM 100MHz LBC memory, with both a PCI-e,
 and a PCI-X slot, dual mini-DB9 for UART, and dual RJ-45 for eTSEC
 ethernet connections.
 
-U-boot Configuration:
+U-Boot Configuration:
 =====================
 
-The following possible u-boot configuration targets are available:
+The following possible U-Boot configuration targets are available:
 
 	1) sbc8548_config
 	2) sbc8548_PCI_33_config
@@ -23,7 +23,7 @@ of each choice are listed below.
 
 Choice #1 does not enable CONFIG_PCI, and assumes that the PCI slot
 will be left empty (M66EN high), and so the board will operate with
-a base clock of 66MHz.	Note that you need both PCI enabled in u-boot
+a base clock of 66MHz.	Note that you need both PCI enabled in U-Boot
 and linux in order to have functional PCI under linux.
 
 The second enables PCI support and builds for a 33MHz clock rate.  Note
@@ -100,13 +100,13 @@ from the board's socket to resolve the above i2c address overlap
 issue and allow SPD autodetection of RAM to work.
 
 
-Updating U-boot with U-boot:
+Updating U-Boot with U-Boot:
 ============================
 
-Note that versions of u-boot up to and including 2009.08 had u-boot stored
+Note that versions of U-Boot up to and including 2009.08 had U-Boot stored
 at 0xfff8_0000 -> 0xffff_ffff (512k).  Currently it is being stored from
 0xfffa_0000 -> 0xffff_ffff (384k).  If you use an old macro/script to
-update u-boot with u-boot and it uses the old address, you will render
+update U-Boot with U-Boot and it uses the old address, you will render
 your board inoperable, and you will require JTAG recovery.
 
 The following steps list how to update with the current address:
@@ -120,11 +120,11 @@ The following steps list how to update with the current address:
 	protect on all
 
 The "md" steps in the above are just a precautionary step that allow
-you to confirm the u-boot version that was downloaded, and then confirm
+you to confirm the U-Boot version that was downloaded, and then confirm
 that it was copied to flash.
 
 The above assumes that you are using the default board settings which
-have u-boot in the 8MB flash, tied to /CS0.
+have U-Boot in the 8MB flash, tied to /CS0.
 
 If you are running the default 8MB /CS0 settings but want to store an
 image in the SODIMM that is built with CONFIG_SYS_ALT_BOOT enabled,
@@ -139,7 +139,7 @@ image in the SODIMM that is built with CONFIG_SYS_ALT_BOOT enabled,
 	protect on all
 
 Finally, if you are running the alternate 64MB /CS0 settings and want
-to update the in-use u-boot image, then (again with CONFIG_SYS_ALT_BOOT
+to update the in-use U-Boot image, then (again with CONFIG_SYS_ALT_BOOT
 enabled) the steps will become:
 
 	tftp u-boot.bin
@@ -155,7 +155,7 @@ Hardware Reference:
 ===================
 
 The following contains some summary information on hardware settings
-that are relevant to u-boot, based on the board manual.	 For the
+that are relevant to U-Boot, based on the board manual.	 For the
 most up to date and complete details of the board, please request the
 reference manual ERG-00327-001.pdf from www.windriver.com
 
@@ -166,7 +166,7 @@ Sodimm flash:
 	intel V28F128Jx, 16384x8 (4 devices) at 0xfb80_0000
 	Note that this address reflects the default setting for
 	the JTAG debugging tools, but since the alignment is
-	rather inconvenient, u-boot puts it at 0xec00_0000.
+	rather inconvenient, U-Boot puts it at 0xec00_0000.
 
 
 	Jumpers:
@@ -193,7 +193,7 @@ is jumpered parallel to the LBC-SDRAM, then /CS0 is for the
 SODIMM flash and /CS6 is for the boot flash.  Note that in this
 alternate setting, you also need to switch SW2.8 to ON.
 See the setting CONFIG_SYS_ALT_BOOT if you want to use this setting
-and boot u-boot from the 64MB SODIMM
+and boot U-Boot from the 64MB SODIMM
 
 
 	Switches:
@@ -257,7 +257,7 @@ fb80_0000	ff7f_ffff	CS6	32	SODIMM flash (64MB) [*]
 ff80_0000	ffff_ffff	CS0	8	Boot flash (8MB)
 
 [*] fb80 represents the default programmed by WR JTAG register files,
-    but u-boot places the flash at either ec00 or fc00 based on JP12.
+    but U-Boot places the flash at either ec00 or fc00 based on JP12.
 
 The EPLD on CS5 demuxes the following devices at the following offsets:
 

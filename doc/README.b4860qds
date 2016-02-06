@@ -227,15 +227,15 @@ Start Address	End Address	Description	Size
 NOR Flash memory Map on B4860 and B4420QDS
 ------------------------------------------
  Start		 End		Definition			Size
-0xEFF40000	0xEFFFFFFF	u-boot (current bank)		768KB
-0xEFF20000	0xEFF3FFFF	u-boot env (current bank)	128KB
+0xEFF40000	0xEFFFFFFF	U-Boot (current bank)		768KB
+0xEFF20000	0xEFF3FFFF	U-Boot env (current bank)	128KB
 0xEFF00000	0xEFF1FFFF	FMAN Ucode (current bank)	128KB
 0xEF300000	0xEFEFFFFF	rootfs (alternate bank)		12MB
 0xEE800000	0xEE8FFFFF	device tree (alternate bank)	1MB
 0xEE020000	0xEE6FFFFF	Linux.uImage (alternate bank)	6MB+896KB
 0xEE000000	0xEE01FFFF	RCW (alternate bank)		128KB
-0xEDF40000	0xEDFFFFFF	u-boot (alternate bank)		768KB
-0xEDF20000	0xEDF3FFFF	u-boot env (alternate bank)	128KB
+0xEDF40000	0xEDFFFFFF	U-Boot (alternate bank)		768KB
+0xEDF20000	0xEDF3FFFF	U-Boot env (alternate bank)	128KB
 0xEDF00000	0xEDF1FFFF	FMAN ucode (alternate bank)	128KB
 0xED300000	0xEDEFFFFF	rootfs (current bank)		12MB
 0xEC800000	0xEC8FFFFF	device tree (current bank)	1MB
@@ -246,7 +246,7 @@ Various Software configurations/environment variables/commands
 --------------------------------------------------------------
 The below commands apply to both B4860QDS and B4420QDS.
 
-1. U-boot environment variable hwconfig
+1. U-Boot environment variable hwconfig
    The default hwconfig is:
 	hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=cs0_cs1;usb1:
 					dr_mode=host,phy_type=ulpi
@@ -267,7 +267,7 @@ The below commands apply to both B4860QDS and B4420QDS.
 4. To change personality of board
    For changing personality from B4860 to B4420
 	1)Boot from vbank0
-	2)Flash vbank2 with b4420 rcw and u-boot
+	2)Flash vbank2 with b4420 rcw and U-Boot
 	3)Give following commands to uboot prompt
 	   => mw.b ffdf0040 0x30;
 	   => mw.b ffdf0010 0x00;
@@ -309,7 +309,7 @@ The below commands apply to both B4860QDS and B4420QDS.
 
    When using [DEFAULT] RCW, which including 2 * 1G SGMII on board and 2 * 1G
    SGMII on SGMII riser card.
-   Under U-boot these network interfaces are recognized as:
+   Under U-Boot these network interfaces are recognized as:
    FM1@DTSEC3, FM1@DTSEC4, FM1@DTSEC5 and FM1@DTSEC6.
 
    On Linux the interfaces are renamed as:
@@ -322,7 +322,7 @@ The below commands apply to both B4860QDS and B4420QDS.
    Serdes protocosl tested:
    0x18, 0x9e (serdes1, serdes2)
 
-   Under U-boot these network interfaces are recognized as:
+   Under U-Boot these network interfaces are recognized as:
    FM1@DTSEC3, FM1@DTSEC4 and  e1000#0.
 
    On Linux the interfaces are renamed as:
@@ -333,8 +333,8 @@ NAND boot with 2 Stage boot loader
 ----------------------------------
 PBL initialise the internal SRAM and copy SPL(160KB) in SRAM.
 SPL further initialise DDR using SPD and environment variables and copy
-u-boot(768 KB) from flash to DDR.
-Finally SPL transer control to u-boot for futher booting.
+U-Boot(768 KB) from flash to DDR.
+Finally SPL transer control to U-Boot for futher booting.
 
 SPL has following features:
  - Executes within 256K
@@ -355,12 +355,12 @@ SPL has following features:
  -----------------------------------------------
  STACK       | 0xFFFD8000 (22KB)               |
  -----------------------------------------------
- U-boot SPL  | 0xFFFD8000 (160KB)              |
+ U-Boot SPL  | 0xFFFD8000 (160KB)              |
  -----------------------------------------------
 
 NAND Flash memory Map on B4860 and B4420QDS
 ------------------------------------------
  Start		 End		Definition			Size
-0x000000	0x0FFFFF	u-boot                          1MB
-0x140000	0x15FFFF	u-boot env                      128KB
+0x000000	0x0FFFFF	U-Boot                          1MB
+0x140000	0x15FFFF	U-Boot env                      128KB
 0x1A0000	0x1BFFFF	FMAN Ucode                      128KB

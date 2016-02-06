@@ -455,7 +455,7 @@ int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr)
 
 	/*
 	 * Management Complex cores should be held at reset out of POR.
-	 * U-boot should be the first software to touch MC. To be safe,
+	 * U-Boot should be the first software to touch MC. To be safe,
 	 * we reset all cores again by setting GCR1 to 0. It doesn't do
 	 * anything if they are held at reset. After we setup the firmware
 	 * we kick off MC by deasserting the reset bit for core 0, and

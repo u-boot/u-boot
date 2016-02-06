@@ -2,7 +2,7 @@
  * composite.c - infrastructure for Composite USB Gadgets
  *
  * Copyright (C) 2006-2008 David Brownell
- * U-boot porting: Lukasz Majewski <l.majewski@samsung.com>
+ * U-Boot porting: Lukasz Majewski <l.majewski@samsung.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

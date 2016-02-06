@@ -9,7 +9,7 @@ SoCs: mx6 quad, mx6 dual lite and mx6 solo.
 For more details about Wandboard, please refer to:
 http://www.wandboard.org/
 
-Building U-boot for Wandboard
+Building U-Boot for Wandboard
 -----------------------------
 
 To build U-Boot for the Wandboard:
@@ -17,7 +17,7 @@ To build U-Boot for the Wandboard:
 $ make wandboard_config
 $ make
 
-Flashing U-boot into the SD card
+Flashing U-Boot into the SD card
 --------------------------------
 
 - After the 'make' command completes, the generated 'SPL' binary must be
@@ -36,4 +36,4 @@ as the mx6 processor)
 
 - Connect the serial cable to the host PC
 
-- Power up the board and U-boot messages will appear in the serial console.
+- Power up the board and U-Boot messages will appear in the serial console.

@@ -30,21 +30,21 @@ image.
 Restoring a corrupted or missing flash image:
 =============================================
 
-Note that U-boot versions up to and including 2009.06 had essentially
-two copies of u-boot in flash; one at the very beginning, which set
+Note that U-Boot versions up to and including 2009.06 had essentially
+two copies of U-Boot in flash; one at the very beginning, which set
 the HRCW, and one at the very end, which was the image that was run.
 As of this point in time, the two have been combined into just one
 at the beginning of flash, which provides both the HRCW, and the image
 that is executed.  This frees up the remainder of flash for other uses.
-Use of the u-boot command "fli" will indicate what parts are in use.
-Details for storing U-boot to flash using a Wind River ICE can be found
+Use of the U-Boot command "fli" will indicate what parts are in use.
+Details for storing U-Boot to flash using a Wind River ICE can be found
 on page 19 of the board manual (request ERG-00328-001).  The following
 is a summary of that information:
 
   - Connect ICE and establish connection to it from WorkBench/OCD.
   - Ensure you have background mode (BKM) in the OCD terminal window.
   - Select the appropriate flash type (listed above)
-  - Prepare a u-boot image by using the Wind River Convert utility;
+  - Prepare a U-Boot image by using the Wind River Convert utility;
     by using "Convert and Add file" on the ELF file from your build.
     Convert from FF80_0000 to FFFF_FFFF (or to FF83_FFFF if you are
     trying to preserve your old environment settings and user flash).
@@ -55,9 +55,9 @@ is a summary of that information:
 
 Note that some versions of the register files used with Workbench
 would zero some TSEC registers, which inhibits ethernet operation
-by u-boot when this register file is played to the target.  Using
+by U-Boot when this register file is played to the target.  Using
 "INN" in the OCD terminal window instead of "IN" before the "GO"
-will not play the register file, and allow u-boot to use the TSEC
+will not play the register file, and allow U-Boot to use the TSEC
 interface while executed from the ICE "GO" command.
 
 Alternatively, you can locate the register file which will be named
@@ -74,7 +74,7 @@ as u-boot.bin.
 Updating U-Boot with U-Boot:
 ============================
 
-This procedure is very similar to other boards that have u-boot installed.
+This procedure is very similar to other boards that have U-Boot installed.
 Assuming that the network has been configured, and that the new u-boot.bin
 has been copied to the TFTP server, the commands are:
 
@@ -98,7 +98,7 @@ There are three configuration choices:
 
 The 1st does not enable CONFIG_PCI, and assumes that the PCI slot
 will be left empty (M66EN high), and so the board will operate with
-a base clock of 66MHz.  Note that you need both PCI enabled in u-boot
+a base clock of 66MHz.  Note that you need both PCI enabled in U-Boot
 and linux in order to have functional PCI under linux.  The only
 reason for choosing to not enable PCI would be if you had a very
 early (rev 1.0) CPU with possible PCI issues.

@@ -1,5 +1,5 @@
 /*
- * U-boot - main board file for BCT brettl2
+ * U-Boot - main board file for BCT brettl2
  *
  * Copyright (c) 2010 BCT Electronic GmbH
  *

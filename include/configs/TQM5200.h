@@ -334,7 +334,7 @@
  *
  * Please notice, that the resulting clock frequency could differ from the
  * configured value. This is because the I2C clock is derived from system
- * clock over a frequency divider with only a few divider values. U-boot
+ * clock over a frequency divider with only a few divider values. U-Boot
  * calculates the best approximation for CONFIG_SYS_I2C_SPEED. However the calculated
  * approximation allways lies below the configured value, never above.
  */

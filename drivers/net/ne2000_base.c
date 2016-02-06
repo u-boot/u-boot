@@ -650,7 +650,7 @@ dp83902a_poll(void)
 }
 
 
-/* U-boot specific routines */
+/* U-Boot specific routines */
 static u8 *pbuf = NULL;
 
 static int pkey = -1;

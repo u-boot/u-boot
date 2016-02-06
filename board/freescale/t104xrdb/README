@@ -186,15 +186,15 @@ Start Address  End Address      Description                     Size
 NOR Flash memory Map
 ---------------------
  Start          End             Definition                       Size
-0xEFF40000      0xEFFFFFFF      u-boot (current bank)            768KB
-0xEFF20000      0xEFF3FFFF      u-boot env (current bank)        128KB
+0xEFF40000      0xEFFFFFFF      U-Boot (current bank)            768KB
+0xEFF20000      0xEFF3FFFF      U-Boot env (current bank)        128KB
 0xEFF00000      0xEFF1FFFF      FMAN Ucode (current bank)        128KB
 0xED300000      0xEFEFFFFF      rootfs (alt bank)                44MB
 0xEC800000      0xEC8FFFFF      Hardware device tree (alt bank)  1MB
 0xEC020000      0xEC7FFFFF      Linux.uImage (alt bank)          7MB + 875KB
 0xEC000000      0xEC01FFFF      RCW (alt bank)                   128KB
-0xEBF40000      0xEBFFFFFF      u-boot (alt bank)                768KB
-0xEBF20000      0xEBF3FFFF      u-boot env (alt bank)            128KB
+0xEBF40000      0xEBFFFFFF      U-Boot (alt bank)                768KB
+0xEBF20000      0xEBF3FFFF      U-Boot env (alt bank)            128KB
 0xEBF00000      0xEBF1FFFF      FMAN ucode (alt bank)            128KB
 0xE9300000      0xEBEFFFFF      rootfs (current bank)            44MB
 0xE8800000      0xE88FFFFF      Hardware device tree (cur bank)  11MB + 512KB
@@ -206,7 +206,7 @@ Various Software configurations/environment variables/commands
 --------------------------------------------------------------
 The below commands apply to the board
 
-1. U-boot environment variable hwconfig
+1. U-Boot environment variable hwconfig
    The default hwconfig is:
 	hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=cs0_cs1;usb1:
 					dr_mode=host,phy_type=utmi
@@ -228,8 +228,8 @@ NAND boot with 2 Stage boot loader
 ----------------------------------
 PBL initialise the internal SRAM and copy SPL(160KB) in SRAM.
 SPL further initialise DDR using SPD and environment variables and copy
-u-boot(768 KB) from flash to DDR.
-Finally SPL transer control to u-boot for futher booting.
+U-Boot(768 KB) from flash to DDR.
+Finally SPL transer control to U-Boot for futher booting.
 
 SPL has following features:
  - Executes within 256K
@@ -250,30 +250,30 @@ SPL has following features:
  -----------------------------------------------
  STACK       | 0xFFFD8000 (22KB)               |
  -----------------------------------------------
- U-boot SPL  | 0xFFFD8000 (160KB)              |
+ U-Boot SPL  | 0xFFFD8000 (160KB)              |
  -----------------------------------------------
 
 NAND Flash memory Map on T104xRDB
 ------------------------------------------
  Start		 End		Definition			Size
-0x000000	0x0FFFFF	u-boot                          1MB
-0x180000	0x19FFFF	u-boot env                      128KB
+0x000000	0x0FFFFF	U-Boot                          1MB
+0x180000	0x19FFFF	U-Boot env                      128KB
 0x280000	0x29FFFF	FMAN Ucode                      128KB
 0x380000	0x39FFFF	QE Firmware                     128KB
 
 SD Card memory Map on T104xRDB
 ------------------------------------------
  Block		#blocks		Definition			Size
-0x008		2048		u-boot                          1MB
-0x800		0024		u-boot env                      8KB
+0x008		2048		U-Boot                          1MB
+0x800		0024		U-Boot env                      8KB
 0x820		0256		FMAN Ucode                      128KB
 0x920		0256		QE Firmware                     128KB
 
 SPI Flash memory Map on T104xRDB
 ------------------------------------------
  Start		 End		Definition			Size
-0x000000	0x0FFFFF	u-boot                          1MB
-0x100000	0x101FFF	u-boot env                      8KB
+0x000000	0x0FFFFF	U-Boot                          1MB
+0x100000	0x101FFF	U-Boot env                      8KB
 0x110000	0x12FFFF	FMAN Ucode                      128KB
 0x130000	0x14FFFF	QE Firmware                     128KB
 

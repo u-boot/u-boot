@@ -1,5 +1,5 @@
 /*
- * U-boot - traps.c Routines related to interrupts and exceptions
+ * U-Boot - traps.c Routines related to interrupts and exceptions
  *
  * Copyright (c) 2005-2008 Analog Devices Inc.
  *

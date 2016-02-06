@@ -37,7 +37,7 @@ _monitor_vectors:
 
 /*
  * secure monitor handler
- * U-boot calls this "software interrupt" in start.S
+ * U-Boot calls this "software interrupt" in start.S
  * This is executed on a "smc" instruction, we use a "smc #0" to switch
  * to non-secure state.
  * r0, r1, r2: passed to the callee

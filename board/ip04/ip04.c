@@ -1,5 +1,5 @@
 /*
- * U-boot - main board file
+ * U-Boot - main board file
  *
  * Copyright (c) 2007 David Rowe,
  *           (c) 2006 Ivan Danov

@@ -16,7 +16,7 @@ config USE_PRIVATE_LIBGCC
 	depends on HAVE_PRIVATE_LIBGCC
 	help
 	  This option allows you to use the built-in libgcc implementation
-	  of U-boot instead of the one privided by the compiler.
+	  of U-Boot instead of the one privided by the compiler.
 	  If unsure, say N.
 
 config SYS_HZ

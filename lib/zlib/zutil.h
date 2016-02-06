@@ -95,7 +95,7 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 
 /* Diagnostic functions */
 #ifdef DEBUG
-/* Not valid for U-boot
+/* Not valid for U-Boot
 #  include <stdio.h> */
    extern int z_verbose;
    extern void z_error    OF((char *m));

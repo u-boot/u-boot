@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF536 brettl2 board
+ * U-Boot - Configuration file for BF536 brettl2 board
  */
 
 #ifndef __CONFIG_BCT_BRETTL2_H__

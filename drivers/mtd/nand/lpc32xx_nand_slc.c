@@ -516,7 +516,7 @@ static int lpc32xx_write_page_hwecc(struct mtd_info *mtd,
 /*
  * LPC32xx has only one SLC NAND controller, don't utilize
  * CONFIG_SYS_NAND_SELF_INIT to be able to reuse this function
- * both in SPL NAND and U-boot images.
+ * both in SPL NAND and U-Boot images.
  */
 int board_nand_init(struct nand_chip *lpc32xx_chip)
 {

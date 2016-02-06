@@ -5,8 +5,8 @@
  */
 
 The 'pxe' commands provide a near subset of the functionality provided by
-the PXELINUX boot loader. This allows U-boot based systems to be controlled
-remotely using the same PXE based techniques that many non U-boot based servers
+the PXELINUX boot loader. This allows U-Boot based systems to be controlled
+remotely using the same PXE based techniques that many non U-Boot based servers
 use.
 
 Commands
@@ -99,7 +99,7 @@ with # are treated as comments. White space between and at the beginning of
 lines is ignored.
 
 The size of pxe files and the number of labels is only limited by the amount
-of RAM available to U-boot. Memory for labels is dynamically allocated as
+of RAM available to U-Boot. Memory for labels is dynamically allocated as
 they're parsed, and memory for pxe files is statically allocated, and its
 location is given by the pxefile_addr_r environment variable. The pxe code is
 not aware of the size of the pxefile memory and will outgrow it if pxe files
@@ -206,38 +206,38 @@ to be downloaded, and boot with the command line "root=/dev/sdb1"
 
 Differences with PXELINUX
 =========================
-The biggest difference between U-boot's pxe and PXELINUX is that since
-U-boot's pxe support is written entirely in C, it can run on any platform
-with network support in U-boot. Here are some other differences between
-PXELINUX and U-boot's pxe support.
+The biggest difference between U-Boot's pxe and PXELINUX is that since
+U-Boot's pxe support is written entirely in C, it can run on any platform
+with network support in U-Boot. Here are some other differences between
+PXELINUX and U-Boot's pxe support.
 
-- U-boot's pxe does not support the PXELINUX DHCP option codes specified
+- U-Boot's pxe does not support the PXELINUX DHCP option codes specified
   in RFC 5071, but could be extended to do so.
 
-- when U-boot's pxe fails to boot, it will return control to U-boot,
-  allowing another command to run, other U-boot command, instead of resetting
+- when U-Boot's pxe fails to boot, it will return control to U-Boot,
+  allowing another command to run, other U-Boot command, instead of resetting
   the machine like PXELINUX.
 
-- U-boot's pxe doesn't rely on or provide an UNDI/PXE stack in memory, it
-  only uses U-boot.
+- U-Boot's pxe doesn't rely on or provide an UNDI/PXE stack in memory, it
+  only uses U-Boot.
 
-- U-boot's pxe doesn't provide the full menu implementation that PXELINUX
+- U-Boot's pxe doesn't provide the full menu implementation that PXELINUX
   does, only a simple text based menu using the commands described in
   this README.	With PXELINUX, it's possible to have a graphical boot
-  menu, submenus, passwords, etc. U-boot's pxe could be extended to support
+  menu, submenus, passwords, etc. U-Boot's pxe could be extended to support
   a more robust menuing system like that of PXELINUX's.
 
-- U-boot's pxe expects U-boot uimg's as kernels.  Anything that would work
-  with the 'bootm' command in U-boot could work with the 'pxe boot' command.
+- U-Boot's pxe expects U-Boot uimg's as kernels.  Anything that would work
+  with the 'bootm' command in U-Boot could work with the 'pxe boot' command.
 
-- U-boot's pxe only recognizes a single file on the initrd command line.  It
+- U-Boot's pxe only recognizes a single file on the initrd command line.  It
   could be extended to support multiple.
 
-- in U-boot's pxe, the localboot command doesn't necessarily cause a local
+- in U-Boot's pxe, the localboot command doesn't necessarily cause a local
   disk boot - it will do whatever is defined in the 'localcmd' env
   variable. And since it doesn't support a full UNDI/PXE stack, the
   type field is ignored.
 
-- the interactive prompt in U-boot's pxe only allows you to choose a label
+- the interactive prompt in U-Boot's pxe only allows you to choose a label
   from the menu.  If you want to boot something not listed, you can ctrl+c
-  out of 'pxe boot' and use existing U-boot commands to accomplish it.
+  out of 'pxe boot' and use existing U-Boot commands to accomplish it.

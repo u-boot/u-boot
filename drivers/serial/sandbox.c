@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  *
  *   serial_buf: A buffer that holds keyboard characters for the
- *		 Sandbox U-boot.
+ *		 Sandbox U-Boot.
  *
  * invariants:
  *   serial_buf_write		 == serial_buf_read -> empty buffer

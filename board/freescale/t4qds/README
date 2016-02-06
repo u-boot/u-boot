@@ -86,7 +86,7 @@ Board Features
 	10GBASE-KR scenario.
 	So, for XFI usage, there are two scenarios, one will use fiber cable,
 	another will use copper cable. An hwconfig env "fsl_10gkr_copper" is
-	introduced to indicate a XFI port will use copper cable, and U-boot
+	introduced to indicate a XFI port will use copper cable, and U-Boot
 	will fixup the dtb accordingly.
 	It's used as: fsl_10gkr_copper:<10g_mac_name>
 	The <10g_mac_name> can be fm1_10g1, fm1_10g2, fm2_10g1, fm2_10g2, they
@@ -118,7 +118,7 @@ The physical address of the last (boot page translation) varies with the actual 
 
 Voltage ID and VDD override
 --------------------
-T4240 has a VID feature. U-boot reads the VID efuses and adjust the voltage
+T4240 has a VID feature. U-Boot reads the VID efuses and adjust the voltage
 accordingly. The voltage can also be override by command vdd_override. The
 syntax is
 
@@ -144,8 +144,8 @@ Users can set the final voltage directly.
 -------------------------------
 PBL initializes the internal SRAM and copy SPL(160K) in SRAM.
 SPL further initialise DDR using SPD and environment variables
-and copy u-boot(768 KB) from NAND/SD device to DDR.
-Finally SPL transers control to u-boot for futher booting.
+and copy U-Boot(768 KB) from NAND/SD device to DDR.
+Finally SPL transers control to U-Boot for futher booting.
 
 SPL has following features:
  - Executes within 256K
@@ -165,21 +165,21 @@ Run time view of SPL framework
 -------------------------------------------------
 |STACK		| 0xFFFD8000	(22KB)		|
 -------------------------------------------------
-|U-boot SPL	| 0xFFFD8000 	(160KB)		|
+|U-Boot SPL	| 0xFFFD8000 	(160KB)		|
 -------------------------------------------------
 
 NAND Flash memory Map on T4QDS
 --------------------------------------------------------------
 Start		End		Definition	Size
-0x000000	0x0FFFFF	u-boot img	1MB
-0x140000	0x15FFFF	u-boot env      128KB
+0x000000	0x0FFFFF	U-Boot img	1MB
+0x140000	0x15FFFF	U-Boot env      128KB
 0x160000	0x17FFFF	FMAN Ucode      128KB
 
 Micro SD Card memory Map on T4QDS
 ----------------------------------------------------
 Block		#blocks		Definition	Size
-0x008		2048		u-boot img	1MB
-0x800		0016		u-boot env	8KB
+0x008		2048		U-Boot img	1MB
+0x800		0016		U-Boot env	8KB
 0x820		0128		FMAN ucode	64KB
 
 Switch Settings: (ON is 1, OFF is 0)

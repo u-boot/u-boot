@@ -12,7 +12,7 @@
 
 /*
  * Note: For P5040, the fourth SerDes bank (with two lanes) is on SerDes2, but
- * U-boot only supports one SerDes controller.  Therefore, we ignore bank 4 in
+ * U-Boot only supports one SerDes controller.  Therefore, we ignore bank 4 in
  * this table.  This works because most of the SerDes code is for errata
  * work-arounds, and there are no P5040 errata that effect bank 4.
  */

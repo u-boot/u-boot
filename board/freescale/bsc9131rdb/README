@@ -86,9 +86,9 @@ Default Boot Method
 --------------------
 NAND boot
 
-Building U-boot
+Building U-Boot
 --------------
-To build the u-boot for BSC9131RDB:
+To build the U-Boot for BSC9131RDB:
 1. NAND Flash with sysclk 66MHz(J16 on RDB closed, default)
 	make BSC9131RDB_NAND
 2. NAND Flash with sysclk 100MHz(J16 on RDB open)
@@ -123,7 +123,7 @@ DDR Memory map
 
 Flashing Images
 ---------------
-To place a new u-boot image in the NAND flash and then boot
+To place a new U-Boot image in the NAND flash and then boot
 with that new image temporarily, use this:
 	tftp 1000000 u-boot-nand.bin
 	nand erase 0 100000

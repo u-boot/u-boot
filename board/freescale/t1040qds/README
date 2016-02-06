@@ -118,15 +118,15 @@ Start Address  End Address      Description                     Size
 NOR Flash memory Map on T1040QDS
 --------------------------------
  Start          End             Definition                       Size
-0xEFF40000      0xEFFFFFFF      u-boot (current bank)            768KB
-0xEFF20000      0xEFF3FFFF      u-boot env (current bank)        128KB
+0xEFF40000      0xEFFFFFFF      U-Boot (current bank)            768KB
+0xEFF20000      0xEFF3FFFF      U-Boot env (current bank)        128KB
 0xEFF00000      0xEFF1FFFF      FMAN Ucode (current bank)        128KB
 0xED300000      0xEFEFFFFF      rootfs (alt bank)                44MB
 0xEC800000      0xEC8FFFFF      Hardware device tree (alt bank)  1MB
 0xEC020000      0xEC7FFFFF      Linux.uImage (alt bank)          7MB + 875KB
 0xEC000000      0xEC01FFFF      RCW (alt bank)                   128KB
-0xEBF40000      0xEBFFFFFF      u-boot (alt bank)                768KB
-0xEBF20000      0xEBF3FFFF      u-boot env (alt bank)            128KB
+0xEBF40000      0xEBFFFFFF      U-Boot (alt bank)                768KB
+0xEBF20000      0xEBF3FFFF      U-Boot env (alt bank)            128KB
 0xEBF00000      0xEBF1FFFF      FMAN ucode (alt bank)            128KB
 0xE9300000      0xEBEFFFFF      rootfs (current bank)            44MB
 0xE8800000      0xE88FFFFF      Hardware device tree (cur bank)  11MB + 512KB
@@ -138,7 +138,7 @@ Various Software configurations/environment variables/commands
 --------------------------------------------------------------
 The below commands apply to T1040QDS
 
-1. U-boot environment variable hwconfig
+1. U-Boot environment variable hwconfig
    The default hwconfig is:
 	hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=cs0_cs1;usb1:
 					dr_mode=host,phy_type=utmi

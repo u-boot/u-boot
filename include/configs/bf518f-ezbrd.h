@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF518F EZBrd board
+ * U-Boot - Configuration file for BF518F EZBrd board
  */
 
 #ifndef __CONFIG_BF518F_EZBRD_H__

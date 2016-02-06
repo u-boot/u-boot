@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF527 AD7160-EVAL board
+ * U-Boot - Configuration file for BF527 AD7160-EVAL board
  */
 
 #ifndef __CONFIG_BF527_AD7160_EVAL_H__

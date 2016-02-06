@@ -1,5 +1,5 @@
 /*
- * U-boot - ldrinfo
+ * U-Boot - ldrinfo
  *
  * Copyright (c) 2010 Analog Devices Inc.
  *

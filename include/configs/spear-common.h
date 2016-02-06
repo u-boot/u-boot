@@ -12,7 +12,7 @@
  */
 
 
-/* U-boot Load Address */
+/* U-Boot Load Address */
 #define CONFIG_SYS_TEXT_BASE			0x00700000
 
 /* Ethernet driver configuration */

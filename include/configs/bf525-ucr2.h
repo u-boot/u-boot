@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for bf525-ucr2 board
+ * U-Boot - Configuration file for bf525-ucr2 board
  * The board includes ADSP-BF525 rev. 0.2,
  * 32-bit SDRAM (SAMSUNG K4S561632H-UC75),
  * USB 2.0 High Speed OTG USB WIFI,

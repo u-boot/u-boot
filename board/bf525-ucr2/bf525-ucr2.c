@@ -1,4 +1,4 @@
-/* U-boot - bf525-ucr2.c  board specific routines
+/* U-Boot - bf525-ucr2.c  board specific routines
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.

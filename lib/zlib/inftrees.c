@@ -3,7 +3,7 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-/* U-boot: we already included these
+/* U-Boot: we already included these
 #include "zutil.h"
 #include "inftrees.h"
 */

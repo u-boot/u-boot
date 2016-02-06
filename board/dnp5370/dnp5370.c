@@ -1,5 +1,5 @@
 /*
- * U-boot - main board file
+ * U-Boot - main board file
  *
  * (C) Copyright 2010 3ality Digital Systems
  *

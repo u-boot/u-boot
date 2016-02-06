@@ -1,5 +1,5 @@
 /*
- * U-boot - processor.h
+ * U-Boot - processor.h
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

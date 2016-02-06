@@ -54,7 +54,7 @@ Changed files:
 - include/asm-m68k/timer.h		Timer structure and definition
 - include/asm-m68k/types.h		Data types definition
 - include/asm-m68k/uart.h		Uart structure and definition
-- include/asm-m68k/u-boot.h		u-boot structure
+- include/asm-m68k/u-boot.h		U-Boot structure
 
 - include/configs/M5475EVB.h		Board specific configuration file
 
@@ -88,7 +88,7 @@ CONFIG_SYS_FEC1_PINMUX		-- Set FEC1 Pin configuration
 CONFIG_SYS_FEC0_MIIBASE	-- Set FEC0 MII base register
 CONFIG_SYS_FEC1_MIIBASE	-- Set FEC0 MII base register
 MCFFEC_TOUT_LOOP	-- set FEC timeout loop
-CONFIG_HAS_ETH1		-- define to enable second FEC in u-boot
+CONFIG_HAS_ETH1		-- define to enable second FEC in U-Boot
 
 CONFIG_CMD_USB		-- enable USB commands
 CONFIG_USB_OHCI_NEW	-- enable USB OHCI driver

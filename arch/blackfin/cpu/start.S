@@ -1,5 +1,5 @@
 /*
- * U-boot - start.S Startup file for Blackfin u-boot
+ * U-Boot - start.S Startup file for Blackfin U-Boot
  *
  * Copyright (c) 2005-2008 Analog Devices Inc.
  *
@@ -51,7 +51,7 @@ ENTRY(_start)
 #ifdef CONFIG_HW_WATCHDOG
 	/* Program the watchdog with default timeout of ~5 seconds.
 	 * That should be long enough to bootstrap ourselves up and
-	 * then the common u-boot code can take over.
+	 * then the common U-Boot code can take over.
 	 */
 	r1 = WDDIS;
 # ifdef __ADSPBF60x__

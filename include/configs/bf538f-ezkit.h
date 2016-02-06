@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF538F EZ-Kit Lite board
+ * U-Boot - Configuration file for BF538F EZ-Kit Lite board
  */
 
 #ifndef __CONFIG_BF538F_EZKIT_H__

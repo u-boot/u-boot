@@ -1,5 +1,5 @@
 /*
- * U-boot - string.h String functions
+ * U-Boot - string.h String functions
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

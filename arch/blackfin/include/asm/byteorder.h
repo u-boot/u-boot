@@ -1,5 +1,5 @@
 /*
- * U-boot -  byteorder.h
+ * U-Boot -  byteorder.h
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

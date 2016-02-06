@@ -83,7 +83,7 @@ struct mvsata_port_registers {
  * Status codes to return to client callers. Currently, callers ignore
  * exact value and only care for zero or nonzero, so no need to make this
  * public, it is only #define'd for clarity.
- * If/when standard negative codes are implemented in U-boot, then these
+ * If/when standard negative codes are implemented in U-Boot, then these
  * #defines should be moved to, or replaced by ones from, the common list
  * of status codes.
  */

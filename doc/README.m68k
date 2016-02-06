@@ -17,7 +17,7 @@ Motorola M68K series of CPUs.
 Bernhard Kuhn ported U-Boot 0.4.0 to the Motorola Coldfire
 architecture. The patches of Bernhard support the MCF5272 and
 MCF5282. A great disadvantage of these patches was that they needed
-a pre-bootloader to start u-boot. Because of this, a new port was
+a pre-bootloader to start U-Boot. Because of this, a new port was
 created which no longer needs a first stage booter.
 
 Although this port is intended to cover all M68k processors, only
@@ -53,8 +53,8 @@ To configure the board, type: make M5272C3_config
 
 U-Boot Memory Map:
 ------------------
-0xffe00000 - 0xffe3ffff		u-boot
-0xffe04000 - 0xffe05fff		environment (embedded in u-boot!)
+0xffe00000 - 0xffe3ffff		U-Boot
+0xffe04000 - 0xffe05fff		environment (embedded in U-Boot!)
 0xffe40000 - 0xffffffff		free for linux/applications
 
 
@@ -65,13 +65,13 @@ Board specific code is located in: board/m5282evb
 To configure the board, type: make M5272C3_config
 
 At the moment the code isn't fully implemented and still needs a pre-loader!
-The preloader must initialize the processor and then start u-boot. The board
+The preloader must initialize the processor and then start U-Boot. The board
 must be configured for a pre-loader (see 4.1)
 
 For the preloader, please see
 http://mailman.uclinux.org/pipermail/uclinux-dev/2003-December/023384.html
 
-U-boot is configured to run at 0x20000 at default. This can be configured by
+U-Boot is configured to run at 0x20000 at default. This can be configured by
 change CONFIG_SYS_TEXT_BASE in board/m5282evb/config.mk and CONFIG_SYS_MONITOR_BASE in
 include/configs/M5282EVB.h.
 
@@ -91,10 +91,10 @@ make EB+MCF-EV123_internal_config	for internal FLASH
 
 4.1 Configuration to use a pre-loader
 -------------------------------------
-If u-boot should be loaded to RAM and started by a pre-loader
+If U-Boot should be loaded to RAM and started by a pre-loader
 CONFIG_MONITOR_IS_IN_RAM must be defined. If it is defined the
 initial vector table and basic processor initialization will not
-be compiled in. The start address of u-boot must be adjusted in
+be compiled in. The start address of U-Boot must be adjusted in
 the boards config header file (CONFIG_SYS_MONITOR_BASE) and Makefile
 (CONFIG_SYS_TEXT_BASE) to the load address.
 
@@ -105,7 +105,7 @@ CONFIG_MCF52x2	-- defined for all MCF52x2 CPUs
 CONFIG_M5272	-- defined for all Motorola MCF5272 CPUs
 
 CONFIG_MONITOR_IS_IN_RAM
-		-- defined if u-boot is loaded by a pre-loader
+		-- defined if U-Boot is loaded by a pre-loader
 
 CONFIG_SYS_MBAR	-- defines the base address of the MCF5272 configuration registers
 CONFIG_SYS_INIT_RAM_ADDR
@@ -130,7 +130,7 @@ CONFIG_MCF52x2	-- defined for all MCF52x2 CPUs
 CONFIG_M5282	-- defined for all Motorola MCF5282 CPUs
 
 CONFIG_MONITOR_IS_IN_RAM
-		-- defined if u-boot is loaded by a pre-loader
+		-- defined if U-Boot is loaded by a pre-loader
 
 CONFIG_SYS_MBAR	-- defines the base address of the MCF5282 internal register space
 CONFIG_SYS_INIT_RAM_ADDR

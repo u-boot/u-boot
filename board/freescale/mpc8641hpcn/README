@@ -80,7 +80,7 @@ Switches:
 3. Flash U-Boot
 ---------------
 The flash range 0xEF800000 to 0xEFFFFFFF can be divided into 2 halves.
-It is possible to use either half to boot using u-boot.  Switch 5 bit 2
+It is possible to use either half to boot using U-Boot.  Switch 5 bit 2
 is used for this purpose.
 
 0xEF800000 to 0xEFBFFFFF - 4MB
@@ -102,7 +102,7 @@ To Flash U-Boot into the booting bank (0xEFC00000 - 0xEFFFFFFF):
 or use tftpflash command:
 	run tftpflash
 
-To Flash U-boot into the alternative bank (0xEF800000 - 0xEFBFFFFF):
+To Flash U-Boot into the alternative bank (0xEF800000 - 0xEFBFFFFF):
 
 	tftp 1000000 u-boot.bin
 	erase efb00000 +$filesize
@@ -113,7 +113,7 @@ To Flash U-boot into the alternative bank (0xEF800000 - 0xEFBFFFFF):
 -------------
 NOTE:  RIO and PCI are mutually exclusive, so they share an address
 
-For 32-bit u-boot, devices are mapped so that the virtual address ==
+For 32-bit U-Boot, devices are mapped so that the virtual address ==
 the physical address, and the map looks liks this:
 
 	Memory Range			Device		Size
@@ -130,7 +130,7 @@ the physical address, and the map looks liks this:
 	0xffc1_0000	0xffc1_ffff	PCI2/PEX2 IO	64K
 	0xef80_0000	0xefff_ffff	Flash		8M
 
-For 36-bit-enabled u-boot, the virtual map is the same as for 32-bit.
+For 36-bit-enabled U-Boot, the virtual map is the same as for 32-bit.
 However, the physical map is altered to reside in 36-bit space, as follows.
 Addresses are no longer mapped with VA == PA.  All accesses from
 software use the VA; the PA is only used for setting up windows

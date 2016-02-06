@@ -1,4 +1,4 @@
-QSPI U-boot support
+QSPI U-Boot support
 ------------------
 
 Host processor is connected to serial flash device via qpsi
@@ -44,4 +44,4 @@ drivers/qspi/ti_qspi.c
 Testing
 -------
 A seperated file named README.dra_qspi_test has been created which gives all the
-details about the commands required to test qspi at u-boot level.
+details about the commands required to test qspi at U-Boot level.

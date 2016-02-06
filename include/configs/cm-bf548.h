@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for cm-bf548 board
+ * U-Boot - Configuration file for cm-bf548 board
  */
 
 #ifndef __CONFIG_CM_BF548_H__
