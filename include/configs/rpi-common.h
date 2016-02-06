@@ -144,8 +144,14 @@
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
- * scriptaddr can be pretty much anywhere that doesn't conflict with something
- *   else. Put it low in memory to avoid conflicts.
+ * I suspect address 0 is used as the SMP pen on the RPi2, so avoid this.
+ *
+ * fdt_addr_r simply shouldn't overlap anything else. However, the RPi's
+ *   binary firmware loads a DT to address 0x100, so we choose this address to
+ *   match it. This allows custom boot scripts to pass this DT on to Linux
+ *   simply by not over-writing the data at this address. When using U-Boot,
+ *   U-Boot (and scripts it executes) typicaly ignore the DT loaded by the FW
+ *   and loads its own DT from disk (triggered by boot.scr or extlinux.conf).
  *
  * pxefile_addr_r can be pretty much anywhere that doesn't conflict with
  *   something else. Put it low in memory to avoid conflicts.
@@ -159,11 +165,11 @@
  *   this up to 16M allows for a sizable kernel to be decompressed below the
  *   compressed load address.
  *
- * fdt_addr_r simply shouldn't overlap anything else. Choosing 32M allows for
- *   the compressed kernel to be up to 16M too.
+ * scriptaddr can be pretty much anywhere that doesn't conflict with something
+ *   else. Choosing 32M allows for the compressed kernel to be up to 16M.
  *
  * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
- *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
+ *   for any boot script to be up to 1M, which is hopefully plenty.
  */
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_addr_r=0x00000100\0" \
