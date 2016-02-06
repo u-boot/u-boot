@@ -142,7 +142,7 @@ class Spawn(object):
                     earliest_pi = pi
                 if earliest_m:
                     pos = earliest_m.start()
-                    posafter = earliest_m.end() + 1
+                    posafter = earliest_m.end()
                     self.before = self.buf[:pos]
                     self.after = self.buf[pos:posafter]
                     self.buf = self.buf[posafter:]
