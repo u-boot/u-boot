@@ -1081,33 +1081,3 @@ U_BOOT_CMD(
 );
 
 #endif	/* CONFIG_CMD_LOADB */
-
-/* -------------------------------------------------------------------- */
-
-#if defined(CONFIG_CMD_HWFLOW)
-int do_hwflow(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	extern int hwflow_onoff(int);
-
-	if (argc == 2) {
-		if (strcmp(argv[1], "off") == 0)
-			hwflow_onoff(-1);
-		else
-			if (strcmp(argv[1], "on") == 0)
-				hwflow_onoff(1);
-			else
-				return CMD_RET_USAGE;
-	}
-	printf("RTS/CTS hardware flow control: %s\n", hwflow_onoff(0) ? "on" : "off");
-	return 0;
-}
-
-/* -------------------------------------------------------------------- */
-
-U_BOOT_CMD(
-	hwflow, 2, 0,	do_hwflow,
-	"turn RTS/CTS hardware flow control in serial line on/off",
-	"[on|off]"
-);
-
-#endif	/* CONFIG_CMD_HWFLOW */
