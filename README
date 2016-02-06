@@ -1023,7 +1023,6 @@ The following options need to be configured:
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment
 		CONFIG_CMD_HASH		* calculate hash / digest
-		CONFIG_CMD_HWFLOW	* RTS/CTS hw flow control
 		CONFIG_CMD_I2C		* I2C serial bus support
 		CONFIG_CMD_IDE		* IDE harddisk support
 		CONFIG_CMD_IMI		  iminfo
@@ -3720,17 +3719,6 @@ FIT uImage format:
 		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
 		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
 
-Modem Support:
---------------
-
-[so far only for SMDK2400 boards]
-
-- Modem support enable:
-		CONFIG_MODEM_SUPPORT
-
-- RTS/CTS Flow control enable:
-		CONFIG_HWFLOW
-
 - Interrupt support (PPC):
 
 		There are common interrupt_init() and timer_interrupt()
@@ -3744,22 +3732,6 @@ Modem Support:
 		/ other_activity_monitor it works automatically from
 		general timer_interrupt().
 
-- General:
-
-		In the target system modem support is enabled when a
-		specific key (key combination) is pressed during
-		power-on. Otherwise U-Boot will boot normally
-		(autoboot). The key_pressed() function is called from
-		board_init(). Currently key_pressed() is a dummy
-		function, returning 1 and thus enabling modem
-		initialization.
-
-		If there are no modem init strings in the
-		environment, U-Boot proceed to autoboot; the
-		previous output (banner, info printfs) will be
-		suppressed, though.
-
-		See also: doc/README.Modem
 
 Board initialization settings:
 ------------------------------
