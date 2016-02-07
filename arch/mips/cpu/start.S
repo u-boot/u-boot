@@ -52,6 +52,14 @@
 
 	.set noreorder
 
+	.macro uhi_mips_exception
+	move	k0, t9		# preserve t9 in k0
+	move	k1, a0		# preserve a0 in k1
+	li	t9, 15		# UHI exception operation
+	li	a0, 0		# Use hard register context
+	sdbbp	1		# Invoke UHI operation
+	.endm
+
 ENTRY(_start)
 	/* U-Boot entry point */
 	b	reset
@@ -79,30 +87,30 @@ ENTRY(_start)
 #endif
 
 #if defined(CONFIG_ROM_EXCEPTION_VECTORS)
+	/*
+	 * Exception vector entry points. When running from ROM, an exception
+	 * cannot be handled. Halt execution and transfer control to debugger,
+	 * if one is attached.
+	 */
 	.org 0x200
 	/* TLB refill, 32 bit task */
-1:	b	1b
-	 nop
+	uhi_mips_exception
 
 	.org 0x280
 	/* XTLB refill, 64 bit task */
-1:	b	1b
-	 nop
+	uhi_mips_exception
 
 	.org 0x300
 	/* Cache error exception */
-1:	b	1b
-	 nop
+	uhi_mips_exception
 
 	.org 0x380
 	/* General exception */
-1:	b	1b
-	 nop
+	uhi_mips_exception
 
 	.org 0x400
 	/* Catch interrupt exceptions */
-1:	b	1b
-	 nop
+	uhi_mips_exception
 
 	.org 0x480
 	/* EJTAG debug exception */
@@ -222,6 +230,7 @@ reset:
 
 	move	a0, zero		# a0 <-- boot_flags = 0
 	PTR_LA	t9, board_init_f
+
 	jr	t9
 	 move	ra, zero
 
