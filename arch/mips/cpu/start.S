@@ -34,23 +34,15 @@
 # define STATUS_SET	ST0_KX
 #endif
 
-	/*
-	 * For the moment disable interrupts, mark the kernel mode and
-	 * set ST0_KX so that the CPU does not spit fire when using
-	 * 64-bit addresses.
-	 */
-	.macro	setup_c0_status set clr
-	.set	push
-	mfc0	t0, CP0_STATUS
-	or	t0, ST0_CU0 | \set | 0x1f | \clr
-	xor	t0, 0x1f | \clr
-	mtc0	t0, CP0_STATUS
-	.set	noreorder
-	sll	zero, 3				# ehb
-	.set	pop
-	.endm
-
 	.set noreorder
+
+	.macro init_wr sel
+	MTC0	zero, CP0_WATCHLO,\sel
+	mtc0	t1, CP0_WATCHHI,\sel
+	mfc0	t0, CP0_WATCHHI,\sel
+	bgez	t0, wr_done
+	 nop
+	.endm
 
 	.macro uhi_mips_exception
 	move	k0, t9		# preserve t9 in k0
@@ -63,7 +55,7 @@
 ENTRY(_start)
 	/* U-Boot entry point */
 	b	reset
-	 nop
+	 mtc0	zero, CP0_COUNT	# clear cp0 count for most accurate boot timing
 
 #if defined(CONFIG_SYS_XWAY_EBU_BOOTCFG)
 	/*
@@ -141,17 +133,51 @@ reset:
 	b	3b
 	 nop
 
-	/* Clear watch registers */
-4:	MTC0	zero, CP0_WATCHLO
+	/* Init CP0 Status */
+4:	mfc0	t0, CP0_STATUS
+	and	t0, ST0_IMPL
+	or	t0, ST0_BEV | ST0_ERL | STATUS_SET
+	mtc0	t0, CP0_STATUS
+
+	/*
+	 * Check whether CP0 Config1 is implemented. If not continue
+	 * with legacy Watch register initialization.
+	 */
+	mfc0	t0, CP0_CONFIG
+	bgez	t0, wr_legacy
+	 nop
+
+	/*
+	 * Check WR bit in CP0 Config1 to determine if Watch registers
+	 * are implemented.
+	 */
+	mfc0	t0, CP0_CONFIG, 1
+	andi	t0, (1 << 3)
+	beqz	t0, wr_done
+	 nop
+
+	/* Clear Watch Status bits and disable watch exceptions */
+	li	t1, 0x7		# Clear I, R and W conditions
+	init_wr	0
+	init_wr	1
+	init_wr	2
+	init_wr	3
+	init_wr	4
+	init_wr	5
+	init_wr	6
+	init_wr	7
+	b	wr_done
+	 nop
+
+wr_legacy:
+	MTC0	zero, CP0_WATCHLO
 	mtc0	zero, CP0_WATCHHI
 
-	/* WP(Watch Pending), SW0/1 should be cleared */
+wr_done:
+	/* Clear WP, IV and SW interrupts */
 	mtc0	zero, CP0_CAUSE
 
-	setup_c0_status STATUS_SET 0
-
-	/* Init Timer */
-	mtc0	zero, CP0_COUNT
+	/* Clear timer interrupt (CP0_COUNT cleared on branch to 'reset') */
 	mtc0	zero, CP0_COMPARE
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
