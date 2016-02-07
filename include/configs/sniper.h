@@ -1,5 +1,5 @@
 /*
- * LG Optimus Black (P970) codename sniper config
+ * LG Optimus Black codename sniper config
  *
  * Copyright (C) 2015 Paul Kocialkowski <contact@paulk.fr>
  *
