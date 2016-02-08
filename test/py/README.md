@@ -76,6 +76,43 @@ will be written to `${build_dir}/test-log.html`. This is best viewed in a web
 browser, but may be read directly as plain text, perhaps with the aid of the
 `html2text` utility.
 
+### Testing under a debugger
+
+If you need to run sandbox under a debugger, you may pass the command-line
+option `--gdbserver COMM`. This causes two things to happens:
+
+- Instead of running U-Boot directly, it will be run under gdbserver, with
+  debug communication via the channel `COMM`. You can attach a debugger to the
+  sandbox process in order to debug it. See `man gdbserver` and the example
+  below for details of valid values for `COMM`.
+- All timeouts in tests are disabled, allowing U-Boot an arbitrary amount of
+  time to execute commands. This is useful if U-Boot is stopped at a breakpoint
+  during debugging.
+
+A usage example is:
+
+Window 1:
+```shell
+./test/py/test.py --bd sandbox --gdbserver localhost:1234
+```
+
+Window 2:
+```shell
+gdb ./build-sandbox/u-boot -ex 'target remote localhost:1234'
+```
+
+Alternatively, you could leave off the `-ex` option and type the command
+manually into gdb once it starts.
+
+You can use any debugger you wish, so long as it speaks the gdb remote
+protocol, or any graphical wrapper around gdb.
+
+Some tests deliberately cause the sandbox process to exit, e.g. to test the
+reset command, or sandbox's CTRL-C handling. When this happens, you will need
+to attach the debugger to the new sandbox instance. If these tests are not
+relevant to your debugging session, you can skip them using pytest's -k
+command-line option; see the next section.
+
 ## Command-line options
 
 - `--board-type`, `--bd`, `-B` set the type of the board to be tested. For
@@ -98,10 +135,25 @@ browser, but may be read directly as plain text, perhaps with the aid of the
   data. This is test data that may be re-used across test runs, such as file-
   system images.
 
-`pytest` also implements a number of its own command-line options. Please see
-`pytest` documentation for complete details. Execute `py.test --version` for
-a brief summary. Note that U-Boot's test.py script passes all command-line
-arguments directly to `pytest` for processing.
+`pytest` also implements a number of its own command-line options. Commonly used
+options are mentioned below. Please see `pytest` documentation for complete
+details. Execute `py.test --version` for a brief summary. Note that U-Boot's
+test.py script passes all command-line arguments directly to `pytest` for
+processing.
+
+- `-k` selects which tests to run. The default is to run all known tests. This
+  option takes a single argument which is used to filter test names. Simple
+  logical operators are supported. For example:
+  - `'ums'` runs only tests with "ums" in their name.
+  - ``ut_dm'` runs only tests with "ut_dm" in their name. Note that in this
+    case, "ut_dm" is a parameter to a test rather than the test name. The full
+    test name is e.g. "test_ut[ut_dm_leak]".
+  - `'not reset'` runs everything except tests with "reset" in their name.
+  - `'ut or hush'` runs only tests with "ut" or "hush" in their name.
+  - `'not (ut or hush)'` runs everything except tests with "ut" or "hush" in
+    their name.
+- `-s` prevents pytest from hiding a test's stdout. This allows you to see
+  U-Boot's console log in real time on pytest's stdout.
 
 ## Testing real hardware
 
