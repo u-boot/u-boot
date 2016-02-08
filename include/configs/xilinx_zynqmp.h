@@ -26,8 +26,11 @@
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_SYS_MEMTEST_SCRATCH	0xfffc0000
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		CONFIG_SYS_SDRAM_SIZE
+#ifndef CONFIG_NR_DRAM_BANKS
+# define CONFIG_NR_DRAM_BANKS		2
+#endif
+#define CONFIG_SYS_MEMTEST_START	0
+#define CONFIG_SYS_MEMTEST_END		1000
 
 /* Have release address at the end of 256MB for now */
 #define CPU_RELEASE_ADDR	0xFFFFFF0
@@ -39,7 +42,7 @@
 # define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #endif
 
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 /* Flat Device Tree Definitions */
 
