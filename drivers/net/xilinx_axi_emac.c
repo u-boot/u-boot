@@ -715,7 +715,7 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		printf("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
 	priv->interface = pdata->phy_interface;
