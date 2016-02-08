@@ -106,6 +106,13 @@ _reloc:
 	stw	r0, 4(sp)
 	mov	fp, sp
 
+#ifdef CONFIG_DEBUG_UART
+	/* Set up the debug UART */
+	movhi	r2, %hi(debug_uart_init@h)
+	ori	r2, r2, %lo(debug_uart_init@h)
+	callr	r2
+#endif
+
 	/* Allocate and initialize reserved area, update SP */
 	mov	r4, sp
 	movhi	r2, %hi(board_init_f_alloc_reserve@h)
