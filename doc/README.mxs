@@ -1,4 +1,4 @@
-Booting U-boot on a MXS processor
+Booting U-Boot on a MXS processor
 =================================
 
 This document describes the MXS U-Boot port. This document mostly covers topics
@@ -23,7 +23,7 @@ Contents
 2) Compiling U-Boot for a MXS based board
 3) Installation of U-Boot for a MXS based board to SD card
 4) Installation of U-Boot into NAND flash on a MX28 based board
-5) Installation of U-boot into SPI NOR flash on a MX28 based board
+5) Installation of U-Boot into SPI NOR flash on a MX28 based board
 
 1) Prerequisites
 ----------------
@@ -95,19 +95,19 @@ Next, configure U-Boot for a MXS based board
 
 Examples:
 
-1. For building U-boot for Denx M28EVK board:
+1. For building U-Boot for Denx M28EVK board:
 
 	$ make m28evk_config
 
-2. For building U-boot for Freescale MX28EVK board:
+2. For building U-Boot for Freescale MX28EVK board:
 
 	$ make mx28evk_config
 
-3. For building U-boot for Freescale MX23EVK board:
+3. For building U-Boot for Freescale MX23EVK board:
 
 	$ make mx23evk_config
 
-4. For building U-boot for Olimex MX23 Olinuxino board:
+4. For building U-Boot for Olimex MX23 Olinuxino board:
 
 	$ make mx23_olinuxino_config
 
@@ -267,7 +267,7 @@ There are two possibilities when preparing an image writable to NAND flash.
 5) Installation of U-Boot into SPI NOR flash on a MX28 based board
 ------------------------------------------------------------------
 
-The u-boot.sb file can be directly written to SPI NOR from U-boot prompt.
+The u-boot.sb file can be directly written to SPI NOR from U-Boot prompt.
 
 Load u-boot.sb into RAM, this can be done in several ways and one way is to use
 tftp:
@@ -278,7 +278,7 @@ Probe the SPI NOR flash:
 
 (SPI NOR should be succesfully detected in this step)
 
-Erase the blocks where U-boot binary will be written to:
+Erase the blocks where U-Boot binary will be written to:
        => sf erase 0x0 0x80000
 
 Write u-boot.sb to SPI NOR:
@@ -287,4 +287,4 @@ Write u-boot.sb to SPI NOR:
 Power off the board and set the boot mode DIP switches to boot from the SPI NOR
 according to MX28 manual section 12.2.1 (Table 12-2)
 
-Last step is to power up the board and U-boot should start from SPI NOR.
+Last step is to power up the board and U-Boot should start from SPI NOR.

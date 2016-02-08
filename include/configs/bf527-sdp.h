@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF527 SDP board
+ * U-Boot - Configuration file for BF527 SDP board
  */
 
 #ifndef __CONFIG_BF527_SDP_H__

@@ -1,5 +1,5 @@
 #
-# U-boot - Makefile
+# U-Boot - Makefile
 #
 # Copyright (c) 2005-2007 Analog Device Inc.
 #

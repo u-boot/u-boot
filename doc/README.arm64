@@ -1,20 +1,20 @@
-U-boot for arm64
+U-Boot for arm64
 
 Summary
 =======
-No hardware platform of arm64 is available now. The u-boot is
+No hardware platform of arm64 is available now. The U-Boot is
 simulated on Foundation Model and Fast Model for ARMv8.
 
 Notes
 =====
 
-1. Currenly, u-boot run at the highest exception level processor
+1. Currenly, U-Boot run at the highest exception level processor
    supported and jump to EL2 or optionally EL1 before enter OS.
 
-2. U-boot for arm64 is compiled with AArch64-gcc. AArch64-gcc
+2. U-Boot for arm64 is compiled with AArch64-gcc. AArch64-gcc
    use rela relocation format, a tool(tools/relocate-rela) by Scott Wood
    is used to encode the initial addend of rela to u-boot.bin. After running,
-   the u-boot will be relocated to destination again.
+   the U-Boot will be relocated to destination again.
 
 3. Fdt should be placed at a 2-megabyte boundary and within the first 512
    megabytes from the start of the kernel image. So, fdt_high should be

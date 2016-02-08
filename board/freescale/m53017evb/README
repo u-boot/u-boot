@@ -47,7 +47,7 @@ Changed files:
 - include/asm-m68k/timer.h		Timer structure and definition
 - include/asm-m68k/types.h		Data types definition
 - include/asm-m68k/uart.h		Uart structure and definition
-- include/asm-m68k/u-boot.h		u-boot structure
+- include/asm-m68k/u-boot.h		U-Boot structure
 
 - include/configs/M53017EVB.h		Board specific configuration file
 
@@ -75,7 +75,7 @@ CONFIG_MCFRTC			-- define to use common CF RTC driver
 CONFIG_SYS_MCFRTC_BASE		-- provide base address for RTC in immap.h
 CONFIG_SYS_RTC_OSCILLATOR	-- define RTC clock frequency
 RTC_DEBUG			-- define to show RTC debug message
-CONFIG_CMD_DATE			-- enable to use date feature in u-boot
+CONFIG_CMD_DATE			-- enable to use date feature in U-Boot
 
 CONFIG_MCFFEC			-- define to use common CF FEC driver
 CONFIG_MII			-- enable to use MII driver
@@ -118,7 +118,7 @@ CONFIG_SYS_SDRAM_BASE		-- defines the DRAM Base
 	SRAM:		0x80000000-0x8FFFFFFF (256MB)
 	IP:		0xFC000000-0xFFFFFFFF (256MB)
 
-2.2. For the initial bringup, we adopted a consistent memory scheme between u-boot and
+2.2. For the initial bringup, we adopted a consistent memory scheme between U-Boot and
 	linux kernel, you can customize it based on your system requirements:
 	Flash0:		0x00000000-0x00FFFFFF (16MB)
 	DDR:		0x40000000-0x4FFFFFFF (256MB)

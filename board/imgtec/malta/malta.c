@@ -93,7 +93,7 @@ int checkboard(void)
 {
 	enum core_card core;
 
-	malta_lcd_puts("U-boot");
+	malta_lcd_puts("U-Boot");
 	puts("Board: MIPS Malta");
 
 	core = malta_core_card();

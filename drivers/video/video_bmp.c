@@ -194,7 +194,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	ushort *cmap_base = NULL;
-	ushort i, j;
+	int i, j;
 	uchar *fb;
 	struct bmp_image *bmp = map_sysmem(bmp_image, 0);
 	uchar *bmap;

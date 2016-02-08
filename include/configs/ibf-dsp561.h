@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for IBF-DSP561 board
+ * U-Boot - Configuration file for IBF-DSP561 board
  */
 
 #ifndef __CONFIG_IBF_DSP561__H__

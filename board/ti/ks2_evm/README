@@ -3,7 +3,7 @@ U-Boot port for Texas Instruments Keystone II EVM boards
 
 Author: Murali Karicheri <m-karicheri2@ti.com>
 
-This README has information on the u-boot port for K2HK, K2E, and K2L EVM boards.
+This README has information on the U-Boot port for K2HK, K2E, and K2L EVM boards.
 Documentation for this board can be found at
 http://www.advantech.com/Support/TI-EVM/EVMK2HX_sd.aspx
 https://www.einfochips.com/index.php/partnerships/texas-instruments/k2e-evm.html
@@ -23,7 +23,7 @@ The K2L SoC details are available at
 Board configuration:
 ====================
 
-Some of the peripherals that are configured by u-boot
+Some of the peripherals that are configured by U-Boot
 +------+-------+-------+-----------+-----------+-------+-------+----+
 |      |DDR3   |NAND   |MSM SRAM   |ETH ports  |UART   |I2C    |SPI |
 +------+-------+-------+-----------+-----------+-------+-------+----+
@@ -37,7 +37,7 @@ There are only 2 eth port installed on the boards.
 There are separate PLLs to drive clocks to Tetris ARM and Peripherals.
 To bring up SMP Linux on this board, there is a boot monitor
 code that will be installed in MSMC SRAM. There is command available
-to install this image from u-boot.
+to install this image from U-Boot.
 
 The port related files can be found at following folders
  keystone2 SoC related files: arch/arm/cpu/armv7/keystone/
@@ -48,7 +48,7 @@ include/configs/k2hk_evm.h
 include/configs/k2e_evm.h
 include/configs/k2l_evm.h
 
-As u-boot is migrating to Kconfig there is also board defconfig files
+As U-Boot is migrating to Kconfig there is also board defconfig files
 configs/k2e_evm_defconfig
 configs/k2hk_evm_defconfig
 configs/k2l_evm_defconfig
@@ -80,7 +80,7 @@ Need Code Composer Studio (CCS) installed on a PC to load and run u-boot-dtb.bin
 on EVM. See instructions at below link for installing CCS on a Windows PC.
 http://processors.wiki.ti.com/index.php/MCSDK_UG_Chapter_Getting_Started#
 Installing_Code_Composer_Studio
-Use u-boot-dtb.bin from the build folder for loading and running u-boot binary
+Use u-boot-dtb.bin from the build folder for loading and running U-Boot binary
 on EVM. Follow instructions at
 K2HK http://processors.wiki.ti.com/index.php/EVMK2H_Hardware_Setup
 K2E  http://processors.wiki.ti.com/index.php/EVMK2E_Hardware_Setup
@@ -94,7 +94,7 @@ Start CCS on a Windows machine and Launch Target
 configuration as instructed at http://processors.wiki.ti.com/index.php/
 MCSDK_UG_Chapter_Exploring#Loading_and_Running_U-Boot_on_EVM_through_CCS.
 The instructions provided in the above link uses a script for
-loading the u-boot binary on the target EVM. Instead do the following:-
+loading the U-Boot binary on the target EVM. Instead do the following:-
 
 1. Right click to "Texas Instruments XDS2xx USB Emulator_0/CortexA15_1 core (D
    is connected: Unknown)" at the debug window (This is created once Target
@@ -126,41 +126,41 @@ SPI NOR Flash programming instructions
 U-Boot image can be flashed to first 512KB of the NOR flash using following
 instructions:
 
-1. Start CCS and run U-boot as described above.
+1. Start CCS and run U-Boot as described above.
 2. Suspend Target. Select Run -> Suspend from top level menu
    CortexA15_1 (Free Running)"
 3. Load u-boot-spi.gph binary from build folder on to DDR address 0x87000000
    through CCS as described in step 2 of "Load and Run U-Boot on K2HK/K2E/K2L
    EVM using CCS", but using address 0x87000000.
-4. Free Run the target as described earlier (step 4) to get u-boot prompt
-5. At the U-Boot console type following to setup u-boot environment variables.
+4. Free Run the target as described earlier (step 4) to get U-Boot prompt
+5. At the U-Boot console type following to setup U-Boot environment variables.
    setenv addr_uboot 0x87000000
    setenv filesize <size in hex of u-boot-spi.gph rounded to hex 0x10000>
    run burn_uboot_spi
-   Once u-boot prompt is available, Power OFF the EVM. Set the SW1 dip switch
+   Once U-Boot prompt is available, Power OFF the EVM. Set the SW1 dip switch
    to "SPI Little Endian Boot mode" as per instruction at
    http://processors.wiki.ti.com/index.php/*_Hardware_Setup.
-6. Power ON the EVM. The EVM now boots with u-boot image on the NOR flash.
+6. Power ON the EVM. The EVM now boots with U-Boot image on the NOR flash.
 
 AEMIF NAND Flash programming instructions
 ======================================
 U-Boot image can be flashed to first 1024KB of the NAND flash using following
 instructions:
 
-1. Start CCS and run U-boot as described above.
+1. Start CCS and run U-Boot as described above.
 2. Suspend Target. Select Run -> Suspend from top level menu
    CortexA15_1 (Free Running)"
 3. Load MLO binary from build folder on to DDR address 0x87000000
    through CCS as described in step 2 of "Load and Run U-Boot on K2HK EVM
    using CCS", but using address 0x87000000.
-4. Free Run the target as described earlier (step 4) to get u-boot prompt
-5. At the U-Boot console type following to setup u-boot environment variables.
+4. Free Run the target as described earlier (step 4) to get U-Boot prompt
+5. At the U-Boot console type following to setup U-Boot environment variables.
    setenv filesize <size in hex of MLO rounded to hex 0x10000>
    run burn_uboot_nand
-   Once u-boot prompt is available, Power OFF the EVM. Set the SW1 dip switch
+   Once U-Boot prompt is available, Power OFF the EVM. Set the SW1 dip switch
    to "ARM NAND Boot mode" as per instruction at
    http://processors.wiki.ti.com/index.php/*_Hardware_Setup.
-6. Power ON the EVM. The EVM now boots with u-boot image on the NAND flash.
+6. Power ON the EVM. The EVM now boots with U-Boot image on the NAND flash.
 
 Load and Run U-Boot on keystone EVMs using UART download
 ========================================================
@@ -171,4 +171,4 @@ Open BMC and regular UART terminals.
 2. Using BMC terminal set the ARM-UART bootmode and reboot the EVM
    BMC> bootmode #4
    MBC> reboot
-3. When xmodem is complete you should see the u-boot starts on the UART port
+3. When xmodem is complete you should see the U-Boot starts on the UART port

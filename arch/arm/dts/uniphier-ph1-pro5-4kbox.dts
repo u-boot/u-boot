@@ -47,7 +47,7 @@
 	status = "okay";
 };
 
-/* for U-boot only */
+/* for U-Boot only */
 / {
 	soc {
 		u-boot,dm-pre-reloc;

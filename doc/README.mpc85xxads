@@ -107,7 +107,7 @@ Updated 13-July-2004 Jon Loeliger
 2. MEMORY MAP TO WORK WITH LINUX KERNEL
 
 2.1. For the initial bringup, we adopted a consistent memory scheme
-     between u-boot and linux kernel, you can customize it based on your
+     between U-Boot and linux kernel, you can customize it based on your
      system requirements:
 
      0x0000_0000     0x7fff_ffff     DDR		     2G
@@ -192,7 +192,7 @@ straightforward.
     and future revisions of 8540/8560.
 
 
-4.4 Reflash U-boot Image using U-boot
+4.4 Reflash U-Boot Image using U-Boot
 
     tftp 10000 u-boot.bin
     protect off fff80000 ffffffff

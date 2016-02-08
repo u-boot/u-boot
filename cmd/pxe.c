@@ -571,7 +571,7 @@ static void label_print(void *data)
 
 /*
  * Boot a label that specified 'localboot'. This requires that the 'localcmd'
- * environment variable is defined. Its contents will be executed as U-boot
+ * environment variable is defined. Its contents will be executed as U-Boot
  * command.  If the label specified an 'append' line, its contents will be
  * used to overwrite the contents of the 'bootargs' environment variable prior
  * to running 'localcmd'.
@@ -1438,7 +1438,7 @@ static struct pxe_menu *parse_pxefile(cmd_tbl_t *cmdtp, unsigned long menucfg)
 }
 
 /*
- * Converts a pxe_menu struct into a menu struct for use with U-boot's generic
+ * Converts a pxe_menu struct into a menu struct for use with U-Boot's generic
  * menu code.
  */
 static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)

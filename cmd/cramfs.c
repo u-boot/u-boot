@@ -77,7 +77,7 @@ extern int cramfs_ls (struct part_info *info, char *filename);
 extern int cramfs_info (struct part_info *info);
 
 /***************************************************/
-/* U-boot commands				   */
+/* U-Boot commands				   */
 /***************************************************/
 
 /**

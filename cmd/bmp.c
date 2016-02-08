@@ -259,7 +259,6 @@ int bmp_display(ulong addr, int x, int y)
 			ret = video_bmp_display(dev, addr, x, y, align);
 		}
 	}
-	return ret ? CMD_RET_FAILURE : 0;
 #elif defined(CONFIG_LCD)
 	ret = lcd_display_bitmap(addr, x, y);
 #elif defined(CONFIG_VIDEO)
@@ -271,5 +270,5 @@ int bmp_display(ulong addr, int x, int y)
 	if (bmp_alloc_addr)
 		free(bmp_alloc_addr);
 
-	return ret;
+	return ret ? CMD_RET_FAILURE : 0;
 }

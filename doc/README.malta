@@ -13,4 +13,4 @@ How to flash using a MIPS Navigator Probe:
       reset
       flash-boot /path/to/u-boot/u-boot.bin
 
-  - You should now be able to reboot your Malta to a U-boot shell.
+  - You should now be able to reboot your Malta to a U-Boot shell.

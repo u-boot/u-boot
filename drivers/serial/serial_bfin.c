@@ -1,5 +1,5 @@
 /*
- * U-boot - serial.c Blackfin Serial Driver
+ * U-Boot - serial.c Blackfin Serial Driver
  *
  * Copyright (c) 2005-2008 Analog Devices Inc.
  *

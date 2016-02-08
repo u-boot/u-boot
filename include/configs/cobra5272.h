@@ -7,7 +7,7 @@
  */
 
 /* ---
- * Version: U-boot 1.0.0 - initial release for Sentec COBRA5272 board
+ * Version: U-Boot 1.0.0 - initial release for Sentec COBRA5272 board
  * Date: 2004-03-29
  * Author: Florian Schlote
  *

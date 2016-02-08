@@ -32,13 +32,13 @@ The driver has been tested with the following configurations:
 Example: video-mode=fslfb:1280x1024-32@60,monitor=dvi
 
 
-U-boot sunxi video controller driver
+U-Boot sunxi video controller driver
 ====================================
 
-U-boot supports hdmi and lcd output on Allwinner sunxi SoCs, lcd output
+U-Boot supports hdmi and lcd output on Allwinner sunxi SoCs, lcd output
 requires the CONFIG_VIDEO_LCD_MODE Kconfig value to be set.
 
-The sunxi u-boot driver supports the following video-mode options:
+The sunxi U-Boot driver supports the following video-mode options:
 
 - monitor=[none|dvi|hdmi|lcd|vga|composite-*] - Select the video output to use
  none:     Disable video output.

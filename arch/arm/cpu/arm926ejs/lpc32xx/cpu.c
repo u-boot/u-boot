@@ -46,7 +46,7 @@ void reset_cpu(ulong addr)
 int arch_cpu_init(void)
 {
 	/*
-	 * It might be necessary to flush data cache, if U-boot is loaded
+	 * It might be necessary to flush data cache, if U-Boot is loaded
 	 * from kickstart bootloader, e.g. from S1L loader
 	 */
 	flush_dcache_all();

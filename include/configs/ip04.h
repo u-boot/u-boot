@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for IP04 board (having BF532 processor)
+ * U-Boot - Configuration file for IP04 board (having BF532 processor)
  *
  * Copyright (c) 2006 Intratrade Ltd., Ivan Danov, idanov@gmail.com
  *

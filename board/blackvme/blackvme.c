@@ -1,4 +1,4 @@
-/* U-boot - blackvme.c  board specific routines
+/* U-Boot - blackvme.c  board specific routines
  * (c) Wojtek Skulski 2010 info@skutek.com
  * Board info: http://www.skutek.com
  * Copyright (c) 2005-2009 Analog Devices Inc.

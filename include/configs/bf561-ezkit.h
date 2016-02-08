@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF561 EZKIT board
+ * U-Boot - Configuration file for BF561 EZKIT board
  */
 
 #ifndef __CONFIG_BF561_EZKIT_H__

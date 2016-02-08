@@ -11,7 +11,7 @@
  * Some are available on 2.4 kernels; several are available, but not
  * yet pushed in the 2.6 mainline tree.
  *
- * Ported to U-boot by: Thomas Smits <ts.smits@gmail.com> and
+ * Ported to U-Boot by: Thomas Smits <ts.smits@gmail.com> and
  *                      Remy Bohmer <linux@bohmer.net>
  */
 #ifdef CONFIG_USB_GADGET_NET2280

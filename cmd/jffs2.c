@@ -456,7 +456,7 @@ static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int pa
 }
 
 /***************************************************/
-/* U-boot commands				   */
+/* U-Boot commands				   */
 /***************************************************/
 
 /**

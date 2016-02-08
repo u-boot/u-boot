@@ -41,5 +41,5 @@ lowlevel_init:
 	orr	r0, #0x00000004
 	str	r0, [r1]
 
-	/* Return to U-boot via saved link register */
+	/* Return to U-Boot via saved link register */
 	mov	pc, lr

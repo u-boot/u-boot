@@ -1,5 +1,5 @@
 /*
- * Configuration settings for the Novena U-boot.
+ * Configuration settings for the Novena U-Boot.
  *
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  *

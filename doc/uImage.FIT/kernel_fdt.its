@@ -1,5 +1,5 @@
 /*
- * Simple U-boot uImage source file containing a single kernel and FDT blob
+ * Simple U-Boot uImage source file containing a single kernel and FDT blob
  */
 
 /dts-v1/;

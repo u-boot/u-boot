@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * lan91c96.c
  * This is a driver for SMSC's LAN91C96 single-chip Ethernet device, based
- * on the SMC91111 driver from U-boot.
+ * on the SMC91111 driver from U-Boot.
  *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>

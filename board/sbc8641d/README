@@ -30,15 +30,15 @@ PCI:
 4. Reflashing U-Boot
 --------------------
 The board has two independent flash devices which can be used for dual
-booting, or for u-boot backup and recovery.  A two pin jumper on the
+booting, or for U-Boot backup and recovery.  A two pin jumper on the
 three pin JP10 determines which device is attached to /CS0 line.
 
-Assuming one device has a functional u-boot, and the other device has
+Assuming one device has a functional U-Boot, and the other device has
 a recently installed non-functional image, to perform a recovery from
 that non-functional image goes essentially as follows:
 
 a) power down the board and jumper JP10 to select the functional image.
-b) power on the board and let it get to u-boot prompt.
+b) power on the board and let it get to U-Boot prompt.
 c) while on, using static precautions, move JP10 back to the failed image.
 d) use "md fff00000" to confirm you are looking at the failed image
 e) turn off write protect with "prot off all"

@@ -1,5 +1,5 @@
 #
-# Makefile for the U-boot SOC specific device drivers.
+# Makefile for the U-Boot SOC specific device drivers.
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #

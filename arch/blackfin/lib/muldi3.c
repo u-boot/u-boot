@@ -1,5 +1,5 @@
 /*
- * U-boot - muldi3.c contains routines for mult and div
+ * U-Boot - muldi3.c contains routines for mult and div
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

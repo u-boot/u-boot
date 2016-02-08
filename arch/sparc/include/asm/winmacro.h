@@ -1,5 +1,5 @@
 /*
- * Added to U-boot,
+ * Added to U-Boot,
  * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com
  * Copyright (C) 2007
  *

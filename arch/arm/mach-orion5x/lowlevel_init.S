@@ -283,5 +283,5 @@ lowlevel_init:
 
 #endif /* CONFIG_SPL_BUILD */
 
-	/* Return to U-boot via saved link register */
+	/* Return to U-Boot via saved link register */
 	mov	pc, lr

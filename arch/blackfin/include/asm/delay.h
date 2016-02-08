@@ -1,5 +1,5 @@
 /*
- * U-boot - delay.h Routines for introducing delays
+ * U-Boot - delay.h Routines for introducing delays
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

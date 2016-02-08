@@ -97,7 +97,7 @@ Freescale MPC832XEMDS Board
 		make MPC832XEMDS_config
 		make
 
-	MPC832x support PCI 33MHz and PCI 66MHz, to make u-boot support PCI:
+	MPC832x support PCI 33MHz and PCI 66MHz, to make U-Boot support PCI:
 
 		1)Make sure the DIP SW support PCI mode as described in Section 1.1.
 
@@ -113,7 +113,7 @@ Freescale MPC832XEMDS Board
 
 	tftp 10000 u-boot.bin
 
-5.1 Reflash U-boot Image using U-boot
+5.1 Reflash U-Boot Image using U-Boot
 
 	tftp 20000 u-boot.bin
 	protect off fe000000 fe0fffff

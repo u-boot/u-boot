@@ -5453,7 +5453,7 @@ e1000_initialize(bd_t * bis)
 	for (i = 0; (devno = pci_find_devices(e1000_supported, i)) >= 0; i++) {
 		/*
 		 * These will never get freed due to errors, this allows us to
-		 * perform SPI EEPROM programming from U-boot, for example.
+		 * perform SPI EEPROM programming from U-Boot, for example.
 		 */
 		struct eth_device *nic = malloc(sizeof(*nic));
 		struct e1000_hw *hw = malloc(sizeof(*hw));

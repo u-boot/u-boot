@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BR4 Appliance
+ * U-Boot - Configuration file for BR4 Appliance
  *
  * based on bf537-stamp.h
  * Copyright (c) Switchfin Org. <dpn@switchfin.org>

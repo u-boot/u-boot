@@ -25,7 +25,7 @@ The 85xx CDS code base is known to compile using:
 Memory Map
 ----------
 
-The memory map for u-boot and linux has been extended w.r.t. the ADS
+The memory map for U-Boot and linux has been extended w.r.t. the ADS
 platform to allow for utilization of all 85xx CDS devices.  The memory
 map is setup for linux to operate properly.  The linux source when
 configured for MPC85xx CDS has been updated to reflect the new memory
@@ -55,14 +55,14 @@ The CDS board  has two flash banks, each 8MB in size (2^23 = 0x00800000).
 There is a switch which allows the boot-bank to be selected.  The switch
 settings for updating flash are given below.
 
-The u-boot commands for copying the boot-bank into the secondary bank are
+The U-Boot commands for copying the boot-bank into the secondary bank are
 as follows:
 
      erase ff780000 ff7fffff
      cp.b fff80000 ff780000 80000
 
 
-U-boot/kermit commands for downloading an image, then copying
+U-Boot/kermit commands for downloading an image, then copying
 it into the secondary bank:
 
      loadb
@@ -76,7 +76,7 @@ it into the secondary bank:
      cp.b $loadaddr ff780000 80000
 
 
-U-boot commands for downloading an image via tftp and flashing
+U-Boot commands for downloading an image via tftp and flashing
 it into the second bank:
 
      tftp 10000 <u-boot.bin.image>
@@ -211,7 +211,7 @@ Memory Map:
    Flash Bank 2 @ 0xff000000
    Ram @ 0
 
-Commands for downloading a u-boot image to memory from edink:
+Commands for downloading a U-Boot image to memory from edink:
 
    env -c
    time -s 4/8/2004 4:30p

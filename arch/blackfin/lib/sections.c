@@ -1,5 +1,5 @@
 /*
- * U-boot - section.c
+ * U-Boot - section.c
  *
  * Copyright (c) 2014 Analog Devices Inc.
  *

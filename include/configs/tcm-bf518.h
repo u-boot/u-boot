@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for Bluetechnix TCM-BF518 board
+ * U-Boot - Configuration file for Bluetechnix TCM-BF518 board
  */
 
 #ifndef __CONFIG_TCM_BF518_H__

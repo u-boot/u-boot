@@ -80,7 +80,7 @@ Freescale MPC83xx ADS Boards
 
 	tftp 10000 u-boot.bin
 
-5.1 Reflash U-boot Image using U-boot
+5.1 Reflash U-Boot Image using U-Boot
 
     tftp 10000 u-boot.bin
     protect off fe000000 fe09ffff

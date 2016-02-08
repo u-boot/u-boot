@@ -1877,7 +1877,7 @@ static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part
 }
 
 /***************************************************/
-/* U-boot commands				   */
+/* U-Boot commands				   */
 /***************************************************/
 /* command line only */
 /**

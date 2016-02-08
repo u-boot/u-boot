@@ -24,15 +24,15 @@
 #define CONFIG_BOOTP_PXE_CLIENTARCH     0x100
 #if defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__)
 #if !defined(CONFIG_BOOTP_VCI_STRING)
-#define CONFIG_BOOTP_VCI_STRING         "U-boot.armv7"
+#define CONFIG_BOOTP_VCI_STRING         "U-Boot.armv7"
 #endif
 #elif defined(__aarch64__)
 #if !defined(CONFIG_BOOTP_VCI_STRING)
-#define CONFIG_BOOTP_VCI_STRING         "U-boot.armv8"
+#define CONFIG_BOOTP_VCI_STRING         "U-Boot.armv8"
 #endif
 #else
 #if !defined(CONFIG_BOOTP_VCI_STRING)
-#define CONFIG_BOOTP_VCI_STRING         "U-boot.arm"
+#define CONFIG_BOOTP_VCI_STRING         "U-Boot.arm"
 #endif
 #endif
 #elif defined(__i386__)

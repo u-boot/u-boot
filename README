@@ -460,7 +460,7 @@ The following options need to be configured:
 
 		CONFIG_SYS_CPC_REINIT_F
 		This CONFIG is defined when the CPC is configured as SRAM at the
-		time of U-boot entry and is required to be re-initialized.
+		time of U-Boot entry and is required to be re-initialized.
 
 		CONFIG_DEEP_SLEEP
 		Indicates this SoC supports deep sleep feature. If deep sleep is
@@ -2963,7 +2963,7 @@ CBFS (Coreboot Filesystem) support
 - Parallel Flash support:
 		CONFIG_SYS_NO_FLASH
 
-		Traditionally U-boot was run on systems with parallel NOR
+		Traditionally U-Boot was run on systems with parallel NOR
 		flash. This option is used to disable support for parallel NOR
 		flash. This option should be defined if the board does not have
 		parallel flash.

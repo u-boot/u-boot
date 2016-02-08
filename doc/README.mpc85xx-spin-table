@@ -1,7 +1,7 @@
 Spin table in cache
 =====================================
 As specified by ePAPR v1.1, the spin table needs to be in cached memory. After
-DDR is initialized and U-boot relocates itself into DDR, the spin table is
+DDR is initialized and U-Boot relocates itself into DDR, the spin table is
 accessible for core 0. It is part of release.S, within 4KB range after
 __secondary_start_page. For other cores to use the spin table, the booting
 process is described below:

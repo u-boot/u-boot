@@ -600,7 +600,7 @@ int board_eth_init(bd_t *bis)
 	case 0x66:
 	case 0x67:
 		/*
-		 * XFI does not need a PHY to work, but to avoid U-boot use
+		 * XFI does not need a PHY to work, but to avoid U-Boot use
 		 * default PHY address which is zero to a MAC when it found
 		 * a MAC has no PHY address, we give a PHY address to XFI
 		 * MAC, and should not use a real XAUI PHY address, since

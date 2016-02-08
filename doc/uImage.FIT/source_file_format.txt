@@ -1,4 +1,4 @@
-U-boot new uImage source file format (bindings definition)
+U-Boot new uImage source file format (bindings definition)
 ==========================================================
 
 Author: Marian Balakowicz <m8@semihalf.com>
@@ -14,7 +14,7 @@ Booting with a Flattened Device Tree is much more flexible and is intended to
 replace direct passing of 'struct bd_info' which was used to boot pre-FDT
 kernels.
 
-However, U-boot needs to support both techniques to provide backward
+However, U-Boot needs to support both techniques to provide backward
 compatibility for platforms which are not FDT ready. Number of elements
 playing role in the booting process has increased and now includes the FDT
 blob. Kernel image, FDT blob and possibly ramdisk image - all must be placed
@@ -36,15 +36,15 @@ a) Implementation
 
 Libfdt has been selected for the new uImage format implementation as (1) it
 provides needed functionality, (2) is actively maintained and developed and
-(3) increases code reuse as it is already part of the U-boot source tree.
+(3) increases code reuse as it is already part of the U-Boot source tree.
 
 b) Terminology
 
 This document defines new uImage structure by providing FDT bindings for new
-uImage internals. Bindings are defined from U-boot perspective, i.e. describe
-final form of the uImage at the moment when it reaches U-boot. User
+uImage internals. Bindings are defined from U-Boot perspective, i.e. describe
+final form of the uImage at the moment when it reaches U-Boot. User
 perspective may be simpler, as some of the properties (like timestamps and
-hashes) will need to be filled in automatically by the U-boot mkimage tool.
+hashes) will need to be filled in automatically by the U-Boot mkimage tool.
 
 To avoid confusion with the kernel FDT the following naming convention is
 proposed for the new uImage format related terms:
@@ -61,7 +61,7 @@ c) Image building procedure
 
 The following picture shows how the new uImage is prepared. Input consists of
 image source file (.its) and a set of data files. Image is created with the
-help of standard U-boot mkimage tool which in turn uses dtc (device tree
+help of standard U-Boot mkimage tool which in turn uses dtc (device tree
 compiler) to produce image tree blob (.itb).  Resulting .itb file is the
 actual binary of a new uImage.
 

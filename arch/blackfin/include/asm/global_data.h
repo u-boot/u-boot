@@ -1,5 +1,5 @@
 /*
- * U-boot - global_data.h Declarations for global data of u-boot
+ * U-Boot - global_data.h Declarations for global data of U-Boot
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

@@ -49,7 +49,7 @@ Changed files:
 - include/asm-m68k/timer.h		Timer structure and definition
 - include/asm-m68k/types.h		Data types definition
 - include/asm-m68k/uart.h		Uart structure and definition
-- include/asm-m68k/u-boot.h		u-boot structure
+- include/asm-m68k/u-boot.h		U-Boot structure
 
 - include/configs/M52277EVB.h		Board specific configuration file
 
@@ -77,7 +77,7 @@ CONFIG_MCFRTC		-- define to use common CF RTC driver
 CONFIG_SYS_MCFRTC_BASE		-- provide base address for RTC in immap.h
 CONFIG_SYS_RTC_OSCILLATOR	-- define RTC clock frequency
 RTC_DEBUG		-- define to show RTC debug message
-CONFIG_CMD_DATE		-- enable to use date feature in u-boot
+CONFIG_CMD_DATE		-- enable to use date feature in U-Boot
 
 CONFIG_MCFTMR		-- define to use DMA timer
 CONFIG_MCFPIT		-- define to use PIT timer
@@ -102,7 +102,7 @@ CONFIG_SYS_CSn_CTRL	-- defines the Chip Select Control register
 
 CONFIG_SYS_SDRAM_BASE	-- defines the DRAM Base
 
-CONFIG_LCD and CONFIG_CMD_USB are not supported in this current u-boot,
+CONFIG_LCD and CONFIG_CMD_USB are not supported in this current U-Boot,
 update will be provided at later time
 
 2. MEMORY MAP UNDER U-BOOT AND LINUX KERNEL
@@ -113,7 +113,7 @@ update will be provided at later time
 	SRAM:		0x80000000-0x8FFFFFFF (256MB)
 	IP:		0xF0000000-0xFFFFFFFF (256MB)
 
-2.2. For the initial bringup, we adopted a consistent memory scheme between u-boot and
+2.2. For the initial bringup, we adopted a consistent memory scheme between U-Boot and
 	linux kernel, you can customize it based on your system requirements:
 	Flash0:		0x00000000-0x00FFFFFF (16MB)
 

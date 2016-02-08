@@ -21,7 +21,7 @@
 #include <asm/arch/omap.h>
 
 /* ----------------------------------------------------------------------------
- * Supported U-boot commands
+ * Supported U-Boot commands
  * ----------------------------------------------------------------------------
  */
 #define CONFIG_CMD_ASKENV
@@ -37,7 +37,7 @@
 #define CONFIG_CMD_PING
 
 /* ----------------------------------------------------------------------------
- * Supported U-boot features
+ * Supported U-Boot features
  * ----------------------------------------------------------------------------
  */
 #define CONFIG_SYS_LONGHELP

@@ -48,7 +48,7 @@ Changed files:
 - include/asm-m68k/timer.h		Timer structure and definition
 - include/asm-m68k/types.h		Data types definition
 - include/asm-m68k/uart.h		Uart structure and definition
-- include/asm-m68k/u-boot.h		u-boot structure
+- include/asm-m68k/u-boot.h		U-Boot structure
 
 - include/configs/M54455EVB.h	Board specific configuration file
 
@@ -78,7 +78,7 @@ CONFIG_MCFRTC		-- define to use common CF RTC driver
 CONFIG_SYS_MCFRTC_BASE		-- provide base address for RTC in immap.h
 CONFIG_SYS_RTC_OSCILLATOR	-- define RTC clock frequency
 RTC_DEBUG		-- define to show RTC debug message
-CONFIG_CMD_DATE		-- enable to use date feature in u-boot
+CONFIG_CMD_DATE		-- enable to use date feature in U-Boot
 
 CONFIG_MCFFEC		-- define to use common CF FEC driver
 CONFIG_MII		-- enable to use MII driver
@@ -91,7 +91,7 @@ CONFIG_SYS_FEC1_PINMUX		-- Set FEC1 Pin configuration
 CONFIG_SYS_FEC0_MIIBASE	-- Set FEC0 MII base register
 CONFIG_SYS_FEC1_MIIBASE	-- Set FEC0 MII base register
 MCFFEC_TOUT_LOOP	-- set FEC timeout loop
-CONFIG_HAS_ETH1		-- define to enable second FEC in u-boot
+CONFIG_HAS_ETH1		-- define to enable second FEC in U-Boot
 
 CONFIG_ISO_PARTITION	-- enable ISO read/write
 CONFIG_DOS_PARTITION	-- enable DOS read/write
@@ -136,7 +136,7 @@ CONFIG_EXTRA_CLOCK	-- Enable extra clock such as vco, flexbus, pci, etc
 
 CONFIG_SYS_MBAR		-- define MBAR offset
 
-CONFIG_SYS_ATMEL_BOOT		-- To determine the u-boot is booted from Atmel or Intel
+CONFIG_SYS_ATMEL_BOOT		-- To determine the U-Boot is booted from Atmel or Intel
 
 CONFIG_MONITOR_IS_IN_RAM -- Not support
 
@@ -163,7 +163,7 @@ CONFIG_SYS_SDRAM_BASE1	-- defines the DRAM Base 1
 	FlexBus:	0xC0000000-0xDFFFFFFF (512MB)
 	IP:		0xF0000000-0xFFFFFFFF (256MB)
 
-2.2. For the initial bringup, we adopted a consistent memory scheme between u-boot and
+2.2. For the initial bringup, we adopted a consistent memory scheme between U-Boot and
 	linux kernel, you can customize it based on your system requirements:
 	Atmel boot:
 	Flash0:		0x00000000-0x0007FFFF (512KB)

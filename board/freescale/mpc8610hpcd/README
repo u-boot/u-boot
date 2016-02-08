@@ -27,7 +27,7 @@ To Flash U-Boot into the booting bank:
 	cp.b 1000000 fff00000 $filesize
 
 
-To Flash U-boot into the alternate bank
+To Flash U-Boot into the alternate bank
 
 	tftp 1000000 u-boot.bin
 	erase fbf00000 +$filesize

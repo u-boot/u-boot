@@ -1,5 +1,5 @@
 /*
- * U-boot - architecture specific kgdb code
+ * U-Boot - architecture specific kgdb code
  *
  * Copyright 2009 Analog Devices Inc.
  *

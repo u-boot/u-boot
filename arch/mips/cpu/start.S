@@ -57,7 +57,7 @@
 	.set noreorder
 
 ENTRY(_start)
-	/* U-boot entry point */
+	/* U-Boot entry point */
 	b	reset
 	 nop
 

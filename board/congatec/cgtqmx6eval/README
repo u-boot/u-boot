@@ -3,10 +3,10 @@ U-Boot for the Congatec QMX6 boards
 This file contains information for the port of U-Boot to the Congatec
 QMX6 boards.
 
-1. Building U-boot
+1. Building U-Boot
 ------------------
 
-- Build U-boot for Congatec QMX6 boards:
+- Build U-Boot for Congatec QMX6 boards:
 
 $ make mrproper
 $ make cgtqmx6eval_defconfig
@@ -17,7 +17,7 @@ This will generate the following binaries:
 - SPL
 - u-boot.img
 
-2. Flashing U-boot in the SPI NOR
+2. Flashing U-Boot in the SPI NOR
 ---------------------------------
 
 Copy SPL and u-boot.img to the exported TFTP directory of the
@@ -41,7 +41,7 @@ host PC (/tftpboot , for example).
 
 => sf write 0x12000000 0x10000 0x70000
 
-Reboot the board and the new U-boot should come up.
+Reboot the board and the new U-Boot should come up.
 
 3. Booting from the SD card
 ---------------------------
@@ -64,9 +64,9 @@ command:
 
 => bmode esdhc4
 
-And then the U-boot from the big slot will boot.
+And then the U-Boot from the big slot will boot.
 
-Note: If the "bmode" command is not available from your pre-installed U-boot,
+Note: If the "bmode" command is not available from your pre-installed U-Boot,
 these instruction will produce the same effect:
 
 => mw.l 0x20d8040 0x3850

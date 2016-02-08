@@ -97,7 +97,7 @@ int main(int argc, char * const argv[])
 		return -errsv;
 	}
 	printf("The mtd partition contains %d blocks\n", devinfo.eb_cnt);
-	printf("U-boot will occupy %d blocks\n", num_blocks);
+	printf("U-Boot will occupy %d blocks\n", num_blocks);
 	if (num_blocks > devinfo.eb_cnt) {
 		fprintf(stderr, "Insufficient blocks on partition\n");
 		return -EINVAL;

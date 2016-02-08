@@ -12,7 +12,7 @@ Memory map from core's view
 0x05_1000_0000 .. 0x05_FFFF_FFFF	IFC region #2
 0x80_8000_0000 .. 0xFF_FFFF_FFFF	DDR region #2
 
-Other addresses are either reserved, or not used directly by u-boot.
+Other addresses are either reserved, or not used directly by U-Boot.
 This list should be updated when more addresses are used.
 
 Booting Linux flavors which do not support 48-bit VA (< Linux 3.18)

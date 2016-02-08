@@ -1,5 +1,5 @@
 /*
- * U-boot - bootldr.c
+ * U-Boot - bootldr.c
  *
  * Copyright (c) 2005-2008 Analog Devices Inc.
  *

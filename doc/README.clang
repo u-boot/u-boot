@@ -1,4 +1,4 @@
-The biggest problem when trying to compile U-boot with clang is that
+The biggest problem when trying to compile U-Boot with clang is that
 almost all archs rely on storing gd in a global register and clang user
 manual states: "clang does not support global register variables; this
 is unlikely to be implemented soon because it requires additional LLVM
@@ -17,9 +17,9 @@ will also fail to compile, but there is in no strict reason to do so
 in the ARM world, since crt0.S takes care of this. These assignments
 can be avoided by changing the init calls but this is not in mainline yet.
 
-NOTE: without the -mllvm -arm-use-movt=0 flags u-boot will compile
+NOTE: without the -mllvm -arm-use-movt=0 flags U-Boot will compile
 fine, but llvm might hardcode addresses in movw / movt pairs, which
-cannot be relocated and u-boot will fail at runtime.
+cannot be relocated and U-Boot will fail at runtime.
 
 Debian (based)
 --------------
@@ -45,7 +45,7 @@ export CROSS_COMPILE=arm-gnueabi-freebsd-
 gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" rpi_defconfig
 gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" -j8
 
-Given that u-boot will default to gcc, above commands can be
+Given that U-Boot will default to gcc, above commands can be
 simplified with a simple wrapper script, listed below.
 
 /usr/local/bin/arm-gnueabi-freebsd-gcc

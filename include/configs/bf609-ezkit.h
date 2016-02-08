@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF609 EZ-Kit board
+ * U-Boot - Configuration file for BF609 EZ-Kit board
  */
 
 #ifndef __CONFIG_BF609_EZKIT_H__

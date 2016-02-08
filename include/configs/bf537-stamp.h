@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF537 STAMP board
+ * U-Boot - Configuration file for BF537 STAMP board
  */
 
 #ifndef __CONFIG_BF537_STAMP_H__

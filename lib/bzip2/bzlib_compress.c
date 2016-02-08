@@ -67,7 +67,7 @@
 */
 
 #include "bzlib_private.h"
-
+#include <compiler.h>
 
 /*---------------------------------------------------*/
 /*--- Bit stream I/O                              ---*/
@@ -280,7 +280,8 @@ void sendMTFValues ( EState* s )
 {
    Int32 v, t, i, j, gs, ge, totc, bt, bc, iter;
    Int32 nSelectors, alphaSize, minLen, maxLen, selCtr;
-   Int32 nGroups, nBytes;
+   Int32 nGroups;
+   Int32 nBytes __maybe_unused;
 
    /*--
    UChar  len [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
@@ -635,8 +636,6 @@ void sendMTFValues ( EState* s )
 
    if (s->verbosity >= 3)
       VPrintf1( "codes %d\n", s->numZ-nBytes );
-   else /* squash compiler 'used but not set' warning */
-      nBytes = nBytes;
 }
 
 

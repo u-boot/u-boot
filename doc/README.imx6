@@ -37,7 +37,7 @@ As the fuses are arranged in banks of 8 words:
 bank = 4
 word = 2
 
-And the U-boot command would be:
+And the U-Boot command would be:
 
 => fuse read 4 2
 Reading bank 4:
@@ -58,7 +58,7 @@ As the fuses are arranged in banks of 8 words:
 bank = 4
 word = 3
 
-And the U-boot command would be:
+And the U-Boot command would be:
 
 => fuse read 4 3
 Reading bank 4:

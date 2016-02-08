@@ -1,5 +1,5 @@
 /*
- * U-boot - deferred register layout
+ * U-Boot - deferred register layout
  *
  * Copyright 2004-2009 Analog Devices Inc.
  *

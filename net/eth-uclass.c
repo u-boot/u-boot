@@ -14,6 +14,8 @@
 #include <dm/uclass-internal.h>
 #include "eth_internal.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /**
  * struct eth_device_priv - private structure for each Ethernet device
  *
