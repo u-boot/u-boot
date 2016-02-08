@@ -44,11 +44,6 @@
 
 #define CONFIG_IDENT_STRING	" Xilinx ZynqMP ZCU102"
 
-/* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_SYS_SDRAM_SIZE		0x80000000
-
 #define CONFIG_KERNEL_FDT_OFST_SIZE \
 	"kernel_offset=0x180000\0" \
 	"fdt_offset=0x100000\0" \

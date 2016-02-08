@@ -70,6 +70,7 @@
 #define CONFIG_CMD_MEMORY
 #define CONFIG_BOOTDELAY	-1 /* -1 to Disable autoboot */
 
+#undef CONFIG_NR_DRAM_BANKS
 #define CONFIG_NR_DRAM_BANKS	1
 
 #if defined(CONFIG_MINI_QSPI)

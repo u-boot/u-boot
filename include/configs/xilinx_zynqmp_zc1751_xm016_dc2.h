@@ -16,11 +16,6 @@
 
 #define CONFIG_IDENT_STRING	" Xilinx ZynqMP ZC1751 xm016 dc2"
 
-/* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_SYS_SDRAM_SIZE		0x80000000
-
 #define CONFIG_KERNEL_FDT_OFST_SIZE \
 	"kernel_offset=0x400000\0" \
 	"fdt_offset=0x2400000\0" \
