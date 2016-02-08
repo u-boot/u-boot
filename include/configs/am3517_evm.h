@@ -132,6 +132,10 @@
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
+
+#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
@@ -184,19 +188,34 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
+	"fdtfile=am3517-evm.dtb\0" \
+	"fdtaddr=0x82C00000\0" \
+	"vram=16M\0" \
+	"bootenv=uEnv.txt\0" \
+	"cmdline=\0" \
+	"optargs=\0" \
 	"mmcdev=0\0" \
+	"mmcpart=1\0" \
+	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcrootfstype=ext4 rootwait fixrtc\0" \
 	"mmcargs=setenv bootargs console=${console} " \
-		"root=/dev/mmcblk0p2 rw rootwait\0" \
+		"${optargs} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype} " \
+		"${cmdline}\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"root=/dev/mtdblock4 rw " \
 		"rootfstype=jffs2\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"loadbootenv=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${bootenv}\0"\
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t ${loadaddr} ${filesize}\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${bootfile}\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdtaddr} ${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
@@ -204,13 +223,20 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
-			"fi; " \
+		"echo SD/MMC found on device $mmcdev; " \
+		"if run loadbootenv; then " \
+			"run importbootenv; " \
+		"fi; " \
+		"echo Checking if uenvcmd is set ...; " \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...; " \
+			"run uenvcmd; " \
+		"fi; " \
+		"echo Running default loadimage ...; " \
+		"setenv bootfile zImage; " \
+		"if run loadimage; then " \
+			"run loadfdt; " \
+			"run mmcboot; " \
 		"fi; " \
 	"else run nandboot; fi"
 
