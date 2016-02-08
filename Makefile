@@ -728,7 +728,7 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin System.map u-boot.cfg binary_size_check
+ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg binary_size_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -1173,6 +1173,11 @@ ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,smap)
 	$(call cmd,u-boot__) common/system_map.o
 endif
+
+quiet_cmd_sym ?= SYM     $@
+      cmd_sym ?= $(OBJDUMP) -t $< > $@
+u-boot.sym: u-boot FORCE
+	$(call if_changed,sym)
 
 # The actual objects are generated when descending,
 # make sure no implicit rule kicks in
