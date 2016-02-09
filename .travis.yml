@@ -16,6 +16,8 @@ addons:
     - bc
     - build-essential
     - libsdl1.2-dev
+    - python
+    - python-virtualenv
 
 cache:
  - apt
@@ -38,6 +40,9 @@ install:
  - echo -e "\n\n[toolchain-alias]\n${BUILDMAN_ALIAS} i386\n" >> ~/.buildman
  - echo -e "${BUILDMAN_ALIAS_ARM} armv5te\n" >> ~/.buildman
  - cat ~/.buildman
+ - virtualenv /tmp/venv
+ - . /tmp/venv/bin/activate
+ - pip install pytest
 
 env:
   global:
@@ -177,5 +182,8 @@ matrix:
     # some statistics about the code base
     - env:
         - TEST_CMD="sloccount ."
+    # test/py
+    - env:
+        - TEST_CMD="./test/py/test.py --bd sandbox --build"
 
 # TODO make it perfect ;-r
