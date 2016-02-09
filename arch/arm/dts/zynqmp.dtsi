@@ -10,7 +10,7 @@
 / {
 	compatible = "xlnx,zynqmp";
 	#address-cells = <2>;
-	#size-cells = <1>;
+	#size-cells = <2>;
 
 	cpus {
 		#address-cells = <1>;
@@ -75,16 +75,16 @@
 	amba_apu: amba_apu {
 		compatible = "simple-bus";
 		#address-cells = <2>;
-		#size-cells = <1>;
+		#size-cells = <2>;
 		ranges;
 
 		gic: interrupt-controller@f9010000 {
 			compatible = "arm,gic-400", "arm,cortex-a15-gic";
 			#interrupt-cells = <3>;
-			reg = <0x0 0xf9010000 0x10000>,
-			      <0x0 0xf902f000 0x2000>,
-			      <0x0 0xf9040000 0x20000>,
-			      <0x0 0xf906f000 0x2000>;
+			reg = <0x0 0xf9010000 0x0 0x10000>,
+			      <0x0 0xf902f000 0x0 0x2000>,
+			      <0x0 0xf9040000 0x0 0x20000>,
+			      <0x0 0xf906f000 0x0 0x2000>;
 			interrupt-controller;
 			interrupt-parent = <&gic>;
 			interrupts = <1 9 0xf04>;
@@ -94,14 +94,14 @@
 	amba: amba {
 		compatible = "simple-bus";
 		#address-cells = <2>;
-		#size-cells = <1>;
+		#size-cells = <2>;
 		ranges;
 
 		can0: can@ff060000 {
 			compatible = "xlnx,zynq-can-1.0";
 			status = "disabled";
 			clock-names = "can_clk", "pclk";
-			reg = <0x0 0xff060000 0x1000>;
+			reg = <0x0 0xff060000 0x0 0x1000>;
 			interrupts = <0 23 4>;
 			interrupt-parent = <&gic>;
 			tx-fifo-depth = <0x40>;
@@ -112,7 +112,7 @@
 			compatible = "xlnx,zynq-can-1.0";
 			status = "disabled";
 			clock-names = "can_clk", "pclk";
-			reg = <0x0 0xff070000 0x1000>;
+			reg = <0x0 0xff070000 0x0 0x1000>;
 			interrupts = <0 24 4>;
 			interrupt-parent = <&gic>;
 			tx-fifo-depth = <0x40>;
@@ -123,7 +123,7 @@
 		fpd_dma_chan1: dma@fd500000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd500000 0x1000>;
+			reg = <0x0 0xfd500000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 124 4>;
 			xlnx,id = <0>;
@@ -133,7 +133,7 @@
 		fpd_dma_chan2: dma@fd510000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd510000 0x1000>;
+			reg = <0x0 0xfd510000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 125 4>;
 			xlnx,id = <1>;
@@ -143,7 +143,7 @@
 		fpd_dma_chan3: dma@fd520000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd520000 0x1000>;
+			reg = <0x0 0xfd520000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 126 4>;
 			xlnx,id = <2>;
@@ -153,7 +153,7 @@
 		fpd_dma_chan4: dma@fd530000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd530000 0x1000>;
+			reg = <0x0 0xfd530000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 127 4>;
 			xlnx,id = <3>;
@@ -163,7 +163,7 @@
 		fpd_dma_chan5: dma@fd540000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd540000 0x1000>;
+			reg = <0x0 0xfd540000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 128 4>;
 			xlnx,id = <4>;
@@ -173,7 +173,7 @@
 		fpd_dma_chan6: dma@fd550000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd550000 0x1000>;
+			reg = <0x0 0xfd550000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 129 4>;
 			xlnx,id = <5>;
@@ -183,7 +183,7 @@
 		fpd_dma_chan7: dma@fd560000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd560000 0x1000>;
+			reg = <0x0 0xfd560000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 130 4>;
 			xlnx,id = <6>;
@@ -193,7 +193,7 @@
 		fpd_dma_chan8: dma@fd570000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xfd570000 0x1000>;
+			reg = <0x0 0xfd570000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 131 4>;
 			xlnx,id = <7>;
@@ -203,7 +203,7 @@
 		gpu: gpu@fd4b0000 {
 			status = "disabled";
 			compatible = "arm,mali-400", "arm,mali-utgard";
-			reg = <0x0 0xfd4b0000 0x30000>;
+			reg = <0x0 0xfd4b0000 0x0 0x30000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>;
 			interrupt-names = "IRQGP", "IRQGPMMU", "IRQPP0", "IRQPPMMU0", "IRQPP1", "IRQPPMMU1";
@@ -213,7 +213,7 @@
 		lpd_dma_chan1: dma@ffa80000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffa80000 0x1000>;
+			reg = <0x0 0xffa80000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 77 4>;
 			xlnx,id = <0>;
@@ -223,7 +223,7 @@
 		lpd_dma_chan2: dma@ffa90000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffa90000 0x1000>;
+			reg = <0x0 0xffa90000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 78 4>;
 			xlnx,id = <1>;
@@ -233,7 +233,7 @@
 		lpd_dma_chan3: dma@ffaa0000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffaa0000 0x1000>;
+			reg = <0x0 0xffaa0000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 79 4>;
 			xlnx,id = <2>;
@@ -243,7 +243,7 @@
 		lpd_dma_chan4: dma@ffab0000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffab0000 0x1000>;
+			reg = <0x0 0xffab0000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 80 4>;
 			xlnx,id = <3>;
@@ -253,7 +253,7 @@
 		lpd_dma_chan5: dma@ffac0000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffac0000 0x1000>;
+			reg = <0x0 0xffac0000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 81 4>;
 			xlnx,id = <4>;
@@ -263,7 +263,7 @@
 		lpd_dma_chan6: dma@ffad0000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffad0000 0x1000>;
+			reg = <0x0 0xffad0000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 82 4>;
 			xlnx,id = <5>;
@@ -273,7 +273,7 @@
 		lpd_dma_chan7: dma@ffae0000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffae0000 0x1000>;
+			reg = <0x0 0xffae0000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 83 4>;
 			xlnx,id = <6>;
@@ -283,7 +283,7 @@
 		lpd_dma_chan8: dma@ffaf0000 {
 			status = "disabled";
 			compatible = "xlnx,zynqmp-dma-1.0";
-			reg = <0x0 0xffaf0000 0x1000>;
+			reg = <0x0 0xffaf0000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 84 4>;
 			xlnx,id = <7>;
@@ -293,7 +293,7 @@
 		nand0: nand@ff100000 {
 			compatible = "arasan,nfc-v3p10";
 			status = "disabled";
-			reg = <0x0 0xff100000 0x1000>;
+			reg = <0x0 0xff100000 0x0 0x1000>;
 			clock-names = "clk_sys", "clk_flash";
 			interrupt-parent = <&gic>;
 			interrupts = <0 14 4>;
@@ -306,7 +306,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 57 4>, <0 57 4>;
-			reg = <0x0 0xff0b0000 0x1000>;
+			reg = <0x0 0xff0b0000 0x0 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -319,7 +319,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 59 4>, <0 59 4>;
-			reg = <0x0 0xff0c0000 0x1000>;
+			reg = <0x0 0xff0c0000 0x0 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -332,7 +332,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 61 4>, <0 61 4>;
-			reg = <0x0 0xff0d0000 0x1000>;
+			reg = <0x0 0xff0d0000 0x0 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -345,7 +345,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 63 4>, <0 63 4>;
-			reg = <0x0 0xff0e0000 0x1000>;
+			reg = <0x0 0xff0e0000 0x0 0x1000>;
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -359,7 +359,7 @@
 			#gpio-cells = <0x2>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 16 4>;
-			reg = <0x0 0xff0a0000 0x1000>;
+			reg = <0x0 0xff0a0000 0x0 0x1000>;
 		};
 
 		i2c0: i2c@ff020000 {
@@ -367,7 +367,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 17 4>;
-			reg = <0x0 0xff020000 0x1000>;
+			reg = <0x0 0xff020000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -377,7 +377,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 18 4>;
-			reg = <0x0 0xff030000 0x1000>;
+			reg = <0x0 0xff030000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -395,9 +395,9 @@
 				     < 0 115 4>,	/* MSI_1 [63...32] */
 				     < 0 114 4 >;	/* MSI_0 [31...0] */
 			interrupt-names = "misc", "intx", "msi_1", "msi_0";
-			reg = <0x0 0xfd0e0000 0x1000>,
-			      <0x0 0xfd480000 0x1000>,
-			      <0x0 0xe0000000 0x1000000>;
+			reg = <0x0 0xfd0e0000 0x0 0x1000>,
+			      <0x0 0xfd480000 0x0 0x1000>,
+			      <0x0 0xe0000000 0x0 0x1000000>;
 			reg-names = "breg", "pcireg", "cfg";
 			ranges = <0x02000000 0x00000000 0xe1000000 0x00000000 0xe1000000 0 0x0f000000>;
 		};
@@ -409,7 +409,8 @@
 			interrupts = <0 15 4>;
 			interrupt-parent = <&gic>;
 			num-cs = <1>;
-			reg = <0x0 0xff0f0000 0x1000>, <0x0 0xc0000000 0x8000000>;
+			reg = <0x0 0xff0f0000 0x0 0x1000>,
+			      <0x0 0xc0000000 0x0 0x8000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -417,7 +418,7 @@
 		rtc: rtc@ffa60000 {
 			compatible = "xlnx,zynqmp-rtc";
 			status = "disabled";
-			reg = <0x0 0xffa60000 0x100>;
+			reg = <0x0 0xffa60000 0x0 0x100>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 26 4>, <0 27 4>;
 			interrupt-names = "alarm", "sec";
@@ -426,7 +427,7 @@
 		sata: ahci@fd0c0000 {
 			compatible = "ceva,ahci-1v84";
 			status = "disabled";
-			reg = <0x0 0xfd0c0000 0x2000>;
+			reg = <0x0 0xfd0c0000 0x0 0x2000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 133 4>;
 		};
@@ -436,7 +437,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 48 4>;
-			reg = <0x0 0xff160000 0x1000>;
+			reg = <0x0 0xff160000 0x0 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 		};
 
@@ -445,13 +446,13 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 49 4>;
-			reg = <0x0 0xff170000 0x1000>;
+			reg = <0x0 0xff170000 0x0 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 		};
 
 		smmu: smmu@fd800000 {
 			compatible = "arm,mmu-500";
-			reg = <0x0 0xfd800000 0x20000>;
+			reg = <0x0 0xfd800000 0x0 0x20000>;
 			#global-interrupts = <1>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 157 4>,
@@ -466,7 +467,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 19 4>;
-			reg = <0x0 0xff040000 0x1000>;
+			reg = <0x0 0xff040000 0x0 0x1000>;
 			clock-names = "ref_clk", "pclk";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -477,7 +478,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 20 4>;
-			reg = <0x0 0xff050000 0x1000>;
+			reg = <0x0 0xff050000 0x0 0x1000>;
 			clock-names = "ref_clk", "pclk";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -488,7 +489,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 36 4>, <0 37 4>, <0 38 4>;
-			reg = <0x0 0xff110000 0x1000>;
+			reg = <0x0 0xff110000 0x0 0x1000>;
 			timer-width = <32>;
 		};
 
@@ -497,7 +498,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 39 4>, <0 40 4>, <0 41 4>;
-			reg = <0x0 0xff120000 0x1000>;
+			reg = <0x0 0xff120000 0x0 0x1000>;
 			timer-width = <32>;
 		};
 
@@ -506,7 +507,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 42 4>, <0 43 4>, <0 44 4>;
-			reg = <0x0 0xff130000 0x1000>;
+			reg = <0x0 0xff130000 0x0 0x1000>;
 			timer-width = <32>;
 		};
 
@@ -515,7 +516,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 45 4>, <0 46 4>, <0 47 4>;
-			reg = <0x0 0xff140000 0x1000>;
+			reg = <0x0 0xff140000 0x0 0x1000>;
 			timer-width = <32>;
 		};
 
@@ -524,7 +525,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 21 4>;
-			reg = <0x0 0xff000000 0x1000>;
+			reg = <0x0 0xff000000 0x0 0x1000>;
 			clock-names = "uart_clk", "pclk";
 		};
 
@@ -533,7 +534,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 22 4>;
-			reg = <0x0 0xff010000 0x1000>;
+			reg = <0x0 0xff010000 0x0 0x1000>;
 			clock-names = "uart_clk", "pclk";
 		};
 
@@ -542,7 +543,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 65 4>;
-			reg = <0x0 0xfe200000 0x40000>;
+			reg = <0x0 0xfe200000 0x0 0x40000>;
 			clock-names = "clk_xin", "clk_ahb";
 		};
 
@@ -551,7 +552,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 70 4>;
-			reg = <0x0 0xfe300000 0x40000>;
+			reg = <0x0 0xfe300000 0x0 0x40000>;
 			clock-names = "clk_xin", "clk_ahb";
 		};
 
@@ -560,7 +561,7 @@
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 113 1>;
-			reg = <0x0 0xfd4d0000 0x1000>;
+			reg = <0x0 0xfd4d0000 0x0 0x1000>;
 			timeout-sec = <10>;
 		};
 
@@ -586,7 +587,8 @@
 		xlnx_dp: dp@43c00000 {
 			compatible = "xlnx,v-dp";
 			status = "disabled";
-			reg = <0x0 0xfd4a0000 0x1000>, <0x0 0xfd400000 0x20000>;
+			reg = <0x0 0xfd4a0000 0x0 0x1000>,
+			      <0x0 0xfd400000 0x0 0x20000>;
 			interrupts = <0 119 4>;
 			interrupt-parent = <&gic>;
 			clock-names = "aclk", "aud_clk";
@@ -631,7 +633,9 @@
 		xlnx_dp_sub: dp_sub@43c0a000 {
 			compatible = "xlnx,dp-sub";
 			status = "disabled";
-			reg = <0x0 0xfd4aa000 0x1000>, <0x0 0xfd4ab000 0x1000>, <0x0 0xfd4ac000 0x1000>;
+			reg = <0x0 0xfd4aa000 0x0 0x1000>,
+			      <0x0 0xfd4ab000 0x0 0x1000>,
+			      <0x0 0xfd4ac000 0x0 0x1000>;
 			reg-names = "blend", "av_buf", "aud";
 			xlnx,output-fmt = "rgb";
 		};
@@ -639,7 +643,7 @@
 		xlnx_dpdma: dma@fd4c0000 {
 			compatible = "xlnx,dpdma";
 			status = "disabled";
-			reg = <0x0 0xfd4c0000 0x1000>;
+			reg = <0x0 0xfd4c0000 0x0 0x1000>;
 			interrupts = <0 122 4>;
 			interrupt-parent = <&gic>;
 			clock-names = "axi_clk";
