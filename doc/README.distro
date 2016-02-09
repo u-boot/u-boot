@@ -243,7 +243,7 @@ kernel_addr_r:
 
   A size of 16MB for the kernel is likely adequate.
 
-pxe_addr_r:
+pxefile_addr_r:
 
   Mandatory. The location in RAM where extlinux.conf will be loaded to prior
   to processing.
