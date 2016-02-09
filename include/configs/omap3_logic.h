@@ -30,6 +30,12 @@
 
 #include <configs/ti_omap3_common.h>
 
+/* Override default SPL info to minimize empty space and allow BCH8 in SPL */
+#undef CONFIG_SPL_TEXT_BASE
+#undef CONFIG_SPL_MAX_SIZE
+#define CONFIG_SPL_TEXT_BASE   0x40200000
+#define CONFIG_SPL_MAX_SIZE    (64 * 1024)
+
 /* Display CPU and Board information */
 
 #define CONFIG_DISPLAY_CPUINFO
