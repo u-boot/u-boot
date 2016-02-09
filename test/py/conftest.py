@@ -17,7 +17,6 @@ import atexit
 import errno
 import os
 import os.path
-import pexpect
 import pytest
 from _pytest.runner import runtestprotocol
 import ConfigParser
