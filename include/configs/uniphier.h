@@ -228,7 +228,6 @@
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
 	"nor_base=0x42000000\0"					\
-	"bootm_low=0x80000000\0"				\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
