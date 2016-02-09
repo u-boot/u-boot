@@ -229,8 +229,18 @@ struct sunxi_ccm_reg {
 /* ahb_gate0 offsets */
 #define AHB_GATE_OFFSET_USB_OHCI1	30
 #define AHB_GATE_OFFSET_USB_OHCI0	29
+#ifdef CONFIG_MACH_SUN8I_H3
+/*
+ * These are EHCI1 - EHCI3 in the datasheet (EHCI0 is for the OTG) we call
+ * them 0 - 2 like they were called on older SoCs.
+ */
+#define AHB_GATE_OFFSET_USB_EHCI2	27
+#define AHB_GATE_OFFSET_USB_EHCI1	26
+#define AHB_GATE_OFFSET_USB_EHCI0	25
+#else
 #define AHB_GATE_OFFSET_USB_EHCI1	27
 #define AHB_GATE_OFFSET_USB_EHCI0	26
+#endif
 #define AHB_GATE_OFFSET_USB0		24
 #define AHB_GATE_OFFSET_MCTL		14
 #define AHB_GATE_OFFSET_GMAC		17
@@ -263,13 +273,25 @@ struct sunxi_ccm_reg {
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
 #define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
+#define CCM_USB_CTRL_PHY3_RST (0x1 << 3)
 /* There is no global phy clk gate on sun6i, define as 0 */
 #define CCM_USB_CTRL_PHYGATE 0
 #define CCM_USB_CTRL_PHY0_CLK (0x1 << 8)
 #define CCM_USB_CTRL_PHY1_CLK (0x1 << 9)
 #define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
+#define CCM_USB_CTRL_PHY3_CLK (0x1 << 11)
+#ifdef CONFIG_MACH_SUN8I_H3
+/*
+ * These are OHCI1 - OHCI3 in the datasheet (OHCI0 is for the OTG) we call
+ * them 0 - 2 like they were called on older SoCs.
+ */
+#define CCM_USB_CTRL_OHCI0_CLK (0x1 << 17)
+#define CCM_USB_CTRL_OHCI1_CLK (0x1 << 18)
+#define CCM_USB_CTRL_OHCI2_CLK (0x1 << 19)
+#else
 #define CCM_USB_CTRL_OHCI0_CLK (0x1 << 16)
 #define CCM_USB_CTRL_OHCI1_CLK (0x1 << 17)
+#endif
 
 #define CCM_GMAC_CTRL_TX_CLK_SRC_MII	0x0
 #define CCM_GMAC_CTRL_TX_CLK_SRC_EXT_RGMII 0x1
