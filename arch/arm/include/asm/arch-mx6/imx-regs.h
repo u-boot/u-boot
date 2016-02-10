@@ -162,6 +162,7 @@
 #endif
 #define UART1_BASE                  (ATZ1_BASE_ADDR + 0x20000)
 #define ESAI1_BASE_ADDR             (ATZ1_BASE_ADDR + 0x24000)
+#define UART8_BASE                  (ATZ1_BASE_ADDR + 0x24000)
 #define SSI1_BASE_ADDR              (ATZ1_BASE_ADDR + 0x28000)
 #define SSI2_BASE_ADDR              (ATZ1_BASE_ADDR + 0x2C000)
 #define SSI3_BASE_ADDR              (ATZ1_BASE_ADDR + 0x30000)
