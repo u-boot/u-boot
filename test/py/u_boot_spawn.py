@@ -56,8 +56,12 @@ class Spawn(object):
             finally:
                 os._exit(255)
 
-        self.poll = select.poll()
-        self.poll.register(self.fd, select.POLLIN | select.POLLPRI | select.POLLERR | select.POLLHUP | select.POLLNVAL)
+        try:
+            self.poll = select.poll()
+            self.poll.register(self.fd, select.POLLIN | select.POLLPRI | select.POLLERR | select.POLLHUP | select.POLLNVAL)
+        except:
+            self.close()
+            raise
 
     def kill(self, sig):
         """Send unix signal "sig" to the child process.

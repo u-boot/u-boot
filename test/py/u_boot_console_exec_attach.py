@@ -58,10 +58,14 @@ class ConsoleExecAttach(ConsoleBase):
         args = [self.config.board_type, self.config.board_identity]
         s = Spawn(['u-boot-test-console'] + args)
 
-        self.log.action('Resetting board')
-        cmd = ['u-boot-test-reset'] + args
-        runner = self.log.get_runner(cmd[0], sys.stdout)
-        runner.run(cmd)
-        runner.close()
+        try:
+            self.log.action('Resetting board')
+            cmd = ['u-boot-test-reset'] + args
+            runner = self.log.get_runner(cmd[0], sys.stdout)
+            runner.run(cmd)
+            runner.close()
+        except:
+            s.close()
+            raise
 
         return s
