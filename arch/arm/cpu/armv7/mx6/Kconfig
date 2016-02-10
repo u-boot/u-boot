@@ -165,6 +165,13 @@ config TARGET_WANDBOARD
 config TARGET_WARP
 	bool "WaRP"
 
+config TARGET_XPRESS
+	bool "CCV xPress"
+	select MX6UL
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 endchoice
 
 config SYS_SOC
@@ -176,6 +183,7 @@ source "board/bachmann/ot1200/Kconfig"
 source "board/barco/platinum/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
+source "board/ccv/xpress/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/embest/mx6boards/Kconfig"
