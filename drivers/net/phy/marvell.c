@@ -251,8 +251,7 @@ static int m88e1111s_config(struct phy_device *phydev)
 	phy_reset(phydev);
 
 	genphy_config_aneg(phydev);
-
-	phy_reset(phydev);
+	genphy_restart_aneg(phydev);
 
 	return 0;
 }
