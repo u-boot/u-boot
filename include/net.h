@@ -337,6 +337,8 @@ struct vlan_ethernet_hdr {
 #define PROT_ARP	0x0806		/* IP ARP protocol		*/
 #define PROT_RARP	0x8035		/* IP ARP protocol		*/
 #define PROT_VLAN	0x8100		/* IEEE 802.1q protocol		*/
+#define PROT_IPV6	0x86dd		/* IPv6 over bluebook		*/
+#define PROT_PPP_SES	0x8864		/* PPPoE session messages	*/
 
 #define IPPROTO_ICMP	 1	/* Internet Control Message Protocol	*/
 #define IPPROTO_UDP	17	/* User Datagram Protocol		*/
