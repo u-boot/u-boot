@@ -312,12 +312,12 @@ def u_boot_console(request):
     return console
 
 anchors = {}
-tests_not_run = set()
-tests_failed = set()
-tests_xpassed = set()
-tests_xfailed = set()
-tests_skipped = set()
-tests_passed = set()
+tests_not_run = []
+tests_failed = []
+tests_xpassed = []
+tests_xfailed = []
+tests_skipped = []
+tests_passed = []
 
 def pytest_itemcollected(item):
     """pytest hook: Called once for each test found during collection.
@@ -332,7 +332,7 @@ def pytest_itemcollected(item):
         Nothing.
     """
 
-    tests_not_run.add(item.name)
+    tests_not_run.append(item.name)
 
 def cleanup():
     """Clean up all global state.
@@ -493,7 +493,7 @@ def pytest_runtest_protocol(item, nextitem):
     if failure_cleanup:
         console.drain_console()
 
-    test_list.add(item.name)
+    test_list.append(item.name)
     tests_not_run.remove(item.name)
 
     try:
