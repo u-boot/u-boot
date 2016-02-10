@@ -180,6 +180,8 @@
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"nandroot=ubi0:rootfs rw ubi.mtd=fs noinitrd\0" \
+	"nandrootfstype=ubifs rootwait\0" \
 	"autoboot=mmc dev ${mmcdev}; if mmc rescan; then " \
 			"if run loadbootscript; then " \
 				"run bootscript; " \
@@ -221,6 +223,10 @@
 		"${optargs} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
+	"nandargs=run setconsole; setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
 	"fdtaddr=0x86000000\0" \
 	"loadfdtimage=mmc rescan; " \
 		"fatload mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
