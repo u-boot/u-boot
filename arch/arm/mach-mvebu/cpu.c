@@ -536,8 +536,15 @@ void enable_caches(void)
 	/* Avoid problem with e.g. neta ethernet driver */
 	invalidate_dcache_all();
 
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
+	/*
+	 * Armada 375 still has some problems with d-cache enabled in the
+	 * ethernet driver (mvpp2). So lets keep the d-cache disabled
+	 * until this is solved.
+	 */
+	if (mvebu_soc_family() != MVEBU_SOC_A375) {
+		/* Enable D-cache. I-cache is already enabled in start.S */
+		dcache_enable();
+	}
 }
 
 void v7_outer_cache_enable(void)
