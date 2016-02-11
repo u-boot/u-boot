@@ -293,8 +293,8 @@ class ConsoleBase(object):
         if self.p:
             return
         try:
+            self.log.start_section('Starting U-Boot')
             self.at_prompt = False
-            self.log.action('Starting U-Boot')
             self.p = self.get_spawn()
             # Real targets can take a long time to scroll large amounts of
             # text if LCD is enabled. This value may need tweaking in the
@@ -329,6 +329,8 @@ class ConsoleBase(object):
             self.log.error(str(ex))
             self.cleanup_spawn()
             raise
+        finally:
+            self.log.end_section('Starting U-Boot')
 
     def cleanup_spawn(self):
         """Shut down all interaction with the U-Boot instance.
