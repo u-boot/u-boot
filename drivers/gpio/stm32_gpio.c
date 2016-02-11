@@ -70,8 +70,6 @@ int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
 
-	setbits_le32(&STM32_RCC->ahb1enr, 1 << dsc->port);
-
 	i = (dsc->pin & 0x07) * 4;
 	clrsetbits_le32(&gpio_regs->afr[dsc->pin >> 3], 0xF << i, ctl->af << i);
 
@@ -140,9 +138,6 @@ int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 	p = dsc->pin;
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
-
-	/* Enable clock for GPIO port */
-	setbits_le32(&STM32_RCC->apb2enr, 0x04 << dsc->port);
 
 	if (p < 8) {
 		cr = &gpio_regs->crl;
