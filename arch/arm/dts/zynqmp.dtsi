@@ -302,7 +302,7 @@
 		};
 
 		gem0: ethernet@ff0b0000 {
-			compatible = "cdns,gem";
+			compatible = "cdns,zynqmp-gem";
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 57 4>, <0 57 4>;
@@ -311,12 +311,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
-			jumbo-max-len = <10240>;
-			jumbo-supported;
 		};
 
 		gem1: ethernet@ff0c0000 {
-			compatible = "cdns,gem";
+			compatible = "cdns,zynqmp-gem";
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 59 4>, <0 59 4>;
@@ -325,12 +323,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
-			jumbo-max-len = <10240>;
-			jumbo-supported;
 		};
 
 		gem2: ethernet@ff0d0000 {
-			compatible = "cdns,gem";
+			compatible = "cdns,zynqmp-gem";
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 61 4>, <0 61 4>;
@@ -339,12 +335,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
-			jumbo-max-len = <10240>;
-			jumbo-supported;
 		};
 
 		gem3: ethernet@ff0e0000 {
-			compatible = "cdns,gem";
+			compatible = "cdns,zynqmp-gem";
 			status = "disabled";
 			interrupt-parent = <&gic>;
 			interrupts = <0 63 4>, <0 63 4>;
@@ -353,8 +347,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
-			jumbo-max-len = <10240>;
-			jumbo-supported;
 		};
 
 		gpio: gpio@ff0a0000 {
