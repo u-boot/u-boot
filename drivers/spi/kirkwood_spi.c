@@ -283,6 +283,19 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return _spi_xfer(plat->spireg, bitlen, dout, din, flags);
 }
 
+static int mvebu_spi_claim_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev->parent;
+	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+
+	/* Configure the chip-select in the CTRL register */
+	clrsetbits_le32(&plat->spireg->ctrl,
+			KWSPI_CS_MASK << KWSPI_CS_SHIFT,
+			spi_chip_select(dev) << KWSPI_CS_SHIFT);
+
+	return 0;
+}
+
 static int mvebu_spi_probe(struct udevice *bus)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
@@ -305,6 +318,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 }
 
 static const struct dm_spi_ops mvebu_spi_ops = {
+	.claim_bus	= mvebu_spi_claim_bus,
 	.xfer		= mvebu_spi_xfer,
 	.set_speed	= mvebu_spi_set_speed,
 	.set_mode	= mvebu_spi_set_mode,
