@@ -19,7 +19,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_STM32F4)
+#if defined(CONFIG_STM32F4) || defined(CONFIG_STM32F7)
 static const unsigned long io_base[] = {
 	STM32_GPIOA_BASE, STM32_GPIOB_BASE, STM32_GPIOC_BASE,
 	STM32_GPIOD_BASE, STM32_GPIOE_BASE, STM32_GPIOF_BASE,
@@ -207,7 +207,7 @@ int gpio_direction_input(unsigned gpio)
 
 	dsc.port = stm32_gpio_to_port(gpio);
 	dsc.pin = stm32_gpio_to_pin(gpio);
-#if defined(CONFIG_STM32F4)
+#if defined(CONFIG_STM32F4) || defined(CONFIG_STM32F7)
 	ctl.af = STM32_GPIO_AF0;
 	ctl.mode = STM32_GPIO_MODE_IN;
 	ctl.otype = STM32_GPIO_OTYPE_PP;
@@ -233,7 +233,7 @@ int gpio_direction_output(unsigned gpio, int value)
 
 	dsc.port = stm32_gpio_to_port(gpio);
 	dsc.pin = stm32_gpio_to_pin(gpio);
-#if defined(CONFIG_STM32F4)
+#if defined(CONFIG_STM32F4) || defined(CONFIG_STM32F7)
 	ctl.af = STM32_GPIO_AF0;
 	ctl.mode = STM32_GPIO_MODE_OUT;
 	ctl.pupd = STM32_GPIO_PUPD_NO;
