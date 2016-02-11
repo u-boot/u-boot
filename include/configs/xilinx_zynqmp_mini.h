@@ -23,7 +23,6 @@
 #include <configs/xilinx_zynqmp.h>
 
 /* Undef unneeded configs */
-#undef CONFIG_OF_LIBFDT
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #undef CONFIG_BOARD_LATE_INIT
 #undef CONFIG_CMD_BOOTZ
