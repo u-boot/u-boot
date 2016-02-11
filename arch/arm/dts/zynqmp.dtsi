@@ -770,24 +770,42 @@
 			power-domains = <&pd_uart1>;
 		};
 
-		usb0: usb@fe200000 {
-			compatible = "snps,dwc3";
+		usb0: usb@0 {
+			#address-cells = <2>;
+			#size-cells = <2>;
 			status = "disabled";
-			interrupt-parent = <&gic>;
-			interrupts = <0 65 4>;
-			reg = <0x0 0xfe200000 0x0 0x40000>;
-			clock-names = "clk_xin", "clk_ahb";
+			compatible = "xlnx,zynqmp-dwc3";
+			clock-names = "bus_clk", "ref_clk";
+			clocks = <&clk125>, <&clk125>;
 			power-domains = <&pd_usb0>;
+			ranges;
+
+			dwc3_0: dwc3@fe200000 {
+				compatible = "snps,dwc3";
+				status = "disabled";
+				reg = <0x0 0xfe200000 0x0 0x40000>;
+				interrupt-parent = <&gic>;
+				interrupts = <0 65 4>;
+			};
 		};
 
-		usb1: usb@fe300000 {
-			compatible = "snps,dwc3";
+		usb1: usb@1 {
+			#address-cells = <2>;
+			#size-cells = <2>;
 			status = "disabled";
-			interrupt-parent = <&gic>;
-			interrupts = <0 70 4>;
-			reg = <0x0 0xfe300000 0x0 0x40000>;
-			clock-names = "clk_xin", "clk_ahb";
+			compatible = "xlnx,zynqmp-dwc3";
+			clock-names = "bus_clk", "ref_clk";
+			clocks = <&clk125>, <&clk125>;
 			power-domains = <&pd_usb1>;
+			ranges;
+
+			dwc3_1: dwc3@fe300000 {
+				compatible = "snps,dwc3";
+				status = "disabled";
+				reg = <0x0 0xfe300000 0x0 0x40000>;
+				interrupt-parent = <&gic>;
+				interrupts = <0 70 4>;
+			};
 		};
 
 		watchdog0: watchdog@fd4d0000 {
