@@ -32,10 +32,8 @@ void display_sysid(void)
 	int ret;
 
 	/* the first misc device will be used */
-	ret = uclass_first_device(UCLASS_MISC, &dev);
+	ret = uclass_first_device_err(UCLASS_MISC, &dev);
 	if (ret)
-		return;
-	if (!dev)
 		return;
 	ret = misc_read(dev, 0, &sysid, sizeof(sysid));
 	if (ret)

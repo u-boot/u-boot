@@ -756,7 +756,7 @@ static int veyron_init(struct dram_info *priv)
 	struct udevice *pmic;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_PMIC, &pmic);
+	ret = uclass_first_device_err(UCLASS_PMIC, &pmic);
 	if (ret)
 		return ret;
 

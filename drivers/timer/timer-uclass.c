@@ -82,11 +82,9 @@ int notrace dm_timer_init(void)
 	node = fdtdec_get_chosen_node(blob, "tick-timer");
 	if (node < 0) {
 		/* No chosen timer, trying first available timer */
-		ret = uclass_first_device(UCLASS_TIMER, &dev);
+		ret = uclass_first_device_err(UCLASS_TIMER, &dev);
 		if (ret)
 			return ret;
-		if (!dev)
-			return -ENODEV;
 	} else {
 		if (uclass_get_device_by_of_offset(UCLASS_TIMER, node, &dev)) {
 			/*

@@ -325,7 +325,7 @@ int regulators_enable_boot_on(bool verbose)
 	if (ret)
 		return ret;
 	for (uclass_first_device(UCLASS_REGULATOR, &dev);
-	     dev && !ret;
+	     dev;
 	     uclass_next_device(&dev)) {
 		ret = regulator_autoset(dev);
 		if (ret == -EMEDIUMTYPE) {

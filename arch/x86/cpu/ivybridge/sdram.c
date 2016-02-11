@@ -736,11 +736,9 @@ int dram_init(void)
 	struct udevice *dev, *me_dev;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
+	ret = uclass_first_device_err(UCLASS_NORTHBRIDGE, &dev);
 	if (ret)
 		return ret;
-	if (!dev)
-		return -ENODEV;
 	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
 	if (ret)
 		return ret;

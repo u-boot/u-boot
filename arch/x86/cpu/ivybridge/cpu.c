@@ -104,9 +104,9 @@ int arch_cpu_init_dm(void)
 	/* TODO(sjg@chromium.org): Get rid of gd->hose */
 	gd->hose = hose;
 
-	ret = uclass_first_device(UCLASS_LPC, &dev);
-	if (!dev)
-		return -ENODEV;
+	ret = uclass_first_device_err(UCLASS_LPC, &dev);
+	if (ret)
+		return ret;
 
 	/*
 	 * We should do as little as possible before the serial console is
@@ -210,11 +210,9 @@ int print_cpuinfo(void)
 	/* Early chipset init required before RAM init can work */
 	uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
 
-	ret = uclass_first_device(UCLASS_LPC, &lpc);
+	ret = uclass_first_device_err(UCLASS_LPC, &lpc);
 	if (ret)
 		return ret;
-	if (!dev)
-		return -ENODEV;
 
 	/* Cause the SATA device to do its early init */
 	uclass_first_device(UCLASS_DISK, &dev);
@@ -236,11 +234,9 @@ int print_cpuinfo(void)
 	post_code(POST_EARLY_INIT);
 
 	/* Enable SPD ROMs and DDR-III DRAM */
-	ret = uclass_first_device(UCLASS_I2C, &dev);
+	ret = uclass_first_device_err(UCLASS_I2C, &dev);
 	if (ret)
 		return ret;
-	if (!dev)
-		return -ENODEV;
 
 	/* Prepare USB controller early in S3 resume */
 	if (boot_mode == PEI_BOOT_RESUME)

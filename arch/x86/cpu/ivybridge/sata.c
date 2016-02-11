@@ -229,11 +229,9 @@ static int bd82x6x_sata_probe(struct udevice *dev)
 	struct udevice *pch;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_PCH, &pch);
+	ret = uclass_first_device_err(UCLASS_PCH, &pch);
 	if (ret)
 		return ret;
-	if (!pch)
-		return -ENODEV;
 
 	if (!(gd->flags & GD_FLG_RELOC))
 		bd82x6x_sata_enable(dev);

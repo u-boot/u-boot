@@ -249,7 +249,7 @@ int interrupt_init(void)
 	int ret;
 
 	/* Try to set up the interrupt router, but don't require one */
-	ret = uclass_first_device(UCLASS_IRQ, &dev);
+	ret = uclass_first_device_err(UCLASS_IRQ, &dev);
 	if (ret && ret != -ENODEV)
 		return ret;
 

@@ -812,9 +812,9 @@ int gma_func0_init(struct udevice *dev)
 	writew(0x0010, RCB_REG(DISPBDF));
 	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
 
-	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &nbridge);
-	if (!nbridge)
-		return -ENODEV;
+	ret = uclass_first_device_err(UCLASS_NORTHBRIDGE, &nbridge);
+	if (ret)
+		return ret;
 	rev = bridge_silicon_revision(nbridge);
 	sandybridge_setup_graphics(nbridge, dev);
 
