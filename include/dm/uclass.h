@@ -200,9 +200,20 @@ int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
  *
  * @id: Uclass ID to look up
  * @devp: Returns pointer to the first device in that uclass, or NULL if none
- * @return 0 if OK (found or not found), -1 on error
+ * @return 0 if OK (found or not found), other -ve on error
  */
 int uclass_first_device(enum uclass_id id, struct udevice **devp);
+
+/**
+ * uclass_first_device_err() - Get the first device in a uclass
+ *
+ * The device returned is probed if necessary, and ready for use
+ *
+ * @id: Uclass ID to look up
+ * @devp: Returns pointer to the first device in that uclass, or NULL if none
+ * @return 0 if found, -ENODEV if not found, other -ve on error
+ */
+int uclass_first_device_err(enum uclass_id id, struct udevice **devp);
 
 /**
  * uclass_next_device() - Get the next device in a uclass
@@ -211,7 +222,7 @@ int uclass_first_device(enum uclass_id id, struct udevice **devp);
  *
  * @devp: On entry, pointer to device to lookup. On exit, returns pointer
  * to the next device in the same uclass, or NULL if none
- * @return 0 if OK (found or not found), -1 on error
+ * @return 0 if OK (found or not found), other -ve on error
  */
 int uclass_next_device(struct udevice **devp);
 
