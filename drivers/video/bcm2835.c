@@ -7,6 +7,7 @@
 #include <common.h>
 #include <lcd.h>
 #include <memalign.h>
+#include <phys2bus.h>
 #include <asm/arch/mbox.h>
 #include <asm/global_data.h>
 
@@ -103,7 +104,8 @@ void lcd_ctrl_init(void *lcdbase)
 	panel_info.vl_row = h;
 	panel_info.vl_bpix = LCD_COLOR16;
 
-	gd->fb_base = msg_setup->allocate_buffer.body.resp.fb_address;
+	gd->fb_base = bus_to_phys(
+		msg_setup->allocate_buffer.body.resp.fb_address);
 }
 
 void lcd_enable(void)
