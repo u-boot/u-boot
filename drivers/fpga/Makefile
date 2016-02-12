@@ -17,5 +17,6 @@ obj-y += altera.o
 obj-$(CONFIG_FPGA_ACEX1K) += ACEX1K.o
 obj-$(CONFIG_FPGA_CYCLON2) += cyclon2.o
 obj-$(CONFIG_FPGA_STRATIX_II) += stratixII.o
+obj-$(CONFIG_FPGA_STRATIX_V) += stratixv.o
 obj-$(CONFIG_FPGA_SOCFPGA) += socfpga.o
 endif
