@@ -19,6 +19,9 @@ struct kwspi_registers {
 	u32 din;	/* 0x1060c */
 	u32 irq_cause;	/* 0x10610 */
 	u32 irq_mask;	/* 0x10614 */
+	u32 timing1;	/* 0x10618 */
+	u32 timing2;	/* 0x1061c */
+	u32 dw_cfg;	/* 0x10620 - Direct Write Configuration */
 };
 
 /* They are used to define CONFIG_SYS_KW_SPI_MPP
