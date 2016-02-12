@@ -243,7 +243,7 @@ static int load_sipi_vector(atomic_t **ap_countp, int num_cpus)
 
 	params->stack_size = CONFIG_AP_STACK_SIZE;
 	size = params->stack_size * num_cpus;
-	stack = memalign(size, 4096);
+	stack = memalign(4096, size);
 	if (!stack)
 		return -ENOMEM;
 	params->stack_top = (u32)(stack + size);
