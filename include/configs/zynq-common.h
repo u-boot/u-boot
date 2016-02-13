@@ -204,6 +204,7 @@
 #endif
 
 /* Default environment */
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fit_image=fit.itb\0"		\
 	"load_addr=0x2000000\0"		\
@@ -226,6 +227,7 @@
 			"load usb 0 ${load_addr} ${fit_image} && " \
 			"bootm ${load_addr}; fi\0" \
 		DFU_ALT_INFO
+#endif
 
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
