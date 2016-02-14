@@ -141,7 +141,7 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	if (argc > 0)
 		str_gpio = *argv;
-	if (!strncmp(str_cmd, "status", 1)) {
+	if (!strncmp(str_cmd, "status", 2)) {
 		/* Support deprecated gpio_status() */
 #ifdef gpio_status
 		gpio_status();
