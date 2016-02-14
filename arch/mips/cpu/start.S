@@ -57,7 +57,6 @@ ENTRY(_start)
 	b	reset
 	 nop
 
-	.org 0x10
 #if defined(CONFIG_SYS_XWAY_EBU_BOOTCFG)
 	/*
 	 * Almost all Lantiq XWAY SoC devices have an external bus unit (EBU) to
@@ -66,16 +65,20 @@ ENTRY(_start)
 	 * initial configuration for that EBU in order to access the flash
 	 * device with correct parameters. This config option is board-specific.
 	 */
+	.org 0x10
 	.word CONFIG_SYS_XWAY_EBU_BOOTCFG
 	.word 0x0
-#elif defined(CONFIG_MALTA)
+#endif
+#if defined(CONFIG_MALTA)
 	/*
 	 * Linux expects the Board ID here.
 	 */
+	.org 0x10
 	.word 0x00000420	# 0x420 (Malta Board with CoreLV)
 	.word 0x00000000
 #endif
 
+#if defined(CONFIG_ROM_EXCEPTION_VECTORS)
 	.org 0x200
 	/* TLB refill, 32 bit task */
 1:	b	1b
@@ -106,7 +109,9 @@ ENTRY(_start)
 1:	b	1b
 	 nop
 
-	.align 4
+	.org 0x500
+#endif
+
 reset:
 #if __mips_isa_rev >= 6
 	mfc0	t0, CP0_CONFIG, 5
