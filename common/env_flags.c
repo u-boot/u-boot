@@ -15,6 +15,7 @@
 #include <env_attr.h>
 #include <env_flags.h>
 #define getenv fw_getenv
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #else
 #include <common.h>
 #include <environment.h>
