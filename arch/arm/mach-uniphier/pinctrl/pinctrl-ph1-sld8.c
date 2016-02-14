@@ -32,13 +32,4 @@ void ph1_sld8_pin_init(void)
 	sg_set_pinsel(30, 0, 8, 4);	/* NFD6_GB -> NFD6_GB */
 	sg_set_pinsel(31, 0, 8, 4);	/* NFD7_GB -> NFD7_GB */
 #endif
-
-#ifdef CONFIG_USB_EHCI_UNIPHIER
-	sg_set_pinsel(41, 0, 8, 4);	/* USB0VBUS -> USB0VBUS */
-	sg_set_pinsel(42, 0, 8, 4);	/* USB0OD   -> USB0OD */
-	sg_set_pinsel(43, 0, 8, 4);	/* USB1VBUS -> USB1VBUS */
-	sg_set_pinsel(44, 0, 8, 4);	/* USB1OD   -> USB1OD */
-	/* sg_set_pinsel(114, 1, 8, 4); */ /* TXD1 -> USB2VBUS (shared with UART) */
-	/* sg_set_pinsel(115, 1, 8, 4); */ /* RXD1 -> USB2OD */
-#endif
 }

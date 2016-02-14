@@ -30,6 +30,12 @@
 	};
 
 	clocks {
+		refclk: ref {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <24576000>;
+		};
+
 		arm_timer_clk: arm_timer_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -172,11 +178,20 @@
 			reg = <0x59800000 0x2000>;
 		};
 
+		mio: mioctrl@59810000 {
+			compatible = "socionext,ph1-sld3-mioctrl";
+			reg = <0x59810000 0x800>;
+			#clock-cells = <1>;
+			clock-names = "stdmac", "ehci";
+			clocks = <&sysctrl 10>, <&sysctrl 18>;
+		};
+
 		usb0: usb@5a800100 {
 			compatible = "socionext,uniphier-ehci", "generic-ehci";
 			status = "disabled";
 			reg = <0x5a800100 0x100>;
 			interrupts = <0 80 4>;
+			clocks = <&mio 3>, <&mio 6>;
 		};
 
 		usb1: usb@5a810100 {
@@ -184,6 +199,7 @@
 			status = "disabled";
 			reg = <0x5a810100 0x100>;
 			interrupts = <0 81 4>;
+			clocks = <&mio 4>, <&mio 6>;
 		};
 
 		usb2: usb@5a820100 {
@@ -191,6 +207,7 @@
 			status = "disabled";
 			reg = <0x5a820100 0x100>;
 			interrupts = <0 82 4>;
+			clocks = <&mio 5>, <&mio 6>;
 		};
 
 		usb3: usb@5a830100 {
@@ -198,6 +215,15 @@
 			status = "disabled";
 			reg = <0x5a830100 0x100>;
 			interrupts = <0 83 4>;
+			clocks = <&mio 7>, <&mio 6>;
+		};
+
+		sysctrl: sysctrl@f1840000 {
+			compatible = "socionext,ph1-sld3-sysctrl";
+			reg = <0xf1840000 0x4000>;
+			#clock-cells = <1>;
+			clock-names = "ref";
+			clocks = <&refclk>;
 		};
 
 		nand: nand@f8000000 {

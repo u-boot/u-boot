@@ -22,4 +22,6 @@ void ph1_ld4_boot_mode_show(void);
 void ph1_pro5_boot_mode_show(void);
 void proxstream2_boot_mode_show(void);
 
+u32 spl_boot_device_raw(void);
+
 #endif /* _ASM_BOOT_DEVICE_H_ */

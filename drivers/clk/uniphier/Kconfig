@@ -1,0 +1,13 @@
+config CLK_UNIPHIER
+	bool
+	select CLK
+	select SPL_CLK
+
+menu "Clock drivers for UniPhier SoCs"
+	depends on CLK_UNIPHIER
+
+config CLK_UNIPHIER_MIO
+	bool "Clock driver for UniPhier Media I/O block"
+	default y
+
+endmenu

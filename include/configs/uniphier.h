@@ -173,7 +173,7 @@
 	"setenv bootargs $bootargs root=/dev/nfs rw "			\
 	"nfsroot=$serverip:$rootpath "					\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \
-	"tftpboot; bootm;"
+		"run __nfsboot"
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
@@ -186,7 +186,8 @@
 	"nandboot=nand read $fit_addr_r $fit_addr $fit_size &&" \
 		"bootm $fit_addr_r\0" \
 	"tftpboot=tftpboot $fit_addr_r $bootfile &&" \
-		"bootm $fit_addr_r\0"
+		"bootm $fit_addr_r\0" \
+	"__nfsboot=run tftpboot\0"
 #else
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTFILE			"zImage"
@@ -201,31 +202,36 @@
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
-	"norboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
-		"setexpr kernel_addr $nor_base + $kernel_addr &&" \
-		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
-		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
-		"bootz $kernel_addr $ramdisk_addr $fdt_addr\0" \
-	"nandboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
-		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
+	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
+		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
+	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
+		"cp.b $kernel_addr $kernel_addr_r $kernel_size &&" \
+		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
+		"setexpr fdt_addr_r $nor_base + $fdt_addr &&" \
+		"run boot_common\0" \
+	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
-		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
-	"tftpboot=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
-		"tftpboot $kernel_addr_r $bootfile &&" \
+		"run boot_common\0" \
+	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
-		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
+		"run boot_common\0" \
+	"__nfsboot=tftpboot $kernel_addr_r $bootfile &&" \
+		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"setenv ramdisk_addr_r - &&" \
+		"run boot_common\0"
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
-	"norbase=0x42000000\0"					\
+	"nor_base=0x42000000\0"					\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
-		"tftpboot u-boot-spl-dtb.bin &&"		\
+		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
-		"tftpboot u-boot-dtb.img &&"			\
+		"tftpboot u-boot.img &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
 	LINUXBOOT_ENV_SETTINGS
 
@@ -245,7 +251,7 @@
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
-#define CONFIG_SPL_STACK		(0x0ff08000)
+#define CONFIG_SPL_STACK		(0x00100000)
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
 #define CONFIG_PANIC_HANG

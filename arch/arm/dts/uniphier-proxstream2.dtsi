@@ -182,6 +182,10 @@
 	};
 };
 
+&refclk {
+	clock-frequency = <25000000>;
+};
+
 &serial0 {
 	clock-frequency = <88900000>;
 };
@@ -198,6 +202,22 @@
 	clock-frequency = <88900000>;
 };
 
+&mio {
+	compatible = "socionext,proxstream2-mioctrl";
+	clock-names = "stdmac";
+	clocks = <&sysctrl 10>;
+};
+
+&peri {
+	compatible = "socionext,proxstream2-perictrl";
+	clock-names = "uart", "fi2c";
+	clocks = <&sysctrl 3>, <&sysctrl 4>;
+};
+
 &pinctrl {
 	compatible = "socionext,proxstream2-pinctrl", "syscon";
+};
+
+&sysctrl {
+	compatible = "socionext,proxstream2-sysctrl";
 };

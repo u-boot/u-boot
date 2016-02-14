@@ -1,17 +1,17 @@
 /*
- * Device Tree Source for UniPhier ProXstream2 Gentil Board
+ * Device Tree Source for UniPhier PH1-Pro4 Sanji Board
  *
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * SPDX-License-Identifier:	GPL-2.0+	X11
  */
 
 /dts-v1/;
-/include/ "uniphier-proxstream2.dtsi"
+/include/ "uniphier-ph1-pro4.dtsi"
 
 / {
-	model = "UniPhier ProXstream2 Gentil Board";
-	compatible = "socionext,proxstream2-gentil", "socionext,proxstream2";
+	model = "UniPhier PH1-Pro4 Sanji Board";
+	compatible = "socionext,ph1-pro4-sanji", "socionext,ph1-pro4";
 
 	memory {
 		device_type = "memory";
@@ -19,22 +19,26 @@
 	};
 
 	chosen {
-		stdout-path = "serial2:115200n8";
+		stdout-path = "serial0:115200n8";
 	};
 
 	aliases {
 		serial0 = &serial0;
 		serial1 = &serial1;
-		serial2 = &serial2;
 		i2c0 = &i2c0;
+		i2c1 = &i2c1;
 		i2c2 = &i2c2;
-		i2c4 = &i2c4;
+		i2c3 = &i2c3;
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
 	};
 };
 
-&serial2 {
+&serial0 {
+	status = "okay";
+};
+
+&serial1 {
 	status = "okay";
 };
 
@@ -48,7 +52,15 @@
 	};
 };
 
+&i2c1 {
+	status = "okay";
+};
+
 &i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
 	status = "okay";
 };
 
@@ -60,6 +72,14 @@
 	status = "okay";
 };
 
+&usb2 {
+	status = "okay";
+};
+
+&usb3 {
+	status = "okay";
+};
+
 /* for U-Boot only */
 / {
 	soc {
@@ -67,7 +87,7 @@
 	};
 };
 
-&serial2 {
+&serial0 {
 	u-boot,dm-pre-reloc;
 };
 
@@ -75,6 +95,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pinctrl_uart2 {
+&pinctrl_uart0 {
 	u-boot,dm-pre-reloc;
 };

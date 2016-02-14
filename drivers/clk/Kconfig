@@ -20,4 +20,6 @@ config SPL_CLK
 	  setting up clocks within SPL, and allows the same drivers to be
 	  used as U-Boot proper.
 
+source "drivers/clk/uniphier/Kconfig"
+
 endmenu

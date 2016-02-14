@@ -40,12 +40,5 @@ void ph1_pro4_pin_init(void)
 	sg_set_pinsel(183, 0, 4, 8);	/* USB1OD   -> USB1OD */
 #endif
 
-#ifdef CONFIG_USB_EHCI_UNIPHIER
-	sg_set_pinsel(184, 0, 4, 8);	/* USB2VBUS -> USB2VBUS */
-	sg_set_pinsel(185, 0, 4, 8);	/* USB2OD   -> USB2OD */
-	sg_set_pinsel(187, 0, 4, 8);	/* USB3VBUS -> USB3VBUS */
-	sg_set_pinsel(188, 0, 4, 8);	/* USB3OD   -> USB3OD */
-#endif
-
 	writel(1, SG_LOADPINCTRL);
 }

@@ -147,6 +147,7 @@
 		interrupts = <0 80 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb2>;
+		clocks = <&mio 3>, <&mio 6>;
 	};
 
 	usb3: usb@5a810100 {
@@ -156,6 +157,7 @@
 		interrupts = <0 81 4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usb3>;
+		clocks = <&mio 4>, <&mio 6>;
 	};
 
 	usb0: usb@65a00000 {
@@ -177,6 +179,10 @@
 	};
 };
 
+&refclk {
+	clock-frequency = <25000000>;
+};
+
 &serial0 {
 	clock-frequency = <73728000>;
 };
@@ -193,6 +199,22 @@
 	clock-frequency = <73728000>;
 };
 
+&mio {
+	compatible = "socionext,ph1-pro4-mioctrl";
+	clock-names = "stdmac", "ehci";
+	clocks = <&sysctrl 10>, <&sysctrl 18>;
+};
+
+&peri {
+	compatible = "socionext,ph1-pro4-perictrl";
+	clock-names = "uart", "fi2c";
+	clocks = <&sysctrl 3>, <&sysctrl 4>;
+};
+
 &pinctrl {
 	compatible = "socionext,ph1-pro4-pinctrl", "syscon";
+};
+
+&sysctrl {
+	compatible = "socionext,ph1-pro4-sysctrl";
 };

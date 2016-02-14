@@ -40,12 +40,24 @@ static const struct uniphier_board_data ph1_ld4_data = {
 #endif
 
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO4)
+/* 1GB RAM board */
 static const struct uniphier_board_data ph1_pro4_data = {
 	.dram_ch0_base	= 0x80000000,
 	.dram_ch0_size	= 0x20000000,
 	.dram_ch0_width	= 32,
 	.dram_ch1_base	= 0xa0000000,
 	.dram_ch1_size	= 0x20000000,
+	.dram_ch1_width	= 32,
+	.dram_freq	= 1600,
+};
+
+/* 2GB RAM board */
+static const struct uniphier_board_data ph1_pro4_2g_data = {
+	.dram_ch0_base	= 0x80000000,
+	.dram_ch0_size	= 0x40000000,
+	.dram_ch0_width	= 32,
+	.dram_ch1_base	= 0xc0000000,
+	.dram_ch1_size	= 0x40000000,
 	.dram_ch1_width	= 32,
 	.dram_freq	= 1600,
 };
@@ -118,6 +130,8 @@ static const struct uniphier_board_id uniphier_boards[] = {
 	{ "socionext,ph1-ld4", &ph1_ld4_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO4)
+	{ "socionext,ph1-pro4-ace", &ph1_pro4_2g_data, },
+	{ "socionext,ph1-pro4-sanji", &ph1_pro4_2g_data, },
 	{ "socionext,ph1-pro4", &ph1_pro4_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
