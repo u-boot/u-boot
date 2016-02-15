@@ -105,6 +105,7 @@
 # define CONFIG_SPI_FLASH_WINBOND
 # define CONFIG_CMD_SPI
 # define CONFIG_CMD_SF
+# define CONFIG_CMD_SF_TEST
 #endif
 
 /* NAND */
