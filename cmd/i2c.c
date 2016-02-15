@@ -1141,7 +1141,7 @@ static void decode_bits (u_char const b, char const *str[], int const do_once)
  */
 static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	enum { unknown, EDO, SDRAM, DDR2 } type;
+	enum { unknown, EDO, SDRAM, DDR, DDR2, DDR3, DDR4 } type;
 
 	uint	chip;
 	u_char	data[128];
@@ -1228,9 +1228,21 @@ static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		type = SDRAM;
 		puts ("SDRAM\n");
 		break;
+	case 7:
+		type = DDR;
+		puts("DDR\n");
+		break;
 	case 8:
 		type = DDR2;
 		puts ("DDR2\n");
+		break;
+	case 11:
+		type = DDR3;
+		puts("DDR3\n");
+		break;
+	case 12:
+		type = DDR4;
+		puts("DDR4\n");
 		break;
 	default:
 		type = unknown;
