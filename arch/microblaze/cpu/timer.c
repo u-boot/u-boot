@@ -31,11 +31,6 @@ void __udelay(unsigned long usec)
 		i = get_timer(0);
 		while ((get_timer(0) - i) < (usec / 1000))
 			;
-	} else {
-#ifndef CONFIG_OF_CONTROL
-		for (i = 0; i < (usec * XILINX_CLOCK_FREQ / 10000000); i++)
-			;
-#endif
 	}
 }
 
@@ -51,8 +46,6 @@ int timer_init (void)
 	int irq = -1;
 	u32 preload = 0;
 	u32 ret = 0;
-
-#ifdef CONFIG_OF_CONTROL
 	const void *blob = gd->fdt_blob;
 	int node = 0;
 	u32 cell[2];
@@ -83,13 +76,6 @@ int timer_init (void)
 		return node;
 	}
 
-#else
-#if defined(CONFIG_SYS_TIMER_0_ADDR) && defined(CONFIG_SYS_INTC_0_NUM)
-	preload = XILINX_CLOCK_FREQ / CONFIG_SYS_HZ;
-	irq = CONFIG_SYS_TIMER_0_IRQ;
-	tmr = (microblaze_timer_t *) (CONFIG_SYS_TIMER_0_ADDR);
-#endif
-#endif
 	if (tmr && preload && irq >= 0) {
 		tmr->loadreg = preload;
 		tmr->control = TIMER_INTERRUPT | TIMER_RESET;
