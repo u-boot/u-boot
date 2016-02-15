@@ -58,6 +58,7 @@
 /* General networking support */
 #define CONFIG_CMD_DHCP
 
+#include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */
