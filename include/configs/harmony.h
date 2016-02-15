@@ -42,7 +42,6 @@
 #define CONFIG_ENV_OFFSET	(SZ_512M - SZ_128K) /* 128K sector size */
 
 /* USB Host support */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_ULPI
