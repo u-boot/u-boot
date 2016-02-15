@@ -31,6 +31,7 @@ enum uclass_id {
 	UCLASS_CROS_EC,		/* Chrome OS EC */
 	UCLASS_DISK,		/* Disk controller, e.g. SATA */
 	UCLASS_DISPLAY,		/* Display (e.g. DisplayPort, HDMI) */
+	UCLASS_DMA,		/* Direct Memory Access */
 	UCLASS_RAM,		/* RAM controller */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
