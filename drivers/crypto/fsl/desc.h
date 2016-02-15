@@ -688,4 +688,59 @@
 #define OP_ALG_RNG4_MAS                (0x1f3 << OP_ALG_RNG4_SHIFT)
 #define OP_ALG_RNG4_SK         (0x100 << OP_ALG_RNG4_SHIFT)
 
+
+/* Structures for Protocol Data Blocks */
+struct __packed pdb_ecdsa_verify {
+	uint32_t pdb_hdr;
+	dma_addr_t dma_q;	/* Pointer to q (elliptic curve) */
+	dma_addr_t dma_r;	/* Pointer to r (elliptic curve) */
+	dma_addr_t dma_g_xy;	/* Pointer to Gx,y (elliptic curve) */
+	dma_addr_t dma_pkey;	/* Pointer to Wx,y (public key) */
+	dma_addr_t dma_hash;	/* Pointer to hash input */
+	dma_addr_t dma_c;	/* Pointer to C_signature */
+	dma_addr_t dma_d;	/* Pointer to D_signature */
+	dma_addr_t dma_buf;	/* Pointer to 64-byte temp buffer */
+	dma_addr_t dma_ab;	/* Pointer to a,b (elliptic curve ) */
+	uint32_t img_size;	/* Length of Message */
+};
+
+struct __packed pdb_ecdsa_sign {
+	uint32_t pdb_hdr;
+	dma_addr_t dma_q;	/* Pointer to q (elliptic curve) */
+	dma_addr_t dma_r;	/* Pointer to r (elliptic curve) */
+	dma_addr_t dma_g_xy;	/* Pointer to Gx,y (elliptic curve) */
+	dma_addr_t dma_pri_key;	/* Pointer to S (Private key) */
+	dma_addr_t dma_hash;	/* Pointer to hash input */
+	dma_addr_t dma_c;	/* Pointer to C_signature */
+	dma_addr_t dma_d;	/* Pointer to D_signature */
+	dma_addr_t dma_ab;	/* Pointer to a,b (elliptic curve ) */
+	dma_addr_t dma_u;	/* Pointer to Per Message Random */
+	uint32_t img_size;	/* Length of Message */
+};
+
+#define PDB_ECDSA_SGF_SHIFT	23
+#define PDB_ECDSA_L_SHIFT	7
+#define PDB_ECDSA_N_SHIFT	0
+
+struct __packed pdb_mp_pub_k {
+	uint32_t pdb_hdr;
+	#define PDB_MP_PUB_K_SGF_SHIFT		31
+	dma_addr_t dma_pkey;	/* Pointer to Wx,y (public key) */
+};
+
+struct __packed pdb_mp_sign {
+	uint32_t pdb_hdr;
+	#define PDB_MP_SIGN_SGF_SHIFT		28
+	dma_addr_t dma_addr_msg;	/* Pointer to Message */
+	dma_addr_t dma_addr_hash;	/* Pointer to hash output */
+	dma_addr_t dma_addr_c_sig;	/* Pointer to C_signature */
+	dma_addr_t dma_addr_d_sig;	/* Pointer to D_signature */
+	uint32_t img_size;		/* Length of Message */
+};
+
+#define PDB_MP_CSEL_SHIFT	17
+#define PDB_MP_CSEL_P256	0x3 << PDB_MP_CSEL_SHIFT	/* P-256 */
+#define PDB_MP_CSEL_P384	0x4 << PDB_MP_CSEL_SHIFT	/* P-384 */
+#define PDB_MP_CSEL_P521	0x5 << PDB_MP_CSEL_SHIFT	/* P-521 */
+
 #endif /* DESC_H */
