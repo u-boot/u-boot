@@ -11,6 +11,9 @@
 
 #include <asm/io.h>
 #include <common.h>
+#include <dma.h>
+#include <dm/device.h>
+#include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
 
 #define EDMA3_SL_BASE(slot)			(0x4000 + ((slot) << 5))
@@ -30,6 +33,10 @@
 #define EDMA3_QEECR				0x1088
 #define EDMA3_QEESR				0x108c
 #define EDMA3_QSECR				0x1094
+
+struct ti_edma3_priv {
+	u32 base;
+};
 
 /**
  * qedma3_start - start qdma on a channel
@@ -383,8 +390,8 @@ void qedma3_stop(u32 base, struct edma3_channel_config *cfg)
 	__raw_writel(0, base + EDMA3_QCHMAP(cfg->chnum));
 }
 
-void edma3_transfer(unsigned long edma3_base_addr, unsigned int
-		    edma_slot_num, void *dst, void *src, size_t len)
+void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
+		      void *dst, void *src, size_t len)
 {
 	struct edma3_slot_config        slot;
 	struct edma3_channel_config     edma_channel;
@@ -460,3 +467,74 @@ void edma3_transfer(unsigned long edma3_base_addr, unsigned int
 		qedma3_stop(edma3_base_addr, &edma_channel);
 	}
 }
+
+#ifndef CONFIG_DMA
+
+void edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
+		    void *dst, void *src, size_t len)
+{
+	__edma3_transfer(edma3_base_addr, edma_slot_num, dst, src, len);
+}
+
+#else
+
+static int ti_edma3_transfer(struct udevice *dev, int direction, void *dst,
+			     void *src, size_t len)
+{
+	struct ti_edma3_priv *priv = dev_get_priv(dev);
+
+	/* enable edma3 clocks */
+	enable_edma3_clocks();
+
+	switch (direction) {
+	case DMA_MEM_TO_MEM:
+		__edma3_transfer(priv->base, 1, dst, src, len);
+		break;
+	default:
+		error("Transfer type not implemented in DMA driver\n");
+		break;
+	}
+
+	/* disable edma3 clocks */
+	disable_edma3_clocks();
+
+	return 0;
+}
+
+static int ti_edma3_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ti_edma3_priv *priv = dev_get_priv(dev);
+
+	priv->base = dev_get_addr(dev);
+
+	return 0;
+}
+
+static int ti_edma3_probe(struct udevice *dev)
+{
+	struct dma_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	uc_priv->supported = DMA_SUPPORTS_MEM_TO_MEM;
+
+	return 0;
+}
+
+static const struct dma_ops ti_edma3_ops = {
+	.transfer	= ti_edma3_transfer,
+};
+
+static const struct udevice_id ti_edma3_ids[] = {
+	{ .compatible = "ti,edma3" },
+	{ }
+};
+
+U_BOOT_DRIVER(ti_edma3) = {
+	.name	= "ti_edma3",
+	.id	= UCLASS_DMA,
+	.of_match = ti_edma3_ids,
+	.ops	= &ti_edma3_ops,
+	.ofdata_to_platdata = ti_edma3_ofdata_to_platdata,
+	.probe	= ti_edma3_probe,
+	.priv_auto_alloc_size = sizeof(struct ti_edma3_priv),
+};
+#endif /* CONFIG_DMA */
