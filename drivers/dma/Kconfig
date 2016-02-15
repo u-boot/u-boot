@@ -12,4 +12,11 @@ config DMA
 	  buses that is used to transfer data to and from memory.
 	  The uclass interface is defined in include/dma.h.
 
+config TI_EDMA3
+	bool "TI EDMA3 driver"
+	help
+	  Enable the TI EDMA3 driver for DRA7xx and AM43xx evms.
+	  This driver support data transfer between memory
+	  regions.
+
 endmenu # menu "DMA Support"
