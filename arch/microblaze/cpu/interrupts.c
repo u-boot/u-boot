@@ -115,8 +115,6 @@ static void intc_init(void)
 int interrupt_init(void)
 {
 	int i;
-
-#ifdef CONFIG_OF_CONTROL
 	const void *blob = gd->fdt_blob;
 	int node = 0;
 
@@ -136,12 +134,7 @@ int interrupt_init(void)
 	} else {
 		return node;
 	}
-#else
-#if defined(CONFIG_SYS_INTC_0_ADDR) && defined(CONFIG_SYS_INTC_0_NUM)
-	intc = (microblaze_intc_t *)CONFIG_SYS_INTC_0_ADDR;
-	irq_no = CONFIG_SYS_INTC_0_NUM;
-#endif
-#endif
+
 	if (irq_no) {
 		vecs = calloc(1, sizeof(struct irq_action) * irq_no);
 		if (vecs == NULL) {
