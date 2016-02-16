@@ -97,6 +97,14 @@ subtests = (
 def exec_hush_if(u_boot_console, expr, result):
     """Execute a shell "if" command, and validate its result."""
 
+    config = u_boot_console.config.buildconfig
+    maxargs = int(config.get('config_sys_maxargs', '0'))
+    args = len(expr.split(' ')) - 1
+    if args > maxargs:
+        u_boot_console.log.warning('CONFIG_SYS_MAXARGS too low; need ' +
+            str(args))
+        pytest.skip()
+
     cmd = 'if ' + expr + '; then echo true; else echo false; fi'
     response = u_boot_console.run_command(cmd)
     assert response.strip() == str(result).lower()
