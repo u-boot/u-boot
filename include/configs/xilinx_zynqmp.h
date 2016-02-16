@@ -183,7 +183,6 @@
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"ethaddr=00:0a:35:00:01:22\0" \
 	"kernel_addr=0x200000\0" \
 	"initrd_addr=0xa00000\0" \
 	"initrd_size=0x2000000\0" \
