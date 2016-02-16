@@ -78,6 +78,20 @@ directory, and then run the following command at the U-Boot command line:
   => run nandupdate
 
 
+Burn U-Boot images to eMMC
+--------------------------
+
+Write two files to the Boot partition 1 of the eMMC device as follows:
+ - spl/u-boot-spl.bin at the offset address 0x00000000
+ - u-boot.img         at the offset address 0x00010000
+
+If a TFTP server is available, the images can be easily updated.
+Just copy the u-boot-spl-dtb.bin and u-boot-dtb.img to the TFTP public
+directory, and then run the following command at the U-Boot command line:
+
+  => run emmcupdate
+
+
 UniPhier specific commands
 --------------------------
 

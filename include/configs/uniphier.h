@@ -233,6 +233,13 @@
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
 	"nor_base=0x42000000\0"					\
+	"emmcupdate=mmcsetn &&"					\
+		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
+		"mmc erase 0 800 &&"				\
+		"tftpboot u-boot-spl.bin &&"			\
+		"mmc write $loadaddr 0 80 &&"			\
+		"tftpboot u-boot.img &&"			\
+		"mmc write $loadaddr 80 780\0"			\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
