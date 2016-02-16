@@ -79,6 +79,10 @@ void board_init_f(ulong dummy)
 {
 	switch_to_main_crystal_osc();
 
+#ifdef CONFIG_SAMA5D2
+	configure_2nd_sram_as_l2_cache();
+#endif
+
 	/* disable watchdog */
 	at91_disable_wdt();
 

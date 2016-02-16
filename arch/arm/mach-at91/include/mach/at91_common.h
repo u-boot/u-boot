@@ -34,5 +34,6 @@ void at91_spl_board_init(void);
 void at91_disable_wdt(void);
 void matrix_init(void);
 void redirect_int_from_saic_to_aic(void);
+void configure_2nd_sram_as_l2_cache(void);
 
 #endif /* AT91_COMMON_H */
