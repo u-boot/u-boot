@@ -118,7 +118,7 @@
 #define CONFIG_PREBOOT			"usb start"
 
 /* Shell */
-#define CONFIG_SYS_MAXARGS		8
+#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */
