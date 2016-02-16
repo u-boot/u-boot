@@ -187,9 +187,6 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
-#ifdef CONFIG_XILINX_GPIO
-# define CONFIG_CMD_GPIO
-#endif
 
 #if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
 # define CONFIG_CMD_CACHE
