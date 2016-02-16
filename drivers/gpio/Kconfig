@@ -76,6 +76,12 @@ config SANDBOX_GPIO_COUNT
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
 
+config GPIO_UNIPHIER
+	bool "UniPhier GPIO"
+	depends on ARCH_UNIPHIER
+	help
+	  Say yes here to support UniPhier GPIOs.
+
 config VYBRID_GPIO
 	bool "Vybrid GPIO driver"
 	depends on DM
