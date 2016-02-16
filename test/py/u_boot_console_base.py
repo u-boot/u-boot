@@ -326,7 +326,7 @@ class ConsoleBase(object):
                 if m == 0:
                     break
                 if m == 1:
-                    self.p.send(chr(3)) # CTRL-C
+                    self.p.send(' ')
                     continue
                 raise Exception('Bad pattern found on console: ' +
                                 self.bad_pattern_ids[m - 2])
