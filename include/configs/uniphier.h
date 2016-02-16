@@ -99,15 +99,15 @@
 
 #define CONFIG_CONS_INDEX		1
 
-/*
- * For NAND booting the environment is embedded in the U-Boot image. Please take
- * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.
- */
+/* #define CONFIG_ENV_IS_NOWHERE */
 /* #define CONFIG_ENV_IS_IN_NAND */
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET			0x80000
 #define CONFIG_ENV_SIZE				0x2000
-#define CONFIG_ENV_OFFSET			0x0
 /* #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
+
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		1
 
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000

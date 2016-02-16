@@ -93,6 +93,11 @@ static int find_first_mmc_device(void)
 	return -ENODEV;
 }
 
+int mmc_get_env_dev(void)
+{
+	return find_first_mmc_device();
+}
+
 static int do_mmcsetn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int dev;
