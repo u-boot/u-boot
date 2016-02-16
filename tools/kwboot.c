@@ -684,7 +684,7 @@ static void
 kwboot_usage(FILE *stream, char *progname)
 {
 	fprintf(stream,
-		"Usage: %s [-d | -a | -q <req-delay> | -s <resp-timeo> | -b <image> | -D <image> ] [ -t ] [-B <baud> ] <TTY>\n",
+		"Usage: %s [OPTIONS] [-b <image> | -D <image> ] [-B <baud> ] <TTY>\n",
 		progname);
 	fprintf(stream, "\n");
 	fprintf(stream,
