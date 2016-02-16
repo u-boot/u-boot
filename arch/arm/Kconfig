@@ -697,6 +697,7 @@ config ARCH_UNIPHIER
 	select SPL_OF_CONTROL
 	select DM
 	select SPL_DM
+	select DM_GPIO
 	select DM_SERIAL
 	select DM_I2C
 	help
