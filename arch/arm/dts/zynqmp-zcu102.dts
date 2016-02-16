@@ -31,7 +31,7 @@
 	};
 
 	chosen {
-		bootargs = "earlycon=cdns,mmio,0xff000000,115200n8";
+		bootargs = "earlycon";
 		stdout-path = "serial0:115200n8";
 	};
 
