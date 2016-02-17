@@ -303,8 +303,13 @@ class ConsoleBase(object):
             if not self.config.gdbserver:
                 self.p.timeout = 30000
             self.p.logfile_read = self.logstream
-            if self.config.buildconfig.get('config_spl', False) == 'y':
-                m = self.p.expect([pattern_u_boot_spl_signon] + self.bad_patterns)
+            bcfg = self.config.buildconfig
+            config_spl = bcfg.get('config_spl', 'n') == 'y'
+            config_spl_serial_support = bcfg.get('config_spl_serial_support',
+                                                 'n') == 'y'
+            if config_spl and config_spl_serial_support:
+                m = self.p.expect([pattern_u_boot_spl_signon] +
+                                  self.bad_patterns)
                 if m != 0:
                     raise Exception('Bad pattern found on console: ' +
                                     self.bad_pattern_ids[m - 1])
