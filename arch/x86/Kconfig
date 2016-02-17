@@ -248,6 +248,16 @@ config FSP_USE_UPD
 	  are still some FSPs that might not even have UPD. For such FSPs,
 	  override this to n in their platform Kconfig files.
 
+config FSP_BROKEN_HOB
+	bool
+	depends on HAVE_FSP
+	help
+	  Indicate some buggy FSPs that does not report memory used by FSP
+	  itself as reserved in the resource descriptor HOB. Select this to
+	  tell U-Boot to do some additional work to ensure U-Boot relocation
+	  do not overwrite the important boot service data which is used by
+	  FSP, otherwise the subsequent call to fsp_notify() will fail.
+
 config ENABLE_MRC_CACHE
 	bool "Enable MRC cache"
 	depends on !EFI && !SYS_COREBOOT
