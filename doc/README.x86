@@ -154,18 +154,28 @@ all set. For programming U-Boot we just need to program SPI-1 flash.
 
 ---
 
-Intel Minnowboard Max instructions for bare mode:
+Intel Bay Trail based board instructions for bare mode:
 
 This uses as FSP as with Crown Bay, except it is for the Atom E3800 series.
+Two boards that use this configuration are Bayley Bay and Minnowboard MAX.
 Download this and get the .fd file (BAYTRAIL_FSP_GOLD_003_16-SEP-2014.fd at
-the time of writing). Put it in the board directory:
-board/intel/minnowmax/fsp.bin
+the time of writing). Put it in the corresponding board directory and rename
+it to fsp.bin.
 
 Obtain the VGA RAM (Vga.dat at the time of writing) and put it into the same
-directory: board/intel/minnowmax/vga.bin
+board directory as vga.bin.
 
-You still need two more binary blobs. The first comes from the original
-firmware image available from:
+You still need two more binary blobs. For Bayley Bay, they can be extracted
+from the sample SPI image provided in the FSP (SPI.bin at the time of writing).
+
+   $ ./tools/ifdtool -x BayleyBay/SPI.bin
+   $ cp flashregion_0_flashdescriptor.bin board/intel/bayleybay/descriptor.bin
+   $ cp flashregion_2_intel_me.bin board/intel/bayleybay/me.bin
+
+For Minnowboard MAX, we can reuse the same ME firmware above, but for flash
+descriptor, we need get that somewhere else, as the one above does not seem to
+work, probably because it is not designed for the Minnowboard MAX. Now download
+the original firmware image for this board from:
 
 http://firmware.intel.com/sites/default/files/2014-WW42.4-MinnowBoardMax.73-64-bit.bin_Release.zip
 
@@ -182,16 +192,8 @@ This will provide the descriptor file - copy this into the correct place:
 
    $ cp flashregion_0_flashdescriptor.bin board/intel/minnowmax/descriptor.bin
 
-Then do the same with the sample SPI image provided in the FSP (SPI.bin at
-the time of writing) to obtain the last image. Note that this will also
-produce a flash descriptor file, but it does not seem to work, probably
-because it is not designed for the Minnowmax. That is why you need to get
-the flash descriptor from the original firmware as above.
-
-   $ ./tools/ifdtool -x BayleyBay/SPI.bin
-   $ cp flashregion_2_intel_me.bin board/intel/minnowmax/me.bin
-
 Now you can build U-Boot and obtain u-boot.rom
+Note: below are examples/information for Minnowboard MAX.
 
 $ make minnowmax_defconfig
 $ make all
@@ -242,7 +244,9 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make galileo_defconfig
 $ make all
 
-QEMU x86 target instructions:
+---
+
+QEMU x86 target instructions for bare mode:
 
 To build u-boot.rom for QEMU x86 targets, just simply run
 
