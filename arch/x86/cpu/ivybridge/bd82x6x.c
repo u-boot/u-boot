@@ -22,6 +22,7 @@
 #define GPIO_BASE	0x48
 #define BIOS_CTRL	0xdc
 
+#ifndef CONFIG_HAVE_FSP
 static int pch_revision_id = -1;
 static int pch_type = -1;
 
@@ -170,6 +171,7 @@ static int bd82x6x_probe(struct udevice *dev)
 
 	return 0;
 }
+#endif /* CONFIG_HAVE_FSP */
 
 static int bd82x6x_pch_get_spi_base(struct udevice *dev, ulong *sbasep)
 {
@@ -247,6 +249,8 @@ U_BOOT_DRIVER(bd82x6x_drv) = {
 	.name		= "bd82x6x",
 	.id		= UCLASS_PCH,
 	.of_match	= bd82x6x_ids,
+#ifndef CONFIG_HAVE_FSP
 	.probe		= bd82x6x_probe,
+#endif
 	.ops		= &bd82x6x_pch_ops,
 };

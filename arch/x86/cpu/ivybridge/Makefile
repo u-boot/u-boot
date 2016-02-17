@@ -7,7 +7,6 @@
 ifdef CONFIG_HAVE_FSP
 obj-y += fsp_configs.o ivybridge.o
 else
-obj-y += bd82x6x.o
 obj-y += car.o
 obj-y += cpu.o
 obj-y += early_me.o
@@ -21,3 +20,4 @@ obj-y += report_platform.o
 obj-y += sata.o
 obj-y += sdram.o
 endif
+obj-y += bd82x6x.o
