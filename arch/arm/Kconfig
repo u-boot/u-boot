@@ -700,6 +700,7 @@ config ARCH_UNIPHIER
 	select DM_GPIO
 	select DM_SERIAL
 	select DM_I2C
+	select DM_MMC
 	help
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)
