@@ -58,12 +58,9 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x2000000)
 
 /* Serial setup */
-#if defined(CONFIG_ZYNQ_DCC)
-# define CONFIG_ARM_DCC
-# define CONFIG_CPU_ARMV8
-#else
-# define CONFIG_ZYNQ_SERIAL
-#endif
+#define CONFIG_ARM_DCC
+#define CONFIG_CPU_ARMV8
+#define CONFIG_ZYNQ_SERIAL
 
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200

@@ -36,12 +36,8 @@
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
-/* DCC driver */
-#if defined(CONFIG_ZYNQ_DCC)
-# define CONFIG_ARM_DCC
-#else
-# define CONFIG_ZYNQ_SERIAL
-#endif
+#define CONFIG_ARM_DCC
+#define CONFIG_ZYNQ_SERIAL
 
 #define CONFIG_ZYNQ_GPIO
 
