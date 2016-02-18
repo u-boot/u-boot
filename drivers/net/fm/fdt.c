@@ -45,7 +45,7 @@ void fdt_fixup_fman_firmware(void *blob)
 		return;
 
 	hdr = &fmanfw->header;
-	length = be32_to_cpu(hdr->length);
+	length = fdt32_to_cpu(hdr->length);
 
 	/* Verify the firmware. */
 	if ((hdr->magic[0] != 'Q') || (hdr->magic[1] != 'E') ||
@@ -61,14 +61,16 @@ void fdt_fixup_fman_firmware(void *blob)
 	}
 
 	length -= sizeof(u32);	/* Subtract the size of the CRC */
-	crc = be32_to_cpu(*(u32 *)((void *)fmanfw + length));
+	crc = fdt32_to_cpu(*(u32 *)((void *)fmanfw + length));
 	if (crc != crc32_no_comp(0, (void *)fmanfw, length)) {
 		printf("Fman firmware at %p has invalid CRC\n", fmanfw);
 		return;
 	}
 
+	length += sizeof(u32);
+
 	/* Increase the size of the fdt to make room for the node. */
-	rc = fdt_increase_size(blob, fmanfw->header.length);
+	rc = fdt_increase_size(blob, length);
 	if (rc < 0) {
 		printf("Unable to make room for Fman firmware: %s\n",
 		       fdt_strerror(rc));
@@ -101,8 +103,7 @@ void fdt_fixup_fman_firmware(void *blob)
 		       fdt_strerror(rc));
 		return;
 	}
-	rc = fdt_setprop(blob, fwnode, "fsl,firmware", fmanfw,
-			 fmanfw->header.length);
+	rc = fdt_setprop(blob, fwnode, "fsl,firmware", fmanfw, length);
 	if (rc < 0) {
 		char s[64];
 		fdt_get_path(blob, fwnode, s, sizeof(s));
