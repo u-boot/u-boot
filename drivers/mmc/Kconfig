@@ -43,4 +43,10 @@ config ZYNQ_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
 
+config MMC_UNIPHIER
+	bool "UniPhier SD/MMC Host Controller support"
+	depends on ARCH_UNIPHIER
+	help
+	  This selects support for the SD/MMC Host Controller on UniPhier SoCs.
+
 endmenu

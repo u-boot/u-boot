@@ -93,6 +93,7 @@ Supported devices
 
  - UART (on-chip)
  - NAND
+ - SD/eMMC
  - USB 2.0 (EHCI)
  - USB 3.0 (xHCI)
  - GPIO
