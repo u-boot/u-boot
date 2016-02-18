@@ -41,6 +41,10 @@
 	status = "okay";
 };
 
+&emmc {
+	status = "okay";
+};
+
 &usb0 {
 	status = "okay";
 };

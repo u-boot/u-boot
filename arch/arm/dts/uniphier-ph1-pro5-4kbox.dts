@@ -47,6 +47,14 @@
 	status = "okay";
 };
 
+&emmc {
+	status = "okay";
+};
+
+&sd {
+	status = "okay";
+};
+
 /* for U-Boot only */
 / {
 	soc {
