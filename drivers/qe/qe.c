@@ -12,7 +12,7 @@
 #include "asm/errno.h"
 #include "asm/io.h"
 #include "linux/immap_qe.h"
-#include "qe.h"
+#include <fsl_qe.h>
 #ifdef CONFIG_LS102XA
 #include <asm/arch/immap_ls102xa.h>
 #endif

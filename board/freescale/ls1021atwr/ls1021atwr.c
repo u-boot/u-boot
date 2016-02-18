@@ -28,7 +28,7 @@
 #include <spl.h>
 #include "../common/sleep.h"
 #ifdef CONFIG_U_QE
-#include "../../../drivers/qe/qe.h"
+#include <fsl_qe.h>
 #endif
 #include <fsl_validate.h>
 

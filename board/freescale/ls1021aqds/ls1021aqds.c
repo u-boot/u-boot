@@ -28,7 +28,7 @@
 #include "../common/qixis.h"
 #include "ls1021aqds_qixis.h"
 #ifdef CONFIG_U_QE
-#include "../../../drivers/qe/qe.h"
+#include <fsl_qe.h>
 #endif
 
 #define PIN_MUX_SEL_CAN		0x03

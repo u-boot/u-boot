@@ -19,7 +19,7 @@
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
-#include "../../../../drivers/qe/qe.h"		/* For struct qe_firmware */
+#include <fsl_qe.h>		/* For struct qe_firmware */
 
 DECLARE_GLOBAL_DATA_PTR;
 
