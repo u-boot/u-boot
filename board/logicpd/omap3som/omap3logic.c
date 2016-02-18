@@ -228,6 +228,30 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	switch (gd->bd->bi_arch_number) {
+	case MACH_TYPE_DM3730_TORPEDO:
+		setenv("fdtimage", "logicpd-torpedo-37xx-devkit.dtb");
+		break;
+	case MACH_TYPE_DM3730_SOM_LV:
+		setenv("fdtimage", "logicpd-som-lv-37xx-devkit.dtb");
+		break;
+	case MACH_TYPE_OMAP3_TORPEDO:
+		setenv("fdtimage", "logicpd-torpedo-35xx-devkit.dtb");
+		break;
+	case MACH_TYPE_OMAP3530_LV_SOM:
+		setenv("fdtimage", "logicpd-som-lv-35xx-devkit.dtb");
+		break;
+	default:
+		/* unknown machine type */
+		break;
+	}
+	return 0;
+}
+#endif
+
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
