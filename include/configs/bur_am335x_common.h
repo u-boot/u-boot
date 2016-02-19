@@ -62,12 +62,8 @@
 #define CONFIG_CMD_PING
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
-#define CONFIG_SPL_ETH_SUPPORT
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_NATSEMI
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT		/* used for a fetching MAC-Address */
-#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
 /* Network console */
 #define CONFIG_NETCONSOLE			1
 #define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */

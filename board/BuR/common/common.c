@@ -12,7 +12,6 @@
 #include <version.h>
 #include <common.h>
 #include <errno.h>
-#include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/omap.h>
@@ -640,8 +639,7 @@ static struct cpsw_platform_data cpsw_data = {
 };
 #endif /* CONFIG_DRIVER_TI_CPSW, ... */
 
-#if defined(CONFIG_DRIVER_TI_CPSW)
-
+#if defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)
 int board_eth_init(bd_t *bis)
 {
 	int rv = 0;
@@ -658,8 +656,6 @@ int board_eth_init(bd_t *bis)
 	mac_addr[4] = mac_lo & 0xFF;
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	if (!getenv("ethaddr")) {
 		#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_USE_FDT)
 		printf("<ethaddr> not set. trying DTB ... ");
@@ -685,10 +681,9 @@ int board_eth_init(bd_t *bis)
 		printf("Error %d registering CPSW switch\n", rv);
 		return 0;
 	}
-#endif /* CONFIG_DRIVER_TI_CPSW, ... */
 	return rv;
 }
-#endif /* CONFIG_DRIVER_TI_CPSW */
+#endif /* defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD) */
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
