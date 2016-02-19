@@ -6,9 +6,13 @@
 
 #include <common.h>
 #include <spl.h>
+#include <i2c.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr_defs.h>
 #include <asm/gpio.h>
+#include <power/pmic.h>
+#include <power/tps65218.h>
+#include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -98,6 +102,17 @@ const struct dpll_params *get_dpll_core_params(void)
 const struct dpll_params *get_dpll_per_params(void)
 {
 	return &dpll_per;
+}
+
+void scale_vcores(void)
+{
+	set_i2c_pin_mux();
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	if (i2c_probe(TPS65218_CHIP_PM))
+		return;
+
+	tps65218_voltage_update(TPS65218_DCDC1, TPS65218_DCDC_VOLT_SEL_1100MV);
+	tps65218_voltage_update(TPS65218_DCDC2, TPS65218_DCDC_VOLT_SEL_1100MV);
 }
 
 void sdram_init(void)
