@@ -106,7 +106,6 @@ BUR_COMMON_ENV \
 #undef	CONFIG_BOOTM_NETBSD
 #undef	CONFIG_BOOTM_PLAN9
 #undef	CONFIG_BOOTM_RTEMS
-#undef CONFIG_CMD_CRC32
 
 /* Support both device trees and ATAGs. */
 #define CONFIG_OF_LIBFDT
@@ -122,16 +121,10 @@ BUR_COMMON_ENV \
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 /* attention! not only for gadget, enables also highspeed in hostmode */
 #define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE	MUSB_HOST
-
-#ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#endif /* CONFIG_USB_MUSB_HOST */
 
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_MMC

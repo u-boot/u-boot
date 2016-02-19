@@ -24,7 +24,6 @@
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
 #define CONFIG_PREBOOT			"run brdefaultip"
-#define CONFIG_CMD_TIME
 
 
 #define CONFIG_AM33XX
@@ -53,19 +52,16 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Network defines */
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT		2
-#define CONFIG_CMD_PING
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_NATSEMI
 /* Network console */
-#define CONFIG_NETCONSOLE			1
 #define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
@@ -105,7 +101,6 @@
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 #define CONFIG_SYS_I2C_OMAP24XX
-#define CONFIG_CMD_I2C
 /* GPIO */
 #define CONFIG_OMAP_GPIO
 /*
@@ -119,7 +114,6 @@
  * console baudrate of 115200 and use the default baud rate table.
  */
 #define CONFIG_SYS_MALLOC_LEN		(5120 << 10)
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
