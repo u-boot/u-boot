@@ -107,9 +107,9 @@ BUR_COMMON_ENV \
 #define CONFIG_BOOTDELAY		0
 
 /* undefine command which we not need here */
-#undef	CONFIG_BOOTM_NETBSD
-#undef	CONFIG_BOOTM_PLAN9
-#undef	CONFIG_BOOTM_RTEMS
+#undef CONFIG_BOOTM_NETBSD
+#undef CONFIG_BOOTM_PLAN9
+#undef CONFIG_BOOTM_RTEMS
 
 /* Support both device trees and ATAGs. */
 #define CONFIG_OF_LIBFDT
@@ -148,4 +148,4 @@ BUR_COMMON_ENV \
 #define CONFIG_CMD_FS_GENERIC
 #endif /* CONFIG_MMC, ... */
 
-#endif	/* ! __CONFIG_TSERIES_H__ */
+#endif	/* __CONFIG_KWB_H__ */
