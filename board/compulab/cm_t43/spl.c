@@ -100,22 +100,10 @@ const struct dpll_params *get_dpll_per_params(void)
 	return &dpll_per;
 }
 
-static void enable_vtt_regulator(void)
-{
-	u32 temp;
-
-	writel(GPIO_CTRL_ENABLEMODULE, AM33XX_GPIO5_BASE + OMAP_GPIO_CTRL);
-	writel(GPIO_SETDATAOUT(7), AM33XX_GPIO5_BASE + OMAP_GPIO_SETDATAOUT);
-	temp = readl(AM33XX_GPIO5_BASE + OMAP_GPIO_OE);
-	temp = temp & ~(GPIO_OE_ENABLE(7));
-	writel(temp, AM33XX_GPIO5_BASE + OMAP_GPIO_OE);
-}
-
 void sdram_init(void)
 {
 	unsigned long ram_size;
 
-	enable_vtt_regulator();
 	config_ddr(0, &ioregs_ddr3, NULL, NULL, &ddr3_emif_regs, 0);
 	ram_size = get_ram_size((long int *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (ram_size == 0x80000000 ||
