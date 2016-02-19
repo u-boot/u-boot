@@ -12,6 +12,7 @@
 #ifndef __CONFIG_KWB_H__
 #define __CONFIG_KWB_H__
 
+#include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
@@ -26,6 +27,9 @@
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_24BMP
 #define CONFIG_BMP_32BPP
+
+/* memory */
+#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */

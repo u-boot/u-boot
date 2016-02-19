@@ -12,6 +12,7 @@
 #ifndef __CONFIG_TSERIES_H__
 #define __CONFIG_TSERIES_H__
 
+#include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
@@ -30,6 +31,10 @@
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_AM33XX
+
+/* memory */
+#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
+
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
