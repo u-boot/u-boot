@@ -6,4 +6,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= board.o mux.o
+ifdef CONFIG_SPL_BUILD
+obj-y	+= spl.o mux.o
+else
+obj-y	+= cm_t43.o mux.o
+endif
