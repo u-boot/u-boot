@@ -23,11 +23,18 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 int power_init_board(void)
 {
 	struct pmic *p;
+	uchar tps_status = 0;
 
 	power_tps65218_init(I2C_PMIC);
 	p = pmic_get("TPS65218_PMIC");
-	if (p && !pmic_probe(p))
+	if (p && !pmic_probe(p)) {
 		puts("PMIC:  TPS65218\n");
+		/* We don't care if fseal is locked, but we do need it set */
+		tps65218_lock_fseal();
+		tps65218_reg_read(TPS65218_STATUS, &tps_status);
+		if (!(tps_status & TPS65218_FSEAL))
+			printf("WARNING: RTC not backed by battery!\n");
+	}
 
 	return 0;
 }
