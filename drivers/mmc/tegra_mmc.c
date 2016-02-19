@@ -674,7 +674,7 @@ void tegra_mmc_init(void)
 		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of Tegra210 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
+		printf("%s: Error processing T210 mmc node(s)!\n", __func__);
 		return;
 	}
 
@@ -684,7 +684,7 @@ void tegra_mmc_init(void)
 		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of Tegra124 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
+		printf("%s: Error processing T124 mmc node(s)!\n", __func__);
 		return;
 	}
 

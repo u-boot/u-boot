@@ -177,7 +177,10 @@ static int tegra_gpio_get_value(struct udevice *dev, unsigned offset)
 	debug("%s: pin = %d (port %d:bit %d)\n", __func__,
 	      gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio));
 
-	val = readl(&state->bank->gpio_in[GPIO_PORT(gpio)]);
+	if (get_direction(gpio) == DIRECTION_INPUT)
+		val = readl(&state->bank->gpio_in[GPIO_PORT(gpio)]);
+	else
+		val = readl(&state->bank->gpio_out[GPIO_PORT(gpio)]);
 
 	return (val >> GPIO_BIT(gpio)) & 1;
 }

@@ -170,6 +170,7 @@ static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 
 	while (*s)
 		vidconsole_put_char(dev, *s++);
+	video_sync(dev->parent);
 }
 
 /* Set up the number of rows and colours (rotated drivers override this) */

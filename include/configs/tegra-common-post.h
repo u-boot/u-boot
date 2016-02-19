@@ -53,6 +53,12 @@
 #define STDOUT_LCD ""
 #endif
 
+#ifdef CONFIG_DM_VIDEO
+#define STDOUT_VIDEO ",vidconsole"
+#else
+#define STDOUT_VIDEO ""
+#endif
+
 #ifdef CONFIG_CROS_EC_KEYB
 #define STDOUT_CROS_EC	",cros-ec-keyb"
 #else
@@ -61,8 +67,8 @@
 
 #define TEGRA_DEVICE_SETTINGS \
 	"stdin=serial" STDIN_KBD_KBC STDIN_KBD_USB STDOUT_CROS_EC "\0" \
-	"stdout=serial" STDOUT_LCD "\0" \
-	"stderr=serial" STDOUT_LCD "\0" \
+	"stdout=serial" STDOUT_LCD STDOUT_VIDEO "\0" \
+	"stderr=serial" STDOUT_LCD STDOUT_VIDEO "\0" \
 	""
 
 #ifndef BOARD_EXTRA_ENV_SETTINGS

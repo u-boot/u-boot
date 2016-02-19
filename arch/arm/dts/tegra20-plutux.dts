@@ -38,12 +38,4 @@
 	i2c@7000d000 {
 		status = "disabled";
 	};
-
-	usb@c5000000 {
-		status = "disabled";
-	};
-
-	usb@c5004000 {
-		status = "disabled";
-	};
 };
