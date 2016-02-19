@@ -98,7 +98,6 @@
 #undef CONFIG_SPL_OS_BOOT
 #undef CONFIG_SPL_GPIO_SUPPORT
 #undef CONFIG_SPL_NAND_SUPPORT
-#undef CONFIG_SPL_BOARD_INIT
 #undef CONFIG_BOOTDELAY
 #include <config_distro_defaults.h>
 #define CONFIG_ZERO_BOOTDELAY_CHECK
