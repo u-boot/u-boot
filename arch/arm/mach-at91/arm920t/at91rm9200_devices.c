@@ -14,7 +14,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 
 /*
@@ -34,29 +34,23 @@
 
 void at91_serial0_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTA, 17, 1);		/* TXD0 */
 	at91_set_a_periph(AT91_PIO_PORTA, 18, PUP);		/* RXD0 */
-	writel(1 << ATMEL_ID_USART0, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_USART0);
 }
 
 void at91_serial1_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTB, 20, PUP);		/* RXD1 */
 	at91_set_a_periph(AT91_PIO_PORTB, 21, 1);		/* TXD1 */
-	writel(1 << ATMEL_ID_USART1, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_USART1);
 }
 
 void at91_serial2_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTA, 22, PUP);		/* RXD2 */
 	at91_set_a_periph(AT91_PIO_PORTA, 23, 1);		/* TXD2 */
-	writel(1 << ATMEL_ID_USART2, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_USART2);
 }
 
 void at91_seriald_hw_init(void)

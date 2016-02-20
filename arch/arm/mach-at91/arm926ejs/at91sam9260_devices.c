@@ -11,8 +11,8 @@
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91sam9_sdramc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 
 /*
@@ -32,51 +32,40 @@
 
 void at91_serial0_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTB, 4, 1);		/* TXD0 */
 	at91_set_a_periph(AT91_PIO_PORTB, 5, PUP);		/* RXD0 */
-	writel(1 << ATMEL_ID_USART0, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_USART0);
 }
 
 void at91_serial1_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTB, 6, 1);		/* TXD1 */
 	at91_set_a_periph(AT91_PIO_PORTB, 7, PUP);		/* RXD1 */
-	writel(1 << ATMEL_ID_USART1, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_USART1);
 }
 
 void at91_serial2_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTB, 8, 1);		/* TXD2 */
 	at91_set_a_periph(AT91_PIO_PORTB, 9, PUP);		/* RXD2 */
-	writel(1 << ATMEL_ID_USART2, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_USART2);
 }
 
 void at91_seriald_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTB, 14, PUP);		/* DRXD */
 	at91_set_a_periph(AT91_PIO_PORTB, 15, 1);		/* DTXD */
-	writel(1 << ATMEL_ID_SYS, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_SYS);
 }
 
 #if defined(CONFIG_HAS_DATAFLASH) || defined(CONFIG_ATMEL_SPI)
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTA, 0, PUP);	/* SPI0_MISO */
 	at91_set_a_periph(AT91_PIO_PORTA, 1, PUP);	/* SPI0_MOSI */
 	at91_set_a_periph(AT91_PIO_PORTA, 2, PUP);	/* SPI0_SPCK */
 
-	/* Enable clock */
-	writel(1 << ATMEL_ID_SPI0, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_SPI0);
 
 	if (cs_mask & (1 << 0)) {
 		at91_set_a_periph(AT91_PIO_PORTA, 3, 1);
@@ -106,14 +95,11 @@ void at91_spi0_hw_init(unsigned long cs_mask)
 
 void at91_spi1_hw_init(unsigned long cs_mask)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTB, 0, PUP);	/* SPI1_MISO */
 	at91_set_a_periph(AT91_PIO_PORTB, 1, PUP);	/* SPI1_MOSI */
 	at91_set_a_periph(AT91_PIO_PORTB, 2, PUP);	/* SPI1_SPCK */
 
-	/* Enable clock */
-	writel(1 << ATMEL_ID_SPI1, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_SPI1);
 
 	if (cs_mask & (1 << 0)) {
 		at91_set_a_periph(AT91_PIO_PORTB, 3, 1);
@@ -145,9 +131,7 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 #ifdef CONFIG_MACB
 void at91_macb_hw_init(void)
 {
-	/* Enable EMAC clock */
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC0);
 
 	at91_set_a_periph(AT91_PIO_PORTA, 19, 0);	/* ETXCK_EREFCK */
 	at91_set_a_periph(AT91_PIO_PORTA, 17, 0);	/* ERXDV */
@@ -190,9 +174,7 @@ void at91_macb_hw_init(void)
 #if defined(CONFIG_GENERIC_ATMEL_MCI)
 void at91_mci_hw_init(void)
 {
-	/* Enable mci clock */
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	writel(1 << ATMEL_ID_MCI, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_MCI);
 
 	at91_set_a_periph(AT91_PIO_PORTA, 8, 1);	/* MCCK */
 #if defined(CONFIG_ATMEL_MCI_PORTB)

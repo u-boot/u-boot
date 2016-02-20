@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5d2.h>
 
@@ -48,9 +47,7 @@ char *get_cpu_name()
 #ifdef CONFIG_USB_GADGET_ATMEL_USBA
 void at91_udp_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
-	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	at91_upll_clk_enable();
 
 	at91_periph_clk_enable(ATMEL_ID_UDPHS);
 }

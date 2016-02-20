@@ -19,7 +19,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_tc.h>
-#include <asm/arch/at91_pmc.h>
+#include <asm/arch/clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,10 +29,8 @@ DECLARE_GLOBAL_DATA_PTR;
 int timer_init(void)
 {
 	at91_tc_t *tc = (at91_tc_t *) ATMEL_BASE_TC;
-	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
-	/* enables TC1.0 clock */
-	writel(1 << ATMEL_ID_TC0, &pmc->pcer);	/* enable clock */
+	at91_periph_clk_enable(ATMEL_ID_TC0);
 
 	writel(0, &tc->bcr);
 	writel(AT91_TC_BMR_TC0XC0S_NONE | AT91_TC_BMR_TC1XC1S_NONE |

@@ -128,5 +128,13 @@ void at91_periph_clk_enable(int id);
 void at91_periph_clk_disable(int id);
 int at91_enable_periph_generated_clk(u32 id, u32 clk_source, u32 div);
 u32 at91_get_periph_generated_clk(u32 id);
+void at91_system_clk_enable(int sys_clk);
+void at91_system_clk_disable(int sys_clk);
+int at91_upll_clk_enable(void);
+int at91_upll_clk_disable(void);
+void at91_usb_clk_init(u32 value);
+int at91_pllb_clk_enable(u32 pllbr);
+int at91_pllb_clk_disable(void);
+void at91_pllicpr_init(u32 icpr);
 
 #endif /* __ASM_ARM_ARCH_CLK_H__ */

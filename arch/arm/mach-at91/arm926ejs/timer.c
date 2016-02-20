@@ -10,7 +10,6 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pit.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
 #include <div64.h>
 
@@ -38,11 +37,9 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int timer_init(void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 	at91_pit_t *pit = (at91_pit_t *) ATMEL_BASE_PIT;
 
-	/* Enable PITC Clock */
-	writel(1 << ATMEL_ID_SYS, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_SYS);
 
 	/* Enable PITC */
 	writel(TIMER_LOAD_VAL | AT91_PIT_MR_EN , &pit->mr);

@@ -12,7 +12,7 @@
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_matrix.h>
-#include <asm/arch/at91_pmc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm-generic/gpio.h>
 #include <asm/io.h>
@@ -43,7 +43,6 @@ static void usb_a9263_nand_hw_init(void)
 	unsigned long csa;
 	at91_smc_t *smc = (at91_smc_t *)ATMEL_BASE_SMC0;
 	at91_matrix_t *matrix = (at91_matrix_t *)ATMEL_BASE_MATRIX;
-	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
 
 	/* Enable CS3 */
 	csa = readl(&matrix->csa[0]) | AT91_MATRIX_CSA_EBI_CS3A;
@@ -66,7 +65,8 @@ static void usb_a9263_nand_hw_init(void)
 	       AT91_SMC_MODE_DBW_8 |
 	       AT91_SMC_MODE_TDF_CYCLE(2), &smc->cs[3].mode);
 
-	writel(1 << ATMEL_ID_PIOA | 1 << ATMEL_ID_PIOCDE, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOA);
+	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
 
 	/* Configure RDY/BSY */
 	gpio_request(CONFIG_SYS_NAND_READY_PIN, "NAND ready/busy");
@@ -81,10 +81,7 @@ static void usb_a9263_nand_hw_init(void)
 #ifdef CONFIG_MACB
 static void usb_a9263_macb_hw_init(void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
-
-	/* Enable clock */
-	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC);
 
 	/*
 	 * Disable pull-up on:

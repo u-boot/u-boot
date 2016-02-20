@@ -15,6 +15,7 @@ obj-$(CONFIG_SAMA5D4) += mpddrc.o spl_atmel.o matrix.o atmel_sfr.o
 obj-y += spl.o
 endif
 
+obj-y += clock.o
 obj-$(CONFIG_CPU_ARM920T)	+= arm920t/
 obj-$(CONFIG_CPU_ARM926EJS)	+= arm926ejs/
 obj-$(CONFIG_CPU_V7)		+= armv7/

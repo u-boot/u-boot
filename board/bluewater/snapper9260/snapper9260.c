@@ -15,7 +15,7 @@
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/atmel_serial.h>
 #include <net.h>
@@ -31,11 +31,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void macb_hw_init(void)
 {
-	struct at91_pmc *pmc   = (struct at91_pmc  *)ATMEL_BASE_PMC;
 	struct at91_port *pioa = (struct at91_port *)ATMEL_BASE_PIOA;
 
-	/* Enable clock */
-	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC0);
 
 	/* Disable pull-ups to prevent PHY going into test mode */
 	writel(pin_to_mask(AT91_PIN_PA14) |
@@ -108,12 +106,9 @@ static void nand_hw_init(void)
 
 int board_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
-	/* Enable PIO clocks */
-	writel((1 << ATMEL_ID_PIOA) |
-	       (1 << ATMEL_ID_PIOB) |
-	       (1 << ATMEL_ID_PIOC), &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOA);
+	at91_periph_clk_enable(ATMEL_ID_PIOB);
+	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
 	/* The mach-type is the same for both Snapper 9260 and 9G20 */
 	gd->bd->bi_arch_number = MACH_TYPE_SNAPPER_9260;

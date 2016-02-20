@@ -11,7 +11,6 @@
 #include <asm/arch/at91sam9263.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_matrix.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
@@ -39,7 +38,6 @@ static void at91sam9263ek_nand_hw_init(void)
 	unsigned long csa;
 	at91_smc_t    *smc    = (at91_smc_t *) ATMEL_BASE_SMC0;
 	at91_matrix_t *matrix = (at91_matrix_t *) ATMEL_BASE_MATRIX;
-	at91_pmc_t    *pmc    = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	/* Enable CS3 */
 	csa = readl(&matrix->csa[0]) | AT91_MATRIX_CSA_EBI_CS3A;
@@ -68,8 +66,8 @@ static void at91sam9263ek_nand_hw_init(void)
 		       AT91_SMC_MODE_TDF_CYCLE(2),
 		&smc->cs[3].mode);
 
-	writel(1 << ATMEL_ID_PIOA | 1 << ATMEL_ID_PIOCDE,
-		&pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOA);
+	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
 
 	/* Configure RDY/BSY */
 	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
@@ -82,11 +80,9 @@ static void at91sam9263ek_nand_hw_init(void)
 #ifdef CONFIG_MACB
 static void at91sam9263ek_macb_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
 	at91_pio_t	*pio	= (at91_pio_t *) ATMEL_BASE_PIO;
 
-	/* Enable clock */
-	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC);
 
 	/*
 	 * Disable pull-up on:
@@ -139,8 +135,6 @@ void lcd_disable(void)
 
 static void at91sam9263ek_lcd_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
-
 	at91_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* LCDHSYNC */
 	at91_set_a_periph(AT91_PIO_PORTC, 2, 0);	/* LCDDOTCK */
 	at91_set_a_periph(AT91_PIO_PORTC, 3, 0);	/* LCDDEN */
@@ -164,7 +158,7 @@ static void at91sam9263ek_lcd_hw_init(void)
 	at91_set_a_periph(AT91_PIO_PORTC, 26, 0);	/* LCDD22 */
 	at91_set_a_periph(AT91_PIO_PORTC, 27, 0);	/* LCDD23 */
 
-	writel(1 << ATMEL_ID_LCDC, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_LCDC);
 	gd->fb_base = ATMEL_BASE_SRAM0;
 }
 
@@ -226,12 +220,9 @@ int board_mmc_init(bd_t *bd)
 
 int board_early_init_f(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
-	/* Enable clocks for all PIOs */
-	writel((1 << ATMEL_ID_PIOA) | (1 << ATMEL_ID_PIOB) |
-		(1 << ATMEL_ID_PIOCDE),
-		&pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOA);
+	at91_periph_clk_enable(ATMEL_ID_PIOB);
+	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
 
 	at91_seriald_hw_init();
 	return 0;
