@@ -251,7 +251,7 @@ static int axiemac_phy_init(struct udevice *dev)
 	}
 
 	/* Interface - look at tsec */
-	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
+	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
