@@ -1,5 +1,5 @@
 MX7DSABRESD BOARD
-M:	Adrian Alonso <aalonso@freescale.com>
+M:	Adrian Alonso <adrian.alonso@nxp.com>
 S:	Maintained
 F:	board/freescale/mx7dsabresd
 F:	include/configs/mx7dsabresd.h

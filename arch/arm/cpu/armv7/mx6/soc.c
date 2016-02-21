@@ -21,6 +21,7 @@
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
 #include <imx_thermal.h>
+#include <mmc.h>
 
 enum ldo_reg {
 	LDO_ARM,
@@ -355,7 +356,7 @@ __weak int board_mmc_get_env_dev(int devno)
 	return CONFIG_SYS_MMC_ENV_DEV;
 }
 
-int mmc_get_env_dev(void)
+static int mmc_get_boot_dev(void)
 {
 	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
 	u32 soc_sbmr = readl(&src_regs->sbmr1);
@@ -370,15 +371,44 @@ int mmc_get_env_dev(void)
 	 */
 	bootsel = (soc_sbmr & 0x000000FF) >> 6;
 
-	/* If not boot from sd/mmc, use default value */
+	/* No boot from sd/mmc */
 	if (bootsel != 1)
-		return CONFIG_SYS_MMC_ENV_DEV;
+		return -1;
 
 	/* BOOT_CFG2[3] and BOOT_CFG2[4] */
 	devno = (soc_sbmr & 0x00001800) >> 11;
 
+	return devno;
+}
+
+int mmc_get_env_dev(void)
+{
+	int devno = mmc_get_boot_dev();
+
+	/* If not boot from sd/mmc, use default value */
+	if (devno < 0)
+		return CONFIG_SYS_MMC_ENV_DEV;
+
 	return board_mmc_get_env_dev(devno);
 }
+
+#ifdef CONFIG_SYS_MMC_ENV_PART
+__weak int board_mmc_get_env_part(int devno)
+{
+	return CONFIG_SYS_MMC_ENV_PART;
+}
+
+uint mmc_get_env_part(struct mmc *mmc)
+{
+	int devno = mmc_get_boot_dev();
+
+	/* If not boot from sd/mmc, use default value */
+	if (devno < 0)
+		return CONFIG_SYS_MMC_ENV_PART;
+
+	return board_mmc_get_env_part(devno);
+}
+#endif
 #endif
 
 int board_postclk_init(void)
@@ -535,5 +565,43 @@ void imx_setup_hdmi(void)
 		 |(CHSCCDR_IPU_PRE_CLK_540M_PFD
 		 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
 	writel(reg, &mxc_ccm->chsccdr);
+}
+#endif
+
+#ifdef CONFIG_IMX_BOOTAUX
+int arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
+{
+	struct src *src_reg;
+	u32 stack, pc;
+
+	if (!boot_private_data)
+		return -EINVAL;
+
+	stack = *(u32 *)boot_private_data;
+	pc = *(u32 *)(boot_private_data + 4);
+
+	/* Set the stack and pc to M4 bootROM */
+	writel(stack, M4_BOOTROM_BASE_ADDR);
+	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
+
+	/* Enable M4 */
+	src_reg = (struct src *)SRC_BASE_ADDR;
+	clrsetbits_le32(&src_reg->scr, SRC_SCR_M4C_NON_SCLR_RST_MASK,
+			SRC_SCR_M4_ENABLE_MASK);
+
+	return 0;
+}
+
+int arch_auxiliary_core_check_up(u32 core_id)
+{
+	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
+	unsigned val;
+
+	val = readl(&src_reg->scr);
+
+	if (val & SRC_SCR_M4C_NON_SCLR_RST_MASK)
+		return 0;  /* assert in reset */
+
+	return 1;
 }
 #endif

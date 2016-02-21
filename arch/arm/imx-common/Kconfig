@@ -3,3 +3,17 @@ config IMX_CONFIG
 
 config ROM_UNIFIED_SECTIONS
 	bool
+
+config IMX_RDC
+	bool "i.MX Resource domain controller driver"
+	depends on ARCH_MX6 || ARCH_MX7
+	help
+	  i.MX Resource domain controller is used to assign masters
+	  and peripherals to differet domains. This can be used to
+	  isolate resources.
+
+config IMX_BOOTAUX
+	bool "Support boot auxiliary core"
+	depends on ARCH_MX7 || ARCH_MX6
+	help
+	  bootaux [addr] to boot auxiliary core.
