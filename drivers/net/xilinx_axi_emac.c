@@ -269,6 +269,23 @@ static int setup_phy(struct udevice *dev)
 	struct axi_regs *regs = priv->iobase;
 	struct phy_device *phydev = priv->phydev;
 
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
+		/*
+		 * In SGMII cases the isolate bit might set
+		 * after DMA and ethernet resets and hence
+		 * check and clear if set.
+		 */
+		ret = phyread(priv, priv->phyaddr, MII_BMCR, &temp);
+		if (ret)
+			return 0;
+		if (temp & BMCR_ISOLATE) {
+			temp &= ~BMCR_ISOLATE;
+			ret = phywrite(priv, priv->phyaddr, MII_BMCR, temp);
+			if (ret)
+				return 0;
+		}
+	}
+
 	if (phy_startup(phydev)) {
 		printf("axiemac: could not initialize PHY %s\n",
 		       phydev->dev->name);
