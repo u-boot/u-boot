@@ -13,6 +13,9 @@
 #include <configs/exynos5-dt-common.h>
 #include <configs/exynos5-common.h>
 
+#undef CONFIG_LCD
+#undef CONFIG_EXYNOS_FB
+#undef CONFIG_EXYNOS_DP
 #undef CONFIG_KEYBOARD
 
 #define CONFIG_BOARD_COMMON
