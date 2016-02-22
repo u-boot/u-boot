@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <inttypes.h>
 #include <config.h>
 #include <dm.h>
 #include <fdt_support.h>
@@ -53,6 +54,12 @@ struct msg_get_arm_mem {
 struct msg_get_board_rev {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_get_board_rev get_board_rev;
+	u32 end_tag;
+};
+
+struct msg_get_board_serial {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_get_board_serial get_board_serial;
 	u32 end_tag;
 };
 
@@ -281,6 +288,30 @@ static void set_board_info(void)
 }
 #endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
 
+static void set_serial_number(void)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_board_serial, msg, 1);
+	int ret;
+	char serial_string[17] = { 0 };
+
+	if (getenv("serial#"))
+		return;
+
+	BCM2835_MBOX_INIT_HDR(msg);
+	BCM2835_MBOX_INIT_TAG_NO_REQ(&msg->get_board_serial, GET_BOARD_SERIAL);
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query board serial\n");
+		/* Ignore error; not critical */
+		return;
+	}
+
+	snprintf(serial_string, sizeof(serial_string), "%016" PRIx64,
+		 msg->get_board_serial.body.resp.serial);
+	setenv("serial#", serial_string);
+}
+
 int misc_init_r(void)
 {
 	set_fdtfile();
@@ -288,6 +319,8 @@ int misc_init_r(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
 #endif
+	set_serial_number();
+
 	return 0;
 }
 
