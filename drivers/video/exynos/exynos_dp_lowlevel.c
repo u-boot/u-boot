@@ -14,26 +14,13 @@
 #include <asm/arch/dp.h>
 #include <fdtdec.h>
 #include <libfdt.h>
+#include "exynos_dp_lowlevel.h"
 
 /* Declare global data pointer */
 DECLARE_GLOBAL_DATA_PTR;
 
-struct exynos_dp *dp_regs;
-
-void exynos_dp_set_base_addr(void)
-{
-	unsigned int node = fdtdec_next_compatible(gd->fdt_blob,
-					0, COMPAT_SAMSUNG_EXYNOS5_DP);
-	if (node <= 0)
-		debug("exynos_dp: Can't get device node for dp\n");
-
-	dp_regs = (struct exynos_dp *)fdtdec_get_addr(gd->fdt_blob,
-								node, "reg");
-	if (dp_regs == NULL)
-		debug("Can't get the DP base address\n");
-}
-
-static void exynos_dp_enable_video_input(unsigned int enable)
+static void exynos_dp_enable_video_input(struct exynos_dp *dp_regs,
+					 unsigned int enable)
 {
 	unsigned int reg;
 
@@ -49,7 +36,7 @@ static void exynos_dp_enable_video_input(unsigned int enable)
 	return;
 }
 
-void exynos_dp_enable_video_bist(unsigned int enable)
+void exynos_dp_enable_video_bist(struct exynos_dp *dp_regs, unsigned int enable)
 {
 	/* enable video bist */
 	unsigned int reg;
@@ -66,7 +53,7 @@ void exynos_dp_enable_video_bist(unsigned int enable)
 	return;
 }
 
-void exynos_dp_enable_video_mute(unsigned int enable)
+void exynos_dp_enable_video_mute(struct exynos_dp *dp_regs, unsigned int enable)
 {
 	unsigned int reg;
 
@@ -81,7 +68,7 @@ void exynos_dp_enable_video_mute(unsigned int enable)
 }
 
 
-static void exynos_dp_init_analog_param(void)
+static void exynos_dp_init_analog_param(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -130,7 +117,7 @@ static void exynos_dp_init_analog_param(void)
 	writel(reg, &dp_regs->pll_ctl);
 }
 
-static void exynos_dp_init_interrupt(void)
+static void exynos_dp_init_interrupt(struct exynos_dp *dp_regs)
 {
 	/* Set interrupt registers to initial states */
 
@@ -157,16 +144,16 @@ static void exynos_dp_init_interrupt(void)
 	writel(0x00, &dp_regs->int_sta_mask);
 }
 
-void exynos_dp_reset(void)
+void exynos_dp_reset(struct exynos_dp *dp_regs)
 {
 	unsigned int reg_func_1;
 
 	/* dp tx sw reset */
 	writel(RESET_DP_TX, &dp_regs->tx_sw_reset);
 
-	exynos_dp_enable_video_input(DP_DISABLE);
-	exynos_dp_enable_video_bist(DP_DISABLE);
-	exynos_dp_enable_video_mute(DP_DISABLE);
+	exynos_dp_enable_video_input(dp_regs, DP_DISABLE);
+	exynos_dp_enable_video_bist(dp_regs, DP_DISABLE);
+	exynos_dp_enable_video_mute(dp_regs, DP_DISABLE);
 
 	/* software reset */
 	reg_func_1 = MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N |
@@ -178,13 +165,13 @@ void exynos_dp_reset(void)
 
 	mdelay(1);
 
-	exynos_dp_init_analog_param();
-	exynos_dp_init_interrupt();
+	exynos_dp_init_analog_param(dp_regs);
+	exynos_dp_init_interrupt(dp_regs);
 
 	return;
 }
 
-void exynos_dp_enable_sw_func(unsigned int enable)
+void exynos_dp_enable_sw_func(struct exynos_dp *dp_regs, unsigned int enable)
 {
 	unsigned int reg;
 
@@ -199,7 +186,8 @@ void exynos_dp_enable_sw_func(unsigned int enable)
 	return;
 }
 
-unsigned int exynos_dp_set_analog_power_down(unsigned int block, u32 enable)
+unsigned int exynos_dp_set_analog_power_down(struct exynos_dp *dp_regs,
+					     unsigned int block, u32 enable)
 {
 	unsigned int reg;
 
@@ -252,7 +240,7 @@ unsigned int exynos_dp_set_analog_power_down(unsigned int block, u32 enable)
 	return 0;
 }
 
-unsigned int exynos_dp_get_pll_lock_status(void)
+unsigned int exynos_dp_get_pll_lock_status(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -264,7 +252,8 @@ unsigned int exynos_dp_get_pll_lock_status(void)
 		return PLL_UNLOCKED;
 }
 
-static void exynos_dp_set_pll_power(unsigned int enable)
+static void exynos_dp_set_pll_power(struct exynos_dp *dp_regs,
+				    unsigned int enable)
 {
 	unsigned int reg;
 
@@ -277,14 +266,14 @@ static void exynos_dp_set_pll_power(unsigned int enable)
 	writel(reg, &dp_regs->pll_ctl);
 }
 
-int exynos_dp_init_analog_func(void)
+int exynos_dp_init_analog_func(struct exynos_dp *dp_regs)
 {
 	int ret = EXYNOS_DP_SUCCESS;
 	unsigned int retry_cnt = 10;
 	unsigned int reg;
 
 	/* Power On All Analog block */
-	exynos_dp_set_analog_power_down(POWER_ALL, DP_DISABLE);
+	exynos_dp_set_analog_power_down(dp_regs, POWER_ALL, DP_DISABLE);
 
 	reg = PLL_LOCK_CHG;
 	writel(reg, &dp_regs->common_int_sta1);
@@ -305,9 +294,9 @@ int exynos_dp_init_analog_func(void)
 	reg &= ~(DP_PLL_RESET);
 	writel(reg, &dp_regs->pll_ctl);
 
-	exynos_dp_set_pll_power(DP_ENABLE);
+	exynos_dp_set_pll_power(dp_regs, DP_ENABLE);
 
-	while (exynos_dp_get_pll_lock_status() == PLL_UNLOCKED) {
+	while (exynos_dp_get_pll_lock_status(dp_regs) == PLL_UNLOCKED) {
 		mdelay(1);
 		retry_cnt--;
 		if (retry_cnt == 0) {
@@ -328,7 +317,7 @@ int exynos_dp_init_analog_func(void)
 	return ret;
 }
 
-void exynos_dp_init_hpd(void)
+void exynos_dp_init_hpd(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -346,7 +335,7 @@ void exynos_dp_init_hpd(void)
 	return;
 }
 
-static inline void exynos_dp_reset_aux(void)
+static inline void exynos_dp_reset_aux(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -358,7 +347,7 @@ static inline void exynos_dp_reset_aux(void)
 	return;
 }
 
-void exynos_dp_init_aux(void)
+void exynos_dp_init_aux(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -366,7 +355,7 @@ void exynos_dp_init_aux(void)
 	reg = RPLY_RECEIV | AUX_ERR;
 	writel(reg, &dp_regs->int_sta);
 
-	exynos_dp_reset_aux();
+	exynos_dp_reset_aux(dp_regs);
 
 	/* Disable AUX transaction H/W retry */
 	reg = AUX_BIT_PERIOD_EXPECTED_DELAY(3) | AUX_HW_RETRY_COUNT_SEL(3)|
@@ -385,7 +374,7 @@ void exynos_dp_init_aux(void)
 	return;
 }
 
-void exynos_dp_config_interrupt(void)
+void exynos_dp_config_interrupt(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -408,7 +397,7 @@ void exynos_dp_config_interrupt(void)
 	return;
 }
 
-unsigned int exynos_dp_get_plug_in_status(void)
+unsigned int exynos_dp_get_plug_in_status(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -419,13 +408,13 @@ unsigned int exynos_dp_get_plug_in_status(void)
 	return -1;
 }
 
-unsigned int exynos_dp_detect_hpd(void)
+unsigned int exynos_dp_detect_hpd(struct exynos_dp *dp_regs)
 {
 	int timeout_loop = DP_TIMEOUT_LOOP_COUNT;
 
 	mdelay(2);
 
-	while (exynos_dp_get_plug_in_status() != 0) {
+	while (exynos_dp_get_plug_in_status(dp_regs) != 0) {
 		if (timeout_loop == 0)
 			return -EINVAL;
 		mdelay(10);
@@ -435,7 +424,7 @@ unsigned int exynos_dp_detect_hpd(void)
 	return EXYNOS_DP_SUCCESS;
 }
 
-unsigned int exynos_dp_start_aux_transaction(void)
+unsigned int exynos_dp_start_aux_transaction(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 	unsigned int ret = 0;
@@ -484,8 +473,9 @@ unsigned int exynos_dp_start_aux_transaction(void)
 	return EXYNOS_DP_SUCCESS;
 }
 
-unsigned int exynos_dp_write_byte_to_dpcd(unsigned int reg_addr,
-				unsigned char data)
+unsigned int exynos_dp_write_byte_to_dpcd(struct exynos_dp *dp_regs,
+					  unsigned int reg_addr,
+					  unsigned char data)
 {
 	unsigned int reg, ret;
 
@@ -514,7 +504,7 @@ unsigned int exynos_dp_write_byte_to_dpcd(unsigned int reg_addr,
 	writel(reg, &dp_regs->aux_ch_ctl1);
 
 	/* Start AUX transaction */
-	ret = exynos_dp_start_aux_transaction();
+	ret = exynos_dp_start_aux_transaction(dp_regs);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP Aux transaction failed\n");
 		return ret;
@@ -523,8 +513,9 @@ unsigned int exynos_dp_write_byte_to_dpcd(unsigned int reg_addr,
 	return ret;
 }
 
-unsigned int exynos_dp_read_byte_from_dpcd(unsigned int reg_addr,
-		unsigned char *data)
+unsigned int exynos_dp_read_byte_from_dpcd(struct exynos_dp *dp_regs,
+					   unsigned int reg_addr,
+					   unsigned char *data)
 {
 	unsigned int reg;
 	int retval;
@@ -550,7 +541,7 @@ unsigned int exynos_dp_read_byte_from_dpcd(unsigned int reg_addr,
 	writel(reg, &dp_regs->aux_ch_ctl1);
 
 	/* Start AUX transaction */
-	retval = exynos_dp_start_aux_transaction();
+	retval = exynos_dp_start_aux_transaction(dp_regs);
 	if (!retval)
 		debug("DP Aux Transaction fail!\n");
 
@@ -561,9 +552,10 @@ unsigned int exynos_dp_read_byte_from_dpcd(unsigned int reg_addr,
 	return retval;
 }
 
-unsigned int exynos_dp_write_bytes_to_dpcd(unsigned int reg_addr,
-				unsigned int count,
-				unsigned char data[])
+unsigned int exynos_dp_write_bytes_to_dpcd(struct exynos_dp *dp_regs,
+					   unsigned int reg_addr,
+					   unsigned int count,
+					   unsigned char data[])
 {
 	unsigned int reg;
 	unsigned int start_offset;
@@ -610,7 +602,7 @@ unsigned int exynos_dp_write_bytes_to_dpcd(unsigned int reg_addr,
 			writel(reg, &dp_regs->aux_ch_ctl1);
 
 			/* Start AUX transaction */
-			ret = exynos_dp_start_aux_transaction();
+			ret = exynos_dp_start_aux_transaction(dp_regs);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				if (retry_cnt == 0) {
 					printf("DP Aux Transaction failed\n");
@@ -626,9 +618,10 @@ unsigned int exynos_dp_write_bytes_to_dpcd(unsigned int reg_addr,
 	return ret;
 }
 
-unsigned int exynos_dp_read_bytes_from_dpcd(unsigned int reg_addr,
-				unsigned int count,
-				unsigned char data[])
+unsigned int exynos_dp_read_bytes_from_dpcd(struct exynos_dp *dp_regs,
+					    unsigned int reg_addr,
+					    unsigned int count,
+					    unsigned char data[])
 {
 	unsigned int reg;
 	unsigned int start_offset;
@@ -668,7 +661,7 @@ unsigned int exynos_dp_read_bytes_from_dpcd(unsigned int reg_addr,
 			writel(reg, &dp_regs->aux_ch_ctl1);
 
 			/* Start AUX transaction */
-			ret = exynos_dp_start_aux_transaction();
+			ret = exynos_dp_start_aux_transaction(dp_regs);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				if (retry_cnt == 0) {
 					printf("DP Aux Transaction failed\n");
@@ -692,8 +685,8 @@ unsigned int exynos_dp_read_bytes_from_dpcd(unsigned int reg_addr,
 	return ret;
 }
 
-int exynos_dp_select_i2c_device(unsigned int device_addr,
-				unsigned int reg_addr)
+int exynos_dp_select_i2c_device(struct exynos_dp *dp_regs,
+				unsigned int device_addr, unsigned int reg_addr)
 {
 	unsigned int reg;
 	int retval;
@@ -717,16 +710,16 @@ int exynos_dp_select_i2c_device(unsigned int device_addr,
 	writel(reg, &dp_regs->aux_ch_ctl1);
 
 	/* Start AUX transaction */
-	retval = exynos_dp_start_aux_transaction();
+	retval = exynos_dp_start_aux_transaction(dp_regs);
 	if (retval != 0)
 		printf("%s: DP Aux Transaction fail!\n", __func__);
 
 	return retval;
 }
 
-int exynos_dp_read_byte_from_i2c(unsigned int device_addr,
-				unsigned int reg_addr,
-				unsigned int *data)
+int exynos_dp_read_byte_from_i2c(struct exynos_dp *dp_regs,
+				 unsigned int device_addr,
+				 unsigned int reg_addr, unsigned int *data)
 {
 	unsigned int reg;
 	int i;
@@ -738,7 +731,8 @@ int exynos_dp_read_byte_from_i2c(unsigned int device_addr,
 		writel(reg, &dp_regs->buffer_data_ctl);
 
 		/* Select EDID device */
-		retval = exynos_dp_select_i2c_device(device_addr, reg_addr);
+		retval = exynos_dp_select_i2c_device(dp_regs, device_addr,
+						     reg_addr);
 		if (retval != 0) {
 			printf("DP Select EDID device fail. retry !\n");
 			continue;
@@ -754,7 +748,7 @@ int exynos_dp_read_byte_from_i2c(unsigned int device_addr,
 		writel(reg, &dp_regs->aux_ch_ctl1);
 
 		/* Start AUX transaction */
-		retval = exynos_dp_start_aux_transaction();
+		retval = exynos_dp_start_aux_transaction(dp_regs);
 		if (retval != EXYNOS_DP_SUCCESS)
 			printf("%s: DP Aux Transaction fail!\n", __func__);
 	}
@@ -766,8 +760,10 @@ int exynos_dp_read_byte_from_i2c(unsigned int device_addr,
 	return retval;
 }
 
-int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
-		unsigned int reg_addr, unsigned int count, unsigned char edid[])
+int exynos_dp_read_bytes_from_i2c(struct exynos_dp *dp_regs,
+				  unsigned int device_addr,
+				  unsigned int reg_addr, unsigned int count,
+				  unsigned char edid[])
 {
 	unsigned int reg;
 	unsigned int i, j;
@@ -791,9 +787,8 @@ int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
 			 * request without sending addres
 			 */
 			if (!defer)
-				retval =
-					exynos_dp_select_i2c_device(device_addr,
-							reg_addr + i);
+				retval = exynos_dp_select_i2c_device(
+					dp_regs, device_addr, reg_addr + i);
 			else
 				defer = 0;
 
@@ -809,7 +804,8 @@ int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
 				writel(reg, &dp_regs->aux_ch_ctl1);
 
 				/* Start AUX transaction */
-				retval = exynos_dp_start_aux_transaction();
+				retval = exynos_dp_start_aux_transaction(
+							dp_regs);
 				if (retval == 0)
 					break;
 				else
@@ -834,7 +830,7 @@ int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
 	return retval;
 }
 
-void exynos_dp_reset_macro(void)
+void exynos_dp_reset_macro(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -849,7 +845,8 @@ void exynos_dp_reset_macro(void)
 	writel(reg, &dp_regs->phy_test);
 }
 
-void exynos_dp_set_link_bandwidth(unsigned char bwtype)
+void exynos_dp_set_link_bandwidth(struct exynos_dp *dp_regs,
+				  unsigned char bwtype)
 {
 	unsigned int reg;
 
@@ -860,7 +857,7 @@ void exynos_dp_set_link_bandwidth(unsigned char bwtype)
 		writel(reg, &dp_regs->link_bw_set);
 }
 
-unsigned char exynos_dp_get_link_bandwidth(void)
+unsigned char exynos_dp_get_link_bandwidth(struct exynos_dp *dp_regs)
 {
 	unsigned char ret;
 	unsigned int reg;
@@ -871,7 +868,7 @@ unsigned char exynos_dp_get_link_bandwidth(void)
 	return ret;
 }
 
-void exynos_dp_set_lane_count(unsigned char count)
+void exynos_dp_set_lane_count(struct exynos_dp *dp_regs, unsigned char count)
 {
 	unsigned int reg;
 
@@ -882,7 +879,7 @@ void exynos_dp_set_lane_count(unsigned char count)
 		writel(reg, &dp_regs->lane_count_set);
 }
 
-unsigned int exynos_dp_get_lane_count(void)
+unsigned int exynos_dp_get_lane_count(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -891,7 +888,8 @@ unsigned int exynos_dp_get_lane_count(void)
 	return reg;
 }
 
-unsigned char exynos_dp_get_lanex_pre_emphasis(unsigned char lanecnt)
+unsigned char exynos_dp_get_lanex_pre_emphasis(struct exynos_dp *dp_regs,
+					       unsigned char lanecnt)
 {
 	unsigned int reg_list[DP_LANE_CNT_4] = {
 		(unsigned int)&dp_regs->ln0_link_training_ctl,
@@ -903,8 +901,9 @@ unsigned char exynos_dp_get_lanex_pre_emphasis(unsigned char lanecnt)
 	return readl(reg_list[lanecnt]);
 }
 
-void exynos_dp_set_lanex_pre_emphasis(unsigned char request_val,
-		unsigned char lanecnt)
+void exynos_dp_set_lanex_pre_emphasis(struct exynos_dp *dp_regs,
+				      unsigned char request_val,
+				      unsigned char lanecnt)
 {
 	unsigned int reg_list[DP_LANE_CNT_4] = {
 		(unsigned int)&dp_regs->ln0_link_training_ctl,
@@ -916,7 +915,8 @@ void exynos_dp_set_lanex_pre_emphasis(unsigned char request_val,
 	writel(request_val, reg_list[lanecnt]);
 }
 
-void exynos_dp_set_lane_pre_emphasis(unsigned int level, unsigned char lanecnt)
+void exynos_dp_set_lane_pre_emphasis(struct exynos_dp *dp_regs,
+				     unsigned int level, unsigned char lanecnt)
 {
 	unsigned char i;
 	unsigned int reg;
@@ -939,7 +939,8 @@ void exynos_dp_set_lane_pre_emphasis(unsigned int level, unsigned char lanecnt)
 	}
 }
 
-void exynos_dp_set_training_pattern(unsigned int pattern)
+void exynos_dp_set_training_pattern(struct exynos_dp *dp_regs,
+				    unsigned int pattern)
 {
 	unsigned int reg = 0;
 
@@ -967,7 +968,8 @@ void exynos_dp_set_training_pattern(unsigned int pattern)
 	writel(reg, &dp_regs->training_ptn_set);
 }
 
-void exynos_dp_enable_enhanced_mode(unsigned char enable)
+void exynos_dp_enable_enhanced_mode(struct exynos_dp *dp_regs,
+				    unsigned char enable)
 {
 	unsigned int reg;
 
@@ -980,7 +982,7 @@ void exynos_dp_enable_enhanced_mode(unsigned char enable)
 	writel(reg, &dp_regs->sys_ctl4);
 }
 
-void exynos_dp_enable_scrambling(unsigned int enable)
+void exynos_dp_enable_scrambling(struct exynos_dp *dp_regs, unsigned int enable)
 {
 	unsigned int reg;
 
@@ -993,7 +995,7 @@ void exynos_dp_enable_scrambling(unsigned int enable)
 	writel(reg, &dp_regs->training_ptn_set);
 }
 
-int exynos_dp_init_video(void)
+int exynos_dp_init_video(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -1008,7 +1010,8 @@ int exynos_dp_init_video(void)
 	return 0;
 }
 
-void exynos_dp_config_video_slave_mode(struct edp_video_info *video_info)
+void exynos_dp_config_video_slave_mode(struct exynos_dp *dp_regs,
+				       struct edp_video_info *video_info)
 {
 	unsigned int reg;
 
@@ -1041,7 +1044,8 @@ void exynos_dp_config_video_slave_mode(struct edp_video_info *video_info)
 	writel(reg, &dp_regs->soc_general_ctl);
 }
 
-void exynos_dp_set_video_color_format(struct edp_video_info *video_info)
+void exynos_dp_set_video_color_format(struct exynos_dp *dp_regs,
+				      struct edp_video_info *video_info)
 {
 	unsigned int reg;
 
@@ -1061,7 +1065,8 @@ void exynos_dp_set_video_color_format(struct edp_video_info *video_info)
 	writel(reg, &dp_regs->video_ctl3);
 }
 
-int exynos_dp_config_video_bist(struct edp_device_info *edp_info)
+int exynos_dp_config_video_bist(struct exynos_dp *dp_regs,
+				struct edp_device_info *edp_info)
 {
 	unsigned int reg;
 	unsigned int bist_type = 0;
@@ -1151,7 +1156,7 @@ int exynos_dp_config_video_bist(struct edp_device_info *edp_info)
 	return 0;
 }
 
-unsigned int exynos_dp_is_slave_video_stream_clock_on(void)
+unsigned int exynos_dp_is_slave_video_stream_clock_on(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -1169,8 +1174,8 @@ unsigned int exynos_dp_is_slave_video_stream_clock_on(void)
 	return EXYNOS_DP_SUCCESS;
 }
 
-void exynos_dp_set_video_cr_mn(unsigned int type, unsigned int m_value,
-		unsigned int n_value)
+void exynos_dp_set_video_cr_mn(struct exynos_dp *dp_regs, unsigned int type,
+			       unsigned int m_value, unsigned int n_value)
 {
 	unsigned int reg;
 
@@ -1198,7 +1203,8 @@ void exynos_dp_set_video_cr_mn(unsigned int type, unsigned int m_value,
 	}
 }
 
-void exynos_dp_set_video_timing_mode(unsigned int type)
+void exynos_dp_set_video_timing_mode(struct exynos_dp *dp_regs,
+				     unsigned int type)
 {
 	unsigned int reg;
 
@@ -1211,7 +1217,8 @@ void exynos_dp_set_video_timing_mode(unsigned int type)
 	writel(reg, &dp_regs->video_ctl10);
 }
 
-void exynos_dp_enable_video_master(unsigned int enable)
+void exynos_dp_enable_video_master(struct exynos_dp *dp_regs,
+				   unsigned int enable)
 {
 	unsigned int reg;
 
@@ -1227,7 +1234,7 @@ void exynos_dp_enable_video_master(unsigned int enable)
 	writel(reg, &dp_regs->soc_general_ctl);
 }
 
-void exynos_dp_start_video(void)
+void exynos_dp_start_video(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 
@@ -1237,7 +1244,7 @@ void exynos_dp_start_video(void)
 	writel(reg, &dp_regs->video_ctl1);
 }
 
-unsigned int exynos_dp_is_video_stream_on(void)
+unsigned int exynos_dp_is_video_stream_on(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;
 

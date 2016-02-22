@@ -38,20 +38,20 @@ static void exynos_dp_disp_info(struct edp_disp_info *disp_info)
 	return;
 }
 
-static int exynos_dp_init_dp(void)
+static int exynos_dp_init_dp(struct exynos_dp *dp_regs)
 {
 	int ret;
-	exynos_dp_reset();
+	exynos_dp_reset(dp_regs);
 
 	/* SW defined function Normal operation */
-	exynos_dp_enable_sw_func(DP_ENABLE);
+	exynos_dp_enable_sw_func(dp_regs, DP_ENABLE);
 
-	ret = exynos_dp_init_analog_func();
+	ret = exynos_dp_init_analog_func(dp_regs);
 	if (ret != EXYNOS_DP_SUCCESS)
 		return ret;
 
-	exynos_dp_init_hpd();
-	exynos_dp_init_aux();
+	exynos_dp_init_hpd(dp_regs);
+	exynos_dp_init_aux(dp_regs);
 
 	return ret;
 }
@@ -67,7 +67,7 @@ static unsigned char exynos_dp_calc_edid_check_sum(unsigned char *edid_data)
 	return sum;
 }
 
-static unsigned int exynos_dp_read_edid(void)
+static unsigned int exynos_dp_read_edid(struct exynos_dp *dp_regs)
 {
 	unsigned char edid[EDID_BLOCK_LENGTH * 2];
 	unsigned int extend_block = 0;
@@ -82,14 +82,15 @@ static unsigned int exynos_dp_read_edid(void)
 	 */
 
 	/* Read Extension Flag, Number of 128-byte EDID extension blocks */
-	exynos_dp_read_byte_from_i2c(I2C_EDID_DEVICE_ADDR, EDID_EXTENSION_FLAG,
-			&extend_block);
+	exynos_dp_read_byte_from_i2c(dp_regs, I2C_EDID_DEVICE_ADDR,
+				     EDID_EXTENSION_FLAG, &extend_block);
 
 	if (extend_block > 0) {
 		printf("DP EDID data includes a single extension!\n");
 
 		/* Read EDID data */
-		retval = exynos_dp_read_bytes_from_i2c(I2C_EDID_DEVICE_ADDR,
+		retval = exynos_dp_read_bytes_from_i2c(dp_regs,
+						I2C_EDID_DEVICE_ADDR,
 						EDID_HEADER_PATTERN,
 						EDID_BLOCK_LENGTH,
 						&edid[EDID_HEADER_PATTERN]);
@@ -104,7 +105,8 @@ static unsigned int exynos_dp_read_edid(void)
 		}
 
 		/* Read additional EDID data */
-		retval = exynos_dp_read_bytes_from_i2c(I2C_EDID_DEVICE_ADDR,
+		retval = exynos_dp_read_bytes_from_i2c(dp_regs,
+				I2C_EDID_DEVICE_ADDR,
 				EDID_BLOCK_LENGTH,
 				EDID_BLOCK_LENGTH,
 				&edid[EDID_BLOCK_LENGTH]);
@@ -118,19 +120,22 @@ static unsigned int exynos_dp_read_edid(void)
 			return -1;
 		}
 
-		exynos_dp_read_byte_from_dpcd(DPCD_TEST_REQUEST,
-					&test_vector);
+		exynos_dp_read_byte_from_dpcd(dp_regs, DPCD_TEST_REQUEST,
+					      &test_vector);
 		if (test_vector & DPCD_TEST_EDID_READ) {
-			exynos_dp_write_byte_to_dpcd(DPCD_TEST_EDID_CHECKSUM,
+			exynos_dp_write_byte_to_dpcd(dp_regs,
+				DPCD_TEST_EDID_CHECKSUM,
 				edid[EDID_BLOCK_LENGTH + EDID_CHECKSUM]);
-			exynos_dp_write_byte_to_dpcd(DPCD_TEST_RESPONSE,
+			exynos_dp_write_byte_to_dpcd(dp_regs,
+				DPCD_TEST_RESPONSE,
 				DPCD_TEST_EDID_CHECKSUM_WRITE);
 		}
 	} else {
 		debug("DP EDID data does not include any extensions.\n");
 
 		/* Read EDID data */
-		retval = exynos_dp_read_bytes_from_i2c(I2C_EDID_DEVICE_ADDR,
+		retval = exynos_dp_read_bytes_from_i2c(dp_regs,
+				I2C_EDID_DEVICE_ADDR,
 				EDID_HEADER_PATTERN,
 				EDID_BLOCK_LENGTH,
 				&edid[EDID_HEADER_PATTERN]);
@@ -145,12 +150,13 @@ static unsigned int exynos_dp_read_edid(void)
 			return -1;
 		}
 
-		exynos_dp_read_byte_from_dpcd(DPCD_TEST_REQUEST,
+		exynos_dp_read_byte_from_dpcd(dp_regs, DPCD_TEST_REQUEST,
 			&test_vector);
 		if (test_vector & DPCD_TEST_EDID_READ) {
-			exynos_dp_write_byte_to_dpcd(DPCD_TEST_EDID_CHECKSUM,
-				edid[EDID_CHECKSUM]);
-			exynos_dp_write_byte_to_dpcd(DPCD_TEST_RESPONSE,
+			exynos_dp_write_byte_to_dpcd(dp_regs,
+				DPCD_TEST_EDID_CHECKSUM, edid[EDID_CHECKSUM]);
+			exynos_dp_write_byte_to_dpcd(dp_regs,
+				DPCD_TEST_RESPONSE,
 				DPCD_TEST_EDID_CHECKSUM_WRITE);
 		}
 	}
@@ -160,7 +166,8 @@ static unsigned int exynos_dp_read_edid(void)
 	return 0;
 }
 
-static unsigned int exynos_dp_handle_edid(struct edp_device_info *edp_info)
+static unsigned int exynos_dp_handle_edid(struct exynos_dp *dp_regs,
+					  struct edp_device_info *edp_info)
 {
 	unsigned char buf[12];
 	unsigned int ret;
@@ -178,8 +185,8 @@ static unsigned int exynos_dp_handle_edid(struct edp_device_info *edp_info)
 	retry_cnt = 5;
 	while (retry_cnt) {
 		/* Read DPCD 0x0000-0x000b */
-		ret = exynos_dp_read_bytes_from_dpcd(DPCD_DPCD_REV, 12,
-				buf);
+		ret = exynos_dp_read_bytes_from_dpcd(dp_regs, DPCD_DPCD_REV, 12,
+						     buf);
 		if (ret != EXYNOS_DP_SUCCESS) {
 			if (retry_cnt == 0) {
 				printf("DP read_byte_from_dpcd() failed\n");
@@ -227,7 +234,7 @@ static unsigned int exynos_dp_handle_edid(struct edp_device_info *edp_info)
 		return -EINVAL;
 	}
 
-	ret = exynos_dp_read_edid();
+	ret = exynos_dp_read_edid(dp_regs);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP exynos_dp_read_edid() failed\n");
 		return -EINVAL;
@@ -236,19 +243,20 @@ static unsigned int exynos_dp_handle_edid(struct edp_device_info *edp_info)
 	return ret;
 }
 
-static void exynos_dp_init_training(void)
+static void exynos_dp_init_training(struct exynos_dp *dp_regs)
 {
 	/*
 	 * MACRO_RST must be applied after the PLL_LOCK to avoid
 	 * the DP inter pair skew issue for at least 10 us
 	 */
-	exynos_dp_reset_macro();
+	exynos_dp_reset_macro(dp_regs);
 
 	/* All DP analog module power up */
-	exynos_dp_set_analog_power_down(POWER_ALL, 0);
+	exynos_dp_set_analog_power_down(dp_regs, POWER_ALL, 0);
 }
 
-static unsigned int exynos_dp_link_start(struct edp_device_info *edp_info)
+static unsigned int exynos_dp_link_start(struct exynos_dp *dp_regs,
+					 struct edp_device_info *edp_info)
 {
 	unsigned char buf[5];
 	unsigned int ret = 0;
@@ -263,33 +271,32 @@ static unsigned int exynos_dp_link_start(struct edp_device_info *edp_info)
 	edp_info->lt_info.cr_loop[3] = 0;
 
 		/* Set sink to D0 (Sink Not Ready) mode. */
-		ret = exynos_dp_write_byte_to_dpcd(DPCD_SINK_POWER_STATE,
-				DPCD_SET_POWER_STATE_D0);
+	ret = exynos_dp_write_byte_to_dpcd(dp_regs, DPCD_SINK_POWER_STATE,
+					   DPCD_SET_POWER_STATE_D0);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP write_dpcd_byte failed\n");
 		return ret;
 	}
 
 	/* Set link rate and count as you want to establish */
-	exynos_dp_set_link_bandwidth(edp_info->lane_bw);
-	exynos_dp_set_lane_count(edp_info->lane_cnt);
+	exynos_dp_set_link_bandwidth(dp_regs, edp_info->lane_bw);
+	exynos_dp_set_lane_count(dp_regs, edp_info->lane_cnt);
 
 	/* Setup RX configuration */
 	buf[0] = edp_info->lane_bw;
 	buf[1] = edp_info->lane_cnt;
 
-	ret = exynos_dp_write_bytes_to_dpcd(DPCD_LINK_BW_SET, 2,
-			buf);
+	ret = exynos_dp_write_bytes_to_dpcd(dp_regs, DPCD_LINK_BW_SET, 2, buf);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP write_dpcd_byte failed\n");
 		return ret;
 	}
 
-	exynos_dp_set_lane_pre_emphasis(PRE_EMPHASIS_LEVEL_0,
+	exynos_dp_set_lane_pre_emphasis(dp_regs, PRE_EMPHASIS_LEVEL_0,
 			edp_info->lane_cnt);
 
 	/* Set training pattern 1 */
-	exynos_dp_set_training_pattern(TRAINING_PTN1);
+	exynos_dp_set_training_pattern(dp_regs, TRAINING_PTN1);
 
 	/* Set RX training pattern */
 	buf[0] = DPCD_SCRAMBLING_DISABLED | DPCD_TRAINING_PATTERN_1;
@@ -303,8 +310,8 @@ static unsigned int exynos_dp_link_start(struct edp_device_info *edp_info)
 	buf[4] = DPCD_PRE_EMPHASIS_SET_PATTERN_2_LEVEL_0 |
 		DPCD_VOLTAGE_SWING_SET_PATTERN_1_LEVEL_0;
 
-	ret = exynos_dp_write_bytes_to_dpcd(DPCD_TRAINING_PATTERN_SET,
-			5, buf);
+	ret = exynos_dp_write_bytes_to_dpcd(dp_regs, DPCD_TRAINING_PATTERN_SET,
+					    5, buf);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP write_dpcd_byte failed\n");
 		return ret;
@@ -313,14 +320,14 @@ static unsigned int exynos_dp_link_start(struct edp_device_info *edp_info)
 	return ret;
 }
 
-static unsigned int exynos_dp_training_pattern_dis(void)
+static unsigned int exynos_dp_training_pattern_dis(struct exynos_dp *dp_regs)
 {
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 
-	exynos_dp_set_training_pattern(DP_NONE);
+	exynos_dp_set_training_pattern(dp_regs, DP_NONE);
 
-	ret = exynos_dp_write_byte_to_dpcd(DPCD_TRAINING_PATTERN_SET,
-			DPCD_TRAINING_PATTERN_DISABLED);
+	ret = exynos_dp_write_byte_to_dpcd(dp_regs, DPCD_TRAINING_PATTERN_SET,
+					   DPCD_TRAINING_PATTERN_DISABLED);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP request_link_training_req failed\n");
 		return -EAGAIN;
@@ -329,13 +336,14 @@ static unsigned int exynos_dp_training_pattern_dis(void)
 	return ret;
 }
 
-static unsigned int exynos_dp_enable_rx_to_enhanced_mode(unsigned char enable)
+static unsigned int exynos_dp_enable_rx_to_enhanced_mode(
+		struct exynos_dp *dp_regs, unsigned char enable)
 {
 	unsigned char data;
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 
-	ret = exynos_dp_read_byte_from_dpcd(DPCD_LANE_COUNT_SET,
-			&data);
+	ret = exynos_dp_read_byte_from_dpcd(dp_regs, DPCD_LANE_COUNT_SET,
+					    &data);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP read_from_dpcd failed\n");
 		return -EAGAIN;
@@ -346,8 +354,7 @@ static unsigned int exynos_dp_enable_rx_to_enhanced_mode(unsigned char enable)
 	else
 		data = DPCD_LN_COUNT_SET(data);
 
-	ret = exynos_dp_write_byte_to_dpcd(DPCD_LANE_COUNT_SET,
-			data);
+	ret = exynos_dp_write_byte_to_dpcd(dp_regs, DPCD_LANE_COUNT_SET, data);
 	if (ret != EXYNOS_DP_SUCCESS) {
 			printf("DP write_to_dpcd failed\n");
 			return -EAGAIN;
@@ -357,23 +364,25 @@ static unsigned int exynos_dp_enable_rx_to_enhanced_mode(unsigned char enable)
 	return ret;
 }
 
-static unsigned int exynos_dp_set_enhanced_mode(unsigned char enhance_mode)
+static unsigned int exynos_dp_set_enhanced_mode(struct exynos_dp *dp_regs,
+						unsigned char enhance_mode)
 {
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 
-	ret = exynos_dp_enable_rx_to_enhanced_mode(enhance_mode);
+	ret = exynos_dp_enable_rx_to_enhanced_mode(dp_regs, enhance_mode);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP rx_enhance_mode failed\n");
 		return -EAGAIN;
 	}
 
-	exynos_dp_enable_enhanced_mode(enhance_mode);
+	exynos_dp_enable_enhanced_mode(dp_regs, enhance_mode);
 
 	return ret;
 }
 
-static int exynos_dp_read_dpcd_lane_stat(struct edp_device_info *edp_info,
-		unsigned char *status)
+static int exynos_dp_read_dpcd_lane_stat(struct exynos_dp *dp_regs,
+					 struct edp_device_info *edp_info,
+					 unsigned char *status)
 {
 	unsigned int ret, i;
 	unsigned char buf[2];
@@ -385,7 +394,8 @@ static int exynos_dp_read_dpcd_lane_stat(struct edp_device_info *edp_info,
 	shift_val[2] = 0;
 	shift_val[3] = 4;
 
-	ret = exynos_dp_read_bytes_from_dpcd(DPCD_LANE0_1_STATUS, 2, buf);
+	ret = exynos_dp_read_bytes_from_dpcd(dp_regs, DPCD_LANE0_1_STATUS, 2,
+					     buf);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP read lane status failed\n");
 		return ret;
@@ -404,8 +414,8 @@ static int exynos_dp_read_dpcd_lane_stat(struct edp_device_info *edp_info,
 	return ret;
 }
 
-static unsigned int exynos_dp_read_dpcd_adj_req(unsigned char lane_num,
-		unsigned char *sw, unsigned char *em)
+static unsigned int exynos_dp_read_dpcd_adj_req(struct exynos_dp *dp_regs,
+		unsigned char lane_num, unsigned char *sw, unsigned char *em)
 {
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 	unsigned char buf;
@@ -415,7 +425,7 @@ static unsigned int exynos_dp_read_dpcd_adj_req(unsigned char lane_num,
 	/* lane_num value is used as array index, so this range 0 ~ 3 */
 	dpcd_addr = DPCD_ADJUST_REQUEST_LANE0_1 + (lane_num / 2);
 
-	ret = exynos_dp_read_byte_from_dpcd(dpcd_addr, &buf);
+	ret = exynos_dp_read_byte_from_dpcd(dp_regs, dpcd_addr, &buf);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP read adjust request failed\n");
 		return -EAGAIN;
@@ -427,17 +437,18 @@ static unsigned int exynos_dp_read_dpcd_adj_req(unsigned char lane_num,
 	return ret;
 }
 
-static int exynos_dp_equalizer_err_link(struct edp_device_info *edp_info)
+static int exynos_dp_equalizer_err_link(struct exynos_dp *dp_regs,
+					struct edp_device_info *edp_info)
 {
 	int ret;
 
-	ret = exynos_dp_training_pattern_dis();
+	ret = exynos_dp_training_pattern_dis(dp_regs);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP training_pattern_disable() failed\n");
 		edp_info->lt_info.lt_status = DP_LT_FAIL;
 	}
 
-	ret = exynos_dp_set_enhanced_mode(edp_info->dpcd_efc);
+	ret = exynos_dp_set_enhanced_mode(dp_regs, edp_info->dpcd_efc);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP set_enhanced_mode() failed\n");
 		edp_info->lt_info.lt_status = DP_LT_FAIL;
@@ -446,7 +457,8 @@ static int exynos_dp_equalizer_err_link(struct edp_device_info *edp_info)
 	return ret;
 }
 
-static int exynos_dp_reduce_link_rate(struct edp_device_info *edp_info)
+static int exynos_dp_reduce_link_rate(struct exynos_dp *dp_regs,
+				      struct edp_device_info *edp_info)
 {
 	int ret;
 
@@ -456,11 +468,11 @@ static int exynos_dp_reduce_link_rate(struct edp_device_info *edp_info)
 		edp_info->lt_info.lt_status = DP_LT_START;
 		ret = EXYNOS_DP_SUCCESS;
 	} else {
-		ret = exynos_dp_training_pattern_dis();
+		ret = exynos_dp_training_pattern_dis(dp_regs);
 		if (ret != EXYNOS_DP_SUCCESS)
 			printf("DP training_patter_disable() failed\n");
 
-		ret = exynos_dp_set_enhanced_mode(edp_info->dpcd_efc);
+		ret = exynos_dp_set_enhanced_mode(dp_regs, edp_info->dpcd_efc);
 		if (ret != EXYNOS_DP_SUCCESS)
 			printf("DP set_enhanced_mode() failed\n");
 
@@ -470,8 +482,8 @@ static int exynos_dp_reduce_link_rate(struct edp_device_info *edp_info)
 	return ret;
 }
 
-static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
-							*edp_info)
+static unsigned int exynos_dp_process_clock_recovery(struct exynos_dp *dp_regs,
+					struct edp_device_info *edp_info)
 {
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 	unsigned char lane_stat;
@@ -484,7 +496,7 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 	debug("DP: %s was called\n", __func__);
 	mdelay(1);
 
-	ret = exynos_dp_read_dpcd_lane_stat(edp_info, &lane_stat);
+	ret = exynos_dp_read_dpcd_lane_stat(dp_regs, edp_info, &lane_stat);
 	if (ret != EXYNOS_DP_SUCCESS) {
 			printf("DP read lane status failed\n");
 			edp_info->lt_info.lt_status = DP_LT_FAIL;
@@ -493,11 +505,11 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 
 	if (lane_stat & DP_LANE_STAT_CR_DONE) {
 		debug("DP clock Recovery training succeed\n");
-		exynos_dp_set_training_pattern(TRAINING_PTN2);
+		exynos_dp_set_training_pattern(dp_regs, TRAINING_PTN2);
 
 		for (i = 0; i < edp_info->lane_cnt; i++) {
-			ret = exynos_dp_read_dpcd_adj_req(i, &adj_req_sw,
-					&adj_req_em);
+			ret = exynos_dp_read_dpcd_adj_req(dp_regs, i,
+						&adj_req_sw, &adj_req_em);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				edp_info->lt_info.lt_status = DP_LT_FAIL;
 				return ret;
@@ -511,7 +523,8 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 				lt_ctl_val[i] |= MAX_DRIVE_CURRENT_REACH_3 |
 					MAX_PRE_EMPHASIS_REACH_3;
 			}
-			exynos_dp_set_lanex_pre_emphasis(lt_ctl_val[i], i);
+			exynos_dp_set_lanex_pre_emphasis(dp_regs,
+							 lt_ctl_val[i], i);
 		}
 
 		buf[0] =  DPCD_SCRAMBLING_DISABLED | DPCD_TRAINING_PATTERN_2;
@@ -520,7 +533,7 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 		buf[3] = lt_ctl_val[2];
 		buf[4] = lt_ctl_val[3];
 
-		ret = exynos_dp_write_bytes_to_dpcd(
+		ret = exynos_dp_write_bytes_to_dpcd(dp_regs,
 				DPCD_TRAINING_PATTERN_SET, 5, buf);
 		if (ret != EXYNOS_DP_SUCCESS) {
 			printf("DP write training pattern1 failed\n");
@@ -530,8 +543,9 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 			edp_info->lt_info.lt_status = DP_LT_ET;
 	} else {
 		for (i = 0; i < edp_info->lane_cnt; i++) {
-			lt_ctl_val[i] = exynos_dp_get_lanex_pre_emphasis(i);
-				ret = exynos_dp_read_dpcd_adj_req(i,
+			lt_ctl_val[i] = exynos_dp_get_lanex_pre_emphasis(
+						dp_regs, i);
+				ret = exynos_dp_read_dpcd_adj_req(dp_regs, i,
 						&adj_req_sw, &adj_req_em);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				printf("DP read adj req failed\n");
@@ -541,7 +555,8 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 
 			if ((adj_req_sw == VOLTAGE_LEVEL_3) ||
 					(adj_req_em == PRE_EMPHASIS_LEVEL_3))
-				ret = exynos_dp_reduce_link_rate(edp_info);
+				ret = exynos_dp_reduce_link_rate(dp_regs,
+								 edp_info);
 
 			if ((DRIVE_CURRENT_SET_0_GET(lt_ctl_val[i]) ==
 						adj_req_sw) &&
@@ -550,7 +565,7 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 				edp_info->lt_info.cr_loop[i]++;
 				if (edp_info->lt_info.cr_loop[i] == MAX_CR_LOOP)
 					ret = exynos_dp_reduce_link_rate(
-							edp_info);
+							dp_regs, edp_info);
 			}
 
 			lt_ctl_val[i] = 0;
@@ -561,10 +576,11 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 				lt_ctl_val[i] |= MAX_DRIVE_CURRENT_REACH_3 |
 					MAX_PRE_EMPHASIS_REACH_3;
 			}
-			exynos_dp_set_lanex_pre_emphasis(lt_ctl_val[i], i);
+			exynos_dp_set_lanex_pre_emphasis(dp_regs,
+							 lt_ctl_val[i], i);
 		}
 
-		ret = exynos_dp_write_bytes_to_dpcd(
+		ret = exynos_dp_write_bytes_to_dpcd(dp_regs,
 				DPCD_TRAINING_LANE0_SET, 4, lt_ctl_val);
 		if (ret != EXYNOS_DP_SUCCESS) {
 			printf("DP write training pattern2 failed\n");
@@ -576,8 +592,8 @@ static unsigned int exynos_dp_process_clock_recovery(struct edp_device_info
 	return ret;
 }
 
-static unsigned int exynos_dp_process_equalizer_training(struct edp_device_info
-		*edp_info)
+static unsigned int exynos_dp_process_equalizer_training(
+		struct exynos_dp *dp_regs, struct edp_device_info *edp_info)
 {
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 	unsigned char lane_stat, adj_req_sw, adj_req_em, i;
@@ -589,7 +605,7 @@ static unsigned int exynos_dp_process_equalizer_training(struct edp_device_info
 
 	mdelay(1);
 
-	ret = exynos_dp_read_dpcd_lane_stat(edp_info, &lane_stat);
+	ret = exynos_dp_read_dpcd_lane_stat(dp_regs, edp_info, &lane_stat);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP read lane status failed\n");
 		edp_info->lt_info.lt_status = DP_LT_FAIL;
@@ -599,8 +615,9 @@ static unsigned int exynos_dp_process_equalizer_training(struct edp_device_info
 	debug("DP lane stat : %x\n", lane_stat);
 
 	if (lane_stat & DP_LANE_STAT_CR_DONE) {
-		ret = exynos_dp_read_byte_from_dpcd(DPCD_LN_ALIGN_UPDATED,
-				&sink_stat);
+		ret = exynos_dp_read_byte_from_dpcd(dp_regs,
+						    DPCD_LN_ALIGN_UPDATED,
+						    &sink_stat);
 		if (ret != EXYNOS_DP_SUCCESS) {
 			edp_info->lt_info.lt_status = DP_LT_FAIL;
 
@@ -610,7 +627,7 @@ static unsigned int exynos_dp_process_equalizer_training(struct edp_device_info
 		interlane_aligned = (sink_stat & DPCD_INTERLANE_ALIGN_DONE);
 
 		for (i = 0; i < edp_info->lane_cnt; i++) {
-			ret = exynos_dp_read_dpcd_adj_req(i,
+			ret = exynos_dp_read_dpcd_adj_req(dp_regs, i,
 					&adj_req_sw, &adj_req_em);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				printf("DP read adj req 1 failed\n");
@@ -634,15 +651,15 @@ static unsigned int exynos_dp_process_equalizer_training(struct edp_device_info
 			&& (interlane_aligned == DPCD_INTERLANE_ALIGN_DONE)) {
 			debug("DP Equalizer training succeed\n");
 
-			f_bw = exynos_dp_get_link_bandwidth();
-			f_lane_cnt = exynos_dp_get_lane_count();
+			f_bw = exynos_dp_get_link_bandwidth(dp_regs);
+			f_lane_cnt = exynos_dp_get_lane_count(dp_regs);
 
 			debug("DP final BandWidth : %x\n", f_bw);
 			debug("DP final Lane Count : %x\n", f_lane_cnt);
 
 			edp_info->lt_info.lt_status = DP_LT_FINISHED;
 
-			exynos_dp_equalizer_err_link(edp_info);
+			exynos_dp_equalizer_err_link(dp_regs, edp_info);
 
 		} else {
 			edp_info->lt_info.ep_loop++;
@@ -650,46 +667,49 @@ static unsigned int exynos_dp_process_equalizer_training(struct edp_device_info
 			if (edp_info->lt_info.ep_loop > MAX_EQ_LOOP) {
 				if (edp_info->lane_bw == DP_LANE_BW_2_70) {
 					ret = exynos_dp_reduce_link_rate(
-							edp_info);
+							dp_regs, edp_info);
 				} else {
 					edp_info->lt_info.lt_status =
 								DP_LT_FAIL;
-					exynos_dp_equalizer_err_link(edp_info);
+					exynos_dp_equalizer_err_link(dp_regs,
+								     edp_info);
 				}
 			} else {
 				for (i = 0; i < edp_info->lane_cnt; i++)
 					exynos_dp_set_lanex_pre_emphasis(
-							lt_ctl_val[i], i);
+						dp_regs, lt_ctl_val[i], i);
 
-				ret = exynos_dp_write_bytes_to_dpcd(
-					DPCD_TRAINING_LANE0_SET,
-					4, lt_ctl_val);
+				ret = exynos_dp_write_bytes_to_dpcd(dp_regs,
+						DPCD_TRAINING_LANE0_SET,
+						4, lt_ctl_val);
 				if (ret != EXYNOS_DP_SUCCESS) {
 					printf("DP set lt pattern failed\n");
 					edp_info->lt_info.lt_status =
 								DP_LT_FAIL;
-					exynos_dp_equalizer_err_link(edp_info);
+					exynos_dp_equalizer_err_link(dp_regs,
+								     edp_info);
 				}
 			}
 		}
 	} else if (edp_info->lane_bw == DP_LANE_BW_2_70) {
-		ret = exynos_dp_reduce_link_rate(edp_info);
+		ret = exynos_dp_reduce_link_rate(dp_regs, edp_info);
 	} else {
 		edp_info->lt_info.lt_status = DP_LT_FAIL;
-		exynos_dp_equalizer_err_link(edp_info);
+		exynos_dp_equalizer_err_link(dp_regs, edp_info);
 	}
 
 	return ret;
 }
 
-static unsigned int exynos_dp_sw_link_training(struct edp_device_info *edp_info)
+static unsigned int exynos_dp_sw_link_training(struct exynos_dp *dp_regs,
+					       struct edp_device_info *edp_info)
 {
 	unsigned int ret = 0;
 	int training_finished;
 
 	/* Turn off unnecessary lane */
 	if (edp_info->lane_cnt == 1)
-		exynos_dp_set_analog_power_down(CH1_BLOCK, 1);
+		exynos_dp_set_analog_power_down(dp_regs, CH1_BLOCK, 1);
 
 	training_finished = 0;
 
@@ -699,21 +719,23 @@ static unsigned int exynos_dp_sw_link_training(struct edp_device_info *edp_info)
 	while (!training_finished) {
 		switch (edp_info->lt_info.lt_status) {
 		case DP_LT_START:
-			ret = exynos_dp_link_start(edp_info);
+			ret = exynos_dp_link_start(dp_regs, edp_info);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				printf("DP LT:link start failed\n");
 				return ret;
 			}
 			break;
 		case DP_LT_CR:
-			ret = exynos_dp_process_clock_recovery(edp_info);
+			ret = exynos_dp_process_clock_recovery(dp_regs,
+							       edp_info);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				printf("DP LT:clock recovery failed\n");
 				return ret;
 			}
 			break;
 		case DP_LT_ET:
-			ret = exynos_dp_process_equalizer_training(edp_info);
+			ret = exynos_dp_process_equalizer_training(dp_regs,
+								   edp_info);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				printf("DP LT:equalizer training failed\n");
 				return ret;
@@ -730,40 +752,43 @@ static unsigned int exynos_dp_sw_link_training(struct edp_device_info *edp_info)
 	return ret;
 }
 
-static unsigned int exynos_dp_set_link_train(struct edp_device_info *edp_info)
+static unsigned int exynos_dp_set_link_train(struct exynos_dp *dp_regs,
+					     struct edp_device_info *edp_info)
 {
 	unsigned int ret;
 
-	exynos_dp_init_training();
+	exynos_dp_init_training(dp_regs);
 
-	ret = exynos_dp_sw_link_training(edp_info);
+	ret = exynos_dp_sw_link_training(dp_regs, edp_info);
 	if (ret != EXYNOS_DP_SUCCESS)
 		printf("DP dp_sw_link_training() failed\n");
 
 	return ret;
 }
 
-static void exynos_dp_enable_scramble(unsigned int enable)
+static void exynos_dp_enable_scramble(struct exynos_dp *dp_regs,
+				      unsigned int enable)
 {
 	unsigned char data;
 
 	if (enable) {
-		exynos_dp_enable_scrambling(DP_ENABLE);
+		exynos_dp_enable_scrambling(dp_regs, DP_ENABLE);
 
-		exynos_dp_read_byte_from_dpcd(DPCD_TRAINING_PATTERN_SET,
-				&data);
-		exynos_dp_write_byte_to_dpcd(DPCD_TRAINING_PATTERN_SET,
+		exynos_dp_read_byte_from_dpcd(dp_regs,
+					      DPCD_TRAINING_PATTERN_SET, &data);
+		exynos_dp_write_byte_to_dpcd(dp_regs, DPCD_TRAINING_PATTERN_SET,
 			(u8)(data & ~DPCD_SCRAMBLING_DISABLED));
 	} else {
-		exynos_dp_enable_scrambling(DP_DISABLE);
-		exynos_dp_read_byte_from_dpcd(DPCD_TRAINING_PATTERN_SET,
-				&data);
-		exynos_dp_write_byte_to_dpcd(DPCD_TRAINING_PATTERN_SET,
+		exynos_dp_enable_scrambling(dp_regs, DP_DISABLE);
+		exynos_dp_read_byte_from_dpcd(dp_regs,
+					      DPCD_TRAINING_PATTERN_SET, &data);
+		exynos_dp_write_byte_to_dpcd(dp_regs, DPCD_TRAINING_PATTERN_SET,
 			(u8)(data | DPCD_SCRAMBLING_DISABLED));
 	}
 }
 
-static unsigned int exynos_dp_config_video(struct edp_device_info *edp_info)
+static unsigned int exynos_dp_config_video(struct exynos_dp *dp_regs,
+					   struct edp_device_info *edp_info)
 {
 	unsigned int ret = 0;
 	unsigned int retry_cnt;
@@ -775,17 +800,18 @@ static unsigned int exynos_dp_config_video(struct edp_device_info *edp_info)
 		return -ENODEV;
 	} else {
 		/* debug slave */
-		exynos_dp_config_video_slave_mode(&edp_info->video_info);
+		exynos_dp_config_video_slave_mode(dp_regs,
+						  &edp_info->video_info);
 	}
 
-	exynos_dp_set_video_color_format(&edp_info->video_info);
+	exynos_dp_set_video_color_format(dp_regs, &edp_info->video_info);
 
 	if (edp_info->video_info.bist_mode) {
-		if (exynos_dp_config_video_bist(edp_info) != 0)
+		if (exynos_dp_config_video_bist(dp_regs, edp_info) != 0)
 			return -1;
 	}
 
-	ret = exynos_dp_get_pll_lock_status();
+	ret = exynos_dp_get_pll_lock_status(dp_regs);
 	if (ret != PLL_LOCKED) {
 		printf("DP PLL is not locked yet\n");
 		return -EIO;
@@ -794,7 +820,7 @@ static unsigned int exynos_dp_config_video(struct edp_device_info *edp_info)
 	if (edp_info->video_info.master_mode == 0) {
 		retry_cnt = 10;
 		while (retry_cnt) {
-			ret = exynos_dp_is_slave_video_stream_clock_on();
+			ret = exynos_dp_is_slave_video_stream_clock_on(dp_regs);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				if (retry_cnt == 0) {
 					printf("DP stream_clock_on failed\n");
@@ -808,32 +834,34 @@ static unsigned int exynos_dp_config_video(struct edp_device_info *edp_info)
 	}
 
 	/* Set to use the register calculated M/N video */
-	exynos_dp_set_video_cr_mn(CALCULATED_M, 0, 0);
+	exynos_dp_set_video_cr_mn(dp_regs, CALCULATED_M, 0, 0);
 
 	/* For video bist, Video timing must be generated by register */
-	exynos_dp_set_video_timing_mode(VIDEO_TIMING_FROM_CAPTURE);
+	exynos_dp_set_video_timing_mode(dp_regs, VIDEO_TIMING_FROM_CAPTURE);
 
 	/* Enable video bist */
 	if (edp_info->video_info.bist_pattern != COLOR_RAMP &&
 		edp_info->video_info.bist_pattern != BALCK_WHITE_V_LINES &&
 		edp_info->video_info.bist_pattern != COLOR_SQUARE)
-		exynos_dp_enable_video_bist(edp_info->video_info.bist_mode);
+		exynos_dp_enable_video_bist(dp_regs,
+					    edp_info->video_info.bist_mode);
 	else
-		exynos_dp_enable_video_bist(DP_DISABLE);
+		exynos_dp_enable_video_bist(dp_regs, DP_DISABLE);
 
 	/* Disable video mute */
-	exynos_dp_enable_video_mute(DP_DISABLE);
+	exynos_dp_enable_video_mute(dp_regs, DP_DISABLE);
 
 	/* Configure video Master or Slave mode */
-	exynos_dp_enable_video_master(edp_info->video_info.master_mode);
+	exynos_dp_enable_video_master(dp_regs,
+				      edp_info->video_info.master_mode);
 
 	/* Enable video */
-	exynos_dp_start_video();
+	exynos_dp_start_video(dp_regs);
 
 	if (edp_info->video_info.master_mode == 0) {
 		retry_cnt = 100;
 		while (retry_cnt) {
-			ret = exynos_dp_is_video_stream_on();
+			ret = exynos_dp_is_video_stream_on(dp_regs);
 			if (ret != EXYNOS_DP_SUCCESS) {
 				if (retry_cnt == 0) {
 					printf("DP Timeout of video stream\n");
@@ -907,6 +935,8 @@ unsigned int exynos_init_dp(void)
 {
 	unsigned int ret;
 	struct edp_device_info *edp_info;
+	struct exynos_dp *dp_regs;
+	int node;
 
 	edp_info = kzalloc(sizeof(struct edp_device_info), GFP_KERNEL);
 	if (!edp_info) {
@@ -917,39 +947,47 @@ unsigned int exynos_init_dp(void)
 	if (exynos_dp_parse_dt(gd->fdt_blob, edp_info))
 		debug("unable to parse DP DT node\n");
 
-	exynos_dp_set_base_addr();
+	node = fdtdec_next_compatible(gd->fdt_blob, 0,
+				      COMPAT_SAMSUNG_EXYNOS5_DP);
+	if (node <= 0)
+		debug("exynos_dp: Can't get device node for dp\n");
+
+	dp_regs = (struct exynos_dp *)fdtdec_get_addr(gd->fdt_blob, node,
+						      "reg");
+	if (dp_regs == NULL)
+		debug("Can't get the DP base address\n");
 
 	exynos_dp_disp_info(&edp_info->disp_info);
 
 	exynos_set_dp_phy(1);
 
-	ret = exynos_dp_init_dp();
+	ret = exynos_dp_init_dp(dp_regs);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP exynos_dp_init_dp() failed\n");
 		return ret;
 	}
 
-	ret = exynos_dp_handle_edid(edp_info);
+	ret = exynos_dp_handle_edid(dp_regs, edp_info);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("EDP handle_edid fail\n");
 		return ret;
 	}
 
-	ret = exynos_dp_set_link_train(edp_info);
+	ret = exynos_dp_set_link_train(dp_regs, edp_info);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("DP link training fail\n");
 		return ret;
 	}
 
-	exynos_dp_enable_scramble(DP_ENABLE);
-	exynos_dp_enable_rx_to_enhanced_mode(DP_ENABLE);
-	exynos_dp_enable_enhanced_mode(DP_ENABLE);
+	exynos_dp_enable_scramble(dp_regs, DP_ENABLE);
+	exynos_dp_enable_rx_to_enhanced_mode(dp_regs, DP_ENABLE);
+	exynos_dp_enable_enhanced_mode(dp_regs, DP_ENABLE);
 
-	exynos_dp_set_link_bandwidth(edp_info->lane_bw);
-	exynos_dp_set_lane_count(edp_info->lane_cnt);
+	exynos_dp_set_link_bandwidth(dp_regs, edp_info->lane_bw);
+	exynos_dp_set_lane_count(dp_regs, edp_info->lane_cnt);
 
-	exynos_dp_init_video();
-	ret = exynos_dp_config_video(edp_info);
+	exynos_dp_init_video(dp_regs);
+	ret = exynos_dp_config_video(dp_regs, edp_info);
 	if (ret != EXYNOS_DP_SUCCESS) {
 		printf("Exynos DP init failed\n");
 		return ret;
