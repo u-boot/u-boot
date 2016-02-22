@@ -147,7 +147,7 @@ static void exynos5_dp_phy_control(unsigned int enable)
 	writel(cfg, &power->dptx_phy_control);
 }
 
-void set_dp_phy_ctrl(unsigned int enable)
+void exynos_dp_phy_ctrl(unsigned int enable)
 {
 	if (cpu_is_exynos5())
 		exynos5_dp_phy_control(enable);

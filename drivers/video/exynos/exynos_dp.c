@@ -15,18 +15,13 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/dp_info.h>
 #include <asm/arch/dp.h>
+#include <asm/arch/power.h>
 #include <fdtdec.h>
 #include <libfdt.h>
 
 #include "exynos_dp_lowlevel.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-void __exynos_set_dp_phy(unsigned int onoff)
-{
-}
-void exynos_set_dp_phy(unsigned int onoff)
-	__attribute__((weak, alias("__exynos_set_dp_phy")));
 
 static void exynos_dp_disp_info(struct edp_disp_info *disp_info)
 {
@@ -959,7 +954,7 @@ unsigned int exynos_init_dp(void)
 
 	exynos_dp_disp_info(&edp_info->disp_info);
 
-	exynos_set_dp_phy(1);
+	exynos_dp_phy_ctrl(1);
 
 	ret = exynos_dp_init_dp(dp_regs);
 	if (ret != EXYNOS_DP_SUCCESS) {

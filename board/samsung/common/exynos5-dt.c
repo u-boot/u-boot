@@ -235,11 +235,6 @@ void exynos_cfg_lcd_gpio(void)
 	gpio_set_value(EXYNOS5_GPIO_B20, 1);
 }
 
-void exynos_set_dp_phy(unsigned int onoff)
-{
-	set_dp_phy_ctrl(onoff);
-}
-
 static int board_dp_set_backlight(int percent)
 {
 	struct udevice *dev;
