@@ -77,7 +77,6 @@
 
 /* UART */
 #define CONFIG_MXC_UART
-#define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 /* MMC */
 #define CONFIG_MMC
