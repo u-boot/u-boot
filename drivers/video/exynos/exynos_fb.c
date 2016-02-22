@@ -35,9 +35,9 @@ struct vidinfo panel_info  = {
 	.vl_col = -1,
 };
 
-static void exynos_fimd_set_dualrgb(struct vidinfo *pvid, unsigned int enabled)
+static void exynos_fimd_set_dualrgb(struct vidinfo *priv, unsigned int enabled)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
 	if (enabled) {
@@ -45,32 +45,32 @@ static void exynos_fimd_set_dualrgb(struct vidinfo *pvid, unsigned int enabled)
 			EXYNOS_DUALRGB_VDEN_EN_ENABLE;
 
 		/* in case of Line Split mode, MAIN_CNT doesn't neet to set. */
-		cfg |= EXYNOS_DUALRGB_SUB_CNT(pvid->vl_col / 2) |
+		cfg |= EXYNOS_DUALRGB_SUB_CNT(priv->vl_col / 2) |
 			EXYNOS_DUALRGB_MAIN_CNT(0);
 	}
 
-	writel(cfg, &fimd_ctrl->dualrgb);
+	writel(cfg, &reg->dualrgb);
 }
 
-static void exynos_fimd_set_dp_clkcon(struct vidinfo *pvid,
+static void exynos_fimd_set_dp_clkcon(struct vidinfo *priv,
 				      unsigned int enabled)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
 	if (enabled)
 		cfg = EXYNOS_DP_CLK_ENABLE;
 
-	writel(cfg, &fimd_ctrl->dp_mie_clkcon);
+	writel(cfg, &reg->dp_mie_clkcon);
 }
 
-static void exynos_fimd_set_par(struct vidinfo *pvid, unsigned int win_id)
+static void exynos_fimd_set_par(struct vidinfo *priv, unsigned int win_id)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
 	/* set window control */
-	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
+	cfg = readl((unsigned int)&reg->wincon0 +
 			EXYNOS_WINCON(win_id));
 
 	cfg &= ~(EXYNOS_WINCON_BITSWP_ENABLE | EXYNOS_WINCON_BYTESWP_ENABLE |
@@ -86,7 +86,7 @@ static void exynos_fimd_set_par(struct vidinfo *pvid, unsigned int win_id)
 	/* dma burst is 16 */
 	cfg |= EXYNOS_WINCON_BURSTLEN_16WORD;
 
-	switch (pvid->vl_bpix) {
+	switch (priv->vl_bpix) {
 	case 4:
 		cfg |= EXYNOS_WINCON_BPPMODE_16BPP_565;
 		break;
@@ -95,72 +95,72 @@ static void exynos_fimd_set_par(struct vidinfo *pvid, unsigned int win_id)
 		break;
 	}
 
-	writel(cfg, (unsigned int)&fimd_ctrl->wincon0 +
+	writel(cfg, (unsigned int)&reg->wincon0 +
 			EXYNOS_WINCON(win_id));
 
 	/* set window position to x=0, y=0*/
 	cfg = EXYNOS_VIDOSD_LEFT_X(0) | EXYNOS_VIDOSD_TOP_Y(0);
-	writel(cfg, (unsigned int)&fimd_ctrl->vidosd0a +
+	writel(cfg, (unsigned int)&reg->vidosd0a +
 			EXYNOS_VIDOSD(win_id));
 
-	cfg = EXYNOS_VIDOSD_RIGHT_X(pvid->vl_col - 1) |
-		EXYNOS_VIDOSD_BOTTOM_Y(pvid->vl_row - 1) |
+	cfg = EXYNOS_VIDOSD_RIGHT_X(priv->vl_col - 1) |
+		EXYNOS_VIDOSD_BOTTOM_Y(priv->vl_row - 1) |
 		EXYNOS_VIDOSD_RIGHT_X_E(1) |
 		EXYNOS_VIDOSD_BOTTOM_Y_E(0);
 
-	writel(cfg, (unsigned int)&fimd_ctrl->vidosd0b +
+	writel(cfg, (unsigned int)&reg->vidosd0b +
 			EXYNOS_VIDOSD(win_id));
 
 	/* set window size for window0*/
-	cfg = EXYNOS_VIDOSD_SIZE(pvid->vl_col * pvid->vl_row);
-	writel(cfg, (unsigned int)&fimd_ctrl->vidosd0c +
+	cfg = EXYNOS_VIDOSD_SIZE(priv->vl_col * priv->vl_row);
+	writel(cfg, (unsigned int)&reg->vidosd0c +
 			EXYNOS_VIDOSD(win_id));
 }
 
-static void exynos_fimd_set_buffer_address(struct vidinfo *pvid,
+static void exynos_fimd_set_buffer_address(struct vidinfo *priv,
 					   unsigned int win_id,
 					   ulong lcd_base_addr)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned long start_addr, end_addr;
 
 	start_addr = lcd_base_addr;
-	end_addr = start_addr + ((pvid->vl_col * (NBITS(pvid->vl_bpix) / 8)) *
-				pvid->vl_row);
+	end_addr = start_addr + ((priv->vl_col * (NBITS(priv->vl_bpix) / 8)) *
+				priv->vl_row);
 
-	writel(start_addr, (unsigned int)&fimd_ctrl->vidw00add0b0 +
+	writel(start_addr, (unsigned int)&reg->vidw00add0b0 +
 			EXYNOS_BUFFER_OFFSET(win_id));
-	writel(end_addr, (unsigned int)&fimd_ctrl->vidw00add1b0 +
+	writel(end_addr, (unsigned int)&reg->vidw00add1b0 +
 			EXYNOS_BUFFER_OFFSET(win_id));
 }
 
-static void exynos_fimd_set_clock(struct vidinfo *pvid)
+static void exynos_fimd_set_clock(struct vidinfo *priv)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0, div = 0, remainder, remainder_div;
 	unsigned long pixel_clock;
 	unsigned long long src_clock;
 
-	if (pvid->dual_lcd_enabled) {
-		pixel_clock = pvid->vl_freq *
-				(pvid->vl_hspw + pvid->vl_hfpd +
-				 pvid->vl_hbpd + pvid->vl_col / 2) *
-				(pvid->vl_vspw + pvid->vl_vfpd +
-				 pvid->vl_vbpd + pvid->vl_row);
-	} else if (pvid->interface_mode == FIMD_CPU_INTERFACE) {
-		pixel_clock = pvid->vl_freq *
-				pvid->vl_width * pvid->vl_height *
-				(pvid->cs_setup + pvid->wr_setup +
-				 pvid->wr_act + pvid->wr_hold + 1);
+	if (priv->dual_lcd_enabled) {
+		pixel_clock = priv->vl_freq *
+				(priv->vl_hspw + priv->vl_hfpd +
+				 priv->vl_hbpd + priv->vl_col / 2) *
+				(priv->vl_vspw + priv->vl_vfpd +
+				 priv->vl_vbpd + priv->vl_row);
+	} else if (priv->interface_mode == FIMD_CPU_INTERFACE) {
+		pixel_clock = priv->vl_freq *
+				priv->vl_width * priv->vl_height *
+				(priv->cs_setup + priv->wr_setup +
+				 priv->wr_act + priv->wr_hold + 1);
 	} else {
-		pixel_clock = pvid->vl_freq *
-				(pvid->vl_hspw + pvid->vl_hfpd +
-				 pvid->vl_hbpd + pvid->vl_col) *
-				(pvid->vl_vspw + pvid->vl_vfpd +
-				 pvid->vl_vbpd + pvid->vl_row);
+		pixel_clock = priv->vl_freq *
+				(priv->vl_hspw + priv->vl_hfpd +
+				 priv->vl_hbpd + priv->vl_col) *
+				(priv->vl_vspw + priv->vl_vfpd +
+				 priv->vl_vbpd + priv->vl_row);
 	}
 
-	cfg = readl(&fimd_ctrl->vidcon0);
+	cfg = readl(&reg->vidcon0);
 	cfg &= ~(EXYNOS_VIDCON0_CLKSEL_MASK | EXYNOS_VIDCON0_CLKVALUP_MASK |
 		EXYNOS_VIDCON0_CLKVAL_F(0xFF) | EXYNOS_VIDCON0_VCLKEN_MASK |
 		EXYNOS_VIDCON0_CLKDIR_MASK);
@@ -181,32 +181,32 @@ static void exynos_fimd_set_clock(struct vidinfo *pvid)
 		div++;
 
 	/* in case of dual lcd mode. */
-	if (pvid->dual_lcd_enabled)
+	if (priv->dual_lcd_enabled)
 		div--;
 
 	cfg |= EXYNOS_VIDCON0_CLKVAL_F(div - 1);
-	writel(cfg, &fimd_ctrl->vidcon0);
+	writel(cfg, &reg->vidcon0);
 }
 
-void exynos_set_trigger(struct vidinfo *pvid)
+void exynos_set_trigger(struct vidinfo *priv)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
-	cfg = readl(&fimd_ctrl->trigcon);
+	cfg = readl(&reg->trigcon);
 
 	cfg |= (EXYNOS_I80SOFT_TRIG_EN | EXYNOS_I80START_TRIG);
 
-	writel(cfg, &fimd_ctrl->trigcon);
+	writel(cfg, &reg->trigcon);
 }
 
-int exynos_is_i80_frame_done(struct vidinfo *pvid)
+int exynos_is_i80_frame_done(struct vidinfo *priv)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 	int status;
 
-	cfg = readl(&fimd_ctrl->trigcon);
+	cfg = readl(&reg->trigcon);
 
 	/* frame done func is valid only when TRIMODE[0] is set to 1. */
 	status = (cfg & EXYNOS_I80STATUS_TRIG_DONE) ==
@@ -215,58 +215,58 @@ int exynos_is_i80_frame_done(struct vidinfo *pvid)
 	return status;
 }
 
-static void exynos_fimd_lcd_on(struct vidinfo *pvid)
+static void exynos_fimd_lcd_on(struct vidinfo *priv)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
 	/* display on */
-	cfg = readl(&fimd_ctrl->vidcon0);
+	cfg = readl(&reg->vidcon0);
 	cfg |= (EXYNOS_VIDCON0_ENVID_ENABLE | EXYNOS_VIDCON0_ENVID_F_ENABLE);
-	writel(cfg, &fimd_ctrl->vidcon0);
+	writel(cfg, &reg->vidcon0);
 }
 
-static void exynos_fimd_window_on(struct vidinfo *pvid, unsigned int win_id)
+static void exynos_fimd_window_on(struct vidinfo *priv, unsigned int win_id)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
 	/* enable window */
-	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
+	cfg = readl((unsigned int)&reg->wincon0 +
 			EXYNOS_WINCON(win_id));
 	cfg |= EXYNOS_WINCON_ENWIN_ENABLE;
-	writel(cfg, (unsigned int)&fimd_ctrl->wincon0 +
+	writel(cfg, (unsigned int)&reg->wincon0 +
 			EXYNOS_WINCON(win_id));
 
-	cfg = readl(&fimd_ctrl->winshmap);
+	cfg = readl(&reg->winshmap);
 	cfg |= EXYNOS_WINSHMAP_CH_ENABLE(win_id);
-	writel(cfg, &fimd_ctrl->winshmap);
+	writel(cfg, &reg->winshmap);
 }
 
-void exynos_fimd_lcd_off(struct vidinfo *pvid)
+void exynos_fimd_lcd_off(struct vidinfo *priv)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
-	cfg = readl(&fimd_ctrl->vidcon0);
+	cfg = readl(&reg->vidcon0);
 	cfg &= (EXYNOS_VIDCON0_ENVID_DISABLE | EXYNOS_VIDCON0_ENVID_F_DISABLE);
-	writel(cfg, &fimd_ctrl->vidcon0);
+	writel(cfg, &reg->vidcon0);
 }
 
-void exynos_fimd_window_off(struct vidinfo *pvid, unsigned int win_id)
+void exynos_fimd_window_off(struct vidinfo *priv, unsigned int win_id)
 {
-	struct exynos_fb *fimd_ctrl = pvid->fimd_ctrl;
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
 
-	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
+	cfg = readl((unsigned int)&reg->wincon0 +
 			EXYNOS_WINCON(win_id));
 	cfg &= EXYNOS_WINCON_ENWIN_DISABLE;
-	writel(cfg, (unsigned int)&fimd_ctrl->wincon0 +
+	writel(cfg, (unsigned int)&reg->wincon0 +
 			EXYNOS_WINCON(win_id));
 
-	cfg = readl(&fimd_ctrl->winshmap);
+	cfg = readl(&reg->winshmap);
 	cfg &= ~EXYNOS_WINSHMAP_CH_DISABLE(win_id);
-	writel(cfg, &fimd_ctrl->winshmap);
+	writel(cfg, &reg->winshmap);
 }
 
 /*
@@ -307,9 +307,9 @@ void exynos_fimd_disable_sysmmu(void)
 	}
 }
 
-void exynos_fimd_lcd_init(struct vidinfo *pvid, ulong lcd_base_address)
+void exynos_fimd_lcd_init(struct vidinfo *priv, ulong lcd_base_address)
 {
-	struct exynos_fb *fimd_ctrl;
+	struct exynos_fb *reg;
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
 	unsigned int node;
@@ -319,105 +319,105 @@ void exynos_fimd_lcd_init(struct vidinfo *pvid, ulong lcd_base_address)
 	if (node <= 0)
 		debug("exynos_fb: Can't get device node for fimd\n");
 
-	fimd_ctrl = (struct exynos_fb *)fdtdec_get_addr(gd->fdt_blob, node,
+	reg = (struct exynos_fb *)fdtdec_get_addr(gd->fdt_blob, node,
 							"reg");
-	if (fimd_ctrl == NULL)
+	if (reg == NULL)
 		debug("Can't get the FIMD base address\n");
-	pvid->fimd_ctrl = fimd_ctrl;
+	priv->reg = reg;
 
 	if (fdtdec_get_bool(gd->fdt_blob, node, "samsung,disable-sysmmu"))
 		exynos_fimd_disable_sysmmu();
 
 	offset = exynos_fimd_get_base_offset();
 
-	rgb_mode = pvid->rgb_mode;
+	rgb_mode = priv->rgb_mode;
 
-	if (pvid->interface_mode == FIMD_RGB_INTERFACE) {
+	if (priv->interface_mode == FIMD_RGB_INTERFACE) {
 		cfg |= EXYNOS_VIDCON0_VIDOUT_RGB;
-		writel(cfg, &fimd_ctrl->vidcon0);
+		writel(cfg, &reg->vidcon0);
 
-		cfg = readl(&fimd_ctrl->vidcon2);
+		cfg = readl(&reg->vidcon2);
 		cfg &= ~(EXYNOS_VIDCON2_WB_MASK |
 			EXYNOS_VIDCON2_TVFORMATSEL_MASK |
 			EXYNOS_VIDCON2_TVFORMATSEL_YUV_MASK);
 		cfg |= EXYNOS_VIDCON2_WB_DISABLE;
-		writel(cfg, &fimd_ctrl->vidcon2);
+		writel(cfg, &reg->vidcon2);
 
 		/* set polarity */
 		cfg = 0;
-		if (!pvid->vl_clkp)
+		if (!priv->vl_clkp)
 			cfg |= EXYNOS_VIDCON1_IVCLK_RISING_EDGE;
-		if (!pvid->vl_hsp)
+		if (!priv->vl_hsp)
 			cfg |= EXYNOS_VIDCON1_IHSYNC_INVERT;
-		if (!pvid->vl_vsp)
+		if (!priv->vl_vsp)
 			cfg |= EXYNOS_VIDCON1_IVSYNC_INVERT;
-		if (!pvid->vl_dp)
+		if (!priv->vl_dp)
 			cfg |= EXYNOS_VIDCON1_IVDEN_INVERT;
 
-		writel(cfg, (unsigned int)&fimd_ctrl->vidcon1 + offset);
+		writel(cfg, (unsigned int)&reg->vidcon1 + offset);
 
 		/* set timing */
-		cfg = EXYNOS_VIDTCON0_VFPD(pvid->vl_vfpd - 1);
-		cfg |= EXYNOS_VIDTCON0_VBPD(pvid->vl_vbpd - 1);
-		cfg |= EXYNOS_VIDTCON0_VSPW(pvid->vl_vspw - 1);
-		writel(cfg, (unsigned int)&fimd_ctrl->vidtcon0 + offset);
+		cfg = EXYNOS_VIDTCON0_VFPD(priv->vl_vfpd - 1);
+		cfg |= EXYNOS_VIDTCON0_VBPD(priv->vl_vbpd - 1);
+		cfg |= EXYNOS_VIDTCON0_VSPW(priv->vl_vspw - 1);
+		writel(cfg, (unsigned int)&reg->vidtcon0 + offset);
 
-		cfg = EXYNOS_VIDTCON1_HFPD(pvid->vl_hfpd - 1);
-		cfg |= EXYNOS_VIDTCON1_HBPD(pvid->vl_hbpd - 1);
-		cfg |= EXYNOS_VIDTCON1_HSPW(pvid->vl_hspw - 1);
+		cfg = EXYNOS_VIDTCON1_HFPD(priv->vl_hfpd - 1);
+		cfg |= EXYNOS_VIDTCON1_HBPD(priv->vl_hbpd - 1);
+		cfg |= EXYNOS_VIDTCON1_HSPW(priv->vl_hspw - 1);
 
-		writel(cfg, (unsigned int)&fimd_ctrl->vidtcon1 + offset);
+		writel(cfg, (unsigned int)&reg->vidtcon1 + offset);
 
 		/* set lcd size */
-		cfg = EXYNOS_VIDTCON2_HOZVAL(pvid->vl_col - 1) |
-			EXYNOS_VIDTCON2_LINEVAL(pvid->vl_row - 1) |
-			EXYNOS_VIDTCON2_HOZVAL_E(pvid->vl_col - 1) |
-			EXYNOS_VIDTCON2_LINEVAL_E(pvid->vl_row - 1);
+		cfg = EXYNOS_VIDTCON2_HOZVAL(priv->vl_col - 1) |
+			EXYNOS_VIDTCON2_LINEVAL(priv->vl_row - 1) |
+			EXYNOS_VIDTCON2_HOZVAL_E(priv->vl_col - 1) |
+			EXYNOS_VIDTCON2_LINEVAL_E(priv->vl_row - 1);
 
-		writel(cfg, (unsigned int)&fimd_ctrl->vidtcon2 + offset);
+		writel(cfg, (unsigned int)&reg->vidtcon2 + offset);
 	}
 
 	/* set display mode */
-	cfg = readl(&fimd_ctrl->vidcon0);
+	cfg = readl(&reg->vidcon0);
 	cfg &= ~EXYNOS_VIDCON0_PNRMODE_MASK;
 	cfg |= (rgb_mode << EXYNOS_VIDCON0_PNRMODE_SHIFT);
-	writel(cfg, &fimd_ctrl->vidcon0);
+	writel(cfg, &reg->vidcon0);
 
 	/* set par */
-	exynos_fimd_set_par(pvid, pvid->win_id);
+	exynos_fimd_set_par(priv, priv->win_id);
 
 	/* set memory address */
-	exynos_fimd_set_buffer_address(pvid, pvid->win_id, lcd_base_address);
+	exynos_fimd_set_buffer_address(priv, priv->win_id, lcd_base_address);
 
 	/* set buffer size */
-	cfg = EXYNOS_VIDADDR_PAGEWIDTH(pvid->vl_col *
-			NBITS(pvid->vl_bpix) / 8) |
-		EXYNOS_VIDADDR_PAGEWIDTH_E(pvid->vl_col *
-			NBITS(pvid->vl_bpix) / 8) |
+	cfg = EXYNOS_VIDADDR_PAGEWIDTH(priv->vl_col *
+			NBITS(priv->vl_bpix) / 8) |
+		EXYNOS_VIDADDR_PAGEWIDTH_E(priv->vl_col *
+			NBITS(priv->vl_bpix) / 8) |
 		EXYNOS_VIDADDR_OFFSIZE(0) |
 		EXYNOS_VIDADDR_OFFSIZE_E(0);
 
-	writel(cfg, (unsigned int)&fimd_ctrl->vidw00add2 +
-					EXYNOS_BUFFER_SIZE(pvid->win_id));
+	writel(cfg, (unsigned int)&reg->vidw00add2 +
+					EXYNOS_BUFFER_SIZE(priv->win_id));
 
 	/* set clock */
-	exynos_fimd_set_clock(pvid);
+	exynos_fimd_set_clock(priv);
 
 	/* set rgb mode to dual lcd. */
-	exynos_fimd_set_dualrgb(pvid, pvid->dual_lcd_enabled);
+	exynos_fimd_set_dualrgb(priv, priv->dual_lcd_enabled);
 
 	/* display on */
-	exynos_fimd_lcd_on(pvid);
+	exynos_fimd_lcd_on(priv);
 
 	/* window on */
-	exynos_fimd_window_on(pvid, pvid->win_id);
+	exynos_fimd_window_on(priv, priv->win_id);
 
-	exynos_fimd_set_dp_clkcon(pvid, pvid->dp_enabled);
+	exynos_fimd_set_dp_clkcon(priv, priv->dp_enabled);
 }
 
-unsigned long exynos_fimd_calc_fbsize(struct vidinfo *pvid)
+unsigned long exynos_fimd_calc_fbsize(struct vidinfo *priv)
 {
-	return pvid->vl_col * pvid->vl_row * (NBITS(pvid->vl_bpix) / 8);
+	return priv->vl_col * priv->vl_row * (NBITS(priv->vl_bpix) / 8);
 }
 
 ushort *configuration_get_cmap(void)

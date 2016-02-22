@@ -75,7 +75,7 @@ typedef struct vidinfo {
 	unsigned int sclk_div;
 
 	unsigned int dual_lcd_enabled;
-	struct exynos_fb *fimd_ctrl;
+	struct exynos_fb *reg;
 	struct exynos_platform_mipi_dsim *dsim_platform_data_dt;
 } vidinfo_t;
 

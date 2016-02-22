@@ -74,7 +74,7 @@ void exynos_dp_config_video_slave_mode(struct exynos_dp *dp_regs,
 void exynos_dp_set_video_color_format(struct exynos_dp *dp_regs,
 				      struct edp_video_info *video_info);
 int exynos_dp_config_video_bist(struct exynos_dp *dp_regs,
-				struct exynos_dp_priv *edp_info);
+				struct exynos_dp_priv *priv);
 unsigned int exynos_dp_is_slave_video_stream_clock_on(
 					struct exynos_dp *dp_regs);
 void exynos_dp_set_video_cr_mn(struct exynos_dp *dp_regs, unsigned int type,

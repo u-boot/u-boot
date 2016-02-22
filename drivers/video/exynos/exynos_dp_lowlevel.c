@@ -1066,49 +1066,46 @@ void exynos_dp_set_video_color_format(struct exynos_dp *dp_regs,
 }
 
 int exynos_dp_config_video_bist(struct exynos_dp *dp_regs,
-				struct exynos_dp_priv *edp_info)
+				struct exynos_dp_priv *priv)
 {
 	unsigned int reg;
 	unsigned int bist_type = 0;
-	struct edp_video_info video_info = edp_info->video_info;
+	struct edp_video_info video_info = priv->video_info;
 
 	/* For master mode, you don't need to set the video format */
 	if (video_info.master_mode == 0) {
-		writel(TOTAL_LINE_CFG_L(edp_info->disp_info.v_total),
-				&dp_regs->total_ln_cfg_l);
-		writel(TOTAL_LINE_CFG_H(edp_info->disp_info.v_total),
-				&dp_regs->total_ln_cfg_h);
-		writel(ACTIVE_LINE_CFG_L(edp_info->disp_info.v_res),
-				&dp_regs->active_ln_cfg_l);
-		writel(ACTIVE_LINE_CFG_H(edp_info->disp_info.v_res),
-				&dp_regs->active_ln_cfg_h);
-		writel(edp_info->disp_info.v_sync_width,
-				&dp_regs->vsw_cfg);
-		writel(edp_info->disp_info.v_back_porch,
-				&dp_regs->vbp_cfg);
-		writel(edp_info->disp_info.v_front_porch,
-				&dp_regs->vfp_cfg);
+		writel(TOTAL_LINE_CFG_L(priv->disp_info.v_total),
+		       &dp_regs->total_ln_cfg_l);
+		writel(TOTAL_LINE_CFG_H(priv->disp_info.v_total),
+		       &dp_regs->total_ln_cfg_h);
+		writel(ACTIVE_LINE_CFG_L(priv->disp_info.v_res),
+		       &dp_regs->active_ln_cfg_l);
+		writel(ACTIVE_LINE_CFG_H(priv->disp_info.v_res),
+		       &dp_regs->active_ln_cfg_h);
+		writel(priv->disp_info.v_sync_width, &dp_regs->vsw_cfg);
+		writel(priv->disp_info.v_back_porch, &dp_regs->vbp_cfg);
+		writel(priv->disp_info.v_front_porch, &dp_regs->vfp_cfg);
 
-		writel(TOTAL_PIXEL_CFG_L(edp_info->disp_info.h_total),
-				&dp_regs->total_pix_cfg_l);
-		writel(TOTAL_PIXEL_CFG_H(edp_info->disp_info.h_total),
-				&dp_regs->total_pix_cfg_h);
-		writel(ACTIVE_PIXEL_CFG_L(edp_info->disp_info.h_res),
-				&dp_regs->active_pix_cfg_l);
-		writel(ACTIVE_PIXEL_CFG_H(edp_info->disp_info.h_res),
-				&dp_regs->active_pix_cfg_h);
-		writel(H_F_PORCH_CFG_L(edp_info->disp_info.h_front_porch),
-				&dp_regs->hfp_cfg_l);
-		writel(H_F_PORCH_CFG_H(edp_info->disp_info.h_front_porch),
-				&dp_regs->hfp_cfg_h);
-		writel(H_SYNC_PORCH_CFG_L(edp_info->disp_info.h_sync_width),
-				&dp_regs->hsw_cfg_l);
-		writel(H_SYNC_PORCH_CFG_H(edp_info->disp_info.h_sync_width),
-				&dp_regs->hsw_cfg_h);
-		writel(H_B_PORCH_CFG_L(edp_info->disp_info.h_back_porch),
-				&dp_regs->hbp_cfg_l);
-		writel(H_B_PORCH_CFG_H(edp_info->disp_info.h_back_porch),
-				&dp_regs->hbp_cfg_h);
+		writel(TOTAL_PIXEL_CFG_L(priv->disp_info.h_total),
+		       &dp_regs->total_pix_cfg_l);
+		writel(TOTAL_PIXEL_CFG_H(priv->disp_info.h_total),
+		       &dp_regs->total_pix_cfg_h);
+		writel(ACTIVE_PIXEL_CFG_L(priv->disp_info.h_res),
+		       &dp_regs->active_pix_cfg_l);
+		writel(ACTIVE_PIXEL_CFG_H(priv->disp_info.h_res),
+		       &dp_regs->active_pix_cfg_h);
+		writel(H_F_PORCH_CFG_L(priv->disp_info.h_front_porch),
+		       &dp_regs->hfp_cfg_l);
+		writel(H_F_PORCH_CFG_H(priv->disp_info.h_front_porch),
+		       &dp_regs->hfp_cfg_h);
+		writel(H_SYNC_PORCH_CFG_L(priv->disp_info.h_sync_width),
+		       &dp_regs->hsw_cfg_l);
+		writel(H_SYNC_PORCH_CFG_H(priv->disp_info.h_sync_width),
+		       &dp_regs->hsw_cfg_h);
+		writel(H_B_PORCH_CFG_L(priv->disp_info.h_back_porch),
+		       &dp_regs->hbp_cfg_l);
+		writel(H_B_PORCH_CFG_H(priv->disp_info.h_back_porch),
+		       &dp_regs->hbp_cfg_h);
 
 		/*
 		 * Set SLAVE_I_SCAN_CFG[2], VSYNC_P_CFG[1],
