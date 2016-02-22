@@ -755,15 +755,15 @@ int do_booti(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_LONGHELP
 static char booti_help_text[] =
 	"[addr [initrd[:size]] [fdt]]\n"
-	"    - boot Linux Image stored in memory\n"
+	"    - boot arm64 Linux Image stored in memory\n"
 	"\tThe argument 'initrd' is optional and specifies the address\n"
-	"\tof the initrd in memory. The optional argument ':size' allows\n"
-	"\tspecifying the size of RAW initrd.\n"
+	"\tof an initrd in memory. The optional parameter ':size' allows\n"
+	"\tspecifying the size of a RAW initrd.\n"
 #if defined(CONFIG_OF_LIBFDT)
-	"\tSince booting a Linux kernelrequires a flat device-tree\n"
-	"\ta third argument is required which is the address of the\n"
-	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
-	"\tuse a '-' for the second argument.\n"
+	"\tSince booting a Linux kernel requires a flat device-tree, a\n"
+	"\tthird argument providing the address of the device-tree blob\n"
+	"\tis required. To boot a kernel with a device-tree blob but\n"
+	"\twithout an initrd image, use a '-' for the initrd argument.\n"
 #endif
 	"";
 #endif
