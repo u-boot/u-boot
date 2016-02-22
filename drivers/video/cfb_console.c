@@ -117,7 +117,7 @@
 #define VIDEO_HW_BITBLT
 #endif
 
-#ifdef CONFIG_VIDEO_MXS
+#if defined(CONFIG_VIDEO_MXS) || defined(CONFIG_VIDEO_S3C)
 #define VIDEO_FB_16BPP_WORD_SWAP
 #endif
 
