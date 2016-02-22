@@ -26,8 +26,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static unsigned int panel_width, panel_height;
-
 struct vidinfo panel_info  = {
 	/*
 	 * Insert a value here so that we don't end up in the BSS
@@ -281,16 +279,14 @@ void lcd_ctrl_init(void *lcdbase)
 #endif
 	exynos_lcd_misc_init(&panel_info);
 
-	panel_width = panel_info.vl_width;
-	panel_height = panel_info.vl_height;
-
 	exynos_lcd_init(&panel_info, (ulong)lcdbase);
 }
 
 void lcd_enable(void)
 {
 	if (panel_info.logo_on) {
-		memset((void *) gd->fb_base, 0, panel_width * panel_height *
+		memset((void *)gd->fb_base, 0,
+		       panel_info.vl_width * panel_info.vl_height *
 				(NBITS(panel_info.vl_bpix) >> 3));
 	}
 
