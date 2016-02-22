@@ -162,7 +162,7 @@ static unsigned int exynos_dp_read_edid(struct exynos_dp *dp_regs)
 }
 
 static unsigned int exynos_dp_handle_edid(struct exynos_dp *dp_regs,
-					  struct edp_device_info *edp_info)
+					  struct exynos_dp_priv *edp_info)
 {
 	unsigned char buf[12];
 	unsigned int ret;
@@ -251,7 +251,7 @@ static void exynos_dp_init_training(struct exynos_dp *dp_regs)
 }
 
 static unsigned int exynos_dp_link_start(struct exynos_dp *dp_regs,
-					 struct edp_device_info *edp_info)
+					 struct exynos_dp_priv *edp_info)
 {
 	unsigned char buf[5];
 	unsigned int ret = 0;
@@ -376,7 +376,7 @@ static unsigned int exynos_dp_set_enhanced_mode(struct exynos_dp *dp_regs,
 }
 
 static int exynos_dp_read_dpcd_lane_stat(struct exynos_dp *dp_regs,
-					 struct edp_device_info *edp_info,
+					 struct exynos_dp_priv *edp_info,
 					 unsigned char *status)
 {
 	unsigned int ret, i;
@@ -433,7 +433,7 @@ static unsigned int exynos_dp_read_dpcd_adj_req(struct exynos_dp *dp_regs,
 }
 
 static int exynos_dp_equalizer_err_link(struct exynos_dp *dp_regs,
-					struct edp_device_info *edp_info)
+					struct exynos_dp_priv *edp_info)
 {
 	int ret;
 
@@ -453,7 +453,7 @@ static int exynos_dp_equalizer_err_link(struct exynos_dp *dp_regs,
 }
 
 static int exynos_dp_reduce_link_rate(struct exynos_dp *dp_regs,
-				      struct edp_device_info *edp_info)
+				      struct exynos_dp_priv *edp_info)
 {
 	int ret;
 
@@ -478,7 +478,7 @@ static int exynos_dp_reduce_link_rate(struct exynos_dp *dp_regs,
 }
 
 static unsigned int exynos_dp_process_clock_recovery(struct exynos_dp *dp_regs,
-					struct edp_device_info *edp_info)
+					struct exynos_dp_priv *edp_info)
 {
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 	unsigned char lane_stat;
@@ -588,7 +588,7 @@ static unsigned int exynos_dp_process_clock_recovery(struct exynos_dp *dp_regs,
 }
 
 static unsigned int exynos_dp_process_equalizer_training(
-		struct exynos_dp *dp_regs, struct edp_device_info *edp_info)
+		struct exynos_dp *dp_regs, struct exynos_dp_priv *edp_info)
 {
 	unsigned int ret = EXYNOS_DP_SUCCESS;
 	unsigned char lane_stat, adj_req_sw, adj_req_em, i;
@@ -697,7 +697,7 @@ static unsigned int exynos_dp_process_equalizer_training(
 }
 
 static unsigned int exynos_dp_sw_link_training(struct exynos_dp *dp_regs,
-					       struct edp_device_info *edp_info)
+					       struct exynos_dp_priv *edp_info)
 {
 	unsigned int ret = 0;
 	int training_finished;
@@ -748,7 +748,7 @@ static unsigned int exynos_dp_sw_link_training(struct exynos_dp *dp_regs,
 }
 
 static unsigned int exynos_dp_set_link_train(struct exynos_dp *dp_regs,
-					     struct edp_device_info *edp_info)
+					     struct exynos_dp_priv *edp_info)
 {
 	unsigned int ret;
 
@@ -783,7 +783,7 @@ static void exynos_dp_enable_scramble(struct exynos_dp *dp_regs,
 }
 
 static unsigned int exynos_dp_config_video(struct exynos_dp *dp_regs,
-					   struct edp_device_info *edp_info)
+					   struct exynos_dp_priv *edp_info)
 {
 	unsigned int ret = 0;
 	unsigned int retry_cnt;
@@ -872,7 +872,7 @@ static unsigned int exynos_dp_config_video(struct exynos_dp *dp_regs,
 	return ret;
 }
 
-int exynos_dp_parse_dt(const void *blob, struct edp_device_info *edp_info)
+int exynos_dp_parse_dt(const void *blob, struct exynos_dp_priv *edp_info)
 {
 	unsigned int node = fdtdec_next_compatible(blob, 0,
 						COMPAT_SAMSUNG_EXYNOS5_DP);
@@ -929,11 +929,11 @@ int exynos_dp_parse_dt(const void *blob, struct edp_device_info *edp_info)
 unsigned int exynos_init_dp(void)
 {
 	unsigned int ret;
-	struct edp_device_info *edp_info;
+	struct exynos_dp_priv *edp_info;
 	struct exynos_dp *dp_regs;
 	int node;
 
-	edp_info = kzalloc(sizeof(struct edp_device_info), GFP_KERNEL);
+	edp_info = kzalloc(sizeof(struct exynos_dp_priv), GFP_KERNEL);
 	if (!edp_info) {
 		debug("failed to allocate edp device object.\n");
 		return -EFAULT;

@@ -1066,7 +1066,7 @@ void exynos_dp_set_video_color_format(struct exynos_dp *dp_regs,
 }
 
 int exynos_dp_config_video_bist(struct exynos_dp *dp_regs,
-				struct edp_device_info *edp_info)
+				struct exynos_dp_priv *edp_info)
 {
 	unsigned int reg;
 	unsigned int bist_type = 0;
