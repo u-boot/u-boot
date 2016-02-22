@@ -23,6 +23,11 @@ struct video_uc_platdata {
 	ulong base;
 };
 
+enum video_polarity {
+	VIDEO_ACTIVE_HIGH,	/* Pins are active high */
+	VIDEO_ACTIVE_LOW,	/* Pins are active low */
+};
+
 /*
  * Bits per pixel selector. Each value n is such that the bits-per-pixel is
  * 2 ^ n
