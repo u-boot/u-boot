@@ -27,8 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct exynos_platform_mipi_dsim *dsim_pd;
-static struct exynos_platform_mipi_dsim dsim_platform_data_dt;
 static struct mipi_dsim_lcd_device mipi_lcd_device_dt;
 
 struct mipi_dsim_ddi {
@@ -175,7 +173,7 @@ static struct mipi_dsim_master_ops master_ops = {
 	.clear_dsim_frame_done		= exynos_mipi_dsi_clear_frame_done,
 };
 
-int exynos_mipi_dsi_init(void)
+int exynos_mipi_dsi_init(struct exynos_platform_mipi_dsim *dsim_pd)
 {
 	struct mipi_dsim_device *dsim;
 	struct mipi_dsim_config *dsim_config;
@@ -234,16 +232,6 @@ int exynos_mipi_dsi_init(void)
 			"CPU" : "RGB");
 
 	return 0;
-}
-
-void exynos_set_dsim_platform_data(struct exynos_platform_mipi_dsim *pd)
-{
-	if (pd == NULL) {
-		debug("pd is NULL\n");
-		return;
-	}
-
-	dsim_pd = pd;
 }
 
 int exynos_dsim_config_parse_dt(const void *blob, struct mipi_dsim_config *dt)
@@ -316,7 +304,8 @@ int exynos_dsim_config_parse_dt(const void *blob, struct mipi_dsim_config *dt)
 
 void exynos_init_dsim_platform_data(vidinfo_t *vid)
 {
-	struct mipi_dsim_config dsim_config_dt;
+	static struct mipi_dsim_config dsim_config_dt;
+	static struct exynos_platform_mipi_dsim dsim_platform_data_dt;
 
 	if (exynos_dsim_config_parse_dt(gd->fdt_blob, &dsim_config_dt))
 		debug("Can't get proper dsim config.\n");
@@ -330,5 +319,5 @@ void exynos_init_dsim_platform_data(vidinfo_t *vid)
 	mipi_lcd_device_dt.platform_data = (void *)&dsim_platform_data_dt;
 	exynos_mipi_dsi_register_lcd_device(&mipi_lcd_device_dt);
 
-	dsim_pd = &dsim_platform_data_dt;
+	vid->dsim_platform_data_dt = &dsim_platform_data_dt;
 }

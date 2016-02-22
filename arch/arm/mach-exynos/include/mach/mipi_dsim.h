@@ -347,9 +347,10 @@ struct mipi_dsim_lcd_driver {
 };
 
 #ifdef CONFIG_EXYNOS_MIPI_DSIM
-int exynos_mipi_dsi_init(void);
+int exynos_mipi_dsi_init(struct exynos_platform_mipi_dsim *dsim_pd);
 #else
-static inline int exynos_mipi_dsi_init(void)
+static inline int exynos_mipi_dsi_init(
+			struct exynos_platform_mipi_dsim *dsim_pd)
 {
 	return 0;
 }

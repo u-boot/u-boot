@@ -128,7 +128,7 @@ static void lcd_panel_on(struct vidinfo *vid)
 	exynos_enable_ldo(1);
 
 	if (vid->mipi_enabled)
-		exynos_mipi_dsi_init();
+		exynos_mipi_dsi_init(panel_info.dsim_platform_data_dt);
 }
 
 int exynos_lcd_early_init(const void *blob)
