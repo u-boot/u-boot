@@ -289,6 +289,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 		}
 #endif
 		default:
+			free(data);
 			return -ENOSYS;
 		}
 
