@@ -479,39 +479,6 @@ unsigned long exynos_fimd_calc_fbsize(struct exynos_fb_priv *priv)
 	return priv->vl_col * priv->vl_row * (VNBITS(priv->vl_bpix) / 8);
 }
 
-__weak void exynos_cfg_lcd_gpio(void)
-{
-}
-
-__weak void exynos_backlight_on(unsigned int onoff)
-{
-}
-
-__weak void exynos_reset_lcd(void)
-{
-}
-
-__weak void exynos_lcd_power_on(void)
-{
-}
-
-__weak void exynos_cfg_ldo(void)
-{
-}
-
-__weak void exynos_enable_ldo(unsigned int onoff)
-{
-}
-
-__weak void exynos_backlight_reset(void)
-{
-}
-
-__weak int exynos_lcd_misc_init(struct vidinfo *vid)
-{
-	return 0;
-}
-
 int exynos_fb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct exynos_fb_priv *priv = dev_get_priv(dev);
