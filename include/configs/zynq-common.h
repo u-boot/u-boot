@@ -226,8 +226,7 @@
 	"usbboot=if usb start; then " \
 			"echo Copying FIT from USB to RAM... && " \
 			"load usb 0 ${load_addr} ${fit_image} && " \
-			"bootm ${load_addr}\0" \
-		"fi\0" \
+			"bootm ${load_addr}; fi\0" \
 		DFU_ALT_INFO
 
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
