@@ -7,17 +7,21 @@
  */
 
 #include <config.h>
+#include <dm.h>
 #include <common.h>
+#include <display.h>
+#include <fdtdec.h>
+#include <libfdt.h>
 #include <malloc.h>
+#include <video_bridge.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/dp_info.h>
 #include <asm/arch/dp.h>
+#include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
-#include <fdtdec.h>
-#include <libfdt.h>
 
 #include "exynos_dp_lowlevel.h"
 
@@ -872,15 +876,19 @@ static unsigned int exynos_dp_config_video(struct exynos_dp *regs,
 	return ret;
 }
 
-int exynos_dp_parse_dt(const void *blob, struct exynos_dp_priv *priv)
+static int exynos_dp_ofdata_to_platdata(struct udevice *dev)
 {
-	unsigned int node = fdtdec_next_compatible(blob, 0,
-						COMPAT_SAMSUNG_EXYNOS5_DP);
-	if (node <= 0) {
-		debug("exynos_dp: Can't get device node for dp\n");
-		return -ENODEV;
-	}
+	struct exynos_dp_priv *priv = dev_get_priv(dev);
+	const void *blob = gd->fdt_blob;
+	unsigned int node = dev->of_offset;
+	fdt_addr_t addr;
 
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE) {
+		debug("Can't get the DP base address\n");
+		return -EINVAL;
+	}
+	priv->regs = (struct exynos_dp *)addr;
 	priv->disp_info.h_res = fdtdec_get_int(blob, node,
 							"samsung,h-res", 0);
 	priv->disp_info.h_sync_width = fdtdec_get_int(blob, node,
@@ -926,33 +934,96 @@ int exynos_dp_parse_dt(const void *blob, struct exynos_dp_priv *priv)
 	return 0;
 }
 
-unsigned int exynos_init_dp(void)
+static int exynos_dp_bridge_init(struct udevice *dev)
 {
-	unsigned int ret;
-	struct exynos_dp_priv *priv;
-	struct exynos_dp *regs;
-	int node;
+	const int max_tries = 10;
+	int num_tries;
+	int ret;
 
-	priv = kzalloc(sizeof(struct exynos_dp_priv), GFP_KERNEL);
-	if (!priv) {
-		debug("failed to allocate edp device object.\n");
-		return -EFAULT;
+	debug("%s\n", __func__);
+	ret = video_bridge_attach(dev);
+	if (ret) {
+		debug("video bridge init failed: %d\n", ret);
+		return ret;
 	}
 
-	if (exynos_dp_parse_dt(gd->fdt_blob, priv))
-		debug("unable to parse DP DT node\n");
+	/*
+	 * We need to wait for 90ms after bringing up the bridge since there
+	 * is a phantom "high" on the HPD chip during its bootup.  The phantom
+	 * high comes within 7ms of de-asserting PD and persists for at least
+	 * 15ms.  The real high comes roughly 50ms after PD is de-asserted. The
+	 * phantom high makes it hard for us to know when the NXP chip is up.
+	 */
+	mdelay(90);
 
-	node = fdtdec_next_compatible(gd->fdt_blob, 0,
-				      COMPAT_SAMSUNG_EXYNOS5_DP);
-	if (node <= 0)
-		debug("exynos_dp: Can't get device node for dp\n");
+	for (num_tries = 0; num_tries < max_tries; num_tries++) {
+		/* Check HPD. If it's high, or we don't have it, all is well */
+		ret = video_bridge_check_attached(dev);
+		if (!ret || ret == -ENOENT)
+			return 0;
 
-	regs = (struct exynos_dp *)fdtdec_get_addr(gd->fdt_blob, node,
-						      "reg");
-	if (regs == NULL)
-		debug("Can't get the DP base address\n");
+		debug("%s: eDP bridge failed to come up; try %d of %d\n",
+		      __func__, num_tries, max_tries);
+	}
 
+	/* Immediately go into bridge reset if the hp line is not high */
+	return -EIO;
+}
+
+static int exynos_dp_bridge_setup(const void *blob)
+{
+	const int max_tries = 2;
+	int num_tries;
+	struct udevice *dev;
+	int ret;
+
+	/* Configure I2C registers for Parade bridge */
+	ret = uclass_get_device(UCLASS_VIDEO_BRIDGE, 0, &dev);
+	if (ret) {
+		debug("video bridge init failed: %d\n", ret);
+		return ret;
+	}
+
+	if (strncmp(dev->driver->name, "parade", 6)) {
+		/* Mux HPHPD to the special hotplug detect mode */
+		exynos_pinmux_config(PERIPH_ID_DPHPD, 0);
+	}
+
+	for (num_tries = 0; num_tries < max_tries; num_tries++) {
+		ret = exynos_dp_bridge_init(dev);
+		if (!ret)
+			return 0;
+		if (num_tries == max_tries - 1)
+			break;
+
+		/*
+		* If we're here, the bridge chip failed to initialise.
+		* Power down the bridge in an attempt to reset.
+		*/
+		video_bridge_set_active(dev, false);
+
+		/*
+		* Arbitrarily wait 300ms here with DP_N low.  Don't know for
+		* sure how long we should wait, but we're being paranoid.
+		*/
+		mdelay(300);
+	}
+
+	return ret;
+}
+int exynos_dp_enable(struct udevice *dev, int panel_bpp,
+		     const struct display_timing *timing)
+{
+	struct exynos_dp_priv *priv = dev_get_priv(dev);
+	struct exynos_dp *regs = priv->regs;
+	unsigned int ret;
+
+	debug("%s: start\n", __func__);
 	exynos_dp_disp_info(&priv->disp_info);
+
+	ret = exynos_dp_bridge_setup(gd->fdt_blob);
+	if (ret && ret != -ENODEV)
+		printf("LCD bridge failed to enable: %d\n", ret);
 
 	exynos_dp_phy_ctrl(1);
 
@@ -992,3 +1063,22 @@ unsigned int exynos_init_dp(void)
 
 	return ret;
 }
+
+
+static const struct dm_display_ops exynos_dp_ops = {
+	.enable = exynos_dp_enable,
+};
+
+static const struct udevice_id exynos_dp_ids[] = {
+	{ .compatible = "samsung,exynos5-dp" },
+	{ }
+};
+
+U_BOOT_DRIVER(exynos_dp) = {
+	.name	= "eexynos_dp",
+	.id	= UCLASS_DISPLAY,
+	.of_match = exynos_dp_ids,
+	.ops	= &exynos_dp_ops,
+	.ofdata_to_platdata	= exynos_dp_ofdata_to_platdata,
+	.priv_auto_alloc_size	= sizeof(struct exynos_dp_priv),
+};

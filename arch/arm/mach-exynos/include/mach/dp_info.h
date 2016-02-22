@@ -72,6 +72,7 @@ struct exynos_dp_priv {
 	unsigned char dpcd_rev;
 	/*support enhanced frame cap */
 	unsigned char dpcd_efc;
+	struct exynos_dp *regs;
 };
 
 enum analog_power_block {

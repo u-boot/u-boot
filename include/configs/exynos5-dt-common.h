@@ -13,8 +13,8 @@
 #undef EXYNOS_DEVICE_SETTINGS
 #define EXYNOS_DEVICE_SETTINGS \
 		"stdin=serial,cros-ec-keyb\0" \
-		"stdout=serial,lcd\0" \
-		"stderr=serial,lcd\0"
+		"stdout=serial,vidconsole\0" \
+		"stderr=serial,vidconsole\0"
 
 #define CONFIG_EXYNOS5_DT
 
@@ -32,6 +32,7 @@
 #define CONFIG_EXYNOS_FB
 #define CONFIG_EXYNOS_DP
 #define LCD_BPP			LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
 #endif
 
 /* Enable keyboard */

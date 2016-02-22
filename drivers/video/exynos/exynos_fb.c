@@ -9,33 +9,98 @@
 
 #include <config.h>
 #include <common.h>
+#include <display.h>
 #include <div64.h>
-#include <lcd.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <libfdt.h>
+#include <panel.h>
+#include <video.h>
+#include <video_bridge.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/mipi_dsim.h>
 #include <asm/arch/dp_info.h>
+#include <asm/arch/fb.h>
+#include <asm/arch/pinmux.h>
 #include <asm/arch/system.h>
 #include <asm/gpio.h>
 #include <asm-generic/errno.h>
 
-#include "exynos_fb.h"
-
 DECLARE_GLOBAL_DATA_PTR;
 
-struct vidinfo panel_info  = {
-	/*
-	 * Insert a value here so that we don't end up in the BSS
-	 * Reference: drivers/video/tegra.c
-	 */
-	.vl_col = -1,
+enum {
+	FIMD_RGB_INTERFACE = 1,
+	FIMD_CPU_INTERFACE = 2,
 };
 
-static void exynos_fimd_set_dualrgb(struct vidinfo *priv, unsigned int enabled)
+enum exynos_fb_rgb_mode_t {
+	MODE_RGB_P = 0,
+	MODE_BGR_P = 1,
+	MODE_RGB_S = 2,
+	MODE_BGR_S = 3,
+};
+
+struct exynos_fb_priv {
+	ushort vl_col;		/* Number of columns (i.e. 640) */
+	ushort vl_row;		/* Number of rows (i.e. 480) */
+	ushort vl_rot;		/* Rotation of Display (0, 1, 2, 3) */
+	ushort vl_width;	/* Width of display area in millimeters */
+	ushort vl_height;	/* Height of display area in millimeters */
+
+	/* LCD configuration register */
+	u_char vl_freq;		/* Frequency */
+	u_char vl_clkp;		/* Clock polarity */
+	u_char vl_oep;		/* Output Enable polarity */
+	u_char vl_hsp;		/* Horizontal Sync polarity */
+	u_char vl_vsp;		/* Vertical Sync polarity */
+	u_char vl_dp;		/* Data polarity */
+	u_char vl_bpix;		/* Bits per pixel */
+
+	/* Horizontal control register. Timing from data sheet */
+	u_char vl_hspw;		/* Horz sync pulse width */
+	u_char vl_hfpd;		/* Wait before of line */
+	u_char vl_hbpd;		/* Wait end of line */
+
+	/* Vertical control register. */
+	u_char	vl_vspw;	/* Vertical sync pulse width */
+	u_char	vl_vfpd;	/* Wait before of frame */
+	u_char	vl_vbpd;	/* Wait end of frame */
+	u_char  vl_cmd_allow_len; /* Wait end of frame */
+
+	unsigned int win_id;
+	unsigned int init_delay;
+	unsigned int power_on_delay;
+	unsigned int reset_delay;
+	unsigned int interface_mode;
+	unsigned int mipi_enabled;
+	unsigned int dp_enabled;
+	unsigned int cs_setup;
+	unsigned int wr_setup;
+	unsigned int wr_act;
+	unsigned int wr_hold;
+	unsigned int logo_on;
+	unsigned int logo_width;
+	unsigned int logo_height;
+	int logo_x_offset;
+	int logo_y_offset;
+	unsigned long logo_addr;
+	unsigned int rgb_mode;
+	unsigned int resolution;
+
+	/* parent clock name(MPLL, EPLL or VPLL) */
+	unsigned int pclk_name;
+	/* ratio value for source clock from parent clock. */
+	unsigned int sclk_div;
+
+	unsigned int dual_lcd_enabled;
+	struct exynos_fb *reg;
+	struct exynos_platform_mipi_dsim *dsim_platform_data_dt;
+};
+
+static void exynos_fimd_set_dualrgb(struct exynos_fb_priv *priv, bool enabled)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -52,7 +117,7 @@ static void exynos_fimd_set_dualrgb(struct vidinfo *priv, unsigned int enabled)
 	writel(cfg, &reg->dualrgb);
 }
 
-static void exynos_fimd_set_dp_clkcon(struct vidinfo *priv,
+static void exynos_fimd_set_dp_clkcon(struct exynos_fb_priv *priv,
 				      unsigned int enabled)
 {
 	struct exynos_fb *reg = priv->reg;
@@ -64,7 +129,8 @@ static void exynos_fimd_set_dp_clkcon(struct vidinfo *priv,
 	writel(cfg, &reg->dp_mie_clkcon);
 }
 
-static void exynos_fimd_set_par(struct vidinfo *priv, unsigned int win_id)
+static void exynos_fimd_set_par(struct exynos_fb_priv *priv,
+				unsigned int win_id)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -117,7 +183,7 @@ static void exynos_fimd_set_par(struct vidinfo *priv, unsigned int win_id)
 			EXYNOS_VIDOSD(win_id));
 }
 
-static void exynos_fimd_set_buffer_address(struct vidinfo *priv,
+static void exynos_fimd_set_buffer_address(struct exynos_fb_priv *priv,
 					   unsigned int win_id,
 					   ulong lcd_base_addr)
 {
@@ -125,7 +191,7 @@ static void exynos_fimd_set_buffer_address(struct vidinfo *priv,
 	unsigned long start_addr, end_addr;
 
 	start_addr = lcd_base_addr;
-	end_addr = start_addr + ((priv->vl_col * (NBITS(priv->vl_bpix) / 8)) *
+	end_addr = start_addr + ((priv->vl_col * (VNBITS(priv->vl_bpix) / 8)) *
 				priv->vl_row);
 
 	writel(start_addr, (unsigned int)&reg->vidw00add0b0 +
@@ -134,7 +200,7 @@ static void exynos_fimd_set_buffer_address(struct vidinfo *priv,
 			EXYNOS_BUFFER_OFFSET(win_id));
 }
 
-static void exynos_fimd_set_clock(struct vidinfo *priv)
+static void exynos_fimd_set_clock(struct exynos_fb_priv *priv)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0, div = 0, remainder, remainder_div;
@@ -188,7 +254,7 @@ static void exynos_fimd_set_clock(struct vidinfo *priv)
 	writel(cfg, &reg->vidcon0);
 }
 
-void exynos_set_trigger(struct vidinfo *priv)
+void exynos_set_trigger(struct exynos_fb_priv *priv)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -200,7 +266,7 @@ void exynos_set_trigger(struct vidinfo *priv)
 	writel(cfg, &reg->trigcon);
 }
 
-int exynos_is_i80_frame_done(struct vidinfo *priv)
+int exynos_is_i80_frame_done(struct exynos_fb_priv *priv)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -215,7 +281,7 @@ int exynos_is_i80_frame_done(struct vidinfo *priv)
 	return status;
 }
 
-static void exynos_fimd_lcd_on(struct vidinfo *priv)
+static void exynos_fimd_lcd_on(struct exynos_fb_priv *priv)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -226,7 +292,8 @@ static void exynos_fimd_lcd_on(struct vidinfo *priv)
 	writel(cfg, &reg->vidcon0);
 }
 
-static void exynos_fimd_window_on(struct vidinfo *priv, unsigned int win_id)
+static void exynos_fimd_window_on(struct exynos_fb_priv *priv,
+				  unsigned int win_id)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -243,7 +310,7 @@ static void exynos_fimd_window_on(struct vidinfo *priv, unsigned int win_id)
 	writel(cfg, &reg->winshmap);
 }
 
-void exynos_fimd_lcd_off(struct vidinfo *priv)
+void exynos_fimd_lcd_off(struct exynos_fb_priv *priv)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -253,7 +320,7 @@ void exynos_fimd_lcd_off(struct vidinfo *priv)
 	writel(cfg, &reg->vidcon0);
 }
 
-void exynos_fimd_window_off(struct vidinfo *priv, unsigned int win_id)
+void exynos_fimd_window_off(struct exynos_fb_priv *priv, unsigned int win_id)
 {
 	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0;
@@ -307,24 +374,16 @@ void exynos_fimd_disable_sysmmu(void)
 	}
 }
 
-void exynos_fimd_lcd_init(struct vidinfo *priv, ulong lcd_base_address)
+void exynos_fimd_lcd_init(struct udevice *dev)
 {
-	struct exynos_fb *reg;
+	struct exynos_fb_priv *priv = dev_get_priv(dev);
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct exynos_fb *reg = priv->reg;
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
 	unsigned int node;
 
-	node = fdtdec_next_compatible(gd->fdt_blob,
-					0, COMPAT_SAMSUNG_EXYNOS_FIMD);
-	if (node <= 0)
-		debug("exynos_fb: Can't get device node for fimd\n");
-
-	reg = (struct exynos_fb *)fdtdec_get_addr(gd->fdt_blob, node,
-							"reg");
-	if (reg == NULL)
-		debug("Can't get the FIMD base address\n");
-	priv->reg = reg;
-
+	node = dev->of_offset;
 	if (fdtdec_get_bool(gd->fdt_blob, node, "samsung,disable-sysmmu"))
 		exynos_fimd_disable_sysmmu();
 
@@ -387,13 +446,13 @@ void exynos_fimd_lcd_init(struct vidinfo *priv, ulong lcd_base_address)
 	exynos_fimd_set_par(priv, priv->win_id);
 
 	/* set memory address */
-	exynos_fimd_set_buffer_address(priv, priv->win_id, lcd_base_address);
+	exynos_fimd_set_buffer_address(priv, priv->win_id, plat->base);
 
 	/* set buffer size */
 	cfg = EXYNOS_VIDADDR_PAGEWIDTH(priv->vl_col *
-			NBITS(priv->vl_bpix) / 8) |
+			VNBITS(priv->vl_bpix) / 8) |
 		EXYNOS_VIDADDR_PAGEWIDTH_E(priv->vl_col *
-			NBITS(priv->vl_bpix) / 8) |
+			VNBITS(priv->vl_bpix) / 8) |
 		EXYNOS_VIDADDR_OFFSIZE(0) |
 		EXYNOS_VIDADDR_OFFSIZE_E(0);
 
@@ -415,26 +474,9 @@ void exynos_fimd_lcd_init(struct vidinfo *priv, ulong lcd_base_address)
 	exynos_fimd_set_dp_clkcon(priv, priv->dp_enabled);
 }
 
-unsigned long exynos_fimd_calc_fbsize(struct vidinfo *priv)
+unsigned long exynos_fimd_calc_fbsize(struct exynos_fb_priv *priv)
 {
-	return priv->vl_col * priv->vl_row * (NBITS(priv->vl_bpix) / 8);
-}
-
-ushort *configuration_get_cmap(void)
-{
-#if defined(CONFIG_LCD_LOGO)
-	return bmp_logo_palette;
-#else
-	return NULL;
-#endif
-}
-
-static void exynos_lcd_init(struct vidinfo *vid, ulong lcd_base)
-{
-	exynos_fimd_lcd_init(vid, lcd_base);
-
-	/* Enable flushing after LCD writes if requested */
-	lcd_set_flush_dcache(1);
+	return priv->vl_col * priv->vl_row * (VNBITS(priv->vl_bpix) / 8);
 }
 
 __weak void exynos_cfg_lcd_gpio(void)
@@ -470,217 +512,242 @@ __weak int exynos_lcd_misc_init(struct vidinfo *vid)
 	return 0;
 }
 
-static void lcd_panel_on(struct vidinfo *vid)
+int exynos_fb_ofdata_to_platdata(struct udevice *dev)
 {
-	struct gpio_desc pwm_out_gpio;
-	struct gpio_desc bl_en_gpio;
-	unsigned int node;
+	struct exynos_fb_priv *priv = dev_get_priv(dev);
+	unsigned int node = dev->of_offset;
+	const void *blob = gd->fdt_blob;
+	fdt_addr_t addr;
 
-	udelay(vid->init_delay);
-
-	exynos_backlight_reset();
-
-	exynos_cfg_lcd_gpio();
-
-	exynos_lcd_power_on();
-
-	udelay(vid->power_on_delay);
-
-	if (vid->dp_enabled)
-		exynos_init_dp();
-
-	exynos_reset_lcd();
-
-	udelay(vid->reset_delay);
-
-	exynos_backlight_on(1);
-
-	node = fdtdec_next_compatible(gd->fdt_blob, 0,
-						COMPAT_SAMSUNG_EXYNOS_FIMD);
-	if (node <= 0) {
-		debug("FIMD: Can't get device node for FIMD\n");
-		return;
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE) {
+		debug("Can't get the FIMD base address\n");
+		return -EINVAL;
 	}
-	gpio_request_by_name_nodev(gd->fdt_blob, node, "samsung,pwm-out-gpio",
-				   0, &pwm_out_gpio,
-				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	priv->reg = (struct exynos_fb *)addr;
 
-	gpio_request_by_name_nodev(gd->fdt_blob, node, "samsung,bl-en-gpio", 0,
-				   &bl_en_gpio,
-				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-
-	exynos_cfg_ldo();
-
-	exynos_enable_ldo(1);
-
-	if (vid->mipi_enabled)
-		exynos_mipi_dsi_init(panel_info.dsim_platform_data_dt);
-}
-
-int exynos_lcd_early_init(const void *blob)
-{
-	unsigned int node;
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS_FIMD);
-	if (node <= 0) {
-		debug("exynos_fb: Can't get device node for fimd\n");
-		return -ENODEV;
-	}
-
-	panel_info.vl_col = fdtdec_get_int(blob, node, "samsung,vl-col", 0);
-	if (panel_info.vl_col == 0) {
+	priv->vl_col = fdtdec_get_int(blob, node, "samsung,vl-col", 0);
+	if (priv->vl_col == 0) {
 		debug("Can't get XRES\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_row = fdtdec_get_int(blob, node, "samsung,vl-row", 0);
-	if (panel_info.vl_row == 0) {
+	priv->vl_row = fdtdec_get_int(blob, node, "samsung,vl-row", 0);
+	if (priv->vl_row == 0) {
 		debug("Can't get YRES\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_width = fdtdec_get_int(blob, node,
+	priv->vl_width = fdtdec_get_int(blob, node,
 						"samsung,vl-width", 0);
 
-	panel_info.vl_height = fdtdec_get_int(blob, node,
+	priv->vl_height = fdtdec_get_int(blob, node,
 						"samsung,vl-height", 0);
 
-	panel_info.vl_freq = fdtdec_get_int(blob, node, "samsung,vl-freq", 0);
-	if (panel_info.vl_freq == 0) {
+	priv->vl_freq = fdtdec_get_int(blob, node, "samsung,vl-freq", 0);
+	if (priv->vl_freq == 0) {
 		debug("Can't get refresh rate\n");
 		return -ENXIO;
 	}
 
 	if (fdtdec_get_bool(blob, node, "samsung,vl-clkp"))
-		panel_info.vl_clkp = CONFIG_SYS_LOW;
+		priv->vl_clkp = VIDEO_ACTIVE_LOW;
 
 	if (fdtdec_get_bool(blob, node, "samsung,vl-oep"))
-		panel_info.vl_oep = CONFIG_SYS_LOW;
+		priv->vl_oep = VIDEO_ACTIVE_LOW;
 
 	if (fdtdec_get_bool(blob, node, "samsung,vl-hsp"))
-		panel_info.vl_hsp = CONFIG_SYS_LOW;
+		priv->vl_hsp = VIDEO_ACTIVE_LOW;
 
 	if (fdtdec_get_bool(blob, node, "samsung,vl-vsp"))
-		panel_info.vl_vsp = CONFIG_SYS_LOW;
+		priv->vl_vsp = VIDEO_ACTIVE_LOW;
 
 	if (fdtdec_get_bool(blob, node, "samsung,vl-dp"))
-		panel_info.vl_dp = CONFIG_SYS_LOW;
+		priv->vl_dp = VIDEO_ACTIVE_LOW;
 
-	panel_info.vl_bpix = fdtdec_get_int(blob, node, "samsung,vl-bpix", 0);
-	if (panel_info.vl_bpix == 0) {
+	priv->vl_bpix = fdtdec_get_int(blob, node, "samsung,vl-bpix", 0);
+	if (priv->vl_bpix == 0) {
 		debug("Can't get bits per pixel\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_hspw = fdtdec_get_int(blob, node, "samsung,vl-hspw", 0);
-	if (panel_info.vl_hspw == 0) {
+	priv->vl_hspw = fdtdec_get_int(blob, node, "samsung,vl-hspw", 0);
+	if (priv->vl_hspw == 0) {
 		debug("Can't get hsync width\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_hfpd = fdtdec_get_int(blob, node, "samsung,vl-hfpd", 0);
-	if (panel_info.vl_hfpd == 0) {
+	priv->vl_hfpd = fdtdec_get_int(blob, node, "samsung,vl-hfpd", 0);
+	if (priv->vl_hfpd == 0) {
 		debug("Can't get right margin\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_hbpd = (u_char)fdtdec_get_int(blob, node,
+	priv->vl_hbpd = (u_char)fdtdec_get_int(blob, node,
 							"samsung,vl-hbpd", 0);
-	if (panel_info.vl_hbpd == 0) {
+	if (priv->vl_hbpd == 0) {
 		debug("Can't get left margin\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_vspw = (u_char)fdtdec_get_int(blob, node,
+	priv->vl_vspw = (u_char)fdtdec_get_int(blob, node,
 							"samsung,vl-vspw", 0);
-	if (panel_info.vl_vspw == 0) {
+	if (priv->vl_vspw == 0) {
 		debug("Can't get vsync width\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_vfpd = fdtdec_get_int(blob, node,
+	priv->vl_vfpd = fdtdec_get_int(blob, node,
 							"samsung,vl-vfpd", 0);
-	if (panel_info.vl_vfpd == 0) {
+	if (priv->vl_vfpd == 0) {
 		debug("Can't get lower margin\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_vbpd = fdtdec_get_int(blob, node, "samsung,vl-vbpd", 0);
-	if (panel_info.vl_vbpd == 0) {
+	priv->vl_vbpd = fdtdec_get_int(blob, node, "samsung,vl-vbpd", 0);
+	if (priv->vl_vbpd == 0) {
 		debug("Can't get upper margin\n");
 		return -ENXIO;
 	}
 
-	panel_info.vl_cmd_allow_len = fdtdec_get_int(blob, node,
+	priv->vl_cmd_allow_len = fdtdec_get_int(blob, node,
 						"samsung,vl-cmd-allow-len", 0);
 
-	panel_info.win_id = fdtdec_get_int(blob, node, "samsung,winid", 0);
-	panel_info.init_delay = fdtdec_get_int(blob, node,
+	priv->win_id = fdtdec_get_int(blob, node, "samsung,winid", 0);
+	priv->init_delay = fdtdec_get_int(blob, node,
 						"samsung,init-delay", 0);
-	panel_info.power_on_delay = fdtdec_get_int(blob, node,
+	priv->power_on_delay = fdtdec_get_int(blob, node,
 						"samsung,power-on-delay", 0);
-	panel_info.reset_delay = fdtdec_get_int(blob, node,
+	priv->reset_delay = fdtdec_get_int(blob, node,
 						"samsung,reset-delay", 0);
-	panel_info.interface_mode = fdtdec_get_int(blob, node,
+	priv->interface_mode = fdtdec_get_int(blob, node,
 						"samsung,interface-mode", 0);
-	panel_info.mipi_enabled = fdtdec_get_int(blob, node,
+	priv->mipi_enabled = fdtdec_get_int(blob, node,
 						"samsung,mipi-enabled", 0);
-	panel_info.dp_enabled = fdtdec_get_int(blob, node,
+	priv->dp_enabled = fdtdec_get_int(blob, node,
 						"samsung,dp-enabled", 0);
-	panel_info.cs_setup = fdtdec_get_int(blob, node,
+	priv->cs_setup = fdtdec_get_int(blob, node,
 						"samsung,cs-setup", 0);
-	panel_info.wr_setup = fdtdec_get_int(blob, node,
+	priv->wr_setup = fdtdec_get_int(blob, node,
 						"samsung,wr-setup", 0);
-	panel_info.wr_act = fdtdec_get_int(blob, node, "samsung,wr-act", 0);
-	panel_info.wr_hold = fdtdec_get_int(blob, node, "samsung,wr-hold", 0);
+	priv->wr_act = fdtdec_get_int(blob, node, "samsung,wr-act", 0);
+	priv->wr_hold = fdtdec_get_int(blob, node, "samsung,wr-hold", 0);
 
-	panel_info.logo_on = fdtdec_get_int(blob, node, "samsung,logo-on", 0);
-	if (panel_info.logo_on) {
-		panel_info.logo_width = fdtdec_get_int(blob, node,
+	priv->logo_on = fdtdec_get_int(blob, node, "samsung,logo-on", 0);
+	if (priv->logo_on) {
+		priv->logo_width = fdtdec_get_int(blob, node,
 						"samsung,logo-width", 0);
-		panel_info.logo_height = fdtdec_get_int(blob, node,
+		priv->logo_height = fdtdec_get_int(blob, node,
 						"samsung,logo-height", 0);
-		panel_info.logo_addr = fdtdec_get_int(blob, node,
+		priv->logo_addr = fdtdec_get_int(blob, node,
 						"samsung,logo-addr", 0);
 	}
 
-	panel_info.rgb_mode = fdtdec_get_int(blob, node,
+	priv->rgb_mode = fdtdec_get_int(blob, node,
 						"samsung,rgb-mode", 0);
-	panel_info.pclk_name = fdtdec_get_int(blob, node,
+	priv->pclk_name = fdtdec_get_int(blob, node,
 						"samsung,pclk-name", 0);
-	panel_info.sclk_div = fdtdec_get_int(blob, node,
+	priv->sclk_div = fdtdec_get_int(blob, node,
 						"samsung,sclk-div", 0);
-	panel_info.dual_lcd_enabled = fdtdec_get_int(blob, node,
+	priv->dual_lcd_enabled = fdtdec_get_int(blob, node,
 						"samsung,dual-lcd-enabled", 0);
 
 	return 0;
 }
 
-void lcd_ctrl_init(void *lcdbase)
+static int exynos_fb_probe(struct udevice *dev)
 {
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct exynos_fb_priv *priv = dev_get_priv(dev);
+	struct udevice *panel, *bridge;
+	struct udevice *dp;
+	int ret;
+
+	debug("%s: start\n", __func__);
 	set_system_display_ctrl();
 	set_lcd_clk();
 
 #ifdef CONFIG_EXYNOS_MIPI_DSIM
 	exynos_init_dsim_platform_data(&panel_info);
 #endif
-	exynos_lcd_misc_init(&panel_info);
+	exynos_fimd_lcd_init(dev);
 
-	exynos_lcd_init(&panel_info, (ulong)lcdbase);
-}
-
-void lcd_enable(void)
-{
-	if (panel_info.logo_on) {
-		memset((void *)gd->fb_base, 0,
-		       panel_info.vl_width * panel_info.vl_height *
-				(NBITS(panel_info.vl_bpix) >> 3));
+	ret = uclass_first_device(UCLASS_PANEL, &panel);
+	if (ret) {
+		printf("LCD panel failed to probe\n");
+		return ret;
+	}
+	if (!panel) {
+		printf("LCD panel not found\n");
+		return -ENODEV;
 	}
 
-	lcd_panel_on(&panel_info);
+	ret = uclass_first_device(UCLASS_DISPLAY, &dp);
+	if (ret) {
+		debug("%s: Display device error %d\n", __func__, ret);
+		return ret;
+	}
+	if (!dev) {
+		debug("%s: Display device missing\n", __func__);
+		return -ENODEV;
+	}
+	ret = display_enable(dp, 18, NULL);
+	if (ret) {
+		debug("%s: Display enable error %d\n", __func__, ret);
+		return ret;
+	}
+
+	/* backlight / pwm */
+	ret = panel_enable_backlight(panel);
+	if (ret) {
+		debug("%s: backlight error: %d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = uclass_get_device(UCLASS_VIDEO_BRIDGE, 0, &bridge);
+	if (!ret)
+		ret = video_bridge_set_backlight(bridge, 80);
+	if (ret) {
+		debug("%s: No video bridge, or no backlight on bridge\n",
+		      __func__);
+		exynos_pinmux_config(PERIPH_ID_PWM0, 0);
+	}
+
+	uc_priv->xsize = priv->vl_col;
+	uc_priv->ysize = priv->vl_row;
+	uc_priv->bpix = priv->vl_bpix;
+
+	/* Enable flushing after LCD writes if requested */
+	video_set_flush_dcache(dev, true);
+
+	return 0;
 }
 
-/* dummy function */
-void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
+static int exynos_fb_bind(struct udevice *dev)
 {
-	return;
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+
+	/* This is the maximum panel size we expect to see */
+	plat->size = 1920 * 1080 * 2;
+
+	return 0;
 }
+
+static const struct video_ops exynos_fb_ops = {
+};
+
+static const struct udevice_id exynos_fb_ids[] = {
+	{ .compatible = "samsung,exynos-fimd" },
+	{ }
+};
+
+U_BOOT_DRIVER(exynos_fb) = {
+	.name	= "exynos_fb",
+	.id	= UCLASS_VIDEO,
+	.of_match = exynos_fb_ids,
+	.ops	= &exynos_fb_ops,
+	.bind	= exynos_fb_bind,
+	.probe	= exynos_fb_probe,
+	.ofdata_to_platdata	= exynos_fb_ofdata_to_platdata,
+	.priv_auto_alloc_size	= sizeof(struct exynos_fb_priv),
+};
