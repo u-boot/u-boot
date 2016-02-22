@@ -36,6 +36,6 @@ enum exynos_cpu_auto_cmd_rate {
 void exynos_fimd_lcd_init_mem(unsigned long screen_base, unsigned long fb_size,
 	unsigned long palette_size);
 void exynos_fimd_lcd_init(struct vidinfo *vid, ulong lcd_base_address);
-unsigned long exynos_fimd_calc_fbsize(void);
+unsigned long exynos_fimd_calc_fbsize(struct vidinfo *pvid);
 
 #endif
