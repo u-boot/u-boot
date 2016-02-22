@@ -22,7 +22,6 @@ struct exynos_dp *dp_regs;
 
 void exynos_dp_set_base_addr(void)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 	unsigned int node = fdtdec_next_compatible(gd->fdt_blob,
 					0, COMPAT_SAMSUNG_EXYNOS5_DP);
 	if (node <= 0)
@@ -32,9 +31,6 @@ void exynos_dp_set_base_addr(void)
 								node, "reg");
 	if (dp_regs == NULL)
 		debug("Can't get the DP base address\n");
-#else
-	dp_regs = (struct exynos_dp *)samsung_get_base_dp();
-#endif
 }
 
 static void exynos_dp_enable_video_input(unsigned int enable)

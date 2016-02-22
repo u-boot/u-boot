@@ -77,6 +77,4 @@ typedef struct vidinfo {
 	unsigned int dual_lcd_enabled;
 } vidinfo_t;
 
-void init_panel_info(vidinfo_t *vid);
-
 #endif
