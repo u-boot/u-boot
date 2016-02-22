@@ -27,8 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct mipi_dsim_lcd_device mipi_lcd_device_dt;
-
 struct mipi_dsim_ddi {
 	int				bus_id;
 	struct list_head		list;
@@ -234,7 +232,8 @@ int exynos_mipi_dsi_init(struct exynos_platform_mipi_dsim *dsim_pd)
 	return 0;
 }
 
-int exynos_dsim_config_parse_dt(const void *blob, struct mipi_dsim_config *dt)
+int exynos_dsim_config_parse_dt(const void *blob, struct mipi_dsim_config *dt,
+				struct mipi_dsim_lcd_device *lcd_dt)
 {
 	int node;
 
@@ -287,16 +286,16 @@ int exynos_dsim_config_parse_dt(const void *blob, struct mipi_dsim_config *dt)
 	dt->rx_timeout = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-rx-timeout", 0);
 
-	mipi_lcd_device_dt.name = fdtdec_get_config_string(blob,
+	lcd_dt->name = fdtdec_get_config_string(blob,
 				"samsung,dsim-device-name");
 
-	mipi_lcd_device_dt.id = fdtdec_get_int(blob, node,
+	lcd_dt->id = fdtdec_get_int(blob, node,
 				"samsung,dsim-device-id", 0);
 
-	mipi_lcd_device_dt.bus_id = fdtdec_get_int(blob, node,
+	lcd_dt->bus_id = fdtdec_get_int(blob, node,
 				"samsung,dsim-device-bus_id", 0);
 
-	mipi_lcd_device_dt.reverse_panel = fdtdec_get_int(blob, node,
+	lcd_dt->reverse_panel = fdtdec_get_int(blob, node,
 				"samsung,dsim-device-reverse-panel", 0);
 
 	return 0;
@@ -306,8 +305,10 @@ void exynos_init_dsim_platform_data(vidinfo_t *vid)
 {
 	static struct mipi_dsim_config dsim_config_dt;
 	static struct exynos_platform_mipi_dsim dsim_platform_data_dt;
+	static struct mipi_dsim_lcd_device mipi_lcd_device_dt;
 
-	if (exynos_dsim_config_parse_dt(gd->fdt_blob, &dsim_config_dt))
+	if (exynos_dsim_config_parse_dt(gd->fdt_blob, &dsim_config_dt,
+					&mipi_lcd_device_dt))
 		debug("Can't get proper dsim config.\n");
 
 	strcpy(dsim_platform_data_dt.lcd_panel_name, mipi_lcd_device_dt.name);

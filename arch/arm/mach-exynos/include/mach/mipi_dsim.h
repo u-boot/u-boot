@@ -320,7 +320,7 @@ struct mipi_dsim_lcd_device {
 	int			reverse_panel;
 
 	struct mipi_dsim_device *master;
-	void			*platform_data;
+	struct exynos_platform_mipi_dsim *platform_data;
 };
 
 /*
