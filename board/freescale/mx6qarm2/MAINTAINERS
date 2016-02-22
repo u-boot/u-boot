@@ -1,6 +1,6 @@
 MX6QARM2 BOARD
-M:	Jason Liu <r64343@freescale.com>
-M:	Ye Li <b37916@freescale.com>
+M:	Jason Liu <jason.hui.liu@nxp.com>
+M:	Ye Li <ye.li@nxp.com>
 S:	Maintained
 F:	board/freescale/mx6qarm2/
 F:	include/configs/mx6qarm2.h
