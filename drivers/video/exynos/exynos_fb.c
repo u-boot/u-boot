@@ -45,22 +45,9 @@ ushort *configuration_get_cmap(void)
 #endif
 }
 
-static void exynos_lcd_init_mem(void *lcdbase, struct vidinfo *vid)
+static void exynos_lcd_init(struct vidinfo *vid, ulong lcd_base)
 {
-	unsigned long palette_size;
-	unsigned int fb_size;
-
-	fb_size = vid->vl_row * vid->vl_col * (NBITS(vid->vl_bpix) >> 3);
-
-	palette_size = NBITS(vid->vl_bpix) == 8 ? 256 : 16;
-
-	exynos_fimd_lcd_init_mem((unsigned long)lcdbase,
-			(unsigned long)fb_size, palette_size);
-}
-
-static void exynos_lcd_init(struct vidinfo *vid)
-{
-	exynos_fimd_lcd_init(vid);
+	exynos_fimd_lcd_init(vid, lcd_base);
 
 	/* Enable flushing after LCD writes if requested */
 	lcd_set_flush_dcache(1);
@@ -297,9 +284,7 @@ void lcd_ctrl_init(void *lcdbase)
 	panel_width = panel_info.vl_width;
 	panel_height = panel_info.vl_height;
 
-	exynos_lcd_init_mem(lcdbase, &panel_info);
-
-	exynos_lcd_init(&panel_info);
+	exynos_lcd_init(&panel_info, (ulong)lcdbase);
 }
 
 void lcd_enable(void)

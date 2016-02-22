@@ -21,15 +21,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static unsigned long *lcd_base_addr;
 static struct vidinfo *pvid;
 static struct exynos_fb *fimd_ctrl;
-
-void exynos_fimd_lcd_init_mem(u_long screen_base, u_long fb_size,
-		u_long palette_size)
-{
-	lcd_base_addr = (unsigned long *)screen_base;
-}
 
 static void exynos_fimd_set_dualrgb(unsigned int enabled)
 {
@@ -47,7 +40,8 @@ static void exynos_fimd_set_dualrgb(unsigned int enabled)
 	writel(cfg, &fimd_ctrl->dualrgb);
 }
 
-static void exynos_fimd_set_dp_clkcon(unsigned int enabled)
+static void exynos_fimd_set_dp_clkcon(struct vidinfo *pvid,
+				      unsigned int enabled)
 {
 	unsigned int cfg = 0;
 
@@ -57,7 +51,7 @@ static void exynos_fimd_set_dp_clkcon(unsigned int enabled)
 	writel(cfg, &fimd_ctrl->dp_mie_clkcon);
 }
 
-static void exynos_fimd_set_par(unsigned int win_id)
+static void exynos_fimd_set_par(struct vidinfo *pvid, unsigned int win_id)
 {
 	unsigned int cfg = 0;
 
@@ -109,11 +103,13 @@ static void exynos_fimd_set_par(unsigned int win_id)
 			EXYNOS_VIDOSD(win_id));
 }
 
-static void exynos_fimd_set_buffer_address(unsigned int win_id)
+static void exynos_fimd_set_buffer_address(struct vidinfo *pvid,
+					   unsigned int win_id,
+					   ulong lcd_base_addr)
 {
 	unsigned long start_addr, end_addr;
 
-	start_addr = (unsigned long)lcd_base_addr;
+	start_addr = lcd_base_addr;
 	end_addr = start_addr + ((pvid->vl_col * (NBITS(pvid->vl_bpix) / 8)) *
 				pvid->vl_row);
 
@@ -289,7 +285,7 @@ void exynos_fimd_disable_sysmmu(void)
 	}
 }
 
-void exynos_fimd_lcd_init(struct vidinfo *vid)
+void exynos_fimd_lcd_init(struct vidinfo *vid, ulong lcd_base_address)
 {
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
@@ -367,10 +363,10 @@ void exynos_fimd_lcd_init(struct vidinfo *vid)
 	writel(cfg, &fimd_ctrl->vidcon0);
 
 	/* set par */
-	exynos_fimd_set_par(pvid->win_id);
+	exynos_fimd_set_par(pvid, pvid->win_id);
 
 	/* set memory address */
-	exynos_fimd_set_buffer_address(pvid->win_id);
+	exynos_fimd_set_buffer_address(pvid, pvid->win_id, lcd_base_address);
 
 	/* set buffer size */
 	cfg = EXYNOS_VIDADDR_PAGEWIDTH(pvid->vl_col * NBITS(pvid->vl_bpix) / 8) |
@@ -393,7 +389,7 @@ void exynos_fimd_lcd_init(struct vidinfo *vid)
 	/* window on */
 	exynos_fimd_window_on(pvid->win_id);
 
-	exynos_fimd_set_dp_clkcon(pvid->dp_enabled);
+	exynos_fimd_set_dp_clkcon(pvid, pvid->dp_enabled);
 }
 
 unsigned long exynos_fimd_calc_fbsize(void)
