@@ -135,7 +135,7 @@ static phys_size_t fdt_get_reg(const void *fdt, int nodeoffset, void *buf,
 
 #define FDT_REG_SIZE  sizeof(u32)
 /* Temp location for sharing data for storing */
-u8 tmp[CONFIG_NR_DRAM_BANKS * 16]; /* Up to 64-bit address + 64-bit size */
+static u8 tmp[CONFIG_NR_DRAM_BANKS * 16]; /* Up to 64-bit address + 64-bit size */
 
 void dram_init_banksize(void)
 {
@@ -156,6 +156,8 @@ int dram_init(void)
 	int node, len;
 	const void *blob = gd->fdt_blob;
 	const u32 *cell;
+
+	memset(&tmp, 0, sizeof(tmp));
 
 	/* find or create "/memory" node. */
 	node = fdt_subnode_offset(blob, 0, "memory");
