@@ -28,7 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned int panel_width, panel_height;
 
-vidinfo_t panel_info  = {
+struct vidinfo panel_info  = {
 	/*
 	 * Insert a value here so that we don't end up in the BSS
 	 * Reference: drivers/video/tegra.c
@@ -45,7 +45,7 @@ ushort *configuration_get_cmap(void)
 #endif
 }
 
-static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
+static void exynos_lcd_init_mem(void *lcdbase, struct vidinfo *vid)
 {
 	unsigned long palette_size;
 	unsigned int fb_size;
@@ -58,7 +58,7 @@ static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 			(unsigned long)fb_size, palette_size);
 }
 
-static void exynos_lcd_init(vidinfo_t *vid)
+static void exynos_lcd_init(struct vidinfo *vid)
 {
 	exynos_fimd_lcd_init(vid);
 
@@ -94,12 +94,12 @@ __weak void exynos_backlight_reset(void)
 {
 }
 
-__weak int exynos_lcd_misc_init(vidinfo_t *vid)
+__weak int exynos_lcd_misc_init(struct vidinfo *vid)
 {
 	return 0;
 }
 
-static void lcd_panel_on(vidinfo_t *vid)
+static void lcd_panel_on(struct vidinfo *vid)
 {
 	struct gpio_desc pwm_out_gpio;
 	struct gpio_desc bl_en_gpio;

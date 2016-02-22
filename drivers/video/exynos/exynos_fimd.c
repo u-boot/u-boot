@@ -22,7 +22,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned long *lcd_base_addr;
-static vidinfo_t *pvid;
+static struct vidinfo *pvid;
 static struct exynos_fb *fimd_ctrl;
 
 void exynos_fimd_lcd_init_mem(u_long screen_base, u_long fb_size,
@@ -123,7 +123,7 @@ static void exynos_fimd_set_buffer_address(unsigned int win_id)
 			EXYNOS_BUFFER_OFFSET(win_id));
 }
 
-static void exynos_fimd_set_clock(vidinfo_t *pvid)
+static void exynos_fimd_set_clock(struct vidinfo *pvid)
 {
 	unsigned int cfg = 0, div = 0, remainder, remainder_div;
 	unsigned long pixel_clock;
@@ -289,7 +289,7 @@ void exynos_fimd_disable_sysmmu(void)
 	}
 }
 
-void exynos_fimd_lcd_init(vidinfo_t *vid)
+void exynos_fimd_lcd_init(struct vidinfo *vid)
 {
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
