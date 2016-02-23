@@ -13,7 +13,6 @@
 #include <version.h>
 
 static void copy_file(int, const char *, int);
-static void usage(void);
 
 /* parameters initialized by core will be used by the image type code */
 struct image_tool_params params = {
@@ -65,6 +64,48 @@ static void show_image_types(void)
 		}
 	}
 	fprintf(stderr, "\n");
+}
+
+static void usage(void)
+{
+	fprintf(stderr, "Usage: %s -l image\n"
+			 "          -l ==> list image header information\n",
+		params.cmdname);
+	fprintf(stderr,
+		"       %s [-x] -A arch -O os -T type -C comp -a addr -e ep -n name -d data_file[:data_file...] image\n"
+		"          -A ==> set architecture to 'arch'\n"
+		"          -O ==> set operating system to 'os'\n"
+		"          -T ==> set image type to 'type'\n"
+		"          -C ==> set compression type 'comp'\n"
+		"          -a ==> set load address to 'addr' (hex)\n"
+		"          -e ==> set entry point to 'ep' (hex)\n"
+		"          -n ==> set image name to 'name'\n"
+		"          -d ==> use image data from 'datafile'\n"
+		"          -x ==> set XIP (execute in place)\n",
+		params.cmdname);
+	fprintf(stderr,
+		"       %s [-D dtc_options] [-f fit-image.its|-F] fit-image\n",
+		params.cmdname);
+	fprintf(stderr,
+		"          -D => set all options for device tree compiler\n"
+		"          -f => input filename for FIT source\n");
+#ifdef CONFIG_FIT_SIGNATURE
+	fprintf(stderr,
+		"Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-r]\n"
+		"          -k => set directory containing private keys\n"
+		"          -K => write public keys to this .dtb file\n"
+		"          -c => add comment in signature node\n"
+		"          -F => re-sign existing FIT image\n"
+		"          -r => mark keys used as 'required' in dtb\n");
+#else
+	fprintf(stderr,
+		"Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
+#endif
+	fprintf(stderr, "       %s -V ==> print version information and exit\n",
+		params.cmdname);
+	fprintf(stderr, "Use -T to see a list of available image types\n");
+
+	exit(EXIT_FAILURE);
 }
 
 static void process_args(int argc, char **argv)
@@ -555,42 +596,4 @@ copy_file (int ifd, const char *datafile, int pad)
 
 	(void) munmap((void *)ptr, sbuf.st_size);
 	(void) close (dfd);
-}
-
-static void usage(void)
-{
-	fprintf (stderr, "Usage: %s -l image\n"
-			 "          -l ==> list image header information\n",
-		params.cmdname);
-	fprintf (stderr, "       %s [-x] -A arch -O os -T type -C comp "
-			 "-a addr -e ep -n name -d data_file[:data_file...] image\n"
-			 "          -A ==> set architecture to 'arch'\n"
-			 "          -O ==> set operating system to 'os'\n"
-			 "          -T ==> set image type to 'type'\n"
-			 "          -C ==> set compression type 'comp'\n"
-			 "          -a ==> set load address to 'addr' (hex)\n"
-			 "          -e ==> set entry point to 'ep' (hex)\n"
-			 "          -n ==> set image name to 'name'\n"
-			 "          -d ==> use image data from 'datafile'\n"
-			 "          -x ==> set XIP (execute in place)\n",
-		params.cmdname);
-	fprintf(stderr, "       %s [-D dtc_options] [-f fit-image.its|-F] fit-image\n",
-		params.cmdname);
-	fprintf(stderr, "          -D => set all options for device tree compiler\n"
-			"          -f => input filename for FIT source\n");
-#ifdef CONFIG_FIT_SIGNATURE
-	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-r]\n"
-			"          -k => set directory containing private keys\n"
-			"          -K => write public keys to this .dtb file\n"
-			"          -c => add comment in signature node\n"
-			"          -F => re-sign existing FIT image\n"
-			"          -r => mark keys used as 'required' in dtb\n");
-#else
-	fprintf(stderr, "Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
-#endif
-	fprintf (stderr, "       %s -V ==> print version information and exit\n",
-		params.cmdname);
-	fprintf(stderr, "Use -T to see a list of available image types\n");
-
-	exit (EXIT_FAILURE);
 }
