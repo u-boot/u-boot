@@ -273,6 +273,17 @@ config SYS_TEXT_BASE
 	help
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
 
+config SPL_LOAD_FIT
+	bool "Enable SPL loading U-Boot as a FIT"
+	depends on FIT
+	help
+	  Normally with the SPL framework a legacy image is generated as part
+	  of the build. This contains U-Boot along with information as to
+	  where it should be loaded. This option instead enables generation
+	  of a FIT (Flat Image Tree) which provides more flexibility. In
+	  particular it can handle selecting from multiple device tree
+	  and passing the correct one to U-Boot.
+
 config SYS_CLK_FREQ
 	depends on ARC || ARCH_SUNXI
 	int "CPU clock frequency"

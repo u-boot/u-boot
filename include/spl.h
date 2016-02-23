@@ -29,6 +29,24 @@ struct spl_image_info {
 	u32 flags;
 };
 
+/*
+ * Information required to load data from a device
+ *
+ * @dev: Pointer to the device, e.g. struct mmc *
+ * @priv: Private data for the device
+ * @bl_len: Block length for reading in bytes
+ * @read: Function to call to read from the device
+ */
+struct spl_load_info {
+	void *dev;
+	void *priv;
+	int bl_len;
+	ulong (*read)(struct spl_load_info *load, ulong sector, ulong count,
+		      void *buf);
+};
+
+int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fdt);
+
 #define SPL_COPY_PAYLOAD_ONLY	1
 
 extern struct spl_image_info spl_image;

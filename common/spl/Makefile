@@ -10,6 +10,7 @@
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_FRAMEWORK) += spl.o
+obj-$(CONFIG_SPL_LOAD_FIT) += spl_fit.o
 obj-$(CONFIG_SPL_NOR_SUPPORT) += spl_nor.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += spl_ymodem.o
 obj-$(CONFIG_SPL_NAND_SUPPORT) += spl_nand.o

@@ -780,7 +780,6 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */
 /*******************************************************************/
-#if IMAGE_ENABLE_FIT
 
 #define FIT_IMAGES_PATH		"/images"
 #define FIT_CONFS_PATH		"/configurations"
@@ -813,6 +812,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
+#if IMAGE_ENABLE_FIT
 /* cmdline argument format parsing */
 int fit_parse_conf(const char *spec, ulong addr_curr,
 		ulong *addr, const char **conf_name);
