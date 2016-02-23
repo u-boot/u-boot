@@ -608,11 +608,9 @@ const char *genimg_get_type_name(uint8_t type)
 	return (get_table_entry_name(uimage_type, "Unknown Image", type));
 }
 
-const char *genimg_get_type_short_name(uint8_t type)
+static const char *genimg_get_short_name(const table_entry_t *table, int val)
 {
-	const table_entry_t *table;
-
-	table = get_table_entry(uimage_type, type);
+	table = get_table_entry(table, val);
 	if (!table)
 		return "unknown";
 #if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
@@ -622,10 +620,30 @@ const char *genimg_get_type_short_name(uint8_t type)
 #endif
 }
 
+const char *genimg_get_type_short_name(uint8_t type)
+{
+	return genimg_get_short_name(uimage_type, type);
+}
+
 const char *genimg_get_comp_name(uint8_t comp)
 {
 	return (get_table_entry_name(uimage_comp, "Unknown Compression",
 					comp));
+}
+
+const char *genimg_get_comp_short_name(uint8_t comp)
+{
+	return genimg_get_short_name(uimage_comp, comp);
+}
+
+const char *genimg_get_os_short_name(uint8_t os)
+{
+	return genimg_get_short_name(uimage_os, os);
+}
+
+const char *genimg_get_arch_short_name(uint8_t arch)
+{
+	return genimg_get_short_name(uimage_arch, arch);
 }
 
 /**

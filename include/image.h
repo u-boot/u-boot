@@ -413,7 +413,25 @@ int get_table_entry_id(const table_entry_t *table,
 char *get_table_entry_name(const table_entry_t *table, char *msg, int id);
 
 const char *genimg_get_os_name(uint8_t os);
+
+/**
+ * genimg_get_os_short_name() - get the short name for an OS
+ *
+ * @param os	OS (IH_OS_...)
+ * @return OS short name, or "unknown" if unknown
+ */
+const char *genimg_get_os_short_name(uint8_t comp);
+
 const char *genimg_get_arch_name(uint8_t arch);
+
+/**
+ * genimg_get_arch_short_name() - get the short name for an architecture
+ *
+ * @param arch	Architecture type (IH_ARCH_...)
+ * @return architecture short name, or "unknown" if unknown
+ */
+const char *genimg_get_arch_short_name(uint8_t arch);
+
 const char *genimg_get_type_name(uint8_t type);
 
 /**
@@ -425,6 +443,15 @@ const char *genimg_get_type_name(uint8_t type);
 const char *genimg_get_type_short_name(uint8_t type);
 
 const char *genimg_get_comp_name(uint8_t comp);
+
+/**
+ * genimg_get_comp_short_name() - get the short name for a compression method
+ *
+ * @param comp	compression method (IH_COMP_...)
+ * @return compression method short name, or "unknown" if unknown
+ */
+const char *genimg_get_comp_short_name(uint8_t comp);
+
 int genimg_get_os_id(const char *name);
 int genimg_get_arch_id(const char *name);
 int genimg_get_type_id(const char *name);
