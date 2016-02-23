@@ -108,9 +108,14 @@ Provide special options to the device tree compiler that is used to
 create the image.
 
 .TP
-.BI "\-f [" "image tree source file" "]"
+.BI "\-f [" "image tree source file" " | " "auto" "]"
 Image tree source file that describes the structure and contents of the
 FIT image.
+
+This can be automatically generated for some simple cases.
+Use "-f auto" for this. In that case the arguments -d, -A, -O, -T, -C, -a
+and -e are used to specify the image to include in the FIT and its attributes.
+No .its file is required.
 
 .TP
 .BI "\-F"
@@ -176,6 +181,15 @@ with unavailable keys are skipped.
 .B mkimage -F -k /secret/signing-keys -K u-boot.dtb \\\\
 .br
 .B -c """Kernel 3.8 image for production devices""" kernel.itb
+.fi
+
+.P
+Create a FIT image containing a kernel, using automatic mode. No .its file
+is required.
+.nf
+.B mkimage -f auto -A arm -O linux -T kernel -C none -a 43e00000 -e 0 \\\\
+.br
+.B -c """Kernel 4.4 image for production devices""" -d vmlinuz kernel.itb
 .fi
 
 .SH HOMEPAGE

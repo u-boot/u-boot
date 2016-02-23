@@ -85,7 +85,7 @@ static void usage(const char *msg)
 		"          -x ==> set XIP (execute in place)\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s [-D dtc_options] [-f fit-image.its|-F] fit-image\n",
+		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] fit-image\n",
 		params.cmdname);
 	fprintf(stderr,
 		"          -D => set all options for device tree compiler\n"
@@ -159,7 +159,8 @@ static void process_args(int argc, char **argv)
 			params.eflag = 1;
 			break;
 		case 'f':
-			params.datafile = optarg;
+			datafile = optarg;
+			params.auto_its = !strcmp(datafile, "auto");
 			/* no break */
 		case 'F':
 			/*
@@ -235,7 +236,8 @@ static void process_args(int argc, char **argv)
 	 */
 	if (params.type == IH_TYPE_FLATDT) {
 		params.fit_image_type = type;
-		params.datafile = datafile;
+		if (!params.auto_its)
+			params.datafile = datafile;
 	} else if (type != IH_TYPE_INVALID) {
 		params.type = type;
 	}
