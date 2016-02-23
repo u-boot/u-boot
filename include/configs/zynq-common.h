@@ -197,7 +197,11 @@
 /* Environment */
 #ifndef CONFIG_ENV_IS_NOWHERE
 # ifndef CONFIG_SYS_NO_FLASH
+/* Environment in NOR flash */
 #  define CONFIG_ENV_IS_IN_FLASH
+# elif defined(CONFIG_ZYNQ_QSPI)
+/* Environment in Serial Flash */
+#  define CONFIG_ENV_IS_IN_SPI_FLASH
 # elif defined(CONFIG_SYS_NO_FLASH)
 #  define CONFIG_ENV_IS_NOWHERE
 # endif

@@ -277,7 +277,7 @@ static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
 }
 
 /* TODO: control from sf layer to here through dm-spi */
-#ifdef CONFIG_TI_EDMA3
+#if defined(CONFIG_TI_EDMA3) && !defined(CONFIG_DMA)
 void spi_flash_copy_mmap(void *data, void *offset, size_t len)
 {
 	unsigned int			addr = (unsigned int) (data);
