@@ -1154,4 +1154,17 @@ ulong android_image_get_kload(const struct andr_img_hdr *hdr);
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
 
+/**
+ * board_fit_config_name_match() - Check for a matching board name
+ *
+ * This is used when SPL loads a FIT containing multiple device tree files
+ * and wants to work out which one to use. The description of each one is
+ * passed to this function. The description comes from the 'description' field
+ * in each (FDT) image node.
+ *
+ * @name: Device tree description
+ * @return 0 if this device tree should be used, non-zero to try the next
+ */
+int board_fit_config_name_match(const char *name);
+
 #endif	/* __IMAGE_H__ */
