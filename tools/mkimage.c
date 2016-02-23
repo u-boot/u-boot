@@ -66,8 +66,9 @@ static void show_image_types(void)
 	fprintf(stderr, "\n");
 }
 
-static void usage(void)
+static void usage(const char *msg)
 {
+	fprintf(stderr, "Error: %s\n", msg);
 	fprintf(stderr, "Usage: %s -l image\n"
 			 "          -l ==> list image header information\n",
 		params.cmdname);
@@ -127,7 +128,7 @@ static void process_args(int argc, char **argv)
 		case 'A':
 			params.arch = genimg_get_arch_id(optarg);
 			if (params.arch < 0)
-				usage();
+				usage("Invalid architecture");
 			break;
 		case 'c':
 			params.comment = optarg;
@@ -135,7 +136,7 @@ static void process_args(int argc, char **argv)
 		case 'C':
 			params.comp = genimg_get_comp_id(optarg);
 			if (params.comp < 0)
-				usage();
+				usage("Invalid compression type");
 			break;
 		case 'd':
 			params.datafile = optarg;
@@ -179,7 +180,7 @@ static void process_args(int argc, char **argv)
 		case 'O':
 			params.os = genimg_get_os_id(optarg);
 			if (params.os < 0)
-				usage();
+				usage("Invalid operating system");
 			break;
 		case 'r':
 			params.require_keys = 1;
@@ -198,7 +199,7 @@ static void process_args(int argc, char **argv)
 			params.type = genimg_get_type_id(optarg);
 			if (params.type < 0) {
 				show_image_types();
-				usage();
+				usage("Invalid image type");
 			}
 			break;
 		case 'v':
@@ -211,12 +212,12 @@ static void process_args(int argc, char **argv)
 			params.xflag++;
 			break;
 		default:
-			usage();
+			usage("Invalid option");
 		}
 	}
 
 	if (optind >= argc)
-		usage();
+		usage("Missing output filename");
 	params.imagefile = argv[optind];
 }
 
@@ -251,7 +252,7 @@ int main(int argc, char **argv)
 	 */
 	if (tparams->check_params)
 		if (tparams->check_params (&params))
-			usage();
+			usage("Bad parameters for image type");
 
 	if (!params.eflag) {
 		params.ep = params.addr;
