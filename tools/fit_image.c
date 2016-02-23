@@ -354,6 +354,108 @@ err:
 }
 
 /**
+ * fit_extract_data() - Move all data outside the FIT
+ *
+ * This takes a normal FIT file and removes all the 'data' properties from it.
+ * The data is placed in an area after the FIT so that it can be accessed
+ * using an offset into that area. The 'data' properties turn into
+ * 'data-offset' properties.
+ *
+ * This function cannot cope with FITs with 'data-offset' properties. All
+ * data must be in 'data' properties on entry.
+ */
+static int fit_extract_data(struct image_tool_params *params, const char *fname)
+{
+	void *buf;
+	int buf_ptr;
+	int fit_size, new_size;
+	int fd;
+	struct stat sbuf;
+	void *fdt;
+	int ret;
+	int images;
+	int node;
+
+	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false);
+	if (fd < 0)
+		return -EIO;
+	fit_size = fdt_totalsize(fdt);
+
+	/* Allocate space to hold the image data we will extract */
+	buf = malloc(fit_size);
+	if (!buf) {
+		ret = -ENOMEM;
+		goto err;
+	}
+	buf_ptr = 0;
+
+	images = fdt_path_offset(fdt, FIT_IMAGES_PATH);
+	if (images < 0) {
+		debug("%s: Cannot find /images node: %d\n", __func__, images);
+		ret = -EINVAL;
+		goto err;
+	}
+
+	for (node = fdt_first_subnode(fdt, images);
+	     node >= 0;
+	     node = fdt_next_subnode(fdt, node)) {
+		const char *data;
+		int len;
+
+		data = fdt_getprop(fdt, node, "data", &len);
+		if (!data)
+			continue;
+		memcpy(buf + buf_ptr, data, len);
+		debug("Extracting data size %x\n", len);
+
+		ret = fdt_delprop(fdt, node, "data");
+		if (ret) {
+			ret = -EPERM;
+			goto err;
+		}
+		fdt_setprop_u32(fdt, node, "data-offset", buf_ptr);
+		fdt_setprop_u32(fdt, node, "data-size", len);
+
+		buf_ptr += (len + 3) & ~3;
+	}
+
+	/* Pack the FDT and place the data after it */
+	fdt_pack(fdt);
+
+	debug("Size reduced from %x to %x\n", fit_size, fdt_totalsize(fdt));
+	debug("External data size %x\n", buf_ptr);
+	new_size = fdt_totalsize(fdt);
+	new_size = (new_size + 3) & ~3;
+	munmap(fdt, sbuf.st_size);
+
+	if (ftruncate(fd, new_size)) {
+		debug("%s: Failed to truncate file: %s\n", __func__,
+		      strerror(errno));
+		ret = -EIO;
+		goto err;
+	}
+	if (lseek(fd, new_size, SEEK_SET) < 0) {
+		debug("%s: Failed to seek to end of file: %s\n", __func__,
+		      strerror(errno));
+		ret = -EIO;
+		goto err;
+	}
+	if (write(fd, buf, buf_ptr) != buf_ptr) {
+		debug("%s: Failed to write external data to file %s\n",
+		      __func__, strerror(errno));
+		ret = -EIO;
+		goto err;
+	}
+	close(fd);
+
+	ret = 0;
+
+err:
+	close(fd);
+	return ret;
+}
+
+/**
  * fit_handle_file - main FIT file processing function
  *
  * fit_handle_file() runs dtc to convert .its to .itb, includes
@@ -428,6 +530,13 @@ static int fit_handle_file(struct image_tool_params *params)
 		fprintf(stderr, "%s Can't add hashes to FIT blob\n",
 			params->cmdname);
 		goto err_system;
+	}
+
+	/* Move the data so it is external to the FIT, if requested */
+	if (params->external_data) {
+		ret = fit_extract_data(params, tmpfile);
+		if (ret)
+			goto err_system;
 	}
 
 	if (rename (tmpfile, params->imagefile) == -1) {

@@ -112,6 +112,15 @@ Provide special options to the device tree compiler that is used to
 create the image.
 
 .TP
+.BI "\-E
+After processing, move the image data outside the FIT and store a data offset
+in the FIT. Images will be placed one after the other immediately after the
+FIT, with each one aligned to a 4-byte boundary. The existing 'data' property
+in each image will be replaced with 'data-offset' and 'data-size' properties.
+A 'data-offset' of 0 indicates that it starts in the first (4-byte aligned)
+byte after the FIT.
+
+.TP
 .BI "\-f [" "image tree source file" " | " "auto" "]"
 Image tree source file that describes the structure and contents of the
 FIT image.

@@ -72,6 +72,7 @@ struct image_tool_params {
 	int fit_image_type;	/* Image type to put into the FIT */
 	struct content_info *content_head;	/* List of files to include */
 	struct content_info *content_tail;
+	bool external_data;	/* Store data outside the FIT */
 };
 
 /*

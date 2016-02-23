@@ -2,6 +2,7 @@ U-Boot new uImage source file format (bindings definition)
 ==========================================================
 
 Author: Marian Balakowicz <m8@semihalf.com>
+External data additions, 25/1/16 Simon Glass <sjg@chromium.org>
 
 1) Introduction
 ---------------
@@ -262,7 +263,24 @@ Older, 2.4 kernel and 2.6 non-FDT kernel do not use FDT blob, in such cases
 not* be specified in a configuration node.
 
 
-8) Examples
+8) External data
+----------------
+
+The above format shows a 'data' property which holds the data for each image.
+It is also possible for this data to reside outside the FIT itself. This
+allows the FIT to be quite small, so that it can be loaded and scanned
+without loading a large amount of data. Then when an image is needed it can
+be loaded from an external source.
+
+In this case the 'data' property is omitted. Instead you can use:
+
+  - data-offset : offset of the data in a separate image store. The image
+    store is placed immediately after the last byte of the device tree binary,
+    aligned to a 4-byte boundary.
+  - data-size : size of the data in bytes
+
+
+9) Examples
 -----------
 
 Please see doc/uImage.FIT/*.its for actual image source files.
