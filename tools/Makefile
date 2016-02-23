@@ -59,7 +59,7 @@ FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
 # Flattened device tree objects
 LIBFDT_OBJS := $(addprefix lib/libfdt/, \
 			fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o \
-			fdt_region.o)
+			fdt_region.o fdt_sw.o)
 RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 					rsa-sign.o rsa-verify.o rsa-checksum.o \
 					rsa-mod-exp.o)
