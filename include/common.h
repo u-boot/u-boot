@@ -596,12 +596,8 @@ void	upmconfig     (unsigned int, unsigned int *, unsigned int);
 ulong	get_tbclk     (void);
 void	reset_misc    (void);
 void	reset_cpu     (ulong addr);
-#if defined (CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
 void ft_cpu_setup(void *blob, bd_t *bd);
-#ifdef CONFIG_PCI
 void ft_pci_setup(void *blob, bd_t *bd);
-#endif
-#endif
 
 void smp_set_core_boot_addr(unsigned long addr, int corenr);
 void smp_kick_all_cpus(void);
@@ -660,10 +656,8 @@ int get_serial_clock(void);
 #if defined(CONFIG_MPC85xx)
 typedef MPC85xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
-#  if defined(CONFIG_OF_LIBFDT)
-	void ft_fixup_cpu(void *, u64);
-	void ft_fixup_num_cores(void *);
-#  endif
+void ft_fixup_cpu(void *, u64);
+void ft_fixup_num_cores(void *);
 #endif
 #if defined(CONFIG_MPC86xx)
 typedef MPC86xx_SYS_INFO sys_info_t;

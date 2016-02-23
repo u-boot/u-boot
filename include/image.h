@@ -26,7 +26,8 @@ struct lmb;
 #include <sys/types.h>
 
 /* new uImage format support enabled on host */
-#define IMAGE_ENABLE_FIT		1
+#define IMAGE_ENABLE_FIT	1
+#define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
 #define IMAGE_ENABLE_IGNORE	0
@@ -42,7 +43,8 @@ struct lmb;
 #define IMAGE_ENABLE_IGNORE	1
 #define IMAGE_INDENT_STRING	"   "
 
-#define IMAGE_ENABLE_FIT		CONFIG_IS_ENABLED(FIT)
+#define IMAGE_ENABLE_FIT	CONFIG_IS_ENABLED(FIT)
+#define IMAGE_ENABLE_OF_LIBFDT	CONFIG_IS_ENABLED(OF_LIBFDT)
 
 #endif /* USE_HOSTCC */
 
@@ -101,12 +103,6 @@ struct lmb;
 # define IMAGE_ENABLE_RAMDISK_HIGH	1
 #else
 # define IMAGE_ENABLE_RAMDISK_HIGH	0
-#endif
-
-#ifdef CONFIG_OF_LIBFDT
-# define IMAGE_ENABLE_OF_LIBFDT	1
-#else
-# define IMAGE_ENABLE_OF_LIBFDT	0
 #endif
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE

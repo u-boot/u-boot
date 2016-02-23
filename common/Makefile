@@ -56,7 +56,7 @@ obj-$(CONFIG_ENV_IS_IN_UBI) += env_ubi.o
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o
-obj-$(CONFIG_OF_LIBFDT) += fdt_support.o
+obj-$(CONFIG_$(SPL_)OF_LIBFDT) += fdt_support.o
 
 obj-$(CONFIG_MII) += miiphyutil.o
 obj-$(CONFIG_CMD_MII) += miiphyutil.o
@@ -131,7 +131,7 @@ obj-y += malloc_simple.o
 endif
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
-obj-$(CONFIG_OF_LIBFDT) += image-fdt.o
+obj-$(CONFIG_$(SPL_)OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_$(SPL_)FIT) += image-fit.o
 obj-$(CONFIG_$(SPL_)FIT_SIGNATURE) += image-sig.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o

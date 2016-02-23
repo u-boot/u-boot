@@ -14,8 +14,6 @@ obj-$(CONFIG_LZO) += lzo/
 obj-$(CONFIG_ZLIB) += zlib/
 obj-$(CONFIG_BZIP2) += bzip2/
 obj-$(CONFIG_TIZEN) += tizen/
-obj-$(CONFIG_OF_LIBFDT) += libfdt/
-obj-$(CONFIG_FIT) += libfdt/
 obj-$(CONFIG_FIT) += libfdt/
 obj-$(CONFIG_CMD_DHRYSTONE) += dhry/
 
@@ -50,9 +48,7 @@ obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o
 endif
 
-ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_OF_LIBFDT) += libfdt/
-endif
+obj-$(CONFIG_$(SPL_)OF_LIBFDT) += libfdt/
 ifdef CONFIG_SPL_OF_CONTROL
 obj-$(CONFIG_OF_LIBFDT) += libfdt/
 endif

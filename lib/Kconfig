@@ -138,6 +138,16 @@ config OF_LIBFDT
 	  particular compatible nodes. The library operates on a flattened
 	  version of the device tree.
 
+config SPL_OF_LIBFDT
+	bool "Enable the FDT library for SPL"
+	default y if SPL_OF_CONTROL
+	help
+	  This enables the FDT library (libfdt). It provides functions for
+	  accessing binary device tree images in memory, such as adding and
+	  removing notes and properties, scanning through the tree and finding
+	  particular compatible nodes. The library operates on a flattened
+	  version of the device tree.
+
 source lib/efi/Kconfig
 
 endmenu
