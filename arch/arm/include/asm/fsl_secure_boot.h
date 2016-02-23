@@ -27,10 +27,6 @@
 #define CONFIG_FSL_CAAM
 #endif
 
-#ifndef CONFIG_DM
-#define CONFIG_DM
-#endif
-
 #define CONFIG_KEY_REVOCATION
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images
