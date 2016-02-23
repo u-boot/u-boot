@@ -18,28 +18,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
+static int mmc_load_legacy(struct mmc *mmc, ulong sector,
+			   struct image_header *header)
 {
-	unsigned long count;
 	u32 image_size_sectors;
-	struct image_header *header;
-
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-					 sizeof(struct image_header));
-
-	/* read image header to find the image size & load address */
-	count = mmc->block_dev.block_read(&mmc->block_dev, sector, 1, header);
-	debug("read sector %lx, count=%lu\n", sector, count);
-	if (count == 0)
-		goto end;
-
-	if (image_get_magic(header) != IH_MAGIC) {
-		puts("bad magic\n");
-		return -1;
-	}
+	unsigned long count;
 
 	spl_parse_image_header(header);
-
 	/* convert size to sectors - round up */
 	image_size_sectors = (spl_image.size + mmc->read_bl_len - 1) /
 			     mmc->read_bl_len;
@@ -50,9 +35,63 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 					  (void *)(ulong)spl_image.load_addr);
 	debug("read %x sectors to %x\n", image_size_sectors,
 	      spl_image.load_addr);
+	if (count != image_size_sectors)
+		return -EIO;
+
+	return 0;
+}
+
+#ifdef CONFIG_SPL_LOAD_FIT
+static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
+			     ulong count, void *buf)
+{
+	struct mmc *mmc = load->dev;
+
+	return mmc->block_dev.block_read(&mmc->block_dev, sector, count, buf);
+}
+#endif
+
+static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
+{
+	unsigned long count;
+	struct image_header *header;
+	int ret = 0;
+
+	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
+					 sizeof(struct image_header));
+
+	/* read image header to find the image size & load address */
+	count = mmc->block_dev.block_read(&mmc->block_dev, sector, 1, header);
+	debug("hdr read sector %lx, count=%lu\n", sector, count);
+	if (count == 0) {
+		ret = -EIO;
+		goto end;
+	}
+
+	switch (image_get_magic(header)) {
+	case IH_MAGIC:
+		ret = mmc_load_legacy(mmc, sector, header);
+		break;
+#ifdef CONFIG_SPL_LOAD_FIT
+	case FDT_MAGIC: {
+		struct spl_load_info load;
+
+		debug("Found FIT\n");
+		load.dev = mmc;
+		load.priv = NULL;
+		load.bl_len = mmc->read_bl_len;
+		load.read = h_spl_load_read;
+		ret = spl_load_simple_fit(&load, sector, header);
+		break;
+	}
+#endif
+	default:
+		puts("bad magic\n");
+		return -1;
+	}
 
 end:
-	if (count == 0) {
+	if (ret) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		puts("spl: mmc block read error\n");
 #endif
