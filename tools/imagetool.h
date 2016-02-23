@@ -27,6 +27,13 @@
 
 #define IH_ARCH_DEFAULT		IH_ARCH_INVALID
 
+/* Information about a file that needs to be placed into the FIT */
+struct content_info {
+	struct content_info *next;
+	int type;		/* File type (IH_TYPE_...) */
+	const char *fname;
+};
+
 /*
  * This structure defines all such variables those are initialized by
  * mkimage and dumpimage main core and need to be referred by image
@@ -63,6 +70,8 @@ struct image_tool_params {
 	int orig_file_size;	/* Original size for file before padding */
 	bool auto_its;		/* Automatically create the .its file */
 	int fit_image_type;	/* Image type to put into the FIT */
+	struct content_info *content_head;	/* List of files to include */
+	struct content_info *content_tail;
 };
 
 /*

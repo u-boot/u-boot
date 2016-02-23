@@ -85,7 +85,8 @@ static void usage(const char *msg)
 		"          -x ==> set XIP (execute in place)\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] fit-image\n",
+		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] [-b <dtb_list>] fit-image\n"
+		"           <dtb_list> is used with -f auto, and is a space-separated list of .dtb files\n",
 		params.cmdname);
 	fprintf(stderr,
 		"          -D => set all options for device tree compiler\n"
@@ -109,6 +110,24 @@ static void usage(const char *msg)
 	exit(EXIT_FAILURE);
 }
 
+static int add_content(int type, const char *fname)
+{
+	struct content_info *cont;
+
+	cont = calloc(1, sizeof(*cont));
+	if (!cont)
+		return -1;
+	cont->type = type;
+	cont->fname = fname;
+	if (params.content_tail)
+		params.content_tail->next = cont;
+	else
+		params.content_head = cont;
+	params.content_tail = cont;
+
+	return 0;
+}
+
 static void process_args(int argc, char **argv)
 {
 	char *ptr;
@@ -119,7 +138,7 @@ static void process_args(int argc, char **argv)
 
 	expecting = IH_TYPE_COUNT;	/* Unknown */
 	while ((opt = getopt(argc, argv,
-			     "-a:A:cC:d:D:e:f:Fk:K:ln:O:rR:sT:vVx")) != -1) {
+			     "-a:A:bcC:d:D:e:f:Fk:K:ln:O:rR:sT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -133,6 +152,9 @@ static void process_args(int argc, char **argv)
 			params.arch = genimg_get_arch_id(optarg);
 			if (params.arch < 0)
 				usage("Invalid architecture");
+			break;
+		case 'b':
+			expecting = IH_TYPE_FLATDT;
 			break;
 		case 'c':
 			params.comment = optarg;
@@ -222,6 +244,18 @@ static void process_args(int argc, char **argv)
 			if (expecting == type || optind == argc) {
 				params.imagefile = optarg;
 				expecting = IH_TYPE_INVALID;
+			} else if (expecting == IH_TYPE_INVALID) {
+				fprintf(stderr,
+					"%s: Unknown content type: use -b before device tree files",
+					params.cmdname);
+				exit(EXIT_FAILURE);
+			} else {
+				if (add_content(expecting, optarg)) {
+					fprintf(stderr,
+						"%s: Out of memory adding content '%s'",
+						params.cmdname, optarg);
+					exit(EXIT_FAILURE);
+				}
 			}
 			break;
 		default:
