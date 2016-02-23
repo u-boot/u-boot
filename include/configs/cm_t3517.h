@@ -51,7 +51,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_OF_LIBFDT
 /*
  * The early kernel mapping on ARM currently only maps from the base of DRAM
  * to the end of the kernel image.  The kernel is loaded at DRAM base + 0x8000.

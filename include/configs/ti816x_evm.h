@@ -28,7 +28,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8168EVM
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG		/* required for ramdisk support */

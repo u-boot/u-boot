@@ -214,7 +214,4 @@
 #define CONFIG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
 #endif /* CONFIG_CMD_NET */
 
-#define CONFIG_OF_LIBFDT
-
-
 #endif	/* __CONFIG_H */

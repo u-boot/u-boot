@@ -28,7 +28,6 @@
 /* Number of bits in a C 'long' on this architecture */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
 #define CONFIG_CMD_FDT
 #define CONFIG_ANDROID_BOOT_IMAGE

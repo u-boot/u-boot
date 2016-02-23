@@ -239,7 +239,6 @@
 /*
  * Pass open firmware flat tree to kernel
  */
-#define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 

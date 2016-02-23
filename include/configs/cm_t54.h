@@ -19,7 +19,6 @@
 #undef CONFIG_SPL_OS_BOOT
 
 /* Device Tree defines */
-#define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 
 /* EEPROM related defines */

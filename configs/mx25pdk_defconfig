@@ -4,3 +4,4 @@ CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx25pdk/imximage.cfg"
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_SETEXPR is not set
+CONFIG_OF_LIBFDT=y

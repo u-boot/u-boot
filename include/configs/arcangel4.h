@@ -41,9 +41,6 @@
 /*
  * Command line configuration
  */
-
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		16
 

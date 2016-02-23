@@ -19,7 +19,6 @@
 
 /* new uImage format support */
 #define CONFIG_FIT		1
-#define CONFIG_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
 /* High Level Configuration Options */
@@ -429,7 +428,6 @@
 #define CONFIG_BOOTCOMMAND	"run boot_nor"
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
 /* USB support */

@@ -274,7 +274,6 @@
 #define CONFIG_ENV_OFFSET		0x180000
 #endif
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 
 #endif

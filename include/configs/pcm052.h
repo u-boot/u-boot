@@ -267,7 +267,6 @@
 #define CONFIG_ENV_OFFSET_REDUND	0xC0000
 #endif
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 
 #endif

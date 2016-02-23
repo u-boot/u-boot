@@ -26,9 +26,6 @@
 
 #define CONFIG_IDENT_STRING		"hikey"
 
-/* Flat Device Tree Definitions */
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* Physical Memory Map */

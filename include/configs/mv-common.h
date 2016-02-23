@@ -60,8 +60,6 @@
 #define CONFIG_BOOTDELAY	3	/* default enable autoboot */
 #define CONFIG_PREBOOT
 
-#define CONFIG_OF_LIBFDT		/* Device tree support */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

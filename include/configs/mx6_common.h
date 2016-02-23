@@ -69,7 +69,6 @@
 #define CONFIG_BAUDRATE         115200
 
 /* Filesystems and image support */
-#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 #define CONFIG_CMD_FS_GENERIC

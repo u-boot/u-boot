@@ -6,3 +6,4 @@ CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx6qarm2/imximage.cfg,MX6Q,
 # CONFIG_CMD_FLASH is not set
 CONFIG_CMD_GPIO=y
 # CONFIG_CMD_SETEXPR is not set
+CONFIG_OF_LIBFDT=y

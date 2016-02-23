@@ -120,7 +120,6 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
 
 /*

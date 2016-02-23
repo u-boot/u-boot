@@ -458,7 +458,6 @@
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_HWCONFIG		1
 

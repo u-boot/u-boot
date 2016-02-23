@@ -47,7 +47,6 @@
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_OF_LIBFDT
 #define CONFIG_MISC_INIT_R
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS

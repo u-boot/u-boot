@@ -152,7 +152,6 @@
 /*
  * Pass open firmware flat tree
  */
-#define CONFIG_OF_LIBFDT
 
 /*
  * Environment

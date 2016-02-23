@@ -367,7 +367,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 

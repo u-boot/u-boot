@@ -28,8 +28,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX51_BABBAGE
 /*
  * Size of malloc() pool

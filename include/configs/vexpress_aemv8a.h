@@ -39,9 +39,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
 
-/* Flat Device Tree Definitions */
-#define CONFIG_OF_LIBFDT
-
 /* CS register bases for the original memory map. */
 #define V2M_PA_CS0			0x00000000
 #define V2M_PA_CS1			0x14000000

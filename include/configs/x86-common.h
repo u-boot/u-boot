@@ -24,7 +24,6 @@
 #define CONFIG_NR_DRAM_BANKS		8
 
 #define CONFIG_LMB
-#define CONFIG_OF_LIBFDT
 
 #define CONFIG_LZO
 #define CONFIG_FIT

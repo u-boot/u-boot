@@ -274,9 +274,6 @@
 #define CONFIG_CMD_FPGA_LOADBP
 #define CONFIG_CMD_FPGA_LOADFS
 
-/* Open Firmware flat tree */
-#define CONFIG_OF_LIBFDT
-
 /* FIT support */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
 

@@ -196,7 +196,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
-#define CONFIG_OF_LIBFDT
 
 /*
  * Linux Information

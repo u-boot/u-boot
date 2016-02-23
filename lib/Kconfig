@@ -128,6 +128,16 @@ config ERRNO_STR
 	  - if errno is null or positive number - a pointer to "Success" message
 	  - if errno is negative - a pointer to errno related message
 
+config OF_LIBFDT
+	bool "Enable the FDT library"
+	default y if OF_CONTROL
+	help
+	  This enables the FDT library (libfdt). It provides functions for
+	  accessing binary device tree images in memory, such as adding and
+	  removing notes and properties, scanning through the tree and finding
+	  particular compatible nodes. The library operates on a flattened
+	  version of the device tree.
+
 source lib/efi/Kconfig
 
 endmenu

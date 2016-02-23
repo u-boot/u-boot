@@ -33,7 +33,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_FIT
 
 /*

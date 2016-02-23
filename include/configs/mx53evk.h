@@ -25,8 +25,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_OF_LIBFDT
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 

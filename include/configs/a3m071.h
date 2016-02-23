@@ -96,7 +96,6 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 
 /* maximum size of the flat tree (8K) */

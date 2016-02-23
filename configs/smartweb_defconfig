@@ -7,3 +7,4 @@ CONFIG_SYS_PROMPT="U-Boot# "
 CONFIG_AUTOBOOT_KEYED=y
 CONFIG_AUTOBOOT_PROMPT="Autobooting in %d seconds, press \"<Esc><Esc>\" to stop\n"
 CONFIG_AUTOBOOT_STOP_STR="\x1b\x1b"
+CONFIG_OF_LIBFDT=y

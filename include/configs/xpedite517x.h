@@ -233,7 +233,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Pass open firmware flat tree
  */
-#define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 

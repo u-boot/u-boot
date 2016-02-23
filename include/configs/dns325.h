@@ -91,11 +91,6 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
-
-/*
  * Display cpu info at boot
  */
 #define CONFIG_DISPLAY_CPUINFO

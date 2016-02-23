@@ -259,7 +259,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_HUSH_PARSER
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_OF_STDOUT_VIA_ALIAS
 

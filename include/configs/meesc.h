@@ -57,7 +57,6 @@
 #define CONFIG_PREBOOT				/* enable preboot variable */
 
 #define CONFIG_CMD_BOOTZ
-#define CONFIG_OF_LIBFDT
 
 /*
  * Hardware drivers

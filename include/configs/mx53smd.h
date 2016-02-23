@@ -159,6 +159,4 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
-#define CONFIG_OF_LIBFDT
-
 #endif				/* __CONFIG_H */

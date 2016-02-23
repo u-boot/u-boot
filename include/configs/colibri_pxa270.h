@@ -41,7 +41,6 @@
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_LZMA			/* LZMA compression support */
-#define	CONFIG_OF_LIBFDT
 
 /*
  * Serial Console Configuration

@@ -29,7 +29,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F	1
 
 /* Flat Device Tree Definitions */
-#define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 
 /* new uImage format support */

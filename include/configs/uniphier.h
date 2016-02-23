@@ -249,9 +249,6 @@
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
-/* Open Firmware flat tree */
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_NR_DRAM_BANKS		2
 

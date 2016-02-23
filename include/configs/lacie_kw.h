@@ -176,11 +176,6 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
-
-/*
  * Environment variables configurations
  */
 #define CONFIG_ENV_IS_IN_SPI_FLASH

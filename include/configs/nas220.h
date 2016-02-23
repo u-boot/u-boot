@@ -137,12 +137,6 @@
 #define CONFIG_SYS_ATA_IDE1_OFFSET      MV_SATA_PORT1_OFFSET
 #endif
 
-
-/*
- * Device Tree
- */
-#define CONFIG_OF_LIBFDT
-
 /*
  * EFI partition
  */

@@ -93,9 +93,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_MISC_INIT_R
 
-/* Pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
-
 /*
  * NS16550 Configuration
  */

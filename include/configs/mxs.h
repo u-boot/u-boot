@@ -41,9 +41,6 @@
  * CPU specifics
  */
 
-/* MXS uses FDT */
-#define CONFIG_OF_LIBFDT
-
 /* Startup hooks */
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_ARCH_MISC_INIT

@@ -39,8 +39,6 @@
 #define CONFIG_BOARD_TYPES
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_OF_LIBFDT
-
 /*
  * NAND Flash configuration
  */

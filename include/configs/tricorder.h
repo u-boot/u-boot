@@ -60,8 +60,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_OF_LIBFDT
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(1024*1024)
 

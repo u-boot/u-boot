@@ -41,8 +41,6 @@
 #define CONFIG_BOOTP_PXE_CLIENTARCH     0x9
 #endif
 
-#define CONFIG_OF_LIBFDT
-
 #ifdef CONFIG_ARM64
 #define CONFIG_CMD_BOOTI
 #else

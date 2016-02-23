@@ -66,7 +66,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/

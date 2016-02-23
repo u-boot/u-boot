@@ -28,11 +28,6 @@
 #endif /* CONFIG_SYS_MVFS */
 
 /*
- * Enable device tree support
- */
-#define CONFIG_OF_LIBFDT
-
-/*
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */

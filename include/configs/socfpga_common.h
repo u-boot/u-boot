@@ -25,7 +25,6 @@
 #define CONFIG_CRC32_VERIFY
 
 #define CONFIG_FIT
-#define CONFIG_OF_LIBFDT
 #define CONFIG_SYS_BOOTMAPSZ		(64 * 1024 * 1024)
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */

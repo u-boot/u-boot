@@ -86,9 +86,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 
-/* Enable devicetree support */
-#define CONFIG_OF_LIBFDT
-
 /* SHA hashing */
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY

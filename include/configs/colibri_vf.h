@@ -219,7 +219,6 @@
 #define CONFIG_ENV_OFFSET		(12 * 64 * 2048)
 #endif
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 
 #define CONFIG_SYS_NO_FLASH

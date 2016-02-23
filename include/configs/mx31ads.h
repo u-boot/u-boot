@@ -27,7 +27,6 @@
  * in the final file size: 144260 vs. 109536 Bytes.
  */
 #if 0
-#define CONFIG_OF_LIBFDT		1
 #define CONFIG_FIT			1
 #define CONFIG_FIT_VERBOSE		1
 #endif

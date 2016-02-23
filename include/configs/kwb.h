@@ -112,7 +112,6 @@ BUR_COMMON_ENV \
 #undef CONFIG_BOOTM_RTEMS
 
 /* Support both device trees and ATAGs. */
-#define CONFIG_OF_LIBFDT
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
