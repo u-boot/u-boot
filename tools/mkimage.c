@@ -70,144 +70,113 @@ static void show_image_types(void)
 static void process_args(int argc, char **argv)
 {
 	char *ptr;
+	int opt;
 
-	while (--argc > 0 && **++argv == '-') {
-		while (*++*argv) {
-			switch (**argv) {
-			case 'l':
-				params.lflag = 1;
-				break;
-			case 'A':
-				if ((--argc <= 0) ||
-					(params.arch =
-					genimg_get_arch_id (*++argv)) < 0)
-					usage();
-				goto NXTARG;
-			case 'c':
-				if (--argc <= 0)
-					usage();
-				params.comment = *++argv;
-				goto NXTARG;
-			case 'C':
-				if ((--argc <= 0) ||
-					(params.comp =
-					genimg_get_comp_id (*++argv)) < 0)
-					usage();
-				goto NXTARG;
-			case 'D':
-				if (--argc <= 0)
-					usage();
-				params.dtc = *++argv;
-				goto NXTARG;
-
-			case 'O':
-				if ((--argc <= 0) ||
-					(params.os =
-					genimg_get_os_id (*++argv)) < 0)
-					usage();
-				goto NXTARG;
-			case 'T':
-				params.type = -1;
-				if (--argc >= 0 && argv[1]) {
-					params.type =
-						genimg_get_type_id(*++argv);
-				}
-				if (params.type < 0) {
-					show_image_types();
-					usage();
-				}
-				goto NXTARG;
-			case 'a':
-				if (--argc <= 0)
-					usage();
-				params.addr = strtoull(*++argv, &ptr, 16);
-				if (*ptr) {
-					fprintf (stderr,
-						"%s: invalid load address %s\n",
-						params.cmdname, *argv);
-					exit (EXIT_FAILURE);
-				}
-				goto NXTARG;
-			case 'd':
-				if (--argc <= 0)
-					usage();
-				params.datafile = *++argv;
-				params.dflag = 1;
-				goto NXTARG;
-			case 'e':
-				if (--argc <= 0)
-					usage();
-				params.ep = strtoull(*++argv, &ptr, 16);
-				if (*ptr) {
-					fprintf (stderr,
-						"%s: invalid entry point %s\n",
-						params.cmdname, *argv);
-					exit (EXIT_FAILURE);
-				}
-				params.eflag = 1;
-				goto NXTARG;
-			case 'f':
-				if (--argc <= 0)
-					usage();
-				params.datafile = *++argv;
-				/* no break */
-			case 'F':
-				/*
-				 * The flattened image tree (FIT) format
-				 * requires a flattened device tree image type
-				 */
-				params.type = IH_TYPE_FLATDT;
-				params.fflag = 1;
-				goto NXTARG;
-			case 'k':
-				if (--argc <= 0)
-					usage();
-				params.keydir = *++argv;
-				goto NXTARG;
-			case 'K':
-				if (--argc <= 0)
-					usage();
-				params.keydest = *++argv;
-				goto NXTARG;
-			case 'n':
-				if (--argc <= 0)
-					usage();
-				params.imagename = *++argv;
-				goto NXTARG;
-			case 'r':
-				params.require_keys = 1;
-				break;
-			case 'R':
-				if (--argc <= 0)
-					usage();
-				/*
-				 * This entry is for the second configuration
-				 * file, if only one is not enough.
-				 */
-				params.imagename2 = *++argv;
-				goto NXTARG;
-			case 's':
-				params.skipcpy = 1;
-				break;
-			case 'v':
-				params.vflag++;
-				break;
-			case 'V':
-				printf("mkimage version %s\n", PLAIN_VERSION);
-				exit(EXIT_SUCCESS);
-			case 'x':
-				params.xflag++;
-				break;
-			default:
+	while ((opt = getopt(argc, argv,
+			     "a:A:cC:d:D:e:f:Fk:K:ln:O:rR:sT:vVx")) != -1) {
+		switch (opt) {
+		case 'l':
+			params.lflag = 1;
+			break;
+		case 'A':
+			params.arch = genimg_get_arch_id(optarg);
+			if (params.arch < 0)
+				usage();
+			break;
+		case 'c':
+			params.comment = optarg;
+			break;
+		case 'C':
+			params.comp = genimg_get_comp_id(optarg);
+			if (params.comp < 0)
+				usage();
+			break;
+		case 'D':
+			params.dtc = optarg;
+			break;
+		case 'O':
+			params.os = genimg_get_os_id(optarg);
+			if (params.os < 0)
+				usage();
+			break;
+		case 'T':
+			params.type = genimg_get_type_id(optarg);
+			if (params.type < 0) {
+				show_image_types();
 				usage();
 			}
+			break;
+		case 'a':
+			params.addr = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid load address %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case 'd':
+			params.datafile = optarg;
+			params.dflag = 1;
+			break;
+		case 'e':
+			params.ep = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid entry point %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
+			params.eflag = 1;
+			break;
+		case 'f':
+			params.datafile = optarg;
+			/* no break */
+		case 'F':
+			/*
+			 * The flattened image tree (FIT) format
+			 * requires a flattened device tree image type
+			 */
+			params.type = IH_TYPE_FLATDT;
+			params.fflag = 1;
+			break;
+		case 'k':
+			params.keydir = optarg;
+			break;
+		case 'K':
+			params.keydest = optarg;
+			break;
+		case 'n':
+			params.imagename = optarg;
+			break;
+		case 'r':
+			params.require_keys = 1;
+			break;
+		case 'R':
+			/*
+			 * This entry is for the second configuration
+			 * file, if only one is not enough.
+			 */
+			params.imagename2 = optarg;
+			break;
+		case 's':
+			params.skipcpy = 1;
+			break;
+		case 'v':
+			params.vflag++;
+			break;
+		case 'V':
+			printf("mkimage version %s\n", PLAIN_VERSION);
+			exit(EXIT_SUCCESS);
+		case 'x':
+			params.xflag++;
+			break;
+		default:
+			usage();
 		}
-NXTARG:		;
 	}
 
-	if (argc != 1)
+	if (optind >= argc)
 		usage();
-	params.imagefile = *argv;
+	params.imagefile = argv[optind];
 }
 
 
