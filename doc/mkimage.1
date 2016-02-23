@@ -164,7 +164,7 @@ skipping those for which keys cannot be found. Also add a comment.
 .nf
 .B mkimage -f kernel.its -k /public/signing-keys -K u-boot.dtb \\\\
 .br
-.B -c "Kernel 3.8 image for production devices" kernel.itb
+.B -c """Kernel 3.8 image for production devices""" kernel.itb
 .fi
 
 .P
@@ -175,7 +175,7 @@ with unavailable keys are skipped.
 .nf
 .B mkimage -F -k /secret/signing-keys -K u-boot.dtb \\\\
 .br
-.B -c "Kernel 3.8 image for production devices" kernel.itb
+.B -c """Kernel 3.8 image for production devices""" kernel.itb
 .fi
 
 .SH HOMEPAGE

@@ -181,6 +181,18 @@ int imagetool_save_subimage(
 	ulong file_data,
 	ulong file_len);
 
+/**
+ * imagetool_get_filesize() - Utility function to obtain the size of a file
+ *
+ * This function prints a message if an error occurs, showing the error that
+ * was obtained.
+ *
+ * @params:	mkimage parameters
+ * @fname:	filename to check
+ * @return size of file, or -ve value on error
+ */
+int imagetool_get_filesize(struct image_tool_params *params, const char *fname);
+
 /*
  * There is a c file associated with supported image type low level code
  * for ex. default_image.c, fit_image.c
