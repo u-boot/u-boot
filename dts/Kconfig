@@ -53,6 +53,7 @@ endchoice
 
 config DEFAULT_DEVICE_TREE
 	string "Default Device Tree for DT control"
+	depends on OF_CONTROL
 	help
 	  This option specifies the default Device Tree used for DT control.
 	  It can be overridden from the command line:
