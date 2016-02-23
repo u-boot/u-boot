@@ -48,6 +48,13 @@ config AXP818_POWER
 	Say y here to enable support for the axp818 pmic found on
 	A83T dev board.
 
+config SY8106A_POWER
+	boolean "SY8106A pmic support"
+	depends on MACH_SUN8I_H3
+	---help---
+	Select this to enable support for the SY8106A pmic found on some
+	H3 boards.
+
 endchoice
 
 config AXP_DCDC1_VOLT
@@ -231,5 +238,14 @@ config AXP_ELDO3_VOLT
 	disable eldo3. On some A31(s) tablets it might be used to supply
 	1.2V for the SSD2828 chip (converter of parallel LCD interface
 	into MIPI DSI).
+
+config SY8106A_VOUT1_VOLT
+	int "SY8106A pmic VOUT1 voltage"
+	depends on SY8106A_POWER
+	default 1200
+	---help---
+	Set the voltage (mV) to program the SY8106A pmic VOUT1. This
+	is typically used to power the VDD-CPU and should be 1200mV.
+	Values can range from 680mV till 1950mV.
 
 endmenu

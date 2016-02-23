@@ -372,11 +372,14 @@ config I2C3_ENABLE
 	See I2C0_ENABLE help text.
 endif
 
+if SUNXI_GEN_SUN6I
 config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
-	default n
+	# This is used for the pmic on H3
+	default y if SY8106A_POWER
 	---help---
 	Set this to y to enable the I2C controller which is part of the PRCM.
+endif
 
 if MACH_SUN7I
 config I2C4_ENABLE

@@ -37,15 +37,14 @@ static int ohci_usb_probe(struct udevice *dev)
 	 * This should go away once we've moved to the driver model for
 	 * clocks resp. phys.
 	 */
-	if (regs == (void *)(SUNXI_USB1_BASE + 0x400)) {
-		priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
-		priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
-		priv->phy_index = 1;
-	} else {
-		priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI1;
-		priv->usb_gate_mask = CCM_USB_CTRL_OHCI1_CLK;
-		priv->phy_index = 2;
-	}
+	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
+#ifdef CONFIG_MACH_SUN8I_H3
+	priv->ahb_gate_mask |= 1 << AHB_GATE_OFFSET_USB_EHCI0;
+#endif
+	priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
+	priv->phy_index = ((u32)regs - (SUNXI_USB1_BASE + 0x400)) / 0x1000 + 1;
+	priv->ahb_gate_mask <<= priv->phy_index - 1;
+	priv->usb_gate_mask <<= priv->phy_index - 1;
 
 	setbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
 	setbits_le32(&ccm->usb_clk_cfg, priv->usb_gate_mask);
@@ -86,6 +85,7 @@ static const struct udevice_id ohci_usb_ids[] = {
 	{ .compatible = "allwinner,sun6i-a31-ohci", },
 	{ .compatible = "allwinner,sun7i-a20-ohci", },
 	{ .compatible = "allwinner,sun8i-a23-ohci", },
+	{ .compatible = "allwinner,sun8i-h3-ohci",  },
 	{ .compatible = "allwinner,sun9i-a80-ohci", },
 	{ }
 };

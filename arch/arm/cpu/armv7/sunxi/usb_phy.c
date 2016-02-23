@@ -31,6 +31,9 @@
 #define SUNXI_EHCI_AHB_INCRX_ALIGN_EN	(1 << 8)
 #define SUNXI_EHCI_ULPI_BYPASS_EN	(1 << 0)
 
+#define REG_PHY_UNK_H3			0x420
+#define REG_PMU_UNK_H3			0x810
+
 static struct sunxi_usb_phy {
 	int usb_rst_mask;
 	int gpio_vbus;
@@ -39,19 +42,30 @@ static struct sunxi_usb_phy {
 	int id;
 	int init_count;
 	int power_on_count;
+	int base;
 } sunxi_usb_phy[] = {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY0_RST | CCM_USB_CTRL_PHY0_CLK,
 		.id = 0,
+		.base = SUNXI_USB0_BASE,
 	},
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST | CCM_USB_CTRL_PHY1_CLK,
 		.id = 1,
+		.base = SUNXI_USB1_BASE,
 	},
 #if CONFIG_SUNXI_USB_PHYS >= 3
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY2_RST | CCM_USB_CTRL_PHY2_CLK,
 		.id = 2,
+		.base = SUNXI_USB2_BASE,
+	},
+#endif
+#if CONFIG_SUNXI_USB_PHYS >= 4
+	{
+		.usb_rst_mask = CCM_USB_CTRL_PHY3_RST | CCM_USB_CTRL_PHY3_CLK,
+		.id = 3,
+		.base = SUNXI_USB3_BASE,
 	}
 #endif
 };
@@ -114,6 +128,15 @@ static void usb_phy_write(struct sunxi_usb_phy *phy, int addr,
 	}
 }
 
+#if defined CONFIG_MACH_SUN8I_H3
+static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
+{
+	if (phy->id == 0)
+		clrbits_le32(SUNXI_USBPHY_BASE + REG_PHY_UNK_H3, 0x01);
+
+	clrbits_le32(phy->base + REG_PMU_UNK_H3, 0x02);
+}
+#else
 static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 {
 	/* The following comments are machine
@@ -136,16 +159,14 @@ static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 
 	return;
 }
+#endif
 
-static void sunxi_usb_phy_passby(int index, int enable)
+static void sunxi_usb_phy_passby(struct sunxi_usb_phy *phy, int enable)
 {
 	unsigned long bits = 0;
 	void *addr;
 
-	if (index == 1)
-		addr = (void *)SUNXI_USB1_BASE + SUNXI_USB_PMU_IRQ_ENABLE;
-	else
-		addr = (void *)SUNXI_USB2_BASE + SUNXI_USB_PMU_IRQ_ENABLE;
+	addr = (void *)phy->base + SUNXI_USB_PMU_IRQ_ENABLE;
 
 	bits = SUNXI_EHCI_AHB_ICHR8_EN |
 		SUNXI_EHCI_AHB_INCR4_BURST_EN |
@@ -181,7 +202,7 @@ void sunxi_usb_phy_init(int index)
 	sunxi_usb_phy_config(phy);
 
 	if (phy->id != 0)
-		sunxi_usb_phy_passby(index, SUNXI_USB_PASSBY_EN);
+		sunxi_usb_phy_passby(phy, SUNXI_USB_PASSBY_EN);
 }
 
 void sunxi_usb_phy_exit(int index)
@@ -194,7 +215,7 @@ void sunxi_usb_phy_exit(int index)
 		return;
 
 	if (phy->id != 0)
-		sunxi_usb_phy_passby(index, !SUNXI_USB_PASSBY_EN);
+		sunxi_usb_phy_passby(phy, !SUNXI_USB_PASSBY_EN);
 
 	clrbits_le32(&ccm->usb_clk_cfg, phy->usb_rst_mask);
 }
