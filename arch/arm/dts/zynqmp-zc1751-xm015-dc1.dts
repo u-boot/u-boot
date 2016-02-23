@@ -20,6 +20,8 @@
 		ethernet0 = &gem3;
 		gpio0 = &gpio;
 		i2c0 = &i2c1;
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		spi0 = &qspi;

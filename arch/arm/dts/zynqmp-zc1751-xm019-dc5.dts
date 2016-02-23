@@ -22,6 +22,7 @@
 		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
+		mmc0 = &sdhci0;
 		serial0 = &uart0;
 		serial1 = &uart1;
 	};

@@ -17,6 +17,8 @@
 	model = "ZynqMP EP108";
 
 	aliases {
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
 		serial0 = &uart0;
 		spi0 = &qspi;
 		spi1 = &spi0;
