@@ -67,18 +67,9 @@ static void show_image_types(void)
 	fprintf(stderr, "\n");
 }
 
-int main(int argc, char **argv)
+static void process_args(int argc, char **argv)
 {
-	int ifd = -1;
-	struct stat sbuf;
 	char *ptr;
-	int retval = 0;
-	struct image_type_params *tparams = NULL;
-	int pad_len = 0;
-	int dfd;
-
-	params.cmdname = *argv;
-	params.addr = params.ep = 0;
 
 	while (--argc > 0 && **++argv == '-') {
 		while (*++*argv) {
@@ -90,7 +81,7 @@ int main(int argc, char **argv)
 				if ((--argc <= 0) ||
 					(params.arch =
 					genimg_get_arch_id (*++argv)) < 0)
-					usage ();
+					usage();
 				goto NXTARG;
 			case 'c':
 				if (--argc <= 0)
@@ -101,11 +92,11 @@ int main(int argc, char **argv)
 				if ((--argc <= 0) ||
 					(params.comp =
 					genimg_get_comp_id (*++argv)) < 0)
-					usage ();
+					usage();
 				goto NXTARG;
 			case 'D':
 				if (--argc <= 0)
-					usage ();
+					usage();
 				params.dtc = *++argv;
 				goto NXTARG;
 
@@ -113,7 +104,7 @@ int main(int argc, char **argv)
 				if ((--argc <= 0) ||
 					(params.os =
 					genimg_get_os_id (*++argv)) < 0)
-					usage ();
+					usage();
 				goto NXTARG;
 			case 'T':
 				params.type = -1;
@@ -128,7 +119,7 @@ int main(int argc, char **argv)
 				goto NXTARG;
 			case 'a':
 				if (--argc <= 0)
-					usage ();
+					usage();
 				params.addr = strtoull(*++argv, &ptr, 16);
 				if (*ptr) {
 					fprintf (stderr,
@@ -139,13 +130,13 @@ int main(int argc, char **argv)
 				goto NXTARG;
 			case 'd':
 				if (--argc <= 0)
-					usage ();
+					usage();
 				params.datafile = *++argv;
 				params.dflag = 1;
 				goto NXTARG;
 			case 'e':
 				if (--argc <= 0)
-					usage ();
+					usage();
 				params.ep = strtoull(*++argv, &ptr, 16);
 				if (*ptr) {
 					fprintf (stderr,
@@ -157,7 +148,7 @@ int main(int argc, char **argv)
 				goto NXTARG;
 			case 'f':
 				if (--argc <= 0)
-					usage ();
+					usage();
 				params.datafile = *++argv;
 				/* no break */
 			case 'F':
@@ -180,7 +171,7 @@ int main(int argc, char **argv)
 				goto NXTARG;
 			case 'n':
 				if (--argc <= 0)
-					usage ();
+					usage();
 				params.imagename = *++argv;
 				goto NXTARG;
 			case 'r':
@@ -208,14 +199,33 @@ int main(int argc, char **argv)
 				params.xflag++;
 				break;
 			default:
-				usage ();
+				usage();
 			}
 		}
 NXTARG:		;
 	}
 
 	if (argc != 1)
-		usage ();
+		usage();
+	params.imagefile = *argv;
+}
+
+
+int main(int argc, char **argv)
+{
+	int ifd = -1;
+	struct stat sbuf;
+	char *ptr;
+	int retval = 0;
+	struct image_type_params *tparams = NULL;
+	int pad_len = 0;
+	int dfd;
+
+	params.cmdname = *argv;
+	params.addr = 0;
+	params.ep = 0;
+
+	process_args(argc, argv);
 
 	/* set tparams as per input type_id */
 	tparams = imagetool_get_type(params.type);
@@ -231,7 +241,7 @@ NXTARG:		;
 	 */
 	if (tparams->check_params)
 		if (tparams->check_params (&params))
-			usage ();
+			usage();
 
 	if (!params.eflag) {
 		params.ep = params.addr;
@@ -239,8 +249,6 @@ NXTARG:		;
 		if (params.xflag)
 			params.ep += tparams->header_size;
 	}
-
-	params.imagefile = *argv;
 
 	if (params.fflag){
 		if (tparams->fflag_handle)
