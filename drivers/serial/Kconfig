@@ -119,6 +119,17 @@ config DEBUG_UART_UARTLITE
 	  You will need to provide parameters to make this work. The driver will
 	  be available until the real driver-model serial is running.
 
+config DEBUG_UART_ARM_DCC
+	bool "ARM DCC"
+	help
+	  Select this to enable a debug UART using the ARM JTAG DCC port.
+	  The DCC port can be used for very early debugging and doesn't require
+	  any additional setting like address/baudrate/clock. On systems without
+	  any serial interface this is the easiest way how to get console.
+	  Every ARM core has own DCC port which is the part of debug interface.
+	  This port is available at least on ARMv6, ARMv7, ARMv8 and XScale
+	  architectures.
+
 config DEBUG_UART_ZYNQ
 	bool "Xilinx Zynq"
 	help

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2004-2007 ARM Limited.
  * Copyright (C) 2008 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+ * Copyright (C) 2015 - 2016 Xilinx, Inc, Michal Simek
  *
  * SPDX-License-Identifier:	GPL-2.0
  *
@@ -16,6 +17,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <serial.h>
 
 #if defined(CONFIG_CPU_V6) || defined(CONFIG_CPU_V7)
@@ -94,12 +96,7 @@
 
 #define TIMEOUT_COUNT 0x4000000
 
-static int arm_dcc_init(void)
-{
-	return 0;
-}
-
-static int arm_dcc_getc(void)
+static int arm_dcc_getc(struct udevice *dev)
 {
 	int ch;
 	register unsigned int reg;
@@ -112,7 +109,7 @@ static int arm_dcc_getc(void)
 	return ch;
 }
 
-static void arm_dcc_putc(char ch)
+static int arm_dcc_putc(struct udevice *dev, char ch)
 {
 	register unsigned int reg;
 	unsigned int timeout_count = TIMEOUT_COUNT;
@@ -123,41 +120,57 @@ static void arm_dcc_putc(char ch)
 			break;
 	}
 	if (timeout_count == 0)
-		return;
+		return -EAGAIN;
 	else
 		write_dcc(ch);
+
+	return 0;
 }
 
-static int arm_dcc_tstc(void)
+static int arm_dcc_pending(struct udevice *dev, bool input)
 {
 	register unsigned int reg;
 
-	can_read_dcc(reg);
+	if (input) {
+		can_read_dcc(reg);
+	} else {
+		can_write_dcc(reg);
+	}
 
 	return reg;
 }
 
-static void arm_dcc_setbrg(void)
-{
-}
-
-static struct serial_device arm_dcc_drv = {
-	.name	= "arm_dcc",
-	.start	= arm_dcc_init,
-	.stop	= NULL,
-	.setbrg	= arm_dcc_setbrg,
-	.putc	= arm_dcc_putc,
-	.puts	= default_serial_puts,
-	.getc	= arm_dcc_getc,
-	.tstc	= arm_dcc_tstc,
+static const struct dm_serial_ops arm_dcc_ops = {
+	.putc = arm_dcc_putc,
+	.pending = arm_dcc_pending,
+	.getc = arm_dcc_getc,
 };
 
-void arm_dcc_initialize(void)
+static const struct udevice_id arm_dcc_ids[] = {
+	{ .compatible = "arm,dcc", },
+	{ }
+};
+
+U_BOOT_DRIVER(serial_dcc) = {
+	.name	= "arm_dcc",
+	.id	= UCLASS_SERIAL,
+	.of_match = arm_dcc_ids,
+	.ops	= &arm_dcc_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+#ifdef CONFIG_DEBUG_UART_ARM_DCC
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
 {
-	serial_register(&arm_dcc_drv);
 }
 
-__weak struct serial_device *default_serial_console(void)
+static inline void _debug_uart_putc(int ch)
 {
-	return &arm_dcc_drv;
+	arm_dcc_putc(NULL, ch);
 }
+
+DEBUG_UART_FUNCS
+#endif
