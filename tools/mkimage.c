@@ -75,8 +75,13 @@ static void process_args(int argc, char **argv)
 	while ((opt = getopt(argc, argv,
 			     "a:A:cC:d:D:e:f:Fk:K:ln:O:rR:sT:vVx")) != -1) {
 		switch (opt) {
-		case 'l':
-			params.lflag = 1;
+		case 'a':
+			params.addr = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid load address %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
 			break;
 		case 'A':
 			params.arch = genimg_get_arch_id(optarg);
@@ -91,32 +96,12 @@ static void process_args(int argc, char **argv)
 			if (params.comp < 0)
 				usage();
 			break;
-		case 'D':
-			params.dtc = optarg;
-			break;
-		case 'O':
-			params.os = genimg_get_os_id(optarg);
-			if (params.os < 0)
-				usage();
-			break;
-		case 'T':
-			params.type = genimg_get_type_id(optarg);
-			if (params.type < 0) {
-				show_image_types();
-				usage();
-			}
-			break;
-		case 'a':
-			params.addr = strtoull(optarg, &ptr, 16);
-			if (*ptr) {
-				fprintf(stderr, "%s: invalid load address %s\n",
-					params.cmdname, optarg);
-				exit(EXIT_FAILURE);
-			}
-			break;
 		case 'd':
 			params.datafile = optarg;
 			params.dflag = 1;
+			break;
+		case 'D':
+			params.dtc = optarg;
 			break;
 		case 'e':
 			params.ep = strtoull(optarg, &ptr, 16);
@@ -144,8 +129,16 @@ static void process_args(int argc, char **argv)
 		case 'K':
 			params.keydest = optarg;
 			break;
+		case 'l':
+			params.lflag = 1;
+			break;
 		case 'n':
 			params.imagename = optarg;
+			break;
+		case 'O':
+			params.os = genimg_get_os_id(optarg);
+			if (params.os < 0)
+				usage();
 			break;
 		case 'r':
 			params.require_keys = 1;
@@ -159,6 +152,13 @@ static void process_args(int argc, char **argv)
 			break;
 		case 's':
 			params.skipcpy = 1;
+			break;
+		case 'T':
+			params.type = genimg_get_type_id(optarg);
+			if (params.type < 0) {
+				show_image_types();
+				usage();
+			}
 			break;
 		case 'v':
 			params.vflag++;
