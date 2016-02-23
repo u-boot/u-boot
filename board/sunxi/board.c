@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <nand.h>
 #include <net.h>
+#include <sy8106a.h>
 
 #if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
 /* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
@@ -435,6 +436,10 @@ void sunxi_board_init(void)
 {
 	int power_failed = 0;
 	unsigned long ramsize;
+
+#ifdef CONFIG_SY8106A_POWER
+	power_failed = sy8106a_set_vout1(CONFIG_SY8106A_VOUT1_VOLT);
+#endif
 
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
 	defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER

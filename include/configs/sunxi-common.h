@@ -206,7 +206,8 @@
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 /* I2C */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER
+#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
+    defined CONFIG_SY8106A_POWER
 #define CONFIG_SPL_I2C_SUPPORT
 #endif
 
@@ -240,7 +241,8 @@ extern int soft_i2c_gpio_scl;
 
 /* PMU */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER || \
+    defined CONFIG_SY8106A_POWER
 #define CONFIG_SPL_POWER_SUPPORT
 #endif
 
