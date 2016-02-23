@@ -15,7 +15,7 @@
 static void copy_file(int, const char *, int);
 
 /* parameters initialized by core will be used by the image type code */
-struct image_tool_params params = {
+static struct image_tool_params params = {
 	.os = IH_OS_LINUX,
 	.arch = IH_ARCH_PPC,
 	.type = IH_TYPE_KERNEL,
