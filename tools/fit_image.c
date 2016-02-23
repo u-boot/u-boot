@@ -455,6 +455,98 @@ err:
 	return ret;
 }
 
+static int fit_import_data(struct image_tool_params *params, const char *fname)
+{
+	void *fdt, *old_fdt;
+	int fit_size, new_size, size, data_base;
+	int fd;
+	struct stat sbuf;
+	int ret;
+	int images;
+	int node;
+
+	fd = mmap_fdt(params->cmdname, fname, 0, &old_fdt, &sbuf, false);
+	if (fd < 0)
+		return -EIO;
+	fit_size = fdt_totalsize(old_fdt);
+	data_base = (fit_size + 3) & ~3;
+
+	/* Allocate space to hold the new FIT */
+	size = sbuf.st_size + 16384;
+	fdt = malloc(size);
+	if (!fdt) {
+		fprintf(stderr, "%s: Failed to allocate memory (%d bytes)\n",
+			__func__, size);
+		ret = -ENOMEM;
+		goto err;
+	}
+	ret = fdt_open_into(old_fdt, fdt, size);
+	if (ret) {
+		debug("%s: Failed to expand FIT: %s\n", __func__,
+		      fdt_strerror(errno));
+		ret = -EINVAL;
+		goto err;
+	}
+
+	images = fdt_path_offset(fdt, FIT_IMAGES_PATH);
+	if (images < 0) {
+		debug("%s: Cannot find /images node: %d\n", __func__, images);
+		ret = -EINVAL;
+		goto err;
+	}
+
+	for (node = fdt_first_subnode(fdt, images);
+	     node >= 0;
+	     node = fdt_next_subnode(fdt, node)) {
+		int buf_ptr;
+		int len;
+
+		buf_ptr = fdtdec_get_int(fdt, node, "data-offset", -1);
+		len = fdtdec_get_int(fdt, node, "data-size", -1);
+		if (buf_ptr == -1 || len == -1)
+			continue;
+		debug("Importing data size %x\n", len);
+
+		ret = fdt_setprop(fdt, node, "data", fdt + data_base + buf_ptr,
+				  len);
+		if (ret) {
+			debug("%s: Failed to write property: %s\n", __func__,
+			      fdt_strerror(ret));
+			ret = -EINVAL;
+			goto err;
+		}
+	}
+
+	munmap(fdt, sbuf.st_size);
+	close(fd);
+
+	/* Pack the FDT and place the data after it */
+	fdt_pack(fdt);
+
+	new_size = fdt_totalsize(fdt);
+	debug("Size expanded from %x to %x\n", fit_size, new_size);
+
+	fd = open(fname, O_RDWR | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	if (fd < 0) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			params->cmdname, fname, strerror(errno));
+		goto err;
+	}
+	if (write(fd, fdt, new_size) != new_size) {
+		debug("%s: Failed to write external data to file %s\n",
+		      __func__, strerror(errno));
+		ret = -EIO;
+		goto err;
+	}
+	close(fd);
+
+	ret = 0;
+
+err:
+	close(fd);
+	return ret;
+}
+
 /**
  * fit_handle_file - main FIT file processing function
  *
@@ -509,6 +601,11 @@ static int fit_handle_file(struct image_tool_params *params)
 				params->cmdname, cmd, strerror(errno));
 		goto err_system;
 	}
+
+	/* Move the data so it is internal to the FIT, if needed */
+	ret = fit_import_data(params, tmpfile);
+	if (ret)
+		goto err_system;
 
 	/*
 	 * Set hashes for images in the blob. Unfortunately we may need more
