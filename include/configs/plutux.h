@@ -47,9 +47,6 @@
 /* General networking support */
 #define CONFIG_CMD_DHCP
 
-/* support the new (FDT-based) image format */
-#define CONFIG_FIT
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

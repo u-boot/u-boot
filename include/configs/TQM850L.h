@@ -441,8 +441,6 @@
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_HWCONFIG		1
 
 #endif	/* __CONFIG_H */

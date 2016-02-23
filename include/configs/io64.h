@@ -46,10 +46,6 @@
 
 #undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
 
-/* new uImage format support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
-
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)

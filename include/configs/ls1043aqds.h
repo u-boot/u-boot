@@ -454,7 +454,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SIZE			0x20000
 #endif
 
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_MII
 #define CONFIG_CMDLINE_TAG

@@ -31,10 +31,6 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
-/* new uImage format support */
-#define CONFIG_FIT			1
-#define CONFIG_FIT_VERBOSE		1
-
 #define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
@@ -318,8 +314,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 /* Pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* I2C */
 #define CONFIG_SYS_I2C

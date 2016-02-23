@@ -21,12 +21,9 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 #ifndef CONFIG_SPL_BUILD
-# define CONFIG_FIT
 # define CONFIG_TIMESTAMP
 # define CONFIG_LZO
 # ifdef CONFIG_ENABLE_VBOOT
-#  define CONFIG_FIT_SIGNATURE
-#  define CONFIG_RSA
 # endif
 #endif
 

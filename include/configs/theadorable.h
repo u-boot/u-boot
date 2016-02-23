@@ -77,7 +77,6 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_PREBOOT
-#define CONFIG_FIT
 
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser	*/
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "

@@ -26,7 +26,7 @@ struct lmb;
 #include <sys/types.h>
 
 /* new uImage format support enabled on host */
-#define CONFIG_FIT		1
+#define IMAGE_ENABLE_FIT		1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
 #define IMAGE_ENABLE_IGNORE	0
@@ -42,9 +42,11 @@ struct lmb;
 #define IMAGE_ENABLE_IGNORE	1
 #define IMAGE_INDENT_STRING	"   "
 
+#define IMAGE_ENABLE_FIT		CONFIG_IS_ENABLED(FIT)
+
 #endif /* USE_HOSTCC */
 
-#if defined(CONFIG_FIT)
+#if IMAGE_ENABLE_FIT
 #include <hash.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -93,7 +95,7 @@ struct lmb;
 #define IMAGE_ENABLE_SHA256	0
 #endif
 
-#endif /* CONFIG_FIT */
+#endif /* IMAGE_ENABLE_FIT */
 
 #ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 # define IMAGE_ENABLE_RAMDISK_HIGH	1
@@ -308,7 +310,7 @@ typedef struct bootm_headers {
 	image_header_t	legacy_hdr_os_copy;	/* header copy */
 	ulong		legacy_hdr_valid;
 
-#if defined(CONFIG_FIT)
+#if IMAGE_ENABLE_FIT
 	const char	*fit_uname_cfg;	/* configuration node unit name */
 
 	void		*fit_hdr_os;	/* os FIT image header */
@@ -755,7 +757,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */
 /*******************************************************************/
-#if defined(CONFIG_FIT)
+#if IMAGE_ENABLE_FIT
 
 #define FIT_IMAGES_PATH		"/images"
 #define FIT_CONFS_PATH		"/configurations"
@@ -951,12 +953,15 @@ struct image_sign_info {
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
 };
+#endif /* Allow struct image_region to always be defined for rsa.h */
 
 /* A part of an image, used for hashing */
 struct image_region {
 	const void *data;
 	int size;
 };
+
+#if IMAGE_ENABLE_FIT
 
 #if IMAGE_ENABLE_VERIFY
 # include <u-boot/rsa-checksum.h>

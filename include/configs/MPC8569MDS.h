@@ -253,10 +253,6 @@ extern unsigned long get_clock_freq(void);
 #ifdef  CONFIG_SYS_HUSH_PARSER
 #endif
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
 /*
  * I2C
  */

@@ -284,7 +284,6 @@
 
 /* Enable flat device tree support */
 #define CONFIG_LMB		1
-#define CONFIG_FIT		1
 
 #if defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_MII		1

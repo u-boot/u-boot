@@ -252,6 +252,5 @@
 
 /* Enable FIT images support */
 #define CONFIG_CMD_FDT
-#define CONFIG_FIT
 
 #endif				/* __CONFIG_H */

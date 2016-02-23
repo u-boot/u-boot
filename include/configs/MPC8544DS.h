@@ -209,10 +209,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL

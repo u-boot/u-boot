@@ -1101,8 +1101,9 @@ int fit_all_image_verify(const void *fit)
 			 * Direct child node of the images parent node,
 			 * i.e. component image node.
 			 */
-			printf("   Hash(es) for Image %u (%s): ", count++,
+			printf("   Hash(es) for Image %u (%s): ", count,
 			       fit_get_name(fit, noffset, NULL));
+			count++;
 
 			if (!fit_image_verify(fit, noffset))
 				return 0;

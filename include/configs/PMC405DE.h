@@ -64,8 +64,6 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 
-#define CONFIG_OF_BOARD_SETUP
-
 #undef  CONFIG_WATCHDOG			/* watchdog disabled */
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0 */
 #define CONFIG_PRAM		0

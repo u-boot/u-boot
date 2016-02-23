@@ -240,8 +240,6 @@
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_IMX_WATCHDOG
 
-#define CONFIG_FIT
-
 /* Framebuffer */
 #define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3

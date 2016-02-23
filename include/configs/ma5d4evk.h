@@ -10,8 +10,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_FIT
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 #include "at91-sama5_common.h"

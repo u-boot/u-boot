@@ -50,9 +50,6 @@
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK
 
-/* support the new (FDT-based) image format */
-#define CONFIG_FIT
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

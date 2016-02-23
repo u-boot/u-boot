@@ -378,10 +378,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
-
 /*
  * All the defines above are for the TQMa6 SoM
  *

@@ -427,8 +427,6 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_OF_BOARD_SETUP
-
 #define OF_CPU			"PowerPC,5121@0"
 #define OF_SOC_COMPAT		"fsl,mpc5121-immr"
 #define OF_TBCLK		(bd->bi_busfreq / 4)

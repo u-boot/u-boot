@@ -666,8 +666,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
 #endif
 
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
 #define CONFIG_CMD_BOOTZ
 
 #define CONFIG_MISC_INIT_R

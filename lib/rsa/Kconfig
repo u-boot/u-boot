@@ -6,6 +6,12 @@ config RSA
 	  RSA support. This enables the RSA algorithm used for FIT image
 	  verification in U-Boot.
 	  See doc/uImage.FIT/signature.txt for more details.
+	  The Modular Exponentiation algorithm in RSA is implemented using
+	  driver model. So CONFIG_DM needs to be enabled by default for this
+	  library to function.
+	  The signing part is build into mkimage regardless of this
+	  option. The software based modular exponentiation is built into
+	  mkimage irrespective of this option.
 
 if RSA
 config RSA_SOFTWARE_EXP

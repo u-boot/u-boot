@@ -300,14 +300,8 @@
 					 CONFIG_SYS_I2C_DSPIC_KEYB_ADDR,\
 					 CONFIG_SYS_I2C_DSPIC_IO_ADDR }
 
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_BOARD_SETUP
 /* Update size in "reg" property of NOR FLASH device tree nodes */
 #define CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
-
-#define CONFIG_FIT			/* enable FIT image support	*/
 
 #define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
 

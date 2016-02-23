@@ -43,7 +43,6 @@
 
 /* Support both device trees and ATAGs. */
 #define CONFIG_USE_FDT			/* use fdt within board code */
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

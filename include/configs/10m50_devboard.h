@@ -49,7 +49,6 @@
 /*
  * FDT options
  */
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_LMB
 
 /*

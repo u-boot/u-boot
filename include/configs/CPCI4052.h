@@ -209,8 +209,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
-#define CONFIG_OF_BOARD_SETUP
-
 /*-----------------------------------------------------------------------
  * FLASH organization
  */

@@ -407,9 +407,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #endif
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
-
 #define CONFIG_API		1
 
 #endif /* __CONFIG_H */

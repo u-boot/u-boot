@@ -184,9 +184,6 @@
 #define CONFIG_SYS_CS_DEADCYCLE	0x33333333
 #define CONFIG_SYS_RESET_ADDRESS	0xff000000
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
-
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_SOC                  "soc5200@f0000000"

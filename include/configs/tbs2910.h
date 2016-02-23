@@ -61,7 +61,6 @@
 
 /* Filesystems / image support */
 #define CONFIG_EFI_PARTITION
-#define CONFIG_FIT
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3

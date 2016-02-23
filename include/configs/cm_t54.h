@@ -18,9 +18,6 @@
 
 #undef CONFIG_SPL_OS_BOOT
 
-/* Device Tree defines */
-#define CONFIG_OF_BOARD_SETUP
-
 /* EEPROM related defines */
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50

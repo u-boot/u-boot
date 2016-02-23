@@ -400,16 +400,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-
-/* new uImage format support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
-
 #else /* CONFIG_TRAILBLAZER */
 
 #define CONFIG_BOARD_EARLY_INIT_F

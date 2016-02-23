@@ -22,15 +22,6 @@
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX31ADS
 
-/*
- * Disabled for now due to build problems under Debian and a significant increase
- * in the final file size: 144260 vs. 109536 Bytes.
- */
-#if 0
-#define CONFIG_FIT			1
-#define CONFIG_FIT_VERBOSE		1
-#endif
-
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1

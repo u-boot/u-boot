@@ -10,6 +10,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
+#include <fdt_support.h>
 #include <hwconfig.h>
 #include <ahci.h>
 #include <mmc.h>

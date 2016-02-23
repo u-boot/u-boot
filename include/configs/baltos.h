@@ -41,7 +41,6 @@
 
 /* FIT support */
 #define CONFIG_SYS_BOOTM_LEN         SZ_64M
-#define CONFIG_OF_BOARD_SETUP
 
 /* UBI Support */
 #define CONFIG_CMD_MTDPARTS

@@ -23,10 +23,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-/* new uImage format support */
-#define CONFIG_FIT			1
-#define CONFIG_FIT_VERBOSE		1
-
 #define CONFIG_MMC     1
 
 #ifdef CONFIG_MMC
@@ -329,8 +325,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 /* Pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* I2C */
 #define CONFIG_SYS_I2C

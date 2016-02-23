@@ -194,12 +194,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 /*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-/*
  * I2C
  */
 #define CONFIG_SYS_I2C
@@ -339,8 +333,6 @@
 #define CONFIG_BOOTDELAY	3		/* -1 disables auto-boot */
 #define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
-#define CONFIG_FIT		1
-#define CONFIG_FIT_VERBOSE	1
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 

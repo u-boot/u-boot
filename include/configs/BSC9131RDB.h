@@ -247,16 +247,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
 
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-
-/* new uImage format support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
-
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000

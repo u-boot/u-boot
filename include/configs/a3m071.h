@@ -82,7 +82,6 @@
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_FIT
 
 /*
  * IPB Bus clocking configuration.
@@ -94,9 +93,6 @@
 #else
 #undef CONFIG_SYS_PCICLK_EQUALS_IPBCLK_DIV2
 #endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP
 
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192

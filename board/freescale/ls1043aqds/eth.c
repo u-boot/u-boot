@@ -7,9 +7,11 @@
 #include <common.h>
 #include <asm/io.h>
 #include <netdev.h>
+#include <fdt_support.h>
 #include <fm_eth.h>
 #include <fsl_mdio.h>
 #include <fsl_dtsec.h>
+#include <libfdt.h>
 #include <malloc.h>
 #include <asm/arch/fsl_serdes.h>
 

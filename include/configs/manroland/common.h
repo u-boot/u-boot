@@ -115,7 +115,4 @@
  */
 #define CONFIG_LOOPW
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
-
 #endif /* __MANROLAND_COMMON_H */

@@ -65,9 +65,6 @@
 /* General networking support */
 #define CONFIG_CMD_DHCP
 
-#define CONFIG_FIT
-#define CONFIG_FIT_BEST_MATCH
-
 #define CONFIG_KEYBOARD
 
 #undef CONFIG_LOADADDR

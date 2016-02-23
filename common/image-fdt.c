@@ -231,7 +231,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	ulong		fdt_addr;
 	char		*fdt_blob = NULL;
 	void		*buf;
-#if defined(CONFIG_FIT)
+#if CONFIG_IS_ENABLED(FIT)
 	const char	*fit_uname_config = images->fit_uname_cfg;
 	const char	*fit_uname_fdt = NULL;
 	ulong		default_addr;
@@ -246,7 +246,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	if (argc > 2)
 		select = argv[2];
 	if (select || genimg_has_config(images)) {
-#if defined(CONFIG_FIT)
+#if CONFIG_IS_ENABLED(FIT)
 		if (select) {
 			/*
 			 * If the FDT blob comes from the FIT image and the
@@ -276,7 +276,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 				debug("*  fdt: cmdline image address = 0x%08lx\n",
 				      fdt_addr);
 			}
-#if defined(CONFIG_FIT)
+#if CONFIG_IS_ENABLED(FIT)
 		} else {
 			/* use FIT configuration provided in first bootm
 			 * command argument
@@ -351,7 +351,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			 * (libfdt based) and raw FDT blob (also libfdt
 			 * based).
 			 */
-#if defined(CONFIG_FIT)
+#if CONFIG_IS_ENABLED(FIT)
 			/* check FDT blob vs FIT blob */
 			if (fit_check_format(buf)) {
 				ulong load, len;

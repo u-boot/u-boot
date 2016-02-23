@@ -242,10 +242,6 @@
 				| OR_GPCM_EAD)
 				/* 0xfe0009f7 */
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
 /*
  * Serial Port
  */

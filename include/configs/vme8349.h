@@ -215,10 +215,6 @@
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL

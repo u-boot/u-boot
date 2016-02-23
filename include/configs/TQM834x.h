@@ -327,10 +327,6 @@
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 256 MB of memory, since this is

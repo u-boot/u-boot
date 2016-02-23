@@ -17,10 +17,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* new uImage format support */
-#define CONFIG_FIT		1
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE			*/
 #define CONFIG_E500		1	/* BOOKE e500 family		*/
@@ -428,7 +424,6 @@
 #define CONFIG_BOOTCOMMAND	"run boot_nor"
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_BOARD_SETUP	1
 
 /* USB support */
 #define CONFIG_USB_OHCI_NEW		1

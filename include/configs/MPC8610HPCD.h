@@ -236,13 +236,6 @@
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 
-/*
- * Pass open firmware flat tree to kernel
- */
-#define CONFIG_OF_BOARD_SETUP		1
-#define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192
 
