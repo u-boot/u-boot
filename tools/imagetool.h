@@ -61,6 +61,7 @@ struct image_tool_params {
 	int require_keys;	/* 1 to mark signing keys as 'required' */
 	int file_size;		/* Total size of output file */
 	int orig_file_size;	/* Original size for file before padding */
+	int fit_image_type;	/* Image type to put into the FIT */
 };
 
 /*

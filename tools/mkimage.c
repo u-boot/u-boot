@@ -112,10 +112,14 @@ static void usage(const char *msg)
 static void process_args(int argc, char **argv)
 {
 	char *ptr;
+	int type = IH_TYPE_INVALID;
+	char *datafile = NULL;
+	int expecting;
 	int opt;
 
+	expecting = IH_TYPE_COUNT;	/* Unknown */
 	while ((opt = getopt(argc, argv,
-			     "a:A:cC:d:D:e:f:Fk:K:ln:O:rR:sT:vVx")) != -1) {
+			     "-a:A:cC:d:D:e:f:Fk:K:ln:O:rR:sT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -162,6 +166,7 @@ static void process_args(int argc, char **argv)
 			 * The flattened image tree (FIT) format
 			 * requires a flattened device tree image type
 			 */
+			params.fit_image_type = params.type;
 			params.type = IH_TYPE_FLATDT;
 			params.fflag = 1;
 			break;
@@ -196,11 +201,12 @@ static void process_args(int argc, char **argv)
 			params.skipcpy = 1;
 			break;
 		case 'T':
-			params.type = genimg_get_type_id(optarg);
-			if (params.type < 0) {
+			type = genimg_get_type_id(optarg);
+			if (type < 0) {
 				show_image_types();
 				usage("Invalid image type");
 			}
+			expecting = type;
 			break;
 		case 'v':
 			params.vflag++;
@@ -211,14 +217,31 @@ static void process_args(int argc, char **argv)
 		case 'x':
 			params.xflag++;
 			break;
+		case 1:
+			if (expecting == type || optind == argc) {
+				params.imagefile = optarg;
+				expecting = IH_TYPE_INVALID;
+			}
+			break;
 		default:
 			usage("Invalid option");
 		}
 	}
 
-	if (optind >= argc)
+	/*
+	 * For auto-generated FIT images we need to know the image type to put
+	 * in the FIT, which is separate from the file's image type (which
+	 * will always be IH_TYPE_FLATDT in this case).
+	 */
+	if (params.type == IH_TYPE_FLATDT) {
+		params.fit_image_type = type;
+		params.datafile = datafile;
+	} else if (type != IH_TYPE_INVALID) {
+		params.type = type;
+	}
+
+	if (!params.imagefile)
 		usage("Missing output filename");
-	params.imagefile = argv[optind];
 }
 
 
