@@ -51,7 +51,6 @@ void save_omap_boot_params(void);
 void init_omap_revision(void);
 void do_io_settings(void);
 void sri2c_init(void);
-void gpi2c_init(void);
 int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data);
 u32 warm_reset(void);
 void force_emif_self_refresh(void);
