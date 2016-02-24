@@ -368,6 +368,7 @@ config TARGET_AM335X_EVM
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select TI_I2C_BOARD_DETECT
 
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"

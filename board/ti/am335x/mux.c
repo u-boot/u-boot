@@ -19,6 +19,7 @@
 #include <asm/arch/mux.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include "../common/board_detect.h"
 #include "board.h"
 
 static struct module_pin_mux uart0_pin_mux[] = {
@@ -312,10 +313,10 @@ static unsigned short detect_daughter_board_profile(void)
 	return (1 << (val & PROFILE_MASK));
 }
 
-void enable_board_pin_mux(struct am335x_baseboard_id *header)
+void enable_board_pin_mux(void)
 {
 	/* Do board-specific muxes. */
-	if (board_is_bone(header)) {
+	if (board_is_bone()) {
 		/* Beaglebone pinmux */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
@@ -326,7 +327,7 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 #else
 		configure_module_pin_mux(mmc1_pin_mux);
 #endif
-	} else if (board_is_gp_evm(header)) {
+	} else if (board_is_gp_evm()) {
 		/* General Purpose EVM */
 		unsigned short profile = detect_daughter_board_profile();
 		configure_module_pin_mux(rgmii1_pin_mux);
@@ -343,17 +344,17 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 			configure_module_pin_mux(mmc1_pin_mux);
 			configure_module_pin_mux(spi0_pin_mux);
 		}
-	} else if (board_is_idk(header)) {
+	} else if (board_is_idk()) {
 		/* Industrial Motor Control (IDK) */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_no_cd_pin_mux);
-	} else if (board_is_evm_sk(header)) {
+	} else if (board_is_evm_sk()) {
 		/* Starter Kit EVM */
 		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(gpio0_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux_sk_evm);
-	} else if (board_is_bone_lt(header)) {
+	} else if (board_is_bone_lt()) {
 		/* Beaglebone LT pinmux */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
