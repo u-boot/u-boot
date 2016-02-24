@@ -818,10 +818,7 @@ static inline ulong fit_get_size(const void *fit)
  * returns:
  *     end address of the FIT image (blob) in memory
  */
-static inline ulong fit_get_end(const void *fit)
-{
-	return (ulong)fit + fdt_totalsize(fit);
-}
+ulong fit_get_end(const void *fit);
 
 /**
  * fit_get_name - get FIT node name

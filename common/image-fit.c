@@ -851,6 +851,11 @@ static int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
 	return 0;
 }
 
+ulong fit_get_end(const void *fit)
+{
+	return map_to_sysmem((void *)(fit + fdt_totalsize(fit)));
+}
+
 /**
  * fit_set_timestamp - set node timestamp property
  * @fit: pointer to the FIT format image header
