@@ -382,7 +382,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 
 	strsep(&cmd, ":");
 	if (!cmd) {
-		error("missing variable\n");
+		error("missing variable");
 		fastboot_tx_write_str("FAILmissing var");
 		return;
 	}
@@ -413,7 +413,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		else
 			strcpy(response, "FAILValue not set");
 	} else {
-		error("unknown variable: %s\n", cmd);
+		printf("WARNING: unknown variable: %s\n", cmd);
 		strcpy(response, "FAILVariable not implemented");
 	}
 	fastboot_tx_write_str(response);
@@ -561,7 +561,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 
 	strsep(&cmd, ":");
 	if (!cmd) {
-		error("missing partition name\n");
+		error("missing partition name");
 		fastboot_tx_write_str("FAILmissing partition name");
 		return;
 	}
@@ -683,7 +683,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	if (!func_cb) {
-		error("unknown command: %s\n", cmdbuf);
+		error("unknown command: %s", cmdbuf);
 		fastboot_tx_write_str("FAILunknown command");
 	} else {
 		if (req->actual < req->length) {
@@ -691,7 +691,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 			buf[req->actual] = 0;
 			func_cb(ep, req);
 		} else {
-			error("buffer overflow\n");
+			error("buffer overflow");
 			fastboot_tx_write_str("FAILbuffer overflow");
 		}
 	}

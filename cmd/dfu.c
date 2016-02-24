@@ -79,6 +79,26 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (ctrlc())
 			goto exit;
 
+		if (dfu_get_defer_flush()) {
+			/*
+			 * Call to usb_gadget_handle_interrupts() is necessary
+			 * to act on ZLP OUT transaction from HOST PC after
+			 * transmitting the whole file.
+			 *
+			 * If this ZLP OUT packet is NAK'ed, the HOST libusb
+			 * function fails after timeout (by default it is set to
+			 * 5 seconds). In such situation the dfu-util program
+			 * exits with error message.
+			 */
+			usb_gadget_handle_interrupts(controller_index);
+			ret = dfu_flush(dfu_get_defer_flush(), NULL, 0, 0);
+			dfu_set_defer_flush(NULL);
+			if (ret) {
+				error("Deferred dfu_flush() failed!");
+				goto exit;
+			}
+		}
+
 		WATCHDOG_RESET();
 		usb_gadget_handle_interrupts(controller_index);
 	}

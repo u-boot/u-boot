@@ -73,7 +73,7 @@ int usb_ether_register(struct udevice *dev, struct ueth_data *ueth, int rxsize)
 	}
 
 	ueth->rxsize = rxsize;
-	ueth->rxbuf = memalign(rxsize, ARCH_DMA_MINALIGN);
+	ueth->rxbuf = memalign(ARCH_DMA_MINALIGN, rxsize);
 	if (!ueth->rxbuf)
 		return -ENOMEM;
 

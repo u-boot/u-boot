@@ -163,6 +163,31 @@ int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 
+/*
+ * dfu_defer_flush - pointer to store dfu_entity for deferred flashing.
+ *		     It should be NULL when not used.
+ */
+extern struct dfu_entity *dfu_defer_flush;
+/**
+ * dfu_get_defer_flush - get current value of dfu_defer_flush pointer
+ *
+ * @return - value of the dfu_defer_flush pointer
+ */
+static inline struct dfu_entity *dfu_get_defer_flush(void)
+{
+	return dfu_defer_flush;
+}
+
+/**
+ * dfu_set_defer_flush - set the dfu_defer_flush pointer
+ *
+ * @param dfu - pointer to the dfu_entity, which should be written
+ */
+static inline void dfu_set_defer_flush(struct dfu_entity *dfu)
+{
+	dfu_defer_flush = dfu;
+}
+
 /**
  * dfu_write_from_mem_addr - write data from memory to DFU managed medium
  *
