@@ -11,8 +11,8 @@
 #define __UCCF_H__
 
 #include "common.h"
-#include "qe.h"
 #include "linux/immap_qe.h"
+#include <fsl_qe.h>
 
 /* Fast or Giga ethernet
 */

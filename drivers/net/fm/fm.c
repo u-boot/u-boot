@@ -10,7 +10,7 @@
 #include <asm/errno.h>
 
 #include "fm.h"
-#include "../../qe/qe.h"		/* For struct qe_firmware */
+#include <fsl_qe.h>		/* For struct qe_firmware */
 
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #include <nand.h>

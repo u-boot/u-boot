@@ -223,10 +223,25 @@ void board_retimer_init(void)
 
 int board_early_init_f(void)
 {
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	u32 usb_pwrfault;
+#endif
 #ifdef CONFIG_LPUART
 	u8 uart;
 #endif
 	fsl_lsch2_early_init_f();
+
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+	out_be32(&scfg->rcwpmuxcr0, 0x3333);
+	out_be32(&scfg->usbdrvvbus_selcr, SCFG_USBDRVVBUS_SELCR_USB1);
+	usb_pwrfault =
+		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB3_SHIFT) |
+		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB2_SHIFT) |
+		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB1_SHIFT);
+	out_be32(&scfg->usbpwrfault_selcr, usb_pwrfault);
+#endif
+
 #ifdef CONFIG_LPUART
 	/* We use lpuart0 as system console */
 	uart = QIXIS_READ(brdcfg[14]);

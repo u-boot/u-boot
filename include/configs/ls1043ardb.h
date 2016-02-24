@@ -268,6 +268,13 @@
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
 
+/* QE */
+#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
+	!defined(CONFIG_QSPI_BOOT)
+#define CONFIG_U_QE
+#endif
+#define CONFIG_SYS_QE_FW_ADDR     0x60600000
+
 /* USB */
 #define CONFIG_HAS_FSL_XHCI_USB
 #ifdef CONFIG_HAS_FSL_XHCI_USB

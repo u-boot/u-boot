@@ -8,6 +8,7 @@ F:	configs/ls1021aqds_ddr4_nor_defconfig
 F:	configs/ls1021aqds_ddr4_nor_lpuart_defconfig
 F:	configs/ls1021aqds_nor_SECURE_BOOT_defconfig
 F:	configs/ls1021aqds_nor_lpuart_defconfig
-F:	configs/ls1021aqds_sdcard_defconfig
+F:	configs/ls1021aqds_sdcard_ifc_defconfig
+F:	configs/ls1021aqds_sdcard_qspi_defconfig
 F:	configs/ls1021aqds_qspi_defconfig
 F:	configs/ls1021aqds_nand_defconfig

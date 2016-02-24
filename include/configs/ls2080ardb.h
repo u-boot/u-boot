@@ -327,13 +327,15 @@ unsigned long get_board_sys_clk(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2800000\0"
+	"kernel_size=0x2800000\0"		\
+	"mcinitcmd=fsl_mc start mc 0x580300000"	\
+	" 0x580800000 \0"
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0600" \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
-				" hugepagesz=2m hugepages=16"
+				" hugepagesz=2m hugepages=256"
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET

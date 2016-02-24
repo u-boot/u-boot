@@ -213,6 +213,24 @@ static void erratum_a009929(void)
 #endif
 }
 
+/*
+ * This erratum requires setting a value to eddrtqcr1 to optimal
+ * the DDR performance. The eddrtqcr1 register is in SCFG space
+ * of LS1043A and the offset is 0x157_020c.
+ */
+#if defined(CONFIG_SYS_FSL_ERRATUM_A009660) \
+	&& defined(CONFIG_SYS_FSL_ERRATUM_A008514)
+#error A009660 and A008514 can not be both enabled.
+#endif
+
+static void erratum_a009660(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009660
+	u32 *eddrtqcr1 = (void *)CONFIG_SYS_FSL_SCFG_ADDR + 0x20c;
+	out_be32(eddrtqcr1, 0x63b20042);
+#endif
+}
+
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
@@ -238,6 +256,7 @@ void fsl_lsch2_early_init_f(void)
 
 	/* Erratum */
 	erratum_a009929();
+	erratum_a009660();
 }
 #endif
 
