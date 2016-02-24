@@ -15,6 +15,7 @@ config TARGET_DRA7XX_EVM
 
 config TARGET_BEAGLE_X15
 	bool "BeagleBoard X15"
+	select TI_I2C_BOARD_DETECT
 
 endchoice
 

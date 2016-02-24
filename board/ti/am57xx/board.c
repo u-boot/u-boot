@@ -30,7 +30,11 @@
 #include <dwc3-omap-uboot.h>
 #include <ti-usb-phy-uboot.h>
 
+#include "../common/board_detect.h"
 #include "mux_data.h"
+
+#define board_is_x15()		board_ti_is("BBRDX15_")
+#define board_is_am572x_evm()	board_ti_is("AM572PM_")
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -41,8 +45,10 @@ DECLARE_GLOBAL_DATA_PTR;
 /* GPIO 7_11 */
 #define GPIO_DDR_VTT_EN 203
 
+#define SYSINFO_BOARD_NAME_MAX_LEN	45
+
 const struct omap_sysinfo sysinfo = {
-	"Board: BeagleBoard x15\n"
+	"Board: UNKNOWN(BeagleBoard X15?) REV UNKNOWN\n"
 };
 
 static const struct dmm_lisa_map_regs beagle_x15_lisa_regs = {
@@ -246,6 +252,66 @@ struct vcores_data beagle_x15_volts = {
 	.iva.pmic		= &tps659038,
 };
 
+#ifdef CONFIG_SPL_BUILD
+/* No env to setup for SPL */
+static inline void setup_board_eeprom_env(void) { }
+
+/* Override function to read eeprom information */
+void do_board_detect(void)
+{
+	int rc;
+
+	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				  CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		printf("ti_i2c_eeprom_init failed %d\n", rc);
+}
+
+#else	/* CONFIG_SPL_BUILD */
+
+/* Override function to read eeprom information: actual i2c read done by SPL*/
+void do_board_detect(void)
+{
+	char *bname = NULL;
+	int rc;
+
+	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				  CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		printf("ti_i2c_eeprom_init failed %d\n", rc);
+
+	if (board_is_x15())
+		bname = "BeagleBoard X15";
+	else if (board_is_am572x_evm())
+		bname = "AM572x EVM";
+
+	if (bname)
+		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
+			 "Board: %s REV %s\n", bname, board_ti_get_rev());
+}
+
+static void setup_board_eeprom_env(void)
+{
+	char *name = "beagle_x15";
+	int rc;
+
+	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
+				  CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		goto invalid_eeprom;
+
+	if (board_is_am572x_evm())
+		name = "am57xx_evm";
+	else
+		printf("Unidentified board claims %s in eeprom header\n",
+		       board_ti_get_name());
+
+invalid_eeprom:
+	set_board_info_env(name);
+}
+
+#endif	/* CONFIG_SPL_BUILD */
+
 void hw_data_init(void)
 {
 	*prcm = &dra7xx_prcm;
@@ -265,6 +331,8 @@ int board_init(void)
 int board_late_init(void)
 {
 	init_sata(0);
+	setup_board_eeprom_env();
+
 	/*
 	 * DEV_CTRL.DEV_ON = 1 please - else palmas switches off in 8 seconds
 	 * This is the POWERHOLD-in-Low behavior.

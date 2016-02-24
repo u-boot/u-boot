@@ -9,4 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "am57xx_evm"
 
+source "board/ti/common/Kconfig"
+
 endif
