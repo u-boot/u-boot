@@ -45,7 +45,9 @@ check_results() {
 	# between calls 2 and 3, where tracing is paused.
 	# This code gets the sign of the difference between each number and
 	# its predecessor.
-	counts="$(tr -d , <${tmp} | awk '/traced function calls/ { diff = $1 - upto; upto = $1; printf "%d ", diff < 0 ? -1 : (diff > 0 ? 1 : 0)}')"
+	counts="$(tr -d ',\r' <${tmp} | awk \
+		'/traced function calls/ { diff = $1 - upto; upto = $1; \
+		printf "%d ", diff < 0 ? -1 : (diff > 0 ? 1 : 0)}')"
 
 	if [ "${counts}" != "1 1 0 1 " ]; then
 		fail "trace collection error: ${counts}"
