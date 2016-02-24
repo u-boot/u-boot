@@ -51,7 +51,6 @@ DEFINE_CACHE_ALIGN_BUFFER(unsigned char, thor_rx_data_buf,
 DEFINE_CACHE_ALIGN_BUFFER(char, f_name, F_NAME_BUF_SIZE);
 static unsigned long long int thor_file_size;
 static int alt_setting_num;
-static void *out_req_buf;
 
 static void send_rsp(const struct rsp_box *rsp)
 {
@@ -892,8 +891,7 @@ static void thor_func_disable(struct usb_function *f)
 	}
 
 	if (dev->out_ep->driver_data) {
-		if (out_req_buf)
-			free(out_req_buf);
+		free(dev->out_req->buf);
 		dev->out_req->buf = NULL;
 		usb_ep_free_request(dev->out_ep, dev->out_req);
 		usb_ep_disable(dev->out_ep);
@@ -950,7 +948,6 @@ static int thor_eps_setup(struct usb_function *f)
 	}
 
 	dev->out_req = req;
-	out_req_buf = dev->out_req->buf;
 	/* ACM control EP */
 	ep = dev->int_ep;
 	ep->driver_data = cdev;	/* claim */
