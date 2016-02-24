@@ -292,6 +292,12 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 #endif
 
+/* Environment for QSPI boot */
+#if defined(CONFIG_ENV_IS_IN_SPI_FLASH) && !defined(CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_OFFSET		0x00100000
+#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+#endif
+
 /*
  * mtd partitioning for serial NOR flash
  *
