@@ -381,6 +381,7 @@ config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
 	select CPU_V7
 	select SUPPORT_SPL
+	select TI_I2C_BOARD_DETECT
 
 config TARGET_BAV335X
 	bool "Support bav335x"

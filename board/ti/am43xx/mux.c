@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mux.h>
+#include "../common/board_detect.h"
 #include "board.h"
 
 static struct module_pin_mux rmii1_pin_mux[] = {
