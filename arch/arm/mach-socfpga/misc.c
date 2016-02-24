@@ -104,7 +104,7 @@ static void dwmac_deassert_reset(const unsigned int of_reset_id)
 	socfpga_per_reset(reset, 0);
 }
 
-int cpu_eth_init(bd_t *bis)
+static int socfpga_eth_reset(void)
 {
 	const void *fdt = gd->fdt_blob;
 	struct fdtdec_phandle_args args;
@@ -137,6 +137,11 @@ int cpu_eth_init(bd_t *bis)
 
 	return 0;
 }
+#else
+static int socfpga_eth_reset(void)
+{
+	return 0
+};
 #endif
 
 struct {
@@ -232,7 +237,7 @@ int arch_misc_init(void)
 	setenv("bootmode", bsel_str[bsel].mode);
 	if (fpga_id >= 0)
 		setenv("fpgatype", socfpga_fpga_model[fpga_id].var);
-	return 0;
+	return socfpga_eth_reset();
 }
 #endif
 
