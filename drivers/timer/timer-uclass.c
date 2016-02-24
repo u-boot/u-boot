@@ -22,7 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * tick, and no timer interrupt.
  */
 
-int timer_get_count(struct udevice *dev, u64 *count)
+int notrace timer_get_count(struct udevice *dev, u64 *count)
 {
 	const struct timer_ops *ops = device_get_ops(dev);
 
@@ -32,9 +32,9 @@ int timer_get_count(struct udevice *dev, u64 *count)
 	return ops->get_count(dev, count);
 }
 
-unsigned long timer_get_rate(struct udevice *dev)
+unsigned long notrace timer_get_rate(struct udevice *dev)
 {
-	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct timer_dev_priv *uc_priv = dev->uclass_priv;
 
 	return uc_priv->clock_rate;
 }
