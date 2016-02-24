@@ -42,10 +42,8 @@ static int spi_flash_probe_slave(struct spi_flash *flash)
 	}
 
 	ret = spi_flash_scan(flash);
-	if (ret) {
-		ret = -EINVAL;
+	if (ret)
 		goto err_read_id;
-	}
 
 #ifdef CONFIG_SPI_FLASH_MTD
 	ret = spi_flash_mtd_register(flash);
