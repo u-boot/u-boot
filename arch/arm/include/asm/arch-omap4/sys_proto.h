@@ -37,7 +37,7 @@ void do_set_mux(u32 base, struct pad_conf_entry const *array, int size);
 void set_muxconf_regs_essential(void);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
-void setup_clocks_for_console(void);
+void setup_early_clocks(void);
 void prcm_init(void);
 void bypass_dpll(u32 const base);
 void freq_update_core(void);

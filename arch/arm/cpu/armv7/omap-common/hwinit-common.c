@@ -125,10 +125,9 @@ void s_init(void)
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
 	srcomp_enable();
-	setup_clocks_for_console();
-
 	do_io_settings();
 #endif
+	setup_early_clocks();
 	prcm_init();
 }
 

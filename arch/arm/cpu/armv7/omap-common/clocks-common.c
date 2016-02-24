@@ -769,7 +769,7 @@ void lock_dpll(u32 const base)
 	wait_for_lock(base);
 }
 
-void setup_clocks_for_console(void)
+static void setup_clocks_for_console(void)
 {
 	/* Do not add any spl_debug prints in this function */
 	clrsetbits_le32((*prcm)->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
@@ -853,14 +853,31 @@ void do_disable_clocks(u32 const *clk_domains,
 		disable_clock_domain(clk_domains[i]);
 }
 
+/**
+ * setup_early_clocks() - Setup early clocks needed for SoC
+ *
+ * Setup clocks for console, SPL basic initialization clocks and initialize
+ * the timer. This is invoked prior prcm_init.
+ */
+void setup_early_clocks(void)
+{
+	switch (omap_hw_init_context()) {
+	case OMAP_INIT_CONTEXT_SPL:
+	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
+	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
+		setup_clocks_for_console();
+		enable_basic_clocks();
+		timer_init();
+		/* Fall through */
+	}
+}
+
 void prcm_init(void)
 {
 	switch (omap_hw_init_context()) {
 	case OMAP_INIT_CONTEXT_SPL:
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
-		enable_basic_clocks();
-		timer_init();
 		scale_vcores(*omap_vcores);
 		setup_dplls();
 		setup_warmreset_time();
