@@ -56,6 +56,8 @@
 #define PSC_REG_MDSTAT_GET_STATUS(x)        BOOT_READ_BITFIELD((x), 5, 0)
 #define PSC_REG_MDSTAT_GET_LRSTZ(x)         BOOT_READ_BITFIELD((x), 8, 8)
 #define PSC_REG_MDSTAT_GET_LRSTDONE(x)      BOOT_READ_BITFIELD((x), 9, 9)
+#define PSC_REG_MDSTAT_GET_MRSTZ(x)         BOOT_READ_BITFIELD((x), 10, 10)
+#define PSC_REG_MDSTAT_GET_MRSTDONE(x)      BOOT_READ_BITFIELD((x), 11, 11)
 
 /* PDCTL states */
 #define PSC_REG_VAL_PDCTL_NEXT_ON           1
@@ -86,5 +88,7 @@ u32 psc_get_domain_num(u32 mod_num);
 int psc_enable_module(u32 mod_num);
 int psc_disable_module(u32 mod_num);
 int psc_disable_domain(u32 domain_num);
+int psc_module_keep_in_reset_enabled(u32 mod_num, bool gate_clocks);
+int psc_module_release_from_reset(u32 mod_num);
 
 #endif /* _PSC_DEFS_H_ */
