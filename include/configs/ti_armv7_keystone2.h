@@ -223,6 +223,18 @@
 /* EDMA3 */
 #define CONFIG_TI_EDMA3
 
+#define DEFAULT_PMMC_BOOT_ENV						\
+	"set_name_pmmc=setenv name_pmmc ti-sci-firmware-${soc_variant}.bin\0" \
+	"dev_pmmc=0\0"							\
+	"get_pmmc_net=dhcp ${loadaddr} ${tftp_root}/${name_pmmc}\0"	\
+	"get_pmmc_ramfs=run get_pmmc_net\0"				\
+	"get_pmmc_mmc=load mmc ${bootpart} ${loadaddr} "		\
+			"${bootdir}/${name_pmmc}\0"			\
+	"get_pmmc_ubi=ubifsload ${loadaddr} ${bootdir}/${name_pmmc}\0"	\
+	"run_pmmc=rproc init; rproc list; "				\
+		"rproc load ${dev_pmmc} ${loadaddr} 0x${filesize}; "	\
+		"rproc start ${dev_pmmc}\0"				\
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
@@ -271,9 +283,11 @@
 	"mtdparts=mtdparts=davinci_nand.0:"				\
 		"1024k(bootloader)ro,512k(params)ro,-(ubifs)\0"
 
+#ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND						\
 	"run init_${boot} get_fdt_${boot} get_mon_${boot} "		\
 		"get_kern_${boot} run_mon run_kern"
+#endif
 
 #define CONFIG_BOOTARGS							\
 
