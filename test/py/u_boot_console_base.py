@@ -307,7 +307,9 @@ class ConsoleBase(object):
             config_spl = bcfg.get('config_spl', 'n') == 'y'
             config_spl_serial_support = bcfg.get('config_spl_serial_support',
                                                  'n') == 'y'
-            if config_spl and config_spl_serial_support:
+            env_spl_skipped = self.config.env.get('env__spl_skipped',
+                                                  False)
+            if config_spl and config_spl_serial_support and not env_spl_skipped:
                 m = self.p.expect([pattern_u_boot_spl_signon] +
                                   self.bad_patterns)
                 if m != 0:
