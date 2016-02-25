@@ -303,7 +303,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	}
 
 	reg = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
-	reg &= ~SDHCI_CLOCK_CARD_EN;
+	reg &= ~(SDHCI_CLOCK_CARD_EN | SDHCI_CLOCK_INT_EN);
 	sdhci_writew(host, reg, SDHCI_CLOCK_CONTROL);
 
 	if (clock == 0)
