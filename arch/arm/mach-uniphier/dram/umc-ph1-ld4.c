@@ -96,7 +96,7 @@ static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	writel(0x00000520, dramcont + UMC_DFICUPDCTLA);
 }
 
-static int umc_init_sub(int freq, int size_ch0, int size_ch1)
+static int umc_init_sub(int freq, int size_ch0, int size_ch1, bool ddr3plus)
 {
 	void __iomem *ssif_base = (void __iomem *)UMC_SSIF_BASE;
 	void __iomem *ca_base0 = (void __iomem *)UMC_CA_BASE(0);
@@ -113,14 +113,14 @@ static int umc_init_sub(int freq, int size_ch0, int size_ch1)
 
 	writel(0x00000101, dramcont0 + UMC_DIOCTLA);
 
-	ph1_ld4_ddrphy_init(phy0_0, freq, size_ch0);
+	ph1_ld4_ddrphy_init(phy0_0, freq, size_ch0, ddr3plus);
 
 	ddrphy_prepare_training(phy0_0, 0);
 	ddrphy_training(phy0_0);
 
 	writel(0x00000101, dramcont1 + UMC_DIOCTLA);
 
-	ph1_ld4_ddrphy_init(phy1_0, freq, size_ch1);
+	ph1_ld4_ddrphy_init(phy1_0, freq, size_ch1, ddr3plus);
 
 	ddrphy_prepare_training(phy1_0, 1);
 	ddrphy_training(phy1_0);
@@ -141,7 +141,8 @@ int ph1_ld4_umc_init(const struct uniphier_board_data *bd)
 	    bd->dram_ch[0].width == 16 && bd->dram_ch[1].width == 16) {
 		return umc_init_sub(bd->dram_freq,
 				    bd->dram_ch[0].size / SZ_128M,
-				    bd->dram_ch[1].size / SZ_128M);
+				    bd->dram_ch[1].size / SZ_128M,
+				    bd->dram_ddr3plus);
 	} else {
 		pr_err("Unsupported DDR configuration\n");
 		return -EINVAL;

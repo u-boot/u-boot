@@ -9,7 +9,8 @@
 
 #include "ddrphy-regs.h"
 
-int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size)
+int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
+			bool ddr3plus)
 {
 	u32 tmp;
 
@@ -61,7 +62,7 @@ int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size)
 	else
 		writel(0x00000298, &phy->mr2);
 
-	writel(0x00000800, &phy->mr3);
+	writel(ddr3plus ? 0x00000800 : 0x00000000, &phy->mr3);
 
 	while (!(readl(&phy->pgsr[0]) & PGSR0_IDONE))
 		;

@@ -11,6 +11,7 @@
 
 #include <linux/bitops.h>
 #include <linux/compiler.h>
+#include <linux/types.h>
 
 #ifndef __ASSEMBLY__
 
@@ -169,9 +170,12 @@ struct ddrphy {
 #define DDRPHY_BASE(ch, phy)	(0x5bc01000 + 0x200000 * (ch) + 0x1000 * (phy))
 
 #ifndef __ASSEMBLY__
-int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
-int ph1_pro4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
-int ph1_sld8_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size);
+int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
+			bool ddr3plus);
+int ph1_pro4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
+			 bool ddr3plus);
+int ph1_sld8_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
+			 bool ddr3plus);
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank);
 int ddrphy_training(struct ddrphy __iomem *phy);
 #endif

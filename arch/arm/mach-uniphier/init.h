@@ -7,6 +7,8 @@
 #ifndef __MACH_INIT_H
 #define __MACH_INIT_H
 
+#include <linux/types.h>
+
 #define UNIPHIER_MAX_NR_DRAM_CH		3
 
 struct uniphier_dram_ch {
@@ -18,6 +20,7 @@ struct uniphier_dram_ch {
 struct uniphier_board_data {
 	unsigned int dram_freq;
 	unsigned int dram_nr_ch;
+	bool dram_ddr3plus;
 	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 };
 
