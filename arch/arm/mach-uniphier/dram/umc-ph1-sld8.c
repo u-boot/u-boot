@@ -79,7 +79,7 @@ static void umc_start_ssif(void __iomem *ssif_base)
 }
 
 static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
-			     int size, int freq, bool ddr3plus)
+			     int freq, unsigned long size, bool ddr3plus)
 {
 	enum dram_freq freq_e;
 	enum dram_size size_e;
@@ -99,17 +99,17 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	switch (size) {
 	case 0:
 		return 0;
-	case 1:
+	case SZ_128M:
 		size_e = DRAM_SZ_128M;
 		break;
-	case 2:
+	case SZ_256M:
 		size_e = DRAM_SZ_256M;
 		break;
-	case 4:
+	case SZ_512M:
 		size_e = DRAM_SZ_512M;
 		break;
 	default:
-		pr_err("unsupported DRAM size\n");
+		pr_err("unsupported DRAM size 0x%08lx\n", size);
 		return -EINVAL;
 	}
 
@@ -143,7 +143,7 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 }
 
 static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
-		       int freq, int size, bool ddr3plus, int ch)
+		       int freq, unsigned long size, bool ddr3plus, int ch)
 {
 	void __iomem *phy_base = dc_base + 0x00001000;
 	int ret;
@@ -162,7 +162,7 @@ static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
 	if (ret)
 		return ret;
 
-	return umc_dramcont_init(dc_base, ca_base, size, freq, ddr3plus);
+	return umc_dramcont_init(dc_base, ca_base, freq, size, ddr3plus);
 }
 
 int ph1_sld8_umc_init(const struct uniphier_board_data *bd)
@@ -175,7 +175,7 @@ int ph1_sld8_umc_init(const struct uniphier_board_data *bd)
 
 	for (ch = 0; ch < DRAM_CH_NR; ch++) {
 		ret = umc_ch_init(dc_base, ca_base, bd->dram_freq,
-				  bd->dram_ch[ch].size / SZ_128M,
+				  bd->dram_ch[ch].size,
 				  bd->dram_ddr3plus, ch);
 		if (ret) {
 			pr_err("failed to initialize UMC ch%d\n", ch);
