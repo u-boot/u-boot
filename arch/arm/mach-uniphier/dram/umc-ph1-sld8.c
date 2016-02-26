@@ -79,7 +79,7 @@ static void umc_start_ssif(void __iomem *ssif_base)
 	writel(0x00000001, ssif_base + UMC_DMDRST);
 }
 
-static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
+static int umc_dramcont_init(void __iomem *dc_base, void __iomem *ca_base,
 			     int freq, unsigned long size, bool ddr3plus)
 {
 	enum dram_freq freq_e;
@@ -115,30 +115,30 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	}
 
 	writel((ddr3plus ? umc_cmdctla_plus : umc_cmdctla)[freq_e],
-	       dramcont + UMC_CMDCTLA);
+	       dc_base + UMC_CMDCTLA);
 	writel((ddr3plus ? umc_cmdctlb_plus : umc_cmdctlb)[freq_e],
-	       dramcont + UMC_CMDCTLB);
-	writel(umc_spcctla[freq_e][size_e], dramcont + UMC_SPCCTLA);
-	writel(umc_spcctlb[freq_e], dramcont + UMC_SPCCTLB);
-	writel(umc_rdatactl[freq_e], dramcont + UMC_RDATACTL_D0);
-	writel(0x04060806, dramcont + UMC_WDATACTL_D0);
-	writel(0x04a02000, dramcont + UMC_DATASET);
+	       dc_base + UMC_CMDCTLB);
+	writel(umc_spcctla[freq_e][size_e], dc_base + UMC_SPCCTLA);
+	writel(umc_spcctlb[freq_e], dc_base + UMC_SPCCTLB);
+	writel(umc_rdatactl[freq_e], dc_base + UMC_RDATACTL_D0);
+	writel(0x04060806, dc_base + UMC_WDATACTL_D0);
+	writel(0x04a02000, dc_base + UMC_DATASET);
 	writel(0x00000000, ca_base + 0x2300);
-	writel(0x00400020, dramcont + UMC_DCCGCTL);
-	writel(0x00000003, dramcont + 0x7000);
-	writel(0x0000004f, dramcont + 0x8000);
-	writel(0x000000c3, dramcont + 0x8004);
-	writel(0x00000077, dramcont + 0x8008);
-	writel(0x0000003b, dramcont + UMC_DICGCTLA);
-	writel(0x020a0808, dramcont + UMC_DICGCTLB);
-	writel(0x00000004, dramcont + UMC_FLOWCTLG);
+	writel(0x00400020, dc_base + UMC_DCCGCTL);
+	writel(0x00000003, dc_base + 0x7000);
+	writel(0x0000004f, dc_base + 0x8000);
+	writel(0x000000c3, dc_base + 0x8004);
+	writel(0x00000077, dc_base + 0x8008);
+	writel(0x0000003b, dc_base + UMC_DICGCTLA);
+	writel(0x020a0808, dc_base + UMC_DICGCTLB);
+	writel(0x00000004, dc_base + UMC_FLOWCTLG);
 	writel(0x80000201, ca_base + 0xc20);
-	writel(0x0801e01e, dramcont + UMC_FLOWCTLA);
-	writel(0x00200000, dramcont + UMC_FLOWCTLB);
-	writel(0x00004444, dramcont + UMC_FLOWCTLC);
-	writel(0x200a0a00, dramcont + UMC_SPCSETB);
-	writel(0x00000000, dramcont + UMC_SPCSETD);
-	writel(0x00000520, dramcont + UMC_DFICUPDCTLA);
+	writel(0x0801e01e, dc_base + UMC_FLOWCTLA);
+	writel(0x00200000, dc_base + UMC_FLOWCTLB);
+	writel(0x00004444, dc_base + UMC_FLOWCTLC);
+	writel(0x200a0a00, dc_base + UMC_SPCSETB);
+	writel(0x00000000, dc_base + UMC_SPCSETD);
+	writel(0x00000520, dc_base + UMC_DFICUPDCTLA);
 
 	return 0;
 }

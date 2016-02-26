@@ -68,10 +68,10 @@ static void umc_start_ssif(void __iomem *ssif_base)
 	writel(0x00000001, ssif_base + UMC_DMDRST);
 }
 
-static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
+static int umc_dramcont_init(void __iomem *dc_base, void __iomem *ca_base,
 			     int freq, unsigned long size, bool ddr3plus)
 {
-	enum dram_size dram_size;
+	enum dram_size size_e;
 
 	if (freq != 1600) {
 		pr_err("Unsupported DDR frequency %d MHz\n", freq);
@@ -85,43 +85,43 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 
 	switch (size) {
 	case SZ_128M:
-		dram_size = DRAM_SZ_128M;
+		size_e = DRAM_SZ_128M;
 		break;
 	case SZ_256M:
-		dram_size = DRAM_SZ_256M;
+		size_e = DRAM_SZ_256M;
 		break;
 	case SZ_512M:
-		dram_size = DRAM_SZ_512M;
+		size_e = DRAM_SZ_512M;
 		break;
 	default:
 		pr_err("unsupported DRAM size 0x%08lx (per 16bit)\n", size);
 		return -EINVAL;
 	}
 
-	writel(0x66bb0f17, dramcont + UMC_CMDCTLA);
-	writel(0x18c6aa44, dramcont + UMC_CMDCTLB);
-	writel(umc_spcctla[dram_size], dramcont + UMC_SPCCTLA);
-	writel(0x00ff0008, dramcont + UMC_SPCCTLB);
-	writel(0x000c00ae, dramcont + UMC_RDATACTL_D0);
-	writel(0x000c00ae, dramcont + UMC_RDATACTL_D1);
-	writel(0x04060802, dramcont + UMC_WDATACTL_D0);
-	writel(0x04060802, dramcont + UMC_WDATACTL_D1);
-	writel(0x04a02000, dramcont + UMC_DATASET);
+	writel(0x66bb0f17, dc_base + UMC_CMDCTLA);
+	writel(0x18c6aa44, dc_base + UMC_CMDCTLB);
+	writel(umc_spcctla[size_e], dc_base + UMC_SPCCTLA);
+	writel(0x00ff0008, dc_base + UMC_SPCCTLB);
+	writel(0x000c00ae, dc_base + UMC_RDATACTL_D0);
+	writel(0x000c00ae, dc_base + UMC_RDATACTL_D1);
+	writel(0x04060802, dc_base + UMC_WDATACTL_D0);
+	writel(0x04060802, dc_base + UMC_WDATACTL_D1);
+	writel(0x04a02000, dc_base + UMC_DATASET);
 	writel(0x00000000, ca_base + 0x2300);
-	writel(0x00400020, dramcont + UMC_DCCGCTL);
-	writel(0x0000000f, dramcont + 0x7000);
-	writel(0x0000000f, dramcont + 0x8000);
-	writel(0x000000c3, dramcont + 0x8004);
-	writel(0x00000071, dramcont + 0x8008);
-	writel(0x00000004, dramcont + UMC_FLOWCTLG);
-	writel(0x00000000, dramcont + 0x0060);
+	writel(0x00400020, dc_base + UMC_DCCGCTL);
+	writel(0x0000000f, dc_base + 0x7000);
+	writel(0x0000000f, dc_base + 0x8000);
+	writel(0x000000c3, dc_base + 0x8004);
+	writel(0x00000071, dc_base + 0x8008);
+	writel(0x00000004, dc_base + UMC_FLOWCTLG);
+	writel(0x00000000, dc_base + 0x0060);
 	writel(0x80000201, ca_base + 0xc20);
-	writel(0x0801e01e, dramcont + UMC_FLOWCTLA);
-	writel(0x00200000, dramcont + UMC_FLOWCTLB);
-	writel(0x00004444, dramcont + UMC_FLOWCTLC);
-	writel(0x200a0a00, dramcont + UMC_SPCSETB);
-	writel(0x00010000, dramcont + UMC_SPCSETD);
-	writel(0x80000020, dramcont + UMC_DFICUPDCTLA);
+	writel(0x0801e01e, dc_base + UMC_FLOWCTLA);
+	writel(0x00200000, dc_base + UMC_FLOWCTLB);
+	writel(0x00004444, dc_base + UMC_FLOWCTLC);
+	writel(0x200a0a00, dc_base + UMC_SPCSETB);
+	writel(0x00010000, dc_base + UMC_SPCSETD);
+	writel(0x80000020, dc_base + UMC_DFICUPDCTLA);
 
 	return 0;
 }
