@@ -58,24 +58,6 @@ static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	writel(0x16958924, dramcont + UMC_CMDCTLB);
 #endif
 
-	writel(0x5101046A, dramcont + UMC_INITCTLA);
-
-	if (size == 1)
-		writel(0x27028B0A, dramcont + UMC_INITCTLB);
-	else if (size == 2)
-		writel(0x38028B0A, dramcont + UMC_INITCTLB);
-
-	writel(0x00FF00FF, dramcont + UMC_INITCTLC);
-	writel(0x00000b51, dramcont + UMC_DRMMR0);
-	writel(0x00000006, dramcont + UMC_DRMMR1);
-	writel(0x00000290, dramcont + UMC_DRMMR2);
-
-#ifdef CONFIG_DDR_STANDARD
-	writel(0x00000000, dramcont + UMC_DRMMR3);
-#else
-	writel(0x00000800, dramcont + UMC_DRMMR3);
-#endif
-
 	if (size == 1)
 		writel(0x00240512, dramcont + UMC_SPCCTLA);
 	else if (size == 2)

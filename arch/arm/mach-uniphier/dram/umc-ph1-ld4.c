@@ -53,37 +53,10 @@ static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	if (freq == 1333) {
 		writel(0x45990b11, dramcont + UMC_CMDCTLA);
 		writel(0x16958924, dramcont + UMC_CMDCTLB);
-		writel(0x5101046A, dramcont + UMC_INITCTLA);
-
-		if (size == 1)
-			writel(0x27028B0A, dramcont + UMC_INITCTLB);
-		else if (size == 2)
-			writel(0x38028B0A, dramcont + UMC_INITCTLB);
-
-		writel(0x000FF0FF, dramcont + UMC_INITCTLC);
-		writel(0x00000b51, dramcont + UMC_DRMMR0);
 	} else if (freq == 1600) {
 		writel(0x36BB0F17, dramcont + UMC_CMDCTLA);
 		writel(0x18C6AA24, dramcont + UMC_CMDCTLB);
-		writel(0x5101387F, dramcont + UMC_INITCTLA);
-
-		if (size == 1)
-			writel(0x2F030D3F, dramcont + UMC_INITCTLB);
-		else if (size == 2)
-			writel(0x43030D3F, dramcont + UMC_INITCTLB);
-
-		writel(0x00FF00FF, dramcont + UMC_INITCTLC);
-		writel(0x00000d71, dramcont + UMC_DRMMR0);
 	}
-
-	writel(0x00000006, dramcont + UMC_DRMMR1);
-
-	if (freq == 1333)
-		writel(0x00000290, dramcont + UMC_DRMMR2);
-	else if (freq == 1600)
-		writel(0x00000298, dramcont + UMC_DRMMR2);
-
-	writel(0x00000800, dramcont + UMC_DRMMR3);
 
 	if (freq == 1333) {
 		if (size == 1)

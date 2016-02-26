@@ -20,7 +20,6 @@ enum dram_size {
 	DRAM_SZ_NR,
 };
 
-static u32 umc_initctlb[DRAM_SZ_NR] = {0x43030d3f, 0x43030d3f, 0x7b030d3f};
 static u32 umc_spcctla[DRAM_SZ_NR] = {0x002b0617, 0x003f0617, 0x00770617};
 
 static void umc_start_ssif(void __iomem *ssif_base)
@@ -88,13 +87,6 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 
 	writel(0x66bb0f17, dramcont + UMC_CMDCTLA);
 	writel(0x18c6aa44, dramcont + UMC_CMDCTLB);
-	writel(0x5101387f, dramcont + UMC_INITCTLA);
-	writel(umc_initctlb[dram_size], dramcont + UMC_INITCTLB);
-	writel(0x00ff00ff, dramcont + UMC_INITCTLC);
-	writel(0x00000d71, dramcont + UMC_DRMMR0);
-	writel(0x00000006, dramcont + UMC_DRMMR1);
-	writel(0x00000298, dramcont + UMC_DRMMR2);
-	writel(0x00000000, dramcont + UMC_DRMMR3);
 	writel(umc_spcctla[dram_size], dramcont + UMC_SPCCTLA);
 	writel(0x00ff0008, dramcont + UMC_SPCCTLB);
 	writel(0x000c00ae, dramcont + UMC_RDATACTL_D0);
