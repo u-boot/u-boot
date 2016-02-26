@@ -3,54 +3,48 @@ if ARCH_UNIPHIER
 config SYS_CONFIG_NAME
 	default "uniphier"
 
+choice
+        prompt "UniPhier SoC select"
+        default ARCH_UNIPHIER_PH1_PRO4
+
 config ARCH_UNIPHIER_PH1_SLD3
 	bool "UniPhier PH1-sLD3 SoC"
-	help
-	  This enables support for UniPhier PH1-sLD3 SoC.
 
-config ARCH_UNIPHIER_PH1_LD4
-	bool "UniPhier PH1-LD4 SoC"
-	depends on !ARCH_UNIPHIER_PH1_SLD3
-	help
-	  This enables support for UniPhier PH1-LD4 SoC.
+config ARCH_UNIPHIER_LD4_SLD8
+	bool "UniPhier PH1-LD4/PH1-sLD8 SoC"
 
 config ARCH_UNIPHIER_PH1_PRO4
 	bool "UniPhier PH1-Pro4 SoC"
-	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
-		   !ARCH_UNIPHIER_PH1_LD4 && \
-		   !ARCH_UNIPHIER_PH1_SLD8
-	help
-	  This enables support for UniPhier PH1-Pro4 SoC.
+
+config ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	bool "UniPhier PH1-Pro5/ProXstream2/PH1-LD6b SoC"
+
+endchoice
+
+config ARCH_UNIPHIER_PH1_LD4
+	bool "Enable UniPhier PH1-LD4 SoC support"
+	depends on ARCH_UNIPHIER_LD4_SLD8
+	default y
 
 config ARCH_UNIPHIER_PH1_SLD8
-	bool "UniPhier PH1-sLD8 SoC"
-	depends on !ARCH_UNIPHIER_PH1_SLD3
-	help
-	  This enables support for UniPhier PH1-sLD8 SoC.
+	bool "Enable UniPhier PH1-sLD8 SoC support"
+	depends on ARCH_UNIPHIER_LD4_SLD8
+	default y
 
 config ARCH_UNIPHIER_PH1_PRO5
-	bool "UniPhier PH1-Pro5 SoC"
-	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
-		   !ARCH_UNIPHIER_PH1_LD4 && \
-		   !ARCH_UNIPHIER_PH1_SLD8
-	help
-	  This enables support for UniPhier PH1-Pro5 SoC.
+	bool "Enable UniPhier PH1-Pro5 SoC support"
+	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	default y
 
 config ARCH_UNIPHIER_PROXSTREAM2
-	bool "UniPhier ProXstream2 SoC"
-	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
-		   !ARCH_UNIPHIER_PH1_LD4 && \
-		   !ARCH_UNIPHIER_PH1_SLD8
-	help
-	  This enables support for UniPhier ProXstream2 SoC.
+	bool "Enable UniPhier ProXstream2 SoC support"
+	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	default y
 
 config ARCH_UNIPHIER_PH1_LD6B
-	bool "UniPhier PH1-LD6b SoC"
-	depends on !ARCH_UNIPHIER_PH1_SLD3 && \
-		   !ARCH_UNIPHIER_PH1_LD4 && \
-		   !ARCH_UNIPHIER_PH1_SLD8
-	help
-	  This enables support for UniPhier PH1-LD6b SoC.
+	bool "Enable UniPhier PH1-LD6b SoC support"
+	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	default y
 
 config MICRO_SUPPORT_CARD
 	bool "Use Micro Support Card"
