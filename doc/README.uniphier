@@ -45,8 +45,8 @@ PH1-Pro4 reference board:
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
 PH1-Pro5 4KBOX Board:
-    $ make uniphier_pro5_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabi-
+    $ make uniphier_pxs2_ld6b_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro5-4kbox
 
 ProXstream2 Gentil board:
     $ make uniphier_pxs2_ld6b_defconfig
