@@ -9,6 +9,8 @@
 #ifndef ARCH_UMC_REGS_H
 #define ARCH_UMC_REGS_H
 
+#include <linux/bitops.h>
+
 #define UMC_CPURST		0x00000700
 #define UMC_IDSRST		0x0000070C
 #define UMC_IXMRST		0x00000714
@@ -46,7 +48,11 @@
 #define UMC_CMDCTLA		0x00000000
 #define UMC_CMDCTLB		0x00000004
 #define UMC_INITSET		0x00000014
+#define   UMC_INITSET_INIT1EN		BIT(1)	/* init without power-on wait */
+#define   UMC_INITSET_INIT0EN		BIT(0)	/* init with power-on wait */
 #define UMC_INITSTAT		0x00000018
+#define   UMC_INITSTAT_INIT1ST		BIT(1)	/* init without power-on wait */
+#define   UMC_INITSTAT_INIT0ST		BIT(0)	/* init with power-on wait */
 #define UMC_SPCCTLA		0x00000030
 #define UMC_SPCCTLB		0x00000034
 #define UMC_SPCSETA		0x00000038
@@ -97,22 +103,5 @@
 /* UD registers */
 #define UMC_BITPERPIXELMODE_D0	0x010
 #define UMC_PAIR1DOFF_D0	0x054
-
-#ifndef __ASSEMBLY__
-
-#include <linux/types.h>
-
-static inline void umc_dram_init_start(void __iomem *dramcont)
-{
-	writel(0x00000002, dramcont + UMC_INITSET);
-}
-
-static inline void umc_dram_init_poll(void __iomem *dramcont)
-{
-	while ((readl(dramcont + UMC_INITSTAT) & 0x00000002))
-		;
-}
-
-#endif
 
 #endif

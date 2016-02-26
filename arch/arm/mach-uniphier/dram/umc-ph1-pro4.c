@@ -8,6 +8,7 @@
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
+#include <asm/processor.h>
 
 #include "../init.h"
 #include "ddrphy-regs.h"
@@ -133,8 +134,9 @@ static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
 	int nr_phy = width / 16;
 	int phy, ret;
 
-	umc_dram_init_start(dc_base);
-	umc_dram_init_poll(dc_base);
+	writel(UMC_INITSET_INIT1EN, dc_base + UMC_INITSET);
+	while (readl(dc_base + UMC_INITSET) & UMC_INITSTAT_INIT1ST)
+		cpu_relax();
 
 	for (phy = 0; phy < nr_phy; phy++) {
 		writel(0x00000100 | ((1 << (phy + 1)) - 1),
