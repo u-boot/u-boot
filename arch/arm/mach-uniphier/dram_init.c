@@ -32,7 +32,7 @@ int dram_init(void)
 
 	gd->ram_size = fdt32_to_cpu(*(val + 1));
 
-	debug("DRAM size = %08lx\n", gd->ram_size);
+	debug("DRAM size = %08lx\n", (unsigned long)gd->ram_size);
 
 	return 0;
 }
@@ -54,6 +54,7 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[i].size = fdt32_to_cpu(*val++);
 
 		debug("DRAM bank %d: start = %08lx, size = %08lx\n",
-		      i, gd->bd->bi_dram[i].start, gd->bd->bi_dram[i].size);
+		      i, (unsigned long)gd->bd->bi_dram[i].start,
+		      (unsigned long)gd->bd->bi_dram[i].size);
 	}
 }
