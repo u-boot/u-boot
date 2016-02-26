@@ -344,7 +344,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 
 	do {
 		if (--timeout < 0) {
-			printf("%s: error: timeout during DDR training\n",
+			pr_err("%s: error: timeout during DDR training\n",
 			       __func__);
 			return -ETIMEDOUT;
 		}
@@ -354,7 +354,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 
 	for (s = seq; s->description; s++) {
 		if (pgsr0 & s->err_flag) {
-			printf("%s: error: %s failed\n", __func__,
+			pr_err("%s: error: %s failed\n", __func__,
 			       s->description);
 			return -EIO;
 		}
@@ -597,7 +597,7 @@ int proxstream2_umc_init(const struct uniphier_board_data *bd)
 		freq = FREQ_2133M;
 		break;
 	default:
-		printf("unsupported DRAM frequency %d MHz\n", bd->dram_freq);
+		pr_err("unsupported DRAM frequency %d MHz\n", bd->dram_freq);
 		return -EINVAL;
 	}
 
@@ -606,7 +606,7 @@ int proxstream2_umc_init(const struct uniphier_board_data *bd)
 			       bd->dram_ch[ch].size / SZ_256M,
 			       bd->dram_ch[ch].width);
 		if (ret) {
-			printf("failed to initialize UMC ch%d\n", ch);
+			pr_err("failed to initialize UMC ch%d\n", ch);
 			return ret;
 		}
 

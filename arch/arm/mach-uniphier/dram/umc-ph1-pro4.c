@@ -82,7 +82,7 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 		dram_size = DRAM_SZ_512M;
 		break;
 	default:
-		printf("unsupported DRAM size\n");
+		pr_err("unsupported DRAM size\n");
 		return -EINVAL;
 	}
 
