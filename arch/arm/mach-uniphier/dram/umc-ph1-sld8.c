@@ -13,6 +13,8 @@
 #include "ddrphy-regs.h"
 #include "umc-regs.h"
 
+#define DRAM_CH_NR	2
+
 enum dram_freq {
 	DRAM_FREQ_1333M,
 	DRAM_FREQ_1600M,
@@ -36,6 +38,11 @@ static u32 umc_spcctla[DRAM_FREQ_NR][DRAM_SZ_NR] = {
 };
 static u32 umc_spcctlb[DRAM_FREQ_NR] = {0x00ff0006, 0x00ff0008};
 static u32 umc_rdatactl[DRAM_FREQ_NR] = {0x000a00ac, 0x000c00ac};
+
+static int umc_get_rank(int ch)
+{
+	return ch;	/* ch0: rank0, ch1: rank1 for this SoC */
+}
 
 static void umc_start_ssif(void __iomem *ssif_base)
 {
@@ -135,55 +142,51 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	return 0;
 }
 
-static int umc_init_sub(int freq, int size_ch0, int size_ch1, bool ddr3plus)
+static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
+		       int freq, int size, bool ddr3plus, int ch)
 {
-	void __iomem *ssif_base = (void __iomem *)UMC_SSIF_BASE;
-	void __iomem *ca_base0 = (void __iomem *)UMC_CA_BASE(0);
-	void __iomem *ca_base1 = (void __iomem *)UMC_CA_BASE(1);
-	void __iomem *dramcont0 = (void __iomem *)UMC_DRAMCONT_BASE(0);
-	void __iomem *dramcont1 = (void __iomem *)UMC_DRAMCONT_BASE(1);
-	void __iomem *phy0_0 = (void __iomem *)DDRPHY_BASE(0, 0);
-	void __iomem *phy1_0 = (void __iomem *)DDRPHY_BASE(1, 0);
+	void __iomem *phy_base = dc_base + 0x00001000;
+	int ret;
 
-	umc_dram_init_start(dramcont0);
-	umc_dram_init_start(dramcont1);
-	umc_dram_init_poll(dramcont0);
-	umc_dram_init_poll(dramcont1);
+	umc_dram_init_start(dc_base);
+	umc_dram_init_poll(dc_base);
 
-	writel(0x00000101, dramcont0 + UMC_DIOCTLA);
+	writel(0x00000101, dc_base + UMC_DIOCTLA);
 
-	ph1_ld4_ddrphy_init(phy0_0, freq, ddr3plus);
+	ret = ph1_ld4_ddrphy_init(phy_base, freq, ddr3plus);
+	if (ret)
+		return ret;
 
-	ddrphy_prepare_training(phy0_0, 0);
-	ddrphy_training(phy0_0);
+	ddrphy_prepare_training(phy_base, umc_get_rank(ch));
+	ret = ddrphy_training(phy_base);
+	if (ret)
+		return ret;
 
-	writel(0x00000101, dramcont1 + UMC_DIOCTLA);
-
-	ph1_ld4_ddrphy_init(phy1_0, freq, ddr3plus);
-
-	ddrphy_prepare_training(phy1_0, 1);
-	ddrphy_training(phy1_0);
-
-	umc_dramcont_init(dramcont0, ca_base0, size_ch0, freq, ddr3plus);
-	umc_dramcont_init(dramcont1, ca_base1, size_ch1, freq, ddr3plus);
-
-	umc_start_ssif(ssif_base);
-
-	return 0;
+	return umc_dramcont_init(dc_base, ca_base, size, freq, ddr3plus);
 }
 
 int ph1_sld8_umc_init(const struct uniphier_board_data *bd)
 {
-	if ((bd->dram_ch[0].size == SZ_128M || bd->dram_ch[0].size == SZ_256M) &&
-	    (bd->dram_ch[1].size == SZ_128M || bd->dram_ch[1].size == SZ_256M) &&
-	    bd->dram_freq == 1333 &&
-	    bd->dram_ch[0].width == 16 && bd->dram_ch[1].width == 16) {
-		return umc_init_sub(bd->dram_freq,
-				    bd->dram_ch[0].size / SZ_128M,
-				    bd->dram_ch[1].size / SZ_128M,
-				    bd->dram_ddr3plus);
-	} else {
-		pr_err("Unsupported DDR configuration\n");
-		return -EINVAL;
+	void __iomem *umc_base = (void __iomem *)0x5b800000;
+	void __iomem *ca_base = umc_base + 0x00001000;
+	void __iomem *dc_base = umc_base + 0x00400000;
+	void __iomem *ssif_base = umc_base;
+	int ch, ret;
+
+	for (ch = 0; ch < DRAM_CH_NR; ch++) {
+		ret = umc_ch_init(dc_base, ca_base, bd->dram_freq,
+				  bd->dram_ch[ch].size / SZ_128M,
+				  bd->dram_ddr3plus, ch);
+		if (ret) {
+			pr_err("failed to initialize UMC ch%d\n", ch);
+			return ret;
+		}
+
+		ca_base += 0x00001000;
+		dc_base += 0x00200000;
 	}
+
+	umc_start_ssif(ssif_base);
+
+	return 0;
 }
