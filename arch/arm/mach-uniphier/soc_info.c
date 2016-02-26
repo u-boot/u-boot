@@ -52,14 +52,14 @@ enum uniphier_soc_id uniphier_get_soc_type(void)
 		ret = SOC_UNIPHIER_PH1_LD6B;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_SLD11
+#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD11
 	case 0x31:
-		ret = SOC_UNIPHIER_PH1_SLD11;
+		ret = SOC_UNIPHIER_PH1_LD11;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD10
+#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD20
 	case 0x32:
-		ret = SOC_UNIPHIER_PH1_LD10;
+		ret = SOC_UNIPHIER_PH1_LD20;
 		break;
 #endif
 	default:
