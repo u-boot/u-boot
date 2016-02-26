@@ -46,6 +46,7 @@
 #include <serial.h>
 #include <spi.h>
 #include <stdio_dev.h>
+#include <timer.h>
 #include <trace.h>
 #include <watchdog.h>
 #ifdef CONFIG_CMD_AMBAPP
@@ -312,13 +313,22 @@ static int initr_noncached(void)
 #ifdef CONFIG_DM
 static int initr_dm(void)
 {
+	int ret;
+
 	/* Save the pre-reloc driver model and start a new one */
 	gd->dm_root_f = gd->dm_root;
 	gd->dm_root = NULL;
-#ifdef CONFIG_TIMER
+	ret = dm_init_and_scan(false);
+	if (ret)
+		return ret;
+#ifdef CONFIG_TIMER_EARLY
 	gd->timer = NULL;
+	ret = dm_timer_init();
+	if (ret)
+		return ret;
 #endif
-	return dm_init_and_scan(false);
+
+	return 0;
 }
 #endif
 

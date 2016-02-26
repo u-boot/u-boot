@@ -67,4 +67,25 @@ struct timer_dev_priv {
 	unsigned long clock_rate;
 };
 
+/**
+ * timer_early_get_count() - Implement timer_get_count() before driver model
+ *
+ * If CONFIG_TIMER_EARLY is enabled, this function wil be called to return
+ * the current timer value before the proper driver model timer is ready.
+ * It should be implemented by one of the timer values. This is mostly useful
+ * for tracing.
+ */
+u64 timer_early_get_count(void);
+
+/**
+ * timer_early_get_rate() - Get the timer rate before driver model
+ *
+ * If CONFIG_TIMER_EARLY is enabled, this function wil be called to return
+ * the current timer rate in Hz before the proper driver model timer is ready.
+ * It should be implemented by one of the timer values. This is mostly useful
+ * for tracing. This corresponds to the clock_rate value in struct
+ * timer_dev_priv.
+ */
+unsigned long timer_early_get_rate(void);
+
 #endif	/* _TIMER_H_ */

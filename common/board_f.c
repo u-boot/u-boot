@@ -45,6 +45,7 @@
 #include <post.h>
 #include <spi.h>
 #include <status_led.h>
+#include <timer.h>
 #include <trace.h>
 #include <video.h>
 #include <watchdog.h>
@@ -802,6 +803,11 @@ static int initf_dm(void)
 	int ret;
 
 	ret = dm_init_and_scan(true);
+	if (ret)
+		return ret;
+#endif
+#ifdef CONFIG_TIMER_EARLY
+	ret = dm_timer_init();
 	if (ret)
 		return ret;
 #endif

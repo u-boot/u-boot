@@ -43,7 +43,7 @@ static int create_func_list(int argc, char * const argv[])
 	err = trace_list_functions(buff + buff_ptr, avail, &needed);
 	if (err)
 		printf("Error: truncated (%#x bytes needed)\n", needed);
-	used = min(avail, needed);
+	used = min(avail, (size_t)needed);
 	printf("Function trace dumped to %08lx, size %#zx\n",
 	       (ulong)map_to_sysmem(buff + buff_ptr), used);
 	setenv_hex("profbase", map_to_sysmem(buff));
@@ -67,7 +67,7 @@ static int create_call_list(int argc, char * const argv[])
 	err = trace_list_calls(buff + buff_ptr, avail, &needed);
 	if (err)
 		printf("Error: truncated (%#x bytes needed)\n", needed);
-	used = min(avail, needed);
+	used = min(avail, (size_t)needed);
 	printf("Call list dumped to %08lx, size %#zx\n",
 	       (ulong)map_to_sysmem(buff + buff_ptr), used);
 

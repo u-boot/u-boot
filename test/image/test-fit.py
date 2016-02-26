@@ -108,6 +108,10 @@ base_fdt = '''
         model = "Sandbox Verified Boot Test";
         compatible = "sandbox";
 
+	reset@0 {
+		compatible = "sandbox,reset";
+	};
+
 };
 '''
 

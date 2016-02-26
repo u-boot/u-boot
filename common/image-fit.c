@@ -851,6 +851,11 @@ static int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
 	return 0;
 }
 
+ulong fit_get_end(const void *fit)
+{
+	return map_to_sysmem((void *)(fit + fdt_totalsize(fit)));
+}
+
 /**
  * fit_set_timestamp - set node timestamp property
  * @fit: pointer to the FIT format image header
@@ -1030,10 +1035,15 @@ int fit_image_verify(const void *fit, int image_noffset)
 					strlen(FIT_SIG_NODENAME))) {
 			ret = fit_image_check_sig(fit, noffset, data,
 							size, -1, &err_msg);
-			if (ret) {
+
+			/*
+			 * Show an indication on failure, but do not return
+			 * an error. Only keys marked 'required' can cause
+			 * an image validation failure. See the call to
+			 * fit_image_verify_required_sigs() above.
+			 */
+			if (ret)
 				puts("- ");
-				goto error;
-			}
 			else
 				puts("+ ");
 		}

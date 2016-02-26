@@ -989,7 +989,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
 	if (ret) {
 		printf("SF: Failed to get idcodes\n");
-		return -EINVAL;
+		return ret;
 	}
 
 #ifdef DEBUG

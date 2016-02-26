@@ -30,7 +30,7 @@ void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 	u8 header_type;
 	int rom_addr;
 	pci_addr_t bar_value;
-	struct pci_region *bar_res;
+	struct pci_region *bar_res = NULL;
 	int found_mem64 = 0;
 	u16 class;
 
