@@ -13,13 +13,29 @@
 #include "ddrphy-regs.h"
 #include "umc-regs.h"
 
+enum dram_freq {
+	DRAM_FREQ_1333M,
+	DRAM_FREQ_1600M,
+	DRAM_FREQ_NR,
+};
+
 enum dram_size {
 	DRAM_SZ_128M,
 	DRAM_SZ_256M,
+	DRAM_SZ_512M,
 	DRAM_SZ_NR,
 };
 
-static u32 umc_spcctla[DRAM_SZ_NR] = {0x00240512, 0x00350512};
+static u32 umc_cmdctla[DRAM_FREQ_NR] = {0x55990b11, 0x66bb0f17};
+static u32 umc_cmdctla_plus[DRAM_FREQ_NR] = {0x45990b11, 0x46bb0f17};
+static u32 umc_cmdctlb[DRAM_FREQ_NR] = {0x16958944, 0x18c6ab44};
+static u32 umc_cmdctlb_plus[DRAM_FREQ_NR] = {0x16958924, 0x18c6ab24};
+static u32 umc_spcctla[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+	{0x00240512, 0x00350512, 0x00000000}, /* no data for 1333MHz,128MB */
+	{0x002b0617, 0x003f0617, 0x00670617},
+};
+static u32 umc_spcctlb[DRAM_FREQ_NR] = {0x00ff0006, 0x00ff0008};
+static u32 umc_rdatactl[DRAM_FREQ_NR] = {0x000a00ac, 0x000c00ac};
 
 static void umc_start_ssif(void __iomem *ssif_base)
 {
@@ -58,7 +74,20 @@ static void umc_start_ssif(void __iomem *ssif_base)
 static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 			     int size, int freq, bool ddr3plus)
 {
+	enum dram_freq freq_e;
 	enum dram_size size_e;
+
+	switch (freq) {
+	case 1333:
+		freq_e = DRAM_FREQ_1333M;
+		break;
+	case 1600:
+		freq_e = DRAM_FREQ_1600M;
+		break;
+	default:
+		pr_err("unsupported DRAM frequency %d MHz\n", freq);
+		return -EINVAL;
+	}
 
 	switch (size) {
 	case 0:
@@ -69,16 +98,21 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	case 2:
 		size_e = DRAM_SZ_256M;
 		break;
+	case 4:
+		size_e = DRAM_SZ_512M;
+		break;
 	default:
 		pr_err("unsupported DRAM size\n");
 		return -EINVAL;
 	}
 
-	writel(ddr3plus ? 0x45990b11 : 0x55990b11, dramcont + UMC_CMDCTLA);
-	writel(ddr3plus ? 0x16958924 : 0x16958944, dramcont + UMC_CMDCTLB);
-	writel(umc_spcctla[size_e], dramcont + UMC_SPCCTLA);
-	writel(0x00ff0006, dramcont + UMC_SPCCTLB);
-	writel(0x000a00ac, dramcont + UMC_RDATACTL_D0);
+	writel((ddr3plus ? umc_cmdctla_plus : umc_cmdctla)[freq_e],
+	       dramcont + UMC_CMDCTLA);
+	writel((ddr3plus ? umc_cmdctlb_plus : umc_cmdctlb)[freq_e],
+	       dramcont + UMC_CMDCTLB);
+	writel(umc_spcctla[freq_e][size_e], dramcont + UMC_SPCCTLA);
+	writel(umc_spcctlb[freq_e], dramcont + UMC_SPCCTLB);
+	writel(umc_rdatactl[freq_e], dramcont + UMC_RDATACTL_D0);
 	writel(0x04060806, dramcont + UMC_WDATACTL_D0);
 	writel(0x04a02000, dramcont + UMC_DATASET);
 	writel(0x00000000, ca_base + 0x2300);
