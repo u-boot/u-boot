@@ -172,10 +172,6 @@ struct ddrphy {
 #ifndef __ASSEMBLY__
 int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
 			bool ddr3plus);
-int ph1_pro4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
-			 bool ddr3plus);
-int ph1_sld8_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
-			 bool ddr3plus);
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank);
 int ddrphy_training(struct ddrphy __iomem *phy);
 #endif
