@@ -92,13 +92,6 @@
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0xfffffff8
 #define CONFIG_SYS_BOOTCOUNT_BE
 
-/* The rest of the configuration is shared */
-#include <configs/socfpga_common.h>
-
-/* U-Boot payload is stored at offset 0x60000 */
-#undef CONFIG_SYS_SPI_U_BOOT_OFFS
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x60000
-
 /* Environment setting for SPI flash */
 #undef CONFIG_ENV_SIZE
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
@@ -110,5 +103,12 @@
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MODE	SPI_MODE_3
 #define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+
+/* The rest of the configuration is shared */
+#include <configs/socfpga_common.h>
+
+/* U-Boot payload is stored at offset 0x60000 */
+#undef CONFIG_SYS_SPI_U_BOOT_OFFS
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x60000
 
 #endif	/* __CONFIG_SOCFPGA_SR1500_H__ */
