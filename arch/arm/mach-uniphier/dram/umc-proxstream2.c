@@ -585,11 +585,9 @@ static void um_init(void __iomem *um_base)
 int proxstream2_umc_init(const struct uniphier_board_data *bd)
 {
 	void __iomem *um_base = (void __iomem *)0x5b600000;
-	void __iomem *umc_ch0_base = (void __iomem *)0x5b800000;
-	void __iomem *umc_ch1_base = (void __iomem *)0x5ba00000;
-	void __iomem *umc_ch2_base = (void __iomem *)0x5bc00000;
+	void __iomem *umc_ch_base = (void __iomem *)0x5b800000;
 	enum dram_freq freq;
-	int ret;
+	int ch, ret;
 
 	switch (bd->dram_freq) {
 	case 1866:
@@ -603,25 +601,16 @@ int proxstream2_umc_init(const struct uniphier_board_data *bd)
 		return -EINVAL;
 	}
 
-	ret = umc_init(umc_ch0_base, freq, 0, bd->dram_ch[0].size / SZ_256M,
-		       bd->dram_ch[0].width);
-	if (ret) {
-		printf("failed to initialize UMC ch0\n");
-		return ret;
-	}
+	for (ch = 0; ch < bd->dram_nr_ch; ch++) {
+		ret = umc_init(umc_ch_base, freq, ch,
+			       bd->dram_ch[ch].size / SZ_256M,
+			       bd->dram_ch[ch].width);
+		if (ret) {
+			printf("failed to initialize UMC ch%d\n", ch);
+			return ret;
+		}
 
-	ret = umc_init(umc_ch1_base, freq, 1, bd->dram_ch[1].size / SZ_256M,
-		       bd->dram_ch[1].width);
-	if (ret) {
-		printf("failed to initialize UMC ch1\n");
-		return ret;
-	}
-
-	ret = umc_init(umc_ch2_base, freq, 2, bd->dram_ch[2].size / SZ_256M,
-		       bd->dram_ch[2].width);
-	if (ret) {
-		printf("failed to initialize UMC ch2\n");
-		return ret;
+		umc_ch_base += 0x00200000;
 	}
 
 	um_init(um_base);
