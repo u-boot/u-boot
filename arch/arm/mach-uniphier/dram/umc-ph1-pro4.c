@@ -24,9 +24,9 @@ static u32 umc_spcctla[DRAM_SZ_NR] = {0x002b0617, 0x003f0617, 0x00770617};
 
 static void umc_start_ssif(void __iomem *ssif_base)
 {
-	writel(0x00000001, ssif_base + 0x0000b004);
+	writel(0x00000000, ssif_base + 0x0000b004);
 	writel(0xffffffff, ssif_base + 0x0000c004);
-	writel(0x07ffffff, ssif_base + 0x0000c008);
+	writel(0x000fffcf, ssif_base + 0x0000c008);
 	writel(0x00000001, ssif_base + 0x0000b000);
 	writel(0x00000001, ssif_base + 0x0000c000);
 
