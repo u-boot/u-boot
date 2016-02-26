@@ -690,7 +690,6 @@ config TARGET_COLIBRI_PXA270
 config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
 	select CLK_UNIPHIER
-	select CPU_V7
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL

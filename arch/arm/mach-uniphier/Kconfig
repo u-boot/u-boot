@@ -9,15 +9,19 @@ choice
 
 config ARCH_UNIPHIER_PH1_SLD3
 	bool "UniPhier PH1-sLD3 SoC"
+	select CPU_V7
 
 config ARCH_UNIPHIER_LD4_SLD8
 	bool "UniPhier PH1-LD4/PH1-sLD8 SoC"
+	select CPU_V7
 
 config ARCH_UNIPHIER_PH1_PRO4
 	bool "UniPhier PH1-Pro4 SoC"
+	select CPU_V7
 
 config ARCH_UNIPHIER_PRO5_PXS2_LD6B
 	bool "UniPhier PH1-Pro5/ProXstream2/PH1-LD6b SoC"
+	select CPU_V7
 
 endchoice
 
