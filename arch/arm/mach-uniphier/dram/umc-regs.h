@@ -9,11 +9,6 @@
 #ifndef ARCH_UMC_REGS_H
 #define ARCH_UMC_REGS_H
 
-#define UMC_BASE		0x5b800000
-
-/* SSIF registers */
-#define UMC_SSIF_BASE		UMC_BASE
-
 #define UMC_CPURST		0x00000700
 #define UMC_IDSRST		0x0000070C
 #define UMC_IXMRST		0x00000714
@@ -47,12 +42,6 @@
 #define UMC_CLKEN_SSIF_WC	0x0000C07C
 #define UMC_CLKEN_SSIF_RC	0x0000C080
 #define UMC_CLKEN_SSIF_DST	0x0000C084
-
-/* CA registers */
-#define UMC_CA_BASE(ch)		(UMC_BASE + 0x00001000 + 0x00001000 * (ch))
-
-/* DRAM controller registers */
-#define UMC_DRAMCONT_BASE(ch)	(UMC_BASE + 0x00400000 + 0x00200000 * (ch))
 
 #define UMC_CMDCTLA		0x00000000
 #define UMC_CMDCTLB		0x00000004
