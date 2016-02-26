@@ -13,6 +13,8 @@
 #include "ddrphy-regs.h"
 #include "umc-regs.h"
 
+#define DRAM_CH_NR	2
+
 enum dram_size {
 	DRAM_SZ_128M,
 	DRAM_SZ_256M,
@@ -66,11 +68,21 @@ static void umc_start_ssif(void __iomem *ssif_base)
 }
 
 static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
-			     int size, int width)
+			     int freq, unsigned long size, bool ddr3plus)
 {
 	enum dram_size dram_size;
 
-	switch (size / (width / 16)) {
+	if (freq != 1600) {
+		pr_err("Unsupported DDR frequency %d MHz\n", freq);
+		return -EINVAL;
+	}
+
+	if (ddr3plus) {
+		pr_err("DDR3+ is not supported\n");
+		return -EINVAL;
+	}
+
+	switch (size) {
 	case SZ_128M:
 		dram_size = DRAM_SZ_128M;
 		break;
@@ -81,7 +93,7 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 		dram_size = DRAM_SZ_512M;
 		break;
 	default:
-		pr_err("unsupported DRAM size\n");
+		pr_err("unsupported DRAM size 0x%08lx (per 16bit)\n", size);
 		return -EINVAL;
 	}
 
@@ -113,66 +125,58 @@ static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	return 0;
 }
 
-int ph1_pro4_umc_init(const struct uniphier_board_data *bd)
+static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
+		       int freq, unsigned long size, unsigned int width,
+		       bool ddr3plus)
 {
-	void __iomem *ssif_base = (void __iomem *)UMC_SSIF_BASE;
-	void __iomem *ca_base0 = (void __iomem *)UMC_CA_BASE(0);
-	void __iomem *ca_base1 = (void __iomem *)UMC_CA_BASE(1);
-	void __iomem *dramcont0 = (void __iomem *)UMC_DRAMCONT_BASE(0);
-	void __iomem *dramcont1 = (void __iomem *)UMC_DRAMCONT_BASE(1);
-	void __iomem *phy0_0 = (void __iomem *)DDRPHY_BASE(0, 0);
-	void __iomem *phy0_1 = (void __iomem *)DDRPHY_BASE(0, 1);
-	void __iomem *phy1_0 = (void __iomem *)DDRPHY_BASE(1, 0);
-	void __iomem *phy1_1 = (void __iomem *)DDRPHY_BASE(1, 1);
-	int ret;
+	void __iomem *phy_base = dc_base + 0x00001000;
+	int nr_phy = width / 16;
+	int phy, ret;
 
-	if (bd->dram_freq != 1600) {
-		pr_err("Unsupported DDR configuration\n");
-		return -EINVAL;
+	umc_dram_init_start(dc_base);
+	umc_dram_init_poll(dc_base);
+
+	for (phy = 0; phy < nr_phy; phy++) {
+		writel(0x00000100 | ((1 << (phy + 1)) - 1),
+		       dc_base + UMC_DIOCTLA);
+
+		ret = ph1_ld4_ddrphy_init(phy_base, freq, ddr3plus);
+		if (ret)
+			return ret;
+
+		ddrphy_prepare_training(phy_base, phy);
+		ret = ddrphy_training(phy_base);
+		if (ret)
+			return ret;
+
+		phy_base += 0x00001000;
 	}
 
-	umc_dram_init_start(dramcont0);
-	umc_dram_init_start(dramcont1);
-	umc_dram_init_poll(dramcont0);
-	umc_dram_init_poll(dramcont1);
+	return umc_dramcont_init(dc_base, ca_base, freq, size / (width / 16),
+				 ddr3plus);
+}
 
-	writel(0x00000101, dramcont0 + UMC_DIOCTLA);
+int ph1_pro4_umc_init(const struct uniphier_board_data *bd)
+{
+	void __iomem *umc_base = (void __iomem *)0x5b800000;
+	void __iomem *ca_base = umc_base + 0x00001000;
+	void __iomem *dc_base = umc_base + 0x00400000;
+	void __iomem *ssif_base = umc_base;
+	int ch, ret;
 
-	ph1_ld4_ddrphy_init(phy0_0, bd->dram_freq, bd->dram_ddr3plus);
+	for (ch = 0; ch < DRAM_CH_NR; ch++) {
+		ret = umc_ch_init(dc_base, ca_base, bd->dram_freq,
+				  bd->dram_ch[ch].size,
+				  bd->dram_ch[ch].width,
+				  bd->dram_ddr3plus);
+		if (ret) {
+			pr_err("failed to initialize UMC ch%d\n", ch);
+			return ret;
+		}
 
-	ddrphy_prepare_training(phy0_0, 0);
-	ddrphy_training(phy0_0);
-
-	writel(0x00000103, dramcont0 + UMC_DIOCTLA);
-
-	ph1_ld4_ddrphy_init(phy0_1, bd->dram_freq, bd->dram_ddr3plus);
-
-	ddrphy_prepare_training(phy0_1, 1);
-	ddrphy_training(phy0_1);
-
-	writel(0x00000101, dramcont1 + UMC_DIOCTLA);
-
-	ph1_ld4_ddrphy_init(phy1_0, bd->dram_freq, bd->dram_ddr3plus);
-
-	ddrphy_prepare_training(phy1_0, 0);
-	ddrphy_training(phy1_0);
-
-	writel(0x00000103, dramcont1 + UMC_DIOCTLA);
-
-	ph1_ld4_ddrphy_init(phy1_1, bd->dram_freq, bd->dram_ddr3plus);
-
-	ddrphy_prepare_training(phy1_1, 1);
-	ddrphy_training(phy1_1);
-
-	ret = umc_dramcont_init(dramcont0, ca_base0, bd->dram_ch[0].size,
-				bd->dram_ch[0].width);
-	if (ret)
-		return ret;
-
-	ret = umc_dramcont_init(dramcont1, ca_base1, bd->dram_ch[1].size,
-				bd->dram_ch[1].width);
-	if (ret)
-		return ret;
+		ca_base += 0x00001000;
+		dc_base += 0x00200000;
+	}
 
 	umc_start_ssif(ssif_base);
 
