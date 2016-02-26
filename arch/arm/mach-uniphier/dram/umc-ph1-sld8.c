@@ -13,6 +13,14 @@
 #include "ddrphy-regs.h"
 #include "umc-regs.h"
 
+enum dram_size {
+	DRAM_SZ_128M,
+	DRAM_SZ_256M,
+	DRAM_SZ_NR,
+};
+
+static u32 umc_spcctla[DRAM_SZ_NR] = {0x00240512, 0x00350512};
+
 static void umc_start_ssif(void __iomem *ssif_base)
 {
 	writel(0x00000000, ssif_base + 0x0000b004);
@@ -47,17 +55,28 @@ static void umc_start_ssif(void __iomem *ssif_base)
 	writel(0x00000001, ssif_base + UMC_DMDRST);
 }
 
-static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
-			      int size, int freq, bool ddr3plus)
+static int umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
+			     int size, int freq, bool ddr3plus)
 {
+	enum dram_size size_e;
+
+	switch (size) {
+	case 0:
+		return 0;
+	case 1:
+		size_e = DRAM_SZ_128M;
+		break;
+	case 2:
+		size_e = DRAM_SZ_256M;
+		break;
+	default:
+		pr_err("unsupported DRAM size\n");
+		return -EINVAL;
+	}
+
 	writel(ddr3plus ? 0x45990b11 : 0x55990b11, dramcont + UMC_CMDCTLA);
 	writel(ddr3plus ? 0x16958924 : 0x16958944, dramcont + UMC_CMDCTLB);
-
-	if (size == 1)
-		writel(0x00240512, dramcont + UMC_SPCCTLA);
-	else if (size == 2)
-		writel(0x00350512, dramcont + UMC_SPCCTLA);
-
+	writel(umc_spcctla[size_e], dramcont + UMC_SPCCTLA);
 	writel(0x00ff0006, dramcont + UMC_SPCCTLB);
 	writel(0x000a00ac, dramcont + UMC_RDATACTL_D0);
 	writel(0x04060806, dramcont + UMC_WDATACTL_D0);
@@ -78,6 +97,8 @@ static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	writel(0x200a0a00, dramcont + UMC_SPCSETB);
 	writel(0x00000000, dramcont + UMC_SPCSETD);
 	writel(0x00000520, dramcont + UMC_DFICUPDCTLA);
+
+	return 0;
 }
 
 static int umc_init_sub(int freq, int size_ch0, int size_ch1, bool ddr3plus)
