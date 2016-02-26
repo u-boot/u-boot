@@ -97,14 +97,14 @@ static int umc_init_sub(int freq, int size_ch0, int size_ch1, bool ddr3plus)
 
 	writel(0x00000101, dramcont0 + UMC_DIOCTLA);
 
-	ph1_ld4_ddrphy_init(phy0_0, freq, size_ch0, ddr3plus);
+	ph1_ld4_ddrphy_init(phy0_0, freq, ddr3plus);
 
 	ddrphy_prepare_training(phy0_0, 0);
 	ddrphy_training(phy0_0);
 
 	writel(0x00000101, dramcont1 + UMC_DIOCTLA);
 
-	ph1_ld4_ddrphy_init(phy1_0, freq, size_ch1, ddr3plus);
+	ph1_ld4_ddrphy_init(phy1_0, freq, ddr3plus);
 
 	ddrphy_prepare_training(phy1_0, 1);
 	ddrphy_training(phy1_0);

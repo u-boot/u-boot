@@ -9,8 +9,7 @@
 
 #include "ddrphy-regs.h"
 
-int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, int size,
-			bool ddr3plus)
+int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, bool ddr3plus)
 {
 	u32 tmp;
 
