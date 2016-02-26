@@ -120,15 +120,6 @@
 
 #include <linux/types.h>
 
-static inline void umc_polling(u32 address, u32 expval, u32 mask)
-{
-	u32 nmask = ~mask;
-	u32 data;
-	do {
-		data = readl(address) & nmask;
-	} while (data != expval);
-}
-
 static inline void umc_dram_init_start(void __iomem *dramcont)
 {
 	writel(0x00000002, dramcont + UMC_INITSET);
