@@ -110,7 +110,7 @@ config TARGET_OMAP3_CAIRO
 	select DM_GPIO
 
 config TARGET_SNIPER
-	bool "Sniper"
+	bool "LG Optimus Black"
 	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
