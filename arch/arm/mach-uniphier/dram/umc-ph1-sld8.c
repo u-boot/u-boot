@@ -142,13 +142,13 @@ static int umc_init_sub(int freq, int size_ch0, int size_ch1)
 
 int ph1_sld8_umc_init(const struct uniphier_board_data *bd)
 {
-	if ((bd->dram_ch0_size == SZ_128M || bd->dram_ch0_size == SZ_256M) &&
-	    (bd->dram_ch1_size == SZ_128M || bd->dram_ch1_size == SZ_256M) &&
+	if ((bd->dram_ch[0].size == SZ_128M || bd->dram_ch[0].size == SZ_256M) &&
+	    (bd->dram_ch[1].size == SZ_128M || bd->dram_ch[1].size == SZ_256M) &&
 	    bd->dram_freq == 1333 &&
-	    bd->dram_ch0_width == 16 && bd->dram_ch1_width == 16) {
+	    bd->dram_ch[0].width == 16 && bd->dram_ch[1].width == 16) {
 		return umc_init_sub(bd->dram_freq,
-				    bd->dram_ch0_size / SZ_128M,
-				    bd->dram_ch1_size / SZ_128M);
+				    bd->dram_ch[0].size / SZ_128M,
+				    bd->dram_ch[1].size / SZ_128M);
 	} else {
 		pr_err("Unsupported DDR configuration\n");
 		return -EINVAL;

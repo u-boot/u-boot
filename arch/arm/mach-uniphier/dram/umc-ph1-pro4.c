@@ -146,39 +146,39 @@ int ph1_pro4_umc_init(const struct uniphier_board_data *bd)
 
 	writel(0x00000101, dramcont0 + UMC_DIOCTLA);
 
-	ph1_pro4_ddrphy_init(phy0_0, bd->dram_freq, bd->dram_ch0_size);
+	ph1_pro4_ddrphy_init(phy0_0, bd->dram_freq, bd->dram_ch[0].size);
 
 	ddrphy_prepare_training(phy0_0, 0);
 	ddrphy_training(phy0_0);
 
 	writel(0x00000103, dramcont0 + UMC_DIOCTLA);
 
-	ph1_pro4_ddrphy_init(phy0_1, bd->dram_freq, bd->dram_ch0_size);
+	ph1_pro4_ddrphy_init(phy0_1, bd->dram_freq, bd->dram_ch[0].size);
 
 	ddrphy_prepare_training(phy0_1, 1);
 	ddrphy_training(phy0_1);
 
 	writel(0x00000101, dramcont1 + UMC_DIOCTLA);
 
-	ph1_pro4_ddrphy_init(phy1_0, bd->dram_freq, bd->dram_ch1_size);
+	ph1_pro4_ddrphy_init(phy1_0, bd->dram_freq, bd->dram_ch[1].size);
 
 	ddrphy_prepare_training(phy1_0, 0);
 	ddrphy_training(phy1_0);
 
 	writel(0x00000103, dramcont1 + UMC_DIOCTLA);
 
-	ph1_pro4_ddrphy_init(phy1_1, bd->dram_freq, bd->dram_ch1_size);
+	ph1_pro4_ddrphy_init(phy1_1, bd->dram_freq, bd->dram_ch[1].size);
 
 	ddrphy_prepare_training(phy1_1, 1);
 	ddrphy_training(phy1_1);
 
-	ret = umc_dramcont_init(dramcont0, ca_base0, bd->dram_ch0_size,
-				bd->dram_ch0_width);
+	ret = umc_dramcont_init(dramcont0, ca_base0, bd->dram_ch[0].size,
+				bd->dram_ch[0].width);
 	if (ret)
 		return ret;
 
-	ret = umc_dramcont_init(dramcont1, ca_base1, bd->dram_ch1_size,
-				bd->dram_ch1_width);
+	ret = umc_dramcont_init(dramcont1, ca_base1, bd->dram_ch[1].size,
+				bd->dram_ch[1].width);
 	if (ret)
 		return ret;
 

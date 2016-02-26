@@ -603,22 +603,22 @@ int proxstream2_umc_init(const struct uniphier_board_data *bd)
 		return -EINVAL;
 	}
 
-	ret = umc_init(umc_ch0_base, freq, 0, bd->dram_ch0_size / SZ_256M,
-		       bd->dram_ch0_width);
+	ret = umc_init(umc_ch0_base, freq, 0, bd->dram_ch[0].size / SZ_256M,
+		       bd->dram_ch[0].width);
 	if (ret) {
 		printf("failed to initialize UMC ch0\n");
 		return ret;
 	}
 
-	ret = umc_init(umc_ch1_base, freq, 1, bd->dram_ch1_size / SZ_256M,
-		       bd->dram_ch1_width);
+	ret = umc_init(umc_ch1_base, freq, 1, bd->dram_ch[1].size / SZ_256M,
+		       bd->dram_ch[1].width);
 	if (ret) {
 		printf("failed to initialize UMC ch1\n");
 		return ret;
 	}
 
-	ret = umc_init(umc_ch2_base, freq, 2, bd->dram_ch2_size / SZ_256M,
-		       bd->dram_ch2_width);
+	ret = umc_init(umc_ch2_base, freq, 2, bd->dram_ch[2].size / SZ_256M,
+		       bd->dram_ch[2].width);
 	if (ret) {
 		printf("failed to initialize UMC ch2\n");
 		return ret;

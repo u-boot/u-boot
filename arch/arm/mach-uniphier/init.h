@@ -7,17 +7,18 @@
 #ifndef __MACH_INIT_H
 #define __MACH_INIT_H
 
+#define UNIPHIER_MAX_NR_DRAM_CH		3
+
+struct uniphier_dram_ch {
+	unsigned long base;
+	unsigned long size;
+	unsigned int width;
+};
+
 struct uniphier_board_data {
-	unsigned long dram_ch0_base;
-	unsigned long dram_ch0_size;
-	unsigned long dram_ch0_width;
-	unsigned long dram_ch1_base;
-	unsigned long dram_ch1_size;
-	unsigned long dram_ch1_width;
-	unsigned long dram_ch2_base;
-	unsigned long dram_ch2_size;
-	unsigned long dram_ch2_width;
-	unsigned int  dram_freq;
+	unsigned int dram_freq;
+	unsigned int dram_nr_ch;
+	struct uniphier_dram_ch dram_ch[UNIPHIER_MAX_NR_DRAM_CH];
 };
 
 const struct uniphier_board_data *uniphier_get_board_param(void);

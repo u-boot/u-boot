@@ -21,14 +21,14 @@ int proxstream2_memconf_init(const struct uniphier_board_data *bd)
 
 	tmp &= ~(SG_MEMCONF_CH2_SZ_MASK | SG_MEMCONF_CH2_NUM_MASK);
 
-	switch (bd->dram_ch2_width) {
+	switch (bd->dram_ch[2].width) {
 	case 16:
 		tmp |= SG_MEMCONF_CH2_NUM_1;
-		size_per_word = bd->dram_ch2_size;
+		size_per_word = bd->dram_ch[2].size;
 		break;
 	case 32:
 		tmp |= SG_MEMCONF_CH2_NUM_2;
-		size_per_word = bd->dram_ch2_size >> 1;
+		size_per_word = bd->dram_ch[2].size >> 1;
 		break;
 	default:
 		pr_err("error: unsupported DRAM Ch2 width\n");
