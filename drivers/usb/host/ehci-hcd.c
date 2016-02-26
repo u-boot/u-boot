@@ -237,7 +237,7 @@ static int ehci_shutdown(struct ehci_ctrl *ctrl)
 static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 {
 	uint32_t delta, next;
-	uint32_t addr = (unsigned long)buf;
+	unsigned long addr = (unsigned long)buf;
 	int idx;
 
 	if (addr != ALIGN(addr, ARCH_DMA_MINALIGN))
