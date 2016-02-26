@@ -5409,6 +5409,12 @@ List of environment variables (most likely not complete):
 		  Ethernet is encapsulated/received over 802.1q
 		  VLAN tagged frames.
 
+  bootpretryperiod	- Period during which BOOTP/DHCP sends retries.
+		  Unsigned value, in milliseconds. If not set, the period will
+		  be either the default (28000), or a value based on
+		  CONFIG_NET_RETRY_COUNT, if defined. This value has
+		  precedence over the valu based on CONFIG_NET_RETRY_COUNT.
+
 The following image location variables contain the location of images
 used in booting. The "Image" column gives the role of the image and is
 not an environment variable name. The other columns are environment
