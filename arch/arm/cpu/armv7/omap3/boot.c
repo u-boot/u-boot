@@ -65,7 +65,8 @@ int omap_reboot_mode(char *mode, unsigned int length)
 	if (length < 2)
 		return -1;
 
-	reboot_mode = readl((u32 *)(OMAP34XX_SCRATCHPAD + 4));
+	reboot_mode = readl((u32 *)(OMAP34XX_SCRATCHPAD +
+		OMAP_REBOOT_REASON_OFFSET));
 
 	c = (reboot_mode >> 24) & 0xff;
 	if (c != 'B')
@@ -85,7 +86,7 @@ int omap_reboot_mode(char *mode, unsigned int length)
 
 int omap_reboot_mode_clear(void)
 {
-	writel(0, (u32 *)(OMAP34XX_SCRATCHPAD + 4));
+	writel(0, (u32 *)(OMAP34XX_SCRATCHPAD + OMAP_REBOOT_REASON_OFFSET));
 
 	return 0;
 }
@@ -96,7 +97,8 @@ int omap_reboot_mode_store(char *mode)
 
 	reboot_mode = 'B' << 24 | 'M' << 16 | mode[0];
 
-	writel(reboot_mode, (u32 *)(OMAP34XX_SCRATCHPAD + 4));
+	writel(reboot_mode, (u32 *)(OMAP34XX_SCRATCHPAD +
+		OMAP_REBOOT_REASON_OFFSET));
 
 	return 0;
 }

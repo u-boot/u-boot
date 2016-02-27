@@ -249,6 +249,8 @@ struct gpio {
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 26)
 
+#define OMAP_REBOOT_REASON_OFFSET	0x04
+
 /* Boot parameters */
 #ifndef __ASSEMBLY__
 struct omap_boot_parameters {
