@@ -214,22 +214,26 @@ void twl6030_init_battery_charging(void)
 
 void twl6030_power_mmc_init()
 {
-	/* set voltage to 3.0 and turnon for APP */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VMMC_CFG_VOLTATE, 0x15);
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VMMC_CFG_STATE, 0x21);
+	/* 3.0V voltage output for VMMC */
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VMMC_CFG_VOLTAGE,
+		TWL6030_CFG_VOLTAGE_30);
+
+	/* Enable P1 output for VMMC */
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VMMC_CFG_STATE,
+		TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
 }
 
 void twl6030_usb_device_settings()
 {
-	u8 data = 0;
+	u8 value = 0;
 
-	/* Select APP Group and set state to ON */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VUSB_CFG_STATE, 0x21);
+	/* Enable P1 output for VUSB */
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VUSB_CFG_STATE,
+		TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
 
-	twl6030_i2c_read_u8(TWL6030_CHIP_PM, MISC2, &data);
-	data |= 0x10;
-
-	/* Select the input supply for VBUS regulator */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, MISC2, data);
+	/* Select the input supply for VUSB regulator */
+	twl6030_i2c_read_u8(TWL6030_CHIP_PM, TWL6030_MISC2, &value);
+	value |= TWL6030_MISC2_VUSB_IN_VSYS;
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_MISC2, value);
 }
 #endif

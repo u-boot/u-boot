@@ -20,16 +20,22 @@
 #define TWL6030_CHIP_PWM	0x49
 
 /* Slave Address 0x48 */
-#define VMMC_CFG_STATE		0x9A
-#define VMMC_CFG_VOLTATE	0x9B
-#define VUSB_CFG_STATE		0xA2
+#define TWL6030_VMMC_CFG_STATE		0x9A
+#define TWL6030_VMMC_CFG_VOLTAGE	0x9B
+#define TWL6030_VUSB_CFG_STATE		0xA2
+
+#define TWL6030_CFG_GRP_P1		(1 << 0)
+#define TWL6030_CFG_STATE_ON		(1 << 0)
+#define TWL6030_CFG_STATE_P1		(TWL6030_CFG_GRP_P1 << 5)
+#define TWL6030_CFG_VOLTAGE_30		0x15
 
 #define MISC1			0xE4
 #define VAC_MEAS		(1 << 2)
 #define VBAT_MEAS		(1 << 1)
 #define BB_MEAS			(1 << 0)
 
-#define MISC2			0xE5
+#define TWL6030_MISC2			0xE5
+#define TWL6030_MISC2_VUSB_IN_VSYS	(1 << 4)
 
 /* Slave Address 0x49 */
 
