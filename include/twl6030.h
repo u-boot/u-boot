@@ -20,6 +20,10 @@
 #define TWL6030_CHIP_PWM	0x49
 
 /* Slave Address 0x48 */
+#define TWL6030_STS_HW_CONDITIONS	0x21
+
+#define TWL6030_STS_HW_CONDITIONS_PWRON	(1 << 0)
+
 #define TWL6030_PHOENIX_DEV_ON		0x25
 
 #define TWL6030_PHOENIX_APP_DEVOFF	(1 << 0)
@@ -58,6 +62,11 @@
 #define TWL6030_MISC2_VUSB_IN_VSYS	(1 << 4)
 
 /* Slave Address 0x49 */
+
+#define TWL6030_CONTROLLER_STAT1		0xE3
+
+#define TWL6030_CONTROLLER_STAT1_VAC_DET	(1 << 3)
+#define TWL6030_CONTROLLER_STAT1_VBUS_DET	(1 << 2)
 
 /* Battery CHARGER REGISTERS */
 #define CONTROLLER_INT_MASK	0xE0
@@ -188,6 +197,10 @@ static inline int twl6030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 	return i2c_read(chip_no, reg, 1, val, 1);
 }
 
+/*
+ * Power
+ */
+
 void twl6030_power_off(void);
 void twl6030_init_battery_charging(void);
 void twl6030_usb_device_settings(void);
@@ -196,5 +209,13 @@ void twl6030_stop_usb_charging(void);
 int twl6030_get_battery_voltage(void);
 int twl6030_get_battery_current(void);
 void twl6030_power_mmc_init(int dev_index);
+
+/*
+ * Input
+ */
+
+int twl6030_input_power_button(void);
+int twl6030_input_charger(void);
+int twl6030_input_usb(void);
 
 #endif /* TWL6030_H */
