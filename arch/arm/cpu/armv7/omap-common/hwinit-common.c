@@ -84,19 +84,6 @@ void __weak srcomp_enable(void)
 {
 }
 
-#ifdef CONFIG_ARCH_CPU_INIT
-/*
- * SOC specific cpu init
- */
-int arch_cpu_init(void)
-{
-#ifdef CONFIG_SPL
-	save_omap_boot_params();
-#endif
-	return 0;
-}
-#endif /* CONFIG_ARCH_CPU_INIT */
-
 /**
  * do_board_detect() - Detect board description
  *
