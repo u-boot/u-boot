@@ -278,7 +278,7 @@ static const struct lpddr2_ac_timings *elpida_ac_timings[MAX_NUM_SPEEDBINS] = {
 		&timings_elpida_400_mhz
 };
 
-static const struct lpddr2_device_timings elpida_2G_S4_timings = {
+const struct lpddr2_device_timings elpida_2G_S4_timings = {
 	.ac_timings	= elpida_ac_timings,
 	.min_tck	= &min_tck_elpida,
 };

@@ -30,6 +30,11 @@ extern const struct dmm_lisa_map_regs ma_lisa_map_2G_x_2_x_2;
 extern const struct lpddr2_device_details elpida_2G_S4_details;
 extern const struct lpddr2_device_details elpida_4G_S4_details;
 #endif
+
+#ifndef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
+extern const struct lpddr2_device_timings elpida_2G_S4_timings;
+#endif
+
 struct omap_sysinfo {
 	char *board_string;
 };
