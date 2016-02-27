@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
+#include <asm/arch/sys_proto.h>
 #include <spl.h>
 
 static u32 boot_devices[] = {
@@ -65,6 +66,9 @@ int omap_reboot_mode(char *mode, unsigned int length)
 	unsigned int i;
 
 	if (length < 2)
+		return -1;
+
+	if (!warm_reset())
 		return -1;
 
 	limit = (length < OMAP_REBOOT_REASON_SIZE) ? length :
