@@ -372,7 +372,7 @@ void enable_basic_clocks(void)
 	setbits_le32((*prcm)->cm_wkup_gptimer1_clkctrl,
 			GPTIMER1_CLKCTRL_CLKSEL_MASK);
 
-	/* Enable optional 48M functional clock for USB  PHY */
+	/* Enable optional 48M functional clock for USB PHY */
 	setbits_le32((*prcm)->cm_l3init_usbphy_clkctrl,
 			USBPHY_CLKCTRL_OPTFCLKEN_PHY_48M_MASK);
 
@@ -390,7 +390,6 @@ void enable_basic_uboot_clocks(void)
 
 	u32 const clk_modules_hw_auto_essential[] = {
 		(*prcm)->cm_l3init_hsusbotg_clkctrl,
-		(*prcm)->cm_l3init_usbphy_clkctrl,
 		(*prcm)->cm_l3init_usbphy_clkctrl,
 		(*prcm)->cm_clksel_usb_60mhz,
 		(*prcm)->cm_l3init_hsusbtll_clkctrl,
