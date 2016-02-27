@@ -109,7 +109,7 @@ int misc_init_r(void)
 
 	/* Reboot mode */
 
-	reboot_mode[0] = omap_reboot_mode();
+	omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
 
 	if (keys[0])
 		reboot_mode[0] = 'r';
@@ -159,12 +159,12 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 void reset_misc(void)
 {
-	omap_reboot_mode_store('u');
+	omap_reboot_mode_store("u");
 }
 
 int fb_set_reboot_flag(void)
 {
-	return omap_reboot_mode_store('b');
+	return omap_reboot_mode_store("b");
 }
 
 #ifndef CONFIG_SPL_BUILD
