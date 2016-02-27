@@ -122,6 +122,9 @@ int misc_init_r(void)
 
 		omap_reboot_mode_clear();
 	} else {
+		/* Reboot mode garbage may still be valid, so clear it. */
+		omap_reboot_mode_clear();
+
 		/*
 		 * When not rebooting, valid power on reasons are either the
 		 * power button, charger plug or USB plug.
