@@ -86,6 +86,7 @@ int board_init(void)
 int misc_init_r(void)
 {
 	char reboot_mode[2] = { 0 };
+	u32 data = 0;
 	u32 value;
 
 	/* Reboot mode */
@@ -101,10 +102,25 @@ int misc_init_r(void)
 		reboot_mode[0] = 'b';
 
 	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
+		if (reboot_mode[0] == 'o')
+			twl6030_power_off();
+
 		if (!getenv("reboot-mode"))
 			setenv("reboot-mode", (char *)reboot_mode);
 
 		omap_reboot_mode_clear();
+	} else {
+		/*
+		 * When not rebooting, valid power on reasons are either the
+		 * power button, charger plug or USB plug.
+		 */
+
+		data |= twl6030_input_power_button();
+		data |= twl6030_input_charger();
+		data |= twl6030_input_usb();
+
+		if (!data)
+			twl6030_power_off();
 	}
 
 	/* Serial number */

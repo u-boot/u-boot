@@ -105,6 +105,12 @@
 #define CONFIG_TWL6030_POWER
 
 /*
+ * Input
+ */
+
+#define CONFIG_TWL6030_INPUT
+
+/*
  * Partitions
  */
 
