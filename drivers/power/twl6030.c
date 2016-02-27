@@ -28,6 +28,7 @@ static struct twl6030_data twl6032_info = {
 	.vbat_shift	= TWL6032_VBAT_SHIFT,
 };
 
+
 static int twl6030_gpadc_read_channel(u8 channel_no)
 {
 	u8 lsb = 0;
@@ -69,6 +70,13 @@ static int twl6030_gpadc_sw2_trigger(void)
 	}
 
 	return 0;
+}
+
+void twl6030_power_off(void)
+{
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_PHOENIX_DEV_ON,
+		TWL6030_PHOENIX_APP_DEVOFF | TWL6030_PHOENIX_CON_DEVOFF |
+		TWL6030_PHOENIX_MOD_DEVOFF);
 }
 
 void twl6030_stop_usb_charging(void)

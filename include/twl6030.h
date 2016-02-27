@@ -20,6 +20,12 @@
 #define TWL6030_CHIP_PWM	0x49
 
 /* Slave Address 0x48 */
+#define TWL6030_PHOENIX_DEV_ON		0x25
+
+#define TWL6030_PHOENIX_APP_DEVOFF	(1 << 0)
+#define TWL6030_PHOENIX_CON_DEVOFF	(1 << 1)
+#define TWL6030_PHOENIX_MOD_DEVOFF	(1 << 2)
+
 #define TWL6030_PH_STS_BOOT		0x29
 
 #define TWL6030_PH_STS_BOOT0		(1 << 0)
@@ -182,6 +188,7 @@ static inline int twl6030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 	return i2c_read(chip_no, reg, 1, val, 1);
 }
 
+void twl6030_power_off(void);
 void twl6030_init_battery_charging(void);
 void twl6030_usb_device_settings(void);
 void twl6030_start_usb_charging(void);
