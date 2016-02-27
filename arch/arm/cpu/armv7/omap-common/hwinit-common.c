@@ -35,13 +35,13 @@ static void set_mux_conf_regs(void)
 {
 	switch (omap_hw_init_context()) {
 	case OMAP_INIT_CONTEXT_SPL:
-		set_muxconf_regs_essential();
+		set_muxconf_regs();
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL:
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
-		set_muxconf_regs_essential();
+		set_muxconf_regs();
 		break;
 	}
 }

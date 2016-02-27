@@ -335,7 +335,7 @@ int board_late_init(void)
 	return 0;
 }
 
-void set_muxconf_regs_essential(void)
+void set_muxconf_regs(void)
 {
 	do_set_mux32((*ctrl)->control_padconf_core_base,
 		     early_padconf, ARRAY_SIZE(early_padconf));

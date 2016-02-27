@@ -338,7 +338,7 @@ void do_board_detect(void)
 }
 #endif	/* CONFIG_SPL_BUILD */
 
-void set_muxconf_regs_essential(void)
+void set_muxconf_regs(void)
 {
 	do_set_mux32((*ctrl)->control_padconf_core_base,
 		     early_padconf, ARRAY_SIZE(early_padconf));

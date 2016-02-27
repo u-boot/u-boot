@@ -198,7 +198,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-void set_muxconf_regs_essential(void)
+void set_muxconf_regs(void)
 {
 	do_set_mux((*ctrl)->control_padconf_core_base,
 		   core_padconf_array_essential,
