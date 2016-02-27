@@ -5,7 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
-#ifdef CONFIG_TWL6030_POWER
 
 #include <twl6030.h>
 
@@ -262,4 +261,3 @@ void twl6030_usb_device_settings()
 	value &= ~TWL6030_MISC2_VUSB_IN_PMID;
 	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_MISC2, value);
 }
-#endif
