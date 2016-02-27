@@ -380,6 +380,10 @@ void enable_basic_clocks(void)
 	setbits_le32((*prcm)->cm_l3init_usbphy_clkctrl,
 			USBPHY_CLKCTRL_OPTFCLKEN_PHY_48M_MASK);
 
+	/* Enable 32 KHz clock for USB PHY */
+	setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+			USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
 	do_enable_clocks(clk_domains_essential,
 			 clk_modules_hw_auto_essential,
 			 clk_modules_explicit_en_essential,

@@ -129,6 +129,7 @@ struct prcm_regs const omap4_prcm = {
 	.cm_div_m2_dpll_unipro = 0x4a0081d0,
 	.cm_ssc_deltamstep_dpll_unipro = 0x4a0081e8,
 	.cm_ssc_modfreqdiv_dpll_unipro = 0x4a0081ec,
+	.cm_coreaon_usb_phy1_core_clkctrl = 0x4a008640,
 
 	/* cm2.core */
 	.cm_l3_1_clkstctrl = 0x4a008700,
