@@ -11,6 +11,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
+#include <twl6030.h>
 
 #include "panda_mux_data.h"
 
@@ -290,6 +291,11 @@ void set_muxconf_regs_essential(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
+}
+
+void board_mmc_power_init(void)
+{
+	twl6030_power_mmc_init(0);
 }
 #endif
 
