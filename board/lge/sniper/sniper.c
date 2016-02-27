@@ -157,11 +157,6 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	omap_die_id_get_board_serial(serialnr);
 }
 
-void reset_misc(void)
-{
-	omap_reboot_mode_store("u");
-}
-
 int fb_set_reboot_flag(void)
 {
 	return omap_reboot_mode_store("b");
