@@ -248,6 +248,10 @@ void twl6030_usb_device_settings()
 {
 	u8 value = 0;
 
+	/* 3.3V voltage output for VUSB */
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VUSB_CFG_VOLTAGE,
+		TWL6030_CFG_VOLTAGE_33);
+
 	/* Enable P1 output for VUSB */
 	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VUSB_CFG_STATE,
 		TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
