@@ -185,6 +185,6 @@ void twl6030_start_usb_charging(void);
 void twl6030_stop_usb_charging(void);
 int twl6030_get_battery_voltage(void);
 int twl6030_get_battery_current(void);
-void twl6030_power_mmc_init(void);
+void twl6030_power_mmc_init(int dev_index);
 
 #endif /* TWL6030_H */
