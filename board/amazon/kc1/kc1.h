@@ -11,6 +11,7 @@
 
 #include <asm/arch/mux_omap4.h>
 
+#define KC1_GPIO_USB_ID		52
 #define KC1_GPIO_MBID1		173
 #define KC1_GPIO_MBID0		174
 #define KC1_GPIO_MBID3		177
@@ -28,6 +29,7 @@ const struct pad_conf_entry core_padconf_array[] = {
 	{ GPMC_AD7,		(IEN  | PTU | M1) }, /* sdmmc2_dat7 */
 	{ GPMC_NOE,		(IEN  | PTU | M1) }, /* sdmmc2_clk */
 	{ GPMC_NWE,		(IEN  | PTU | M1) }, /* sdmmc2_cmd */
+	{ GPMC_NCS2,		(IEN  | PTD | M3) }, /* gpio_52 */
 	/* CAM */
 	{ CAM_SHUTTER,		(IDIS | DIS | M7) }, /* safe_mode */
 	{ CAM_STROBE,		(IDIS | DIS | M7) }, /* safe_mode */

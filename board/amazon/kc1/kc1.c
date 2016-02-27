@@ -85,6 +85,19 @@ int board_init(void)
 
 int misc_init_r(void)
 {
+	char reboot_mode[2] = { 0 };
+
+	/* Reboot mode */
+
+	omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
+
+	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
+		if (!getenv("reboot-mode"))
+			setenv("reboot-mode", (char *)reboot_mode);
+
+		omap_reboot_mode_clear();
+	}
+
 	/* Serial number */
 
 	omap_die_id_serial();
@@ -121,6 +134,11 @@ u32 get_board_rev(void)
 void get_board_serial(struct tag_serialnr *serialnr)
 {
 	omap_die_id_get_board_serial(serialnr);
+}
+
+int fb_set_reboot_flag(void)
+{
+	return omap_reboot_mode_store("b");
 }
 
 #ifndef CONFIG_SPL_BUILD
