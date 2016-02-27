@@ -31,7 +31,9 @@ extern const struct lpddr2_device_details elpida_2G_S4_details;
 extern const struct lpddr2_device_details elpida_4G_S4_details;
 #endif
 
-#ifndef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
+#ifdef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
+extern const struct lpddr2_device_timings jedec_default_timings;
+#else
 extern const struct lpddr2_device_timings elpida_2G_S4_timings;
 #endif
 

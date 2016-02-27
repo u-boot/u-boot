@@ -96,7 +96,7 @@ static const struct lpddr2_ac_timings const*
 	&timings_jedec_400_mhz
 };
 
-static const struct lpddr2_device_timings jedec_default_timings = {
+const struct lpddr2_device_timings jedec_default_timings = {
 	.ac_timings = jedec_ac_timings,
 	.min_tck = &min_tck_jedec
 };
