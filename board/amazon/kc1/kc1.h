@@ -87,6 +87,10 @@ const struct pad_conf_entry core_padconf_array[] = {
 	{ UNIPRO_RY1,		(IEN  | DIS | M3) }, /* gpio_178 */
 	{ UNIPRO_RX2,		(IDIS | DIS | M7) }, /* safe_mode */
 	{ UNIPRO_RY2,		(IDIS | DIS | M7) }, /* safe_mode */
+	/* USBA0_OTG */
+	{ USBA0_OTG_CE,		(IDIS | PTD | M0) }, /* usba0_otg_ce */
+	{ USBA0_OTG_DP,		(IEN  | DIS | M0) }, /* usba0_otg_dp */
+	{ USBA0_OTG_DM,		(IEN  | DIS | M0) }, /* usba0_otg_dm */
 };
 
 #endif

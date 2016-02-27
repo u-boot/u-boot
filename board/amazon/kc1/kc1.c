@@ -8,6 +8,9 @@
 
 #include <config.h>
 #include <common.h>
+#include <linux/ctype.h>
+#include <linux/usb/musb.h>
+#include <asm/omap_musb.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/gpio.h>
@@ -20,6 +23,26 @@ DECLARE_GLOBAL_DATA_PTR;
 const struct omap_sysinfo sysinfo = {
 	.board_string = "kc1"
 };
+
+static struct musb_hdrc_config musb_config = {
+	.multipoint = 1,
+	.dyn_fifo = 1,
+	.num_eps = 16,
+	.ram_bits = 12
+};
+
+static struct omap_musb_board_data musb_board_data = {
+	.interface_type	= MUSB_INTERFACE_UTMI,
+};
+
+static struct musb_hdrc_platform_data musb_platform_data = {
+	.mode = MUSB_PERIPHERAL,
+	.config = &musb_config,
+	.power = 100,
+	.platform_ops = &omap2430_ops,
+	.board_data = &musb_board_data,
+};
+
 
 void set_muxconf_regs(void)
 {
@@ -65,6 +88,10 @@ int misc_init_r(void)
 	/* Serial number */
 
 	omap_die_id_serial();
+
+	/* MUSB */
+
+	musb_register(&musb_platform_data, &musb_board_data, (void *)MUSB_BASE);
 
 	return 0;
 }
