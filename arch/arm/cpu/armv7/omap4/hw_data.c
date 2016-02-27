@@ -355,6 +355,10 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gptimer2_clkctrl,
 		(*prcm)->cm_wkup_wdtimer2_clkctrl,
 		(*prcm)->cm_l4per_uart3_clkctrl,
+		(*prcm)->cm_l4per_i2c1_clkctrl,
+		(*prcm)->cm_l4per_i2c2_clkctrl,
+		(*prcm)->cm_l4per_i2c3_clkctrl,
+		(*prcm)->cm_l4per_i2c4_clkctrl,
 		0
 	};
 
@@ -398,10 +402,6 @@ void enable_basic_uboot_clocks(void)
 
 	u32 const clk_modules_explicit_en_essential[] = {
 		(*prcm)->cm_l4per_mcspi1_clkctrl,
-		(*prcm)->cm_l4per_i2c1_clkctrl,
-		(*prcm)->cm_l4per_i2c2_clkctrl,
-		(*prcm)->cm_l4per_i2c3_clkctrl,
-		(*prcm)->cm_l4per_i2c4_clkctrl,
 		(*prcm)->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
