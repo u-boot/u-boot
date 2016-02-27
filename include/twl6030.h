@@ -48,6 +48,7 @@
 #define BB_MEAS			(1 << 0)
 
 #define TWL6030_MISC2			0xE5
+#define TWL6030_MISC2_VUSB_IN_PMID	(1 << 3)
 #define TWL6030_MISC2_VUSB_IN_VSYS	(1 << 4)
 
 /* Slave Address 0x49 */

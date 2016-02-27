@@ -259,6 +259,7 @@ void twl6030_usb_device_settings()
 	/* Select the input supply for VUSB regulator */
 	twl6030_i2c_read_u8(TWL6030_CHIP_PM, TWL6030_MISC2, &value);
 	value |= TWL6030_MISC2_VUSB_IN_VSYS;
+	value &= ~TWL6030_MISC2_VUSB_IN_PMID;
 	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_MISC2, value);
 }
 #endif
