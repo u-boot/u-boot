@@ -214,12 +214,31 @@ void twl6030_init_battery_charging(void)
 
 void twl6030_power_mmc_init()
 {
+	u8 value = 0;
+
 	/* 3.0V voltage output for VMMC */
 	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VMMC_CFG_VOLTAGE,
 		TWL6030_CFG_VOLTAGE_30);
 
 	/* Enable P1 output for VMMC */
 	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VMMC_CFG_STATE,
+		TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
+
+	twl6030_i2c_read_u8(TWL6030_CHIP_PM, TWL6030_PH_STS_BOOT, &value);
+
+	/* BOOT2 indicates 1.8V/2.8V VAUX1 for eMMC */
+	if (value & TWL6030_PH_STS_BOOT2) {
+		/* 1.8V voltage output for VAUX1 */
+		twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VAUX1_CFG_VOLTAGE,
+			TWL6030_CFG_VOLTAGE_18);
+	} else {
+		/* 2.8V voltage output for VAUX1 */
+		twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VAUX1_CFG_VOLTAGE,
+			TWL6030_CFG_VOLTAGE_28);
+	}
+
+	/* Enable P1 output for VAUX */
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, TWL6030_VAUX1_CFG_STATE,
 		TWL6030_CFG_STATE_P1 | TWL6030_CFG_STATE_ON);
 }
 
