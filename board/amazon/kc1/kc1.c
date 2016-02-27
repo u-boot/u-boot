@@ -86,10 +86,19 @@ int board_init(void)
 int misc_init_r(void)
 {
 	char reboot_mode[2] = { 0 };
+	u32 value;
 
 	/* Reboot mode */
 
 	omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
+
+	/* USB ID pin pull-up indicates factory (fastboot) cable detection. */
+	gpio_request(KC1_GPIO_USB_ID, "USB_ID");
+	gpio_direction_input(KC1_GPIO_USB_ID);
+	value = gpio_get_value(KC1_GPIO_USB_ID);
+
+	if (value)
+		reboot_mode[0] = 'b';
 
 	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
 		if (!getenv("reboot-mode"))
