@@ -294,4 +294,14 @@ struct cbmem_entry {
 #define CBMEM_ID_CONSOLE		0x434f4e53
 #define CBMEM_ID_NONE			0x00000000
 
+/**
+ * write_coreboot_table() - write coreboot table
+ *
+ * This writes coreboot table at a given address.
+ *
+ * @addr:	start address to write coreboot table
+ * @cfg_tables:	pointer to configuration table memory area
+ */
+void write_coreboot_table(u32 addr, struct memory_area *cfg_tables);
+
 #endif
