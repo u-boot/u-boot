@@ -14,6 +14,8 @@
  */
 #define ROM_TABLE_ADDR	0xf0000
 
+#define ROM_TABLE_ALIGN	1024
+
 /**
  * table_compute_checksum() - Compute a table checksum
  *
