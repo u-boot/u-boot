@@ -39,26 +39,32 @@ void table_fill_string(char *dest, const char *src, size_t n, char pad)
 
 void write_tables(void)
 {
-	u32 __maybe_unused rom_table_end = ROM_TABLE_ADDR;
+	u32 __maybe_unused rom_table_start = ROM_TABLE_ADDR;
+	u32 __maybe_unused rom_table_end;
 
 #ifdef CONFIG_GENERATE_PIRQ_TABLE
-	rom_table_end = write_pirq_routing_table(rom_table_end);
+	rom_table_end = write_pirq_routing_table(rom_table_start);
 	rom_table_end = ALIGN(rom_table_end, 1024);
+	rom_table_start = rom_table_end;
 #endif
 #ifdef CONFIG_GENERATE_SFI_TABLE
-	rom_table_end = write_sfi_table(rom_table_end);
+	rom_table_end = write_sfi_table(rom_table_start);
 	rom_table_end = ALIGN(rom_table_end, 1024);
+	rom_table_start = rom_table_end;
 #endif
 #ifdef CONFIG_GENERATE_MP_TABLE
-	rom_table_end = write_mp_table(rom_table_end);
+	rom_table_end = write_mp_table(rom_table_start);
 	rom_table_end = ALIGN(rom_table_end, 1024);
+	rom_table_start = rom_table_end;
 #endif
 #ifdef CONFIG_GENERATE_ACPI_TABLE
-	rom_table_end = write_acpi_tables(rom_table_end);
+	rom_table_end = write_acpi_tables(rom_table_start);
 	rom_table_end = ALIGN(rom_table_end, 1024);
+	rom_table_start = rom_table_end;
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
-	rom_table_end = write_smbios_table(rom_table_end);
+	rom_table_end = write_smbios_table(rom_table_start);
 	rom_table_end = ALIGN(rom_table_end, 1024);
+	rom_table_start = rom_table_end;
 #endif
 }
