@@ -56,4 +56,6 @@ struct sysinfo_t {
 
 extern struct sysinfo_t lib_sysinfo;
 
+int get_coreboot_info(struct sysinfo_t *info);
+
 #endif

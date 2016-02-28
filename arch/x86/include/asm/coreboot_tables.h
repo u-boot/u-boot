@@ -262,10 +262,6 @@ struct	cb_cmos_checksum {
 #define UNPACK_CB64(_in) \
 	((((u64) _in.hi) << 32) | _in.lo)
 
-struct sysinfo_t;
-
-int get_coreboot_info(struct sysinfo_t *info);
-
 #define CBMEM_TOC_RESERVED      512
 #define MAX_CBMEM_ENTRIES       16
 #define CBMEM_MAGIC             0x434f5245
