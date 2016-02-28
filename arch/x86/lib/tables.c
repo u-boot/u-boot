@@ -67,11 +67,22 @@ void write_tables(void)
 {
 	u32 rom_table_start = ROM_TABLE_ADDR;
 	u32 rom_table_end;
+	u32 high_table, table_size;
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(table_write_funcs); i++) {
 		rom_table_end = table_write_funcs[i](rom_table_start);
 		rom_table_end = ALIGN(rom_table_end, ROM_TABLE_ALIGN);
+
+		table_size = rom_table_end - rom_table_start;
+		high_table = (u32)memalign(ROM_TABLE_ALIGN, table_size);
+		if (high_table) {
+			memset((void *)high_table, 0, table_size);
+			table_write_funcs[i](high_table);
+		} else {
+			printf("%d: no memory for configuration tables\n", i);
+		}
+
 		rom_table_start = rom_table_end;
 	}
 }
