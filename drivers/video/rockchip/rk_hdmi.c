@@ -666,7 +666,7 @@ static int hdmi_wait_for_hpd(struct rk3288_hdmi *regs)
 		if (hdmi_get_plug_in_status(regs))
 			return 0;
 		udelay(100);
-	} while (get_timer(start) < 30000);
+	} while (get_timer(start) < 300);
 
 	return -1;
 }
