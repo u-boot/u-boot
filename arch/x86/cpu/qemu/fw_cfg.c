@@ -232,8 +232,7 @@ static struct fw_file *qemu_fwcfg_find_file(const char *name)
  *          be ignored.
  * @return: 0 on success, or negative value on failure
  */
-static int bios_linker_allocate(struct bios_linker_entry *entry,
-			   unsigned long *addr)
+static int bios_linker_allocate(struct bios_linker_entry *entry, u32 *addr)
 {
 	uint32_t size, align;
 	struct fw_file *file;
@@ -383,7 +382,7 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 }
 
 /* This function loads and patches ACPI tables provided by QEMU */
-unsigned long write_acpi_tables(unsigned long addr)
+u32 write_acpi_tables(u32 addr)
 {
 	int i, ret = 0;
 	struct fw_file *file;

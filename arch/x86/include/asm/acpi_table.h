@@ -390,4 +390,4 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 			 void *dsdt);
 int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi, u8 cpu,
 			 u16 flags, u8 lint);
-unsigned long write_acpi_tables(unsigned long start);
+u32 write_acpi_tables(u32 start);
