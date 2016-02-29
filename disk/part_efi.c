@@ -658,11 +658,13 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 		gpt_part_size = le64_to_cpu(gpt_e[i].ending_lba) -
 			le64_to_cpu(gpt_e[i].starting_lba) + 1;
 		debug("size(LBA) - GPT: %8llu, ENV: %8llu ",
-		      gpt_part_size, (u64) partitions[i].size);
+		      (unsigned long long)gpt_part_size,
+		      (unsigned long long)partitions[i].size);
 
 		if (le64_to_cpu(gpt_part_size) != partitions[i].size) {
 			error("Partition %s size: %llu does not match %llu!\n",
-			      efi_str, gpt_part_size, (u64) partitions[i].size);
+			      efi_str, (unsigned long long)gpt_part_size,
+			      (unsigned long long)partitions[i].size);
 			return -1;
 		}
 
@@ -678,12 +680,12 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 		/* Check if GPT and ENV start LBAs match */
 		debug("start LBA - GPT: %8llu, ENV: %8llu\n",
 		      le64_to_cpu(gpt_e[i].starting_lba),
-		      (u64) partitions[i].start);
+		      (unsigned long long)partitions[i].start);
 
 		if (le64_to_cpu(gpt_e[i].starting_lba) != partitions[i].start) {
 			error("Partition %s start: %llu does not match %llu!\n",
 			      efi_str, le64_to_cpu(gpt_e[i].starting_lba),
-			      (u64) partitions[i].start);
+			      (unsigned long long)partitions[i].start);
 			return -1;
 		}
 	}
