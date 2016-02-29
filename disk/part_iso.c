@@ -223,7 +223,7 @@ static int part_get_info_iso(struct blk_desc *dev_desc, int part_num,
 	return part_get_info_iso_verb(dev_desc, part_num, info, 1);
 }
 
-static void print_part_iso(struct blk_desc *dev_desc)
+static void part_print_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 	int i;
@@ -242,7 +242,7 @@ static void print_part_iso(struct blk_desc *dev_desc)
 	} while (part_get_info_iso_verb(dev_desc, i, &info, 0) != -1);
 }
 
-static int test_part_iso(struct blk_desc *dev_desc)
+static int part_test_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 
@@ -253,7 +253,7 @@ U_BOOT_PART_TYPE(iso) = {
 	.name		= "ISO",
 	.part_type	= PART_TYPE_ISO,
 	.get_info	= part_get_info_iso,
-	.print		= print_part_iso,
-	.test		= test_part_iso,
+	.print		= part_print_iso,
+	.test		= part_test_iso,
 };
 #endif

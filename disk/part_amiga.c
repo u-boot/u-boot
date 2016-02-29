@@ -207,27 +207,27 @@ struct bootcode_block *get_bootcode(struct blk_desc *dev_desc)
  * Test if the given partition has an Amiga partition table/Rigid
  * Disk block
  */
-static int test_part_amiga(struct blk_desc *dev_desc)
+static int part_test_amiga(struct blk_desc *dev_desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *bootcode;
 
-    PRINTF("test_part_amiga: Testing for an Amiga RDB partition\n");
+    PRINTF("part_test_amiga: Testing for an Amiga RDB partition\n");
 
     rdb = get_rdisk(dev_desc);
     if (rdb)
     {
 	bootcode = get_bootcode(dev_desc);
 	if (bootcode)
-	    PRINTF("test_part_amiga: bootable Amiga disk\n");
+	    PRINTF("part_test_amiga: bootable Amiga disk\n");
 	else
-	    PRINTF("test_part_amiga: non-bootable Amiga disk\n");
+	    PRINTF("part_test_amiga: non-bootable Amiga disk\n");
 
 	return 0;
     }
     else
     {
-	PRINTF("test_part_amiga: no RDB found\n");
+	PRINTF("part_test_amiga: no RDB found\n");
 	return -1;
     }
 
@@ -318,7 +318,7 @@ static int part_get_info_amiga(struct blk_desc *dev_desc, int part,
     return 0;
 }
 
-static void print_part_amiga(struct blk_desc *dev_desc)
+static void part_print_amiga(struct blk_desc *dev_desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *boot;
@@ -329,14 +329,14 @@ static void print_part_amiga(struct blk_desc *dev_desc)
     rdb = get_rdisk(dev_desc);
     if (!rdb)
     {
-	PRINTF("print_part_amiga: no rdb found\n");
+	PRINTF("part_print_amiga: no rdb found\n");
 	return;
     }
 
-    PRINTF("print_part_amiga: Scanning partition list\n");
+    PRINTF("part_print_amiga: Scanning partition list\n");
 
     block = rdb->partition_list;
-    PRINTF("print_part_amiga: partition list at 0x%x\n", block);
+    PRINTF("part_print_amiga: partition list at 0x%x\n", block);
 
     printf("Summary:  DiskBlockSize: %d\n"
 	   "          Cylinders    : %d\n"
@@ -382,8 +382,8 @@ U_BOOT_PART_TYPE(amiga) = {
 	.name		= "AMIGA",
 	.part_type	= PART_TYPE_AMIGA,
 	.get_info	= part_get_info_amiga,
-	.print		= print_part_amiga,
-	.test		= test_part_amiga,
+	.print		= part_print_amiga,
+	.test		= part_test_amiga,
 };
 
 #endif

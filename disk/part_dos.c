@@ -87,7 +87,7 @@ static int test_block_type(unsigned char *buffer)
 }
 
 
-static int test_part_dos(struct blk_desc *dev_desc)
+static int part_test_dos(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
@@ -285,7 +285,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	return -1;
 }
 
-void print_part_dos(struct blk_desc *dev_desc)
+void part_print_dos(struct blk_desc *dev_desc)
 {
 	printf("Part\tStart Sector\tNum Sectors\tUUID\t\tType\n");
 	print_partition_extended(dev_desc, 0, 0, 1, 0);
@@ -301,8 +301,8 @@ U_BOOT_PART_TYPE(dos) = {
 	.name		= "DOS",
 	.part_type	= PART_TYPE_DOS,
 	.get_info	= part_get_info_ptr(part_get_info_dos),
-	.print		= part_print_ptr(print_part_dos),
-	.test		= test_part_dos,
+	.print		= part_print_ptr(part_print_dos),
+	.test		= part_test_dos,
 };
 
 #endif

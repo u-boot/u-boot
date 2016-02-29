@@ -40,7 +40,7 @@ static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
 /*
  * Test for a valid MAC partition
  */
-static int test_part_mac(struct blk_desc *dev_desc)
+static int part_test_mac(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(mac_driver_desc_t, ddesc, 1);
 	ALLOC_CACHE_ALIGN_BUFFER(mac_partition_t, mpart, 1);
@@ -63,7 +63,7 @@ static int test_part_mac(struct blk_desc *dev_desc)
 	return (0);
 }
 
-static void print_part_mac(struct blk_desc *dev_desc)
+static void part_print_mac(struct blk_desc *dev_desc)
 {
 	ulong i, n;
 	ALLOC_CACHE_ALIGN_BUFFER(mac_driver_desc_t, ddesc, 1);
@@ -240,7 +240,7 @@ U_BOOT_PART_TYPE(mac) = {
 	.name		= "MAC",
 	.part_type	= PART_TYPE_MAC,
 	.get_info	= part_get_info_mac,
-	.print		= print_part_mac,
-	.test		= test_part_mac,
+	.print		= part_print_mac,
+	.test		= part_test_mac,
 };
 #endif

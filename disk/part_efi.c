@@ -176,7 +176,7 @@ static void prepare_backup_gpt_header(gpt_header *gpt_h)
  * Public Functions (include/part.h)
  */
 
-void print_part_efi(struct blk_desc *dev_desc)
+void part_print_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -319,7 +319,7 @@ int part_get_info_efi_by_name(struct blk_desc *dev_desc,
 	return -2;
 }
 
-static int test_part_efi(struct blk_desc *dev_desc)
+static int part_test_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, legacymbr, 1, dev_desc->blksz);
 
@@ -959,7 +959,7 @@ U_BOOT_PART_TYPE(a_efi) = {
 	.name		= "EFI",
 	.part_type	= PART_TYPE_EFI,
 	.get_info	= part_get_info_ptr(part_get_info_efi),
-	.print		= part_print_ptr(print_part_efi),
-	.test		= test_part_efi,
+	.print		= part_print_ptr(part_print_efi),
+	.test		= part_test_efi,
 };
 #endif
