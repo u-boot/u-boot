@@ -140,7 +140,7 @@ struct rigid_disk_block *get_rdisk(struct blk_desc *dev_desc)
 
     for (i=0; i<limit; i++)
     {
-	ulong res = dev_desc->block_read(dev_desc, i, 1, (ulong *)block_buffer);
+	ulong res = blk_dread(dev_desc, i, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    struct rigid_disk_block *trdb = (struct rigid_disk_block *)block_buffer;
@@ -182,7 +182,7 @@ struct bootcode_block *get_bootcode(struct blk_desc *dev_desc)
 
     for (i = 0; i < limit; i++)
     {
-	ulong res = dev_desc->block_read(dev_desc, i, 1, (ulong *)block_buffer);
+	ulong res = blk_dread(dev_desc, i, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    struct bootcode_block *boot = (struct bootcode_block *)block_buffer;
@@ -258,8 +258,7 @@ static struct partition_block *find_partition(struct blk_desc *dev_desc,
 
     while (block != 0xFFFFFFFF)
     {
-	ulong res = dev_desc->block_read(dev_desc, block, 1,
-					 (ulong *)block_buffer);
+	ulong res = blk_dread(dev_desc, block, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    p = (struct partition_block *)block_buffer;
@@ -355,7 +354,7 @@ static void print_part_amiga(struct blk_desc *dev_desc)
 
 	PRINTF("Trying to load block #0x%X\n", block);
 
-	res = dev_desc->block_read(dev_desc, block, 1, (ulong *)block_buffer);
+	res = blk_dread(dev_desc, block, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    p = (struct partition_block *)block_buffer;

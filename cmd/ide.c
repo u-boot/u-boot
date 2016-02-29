@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <config.h>
 #include <watchdog.h>
 #include <command.h>
@@ -203,8 +204,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #endif
 
 			dev_desc = &ide_dev_desc[curr_device];
-			n = dev_desc->block_read(dev_desc, blk, cnt,
-						 (ulong *)addr);
+			n = blk_dread(dev_desc, blk, cnt, (ulong *)addr);
 			/* flush cache after read */
 			flush_cache(addr,
 				    cnt * ide_dev_desc[curr_device].blksz);

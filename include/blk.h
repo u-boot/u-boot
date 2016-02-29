@@ -71,4 +71,33 @@ struct blk_desc {
 #define PAD_TO_BLOCKSIZE(size, blk_desc) \
 	(PAD_SIZE(size, blk_desc->blksz))
 
+/*
+ * These functions should take struct udevice instead of struct blk_desc,
+ * but this is convenient for migration to driver model. Add a 'd' prefix
+ * to the function operations, so that blk_read(), etc. can be reserved for
+ * functions with the correct arguments.
+ */
+static inline ulong blk_dread(struct blk_desc *block_dev, lbaint_t start,
+			      lbaint_t blkcnt, void *buffer)
+{
+	/*
+	 * We could check if block_read is NULL and return -ENOSYS. But this
+	 * bloats the code slightly (cause some board to fail to build), and
+	 * it would be an error to try an operation that does not exist.
+	 */
+	return block_dev->block_read(block_dev, start, blkcnt, buffer);
+}
+
+static inline ulong blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
+			       lbaint_t blkcnt, const void *buffer)
+{
+	return block_dev->block_write(block_dev, start, blkcnt, buffer);
+}
+
+static inline ulong blk_derase(struct blk_desc *block_dev, lbaint_t start,
+			       lbaint_t blkcnt)
+{
+	return block_dev->block_erase(block_dev, start, blkcnt);
+}
+
 #endif

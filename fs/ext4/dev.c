@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <config.h>
 #include <memalign.h>
 #include <ext4fs.h>
@@ -76,9 +77,8 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 	if (byte_offset != 0) {
 		int readlen;
 		/* read first part which isn't aligned with start of sector */
-		if (ext4fs_blk_desc->block_read(ext4fs_blk_desc,
-						part_info->start + sector,
-						1, (void *)sec_buf) != 1) {
+		if (blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
+			      (void *)sec_buf) != 1) {
 			printf(" ** ext2fs_devread() read error **\n");
 			return 0;
 		}
@@ -100,17 +100,15 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 		ALLOC_CACHE_ALIGN_BUFFER(u8, p, ext4fs_blk_desc->blksz);
 
 		block_len = ext4fs_blk_desc->blksz;
-		ext4fs_blk_desc->block_read(ext4fs_blk_desc,
-						  part_info->start + sector,
-						  1, (void *)p);
+		blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
+			  (void *)p);
 		memcpy(buf, p, byte_len);
 		return 1;
 	}
 
-	if (ext4fs_blk_desc->block_read(ext4fs_blk_desc,
-					part_info->start + sector,
-					block_len >> log2blksz, (void *)buf)
-				!= block_len >> log2blksz) {
+	if (blk_dread(ext4fs_blk_desc, part_info->start + sector,
+		      block_len >> log2blksz, (void *)buf) !=
+			block_len >> log2blksz) {
 		printf(" ** %s read error - block\n", __func__);
 		return 0;
 	}
@@ -121,9 +119,8 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 
 	if (byte_len != 0) {
 		/* read rest of data which are not in whole sector */
-		if (ext4fs_blk_desc->block_read(ext4fs_blk_desc,
-						part_info->start + sector,
-						1, (void *)sec_buf) != 1) {
+		if (blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
+			      (void *)sec_buf) != 1) {
 			printf("* %s read error - last part\n", __func__);
 			return 0;
 		}

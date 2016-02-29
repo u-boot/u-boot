@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <config.h>
 #include <exports.h>
 #include <fat.h>
@@ -48,11 +49,10 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 {
 	ulong ret;
 
-	if (!cur_dev || !cur_dev->block_read)
+	if (!cur_dev)
 		return -1;
 
-	ret = cur_dev->block_read(cur_dev, cur_part_info.start + block,
-				  nr_blocks, buf);
+	ret = blk_dread(cur_dev, cur_part_info.start + block, nr_blocks, buf);
 
 	if (nr_blocks && ret == 0)
 		return -1;

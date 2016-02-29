@@ -63,7 +63,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 
 	/* the first sector (sector 0x10) must be a primary volume desc */
 	blkaddr=PVD_OFFSET;
-	if (dev_desc->block_read(dev_desc, PVD_OFFSET, 1, (ulong *)tmpbuf) != 1)
+	if (blk_dread(dev_desc, PVD_OFFSET, 1, (ulong *)tmpbuf) != 1)
 		return -1;
 	if(ppr->desctype!=0x01) {
 		if(verb)
@@ -85,7 +85,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	PRINTF(" Lastsect:%08lx\n",lastsect);
 	for(i=blkaddr;i<lastsect;i++) {
 		PRINTF("Reading block %d\n", i);
-		if (dev_desc->block_read(dev_desc, i, 1, (ulong *)tmpbuf) != 1)
+		if (blk_dread(dev_desc, i, 1, (ulong *)tmpbuf) != 1)
 			return -1;
 		if(ppr->desctype==0x00)
 			break; /* boot entry found */
@@ -105,7 +105,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	}
 	bootaddr=le32_to_int(pbr->pointer);
 	PRINTF(" Boot Entry at: %08lX\n",bootaddr);
-	if (dev_desc->block_read(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
+	if (blk_dread(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
 		if(verb)
 			printf ("** Can't read Boot Entry at %lX on %d:%d **\n",
 				bootaddr, dev_desc->devnum, part_num);

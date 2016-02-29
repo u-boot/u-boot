@@ -53,8 +53,7 @@ static int test_part_mac(struct blk_desc *dev_desc)
 
 	n = 1;	/* assuming at least one partition */
 	for (i=1; i<=n; ++i) {
-		if ((dev_desc->block_read(dev_desc, i, 1,
-					  (ulong *)mpart) != 1) ||
+		if ((blk_dread(dev_desc, i, 1, (ulong *)mpart) != 1) ||
 		    (mpart->signature != MAC_PARTITION_MAGIC) ) {
 			return (-1);
 		}
@@ -106,7 +105,7 @@ static void print_part_mac(struct blk_desc *dev_desc)
 		char c;
 
 		printf ("%4ld: ", i);
-		if (dev_desc->block_read(dev_desc, i, 1, (ulong *)mpart) != 1) {
+		if (blk_dread(dev_desc, i, 1, (ulong *)mpart) != 1) {
 			printf ("** Can't read Partition Map on %d:%ld **\n",
 				dev_desc->devnum, i);
 			return;
@@ -153,7 +152,7 @@ static void print_part_mac(struct blk_desc *dev_desc)
 static int part_mac_read_ddb(struct blk_desc *dev_desc,
 			     mac_driver_desc_t *ddb_p)
 {
-	if (dev_desc->block_read(dev_desc, 0, 1, (ulong *)ddb_p) != 1) {
+	if (blk_dread(dev_desc, 0, 1, (ulong *)ddb_p) != 1) {
 		printf ("** Can't read Driver Desriptor Block **\n");
 		return (-1);
 	}
@@ -182,7 +181,7 @@ static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
 		 * partition 1 first since this is the only way to
 		 * know how many partitions we have.
 		 */
-		if (dev_desc->block_read(dev_desc, n, 1, (ulong *)pdb_p) != 1) {
+		if (blk_dread(dev_desc, n, 1, (ulong *)pdb_p) != 1) {
 			printf ("** Can't read Partition Map on %d:%d **\n",
 				dev_desc->devnum, n);
 			return (-1);

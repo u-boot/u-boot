@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <blk.h>
 #include <errno.h>
 #include <fastboot.h>
 #include <fb_mmc.h>
@@ -58,7 +59,7 @@ static int fb_mmc_sparse_write(struct sparse_storage *storage,
 	struct blk_desc *dev_desc = sparse->dev_desc;
 	int ret;
 
-	ret = dev_desc->block_write(dev_desc, offset, size, data);
+	ret = blk_dwrite(dev_desc, offset, size, data);
 	if (!ret)
 		return -EIO;
 
@@ -84,7 +85,7 @@ static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 
 	puts("Flashing Raw Image\n");
 
-	blks = dev_desc->block_write(dev_desc, info->start, blkcnt, buffer);
+	blks = blk_dwrite(dev_desc, info->start, blkcnt, buffer);
 	if (blks != blkcnt) {
 		error("failed writing to device %d\n", dev_desc->devnum);
 		fastboot_fail(response_str, "failed writing to device");

@@ -91,7 +91,7 @@ static int test_part_dos(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
-	if (dev_desc->block_read(dev_desc, 0, 1, (ulong *)buffer) != 1)
+	if (blk_dread(dev_desc, 0, 1, (ulong *)buffer) != 1)
 		return -1;
 
 	if (test_block_type(buffer) != DOS_MBR)
@@ -111,8 +111,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 	dos_partition_t *pt;
 	int i;
 
-	if (dev_desc->block_read(dev_desc, ext_part_sector, 1,
-				 (ulong *)buffer) != 1) {
+	if (blk_dread(dev_desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",
 			dev_desc->devnum, ext_part_sector);
 		return;
@@ -177,8 +176,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	int i;
 	int dos_type;
 
-	if (dev_desc->block_read(dev_desc, ext_part_sector, 1,
-				 (ulong *)buffer) != 1) {
+	if (blk_dread(dev_desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",
 			dev_desc->devnum, ext_part_sector);
 		return -1;
