@@ -45,7 +45,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 		return 1;
 	}
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	bootstage_mark(BOOTSTAGE_ID_IDE_TYPE);
 
 	printf("\nLoading from %s device %d, partition %d: "

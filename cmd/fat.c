@@ -81,7 +81,7 @@ static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatinfo **\n",
 			argv[1], dev, part);
@@ -118,7 +118,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatwrite **\n",

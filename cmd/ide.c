@@ -418,7 +418,7 @@ void ide_init(void)
 		int led = (IDE_BUS(i) == 0) ? LED_IDE1 : LED_IDE2;
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 		ide_dev_desc[i].if_type = IF_TYPE_IDE;
-		ide_dev_desc[i].dev = i;
+		ide_dev_desc[i].devnum = i;
 		ide_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
 		ide_dev_desc[i].blksz = 0;
 		ide_dev_desc[i].log2blksz =
@@ -551,7 +551,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 #endif
 	int device;
 
-	device = dev_desc->dev;
+	device = dev_desc->devnum;
 	printf("  Device %d: ", device);
 
 	ide_led(DEVICE_LED(device), 1);	/* LED on       */
@@ -716,7 +716,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	       void *buffer)
 {
-	int device = block_dev->dev;
+	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char c;
 	unsigned char pwrsave = 0;	/* power save */
@@ -842,7 +842,7 @@ IDE_READ_E:
 ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer)
 {
-	int device = block_dev->dev;
+	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char c;
 
@@ -1308,7 +1308,7 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 	unsigned char c;
 	int device;
 
-	device = dev_desc->dev;
+	device = dev_desc->devnum;
 	dev_desc->type = DEV_TYPE_UNKNOWN;	/* not yet valid */
 	dev_desc->block_read = atapi_read;
 
@@ -1397,7 +1397,7 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		 void *buffer)
 {
-	int device = block_dev->dev;
+	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;

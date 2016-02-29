@@ -114,7 +114,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 	if (dev_desc->block_read(dev_desc, ext_part_sector, 1,
 				 (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",
-			dev_desc->dev, ext_part_sector);
+			dev_desc->devnum, ext_part_sector);
 		return;
 	}
 	i=test_block_type(buffer);
@@ -180,7 +180,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	if (dev_desc->block_read(dev_desc, ext_part_sector, 1,
 				 (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",
-			dev_desc->dev, ext_part_sector);
+			dev_desc->devnum, ext_part_sector);
 		return -1;
 	}
 	if (buffer[DOS_PART_MAGIC_OFFSET] != 0x55 ||
@@ -215,24 +215,29 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 				case IF_TYPE_IDE:
 				case IF_TYPE_SATA:
 				case IF_TYPE_ATAPI:
-					sprintf ((char *)info->name, "hd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "hd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				case IF_TYPE_SCSI:
-					sprintf ((char *)info->name, "sd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "sd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				case IF_TYPE_USB:
-					sprintf ((char *)info->name, "usbd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "usbd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				case IF_TYPE_DOC:
-					sprintf ((char *)info->name, "docd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "docd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				default:
-					sprintf ((char *)info->name, "xx%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "xx%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 			}
 			/* sprintf(info->type, "%d, pt->sys_ind); */

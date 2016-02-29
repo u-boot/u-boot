@@ -48,7 +48,7 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	    filename = argv[3];
 	}
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	PRINTF("Using device %s %d:%d, directory: %s\n", argv[1], dev, part, filename);
 
 	reiserfs_set_blk_dev(dev_desc, &info);
@@ -126,7 +126,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 
 	printf("Loading file \"%s\" from %s device %d%c%c\n",
 		filename, argv[1], dev,

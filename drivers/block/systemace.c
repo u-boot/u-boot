@@ -111,7 +111,7 @@ struct blk_desc *systemace_get_dev(int dev)
 	   not yet initialized. In that case, fill it in. */
 	if (systemace_dev.blksz == 0) {
 		systemace_dev.if_type = IF_TYPE_UNKNOWN;
-		systemace_dev.dev = 0;
+		systemace_dev.devnum = 0;
 		systemace_dev.part_type = PART_TYPE_UNKNOWN;
 		systemace_dev.type = DEV_TYPE_HARDDISK;
 		systemace_dev.blksz = 512;

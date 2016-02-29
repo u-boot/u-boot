@@ -108,7 +108,7 @@ static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 				return dev_desc;
 			if (!select_hwpart)
 				return NULL;
-			ret = select_hwpart(dev_desc->dev, hwpart);
+			ret = select_hwpart(dev_desc->devnum, hwpart);
 			if (ret < 0)
 				return NULL;
 			return dev_desc;
@@ -325,7 +325,7 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 		break;
 	}
 	printf (" device %d  --   Partition Type: %s\n\n",
-			dev_desc->dev, type);
+			dev_desc->devnum, type);
 #endif /* any CONFIG_..._PARTITION */
 }
 
@@ -456,10 +456,6 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	int p;
 	int part;
 	disk_partition_t tmpinfo;
-
-#if defined CONFIG_SANDBOX && defined CONFIG_CMD_UBIFS
-#error Only one of CONFIG_SANDBOX and CONFIG_CMD_UBIFS may be selected
-#endif
 
 #ifdef CONFIG_SANDBOX
 	/*

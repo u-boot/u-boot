@@ -108,14 +108,14 @@ static void print_part_mac(struct blk_desc *dev_desc)
 		printf ("%4ld: ", i);
 		if (dev_desc->block_read(dev_desc, i, 1, (ulong *)mpart) != 1) {
 			printf ("** Can't read Partition Map on %d:%ld **\n",
-				dev_desc->dev, i);
+				dev_desc->devnum, i);
 			return;
 		}
 
 		if (mpart->signature != MAC_PARTITION_MAGIC) {
-			printf ("** Bad Signature on %d:%ld - "
-				"expected 0x%04x, got 0x%04x\n",
-				dev_desc->dev, i, MAC_PARTITION_MAGIC, mpart->signature);
+			printf("** Bad Signature on %d:%ld - expected 0x%04x, got 0x%04x\n",
+			       dev_desc->devnum, i, MAC_PARTITION_MAGIC,
+			       mpart->signature);
 			return;
 		}
 
@@ -184,14 +184,14 @@ static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
 		 */
 		if (dev_desc->block_read(dev_desc, n, 1, (ulong *)pdb_p) != 1) {
 			printf ("** Can't read Partition Map on %d:%d **\n",
-				dev_desc->dev, n);
+				dev_desc->devnum, n);
 			return (-1);
 		}
 
 		if (pdb_p->signature != MAC_PARTITION_MAGIC) {
-			printf ("** Bad Signature on %d:%d: "
-				"expected 0x%04x, got 0x%04x\n",
-				dev_desc->dev, n, MAC_PARTITION_MAGIC, pdb_p->signature);
+			printf("** Bad Signature on %d:%d: expected 0x%04x, got 0x%04x\n",
+			       dev_desc->devnum, n, MAC_PARTITION_MAGIC,
+			       pdb_p->signature);
 			return (-1);
 		}
 
@@ -200,9 +200,9 @@ static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
 
 		if ((part < 1) || (part > pdb_p->map_count)) {
 			printf ("** Invalid partition %d:%d [%d:1...%d:%d only]\n",
-				dev_desc->dev, part,
-				dev_desc->dev,
-				dev_desc->dev, pdb_p->map_count);
+				dev_desc->devnum, part,
+				dev_desc->devnum,
+				dev_desc->devnum, pdb_p->map_count);
 			return (-1);
 		}
 

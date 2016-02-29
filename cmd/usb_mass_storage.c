@@ -100,7 +100,7 @@ static int ums_init(const char *devtype, const char *devnums)
 		ums[ums_count].block_dev = *block_dev;
 
 		printf("UMS: LUN %d, dev %d, hwpart %d, sector %#x, count %#x\n",
-		       ums_count, ums[ums_count].block_dev.dev,
+		       ums_count, ums[ums_count].block_dev.devnum,
 		       ums[ums_count].block_dev.hwpart,
 		       ums[ums_count].start_sector,
 		       ums[ums_count].num_sectors);

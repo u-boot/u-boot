@@ -54,7 +54,7 @@ int saveenv(void)
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for saveenv **\n",
 		       FAT_ENV_INTERFACE, dev, part);
@@ -88,7 +88,7 @@ void env_relocate_spec(void)
 	if (part < 0)
 		goto err_env_relocate;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for loading the env **\n",
 		       FAT_ENV_INTERFACE, dev, part);

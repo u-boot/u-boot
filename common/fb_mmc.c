@@ -86,7 +86,7 @@ static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 
 	blks = dev_desc->block_write(dev_desc, info->start, blkcnt, buffer);
 	if (blks != blkcnt) {
-		error("failed writing to device %d\n", dev_desc->dev);
+		error("failed writing to device %d\n", dev_desc->devnum);
 		fastboot_fail(response_str, "failed writing to device");
 		return;
 	}
@@ -207,7 +207,7 @@ void fb_mmc_erase(const char *cmd, char *response)
 
 	blks = dev_desc->block_erase(dev_desc, blks_start, blks_size);
 	if (blks != blks_size) {
-		error("failed erasing from device %d", dev_desc->dev);
+		error("failed erasing from device %d", dev_desc->devnum);
 		fastboot_fail(response_str, "failed erasing from device");
 		return;
 	}

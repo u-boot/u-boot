@@ -99,7 +99,7 @@ void scsi_scan(int mode)
 		scsi_dev_desc[i].revision[0]=0;
 		scsi_dev_desc[i].removable = false;
 		scsi_dev_desc[i].if_type=IF_TYPE_SCSI;
-		scsi_dev_desc[i].dev=i;
+		scsi_dev_desc[i].devnum = i;
 		scsi_dev_desc[i].part_type=PART_TYPE_UNKNOWN;
 		scsi_dev_desc[i].block_read=scsi_read;
 		scsi_dev_desc[i].block_write = scsi_write;
@@ -379,7 +379,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 		       lbaint_t blkcnt, void *buffer)
 {
-	int device = block_dev->dev;
+	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks = 0;
@@ -446,7 +446,7 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 			lbaint_t blkcnt, const void *buffer)
 {
-	int device = block_dev->dev;
+	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;

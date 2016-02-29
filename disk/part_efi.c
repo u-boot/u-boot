@@ -356,7 +356,7 @@ static int set_protective_mbr(struct blk_desc *dev_desc)
 	/* Write MBR sector to the MMC device */
 	if (dev_desc->block_write(dev_desc, 0, 1, p_mbr) != 1) {
 		printf("** Can't write to device %d **\n",
-			dev_desc->dev);
+			dev_desc->devnum);
 		return -1;
 	}
 
@@ -410,7 +410,7 @@ int write_gpt_table(struct blk_desc *dev_desc,
 	return 0;
 
  err:
-	printf("** Can't write to device %d **\n", dev_desc->dev);
+	printf("** Can't write to device %d **\n", dev_desc->devnum);
 	return -1;
 }
 

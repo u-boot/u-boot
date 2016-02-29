@@ -36,7 +36,7 @@ enum if_type {
 
 struct blk_desc {
 	enum if_type	if_type;	/* type of the interface */
-	int		dev;		/* device number */
+	int		devnum;		/* device number */
 	unsigned char	part_type;	/* partition type */
 	unsigned char	target;		/* target SCSI ID */
 	unsigned char	lun;		/* target LUN */

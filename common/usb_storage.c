@@ -192,7 +192,7 @@ static int usb_stor_probe_device(struct usb_device *dev)
 			blkdev = &usb_dev_desc[usb_max_devs];
 			memset(blkdev, '\0', sizeof(struct blk_desc));
 			blkdev->if_type = IF_TYPE_USB;
-			blkdev->dev = usb_max_devs;
+			blkdev->devnum = usb_max_devs;
 			blkdev->part_type = PART_TYPE_UNKNOWN;
 			blkdev->target = 0xff;
 			blkdev->type = DEV_TYPE_UNKNOWN;
@@ -1029,7 +1029,7 @@ static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 static unsigned long usb_stor_read(struct blk_desc *block_dev, lbaint_t blknr,
 				   lbaint_t blkcnt, void *buffer)
 {
-	int device = block_dev->dev;
+	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;
@@ -1100,7 +1100,7 @@ retry_it:
 static unsigned long usb_stor_write(struct blk_desc *block_dev, lbaint_t blknr,
 				    lbaint_t blkcnt, const void *buffer)
 {
-	int device = block_dev->dev;
+	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;

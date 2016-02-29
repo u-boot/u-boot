@@ -68,13 +68,13 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	if(ppr->desctype!=0x01) {
 		if(verb)
 			printf ("** First descriptor is NOT a primary desc on %d:%d **\n",
-				dev_desc->dev, part_num);
+				dev_desc->devnum, part_num);
 		return (-1);
 	}
 	if(strncmp((char *)ppr->stand_ident,"CD001",5)!=0) {
 		if(verb)
 			printf ("** Wrong ISO Ident: %s on %d:%d **\n",
-				ppr->stand_ident,dev_desc->dev, part_num);
+				ppr->stand_ident, dev_desc->devnum, part_num);
 		return (-1);
 	}
 	lastsect= ((ppr->firstsek_LEpathtab1_LE & 0x000000ff)<<24) +
@@ -92,7 +92,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 		if(ppr->desctype==0xff) {
 			if(verb)
 				printf ("** No valid boot catalog found on %d:%d **\n",
-					dev_desc->dev, part_num);
+					dev_desc->devnum, part_num);
 			return (-1);
 		}
 	}
@@ -100,7 +100,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	if(strncmp(pbr->ident_str,"EL TORITO SPECIFICATION",23)!=0) {
 		if(verb)
 			printf ("** Wrong El Torito ident: %s on %d:%d **\n",
-				pbr->ident_str,dev_desc->dev, part_num);
+				pbr->ident_str, dev_desc->devnum, part_num);
 		return (-1);
 	}
 	bootaddr=le32_to_int(pbr->pointer);
@@ -108,7 +108,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	if (dev_desc->block_read(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
 		if(verb)
 			printf ("** Can't read Boot Entry at %lX on %d:%d **\n",
-				bootaddr,dev_desc->dev, part_num);
+				bootaddr, dev_desc->devnum, part_num);
 		return (-1);
 	}
 	chksum=0;
@@ -117,21 +117,21 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 		chksum+=((chksumbuf[i] &0xff)<<8)+((chksumbuf[i] &0xff00)>>8);
 	if(chksum!=0) {
 		if(verb)
-			printf ("** Checksum Error in booting catalog validation entry on %d:%d **\n",
-				dev_desc->dev, part_num);
+			printf("** Checksum Error in booting catalog validation entry on %d:%d **\n",
+			       dev_desc->devnum, part_num);
 		return (-1);
 	}
 	if((pve->key[0]!=0x55)||(pve->key[1]!=0xAA)) {
 		if(verb)
 			printf ("** Key 0x55 0xAA error on %d:%d **\n",
-				dev_desc->dev, part_num);
+				dev_desc->devnum, part_num);
 		return(-1);
 	}
 #ifdef CHECK_FOR_POWERPC_PLATTFORM
 	if(pve->platform!=0x01) {
 		if(verb)
 			printf ("** No PowerPC platform CD on %d:%d **\n",
-				dev_desc->dev, part_num);
+				dev_desc->devnum, part_num);
 		return(-1);
 	}
 #endif
@@ -144,23 +144,23 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 		case IF_TYPE_SATA:
 		case IF_TYPE_ATAPI:
 			sprintf ((char *)info->name, "hd%c%d",
-				'a' + dev_desc->dev, part_num);
+				'a' + dev_desc->devnum, part_num);
 			break;
 		case IF_TYPE_SCSI:
 			sprintf ((char *)info->name, "sd%c%d",
-				'a' + dev_desc->dev, part_num);
+				'a' + dev_desc->devnum, part_num);
 			break;
 		case IF_TYPE_USB:
 			sprintf ((char *)info->name, "usbd%c%d",
-				'a' + dev_desc->dev, part_num);
+				'a' + dev_desc->devnum, part_num);
 			break;
 		case IF_TYPE_DOC:
 			sprintf ((char *)info->name, "docd%c%d",
-				'a' + dev_desc->dev, part_num);
+				'a' + dev_desc->devnum, part_num);
 			break;
 		default:
 			sprintf ((char *)info->name, "xx%c%d",
-				'a' + dev_desc->dev, part_num);
+				'a' + dev_desc->devnum, part_num);
 			break;
 	}
 	/* the bootcatalog (including validation Entry) is limited to 2048Bytes
@@ -184,7 +184,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 		else {
 			if(verb)
 				printf ("** Partition %d not found on device %d **\n",
-					part_num,dev_desc->dev);
+					part_num, dev_desc->devnum);
 			return(-1);
 		}
 	}
@@ -192,13 +192,13 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	 * searched w/o succsess */
 	if(verb)
 		printf ("** Partition %d not found on device %d **\n",
-			part_num,dev_desc->dev);
+			part_num, dev_desc->devnum);
 	return(-1);
 found:
 	if(pide->boot_ind!=0x88) {
 		if(verb)
-			printf ("** Partition %d is not bootable on device %d **\n",
-				part_num,dev_desc->dev);
+			printf("** Partition %d is not bootable on device %d **\n",
+			       part_num, dev_desc->devnum);
 		return (-1);
 	}
 	switch(pide->boot_media) {
@@ -229,7 +229,8 @@ static void print_part_iso(struct blk_desc *dev_desc)
 	int i;
 
 	if (part_get_info_iso_verb(dev_desc, 0, &info, 0) == -1) {
-		printf("** No boot partition found on device %d **\n",dev_desc->dev);
+		printf("** No boot partition found on device %d **\n",
+		       dev_desc->devnum);
 		return;
 	}
 	printf("Part   Start     Sect x Size Type\n");

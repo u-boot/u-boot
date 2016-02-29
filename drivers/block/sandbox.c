@@ -26,7 +26,7 @@ static unsigned long host_block_read(struct blk_desc *block_dev,
 				     unsigned long start, lbaint_t blkcnt,
 				     void *buffer)
 {
-	int dev = block_dev->dev;
+	int dev = block_dev->devnum;
 	struct host_block_dev *host_dev = find_host_device(dev);
 
 	if (!host_dev)
@@ -48,7 +48,7 @@ static unsigned long host_block_write(struct blk_desc *block_dev,
 				      unsigned long start, lbaint_t blkcnt,
 				      const void *buffer)
 {
-	int dev = block_dev->dev;
+	int dev = block_dev->devnum;
 	struct host_block_dev *host_dev = find_host_device(dev);
 	if (os_lseek(host_dev->fd,
 		     start * host_dev->blk_dev.blksz,
@@ -96,7 +96,7 @@ int host_dev_bind(int dev, char *filename)
 	blk_dev->lba = os_lseek(host_dev->fd, 0, OS_SEEK_END) / blk_dev->blksz;
 	blk_dev->block_read = host_block_read;
 	blk_dev->block_write = host_block_write;
-	blk_dev->dev = dev;
+	blk_dev->devnum = dev;
 	blk_dev->part_type = PART_TYPE_UNKNOWN;
 	part_init(blk_dev);
 

@@ -21,13 +21,13 @@ struct blk_desc sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 static unsigned long sata_bread(struct blk_desc *block_dev, lbaint_t start,
 				lbaint_t blkcnt, void *dst)
 {
-	return sata_read(block_dev->dev, start, blkcnt, dst);
+	return sata_read(block_dev->devnum, start, blkcnt, dst);
 }
 
 static unsigned long sata_bwrite(struct blk_desc *block_dev, lbaint_t start,
 				 lbaint_t blkcnt, const void *buffer)
 {
-	return sata_write(block_dev->dev, start, blkcnt, buffer);
+	return sata_write(block_dev->devnum, start, blkcnt, buffer);
 }
 
 int __sata_initialize(void)
@@ -38,7 +38,7 @@ int __sata_initialize(void)
 	for (i = 0; i < CONFIG_SYS_SATA_MAX_DEVICE; i++) {
 		memset(&sata_dev_desc[i], 0, sizeof(struct blk_desc));
 		sata_dev_desc[i].if_type = IF_TYPE_SATA;
-		sata_dev_desc[i].dev = i;
+		sata_dev_desc[i].devnum = i;
 		sata_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
 		sata_dev_desc[i].type = DEV_TYPE_HARDDISK;
 		sata_dev_desc[i].lba = 0;

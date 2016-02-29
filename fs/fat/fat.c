@@ -100,7 +100,7 @@ int fat_register_device(struct blk_desc *dev_desc, int part_no)
 	if (part_get_info(dev_desc, part_no, &info)) {
 		if (part_no != 0) {
 			printf("** Partition %d not valid on device %d **\n",
-					part_no, dev_desc->dev);
+					part_no, dev_desc->devnum);
 			return -1;
 		}
 
@@ -1284,7 +1284,7 @@ int file_fat_detectfs(void)
 		printf("Unknown");
 	}
 
-	printf("\n  Device %d: ", cur_dev->dev);
+	printf("\n  Device %d: ", cur_dev->devnum);
 	dev_print(cur_dev);
 #endif
 
