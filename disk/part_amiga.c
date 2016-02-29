@@ -291,7 +291,7 @@ static struct partition_block *find_partition(struct blk_desc *dev_desc,
 /*
  * Get info about a partition
  */
-static int get_partition_info_amiga(struct blk_desc *dev_desc, int part,
+static int part_get_info_amiga(struct blk_desc *dev_desc, int part,
 				    disk_partition_t *info)
 {
     struct partition_block *p = find_partition(dev_desc, part-1);
@@ -382,7 +382,7 @@ static void print_part_amiga(struct blk_desc *dev_desc)
 U_BOOT_PART_TYPE(amiga) = {
 	.name		= "AMIGA",
 	.part_type	= PART_TYPE_AMIGA,
-	.get_info	= get_partition_info_amiga,
+	.get_info	= part_get_info_amiga,
 	.print		= print_part_amiga,
 	.test		= test_part_amiga,
 };

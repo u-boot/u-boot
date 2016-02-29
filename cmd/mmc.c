@@ -433,7 +433,7 @@ static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 
 	mmc_dev = mmc_get_dev(curr_device);
 	if (mmc_dev != NULL && mmc_dev->type != DEV_TYPE_UNKNOWN) {
-		print_part(mmc_dev);
+		part_print(mmc_dev);
 		return CMD_RET_SUCCESS;
 	}
 

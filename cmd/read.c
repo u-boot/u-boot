@@ -50,7 +50,7 @@ int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	cnt = simple_strtoul(argv[5], NULL, 16);
 
 	if (part != 0) {
-		if (get_partition_info(dev_desc, part, &part_info)) {
+		if (part_get_info(dev_desc, part, &part_info)) {
 			printf("Cannot find partition %d\n", part);
 			return 1;
 		}

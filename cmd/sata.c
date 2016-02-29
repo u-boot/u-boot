@@ -52,7 +52,7 @@ int __sata_initialize(void)
 			rc = scan_sata(i);
 			if (!rc && (sata_dev_desc[i].lba > 0) &&
 				(sata_dev_desc[i].blksz > 0))
-				init_part(&sata_dev_desc[i]);
+				part_init(&sata_dev_desc[i]);
 		}
 	}
 	sata_curr_device = 0;
@@ -131,7 +131,7 @@ static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					++ok;
 					if (dev)
 						putc ('\n');
-					print_part(&sata_dev_desc[dev]);
+					part_print(&sata_dev_desc[dev]);
 				}
 			}
 			if (!ok) {
@@ -164,7 +164,7 @@ static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 
 			if (sata_dev_desc[dev].part_type != PART_TYPE_UNKNOWN) {
-				print_part(&sata_dev_desc[dev]);
+				part_print(&sata_dev_desc[dev]);
 			} else {
 				printf("\nSATA device %d not available\n", dev);
 				rc = 1;

@@ -96,10 +96,9 @@ struct blk_desc *host_get_dev(int dev);
 int host_get_dev_err(int dev, struct blk_desc **blk_devp);
 
 /* disk/part.c */
-int get_partition_info(struct blk_desc *dev_desc, int part,
-		       disk_partition_t *info);
-void print_part(struct blk_desc *dev_desc);
-void init_part(struct blk_desc *dev_desc);
+int part_get_info(struct blk_desc *dev_desc, int part, disk_partition_t *info);
+void part_print(struct blk_desc *dev_desc);
+void part_init(struct blk_desc *dev_desc);
 void dev_print(struct blk_desc *dev_desc);
 
 /**
@@ -179,10 +178,10 @@ static inline struct blk_desc *systemace_get_dev(int dev) { return NULL; }
 static inline struct blk_desc *mg_disk_get_dev(int dev) { return NULL; }
 static inline struct blk_desc *host_get_dev(int dev) { return NULL; }
 
-static inline int get_partition_info(struct blk_desc *dev_desc, int part,
-				     disk_partition_t *info) { return -1; }
-static inline void print_part(struct blk_desc *dev_desc) {}
-static inline void init_part(struct blk_desc *dev_desc) {}
+static inline int part_get_info(struct blk_desc *dev_desc, int part,
+				disk_partition_t *info) { return -1; }
+static inline void part_print(struct blk_desc *dev_desc) {}
+static inline void part_init(struct blk_desc *dev_desc) {}
 static inline void dev_print(struct blk_desc *dev_desc) {}
 static inline int blk_get_device_by_str(const char *ifname, const char *dev_str,
 					struct blk_desc **dev_desc)
@@ -252,7 +251,7 @@ struct part_driver {
 #include <part_efi.h>
 /* disk/part_efi.c */
 /**
- * get_partition_info_efi_by_name() - Find the specified GPT partition table entry
+ * part_get_info_efi_by_name() - Find the specified GPT partition table entry
  *
  * @param dev_desc - block device descriptor
  * @param gpt_name - the specified table entry name
@@ -260,8 +259,8 @@ struct part_driver {
  *
  * @return - '0' on match, '-1' on no match, otherwise error
  */
-int get_partition_info_efi_by_name(struct blk_desc *dev_desc,
-	const char *name, disk_partition_t *info);
+int part_get_info_efi_by_name(struct blk_desc *dev_desc,
+			      const char *name, disk_partition_t *info);
 
 /**
  * write_gpt_table() - Write the GUID Partition Table to disk

@@ -156,7 +156,7 @@ void scsi_scan(int mode)
 			scsi_dev_desc[scsi_max_devs].log2blksz =
 				LOG2(scsi_dev_desc[scsi_max_devs].blksz);
 			scsi_dev_desc[scsi_max_devs].type=perq;
-			init_part(&scsi_dev_desc[scsi_max_devs]);
+			part_init(&scsi_dev_desc[scsi_max_devs]);
 removable:
 			if(mode==1) {
 				printf ("  Device %d: ", scsi_max_devs);
@@ -301,7 +301,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						if (dev)
 							printf("\n");
 						debug ("print_part of %x\n",dev);
-							print_part(&scsi_dev_desc[dev]);
+						part_print(&scsi_dev_desc[dev]);
 					}
 				}
 				if (!ok)
@@ -329,7 +329,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (strncmp(argv[1],"part",4) == 0) {
 				int dev = (int)simple_strtoul(argv[2], NULL, 10);
 				if(scsi_dev_desc[dev].type != DEV_TYPE_UNKNOWN) {
-					print_part(&scsi_dev_desc[dev]);
+					part_print(&scsi_dev_desc[dev]);
 				}
 				else {
 					printf ("\nSCSI device %d not available\n", dev);

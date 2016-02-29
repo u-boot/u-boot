@@ -98,7 +98,7 @@ int host_dev_bind(int dev, char *filename)
 	blk_dev->block_write = host_block_write;
 	blk_dev->dev = dev;
 	blk_dev->part_type = PART_TYPE_UNKNOWN;
-	init_part(blk_dev);
+	part_init(blk_dev);
 
 	return 0;
 }

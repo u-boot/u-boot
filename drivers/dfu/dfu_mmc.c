@@ -355,7 +355,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		int mmcdev = second_arg;
 		int mmcpart = third_arg;
 
-		if (get_partition_info(blk_dev, mmcpart, &partinfo) != 0) {
+		if (part_get_info(blk_dev, mmcpart, &partinfo) != 0) {
 			error("Couldn't find part #%d on mmc device #%d\n",
 			      mmcpart, mmcdev);
 			return -ENODEV;

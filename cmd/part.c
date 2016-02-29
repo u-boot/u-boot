@@ -92,7 +92,7 @@ static int do_part_list(int argc, char * const argv[])
 
 		for (p = 1; p < 128; p++) {
 			char t[5];
-			int r = get_partition_info(desc, p, &info);
+			int r = part_get_info(desc, p, &info);
 
 			if (r != 0)
 				continue;
@@ -107,7 +107,7 @@ static int do_part_list(int argc, char * const argv[])
 		return 0;
 	}
 
-	print_part(desc);
+	part_print(desc);
 
 	return 0;
 }
@@ -132,7 +132,7 @@ static int do_part_start(int argc, char * const argv[])
 	if (ret < 0)
 		return 1;
 
-	err = get_partition_info(desc, part, &info);
+	err = part_get_info(desc, part, &info);
 	if (err)
 		return 1;
 
@@ -166,7 +166,7 @@ static int do_part_size(int argc, char * const argv[])
 	if (ret < 0)
 		return 1;
 
-	err = get_partition_info(desc, part, &info);
+	err = part_get_info(desc, part, &info);
 	if (err)
 		return 1;
 

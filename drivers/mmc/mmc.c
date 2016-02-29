@@ -1495,7 +1495,7 @@ static int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.revision[0] = 0;
 #endif
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
-	init_part(&mmc->block_dev);
+	part_init(&mmc->block_dev);
 #endif
 
 	return 0;

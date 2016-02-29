@@ -267,7 +267,7 @@ void dev_print (struct blk_desc *dev_desc)
 
 #ifdef HAVE_BLOCK_DEVICE
 
-void init_part(struct blk_desc *dev_desc)
+void part_init(struct blk_desc *dev_desc)
 {
 	struct part_driver *drv =
 		ll_entry_start(struct part_driver, part_driver);
@@ -329,7 +329,7 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 #endif /* any CONFIG_..._PARTITION */
 }
 
-void print_part(struct blk_desc *dev_desc)
+void part_print(struct blk_desc *dev_desc)
 {
 	struct part_driver *drv;
 
@@ -348,7 +348,7 @@ void print_part(struct blk_desc *dev_desc)
 
 #endif /* HAVE_BLOCK_DEVICE */
 
-int get_partition_info(struct blk_desc *dev_desc, int part,
+int part_get_info(struct blk_desc *dev_desc, int part,
 		       disk_partition_t *info)
 {
 #ifdef HAVE_BLOCK_DEVICE
@@ -432,7 +432,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 	 * already loaded.
 	 */
 	if(hwpart != 0)
-		init_part(*dev_desc);
+		part_init(*dev_desc);
 #endif
 
 cleanup:
@@ -607,7 +607,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	 * other than "auto", use that partition number directly.
 	 */
 	if (part != PART_AUTO) {
-		ret = get_partition_info(*dev_desc, part, info);
+		ret = part_get_info(*dev_desc, part, info);
 		if (ret) {
 			printf("** Invalid partition %d **\n", part);
 			goto cleanup;
@@ -619,7 +619,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 		 */
 		part = 0;
 		for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
-			ret = get_partition_info(*dev_desc, p, info);
+			ret = part_get_info(*dev_desc, p, info);
 			if (ret)
 				continue;
 

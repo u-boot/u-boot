@@ -137,7 +137,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 					++ok;
 					if (dev)
 						putc('\n');
-					print_part(&ide_dev_desc[dev]);
+					part_print(&ide_dev_desc[dev]);
 				}
 			}
 			if (!ok) {
@@ -171,7 +171,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			int dev = (int) simple_strtoul(argv[2], NULL, 10);
 
 			if (ide_dev_desc[dev].part_type != PART_TYPE_UNKNOWN) {
-				print_part(&ide_dev_desc[dev]);
+				part_print(&ide_dev_desc[dev]);
 			} else {
 				printf("\nIDE device %d not available\n",
 				       dev);
@@ -435,7 +435,7 @@ void ide_init(void)
 
 		if ((ide_dev_desc[i].lba > 0) && (ide_dev_desc[i].blksz > 0)) {
 			/* initialize partition type */
-			init_part(&ide_dev_desc[i]);
+			part_init(&ide_dev_desc[i]);
 			if (curr_device < 0)
 				curr_device = i;
 		}

@@ -122,7 +122,7 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 	disk_partition_t info;
 	int err;
 
-	err = get_partition_info(&mmc->block_dev, partition, &info);
+	err = part_get_info(&mmc->block_dev, partition, &info);
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		puts("spl: partition error\n");

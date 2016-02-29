@@ -213,7 +213,7 @@ static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
 	/* NOTREACHED */
 }
 
-static int get_partition_info_mac(struct blk_desc *dev_desc, int part,
+static int part_get_info_mac(struct blk_desc *dev_desc, int part,
 				  disk_partition_t *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(mac_driver_desc_t, ddesc, 1);
@@ -240,7 +240,7 @@ static int get_partition_info_mac(struct blk_desc *dev_desc, int part,
 U_BOOT_PART_TYPE(mac) = {
 	.name		= "MAC",
 	.part_type	= PART_TYPE_MAC,
-	.get_info	= get_partition_info_mac,
+	.get_info	= part_get_info_mac,
 	.print		= print_part_mac,
 	.test		= test_part_mac,
 };

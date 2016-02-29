@@ -46,8 +46,8 @@ static inline unsigned short le16_to_int(unsigned char *le16)
 
 
 /* only boot records will be listed as valid partitions */
-int get_partition_info_iso_verb(struct blk_desc *dev_desc, int part_num,
-				disk_partition_t *info, int verb)
+int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
+			   disk_partition_t *info, int verb)
 {
 	int i,offset,entry_num;
 	unsigned short *chksumbuf;
@@ -217,17 +217,18 @@ found:
 	return 0;
 }
 
-static int get_partition_info_iso(struct blk_desc *dev_desc, int part_num,
+static int part_get_info_iso(struct blk_desc *dev_desc, int part_num,
 				  disk_partition_t *info)
 {
-	return(get_partition_info_iso_verb(dev_desc, part_num, info, 1));
+	return part_get_info_iso_verb(dev_desc, part_num, info, 1);
 }
 
 static void print_part_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 	int i;
-	if(get_partition_info_iso_verb(dev_desc,0,&info,0)==-1) {
+
+	if (part_get_info_iso_verb(dev_desc, 0, &info, 0) == -1) {
 		printf("** No boot partition found on device %d **\n",dev_desc->dev);
 		return;
 	}
@@ -237,20 +238,20 @@ static void print_part_iso(struct blk_desc *dev_desc)
 		printf(" %2d " LBAFU " " LBAFU " %6ld %.32s\n",
 		       i, info.start, info.size, info.blksz, info.type);
 		i++;
-	} while (get_partition_info_iso_verb(dev_desc,i,&info,0)!=-1);
+	} while (part_get_info_iso_verb(dev_desc, i, &info, 0) != -1);
 }
 
 static int test_part_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 
-	return(get_partition_info_iso_verb(dev_desc,0,&info,0));
+	return part_get_info_iso_verb(dev_desc, 0, &info, 0);
 }
 
 U_BOOT_PART_TYPE(iso) = {
 	.name		= "ISO",
 	.part_type	= PART_TYPE_ISO,
-	.get_info	= get_partition_info_iso,
+	.get_info	= part_get_info_iso,
 	.print		= print_part_iso,
 	.test		= test_part_iso,
 };

@@ -727,7 +727,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					if (devno)
 						printf("\n");
 					debug("print_part of %x\n", devno);
-					print_part(stor_dev);
+					part_print(stor_dev);
 				}
 			}
 		} else {
@@ -737,7 +737,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
 				debug("print_part of %x\n", devno);
-				print_part(stor_dev);
+				part_print(stor_dev);
 			}
 		}
 		if (!ok) {

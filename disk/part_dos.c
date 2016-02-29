@@ -167,11 +167,10 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 
 /*  Print a partition that is relative to its Extended partition table
  */
-static int get_partition_info_extended(struct blk_desc *dev_desc,
-				       lbaint_t ext_part_sector,
-				       lbaint_t relative, int part_num,
-				       int which_part, disk_partition_t *info,
-				       unsigned int disksig)
+static int part_get_info_extended(struct blk_desc *dev_desc,
+				  lbaint_t ext_part_sector, lbaint_t relative,
+				  int part_num, int which_part,
+				  disk_partition_t *info, unsigned int disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
@@ -259,7 +258,7 @@ static int get_partition_info_extended(struct blk_desc *dev_desc,
 			lbaint_t lba_start
 				= le32_to_int (pt->start4) + relative;
 
-			return get_partition_info_extended (dev_desc, lba_start,
+			return part_get_info_extended(dev_desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,
 				 part_num, which_part, info, disksig);
 		}
@@ -289,16 +288,16 @@ void print_part_dos(struct blk_desc *dev_desc)
 	print_partition_extended(dev_desc, 0, 0, 1, 0);
 }
 
-int get_partition_info_dos(struct blk_desc *dev_desc, int part,
-			   disk_partition_t *info)
+int part_get_info_dos(struct blk_desc *dev_desc, int part,
+		      disk_partition_t *info)
 {
-	return get_partition_info_extended(dev_desc, 0, 0, 1, part, info, 0);
+	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }
 
 U_BOOT_PART_TYPE(dos) = {
 	.name		= "DOS",
 	.part_type	= PART_TYPE_DOS,
-	.get_info	= part_get_info_ptr(get_partition_info_dos),
+	.get_info	= part_get_info_ptr(part_get_info_dos),
 	.print		= part_print_ptr(print_part_dos),
 	.test		= test_part_dos,
 };

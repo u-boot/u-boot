@@ -25,12 +25,12 @@ struct fb_mmc_sparse {
 	struct blk_desc	*dev_desc;
 };
 
-static int get_partition_info_efi_by_name_or_alias(struct blk_desc *dev_desc,
+static int part_get_info_efi_by_name_or_alias(struct blk_desc *dev_desc,
 		const char *name, disk_partition_t *info)
 {
 	int ret;
 
-	ret = get_partition_info_efi_by_name(dev_desc, name, info);
+	ret = part_get_info_efi_by_name(dev_desc, name, info);
 	if (ret) {
 		/* strlen("fastboot_partition_alias_") + 32(part_name) + 1 */
 		char env_alias_name[25 + 32 + 1];
@@ -41,7 +41,7 @@ static int get_partition_info_efi_by_name_or_alias(struct blk_desc *dev_desc,
 		strncat(env_alias_name, name, 32);
 		aliased_part_name = getenv(env_alias_name);
 		if (aliased_part_name != NULL)
-			ret = get_partition_info_efi_by_name(dev_desc,
+			ret = part_get_info_efi_by_name(dev_desc,
 					aliased_part_name, info);
 	}
 	return ret;
@@ -131,7 +131,7 @@ void fb_mmc_flash_write(const char *cmd, unsigned int session_id,
 		printf("........ success\n");
 		fastboot_okay(response_str, "");
 		return;
-	} else if (get_partition_info_efi_by_name_or_alias(dev_desc, cmd, &info)) {
+	} else if (part_get_info_efi_by_name_or_alias(dev_desc, cmd, &info)) {
 		error("cannot find partition: '%s'\n", cmd);
 		fastboot_fail(response_str, "cannot find partition");
 		return;
@@ -186,7 +186,7 @@ void fb_mmc_erase(const char *cmd, char *response)
 		return;
 	}
 
-	ret = get_partition_info_efi_by_name_or_alias(dev_desc, cmd, &info);
+	ret = part_get_info_efi_by_name_or_alias(dev_desc, cmd, &info);
 	if (ret) {
 		error("cannot find partition: '%s'", cmd);
 		fastboot_fail(response_str, "cannot find partition");

@@ -124,7 +124,7 @@ struct blk_desc *systemace_get_dev(int dev)
 		 */
 		ace_writew(width == 8 ? 0 : 0x0001, 0);
 
-		init_part(&systemace_dev);
+		part_init(&systemace_dev);
 
 	}
 

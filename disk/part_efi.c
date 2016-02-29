@@ -237,8 +237,8 @@ void print_part_efi(struct blk_desc *dev_desc)
 	return;
 }
 
-int get_partition_info_efi(struct blk_desc *dev_desc, int part,
-			   disk_partition_t *info)
+int part_get_info_efi(struct blk_desc *dev_desc, int part,
+		      disk_partition_t *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -300,13 +300,13 @@ int get_partition_info_efi(struct blk_desc *dev_desc, int part,
 	return 0;
 }
 
-int get_partition_info_efi_by_name(struct blk_desc *dev_desc,
+int part_get_info_efi_by_name(struct blk_desc *dev_desc,
 	const char *name, disk_partition_t *info)
 {
 	int ret;
 	int i;
 	for (i = 1; i < GPT_ENTRY_NUMBERS; i++) {
-		ret = get_partition_info_efi(dev_desc, i, info);
+		ret = part_get_info_efi(dev_desc, i, info);
 		if (ret != 0) {
 			/* no more entries in table */
 			return -1;
@@ -962,7 +962,7 @@ static int is_pte_valid(gpt_entry * pte)
 U_BOOT_PART_TYPE(a_efi) = {
 	.name		= "EFI",
 	.part_type	= PART_TYPE_EFI,
-	.get_info	= part_get_info_ptr(get_partition_info_efi),
+	.get_info	= part_get_info_ptr(part_get_info_efi),
 	.print		= part_print_ptr(print_part_efi),
 	.test		= test_part_efi,
 };
