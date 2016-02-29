@@ -123,9 +123,10 @@ fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 
 	if (sizep) {
 		*sizep = fdtdec_get_number(prop_size, ns);
-		debug("addr=%08llx, size=%llx\n", (u64)addr, (u64)*sizep);
+		debug("addr=%08llx, size=%llx\n", (unsigned long long)addr,
+		      (unsigned long long)*sizep);
 	} else {
-		debug("addr=%08llx\n", (u64)addr);
+		debug("addr=%08llx\n", (unsigned long long)addr);
 	}
 
 	return addr;
