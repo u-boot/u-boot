@@ -69,7 +69,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
