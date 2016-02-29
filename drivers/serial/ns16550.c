@@ -105,7 +105,7 @@ static void ns16550_writeb(NS16550_t port, int offset, int value)
 	 * As far as we know it doesn't make sense to support selection of
 	 * these options at run-time, so use the existing CONFIG options.
 	 */
-	serial_out_shift(addr + plat->reg_offset, plat->reg_shift, value);
+	serial_out_shift(addr, plat->reg_shift, value);
 }
 
 static int ns16550_readb(NS16550_t port, int offset)
@@ -116,7 +116,7 @@ static int ns16550_readb(NS16550_t port, int offset)
 	offset *= 1 << plat->reg_shift;
 	addr = map_physmem(plat->base, 0, MAP_NOCACHE) + offset;
 
-	return serial_in_shift(addr + plat->reg_offset, plat->reg_shift);
+	return serial_in_shift(addr, plat->reg_shift);
 }
 
 /* We can clean these up once everything is moved to driver model */
@@ -401,8 +401,6 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->reg_offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-				     "reg-offset", 0);
 	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					 "reg-shift", 0);
 	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,

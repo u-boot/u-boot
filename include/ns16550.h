@@ -54,7 +54,6 @@
  */
 struct ns16550_platdata {
 	unsigned long base;
-	int reg_offset;
 	int reg_shift;
 	int clock;
 };
