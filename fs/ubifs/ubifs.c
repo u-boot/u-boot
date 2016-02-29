@@ -569,7 +569,7 @@ int ubifs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
 	}
 
 	/*
-	 * Should never happen since get_device_and_partition() already checks
+	 * Should never happen since blk_get_device_part_str() already checks
 	 * this, but better safe then sorry.
 	 */
 	if (!ubifs_is_mounted()) {

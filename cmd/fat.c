@@ -77,7 +77,7 @@ static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 0;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -114,7 +114,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	if (argc < 5)
 		return cmd_usage(cmdtp);
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 

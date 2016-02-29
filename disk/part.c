@@ -511,7 +511,7 @@ cleanup:
 #define PART_UNSPECIFIED -2
 #define PART_AUTO -1
 #define MAX_SEARCH_PARTITIONS 16
-int get_device_and_partition(const char *ifname, const char *dev_part_str,
+int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			     struct blk_desc **dev_desc,
 			     disk_partition_t *info, int allow_whole_dev)
 {

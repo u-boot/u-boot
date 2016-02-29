@@ -129,9 +129,43 @@ void dev_print(struct blk_desc *dev_desc);
  */
 int blk_get_device_by_str(const char *ifname, const char *dev_str,
 			  struct blk_desc **dev_desc);
-int get_device_and_partition(const char *ifname, const char *dev_part_str,
-			     struct blk_desc **dev_desc,
-			     disk_partition_t *info, int allow_whole_dev);
+
+/**
+ * blk_get_device_part_str() - Get a block device and partition
+ *
+ * This calls blk_get_device_by_str() to look up a device. It also looks up
+ * a partition and returns information about it.
+ *
+ * @dev_part_str is in the format:
+ *	<dev>.<hw_part>:<part> where <dev> is the device number,
+ *	<hw_part> is the optional hardware partition number and
+ *	<part> is the partition number
+ *
+ * If ifname is "hostfs" then this function returns the sandbox host block
+ * device.
+ *
+ * If ifname is ubi, then this function returns 0, with @info set to a
+ * special UBI device.
+ *
+ * If @dev_part_str is NULL or empty or "-", then this function looks up
+ * the "bootdevice" environment variable and uses that string instead.
+ *
+ * If the partition string is empty then the first partition is used. If the
+ * partition string is "auto" then the first bootable partition is used.
+ *
+ * @ifname:	Interface name (e.g. "ide", "scsi")
+ * @dev_part_str:	Device and partition string
+ * @dev_desc:	Returns a pointer to the block device on success
+ * @info:	Returns partition information
+ * @allow_whole_dev:	true to allow the user to select partition 0
+ *		(which means the whole device), false to require a valid
+ *		partition number >= 1
+ * @return partition number, or -1 on error
+ *
+ */
+int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
+			    struct blk_desc **dev_desc,
+			    disk_partition_t *info, int allow_whole_dev);
 #else
 static inline struct blk_desc *blk_get_dev(const char *ifname, int dev)
 { return NULL; }
@@ -153,7 +187,7 @@ static inline void dev_print(struct blk_desc *dev_desc) {}
 static inline int blk_get_device_by_str(const char *ifname, const char *dev_str,
 					struct blk_desc **dev_desc)
 { return -1; }
-static inline int get_device_and_partition(const char *ifname,
+static inline int blk_get_device_part_str(const char *ifname,
 					   const char *dev_part_str,
 					   struct blk_desc **dev_desc,
 					   disk_partition_t *info,

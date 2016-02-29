@@ -37,7 +37,7 @@ static int do_part_uuid(int argc, char * const argv[])
 	if (argc > 3)
 		return CMD_RET_USAGE;
 
-	part = get_device_and_partition(argv[0], argv[1], &dev_desc, &info, 0);
+	part = blk_get_device_part_str(argv[0], argv[1], &dev_desc, &info, 0);
 	if (part < 0)
 		return 1;
 

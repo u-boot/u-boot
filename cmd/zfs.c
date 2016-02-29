@@ -80,7 +80,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		return 1;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -145,7 +145,7 @@ static int do_zfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc == 4)
 		filename = argv[3];
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 

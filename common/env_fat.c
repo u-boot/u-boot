@@ -48,7 +48,7 @@ int saveenv(void)
 	if (err)
 		return err;
 
-	part = get_device_and_partition(FAT_ENV_INTERFACE,
+	part = blk_get_device_part_str(FAT_ENV_INTERFACE,
 					FAT_ENV_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
 	if (part < 0)
@@ -82,7 +82,7 @@ void env_relocate_spec(void)
 	int dev, part;
 	int err;
 
-	part = get_device_and_partition(FAT_ENV_INTERFACE,
+	part = blk_get_device_part_str(FAT_ENV_INTERFACE,
 					FAT_ENV_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
 	if (part < 0)

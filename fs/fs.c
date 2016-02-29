@@ -213,7 +213,7 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 	}
 #endif
 
-	part = get_device_and_partition(ifname, dev_part_str, &fs_dev_desc,
+	part = blk_get_device_part_str(ifname, dev_part_str, &fs_dev_desc,
 					&fs_partition, 1);
 	if (part < 0)
 		return -1;
