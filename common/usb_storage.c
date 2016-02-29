@@ -176,6 +176,13 @@ static int usb_stor_probe_device(struct usb_device *dev)
 	if (dev == NULL)
 		return -ENOENT; /* no more devices available */
 
+	/* We don't have space to even probe if we hit the maximum */
+	if (usb_max_devs == USB_MAX_STOR_DEV) {
+		printf("max USB Storage Device reached: %d stopping\n",
+		       usb_max_devs);
+		return -ENOSPC;
+	}
+
 	debug("\n\nProbing for storage\n");
 	if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
 		/* OK, it's a storage device.  Iterate over its LUNs
@@ -208,13 +215,6 @@ static int usb_stor_probe_device(struct usb_device *dev)
 				debug("%s: Found device %p\n", __func__, dev);
 			}
 		}
-	}
-
-	/* if storage device */
-	if (usb_max_devs == USB_MAX_STOR_DEV) {
-		printf("max USB Storage Device reached: %d stopping\n",
-		       usb_max_devs);
-		return -ENOSPC;
 	}
 
 	return 0;
