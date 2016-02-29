@@ -31,16 +31,15 @@ static unsigned long host_block_read(struct blk_desc *block_dev,
 
 	if (!host_dev)
 		return -1;
-	if (os_lseek(host_dev->fd,
-		     start * host_dev->blk_dev.blksz,
-		     OS_SEEK_SET) == -1) {
-		printf("ERROR: Invalid position\n");
+
+	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
+			-1) {
+		printf("ERROR: Invalid block %lx\n", start);
 		return -1;
 	}
-	ssize_t len = os_read(host_dev->fd, buffer,
-			      blkcnt * host_dev->blk_dev.blksz);
+	ssize_t len = os_read(host_dev->fd, buffer, blkcnt * block_dev->blksz);
 	if (len >= 0)
-		return len / host_dev->blk_dev.blksz;
+		return len / block_dev->blksz;
 	return -1;
 }
 
@@ -50,16 +49,15 @@ static unsigned long host_block_write(struct blk_desc *block_dev,
 {
 	int dev = block_dev->devnum;
 	struct host_block_dev *host_dev = find_host_device(dev);
-	if (os_lseek(host_dev->fd,
-		     start * host_dev->blk_dev.blksz,
-		     OS_SEEK_SET) == -1) {
-		printf("ERROR: Invalid position\n");
+
+	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
+			-1) {
+		printf("ERROR: Invalid block %lx\n", start);
 		return -1;
 	}
-	ssize_t len = os_write(host_dev->fd, buffer, blkcnt *
-			       host_dev->blk_dev.blksz);
+	ssize_t len = os_write(host_dev->fd, buffer, blkcnt * block_dev->blksz);
 	if (len >= 0)
-		return len / host_dev->blk_dev.blksz;
+		return len / block_dev->blksz;
 	return -1;
 }
 
@@ -103,9 +101,9 @@ int host_dev_bind(int dev, char *filename)
 	return 0;
 }
 
-int host_get_dev_err(int dev, struct blk_desc **blk_devp)
+int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 {
-	struct host_block_dev *host_dev = find_host_device(dev);
+	struct host_block_dev *host_dev = find_host_device(devnum);
 
 	if (!host_dev)
 		return -ENODEV;
