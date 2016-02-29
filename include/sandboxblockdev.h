@@ -8,7 +8,9 @@
 #define __SANDBOX_BLOCK_DEV__
 
 struct host_block_dev {
+#ifndef CONFIG_BLK
 	struct blk_desc blk_dev;
+#endif
 	char *filename;
 	int fd;
 };

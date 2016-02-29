@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fs.h>
 #include <part.h>
 #include <sandboxblockdev.h>
@@ -80,7 +81,13 @@ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
 
 			continue;
 		}
-		struct host_block_dev *host_dev = blk_dev->priv;
+		struct host_block_dev *host_dev;
+
+#ifdef CONFIG_BLK
+		host_dev = dev_get_priv(blk_dev->bdev);
+#else
+		host_dev = blk_dev->priv;
+#endif
 		printf("%12lu %s\n", (unsigned long)blk_dev->lba,
 		       host_dev->filename);
 	}
