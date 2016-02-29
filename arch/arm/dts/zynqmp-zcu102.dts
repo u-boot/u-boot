@@ -383,25 +383,17 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
-			/* IIC_EEPROM */
+			/*
+			 * IIC_EEPROM 1kB memory which uses 256B blocks
+			 * where every block has different address.
+			 *    0 - 256B address 0x54
+			 * 256B - 512B address 0x55
+			 * 512B - 768B address 0x56
+			 * 768B - 1024B address 0x57
+			 */
 			eeprom@54 { /* u23 */
 				compatible = "at,24c08";
 				reg = <0x54>;
-			};
-
-			eeprom@55 { /* u-boot detection */
-				compatible = "at,24c08";
-				reg = <0x55>;
-			};
-
-			eeprom@56 { /* u-boot detection */
-				compatible = "at,24c08";
-				reg = <0x56>;
-			};
-
-			eeprom@57 { /* u-boot detection */
-				compatible = "at,24c08";
-				reg = <0x57>;
 			};
 		};
 		i2c@1 { /* i2c mw 74 0 2 */
