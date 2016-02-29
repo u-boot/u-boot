@@ -22,7 +22,7 @@
 
 struct block_drvr {
 	char *name;
-	block_dev_desc_t* (*get_dev)(int dev);
+	struct blk_desc* (*get_dev)(int dev);
 	int (*select_hwpart)(int dev_num, int hwpart);
 };
 
@@ -58,10 +58,10 @@ static const struct block_drvr block_drvr[] = {
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef HAVE_BLOCK_DEVICE
-static block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
+static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	const struct block_drvr *drvr = block_drvr;
-	block_dev_desc_t* (*reloc_get_dev)(int dev);
+	struct blk_desc* (*reloc_get_dev)(int dev);
 	int (*select_hwpart)(int dev_num, int hwpart);
 	char *name;
 	int ret;
@@ -84,7 +84,7 @@ static block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 			select_hwpart += gd->reloc_off;
 #endif
 		if (strncmp(ifname, name, strlen(name)) == 0) {
-			block_dev_desc_t *dev_desc = reloc_get_dev(dev);
+			struct blk_desc *dev_desc = reloc_get_dev(dev);
 			if (!dev_desc)
 				return NULL;
 			if (hwpart == 0 && !select_hwpart)
@@ -101,17 +101,17 @@ static block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 	return NULL;
 }
 
-block_dev_desc_t *get_dev(const char *ifname, int dev)
+struct blk_desc *get_dev(const char *ifname, int dev)
 {
 	return get_dev_hwpart(ifname, dev, 0);
 }
 #else
-block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
+struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	return NULL;
 }
 
-block_dev_desc_t *get_dev(const char *ifname, int dev)
+struct blk_desc *get_dev(const char *ifname, int dev)
 {
 	return NULL;
 }
@@ -144,7 +144,7 @@ static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, lba512_t di
 	return bc_quot * mul_by + (bc_rem * mul_by) / div_by;
 }
 
-void dev_print (block_dev_desc_t *dev_desc)
+void dev_print (struct blk_desc *dev_desc)
 {
 	lba512_t lba512; /* number of blocks if 512bytes block size */
 
@@ -250,7 +250,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 
 #ifdef HAVE_BLOCK_DEVICE
 
-void init_part(block_dev_desc_t *dev_desc)
+void init_part(struct blk_desc *dev_desc)
 {
 #ifdef CONFIG_ISO_PARTITION
 	if (test_part_iso(dev_desc) == 0) {
@@ -297,7 +297,7 @@ void init_part(block_dev_desc_t *dev_desc)
 	defined(CONFIG_AMIGA_PARTITION) || \
 	defined(CONFIG_EFI_PARTITION)
 
-static void print_part_header(const char *type, block_dev_desc_t *dev_desc)
+static void print_part_header(const char *type, struct blk_desc *dev_desc)
 {
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
@@ -335,7 +335,7 @@ static void print_part_header(const char *type, block_dev_desc_t *dev_desc)
 
 #endif /* any CONFIG_..._PARTITION */
 
-void print_part(block_dev_desc_t * dev_desc)
+void print_part(struct blk_desc *dev_desc)
 {
 
 		switch (dev_desc->part_type) {
@@ -383,7 +383,7 @@ void print_part(block_dev_desc_t * dev_desc)
 
 #endif /* HAVE_BLOCK_DEVICE */
 
-int get_partition_info(block_dev_desc_t *dev_desc, int part,
+int get_partition_info(struct blk_desc *dev_desc, int part,
 		       disk_partition_t *info)
 {
 #ifdef HAVE_BLOCK_DEVICE
@@ -450,7 +450,7 @@ int get_partition_info(block_dev_desc_t *dev_desc, int part,
 }
 
 int get_device(const char *ifname, const char *dev_hwpart_str,
-	       block_dev_desc_t **dev_desc)
+	       struct blk_desc **dev_desc)
 {
 	char *ep;
 	char *dup_str = NULL;
@@ -512,7 +512,7 @@ cleanup:
 #define PART_AUTO -1
 #define MAX_SEARCH_PARTITIONS 16
 int get_device_and_partition(const char *ifname, const char *dev_part_str,
-			     block_dev_desc_t **dev_desc,
+			     struct blk_desc **dev_desc,
 			     disk_partition_t *info, int allow_whole_dev)
 {
 	int ret = -1;

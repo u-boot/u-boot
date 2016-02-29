@@ -20,7 +20,7 @@
 #include "zfs_common.h"
 #include "div64.h"
 
-block_dev_desc_t *zfs_dev_desc;
+struct blk_desc *zfs_dev_desc;
 
 /*
  * The zfs plug-in routines for GRUB are:

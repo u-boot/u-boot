@@ -813,7 +813,7 @@ void gzwrite_progress_finish(int retcode,
  *				for files under 4GiB
  */
 int gzwrite(unsigned char *src, int len,
-	    struct block_dev_desc *dev,
+	    struct blk_desc *dev,
 	    unsigned long szwritebuf,
 	    u64 startoffs,
 	    u64 szexpected);

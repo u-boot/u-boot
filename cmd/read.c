@@ -15,7 +15,7 @@
 int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *ep;
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	int dev;
 	int part = 0;
 	disk_partition_t part_info;
@@ -57,7 +57,7 @@ int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		offset = part_info.start;
 		limit = part_info.size;
 	} else {
-		/* Largest address not available in block_dev_desc_t. */
+		/* Largest address not available in struct blk_desc. */
 		limit = ~0;
 	}
 

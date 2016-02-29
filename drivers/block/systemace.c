@@ -69,11 +69,11 @@ static u16 ace_readw(unsigned off)
 	return in16(base + off);
 }
 
-static unsigned long systemace_read(block_dev_desc_t *block_dev,
+static unsigned long systemace_read(struct blk_desc *block_dev,
 				    unsigned long start, lbaint_t blkcnt,
 				    void *buffer);
 
-static block_dev_desc_t systemace_dev = { 0 };
+static struct blk_desc systemace_dev = { 0 };
 
 static int get_cf_lock(void)
 {
@@ -105,7 +105,7 @@ static void release_cf_lock(void)
 }
 
 #ifdef CONFIG_PARTITIONS
-block_dev_desc_t *systemace_get_dev(int dev)
+struct blk_desc *systemace_get_dev(int dev)
 {
 	/* The first time through this, the systemace_dev object is
 	   not yet initialized. In that case, fill it in. */
@@ -137,7 +137,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
  * the dev_desc) to read blocks of data. The return value is the
  * number of blocks read. A zero return indicates an error.
  */
-static unsigned long systemace_read(block_dev_desc_t *block_dev,
+static unsigned long systemace_read(struct blk_desc *block_dev,
 				    unsigned long start, lbaint_t blkcnt,
 				    void *buffer)
 {

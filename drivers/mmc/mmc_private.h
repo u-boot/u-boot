@@ -22,23 +22,23 @@ void mmc_adapter_card_type_ident(void);
 
 #ifndef CONFIG_SPL_BUILD
 
-unsigned long mmc_berase(block_dev_desc_t *block_dev, lbaint_t start,
+unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
 
-unsigned long mmc_bwrite(block_dev_desc_t *block_dev, lbaint_t start,
+unsigned long mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt, const void *src);
 
 #else /* CONFIG_SPL_BUILD */
 
 /* SPL will never write or erase, declare dummies to reduce code size. */
 
-static inline unsigned long mmc_berase(block_dev_desc_t *block_dev,
+static inline unsigned long mmc_berase(struct blk_desc *block_dev,
 				       lbaint_t start, lbaint_t blkcnt)
 {
 	return 0;
 }
 
-static inline ulong mmc_bwrite(block_dev_desc_t *block_dev, lbaint_t start,
+static inline ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
 			       lbaint_t blkcnt, const void *src)
 {
 	return 0;

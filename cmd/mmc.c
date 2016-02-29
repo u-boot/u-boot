@@ -424,7 +424,7 @@ static int do_mmc_rescan(cmd_tbl_t *cmdtp, int flag,
 static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char * const argv[])
 {
-	block_dev_desc_t *mmc_dev;
+	struct blk_desc *mmc_dev;
 	struct mmc *mmc;
 
 	mmc = init_mmc_device(curr_device, false);

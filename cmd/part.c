@@ -29,7 +29,7 @@
 static int do_part_uuid(int argc, char * const argv[])
 {
 	int part;
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 	disk_partition_t info;
 
 	if (argc < 2)
@@ -52,7 +52,7 @@ static int do_part_uuid(int argc, char * const argv[])
 static int do_part_list(int argc, char * const argv[])
 {
 	int ret;
-	block_dev_desc_t *desc;
+	struct blk_desc *desc;
 	char *var = NULL;
 	bool bootable = false;
 	int i;
@@ -114,7 +114,7 @@ static int do_part_list(int argc, char * const argv[])
 
 static int do_part_start(int argc, char * const argv[])
 {
-	block_dev_desc_t *desc;
+	struct blk_desc *desc;
 	disk_partition_t info;
 	char buf[512] = { 0 };
 	int part;
@@ -148,7 +148,7 @@ static int do_part_start(int argc, char * const argv[])
 
 static int do_part_size(int argc, char * const argv[])
 {
-	block_dev_desc_t *desc;
+	struct blk_desc *desc;
 	disk_partition_t info;
 	char buf[512] = { 0 };
 	int part;

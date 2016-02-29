@@ -43,7 +43,7 @@ U_BOOT_CMD(
 static int do_gzwrite(cmd_tbl_t *cmdtp, int flag,
 		      int argc, char * const argv[])
 {
-	block_dev_desc_t *bdev;
+	struct blk_desc *bdev;
 	int ret;
 	unsigned char *addr;
 	unsigned long length;

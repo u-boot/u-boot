@@ -87,7 +87,7 @@ static int test_block_type(unsigned char *buffer)
 }
 
 
-int test_part_dos (block_dev_desc_t *dev_desc)
+int test_part_dos(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
@@ -102,7 +102,7 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 
 /*  Print a partition that is relative to its Extended partition table
  */
-static void print_partition_extended(block_dev_desc_t *dev_desc,
+static void print_partition_extended(struct blk_desc *dev_desc,
 				     lbaint_t ext_part_sector,
 				     lbaint_t relative,
 				     int part_num, unsigned int disksig)
@@ -167,11 +167,11 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 
 /*  Print a partition that is relative to its Extended partition table
  */
-static int get_partition_info_extended (block_dev_desc_t *dev_desc,
-				 lbaint_t ext_part_sector,
-				 lbaint_t relative, int part_num,
-				 int which_part, disk_partition_t *info,
-				 unsigned int disksig)
+static int get_partition_info_extended(struct blk_desc *dev_desc,
+				       lbaint_t ext_part_sector,
+				       lbaint_t relative, int part_num,
+				       int which_part, disk_partition_t *info,
+				       unsigned int disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
@@ -283,13 +283,14 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc,
 	return -1;
 }
 
-void print_part_dos (block_dev_desc_t *dev_desc)
+void print_part_dos(struct blk_desc *dev_desc)
 {
 	printf("Part\tStart Sector\tNum Sectors\tUUID\t\tType\n");
 	print_partition_extended(dev_desc, 0, 0, 1, 0);
 }
 
-int get_partition_info_dos (block_dev_desc_t *dev_desc, int part, disk_partition_t * info)
+int get_partition_info_dos(struct blk_desc *dev_desc, int part,
+			   disk_partition_t *info)
 {
 	return get_partition_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }

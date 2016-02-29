@@ -34,7 +34,7 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = "/";
 	int dev, part;
-	block_dev_desc_t *dev_desc=NULL;
+	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 
 	if (argc < 3)
@@ -82,7 +82,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int dev, part;
 	ulong addr = 0, filelen;
 	disk_partition_t info;
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	unsigned long count;
 	char *addr_str;
 

@@ -38,7 +38,7 @@ int env_init(void)
 int saveenv(void)
 {
 	env_t	env_new;
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 	int dev, part;
 	int err;
@@ -77,7 +77,7 @@ int saveenv(void)
 void env_relocate_spec(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 	int dev, part;
 	int err;

@@ -48,7 +48,7 @@ static int scsi_max_devs; /* number of highest available scsi device */
 
 static int scsi_curr_dev; /* current device */
 
-static block_dev_desc_t scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
+static struct blk_desc scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
 
 /********************************************************************************
  *  forward declerations of some Setup Routines
@@ -66,9 +66,9 @@ void scsi_ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
 static int scsi_read_capacity(ccb *pccb, lbaint_t *capacity,
 			      unsigned long *blksz);
-static ulong scsi_read(block_dev_desc_t *block_dev, lbaint_t blknr,
+static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 		       lbaint_t blkcnt, void *buffer);
-static ulong scsi_write(block_dev_desc_t *block_dev, lbaint_t blknr,
+static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 			lbaint_t blkcnt, const void *buffer);
 
 
@@ -239,7 +239,7 @@ void scsi_init(void)
 #endif
 
 #ifdef CONFIG_PARTITIONS
-block_dev_desc_t * scsi_get_dev(int dev)
+struct blk_desc *scsi_get_dev(int dev)
 {
 	return (dev < CONFIG_SYS_SCSI_MAX_DEVICE) ? &scsi_dev_desc[dev] : NULL;
 }
@@ -376,7 +376,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #define SCSI_MAX_READ_BLK 0xFFFF
 #define SCSI_LBA48_READ	0xFFFFFFF
 
-static ulong scsi_read(block_dev_desc_t *block_dev, lbaint_t blknr,
+static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 		       lbaint_t blkcnt, void *buffer)
 {
 	int device = block_dev->dev;
@@ -443,7 +443,7 @@ static ulong scsi_read(block_dev_desc_t *block_dev, lbaint_t blknr,
 /* Almost the maximum amount of the scsi_ext command.. */
 #define SCSI_MAX_WRITE_BLK 0xFFFF
 
-static ulong scsi_write(block_dev_desc_t *block_dev, lbaint_t blknr,
+static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 			lbaint_t blkcnt, const void *buffer)
 {
 	int device = block_dev->dev;

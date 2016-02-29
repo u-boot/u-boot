@@ -20,7 +20,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 #if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	image_header_t *hdr;
 #endif
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 
 #if defined(CONFIG_FIT)
 	const void *fit_hdr = NULL;

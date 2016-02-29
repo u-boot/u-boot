@@ -625,7 +625,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int i;
 	extern char usb_started;
 #ifdef CONFIG_USB_STORAGE
-	block_dev_desc_t *stor_dev;
+	struct blk_desc *stor_dev;
 #endif
 
 	if (argc < 2)

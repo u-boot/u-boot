@@ -41,10 +41,10 @@ typedef ulong lbaint_t;
  */
 
 void ide_init(void);
-typedef struct block_dev_desc block_dev_desc_t;
-ulong ide_read(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+struct blk_desc;
+ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	       void *buffer);
-ulong ide_write(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
 
 #ifdef CONFIG_IDE_PREINIT

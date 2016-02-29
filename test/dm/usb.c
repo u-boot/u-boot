@@ -39,7 +39,7 @@ DM_TEST(dm_test_usb_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 static int dm_test_usb_flash(struct unit_test_state *uts)
 {
 	struct udevice *dev;
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 	char cmp[1024];
 
 	state_set_skip_delays(true);

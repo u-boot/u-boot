@@ -46,7 +46,8 @@ static inline unsigned short le16_to_int(unsigned char *le16)
 
 
 /* only boot records will be listed as valid partitions */
-int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_partition_t * info, int verb)
+int get_partition_info_iso_verb(struct blk_desc *dev_desc, int part_num,
+				disk_partition_t *info, int verb)
 {
 	int i,offset,entry_num;
 	unsigned short *chksumbuf;
@@ -216,13 +217,14 @@ found:
 	return 0;
 }
 
-int get_partition_info_iso(block_dev_desc_t * dev_desc, int part_num, disk_partition_t * info)
+int get_partition_info_iso(struct blk_desc *dev_desc, int part_num,
+			   disk_partition_t *info)
 {
 	return(get_partition_info_iso_verb(dev_desc, part_num, info, 1));
 }
 
 
-void print_part_iso(block_dev_desc_t * dev_desc)
+void print_part_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 	int i;
@@ -239,7 +241,7 @@ void print_part_iso(block_dev_desc_t * dev_desc)
 	} while (get_partition_info_iso_verb(dev_desc,i,&info,0)!=-1);
 }
 
-int test_part_iso (block_dev_desc_t *dev_desc)
+int test_part_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 

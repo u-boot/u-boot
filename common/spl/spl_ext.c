@@ -10,7 +10,7 @@
 #include <image.h>
 
 #ifdef CONFIG_SPL_EXT_SUPPORT
-int spl_load_image_ext(block_dev_desc_t *block_dev,
+int spl_load_image_ext(struct blk_desc *block_dev,
 						int partition,
 						const char *filename)
 {
@@ -64,7 +64,7 @@ end:
 }
 
 #ifdef CONFIG_SPL_OS_BOOT
-int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition)
+int spl_load_image_ext_os(struct blk_desc *block_dev, int partition)
 {
 	int err;
 	__maybe_unused loff_t filelen, actlen;
@@ -137,7 +137,7 @@ defaults:
 			CONFIG_SPL_FS_LOAD_KERNEL_NAME);
 }
 #else
-int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition)
+int spl_load_image_ext_os(struct blk_desc *block_dev, int partition)
 {
 	return -ENOSYS;
 }

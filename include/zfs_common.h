@@ -63,7 +63,7 @@ enum zfs_errors {
 struct zfs_filesystem {
 
 	/* Block Device Descriptor */
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 };
 
 struct device_s {
@@ -98,7 +98,7 @@ int zfs_close(zfs_file_t);
 int zfs_ls(device_t dev, const char *path,
 		   int (*hook) (const char *, const struct zfs_dirhook_info *));
 int zfs_devread(int sector, int byte_offset, int byte_len, char *buf);
-void zfs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);
+void zfs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
 void zfs_unmount(struct zfs_data *data);
 int lzjb_decompress(void *, void *, uint32_t, uint32_t);
 #endif

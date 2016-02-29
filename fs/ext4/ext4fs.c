@@ -198,7 +198,7 @@ int ext4fs_read(char *buf, loff_t len, loff_t *actread)
 	return ext4fs_read_file(ext4fs_file, 0, len, buf, actread);
 }
 
-int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
+int ext4fs_probe(struct blk_desc *fs_dev_desc,
 		 disk_partition_t *fs_partition)
 {
 	ext4fs_set_blk_dev(fs_dev_desc, fs_partition);

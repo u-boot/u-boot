@@ -53,7 +53,7 @@ ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS] = {
 
 static int ide_bus_ok[CONFIG_SYS_IDE_MAXBUS];
 
-block_dev_desc_t ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
+struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_RESET
@@ -62,7 +62,7 @@ static void  ide_reset (void);
 #define ide_reset()	/* dummy */
 #endif
 
-static void  ide_ident (block_dev_desc_t *dev_desc);
+static void ide_ident(struct blk_desc *dev_desc);
 static uchar ide_wait  (int dev, ulong t);
 
 #define IDE_TIME_OUT	2000	/* 2 sec timeout */
@@ -78,8 +78,8 @@ static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len
 #endif
 
 #ifdef CONFIG_ATAPI
-static void	atapi_inquiry(block_dev_desc_t *dev_desc);
-static ulong atapi_read(block_dev_desc_t *block_dev, lbaint_t blknr,
+static void	atapi_inquiry(struct blk_desc *dev_desc);
+static ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr,
 			lbaint_t blkcnt, void *buffer);
 #endif
 
@@ -187,7 +187,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		if (strcmp(argv[1], "read") == 0) {
 			ulong addr = simple_strtoul(argv[2], NULL, 16);
 			ulong cnt = simple_strtoul(argv[4], NULL, 16);
-			block_dev_desc_t *dev_desc;
+			struct blk_desc *dev_desc;
 			ulong n;
 
 #ifdef CONFIG_SYS_64BIT_LBA
@@ -446,7 +446,7 @@ void ide_init(void)
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_PARTITIONS
-block_dev_desc_t *ide_get_dev(int dev)
+struct blk_desc *ide_get_dev(int dev)
 {
 	return (dev < CONFIG_SYS_IDE_MAXDEVICE) ? &ide_dev_desc[dev] : NULL;
 }
@@ -541,7 +541,7 @@ __weak void ide_input_data(int dev, ulong *sect_buf, int words)
 
 /* -------------------------------------------------------------------------
  */
-static void ide_ident(block_dev_desc_t *dev_desc)
+static void ide_ident(struct blk_desc *dev_desc)
 {
 	unsigned char c;
 	hd_driveid_t iop;
@@ -713,7 +713,7 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 
 /* ------------------------------------------------------------------------- */
 
-ulong ide_read(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	       void *buffer)
 {
 	int device = block_dev->dev;
@@ -839,7 +839,7 @@ IDE_READ_E:
 /* ------------------------------------------------------------------------- */
 
 
-ulong ide_write(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer)
 {
 	int device = block_dev->dev;
@@ -1301,7 +1301,7 @@ error:
 }
 
 
-static void atapi_inquiry(block_dev_desc_t *dev_desc)
+static void atapi_inquiry(struct blk_desc *dev_desc)
 {
 	unsigned char ccb[12];	/* Command descriptor block */
 	unsigned char iobuf[64];	/* temp buf */
@@ -1394,7 +1394,7 @@ static void atapi_inquiry(block_dev_desc_t *dev_desc)
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK	(ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE)
 
-ulong atapi_read(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		 void *buffer)
 {
 	int device = block_dev->dev;

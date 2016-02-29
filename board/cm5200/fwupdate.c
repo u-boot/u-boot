@@ -81,7 +81,7 @@ static int load_rescue_image(ulong addr)
 	char dev[7];
 	char addr_str[16];
 	char * const argv[6] = { "fatload", "usb", dev, addr_str, nxri, NULL };
-	block_dev_desc_t *stor_dev = NULL;
+	struct blk_desc *stor_dev = NULL;
 	cmd_tbl_t *bcmd;
 
 	/* Get name of firmware directory */

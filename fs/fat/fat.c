@@ -37,7 +37,7 @@ static void downcase(char *str)
 	}
 }
 
-static block_dev_desc_t *cur_dev;
+static struct blk_desc *cur_dev;
 static disk_partition_t cur_part_info;
 
 #define DOS_BOOT_MAGIC_OFFSET	0x1fe
@@ -60,7 +60,7 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 	return ret;
 }
 
-int fat_set_blk_dev(block_dev_desc_t *dev_desc, disk_partition_t *info)
+int fat_set_blk_dev(struct blk_desc *dev_desc, disk_partition_t *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
@@ -89,7 +89,7 @@ int fat_set_blk_dev(block_dev_desc_t *dev_desc, disk_partition_t *info)
 	return -1;
 }
 
-int fat_register_device(block_dev_desc_t *dev_desc, int part_no)
+int fat_register_device(struct blk_desc *dev_desc, int part_no)
 {
 	disk_partition_t info;
 

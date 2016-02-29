@@ -22,10 +22,10 @@
 static char *response_str;
 
 struct fb_mmc_sparse {
-	block_dev_desc_t	*dev_desc;
+	struct blk_desc	*dev_desc;
 };
 
-static int get_partition_info_efi_by_name_or_alias(block_dev_desc_t *dev_desc,
+static int get_partition_info_efi_by_name_or_alias(struct blk_desc *dev_desc,
 		const char *name, disk_partition_t *info)
 {
 	int ret;
@@ -55,7 +55,7 @@ static int fb_mmc_sparse_write(struct sparse_storage *storage,
 			       char *data)
 {
 	struct fb_mmc_sparse *sparse = priv;
-	block_dev_desc_t *dev_desc = sparse->dev_desc;
+	struct blk_desc *dev_desc = sparse->dev_desc;
 	int ret;
 
 	ret = dev_desc->block_write(dev_desc, offset, size, data);
@@ -65,7 +65,7 @@ static int fb_mmc_sparse_write(struct sparse_storage *storage,
 	return ret;
 }
 
-static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
+static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 		const char *part_name, void *buffer,
 		unsigned int download_bytes)
 {
@@ -100,7 +100,7 @@ void fb_mmc_flash_write(const char *cmd, unsigned int session_id,
 			void *download_buffer, unsigned int download_bytes,
 			char *response)
 {
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 	disk_partition_t info;
 
 	/* initialize the response buffer */
@@ -165,7 +165,7 @@ void fb_mmc_flash_write(const char *cmd, unsigned int session_id,
 void fb_mmc_erase(const char *cmd, char *response)
 {
 	int ret;
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 	disk_partition_t info;
 	lbaint_t blks, blks_start, blks_size, grp_size;
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);

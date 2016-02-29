@@ -41,10 +41,10 @@ static inline u32 efi_crc32(const void *buf, u32 len)
 
 static int pmbr_part_valid(struct partition *part);
 static int is_pmbr_valid(legacy_mbr * mbr);
-static int is_gpt_valid(block_dev_desc_t *dev_desc, u64 lba,
+static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 				gpt_header *pgpt_head, gpt_entry **pgpt_pte);
-static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
-				gpt_header * pgpt_head);
+static gpt_entry *alloc_read_gpt_entries(struct blk_desc *dev_desc,
+					 gpt_header *pgpt_head);
 static int is_pte_valid(gpt_entry * pte);
 
 static char *print_efiname(gpt_entry *pte)
@@ -176,7 +176,7 @@ static void prepare_backup_gpt_header(gpt_header *gpt_h)
  * Public Functions (include/part.h)
  */
 
-void print_part_efi(block_dev_desc_t * dev_desc)
+void print_part_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -237,8 +237,8 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	return;
 }
 
-int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
-				disk_partition_t * info)
+int get_partition_info_efi(struct blk_desc *dev_desc, int part,
+			   disk_partition_t *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -300,7 +300,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	return 0;
 }
 
-int get_partition_info_efi_by_name(block_dev_desc_t *dev_desc,
+int get_partition_info_efi_by_name(struct blk_desc *dev_desc,
 	const char *name, disk_partition_t *info)
 {
 	int ret;
@@ -319,7 +319,7 @@ int get_partition_info_efi_by_name(block_dev_desc_t *dev_desc,
 	return -2;
 }
 
-int test_part_efi(block_dev_desc_t * dev_desc)
+int test_part_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, legacymbr, 1, dev_desc->blksz);
 
@@ -337,7 +337,7 @@ int test_part_efi(block_dev_desc_t * dev_desc)
  *
  * @return - zero on success, otherwise error
  */
-static int set_protective_mbr(block_dev_desc_t *dev_desc)
+static int set_protective_mbr(struct blk_desc *dev_desc)
 {
 	/* Setup the Protective MBR */
 	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, p_mbr, 1);
@@ -363,7 +363,7 @@ static int set_protective_mbr(block_dev_desc_t *dev_desc)
 	return 0;
 }
 
-int write_gpt_table(block_dev_desc_t *dev_desc,
+int write_gpt_table(struct blk_desc *dev_desc,
 		gpt_header *gpt_h, gpt_entry *gpt_e)
 {
 	const int pte_blk_cnt = BLOCK_CNT((gpt_h->num_partition_entries
@@ -517,7 +517,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 	return 0;
 }
 
-int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
+int gpt_fill_header(struct blk_desc *dev_desc, gpt_header *gpt_h,
 		char *str_guid, int parts_count)
 {
 	gpt_h->signature = cpu_to_le64(GPT_HEADER_SIGNATURE);
@@ -539,7 +539,7 @@ int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
 	return 0;
 }
 
-int gpt_restore(block_dev_desc_t *dev_desc, char *str_disk_guid,
+int gpt_restore(struct blk_desc *dev_desc, char *str_disk_guid,
 		disk_partition_t *partitions, int parts_count)
 {
 	int ret;
@@ -595,7 +595,7 @@ static void gpt_convert_efi_name_to_char(char *s, efi_char16_t *es, int n)
 	}
 }
 
-int gpt_verify_headers(block_dev_desc_t *dev_desc, gpt_header *gpt_head,
+int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 		       gpt_entry **gpt_pte)
 {
 	/*
@@ -619,7 +619,7 @@ int gpt_verify_headers(block_dev_desc_t *dev_desc, gpt_header *gpt_head,
 	return 0;
 }
 
-int gpt_verify_partitions(block_dev_desc_t *dev_desc,
+int gpt_verify_partitions(struct blk_desc *dev_desc,
 			  disk_partition_t *partitions, int parts,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte)
 {
@@ -691,7 +691,7 @@ int gpt_verify_partitions(block_dev_desc_t *dev_desc,
 	return 0;
 }
 
-int is_valid_gpt_buf(block_dev_desc_t *dev_desc, void *buf)
+int is_valid_gpt_buf(struct blk_desc *dev_desc, void *buf)
 {
 	gpt_header *gpt_h;
 	gpt_entry *gpt_e;
@@ -712,7 +712,7 @@ int is_valid_gpt_buf(block_dev_desc_t *dev_desc, void *buf)
 	return 0;
 }
 
-int write_mbr_and_gpt_partitions(block_dev_desc_t *dev_desc, void *buf)
+int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf)
 {
 	gpt_header *gpt_h;
 	gpt_entry *gpt_e;
@@ -834,7 +834,7 @@ static int is_pmbr_valid(legacy_mbr * mbr)
  * Description: returns 1 if valid,  0 on error.
  * If valid, returns pointers to PTEs.
  */
-static int is_gpt_valid(block_dev_desc_t *dev_desc, u64 lba,
+static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 			gpt_header *pgpt_head, gpt_entry **pgpt_pte)
 {
 	if (!dev_desc || !pgpt_head) {
@@ -876,8 +876,8 @@ static int is_gpt_valid(block_dev_desc_t *dev_desc, u64 lba,
  * Allocates space for PTEs based on information found in @gpt.
  * Notes: remember to free pte when you're done!
  */
-static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
-					 gpt_header * pgpt_head)
+static gpt_entry *alloc_read_gpt_entries(struct blk_desc *dev_desc,
+					 gpt_header *pgpt_head)
 {
 	size_t count = 0, blk_cnt;
 	lbaint_t blk;

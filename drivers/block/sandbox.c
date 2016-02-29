@@ -22,7 +22,7 @@ static struct host_block_dev *find_host_device(int dev)
 	return NULL;
 }
 
-static unsigned long host_block_read(block_dev_desc_t *block_dev,
+static unsigned long host_block_read(struct blk_desc *block_dev,
 				     unsigned long start, lbaint_t blkcnt,
 				     void *buffer)
 {
@@ -44,7 +44,7 @@ static unsigned long host_block_read(block_dev_desc_t *block_dev,
 	return -1;
 }
 
-static unsigned long host_block_write(block_dev_desc_t *block_dev,
+static unsigned long host_block_write(struct blk_desc *block_dev,
 				      unsigned long start, lbaint_t blkcnt,
 				      const void *buffer)
 {
@@ -89,7 +89,7 @@ int host_dev_bind(int dev, char *filename)
 		return 1;
 	}
 
-	block_dev_desc_t *blk_dev = &host_dev->blk_dev;
+	struct blk_desc *blk_dev = &host_dev->blk_dev;
 	blk_dev->if_type = IF_TYPE_HOST;
 	blk_dev->priv = host_dev;
 	blk_dev->blksz = 512;
@@ -103,7 +103,7 @@ int host_dev_bind(int dev, char *filename)
 	return 0;
 }
 
-int host_get_dev_err(int dev, block_dev_desc_t **blk_devp)
+int host_get_dev_err(int dev, struct blk_desc **blk_devp)
 {
 	struct host_block_dev *host_dev = find_host_device(dev);
 
@@ -117,9 +117,9 @@ int host_get_dev_err(int dev, block_dev_desc_t **blk_devp)
 	return 0;
 }
 
-block_dev_desc_t *host_get_dev(int dev)
+struct blk_desc *host_get_dev(int dev)
 {
-	block_dev_desc_t *blk_dev;
+	struct blk_desc *blk_dev;
 
 	if (host_get_dev_err(dev, &blk_dev))
 		return NULL;

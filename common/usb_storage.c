@@ -67,7 +67,7 @@ static __u32 CBWTag;
 
 static int usb_max_devs; /* number of highest available usb device */
 
-static block_dev_desc_t usb_dev_desc[USB_MAX_STOR_DEV];
+static struct blk_desc usb_dev_desc[USB_MAX_STOR_DEV];
 
 struct us_data;
 typedef int (*trans_cmnd)(ccb *cb, struct us_data *data);
@@ -115,17 +115,17 @@ static struct us_data usb_stor[USB_MAX_STOR_DEV];
 #define USB_STOR_TRANSPORT_ERROR  -2
 
 int usb_stor_get_info(struct usb_device *dev, struct us_data *us,
-		      block_dev_desc_t *dev_desc);
+		      struct blk_desc *dev_desc);
 int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 		      struct us_data *ss);
-static unsigned long usb_stor_read(block_dev_desc_t *block_dev, lbaint_t blknr,
+static unsigned long usb_stor_read(struct blk_desc *block_dev, lbaint_t blknr,
 				   lbaint_t blkcnt, void *buffer);
-static unsigned long usb_stor_write(block_dev_desc_t *block_dev, lbaint_t blknr,
+static unsigned long usb_stor_write(struct blk_desc *block_dev, lbaint_t blknr,
 				    lbaint_t blkcnt, const void *buffer);
 void uhci_show_temp_int_td(void);
 
 #ifdef CONFIG_PARTITIONS
-block_dev_desc_t *usb_stor_get_dev(int index)
+struct blk_desc *usb_stor_get_dev(int index)
 {
 	return (index < usb_max_devs) ? &usb_dev_desc[index] : NULL;
 }
@@ -187,10 +187,10 @@ static int usb_stor_probe_device(struct usb_device *dev)
 		for (lun = 0;
 			lun <= max_lun && usb_max_devs < USB_MAX_STOR_DEV;
 			lun++) {
-			struct block_dev_desc *blkdev;
+			struct blk_desc *blkdev;
 
 			blkdev = &usb_dev_desc[usb_max_devs];
-			memset(blkdev, '\0', sizeof(block_dev_desc_t));
+			memset(blkdev, '\0', sizeof(struct blk_desc));
 			blkdev->if_type = IF_TYPE_USB;
 			blkdev->dev = usb_max_devs;
 			blkdev->part_type = PART_TYPE_UNKNOWN;
@@ -1011,7 +1011,7 @@ static int usb_write_10(ccb *srb, struct us_data *ss, unsigned long start,
  * device with proper values (as reported by 'usb info').
  *
  * Vendor and product length limits are taken from the definition of
- * block_dev_desc_t in include/part.h.
+ * struct blk_desc in include/part.h.
  */
 static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 				unsigned char vendor[],
@@ -1026,7 +1026,7 @@ static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 }
 #endif /* CONFIG_USB_BIN_FIXUP */
 
-static unsigned long usb_stor_read(block_dev_desc_t *block_dev, lbaint_t blknr,
+static unsigned long usb_stor_read(struct blk_desc *block_dev, lbaint_t blknr,
 				   lbaint_t blkcnt, void *buffer)
 {
 	int device = block_dev->dev;
@@ -1097,7 +1097,7 @@ retry_it:
 	return blkcnt;
 }
 
-static unsigned long usb_stor_write(block_dev_desc_t *block_dev, lbaint_t blknr,
+static unsigned long usb_stor_write(struct blk_desc *block_dev, lbaint_t blknr,
 				    lbaint_t blkcnt, const void *buffer)
 {
 	int device = block_dev->dev;
@@ -1289,7 +1289,7 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 }
 
 int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
-		      block_dev_desc_t *dev_desc)
+		      struct blk_desc *dev_desc)
 {
 	unsigned char perq, modi;
 	ALLOC_CACHE_ALIGN_BUFFER(u32, cap, 2);

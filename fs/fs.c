@@ -20,11 +20,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static block_dev_desc_t *fs_dev_desc;
+static struct blk_desc *fs_dev_desc;
 static disk_partition_t fs_partition;
 static int fs_type = FS_TYPE_ANY;
 
-static inline int fs_probe_unsupported(block_dev_desc_t *fs_dev_desc,
+static inline int fs_probe_unsupported(struct blk_desc *fs_dev_desc,
 				      disk_partition_t *fs_partition)
 {
 	printf("** Unrecognized filesystem type **\n");
@@ -81,7 +81,7 @@ struct fstype_info {
 	 * filesystem.
 	 */
 	bool null_dev_desc_ok;
-	int (*probe)(block_dev_desc_t *fs_dev_desc,
+	int (*probe)(struct blk_desc *fs_dev_desc,
 		     disk_partition_t *fs_partition);
 	int (*ls)(const char *dirname);
 	int (*exists)(const char *filename);

@@ -32,13 +32,15 @@ extern ldiv_t ldiv (long int __numer, long int __denom);
 #endif
 
 
-static int part_mac_read_ddb (block_dev_desc_t *dev_desc, mac_driver_desc_t *ddb_p);
-static int part_mac_read_pdb (block_dev_desc_t *dev_desc, int part, mac_partition_t *pdb_p);
+static int part_mac_read_ddb(struct blk_desc *dev_desc,
+			     mac_driver_desc_t *ddb_p);
+static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
+			     mac_partition_t *pdb_p);
 
 /*
  * Test for a valid MAC partition
  */
-int test_part_mac (block_dev_desc_t *dev_desc)
+int test_part_mac(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(mac_driver_desc_t, ddesc, 1);
 	ALLOC_CACHE_ALIGN_BUFFER(mac_partition_t, mpart, 1);
@@ -63,7 +65,7 @@ int test_part_mac (block_dev_desc_t *dev_desc)
 }
 
 
-void print_part_mac (block_dev_desc_t *dev_desc)
+void print_part_mac(struct blk_desc *dev_desc)
 {
 	ulong i, n;
 	ALLOC_CACHE_ALIGN_BUFFER(mac_driver_desc_t, ddesc, 1);
@@ -149,7 +151,8 @@ void print_part_mac (block_dev_desc_t *dev_desc)
 /*
  * Read Device Descriptor Block
  */
-static int part_mac_read_ddb (block_dev_desc_t *dev_desc, mac_driver_desc_t *ddb_p)
+static int part_mac_read_ddb(struct blk_desc *dev_desc,
+			     mac_driver_desc_t *ddb_p)
 {
 	if (dev_desc->block_read(dev_desc, 0, 1, (ulong *)ddb_p) != 1) {
 		printf ("** Can't read Driver Desriptor Block **\n");
@@ -169,7 +172,8 @@ static int part_mac_read_ddb (block_dev_desc_t *dev_desc, mac_driver_desc_t *ddb
 /*
  * Read Partition Descriptor Block
  */
-static int part_mac_read_pdb (block_dev_desc_t *dev_desc, int part, mac_partition_t *pdb_p)
+static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
+			     mac_partition_t *pdb_p)
 {
 	int n = 1;
 
@@ -210,7 +214,8 @@ static int part_mac_read_pdb (block_dev_desc_t *dev_desc, int part, mac_partitio
 	/* NOTREACHED */
 }
 
-int get_partition_info_mac (block_dev_desc_t *dev_desc, int part, disk_partition_t *info)
+int get_partition_info_mac(struct blk_desc *dev_desc, int part,
+			   disk_partition_t *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(mac_driver_desc_t, ddesc, 1);
 	ALLOC_CACHE_ALIGN_BUFFER(mac_partition_t, mpart, 1);

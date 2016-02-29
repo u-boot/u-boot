@@ -67,7 +67,7 @@ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	int dev;
 	printf("%3s %12s %s\n", "dev", "blocks", "path");
 	for (dev = min_dev; dev <= max_dev; dev++) {
-		block_dev_desc_t *blk_dev;
+		struct blk_desc *blk_dev;
 		int ret;
 
 		printf("%3d ", dev);
@@ -92,7 +92,7 @@ static int do_host_dev(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	int dev;
 	char *ep;
-	block_dev_desc_t *blk_dev;
+	struct blk_desc *blk_dev;
 	int ret;
 
 	if (argc < 1 || argc > 3)

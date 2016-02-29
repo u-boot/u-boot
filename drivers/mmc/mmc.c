@@ -234,7 +234,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	return blkcnt;
 }
 
-static ulong mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
+static ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start,
 		       lbaint_t blkcnt, void *dst)
 {
 	int dev_num = block_dev->dev;
@@ -1579,7 +1579,7 @@ void mmc_destroy(struct mmc *mmc)
 }
 
 #ifdef CONFIG_PARTITIONS
-block_dev_desc_t *mmc_get_dev(int dev)
+struct blk_desc *mmc_get_dev(int dev)
 {
 	struct mmc *mmc = find_mmc_device(dev);
 	if (!mmc || mmc_init(mmc))

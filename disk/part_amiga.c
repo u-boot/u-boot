@@ -126,7 +126,7 @@ static void print_part_info(struct partition_block *p)
  * the ID AMIGA_ID_RDISK ('RDSK') and needs to have a valid
  * sum-to-zero checksum
  */
-struct rigid_disk_block *get_rdisk(block_dev_desc_t *dev_desc)
+struct rigid_disk_block *get_rdisk(struct blk_desc *dev_desc)
 {
     int i;
     int limit;
@@ -166,7 +166,7 @@ struct rigid_disk_block *get_rdisk(block_dev_desc_t *dev_desc)
  * Ridgid disk block
  */
 
-struct bootcode_block *get_bootcode(block_dev_desc_t *dev_desc)
+struct bootcode_block *get_bootcode(struct blk_desc *dev_desc)
 {
     int i;
     int limit;
@@ -207,7 +207,7 @@ struct bootcode_block *get_bootcode(block_dev_desc_t *dev_desc)
  * Test if the given partition has an Amiga partition table/Rigid
  * Disk block
  */
-int test_part_amiga(block_dev_desc_t *dev_desc)
+int test_part_amiga(struct blk_desc *dev_desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *bootcode;
@@ -236,7 +236,8 @@ int test_part_amiga(block_dev_desc_t *dev_desc)
 /*
  * Find partition number partnum on the given drive.
  */
-static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int partnum)
+static struct partition_block *find_partition(struct blk_desc *dev_desc,
+					      int partnum)
 {
     struct rigid_disk_block *rdb;
     struct partition_block *p;
@@ -290,7 +291,8 @@ static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int pa
 /*
  * Get info about a partition
  */
-int get_partition_info_amiga (block_dev_desc_t *dev_desc, int part, disk_partition_t *info)
+int get_partition_info_amiga(struct blk_desc *dev_desc, int part,
+			     disk_partition_t *info)
 {
     struct partition_block *p = find_partition(dev_desc, part-1);
     struct amiga_part_geometry *g;
@@ -317,7 +319,7 @@ int get_partition_info_amiga (block_dev_desc_t *dev_desc, int part, disk_partiti
     return 0;
 }
 
-void print_part_amiga (block_dev_desc_t *dev_desc)
+void print_part_amiga(struct blk_desc *dev_desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *boot;
