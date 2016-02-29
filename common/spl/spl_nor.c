@@ -59,7 +59,7 @@ int spl_nor_load_image(void)
 	spl_parse_image_header(
 			(const struct image_header *)CONFIG_SYS_UBOOT_BASE);
 
-	memcpy((void *)spl_image.load_addr,
+	memcpy((void *)(unsigned long)spl_image.load_addr,
 	       (void *)(CONFIG_SYS_UBOOT_BASE + sizeof(struct image_header)),
 	       spl_image.size);
 
