@@ -449,6 +449,16 @@ config I8042_KEYB
 config DM_KEYBOARD
 	default y
 
+config SEABIOS
+	bool "Support booting SeaBIOS"
+	help
+	  SeaBIOS is an open source implementation of a 16-bit X86 BIOS.
+	  It can run in an emulator or natively on X86 hardware with the use
+	  of coreboot/U-Boot. By turning on this option, U-Boot prepares
+	  all the configuration tables that are necessary to boot SeaBIOS.
+
+	  Check http://www.seabios.org/SeaBIOS for details.
+
 source "arch/x86/lib/efi/Kconfig"
 
 endmenu
