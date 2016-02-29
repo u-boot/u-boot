@@ -304,7 +304,7 @@ int get_partition_info_amiga(struct blk_desc *dev_desc, int part,
     info->start = g->low_cyl  * g->block_per_track * g->surfaces;
     info->size  = (g->high_cyl - g->low_cyl + 1) * g->block_per_track * g->surfaces - 1;
     info->blksz = rdb.block_bytes;
-    bcpl_strcpy(info->name, p->drive_name);
+    bcpl_strcpy((char *)info->name, p->drive_name);
 
 
     disk_type = g->dos_type;
