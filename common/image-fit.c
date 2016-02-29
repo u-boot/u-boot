@@ -433,7 +433,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 
 	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE) ||
 	    (type == IH_TYPE_RAMDISK)) {
-		fit_image_get_entry(fit, image_noffset, &entry);
+		ret = fit_image_get_entry(fit, image_noffset, &entry);
 		printf("%s  Entry Point:  ", p);
 		if (ret)
 			printf("unavailable\n");
@@ -675,6 +675,22 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
 	return 0;
 }
 
+static int fit_image_get_address(const void *fit, int noffset, char *name,
+			  ulong *load)
+{
+	int len;
+	const uint32_t *data;
+
+	data = fdt_getprop(fit, noffset, name, &len);
+	if (data == NULL) {
+		fit_get_debug(fit, noffset, name, len);
+		return -1;
+	}
+
+	*load = uimage_to_cpu(*data);
+
+	return 0;
+}
 /**
  * fit_image_get_load() - get load addr property for given component image node
  * @fit: pointer to the FIT format image header
@@ -690,17 +706,7 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
  */
 int fit_image_get_load(const void *fit, int noffset, ulong *load)
 {
-	int len;
-	const uint32_t *data;
-
-	data = fdt_getprop(fit, noffset, FIT_LOAD_PROP, &len);
-	if (data == NULL) {
-		fit_get_debug(fit, noffset, FIT_LOAD_PROP, len);
-		return -1;
-	}
-
-	*load = uimage_to_cpu(*data);
-	return 0;
+	return fit_image_get_address(fit, noffset, FIT_LOAD_PROP, load);
 }
 
 /**
@@ -722,17 +728,7 @@ int fit_image_get_load(const void *fit, int noffset, ulong *load)
  */
 int fit_image_get_entry(const void *fit, int noffset, ulong *entry)
 {
-	int len;
-	const uint32_t *data;
-
-	data = fdt_getprop(fit, noffset, FIT_ENTRY_PROP, &len);
-	if (data == NULL) {
-		fit_get_debug(fit, noffset, FIT_ENTRY_PROP, len);
-		return -1;
-	}
-
-	*entry = uimage_to_cpu(*data);
-	return 0;
+	return fit_image_get_address(fit, noffset, FIT_ENTRY_PROP, entry);
 }
 
 /**
