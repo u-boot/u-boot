@@ -137,7 +137,7 @@
 #endif
 
 #define FSL_IFC_COMPAT		"fsl,ifc"
-#define FSL_QSPI_COMPAT		"fsl,ls1-qspi"
-#define FSL_DSPI_COMPAT		"fsl,vf610-dspi"
+#define FSL_QSPI_COMPAT		"fsl,ls1021a-qspi"
+#define FSL_DSPI_COMPAT		"fsl,ls1021a-v1.0-dspi"
 
 #endif /* _ASM_ARMV7_LS102XA_CONFIG_ */
