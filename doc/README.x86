@@ -669,6 +669,58 @@ environment variables if you add this to minnowmax.h:
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS "boot=zboot 03000000 0 04000000 ${filesize}"
 
+Test with SeaBIOS
+-----------------
+SeaBIOS [14] is an open source implementation of a 16-bit x86 BIOS. It can run
+in an emulator or natively on x86 hardware with the use of U-Boot. With its
+help, we can boot some OSes that require 16-bit BIOS services like Windows/DOS.
+
+As U-Boot, we have to manually create a table where SeaBIOS gets various system
+information (eg: E820) from. The table unfortunately has to follow the coreboot
+table format as SeaBIOS currently supports booting as a coreboot payload.
+
+To support loading SeaBIOS, U-Boot should be built with CONFIG_SEABIOS on.
+Booting SeaBIOS is done via U-Boot's bootelf command, like below:
+
+   => tftp bios.bin.elf;bootelf
+   Using e1000#0 device
+   TFTP from server 10.10.0.100; our IP address is 10.10.0.108
+   ...
+   Bytes transferred = 122124 (1dd0c hex)
+   ## Starting application at 0x000ff06e ...
+   SeaBIOS (version rel-1.9.0)
+   ...
+
+bios.bin.elf is the SeaBIOS image built from SeaBIOS source tree.
+Make sure it is built as follows:
+
+   $ make menuconfig
+
+Inside the "General Features" menu, select "Build for coreboot" as the
+"Build Target". Inside the "Debugging" menu, turn on "Serial port debugging"
+so that we can see something as soon as SeaBIOS boots. Leave other options
+as in their default state. Then,
+
+   $ make
+   ...
+   Total size: 121888  Fixed: 66496  Free: 9184 (used 93.0% of 128KiB rom)
+   Creating out/bios.bin.elf
+
+Currently this is tested on QEMU x86 target with U-Boot chain-loading SeaBIOS
+to install/boot a Windows XP OS (below for example command to install Windows).
+
+   # Create a 10G disk.img as the virtual hard disk
+   $ qemu-img create -f qcow2 disk.img 10G
+
+   # Install a Windows XP OS from an ISO image 'winxp.iso'
+   $ qemu-system-i386 -serial stdio -bios u-boot.rom -hda disk.img -cdrom winxp.iso -smp 2 -m 512
+
+   # Boot a Windows XP OS installed on the virutal hard disk
+   $ qemu-system-i386 -serial stdio -bios u-boot.rom -hda disk.img -smp 2 -m 512
+
+This is also tested on Intel Crown Bay board with a PCIe graphics card, booting
+SeaBIOS then chain-loading a GRUB on a USB drive, then Linux kernel finally.
+
 
 Development Flow
 ----------------
@@ -736,7 +788,7 @@ debug serial port may be useful here. See setup_internal_uart() for an example.
 During the U-Boot porting, one of the important steps is to write correct PIRQ
 routing information in the board device tree. Without it, device drivers in the
 Linux kernel won't function correctly due to interrupt is not working. Please
-refer to U-Boot doc [14] for the device tree bindings of Intel interrupt router.
+refer to U-Boot doc [15] for the device tree bindings of Intel interrupt router.
 Here we have more details on the intel,pirq-routing property below.
 
 	intel,pirq-routing = <
@@ -833,4 +885,5 @@ References
 [11] https://en.wikipedia.org/wiki/GUID_Partition_Table
 [12] http://events.linuxfoundation.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
 [13] http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
-[14] doc/device-tree-bindings/misc/intel,irq-router.txt
+[14] http://www.seabios.org/SeaBIOS
+[15] doc/device-tree-bindings/misc/intel,irq-router.txt
