@@ -678,16 +678,28 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
 static int fit_image_get_address(const void *fit, int noffset, char *name,
 			  ulong *load)
 {
-	int len;
-	const uint32_t *data;
+	int len, cell_len;
+	const fdt32_t *cell;
+	uint64_t load64 = 0;
 
-	data = fdt_getprop(fit, noffset, name, &len);
-	if (data == NULL) {
+	cell = fdt_getprop(fit, noffset, name, &len);
+	if (cell == NULL) {
 		fit_get_debug(fit, noffset, name, len);
 		return -1;
 	}
 
-	*load = uimage_to_cpu(*data);
+	if (len > sizeof(ulong)) {
+		printf("Unsupported %s address size\n", name);
+		return -1;
+	}
+
+	cell_len = len >> 2;
+	/* Use load64 to avoid compiling warning for 32-bit target */
+	while (cell_len--) {
+		load64 = (load64 << 32) | uimage_to_cpu(*cell);
+		cell++;
+	}
+	*load = (ulong)load64;
 
 	return 0;
 }
