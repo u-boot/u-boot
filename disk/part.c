@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <ide.h>
 #include <malloc.h>
 #include <part.h>
@@ -58,6 +59,22 @@ static const struct block_drvr block_drvr[] = {
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef HAVE_BLOCK_DEVICE
+static struct part_driver *part_driver_lookup_type(int part_type)
+{
+	struct part_driver *drv =
+		ll_entry_start(struct part_driver, part_driver);
+	const int n_ents = ll_entry_count(struct part_driver, part_driver);
+	struct part_driver *entry;
+
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		if (part_type == entry->part_type)
+			return entry;
+	}
+
+	/* Not found */
+	return NULL;
+}
+
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	const struct block_drvr *drvr = block_drvr;
@@ -252,53 +269,31 @@ void dev_print (struct blk_desc *dev_desc)
 
 void init_part(struct blk_desc *dev_desc)
 {
-#ifdef CONFIG_ISO_PARTITION
-	if (test_part_iso(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_ISO;
-		return;
-	}
-#endif
+	struct part_driver *drv =
+		ll_entry_start(struct part_driver, part_driver);
+	const int n_ents = ll_entry_count(struct part_driver, part_driver);
+	struct part_driver *entry;
 
-#ifdef CONFIG_MAC_PARTITION
-	if (test_part_mac(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_MAC;
-		return;
-	}
-#endif
-
-/* must be placed before DOS partition detection */
-#ifdef CONFIG_EFI_PARTITION
-	if (test_part_efi(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_EFI;
-		return;
-	}
-#endif
-
-#ifdef CONFIG_DOS_PARTITION
-	if (test_part_dos(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_DOS;
-		return;
-	}
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	if (test_part_amiga(dev_desc) == 0) {
-	    dev_desc->part_type = PART_TYPE_AMIGA;
-	    return;
-	}
-#endif
 	dev_desc->part_type = PART_TYPE_UNKNOWN;
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		int ret;
+
+		ret = entry->test(dev_desc);
+		debug("%s: try '%s': ret=%d\n", __func__, entry->name, ret);
+		if (!ret) {
+			dev_desc->part_type = entry->part_type;
+			break;
+		}
+	}
 }
 
-
+static void print_part_header(const char *type, struct blk_desc *dev_desc)
+{
 #if defined(CONFIG_MAC_PARTITION) || \
 	defined(CONFIG_DOS_PARTITION) || \
 	defined(CONFIG_ISO_PARTITION) || \
 	defined(CONFIG_AMIGA_PARTITION) || \
 	defined(CONFIG_EFI_PARTITION)
-
-static void print_part_header(const char *type, struct blk_desc *dev_desc)
-{
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
 	case IF_TYPE_IDE:
@@ -331,54 +326,24 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 	}
 	printf (" device %d  --   Partition Type: %s\n\n",
 			dev_desc->dev, type);
-}
-
 #endif /* any CONFIG_..._PARTITION */
+}
 
 void print_part(struct blk_desc *dev_desc)
 {
+	struct part_driver *drv;
 
-		switch (dev_desc->part_type) {
-#ifdef CONFIG_MAC_PARTITION
-	case PART_TYPE_MAC:
-		PRINTF ("## Testing for valid MAC partition ##\n");
-		print_part_header ("MAC", dev_desc);
-		print_part_mac (dev_desc);
+	drv = part_driver_lookup_type(dev_desc->part_type);
+	if (!drv) {
+		printf("## Unknown partition table type %x\n",
+		       dev_desc->part_type);
 		return;
-#endif
-#ifdef CONFIG_DOS_PARTITION
-	case PART_TYPE_DOS:
-		PRINTF ("## Testing for valid DOS partition ##\n");
-		print_part_header ("DOS", dev_desc);
-		print_part_dos (dev_desc);
-		return;
-#endif
-
-#ifdef CONFIG_ISO_PARTITION
-	case PART_TYPE_ISO:
-		PRINTF ("## Testing for valid ISO Boot partition ##\n");
-		print_part_header ("ISO", dev_desc);
-		print_part_iso (dev_desc);
-		return;
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	case PART_TYPE_AMIGA:
-	    PRINTF ("## Testing for a valid Amiga partition ##\n");
-	    print_part_header ("AMIGA", dev_desc);
-	    print_part_amiga (dev_desc);
-	    return;
-#endif
-
-#ifdef CONFIG_EFI_PARTITION
-	case PART_TYPE_EFI:
-		PRINTF ("## Testing for valid EFI partition ##\n");
-		print_part_header ("EFI", dev_desc);
-		print_part_efi (dev_desc);
-		return;
-#endif
 	}
-	puts ("## Unknown partition table\n");
+
+	PRINTF("## Testing for valid %s partition ##\n", drv->name);
+	print_part_header(drv->name, dev_desc);
+	if (drv->print)
+		drv->print(dev_desc);
 }
 
 #endif /* HAVE_BLOCK_DEVICE */
@@ -387,6 +352,7 @@ int get_partition_info(struct blk_desc *dev_desc, int part,
 		       disk_partition_t *info)
 {
 #ifdef HAVE_BLOCK_DEVICE
+	struct part_driver *drv;
 
 #ifdef CONFIG_PARTITION_UUIDS
 	/* The common case is no UUID support */
@@ -396,53 +362,19 @@ int get_partition_info(struct blk_desc *dev_desc, int part,
 	info->type_guid[0] = 0;
 #endif
 
-	switch (dev_desc->part_type) {
-#ifdef CONFIG_MAC_PARTITION
-	case PART_TYPE_MAC:
-		if (get_partition_info_mac(dev_desc, part, info) == 0) {
-			PRINTF("## Valid MAC partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_DOS_PARTITION
-	case PART_TYPE_DOS:
-		if (get_partition_info_dos(dev_desc, part, info) == 0) {
-			PRINTF("## Valid DOS partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_ISO_PARTITION
-	case PART_TYPE_ISO:
-		if (get_partition_info_iso(dev_desc, part, info) == 0) {
-			PRINTF("## Valid ISO boot partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	case PART_TYPE_AMIGA:
-		if (get_partition_info_amiga(dev_desc, part, info) == 0) {
-			PRINTF("## Valid Amiga partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_EFI_PARTITION
-	case PART_TYPE_EFI:
-		if (get_partition_info_efi(dev_desc, part, info) == 0) {
-			PRINTF("## Valid EFI partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-	default:
-		break;
+	drv = part_driver_lookup_type(dev_desc->part_type);
+	if (!drv) {
+		debug("## Unknown partition table type %x\n",
+		      dev_desc->part_type);
+		return -EPROTONOSUPPORT;
+	}
+	if (!drv->get_info) {
+		PRINTF("## Driver %s does not have the get_info() method\n");
+		return -ENOSYS;
+	}
+	if (drv->get_info(dev_desc, part, info) == 0) {
+		PRINTF("## Valid %s partition found ##\n", drv->name);
+		return 0;
 	}
 #endif /* HAVE_BLOCK_DEVICE */
 

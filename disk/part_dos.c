@@ -87,7 +87,7 @@ static int test_block_type(unsigned char *buffer)
 }
 
 
-int test_part_dos(struct blk_desc *dev_desc)
+static int test_part_dos(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
@@ -295,5 +295,12 @@ int get_partition_info_dos(struct blk_desc *dev_desc, int part,
 	return get_partition_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }
 
+U_BOOT_PART_TYPE(dos) = {
+	.name		= "DOS",
+	.part_type	= PART_TYPE_DOS,
+	.get_info	= part_get_info_ptr(get_partition_info_dos),
+	.print		= part_print_ptr(print_part_dos),
+	.test		= test_part_dos,
+};
 
 #endif

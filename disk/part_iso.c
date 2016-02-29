@@ -217,14 +217,13 @@ found:
 	return 0;
 }
 
-int get_partition_info_iso(struct blk_desc *dev_desc, int part_num,
-			   disk_partition_t *info)
+static int get_partition_info_iso(struct blk_desc *dev_desc, int part_num,
+				  disk_partition_t *info)
 {
 	return(get_partition_info_iso_verb(dev_desc, part_num, info, 1));
 }
 
-
-void print_part_iso(struct blk_desc *dev_desc)
+static void print_part_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 	int i;
@@ -241,11 +240,18 @@ void print_part_iso(struct blk_desc *dev_desc)
 	} while (get_partition_info_iso_verb(dev_desc,i,&info,0)!=-1);
 }
 
-int test_part_iso(struct blk_desc *dev_desc)
+static int test_part_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 
 	return(get_partition_info_iso_verb(dev_desc,0,&info,0));
 }
 
+U_BOOT_PART_TYPE(iso) = {
+	.name		= "ISO",
+	.part_type	= PART_TYPE_ISO,
+	.get_info	= get_partition_info_iso,
+	.print		= print_part_iso,
+	.test		= test_part_iso,
+};
 #endif

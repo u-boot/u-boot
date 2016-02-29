@@ -207,7 +207,7 @@ struct bootcode_block *get_bootcode(struct blk_desc *dev_desc)
  * Test if the given partition has an Amiga partition table/Rigid
  * Disk block
  */
-int test_part_amiga(struct blk_desc *dev_desc)
+static int test_part_amiga(struct blk_desc *dev_desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *bootcode;
@@ -291,8 +291,8 @@ static struct partition_block *find_partition(struct blk_desc *dev_desc,
 /*
  * Get info about a partition
  */
-int get_partition_info_amiga(struct blk_desc *dev_desc, int part,
-			     disk_partition_t *info)
+static int get_partition_info_amiga(struct blk_desc *dev_desc, int part,
+				    disk_partition_t *info)
 {
     struct partition_block *p = find_partition(dev_desc, part-1);
     struct amiga_part_geometry *g;
@@ -319,7 +319,7 @@ int get_partition_info_amiga(struct blk_desc *dev_desc, int part,
     return 0;
 }
 
-void print_part_amiga(struct blk_desc *dev_desc)
+static void print_part_amiga(struct blk_desc *dev_desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *boot;
@@ -378,5 +378,13 @@ void print_part_amiga(struct blk_desc *dev_desc)
 	printf("Disk is bootable\n");
     }
 }
+
+U_BOOT_PART_TYPE(amiga) = {
+	.name		= "AMIGA",
+	.part_type	= PART_TYPE_AMIGA,
+	.get_info	= get_partition_info_amiga,
+	.print		= print_part_amiga,
+	.test		= test_part_amiga,
+};
 
 #endif

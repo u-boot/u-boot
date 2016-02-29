@@ -195,43 +195,62 @@ static inline int blk_get_device_part_str(const char *ifname,
 { *dev_desc = NULL; return -1; }
 #endif
 
-#ifdef CONFIG_MAC_PARTITION
-/* disk/part_mac.c */
-int get_partition_info_mac(struct blk_desc *dev_desc, int part,
-			   disk_partition_t *info);
-void print_part_mac(struct blk_desc *dev_desc);
-int test_part_mac(struct blk_desc *dev_desc);
+/*
+ * We don't support printing partition information in SPL and only support
+ * getting partition information in a few cases.
+ */
+#ifdef CONFIG_SPL_BUILD
+# define part_print_ptr(x)	NULL
+# if defined(CONFIG_SPL_EXT_SUPPORT) || \
+	defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION)
+#  define part_get_info_ptr(x)	x
+# else
+#  define part_get_info_ptr(x)	NULL
+# endif
+#else
+#define part_print_ptr(x)	x
+#define part_get_info_ptr(x)	x
 #endif
 
-#ifdef CONFIG_DOS_PARTITION
-/* disk/part_dos.c */
-int get_partition_info_dos(struct blk_desc *dev_desc, int part,
-			   disk_partition_t *info);
-void print_part_dos(struct blk_desc *dev_desc);
-int test_part_dos(struct blk_desc *dev_desc);
-#endif
 
-#ifdef CONFIG_ISO_PARTITION
-/* disk/part_iso.c */
-int get_partition_info_iso(struct blk_desc *dev_desc, int part,
-			   disk_partition_t *info);
-void print_part_iso(struct blk_desc *dev_desc);
-int test_part_iso(struct blk_desc *dev_desc);
-#endif
+struct part_driver {
+	const char *name;
+	int part_type;
 
-#ifdef CONFIG_AMIGA_PARTITION
-/* disk/part_amiga.c */
-int get_partition_info_amiga(struct blk_desc *dev_desc, int part,
-			     disk_partition_t *info);
-void print_part_amiga(struct blk_desc *dev_desc);
-int test_part_amiga(struct blk_desc *dev_desc);
-#endif
+	/**
+	 * get_info() - Get information about a partition
+	 *
+	 * @dev_desc:	Block device descriptor
+	 * @part:	Partition number (1 = first)
+	 * @info:	Returns partition information
+	 */
+	int (*get_info)(struct blk_desc *dev_desc, int part,
+			disk_partition_t *info);
+
+	/**
+	 * print() - Print partition information
+	 *
+	 * @dev_desc:	Block device descriptor
+	 */
+	void (*print)(struct blk_desc *dev_desc);
+
+	/**
+	 * test() - Test if a device contains this partition type
+	 *
+	 * @dev_desc:	Block device descriptor
+	 * @return 0 if the block device appears to contain this partition
+	 *	   type, -ve if not
+	 */
+	int (*test)(struct blk_desc *dev_desc);
+};
+
+/* Declare a new U-Boot partition 'driver' */
+#define U_BOOT_PART_TYPE(__name)					\
+	ll_entry_declare(struct part_driver, __name, part_driver)
 
 #ifdef CONFIG_EFI_PARTITION
 #include <part_efi.h>
 /* disk/part_efi.c */
-int get_partition_info_efi(struct blk_desc *dev_desc, int part,
-			   disk_partition_t *info);
 /**
  * get_partition_info_efi_by_name() - Find the specified GPT partition table entry
  *
@@ -243,8 +262,6 @@ int get_partition_info_efi(struct blk_desc *dev_desc, int part,
  */
 int get_partition_info_efi_by_name(struct blk_desc *dev_desc,
 	const char *name, disk_partition_t *info);
-void print_part_efi(struct blk_desc *dev_desc);
-int test_part_efi(struct blk_desc *dev_desc);
 
 /**
  * write_gpt_table() - Write the GUID Partition Table to disk

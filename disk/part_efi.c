@@ -319,7 +319,7 @@ int get_partition_info_efi_by_name(struct blk_desc *dev_desc,
 	return -2;
 }
 
-int test_part_efi(struct blk_desc *dev_desc)
+static int test_part_efi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, legacymbr, 1, dev_desc->blksz);
 
@@ -953,4 +953,17 @@ static int is_pte_valid(gpt_entry * pte)
 		return 1;
 	}
 }
+
+/*
+ * Add an 'a_' prefix so it comes before 'dos' in the linker list. We need to
+ * check EFI first, since a DOS partition is often used as a 'protective MBR'
+ * with EFI.
+ */
+U_BOOT_PART_TYPE(a_efi) = {
+	.name		= "EFI",
+	.part_type	= PART_TYPE_EFI,
+	.get_info	= part_get_info_ptr(get_partition_info_efi),
+	.print		= part_print_ptr(print_part_efi),
+	.test		= test_part_efi,
+};
 #endif
