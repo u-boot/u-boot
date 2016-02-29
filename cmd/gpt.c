@@ -418,7 +418,7 @@ static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("'%s' is not a number\n", argv[3]);
 		return CMD_RET_USAGE;
 	}
-	blk_dev_desc = get_dev(argv[2], dev);
+	blk_dev_desc = blk_get_dev(argv[2], dev);
 	if (!blk_dev_desc) {
 		printf("%s: %s dev %d NOT available\n",
 		       __func__, argv[2], dev);

@@ -39,7 +39,7 @@ int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		part = (int)simple_strtoul(++ep, NULL, 16);
 	}
 
-	dev_desc = get_dev(argv[1], dev);
+	dev_desc = blk_get_dev(argv[1], dev);
 	if (dev_desc == NULL) {
 		printf("Block device %s %d not supported\n", argv[1], dev);
 		return 1;

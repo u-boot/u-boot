@@ -106,7 +106,7 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 	struct blk_desc *dd;
 
 	if (first) {
-		di->cookie = (void *)get_dev(specs[type].name, 0);
+		di->cookie = (void *)blk_get_dev(specs[type].name, 0);
 		if (di->cookie == NULL)
 			return 0;
 		else
@@ -119,7 +119,8 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 
 	} else {
 		for (i = 0; i < specs[type].max_dev; i++)
-			if (di->cookie == (void *)get_dev(specs[type].name, i)) {
+			if (di->cookie ==
+			    (void *)blk_get_dev(specs[type].name, i)) {
 				/* previous cookie found -- advance to the
 				 * next device, if possible */
 
@@ -129,7 +130,8 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 					break;
 				}
 
-				di->cookie = (void *)get_dev(specs[type].name, i);
+				di->cookie = (void *)blk_get_dev(
+							specs[type].name, i);
 				if (di->cookie == NULL)
 					return 0;
 				else
@@ -174,7 +176,7 @@ static int dev_stor_type(struct blk_desc *dd)
 
 	for (i = ENUM_IDE; i < ENUM_MAX; i++)
 		for (j = 0; j < specs[i].max_dev; j++)
-			if (dd == get_dev(specs[i].name, j))
+			if (dd == blk_get_dev(specs[i].name, j))
 				return i;
 
 	return ENUM_MAX;
@@ -313,7 +315,7 @@ static int dev_stor_is_valid(int type, struct blk_desc *dd)
 	int i;
 
 	for (i = 0; i < specs[type].max_dev; i++)
-		if (dd == get_dev(specs[type].name, i))
+		if (dd == blk_get_dev(specs[type].name, i))
 			if (dd->type != DEV_TYPE_UNKNOWN)
 				return 1;
 

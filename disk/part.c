@@ -101,7 +101,7 @@ static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 	return NULL;
 }
 
-struct blk_desc *get_dev(const char *ifname, int dev)
+struct blk_desc *blk_get_dev(const char *ifname, int dev)
 {
 	return get_dev_hwpart(ifname, dev, 0);
 }
@@ -111,7 +111,7 @@ struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 	return NULL;
 }
 
-struct blk_desc *get_dev(const char *ifname, int dev)
+struct blk_desc *blk_get_dev(const char *ifname, int dev)
 {
 	return NULL;
 }

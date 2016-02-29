@@ -106,7 +106,7 @@ void fb_mmc_flash_write(const char *cmd, unsigned int session_id,
 	/* initialize the response buffer */
 	response_str = response;
 
-	dev_desc = get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
 		error("invalid mmc device\n");
 		fastboot_fail(response_str, "invalid mmc device");
@@ -179,7 +179,7 @@ void fb_mmc_erase(const char *cmd, char *response)
 	/* initialize the response buffer */
 	response_str = response;
 
-	dev_desc = get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
 		error("invalid mmc device");
 		fastboot_fail(response_str, "invalid mmc device");

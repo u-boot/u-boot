@@ -54,7 +54,7 @@ typedef struct disk_partition {
 /* Misc _get_dev functions */
 #ifdef CONFIG_PARTITIONS
 /**
- * get_dev() - get a pointer to a block device given its type and number
+ * blk_get_dev() - get a pointer to a block device given its type and number
  *
  * Each interface allocates its own devices and typically struct blk_desc is
  * contained with the interface's data structure. There is no global
@@ -66,7 +66,7 @@ typedef struct disk_partition {
  * @return pointer to the block device, or NULL if not available, or an
  *	   error occurred.
  */
-struct blk_desc *get_dev(const char *ifname, int dev);
+struct blk_desc *blk_get_dev(const char *ifname, int dev);
 struct blk_desc *ide_get_dev(int dev);
 struct blk_desc *sata_get_dev(int dev);
 struct blk_desc *scsi_get_dev(int dev);
@@ -107,7 +107,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 			     struct blk_desc **dev_desc,
 			     disk_partition_t *info, int allow_whole_dev);
 #else
-static inline struct blk_desc *get_dev(const char *ifname, int dev)
+static inline struct blk_desc *blk_get_dev(const char *ifname, int dev)
 { return NULL; }
 static inline struct blk_desc *ide_get_dev(int dev) { return NULL; }
 static inline struct blk_desc *sata_get_dev(int dev) { return NULL; }
