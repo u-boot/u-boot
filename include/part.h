@@ -8,7 +8,6 @@
 #define _PART_H
 
 #include <ide.h>
-#include <common.h>
 
 struct blk_desc {
 	int		if_type;	/* type of the interface */
