@@ -142,7 +142,8 @@ static void detect_num_flash_banks(void)
 								memory_bank;
 
 			debug("flash bank found: base = 0x%lx, size = 0x%lx\n",
-			      memory_bank->base, memory_bank->size);
+			      (unsigned long)memory_bank->base,
+			      (unsigned long)memory_bank->size);
 			cfi_flash_num_flash_banks++;
 		}
 	}

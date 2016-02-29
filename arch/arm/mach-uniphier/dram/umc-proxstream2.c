@@ -18,46 +18,45 @@
 #include "ddrmphy-regs.h"
 #include "umc-regs.h"
 
-#define CH_NR	3
+#define DRAM_CH_NR	3
 
 enum dram_freq {
-	FREQ_1866M,
-	FREQ_2133M,
-	FREQ_NR,
+	DRAM_FREQ_1866M,
+	DRAM_FREQ_2133M,
+	DRAM_FREQ_NR,
 };
 
 enum dram_size {
-	SIZE_0,
-	SIZE_512M,
-	SIZE_1G,
-	SIZE_NR,
+	DRAM_SZ_256M,
+	DRAM_SZ_512M,
+	DRAM_SZ_NR,
 };
 
-static u32 ddrphy_pgcr2[FREQ_NR] = {0x00FC7E5D, 0x00FC90AB};
-static u32 ddrphy_ptr0[FREQ_NR] = {0x0EA09205, 0x10C0A6C6};
-static u32 ddrphy_ptr1[FREQ_NR] = {0x0DAC041B, 0x0FA104B1};
-static u32 ddrphy_ptr3[FREQ_NR] = {0x15171e45, 0x18182357};
-static u32 ddrphy_ptr4[FREQ_NR] = {0x0e9ad8e9, 0x10b34157};
-static u32 ddrphy_dtpr0[FREQ_NR] = {0x35a00d88, 0x39e40e88};
-static u32 ddrphy_dtpr1[FREQ_NR] = {0x2288cc2c, 0x228a04d0};
-static u32 ddrphy_dtpr2[FREQ_NR] = {0x50005e00, 0x50006a00};
-static u32 ddrphy_dtpr3[FREQ_NR] = {0x0010cb49, 0x0010ec89};
-static u32 ddrphy_mr0[FREQ_NR] = {0x00000115, 0x00000125};
-static u32 ddrphy_mr2[FREQ_NR] = {0x000002a0, 0x000002a8};
+static u32 ddrphy_pgcr2[DRAM_FREQ_NR] = {0x00FC7E5D, 0x00FC90AB};
+static u32 ddrphy_ptr0[DRAM_FREQ_NR] = {0x0EA09205, 0x10C0A6C6};
+static u32 ddrphy_ptr1[DRAM_FREQ_NR] = {0x0DAC041B, 0x0FA104B1};
+static u32 ddrphy_ptr3[DRAM_FREQ_NR] = {0x15171e45, 0x18182357};
+static u32 ddrphy_ptr4[DRAM_FREQ_NR] = {0x0e9ad8e9, 0x10b34157};
+static u32 ddrphy_dtpr0[DRAM_FREQ_NR] = {0x35a00d88, 0x39e40e88};
+static u32 ddrphy_dtpr1[DRAM_FREQ_NR] = {0x2288cc2c, 0x228a04d0};
+static u32 ddrphy_dtpr2[DRAM_FREQ_NR] = {0x50005e00, 0x50006a00};
+static u32 ddrphy_dtpr3[DRAM_FREQ_NR] = {0x0010cb49, 0x0010ec89};
+static u32 ddrphy_mr0[DRAM_FREQ_NR] = {0x00000115, 0x00000125};
+static u32 ddrphy_mr2[DRAM_FREQ_NR] = {0x000002a0, 0x000002a8};
 
 /* dependent on package and board design */
-static u32 ddrphy_acbdlr0[CH_NR] = {0x0000000c, 0x0000000c, 0x00000009};
+static u32 ddrphy_acbdlr0[DRAM_CH_NR] = {0x0000000c, 0x0000000c, 0x00000009};
 
-static u32 umc_cmdctla[FREQ_NR] = {0x66DD131D, 0x77EE1722};
+static u32 umc_cmdctla[DRAM_FREQ_NR] = {0x66DD131D, 0x77EE1722};
 /*
  * The ch2 is a different generation UMC core.
  * The register spec is different, unfortunately.
  */
-static u32 umc_cmdctlb_ch01[FREQ_NR] = {0x13E87C44, 0x18F88C44};
-static u32 umc_cmdctlb_ch2[FREQ_NR] = {0x19E8DC44, 0x1EF8EC44};
-static u32 umc_spcctla[FREQ_NR][SIZE_NR] = {
-	{0x00000000, 0x004A071D, 0x0078071D},
-	{0x00000000, 0x0055081E, 0x0089081E},
+static u32 umc_cmdctlb_ch01[DRAM_FREQ_NR] = {0x13E87C44, 0x18F88C44};
+static u32 umc_cmdctlb_ch2[DRAM_FREQ_NR] = {0x19E8DC44, 0x1EF8EC44};
+static u32 umc_spcctla[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+	{0x004A071D, 0x0078071D},
+	{0x0055081E, 0x0089081E},
 };
 
 static u32 umc_spcctlb[] = {0x00FF000A, 0x00FF000B};
@@ -344,7 +343,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 
 	do {
 		if (--timeout < 0) {
-			printf("%s: error: timeout during DDR training\n",
+			pr_err("%s: error: timeout during DDR training\n",
 			       __func__);
 			return -ETIMEDOUT;
 		}
@@ -354,7 +353,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 
 	for (s = seq; s->description; s++) {
 		if (pgsr0 & s->err_flag) {
-			printf("%s: error: %s failed\n", __func__,
+			pr_err("%s: error: %s failed\n", __func__,
 			       s->description);
 			return -EIO;
 		}
@@ -405,12 +404,12 @@ static int ddrphy_training(void __iomem *phy_base)
 }
 
 /* UMC */
-static void umc_set_system_latency(void __iomem *umc_dc_base, int phy_latency)
+static void umc_set_system_latency(void __iomem *dc_base, int phy_latency)
 {
 	u32 val;
 	int latency;
 
-	val = readl(umc_dc_base + UMC_RDATACTL_D0);
+	val = readl(dc_base + UMC_RDATACTL_D0);
 	latency = (val & UMC_RDATACTL_RADLTY_MASK) >> UMC_RDATACTL_RADLTY_SHIFT;
 	latency += (val & UMC_RDATACTL_RAD2LTY_MASK) >>
 						UMC_RDATACTL_RAD2LTY_SHIFT;
@@ -428,18 +427,18 @@ static void umc_set_system_latency(void __iomem *umc_dc_base, int phy_latency)
 		val |= latency << UMC_RDATACTL_RADLTY_SHIFT;
 	}
 
-	writel(val, umc_dc_base + UMC_RDATACTL_D0);
-	writel(val, umc_dc_base + UMC_RDATACTL_D1);
+	writel(val, dc_base + UMC_RDATACTL_D0);
+	writel(val, dc_base + UMC_RDATACTL_D1);
 
-	readl(umc_dc_base + UMC_RDATACTL_D1); /* relax */
+	readl(dc_base + UMC_RDATACTL_D1); /* relax */
 }
 
 /* enable/disable auto refresh */
-void umc_refresh_ctrl(void __iomem *umc_dc_base, int enable)
+void umc_refresh_ctrl(void __iomem *dc_base, int enable)
 {
 	u32 tmp;
 
-	tmp = readl(umc_dc_base + UMC_SPCSETB);
+	tmp = readl(dc_base + UMC_SPCSETB);
 	tmp &= ~UMC_SPCSETB_AREFMD_MASK;
 
 	if (enable)
@@ -447,7 +446,7 @@ void umc_refresh_ctrl(void __iomem *umc_dc_base, int enable)
 	else
 		tmp |= UMC_SPCSETB_AREFMD_REG;
 
-	writel(tmp, umc_dc_base + UMC_SPCSETB);
+	writel(tmp, dc_base + UMC_SPCSETB);
 	udelay(1);
 }
 
@@ -459,20 +458,35 @@ static void umc_ud_init(void __iomem *umc_base, int ch)
 		writel(0x00000033, umc_base + UMC_PAIR1DOFF_D0);
 }
 
-static void umc_dc_init(void __iomem *umc_dc_base, enum dram_freq freq,
-			enum dram_size size, int ch, int width)
+static int umc_dc_init(void __iomem *dc_base, enum dram_freq freq,
+		       unsigned long size, int width, int ch)
 {
+	enum dram_size size_e;
 	int latency;
 	u32 val;
 
-	writel(umc_cmdctla[freq], umc_dc_base + UMC_CMDCTLA);
+	switch (size) {
+	case 0:
+		return 0;
+	case SZ_256M:
+		size_e = DRAM_SZ_256M;
+		break;
+	case SZ_512M:
+		size_e = DRAM_SZ_512M;
+		break;
+	default:
+		pr_err("unsupported DRAM size 0x%08lx (per 16bit) for ch%d\n",
+		       size, ch);
+		return -EINVAL;
+	}
+
+	writel(umc_cmdctla[freq], dc_base + UMC_CMDCTLA);
 
 	writel(ch == 2 ? umc_cmdctlb_ch2[freq] : umc_cmdctlb_ch01[freq],
-	       umc_dc_base + UMC_CMDCTLB);
+	       dc_base + UMC_CMDCTLB);
 
-	writel(umc_spcctla[freq][size / (width / 16)],
-	       umc_dc_base + UMC_SPCCTLA);
-	writel(umc_spcctlb[freq], umc_dc_base + UMC_SPCCTLB);
+	writel(umc_spcctla[freq][size_e], dc_base + UMC_SPCCTLA);
+	writel(umc_spcctlb[freq], dc_base + UMC_SPCCTLB);
 
 	val = 0x000e000e;
 	latency = 12;
@@ -487,54 +501,56 @@ static void umc_dc_init(void __iomem *umc_dc_base, enum dram_freq freq,
 		val |= latency << UMC_RDATACTL_RADLTY_SHIFT;
 	}
 
-	writel(val, umc_dc_base + UMC_RDATACTL_D0);
+	writel(val, dc_base + UMC_RDATACTL_D0);
 	if (width >= 32)
-		writel(val, umc_dc_base + UMC_RDATACTL_D1);
+		writel(val, dc_base + UMC_RDATACTL_D1);
 
-	writel(0x04060A02, umc_dc_base + UMC_WDATACTL_D0);
+	writel(0x04060A02, dc_base + UMC_WDATACTL_D0);
 	if (width >= 32)
-		writel(0x04060A02, umc_dc_base + UMC_WDATACTL_D1);
-	writel(0x04000000, umc_dc_base + UMC_DATASET);
-	writel(0x00400020, umc_dc_base + UMC_DCCGCTL);
-	writel(0x00000084, umc_dc_base + UMC_FLOWCTLG);
-	writel(0x00000000, umc_dc_base + UMC_ACSSETA);
+		writel(0x04060A02, dc_base + UMC_WDATACTL_D1);
+	writel(0x04000000, dc_base + UMC_DATASET);
+	writel(0x00400020, dc_base + UMC_DCCGCTL);
+	writel(0x00000084, dc_base + UMC_FLOWCTLG);
+	writel(0x00000000, dc_base + UMC_ACSSETA);
 
 	writel(ch == 2 ? umc_flowctla_ch2[freq] : umc_flowctla_ch01[freq],
-	       umc_dc_base + UMC_FLOWCTLA);
+	       dc_base + UMC_FLOWCTLA);
 
-	writel(0x00004400, umc_dc_base + UMC_FLOWCTLC);
-	writel(0x200A0A00, umc_dc_base + UMC_SPCSETB);
-	writel(0x00000520, umc_dc_base + UMC_DFICUPDCTLA);
-	writel(0x0000000D, umc_dc_base + UMC_RESPCTL);
+	writel(0x00004400, dc_base + UMC_FLOWCTLC);
+	writel(0x200A0A00, dc_base + UMC_SPCSETB);
+	writel(0x00000520, dc_base + UMC_DFICUPDCTLA);
+	writel(0x0000000D, dc_base + UMC_RESPCTL);
 
 	if (ch != 2) {
-		writel(0x00202000, umc_dc_base + UMC_FLOWCTLB);
-		writel(0xFDBFFFFF, umc_dc_base + UMC_FLOWCTLOB0);
-		writel(0xFFFFFFFF, umc_dc_base + UMC_FLOWCTLOB1);
-		writel(0x00080700, umc_dc_base + UMC_BSICMAPSET);
+		writel(0x00202000, dc_base + UMC_FLOWCTLB);
+		writel(0xFDBFFFFF, dc_base + UMC_FLOWCTLOB0);
+		writel(0xFFFFFFFF, dc_base + UMC_FLOWCTLOB1);
+		writel(0x00080700, dc_base + UMC_BSICMAPSET);
 	} else {
-		writel(0x00200000, umc_dc_base + UMC_FLOWCTLB);
-		writel(0x00000000, umc_dc_base + UMC_BSICMAPSET);
+		writel(0x00200000, dc_base + UMC_FLOWCTLB);
+		writel(0x00000000, dc_base + UMC_BSICMAPSET);
 	}
 
-	writel(0x00000000, umc_dc_base + UMC_ERRMASKA);
-	writel(0x00000000, umc_dc_base + UMC_ERRMASKB);
+	writel(0x00000000, dc_base + UMC_ERRMASKA);
+	writel(0x00000000, dc_base + UMC_ERRMASKB);
+
+	return 0;
 }
 
-static int umc_init(void __iomem *umc_base, enum dram_freq freq, int ch,
-		    enum dram_size size, int width)
+static int umc_ch_init(void __iomem *umc_ch_base, enum dram_freq freq,
+		       unsigned long size, unsigned int width, int ch)
 {
-	void __iomem *umc_dc_base = umc_base + 0x00011000;
-	void __iomem *phy_base = umc_base + 0x00030000;
+	void __iomem *dc_base = umc_ch_base + 0x00011000;
+	void __iomem *phy_base = umc_ch_base + 0x00030000;
 	int ret;
 
-	writel(0x00000002, umc_dc_base + UMC_INITSET);
-	while (readl(umc_dc_base + UMC_INITSTAT) & BIT(2))
+	writel(0x00000002, dc_base + UMC_INITSET);
+	while (readl(dc_base + UMC_INITSTAT) & BIT(2))
 		cpu_relax();
 
 	/* deassert PHY reset signals */
 	writel(UMC_DIOCTLA_CTL_NRST | UMC_DIOCTLA_CFG_NRST,
-	       umc_dc_base + UMC_DIOCTLA);
+	       dc_base + UMC_DIOCTLA);
 
 	ddrphy_init(phy_base, freq, width, ch);
 
@@ -546,28 +562,28 @@ static int umc_init(void __iomem *umc_base, enum dram_freq freq, int ch,
 	if (ret)
 		return ret;
 
-	umc_dc_init(umc_dc_base, freq, size, ch, width);
+	ret = umc_dc_init(dc_base, freq, size, width, ch);
+	if (ret)
+		return ret;
 
-	umc_ud_init(umc_base, ch);
+	umc_ud_init(umc_ch_base, ch);
 
-	if (size) {
-		ret = ddrphy_training(phy_base);
-		if (ret)
-			return ret;
-	}
+	ret = ddrphy_training(phy_base);
+	if (ret)
+		return ret;
 
 	udelay(1);
 
 	/* match the system latency between UMC and PHY */
-	umc_set_system_latency(umc_dc_base,
+	umc_set_system_latency(dc_base,
 			       ddrphy_get_system_latency(phy_base, width));
 
 	udelay(1);
 
 	/* stop auto refresh before clearing FIFO in PHY */
-	umc_refresh_ctrl(umc_dc_base, 0);
+	umc_refresh_ctrl(dc_base, 0);
 	ddrphy_fifo_reset(phy_base);
-	umc_refresh_ctrl(umc_dc_base, 1);
+	umc_refresh_ctrl(dc_base, 1);
 
 	udelay(10);
 
@@ -585,43 +601,34 @@ static void um_init(void __iomem *um_base)
 int proxstream2_umc_init(const struct uniphier_board_data *bd)
 {
 	void __iomem *um_base = (void __iomem *)0x5b600000;
-	void __iomem *umc_ch0_base = (void __iomem *)0x5b800000;
-	void __iomem *umc_ch1_base = (void __iomem *)0x5ba00000;
-	void __iomem *umc_ch2_base = (void __iomem *)0x5bc00000;
+	void __iomem *umc_ch_base = (void __iomem *)0x5b800000;
 	enum dram_freq freq;
-	int ret;
+	int ch, ret;
 
 	switch (bd->dram_freq) {
 	case 1866:
-		freq = FREQ_1866M;
+		freq = DRAM_FREQ_1866M;
 		break;
 	case 2133:
-		freq = FREQ_2133M;
+		freq = DRAM_FREQ_2133M;
 		break;
 	default:
-		printf("unsupported DRAM frequency %d MHz\n", bd->dram_freq);
+		pr_err("unsupported DRAM frequency %d MHz\n", bd->dram_freq);
 		return -EINVAL;
 	}
 
-	ret = umc_init(umc_ch0_base, freq, 0, bd->dram_ch0_size / SZ_256M,
-		       bd->dram_ch0_width);
-	if (ret) {
-		printf("failed to initialize UMC ch0\n");
-		return ret;
-	}
+	for (ch = 0; ch < bd->dram_nr_ch; ch++) {
+		unsigned long size = bd->dram_ch[ch].size;
+		unsigned int width = bd->dram_ch[ch].width;
 
-	ret = umc_init(umc_ch1_base, freq, 1, bd->dram_ch1_size / SZ_256M,
-		       bd->dram_ch1_width);
-	if (ret) {
-		printf("failed to initialize UMC ch1\n");
-		return ret;
-	}
+		ret = umc_ch_init(umc_ch_base, freq, size / (width / 16),
+				  width, ch);
+		if (ret) {
+			pr_err("failed to initialize UMC ch%d\n", ch);
+			return ret;
+		}
 
-	ret = umc_init(umc_ch2_base, freq, 2, bd->dram_ch2_size / SZ_256M,
-		       bd->dram_ch2_width);
-	if (ret) {
-		printf("failed to initialize UMC ch2\n");
-		return ret;
+		umc_ch_base += 0x00200000;
 	}
 
 	um_init(um_base);

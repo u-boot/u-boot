@@ -9,9 +9,9 @@
 #include <linux/serial_reg.h>
 #include <linux/linkage.h>
 
-#include "bcu/bcu-regs.h"
-#include "sc-regs.h"
-#include "sg-regs.h"
+#include "../bcu/bcu-regs.h"
+#include "../sc-regs.h"
+#include "../sg-regs.h"
 
 #if !defined(CONFIG_DEBUG_SEMIHOSTING)
 #include CONFIG_DEBUG_LL_INCLUDE

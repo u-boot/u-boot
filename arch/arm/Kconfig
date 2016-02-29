@@ -690,15 +690,16 @@ config TARGET_COLIBRI_PXA270
 config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
 	select CLK_UNIPHIER
-	select CPU_V7
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
 	select SPL_OF_CONTROL
 	select DM
 	select SPL_DM
+	select DM_GPIO
 	select DM_SERIAL
 	select DM_I2C
+	select DM_MMC
 	help
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)

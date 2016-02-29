@@ -99,15 +99,15 @@
 
 #define CONFIG_CONS_INDEX		1
 
-/*
- * For NAND booting the environment is embedded in the U-Boot image. Please take
- * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.
- */
+/* #define CONFIG_ENV_IS_NOWHERE */
 /* #define CONFIG_ENV_IS_IN_NAND */
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET			0x80000
 #define CONFIG_ENV_SIZE				0x2000
-#define CONFIG_ENV_OFFSET			0x0
 /* #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
+
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		1
 
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
@@ -145,6 +145,11 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
+
+/* SD/MMC */
+#define CONFIG_CMD_MMC
+#define CONFIG_SUPPORT_EMMC_BOOT
+#define CONFIG_GENERIC_MMC
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
@@ -228,6 +233,13 @@
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
 	"nor_base=0x42000000\0"					\
+	"emmcupdate=mmcsetn &&"					\
+		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
+		"mmc erase 0 800 &&"				\
+		"tftpboot u-boot-spl.bin &&"			\
+		"mmc write $loadaddr 0 80 &&"			\
+		"tftpboot u-boot.img &&"			\
+		"mmc write $loadaddr 80 780\0"			\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
@@ -259,6 +271,7 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -266,6 +279,7 @@
 #define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80
 
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 
