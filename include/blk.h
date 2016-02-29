@@ -34,7 +34,15 @@ enum if_type {
 	IF_TYPE_COUNT,			/* Number of interface types */
 };
 
+/*
+ * With driver model (CONFIG_BLK) this is uclass platform data, accessible
+ * with dev_get_uclass_platdata(dev)
+ */
 struct blk_desc {
+	/*
+	 * TODO: With driver model we should be able to use the parent
+	 * device's uclass instead.
+	 */
 	enum if_type	if_type;	/* type of the interface */
 	int		devnum;		/* device number */
 	unsigned char	part_type;	/* partition type */
@@ -53,6 +61,9 @@ struct blk_desc {
 	char		vendor[40+1];	/* IDE model, SCSI Vendor */
 	char		product[20+1];	/* IDE Serial no, SCSI product */
 	char		revision[8+1];	/* firmware revision */
+#ifdef CONFIG_BLK
+	struct udevice *bdev;
+#else
 	unsigned long	(*block_read)(struct blk_desc *block_dev,
 				      lbaint_t start,
 				      lbaint_t blkcnt,
@@ -65,12 +76,145 @@ struct blk_desc {
 				       lbaint_t start,
 				       lbaint_t blkcnt);
 	void		*priv;		/* driver private struct pointer */
+#endif
 };
 
 #define BLOCK_CNT(size, blk_desc) (PAD_COUNT(size, blk_desc->blksz))
 #define PAD_TO_BLOCKSIZE(size, blk_desc) \
 	(PAD_SIZE(size, blk_desc->blksz))
 
+#ifdef CONFIG_BLK
+struct udevice;
+
+/* Operations on block devices */
+struct blk_ops {
+	/**
+	 * read() - read from a block device
+	 *
+	 * @dev:	Device to read from
+	 * @start:	Start block number to read (0=first)
+	 * @blkcnt:	Number of blocks to read
+	 * @buffer:	Destination buffer for data read
+	 * @return number of blocks read, or -ve error number (see the
+	 * IS_ERR_VALUE() macro
+	 */
+	unsigned long (*read)(struct udevice *dev, lbaint_t start,
+			      lbaint_t blkcnt, void *buffer);
+
+	/**
+	 * write() - write to a block device
+	 *
+	 * @dev:	Device to write to
+	 * @start:	Start block number to write (0=first)
+	 * @blkcnt:	Number of blocks to write
+	 * @buffer:	Source buffer for data to write
+	 * @return number of blocks written, or -ve error number (see the
+	 * IS_ERR_VALUE() macro
+	 */
+	unsigned long (*write)(struct udevice *dev, lbaint_t start,
+			       lbaint_t blkcnt, const void *buffer);
+
+	/**
+	 * erase() - erase a section of a block device
+	 *
+	 * @dev:	Device to (partially) erase
+	 * @start:	Start block number to erase (0=first)
+	 * @blkcnt:	Number of blocks to erase
+	 * @return number of blocks erased, or -ve error number (see the
+	 * IS_ERR_VALUE() macro
+	 */
+	unsigned long (*erase)(struct udevice *dev, lbaint_t start,
+			       lbaint_t blkcnt);
+};
+
+#define blk_get_ops(dev)	((struct blk_ops *)(dev)->driver->ops)
+
+/*
+ * These functions should take struct udevice instead of struct blk_desc,
+ * but this is convenient for migration to driver model. Add a 'd' prefix
+ * to the function operations, so that blk_read(), etc. can be reserved for
+ * functions with the correct arguments.
+ */
+unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start,
+			lbaint_t blkcnt, void *buffer);
+unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
+			 lbaint_t blkcnt, const void *buffer);
+unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
+			 lbaint_t blkcnt);
+
+/**
+ * blk_get_device() - Find and probe a block device ready for use
+ *
+ * @if_type:	Interface type (enum if_type_t)
+ * @devnum:	Device number (specific to each interface type)
+ * @devp:	the device, if found
+ * @return - if found, -ENODEV if no device found, or other -ve error value
+ */
+int blk_get_device(int if_type, int devnum, struct udevice **devp);
+
+/**
+ * blk_first_device() - Find the first device for a given interface
+ *
+ * The device is probed ready for use
+ *
+ * @devnum:	Device number (specific to each interface type)
+ * @devp:	the device, if found
+ * @return 0 if found, -ENODEV if no device, or other -ve error value
+ */
+int blk_first_device(int if_type, struct udevice **devp);
+
+/**
+ * blk_next_device() - Find the next device for a given interface
+ *
+ * This can be called repeatedly after blk_first_device() to iterate through
+ * all devices of the given interface type.
+ *
+ * The device is probed ready for use
+ *
+ * @devp:	On entry, the previous device returned. On exit, the next
+ *		device, if found
+ * @return 0 if found, -ENODEV if no device, or other -ve error value
+ */
+int blk_next_device(struct udevice **devp);
+
+/**
+ * blk_create_device() - Create a new block device
+ *
+ * @parent:	Parent of the new device
+ * @drv_name:	Driver name to use for the block device
+ * @name:	Name for the device
+ * @if_type:	Interface type (enum if_type_t)
+ * @devnum:	Device number, specific to the interface type
+ * @blksz:	Block size of the device in bytes (typically 512)
+ * @size:	Total size of the device in bytes
+ * @devp:	the new device (which has not been probed)
+ */
+int blk_create_device(struct udevice *parent, const char *drv_name,
+		      const char *name, int if_type, int devnum, int blksz,
+		      lbaint_t size, struct udevice **devp);
+
+/**
+ * blk_prepare_device() - Prepare a block device for use
+ *
+ * This reads partition information from the device if supported.
+ *
+ * @dev:	Device to prepare
+ * @return 0 if ok, -ve on error
+ */
+int blk_prepare_device(struct udevice *dev);
+
+/**
+ * blk_unbind_all() - Unbind all device of the given interface type
+ *
+ * The devices are removed and then unbound.
+ *
+ * @if_type:	Interface type to unbind
+ * @return 0 if OK, -ve on error
+ */
+int blk_unbind_all(int if_type);
+
+#else
+#include <errno.h>
 /*
  * These functions should take struct udevice instead of struct blk_desc,
  * but this is convenient for migration to driver model. Add a 'd' prefix
@@ -99,5 +243,6 @@ static inline ulong blk_derase(struct blk_desc *block_dev, lbaint_t start,
 {
 	return block_dev->block_erase(block_dev, start, blkcnt);
 }
+#endif /* !CONFIG_BLK */
 
 #endif

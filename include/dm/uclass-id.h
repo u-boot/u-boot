@@ -26,6 +26,7 @@ enum uclass_id {
 
 	/* U-Boot uclasses start here - in alphabetical order */
 	UCLASS_ADC,		/* Analog-to-digital converter */
+	UCLASS_BLK,		/* Block device */
 	UCLASS_CLK,		/* Clock source, e.g. used by peripherals */
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */
