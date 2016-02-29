@@ -53,12 +53,42 @@ typedef struct disk_partition {
 
 /* Misc _get_dev functions */
 #ifdef CONFIG_PARTITIONS
+/**
+ * get_dev() - get a pointer to a block device given its type and number
+ *
+ * Each interface allocates its own devices and typically struct blk_desc is
+ * contained with the interface's data structure. There is no global
+ * numbering for block devices, so the interface name must be provided.
+ *
+ * @ifname:	Interface name (e.g. "ide", "scsi")
+ * @dev:	Device number (0 for first device on that interface, 1 for
+ *		second, etc.
+ * @return pointer to the block device, or NULL if not available, or an
+ *	   error occurred.
+ */
 struct blk_desc *get_dev(const char *ifname, int dev);
 struct blk_desc *ide_get_dev(int dev);
 struct blk_desc *sata_get_dev(int dev);
 struct blk_desc *scsi_get_dev(int dev);
 struct blk_desc *usb_stor_get_dev(int dev);
 struct blk_desc *mmc_get_dev(int dev);
+
+/**
+ * mmc_select_hwpart() - Select the MMC hardware partiion on an MMC device
+ *
+ * MMC devices can support partitioning at the hardware level. This is quite
+ * separate from the normal idea of software-based partitions. MMC hardware
+ * partitions must be explicitly selected. Once selected only the region of
+ * the device covered by that partition is accessible.
+ *
+ * The MMC standard provides for two boot partitions (numbered 1 and 2),
+ * rpmb (3), and up to 4 addition general-purpose partitions (4-7).
+ *
+ * @dev_num:	Block device number (struct blk_desc->dev value)
+ * @hwpart:	Hardware partition number to select. 0 means the raw device,
+ *		1 is the first partition, 2 is the second, etc.
+ * @return 0 if OK, other value for an error
+ */
 int mmc_select_hwpart(int dev_num, int hwpart);
 struct blk_desc *systemace_get_dev(int dev);
 struct blk_desc *mg_disk_get_dev(int dev);
