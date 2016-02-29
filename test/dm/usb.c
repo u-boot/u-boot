@@ -52,6 +52,7 @@ static int dm_test_usb_flash(struct unit_test_state *uts)
 	memset(cmp, '\0', sizeof(cmp));
 	ut_asserteq(2, blk_dread(dev_desc, 0, 2, cmp));
 	ut_assertok(strcmp(cmp, "this is a test"));
+	ut_assertok(usb_stop());
 
 	return 0;
 }
@@ -67,6 +68,7 @@ static int dm_test_usb_multi(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 1, &dev));
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 2, &dev));
+	ut_assertok(usb_stop());
 
 	return 0;
 }
