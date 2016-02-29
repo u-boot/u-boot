@@ -101,8 +101,34 @@ int get_partition_info(struct blk_desc *dev_desc, int part,
 void print_part(struct blk_desc *dev_desc);
 void init_part(struct blk_desc *dev_desc);
 void dev_print(struct blk_desc *dev_desc);
-int get_device(const char *ifname, const char *dev_str,
-	       struct blk_desc **dev_desc);
+
+/**
+ * blk_get_device_by_str() - Get a block device given its interface/hw partition
+ *
+ * Each interface allocates its own devices and typically struct blk_desc is
+ * contained with the interface's data structure. There is no global
+ * numbering for block devices, so the interface name must be provided.
+ *
+ * The hardware parition is not related to the normal software partitioning
+ * of a device - each hardware partition is effectively a separately
+ * accessible block device. When a hardware parition is selected on MMC the
+ * other hardware partitions become inaccessible. The same block device is
+ * used to access all hardware partitions, but its capacity may change when a
+ * different hardware partition is selected.
+ *
+ * When a hardware partition number is given, the block device switches to
+ * that hardware partition.
+ *
+ * @ifname:	Interface name (e.g. "ide", "scsi")
+ * @dev_str:	Device and optional hw partition. This can either be a string
+ *		containing the device number (e.g. "2") or the device number
+ *		and hardware partition number (e.g. "2.4") for devices that
+ *		support it (currently only MMC).
+ * @dev_desc:	Returns a pointer to the block device on success
+ * @return block device number (local to the interface), or -1 on error
+ */
+int blk_get_device_by_str(const char *ifname, const char *dev_str,
+			  struct blk_desc **dev_desc);
 int get_device_and_partition(const char *ifname, const char *dev_part_str,
 			     struct blk_desc **dev_desc,
 			     disk_partition_t *info, int allow_whole_dev);
@@ -124,8 +150,8 @@ static inline int get_partition_info(struct blk_desc *dev_desc, int part,
 static inline void print_part(struct blk_desc *dev_desc) {}
 static inline void init_part(struct blk_desc *dev_desc) {}
 static inline void dev_print(struct blk_desc *dev_desc) {}
-static inline int get_device(const char *ifname, const char *dev_str,
-			     struct blk_desc **dev_desc)
+static inline int blk_get_device_by_str(const char *ifname, const char *dev_str,
+					struct blk_desc **dev_desc)
 { return -1; }
 static inline int get_device_and_partition(const char *ifname,
 					   const char *dev_part_str,

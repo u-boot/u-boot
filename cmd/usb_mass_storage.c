@@ -69,7 +69,7 @@ static int ums_init(const char *devtype, const char *devnums)
 		if (!devnum)
 			break;
 
-		ret = get_device(devtype, devnum, &block_dev);
+		ret = blk_get_device_by_str(devtype, devnum, &block_dev);
 		if (ret < 0)
 			goto cleanup;
 

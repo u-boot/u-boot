@@ -81,7 +81,7 @@ static int do_part_list(int argc, char * const argv[])
 			return CMD_RET_USAGE;
 	}
 
-	ret = get_device(argv[0], argv[1], &desc);
+	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
@@ -128,7 +128,7 @@ static int do_part_start(int argc, char * const argv[])
 
 	part = simple_strtoul(argv[2], NULL, 0);
 
-	ret = get_device(argv[0], argv[1], &desc);
+	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
@@ -162,7 +162,7 @@ static int do_part_size(int argc, char * const argv[])
 
 	part = simple_strtoul(argv[2], NULL, 0);
 
-	ret = get_device(argv[0], argv[1], &desc);
+	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 

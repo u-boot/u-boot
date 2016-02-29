@@ -45,7 +45,7 @@ static int dm_test_usb_flash(struct unit_test_state *uts)
 	state_set_skip_delays(true);
 	ut_assertok(usb_init());
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
-	ut_assertok(get_device("usb", "0", &dev_desc));
+	ut_assertok(blk_get_device_by_str("usb", "0", &dev_desc));
 
 	/* Read a few blocks and look for the string we expect */
 	ut_asserteq(512, dev_desc->blksz);

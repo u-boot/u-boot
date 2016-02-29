@@ -449,8 +449,8 @@ int get_partition_info(struct blk_desc *dev_desc, int part,
 	return -1;
 }
 
-int get_device(const char *ifname, const char *dev_hwpart_str,
-	       struct blk_desc **dev_desc)
+int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
+			  struct blk_desc **dev_desc)
 {
 	char *ep;
 	char *dup_str = NULL;
@@ -598,7 +598,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	}
 
 	/* Look up the device */
-	dev = get_device(ifname, dev_str, dev_desc);
+	dev = blk_get_device_by_str(ifname, dev_str, dev_desc);
 	if (dev < 0)
 		goto cleanup;
 

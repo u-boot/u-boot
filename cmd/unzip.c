@@ -53,7 +53,7 @@ static int do_gzwrite(cmd_tbl_t *cmdtp, int flag,
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
-	ret = get_device(argv[1], argv[2], &bdev);
+	ret = blk_get_device_by_str(argv[1], argv[2], &bdev);
 	if (ret < 0)
 		return CMD_RET_FAILURE;
 
