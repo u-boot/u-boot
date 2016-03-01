@@ -306,8 +306,8 @@ void spi_release_bus(struct spi_slave *slave)
 	spi_reset(ds);
 }
 
-int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
-		    unsigned long flags)
+static int omap3_spi_write(struct spi_slave *slave, unsigned int len,
+			   const void *txp, unsigned long flags)
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	int i;
@@ -360,8 +360,8 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 	return 0;
 }
 
-int omap3_spi_read(struct spi_slave *slave, unsigned int len, void *rxp,
-		   unsigned long flags)
+static int omap3_spi_read(struct spi_slave *slave, unsigned int len,
+			  void *rxp, unsigned long flags)
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	int i;
@@ -414,8 +414,8 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, void *rxp,
 }
 
 /*McSPI Transmit Receive Mode*/
-int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
-		   const void *txp, void *rxp, unsigned long flags)
+static int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
+			  const void *txp, void *rxp, unsigned long flags)
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	ulong start;
