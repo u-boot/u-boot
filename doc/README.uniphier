@@ -44,6 +44,14 @@ PH1-Pro4 reference board:
     $ make uniphier_pro4_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi-
 
+PH1-Pro4 Ace board:
+    $ make uniphier_pro4_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro4-ace
+
+PH1-Pro4 Sanji board:
+    $ make uniphier_pro4_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro4-sanji
+
 PH1-Pro5 4KBOX Board:
     $ make uniphier_pxs2_ld6b_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabi- DEVICE_TREE=uniphier-ph1-pro5-4kbox
