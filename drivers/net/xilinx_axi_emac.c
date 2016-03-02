@@ -264,6 +264,7 @@ static int axiemac_phy_init(struct udevice *dev)
 /* Setting axi emac and phy to proper setting */
 static int setup_phy(struct udevice *dev)
 {
+	u16 temp;
 	u32 speed, emmc_reg, ret;
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
