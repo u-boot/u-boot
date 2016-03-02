@@ -12,29 +12,9 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <asm/types.h>
+#include <wait_bit.h>
 
 #if defined(CONFIG_MX6QDL) || defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
-
-static int wait_for_bit(void *reg, const uint32_t mask, bool set)
-{
-	unsigned int timeout = 1000;
-	u32 val;
-
-	while (--timeout) {
-		val = readl(reg);
-		if (!set)
-			val = ~val;
-
-		if ((val & mask) == mask)
-			return 0;
-
-		udelay(1);
-	}
-
-	printf("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
-	      __func__, reg, mask, set);
-	hang();	/* DRAM couldn't be calibrated, game over :-( */
-}
 
 static void reset_read_data_fifos(void)
 {
@@ -42,10 +22,10 @@ static void reset_read_data_fifos(void)
 
 	/* Reset data FIFOs twice. */
 	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
-	wait_for_bit(&mmdc0->mpdgctrl0, 1 << 31, 0);
+	wait_for_bit("MMDC", &mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
 
 	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
-	wait_for_bit(&mmdc0->mpdgctrl0, 1 << 31, 0);
+	wait_for_bit("MMDC", &mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
 }
 
 static void precharge_all(const bool cs0_enable, const bool cs1_enable)
@@ -60,12 +40,12 @@ static void precharge_all(const bool cs0_enable, const bool cs1_enable)
 	 */
 	if (cs0_enable) { /* CS0 */
 		writel(0x04008050, &mmdc0->mdscr);
-		wait_for_bit(&mmdc0->mdscr, 1 << 14, 1);
+		wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 1, 100, 0);
 	}
 
 	if (cs1_enable) { /* CS1 */
 		writel(0x04008058, &mmdc0->mdscr);
-		wait_for_bit(&mmdc0->mdscr, 1 << 14, 1);
+		wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 1, 100, 0);
 	}
 }
 
@@ -164,7 +144,7 @@ int mmdc_do_write_level_calibration(void)
 	 * 7. Upon completion of this process the MMDC de-asserts
 	 * the MPWLGCR[HW_WL_EN]
 	 */
-	wait_for_bit(&mmdc0->mpwlgcr, 1 << 0, 0);
+	wait_for_bit("MMDC", &mmdc0->mpwlgcr, 1 << 0, 0, 100, 0);
 
 	/*
 	 * 8. check for any errors: check both PHYs for x64 configuration,
@@ -289,7 +269,7 @@ int mmdc_do_dqs_calibration(void)
 		writel(0x00008028, &mmdc0->mdscr);
 
 	/* poll to make sure the con_ack bit was asserted */
-	wait_for_bit(&mmdc0->mdscr, 1 << 14, 1);
+	wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 1, 100, 0);
 
 	/*
 	 * Check MDMISC register CALIB_PER_CS to see which CS calibration
@@ -327,7 +307,7 @@ int mmdc_do_dqs_calibration(void)
 	 * this bit until it clears to indicate completion of the write access.
 	 */
 	setbits_le32(&mmdc0->mpswdar0, 1);
-	wait_for_bit(&mmdc0->mpswdar0, 1 << 0, 0);
+	wait_for_bit("MMDC", &mmdc0->mpswdar0, 1 << 0, 0, 100, 0);
 
 	/* Set the RD_DL_ABS# bits to their default values
 	 * (will be calibrated later in the read delay-line calibration).
@@ -372,7 +352,7 @@ int mmdc_do_dqs_calibration(void)
 	setbits_le32(&mmdc0->mpdgctrl0, 5 << 28);
 
 	/* Poll for completion.  MPDGCTRL0[HW_DG_EN] should be 0 */
-	wait_for_bit(&mmdc0->mpdgctrl0, 1 << 28, 0);
+	wait_for_bit("MMDC", &mmdc0->mpdgctrl0, 1 << 28, 0, 100, 0);
 
 	/*
 	 * Check to see if any errors were encountered during calibration
@@ -431,7 +411,7 @@ int mmdc_do_dqs_calibration(void)
 	 * setting MPRDDLHWCTL[HW_RD_DL_EN] = 0.   Also, ensure that
 	 * no error bits were set.
 	 */
-	wait_for_bit(&mmdc0->mprddlhwctl, 1 << 4, 0);
+	wait_for_bit("MMDC", &mmdc0->mprddlhwctl, 1 << 4, 0, 100, 0);
 
 	/* check both PHYs for x64 configuration, if x32, check only PHY0 */
 	if (readl(&mmdc0->mprddlhwctl) & 0x0000000f)
@@ -484,7 +464,7 @@ int mmdc_do_dqs_calibration(void)
 	 * by setting MPWRDLHWCTL[HW_WR_DL_EN] = 0.
 	 * Also, ensure that no error bits were set.
 	 */
-	wait_for_bit(&mmdc0->mpwrdlhwctl, 1 << 4, 0);
+	wait_for_bit("MMDC", &mmdc0->mpwrdlhwctl, 1 << 4, 0, 100, 0);
 
 	/* Check both PHYs for x64 configuration, if x32, check only PHY0 */
 	if (readl(&mmdc0->mpwrdlhwctl) & 0x0000000f)
@@ -532,7 +512,7 @@ int mmdc_do_dqs_calibration(void)
 	writel(0x0, &mmdc0->mdscr);	/* CS0 */
 
 	/* Poll to make sure the con_ack bit is clear */
-	wait_for_bit(&mmdc0->mdscr, 1 << 14, 0);
+	wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 0, 100, 0);
 
 	/*
 	 * Print out the registers that were updated as a result
