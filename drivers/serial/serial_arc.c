@@ -68,9 +68,6 @@ static int arc_serial_putc(struct udevice *dev, const char c)
 	struct arc_serial_platdata *plat = dev->platdata;
 	struct arc_serial_regs *const regs = plat->reg;
 
-	if (c == '\n')
-		arc_serial_putc(dev, '\r');
-
 	while (!(readb(&regs->status) & UART_TXEMPTY))
 		;
 

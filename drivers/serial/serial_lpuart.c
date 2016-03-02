@@ -77,9 +77,6 @@ static int _lpuart_serial_getc(struct lpuart_fsl *base)
 
 static void _lpuart_serial_putc(struct lpuart_fsl *base, const char c)
 {
-	if (c == '\n')
-		_lpuart_serial_putc(base, '\r');
-
 	while (!(__raw_readb(&base->us1) & US1_TDRE))
 		WATCHDOG_RESET();
 
@@ -198,9 +195,6 @@ static int _lpuart32_serial_getc(struct lpuart_fsl *base)
 
 static void _lpuart32_serial_putc(struct lpuart_fsl *base, const char c)
 {
-	if (c == '\n')
-		_lpuart32_serial_putc(base, '\r');
-
 	while (!(in_be32(&base->stat) & STAT_TDRE))
 		WATCHDOG_RESET();
 
