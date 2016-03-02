@@ -135,14 +135,14 @@ static void _serial_putc(const char c, const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 
+	/* If \n, also do \r */
+	if (c == '\n')
+		serial_putc('\r');
+
 	while (!(readl(&uart->utrstat) & 0x2))
 		/* wait for room in the tx FIFO */ ;
 
 	writeb(c, &uart->utxh);
-
-	/* If \n, also do \r */
-	if (c == '\n')
-		serial_putc('\r');
 }
 
 static inline void serial_putc_dev(unsigned int dev_index, const char c)
