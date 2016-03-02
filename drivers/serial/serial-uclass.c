@@ -123,11 +123,12 @@ static void _serial_putc(struct udevice *dev, char ch)
 	struct dm_serial_ops *ops = serial_get_ops(dev);
 	int err;
 
+	if (ch == '\n')
+		_serial_putc(dev, '\r');
+
 	do {
 		err = ops->putc(dev, ch);
 	} while (err == -EAGAIN);
-	if (ch == '\n')
-		_serial_putc(dev, '\r');
 }
 
 static void _serial_puts(struct udevice *dev, const char *str)
