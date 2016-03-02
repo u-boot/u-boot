@@ -626,7 +626,10 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 			else
 				read_len = remain_len;
 		} else {
-			read_len = len;
+			if (len > (SPI_FLASH_16MB_BOUN << flash->shift))
+				read_len = SPI_FLASH_16MB_BOUN << flash->shift;
+			else
+				read_len = len;
 		}
 
 		if (flash->spi->bytemode == SPI_4BYTE_MODE)
