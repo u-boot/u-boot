@@ -446,7 +446,7 @@ xyzModem_get_hdr (void)
   /* Verify checksum/CRC */
   if (xyz.crc_mode)
     {
-      cksum = cyg_crc16 (xyz.pkt, xyz.len);
+      cksum = crc16_ccitt(0, xyz.pkt, xyz.len);
       if (cksum != ((xyz.crc1 << 8) | xyz.crc2))
 	{
 	  ZM_DEBUG (zm_dprintf ("CRC error - recvd: %02x%02x, computed: %x\n",

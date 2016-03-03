@@ -61,12 +61,12 @@ static const uint16_t crc16_tab[] = {
 	0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
 };
 
-uint16_t cyg_crc16(unsigned char *buf, int len)
+uint16_t crc16_ccitt(uint16_t crc_start, unsigned char *buf, int len)
 {
 	int i;
 	uint16_t cksum;
 
-	cksum = 0;
+	cksum = crc_start;
 	for (i = 0;  i < len;  i++)
 		cksum = crc16_tab[((cksum>>8) ^ *buf++) & 0xff] ^ (cksum << 8);
 

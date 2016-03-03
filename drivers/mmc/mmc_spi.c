@@ -91,7 +91,7 @@ static uint mmc_spi_readdata(struct mmc *mmc, void *xbuf,
 			spi_xfer(spi, bsize * 8, NULL, buf, 0);
 			spi_xfer(spi, 2 * 8, NULL, &crc, 0);
 #ifdef CONFIG_MMC_SPI_CRC_ON
-			if (be_to_cpu16(cyg_crc16(buf, bsize)) != crc) {
+			if (be_to_cpu16(crc16_ccitt(0, buf, bsize)) != crc) {
 				debug("%s: CRC error\n", mmc->cfg->name);
 				r1 = R1_SPI_COM_CRC;
 				break;
@@ -120,7 +120,7 @@ static uint mmc_spi_writedata(struct mmc *mmc, const void *xbuf,
 	tok[1] = multi ? SPI_TOKEN_MULTI_WRITE : SPI_TOKEN_SINGLE;
 	while (bcnt--) {
 #ifdef CONFIG_MMC_SPI_CRC_ON
-		crc = cpu_to_be16(cyg_crc16((u8 *)buf, bsize));
+		crc = cpu_to_be16(crc16_ccitt(0, (u8 *)buf, bsize));
 #endif
 		spi_xfer(spi, 2 * 8, tok, NULL, 0);
 		spi_xfer(spi, bsize * 8, buf, NULL, 0);

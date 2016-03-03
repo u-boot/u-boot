@@ -62,8 +62,8 @@ cyg_ether_crc32(unsigned char *s, int len);
 extern uint32_t
 cyg_ether_crc32_accumulate(uint32_t crc, unsigned char *s, int len);
 
-/* 16 bit CRC with polynomial x^16+x^12+x^5+1 */
+/* 16 bit CRC with polynomial x^16+x^12+x^5+1 (CRC-CCITT) */
 
-extern uint16_t cyg_crc16(unsigned char *s, int len);
+uint16_t crc16_ccitt(uint16_t crc_start, unsigned char *s, int len);
 
 #endif /* _SERVICES_CRC_CRC_H_ */
