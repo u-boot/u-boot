@@ -15,6 +15,7 @@ choice
 
 config TARGET_MX7DSABRESD
 	bool "mx7dsabresd"
+	select MX7D
 	select DM
 	select DM_THERMAL
 

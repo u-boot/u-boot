@@ -3,7 +3,7 @@ CONFIG_ARCH_MX7=y
 CONFIG_TARGET_MX7DSABRESD=y
 CONFIG_IMX_RDC=y
 CONFIG_IMX_BOOTAUX=y
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx7dsabresd/imximage.cfg,MX7D"
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx7dsabresd/imximage.cfg"
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_IMLS is not set
