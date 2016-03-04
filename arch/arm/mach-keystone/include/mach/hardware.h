@@ -160,6 +160,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_LPSC_GEM_0			15
 #define KS2_LPSC_TETRIS			52
 #define KS2_TETRIS_PWR_DOMAIN		31
+#define KS2_GEM_0_PWR_DOMAIN		8
 
 /* Chip configuration unlock codes and registers */
 #define KS2_KICK0			(KS2_DEVICE_STATE_CTRL_BASE + 0x38)

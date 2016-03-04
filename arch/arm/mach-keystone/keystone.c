@@ -54,7 +54,7 @@ static void turn_off_all_dsps(int num_dsps)
 		if (psc_disable_module(i + KS2_LPSC_GEM_0))
 			printf("Cannot disable module for #%d DSP", i);
 
-		if (psc_disable_domain(i + 8))
+		if (psc_disable_domain(i + KS2_GEM_0_PWR_DOMAIN))
 			printf("Cannot disable domain for #%d DSP", i);
 	}
 }
