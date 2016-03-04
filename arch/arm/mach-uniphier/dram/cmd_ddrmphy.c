@@ -28,28 +28,14 @@ static int get_nr_ch(void)
 {
 	const struct uniphier_board_data *bd = uniphier_get_board_param();
 
-	return bd->dram_ch2_width ? 3 : 2;
+	return bd->dram_ch[2].size ? 3 : 2;
 }
 
 static int get_nr_datx8(int ch)
 {
-	unsigned int width;
-
 	const struct uniphier_board_data *bd = uniphier_get_board_param();
 
-	switch (ch) {
-	case 0:
-		width = bd->dram_ch0_width;
-		break;
-	case 1:
-		width = bd->dram_ch1_width;
-		break;
-	default:
-		width = bd->dram_ch2_width;
-		break;
-	}
-
-	return width / 8;
+	return bd->dram_ch[ch].width / 8;
 }
 
 static void print_bdl(void __iomem *reg, int n)
