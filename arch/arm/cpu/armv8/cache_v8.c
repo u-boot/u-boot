@@ -71,7 +71,7 @@ static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 	}
 
 	if (el == 1) {
-		tcr = TCR_EL1_RSVD | (ips << 32);
+		tcr = TCR_EL1_RSVD | (ips << 32) | TCR_EPD1_DISABLE;
 	} else if (el == 2) {
 		tcr = TCR_EL2_RSVD | (ips << 16);
 	} else {

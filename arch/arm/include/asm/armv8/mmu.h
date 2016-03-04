@@ -154,6 +154,7 @@
 #define TCR_TG0_4K		(0 << 14)
 #define TCR_TG0_64K		(1 << 14)
 #define TCR_TG0_16K		(2 << 14)
+#define TCR_EPD1_DISABLE	(1 << 23)
 
 #ifndef CONFIG_SYS_FULL_VA
 #define TCR_EL1_IPS_BITS	(UL(3) << 32)	/* 42 bits physical address */
