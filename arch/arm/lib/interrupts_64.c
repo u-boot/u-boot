@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <linux/compiler.h>
+#include <efi_loader.h>
 
 
 int interrupt_init(void)
@@ -41,6 +42,7 @@ void show_regs(struct pt_regs *regs)
  */
 void do_bad_sync(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("Bad mode in \"Synchronous Abort\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -51,6 +53,7 @@ void do_bad_sync(struct pt_regs *pt_regs, unsigned int esr)
  */
 void do_bad_irq(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("Bad mode in \"Irq\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -61,6 +64,7 @@ void do_bad_irq(struct pt_regs *pt_regs, unsigned int esr)
  */
 void do_bad_fiq(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("Bad mode in \"Fiq\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -71,6 +75,7 @@ void do_bad_fiq(struct pt_regs *pt_regs, unsigned int esr)
  */
 void do_bad_error(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("Bad mode in \"Error\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -81,6 +86,7 @@ void do_bad_error(struct pt_regs *pt_regs, unsigned int esr)
  */
 void do_sync(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("\"Synchronous Abort\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -91,6 +97,7 @@ void do_sync(struct pt_regs *pt_regs, unsigned int esr)
  */
 void do_irq(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("\"Irq\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -101,6 +108,7 @@ void do_irq(struct pt_regs *pt_regs, unsigned int esr)
  */
 void do_fiq(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("\"Fiq\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -114,6 +122,7 @@ void do_fiq(struct pt_regs *pt_regs, unsigned int esr)
  */
 void __weak do_error(struct pt_regs *pt_regs, unsigned int esr)
 {
+	efi_restore_gd();
 	printf("\"Error\" handler, esr 0x%08x\n", esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
