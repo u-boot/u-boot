@@ -149,5 +149,6 @@ config SPL_OF_LIBFDT
 	  version of the device tree.
 
 source lib/efi/Kconfig
+source lib/efi_loader/Kconfig
 
 endmenu
