@@ -32,6 +32,11 @@
 
 extern struct efi_system_table systab;
 
+extern const struct efi_simple_text_output_protocol efi_con_out;
+extern const struct efi_simple_input_interface efi_con_in;
+extern const struct efi_console_control_protocol efi_console_control;
+
+extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
 extern const efi_guid_t efi_guid_loaded_image;
 
