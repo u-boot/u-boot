@@ -23,22 +23,64 @@ unsigned int external_clk[ext_clk_count] = {
 	[uart_clk]	=	SYS_CLK,
 };
 
-static struct pll_init_data main_pll_config = {MAIN_PLL, 100, 1, 4};
-static struct pll_init_data tetris_pll_config = {TETRIS_PLL, 100, 1, 4};
+static int arm_speeds[DEVSPEED_NUMSPDS] = {
+	SPD400,
+	SPD600,
+	SPD800,
+	SPD900,
+	SPD1000,
+	SPD900,
+	SPD800,
+	SPD600,
+	SPD400,
+	SPD200,
+};
+
+static int dev_speeds[DEVSPEED_NUMSPDS] = {
+	SPD600,
+	SPD800,
+	SPD900,
+	SPD1000,
+	SPD900,
+	SPD800,
+	SPD600,
+	SPD400,
+};
+
+static struct pll_init_data main_pll_config[NUM_SPDS] = {
+	[SPD400]	= {MAIN_PLL, 100, 3, 2},
+	[SPD600]	= {MAIN_PLL, 300, 6, 2},
+	[SPD800]	= {MAIN_PLL, 200, 3, 2},
+	[SPD900] =	{TETRIS_PLL, 75, 1, 2},
+	[SPD1000] =	{TETRIS_PLL, 250, 3, 2},
+};
+
+static struct pll_init_data tetris_pll_config[NUM_SPDS] = {
+	[SPD200] =	{TETRIS_PLL, 250, 3, 10},
+	[SPD400] =	{TETRIS_PLL, 100, 1, 6},
+	[SPD600] =	{TETRIS_PLL, 100, 1, 4},
+	[SPD800] =	{TETRIS_PLL, 400, 3, 4},
+	[SPD900] =	{TETRIS_PLL, 75, 1, 2},
+	[SPD1000] =	{TETRIS_PLL, 250, 3, 2},
+};
+
 static struct pll_init_data uart_pll_config = {UART_PLL, 64, 1, 4};
 static struct pll_init_data nss_pll_config = {NSS_PLL, 250, 3, 2};
 static struct pll_init_data ddr3_pll_config = {DDR3A_PLL, 250, 3, 10};
 
 struct pll_init_data *get_pll_init_data(int pll)
 {
+	int speed;
 	struct pll_init_data *data = NULL;
 
 	switch (pll) {
 	case MAIN_PLL:
-		data = &main_pll_config;
+		speed = get_max_dev_speed(dev_speeds);
+		data = &main_pll_config[speed];
 		break;
 	case TETRIS_PLL:
-		data = &tetris_pll_config;
+		speed = get_max_arm_speed(arm_speeds);
+		data = &tetris_pll_config[speed];
 		break;
 	case NSS_PLL:
 		data = &nss_pll_config;

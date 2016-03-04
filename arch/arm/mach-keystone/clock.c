@@ -238,8 +238,11 @@ static int get_max_speed(u32 val, u32 speed_supported, int *spds)
 			return spds[speed];
 	}
 
-	/* If no bit is set, use SPD800 */
-	return SPD800;
+	/* If no bit is set, return minimum speed */
+	if (cpu_is_k2g())
+		return SPD200;
+	else
+		return SPD800;
 }
 
 static inline u32 read_efuse_bootrom(void)

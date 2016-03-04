@@ -12,8 +12,8 @@
 
 #define PLLSET_CMD_LIST		"<pa|arm|ddr3>"
 
-#define DEV_SUPPORTED_SPEEDS	0xfff
-#define ARM_SUPPORTED_SPEEDS	0xfff
+#define DEV_SUPPORTED_SPEEDS	0x1ff
+#define ARM_SUPPORTED_SPEEDS	0xff
 
 #define KS2_CLK1_6 sys_clk0_6_clk
 
