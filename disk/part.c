@@ -21,13 +21,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-struct block_drvr {
-	char *name;
-	struct blk_desc* (*get_dev)(int dev);
-	int (*select_hwpart)(int dev_num, int hwpart);
-};
-
-static const struct block_drvr block_drvr[] = {
+const struct block_drvr block_drvr[] = {
 #if defined(CONFIG_CMD_IDE)
 	{ .name = "ide", .get_dev = ide_get_dev, },
 #endif

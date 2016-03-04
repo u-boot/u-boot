@@ -10,6 +10,12 @@
 #include <blk.h>
 #include <ide.h>
 
+struct block_drvr {
+	char *name;
+	struct blk_desc* (*get_dev)(int dev);
+	int (*select_hwpart)(int dev_num, int hwpart);
+};
+
 #define LOG2(x) (((x & 0xaaaaaaaa) ? 1 : 0) + ((x & 0xcccccccc) ? 2 : 0) + \
 		 ((x & 0xf0f0f0f0) ? 4 : 0) + ((x & 0xff00ff00) ? 8 : 0) + \
 		 ((x & 0xffff0000) ? 16 : 0))
@@ -165,6 +171,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_str,
 int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			    struct blk_desc **dev_desc,
 			    disk_partition_t *info, int allow_whole_dev);
+extern const struct block_drvr block_drvr[];
 #else
 static inline struct blk_desc *blk_get_dev(const char *ifname, int dev)
 { return NULL; }
