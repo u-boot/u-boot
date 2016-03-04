@@ -10,6 +10,7 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <asm/macro.h>
+#include <asm/system.h>
 #include <linux/linkage.h>
 
 /*
@@ -160,3 +161,56 @@ ENTRY(__asm_flush_l3_cache)
 	ret
 ENDPROC(__asm_flush_l3_cache)
 	.weak	__asm_flush_l3_cache
+
+/*
+ * void __asm_switch_ttbr(ulong new_ttbr)
+ *
+ * Safely switches to a new page table.
+ */
+ENTRY(__asm_switch_ttbr)
+	/* x2 = SCTLR (alive throghout the function) */
+	switch_el x4, 3f, 2f, 1f
+3:	mrs	x2, sctlr_el3
+	b	0f
+2:	mrs	x2, sctlr_el2
+	b	0f
+1:	mrs	x2, sctlr_el1
+0:
+
+	/* Unset CR_M | CR_C | CR_I from SCTLR to disable all caches */
+	movn	x1, #(CR_M | CR_C | CR_I)
+	and	x1, x2, x1
+	switch_el x4, 3f, 2f, 1f
+3:	msr	sctlr_el3, x1
+	b	0f
+2:	msr	sctlr_el2, x1
+	b	0f
+1:	msr	sctlr_el1, x1
+0:	isb
+
+	/* This call only clobbers x30 (lr) and x9 (unused) */
+	mov	x3, x30
+	bl	__asm_invalidate_tlb_all
+
+	/* From here on we're running safely with caches disabled */
+
+	/* Set TTBR to our first argument */
+	switch_el x4, 3f, 2f, 1f
+3:	msr	ttbr0_el3, x0
+	b	0f
+2:	msr	ttbr0_el2, x0
+	b	0f
+1:	msr	ttbr0_el1, x0
+0:	isb
+
+	/* Restore original SCTLR and thus enable caches again */
+	switch_el x4, 3f, 2f, 1f
+3:	msr	sctlr_el3, x2
+	b	0f
+2:	msr	sctlr_el2, x2
+	b	0f
+1:	msr	sctlr_el1, x2
+0:	isb
+
+	ret	x3
+ENDPROC(__asm_switch_ttbr)

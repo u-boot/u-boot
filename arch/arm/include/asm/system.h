@@ -17,17 +17,18 @@
 #define CR_WXN		(1 << 19)	/* Write Permision Imply XN	*/
 #define CR_EE		(1 << 25)	/* Exception (Big) Endian	*/
 
-#ifndef CONFIG_SYS_FULL_VA
-#define PGTABLE_SIZE	(0x10000)
-#else
-#define PGTABLE_SIZE	CONFIG_SYS_PGTABLE_SIZE
-#endif
-
 /* 2MB granularity */
 #define MMU_SECTION_SHIFT	21
 #define MMU_SECTION_SIZE	(1 << MMU_SECTION_SHIFT)
 
 #ifndef __ASSEMBLY__
+
+#ifndef CONFIG_SYS_FULL_VA
+#define PGTABLE_SIZE	(0x10000)
+#else
+u64 get_page_table_size(void);
+#define PGTABLE_SIZE	get_page_table_size()
+#endif
 
 enum dcache_option {
 	DCACHE_OFF = 0x3,
@@ -97,6 +98,7 @@ void __asm_flush_dcache_range(u64 start, u64 end);
 void __asm_invalidate_tlb_all(void);
 void __asm_invalidate_icache_all(void);
 int __asm_flush_l3_cache(void);
+void __asm_switch_ttbr(u64 new_ttbr);
 
 void armv8_switch_to_el2(void);
 void armv8_switch_to_el1(void);

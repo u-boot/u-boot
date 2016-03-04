@@ -2,6 +2,9 @@
  * (C) Copyright 2013
  * David Feng <fenghua@phytium.com.cn>
  *
+ * (C) Copyright 2016
+ * Alexander Graf <agraf@suse.de>
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -13,30 +16,27 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 
+/*
+ *  With 4k page granule, a virtual address is split into 4 lookup parts
+ *  spanning 9 bits each:
+ *
+ *    _______________________________________________
+ *   |       |       |       |       |       |       |
+ *   |   0   |  Lv0  |  Lv1  |  Lv2  |  Lv3  |  off  |
+ *   |_______|_______|_______|_______|_______|_______|
+ *     63-48   47-39   38-30   29-21   20-12   11-00
+ *
+ *             mask        page size
+ *
+ *    Lv0: FF8000000000       --
+ *    Lv1:   7FC0000000       1G
+ *    Lv2:     3FE00000       2M
+ *    Lv3:       1FF000       4K
+ *    off:          FFF
+ */
+
 #ifdef CONFIG_SYS_FULL_VA
-static void set_ptl1_entry(u64 index, u64 ptl2_entry)
-{
-	u64 *pgd = (u64 *)gd->arch.tlb_addr;
-	u64 value;
-
-	value = ptl2_entry | PTL1_TYPE_TABLE;
-	pgd[index] = value;
-}
-
-static void set_ptl2_block(u64 ptl1, u64 bfn, u64 address, u64 memory_attrs)
-{
-	u64 *pmd = (u64 *)ptl1;
-	u64 value;
-
-	value = address | PTL2_TYPE_BLOCK | PTL2_BLOCK_AF;
-	value |= memory_attrs;
-	pmd[bfn] = value;
-}
-
 static struct mm_region mem_map[] = CONFIG_SYS_MEM_MAP;
-
-#define PTL1_ENTRIES CONFIG_SYS_PTL1_ENTRIES
-#define PTL2_ENTRIES CONFIG_SYS_PTL2_ENTRIES
 
 static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 {
@@ -79,8 +79,8 @@ static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 	}
 
 	/* PTWs cacheable, inner/outer WBWA and inner shareable */
-	tcr |= TCR_TG0_64K | TCR_SHARED_INNER | TCR_ORGN_WBWA | TCR_IRGN_WBWA;
-	tcr |= TCR_T0SZ(VA_BITS);
+	tcr |= TCR_TG0_4K | TCR_SHARED_INNER | TCR_ORGN_WBWA | TCR_IRGN_WBWA;
+	tcr |= TCR_T0SZ(va_bits);
 
 	if (pips)
 		*pips = ips;
@@ -90,39 +90,302 @@ static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 	return tcr;
 }
 
-static void setup_pgtables(void)
-{
-	int l1_e, l2_e;
-	unsigned long pmd = 0;
-	unsigned long address;
+#define MAX_PTE_ENTRIES 512
 
-	/* Setup the PMD pointers */
-	for (l1_e = 0; l1_e < CONFIG_SYS_MEM_MAP_SIZE; l1_e++) {
-		gd->arch.pmd_addr[l1_e] = gd->arch.tlb_addr +
-						PTL1_ENTRIES * sizeof(u64);
-		gd->arch.pmd_addr[l1_e] += PTL2_ENTRIES * sizeof(u64) * l1_e;
-		gd->arch.pmd_addr[l1_e] = ALIGN(gd->arch.pmd_addr[l1_e],
-						0x10000UL);
+static int pte_type(u64 *pte)
+{
+	return *pte & PTE_TYPE_MASK;
+}
+
+/* Returns the LSB number for a PTE on level <level> */
+static int level2shift(int level)
+{
+	/* Page is 12 bits wide, every level translates 9 bits */
+	return (12 + 9 * (3 - level));
+}
+
+static u64 *find_pte(u64 addr, int level)
+{
+	int start_level = 0;
+	u64 *pte;
+	u64 idx;
+	u64 va_bits;
+	int i;
+
+	debug("addr=%llx level=%d\n", addr, level);
+
+	get_tcr(0, NULL, &va_bits);
+	if (va_bits < 39)
+		start_level = 1;
+
+	if (level < start_level)
+		return NULL;
+
+	/* Walk through all page table levels to find our PTE */
+	pte = (u64*)gd->arch.tlb_addr;
+	for (i = start_level; i < 4; i++) {
+		idx = (addr >> level2shift(i)) & 0x1FF;
+		pte += idx;
+		debug("idx=%llx PTE %p at level %d: %llx\n", idx, pte, i, *pte);
+
+		/* Found it */
+		if (i == level)
+			return pte;
+		/* PTE is no table (either invalid or block), can't traverse */
+		if (pte_type(pte) != PTE_TYPE_TABLE)
+			return NULL;
+		/* Off to the next level */
+		pte = (u64*)(*pte & 0x0000fffffffff000ULL);
 	}
 
-	/* Setup the page tables */
-	for (l1_e = 0; l1_e < PTL1_ENTRIES; l1_e++) {
-		if (mem_map[pmd].base ==
-			(uintptr_t)l1_e << PTL2_BITS) {
-			set_ptl1_entry(l1_e, gd->arch.pmd_addr[pmd]);
+	/* Should never reach here */
+	return NULL;
+}
 
-			for (l2_e = 0; l2_e < PTL2_ENTRIES; l2_e++) {
-				address = mem_map[pmd].base
-					+ (uintptr_t)l2_e * BLOCK_SIZE;
-				set_ptl2_block(gd->arch.pmd_addr[pmd], l2_e,
-					       address, mem_map[pmd].attrs);
+/* Returns and creates a new full table (512 entries) */
+static u64 *create_table(void)
+{
+	u64 *new_table = (u64*)gd->arch.tlb_fillptr;
+	u64 pt_len = MAX_PTE_ENTRIES * sizeof(u64);
+
+	/* Allocate MAX_PTE_ENTRIES pte entries */
+	gd->arch.tlb_fillptr += pt_len;
+
+	if (gd->arch.tlb_fillptr - gd->arch.tlb_addr > gd->arch.tlb_size)
+		panic("Insufficient RAM for page table: 0x%lx > 0x%lx. "
+		      "Please increase the size in get_page_table_size()",
+			gd->arch.tlb_fillptr - gd->arch.tlb_addr,
+			gd->arch.tlb_size);
+
+	/* Mark all entries as invalid */
+	memset(new_table, 0, pt_len);
+
+	return new_table;
+}
+
+static void set_pte_table(u64 *pte, u64 *table)
+{
+	/* Point *pte to the new table */
+	debug("Setting %p to addr=%p\n", pte, table);
+	*pte = PTE_TYPE_TABLE | (ulong)table;
+}
+
+/* Add one mm_region map entry to the page tables */
+static void add_map(struct mm_region *map)
+{
+	u64 *pte;
+	u64 addr = map->base;
+	u64 size = map->size;
+	u64 attrs = map->attrs | PTE_TYPE_BLOCK | PTE_BLOCK_AF;
+	u64 blocksize;
+	int level;
+	u64 *new_table;
+
+	while (size) {
+		pte = find_pte(addr, 0);
+		if (pte && (pte_type(pte) == PTE_TYPE_FAULT)) {
+			debug("Creating table for addr 0x%llx\n", addr);
+			new_table = create_table();
+			set_pte_table(pte, new_table);
+		}
+
+		for (level = 1; level < 4; level++) {
+			pte = find_pte(addr, level);
+			blocksize = 1ULL << level2shift(level);
+			debug("Checking if pte fits for addr=%llx size=%llx "
+			      "blocksize=%llx\n", addr, size, blocksize);
+			if (size >= blocksize && !(addr & (blocksize - 1))) {
+				/* Page fits, create block PTE */
+				debug("Setting PTE %p to block addr=%llx\n",
+				      pte, addr);
+				*pte = addr | attrs;
+				addr += blocksize;
+				size -= blocksize;
+				break;
+			} else if ((pte_type(pte) == PTE_TYPE_FAULT)) {
+				/* Page doesn't fit, create subpages */
+				debug("Creating subtable for addr 0x%llx "
+				      "blksize=%llx\n", addr, blocksize);
+				new_table = create_table();
+				set_pte_table(pte, new_table);
 			}
-
-			pmd++;
-		} else {
-			set_ptl1_entry(l1_e, 0);
 		}
 	}
+}
+
+/* Splits a block PTE into table with subpages spanning the old block */
+static void split_block(u64 *pte, int level)
+{
+	u64 old_pte = *pte;
+	u64 *new_table;
+	u64 i = 0;
+	/* level describes the parent level, we need the child ones */
+	int levelshift = level2shift(level + 1);
+
+	if (pte_type(pte) != PTE_TYPE_BLOCK)
+		panic("PTE %p (%llx) is not a block. Some driver code wants to "
+		      "modify dcache settings for an range not covered in "
+		      "mem_map.", pte, old_pte);
+
+	new_table = create_table();
+	debug("Splitting pte %p (%llx) into %p\n", pte, old_pte, new_table);
+
+	for (i = 0; i < MAX_PTE_ENTRIES; i++) {
+		new_table[i] = old_pte | (i << levelshift);
+
+		/* Level 3 block PTEs have the table type */
+		if ((level + 1) == 3)
+			new_table[i] |= PTE_TYPE_TABLE;
+
+		debug("Setting new_table[%lld] = %llx\n", i, new_table[i]);
+	}
+
+	/* Set the new table into effect */
+	set_pte_table(pte, new_table);
+}
+
+enum pte_type {
+	PTE_INVAL,
+	PTE_BLOCK,
+	PTE_LEVEL,
+};
+
+/*
+ * This is a recursively called function to count the number of
+ * page tables we need to cover a particular PTE range. If you
+ * call this with level = -1 you basically get the full 48 bit
+ * coverage.
+ */
+static int count_required_pts(u64 addr, int level, u64 maxaddr)
+{
+	int levelshift = level2shift(level);
+	u64 levelsize = 1ULL << levelshift;
+	u64 levelmask = levelsize - 1;
+	u64 levelend = addr + levelsize;
+	int r = 0;
+	int i;
+	enum pte_type pte_type = PTE_INVAL;
+
+	for (i = 0; i < ARRAY_SIZE(mem_map); i++) {
+		struct mm_region *map = &mem_map[i];
+		u64 start = map->base;
+		u64 end = start + map->size;
+
+		/* Check if the PTE would overlap with the map */
+		if (max(addr, start) <= min(levelend, end)) {
+			start = max(addr, start);
+			end = min(levelend, end);
+
+			/* We need a sub-pt for this level */
+			if ((start & levelmask) || (end & levelmask)) {
+				pte_type = PTE_LEVEL;
+				break;
+			}
+
+			/* Lv0 can not do block PTEs, so do levels here too */
+			if (level <= 0) {
+				pte_type = PTE_LEVEL;
+				break;
+			}
+
+			/* PTE is active, but fits into a block */
+			pte_type = PTE_BLOCK;
+		}
+	}
+
+	/*
+	 * Block PTEs at this level are already covered by the parent page
+	 * table, so we only need to count sub page tables.
+	 */
+	if (pte_type == PTE_LEVEL) {
+		int sublevel = level + 1;
+		u64 sublevelsize = 1ULL << level2shift(sublevel);
+
+		/* Account for the new sub page table ... */
+		r = 1;
+
+		/* ... and for all child page tables that one might have */
+		for (i = 0; i < MAX_PTE_ENTRIES; i++) {
+			r += count_required_pts(addr, sublevel, maxaddr);
+			addr += sublevelsize;
+
+			if (addr >= maxaddr) {
+				/*
+				 * We reached the end of address space, no need
+				 * to look any further.
+				 */
+				break;
+			}
+		}
+	}
+
+	return r;
+}
+
+/* Returns the estimated required size of all page tables */
+u64 get_page_table_size(void)
+{
+	u64 one_pt = MAX_PTE_ENTRIES * sizeof(u64);
+	u64 size = 0;
+	u64 va_bits;
+	int start_level = 0;
+
+	get_tcr(0, NULL, &va_bits);
+	if (va_bits < 39)
+		start_level = 1;
+
+	/* Account for all page tables we would need to cover our memory map */
+	size = one_pt * count_required_pts(0, start_level - 1, 1ULL << va_bits);
+
+	/*
+	 * We need to duplicate our page table once to have an emergency pt to
+	 * resort to when splitting page tables later on
+	 */
+	size *= 2;
+
+	/*
+	 * We may need to split page tables later on if dcache settings change,
+	 * so reserve up to 4 (random pick) page tables for that.
+	 */
+	size += one_pt * 4;
+
+	return size;
+}
+
+static void setup_pgtables(void)
+{
+	int i;
+
+	/*
+	 * Allocate the first level we're on with invalidate entries.
+	 * If the starting level is 0 (va_bits >= 39), then this is our
+	 * Lv0 page table, otherwise it's the entry Lv1 page table.
+	 */
+	create_table();
+
+	/* Now add all MMU table entries one after another to the table */
+	for (i = 0; i < ARRAY_SIZE(mem_map); i++)
+		add_map(&mem_map[i]);
+
+	/* Create the same thing once more for our emergency page table */
+	create_table();
+}
+
+static void setup_all_pgtables(void)
+{
+	u64 tlb_addr = gd->arch.tlb_addr;
+
+	/* Reset the fill ptr */
+	gd->arch.tlb_fillptr = tlb_addr;
+
+	/* Create normal system page tables */
+	setup_pgtables();
+
+	/* Create emergency page tables */
+	gd->arch.tlb_addr = gd->arch.tlb_fillptr;
+	setup_pgtables();
+	gd->arch.tlb_emerg = gd->arch.tlb_addr;
+	gd->arch.tlb_addr = tlb_addr;
 }
 
 #else
@@ -157,11 +420,9 @@ __weak void mmu_setup(void)
 	int el;
 
 #ifdef CONFIG_SYS_FULL_VA
-	unsigned long coreid = read_mpidr() & CONFIG_COREID_MASK;
-
-	/* Set up page tables only on BSP */
-	if (coreid == BSP_COREID)
-		setup_pgtables();
+	/* Set up page tables only once */
+	if (!gd->arch.tlb_fillptr)
+		setup_all_pgtables();
 
 	el = current_el();
 	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
@@ -310,6 +571,88 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	end = end << MMU_SECTION_SHIFT;
 	flush_dcache_range(start, end);
 	asm volatile("dsb sy");
+}
+#else
+static bool is_aligned(u64 addr, u64 size, u64 align)
+{
+	return !(addr & (align - 1)) && !(size & (align - 1));
+}
+
+static u64 set_one_region(u64 start, u64 size, u64 attrs, int level)
+{
+	int levelshift = level2shift(level);
+	u64 levelsize = 1ULL << levelshift;
+	u64 *pte = find_pte(start, level);
+
+	/* Can we can just modify the current level block PTE? */
+	if (is_aligned(start, size, levelsize)) {
+		*pte &= ~PMD_ATTRINDX_MASK;
+		*pte |= attrs;
+		debug("Set attrs=%llx pte=%p level=%d\n", attrs, pte, level);
+
+		return levelsize;
+	}
+
+	/* Unaligned or doesn't fit, maybe split block into table */
+	debug("addr=%llx level=%d pte=%p (%llx)\n", start, level, pte, *pte);
+
+	/* Maybe we need to split the block into a table */
+	if (pte_type(pte) == PTE_TYPE_BLOCK)
+		split_block(pte, level);
+
+	/* And then double-check it became a table or already is one */
+	if (pte_type(pte) != PTE_TYPE_TABLE)
+		panic("PTE %p (%llx) for addr=%llx should be a table",
+		      pte, *pte, start);
+
+	/* Roll on to the next page table level */
+	return 0;
+}
+
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option)
+{
+	u64 attrs = PMD_ATTRINDX(option);
+	u64 real_start = start;
+	u64 real_size = size;
+
+	debug("start=%lx size=%lx\n", (ulong)start, (ulong)size);
+
+	/*
+	 * We can not modify page tables that we're currently running on,
+	 * so we first need to switch to the "emergency" page tables where
+	 * we can safely modify our primary page tables and then switch back
+	 */
+	__asm_switch_ttbr(gd->arch.tlb_emerg);
+
+	/*
+	 * Loop through the address range until we find a page granule that fits
+	 * our alignment constraints, then set it to the new cache attributes
+	 */
+	while (size > 0) {
+		int level;
+		u64 r;
+
+		for (level = 1; level < 4; level++) {
+			r = set_one_region(start, size, attrs, level);
+			if (r) {
+				/* PTE successfully replaced */
+				size -= r;
+				start += r;
+				break;
+			}
+		}
+
+	}
+
+	/* We're done modifying page tables, switch back to our primary ones */
+	__asm_switch_ttbr(gd->arch.tlb_addr);
+
+	/*
+	 * Make sure there's nothing stale in dcache for a region that might
+	 * have caches off now
+	 */
+	flush_dcache_range(real_start, real_start + real_size);
 }
 #endif
 

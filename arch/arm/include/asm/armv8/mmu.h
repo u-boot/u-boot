@@ -26,14 +26,8 @@
 #define VA_BITS			(42)	/* 42 bits virtual address */
 #else
 #define VA_BITS			CONFIG_SYS_VA_BITS
-#define PTL2_BITS		CONFIG_SYS_PTL2_BITS
+#define PTE_BLOCK_BITS		CONFIG_SYS_PTL2_BITS
 #endif
-
-/* PAGE_SHIFT determines the page size */
-#undef  PAGE_SIZE
-#define PAGE_SHIFT		16
-#define PAGE_SIZE		(1 << PAGE_SHIFT)
-#define PAGE_MASK		(~(PAGE_SIZE-1))
 
 /*
  * block/section address mask and size definitions.
@@ -42,10 +36,21 @@
 #define SECTION_SHIFT		29
 #define SECTION_SIZE		(UL(1) << SECTION_SHIFT)
 #define SECTION_MASK		(~(SECTION_SIZE-1))
+
+/* PAGE_SHIFT determines the page size */
+#undef  PAGE_SIZE
+#define PAGE_SHIFT		16
+#define PAGE_SIZE		(1 << PAGE_SHIFT)
+#define PAGE_MASK		(~(PAGE_SIZE-1))
+
 #else
-#define BLOCK_SHIFT		CONFIG_SYS_BLOCK_SHIFT
-#define BLOCK_SIZE		(UL(1) << BLOCK_SHIFT)
-#define BLOCK_MASK		(~(BLOCK_SIZE-1))
+
+/* PAGE_SHIFT determines the page size */
+#undef  PAGE_SIZE
+#define PAGE_SHIFT		12
+#define PAGE_SIZE		(1 << PAGE_SHIFT)
+#define PAGE_MASK		(~(PAGE_SIZE-1))
+
 #endif
 
 /***************************************************************/
@@ -71,39 +76,28 @@
  */
 
 #ifdef CONFIG_SYS_FULL_VA
-/*
- * Level 1 descriptor (PGD).
- */
 
-#define PTL1_TYPE_MASK		(3 << 0)
-#define PTL1_TYPE_TABLE		(3 << 0)
+#define PTE_TYPE_MASK		(3 << 0)
+#define PTE_TYPE_FAULT		(0 << 0)
+#define PTE_TYPE_TABLE		(3 << 0)
+#define PTE_TYPE_BLOCK		(1 << 0)
 
-#define PTL1_TABLE_PXN		(1UL << 59)
-#define PTL1_TABLE_XN		(1UL << 60)
-#define PTL1_TABLE_AP		(1UL << 61)
-#define PTL1_TABLE_NS		(1UL << 63)
-
-
-/*
- * Level 2 descriptor (PMD).
- */
-
-#define PTL2_TYPE_MASK		(3 << 0)
-#define PTL2_TYPE_FAULT		(0 << 0)
-#define PTL2_TYPE_TABLE		(3 << 0)
-#define PTL2_TYPE_BLOCK		(1 << 0)
+#define PTE_TABLE_PXN		(1UL << 59)
+#define PTE_TABLE_XN		(1UL << 60)
+#define PTE_TABLE_AP		(1UL << 61)
+#define PTE_TABLE_NS		(1UL << 63)
 
 /*
  * Block
  */
-#define PTL2_MEMTYPE(x)		((x) << 2)
-#define PTL2_BLOCK_NON_SHARE	(0 << 8)
-#define PTL2_BLOCK_OUTER_SHARE	(2 << 8)
-#define PTL2_BLOCK_INNER_SHARE	(3 << 8)
-#define PTL2_BLOCK_AF		(1 << 10)
-#define PTL2_BLOCK_NG		(1 << 11)
-#define PTL2_BLOCK_PXN		(UL(1) << 53)
-#define PTL2_BLOCK_UXN		(UL(1) << 54)
+#define PTE_BLOCK_MEMTYPE(x)	((x) << 2)
+#define PTE_BLOCK_NON_SHARE	(0 << 8)
+#define PTE_BLOCK_OUTER_SHARE	(2 << 8)
+#define PTE_BLOCK_INNER_SHARE	(3 << 8)
+#define PTE_BLOCK_AF		(1 << 10)
+#define PTE_BLOCK_NG		(1 << 11)
+#define PTE_BLOCK_PXN		(UL(1) << 53)
+#define PTE_BLOCK_UXN		(UL(1) << 54)
 
 #else
 /*
