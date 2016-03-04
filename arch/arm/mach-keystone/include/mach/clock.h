@@ -124,8 +124,8 @@ struct pll_init_data *get_pll_init_data(int pll);
 unsigned long clk_get_rate(unsigned int clk);
 unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
 int clk_set_rate(unsigned int clk, unsigned long hz);
-int get_max_dev_speed(void);
-int get_max_arm_speed(void);
+int get_max_dev_speed(int *spds);
+int get_max_arm_speed(int *spds);
 void pll_pa_clk_sel(void);
 
 #endif

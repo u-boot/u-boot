@@ -51,11 +51,11 @@ struct pll_init_data *get_pll_init_data(int pll)
 
 	switch (pll) {
 	case MAIN_PLL:
-		speed = get_max_dev_speed();
+		speed = get_max_dev_speed(speeds);
 		data = &core_pll_config[speed];
 		break;
 	case TETRIS_PLL:
-		speed = get_max_arm_speed();
+		speed = get_max_arm_speed(speeds);
 		data = &tetris_pll_config[speed];
 		break;
 	case PASS_PLL:
