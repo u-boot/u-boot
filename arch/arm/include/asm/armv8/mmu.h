@@ -203,6 +203,8 @@ struct mm_region {
 	u64 size;
 	u64 attrs;
 };
+
+extern struct mm_region *mem_map;
 #endif
 
 #endif /* _ASM_ARMV8_MMU_H_ */

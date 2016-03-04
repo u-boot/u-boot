@@ -10,6 +10,7 @@
 #include <linux/compiler.h>
 
 #include <cavium/atf.h>
+#include <asm/armv8/mmu.h>
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 #include <dm/platdata.h>
@@ -41,6 +42,29 @@ U_BOOT_DEVICE(thunderx_serial1) = {
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static struct mm_region thunderx_mem_map[] = {
+	{
+		.base = 0x000000000000UL,
+		.size = 0x40000000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE,
+	}, {
+		.base = 0x800000000000UL,
+		.size = 0x40000000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE,
+	}, {
+		.base = 0x840000000000UL,
+		.size = 0x40000000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE,
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = thunderx_mem_map;
 
 int board_init(void)
 {

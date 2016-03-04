@@ -36,8 +36,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 #ifdef CONFIG_SYS_FULL_VA
-static struct mm_region mem_map[] = CONFIG_SYS_MEM_MAP;
-
 static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 {
 	u64 max_addr = 0;
@@ -46,7 +44,7 @@ static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 	int i;
 
 	/* Find the largest address we need to support */
-	for (i = 0; i < ARRAY_SIZE(mem_map); i++)
+	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++)
 		max_addr = max(max_addr, mem_map[i].base + mem_map[i].size);
 
 	/* Calculate the maximum physical (and thus virtual) address */
@@ -266,7 +264,7 @@ static int count_required_pts(u64 addr, int level, u64 maxaddr)
 	int i;
 	enum pte_type pte_type = PTE_INVAL;
 
-	for (i = 0; i < ARRAY_SIZE(mem_map); i++) {
+	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++) {
 		struct mm_region *map = &mem_map[i];
 		u64 start = map->base;
 		u64 end = start + map->size;
@@ -364,7 +362,7 @@ static void setup_pgtables(void)
 	create_table();
 
 	/* Now add all MMU table entries one after another to the table */
-	for (i = 0; i < ARRAY_SIZE(mem_map); i++)
+	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++)
 		add_map(&mem_map[i]);
 
 	/* Create the same thing once more for our emergency page table */
