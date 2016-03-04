@@ -109,6 +109,8 @@ void efi_restore_gd(void);
 efi_status_t efi_exit_func(efi_status_t ret);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
+/* Call this to set the current device name */
+void efi_set_bootdev(const char *dev, const char *devnr);
 
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
@@ -129,6 +131,13 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 
+/* Convert strings from normal C strings to uEFI strings */
+static inline void ascii2unicode(u16 *unicode, char *ascii)
+{
+	while (*ascii)
+		*(unicode++) = *(ascii++);
+}
+
 /*
  * Use these to indicate that your code / data should go into the EFI runtime
  * section and thus still be available when the OS is running
@@ -144,5 +153,6 @@ int efi_memory_init(void);
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
+static inline void efi_set_bootdev(const char *dev, const char *devnr) { }
 
 #endif

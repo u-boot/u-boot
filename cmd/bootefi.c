@@ -21,16 +21,16 @@
  * In addition to the originating device we also declare the file path
  * of "bootefi" based loads to be /bootefi.
  */
-static struct efi_device_path_file_path bootefi_dummy_path[] = {
+static struct efi_device_path_file_path bootefi_image_path[] = {
 	{
 		.dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE,
 		.dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH,
-		.dp.length = sizeof(bootefi_dummy_path[0]),
+		.dp.length = sizeof(bootefi_image_path[0]),
 		.str = { 'b','o','o','t','e','f','i' },
 	}, {
 		.dp.type = DEVICE_PATH_TYPE_END,
 		.dp.sub_type = DEVICE_PATH_SUB_TYPE_END,
-		.dp.length = sizeof(bootefi_dummy_path[0]),
+		.dp.length = sizeof(bootefi_image_path[0]),
 	}
 };
 
@@ -38,14 +38,14 @@ static efi_status_t bootefi_open_dp(void *handle, efi_guid_t *protocol,
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)
 {
-	*protocol_interface = bootefi_dummy_path;
+	*protocol_interface = bootefi_image_path;
 	return EFI_SUCCESS;
 }
 
 /* The EFI loaded_image interface for the image executed via "bootefi" */
 static struct efi_loaded_image loaded_image_info = {
-	.device_handle = bootefi_dummy_path,
-	.file_path = bootefi_dummy_path,
+	.device_handle = bootefi_image_path,
+	.file_path = bootefi_image_path,
 };
 
 /* The EFI object struct for the image executed via "bootefi" */
@@ -63,7 +63,7 @@ static struct efi_object loaded_image_info_obj = {
 		{
 			/*
 			 * When asking for the device path interface, return
-			 * bootefi_dummy_path
+			 * bootefi_image_path
 			 */
 			.guid = &efi_guid_device_path,
 			.open = &bootefi_open_dp,
@@ -73,11 +73,11 @@ static struct efi_object loaded_image_info_obj = {
 
 /* The EFI object struct for the device the "bootefi" image was loaded from */
 static struct efi_object bootefi_device_obj = {
-	.handle = bootefi_dummy_path,
+	.handle = bootefi_image_path,
 	.protocols = {
 		{
 			/* When asking for the device path interface, return
-			 * bootefi_dummy_path */
+			 * bootefi_image_path */
 			.guid = &efi_guid_device_path,
 			.open = &bootefi_open_dp,
 		}
@@ -188,3 +188,19 @@ U_BOOT_CMD(
 	"Boots an EFI payload from memory\n",
 	bootefi_help_text
 );
+
+void efi_set_bootdev(const char *dev, const char *devnr)
+{
+	char devname[16] = { 0 }; /* dp->str is u16[16] long */
+	char *colon;
+
+	/* Assemble the condensed device name we use in efi_disk.c */
+	snprintf(devname, sizeof(devname), "%s%s", dev, devnr);
+	colon = strchr(devname, ':');
+	if (colon)
+		*colon = '\0';
+
+	/* Patch the bootefi_image_path to the target device */
+	memset(bootefi_image_path[0].str, 0, sizeof(bootefi_image_path[0].str));
+	ascii2unicode(bootefi_image_path[0].str, devname);
+}

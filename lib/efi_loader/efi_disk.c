@@ -29,12 +29,6 @@ struct efi_disk_obj {
 	struct efi_device_path_file_path *dp;
 };
 
-static void ascii2unicode(u16 *unicode, char *ascii)
-{
-	while (*ascii)
-		*(unicode++) = *(ascii++);
-}
-
 static efi_status_t efi_disk_open_block(void *handle, efi_guid_t *protocol,
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)
