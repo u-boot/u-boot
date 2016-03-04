@@ -29,8 +29,6 @@
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		CONFIG_SYS_SDRAM_SIZE
 
-#define CONFIG_SYS_FULL_VA
-
 /* Have release address at the end of 256MB for now */
 #define CPU_RELEASE_ADDR	0xFFFFFF0
 

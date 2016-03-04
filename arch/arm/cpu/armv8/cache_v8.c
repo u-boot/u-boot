@@ -35,7 +35,6 @@ DECLARE_GLOBAL_DATA_PTR;
  *    off:          FFF
  */
 
-#ifdef CONFIG_SYS_FULL_VA
 static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 {
 	u64 max_addr = 0;
@@ -386,38 +385,11 @@ static void setup_all_pgtables(void)
 	gd->arch.tlb_addr = tlb_addr;
 }
 
-#else
-
-inline void set_pgtable_section(u64 *page_table, u64 index, u64 section,
-			 u64 memory_type, u64 attribute)
-{
-	u64 value;
-
-	value = section | PMD_TYPE_SECT | PMD_SECT_AF;
-	value |= PMD_ATTRINDX(memory_type);
-	value |= attribute;
-	page_table[index] = value;
-}
-
-inline void set_pgtable_table(u64 *page_table, u64 index, u64 *table_addr)
-{
-	u64 value;
-
-	value = (u64)table_addr | PMD_TYPE_TABLE;
-	page_table[index] = value;
-}
-#endif
-
 /* to activate the MMU we need to set up virtual memory */
 __weak void mmu_setup(void)
 {
-#ifndef CONFIG_SYS_FULL_VA
-	bd_t *bd = gd->bd;
-	u64 *page_table = (u64 *)gd->arch.tlb_addr, i, j;
-#endif
 	int el;
 
-#ifdef CONFIG_SYS_FULL_VA
 	/* Set up page tables only once */
 	if (!gd->arch.tlb_fillptr)
 		setup_all_pgtables();
@@ -425,40 +397,6 @@ __weak void mmu_setup(void)
 	el = current_el();
 	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
 			  MEMORY_ATTRIBUTES);
-#else
-	/* Setup an identity-mapping for all spaces */
-	for (i = 0; i < (PGTABLE_SIZE >> 3); i++) {
-		set_pgtable_section(page_table, i, i << SECTION_SHIFT,
-				    MT_DEVICE_NGNRNE, PMD_SECT_NON_SHARE);
-	}
-
-	/* Setup an identity-mapping for all RAM space */
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		ulong start = bd->bi_dram[i].start;
-		ulong end = bd->bi_dram[i].start + bd->bi_dram[i].size;
-		for (j = start >> SECTION_SHIFT;
-		     j < end >> SECTION_SHIFT; j++) {
-			set_pgtable_section(page_table, j, j << SECTION_SHIFT,
-					    MT_NORMAL, PMD_SECT_NON_SHARE);
-		}
-	}
-
-	/* load TTBR0 */
-	el = current_el();
-	if (el == 1) {
-		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
-				  TCR_EL1_RSVD | TCR_FLAGS | TCR_EL1_IPS_BITS,
-				  MEMORY_ATTRIBUTES);
-	} else if (el == 2) {
-		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
-				  TCR_EL2_RSVD | TCR_FLAGS | TCR_EL2_IPS_BITS,
-				  MEMORY_ATTRIBUTES);
-	} else {
-		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
-				  TCR_EL3_RSVD | TCR_FLAGS | TCR_EL3_IPS_BITS,
-				  MEMORY_ATTRIBUTES);
-	}
-#endif
 
 	/* enable the mmu */
 	set_sctlr(get_sctlr() | CR_M);
@@ -544,33 +482,6 @@ u64 *__weak arch_get_page_table(void) {
 	return NULL;
 }
 
-#ifndef CONFIG_SYS_FULL_VA
-void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
-				     enum dcache_option option)
-{
-	u64 *page_table = arch_get_page_table();
-	u64 upto, end;
-
-	if (page_table == NULL)
-		return;
-
-	end = ALIGN(start + size, (1 << MMU_SECTION_SHIFT)) >>
-	      MMU_SECTION_SHIFT;
-	start = start >> MMU_SECTION_SHIFT;
-	for (upto = start; upto < end; upto++) {
-		page_table[upto] &= ~PMD_ATTRINDX_MASK;
-		page_table[upto] |= PMD_ATTRINDX(option);
-	}
-	asm volatile("dsb sy");
-	__asm_invalidate_tlb_all();
-	asm volatile("dsb sy");
-	asm volatile("isb");
-	start = start << MMU_SECTION_SHIFT;
-	end = end << MMU_SECTION_SHIFT;
-	flush_dcache_range(start, end);
-	asm volatile("dsb sy");
-}
-#else
 static bool is_aligned(u64 addr, u64 size, u64 align)
 {
 	return !(addr & (align - 1)) && !(size & (align - 1));
@@ -652,7 +563,6 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	 */
 	flush_dcache_range(real_start, real_start + real_size);
 }
-#endif
 
 #else	/* CONFIG_SYS_DCACHE_OFF */
 

@@ -21,7 +21,6 @@
 
 /* MMU Definitions */
 #define CONFIG_SYS_CACHELINE_SIZE	64
-#define CONFIG_SYS_FULL_VA
 
 #define CONFIG_IDENT_STRING		" vexpress_aemv8a"
 #define CONFIG_BOOTP_VCI_STRING		"U-Boot.armv8.vexpress_aemv8a"

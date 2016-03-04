@@ -17,18 +17,14 @@
 #define CR_WXN		(1 << 19)	/* Write Permision Imply XN	*/
 #define CR_EE		(1 << 25)	/* Exception (Big) Endian	*/
 
+#ifndef __ASSEMBLY__
+
+u64 get_page_table_size(void);
+#define PGTABLE_SIZE	get_page_table_size()
+
 /* 2MB granularity */
 #define MMU_SECTION_SHIFT	21
 #define MMU_SECTION_SIZE	(1 << MMU_SECTION_SHIFT)
-
-#ifndef __ASSEMBLY__
-
-#ifndef CONFIG_SYS_FULL_VA
-#define PGTABLE_SIZE	(0x10000)
-#else
-u64 get_page_table_size(void);
-#define PGTABLE_SIZE	get_page_table_size()
-#endif
 
 enum dcache_option {
 	DCACHE_OFF = 0x3,
