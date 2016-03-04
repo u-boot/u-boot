@@ -105,4 +105,11 @@
 /* NETCP */
 #define KS2_NETCP_BASE			0x26000000
 
+#ifndef __ASSEMBLY__
+static inline int ddr3_get_size(void)
+{
+	return 2;
+}
+#endif
+
 #endif /* __ASM_ARCH_HARDWARE_K2L_H */

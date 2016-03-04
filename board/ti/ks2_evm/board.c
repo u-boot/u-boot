@@ -146,9 +146,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	ddr3a_size = 0;
 	if (lpae) {
-		env = getenv("ddr3a_size");
-		if (env)
-			ddr3a_size = simple_strtol(env, NULL, 10);
+		ddr3a_size = ddr3_get_size();
 		if ((ddr3a_size != 8) && (ddr3a_size != 4))
 			ddr3a_size = 0;
 	}

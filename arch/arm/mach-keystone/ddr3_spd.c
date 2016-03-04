@@ -426,6 +426,16 @@ static int ddr3_read_spd(ddr3_spd_eeprom_t *spd_params)
 	return 0;
 }
 
+int ddr3_get_size(void)
+{
+	ddr3_spd_eeprom_t spd_params;
+
+	if (ddr3_read_spd(&spd_params))
+		return 0;
+
+	return ddr3_get_size_in_mb(&spd_params) / 1024;
+}
+
 int ddr3_get_dimm_params_from_spd(struct ddr3_spd_cb *spd_cb)
 {
 	struct ddr3_sodimm spd;
