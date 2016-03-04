@@ -19,6 +19,7 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/hi6220.h>
+#include <asm/armv8/mmu.h>
 
 /*TODO drop this table in favour of device tree */
 static const struct hikey_gpio_platdata hi6220_gpio[] = {
@@ -86,6 +87,26 @@ U_BOOT_DEVICE(hikey_seriala) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+
+static struct mm_region hikey_mem_map[] = {
+	{
+		.base = 0x0UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.base = 0x80000000UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = hikey_mem_map;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_uart_init(void)

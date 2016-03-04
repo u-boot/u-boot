@@ -21,8 +21,9 @@
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
-/* Cache Definitions */
-#define CONFIG_SYS_DCACHE_OFF
+/* MMU Definitions */
+#define CONFIG_SYS_CACHELINE_SIZE	64
+#define CONFIG_SYS_FULL_VA
 
 #define CONFIG_IDENT_STRING		"hikey"
 
