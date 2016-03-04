@@ -502,8 +502,9 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 	fdt_fixup_ethernet(blob);
 
 	/* Delete the old LMB reservation */
-	lmb_free(lmb, (phys_addr_t)(u32)(uintptr_t)blob,
-		 (phys_size_t)fdt_totalsize(blob));
+	if (lmb)
+		lmb_free(lmb, (phys_addr_t)(u32)(uintptr_t)blob,
+			 (phys_size_t)fdt_totalsize(blob));
 
 	ret = fdt_shrink_to_minimum(blob);
 	if (ret < 0)
@@ -515,7 +516,8 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		fdt_set_totalsize(blob, of_size);
 	}
 	/* Create a new LMB reservation */
-	lmb_reserve(lmb, (ulong)blob, of_size);
+	if (lmb)
+		lmb_reserve(lmb, (ulong)blob, of_size);
 
 	fdt_initrd(blob, *initrd_start, *initrd_end);
 	if (!ft_verify_fdt(blob))

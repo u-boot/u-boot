@@ -92,6 +92,7 @@ static unsigned long do_bootefi_exec(void *efi)
 {
 	ulong (*entry)(void *image_handle, struct efi_system_table *st);
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
+	bootm_headers_t img = { 0 };
 
 	/*
 	 * gd lives in a fixed register which may get clobbered while we execute
@@ -102,6 +103,13 @@ static unsigned long do_bootefi_exec(void *efi)
 	/* Update system table to point to our currently loaded FDT */
 
 	if (working_fdt) {
+		/* Prepare fdt for payload */
+		if (image_setup_libfdt(&img, working_fdt, 0, NULL)) {
+			printf("ERROR: Failed to process device tree\n");
+			return -EINVAL;
+		}
+
+		/* Link to it in the efi tables */
 		systab.tables[0].guid = EFI_FDT_GUID;
 		systab.tables[0].table = working_fdt;
 		systab.nr_tables = 1;
