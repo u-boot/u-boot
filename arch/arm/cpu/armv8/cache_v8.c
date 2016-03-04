@@ -566,6 +566,15 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 
 #else	/* CONFIG_SYS_DCACHE_OFF */
 
+/*
+ * For SPL builds, we may want to not have dcache enabled. Any real U-Boot
+ * running however really wants to have dcache and the MMU active. Check that
+ * everything is sane and give the developer a hint if it isn't.
+ */
+#ifndef CONFIG_SPL_BUILD
+#error Please describe your MMU layout in CONFIG_SYS_MEM_MAP and enable dcache.
+#endif
+
 void invalidate_dcache_all(void)
 {
 }
