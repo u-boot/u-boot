@@ -87,6 +87,8 @@ struct efi_object {
 /* This list contains all UEFI objects we know of */
 extern struct list_head efi_obj_list;
 
+/* Called by bootefi to make all disk storage accessible as EFI objects */
+int efi_disk_register(void);
 /*
  * Stub implementation for a protocol opener that just returns the handle as
  * interface
