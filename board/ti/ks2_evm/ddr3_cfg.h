@@ -10,18 +10,11 @@
 #ifndef __DDR3_CFG_H
 #define __DDR3_CFG_H
 
-extern struct ddr3_phy_config ddr3phy_1600_8g;
-extern struct ddr3_emif_config ddr3_1600_8g;
-
-extern struct ddr3_phy_config ddr3phy_1333_2g;
-extern struct ddr3_emif_config ddr3_1333_2g;
-
-extern struct ddr3_phy_config ddr3phy_1600_4g;
-extern struct ddr3_emif_config ddr3_1600_4g;
+#include <asm/arch/ddr3.h>
 
 extern struct ddr3_phy_config ddr3phy_1600_2g;
 extern struct ddr3_emif_config ddr3_1600_2g;
 
-int ddr3_get_dimm_params(char *dimm_name);
+int ddr3_get_dimm_params_from_spd(struct ddr3_spd_cb *spd_cb);
 
 #endif /* __DDR3_CFG_H */

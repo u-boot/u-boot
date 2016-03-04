@@ -13,3 +13,5 @@ obj-y	+= cmd_mon.o
 obj-y	+= msmc.o
 obj-y	+= ddr3.o cmd_ddr3.o
 obj-y	+= keystone.o
+obj-$(CONFIG_K2E_EVM) += ddr3_spd.o
+obj-$(CONFIG_K2HK_EVM) += ddr3_spd.o
