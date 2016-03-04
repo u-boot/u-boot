@@ -795,6 +795,9 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info, /* Setup clock information */
 #endif
+#ifdef CONFIG_EFI_LOADER
+	efi_memory_init,
+#endif
 	stdio_init_tables,
 	initr_serial,
 	initr_announce,

@@ -110,6 +110,25 @@ efi_status_t efi_exit_func(efi_status_t ret);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 
+/* Generic EFI memory allocator, call this to get memory */
+void *efi_alloc(uint64_t len, int memory_type);
+/* More specific EFI memory allocator, called by EFI payloads */
+efi_status_t efi_allocate_pages(int type, int memory_type, unsigned long pages,
+				uint64_t *memory);
+/* EFI memory free function. Not implemented today */
+efi_status_t efi_free_pages(uint64_t memory, unsigned long pages);
+/* Returns the EFI memory map */
+efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
+				struct efi_mem_desc *memory_map,
+				unsigned long *map_key,
+				unsigned long *descriptor_size,
+				uint32_t *descriptor_version);
+/* Adds a range into the EFI memory map */
+uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+			    bool overlap_only_ram);
+/* Called by board init to initialize the EFI memory map */
+int efi_memory_init(void);
+
 /*
  * Use these to indicate that your code / data should go into the EFI runtime
  * section and thus still be available when the OS is running
