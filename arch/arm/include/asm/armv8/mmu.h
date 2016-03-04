@@ -159,11 +159,6 @@
 #define TCR_EL1_IPS_BITS	(UL(3) << 32)	/* 42 bits physical address */
 #define TCR_EL2_IPS_BITS	(3 << 16)	/* 42 bits physical address */
 #define TCR_EL3_IPS_BITS	(3 << 16)	/* 42 bits physical address */
-#else
-#define TCR_EL1_IPS_BITS	CONFIG_SYS_TCR_EL1_IPS_BITS
-#define TCR_EL2_IPS_BITS	CONFIG_SYS_TCR_EL2_IPS_BITS
-#define TCR_EL3_IPS_BITS	CONFIG_SYS_TCR_EL3_IPS_BITS
-#endif
 
 /* PTWs cacheable, inner/outer WBWA and inner shareable */
 #define TCR_FLAGS		(TCR_TG0_64K |		\
@@ -171,6 +166,7 @@
 				TCR_ORGN_WBWA |		\
 				TCR_IRGN_WBWA |		\
 				TCR_T0SZ(VA_BITS))
+#endif
 
 #define TCR_EL1_RSVD		(1 << 31)
 #define TCR_EL2_RSVD		(1 << 31 | 1 << 23)

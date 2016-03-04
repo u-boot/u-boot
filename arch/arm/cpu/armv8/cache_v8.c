@@ -38,6 +38,58 @@ static struct mm_region mem_map[] = CONFIG_SYS_MEM_MAP;
 #define PTL1_ENTRIES CONFIG_SYS_PTL1_ENTRIES
 #define PTL2_ENTRIES CONFIG_SYS_PTL2_ENTRIES
 
+static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
+{
+	u64 max_addr = 0;
+	u64 ips, va_bits;
+	u64 tcr;
+	int i;
+
+	/* Find the largest address we need to support */
+	for (i = 0; i < ARRAY_SIZE(mem_map); i++)
+		max_addr = max(max_addr, mem_map[i].base + mem_map[i].size);
+
+	/* Calculate the maximum physical (and thus virtual) address */
+	if (max_addr > (1ULL << 44)) {
+		ips = 5;
+		va_bits = 48;
+	} else  if (max_addr > (1ULL << 42)) {
+		ips = 4;
+		va_bits = 44;
+	} else  if (max_addr > (1ULL << 40)) {
+		ips = 3;
+		va_bits = 42;
+	} else  if (max_addr > (1ULL << 36)) {
+		ips = 2;
+		va_bits = 40;
+	} else  if (max_addr > (1ULL << 32)) {
+		ips = 1;
+		va_bits = 36;
+	} else {
+		ips = 0;
+		va_bits = 32;
+	}
+
+	if (el == 1) {
+		tcr = TCR_EL1_RSVD | (ips << 32);
+	} else if (el == 2) {
+		tcr = TCR_EL2_RSVD | (ips << 16);
+	} else {
+		tcr = TCR_EL3_RSVD | (ips << 16);
+	}
+
+	/* PTWs cacheable, inner/outer WBWA and inner shareable */
+	tcr |= TCR_TG0_64K | TCR_SHARED_INNER | TCR_ORGN_WBWA | TCR_IRGN_WBWA;
+	tcr |= TCR_T0SZ(VA_BITS);
+
+	if (pips)
+		*pips = ips;
+	if (pva_bits)
+		*pva_bits = va_bits;
+
+	return tcr;
+}
+
 static void setup_pgtables(void)
 {
 	int l1_e, l2_e;
@@ -110,6 +162,10 @@ __weak void mmu_setup(void)
 	/* Set up page tables only on BSP */
 	if (coreid == BSP_COREID)
 		setup_pgtables();
+
+	el = current_el();
+	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
+			  MEMORY_ATTRIBUTES);
 #else
 	/* Setup an identity-mapping for all spaces */
 	for (i = 0; i < (PGTABLE_SIZE >> 3); i++) {
@@ -128,7 +184,6 @@ __weak void mmu_setup(void)
 		}
 	}
 
-#endif
 	/* load TTBR0 */
 	el = current_el();
 	if (el == 1) {
@@ -144,6 +199,8 @@ __weak void mmu_setup(void)
 				  TCR_EL3_RSVD | TCR_FLAGS | TCR_EL3_IPS_BITS,
 				  MEMORY_ATTRIBUTES);
 	}
+#endif
+
 	/* enable the mmu */
 	set_sctlr(get_sctlr() | CR_M);
 }
