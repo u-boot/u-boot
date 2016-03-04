@@ -107,7 +107,7 @@
 	\
 	"load_efi_dtb="                                                   \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
-			"${fdt_addr_r} ${prefix}${fdt_name}; "           \
+			"${fdt_addr_r} ${prefix}${fdtfile}; "             \
 		"fdt addr ${fdt_addr_r}\0"                                \
 	\
 	"efi_dtb_prefixes=/ /dtb/ /dtb/current/\0"                        \
@@ -115,7 +115,7 @@
 		"for prefix in ${efi_dtb_prefixes}; do "                  \
 			"if test -e ${devtype} "                          \
 					"${devnum}:${distro_bootpart} "   \
-					"${prefix}${fdt_name}; then "     \
+					"${prefix}${fdtfile}; then "      \
 				"run load_efi_dtb; "                      \
 			"fi;"                                             \
 		"done;"                                                   \

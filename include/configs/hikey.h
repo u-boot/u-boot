@@ -118,7 +118,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=Image\0"	\
 				"kernel_addr_r=0x00080000\0" \
-				"fdt_name=hi6220-hikey.dtb\0" \
+				"fdtfile=hi6220-hikey.dtb\0" \
 				"fdt_addr_r=0x02000000\0" \
 				"fdt_high=0xffffffffffffffff\0" \
 				"initrd_high=0xffffffffffffffff\0" \
