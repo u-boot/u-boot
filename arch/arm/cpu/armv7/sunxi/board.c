@@ -113,11 +113,27 @@ int spl_board_load_image(void)
 
 void s_init(void)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_A23
-	/* Magic (undocmented) value taken from boot0, without this DRAM
-	 * access gets messed up (seems cache related) */
+	/*
+	 * Undocumented magic taken from boot0, without this DRAM
+	 * access gets messed up (seems cache related).
+	 * The boot0 sources describe this as: "config ema for cache sram"
+	 */
+#if defined CONFIG_MACH_SUN6I
 	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
+#elif defined CONFIG_MACH_SUN8I_A23
+	uint version;
+
+	/* Unlock sram version info reg, read it, relock */
+	setbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
+	version = readl(SUNXI_SRAMC_BASE + 0x24);
+	clrbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
+
+	if ((version & 0xffff0000) == 0x16500000)
+		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
+	else /* 0x1661 ? */
+		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0xc0);
 #endif
+
 #if defined CONFIG_MACH_SUN6I || \
     defined CONFIG_MACH_SUN7I || \
     defined CONFIG_MACH_SUN8I
