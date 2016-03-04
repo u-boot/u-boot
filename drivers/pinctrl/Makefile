@@ -9,5 +9,5 @@ obj-y					+= nxp/
 obj-$(CONFIG_ARCH_ROCKCHIP) += rockchip/
 obj-$(CONFIG_PINCTRL_SANDBOX)	+= pinctrl-sandbox.o
 
-obj-$(CONFIG_ARCH_UNIPHIER)	+= uniphier/
+obj-$(CONFIG_PINCTRL_UNIPHIER)	+= uniphier/
 obj-$(CONFIG_PIC32_PINCTRL)	+= pinctrl_pic32.o
