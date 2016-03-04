@@ -14,6 +14,7 @@
 #include <dm/platdata.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include "pcie.h"
+#include <asm/armv8/mmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,6 +28,26 @@ U_BOOT_DEVICE(vexpress_serials) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+
+static struct mm_region vexpress64_mem_map[] = {
+	{
+		.base = 0x0UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		.base = 0x80000000UL,
+		.size = 0xff80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = vexpress64_mem_map;
 
 /* This function gets replaced by platforms supporting PCIe.
  * The replacement function, eg. on Juno, initialises the PCIe bus.
