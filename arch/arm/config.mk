@@ -122,6 +122,10 @@ ifdef CONFIG_OF_EMBED
 OBJCOPYFLAGS += -j .dtb.init.rodata
 endif
 
+ifdef CONFIG_EFI_LOADER
+OBJCOPYFLAGS += -j .efi_runtime -j .efi_runtime_rel
+endif
+
 ifneq ($(CONFIG_IMX_CONFIG),)
 ifdef CONFIG_SPL
 ifndef CONFIG_SPL_BUILD

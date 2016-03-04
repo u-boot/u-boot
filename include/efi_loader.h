@@ -30,6 +30,7 @@
 
 #define EFI_EXIT(ret) efi_exit_func(ret);
 
+extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
 
 extern const struct efi_simple_text_output_protocol efi_con_out;
@@ -39,6 +40,9 @@ extern const struct efi_console_control_protocol efi_console_control;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
 extern const efi_guid_t efi_guid_loaded_image;
+
+extern unsigned int __efi_runtime_start, __efi_runtime_stop;
+extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 
 /*
  * While UEFI objects can have callbacks, you can also call functions on
@@ -101,8 +105,21 @@ void efi_save_gd(void);
 void efi_restore_gd(void);
 /* Called from EFI_EXIT on callback exit to restore the gd register */
 efi_status_t efi_exit_func(efi_status_t ret);
+/* Call this to relocate the runtime section to an address space */
+void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
+
+/*
+ * Use these to indicate that your code / data should go into the EFI runtime
+ * section and thus still be available when the OS is running
+ */
+#define EFI_RUNTIME_DATA __attribute__ ((section ("efi_runtime_data")))
+#define EFI_RUNTIME_TEXT __attribute__ ((section ("efi_runtime_text")))
 
 #else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
+
+/* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
+#define EFI_RUNTIME_DATA
+#define EFI_RUNTIME_TEXT
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }

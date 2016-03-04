@@ -65,6 +65,7 @@
 #ifdef CONFIG_AVR32
 #include <asm/arch/mmu.h>
 #endif
+#include <efi_loader.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -176,6 +177,9 @@ static int initr_reloc_global_data(void)
 	* incase of FDT blob is embedded with in image
 	*/
 	gd->fdt_blob += gd->reloc_off;
+#endif
+#ifdef CONFIG_EFI_LOADER
+	efi_runtime_relocate(gd->relocaddr, NULL);
 #endif
 
 	return 0;
