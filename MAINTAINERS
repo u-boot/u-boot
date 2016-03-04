@@ -230,6 +230,13 @@ F:	drivers/core/
 F:	include/dm/
 F:	test/dm/
 
+EFI PAYLOAD
+M:	Alexander Graf <agraf@suse.de>
+S:	Maintained
+F:	include/efi_loader.h
+F:	lib/efi_loader/
+F:	cmd/bootefi.c
+
 FLATTENED DEVICE TREE
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
