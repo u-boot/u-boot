@@ -2184,7 +2184,7 @@ Void_t* mALLOc(bytes) size_t bytes;
   INTERNAL_SIZE_T nb;
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (gd && !(gd->flags & GD_FLG_FULL_MALLOC_INIT))
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
 		return malloc_simple(bytes);
 #endif
 
