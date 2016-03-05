@@ -327,8 +327,10 @@ static void dra7_ddr3_init(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
-	if (warm_reset())
+	if (warm_reset()) {
 		emif_reset_phy(base);
+		writel(0x0, &emif->emif_pwr_mgmt_ctrl);
+	}
 	do_ext_phy_settings(base, regs);
 
 	writel(regs->ref_ctrl | EMIF_REG_INITREF_DIS_MASK,
