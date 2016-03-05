@@ -163,7 +163,11 @@ void emif_update_timings(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
-	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl_shdw);
+	if (!is_dra7xx())
+		writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl_shdw);
+	else
+		writel(regs->ref_ctrl_final, &emif->emif_sdram_ref_ctrl_shdw);
+
 	writel(regs->sdram_tim1, &emif->emif_sdram_tim_1_shdw);
 	writel(regs->sdram_tim2, &emif->emif_sdram_tim_2_shdw);
 	writel(regs->sdram_tim3, &emif->emif_sdram_tim_3_shdw);
