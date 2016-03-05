@@ -1329,6 +1329,8 @@ void dmm_init(u32 base)
 			&hw_lisa_map_regs->dmm_lisa_map_1);
 		writel(lisa_map_regs->dmm_lisa_map_0,
 			&hw_lisa_map_regs->dmm_lisa_map_0);
+
+		setbits_le32(MA_PRIORITY, MA_HIMEM_INTERLEAVE_UN_MASK);
 	}
 
 	/*

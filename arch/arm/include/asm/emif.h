@@ -545,6 +545,9 @@
 
 /* Memory Adapter */
 #define MA_BASE				0x482AF040
+#define MA_PRIORITY			0x482A2000
+#define MA_HIMEM_INTERLEAVE_UN_SHIFT	8
+#define MA_HIMEM_INTERLEAVE_UN_MASK	(1 << 8)
 
 /* DMM_LISA_MAP */
 #define EMIF_SYS_ADDR_SHIFT		24
