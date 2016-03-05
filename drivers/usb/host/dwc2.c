@@ -263,7 +263,9 @@ static void dwc_otg_core_init(struct dwc2_core_regs *regs)
 
 	/* Program the ULPI External VBUS bit if needed */
 #ifdef CONFIG_DWC2_PHY_ULPI_EXT_VBUS
-	usbcfg |= DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+	usbcfg |= (DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV |
+		   DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
+		   DWC2_GUSBCFG_INDICATOR_PASSTHROUGH);
 #else
 	usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
 #endif
