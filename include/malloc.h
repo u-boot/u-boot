@@ -914,6 +914,7 @@ int initf_malloc(void);
 /* Simple versions which can be used when space is tight */
 void *malloc_simple(size_t size);
 
+#pragma GCC visibility push(hidden)
 # if __STD_C
 
 Void_t* mALLOc(size_t);
@@ -945,6 +946,7 @@ int     mALLOPt();
 struct mallinfo mALLINFo();
 # endif
 #endif
+#pragma GCC visibility pop
 
 /*
  * Begin and End of memory area for malloc(), and current "brk"
