@@ -250,33 +250,39 @@ static void update_hwleveling_output(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 	u32 *emif_ext_phy_ctrl_reg, *emif_phy_status;
-	u32 reg, i;
+	u32 reg, i, phy;
 
 	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[7];
+	phy = readl(&emif->emif_ddr_phy_ctrl_1);
 
 	/* Update PHY_REG_RDDQS_RATIO */
 	emif_ext_phy_ctrl_reg = (u32 *)&emif->emif_ddr_ext_phy_ctrl_7;
-	for (i = 0; i < PHY_RDDQS_RATIO_REGS; i++) {
-		reg = readl(emif_phy_status++);
-		writel(reg, emif_ext_phy_ctrl_reg++);
-		writel(reg, emif_ext_phy_ctrl_reg++);
-	}
+	if (!(phy & EMIF_DDR_PHY_CTRL_1_RDLVL_MASK_MASK))
+		for (i = 0; i < PHY_RDDQS_RATIO_REGS; i++) {
+			reg = readl(emif_phy_status++);
+			writel(reg, emif_ext_phy_ctrl_reg++);
+			writel(reg, emif_ext_phy_ctrl_reg++);
+		}
 
 	/* Update PHY_REG_FIFO_WE_SLAVE_RATIO */
 	emif_ext_phy_ctrl_reg = (u32 *)&emif->emif_ddr_ext_phy_ctrl_2;
-	for (i = 0; i < PHY_FIFO_WE_SLAVE_RATIO_REGS; i++) {
-		reg = readl(emif_phy_status++);
-		writel(reg, emif_ext_phy_ctrl_reg++);
-		writel(reg, emif_ext_phy_ctrl_reg++);
-	}
+	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[12];
+	if (!(phy & EMIF_DDR_PHY_CTRL_1_RDLVLGATE_MASK_MASK))
+		for (i = 0; i < PHY_FIFO_WE_SLAVE_RATIO_REGS; i++) {
+			reg = readl(emif_phy_status++);
+			writel(reg, emif_ext_phy_ctrl_reg++);
+			writel(reg, emif_ext_phy_ctrl_reg++);
+		}
 
 	/* Update PHY_REG_WR_DQ/DQS_SLAVE_RATIO */
 	emif_ext_phy_ctrl_reg = (u32 *)&emif->emif_ddr_ext_phy_ctrl_12;
-	for (i = 0; i < PHY_REG_WR_DQ_SLAVE_RATIO_REGS; i++) {
-		reg = readl(emif_phy_status++);
-		writel(reg, emif_ext_phy_ctrl_reg++);
-		writel(reg, emif_ext_phy_ctrl_reg++);
-	}
+	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[17];
+	if (!(phy & EMIF_DDR_PHY_CTRL_1_WRLVL_MASK_MASK))
+		for (i = 0; i < PHY_REG_WR_DQ_SLAVE_RATIO_REGS; i++) {
+			reg = readl(emif_phy_status++);
+			writel(reg, emif_ext_phy_ctrl_reg++);
+			writel(reg, emif_ext_phy_ctrl_reg++);
+		}
 
 	/* Disable Leveling */
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);

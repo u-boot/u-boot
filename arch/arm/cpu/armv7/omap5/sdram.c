@@ -643,11 +643,12 @@ static void do_ext_phy_settings_dra7(u32 base, const struct emif_regs *regs)
 	u32 *emif_ext_phy_ctrl_base = 0;
 	u32 emif_nr;
 	const u32 *ext_phy_ctrl_const_regs;
-	u32 i, hw_leveling, size;
+	u32 i, hw_leveling, size, phy;
 
 	emif_nr = (base == EMIF1_BASE) ? 1 : 2;
 
 	hw_leveling = regs->emif_rd_wr_lvl_rmp_ctl >> EMIF_REG_RDWRLVL_EN_SHIFT;
+	phy = regs->emif_ddr_phy_ctlr_1_init;
 
 	emif_ext_phy_ctrl_base = (u32 *)&(emif->emif_ddr_ext_phy_ctrl_1);
 
@@ -657,18 +658,35 @@ static void do_ext_phy_settings_dra7(u32 base, const struct emif_regs *regs)
 	writel(ext_phy_ctrl_const_regs[0], &emif_ext_phy_ctrl_base[0]);
 	writel(ext_phy_ctrl_const_regs[0], &emif_ext_phy_ctrl_base[1]);
 
-	if (!hw_leveling) {
-		/*
-		 * Copy the predefined PHY register values
-		 * in case of sw leveling
-		 */
-		for (i = 1; i < 25; i++) {
+	/*
+	 * Copy the predefined PHY register values
+	 * if leveling is disabled.
+	 */
+	if (phy & EMIF_DDR_PHY_CTRL_1_RDLVLGATE_MASK_MASK)
+		for (i = 1; i < 6; i++) {
 			writel(ext_phy_ctrl_const_regs[i],
 			       &emif_ext_phy_ctrl_base[i * 2]);
 			writel(ext_phy_ctrl_const_regs[i],
 			       &emif_ext_phy_ctrl_base[i * 2 + 1]);
 		}
-	} else {
+
+	if (phy & EMIF_DDR_PHY_CTRL_1_RDLVL_MASK_MASK)
+		for (i = 6; i < 11; i++) {
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2]);
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2 + 1]);
+		}
+
+	if (phy & EMIF_DDR_PHY_CTRL_1_WRLVL_MASK_MASK)
+		for (i = 11; i < 25; i++) {
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2]);
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2 + 1]);
+		}
+
+	if (hw_leveling) {
 		/*
 		 * Write the init value for HW levling to occur
 		 */
