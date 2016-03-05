@@ -534,11 +534,15 @@ static int ti_qspi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 	fdt_addr_t addr;
+	void *mmap;
 
-	priv->base = (struct ti_qspi_regs *)dev_get_addr(bus);
-	priv->memory_map = (void *)dev_get_addr_index(bus, 1);
+	priv->base = map_physmem(dev_get_addr(bus), sizeof(struct ti_qspi_regs),
+				 MAP_NOCACHE);
+	priv->memory_map = map_physmem(dev_get_addr_index(bus, 1), 0,
+				       MAP_NOCACHE);
 	addr = dev_get_addr_index(bus, 2);
-	priv->ctrl_mod_mmap = (addr == FDT_ADDR_T_NONE) ? NULL : (void *)addr;
+	mmap = map_physmem(dev_get_addr_index(bus, 2), 0, MAP_NOCACHE);
+	priv->ctrl_mod_mmap = (addr == FDT_ADDR_T_NONE) ? NULL : mmap;
 
 	priv->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency", -1);
 	if (priv->max_hz < 0) {
