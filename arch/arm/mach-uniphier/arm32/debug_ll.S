@@ -175,6 +175,7 @@ proxstream2_end:
 	b		init_uart
 ph1_ld6b_end:
 #endif
+	mov		pc, lr
 
 init_uart:
 	addruart	r0, r1, r2
