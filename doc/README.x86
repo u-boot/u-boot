@@ -864,6 +864,15 @@ PCIe root port's configuration registers will cause system hang while it is
 held in reset. For more details, check how they are implemented by the Intel
 Galileo board support codes in board/intel/galileo/galileo.c.
 
+coreboot:
+
+See scripts/coreboot.sed which can assist with porting coreboot code into
+U-Boot drivers. It will not resolve all build errors, but will perform common
+transformations. Remember to add attribution to coreboot for new files added
+to U-Boot. This should go at the top of each file and list the coreboot
+filename where the code originated.
+
+
 TODO List
 ---------
 - Audio
