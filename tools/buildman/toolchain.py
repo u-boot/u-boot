@@ -57,6 +57,7 @@ class Toolchain:
         Args:
             fname: Filename of the gcc component
             test: True to run the toolchain to test it
+            verbose: True to print out the information
         """
         self.gcc = fname
         self.path = os.path.dirname(fname)
@@ -155,8 +156,8 @@ class Toolchains:
         """
         toolchains = bsettings.GetItems('toolchain')
         if not toolchains:
-            print ("Warning: No tool chains - please add a [toolchain] section"
-                 " to your buildman config file %s. See README for details" %
+            print ('Warning: No tool chains - please add a [toolchain] section'
+                 ' to your buildman config file %s. See README for details' %
                  bsettings.config_fname)
 
         paths = []
@@ -367,14 +368,14 @@ class Toolchains:
                 Full path to the downloaded archive file in that directory,
                     or None if there was an error while downloading
         """
-        print "Downloading: %s" % url
+        print 'Downloading: %s' % url
         leaf = url.split('/')[-1]
         tmpdir = tempfile.mkdtemp('.buildman')
         response = urllib2.urlopen(url)
         fname = os.path.join(tmpdir, leaf)
         fd = open(fname, 'wb')
         meta = response.info()
-        size = int(meta.getheaders("Content-Length")[0])
+        size = int(meta.getheaders('Content-Length')[0])
         done = 0
         block_size = 1 << 16
         status = ''
@@ -388,7 +389,7 @@ class Toolchains:
 
             done += len(buffer)
             fd.write(buffer)
-            status = r"%10d MiB  [%3d%%]" % (done / 1024 / 1024,
+            status = r'%10d MiB  [%3d%%]' % (done / 1024 / 1024,
                                              done * 100 / size)
             status = status + chr(8) * (len(status) + 1)
             print status,
