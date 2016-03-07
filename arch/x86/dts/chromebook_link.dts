@@ -249,23 +249,29 @@
 				};
 			};
 
-			gpioa {
+			gpio_a: gpioa {
 				compatible = "intel,ich6-gpio";
 				u-boot,dm-pre-reloc;
+				#gpio-cells = <2>;
+				gpio-controller;
 				reg = <0 0x10>;
 				bank-name = "A";
 			};
 
-			gpiob {
+			gpio_b: gpiob {
 				compatible = "intel,ich6-gpio";
 				u-boot,dm-pre-reloc;
+				#gpio-cells = <2>;
+				gpio-controller;
 				reg = <0x30 0x10>;
 				bank-name = "B";
 			};
 
-			gpioc {
+			gpio_c: gpioc {
 				compatible = "intel,ich6-gpio";
 				u-boot,dm-pre-reloc;
+				#gpio-cells = <2>;
+				gpio-controller;
 				reg = <0x40 0x10>;
 				bank-name = "C";
 			};
