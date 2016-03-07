@@ -38,13 +38,15 @@ static int simple_panel_ofdata_to_platdata(struct udevice *dev)
 	struct simple_panel_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
-					   "power-supply", &priv->reg);
-	if (ret) {
-		debug("%s: Warning: cnnot get power supply: ret=%d\n",
-		      __func__, ret);
-		if (ret != -ENOENT)
-			return ret;
+	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
+		ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
+						   "power-supply", &priv->reg);
+		if (ret) {
+			debug("%s: Warning: cnnot get power supply: ret=%d\n",
+			      __func__, ret);
+			if (ret != -ENOENT)
+				return ret;
+		}
 	}
 	ret = uclass_get_device_by_phandle(UCLASS_PANEL_BACKLIGHT, dev,
 					   "backlight", &priv->backlight);
@@ -69,7 +71,7 @@ static int simple_panel_probe(struct udevice *dev)
 	struct simple_panel_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	if (priv->reg) {
+	if (IS_ENABLED(CONFIG_DM_REGULATOR) && priv->reg) {
 		debug("%s: Enable regulator '%s'\n", __func__, priv->reg->name);
 		ret = regulator_set_enable(priv->reg, true);
 		if (ret)
