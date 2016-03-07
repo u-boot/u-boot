@@ -54,7 +54,8 @@ class Toolchain:
                 component of the filename. E.g. arm-linux-gcc becomes arm
         priority: Toolchain priority (0=highest, 20=lowest)
     """
-    def __init__(self, fname, test, verbose=False, priority=PRIORITY_CALC):
+    def __init__(self, fname, test, verbose=False, priority=PRIORITY_CALC,
+                 arch=None):
         """Create a new toolchain object.
 
         Args:
@@ -75,7 +76,10 @@ class Toolchain:
 
         # The architecture is the first part of the name
         pos = self.cross.find('-')
-        self.arch = self.cross[:pos] if pos != -1 else 'sandbox'
+        if arch:
+            self.arch = arch
+        else:
+            self.arch = self.cross[:pos] if pos != -1 else 'sandbox'
 
         env = self.MakeEnvironment(False)
 
@@ -92,7 +96,8 @@ class Toolchain:
             if verbose:
                 print 'Tool chain test: ',
                 if self.ok:
-                    print 'OK, priority %d' % self.priority
+                    print "OK, arch='%s', priority %d" % (self.arch,
+                                                          self.priority)
                 else:
                     print 'BAD'
                     print 'Command: ', cmd
@@ -179,7 +184,8 @@ class Toolchains:
     def GetSettings(self):
       self.paths += self.GetPathList()
 
-    def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC):
+    def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC,
+            arch=None):
         """Add a toolchain to our list
 
         We select the given toolchain as our preferred one for its
@@ -189,8 +195,9 @@ class Toolchains:
             fname: Filename of toolchain's gcc driver
             test: True to run the toolchain to test it
             priority: Priority to use for this toolchain
+            arch: Toolchain architecture, or None if not known
         """
-        toolchain = Toolchain(fname, test, verbose, priority)
+        toolchain = Toolchain(fname, test, verbose, priority, arch)
         add_it = toolchain.ok
         if toolchain.arch in self.toolchains:
             add_it = (toolchain.priority <
