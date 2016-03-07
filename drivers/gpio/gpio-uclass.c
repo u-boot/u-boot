@@ -577,6 +577,24 @@ int gpio_get_values_as_int(const int *gpio_list)
 	return vector;
 }
 
+int dm_gpio_get_values_as_int(struct gpio_desc *desc_list, int count)
+{
+	unsigned bitmask = 1;
+	unsigned vector = 0;
+	int ret, i;
+
+	for (i = 0; i < count; i++) {
+		ret = dm_gpio_get_value(&desc_list[i]);
+		if (ret < 0)
+			return ret;
+		else if (ret)
+			vector |= bitmask;
+		bitmask <<= 1;
+	}
+
+	return vector;
+}
+
 static int _gpio_request_by_name_nodev(const void *blob, int node,
 				       const char *list_name, int index,
 				       struct gpio_desc *desc, int flags,

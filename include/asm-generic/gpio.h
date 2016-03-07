@@ -360,6 +360,18 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 int gpio_get_values_as_int(const int *gpio_list);
 
 /**
+ * dm_gpio_get_values_as_int() - Turn the values of a list of GPIOs into an int
+ *
+ * This puts the value of the first GPIO into bit 0, the second into bit 1,
+ * etc. then returns the resulting integer.
+ *
+ * @desc_list: List of GPIOs to collect
+ * @count: Number of GPIOs
+ * @return resulting integer value, or -ve on error
+ */
+int dm_gpio_get_values_as_int(struct gpio_desc *desc_list, int count);
+
+/**
  * gpio_claim_vector() - claim a number of GPIOs for input
  *
  * @gpio_num_array:	array of gpios to claim, terminated by -1
