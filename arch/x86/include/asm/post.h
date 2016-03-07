@@ -29,8 +29,8 @@
 #define POST_CPU_INFO		0x2d
 #define POST_PRE_MRC		0x2e
 #define POST_MRC		0x2f
-#define POST_DRAM		0x2f
-#define POST_LAPIC		0x30
+#define POST_DRAM		0x30
+#define POST_LAPIC		0x31
 
 #define POST_RAM_FAILURE	0xea
 #define POST_BIST_FAILURE	0xeb
