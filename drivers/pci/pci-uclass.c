@@ -289,7 +289,6 @@ int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
 				    size);
 }
 
-
 int pci_write_config32(pci_dev_t bdf, int offset, u32 value)
 {
 	return pci_write_config(bdf, offset, value, PCI_SIZE_32);
