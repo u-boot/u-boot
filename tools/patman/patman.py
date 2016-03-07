@@ -117,7 +117,8 @@ elif options.full_help:
     pager = os.getenv('PAGER')
     if not pager:
         pager = 'more'
-    fname = os.path.join(os.path.dirname(sys.argv[0]), 'README')
+    fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                         'README')
     command.Run(pager, fname)
 
 # Process commits, produce patches files, check them, email them
