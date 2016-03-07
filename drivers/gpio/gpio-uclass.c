@@ -257,7 +257,7 @@ int gpio_free(unsigned gpio)
 	return _dm_gpio_free(desc.dev, desc.offset);
 }
 
-static int check_reserved(struct gpio_desc *desc, const char *func)
+static int check_reserved(const struct gpio_desc *desc, const char *func)
 {
 	struct gpio_dev_priv *uc_priv;
 
@@ -324,7 +324,7 @@ int gpio_direction_output(unsigned gpio, int value)
 							desc.offset, value);
 }
 
-int dm_gpio_get_value(struct gpio_desc *desc)
+int dm_gpio_get_value(const struct gpio_desc *desc)
 {
 	int value;
 	int ret;
@@ -338,7 +338,7 @@ int dm_gpio_get_value(struct gpio_desc *desc)
 	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
 }
 
-int dm_gpio_set_value(struct gpio_desc *desc, int value)
+int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 {
 	int ret;
 
@@ -577,7 +577,7 @@ int gpio_get_values_as_int(const int *gpio_list)
 	return vector;
 }
 
-int dm_gpio_get_values_as_int(struct gpio_desc *desc_list, int count)
+int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count)
 {
 	unsigned bitmask = 1;
 	unsigned vector = 0;
@@ -766,7 +766,7 @@ static int gpio_renumber(struct udevice *removed_dev)
 	return 0;
 }
 
-int gpio_get_number(struct gpio_desc *desc)
+int gpio_get_number(const struct gpio_desc *desc)
 {
 	struct udevice *dev = desc->dev;
 	struct gpio_dev_priv *uc_priv;
