@@ -71,7 +71,7 @@ struct cpuinfo_x86 {
  * List of cpu vendor strings along with their normalized
  * id values.
  */
-static struct {
+static const struct {
 	int vendor;
 	const char *name;
 } x86_vendors[] = {
