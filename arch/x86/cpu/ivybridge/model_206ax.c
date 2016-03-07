@@ -17,6 +17,7 @@
 #include <asm/cpu_x86.h>
 #include <asm/lapic.h>
 #include <asm/msr.h>
+#include <asm/msr-index.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm/speedstep.h>
@@ -363,7 +364,7 @@ static void set_max_ratio(void)
 		msr = msr_read(MSR_PLATFORM_INFO);
 		perf_ctl.lo = msr.lo & 0xff00;
 	}
-	msr_write(IA32_PERF_CTL, perf_ctl);
+	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
 
 	debug("model_x06ax: frequency set to %d\n",
 	      ((perf_ctl.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK);
@@ -455,7 +456,7 @@ static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
 {
 	msr_t msr;
 
-	msr = msr_read(IA32_PERF_CTL);
+	msr = msr_read(MSR_IA32_PERF_CTL);
 	info->cpu_freq = ((msr.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK * 1000000;
 	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU;
 
