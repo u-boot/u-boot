@@ -14,6 +14,8 @@ import urllib2
 import bsettings
 import command
 
+PRIORITY_CALC = 0
+
 # Simple class to collect links from a page
 class MyHTMLParser(HTMLParser):
     def __init__(self, arch):
@@ -50,14 +52,17 @@ class Toolchain:
         cross: Cross compile string, e.g. 'arm-linux-'
         arch: Architecture of toolchain as determined from the first
                 component of the filename. E.g. arm-linux-gcc becomes arm
+        priority: Toolchain priority (0=highest, 20=lowest)
     """
-    def __init__(self, fname, test, verbose=False):
+    def __init__(self, fname, test, verbose=False, priority=PRIORITY_CALC):
         """Create a new toolchain object.
 
         Args:
             fname: Filename of the gcc component
             test: True to run the toolchain to test it
             verbose: True to print out the information
+            priority: Priority to use for this toolchain, or PRIORITY_CALC to
+                calculate it
         """
         self.gcc = fname
         self.path = os.path.dirname(fname)
@@ -76,6 +81,10 @@ class Toolchain:
 
         # As a basic sanity check, run the C compiler with --version
         cmd = [fname, '--version']
+        if priority == PRIORITY_CALC:
+            self.priority = self.GetPriority(fname)
+        else:
+            self.priority = priority
         if test:
             result = command.RunPipe([cmd], capture=True, env=env,
                                      raise_on_error=False)
@@ -83,7 +92,7 @@ class Toolchain:
             if verbose:
                 print 'Tool chain test: ',
                 if self.ok:
-                    print 'OK'
+                    print 'OK, priority %d' % self.priority
                 else:
                     print 'BAD'
                     print 'Command: ', cmd
@@ -91,7 +100,6 @@ class Toolchain:
                     print result.stderr
         else:
             self.ok = True
-        self.priority = self.GetPriority(fname)
 
     def GetPriority(self, fname):
         """Return the priority of the toolchain.
@@ -102,15 +110,15 @@ class Toolchain:
         Args:
             fname: Filename of toolchain
         Returns:
-            Priority of toolchain, 0=highest, 20=lowest.
+            Priority of toolchain, PRIORITY_CALC=highest, 20=lowest.
         """
         priority_list = ['-elf', '-unknown-linux-gnu', '-linux',
             '-none-linux-gnueabi', '-uclinux', '-none-eabi',
             '-gentoo-linux-gnu', '-linux-gnueabi', '-le-linux', '-uclinux']
         for prio in range(len(priority_list)):
             if priority_list[prio] in fname:
-                return prio
-        return prio
+                return PRIORITY_CALC + prio
+        return PRIORITY_CALC + prio
 
     def MakeEnvironment(self, full_path):
         """Returns an environment for using the toolchain.
@@ -171,7 +179,7 @@ class Toolchains:
     def GetSettings(self):
       self.paths += self.GetPathList()
 
-    def Add(self, fname, test=True, verbose=False):
+    def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC):
         """Add a toolchain to our list
 
         We select the given toolchain as our preferred one for its
@@ -180,14 +188,20 @@ class Toolchains:
         Args:
             fname: Filename of toolchain's gcc driver
             test: True to run the toolchain to test it
+            priority: Priority to use for this toolchain
         """
-        toolchain = Toolchain(fname, test, verbose)
+        toolchain = Toolchain(fname, test, verbose, priority)
         add_it = toolchain.ok
         if toolchain.arch in self.toolchains:
             add_it = (toolchain.priority <
                         self.toolchains[toolchain.arch].priority)
         if add_it:
             self.toolchains[toolchain.arch] = toolchain
+        elif verbose:
+            print ("Toolchain '%s' at priority %d will be ignored because "
+                   "another toolchain for arch '%s' has priority %d" %
+                   (toolchain.gcc, toolchain.priority, toolchain.arch,
+                    self.toolchains[toolchain.arch].priority))
 
     def ScanPath(self, path, verbose):
         """Scan a path for a valid toolchain
