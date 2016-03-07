@@ -107,21 +107,26 @@ void __weak do_board_detect(void)
 {
 }
 
-/*
- * Routine: s_init
- * Description: Does early system init of watchdog, muxing,  andclocks
+void s_init(void)
+{
+}
+
+/**
+ * early_system_init - Does Early system initialization.
+ *
+ * Does early system init of watchdog, muxing,  andclocks
  * Watchdog disable is done always. For the rest what gets done
- * depends on the boot mode in which this function is executed
- *   1. s_init of SPL running from SRAM
- *   2. s_init of U-Boot running from FLASH
- *   3. s_init of U-Boot loaded to SDRAM by SPL
- *   4. s_init of U-Boot loaded to SDRAM by ROM code using the
+ * depends on the boot mode in which this function is executed when
+ *   1. SPL running from SRAM
+ *   2. U-Boot running from FLASH
+ *   3. U-Boot loaded to SDRAM by SPL
+ *   4. U-Boot loaded to SDRAM by ROM code using the
  *	Configuration Header feature
  * Please have a look at the respective functions to see what gets
  * done in each of these cases
  * This function is called with SRAM stack.
  */
-void s_init(void)
+void early_system_init(void)
 {
 	init_omap_revision();
 	hw_data_init();
@@ -145,6 +150,7 @@ void s_init(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
+	early_system_init();
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 	board_early_init_f();
 #endif
@@ -152,6 +158,12 @@ void board_init_f(ulong dummy)
 	sdram_init();
 }
 #endif
+
+int arch_cpu_init_dm(void)
+{
+	early_system_init();
+	return 0;
+}
 
 /*
  * Routine: wait_for_command_complete
