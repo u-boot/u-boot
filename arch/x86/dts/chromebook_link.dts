@@ -74,6 +74,8 @@
 		northbridge@0,0 {
 			reg = <0x00000000 0 0 0 0>;
 			compatible = "intel,bd82x6x-northbridge";
+			board-id-gpios = <&gpio_b 9 0>, <&gpio_b 10 0>,
+					<&gpio_b 11 0>, <&gpio_a 10 0>;
 			u-boot,dm-pre-reloc;
 			spd {
 				compatible = "memory-spd";
