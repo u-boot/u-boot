@@ -250,6 +250,21 @@ int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 	return ops->write_config(bus, bdf, offset, value, size);
 }
 
+int pci_bus_clrset_config32(struct udevice *bus, pci_dev_t bdf, int offset,
+			    u32 clr, u32 set)
+{
+	ulong val;
+	int ret;
+
+	ret = pci_bus_read_config(bus, bdf, offset, &val, PCI_SIZE_32);
+	if (ret)
+		return ret;
+	val &= ~clr;
+	val |= set;
+
+	return pci_bus_write_config(bus, bdf, offset, val, PCI_SIZE_32);
+}
+
 int pci_write_config(pci_dev_t bdf, int offset, unsigned long value,
 		     enum pci_size_t size)
 {
@@ -416,6 +431,48 @@ int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep)
 	*valuep = value;
 
 	return 0;
+}
+
+int dm_pci_clrset_config8(struct udevice *dev, int offset, u32 clr, u32 set)
+{
+	u8 val;
+	int ret;
+
+	ret = dm_pci_read_config8(dev, offset, &val);
+	if (ret)
+		return ret;
+	val &= ~clr;
+	val |= set;
+
+	return dm_pci_write_config8(dev, offset, val);
+}
+
+int dm_pci_clrset_config16(struct udevice *dev, int offset, u32 clr, u32 set)
+{
+	u16 val;
+	int ret;
+
+	ret = dm_pci_read_config16(dev, offset, &val);
+	if (ret)
+		return ret;
+	val &= ~clr;
+	val |= set;
+
+	return dm_pci_write_config16(dev, offset, val);
+}
+
+int dm_pci_clrset_config32(struct udevice *dev, int offset, u32 clr, u32 set)
+{
+	u32 val;
+	int ret;
+
+	ret = dm_pci_read_config32(dev, offset, &val);
+	if (ret)
+		return ret;
+	val &= ~clr;
+	val |= set;
+
+	return dm_pci_write_config32(dev, offset, val);
 }
 
 static void set_vga_bridge_bits(struct udevice *dev)

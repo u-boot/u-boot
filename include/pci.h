@@ -1027,6 +1027,21 @@ int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size);
 
 /**
+ * pci_bus_clrset_config32() - Update a configuration value for a device
+ *
+ * The register at @offset is updated to (oldvalue & ~clr) | set.
+ *
+ * @bus:	Bus to access
+ * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
+ * @offset:	Register offset to update
+ * @clr:	Bits to clear
+ * @set:	Bits to set
+ * @return 0 if OK, -ve on error
+ */
+int pci_bus_clrset_config32(struct udevice *bus, pci_dev_t bdf, int offset,
+			    u32 clr, u32 set);
+
+/**
  * Driver model PCI config access functions. Use these in preference to others
  * when you have a valid device
  */
@@ -1043,6 +1058,14 @@ int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
 int dm_pci_write_config8(struct udevice *dev, int offset, u8 value);
 int dm_pci_write_config16(struct udevice *dev, int offset, u16 value);
 int dm_pci_write_config32(struct udevice *dev, int offset, u32 value);
+
+/**
+ * These permit convenient read/modify/write on PCI configuration. The
+ * register is updated to (oldvalue & ~clr) | set.
+ */
+int dm_pci_clrset_config8(struct udevice *dev, int offset, u32 clr, u32 set);
+int dm_pci_clrset_config16(struct udevice *dev, int offset, u32 clr, u32 set);
+int dm_pci_clrset_config32(struct udevice *dev, int offset, u32 clr, u32 set);
 
 /*
  * The following functions provide access to the above without needing the
