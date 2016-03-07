@@ -279,6 +279,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Invalid register offset %d\n", __func__, offset);
 		return -EINVAL;
 	}
+	plat->offset = offset;
 	plat->base_addr = gpiobase + offset;
 	plat->bank_name = fdt_getprop(gd->fdt_blob, dev->of_offset,
 				      "bank-name", NULL);
@@ -293,7 +294,8 @@ static int ich6_gpio_probe(struct udevice *dev)
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 
 	if (gd->arch.gpio_map) {
-		setup_pch_gpios(plat->base_addr, gd->arch.gpio_map);
+		setup_pch_gpios(plat->base_addr - plat->offset,
+				gd->arch.gpio_map);
 		gd->arch.gpio_map = NULL;
 	}
 

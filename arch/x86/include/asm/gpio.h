@@ -12,6 +12,7 @@
 struct ich6_bank_platdata {
 	uint16_t base_addr;
 	const char *bank_name;
+	int offset;
 };
 
 #define GPIO_MODE_NATIVE	0
@@ -146,6 +147,10 @@ struct pch_gpio_map {
 	} set3;
 };
 
+/*
+ * Deprecated functions to set up the GPIO map. The device tree should be used
+ * instead.
+ */
 int gpio_ich6_pinctrl_init(void);
 void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio);
 void ich_gpio_set_gpio_map(const struct pch_gpio_map *map);
