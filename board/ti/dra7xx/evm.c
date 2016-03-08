@@ -353,10 +353,10 @@ void recalibrate_iodelay(void)
 
 	switch (omap_revision()) {
 	case DRA722_ES1_0:
-		pads = core_padconf_array_essential;
-		npads = ARRAY_SIZE(core_padconf_array_essential);
-		iodelay = iodelay_cfg_array;
-		niodelays = ARRAY_SIZE(iodelay_cfg_array);
+		pads = dra72x_core_padconf_array;
+		npads = ARRAY_SIZE(dra72x_core_padconf_array);
+		iodelay = dra72_iodelay_cfg_array;
+		niodelays = ARRAY_SIZE(dra72_iodelay_cfg_array);
 		break;
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:

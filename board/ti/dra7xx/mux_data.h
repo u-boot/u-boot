@@ -12,134 +12,180 @@
 
 #include <asm/arch/mux_dra7xx.h>
 
-const struct pad_conf_entry core_padconf_array_essential[] = {
-	{MMC1_CLK, (IEN | PTU | PDIS | M0)},	/* MMC1_CLK */
-	{MMC1_CMD, (IEN | PTU | PDIS | M0)},	/* MMC1_CMD */
-	{MMC1_DAT0, (IEN | PTU | PDIS | M0)},	/* MMC1_DAT0 */
-	{MMC1_DAT1, (IEN | PTU | PDIS | M0)},	/* MMC1_DAT1 */
-	{MMC1_DAT2, (IEN | PTU | PDIS | M0)},	/* MMC1_DAT2 */
-	{MMC1_DAT3, (IEN | PTU | PDIS | M0)},	/* MMC1_DAT3 */
-	{MMC1_SDCD, (FSC | IEN | PTU | PDIS | M0)}, /* MMC1_SDCD */
-	{MMC1_SDWP, (FSC | IEN | PTD | PEN | M14)}, /* MMC1_SDWP */
-#if defined(CONFIG_NOR)
-	/* NOR only pin-mux */
-	{GPMC_A0  , M0 | IDIS | PDIS}, /* nor.GPMC_A[0 ] */
-	{GPMC_A1  , M0 | IDIS | PDIS}, /* nor.GPMC_A[1 ] */
-	{GPMC_A2  , M0 | IDIS | PDIS}, /* nor.GPMC_A[2 ] */
-	{GPMC_A3  , M0 | IDIS | PDIS}, /* nor.GPMC_A[3 ] */
-	{GPMC_A4  , M0 | IDIS | PDIS}, /* nor.GPMC_A[4 ] */
-	{GPMC_A5  , M0 | IDIS | PDIS}, /* nor.GPMC_A[5 ] */
-	{GPMC_A6  , M0 | IDIS | PDIS}, /* nor.GPMC_A[6 ] */
-	{GPMC_A7  , M0 | IDIS | PDIS}, /* nor.GPMC_A[7 ] */
-	{GPMC_A8  , M0 | IDIS | PDIS}, /* nor.GPMC_A[8 ] */
-	{GPMC_A9  , M0 | IDIS | PDIS}, /* nor.GPMC_A[9 ] */
-	{GPMC_A10 , M0 | IDIS | PDIS}, /* nor.GPMC_A[10] */
-	{GPMC_A11 , M0 | IDIS | PDIS}, /* nor.GPMC_A[11] */
-	{GPMC_A12 , M0 | IDIS | PDIS}, /* nor.GPMC_A[12] */
-	{GPMC_A13 , M0 | IDIS | PDIS}, /* nor.GPMC_A[13] */
-	{GPMC_A14 , M0 | IDIS | PDIS}, /* nor.GPMC_A[14] */
-	{GPMC_A15 , M0 | IDIS | PDIS}, /* nor.GPMC_A[15] */
-	{GPMC_A16 , M0 | IDIS | PDIS}, /* nor.GPMC_A[16] */
-	{GPMC_A17 , M0 | IDIS | PDIS}, /* nor.GPMC_A[17] */
-	{GPMC_A18 , M0 | IDIS | PDIS}, /* nor.GPMC_A[18] */
-	{GPMC_A19 , M0 | IDIS | PDIS}, /* nor.GPMC_A[19] */
-	{GPMC_A20 , M0 | IDIS | PDIS}, /* nor.GPMC_A[20] */
-	{GPMC_A21 , M0 | IDIS | PDIS}, /* nor.GPMC_A[21] */
-	{GPMC_A22 , M0 | IDIS | PDIS}, /* nor.GPMC_A[22] */
-	{GPMC_A23 , M0 | IDIS | PDIS}, /* nor.GPMC_A[23] */
-	{GPMC_A24 , M0 | IDIS | PDIS}, /* nor.GPMC_A[24] */
-	{GPMC_A25 , M0 | IDIS | PDIS}, /* nor.GPMC_A[25] */
-	{GPMC_A26 , M0 | IDIS | PDIS}, /* nor.GPMC_A[26] */
-#else
-	/* eMMC pinmux */
-	{GPMC_A19, (IEN | PTU | PDIS | M1)},	/* mmc2_dat4 */
-	{GPMC_A20, (IEN | PTU | PDIS | M1)},	/* mmc2_dat5 */
-	{GPMC_A21, (IEN | PTU | PDIS | M1)},	/* mmc2_dat6 */
-	{GPMC_A22, (IEN | PTU | PDIS | M1)},	/* mmc2_dat7 */
-	{GPMC_A23, (IEN | PTU | PDIS | M1)},	/* mmc2_clk */
-	{GPMC_A24, (IEN | PTU | PDIS | M1)},	/* mmc2_dat0 */
-	{GPMC_A25, (IEN | PTU | PDIS | M1)},	/* mmc2_dat1 */
-	{GPMC_A26, (IEN | PTU | PDIS | M1)},	/* mmc2_dat2 */
-	{GPMC_A27, (IEN | PTU | PDIS | M1)},	/* mmc2_dat3 */
-	{GPMC_CS1, (IEN | PTU | PDIS | M1)},	/* mmm2_cmd */
-#endif
-#if (CONFIG_CONS_INDEX == 1)
-	{UART1_RXD, (FSC | IEN | PTU | PDIS | M0)}, /* UART1_RXD */
-	{UART1_TXD, (FSC | IEN | PTU | PDIS | M0)}, /* UART1_TXD */
-	{UART1_CTSN, (IEN | PTU | PDIS | M3)},	/* UART1_CTSN */
-	{UART1_RTSN, (IEN | PTU | PDIS | M3)},	/* UART1_RTSN */
-#elif (CONFIG_CONS_INDEX == 3)
-	{UART3_RXD, (FSC | IEN | PTU | PDIS | M0)}, /* UART3_RXD */
-	{UART3_TXD, (FSC | IEN | PTU | PDIS | M0)}, /* UART3_TXD */
-#endif
-	{I2C1_SDA, (IEN | PTU | PDIS | M0)},	/* I2C1_SDA */
-	{I2C1_SCL, (IEN | PTU | PDIS | M0)},	/* I2C1_SCL */
-	{MDIO_MCLK, (PTU | PEN | M0)},		/* MDIO_MCLK  */
-	{MDIO_D, (IEN | PTU | PEN | M0)},	/* MDIO_D  */
-	{RGMII0_TXC, (PIN_OUTPUT | MANUAL_MODE | M0) },
-	{RGMII0_TXCTL, (PIN_OUTPUT | MANUAL_MODE | M0) },
-	{RGMII0_TXD3, (PIN_OUTPUT | MANUAL_MODE | M0) },
-	{RGMII0_TXD2, (PIN_OUTPUT | MANUAL_MODE | M0) },
-	{RGMII0_TXD1, (PIN_OUTPUT | MANUAL_MODE | M0) },
-	{RGMII0_TXD0, (PIN_OUTPUT | MANUAL_MODE | M0) },
-	{RGMII0_RXC, (PIN_INPUT | MANUAL_MODE | M0) },
-	{RGMII0_RXCTL, (PIN_INPUT | MANUAL_MODE | M0) },
-	{RGMII0_RXD3, (PIN_INPUT | MANUAL_MODE | M0) },
-	{RGMII0_RXD2, (PIN_INPUT | MANUAL_MODE | M0) },
-	{RGMII0_RXD1, (PIN_INPUT | MANUAL_MODE | M0) },
-	{RGMII0_RXD0, (PIN_INPUT | MANUAL_MODE | M0) },
-	{VIN2A_D12, (PIN_OUTPUT | MANUAL_MODE | M3) },
-	{VIN2A_D13, (PIN_OUTPUT | MANUAL_MODE | M3) },
-	{VIN2A_D14, (PIN_OUTPUT | MANUAL_MODE | M3) },
-	{VIN2A_D15, (PIN_OUTPUT | MANUAL_MODE | M3) },
-	{VIN2A_D16, (PIN_OUTPUT | MANUAL_MODE | M3) },
-	{VIN2A_D17, (PIN_OUTPUT | MANUAL_MODE | M3) },
-	{VIN2A_D18, (PIN_INPUT | MANUAL_MODE | M3)},
-	{VIN2A_D19, (PIN_INPUT | MANUAL_MODE | M3)},
-	{VIN2A_D20, (PIN_INPUT | MANUAL_MODE | M3)},
-	{VIN2A_D21, (PIN_INPUT | MANUAL_MODE | M3)},
-	{VIN2A_D22, (PIN_INPUT | MANUAL_MODE | M3)},
-	{VIN2A_D23, (PIN_INPUT | MANUAL_MODE | M3)},
-#if defined(CONFIG_NAND) || defined(CONFIG_NOR)
-	/* NAND / NOR pin-mux */
-	{GPMC_AD0 , M0 | IEN | PDIS}, /* GPMC_AD0  */
-	{GPMC_AD1 , M0 | IEN | PDIS}, /* GPMC_AD1  */
-	{GPMC_AD2 , M0 | IEN | PDIS}, /* GPMC_AD2  */
-	{GPMC_AD3 , M0 | IEN | PDIS}, /* GPMC_AD3  */
-	{GPMC_AD4 , M0 | IEN | PDIS}, /* GPMC_AD4  */
-	{GPMC_AD5 , M0 | IEN | PDIS}, /* GPMC_AD5  */
-	{GPMC_AD6 , M0 | IEN | PDIS}, /* GPMC_AD6  */
-	{GPMC_AD7 , M0 | IEN | PDIS}, /* GPMC_AD7  */
-	{GPMC_AD8 , M0 | IEN | PDIS}, /* GPMC_AD8  */
-	{GPMC_AD9 , M0 | IEN | PDIS}, /* GPMC_AD9  */
-	{GPMC_AD10, M0 | IEN | PDIS}, /* GPMC_AD10 */
-	{GPMC_AD11, M0 | IEN | PDIS}, /* GPMC_AD11 */
-	{GPMC_AD12, M0 | IEN | PDIS}, /* GPMC_AD12 */
-	{GPMC_AD13, M0 | IEN | PDIS}, /* GPMC_AD13 */
-	{GPMC_AD14, M0 | IEN | PDIS}, /* GPMC_AD14 */
-	{GPMC_AD15, M0 | IEN | PDIS}, /* GPMC_AD15 */
-	{GPMC_CS0,	M0 | IDIS | PEN | PTU}, /* GPMC chip-select */
-	{GPMC_ADVN_ALE,	M0 | IDIS | PEN | PTD}, /* GPMC Addr latch */
-	{GPMC_OEN_REN,	M0 | IDIS | PEN | PTU}, /* GPMC Read enable */
-	{GPMC_WEN,	M0 | IDIS | PEN | PTU}, /* GPMC Write enable_n */
-	{GPMC_BEN0,	M0 | IDIS | PEN | PTD}, /* GPMC Byte/Column En */
-	{GPMC_WAIT0,	M0 | IEN  | PEN | PTU}, /* GPMC Wait/Ready */
-	/* GPMC_WPN (Write Protect) is controlled by DIP Switch SW10(12) */
-#else
-	/* QSPI pin-mux */
-	{GPMC_A13, (IEN | PDIS | M1)},  /* QSPI1_RTCLK */
-	{GPMC_A14, (IEN | PDIS | M1)},  /* QSPI1_D[3] */
-	{GPMC_A15, (IEN | PDIS | M1)},  /* QSPI1_D[2] */
-	{GPMC_A16, (IEN | PDIS | M1)},  /* QSPI1_D[0] */
-	{GPMC_A17, (IEN | PDIS | M1)},  /* QSPI1_D[1] */
-	{GPMC_A18, (M1)},  /* QSPI1_SCLK */
-	{GPMC_A3, (IEN | PDIS | M1)},   /* QSPI1_CS2 */
-	{GPMC_A4, (IEN | PDIS | M1)},   /* QSPI1_CS3 */
-	{GPMC_CS2, (IEN | PTU | PDIS | M1)},    /* QSPI1_CS0 */
-	{GPMC_CS3, (IEN | PTU | PDIS | M1)},    /* QSPI1_CS1*/
-#endif /* CONFIG_NAND || CONFIG_NOR */
-	{USB2_DRVVBUS, (M0 | IEN | FSC) },
-	{SPI1_CS1, (PEN | IDIS | M14) },
+const struct pad_conf_entry dra72x_core_padconf_array[] = {
+	{GPMC_AD0, (M3 | PIN_INPUT)},	/* gpmc_ad0.vout3_d0 */
+	{GPMC_AD1, (M3 | PIN_INPUT)},	/* gpmc_ad1.vout3_d1 */
+	{GPMC_AD2, (M3 | PIN_INPUT)},	/* gpmc_ad2.vout3_d2 */
+	{GPMC_AD3, (M3 | PIN_INPUT)},	/* gpmc_ad3.vout3_d3 */
+	{GPMC_AD4, (M3 | PIN_INPUT)},	/* gpmc_ad4.vout3_d4 */
+	{GPMC_AD5, (M3 | PIN_INPUT)},	/* gpmc_ad5.vout3_d5 */
+	{GPMC_AD6, (M3 | PIN_INPUT)},	/* gpmc_ad6.vout3_d6 */
+	{GPMC_AD7, (M3 | PIN_INPUT)},	/* gpmc_ad7.vout3_d7 */
+	{GPMC_AD8, (M3 | PIN_INPUT)},	/* gpmc_ad8.vout3_d8 */
+	{GPMC_AD9, (M3 | PIN_INPUT)},	/* gpmc_ad9.vout3_d9 */
+	{GPMC_AD10, (M3 | PIN_INPUT)},	/* gpmc_ad10.vout3_d10 */
+	{GPMC_AD11, (M3 | PIN_INPUT)},	/* gpmc_ad11.vout3_d11 */
+	{GPMC_AD12, (M3 | PIN_INPUT)},	/* gpmc_ad12.vout3_d12 */
+	{GPMC_AD13, (M3 | PIN_INPUT)},	/* gpmc_ad13.vout3_d13 */
+	{GPMC_AD14, (M3 | PIN_INPUT)},	/* gpmc_ad14.vout3_d14 */
+	{GPMC_AD15, (M3 | PIN_INPUT)},	/* gpmc_ad15.vout3_d15 */
+	{GPMC_A0, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a0.vout3_d16 */
+	{GPMC_A1, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a1.vout3_d17 */
+	{GPMC_A2, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a2.vout3_d18 */
+	{GPMC_A3, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a3.vout3_d19 */
+	{GPMC_A4, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a4.vout3_d20 */
+	{GPMC_A5, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a5.vout3_d21 */
+	{GPMC_A6, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a6.vout3_d22 */
+	{GPMC_A7, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a7.vout3_d23 */
+	{GPMC_A8, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a8.vout3_hsync */
+	{GPMC_A9, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a9.vout3_vsync */
+	{GPMC_A10, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a10.vout3_de */
+	{GPMC_A11, (M14 | PIN_INPUT_PULLDOWN)},	/* gpmc_a11.gpio2_1 */
+	{GPMC_A13, (M1 | PIN_INPUT_PULLDOWN | MANUAL_MODE)}, /* gpmc_a13.qspi1_rtclk */
+	{GPMC_A14, (M1 | PIN_INPUT_PULLDOWN | MANUAL_MODE)}, /* gpmc_a14.qspi1_d3 */
+	{GPMC_A15, (M1 | PIN_INPUT_PULLDOWN | MANUAL_MODE)}, /* gpmc_a15.qspi1_d2 */
+	{GPMC_A16, (M1 | PIN_INPUT_PULLDOWN | MANUAL_MODE)}, /* gpmc_a16.qspi1_d0 */
+	{GPMC_A17, (M1 | PIN_INPUT_PULLDOWN | MANUAL_MODE)}, /* gpmc_a17.qspi1_d1 */
+	{GPMC_A18, (M1 | PIN_INPUT_PULLDOWN | MANUAL_MODE)}, /* gpmc_a18.qspi1_sclk */
+	{GPMC_A19, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a19.mmc2_dat4 */
+	{GPMC_A20, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a20.mmc2_dat5 */
+	{GPMC_A21, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a21.mmc2_dat6 */
+	{GPMC_A22, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a22.mmc2_dat7 */
+	{GPMC_A23, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a23.mmc2_clk */
+	{GPMC_A24, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a24.mmc2_dat0 */
+	{GPMC_A25, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a25.mmc2_dat1 */
+	{GPMC_A26, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a26.mmc2_dat2 */
+	{GPMC_A27, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_a27.mmc2_dat3 */
+	{GPMC_CS1, (M1 | PIN_INPUT_PULLUP)},	/* gpmc_cs1.mmc2_cmd */
+	{GPMC_CS2, (M1 | PIN_INPUT_PULLUP | MANUAL_MODE)}, /* gpmc_cs2.qspi1_cs0 */
+	{GPMC_CS3, (M3 | PIN_INPUT_PULLUP)},	/* gpmc_cs3.vout3_clk */
+	{VIN2A_CLK0, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE9)},	/* vin2a_clk0.vin2a_clk0 */
+	{VIN2A_HSYNC0, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE6)},	/* vin2a_hsync0.vin2a_hsync0 */
+	{VIN2A_VSYNC0, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE9)},	/* vin2a_vsync0.vin2a_vsync0 */
+	{VIN2A_D0, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE14)},	/* vin2a_d0.vin2a_d0 */
+	{VIN2A_D1, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE14)},	/* vin2a_d1.vin2a_d1 */
+	{VIN2A_D2, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE14)},	/* vin2a_d2.vin2a_d2 */
+	{VIN2A_D3, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE8)},	/* vin2a_d3.vin2a_d3 */
+	{VIN2A_D4, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE8)},	/* vin2a_d4.vin2a_d4 */
+	{VIN2A_D5, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE8)},	/* vin2a_d5.vin2a_d5 */
+	{VIN2A_D6, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE6)},	/* vin2a_d6.vin2a_d6 */
+	{VIN2A_D7, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE6)},	/* vin2a_d7.vin2a_d7 */
+	{VIN2A_D8, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE2)},	/* vin2a_d8.vin2a_d8 */
+	{VIN2A_D9, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE2)},	/* vin2a_d9.vin2a_d9 */
+	{VIN2A_D10, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE5)},	/* vin2a_d10.vin2a_d10 */
+	{VIN2A_D11, (M0 | PIN_INPUT_PULLDOWN | VIRTUAL_MODE5)},	/* vin2a_d11.vin2a_d11 */
+	{VOUT1_CLK, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_clk.vout1_clk */
+	{VOUT1_DE, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_de.vout1_de */
+	{VOUT1_HSYNC, (M0 | PIN_INPUT_PULLDOWN | MANUAL_MODE)},	/* vout1_hsync.vout1_hsync */
+	{VOUT1_VSYNC, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_vsync.vout1_vsync */
+	{VOUT1_D0, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d0.vout1_d0 */
+	{VOUT1_D1, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d1.vout1_d1 */
+	{VOUT1_D2, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d2.vout1_d2 */
+	{VOUT1_D3, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d3.vout1_d3 */
+	{VOUT1_D4, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d4.vout1_d4 */
+	{VOUT1_D5, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d5.vout1_d5 */
+	{VOUT1_D6, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d6.vout1_d6 */
+	{VOUT1_D7, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d7.vout1_d7 */
+	{VOUT1_D8, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d8.vout1_d8 */
+	{VOUT1_D9, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d9.vout1_d9 */
+	{VOUT1_D10, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d10.vout1_d10 */
+	{VOUT1_D11, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d11.vout1_d11 */
+	{VOUT1_D12, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d12.vout1_d12 */
+	{VOUT1_D13, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d13.vout1_d13 */
+	{VOUT1_D14, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d14.vout1_d14 */
+	{VOUT1_D15, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d15.vout1_d15 */
+	{VOUT1_D16, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d16.vout1_d16 */
+	{VOUT1_D17, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d17.vout1_d17 */
+	{VOUT1_D18, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d18.vout1_d18 */
+	{VOUT1_D19, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d19.vout1_d19 */
+	{VOUT1_D20, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d20.vout1_d20 */
+	{VOUT1_D21, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d21.vout1_d21 */
+	{VOUT1_D22, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d22.vout1_d22 */
+	{VOUT1_D23, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d23.vout1_d23 */
+	{MDIO_MCLK, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* mdio_mclk.mdio_mclk */
+	{MDIO_D, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* mdio_d.mdio_d */
+	{RGMII0_TXC, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txc.rgmii0_txc */
+	{RGMII0_TXCTL, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txctl.rgmii0_txctl */
+	{RGMII0_TXD3, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd3.rgmii0_txd3 */
+	{RGMII0_TXD2, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd2.rgmii0_txd2 */
+	{RGMII0_TXD1, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd1.rgmii0_txd1 */
+	{RGMII0_TXD0, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd0.rgmii0_txd0 */
+	{RGMII0_RXC, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxc.rgmii0_rxc */
+	{RGMII0_RXCTL, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxctl.rgmii0_rxctl */
+	{RGMII0_RXD3, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd3.rgmii0_rxd3 */
+	{RGMII0_RXD2, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd2.rgmii0_rxd2 */
+	{RGMII0_RXD1, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd1.rgmii0_rxd1 */
+	{RGMII0_RXD0, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd0.rgmii0_rxd0 */
+	{VIN2A_D12, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d0.rgmii1_txc */
+	{VIN2A_D13, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d1.rgmii1_txctl */
+	{VIN2A_D14, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d2.rgmii1_txd3 */
+	{VIN2A_D15, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d3.rgmii1_txd2 */
+	{VIN2A_D16, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d4.rgmii1_txd1 */
+	{VIN2A_D17, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d5.rgmii1_txd0 */
+	{VIN2A_D18, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d6.rgmii1_rxc */
+	{VIN2A_D19, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d7.rgmii1_rxctl */
+	{VIN2A_D20, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d8.rgmii1_rxd3 */
+	{VIN2A_D21, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d9.rgmii1_rxd2 */
+	{VIN2A_D22, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d10.rgmii1_rxd1 */
+	{VIN2A_D23, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d11.rgmii1_rxd0 */
+	{USB1_DRVVBUS, (M0 | PIN_INPUT_SLEW)},	/* usb1_drvvbus.usb1_drvvbus */
+	{USB2_DRVVBUS, (M0 | PIN_INPUT_SLEW)},	/* usb2_drvvbus.usb2_drvvbus */
+	{GPIO6_14, (M9 | PIN_INPUT_PULLUP)},	/* gpio6_14.i2c3_sda */
+	{GPIO6_15, (M9 | PIN_INPUT_PULLUP)},	/* gpio6_15.i2c3_scl */
+	{GPIO6_16, (M14 | PIN_INPUT_PULLUP)},	/* gpio6_16.gpio6_16 */
+	{XREF_CLK1, (M5 | PIN_OUTPUT)},	/* xref_clk1.atl_clk1 */
+	{XREF_CLK2, (M5 | PIN_OUTPUT)},	/* xref_clk2.atl_clk2 */
+	{MCASP1_AXR0, (M10 | PIN_INPUT_SLEW)},	/* mcasp1_axr0.i2c5_sda */
+	{MCASP1_AXR1, (M10 | PIN_INPUT_SLEW)},	/* mcasp1_axr1.i2c5_scl */
+	{MCASP1_AXR2, (M14 | PIN_INPUT_PULLDOWN)},	/* mcasp1_axr2.gpio5_4 */
+	{MCASP1_AXR3, (M14 | PIN_INPUT_PULLDOWN)},	/* mcasp1_axr3.gpio5_5 */
+	{MCASP1_AXR4, (M14 | PIN_INPUT_PULLDOWN)},	/* mcasp1_axr4.gpio5_6 */
+	{MCASP1_AXR5, (M14 | PIN_INPUT_PULLDOWN)},	/* mcasp1_axr5.gpio5_7 */
+	{MCASP1_AXR6, (M14 | PIN_INPUT_PULLDOWN)},	/* mcasp1_axr6.gpio5_8 */
+	{MCASP1_AXR7, (M14 | PIN_INPUT_PULLDOWN)},	/* mcasp1_axr7.gpio5_9 */
+	{MCASP1_AXR12, (M1 | PIN_INPUT_SLEW | VIRTUAL_MODE10)},	/* mcasp1_axr12.mcasp7_axr0 */
+	{MCASP1_AXR13, (M1 | PIN_INPUT_SLEW)},	/* mcasp1_axr13.mcasp7_axr1 */
+	{MCASP1_AXR14, (M1 | PIN_INPUT_SLEW | VIRTUAL_MODE10)},	/* mcasp1_axr14.mcasp7_aclkx */
+	{MCASP1_AXR15, (M1 | PIN_INPUT_SLEW | VIRTUAL_MODE10)},	/* mcasp1_axr15.mcasp7_fsx */
+	{MCASP2_ACLKR, (M0 | PIN_INPUT_PULLDOWN)},	/* mcasp2_aclkr.mcasp2_aclkr */
+	{MCASP3_ACLKX, (M0 | PIN_INPUT_PULLDOWN)},	/* mcasp3_aclkx.mcasp3_aclkx */
+	{MCASP3_FSX, (M0 | PIN_INPUT_SLEW)},	/* mcasp3_fsx.mcasp3_fsx */
+	{MCASP3_AXR0, (M0 | PIN_INPUT_SLEW)},	/* mcasp3_axr0.mcasp3_axr0 */
+	{MCASP3_AXR1, (M0 | PIN_INPUT_SLEW | VIRTUAL_MODE6)},	/* mcasp3_axr1.mcasp3_axr1 */
+	{MMC1_CLK, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_clk.mmc1_clk */
+	{MMC1_CMD, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_cmd.mmc1_cmd */
+	{MMC1_DAT0, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat0.mmc1_dat0 */
+	{MMC1_DAT1, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat1.mmc1_dat1 */
+	{MMC1_DAT2, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat2.mmc1_dat2 */
+	{MMC1_DAT3, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat3.mmc1_dat3 */
+	{MMC1_SDCD, (M14 | PIN_INPUT_PULLUP)},	/* mmc1_sdcd.gpio6_27 */
+	{MMC1_SDWP, (M14 | PIN_INPUT_SLEW)},	/* mmc1_sdwp.gpio6_28 */
+	{GPIO6_11, (M14 | PIN_INPUT_PULLUP)},	/* gpio6_11.gpio6_11 */
+	{SPI1_SCLK, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_sclk.spi1_sclk */
+	{SPI1_D1, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d1.spi1_d1 */
+	{SPI1_D0, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d0.spi1_d0 */
+	{SPI1_CS0, (M0 | PIN_INPUT_PULLUP)},	/* spi1_cs0.spi1_cs0 */
+	{SPI1_CS1, (M14 | PIN_OUTPUT)},	/* spi1_cs1.gpio7_11 */
+	{SPI1_CS2, (M14 | PIN_INPUT_PULLDOWN)},	/* spi1_cs2.gpio7_12 */
+	{SPI1_CS3, (M6 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
+	{SPI2_SCLK, (M1 | PIN_INPUT_PULLDOWN)},	/* spi2_sclk.uart3_rxd */
+	{SPI2_D1, (M1 | PIN_INPUT_SLEW)},	/* spi2_d1.uart3_txd */
+	{SPI2_D0, (M1 | PIN_INPUT_SLEW)},	/* spi2_d0.uart3_ctsn */
+	{SPI2_CS0, (M1 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi2_cs0.uart3_rtsn */
+	{DCAN1_TX, (M15 | PULL_UP)},	/* dcan1_tx.safe for dcan1_tx */
+	{DCAN1_RX, (M14 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* dcan1_rx.gpio1_15 */
+	{UART1_RXD, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* uart1_rxd.uart1_rxd */
+	{UART1_TXD, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* uart1_txd.uart1_txd */
+	{UART1_CTSN, (M3 | PIN_INPUT_PULLUP)},	/* uart1_ctsn.mmc4_clk */
+	{UART1_RTSN, (M3 | PIN_INPUT_PULLUP)},	/* uart1_rtsn.mmc4_cmd */
+	{UART2_RXD, (M3 | PIN_INPUT_PULLUP)},	/* uart2_rxd.mmc4_dat0 */
+	{UART2_TXD, (M3 | PIN_INPUT_PULLUP)},	/* uart2_txd.mmc4_dat1 */
+	{UART2_CTSN, (M3 | PIN_INPUT_PULLUP)},	/* uart2_ctsn.mmc4_dat2 */
+	{UART2_RTSN, (M3 | PIN_INPUT_PULLUP)},	/* uart2_rtsn.mmc4_dat3 */
+	{I2C2_SDA, (M1 | PIN_INPUT_PULLUP)},	/* i2c2_sda.hdmi1_ddc_scl */
+	{I2C2_SCL, (M1 | PIN_INPUT_PULLUP)},	/* i2c2_scl.hdmi1_ddc_sda */
+	{WAKEUP0, (M15 | PULL_UP)},	/* Wakeup0.safe for dcan1_rx */
+	{WAKEUP3, (M1 | PULL_ENA | PULL_UP)},	/* Wakeup3.sys_nirq1 */
 };
 
 const struct pad_conf_entry early_padconf[] = {
@@ -155,7 +201,7 @@ const struct pad_conf_entry early_padconf[] = {
 };
 
 #ifdef CONFIG_IODELAY_RECALIBRATION
-const struct iodelay_cfg_entry iodelay_cfg_array[] = {
+const struct iodelay_cfg_entry dra72_iodelay_cfg_array[] = {
 	{0x6F0, 359, 0}, /* RGMMI0_RXC_IN */
 	{0x6FC, 129, 1896}, /* RGMMI0_RXCTL_IN */
 	{0x708, 80, 1391}, /* RGMMI0_RXD0_IN */
@@ -181,6 +227,14 @@ const struct iodelay_cfg_entry iodelay_cfg_array[] = {
 	{0xA94, 1260, 0}, /* CFG_VIN2A_D15_OUT */
 	{0xAA0, 1400, 0}, /* CFG_VIN2A_D16_OUT */
 	{0xAAC, 1290, 0}, /* CFG_VIN2A_D17_OUT */
+	{0x144, 0, 0}, /* CFG_GPMC_A13_IN */
+	{0x150, 2062, 2277}, /* CFG_GPMC_A14_IN */
+	{0x15C, 1960, 2289}, /* CFG_GPMC_A15_IN */
+	{0x168, 2058, 2386}, /* CFG_GPMC_A16_IN */
+	{0x170, 0, 0 },	/* CFG_GPMC_A16_OUT */
+	{0x174, 2062, 2350}, /* CFG_GPMC_A17_IN */
+	{0x188, 0, 0}, /* CFG_GPMC_A18_OUT */
+	{0x374, 121, 0}, /* CFG_GPMC_CS2_OUT */
 };
 #endif
 
@@ -345,7 +399,7 @@ const struct pad_conf_entry dra74x_core_padconf_array[] = {
 	{MMC1_DAT1, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat1.mmc1_dat1 */
 	{MMC1_DAT2, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat2.mmc1_dat2 */
 	{MMC1_DAT3, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat3.mmc1_dat3 */
-	{MMC1_SDCD, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* mmc1_sdcd.mmc1_sdcd */
+	{MMC1_SDCD, (M14 | PIN_INPUT_PULLUP)},	/* mmc1_sdcd.gpio6_27 */
 	{MMC1_SDWP, (M14 | PIN_INPUT_SLEW)},	/* mmc1_sdwp.gpio6_28 */
 	{GPIO6_11, (M14 | PIN_INPUT_PULLUP)},	/* gpio6_11.gpio6_11 */
 	{SPI1_SCLK, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_sclk.spi1_sclk */
