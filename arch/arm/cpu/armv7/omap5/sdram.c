@@ -137,132 +137,10 @@ const struct emif_regs emif_regs_ddr3_532_mhz_1cs_es2 = {
 	.emif_rd_wr_exec_thresh         = 0x40000305
 };
 
-const struct emif_regs emif_1_regs_ddr3_532_mhz_1cs_dra_es1 = {
-	.sdram_config_init              = 0x61851ab2,
-	.sdram_config                   = 0x61851ab2,
-	.sdram_config2			= 0x08000000,
-	.ref_ctrl                       = 0x000040F1,
-	.ref_ctrl_final			= 0x00001035,
-	.sdram_tim1                     = 0xCCCF36B3,
-	.sdram_tim2                     = 0x308F7FDA,
-	.sdram_tim3                     = 0x027F88A8,
-	.read_idle_ctrl                 = 0x00050000,
-	.zq_config                      = 0x0007190B,
-	.temp_alert_config              = 0x00000000,
-	.emif_ddr_phy_ctlr_1_init       = 0x0024400B,
-	.emif_ddr_phy_ctlr_1            = 0x0E24400B,
-	.emif_ddr_ext_phy_ctrl_1        = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2        = 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3        = 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4        = 0x009B009B,
-	.emif_ddr_ext_phy_ctrl_5        = 0x009E009E,
-	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
-	.emif_rd_wr_lvl_ctl             = 0x00000000,
-	.emif_rd_wr_exec_thresh         = 0x00000305
-};
-
-const struct emif_regs emif_2_regs_ddr3_532_mhz_1cs_dra_es1 = {
-	.sdram_config_init              = 0x61851B32,
-	.sdram_config                   = 0x61851B32,
-	.sdram_config2			= 0x08000000,
-	.ref_ctrl                       = 0x000040F1,
-	.ref_ctrl_final			= 0x00001035,
-	.sdram_tim1                     = 0xCCCF36B3,
-	.sdram_tim2                     = 0x308F7FDA,
-	.sdram_tim3                     = 0x027F88A8,
-	.read_idle_ctrl                 = 0x00050000,
-	.zq_config                      = 0x0007190B,
-	.temp_alert_config              = 0x00000000,
-	.emif_ddr_phy_ctlr_1_init       = 0x0024400B,
-	.emif_ddr_phy_ctlr_1            = 0x0E24400B,
-	.emif_ddr_ext_phy_ctrl_1        = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2        = 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3        = 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4        = 0x009B009B,
-	.emif_ddr_ext_phy_ctrl_5        = 0x009E009E,
-	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
-	.emif_rd_wr_lvl_ctl             = 0x00000000,
-	.emif_rd_wr_exec_thresh         = 0x00000305
-};
-
-const struct emif_regs emif_1_regs_ddr3_666_mhz_1cs_dra_es1 = {
-	.sdram_config_init              = 0x61862B32,
-	.sdram_config                   = 0x61862B32,
-	.sdram_config2			= 0x08000000,
-	.ref_ctrl                       = 0x0000514C,
-	.ref_ctrl_final			= 0x0000144A,
-	.sdram_tim1                     = 0xD113781C,
-	.sdram_tim2                     = 0x305A7FDA,
-	.sdram_tim3                     = 0x409F86A8,
-	.read_idle_ctrl                 = 0x00050000,
-	.zq_config                      = 0x5007190B,
-	.temp_alert_config              = 0x00000000,
-	.emif_ddr_phy_ctlr_1_init       = 0x0024400D,
-	.emif_ddr_phy_ctlr_1            = 0x0E24400D,
-	.emif_ddr_ext_phy_ctrl_1        = 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2        = 0x00A400A4,
-	.emif_ddr_ext_phy_ctrl_3        = 0x00A900A9,
-	.emif_ddr_ext_phy_ctrl_4        = 0x00B000B0,
-	.emif_ddr_ext_phy_ctrl_5        = 0x00B000B0,
-	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
-	.emif_rd_wr_lvl_ctl             = 0x00000000,
-	.emif_rd_wr_exec_thresh         = 0x00000305
-};
-
 const struct dmm_lisa_map_regs lisa_map_4G_x_2_x_2 = {
 	.dmm_lisa_map_0 = 0x0,
 	.dmm_lisa_map_1 = 0x0,
 	.dmm_lisa_map_2 = 0x80740300,
-	.dmm_lisa_map_3 = 0xFF020100,
-	.is_ma_present	= 0x1
-};
-
-/*
- * DRA752 EVM board has 1.5 GB of memory
- * EMIF1 --> 2Gb * 2 =  512MB
- * EMIF2 --> 2Gb * 4 =  1GB
- * so mapping 1GB interleaved and 512MB non-interleaved
- */
-const struct dmm_lisa_map_regs lisa_map_2G_x_2_x_2_2G_x_1_x_2 = {
-	.dmm_lisa_map_0 = 0x0,
-	.dmm_lisa_map_1 = 0x80640300,
-	.dmm_lisa_map_2 = 0xC0500220,
-	.dmm_lisa_map_3 = 0xFF020100,
-	.is_ma_present	= 0x1
-};
-
-/*
- * DRA752 EVM EMIF1 ONLY CONFIGURATION
- */
-const struct dmm_lisa_map_regs lisa_map_2G_x_1_x_2 = {
-	.dmm_lisa_map_0 = 0x0,
-	.dmm_lisa_map_1 = 0x0,
-	.dmm_lisa_map_2 = 0x80500100,
-	.dmm_lisa_map_3 = 0xFF020100,
-	.is_ma_present	= 0x1
-};
-
-/*
- * DRA752 EVM EMIF2 ONLY CONFIGURATION
- */
-const struct dmm_lisa_map_regs lisa_map_2G_x_2_x_2 = {
-	.dmm_lisa_map_0 = 0x0,
-	.dmm_lisa_map_1 = 0x0,
-	.dmm_lisa_map_2 = 0x80600200,
-	.dmm_lisa_map_3 = 0xFF020100,
-	.is_ma_present	= 0x1
-};
-
-/*
- * DRA722 EVM EMIF1 CONFIGURATION
- */
-const struct dmm_lisa_map_regs lisa_map_2G_x_2 = {
-	.dmm_lisa_map_0 = 0x0,
-	.dmm_lisa_map_1 = 0x0,
-	.dmm_lisa_map_2 = 0x80600100,
 	.dmm_lisa_map_3 = 0xFF020100,
 	.is_ma_present	= 0x1
 };
@@ -280,25 +158,9 @@ static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 		*regs = &emif_regs_532_mhz_2cs_es2;
 		break;
 	case OMAP5432_ES2_0:
+	default:
 		*regs = &emif_regs_ddr3_532_mhz_1cs_es2;
 		break;
-	case DRA752_ES1_0:
-	case DRA752_ES1_1:
-	case DRA752_ES2_0:
-		switch (emif_nr) {
-		case 1:
-			*regs = &emif_1_regs_ddr3_532_mhz_1cs_dra_es1;
-			break;
-		case 2:
-			*regs = &emif_2_regs_ddr3_532_mhz_1cs_dra_es1;
-			break;
-		}
-		break;
-	case DRA722_ES1_0:
-		*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra_es1;
-		break;
-	default:
-		*regs = &emif_1_regs_ddr3_532_mhz_1cs_dra_es1;
 	}
 }
 
@@ -313,16 +175,9 @@ static void emif_get_dmm_regs_sdp(const struct dmm_lisa_map_regs
 	case OMAP5430_ES2_0:
 	case OMAP5432_ES1_0:
 	case OMAP5432_ES2_0:
+	default:
 		*dmm_lisa_regs = &lisa_map_4G_x_2_x_2;
 		break;
-	case DRA752_ES1_0:
-	case DRA752_ES1_1:
-	case DRA752_ES2_0:
-		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2_2G_x_1_x_2;
-		break;
-	case DRA722_ES1_0:
-	default:
-		*dmm_lisa_regs = &lisa_map_2G_x_2;
 	}
 
 }
