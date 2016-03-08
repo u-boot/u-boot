@@ -73,9 +73,9 @@ static struct {
 } expansion_config;
 
 static const struct ns16550_platdata beagle_serial = {
-	OMAP34XX_UART3,
-	2,
-	V_NS16550_CLK
+	.base = OMAP34XX_UART3,
+	.reg_shift = 2,
+	.clock = V_NS16550_CLK
 };
 
 U_BOOT_DEVICE(beagle_uart) = {

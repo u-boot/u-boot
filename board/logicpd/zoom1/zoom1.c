@@ -44,9 +44,9 @@ static const u32 gpmc_lab_enet[] = {
 };
 
 static const struct ns16550_platdata zoom1_serial = {
-	OMAP34XX_UART3,
-	2,
-	V_NS16550_CLK
+	.base = OMAP34XX_UART3,
+	.reg_shift = 2,
+	.clock = V_NS16550_CLK
 };
 
 U_BOOT_DEVICE(zoom1_uart) = {
