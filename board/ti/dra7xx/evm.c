@@ -34,6 +34,8 @@
 #define board_is_dra74x_evm()		board_ti_is("5777xCPU")
 #define board_is_dra74x_revh_or_later() board_is_dra74x_evm() &&	\
 				(strncmp("H", board_ti_get_rev(), 1) <= 0)
+#define board_ti_get_emif_size()	board_ti_get_emif1_size() +	\
+					board_ti_get_emif2_size()
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -125,18 +127,78 @@ static const struct emif_regs emif_1_regs_ddr3_666_mhz_1cs_dra_es1 = {
 	.emif_rd_wr_exec_thresh         = 0x00000305
 };
 
+const struct emif_regs emif1_ddr3_532_mhz_1cs_2G = {
+	.sdram_config_init              = 0x61851ab2,
+	.sdram_config                   = 0x61851ab2,
+	.sdram_config2			= 0x08000000,
+	.ref_ctrl                       = 0x000040F1,
+	.ref_ctrl_final			= 0x00001035,
+	.sdram_tim1                     = 0xCCCF36B3,
+	.sdram_tim2                     = 0x30BF7FDA,
+	.sdram_tim3                     = 0x427F8BA8,
+	.read_idle_ctrl                 = 0x00050000,
+	.zq_config                      = 0x0007190B,
+	.temp_alert_config              = 0x00000000,
+	.emif_ddr_phy_ctlr_1_init       = 0x0024400B,
+	.emif_ddr_phy_ctlr_1            = 0x0E24400B,
+	.emif_ddr_ext_phy_ctrl_1        = 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2        = 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3        = 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4        = 0x009B009B,
+	.emif_ddr_ext_phy_ctrl_5        = 0x009E009E,
+	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
+	.emif_rd_wr_lvl_ctl             = 0x00000000,
+	.emif_rd_wr_exec_thresh         = 0x00000305
+};
+
+const struct emif_regs emif2_ddr3_532_mhz_1cs_2G = {
+	.sdram_config_init              = 0x61851B32,
+	.sdram_config                   = 0x61851B32,
+	.sdram_config2			= 0x08000000,
+	.ref_ctrl                       = 0x000040F1,
+	.ref_ctrl_final			= 0x00001035,
+	.sdram_tim1                     = 0xCCCF36B3,
+	.sdram_tim2                     = 0x308F7FDA,
+	.sdram_tim3                     = 0x427F88A8,
+	.read_idle_ctrl                 = 0x00050000,
+	.zq_config                      = 0x0007190B,
+	.temp_alert_config              = 0x00000000,
+	.emif_ddr_phy_ctlr_1_init       = 0x0024400B,
+	.emif_ddr_phy_ctlr_1            = 0x0E24400B,
+	.emif_ddr_ext_phy_ctrl_1        = 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2        = 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3        = 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4        = 0x009B009B,
+	.emif_ddr_ext_phy_ctrl_5        = 0x009E009E,
+	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
+	.emif_rd_wr_lvl_ctl             = 0x00000000,
+	.emif_rd_wr_exec_thresh         = 0x00000305
+};
+
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 {
+	u64 ram_size;
+
+	ram_size = board_ti_get_emif_size();
+
 	switch (omap_revision()) {
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
 	case DRA752_ES2_0:
 		switch (emif_nr) {
 		case 1:
-			*regs = &emif1_ddr3_532_mhz_1cs;
+			if (ram_size > CONFIG_MAX_MEM_MAPPED)
+				*regs = &emif1_ddr3_532_mhz_1cs_2G;
+			else
+				*regs = &emif1_ddr3_532_mhz_1cs;
 			break;
 		case 2:
-			*regs = &emif2_ddr3_532_mhz_1cs;
+			if (ram_size > CONFIG_MAX_MEM_MAPPED)
+				*regs = &emif2_ddr3_532_mhz_1cs_2G;
+			else
+				*regs = &emif2_ddr3_532_mhz_1cs;
 			break;
 		}
 		break;
@@ -164,13 +226,28 @@ static const struct dmm_lisa_map_regs lisa_map_2G_x_2 = {
 	.is_ma_present	= 0x1
 };
 
+const struct dmm_lisa_map_regs lisa_map_dra7_2GB = {
+	.dmm_lisa_map_0 = 0x0,
+	.dmm_lisa_map_1 = 0x0,
+	.dmm_lisa_map_2 = 0x80740300,
+	.dmm_lisa_map_3 = 0xFF020100,
+	.is_ma_present	= 0x1
+};
+
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 {
+	u64 ram_size;
+
+	ram_size = board_ti_get_emif_size();
+
 	switch (omap_revision()) {
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
 	case DRA752_ES2_0:
-		*dmm_lisa_regs = &lisa_map_dra7_1536MB;
+		if (ram_size > CONFIG_MAX_MEM_MAPPED)
+			*dmm_lisa_regs = &lisa_map_dra7_2GB;
+		else
+			*dmm_lisa_regs = &lisa_map_dra7_1536MB;
 		break;
 	case DRA722_ES1_0:
 	default:
