@@ -54,6 +54,8 @@ SECTIONS
 		*(.__end)
 	} >.sram
 
+	_image_binary_end = .;
+
 	.bss_start : {
 		. = ALIGN(8);
 		KEEP(*(.__bss_start));
