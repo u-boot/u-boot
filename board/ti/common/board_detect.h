@@ -44,6 +44,37 @@ struct ti_am_eeprom {
 	char mac_addr[TI_EEPROM_HDR_NO_OF_MAC_ADDR][TI_EEPROM_HDR_ETH_ALEN];
 } __attribute__ ((__packed__));
 
+/* DRA7 EEPROM MAGIC Header identifier */
+#define DRA7_EEPROM_HEADER_MAGIC	0xAA5533EE
+#define DRA7_EEPROM_HDR_NAME_LEN	16
+#define DRA7_EEPROM_HDR_CONFIG_LEN	4
+
+/**
+ * struct dra7_eeprom - This structure holds data read in from the DRA7 EVM
+ *			EEPROMs.
+ * @header: This holds the magic number
+ * @name: The name of the board
+ * @version_major: Board major version
+ * @version_minor: Board minor version
+ * @config: Board specific config options
+ * @emif1_size: Size of DDR attached to EMIF1
+ * @emif2_size: Size of DDR attached to EMIF2
+ *
+ * The data is this structure is read from the EEPROM on the board.
+ * It is used for board detection which is based on name. It is used
+ * to configure specific DRA7 boards. This allows booting of multiple
+ * DRA7 boards with a single MLO and u-boot.
+ */
+struct dra7_eeprom {
+	u32 header;
+	char name[DRA7_EEPROM_HDR_NAME_LEN];
+	u16 version_major;
+	u16 version_minor;
+	char config[DRA7_EEPROM_HDR_CONFIG_LEN];
+	u32 emif1_size;
+	u32 emif2_size;
+} __attribute__ ((__packed__));
+
 /**
  * struct ti_common_eeprom - Null terminated, usable EEPROM contents.
  * header:	Magic number
@@ -52,6 +83,8 @@ struct ti_am_eeprom {
  * @serial:	NULL terminated serial number
  * @config:	NULL terminated Board specific config options
  * @mac_addr:	MAC addresses
+ * @emif1_size:	Size of the ddr available on emif1
+ * @emif2_size:	Size of the ddr available on emif2
  */
 struct ti_common_eeprom {
 	u32 header;
@@ -60,6 +93,8 @@ struct ti_common_eeprom {
 	char serial[TI_EEPROM_HDR_SERIAL_LEN + 1];
 	char config[TI_EEPROM_HDR_CONFIG_LEN + 1];
 	char mac_addr[TI_EEPROM_HDR_NO_OF_MAC_ADDR][TI_EEPROM_HDR_ETH_ALEN];
+	u64 emif1_size;
+	u64 emif2_size;
 };
 
 #define TI_EEPROM_DATA ((struct ti_common_eeprom *)\
@@ -74,6 +109,13 @@ struct ti_common_eeprom {
  * the basic initialization logic common across all AM* platforms.
  */
 int ti_i2c_eeprom_am_get(int bus_addr, int dev_addr);
+
+/**
+ * ti_i2c_eeprom_dra7_get() - Consolidated eeprom data for DRA7 TI EVMs
+ * @bus_addr:	I2C bus address
+ * @dev_addr:	I2C slave address
+ */
+int ti_i2c_eeprom_dra7_get(int bus_addr, int dev_addr);
 
 /**
  * board_ti_is() - Board detection logic for TI EVMs
@@ -128,6 +170,20 @@ char *board_ti_get_name(void);
  * Does not sanity check the mac_addr. Whatever is stored in EEPROM is returned.
  */
 void board_ti_get_eth_mac_addr(int index, u8 mac_addr[TI_EEPROM_HDR_ETH_ALEN]);
+
+/**
+ * board_ti_get_emif1_size() - Get size of the DDR on emif1 for TI EVMs
+ *
+ * Return: NULL if eeprom was'nt read or emif1_size is not available.
+ */
+u64 board_ti_get_emif1_size(void);
+
+/**
+ * board_ti_get_emif2_size() - Get size of the DDR on emif2 for TI EVMs
+ *
+ * Return: NULL if eeprom was'nt read or emif2_size is not available.
+ */
+u64 board_ti_get_emif2_size(void);
 
 /**
  * set_board_info_env() - Setup commonly used board information environment vars

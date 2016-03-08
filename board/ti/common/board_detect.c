@@ -160,6 +160,50 @@ already_read:
 	return 0;
 }
 
+int __maybe_unused ti_i2c_eeprom_dra7_get(int bus_addr, int dev_addr)
+{
+	int rc, offset = 0;
+	struct dra7_eeprom dra7_ep;
+	struct ti_common_eeprom *ep;
+
+	ep = TI_EEPROM_DATA;
+	if (ep->header == DRA7_EEPROM_HEADER_MAGIC)
+		goto already_read;
+
+	/* Initialize with a known bad marker for i2c fails.. */
+	ep->header = 0xADEAD12C;
+	ep->name[0] = 0x0;
+	ep->version[0] = 0x0;
+	ep->serial[0] = 0x0;
+	ep->emif1_size = 0;
+	ep->emif2_size = 0;
+
+	rc = ti_i2c_eeprom_get(bus_addr, dev_addr, DRA7_EEPROM_HEADER_MAGIC,
+			       sizeof(dra7_ep), (uint8_t *)&dra7_ep);
+	if (rc)
+		return rc;
+
+	ep->header = dra7_ep.header;
+	strlcpy(ep->name, dra7_ep.name, TI_EEPROM_HDR_NAME_LEN + 1);
+	ti_eeprom_string_cleanup(ep->name);
+
+	offset = dra7_ep.version_major - 1;
+
+	/* Rev F is skipped */
+	if (offset >= 5)
+		offset = offset + 1;
+	snprintf(ep->version, TI_EEPROM_HDR_REV_LEN + 1, "%c.%d",
+		 'A' + offset, dra7_ep.version_minor);
+	ti_eeprom_string_cleanup(ep->version);
+	ep->emif1_size = (u64)dra7_ep.emif1_size;
+	ep->emif2_size = (u64)dra7_ep.emif2_size;
+	strlcpy(ep->config, dra7_ep.config, TI_EEPROM_HDR_CONFIG_LEN + 1);
+	ti_eeprom_string_cleanup(ep->config);
+
+already_read:
+	return 0;
+}
+
 bool __maybe_unused board_ti_is(char *name_tag)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
@@ -228,6 +272,26 @@ board_ti_get_eth_mac_addr(int index,
 
 fail:
 	memset(mac_addr, 0, TI_EEPROM_HDR_ETH_ALEN);
+}
+
+u64 __maybe_unused board_ti_get_emif1_size(void)
+{
+	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
+
+	if (ep->header != DRA7_EEPROM_HEADER_MAGIC)
+		return 0;
+
+	return ep->emif1_size;
+}
+
+u64 __maybe_unused board_ti_get_emif2_size(void)
+{
+	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
+
+	if (ep->header != DRA7_EEPROM_HEADER_MAGIC)
+		return 0;
+
+	return ep->emif2_size;
 }
 
 void __maybe_unused set_board_info_env(char *name)
