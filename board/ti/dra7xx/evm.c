@@ -13,6 +13,7 @@
 #include <common.h>
 #include <palmas.h>
 #include <sata.h>
+#include <linux/string.h>
 #include <asm/gpio.h>
 #include <usb.h>
 #include <linux/usb/gadget.h>
@@ -27,6 +28,11 @@
 #include <ti-usb-phy-uboot.h>
 
 #include "mux_data.h"
+#include "../common/board_detect.h"
+
+#define board_is_dra74x_evm()		board_ti_is("5777xCPU")
+#define board_is_dra74x_revh_or_later() board_is_dra74x_evm() &&	\
+				(strncmp("H", board_ti_get_rev(), 1) <= 0)
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -37,8 +43,10 @@ DECLARE_GLOBAL_DATA_PTR;
 /* GPIO 7_11 */
 #define GPIO_DDR_VTT_EN 203
 
+#define SYSINFO_BOARD_NAME_MAX_LEN	37
+
 const struct omap_sysinfo sysinfo = {
-	"Board: DRA7xx\n"
+	"Board: UNKNOWN(DRA7 EVM) REV UNKNOWN\n"
 };
 
 /**
@@ -57,15 +65,58 @@ int board_init(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (omap_revision() == DRA722_ES1_0)
-		setenv("board_name", "dra72x");
+	char *name = "unknown";
+
+	if (is_dra72x())
+		name = "dra72x";
 	else
-		setenv("board_name", "dra7xx");
+		name = "dra7xx";
+
+	set_board_info_env(name);
 
 	omap_die_id_serial();
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+void do_board_detect(void)
+{
+	int rc;
+
+	rc = ti_i2c_eeprom_dra7_get(CONFIG_EEPROM_BUS_ADDRESS,
+				    CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		printf("ti_i2c_eeprom_init failed %d\n", rc);
+}
+
+#else
+
+void do_board_detect(void)
+{
+	char *bname = NULL;
+	int rc;
+
+	rc = ti_i2c_eeprom_dra7_get(CONFIG_EEPROM_BUS_ADDRESS,
+				    CONFIG_EEPROM_CHIP_ADDRESS);
+	if (rc)
+		printf("ti_i2c_eeprom_init failed %d\n", rc);
+
+	if (board_is_dra74x_evm()) {
+		bname = "DRA74x EVM";
+	/* If EEPROM is not populated */
+	} else {
+		if (is_dra72x())
+			bname = "DRA72x EVM";
+		else
+			bname = "DRA74x EVM";
+	}
+
+	if (bname)
+		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
+			 "Board: %s REV %s\n", bname, board_ti_get_rev());
+}
+#endif	/* CONFIG_SPL_BUILD */
 
 void set_muxconf_regs_essential(void)
 {

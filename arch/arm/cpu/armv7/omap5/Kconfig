@@ -12,6 +12,7 @@ config TARGET_OMAP5_UEVM
 
 config TARGET_DRA7XX_EVM
 	bool "TI DRA7XX"
+	select TI_I2C_BOARD_DETECT
 
 config TARGET_BEAGLE_X15
 	bool "BeagleBoard X15"
