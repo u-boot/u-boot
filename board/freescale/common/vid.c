@@ -454,6 +454,9 @@ int adjust_vdd(ulong vdd_override)
 exit:
 	if (re_enable)
 		enable_interrupts();
+
+	i2c_multiplexer_select_vid_channel(I2C_MUX_CH_DEFAULT);
+
 	return ret;
 }
 
@@ -469,7 +472,7 @@ static int print_vdd(void)
 	ret = find_ir_chip_on_i2c();
 	if (ret < 0) {
 		printf("VID: Could not find voltage regulator on I2C.\n");
-		return -1;
+		goto exit;
 	} else {
 		i2caddress = ret;
 		debug("VID: IR Chip found on I2C address 0x%02x\n", i2caddress);
@@ -481,11 +484,14 @@ static int print_vdd(void)
 	vdd_last = read_voltage(i2caddress);
 	if (vdd_last < 0) {
 		printf("VID: Couldn't read sensor abort VID adjustment\n");
-		return -1;
+		goto exit;
 	}
 	printf("VID: Core voltage is at %d mV\n", vdd_last);
+exit:
+	i2c_multiplexer_select_vid_channel(I2C_MUX_CH_DEFAULT);
 
-	return 0;
+	return ret < 0 ? -1 : 0;
+
 }
 
 static int do_vdd_override(cmd_tbl_t *cmdtp,
