@@ -103,6 +103,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
+	"run envboot; " \
 	"run distro_bootcmd"
 
 #include <config_distro_bootcmd.h>
@@ -117,12 +118,6 @@
 	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
-	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
-		"source ${loadaddr}\0" \
-	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
-	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
-		"env import -t ${loadaddr} ${filesize}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"loaduimage=load mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc${mmcdev} ...; " \

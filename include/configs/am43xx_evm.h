@@ -259,10 +259,6 @@
 		"${optargs} " \
 		"root=${usbroot} " \
 		"rootfstype=${usbrootfstype}\0" \
-	"bootenv=uEnv.txt\0" \
-	"loadbootenv=load ${devtype} ${devnum} ${loadaddr} ${bootenv}\0" \
-	"importbootenv=echo Importing environment from mmc ...; " \
-		"env import -t $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
@@ -275,14 +271,6 @@
 		"setenv devtype mmc; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${devnum};" \
-			"if run loadbootenv; then " \
-				"echo Loaded environment from ${bootenv};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd ...;" \
-				"run uenvcmd;" \
-			"fi;" \
 			"if run loadimage; then " \
 				"run loadfdt; " \
 				"echo Booting from mmc${mmcdev} ...; " \
@@ -329,6 +317,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
+	"run envboot;" \
 	"run mmcboot;" \
 	"run usbboot;" \
 	NANDBOOT \
