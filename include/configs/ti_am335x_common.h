@@ -28,6 +28,7 @@
 #endif
 #define CONFIG_SYS_NS16550_CLK		48000000
 
+#ifndef CONFIG_SPL_BUILD
 /* Network defines. */
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -38,9 +39,10 @@
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
 #define CONFIG_CMD_PING
-#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
+#endif
 
+#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 /*
  * RTC related defines. To use bootcount you must set bootlimit in the
  * environment to a non-zero value and enable CONFIG_BOOTCOUNT_LIMIT
