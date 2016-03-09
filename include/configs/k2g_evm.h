@@ -61,6 +61,12 @@
 #define CONFIG_OMAP_HSMMC
 #define CONFIG_CMD_MMC
 
+#undef CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_IS_IN_FAT
+#define FAT_ENV_INTERFACE		"mmc"
+#define FAT_ENV_DEVICE_AND_PART		"0:1"
+#define FAT_ENV_FILE			"uboot.env"
+
 #define CONFIG_SF_DEFAULT_BUS		1
 #define CONFIG_SF_DEFAULT_CS		0
 
