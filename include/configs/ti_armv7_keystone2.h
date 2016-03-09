@@ -240,6 +240,7 @@
 	DEFAULT_LINUX_BOOT_ENV						\
 	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	"boot=ubi\0"							\
+	"bootdir=/boot\0" \
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
@@ -251,14 +252,14 @@
 	"run_kern=bootz ${loadaddr} - ${fdtaddr}\0"			\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
-		"ubi part ubifs; ubifsmount ubi:boot;"			\
+		"ubi part ubifs; ubifsmount ubi:rootfs;"			\
 		"ubifsload ${addr_secdb_key} securedb.key.bin;\0"       \
 	"get_fdt_net=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}\0"	\
-	"get_fdt_ubi=ubifsload ${fdtaddr} ${name_fdt}\0"		\
+	"get_fdt_ubi=ubifsload ${fdtaddr} ${bootdir}/${name_fdt}\0"		\
 	"get_kern_net=dhcp ${loadaddr} ${tftp_root}/${name_kern}\0"	\
-	"get_kern_ubi=ubifsload ${loadaddr} ${name_kern}\0"		\
+	"get_kern_ubi=ubifsload ${loadaddr} ${bootdir}/${name_kern}\0"		\
 	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
-	"get_mon_ubi=ubifsload ${addr_mon} ${name_mon}\0"		\
+	"get_mon_ubi=ubifsload ${addr_mon} ${bootdir}/${name_mon}\0"		\
 	"get_uboot_net=dhcp ${loadaddr} ${tftp_root}/${name_uboot}\0"	\
 	"burn_uboot_spi=sf probe; sf erase 0 0x80000; "		\
 		"sf write ${loadaddr} 0 ${filesize}\0"		\
