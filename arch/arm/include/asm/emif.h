@@ -914,8 +914,8 @@ struct dmm_lisa_map_regs {
 
 /* Maximum delay before Low Power Modes */
 #define REG_CS_TIM		0x0
-#define REG_SR_TIM		0x0
-#define REG_PD_TIM		0x0
+#define REG_SR_TIM		0xF
+#define REG_PD_TIM		0xF
 
 
 /* EMIF_PWR_MGMT_CTRL register */
@@ -923,7 +923,7 @@ struct dmm_lisa_map_regs {
 	((REG_CS_TIM << EMIF_REG_CS_TIM_SHIFT) & EMIF_REG_CS_TIM_MASK)|\
 	((REG_SR_TIM << EMIF_REG_SR_TIM_SHIFT) & EMIF_REG_SR_TIM_MASK)|\
 	((REG_PD_TIM << EMIF_REG_PD_TIM_SHIFT) & EMIF_REG_PD_TIM_MASK)|\
-	((LP_MODE_DISABLE << EMIF_REG_LP_MODE_SHIFT)\
+	((LP_MODE_SELF_REFRESH << EMIF_REG_LP_MODE_SHIFT)\
 			& EMIF_REG_LP_MODE_MASK) |\
 	((DPD_DISABLE << EMIF_REG_DPD_EN_SHIFT)\
 			& EMIF_REG_DPD_EN_MASK))\
