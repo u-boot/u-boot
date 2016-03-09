@@ -8,19 +8,20 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
-
-#define STM32_FLASH_KEY1	0x45670123
-#define STM32_FLASH_KEY2	0xCDEF89AB
+#include "stm32_flash.h"
 
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
-const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
-	[0 ... 3] =	16 * 1024,
-	[4] =		64 * 1024,
-	[5 ... 11] =	128 * 1024
-};
+#define STM32_FLASH		((struct stm32_flash_regs *)FLASH_CNTL_BASE)
 
-static void stm32f4_flash_lock(u8 lock)
+void stm32_flash_latency_cfg(int latency)
+{
+	/* 5 wait states, Prefetch enabled, D-Cache enabled, I-Cache enabled */
+	writel(FLASH_ACR_WS(5) | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN
+		| FLASH_ACR_DCEN, &STM32_FLASH->acr);
+}
+
+static void stm32_flash_lock(u8 lock)
 {
 	if (lock) {
 		setbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_LOCK);
@@ -36,7 +37,7 @@ unsigned long flash_init(void)
 	u8 i, j;
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
-		flash_info[i].flash_id = FLASH_STM32F4;
+		flash_info[i].flash_id = FLASH_STM32;
 		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 		flash_info[i].start[0] = CONFIG_SYS_FLASH_BASE + (i << 20);
 		flash_info[i].size = sect_sz_kb[0];
@@ -58,8 +59,8 @@ void flash_print_info(flash_info_t *info)
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf("missing or unknown FLASH type\n");
 		return;
-	} else if (info->flash_id == FLASH_STM32F4) {
-		printf("STM32F4 Embedded Flash\n");
+	} else if (info->flash_id == FLASH_STM32) {
+		printf("stm32 Embedded Flash\n");
 	}
 
 	printf("  Size: %ld MB in %d Sectors\n",
@@ -91,7 +92,7 @@ int flash_erase(flash_info_t *info, int first, int last)
 	if (bank == 0xFF)
 		return -1;
 
-	stm32f4_flash_lock(0);
+	stm32_flash_lock(0);
 
 	for (i = first; i <= last; i++) {
 		while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
@@ -107,7 +108,7 @@ int flash_erase(flash_info_t *info, int first, int last)
 			setbits_le32(&STM32_FLASH->cr,
 				     ((0x10 | i) << STM32_FLASH_CR_SNB_OFFSET));
 		} else {
-			stm32f4_flash_lock(1);
+			stm32_flash_lock(1);
 			return -1;
 		}
 		setbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_SER);
@@ -119,7 +120,7 @@ int flash_erase(flash_info_t *info, int first, int last)
 		clrbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_SER);
 	}
 
-	stm32f4_flash_lock(1);
+	stm32_flash_lock(1);
 	return 0;
 }
 
@@ -130,7 +131,7 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
 		;
 
-	stm32f4_flash_lock(0);
+	stm32_flash_lock(0);
 
 	setbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_PG);
 	/* To make things simple use byte writes only */
@@ -140,7 +141,7 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 			;
 	}
 	clrbits_le32(&STM32_FLASH->cr, STM32_FLASH_CR_PG);
-	stm32f4_flash_lock(1);
+	stm32_flash_lock(1);
 
 	return 0;
 }

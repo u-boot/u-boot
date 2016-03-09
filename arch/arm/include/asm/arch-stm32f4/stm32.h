@@ -82,16 +82,6 @@ struct stm32_pwr_regs {
 	u32 csr;
 };
 
-struct stm32_flash_regs {
-	u32 acr;
-	u32 key;
-	u32 optkeyr;
-	u32 sr;
-	u32 cr;
-	u32 optcr;
-	u32 optcr1;
-};
-
 /*
  * Registers access macros
  */
@@ -104,18 +94,6 @@ struct stm32_flash_regs {
 #define STM32_PWR_BASE		(STM32_APB1PERIPH_BASE + 0x7000)
 #define STM32_PWR		((struct stm32_pwr_regs *)STM32_PWR_BASE)
 
-#define STM32_FLASH_BASE	(STM32_AHB1PERIPH_BASE + 0x3C00)
-#define STM32_FLASH		((struct stm32_flash_regs *)STM32_FLASH_BASE)
-
-#define STM32_FLASH_SR_BSY		(1 << 16)
-
-#define STM32_FLASH_CR_PG		(1 << 0)
-#define STM32_FLASH_CR_SER		(1 << 1)
-#define STM32_FLASH_CR_STRT		(1 << 16)
-#define STM32_FLASH_CR_LOCK		(1 << 31)
-#define STM32_FLASH_CR_SNB_OFFSET	3
-#define STM32_FLASH_CR_SNB_MASK		(15 << STM32_FLASH_CR_SNB_OFFSET)
-
 /*
  * Peripheral base addresses
  */
@@ -123,6 +101,14 @@ struct stm32_flash_regs {
 #define STM32_USART2_BASE	(STM32_APB1PERIPH_BASE + 0x4400)
 #define STM32_USART3_BASE	(STM32_APB1PERIPH_BASE + 0x4800)
 #define STM32_USART6_BASE	(STM32_APB2PERIPH_BASE + 0x1400)
+
+#define FLASH_CNTL_BASE		(STM32_AHB1PERIPH_BASE + 0x3C00)
+
+static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
+	[0 ... 3] =	16 * 1024,
+	[4] =		64 * 1024,
+	[5 ... 11] =	128 * 1024
+};
 
 enum clock {
 	CLOCK_CORE,
@@ -133,5 +119,6 @@ enum clock {
 
 int configure_clocks(void);
 unsigned long clock_get(enum clock clck);
+void stm32_flash_latency_cfg(int latency);
 
 #endif /* _MACH_STM32_H_ */

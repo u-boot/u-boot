@@ -66,11 +66,6 @@
 #define PWR_CR_VOS_SCALE_MODE_2	(PWR_CR_VOS1)
 #define PWR_CR_VOS_SCALE_MODE_3	(PWR_CR_VOS0)
 
-#define FLASH_ACR_WS(n)		n
-#define FLASH_ACR_PRFTEN	(1 << 8)
-#define FLASH_ACR_ICEN		(1 << 9)
-#define FLASH_ACR_DCEN		(1 << 10)
-
 /*
  * RCC GPIO specific definitions
  */
@@ -181,10 +176,7 @@ int configure_clocks(void)
 	while (!(readl(&STM32_RCC->cr) & RCC_CR_PLLRDY))
 		;
 
-	/* 5 wait states, Prefetch enabled, D-Cache enabled, I-Cache enabled */
-	writel(FLASH_ACR_WS(5) | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN
-		| FLASH_ACR_DCEN, &STM32_FLASH->acr);
-
+	stm32_flash_latency_cfg(5);
 	clrbits_le32(&STM32_RCC->cfgr, (RCC_CFGR_SW0 | RCC_CFGR_SW1));
 	setbits_le32(&STM32_RCC->cfgr, RCC_CFGR_SW_PLL);
 
