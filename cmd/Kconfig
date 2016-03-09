@@ -148,6 +148,13 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_BOOTEFI
+	bool "bootefi"
+	depends on EFI_LOADER
+	default y
+	help
+	  Boot an EFI image from memory.
+
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y
