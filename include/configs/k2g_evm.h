@@ -18,6 +18,7 @@
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_PMMC_BOOT_ENV						\
+	"boot=mmc\0"							\
 	"console=ttyS0,115200n8\0"					\
 	"bootpart=0:2\0"						\
 	"bootdir=/boot\0"						\

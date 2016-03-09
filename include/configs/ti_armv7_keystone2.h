@@ -248,7 +248,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
-	"boot=ubi\0"							\
 	"bootdir=/boot\0" \
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
