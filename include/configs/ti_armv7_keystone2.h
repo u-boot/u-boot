@@ -252,8 +252,7 @@
 	"run_kern=bootz ${loadaddr} - ${fdtaddr}\0"			\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
-		"ubi part ubifs; ubifsmount ubi:rootfs;"			\
-		"ubifsload ${addr_secdb_key} securedb.key.bin;\0"       \
+		"ubi part ubifs; ubifsmount ubi:rootfs;\0"			\
 	"get_fdt_net=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}\0"	\
 	"get_fdt_ubi=ubifsload ${fdtaddr} ${bootdir}/${name_fdt}\0"		\
 	"get_kern_net=dhcp ${loadaddr} ${tftp_root}/${name_kern}\0"	\
