@@ -36,6 +36,7 @@
 	"get_mon_mmc=load mmc ${bootpart} ${addr_mon} ${bootdir}/${name_mon}\0"\
 
 #define CONFIG_BOOTCOMMAND						\
+	"run envboot; "							\
 	"run set_name_pmmc init_${boot} get_pmmc_${boot} run_pmmc "	\
 	"get_fdt_${boot} get_mon_${boot} get_kern_${boot} "		\
 	"run_mon run_kern"
