@@ -21,6 +21,7 @@
 	"console=ttyS0,115200n8\0"					\
 	"bootpart=0:2\0"						\
 	"bootdir=/boot\0"						\
+	"rd_spec=-\0"							\
 	"addr_mon=0x0c040000\0"						\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,2048\0"	\
@@ -34,6 +35,7 @@
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
 		"${bootdir}/${name_kern}\0"				\
 	"get_mon_mmc=load mmc ${bootpart} ${addr_mon} ${bootdir}/${name_mon}\0"\
+	"name_fs=arago-base-tisdk-image-k2g-evm.cpio\0"
 
 #define CONFIG_BOOTCOMMAND						\
 	"run envboot; "							\

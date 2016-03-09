@@ -224,6 +224,15 @@
 /* EDMA3 */
 #define CONFIG_TI_EDMA3
 
+#define DEFAULT_FW_INITRAMFS_BOOT_ENV					\
+	"name_fw_rd=k2-fw-initrd.cpio.gz\0"				\
+	"set_rd_spec=setenv rd_spec ${rdaddr}:${filesize}\0"		\
+	"init_fw_rd_net=dhcp ${rdaddr} ${tftp_root}/${name_fw_rd}; "	\
+		"run set_rd_spec\0"					\
+	"init_fw_rd_ramfs=setenv rd_spec -\0"				\
+	"init_fw_rd_ubi=ubifsload ${rdaddr} ${bootdir}/${name_fw_rd}; "	\
+		"run set_rd_spec\0"					\
+
 #define DEFAULT_PMMC_BOOT_ENV						\
 	"set_name_pmmc=setenv name_pmmc ti-sci-firmware-${soc_variant}.bin\0" \
 	"dev_pmmc=0\0"							\
@@ -249,7 +258,7 @@
 	"addr_secdb_key=0xc000000\0"					\
 	"name_kern=zImage\0"						\
 	"run_mon=mon_install ${addr_mon}\0"				\
-	"run_kern=bootz ${loadaddr} - ${fdtaddr}\0"			\
+	"run_kern=bootz ${loadaddr} ${rd_spec} ${fdtaddr}\0"		\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
 		"ubi part ubifs; ubifsmount ubi:rootfs;\0"			\
@@ -286,8 +295,8 @@
 
 #ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND						\
-	"run init_${boot} get_fdt_${boot} get_mon_${boot} "		\
-		"get_kern_${boot} run_mon run_kern"
+	"run init_${boot} init_fw_rd_${boot} get_fdt_${boot} "		\
+		"get_mon_${boot} get_kern_${boot} run_mon run_kern"
 #endif
 
 #define CONFIG_BOOTARGS							\
