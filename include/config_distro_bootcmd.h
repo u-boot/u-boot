@@ -90,6 +90,48 @@
 	BOOT_TARGET_DEVICES_references_UBIFS_without_CONFIG_CMD_UBIFS
 #endif
 
+#ifdef CONFIG_EFI_LOADER
+#if defined(CONFIG_ARM64)
+#define BOOTEFI_NAME "bootaa64.efi"
+#elif defined(CONFIG_ARM)
+#define BOOTEFI_NAME "bootarm.efi"
+#endif
+#endif
+
+#ifdef BOOTEFI_NAME
+#define BOOTENV_SHARED_EFI                                                \
+	"boot_efi_binary="                                                \
+		"load ${devtype} ${devnum}:${distro_bootpart} "           \
+			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
+		"bootefi ${kernel_addr_r}\0"                              \
+	\
+	"load_efi_dtb="                                                   \
+		"load ${devtype} ${devnum}:${distro_bootpart} "           \
+			"${fdt_addr_r} ${prefix}${fdt_name}; "           \
+		"fdt addr ${fdt_addr_r}\0"                                \
+	\
+	"efi_dtb_prefixes=/ /dtb/ /dtb/current/\0"                        \
+	"scan_dev_for_efi="                                               \
+		"for prefix in ${efi_dtb_prefixes}; do "                  \
+			"if test -e ${devtype} "                          \
+					"${devnum}:${distro_bootpart} "   \
+					"${prefix}${fdt_name}; then "     \
+				"run load_efi_dtb; "                      \
+			"fi;"                                             \
+		"done;"                                                   \
+		"if test -e ${devtype} ${devnum}:${distro_bootpart} "     \
+					"efi/boot/"BOOTEFI_NAME"; then "  \
+				"echo Found EFI removable media binary "  \
+					"efi/boot/"BOOTEFI_NAME"; "       \
+				"run boot_efi_binary; "                   \
+				"echo EFI LOAD FAILED: continuing...; "   \
+		"fi; \0"
+#define SCAN_DEV_FOR_EFI "run scan_dev_for_efi;"
+#else
+#define BOOTENV_SHARED_EFI
+#define SCAN_DEV_FOR_EFI
+#endif
+
 #ifdef CONFIG_CMD_SATA
 #define BOOTENV_SHARED_SATA	BOOTENV_SHARED_BLKDEV(sata)
 #define BOOTENV_DEV_SATA	BOOTENV_DEV_BLKDEV
@@ -217,6 +259,7 @@
 	BOOTENV_SHARED_SCSI \
 	BOOTENV_SHARED_IDE \
 	BOOTENV_SHARED_UBIFS \
+	BOOTENV_SHARED_EFI \
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
 	"boot_script_dhcp=boot.scr.uimg\0" \
@@ -258,7 +301,9 @@
 		"for prefix in ${boot_prefixes}; do "                     \
 			"run scan_dev_for_extlinux; "                     \
 			"run scan_dev_for_scripts; "                      \
-		"done\0"                                                  \
+		"done;"                                                   \
+		SCAN_DEV_FOR_EFI                                          \
+		"\0"                                                      \
 	\
 	"scan_dev_for_boot_part="                                         \
 		"part list ${devtype} ${devnum} -bootable devplist; "     \
