@@ -136,4 +136,11 @@ config MVEBU_GPIO
 	help
 	  Say yes here to support Marvell MVEBU (Armada XP/38x) GPIOs.
 
+config ZYNQ_GPIO
+	bool "Zynq GPIO driver"
+	depends on DM_GPIO && ARCH_ZYNQ
+	default y
+	help
+	  Supports GPIO access on Zynq SoC.
+
 endmenu
