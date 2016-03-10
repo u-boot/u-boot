@@ -31,18 +31,35 @@ DECLARE_GLOBAL_DATA_PTR;
 				 ZYNQ_GPIO_BANK2_NGPIO + \
 				 ZYNQ_GPIO_BANK3_NGPIO)
 
-#define ZYNQ_GPIO_BANK0_PIN_MIN	0
-#define ZYNQ_GPIO_BANK0_PIN_MAX	(ZYNQ_GPIO_BANK0_PIN_MIN + \
-					ZYNQ_GPIO_BANK0_NGPIO - 1)
-#define ZYNQ_GPIO_BANK1_PIN_MIN	(ZYNQ_GPIO_BANK0_PIN_MAX + 1)
-#define ZYNQ_GPIO_BANK1_PIN_MAX	(ZYNQ_GPIO_BANK1_PIN_MIN + \
-					ZYNQ_GPIO_BANK1_NGPIO - 1)
-#define ZYNQ_GPIO_BANK2_PIN_MIN	(ZYNQ_GPIO_BANK1_PIN_MAX + 1)
-#define ZYNQ_GPIO_BANK2_PIN_MAX	(ZYNQ_GPIO_BANK2_PIN_MIN + \
-					ZYNQ_GPIO_BANK2_NGPIO - 1)
-#define ZYNQ_GPIO_BANK3_PIN_MIN	(ZYNQ_GPIO_BANK2_PIN_MAX + 1)
-#define ZYNQ_GPIO_BANK3_PIN_MAX	(ZYNQ_GPIO_BANK3_PIN_MIN + \
-					ZYNQ_GPIO_BANK3_NGPIO - 1)
+#define ZYNQMP_GPIO_MAX_BANK	6
+
+#define ZYNQMP_GPIO_BANK0_NGPIO	26
+#define ZYNQMP_GPIO_BANK1_NGPIO	26
+#define ZYNQMP_GPIO_BANK2_NGPIO	26
+#define ZYNQMP_GPIO_BANK3_NGPIO	32
+#define ZYNQMP_GPIO_BANK4_NGPIO	32
+#define ZYNQMP_GPIO_BANK5_NGPIO	32
+
+#define ZYNQMP_GPIO_NR_GPIOS	174
+
+#define ZYNQ_GPIO_BANK0_PIN_MIN(str)	0
+#define ZYNQ_GPIO_BANK0_PIN_MAX(str)	(ZYNQ_GPIO_BANK0_PIN_MIN(str) + \
+					ZYNQ##str##_GPIO_BANK0_NGPIO - 1)
+#define ZYNQ_GPIO_BANK1_PIN_MIN(str)	(ZYNQ_GPIO_BANK0_PIN_MAX(str) + 1)
+#define ZYNQ_GPIO_BANK1_PIN_MAX(str)	(ZYNQ_GPIO_BANK1_PIN_MIN(str) + \
+					ZYNQ##str##_GPIO_BANK1_NGPIO - 1)
+#define ZYNQ_GPIO_BANK2_PIN_MIN(str)	(ZYNQ_GPIO_BANK1_PIN_MAX(str) + 1)
+#define ZYNQ_GPIO_BANK2_PIN_MAX(str)	(ZYNQ_GPIO_BANK2_PIN_MIN(str) + \
+					ZYNQ##str##_GPIO_BANK2_NGPIO - 1)
+#define ZYNQ_GPIO_BANK3_PIN_MIN(str)	(ZYNQ_GPIO_BANK2_PIN_MAX(str) + 1)
+#define ZYNQ_GPIO_BANK3_PIN_MAX(str)	(ZYNQ_GPIO_BANK3_PIN_MIN(str) + \
+					ZYNQ##str##_GPIO_BANK3_NGPIO - 1)
+#define ZYNQ_GPIO_BANK4_PIN_MIN(str)	(ZYNQ_GPIO_BANK3_PIN_MAX(str) + 1)
+#define ZYNQ_GPIO_BANK4_PIN_MAX(str)	(ZYNQ_GPIO_BANK4_PIN_MIN(str) + \
+					ZYNQ##str##_GPIO_BANK4_NGPIO - 1)
+#define ZYNQ_GPIO_BANK5_PIN_MIN(str)	(ZYNQ_GPIO_BANK4_PIN_MAX(str) + 1)
+#define ZYNQ_GPIO_BANK5_PIN_MAX(str)	(ZYNQ_GPIO_BANK5_PIN_MIN(str) + \
+					ZYNQ##str##_GPIO_BANK5_NGPIO - 1)
 
 /* Register offsets for the GPIO device */
 /* LSW Mask & Data -WO */
@@ -81,6 +98,55 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct zynq_gpio_privdata {
 	phys_addr_t base;
+	const struct zynq_platform_data *p_data;
+};
+
+/**
+ * struct zynq_platform_data -  zynq gpio platform data structure
+ * @label:	string to store in gpio->label
+ * @ngpio:	max number of gpio pins
+ * @max_bank:	maximum number of gpio banks
+ * @bank_min:	this array represents bank's min pin
+ * @bank_max:	this array represents bank's max pin
+ */
+struct zynq_platform_data {
+	const char *label;
+	u16 ngpio;
+	int max_bank;
+	int bank_min[ZYNQMP_GPIO_MAX_BANK];
+	int bank_max[ZYNQMP_GPIO_MAX_BANK];
+};
+
+static const struct zynq_platform_data zynqmp_gpio_def = {
+	.label = "zynqmp_gpio",
+	.ngpio = ZYNQMP_GPIO_NR_GPIOS,
+	.max_bank = ZYNQMP_GPIO_MAX_BANK,
+	.bank_min[0] = ZYNQ_GPIO_BANK0_PIN_MIN(MP),
+	.bank_max[0] = ZYNQ_GPIO_BANK0_PIN_MAX(MP),
+	.bank_min[1] = ZYNQ_GPIO_BANK1_PIN_MIN(MP),
+	.bank_max[1] = ZYNQ_GPIO_BANK1_PIN_MAX(MP),
+	.bank_min[2] = ZYNQ_GPIO_BANK2_PIN_MIN(MP),
+	.bank_max[2] = ZYNQ_GPIO_BANK2_PIN_MAX(MP),
+	.bank_min[3] = ZYNQ_GPIO_BANK3_PIN_MIN(MP),
+	.bank_max[3] = ZYNQ_GPIO_BANK3_PIN_MAX(MP),
+	.bank_min[4] = ZYNQ_GPIO_BANK4_PIN_MIN(MP),
+	.bank_max[4] = ZYNQ_GPIO_BANK4_PIN_MAX(MP),
+	.bank_min[5] = ZYNQ_GPIO_BANK5_PIN_MIN(MP),
+	.bank_max[5] = ZYNQ_GPIO_BANK5_PIN_MAX(MP),
+};
+
+static const struct zynq_platform_data zynq_gpio_def = {
+	.label = "zynq_gpio",
+	.ngpio = ZYNQ_GPIO_NR_GPIOS,
+	.max_bank = ZYNQ_GPIO_MAX_BANK,
+	.bank_min[0] = ZYNQ_GPIO_BANK0_PIN_MIN(),
+	.bank_max[0] = ZYNQ_GPIO_BANK0_PIN_MAX(),
+	.bank_min[1] = ZYNQ_GPIO_BANK1_PIN_MIN(),
+	.bank_max[1] = ZYNQ_GPIO_BANK1_PIN_MAX(),
+	.bank_min[2] = ZYNQ_GPIO_BANK2_PIN_MIN(),
+	.bank_max[2] = ZYNQ_GPIO_BANK2_PIN_MAX(),
+	.bank_min[3] = ZYNQ_GPIO_BANK3_PIN_MIN(),
+	.bank_max[3] = ZYNQ_GPIO_BANK3_PIN_MAX(),
 };
 
 /**
@@ -96,41 +162,39 @@ struct zynq_gpio_privdata {
  */
 static inline void zynq_gpio_get_bank_pin(unsigned int pin_num,
 					  unsigned int *bank_num,
-					  unsigned int *bank_pin_num)
+					  unsigned int *bank_pin_num,
+					  struct udevice *dev)
 {
-	switch (pin_num) {
-	case ZYNQ_GPIO_BANK0_PIN_MIN ... ZYNQ_GPIO_BANK0_PIN_MAX:
-		*bank_num = 0;
-		*bank_pin_num = pin_num;
-		break;
-	case ZYNQ_GPIO_BANK1_PIN_MIN ... ZYNQ_GPIO_BANK1_PIN_MAX:
-		*bank_num = 1;
-		*bank_pin_num = pin_num - ZYNQ_GPIO_BANK1_PIN_MIN;
-		break;
-	case ZYNQ_GPIO_BANK2_PIN_MIN ... ZYNQ_GPIO_BANK2_PIN_MAX:
-		*bank_num = 2;
-		*bank_pin_num = pin_num - ZYNQ_GPIO_BANK2_PIN_MIN;
-		break;
-	case ZYNQ_GPIO_BANK3_PIN_MIN ... ZYNQ_GPIO_BANK3_PIN_MAX:
-		*bank_num = 3;
-		*bank_pin_num = pin_num - ZYNQ_GPIO_BANK3_PIN_MIN;
-		break;
-	default:
-		printf("invalid GPIO pin number: %u\n", pin_num);
+	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
+	int bank;
+
+	for (bank = 0; bank < priv->p_data->max_bank; bank++) {
+		if ((pin_num >= priv->p_data->bank_min[bank]) &&
+		    (pin_num <= priv->p_data->bank_max[bank])) {
+				*bank_num = bank;
+				*bank_pin_num = pin_num -
+						priv->p_data->bank_min[bank];
+				return;
+		}
+	}
+
+	if (bank >= priv->p_data->max_bank) {
+		printf("Inavlid bank and pin num\n");
 		*bank_num = 0;
 		*bank_pin_num = 0;
-		break;
 	}
 }
 
-static int gpio_is_valid(unsigned gpio)
+static int gpio_is_valid(unsigned gpio, struct udevice *dev)
 {
-	return (gpio >= 0) && (gpio < ZYNQ_GPIO_NR_GPIOS);
+	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
+
+	return (gpio >= 0) && (gpio < priv->p_data->ngpio);
 }
 
-static int check_gpio(unsigned gpio)
+static int check_gpio(unsigned gpio, struct udevice *dev)
 {
-	if (!gpio_is_valid(gpio)) {
+	if (!gpio_is_valid(gpio, dev)) {
 		printf("ERROR : check_gpio: invalid GPIO %d\n", gpio);
 		return -1;
 	}
@@ -143,10 +207,10 @@ static int zynq_gpio_get_value(struct udevice *dev, unsigned gpio)
 	unsigned int bank_num, bank_pin_num;
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
-	if (check_gpio(gpio) < 0)
+	if (check_gpio(gpio, dev) < 0)
 		return -1;
 
-	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num);
+	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num, dev);
 
 	data = readl(priv->base +
 			     ZYNQ_GPIO_DATA_RO_OFFSET(bank_num));
@@ -159,10 +223,10 @@ static int zynq_gpio_set_value(struct udevice *dev, unsigned gpio, int value)
 	unsigned int reg_offset, bank_num, bank_pin_num;
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
-	if (check_gpio(gpio) < 0)
+	if (check_gpio(gpio, dev) < 0)
 		return -1;
 
-	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num);
+	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num, dev);
 
 	if (bank_pin_num >= ZYNQ_GPIO_MID_PIN_NUM) {
 		/* only 16 data bits in bit maskable reg */
@@ -191,10 +255,10 @@ static int zynq_gpio_direction_input(struct udevice *dev, unsigned gpio)
 	unsigned int bank_num, bank_pin_num;
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
-	if (check_gpio(gpio) < 0)
+	if (check_gpio(gpio, dev) < 0)
 		return -1;
 
-	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num);
+	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num, dev);
 
 	/* bank 0 pins 7 and 8 are special and cannot be used as inputs */
 	if (bank_num == 0 && (bank_pin_num == 7 || bank_pin_num == 8))
@@ -215,10 +279,10 @@ static int zynq_gpio_direction_output(struct udevice *dev, unsigned gpio,
 	unsigned int bank_num, bank_pin_num;
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
-	if (check_gpio(gpio) < 0)
+	if (check_gpio(gpio, dev) < 0)
 		return -1;
 
-	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num);
+	zynq_gpio_get_bank_pin(gpio, &bank_num, &bank_pin_num, dev);
 
 	/* set the GPIO pin as output */
 	reg = readl(priv->base + ZYNQ_GPIO_DIRM_OFFSET(bank_num));
@@ -242,7 +306,51 @@ static const struct dm_gpio_ops gpio_zynq_ops = {
 	.set_value		= zynq_gpio_set_value,
 };
 
+static const struct udevice_id zynq_gpio_ids[] = {
+	{ .compatible = "xlnx,zynq-gpio-1.0",
+	  .data = (ulong)&zynq_gpio_def},
+	{ .compatible = "xlnx,zynqmp-gpio-1.0",
+	  .data = (ulong)&zynqmp_gpio_def},
+	{ }
+};
+
+static void zynq_gpio_getplat_data(struct udevice *dev)
+{
+	const struct udevice_id *of_match = zynq_gpio_ids;
+	int ret;
+	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
+
+	while (of_match->compatible) {
+		ret = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
+						    of_match->compatible);
+		if (ret >= 0) {
+			priv->p_data =
+				    (struct zynq_platform_data *)of_match->data;
+			break;
+		} else  {
+			of_match++;
+			continue;
+		}
+	}
+
+	if (!priv->p_data)
+		printf("No Platform data found\n");
+}
+
 static int zynq_gpio_probe(struct udevice *dev)
+{
+	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	zynq_gpio_getplat_data(dev);
+
+	if (priv->p_data)
+		uc_priv->gpio_count = priv->p_data->ngpio;
+
+	return 0;
+}
+
+static int zynq_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
@@ -250,20 +358,6 @@ static int zynq_gpio_probe(struct udevice *dev)
 
 	return 0;
 }
-
-static int zynq_gpio_ofdata_to_platdata(struct udevice *dev)
-{
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-
-	uc_priv->gpio_count = ZYNQ_GPIO_NR_GPIOS;
-
-	return 0;
-}
-
-static const struct udevice_id zynq_gpio_ids[] = {
-	{ .compatible = "xlnx,zynq-gpio-1.0" },
-	{ }
-};
 
 U_BOOT_DRIVER(gpio_zynq) = {
 	.name	= "gpio_zynq",
