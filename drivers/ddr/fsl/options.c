@@ -1002,8 +1002,19 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 	popts->twot_en = 0;
 	popts->threet_en = 0;
 
-	/* for RDIMM, address parity enable */
-	popts->ap_en = 1;
+	/* for RDIMM and DDR4 UDIMM/discrete memory, address parity enable */
+	if (popts->registered_dimm_en)
+		popts->ap_en = 1; /* 0 = disable,  1 = enable */
+	else
+		popts->ap_en = 0; /* disabled for DDR4 UDIMM/discrete default */
+
+	if (hwconfig_sub_f("fsl_ddr", "parity", buf)) {
+		if (hwconfig_subarg_cmp_f("fsl_ddr", "parity", "on", buf)) {
+			if (popts->registered_dimm_en ||
+			    (CONFIG_FSL_SDRAM_TYPE == SDRAM_TYPE_DDR4))
+				popts->ap_en = 1;
+		}
+	}
 
 	/*
 	 * BSTTOPRE precharge interval
