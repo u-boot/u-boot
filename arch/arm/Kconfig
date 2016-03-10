@@ -570,6 +570,7 @@ config ARCH_ZYNQMP
 	select DM_SPI
 	select DM_SPI_FLASH
 	select DM_ETH
+	select DM_GPIO
 	select DM_MMC
 	select DM_SERIAL
 	select OF_CONTROL
