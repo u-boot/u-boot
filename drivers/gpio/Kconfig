@@ -138,7 +138,7 @@ config MVEBU_GPIO
 
 config ZYNQ_GPIO
 	bool "Zynq GPIO driver"
-	depends on DM_GPIO && ARCH_ZYNQ
+	depends on DM_GPIO && (ARCH_ZYNQ || ARCH_ZYNQMP)
 	default y
 	help
 	  Supports GPIO access on Zynq SoC.
