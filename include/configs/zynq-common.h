@@ -40,6 +40,7 @@
 #define CONFIG_ZYNQ_SERIAL
 
 #define CONFIG_ZYNQ_GPIO
+#define CONFIG_DM_GPIO
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
