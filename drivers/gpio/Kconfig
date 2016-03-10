@@ -83,4 +83,11 @@ config VYBRID_GPIO
 	help
 	  Say yes here to support Vybrid vf610 GPIOs.
 
+config ZYNQ_GPIO
+	bool "Zynq GPIO driver"
+	depends on DM_GPIO && ARCH_ZYNQ
+	default y
+	help
+	  Supports GPIO access on Zynq SoC.
+
 endmenu
