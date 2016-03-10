@@ -8,8 +8,6 @@
 #ifndef _ZYNQ_GPIO_H
 #define _ZYNQ_GPIO_H
 
-#define ZYNQ_GPIO_BASE_ADDRESS 0xE000A000
-
 /* Maximum banks */
 #define ZYNQ_GPIO_MAX_BANK	4
 
