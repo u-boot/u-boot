@@ -23,6 +23,7 @@
 #include <i2c.h>
 #include <watchdog.h>
 #include <dm.h>
+#include <dm/pinctrl.h>
 #include <fdtdec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -334,17 +335,74 @@ int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
 }
 #else
 /*
- * Since pinmux is not supported, implement a weak function here.
- * You can implement your i2c_bus_idle in board file. When pinctrl
- * is supported, this can be removed.
+ * See Linux Documentation/devicetree/bindings/i2c/i2c-imx.txt
+ * "
+ *  scl-gpios: specify the gpio related to SCL pin
+ *  sda-gpios: specify the gpio related to SDA pin
+ *  add pinctrl to configure i2c pins to gpio function for i2c
+ *  bus recovery, call it "gpio" state
+ * "
+ *
+ * The i2c_idle_bus is an implementation following Linux Kernel.
  */
-int __i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
-{
-	return 0;
-}
-
 int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
-	__attribute__((weak, alias("__i2c_idle_bus")));
+{
+	struct udevice *bus = i2c_bus->bus;
+	struct gpio_desc *scl_gpio = &i2c_bus->scl_gpio;
+	struct gpio_desc *sda_gpio = &i2c_bus->sda_gpio;
+	int sda, scl;
+	int i, ret = 0;
+	ulong elapsed, start_time;
+
+	if (pinctrl_select_state(bus, "gpio")) {
+		dev_dbg(bus, "Can not to switch to use gpio pinmux\n");
+		/*
+		 * GPIO pinctrl for i2c force idle is not a must,
+		 * but it is strongly recommended to be used.
+		 * Because it can help you to recover from bad
+		 * i2c bus state. Do not return failure, because
+		 * it is not a must.
+		 */
+		return 0;
+	}
+
+	dm_gpio_set_dir_flags(scl_gpio, GPIOD_IS_IN);
+	dm_gpio_set_dir_flags(sda_gpio, GPIOD_IS_IN);
+	scl = dm_gpio_get_value(scl_gpio);
+	sda = dm_gpio_get_value(sda_gpio);
+
+	if ((sda & scl) == 1)
+		goto exit;		/* Bus is idle already */
+
+	/* Send high and low on the SCL line */
+	for (i = 0; i < 9; i++) {
+		dm_gpio_set_dir_flags(scl_gpio, GPIOD_IS_OUT);
+		dm_gpio_set_value(scl_gpio, 0);
+		udelay(50);
+		dm_gpio_set_dir_flags(scl_gpio, GPIOD_IS_IN);
+		udelay(50);
+	}
+	start_time = get_timer(0);
+	for (;;) {
+		dm_gpio_set_dir_flags(scl_gpio, GPIOD_IS_IN);
+		dm_gpio_set_dir_flags(sda_gpio, GPIOD_IS_IN);
+		scl = dm_gpio_get_value(scl_gpio);
+		sda = dm_gpio_get_value(sda_gpio);
+		if ((sda & scl) == 1)
+			break;
+		WATCHDOG_RESET();
+		elapsed = get_timer(start_time);
+		if (elapsed > (CONFIG_SYS_HZ / 5)) {	/* .2 seconds */
+			ret = -EBUSY;
+			printf("%s: failed to clear bus, sda=%d scl=%d\n", __func__, sda, scl);
+			break;
+		}
+	}
+
+exit:
+	pinctrl_select_state(bus, "default");
+	return ret;
+}
 #endif
 
 static int i2c_init_transfer(struct mxc_i2c_bus *i2c_bus, u8 chip,
@@ -664,8 +722,10 @@ static int mxc_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 static int mxc_i2c_probe(struct udevice *bus)
 {
 	struct mxc_i2c_bus *i2c_bus = dev_get_priv(bus);
+	const void *fdt = gd->fdt_blob;
+	int node = bus->of_offset;
 	fdt_addr_t addr;
-	int ret;
+	int ret, ret2;
 
 	i2c_bus->driver_data = dev_get_driver_data(bus);
 
@@ -675,11 +735,34 @@ static int mxc_i2c_probe(struct udevice *bus)
 
 	i2c_bus->base = addr;
 	i2c_bus->index = bus->seq;
+	i2c_bus->bus = bus;
 
 	/* Enable clk */
 	ret = enable_i2c_clk(1, bus->seq);
 	if (ret < 0)
 		return ret;
+
+	/*
+	 * See Documentation/devicetree/bindings/i2c/i2c-imx.txt
+	 * Use gpio to force bus idle when necessary.
+	 */
+	ret = fdt_find_string(fdt, node, "pinctrl-names", "gpio");
+	if (ret < 0) {
+		dev_info(dev, "i2c bus %d at %lu, no gpio pinctrl state.\n", bus->seq, i2c_bus->base);
+	} else {
+		ret = gpio_request_by_name_nodev(fdt, node, "scl-gpios",
+						 0, &i2c_bus->scl_gpio,
+						 GPIOD_IS_OUT);
+		ret2 = gpio_request_by_name_nodev(fdt, node, "sda-gpios",
+						 0, &i2c_bus->sda_gpio,
+						 GPIOD_IS_OUT);
+		if (!dm_gpio_is_valid(&i2c_bus->sda_gpio) |
+		    !dm_gpio_is_valid(&i2c_bus->scl_gpio) |
+		    ret | ret2) {
+			dev_err(dev, "i2c bus %d at %lu, fail to request scl/sda gpio\n", bus->seq, i2c_bus->base);
+			return -ENODEV;
+		}
+	}
 
 	ret = i2c_idle_bus(i2c_bus);
 	if (ret < 0) {

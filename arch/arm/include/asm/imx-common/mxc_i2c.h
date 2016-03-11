@@ -5,6 +5,7 @@
  */
 #ifndef __ASM_ARCH_MXC_MXC_I2C_H__
 #define __ASM_ARCH_MXC_MXC_I2C_H__
+#include <asm-generic/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
 
 struct i2c_pin_ctrl {
@@ -30,6 +31,10 @@ struct i2c_pads_info {
  * The following two is only to be compatible with non-DM part.
  * @idle_bus_fn: function to force bus idle
  * @idle_bus_data: parameter for idle_bus_fun
+ * For DM:
+ * bus: The device structure for i2c bus controller
+ * scl-gpio: specify the gpio related to SCL pin
+ * sda-gpio: specify the gpio related to SDA pin
  */
 struct mxc_i2c_bus {
 	/*
@@ -46,6 +51,11 @@ struct mxc_i2c_bus {
 #ifndef CONFIG_DM_I2C
 	int (*idle_bus_fn)(void *p);
 	void *idle_bus_data;
+#else
+	struct udevice *bus;
+	/* Use gpio to force bus idle when bus state is abnormal */
+	struct gpio_desc scl_gpio;
+	struct gpio_desc sda_gpio;
 #endif
 };
 
