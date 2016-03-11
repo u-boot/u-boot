@@ -184,7 +184,7 @@
 	"kernel_addr=0x200000\0" \
 	"initrd_addr=0xa00000\0" \
 	"initrd_size=0x2000000\0" \
-	"fdt_addr=0x7000000\0" \
+	"fdt_addr=4000000\0" \
 	"fdt_high=0x10000000\0" \
 	"sdbootdev=0\0"\
 	CONFIG_KERNEL_FDT_OFST_SIZE \
@@ -195,8 +195,7 @@
 		"fdt set /timer clock-frequency <240000> && " \
 		"fdt set /amba/i2c_clk clock-frequency <240000> && " \
 		"booti 80000 - f000000\0" \
-	"netboot=tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
-		 "booti 80000 - $fdt_addr\0" \
+	"netboot=tftpboot 80000 image.ub && bootm\0" \
 	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr $fdt_offset $fdt_size && " \
 		  "sf read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
@@ -210,7 +209,8 @@
 		"tftpb 0x80000 Image && " \
 		"fdt set /chosen/dom0 reg <0x80000 0x$filesize> && "\
 		"tftpb 6000000 xen.ub && bootm 6000000 - $fdt_addr\0" \
-	"jtagboot=tftpboot 10000000 image.ub && bootm\0" \
+	"jtagboot=tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
+		 "tftpboot 6000000 rootfs.cpio.ub && booti 80000 6000000 $fdt_addr\0" \
 	"nosmp=setenv bootargs $bootargs maxcpus=1\0" \
 	"nfsroot=setenv bootargs $bootargs root=/dev/nfs nfsroot=$serverip:/mnt/sata,tcp ip=$ipaddr:$serverip:$serverip:255.255.255.0:zynqmp:eth0:off rw\0" \
 	"sdroot=setenv bootargs $bootargs root=/dev/mmcblk0p2 rw rootwait\0" \
