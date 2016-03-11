@@ -566,14 +566,12 @@ int fw_parse_script(char *fname)
 		}
 
 		/* Drop ending line feed / carriage return */
-		while (len > 0 && (dump[len - 1] == '\n' ||
-				dump[len - 1] == '\r')) {
-			dump[len - 1] = '\0';
-			len--;
-		}
+		dump[--len] = '\0';
+		if (len && dump[len - 1] == '\r')
+			dump[--len] = '\0';
 
 		/* Skip comment or empty lines */
-		if ((len == 0) || dump[0] == '#')
+		if (len == 0 || dump[0] == '#')
 			continue;
 
 		/*
