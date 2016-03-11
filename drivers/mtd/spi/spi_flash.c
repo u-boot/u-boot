@@ -665,7 +665,7 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 static void stm_get_locked_range(struct spi_flash *flash, u8 sr, loff_t *ofs,
-				 u32 *len)
+				 u64 *len)
 {
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
 	int shift = ffs(mask) - 1;
@@ -685,11 +685,11 @@ static void stm_get_locked_range(struct spi_flash *flash, u8 sr, loff_t *ofs,
 /*
  * Return 1 if the entire region is locked, 0 otherwise
  */
-static int stm_is_locked_sr(struct spi_flash *flash, u32 ofs, u32 len,
+static int stm_is_locked_sr(struct spi_flash *flash, loff_t ofs, u64 len,
 			    u8 sr)
 {
 	loff_t lock_offs;
-	u32 lock_len;
+	u64 lock_len;
 
 	stm_get_locked_range(flash, sr, &lock_offs, &lock_len);
 
