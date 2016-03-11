@@ -141,12 +141,9 @@ static char *fw_string_blank(char *s, int noblank)
 	for (i = 0; i < len; i++, s++) {
 		if ((noblank && !isblank(*s)) ||
 		    (!noblank && isblank(*s)))
-			break;
+			return s;
 	}
-	if (i == len)
-		return NULL;
-
-	return s;
+	return NULL;
 }
 
 /*
