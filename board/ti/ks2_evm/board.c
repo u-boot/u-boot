@@ -7,8 +7,8 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
-#include "board.h"
 #include <common.h>
+#include "board.h"
 #include <spl.h>
 #include <exports.h>
 #include <fdt_support.h>
