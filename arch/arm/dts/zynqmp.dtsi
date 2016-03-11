@@ -506,6 +506,13 @@
 			power-domains = <&pd_adma>;
 		};
 
+		mc: memory-controller@fd070000 {
+			compatible = "xlnx,zynqmp-ddrc-2.40a";
+			reg = <0x0 0xfd070000 0x0 0x30000>;
+			interrupt-parent = <&gic>;
+			interrupts = <0 112 4>;
+		};
+
 		nand0: nand@ff100000 {
 			compatible = "arasan,nfc-v3p10";
 			status = "disabled";
