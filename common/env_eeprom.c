@@ -145,11 +145,6 @@ void env_relocate_spec(void)
 			gd->env_valid = 1;
 	}
 
-	if (gd->env_valid == 2)
-		gd->env_addr = off_env[1] + offsetof(env_t, data);
-	else if (gd->env_valid == 1)
-		gd->env_addr = off_env[0] + offsetof(env_t, data);
-
 #else /* CONFIG_ENV_OFFSET_REDUND */
 	ulong crc, len, new;
 	uchar rdbuf[64];
@@ -175,10 +170,8 @@ void env_relocate_spec(void)
 	}
 
 	if (crc == new) {
-		gd->env_addr	= offsetof(env_t, data);
 		gd->env_valid	= 1;
 	} else {
-		gd->env_addr	= 0;
 		gd->env_valid	= 0;
 	}
 #endif /* CONFIG_ENV_OFFSET_REDUND */
