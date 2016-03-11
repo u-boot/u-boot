@@ -214,7 +214,7 @@ int board_late_init(void)
 		setenv("setup", "setenv baudrate 4800 && setenv bootcmd run veloce");
 	case ZYNQMP_CSU_VERSION_EP108:
 	case ZYNQMP_CSU_VERSION_SILICON:
-		setenv("setup", "setenv serverip 10.10.70.101 && setenv ipaddr 10.10.71.100 && setenv partid auto");
+		setenv("setup", "setenv serverip 10.10.70.101 && setenv ipaddr 10.10.70.1 && setenv partid auto");
 		break;
 	case ZYNQMP_CSU_VERSION_QEMU:
 	default:
