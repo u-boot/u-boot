@@ -133,14 +133,19 @@ static inline ulong getenvsize (void)
 	return rc;
 }
 
-static char *fw_string_blank(char *s, int noblank)
+static char *skip_chars(char *s)
 {
-	int i;
-	int len = strlen(s);
+	for (; *s != '\0'; s++) {
+		if (isblank(*s))
+			return s;
+	}
+	return NULL;
+}
 
-	for (i = 0; i < len; i++, s++) {
-		if ((noblank && !isblank(*s)) ||
-		    (!noblank && isblank(*s)))
+static char *skip_blanks(char *s)
+{
+	for (; *s != '\0'; s++) {
+		if (!isblank(*s))
 			return s;
 	}
 	return NULL;
@@ -575,17 +580,17 @@ int fw_parse_script(char *fname)
 		 * Search for variable's name,
 		 * remove leading whitespaces
 		 */
-		name = fw_string_blank(dump, 1);
+		name = skip_blanks(dump);
 		if (!name)
 			continue;
 
 		/* The first white space is the end of variable name */
-		val = fw_string_blank(name, 0);
+		val = skip_chars(name);
 		len = strlen(name);
 		if (val) {
 			*val++ = '\0';
 			if ((val - name) < len)
-				val = fw_string_blank(val, 1);
+				val = skip_blanks(val);
 			else
 				val = NULL;
 		}
