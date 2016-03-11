@@ -371,6 +371,23 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 		return 1;
 	}
 
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
+	/*
+	 * EEPROM chips that implement "address overflow" are ones
+	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
+	 * address and the extra bits end up in the "chip address"
+	 * bit slots. This makes a 24WC08 (1Kbyte) chip look like
+	 * four 256 byte chips.
+	 *
+	 * Note that we consider the length of the address field to
+	 * still be one byte because the extra address bits are
+	 * hidden in the chip address.
+	 */
+	if (alen > 0)
+		chip |= ((addr >> (alen * 8)) &
+			 CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
+#endif
+
 	/* Wait until bus not busy */
 	if (wait_for_bb(adap))
 		return 1;
@@ -500,6 +517,23 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 		       addr, len);
 		return 1;
 	}
+
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
+	/*
+	 * EEPROM chips that implement "address overflow" are ones
+	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
+	 * address and the extra bits end up in the "chip address"
+	 * bit slots. This makes a 24WC08 (1Kbyte) chip look like
+	 * four 256 byte chips.
+	 *
+	 * Note that we consider the length of the address field to
+	 * still be one byte because the extra address bits are
+	 * hidden in the chip address.
+	 */
+	if (alen > 0)
+		chip |= ((addr >> (alen * 8)) &
+			 CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
+#endif
 
 	/* Wait until bus not busy */
 	if (wait_for_bb(adap))
