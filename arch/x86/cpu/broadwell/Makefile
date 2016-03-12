@@ -8,3 +8,4 @@ obj-y += cpu.o
 obj-y += iobp.o
 obj-y += pch.o
 obj-y += pinctrl_broadwell.o
+obj-y += sata.o
