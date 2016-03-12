@@ -10,5 +10,6 @@ obj-y += lpc.o
 obj-y += northbridge.o
 obj-y += pch.o
 obj-y += pinctrl_broadwell.o
+obj-y += power_state.o
 obj-y += refcode.o
 obj-y += sata.o
