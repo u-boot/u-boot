@@ -211,11 +211,6 @@
 
 #define SMBUS_TIMEOUT		(10 * 1000 * 100)
 
-
-/* Root Complex Register Block */
-#define DEFAULT_RCBA		0xfed1c000
-#define RCB_REG(reg)		(DEFAULT_RCBA + (reg))
-
 #define PCH_RCBA_BASE		0xf0
 
 #define VCH		0x0000	/* 32bit */

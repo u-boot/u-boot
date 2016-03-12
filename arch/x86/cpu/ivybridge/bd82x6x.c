@@ -11,6 +11,7 @@
 #include <pch.h>
 #include <syscon.h>
 #include <asm/cpu.h>
+#include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
 #include <asm/pci.h>

@@ -13,6 +13,7 @@
 #include <rtc.h>
 #include <pci.h>
 #include <asm/acpi.h>
+#include <asm/intel_regs.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>
 #include <asm/ioapic.h>
@@ -420,7 +421,7 @@ static void enable_spi_prefetch(struct udevice *pch)
 static void enable_port80_on_lpc(struct udevice *pch)
 {
 	/* Enable port 80 POST on LPC */
-	dm_pci_write_config32(pch, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
+	dm_pci_write_config32(pch, PCH_RCBA_BASE, RCB_BASE_ADDRESS | 1);
 	clrbits_le32(RCB_REG(GCS), 4);
 }
 
@@ -552,7 +553,8 @@ static int bd82x6x_lpc_early_init(struct udevice *dev)
 {
 	/* Setting up Southbridge. In the northbridge code. */
 	debug("Setting up static southbridge registers\n");
-	dm_pci_write_config32(dev->parent, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
+	dm_pci_write_config32(dev->parent, PCH_RCBA_BASE,
+			      RCB_BASE_ADDRESS | 1);
 	dm_pci_write_config32(dev->parent, PMBASE, DEFAULT_PMBASE | 1);
 
 	/* Enable ACPI BAR */

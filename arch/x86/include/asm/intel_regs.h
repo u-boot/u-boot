@@ -12,4 +12,8 @@
 #define MCH_BASE_SIZE		0x8000
 #define MCHBAR_REG(reg)		(MCH_BASE_ADDRESS + (reg))
 
+/* Access the Root Complex Register Block */
+#define RCB_BASE_ADDRESS	0xfed1c000
+#define RCB_REG(reg)		(RCB_BASE_ADDRESS + (reg))
+
 #endif
