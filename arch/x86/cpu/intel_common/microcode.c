@@ -64,8 +64,12 @@ static int microcode_decode_node(const void *blob, int node,
 	return 0;
 }
 
-static inline uint32_t microcode_read_rev(void)
+int microcode_read_rev(void)
 {
+	/* Quark does not have microcode MSRs */
+#ifdef CONFIG_INTEL_QUARK
+	return 0;
+#else
 	/*
 	 * Some Intel CPUs can be very finicky about the CPUID sequence used.
 	 * So this is implemented in assembly so that it works reliably.
@@ -90,6 +94,7 @@ static inline uint32_t microcode_read_rev(void)
 	);
 
 	return high;
+#endif
 }
 
 static void microcode_read_cpu(struct microcode_update *cpu)

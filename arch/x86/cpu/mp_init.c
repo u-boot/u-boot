@@ -15,6 +15,7 @@
 #include <asm/cpu.h>
 #include <asm/interrupt.h>
 #include <asm/lapic.h>
+#include <asm/microcode.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -560,12 +561,16 @@ int mp_init(struct mp_params *p)
 
 int mp_init_cpu(struct udevice *cpu, void *unused)
 {
+	struct cpu_platdata *plat = dev_get_parent_platdata(cpu);
+
 	/*
 	 * Multiple APs are brought up simultaneously and they may get the same
 	 * seq num in the uclass_resolve_seq() during device_probe(). To avoid
 	 * this, set req_seq to the reg number in the device tree in advance.
 	 */
 	cpu->req_seq = fdtdec_get_int(gd->fdt_blob, cpu->of_offset, "reg", -1);
+	plat->ucode_version = microcode_read_rev();
+	plat->device_id = gd->arch.x86_device;
 
 	return device_probe(cpu);
 }
