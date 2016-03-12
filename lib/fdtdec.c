@@ -64,7 +64,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(AMS_AS3722, "ams,as3722"),
 	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
-	COMPAT(INTEL_X86_PINCTRL, "intel,x86-pinctrl"),
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
 	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),

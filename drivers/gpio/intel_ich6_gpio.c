@@ -53,12 +53,6 @@ struct ich6_bank_priv {
 #define GPIO_IOSEL_OFFSET(x)	(x + 4)
 #define GPIO_LVL_OFFSET(x)	(x + 8)
 
-/* TODO: Move this to device tree, or platform data */
-void ich_gpio_set_gpio_map(const struct pch_gpio_map *map)
-{
-	gd->arch.gpio_map = map;
-}
-
 static int _ich6_gpio_set_value(uint16_t base, unsigned offset, int value)
 {
 	u32 val;
@@ -87,11 +81,6 @@ static int _ich6_gpio_set_direction(uint16_t base, unsigned offset, int dir)
 		outl(val, base);
 	}
 
-	return 0;
-}
-
-int gpio_ich6_pinctrl_init(void)
-{
 	return 0;
 }
 
