@@ -1052,6 +1052,10 @@ ifneq ($(CONFIG_HAVE_VGA_BIOS),)
 IFDTOOL_FLAGS += -w $(CONFIG_VGA_BIOS_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_VGA_BIOS_FILE)
 endif
 
+ifneq ($(CONFIG_HAVE_REFCODE),)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_REFCODE_ADDR):refcode.bin
+endif
+
 quiet_cmd_ifdtool = IFDTOOL $@
 cmd_ifdtool  = $(IFDTOOL) -c -r $(CONFIG_ROM_SIZE) u-boot.tmp;
 ifneq ($(CONFIG_HAVE_INTEL_ME),)
@@ -1060,7 +1064,15 @@ endif
 cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_FLAGS) u-boot.tmp;
 cmd_ifdtool += mv u-boot.tmp $@
 
-u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE
+refcode.bin: $(srctree)/board/$(BOARDDIR)/refcode.bin FORCE
+	$(call if_changed,copy)
+
+quiet_cmd_ldr = LD      $@
+cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
+	       $(filter-out FORCE,$^) -o $@
+
+u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE \
+		$(if $(CONFIG_HAVE_REFCODE),refcode.bin)
 	$(call if_changed,ifdtool)
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec

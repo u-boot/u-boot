@@ -327,6 +327,17 @@ config DCACHE_RAM_MRC_VAR_SIZE
 	  memory reference code and must be set correctly or the board will
 	  not boot.
 
+config HAVE_REFCODE
+        bool "Add a Reference Code binary"
+        help
+          Select this option to add a Reference Code binary to the resulting
+          U-Boot image. This is an Intel binary blob that handles system
+          initialisation, in this case the PCH and System Agent.
+
+          Note: Without this binary (on platforms that need it such as
+          broadwell) U-Boot will be missing some critical setup steps.
+          Various peripherals may fail to work.
+
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
