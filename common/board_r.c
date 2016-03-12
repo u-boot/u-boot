@@ -322,11 +322,13 @@ static int initr_dm(void)
 	/* Save the pre-reloc driver model and start a new one */
 	gd->dm_root_f = gd->dm_root;
 	gd->dm_root = NULL;
+#ifdef CONFIG_TIMER
+	gd->timer = NULL;
+#endif
 	ret = dm_init_and_scan(false);
 	if (ret)
 		return ret;
 #ifdef CONFIG_TIMER_EARLY
-	gd->timer = NULL;
 	ret = dm_timer_init();
 	if (ret)
 		return ret;
