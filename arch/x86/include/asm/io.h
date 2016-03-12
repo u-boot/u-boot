@@ -254,6 +254,28 @@ __OUTS(b)
 __OUTS(w)
 __OUTS(l)
 
+/* IO space accessors */
+#define clrio(type, addr, clear) \
+	out##type(in##type(addr) & ~(clear), (addr))
+
+#define setio(type, addr, set) \
+	out##type(in##type(addr) | (set), (addr))
+
+#define clrsetio(type, addr, clear, set) \
+	out##type((in##type(addr) & ~(clear)) | (set), (addr))
+
+#define clrio_32(addr, clear) clrio(l, addr, clear)
+#define clrio_16(addr, clear) clrio(w, addr, clear)
+#define clrio_8(addr, clear) clrio(b, addr, clear)
+
+#define setio_32(addr, set) setio(l, addr, set)
+#define setio_16(addr, set) setio(w, addr, set)
+#define setio_8(addr, set) setio(b, addr, set)
+
+#define clrsetio_32(addr, clear, set) clrsetio(l, addr, clear, set)
+#define clrsetio_16(addr, clear, set) clrsetio(w, addr, clear, set)
+#define clrsetio_8(addr, clear, set) clrsetio(b, addr, clear, set)
+
 static inline void sync(void)
 {
 }
