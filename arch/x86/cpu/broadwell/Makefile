@@ -5,3 +5,5 @@
 #
 
 obj-y += cpu.o
+obj-y += iobp.o
+obj-y += pch.o
