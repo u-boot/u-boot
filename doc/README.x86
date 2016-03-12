@@ -20,8 +20,17 @@ most of the low-level details.
 
 U-Boot also supports booting directly from x86 reset vector, without coreboot.
 In this case, known as bare mode, from the fact that it runs on the
-'bare metal', U-Boot acts like a BIOS replacement. Currently Link, QEMU x86
-targets and all Intel boards support running U-Boot 'bare metal'.
+'bare metal', U-Boot acts like a BIOS replacement. The following platforms
+are supported:
+
+   - Bayley Bay
+   - Cougar Canyon 2 CRB
+   - Crown Bay CRB
+   - Galileo
+   - Link (Chromebook Pixel)
+   - Minnowboard MAX
+   - Samus (Chromebook Pixel 2015)
+   - QEMU x86
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
@@ -371,7 +380,8 @@ options GENERATE_SFI_TABLE and GENERATE_MP_TABLE.
 
 Driver Model
 ------------
-x86 has been converted to use driver model for serial and GPIO.
+x86 has been converted to use driver model for serial, GPIO, SPI, SPI flash,
+keyboard, real-time clock, USB. Video is in progress.
 
 Device Tree
 -----------
