@@ -23,6 +23,7 @@
 #include <asm/processor.h>
 #include <asm/gpio.h>
 #include <asm/global_data.h>
+#include <asm/intel_regs.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
@@ -682,7 +683,7 @@ int dram_init(void)
 {
 	struct pei_data pei_data __aligned(8) = {
 		.pei_version = PEI_VERSION,
-		.mchbar = DEFAULT_MCHBAR,
+		.mchbar = MCH_BASE_ADDRESS,
 		.dmibar = DEFAULT_DMIBAR,
 		.epbar = DEFAULT_EPBAR,
 		.pciexbar = CONFIG_PCIE_ECAM_BASE,
