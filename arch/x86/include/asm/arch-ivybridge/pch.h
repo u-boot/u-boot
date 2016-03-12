@@ -211,8 +211,6 @@
 
 #define SMBUS_TIMEOUT		(10 * 1000 * 100)
 
-#define PCH_RCBA_BASE		0xf0
-
 #define VCH		0x0000	/* 32bit */
 #define VCAP1		0x0004	/* 32bit */
 #define VCAP2		0x0008	/* 32bit */

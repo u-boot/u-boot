@@ -10,6 +10,7 @@
 #include <pci.h>
 #include <smsc_sio1007.h>
 #include <asm/ibmpc.h>
+#include <asm/lpc_common.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 

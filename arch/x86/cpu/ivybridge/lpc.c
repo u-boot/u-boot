@@ -17,6 +17,7 @@
 #include <asm/interrupt.h>
 #include <asm/io.h>
 #include <asm/ioapic.h>
+#include <asm/lpc_common.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 
@@ -405,26 +406,6 @@ static void pch_fixups(struct udevice *pch)
 	setbits_le32(RCB_REG(0x21a8), 0x3);
 }
 
-/*
- * Enable Prefetching and Caching.
- */
-static void enable_spi_prefetch(struct udevice *pch)
-{
-	u8 reg8;
-
-	dm_pci_read_config8(pch, 0xdc, &reg8);
-	reg8 &= ~(3 << 2);
-	reg8 |= (2 << 2); /* Prefetching and Caching Enabled */
-	dm_pci_write_config8(pch, 0xdc, reg8);
-}
-
-static void enable_port80_on_lpc(struct udevice *pch)
-{
-	/* Enable port 80 POST on LPC */
-	dm_pci_write_config32(pch, PCH_RCBA_BASE, RCB_BASE_ADDRESS | 1);
-	clrbits_le32(RCB_REG(GCS), 4);
-}
-
 static void set_spi_speed(void)
 {
 	u32 fdod;
@@ -439,54 +420,6 @@ static void set_spi_speed(void)
 
 	/* Set Software Sequence frequency to match */
 	clrsetbits_8(RCB_REG(SPI_FREQ_SWSEQ), 7, fdod);
-}
-
-/**
- * lpc_early_init() - set up LPC serial ports and other early things
- *
- * @dev:	LPC device
- * @return 0 if OK, -ve on error
- */
-static int lpc_early_init(struct udevice *dev)
-{
-	struct reg_info {
-		u32 base;
-		u32 size;
-	} values[4], *ptr;
-	int count;
-	int i;
-
-	count = fdtdec_get_int_array_count(gd->fdt_blob, dev->of_offset,
-			"intel,gen-dec", (u32 *)values,
-			sizeof(values) / sizeof(u32));
-	if (count < 0)
-		return -EINVAL;
-
-	/* Set COM1/COM2 decode range */
-	dm_pci_write_config16(dev->parent, LPC_IO_DEC, 0x0010);
-
-	/* Enable PS/2 Keyboard/Mouse, EC areas and COM1 */
-	dm_pci_write_config16(dev->parent, LPC_EN, KBC_LPC_EN | MC_LPC_EN |
-			      GAMEL_LPC_EN | COMA_LPC_EN);
-
-	/* Write all registers but use 0 if we run out of data */
-	count = count * sizeof(u32) / sizeof(values[0]);
-	for (i = 0, ptr = values; i < ARRAY_SIZE(values); i++, ptr++) {
-		u32 reg = 0;
-
-		if (i < count)
-			reg = ptr->base | PCI_COMMAND_IO | (ptr->size << 16);
-		dm_pci_write_config32(dev->parent, LPC_GENX_DEC(i), reg);
-	}
-
-	enable_spi_prefetch(dev->parent);
-
-	/* This is already done in start.S, but let's do it in C */
-	enable_port80_on_lpc(dev->parent);
-
-	set_spi_speed();
-
-	return 0;
 }
 
 static int lpc_init_extra(struct udevice *dev)
@@ -551,6 +484,8 @@ static int lpc_init_extra(struct udevice *dev)
 
 static int bd82x6x_lpc_early_init(struct udevice *dev)
 {
+	set_spi_speed();
+
 	/* Setting up Southbridge. In the northbridge code. */
 	debug("Setting up static southbridge registers\n");
 	dm_pci_write_config32(dev->parent, PCH_RCBA_BASE,
@@ -575,7 +510,7 @@ static int bd82x6x_lpc_probe(struct udevice *dev)
 	int ret;
 
 	if (!(gd->flags & GD_FLG_RELOC)) {
-		ret = lpc_early_init(dev);
+		ret = lpc_common_early_init(dev);
 		if (ret) {
 			debug("%s: lpc_early_init() failed\n", __func__);
 			return ret;

@@ -5,6 +5,7 @@
 #
 
 obj-$(CONFIG_HAVE_MRC) += car.o
+obj-y += lpc.o
 ifndef CONFIG_TARGET_EFI
 obj-y += microcode.o
 endif
