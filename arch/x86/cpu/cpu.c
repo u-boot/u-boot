@@ -27,6 +27,7 @@
 #include <asm/control_regs.h>
 #include <asm/cpu.h>
 #include <asm/lapic.h>
+#include <asm/microcode.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>

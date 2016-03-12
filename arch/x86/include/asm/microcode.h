@@ -9,6 +9,9 @@
 
 #ifndef __ASSEMBLY__
 
+/* This is a declaration for ucode_base in start.S */
+extern u32 ucode_base;
+
 /**
  * microcode_update_intel() - Apply microcode updates
  *
