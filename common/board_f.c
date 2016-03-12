@@ -1096,6 +1096,13 @@ void board_init_f_r(void)
 		hang();
 
 	/*
+	 * The pre-relocation drivers may be using memory that has now gone
+	 * away. Mark serial as unavailable - this will fall back to the debug
+	 * UART if available.
+	 */
+	gd->flags &= ~GD_FLG_SERIAL_READY;
+
+	/*
 	 * U-Boot has been copied into SDRAM, the BSS has been cleared etc.
 	 * Transfer execution from Flash to RAM by calculating the address
 	 * of the in-RAM copy of board_init_r() and calling it

@@ -115,7 +115,7 @@ int serial_init(void)
 /* Called after relocation */
 void serial_initialize(void)
 {
-	serial_find_console_or_panic();
+	serial_init();
 }
 
 static void _serial_putc(struct udevice *dev, char ch)
