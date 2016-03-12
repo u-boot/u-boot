@@ -6,6 +6,7 @@
 
 obj-y += cpu.o
 obj-y += iobp.o
+obj-y += lpc.o
 obj-y += northbridge.o
 obj-y += pch.o
 obj-y += pinctrl_broadwell.o
