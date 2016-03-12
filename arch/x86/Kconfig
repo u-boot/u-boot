@@ -266,6 +266,67 @@ config ENABLE_MRC_CACHE
 	  to be used for speeding up boot time on future reboots and/or
 	  power cycles.
 
+config HAVE_MRC
+	bool "Add a System Agent binary"
+	depends on !HAVE_FSP
+	help
+	  Select this option to add a System Agent binary to
+	  the resulting U-Boot image. MRC stands for Memory Reference Code.
+	  It is a binary blob which U-Boot uses to set up SDRAM.
+
+	  Note: Without this binary U-Boot will not be able to set up its
+	  SDRAM so will not boot.
+
+config CACHE_MRC_BIN
+	bool
+	depends on HAVE_MRC
+	default n
+	help
+	  Enable caching for the memory reference code binary. This uses an
+	  MTRR (memory type range register) to turn on caching for the section
+	  of SPI flash that contains the memory reference code. This makes
+	  SDRAM init run faster.
+
+config CACHE_MRC_SIZE_KB
+	int
+	depends on HAVE_MRC
+	default 512
+	help
+	  Sets the size of the cached area for the memory reference code.
+	  This ends at the end of SPI flash (address 0xffffffff) and is
+	  measured in KB. Typically this is set to 512, providing for 0.5MB
+	  of cached space.
+
+config DCACHE_RAM_BASE
+	hex
+	depends on HAVE_MRC
+	help
+	  Sets the base of the data cache area in memory space. This is the
+	  start address of the cache-as-RAM (CAR) area and the address varies
+	  depending on the CPU. Once CAR is set up, read/write memory becomes
+	  available at this address and can be used temporarily until SDRAM
+	  is working.
+
+config DCACHE_RAM_SIZE
+	hex
+	depends on HAVE_MRC
+	default 0x40000
+	help
+	  Sets the total size of the data cache area in memory space. This
+	  sets the size of the cache-as-RAM (CAR) area. Note that much of the
+	  CAR space is required by the MRC. The CAR space available to U-Boot
+	  is normally at the start and typically extends to 1/4 or 1/2 of the
+	  available size.
+
+config DCACHE_RAM_MRC_VAR_SIZE
+	hex
+	depends on HAVE_MRC
+	help
+	  This is the amount of CAR (Cache as RAM) reserved for use by the
+	  memory reference code. This depends on the implementation of the
+	  memory reference code and must be set correctly or the board will
+	  not boot.
+
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
