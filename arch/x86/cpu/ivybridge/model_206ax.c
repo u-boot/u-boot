@@ -458,7 +458,8 @@ static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
 
 	msr = msr_read(MSR_IA32_PERF_CTL);
 	info->cpu_freq = ((msr.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK * 1000000;
-	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU;
+	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
+		1 << CPU_FEAT_UCODE;
 
 	return 0;
 }
