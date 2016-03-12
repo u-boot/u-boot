@@ -12,10 +12,12 @@
 #include <fdtdec.h>
 #include <libfdt.h>
 #include <asm/cpu.h>
+#include <asm/microcode.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
 #include <asm/processor.h>
-#include <asm/arch/microcode.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * struct microcode_update - standard microcode header from Intel

@@ -12,12 +12,12 @@
  */
 
 #include <common.h>
+#include <asm/microcode.h>
 #include <asm/msr-index.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
-#include <asm/arch/microcode.h>
 
 #define MTRR_PHYS_BASE_MSR(reg) (0x200 + 2 * (reg))
 #define MTRR_PHYS_MASK_MSR(reg) (0x200 + 2 * (reg) + 1)

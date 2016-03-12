@@ -19,13 +19,13 @@
 #include <asm/cpu.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
+#include <asm/microcode.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/arch/model_206ax.h>
-#include <asm/arch/microcode.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
