@@ -39,6 +39,15 @@ config ATMEL_PIO4
 	  may be dedicated as a general purpose I/O or be assigned to
 	  a function of an embedded peripheral.
 
+config INTEL_BROADWELL_GPIO
+	bool "Intel Broadwell GPIO driver"
+	depends on DM
+	help
+	  This driver supports Broadwell U devices which have an expanded
+	  GPIO feature set. The difference is large enough to merit a separate
+	  driver from the common Intel ICH6 driver. It supports a total of
+	  95 GPIOs which can be configured from the device tree.
+
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM
