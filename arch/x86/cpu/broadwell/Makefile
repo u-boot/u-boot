@@ -13,3 +13,4 @@ obj-y += pinctrl_broadwell.o
 obj-y += power_state.o
 obj-y += refcode.o
 obj-y += sata.o
+obj-y += sdram.o
