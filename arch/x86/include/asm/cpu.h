@@ -260,4 +260,18 @@ void cpu_call32(ulong code_seg32, ulong target, ulong table);
  */
 int cpu_jump_to_64bit(ulong setup_base, ulong target);
 
+/**
+ * cpu_get_family_model() - Get the family and model for the CPU
+ *
+ * @return the CPU ID masked with 0x0fff0ff0
+ */
+u32 cpu_get_family_model(void);
+
+/**
+ * cpu_get_stepping() - Get the stepping value for the CPU
+ *
+ * @return the CPU ID masked with 0xf
+ */
+u32 cpu_get_stepping(void);
+
 #endif

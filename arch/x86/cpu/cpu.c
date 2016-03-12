@@ -333,6 +333,16 @@ static inline void get_fms(struct cpuinfo_x86 *c, uint32_t tfms)
 		c->x86_model += ((tfms >> 16) & 0xF) << 4;
 }
 
+u32 cpu_get_family_model(void)
+{
+	return gd->arch.x86_device & 0x0fff0ff0;
+}
+
+u32 cpu_get_stepping(void)
+{
+	return gd->arch.x86_mask;
+}
+
 int x86_cpu_init_f(void)
 {
 	const u32 em_rst = ~X86_CR0_EM;
