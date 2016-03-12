@@ -1,5 +1,7 @@
 /dts-v1/;
 
+#include <dt-bindings/gpio/x86-gpio.h>
+
 /include/ "skeleton.dtsi"
 /include/ "keyboard.dtsi"
 /include/ "serial.dtsi"
@@ -60,6 +62,159 @@
 
 	keyboard {
 		intel,duplicate-por;
+	};
+
+	pch_pinctrl {
+		compatible = "intel,x86-pinctrl";
+		u-boot,dm-pre-reloc;
+		reg = <0 0>;
+
+		gpio_a0 {
+			gpio-offset = <0 0>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_a1 {
+			gpio-offset = <0>;
+			mode-gpio;
+			direction = <PIN_OUTPUT>;
+			output-value = <1>;
+		};
+
+		gpio_a3 {
+			gpio-offset = <0 3>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_a5 {
+			gpio-offset = <0 5>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_a6 {
+			gpio-offset = <0 6>;
+			mode-gpio;
+			direction = <PIN_OUTPUT>;
+			output-value = <1>;
+		};
+
+		gpio_a7 {
+			gpio-offset = <0 7>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+			invert;
+		};
+
+		gpio_a8 {
+			gpio-offset = <0 8>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+			invert;
+		};
+
+		gpio_a9 {
+			gpio-offset = <0 9>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_a10 {
+			u-boot,dm-pre-reloc;
+			gpio-offset = <0 10>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_a11 {
+			gpio-offset = <0 11>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_a12 {
+			gpio-offset = <0 12>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+			invert;
+		};
+
+		gpio_a14 {
+			gpio-offset = <0 14>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+			invert;
+		};
+
+		gpio_a15 {
+			gpio-offset = <0 15>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+			invert;
+		};
+
+		gpio_a21 {
+			gpio-offset = <0 21>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_a24 {
+			gpio-offset = <0 24>;
+			mode-gpio;
+			output-value = <0>;
+			direction = <PIN_OUTPUT>;
+		};
+
+		gpio_a28 {
+			gpio-offset = <0 28>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_b4 {
+			gpio-offset = <0x30 4>;
+			mode-gpio;
+			direction = <PIN_OUTPUT>;
+			output-value = <1>;
+		};
+
+		gpio_b9 {
+			u-boot,dm-pre-reloc;
+			gpio-offset = <0x30 9>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_b10 {
+			u-boot,dm-pre-reloc;
+			gpio-offset = <0x30 10>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_b11 {
+			u-boot,dm-pre-reloc;
+			gpio-offset = <0x30 11>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_b25 {
+			gpio-offset = <0x30 25>;
+			mode-gpio;
+			direction = <PIN_INPUT>;
+		};
+
+		gpio_b28 {
+			gpio-offset = <0x30 28>;
+			mode-gpio;
+			direction = <PIN_OUTPUT>;
+			output-value = <1>;
+		};
+
 	};
 
 	pci {
