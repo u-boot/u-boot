@@ -9,8 +9,8 @@
 #include <common.h>
 #include <asm/cpu.h>
 #include <asm/pci.h>
+#include <asm/report_platform.h>
 #include <asm/arch/pch.h>
-#include <asm/arch/sandybridge.h>
 
 static void report_cpu_info(void)
 {

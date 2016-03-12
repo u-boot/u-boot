@@ -11,10 +11,8 @@ obj-y += cpu.o
 obj-y += early_me.o
 obj-y += gma.o
 obj-y += lpc.o
-obj-y += me_status.o
 obj-y += model_206ax.o
 obj-y += northbridge.o
-obj-y += report_platform.o
 obj-y += sata.o
 obj-y += sdram.o
 endif

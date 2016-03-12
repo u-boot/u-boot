@@ -7,6 +7,8 @@
 obj-$(CONFIG_HAVE_MRC) += car.o
 obj-y += cpu.o
 obj-y += lpc.o
+obj-$(CONFIG_HAVE_MRC) += me_status.o
 ifndef CONFIG_TARGET_EFI
 obj-y += microcode.o
 endif
+obj-$(CONFIG_HAVE_MRC) += report_platform.o

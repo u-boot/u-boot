@@ -27,6 +27,7 @@
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
+#include <asm/report_platform.h>
 #include <asm/arch/me.h>
 #include <asm/arch/pei_data.h>
 #include <asm/arch/pch.h>
@@ -384,7 +385,7 @@ int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
 	if (BASE_REV_SNB == done)
 		intel_early_me_init_done(dev, me_dev, ME_INIT_STATUS_SUCCESS);
 	else
-		intel_early_me_status(me_dev);
+		intel_me_status(me_dev);
 
 	post_system_agent_init(pei_data);
 	report_memory_config();

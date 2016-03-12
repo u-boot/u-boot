@@ -128,7 +128,14 @@ static const char *const me_progress_policy_values[] = {
 	[0x10] = "Required VSCC values for flash parts do not match",
 };
 
-void intel_me_status(struct me_hfs *hfs, struct me_gmes *gmes)
+
+/**
+ * _intel_me_status() - Check Intel Management Engine status
+ *
+ * struct hfs:	Firmware status
+ * struct gmes:	Management engine status
+ */
+static void _intel_me_status(struct me_hfs *hfs, struct me_gmes *gmes)
 {
 	/* Check Current States */
 	debug("ME: FW Partition Table      : %s\n",
@@ -192,4 +199,15 @@ void intel_me_status(struct me_hfs *hfs, struct me_gmes *gmes)
 		debug("Unknown 0x%02x", gmes->current_state);
 	}
 	debug("\n");
+}
+
+void intel_me_status(struct udevice *me_dev)
+{
+	struct me_hfs hfs;
+	struct me_gmes gmes;
+
+	pci_read_dword_ptr(me_dev, &hfs, PCI_ME_HFS);
+	pci_read_dword_ptr(me_dev, &gmes, PCI_ME_GMES);
+
+	_intel_me_status(&hfs, &gmes);
 }

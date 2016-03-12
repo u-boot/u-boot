@@ -113,8 +113,6 @@
  */
 int bridge_silicon_revision(struct udevice *dev);
 
-void report_platform_info(struct udevice *dev);
-
 void sandybridge_early_init(int chipset_type);
 
 #endif
