@@ -134,6 +134,10 @@ static int kbd_reset(int quirk)
 	    kbd_read(I8042_DATA_REG) != KBD_POR)
 		goto err;
 
+	if (kbd_write(I8042_DATA_REG, CMD_DRAIN_OUTPUT) ||
+	    kbd_read(I8042_DATA_REG) != KBD_ACK)
+		goto err;
+
 	/* set AT translation and disable irq */
 	config = kbd_cmd_read(CMD_RD_CONFIG);
 	if (config == -1)
