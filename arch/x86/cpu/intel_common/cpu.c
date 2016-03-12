@@ -102,8 +102,8 @@ int cpu_set_flex_ratio_to_tdp_nominal(void)
 	setbits_le32(RCB_REG(SOFT_RESET_CTRL), 1);
 
 	/* Issue warm reset, will be "CPU only" due to soft reset data */
-	outb(0x0, PORT_RESET);
-	outb(SYS_RST | RST_CPU, PORT_RESET);
+	outb(0x0, IO_PORT_RESET);
+	outb(SYS_RST | RST_CPU, IO_PORT_RESET);
 	cpu_hlt();
 
 	/* Not reached */

@@ -469,14 +469,14 @@ void  flush_cache(unsigned long dummy1, unsigned long dummy2)
 __weak void reset_cpu(ulong addr)
 {
 	/* Do a hard reset through the chipset's reset control register */
-	outb(SYS_RST | RST_CPU, PORT_RESET);
+	outb(SYS_RST | RST_CPU, IO_PORT_RESET);
 	for (;;)
 		cpu_hlt();
 }
 
 void x86_full_reset(void)
 {
-	outb(FULL_RST | SYS_RST | RST_CPU, PORT_RESET);
+	outb(FULL_RST | SYS_RST | RST_CPU, IO_PORT_RESET);
 }
 
 int dcache_status(void)
