@@ -332,8 +332,6 @@
 #define SPI_FREQ_SWSEQ	0x3893
 #define SPI_DESC_COMP0	0x38b0
 #define SPI_FREQ_WR_ERA	0x38b4
-#define SOFT_RESET_CTRL 0x38f4
-#define SOFT_RESET_DATA 0x38f8
 
 #define DIR_ROUTE(a, b, c, d) \
 		(((d) << DIR_IDR) | ((c) << DIR_ICR) | \
