@@ -19,6 +19,7 @@ in case of 'mode-gpio' property set:
 - direction         - (optional) this set the direction of the gpio.
 - pull-str          - (optional) this set the pull strength of the pin.
 - pull-assign       - (optional) this set the pull assignement (up/down) of the pin.
+- invert            - (optional) this input pin is inverted
 
 Example:
 

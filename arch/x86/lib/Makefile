@@ -23,6 +23,7 @@ obj-y += cmd_mtrr.o
 obj-y	+= northbridge-uclass.o
 obj-$(CONFIG_I8259_PIC) += i8259.o
 obj-$(CONFIG_I8254_TIMER) += i8254.o
+obj-y	+= pinctrl_ich6.o
 obj-y	+= pirq_routing.o
 obj-y	+= relocate.o
 obj-y += physmem.o
