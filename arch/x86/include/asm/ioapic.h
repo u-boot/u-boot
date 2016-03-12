@@ -39,4 +39,6 @@ u32 io_apic_read(u32 reg);
  */
 void io_apic_write(u32 reg, u32 val);
 
+void io_apic_set_id(int ioapic_id);
+
 #endif
