@@ -332,6 +332,9 @@ int device_probe(struct udevice *dev)
 	if (ret)
 		goto fail_uclass;
 
+	if (dev->parent && device_get_uclass_id(dev) == UCLASS_PINCTRL)
+		pinctrl_select_state(dev, "default");
+
 	return 0;
 fail_uclass:
 	if (device_remove(dev)) {
