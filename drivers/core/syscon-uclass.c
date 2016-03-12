@@ -38,6 +38,7 @@ int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp)
 	struct uclass *uc;
 	int ret;
 
+	*devp = NULL;
 	ret = uclass_get(UCLASS_SYSCON, &uc);
 	if (ret)
 		return ret;
