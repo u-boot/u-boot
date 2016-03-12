@@ -28,4 +28,16 @@
 #define PULL_STR_2K		0
 #define PULL_STR_20K	2
 
+#define ROUTE_SCI	0
+#define ROUTE_SMI	1
+
+#define OWNER_ACPI	0
+#define OWNER_GPIO	1
+
+#define PIRQ_APIC_MASK	0
+#define PIRQ_APIC_ROUTE	1
+
+#define TRIGGER_EDGE	0
+#define TRIGGER_LEVEL	1
+
 #endif
