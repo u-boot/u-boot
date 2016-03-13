@@ -14,7 +14,8 @@ import urllib2
 import bsettings
 import command
 
-PRIORITY_CALC = 0
+(PRIORITY_FULL_PREFIX, PRIORITY_PREFIX_GCC, PRIORITY_PREFIX_GCC_PATH,
+    PRIORITY_CALC) = range(4)
 
 # Simple class to collect links from a page
 class MyHTMLParser(HTMLParser):
@@ -152,11 +153,17 @@ class Toolchains:
 
     Public members:
         toolchains: Dict of Toolchain objects, keyed by architecture name
+        prefixes: Dict of prefixes to check, keyed by architecture. This can
+            be a full path and toolchain prefix, for example
+            {'x86', 'opt/i386-linux/bin/i386-linux-'}, or the name of
+            something on the search path, for example
+            {'arm', 'arm-linux-gnueabihf-'}. Wildcards are not supported.
         paths: List of paths to check for toolchains (may contain wildcards)
     """
 
     def __init__(self):
         self.toolchains = {}
+        self.prefixes = {}
         self.paths = []
         self._make_flags = dict(bsettings.GetItems('make-flags'))
 
@@ -182,6 +189,7 @@ class Toolchains:
         return paths
 
     def GetSettings(self):
+      self.prefixes = bsettings.GetItems('toolchain-prefix')
       self.paths += self.GetPathList()
 
     def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC,
@@ -228,6 +236,21 @@ class Toolchains:
                 fnames.append(fname)
         return fnames
 
+    def ScanPathEnv(self, fname):
+        """Scan the PATH environment variable for a given filename.
+
+        Args:
+            fname: Filename to scan for
+        Returns:
+            List of matching pathanames, or [] if none
+        """
+        pathname_list = []
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            pathname = os.path.join(path, fname)
+            if os.path.exists(pathname):
+                pathname_list.append(pathname)
+        return pathname_list
 
     def Scan(self, verbose):
         """Scan for available toolchains and select the best for each arch.
@@ -240,6 +263,21 @@ class Toolchains:
             verbose: True to print out progress information
         """
         if verbose: print 'Scanning for tool chains'
+        for name, value in self.prefixes:
+            if verbose: print "   - scanning prefix '%s'" % value
+            if os.path.exists(value):
+                self.Add(value, True, verbose, PRIORITY_FULL_PREFIX, name)
+                continue
+            fname = value + 'gcc'
+            if os.path.exists(fname):
+                self.Add(fname, True, verbose, PRIORITY_PREFIX_GCC, name)
+                continue
+            fname_list = self.ScanPathEnv(fname)
+            for f in fname_list:
+                self.Add(f, True, verbose, PRIORITY_PREFIX_GCC_PATH, name)
+            if not fname_list:
+                raise ValueError, ("No tool chain found for prefix '%s'" %
+                                   value)
         for path in self.paths:
             if verbose: print "   - scanning path '%s'" % path
             fnames = self.ScanPath(path, verbose)

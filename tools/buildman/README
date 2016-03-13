@@ -169,6 +169,28 @@ Make sure the tags (here root: rest: and eldk:) are unique.
 The toolchain-alias section indicates that the i386 toolchain should be used
 to build x86 commits.
 
+Note that you can also specific exactly toolchain prefixes if you like:
+
+[toolchain-prefix]
+arm: /opt/arm-eabi-4.6/bin/arm-eabi-
+
+or even:
+
+[toolchain-prefix]
+arm: /opt/arm-eabi-4.6/bin/arm-eabi-gcc
+
+This tells buildman that you want to use this exact toolchain for the arm
+architecture. This will override any toolchains found by searching using the
+[toolchain] settings.
+
+Since the toolchain prefix is an explicit request, buildman will report an
+error if a toolchain is not found with that prefix. The current PATH will be
+searched, so it is possible to use:
+
+[toolchain-prefix]
+arm: arm-none-eabi-
+
+and buildman will find arm-none-eabi-gcc in /usr/bin if you have it installed.
 
 3. Make sure you have the require Python pre-requisites
 
@@ -185,124 +207,180 @@ Run this check to make sure that you have a toolchain for every architecture.
 
 $ ./tools/buildman/buildman --list-tool-chains
 Scanning for tool chains
+   - scanning prefix '/opt/gcc-4.6.3-nolibc/x86_64-linux/bin/x86_64-linux-'
+Tool chain test:  OK, arch='x86', priority 1
+   - scanning prefix '/opt/arm-eabi-4.6/bin/arm-eabi-'
+Tool chain test:  OK, arch='arm', priority 1
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/i386-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/i386-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/i386-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/i386-linux/bin/i386-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/i386-linux/usr/bin'
+Tool chain test:  OK, arch='i386', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/aarch64-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/aarch64-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/aarch64-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/aarch64-linux/usr/bin'
+Tool chain test:  OK, arch='aarch64', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/microblaze-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/microblaze-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/microblaze-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/microblaze-linux/bin/microblaze-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/microblaze-linux/usr/bin'
+Tool chain test:  OK, arch='microblaze', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/mips64-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/mips64-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/mips64-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/mips64-linux/bin/mips64-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/mips64-linux/usr/bin'
+Tool chain test:  OK, arch='mips64', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/sparc64-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/sparc64-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/sparc64-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/sparc64-linux/bin/sparc64-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/sparc64-linux/usr/bin'
+Tool chain test:  OK, arch='sparc64', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/arm-unknown-linux-gnueabi'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/arm-unknown-linux-gnueabi/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/arm-unknown-linux-gnueabi/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/arm-unknown-linux-gnueabi/bin/arm-unknown-linux-gnueabi-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/arm-unknown-linux-gnueabi/usr/bin'
+Tool chain test:  OK, arch='arm', priority 3
+Toolchain '/toolchains/gcc-4.9.0-nolibc/arm-unknown-linux-gnueabi/bin/arm-unknown-linux-gnueabi-gcc' at priority 3 will be ignored because another toolchain for arch 'arm' has priority 1
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/sparc-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/sparc-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/sparc-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/sparc-linux/bin/sparc-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/sparc-linux/usr/bin'
+Tool chain test:  OK, arch='sparc', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/mips-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/mips-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/mips-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/mips-linux/bin/mips-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/mips-linux/usr/bin'
+Tool chain test:  OK, arch='mips', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/x86_64-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/x86_64-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-gcc'
+         - found '/toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-x86_64-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/x86_64-linux/usr/bin'
+Tool chain test:  OK, arch='x86_64', priority 4
+Tool chain test:  OK, arch='x86_64', priority 4
+Toolchain '/toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-x86_64-linux-gcc' at priority 4 will be ignored because another toolchain for arch 'x86_64' has priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/m68k-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/m68k-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/m68k-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/m68k-linux/bin/m68k-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/m68k-linux/usr/bin'
+Tool chain test:  OK, arch='m68k', priority 4
+   - scanning path '/toolchains/gcc-4.9.0-nolibc/powerpc-linux'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/.'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/bin'
+         - found '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/bin/powerpc-linux-gcc'
+      - looking in '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/usr/bin'
+Tool chain test:  OK, arch='powerpc', priority 4
+   - scanning path '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux/.'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux/bin'
+         - found '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux/bin/bfin-uclinux-gcc'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux/usr/bin'
+Tool chain test:  OK, arch='bfin', priority 6
+   - scanning path '/toolchains/gcc-4.6.3-nolibc/sparc-linux'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/sparc-linux/.'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/sparc-linux/bin'
+         - found '/toolchains/gcc-4.6.3-nolibc/sparc-linux/bin/sparc-linux-gcc'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/sparc-linux/usr/bin'
+Tool chain test:  OK, arch='sparc', priority 4
+Toolchain '/toolchains/gcc-4.6.3-nolibc/sparc-linux/bin/sparc-linux-gcc' at priority 4 will be ignored because another toolchain for arch 'sparc' has priority 4
+   - scanning path '/toolchains/gcc-4.6.3-nolibc/mips-linux'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/mips-linux/.'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/mips-linux/bin'
+         - found '/toolchains/gcc-4.6.3-nolibc/mips-linux/bin/mips-linux-gcc'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/mips-linux/usr/bin'
+Tool chain test:  OK, arch='mips', priority 4
+Toolchain '/toolchains/gcc-4.6.3-nolibc/mips-linux/bin/mips-linux-gcc' at priority 4 will be ignored because another toolchain for arch 'mips' has priority 4
+   - scanning path '/toolchains/gcc-4.6.3-nolibc/m68k-linux'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/m68k-linux/.'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin'
+         - found '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin/m68k-linux-gcc'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/m68k-linux/usr/bin'
+Tool chain test:  OK, arch='m68k', priority 4
+Toolchain '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin/m68k-linux-gcc' at priority 4 will be ignored because another toolchain for arch 'm68k' has priority 4
+   - scanning path '/toolchains/gcc-4.6.3-nolibc/powerpc-linux'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/.'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/bin'
+         - found '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/bin/powerpc-linux-gcc'
+      - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/usr/bin'
+Tool chain test:  OK, arch='powerpc', priority 4
+Tool chain test:  OK, arch='or32', priority 4
+   - scanning path '/toolchains/gcc-4.2.4-nolibc/avr32-linux'
+      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/.'
+      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/bin'
+         - found '/toolchains/gcc-4.2.4-nolibc/avr32-linux/bin/avr32-linux-gcc'
+      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/usr/bin'
+Tool chain test:  OK, arch='avr32', priority 4
    - scanning path '/'
       - looking in '/.'
       - looking in '/bin'
       - looking in '/usr/bin'
-         - found '/usr/bin/gcc'
-Tool chain test:  OK
+         - found '/usr/bin/i586-mingw32msvc-gcc'
          - found '/usr/bin/c89-gcc'
-Tool chain test:  OK
-         - found '/usr/bin/c99-gcc'
-Tool chain test:  OK
          - found '/usr/bin/x86_64-linux-gnu-gcc'
-Tool chain test:  OK
-   - scanning path '/toolchains/powerpc-linux'
-      - looking in '/toolchains/powerpc-linux/.'
-      - looking in '/toolchains/powerpc-linux/bin'
-         - found '/toolchains/powerpc-linux/bin/powerpc-linux-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/powerpc-linux/usr/bin'
-   - scanning path '/toolchains/nds32le-linux-glibc-v1f'
-      - looking in '/toolchains/nds32le-linux-glibc-v1f/.'
-      - looking in '/toolchains/nds32le-linux-glibc-v1f/bin'
-         - found '/toolchains/nds32le-linux-glibc-v1f/bin/nds32le-linux-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/nds32le-linux-glibc-v1f/usr/bin'
-   - scanning path '/toolchains/nios2'
-      - looking in '/toolchains/nios2/.'
-      - looking in '/toolchains/nios2/bin'
-         - found '/toolchains/nios2/bin/nios2-linux-gcc'
-Tool chain test:  OK
-         - found '/toolchains/nios2/bin/nios2-linux-uclibc-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/nios2/usr/bin'
-         - found '/toolchains/nios2/usr/bin/nios2-linux-gcc'
-Tool chain test:  OK
-         - found '/toolchains/nios2/usr/bin/nios2-linux-uclibc-gcc'
-Tool chain test:  OK
-   - scanning path '/toolchains/microblaze-unknown-linux-gnu'
-      - looking in '/toolchains/microblaze-unknown-linux-gnu/.'
-      - looking in '/toolchains/microblaze-unknown-linux-gnu/bin'
-         - found '/toolchains/microblaze-unknown-linux-gnu/bin/microblaze-unknown-linux-gnu-gcc'
-Tool chain test:  OK
-         - found '/toolchains/microblaze-unknown-linux-gnu/bin/mb-linux-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/microblaze-unknown-linux-gnu/usr/bin'
-   - scanning path '/toolchains/mips-linux'
-      - looking in '/toolchains/mips-linux/.'
-      - looking in '/toolchains/mips-linux/bin'
-         - found '/toolchains/mips-linux/bin/mips-linux-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/mips-linux/usr/bin'
-   - scanning path '/toolchains/old'
-      - looking in '/toolchains/old/.'
-      - looking in '/toolchains/old/bin'
-      - looking in '/toolchains/old/usr/bin'
-   - scanning path '/toolchains/i386-linux'
-      - looking in '/toolchains/i386-linux/.'
-      - looking in '/toolchains/i386-linux/bin'
-         - found '/toolchains/i386-linux/bin/i386-linux-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/i386-linux/usr/bin'
-   - scanning path '/toolchains/bfin-uclinux'
-      - looking in '/toolchains/bfin-uclinux/.'
-      - looking in '/toolchains/bfin-uclinux/bin'
-         - found '/toolchains/bfin-uclinux/bin/bfin-uclinux-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/bfin-uclinux/usr/bin'
-   - scanning path '/toolchains/sparc-elf'
-      - looking in '/toolchains/sparc-elf/.'
-      - looking in '/toolchains/sparc-elf/bin'
-         - found '/toolchains/sparc-elf/bin/sparc-elf-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/sparc-elf/usr/bin'
-   - scanning path '/toolchains/arm-2010q1'
-      - looking in '/toolchains/arm-2010q1/.'
-      - looking in '/toolchains/arm-2010q1/bin'
-         - found '/toolchains/arm-2010q1/bin/arm-none-linux-gnueabi-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/arm-2010q1/usr/bin'
-   - scanning path '/toolchains/from'
-      - looking in '/toolchains/from/.'
-      - looking in '/toolchains/from/bin'
-      - looking in '/toolchains/from/usr/bin'
-   - scanning path '/toolchains/sh4-gentoo-linux-gnu'
-      - looking in '/toolchains/sh4-gentoo-linux-gnu/.'
-      - looking in '/toolchains/sh4-gentoo-linux-gnu/bin'
-         - found '/toolchains/sh4-gentoo-linux-gnu/bin/sh4-gentoo-linux-gnu-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/sh4-gentoo-linux-gnu/usr/bin'
-   - scanning path '/toolchains/avr32-linux'
-      - looking in '/toolchains/avr32-linux/.'
-      - looking in '/toolchains/avr32-linux/bin'
-         - found '/toolchains/avr32-linux/bin/avr32-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/avr32-linux/usr/bin'
-   - scanning path '/toolchains/m68k-linux'
-      - looking in '/toolchains/m68k-linux/.'
-      - looking in '/toolchains/m68k-linux/bin'
-         - found '/toolchains/m68k-linux/bin/m68k-linux-gcc'
-Tool chain test:  OK
-      - looking in '/toolchains/m68k-linux/usr/bin'
-List of available toolchains (17):
-arm       : /toolchains/arm-2010q1/bin/arm-none-linux-gnueabi-gcc
-avr32     : /toolchains/avr32-linux/bin/avr32-gcc
-bfin      : /toolchains/bfin-uclinux/bin/bfin-uclinux-gcc
+         - found '/usr/bin/gcc'
+         - found '/usr/bin/c99-gcc'
+         - found '/usr/bin/arm-linux-gnueabi-gcc'
+         - found '/usr/bin/aarch64-linux-gnu-gcc'
+         - found '/usr/bin/winegcc'
+         - found '/usr/bin/arm-linux-gnueabihf-gcc'
+Tool chain test:  OK, arch='i586', priority 11
+Tool chain test:  OK, arch='c89', priority 11
+Tool chain test:  OK, arch='x86_64', priority 4
+Toolchain '/usr/bin/x86_64-linux-gnu-gcc' at priority 4 will be ignored because another toolchain for arch 'x86_64' has priority 4
+Tool chain test:  OK, arch='sandbox', priority 11
+Tool chain test:  OK, arch='c99', priority 11
+Tool chain test:  OK, arch='arm', priority 4
+Toolchain '/usr/bin/arm-linux-gnueabi-gcc' at priority 4 will be ignored because another toolchain for arch 'arm' has priority 1
+Tool chain test:  OK, arch='aarch64', priority 4
+Toolchain '/usr/bin/aarch64-linux-gnu-gcc' at priority 4 will be ignored because another toolchain for arch 'aarch64' has priority 4
+Tool chain test:  OK, arch='sandbox', priority 11
+Toolchain '/usr/bin/winegcc' at priority 11 will be ignored because another toolchain for arch 'sandbox' has priority 11
+Tool chain test:  OK, arch='arm', priority 4
+Toolchain '/usr/bin/arm-linux-gnueabihf-gcc' at priority 4 will be ignored because another toolchain for arch 'arm' has priority 1
+List of available toolchains (34):
+aarch64   : /toolchains/gcc-4.9.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc
+alpha     : /toolchains/gcc-4.9.0-nolibc/alpha-linux/bin/alpha-linux-gcc
+am33_2.0  : /toolchains/gcc-4.9.0-nolibc/am33_2.0-linux/bin/am33_2.0-linux-gcc
+arm       : /opt/arm-eabi-4.6/bin/arm-eabi-gcc
+avr32     : /toolchains/gcc-4.2.4-nolibc/avr32-linux/bin/avr32-linux-gcc
+bfin      : /toolchains/gcc-4.6.3-nolibc/bfin-uclinux/bin/bfin-uclinux-gcc
 c89       : /usr/bin/c89-gcc
 c99       : /usr/bin/c99-gcc
-i386      : /toolchains/i386-linux/bin/i386-linux-gcc
-m68k      : /toolchains/m68k-linux/bin/m68k-linux-gcc
-mb        : /toolchains/microblaze-unknown-linux-gnu/bin/mb-linux-gcc
-microblaze: /toolchains/microblaze-unknown-linux-gnu/bin/microblaze-unknown-linux-gnu-gcc
-mips      : /toolchains/mips-linux/bin/mips-linux-gcc
-nds32le   : /toolchains/nds32le-linux-glibc-v1f/bin/nds32le-linux-gcc
-nios2     : /toolchains/nios2/bin/nios2-linux-gcc
-powerpc   : /toolchains/powerpc-linux/bin/powerpc-linux-gcc
+frv       : /toolchains/gcc-4.9.0-nolibc/frv-linux/bin/frv-linux-gcc
+h8300     : /toolchains/gcc-4.9.0-nolibc/h8300-elf/bin/h8300-elf-gcc
+hppa      : /toolchains/gcc-4.9.0-nolibc/hppa-linux/bin/hppa-linux-gcc
+hppa64    : /toolchains/gcc-4.9.0-nolibc/hppa64-linux/bin/hppa64-linux-gcc
+i386      : /toolchains/gcc-4.9.0-nolibc/i386-linux/bin/i386-linux-gcc
+i586      : /usr/bin/i586-mingw32msvc-gcc
+ia64      : /toolchains/gcc-4.9.0-nolibc/ia64-linux/bin/ia64-linux-gcc
+m32r      : /toolchains/gcc-4.9.0-nolibc/m32r-linux/bin/m32r-linux-gcc
+m68k      : /toolchains/gcc-4.9.0-nolibc/m68k-linux/bin/m68k-linux-gcc
+microblaze: /toolchains/gcc-4.9.0-nolibc/microblaze-linux/bin/microblaze-linux-gcc
+mips      : /toolchains/gcc-4.9.0-nolibc/mips-linux/bin/mips-linux-gcc
+mips64    : /toolchains/gcc-4.9.0-nolibc/mips64-linux/bin/mips64-linux-gcc
+or32      : /toolchains/gcc-4.5.1-nolibc/or32-linux/bin/or32-linux-gcc
+powerpc   : /toolchains/gcc-4.9.0-nolibc/powerpc-linux/bin/powerpc-linux-gcc
+powerpc64 : /toolchains/gcc-4.9.0-nolibc/powerpc64-linux/bin/powerpc64-linux-gcc
+ppc64le   : /toolchains/gcc-4.9.0-nolibc/ppc64le-linux/bin/ppc64le-linux-gcc
+s390x     : /toolchains/gcc-4.9.0-nolibc/s390x-linux/bin/s390x-linux-gcc
 sandbox   : /usr/bin/gcc
-sh4       : /toolchains/sh4-gentoo-linux-gnu/bin/sh4-gentoo-linux-gnu-gcc
-sparc     : /toolchains/sparc-elf/bin/sparc-elf-gcc
-x86_64    : /usr/bin/x86_64-linux-gnu-gcc
+sh4       : /toolchains/gcc-4.6.3-nolibc/sh4-linux/bin/sh4-linux-gcc
+sparc     : /toolchains/gcc-4.9.0-nolibc/sparc-linux/bin/sparc-linux-gcc
+sparc64   : /toolchains/gcc-4.9.0-nolibc/sparc64-linux/bin/sparc64-linux-gcc
+tilegx    : /toolchains/gcc-4.6.2-nolibc/tilegx-linux/bin/tilegx-linux-gcc
+x86       : /opt/gcc-4.6.3-nolibc/x86_64-linux/bin/x86_64-linux-gcc
+x86_64    : /toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-gcc
 
 
 You can see that everything is covered, even some strange ones that won't
