@@ -44,6 +44,11 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
         cmd.append('-n%d' % count)
     if commit_range:
         cmd.append(commit_range)
+
+    # Add this in case we have a branch with the same name as a directory.
+    # This avoids messages like this, for example:
+    #   fatal: ambiguous argument 'test': both revision and filename
+    cmd.append('--')
     return cmd
 
 def CountCommitsToBranch():
