@@ -612,7 +612,8 @@ The full build output in this case is available in:
    err:  Output from stderr, if any. Errors and warnings appear here.
 
    log:  Output from stdout. Normally there isn't any since buildman runs
-         in silent mode for now.
+         in silent mode. Use -V to force a verbose build (this passes V=1
+         to 'make')
 
    toolchain: Shows information about the toolchain used for the build.
 
