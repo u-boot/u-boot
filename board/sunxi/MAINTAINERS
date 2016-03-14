@@ -55,6 +55,7 @@ F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
 F:	configs/orangepi_pc_defconfig
 F:	configs/orangepi_plus_defconfig
+F:	configs/polaroid_mid2809pxe04_defconfig
 F:	configs/q8_a23_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_1024x600_defconfig
