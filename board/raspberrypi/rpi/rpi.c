@@ -37,7 +37,7 @@ static const struct pl01x_serial_platdata serial_platdata = {
 	.base = 0x20201000,
 #endif
 	.type = TYPE_PL011,
-	.clock = 3000000,
+	.skip_init = true,
 };
 
 U_BOOT_DEVICE(bcm2835_serials) = {
