@@ -11,7 +11,8 @@
 #include <command.h>
 #include <cbfs.h>
 
-int do_cbfs_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_cbfs_init(cmd_tbl_t *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	uintptr_t end_of_rom = 0xffffffff;
 	char *ep;
@@ -44,7 +45,8 @@ U_BOOT_CMD(
 	"      CBFS is in. It defaults to 0xFFFFFFFF\n"
 );
 
-int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	const struct cbfs_cachenode *file;
 	unsigned long offset;
@@ -90,7 +92,8 @@ U_BOOT_CMD(
 	"    - load binary file 'filename' from the cbfs to address 'addr'\n"
 );
 
-int do_cbfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_cbfs_ls(cmd_tbl_t *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	const struct cbfs_cachenode *file = file_cbfs_get_first();
 	int files = 0;
@@ -168,7 +171,8 @@ U_BOOT_CMD(
 	"    - list the files in the cbfs\n"
 );
 
-int do_cbfs_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_cbfs_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	const struct cbfs_header *header = file_cbfs_get_header();
 
