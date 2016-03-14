@@ -713,7 +713,11 @@ struct dwc3 {
 	/* device lock */
 	spinlock_t		lock;
 
+#ifndef CONFIG_DM_USB
 	struct device		*dev;
+#else
+	struct udevice		*dev;
+#endif
 
 	struct platform_device	*xhci;
 	struct resource		xhci_resources[DWC3_XHCI_RESOURCES_NUM];
