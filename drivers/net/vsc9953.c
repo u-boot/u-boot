@@ -335,7 +335,7 @@ static int vsc9953_port_vlan_pvid_get(int port_nr, int *pvid)
 	struct vsc9953_analyzer *l2ana_reg;
 
 	/* Administrative down */
-	if (vsc9953_l2sw.port[port_nr].enabled) {
+	if (!vsc9953_l2sw.port[port_nr].enabled) {
 		printf("Port %d is administrative down\n", port_nr);
 		return -1;
 	}
