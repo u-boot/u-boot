@@ -23,7 +23,7 @@ struct display_plat {
 };
 
 /**
- * display_read_timing() - Read timing information from EDID
+ * display_read_timing() - Read timing information
  *
  * @dev:	Device to read from
  * @return 0 if OK, -ve on error
@@ -42,6 +42,15 @@ int display_enable(struct udevice *dev, int panel_bpp,
 		   const struct display_timing *timing);
 
 struct dm_display_ops {
+	/**
+	 * read_timing() - Read information directly
+	 *
+	 * @dev:	Device to read from
+	 * @timing:	Display timings
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*read_timing)(struct udevice *dev, struct display_timing *timing);
+
 	/**
 	 * read_edid() - Read information from EDID
 	 *
