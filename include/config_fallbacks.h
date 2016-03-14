@@ -97,4 +97,14 @@
 # endif
 #endif
 
+#ifndef CONFIG_CMDLINE
+#undef CONFIG_CMDLINE_EDITING
+#undef CONFIG_SYS_LONGHELP
+#undef CONFIG_CMD_BOOTD
+#undef CONFIG_CMD_RUN
+#undef CONFIG_SYS_HUSH_PARSER
+#undef CONFIG_CMD_ASKENV
+#undef CONFIG_MENU
+#endif
+
 #endif	/* __CONFIG_FALLBACKS_H */
