@@ -14,6 +14,9 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
+#ifndef CONFIG_CMDLINE
+	/DISCARD/ : { *(.u_boot_list_2_cmd_*) }
+#endif
 #if defined(CONFIG_ARMV7_SECURE_BASE) && defined(CONFIG_ARMV7_NONSEC)
 	/*
 	 * If CONFIG_ARMV7_SECURE_BASE is true, secure code will not

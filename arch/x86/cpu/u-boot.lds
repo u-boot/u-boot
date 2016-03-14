@@ -12,6 +12,10 @@ ENTRY(_start)
 
 SECTIONS
 {
+#ifndef CONFIG_CMDLINE
+	/DISCARD/ : { *(.u_boot_list_2_cmd_*) }
+#endif
+
 	. = CONFIG_SYS_TEXT_BASE;	/* Location of bootcode in flash */
 	__text_start = .;
 	.text  : { *(.text*); }
