@@ -1,8 +1,20 @@
 menu "Command line interface"
 
+config CMDLINE
+	bool "Support U-Boot commands"
+	default y
+	help
+	  Enable U-Boot's command-line functions. This provides a means
+	  to enter commands into U-Boot for a wide variety of purposes. It
+	  also allows scripts (containing commands) to be executed.
+	  Various commands and command categorys can be indivdually enabled.
+	  Depending on the number of commands enabled, this can add
+	  substantially to the size of U-Boot.
+
 config HUSH_PARSER
 	bool "Use hush shell"
 	select SYS_HUSH_PARSER
+	depends on CMDLINE
 	help
 	  This option enables the "hush" shell (from Busybox) as command line
 	  interpreter, thus enabling powerful command line syntax like

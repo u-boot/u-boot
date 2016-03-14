@@ -1108,6 +1108,14 @@ The following options need to be configured:
 
 		XXX - this list needs to get updated!
 
+- Removal of commands
+		If no commands are needed to boot, you can disable
+		CONFIG_CMDLINE to remove them. In this case, the command line
+		will not be available, and when U-Boot wants to execute the
+		boot command (on start-up) it will call board_run_command()
+		instead. This can reduce image size significantly for very
+		simple boot procedures.
+
 - Regular expression support:
 		CONFIG_REGEX
 		If this variable is defined, U-Boot is linked against
