@@ -337,8 +337,8 @@ int board_mmc_init(bd_t *bis)
 	if (!sunxi_mmc_has_egon_boot_signature(mmc0) &&
 	    sunxi_mmc_has_egon_boot_signature(mmc1)) {
 		/* Booting from emmc / mmc2, swap */
-		mmc0->block_dev.dev = 1;
-		mmc1->block_dev.dev = 0;
+		mmc0->block_dev.devnum = 1;
+		mmc1->block_dev.devnum = 0;
 	}
 #endif
 

@@ -19,7 +19,7 @@
 static int ums_read_sector(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf)
 {
-	block_dev_desc_t *block_dev = &ums_dev->block_dev;
+	struct blk_desc *block_dev = &ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 
 	return block_dev->block_read(block_dev, blkstart, blkcnt, buf);
@@ -28,7 +28,7 @@ static int ums_read_sector(struct ums *ums_dev,
 static int ums_write_sector(struct ums *ums_dev,
 			    ulong start, lbaint_t blkcnt, const void *buf)
 {
-	block_dev_desc_t *block_dev = &ums_dev->block_dev;
+	struct blk_desc *block_dev = &ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 
 	return block_dev->block_write(block_dev, blkstart, blkcnt, buf);
@@ -53,7 +53,7 @@ static void ums_fini(void)
 static int ums_init(const char *devtype, const char *devnums)
 {
 	char *s, *t, *devnum, *name;
-	block_dev_desc_t *block_dev;
+	struct blk_desc *block_dev;
 	int ret;
 	struct ums *ums_new;
 
@@ -69,7 +69,7 @@ static int ums_init(const char *devtype, const char *devnums)
 		if (!devnum)
 			break;
 
-		ret = get_device(devtype, devnum, &block_dev);
+		ret = blk_get_device_by_str(devtype, devnum, &block_dev);
 		if (ret < 0)
 			goto cleanup;
 
@@ -100,7 +100,7 @@ static int ums_init(const char *devtype, const char *devnums)
 		ums[ums_count].block_dev = *block_dev;
 
 		printf("UMS: LUN %d, dev %d, hwpart %d, sector %#x, count %#x\n",
-		       ums_count, ums[ums_count].block_dev.dev,
+		       ums_count, ums[ums_count].block_dev.devnum,
 		       ums[ums_count].block_dev.hwpart,
 		       ums[ums_count].start_sector,
 		       ums[ums_count].num_sectors);

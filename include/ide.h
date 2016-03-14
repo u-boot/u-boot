@@ -8,6 +8,8 @@
 #ifndef	_IDE_H
 #define _IDE_H
 
+#include <blk.h>
+
 #define IDE_BUS(dev)	(dev / (CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS))
 
 #define	ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
@@ -26,25 +28,15 @@ extern ulong ide_bus_offset[];
 void ide_led(uchar led, uchar status);
 #endif /* CONFIG_IDE_LED */
 
-#ifdef CONFIG_SYS_64BIT_LBA
-typedef uint64_t lbaint_t;
-#define LBAFlength "ll"
-#else
-typedef ulong lbaint_t;
-#define LBAFlength "l"
-#endif
-#define LBAF "%" LBAFlength "x"
-#define LBAFU "%" LBAFlength "u"
-
 /*
  * Function Prototypes
  */
 
 void ide_init(void);
-typedef struct block_dev_desc block_dev_desc_t;
-ulong ide_read(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+struct blk_desc;
+ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	       void *buffer);
-ulong ide_write(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
 
 #ifdef CONFIG_IDE_PREINIT

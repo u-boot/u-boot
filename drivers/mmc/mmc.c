@@ -182,7 +182,7 @@ struct mmc *find_mmc_device(int dev_num)
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
 
-		if (m->block_dev.dev == dev_num)
+		if (m->block_dev.devnum == dev_num)
 			return m;
 	}
 
@@ -234,10 +234,10 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	return blkcnt;
 }
 
-static ulong mmc_bread(block_dev_desc_t *block_dev, lbaint_t start,
+static ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start,
 		       lbaint_t blkcnt, void *dst)
 {
-	int dev_num = block_dev->dev;
+	int dev_num = block_dev->devnum;
 	int err;
 	lbaint_t cur, blocks_todo = blkcnt;
 
@@ -1495,7 +1495,7 @@ static int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.revision[0] = 0;
 #endif
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
-	init_part(&mmc->block_dev);
+	part_init(&mmc->block_dev);
 #endif
 
 	return 0;
@@ -1556,7 +1556,7 @@ struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 	mmc->dsr = 0xffffffff;
 	/* Setup the universal parts of the block interface just once */
 	mmc->block_dev.if_type = IF_TYPE_MMC;
-	mmc->block_dev.dev = cur_dev_num++;
+	mmc->block_dev.devnum = cur_dev_num++;
 	mmc->block_dev.removable = 1;
 	mmc->block_dev.block_read = mmc_bread;
 	mmc->block_dev.block_write = mmc_bwrite;
@@ -1579,7 +1579,7 @@ void mmc_destroy(struct mmc *mmc)
 }
 
 #ifdef CONFIG_PARTITIONS
-block_dev_desc_t *mmc_get_dev(int dev)
+struct blk_desc *mmc_get_dev(int dev)
 {
 	struct mmc *mmc = find_mmc_device(dev);
 	if (!mmc || mmc_init(mmc))
@@ -1728,7 +1728,7 @@ void print_mmc_devices(char separator)
 		else
 			mmc_type = NULL;
 
-		printf("%s: %d", m->cfg->name, m->block_dev.dev);
+		printf("%s: %d", m->cfg->name, m->block_dev.devnum);
 		if (mmc_type)
 			printf(" (%s)", mmc_type);
 

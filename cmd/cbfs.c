@@ -103,7 +103,7 @@ int do_cbfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	printf("     size              type  name\n");
 	printf("------------------------------------------\n");
 	while (file) {
-		u32 type = file_cbfs_type(file);
+		int type = file_cbfs_type(file);
 		char *type_name = NULL;
 		const char *filename = file_cbfs_name(file);
 
@@ -140,7 +140,8 @@ int do_cbfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case CBFS_COMPONENT_CMOS_LAYOUT:
 			type_name = "cmos layout";
 			break;
-		case -1UL:
+		case -1:
+		case 0:
 			type_name = "null";
 			break;
 		}

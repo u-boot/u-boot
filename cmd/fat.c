@@ -69,7 +69,7 @@ static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])
 {
 	int dev, part;
-	block_dev_desc_t *dev_desc;
+	struct blk_desc *dev_desc;
 	disk_partition_t info;
 
 	if (argc < 2) {
@@ -77,11 +77,11 @@ static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 0;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatinfo **\n",
 			argv[1], dev, part);
@@ -105,7 +105,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	int ret;
 	unsigned long addr;
 	unsigned long count;
-	block_dev_desc_t *dev_desc = NULL;
+	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 	int dev = 0;
 	int part = 1;
@@ -114,11 +114,11 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	if (argc < 5)
 		return cmd_usage(cmdtp);
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
+	part = blk_get_device_part_str(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	dev = dev_desc->devnum;
 
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatwrite **\n",

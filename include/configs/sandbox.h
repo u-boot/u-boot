@@ -43,6 +43,8 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
+#define CONFIG_CMD_CBFS
+#define CONFIG_CMD_CRAMFS
 #define CONFIG_CMD_PART
 #define CONFIG_DOS_PARTITION
 #define CONFIG_HOST_MAX_DEVICES 4
@@ -52,8 +54,11 @@
 
 #define CONFIG_CMD_GPT
 #define CONFIG_PARTITION_UUIDS
-#define CONFIG_EFI_PARTITION
+#define CONFIG_AMIGA_PARTITION
 #define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_ISO_PARTITION
+#define CONFIG_MAC_PARTITION
 
 /*
  * Size of malloc() pool, before and after relocation

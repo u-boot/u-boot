@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <config.h>
 #include <memalign.h>
 #include <ext4fs.h>
@@ -32,13 +33,13 @@
 
 lbaint_t part_offset;
 
-static block_dev_desc_t *ext4fs_block_dev_desc;
+static struct blk_desc *ext4fs_blk_desc;
 static disk_partition_t *part_info;
 
-void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
+void ext4fs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
 {
 	assert(rbdd->blksz == (1 << rbdd->log2blksz));
-	ext4fs_block_dev_desc = rbdd;
+	ext4fs_blk_desc = rbdd;
 	get_fs()->dev_desc = rbdd;
 	part_info = info;
 	part_offset = info->start;
@@ -49,11 +50,11 @@ void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
 int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 {
 	unsigned block_len;
-	int log2blksz = ext4fs_block_dev_desc->log2blksz;
-	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (ext4fs_block_dev_desc ?
-						 ext4fs_block_dev_desc->blksz :
+	int log2blksz = ext4fs_blk_desc->log2blksz;
+	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (ext4fs_blk_desc ?
+						 ext4fs_blk_desc->blksz :
 						 0));
-	if (ext4fs_block_dev_desc == NULL) {
+	if (ext4fs_blk_desc == NULL) {
 		printf("** Invalid Block Device Descriptor (NULL)\n");
 		return 0;
 	}
@@ -69,21 +70,19 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 
 	/* Get the read to the beginning of a partition */
 	sector += byte_offset >> log2blksz;
-	byte_offset &= ext4fs_block_dev_desc->blksz - 1;
+	byte_offset &= ext4fs_blk_desc->blksz - 1;
 
 	debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
 
 	if (byte_offset != 0) {
 		int readlen;
 		/* read first part which isn't aligned with start of sector */
-		if (ext4fs_block_dev_desc->block_read(ext4fs_block_dev_desc,
-						      part_info->start + sector,
-						      1, (void *)sec_buf)
-		    != 1) {
+		if (blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
+			      (void *)sec_buf) != 1) {
 			printf(" ** ext2fs_devread() read error **\n");
 			return 0;
 		}
-		readlen = min((int)ext4fs_block_dev_desc->blksz - byte_offset,
+		readlen = min((int)ext4fs_blk_desc->blksz - byte_offset,
 			      byte_len);
 		memcpy(buf, sec_buf + byte_offset, readlen);
 		buf += readlen;
@@ -95,38 +94,33 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 		return 1;
 
 	/* read sector aligned part */
-	block_len = byte_len & ~(ext4fs_block_dev_desc->blksz - 1);
+	block_len = byte_len & ~(ext4fs_blk_desc->blksz - 1);
 
 	if (block_len == 0) {
-		ALLOC_CACHE_ALIGN_BUFFER(u8, p, ext4fs_block_dev_desc->blksz);
+		ALLOC_CACHE_ALIGN_BUFFER(u8, p, ext4fs_blk_desc->blksz);
 
-		block_len = ext4fs_block_dev_desc->blksz;
-		ext4fs_block_dev_desc->block_read(ext4fs_block_dev_desc,
-						  part_info->start + sector,
-						  1, (void *)p);
+		block_len = ext4fs_blk_desc->blksz;
+		blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
+			  (void *)p);
 		memcpy(buf, p, byte_len);
 		return 1;
 	}
 
-	if (ext4fs_block_dev_desc->block_read(ext4fs_block_dev_desc,
-					      part_info->start + sector,
-					      block_len >> log2blksz,
-					      (void *)buf) !=
-					      block_len >> log2blksz) {
+	if (blk_dread(ext4fs_blk_desc, part_info->start + sector,
+		      block_len >> log2blksz, (void *)buf) !=
+			block_len >> log2blksz) {
 		printf(" ** %s read error - block\n", __func__);
 		return 0;
 	}
-	block_len = byte_len & ~(ext4fs_block_dev_desc->blksz - 1);
+	block_len = byte_len & ~(ext4fs_blk_desc->blksz - 1);
 	buf += block_len;
 	byte_len -= block_len;
-	sector += block_len / ext4fs_block_dev_desc->blksz;
+	sector += block_len / ext4fs_blk_desc->blksz;
 
 	if (byte_len != 0) {
 		/* read rest of data which are not in whole sector */
-		if (ext4fs_block_dev_desc->block_read(ext4fs_block_dev_desc,
-						      part_info->start + sector,
-						      1, (void *)sec_buf)
-		    != 1) {
+		if (blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
+			      (void *)sec_buf) != 1) {
 			printf("* %s read error - last part\n", __func__);
 			return 0;
 		}

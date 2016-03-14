@@ -30,11 +30,9 @@ int pci_get_bus(int busnum, struct udevice **busp)
 
 	/* Since buses may not be numbered yet try a little harder with bus 0 */
 	if (ret == -ENODEV) {
-		ret = uclass_first_device(UCLASS_PCI, busp);
+		ret = uclass_first_device_err(UCLASS_PCI, busp);
 		if (ret)
 			return ret;
-		else if (!*busp)
-			return -ENODEV;
 		ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, busp);
 	}
 

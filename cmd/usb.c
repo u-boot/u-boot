@@ -625,7 +625,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int i;
 	extern char usb_started;
 #ifdef CONFIG_USB_STORAGE
-	block_dev_desc_t *stor_dev;
+	struct blk_desc *stor_dev;
 #endif
 
 	if (argc < 2)
@@ -727,7 +727,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					if (devno)
 						printf("\n");
 					debug("print_part of %x\n", devno);
-					print_part(stor_dev);
+					part_print(stor_dev);
 				}
 			}
 		} else {
@@ -737,7 +737,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
 				debug("print_part of %x\n", devno);
-				print_part(stor_dev);
+				part_print(stor_dev);
 			}
 		}
 		if (!ok) {
@@ -759,8 +759,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("\nUSB read: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
 			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
-			n = stor_dev->block_read(stor_dev, blk, cnt,
-						 (ulong *)addr);
+			n = blk_dread(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks read: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
 			if (n == cnt)
@@ -781,8 +780,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("\nUSB write: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
 			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
-			n = stor_dev->block_write(stor_dev, blk, cnt,
-						(ulong *)addr);
+			n = blk_dwrite(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks write: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
 			if (n == cnt)

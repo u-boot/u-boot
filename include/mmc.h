@@ -376,7 +376,7 @@ struct mmc {
 	u64 capacity_gp[4];
 	u64 enh_user_start;
 	u64 enh_user_size;
-	block_dev_desc_t block_dev;
+	struct blk_desc block_dev;
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */

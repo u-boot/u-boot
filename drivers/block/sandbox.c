@@ -4,14 +4,20 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <config.h>
 #include <common.h>
+#include <blk.h>
+#include <dm.h>
+#include <fdtdec.h>
 #include <part.h>
 #include <os.h>
 #include <malloc.h>
 #include <sandboxblockdev.h>
 #include <asm/errno.h>
+#include <dm/device-internal.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifndef CONFIG_BLK
 static struct host_block_dev host_devices[CONFIG_HOST_MAX_DEVICES];
 
 static struct host_block_dev *find_host_device(int dev)
@@ -21,48 +27,130 @@ static struct host_block_dev *find_host_device(int dev)
 
 	return NULL;
 }
+#endif
 
-static unsigned long host_block_read(block_dev_desc_t *block_dev,
+#ifdef CONFIG_BLK
+static unsigned long host_block_read(struct udevice *dev,
 				     unsigned long start, lbaint_t blkcnt,
 				     void *buffer)
 {
-	int dev = block_dev->dev;
+	struct host_block_dev *host_dev = dev_get_priv(dev);
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+
+#else
+static unsigned long host_block_read(struct blk_desc *block_dev,
+				     unsigned long start, lbaint_t blkcnt,
+				     void *buffer)
+{
+	int dev = block_dev->devnum;
 	struct host_block_dev *host_dev = find_host_device(dev);
 
 	if (!host_dev)
 		return -1;
-	if (os_lseek(host_dev->fd,
-		     start * host_dev->blk_dev.blksz,
-		     OS_SEEK_SET) == -1) {
-		printf("ERROR: Invalid position\n");
+#endif
+
+	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
+			-1) {
+		printf("ERROR: Invalid block %lx\n", start);
 		return -1;
 	}
-	ssize_t len = os_read(host_dev->fd, buffer,
-			      blkcnt * host_dev->blk_dev.blksz);
+	ssize_t len = os_read(host_dev->fd, buffer, blkcnt * block_dev->blksz);
 	if (len >= 0)
-		return len / host_dev->blk_dev.blksz;
+		return len / block_dev->blksz;
 	return -1;
 }
 
-static unsigned long host_block_write(block_dev_desc_t *block_dev,
+#ifdef CONFIG_BLK
+static unsigned long host_block_write(struct udevice *dev,
 				      unsigned long start, lbaint_t blkcnt,
 				      const void *buffer)
 {
-	int dev = block_dev->dev;
+	struct host_block_dev *host_dev = dev_get_priv(dev);
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#else
+static unsigned long host_block_write(struct blk_desc *block_dev,
+				      unsigned long start, lbaint_t blkcnt,
+				      const void *buffer)
+{
+	int dev = block_dev->devnum;
 	struct host_block_dev *host_dev = find_host_device(dev);
-	if (os_lseek(host_dev->fd,
-		     start * host_dev->blk_dev.blksz,
-		     OS_SEEK_SET) == -1) {
-		printf("ERROR: Invalid position\n");
+#endif
+
+	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
+			-1) {
+		printf("ERROR: Invalid block %lx\n", start);
 		return -1;
 	}
-	ssize_t len = os_write(host_dev->fd, buffer, blkcnt *
-			       host_dev->blk_dev.blksz);
+	ssize_t len = os_write(host_dev->fd, buffer, blkcnt * block_dev->blksz);
 	if (len >= 0)
-		return len / host_dev->blk_dev.blksz;
+		return len / block_dev->blksz;
 	return -1;
 }
 
+#ifdef CONFIG_BLK
+int host_dev_bind(int devnum, char *filename)
+{
+	struct host_block_dev *host_dev;
+	struct udevice *dev;
+	char dev_name[20], *str, *fname;
+	int ret, fd;
+
+	/* Remove and unbind the old device, if any */
+	ret = blk_get_device(IF_TYPE_HOST, devnum, &dev);
+	if (ret == 0) {
+		ret = device_remove(dev);
+		if (ret)
+			return ret;
+		ret = device_unbind(dev);
+		if (ret)
+			return ret;
+	} else if (ret != -ENODEV) {
+		return ret;
+	}
+
+	if (!filename)
+		return 0;
+
+	snprintf(dev_name, sizeof(dev_name), "host%d", devnum);
+	str = strdup(dev_name);
+	if (!str)
+		return -ENOMEM;
+	fname = strdup(filename);
+	if (!fname) {
+		free(str);
+		return -ENOMEM;
+	}
+
+	fd = os_open(filename, OS_O_RDWR);
+	if (fd == -1) {
+		printf("Failed to access host backing file '%s'\n", filename);
+		ret = -ENOENT;
+		goto err;
+	}
+	ret = blk_create_device(gd->dm_root, "sandbox_host_blk", str,
+				IF_TYPE_HOST, devnum, 512,
+				os_lseek(fd, 0, OS_SEEK_END), &dev);
+	if (ret)
+		goto err_file;
+	ret = device_probe(dev);
+	if (ret) {
+		device_unbind(dev);
+		goto err_file;
+	}
+
+	host_dev = dev_get_priv(dev);
+	host_dev->fd = fd;
+	host_dev->filename = fname;
+
+	return blk_prepare_device(dev);
+err_file:
+	os_close(fd);
+err:
+	free(fname);
+	free(str);
+	return ret;
+}
+#else
 int host_dev_bind(int dev, char *filename)
 {
 	struct host_block_dev *host_dev = find_host_device(dev);
@@ -89,23 +177,33 @@ int host_dev_bind(int dev, char *filename)
 		return 1;
 	}
 
-	block_dev_desc_t *blk_dev = &host_dev->blk_dev;
+	struct blk_desc *blk_dev = &host_dev->blk_dev;
 	blk_dev->if_type = IF_TYPE_HOST;
 	blk_dev->priv = host_dev;
 	blk_dev->blksz = 512;
 	blk_dev->lba = os_lseek(host_dev->fd, 0, OS_SEEK_END) / blk_dev->blksz;
 	blk_dev->block_read = host_block_read;
 	blk_dev->block_write = host_block_write;
-	blk_dev->dev = dev;
+	blk_dev->devnum = dev;
 	blk_dev->part_type = PART_TYPE_UNKNOWN;
-	init_part(blk_dev);
+	part_init(blk_dev);
 
 	return 0;
 }
+#endif
 
-int host_get_dev_err(int dev, block_dev_desc_t **blk_devp)
+int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 {
-	struct host_block_dev *host_dev = find_host_device(dev);
+#ifdef CONFIG_BLK
+	struct udevice *dev;
+	int ret;
+
+	ret = blk_get_device(IF_TYPE_HOST, devnum, &dev);
+	if (ret)
+		return ret;
+	*blk_devp = dev_get_uclass_platdata(dev);
+#else
+	struct host_block_dev *host_dev = find_host_device(devnum);
 
 	if (!host_dev)
 		return -ENODEV;
@@ -114,15 +212,31 @@ int host_get_dev_err(int dev, block_dev_desc_t **blk_devp)
 		return -ENOENT;
 
 	*blk_devp = &host_dev->blk_dev;
+#endif
+
 	return 0;
 }
 
-block_dev_desc_t *host_get_dev(int dev)
+struct blk_desc *host_get_dev(int dev)
 {
-	block_dev_desc_t *blk_dev;
+	struct blk_desc *blk_dev;
 
 	if (host_get_dev_err(dev, &blk_dev))
 		return NULL;
 
 	return blk_dev;
 }
+
+#ifdef CONFIG_BLK
+static const struct blk_ops sandbox_host_blk_ops = {
+	.read	= host_block_read,
+	.write	= host_block_write,
+};
+
+U_BOOT_DRIVER(sandbox_host_blk) = {
+	.name		= "sandbox_host_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &sandbox_host_blk_ops,
+	.priv_auto_alloc_size	= sizeof(struct host_block_dev),
+};
+#endif

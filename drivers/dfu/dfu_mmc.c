@@ -351,11 +351,11 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 
 	} else if (!strcmp(entity_type, "part")) {
 		disk_partition_t partinfo;
-		block_dev_desc_t *blk_dev = &mmc->block_dev;
+		struct blk_desc *blk_dev = &mmc->block_dev;
 		int mmcdev = second_arg;
 		int mmcpart = third_arg;
 
-		if (get_partition_info(blk_dev, mmcpart, &partinfo) != 0) {
+		if (part_get_info(blk_dev, mmcpart, &partinfo) != 0) {
 			error("Couldn't find part #%d on mmc device #%d\n",
 			      mmcpart, mmcdev);
 			return -ENODEV;

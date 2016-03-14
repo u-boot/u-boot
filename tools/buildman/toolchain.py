@@ -14,6 +14,8 @@ import urllib2
 import bsettings
 import command
 
+PRIORITY_CALC = 0
+
 # Simple class to collect links from a page
 class MyHTMLParser(HTMLParser):
     def __init__(self, arch):
@@ -50,13 +52,18 @@ class Toolchain:
         cross: Cross compile string, e.g. 'arm-linux-'
         arch: Architecture of toolchain as determined from the first
                 component of the filename. E.g. arm-linux-gcc becomes arm
+        priority: Toolchain priority (0=highest, 20=lowest)
     """
-    def __init__(self, fname, test, verbose=False):
+    def __init__(self, fname, test, verbose=False, priority=PRIORITY_CALC,
+                 arch=None):
         """Create a new toolchain object.
 
         Args:
             fname: Filename of the gcc component
             test: True to run the toolchain to test it
+            verbose: True to print out the information
+            priority: Priority to use for this toolchain, or PRIORITY_CALC to
+                calculate it
         """
         self.gcc = fname
         self.path = os.path.dirname(fname)
@@ -69,12 +76,19 @@ class Toolchain:
 
         # The architecture is the first part of the name
         pos = self.cross.find('-')
-        self.arch = self.cross[:pos] if pos != -1 else 'sandbox'
+        if arch:
+            self.arch = arch
+        else:
+            self.arch = self.cross[:pos] if pos != -1 else 'sandbox'
 
         env = self.MakeEnvironment(False)
 
         # As a basic sanity check, run the C compiler with --version
         cmd = [fname, '--version']
+        if priority == PRIORITY_CALC:
+            self.priority = self.GetPriority(fname)
+        else:
+            self.priority = priority
         if test:
             result = command.RunPipe([cmd], capture=True, env=env,
                                      raise_on_error=False)
@@ -82,7 +96,8 @@ class Toolchain:
             if verbose:
                 print 'Tool chain test: ',
                 if self.ok:
-                    print 'OK'
+                    print "OK, arch='%s', priority %d" % (self.arch,
+                                                          self.priority)
                 else:
                     print 'BAD'
                     print 'Command: ', cmd
@@ -90,7 +105,6 @@ class Toolchain:
                     print result.stderr
         else:
             self.ok = True
-        self.priority = self.GetPriority(fname)
 
     def GetPriority(self, fname):
         """Return the priority of the toolchain.
@@ -101,15 +115,15 @@ class Toolchain:
         Args:
             fname: Filename of toolchain
         Returns:
-            Priority of toolchain, 0=highest, 20=lowest.
+            Priority of toolchain, PRIORITY_CALC=highest, 20=lowest.
         """
         priority_list = ['-elf', '-unknown-linux-gnu', '-linux',
             '-none-linux-gnueabi', '-uclinux', '-none-eabi',
             '-gentoo-linux-gnu', '-linux-gnueabi', '-le-linux', '-uclinux']
         for prio in range(len(priority_list)):
             if priority_list[prio] in fname:
-                return prio
-        return prio
+                return PRIORITY_CALC + prio
+        return PRIORITY_CALC + prio
 
     def MakeEnvironment(self, full_path):
         """Returns an environment for using the toolchain.
@@ -155,8 +169,8 @@ class Toolchains:
         """
         toolchains = bsettings.GetItems('toolchain')
         if not toolchains:
-            print ("Warning: No tool chains - please add a [toolchain] section"
-                 " to your buildman config file %s. See README for details" %
+            print ('Warning: No tool chains - please add a [toolchain] section'
+                 ' to your buildman config file %s. See README for details' %
                  bsettings.config_fname)
 
         paths = []
@@ -170,7 +184,8 @@ class Toolchains:
     def GetSettings(self):
       self.paths += self.GetPathList()
 
-    def Add(self, fname, test=True, verbose=False):
+    def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC,
+            arch=None):
         """Add a toolchain to our list
 
         We select the given toolchain as our preferred one for its
@@ -179,14 +194,21 @@ class Toolchains:
         Args:
             fname: Filename of toolchain's gcc driver
             test: True to run the toolchain to test it
+            priority: Priority to use for this toolchain
+            arch: Toolchain architecture, or None if not known
         """
-        toolchain = Toolchain(fname, test, verbose)
+        toolchain = Toolchain(fname, test, verbose, priority, arch)
         add_it = toolchain.ok
         if toolchain.arch in self.toolchains:
             add_it = (toolchain.priority <
                         self.toolchains[toolchain.arch].priority)
         if add_it:
             self.toolchains[toolchain.arch] = toolchain
+        elif verbose:
+            print ("Toolchain '%s' at priority %d will be ignored because "
+                   "another toolchain for arch '%s' has priority %d" %
+                   (toolchain.gcc, toolchain.priority, toolchain.arch,
+                    self.toolchains[toolchain.arch].priority))
 
     def ScanPath(self, path, verbose):
         """Scan a path for a valid toolchain
@@ -367,14 +389,14 @@ class Toolchains:
                 Full path to the downloaded archive file in that directory,
                     or None if there was an error while downloading
         """
-        print "Downloading: %s" % url
+        print 'Downloading: %s' % url
         leaf = url.split('/')[-1]
         tmpdir = tempfile.mkdtemp('.buildman')
         response = urllib2.urlopen(url)
         fname = os.path.join(tmpdir, leaf)
         fd = open(fname, 'wb')
         meta = response.info()
-        size = int(meta.getheaders("Content-Length")[0])
+        size = int(meta.getheaders('Content-Length')[0])
         done = 0
         block_size = 1 << 16
         status = ''
@@ -388,7 +410,7 @@ class Toolchains:
 
             done += len(buffer)
             fd.write(buffer)
-            status = r"%10d MiB  [%3d%%]" % (done / 1024 / 1024,
+            status = r'%10d MiB  [%3d%%]' % (done / 1024 / 1024,
                                              done * 100 / size)
             status = status + chr(8) * (len(status) + 1)
             print status,

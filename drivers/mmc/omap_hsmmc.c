@@ -177,11 +177,11 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 
 #if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
 	/* PBIAS config needed for MMC1 only */
-	if (mmc->block_dev.dev == 0)
+	if (mmc->block_dev.devnum == 0)
 		omap4_vmmc_pbias_config(mmc);
 #endif
 #if defined(CONFIG_OMAP54XX) && defined(CONFIG_PALMAS_POWER)
-	if (mmc->block_dev.dev == 0)
+	if (mmc->block_dev.devnum == 0)
 		omap5_pbias_config(mmc);
 #endif
 

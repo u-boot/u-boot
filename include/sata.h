@@ -14,6 +14,6 @@ int sata_stop(void);
 int __sata_stop(void);
 int sata_port_status(int dev, int port);
 
-extern block_dev_desc_t sata_dev_desc[];
+extern struct blk_desc sata_dev_desc[];
 
 #endif

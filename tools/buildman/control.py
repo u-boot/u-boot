@@ -101,7 +101,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         pager = os.getenv('PAGER')
         if not pager:
             pager = 'more'
-        fname = os.path.join(os.path.dirname(sys.argv[0]), 'README')
+        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                             'README')
         command.Run(pager, fname)
         return 0
 

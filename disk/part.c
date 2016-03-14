@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <ide.h>
 #include <malloc.h>
 #include <part.h>
@@ -22,7 +23,7 @@
 
 struct block_drvr {
 	char *name;
-	block_dev_desc_t* (*get_dev)(int dev);
+	struct blk_desc* (*get_dev)(int dev);
 	int (*select_hwpart)(int dev_num, int hwpart);
 };
 
@@ -58,10 +59,26 @@ static const struct block_drvr block_drvr[] = {
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef HAVE_BLOCK_DEVICE
-static block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
+static struct part_driver *part_driver_lookup_type(int part_type)
+{
+	struct part_driver *drv =
+		ll_entry_start(struct part_driver, part_driver);
+	const int n_ents = ll_entry_count(struct part_driver, part_driver);
+	struct part_driver *entry;
+
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		if (part_type == entry->part_type)
+			return entry;
+	}
+
+	/* Not found */
+	return NULL;
+}
+
+static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	const struct block_drvr *drvr = block_drvr;
-	block_dev_desc_t* (*reloc_get_dev)(int dev);
+	struct blk_desc* (*reloc_get_dev)(int dev);
 	int (*select_hwpart)(int dev_num, int hwpart);
 	char *name;
 	int ret;
@@ -84,14 +101,14 @@ static block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 			select_hwpart += gd->reloc_off;
 #endif
 		if (strncmp(ifname, name, strlen(name)) == 0) {
-			block_dev_desc_t *dev_desc = reloc_get_dev(dev);
+			struct blk_desc *dev_desc = reloc_get_dev(dev);
 			if (!dev_desc)
 				return NULL;
 			if (hwpart == 0 && !select_hwpart)
 				return dev_desc;
 			if (!select_hwpart)
 				return NULL;
-			ret = select_hwpart(dev_desc->dev, hwpart);
+			ret = select_hwpart(dev_desc->devnum, hwpart);
 			if (ret < 0)
 				return NULL;
 			return dev_desc;
@@ -101,17 +118,17 @@ static block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 	return NULL;
 }
 
-block_dev_desc_t *get_dev(const char *ifname, int dev)
+struct blk_desc *blk_get_dev(const char *ifname, int dev)
 {
 	return get_dev_hwpart(ifname, dev, 0);
 }
 #else
-block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
+struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	return NULL;
 }
 
-block_dev_desc_t *get_dev(const char *ifname, int dev)
+struct blk_desc *blk_get_dev(const char *ifname, int dev)
 {
 	return NULL;
 }
@@ -144,7 +161,7 @@ static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, lba512_t di
 	return bc_quot * mul_by + (bc_rem * mul_by) / div_by;
 }
 
-void dev_print (block_dev_desc_t *dev_desc)
+void dev_print (struct blk_desc *dev_desc)
 {
 	lba512_t lba512; /* number of blocks if 512bytes block size */
 
@@ -250,55 +267,33 @@ void dev_print (block_dev_desc_t *dev_desc)
 
 #ifdef HAVE_BLOCK_DEVICE
 
-void init_part(block_dev_desc_t *dev_desc)
+void part_init(struct blk_desc *dev_desc)
 {
-#ifdef CONFIG_ISO_PARTITION
-	if (test_part_iso(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_ISO;
-		return;
-	}
-#endif
+	struct part_driver *drv =
+		ll_entry_start(struct part_driver, part_driver);
+	const int n_ents = ll_entry_count(struct part_driver, part_driver);
+	struct part_driver *entry;
 
-#ifdef CONFIG_MAC_PARTITION
-	if (test_part_mac(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_MAC;
-		return;
-	}
-#endif
-
-/* must be placed before DOS partition detection */
-#ifdef CONFIG_EFI_PARTITION
-	if (test_part_efi(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_EFI;
-		return;
-	}
-#endif
-
-#ifdef CONFIG_DOS_PARTITION
-	if (test_part_dos(dev_desc) == 0) {
-		dev_desc->part_type = PART_TYPE_DOS;
-		return;
-	}
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	if (test_part_amiga(dev_desc) == 0) {
-	    dev_desc->part_type = PART_TYPE_AMIGA;
-	    return;
-	}
-#endif
 	dev_desc->part_type = PART_TYPE_UNKNOWN;
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		int ret;
+
+		ret = entry->test(dev_desc);
+		debug("%s: try '%s': ret=%d\n", __func__, entry->name, ret);
+		if (!ret) {
+			dev_desc->part_type = entry->part_type;
+			break;
+		}
+	}
 }
 
-
+static void print_part_header(const char *type, struct blk_desc *dev_desc)
+{
 #if defined(CONFIG_MAC_PARTITION) || \
 	defined(CONFIG_DOS_PARTITION) || \
 	defined(CONFIG_ISO_PARTITION) || \
 	defined(CONFIG_AMIGA_PARTITION) || \
 	defined(CONFIG_EFI_PARTITION)
-
-static void print_part_header(const char *type, block_dev_desc_t *dev_desc)
-{
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
 	case IF_TYPE_IDE:
@@ -330,63 +325,34 @@ static void print_part_header(const char *type, block_dev_desc_t *dev_desc)
 		break;
 	}
 	printf (" device %d  --   Partition Type: %s\n\n",
-			dev_desc->dev, type);
+			dev_desc->devnum, type);
+#endif /* any CONFIG_..._PARTITION */
 }
 
-#endif /* any CONFIG_..._PARTITION */
-
-void print_part(block_dev_desc_t * dev_desc)
+void part_print(struct blk_desc *dev_desc)
 {
+	struct part_driver *drv;
 
-		switch (dev_desc->part_type) {
-#ifdef CONFIG_MAC_PARTITION
-	case PART_TYPE_MAC:
-		PRINTF ("## Testing for valid MAC partition ##\n");
-		print_part_header ("MAC", dev_desc);
-		print_part_mac (dev_desc);
+	drv = part_driver_lookup_type(dev_desc->part_type);
+	if (!drv) {
+		printf("## Unknown partition table type %x\n",
+		       dev_desc->part_type);
 		return;
-#endif
-#ifdef CONFIG_DOS_PARTITION
-	case PART_TYPE_DOS:
-		PRINTF ("## Testing for valid DOS partition ##\n");
-		print_part_header ("DOS", dev_desc);
-		print_part_dos (dev_desc);
-		return;
-#endif
-
-#ifdef CONFIG_ISO_PARTITION
-	case PART_TYPE_ISO:
-		PRINTF ("## Testing for valid ISO Boot partition ##\n");
-		print_part_header ("ISO", dev_desc);
-		print_part_iso (dev_desc);
-		return;
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	case PART_TYPE_AMIGA:
-	    PRINTF ("## Testing for a valid Amiga partition ##\n");
-	    print_part_header ("AMIGA", dev_desc);
-	    print_part_amiga (dev_desc);
-	    return;
-#endif
-
-#ifdef CONFIG_EFI_PARTITION
-	case PART_TYPE_EFI:
-		PRINTF ("## Testing for valid EFI partition ##\n");
-		print_part_header ("EFI", dev_desc);
-		print_part_efi (dev_desc);
-		return;
-#endif
 	}
-	puts ("## Unknown partition table\n");
+
+	PRINTF("## Testing for valid %s partition ##\n", drv->name);
+	print_part_header(drv->name, dev_desc);
+	if (drv->print)
+		drv->print(dev_desc);
 }
 
 #endif /* HAVE_BLOCK_DEVICE */
 
-int get_partition_info(block_dev_desc_t *dev_desc, int part,
+int part_get_info(struct blk_desc *dev_desc, int part,
 		       disk_partition_t *info)
 {
 #ifdef HAVE_BLOCK_DEVICE
+	struct part_driver *drv;
 
 #ifdef CONFIG_PARTITION_UUIDS
 	/* The common case is no UUID support */
@@ -396,61 +362,27 @@ int get_partition_info(block_dev_desc_t *dev_desc, int part,
 	info->type_guid[0] = 0;
 #endif
 
-	switch (dev_desc->part_type) {
-#ifdef CONFIG_MAC_PARTITION
-	case PART_TYPE_MAC:
-		if (get_partition_info_mac(dev_desc, part, info) == 0) {
-			PRINTF("## Valid MAC partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_DOS_PARTITION
-	case PART_TYPE_DOS:
-		if (get_partition_info_dos(dev_desc, part, info) == 0) {
-			PRINTF("## Valid DOS partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_ISO_PARTITION
-	case PART_TYPE_ISO:
-		if (get_partition_info_iso(dev_desc, part, info) == 0) {
-			PRINTF("## Valid ISO boot partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	case PART_TYPE_AMIGA:
-		if (get_partition_info_amiga(dev_desc, part, info) == 0) {
-			PRINTF("## Valid Amiga partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-
-#ifdef CONFIG_EFI_PARTITION
-	case PART_TYPE_EFI:
-		if (get_partition_info_efi(dev_desc, part, info) == 0) {
-			PRINTF("## Valid EFI partition found ##\n");
-			return 0;
-		}
-		break;
-#endif
-	default:
-		break;
+	drv = part_driver_lookup_type(dev_desc->part_type);
+	if (!drv) {
+		debug("## Unknown partition table type %x\n",
+		      dev_desc->part_type);
+		return -EPROTONOSUPPORT;
+	}
+	if (!drv->get_info) {
+		PRINTF("## Driver %s does not have the get_info() method\n");
+		return -ENOSYS;
+	}
+	if (drv->get_info(dev_desc, part, info) == 0) {
+		PRINTF("## Valid %s partition found ##\n", drv->name);
+		return 0;
 	}
 #endif /* HAVE_BLOCK_DEVICE */
 
 	return -1;
 }
 
-int get_device(const char *ifname, const char *dev_hwpart_str,
-	       block_dev_desc_t **dev_desc)
+int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
+			  struct blk_desc **dev_desc)
 {
 	char *ep;
 	char *dup_str = NULL;
@@ -500,7 +432,7 @@ int get_device(const char *ifname, const char *dev_hwpart_str,
 	 * already loaded.
 	 */
 	if(hwpart != 0)
-		init_part(*dev_desc);
+		part_init(*dev_desc);
 #endif
 
 cleanup:
@@ -511,8 +443,8 @@ cleanup:
 #define PART_UNSPECIFIED -2
 #define PART_AUTO -1
 #define MAX_SEARCH_PARTITIONS 16
-int get_device_and_partition(const char *ifname, const char *dev_part_str,
-			     block_dev_desc_t **dev_desc,
+int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
+			     struct blk_desc **dev_desc,
 			     disk_partition_t *info, int allow_whole_dev)
 {
 	int ret = -1;
@@ -524,10 +456,6 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	int p;
 	int part;
 	disk_partition_t tmpinfo;
-
-#if defined CONFIG_SANDBOX && defined CONFIG_CMD_UBIFS
-#error Only one of CONFIG_SANDBOX and CONFIG_CMD_UBIFS may be selected
-#endif
 
 #ifdef CONFIG_SANDBOX
 	/*
@@ -598,7 +526,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	}
 
 	/* Look up the device */
-	dev = get_device(ifname, dev_str, dev_desc);
+	dev = blk_get_device_by_str(ifname, dev_str, dev_desc);
 	if (dev < 0)
 		goto cleanup;
 
@@ -675,7 +603,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	 * other than "auto", use that partition number directly.
 	 */
 	if (part != PART_AUTO) {
-		ret = get_partition_info(*dev_desc, part, info);
+		ret = part_get_info(*dev_desc, part, info);
 		if (ret) {
 			printf("** Invalid partition %d **\n", part);
 			goto cleanup;
@@ -687,7 +615,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 		 */
 		part = 0;
 		for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
-			ret = get_partition_info(*dev_desc, p, info);
+			ret = part_get_info(*dev_desc, p, info);
 			if (ret)
 				continue;
 

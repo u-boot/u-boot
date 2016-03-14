@@ -1,3 +1,14 @@
+config BLK
+	bool "Support block devices"
+	depends on DM
+	help
+	  Enable support for block devices, such as SCSI, MMC and USB
+	  flash sticks. These provide a block-level interface which permits
+	  reading, writing and (in some cases) erasing blocks. Block
+	  devices often have a partition table which allows the device to
+	  be partitioned into several areas, called 'partitions' in U-Boot.
+	  A filesystem can be placed in each partition.
+
 config DISK
 	bool "Support disk controllers with driver model"
 	depends on DM

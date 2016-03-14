@@ -103,10 +103,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 
 	int i;
 
-	block_dev_desc_t *dd;
+	struct blk_desc *dd;
 
 	if (first) {
-		di->cookie = (void *)get_dev(specs[type].name, 0);
+		di->cookie = (void *)blk_get_dev(specs[type].name, 0);
 		if (di->cookie == NULL)
 			return 0;
 		else
@@ -119,7 +119,8 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 
 	} else {
 		for (i = 0; i < specs[type].max_dev; i++)
-			if (di->cookie == (void *)get_dev(specs[type].name, i)) {
+			if (di->cookie ==
+			    (void *)blk_get_dev(specs[type].name, i)) {
 				/* previous cookie found -- advance to the
 				 * next device, if possible */
 
@@ -129,7 +130,8 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 					break;
 				}
 
-				di->cookie = (void *)get_dev(specs[type].name, i);
+				di->cookie = (void *)blk_get_dev(
+							specs[type].name, i);
 				if (di->cookie == NULL)
 					return 0;
 				else
@@ -148,7 +150,7 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 		di->type = specs[type].type;
 
 		if (di->cookie != NULL) {
-			dd = (block_dev_desc_t *)di->cookie;
+			dd = (struct blk_desc *)di->cookie;
 			if (dd->type == DEV_TYPE_UNKNOWN) {
 				debugf("device instance exists, but is not active..");
 				found = 0;
@@ -166,15 +168,15 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 
 
 /*
- * returns:	ENUM_IDE, ENUM_USB etc. based on block_dev_desc_t
+ * returns:	ENUM_IDE, ENUM_USB etc. based on struct blk_desc
  */
-static int dev_stor_type(block_dev_desc_t *dd)
+static int dev_stor_type(struct blk_desc *dd)
 {
 	int i, j;
 
 	for (i = ENUM_IDE; i < ENUM_MAX; i++)
 		for (j = 0; j < specs[i].max_dev; j++)
-			if (dd == get_dev(specs[i].name, j))
+			if (dd == blk_get_dev(specs[i].name, j))
 				return i;
 
 	return ENUM_MAX;
@@ -308,12 +310,12 @@ int dev_enum_storage(struct device_info *di)
 	return 0;
 }
 
-static int dev_stor_is_valid(int type, block_dev_desc_t *dd)
+static int dev_stor_is_valid(int type, struct blk_desc *dd)
 {
 	int i;
 
 	for (i = 0; i < specs[type].max_dev; i++)
-		if (dd == get_dev(specs[type].name, i))
+		if (dd == blk_get_dev(specs[type].name, i))
 			if (dd->type != DEV_TYPE_UNKNOWN)
 				return 1;
 
@@ -328,7 +330,7 @@ int dev_open_stor(void *cookie)
 	if (type == ENUM_MAX)
 		return API_ENODEV;
 
-	if (dev_stor_is_valid(type, (block_dev_desc_t *)cookie))
+	if (dev_stor_is_valid(type, (struct blk_desc *)cookie))
 		return 0;
 
 	return API_ENODEV;
@@ -348,7 +350,7 @@ int dev_close_stor(void *cookie)
 lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start)
 {
 	int type;
-	block_dev_desc_t *dd = (block_dev_desc_t *)cookie;
+	struct blk_desc *dd = (struct blk_desc *)cookie;
 
 	if ((type = dev_stor_type(dd)) == ENUM_MAX)
 		return 0;

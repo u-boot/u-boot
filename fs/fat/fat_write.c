@@ -32,7 +32,7 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 {
 	ulong ret;
 
-	if (!cur_dev || !cur_dev->block_write)
+	if (!cur_dev)
 		return -1;
 
 	if (cur_part_info.start + block + nr_blocks >
@@ -41,8 +41,7 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 		return -1;
 	}
 
-	ret = cur_dev->block_write(cur_dev, cur_part_info.start + block,
-				   nr_blocks, buf);
+	ret = blk_dwrite(cur_dev, cur_part_info.start + block, nr_blocks, buf);
 	if (nr_blocks && ret == 0)
 		return -1;
 

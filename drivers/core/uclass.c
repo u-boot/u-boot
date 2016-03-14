@@ -401,6 +401,19 @@ int uclass_first_device(enum uclass_id id, struct udevice **devp)
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
+int uclass_first_device_err(enum uclass_id id, struct udevice **devp)
+{
+	int ret;
+
+	ret = uclass_first_device(id, devp);
+	if (ret)
+		return ret;
+	else if (!*devp)
+		return -ENODEV;
+
+	return 0;
+}
+
 int uclass_next_device(struct udevice **devp)
 {
 	struct udevice *dev = *devp;

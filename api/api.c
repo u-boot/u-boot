@@ -189,7 +189,7 @@ static int API_get_timer(va_list ap)
  *
  *   - net: &eth_device struct address from list pointed to by eth_devices
  *
- *   - storage: block_dev_desc_t struct address from &ide_dev_desc[n],
+ *   - storage: struct blk_desc struct address from &ide_dev_desc[n],
  *     &scsi_dev_desc[n] and similar tables
  *
  ****************************************************************************/

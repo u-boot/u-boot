@@ -87,11 +87,11 @@ static int test_block_type(unsigned char *buffer)
 }
 
 
-int test_part_dos (block_dev_desc_t *dev_desc)
+static int part_test_dos(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
-	if (dev_desc->block_read(dev_desc, 0, 1, (ulong *)buffer) != 1)
+	if (blk_dread(dev_desc, 0, 1, (ulong *)buffer) != 1)
 		return -1;
 
 	if (test_block_type(buffer) != DOS_MBR)
@@ -102,7 +102,7 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 
 /*  Print a partition that is relative to its Extended partition table
  */
-static void print_partition_extended(block_dev_desc_t *dev_desc,
+static void print_partition_extended(struct blk_desc *dev_desc,
 				     lbaint_t ext_part_sector,
 				     lbaint_t relative,
 				     int part_num, unsigned int disksig)
@@ -111,10 +111,9 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 	dos_partition_t *pt;
 	int i;
 
-	if (dev_desc->block_read(dev_desc, ext_part_sector, 1,
-				 (ulong *)buffer) != 1) {
+	if (blk_dread(dev_desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",
-			dev_desc->dev, ext_part_sector);
+			dev_desc->devnum, ext_part_sector);
 		return;
 	}
 	i=test_block_type(buffer);
@@ -167,21 +166,19 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 
 /*  Print a partition that is relative to its Extended partition table
  */
-static int get_partition_info_extended (block_dev_desc_t *dev_desc,
-				 lbaint_t ext_part_sector,
-				 lbaint_t relative, int part_num,
-				 int which_part, disk_partition_t *info,
-				 unsigned int disksig)
+static int part_get_info_extended(struct blk_desc *dev_desc,
+				  lbaint_t ext_part_sector, lbaint_t relative,
+				  int part_num, int which_part,
+				  disk_partition_t *info, unsigned int disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
 	int i;
 	int dos_type;
 
-	if (dev_desc->block_read(dev_desc, ext_part_sector, 1,
-				 (ulong *)buffer) != 1) {
+	if (blk_dread(dev_desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",
-			dev_desc->dev, ext_part_sector);
+			dev_desc->devnum, ext_part_sector);
 		return -1;
 	}
 	if (buffer[DOS_PART_MAGIC_OFFSET] != 0x55 ||
@@ -216,24 +213,29 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc,
 				case IF_TYPE_IDE:
 				case IF_TYPE_SATA:
 				case IF_TYPE_ATAPI:
-					sprintf ((char *)info->name, "hd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "hd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				case IF_TYPE_SCSI:
-					sprintf ((char *)info->name, "sd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "sd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				case IF_TYPE_USB:
-					sprintf ((char *)info->name, "usbd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "usbd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				case IF_TYPE_DOC:
-					sprintf ((char *)info->name, "docd%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "docd%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 				default:
-					sprintf ((char *)info->name, "xx%c%d",
-						'a' + dev_desc->dev, part_num);
+					sprintf((char *)info->name, "xx%c%d",
+						'a' + dev_desc->devnum,
+						part_num);
 					break;
 			}
 			/* sprintf(info->type, "%d, pt->sys_ind); */
@@ -259,7 +261,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc,
 			lbaint_t lba_start
 				= le32_to_int (pt->start4) + relative;
 
-			return get_partition_info_extended (dev_desc, lba_start,
+			return part_get_info_extended(dev_desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,
 				 part_num, which_part, info, disksig);
 		}
@@ -283,16 +285,24 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc,
 	return -1;
 }
 
-void print_part_dos (block_dev_desc_t *dev_desc)
+void part_print_dos(struct blk_desc *dev_desc)
 {
 	printf("Part\tStart Sector\tNum Sectors\tUUID\t\tType\n");
 	print_partition_extended(dev_desc, 0, 0, 1, 0);
 }
 
-int get_partition_info_dos (block_dev_desc_t *dev_desc, int part, disk_partition_t * info)
+int part_get_info_dos(struct blk_desc *dev_desc, int part,
+		      disk_partition_t *info)
 {
-	return get_partition_info_extended(dev_desc, 0, 0, 1, part, info, 0);
+	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }
 
+U_BOOT_PART_TYPE(dos) = {
+	.name		= "DOS",
+	.part_type	= PART_TYPE_DOS,
+	.get_info	= part_get_info_ptr(part_get_info_dos),
+	.print		= part_print_ptr(part_print_dos),
+	.test		= part_test_dos,
+};
 
 #endif
