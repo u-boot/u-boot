@@ -164,21 +164,44 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
 # define _CMD_HELP(x)
 #endif
 
+#ifdef CONFIG_CMDLINE
 #define U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
 				_usage, _help, _comp)			\
 		{ #_name, _maxargs, _rep, _cmd, _usage,			\
 			_CMD_HELP(_help) _CMD_COMPLETE(_comp) }
-
-#define U_BOOT_CMD_MKENT(_name, _maxargs, _rep, _cmd, _usage, _help)	\
-	U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
-					_usage, _help, NULL)
 
 #define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, _comp) \
 	ll_entry_declare(cmd_tbl_t, _name, cmd) =			\
 		U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,	\
 						_usage, _help, _comp);
 
+#else
+#define U_BOOT_SUBCMD_START(name)	static cmd_tbl_t name[] = {};
+#define U_BOOT_SUBCMD_END
+
+#define _CMD_REMOVE(_name, _cmd)					\
+	int __remove_ ## _name(void)					\
+	{								\
+		if (0)							\
+			_cmd(NULL, 0, 0, NULL);				\
+		return 0;						\
+	}
+#define U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd, _usage,	\
+				  _help, _comp)				\
+		{ #_name, _maxargs, _rep, 0 ? _cmd : NULL, _usage,	\
+			_CMD_HELP(_help) _CMD_COMPLETE(_comp) }
+
+#define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help,	\
+			    _comp)				\
+	_CMD_REMOVE(sub_ ## _name, _cmd)
+
+#endif /* CONFIG_CMDLINE */
+
 #define U_BOOT_CMD(_name, _maxargs, _rep, _cmd, _usage, _help)		\
 	U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, NULL)
+
+#define U_BOOT_CMD_MKENT(_name, _maxargs, _rep, _cmd, _usage, _help)	\
+	U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
+					_usage, _help, NULL)
 
 #endif	/* __COMMAND_H */
