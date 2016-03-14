@@ -83,13 +83,14 @@ int sandbox_main_loop_init(void)
 
 		cli_init();
 
+#ifdef CONFIG_CMDLINE
 		if (state->cmd)
 			retval = run_command_list(state->cmd, -1, 0);
 
 		if (state->run_distro_boot)
 			retval = cli_simple_run_command("run distro_bootcmd",
 							0);
-
+#endif
 		if (!state->interactive)
 			os_exit(retval);
 	}
@@ -264,6 +265,13 @@ static int sandbox_cmdline_cb_verbose(struct sandbox_state *state,
 	return 0;
 }
 SANDBOX_CMDLINE_OPT_SHORT(verbose, 'v', 0, "Show test output");
+
+int board_run_command(const char *cmdline)
+{
+	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
+
+	return 1;
+}
 
 int main(int argc, char *argv[])
 {
