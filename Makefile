@@ -1405,8 +1405,6 @@ CHANGELOG:
 	git log --no-merges U-Boot-1_1_5.. | \
 	unexpand -a | sed -e 's/\s\s*$$//' > $@
 
-include/license.h: tools/bin2header COPYING
-	cat COPYING | gzip -9 -c | ./tools/bin2header license_gzip > include/license.h
 #########################################################################
 
 ###
@@ -1421,7 +1419,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
-CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h include/license.h \
 	       boot* u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
