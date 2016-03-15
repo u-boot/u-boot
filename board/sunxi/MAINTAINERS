@@ -120,6 +120,11 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Hummingbird_A31_defconfig
 
+ITEAD IBOX BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/Itead_Ibox_A20_defconfig
+
 INET 3F BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
