@@ -38,16 +38,11 @@ SECTIONS
 	} > .sram
 
 	. = ALIGN(4);
-#ifdef CONFIG_SPL_DM
 	.u_boot_list : {
-		KEEP(*(SORT(.u_boot_list_*_driver_*)));
-		KEEP(*(SORT(.u_boot_list_*_uclass_*)));
+		KEEP(*(SORT(.u_boot_list*)));
 	} > .sram
 
 	. = ALIGN(4);
-#endif
-
-	. = .;
 
 	_image_binary_end = .;
 
