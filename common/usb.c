@@ -919,19 +919,8 @@ __weak int usb_alloc_device(struct usb_device *udev)
 
 static int usb_hub_port_reset(struct usb_device *dev, struct usb_device *hub)
 {
-	if (hub) {
-		unsigned short portstatus;
-		int err;
-
-		/* reset the port for the second time */
-		err = legacy_hub_port_reset(hub, dev->portnr - 1, &portstatus);
-		if (err < 0) {
-			printf("\n     Couldn't reset port %i\n", dev->portnr);
-			return err;
-		}
-	} else {
+	if (!hub)
 		usb_reset_root_port(dev);
-	}
 
 	return 0;
 }
