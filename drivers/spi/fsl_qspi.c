@@ -92,9 +92,9 @@ DECLARE_GLOBAL_DATA_PTR;
 struct fsl_qspi_platdata {
 	u32 flags;
 	u32 speed_hz;
-	u32 reg_base;
-	u32 amba_base;
-	u32 amba_total_size;
+	fdt_addr_t reg_base;
+	fdt_addr_t amba_base;
+	fdt_size_t amba_total_size;
 	u32 flash_num;
 	u32 num_chipselect;
 };
@@ -940,8 +940,13 @@ static int fsl_qspi_probe(struct udevice *bus)
 	priv->flags = plat->flags;
 
 	priv->speed_hz = plat->speed_hz;
-	priv->amba_base[0] = plat->amba_base;
-	priv->amba_total_size = plat->amba_total_size;
+	/*
+	 * QSPI SFADR width is 32bits, the max dest addr is 4GB-1.
+	 * AMBA memory zone should be located on the 0~4GB space
+	 * even on a 64bits cpu.
+	 */
+	priv->amba_base[0] = (u32)plat->amba_base;
+	priv->amba_total_size = (u32)plat->amba_total_size;
 	priv->flash_num = plat->flash_num;
 	priv->num_chipselect = plat->num_chipselect;
 
@@ -984,10 +989,7 @@ static int fsl_qspi_probe(struct udevice *bus)
 
 static int fsl_qspi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct reg_data {
-		u32 addr;
-		u32 size;
-	} regs_data[2];
+	struct fdt_resource res_regs, res_mem;
 	struct fsl_qspi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
@@ -996,10 +998,16 @@ static int fsl_qspi_ofdata_to_platdata(struct udevice *bus)
 	if (fdtdec_get_bool(blob, node, "big-endian"))
 		plat->flags |= QSPI_FLAG_REGMAP_ENDIAN_BIG;
 
-	ret = fdtdec_get_int_array(blob, node, "reg", (u32 *)regs_data,
-				   sizeof(regs_data)/sizeof(u32));
+	ret = fdt_get_named_resource(blob, node, "reg", "reg-names",
+				     "QuadSPI", &res_regs);
 	if (ret) {
-		debug("Error: can't get base addresses (ret = %d)!\n", ret);
+		debug("Error: can't get regs base addresses(ret = %d)!\n", ret);
+		return -ENOMEM;
+	}
+	ret = fdt_get_named_resource(blob, node, "reg", "reg-names",
+				     "QuadSPI-memory", &res_mem);
+	if (ret) {
+		debug("Error: can't get AMBA base addresses(ret = %d)!\n", ret);
 		return -ENOMEM;
 	}
 
@@ -1017,16 +1025,16 @@ static int fsl_qspi_ofdata_to_platdata(struct udevice *bus)
 	plat->num_chipselect = fdtdec_get_int(blob, node, "num-cs",
 					      FSL_QSPI_MAX_CHIPSELECT_NUM);
 
-	plat->reg_base = regs_data[0].addr;
-	plat->amba_base = regs_data[1].addr;
-	plat->amba_total_size = regs_data[1].size;
+	plat->reg_base = res_regs.start;
+	plat->amba_base = res_mem.start;
+	plat->amba_total_size = res_mem.end - res_mem.start + 1;
 	plat->flash_num = flash_num;
 
-	debug("%s: regs=<0x%x> <0x%x, 0x%x>, max-frequency=%d, endianess=%s\n",
+	debug("%s: regs=<0x%llx> <0x%llx, 0x%llx>, max-frequency=%d, endianess=%s\n",
 	      __func__,
-	      plat->reg_base,
-	      plat->amba_base,
-	      plat->amba_total_size,
+	      (u64)plat->reg_base,
+	      (u64)plat->amba_base,
+	      (u64)plat->amba_total_size,
 	      plat->speed_hz,
 	      plat->flags & QSPI_FLAG_REGMAP_ENDIAN_BIG ? "be" : "le"
 	      );
