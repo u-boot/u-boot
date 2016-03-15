@@ -27,12 +27,16 @@
 #define PSC_REG_MDSTAT(x)       (0x800 + (4 * (x)))
 #define PSC_REG_MDCTL(x)        (0xa00 + (4 * (x)))
 
-#define BOOTBITMASK(x, y)     ((((((u32)1 << (((u32)x) - ((u32)y) + (u32)1)) - \
-				  (u32)1)) << ((u32)y)))
 
-#define BOOT_READ_BITFIELD(z, x, y)    ((((u32)z) & BOOTBITMASK(x, y)) >> (y))
-#define BOOT_SET_BITFIELD(z, f, x, y)  ((((u32)z) & ~BOOTBITMASK(x, y)) | \
-					((((u32)f) << (y)) & BOOTBITMASK(x, y)))
+static inline u32 _boot_bit_mask(u32 x, u32 y)
+{
+	u32 val = (1 << (x - y + 1)) - 1;
+	return val << y;
+}
+
+#define BOOT_READ_BITFIELD(z, x, y)    ((((u32)z) & _boot_bit_mask(x, y)) >> (y))
+#define BOOT_SET_BITFIELD(z, f, x, y)  ((((u32)z) & ~_boot_bit_mask(x, y)) | \
+					((((u32)f) << (y)) & _boot_bit_mask(x, y)))
 
 /* PDCTL */
 #define PSC_REG_PDCTL_SET_NEXT(x, y)        BOOT_SET_BITFIELD((x), (y), 0, 0)
