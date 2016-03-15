@@ -168,11 +168,7 @@
 #define ESDHC_VENDORSPEC_VSELECT 0x00000002 /* Use 1.8V */
 
 struct fsl_esdhc_cfg {
-#ifdef CONFIG_FSL_LAYERSCAPE
-	u64	esdhc_base;
-#else
-	u32	esdhc_base;
-#endif
+	phys_addr_t esdhc_base;
 	u32	sdhc_clk;
 	u8	max_bus_width;
 	struct mmc_config cfg;
