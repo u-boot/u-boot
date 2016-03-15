@@ -103,6 +103,9 @@ struct mcspi {
 };
 
 struct omap3_spi_priv {
+#ifndef CONFIG_DM_SPI
+	struct spi_slave slave;
+#endif
 	struct mcspi *regs;
 	unsigned int cs;
 	unsigned int freq;
@@ -454,16 +457,9 @@ static void _omap3_spi_claim_bus(struct omap3_spi_priv *priv)
 
 #ifndef CONFIG_DM_SPI
 
-struct omap3_spi_slave {
-	struct spi_slave	 slave;
-	struct omap3_spi_priv   spi_priv;
-};
-
-struct omap3_spi_priv *priv;
-
-static inline struct omap3_spi_slave *to_omap3_spi(struct spi_slave *slave)
+static inline struct omap3_spi_priv *to_omap3_spi(struct spi_slave *slave)
 {
-	return container_of(slave, struct omap3_spi_slave, slave);
+	return container_of(slave, struct omap3_spi_priv, slave);
 }
 
 void spi_init(void)
@@ -473,13 +469,15 @@ void spi_init(void)
 
 void spi_free_slave(struct spi_slave *slave)
 {
-	struct omap3_spi_slave *ds = to_omap3_spi(slave);
+	struct omap3_spi_priv *priv = to_omap3_spi(slave);
 
-	free(ds);
+	free(priv);
 }
 
 int spi_claim_bus(struct spi_slave *slave)
 {
+	struct omap3_spi_priv *priv = to_omap3_spi(slave);
+
 	_omap3_spi_claim_bus(priv);
 	_omap3_spi_set_wordlen(priv);
 	_omap3_spi_set_mode(priv);
@@ -490,6 +488,8 @@ int spi_claim_bus(struct spi_slave *slave)
 
 void spi_release_bus(struct spi_slave *slave)
 {
+	struct omap3_spi_priv *priv = to_omap3_spi(slave);
+
 	/* Reset the SPI hardware */
 	spi_reset(priv->regs);
 }
@@ -497,7 +497,7 @@ void spi_release_bus(struct spi_slave *slave)
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				     unsigned int max_hz, unsigned int mode)
 {
-	struct omap3_spi_slave *ds;
+	struct omap3_spi_priv *priv;
 	struct mcspi *regs;
 
 	/*
@@ -551,29 +551,31 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	ds = spi_alloc_slave(struct omap3_spi_slave, bus, cs);
-	if (!ds) {
+	priv = spi_alloc_slave(struct omap3_spi_priv, bus, cs);
+	if (!priv) {
 		printf("SPI error: malloc of SPI structure failed\n");
 		return NULL;
 	}
-
-	priv = &ds->spi_priv;
 
 	priv->regs = regs;
 	priv->cs = cs;
 	priv->freq = max_hz;
 	priv->mode = mode;
-	priv->wordlen = ds->slave.wordlen;
+	priv->wordlen = priv->slave.wordlen;
 #ifdef CONFIG_OMAP3_SPI_D0_D1_SWAPPED
 	priv->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;
 #endif
 
-	return &ds->slave;
+	return &priv->slave;
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	     const void *dout, void *din, unsigned long flags)
-{ return _spi_xfer(priv, bitlen, dout, din, flags); }
+{
+	struct omap3_spi_priv *priv = to_omap3_spi(slave);
+
+	return _spi_xfer(priv, bitlen, dout, din, flags);
+}
 
 #else
 
