@@ -93,7 +93,7 @@ void usage_setenv(void)
 		"\n"
 		"Script Syntax:\n"
 		"  key [space] value\n"
-		"  lines starting with '#' are treated as commment\n"
+		"  lines starting with '#' are treated as comment\n"
 		"\n"
 		"  A variable without value will be deleted. Any number of spaces are\n"
 		"  allowed between key and value. Space inside of the value is treated\n"
