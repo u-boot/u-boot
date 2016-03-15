@@ -26,4 +26,13 @@ enum usb_dr_mode {
  */
 enum usb_dr_mode usb_get_dr_mode(int node);
 
+/**
+ * usb_get_maximum_speed() - Get maximum speed for given device
+ * @node: Node offset to the given device
+ *
+ * The function gets phy interface string from property 'maximum-speed',
+ * and returns the correspondig enum usb_device_speed
+ */
+enum usb_device_speed usb_get_maximum_speed(int node);
+
 #endif /* __LINUX_USB_OTG_H */
