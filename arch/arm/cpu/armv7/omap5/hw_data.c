@@ -743,6 +743,18 @@ const struct ctrl_ioregs ioregs_dra72x_es1 = {
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
+const struct ctrl_ioregs ioregs_dra72x_es2 = {
+	.ctrl_ddrch = 0x40404040,
+	.ctrl_lpddr2ch = 0x40404040,
+	.ctrl_ddr3ch = 0x60606060,
+	.ctrl_ddrio_0 = 0x00094A40,
+	.ctrl_ddrio_1 = 0x00000000,
+	.ctrl_ddrio_2 = 0x00000000,
+	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
+	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
+};
+
 void __weak hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
@@ -808,8 +820,10 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 		*regs = &ioregs_dra7xx_es1;
 		break;
 	case DRA722_ES1_0:
-	case DRA722_ES2_0:
 		*regs = &ioregs_dra72x_es1;
+		break;
+	case DRA722_ES2_0:
+		*regs = &ioregs_dra72x_es2;
 		break;
 
 	default:
