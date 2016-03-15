@@ -40,12 +40,16 @@ static inline u32 boot_read_bitfield(u32 z, u32 x, u32 y)
 	return val >> y;
 }
 
-#define BOOT_SET_BITFIELD(z, f, x, y)  ((((u32)z) & ~_boot_bit_mask(x, y)) | \
-					((((u32)f) << (y)) & _boot_bit_mask(x, y)))
+static inline u32 boot_set_bitfield(u32 z, u32 f, u32 x, u32 y)
+{
+	u32 mask = _boot_bit_mask(x, y);
+
+	return (z & ~mask) | ((f << y) & mask);
+}
 
 /* PDCTL */
-#define PSC_REG_PDCTL_SET_NEXT(x, y)        BOOT_SET_BITFIELD((x), (y), 0, 0)
-#define PSC_REG_PDCTL_SET_PDMODE(x, y)      BOOT_SET_BITFIELD((x), (y), 15, 12)
+#define PSC_REG_PDCTL_SET_NEXT(x, y)        boot_set_bitfield((x), (y), 0, 0)
+#define PSC_REG_PDCTL_SET_PDMODE(x, y)      boot_set_bitfield((x), (y), 15, 12)
 
 /* PDSTAT */
 #define PSC_REG_PDSTAT_GET_STATE(x)         boot_read_bitfield((x), 4, 0)
@@ -55,10 +59,10 @@ static inline u32 boot_read_bitfield(u32 z, u32 x, u32 y)
 #define PSC_REG_MDCFG_GET_RESET_ISO(x)      boot_read_bitfield((x), 14, 14)
 
 /* MDCTL */
-#define PSC_REG_MDCTL_SET_NEXT(x, y)        BOOT_SET_BITFIELD((x), (y), 4, 0)
-#define PSC_REG_MDCTL_SET_LRSTZ(x, y)       BOOT_SET_BITFIELD((x), (y), 8, 8)
+#define PSC_REG_MDCTL_SET_NEXT(x, y)        boot_set_bitfield((x), (y), 4, 0)
+#define PSC_REG_MDCTL_SET_LRSTZ(x, y)       boot_set_bitfield((x), (y), 8, 8)
 #define PSC_REG_MDCTL_GET_LRSTZ(x)          boot_read_bitfield((x), 8, 8)
-#define PSC_REG_MDCTL_SET_RESET_ISO(x, y)   BOOT_SET_BITFIELD((x), (y), \
+#define PSC_REG_MDCTL_SET_RESET_ISO(x, y)   boot_set_bitfield((x), (y), \
 								  12, 12)
 
 /* MDSTAT */
