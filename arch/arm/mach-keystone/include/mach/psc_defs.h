@@ -34,7 +34,12 @@ static inline u32 _boot_bit_mask(u32 x, u32 y)
 	return val << y;
 }
 
-#define BOOT_READ_BITFIELD(z, x, y)    ((((u32)z) & _boot_bit_mask(x, y)) >> (y))
+static inline u32 boot_read_bitfield(u32 z, u32 x, u32 y)
+{
+	u32 val = z & _boot_bit_mask(x, y);
+	return val >> y;
+}
+
 #define BOOT_SET_BITFIELD(z, f, x, y)  ((((u32)z) & ~_boot_bit_mask(x, y)) | \
 					((((u32)f) << (y)) & _boot_bit_mask(x, y)))
 
@@ -43,25 +48,25 @@ static inline u32 _boot_bit_mask(u32 x, u32 y)
 #define PSC_REG_PDCTL_SET_PDMODE(x, y)      BOOT_SET_BITFIELD((x), (y), 15, 12)
 
 /* PDSTAT */
-#define PSC_REG_PDSTAT_GET_STATE(x)         BOOT_READ_BITFIELD((x), 4, 0)
+#define PSC_REG_PDSTAT_GET_STATE(x)         boot_read_bitfield((x), 4, 0)
 
 /* MDCFG */
-#define PSC_REG_MDCFG_GET_PD(x)             BOOT_READ_BITFIELD((x), 20, 16)
-#define PSC_REG_MDCFG_GET_RESET_ISO(x)      BOOT_READ_BITFIELD((x), 14, 14)
+#define PSC_REG_MDCFG_GET_PD(x)             boot_read_bitfield((x), 20, 16)
+#define PSC_REG_MDCFG_GET_RESET_ISO(x)      boot_read_bitfield((x), 14, 14)
 
 /* MDCTL */
 #define PSC_REG_MDCTL_SET_NEXT(x, y)        BOOT_SET_BITFIELD((x), (y), 4, 0)
 #define PSC_REG_MDCTL_SET_LRSTZ(x, y)       BOOT_SET_BITFIELD((x), (y), 8, 8)
-#define PSC_REG_MDCTL_GET_LRSTZ(x)          BOOT_READ_BITFIELD((x), 8, 8)
+#define PSC_REG_MDCTL_GET_LRSTZ(x)          boot_read_bitfield((x), 8, 8)
 #define PSC_REG_MDCTL_SET_RESET_ISO(x, y)   BOOT_SET_BITFIELD((x), (y), \
 								  12, 12)
 
 /* MDSTAT */
-#define PSC_REG_MDSTAT_GET_STATUS(x)        BOOT_READ_BITFIELD((x), 5, 0)
-#define PSC_REG_MDSTAT_GET_LRSTZ(x)         BOOT_READ_BITFIELD((x), 8, 8)
-#define PSC_REG_MDSTAT_GET_LRSTDONE(x)      BOOT_READ_BITFIELD((x), 9, 9)
-#define PSC_REG_MDSTAT_GET_MRSTZ(x)         BOOT_READ_BITFIELD((x), 10, 10)
-#define PSC_REG_MDSTAT_GET_MRSTDONE(x)      BOOT_READ_BITFIELD((x), 11, 11)
+#define PSC_REG_MDSTAT_GET_STATUS(x)        boot_read_bitfield((x), 5, 0)
+#define PSC_REG_MDSTAT_GET_LRSTZ(x)         boot_read_bitfield((x), 8, 8)
+#define PSC_REG_MDSTAT_GET_LRSTDONE(x)      boot_read_bitfield((x), 9, 9)
+#define PSC_REG_MDSTAT_GET_MRSTZ(x)         boot_read_bitfield((x), 10, 10)
+#define PSC_REG_MDSTAT_GET_MRSTDONE(x)      boot_read_bitfield((x), 11, 11)
 
 /* PDCTL states */
 #define PSC_REG_VAL_PDCTL_NEXT_ON           1
