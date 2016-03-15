@@ -927,10 +927,11 @@ static int fsl_qspi_child_pre_probe(struct udevice *dev)
 
 static int fsl_qspi_probe(struct udevice *bus)
 {
-	u32 total_size;
+	u32 amba_size_per_chip;
 	struct fsl_qspi_platdata *plat = dev_get_platdata(bus);
 	struct fsl_qspi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_bus *dm_spi_bus;
+	int i;
 
 	dm_spi_bus = bus->uclass_priv;
 
@@ -956,7 +957,22 @@ static int fsl_qspi_probe(struct udevice *bus)
 	qspi_cfg_smpr(priv, ~(QSPI_SMPR_FSDLY_MASK | QSPI_SMPR_DDRSMP_MASK |
 		QSPI_SMPR_FSPHS_MASK | QSPI_SMPR_HSENA_MASK), 0);
 
-	total_size = FSL_QSPI_FLASH_SIZE * FSL_QSPI_FLASH_NUM;
+	/*
+	 * Assign AMBA memory zone for every chipselect
+	 * QuadSPI has two channels, every channel has two chipselects.
+	 * If the property 'num-cs' in dts is 2, the AMBA memory will be divided
+	 * into two parts and assign to every channel. This indicate that every
+	 * channel only has one valid chipselect.
+	 * If the property 'num-cs' in dts is 4, the AMBA memory will be divided
+	 * into four parts and assign to every chipselect.
+	 * Every channel will has two valid chipselects.
+	 */
+	amba_size_per_chip = priv->amba_total_size >>
+			     (priv->num_chipselect >> 1);
+	for (i = 1 ; i < priv->num_chipselect ; i++)
+		priv->amba_base[i] =
+			amba_size_per_chip + priv->amba_base[i - 1];
+
 	/*
 	 * Any read access to non-implemented addresses will provide
 	 * undefined results.
@@ -967,14 +983,30 @@ static int fsl_qspi_probe(struct udevice *bus)
 	 * setting the size of these devices to 0.  This would ensure
 	 * that the complete memory map is assigned to only one flash device.
 	 */
-	qspi_write32(priv->flags, &priv->regs->sfa1ad,
-		     FSL_QSPI_FLASH_SIZE | priv->amba_base[0]);
-	qspi_write32(priv->flags, &priv->regs->sfa2ad,
-		     FSL_QSPI_FLASH_SIZE | priv->amba_base[0]);
-	qspi_write32(priv->flags, &priv->regs->sfb1ad,
-		     total_size | priv->amba_base[0]);
-	qspi_write32(priv->flags, &priv->regs->sfb2ad,
-		     total_size | priv->amba_base[0]);
+	qspi_write32(priv->flags, &priv->regs->sfa1ad, priv->amba_base[1]);
+	switch (priv->num_chipselect) {
+	case 2:
+		qspi_write32(priv->flags, &priv->regs->sfa2ad,
+			     priv->amba_base[1]);
+		qspi_write32(priv->flags, &priv->regs->sfb1ad,
+			     priv->amba_base[1] + amba_size_per_chip);
+		qspi_write32(priv->flags, &priv->regs->sfb2ad,
+			     priv->amba_base[1] + amba_size_per_chip);
+		break;
+	case 4:
+		qspi_write32(priv->flags, &priv->regs->sfa2ad,
+			     priv->amba_base[2]);
+		qspi_write32(priv->flags, &priv->regs->sfb1ad,
+			     priv->amba_base[3]);
+		qspi_write32(priv->flags, &priv->regs->sfb2ad,
+			     priv->amba_base[3] + amba_size_per_chip);
+		break;
+	default:
+		debug("Error: Unsupported chipselect number %u!\n",
+		      priv->num_chipselect);
+		qspi_module_disable(priv, 1);
+		return -EINVAL;
+	}
 
 	qspi_set_lut(priv);
 
@@ -1063,8 +1095,7 @@ static int fsl_qspi_claim_bus(struct udevice *dev)
 	bus = dev->parent;
 	priv = dev_get_priv(bus);
 
-	priv->cur_amba_base =
-		priv->amba_base[0] + FSL_QSPI_FLASH_SIZE * slave_plat->cs;
+	priv->cur_amba_base = priv->amba_base[slave_plat->cs];
 
 	qspi_module_disable(priv, 0);
 
