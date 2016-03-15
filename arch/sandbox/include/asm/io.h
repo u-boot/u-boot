@@ -57,5 +57,6 @@ void outw(unsigned int value, unsigned int addr);
 void outb(unsigned int value, unsigned int addr);
 
 #include <iotrace.h>
+#include <asm/types.h>
 
 #endif
