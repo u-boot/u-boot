@@ -127,6 +127,11 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf);
 #endif
 
+#ifdef CONFIG_SPI_FLASH_SPANSION
+/* Used for Spansion S25FS-S family flash only. */
+#define CMD_SPANSION_RDAR	0x65 /* Read any device register */
+#define CMD_SPANSION_WRAR	0x71 /* Write any device register */
+#endif
 /**
  * struct spi_flash_params - SPI/QSPI flash device params structure
  *
