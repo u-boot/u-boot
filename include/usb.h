@@ -130,7 +130,7 @@ struct usb_device {
 	int string_langid;		/* language ID for strings */
 	int (*irq_handle)(struct usb_device *dev);
 	unsigned long irq_status;
-	int irq_act_len;		/* transfered bytes */
+	int irq_act_len;		/* transferred bytes */
 	void *privptr;
 	/*
 	 * Child devices -  if this is a hub device
@@ -138,7 +138,7 @@ struct usb_device {
 	 */
 	unsigned long status;
 	unsigned long int_pending;	/* 1 bit per ep, used by int_queue */
-	int act_len;			/* transfered bytes */
+	int act_len;			/* transferred bytes */
 	int maxchild;			/* Number of ports if hub */
 	int portnr;			/* Port number, 1=first */
 #ifndef CONFIG_DM_USB

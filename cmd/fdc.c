@@ -459,7 +459,7 @@ retryrw:
 					break;
 				}
 				if((c&0xC0)==0x80) { /* output */
-					PRINTF("Transfer error transfered: at %ld, MSR=%02X\n",i,c);
+					PRINTF("Transfer error transferred: at %ld, MSR=%02X\n",i,c);
 					if(i>6) {
 						for(ii=0;ii<7;ii++) {
 							pCMD->result[ii]=bufferw[(i-7+ii)];

@@ -130,7 +130,7 @@ int StratixII_ps_fpp_load (Altera_desc * desc, void *buf, size_t bsize,
 		/* 3.1 check stratix has not signaled us an error */
 		if (fns->status (cookie) != 1) {
 			printf
-			    ("\n%s(%d) Stratix failed (byte transfered till failure 0x%x)\n",
+			    ("\n%s(%d) Stratix failed (byte transferred till failure 0x%x)\n",
 			     __FUNCTION__, __LINE__, bytecount);
 			fns->abort (cookie);
 			return FPGA_FAIL;

@@ -697,7 +697,7 @@ static int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 		us->ip_wanted = 0;
 		return USB_STOR_TRANSPORT_ERROR;
 	}
-	debug("Got interrupt data 0x%x, transfered %d status 0x%lX\n",
+	debug("Got interrupt data 0x%x, transferred %d status 0x%lX\n",
 	      us->ip_data, us->pusb_dev->irq_act_len,
 	      us->pusb_dev->irq_status);
 	/* UFI gives us ASC and ASCQ, like a request sense */
