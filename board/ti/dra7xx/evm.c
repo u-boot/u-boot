@@ -32,8 +32,11 @@
 #include "../common/board_detect.h"
 
 #define board_is_dra74x_evm()		board_ti_is("5777xCPU")
+#define board_is_dra72x_evm()		board_ti_is("DRA72x-T")
 #define board_is_dra74x_revh_or_later() board_is_dra74x_evm() &&	\
 				(strncmp("H", board_ti_get_rev(), 1) <= 0)
+#define board_is_dra72x_revc_or_later() board_is_dra72x_evm() &&	\
+				(strncmp("C", board_ti_get_rev(), 1) <= 0)
 #define board_ti_get_emif_size()	board_ti_get_emif1_size() +	\
 					board_ti_get_emif2_size()
 
@@ -127,6 +130,31 @@ static const struct emif_regs emif_1_regs_ddr3_666_mhz_1cs_dra_es1 = {
 	.emif_rd_wr_exec_thresh         = 0x00000305
 };
 
+const struct emif_regs emif_1_regs_ddr3_666_mhz_1cs_dra_es2 = {
+	.sdram_config_init              = 0x61862BB2,
+	.sdram_config                   = 0x61862BB2,
+	.sdram_config2			= 0x00000000,
+	.ref_ctrl                       = 0x0000514D,
+	.ref_ctrl_final			= 0x0000144A,
+	.sdram_tim1                     = 0xD1137824,
+	.sdram_tim2                     = 0x30B37FE3,
+	.sdram_tim3                     = 0x409F8AD8,
+	.read_idle_ctrl                 = 0x00050000,
+	.zq_config                      = 0x5007190B,
+	.temp_alert_config              = 0x00000000,
+	.emif_ddr_phy_ctlr_1_init       = 0x0824400E,
+	.emif_ddr_phy_ctlr_1            = 0x0E24400E,
+	.emif_ddr_ext_phy_ctrl_1        = 0x04040100,
+	.emif_ddr_ext_phy_ctrl_2        = 0x006B009F,
+	.emif_ddr_ext_phy_ctrl_3        = 0x006B00A2,
+	.emif_ddr_ext_phy_ctrl_4        = 0x006B00A8,
+	.emif_ddr_ext_phy_ctrl_5        = 0x006B00A8,
+	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
+	.emif_rd_wr_lvl_ctl             = 0x00000000,
+	.emif_rd_wr_exec_thresh         = 0x00000305
+};
+
 const struct emif_regs emif1_ddr3_532_mhz_1cs_2G = {
 	.sdram_config_init              = 0x61851ab2,
 	.sdram_config                   = 0x61851ab2,
@@ -203,7 +231,11 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 		}
 		break;
 	case DRA722_ES1_0:
-		*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra_es1;
+	case DRA722_ES2_0:
+		if (ram_size < CONFIG_MAX_MEM_MAPPED)
+			*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra_es1;
+		else
+			*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra_es2;
 		break;
 	default:
 		*regs = &emif1_ddr3_532_mhz_1cs;
@@ -234,6 +266,18 @@ const struct dmm_lisa_map_regs lisa_map_dra7_2GB = {
 	.is_ma_present	= 0x1
 };
 
+/*
+ * DRA722 EVM EMIF1 2GB CONFIGURATION
+ * EMIF1 4 devices of 512Mb x 8 Micron
+ */
+const struct dmm_lisa_map_regs lisa_map_2G_x_4 = {
+	.dmm_lisa_map_0 = 0x0,
+	.dmm_lisa_map_1 = 0x0,
+	.dmm_lisa_map_2 = 0x80700100,
+	.dmm_lisa_map_3 = 0xFF020100,
+	.is_ma_present	= 0x1
+};
+
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 {
 	u64 ram_size;
@@ -250,8 +294,13 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 			*dmm_lisa_regs = &lisa_map_dra7_1536MB;
 		break;
 	case DRA722_ES1_0:
+	case DRA722_ES2_0:
 	default:
-		*dmm_lisa_regs = &lisa_map_2G_x_2;
+		if (ram_size < CONFIG_MAX_MEM_MAPPED)
+			*dmm_lisa_regs = &lisa_map_2G_x_2;
+		else
+			*dmm_lisa_regs = &lisa_map_2G_x_4;
+		break;
 	}
 }
 
@@ -324,8 +373,10 @@ void do_board_detect(void)
 
 	if (board_is_dra74x_evm()) {
 		bname = "DRA74x EVM";
-	/* If EEPROM is not populated */
+	} else if (board_is_dra72x_evm()) {
+		bname = "DRA72x EVM";
 	} else {
+		/* If EEPROM is not populated */
 		if (is_dra72x())
 			bname = "DRA72x EVM";
 		else
@@ -614,7 +665,7 @@ static inline void vtt_regulator_enable(void)
 		return;
 
 	/* Do not enable VTT for DRA722 */
-	if (omap_revision() == DRA722_ES1_0)
+	if (is_dra72x())
 		return;
 
 	/*
