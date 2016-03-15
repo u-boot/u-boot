@@ -556,6 +556,10 @@ struct usb_hub_descriptor {
 struct usb_hub_device {
 	struct usb_device *pusb_dev;
 	struct usb_hub_descriptor desc;
+
+	ulong connect_timeout;		/* Device connection timeout in ms */
+	ulong query_delay;		/* Device query delay in ms */
+	int overcurrent_count[USB_MAXCHILDREN];	/* Over-current counter */
 };
 
 #ifdef CONFIG_DM_USB
