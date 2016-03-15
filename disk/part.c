@@ -365,7 +365,8 @@ int part_get_info(struct blk_desc *dev_desc, int part,
 		return -EPROTONOSUPPORT;
 	}
 	if (!drv->get_info) {
-		PRINTF("## Driver %s does not have the get_info() method\n");
+		PRINTF("## Driver %s does not have the get_info() method\n",
+		       drv->name);
 		return -ENOSYS;
 	}
 	if (drv->get_info(dev_desc, part, info) == 0) {
