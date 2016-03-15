@@ -548,7 +548,8 @@ void imx_setup_hdmi(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct hdmi_regs *hdmi  = (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-	int reg;
+	int reg, count;
+	u8 val;
 
 	/* Turn on HDMI PHY clock */
 	reg = readl(&mxc_ccm->CCGR2);
@@ -565,6 +566,16 @@ void imx_setup_hdmi(void)
 		 |(CHSCCDR_IPU_PRE_CLK_540M_PFD
 		 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
 	writel(reg, &mxc_ccm->chsccdr);
+
+	/* Clear the overflow condition */
+	if (readb(&hdmi->ih_fc_stat2) & HDMI_IH_FC_STAT2_OVERFLOW_MASK) {
+		/* TMDS software reset */
+		writeb((u8)~HDMI_MC_SWRSTZ_TMDSSWRST_REQ, &hdmi->mc_swrstz);
+		val = readb(&hdmi->fc_invidconf);
+		/* Need minimum 3 times to write to clear the register */
+		for (count = 0 ; count < 5 ; count++)
+			writeb(val, &hdmi->fc_invidconf);
+	}
 }
 #endif
 
