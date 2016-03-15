@@ -89,6 +89,8 @@ extern struct list_head efi_obj_list;
 
 /* Called by bootefi to make all disk storage accessible as EFI objects */
 int efi_disk_register(void);
+/* Called by bootefi to make GOP (graphical) interface available */
+int efi_gop_register(void);
 /*
  * Stub implementation for a protocol opener that just returns the handle as
  * interface

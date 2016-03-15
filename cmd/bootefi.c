@@ -141,6 +141,9 @@ static unsigned long do_bootefi_exec(void *efi)
 #ifdef CONFIG_PARTITIONS
 	efi_disk_register();
 #endif
+#ifdef CONFIG_LCD
+	efi_gop_register();
+#endif
 
 	/* Call our payload! */
 #ifdef DEBUG_EFI

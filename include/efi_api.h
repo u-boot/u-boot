@@ -365,4 +365,51 @@ struct efi_console_control_protocol
 			uint16_t *password);
 };
 
+#define EFI_GOP_GUID \
+	EFI_GUID(0x9042a9de, 0x23dc, 0x4a38, \
+		 0x96, 0xfb, 0x7a, 0xde, 0xd0, 0x80, 0x51, 0x6a)
+
+#define EFI_GOT_RGBA8		0
+#define EFI_GOT_BGRA8		1
+#define EFI_GOT_BITMASK		2
+
+struct efi_gop_mode_info
+{
+	u32 version;
+	u32 width;
+	u32 height;
+	u32 pixel_format;
+	u32 pixel_bitmask[4];
+	u32 pixels_per_scanline;
+};
+
+struct efi_gop_mode
+{
+	u32 max_mode;
+	u32 mode;
+	struct efi_gop_mode_info *info;
+	unsigned long info_size;
+	efi_physical_addr_t fb_base;
+	unsigned long fb_size;
+};
+
+#define EFI_BLT_VIDEO_FILL		0
+#define EFI_BLT_VIDEO_TO_BLT_BUFFER	1
+#define EFI_BLT_BUFFER_TO_VIDEO		2
+#define EFI_BLT_VIDEO_TO_VIDEO		3
+
+struct efi_gop
+{
+	efi_status_t (EFIAPI *query_mode)(struct efi_gop *this, u32 mode_number,
+					  unsigned long *size_of_info,
+					  struct efi_gop_mode_info **info);
+	efi_status_t (EFIAPI *set_mode)(struct efi_gop *this, u32 mode_number);
+	efi_status_t (EFIAPI *blt)(struct efi_gop *this, void *buffer,
+				   unsigned long operation, unsigned long sx,
+				   unsigned long sy, unsigned long dx,
+				   unsigned long dy, unsigned long width,
+				   unsigned long height, unsigned long delta);
+	struct efi_gop_mode *mode;
+};
+
 #endif
