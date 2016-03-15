@@ -398,16 +398,29 @@ void set_muxconf_regs(void)
 #ifdef CONFIG_IODELAY_RECALIBRATION
 void recalibrate_iodelay(void)
 {
-	struct pad_conf_entry const *pads;
+	struct pad_conf_entry const *pads, *delta_pads = NULL;
 	struct iodelay_cfg_entry const *iodelay;
-	int npads, niodelays;
+	int npads, niodelays, delta_npads = 0;
+	int ret;
 
 	switch (omap_revision()) {
 	case DRA722_ES1_0:
-		pads = dra72x_core_padconf_array;
-		npads = ARRAY_SIZE(dra72x_core_padconf_array);
-		iodelay = dra72_iodelay_cfg_array;
-		niodelays = ARRAY_SIZE(dra72_iodelay_cfg_array);
+	case DRA722_ES2_0:
+		pads = dra72x_core_padconf_array_common;
+		npads = ARRAY_SIZE(dra72x_core_padconf_array_common);
+		if (board_is_dra72x_revc_or_later()) {
+			delta_pads = dra72x_rgmii_padconf_array_revc;
+			delta_npads =
+				ARRAY_SIZE(dra72x_rgmii_padconf_array_revc);
+			iodelay = dra72_iodelay_cfg_array_revc;
+			niodelays = ARRAY_SIZE(dra72_iodelay_cfg_array_revc);
+		} else {
+			delta_pads = dra72x_rgmii_padconf_array_revb;
+			delta_npads =
+				ARRAY_SIZE(dra72x_rgmii_padconf_array_revb);
+			iodelay = dra72_iodelay_cfg_array_revb;
+			niodelays = ARRAY_SIZE(dra72_iodelay_cfg_array_revb);
+		}
 		break;
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
@@ -427,7 +440,24 @@ void recalibrate_iodelay(void)
 				      RGMII1_ID_MODE_N_MASK);
 		break;
 	}
-	__recalibrate_iodelay(pads, npads, iodelay, niodelays);
+	/* Setup I/O isolation */
+	ret = __recalibrate_iodelay_start();
+	if (ret)
+		goto err;
+
+	/* Do the muxing here */
+	do_set_mux32((*ctrl)->control_padconf_core_base, pads, npads);
+
+	/* Now do the weird minor deltas that should be safe */
+	if (delta_npads)
+		do_set_mux32((*ctrl)->control_padconf_core_base,
+			     delta_pads, delta_npads);
+
+	/* Setup IOdelay configuration */
+	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iodelay, niodelays);
+err:
+	/* Closeup.. remove isolation */
+	__recalibrate_iodelay_end(ret);
 }
 #endif
 

@@ -12,7 +12,7 @@
 
 #include <asm/arch/mux_dra7xx.h>
 
-const struct pad_conf_entry dra72x_core_padconf_array[] = {
+const struct pad_conf_entry dra72x_core_padconf_array_common[] = {
 	{GPMC_AD0, (M3 | PIN_INPUT)},	/* gpmc_ad0.vout3_d0 */
 	{GPMC_AD1, (M3 | PIN_INPUT)},	/* gpmc_ad1.vout3_d1 */
 	{GPMC_AD2, (M3 | PIN_INPUT)},	/* gpmc_ad2.vout3_d2 */
@@ -104,37 +104,11 @@ const struct pad_conf_entry dra72x_core_padconf_array[] = {
 	{VOUT1_D23, (M0 | PIN_INPUT_PULLDOWN)},	/* vout1_d23.vout1_d23 */
 	{MDIO_MCLK, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* mdio_mclk.mdio_mclk */
 	{MDIO_D, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* mdio_d.mdio_d */
-	{RGMII0_TXC, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txc.rgmii0_txc */
-	{RGMII0_TXCTL, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txctl.rgmii0_txctl */
-	{RGMII0_TXD3, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd3.rgmii0_txd3 */
-	{RGMII0_TXD2, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd2.rgmii0_txd2 */
-	{RGMII0_TXD1, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd1.rgmii0_txd1 */
-	{RGMII0_TXD0, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd0.rgmii0_txd0 */
-	{RGMII0_RXC, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxc.rgmii0_rxc */
-	{RGMII0_RXCTL, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxctl.rgmii0_rxctl */
-	{RGMII0_RXD3, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd3.rgmii0_rxd3 */
-	{RGMII0_RXD2, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd2.rgmii0_rxd2 */
-	{RGMII0_RXD1, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd1.rgmii0_rxd1 */
-	{RGMII0_RXD0, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd0.rgmii0_rxd0 */
-	{VIN2A_D12, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d0.rgmii1_txc */
-	{VIN2A_D13, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d1.rgmii1_txctl */
-	{VIN2A_D14, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d2.rgmii1_txd3 */
-	{VIN2A_D15, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d3.rgmii1_txd2 */
-	{VIN2A_D16, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d4.rgmii1_txd1 */
-	{VIN2A_D17, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d5.rgmii1_txd0 */
-	{VIN2A_D18, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d6.rgmii1_rxc */
-	{VIN2A_D19, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d7.rgmii1_rxctl */
-	{VIN2A_D20, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d8.rgmii1_rxd3 */
-	{VIN2A_D21, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d9.rgmii1_rxd2 */
-	{VIN2A_D22, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d10.rgmii1_rxd1 */
-	{VIN2A_D23, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d11.rgmii1_rxd0 */
 	{USB1_DRVVBUS, (M0 | PIN_INPUT_SLEW)},	/* usb1_drvvbus.usb1_drvvbus */
 	{USB2_DRVVBUS, (M0 | PIN_INPUT_SLEW)},	/* usb2_drvvbus.usb2_drvvbus */
 	{GPIO6_14, (M9 | PIN_INPUT_PULLUP)},	/* gpio6_14.i2c3_sda */
 	{GPIO6_15, (M9 | PIN_INPUT_PULLUP)},	/* gpio6_15.i2c3_scl */
 	{GPIO6_16, (M14 | PIN_INPUT_PULLUP)},	/* gpio6_16.gpio6_16 */
-	{XREF_CLK1, (M5 | PIN_OUTPUT)},	/* xref_clk1.atl_clk1 */
-	{XREF_CLK2, (M5 | PIN_OUTPUT)},	/* xref_clk2.atl_clk2 */
 	{MCASP1_AXR0, (M10 | PIN_INPUT_SLEW)},	/* mcasp1_axr0.i2c5_sda */
 	{MCASP1_AXR1, (M10 | PIN_INPUT_SLEW)},	/* mcasp1_axr1.i2c5_scl */
 	{MCASP1_AXR2, (M14 | PIN_INPUT_PULLDOWN)},	/* mcasp1_axr2.gpio5_4 */
@@ -160,7 +134,6 @@ const struct pad_conf_entry dra72x_core_padconf_array[] = {
 	{MMC1_DAT3, (M0 | PIN_INPUT_PULLUP)},	/* mmc1_dat3.mmc1_dat3 */
 	{MMC1_SDCD, (M14 | PIN_INPUT_PULLUP)},	/* mmc1_sdcd.gpio6_27 */
 	{MMC1_SDWP, (M14 | PIN_INPUT_SLEW)},	/* mmc1_sdwp.gpio6_28 */
-	{GPIO6_11, (M14 | PIN_INPUT_PULLUP)},	/* gpio6_11.gpio6_11 */
 	{SPI1_SCLK, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_sclk.spi1_sclk */
 	{SPI1_D1, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d1.spi1_d1 */
 	{SPI1_D0, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d0.spi1_d0 */
@@ -188,6 +161,65 @@ const struct pad_conf_entry dra72x_core_padconf_array[] = {
 	{WAKEUP3, (M1 | PULL_ENA | PULL_UP)},	/* Wakeup3.sys_nirq1 */
 };
 
+const struct pad_conf_entry dra72x_rgmii_padconf_array_revb[] = {
+	{GPIO6_11, (M14 | PIN_INPUT_PULLUP)},	/* gpio6_11.gpio6_11 */
+	{RGMII0_TXC, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txc.rgmii0_txc */
+	{RGMII0_TXCTL, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txctl.rgmii0_txctl */
+	{RGMII0_TXD3, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd3.rgmii0_txd3 */
+	{RGMII0_TXD2, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd2.rgmii0_txd2 */
+	{RGMII0_TXD1, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd1.rgmii0_txd1 */
+	{RGMII0_TXD0, (M0 | PIN_OUTPUT | MANUAL_MODE)},	/* rgmii0_txd0.rgmii0_txd0 */
+	{RGMII0_RXC, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxc.rgmii0_rxc */
+	{RGMII0_RXCTL, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxctl.rgmii0_rxctl */
+	{RGMII0_RXD3, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd3.rgmii0_rxd3 */
+	{RGMII0_RXD2, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd2.rgmii0_rxd2 */
+	{RGMII0_RXD1, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd1.rgmii0_rxd1 */
+	{RGMII0_RXD0, (M0 | PIN_INPUT | MANUAL_MODE)},	/* rgmii0_rxd0.rgmii0_rxd0 */
+	{VIN2A_D12, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d0.rgmii1_txc */
+	{VIN2A_D13, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d1.rgmii1_txctl */
+	{VIN2A_D14, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d2.rgmii1_txd3 */
+	{VIN2A_D15, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d3.rgmii1_txd2 */
+	{VIN2A_D16, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d4.rgmii1_txd1 */
+	{VIN2A_D17, (M3 | PIN_OUTPUT | MANUAL_MODE)},	/* vin2a_d5.rgmii1_txd0 */
+	{VIN2A_D18, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d6.rgmii1_rxc */
+	{VIN2A_D19, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d7.rgmii1_rxctl */
+	{VIN2A_D20, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d8.rgmii1_rxd3 */
+	{VIN2A_D21, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d9.rgmii1_rxd2 */
+	{VIN2A_D22, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d10.rgmii1_rxd1 */
+	{VIN2A_D23, (M3 | PIN_INPUT | MANUAL_MODE)},	/* vin2a_d11.rgmii1_rxd0 */
+	{XREF_CLK1, (M5 | PIN_OUTPUT)},	/* xref_clk1.atl_clk1 */
+	{XREF_CLK2, (M5 | PIN_OUTPUT)},	/* xref_clk2.atl_clk2 */
+};
+
+const struct pad_conf_entry dra72x_rgmii_padconf_array_revc[] = {
+	{VIN2A_FLD0, (M14 | PIN_INPUT)},	/* vin2a_fld0.gpio3_30 */
+	{RGMII0_TXC, (M0 | PIN_OUTPUT)},	/* rgmii0_txc.rgmii0_txc */
+	{RGMII0_TXCTL, (M0 | PIN_OUTPUT)},	/* rgmii0_txctl.rgmii0_txctl */
+	{RGMII0_TXD3, (M0 | PIN_OUTPUT)},	/* rgmii0_txd3.rgmii0_txd3 */
+	{RGMII0_TXD2, (M0 | PIN_OUTPUT)},	/* rgmii0_txd2.rgmii0_txd2 */
+	{RGMII0_TXD1, (M0 | PIN_OUTPUT)},	/* rgmii0_txd1.rgmii0_txd1 */
+	{RGMII0_TXD0, (M0 | PIN_OUTPUT)},	/* rgmii0_txd0.rgmii0_txd0 */
+	{RGMII0_RXC, (M0 | PIN_INPUT_PULLDOWN)},	/* rgmii0_rxc.rgmii0_rxc */
+	{RGMII0_RXCTL, (M0 | PIN_INPUT_PULLDOWN)},	/* rgmii0_rxctl.rgmii0_rxctl */
+	{RGMII0_RXD3, (M0 | PIN_INPUT_PULLDOWN)},	/* rgmii0_rxd3.rgmii0_rxd3 */
+	{RGMII0_RXD2, (M0 | PIN_INPUT_PULLDOWN)},	/* rgmii0_rxd2.rgmii0_rxd2 */
+	{RGMII0_RXD1, (M0 | PIN_INPUT_PULLDOWN)},	/* rgmii0_rxd1.rgmii0_rxd1 */
+	{RGMII0_RXD0, (M0 | PIN_INPUT_PULLDOWN)},	/* rgmii0_rxd0.rgmii0_rxd0 */
+	{VIN2A_D12, (M3 | PIN_OUTPUT)},	/* vin2a_d12.rgmii1_txc */
+	{VIN2A_D13, (M3 | PIN_OUTPUT)},	/* vin2a_d13.rgmii1_txctl */
+	{VIN2A_D14, (M3 | PIN_OUTPUT)},	/* vin2a_d14.rgmii1_txd3 */
+	{VIN2A_D15, (M3 | PIN_OUTPUT)},	/* vin2a_d15.rgmii1_txd2 */
+	{VIN2A_D16, (M3 | PIN_OUTPUT)},	/* vin2a_d16.rgmii1_txd1 */
+	{VIN2A_D17, (M3 | PIN_OUTPUT)},	/* vin2a_d17.rgmii1_txd0 */
+	{VIN2A_D18, (M3 | PIN_INPUT_PULLDOWN)},	/* vin2a_d18.rgmii1_rxc */
+	{VIN2A_D19, (M3 | PIN_INPUT_PULLDOWN)},	/* vin2a_d19.rgmii1_rxctl */
+	{VIN2A_D20, (M3 | PIN_INPUT_PULLDOWN)},	/* vin2a_d20.rgmii1_rxd3 */
+	{VIN2A_D21, (M3 | PIN_INPUT_PULLDOWN)},	/* vin2a_d21.rgmii1_rxd2 */
+	{VIN2A_D22, (M3 | PIN_INPUT_PULLDOWN)},	/* vin2a_d22.rgmii1_rxd1 */
+	{VIN2A_D23, (M3 | PIN_INPUT_PULLDOWN)},	/* vin2a_d23.rgmii1_rxd0 */
+	{XREF_CLK2, (M5 | PIN_INPUT_PULLDOWN)},	/* xref_clk2.atl_clk2 */
+};
+
 const struct pad_conf_entry early_padconf[] = {
 #if (CONFIG_CONS_INDEX == 1)
 	{UART1_RXD, (PIN_INPUT_SLEW | M0)}, /* UART1_RXD */
@@ -201,7 +233,7 @@ const struct pad_conf_entry early_padconf[] = {
 };
 
 #ifdef CONFIG_IODELAY_RECALIBRATION
-const struct iodelay_cfg_entry dra72_iodelay_cfg_array[] = {
+const struct iodelay_cfg_entry dra72_iodelay_cfg_array_revb[] = {
 	{0x6F0, 359, 0}, /* RGMMI0_RXC_IN */
 	{0x6FC, 129, 1896}, /* RGMMI0_RXCTL_IN */
 	{0x708, 80, 1391}, /* RGMMI0_RXD0_IN */
@@ -236,6 +268,18 @@ const struct iodelay_cfg_entry dra72_iodelay_cfg_array[] = {
 	{0x188, 0, 0}, /* CFG_GPMC_A18_OUT */
 	{0x374, 121, 0}, /* CFG_GPMC_CS2_OUT */
 };
+
+const struct iodelay_cfg_entry dra72_iodelay_cfg_array_revc[] = {
+	{0x0144, 0, 0},	/* CFG_GPMC_A13_IN */
+	{0x0150, 2247, 1186},	/* CFG_GPMC_A14_IN */
+	{0x015C, 2176, 1197},	/* CFG_GPMC_A15_IN */
+	{0x0168, 2229, 1268},	/* CFG_GPMC_A16_IN */
+	{0x0170, 0, 0},	/* CFG_GPMC_A16_OUT */
+	{0x0174, 2251, 1217},	/* CFG_GPMC_A17_IN */
+	{0x0188, 0, 0},	/* CFG_GPMC_A18_OUT */
+	{0x0374, 0, 0},	/* CFG_GPMC_CS2_OUT */
+};
+
 #endif
 
 const struct pad_conf_entry dra74x_core_padconf_array[] = {
