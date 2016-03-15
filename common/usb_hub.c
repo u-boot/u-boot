@@ -275,7 +275,6 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 		if (!(portstatus & USB_PORT_STAT_CONNECTION))
 			return -ENOTCONN;
 	}
-	mdelay(200);
 
 	/* Reset the port */
 	ret = legacy_hub_port_reset(dev, port, &portstatus);
@@ -284,8 +283,6 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 			printf("cannot reset port %i!?\n", port + 1);
 		return ret;
 	}
-
-	mdelay(200);
 
 	switch (portstatus & USB_PORT_STAT_SPEED_MASK) {
 	case USB_PORT_STAT_SUPER_SPEED:
