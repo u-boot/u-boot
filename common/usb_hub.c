@@ -46,6 +46,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define USB_BUFSIZ	512
 
+#define HUB_SHORT_RESET_TIME	20
+#define HUB_LONG_RESET_TIME	200
+
 /* TODO(sjg@chromium.org): Remove this when CONFIG_DM_USB is defined */
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
@@ -164,6 +167,7 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 	int err, tries;
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus, portchange;
+	int delay = HUB_SHORT_RESET_TIME; /* start with short reset delay */
 
 #ifdef CONFIG_DM_USB
 	debug("%s: resetting '%s' port %d...\n", __func__, dev->dev->name,
@@ -176,7 +180,7 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 		if (err < 0)
 			return err;
 
-		mdelay(200);
+		mdelay(delay);
 
 		if (usb_get_port_status(dev, port + 1, portsts) < 0) {
 			debug("get_port_status failed status %lX\n",
@@ -215,7 +219,8 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 		if (portstatus & USB_PORT_STAT_ENABLE)
 			break;
 
-		mdelay(200);
+		/* Switch to long reset delay for the next round */
+		delay = HUB_LONG_RESET_TIME;
 	}
 
 	if (tries == MAX_TRIES) {
