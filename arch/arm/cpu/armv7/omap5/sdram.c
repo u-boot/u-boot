@@ -398,6 +398,45 @@ dra_ddr3_ext_phy_ctrl_const_base_666MHz[] = {
 	0x0
 };
 
+const u32 dra_ddr3_ext_phy_ctrl_const_base_666MHz_es2[] = {
+	0x04040100,
+	0x006B009F,
+	0x006B00A2,
+	0x006B00A8,
+	0x006B00A8,
+	0x006B00B2,
+	0x002F002F,
+	0x002F002F,
+	0x002F002F,
+	0x002F002F,
+	0x002F002F,
+	0x00600073,
+	0x00600071,
+	0x0060007C,
+	0x0060007E,
+	0x00600084,
+	0x00400053,
+	0x00400051,
+	0x0040005C,
+	0x0040005E,
+	0x00400064,
+	0x00800080,
+	0x00800080,
+	0x40010080,
+	0x08102040,
+	0x005B008F,
+	0x005B0092,
+	0x005B0098,
+	0x005B0098,
+	0x005B00A2,
+	0x00300043,
+	0x00300041,
+	0x0030004C,
+	0x0030004E,
+	0x00300054,
+	0x00000077
+};
+
 const struct lpddr2_mr_regs mr_regs = {
 	.mr1	= MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8,
 	.mr2	= 0x6,
@@ -438,9 +477,12 @@ void __weak emif_get_ext_phy_ctrl_const_regs(u32 emif_nr,
 		}
 		break;
 	case DRA722_ES1_0:
-	case DRA722_ES2_0:
 		*regs = dra_ddr3_ext_phy_ctrl_const_base_666MHz;
 		*size = ARRAY_SIZE(dra_ddr3_ext_phy_ctrl_const_base_666MHz);
+		break;
+	case DRA722_ES2_0:
+		*regs = dra_ddr3_ext_phy_ctrl_const_base_666MHz_es2;
+		*size = ARRAY_SIZE(dra_ddr3_ext_phy_ctrl_const_base_666MHz_es2);
 		break;
 	default:
 		*regs = ddr3_ext_phy_ctrl_const_base_es2;
