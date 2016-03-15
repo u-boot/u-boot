@@ -138,8 +138,8 @@ static u32 get_cfg_reg(u16 a_delay, u16 g_delay, u32 cpde, u32 fpde)
 	return reg;
 }
 
-static int do_set_iodelay(u32 base, struct iodelay_cfg_entry const *array,
-			   int niodelays)
+int do_set_iodelay(u32 base, struct iodelay_cfg_entry const *array,
+		   int niodelays)
 {
 	struct iodelay_cfg_entry *iodelay = (struct iodelay_cfg_entry *)array;
 	u32 reg, cpde, fpde, i;
