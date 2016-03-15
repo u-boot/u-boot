@@ -1135,7 +1135,7 @@ int file_fat_write(const char *filename, void *buffer, loff_t offset,
 		   loff_t maxsize, loff_t *actwrite)
 {
 	if (offset != 0) {
-		printf("Error: non zero offset is currently not suported.\n");
+		printf("Error: non zero offset is currently not supported.\n");
 		return -1;
 	}
 

@@ -77,7 +77,7 @@ static const struct pl01x_serial_platdata serial_platdata = {
 #elif CONFIG_CONS_INDEX == 4
 	.base = HI6220_UART3_BASE,
 #else
-#error "Unsuported console index value."
+#error "Unsupported console index value."
 #endif
 	.type = TYPE_PL011,
 	.clock = 19200000
