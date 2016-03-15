@@ -775,6 +775,7 @@ void __weak hw_data_init(void)
 	break;
 
 	case DRA722_ES1_0:
+	case DRA722_ES2_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra72x_dplls;
 	*omap_vcores = &dra722_volts;
@@ -807,6 +808,7 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 		*regs = &ioregs_dra7xx_es1;
 		break;
 	case DRA722_ES1_0:
+	case DRA722_ES2_0:
 		*regs = &ioregs_dra72x_es1;
 		break;
 

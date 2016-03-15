@@ -700,6 +700,7 @@ static inline u8 is_dra72x(void)
 #define DRA752_ES1_1	0x07520110
 #define DRA752_ES2_0	0x07520200
 #define DRA722_ES1_0	0x07220100
+#define DRA722_ES2_0	0x07220200
 
 /*
  * SRAM scratch space entries
