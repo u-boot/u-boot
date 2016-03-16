@@ -517,7 +517,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		}
 	}
 
-	munmap(fdt, sbuf.st_size);
+	munmap(old_fdt, sbuf.st_size);
 	close(fd);
 
 	/* Pack the FDT and place the data after it */
