@@ -69,8 +69,6 @@
 #define RTC_POWER_FAILED	(1 << 1)
 #define SLEEP_AFTER_POWER_FAIL	(1 << 0)
 
-#define PMBASE			0x40
-#define ACPI_CNTL		0x44
 #define BIOS_CNTL		0xDC
 #define GPIO_BASE		0x48 /* LPC GPIO Base Address Register */
 #define GPIO_CNTL		0x4C /* LPC GPIO Control Register */
@@ -99,59 +97,10 @@
 #define GPIO_CNTL		0x4C /* LPC GPIO Control Register */
 #define GPIO_ROUT		0xb8
 
-#define LPC_IO_DEC		0x80 /* IO Decode Ranges Register */
-#define  COMB_DEC_RANGE		(1 << 4)  /* 0x2f8-0x2ff (COM2) */
-#define  COMA_DEC_RANGE		(0 << 0)  /* 0x3f8-0x3ff (COM1) */
-#define LPC_EN			0x82 /* LPC IF Enables Register */
-#define  CNF2_LPC_EN		(1 << 13) /* 0x4e/0x4f */
-#define  CNF1_LPC_EN		(1 << 12) /* 0x2e/0x2f */
-#define  MC_LPC_EN		(1 << 11) /* 0x62/0x66 */
-#define  KBC_LPC_EN		(1 << 10) /* 0x60/0x64 */
-#define  GAMEH_LPC_EN		(1 << 9)  /* 0x208/0x20f */
-#define  GAMEL_LPC_EN		(1 << 8)  /* 0x200/0x207 */
-#define  FDD_LPC_EN		(1 << 3)  /* LPC_IO_DEC[12] */
-#define  LPT_LPC_EN		(1 << 2)  /* LPC_IO_DEC[9:8] */
-#define  COMB_LPC_EN		(1 << 1)  /* LPC_IO_DEC[6:4] */
-#define  COMA_LPC_EN		(1 << 0)  /* LPC_IO_DEC[3:2] */
-#define LPC_GEN1_DEC		0x84 /* LPC IF Generic Decode Range 1 */
-#define LPC_GEN2_DEC		0x88 /* LPC IF Generic Decode Range 2 */
-#define LPC_GEN3_DEC		0x8c /* LPC IF Generic Decode Range 3 */
-#define LPC_GEN4_DEC		0x90 /* LPC IF Generic Decode Range 4 */
-#define LPC_GENX_DEC(x)		(0x84 + 4 * (x))
-#define  GEN_DEC_RANGE_256B	0xfc0000  /* 256 Bytes */
-#define  GEN_DEC_RANGE_128B	0x7c0000  /* 128 Bytes */
-#define  GEN_DEC_RANGE_64B	0x3c0000  /* 64 Bytes */
-#define  GEN_DEC_RANGE_32B	0x1c0000  /* 32 Bytes */
-#define  GEN_DEC_RANGE_16B	0x0c0000  /* 16 Bytes */
-#define  GEN_DEC_RANGE_8B	0x040000  /* 8 Bytes */
-#define  GEN_DEC_RANGE_4B	0x000000  /* 4 Bytes */
-#define  GEN_DEC_RANGE_EN	(1 << 0)  /* Range Enable */
-
 /* PCI Configuration Space (D31:F1): IDE */
 #define PCH_IDE_DEV		PCI_BDF(0, 0x1f, 1)
 #define PCH_SATA_DEV		PCI_BDF(0, 0x1f, 2)
 #define PCH_SATA2_DEV		PCI_BDF(0, 0x1f, 5)
-
-#define INTR_LN			0x3c
-#define IDE_TIM_PRI		0x40	/* IDE timings, primary */
-#define   IDE_DECODE_ENABLE	(1 << 15)
-#define   IDE_SITRE		(1 << 14)
-#define   IDE_ISP_5_CLOCKS	(0 << 12)
-#define   IDE_ISP_4_CLOCKS	(1 << 12)
-#define   IDE_ISP_3_CLOCKS	(2 << 12)
-#define   IDE_RCT_4_CLOCKS	(0 <<  8)
-#define   IDE_RCT_3_CLOCKS	(1 <<  8)
-#define   IDE_RCT_2_CLOCKS	(2 <<  8)
-#define   IDE_RCT_1_CLOCKS	(3 <<  8)
-#define   IDE_DTE1		(1 <<  7)
-#define   IDE_PPE1		(1 <<  6)
-#define   IDE_IE1		(1 <<  5)
-#define   IDE_TIME1		(1 <<  4)
-#define   IDE_DTE0		(1 <<  3)
-#define   IDE_PPE0		(1 <<  2)
-#define   IDE_IE0		(1 <<  1)
-#define   IDE_TIME0		(1 <<  0)
-#define IDE_TIM_SEC		0x42	/* IDE timings, secondary */
 
 #define IDE_SDMA_CNT		0x48	/* Synchronous DMA control */
 #define   IDE_SSDE1		(1 <<  3)
@@ -337,9 +286,7 @@
 		(((d) << DIR_IDR) | ((c) << DIR_ICR) | \
 			((b) << DIR_IBR) | ((a) << DIR_IAR))
 
-#define RC		0x3400	/* 32bit */
 #define HPTC		0x3404	/* 32bit */
-#define GCS		0x3410	/* 32bit */
 #define BUC		0x3414	/* 32bit */
 #define PCH_DISABLE_GBE		(1 << 5)
 #define FD		0x3418	/* 32bit */

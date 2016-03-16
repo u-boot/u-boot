@@ -21,6 +21,7 @@
 #include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
+#include <asm/lpc_common.h>
 #include <asm/microcode.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>

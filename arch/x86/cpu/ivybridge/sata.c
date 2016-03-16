@@ -9,27 +9,12 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <asm/io.h>
+#include <asm/pch_common.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/bd82x6x.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static inline u32 sir_read(struct udevice *dev, int idx)
-{
-	u32 data;
-
-	dm_pci_write_config32(dev, SATA_SIRI, idx);
-	dm_pci_read_config32(dev, SATA_SIRD, &data);
-
-	return data;
-}
-
-static inline void sir_write(struct udevice *dev, int idx, u32 value)
-{
-	dm_pci_write_config32(dev, SATA_SIRI, idx);
-	dm_pci_write_config32(dev, SATA_SIRD, value);
-}
 
 static void common_sata_init(struct udevice *dev, unsigned int port_map)
 {
@@ -177,27 +162,27 @@ static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 		pch_iobp_update(pch, SATA_IOBP_SP1G3IR, 0, port_tx);
 
 	/* Additional Programming Requirements */
-	sir_write(dev, 0x04, 0x00001600);
-	sir_write(dev, 0x28, 0xa0000033);
-	reg32 = sir_read(dev, 0x54);
+	pch_common_sir_write(dev, 0x04, 0x00001600);
+	pch_common_sir_write(dev, 0x28, 0xa0000033);
+	reg32 = pch_common_sir_read(dev, 0x54);
 	reg32 &= 0xff000000;
 	reg32 |= 0x5555aa;
-	sir_write(dev, 0x54, reg32);
-	sir_write(dev, 0x64, 0xcccc8484);
-	reg32 = sir_read(dev, 0x68);
+	pch_common_sir_write(dev, 0x54, reg32);
+	pch_common_sir_write(dev, 0x64, 0xcccc8484);
+	reg32 = pch_common_sir_read(dev, 0x68);
 	reg32 &= 0xffff0000;
 	reg32 |= 0xcccc;
-	sir_write(dev, 0x68, reg32);
-	reg32 = sir_read(dev, 0x78);
+	pch_common_sir_write(dev, 0x68, reg32);
+	reg32 = pch_common_sir_read(dev, 0x78);
 	reg32 &= 0x0000ffff;
 	reg32 |= 0x88880000;
-	sir_write(dev, 0x78, reg32);
-	sir_write(dev, 0x84, 0x001c7000);
-	sir_write(dev, 0x88, 0x88338822);
-	sir_write(dev, 0xa0, 0x001c7000);
-	sir_write(dev, 0xc4, 0x0c0c0c0c);
-	sir_write(dev, 0xc8, 0x0c0c0c0c);
-	sir_write(dev, 0xd4, 0x10000000);
+	pch_common_sir_write(dev, 0x78, reg32);
+	pch_common_sir_write(dev, 0x84, 0x001c7000);
+	pch_common_sir_write(dev, 0x88, 0x88338822);
+	pch_common_sir_write(dev, 0xa0, 0x001c7000);
+	pch_common_sir_write(dev, 0xc4, 0x0c0c0c0c);
+	pch_common_sir_write(dev, 0xc8, 0x0c0c0c0c);
+	pch_common_sir_write(dev, 0xd4, 0x10000000);
 
 	pch_iobp_update(pch, 0xea004001, 0x3fffffff, 0xc0000000);
 	pch_iobp_update(pch, 0xea00408a, 0xfffffcff, 0x00000100);
