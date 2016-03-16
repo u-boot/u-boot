@@ -245,6 +245,7 @@ struct blk_desc *scsi_get_dev(int dev)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /******************************************************************************
  * scsi boot command intepreter. Derived from diskboot
  */
@@ -367,6 +368,27 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	} /* switch */
 	return CMD_RET_USAGE;
 }
+
+U_BOOT_CMD(
+	scsi, 5, 1, do_scsi,
+	"SCSI sub-system",
+	"reset - reset SCSI controller\n"
+	"scsi info  - show available SCSI devices\n"
+	"scsi scan  - (re-)scan SCSI bus\n"
+	"scsi device [dev] - show or set current device\n"
+	"scsi part [dev] - print partition table of one or all SCSI devices\n"
+	"scsi read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
+	"     to memory address `addr'\n"
+	"scsi write addr blk# cnt - write `cnt' blocks starting at block\n"
+	"     `blk#' from memory address `addr'"
+);
+
+U_BOOT_CMD(
+	scsiboot, 3, 1, do_scsiboot,
+	"boot from SCSI device",
+	"loadAddr dev:part"
+);
+#endif
 
 /****************************************************************************************
  * scsi_read
@@ -710,24 +732,3 @@ void scsi_setup_inquiry(ccb * pccb)
 	pccb->cmdlen=6;
 	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
 }
-
-
-U_BOOT_CMD(
-	scsi, 5, 1, do_scsi,
-	"SCSI sub-system",
-	"reset - reset SCSI controller\n"
-	"scsi info  - show available SCSI devices\n"
-	"scsi scan  - (re-)scan SCSI bus\n"
-	"scsi device [dev] - show or set current device\n"
-	"scsi part [dev] - print partition table of one or all SCSI devices\n"
-	"scsi read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
-	"     to memory address `addr'\n"
-	"scsi write addr blk# cnt - write `cnt' blocks starting at block\n"
-	"     `blk#' from memory address `addr'"
-);
-
-U_BOOT_CMD(
-	scsiboot, 3, 1, do_scsiboot,
-	"boot from SCSI device",
-	"loadAddr dev:part"
-);
