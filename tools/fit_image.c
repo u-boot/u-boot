@@ -385,7 +385,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	buf = malloc(fit_size);
 	if (!buf) {
 		ret = -ENOMEM;
-		goto err;
+		goto err_munmap;
 	}
 	buf_ptr = 0;
 
@@ -393,7 +393,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	if (images < 0) {
 		debug("%s: Cannot find /images node: %d\n", __func__, images);
 		ret = -EINVAL;
-		goto err;
+		goto err_munmap;
 	}
 
 	for (node = fdt_first_subnode(fdt, images);
@@ -411,7 +411,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		ret = fdt_delprop(fdt, node, "data");
 		if (ret) {
 			ret = -EPERM;
-			goto err;
+			goto err_munmap;
 		}
 		fdt_setprop_u32(fdt, node, "data-offset", buf_ptr);
 		fdt_setprop_u32(fdt, node, "data-size", len);
@@ -446,8 +446,11 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		ret = -EIO;
 		goto err;
 	}
-	ret = 0;
+	close(fd);
+	return 0;
 
+err_munmap:
+	munmap(fdt, sbuf.st_size);
 err:
 	close(fd);
 	return ret;
