@@ -6,7 +6,8 @@
 #
 
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += _ashldi3.o _ashrdi3.o _divsi3.o \
-			_lshrdi3.o _modsi3.o _udivsi3.o _umodsi3.o div0.o
+			_lshrdi3.o _modsi3.o _udivsi3.o _umodsi3.o div0.o \
+			_uldivmod.o
 
 ifdef CONFIG_CPU_V7M
 obj-y	+= vectors_m.o crt0.o
