@@ -26,8 +26,12 @@ u64 get_page_table_size(void);
 #define MMU_SECTION_SHIFT	21
 #define MMU_SECTION_SIZE	(1 << MMU_SECTION_SHIFT)
 
+/* These constants need to be synced to the MT_ types in asm/armv8/mmu.h */
 enum dcache_option {
-	DCACHE_OFF = 0x3,
+	DCACHE_OFF = 0 << 2,
+	DCACHE_WRITETHROUGH = 3 << 2,
+	DCACHE_WRITEBACK = 4 << 2,
+	DCACHE_WRITEALLOC = 4 << 2,
 };
 
 #define isb()				\
