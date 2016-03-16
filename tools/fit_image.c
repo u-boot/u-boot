@@ -537,8 +537,8 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	if (fd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			params->cmdname, fname, strerror(errno));
-		ret = -EIO;
-		goto err;
+		free(fdt);
+		return -EIO;
 	}
 	if (write(fd, fdt, new_size) != new_size) {
 		debug("%s: Failed to write external data to file %s\n",
