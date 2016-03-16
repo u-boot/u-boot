@@ -123,13 +123,14 @@ static int fdt_property_file(struct image_tool_params *params,
 
 	ret = fdt_property_placeholder(fdt, "data", sbuf.st_size, &ptr);
 	if (ret)
-		return ret;
+		goto err;
 	ret = read(fd, ptr, sbuf.st_size);
 	if (ret != sbuf.st_size) {
 		fprintf(stderr, "%s: Can't read %s: %s\n",
 			params->cmdname, fname, strerror(errno));
 		goto err;
 	}
+	close(fd);
 
 	return 0;
 err:
