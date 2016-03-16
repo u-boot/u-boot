@@ -541,6 +541,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	ret = 0;
 
 err:
+	free(fdt);
 	close(fd);
 	return ret;
 }
