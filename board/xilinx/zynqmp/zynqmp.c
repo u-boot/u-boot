@@ -70,8 +70,9 @@ static phys_size_t fdt_get_reg(const void *fdt, int nodeoffset, void *buf,
 			       const u32 *cell, int n)
 {
 	int i = 0, b, banks;
-	int address_cells = fdt_address_cells(fdt, nodeoffset);
-	int size_cells = fdt_size_cells(fdt, nodeoffset);
+	int parent_offset = fdt_parent_offset(fdt, nodeoffset);
+	int address_cells = fdt_address_cells(fdt, parent_offset);
+	int size_cells = fdt_size_cells(fdt, parent_offset);
 	char *p = buf;
 	phys_addr_t val;
 	phys_size_t vals;
