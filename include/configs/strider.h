@@ -279,14 +279,13 @@
 				| BR_PS_16	/* 16 bit port */ \
 				| BR_MS_GPCM	/* MSEL = GPCM */ \
 				| BR_V)		/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(MEG_TO_AM(CONFIG_SYS_FPGA0_SIZE) \
+
+#define CONFIG_SYS_OR1_PRELIM   (MEG_TO_AM(CONFIG_SYS_FPGA0_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET)
+				| OR_GPCM_SCY_5 \
+				| OR_GPCM_TRLX_CLEAR \
+				| OR_GPCM_EHTR_CLEAR)
 
 #define CONFIG_SYS_FPGA_BASE(k)		CONFIG_SYS_FPGA0_BASE
 #define CONFIG_SYS_FPGA_DONE(k)		0x0010
