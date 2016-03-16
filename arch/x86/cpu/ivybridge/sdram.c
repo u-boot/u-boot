@@ -25,6 +25,7 @@
 #include <asm/global_data.h>
 #include <asm/intel_regs.h>
 #include <asm/mrccache.h>
+#include <asm/mrc_common.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/report_platform.h>
@@ -40,57 +41,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CMOS_OFFSET_MRC_SEED_S3		156
 #define CMOS_OFFSET_MRC_SEED_CHK	160
 
-/*
- * This function looks for the highest region of memory lower than 4GB which
- * has enough space for U-Boot where U-Boot is aligned on a page boundary.
- * It overrides the default implementation found elsewhere which simply
- * picks the end of ram, wherever that may be. The location of the stack,
- * the relocation address, and how far U-Boot is moved by relocation are
- * set in the global data structure.
- */
 ulong board_get_usable_ram_top(ulong total_size)
 {
-	struct memory_info *info = &gd->arch.meminfo;
-	uintptr_t dest_addr = 0;
-	struct memory_area *largest = NULL;
-	int i;
-
-	/* Find largest area of memory below 4GB */
-
-	for (i = 0; i < info->num_areas; i++) {
-		struct memory_area *area = &info->area[i];
-
-		if (area->start >= 1ULL << 32)
-			continue;
-		if (!largest || area->size > largest->size)
-			largest = area;
-	}
-
-	/* If no suitable area was found, return an error. */
-	assert(largest);
-	if (!largest || largest->size < (2 << 20))
-		panic("No available memory found for relocation");
-
-	dest_addr = largest->start + largest->size;
-
-	return (ulong)dest_addr;
+	return mrc_common_board_get_usable_ram_top(total_size);
 }
 
 void dram_init_banksize(void)
 {
-	struct memory_info *info = &gd->arch.meminfo;
-	int num_banks;
-	int i;
-
-	for (i = 0, num_banks = 0; i < info->num_areas; i++) {
-		struct memory_area *area = &info->area[i];
-
-		if (area->start >= 1ULL << 32)
-			continue;
-		gd->bd->bi_dram[num_banks].start = area->start;
-		gd->bd->bi_dram[num_banks].size = area->size;
-		num_banks++;
-	}
+	mrc_common_dram_init_banksize();
 }
 
 static int read_seed_from_cmos(struct pei_data *pei_data)
@@ -217,164 +175,10 @@ int misc_init_r(void)
 	return 0;
 }
 
-static const char *const ecc_decoder[] = {
-	"inactive",
-	"active on IO",
-	"disabled on IO",
-	"active"
-};
-
-/*
- * Dump in the log memory controller configuration as read from the memory
- * controller registers.
- */
-static void report_memory_config(void)
+static void post_system_agent_init(struct udevice *dev, struct udevice *me_dev,
+				   struct pei_data *pei_data)
 {
-	u32 addr_decoder_common, addr_decode_ch[2];
-	int i;
-
-	addr_decoder_common = readl(MCHBAR_REG(0x5000));
-	addr_decode_ch[0] = readl(MCHBAR_REG(0x5004));
-	addr_decode_ch[1] = readl(MCHBAR_REG(0x5008));
-
-	debug("memcfg DDR3 clock %d MHz\n",
-	      (readl(MCHBAR_REG(0x5e04)) * 13333 * 2 + 50) / 100);
-	debug("memcfg channel assignment: A: %d, B % d, C % d\n",
-	      addr_decoder_common & 3,
-	      (addr_decoder_common >> 2) & 3,
-	      (addr_decoder_common >> 4) & 3);
-
-	for (i = 0; i < ARRAY_SIZE(addr_decode_ch); i++) {
-		u32 ch_conf = addr_decode_ch[i];
-		debug("memcfg channel[%d] config (%8.8x):\n", i, ch_conf);
-		debug("   ECC %s\n", ecc_decoder[(ch_conf >> 24) & 3]);
-		debug("   enhanced interleave mode %s\n",
-		      ((ch_conf >> 22) & 1) ? "on" : "off");
-		debug("   rank interleave %s\n",
-		      ((ch_conf >> 21) & 1) ? "on" : "off");
-		debug("   DIMMA %d MB width x%d %s rank%s\n",
-		      ((ch_conf >> 0) & 0xff) * 256,
-		      ((ch_conf >> 19) & 1) ? 16 : 8,
-		      ((ch_conf >> 17) & 1) ? "dual" : "single",
-		      ((ch_conf >> 16) & 1) ? "" : ", selected");
-		debug("   DIMMB %d MB width x%d %s rank%s\n",
-		      ((ch_conf >> 8) & 0xff) * 256,
-		      ((ch_conf >> 20) & 1) ? 16 : 8,
-		      ((ch_conf >> 18) & 1) ? "dual" : "single",
-		      ((ch_conf >> 16) & 1) ? ", selected" : "");
-	}
-}
-
-static void post_system_agent_init(struct pei_data *pei_data)
-{
-	/* If PCIe init is skipped, set the PEG clock gating */
-	if (!pei_data->pcie_init)
-		setbits_le32(MCHBAR_REG(0x7010), 1);
-}
-
-static asmlinkage void console_tx_byte(unsigned char byte)
-{
-#ifdef DEBUG
-	putc(byte);
-#endif
-}
-
-static int recovery_mode_enabled(void)
-{
-	return false;
-}
-
-/**
- * Find the PEI executable in the ROM and execute it.
- *
- * @dev: Northbridge device
- * @pei_data: configuration data for UEFI PEI reference code
- */
-int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
-		     struct pei_data *pei_data)
-{
-	unsigned version;
-	const char *data;
 	uint16_t done;
-	int ret;
-
-	report_platform_info(dev);
-
-	/* Wait for ME to be ready */
-	ret = intel_early_me_init(me_dev);
-	if (ret)
-		return ret;
-	ret = intel_early_me_uma_size(me_dev);
-	if (ret < 0)
-		return ret;
-
-	debug("Starting UEFI PEI System Agent\n");
-
-	/*
-	 * Do not pass MRC data in for recovery mode boot,
-	 * Always pass it in for S3 resume.
-	 */
-	if (!recovery_mode_enabled() ||
-	    pei_data->boot_mode == PEI_BOOT_RESUME) {
-		ret = prepare_mrc_cache(pei_data);
-		if (ret)
-			debug("prepare_mrc_cache failed: %d\n", ret);
-	}
-
-	/* If MRC data is not found we cannot continue S3 resume. */
-	if (pei_data->boot_mode == PEI_BOOT_RESUME && !pei_data->mrc_input) {
-		debug("Giving up in sdram_initialize: No MRC data\n");
-		reset_cpu(0);
-	}
-
-	/* Pass console handler in pei_data */
-	pei_data->tx_byte = console_tx_byte;
-
-	debug("PEI data at %p, size %x:\n", pei_data, sizeof(*pei_data));
-
-	data = (char *)CONFIG_X86_MRC_ADDR;
-	if (data) {
-		int rv;
-		int (*func)(struct pei_data *);
-		ulong start;
-
-		debug("Calling MRC at %p\n", data);
-		post_code(POST_PRE_MRC);
-		start = get_timer(0);
-		func = (int (*)(struct pei_data *))data;
-		rv = func(pei_data);
-		post_code(POST_MRC);
-		if (rv) {
-			switch (rv) {
-			case -1:
-				printf("PEI version mismatch.\n");
-				break;
-			case -2:
-				printf("Invalid memory frequency.\n");
-				break;
-			default:
-				printf("MRC returned %x.\n", rv);
-			}
-			printf("Nonzero MRC return value.\n");
-			return -EFAULT;
-		}
-		debug("MRC execution time %lu ms\n", get_timer(start));
-	} else {
-		printf("UEFI PEI System Agent not found.\n");
-		return -ENOSYS;
-	}
-
-#if CONFIG_USBDEBUG
-	/* mrc.bin reconfigures USB, so reinit it to have debug */
-	early_usbdebug_init();
-#endif
-
-	version = readl(MCHBAR_REG(0x5034));
-	debug("System Agent Version %d.%d.%d Build %d\n",
-	      version >> 24 , (version >> 16) & 0xff,
-	      (version >> 8) & 0xff, version & 0xff);
-	debug("MRC output data length %#x at %p\n", pei_data->mrc_output_len,
-	      pei_data->mrc_output);
 
 	/*
 	 * Send ME init done for SandyBridge here.  This is done inside the
@@ -387,23 +191,14 @@ int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
 	else
 		intel_me_status(me_dev);
 
-	post_system_agent_init(pei_data);
-	report_memory_config();
+	/* If PCIe init is skipped, set the PEG clock gating */
+	if (!pei_data->pcie_init)
+		setbits_le32(MCHBAR_REG(0x7010), 1);
+}
 
-	/* S3 resume: don't save scrambler seed or MRC data */
-	if (pei_data->boot_mode != PEI_BOOT_RESUME) {
-		/*
-		 * This will be copied to SDRAM in reserve_arch(), then written
-		 * to SPI flash in mrccache_save()
-		 */
-		gd->arch.mrc_output = (char *)pei_data->mrc_output;
-		gd->arch.mrc_output_len = pei_data->mrc_output_len;
-		ret = write_seeds_to_cmos(pei_data);
-		if (ret)
-			debug("Failed to write seeds to CMOS: %d\n", ret);
-	}
-
-	return 0;
+static int recovery_mode_enabled(void)
+{
+	return false;
 }
 
 int reserve_arch(void)
@@ -411,87 +206,16 @@ int reserve_arch(void)
 	return mrccache_reserve();
 }
 
-static int copy_spd(struct pei_data *peid)
+static int copy_spd(struct udevice *dev, struct pei_data *peid)
 {
-	const int gpio_vector[] = {41, 42, 43, 10, -1};
-	int spd_index;
-	const void *blob = gd->fdt_blob;
-	int node, spd_node;
-	int ret, i;
+	const void *data;
+	int ret;
 
-	for (i = 0; ; i++) {
-		if (gpio_vector[i] == -1)
-			break;
-		ret = gpio_requestf(gpio_vector[i], "spd_id%d", i);
-		if (ret) {
-			debug("%s: Could not request gpio %d\n", __func__,
-			      gpio_vector[i]);
-			return ret;
-		}
-	}
-	spd_index = gpio_get_values_as_int(gpio_vector);
-	debug("spd index %d\n", spd_index);
-	node = fdtdec_next_compatible(blob, 0, COMPAT_MEMORY_SPD);
-	if (node < 0) {
-		printf("SPD data not found.\n");
-		return -ENOENT;
-	}
+	ret = mrc_locate_spd(dev, sizeof(peid->spd_data[0]), &data);
+	if (ret)
+		return ret;
 
-	for (spd_node = fdt_first_subnode(blob, node);
-	     spd_node > 0;
-	     spd_node = fdt_next_subnode(blob, spd_node)) {
-		const char *data;
-		int len;
-
-		if (fdtdec_get_int(blob, spd_node, "reg", -1) != spd_index)
-			continue;
-		data = fdt_getprop(blob, spd_node, "data", &len);
-		if (len < sizeof(peid->spd_data[0])) {
-			printf("Missing SPD data\n");
-			return -EINVAL;
-		}
-
-		debug("Using SDRAM SPD data for '%s'\n",
-		      fdt_get_name(blob, spd_node, NULL));
-		memcpy(peid->spd_data[0], data, sizeof(peid->spd_data[0]));
-		break;
-	}
-
-	if (spd_node < 0) {
-		printf("No SPD data found for index %d\n", spd_index);
-		return -ENOENT;
-	}
-
-	return 0;
-}
-
-/**
- * add_memory_area() - Add a new usable memory area to our list
- *
- * Note: @start and @end must not span the first 4GB boundary
- *
- * @info:	Place to store memory info
- * @start:	Start of this memory area
- * @end:	End of this memory area + 1
- */
-static int add_memory_area(struct memory_info *info,
-			   uint64_t start, uint64_t end)
-{
-	struct memory_area *ptr;
-
-	if (info->num_areas == CONFIG_NR_DRAM_BANKS)
-		return -ENOSPC;
-
-	ptr = &info->area[info->num_areas];
-	ptr->start = start;
-	ptr->size = end - start;
-	info->total_memory += ptr->size;
-	if (ptr->start < (1ULL << 32))
-		info->total_32bit_memory += ptr->size;
-	debug("%d: memory %llx size %llx, total now %llx / %llx\n",
-	      info->num_areas, ptr->start, ptr->size,
-	      info->total_32bit_memory, info->total_memory);
-	info->num_areas++;
+	memcpy(peid->spd_data[0], data, sizeof(peid->spd_data[0]));
 
 	return 0;
 }
@@ -610,10 +334,10 @@ static int sdram_find(struct udevice *dev)
 	debug("Available memory below 4GB: %lluM\n", tomk >> 10);
 
 	/* Report the memory regions */
-	add_memory_area(info, 1 << 20, 2 << 28);
-	add_memory_area(info, (2 << 28) + (2 << 20), 4 << 28);
-	add_memory_area(info, (4 << 28) + (2 << 20), tseg_base);
-	add_memory_area(info, 1ULL << 32, touud);
+	mrc_add_memory_area(info, 1 << 20, 2 << 28);
+	mrc_add_memory_area(info, (2 << 28) + (2 << 20), 4 << 28);
+	mrc_add_memory_area(info, (4 << 28) + (2 << 20), tseg_base);
+	mrc_add_memory_area(info, 1ULL << 32, touud);
 
 	/* Add MTRRs for memory */
 	mtrr_add_request(MTRR_TYPE_WRBACK, 0, 2ULL << 30);
@@ -682,7 +406,7 @@ static void rcba_config(void)
 
 int dram_init(void)
 {
-	struct pei_data pei_data __aligned(8) = {
+	struct pei_data _pei_data __aligned(8) = {
 		.pei_version = PEI_VERSION,
 		.mchbar = MCH_BASE_ADDRESS,
 		.dmibar = DEFAULT_DMIBAR,
@@ -735,6 +459,7 @@ int dram_init(void)
 			{ 0, 4, 0x0000 }, /* P13= Empty */
 		},
 	};
+	struct pei_data *pei_data = &_pei_data;
 	struct udevice *dev, *me_dev;
 	int ret;
 
@@ -744,27 +469,74 @@ int dram_init(void)
 	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
 	if (ret)
 		return ret;
-	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
-	debug("mrc_input %p\n", pei_data.mrc_input);
-	pei_data.boot_mode = gd->arch.pei_boot_mode;
-	ret = copy_spd(&pei_data);
-	if (!ret)
-		ret = sdram_initialise(dev, me_dev, &pei_data);
+	ret = copy_spd(dev, pei_data);
 	if (ret)
 		return ret;
+	pei_data->boot_mode = gd->arch.pei_boot_mode;
+	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
+	debug("mrc_input %p\n", pei_data->mrc_input);
 
-	rcba_config();
-	quick_ram_check();
+	/*
+	 * Do not pass MRC data in for recovery mode boot,
+	 * Always pass it in for S3 resume.
+	 */
+	if (!recovery_mode_enabled() ||
+	    pei_data->boot_mode == PEI_BOOT_RESUME) {
+		ret = prepare_mrc_cache(pei_data);
+		if (ret)
+			debug("prepare_mrc_cache failed: %d\n", ret);
+	}
 
-	writew(0xCAFE, MCHBAR_REG(SSKPD));
+	/* If MRC data is not found we cannot continue S3 resume. */
+	if (pei_data->boot_mode == PEI_BOOT_RESUME && !pei_data->mrc_input) {
+		debug("Giving up in sdram_initialize: No MRC data\n");
+		reset_cpu(0);
+	}
 
-	post_code(POST_DRAM);
+	/* Pass console handler in pei_data */
+	pei_data->tx_byte = sdram_console_tx_byte;
+
+	/* Wait for ME to be ready */
+	ret = intel_early_me_init(me_dev);
+	if (ret)
+		return ret;
+	ret = intel_early_me_uma_size(me_dev);
+	if (ret < 0)
+		return ret;
+
+	ret = mrc_common_init(dev, pei_data, false);
+	if (ret)
+		return ret;
 
 	ret = sdram_find(dev);
 	if (ret)
 		return ret;
-
 	gd->ram_size = gd->arch.meminfo.total_32bit_memory;
+
+	debug("MRC output data length %#x at %p\n", pei_data->mrc_output_len,
+	      pei_data->mrc_output);
+
+	post_system_agent_init(dev, me_dev, pei_data);
+	report_memory_config();
+
+	/* S3 resume: don't save scrambler seed or MRC data */
+	if (pei_data->boot_mode != PEI_BOOT_RESUME) {
+		/*
+		 * This will be copied to SDRAM in reserve_arch(), then written
+		 * to SPI flash in mrccache_save()
+		 */
+		gd->arch.mrc_output = (char *)pei_data->mrc_output;
+		gd->arch.mrc_output_len = pei_data->mrc_output_len;
+		ret = write_seeds_to_cmos(pei_data);
+		if (ret)
+			debug("Failed to write seeds to CMOS: %d\n", ret);
+	}
+
+	writew(0xCAFE, MCHBAR_REG(SSKPD));
+	if (ret)
+		return ret;
+
+	rcba_config();
 
 	return 0;
 }
