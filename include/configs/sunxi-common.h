@@ -310,6 +310,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PHY_GIGE			/* GMAC can use gigabit PHY	*/
 #define CONFIG_PHY_ADDR		1
 #define CONFIG_MII			/* MII PHY management		*/
+#define CONFIG_PHY_REALTEK
 #endif
 
 #ifdef CONFIG_USB_EHCI_HCD
