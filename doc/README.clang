@@ -26,10 +26,10 @@ Debian (based)
 Binary packages can be installed as usual, e.g.:
 sudo apt-get install clang
 
-To compile U-Boot with clang on linux without IAS use e.g.:
-export TRIPLET=arm-linux-gnueabi && export CROSS_COMPILE="$TRIPLET-"
-make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" rpi_defconfig
-make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" all V=1 -j8
+Note that we still use binutils for some tools so we must continue to set
+CROSS_COMPILE. To compile U-Boot with clang on linux without IAS use e.g.:
+make HOSTCC=clang rpi_2_defconfig
+make HOSTCC=clang CROSS_COMPILE=arm-linux-gnueabi- CC=clang -j8
 
 It can also be used to compile sandbox:
 make HOSTCC=clang sandbox_defconfig
@@ -46,8 +46,8 @@ ln -s /usr/local/bin/arm-gnueabi-freebsd-as /usr/bin/arm-freebsd-eabi-as
 # The following commands compile U-Boot using the clang xdev toolchain.
 # NOTE: CROSS_COMPILE and target differ on purpose!
 export CROSS_COMPILE=arm-gnueabi-freebsd-
-gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" rpi_defconfig
-gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" -j8
+gmake rpi_2_defconfig
+gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd" -j8
 
 Given that U-Boot will default to gcc, above commands can be
 simplified with a simple wrapper script, listed below.
@@ -56,5 +56,4 @@ simplified with a simple wrapper script, listed below.
 ---
 #!/bin/sh
 
-exec clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0 "$@"
-
+exec clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd "$@"
