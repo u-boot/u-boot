@@ -13,3 +13,4 @@ obj-y += microcode.o
 endif
 obj-y += pch.o
 obj-$(CONFIG_HAVE_MRC) += report_platform.o
+obj-$(CONFIG_HAVE_MRC) += mrc.o
