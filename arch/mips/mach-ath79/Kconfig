@@ -29,8 +29,13 @@ config TARGET_AP121
 	bool "AP121 Reference Board"
 	select SOC_AR933X
 
+config TARGET_AP143
+	bool "AP143 Reference Board"
+	select SOC_QCA953X
+
 endchoice
 
 source "board/qca/ap121/Kconfig"
+source "board/qca/ap143/Kconfig"
 
 endmenu
