@@ -329,7 +329,7 @@ static int fit_build(struct image_tool_params *params, const char *fname)
 	if (ret < 0) {
 		fprintf(stderr, "%s: Failed to build FIT image\n",
 			params->cmdname);
-		goto err;
+		goto err_buf;
 	}
 	size = ret;
 	fd = open(fname, O_RDWR | O_CREAT | O_TRUNC | O_BINARY, 0666);
@@ -346,9 +346,12 @@ static int fit_build(struct image_tool_params *params, const char *fname)
 		goto err;
 	}
 	close(fd);
+	free(buf);
 
 	return 0;
 err:
+	close(fd);
+err_buf:
 	free(buf);
 	return -1;
 }
