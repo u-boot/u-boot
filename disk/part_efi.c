@@ -184,10 +184,6 @@ void part_print_efi(struct blk_desc *dev_desc)
 	char uuid[37];
 	unsigned char *uuid_bin;
 
-	if (!dev_desc) {
-		printf("%s: Invalid Argument(s)\n", __func__);
-		return;
-	}
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, &gpt_pte) != 1) {
