@@ -193,7 +193,7 @@ int usb_stor_info(void)
 		return 1;
 	}
 
-	return 1;
+	return 0;
 }
 
 static unsigned int usb_get_max_lun(struct us_data *us)
