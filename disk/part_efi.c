@@ -240,7 +240,7 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 	gpt_entry *gpt_pte = NULL;
 
 	/* "part" argument must be at least 1 */
-	if (!dev_desc || !info || part < 1) {
+	if (part < 1) {
 		printf("%s: Invalid Argument(s)\n", __func__);
 		return -1;
 	}
