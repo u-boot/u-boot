@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/unaligned.h>
 #include "part_iso.h"
 
 #ifdef HAVE_BLOCK_DEVICE
@@ -24,26 +25,6 @@
 #define CD_SECTSIZE 2048
 
 static unsigned char tmpbuf[CD_SECTSIZE];
-
-/* Convert char[4] in little endian format to the host format integer
- */
-static inline unsigned long le32_to_int(unsigned char *le32)
-{
-    return ((le32[3] << 24) +
-	    (le32[2] << 16) +
-	    (le32[1] << 8) +
-	     le32[0]
-	   );
-}
-/* Convert char[2] in little endian format to the host format integer
- */
-static inline unsigned short le16_to_int(unsigned char *le16)
-{
-    return ((le16[1] << 8) +
-	   le16[0]
-	   );
-}
-
 
 /* only boot records will be listed as valid partitions */
 int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
@@ -103,7 +84,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 				pbr->ident_str, dev_desc->devnum, part_num);
 		return (-1);
 	}
-	bootaddr=le32_to_int(pbr->pointer);
+	bootaddr = get_unaligned_le32(pbr->pointer);
 	PRINTF(" Boot Entry at: %08lX\n",bootaddr);
 	if (blk_dread(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
 		if(verb)
@@ -203,7 +184,7 @@ found:
 	}
 	switch(pide->boot_media) {
 		case 0x00: /* no emulation */
-			info->size=le16_to_int(pide->sec_cnt)>>2;
+			info->size = get_unaligned_le16(pide->sec_cnt)>>2;
 			break;
 		case 0x01:	info->size=2400>>2; break; /* 1.2MByte Floppy */
 		case 0x02:	info->size=2880>>2; break; /* 1.44MByte Floppy */
@@ -211,7 +192,7 @@ found:
 		case 0x04:	info->size=2880>>2; break; /* dummy (HD Emulation) */
 		default:	info->size=0; break;
 	}
-	newblkaddr=le32_to_int(pide->rel_block_addr);
+	newblkaddr = get_unaligned_le32(pide->rel_block_addr);
 	info->start=newblkaddr;
 	PRINTF(" part %d found @ %lx size %lx\n",part_num,newblkaddr,info->size);
 	return 0;
