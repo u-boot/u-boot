@@ -23,6 +23,12 @@ struct arch_global_data {
 	unsigned long tbl;
 	unsigned long lastinc;
 #endif
+#ifdef CONFIG_ARCH_ATH79
+	unsigned long id;
+	unsigned long soc;
+	unsigned long rev;
+	unsigned long ver;
+#endif
 };
 
 #include <asm-generic/global_data.h>

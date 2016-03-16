@@ -1,0 +1,7 @@
+menu "QCA/Atheros 7xxx/9xxx platforms"
+	depends on ARCH_ATH79
+
+config SYS_SOC
+	default "ath79"
+
+endmenu
