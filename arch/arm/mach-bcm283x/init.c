@@ -15,3 +15,10 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_ARMV7_LPAE
+void enable_caches(void)
+{
+	dcache_enable();
+}
+#endif
