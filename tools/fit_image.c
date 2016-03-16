@@ -446,8 +446,6 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		ret = -EIO;
 		goto err;
 	}
-	close(fd);
-
 	ret = 0;
 
 err:
