@@ -450,6 +450,7 @@ config ARCH_KEYSTONE
 	bool "TI Keystone"
 	select CPU_V7
 	select SUPPORT_SPL
+	select CMD_POWEROFF
 
 config ARCH_MX7
 	bool "Freescale MX7"
