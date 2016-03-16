@@ -5,6 +5,7 @@
 dtb-y += bayleybay.dtb \
 	chromebook_link.dtb \
 	chromebox_panther.dtb \
+	chromebook_samus.dtb \
 	cougarcanyon2.dtb \
 	crownbay.dtb \
 	efi.dtb \
