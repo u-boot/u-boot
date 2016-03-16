@@ -327,6 +327,11 @@
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 
 #define CONFIG_PCA953X			/* NXP PCA9554 */
+#define CONFIG_CMD_PCA953X
+#define CONFIG_CMD_PCA953X_INFO
+#define CONFIG_SYS_I2C_PCA953X_WIDTH    { {0x24, 16}, {0x25, 16}, {0x26, 16}, \
+					  {0x3c, 8}, {0x3d, 8}, {0x3e, 8} }
+
 #define CONFIG_PCA9698			/* NXP PCA9698 */
 
 #define CONFIG_SYS_I2C_IHS
