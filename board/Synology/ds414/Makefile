@@ -4,4 +4,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y :=	ds414.o
+obj-y	+= ds414.o
+ifndef CONFIG_SPL_BUILD
+obj-y	+= cmd_syno.o
+endif
