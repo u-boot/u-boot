@@ -233,7 +233,6 @@
 					<&gpio_b 11 0>, <&gpio_a 10 0>;
 			u-boot,dm-pre-reloc;
 			spd {
-				compatible = "memory-spd";
 				#address-cells = <1>;
 				#size-cells = <0>;
 				elpida_4Gb_1600_x16 {
