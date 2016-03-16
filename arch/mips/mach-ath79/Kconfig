@@ -22,4 +22,15 @@ config SOC_QCA953X
 	help
 	  This supports QCA/Atheros qca953x family SOCs.
 
+choice
+	prompt "Board select"
+
+config TARGET_AP121
+	bool "AP121 Reference Board"
+	select SOC_AR933X
+
+endchoice
+
+source "board/qca/ap121/Kconfig"
+
 endmenu
