@@ -66,12 +66,12 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	dev->req_seq = -1;
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS)) {
 		/*
-		* Some devices, such as a SPI bus, I2C bus and serial ports
-		* are numbered using aliases.
-		*
-		* This is just a 'requested' sequence, and will be
-		* resolved (and ->seq updated) when the device is probed.
-		*/
+		 * Some devices, such as a SPI bus, I2C bus and serial ports
+		 * are numbered using aliases.
+		 *
+		 * This is just a 'requested' sequence, and will be
+		 * resolved (and ->seq updated) when the device is probed.
+		 */
 		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
 			if (uc->uc_drv->name && of_offset != -1) {
 				fdtdec_get_alias_seq(gd->fdt_blob,
