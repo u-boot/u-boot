@@ -100,13 +100,18 @@ int clock_twi_onoff(int port, int state)
 		return 0;
 	}
 
-	/* set the apb clock gate for twi */
-	if (state)
+	/* set the apb clock gate and reset for twi */
+	if (state) {
 		setbits_le32(&ccm->apb2_gate,
 			     CLK_GATE_OPEN << (APB2_GATE_TWI_SHIFT+port));
-	else
+		setbits_le32(&ccm->apb2_reset_cfg,
+			     1 << (APB2_RESET_TWI_SHIFT + port));
+	} else {
+		clrbits_le32(&ccm->apb2_reset_cfg,
+			     1 << (APB2_RESET_TWI_SHIFT + port));
 		clrbits_le32(&ccm->apb2_gate,
 			     CLK_GATE_OPEN << (APB2_GATE_TWI_SHIFT+port));
+	}
 
 	return 0;
 }
