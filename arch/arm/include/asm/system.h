@@ -176,7 +176,9 @@ void smc_call(struct pt_regs *args);
 #define CR_AFE	(1 << 29)	/* Access flag enable			*/
 #define CR_TE	(1 << 30)	/* Thumb exception enable		*/
 
-#ifndef PGTABLE_SIZE
+#if defined(CONFIG_ARMV7_LPAE) && !defined(PGTABLE_SIZE)
+#define PGTABLE_SIZE		(4096 * 5)
+#elif !defined(PGTABLE_SIZE)
 #define PGTABLE_SIZE		(4096 * 4)
 #endif
 
@@ -233,17 +235,50 @@ void save_boot_params_ret(void);
 #define wfi()
 #endif
 
+static inline unsigned long get_cpsr(void)
+{
+	unsigned long cpsr;
+
+	asm volatile("mrs %0, cpsr" : "=r"(cpsr): );
+	return cpsr;
+}
+
+static inline int is_hyp(void)
+{
+#ifdef CONFIG_ARMV7_LPAE
+	/* HYP mode requires LPAE ... */
+	return ((get_cpsr() & 0x1f) == 0x1a);
+#else
+	/* ... so without LPAE support we can optimize all hyp code away */
+	return 0;
+#endif
+}
+
 static inline unsigned int get_cr(void)
 {
 	unsigned int val;
-	asm volatile("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val) : : "cc");
+
+	if (is_hyp())
+		asm volatile("mrc p15, 4, %0, c1, c0, 0	@ get CR" : "=r" (val)
+								  :
+								  : "cc");
+	else
+		asm volatile("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val)
+								  :
+								  : "cc");
 	return val;
 }
 
 static inline void set_cr(unsigned int val)
 {
-	asm volatile("mcr p15, 0, %0, c1, c0, 0	@ set CR"
-	  : : "r" (val) : "cc");
+	if (is_hyp())
+		asm volatile("mcr p15, 4, %0, c1, c0, 0	@ set CR" :
+								  : "r" (val)
+								  : "cc");
+	else
+		asm volatile("mcr p15, 0, %0, c1, c0, 0	@ set CR" :
+								  : "r" (val)
+								  : "cc");
 	isb();
 }
 
@@ -261,12 +296,59 @@ static inline void set_dacr(unsigned int val)
 	isb();
 }
 
-#ifdef CONFIG_CPU_V7
+#ifdef CONFIG_ARMV7_LPAE
+/* Long-Descriptor Translation Table Level 1/2 Bits */
+#define TTB_SECT_XN_MASK	(1ULL << 54)
+#define TTB_SECT_NG_MASK	(1 << 11)
+#define TTB_SECT_AF		(1 << 10)
+#define TTB_SECT_SH_MASK	(3 << 8)
+#define TTB_SECT_NS_MASK	(1 << 5)
+#define TTB_SECT_AP		(1 << 6)
+/* Note: TTB AP bits are set elsewhere */
+#define TTB_SECT_MAIR(x)	((x & 0x7) << 2) /* Index into MAIR */
+#define TTB_SECT		(1 << 0)
+#define TTB_PAGETABLE		(3 << 0)
+
+/* TTBCR flags */
+#define TTBCR_EAE		(1 << 31)
+#define TTBCR_T0SZ(x)		((x) << 0)
+#define TTBCR_T1SZ(x)		((x) << 16)
+#define TTBCR_USING_TTBR0	(TTBCR_T0SZ(0) | TTBCR_T1SZ(0))
+#define TTBCR_IRGN0_NC		(0 << 8)
+#define TTBCR_IRGN0_WBWA	(1 << 8)
+#define TTBCR_IRGN0_WT		(2 << 8)
+#define TTBCR_IRGN0_WBNWA	(3 << 8)
+#define TTBCR_IRGN0_MASK	(3 << 8)
+#define TTBCR_ORGN0_NC		(0 << 10)
+#define TTBCR_ORGN0_WBWA	(1 << 10)
+#define TTBCR_ORGN0_WT		(2 << 10)
+#define TTBCR_ORGN0_WBNWA	(3 << 10)
+#define TTBCR_ORGN0_MASK	(3 << 10)
+#define TTBCR_SHARED_NON	(0 << 12)
+#define TTBCR_SHARED_OUTER	(2 << 12)
+#define TTBCR_SHARED_INNER	(3 << 12)
+#define TTBCR_EPD0		(0 << 7)
+
+/*
+ * Memory types
+ */
+#define MEMORY_ATTRIBUTES	((0x00 << (0 * 8)) | (0x88 << (1 * 8)) | \
+				 (0xcc << (2 * 8)) | (0xff << (3 * 8)))
+
+/* options available for data cache on each page */
+enum dcache_option {
+	DCACHE_OFF = TTB_SECT | TTB_SECT_MAIR(0),
+	DCACHE_WRITETHROUGH = TTB_SECT | TTB_SECT_MAIR(1),
+	DCACHE_WRITEBACK = TTB_SECT | TTB_SECT_MAIR(2),
+	DCACHE_WRITEALLOC = TTB_SECT | TTB_SECT_MAIR(3),
+};
+#elif defined(CONFIG_CPU_V7)
 /* Short-Descriptor Translation Table Level 1 Bits */
 #define TTB_SECT_NS_MASK	(1 << 19)
 #define TTB_SECT_NG_MASK	(1 << 17)
 #define TTB_SECT_S_MASK		(1 << 16)
 /* Note: TTB AP bits are set elsewhere */
+#define TTB_SECT_AP		(3 << 10)
 #define TTB_SECT_TEX(x)		((x & 0x7) << 12)
 #define TTB_SECT_DOMAIN(x)	((x & 0xf) << 5)
 #define TTB_SECT_XN_MASK	(1 << 4)
@@ -282,6 +364,7 @@ enum dcache_option {
 	DCACHE_WRITEALLOC = DCACHE_WRITEBACK | TTB_SECT_TEX(1),
 };
 #else
+#define TTB_SECT_AP		(3 << 10)
 /* options available for data cache on each page */
 enum dcache_option {
 	DCACHE_OFF = 0x12,
@@ -293,7 +376,11 @@ enum dcache_option {
 
 /* Size of an MMU section */
 enum {
-	MMU_SECTION_SHIFT	= 20,
+#ifdef CONFIG_ARMV7_LPAE
+	MMU_SECTION_SHIFT	= 21, /* 2MB */
+#else
+	MMU_SECTION_SHIFT	= 20, /* 1MB */
+#endif
 	MMU_SECTION_SIZE	= 1 << MMU_SECTION_SHIFT,
 };
 

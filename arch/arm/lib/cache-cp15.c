@@ -34,11 +34,22 @@ static void cp_delay (void)
 
 void set_section_dcache(int section, enum dcache_option option)
 {
+#ifdef CONFIG_ARMV7_LPAE
+	u64 *page_table = (u64 *)gd->arch.tlb_addr;
+	/* Need to set the access flag to not fault */
+	u64 value = TTB_SECT_AP | TTB_SECT_AF;
+#else
 	u32 *page_table = (u32 *)gd->arch.tlb_addr;
-	u32 value;
+	u32 value = TTB_SECT_AP;
+#endif
 
-	value = (section << MMU_SECTION_SHIFT) | (3 << 10);
+	/* Add the page offset */
+	value |= ((u32)section << MMU_SECTION_SHIFT);
+
+	/* Add caching bits */
 	value |= option;
+
+	/* Set PTE */
 	page_table[section] = value;
 }
 
@@ -68,8 +79,9 @@ __weak void dram_bank_mmu_setup(int bank)
 	int	i;
 
 	debug("%s: bank: %d\n", __func__, bank);
-	for (i = bd->bi_dram[bank].start >> 20;
-	     i < (bd->bi_dram[bank].start >> 20) + (bd->bi_dram[bank].size >> 20);
+	for (i = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
+	     i < (bd->bi_dram[bank].start >> MMU_SECTION_SHIFT) +
+		 (bd->bi_dram[bank].size >> MMU_SECTION_SHIFT);
 	     i++) {
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
 		set_section_dcache(i, DCACHE_WRITETHROUGH);
@@ -89,14 +101,56 @@ static inline void mmu_setup(void)
 
 	arm_init_before_mmu();
 	/* Set up an identity-mapping for all 4GB, rw for everyone */
-	for (i = 0; i < 4096; i++)
+	for (i = 0; i < ((4096ULL * 1024 * 1024) >> MMU_SECTION_SHIFT); i++)
 		set_section_dcache(i, DCACHE_OFF);
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		dram_bank_mmu_setup(i);
 	}
 
-#ifdef CONFIG_CPU_V7
+#ifdef CONFIG_ARMV7_LPAE
+	/* Set up 4 PTE entries pointing to our 4 1GB page tables */
+	for (i = 0; i < 4; i++) {
+		u64 *page_table = (u64 *)(gd->arch.tlb_addr + (4096 * 4));
+		u64 tpt = gd->arch.tlb_addr + (4096 * i);
+		page_table[i] = tpt | TTB_PAGETABLE;
+	}
+
+	reg = TTBCR_EAE;
+#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
+	reg |= TTBCR_ORGN0_WT | TTBCR_IRGN0_WT;
+#elif defined(CONFIG_SYS_ARM_CACHE_WRITEALLOC)
+	reg |= TTBCR_ORGN0_WBWA | TTBCR_IRGN0_WBWA;
+#else
+	reg |= TTBCR_ORGN0_WBNWA | TTBCR_IRGN0_WBNWA;
+#endif
+
+	if (is_hyp()) {
+		/* Set HCTR to enable LPAE */
+		asm volatile("mcr p15, 4, %0, c2, c0, 2"
+			: : "r" (reg) : "memory");
+		/* Set HTTBR0 */
+		asm volatile("mcrr p15, 4, %0, %1, c2"
+			:
+			: "r"(gd->arch.tlb_addr + (4096 * 4)), "r"(0)
+			: "memory");
+		/* Set HMAIR */
+		asm volatile("mcr p15, 4, %0, c10, c2, 0"
+			: : "r" (MEMORY_ATTRIBUTES) : "memory");
+	} else {
+		/* Set TTBCR to enable LPAE */
+		asm volatile("mcr p15, 0, %0, c2, c0, 2"
+			: : "r" (reg) : "memory");
+		/* Set 64-bit TTBR0 */
+		asm volatile("mcrr p15, 0, %0, %1, c2"
+			:
+			: "r"(gd->arch.tlb_addr + (4096 * 4)), "r"(0)
+			: "memory");
+		/* Set MAIR */
+		asm volatile("mcr p15, 0, %0, c10, c2, 0"
+			: : "r" (MEMORY_ATTRIBUTES) : "memory");
+	}
+#elif defined(CONFIG_CPU_V7)
 	/* Set TTBR0 */
 	reg = gd->arch.tlb_addr & TTBR0_BASE_ADDR_MASK;
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
