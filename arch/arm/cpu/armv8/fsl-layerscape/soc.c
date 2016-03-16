@@ -240,7 +240,7 @@ void fsl_lsch2_early_init_f(void)
 	init_early_memctl_regs();	/* tighten IFC timing */
 #endif
 
-#ifdef CONFIG_FSL_QSPI
+#if defined(CONFIG_FSL_QSPI) && !defined(CONFIG_QSPI_BOOT)
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 	/* Make SEC reads and writes snoopable */
