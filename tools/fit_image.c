@@ -530,6 +530,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	if (fd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			params->cmdname, fname, strerror(errno));
+		ret = -EIO;
 		goto err;
 	}
 	if (write(fd, fdt, new_size) != new_size) {
@@ -538,7 +539,6 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		ret = -EIO;
 		goto err;
 	}
-	close(fd);
 
 	ret = 0;
 
