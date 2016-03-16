@@ -41,7 +41,6 @@ static int mmc_load_legacy(struct mmc *mmc, ulong sector,
 	return 0;
 }
 
-#ifdef CONFIG_SPL_LOAD_FIT
 static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 			     ulong count, void *buf)
 {
@@ -49,7 +48,6 @@ static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 
 	return mmc->block_dev.block_read(&mmc->block_dev, sector, count, buf);
 }
-#endif
 
 static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 {
@@ -68,12 +66,8 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 		goto end;
 	}
 
-	switch (image_get_magic(header)) {
-	case IH_MAGIC:
-		ret = mmc_load_legacy(mmc, sector, header);
-		break;
-#ifdef CONFIG_SPL_LOAD_FIT
-	case FDT_MAGIC: {
+	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+	    image_get_magic(header) == FDT_MAGIC) {
 		struct spl_load_info load;
 
 		debug("Found FIT\n");
@@ -82,12 +76,8 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(&load, sector, header);
-		break;
-	}
-#endif
-	default:
-		puts("bad magic\n");
-		return -1;
+	} else {
+		ret = mmc_load_legacy(mmc, sector, header);
 	}
 
 end:
