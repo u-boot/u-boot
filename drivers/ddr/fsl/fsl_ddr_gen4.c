@@ -240,8 +240,10 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		/* Disable DRAM VRef training */
 		ddr_out32(&ddr->ddr_cdr2,
 			  regs->ddr_cdr2 & ~DDR_CDR2_VREF_TRAIN_EN);
-		/* Disable deskew */
-		ddr_out32(&ddr->debug[28], 0x400);
+		/* disable transmit bit deskew */
+		temp32 = ddr_in32(&ddr->debug[28]);
+		temp32 |= DDR_TX_BD_DIS;
+		ddr_out32(&ddr->debug[28], temp32);
 		/* Disable D_INIT */
 		ddr_out32(&ddr->sdram_cfg_2,
 			  regs->ddr_sdram_cfg_2 & ~SDRAM_CFG2_D_INIT);
@@ -358,7 +360,9 @@ step2:
 			debug("MR6 = 0x%08x\n", temp32);
 		}
 		ddr_out32(&ddr->sdram_md_cntl, 0);
-		ddr_out32(&ddr->debug[28], 0);		/* Enable deskew */
+		temp32 = ddr_in32(&ddr->debug[28]);
+		temp32 &= ~DDR_TX_BD_DIS; /* Enable deskew */
+		ddr_out32(&ddr->debug[28], temp32);
 		ddr_out32(&ddr->debug[1], 0x400);	/* restart deskew */
 		/* wait for idle */
 		timeout = 40;
