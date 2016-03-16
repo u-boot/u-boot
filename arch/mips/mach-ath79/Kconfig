@@ -4,4 +4,13 @@ menu "QCA/Atheros 7xxx/9xxx platforms"
 config SYS_SOC
 	default "ath79"
 
+config SOC_AR933X
+	bool
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	select MIPS_TUNE_24KC
+	help
+	  This supports QCA/Atheros ar933x family SOCs.
+
 endmenu

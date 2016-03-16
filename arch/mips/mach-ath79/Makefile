@@ -5,3 +5,5 @@
 obj-y += reset.o
 obj-y += cpu.o
 obj-y += dram.o
+
+obj-$(CONFIG_SOC_AR933X)	+= ar933x/
