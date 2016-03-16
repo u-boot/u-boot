@@ -107,6 +107,7 @@ int imagetool_get_filesize(struct image_tool_params *params, const char *fname)
 	if (fstat(fd, &sbuf) < 0) {
 		fprintf(stderr, "%s: Can't stat %s: %s\n",
 			params->cmdname, fname, strerror(errno));
+		close(fd);
 		return -1;
 	}
 	close(fd);
