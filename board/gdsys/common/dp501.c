@@ -12,6 +12,16 @@
 #include <errno.h>
 #include <i2c.h>
 
+#define DP501_I2C_ADDR 0x08
+
+#ifdef CONFIG_SYS_DP501_I2C
+int dp501_i2c[] = CONFIG_SYS_DP501_I2C;
+#endif
+
+#ifdef CONFIG_SYS_DP501_BASE
+int dp501_base[] = CONFIG_SYS_DP501_BASE;
+#endif
+
 static void dp501_setbits(u8 addr, u8 reg, u8 mask)
 {
 	u8 val;
@@ -124,4 +134,25 @@ void dp501_powerup(u8 addr)
 void dp501_powerdown(u8 addr)
 {
 	dp501_setbits(addr, 0x0a, 0x30); /* power down encoder, standby mode */
+}
+
+
+int dp501_probe(unsigned screen, bool power)
+{
+#ifdef CONFIG_SYS_DP501_BASE
+	uint8_t dp501_addr = dp501_base[screen];
+#else
+	uint8_t dp501_addr = DP501_I2C_ADDR;
+#endif
+
+#ifdef CONFIG_SYS_DP501_I2C
+	i2c_set_bus_num(dp501_i2c[screen]);
+#endif
+
+	if (i2c_probe(dp501_addr))
+		return -1;
+
+	dp501_powerup(dp501_addr);
+
+	return 0;
 }

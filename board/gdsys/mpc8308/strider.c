@@ -24,6 +24,7 @@
 
 #include "../common/adv7611.h"
 #include "../common/ch7301.h"
+#include "../common/dp501.h"
 #include "../common/ioep-fpga.h"
 #include "../common/mclink.h"
 #include "../common/osd.h"
@@ -127,7 +128,10 @@ int last_stage_init(void)
 	int slaves;
 	unsigned int k;
 	unsigned int mux_ch;
-	unsigned char mclink_controllers[] = { 0x3c, 0x3d, 0x3e };
+	unsigned char mclink_controllers_dvi[] = { 0x3c, 0x3d, 0x3e };
+#ifdef CONFIG_STRIDER_CPU
+	unsigned char mclink_controllers_dp[] = { 0x24, 0x25, 0x26 };
+#endif
 	bool hw_type_cat = pca9698_get_value(0x20, 18);
 	bool ch0_sgmii2_present = false;
 
@@ -135,17 +139,25 @@ int last_stage_init(void)
 	pca9698_direction_output(0x20, 8, 0);
 
 	/* Turn on Parade DP501 */
-	pca9698_direction_output(0x20, 9, 1);
+	pca9698_direction_output(0x20, 10, 1);
 
 	ch0_sgmii2_present = !pca9698_get_value(0x20, 37);
 
 	/* wait for FPGA done, then reset FPGA */
-	for (k = 0; k < ARRAY_SIZE(mclink_controllers); ++k) {
+	for (k = 0; k < ARRAY_SIZE(mclink_controllers_dvi); ++k) {
 		unsigned int ctr = 0;
+		unsigned char *mclink_controllers = mclink_controllers_dvi;
 
+#ifdef CONFIG_STRIDER_CPU
+		if (i2c_probe(mclink_controllers[k])) {
+			mclink_controllers = mclink_controllers_dp;
+			if (i2c_probe(mclink_controllers[k]))
+				continue;
+		}
+#else
 		if (i2c_probe(mclink_controllers[k]))
 			continue;
-
+#endif
 		while (!(pca953x_get_val(mclink_controllers[k])
 		       & MCFPGA_DONE)) {
 			udelay(100000);
@@ -192,12 +204,21 @@ int last_stage_init(void)
 
 #ifdef CONFIG_STRIDER_CPU
 	ch7301_probe(0, false);
+	dp501_probe(0, false);
 #endif
 
 	if (slaves <= 0)
 		return 0;
 
 	mclink_fpgacount = slaves;
+
+#ifdef CONFIG_STRIDER_CPU
+	/* get ADV7611 out of reset, power up DP501, give some time to wakeup */
+	for (k = 1; k <= slaves; ++k)
+		FPGA_SET_REG(k, extended_control, 0x10); /* enable video */
+
+	udelay(500000);
+#endif
 
 	for (k = 1; k <= slaves; ++k) {
 		ioep_fpga_print_info(k);
@@ -206,10 +227,10 @@ int last_stage_init(void)
 			osd_probe(k);
 #endif
 #ifdef CONFIG_STRIDER_CPU
-		FPGA_SET_REG(k, extended_control, 0); /* enable video in*/
 		if (!adv7611_probe(k))
 			printf("       Advantiv ADV7611 HDMI Receiver\n");
 		ch7301_probe(k, false);
+		dp501_probe(k, false);
 #endif
 		if (hw_type_cat) {
 			miiphy_register(bb_miiphy_buses[k].name,
