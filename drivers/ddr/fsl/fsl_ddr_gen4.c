@@ -251,6 +251,13 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	}
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009801
+	temp32 = ddr_in32(&ddr->debug[25]);
+	temp32 &= ~DDR_CAS_TO_PRE_SUB_MASK;
+	temp32 |= 9 << DDR_CAS_TO_PRE_SUB_SHIFT;
+	ddr_out32(&ddr->debug[25], temp32);
+#endif
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009942
 	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
 	tmp = ddr_in32(&ddr->debug[28]);

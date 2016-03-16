@@ -189,6 +189,10 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 #define DDR_MR5_CA_PARITY_LAT_4_CLK	0x1 /* for DDR4-1600/1866/2133 */
 #define DDR_MR5_CA_PARITY_LAT_5_CLK	0x2 /* for DDR4-2400 */
 
+/* DEBUG_26 register */
+#define DDR_CAS_TO_PRE_SUB_MASK  0x0000f000 /* CAS to preamble subtract value */
+#define DDR_CAS_TO_PRE_SUB_SHIFT 12
+
 /* DEBUG_29 register */
 #define DDR_TX_BD_DIS	(1 << 10) /* Transmit Bit Deskew Disable */
 
