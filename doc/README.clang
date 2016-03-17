@@ -31,6 +31,10 @@ export TRIPLET=arm-linux-gnueabi && export CROSS_COMPILE="$TRIPLET-"
 make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" rpi_defconfig
 make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" all V=1 -j8
 
+It can also be used to compile sandbox:
+make HOSTCC=clang sandbox_defconfig
+make HOSTCC=clang CC=clang -j8
+
 FreeBSD 11 (Current):
 --------------------
 Since llvm 3.4 is currently in the base system, the integrated as is
