@@ -22,7 +22,7 @@ static int do_dhry(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	dhry(iterations);
 	duration = get_timer(start);
 	dhry_per_sec = lldiv(iterations * 1000ULL, duration);
-	vax_mips = dhry_per_sec / 1757;
+	vax_mips = lldiv(dhry_per_sec, 1757);
 	printf("%d iterations in %lu ms: %lu/s, %lu DMIPS\n", iterations,
 	       duration, (ulong)dhry_per_sec, vax_mips);
 
