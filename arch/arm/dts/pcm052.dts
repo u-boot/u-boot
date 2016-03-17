@@ -11,7 +11,7 @@
 	model = "Phytec phyCORE-Vybrid";
 	compatible = "phytec,pcm052", "fsl,vf610";
 
-	choosen {
+	chosen {
 		stdout-path = &uart1;
 	};
 
