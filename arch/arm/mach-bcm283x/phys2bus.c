@@ -9,7 +9,7 @@
 
 unsigned long phys_to_bus(unsigned long phys)
 {
-#ifdef CONFIG_BCM2836
+#ifndef CONFIG_BCM2835
 	return 0xc0000000 | phys;
 #else
 	return 0x40000000 | phys;

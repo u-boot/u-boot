@@ -38,7 +38,7 @@
 
 /* Raw mailbox HW */
 
-#ifdef CONFIG_BCM2836
+#ifndef CONFIG_BCM2835
 #define BCM2835_MBOX_PHYSADDR	0x3f00b880
 #else
 #define BCM2835_MBOX_PHYSADDR	0x2000b880

@@ -11,7 +11,6 @@
 #include <asm/arch/timer.h>
 
 /* Architecture, CPU, etc.*/
-#define CONFIG_BCM2835
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_SYS_TIMER_RATE		1000000
@@ -26,7 +25,7 @@
  * chose to use someone else's previously registered machine ID (3139, MX51_GGC)
  * rather than obtaining a valid ID:-/
  */
-#ifndef CONFIG_BCM2836
+#ifdef CONFIG_BCM2835
 #define CONFIG_MACH_TYPE		MACH_TYPE_BCM2708
 #endif
 
@@ -80,7 +79,7 @@
 #define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_DWC2
-#ifdef CONFIG_BCM2836
+#ifndef CONFIG_BCM2835
 #define CONFIG_USB_DWC2_REG_ADDR 0x3f980000
 #else
 #define CONFIG_USB_DWC2_REG_ADDR 0x20980000

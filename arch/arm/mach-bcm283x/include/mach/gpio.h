@@ -9,7 +9,7 @@
 #ifndef _BCM2835_GPIO_H_
 #define _BCM2835_GPIO_H_
 
-#ifdef CONFIG_BCM2836
+#ifndef CONFIG_BCM2835
 #define BCM2835_GPIO_BASE		0x3f200000
 #else
 #define BCM2835_GPIO_BASE		0x20200000
