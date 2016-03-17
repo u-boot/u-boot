@@ -152,6 +152,7 @@ void s_init(void)
 	timer_init();
 	gpio_init();
 	i2c_init_board();
+	eth_init_board();
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -257,32 +258,5 @@ void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
-}
-#endif
-
-#ifdef CONFIG_CMD_NET
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-int cpu_eth_init(bd_t *bis)
-{
-	__maybe_unused int rc;
-
-#ifdef CONFIG_MACPWR
-	gpio_request(CONFIG_MACPWR, "macpwr");
-	gpio_direction_output(CONFIG_MACPWR, 1);
-	mdelay(200);
-#endif
-
-#ifdef CONFIG_SUNXI_GMAC
-	rc = sunxi_gmac_initialize(bis);
-	if (rc < 0) {
-		printf("sunxi: failed to initialize gmac\n");
-		return rc;
-	}
-#endif
-
-	return 0;
 }
 #endif

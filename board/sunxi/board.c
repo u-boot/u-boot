@@ -90,6 +90,11 @@ int board_init(void)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_MACPWR
+	gpio_request(CONFIG_MACPWR, "macpwr");
+	gpio_direction_output(CONFIG_MACPWR, 1);
+#endif
+
 	/* Uses dm gpio code so do this here and not in i2c_init_board() */
 	return soft_i2c_board_init();
 }
