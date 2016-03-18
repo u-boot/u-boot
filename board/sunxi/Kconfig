@@ -342,6 +342,12 @@ config USB2_VBUS_PIN
 	---help---
 	See USB1_VBUS_PIN help text.
 
+config USB3_VBUS_PIN
+	string "Vbus enable pin for usb3 (ehci2)"
+	default ""
+	---help---
+	See USB1_VBUS_PIN help text.
+
 config I2C0_ENABLE
 	bool "Enable I2C/TWI controller 0"
 	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
