@@ -57,6 +57,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-theadorable.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
+	uniphier-ph1-ld11-ref.dtb \
 	uniphier-ph1-ld20-ref.dtb \
 	uniphier-ph1-ld4-ref.dtb \
 	uniphier-ph1-ld6b-ref.dtb \
