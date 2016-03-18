@@ -115,6 +115,17 @@ static inline void sg_set_pinsel(unsigned pin, unsigned muxval,
 	writel(tmp, reg);
 }
 
+static inline void sg_set_iectrl(unsigned pin)
+{
+	unsigned bit = pin % 32;
+	unsigned long reg = SG_IECTRL + pin / 32 * 4;
+	u32 tmp;
+
+	tmp = readl(reg);
+	tmp |= 1 << bit;
+	writel(tmp, reg);
+}
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* ARCH_SG_REGS_H */
