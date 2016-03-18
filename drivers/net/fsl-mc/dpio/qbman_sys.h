@@ -255,11 +255,11 @@ static inline int qbman_swp_sys_init(struct qbman_swp_sys *s,
 	s->addr_cena = d->cena_bar;
 	s->addr_cinh = d->cinh_bar;
 	s->cena = (void *)valloc(CONFIG_SYS_PAGE_SIZE);
-	memset((void *)s->cena, 0x00, CONFIG_SYS_PAGE_SIZE);
 	if (!s->cena) {
 		printf("Could not allocate page for cena shadow\n");
 		return -1;
 	}
+	memset((void *)s->cena, 0x00, CONFIG_SYS_PAGE_SIZE);
 
 #ifdef QBMAN_CHECKING
 	/* We should never be asked to initialise for a portal that isn't in
