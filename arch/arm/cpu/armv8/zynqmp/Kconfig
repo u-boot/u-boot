@@ -1,28 +1,5 @@
 if ARCH_ZYNQMP
 
-choice
-	prompt "Xilinx ZynqMP board select"
-
-config TARGET_ZYNQMP_EP
-	bool "ZynqMP EP Board"
-
-config TARGET_ZYNQMP_MINI
-	bool "ZynqMP MINI"
-
-config TARGET_ZYNQMP_ZCU102
-	bool "ZynqMP ZCU102"
-
-config TARGET_ZYNQMP_ZC1751_XM015_DC1
-	bool "ZynqMP ZC1751 XM015 DC1"
-
-config TARGET_ZYNQMP_ZC1751_XM016_DC2
-	bool "ZynqMP ZC1751 XM016 DC2"
-
-config TARGET_ZYNQMP_ZC1751_XM019_DC5
-	bool "ZynqMP ZC1751 XM019 DC5"
-
-endchoice
-
 config SYS_BOARD
 	default "zynqmp"
 
@@ -33,12 +10,12 @@ config SYS_SOC
 	default "zynqmp"
 
 config SYS_CONFIG_NAME
-	default "xilinx_zynqmp_ep" if TARGET_ZYNQMP_EP
-	default "xilinx_zynqmp_mini" if TARGET_ZYNQMP_MINI
-	default "xilinx_zynqmp_zcu102" if TARGET_ZYNQMP_ZCU102
-	default "xilinx_zynqmp_zc1751_xm015_dc1" if TARGET_ZYNQMP_ZC1751_XM015_DC1
-	default "xilinx_zynqmp_zc1751_xm016_dc2" if TARGET_ZYNQMP_ZC1751_XM016_DC2
-	default "xilinx_zynqmp_zc1751_xm019_dc5" if TARGET_ZYNQMP_ZC1751_XM019_DC5
+	string "Board configuration name"
+	default "xilinx_zynqmp"
+	help
+	  This option contains information about board configuration name.
+	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
+	  will be used for board configuration.
 
 config ZYNQMP_QSPI
 	bool "Configure ZynqMP QSPI"
