@@ -195,7 +195,7 @@
 		"fdt set /timer clock-frequency <240000> && " \
 		"fdt set /amba/i2c_clk clock-frequency <240000> && " \
 		"booti 80000 - f000000\0" \
-	"netboot=tftpboot 80000 image.ub && bootm\0" \
+	"netboot=tftpboot 10000000 image.ub && bootm\0" \
 	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr $fdt_offset $fdt_size && " \
 		  "sf read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
