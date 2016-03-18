@@ -237,6 +237,23 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
 int eth_getenv_enetaddr(const char *name, uchar *enetaddr);
 int eth_setenv_enetaddr(const char *name, const uchar *enetaddr);
 
+/**
+ * eth_setenv_enetaddr_by_index() - set the MAC address envrionment variable
+ *
+ * This sets up an environment variable with the given MAC address (@enetaddr).
+ * The environment variable to be set is defined by <@base_name><@index>addr.
+ * If @index is 0 it is omitted. For common Ethernet this means ethaddr,
+ * eth1addr, etc.
+ *
+ * @base_name:  Base name for variable, typically "eth"
+ * @index:      Index of interface being updated (>=0)
+ * @enetaddr:   Pointer to MAC address to put into the variable
+ * @return 0 if OK, other value on error
+ */
+int eth_setenv_enetaddr_by_index(const char *base_name, int index,
+				 uchar *enetaddr);
+
+
 /*
  * Get the hardware address for an ethernet interface .
  * Args:
