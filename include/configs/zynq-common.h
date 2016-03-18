@@ -203,6 +203,9 @@
 # define CONFIG_ENV_OFFSET		0xE0000
 #endif
 
+/* enable preboot to be loaded before CONFIG_BOOTDELAY */
+#define CONFIG_PREBOOT
+
 /* Default environment */
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
@@ -213,6 +216,29 @@
 	"nor_flash_off=0xE2100000\0"	\
 	"fdt_high=0x20000000\0"		\
 	"initrd_high=0x20000000\0"	\
+	"loadbootenv_addr=0x2000000\0" \
+	"bootenv=uEnv.txt\0" \
+	"bootenv_dev=mmc\0" \
+	"loadbootenv=load ${bootenv_dev} 0 ${loadbootenv_addr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from ${bootenv_dev} ...; " \
+		"env import -t ${loadbootenv_addr} $filesize\0" \
+	"bootenv_existence_test=test -e ${bootenv_dev} 0 /${bootenv}\0" \
+	"setbootenv=if env run bootenv_existence_test; then " \
+			"if env run loadbootenv; then " \
+				"env run importbootenv; " \
+			"fi; " \
+		"fi; \0" \
+	"sd_loadbootenv=set bootenv_dev mmc && " \
+			"run setbootenv \0" \
+	"usb_loadbootenv=set bootenv_dev usb && usb start && run setbootenv \0" \
+	"preboot=if test $modeboot = sdboot; then " \
+			"run sd_loadbootenv; " \
+			"echo Checking if uenvcmd is set ...; " \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...; " \
+				"run uenvcmd; " \
+			"fi; " \
+		"fi; \0" \
 	"norboot=echo Copying FIT from NOR flash to RAM... && " \
 		"cp.b ${nor_flash_off} ${load_addr} ${fit_size} && " \
 		"bootm ${load_addr}\0" \
