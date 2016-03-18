@@ -65,6 +65,9 @@ void _debug_uart_init(void)
 
 void putc(const char ch)
 {
+	if (ch == '\n')
+		putc('\r');
+
 	if (use_uart) {
 		NS16550_t com_port = (NS16550_t)0x3f8;
 
@@ -74,8 +77,6 @@ void putc(const char ch)
 	} else {
 		efi_putc(global_priv, ch);
 	}
-	if (ch == '\n')
-		putc('\r');
 }
 
 void puts(const char *str)
