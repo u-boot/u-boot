@@ -14,7 +14,8 @@ int proxstream2_init(const struct uniphier_board_data *bd)
 {
 	int ret;
 
-	proxstream2_sbc_init(bd);
+	sbc_savepin_init(bd);
+	uniphier_pxs2_sbc_init(bd);
 
 	support_card_reset();
 

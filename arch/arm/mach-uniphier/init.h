@@ -34,27 +34,33 @@ int ph1_pro5_init(const struct uniphier_board_data *bd);
 int proxstream2_init(const struct uniphier_board_data *bd);
 
 #if defined(CONFIG_MICRO_SUPPORT_CARD)
-int ph1_sld3_sbc_init(const struct uniphier_board_data *bd);
-int ph1_ld4_sbc_init(const struct uniphier_board_data *bd);
-int ph1_pro4_sbc_init(const struct uniphier_board_data *bd);
-int proxstream2_sbc_init(const struct uniphier_board_data *bd);
+int sbc_admulti_init(const struct uniphier_board_data *bd);
+int sbc_savepin_init(const struct uniphier_board_data *bd);
+int uniphier_sld3_sbc_init(const struct uniphier_board_data *bd);
+int uniphier_ld4_sbc_init(const struct uniphier_board_data *bd);
+int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd);
 #else
-static inline int ph1_sld3_sbc_init(const struct uniphier_board_data *bd)
+static inline int sbc_admulti_init(const struct uniphier_board_data *bd)
 {
 	return 0;
 }
 
-static inline int ph1_ld4_sbc_init(const struct uniphier_board_data *bd)
+static inline int sbc_savepin_init(const struct uniphier_board_data *bd)
 {
 	return 0;
 }
 
-static inline int ph1_pro4_sbc_init(const struct uniphier_board_data *bd)
+static inline int uniphier_sld3_sbc_init(const struct uniphier_board_data *bd)
 {
 	return 0;
 }
 
-static inline int proxstream2_sbc_init(const struct uniphier_board_data *bd)
+static inline int uniphier_ld4_sbc_init(const struct uniphier_board_data *bd)
+{
+	return 0;
+}
+
+static inline int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd)
 {
 	return 0;
 }

@@ -12,7 +12,7 @@
 
 int ph1_pro5_init(const struct uniphier_board_data *bd)
 {
-	ph1_pro4_sbc_init(bd);
+	sbc_savepin_init(bd);
 
 	support_card_reset();
 

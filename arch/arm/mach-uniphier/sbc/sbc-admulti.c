@@ -11,16 +11,23 @@
 #include "../sg-regs.h"
 #include "sbc-regs.h"
 
-int ph1_pro4_sbc_init(const struct uniphier_board_data *bd)
+#define SBCTRL0_ADMULTIPLX_PERI_VALUE	0x33120000
+#define SBCTRL1_ADMULTIPLX_PERI_VALUE	0x03005500
+#define SBCTRL2_ADMULTIPLX_PERI_VALUE	0x14000020
+
+#define SBCTRL0_ADMULTIPLX_MEM_VALUE	0x33120000
+#define SBCTRL1_ADMULTIPLX_MEM_VALUE	0x03005500
+#define SBCTRL2_ADMULTIPLX_MEM_VALUE	0x14000010
+
+int sbc_admulti_init(const struct uniphier_board_data *bd)
 {
 	/*
 	 * Only CS1 is connected to support card.
 	 * BKSZ[1:0] should be set to "01".
 	 */
-	writel(SBCTRL0_SAVEPIN_PERI_VALUE, SBCTRL10);
-	writel(SBCTRL1_SAVEPIN_PERI_VALUE, SBCTRL11);
-	writel(SBCTRL2_SAVEPIN_PERI_VALUE, SBCTRL12);
-	writel(SBCTRL4_SAVEPIN_PERI_VALUE, SBCTRL14);
+	writel(SBCTRL0_ADMULTIPLX_MEM_VALUE, SBCTRL10);
+	writel(SBCTRL1_ADMULTIPLX_MEM_VALUE, SBCTRL11);
+	writel(SBCTRL2_ADMULTIPLX_MEM_VALUE, SBCTRL12);
 
 	if (boot_is_swapped()) {
 		/*
