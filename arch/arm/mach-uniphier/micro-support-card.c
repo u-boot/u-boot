@@ -25,12 +25,12 @@
  */
 void support_card_reset_deassert(void)
 {
-	writel(0, MICRO_SUPPORT_CARD_RESET);
+	writel(0x00010000, MICRO_SUPPORT_CARD_RESET);
 }
 
 void support_card_reset(void)
 {
-	writel(3, MICRO_SUPPORT_CARD_RESET);
+	writel(0x00020003, MICRO_SUPPORT_CARD_RESET);
 }
 
 static int support_card_show_revision(void)
