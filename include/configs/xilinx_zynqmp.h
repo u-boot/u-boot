@@ -319,6 +319,4 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_CLOCKS
 
-#define CONFIG_CMD_CACHE
-
 #endif /* __XILINX_ZYNQMP_H */

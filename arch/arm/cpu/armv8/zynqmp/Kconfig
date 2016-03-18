@@ -49,12 +49,4 @@ config NAND_ARASAN
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 
-config SYS_DCACHE_OFF
-	bool "Do not use Data Cache"
-	default n
-
-config SYS_ICACHE_OFF
-	bool "Do not use Instruction Cache"
-	default n
-
 endif
