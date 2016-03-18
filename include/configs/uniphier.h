@@ -34,7 +34,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-/* Comment out the following to enable L2 cache */
+/* Comment out the following to disable L2 cache */
 #define CONFIG_UNIPHIER_L2CACHE_ON
 
 #define CONFIG_DISPLAY_CPUINFO
