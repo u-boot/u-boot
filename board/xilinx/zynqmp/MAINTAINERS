@@ -1,7 +1,6 @@
-XILINX_ZYNQMP_EP BOARD
+XILINX_ZYNQMP BOARDS
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
 F:	board/xilinx/zynqmp/
-F:	include/configs/xilinx_zynqmp.h
-F:	include/configs/xilinx_zynqmp_ep.h
-F:	configs/xilinx_zynqmp_ep_defconfig
+F:	include/configs/xilinx_zynqmp*
+F:	configs/xilinx_zynqmp*
