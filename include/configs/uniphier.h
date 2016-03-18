@@ -18,11 +18,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	-2
 #endif
 
-/* TODO: move to Kconfig and device tree */
-#if 0
-#define CONFIG_SYS_NS16550_SERIAL
-#endif
-
 #define CONFIG_SMC911X
 
 /* dummy: referenced by examples/standalone/smc911x_eeprom.c */
