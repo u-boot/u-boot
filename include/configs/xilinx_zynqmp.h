@@ -88,7 +88,6 @@
 
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
-# define CONFIG_SPI_FLASH_SST
 # define CONFIG_CMD_SPI
 # define CONFIG_CMD_SF
 #endif
