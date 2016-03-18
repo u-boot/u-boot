@@ -28,5 +28,6 @@ obj-y += boot-mode/
 obj-y += dram/
 
 obj-$(CONFIG_MICRO_SUPPORT_CARD) += micro-support-card.o
+obj-$(CONFIG_DEBUG_UART_UNIPHIER) += debug-uart/
 
 obj-$(CONFIG_CPU_V7) += arm32/

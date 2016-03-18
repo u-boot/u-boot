@@ -169,6 +169,15 @@ config DEBUG_UART_PIC32
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_UNIPHIER
+	bool "UniPhier on-chip UART"
+	depends on ARCH_UNIPHIER
+	help
+	  Select this to enable a debug UART using the UniPhier on-chip UART.
+	  You will need to provide DEBUG_UART_BASE to make this work.  The
+	  driver will be available until the real driver-model serial is
+	  running.
+
 endchoice
 
 config DEBUG_UART_BASE

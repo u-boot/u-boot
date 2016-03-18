@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
 #include <spl.h>
 
 #include "../init.h"
@@ -13,6 +14,10 @@
 void spl_board_init(void)
 {
 	const struct uniphier_board_data *param;
+
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 
 	param = uniphier_get_board_param();
 	if (!param)
