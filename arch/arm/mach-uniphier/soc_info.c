@@ -17,49 +17,49 @@ enum uniphier_soc_id uniphier_get_soc_type(void)
 	enum uniphier_soc_id ret;
 
 	switch ((revision & SG_REVISION_TYPE_MASK) >> SG_REVISION_TYPE_SHIFT) {
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_SLD3
+#ifdef CONFIG_ARCH_UNIPHIER_SLD3
 	case 0x25:
-		ret = SOC_UNIPHIER_PH1_SLD3;
+		ret = SOC_UNIPHIER_SLD3;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD4
+#ifdef CONFIG_ARCH_UNIPHIER_LD4
 	case 0x26:
-		ret = SOC_UNIPHIER_PH1_LD4;
+		ret = SOC_UNIPHIER_LD4;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_PRO4
+#ifdef CONFIG_ARCH_UNIPHIER_PRO4
 	case 0x28:
-		ret = SOC_UNIPHIER_PH1_PRO4;
+		ret = SOC_UNIPHIER_PRO4;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_SLD8
+#ifdef CONFIG_ARCH_UNIPHIER_SLD8
 	case 0x29:
-		ret = SOC_UNIPHIER_PH1_SLD8;
+		ret = SOC_UNIPHIER_SLD8;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_PRO5
+#ifdef CONFIG_ARCH_UNIPHIER_PRO5
 	case 0x2A:
-		ret = SOC_UNIPHIER_PH1_PRO5;
+		ret = SOC_UNIPHIER_PRO5;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PROXSTREAM2
+#ifdef CONFIG_ARCH_UNIPHIER_PXS2
 	case 0x2E:
-		ret = SOC_UNIPHIER_PROXSTREAM2;
+		ret = SOC_UNIPHIER_PXS2;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD6B
+#ifdef CONFIG_ARCH_UNIPHIER_LD6B
 	case 0x2F:
-		ret = SOC_UNIPHIER_PH1_LD6B;
+		ret = SOC_UNIPHIER_LD6B;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD11
+#ifdef CONFIG_ARCH_UNIPHIER_LD11
 	case 0x31:
-		ret = SOC_UNIPHIER_PH1_LD11;
+		ret = SOC_UNIPHIER_LD11;
 		break;
 #endif
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_LD20
+#ifdef CONFIG_ARCH_UNIPHIER_LD20
 	case 0x32:
-		ret = SOC_UNIPHIER_PH1_LD20;
+		ret = SOC_UNIPHIER_LD20;
 		break;
 #endif
 	default:

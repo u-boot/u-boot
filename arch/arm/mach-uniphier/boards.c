@@ -12,7 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
+#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 static const struct uniphier_board_data ph1_sld3_data = {
 	.dram_freq = 1600,
 	.dram_nr_ch = 3,
@@ -34,7 +34,7 @@ static const struct uniphier_board_data ph1_sld3_data = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD4)
+#if defined(CONFIG_ARCH_UNIPHIER_LD4)
 static const struct uniphier_board_data ph1_ld4_data = {
 	.dram_freq = 1600,
 	.dram_nr_ch = 2,
@@ -52,7 +52,7 @@ static const struct uniphier_board_data ph1_ld4_data = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO4)
+#if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 /* 1GB RAM board */
 static const struct uniphier_board_data ph1_pro4_data = {
 	.dram_freq = 1600,
@@ -86,7 +86,7 @@ static const struct uniphier_board_data ph1_pro4_2g_data = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
+#if defined(CONFIG_ARCH_UNIPHIER_SLD8)
 static const struct uniphier_board_data ph1_sld8_data = {
 	.dram_freq = 1333,
 	.dram_nr_ch = 2,
@@ -104,7 +104,7 @@ static const struct uniphier_board_data ph1_sld8_data = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+#if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 static const struct uniphier_board_data ph1_pro5_data = {
 	.dram_freq = 1866,
 	.dram_nr_ch = 2,
@@ -121,7 +121,7 @@ static const struct uniphier_board_data ph1_pro5_data = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)
+#if defined(CONFIG_ARCH_UNIPHIER_PXS2)
 static const struct uniphier_board_data proxstream2_data = {
 	.dram_freq = 2133,
 	.dram_nr_ch = 3,
@@ -143,7 +143,7 @@ static const struct uniphier_board_data proxstream2_data = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+#if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 static const struct uniphier_board_data ph1_ld6b_data = {
 	.dram_freq = 1866,
 	.dram_nr_ch = 3,
@@ -171,27 +171,27 @@ struct uniphier_board_id {
 };
 
 static const struct uniphier_board_id uniphier_boards[] = {
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
+#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 	{ "socionext,ph1-sld3", &ph1_sld3_data, },
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD4)
+#if defined(CONFIG_ARCH_UNIPHIER_LD4)
 	{ "socionext,ph1-ld4", &ph1_ld4_data, },
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO4)
+#if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 	{ "socionext,ph1-pro4-ace", &ph1_pro4_2g_data, },
 	{ "socionext,ph1-pro4-sanji", &ph1_pro4_2g_data, },
 	{ "socionext,ph1-pro4", &ph1_pro4_data, },
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
+#if defined(CONFIG_ARCH_UNIPHIER_SLD8)
 	{ "socionext,ph1-sld8", &ph1_sld8_data, },
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
+#if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 	{ "socionext,ph1-pro5", &ph1_pro5_data, },
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)
+#if defined(CONFIG_ARCH_UNIPHIER_PXS2)
 	{ "socionext,proxstream2", &proxstream2_data, },
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
+#if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	{ "socionext,ph1-ld6b", &ph1_ld6b_data, },
 #endif
 };

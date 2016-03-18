@@ -158,8 +158,7 @@ struct ddrphy {
 /* SoC-specific parameters */
 #define NR_DATX8_PER_DDRPHY	2
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD4) || \
-	defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
+#if defined(CONFIG_ARCH_UNIPHIER_LD4) || defined(CONFIG_ARCH_UNIPHIER_SLD8)
 #define NR_DDRPHY_PER_CH		1
 #else
 #define NR_DDRPHY_PER_CH		2

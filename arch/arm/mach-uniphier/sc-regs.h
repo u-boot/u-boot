@@ -9,7 +9,7 @@
 #ifndef ARCH_SC_REGS_H
 #define ARCH_SC_REGS_H
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
+#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 #define SC_BASE_ADDR			0xf1840000
 #else
 #define SC_BASE_ADDR			0x61840000

@@ -26,8 +26,8 @@ ENTRY(debug_ll_init)
 	and		r1, r1, #SG_REVISION_TYPE_MASK
 	mov		r1, r1, lsr #SG_REVISION_TYPE_SHIFT
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3)
-#define PH1_SLD3_UART_CLK		36864000
+#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
+#define UNIPHIER_SLD3_UART_CLK		36864000
 	cmp		r1, #0x25
 	bne		ph1_sld3_end
 
@@ -42,13 +42,13 @@ ENTRY(debug_ll_init)
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
 
-	ldr		r3, =DIV_ROUND(PH1_SLD3_UART_CLK, 16 * BAUDRATE)
+	ldr		r3, =DIV_ROUND(UNIPHIER_SLD3_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
 ph1_sld3_end:
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD4)
-#define PH1_LD4_UART_CLK		36864000
+#if defined(CONFIG_ARCH_UNIPHIER_LD4)
+#define UNIPHIER_LD4_UART_CLK		36864000
 	cmp		r1, #0x26
 	bne		ph1_ld4_end
 
@@ -59,13 +59,13 @@ ph1_sld3_end:
 
 	sg_set_pinsel	88, 1, 8, 4, r0, r1	@ HSDOUT6 -> TXD0
 
-	ldr		r3, =DIV_ROUND(PH1_LD4_UART_CLK, 16 * BAUDRATE)
+	ldr		r3, =DIV_ROUND(UNIPHIER_LD4_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
 ph1_ld4_end:
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO4)
-#define PH1_PRO4_UART_CLK		73728000
+#if defined(CONFIG_ARCH_UNIPHIER_PRO4)
+#define UNIPHIER_PRO4_UART_CLK		73728000
 	cmp		r1, #0x28
 	bne		ph1_pro4_end
 
@@ -80,13 +80,13 @@ ph1_ld4_end:
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
 
-	ldr		r3, =DIV_ROUND(PH1_PRO4_UART_CLK, 16 * BAUDRATE)
+	ldr		r3, =DIV_ROUND(UNIPHIER_PRO4_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
 ph1_pro4_end:
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
-#define PH1_SLD8_UART_CLK		80000000
+#if defined(CONFIG_ARCH_UNIPHIER_SLD8)
+#define UNIPHIER_SLD8_UART_CLK		80000000
 	cmp		r1, #0x29
 	bne		ph1_sld8_end
 
@@ -97,13 +97,13 @@ ph1_pro4_end:
 
 	sg_set_pinsel	70, 3, 8, 4, r0, r1	@ HSDOUT0 -> TXD0
 
-	ldr		r3, =DIV_ROUND(PH1_SLD8_UART_CLK, 16 * BAUDRATE)
+	ldr		r3, =DIV_ROUND(UNIPHIER_SLD8_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
 ph1_sld8_end:
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_PRO5)
-#define PH1_PRO5_UART_CLK		73728000
+#if defined(CONFIG_ARCH_UNIPHIER_PRO5)
+#define UNIPHIER_PRO5_UART_CLK		73728000
 	cmp		r1, #0x2A
 	bne		ph1_pro5_end
 
@@ -121,13 +121,13 @@ ph1_sld8_end:
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
 
-	ldr		r3, =DIV_ROUND(PH1_PRO5_UART_CLK, 16 * BAUDRATE)
+	ldr		r3, =DIV_ROUND(UNIPHIER_PRO5_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
 ph1_pro5_end:
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PROXSTREAM2)
-#define PROXSTREAM2_UART_CLK		88900000
+#if defined(CONFIG_ARCH_UNIPHIER_PXS2)
+#define UNIPHIER_PXS2_UART_CLK		88900000
 	cmp		r1, #0x2E
 	bne		proxstream2_end
 
@@ -146,13 +146,13 @@ ph1_pro5_end:
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
 
-	ldr		r3, =DIV_ROUND(PROXSTREAM2_UART_CLK, 16 * BAUDRATE)
+	ldr		r3, =DIV_ROUND(UNIPHIER_PXS2_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
 proxstream2_end:
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_LD6B)
-#define PH1_LD6B_UART_CLK		88900000
+#if defined(CONFIG_ARCH_UNIPHIER_LD6B)
+#define UNIPHIER_LD6B_UART_CLK		88900000
 	cmp		r1, #0x2F
 	bne		ph1_ld6b_end
 
@@ -170,7 +170,7 @@ proxstream2_end:
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
 
-	ldr		r3, =DIV_ROUND(PH1_LD6B_UART_CLK, 16 * BAUDRATE)
+	ldr		r3, =DIV_ROUND(UNIPHIER_LD6B_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
 ph1_ld6b_end:
