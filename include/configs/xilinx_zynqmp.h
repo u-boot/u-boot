@@ -93,6 +93,9 @@
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
 # endif
+#endif
+
+#if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQMP_USB)
 # define CONFIG_FAT_WRITE
 # define CONFIG_CMD_EXT4_WRITE
 #endif
