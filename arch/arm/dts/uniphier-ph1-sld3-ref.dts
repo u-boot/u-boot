@@ -9,6 +9,7 @@
 /dts-v1/;
 /include/ "uniphier-ph1-sld3.dtsi"
 /include/ "uniphier-ref-daughter.dtsi"
+/include/ "uniphier-support-card.dtsi"
 
 / {
 	model = "UniPhier PH1-sLD3 Reference Board";
@@ -34,6 +35,10 @@
 		i2c3 = &i2c3;
 		i2c4 = &i2c4;
 	};
+};
+
+&ethsc {
+	interrupts = <0 49 4>;
 };
 
 &serial0 {

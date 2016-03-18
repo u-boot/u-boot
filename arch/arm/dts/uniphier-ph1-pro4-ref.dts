@@ -9,6 +9,7 @@
 /dts-v1/;
 /include/ "uniphier-ph1-pro4.dtsi"
 /include/ "uniphier-ref-daughter.dtsi"
+/include/ "uniphier-support-card.dtsi"
 
 / {
 	model = "UniPhier PH1-Pro4 Reference Board";
@@ -36,6 +37,10 @@
 		i2c6 = &i2c6;
 		usb0 = &usb0;
 	};
+};
+
+&ethsc {
+	interrupts = <0 50 4>;
 };
 
 &serial0 {
