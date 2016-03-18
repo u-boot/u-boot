@@ -1,13 +1,5 @@
 if ARCH_ZYNQMP
 
-choice
-	prompt "Xilinx ZynqMP board select"
-
-config TARGET_ZYNQMP_EP
-	bool "ZynqMP EP Board"
-
-endchoice
-
 config SYS_BOARD
 	default "zynqmp"
 
@@ -18,7 +10,12 @@ config SYS_SOC
 	default "zynqmp"
 
 config SYS_CONFIG_NAME
-	default "xilinx_zynqmp_ep" if TARGET_ZYNQMP_EP
+	string "Board configuration name"
+	default "xilinx_zynqmp"
+	help
+	  This option contains information about board configuration name.
+	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
+	  will be used for board configuration.
 
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
