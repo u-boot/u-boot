@@ -10,9 +10,13 @@
 
 static int do_help(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+#ifdef CONFIG_CMDLINE
 	cmd_tbl_t *start = ll_entry_start(cmd_tbl_t, cmd);
 	const int len = ll_entry_count(cmd_tbl_t, cmd);
 	return _do_help(start, len, cmdtp, flag, argc, argv);
+#else
+	return 0;
+#endif
 }
 
 U_BOOT_CMD(

@@ -18,6 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_CMDLINE
 /*
  * Run a command using the selected parser.
  *
@@ -68,6 +69,7 @@ int run_command_repeatable(const char *cmd, int flag)
 	return 0;
 #endif
 }
+#endif /* CONFIG_CMDLINE */
 
 int run_command_list(const char *cmd, int len, int flag)
 {
@@ -102,7 +104,11 @@ int run_command_list(const char *cmd, int len, int flag)
 	 * doing a malloc() which is actually required only in a case that
 	 * is pretty rare.
 	 */
+#ifdef CONFIG_CMDLINE
 	rcode = cli_simple_run_command_list(buff, flag);
+#else
+	rcode = board_run_command(buff);
+#endif
 #endif
 	if (need_buff)
 		free(buff);
@@ -166,7 +172,9 @@ bool cli_process_fdt(const char **cmdp)
  */
 void cli_secure_boot_cmd(const char *cmd)
 {
+#ifdef CONFIG_CMDLINE
 	cmd_tbl_t *cmdtp;
+#endif
 	int rc;
 
 	if (!cmd) {
@@ -178,6 +186,7 @@ void cli_secure_boot_cmd(const char *cmd)
 	disable_ctrlc(1);
 
 	/* Find the command directly. */
+#ifdef CONFIG_CMDLINE
 	cmdtp = find_cmd(cmd);
 	if (!cmdtp) {
 		printf("## Error: \"%s\" not defined\n", cmd);
@@ -186,6 +195,10 @@ void cli_secure_boot_cmd(const char *cmd)
 
 	/* Run the command, forcing no flags and faking argc and argv. */
 	rc = (cmdtp->cmd)(cmdtp, 0, 1, (char **)&cmd);
+
+#else
+	rc = board_run_command(cmd);
+#endif
 
 	/* Shouldn't ever return from boot command. */
 	printf("## Error: \"%s\" returned (code %d)\n", cmd, rc);
@@ -205,8 +218,10 @@ void cli_loop(void)
 	parse_file_outer();
 	/* This point is never reached */
 	for (;;);
-#else
+#elif defined(CONFIG_CMDINE)
 	cli_simple_loop();
+#else
+	printf("## U-Boot command line is disabled. Please enable CONFIG_CMDLINE\n");
 #endif /*CONFIG_SYS_HUSH_PARSER*/
 }
 
