@@ -16,7 +16,6 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/scan_manager.h>
 #include <asm/arch/system_manager.h>
-#include <asm/arch/dwmmc.h>
 #include <asm/arch/nic301.h>
 #include <asm/arch/scu.h>
 #include <asm/pl310.h>
