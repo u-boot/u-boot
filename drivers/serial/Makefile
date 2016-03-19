@@ -38,6 +38,7 @@ obj-$(CONFIG_UNIPHIER_SERIAL) += serial_uniphier.o
 obj-$(CONFIG_STM32_SERIAL) += serial_stm32.o
 obj-$(CONFIG_PIC32_SERIAL) += serial_pic32.o
 obj-$(CONFIG_STM32X7_SERIAL) += serial_stm32x7.o
+obj-$(CONFIG_BCM283X_MU_SERIAL) += serial_bcm283x_mu.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o
