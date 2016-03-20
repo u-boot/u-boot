@@ -284,12 +284,20 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_SYS_CONSOLE_ENV_OVERWRITE
+#if !defined(CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SIZE			4096
+#endif
 
 /* Environment for SDMMC boot */
 #if defined(CONFIG_ENV_IS_IN_MMC) && !defined(CONFIG_ENV_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
 #define CONFIG_ENV_OFFSET		512	/* just after the MBR */
+#endif
+
+/* Environment for QSPI boot */
+#if defined(CONFIG_ENV_IS_IN_SPI_FLASH) && !defined(CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_OFFSET		0x00100000
+#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #endif
 
 /*
