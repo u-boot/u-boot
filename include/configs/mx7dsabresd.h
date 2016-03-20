@@ -14,6 +14,8 @@
 #define CONFIG_DBG_MONITOR
 #define PHYS_SDRAM_SIZE			SZ_1G
 
+#define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
+
 /* Uncomment to enable secure boot support */
 /* #define CONFIG_SECURE_BOOT */
 #define CONFIG_CSF_SIZE			0x4000
