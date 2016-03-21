@@ -2203,6 +2203,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 						flash_isset (info, sect_cnt,
 							     FLASH_OFFSET_PROTECT,
 							     FLASH_STATUS_PROTECT);
+					flash_write_cmd(info, sect_cnt, 0,
+							FLASH_CMD_RESET);
 					break;
 				case CFI_CMDSET_AMD_EXTENDED:
 				case CFI_CMDSET_AMD_STANDARD:
