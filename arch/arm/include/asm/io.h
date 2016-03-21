@@ -284,6 +284,13 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define insw_p(port,to,len)		insw(port,to,len)
 #define insl_p(port,to,len)		insl(port,to,len)
 
+#define writesl(a, d, s)	__raw_writesl((unsigned long)a, d, s)
+#define readsl(a, d, s)		__raw_readsl((unsigned long)a, d, s)
+#define writesw(a, d, s)	__raw_writesw((unsigned long)a, d, s)
+#define readsw(a, d, s)		__raw_readsw((unsigned long)a, d, s)
+#define writesb(a, d, s)	__raw_writesb((unsigned long)a, d, s)
+#define readsb(a, d, s)		__raw_readsb((unsigned long)a, d, s)
+
 /*
  * ioremap and friends.
  *
