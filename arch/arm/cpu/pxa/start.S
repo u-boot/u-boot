@@ -53,7 +53,15 @@ reset:
 #ifdef	CONFIG_CPU_PXA25X
 	bl	lock_cache_for_stack
 #endif
-
+#ifdef	CONFIG_CPU_PXA27X
+	/*
+	 * enable clock for SRAM
+	 */
+	ldr	r0,=CKEN
+	ldr	r1,[r0]
+	orr	r1,r1,#(1 << 20)
+	str	r1,[r0]
+#endif
 	bl	_main
 
 /*------------------------------------------------------------------------------*/
