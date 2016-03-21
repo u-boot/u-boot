@@ -27,8 +27,6 @@
 #define CONFIG_ENV_ADDR			0x40000
 #define CONFIG_ENV_SIZE			0x10000
 
-#define CONFIG_SYS_DCACHE_OFF
-
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
 #define	CONFIG_ARCH_CPU_INIT
 
@@ -65,6 +63,7 @@
 #define	CONFIG_CMD_MMC
 #define	CONFIG_CMD_SPI
 #define	CONFIG_CMD_USB
+#define	CONFIG_CMD_CACHE
 
 /*
  * MMC Card Configuration
