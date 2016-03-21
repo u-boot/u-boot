@@ -5,6 +5,7 @@
  *
  * Copyright 2010-2011, 2015 Freescale Semiconductor, Inc.
  * author Andy Fleming
+ * Copyright 2016 Karsten Merker <merker@debian.org>
  */
 #include <config.h>
 #include <common.h>
@@ -234,7 +235,7 @@ static int rtl8211f_startup(struct phy_device *phydev)
 /* Support for RTL8211B PHY */
 static struct phy_driver RTL8211B_driver = {
 	.name = "RealTek RTL8211B",
-	.uid = 0x1cc910,
+	.uid = 0x1cc912,
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
 	.config = &rtl8211x_config,
