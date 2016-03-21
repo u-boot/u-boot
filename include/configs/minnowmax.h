@@ -20,7 +20,6 @@
 #define CONFIG_SMSC_LPC47M
 
 #define CONFIG_PCI_PNP
-#define CONFIG_RTL8169
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial\0" \
 					"stderr=vga,serial\0"

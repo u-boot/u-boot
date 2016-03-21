@@ -124,9 +124,6 @@
 #endif /* CONFIG_CMD_PCI */
 
 #if defined(CONFIG_CMD_NET)
-/*
-#define CONFIG_RTL8169
-*/
 /* AX88796L Support(NE2000 base chip) */
 #define CONFIG_DRIVER_AX88796L
 #define CONFIG_DRIVER_NE2000_BASE	0xA4100000

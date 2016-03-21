@@ -10,6 +10,4 @@
 #include <configs/x86-common.h>
 #include <configs/x86-chromebook.h>
 
-#define CONFIG_RTL8169
-
 #endif	/* __CONFIG_H */

@@ -148,9 +148,6 @@
 #define CONFIG_PCI_SYS_BUS	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_PCI_SYS_SIZE	CONFIG_SYS_SDRAM_SIZE
 
-/* Network device (RTL8169) support */
-#define CONFIG_RTL8169
-
 /* ENV setting */
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_OVERWRITE	1

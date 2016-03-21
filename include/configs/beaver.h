@@ -63,9 +63,6 @@
 #define CONFIG_PCI_PNP
 #define CONFIG_CMD_PCI
 
-/* PCI networking support */
-#define CONFIG_RTL8169
-
 /* General networking support */
 #define CONFIG_CMD_DHCP
 

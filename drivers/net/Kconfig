@@ -108,6 +108,12 @@ config RTL8139
 	  This driver supports Realtek 8139 series fast ethernet family of
 	  PCI chipsets/adapters.
 
+config RTL8169
+	bool "Realtek 8169 series Ethernet controller driver"
+	help
+	  This driver supports Realtek 8169 series gigabit ethernet family of
+	  PCI/PCIe chipsets/adapters.
+
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
 	select PHYLIB
