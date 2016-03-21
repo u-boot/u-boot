@@ -195,6 +195,12 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
+SINLINX SINA31s BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Sinlinx_SinA31s_defconfig
+W:	http://linux-sunxi.org/Sinlinx_SinA31s
+
 SINLINX SINA33 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
