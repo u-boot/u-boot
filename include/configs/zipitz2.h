@@ -64,6 +64,7 @@
 #define	CONFIG_CMD_ENV
 #define	CONFIG_CMD_MMC
 #define	CONFIG_CMD_SPI
+#define	CONFIG_CMD_USB
 
 /*
  * MMC Card Configuration

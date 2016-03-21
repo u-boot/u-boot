@@ -15,6 +15,7 @@
 #include <asm/arch/regs-mmc.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,6 +52,26 @@ int dram_init(void)
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
+
+#ifdef	CONFIG_CMD_USB
+int board_usb_init(int index, enum usb_init_type init)
+{
+	/* enable port 2 */
+	writel(readl(UP2OCR) | UP2OCR_HXOE | UP2OCR_HXS |
+		UP2OCR_DMPDE | UP2OCR_DPPDE, UP2OCR);
+
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
+}
+
+void usb_board_stop(void)
+{
+}
+#endif
 
 void dram_init_banksize(void)
 {
