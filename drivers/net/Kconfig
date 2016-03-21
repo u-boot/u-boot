@@ -102,6 +102,12 @@ config PCH_GBE
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
 	  supports 10/100/1000 Mbps operation.
 
+config RTL8139
+	bool "Realtek 8139 series Ethernet controller driver"
+	help
+	  This driver supports Realtek 8139 series fast ethernet family of
+	  PCI chipsets/adapters.
+
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
 	select PHYLIB
