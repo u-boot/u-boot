@@ -17,6 +17,14 @@
 #include <usb.h>
 #include "ohci.h"
 
+#ifdef CONFIG_SUNXI_GEN_SUN4I
+#define BASE_DIST		0x8000
+#define AHB_CLK_DIST		2
+#else
+#define BASE_DIST		0x1000
+#define AHB_CLK_DIST		1
+#endif
+
 struct ohci_sunxi_priv {
 	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
@@ -42,9 +50,10 @@ static int ohci_usb_probe(struct udevice *dev)
 	priv->ahb_gate_mask |= 1 << AHB_GATE_OFFSET_USB_EHCI0;
 #endif
 	priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
-	priv->phy_index = ((u32)regs - (SUNXI_USB1_BASE + 0x400)) / 0x1000 + 1;
-	priv->ahb_gate_mask <<= priv->phy_index - 1;
-	priv->usb_gate_mask <<= priv->phy_index - 1;
+	priv->phy_index = ((u32)regs - (SUNXI_USB1_BASE + 0x400)) / BASE_DIST;
+	priv->ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
+	priv->usb_gate_mask <<= priv->phy_index;
+	priv->phy_index++; /* Non otg phys start at 1 */
 
 	setbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
 	setbits_le32(&ccm->usb_clk_cfg, priv->usb_gate_mask);
