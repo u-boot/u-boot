@@ -1,0 +1,7 @@
+CONFIG_ARM=y
+CONFIG_TARGET_ZIPITZ2=y
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
+# CONFIG_CMD_NFS is not set
+CONFIG_SYS_PROMPT="$ "

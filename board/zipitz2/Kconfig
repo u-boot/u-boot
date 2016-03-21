@@ -1,0 +1,9 @@
+if TARGET_ZIPITZ2
+
+config SYS_BOARD
+	default "zipitz2"
+
+config SYS_CONFIG_NAME
+	default "zipitz2"
+
+endif

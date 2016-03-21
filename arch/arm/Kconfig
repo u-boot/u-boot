@@ -687,6 +687,10 @@ config TARGET_H2200
 	bool "Support h2200"
 	select CPU_PXA
 
+config TARGET_ZIPITZ2
+	bool "Support zipitz2"
+	select CPU_PXA
+
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
 	select CPU_PXA
@@ -860,6 +864,7 @@ source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
+source "board/zipitz2/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

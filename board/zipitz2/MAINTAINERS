@@ -1,0 +1,6 @@
+ZIPITZ2 BOARD
+M:	Vasily Khoruzhick <anarsoul@gmail.com>
+S:	Maintained
+F:	board/zipitz2/
+F:	include/configs/zipitz2.h
+F:	configs/zipitz2_defconfig
