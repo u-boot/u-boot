@@ -410,6 +410,11 @@ static inline void final_mmu_setup(void)
 	 */
 }
 
+u64 get_page_table_size(void)
+{
+	return 0x10000;
+}
+
 int arch_cpu_init(void)
 {
 	icache_enable();
