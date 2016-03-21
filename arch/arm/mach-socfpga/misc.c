@@ -77,7 +77,8 @@ void v7_outer_cache_disable(void)
  * DesignWare Ethernet initialization
  */
 #ifdef CONFIG_ETH_DESIGNWARE
-static void dwmac_deassert_reset(const unsigned int of_reset_id)
+static void dwmac_deassert_reset(const unsigned int of_reset_id,
+				 const u32 phymode)
 {
 	u32 physhift, reset;
 
@@ -98,16 +99,41 @@ static void dwmac_deassert_reset(const unsigned int of_reset_id)
 
 	/* configure to PHY interface select choosed */
 	setbits_le32(&sysmgr_regs->emacgrp_ctrl,
-		     SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII << physhift);
+		     phymode << physhift);
 
 	/* Release the EMAC controller from reset */
 	socfpga_per_reset(reset, 0);
+}
+
+static u32 dwmac_phymode_to_modereg(const char *phymode, u32 *modereg)
+{
+	if (!phymode)
+		return -EINVAL;
+
+	if (!strcmp(phymode, "mii") || !strcmp(phymode, "gmii")) {
+		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
+		return 0;
+	}
+
+	if (!strcmp(phymode, "rgmii")) {
+		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
+		return 0;
+	}
+
+	if (!strcmp(phymode, "rmii")) {
+		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII;
+		return 0;
+	}
+
+	return -EINVAL;
 }
 
 static int socfpga_eth_reset(void)
 {
 	const void *fdt = gd->fdt_blob;
 	struct fdtdec_phandle_args args;
+	const char *phy_mode;
+	u32 phy_modereg;
 	int nodes[2];	/* Max. two GMACs */
 	int ret, count;
 	int i, node;
@@ -132,7 +158,14 @@ static int socfpga_eth_reset(void)
 			continue;
 		}
 
-		dwmac_deassert_reset(args.args[0]);
+		phy_mode = fdt_getprop(fdt, node, "phy-mode", NULL);
+		ret = dwmac_phymode_to_modereg(phy_mode, &phy_modereg);
+		if (ret) {
+			debug("GMAC%i: Failed to parse DT 'phy-mode'!\n", i);
+			continue;
+		}
+
+		dwmac_deassert_reset(args.args[0], phy_modereg);
 	}
 
 	return 0;
