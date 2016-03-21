@@ -120,6 +120,11 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Hummingbird_A31_defconfig
 
+ICnova-A20-SWAC BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	configs/icnova-a20-swac_defconfig
+
 ITEAD IBOX BOARD
 M:	Marcus Cooper <codekipper@gmail.com>
 S:	Maintained
