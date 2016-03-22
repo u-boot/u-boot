@@ -43,7 +43,7 @@ struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
-	{BOOT_DEVICE_NONE, "Reserved"},
+	{BOOT_DEVICE_NOR,  "NOR Boot"},
 };
 
 static int get_boot_mode_sel(void)
