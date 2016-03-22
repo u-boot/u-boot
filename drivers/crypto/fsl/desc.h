@@ -436,6 +436,31 @@
 #define OP_PCLID_BLOB		(0x0d << OP_PCLID_SHIFT)
 #define OP_PCLID_SECRETKEY	(0x11 << OP_PCLID_SHIFT)
 #define OP_PCLID_PUBLICKEYPAIR	(0x14 << OP_PCLID_SHIFT)
+#define OP_PCLID_DSA_SIGN	(0x15 << OP_PCLID_SHIFT)
+#define OP_PCLID_DSA_VERIFY	(0x16 << OP_PCLID_SHIFT)
+
+/* Assuming OP_TYPE = OP_TYPE_DECAP_PROTOCOL */
+#define OP_PCLID_MP_PUB_KEY	(0x14 << OP_PCLID_SHIFT)
+#define OP_PCLID_MP_SIGN	(0x15 << OP_PCLID_SHIFT)
+
+/* Assuming OP_TYPE = OP_TYPE_ENCAP_PROTOCOL */
+#define OP_PCLID_MP_PRIV_KEY	(0x14 << OP_PCLID_SHIFT)
+
+/* PROTINFO fields for discrete log public key protocols */
+#define OP_PROTINFO_F2M_FP	0x00000001
+#define OP_PROTINFO_ECC_DL	0x00000002
+#define OP_PROTINFO_ENC_PRI	0x00000004
+#define OP_PROTINFO_TEST	0x00000008
+#define OP_PROTINFO_EXT_PRI	0x00000010
+#define OP_PROTINFO_ENC_Z	0x00000020
+#define OP_PROTINFO_EKT_Z	0x00000040
+#define OP_PROTINFO_MES_REP	0x00000400
+#define OP_PROTINFO_HASH_MD5	0x00000000
+#define OP_PROTINFO_HASH_SHA1	0x00000080
+#define OP_PROTINFO_HASH_SHA224	0x00000100
+#define OP_PROTINFO_HASH_SHA256	0x00000180
+#define OP_PROTINFO_HASH_SHA384	0x00000200
+#define OP_PROTINFO_HASH_SHA512	0x00000280
 
 /* For non-protocol/alg-only op commands */
 #define OP_ALG_TYPE_SHIFT	24
@@ -662,5 +687,60 @@
 #define OP_ALG_RNG4_SHIFT      4
 #define OP_ALG_RNG4_MAS                (0x1f3 << OP_ALG_RNG4_SHIFT)
 #define OP_ALG_RNG4_SK         (0x100 << OP_ALG_RNG4_SHIFT)
+
+
+/* Structures for Protocol Data Blocks */
+struct __packed pdb_ecdsa_verify {
+	uint32_t pdb_hdr;
+	dma_addr_t dma_q;	/* Pointer to q (elliptic curve) */
+	dma_addr_t dma_r;	/* Pointer to r (elliptic curve) */
+	dma_addr_t dma_g_xy;	/* Pointer to Gx,y (elliptic curve) */
+	dma_addr_t dma_pkey;	/* Pointer to Wx,y (public key) */
+	dma_addr_t dma_hash;	/* Pointer to hash input */
+	dma_addr_t dma_c;	/* Pointer to C_signature */
+	dma_addr_t dma_d;	/* Pointer to D_signature */
+	dma_addr_t dma_buf;	/* Pointer to 64-byte temp buffer */
+	dma_addr_t dma_ab;	/* Pointer to a,b (elliptic curve ) */
+	uint32_t img_size;	/* Length of Message */
+};
+
+struct __packed pdb_ecdsa_sign {
+	uint32_t pdb_hdr;
+	dma_addr_t dma_q;	/* Pointer to q (elliptic curve) */
+	dma_addr_t dma_r;	/* Pointer to r (elliptic curve) */
+	dma_addr_t dma_g_xy;	/* Pointer to Gx,y (elliptic curve) */
+	dma_addr_t dma_pri_key;	/* Pointer to S (Private key) */
+	dma_addr_t dma_hash;	/* Pointer to hash input */
+	dma_addr_t dma_c;	/* Pointer to C_signature */
+	dma_addr_t dma_d;	/* Pointer to D_signature */
+	dma_addr_t dma_ab;	/* Pointer to a,b (elliptic curve ) */
+	dma_addr_t dma_u;	/* Pointer to Per Message Random */
+	uint32_t img_size;	/* Length of Message */
+};
+
+#define PDB_ECDSA_SGF_SHIFT	23
+#define PDB_ECDSA_L_SHIFT	7
+#define PDB_ECDSA_N_SHIFT	0
+
+struct __packed pdb_mp_pub_k {
+	uint32_t pdb_hdr;
+	#define PDB_MP_PUB_K_SGF_SHIFT		31
+	dma_addr_t dma_pkey;	/* Pointer to Wx,y (public key) */
+};
+
+struct __packed pdb_mp_sign {
+	uint32_t pdb_hdr;
+	#define PDB_MP_SIGN_SGF_SHIFT		28
+	dma_addr_t dma_addr_msg;	/* Pointer to Message */
+	dma_addr_t dma_addr_hash;	/* Pointer to hash output */
+	dma_addr_t dma_addr_c_sig;	/* Pointer to C_signature */
+	dma_addr_t dma_addr_d_sig;	/* Pointer to D_signature */
+	uint32_t img_size;		/* Length of Message */
+};
+
+#define PDB_MP_CSEL_SHIFT	17
+#define PDB_MP_CSEL_P256	0x3 << PDB_MP_CSEL_SHIFT	/* P-256 */
+#define PDB_MP_CSEL_P384	0x4 << PDB_MP_CSEL_SHIFT	/* P-384 */
+#define PDB_MP_CSEL_P521	0x5 << PDB_MP_CSEL_SHIFT	/* P-521 */
 
 #endif /* DESC_H */

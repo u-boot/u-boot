@@ -86,6 +86,10 @@
 #define PCIE_LUT_BASE				0x80000
 #define PCIE_LUT_LCTRL0				0x7F8
 #define PCIE_LUT_DBG				0x7FC
+#define PCIE_LUT_UDR(n)         (0x800 + (n) * 8)
+#define PCIE_LUT_LDR(n)         (0x804 + (n) * 8)
+#define PCIE_LUT_ENABLE         (1 << 31)
+#define PCIE_LUT_ENTRY_COUNT    32
 
 /* Device Configuration */
 #define DCFG_BASE		0x01e00000
@@ -97,6 +101,10 @@
 
 #define DCFG_DCSR_BASE		0X700100000ULL
 #define DCFG_DCSR_PORCR1		0x000
+
+/* Interrupt Sampling Control */
+#define ISC_BASE		0x01F70000
+#define IRQCR_OFFSET		0x14
 
 /* Supplemental Configuration */
 #define SCFG_BASE		0x01fc0000

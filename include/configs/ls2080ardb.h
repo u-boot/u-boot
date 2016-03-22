@@ -333,7 +333,7 @@ unsigned long get_board_sys_clk(void);
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
-				"earlycon=uart8250,mmio,0x21c0600" \
+				"earlycon=uart8250,mmio,0x21c0600 " \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=256"
 
@@ -355,6 +355,7 @@ unsigned long get_board_sys_clk(void);
 #define AQ_PHY_ADDR2		0x01
 #define AQ_PHY_ADDR3		0x02
 #define AQ_PHY_ADDR4		0x03
+#define AQR405_IRQ_MASK		0x36
 
 #define CONFIG_MII
 #define CONFIG_ETHPRIME		"DPNI1"

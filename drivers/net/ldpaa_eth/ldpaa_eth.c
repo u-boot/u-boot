@@ -14,15 +14,32 @@
 #include <linux/compat.h>
 #include <fsl-mc/fsl_dpmac.h>
 
+#include <fsl-mc/ldpaa_wriop.h>
 #include "ldpaa_eth.h"
 
-#undef CONFIG_PHYLIB
+#ifdef CONFIG_PHYLIB
 static int init_phy(struct eth_device *dev)
 {
-	/*TODO for external PHY */
+	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)dev->priv;
+	struct phy_device *phydev = NULL;
+	struct mii_dev *bus;
 
-	return 0;
+	bus = wriop_get_mdio(priv->dpmac_id);
+	if (bus == NULL)
+		return 0;
+
+	phydev = phy_connect(bus, wriop_get_phy_address(priv->dpmac_id),
+			     dev, wriop_get_enet_if(priv->dpmac_id));
+	if (!phydev) {
+		printf("Failed to connect\n");
+		return -1;
+	}
+
+	priv->phydev = phydev;
+
+	return phy_config(phydev);
 }
+#endif
 
 #ifdef DEBUG
 static void ldpaa_eth_get_dpni_counter(void)
@@ -380,7 +397,9 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 #ifdef DEBUG
 	struct dpni_link_state link_state;
 #endif
-	int err;
+	int err = 0;
+	struct mii_dev *bus;
+	phy_interface_t enet_if;
 
 	if (net_dev->state == ETH_STATE_ACTIVE)
 		return 0;
@@ -394,10 +413,47 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 		printf("ERROR (DPL is deployed. No device available)\n");
 		return -ENODEV;
 	}
+
 	/* DPMAC initialization */
 	err = ldpaa_dpmac_setup(priv);
 	if (err < 0)
 		goto err_dpmac_setup;
+
+#ifdef CONFIG_PHYLIB
+	if (priv->phydev)
+		err = phy_startup(priv->phydev);
+		if (err) {
+			printf("%s: Could not initialize\n",
+			       priv->phydev->dev->name);
+			goto err_dpamc_bind;
+		}
+#else
+	priv->phydev = (struct phy_device *)malloc(sizeof(struct phy_device));
+	memset(priv->phydev, 0, sizeof(struct phy_device));
+
+	priv->phydev->speed = SPEED_1000;
+	priv->phydev->link = 1;
+	priv->phydev->duplex = DUPLEX_FULL;
+#endif
+
+	bus = wriop_get_mdio(priv->dpmac_id);
+	enet_if = wriop_get_enet_if(priv->dpmac_id);
+	if ((bus == NULL) &&
+	    (enet_if == PHY_INTERFACE_MODE_XGMII)) {
+		priv->phydev = (struct phy_device *)
+				malloc(sizeof(struct phy_device));
+		memset(priv->phydev, 0, sizeof(struct phy_device));
+
+		priv->phydev->speed = SPEED_10000;
+		priv->phydev->link = 1;
+		priv->phydev->duplex = DUPLEX_FULL;
+	}
+
+	if (!priv->phydev->link) {
+		printf("%s: No link.\n", priv->phydev->dev->name);
+		err = -1;
+		goto err_dpamc_bind;
+	}
 
 	/* DPMAC binding DPNI */
 	err = ldpaa_dpmac_bind(priv);
@@ -425,28 +481,24 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 		return err;
 	}
 
-#ifdef CONFIG_PHYLIB
-	/* TODO Check this path */
-	err = phy_startup(priv->phydev);
-	if (err) {
-		printf("%s: Could not initialize\n", priv->phydev->dev->name);
-		return err;
-	}
-#else
-	priv->phydev->speed = SPEED_1000;
-	priv->phydev->link = 1;
-	priv->phydev->duplex = DUPLEX_FULL;
-#endif
-
 	err = dpni_enable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 	if (err < 0) {
 		printf("dpni_enable() failed\n");
 		return err;
 	}
 
-	dpmac_link_state.rate = SPEED_1000;
-	dpmac_link_state.options = DPMAC_LINK_OPT_AUTONEG;
-	dpmac_link_state.up = 1;
+	dpmac_link_state.rate = priv->phydev->speed;
+
+	if (priv->phydev->autoneg == AUTONEG_DISABLE)
+		dpmac_link_state.options &= ~DPMAC_LINK_OPT_AUTONEG;
+	else
+		dpmac_link_state.options |= DPMAC_LINK_OPT_AUTONEG;
+
+	if (priv->phydev->duplex == DUPLEX_HALF)
+		dpmac_link_state.options |= DPMAC_LINK_OPT_HALF_DUPLEX;
+
+	dpmac_link_state.up = priv->phydev->link;
+
 	err = dpmac_set_link_state(dflt_mc_io, MC_CMD_NO_FLAGS,
 				  priv->dpmac_handle, &dpmac_link_state);
 	if (err < 0) {
@@ -484,10 +536,7 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 		goto err_qdid;
 	}
 
-	if (!priv->phydev->link)
-		printf("%s: No link.\n", priv->phydev->dev->name);
-
-	return priv->phydev->link ? 0 : -1;
+	return priv->phydev->link;
 
 err_qdid:
 err_rx_flow:
@@ -495,9 +544,10 @@ err_rx_flow:
 err_dpni_bind:
 	ldpaa_dpbp_free();
 err_dpbp_setup:
-err_dpamc_bind:
 	dpni_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 err_dpni_setup:
+err_dpamc_bind:
+	dpmac_destroy(dflt_mc_io, MC_CMD_NO_FLAGS, priv->dpmac_handle);
 err_dpmac_setup:
 	return err;
 }
@@ -506,6 +556,9 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 {
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 	int err = 0;
+#ifdef CONFIG_PHYLIB
+	struct mii_dev *bus = wriop_get_mdio(priv->dpmac_id);
+#endif
 
 	if ((net_dev->state == ETH_STATE_PASSIVE) ||
 	    (net_dev->state == ETH_STATE_INIT))
@@ -531,7 +584,10 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 		printf("dpni_disable() failed\n");
 
 #ifdef CONFIG_PHYLIB
-	phy_shutdown(priv->phydev);
+	if (priv->phydev && bus != NULL)
+		phy_shutdown(priv->phydev);
+	else
+		free(priv->phydev);
 #endif
 
 	ldpaa_dpbp_free();
@@ -914,15 +970,12 @@ static int ldpaa_eth_netdev_init(struct eth_device *net_dev,
 	net_dev->halt = ldpaa_eth_stop;
 	net_dev->send = ldpaa_eth_tx;
 	net_dev->recv = ldpaa_eth_pull_dequeue_rx;
-/*
-	TODO: PHY MDIO information
-	priv->bus = info->bus;
-	priv->phyaddr = info->phy_addr;
-	priv->enet_if = info->enet_if;
-*/
 
-	if (init_phy(net_dev))
-		return 0;
+#ifdef CONFIG_PHYLIB
+	err = init_phy(net_dev);
+	if (err < 0)
+		return err;
+#endif
 
 	err = eth_register(net_dev);
 	if (err < 0) {

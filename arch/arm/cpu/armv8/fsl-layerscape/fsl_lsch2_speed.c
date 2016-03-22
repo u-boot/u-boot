@@ -106,9 +106,13 @@ void get_sys_info(struct sys_info *sys_info)
 #define HWA_CGA_M2_CLK_SEL	0x00000007
 #define HWA_CGA_M2_CLK_SHIFT	0
 #ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 	rcw_tmp = in_be32(&gur->rcwsr[15]);
 	rcw_tmp = (rcw_tmp & HWA_CGA_M2_CLK_SEL) >> HWA_CGA_M2_CLK_SHIFT;
 	sys_info->freq_sdhc = freq_c_pll[1] / rcw_tmp;
+#else
+	sys_info->freq_sdhc = sys_info->freq_systembus;
+#endif
 #endif
 
 #if defined(CONFIG_FSL_IFC)

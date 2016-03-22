@@ -18,6 +18,14 @@ ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
 #ifdef CONFIG_FSL_LSCH3
+
+	/* Set Wuo bit for RN-I 20 */
+#if defined(CONFIG_LS2085A) || defined (CONFIG_LS2080A)
+	ldr	x0, =CCI_AUX_CONTROL_BASE(20)
+	ldr	x1, =0x00000010
+	bl	ccn504_set_aux
+#endif
+
 	/* Add fully-coherent masters to DVM domain */
 	ldr	x0, =CCI_MN_BASE
 	ldr	x1, =CCI_MN_RNF_NODEID_LIST

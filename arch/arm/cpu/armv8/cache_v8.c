@@ -320,7 +320,7 @@ static int count_required_pts(u64 addr, int level, u64 maxaddr)
 }
 
 /* Returns the estimated required size of all page tables */
-u64 get_page_table_size(void)
+__weak u64 get_page_table_size(void)
 {
 	u64 one_pt = MAX_PTE_ENTRIES * sizeof(u64);
 	u64 size = 0;

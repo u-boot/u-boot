@@ -20,42 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int load_firmware_cortina(struct phy_device *phy_dev)
-{
-	if (phy_dev->drv->config)
-		return phy_dev->drv->config(phy_dev);
-
-	return 0;
-}
-
-void load_phy_firmware(void)
-{
-	int i;
-	u8 phy_addr;
-	struct phy_device *phy_dev;
-	struct mii_dev *dev;
-	phy_interface_t interface;
-
-	/*Initialize and upload firmware for all the PHYs*/
-	for (i = WRIOP1_DPMAC1; i <= WRIOP1_DPMAC8; i++) {
-		interface = wriop_get_enet_if(i);
-		if (interface == PHY_INTERFACE_MODE_XGMII) {
-			dev = wriop_get_mdio(i);
-			phy_addr = wriop_get_phy_address(i);
-			phy_dev = phy_find_by_mask(dev, 1 << phy_addr,
-						interface);
-			if (!phy_dev) {
-				printf("No phydev for phyaddr %d\n", phy_addr);
-				continue;
-			}
-
-			/*Flash firmware for All CS4340 PHYS */
-			if (phy_dev->phy_id == PHY_UID_CS4340)
-				load_firmware_cortina(phy_dev);
-		}
-	}
-}
-
 int board_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)
@@ -124,9 +88,6 @@ int board_eth_init(bd_t *bis)
 			break;
 		}
 	}
-
-	/* Load CORTINA CS4340 PHY firmware */
-	load_phy_firmware();
 
 	cpu_eth_init(bis);
 #endif /* CONFIG_FMAN_ENET */

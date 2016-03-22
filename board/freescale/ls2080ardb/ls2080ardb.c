@@ -149,6 +149,7 @@ int board_init(void)
 {
 	char *env_hwconfig;
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+	u32 __iomem *irq_ccsr = (u32 __iomem *)ISC_BASE;
 	u32 val;
 
 	init_final_memctl_regs();
@@ -169,6 +170,9 @@ int board_init(void)
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET_EN);
+
+	/* invert AQR405 IRQ pins polarity */
+	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR405_IRQ_MASK);
 
 	return 0;
 }
