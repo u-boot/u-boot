@@ -607,11 +607,14 @@ int misc_init_r(void)
 }
 #endif
 
-#ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	int __maybe_unused r;
+
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB
-	return sunxi_simplefb_setup(blob);
+	r = sunxi_simplefb_setup(blob);
+	if (r)
+		return r;
 #endif
+	return 0;
 }
-#endif /* CONFIG_OF_BOARD_SETUP */
