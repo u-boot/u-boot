@@ -221,3 +221,8 @@ YONES TOPTECH BD1078 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Yones_Toptech_BD1078_defconfig
+
+YONES TOPTECH BS1078 V2 BOARD
+M:	Peter Korsgaard <peter@korsgaard.com>
+S:	Maintained
+F:	configs/Yones_Toptech_BS1078_V2_defconfig
