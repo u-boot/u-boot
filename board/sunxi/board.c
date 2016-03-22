@@ -90,6 +90,10 @@ int board_init(void)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_SATAPWR
+	gpio_request(CONFIG_SATAPWR, "satapwr");
+	gpio_direction_output(CONFIG_SATAPWR, 1);
+#endif
 #ifdef CONFIG_MACPWR
 	gpio_request(CONFIG_MACPWR, "macpwr");
 	gpio_direction_output(CONFIG_MACPWR, 1);
