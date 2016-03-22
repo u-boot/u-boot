@@ -61,6 +61,7 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 #define CONFIG_SYS_MONITOR_BASE		0
+#define CONFIG_SYS_MONITOR_LEN		0x00080000	/* 512KB */
 #define CONFIG_SYS_FLASH_BASE		0
 
 /*
@@ -233,12 +234,12 @@
 		"mmc erase 0 800 &&"				\
 		"tftpboot u-boot-spl.bin &&"			\
 		"mmc write $loadaddr 0 80 &&"			\
-		"tftpboot u-boot.img &&"			\
+		"tftpboot u-boot.bin &&"			\
 		"mmc write $loadaddr 80 780\0"			\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
-		"tftpboot u-boot.img &&"			\
+		"tftpboot u-boot.bin &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
 	LINUXBOOT_ENV_SETTINGS
 
@@ -272,9 +273,11 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
 
-#define CONFIG_SYS_UBOOT_BASE			0x60000
+/* subtract sizeof(struct image_header) */
+#define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80
 
+#define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

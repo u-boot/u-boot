@@ -75,12 +75,17 @@ to use your favorite compiler.
 Burn U-Boot images to NAND
 --------------------------
 
-Write two files to the NAND device as follows:
+Write the following to the NAND device:
+
  - spl/u-boot-spl.bin at the offset address 0x00000000
- - u-boot.img         at the offset address 0x00010000
+ - u-boot.bin         at the offset address 0x00010000
+
+or
+
+ - u-boot-with-spl.bin at the offset address 0x00000000
 
 If a TFTP server is available, the images can be easily updated.
-Just copy the u-boot-spl.bin and u-boot.img to the TFTP public directory,
+Just copy the u-boot-spl.bin and u-boot.bin to the TFTP public directory,
 and then run the following command at the U-Boot command line:
 
   => run nandupdate
@@ -89,12 +94,17 @@ and then run the following command at the U-Boot command line:
 Burn U-Boot images to eMMC
 --------------------------
 
-Write two files to the Boot partition 1 of the eMMC device as follows:
+Write the following to the Boot partition 1 of the eMMC device:
+
  - spl/u-boot-spl.bin at the offset address 0x00000000
- - u-boot.img         at the offset address 0x00010000
+ - u-boot.bin         at the offset address 0x00010000
+
+or
+
+ - u-boot-with-spl.bin at the offset address 0x00000000
 
 If a TFTP server is available, the images can be easily updated.
-Just copy the u-boot-spl.bin and u-boot.img to the TFTP public directory,
+Just copy the u-boot-spl.bin and u-boot.bin to the TFTP public directory,
 and then run the following command at the U-Boot command line:
 
   => run emmcupdate
