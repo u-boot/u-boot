@@ -1104,6 +1104,7 @@ static int tegra_pllref_enable(void)
 #define  PLLE_MISC_IDDQ_SWCTL (1 << 14)
 #define  PLLE_MISC_IDDQ_OVERRIDE_VALUE (1 << 13)
 #define  PLLE_MISC_LOCK (1 << 11)
+#define  PLLE_PTS (1 << 8)
 #define  PLLE_MISC_KCP(x) (((x) & 0x3) << 6)
 #define  PLLE_MISC_VREG_CTRL(x) (((x) & 0x3) << 2)
 #define  PLLE_MISC_KVCO (1 << 0)
@@ -1157,6 +1158,7 @@ int tegra_plle_enable(void)
 	writel(value, NV_PA_CLK_RST_BASE + PLLE_BASE);
 
 	value = readl(NV_PA_CLK_RST_BASE + PLLE_MISC);
+	value |= PLLE_PTS;
 	value &= ~PLLE_MISC_KCP(3);
 	value &= ~PLLE_MISC_VREG_CTRL(3);
 	value &= ~PLLE_MISC_KVCO;
