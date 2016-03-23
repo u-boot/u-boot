@@ -215,16 +215,23 @@ typedef volatile unsigned int   *dv_reg_p;
 /* MSMC control */
 #define KS2_MSMC_CTRL_BASE		0x0bc00000
 #define KS2_MSMC_DATA_BASE		0x0c000000
-#ifndef CONFIG_SOC_K2G
-#define KS2_MSMC_SEGMENT_TETRIS		8
-#define KS2_MSMC_SEGMENT_NETCP		9
-#define KS2_MSMC_SEGMENT_QM_PDSP	10
-#define KS2_MSMC_SEGMENT_PCIE0		11
-#else
-#define KS2_MSMC_SEGMENT_TETRIS		1
-#define KS2_MSMC_SEGMENT_NETCP		4
-#define KS2_MSMC_SEGMENT_PCIE0		5
-#endif
+
+/* KS2 HK/L/E MSMC PRIVIDs  for MSMC2 */
+#define K2HKLE_MSMC_SEGMENT_ARM		8
+#define K2HKLE_MSMC_SEGMENT_NETCP	9
+#define K2HKLE_MSMC_SEGMENT_QM_PDSP	10
+#define K2HKLE_MSMC_SEGMENT_PCIE0	11
+
+/* K2L specific Privilege ID Settings */
+#define K2L_MSMC_SEGMENT_PCIE1		14
+
+/* K2E specific Privilege ID Settings */
+#define K2E_MSMC_SEGMENT_PCIE1		13
+
+/* K2G specific Privilege ID Settings */
+#define K2G_MSMC_SEGMENT_ARM		1
+#define K2G_MSMC_SEGMENT_NSS		4
+#define K2G_MSMC_SEGMENT_PCIE		5
 
 /* MSMC segment size shift bits */
 #define KS2_MSMC_SEG_SIZE_SHIFT		12

@@ -96,22 +96,51 @@ static void config_pcie_mode(int pcie_port,  enum pci_mode mode)
 	__raw_writel(val, KS2_DEVCFG);
 }
 
+static void msmc_k2hkle_common_setup(void)
+{
+	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_ARM);
+	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_NETCP);
+#ifdef KS2_MSMC_SEGMENT_QM_PDSP
+	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_QM_PDSP);
+#endif
+	msmc_share_all_segments(K2HKLE_MSMC_SEGMENT_PCIE0);
+}
+
+static inline void msmc_k2l_setup(void)
+{
+	msmc_share_all_segments(K2L_MSMC_SEGMENT_PCIE1);
+}
+
+static inline void msmc_k2e_setup(void)
+{
+	msmc_share_all_segments(K2E_MSMC_SEGMENT_PCIE1);
+}
+
+static inline void msmc_k2g_setup(void)
+{
+	msmc_share_all_segments(K2G_MSMC_SEGMENT_ARM);
+	msmc_share_all_segments(K2G_MSMC_SEGMENT_NSS);
+	msmc_share_all_segments(K2G_MSMC_SEGMENT_PCIE);
+}
+
 int arch_cpu_init(void)
 {
 	chip_configuration_unlock();
 	icache_enable();
 
-	msmc_share_all_segments(KS2_MSMC_SEGMENT_TETRIS);
-	msmc_share_all_segments(KS2_MSMC_SEGMENT_NETCP);
-#ifdef KS2_MSMC_SEGMENT_QM_PDSP
-	msmc_share_all_segments(KS2_MSMC_SEGMENT_QM_PDSP);
-#endif
-	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE0);
+	if (cpu_is_k2g()) {
+		msmc_k2g_setup();
+	} else {
+		msmc_k2hkle_common_setup();
+		if (cpu_is_k2e())
+			msmc_k2e_setup();
+		else if (cpu_is_k2l())
+			msmc_k2l_setup();
+	}
 
 	/* Initialize the PCIe-0 to work as Root Complex */
 	config_pcie_mode(0, ROOTCOMPLEX);
 #if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
-	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE1);
 	/* Initialize the PCIe-1 to work as Root Complex */
 	config_pcie_mode(1, ROOTCOMPLEX);
 #endif

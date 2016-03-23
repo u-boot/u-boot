@@ -34,9 +34,6 @@
 #define KS2_LPSC_PCIE_1			27
 #define KS2_LPSC_XGE			50
 
-/* MSMC */
-#define KS2_MSMC_SEGMENT_PCIE1		13
-
 /* Chip Interrupt Controller */
 #define KS2_CIC2_DDR3_ECC_IRQ_NUM	-1	/* not defined in K2E */
 #define KS2_CIC2_DDR3_ECC_CHAN_NUM	-1	/* not defined in K2E */
