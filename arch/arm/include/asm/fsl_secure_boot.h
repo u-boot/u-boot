@@ -57,11 +57,33 @@
 	"setenv initrd_high 0xcfffffff;"	\
 	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
 
-/* The address needs to be modified according to NOR memory map */
+/* Copying Bootscript and Header to DDR from NOR for LS2 and for rest, from
+ * Non-XIP Memory (Nand/SD)*/
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_LS2080A) ||\
+	defined(CONFIG_LS2085A)
+#define CONFIG_BOOTSCRIPT_COPY_RAM
+#endif
+/* The address needs to be modified according to NOR and DDR memory map */
 #if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	0x583920000
+#define CONFIG_BS_HDR_ADDR_FLASH	0x583920000
+#define CONFIG_BS_ADDR_FLASH		0x583900000
+#define CONFIG_BS_HDR_ADDR_RAM		0xa3920000
+#define CONFIG_BS_ADDR_RAM		0xa3900000
 #else
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	0x600a0000
+#define CONFIG_BS_HDR_ADDR_FLASH	0x600a0000
+#define CONFIG_BS_ADDR_FLASH		0x60060000
+#define CONFIG_BS_HDR_ADDR_RAM		0xa0060000
+#define CONFIG_BS_ADDR_RAM		0xa0060000
+#endif
+
+#ifdef CONFIG_BOOTSCRIPT_COPY_RAM
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_RAM
+#define CONFIG_BS_HDR_SIZE		0x00002000
+#define CONFIG_BOOTSCRIPT_ADDR		CONFIG_BS_ADDR_RAM
+#define CONFIG_BS_SIZE			0x00001000
+#else
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_FLASH
+/* BS_HDR_SIZE, BOOTSCRIPT_ADDR and BS_SIZE are not required */
 #endif
 
 #include <config_fsl_chain_trust.h>
