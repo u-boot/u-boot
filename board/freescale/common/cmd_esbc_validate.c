@@ -29,6 +29,8 @@ static int do_esbc_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *hash_str = NULL;
 	uintptr_t haddr;
 	int ret;
+	uintptr_t img_addr = 0;
+	char buf[20];
 
 	if (argc < 2)
 		return cmd_usage(cmdtp);
@@ -43,7 +45,15 @@ static int do_esbc_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 	 * part of header. So, the function is called
 	 * by passing this argument as 0.
 	 */
-	ret = fsl_secboot_validate(haddr, hash_str, 0);
+	ret = fsl_secboot_validate(haddr, hash_str, &img_addr);
+
+	/* Need to set "img_addr" even if validation failure.
+	 * Required when SB_EN in RCW set and non-fatal error
+	 * to continue U-Boot
+	 */
+	sprintf(buf, "%lx", img_addr);
+	setenv("img_addr", buf);
+
 	if (ret)
 		return 1;
 
