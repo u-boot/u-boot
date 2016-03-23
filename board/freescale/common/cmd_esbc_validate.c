@@ -8,7 +8,7 @@
 #include <command.h>
 #include <fsl_validate.h>
 
-static int do_esbc_halt(cmd_tbl_t *cmdtp, int flag, int argc,
+int do_esbc_halt(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
 	if (fsl_check_boot_mode_secure() == 0) {

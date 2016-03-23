@@ -325,6 +325,8 @@ static void fsl_secboot_header_verification_failure(void)
 
 	printf("Generating reset request\n");
 	do_reset(NULL, 0, 0, NULL);
+	/* If reset doesn't coocur, halt execution */
+	do_esbc_halt(NULL, 0, 0, NULL);
 }
 
 /*
@@ -355,6 +357,9 @@ static void fsl_secboot_image_verification_failure(void)
 
 			printf("Generating reset request\n");
 			do_reset(NULL, 0, 0, NULL);
+			/* If reset doesn't coocur, halt execution */
+			do_esbc_halt(NULL, 0, 0, NULL);
+
 		} else {
 			change_sec_mon_state(HPSR_SSM_ST_TRUST,
 					     HPSR_SSM_ST_NON_SECURE);

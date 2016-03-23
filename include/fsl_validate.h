@@ -242,6 +242,9 @@ struct fsl_secboot_img_priv {
 	uint32_t img_size;	/* ESBC Image Size */
 };
 
+int do_esbc_halt(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[]);
+
 int fsl_secboot_validate(uintptr_t haddr, char *arg_hash_str,
 	uintptr_t img_loc);
 int fsl_secboot_blob_encap(cmd_tbl_t *cmdtp, int flag, int argc,
