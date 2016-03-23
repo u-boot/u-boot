@@ -188,10 +188,10 @@ static int smsc95xx_read_reg(struct usb_device *udev, u32 index, u32 *data)
 	len = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
 			      USB_VENDOR_REQUEST_READ_REGISTER,
 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-			      0, index, tmpbuf, sizeof(data),
+			      0, index, tmpbuf, sizeof(*data),
 			      USB_CTRL_GET_TIMEOUT);
 	*data = tmpbuf[0];
-	if (len != sizeof(data)) {
+	if (len != sizeof(*data)) {
 		debug("smsc95xx_read_reg failed: index=%d, len=%d",
 		      index, len);
 		return -EIO;
