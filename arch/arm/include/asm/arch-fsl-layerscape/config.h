@@ -70,6 +70,16 @@
 /* SFP */
 #define CONFIG_SYS_FSL_SFP_VER_3_4
 #define CONFIG_SYS_FSL_SFP_LE
+#define CONFIG_SYS_FSL_SRK_LE
+
+/* SEC */
+#define CONFIG_SYS_FSL_SEC_LE
+#define CONFIG_SYS_FSL_SEC_COMPAT	5
+
+/* Security Monitor */
+#define CONFIG_SYS_FSL_SEC_MON_LE
+
+
 
 /* Cache Coherent Interconnect */
 #define CCI_MN_BASE			0x04000000
