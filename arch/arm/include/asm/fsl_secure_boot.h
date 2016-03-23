@@ -58,7 +58,11 @@
 	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
 
 /* The address needs to be modified according to NOR memory map */
+#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	0x583920000
+#else
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0x600a0000
+#endif
 
 #include <config_fsl_chain_trust.h>
 #endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
