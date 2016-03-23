@@ -62,14 +62,14 @@ placed alongside rsa.c, and its functions added to the table in image-sig.c
 also.
 
 
-Creating an RSA key and certificate
------------------------------------
-To create a new public key, size 2048 bits:
+Creating an RSA key pair and certificate
+----------------------------------------
+To create a new public/private key pair, size 2048 bits:
 
 $ openssl genpkey -algorithm RSA -out keys/dev.key \
     -pkeyopt rsa_keygen_bits:2048 -pkeyopt rsa_keygen_pubexp:65537
 
-To create a certificate for this:
+To create a certificate for this containing the public key:
 
 $ openssl req -batch -new -x509 -key keys/dev.key -out keys/dev.crt
 
