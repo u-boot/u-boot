@@ -44,11 +44,18 @@
  *	 "41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b"
  */
 
+#ifdef CONFIG_BOOTARGS
+#define CONFIG_SET_BOOTARGS	"setenv bootargs \'" CONFIG_BOOTARGS" \';"
+#else
+#define CONFIG_SET_BOOTARGS	"setenv bootargs \'root=/dev/ram "	\
+				"rw console=ttyS0,115200 ramdisk_size=600000\';"
+#endif
+
+
 #ifdef CONFIG_BOOTSCRIPT_KEY_HASH
 #define CONFIG_SECBOOT \
 	"setenv bs_hdraddr " __stringify(CONFIG_BOOTSCRIPT_HDR_ADDR)";" \
-	"setenv bootargs \'root=/dev/ram rw console=ttyS0,115200 "	\
-	"ramdisk_size=600000\';"	\
+	CONFIG_SET_BOOTARGS	\
 	CONFIG_EXTRA_ENV	\
 	"esbc_validate $bs_hdraddr " \
 	  __stringify(CONFIG_BOOTSCRIPT_KEY_HASH)";" \
@@ -57,8 +64,7 @@
 #else
 #define CONFIG_SECBOOT \
 	"setenv bs_hdraddr " __stringify(CONFIG_BOOTSCRIPT_HDR_ADDR)";" \
-	"setenv bootargs \'root=/dev/ram rw console=ttyS0,115200 "	\
-	"ramdisk_size=600000\';"	\
+	CONFIG_SET_BOOTARGS	\
 	CONFIG_EXTRA_ENV	\
 	"esbc_validate $bs_hdraddr;" \
 	"source $img_addr;"	\
