@@ -543,7 +543,20 @@ int sec_init(void)
 	uint32_t liodn_s;
 #endif
 
+	/*
+	 * Modifying CAAM Read/Write Attributes
+	 * For LS2080A and LS2085A
+	 * For AXI Write - Cacheable, Write Back, Write allocate
+	 * For AXI Read - Cacheable, Read allocate
+	 * Only For LS2080a and LS2085a, to solve CAAM coherency issues
+	 */
+#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0xb << MCFGR_AWCACHE_SHIFT);
+	mcr = (mcr & ~MCFGR_ARCACHE_MASK) | (0x6 << MCFGR_ARCACHE_SHIFT);
+#else
 	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0x2 << MCFGR_AWCACHE_SHIFT);
+#endif
+
 #ifdef CONFIG_PHYS_64BIT
 	mcr |= (1 << MCFGR_PS_SHIFT);
 #endif
