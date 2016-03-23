@@ -52,10 +52,17 @@
 #define CONFIG_ESBC_ADDR_64BIT
 #endif
 
+#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+#define CONFIG_EXTRA_ENV \
+	"setenv fdt_high 0xa0000000;"	\
+	"setenv initrd_high 0xcfffffff;"	\
+	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
+#else
 #define CONFIG_EXTRA_ENV \
 	"setenv fdt_high 0xcfffffff;"	\
 	"setenv initrd_high 0xcfffffff;"	\
 	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
+#endif
 
 /* Copying Bootscript and Header to DDR from NOR for LS2 and for rest, from
  * Non-XIP Memory (Nand/SD)*/
