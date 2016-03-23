@@ -67,6 +67,10 @@
 /* SMMU Defintions */
 #define SMMU_BASE			0x05000000 /* GR0 Base */
 
+/* SFP */
+#define CONFIG_SYS_FSL_SFP_VER_3_4
+#define CONFIG_SYS_FSL_SFP_LE
+
 /* Cache Coherent Interconnect */
 #define CCI_MN_BASE			0x04000000
 #define CCI_MN_RNF_NODEID_LIST		0x180

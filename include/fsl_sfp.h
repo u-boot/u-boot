@@ -32,7 +32,8 @@
 /* Number of SRKH registers */
 #define NUM_SRKH_REGS	8
 
-#ifdef CONFIG_SYS_FSL_SFP_VER_3_2
+#if	defined(CONFIG_SYS_FSL_SFP_VER_3_2) ||	\
+	defined(CONFIG_SYS_FSL_SFP_VER_3_4)
 struct ccsr_sfp_regs {
 	u32 ospr;		/* 0x200 */
 	u32 ospr1;		/* 0x204 */
