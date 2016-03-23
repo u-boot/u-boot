@@ -399,4 +399,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_EXT2
 
+#include <asm/fsl_secure_boot.h>
+
 #endif /* __LS2_QDS_H */

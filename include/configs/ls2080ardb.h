@@ -363,4 +363,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_PHY_AQUANTIA
 #endif
 
+#include <asm/fsl_secure_boot.h>
+
 #endif /* __LS2_RDB_H */

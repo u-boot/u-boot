@@ -19,6 +19,7 @@
 #include <rtc.h>
 #include <asm/arch/soc.h>
 #include <hwconfig.h>
+#include <fsl_sec.h>
 
 #include "../common/qixis.h"
 #include "ls2080aqds_qixis.h"
@@ -248,7 +249,9 @@ int arch_misc_init(void)
 #ifdef CONFIG_FSL_DEBUG_SERVER
 	debug_server_init();
 #endif
-
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
 	return 0;
 }
 #endif

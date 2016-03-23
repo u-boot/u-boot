@@ -18,7 +18,9 @@
 #ifdef CONFIG_CHAIN_OF_TRUST
 #define CONFIG_CMD_ESBC_VALIDATE
 #define CONFIG_CMD_BLOB
+#define CONFIG_CMD_HASH
 #define CONFIG_FSL_SEC_MON
+#define CONFIG_SHA_HW_ACCEL
 #define CONFIG_SHA_PROG_HW_ACCEL
 #define CONFIG_RSA_FREESCALE_EXP
 
@@ -42,8 +44,11 @@
 
 #endif
 
-#ifdef CONFIG_LS1043A
-/* For LS1043 (ARMv8), ESBC image Address in Header is 64 bit */
+#if defined(CONFIG_LS1043A) || defined(CONFIG_LS2080A) ||\
+	defined(CONFIG_LS2085A)
+/* For LS1043 (ARMv8), ESBC image Address in Header is 64 bit
+ * Similiarly for LS2080 and LS2085
+ */
 #define CONFIG_ESBC_ADDR_64BIT
 #endif
 
