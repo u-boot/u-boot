@@ -56,7 +56,7 @@ FIT is formally a flattened device tree (in the libfdt meaning), which
 conforms to bindings defined in this document.
 
 .its	- image tree source
-.fit	- flattened image tree blob
+.itb	- flattened image tree blob
 
 c) Image building procedure
 
