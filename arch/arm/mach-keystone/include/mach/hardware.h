@@ -216,22 +216,45 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_MSMC_CTRL_BASE		0x0bc00000
 #define KS2_MSMC_DATA_BASE		0x0c000000
 
+/* KS2 Generic Privilege ID Settings for MSMC2 */
+#define KS2_MSMC_SEGMENT_C6X_0		0
+#define KS2_MSMC_SEGMENT_C6X_1		1
+#define KS2_MSMC_SEGMENT_C6X_2		2
+#define KS2_MSMC_SEGMENT_C6X_3		3
+#define KS2_MSMC_SEGMENT_C6X_4		4
+#define KS2_MSMC_SEGMENT_C6X_5		5
+#define KS2_MSMC_SEGMENT_C6X_6		6
+#define KS2_MSMC_SEGMENT_C6X_7		7
+
+#define KS2_MSMC_SEGMENT_DEBUG		12
+
 /* KS2 HK/L/E MSMC PRIVIDs  for MSMC2 */
 #define K2HKLE_MSMC_SEGMENT_ARM		8
 #define K2HKLE_MSMC_SEGMENT_NETCP	9
 #define K2HKLE_MSMC_SEGMENT_QM_PDSP	10
 #define K2HKLE_MSMC_SEGMENT_PCIE0	11
 
+/* K2HK specific Privilege ID Settings */
+#define K2HKE_MSMC_SEGMENT_HYPERLINK	14
+
 /* K2L specific Privilege ID Settings */
 #define K2L_MSMC_SEGMENT_PCIE1		14
 
 /* K2E specific Privilege ID Settings */
 #define K2E_MSMC_SEGMENT_PCIE1		13
+#define K2E_MSMC_SEGMENT_TSIP		15
 
 /* K2G specific Privilege ID Settings */
 #define K2G_MSMC_SEGMENT_ARM		1
+#define K2G_MSMC_SEGMENT_ICSS0		2
+#define K2G_MSMC_SEGMENT_ICSS1		3
 #define K2G_MSMC_SEGMENT_NSS		4
 #define K2G_MSMC_SEGMENT_PCIE		5
+#define K2G_MSMC_SEGMENT_USB		6
+#define K2G_MSMC_SEGMENT_MLB		8
+#define K2G_MSMC_SEGMENT_PMMC		9
+#define K2G_MSMC_SEGMENT_DSS		10
+#define K2G_MSMC_SEGMENT_MMC		11
 
 /* MSMC segment size shift bits */
 #define KS2_MSMC_SEG_SIZE_SHIFT		12
