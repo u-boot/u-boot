@@ -90,6 +90,15 @@ int board_init(void)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_SATAPWR
+	gpio_request(CONFIG_SATAPWR, "satapwr");
+	gpio_direction_output(CONFIG_SATAPWR, 1);
+#endif
+#ifdef CONFIG_MACPWR
+	gpio_request(CONFIG_MACPWR, "macpwr");
+	gpio_direction_output(CONFIG_MACPWR, 1);
+#endif
+
 	/* Uses dm gpio code so do this here and not in i2c_init_board() */
 	return soft_i2c_board_init();
 }
@@ -598,11 +607,14 @@ int misc_init_r(void)
 }
 #endif
 
-#ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	int __maybe_unused r;
+
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB
-	return sunxi_simplefb_setup(blob);
+	r = sunxi_simplefb_setup(blob);
+	if (r)
+		return r;
 #endif
+	return 0;
 }
-#endif /* CONFIG_OF_BOARD_SETUP */

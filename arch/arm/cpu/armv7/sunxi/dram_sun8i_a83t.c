@@ -280,7 +280,7 @@ static int mctl_channel_init(struct dram_para *para)
 
 	writel(0x94be6fa3, MCTL_PROTECT);
 	udelay(100);
-	clrsetbits_le32(MX_UPD2, 0xfff << 16, 0x50 << 26);
+	clrsetbits_le32(MX_UPD2, 0xfff << 16, 0x50 << 16);
 	writel(0x0, MCTL_PROTECT);
 	udelay(100);
 

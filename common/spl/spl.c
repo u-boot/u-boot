@@ -210,9 +210,9 @@ struct boot_device_name boot_name_table[] = {
 	{ BOOT_DEVICE_RAM, "RAM" },
 #endif
 #ifdef CONFIG_SPL_MMC_SUPPORT
-	{ BOOT_DEVICE_MMC1, "MMC" },
-	{ BOOT_DEVICE_MMC2, "MMC" },
-	{ BOOT_DEVICE_MMC2_2, "MMC" },
+	{ BOOT_DEVICE_MMC1, "MMC1" },
+	{ BOOT_DEVICE_MMC2, "MMC2" },
+	{ BOOT_DEVICE_MMC2_2, "MMC2_2" },
 #endif
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	{ BOOT_DEVICE_NAND, "NAND" },

@@ -43,10 +43,10 @@ int clock_twi_onoff(int port, int state)
 		setbits_le32(&ccm->apb1_gate,
 			     CLK_GATE_OPEN << (APB1_GATE_TWI_SHIFT + port));
 		setbits_le32(&ccm->apb1_reset_cfg,
-			     1 << (APB1_RESET_UART_SHIFT + port));
+			     1 << (APB1_RESET_TWI_SHIFT + port));
 	} else {
 		clrbits_le32(&ccm->apb1_reset_cfg,
-			     1 << (APB1_RESET_UART_SHIFT + port));
+			     1 << (APB1_RESET_TWI_SHIFT + port));
 		clrbits_le32(&ccm->apb1_gate,
 			     CLK_GATE_OPEN << (APB1_GATE_TWI_SHIFT + port));
 	}

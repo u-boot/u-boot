@@ -17,6 +17,14 @@
 #include <dm.h>
 #include "ehci.h"
 
+#ifdef CONFIG_SUNXI_GEN_SUN4I
+#define BASE_DIST		0x8000
+#define AHB_CLK_DIST		2
+#else
+#define BASE_DIST		0x1000
+#define AHB_CLK_DIST		1
+#endif
+
 struct ehci_sunxi_priv {
 	struct ehci_ctrl ehci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
@@ -39,8 +47,9 @@ static int ehci_usb_probe(struct udevice *dev)
 #ifdef CONFIG_MACH_SUN8I_H3
 	priv->ahb_gate_mask |= 1 << AHB_GATE_OFFSET_USB_OHCI0;
 #endif
-	priv->phy_index = ((u32)hccr - SUNXI_USB1_BASE) / 0x1000 + 1;
-	priv->ahb_gate_mask <<= priv->phy_index - 1;
+	priv->phy_index = ((u32)hccr - SUNXI_USB1_BASE) / BASE_DIST;
+	priv->ahb_gate_mask <<= priv->phy_index * AHB_CLK_DIST;
+	priv->phy_index++; /* Non otg phys start at 1 */
 
 	setbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
 #ifdef CONFIG_SUNXI_GEN_SUN6I

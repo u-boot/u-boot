@@ -7,6 +7,7 @@ F:	configs/A10-OLinuXino-Lime_defconfig
 F:	configs/ba10_tv_box_defconfig
 F:	configs/Chuwi_V7_CW0825_defconfig
 F:	configs/Cubieboard_defconfig
+F:	configs/dserve_dsrv9703c_defconfig
 F:	configs/Hyundai_A7HD_defconfig
 F:	configs/inet1_defconfig
 F:	configs/inet97fv2_defconfig
@@ -25,6 +26,7 @@ F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T003_defconfig
 F:	configs/Auxtek-T004_defconfig
 F:	configs/CHIP_defconfig
+F:	configs/difrnce_dit4350_defconfig
 F:	configs/Empire_electronix_d709_defconfig
 F:	configs/inet98v_rev2_defconfig
 F:	configs/mk802_a10s_defconfig
@@ -33,6 +35,7 @@ F:	configs/r7-tv-dongle_defconfig
 F:	configs/UTOO_P66_defconfig
 F:	configs/Wobo_i5_defconfig
 F:	include/configs/sun6i.h
+F:	configs/colorfly_e708_q1_defconfig
 F:	configs/CSQ_CS908_defconfig
 F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M9_defconfig
@@ -51,8 +54,10 @@ F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
+F:	configs/orangepi_2_defconfig
 F:	configs/orangepi_pc_defconfig
 F:	configs/orangepi_plus_defconfig
+F:	configs/polaroid_mid2809pxe04_defconfig
 F:	configs/q8_a23_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_800x480_defconfig
 F:	configs/q8_a33_tablet_1024x600_defconfig
@@ -97,6 +102,11 @@ F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
 F:	configs/Cubietruck_defconfig
 
+CUBIETRUCK-PLUS BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Cubietruck_plus_defconfig
+
 GEMEI-G9 TABLET
 M:	Priit Laes <plaes@plaes.org>
 S:	Maintained
@@ -111,6 +121,16 @@ HUMMINGBIRD-A31 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Hummingbird_A31_defconfig
+
+ICnova-A20-SWAC BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	configs/icnova-a20-swac_defconfig
+
+ITEAD IBOX BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/Itead_Ibox_A20_defconfig
 
 INET 3F BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
@@ -177,6 +197,12 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
+SINLINX SINA31s BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Sinlinx_SinA31s_defconfig
+W:	http://linux-sunxi.org/Sinlinx_SinA31s
+
 SINLINX SINA33 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
@@ -197,3 +223,8 @@ YONES TOPTECH BD1078 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Yones_Toptech_BD1078_defconfig
+
+YONES TOPTECH BS1078 V2 BOARD
+M:	Peter Korsgaard <peter@korsgaard.com>
+S:	Maintained
+F:	configs/Yones_Toptech_BS1078_V2_defconfig

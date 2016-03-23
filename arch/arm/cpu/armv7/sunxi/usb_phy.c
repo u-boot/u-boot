@@ -76,6 +76,7 @@ static int get_vbus_gpio(int index)
 	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_PIN);
 	case 1: return sunxi_name_to_gpio(CONFIG_USB1_VBUS_PIN);
 	case 2: return sunxi_name_to_gpio(CONFIG_USB2_VBUS_PIN);
+	case 3: return sunxi_name_to_gpio(CONFIG_USB3_VBUS_PIN);
 	}
 	return -EINVAL;
 }

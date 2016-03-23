@@ -112,6 +112,7 @@ dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-ba10-tvbox.dtb \
 	sun4i-a10-chuwi-v7-cw0825.dtb \
 	sun4i-a10-cubieboard.dtb \
+	sun4i-a10-dserve-dsrv9703c.dtb \
 	sun4i-a10-gemei-g9.dtb \
 	sun4i-a10-hackberry.dtb \
 	sun4i-a10-hyundai-a7hd.dtb \
@@ -128,6 +129,7 @@ dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-mk802ii.dtb \
 	sun4i-a10-olinuxino-lime.dtb \
 	sun4i-a10-pcduino.dtb \
+	sun4i-a10-pcduino2.dtb \
 	sun4i-a10-pov-protab2-ips9.dtb
 dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a10s-auxtek-t003.dtb \
@@ -137,6 +139,7 @@ dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a10s-r7-tv-dongle.dtb \
 	sun5i-a10s-wobo-i5.dtb \
 	sun5i-a13-ampe-a76.dtb \
+	sun5i-a13-difrnce-dit4350.dtb \
 	sun5i-a13-empire-electronix-d709.dtb \
 	sun5i-a13-hsg-h702.dtb \
 	sun5i-a13-inet-86vs.dtb \
@@ -154,9 +157,12 @@ dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-m9.dtb \
 	sun6i-a31-mele-a1000g-quad.dtb \
 	sun6i-a31-mixtile-loftq.dtb \
+	sun6i-a31s-colorfly-e708-q1.dtb \
 	sun6i-a31s-cs908.dtb \
 	sun6i-a31s-primo81.dtb \
-	sun6i-a31s-sinovoip-bpi-m2.dtb
+	sun6i-a31s-sina31s.dtb \
+	sun6i-a31s-sinovoip-bpi-m2.dtb \
+	sun6i-a31s-yones-toptech-bs1078-v2.dtb
 dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-ainol-aw1.dtb \
 	sun7i-a20-bananapi.dtb \
@@ -165,6 +171,8 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-cubietruck.dtb \
 	sun7i-a20-hummingbird.dtb \
 	sun7i-a20-i12-tvbox.dtb \
+	sun7i-a20-icnova-swac.dtb \
+	sun7i-a20-itead-ibox.dtb \
 	sun7i-a20-lamobo-r1.dtb \
 	sun7i-a20-m3.dtb \
 	sun7i-a20-m5.dtb \
@@ -184,6 +192,7 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
 	sun8i-a23-evb.dtb \
 	sun8i-a23-gt90h-v4.dtb \
+	sun8i-a23-polaroid-mid2809pxe04.dtb \
 	sun8i-a23-q8-tablet.dtb
 dtb-$(CONFIG_MACH_SUN8I_A33) += \
 	sun8i-a33-ga10h-v1.1.dtb \
@@ -191,8 +200,10 @@ dtb-$(CONFIG_MACH_SUN8I_A33) += \
 	sun8i-a33-sinlinx-sina33.dtb
 dtb-$(CONFIG_MACH_SUN8I_A83T) += \
 	sun8i-a83t-allwinner-h8homlet-v2.dtb \
+	sun8i-a83t-cubietruck-plus.dtb \
 	sun8i-a83t-sinovoip-bpi-m3.dtb
 dtb-$(CONFIG_MACH_SUN8I_H3) += \
+	sun8i-h3-orangepi-2.dtb \
 	sun8i-h3-orangepi-pc.dtb \
 	sun8i-h3-orangepi-plus.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \

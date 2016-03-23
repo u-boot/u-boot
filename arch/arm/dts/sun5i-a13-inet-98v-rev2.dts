@@ -123,21 +123,6 @@
 	status = "okay";
 };
 
-&mmc2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc2_pins_a>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <8>;
-	non-removable;
-	status = "okay";
-
-	mmccard: mmccard@0 {
-		reg = <0>;
-		compatible = "mmc-card";
-		broken-hpi;
-	};
-};
-
 &otg_sram {
 	status = "okay";
 };
@@ -201,11 +186,6 @@
 	status = "okay";
 };
 
-&reg_usb1_vbus {
-	gpio = <&pio 6 11 GPIO_ACTIVE_HIGH>; /* PG11 */
-	status = "okay";
-};
-
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart1_pins_b>;
@@ -221,16 +201,12 @@
 	allwinner,pins = "PG12";
 };
 
-&usb1_vbus_pin_a {
-	allwinner,pins = "PG11";
-};
-
 &usbphy {
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>, <&usb0_vbus_detect_pin>;
 	usb0_id_det-gpio = <&pio 6 2 GPIO_ACTIVE_HIGH>; /* PG2 */
 	usb0_vbus_det-gpio = <&pio 6 1 GPIO_ACTIVE_HIGH>; /* PG1 */
 	usb0_vbus-supply = <&reg_usb0_vbus>;
-	usb1_vbus-supply = <&reg_usb1_vbus>;
+	usb1_vbus-supply = <&reg_ldo3>;
 	status = "okay";
 };
