@@ -10,6 +10,8 @@
 #include <asm/io.h>
 #ifdef CONFIG_LS1043A
 #include <asm/arch/immap_lsch2.h>
+#elif defined(CONFIG_FSL_LSCH3)
+#include <asm/arch/immap_lsch3.h>
 #else
 #include <asm/immap_85xx.h>
 #endif
@@ -285,7 +287,7 @@ static int set_voltage(int i2caddress, int vdd)
 int adjust_vdd(ulong vdd_override)
 {
 	int re_enable = disable_interrupts();
-#ifdef CONFIG_LS1043A
+#if defined(CONFIG_LS1043A) || defined(CONFIG_FSL_LSCH3)
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 #else
 	ccsr_gur_t __iomem *gur =
@@ -362,7 +364,11 @@ int adjust_vdd(ulong vdd_override)
 	}
 
 	/* get the voltage ID from fuse status register */
+#ifdef CONFIG_FSL_LSCH3
+	fusesr = in_le32(&gur->dcfg_fusesr);
+#else
 	fusesr = in_be32(&gur->dcfg_fusesr);
+#endif
 	/*
 	 * VID is used according to the table below
 	 *                ---------------------------------------
@@ -386,6 +392,13 @@ int adjust_vdd(ulong vdd_override)
 	if ((vid == 0) || (vid == FSL_CHASSIS2_DCFG_FUSESR_ALTVID_MASK)) {
 		vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_VID_SHIFT) &
 			FSL_CHASSIS2_DCFG_FUSESR_VID_MASK;
+	}
+#elif defined(CONFIG_FSL_LSCH3)
+	vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT) &
+		FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK;
+	if ((vid == 0) || (vid == FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK)) {
+		vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT) &
+			FSL_CHASSIS3_DCFG_FUSESR_VID_MASK;
 	}
 #else
 	vid = (fusesr >> FSL_CORENET_DCFG_FUSESR_ALTVID_SHIFT) &

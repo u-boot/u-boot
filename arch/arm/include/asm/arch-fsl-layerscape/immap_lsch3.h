@@ -180,6 +180,10 @@ struct ccsr_gur {
 	u8	res_008[0x20-0x8];
 	u32	gpporcr1;	/* General-purpose POR configuration */
 	u32	gpporcr2;	/* General-purpose POR configuration 2 */
+#define FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT	25
+#define FSL_CHASSIS3_DCFG_FUSESR_VID_MASK	0x1F
+#define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT	20
+#define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK	0x1F
 	u32	dcfg_fusesr;	/* Fuse status register */
 	u32	gpporcr3;
 	u32	gpporcr4;

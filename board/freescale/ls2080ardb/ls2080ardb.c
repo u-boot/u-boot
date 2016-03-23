@@ -22,6 +22,7 @@
 
 #include "../common/qixis.h"
 #include "ls2080ardb_qixis.h"
+#include "../common/vid.h"
 
 #define PIN_MUX_SEL_SDHC	0x00
 #define PIN_MUX_SEL_DSPI	0x0a
@@ -123,6 +124,11 @@ int select_i2c_ch_pca9547(u8 ch)
 	return 0;
 }
 
+int i2c_multiplexer_select_vid_channel(u8 channel)
+{
+	return select_i2c_ch_pca9547(channel);
+}
+
 int config_board_mux(int ctrl_type)
 {
 	u8 reg5;
@@ -188,6 +194,9 @@ int misc_init_r(void)
 {
 	if (hwconfig("sdhc"))
 		config_board_mux(MUX_TYPE_SDHC);
+
+	if (adjust_vdd(0))
+		printf("Warning: Adjusting core voltage failed.\n");
 
 	return 0;
 }
