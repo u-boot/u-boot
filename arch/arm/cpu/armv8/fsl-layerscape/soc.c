@@ -151,7 +151,14 @@ static void erratum_a009203(void)
 #endif
 #endif
 }
-
+void bypass_smmu(void)
+{
+	u32 val;
+	val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_SCR0, val);
+	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_NSCR0, val);
+}
 void fsl_lsch3_early_init_f(void)
 {
 	erratum_a008751();
@@ -160,6 +167,15 @@ void fsl_lsch3_early_init_f(void)
 	erratum_a009203();
 	erratum_a008514();
 	erratum_a008336();
+#ifdef CONFIG_CHAIN_OF_TRUST
+	/* In case of Secure Boot, the IBR configures the SMMU
+	* to allow only Secure transactions.
+	* SMMU must be reset in bypass mode.
+	* Set the ClientPD bit and Clear the USFCFG Bit
+	*/
+	if (fsl_check_boot_mode_secure() == 1)
+		bypass_smmu();
+#endif
 }
 
 #ifdef CONFIG_SCSI_AHCI_PLAT

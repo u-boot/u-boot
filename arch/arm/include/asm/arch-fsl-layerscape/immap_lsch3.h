@@ -83,6 +83,21 @@
 /* Security Monitor */
 #define CONFIG_SYS_SEC_MON_ADDR		(CONFIG_SYS_IMMR + 0x00e90000)
 
+/* MMU 500 */
+#define SMMU_SCR0			(SMMU_BASE + 0x0)
+#define SMMU_SCR1			(SMMU_BASE + 0x4)
+#define SMMU_SCR2			(SMMU_BASE + 0x8)
+#define SMMU_SACR			(SMMU_BASE + 0x10)
+#define SMMU_IDR0			(SMMU_BASE + 0x20)
+#define SMMU_IDR1			(SMMU_BASE + 0x24)
+
+#define SMMU_NSCR0			(SMMU_BASE + 0x400)
+#define SMMU_NSCR2			(SMMU_BASE + 0x408)
+#define SMMU_NSACR			(SMMU_BASE + 0x410)
+
+#define SCR0_CLIENTPD_MASK		0x00000001
+#define SCR0_USFCFG_MASK		0x00000400
+
 
 /* PCIe */
 #define CONFIG_SYS_PCIE1_ADDR			(CONFIG_SYS_IMMR + 0x2400000)
