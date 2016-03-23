@@ -21,14 +21,6 @@
 
 extern struct jobring jr;
 
-#ifdef CONFIG_KEY_REVOCATION
-/* Srk table and key revocation check */
-#define SRK_FLAG	0x01
-#define UNREVOCABLE_KEY	4
-#define ALIGN_REVOC_KEY 3
-#define MAX_KEY_ENTRIES 4
-#endif
-
 /* Barker code size in bytes */
 #define ESBC_BARKER_LEN	4	/* barker code length in ESBC uboot client */
 				/* header */
@@ -38,6 +30,47 @@ extern struct jobring jr;
 
 /* Maximum number of SG entries allowed */
 #define MAX_SG_ENTRIES	8
+
+/* Different Header Struct for LS-CH3 */
+#ifdef CONFIG_ESBC_HDR_LS
+struct fsl_secboot_img_hdr {
+	u8 barker[ESBC_BARKER_LEN];	/* barker code */
+	u32 srk_tbl_off;
+	struct {
+		u8 num_srk;
+		u8 srk_sel;
+		u8 reserve;
+		u8 ie_flag;
+	} len_kr;
+
+	u32 uid_flag;
+
+	u32 psign;		/* signature offset */
+	u32 sign_len;		/* length of the signature in bytes */
+
+	u64 pimg64;		/* 64 bit pointer to ESBC Image */
+	u32 img_size;		/* ESBC client image size in bytes */
+	u32 ie_key_sel;
+
+	u32 fsl_uid_0;
+	u32 fsl_uid_1;
+	u32 oem_uid_0;
+	u32 oem_uid_1;
+	u32 oem_uid_2;
+	u32 oem_uid_3;
+	u32 oem_uid_4;
+	u32 reserved1[3];
+};
+
+#ifdef CONFIG_KEY_REVOCATION
+/* Srk table and key revocation check */
+#define UNREVOCABLE_KEY	8
+#define ALIGN_REVOC_KEY 7
+#define MAX_KEY_ENTRIES 8
+#endif
+
+
+#else /* CONFIG_ESBC_HDR_LS */
 
 /*
  * ESBC uboot client header structure.
@@ -108,6 +141,17 @@ struct fsl_secboot_img_hdr {
 	u32 ie_flag;
 	u32 ie_key_sel;
 };
+
+#ifdef CONFIG_KEY_REVOCATION
+/* Srk table and key revocation check */
+#define SRK_FLAG	0x01
+#define UNREVOCABLE_KEY	4
+#define ALIGN_REVOC_KEY 3
+#define MAX_KEY_ENTRIES 4
+#endif
+
+#endif /* CONFIG_ESBC_HDR_LS */
+
 
 #if defined(CONFIG_FSL_ISBC_KEY_EXT)
 struct ie_key_table {

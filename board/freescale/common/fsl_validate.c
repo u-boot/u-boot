@@ -35,7 +35,13 @@ static const u8 hash_identifier[] = { 0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60,
 		};
 
 static u8 hash_val[SHA256_BYTES];
+
+#ifdef CONFIG_ESBC_HDR_LS
+/* New Barker Code for LS ESBC Header */
+static const u8 barker_code[ESBC_BARKER_LEN] = { 0x12, 0x19, 0x20, 0x01 };
+#else
 static const u8 barker_code[ESBC_BARKER_LEN] = { 0x68, 0x39, 0x27, 0x81 };
+#endif
 
 void branch_to_self(void) __attribute__ ((noreturn));
 
@@ -157,10 +163,15 @@ static int get_ie_info_addr(u32 *ie_addr)
 /* This function checks srk_table_flag in header and set/reset srk_flag.*/
 static u32 check_srk(struct fsl_secboot_img_priv *img)
 {
+#ifdef CONFIG_ESBC_HDR_LS
+	/* In LS, No SRK Flag as SRK is always present*/
+	return 1;
+#else
 	if (img->hdr.len_kr.srk_table_flag & SRK_FLAG)
 		return 1;
 
 	return 0;
+#endif
 }
 
 /* This function returns ospr's key_revoc values.*/
@@ -223,6 +234,7 @@ static u32 read_validate_srk_tbl(struct fsl_secboot_img_priv *img)
 }
 #endif
 
+#ifndef CONFIG_ESBC_HDR_LS
 static u32 read_validate_single_key(struct fsl_secboot_img_priv *img)
 {
 	struct fsl_secboot_img_hdr *hdr = &img->hdr;
@@ -238,6 +250,7 @@ static u32 read_validate_single_key(struct fsl_secboot_img_priv *img)
 
 	return 0;
 }
+#endif /* CONFIG_ESBC_HDR_LS */
 
 #if defined(CONFIG_FSL_ISBC_KEY_EXT)
 static u32 read_validate_ie_tbl(struct fsl_secboot_img_priv *img)
@@ -388,6 +401,7 @@ void fsl_secboot_handle_error(int error)
 	case ERROR_ESBC_CLIENT_HEADER_SIG_KEY_MOD:
 	case ERROR_ESBC_CLIENT_HEADER_SG_ESBC_EP:
 	case ERROR_ESBC_CLIENT_HEADER_SG_ENTIRES_BAD:
+	case ERROR_KEY_TABLE_NOT_FOUND:
 #ifdef CONFIG_KEY_REVOCATION
 	case ERROR_ESBC_CLIENT_HEADER_KEY_REVOKED:
 	case ERROR_ESBC_CLIENT_HEADER_INVALID_SRK_NUM_ENTRY:
@@ -536,11 +550,18 @@ static int calc_esbchdr_esbc_hash(struct fsl_secboot_img_priv *img)
 	if (!key_hash && check_ie(img))
 		key_hash = 1;
 #endif
-	if (!key_hash)
+#ifndef CONFIG_ESBC_HDR_LS
+/* No single key support in LS ESBC header */
+	if (!key_hash) {
 		ret = algo->hash_update(algo, ctx,
 			img->img_key, img->hdr.key_len, 0);
+		key_hash = 1;
+	}
+#endif
 	if (ret)
 		return ret;
+	if (!key_hash)
+		return ERROR_KEY_TABLE_NOT_FOUND;
 
 	/* Update hash for actual Image */
 	ret = algo->hash_update(algo, ctx,
@@ -626,8 +647,6 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	u8 *k, *s;
 	u32 ret = 0;
 
-#ifdef CONFIG_KEY_REVOCATION
-#endif
 	int  key_found = 0;
 
 	/* check barker code */
@@ -671,13 +690,17 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 		key_found = 1;
 	}
 #endif
-
+#ifndef CONFIG_ESBC_HDR_LS
+/* Single Key Feature not available in LS ESBC Header */
 	if (key_found == 0) {
 		ret = read_validate_single_key(img);
 		if (ret != 0)
 			return ret;
 		key_found = 1;
 	}
+#endif
+	if (!key_found)
+		return ERROR_KEY_TABLE_NOT_FOUND;
 
 	/* check signaure */
 	if (get_key_len(img) == 2 * hdr->sign_len) {
@@ -691,10 +714,12 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	}
 
 	memcpy(&img->img_sign, esbc + hdr->psign, hdr->sign_len);
-
+/* No SG support in LS-CH3 */
+#ifndef CONFIG_ESBC_HDR_LS
 	/* No SG support */
 	if (hdr->sg_flag)
 		return ERROR_ESBC_CLIENT_HEADER_SG;
+#endif
 
 	/* modulus most significant bit should be set */
 	k = (u8 *)&img->img_key;

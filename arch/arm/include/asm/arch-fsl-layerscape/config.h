@@ -79,7 +79,8 @@
 /* Security Monitor */
 #define CONFIG_SYS_FSL_SEC_MON_LE
 
-
+/* Secure Boot */
+#define CONFIG_ESBC_HDR_LS
 
 /* Cache Coherent Interconnect */
 #define CCI_MN_BASE			0x04000000

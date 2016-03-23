@@ -35,7 +35,11 @@
  * The feature is only applicable in case of NOR boot and is
  * not applicable in case of RAMBOOT (NAND, SD, SPI).
  */
+#ifndef CONFIG_ESBC_HDR_LS
+/* Current Key EXT feature not available in LS ESBC Header */
 #define CONFIG_FSL_ISBC_KEY_EXT
+#endif
+
 #endif
 
 #ifdef CONFIG_LS1043A
