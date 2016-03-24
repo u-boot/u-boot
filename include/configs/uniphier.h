@@ -229,6 +229,10 @@
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
 	"nor_base=0x42000000\0"					\
+	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
+		"tftpboot $tmp_addr u-boot-spl.bin &&"		\
+		"setexpr tmp_addr $nor_base + 0x60000 &&"	\
+		"tftpboot $tmp_addr u-boot.bin\0"		\
 	"emmcupdate=mmcsetn &&"					\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
 		"mmc erase 0 800 &&"				\
