@@ -114,9 +114,6 @@ static struct uniphier_pinctrl_socdata proxstream2_pinctrl_socdata = {
 	.groups_count = ARRAY_SIZE(proxstream2_groups),
 	.functions = proxstream2_functions,
 	.functions_count = ARRAY_SIZE(proxstream2_functions),
-	.mux_bits = 8,
-	.reg_stride = 4,
-	.load_pinctrl = false,
 };
 
 static int proxstream2_pinctrl_probe(struct udevice *dev)

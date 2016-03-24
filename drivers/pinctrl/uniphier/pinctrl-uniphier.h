@@ -7,6 +7,7 @@
 #ifndef __PINCTRL_UNIPHIER_H__
 #define __PINCTRL_UNIPHIER_H__
 
+#include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -59,8 +60,7 @@ struct uniphier_pinctrl_group {
  * @functions_count: number of pinmux functions
  * @mux_bits: bit width of each pinmux register
  * @reg_stride: stride of pinmux register address
- * @load_pinctrl: if true, LOAD_PINMUX register must be set to one for new
- *		  values in pinmux registers to become really effective
+ * @caps: SoC-specific capability flag
  */
 struct uniphier_pinctrl_socdata {
 	const struct uniphier_pinctrl_pin *pins;
@@ -69,9 +69,8 @@ struct uniphier_pinctrl_socdata {
 	int groups_count;
 	const char * const *functions;
 	int functions_count;
-	unsigned mux_bits;
-	unsigned reg_stride;
-	bool load_pinctrl;
+	unsigned caps;
+#define UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE	BIT(0)
 };
 
 #define UNIPHIER_PINCTRL_PIN(a, b)					\

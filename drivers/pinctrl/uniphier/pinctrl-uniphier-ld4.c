@@ -107,9 +107,6 @@ static struct uniphier_pinctrl_socdata ph1_ld4_pinctrl_socdata = {
 	.groups_count = ARRAY_SIZE(ph1_ld4_groups),
 	.functions = ph1_ld4_functions,
 	.functions_count = ARRAY_SIZE(ph1_ld4_functions),
-	.mux_bits = 8,
-	.reg_stride = 4,
-	.load_pinctrl = false,
 };
 
 static int ph1_ld4_pinctrl_probe(struct udevice *dev)

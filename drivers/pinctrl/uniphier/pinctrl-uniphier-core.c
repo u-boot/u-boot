@@ -68,13 +68,32 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 				    unsigned muxval)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
-	unsigned mux_bits = priv->socdata->mux_bits;
-	unsigned reg_stride = priv->socdata->reg_stride;
-	unsigned reg, reg_end, shift, mask;
+	unsigned mux_bits, reg_stride, reg, reg_end, shift, mask;
+	bool load_pinctrl;
 	u32 tmp;
 
 	/* some pins need input-enabling */
 	uniphier_pinconf_input_enable(dev, pin);
+
+	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE) {
+		/*
+		 *  Mode       offset        bit
+		 *  Normal     4 * n     shift+3:shift
+		 *  Debug      4 * n     shift+7:shift+4
+		 */
+		mux_bits = 4;
+		reg_stride = 8;
+		load_pinctrl = true;
+	} else {
+		/*
+		 *  Mode       offset           bit
+		 *  Normal     8 * n        shift+3:shift
+		 *  Debug      8 * n + 4    shift+3:shift
+		 */
+		mux_bits = 8;
+		reg_stride = 4;
+		load_pinctrl = false;
+	}
 
 	reg = UNIPHIER_PINCTRL_PINMUX_BASE + pin * mux_bits / 32 * reg_stride;
 	reg_end = reg + reg_stride;
@@ -94,7 +113,7 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 		muxval >>= mux_bits;
 	}
 
-	if (priv->socdata->load_pinctrl)
+	if (load_pinctrl)
 		writel(1, priv->base + UNIPHIER_PINCTRL_LOAD_PINMUX);
 }
 
