@@ -39,6 +39,12 @@
 		clock-frequency = <300000000>;
 	};
 
+	clk600: clk600 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <600000000>;
+	};
+
 	dp_aclk: clock0 {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -73,6 +79,38 @@
 
 &can1 {
 	clocks = <&clk100 &clk100>;
+};
+
+&fpd_dma_chan1 {
+	clocks = <&clk600>, <&clk100>;
+};
+
+&fpd_dma_chan2 {
+	clocks = <&clk600>, <&clk100>;
+};
+
+&fpd_dma_chan3 {
+	clocks = <&clk600>, <&clk100>;
+};
+
+&fpd_dma_chan4 {
+	clocks = <&clk600>, <&clk100>;
+};
+
+&fpd_dma_chan5 {
+	clocks = <&clk600>, <&clk100>;
+};
+
+&fpd_dma_chan6 {
+	clocks = <&clk600>, <&clk100>;
+};
+
+&fpd_dma_chan7 {
+	clocks = <&clk600>, <&clk100>;
+};
+
+&fpd_dma_chan8 {
+	clocks = <&clk600>, <&clk100>;
 };
 
 &nand0 {
