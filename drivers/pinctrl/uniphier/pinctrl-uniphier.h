@@ -70,6 +70,7 @@ struct uniphier_pinctrl_socdata {
 	const char * const *functions;
 	int functions_count;
 	unsigned caps;
+#define UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL	BIT(1)
 #define UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE	BIT(0)
 };
 

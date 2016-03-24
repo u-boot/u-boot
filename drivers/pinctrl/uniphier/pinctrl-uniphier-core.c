@@ -44,7 +44,23 @@ static const char *uniphier_pinmux_get_function_name(struct udevice *dev,
 	return priv->socdata->functions[selector];
 }
 
-static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
+static void uniphier_pinconf_input_enable_perpin(struct udevice *dev,
+						 unsigned pin)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+	unsigned reg;
+	u32 mask, tmp;
+
+	reg = UNIPHIER_PINCTRL_IECTRL + pin / 32 * 4;
+	mask = BIT(pin % 32);
+
+	tmp = readl(priv->base + reg);
+	tmp |= mask;
+	writel(tmp, priv->base + reg);
+}
+
+static void uniphier_pinconf_input_enable_legacy(struct udevice *dev,
+						 unsigned pin)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
 	int pins_count = priv->socdata->pins_count;
@@ -62,6 +78,16 @@ static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
 			writel(tmp, priv->base + UNIPHIER_PINCTRL_IECTRL);
 		}
 	}
+}
+
+static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL)
+		uniphier_pinconf_input_enable_perpin(dev, pin);
+	else
+		uniphier_pinconf_input_enable_legacy(dev, pin);
 }
 
 static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
