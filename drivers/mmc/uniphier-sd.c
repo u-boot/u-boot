@@ -12,6 +12,7 @@
 #include <dm/device.h>
 #include <linux/compat.h>
 #include <linux/io.h>
+#include <linux/sizes.h>
 #include <asm/unaligned.h>
 #include <asm/dma-mapping.h>
 
@@ -650,15 +651,17 @@ int uniphier_sd_probe(struct udevice *dev)
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	fdt_addr_t base;
-	fdt_size_t size;
 	struct udevice *clk_dev;
 	int clk_id;
 	int ret;
 
 	priv->dev = dev;
 
-	base = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
-	priv->regbase = map_sysmem(base, size);
+	base = dev_get_addr(dev);
+	if (base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	priv->regbase = map_sysmem(base, SZ_2K);
 	if (!priv->regbase)
 		return -ENOMEM;
 
