@@ -6,6 +6,7 @@
 
 #include <linux/io.h>
 #include <linux/serial_reg.h>
+#include <linux/sizes.h>
 #include <asm/errno.h>
 #include <dm/device.h>
 #include <mapmem.h>
@@ -91,12 +92,13 @@ static int uniphier_serial_probe(struct udevice *dev)
 	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
 	struct uniphier_serial __iomem *port;
 	fdt_addr_t base;
-	fdt_size_t size;
 	u32 tmp;
 
-	base = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
+	base = dev_get_addr(dev);
+	if (base == FDT_ADDR_T_NONE)
+		return -EINVAL;
 
-	port = map_sysmem(base, size);
+	port = map_sysmem(base, SZ_64);
 	if (!port)
 		return -ENOMEM;
 
