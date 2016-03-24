@@ -55,7 +55,7 @@ static const struct uniphier_pinctrl_group uniphier_ld20_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(i2c4),
 	UNIPHIER_PINCTRL_GROUP(nand),
 	UNIPHIER_PINCTRL_GROUP(nand_cs1),
-	UNIPHIER_PINCTRL_GROUP(sd),
+	UNIPHIER_PINCTRL_GROUP(sd),	/* SD does not exist for LD11 */
 	UNIPHIER_PINCTRL_GROUP(uart0),
 	UNIPHIER_PINCTRL_GROUP(uart1),
 	UNIPHIER_PINCTRL_GROUP(uart2),
@@ -63,7 +63,7 @@ static const struct uniphier_pinctrl_group uniphier_ld20_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(usb0),
 	UNIPHIER_PINCTRL_GROUP(usb1),
 	UNIPHIER_PINCTRL_GROUP(usb2),
-	UNIPHIER_PINCTRL_GROUP(usb3),
+	UNIPHIER_PINCTRL_GROUP(usb3),	/* USB3 does not exist for LD11 */
 };
 
 static const char * const uniphier_ld20_functions[] = {
@@ -73,7 +73,7 @@ static const char * const uniphier_ld20_functions[] = {
 	"i2c3",
 	"i2c4",
 	"nand",
-	"sd",
+	"sd",		/* SD does not exist for LD11 */
 	"uart0",
 	"uart1",
 	"uart2",
@@ -81,7 +81,7 @@ static const char * const uniphier_ld20_functions[] = {
 	"usb0",
 	"usb1",
 	"usb2",
-	"usb3",
+	"usb3",		/* USB3 does not exist for LD11 */
 };
 
 static struct uniphier_pinctrl_socdata uniphier_ld20_pinctrl_socdata = {
@@ -98,6 +98,7 @@ static int uniphier_ld20_pinctrl_probe(struct udevice *dev)
 }
 
 static const struct udevice_id uniphier_ld20_pinctrl_match[] = {
+	{ .compatible = "socionext,ph1-ld11-pinctrl" },
 	{ .compatible = "socionext,ph1-ld20-pinctrl" },
 	{ /* sentinel */ }
 };
