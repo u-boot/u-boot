@@ -137,12 +137,20 @@ efi_status_t EFIAPI efi_get_memory_map_ext(unsigned long *memory_map_size,
 static efi_status_t EFIAPI efi_allocate_pool(int pool_type, unsigned long size,
 					     void **buffer)
 {
-	return efi_allocate_pages(0, pool_type, (size + 0xfff) >> 12, (void*)buffer);
+	efi_status_t r;
+
+	EFI_ENTRY("%d, %ld, %p", pool_type, size, buffer);
+	r = efi_allocate_pages(0, pool_type, (size + 0xfff) >> 12, (void*)buffer);
+	return EFI_EXIT(r);
 }
 
 static efi_status_t EFIAPI efi_free_pool(void *buffer)
 {
-	return efi_free_pages((ulong)buffer, 0);
+	efi_status_t r;
+
+	EFI_ENTRY("%p", buffer);
+	r = efi_free_pages((ulong)buffer, 0);
+	return EFI_EXIT(r);
 }
 
 /*
@@ -706,7 +714,6 @@ static efi_status_t EFIAPI efi_handle_protocol(void *handle,
 					       efi_guid_t *protocol,
 					       void **protocol_interface)
 {
-	EFI_ENTRY("%p, %p, %p", handle, protocol, protocol_interface);
 	return efi_open_protocol(handle, protocol, protocol_interface,
 				 NULL, NULL, 0);
 }

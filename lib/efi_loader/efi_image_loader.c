@@ -22,11 +22,8 @@ efi_status_t EFIAPI efi_return_handle(void *handle, efi_guid_t *protocol,
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)
 {
-	EFI_ENTRY("%p, %p, %p, %p, %p, 0x%x", handle, protocol,
-		  protocol_interface, agent_handle, controller_handle,
-		  attributes);
 	*protocol_interface = handle;
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_SUCCESS;
 }
 
 static void efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
