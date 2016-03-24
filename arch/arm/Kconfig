@@ -7,6 +7,10 @@ config SYS_ARCH
 config ARM64
 	bool
 
+config DMA_ADDR_T_64BIT
+	bool
+	default y if ARM64
+
 config HAS_VBAR
         bool
 
