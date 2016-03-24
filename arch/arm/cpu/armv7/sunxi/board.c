@@ -120,18 +120,30 @@ void s_init(void)
 	 */
 #if defined CONFIG_MACH_SUN6I
 	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
-#elif defined CONFIG_MACH_SUN8I_A23
-	uint version;
+#elif defined CONFIG_MACH_SUN8I
+	__maybe_unused uint version;
 
 	/* Unlock sram version info reg, read it, relock */
 	setbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
-	version = readl(SUNXI_SRAMC_BASE + 0x24);
+	version = readl(SUNXI_SRAMC_BASE + 0x24) >> 16;
 	clrbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
 
-	if ((version & 0xffff0000) == 0x16500000)
+	/*
+	 * Ideally this would be a switch case, but we do not know exactly
+	 * which versions there are and which version needs which settings,
+	 * so reproduce the per SoC code from the BSP.
+	 */
+#if defined CONFIG_MACH_SUN8I_A23
+	if (version == 0x1650)
 		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
 	else /* 0x1661 ? */
 		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0xc0);
+#elif defined CONFIG_MACH_SUN8I_A33
+	if (version != 0x1667)
+		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0xc0);
+#endif
+	/* A83T BSP never modifies SUNXI_SRAMC_BASE + 0x44 */
+	/* No H3 BSP, boot0 seems to not modify SUNXI_SRAMC_BASE + 0x44 */
 #endif
 
 #if defined CONFIG_MACH_SUN6I || \
