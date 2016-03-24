@@ -38,6 +38,20 @@ int sunxi_get_ss_bonding_id(void)
 }
 #endif
 
+#ifdef CONFIG_MACH_SUN8I
+uint sunxi_get_sram_id(void)
+{
+	uint id;
+
+	/* Unlock sram info reg, read it, relock */
+	setbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
+	id = readl(SUNXI_SRAMC_BASE + 0x24) >> 16;
+	clrbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
+
+	return id;
+}
+#endif
+
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
@@ -66,15 +80,15 @@ int print_cpuinfo(void)
 #elif defined CONFIG_MACH_SUN7I
 	puts("CPU:   Allwinner A20 (SUN7I)\n");
 #elif defined CONFIG_MACH_SUN8I_A23
-	puts("CPU:   Allwinner A23 (SUN8I)\n");
+	printf("CPU:   Allwinner A23 (SUN8I %04x)\n", sunxi_get_sram_id());
 #elif defined CONFIG_MACH_SUN8I_A33
-	puts("CPU:   Allwinner A33 (SUN8I)\n");
+	printf("CPU:   Allwinner A33 (SUN8I %04x)\n", sunxi_get_sram_id());
+#elif defined CONFIG_MACH_SUN8I_A83T
+	printf("CPU:   Allwinner A83T (SUN8I %04x)\n", sunxi_get_sram_id());
 #elif defined CONFIG_MACH_SUN8I_H3
-	puts("CPU:   Allwinner H3 (SUN8I)\n");
+	printf("CPU:   Allwinner H3 (SUN8I %04x)\n", sunxi_get_sram_id());
 #elif defined CONFIG_MACH_SUN9I
 	puts("CPU:   Allwinner A80 (SUN9I)\n");
-#elif defined CONFIG_MACH_SUN8I_A83T
-	puts("CPU:   Allwinner A83T (SUN8I)\n");
 #else
 #warning Please update cpu_info.c with correct CPU information
 	puts("CPU:   SUNXI Family\n");
