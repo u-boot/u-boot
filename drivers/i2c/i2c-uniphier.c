@@ -7,14 +7,13 @@
 #include <common.h>
 #include <linux/types.h>
 #include <linux/io.h>
+#include <linux/sizes.h>
 #include <asm/errno.h>
 #include <dm/device.h>
 #include <dm/root.h>
 #include <i2c.h>
 #include <fdtdec.h>
 #include <mapmem.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct uniphier_i2c_regs {
 	u32 dtrm;			/* data transmission */
@@ -48,13 +47,13 @@ struct uniphier_i2c_dev {
 static int uniphier_i2c_probe(struct udevice *dev)
 {
 	fdt_addr_t addr;
-	fdt_size_t size;
 	struct uniphier_i2c_dev *priv = dev_get_priv(dev);
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
 
-	priv->regs = map_sysmem(addr, size);
-
+	priv->regs = map_sysmem(addr, SZ_64);
 	if (!priv->regs)
 		return -ENOMEM;
 
