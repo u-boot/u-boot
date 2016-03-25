@@ -109,6 +109,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		"bcm2836-rpi-2-b.dtb",
 		true,
 	},
+	[0x8] = {
+		"3 Model B",
+		"bcm2837-rpi-3-b.dtb",
+		true,
+	},
 	[0x9] = {
 		"Zero",
 		"bcm2835-rpi-zero.dtb",
