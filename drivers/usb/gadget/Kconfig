@@ -1,0 +1,35 @@
+#
+# USB Gadget support on a system involves
+#    (a) a peripheral controller, and
+#    (b) the gadget driver using it.
+#
+# NOTE:  Gadget support ** DOES NOT ** depend on host-side CONFIG_USB !!
+#
+#  - Host systems (like PCs) need CONFIG_USB (with "A" jacks).
+#  - Peripherals (like PDAs) need CONFIG_USB_GADGET (with "B" jacks).
+#  - Some systems have both kinds of controllers.
+#
+# With help from a special transceiver and a "Mini-AB" jack, systems with
+# both kinds of controller can also support "USB On-the-Go" (CONFIG_USB_OTG).
+#
+
+menuconfig USB_GADGET
+	bool "USB Gadget Support"
+	help
+	   USB is a master/slave protocol, organized with one master
+	   host (such as a PC) controlling up to 127 peripheral devices.
+	   The USB hardware is asymmetric, which makes it easier to set up:
+	   you can't connect a "to-the-host" connector to a peripheral.
+
+	   U-Boot can run in the host, or in the peripheral.  In both cases
+	   you need a low level bus controller driver, and some software
+	   talking to it.  Peripheral controllers are often discrete silicon,
+	   or are integrated with the CPU in a microcontroller.  The more
+	   familiar host side controllers have names like "EHCI", "OHCI",
+	   or "UHCI", and are usually integrated into southbridges on PC
+	   motherboards.
+
+	   Enable this configuration option if you want to run U-Boot inside
+	   a USB peripheral device.  Configure one hardware driver for your
+	   peripheral/device side bus controller, and a "gadget driver" for
+	   your peripheral protocol.

@@ -88,4 +88,6 @@ endchoice
 
 endif
 
+source "drivers/usb/gadget/Kconfig"
+
 endif

@@ -10,7 +10,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* USB gadget mode support*/
-#define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_VBUS_DRAW    2
 #define CONFIG_CI_UDC
 #define CONFIG_CI_UDC_HAS_HOSTPC

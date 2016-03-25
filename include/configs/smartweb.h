@@ -169,7 +169,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
-#define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_AT91
 
 /* DFU class support */

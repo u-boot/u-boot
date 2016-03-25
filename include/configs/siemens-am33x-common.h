@@ -243,7 +243,6 @@
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
 #endif /* CONFIG_USB_MUSB_GADGET */
 
-#define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_DOWNLOAD
 
 /* USB DRACO ID as default */

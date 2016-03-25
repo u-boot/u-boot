@@ -86,7 +86,6 @@
 #endif
 
 /* USB device */
-#define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_GADGET_ATMEL_USBA
 #define CONFIG_USB_ETHER
