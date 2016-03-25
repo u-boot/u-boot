@@ -14,12 +14,38 @@ choice
 	optional
 
 config TARGET_RPI
-	bool "Raspberry Pi"
+	bool "Raspberry Pi (all BCM2835 variants)"
+	help
+	  Support for all ARM1176-/BCM2835-based Raspberry Pi variants, such as
+	  the A, A+, B, B+, Compute Module, and Zero. This option cannot
+	  support BCM2836/BCM2837-based Raspberry Pis such as the RPi 2 and
+	  RPi 3 due to different peripheral address maps.
+
+	  This option creates a build targetting the ARM1176 ISA.
 	select BCM2835
 	select CPU_ARM1176
 
 config TARGET_RPI_2
 	bool "Raspberry Pi 2"
+	help
+	  Support for all BCM2836-based Raspberry Pi variants, such as
+	  the RPi 2 model B.
+
+	  This option also supports BCM2837-based variants such as the RPi 3
+	  Model B, when run in 32-bit mode, provided you have configured the
+	  VideoCore firmware to select the PL011 UART for the console by:
+	  a) config.txt should contain dtoverlay=pi3-miniuart-bt.
+	  b) You should run the following to tell the VC FW to process DT when
+	  booting, and copy u-boot.bin.img (rather than u-boot.bin) to the SD
+	  card as the kernel image:
+
+	       path/to/kernel/scripts/mkknlimg --dtok u-boot.bin u-boot.bin.img
+
+	  This works as of firmware.git commit 046effa13ebc "firmware:
+	  arm_loader: emmc clock depends on core clock See:
+	  https://github.com/raspberrypi/firmware/issues/572".
+
+	  This option creates a build targetting the ARMv7/AArch32 ISA.
 	select ARMV7_LPAE
 	select BCM2836
 	select CPU_V7
