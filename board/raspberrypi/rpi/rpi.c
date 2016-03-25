@@ -99,11 +99,7 @@ struct rpi_model {
 
 static const struct rpi_model rpi_model_unknown = {
 	"Unknown model",
-#ifdef CONFIG_BCM2836
-	"bcm2836-rpi-other.dtb",
-#else
-	"bcm2835-rpi-other.dtb",
-#endif
+	"bcm283x-rpi-other.dtb",
 	false,
 };
 
