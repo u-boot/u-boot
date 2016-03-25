@@ -365,22 +365,12 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 	imx_enable_hdmi_phy();
 }
 
-static void enable_lvds(struct display_info_t const *dev)
-{
-	struct iomuxc *iomux = (struct iomuxc *)
-				IOMUXC_BASE_ADDR;
-	u32 reg = readl(&iomux->gpr[2]);
-	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT |
-	       IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT;
-	writel(reg, &iomux->gpr[2]);
-}
-
 struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB666,
 	.detect	= NULL,
-	.enable	= enable_lvds,
+	.enable	= NULL,
 	.mode	= {
 		.name           = "Hannstar-XGA",
 		.refresh        = 60,
