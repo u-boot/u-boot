@@ -176,9 +176,9 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	} else if (fm_info_get_enet_if(port) ==
 		   PHY_INTERFACE_MODE_SGMII_2500) {
 		/* 2.5G SGMII interface */
-		f_link.phy_id = port;
-		f_link.duplex = 1;
-		f_link.link_speed = 1000;
+		f_link.phy_id = cpu_to_fdt32(port);
+		f_link.duplex = cpu_to_fdt32(1);
+		f_link.link_speed = cpu_to_fdt32(1000);
 		f_link.pause = 0;
 		f_link.asym_pause = 0;
 		/* no PHY for 2.5G SGMII */
@@ -241,9 +241,9 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII &&
 		   port == FM1_10GEC1) {
 		/* XFI interface */
-		f_link.phy_id = port;
-		f_link.duplex = 1;
-		f_link.link_speed = 10000;
+		f_link.phy_id = cpu_to_fdt32(port);
+		f_link.duplex = cpu_to_fdt32(1);
+		f_link.link_speed = cpu_to_fdt32(10000);
 		f_link.pause = 0;
 		f_link.asym_pause = 0;
 		/* no PHY for XFI */
