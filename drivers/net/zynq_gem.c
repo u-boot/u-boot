@@ -93,6 +93,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ZYNQ_GEM_TSR_DONE		0x00000020 /* Tx done mask */
 
+#define ZYNQ_GEM_PCS_CTL_ANEG_ENBL	0x1000
+
 /* Use MII register 1 (MII status register) to detect PHY */
 #define PHY_DETECT_REG  1
 
@@ -139,7 +141,9 @@ struct zynq_gem_regs {
 	u32 reserved6[18];
 #define STAT_SIZE	44
 	u32 stat[STAT_SIZE]; /* 0x100 - Octects transmitted Low reg */
-	u32 reserved7[164];
+	u32 reserved9[20];
+	u32 pcscntrl;
+	u32 reserved7[143];
 	u32 transmit_q1_ptr; /* 0x440 - Transmit priority queue 1 */
 	u32 reserved8[15];
 	u32 receive_q1_ptr; /* 0x480 - Receive priority queue 1 */
@@ -432,9 +436,14 @@ static int zynq_gem_init(struct udevice *dev)
 
 	nwconfig = ZYNQ_GEM_NWCFG_INIT;
 
-	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
 		nwconfig |= ZYNQ_GEM_NWCFG_SGMII_ENBL |
 			    ZYNQ_GEM_NWCFG_PCS_SEL;
+#ifdef CONFIG_ARM64
+		writel(readl(&regs->pcscntrl) | ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
+		       &regs->pcscntrl);
+#endif
+	}
 
 	switch (priv->phydev->speed) {
 	case SPEED_1000:
