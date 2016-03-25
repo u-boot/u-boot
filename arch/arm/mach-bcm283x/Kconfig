@@ -6,6 +6,10 @@ config BCM2836
 	bool "Broadcom BCM2836 SoC support"
 	depends on ARCH_BCM283X
 
+config BCM2837
+	bool "Broadcom BCM2837 SoC support"
+	depends on ARCH_BCM283X
+
 menu "Broadcom BCM283X family"
 	depends on ARCH_BCM283X
 
@@ -50,11 +54,28 @@ config TARGET_RPI_2
 	select BCM2836
 	select CPU_V7
 
+config TARGET_RPI_3_32B
+	bool "Raspberry Pi 3 32-bit build"
+	help
+	  Support for all BCM2837-based Raspberry Pi variants, such as
+	  the RPi 3 model B, in AArch32 (32-bit) mode.
+
+	  This option assumes the VideoCore firmware is configured to use the
+	  mini UART (rather than PL011) for the serial console. This is the
+	  default on the RPi 3. To enable the UART console, the following non-
+	  default option must be present in config.txt: enable_uart=1.
+
+	  This option creates a build targetting the ARMv7/AArch32 ISA.
+	select ARMV7_LPAE
+	select BCM2837
+	select CPU_V7
+
 endchoice
 
 config SYS_BOARD
 	default "rpi" if TARGET_RPI
 	default "rpi_2" if TARGET_RPI_2
+	default "rpi_3_32b" if TARGET_RPI_3_32B
 
 config SYS_VENDOR
 	default "raspberrypi"
@@ -65,5 +86,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "rpi" if TARGET_RPI
 	default "rpi_2" if TARGET_RPI_2
+	default "rpi_3_32b" if TARGET_RPI_3_32B
 
 endmenu

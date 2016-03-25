@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012-2013,2015 Stephen Warren
+ * (C) Copyright 2012-2016 Stephen Warren
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -18,6 +18,7 @@
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
 #include <dm/platform_data/serial_pl01x.h>
+#include <dm/platform_data/serial_bcm283x_mu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,6 +31,7 @@ U_BOOT_DEVICE(bcm2835_gpios) = {
 	.platdata = &gpio_platdata,
 };
 
+#ifdef CONFIG_PL01X_SERIAL
 static const struct pl01x_serial_platdata serial_platdata = {
 #ifndef CONFIG_BCM2835
 	.base = 0x3f201000,
@@ -44,6 +46,18 @@ U_BOOT_DEVICE(bcm2835_serials) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+#else
+static const struct bcm283x_mu_serial_platdata serial_platdata = {
+	.base = 0x3f215040,
+	.clock = 250000000,
+	.skip_init = true,
+};
+
+U_BOOT_DEVICE(bcm2837_serials) = {
+	.name = "serial_bcm283x_mu",
+	.platdata = &serial_platdata,
+};
+#endif
 
 struct msg_get_arm_mem {
 	struct bcm2835_mbox_hdr hdr;

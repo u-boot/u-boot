@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012,2015 Stephen Warren
+ * (C) Copyright 2012-2016 Stephen Warren
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -24,6 +24,9 @@
  * We don't define a machine type for bcm2709/bcm2836 since the RPi Foundation
  * chose to use someone else's previously registered machine ID (3139, MX51_GGC)
  * rather than obtaining a valid ID:-/
+ *
+ * For the bcm2837, hopefully a machine type is not needed, since everything
+ * is DT.
  */
 #ifdef CONFIG_BCM2835
 #define CONFIG_MACH_TYPE		MACH_TYPE_BCM2708
@@ -94,7 +97,11 @@
 #endif
 
 /* Console UART */
+#ifdef CONFIG_BCM2837
+#define CONFIG_BCM283X_MU_SERIAL
+#else
 #define CONFIG_PL01X_SERIAL
+#endif
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200
 

@@ -1,0 +1,6 @@
+RPI_3_32B BOARD
+M:	Stephen Warren <swarren@wwwdotorg.org>
+S:	Maintained
+F:	board/raspberrypi/rpi_3_32b/
+F:	include/configs/rpi_3_32b.h
+F:	configs/rpi_3_32b_defconfig
