@@ -44,7 +44,11 @@ int spl_nand_load_image(void)
 	int *src __attribute__((unused));
 	int *dst __attribute__((unused));
 
+#ifdef CONFIG_SPL_NAND_SOFTECC
+	debug("spl: nand - using sw ecc\n");
+#else
 	debug("spl: nand - using hw ecc\n");
+#endif
 	nand_init();
 
 	/*use CONFIG_SYS_TEXT_BASE as temporary storage area */
