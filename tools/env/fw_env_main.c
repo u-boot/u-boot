@@ -49,10 +49,6 @@ static struct option long_options[] = {
 	{NULL, 0, NULL, 0}
 };
 
-struct common_args common_args;
-struct printenv_args printenv_args;
-struct setenv_args setenv_args;
-
 void usage_printenv(void)
 {
 

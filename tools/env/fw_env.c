@@ -35,6 +35,10 @@
 
 #include "fw_env.h"
 
+struct common_args common_args;
+struct printenv_args printenv_args;
+struct setenv_args setenv_args;
+
 #define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
 
 #define min(x, y) ({				\
