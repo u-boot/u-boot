@@ -1,3 +1,11 @@
+config BCM2835
+	bool "Broadcom BCM2835 SoC support"
+	depends on ARCH_BCM283X
+
+config BCM2836
+	bool "Broadcom BCM2836 SoC support"
+	depends on ARCH_BCM283X
+
 menu "Broadcom BCM283X family"
 	depends on ARCH_BCM283X
 
@@ -7,12 +15,14 @@ choice
 
 config TARGET_RPI
 	bool "Raspberry Pi"
+	select BCM2835
 	select CPU_ARM1176
 
 config TARGET_RPI_2
 	bool "Raspberry Pi 2"
-	select CPU_V7
 	select ARMV7_LPAE
+	select BCM2836
+	select CPU_V7
 
 endchoice
 

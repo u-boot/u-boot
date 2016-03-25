@@ -7,7 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_BCM2835
 #define CONFIG_SYS_CACHELINE_SIZE		32
 
 #include "rpi-common.h"

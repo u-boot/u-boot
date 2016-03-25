@@ -8,7 +8,6 @@
 #define __CONFIG_H
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BCM2836
 #define CONFIG_SYS_CACHELINE_SIZE		64
 
 #include "rpi-common.h"
