@@ -105,4 +105,11 @@ config PIC32_GPIO
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
 
+config MVEBU_GPIO
+	bool "Marvell MVEBU GPIO driver"
+	depends on DM_GPIO && ARCH_MVEBU
+	default y
+	help
+	  Say yes here to support Marvell MVEBU (Armada XP/38x) GPIOs.
+
 endmenu

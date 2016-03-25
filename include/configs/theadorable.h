@@ -114,6 +114,11 @@
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_CMD_BMP
 
+/* FPGA programming support */
+#define CONFIG_FPGA
+#define CONFIG_FPGA_ALTERA
+#define CONFIG_FPGA_STRATIX_V
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

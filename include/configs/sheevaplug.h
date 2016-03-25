@@ -64,12 +64,12 @@
 
 #define CONFIG_MTDPARTS		\
 	"orion_nand:512K(uboot),"				\
-	"512K(env),1M(script),6M(kernel),"				\
-	"12M(ramdisk),4M(spare),-(rootfs)\0"
+	"512K(env),4M(kernel),"					\
+	"-(rootfs)\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
 	"=ttyS0,115200 mtdparts="CONFIG_MTDPARTS	\
-	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x300000\0" \
+	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x400000\0" \
 	"x_bootcmd_usb=usb start\0" \
 	"x_bootargs_root=root=/dev/mtdblock3 rw rootfstype=jffs2\0"
 

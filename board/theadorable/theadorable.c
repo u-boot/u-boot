@@ -8,9 +8,11 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/mbus.h>
 #ifdef CONFIG_NET
 #include <netdev.h>
 #endif
+#include "theadorable.h"
 
 #include "../drivers/ddr/marvell/axp/ddr3_hw_training.h"
 #include "../arch/arm/mach-mvebu/serdes/axp/high_speed_env_spec.h"
@@ -136,12 +138,23 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
+	/*
+	 * Map SPI devices via MBUS so that they can be accessed via
+	 * the SPI direct access mode
+	 */
+	mbus_dt_setup_win(&mbus_state, SPI_BUS0_DEV1_BASE, SPI_BUS0_DEV1_SIZE,
+			  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPI0_CS1);
+	mbus_dt_setup_win(&mbus_state, SPI_BUS1_DEV2_BASE, SPI_BUS0_DEV1_SIZE,
+			  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPI1_CS2);
+
 	return 0;
 }
 
 int checkboard(void)
 {
 	puts("Board: theadorable\n");
+
+	board_fpga_add();
 
 	return 0;
 }
