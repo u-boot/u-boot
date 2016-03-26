@@ -28,9 +28,6 @@
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN           (32 * SZ_1M)
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
