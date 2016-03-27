@@ -183,7 +183,8 @@ static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("\nSATA read: device %d block # %ld, count %ld ... ",
 				sata_curr_device, blk, cnt);
 
-			n = sata_read(sata_curr_device, blk, cnt, (u32 *)addr);
+			n = blk_dread(&sata_dev_desc[sata_curr_device],
+				      blk, cnt, (u32 *)addr);
 
 			/* flush cache after read */
 			flush_cache(addr, cnt * sata_dev_desc[sata_curr_device].blksz);
@@ -201,7 +202,8 @@ static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("\nSATA write: device %d block # %ld, count %ld ... ",
 				sata_curr_device, blk, cnt);
 
-			n = sata_write(sata_curr_device, blk, cnt, (u32 *)addr);
+			n = blk_dwrite(&sata_dev_desc[sata_curr_device],
+				       blk, cnt, (u32 *)addr);
 
 			printf("%ld blocks written: %s\n",
 				n, (n == cnt) ? "OK" : "ERROR");
