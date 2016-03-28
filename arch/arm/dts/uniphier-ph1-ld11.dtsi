@@ -69,6 +69,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart0>;
 			clocks = <&uart_clk>;
+			clock-frequency = <58820000>;
 		};
 
 		serial1: serial@54006900 {
@@ -79,6 +80,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart1>;
 			clocks = <&uart_clk>;
+			clock-frequency = <58820000>;
 		};
 
 		serial2: serial@54006a00 {
@@ -89,6 +91,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart2>;
 			clocks = <&uart_clk>;
+			clock-frequency = <58820000>;
 		};
 
 		serial3: serial@54006b00 {
@@ -99,6 +102,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart3>;
 			clocks = <&uart_clk>;
+			clock-frequency = <58820000>;
 		};
 
 		i2c0: i2c@58780000 {
