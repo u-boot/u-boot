@@ -920,6 +920,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 	struct dpni_tx_conf_cfg tx_conf_cfg;
 	int err = 0;
 
+	memset(&pools_params, 0, sizeof(pools_params));
 	pools_params.num_dpbp = 1;
 	pools_params.pools[0].dpbp_id = (uint16_t)dflt_dpbp->dpbp_attr.id;
 	pools_params.pools[0].buffer_size = LDPAA_ETH_RX_BUFFER_SIZE;
