@@ -225,7 +225,7 @@ void env_relocate_spec(void)
 	ret = env_import((char *)ep, 0);
 	if (!ret) {
 		error("Cannot import environment: errno = %d\n", errno);
-		set_default_env("env_import failed");
+		set_default_env("!env_import failed");
 	}
 
 err_read:
