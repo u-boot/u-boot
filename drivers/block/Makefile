@@ -24,3 +24,4 @@ obj-$(CONFIG_IDE_SIL680) += sil680.o
 obj-$(CONFIG_SANDBOX) += sandbox.o
 obj-$(CONFIG_SCSI_SYM53C8XX) += sym53c8xx.o
 obj-$(CONFIG_SYSTEMACE) += systemace.o
+obj-$(CONFIG_BLOCK_CACHE) += blkcache.o

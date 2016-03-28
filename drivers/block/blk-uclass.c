@@ -80,11 +80,20 @@ unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start,
 {
 	struct udevice *dev = block_dev->bdev;
 	const struct blk_ops *ops = blk_get_ops(dev);
+	ulong blks_read;
 
 	if (!ops->read)
 		return -ENOSYS;
 
-	return ops->read(dev, start, blkcnt, buffer);
+	if (blkcache_read(block_dev->if_type, block_dev->devnum,
+			  start, blkcnt, block_dev->blksz, buffer))
+		return blkcnt;
+	blks_read = ops->read(dev, start, blkcnt, buffer);
+	if (blks_read == blkcnt)
+		blkcache_fill(block_dev->if_type, block_dev->devnum,
+			      start, blkcnt, block_dev->blksz, buffer);
+
+	return blks_read;
 }
 
 unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
@@ -96,6 +105,7 @@ unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
 	if (!ops->write)
 		return -ENOSYS;
 
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
 	return ops->write(dev, start, blkcnt, buffer);
 }
 
@@ -108,6 +118,7 @@ unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 	if (!ops->erase)
 		return -ENOSYS;
 
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
 	return ops->erase(dev, start, blkcnt);
 }
 

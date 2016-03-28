@@ -83,6 +83,97 @@ struct blk_desc {
 #define PAD_TO_BLOCKSIZE(size, blk_desc) \
 	(PAD_SIZE(size, blk_desc->blksz))
 
+#ifdef CONFIG_BLOCK_CACHE
+/**
+ * blkcache_read() - attempt to read a set of blocks from cache
+ *
+ * @param iftype - IF_TYPE_x for type of device
+ * @param dev - device index of particular type
+ * @param start - starting block number
+ * @param blkcnt - number of blocks to read
+ * @param blksz - size in bytes of each block
+ * @param buf - buffer to contain cached data
+ *
+ * @return - '1' if block returned from cache, '0' otherwise.
+ */
+int blkcache_read
+	(int iftype, int dev,
+	 lbaint_t start, lbaint_t blkcnt,
+	 unsigned long blksz, void *buffer);
+
+/**
+ * blkcache_fill() - make data read from a block device available
+ * to the block cache
+ *
+ * @param iftype - IF_TYPE_x for type of device
+ * @param dev - device index of particular type
+ * @param start - starting block number
+ * @param blkcnt - number of blocks available
+ * @param blksz - size in bytes of each block
+ * @param buf - buffer containing data to cache
+ *
+ */
+void blkcache_fill
+	(int iftype, int dev,
+	 lbaint_t start, lbaint_t blkcnt,
+	 unsigned long blksz, void const *buffer);
+
+/**
+ * blkcache_invalidate() - discard the cache for a set of blocks
+ * because of a write or device (re)initialization.
+ *
+ * @param iftype - IF_TYPE_x for type of device
+ * @param dev - device index of particular type
+ */
+void blkcache_invalidate
+	(int iftype, int dev);
+
+/**
+ * blkcache_configure() - configure block cache
+ *
+ * @param blocks - maximum blocks per entry
+ * @param entries - maximum entries in cache
+ */
+void blkcache_configure(unsigned blocks, unsigned entries);
+
+/*
+ * statistics of the block cache
+ */
+struct block_cache_stats {
+	unsigned hits;
+	unsigned misses;
+	unsigned entries; /* current entry count */
+	unsigned max_blocks_per_entry;
+	unsigned max_entries;
+};
+
+/**
+ * get_blkcache_stats() - return statistics and reset
+ *
+ * @param stats - statistics are copied here
+ */
+void blkcache_stats(struct block_cache_stats *stats);
+
+#else
+
+static inline int blkcache_read
+	(int iftype, int dev,
+	 lbaint_t start, lbaint_t blkcnt,
+	 unsigned long blksz, void *buffer)
+{
+	return 0;
+}
+
+static inline void blkcache_fill
+	(int iftype, int dev,
+	 lbaint_t start, lbaint_t blkcnt,
+	 unsigned long blksz, void const *buffer) {}
+
+static inline void blkcache_invalidate
+	(int iftype, int dev) {}
+
+#endif
+
 #ifdef CONFIG_BLK
 struct udevice;
 
@@ -224,23 +315,35 @@ int blk_unbind_all(int if_type);
 static inline ulong blk_dread(struct blk_desc *block_dev, lbaint_t start,
 			      lbaint_t blkcnt, void *buffer)
 {
+	ulong blks_read;
+	if (blkcache_read(block_dev->if_type, block_dev->devnum,
+			  start, blkcnt, block_dev->blksz, buffer))
+		return blkcnt;
+
 	/*
 	 * We could check if block_read is NULL and return -ENOSYS. But this
 	 * bloats the code slightly (cause some board to fail to build), and
 	 * it would be an error to try an operation that does not exist.
 	 */
-	return block_dev->block_read(block_dev, start, blkcnt, buffer);
+	blks_read = block_dev->block_read(block_dev, start, blkcnt, buffer);
+	if (blks_read == blkcnt)
+		blkcache_fill(block_dev->if_type, block_dev->devnum,
+			      start, blkcnt, block_dev->blksz, buffer);
+
+	return blks_read;
 }
 
 static inline ulong blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
 			       lbaint_t blkcnt, const void *buffer)
 {
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
 	return block_dev->block_write(block_dev, start, blkcnt, buffer);
 }
 
 static inline ulong blk_derase(struct blk_desc *block_dev, lbaint_t start,
 			       lbaint_t blkcnt)
 {
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
 	return block_dev->block_erase(block_dev, start, blkcnt);
 }
 #endif /* !CONFIG_BLK */

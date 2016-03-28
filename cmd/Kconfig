@@ -497,6 +497,17 @@ config SYS_AMBAPP_PRINT_ON_STARTUP
 	help
 	  Show AMBA Plug-n-Play information on startup.
 
+config CMD_BLOCK_CACHE
+	bool "blkcache - control and stats for block cache"
+	depends on BLOCK_CACHE
+	default y if BLOCK_CACHE
+	help
+	  Enable the blkcache command, which can be used to control the
+	  operation of the cache functions.
+	  This is most useful when fine-tuning the operation of the cache
+	  during development, but also allows the cache to be disabled when
+	  it might hurt performance (e.g. when using the ums command).
+
 config CMD_TIME
 	bool "time"
 	help

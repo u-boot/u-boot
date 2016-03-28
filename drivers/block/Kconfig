@@ -18,3 +18,12 @@ config DISK
 	  types can use this, such as AHCI/SATA. It does not provide any standard
 	  operations at present. The block device interface has not been converted
 	  to driver model.
+
+config BLOCK_CACHE
+	bool "Use block device cache"
+	default n
+	help
+	  This option enables a disk-block cache for all block devices.
+	  This is most useful when accessing filesystems under U-Boot since
+	  it will prevent repeated reads from directory structures and other
+	  filesystem data structures.
