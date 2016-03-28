@@ -42,6 +42,11 @@
 		function = "i2c4";
 	};
 
+	pinctrl_nand: nand_grp {
+		groups = "nand";
+		function = "nand";
+	};
+
 	pinctrl_sd: sd_grp {
 		groups = "sd";
 		function = "sd";
