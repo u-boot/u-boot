@@ -353,9 +353,6 @@ void lcd_ctrl_init (void *lcdbase)
 	pxafb_init(&panel_info);
 	pxafb_setup_gpio(&panel_info);
 	pxafb_enable_controller(&panel_info);
-
-	/* Enable flushing if we enabled dcache */
-	lcd_set_flush_dcache(1);
 }
 
 /*----------------------------------------------------------------------*/
@@ -568,10 +565,6 @@ static int pxafb_init (vidinfo_t *vid)
 	fbi->dmadesc_fblow->fidr  = 0;
 	fbi->dmadesc_fblow->ldcmd = BYTES_PER_PANEL;
 
-	flush_dcache_range((u32)fbi->dmadesc_fblow,
-			   (u32)fbi->dmadesc_fblow +
-			   sizeof(*fbi->dmadesc_fblow));
-
 	fbi->fdadr1 = (u_long)fbi->dmadesc_fblow; /* only used in dual-panel mode */
 
 	fbi->dmadesc_fbhigh->fsadr = fbi->screen;
@@ -587,20 +580,11 @@ static int pxafb_init (vidinfo_t *vid)
 		/* assume any mode with <12 bpp is palette driven */
 		fbi->dmadesc_palette->fdadr = (u_long)fbi->dmadesc_fbhigh;
 		fbi->dmadesc_fbhigh->fdadr = (u_long)fbi->dmadesc_palette;
-		flush_dcache_range((u32)fbi->dmadesc_fbhigh,
-				   (u32)fbi->dmadesc_fbhigh +
-				   sizeof(*fbi->dmadesc_fbhigh));
-		flush_dcache_range((u32)fbi->dmadesc_palette,
-				   (u32)fbi->dmadesc_palette +
-				   sizeof(*fbi->dmadesc_palette));
 		/* flips back and forth between pal and fbhigh */
 		fbi->fdadr0 = (u_long)fbi->dmadesc_palette;
 	}
 	else
 	{
-		flush_dcache_range((u32)fbi->dmadesc_fbhigh,
-				   (u32)fbi->dmadesc_fbhigh +
-				   sizeof(*fbi->dmadesc_fbhigh));
 		/* palette shouldn't be loaded in true-color mode */
 		fbi->dmadesc_fbhigh->fdadr = (u_long)fbi->dmadesc_fbhigh;
 		fbi->fdadr0 = (u_long)fbi->dmadesc_fbhigh; /* no pal just fbhigh */
