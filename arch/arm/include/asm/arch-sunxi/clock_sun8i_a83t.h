@@ -224,14 +224,14 @@ struct sunxi_ccm_reg {
 
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
-#define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
+#define CCM_USB_CTRL_HSIC_RST (0x1 << 2)
 /* There is no global phy clk gate on sun6i, define as 0 */
 #define CCM_USB_CTRL_PHYGATE 0
 #define CCM_USB_CTRL_PHY0_CLK (0x1 << 8)
 #define CCM_USB_CTRL_PHY1_CLK (0x1 << 9)
-#define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
+#define CCM_USB_CTRL_HSIC_CLK (0x1 << 10)
+#define CCM_USB_CTRL_12M_CLK (0x1 << 11)
 #define CCM_USB_CTRL_OHCI0_CLK (0x1 << 16)
-#define CCM_USB_CTRL_OHCI1_CLK (0x1 << 17)
 
 #define CCM_GMAC_CTRL_TX_CLK_SRC_MII	0x0
 #define CCM_GMAC_CTRL_TX_CLK_SRC_EXT_RGMII 0x1
