@@ -339,7 +339,7 @@ static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		cmdval |= SUNXI_MMC_CMD_CHK_RESPONSE_CRC;
 
 	if (data) {
-		if ((u32) data->dest & 0x3) {
+		if ((u32)(long)data->dest & 0x3) {
 			error = -1;
 			goto out;
 		}

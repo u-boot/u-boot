@@ -52,7 +52,7 @@ static struct sunxi_usb_phy {
 	int id;
 	int init_count;
 	int power_on_count;
-	int base;
+	ulong base;
 } sunxi_usb_phy[] = {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY0_RST | CCM_USB_CTRL_PHY0_CLK,

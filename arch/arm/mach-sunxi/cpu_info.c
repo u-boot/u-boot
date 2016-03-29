@@ -105,7 +105,7 @@ int sunxi_get_sid(unsigned int *sid)
 	int i;
 
 	for (i = 0; i< 4; i++)
-		sid[i] = readl(SUNXI_SID_BASE + 4 * i);
+		sid[i] = readl((ulong)SUNXI_SID_BASE + 4 * i);
 
 	return 0;
 #else
