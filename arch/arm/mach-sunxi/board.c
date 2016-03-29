@@ -40,6 +40,30 @@ struct fel_stash {
 
 struct fel_stash fel_stash __attribute__((section(".data")));
 
+#ifdef CONFIG_MACH_SUN50I
+#include <asm/armv8/mmu.h>
+
+static struct mm_region sunxi_mem_map[] = {
+	{
+		/* SRAM, MMIO regions */
+		.base = 0x0UL,
+		.size = 0x40000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	}, {
+		/* RAM */
+		.base = 0x40000000UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+struct mm_region *mem_map = sunxi_mem_map;
+#endif
+
 static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
@@ -76,6 +100,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPA(4), SUN8I_H3_GPA_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPA(5), SUN8I_H3_GPA_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPA(5), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN50I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(8), SUN50I_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN50I_GPB_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPB(9), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_A83T)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(10), SUN8I_A83T_GPB_UART0);
@@ -265,7 +293,7 @@ void reset_cpu(ulong addr)
 #endif
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */

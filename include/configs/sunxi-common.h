@@ -56,6 +56,7 @@
 /* CPU */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_SYS_CACHELINE_SIZE	64
+#define CONFIG_TIMER_CLK_FREQ		24000000
 
 /*
  * The DRAM Base differs between some models. We cannot use macros for the
@@ -90,7 +91,7 @@
 
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
 
-#ifdef CONFIG_MACH_SUN9I
+#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
 /*
  * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
  * slightly bigger. Note that it is possible to map the first 32 KiB of the
@@ -99,7 +100,7 @@
  * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x10000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x0a000	/* 40 KiB */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x08000	/* FIXME: 40 KiB ? */
 #else
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
@@ -188,8 +189,16 @@
 
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 
+#if defined(CONFIG_MACH_SUN9I)
+#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fe0		/* ? KiB on sun9i */
+#elif defined(CONFIG_MACH_SUN50I)
+#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x7fe0		/* 32 KiB on sun50i */
+#else
 #define CONFIG_SPL_TEXT_BASE		0x20		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x5fe0		/* 24KB on sun4i/sun7i */
+#endif
 
 #define CONFIG_SPL_LIBDISK_SUPPORT
 
@@ -197,14 +206,22 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #endif
 
+#ifndef CONFIG_ARM64
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds"
+#endif
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	80	/* 40KiB */
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
+#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
+/* FIXME: 40 KiB instead of 32 KiB ? */
+#define LOW_LEVEL_SRAM_STACK		0x00018000
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+#else
 /* end of 32 KiB in sram */
 #define LOW_LEVEL_SRAM_STACK		0x00008000 /* End of sram */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+#endif
 
 /* I2C */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \

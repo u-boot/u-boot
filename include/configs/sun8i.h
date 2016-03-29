@@ -40,8 +40,6 @@
 #endif
 #endif
 
-#define CONFIG_TIMER_CLK_FREQ		24000000
-
 /*
  * Include common sunxi configuration where most the settings are
  */

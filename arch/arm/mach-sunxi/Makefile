@@ -26,6 +26,7 @@ obj-$(CONFIG_MACH_SUN4I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN6I)	+= clock_sun6i.o
 obj-$(CONFIG_MACH_SUN7I)	+= clock_sun4i.o
+obj-$(CONFIG_MACH_SUN50I)	+= clock_sun6i.o
 ifdef CONFIG_MACH_SUN8I_A83T
 obj-y				+= clock_sun8i_a83t.o
 else

@@ -21,6 +21,9 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/usb_phy.h>
+#ifndef CONFIG_ARM64
+#include <asm/armv7.h>
+#endif
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <nand.h>
@@ -73,18 +76,38 @@ DECLARE_GLOBAL_DATA_PTR;
 /* add board specific code here */
 int board_init(void)
 {
-	int id_pfr1, ret;
+	__maybe_unused int id_pfr1, ret;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
+#ifndef CONFIG_ARM64
 	asm volatile("mrc p15, 0, %0, c0, c1, 1" : "=r"(id_pfr1));
 	debug("id_pfr1: 0x%08x\n", id_pfr1);
 	/* Generic Timer Extension available? */
-	if ((id_pfr1 >> 16) & 0xf) {
+	if ((id_pfr1 >> CPUID_ARM_GENTIMER_SHIFT) & 0xf) {
+		uint32_t freq;
+
 		debug("Setting CNTFRQ\n");
-		/* CNTFRQ == 24 MHz */
-		asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r"(24000000));
+
+		/*
+		 * CNTFRQ is a secure register, so we will crash if we try to
+		 * write this from the non-secure world (read is OK, though).
+		 * In case some bootcode has already set the correct value,
+		 * we avoid the risk of writing to it.
+		 */
+		asm volatile("mrc p15, 0, %0, c14, c0, 0" : "=r"(freq));
+		if (freq != CONFIG_TIMER_CLK_FREQ) {
+			debug("arch timer frequency is %d Hz, should be %d, fixing ...\n",
+			      freq, CONFIG_TIMER_CLK_FREQ);
+#ifdef CONFIG_NON_SECURE
+			printf("arch timer frequency is wrong, but cannot adjust it\n");
+#else
+			asm volatile("mcr p15, 0, %0, c14, c0, 0"
+				     : : "r"(CONFIG_TIMER_CLK_FREQ));
+#endif
+		}
 	}
+#endif /* !CONFIG_ARM64 */
 
 	ret = axp_gpio_init();
 	if (ret)
@@ -264,7 +287,7 @@ static void mmc_pinmux_setup(int sdc)
 			sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
 		}
-#elif defined(CONFIG_MACH_SUN8I)
+#elif defined(CONFIG_MACH_SUN8I) || defined(CONFIG_MACH_SUN50I)
 		/* SDC2: PC5-PC6, PC8-PC16 */
 		for (pin = SUNXI_GPC(5); pin <= SUNXI_GPC(6); pin++) {
 			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
@@ -547,7 +570,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
  */
 static void parse_spl_header(const uint32_t spl_addr)
 {
-	struct boot_file_head *spl = (void *)spl_addr;
+	struct boot_file_head *spl = (void *)(ulong)spl_addr;
 	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) == 0) {
 		uint8_t spl_header_version = spl->spl_signature[3];
 		if (spl_header_version == SPL_HEADER_VERSION) {

@@ -12,8 +12,11 @@
 #define SPL_SIGNATURE		"SPL" /* marks "sunxi" SPL header */
 #define SPL_HEADER_VERSION	1
 
-/* Note: A80 will require special handling here: SPL_ADDR 0x10000 */
+#if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
+#define SPL_ADDR		0x10000
+#else
 #define SPL_ADDR		0x0
+#endif
 
 /* boot head definition from sun4i boot code */
 struct boot_file_head {
