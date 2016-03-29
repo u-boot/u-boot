@@ -251,7 +251,7 @@
 	"recovery_mmc_part=4\0" \
 	"fdtfile=omap3-sniper.dtb\0" \
 	"bootfile=/boot/extlinux/extlinux.conf\0" \
-	"bootargs=console=ttyO2 vram=5M,0x9FA00000 omapfb.vram=0:5M\0"
+	"bootargs=console=ttyO2,115200 vram=5M,0x9FA00000 omapfb.vram=0:5M\0"
 
 /*
  * ATAGs
