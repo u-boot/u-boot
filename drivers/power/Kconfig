@@ -118,13 +118,12 @@ config AXP_DCDC4_VOLT
 config AXP_DCDC5_VOLT
 	int "axp pmic dcdc5 voltage"
 	depends on AXP221_POWER || AXP818_POWER
-	default 1800 if AXP818_POWER
 	default 1500 if MACH_SUN6I || MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc5 at, set to 0 to
 	disable dcdc5.
 	On A23 / A31 / A33 / A83T boards dcdc5 is VCC-DRAM and should be 1.5V,
-	1.8V for A83T.
+	1.35V if DDR3L is used.
 
 config AXP_ALDO1_VOLT
 	int "axp pmic (a)ldo1 voltage"
