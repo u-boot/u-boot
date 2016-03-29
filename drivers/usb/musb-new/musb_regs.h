@@ -434,7 +434,7 @@ static inline u8 musb_read_ulpi_buscontrol(void __iomem *mbase)
 
 static inline u8 musb_read_configdata(void __iomem *mbase)
 {
-#ifdef CONFIG_MACH_SUN8I_A33
+#if defined CONFIG_MACH_SUN8I_A33 || defined CONFIG_MACH_SUN8I_A83T
 	/* <Sigh> allwinner saves a reg, and we need to hardcode this */
 	return 0xde;
 #else
