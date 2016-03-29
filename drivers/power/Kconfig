@@ -238,6 +238,33 @@ config AXP_ELDO3_VOLT
 	1.2V for the SSD2828 chip (converter of parallel LCD interface
 	into MIPI DSI).
 
+config AXP_FLDO1_VOLT
+	int "axp pmic fldo1 voltage"
+	depends on AXP818_POWER
+	default 0 if MACH_SUN8I_A83T
+	---help---
+	Set the voltage (mV) to program the axp pmic fldo1 at, set to 0 to
+	disable fldo1.
+	On A83T / H8 boards fldo1 is VCC-HSIC and should be 1.2V if HSIC is
+	used.
+
+config AXP_FLDO2_VOLT
+	int "axp pmic eldo2 voltage"
+	depends on AXP818_POWER
+	default 900 if MACH_SUN8I_A83T
+	---help---
+	Set the voltage (mV) to program the axp pmic fldo2 at, set to 0 to
+	disable fldo2.
+	On A83T / H8 boards fldo2 is VCC-CPUS and should be 0.9V.
+
+config AXP_FLDO3_VOLT
+	int "axp pmic fldo3 voltage"
+	depends on AXP818_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic fldo3 at, set to 0 to
+	disable fldo3.
+
 config SY8106A_VOUT1_VOLT
 	int "SY8106A pmic VOUT1 voltage"
 	depends on SY8106A_POWER

@@ -486,6 +486,12 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_eldo(2, CONFIG_AXP_ELDO2_VOLT);
 	power_failed |= axp_set_eldo(3, CONFIG_AXP_ELDO3_VOLT);
 #endif
+
+#ifdef CONFIG_AXP818_POWER
+	power_failed |= axp_set_fldo(1, CONFIG_AXP_FLDO1_VOLT);
+	power_failed |= axp_set_fldo(2, CONFIG_AXP_FLDO2_VOLT);
+	power_failed |= axp_set_fldo(3, CONFIG_AXP_FLDO3_VOLT);
+#endif
 #endif
 	printf("DRAM:");
 	ramsize = sunxi_dram_init();

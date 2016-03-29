@@ -191,6 +191,40 @@ int axp_set_eldo(int eldo_num, unsigned int mvolt)
 				AXP818_OUTPUT_CTRL2_ELDO1_EN << (eldo_num - 1));
 }
 
+int axp_set_fldo(int fldo_num, unsigned int mvolt)
+{
+	int ret;
+	u8 cfg;
+
+	if (fldo_num < 1 || fldo_num > 3)
+		return -EINVAL;
+
+	if (mvolt == 0)
+		return pmic_bus_clrbits(AXP818_OUTPUT_CTRL3,
+				AXP818_OUTPUT_CTRL3_FLDO1_EN << (fldo_num - 1));
+
+	if (fldo_num < 3) {
+		cfg = axp818_mvolt_to_cfg(mvolt, 700, 1450, 50);
+		ret = pmic_bus_write(AXP818_FLDO1_CTRL + (fldo_num - 1), cfg);
+	} else {
+		/*
+		 * Special case for FLDO3, which is DCDC5 / 2 or FLDOIN / 2
+		 * Since FLDOIN is unknown, test against DCDC5.
+		 */
+		if (mvolt * 2 == CONFIG_AXP_DCDC5_VOLT)
+			ret = pmic_bus_clrbits(AXP818_FLDO2_3_CTRL,
+					       AXP818_FLDO2_3_CTRL_FLDO3_VOL);
+		else
+			ret = pmic_bus_setbits(AXP818_FLDO2_3_CTRL,
+					       AXP818_FLDO2_3_CTRL_FLDO3_VOL);
+	}
+	if (ret)
+		return ret;
+
+	return pmic_bus_setbits(AXP818_OUTPUT_CTRL3,
+				AXP818_OUTPUT_CTRL3_FLDO1_EN << (fldo_num - 1));
+}
+
 int axp_init(void)
 {
 	u8 axp_chip_id;
