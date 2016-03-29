@@ -232,7 +232,7 @@
 	"boot_mmc_dev=0\0" \
 	"kernel_mmc_part=7\0" \
 	"recovery_mmc_part=5\0" \
-	"bootargs=mem=512M console=ttyO2\0"
+	"bootargs=console=ttyO2,115200 mem=512M\0"
 
 /*
  * ATAGs
