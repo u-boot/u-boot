@@ -232,6 +232,8 @@
 	"boot_mmc_dev=0\0" \
 	"kernel_mmc_part=7\0" \
 	"recovery_mmc_part=5\0" \
+	"fdtfile=omap4-kc1.dtb\0" \
+	"bootfile=/boot/extlinux/extlinux.conf\0" \
 	"bootargs=console=ttyO2,115200 mem=512M\0"
 
 /*
