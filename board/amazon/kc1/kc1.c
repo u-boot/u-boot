@@ -88,10 +88,11 @@ int misc_init_r(void)
 	char reboot_mode[2] = { 0 };
 	u32 data = 0;
 	u32 value;
+	int rc;
 
 	/* Reboot mode */
 
-	omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
+	rc = omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
 
 	/* USB ID pin pull-up indicates factory (fastboot) cable detection. */
 	gpio_request(KC1_GPIO_USB_ID, "USB_ID");
@@ -101,18 +102,7 @@ int misc_init_r(void)
 	if (value)
 		reboot_mode[0] = 'b';
 
-	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
-		if (reboot_mode[0] == 'o')
-			twl6030_power_off();
-
-		if (!getenv("reboot-mode"))
-			setenv("reboot-mode", (char *)reboot_mode);
-
-		omap_reboot_mode_clear();
-	} else {
-		/* Reboot mode garbage may still be valid, so clear it. */
-		omap_reboot_mode_clear();
-
+	if (rc < 0 || reboot_mode[0] == 'o') {
 		/*
 		 * When not rebooting, valid power on reasons are either the
 		 * power button, charger plug or USB plug.
@@ -125,6 +115,13 @@ int misc_init_r(void)
 		if (!data)
 			twl6030_power_off();
 	}
+
+	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
+		if (!getenv("reboot-mode"))
+			setenv("reboot-mode", (char *)reboot_mode);
+	}
+
+	omap_reboot_mode_clear();
 
 	/* Serial number */
 
