@@ -58,8 +58,20 @@
 	};
 };
 
+&ehci0 {
+	status = "okay";
+};
+
+&ehci1 {
+	status = "okay";
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins_b>;
+	status = "okay";
+};
+
+&usb_otg {
 	status = "okay";
 };
