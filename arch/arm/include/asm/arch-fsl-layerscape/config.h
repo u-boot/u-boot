@@ -67,6 +67,24 @@
 /* SMMU Defintions */
 #define SMMU_BASE			0x05000000 /* GR0 Base */
 
+/* SFP */
+#define CONFIG_SYS_FSL_SFP_VER_3_4
+#define CONFIG_SYS_FSL_SFP_LE
+#define CONFIG_SYS_FSL_SRK_LE
+
+/* SEC */
+#define CONFIG_SYS_FSL_SEC_LE
+#define CONFIG_SYS_FSL_SEC_COMPAT	5
+
+/* Security Monitor */
+#define CONFIG_SYS_FSL_SEC_MON_LE
+
+/* Secure Boot */
+#define CONFIG_ESBC_HDR_LS
+
+/* DCFG - GUR */
+#define CONFIG_SYS_FSL_CCSR_GUR_LE
+
 /* Cache Coherent Interconnect */
 #define CCI_MN_BASE			0x04000000
 #define CCI_MN_RNF_NODEID_LIST		0x180

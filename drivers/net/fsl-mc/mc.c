@@ -747,11 +747,11 @@ static int dpio_init(void)
 err_get_swp_init:
 	dpio_disable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 err_get_enable:
-	free(dflt_dpio);
 err_get_attr:
 	dpio_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	dpio_destroy(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 err_create:
+	free(dflt_dpio);
 err_malloc:
 	return err;
 }

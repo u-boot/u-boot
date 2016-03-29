@@ -112,10 +112,9 @@ static inline void append_ptr(u32 *desc, dma_addr_t ptr)
 #ifdef CONFIG_PHYS_64BIT
 	/* The Position of low and high part of 64 bit address
 	 * will depend on the endianness of CAAM Block */
-	union ptr_addr_t ptr_addr;
-	ptr_addr.m_halfs.high = (u32)(ptr >> 32);
-	ptr_addr.m_halfs.low = (u32)ptr;
-	*offset = ptr_addr.m_whole;
+	union ptr_addr_t *ptr_addr = (union ptr_addr_t *)offset;
+	ptr_addr->m_halfs.high = (u32)(ptr >> 32);
+	ptr_addr->m_halfs.low = (u32)ptr;
 #else
 	*offset = ptr;
 #endif
