@@ -94,6 +94,7 @@ int misc_init_r(void)
 	char reboot_mode[2] = { 0 };
 	unsigned char keys[3];
 	unsigned char data = 0;
+	int rc;
 
 	/* Power button reset init */
 
@@ -109,22 +110,14 @@ int misc_init_r(void)
 
 	/* Reboot mode */
 
-	omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
+	rc = omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
 
 	if (keys[0])
 		reboot_mode[0] = 'r';
 	else if (keys[1])
 		reboot_mode[0] = 'b';
 
-	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
-		if (!getenv("reboot-mode"))
-			setenv("reboot-mode", (char *)reboot_mode);
-
-		omap_reboot_mode_clear();
-	} else {
-		/* Reboot mode garbage may still be valid, so clear it. */
-		omap_reboot_mode_clear();
-
+	if (rc < 0 || reboot_mode[0] == 'o') {
 		/*
 		 * When not rebooting, valid power on reasons are either the
 		 * power button, charger plug or USB plug.
@@ -137,6 +130,13 @@ int misc_init_r(void)
 		if (!data)
 			twl4030_power_off();
 	}
+
+	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
+		if (!getenv("reboot-mode"))
+			setenv("reboot-mode", (char *)reboot_mode);
+	}
+
+	omap_reboot_mode_clear();
 
 	/* Serial number */
 
@@ -158,6 +158,19 @@ u32 get_board_rev(void)
 void get_board_serial(struct tag_serialnr *serialnr)
 {
 	omap_die_id_get_board_serial(serialnr);
+}
+
+void reset_misc(void)
+{
+	char reboot_mode[2] = { 0 };
+
+	/*
+	 * Valid resets must contain the reboot mode magic, but we must not
+	 * override it when set previously (e.g. reboot to bootloader).
+	 */
+
+	omap_reboot_mode(reboot_mode, sizeof(reboot_mode));
+	omap_reboot_mode_store(reboot_mode);
 }
 
 int fb_set_reboot_flag(void)
