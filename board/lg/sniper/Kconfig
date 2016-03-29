@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "sniper"
 
 config SYS_VENDOR
-	default "lge"
+	default "lg"
 
 config SYS_CONFIG_NAME
 	default "sniper"
