@@ -12,12 +12,6 @@
 #define CONFIG_I2C_EEPROM
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
-#ifdef CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_COM1		CONFIG_SUPPORT_CARD_UART_BASE
-#define CONFIG_SYS_NS16550_CLK		12288000
-#define CONFIG_SYS_NS16550_REG_SIZE	-2
-#endif
-
 #define CONFIG_SMC911X
 
 /* dummy: referenced by examples/standalone/smc911x_eeprom.c */
