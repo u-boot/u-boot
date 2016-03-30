@@ -27,6 +27,7 @@
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
 #include <ti-usb-phy-uboot.h>
+#include <miiphy.h>
 
 #include "mux_data.h"
 #include "../common/board_detect.h"
@@ -678,6 +679,11 @@ int board_eth_init(bd_t *bis)
 
 	if (*omap_si_rev == DRA722_ES1_0)
 		cpsw_data.active_slave = 1;
+
+	if (board_is_dra72x_revc_or_later()) {
+		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII_ID;
+		cpsw_slaves[1].phy_if = PHY_INTERFACE_MODE_RGMII_ID;
+	}
 
 	ret = cpsw_register(&cpsw_data);
 	if (ret < 0)

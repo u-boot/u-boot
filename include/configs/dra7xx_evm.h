@@ -155,6 +155,7 @@
 #define CONFIG_MII			/* Required in net/eth.c */
 #define CONFIG_PHY_GIGE			/* per-board part of CPSW */
 #define CONFIG_PHYLIB
+#define CONFIG_PHY_TI
 
 /* SPI */
 #undef	CONFIG_OMAP3_SPI
