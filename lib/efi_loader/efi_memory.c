@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <libfdt_env.h>
+#include <linux/list_sort.h>
 #include <inttypes.h>
 #include <watchdog.h>
 
@@ -25,6 +26,31 @@ struct efi_mem_list {
 
 /* This list contains all memory map items */
 LIST_HEAD(efi_mem);
+
+/*
+ * Sorts the memory list from highest address to lowest address
+ *
+ * When allocating memory we should always start from the highest
+ * address chunk, so sort the memory list such that the first list
+ * iterator gets the highest address and goes lower from there.
+ */
+static int efi_mem_cmp(void *priv, struct list_head *a, struct list_head *b)
+{
+	struct efi_mem_list *mema = list_entry(a, struct efi_mem_list, link);
+	struct efi_mem_list *memb = list_entry(b, struct efi_mem_list, link);
+
+	if (mema->desc.physical_start == memb->desc.physical_start)
+		return 0;
+	else if (mema->desc.physical_start < memb->desc.physical_start)
+		return 1;
+	else
+		return -1;
+}
+
+static void efi_mem_sort(void)
+{
+	list_sort(NULL, &efi_mem, efi_mem_cmp);
+}
 
 /*
  * Unmaps all memory occupied by the carve_desc region from the
@@ -141,6 +167,9 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 
 	/* Add our new map */
         list_add_tail(&newlist->link, &efi_mem);
+
+	/* And make sure memory is listed in descending order */
+	efi_mem_sort();
 
 	return start;
 }
