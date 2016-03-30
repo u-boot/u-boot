@@ -638,9 +638,7 @@ static int zynq_gem_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	zynq_phy_init(dev);
-
-	return 0;
+	return zynq_phy_init(dev);
 }
 
 static int zynq_gem_remove(struct udevice *dev)
