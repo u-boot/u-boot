@@ -102,14 +102,6 @@
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
 
-/*
- * By default, ARP timeout is 5 sec.
- * The first ARP request does not seem to work.
- * So we need to retry ARP request anyway.
- * We want to shrink the interval until the second ARP request.
- */
-#define CONFIG_ARP_TIMEOUT	500UL  /* 0.5 msec */
-
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
 #define CONFIG_SYS_NAND_MAX_CHIPS			2
 #define CONFIG_SYS_NAND_ONFI_DETECTION
