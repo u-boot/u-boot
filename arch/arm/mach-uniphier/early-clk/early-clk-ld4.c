@@ -24,7 +24,7 @@ int uniphier_ld4_early_clk_init(const struct uniphier_board_data *bd)
 	writel(tmp, SC_RSTCTRL);
 	readl(SC_RSTCTRL); /* dummy read */
 
-	/* privide clocks */
+	/* provide clocks */
 	tmp = readl(SC_CLKCTRL);
 	tmp |= SC_CLKCTRL_CEN_UMC | SC_CLKCTRL_CEN_SBC | SC_CLKCTRL_CEN_PERI;
 	writel(tmp, SC_CLKCTRL);

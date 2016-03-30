@@ -31,7 +31,7 @@ void uniphier_pro5_clk_init(void)
 	readl(SC_RSTCTRL2); /* dummy read */
 #endif
 
-	/* privide clocks */
+	/* provide clocks */
 	tmp = readl(SC_CLKCTRL);
 #ifdef CONFIG_USB_XHCI_UNIPHIER
 	tmp |= SC_CLKCTRL_CEN_USB31 | SC_CLKCTRL_CEN_USB30 |

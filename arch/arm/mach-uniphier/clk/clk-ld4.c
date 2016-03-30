@@ -27,7 +27,7 @@ void uniphier_ld4_clk_init(void)
 	writel(tmp, SC_RSTCTRL);
 	readl(SC_RSTCTRL); /* dummy read */
 
-	/* privide clocks */
+	/* provide clocks */
 	tmp = readl(SC_CLKCTRL);
 #ifdef CONFIG_UNIPHIER_ETH
 	tmp |= SC_CLKCTRL_CEN_ETHER;
