@@ -7,7 +7,7 @@
 #include "../init.h"
 #include "../sg-regs.h"
 
-int ph1_sld3_early_pin_init(const struct uniphier_board_data *bd)
+int uniphier_sld3_early_pin_init(const struct uniphier_board_data *bd)
 {
 	/* Comment format:    PAD Name -> Function Name */
 

@@ -7,7 +7,7 @@
 #include "../init.h"
 #include "../sg-regs.h"
 
-void ph1_sld3_pin_init(void)
+void uniphier_sld3_pin_init(void)
 {
 #ifdef CONFIG_USB_EHCI
 	sg_set_pinsel(13, 0, 4, 4);	/* USB0OC */

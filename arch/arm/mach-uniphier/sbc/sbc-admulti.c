@@ -19,7 +19,7 @@
 #define SBCTRL1_ADMULTIPLX_MEM_VALUE	0x03005500
 #define SBCTRL2_ADMULTIPLX_MEM_VALUE	0x14000010
 
-int sbc_admulti_init(const struct uniphier_board_data *bd)
+int uniphier_sbc_init_admulti(const struct uniphier_board_data *bd)
 {
 	/*
 	 * Only CS1 is connected to support card.

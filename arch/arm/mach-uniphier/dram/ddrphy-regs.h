@@ -159,7 +159,8 @@ struct ddrphy {
 #define NR_DATX8_PER_DDRPHY	2
 
 #ifndef __ASSEMBLY__
-int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, bool ddr3plus);
+int uniphier_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq,
+			     bool ddr3plus);
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank);
 int ddrphy_training(struct ddrphy __iomem *phy);
 #endif

@@ -9,7 +9,7 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-void proxstream2_clk_init(void)
+void uniphier_pxs2_clk_init(void)
 {
 	u32 tmp;
 

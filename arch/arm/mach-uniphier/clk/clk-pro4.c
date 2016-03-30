@@ -9,7 +9,7 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-void ph1_pro4_clk_init(void)
+void uniphier_pro4_clk_init(void)
 {
 	u32 tmp;
 

@@ -29,7 +29,7 @@ ENTRY(debug_ll_init)
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 #define UNIPHIER_SLD3_UART_CLK		36864000
 	cmp		r1, #0x25
-	bne		ph1_sld3_end
+	bne		sld3_end
 
 	sg_set_pinsel	64, 1, 4, 4, r0, r1	@ TXD0 -> TXD0
 
@@ -45,12 +45,12 @@ ENTRY(debug_ll_init)
 	ldr		r3, =DIV_ROUND(UNIPHIER_SLD3_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
-ph1_sld3_end:
+sld3_end:
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 #define UNIPHIER_LD4_UART_CLK		36864000
 	cmp		r1, #0x26
-	bne		ph1_ld4_end
+	bne		ld4_end
 
 	ldr		r0, =SG_IECTRL
 	ldr		r1, [r0]
@@ -62,12 +62,12 @@ ph1_sld3_end:
 	ldr		r3, =DIV_ROUND(UNIPHIER_LD4_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
-ph1_ld4_end:
+ld4_end:
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 #define UNIPHIER_PRO4_UART_CLK		73728000
 	cmp		r1, #0x28
-	bne		ph1_pro4_end
+	bne		pro4_end
 
 	sg_set_pinsel	128, 0, 4, 8, r0, r1	@ TXD0 -> TXD0
 
@@ -83,12 +83,12 @@ ph1_ld4_end:
 	ldr		r3, =DIV_ROUND(UNIPHIER_PRO4_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
-ph1_pro4_end:
+pro4_end:
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
 #define UNIPHIER_SLD8_UART_CLK		80000000
 	cmp		r1, #0x29
-	bne		ph1_sld8_end
+	bne		sld8_end
 
 	ldr		r0, =SG_IECTRL
 	ldr		r1, [r0]
@@ -100,12 +100,12 @@ ph1_pro4_end:
 	ldr		r3, =DIV_ROUND(UNIPHIER_SLD8_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
-ph1_sld8_end:
+sld8_end:
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 #define UNIPHIER_PRO5_UART_CLK		73728000
 	cmp		r1, #0x2A
-	bne		ph1_pro5_end
+	bne		pro5_end
 
 	sg_set_pinsel	47, 0, 4, 8, r0, r1	@ TXD0 -> TXD0
 	sg_set_pinsel	49, 0, 4, 8, r0, r1	@ TXD1 -> TXD1
@@ -124,12 +124,12 @@ ph1_sld8_end:
 	ldr		r3, =DIV_ROUND(UNIPHIER_PRO5_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
-ph1_pro5_end:
+pro5_end:
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
 #define UNIPHIER_PXS2_UART_CLK		88900000
 	cmp		r1, #0x2E
-	bne		proxstream2_end
+	bne		pxs2_end
 
 	ldr		r0, =SG_IECTRL
 	ldr		r1, [r0]
@@ -149,12 +149,12 @@ ph1_pro5_end:
 	ldr		r3, =DIV_ROUND(UNIPHIER_PXS2_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
-proxstream2_end:
+pxs2_end:
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 #define UNIPHIER_LD6B_UART_CLK		88900000
 	cmp		r1, #0x2F
-	bne		ph1_ld6b_end
+	bne		ld6b_end
 
 	ldr		r0, =SG_IECTRL
 	ldr		r1, [r0]
@@ -173,7 +173,7 @@ proxstream2_end:
 	ldr		r3, =DIV_ROUND(UNIPHIER_LD6B_UART_CLK, 16 * BAUDRATE)
 
 	b		init_uart
-ph1_ld6b_end:
+ld6b_end:
 #endif
 	mov		pc, lr
 

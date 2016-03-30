@@ -6,7 +6,7 @@
 
 #include "../init.h"
 
-int ph1_sld3_pll_init(const struct uniphier_board_data *bd)
+int uniphier_sld3_pll_init(const struct uniphier_board_data *bd)
 {
 	/* add pll init code here */
 	return 0;

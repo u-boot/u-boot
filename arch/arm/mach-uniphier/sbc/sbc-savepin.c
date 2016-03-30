@@ -22,7 +22,7 @@
 #define SBCTRL2_SAVEPIN_MEM_VALUE	0x34000009
 #define SBCTRL4_SAVEPIN_MEM_VALUE	0x02110210
 
-int sbc_savepin_init(const struct uniphier_board_data *bd)
+int uniphier_sbc_init_savepin(const struct uniphier_board_data *bd)
 {
 	/*
 	 * Only CS1 is connected to support card.

@@ -9,7 +9,7 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-int ph1_ld4_enable_dpll_ssc(const struct uniphier_board_data *bd)
+int uniphier_ld4_enable_dpll_ssc(const struct uniphier_board_data *bd)
 {
 	u32 tmp;
 

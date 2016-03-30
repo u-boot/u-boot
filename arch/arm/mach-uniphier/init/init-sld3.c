@@ -10,31 +10,31 @@
 #include "../init.h"
 #include "../micro-support-card.h"
 
-int ph1_sld3_init(const struct uniphier_board_data *bd)
+int uniphier_sld3_init(const struct uniphier_board_data *bd)
 {
-	ph1_sld3_bcu_init(bd);
+	uniphier_sld3_bcu_init(bd);
 
-	sbc_admulti_init(bd);
+	uniphier_sbc_init_admulti(bd);
 	uniphier_sld3_sbc_init(bd);
 
 	support_card_reset();
 
-	ph1_sld3_pll_init(bd);
+	uniphier_sld3_pll_init(bd);
 
 	support_card_init();
 
 	led_puts("L0");
 
 	memconf_init(bd);
-	ph1_sld3_memconf_init(bd);
+	uniphier_sld3_memconf_init(bd);
 
 	led_puts("L1");
 
-	ph1_ld4_early_clk_init(bd);
+	uniphier_ld4_early_clk_init(bd);
 
 	led_puts("L2");
 
-	ph1_sld3_early_pin_init(bd);
+	uniphier_sld3_early_pin_init(bd);
 
 	led_puts("L3");
 
@@ -46,7 +46,7 @@ int ph1_sld3_init(const struct uniphier_board_data *bd)
 
 	led_puts("L5");
 
-	ph1_sld3_enable_dpll_ssc(bd);
+	uniphier_sld3_enable_dpll_ssc(bd);
 
 	led_puts("L6");
 

@@ -183,7 +183,7 @@ static void vpll_init(void)
 	writel(tmp, SC_VPLL27BCTRL);
 }
 
-int ph1_ld4_pll_init(const struct uniphier_board_data *bd)
+int uniphier_ld4_pll_init(const struct uniphier_board_data *bd)
 {
 	int ret;
 

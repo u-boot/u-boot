@@ -9,7 +9,7 @@
 #include "../init.h"
 #include "../sg-regs.h"
 
-void ph1_pro4_pin_init(void)
+void uniphier_pro4_pin_init(void)
 {
 	/* Comment format:    PAD Name -> Function Name */
 

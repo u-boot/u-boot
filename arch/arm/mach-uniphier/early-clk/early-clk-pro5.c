@@ -9,7 +9,7 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-int ph1_pro5_early_clk_init(const struct uniphier_board_data *bd)
+int uniphier_pro5_early_clk_init(const struct uniphier_board_data *bd)
 {
 	u32 tmp;
 

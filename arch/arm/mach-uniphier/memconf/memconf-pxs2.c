@@ -12,7 +12,7 @@
 #include "../init.h"
 #include "../sg-regs.h"
 
-int proxstream2_memconf_init(const struct uniphier_board_data *bd)
+int uniphier_pxs2_memconf_init(const struct uniphier_board_data *bd)
 {
 	u32 tmp;
 	unsigned long size_per_word;

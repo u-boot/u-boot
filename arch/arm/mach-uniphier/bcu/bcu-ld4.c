@@ -11,7 +11,7 @@
 
 #define ch(x) ((x) >= 32 ? 0 : (x) < 0 ? 0x11111111 : 0x11111111 << (x))
 
-int ph1_ld4_bcu_init(const struct uniphier_board_data *bd)
+int uniphier_ld4_bcu_init(const struct uniphier_board_data *bd)
 {
 	int shift;
 

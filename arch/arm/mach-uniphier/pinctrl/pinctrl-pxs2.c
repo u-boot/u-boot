@@ -9,7 +9,7 @@
 #include "../init.h"
 #include "../sg-regs.h"
 
-void proxstream2_pin_init(void)
+void uniphier_pxs2_pin_init(void)
 {
 	/* Comment format:    PAD Name -> Function Name */
 

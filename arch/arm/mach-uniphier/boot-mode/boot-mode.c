@@ -21,23 +21,23 @@ u32 spl_boot_device_raw(void)
 	switch (uniphier_get_soc_type()) {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD3)
 	case SOC_UNIPHIER_SLD3:
-		return ph1_sld3_boot_device();
+		return uniphier_sld3_boot_device();
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4) || defined(CONFIG_ARCH_UNIPHIER_PRO4) || \
 	defined(CONFIG_ARCH_UNIPHIER_SLD8)
 	case SOC_UNIPHIER_LD4:
 	case SOC_UNIPHIER_PRO4:
 	case SOC_UNIPHIER_SLD8:
-		return ph1_ld4_boot_device();
+		return uniphier_ld4_boot_device();
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 	case SOC_UNIPHIER_PRO5:
-		return ph1_pro5_boot_device();
+		return uniphier_pro5_boot_device();
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2) || defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	case SOC_UNIPHIER_PXS2:
 	case SOC_UNIPHIER_LD6B:
-		return proxstream2_boot_device();
+		return uniphier_pxs2_boot_device();
 #endif
 	default:
 		return BOOT_DEVICE_NONE;

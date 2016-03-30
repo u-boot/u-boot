@@ -11,7 +11,7 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-int ph1_ld4_early_clk_init(const struct uniphier_board_data *bd)
+int uniphier_ld4_early_clk_init(const struct uniphier_board_data *bd)
 {
 	u32 tmp;
 

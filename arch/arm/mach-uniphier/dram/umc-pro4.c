@@ -142,7 +142,7 @@ static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
 		writel(0x00000100 | ((1 << (phy + 1)) - 1),
 		       dc_base + UMC_DIOCTLA);
 
-		ret = ph1_ld4_ddrphy_init(phy_base, freq, ddr3plus);
+		ret = uniphier_ld4_ddrphy_init(phy_base, freq, ddr3plus);
 		if (ret)
 			return ret;
 
@@ -158,7 +158,7 @@ static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
 				 ddr3plus);
 }
 
-int ph1_pro4_umc_init(const struct uniphier_board_data *bd)
+int uniphier_pro4_umc_init(const struct uniphier_board_data *bd)
 {
 	void __iomem *umc_base = (void __iomem *)0x5b800000;
 	void __iomem *ca_base = umc_base + 0x00001000;

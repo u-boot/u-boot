@@ -598,7 +598,7 @@ static void um_init(void __iomem *um_base)
 	writel(0x000000ff, um_base + UMC_MBUS3);
 }
 
-int proxstream2_umc_init(const struct uniphier_board_data *bd)
+int uniphier_pxs2_umc_init(const struct uniphier_board_data *bd)
 {
 	void __iomem *um_base = (void __iomem *)0x5b600000;
 	void __iomem *umc_ch_base = (void __iomem *)0x5b800000;

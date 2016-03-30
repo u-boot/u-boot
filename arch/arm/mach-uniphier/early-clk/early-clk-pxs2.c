@@ -11,7 +11,7 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-int proxstream2_early_clk_init(const struct uniphier_board_data *bd)
+int uniphier_pxs2_early_clk_init(const struct uniphier_board_data *bd)
 {
 	u32 tmp;
 

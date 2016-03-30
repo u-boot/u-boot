@@ -9,7 +9,7 @@
 #include "../init.h"
 #include "../sg-regs.h"
 
-void ph1_ld4_pin_init(void)
+void uniphier_ld4_pin_init(void)
 {
 	u32 tmp;
 

@@ -10,9 +10,9 @@
 #include "../init.h"
 #include "../micro-support-card.h"
 
-int ph1_pro5_init(const struct uniphier_board_data *bd)
+int uniphier_pro5_init(const struct uniphier_board_data *bd)
 {
-	sbc_savepin_init(bd);
+	uniphier_sbc_init_savepin(bd);
 
 	support_card_reset();
 
@@ -24,7 +24,7 @@ int ph1_pro5_init(const struct uniphier_board_data *bd)
 
 	led_puts("L1");
 
-	ph1_pro5_early_clk_init(bd);
+	uniphier_pro5_early_clk_init(bd);
 
 	led_puts("L2");
 

@@ -27,7 +27,8 @@ static u32 ddrphy_dtpr2[DRAM_FREQ_NR] = {0x5002c200, 0xa00214f8};
 static u32 ddrphy_mr0[DRAM_FREQ_NR] = {0x00000b51, 0x00000d71};
 static u32 ddrphy_mr2[DRAM_FREQ_NR] = {0x00000290, 0x00000298};
 
-int ph1_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq, bool ddr3plus)
+int uniphier_ld4_ddrphy_init(struct ddrphy __iomem *phy, int freq,
+			     bool ddr3plus)
 {
 	enum dram_freq freq_e;
 	u32 tmp;

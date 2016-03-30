@@ -83,7 +83,7 @@ static int get_boot_mode_sel(void)
 	return readl(SG_PINMON0) & 0x3f;
 }
 
-u32 ph1_sld3_boot_device(void)
+u32 uniphier_sld3_boot_device(void)
 {
 	int boot_mode;
 
@@ -92,7 +92,7 @@ u32 ph1_sld3_boot_device(void)
 	return boot_device_table[boot_mode].type;
 }
 
-void ph1_sld3_boot_mode_show(void)
+void uniphier_sld3_boot_mode_show(void)
 {
 	int mode_sel, i;
 

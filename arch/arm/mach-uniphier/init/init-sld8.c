@@ -10,16 +10,16 @@
 #include "../init.h"
 #include "../micro-support-card.h"
 
-int ph1_sld8_init(const struct uniphier_board_data *bd)
+int uniphier_sld8_init(const struct uniphier_board_data *bd)
 {
-	ph1_ld4_bcu_init(bd);
+	uniphier_ld4_bcu_init(bd);
 
-	sbc_savepin_init(bd);
+	uniphier_sbc_init_savepin(bd);
 	uniphier_ld4_sbc_init(bd);
 
 	support_card_reset();
 
-	ph1_sld8_pll_init(bd);
+	uniphier_sld8_pll_init(bd);
 
 	support_card_init();
 
@@ -29,7 +29,7 @@ int ph1_sld8_init(const struct uniphier_board_data *bd)
 
 	led_puts("L1");
 
-	ph1_ld4_early_clk_init(bd);
+	uniphier_ld4_early_clk_init(bd);
 
 	led_puts("L2");
 
@@ -44,7 +44,7 @@ int ph1_sld8_init(const struct uniphier_board_data *bd)
 	{
 		int res;
 
-		res = ph1_sld8_umc_init(bd);
+		res = uniphier_sld8_umc_init(bd);
 		if (res < 0) {
 			while (1)
 				;
@@ -53,7 +53,7 @@ int ph1_sld8_init(const struct uniphier_board_data *bd)
 
 	led_puts("L5");
 
-	ph1_ld4_enable_dpll_ssc(bd);
+	uniphier_ld4_enable_dpll_ssc(bd);
 
 	led_puts("L6");
 

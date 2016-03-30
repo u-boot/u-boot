@@ -12,7 +12,7 @@
 #include "../init.h"
 #include "../sg-regs.h"
 
-int ph1_sld3_memconf_init(const struct uniphier_board_data *bd)
+int uniphier_sld3_memconf_init(const struct uniphier_board_data *bd)
 {
 	u32 tmp;
 	unsigned long size_per_word;
