@@ -57,6 +57,10 @@
 	status = "okay";
 };
 
+&emmc {
+	status = "okay";
+};
+
 &sd {
 	status = "okay";
 };
