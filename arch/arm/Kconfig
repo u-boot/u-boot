@@ -511,6 +511,16 @@ config RMOBILE
 	bool "Renesas ARM SoCs"
 	select CPU_V7
 
+config ARCH_SNAPDRAGON
+	bool "Qualcomm Snapdragon SoCs"
+	select ARM64
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	select SPMI
+	select OF_CONTROL
+	select OF_SEPARATE
+
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"
 	select CPU_V7
@@ -773,6 +783,8 @@ source "arch/arm/cpu/armv7/rmobile/Kconfig"
 source "arch/arm/mach-rockchip/Kconfig"
 
 source "arch/arm/mach-s5pc1xx/Kconfig"
+
+source "arch/arm/mach-snapdragon/Kconfig"
 
 source "arch/arm/mach-socfpga/Kconfig"
 

@@ -1,0 +1,6 @@
+if ARCH_SNAPDRAGON
+
+config SYS_SOC
+	default "snapdragon"
+
+endif
