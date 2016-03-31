@@ -50,3 +50,4 @@ obj-$(CONFIG_VYBRID_GPIO)	+= vybrid_gpio.o
 obj-$(CONFIG_HIKEY_GPIO)	+= hi6220_gpio.o
 obj-$(CONFIG_PIC32_GPIO)	+= pic32_gpio.o
 obj-$(CONFIG_MVEBU_GPIO)	+= mvebu_gpio.o
+obj-$(CONFIG_MSM_GPIO)		+= msm_gpio.o

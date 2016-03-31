@@ -55,6 +55,20 @@ config LPC32XX_GPIO
 	help
 	  Support for the LPC32XX GPIO driver.
 
+config MSM_GPIO
+	bool "Qualcomm GPIO driver"
+	depends on DM_GPIO
+	default n
+	help
+	  Support GPIO controllers on Qualcomm Snapdragon family of SoCs.
+	  This controller have single bank (default name "soc"), every
+	  gpio has it's own set of registers.
+	  Only simple GPIO operations are supported (get/set, change of
+	  direction and checking pin function).
+	  Supported devices:
+	  - APQ8016
+	  - MSM8916
+
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"
 	depends on DM_GPIO
