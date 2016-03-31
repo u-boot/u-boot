@@ -1,5 +1,5 @@
 /*
- * board/renesas/rcar-gen2-common/common.c
+ * board/renesas/rcar-common/common.c
  *
  * Copyright (C) 2013 Renesas Electronics Corporation
  * Copyright (C) 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
