@@ -17,7 +17,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/regs-usbphy.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 
 #include "ehci.h"
 

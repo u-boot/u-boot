@@ -22,7 +22,7 @@
 #include <spl.h>
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
 

@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <wait_bit.h>
 #include <linux/compiler.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>

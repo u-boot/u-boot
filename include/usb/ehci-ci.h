@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _EHCI_FSL_H
-#define _EHCI_FSL_H
+#ifndef _EHCI_CI_H
+#define _EHCI_CI_H
 
 #include <asm/processor.h>
 
@@ -285,4 +285,4 @@ int usb_phy_mode(int port);
 int board_ehci_hcd_init(int port);
 int board_usb_phy_mode(int port);
 
-#endif /* _EHCI_FSL_H */
+#endif /* _EHCI_CI_H */

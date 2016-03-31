@@ -20,7 +20,7 @@
 #include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -17,7 +17,7 @@
 #include <pci.h>
 #include <usb.h>
 #include <asm/io.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 
 #include "ehci.h"
 

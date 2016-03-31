@@ -9,7 +9,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#include <usb/ehci-fsl.h>
+#include <usb/ehci-ci.h>
 #include <errno.h>
 
 #include "ehci.h"
