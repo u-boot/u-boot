@@ -16,6 +16,15 @@ config DM_MMC
 	  appear as block devices in U-Boot and can support filesystems such
 	  as EXT4 and FAT.
 
+config MSM_SDHCI
+	bool "Qualcomm SDHCI controller"
+	depends on DM_MMC
+	help
+	  Enables support for SDHCI 2.0 controller present on some Qualcomm
+          Snapdragon devices. This device is compatible with eMMC v4.5 and
+          SD 3.0 specifications. Both SD and eMMC devices are supported.
+	  Card-detect gpios are not supported.
+
 config ROCKCHIP_DWMMC
 	bool "Rockchip SD/MMC controller support"
 	depends on DM_MMC && OF_CONTROL
