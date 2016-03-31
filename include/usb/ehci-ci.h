@@ -97,10 +97,6 @@
 #define INTR_DATA_PULSING_EN	(0x1<<30)
 #define INTSTS_MASK		(0x00ff0000)
 
-/* USBCMD Bits of interest */
-#define EHCI_FSL_USBCMD_RST	(1 <<  1)
-#define EHCI_FSL_USBCMD_RS	(1 <<  0)
-
 #define  INTERRUPT_ENABLE_BITS_MASK  \
 		(INTR_USB_ID_EN		| \
 		INTR_1MS_TIMER_EN	| \
