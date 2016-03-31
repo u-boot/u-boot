@@ -32,7 +32,7 @@
  * be extended from this structure
  */
 struct ulpi_viewport {
-	u32 viewport_addr;
+	uintptr_t viewport_addr;
 	u32 port_num;
 };
 
