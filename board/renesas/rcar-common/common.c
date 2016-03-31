@@ -55,9 +55,11 @@ void arch_preboot_os(void)
 
 	/* Stop module clock */
 	for (i = 0; i < ARRAY_SIZE(mstptbl); i++) {
-		mstp_setclrbits_le32(mstptbl[i].s_addr, mstptbl[i].s_dis,
+		mstp_setclrbits_le32((uintptr_t)mstptbl[i].s_addr,
+				     mstptbl[i].s_dis,
 				     mstptbl[i].s_ena);
-		mstp_setclrbits_le32(mstptbl[i].r_addr, mstptbl[i].r_dis,
+		mstp_setclrbits_le32((uintptr_t)mstptbl[i].r_addr,
+				     mstptbl[i].r_dis,
 				     mstptbl[i].r_ena);
 	}
 }
