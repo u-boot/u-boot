@@ -1,0 +1,10 @@
+menu "SPMI support"
+
+config SPMI
+	bool "Enable SPMI bus support"
+	depends on DM
+	---help---
+	  Select this to enable to support SPMI bus.
+	  SPMI (System Power Management Interface) bus is used
+	  to connect PMIC devices on various SoCs.
+endmenu
