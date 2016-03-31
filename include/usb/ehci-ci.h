@@ -191,7 +191,11 @@ struct usb_ehci {
 	u32     gptimer1_ld;	/* 0x088 - General Purpose Timer 1 load value */
 	u32     gptimer1_ctrl;	/* 0x08C - General Purpose Timer 1 control */
 	u32	sbuscfg;	/* 0x090 - System Bus Interface Control */
-	u8	res2[0x6C];
+	u32	sbusstatus;	/* 0x094 - System Bus Interface Status */
+	u32	sbusmode;	/* 0x098 - System Bus Interface Mode */
+	u32	genconfig;	/* 0x09C - USB Core Configuration */
+	u32	genconfig2;	/* 0x0A0 - USB Core Configuration 2 */
+	u8	res2[0x5c];
 	u8	caplength;	/* 0x100 - Capability Register Length */
 	u8	res3[0x1];
 	u16	hciversion;	/* 0x102 - Host Interface Version */
