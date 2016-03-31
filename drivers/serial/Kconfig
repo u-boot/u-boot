@@ -320,4 +320,12 @@ config XILINX_UARTLITE
 	  If you have a Xilinx based board and want to use the uartlite
 	  serial ports, say Y to this option. If unsure, say N.
 
+config MSM_SERIAL
+	bool "Qualcomm on-chip UART"
+	depends on DM_SERIAL
+	help
+	  Support Data Mover UART used on Qualcomm Snapdragon SoCs.
+	  It should support all Qualcomm devices with UARTDM version 1.4,
+	  for example APQ8016 and MSM8916.
+	  Single baudrate is supported in current implementation (115200).
 endmenu
