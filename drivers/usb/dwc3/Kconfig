@@ -37,6 +37,12 @@ config USB_DWC3_OMAP
 
 	  Say 'Y' here if you have one such device
 
+config USB_DWC3_GENERIC
+	bool "Xilinx ZynqMP and similar Platforms"
+	depends on DM_USB && USB_DWC3
+	help
+	  Some platforms can reuse this DWC3 generic implementation.
+
 menu "PHY Subsystem"
 
 config USB_DWC3_PHY_OMAP

@@ -459,6 +459,7 @@
 	dr_mode = "peripheral";
 /*	phy-names = "usb3-phy";
 	phys = <&lane2 PHY_TYPE_USB3 0 0 26000000>; */
+	maximum-speed = "high-speed"; /* super-speed */
 };
 
 /* ULPI SMSC USB3320 */
@@ -471,6 +472,7 @@
 	dr_mode = "host";
 /*	phy-names = "usb3-phy";
 	phys = <&lane3 PHY_TYPE_USB3 1 0 26000000>; */
+	maximum-speed = "high-speed"; /* super-speed */
 };
 
 &xilinx_drm {
