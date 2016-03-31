@@ -125,6 +125,11 @@ F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
 F:	arch/arm/include/asm/arch-s3c24x0/
 
+ARM SNAPDRAGON
+M:	Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
+S:	Maintained
+F:	arch/arm/mach-snapdragon/
+
 ARM STM SPEAR
 #M:	Vipin Kumar <vipin.kumar@st.com>
 S:	Orphaned (Since 2016-02)
@@ -395,6 +400,12 @@ T:	git git://git.denx.de/u-boot-spi.git
 F:	drivers/mtd/spi/
 F:	drivers/spi/
 F:	include/spi*
+
+SPMI
+M:	Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
+S:	Maintained
+F:	drivers/spmi/
+F:	include/spmi/
 
 TQ GROUP
 #M:	Martin Krause <martin.krause@tq-systems.de>

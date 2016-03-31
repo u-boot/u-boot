@@ -33,6 +33,7 @@ alias lukma          Lukasz Majewski <l.majewski@samsung.com>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
+alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias panto          Pantelis Antoniou <panto@antoniou-consulting.com>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
@@ -67,6 +68,7 @@ alias rmobile        uboot, iwamatsu
 alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
+alias snapdragon     uboot, mateusz
 alias socfpga        uboot, marex, Dinh Nguyen <dinguyen@opensource.altera.com>
 alias sunxi          uboot, ijc, jwrdegoede
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
@@ -127,6 +129,7 @@ alias nand           uboot, scottwood
 alias net            uboot, jhersh
 alias phy            uboot, jhersh
 alias spi            uboot, jagan
+alias spmi           uboot, mateusz
 alias ubi            uboot, hs
 alias usb            uboot, marex
 alias video          uboot, ag
