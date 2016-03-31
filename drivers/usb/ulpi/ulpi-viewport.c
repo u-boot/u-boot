@@ -92,7 +92,8 @@ static int ulpi_request(struct ulpi_viewport *ulpi_vp, u32 value)
 
 int ulpi_write(struct ulpi_viewport *ulpi_vp, u8 *reg, u32 value)
 {
-	u32 val = ULPI_RWRUN | ULPI_RWCTRL | ((u32)reg << 16) | (value & 0xff);
+	u32 addr = (uintptr_t)reg & 0xFF;
+	u32 val = ULPI_RWRUN | ULPI_RWCTRL | addr << 16 | (value & 0xff);
 
 	val |= (ulpi_vp->port_num & 0x7) << 24;
 	return ulpi_request(ulpi_vp, val);
@@ -101,7 +102,7 @@ int ulpi_write(struct ulpi_viewport *ulpi_vp, u8 *reg, u32 value)
 u32 ulpi_read(struct ulpi_viewport *ulpi_vp, u8 *reg)
 {
 	int err;
-	u32 val = ULPI_RWRUN | ((u32)reg << 16);
+	u32 val = ULPI_RWRUN | ((uintptr_t)reg & 0xFF) << 16;
 
 	val |= (ulpi_vp->port_num & 0x7) << 24;
 	err = ulpi_request(ulpi_vp, val);

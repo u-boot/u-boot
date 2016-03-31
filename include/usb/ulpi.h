@@ -123,6 +123,7 @@ int ulpi_reset(struct ulpi_viewport *ulpi_vp);
 /*
  * Write to the ULPI PHY register via the viewport.
  * @reg		- the ULPI register (one of the fields in struct ulpi_regs).
+ *		  Due to ULPI design, only 8 lsb of address are used.
  * @value	- the value - only 8 lower bits are used, others ignored.
  *
  * returns 0 on success, ULPI_ERROR on failure.
@@ -132,6 +133,7 @@ int ulpi_write(struct ulpi_viewport *ulpi_vp, u8 *reg, u32 value);
 /*
  * Read the ULPI PHY register content via the viewport.
  * @reg		- the ULPI register (one of the fields in struct ulpi_regs).
+ *		  Due to ULPI design, only 8 lsb of address are used.
  *
  * returns register content on success, ULPI_ERROR on failure.
  */
