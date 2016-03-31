@@ -1,0 +1,12 @@
+if RCAR_GEN3
+
+choice
+	prompt "Renesus ARM64 SoCs board select"
+	optional
+
+endchoice
+
+config SYS_SOC
+	default "rmobile"
+
+endif

@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2013 Renesas Electronics Corporation
  * Copyright (C) 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
+ * Copyright (C) 2015 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * SPDX-License-Identifier: GPL-2.0
  */
@@ -29,7 +30,10 @@ static struct mstp_ctl mstptbl[] = {
 		RMSTPCR4, MSTP4_BITS, CONFIG_RMSTP4_ENA },
 	{ SMSTPCR5, MSTP5_BITS, CONFIG_SMSTP5_ENA,
 		RMSTPCR5, MSTP5_BITS, CONFIG_RMSTP5_ENA },
-	/* No MSTP6 */
+#ifdef CONFIG_RCAR_GEN3
+	{ SMSTPCR6, MSTP6_BITS, CONFIG_SMSTP6_ENA,
+		RMSTPCR6, MSTP6_BITS, CONFIG_RMSTP6_ENA },
+#endif
 	{ SMSTPCR7, MSTP7_BITS, CONFIG_SMSTP7_ENA,
 		RMSTPCR7, MSTP7_BITS, CONFIG_RMSTP7_ENA },
 	{ SMSTPCR8, MSTP8_BITS, CONFIG_SMSTP8_ENA,
