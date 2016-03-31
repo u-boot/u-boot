@@ -1615,6 +1615,12 @@ int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 	if (ret)
 		goto err;
 
+	if (ops->init_after_reset) {
+		ret = ops->init_after_reset(ctrl);
+		if (ret)
+			goto err;
+	}
+
 	ret = ehci_common_init(ctrl, tweaks);
 	if (ret)
 		goto err;
