@@ -44,8 +44,6 @@
 /* USB Host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
-#define CONFIG_USB_ULPI
-#define CONFIG_USB_ULPI_VIEWPORT
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
