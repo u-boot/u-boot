@@ -2,6 +2,7 @@
  * SuperH Pin Function Controller Support
  * Copy from Linux kernel. (include/linux/sh_pfc.h)
  *
+ * Copyright (C) 2015 Renesas Electronics Corporation
  * Copyright (c) 2008 Magnus Damm
  *
  * This file is subject to the terms and conditions of the GNU General Public
@@ -135,6 +136,8 @@ int unregister_pinmux(struct pinmux_info *pip);
 #define PORT_ALL(str)	CPU_ALL_PORT(_PORT_ALL, PORT, str)
 #define GPIO_PORT_ALL()	CPU_ALL_PORT(_GPIO_PORT, , unused)
 #define GPIO_FN(str) PINMUX_GPIO(GPIO_FN_##str, str##_MARK)
+#define GPIO_GFN(str) PINMUX_GPIO(GPIO_GFN_##str, str##_GMARK)
+#define GPIO_IFN(str) PINMUX_GPIO(GPIO_IFN_##str, str##_IMARK)
 
 /* helper macro for pinmux_enum_t */
 #define PORT_DATA_I(nr)	\
