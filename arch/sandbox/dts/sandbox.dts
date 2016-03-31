@@ -240,6 +240,26 @@
 		status = "disabled";
 	};
 
+	spmi: spmi@0 {
+		compatible = "sandbox,spmi";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		pm8916@0 {
+			compatible = "qcom,spmi-pmic";
+			reg = <0x0 0x1>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+
+			spmi_gpios: gpios@c000 {
+				compatible = "qcom,pm8916-gpio";
+				reg = <0xc000 0x400>;
+				gpio-controller;
+				gpio-count = <4>;
+				#gpio-cells = <2>;
+				gpio-bank-name="spmi";
+			};
+		};
+	};
 };
 
 #include "cros-ec-keyboard.dtsi"
