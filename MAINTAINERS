@@ -353,7 +353,7 @@ F:	drivers/net/
 F:	net/
 
 NAND FLASH
-M:	Scott Wood <scottwood@freescale.com>
+M:	Scott Wood <oss@buserror.net>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-nand-flash.git
 F:	drivers/mtd/nand/
