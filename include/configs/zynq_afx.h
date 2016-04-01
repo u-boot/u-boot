@@ -10,8 +10,6 @@
 #ifndef __CONFIG_ZYNQ_AFX_H
 #define __CONFIG_ZYNQ_AFX_H
 
-#define CONFIG_SYS_SDRAM_SIZE (128 * 1024 * 1024)
-
 #define CONFIG_SYS_NO_FLASH
 #if defined(CONFIG_AFX_NOR)
 # undef CONFIG_SYS_NO_FLASH

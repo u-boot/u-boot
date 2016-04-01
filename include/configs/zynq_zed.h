@@ -10,8 +10,6 @@
 #ifndef __CONFIG_ZYNQ_ZED_H
 #define __CONFIG_ZYNQ_ZED_H
 
-#define CONFIG_SYS_SDRAM_SIZE		(512 * 1024 * 1024)
-
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_ZYNQ_USB
