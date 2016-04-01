@@ -85,6 +85,8 @@ static struct sunxi_usb_phy {
 #endif
 };
 
+static int initial_usb_scan_delay = CONFIG_INITIAL_USB_SCAN_DELAY;
+
 static int get_vbus_gpio(int index)
 {
 	switch (index) {
@@ -268,6 +270,11 @@ void sunxi_usb_phy_exit(int index)
 void sunxi_usb_phy_power_on(int index)
 {
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
+
+	if (initial_usb_scan_delay) {
+		mdelay(initial_usb_scan_delay);
+		initial_usb_scan_delay = 0;
+	}
 
 	phy->power_on_count++;
 	if (phy->power_on_count != 1)

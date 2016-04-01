@@ -312,6 +312,15 @@ config MMC_SUNXI_SLOT_EXTRA
 	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
 	support for this.
 
+config INITIAL_USB_SCAN_DELAY
+	int "delay initial usb scan by x ms to allow builtin devices to init"
+	default 0
+	---help---
+	Some boards have on board usb devices which need longer than the
+	USB spec's 1 second to connect from board powerup. Set this config
+	option to a non 0 value to add an extra delay before the first usb
+	bus scan.
+
 config USB0_VBUS_PIN
 	string "Vbus enable pin for usb0 (otg)"
 	default ""
