@@ -41,6 +41,7 @@
 #define AXP818_ELDO3_CTRL	0x1b
 #define AXP818_FLDO1_CTRL	0x1c
 #define AXP818_FLDO2_3_CTRL	0x1d
+#define AXP818_FLDO2_3_CTRL_FLDO3_VOL	(1 << 4)
 #define AXP818_DCDC1_CTRL	0x20
 #define AXP818_DCDC2_CTRL	0x21
 #define AXP818_DCDC3_CTRL	0x22
@@ -53,11 +54,13 @@
 #define AXP818_ALDO2_CTRL	0x29
 #define AXP818_ALDO3_CTRL	0x2a
 
-int axp818_init(void);
-
 /* For axp_gpio.c */
 #define AXP_POWER_STATUS		0x00
-#define AXP_POWER_STATUS_VBUS_PRESENT	(1 << 5)
+#define AXP_POWER_STATUS_VBUS_PRESENT		(1 << 5)
+#define AXP_VBUS_IPSOUT			0x30
+#define AXP_VBUS_IPSOUT_DRIVEBUS		(1 << 2)
+#define AXP_MISC_CTRL			0x8f
+#define AXP_MISC_CTRL_N_VBUSEN_FUNC		(1 << 4)
 #define AXP_GPIO0_CTRL			0x90
 #define AXP_GPIO1_CTRL			0x92
 #define AXP_GPIO_CTRL_OUTPUT_LOW	0x00 /* Drive pin low */

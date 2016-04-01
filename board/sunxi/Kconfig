@@ -77,6 +77,11 @@ config MACH_SUN8I_H3
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
+config MACH_SUN50I
+	bool "sun50i (Allwinner A64)"
+	select ARM64
+	select SUNXI_GEN_SUN6I
+
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7
@@ -213,6 +218,7 @@ config DRAM_ODT_CORRECTION
 endif
 
 config SYS_CLK_FREQ
+	default 816000000 if MACH_SUN50I
 	default 912000000 if MACH_SUN7I
 	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 
@@ -223,6 +229,7 @@ config SYS_CONFIG_NAME
 	default "sun7i" if MACH_SUN7I
 	default "sun8i" if MACH_SUN8I
 	default "sun9i" if MACH_SUN9I
+	default "sun50i" if MACH_SUN50I
 
 config SYS_BOARD
 	default "sunxi"
@@ -604,7 +611,7 @@ config GMAC_TX_DELAY
 	Set the GMAC Transmit Clock Delay Chain value.
 
 config SPL_STACK_R_ADDR
-	default 0x4fe00000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN7I || MACH_SUN8I
+	default 0x4fe00000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN7I || MACH_SUN8I || MACH_SUN50I
 	default 0x2fe00000 if MACH_SUN9I
 
 endif

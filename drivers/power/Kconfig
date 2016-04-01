@@ -10,7 +10,7 @@ choice
 	default AXP209_POWER if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
 	default AXP818_POWER if MACH_SUN8I_A83T
-	default SUNXI_NO_PMIC if MACH_SUN8I_H3
+	default SUNXI_NO_PMIC if MACH_SUN8I_H3 || MACH_SUN50I
 
 config SUNXI_NO_PMIC
 	boolean "board without a pmic"
@@ -118,13 +118,12 @@ config AXP_DCDC4_VOLT
 config AXP_DCDC5_VOLT
 	int "axp pmic dcdc5 voltage"
 	depends on AXP221_POWER || AXP818_POWER
-	default 1800 if AXP818_POWER
 	default 1500 if MACH_SUN6I || MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc5 at, set to 0 to
 	disable dcdc5.
 	On A23 / A31 / A33 / A83T boards dcdc5 is VCC-DRAM and should be 1.5V,
-	1.8V for A83T.
+	1.35V if DDR3L is used.
 
 config AXP_ALDO1_VOLT
 	int "axp pmic (a)ldo1 voltage"
@@ -238,6 +237,33 @@ config AXP_ELDO3_VOLT
 	disable eldo3. On some A31(s) tablets it might be used to supply
 	1.2V for the SSD2828 chip (converter of parallel LCD interface
 	into MIPI DSI).
+
+config AXP_FLDO1_VOLT
+	int "axp pmic fldo1 voltage"
+	depends on AXP818_POWER
+	default 0 if MACH_SUN8I_A83T
+	---help---
+	Set the voltage (mV) to program the axp pmic fldo1 at, set to 0 to
+	disable fldo1.
+	On A83T / H8 boards fldo1 is VCC-HSIC and should be 1.2V if HSIC is
+	used.
+
+config AXP_FLDO2_VOLT
+	int "axp pmic eldo2 voltage"
+	depends on AXP818_POWER
+	default 900 if MACH_SUN8I_A83T
+	---help---
+	Set the voltage (mV) to program the axp pmic fldo2 at, set to 0 to
+	disable fldo2.
+	On A83T / H8 boards fldo2 is VCC-CPUS and should be 0.9V.
+
+config AXP_FLDO3_VOLT
+	int "axp pmic fldo3 voltage"
+	depends on AXP818_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp pmic fldo3 at, set to 0 to
+	disable fldo3.
 
 config SY8106A_VOUT1_VOLT
 	int "SY8106A pmic VOUT1 voltage"

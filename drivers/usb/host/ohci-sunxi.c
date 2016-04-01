@@ -94,6 +94,7 @@ static const struct udevice_id ohci_usb_ids[] = {
 	{ .compatible = "allwinner,sun6i-a31-ohci", },
 	{ .compatible = "allwinner,sun7i-a20-ohci", },
 	{ .compatible = "allwinner,sun8i-a23-ohci", },
+	{ .compatible = "allwinner,sun8i-a83t-ohci", },
 	{ .compatible = "allwinner,sun8i-h3-ohci",  },
 	{ .compatible = "allwinner,sun9i-a80-ohci", },
 	{ }

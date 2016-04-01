@@ -59,10 +59,11 @@ static int axp_gpio_direction_output(struct udevice *dev, unsigned pin,
 	u8 reg;
 
 	switch (pin) {
-#ifdef CONFIG_AXP221_POWER /* Only available on axp221/axp223 */
+#ifdef AXP_MISC_CTRL_N_VBUSEN_FUNC
+	/* Only available on later PMICs */
 	case SUNXI_GPIO_AXP0_VBUS_ENABLE:
-		ret = pmic_bus_clrbits(AXP221_MISC_CTRL,
-				       AXP221_MISC_CTRL_N_VBUSEN_FUNC);
+		ret = pmic_bus_clrbits(AXP_MISC_CTRL,
+				       AXP_MISC_CTRL_N_VBUSEN_FUNC);
 		if (ret)
 			return ret;
 
@@ -90,10 +91,11 @@ static int axp_gpio_get_value(struct udevice *dev, unsigned pin)
 		mask = AXP_POWER_STATUS_VBUS_PRESENT;
 		break;
 #endif
-#ifdef CONFIG_AXP221_POWER /* Only available on axp221/axp223 */
+#ifdef AXP_MISC_CTRL_N_VBUSEN_FUNC
+	/* Only available on later PMICs */
 	case SUNXI_GPIO_AXP0_VBUS_ENABLE:
-		ret = pmic_bus_read(AXP221_VBUS_IPSOUT, &val);
-		mask = AXP221_VBUS_IPSOUT_DRIVEBUS;
+		ret = pmic_bus_read(AXP_VBUS_IPSOUT, &val);
+		mask = AXP_VBUS_IPSOUT_DRIVEBUS;
 		break;
 #endif
 	default:
@@ -115,14 +117,15 @@ static int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 	u8 reg;
 
 	switch (pin) {
-#ifdef CONFIG_AXP221_POWER /* Only available on axp221/axp223 */
+#ifdef AXP_MISC_CTRL_N_VBUSEN_FUNC
+	/* Only available on later PMICs */
 	case SUNXI_GPIO_AXP0_VBUS_ENABLE:
 		if (val)
-			return pmic_bus_setbits(AXP221_VBUS_IPSOUT,
-						AXP221_VBUS_IPSOUT_DRIVEBUS);
+			return pmic_bus_setbits(AXP_VBUS_IPSOUT,
+						AXP_VBUS_IPSOUT_DRIVEBUS);
 		else
-			return pmic_bus_clrbits(AXP221_VBUS_IPSOUT,
-						AXP221_VBUS_IPSOUT_DRIVEBUS);
+			return pmic_bus_clrbits(AXP_VBUS_IPSOUT,
+						AXP_VBUS_IPSOUT_DRIVEBUS);
 #endif
 	default:
 		reg = axp_get_gpio_ctrl_reg(pin);

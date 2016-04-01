@@ -40,6 +40,30 @@ struct fel_stash {
 
 struct fel_stash fel_stash __attribute__((section(".data")));
 
+#ifdef CONFIG_MACH_SUN50I
+#include <asm/armv8/mmu.h>
+
+static struct mm_region sunxi_mem_map[] = {
+	{
+		/* SRAM, MMIO regions */
+		.base = 0x0UL,
+		.size = 0x40000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	}, {
+		/* RAM */
+		.base = 0x40000000UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+struct mm_region *mem_map = sunxi_mem_map;
+#endif
+
 static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
@@ -76,6 +100,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPA(4), SUN8I_H3_GPA_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPA(5), SUN8I_H3_GPA_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPA(5), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN50I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(8), SUN50I_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN50I_GPB_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPB(9), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_A83T)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(10), SUN8I_A83T_GPB_UART0);
@@ -120,18 +148,30 @@ void s_init(void)
 	 */
 #if defined CONFIG_MACH_SUN6I
 	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
-#elif defined CONFIG_MACH_SUN8I_A23
-	uint version;
+#elif defined CONFIG_MACH_SUN8I
+	__maybe_unused uint version;
 
 	/* Unlock sram version info reg, read it, relock */
 	setbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
-	version = readl(SUNXI_SRAMC_BASE + 0x24);
+	version = readl(SUNXI_SRAMC_BASE + 0x24) >> 16;
 	clrbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
 
-	if ((version & 0xffff0000) == 0x16500000)
+	/*
+	 * Ideally this would be a switch case, but we do not know exactly
+	 * which versions there are and which version needs which settings,
+	 * so reproduce the per SoC code from the BSP.
+	 */
+#if defined CONFIG_MACH_SUN8I_A23
+	if (version == 0x1650)
 		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
 	else /* 0x1661 ? */
 		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0xc0);
+#elif defined CONFIG_MACH_SUN8I_A33
+	if (version != 0x1667)
+		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0xc0);
+#endif
+	/* A83T BSP never modifies SUNXI_SRAMC_BASE + 0x44 */
+	/* No H3 BSP, boot0 seems to not modify SUNXI_SRAMC_BASE + 0x44 */
 #endif
 
 #if defined CONFIG_MACH_SUN6I || \
@@ -253,7 +293,7 @@ void reset_cpu(ulong addr)
 #endif
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */
