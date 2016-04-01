@@ -504,9 +504,10 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 				size = part_img_len;
 			}
 
-			if ((part_load_addr < CONFIG_SYS_SDRAM_BASE) &&
+			if ((part_load_addr < gd->bd->bi_dram[0].start) &&
 			    ((part_load_addr + part_data_len) >
-			    (CONFIG_SYS_SDRAM_BASE + gd->ram_size))) {
+			    (gd->bd->bi_dram[0].start +
+			     gd->bd->bi_dram[0].size))) {
 				printf("INVALID_LOAD_ADDRESS_FAIL\r\n");
 				return -1;
 			}
