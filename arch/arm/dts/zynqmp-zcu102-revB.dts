@@ -9,6 +9,7 @@
  */
 
 #include "zynqmp-zcu102.dts"
+
 / {
 	model = "ZynqMP ZCU102 RevB";
 };
