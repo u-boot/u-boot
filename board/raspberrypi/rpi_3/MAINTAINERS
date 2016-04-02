@@ -1,0 +1,6 @@
+RPI_3_BOARD
+M:	Stephen Warren <swarren@wwwdotorg.org>
+S:	Maintained
+F:	board/raspberrypi/rpi_3/
+F:	include/configs/rpi_3.h
+F:	configs/rpi_3_defconfig

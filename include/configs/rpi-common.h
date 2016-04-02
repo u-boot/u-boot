@@ -13,9 +13,12 @@
 /* Architecture, CPU, etc.*/
 #define CONFIG_ARCH_CPU_INIT
 
+/* Use SoC timer for AArch32, but architected timer for AArch64 */
+#ifndef CONFIG_ARM64
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	\
 	(&((struct bcm2835_timer_regs *)BCM2835_TIMER_PHYSADDR)->clo)
+#endif
 
 /*
  * 2835 is a SKU in a series for which the 2708 is the first or primary SoC,

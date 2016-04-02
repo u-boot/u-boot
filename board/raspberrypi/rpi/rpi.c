@@ -19,6 +19,9 @@
 #include <asm/global_data.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <dm/platform_data/serial_bcm283x_mu.h>
+#ifdef CONFIG_ARM64
+#include <asm/armv8/mmu.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -227,6 +230,28 @@ static uint32_t revision;
 static uint32_t rev_scheme;
 static uint32_t rev_type;
 static const struct rpi_model *model;
+
+#ifdef CONFIG_ARM64
+static struct mm_region bcm2837_mem_map[] = {
+	{
+		.base = 0x00000000UL,
+		.size = 0x3f000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.base = 0x3f000000UL,
+		.size = 0x01000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = bcm2837_mem_map;
+#endif
 
 int dram_init(void)
 {
