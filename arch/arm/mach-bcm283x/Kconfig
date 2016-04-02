@@ -63,7 +63,9 @@ config TARGET_RPI_3_32B
 	  This option assumes the VideoCore firmware is configured to use the
 	  mini UART (rather than PL011) for the serial console. This is the
 	  default on the RPi 3. To enable the UART console, the following non-
-	  default option must be present in config.txt: enable_uart=1.
+	  default option must be present in config.txt: enable_uart=1. This is
+	  required for U-Boot to operate correctly, even if you only care
+	  about the HDMI/usbkbd console.
 
 	  This option creates a build targetting the ARMv7/AArch32 ISA.
 	select ARMV7_LPAE
@@ -72,6 +74,30 @@ config TARGET_RPI_3_32B
 
 config TARGET_RPI_3
 	bool "Raspberry Pi 3 64-bit build"
+	help
+	  Support for all BCM2837-based Raspberry Pi variants, such as
+	  the RPi 3 model B, in AArch64 (64-bit) mode.
+
+	  This option assumes the VideoCore firmware is configured to use the
+	  mini UART (rather than PL011) for the serial console. This is the
+	  default on the RPi 3. To enable the UART console, the following non-
+	  default option must be present in config.txt: enable_uart=1. This is
+	  required for U-Boot to operate correctly, even if you only care
+	  about the HDMI/usbkbd console.
+
+	  At the time of writing, the VC FW requires a non-default option in
+	  config.txt to request the ARM CPU boot in 64-bit mode:
+	  arm_control=0x200
+
+	  The VC FW typically provides ARM "stub" code to set up the CPU and
+	  quiesce secondary SMP CPUs. This is not currently true in 64-bit
+	  mode. In order to boot U-Boot before the VC FW is enhanced, please
+	  see the commit description for the commit which added RPi3 support
+	  for a workaround. Since the instructions are temporary, they are not
+	  duplicated here. The VC FW enhancement is tracked in
+	  https://github.com/raspberrypi/firmware/issues/579.
+
+	  This option creates a build targetting the ARMv8/AArch64 ISA.
 	select ARM64
 	select BCM2837
 
