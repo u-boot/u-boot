@@ -16,11 +16,11 @@ static int blkc_show(cmd_tbl_t *cmdtp, int flag,
 	struct block_cache_stats stats;
 	blkcache_stats(&stats);
 
-	printf("    hits: %u\n"
-	       "    misses: %u\n"
-	       "    entries: %u\n"
-	       "    max blocks/entry: %u\n"
-	       "    max cache entries: %u\n",
+	printf("hits: %u\n"
+	       "misses: %u\n"
+	       "entries: %u\n"
+	       "max blocks/entry: %u\n"
+	       "max cache entries: %u\n",
 	       stats.hits, stats.misses, stats.entries,
 	       stats.max_blocks_per_entry, stats.max_entries);
 	return 0;
