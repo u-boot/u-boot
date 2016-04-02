@@ -96,10 +96,9 @@ struct blk_desc {
  *
  * @return - '1' if block returned from cache, '0' otherwise.
  */
-int blkcache_read
-	(int iftype, int dev,
-	 lbaint_t start, lbaint_t blkcnt,
-	 unsigned long blksz, void *buffer);
+int blkcache_read(int iftype, int dev,
+		  lbaint_t start, lbaint_t blkcnt,
+		  unsigned long blksz, void *buffer);
 
 /**
  * blkcache_fill() - make data read from a block device available
@@ -113,10 +112,9 @@ int blkcache_read
  * @param buf - buffer containing data to cache
  *
  */
-void blkcache_fill
-	(int iftype, int dev,
-	 lbaint_t start, lbaint_t blkcnt,
-	 unsigned long blksz, void const *buffer);
+void blkcache_fill(int iftype, int dev,
+		   lbaint_t start, lbaint_t blkcnt,
+		   unsigned long blksz, void const *buffer);
 
 /**
  * blkcache_invalidate() - discard the cache for a set of blocks
@@ -125,8 +123,7 @@ void blkcache_fill
  * @param iftype - IF_TYPE_x for type of device
  * @param dev - device index of particular type
  */
-void blkcache_invalidate
-	(int iftype, int dev);
+void blkcache_invalidate(int iftype, int dev);
 
 /**
  * blkcache_configure() - configure block cache
@@ -156,21 +153,18 @@ void blkcache_stats(struct block_cache_stats *stats);
 
 #else
 
-static inline int blkcache_read
-	(int iftype, int dev,
-	 lbaint_t start, lbaint_t blkcnt,
-	 unsigned long blksz, void *buffer)
+static inline int blkcache_read(int iftype, int dev,
+				lbaint_t start, lbaint_t blkcnt,
+				unsigned long blksz, void *buffer)
 {
 	return 0;
 }
 
-static inline void blkcache_fill
-	(int iftype, int dev,
-	 lbaint_t start, lbaint_t blkcnt,
-	 unsigned long blksz, void const *buffer) {}
+static inline void blkcache_fill(int iftype, int dev,
+				 lbaint_t start, lbaint_t blkcnt,
+				 unsigned long blksz, void const *buffer) {}
 
-static inline void blkcache_invalidate
-	(int iftype, int dev) {}
+static inline void blkcache_invalidate(int iftype, int dev) {}
 
 #endif
 
