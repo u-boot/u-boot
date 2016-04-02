@@ -15,6 +15,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <dm/uclass-internal.h>
 #include <memalign.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -442,11 +443,14 @@ void usb_show_tree(void)
 #ifdef CONFIG_DM_USB
 	struct udevice *bus;
 
-	for (uclass_first_device(UCLASS_USB, &bus);
+	for (uclass_find_first_device(UCLASS_USB, &bus);
 		bus;
-		uclass_next_device(&bus)) {
+		uclass_find_next_device(&bus)) {
 		struct usb_device *udev;
 		struct udevice *dev;
+
+		if (!device_active(bus))
+			continue;
 
 		device_find_first_child(bus, &dev);
 		if (dev && device_active(dev)) {
