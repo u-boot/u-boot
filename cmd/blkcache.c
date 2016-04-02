@@ -73,12 +73,10 @@ static int do_blkcache(cmd_tbl_t *cmdtp, int flag,
 
 	c = find_cmd_tbl(argv[0], &cmd_blkc_sub[0], ARRAY_SIZE(cmd_blkc_sub));
 
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
+	if (!c)
 		return CMD_RET_USAGE;
 
-	return 0;
+	return c->cmd(cmdtp, flag, argc, argv);
 }
 
 U_BOOT_CMD(
