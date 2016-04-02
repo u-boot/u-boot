@@ -1802,7 +1802,7 @@ CBFS (Coreboot Filesystem) support
 
 		The DIU driver will look for the 'video-mode' environment
 		variable, and if defined, enable the DIU as a console during
-		boot.  See the documentation file README.video for a
+		boot.  See the documentation file doc/README.video for a
 		description of this variable.
 
 - LCD Support:	CONFIG_LCD
