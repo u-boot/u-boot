@@ -202,14 +202,14 @@ WEAK(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
 #ifndef CONFIG_ARMV8_MULTIENTRY
+#if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	/*
 	 * For single-entry systems the lowlevel init is very simple.
 	 */
 	ldr	x0, =GICD_BASE
 	bl	gic_init_secure
-
+#endif
 #else /* CONFIG_ARMV8_MULTIENTRY is set */
-
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	branch_if_slave x0, 1f
 	ldr	x0, =GICD_BASE
