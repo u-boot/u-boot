@@ -55,7 +55,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
-	"loadaddr= " __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramboot=setenv bootargs " CONFIG_BOOTARGS ";" \
 		"bootm ${loadaddr} - ${fdt_addr}\0" \
 	"bootimage=zImage\0" \
