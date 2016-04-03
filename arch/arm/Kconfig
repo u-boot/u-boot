@@ -538,6 +538,7 @@ config TARGET_CM_T43
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
+	select CMD_GPIO
 	select CMD_USB
 	select DM
 	select DM_ETH

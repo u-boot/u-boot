@@ -9,4 +9,3 @@ CONFIG_DEFAULT_DEVICE_TREE="pine64_plus"
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
-CONFIG_CMD_GPIO=y

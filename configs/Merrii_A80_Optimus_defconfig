@@ -11,4 +11,3 @@ CONFIG_DEFAULT_DEVICE_TREE="sun9i-a80-optimus"
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
-CONFIG_CMD_GPIO=y
