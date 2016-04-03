@@ -541,7 +541,7 @@ static int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int do_usb_stop_keyboard(int force)
 {
-#ifdef CONFIG_USB_KEYBOARD
+#if !defined CONFIG_DM_USB && defined CONFIG_USB_KEYBOARD
 	if (usb_kbd_deregister(force) != 0) {
 		printf("USB not stopped: usbkbd still using USB\n");
 		return 1;
