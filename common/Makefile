@@ -50,6 +50,7 @@ obj-$(CONFIG_ENV_IS_IN_EXT4) += env_ext4.o
 obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 obj-$(CONFIG_ENV_IS_IN_NVRAM) += env_nvram.o
 obj-$(CONFIG_ENV_IS_IN_ONENAND) += env_onenand.o
+obj-$(CONFIG_ENV_IS_IN_SATA) += env_sata.o
 obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
 obj-$(CONFIG_ENV_IS_IN_REMOTE) += env_remote.o
 obj-$(CONFIG_ENV_IS_IN_UBI) += env_ubi.o
