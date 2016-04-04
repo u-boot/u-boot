@@ -7,8 +7,11 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <asm/microblaze_timer.h>
 #include <asm/microblaze_intc.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 volatile int timestamp = 0;
 microblaze_timer_t *tmr;
@@ -28,9 +31,6 @@ void __udelay(unsigned long usec)
 		i = get_timer(0);
 		while ((get_timer(0) - i) < (usec / 1000))
 			;
-	} else {
-		for (i = 0; i < (usec * XILINX_CLOCK_FREQ / 10000000); i++)
-			;
 	}
 }
 
@@ -46,12 +46,35 @@ int timer_init (void)
 	int irq = -1;
 	u32 preload = 0;
 	u32 ret = 0;
+	const void *blob = gd->fdt_blob;
+	int node = 0;
+	u32 cell[2];
 
-#if defined(CONFIG_SYS_TIMER_0_ADDR) && defined(CONFIG_SYS_INTC_0_NUM)
-	preload = XILINX_CLOCK_FREQ / CONFIG_SYS_HZ;
-	irq = CONFIG_SYS_TIMER_0_IRQ;
-	tmr = (microblaze_timer_t *) (CONFIG_SYS_TIMER_0_ADDR);
-#endif
+	debug("TIMER: Initialization\n");
+
+	node = fdt_node_offset_by_compatible(blob, node,
+				"xlnx,xps-timer-1.00.a");
+	if (node != -1) {
+		fdt_addr_t base = fdtdec_get_addr(blob, node, "reg");
+		if (base == FDT_ADDR_T_NONE)
+			return -1;
+
+		debug("TIMER: Base addr %lx\n", base);
+		tmr = (microblaze_timer_t *)base;
+
+		ret = fdtdec_get_int_array(blob, node, "interrupts",
+					    cell, ARRAY_SIZE(cell));
+		if (ret)
+			return ret;
+
+		irq = cell[0];
+		debug("TIMER: IRQ %x\n", irq);
+
+		preload = fdtdec_get_int(blob, node, "clock-frequency", 0);
+		preload /= CONFIG_SYS_HZ;
+	} else {
+		return node;
+	}
 
 	if (tmr && preload && irq >= 0) {
 		tmr->loadreg = preload;

@@ -10,9 +10,12 @@
 
 #include <common.h>
 #include <command.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 void enable_interrupts(void)
 {
@@ -112,11 +115,26 @@ static void intc_init(void)
 int interrupt_init(void)
 {
 	int i;
+	const void *blob = gd->fdt_blob;
+	int node = 0;
 
-#if defined(CONFIG_SYS_INTC_0_ADDR) && defined(CONFIG_SYS_INTC_0_NUM)
-	intc = (microblaze_intc_t *)CONFIG_SYS_INTC_0_ADDR;
-	irq_no = CONFIG_SYS_INTC_0_NUM;
-#endif
+	debug("INTC: Initialization\n");
+
+	node = fdt_node_offset_by_compatible(blob, node,
+				"xlnx,xps-intc-1.00.a");
+	if (node != -1) {
+		fdt_addr_t base = fdtdec_get_addr(blob, node, "reg");
+		if (base == FDT_ADDR_T_NONE)
+			return -1;
+
+		debug("INTC: Base addr %lx\n", base);
+		intc = (microblaze_intc_t *)base;
+		irq_no = fdtdec_get_int(blob, node, "xlnx,num-intr-inputs", 0);
+		debug("INTC: IRQ NO %x\n", irq_no);
+	} else {
+		return node;
+	}
+
 	if (irq_no) {
 		vecs = calloc(1, sizeof(struct irq_action) * irq_no);
 		if (vecs == NULL) {

@@ -98,6 +98,19 @@ int checkboard(void)
 }
 #endif
 
+int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+{
+#if defined(CONFIG_ZYNQ_GEM_EEPROM_ADDR) && \
+    defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
+	if (eeprom_read(CONFIG_ZYNQ_GEM_EEPROM_ADDR,
+			CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET,
+			ethaddr, 6))
+		printf("I2C EEPROM MAC address read failed\n");
+#endif
+
+	return 0;
+}
+
 int dram_init(void)
 {
 	int node;

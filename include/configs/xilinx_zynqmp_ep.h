@@ -22,11 +22,6 @@
 #define CONFIG_ZYNQMP_XHCI_LIST {ZYNQMP_USB0_XHCI_BASEADDR, \
 				 ZYNQMP_USB1_XHCI_BASEADDR}
 
-/* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_SYS_SDRAM_SIZE		0x40000000
-
 #define COUNTER_FREQUENCY	4000000
 
 #include <configs/xilinx_zynqmp.h>

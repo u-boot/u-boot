@@ -503,6 +503,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_VITESSE
 	phy_vitesse_init();
 #endif
+#ifdef CONFIG_PHY_XILINX
+	phy_xilinx_init();
+#endif
 
 	return 0;
 }

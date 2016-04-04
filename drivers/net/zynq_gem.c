@@ -57,6 +57,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
 #define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
+#define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x080000000 /* SGMII Enable */
+#define ZYNQ_GEM_NWCFG_PCS_SEL		0x000000800 /* PCS select */
 #ifdef CONFIG_ARM64
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000100000 /* Div pclk by 64, max 160MHz */
 #else
@@ -90,6 +92,8 @@ DECLARE_GLOBAL_DATA_PTR;
 					ZYNQ_GEM_DMACR_RXBUF)
 
 #define ZYNQ_GEM_TSR_DONE		0x00000020 /* Tx done mask */
+
+#define ZYNQ_GEM_PCS_CTL_ANEG_ENBL	0x1000
 
 /* Use MII register 1 (MII status register) to detect PHY */
 #define PHY_DETECT_REG  1
@@ -137,7 +141,9 @@ struct zynq_gem_regs {
 	u32 reserved6[18];
 #define STAT_SIZE	44
 	u32 stat[STAT_SIZE]; /* 0x100 - Octects transmitted Low reg */
-	u32 reserved7[164];
+	u32 reserved9[20];
+	u32 pcscntrl;
+	u32 reserved7[143];
 	u32 transmit_q1_ptr; /* 0x440 - Transmit priority queue 1 */
 	u32 reserved8[15];
 	u32 receive_q1_ptr; /* 0x480 - Receive priority queue 1 */
@@ -330,10 +336,12 @@ static int zynq_phy_init(struct udevice *dev)
 	/* Enable only MDIO bus */
 	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs->nwctrl);
 
-	ret = phy_detection(dev);
-	if (ret) {
-		printf("GEM PHY init failed\n");
-		return ret;
+	if (priv->interface != PHY_INTERFACE_MODE_SGMII) {
+		ret = phy_detection(dev);
+		if (ret) {
+			printf("GEM PHY init failed\n");
+			return ret;
+		}
 	}
 
 	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
@@ -351,7 +359,7 @@ static int zynq_phy_init(struct udevice *dev)
 
 static int zynq_gem_init(struct udevice *dev)
 {
-	u32 i;
+	u32 i, nwconfig;
 	unsigned long clk_rate = 0;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
@@ -426,14 +434,25 @@ static int zynq_gem_init(struct udevice *dev)
 		return -1;
 	}
 
+	nwconfig = ZYNQ_GEM_NWCFG_INIT;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
+		nwconfig |= ZYNQ_GEM_NWCFG_SGMII_ENBL |
+			    ZYNQ_GEM_NWCFG_PCS_SEL;
+#ifdef CONFIG_ARM64
+		writel(readl(&regs->pcscntrl) | ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
+		       &regs->pcscntrl);
+#endif
+	}
+
 	switch (priv->phydev->speed) {
 	case SPEED_1000:
-		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
+		writel(nwconfig | ZYNQ_GEM_NWCFG_SPEED1000,
 		       &regs->nwcfg);
 		clk_rate = ZYNQ_GEM_FREQUENCY_1000;
 		break;
 	case SPEED_100:
-		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100,
+		writel(nwconfig | ZYNQ_GEM_NWCFG_SPEED100,
 		       &regs->nwcfg);
 		clk_rate = ZYNQ_GEM_FREQUENCY_100;
 		break;
@@ -561,6 +580,23 @@ static void zynq_gem_halt(struct udevice *dev)
 						ZYNQ_GEM_NWCTRL_TXEN_MASK, 0);
 }
 
+__weak int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
+{
+	return -ENOSYS;
+}
+
+static int zynq_gem_read_rom_mac(struct udevice *dev)
+{
+	int retval;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	retval = zynq_board_read_rom_ethaddr(pdata->enetaddr);
+	if (retval == -ENOSYS)
+		retval = 0;
+
+	return retval;
+}
+
 static int zynq_gem_miiphy_read(struct mii_dev *bus, int addr,
 				int devad, int reg)
 {
@@ -611,9 +647,7 @@ static int zynq_gem_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	zynq_phy_init(dev);
-
-	return 0;
+	return zynq_phy_init(dev);
 }
 
 static int zynq_gem_remove(struct udevice *dev)
@@ -634,6 +668,7 @@ static const struct eth_ops zynq_gem_ops = {
 	.free_pkt		= zynq_gem_free_pkt,
 	.stop			= zynq_gem_halt,
 	.write_hwaddr		= zynq_gem_setup_mac,
+	.read_rom_hwaddr	= zynq_gem_read_rom_mac,
 };
 
 static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
@@ -662,6 +697,8 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 	priv->interface = pdata->phy_interface;
+
+	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
 
 	printf("ZYNQ GEM: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));

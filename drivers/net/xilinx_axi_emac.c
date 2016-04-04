@@ -251,7 +251,7 @@ static int axiemac_phy_init(struct udevice *dev)
 	}
 
 	/* Interface - look at tsec */
-	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
+	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
@@ -264,10 +264,28 @@ static int axiemac_phy_init(struct udevice *dev)
 /* Setting axi emac and phy to proper setting */
 static int setup_phy(struct udevice *dev)
 {
-	u32 speed, emmc_reg;
+	u16 temp;
+	u32 speed, emmc_reg, ret;
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
 	struct phy_device *phydev = priv->phydev;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
+		/*
+		 * In SGMII cases the isolate bit might set
+		 * after DMA and ethernet resets and hence
+		 * check and clear if set.
+		 */
+		ret = phyread(priv, priv->phyaddr, MII_BMCR, &temp);
+		if (ret)
+			return 0;
+		if (temp & BMCR_ISOLATE) {
+			temp &= ~BMCR_ISOLATE;
+			ret = phywrite(priv, priv->phyaddr, MII_BMCR, temp);
+			if (ret)
+				return 0;
+		}
+	}
 
 	if (phy_startup(phydev)) {
 		printf("axiemac: could not initialize PHY %s\n",
@@ -697,7 +715,7 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		printf("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
 	priv->interface = pdata->phy_interface;
