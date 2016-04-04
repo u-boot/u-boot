@@ -115,6 +115,14 @@ config ETH_DESIGNWARE
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
+config MVPP2
+	bool "Marvell Armada 375 network interface support"
+	depends on ARMADA_375
+	select PHYLIB
+	help
+	  This driver supports the network interface units in the
+	  Marvell ARMADA 375 SoC.
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI

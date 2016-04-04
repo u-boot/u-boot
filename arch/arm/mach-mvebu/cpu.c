@@ -54,17 +54,57 @@ int mvebu_soc_family(void)
 	case SOC_MV78260_ID:
 	case SOC_MV78460_ID:
 		return MVEBU_SOC_AXP;
+
+	case SOC_88F6720_ID:
+		return MVEBU_SOC_A375;
+
 	case SOC_88F6810_ID:
 	case SOC_88F6820_ID:
 	case SOC_88F6828_ID:
 		return MVEBU_SOC_A38X;
 	}
+
 	return MVEBU_SOC_UNKNOWN;
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 
-#if defined(CONFIG_ARMADA_38X)
+#if defined(CONFIG_ARMADA_375)
+/* SAR frequency values for Armada 375 */
+static const struct sar_freq_modes sar_freq_tab[] = {
+	{  0,  0x0,  266,  133,  266 },
+	{  1,  0x0,  333,  167,  167 },
+	{  2,  0x0,  333,  167,  222 },
+	{  3,  0x0,  333,  167,  333 },
+	{  4,  0x0,  400,  200,  200 },
+	{  5,  0x0,  400,  200,  267 },
+	{  6,  0x0,  400,  200,  400 },
+	{  7,  0x0,  500,  250,  250 },
+	{  8,  0x0,  500,  250,  334 },
+	{  9,  0x0,  500,  250,  500 },
+	{ 10,  0x0,  533,  267,  267 },
+	{ 11,  0x0,  533,  267,  356 },
+	{ 12,  0x0,  533,  267,  533 },
+	{ 13,  0x0,  600,  300,  300 },
+	{ 14,  0x0,  600,  300,  400 },
+	{ 15,  0x0,  600,  300,  600 },
+	{ 16,  0x0,  666,  333,  333 },
+	{ 17,  0x0,  666,  333,  444 },
+	{ 18,  0x0,  666,  333,  666 },
+	{ 19,  0x0,  800,  400,  267 },
+	{ 20,  0x0,  800,  400,  400 },
+	{ 21,  0x0,  800,  400,  534 },
+	{ 22,  0x0,  900,  450,  300 },
+	{ 23,  0x0,  900,  450,  450 },
+	{ 24,  0x0,  900,  450,  600 },
+	{ 25,  0x0, 1000,  500,  500 },
+	{ 26,  0x0, 1000,  500,  667 },
+	{ 27,  0x0, 1000,  333,  500 },
+	{ 28,  0x0,  400,  400,  400 },
+	{ 29,  0x0, 1100,  550,  550 },
+	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
+};
+#elif defined(CONFIG_ARMADA_38X)
 /* SAR frequency values for Armada 38x */
 static const struct sar_freq_modes sar_freq_tab[] = {
 	{  0x0,  0x0,  666, 333, 333 },
@@ -98,9 +138,13 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 	u32 freq;
 	int i;
 
+#if defined(CONFIG_ARMADA_375)
+	val = readl(CONFIG_SAR2_REG);	/* SAR - Sample At Reset */
+#else
 	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+#endif
 	freq = (val & SAR_CPU_FREQ_MASK) >> SAR_CPU_FREQ_OFFS;
-#if !defined(CONFIG_ARMADA_38X)
+#if defined(SAR2_CPU_FREQ_MASK)
 	/*
 	 * Shift CPU0 clock frequency select bit from SAR2 register
 	 * into correct position
@@ -110,7 +154,7 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 #endif
 	for (i = 0; sar_freq_tab[i].val != 0xff; i++) {
 		if (sar_freq_tab[i].val == freq) {
-#if defined(CONFIG_ARMADA_38X)
+#if defined(CONFIG_ARMADA_375) || defined(CONFIG_ARMADA_38X)
 			*sar_freq = sar_freq_tab[i];
 			return;
 #else
@@ -152,6 +196,9 @@ int print_cpuinfo(void)
 	case SOC_MV78460_ID:
 		puts("MV78460-");
 		break;
+	case SOC_88F6720_ID:
+		puts("MV88F6720-");
+		break;
 	case SOC_88F6810_ID:
 		puts("MV88F6810-");
 		break;
@@ -173,6 +220,17 @@ int print_cpuinfo(void)
 			break;
 		case 2:
 			puts("B0");
+			break;
+		default:
+			printf("?? (%x)", revid);
+			break;
+		}
+	}
+
+	if (mvebu_soc_family() == MVEBU_SOC_A375) {
+		switch (revid) {
+		case MV_88F67XX_A0_ID:
+			puts("A0");
 			break;
 		default:
 			printf("?? (%x)", revid);
@@ -478,8 +536,15 @@ void enable_caches(void)
 	/* Avoid problem with e.g. neta ethernet driver */
 	invalidate_dcache_all();
 
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
+	/*
+	 * Armada 375 still has some problems with d-cache enabled in the
+	 * ethernet driver (mvpp2). So lets keep the d-cache disabled
+	 * until this is solved.
+	 */
+	if (mvebu_soc_family() != MVEBU_SOC_A375) {
+		/* Enable D-cache. I-cache is already enabled in start.S */
+		dcache_enable();
+	}
 }
 
 void v7_outer_cache_enable(void)

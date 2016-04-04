@@ -99,11 +99,14 @@ void board_init_f(ulong dummy)
 
 	timer_init();
 
+	/* Armada 375 does not support SerDes and DDR3 init yet */
+#if !defined(CONFIG_ARMADA_375)
 	/* First init the serdes PHY's */
 	serdes_phy_config();
 
 	/* Setup DDR */
 	ddr3_init();
+#endif
 
 	/*
 	 * Return to the BootROM to continue the Marvell xmodem

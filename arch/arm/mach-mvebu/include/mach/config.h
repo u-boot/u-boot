@@ -17,7 +17,8 @@
 
 #include <asm/arch/soc.h>
 
-#if defined(CONFIG_ARMADA_XP) || defined(CONFIG_ARMADA_38X)
+#if defined(CONFIG_ARMADA_XP) || defined(CONFIG_ARMADA_375) \
+	|| defined(CONFIG_ARMADA_38X)
 /*
  * Set this for the common xor register definitions needed in dram.c
  * for A38x as well here.
@@ -78,8 +79,10 @@
 #ifdef CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_MII		/* expose smi ove miiphy interface */
+#if !defined(CONFIG_ARMADA_375)
 #define CONFIG_MVNETA		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_PHYLIB
+#endif
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_PHY_GIGE		/* GbE speed/duplex detect */
 #define CONFIG_ARP_TIMEOUT	200

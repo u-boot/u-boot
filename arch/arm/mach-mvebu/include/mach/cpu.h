@@ -61,6 +61,7 @@ enum cpu_attrib {
 
 enum {
 	MVEBU_SOC_AXP,
+	MVEBU_SOC_A375,
 	MVEBU_SOC_A38X,
 	MVEBU_SOC_UNKNOWN,
 };
@@ -89,7 +90,11 @@ struct mbus_win {
  * Ref: Datasheet sec:A.28
  */
 struct mvebu_system_registers {
+#if defined(CONFIG_ARMADA_375)
+	u8 pad1[0x54];
+#else
 	u8 pad1[0x60];
+#endif
 	u32 rstoutn_mask; /* 0x60 */
 	u32 sys_soft_rst; /* 0x64 */
 };

@@ -15,6 +15,7 @@ else
 obj-y	= cpu.o
 obj-y	+= dram.o
 ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_ARMADA_375) += ../../../drivers/ddr/marvell/axp/xor.o
 obj-$(CONFIG_ARMADA_38X) += ../../../drivers/ddr/marvell/a38x/xor.o
 obj-$(CONFIG_ARMADA_XP) += ../../../drivers/ddr/marvell/axp/xor.o
 endif

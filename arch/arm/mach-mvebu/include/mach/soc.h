@@ -14,9 +14,13 @@
 #define SOC_MV78230_ID		0x7823
 #define SOC_MV78260_ID		0x7826
 #define SOC_MV78460_ID		0x7846
+#define SOC_88F6720_ID		0x6720
 #define SOC_88F6810_ID		0x6810
 #define SOC_88F6820_ID		0x6820
 #define SOC_88F6828_ID		0x6828
+
+/* A375 revisions */
+#define MV_88F67XX_A0_ID	0x3
 
 /* A38x revisions */
 #define MV_88F68XX_Z1_ID	0x0
@@ -106,7 +110,20 @@
 #define BOOTROM_ERR_MODE_MASK	(0xf << BOOTROM_ERR_MODE_OFFS)
 #define BOOTROM_ERR_MODE_UART	0x6
 
-#if defined(CONFIG_ARMADA_38X)
+#if defined(CONFIG_ARMADA_375)
+/* SAR values for Armada 375 */
+#define CONFIG_SAR_REG		(MVEBU_REGISTER(0xe8200))
+#define CONFIG_SAR2_REG		(MVEBU_REGISTER(0xe8204))
+
+#define SAR_CPU_FREQ_OFFS	17
+#define SAR_CPU_FREQ_MASK	(0x1f << SAR_CPU_FREQ_OFFS)
+
+#define BOOT_DEV_SEL_OFFS	3
+#define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
+
+#define BOOT_FROM_UART		0x30
+#define BOOT_FROM_SPI		0x38
+#elif defined(CONFIG_ARMADA_38X)
 /* SAR values for Armada 38x */
 #define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18600))
 
