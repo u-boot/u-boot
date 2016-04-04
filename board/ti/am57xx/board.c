@@ -324,7 +324,6 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	init_sata(0);
 	setup_board_eeprom_env();
 
 	/*
