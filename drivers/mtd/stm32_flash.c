@@ -137,6 +137,10 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	/* To make things simple use byte writes only */
 	for (i = 0; i < cnt; i++) {
 		*(uchar *)(addr + i) = src[i];
+		/*  avoid re-ordering flash data write and busy status
+		 *  check as flash memory space attributes are generally Normal
+		 */
+		mb();
 		while (readl(&STM32_FLASH->sr) & STM32_FLASH_SR_BSY)
 			;
 	}
