@@ -35,7 +35,8 @@ struct sandbox_emul_fake_regs {
 };
 
 struct sandbox_emul_gpio {
-	struct sandbox_emul_fake_regs r[EMUL_GPIO_REG_END]; /* Fake registers */
+	/* Fake registers - need one more entry as REG_END is valid address. */
+	struct sandbox_emul_fake_regs r[EMUL_GPIO_REG_END + 1];
 };
 
 struct sandbox_spmi_priv {
