@@ -3486,7 +3486,7 @@ static int run_mem_calibrate(void)
 	writel(PHY_MGR_CAL_RESET, &phy_mgr_cfg->cal_status);
 
 	/* Stop tracking manager. */
-	clrbits_le32(&sdr_ctrl->ctrl_cfg, 1 << 22);
+	clrbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_DQSTRKEN_MASK);
 
 	phy_mgr_initialize();
 	rw_mgr_mem_initialize();
@@ -3507,7 +3507,7 @@ static int run_mem_calibrate(void)
 	writel(0x2, &phy_mgr_cfg->mux_sel);
 
 	/* Start tracking manager. */
-	setbits_le32(&sdr_ctrl->ctrl_cfg, 1 << 22);
+	setbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_DQSTRKEN_MASK);
 
 	return pass;
 }
