@@ -820,6 +820,11 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	if (mmc == NULL)
 		return -1;
 
+#ifdef OMAP_HSMMC_USE_GPIO
+	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
+	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
+#endif
+
 	upriv->mmc = mmc;
 
 	return 0;
