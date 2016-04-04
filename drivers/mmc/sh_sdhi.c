@@ -430,6 +430,9 @@ static void sh_sdhi_get_response(struct sh_sdhi_host *host, struct mmc_cmd *cmd)
 	}
 
 	p2 = (unsigned long *)cmd->response;
+
+	barrier();
+
 #if defined(__BIG_ENDIAN_BITFIELD)
 	for (i = 0; i < cnt; i++) {
 		*p2++ = ((*p1 >> 16) & 0x0000ffff) |
