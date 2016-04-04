@@ -42,7 +42,7 @@ void detail_board_ddr_info(void)
 	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
 	print_ddr_info(0);
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-	if (gd->bd->bi_dram[2].size) {
+	if (soc_has_dp_ddr() && gd->bd->bi_dram[2].size) {
 		puts("\nDP-DDR ");
 		print_size(gd->bd->bi_dram[2].size, "");
 		print_ddr_info(CONFIG_DP_DDR_CTRL);

@@ -44,15 +44,14 @@
 
 #endif
 
-#if defined(CONFIG_LS1043A) || defined(CONFIG_LS2080A) ||\
-	defined(CONFIG_LS2085A)
+#if defined(CONFIG_LS1043A) || defined(CONFIG_LS2080A)
 /* For LS1043 (ARMv8), ESBC image Address in Header is 64 bit
- * Similiarly for LS2080 and LS2085
+ * Similiarly for LS2080
  */
 #define CONFIG_ESBC_ADDR_64BIT
 #endif
 
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+#ifdef CONFIG_LS2080A
 #define CONFIG_EXTRA_ENV \
 	"setenv fdt_high 0xa0000000;"	\
 	"setenv initrd_high 0xcfffffff;"	\
@@ -66,12 +65,11 @@
 
 /* Copying Bootscript and Header to DDR from NOR for LS2 and for rest, from
  * Non-XIP Memory (Nand/SD)*/
-#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_LS2080A) ||\
-	defined(CONFIG_LS2085A)
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_LS2080A)
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif
 /* The address needs to be modified according to NOR and DDR memory map */
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+#ifdef CONFIG_LS2080A
 #define CONFIG_BS_HDR_ADDR_FLASH	0x583920000
 #define CONFIG_BS_ADDR_FLASH		0x583900000
 #define CONFIG_BS_HDR_ADDR_RAM		0xa3920000

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
+#include <asm/arch/soc.h>
 #include "ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -201,22 +202,24 @@ void dram_init_banksize(void)
 	}
 
 #ifdef CONFIG_SYS_DP_DDR_BASE_PHY
-	/* initialize DP-DDR here */
-	puts("DP-DDR:  ");
-	/*
-	 * DDR controller use 0 as the base address for binding.
-	 * It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
-	 */
-	dp_ddr_size = fsl_other_ddr_sdram(CONFIG_SYS_DP_DDR_BASE_PHY,
+	if (soc_has_dp_ddr()) {
+		/* initialize DP-DDR here */
+		puts("DP-DDR:  ");
+		/*
+		 * DDR controller use 0 as the base address for binding.
+		 * It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
+		 */
+		dp_ddr_size = fsl_other_ddr_sdram(CONFIG_SYS_DP_DDR_BASE_PHY,
 					  CONFIG_DP_DDR_CTRL,
 					  CONFIG_DP_DDR_NUM_CTRLS,
 					  CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR,
 					  NULL, NULL, NULL);
-	if (dp_ddr_size) {
-		gd->bd->bi_dram[2].start = CONFIG_SYS_DP_DDR_BASE;
-		gd->bd->bi_dram[2].size = dp_ddr_size;
-	} else {
-		puts("Not detected");
+		if (dp_ddr_size) {
+			gd->bd->bi_dram[2].start = CONFIG_SYS_DP_DDR_BASE;
+			gd->bd->bi_dram[2].size = dp_ddr_size;
+		} else {
+			puts("Not detected");
+		}
 	}
 #endif
 }
