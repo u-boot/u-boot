@@ -591,8 +591,6 @@ config ARCH_ZYNQMP
 	select ARM64
 	select DM
 	select OF_CONTROL
-	select DM_ETH
-	select DM_MMC
 	select DM_SERIAL
 
 config TEGRA
