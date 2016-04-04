@@ -424,7 +424,6 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(u32 read_group,
 	 */
 	scc_mgr_set_all_ranks(SCC_MGR_DQS_EN_DELAY_OFFSET,
 			      read_group, delay, 1);
-	writel(0, &sdr_scc_mgr->update);
 }
 
 /**
