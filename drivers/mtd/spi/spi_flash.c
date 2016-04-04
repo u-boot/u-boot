@@ -265,7 +265,8 @@ static int spi_flash_ready(struct spi_flash *flash)
 static int spi_flash_cmd_wait_ready(struct spi_flash *flash,
 					unsigned long timeout)
 {
-	int timebase, ret;
+	unsigned long timebase;
+	int ret;
 
 	timebase = get_timer(0);
 
