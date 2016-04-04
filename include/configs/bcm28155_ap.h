@@ -88,8 +88,11 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_ENV_SIZE			0x10000
-#define CONFIG_ENV_IS_NOWHERE
+/* must fit into GPT:u-boot-env partition */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_ENV_OFFSET		(0x00011a00 * 512)
+#define CONFIG_ENV_SIZE			(8 * 512)
 
 #define CONFIG_SYS_NO_FLASH	/* Not using NAND/NOR unmanaged flash */
 
