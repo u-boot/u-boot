@@ -303,15 +303,22 @@ static void scc_mgr_set_dqs_en_delay(u32 read_group, u32 delay)
 	scc_mgr_set(SCC_MGR_DQS_EN_DELAY_OFFSET, read_group, delay);
 }
 
+static void scc_mgr_set_dq_in_delay(u32 dq_in_group, u32 delay)
+{
+	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, dq_in_group, delay);
+}
+
 static void scc_mgr_set_dqs_io_in_delay(u32 delay)
 {
 	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, rwcfg->mem_dq_per_write_dqs,
 		    delay);
 }
 
-static void scc_mgr_set_dq_in_delay(u32 dq_in_group, u32 delay)
+static void scc_mgr_set_dm_in_delay(u32 dm, u32 delay)
 {
-	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, dq_in_group, delay);
+	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET,
+		    rwcfg->mem_dq_per_write_dqs + 1 + dm,
+		    delay);
 }
 
 static void scc_mgr_set_dq_out1_delay(u32 dq_in_group, u32 delay)
@@ -584,8 +591,11 @@ static void scc_mgr_zero_group(const u32 write_group, const int out_only)
 		writel(0xff, &sdr_scc_mgr->dq_ena);
 
 		/* Zero all DM config settings. */
-		for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++)
+		for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++) {
+			if (!out_only)
+				scc_mgr_set_dm_in_delay(i, 0);
 			scc_mgr_set_dm_out1_delay(i, 0);
+		}
 
 		/* Multicast to all DM enables. */
 		writel(0xff, &sdr_scc_mgr->dm_ena);
