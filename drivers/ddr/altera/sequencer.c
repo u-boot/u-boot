@@ -1207,7 +1207,6 @@ rw_mgr_mem_calibrate_write_test(const u32 rank_bgn, const u32 write_group,
 			   *bit_chk == param->write_correct_mask);
 		return *bit_chk == param->write_correct_mask;
 	} else {
-		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
 		debug_cond(DLEVEL == 2,
 			   "write_test(%u,%u,ONE) : %u != %i => %i\n",
 			   write_group, use_dm, *bit_chk, 0, *bit_chk != 0);
