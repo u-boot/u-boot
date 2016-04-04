@@ -218,7 +218,7 @@ void cli_loop(void)
 	parse_file_outer();
 	/* This point is never reached */
 	for (;;);
-#elif defined(CONFIG_CMDINE)
+#elif defined(CONFIG_CMDLINE)
 	cli_simple_loop();
 #else
 	printf("## U-Boot command line is disabled. Please enable CONFIG_CMDLINE\n");
