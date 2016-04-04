@@ -277,7 +277,7 @@ static void scc_mgr_initialize(void)
 	int i;
 
 	for (i = 0; i < 16; i++) {
-		debug_cond(DLEVEL == 1, "%s:%d: Clearing SCC RFILE index %u\n",
+		debug_cond(DLEVEL >= 1, "%s:%d: Clearing SCC RFILE index %u\n",
 			   __func__, __LINE__, i);
 		scc_mgr_set(SCC_MGR_HHP_RFILE_OFFSET, i, 0);
 	}
@@ -479,10 +479,10 @@ static void scc_mgr_set_hhp_extras(void)
 			 SCC_MGR_HHP_GLOBALS_OFFSET |
 			 SCC_MGR_HHP_EXTRAS_OFFSET;
 
-	debug_cond(DLEVEL == 1, "%s:%d Setting HHP Extras\n",
+	debug_cond(DLEVEL >= 1, "%s:%d Setting HHP Extras\n",
 		   __func__, __LINE__);
 	writel(value, addr);
-	debug_cond(DLEVEL == 1, "%s:%d Done Setting HHP Extras\n",
+	debug_cond(DLEVEL >= 1, "%s:%d Done Setting HHP Extras\n",
 		   __func__, __LINE__);
 }
 
@@ -693,7 +693,7 @@ static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
 	/* DQS shift */
 	new_delay = READ_SCC_DQS_IO_OUT2_DELAY + delay;
 	if (new_delay > iocfg->io_out2_delay_max) {
-		debug_cond(DLEVEL == 1,
+		debug_cond(DLEVEL >= 1,
 			   "%s:%d (%u, %u) DQS: %u > %d; adding %u to OUT1\n",
 			   __func__, __LINE__, write_group, delay, new_delay,
 			   iocfg->io_out2_delay_max,
@@ -707,7 +707,7 @@ static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
 	/* OCT shift */
 	new_delay = READ_SCC_OCT_OUT2_DELAY + delay;
 	if (new_delay > iocfg->io_out2_delay_max) {
-		debug_cond(DLEVEL == 1,
+		debug_cond(DLEVEL >= 1,
 			   "%s:%d (%u, %u) DQS: %u > %d; adding %u to OUT1\n",
 			   __func__, __LINE__, write_group, delay,
 			   new_delay, iocfg->io_out2_delay_max,
@@ -1210,14 +1210,14 @@ rw_mgr_mem_calibrate_write_test(const u32 rank_bgn, const u32 write_group,
 
 	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
 	if (all_correct) {
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "write_test(%u,%u,ALL) : %u == %u => %i\n",
 			   write_group, use_dm, *bit_chk,
 			   param->write_correct_mask,
 			   *bit_chk == param->write_correct_mask);
 		return *bit_chk == param->write_correct_mask;
 	} else {
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "write_test(%u,%u,ONE) : %u != %i => %i\n",
 			   write_group, use_dm, *bit_chk, 0, *bit_chk != 0);
 		return *bit_chk != 0x00;
@@ -1292,7 +1292,7 @@ rw_mgr_mem_calibrate_read_test_patterns(const u32 rank_bgn, const u32 group,
 	if (bit_chk != param->read_correct_mask)
 		ret = -EIO;
 
-	debug_cond(DLEVEL == 1,
+	debug_cond(DLEVEL >= 1,
 		   "%s:%d test_load_patterns(%u,ALL) => (%u == %u) => %i\n",
 		   __func__, __LINE__, group, bit_chk,
 		   param->read_correct_mask, ret);
@@ -1453,13 +1453,13 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 
 	if (all_correct) {
 		ret = (*bit_chk == param->read_correct_mask);
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "%s:%d read_test(%u,ALL,%u) => (%u == %u) => %i\n",
 			   __func__, __LINE__, group, all_groups, *bit_chk,
 			   param->read_correct_mask, ret);
 	} else	{
 		ret = (*bit_chk != 0x00);
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "%s:%d read_test(%u,ONE,%u) => (%u != %u) => %i\n",
 			   __func__, __LINE__, group, all_groups, *bit_chk,
 			   0, ret);
@@ -1523,7 +1523,7 @@ static int find_vfifo_failing_read(const u32 grp)
 	u32 v, ret, fail_cnt = 0;
 
 	for (v = 0; v < misccfg->read_valid_fifo_size; v++) {
-		debug_cond(DLEVEL == 2, "%s:%d: vfifo %u\n",
+		debug_cond(DLEVEL >= 2, "%s:%d: vfifo %u\n",
 			   __func__, __LINE__, v);
 		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 						PASS_ONE_BIT, 0);
@@ -1539,7 +1539,7 @@ static int find_vfifo_failing_read(const u32 grp)
 	}
 
 	/* No failing read found! Something must have gone wrong. */
-	debug_cond(DLEVEL == 2, "%s:%d: vfifo failed\n", __func__, __LINE__);
+	debug_cond(DLEVEL >= 2, "%s:%d: vfifo failed\n", __func__, __LINE__);
 	return 0;
 }
 
@@ -1646,7 +1646,7 @@ static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *d,
 	}
 
 	/* Cannot find working solution */
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: no vfifo/ptap/dtap\n",
+	debug_cond(DLEVEL >= 2, "%s:%d find_dqs_en_phase: no vfifo/ptap/dtap\n",
 		   __func__, __LINE__);
 	return -EINVAL;
 }
@@ -1722,7 +1722,7 @@ static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *p, u32 *i)
 	ret = sdr_find_phase(0, grp, work_end, i, p);
 	if (ret) {
 		/* Cannot see edge of failing read. */
-		debug_cond(DLEVEL == 2, "%s:%d: end: failed\n",
+		debug_cond(DLEVEL >= 2, "%s:%d: end: failed\n",
 			   __func__, __LINE__);
 	}
 
@@ -1746,21 +1746,21 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 
 	work_mid = (work_bgn + work_end) / 2;
 
-	debug_cond(DLEVEL == 2, "work_bgn=%d work_end=%d work_mid=%d\n",
+	debug_cond(DLEVEL >= 2, "work_bgn=%d work_end=%d work_mid=%d\n",
 		   work_bgn, work_end, work_mid);
 	/* Get the middle delay to be less than a VFIFO delay */
 	tmp_delay = (iocfg->dqs_en_phase_max + 1) * iocfg->delay_per_opa_tap;
 
-	debug_cond(DLEVEL == 2, "vfifo ptap delay %d\n", tmp_delay);
+	debug_cond(DLEVEL >= 2, "vfifo ptap delay %d\n", tmp_delay);
 	work_mid %= tmp_delay;
-	debug_cond(DLEVEL == 2, "new work_mid %d\n", work_mid);
+	debug_cond(DLEVEL >= 2, "new work_mid %d\n", work_mid);
 
 	tmp_delay = rounddown(work_mid, iocfg->delay_per_opa_tap);
 	if (tmp_delay > iocfg->dqs_en_phase_max * iocfg->delay_per_opa_tap)
 		tmp_delay = iocfg->dqs_en_phase_max * iocfg->delay_per_opa_tap;
 	p = tmp_delay / iocfg->delay_per_opa_tap;
 
-	debug_cond(DLEVEL == 2, "new p %d, tmp_delay=%d\n", p, tmp_delay);
+	debug_cond(DLEVEL >= 2, "new p %d, tmp_delay=%d\n", p, tmp_delay);
 
 	d = DIV_ROUND_UP(work_mid - tmp_delay,
 			 iocfg->delay_per_dqs_en_dchain_tap);
@@ -1768,7 +1768,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 		d = iocfg->dqs_en_delay_max;
 	tmp_delay += d * iocfg->delay_per_dqs_en_dchain_tap;
 
-	debug_cond(DLEVEL == 2, "new d %d, tmp_delay=%d\n", d, tmp_delay);
+	debug_cond(DLEVEL >= 2, "new d %d, tmp_delay=%d\n", d, tmp_delay);
 
 	scc_mgr_set_dqs_en_phase_all_ranks(grp, p);
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
@@ -1778,11 +1778,11 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	 * because the largest possible margin in 1 VFIFO cycle.
 	 */
 	for (i = 0; i < misccfg->read_valid_fifo_size; i++) {
-		debug_cond(DLEVEL == 2, "find_dqs_en_phase: center\n");
+		debug_cond(DLEVEL >= 2, "find_dqs_en_phase: center\n");
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
 							     0)) {
-			debug_cond(DLEVEL == 2,
+			debug_cond(DLEVEL >= 2,
 				   "%s:%d center: found: ptap=%u dtap=%u\n",
 				   __func__, __LINE__, p, d);
 			return 0;
@@ -1792,7 +1792,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 		rw_mgr_incr_vfifo(grp);
 	}
 
-	debug_cond(DLEVEL == 2, "%s:%d center: failed.\n",
+	debug_cond(DLEVEL >= 2, "%s:%d center: failed.\n",
 		   __func__, __LINE__);
 	return -EINVAL;
 }
@@ -1868,7 +1868,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 
 		d = 0;
 
-		debug_cond(DLEVEL == 2, "%s:%d p: ptap=%u\n",
+		debug_cond(DLEVEL >= 2, "%s:%d p: ptap=%u\n",
 			   __func__, __LINE__, p);
 	}
 
@@ -1880,18 +1880,18 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	if (d != 0)
 		work_end -= iocfg->delay_per_dqs_en_dchain_tap;
 
-	debug_cond(DLEVEL == 2,
+	debug_cond(DLEVEL >= 2,
 		   "%s:%d p/d: ptap=%u dtap=%u end=%u\n",
 		   __func__, __LINE__, p, d - 1, work_end);
 
 	if (work_end < work_bgn) {
 		/* nil range */
-		debug_cond(DLEVEL == 2, "%s:%d end-2: failed\n",
+		debug_cond(DLEVEL >= 2, "%s:%d end-2: failed\n",
 			   __func__, __LINE__);
 		return -EINVAL;
 	}
 
-	debug_cond(DLEVEL == 2, "%s:%d found range [%u,%u]\n",
+	debug_cond(DLEVEL >= 2, "%s:%d found range [%u,%u]\n",
 		   __func__, __LINE__, work_bgn, work_end);
 
 	/*
@@ -1899,18 +1899,18 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	 * To do that we'll back up a ptap and re-find the edge of the
 	 * window using dtaps
 	 */
-	debug_cond(DLEVEL == 2, "%s:%d calculate dtaps_per_ptap for tracking\n",
+	debug_cond(DLEVEL >= 2, "%s:%d calculate dtaps_per_ptap for tracking\n",
 		   __func__, __LINE__);
 
 	/* Special case code for backing up a phase */
 	if (p == 0) {
 		p = iocfg->dqs_en_phase_max;
 		rw_mgr_decr_vfifo(grp);
-		debug_cond(DLEVEL == 2, "%s:%d backedup cycle/phase: p=%u\n",
+		debug_cond(DLEVEL >= 2, "%s:%d backedup cycle/phase: p=%u\n",
 			   __func__, __LINE__, p);
 	} else {
 		p = p - 1;
-		debug_cond(DLEVEL == 2, "%s:%d backedup phase only: p=%u",
+		debug_cond(DLEVEL >= 2, "%s:%d backedup phase only: p=%u",
 			   __func__, __LINE__, p);
 	}
 
@@ -1923,7 +1923,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	 */
 
 	/* Find a passing read. */
-	debug_cond(DLEVEL == 2, "%s:%d find passing read\n",
+	debug_cond(DLEVEL >= 2, "%s:%d find passing read\n",
 		   __func__, __LINE__);
 
 	initial_failing_dtap = d;
@@ -1931,13 +1931,13 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	found_passing_read = !sdr_find_phase_delay(1, 1, grp, NULL, 0, &d);
 	if (found_passing_read) {
 		/* Find a failing read. */
-		debug_cond(DLEVEL == 2, "%s:%d find failing read\n",
+		debug_cond(DLEVEL >= 2, "%s:%d find failing read\n",
 			   __func__, __LINE__);
 		d++;
 		found_failing_read = !sdr_find_phase_delay(0, 1, grp, NULL, 0,
 							   &d);
 	} else {
-		debug_cond(DLEVEL == 1,
+		debug_cond(DLEVEL >= 1,
 			   "%s:%d failed to calculate dtaps per ptap. Fall back on static value\n",
 			   __func__, __LINE__);
 	}
@@ -1952,7 +1952,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 		dtaps_per_ptap = d - initial_failing_dtap;
 
 	writel(dtaps_per_ptap, &sdr_reg_file->dtaps_per_ptap);
-	debug_cond(DLEVEL == 2, "%s:%d dtaps_per_ptap=%u - %u = %u",
+	debug_cond(DLEVEL >= 2, "%s:%d dtaps_per_ptap=%u - %u = %u",
 		   __func__, __LINE__, d, initial_failing_dtap, dtaps_per_ptap);
 
 	/* Step 6: Find the centre of the window. */
@@ -2008,7 +2008,7 @@ static u32 search_stop_check(const int write, const int d, const int rank_bgn,
 	}
 	*sticky_bit_chk = *sticky_bit_chk | *bit_chk;
 	ret = ret && (*sticky_bit_chk == correct_mask);
-	debug_cond(DLEVEL == 2,
+	debug_cond(DLEVEL >= 2,
 		   "%s:%d center(left): dtap=%u => %u == %u && %u",
 		   __func__, __LINE__, d,
 		   *sticky_bit_chk, correct_mask, ret);
@@ -2087,7 +2087,7 @@ static void search_left_edge(const int write, const int rank_bgn,
 
 	*sticky_bit_chk = 0;
 	for (i = per_dqs - 1; i >= 0; i--) {
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "%s:%d vfifo_center: left_edge[%u]: %d right_edge[%u]: %d\n",
 			   __func__, __LINE__, i, left_edge[i],
 			   i, right_edge[i]);
@@ -2100,7 +2100,7 @@ static void search_left_edge(const int write, const int rank_bgn,
 		if ((left_edge[i] == delay_max + 1) &&
 		    (right_edge[i] != delay_max + 1)) {
 			right_edge[i] = delay_max + 1;
-			debug_cond(DLEVEL == 2,
+			debug_cond(DLEVEL >= 2,
 				   "%s:%d vfifo_center: reset right_edge[%u]: %d\n",
 				   __func__, __LINE__, i, right_edge[i]);
 		}
@@ -2230,12 +2230,12 @@ static int search_right_edge(const int write, const int rank_bgn,
 				}
 			}
 
-			debug_cond(DLEVEL == 2, "%s:%d center[r,d=%u]: ",
+			debug_cond(DLEVEL >= 2, "%s:%d center[r,d=%u]: ",
 				   __func__, __LINE__, d);
-			debug_cond(DLEVEL == 2,
+			debug_cond(DLEVEL >= 2,
 				   "bit_chk_test=%i left_edge[%u]: %d ",
 				   bit_chk & 1, i, left_edge[i]);
-			debug_cond(DLEVEL == 2, "right_edge[%u]: %d\n", i,
+			debug_cond(DLEVEL >= 2, "right_edge[%u]: %d\n", i,
 				   right_edge[i]);
 			bit_chk >>= 1;
 		}
@@ -2243,7 +2243,7 @@ static int search_right_edge(const int write, const int rank_bgn,
 
 	/* Check that all bits have a window */
 	for (i = 0; i < per_dqs; i++) {
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "%s:%d write_center: left_edge[%u]: %d right_edge[%u]: %d",
 			   __func__, __LINE__, i, left_edge[i],
 			   i, right_edge[i]);
@@ -2292,7 +2292,7 @@ static int get_window_mid_index(const int write, int *left_edge,
 		(*mid_min)++;
 	*mid_min = *mid_min / 2;
 
-	debug_cond(DLEVEL == 1, "%s:%d vfifo_center: *mid_min=%d (index=%u)\n",
+	debug_cond(DLEVEL >= 1, "%s:%d vfifo_center: *mid_min=%d (index=%u)\n",
 		   __func__, __LINE__, *mid_min, min_index);
 	return min_index;
 }
@@ -2338,7 +2338,7 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 			(left_edge[min_index] - right_edge[min_index]))/2  +
 			(orig_mid_min - mid_min);
 
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "vfifo_center: before: shift_dq[%u]=%d\n",
 			   i, shift_dq);
 
@@ -2350,7 +2350,7 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 		else if (shift_dq + temp_dq_io_delay1 < 0)
 			shift_dq = -temp_dq_io_delay1;
 
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "vfifo_center: after: shift_dq[%u]=%d\n",
 			   i, shift_dq);
 
@@ -2363,7 +2363,7 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 
 		scc_mgr_load_dq(p);
 
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "vfifo_center: margin[%u]=[%d,%d]\n", i,
 			   left_edge[i] - shift_dq + (-mid_min),
 			   right_edge[i] + shift_dq - (-mid_min));
@@ -2445,7 +2445,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 		scc_mgr_load_dqs(rw_group);
 		writel(0, &sdr_scc_mgr->update);
 
-		debug_cond(DLEVEL == 1,
+		debug_cond(DLEVEL >= 1,
 			   "%s:%d vfifo_center: failed to find edge [%u]: %d %d",
 			   __func__, __LINE__, i, left_edge[i], right_edge[i]);
 		if (use_read_test) {
@@ -2473,7 +2473,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 		new_dqs = 0;
 
 	mid_min = start_dqs - new_dqs;
-	debug_cond(DLEVEL == 1, "vfifo_center: new mid_min=%d new_dqs=%d\n",
+	debug_cond(DLEVEL >= 1, "vfifo_center: new mid_min=%d new_dqs=%d\n",
 		   mid_min, new_dqs);
 
 	if (iocfg->shift_dqs_en_when_shift_dqs) {
@@ -2485,7 +2485,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	}
 	new_dqs = start_dqs - mid_min;
 
-	debug_cond(DLEVEL == 1,
+	debug_cond(DLEVEL >= 1,
 		   "vfifo_center: start_dqs=%d start_dqs_en=%d new_dqs=%d mid_min=%d\n",
 		   start_dqs,
 		   iocfg->shift_dqs_en_when_shift_dqs ? start_dqs_en : -1,
@@ -2505,7 +2505,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	/* Move DQS */
 	scc_mgr_set_dqs_bus_in_delay(rw_group, new_dqs);
 	scc_mgr_load_dqs(rw_group);
-	debug_cond(DLEVEL == 2,
+	debug_cond(DLEVEL >= 2,
 		   "%s:%d vfifo_center: dq_margin=%d dqs_margin=%d",
 		   __func__, __LINE__, dq_margin, dqs_margin);
 
@@ -2538,7 +2538,7 @@ static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
 	/* Set a particular DQ/DQS phase. */
 	scc_mgr_set_dqdqs_output_phase_all_ranks(rw_group, phase);
 
-	debug_cond(DLEVEL == 1, "%s:%d guaranteed write: g=%u p=%u\n",
+	debug_cond(DLEVEL >= 1, "%s:%d guaranteed write: g=%u p=%u\n",
 		   __func__, __LINE__, rw_group, phase);
 
 	/*
@@ -2557,7 +2557,7 @@ static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
 	 */
 	ret = rw_mgr_mem_calibrate_read_test_patterns(0, rw_group, 1);
 	if (ret)
-		debug_cond(DLEVEL == 1,
+		debug_cond(DLEVEL >= 1,
 			   "%s:%d Guaranteed read test failed: g=%u p=%u\n",
 			   __func__, __LINE__, rw_group, phase);
 	return ret;
@@ -2593,7 +2593,7 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 		for (i = 0, p = test_bgn, d = 0;
 		     i < rwcfg->mem_dq_per_read_dqs;
 		     i++, p++, d += delay_step) {
-			debug_cond(DLEVEL == 1,
+			debug_cond(DLEVEL >= 1,
 				   "%s:%d: g=%u r=%u i=%u p=%u d=%u\n",
 				   __func__, __LINE__, rw_group, r, i, p, d);
 
@@ -2610,7 +2610,7 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 	 */
 	ret = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(rw_group);
 
-	debug_cond(DLEVEL == 1,
+	debug_cond(DLEVEL >= 1,
 		   "%s:%d: g=%u found=%u; Reseting delay chain to zero\n",
 		   __func__, __LINE__, rw_group, !ret);
 
@@ -2816,7 +2816,7 @@ static u32 rw_mgr_mem_calibrate_lfifo(void)
 
 	do {
 		writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
-		debug_cond(DLEVEL == 2, "%s:%d lfifo: read_lat=%u",
+		debug_cond(DLEVEL >= 2, "%s:%d lfifo: read_lat=%u",
 			   __func__, __LINE__, gbl->curr_read_lat);
 
 		if (!rw_mgr_mem_calibrate_read_test_all_ranks(0, NUM_READ_TESTS,
@@ -2838,14 +2838,14 @@ static u32 rw_mgr_mem_calibrate_lfifo(void)
 		/* Add a fudge factor to the read latency that was determined */
 		gbl->curr_read_lat += 2;
 		writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "%s:%d lfifo: success: using read_lat=%u\n",
 			   __func__, __LINE__, gbl->curr_read_lat);
 	} else {
 		set_failing_group_stage(0xff, CAL_STAGE_LFIFO,
 					CAL_SUBSTAGE_READ_LATENCY);
 
-		debug_cond(DLEVEL == 2,
+		debug_cond(DLEVEL >= 2,
 			   "%s:%d lfifo: failed at initial read_lat=%u\n",
 			   __func__, __LINE__, gbl->curr_read_lat);
 	}
@@ -3008,7 +3008,7 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	orig_mid_min = mid_min;
 	new_dqs = start_dqs;
 	mid_min = 0;
-	debug_cond(DLEVEL == 1,
+	debug_cond(DLEVEL >= 1,
 		   "%s:%d write_center: start_dqs=%d new_dqs=%d mid_min=%d\n",
 		   __func__, __LINE__, start_dqs, new_dqs, mid_min);
 
@@ -3021,7 +3021,7 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	writel(0, &sdr_scc_mgr->update);
 
 	/* Centre DM */
-	debug_cond(DLEVEL == 2, "%s:%d write_center: DM\n", __func__, __LINE__);
+	debug_cond(DLEVEL >= 2, "%s:%d write_center: DM\n", __func__, __LINE__);
 
 	/*
 	 * Set the left and right edge of each bit to an illegal value.
@@ -3055,7 +3055,7 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	left_edge[0] = -1 * bgn_best;
 	right_edge[0] = end_best;
 
-	debug_cond(DLEVEL == 2, "%s:%d dm_calib: left=%d right=%d\n",
+	debug_cond(DLEVEL >= 2, "%s:%d dm_calib: left=%d right=%d\n",
 		   __func__, __LINE__, left_edge[0], right_edge[0]);
 
 	/* Move DQS (back to orig). */
@@ -3079,14 +3079,14 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	scc_mgr_apply_group_dm_out1_delay(mid);
 	writel(0, &sdr_scc_mgr->update);
 
-	debug_cond(DLEVEL == 2,
+	debug_cond(DLEVEL >= 2,
 		   "%s:%d dm_calib: left=%d right=%d mid=%d dm_margin=%d\n",
 		   __func__, __LINE__, left_edge[0], right_edge[0],
 		   mid, dm_margin);
 	/* Export values. */
 	gbl->fom_out += dq_margin + dqs_margin;
 
-	debug_cond(DLEVEL == 2,
+	debug_cond(DLEVEL >= 2,
 		   "%s:%d write_center: dq_margin=%d dqs_margin=%d dm_margin=%d\n",
 		   __func__, __LINE__, dq_margin, dqs_margin, dm_margin);
 
@@ -3745,27 +3745,27 @@ int sdram_calibration_full(void)
 	printf("%s: Preparing to start memory calibration\n", __FILE__);
 
 	debug("%s:%d\n", __func__, __LINE__);
-	debug_cond(DLEVEL == 1,
+	debug_cond(DLEVEL >= 1,
 		   "DDR3 FULL_RATE ranks=%u cs/dimm=%u dq/dqs=%u,%u vg/dqs=%u,%u ",
 		   rwcfg->mem_number_of_ranks, rwcfg->mem_number_of_cs_per_dimm,
 		   rwcfg->mem_dq_per_read_dqs, rwcfg->mem_dq_per_write_dqs,
 		   rwcfg->mem_virtual_groups_per_read_dqs,
 		   rwcfg->mem_virtual_groups_per_write_dqs);
-	debug_cond(DLEVEL == 1,
+	debug_cond(DLEVEL >= 1,
 		   "dqs=%u,%u dq=%u dm=%u ptap_delay=%u dtap_delay=%u ",
 		   rwcfg->mem_if_read_dqs_width, rwcfg->mem_if_write_dqs_width,
 		   rwcfg->mem_data_width, rwcfg->mem_data_mask_width,
 		   iocfg->delay_per_opa_tap, iocfg->delay_per_dchain_tap);
-	debug_cond(DLEVEL == 1, "dtap_dqsen_delay=%u, dll=%u",
+	debug_cond(DLEVEL >= 1, "dtap_dqsen_delay=%u, dll=%u",
 		   iocfg->delay_per_dqs_en_dchain_tap, iocfg->dll_chain_length);
-	debug_cond(DLEVEL == 1,
+	debug_cond(DLEVEL >= 1,
 		   "max values: en_p=%u dqdqs_p=%u en_d=%u dqs_in_d=%u ",
 		   iocfg->dqs_en_phase_max, iocfg->dqdqs_out_phase_max,
 		   iocfg->dqs_en_delay_max, iocfg->dqs_in_delay_max);
-	debug_cond(DLEVEL == 1, "io_in_d=%u io_out1_d=%u io_out2_d=%u ",
+	debug_cond(DLEVEL >= 1, "io_in_d=%u io_out1_d=%u io_out2_d=%u ",
 		   iocfg->io_in_delay_max, iocfg->io_out1_delay_max,
 		   iocfg->io_out2_delay_max);
-	debug_cond(DLEVEL == 1, "dqs_in_reserve=%u dqs_out_reserve=%u\n",
+	debug_cond(DLEVEL >= 1, "dqs_in_reserve=%u dqs_out_reserve=%u\n",
 		   iocfg->dqs_in_reserve, iocfg->dqs_out_reserve);
 
 	hc_initialize_rom_data();
