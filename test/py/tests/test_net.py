@@ -43,6 +43,7 @@ env__net_static_env_vars = [
 # may be omitted or set to None if TFTP testing is not possible or desired.
 env__net_tftp_readable_file = {
     "fn": "ubtest-readable.bin",
+    "addr": 0x10000000,
     "size": 5058624,
     "crc32": "c2244b26",
 }
@@ -135,7 +136,10 @@ def test_net_tftpboot(u_boot_console):
     if not f:
         pytest.skip('No TFTP readable file to read')
 
-    addr = u_boot_utils.find_ram_base(u_boot_console)
+    addr = f.get('addr', None)
+    if not addr:
+        addr = u_boot_utils.find_ram_base(u_boot_console)
+
     fn = f['fn']
     output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
     expected_text = 'Bytes transferred = '
