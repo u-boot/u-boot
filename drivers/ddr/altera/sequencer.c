@@ -279,7 +279,7 @@ static void scc_mgr_initialize(void)
 	for (i = 0; i < 16; i++) {
 		debug_cond(DLEVEL == 1, "%s:%d: Clearing SCC RFILE index %u\n",
 			   __func__, __LINE__, i);
-		scc_mgr_set(SCC_MGR_HHP_RFILE_OFFSET, 0, i);
+		scc_mgr_set(SCC_MGR_HHP_RFILE_OFFSET, i, 0);
 	}
 }
 
