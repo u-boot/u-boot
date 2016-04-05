@@ -3479,6 +3479,7 @@ grp_failed:		/* A group failed, increment the counter. */
 static int run_mem_calibrate(void)
 {
 	int pass;
+	u32 ctrl_cfg;
 
 	debug("%s:%d\n", __func__, __LINE__);
 
@@ -3486,7 +3487,9 @@ static int run_mem_calibrate(void)
 	writel(PHY_MGR_CAL_RESET, &phy_mgr_cfg->cal_status);
 
 	/* Stop tracking manager. */
-	clrbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_DQSTRKEN_MASK);
+	ctrl_cfg = readl(&sdr_ctrl->ctrl_cfg);
+	writel(ctrl_cfg & ~SDR_CTRLGRP_CTRLCFG_DQSTRKEN_MASK,
+	       &sdr_ctrl->ctrl_cfg);
 
 	phy_mgr_initialize();
 	rw_mgr_mem_initialize();
@@ -3507,7 +3510,7 @@ static int run_mem_calibrate(void)
 	writel(0x2, &phy_mgr_cfg->mux_sel);
 
 	/* Start tracking manager. */
-	setbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_DQSTRKEN_MASK);
+	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
 
 	return pass;
 }
