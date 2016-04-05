@@ -2316,15 +2316,15 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 			      const int min_index, const int test_bgn,
 			      int *dq_margin, int *dqs_margin)
 {
-	const u32 delay_max = write ? iocfg->io_out1_delay_max :
+	const s32 delay_max = write ? iocfg->io_out1_delay_max :
 				      iocfg->io_in_delay_max;
-	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
+	const s32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
 				    rwcfg->mem_dq_per_read_dqs;
-	const u32 delay_off = write ? SCC_MGR_IO_OUT1_DELAY_OFFSET :
+	const s32 delay_off = write ? SCC_MGR_IO_OUT1_DELAY_OFFSET :
 				      SCC_MGR_IO_IN_DELAY_OFFSET;
-	const u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | delay_off;
+	const s32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | delay_off;
 
-	u32 temp_dq_io_delay1, temp_dq_io_delay2;
+	s32 temp_dq_io_delay1;
 	int shift_dq, i, p;
 
 	/* Initialize data for export structures */
@@ -2342,11 +2342,10 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 			   "vfifo_center: before: shift_dq[%u]=%d\n",
 			   i, shift_dq);
 
-		temp_dq_io_delay1 = readl(addr + (p << 2));
-		temp_dq_io_delay2 = readl(addr + (i << 2));
+		temp_dq_io_delay1 = readl(addr + (i << 2));
 
 		if (shift_dq + temp_dq_io_delay1 > delay_max)
-			shift_dq = delay_max - temp_dq_io_delay2;
+			shift_dq = delay_max - temp_dq_io_delay1;
 		else if (shift_dq + temp_dq_io_delay1 < 0)
 			shift_dq = -temp_dq_io_delay1;
 
