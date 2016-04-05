@@ -26,23 +26,24 @@ static const char * const compat_usb_fsl[] = {
 	NULL
 };
 
-static const char *fdt_usb_get_node_type(void *blob, int start_offset,
-					 int *node_offset)
+static int fdt_usb_get_node_type(void *blob, int start_offset,
+				 int *node_offset, const char **node_type)
 {
-	const char *node_type = NULL;
 	int i;
+	int ret = -ENOENT;
 
 	for (i = 0; compat_usb_fsl[i]; i++) {
 		*node_offset = fdt_node_offset_by_compatible
 					(blob, start_offset,
 					 compat_usb_fsl[i]);
 		if (*node_offset >= 0) {
-			node_type = compat_usb_fsl[i];
+			*node_type = compat_usb_fsl[i];
+			ret = 0;
 			break;
 		}
 	}
 
-	return node_type;
+	return ret;
 }
 
 static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
@@ -54,9 +55,10 @@ static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 	int node_offset;
 	int err;
 
-	node_type = fdt_usb_get_node_type(blob, start_offset, &node_offset);
-	if (!node_type)
-		return -1;
+	err = fdt_usb_get_node_type(blob, start_offset,
+				    &node_offset, &node_type);
+	if (err < 0)
+		return err;
 
 	if (mode) {
 		err = fdt_setprop(blob, node_offset, prop_mode, mode,
@@ -83,9 +85,10 @@ static int fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
 	int node_offset, err;
 	const char *node_type = NULL;
 
-	node_type = fdt_usb_get_node_type(blob, start_offset, &node_offset);
-	if (!node_type)
-		return -1;
+	err = fdt_usb_get_node_type(blob, start_offset,
+				    &node_offset, &node_type);
+	if (err < 0)
+		return err;
 
 	err = fdt_setprop(blob, node_offset, prop_erratum, NULL, 0);
 	if (err < 0) {
