@@ -18,7 +18,7 @@
 	#size-cells = <1>;
 
 	aliases {
-		serial0 = &uart0;
+		serial0 = &dcc;
 		spi0 = &qspi;
 	};
 
@@ -29,6 +29,12 @@
 	memory {
 		device_type = "memory";
 		reg = <0x0 0x0 0x40000000>;
+	};
+
+	dcc: dcc {
+		compatible = "arm,dcc";
+		status = "disabled";
+		u-boot,dm-pre-reloc;
 	};
 
 	amba: amba {
@@ -46,14 +52,6 @@
 			reg = <0x0 0xff0f0000 0x1000 0x0 0xc0000000 0x8000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
-		};
-
-		uart0: serial@ff000000 {
-			compatible = "cdns,uart-r1p12";
-			status = "disabled";
-			reg = <0x0 0xff000000 0x1000>;
-			clock-names = "uart_clk", "pclk";
-			clocks = <&misc_clk &misc_clk>;
 		};
 
 		misc_clk: misc_clk {
@@ -93,6 +91,6 @@
 	};
 };
 
-&uart0 {
+&dcc {
 	status = "okay";
 };
