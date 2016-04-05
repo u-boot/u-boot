@@ -19,52 +19,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 #endif
 
-static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
-				       const char *phy_type, int start_offset)
-{
-	const char *compat_dr = "fsl-usb2-dr";
-	const char *compat_mph = "fsl-usb2-mph";
-	const char *prop_mode = "dr_mode";
-	const char *prop_type = "phy_type";
-	const char *node_type = NULL;
-	int node_offset;
-	int err;
-
-	node_offset = fdt_node_offset_by_compatible(blob,
-						    start_offset, compat_mph);
-	if (node_offset < 0) {
-		node_offset = fdt_node_offset_by_compatible(blob,
-							    start_offset,
-							    compat_dr);
-		if (node_offset < 0) {
-			printf("WARNING: could not find compatible node: %s",
-			       fdt_strerror(node_offset));
-			return -1;
-		}
-		node_type = compat_dr;
-	} else {
-		node_type = compat_mph;
-	}
-
-	if (mode) {
-		err = fdt_setprop(blob, node_offset, prop_mode, mode,
-				  strlen(mode) + 1);
-		if (err < 0)
-			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_mode, node_type, fdt_strerror(err));
-	}
-
-	if (phy_type) {
-		err = fdt_setprop(blob, node_offset, prop_type, phy_type,
-				  strlen(phy_type) + 1);
-		if (err < 0)
-			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_type, node_type, fdt_strerror(err));
-	}
-
-	return node_offset;
-}
-
 static const char *fdt_usb_get_node_type(void *blob, int start_offset,
 					 int *node_offset)
 {
@@ -89,6 +43,38 @@ static const char *fdt_usb_get_node_type(void *blob, int start_offset,
 	}
 
 	return node_type;
+}
+
+static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
+				       const char *phy_type, int start_offset)
+{
+	const char *prop_mode = "dr_mode";
+	const char *prop_type = "phy_type";
+	const char *node_type = NULL;
+	int node_offset;
+	int err;
+
+	node_type = fdt_usb_get_node_type(blob, start_offset, &node_offset);
+	if (!node_type)
+		return -1;
+
+	if (mode) {
+		err = fdt_setprop(blob, node_offset, prop_mode, mode,
+				  strlen(mode) + 1);
+		if (err < 0)
+			printf("WARNING: could not set %s for %s: %s.\n",
+			       prop_mode, node_type, fdt_strerror(err));
+	}
+
+	if (phy_type) {
+		err = fdt_setprop(blob, node_offset, prop_type, phy_type,
+				  strlen(phy_type) + 1);
+		if (err < 0)
+			printf("WARNING: could not set %s for %s: %s.\n",
+			       prop_type, node_type, fdt_strerror(err));
+	}
+
+	return node_offset;
 }
 
 static int fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
