@@ -86,7 +86,7 @@ u-boot-with-nand-spl.imx: spl/u-boot-nand-spl.imx u-boot.uim FORCE
 	$(call if_changed,pad_cat)
 
 quiet_cmd_u-boot-nand-spl_imx = GEN     $@
-cmd_u-boot-nand-spl_imx = (echo -ne '\x00\x00\x00\x00\x46\x43\x42\x20\x01' && \
+cmd_u-boot-nand-spl_imx = (printf '\000\000\000\000\106\103\102\040\001' && \
 	dd bs=1015 count=1 if=/dev/zero 2>/dev/null) | cat - $< > $@
 
 spl/u-boot-nand-spl.imx: SPL FORCE
