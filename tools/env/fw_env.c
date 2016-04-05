@@ -35,10 +35,6 @@
 
 #include "fw_env.h"
 
-struct common_args common_args;
-struct printenv_args printenv_args;
-struct setenv_args setenv_args;
-
 #define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
 
 #define min(x, y) ({				\
@@ -120,7 +116,7 @@ static unsigned char obsolete_flag = 0;
 
 static int flash_io (int mode);
 static char *envmatch (char * s1, char * s2);
-static int parse_config (void);
+static int parse_config(struct env_opts *opts);
 
 #if defined(CONFIG_FILE)
 static int get_config (char *);
@@ -228,12 +224,12 @@ int parse_aes_key(char *key, uint8_t *bin_key)
  * Print the current definition of one, or more, or all
  * environment variables
  */
-int fw_printenv(int argc, char *argv[], int value_only)
+int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 {
 	char *env, *nxt;
 	int i, rc = 0;
 
-	if (fw_env_open())
+	if (fw_env_open(opts))
 		return -1;
 
 	if (argc == 0) {		/* Print all env variables  */
@@ -289,12 +285,13 @@ int fw_printenv(int argc, char *argv[], int value_only)
 	return rc;
 }
 
-int fw_env_close(void)
+int fw_env_close(struct env_opts *opts)
 {
 	int ret;
-	if (common_args.aes_flag) {
+
+	if (opts->aes_flag) {
 		ret = env_aes_cbc_crypt(environment.data, 1,
-					common_args.aes_key);
+					opts->aes_key);
 		if (ret) {
 			fprintf(stderr,
 				"Error: can't encrypt env for flash\n");
@@ -447,7 +444,7 @@ int fw_env_write(char *name, char *value)
  *	    modified or deleted
  *
  */
-int fw_setenv(int argc, char *argv[])
+int fw_setenv(int argc, char *argv[], struct env_opts *opts)
 {
 	int i;
 	size_t len;
@@ -461,7 +458,7 @@ int fw_setenv(int argc, char *argv[])
 		return -1;
 	}
 
-	if (fw_env_open()) {
+	if (fw_env_open(opts)) {
 		fprintf(stderr, "Error: environment not initialized\n");
 		return -1;
 	}
@@ -497,7 +494,7 @@ int fw_setenv(int argc, char *argv[])
 
 	free(value);
 
-	return fw_env_close();
+	return fw_env_close(opts);
 }
 
 /*
@@ -517,7 +514,7 @@ int fw_setenv(int argc, char *argv[])
  * 0	  - OK
  * -1     - Error
  */
-int fw_parse_script(char *fname)
+int fw_parse_script(char *fname, struct env_opts *opts)
 {
 	FILE *fp;
 	char dump[1024];	/* Maximum line length in the file */
@@ -527,7 +524,7 @@ int fw_parse_script(char *fname)
 	int len;
 	int ret = 0;
 
-	if (fw_env_open()) {
+	if (fw_env_open(opts)) {
 		fprintf(stderr, "Error: environment not initialized\n");
 		return -1;
 	}
@@ -615,10 +612,9 @@ int fw_parse_script(char *fname)
 	if (strcmp(fname, "-") != 0)
 		fclose(fp);
 
-	ret |= fw_env_close();
+	ret |= fw_env_close(opts);
 
 	return ret;
-
 }
 
 /*
@@ -1128,7 +1124,7 @@ static char *envmatch (char * s1, char * s2)
 /*
  * Prevent confusion if running from erased flash memory
  */
-int fw_env_open(void)
+int fw_env_open(struct env_opts *opts)
 {
 	int crc0, crc0_ok;
 	unsigned char flag0;
@@ -1143,7 +1139,7 @@ int fw_env_open(void)
 	struct env_image_single *single;
 	struct env_image_redundant *redundant;
 
-	if (parse_config ())		/* should fill envdevices */
+	if (parse_config(opts))		/* should fill envdevices */
 		return -1;
 
 	addr0 = calloc(1, CUR_ENVSIZE);
@@ -1175,9 +1171,9 @@ int fw_env_open(void)
 
 	crc0 = crc32 (0, (uint8_t *) environment.data, ENV_SIZE);
 
-	if (common_args.aes_flag) {
+	if (opts->aes_flag) {
 		ret = env_aes_cbc_crypt(environment.data, 0,
-					common_args.aes_key);
+					opts->aes_key);
 		if (ret)
 			return ret;
 	}
@@ -1233,9 +1229,9 @@ int fw_env_open(void)
 
 		crc1 = crc32 (0, (uint8_t *) redundant->data, ENV_SIZE);
 
-		if (common_args.aes_flag) {
+		if (opts->aes_flag) {
 			ret = env_aes_cbc_crypt(redundant->data, 0,
-						common_args.aes_key);
+						opts->aes_key);
 			if (ret)
 				return ret;
 		}
@@ -1312,7 +1308,7 @@ int fw_env_open(void)
 }
 
 
-static int parse_config ()
+static int parse_config(struct env_opts *opts)
 {
 	struct stat st;
 
@@ -1321,9 +1317,9 @@ static int parse_config ()
 		common_args.config_file = CONFIG_FILE;
 
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
-	if (get_config(common_args.config_file)) {
+	if (get_config(opts->config_file)) {
 		fprintf(stderr, "Cannot parse config file '%s': %m\n",
-			common_args.config_file);
+			opts->config_file);
 		return -1;
 	}
 #else
@@ -1383,7 +1379,7 @@ static int parse_config ()
 	if (HaveRedundEnv)
 		usable_envsize -= sizeof(char);
 
-	if (common_args.aes_flag)
+	if (opts->aes_flag)
 		usable_envsize &= ~(AES_KEY_LENGTH - 1);
 
 	return 0;
