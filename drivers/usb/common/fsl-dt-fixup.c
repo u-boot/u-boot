@@ -19,27 +19,27 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 #endif
 
+static const char * const compat_usb_fsl[] = {
+	"fsl-usb2-mph",
+	"fsl-usb2-dr",
+	"snps,dwc3",
+	NULL
+};
+
 static const char *fdt_usb_get_node_type(void *blob, int start_offset,
 					 int *node_offset)
 {
-	const char *compat_dr = "fsl-usb2-dr";
-	const char *compat_mph = "fsl-usb2-mph";
 	const char *node_type = NULL;
+	int i;
 
-	*node_offset = fdt_node_offset_by_compatible(blob, start_offset,
-						     compat_mph);
-	if (*node_offset < 0) {
-		*node_offset = fdt_node_offset_by_compatible(blob,
-							     start_offset,
-							     compat_dr);
-		if (*node_offset < 0) {
-			printf("ERROR: could not find compatible node: %s\n",
-			       fdt_strerror(*node_offset));
-		} else {
-			node_type = compat_dr;
+	for (i = 0; compat_usb_fsl[i]; i++) {
+		*node_offset = fdt_node_offset_by_compatible
+					(blob, start_offset,
+					 compat_usb_fsl[i]);
+		if (*node_offset >= 0) {
+			node_type = compat_usb_fsl[i];
+			break;
 		}
-	} else {
-		node_type = compat_mph;
 	}
 
 	return node_type;
