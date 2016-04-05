@@ -78,6 +78,16 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-atmel.git
 F:	arch/arm/mach-at91/
 
+ARM BROADCOM BCM283X
+M:	Stephen Warren <swarren@wwwdotorg.org>
+S:	Maintained
+F:	arch/arm/mach-bcm283x/
+F:	drivers/gpio/bcm2835_gpio.c
+F:	drivers/mmc/bcm2835_sdhci.c
+F:	drivers/serial/serial_bcm283x_mu.c
+F:	drivers/video/bcm2835.c
+F:	include/dm/platform_data/serial_bcm283x_mu.h
+
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
 S:	Maintained
