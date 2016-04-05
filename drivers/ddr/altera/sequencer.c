@@ -57,7 +57,7 @@ const struct socfpga_sdram_misc_config *misccfg;
 	STATIC_SKIP_DELAY_LOOPS)
 
 /* calibration steps requested by the rtl */
-u16 dyn_calib_steps;
+static u16 dyn_calib_steps;
 
 /*
  * To make CALIB_SKIP_DELAY_LOOPS a dynamic conditional option
@@ -68,13 +68,13 @@ u16 dyn_calib_steps;
  * zero when skipping
  */
 
-u16 skip_delay_mask;	/* mask off bits when skipping/not-skipping */
+static u16 skip_delay_mask;	/* mask off bits when skipping/not-skipping */
 
 #define SKIP_DELAY_LOOP_VALUE_OR_ZERO(non_skip_value) \
 	((non_skip_value) & skip_delay_mask)
 
-struct gbl_type *gbl;
-struct param_type *param;
+static struct gbl_type *gbl;
+static struct param_type *param;
 
 static void set_failing_group_stage(u32 group, u32 stage,
 	u32 substage)
