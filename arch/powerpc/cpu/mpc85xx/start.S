@@ -1152,6 +1152,36 @@ _start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
 	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR)@h
 	ori	r3,r3,((CONFIG_SYS_INIT_SP_OFFSET-16)&~0xf)@l /* Align to 16 */
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+
+#if CONFIG_SYS_MALLOC_F_LEN + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
+#error "CONFIG_SYS_MALLOC_F_LEN too large to fit into initial RAM."
+#endif
+
+	/* Leave 16+ byte for back chain termination and NULL return address */
+	subi	r3,r3,((CONFIG_SYS_MALLOC_F_LEN+16+15)&~0xf)
+#endif
+
+	/* End of RAM */
+	lis	r4,(CONFIG_SYS_INIT_RAM_ADDR)@h
+	ori	r4,r4,(CONFIG_SYS_INIT_RAM_SIZE)@l
+
+	li	r0,0
+
+1: 	subi 	r4,r4,4
+	stw 	r0,0(r4)
+	cmplw 	r4,r3
+	bne	1b
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	lis	r4,(CONFIG_SYS_INIT_RAM_ADDR)@h
+	ori	r4,r4,(CONFIG_SYS_GBL_DATA_OFFSET)@l
+
+	addi	r3,r3,16	/* Pre-relocation malloc area */
+	stw	r3,GD_MALLOC_BASE(r4)
+	subi	r3,r3,16
+#endif
 	li	r0,0
 	stw	r0,0(r3)	/* Terminate Back Chain */
 	stw	r0,+4(r3)	/* NULL return address. */
