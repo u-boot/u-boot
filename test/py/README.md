@@ -246,6 +246,12 @@ to download the U-Boot binary directly into RAM and execute it. This would
 avoid the need for `u-boot-test-flash` to actually write U-Boot to flash, thus
 saving wear on the flash chip(s).
 
+#### Examples
+
+https://github.com/swarren/uboot-test-hooks contains some working example hook
+scripts, and may be useful as a reference when implementing hook scripts for
+your platform. These scripts are not considered part of U-Boot itself.
+
 ### Board-type-specific configuration
 
 Each board has a different configuration and behaviour. Many of these
