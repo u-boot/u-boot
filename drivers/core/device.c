@@ -652,6 +652,22 @@ fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 #endif
 }
 
+fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
+{
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	int index;
+
+	index = fdt_find_string(gd->fdt_blob, dev->parent->of_offset,
+				"reg-names", name);
+	if (index < 0)
+		return index;
+
+	return dev_get_addr_index(dev, index);
+#else
+	return FDT_ADDR_T_NONE;
+#endif
+}
+
 fdt_addr_t dev_get_addr(struct udevice *dev)
 {
 	return dev_get_addr_index(dev, 0);
