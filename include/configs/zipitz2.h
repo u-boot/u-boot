@@ -45,7 +45,6 @@
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_SYS_TEXT_BASE		0x0
 #define	CONFIG_LZMA			/* LZMA compression support */
-#define	CONFIG_OF_LIBFDT
 
 /*
  * Serial Console Configuration

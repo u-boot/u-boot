@@ -101,7 +101,6 @@
 #define CONFIG_SYS_NO_FLASH
 #endif
 
-#define CONFIG_OF_LIBFDT       1
 #define CONFIG_BAUDRATE			115200
 /* The following table includes the supported baudrates */
 # define CONFIG_SYS_BAUDRATE_TABLE \

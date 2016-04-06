@@ -92,11 +92,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Handover flattened device tree (dtb file) to Linux kernel
- */
-#define CONFIG_OF_LIBFDT	1
-
 /*-----------------------------------------------------------------------
  * SDHC Configuration
  */

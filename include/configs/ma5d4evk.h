@@ -150,7 +150,6 @@
 #define CONFIG_LOADADDR		0x20800000
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-#define CONFIG_OF_LIBFDT
 
 /*
  * Extra Environments
