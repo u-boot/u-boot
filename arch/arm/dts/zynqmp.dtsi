@@ -321,6 +321,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <0>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14e8>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -333,6 +335,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <1>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14e9>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -345,6 +349,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <2>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14ea>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -357,6 +363,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <3>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14eb>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -369,6 +377,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <4>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14ec>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -381,6 +391,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <5>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14ed>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -393,6 +405,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <6>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14ee>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -405,6 +419,8 @@
 			clock-names = "clk_main", "clk_apb";
 			xlnx,id = <7>;
 			xlnx,bus-width = <128>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x14ef>;
 			power-domains = <&pd_gdma>;
 		};
 
@@ -426,6 +442,8 @@
 			interrupts = <0 77 4>;
 			xlnx,id = <0>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x868>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -437,6 +455,8 @@
 			interrupts = <0 78 4>;
 			xlnx,id = <1>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x869>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -448,6 +468,8 @@
 			interrupts = <0 79 4>;
 			xlnx,id = <2>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x86a>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -459,6 +481,8 @@
 			interrupts = <0 80 4>;
 			xlnx,id = <3>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x86b>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -470,6 +494,8 @@
 			interrupts = <0 81 4>;
 			xlnx,id = <4>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x86c>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -481,6 +507,8 @@
 			interrupts = <0 82 4>;
 			xlnx,id = <5>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x86d>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -492,6 +520,8 @@
 			interrupts = <0 83 4>;
 			xlnx,id = <6>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x86e>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -503,6 +533,8 @@
 			interrupts = <0 84 4>;
 			xlnx,id = <7>;
 			xlnx,bus-width = <64>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x86f>;
 			power-domains = <&pd_adma>;
 		};
 
@@ -522,6 +554,8 @@
 			interrupts = <0 14 4>;
 			#address-cells = <2>;
 			#size-cells = <1>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x872>;
 			power-domains = <&pd_nand>;
 		};
 
@@ -535,6 +569,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			iommus = <&smmu 0x874>;
 			power-domains = <&pd_eth0>;
 		};
 
@@ -548,6 +583,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			iommus = <&smmu 0x875>;
 			power-domains = <&pd_eth1>;
 		};
 
@@ -561,6 +597,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			iommus = <&smmu 0x876>;
 			power-domains = <&pd_eth2>;
 		};
 
@@ -574,6 +611,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#stream-id-cells = <1>;
+			iommus = <&smmu 0x877>;
 			power-domains = <&pd_eth3>;
 		};
 
@@ -652,6 +690,8 @@
 			      <0x0 0xc0000000 0x8000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x873>;
 			power-domains = <&pd_qspi>;
 		};
 
@@ -681,6 +721,8 @@
 			reg = <0x0 0xff160000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 			broken-tuning;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x870>;
 			power-domains = <&pd_sd0>;
 		};
 
@@ -692,12 +734,15 @@
 			reg = <0x0 0xff170000 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 			broken-tuning;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x871>;
 			power-domains = <&pd_sd1>;
 		};
 
 		smmu: smmu@fd800000 {
 			compatible = "arm,mmu-500";
 			reg = <0x0 0xfd800000 0x20000>;
+			#iommu-cells = <1>;
 			#global-interrupts = <1>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 155 4>,
@@ -708,7 +753,29 @@
 			mmu-masters = < &gem0 0x874
 					&gem1 0x875
 					&gem2 0x876
-					&gem3 0x877 >;
+					&gem3 0x877
+					&usb0 0x860
+					&usb1 0x861
+					&qspi 0x873
+					&lpd_dma_chan1 0x868
+					&lpd_dma_chan2 0x869
+					&lpd_dma_chan3 0x86a
+					&lpd_dma_chan4 0x86b
+					&lpd_dma_chan5 0x86c
+					&lpd_dma_chan6 0x86d
+					&lpd_dma_chan7 0x86e
+					&lpd_dma_chan8 0x86f
+					&fpd_dma_chan1 0x14e8
+					&fpd_dma_chan2 0x14e9
+					&fpd_dma_chan3 0x14ea
+					&fpd_dma_chan4 0x14eb
+					&fpd_dma_chan5 0x14ec
+					&fpd_dma_chan6 0x14ed
+					&fpd_dma_chan7 0x14ee
+					&fpd_dma_chan8 0x14ef
+					&sdhci0 0x870
+					&sdhci1 0x871
+					&nand0 0x872>;
 		};
 
 		spi0: spi@ff040000 {
@@ -802,6 +869,8 @@
 			compatible = "xlnx,zynqmp-dwc3";
 			clock-names = "bus_clk", "ref_clk";
 			clocks = <&clk125>, <&clk125>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x860>;
 			power-domains = <&pd_usb0>;
 			ranges;
 
@@ -823,6 +892,8 @@
 			compatible = "xlnx,zynqmp-dwc3";
 			clock-names = "bus_clk", "ref_clk";
 			clocks = <&clk125>, <&clk125>;
+			#stream-id-cells = <1>;
+			iommus = <&smmu 0x861>;
 			power-domains = <&pd_usb1>;
 			ranges;
 
