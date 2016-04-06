@@ -356,6 +356,12 @@ static unsigned long get_mc_boot_timeout_ms(void)
 }
 
 #ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+
+__weak bool soc_has_aiop(void)
+{
+	return false;
+}
+
 static int load_mc_aiop_img(u64 aiop_fw_addr)
 {
 	u64 mc_ram_addr = mc_get_dram_addr();
@@ -363,6 +369,9 @@ static int load_mc_aiop_img(u64 aiop_fw_addr)
 	void *aiop_img;
 #endif
 
+	/* Check if AIOP is available */
+	if (!soc_has_aiop())
+		return -ENODEV;
 	/*
 	 * Load the MC AIOP image in the MC private DRAM block:
 	 */
@@ -1235,6 +1244,7 @@ static int do_fsl_mc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				aiop_fw_addr = simple_strtoull(argv[3], NULL,
 							       16);
 
+				/* if SoC doesn't have AIOP, err = -ENODEV */
 				err = load_mc_aiop_img(aiop_fw_addr);
 				if (!err)
 					printf("fsl-mc: AIOP FW applied\n");

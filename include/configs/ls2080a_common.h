@@ -171,10 +171,9 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
 #define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
-#ifdef CONFIG_LS2085A
+/* For LS2085A */
 #define CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
 #define CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
-#endif
 
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux
@@ -196,10 +195,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #ifdef CONFIG_LS2080A
 #define FSL_PCIE_COMPAT "fsl,ls2080a-pcie"
-#endif
-
-#ifdef CONFIG_LS2085A
-#define FSL_PCIE_COMPAT "fsl,ls2085a-pcie"
 #endif
 
 #define CONFIG_SYS_PCI_64BIT

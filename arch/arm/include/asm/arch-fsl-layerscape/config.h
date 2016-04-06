@@ -23,16 +23,11 @@
  */
 #define CONFIG_SYS_MEM_RESERVE_SECURE	(2048 * 1024)	/* 2MB */
 
-#if defined(CONFIG_LS2080A) || defined(CONFIG_LS2085A)
+#ifdef CONFIG_LS2080A
 #define CONFIG_MAX_CPUS				16
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT		8
-#ifdef CONFIG_LS2080A
-#define CONFIG_NUM_DDR_CONTROLLERS		2
-#endif
-#ifdef CONFIG_LS2085A
 #define CONFIG_NUM_DDR_CONTROLLERS		3
-#define CONFIG_SYS_FSL_HAS_DP_DDR
-#endif
+#define CONFIG_SYS_FSL_HAS_DP_DDR		/* Runtime check to confirm */
 #define CONFIG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1, 4, 4 }
 #define	SRDS_MAX_LANES	8
 #define CONFIG_SYS_FSL_SRDS_1

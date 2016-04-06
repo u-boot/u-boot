@@ -212,7 +212,19 @@
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#ifdef CONFIG_NAND_BOOT
+/* Store Fman ucode at offeset 0x160000(11 blocks). */
+#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
+#define CONFIG_SYS_FMAN_FW_ADDR		(11 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#elif defined(CONFIG_SD_BOOT)
+/*
+ * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
+ * about 1MB (2040 blocks), Env is stored after the image, and the env size is
+ * 0x2000 (16 blocks), 8 + 2040 + 16 = 2064, enlarge it to 2080(0x820).
+ */
+#define CONFIG_SYS_QE_FMAN_FW_IN_MMC
+#define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
+#elif defined(CONFIG_QSPI_BOOT)
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
 #define CONFIG_ENV_SPI_BUS		0

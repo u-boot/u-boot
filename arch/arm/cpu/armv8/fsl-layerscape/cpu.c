@@ -538,12 +538,12 @@ int print_cpuinfo(void)
 	struct sys_info sysinfo;
 	char buf[32];
 	unsigned int i, core;
-	u32 type, rcw;
+	u32 type, rcw, svr = gur_in32(&gur->svr);
 
 	puts("SoC: ");
 
 	cpu_name(buf);
-	printf(" %s (0x%x)\n", buf, gur_in32(&gur->svr));
+	printf(" %s (0x%x)\n", buf, svr);
 	memset((u8 *)buf, 0x00, ARRAY_SIZE(buf));
 	get_sys_info(&sysinfo);
 	puts("Clock Configuration:");
@@ -564,7 +564,10 @@ int print_cpuinfo(void)
 	printf("  FMAN:     %-4s MHz", strmhz(buf, sysinfo.freq_fman[0]));
 #endif
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-	printf("     DP-DDR:   %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus2));
+	if (soc_has_dp_ddr()) {
+		printf("     DP-DDR:   %-4s MT/s",
+		       strmhz(buf, sysinfo.freq_ddrbus2));
+	}
 #endif
 	puts("\n");
 
