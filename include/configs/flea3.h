@@ -250,7 +250,4 @@
 		"else echo U-Boot not downloaded..exiting;fi\0"		\
 	"bootcmd=run net_nfs\0"
 
-/* Enable FIT images support */
-#define CONFIG_CMD_FDT
-
 #endif				/* __CONFIG_H */

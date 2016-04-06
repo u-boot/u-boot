@@ -173,6 +173,13 @@ config CMD_ELF
 	help
 	  Boot an ELF/vxWorks image from the memory.
 
+config CMD_FDT
+	bool "Flattened Device Tree utility commands"
+	default y
+	depends on OF_LIBFDT
+	help
+	  Do FDT related setup before booting into the Operating System.
+
 config CMD_GO
 	bool "go"
 	default y
