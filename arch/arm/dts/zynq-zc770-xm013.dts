@@ -16,7 +16,8 @@
 		ethernet0 = &gem1;
 		i2c0 = &i2c1;
 		serial0 = &uart0;
-		spi0 = &spi0;
+		spi0 = &qspi;
+		spi1 = &spi0;
 	};
 
 	chosen {
@@ -56,6 +57,10 @@
 		factory-fout = <156250000>;
 		clock-frequency = <148500000>;
 	};
+};
+
+&qspi {
+	status = "okay";
 };
 
 &spi0 {
