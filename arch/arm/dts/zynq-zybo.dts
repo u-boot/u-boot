@@ -33,6 +33,7 @@
 	usb_phy0: phy0 {
 		compatible = "usb-nop-xceiv";
 		#phy-cells = <0>;
+		reset-gpios = <&gpio0 46 1>;
 	};
 };
 
