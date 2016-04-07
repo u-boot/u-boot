@@ -29,9 +29,9 @@ static const struct board_specific_parameters udimm0[] = {
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
 	 */
 	{2,  1350, 0, 4,     6, 0x0708090B, 0x0C0D0E09,},
-	{2,  1666, 0, 4,     8, 0x08090B0D, 0x0E10100C,},
-	{2,  1900, 0, 4,     8, 0x090A0C0E, 0x1012120D,},
-	{2,  2300, 0, 4,     9, 0x0A0B0C10, 0x1114140E,},
+	{2,  1666, 0, 5,     9, 0x090A0B0E, 0x0F11110C,},
+	{2,  1900, 0, 6,   0xA, 0x0B0C0E11, 0x1214140F,},
+	{2,  2300, 0, 6,   0xB, 0x0C0D0F12, 0x14161610,},
 	{}
 };
 
