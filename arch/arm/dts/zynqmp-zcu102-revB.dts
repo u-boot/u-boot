@@ -1,0 +1,42 @@
+/*
+ * dts file for Xilinx ZynqMP ZCU102 RevB
+ *
+ * (C) Copyright 2016, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include "zynqmp-zcu102.dts"
+
+/ {
+	model = "ZynqMP ZCU102 RevB";
+};
+
+&gem3 {
+	phy-handle = <&phyc>;
+	phyc: phy@c {
+		reg = <0xc>;
+		ti,rx-internal-delay = <0x8>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <0x1>;
+	};
+	/* Cleanup from RevA */
+	/delete-node/ phy@21;
+};
+
+/* Different qspi 512Mbit version */
+
+/* Fix collision with u61 */
+&i2c0 {
+	i2cswitch@75 {
+		i2c@2 {
+			max15303@1b { /* u8 */
+				compatible = "max15303";
+				reg = <0x1b>;
+			};
+			/delete-node/ max15303@20;
+		};
+	};
+};
