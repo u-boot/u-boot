@@ -307,6 +307,7 @@
 };
 
 &qspi {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 	is-dual = <1>;
 	num-cs = <1>;
