@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -19,6 +20,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MV_USB_PHY_BASE			(MVEBU_AXP_USB_BASE + 0x800)
+#define PHY_CHANNEL_RX_CTRL0_REG(port, chan) \
+	(MV_USB_PHY_BASE + ((port) << 12) + ((chan) << 6) + 0x8)
+
 #define THEADORABLE_GPP_OUT_ENA_LOW	0x00336780
 #define THEADORABLE_GPP_OUT_ENA_MID	0x00003cf0
 #define THEADORABLE_GPP_OUT_ENA_HIGH	(~(0x0))
@@ -26,6 +31,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define THEADORABLE_GPP_OUT_VAL_LOW	0x2c0c983f
 #define THEADORABLE_GPP_OUT_VAL_MID	0x0007000c
 #define THEADORABLE_GPP_OUT_VAL_HIGH	0x00000000
+
+#define GPIO_USB0_PWR_ON		18
+#define GPIO_USB1_PWR_ON		19
 
 /* DDR3 static configuration */
 static MV_DRAM_MC_INIT ddr3_theadorable[MV_MAX_DDR3_STATIC_SIZE] = {
@@ -135,6 +143,8 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	int ret;
+
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
@@ -146,6 +156,28 @@ int board_init(void)
 			  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPI0_CS1);
 	mbus_dt_setup_win(&mbus_state, SPI_BUS1_DEV2_BASE, SPI_BUS0_DEV1_SIZE,
 			  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPI1_CS2);
+
+	/*
+	 * Set RX Channel Control 0 Register:
+	 * Tests have shown, that setting the LPF_COEF from 0 (1/8)
+	 * to 3 (1/1) results in a more stable USB connection.
+	 */
+	setbits_le32(PHY_CHANNEL_RX_CTRL0_REG(0, 1), 0xc);
+	setbits_le32(PHY_CHANNEL_RX_CTRL0_REG(0, 2), 0xc);
+	setbits_le32(PHY_CHANNEL_RX_CTRL0_REG(0, 3), 0xc);
+
+	/* Toggle USB power */
+	ret = gpio_request(GPIO_USB0_PWR_ON, "USB0_PWR_ON");
+	if (ret < 0)
+		return ret;
+	gpio_direction_output(GPIO_USB0_PWR_ON, 0);
+	ret = gpio_request(GPIO_USB1_PWR_ON, "USB1_PWR_ON");
+	if (ret < 0)
+		return ret;
+	gpio_direction_output(GPIO_USB1_PWR_ON, 0);
+	mdelay(1);
+	gpio_set_value(GPIO_USB0_PWR_ON, 1);
+	gpio_set_value(GPIO_USB1_PWR_ON, 1);
 
 	return 0;
 }
