@@ -20,7 +20,7 @@
 	};
 
 	chosen {
-		bootargs = "root=/dev/ram rw earlyprintk";
+		bootargs = "";
 		stdout-path = "serial0:115200n8";
 	};
 
