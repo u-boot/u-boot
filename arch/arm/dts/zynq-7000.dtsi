@@ -306,7 +306,11 @@
 
 		devcfg: devcfg@f8007000 {
 			compatible = "xlnx,zynq-devcfg-1.0";
+			interrupt-parent = <&intc>;
+			interrupts = <0 8 4>;
 			reg = <0xf8007000 0x100>;
+			clocks = <&clkc 12>, <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
+			clock-names = "ref_clk", "fclk0", "fclk1", "fclk2", "fclk3";
 			syscon = <&slcr>;
 		};
 
