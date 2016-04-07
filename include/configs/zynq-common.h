@@ -114,6 +114,7 @@
 # define CONFIG_USB_CABLE_CHECK
 # define CONFIG_CMD_DFU
 # define CONFIG_CMD_THOR_DOWNLOAD
+# define CONFIG_THOR_RESET_OFF
 # define CONFIG_USB_FUNCTION_THOR
 # define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
