@@ -1,0 +1,121 @@
+/*
+ * dts file for Xilinx ZynqMP zc1751-xm019-dc5
+ *
+ * (C) Copyright 2015, Xilinx, Inc.
+ *
+ * Siva Durga Prasad <siva.durga.paladugu@xilinx.com>
+ * Michal Simek <michal.simek@xilinx.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "zynqmp.dtsi"
+#include "zynqmp-clk.dtsi"
+/ {
+	model = "ZynqMP zc1751-xm019-dc5 RevA";
+	compatible = "xlnx,zynqmp-zc1751", "xlnx,zynqmp";
+
+	aliases {
+		ethernet0 = &gem1;
+		gpio0 = &gpio;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		mmc0 = &sdhci0;
+		serial0 = &uart0;
+		serial1 = &uart1;
+	};
+
+	chosen {
+		bootargs = "earlycon=cdns,mmio,0xff000000,115200n8";
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
+	};
+};
+
+/* fpd_dma clk 667MHz, lpd_dma 500MHz */
+&fpd_dma_chan1 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+	xlnx,overfetch; /* for testing purpose */
+	xlnx,ratectrl = <0>; /* for testing purpose */
+	xlnx,src-issue = <31>;
+};
+
+&fpd_dma_chan2 {
+	status = "okay";
+	xlnx,ratectrl = <100>; /* for testing purpose */
+	xlnx,src-issue = <4>; /* for testing purpose */
+};
+
+&fpd_dma_chan3 {
+	status = "okay";
+};
+
+&fpd_dma_chan4 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&fpd_dma_chan5 {
+	status = "okay";
+};
+
+&fpd_dma_chan6 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&fpd_dma_chan7 {
+	status = "okay";
+};
+
+&fpd_dma_chan8 {
+	status = "okay";
+	xlnx,include-sg; /* for testing purpose */
+};
+
+&gem1 {
+	status = "okay";
+	local-mac-address = [00 0a 35 00 02 90];
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	phy0: phy@0 {
+		reg = <0>;
+	};
+};
+
+&gpio {
+	status = "okay";
+};
+
+/* FIXME: Add device */
+&i2c0 {
+	status = "okay";
+};
+
+/* FIXME: Add device */
+&i2c1 {
+	status = "okay";
+};
+
+&sdhci0 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&watchdog0 {
+	status = "okay";
+};
