@@ -120,6 +120,14 @@
 #define CONFIG_FPGA_STRATIX_V
 
 /*
+ * Bootcounter
+ */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_BOOTCOUNT_RAM
+/* Max size of RAM minus BOOTCOUNT_ADDR is the bootcounter address */
+#define BOOTCOUNT_ADDR			0x1000
+
+/*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
