@@ -648,7 +648,8 @@
 			interrupts = <0 15 4>;
 			interrupt-parent = <&gic>;
 			num-cs = <1>;
-			reg = <0x0 0xff0f0000 0x1000 0x0 0xc0000000 0x8000000>;
+			reg = <0x0 0xff0f0000 0x1000>,
+			      <0x0 0xc0000000 0x8000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			power-domains = <&pd_qspi>;
@@ -891,7 +892,9 @@
 		xlnx_dp_sub: dp_sub@fd4aa000 {
 			compatible = "xlnx,dp-sub";
 			status = "disabled";
-			reg = <0x0 0xfd4aa000 0x1000>, <0x0 0xfd4ab000 0x1000>, <0x0 0xfd4ac000 0x1000>;
+			reg = <0x0 0xfd4aa000 0x1000>,
+			      <0x0 0xfd4ab000 0x1000>,
+			      <0x0 0xfd4ac000 0x1000>;
 			reg-names = "blend", "av_buf", "aud";
 			xlnx,output-fmt = "rgb";
 			xlnx,vid-fmt = "yuyv";
