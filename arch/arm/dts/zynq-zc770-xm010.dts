@@ -36,6 +36,31 @@
 	};
 };
 
+&can0 {
+	status = "okay";
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy>;
+
+	ethernet_phy: ethernet-phy@7 {
+		reg = <7>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	m24c02_eeprom@52 {
+		compatible = "at,24c02";
+		reg = <0x52>;
+	};
+
+};
+
 &qspi {
 	status = "okay";
 	is-dual = <0>;
@@ -71,6 +96,10 @@
 	};
 };
 
+&sdhci0 {
+	status = "okay";
+};
+
 &spi1 {
 	status = "okay";
 	num-cs = <4>;
@@ -86,35 +115,6 @@
 			reg = <0x0 0x100000>;
 		};
 	};
-};
-
-&can0 {
-	status = "okay";
-};
-
-&gem0 {
-	status = "okay";
-	phy-mode = "rgmii-id";
-	phy-handle = <&ethernet_phy>;
-
-	ethernet_phy: ethernet-phy@7 {
-		reg = <7>;
-	};
-};
-
-&i2c0 {
-	status = "okay";
-	clock-frequency = <400000>;
-
-	m24c02_eeprom@52 {
-		compatible = "at,24c02";
-		reg = <0x52>;
-	};
-
-};
-
-&sdhci0 {
-	status = "okay";
 };
 
 &uart1 {
