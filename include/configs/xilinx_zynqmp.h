@@ -17,7 +17,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-
 /* Generic Interrupt Controller Definitions */
 #define CONFIG_GICV2
 #define GICD_BASE	0xF9010000
@@ -43,8 +42,6 @@
 #endif
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-
-/* Flat Device Tree Definitions */
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
 #if !defined(COUNTER_FREQUENCY)
