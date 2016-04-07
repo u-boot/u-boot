@@ -88,10 +88,6 @@
 	};
 };
 
-&qspi {
-	status = "okay";
-};
-
 &can0 {
 	status = "okay";
 };

@@ -95,10 +95,6 @@
 	status = "okay";
 };
 
-&qspi {
-	status = "okay";
-};
-
 &usb0 {
 	status = "okay";
 	dr_mode = "host";
