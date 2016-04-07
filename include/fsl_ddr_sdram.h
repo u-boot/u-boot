@@ -146,6 +146,10 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 #define WR_DATA_DELAY_SHIFT	10
 #endif
 
+/* DDR_EOR register */
+#define DDR_EOR_RD_REOD_DIS	0x07000000
+#define DDR_EOR_WD_REOD_DIS	0x00100000
+
 /* DDR_MD_CNTL */
 #define MD_CNTL_MD_EN		0x80000000
 #define MD_CNTL_CS_SEL_CS0	0x00000000

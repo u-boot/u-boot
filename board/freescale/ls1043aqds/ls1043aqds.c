@@ -307,14 +307,6 @@ int misc_init_r(void)
 
 int board_init(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)
-				   CONFIG_SYS_CCI400_ADDR;
-
-	/* Set CCI-400 control override register to enable barrier
-	 * transaction */
-	out_le32(&cci->ctrl_ord,
-		 CCI400_CTRLORD_EN_BARRIER);
-
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	board_retimer_init();
 
