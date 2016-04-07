@@ -36,27 +36,6 @@
 	};
 };
 
-&spi1 {
-	status = "okay";
-	num-cs = <4>;
-	is-decoded-cs = <0>;
-	flash@0 {
-		compatible = "sst25wf080";
-		reg = <1>;
-		spi-max-frequency = <1000000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		partition@test {
-			label = "spi-flash";
-			reg = <0x0 0x100000>;
-		};
-	};
-};
-
-&qspi {
-	status = "okay";
-};
-
 &can0 {
 	status = "okay";
 };
@@ -82,8 +61,29 @@
 
 };
 
+&qspi {
+	status = "okay";
+};
+
 &sdhci0 {
 	status = "okay";
+};
+
+&spi1 {
+	status = "okay";
+	num-cs = <4>;
+	is-decoded-cs = <0>;
+	flash@0 {
+		compatible = "sst25wf080";
+		reg = <1>;
+		spi-max-frequency = <1000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		partition@test {
+			label = "spi-flash";
+			reg = <0x0 0x100000>;
+		};
+	};
 };
 
 &uart1 {

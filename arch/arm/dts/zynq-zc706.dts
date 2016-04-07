@@ -306,6 +306,11 @@
 	};
 };
 
+&qspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
 &sdhci0 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
@@ -318,11 +323,6 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1_default>;
-};
-
-&qspi {
-	u-boot,dm-pre-reloc;
-	status = "okay";
 };
 
 &usb0 {
