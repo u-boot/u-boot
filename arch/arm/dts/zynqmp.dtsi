@@ -10,7 +10,7 @@
 / {
 	compatible = "xlnx,zynqmp";
 	#address-cells = <2>;
-	#size-cells = <1>;
+	#size-cells = <2>;
 
 	cpus {
 		#address-cells = <1>;
@@ -247,7 +247,7 @@
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <1>;
-		ranges;
+		ranges = <0 0 0 0 0xffffffff>;
 
 		gic: interrupt-controller@f9010000 {
 			compatible = "arm,gic-400", "arm,cortex-a15-gic";
@@ -266,7 +266,7 @@
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <1>;
-		ranges;
+		ranges = <0 0 0 0 0xffffffff>;
 
 		can0: can@ff060000 {
 			compatible = "xlnx,zynq-can-1.0";
