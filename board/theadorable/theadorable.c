@@ -5,10 +5,13 @@
  */
 
 #include <common.h>
+#include <i2c.h>
+#include <pci.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/crc8.h>
 #include <linux/mbus.h>
 #ifdef CONFIG_NET
 #include <netdev.h>
@@ -34,6 +37,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define GPIO_USB0_PWR_ON		18
 #define GPIO_USB1_PWR_ON		19
+
+#define PEX_SWITCH_NOT_FOUNT_LIMIT	3
+
+#define STM_I2C_BUS	1
+#define STM_I2C_ADDR	0x27
+#define REBOOT_DELAY	1000		/* reboot-delay in ms */
 
 /* DDR3 static configuration */
 static MV_DRAM_MC_INIT ddr3_theadorable[MV_MAX_DDR3_STATIC_SIZE] = {
@@ -214,3 +223,63 @@ int board_video_init(void)
 
 	return mvebu_lcd_register_init(&lcd_info);
 }
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	pci_dev_t bdf;
+	ulong bootcount;
+
+	/*
+	 * Check if the PEX switch is detected (somtimes its not available
+	 * on the PCIe bus). In this case, try to recover by issuing a
+	 * soft-reset or even a power-cycle, depending on the bootcounter
+	 * value.
+	 */
+	bdf = pci_find_device(PCI_VENDOR_ID_PLX, 0x8619, 0);
+	if (bdf == -1) {
+		u8 i2c_buf[8];
+		int ret;
+
+		/* PEX switch not found! */
+		bootcount = bootcount_load();
+		printf("Failed to find PLX PEX-switch (bootcount=%ld)\n",
+		       bootcount);
+		if (bootcount > PEX_SWITCH_NOT_FOUNT_LIMIT) {
+			printf("Issuing power-switch via uC!\n");
+
+			printf("Issuing power-switch via uC!\n");
+			i2c_set_bus_num(STM_I2C_BUS);
+			i2c_buf[0] = STM_I2C_ADDR << 1;
+			i2c_buf[1] = 0xc5;	/* cmd */
+			i2c_buf[2] = 0x01;	/* enable */
+			/* Delay before reboot */
+			i2c_buf[3] = REBOOT_DELAY & 0x00ff;
+			i2c_buf[4] = (REBOOT_DELAY & 0xff00) >> 8;
+			/* Delay before shutdown */
+			i2c_buf[5] = 0x00;
+			i2c_buf[6] = 0x00;
+			i2c_buf[7] = crc8(0x72, &i2c_buf[0], 7);
+
+			ret = i2c_write(STM_I2C_ADDR, 0, 0, &i2c_buf[1], 7);
+			if (ret) {
+				printf("I2C write error (ret=%d)\n", ret);
+				printf("Issuing soft-reset...\n");
+				/* default handling: SOFT reset */
+				do_reset(NULL, 0, 0, NULL);
+			}
+
+			/* Wait for power-cycle to occur... */
+			printf("Waiting for power-cycle via uC...\n");
+			while (1)
+				;
+		} else {
+			printf("Issuing soft-reset...\n");
+			/* default handling: SOFT reset */
+			do_reset(NULL, 0, 0, NULL);
+		}
+	}
+
+	return 0;
+}
+#endif
