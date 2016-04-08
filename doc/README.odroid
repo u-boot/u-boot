@@ -1,11 +1,11 @@
- U-Boot for Odroid X2/U3/XU3
+ U-Boot for Odroid X2/U3/XU3/XU4
 ========================
 
 1. Summary
 ==========
 This is a quick instruction for setup Odroid boards.
 Board config: odroid_config for X2/U3
-Board config: odroid-xu3_config for XU3
+Board config: odroid-xu3_config for XU3/XU4
 
 2. Supported devices
 ====================
@@ -14,6 +14,7 @@ This U-BOOT config can be used on three boards:
 - Odroid X2
 with CPU Exynos 4412 rev 2.0 and 2GB of RAM
 - Odroid XU3
+- Odroid XU4
 with CPU Exynos5422 and 2GB of RAM
 
 3. Boot sequence
@@ -29,9 +30,9 @@ http://dev.odroid.com/projects/4412boot/wiki/FrontPage?action=download&value=boo
 or here:
 http://odroid.in/guides/ubuntu-lfs/boot.tar.gz
 
-<< XU3 >>
+<< XU3/XU4 >>
 It can be downloaded from:
-https://github.com/hardkernel/u-boot/tree/odroidxu3-v2012.07/sd_fuse/hardkernel
+https://github.com/hardkernel/u-boot/tree/odroidxu3-v2012.07/sd_fuse/hardkernel_1mb_uboot
 
 
 4. Boot media layout
@@ -120,6 +121,7 @@ Supported fdt files are:
 - exynos4412-odroidx2.dtb
 - exynos4412-odroidu3.dtb
 - exynos5422-odroidxu3.dtb
+- exynos5422-odroidxu4.dtb
 
 Supported kernel files are:
 - Image.itb
