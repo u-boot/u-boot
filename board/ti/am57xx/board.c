@@ -35,6 +35,7 @@
 
 #define board_is_x15()		board_ti_is("BBRDX15_")
 #define board_is_am572x_evm()	board_ti_is("AM572PM_")
+#define board_is_am572x_idk()	board_ti_is("AM572IDK")
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -278,6 +279,8 @@ void do_board_detect(void)
 		bname = "BeagleBoard X15";
 	else if (board_is_am572x_evm())
 		bname = "AM572x EVM";
+	else if (board_is_am572x_idk())
+		bname = "AM572x IDK";
 
 	if (bname)
 		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
@@ -296,6 +299,8 @@ static void setup_board_eeprom_env(void)
 
 	if (board_is_am572x_evm())
 		name = "am57xx_evm";
+	else if (board_is_am572x_idk())
+		name = "am572x_idk";
 	else
 		printf("Unidentified board claims %s in eeprom header\n",
 		       board_ti_get_name());
@@ -343,9 +348,24 @@ void set_muxconf_regs(void)
 #ifdef CONFIG_IODELAY_RECALIBRATION
 void recalibrate_iodelay(void)
 {
-	__recalibrate_iodelay(core_padconf_array_essential,
-			      ARRAY_SIZE(core_padconf_array_essential),
-			      iodelay_cfg_array, ARRAY_SIZE(iodelay_cfg_array));
+	const struct pad_conf_entry *pconf;
+	const struct iodelay_cfg_entry *iod;
+	int pconf_sz, iod_sz;
+
+	if (board_is_am572x_idk()) {
+		pconf = core_padconf_array_essential_am572x_idk;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am572x_idk);
+		iod = iodelay_cfg_array_am572x_idk;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am572x_idk);
+	} else {
+		/* Common for X15/GPEVM */
+		pconf = core_padconf_array_essential_x15;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_x15);
+		iod = iodelay_cfg_array_x15;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_x15);
+	}
+
+	__recalibrate_iodelay(pconf, pconf_sz, iod, iod_sz);
 }
 #endif
 
@@ -604,6 +624,12 @@ int board_eth_init(bd_t *bis)
 	ctrl_val = readl((*ctrl)->control_core_control_io1) & (~0x33);
 	ctrl_val |= 0x22;
 	writel(ctrl_val, (*ctrl)->control_core_control_io1);
+
+	/* The phy address for the AM572x IDK are different than x15 */
+	if (board_is_am572x_idk()) {
+		cpsw_data.slave_data[0].phy_addr = 0;
+		cpsw_data.slave_data[1].phy_addr = 1;
+	}
 
 	ret = cpsw_register(&cpsw_data);
 	if (ret < 0)
