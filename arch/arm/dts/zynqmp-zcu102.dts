@@ -527,6 +527,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 
 &qspi {
 	status = "okay";
+	is-dual = <1>;
 	flash@0 {
 		compatible = "m25p80"; /* 32MB */
 		#address-cells = <1>;
