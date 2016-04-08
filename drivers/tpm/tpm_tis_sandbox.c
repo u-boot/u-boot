@@ -217,7 +217,7 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 			rsk.struct_version = 2;
 			rsk.uid = ROLLBACK_SPACE_KERNEL_UID;
 			rsk.kernel_versions = 0;
-			rsk.crc8 = crc8((unsigned char *)&rsk,
+			rsk.crc8 = crc8(0, (unsigned char *)&rsk,
 					offsetof(struct rollback_space_kernel,
 						 crc8));
 			memcpy(data, &rsk, sizeof(rsk));

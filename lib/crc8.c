@@ -6,20 +6,27 @@
 
 #include "linux/crc8.h"
 
-unsigned int crc8(const unsigned char *vptr, int len)
-{
-	const unsigned char *data = vptr;
-	unsigned int crc = 0;
-	int i, j;
+#define POLY	(0x1070U << 3)
 
-	for (j = len; j; j--, data++) {
-		crc ^= (*data << 8);
-		for (i = 8; i; i--) {
-			if (crc & 0x8000)
-				crc ^= (0x1070 << 3);
-			crc <<= 1;
-		}
+static unsigned char _crc8(unsigned short data)
+{
+	int i;
+
+	for (i = 0; i < 8; i++) {
+		if (data & 0x8000)
+			data = data ^ POLY;
+		data = data << 1;
 	}
 
-	return (crc >> 8) & 0xff;
+	return (unsigned char)(data >> 8);
+}
+
+unsigned int crc8(unsigned int crc, const unsigned char *vptr, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		crc = _crc8((crc ^ vptr[i]) << 8);
+
+	return crc;
 }
