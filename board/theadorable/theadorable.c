@@ -193,8 +193,6 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: theadorable\n");
-
 	board_fpga_add();
 
 	return 0;
