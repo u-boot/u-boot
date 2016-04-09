@@ -16,6 +16,10 @@
 #define ARMV7_DCACHE_CLEAN_INVAL_RANGE	4
 
 #ifndef CONFIG_SYS_DCACHE_OFF
+
+/* Asm functions from cache_v7_asm.S */
+void v7_flush_dcache_all(void);
+
 static int check_cache_range(unsigned long start, unsigned long stop)
 {
 	int ok = 1;
@@ -88,34 +92,6 @@ static void v7_inval_dcache_level_setway(u32 level, u32 num_sets,
 	DSB;
 }
 
-static void v7_clean_inval_dcache_level_setway(u32 level, u32 num_sets,
-					       u32 num_ways, u32 way_shift,
-					       u32 log2_line_len)
-{
-	int way, set;
-	u32 setway;
-
-	/*
-	 * For optimal assembly code:
-	 *	a. count down
-	 *	b. have bigger loop inside
-	 */
-	for (way = num_ways - 1; way >= 0 ; way--) {
-		for (set = num_sets - 1; set >= 0; set--) {
-			setway = (level << 1) | (set << log2_line_len) |
-				 (way << way_shift);
-			/*
-			 * Clean & Invalidate data/unified
-			 * cache line by set/way
-			 */
-			asm volatile ("	mcr p15, 0, %0, c7, c14, 2"
-					: : "r" (setway));
-		}
-	}
-	/* DSB to make sure the operation is complete */
-	DSB;
-}
-
 static void v7_maint_dcache_level_setway(u32 level, u32 operation)
 {
 	u32 ccsidr;
@@ -142,13 +118,8 @@ static void v7_maint_dcache_level_setway(u32 level, u32 operation)
 	log2_num_ways = log_2_n_round_up(num_ways);
 
 	way_shift = (32 - log2_num_ways);
-	if (operation == ARMV7_DCACHE_INVAL_ALL) {
-		v7_inval_dcache_level_setway(level, num_sets, num_ways,
+	v7_inval_dcache_level_setway(level, num_sets, num_ways,
 				      way_shift, log2_line_len);
-	} else if (operation == ARMV7_DCACHE_CLEAN_INVAL_ALL) {
-		v7_clean_inval_dcache_level_setway(level, num_sets, num_ways,
-						   way_shift, log2_line_len);
-	}
 }
 
 static void v7_maint_dcache_all(u32 operation)
@@ -263,7 +234,7 @@ void invalidate_dcache_all(void)
  */
 void flush_dcache_all(void)
 {
-	v7_maint_dcache_all(ARMV7_DCACHE_CLEAN_INVAL_ALL);
+	v7_flush_dcache_all();
 
 	v7_outer_cache_flush_all();
 }
