@@ -93,7 +93,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_SPI_FLASH_BAR
 /*
  * The base address is configurable in QSys, each board must specify the
  * base address based on it's particular FPGA configuration. Please note
@@ -219,7 +218,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif
 #define CONFIG_CQSPI_DECODER		0
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_BAR
 
 /*
  * Designware SPI support

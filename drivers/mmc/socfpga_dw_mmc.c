@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <asm/arch/clock_manager.h>
-#include <asm/arch/dwmmc.h>
 #include <asm/arch/system_manager.h>
 #include <dm.h>
 #include <dwmmc.h>
