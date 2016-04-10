@@ -15,6 +15,13 @@ config USB_MUSB_GADGET
 
 if USB_MUSB_HOST || USB_MUSB_GADGET
 
+config USB_MUSB_PIC32
+	bool "Enable Microchip PIC32 DRC USB controller"
+	depends on DM_USB && MACH_PIC32
+	help
+	  Say y to enable PIC32 USB DRC controller support
+	  if it is available on your Microchip PIC32 platform.
+
 config USB_MUSB_SUNXI
 	bool "Enable sunxi OTG / DRC USB controller"
 	depends on ARCH_SUNXI

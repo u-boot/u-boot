@@ -259,7 +259,7 @@ void musb_write_fifo(struct musb_hw_ep *hw_ep, u16 len, const u8 *src)
 	}
 }
 
-#if !defined(CONFIG_USB_MUSB_AM35X)
+#if !defined(CONFIG_USB_MUSB_AM35X) && !defined(CONFIG_USB_MUSB_PIC32)
 /*
  * Unload an endpoint's FIFO
  */

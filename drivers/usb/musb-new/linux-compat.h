@@ -13,13 +13,6 @@
 		printf(fmt, ##args);		\
 	ret_warn; })
 
-#define writesl(a, d, s) __raw_writesl((unsigned long)a, d, s)
-#define readsl(a, d, s) __raw_readsl((unsigned long)a, d, s)
-#define writesw(a, d, s) __raw_writesw((unsigned long)a, d, s)
-#define readsw(a, d, s) __raw_readsw((unsigned long)a, d, s)
-#define writesb(a, d, s) __raw_writesb((unsigned long)a, d, s)
-#define readsb(a, d, s) __raw_readsb((unsigned long)a, d, s)
-
 #define device_init_wakeup(dev, a) do {} while (0)
 
 #define platform_data device_data

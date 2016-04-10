@@ -566,7 +566,6 @@ int drv_usb_kbd_init(void)
 	/* No USB Keyboard found */
 	return -1;
 }
-#endif
 
 /* Deregister the keyboard. */
 int usb_kbd_deregister(int force)
@@ -598,6 +597,8 @@ int usb_kbd_deregister(int force)
 	return 1;
 #endif
 }
+
+#endif
 
 #ifdef CONFIG_DM_USB
 

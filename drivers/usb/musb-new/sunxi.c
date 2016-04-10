@@ -201,6 +201,7 @@ static irqreturn_t sunxi_musb_interrupt(int irq, void *__hci)
 
 /* musb_core does not call enable / disable in a balanced manner <sigh> */
 static bool enabled = false;
+static struct musb *sunxi_musb;
 
 static int sunxi_musb_enable(struct musb *musb)
 {
@@ -320,12 +321,14 @@ int musb_usb_probe(struct udevice *dev)
 
 	priv->desc_before_addr = true;
 
-	if (!host->host) {
-		host->host = musb_init_controller(&musb_plat, NULL,
+	if (!sunxi_musb) {
+		sunxi_musb = musb_init_controller(&musb_plat, NULL,
 						  (void *)SUNXI_USB0_BASE);
-		if (!host->host)
-			return -EIO;
 	}
+
+	host->host = sunxi_musb;
+	if (!host->host)
+		return -EIO;
 
 	ret = musb_lowlevel_init(host);
 	if (ret == 0)
