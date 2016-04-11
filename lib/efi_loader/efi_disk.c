@@ -138,6 +138,52 @@ static const struct efi_block_io block_io_disk_template = {
 	.flush_blocks = &efi_disk_flush_blocks,
 };
 
+static void efi_disk_add_dev(char *name,
+			     const struct block_drvr *cur_drvr,
+			     const struct blk_desc *desc,
+			     int dev_index,
+			     lbaint_t offset)
+{
+	struct efi_disk_obj *diskobj;
+	struct efi_device_path_file_path *dp;
+	int objlen = sizeof(*diskobj) + (sizeof(*dp) * 2);
+
+	diskobj = calloc(1, objlen);
+
+	/* Fill in object data */
+	diskobj->parent.protocols[0].guid = &efi_block_io_guid;
+	diskobj->parent.protocols[0].open = efi_disk_open_block;
+	diskobj->parent.protocols[1].guid = &efi_guid_device_path;
+	diskobj->parent.protocols[1].open = efi_disk_open_dp;
+	diskobj->parent.handle = diskobj;
+	diskobj->ops = block_io_disk_template;
+	diskobj->ifname = cur_drvr->name;
+	diskobj->dev_index = dev_index;
+
+	/* Fill in EFI IO Media info (for read/write callbacks) */
+	diskobj->media.removable_media = desc->removable;
+	diskobj->media.media_present = 1;
+	diskobj->media.block_size = desc->blksz;
+	diskobj->media.io_align = desc->blksz;
+	diskobj->media.last_block = desc->lba;
+	diskobj->ops.media = &diskobj->media;
+
+	/* Fill in device path */
+	dp = (void*)&diskobj[1];
+	diskobj->dp = dp;
+	dp[0].dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
+	dp[0].dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH;
+	dp[0].dp.length = sizeof(*dp);
+	ascii2unicode(dp[0].str, name);
+
+	dp[1].dp.type = DEVICE_PATH_TYPE_END;
+	dp[1].dp.sub_type = DEVICE_PATH_SUB_TYPE_END;
+	dp[1].dp.length = sizeof(*dp);
+
+	/* Hook up to the device list */
+	list_add_tail(&diskobj->parent.link, &efi_obj_list);
+}
+
 /*
  * U-Boot doesn't have a list of all online disk devices. So when running our
  * EFI payload, we scan through all of the potentially available ones and
@@ -156,9 +202,6 @@ int efi_disk_register(void)
 		printf("Scanning disks on %s...\n", cur_drvr->name);
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
-			struct efi_disk_obj *diskobj;
-			struct efi_device_path_file_path *dp;
-			int objlen = sizeof(*diskobj) + (sizeof(*dp) * 2);
 			char devname[16] = { 0 }; /* dp->str is u16[16] long */
 
 			desc = blk_get_dev(cur_drvr->name, i);
@@ -167,42 +210,9 @@ int efi_disk_register(void)
 			if (desc->type == DEV_TYPE_UNKNOWN)
 				continue;
 
-			diskobj = calloc(1, objlen);
-
-			/* Fill in object data */
-			diskobj->parent.protocols[0].guid = &efi_block_io_guid;
-			diskobj->parent.protocols[0].open = efi_disk_open_block;
-			diskobj->parent.protocols[1].guid = &efi_guid_device_path;
-			diskobj->parent.protocols[1].open = efi_disk_open_dp;
-			diskobj->parent.handle = diskobj;
-			diskobj->ops = block_io_disk_template;
-			diskobj->ifname = cur_drvr->name;
-			diskobj->dev_index = i;
-
-			/* Fill in EFI IO Media info (for read/write callbacks) */
-			diskobj->media.removable_media = desc->removable;
-			diskobj->media.media_present = 1;
-			diskobj->media.block_size = desc->blksz;
-			diskobj->media.io_align = desc->blksz;
-			diskobj->media.last_block = desc->lba;
-			diskobj->ops.media = &diskobj->media;
-
-			/* Fill in device path */
-			dp = (void*)&diskobj[1];
-			diskobj->dp = dp;
-			dp[0].dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
-			dp[0].dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH;
-			dp[0].dp.length = sizeof(*dp);
 			snprintf(devname, sizeof(devname), "%s%d",
 				 cur_drvr->name, i);
-			ascii2unicode(dp[0].str, devname);
-
-			dp[1].dp.type = DEVICE_PATH_TYPE_END;
-			dp[1].dp.sub_type = DEVICE_PATH_SUB_TYPE_END;
-			dp[1].dp.length = sizeof(*dp);
-
-			/* Hook up to the device list */
-			list_add_tail(&diskobj->parent.link, &efi_obj_list);
+			efi_disk_add_dev(devname, cur_drvr, desc, i, 0);
 			disks++;
 		}
 	}
