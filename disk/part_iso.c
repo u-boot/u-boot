@@ -26,6 +26,25 @@
 
 static unsigned char tmpbuf[CD_SECTSIZE];
 
+unsigned long iso_dread(struct blk_desc *block_dev, lbaint_t start,
+                        lbaint_t blkcnt, void *buffer)
+{
+	unsigned long ret;
+
+	if (block_dev->blksz == 512) {
+		/* Convert from 2048 to 512 sector size */
+		start *= 4;
+		blkcnt *= 4;
+	}
+
+	ret = blk_dread(block_dev, start, blkcnt, buffer);
+
+	if (block_dev->blksz == 512)
+		ret /= 4;
+
+	return ret;
+}
+
 /* only boot records will be listed as valid partitions */
 int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 			   disk_partition_t *info, int verb)
@@ -39,12 +58,12 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	iso_val_entry_t *pve = (iso_val_entry_t *)tmpbuf;
 	iso_init_def_entry_t *pide;
 
-	if (dev_desc->blksz != CD_SECTSIZE)
+	if ((dev_desc->blksz != CD_SECTSIZE) && (dev_desc->blksz != 512))
 		return -1;
 
 	/* the first sector (sector 0x10) must be a primary volume desc */
 	blkaddr=PVD_OFFSET;
-	if (blk_dread(dev_desc, PVD_OFFSET, 1, (ulong *)tmpbuf) != 1)
+	if (iso_dread(dev_desc, PVD_OFFSET, 1, (ulong *)tmpbuf) != 1)
 		return -1;
 	if(ppr->desctype!=0x01) {
 		if(verb)
@@ -64,7 +83,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	PRINTF(" Lastsect:%08lx\n",lastsect);
 	for(i=blkaddr;i<lastsect;i++) {
 		PRINTF("Reading block %d\n", i);
-		if (blk_dread(dev_desc, i, 1, (ulong *)tmpbuf) != 1)
+		if (iso_dread(dev_desc, i, 1, (ulong *)tmpbuf) != 1)
 			return -1;
 		if(ppr->desctype==0x00)
 			break; /* boot entry found */
@@ -84,7 +103,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	}
 	bootaddr = get_unaligned_le32(pbr->pointer);
 	PRINTF(" Boot Entry at: %08lX\n",bootaddr);
-	if (blk_dread(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
+	if (iso_dread(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
 		if(verb)
 			printf ("** Can't read Boot Entry at %lX on %d:%d **\n",
 				bootaddr, dev_desc->devnum, part_num);
@@ -192,7 +211,14 @@ found:
 	}
 	newblkaddr = get_unaligned_le32(pide->rel_block_addr);
 	info->start=newblkaddr;
-	PRINTF(" part %d found @ %lx size %lx\n",part_num,newblkaddr,info->size);
+
+	if (dev_desc->blksz == 512) {
+		info->size *= 4;
+		info->start *= 4;
+		info->blksz = 512;
+	}
+
+	PRINTF(" part %d found @ %lx size %lx\n",part_num,info->start,info->size);
 	return 0;
 }
 
