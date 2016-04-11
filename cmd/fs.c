@@ -27,7 +27,8 @@ U_BOOT_CMD(
 static int do_load_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
-	efi_set_bootdev(argv[1], (argc > 2) ? argv[2] : "");
+	efi_set_bootdev(argv[1], (argc > 2) ? argv[2] : "",
+			(argc > 4) ? argv[4] : "");
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_ANY);
 }
 

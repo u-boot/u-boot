@@ -112,7 +112,7 @@ efi_status_t efi_exit_func(efi_status_t ret);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
-void efi_set_bootdev(const char *dev, const char *devnr);
+void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
@@ -155,6 +155,7 @@ static inline void ascii2unicode(u16 *unicode, char *ascii)
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
-static inline void efi_set_bootdev(const char *dev, const char *devnr) { }
+static inline void efi_set_bootdev(const char *dev, const char *devnr,
+				   const char *path) { }
 
 #endif
