@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
