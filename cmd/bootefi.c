@@ -12,6 +12,10 @@
 #include <errno.h>
 #include <libfdt.h>
 #include <libfdt_env.h>
+#include <malloc.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * When booting using the "bootefi" command, we don't know which
@@ -97,6 +101,21 @@ static struct efi_object bootefi_device_obj = {
 	},
 };
 
+static void *copy_fdt(void *fdt)
+{
+	u64 fdt_size = fdt_totalsize(fdt);
+	void *new_fdt;
+
+	/* Give us 64kb breathing room */
+	fdt_size += 64 * 1024;
+
+	new_fdt = malloc(fdt_size);
+	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
+	fdt_set_totalsize(new_fdt, fdt_size);
+
+	return new_fdt;
+}
+
 /*
  * Load an EFI payload into a newly allocated piece of memory, register all
  * EFI objects it would want to access and jump to it.
@@ -106,6 +125,7 @@ static unsigned long do_bootefi_exec(void *efi)
 	ulong (*entry)(void *image_handle, struct efi_system_table *st);
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
 	bootm_headers_t img = { 0 };
+	void *fdt = working_fdt;
 
 	/*
 	 * gd lives in a fixed register which may get clobbered while we execute
@@ -115,28 +135,33 @@ static unsigned long do_bootefi_exec(void *efi)
 
 	/* Update system table to point to our currently loaded FDT */
 
-	if (working_fdt) {
+	/* Fall back to included fdt if none was manually loaded */
+	if (!fdt && gd->fdt_blob)
+		fdt = (void *)gd->fdt_blob;
+
+	if (fdt) {
 		/* Prepare fdt for payload */
-		if (image_setup_libfdt(&img, working_fdt, 0, NULL)) {
+		fdt = copy_fdt(fdt);
+
+		if (image_setup_libfdt(&img, fdt, 0, NULL)) {
 			printf("ERROR: Failed to process device tree\n");
 			return -EINVAL;
 		}
 
 		/* Link to it in the efi tables */
 		systab.tables[0].guid = EFI_FDT_GUID;
-		systab.tables[0].table = working_fdt;
+		systab.tables[0].table = fdt;
 		systab.nr_tables = 1;
 
 		/* And reserve the space in the memory map */
-		fdt_start = ((ulong)working_fdt) & ~EFI_PAGE_MASK;
-		fdt_end = ((ulong)working_fdt) + fdt_totalsize(working_fdt);
+		fdt_start = ((ulong)fdt) & ~EFI_PAGE_MASK;
+		fdt_end = ((ulong)fdt) + fdt_totalsize(fdt);
 		fdt_size = (fdt_end - fdt_start) + EFI_PAGE_MASK;
 		fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
 		/* Give a bootloader the chance to modify the device tree */
 		fdt_pages += 2;
 		efi_add_memory_map(fdt_start, fdt_pages,
 				   EFI_BOOT_SERVICES_DATA, true);
-
 	} else {
 		printf("WARNING: No device tree loaded, expect boot to fail\n");
 		systab.nr_tables = 0;
