@@ -115,7 +115,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	}
 #endif
 	/* the validation entry seems to be ok, now search the "partition" */
-	entry_num=0;
+	entry_num=1;
 	offset=0x20;
 	strcpy((char *)info->type, "U-Boot");
 	switch(dev_desc->if_type) {
@@ -225,7 +225,7 @@ static int part_test_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 
-	return part_get_info_iso_verb(dev_desc, 0, &info, 0);
+	return part_get_info_iso_verb(dev_desc, 1, &info, 1);
 }
 
 U_BOOT_PART_TYPE(iso) = {
