@@ -20,6 +20,13 @@ static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_unimplemented(void);
 static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_device_error(void);
 static efi_status_t EFI_RUNTIME_TEXT EFIAPI efi_invalid_parameter(void);
 
+#ifdef CONFIG_SYS_CACHELINE_SIZE
+#define EFI_CACHELINE_SIZE CONFIG_SYS_CACHELINE_SIZE
+#else
+/* Just use the greatest cache flush alignment requirement I'm aware of */
+#define EFI_CACHELINE_SIZE 128
+#endif
+
 #if defined(CONFIG_ARM64)
 #define R_RELATIVE	1027
 #define R_MASK		0xffffffffULL
@@ -194,7 +201,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 #endif
 
 		*p = newaddr;
-		flush_dcache_range((ulong)p, (ulong)&p[1]);
+		flush_dcache_range((ulong)p & ~(EFI_CACHELINE_SIZE - 1),
+			ALIGN((ulong)&p[1], EFI_CACHELINE_SIZE));
 	}
 
 #ifndef IS_RELA
