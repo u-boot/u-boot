@@ -286,10 +286,13 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 			       uint32_t *descriptor_version)
 {
 	ulong map_size = 0;
+	int map_entries = 0;
 	struct list_head *lhandle;
 
 	list_for_each(lhandle, &efi_mem)
-		map_size += sizeof(struct efi_mem_desc);
+		map_entries++;
+
+	map_size = map_entries * sizeof(struct efi_mem_desc);
 
 	*memory_map_size = map_size;
 
@@ -301,12 +304,14 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 
 	/* Copy list into array */
 	if (memory_map) {
+		/* Return the list in ascending order */
+		memory_map = &memory_map[map_entries - 1];
 		list_for_each(lhandle, &efi_mem) {
 			struct efi_mem_list *lmem;
 
 			lmem = list_entry(lhandle, struct efi_mem_list, link);
 			*memory_map = lmem->desc;
-			memory_map++;
+			memory_map--;
 		}
 	}
 
