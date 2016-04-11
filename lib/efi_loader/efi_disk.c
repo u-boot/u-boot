@@ -194,7 +194,7 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 {
 	int disks = 0;
 #ifdef CONFIG_ISO_PARTITION
-	char devname[16] = { 0 }; /* dp->str is u16[16] long */
+	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	disk_partition_t info;
 	int part = 1;
 
@@ -231,7 +231,7 @@ int efi_disk_register(void)
 		printf("Scanning disks on %s...\n", cur_drvr->name);
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
-			char devname[16] = { 0 }; /* dp->str is u16[16] long */
+			char devname[32] = { 0 }; /* dp->str is u16[32] long */
 
 			desc = blk_get_dev(cur_drvr->name, i);
 			if (!desc)

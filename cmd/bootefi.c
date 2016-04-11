@@ -208,7 +208,7 @@ U_BOOT_CMD(
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 {
 	__maybe_unused struct blk_desc *desc;
-	char devname[16] = { 0 }; /* dp->str is u16[16] long */
+	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	char *colon;
 
 	/* Assemble the condensed device name we use in efi_disk.c */

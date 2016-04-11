@@ -259,7 +259,7 @@ struct efi_device_path {
 
 struct efi_device_path_file_path {
 	struct efi_device_path dp;
-	u16 str[16];
+	u16 str[32];
 };
 
 #define BLOCK_IO_GUID \
