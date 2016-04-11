@@ -27,6 +27,8 @@ struct efi_disk_obj {
 	struct efi_block_io_media media;
 	/* EFI device path to this block device */
 	struct efi_device_path_file_path *dp;
+	/* Offset into disk for simple partitions */
+	lbaint_t offset;
 };
 
 static efi_status_t efi_disk_open_block(void *handle, efi_guid_t *protocol,
@@ -81,6 +83,7 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 	blksz = desc->blksz;
 	blocks = buffer_size / blksz;
+	lba += diskobj->offset;
 
 #ifdef DEBUG_EFI
 	printf("EFI: %s:%d blocks=%x lba=%"PRIx64" blksz=%x dir=%d\n", __func__,
@@ -159,6 +162,7 @@ static void efi_disk_add_dev(char *name,
 	diskobj->ops = block_io_disk_template;
 	diskobj->ifname = cur_drvr->name;
 	diskobj->dev_index = dev_index;
+	diskobj->offset = offset;
 
 	/* Fill in EFI IO Media info (for read/write callbacks) */
 	diskobj->media.removable_media = desc->removable;
@@ -182,6 +186,31 @@ static void efi_disk_add_dev(char *name,
 
 	/* Hook up to the device list */
 	list_add_tail(&diskobj->parent.link, &efi_obj_list);
+}
+
+static int efi_disk_create_eltorito(struct blk_desc *desc,
+				    const struct block_drvr *cur_drvr,
+				    int diskid)
+{
+	int disks = 0;
+#ifdef CONFIG_ISO_PARTITION
+	char devname[16] = { 0 }; /* dp->str is u16[16] long */
+	disk_partition_t info;
+	int part = 1;
+
+	if (desc->part_type != PART_TYPE_ISO)
+		return 0;
+
+	while (!part_get_info(desc, part, &info)) {
+		snprintf(devname, sizeof(devname), "%s%d:%d", cur_drvr->name,
+			 diskid, part);
+		efi_disk_add_dev(devname, cur_drvr, desc, diskid, info.start);
+		part++;
+		disks++;
+	}
+#endif
+
+	return disks;
 }
 
 /*
@@ -214,6 +243,12 @@ int efi_disk_register(void)
 				 cur_drvr->name, i);
 			efi_disk_add_dev(devname, cur_drvr, desc, i, 0);
 			disks++;
+
+			/*
+			 * El Torito images show up as block devices
+			 * in an EFI world, so let's create them here
+			 */
+			disks += efi_disk_create_eltorito(desc, cur_drvr, i);
 		}
 	}
 	printf("Found %d disks\n", disks);

@@ -194,12 +194,26 @@ U_BOOT_CMD(
 
 void efi_set_bootdev(const char *dev, const char *devnr)
 {
+	__maybe_unused struct blk_desc *desc;
 	char devname[16] = { 0 }; /* dp->str is u16[16] long */
 	char *colon;
 
 	/* Assemble the condensed device name we use in efi_disk.c */
 	snprintf(devname, sizeof(devname), "%s%s", dev, devnr);
 	colon = strchr(devname, ':');
+
+#ifdef CONFIG_ISO_PARTITION
+	/* For ISOs we create partition block devices */
+	desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
+	if (desc && (desc->type != DEV_TYPE_UNKNOWN) &&
+	    (desc->part_type == PART_TYPE_ISO)) {
+		if (!colon)
+			snprintf(devname, sizeof(devname), "%s%s:1", dev,
+				 devnr);
+		colon = NULL;
+	}
+#endif
+
 	if (colon)
 		*colon = '\0';
 
