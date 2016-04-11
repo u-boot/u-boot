@@ -14,12 +14,6 @@ int arch_cpu_init(void)
 {
 	timer_init();
 
-/* In simulation (ISS) "CHIPID" and "ARCNUM" are all "ff" */
-	if ((read_aux_reg(ARC_AUX_IDENTITY) & 0xffffff00) == 0xffffff00)
-		gd->arch.running_on_hw = 0;
-	else
-		gd->arch.running_on_hw = 1;
-
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
