@@ -178,6 +178,7 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 static int mmc_load_image_raw_os(struct mmc *mmc)
 {
 	unsigned long count;
+	int ret;
 
 	count = mmc->block_dev.block_read(&mmc->block_dev,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
@@ -190,8 +191,17 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 		return -1;
 	}
 
-	return mmc_load_image_raw_sector(mmc,
+	ret = mmc_load_image_raw_sector(mmc,
 		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
+	if (ret)
+		return ret;
+
+	if (spl_image.os != IH_OS_LINUX) {
+		puts("Expected Linux image is not found. Trying to start U-boot\n");
+		return -ENOENT;
+	}
+
+	return 0;
 }
 #else
 int spl_start_uboot(void)
