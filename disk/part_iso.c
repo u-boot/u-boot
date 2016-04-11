@@ -58,11 +58,9 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 				ppr->stand_ident, dev_desc->devnum, part_num);
 		return (-1);
 	}
-	lastsect= ((ppr->firstsek_LEpathtab1_LE & 0x000000ff)<<24) +
-		  ((ppr->firstsek_LEpathtab1_LE & 0x0000ff00)<< 8) +
-		  ((ppr->firstsek_LEpathtab1_LE & 0x00ff0000)>> 8) +
-		  ((ppr->firstsek_LEpathtab1_LE & 0xff000000)>>24) ;
-	info->blksz=ppr->secsize_BE; /* assuming same block size for all entries */
+	lastsect = le32_to_cpu(ppr->firstsek_LEpathtab1_LE);
+	/* assuming same block size for all entries */
+	info->blksz = be16_to_cpu(ppr->secsize_BE);
 	PRINTF(" Lastsect:%08lx\n",lastsect);
 	for(i=blkaddr;i<lastsect;i++) {
 		PRINTF("Reading block %d\n", i);
@@ -95,7 +93,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	chksum=0;
 	chksumbuf = (unsigned short *)tmpbuf;
 	for(i=0;i<0x10;i++)
-		chksum+=((chksumbuf[i] &0xff)<<8)+((chksumbuf[i] &0xff00)>>8);
+		chksum += le16_to_cpu(chksumbuf[i]);
 	if(chksum!=0) {
 		if(verb)
 			printf("** Checksum Error in booting catalog validation entry on %d:%d **\n",
