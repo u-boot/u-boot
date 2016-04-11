@@ -155,8 +155,12 @@ _start:
 
 	move.l #__got_start, %a5	/* put relocation table address to a5 */
 
-	bsr cpu_init_f			/* run low-level CPU init code (from flash) */
-	bsr board_init_f		/* run low-level board init code (from flash) */
+	/* run low-level CPU init code (from flash) */
+	move.l #cpu_init_f, %a1
+	jsr (%a1)
+	/* run low-level board init code (from flash) */
+	move.l #board_init_f, %a1
+	jsr (%a1)
 
 	/* board_init_f() does not return */
 
