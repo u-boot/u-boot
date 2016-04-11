@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <libfdt.h>
 #include <libfdt_env.h>
-#include <malloc.h>
+#include <memalign.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -104,12 +104,34 @@ static struct efi_object bootefi_device_obj = {
 static void *copy_fdt(void *fdt)
 {
 	u64 fdt_size = fdt_totalsize(fdt);
+	unsigned long fdt_ram_start = -1L, fdt_pages;
+	u64 new_fdt_addr;
 	void *new_fdt;
+	int i;
 
-	/* Give us 64kb breathing room */
-	fdt_size += 64 * 1024;
+        for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+                u64 ram_start = gd->bd->bi_dram[i].start;
+                u64 ram_size = gd->bd->bi_dram[i].size;
 
-	new_fdt = malloc(fdt_size);
+		if (!ram_size)
+			continue;
+
+		if (ram_start < fdt_ram_start)
+			fdt_ram_start = ram_start;
+	}
+
+	/* Give us at least 4kb breathing room */
+	fdt_size = ALIGN(fdt_size + 4096, 4096);
+	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
+
+	/* Safe fdt location is at 128MB */
+	new_fdt_addr = fdt_ram_start + (128 * 1024 * 1024) + fdt_size;
+	if (efi_allocate_pages(1, EFI_BOOT_SERVICES_DATA, fdt_pages,
+			       &new_fdt_addr) != EFI_SUCCESS) {
+		/* If we can't put it there, put it somewhere */
+		new_fdt_addr = (ulong)memalign(4096, fdt_size);
+	}
+	new_fdt = (void*)(ulong)new_fdt_addr;
 	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
 	fdt_set_totalsize(new_fdt, fdt_size);
 
