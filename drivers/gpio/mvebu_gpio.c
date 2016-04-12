@@ -43,6 +43,10 @@ static int mvebu_gpio_direction_output(struct udevice *dev, unsigned gpio,
 	struct mvebu_gpio_priv *priv = dev_get_priv(dev);
 	struct mvebu_gpio_regs *regs = priv->regs;
 
+	if (value)
+		setbits_le32(&regs->data_out, BIT(gpio));
+	else
+		clrbits_le32(&regs->data_out, BIT(gpio));
 	clrbits_le32(&regs->io_conf, BIT(gpio));
 
 	return 0;
