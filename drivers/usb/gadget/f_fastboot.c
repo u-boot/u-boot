@@ -64,8 +64,7 @@ static struct usb_endpoint_descriptor fs_ep_in = {
 	.bDescriptorType    = USB_DT_ENDPOINT,
 	.bEndpointAddress   = USB_DIR_IN,
 	.bmAttributes       = USB_ENDPOINT_XFER_BULK,
-	.wMaxPacketSize     = TX_ENDPOINT_MAXIMUM_PACKET_SIZE,
-	.bInterval          = 0x00,
+	.wMaxPacketSize     = cpu_to_le16(64),
 };
 
 static struct usb_endpoint_descriptor fs_ep_out = {
@@ -73,8 +72,15 @@ static struct usb_endpoint_descriptor fs_ep_out = {
 	.bDescriptorType	= USB_DT_ENDPOINT,
 	.bEndpointAddress	= USB_DIR_OUT,
 	.bmAttributes		= USB_ENDPOINT_XFER_BULK,
-	.wMaxPacketSize		= RX_ENDPOINT_MAXIMUM_PACKET_SIZE_1_1,
-	.bInterval		= 0x00,
+	.wMaxPacketSize		= cpu_to_le16(64),
+};
+
+static struct usb_endpoint_descriptor hs_ep_in = {
+	.bLength		= USB_DT_ENDPOINT_SIZE,
+	.bDescriptorType	= USB_DT_ENDPOINT,
+	.bEndpointAddress	= USB_DIR_IN,
+	.bmAttributes		= USB_ENDPOINT_XFER_BULK,
+	.wMaxPacketSize		= cpu_to_le16(512),
 };
 
 static struct usb_endpoint_descriptor hs_ep_out = {
@@ -82,8 +88,7 @@ static struct usb_endpoint_descriptor hs_ep_out = {
 	.bDescriptorType	= USB_DT_ENDPOINT,
 	.bEndpointAddress	= USB_DIR_OUT,
 	.bmAttributes		= USB_ENDPOINT_XFER_BULK,
-	.wMaxPacketSize		= RX_ENDPOINT_MAXIMUM_PACKET_SIZE_2_0,
-	.bInterval		= 0x00,
+	.wMaxPacketSize		= cpu_to_le16(512),
 };
 
 static struct usb_interface_descriptor interface_desc = {
@@ -97,9 +102,15 @@ static struct usb_interface_descriptor interface_desc = {
 	.bInterfaceProtocol	= FASTBOOT_INTERFACE_PROTOCOL,
 };
 
-static struct usb_descriptor_header *fb_runtime_descs[] = {
+static struct usb_descriptor_header *fb_fs_function[] = {
 	(struct usb_descriptor_header *)&interface_desc,
 	(struct usb_descriptor_header *)&fs_ep_in,
+	(struct usb_descriptor_header *)&fs_ep_out,
+};
+
+static struct usb_descriptor_header *fb_hs_function[] = {
+	(struct usb_descriptor_header *)&interface_desc,
+	(struct usb_descriptor_header *)&hs_ep_in,
 	(struct usb_descriptor_header *)&hs_ep_out,
 	NULL,
 };
@@ -177,7 +188,15 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 		return -ENODEV;
 	f_fb->out_ep->driver_data = c->cdev;
 
-	hs_ep_out.bEndpointAddress = fs_ep_out.bEndpointAddress;
+	f->descriptors = fb_fs_function;
+
+	if (gadget_is_dualspeed(gadget)) {
+		/* Assume endpoint addresses are the same for both speeds */
+		hs_ep_in.bEndpointAddress = fs_ep_in.bEndpointAddress;
+		hs_ep_out.bEndpointAddress = fs_ep_out.bEndpointAddress;
+		/* copy HS descriptors */
+		f->hs_descriptors = fb_hs_function;
+	}
 
 	s = getenv("serial#");
 	if (s)
@@ -302,7 +321,6 @@ static int fastboot_add(struct usb_configuration *c)
 	}
 
 	f_fb->usb_function.name = "f_fastboot";
-	f_fb->usb_function.hs_descriptors = fb_runtime_descs;
 	f_fb->usb_function.bind = fastboot_bind;
 	f_fb->usb_function.unbind = fastboot_unbind;
 	f_fb->usb_function.set_alt = fastboot_set_alt;
