@@ -55,6 +55,54 @@
 	CPU_32_PORT(fn, pfx##_5_, sfx),				\
 	CPU_32_PORT(fn, pfx##_6_, sfx),				\
 	CPU_32_PORT1(fn, pfx##_7_, sfx)
+
+#elif defined(CONFIG_R8A7792)
+/*
+ * GP_0_0_DATA -> GP_11_29_DATA
+ * (except for GP0[29..31],GP1[23..31],GP3[28..31],GP4[17..31],GP5[17..31]
+ *  GP6[17..31],GP7[17..31],GP8[17..31],GP9[17..31],GP11[30..31])
+ */
+#define CPU_32_PORT0_28(fn, pfx, sfx)				\
+	PORT_10(fn, pfx, sfx), PORT_10(fn, pfx##1, sfx),	\
+	PORT_1(fn, pfx##20, sfx), PORT_1(fn, pfx##21, sfx),	\
+	PORT_1(fn, pfx##22, sfx), PORT_1(fn, pfx##23, sfx),	\
+	PORT_1(fn, pfx##24, sfx), PORT_1(fn, pfx##25, sfx),	\
+	PORT_1(fn, pfx##26, sfx), PORT_1(fn, pfx##27, sfx),	\
+	PORT_1(fn, pfx##28, sfx)
+
+#define CPU_32_PORT0_22(fn, pfx, sfx)				\
+	PORT_10(fn, pfx, sfx), PORT_10(fn, pfx##1, sfx),	\
+	PORT_1(fn, pfx##20, sfx), PORT_1(fn, pfx##21, sfx),	\
+	PORT_1(fn, pfx##22, sfx)
+
+#define CPU_32_PORT0_27(fn, pfx, sfx)				\
+	PORT_10(fn, pfx, sfx), PORT_10(fn, pfx##1, sfx),	\
+	PORT_1(fn, pfx##20, sfx), PORT_1(fn, pfx##21, sfx),	\
+	PORT_1(fn, pfx##22, sfx), PORT_1(fn, pfx##23, sfx),	\
+	PORT_1(fn, pfx##24, sfx), PORT_1(fn, pfx##25, sfx),	\
+	PORT_1(fn, pfx##26, sfx), PORT_1(fn, pfx##27, sfx)
+
+#define CPU_32_PORT0_16(fn, pfx, sfx)				\
+	PORT_10(fn, pfx, sfx), 					\
+	PORT_1(fn, pfx##10, sfx),PORT_1(fn, pfx##11, sfx),	\
+	PORT_1(fn, pfx##12, sfx), PORT_1(fn, pfx##13, sfx),	\
+	PORT_1(fn, pfx##14, sfx), PORT_1(fn, pfx##15, sfx),	\
+	PORT_1(fn, pfx##16, sfx)
+
+#define CPU_ALL_PORT(fn, pfx, sfx)				\
+	CPU_32_PORT0_28(fn, pfx##_0_, sfx),			\
+	CPU_32_PORT0_22(fn, pfx##_1_, sfx),			\
+	CPU_32_PORT(fn, pfx##_2_, sfx),				\
+	CPU_32_PORT0_27(fn, pfx##_3_, sfx),			\
+	CPU_32_PORT0_16(fn, pfx##_4_, sfx),			\
+	CPU_32_PORT0_16(fn, pfx##_5_, sfx),			\
+	CPU_32_PORT0_16(fn, pfx##_6_, sfx),			\
+	CPU_32_PORT0_16(fn, pfx##_7_, sfx),			\
+	CPU_32_PORT0_16(fn, pfx##_8_, sfx),			\
+	CPU_32_PORT0_16(fn, pfx##_9_, sfx),			\
+	CPU_32_PORT(fn, pfx##_10_, sfx),			\
+	CPU_32_PORT2(fn, pfx##_11_, sfx)
+
 #else
 #error "NO support"
 #endif

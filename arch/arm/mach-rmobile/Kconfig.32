@@ -7,6 +7,11 @@ choice
 config TARGET_ARMADILLO_800EVA
 	bool "armadillo 800 eva board"
 
+config TARGET_BLANCHE
+	bool "Blanche board"
+	select DM
+	select DM_SERIAL
+
 config TARGET_GOSE
 	bool "Gose board"
 	select DM
@@ -52,12 +57,12 @@ config SYS_SOC
 
 config RMOBILE_EXTRAM_BOOT
 	bool "Enable boot from RAM"
-	depends on TARGET_ALT || TARGET_KOELSCH || TARGET_LAGER || TARGET_PORTER || TARGET_SILK || TARGET_STOUT
+	depends on TARGET_ALT || TARGET_BLANCHE || TARGET_KOELSCH || TARGET_LAGER || TARGET_PORTER || TARGET_SILK || TARGET_STOUT
 	default n
 
 choice
 	prompt "Qos setting primary"
-	depends on TARGET_ALT || TARGET_GOSE || TARGET_KOELSCH || TARGET_LAGER
+	depends on TARGET_ALT || TARGET_BLANCHE || TARGET_GOSE || TARGET_KOELSCH || TARGET_LAGER
 	default QOS_PRI_NORMAL
 
 config QOS_PRI_NORMAL
@@ -78,6 +83,7 @@ config QOS_PRI_GFX
 endchoice
 
 source "board/atmark-techno/armadillo-800eva/Kconfig"
+source "board/renesas/blanche/Kconfig"
 source "board/renesas/gose/Kconfig"
 source "board/renesas/koelsch/Kconfig"
 source "board/renesas/lager/Kconfig"
