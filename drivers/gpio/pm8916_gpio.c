@@ -50,7 +50,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REG_EN_CTL_ENABLE      (1 << 7)
 
 struct pm8916_gpio_bank {
-	uint16_t pid; /* Peripheral ID on SPMI bus */
+	uint32_t pid; /* Peripheral ID on SPMI bus */
 };
 
 static int pm8916_gpio_set_direction(struct udevice *dev, unsigned offset,
