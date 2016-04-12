@@ -394,55 +394,75 @@ struct display_info_t const displays[] = {{
 } } };
 size_t display_count = ARRAY_SIZE(displays);
 
-static void setup_display(void)
+static void setup_display_b850v3(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int reg;
 
-	enable_ipu_clock();
+	/* IPU1 D0 clock is 227.5 / 3.5 = 65MHz */
+	clrbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
+
 	imx_setup_hdmi();
 
-	reg = readl(&mxc_ccm->CCGR3);
-	reg |=  MXC_CCM_CCGR3_LDB_DI0_MASK;
-	writel(reg, &mxc_ccm->CCGR3);
+	/* Set LDB_DI0 as clock source for IPU_DI0 */
+	clrsetbits_le32(&mxc_ccm->chsccdr,
+			MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK,
+			(CHSCCDR_CLK_SEL_LDB_DI0 <<
+			 MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET));
 
-	reg = readl(&mxc_ccm->cs2cdr);
-	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK |
-		 MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
-	reg |= (3 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET) |
-	       (3 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->cs2cdr);
+	/* Turn on IPU LDB DI0 clocks */
+	setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK);
 
-	reg = readl(&mxc_ccm->cscmr2);
-	reg |= (MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
-	writel(reg, &mxc_ccm->cscmr2);
+	enable_ipu_clock();
 
-	reg = readl(&mxc_ccm->chsccdr);
-	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->chsccdr);
+	writel(IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+	       IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_LOW |
+	       IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+	       IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG |
+	       IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT |
+	       IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+	       IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT |
+	       IOMUXC_GPR2_SPLIT_MODE_EN_MASK |
+	       IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0 |
+	       IOMUXC_GPR2_LVDS_CH1_MODE_ENABLED_DI0,
+	       &iomux->gpr[2]);
 
-	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
-	     | IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH
-	     | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW
-	     | IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG
-	     | IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT
-	     | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
-	     | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
-	     | IOMUXC_GPR2_LVDS_CH1_MODE_ENABLED_DI0
-	     | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
-	writel(reg, &iomux->gpr[2]);
+	clrbits_le32(&iomux->gpr[3],
+		     IOMUXC_GPR3_LVDS0_MUX_CTL_MASK |
+		     IOMUXC_GPR3_LVDS1_MUX_CTL_MASK |
+		     IOMUXC_GPR3_HDMI_MUX_CTL_MASK);
+}
 
-	reg = readl(&iomux->gpr[3]);
-	reg = (reg & ~(IOMUXC_GPR3_LVDS0_MUX_CTL_MASK |
-		       IOMUXC_GPR3_LVDS1_MUX_CTL_MASK |
-		       IOMUXC_GPR3_HDMI_MUX_CTL_MASK))
-	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
-	       << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET)
-	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
-	       << IOMUXC_GPR3_LVDS1_MUX_CTL_OFFSET);
-	writel(reg, &iomux->gpr[3]);
+static void setup_display_bx50v3(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	/* IPU1 DI0 clock is 480/7 = 68.5 MHz */
+	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
+
+	/* Set LDB_DI0 as clock source for IPU_DI0 */
+	clrsetbits_le32(&mxc_ccm->chsccdr,
+			MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK,
+			(CHSCCDR_CLK_SEL_LDB_DI0 <<
+			MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET));
+
+	/* Turn on IPU LDB DI0 clocks */
+	setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK);
+
+	enable_ipu_clock();
+
+	writel(IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+	       IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+	       IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+	       IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT |
+	       IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0,
+	       &iomux->gpr[2]);
+
+	clrsetbits_le32(&iomux->gpr[3],
+			IOMUXC_GPR3_LVDS0_MUX_CTL_MASK,
+		       (IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
+			IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET));
 
 	/* backlights off until needed */
 	imx_iomux_v3_setup_multiple_pads(backlight_pads,
@@ -488,7 +508,6 @@ int board_early_init_f(void)
 
 	setup_iomux_uart();
 
-
 	return 0;
 }
 
@@ -497,7 +516,10 @@ int board_init(void)
 	gpio_direction_output(SUS_S3_OUT, 1);
 	gpio_direction_output(WIFI_EN, 1);
 #if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
+	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
+		setup_display_b850v3();
+	else
+		setup_display_bx50v3();
 #endif
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
