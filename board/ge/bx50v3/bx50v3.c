@@ -476,6 +476,13 @@ static void setup_display_bx50v3(void)
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
+	/* When a reset/reboot is performed the display power needs to be turned
+	 * off for atleast 500ms. The boot time is ~300ms, we need to wait for
+	 * an additional 200ms here. Unfortunately we use external PMIC for
+	 * doing the reset, so can not differentiate between POR vs soft reset
+	 */
+	mdelay(200);
+
 	/* IPU1 DI0 clock is 480/7 = 68.5 MHz */
 	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
 
