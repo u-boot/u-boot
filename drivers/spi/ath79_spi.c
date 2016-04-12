@@ -175,19 +175,7 @@ static int ath79_spi_set_mode(struct udevice *bus, uint mode)
 static int ath79_spi_probe(struct udevice *bus)
 {
 	struct ath79_spi_priv *priv = dev_get_priv(bus);
-	struct udevice *pinctrl;
 	fdt_addr_t addr;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret)
-		return ret;
-	ret = pinctrl_get_periph_id(pinctrl, bus);
-	if (ret < 0)
-		return ret;
-	ret = pinctrl_request(pinctrl, ret, 0);
-	if (ret < 0)
-		return ret;
 
 	addr = dev_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
