@@ -18,7 +18,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REG_MASK 0xFF
 
 struct pm8916_priv {
-	uint16_t usid; /* Slave ID on SPMI bus */
+	uint32_t usid; /* Slave ID on SPMI bus */
 };
 
 static int pm8916_reg_count(struct udevice *dev)
