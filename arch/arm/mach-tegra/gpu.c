@@ -33,16 +33,17 @@ void tegra_gpu_config(void)
 
 #if defined(CONFIG_OF_LIBFDT)
 
-int tegra_gpu_enable_node(void *blob, const char *gpupath)
+int tegra_gpu_enable_node(void *blob, const char *compat)
 {
 	int offset;
 
-	if (_configured) {
-		offset = fdt_path_offset(blob, gpupath);
-		if (offset > 0) {
-			fdt_status_okay(blob, offset);
-			debug("enabled GPU node %s\n", gpupath);
-		}
+	if (!_configured)
+		return 0;
+
+	offset = fdt_node_offset_by_compatible(blob, -1, compat);
+	while (offset != -FDT_ERR_NOTFOUND) {
+		fdt_status_okay(blob, offset);
+		offset = fdt_node_offset_by_compatible(blob, offset, compat);
 	}
 
 	return 0;

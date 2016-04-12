@@ -26,7 +26,7 @@ int tegra_gpu_enable_node(void *blob, const char *gpupath);
 
 #else /* CONFIG_OF_LIBFDT */
 
-static inline int tegra_gpu_enable_node(void *blob, const char *gpupath)
+static inline int tegra_gpu_enable_node(void *blob, const char *compat)
 {
 	return 0;
 }
