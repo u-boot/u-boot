@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DDR_CTRL_UPD_EMRS       BIT(1)
 #define DDR_CTRL_UPD_MRS        BIT(0)
 
-#define DDR_REFRESH_EN          (1 << 14)
+#define DDR_REFRESH_EN          BIT(14)
 #define DDR_REFRESH_M           0x3ff
 #define DDR_REFRESH(x)          ((x) & 0x3ff)
 #define DDR_REFRESH_VAL_25M     (DDR_REFRESH_EN | DDR_REFRESH(390))
@@ -48,7 +48,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DDR_CAS_L_M             0x17
 #define DDR_CAS_L_S             27
 #define DDR_CAS_L(x)            (((x) & DDR_CAS_L_M) << DDR_CAS_L_S)
-#define DDR_OPEN                (1 << 30)
+#define DDR_OPEN                BIT(30)
 #define DDR_CONF_REG_VAL        (DDR_TRAS(16) | DDR_TRCD(6) | \
 				 DDR_TRP(6) | DDR_TRRD(4) | \
 				 DDR_TRFC(30) | DDR_TMRD(15) | \
@@ -57,10 +57,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DDR_BURST_LEN_S         0
 #define DDR_BURST_LEN_M         0xf
 #define DDR_BURST_LEN(x)        ((x) << DDR_BURST_LEN_S)
-#define DDR_BURST_TYPE          (1 << 4)
-#define DDR_CNTL_OE_EN          (1 << 5)
-#define DDR_PHASE_SEL           (1 << 6)
-#define DDR_CKE                 (1 << 7)
+#define DDR_BURST_TYPE          BIT(4)
+#define DDR_CNTL_OE_EN          BIT(5)
+#define DDR_PHASE_SEL           BIT(6)
+#define DDR_CKE                 BIT(7)
 #define DDR_TWR_S               8
 #define DDR_TWR_M               0xf
 #define DDR_TWR(x)              ((x) << DDR_TWR_S)
@@ -76,7 +76,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DDR_G_OPEN_L_S          26
 #define DDR_G_OPEN_L_M          0xf
 #define DDR_G_OPEN_L(x)         ((x) << DDR_G_OPEN_L_S)
-#define DDR_HALF_WIDTH_LOW      (1 << 31)
+#define DDR_HALF_WIDTH_LOW      BIT(31)
 #define DDR_CONF2_REG_VAL       (DDR_BURST_LEN(8) | DDR_CNTL_OE_EN | \
 				 DDR_CKE | DDR_TWR(6) | DDR_TRTW(14) | \
 				 DDR_TRTP(8) | DDR_TWTR(14) | \
