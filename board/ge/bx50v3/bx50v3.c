@@ -394,10 +394,45 @@ struct display_info_t const displays[] = {{
 } } };
 size_t display_count = ARRAY_SIZE(displays);
 
+static void enable_videopll(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	s32 timeout = 100000;
+
+	setbits_le32(&ccm->analog_pll_video, BM_ANADIG_PLL_VIDEO_POWERDOWN);
+
+	/* set video pll to 910MHz (24MHz * (37+11/12))
+	* video pll post div to 910/4 = 227.5MHz
+	*/
+	clrsetbits_le32(&ccm->analog_pll_video,
+			BM_ANADIG_PLL_VIDEO_DIV_SELECT |
+			BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT,
+			BF_ANADIG_PLL_VIDEO_DIV_SELECT(37) |
+			BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(0));
+
+	writel(BF_ANADIG_PLL_VIDEO_NUM_A(11), &ccm->analog_pll_video_num);
+	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(12), &ccm->analog_pll_video_denom);
+
+	clrbits_le32(&ccm->analog_pll_video, BM_ANADIG_PLL_VIDEO_POWERDOWN);
+
+	while (timeout--)
+		if (readl(&ccm->analog_pll_video) & BM_ANADIG_PLL_VIDEO_LOCK)
+			break;
+
+	if (timeout < 0)
+		printf("Warning: video pll lock timeout!\n");
+
+	clrsetbits_le32(&ccm->analog_pll_video,
+			BM_ANADIG_PLL_VIDEO_BYPASS,
+			BM_ANADIG_PLL_VIDEO_ENABLE);
+}
+
 static void setup_display_b850v3(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	enable_videopll();
 
 	/* IPU1 D0 clock is 227.5 / 3.5 = 65MHz */
 	clrbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
@@ -508,6 +543,14 @@ int board_early_init_f(void)
 
 	setup_iomux_uart();
 
+#if defined(CONFIG_VIDEO_IPUV3)
+	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
+		/* Set LDB clock to Video PLL */
+		select_ldb_di_clock_source(MXC_PLL5_CLK);
+	else
+		/* Set LDB clock to USB PLL */
+		select_ldb_di_clock_source(MXC_PLL3_SW_CLK);
+#endif
 	return 0;
 }
 
