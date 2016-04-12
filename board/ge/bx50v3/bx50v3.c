@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <pwm.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
@@ -328,6 +329,8 @@ static iomux_v3_cfg_t const backlight_pads[] = {
 	/* Backlight enable for LVDS display */
 	MX6_PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL),
 #define LVDS_BACKLIGHT_GP IMX_GPIO_NR(1, 0)
+	/* backlight PWM brightness control */
+	MX6_PAD_SD1_DAT3__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static void do_enable_hdmi(struct display_info_t const *dev)
@@ -595,8 +598,16 @@ int board_late_init(void)
 	 * as per specifications from CHI MEI */
 	mdelay(250);
 
+	/* enable backlight PWM 1 */
+	pwm_init(0, 0, 0);
+
+	/* duty cycle 5000000ns, period: 5000000ns */
+	pwm_config(0, 5000000, 5000000);
+
 	/* Backlight Power */
 	gpio_direction_output(LVDS_BACKLIGHT_GP, 1);
+
+	pwm_enable(0);
 
 	return 0;
 }
