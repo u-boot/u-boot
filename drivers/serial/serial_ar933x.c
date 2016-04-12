@@ -38,6 +38,7 @@ struct ar933x_serial_priv {
 };
 
 /*
+ * Baudrate algorithm come from Linux/drivers/tty/serial/ar933x_uart.c
  * baudrate = (clk / (scale + 1)) * (step * (1 / 2^17))
  */
 static u32 ar933x_serial_get_baud(u32 clk, u32 scale, u32 step)
@@ -145,27 +146,14 @@ static int ar933x_serial_pending(struct udevice *dev, bool input)
 static int ar933x_serial_probe(struct udevice *dev)
 {
 	struct ar933x_serial_priv *priv = dev_get_priv(dev);
-	struct udevice *pinctrl;
 	fdt_addr_t addr;
 	u32 val;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret)
-		return ret;
-	ret = pinctrl_get_periph_id(pinctrl, dev);
-	if (ret < 0)
-		return ret;
-	ret = pinctrl_request(pinctrl, ret, 0);
-	if (ret < 0)
-		return ret;
 
 	addr = dev_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->regs = map_physmem(addr,
-				 AR933X_UART_SIZE,
+	priv->regs = map_physmem(addr, AR933X_UART_SIZE,
 				 MAP_NOCACHE);
 
 	/*
