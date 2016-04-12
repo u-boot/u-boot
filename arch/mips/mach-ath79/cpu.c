@@ -12,13 +12,13 @@
 #include <mach/ar71xx_regs.h>
 
 struct ath79_soc_desc {
-	enum ath79_soc_type soc;
+	const enum ath79_soc_type soc;
 	const char *chip;
-	int major;
-	int minor;
+	const int major;
+	const int minor;
 };
 
-static struct ath79_soc_desc desc[] = {
+static const struct ath79_soc_desc desc[] = {
 	{ATH79_SOC_AR7130,      "7130",
 	 REV_ID_MAJOR_AR71XX,   AR71XX_REV_ID_MINOR_AR7130},
 	{ATH79_SOC_AR7141,      "7141",
