@@ -42,6 +42,14 @@ enum mxc_clock {
 	MXC_I2C_CLK,
 };
 
+enum ldb_di_clock {
+	MXC_PLL5_CLK = 0,
+	MXC_PLL2_PFD0_CLK,
+	MXC_PLL2_PFD2_CLK,
+	MXC_MMDC_CH1_CLK,
+	MXC_PLL3_SW_CLK,
+};
+
 enum enet_freq {
 	ENET_25MHZ,
 	ENET_50MHZ,
@@ -70,4 +78,5 @@ int enable_lcdif_clock(u32 base_addr);
 void enable_qspi_clk(int qspi_num);
 void enable_thermal_clk(void);
 void mxs_set_lcdclk(u32 base_addr, u32 freq);
+void select_ldb_di_clock_source(enum ldb_di_clock clk);
 #endif /* __ASM_ARCH_CLOCK_H */

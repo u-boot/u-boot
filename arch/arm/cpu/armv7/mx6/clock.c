@@ -1217,6 +1217,157 @@ void enable_ipu_clock(void)
 	}
 }
 #endif
+
+#if defined(CONFIG_MX6Q) || defined(CONFIG_MX6D) || defined(CONFIG_MX6DL) || \
+	defined(CONFIG_MX6S)
+static void disable_ldb_di_clock_sources(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+
+	/* Make sure PFDs are disabled at boot. */
+	reg = readl(&mxc_ccm->analog_pfd_528);
+	/* Cannot disable pll2_pfd2_396M, as it is the MMDC clock in iMX6DL */
+	if (is_cpu_type(MXC_CPU_MX6DL))
+		reg |= 0x80008080;
+	else
+		reg |= 0x80808080;
+	writel(reg, &mxc_ccm->analog_pfd_528);
+
+	/* Disable PLL3 PFDs */
+	reg = readl(&mxc_ccm->analog_pfd_480);
+	reg |= 0x80808080;
+	writel(reg, &mxc_ccm->analog_pfd_480);
+
+	/* Disable PLL5 */
+	reg = readl(&mxc_ccm->analog_pll_video);
+	reg &= ~(1 << 13);
+	writel(reg, &mxc_ccm->analog_pll_video);
+}
+
+static void enable_ldb_di_clock_sources(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+
+	reg = readl(&mxc_ccm->analog_pfd_528);
+	if (is_cpu_type(MXC_CPU_MX6DL))
+		reg &= ~(0x80008080);
+	else
+		reg &= ~(0x80808080);
+	writel(reg, &mxc_ccm->analog_pfd_528);
+
+	reg = readl(&mxc_ccm->analog_pfd_480);
+	reg &= ~(0x80808080);
+	writel(reg, &mxc_ccm->analog_pfd_480);
+}
+
+/*
+ * Try call this function as early in the boot process as possible since the
+ * function temporarily disables PLL2 PFD's, PLL3 PFD's and PLL5.
+ */
+void select_ldb_di_clock_source(enum ldb_di_clock clk)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+
+	/*
+	 * Need to follow a strict procedure when changing the LDB
+	 * clock, else we can introduce a glitch. Things to keep in
+	 * mind:
+	 * 1. The current and new parent clocks must be disabled.
+	 * 2. The default clock for ldb_dio_clk is mmdc_ch1 which has
+	 * no CG bit.
+	 * 3. In the RTL implementation of the LDB_DI_CLK_SEL mux
+	 * the top four options are in one mux and the PLL3 option along
+	 * with another option is in the second mux. There is third mux
+	 * used to decide between the first and second mux.
+	 * The code below switches the parent to the bottom mux first
+	 * and then manipulates the top mux. This ensures that no glitch
+	 * will enter the divider.
+	 *
+	 * Need to disable MMDC_CH1 clock manually as there is no CG bit
+	 * for this clock. The only way to disable this clock is to move
+	 * it to pll3_sw_clk and then to disable pll3_sw_clk
+	 * Make sure periph2_clk2_sel is set to pll3_sw_clk
+	 */
+
+	/* Disable all ldb_di clock parents */
+	disable_ldb_di_clock_sources();
+
+	/* Set MMDC_CH1 mask bit */
+	reg = readl(&mxc_ccm->ccdr);
+	reg |= MXC_CCM_CCDR_MMDC_CH1_HS_MASK;
+	writel(reg, &mxc_ccm->ccdr);
+
+	/* Set periph2_clk2_sel to be sourced from PLL3_sw_clk */
+	reg = readl(&mxc_ccm->cbcmr);
+	reg &= ~MXC_CCM_CBCMR_PERIPH2_CLK2_SEL;
+	writel(reg, &mxc_ccm->cbcmr);
+
+	/*
+	 * Set the periph2_clk_sel to the top mux so that
+	 * mmdc_ch1 is from pll3_sw_clk.
+	 */
+	reg = readl(&mxc_ccm->cbcdr);
+	reg |= MXC_CCM_CBCDR_PERIPH2_CLK_SEL;
+	writel(reg, &mxc_ccm->cbcdr);
+
+	/* Wait for the clock switch */
+	while (readl(&mxc_ccm->cdhipr))
+		;
+	/* Disable pll3_sw_clk by selecting bypass clock source */
+	reg = readl(&mxc_ccm->ccsr);
+	reg |= MXC_CCM_CCSR_PLL3_SW_CLK_SEL;
+	writel(reg, &mxc_ccm->ccsr);
+
+	/* Set the ldb_di0_clk and ldb_di1_clk to 111b */
+	reg = readl(&mxc_ccm->cs2cdr);
+	reg |= ((7 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET)
+	      | (7 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET));
+	writel(reg, &mxc_ccm->cs2cdr);
+
+	/* Set the ldb_di0_clk and ldb_di1_clk to 100b */
+	reg = readl(&mxc_ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK
+	      | MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK);
+	reg |= ((4 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET)
+	      | (4 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET));
+	writel(reg, &mxc_ccm->cs2cdr);
+
+	/* Set the ldb_di0_clk and ldb_di1_clk to desired source */
+	reg = readl(&mxc_ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK
+	      | MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK);
+	reg |= ((clk << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET)
+	      | (clk << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET));
+	writel(reg, &mxc_ccm->cs2cdr);
+
+	/* Unbypass pll3_sw_clk */
+	reg = readl(&mxc_ccm->ccsr);
+	reg &= ~MXC_CCM_CCSR_PLL3_SW_CLK_SEL;
+	writel(reg, &mxc_ccm->ccsr);
+
+	/*
+	 * Set the periph2_clk_sel back to the bottom mux so that
+	 * mmdc_ch1 is from its original parent.
+	 */
+	reg = readl(&mxc_ccm->cbcdr);
+	reg &= ~MXC_CCM_CBCDR_PERIPH2_CLK_SEL;
+	writel(reg, &mxc_ccm->cbcdr);
+
+	/* Wait for the clock switch */
+	while (readl(&mxc_ccm->cdhipr))
+		;
+	/* Clear MMDC_CH1 mask bit */
+	reg = readl(&mxc_ccm->ccdr);
+	reg &= ~MXC_CCM_CCDR_MMDC_CH1_HS_MASK;
+	writel(reg, &mxc_ccm->ccdr);
+
+	enable_ldb_di_clock_sources();
+}
+#endif
+
 /***************************************************/
 
 U_BOOT_CMD(
