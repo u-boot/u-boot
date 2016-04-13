@@ -27,18 +27,9 @@
 
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR
-#define CONFIG_IMX_FIXED_IVT_OFFSET
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN           (32 * SZ_1M)
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-
-#define CONFIG_FSL_CLK
 
 #define CONFIG_LOADADDR                 0x80800000
 #define CONFIG_SYS_TEXT_BASE            0x87800000
@@ -79,7 +70,6 @@
 
 /* UART */
 #define CONFIG_MXC_UART
-#define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 /* MMC */
 #define CONFIG_MMC

@@ -278,7 +278,10 @@ static void clear_mmdc_ch_mask(void)
 	reg = readl(&mxc_ccm->ccdr);
 
 	/* Clear MMDC channel mask */
-	reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK | MXC_CCM_CCDR_MMDC_CH0_HS_MASK);
+	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL) || is_cpu_type(MXC_CPU_MX6SL))
+		reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK);
+	else
+		reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK | MXC_CCM_CCDR_MMDC_CH0_HS_MASK);
 	writel(reg, &mxc_ccm->ccdr);
 }
 
@@ -325,15 +328,30 @@ int arch_cpu_init(void)
 	 */
 	init_bandgap();
 
-	/*
-	 * When low freq boot is enabled, ROM will not set AHB
-	 * freq, so we need to ensure AHB freq is 132MHz in such
-	 * scenario.
-	 */
-	if (mxc_get_clock(MXC_ARM_CLK) == 396000000)
-		set_ahb_rate(132000000);
+	if (!IS_ENABLED(CONFIG_MX6UL)) {
+		/*
+		 * When low freq boot is enabled, ROM will not set AHB
+		 * freq, so we need to ensure AHB freq is 132MHz in such
+		 * scenario.
+		 *
+		 * To i.MX6UL, when power up, default ARM core and
+		 * AHB rate is 396M and 132M.
+		 */
+		if (mxc_get_clock(MXC_ARM_CLK) == 396000000)
+			set_ahb_rate(132000000);
+	}
 
-		/* Set perclk to source from OSC 24MHz */
+	if (IS_ENABLED(CONFIG_MX6UL) && is_soc_rev(CHIP_REV_1_0) == 0) {
+		/*
+		 * According to the design team's requirement on i.MX6UL,
+		 * the PMIC_STBY_REQ PAD should be configured as open
+		 * drain 100K (0x0000b8a0).
+		 * Only exists on TO1.0
+		 */
+		writel(0x0000b8a0, IOMUXC_BASE_ADDR + 0x29c);
+	}
+
+	/* Set perclk to source from OSC 24MHz */
 #if defined(CONFIG_MX6SL)
 	set_preclk_from_osc();
 #endif

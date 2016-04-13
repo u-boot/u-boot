@@ -1183,6 +1183,7 @@ int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("PLL_NET    %8d MHz\n", freq / 1000000);
 
 	printf("\n");
+	printf("ARM        %8d kHz\n", mxc_get_clock(MXC_ARM_CLK) / 1000);
 	printf("IPG        %8d kHz\n", mxc_get_clock(MXC_IPG_CLK) / 1000);
 	printf("UART       %8d kHz\n", mxc_get_clock(MXC_UART_CLK) / 1000);
 #ifdef CONFIG_MXC_SPI

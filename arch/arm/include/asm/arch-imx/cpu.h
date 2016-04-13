@@ -21,6 +21,7 @@
 #define MXC_CPU_MX6D		0x67
 #define MXC_CPU_MX6DP		0x68
 #define MXC_CPU_MX6QP		0x69
+#define MXC_CPU_MX7S		0x71 /* dummy ID */
 #define MXC_CPU_MX7D		0x72
 #define MXC_CPU_VF610		0xF6 /* dummy ID */
 

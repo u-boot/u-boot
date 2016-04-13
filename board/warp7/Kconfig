@@ -1,0 +1,9 @@
+if TARGET_WARP7
+
+config SYS_BOARD
+	default "warp7"
+
+config SYS_CONFIG_NAME
+	default "warp7"
+
+endif
