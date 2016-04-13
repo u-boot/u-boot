@@ -580,6 +580,7 @@ config ARCH_ZYNQ
 	select SPL_OF_CONTROL if SPL
 	select DM
 	select DM_ETH
+	select DM_GPIO
 	select SPL_DM if SPL
 	select DM_MMC
 	select DM_SPI
@@ -592,8 +593,6 @@ config ARCH_ZYNQMP
 	select ARM64
 	select DM
 	select OF_CONTROL
-	select DM_ETH
-	select DM_MMC
 	select DM_SERIAL
 
 config TEGRA

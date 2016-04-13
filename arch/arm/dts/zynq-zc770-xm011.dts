@@ -7,6 +7,7 @@
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
+
 / {
 	compatible = "xlnx,zynq-zc770-xm011", "xlnx,zynq-7000";
 	model = "Xilinx Zynq";
@@ -18,7 +19,7 @@
 	};
 
 	chosen {
-		bootargs = "root=/dev/ram rw earlyprintk";
+		bootargs = "";
 		stdout-path = "serial0:115200n8";
 	};
 

@@ -62,6 +62,10 @@
 	clocks = <&i2c_clk>;
 };
 
+&nand0 {
+	clocks = <&misc_clk &misc_clk>;
+};
+
 &qspi {
 	clocks = <&misc_clk &misc_clk>;
 };

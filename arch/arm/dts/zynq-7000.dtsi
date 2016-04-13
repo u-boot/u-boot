@@ -96,8 +96,10 @@
 		gpio0: gpio@e000a000 {
 			compatible = "xlnx,zynq-gpio-1.0";
 			#gpio-cells = <2>;
+			#interrupt-cells = <2>;
 			clocks = <&clkc 42>;
 			gpio-controller;
+			interrupt-controller;
 			interrupt-parent = <&intc>;
 			interrupts = <0 20 4>;
 			reg = <0xe000a000 0x1000>;
@@ -270,6 +272,13 @@
 				reg = <0x100 0x100>;
 			};
 
+			rstc: rstc@200 {
+				compatible = "xlnx,zynq-reset";
+				reg = <0x200 0x48>;
+				#reset-cells = <1>;
+				syscon = <&slcr>;
+			};
+
 			pinctrl0: pinctrl@700 {
 				compatible = "xlnx,pinctrl-zynq";
 				reg = <0x700 0x200>;
@@ -297,7 +306,12 @@
 
 		devcfg: devcfg@f8007000 {
 			compatible = "xlnx,zynq-devcfg-1.0";
+			interrupt-parent = <&intc>;
+			interrupts = <0 8 4>;
 			reg = <0xf8007000 0x100>;
+			clocks = <&clkc 12>, <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
+			clock-names = "ref_clk", "fclk0", "fclk1", "fclk2", "fclk3";
+			syscon = <&slcr>;
 		};
 
 		global_timer: timer@f8f00200 {

@@ -26,13 +26,13 @@
 	};
 
 	chosen {
-		bootargs = "earlyprintk";
+		bootargs = "";
 		stdout-path = "serial0:115200n8";
 	};
 
 	usb_phy0: phy0 {
-		#phy-cells = <0>;
 		compatible = "usb-nop-xceiv";
+		#phy-cells = <0>;
 		reset-gpios = <&gpio0 46 1>;
 	};
 };
@@ -51,17 +51,17 @@
 	};
 };
 
+&qspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
 &sdhci0 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
 &uart1 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
-&qspi {
 	u-boot,dm-pre-reloc;
 	status = "okay";
 };

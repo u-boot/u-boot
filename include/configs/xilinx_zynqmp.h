@@ -17,7 +17,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-
 /* Generic Interrupt Controller Definitions */
 #define CONFIG_GICV2
 #define GICD_BASE	0xF9010000
@@ -43,8 +42,6 @@
 #endif
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-
-/* Flat Device Tree Definitions */
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
 #if !defined(COUNTER_FREQUENCY)
@@ -165,8 +162,7 @@
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"kernel_size=0x2000000\0" \
-	"fdt_size=0x80000\0" \
+	CONFIG_KERNEL_FDT_OFST_SIZE \
 	"sdbootdev=0\0"\
 	"sdboot=mmc dev $sdbootdev && mmcinfo && load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \

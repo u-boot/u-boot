@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -63,8 +62,8 @@ static phys_size_t fdt_get_reg(const void *fdt, int nodeoffset, void *buf,
 	int address_cells = fdt_address_cells(fdt, parent_offset);
 	int size_cells = fdt_size_cells(fdt, parent_offset);
 	char *p = buf;
-	phys_addr_t val;
-	phys_size_t vals;
+	u64 val;
+	u64 vals;
 
 	debug("%s: addr_cells=%x, size_cell=%x, buf=%p, cell=%p\n",
 	      __func__, address_cells, size_cells, buf, cell);
@@ -166,7 +165,7 @@ int dram_init(void)
 
 	gd->ram_size = fdt_get_reg(blob, node, &tmp, cell, len / FDT_REG_SIZE);
 
-	debug("%s: Initial DRAM size %llx\n", __func__, gd->ram_size);
+	debug("%s: Initial DRAM size %llx\n", __func__, (u64)gd->ram_size);
 
 	return 0;
 }

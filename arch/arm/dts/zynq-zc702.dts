@@ -27,7 +27,7 @@
 	};
 
 	chosen {
-		bootargs = "earlyprintk";
+		bootargs = "";
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -91,6 +91,8 @@
 	phy-handle = <&ethernet_phy>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gem0_default>;
+	phy-reset-gpio = <&gpio0 11 0>;
+	phy-reset-active-low;
 
 	ethernet_phy: ethernet-phy@7 {
 		reg = <7>;
@@ -125,6 +127,21 @@
 				reg = <0x5d>;
 				factory-fout = <156250000>;
 				clock-frequency = <148500000>;
+			};
+		};
+
+		i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			adv7511: hdmi-tx@39 {
+				compatible = "adi,adv7511";
+				reg = <0x39>;
+				adi,input-depth = <8>;
+				adi,input-colorspace = "yuv422";
+				adi,input-clock = "1x";
+				adi,input-style = <3>;
+				adi,input-justification = "right";
 			};
 		};
 
@@ -370,6 +387,11 @@
 	};
 };
 
+&qspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
 &sdhci0 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
@@ -382,11 +404,6 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1_default>;
-};
-
-&qspi {
-	u-boot,dm-pre-reloc;
-	status = "okay";
 };
 
 &usb0 {
