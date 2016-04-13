@@ -115,6 +115,15 @@ static struct usb_descriptor_header *fb_hs_function[] = {
 	NULL,
 };
 
+static struct usb_endpoint_descriptor *
+fb_ep_desc(struct usb_gadget *g, struct usb_endpoint_descriptor *fs,
+	    struct usb_endpoint_descriptor *hs)
+{
+	if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+		return hs;
+	return fs;
+}
+
 /*
  * static strings, in UTF-8
  */
@@ -255,18 +264,18 @@ static int fastboot_set_alt(struct usb_function *f,
 	struct usb_composite_dev *cdev = f->config->cdev;
 	struct usb_gadget *gadget = cdev->gadget;
 	struct f_fastboot *f_fb = func_to_fastboot(f);
+	const struct usb_endpoint_descriptor *d;
 
 	debug("%s: func: %s intf: %d alt: %d\n",
 	      __func__, f->name, interface, alt);
 
-	/* make sure we don't enable the ep twice */
-	if (gadget->speed == USB_SPEED_HIGH) {
-		ret = usb_ep_enable(f_fb->out_ep, &hs_ep_out);
+	if (gadget->speed == USB_SPEED_HIGH)
 		is_high_speed = true;
-	} else {
-		ret = usb_ep_enable(f_fb->out_ep, &fs_ep_out);
+	else
 		is_high_speed = false;
-	}
+
+	d = fb_ep_desc(gadget, &fs_ep_out, &hs_ep_out);
+	ret = usb_ep_enable(f_fb->out_ep, d);
 	if (ret) {
 		puts("failed to enable out ep\n");
 		return ret;
@@ -280,7 +289,8 @@ static int fastboot_set_alt(struct usb_function *f,
 	}
 	f_fb->out_req->complete = rx_handler_command;
 
-	ret = usb_ep_enable(f_fb->in_ep, &fs_ep_in);
+	d = fb_ep_desc(gadget, &fs_ep_in, &hs_ep_in);
+	ret = usb_ep_enable(f_fb->in_ep, d);
 	if (ret) {
 		puts("failed to enable in ep\n");
 		goto err;
