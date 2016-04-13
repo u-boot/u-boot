@@ -37,4 +37,21 @@ config USB_DWC3_OMAP
 
 	  Say 'Y' here if you have one such device
 
+menu "PHY Subsystem"
+
+config USB_DWC3_PHY_OMAP
+	bool "TI OMAP SoC series USB DRD PHY driver"
+	help
+	  Enable single driver for both USB2 PHY programming and USB3 PHY
+	  programming for TI SoCs.
+
+config USB_DWC3_PHY_SAMSUNG
+	bool "Exynos5 SoC series USB DRD PHY driver"
+	help
+	  Enable USB DRD PHY support for Exynos 5 SoC series.
+	  This driver provides PHY interface for USB 3.0 DRD controller
+	  present on Exynos5 SoC series.
+
+endmenu
+
 endif
