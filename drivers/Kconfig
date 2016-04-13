@@ -30,6 +30,8 @@ source "drivers/input/Kconfig"
 
 source "drivers/led/Kconfig"
 
+source "drivers/memory/Kconfig"
+
 source "drivers/misc/Kconfig"
 
 source "drivers/mmc/Kconfig"

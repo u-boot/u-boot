@@ -20,6 +20,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_TI_AEMIF)
 static struct aemif_config aemif_configs[] = {
 	{			/* CS0 */
 		.mode		= AEMIF_MODE_NAND,
@@ -33,6 +34,7 @@ static struct aemif_config aemif_configs[] = {
 		.width		= AEMIF_WIDTH_8,
 	},
 };
+#endif
 
 int dram_init(void)
 {
@@ -42,7 +44,10 @@ int dram_init(void)
 
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
+#if defined(CONFIG_TI_AEMIF)
 	aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
+#endif
+
 	if (ddr3_size)
 		ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE, ddr3_size);
 	return 0;
