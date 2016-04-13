@@ -201,8 +201,6 @@
 #define CONFIG_USB_MUSB_OMAP2PLUS
 #define CONFIG_TWL4030_USB
 
-#define CONFIG_USB_GADGET_DUALSPEED
-
 /*
  * Download
  */

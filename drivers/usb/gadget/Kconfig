@@ -36,6 +36,29 @@ menuconfig USB_GADGET
 
 if USB_GADGET
 
+config USB_GADGET_ATMEL_USBA
+	bool "Atmel USBA"
+	select USB_GADGET_DUALSPEED
+	help
+	  USBA is the integrated high-speed USB Device controller on
+	  the AT32AP700x, some AT91SAM9 and AT91CAP9 processors from Atmel.
+
+config USB_GADGET_DWC2_OTG
+	bool "DesignWare USB2.0 HS OTG controller (gadget mode)"
+	select USB_GADGET_DUALSPEED
+	help
+	  The Designware USB2.0 high-speed gadget controller
+	  integrated into many SoCs. Select this option if you want the
+	  driver to operate in Peripheral mode. This option requires
+	  USB_GADGET to be enabled.
+
+config CI_UDC
+	bool "ChipIdea device controller"
+	select USB_GADGET_DUALSPEED
+	help
+	  Say Y here to enable device controller functionality of the
+	  ChipIdea driver.
+
 config USB_GADGET_VBUS_DRAW
 	int "Maximum VBUS Power usage (2-500 mA)"
 	range 2 500
@@ -52,5 +75,9 @@ config USB_GADGET_VBUS_DRAW
 
 	   This value will be used except for system-specific gadget
 	   drivers that have more specific information.
+
+# Selected by UDC drivers that support high-speed operation.
+config USB_GADGET_DUALSPEED
+	bool
 
 endif # USB_GADGET

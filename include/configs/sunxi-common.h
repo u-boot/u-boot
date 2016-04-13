@@ -342,7 +342,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
 
 #define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USB_FUNCTION_DFU

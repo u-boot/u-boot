@@ -48,12 +48,8 @@
 #define CONFIG_USB_EHCI_EXYNOS
 
 /* DWC3 */
-#define CONFIG_USB_DWC3
 #define CONFIG_USB_DWC3_GADGET
 #define CONFIG_USB_DWC3_PHY_SAMSUNG
-
-/* USB gadget */
-#define CONFIG_USB_GADGET_DUALSPEED
 
 /* Downloader */
 #define CONFIG_G_DNL_VENDOR_NUM		0x04E8

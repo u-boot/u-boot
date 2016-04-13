@@ -184,8 +184,6 @@
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_OMAP2PLUS
 
-#define CONFIG_USB_GADGET_DUALSPEED
-
 /*
  * Download
  */

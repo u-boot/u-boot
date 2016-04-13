@@ -250,9 +250,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * USB Gadget (DFU, UMS)
  */
 #if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
-#define CONFIG_USB_GADGET_DWC2_OTG
-#define CONFIG_USB_GADGET_DUALSPEED
-
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USB_FUNCTION_MASS_STORAGE

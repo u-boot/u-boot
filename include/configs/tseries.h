@@ -249,8 +249,6 @@ MMCARGS
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-/* attention! not only for gadget, enables also highspeed in hostmode */
-#define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
 #define CONFIG_AM335X_USB1

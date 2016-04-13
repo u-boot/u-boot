@@ -1,0 +1,7 @@
+config USB_DWC3
+	bool "DesignWare USB3 DRD Core Support"
+	depends on (USB && USB_GADGET)
+	select USB_GADGET_DUALSPEED
+	help
+	  Say Y here if your system has a Dual Role SuperSpeed
+	  USB controller based on the DesignWare USB3 IP Core.
