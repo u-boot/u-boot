@@ -64,6 +64,7 @@
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_PREBOOT
 
