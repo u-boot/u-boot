@@ -48,7 +48,6 @@
 #define CONFIG_USB_EHCI_EXYNOS
 
 /* DWC3 */
-#define CONFIG_USB_DWC3_GADGET
 #define CONFIG_USB_DWC3_PHY_SAMSUNG
 
 /* Downloader */
