@@ -235,7 +235,6 @@
 /* USB Client Support */
 #define CONFIG_CI_UDC
 #define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW      2
 #define CONFIG_TRDX_VID                  0x1B67
 #define CONFIG_TRDX_PID_COLIBRI_VF50     0x0016
 #define CONFIG_TRDX_PID_COLIBRI_VF61     0x0017

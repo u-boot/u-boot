@@ -33,3 +33,24 @@ menuconfig USB_GADGET
 	   a USB peripheral device.  Configure one hardware driver for your
 	   peripheral/device side bus controller, and a "gadget driver" for
 	   your peripheral protocol.
+
+if USB_GADGET
+
+config USB_GADGET_VBUS_DRAW
+	int "Maximum VBUS Power usage (2-500 mA)"
+	range 2 500
+	default 2
+	help
+	   Some devices need to draw power from USB when they are
+	   configured, perhaps to operate circuitry or to recharge
+	   batteries.  This is in addition to any local power supply,
+	   such as an AC adapter or batteries.
+
+	   Enter the maximum power your device draws through USB, in
+	   milliAmperes.  The permitted range of values is 2 - 500 mA;
+	   0 mA would be legal, but can make some hosts misbehave.
+
+	   This value will be used except for system-specific gadget
+	   drivers that have more specific information.
+
+endif # USB_GADGET

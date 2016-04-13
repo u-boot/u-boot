@@ -54,7 +54,6 @@
 
 /* USB gadget */
 #define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
 
 /* Downloader */
 #define CONFIG_G_DNL_VENDOR_NUM		0x04E8
