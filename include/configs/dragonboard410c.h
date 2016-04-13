@@ -128,10 +128,10 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"linux_image=Image\0" \
-	"linux_addr=0x81000000\0"\
-	"fdt_image=apq8016-sbc.dtb\0" \
-	"fdt_addr=0x83000000\0"\
-	"ramdisk_addr=0x84000000\0"\
+	"kernel_addr_r=0x81000000\0"\
+	"fdtfile=apq8016-sbc.dtb\0" \
+	"fdt_addr_r=0x83000000\0"\
+	"ramdisk_addr_r=0x84000000\0"\
 	BOOTENV
 
 #define CONFIG_ENV_IS_NOWHERE
