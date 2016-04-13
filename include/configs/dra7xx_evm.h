@@ -226,11 +226,6 @@
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_OMAP_USB2PHY2_HOST
 
-/* USB GADGET */
-#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
-#define CONFIG_G_DNL_VENDOR_NUM 0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM 0xd022
-
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM

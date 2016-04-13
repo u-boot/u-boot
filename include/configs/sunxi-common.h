@@ -342,9 +342,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_G_DNL_VENDOR_NUM		0x1f3a
-#define CONFIG_G_DNL_PRODUCT_NUM	0x1010
-#define CONFIG_G_DNL_MANUFACTURER	"Allwinner Technology"
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_USB_FUNCTION_FASTBOOT
 #define CONFIG_USB_FUNCTION_MASS_STORAGE

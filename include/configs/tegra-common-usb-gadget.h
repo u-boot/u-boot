@@ -11,15 +11,6 @@
 #ifndef CONFIG_SPL_BUILD
 /* USB gadget mode support*/
 #define CONFIG_CI_UDC_HAS_HOSTPC
-#ifndef CONFIG_G_DNL_VENDOR_NUM
-#define CONFIG_G_DNL_VENDOR_NUM 0x0955
-#endif
-#ifndef CONFIG_G_DNL_PRODUCT_NUM
-#define CONFIG_G_DNL_PRODUCT_NUM 0x701A
-#endif
-#ifndef CONFIG_G_DNL_MANUFACTURER
-#define CONFIG_G_DNL_MANUFACTURER "NVIDIA"
-#endif
 /* USB mass storage protocol */
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #define CONFIG_CMD_USB_MASS_STORAGE

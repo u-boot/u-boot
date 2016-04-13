@@ -27,7 +27,7 @@
  * CONFIG_G_DNL_VENDOR_NUM
  * CONFIG_G_DNL_PRODUCT_NUM
  * CONFIG_G_DNL_MANUFACTURER
- * at e.g. ./include/configs/<board>.h
+ * at e.g. ./configs/<board>_defconfig
  */
 
 #define STRING_MANUFACTURER 25

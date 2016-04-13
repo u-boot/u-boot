@@ -202,14 +202,6 @@
 #define CONFIG_TWL4030_USB
 
 /*
- * Download
- */
-
-#define CONFIG_G_DNL_VENDOR_NUM		0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM	0xd022
-#define CONFIG_G_DNL_MANUFACTURER	"Texas Instruments"
-
-/*
  * Fastboot
  */
 

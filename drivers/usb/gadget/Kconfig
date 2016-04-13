@@ -86,4 +86,17 @@ config USB_GADGET_DOWNLOAD
 	  Composite USB download gadget support (g_dnl) for download functions.
 	  This code works on top of composite gadget.
 
+if USB_GADGET_DOWNLOAD
+
+config G_DNL_MANUFACTURER
+	string "Vendor name of USB device"
+
+config G_DNL_VENDOR_NUM
+	hex "Vendor ID of USB device"
+
+config G_DNL_PRODUCT_NUM
+	hex "Product ID of USB device"
+
+endif # USB_GADGET_DOWNLOAD
+
 endif # USB_GADGET

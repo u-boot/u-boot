@@ -243,9 +243,6 @@
 
 /* USB DRACO ID as default */
 #define CONFIG_USBD_HS
-#define CONFIG_G_DNL_VENDOR_NUM 0x0908
-#define CONFIG_G_DNL_PRODUCT_NUM 0x02d2
-#define CONFIG_G_DNL_MANUFACTURER "Siemens AG"
 
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU

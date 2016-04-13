@@ -185,14 +185,6 @@
 #define CONFIG_USB_MUSB_OMAP2PLUS
 
 /*
- * Download
- */
-
-#define CONFIG_G_DNL_VENDOR_NUM		0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM	0xd022
-#define CONFIG_G_DNL_MANUFACTURER	"Texas Instruments"
-
-/*
  * Fastboot
  */
 

@@ -318,11 +318,6 @@
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
 #endif /* CONFIG_DM_ETH */
-
-/* USB TI's IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM 0xD022
-#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
 #endif /* CONFIG_USB_MUSB_GADGET */
 
 /*

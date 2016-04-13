@@ -194,11 +194,6 @@
 #define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
-/* Netchip IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0525
-#define CONFIG_G_DNL_PRODUCT_NUM 0xa4a5
-#define CONFIG_G_DNL_MANUFACTURER "Gateworks"
-
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
