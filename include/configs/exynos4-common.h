@@ -27,9 +27,6 @@
 #define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
 
-/* USB Composite download gadget - g_dnl */
-#define CONFIG_USB_GADGET_DOWNLOAD
-
 /* TIZEN THOR downloader support */
 #define CONFIG_CMD_THOR_DOWNLOAD
 #define CONFIG_USB_FUNCTION_THOR

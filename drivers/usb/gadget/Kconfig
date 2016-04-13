@@ -80,4 +80,10 @@ config USB_GADGET_VBUS_DRAW
 config USB_GADGET_DUALSPEED
 	bool
 
+config USB_GADGET_DOWNLOAD
+	bool "Enable USB download gadget"
+	help
+	  Composite USB download gadget support (g_dnl) for download functions.
+	  This code works on top of composite gadget.
+
 endif # USB_GADGET

@@ -241,8 +241,6 @@
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
 #endif /* CONFIG_USB_MUSB_GADGET */
 
-#define CONFIG_USB_GADGET_DOWNLOAD
-
 /* USB DRACO ID as default */
 #define CONFIG_USBD_HS
 #define CONFIG_G_DNL_VENDOR_NUM 0x0908
