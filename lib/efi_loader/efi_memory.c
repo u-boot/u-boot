@@ -220,7 +220,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	switch (type) {
 	case 0:
 		/* Any page */
-		addr = efi_find_free_memory(len, gd->ram_top);
+		addr = efi_find_free_memory(len, gd->start_addr_sp);
 		if (!addr) {
 			r = EFI_NOT_FOUND;
 			break;
@@ -320,9 +320,9 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 
 int efi_memory_init(void)
 {
-	uint64_t runtime_start, runtime_end, runtime_pages;
-	uint64_t uboot_start, uboot_pages;
-	uint64_t uboot_stack_size = 16 * 1024 * 1024;
+	unsigned long runtime_start, runtime_end, runtime_pages;
+	unsigned long uboot_start, uboot_pages;
+	unsigned long uboot_stack_size = 16 * 1024 * 1024;
 	int i;
 
 	/* Add RAM */
