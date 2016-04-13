@@ -27,4 +27,14 @@ config USB_DWC3_GADGET
 
 endchoice
 
+comment "Platform Glue Driver Support"
+
+config USB_DWC3_OMAP
+	bool "Texas Instruments OMAP5 and similar Platforms"
+	help
+	  Some platforms from Texas Instruments like OMAP5, DRA7xxx and
+	  AM437x use this IP for USB2/3 functionality.
+
+	  Say 'Y' here if you have one such device
+
 endif
