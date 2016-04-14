@@ -19,4 +19,4 @@ PLATFORM_RELFLAGS	+= -fno-strict-aliasing -fno-common -mrelax
 PLATFORM_RELFLAGS	+= -gdwarf-2
 PLATFORM_CPPFLAGS	+= -D__nds32__ -G0 -ffixed-10 -fpie
 
-LDFLAGS_u-boot		= --gc-sections --relax
+LDFLAGS_u-boot		= --gc-sections --relax -pie
