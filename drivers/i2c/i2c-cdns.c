@@ -115,41 +115,6 @@ struct i2c_cdns_bus {
 	struct cdns_i2c_regs __iomem *regs;	/* register base */
 };
 
-
-/** cdns_i2c_probe() - Probe method
- * @dev: udevice pointer
- *
- * DM callback called when device is probed
- */
-static int cdns_i2c_probe(struct udevice *dev)
-{
-	struct i2c_cdns_bus *bus = dev_get_priv(dev);
-
-	/* TODO: Calculate dividers based on CPU_CLK_1X */
-	/* 111MHz / ( (3 * 17) * 22 ) = ~100KHz */
-	writel((16 << CDNS_I2C_CONTROL_DIV_B_SHIFT) |
-		(2 << CDNS_I2C_CONTROL_DIV_A_SHIFT), &bus->regs->control);
-
-	/* Enable master mode, ack, and 7-bit addressing */
-	setbits_le32(&bus->regs->control, CDNS_I2C_CONTROL_MS |
-		CDNS_I2C_CONTROL_ACKEN | CDNS_I2C_CONTROL_NEA);
-
-	debug("%s bus %d at %p\n", __func__, dev->seq, bus->regs);
-
-	return 0;
-}
-
-static int cdns_i2c_remove(struct udevice *dev)
-{
-	struct i2c_cdns_bus *bus = dev_get_priv(dev);
-
-	debug("%s bus %d at %p\n", __func__, dev->seq, bus->regs);
-
-	unmap_sysmem(bus->regs);
-
-	return 0;
-}
-
 /* Wait for an interrupt */
 static u32 cdns_i2c_wait(struct cdns_i2c_regs *cdns_i2c, u32 mask)
 {
@@ -170,11 +135,22 @@ static u32 cdns_i2c_wait(struct cdns_i2c_regs *cdns_i2c, u32 mask)
 
 static int cdns_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 {
+	struct i2c_cdns_bus *bus = dev_get_priv(dev);
+
 	if (speed != 100000) {
 		printf("%s, failed to set clock speed to %u\n", __func__,
 		       speed);
 		return -EINVAL;
 	}
+
+	/* TODO: Calculate dividers based on CPU_CLK_1X */
+	/* 111MHz / ( (3 * 17) * 22 ) = ~100KHz */
+	writel((16 << CDNS_I2C_CONTROL_DIV_B_SHIFT) |
+		(2 << CDNS_I2C_CONTROL_DIV_A_SHIFT), &bus->regs->control);
+
+	/* Enable master mode, ack, and 7-bit addressing */
+	setbits_le32(&bus->regs->control, CDNS_I2C_CONTROL_MS |
+		CDNS_I2C_CONTROL_ACKEN | CDNS_I2C_CONTROL_NEA);
 
 	return 0;
 }
@@ -335,8 +311,6 @@ U_BOOT_DRIVER(cdns_i2c) = {
 	.name = "i2c-cdns",
 	.id = UCLASS_I2C,
 	.of_match = cdns_i2c_of_match,
-	.probe = cdns_i2c_probe,
-	.remove = cdns_i2c_remove,
 	.ofdata_to_platdata = cdns_i2c_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct i2c_cdns_bus),
 	.ops = &cdns_i2c_ops,
