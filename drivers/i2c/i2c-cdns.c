@@ -125,10 +125,6 @@ static int cdns_i2c_probe(struct udevice *dev)
 {
 	struct i2c_cdns_bus *bus = dev_get_priv(dev);
 
-	bus->regs = (struct cdns_i2c_regs *)dev_get_addr(dev);
-	if (!bus->regs)
-		return -ENOMEM;
-
 	/* TODO: Calculate dividers based on CPU_CLK_1X */
 	/* 111MHz / ( (3 * 17) * 22 ) = ~100KHz */
 	writel((16 << CDNS_I2C_CONTROL_DIV_B_SHIFT) |
@@ -313,6 +309,17 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 	return 0;
 }
 
+static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
+{
+	struct i2c_cdns_bus *i2c_bus = dev_get_priv(dev);
+
+	i2c_bus->regs = (struct cdns_i2c_regs *)dev_get_addr(dev);
+	if (!i2c_bus->regs)
+		return -ENOMEM;
+
+	return 0;
+}
+
 static const struct dm_i2c_ops cdns_i2c_ops = {
 	.xfer = cdns_i2c_xfer,
 	.probe_chip = cdns_i2c_probe_chip,
@@ -330,6 +337,7 @@ U_BOOT_DRIVER(cdns_i2c) = {
 	.of_match = cdns_i2c_of_match,
 	.probe = cdns_i2c_probe,
 	.remove = cdns_i2c_remove,
+	.ofdata_to_platdata = cdns_i2c_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct i2c_cdns_bus),
 	.ops = &cdns_i2c_ops,
 };
