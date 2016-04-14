@@ -99,6 +99,21 @@
 #endif
 
 #ifdef BOOTEFI_NAME
+#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
+/*
+ * On 32bit ARM systems there is a reasonable number of systems that follow
+ * the $soc-$board$boardver.dtb name scheme for their device trees. Use that
+ * scheme if we don't have an explicit fdtfile variable.
+ */
+#define BOOTENV_EFI_SET_FDTFILE_FALLBACK                                  \
+	"if test -z \"${fdtfile}\" -a -n \"${soc}\"; then "               \
+	  "setenv efi_fdtfile ${soc}-${board}${boardver}.dtb; "           \
+	"fi; "
+#else
+#define BOOTENV_EFI_SET_FDTFILE_FALLBACK
+#endif
+
+
 #define BOOTENV_SHARED_EFI                                                \
 	"boot_efi_binary="                                                \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
@@ -111,14 +126,16 @@
 	\
 	"load_efi_dtb="                                                   \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
-			"${fdt_addr_r} ${prefix}${fdtfile}\0"             \
+			"${fdt_addr_r} ${prefix}${efi_fdtfile}\0"         \
 	\
 	"efi_dtb_prefixes=/ /dtb/ /dtb/current/\0"                        \
 	"scan_dev_for_efi="                                               \
+		"setenv efi_fdtfile ${fdtfile}; "                         \
+		BOOTENV_EFI_SET_FDTFILE_FALLBACK                          \
 		"for prefix in ${efi_dtb_prefixes}; do "                  \
 			"if test -e ${devtype} "                          \
 					"${devnum}:${distro_bootpart} "   \
-					"${prefix}${fdtfile}; then "      \
+					"${prefix}${efi_fdtfile}; then "  \
 				"run load_efi_dtb; "                      \
 			"fi;"                                             \
 		"done;"                                                   \
@@ -128,7 +145,8 @@
 					"efi/boot/"BOOTEFI_NAME"; "       \
 				"run boot_efi_binary; "                   \
 				"echo EFI LOAD FAILED: continuing...; "   \
-		"fi; \0"
+		"fi; "                                                    \
+		"setenv efi_fdtfile\0"
 #define SCAN_DEV_FOR_EFI "run scan_dev_for_efi;"
 #else
 #define BOOTENV_SHARED_EFI
