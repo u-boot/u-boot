@@ -142,12 +142,11 @@ static void *copy_fdt(void *fdt)
  * Load an EFI payload into a newly allocated piece of memory, register all
  * EFI objects it would want to access and jump to it.
  */
-static unsigned long do_bootefi_exec(void *efi)
+static unsigned long do_bootefi_exec(void *efi, void *fdt)
 {
 	ulong (*entry)(void *image_handle, struct efi_system_table *st);
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
 	bootm_headers_t img = { 0 };
-	void *fdt = working_fdt;
 
 	/*
 	 * gd lives in a fixed register which may get clobbered while we execute
@@ -155,13 +154,7 @@ static unsigned long do_bootefi_exec(void *efi)
 	 */
 	efi_save_gd();
 
-	/* Update system table to point to our currently loaded FDT */
-
-	/* Fall back to included fdt if none was manually loaded */
-	if (!fdt && gd->fdt_blob)
-		fdt = (void *)gd->fdt_blob;
-
-	if (fdt) {
+	if (fdt && !fdt_check_header(fdt)) {
 		/* Prepare fdt for payload */
 		fdt = copy_fdt(fdt);
 
@@ -185,7 +178,7 @@ static unsigned long do_bootefi_exec(void *efi)
 		efi_add_memory_map(fdt_start, fdt_pages,
 				   EFI_BOOT_SERVICES_DATA, true);
 	} else {
-		printf("WARNING: No device tree loaded, expect boot to fail\n");
+		printf("WARNING: Invalid device tree, expect boot to fail\n");
 		systab.nr_tables = 0;
 	}
 
@@ -216,8 +209,8 @@ static unsigned long do_bootefi_exec(void *efi)
 /* Interpreter command to boot an arbitrary EFI image from memory */
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	char *saddr;
-	unsigned long addr;
+	char *saddr, *sfdt;
+	unsigned long addr, fdt_addr = 0;
 	int r = 0;
 
 	if (argc < 2)
@@ -226,8 +219,13 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	addr = simple_strtoul(saddr, NULL, 16);
 
+	if (argc > 2) {
+		sfdt = argv[2];
+		fdt_addr = simple_strtoul(sfdt, NULL, 16);
+	}
+
 	printf("## Starting EFI application at 0x%08lx ...\n", addr);
-	r = do_bootefi_exec((void *)addr);
+	r = do_bootefi_exec((void *)addr, (void*)fdt_addr);
 	printf("## Application terminated, r = %d\n", r);
 
 	if (r != 0)
@@ -238,16 +236,14 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #ifdef CONFIG_SYS_LONGHELP
 static char bootefi_help_text[] =
-	"<image address>\n"
-	"  - boot EFI payload stored at address <image address>\n"
-	"\n"
-	"Since most EFI payloads want to have a device tree provided, please\n"
-	"make sure you load a device tree using the fdt addr command before\n"
-	"executing bootefi.\n";
+	"<image address> [fdt address]\n"
+	"  - boot EFI payload stored at address <image address>.\n"
+	"    If specified, the device tree located at <fdt address> gets\n"
+	"    exposed as EFI configuration table.\n";
 #endif
 
 U_BOOT_CMD(
-	bootefi, 2, 0, do_bootefi,
+	bootefi, 3, 0, do_bootefi,
 	"Boots an EFI payload from memory\n",
 	bootefi_help_text
 );

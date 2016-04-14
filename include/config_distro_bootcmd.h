@@ -103,12 +103,15 @@
 	"boot_efi_binary="                                                \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
-		"bootefi ${kernel_addr_r}\0"                              \
+		"if fdt addr ${fdt_addr_r}; then "                        \
+			"bootefi ${kernel_addr_r} ${fdt_addr_r};"         \
+		"else"                                                    \
+			"bootefi ${kernel_addr_r} ${fdtcontroladdr};"     \
+		"fi\0"                                                    \
 	\
 	"load_efi_dtb="                                                   \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
-			"${fdt_addr_r} ${prefix}${fdtfile}; "             \
-		"fdt addr ${fdt_addr_r}\0"                                \
+			"${fdt_addr_r} ${prefix}${fdtfile}\0"             \
 	\
 	"efi_dtb_prefixes=/ /dtb/ /dtb/current/\0"                        \
 	"scan_dev_for_efi="                                               \
