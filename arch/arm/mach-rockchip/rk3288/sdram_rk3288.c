@@ -561,14 +561,14 @@ static void dram_all_config(const struct dram_info *dram,
 			&sdram_params->ch[chan];
 
 		sys_reg |= info->row_3_4 << SYS_REG_ROW_3_4_SHIFT(chan);
-		sys_reg |= 1 << SYS_REG_CHINFO_SHIFT(chan);
+		sys_reg |= chan << SYS_REG_CHINFO_SHIFT(chan);
 		sys_reg |= (info->rank - 1) << SYS_REG_RANK_SHIFT(chan);
 		sys_reg |= (info->col - 9) << SYS_REG_COL_SHIFT(chan);
-		sys_reg |= info->bk == 3 ? 0 : 1 << SYS_REG_BK_SHIFT(chan);
+		sys_reg |= info->bk == 3 ? 1 << SYS_REG_BK_SHIFT(chan) : 0;
 		sys_reg |= (info->cs0_row - 13) << SYS_REG_CS0_ROW_SHIFT(chan);
 		sys_reg |= (info->cs1_row - 13) << SYS_REG_CS1_ROW_SHIFT(chan);
-		sys_reg |= (2 >> info->bw) << SYS_REG_BW_SHIFT(chan);
-		sys_reg |= (2 >>info->dbw) << SYS_REG_DBW_SHIFT(chan);
+		sys_reg |= info->bw << SYS_REG_BW_SHIFT(chan);
+		sys_reg |= info->dbw << SYS_REG_DBW_SHIFT(chan);
 
 		dram_cfg_rbc(&dram->chan[chan], chan, sdram_params);
 	}
@@ -720,13 +720,13 @@ size_t sdram_size_mb(struct rk3288_pmu *pmu)
 		rank = 1 + (sys_reg >> SYS_REG_RANK_SHIFT(ch) &
 			SYS_REG_RANK_MASK);
 		col = 9 + (sys_reg >> SYS_REG_COL_SHIFT(ch) & SYS_REG_COL_MASK);
-		bk = 3 - ((sys_reg >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK) ;
+		bk = sys_reg & (1 << SYS_REG_BK_SHIFT(ch)) ? 3 : 0;
 		cs0_row = 13 + (sys_reg >> SYS_REG_CS0_ROW_SHIFT(ch) &
 				SYS_REG_CS0_ROW_MASK);
 		cs1_row = 13 + (sys_reg >> SYS_REG_CS1_ROW_SHIFT(ch) &
 				SYS_REG_CS1_ROW_MASK);
-		bw = (2 >> (sys_reg >> SYS_REG_BW_SHIFT(ch)) &
-			SYS_REG_BW_MASK);
+		bw = (sys_reg >> SYS_REG_BW_SHIFT(ch)) &
+			SYS_REG_BW_MASK;
 		row_3_4 = sys_reg >> SYS_REG_ROW_3_4_SHIFT(ch) &
 			SYS_REG_ROW_3_4_MASK;
 
