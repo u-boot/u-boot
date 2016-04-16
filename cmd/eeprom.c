@@ -24,6 +24,7 @@
 #include <config.h>
 #include <command.h>
 #include <i2c.h>
+#include <eeprom_layout.h>
 
 #ifndef	CONFIG_SYS_I2C_SPEED
 #define	CONFIG_SYS_I2C_SPEED	50000
@@ -258,7 +259,6 @@ static int parse_i2c_bus_addr(int *i2c_bus, ulong *i2c_addr, int argc,
 }
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
-#include <eeprom_layout.h>
 
 __weak int eeprom_parse_layout_version(char *str)
 {
@@ -271,12 +271,17 @@ static unsigned char eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
 #define CONFIG_EEPROM_LAYOUT_HELP_STRING "<not defined>"
 #endif
 
+#endif
+
 enum eeprom_action {
+	EEPROM_READ,
+	EEPROM_WRITE,
 	EEPROM_PRINT,
 	EEPROM_UPDATE,
 	EEPROM_ACTION_INVALID,
 };
 
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
 static enum eeprom_action parse_action(char *cmd)
 {
 	if (!strncmp(cmd, "print", 5))
@@ -286,18 +291,40 @@ static enum eeprom_action parse_action(char *cmd)
 
 	return EEPROM_ACTION_INVALID;
 }
+#endif
 
 static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
-				  int i2c_addr, int layout_ver, char *key,
-				  char *value)
+				  ulong i2c_addr, int layout_ver, char *key,
+				  char *value, ulong addr, ulong off, ulong cnt)
 {
-	int rcode;
+	int rcode = 0;
+	const char *const fmt =
+		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
 	struct eeprom_layout layout;
+#endif
 
 	if (action == EEPROM_ACTION_INVALID)
 		return CMD_RET_USAGE;
 
 	eeprom_init(i2c_bus);
+	if (action == EEPROM_READ) {
+		printf(fmt, i2c_addr, "read", addr, off, cnt);
+
+		rcode = eeprom_read(i2c_addr, off, (uchar *)addr, cnt);
+
+		puts("done\n");
+		return rcode;
+	} else if (action == EEPROM_WRITE) {
+		printf(fmt, i2c_addr, "write", addr, off, cnt);
+
+		rcode = eeprom_write(i2c_addr, off, (uchar *)addr, cnt);
+
+		puts("done\n");
+		return rcode;
+	}
+
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
 	rcode = eeprom_read(i2c_addr, 0, eeprom_buf, CONFIG_SYS_EEPROM_SIZE);
 	if (rcode < 0)
 		return rcode;
@@ -313,10 +340,12 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 	layout.update(&layout, key, value);
 
 	rcode = eeprom_write(i2c_addr, 0, layout.data, CONFIG_SYS_EEPROM_SIZE);
+#endif
 
 	return rcode;
 }
 
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
 #define NEXT_PARAM(argc, index)	{ (argc)--; (index)++; }
 static int do_eeprom_layout(cmd_tbl_t *cmdtp, int flag, int argc,
 			    char * const argv[])
@@ -369,15 +398,13 @@ static int do_eeprom_layout(cmd_tbl_t *cmdtp, int flag, int argc,
 
 done:
 	return eeprom_execute_command(action, i2c_bus, i2c_addr, layout_ver,
-			       field_name, field_value);
+				      field_name, field_value, 0, 0, 0);
 }
 
 #endif
 
 static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	const char *const fmt =
-		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
 	char * const *args = &argv[2];
 	int rcode;
 	ulong dev_addr, addr, off, cnt;
@@ -398,22 +425,14 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	off = simple_strtoul(*args++, NULL, 16);
 	cnt = simple_strtoul(*args++, NULL, 16);
 
-	eeprom_init(bus_addr);
-
 	if (strcmp(argv[1], "read") == 0) {
-		printf(fmt, dev_addr, argv[1], addr, off, cnt);
-
-		rcode = eeprom_read(dev_addr, off, (uchar *)addr, cnt);
-
-		puts("done\n");
-		return rcode;
+		return eeprom_execute_command(EEPROM_READ, bus_addr, dev_addr,
+					      LAYOUT_VERSION_UNRECOGNIZED,
+					      NULL, NULL, addr, off, cnt);
 	} else if (strcmp(argv[1], "write") == 0) {
-		printf(fmt, dev_addr, argv[1], addr, off, cnt);
-
-		rcode = eeprom_write(dev_addr, off, (uchar *)addr, cnt);
-
-		puts("done\n");
-		return rcode;
+		return eeprom_execute_command(EEPROM_WRITE, bus_addr, dev_addr,
+					      LAYOUT_VERSION_UNRECOGNIZED,
+					      NULL, NULL, addr, off, cnt);
 	}
 
 	return CMD_RET_USAGE;
