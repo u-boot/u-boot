@@ -430,13 +430,10 @@ void invalidate_dcache_all(void)
 
 void flush_dcache_all(void)
 {
-#ifdef CONFIG_ISA_ARCV2
-	if (!ioc_exists)
-#endif
-		__dc_entire_op(OP_FLUSH);
+	__dc_entire_op(OP_FLUSH);
 
 #ifdef CONFIG_ISA_ARCV2
-	if (slc_exists && !ioc_exists)
+	if (slc_exists)
 		__slc_entire_op(OP_FLUSH);
 #endif
 }
