@@ -207,6 +207,56 @@ int eeprom_write(unsigned dev_addr, unsigned offset,
 	return ret;
 }
 
+static int parse_numeric_param(char *str)
+{
+	char *endptr;
+	int value = simple_strtol(str, &endptr, 16);
+
+	return (*endptr != '\0') ? -1 : value;
+}
+
+/**
+ * parse_i2c_bus_addr - parse the i2c bus and i2c devaddr parameters
+ *
+ * @i2c_bus:	address to store the i2c bus
+ * @i2c_addr:	address to store the device i2c address
+ * @argc:	count of command line arguments left to parse
+ * @argv:	command line arguments left to parse
+ * @argc_no_bus_addr:	argc value we expect to see when bus & addr aren't given
+ *
+ * @returns:	number of arguments parsed or CMD_RET_USAGE if error
+ */
+static int parse_i2c_bus_addr(int *i2c_bus, ulong *i2c_addr, int argc,
+			      char * const argv[], int argc_no_bus_addr)
+{
+	int argc_no_bus = argc_no_bus_addr + 1;
+	int argc_bus_addr = argc_no_bus_addr + 2;
+
+#ifdef CONFIG_SYS_DEF_EEPROM_ADDR
+	if (argc == argc_no_bus_addr) {
+		*i2c_bus = -1;
+		*i2c_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
+
+		return 0;
+	}
+#endif
+	if (argc == argc_no_bus) {
+		*i2c_bus = -1;
+		*i2c_addr = parse_numeric_param(argv[0]);
+
+		return 1;
+	}
+
+	if (argc == argc_bus_addr) {
+		*i2c_bus = parse_numeric_param(argv[0]);
+		*i2c_addr = parse_numeric_param(argv[1]);
+
+		return 2;
+	}
+
+	return CMD_RET_USAGE;
+}
+
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 #include <eeprom_layout.h>
 
@@ -235,14 +285,6 @@ static enum eeprom_action parse_action(char *cmd)
 		return EEPROM_UPDATE;
 
 	return EEPROM_ACTION_INVALID;
-}
-
-static int parse_numeric_param(char *str)
-{
-	char *endptr;
-	int value = simple_strtol(str, &endptr, 16);
-
-	return (*endptr != '\0') ? -1 : value;
 }
 
 static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
@@ -348,24 +390,9 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
-	switch (argc) {
-#ifdef CONFIG_SYS_DEF_EEPROM_ADDR
-	case 5:
-		bus_addr = -1;
-		dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
-		break;
-#endif
-	case 6:
-		bus_addr = -1;
-		dev_addr = simple_strtoul(*args++, NULL, 16);
-		break;
-	case 7:
-		bus_addr = simple_strtoul(*args++, NULL, 16);
-		dev_addr = simple_strtoul(*args++, NULL, 16);
-		break;
-	default:
-		return CMD_RET_USAGE;
-	}
+	rcode = parse_i2c_bus_addr(&bus_addr, &dev_addr, argc - 2, argv + 2, 3);
+	if (rcode == CMD_RET_USAGE)
+		return rcode;
 
 	addr = simple_strtoul(*args++, NULL, 16);
 	off = simple_strtoul(*args++, NULL, 16);
