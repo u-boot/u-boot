@@ -207,6 +207,131 @@ int eeprom_write(unsigned dev_addr, unsigned offset,
 	return ret;
 }
 
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
+#include <eeprom_layout.h>
+
+__weak int eeprom_parse_layout_version(char *str)
+{
+	return LAYOUT_VERSION_UNRECOGNIZED;
+}
+
+static unsigned char eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
+
+#ifndef CONFIG_EEPROM_LAYOUT_HELP_STRING
+#define CONFIG_EEPROM_LAYOUT_HELP_STRING "<not defined>"
+#endif
+
+enum eeprom_action {
+	EEPROM_PRINT,
+	EEPROM_UPDATE,
+	EEPROM_ACTION_INVALID,
+};
+
+static enum eeprom_action parse_action(char *cmd)
+{
+	if (!strncmp(cmd, "print", 5))
+		return EEPROM_PRINT;
+	if (!strncmp(cmd, "update", 6))
+		return EEPROM_UPDATE;
+
+	return EEPROM_ACTION_INVALID;
+}
+
+static int parse_numeric_param(char *str)
+{
+	char *endptr;
+	int value = simple_strtol(str, &endptr, 16);
+
+	return (*endptr != '\0') ? -1 : value;
+}
+
+static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
+				  int i2c_addr, int layout_ver, char *key,
+				  char *value)
+{
+	int rcode;
+	struct eeprom_layout layout;
+
+	if (action == EEPROM_ACTION_INVALID)
+		return CMD_RET_USAGE;
+
+	eeprom_init(i2c_bus);
+	rcode = eeprom_read(i2c_addr, 0, eeprom_buf, CONFIG_SYS_EEPROM_SIZE);
+	if (rcode < 0)
+		return rcode;
+
+	eeprom_layout_setup(&layout, eeprom_buf, CONFIG_SYS_EEPROM_SIZE,
+			    layout_ver);
+
+	if (action == EEPROM_PRINT) {
+		layout.print(&layout);
+		return 0;
+	}
+
+	layout.update(&layout, key, value);
+
+	rcode = eeprom_write(i2c_addr, 0, layout.data, CONFIG_SYS_EEPROM_SIZE);
+
+	return rcode;
+}
+
+#define NEXT_PARAM(argc, index)	{ (argc)--; (index)++; }
+static int do_eeprom_layout(cmd_tbl_t *cmdtp, int flag, int argc,
+			    char * const argv[])
+{
+	int layout_ver = LAYOUT_VERSION_AUTODETECT;
+	enum eeprom_action action = EEPROM_ACTION_INVALID;
+	int i2c_bus = -1, i2c_addr = -1, index = 0;
+	char *field_name = "";
+	char *field_value = "";
+
+	if (argc <= 1)
+		return CMD_RET_USAGE;
+
+	NEXT_PARAM(argc, index); /* Skip program name */
+
+	action = parse_action(argv[index]);
+	NEXT_PARAM(argc, index);
+
+	if (argc <= 1)
+		return CMD_RET_USAGE;
+
+	if (!strcmp(argv[index], "-l")) {
+		NEXT_PARAM(argc, index);
+
+		layout_ver = eeprom_parse_layout_version(argv[index]);
+		NEXT_PARAM(argc, index);
+	}
+
+	if (argc <= 1)
+		return CMD_RET_USAGE;
+
+	i2c_bus = parse_numeric_param(argv[index]);
+	NEXT_PARAM(argc, index);
+
+	i2c_addr = parse_numeric_param(argv[index]);
+	NEXT_PARAM(argc, index);
+
+	if (action == EEPROM_PRINT)
+		goto done;
+
+	if (argc) {
+		field_name = argv[index];
+		NEXT_PARAM(argc, index);
+	}
+
+	if (argc) {
+		field_value = argv[index];
+		NEXT_PARAM(argc, index);
+	}
+
+done:
+	return eeprom_execute_command(action, i2c_bus, i2c_addr, layout_ver,
+			       field_name, field_value);
+}
+
+#endif
+
 static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *const fmt =
@@ -215,6 +340,13 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int rcode;
 	ulong dev_addr, addr, off, cnt;
 	int bus_addr;
+
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
+	if (argc >= 2) {
+		if (!strcmp(argv[1], "update") || !strcmp(argv[1], "print"))
+			return do_eeprom_layout(cmdtp, flag, argc, argv);
+	}
+#endif
 
 	switch (argc) {
 #ifdef CONFIG_SYS_DEF_EEPROM_ADDR
@@ -261,9 +393,23 @@ static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	eeprom,	7,	1,	do_eeprom,
+	eeprom,	8,	1,	do_eeprom,
 	"EEPROM sub-system",
 	"read  <bus> <devaddr> addr off cnt\n"
 	"eeprom write <bus> <devaddr> addr off cnt\n"
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
+	"\n"
+	"eeprom print [-l <layout_version>] bus devaddr\n"
+	"       - Print layout fields and their data in human readable format\n"
+	"eeprom update [-l <layout_version>] bus devaddr <field_name> <field_value>\n"
+	"       - Update a specific eeprom field with new data.\n"
+	"         The new data must be written in the same human readable format as shown by the print command.\n"
+	"\n"
+	"LAYOUT VERSIONS\n"
+	"The -l option can be used to force the command to interpret the EEPROM data using the chosen layout.\n"
+	"If the -l option is omitted, the command will auto detect the layout based on the data in the EEPROM.\n"
+	"The values which can be provided with the -l option are:\n"
+	CONFIG_EEPROM_LAYOUT_HELP_STRING"\n"
+#endif
 )

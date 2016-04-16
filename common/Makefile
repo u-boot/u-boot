@@ -156,6 +156,9 @@ obj-y += fb_nand.o
 endif
 endif
 
+ifdef CONFIG_CMD_EEPROM_LAYOUT
+obj-y += eeprom/eeprom_field.o eeprom/eeprom_layout.o
+endif
 # We always have this since drivers/ddr/fs/interactive.c needs it
 obj-$(CONFIG_CMDLINE) += cli_simple.o
 
