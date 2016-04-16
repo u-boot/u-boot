@@ -281,17 +281,21 @@ enum eeprom_action {
 	EEPROM_ACTION_INVALID,
 };
 
-#ifdef CONFIG_CMD_EEPROM_LAYOUT
 static enum eeprom_action parse_action(char *cmd)
 {
+	if (!strncmp(cmd, "read", 4))
+		return EEPROM_READ;
+	if (!strncmp(cmd, "write", 5))
+		return EEPROM_WRITE;
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
 	if (!strncmp(cmd, "print", 5))
 		return EEPROM_PRINT;
 	if (!strncmp(cmd, "update", 6))
 		return EEPROM_UPDATE;
+#endif
 
 	return EEPROM_ACTION_INVALID;
 }
-#endif
 
 static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 				  ulong i2c_addr, int layout_ver, char *key,
@@ -345,14 +349,14 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 	return rcode;
 }
 
-#ifdef CONFIG_CMD_EEPROM_LAYOUT
 #define NEXT_PARAM(argc, index)	{ (argc)--; (index)++; }
-static int do_eeprom_layout(cmd_tbl_t *cmdtp, int flag, int argc,
-			    char * const argv[])
+int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int layout_ver = LAYOUT_VERSION_AUTODETECT;
 	enum eeprom_action action = EEPROM_ACTION_INVALID;
-	int i2c_bus = -1, i2c_addr = -1, index = 0;
+	int i2c_bus = -1, index = 0;
+	ulong i2c_addr = -1, addr = 0, cnt = 0, off = 0;
+	int ret;
 	char *field_name = "";
 	char *field_value = "";
 
@@ -364,78 +368,63 @@ static int do_eeprom_layout(cmd_tbl_t *cmdtp, int flag, int argc,
 	action = parse_action(argv[index]);
 	NEXT_PARAM(argc, index);
 
-	if (argc <= 1)
+	if (action == EEPROM_ACTION_INVALID)
 		return CMD_RET_USAGE;
 
-	if (!strcmp(argv[index], "-l")) {
-		NEXT_PARAM(argc, index);
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
+	if (action == EEPROM_PRINT || action == EEPROM_UPDATE) {
+		if (!strcmp(argv[index], "-l")) {
+			NEXT_PARAM(argc, index);
+			layout_ver = eeprom_parse_layout_version(argv[index]);
+			NEXT_PARAM(argc, index);
+		}
+	}
+#endif
 
-		layout_ver = eeprom_parse_layout_version(argv[index]);
-		NEXT_PARAM(argc, index);
+	switch (action) {
+	case EEPROM_READ:
+	case EEPROM_WRITE:
+		ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc,
+					 argv + index, 3);
+		break;
+	case EEPROM_PRINT:
+		ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc,
+					 argv + index, 0);
+		break;
+	case EEPROM_UPDATE:
+		ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc,
+					 argv + index, 2);
+		break;
+	default:
+		/* Get compiler to stop whining */
+		return CMD_RET_USAGE;
 	}
 
-	if (argc <= 1)
-		return CMD_RET_USAGE;
+	if (ret == CMD_RET_USAGE)
+		return ret;
 
-	i2c_bus = parse_numeric_param(argv[index]);
-	NEXT_PARAM(argc, index);
+	while (ret--)
+		NEXT_PARAM(argc, index);
 
-	i2c_addr = parse_numeric_param(argv[index]);
-	NEXT_PARAM(argc, index);
+	if (action == EEPROM_READ || action == EEPROM_WRITE) {
+		addr = parse_numeric_param(argv[index]);
+		NEXT_PARAM(argc, index);
+		off = parse_numeric_param(argv[index]);
+		NEXT_PARAM(argc, index);
+		cnt = parse_numeric_param(argv[index]);
+	}
 
-	if (action == EEPROM_PRINT)
-		goto done;
-
-	if (argc) {
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
+	if (action == EEPROM_UPDATE) {
 		field_name = argv[index];
 		NEXT_PARAM(argc, index);
-	}
-
-	if (argc) {
 		field_value = argv[index];
 		NEXT_PARAM(argc, index);
 	}
+#endif
 
-done:
 	return eeprom_execute_command(action, i2c_bus, i2c_addr, layout_ver,
-				      field_name, field_value, 0, 0, 0);
-}
-
-#endif
-
-static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	char * const *args = &argv[2];
-	int rcode;
-	ulong dev_addr, addr, off, cnt;
-	int bus_addr;
-
-#ifdef CONFIG_CMD_EEPROM_LAYOUT
-	if (argc >= 2) {
-		if (!strcmp(argv[1], "update") || !strcmp(argv[1], "print"))
-			return do_eeprom_layout(cmdtp, flag, argc, argv);
-	}
-#endif
-
-	rcode = parse_i2c_bus_addr(&bus_addr, &dev_addr, argc - 2, argv + 2, 3);
-	if (rcode == CMD_RET_USAGE)
-		return rcode;
-
-	addr = simple_strtoul(*args++, NULL, 16);
-	off = simple_strtoul(*args++, NULL, 16);
-	cnt = simple_strtoul(*args++, NULL, 16);
-
-	if (strcmp(argv[1], "read") == 0) {
-		return eeprom_execute_command(EEPROM_READ, bus_addr, dev_addr,
-					      LAYOUT_VERSION_UNRECOGNIZED,
-					      NULL, NULL, addr, off, cnt);
-	} else if (strcmp(argv[1], "write") == 0) {
-		return eeprom_execute_command(EEPROM_WRITE, bus_addr, dev_addr,
-					      LAYOUT_VERSION_UNRECOGNIZED,
-					      NULL, NULL, addr, off, cnt);
-	}
-
-	return CMD_RET_USAGE;
+				      field_name, field_value, addr, off, cnt);
 }
 
 U_BOOT_CMD(
@@ -446,9 +435,9 @@ U_BOOT_CMD(
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 	"\n"
-	"eeprom print [-l <layout_version>] bus devaddr\n"
+	"eeprom print [-l <layout_version>] <bus> <devaddr>\n"
 	"       - Print layout fields and their data in human readable format\n"
-	"eeprom update [-l <layout_version>] bus devaddr <field_name> <field_value>\n"
+	"eeprom update [-l <layout_version>] <bus> <devaddr> field_name field_value\n"
 	"       - Update a specific eeprom field with new data.\n"
 	"         The new data must be written in the same human readable format as shown by the print command.\n"
 	"\n"
