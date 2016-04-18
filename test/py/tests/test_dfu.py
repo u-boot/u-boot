@@ -44,6 +44,14 @@ env__dfu_configs = (
         # configurations, but don't want to test every single transfer size
         # on each, to avoid bloating the overall time taken by testing.
         "test_sizes": (63, 64, 65),
+        # This value is optional.
+        # The name of the environment variable that the the dfu command reads
+        # alt info from. If unspecified, this defaults to dfu_alt_info, which is
+        # valid for most systems. Some systems use a different variable name.
+        # One example is the Odroid XU3,  which automatically generates
+        # $dfu_alt_info, each time the dfu command is run, by concatenating
+        # $dfu_alt_boot and $dfu_alt_system.
+        "alt_info_env_name": "dfu_alt_system",
     },
 )
 
@@ -124,7 +132,11 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
         u_boot_console.log.action(
             'Starting long-running U-Boot dfu shell command')
 
-        cmd = 'setenv dfu_alt_info "%s"' % env__dfu_config['alt_info']
+        dfu_alt_info_env = env__dfu_config.get('alt_info_env_name', \
+	                                               'dfu_alt_info')
+
+        cmd = 'setenv "%s" "%s"' % (dfu_alt_info_env,
+                                    env__dfu_config['alt_info'])
         u_boot_console.run_command(cmd)
 
         cmd = 'dfu 0 ' + env__dfu_config['cmd_params']
