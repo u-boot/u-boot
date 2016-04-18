@@ -205,6 +205,7 @@ static const struct dm_serial_ops sh_serial_ops = {
 
 #ifdef CONFIG_OF_CONTROL
 static const struct udevice_id sh_serial_id[] ={
+	{.compatible = "renesas,sci", .data = PORT_SCI},
 	{.compatible = "renesas,scif", .data = PORT_SCIF},
 	{.compatible = "renesas,scifa", .data = PORT_SCIFA},
 	{}
@@ -262,6 +263,8 @@ U_BOOT_DRIVER(serial_sh) = {
 
 #if defined(CONFIG_SCIF_A)
 	#define SCIF_BASE_PORT	PORT_SCIFA
+#elif defined(CONFIG_SCI)
+	#define SCIF_BASE_PORT  PORT_SCI
 #else
 	#define SCIF_BASE_PORT	PORT_SCIF
 #endif
