@@ -186,8 +186,14 @@
 	"initrd_size=0x2000000\0" \
 	"fdt_addr=4000000\0" \
 	"fdt_high=0x10000000\0" \
+	"loadbootenv_addr=0x100000\0" \
 	"sdbootdev=0\0"\
 	CONFIG_KERNEL_FDT_OFST_SIZE \
+	"bootenv=uEnv.txt\0" \
+	"loadbootenv=load mmc $sdbootdev:$partid ${loadbootenv_addr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from SD ...; " \
+		"env import -t ${loadbootenv_addr} $filesize\0" \
+	"sd_uEnvtxt_existence_test=test -e mmc $sdbootdev:$partid /uEnv.txt\0" \
 	"sata_root=if test $scsidevs -gt 0; then setenv bootargs $bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
 	"sataboot=load scsi 0 80000 boot/Image && load scsi 0 $fdt_addr boot/system.dtb && booti 80000 - $fdt_addr\0" \
 	"veloce=fdt addr f000000 && fdt resize" \
@@ -199,7 +205,14 @@
 	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr $fdt_offset $fdt_size && " \
 		  "sf read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
-	"sdboot=mmc dev $sdbootdev && mmcinfo && load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
+	"uenvboot=" \
+		"if run sd_uEnvtxt_existence_test; then " \
+			"run loadbootenv; " \
+			"echo Loaded environment from ${bootenv}; " \
+			"run importbootenv; " \
+		"fi\0" \
+	"sdboot=mmc dev $sdbootdev && mmcinfo && run uenvboot && " \
+		"load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
 	"nandboot=nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
