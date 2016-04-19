@@ -39,6 +39,11 @@
 #define TX_ENDPOINT_MAXIMUM_PACKET_SIZE      (0x0040)
 
 #define EP_BUFFER_SIZE			4096
+/*
+ * EP_BUFFER_SIZE must always be an integral multiple of maxpacket size
+ * (64 or 512 or 1024), else we break on certain controllers like DWC3
+ * that expect bulk OUT requests to be divisible by maxpacket size.
+ */
 
 struct f_fastboot {
 	struct usb_function usb_function;
@@ -57,7 +62,6 @@ static struct f_fastboot *fastboot_func;
 static unsigned int fastboot_flash_session_id;
 static unsigned int download_size;
 static unsigned int download_bytes;
-static bool is_high_speed;
 
 static struct usb_endpoint_descriptor fs_ep_in = {
 	.bLength            = USB_DT_ENDPOINT_SIZE,
@@ -269,11 +273,6 @@ static int fastboot_set_alt(struct usb_function *f,
 	debug("%s: func: %s intf: %d alt: %d\n",
 	      __func__, f->name, interface, alt);
 
-	if (gadget->speed == USB_SPEED_HIGH)
-		is_high_speed = true;
-	else
-		is_high_speed = false;
-
 	d = fb_ep_desc(gadget, &fs_ep_out, &hs_ep_out);
 	ret = usb_ep_enable(f_fb->out_ep, d);
 	if (ret) {
@@ -455,20 +454,27 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str(response);
 }
 
-static unsigned int rx_bytes_expected(unsigned int maxpacket)
+static unsigned int rx_bytes_expected(struct usb_ep *ep)
 {
 	int rx_remain = download_size - download_bytes;
-	int rem = 0;
-	if (rx_remain < 0)
+	unsigned int rem;
+	unsigned int maxpacket = ep->maxpacket;
+
+	if (rx_remain <= 0)
 		return 0;
-	if (rx_remain > EP_BUFFER_SIZE)
+	else if (rx_remain > EP_BUFFER_SIZE)
 		return EP_BUFFER_SIZE;
-	if (rx_remain < maxpacket) {
-		rx_remain = maxpacket;
-	} else if (rx_remain % maxpacket != 0) {
-		rem = rx_remain % maxpacket;
+
+	/*
+	 * Some controllers e.g. DWC3 don't like OUT transfers to be
+	 * not ending in maxpacket boundary. So just make them happy by
+	 * always requesting for integral multiple of maxpackets.
+	 * This shouldn't bother controllers that don't care about it.
+	 */
+	rem = rx_remain % maxpacket;
+	if (rem > 0)
 		rx_remain = rx_remain + (maxpacket - rem);
-	}
+
 	return rx_remain;
 }
 
@@ -480,7 +486,6 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	const unsigned char *buffer = req->buf;
 	unsigned int buffer_size = req->actual;
 	unsigned int pre_dot_num, now_dot_num;
-	unsigned int max;
 
 	if (req->status != 0) {
 		printf("Bad status: %d\n", req->status);
@@ -518,11 +523,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 
 		printf("\ndownloading of %d bytes finished\n", download_bytes);
 	} else {
-		max = is_high_speed ? hs_ep_out.wMaxPacketSize :
-				fs_ep_out.wMaxPacketSize;
-		req->length = rx_bytes_expected(max);
-		if (req->length < ep->maxpacket)
-			req->length = ep->maxpacket;
+		req->length = rx_bytes_expected(ep);
 	}
 
 	req->actual = 0;
@@ -533,7 +534,6 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
 	char response[FASTBOOT_RESPONSE_LEN];
-	unsigned int max;
 
 	strsep(&cmd, ":");
 	download_size = simple_strtoul(cmd, NULL, 16);
@@ -549,11 +549,7 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 	} else {
 		sprintf(response, "DATA%08x", download_size);
 		req->complete = rx_handler_dl_image;
-		max = is_high_speed ? hs_ep_out.wMaxPacketSize :
-			fs_ep_out.wMaxPacketSize;
-		req->length = rx_bytes_expected(max);
-		if (req->length < ep->maxpacket)
-			req->length = ep->maxpacket;
+		req->length = rx_bytes_expected(ep);
 	}
 	fastboot_tx_write_str(response);
 }
