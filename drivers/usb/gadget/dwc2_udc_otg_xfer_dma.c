@@ -229,7 +229,7 @@ static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 				ROUND(xfer_size, CONFIG_SYS_CACHELINE_SIZE));
 
 	req->req.actual += min(xfer_size, req->req.length - req->req.actual);
-	is_short = (xfer_size < ep->ep.maxpacket);
+	is_short = !!(xfer_size % ep->ep.maxpacket);
 
 	debug_cond(DEBUG_OUT_EP != 0,
 		   "%s: RX DMA done : ep = %d, rx bytes = %d/%d, "
