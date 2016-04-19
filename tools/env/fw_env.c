@@ -106,7 +106,7 @@ static struct environment environment = {
 	.flag_scheme = FLAG_NONE,
 };
 
-static int env_aes_cbc_crypt(char *data, const int enc);
+static int env_aes_cbc_crypt(char *data, const int enc, uint8_t *key);
 
 static int HaveRedundEnv = 0;
 
@@ -304,7 +304,8 @@ int fw_env_close(void)
 {
 	int ret;
 	if (common_args.aes_flag) {
-		ret = env_aes_cbc_crypt(environment.data, 1);
+		ret = env_aes_cbc_crypt(environment.data, 1,
+					common_args.aes_key);
 		if (ret) {
 			fprintf(stderr,
 				"Error: can't encrypt env for flash\n");
@@ -949,7 +950,7 @@ static int flash_flag_obsolete (int dev, int fd, off_t offset)
 }
 
 /* Encrypt or decrypt the environment before writing or reading it. */
-static int env_aes_cbc_crypt(char *payload, const int enc)
+static int env_aes_cbc_crypt(char *payload, const int enc, uint8_t *key)
 {
 	uint8_t *data = (uint8_t *)payload;
 	const int len = getenvsize();
@@ -957,7 +958,7 @@ static int env_aes_cbc_crypt(char *payload, const int enc)
 	uint32_t aes_blocks;
 
 	/* First we expand the key. */
-	aes_expand_key(common_args.aes_key, key_exp);
+	aes_expand_key(key, key_exp);
 
 	/* Calculate the number of AES blocks to encrypt. */
 	aes_blocks = DIV_ROUND_UP(len, AES_KEY_LENGTH);
@@ -1186,7 +1187,8 @@ int fw_env_open(void)
 	crc0 = crc32 (0, (uint8_t *) environment.data, ENV_SIZE);
 
 	if (common_args.aes_flag) {
-		ret = env_aes_cbc_crypt(environment.data, 0);
+		ret = env_aes_cbc_crypt(environment.data, 0,
+					common_args.aes_key);
 		if (ret)
 			return ret;
 	}
@@ -1243,7 +1245,8 @@ int fw_env_open(void)
 		crc1 = crc32 (0, (uint8_t *) redundant->data, ENV_SIZE);
 
 		if (common_args.aes_flag) {
-			ret = env_aes_cbc_crypt(redundant->data, 0);
+			ret = env_aes_cbc_crypt(redundant->data, 0,
+						common_args.aes_key);
 			if (ret)
 				return ret;
 		}
