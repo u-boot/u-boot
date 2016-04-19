@@ -620,6 +620,13 @@ static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
 static int tegra_lcd_bind(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
+	int rgb;
+
+	rgb = fdt_subnode_offset(blob, node, "rgb");
+	if ((rgb < 0) || !fdtdec_get_is_enabled(blob, rgb))
+		return -ENODEV;
 
 	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
 		(1 << LCD_MAX_LOG2_BPP) / 8;
