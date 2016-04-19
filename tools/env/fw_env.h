@@ -67,7 +67,7 @@ struct common_args {
 extern struct common_args common_args;
 
 struct printenv_args {
-	int name_suppress;
+	int value_only;
 };
 extern struct printenv_args printenv_args;
 
@@ -78,7 +78,7 @@ extern struct setenv_args setenv_args;
 
 int parse_aes_key(char *key, uint8_t *bin_key);
 
-int   fw_printenv(int argc, char *argv[]);
+int fw_printenv(int argc, char *argv[], int value_only);
 char *fw_getenv(char *name);
 int fw_setenv(int argc, char *argv[]);
 int fw_parse_script(char *fname);

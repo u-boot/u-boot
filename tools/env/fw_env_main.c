@@ -151,7 +151,7 @@ int parse_printenv_args(int argc, char *argv[])
 	       EOF) {
 		switch (c) {
 		case 'n':
-			printenv_args.name_suppress = 1;
+			printenv_args.value_only = 1;
 			break;
 		case 'a':
 		case 'c':
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (do_printenv) {
-		if (fw_printenv(argc, argv) != 0)
+		if (fw_printenv(argc, argv, printenv_args.value_only))
 			retval = EXIT_FAILURE;
 	} else {
 		if (!setenv_args.script_file) {

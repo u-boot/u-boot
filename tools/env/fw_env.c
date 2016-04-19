@@ -239,7 +239,7 @@ int parse_aes_key(char *key, uint8_t *bin_key)
  * Print the current definition of one, or more, or all
  * environment variables
  */
-int fw_printenv (int argc, char *argv[])
+int fw_printenv(int argc, char *argv[], int value_only)
 {
 	char *env, *nxt;
 	int i, rc = 0;
@@ -262,7 +262,7 @@ int fw_printenv (int argc, char *argv[])
 		return 0;
 	}
 
-	if (printenv_args.name_suppress && argc != 1) {
+	if (value_only && argc != 1) {
 		fprintf(stderr,
 			"## Error: `-n' option requires exactly one argument\n");
 		return -1;
@@ -283,7 +283,7 @@ int fw_printenv (int argc, char *argv[])
 			}
 			val = envmatch (name, env);
 			if (val) {
-				if (!printenv_args.name_suppress) {
+				if (!value_only) {
 					fputs (name, stdout);
 					putc ('=', stdout);
 				}
