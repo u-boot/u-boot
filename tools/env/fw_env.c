@@ -75,7 +75,8 @@ static int dev_current;
 
 #define CUR_ENVSIZE ENVSIZE(dev_current)
 
-#define ENV_SIZE      getenvsize()
+static unsigned long usable_envsize;
+#define ENV_SIZE      usable_envsize
 
 struct env_image_single {
 	uint32_t	crc;	/* CRC32 over data bytes    */
@@ -124,18 +125,6 @@ static int parse_config (void);
 #if defined(CONFIG_FILE)
 static int get_config (char *);
 #endif
-static inline ulong getenvsize (void)
-{
-	ulong rc = CUR_ENVSIZE - sizeof(uint32_t);
-
-	if (HaveRedundEnv)
-		rc -= sizeof (char);
-
-	if (common_args.aes_flag)
-		rc &= ~(AES_KEY_LENGTH - 1);
-
-	return rc;
-}
 
 static char *skip_chars(char *s)
 {
@@ -953,7 +942,7 @@ static int flash_flag_obsolete (int dev, int fd, off_t offset)
 static int env_aes_cbc_crypt(char *payload, const int enc, uint8_t *key)
 {
 	uint8_t *data = (uint8_t *)payload;
-	const int len = getenvsize();
+	const int len = usable_envsize;
 	uint8_t key_exp[AES_EXPAND_KEY_LENGTH];
 	uint32_t aes_blocks;
 
@@ -1382,6 +1371,21 @@ static int parse_config ()
 			DEVNAME (1), strerror (errno));
 		return -1;
 	}
+
+	if (HaveRedundEnv && ENVSIZE(0) != ENVSIZE(1)) {
+		ENVSIZE(0) = ENVSIZE(1) = min(ENVSIZE(0), ENVSIZE(1));
+		fprintf(stderr,
+			"Redundant environments have inequal size, set to 0x%08lx\n",
+			ENVSIZE(1));
+	}
+
+	usable_envsize = CUR_ENVSIZE - sizeof(uint32_t);
+	if (HaveRedundEnv)
+		usable_envsize -= sizeof(char);
+
+	if (common_args.aes_flag)
+		usable_envsize &= ~(AES_KEY_LENGTH - 1);
+
 	return 0;
 }
 
