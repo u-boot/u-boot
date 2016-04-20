@@ -25,7 +25,6 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <malloc.h>
-#include <dt-bindings/gpio/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -277,22 +276,12 @@ static int omap_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_INPUT;
 }
 
-static int omap_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			   struct fdtdec_phandle_args *args)
-{
-	desc->offset = args->args[0];
-	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
-
-	return 0;
-}
-
 static const struct dm_gpio_ops gpio_omap_ops = {
 	.direction_input	= omap_gpio_direction_input,
 	.direction_output	= omap_gpio_direction_output,
 	.get_value		= omap_gpio_get_value,
 	.set_value		= omap_gpio_set_value,
 	.get_function		= omap_gpio_get_function,
-	.xlate			= omap_gpio_xlate,
 };
 
 static int omap_gpio_probe(struct udevice *dev)
