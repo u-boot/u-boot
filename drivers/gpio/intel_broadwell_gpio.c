@@ -162,15 +162,6 @@ static int broadwell_gpio_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int broadwell_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-				struct fdtdec_phandle_args *args)
-{
-	desc->offset = args->args[0];
-	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
-
-	return 0;
-}
-
 static const struct dm_gpio_ops gpio_broadwell_ops = {
 	.request		= broadwell_gpio_request,
 	.direction_input	= broadwell_gpio_direction_input,
@@ -178,7 +169,6 @@ static const struct dm_gpio_ops gpio_broadwell_ops = {
 	.get_value		= broadwell_gpio_get_value,
 	.set_value		= broadwell_gpio_set_value,
 	.get_function		= broadwell_gpio_get_function,
-	.xlate			= broadwell_gpio_xlate,
 };
 
 static const struct udevice_id intel_broadwell_gpio_ids[] = {
