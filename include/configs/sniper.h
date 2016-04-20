@@ -201,19 +201,6 @@
 #define CONFIG_USB_MUSB_OMAP2PLUS
 #define CONFIG_TWL4030_USB
 
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	0
-
-/*
- * Download
- */
-
-#define CONFIG_USB_GADGET_DOWNLOAD
-
-#define CONFIG_G_DNL_VENDOR_NUM		0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM	0xd022
-#define CONFIG_G_DNL_MANUFACTURER	"Texas Instruments"
-
 /*
  * Fastboot
  */

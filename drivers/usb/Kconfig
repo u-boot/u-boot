@@ -49,6 +49,8 @@ config DM_USB
 
 source "drivers/usb/host/Kconfig"
 
+source "drivers/usb/dwc3/Kconfig"
+
 source "drivers/usb/musb-new/Kconfig"
 
 source "drivers/usb/emul/Kconfig"

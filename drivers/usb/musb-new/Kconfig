@@ -10,6 +10,7 @@ config USB_MUSB_HOST
 
 config USB_MUSB_GADGET
 	bool "MUSB gadget mode support"
+	select USB_GADGET_DUALSPEED
 	help
 	  Enables the MUSB USB dual-role controller in gadget mode.
 

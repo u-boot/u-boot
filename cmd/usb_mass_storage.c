@@ -50,14 +50,16 @@ static void ums_fini(void)
 
 #define UMS_NAME_LEN 16
 
-static int ums_init(const char *devtype, const char *devnums)
+static int ums_init(const char *devtype, const char *devnums_part_str)
 {
-	char *s, *t, *devnum, *name;
+	char *s, *t, *devnum_part_str, *name;
 	struct blk_desc *block_dev;
+	disk_partition_t info;
+	int partnum;
 	int ret;
 	struct ums *ums_new;
 
-	s = strdup(devnums);
+	s = strdup(devnums_part_str);
 	if (!s)
 		return -1;
 
@@ -65,13 +67,22 @@ static int ums_init(const char *devtype, const char *devnums)
 	ums_count = 0;
 
 	for (;;) {
-		devnum = strsep(&t, ",");
-		if (!devnum)
+		devnum_part_str = strsep(&t, ",");
+		if (!devnum_part_str)
 			break;
 
-		ret = blk_get_device_by_str(devtype, devnum, &block_dev);
-		if (ret < 0)
+		partnum = blk_get_device_part_str(devtype, devnum_part_str,
+					&block_dev, &info, 1);
+
+		if (partnum < 0)
 			goto cleanup;
+
+		/* Check if the argument is in legacy format. If yes,
+		 * expose all partitions by setting the partnum = 0
+		 * e.g. ums 0 mmc 0
+		 */
+		if (!strchr(devnum_part_str, ':'))
+			partnum = 0;
 
 		/* f_mass_storage.c assumes SECTOR_SIZE sectors */
 		if (block_dev->blksz != SECTOR_SIZE) {
@@ -86,10 +97,18 @@ static int ums_init(const char *devtype, const char *devnums)
 		}
 		ums = ums_new;
 
+		/* if partnum = 0, expose all partitions */
+		if (partnum == 0) {
+			ums[ums_count].start_sector = 0;
+			ums[ums_count].num_sectors = block_dev->lba;
+		} else {
+			ums[ums_count].start_sector = info.start;
+			ums[ums_count].num_sectors = info.size;
+		}
+
 		ums[ums_count].read_sector = ums_read_sector;
 		ums[ums_count].write_sector = ums_write_sector;
-		ums[ums_count].start_sector = 0;
-		ums[ums_count].num_sectors = block_dev->lba;
+
 		name = malloc(UMS_NAME_LEN);
 		if (!name) {
 			ret = -1;
@@ -230,6 +249,6 @@ cleanup_ums_init:
 
 U_BOOT_CMD(ums, 4, 1, do_usb_mass_storage,
 	"Use the UMS [USB Mass Storage]",
-	"<USB_controller> [<devtype>] <devnum>  e.g. ums 0 mmc 0\n"
+	"<USB_controller> [<devtype>] <dev[:part]>  e.g. ums 0 mmc 0\n"
 	"    devtype defaults to mmc"
 );
