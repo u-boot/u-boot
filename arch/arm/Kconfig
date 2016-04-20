@@ -668,6 +668,7 @@ config TARGET_HIKEY
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select OF_CONTROL
 	  help
 	  Support for HiKey 96boards platform. It features a HI6220
 	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.

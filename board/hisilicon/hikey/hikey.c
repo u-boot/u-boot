@@ -71,6 +71,8 @@ U_BOOT_DEVICES(hi6220_gpios) = {
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
+
 static const struct pl01x_serial_platdata serial_platdata = {
 #if CONFIG_CONS_INDEX == 1
 	.base = HI6220_UART0_BASE,
@@ -87,6 +89,7 @@ U_BOOT_DEVICE(hikey_seriala) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+#endif
 
 static struct mm_region hikey_mem_map[] = {
 	{
