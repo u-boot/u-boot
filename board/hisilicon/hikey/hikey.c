@@ -410,8 +410,36 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
+	/*
+	 * Reserve regions below from DT memory node (which gets generated
+	 * by U-Boot from the dram banks in arch_fixup_fdt() before booting
+	 * the kernel. This will then match the kernel hikey dts memory node.
+	 *
+	 *  0x05e0,0000 - 0x05ef,ffff: MCU firmware runtime using
+	 *  0x05f0,1000 - 0x05f0,1fff: Reboot reason
+	 *  0x06df,f000 - 0x06df,ffff: Mailbox message data
+	 *  0x0740,f000 - 0x0740,ffff: MCU firmware section
+	 *  0x21f0,0000 - 0x21ff,ffff: pstore/ramoops buffer
+	 *  0x3e00,0000 - 0x3fff,ffff: OP-TEE
+	*/
+
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+	gd->bd->bi_dram[0].size = 0x05e00000;
+
+	gd->bd->bi_dram[1].start = 0x05f00000;
+	gd->bd->bi_dram[1].size = 0x00001000;
+
+	gd->bd->bi_dram[2].start = 0x05f02000;
+	gd->bd->bi_dram[2].size = 0x00efd000;
+
+	gd->bd->bi_dram[3].start = 0x06e00000;
+	gd->bd->bi_dram[3].size = 0x0060f000;
+
+	gd->bd->bi_dram[4].start = 0x07410000;
+	gd->bd->bi_dram[4].size = 0x1aaf0000;
+
+	gd->bd->bi_dram[5].start = 0x22000000;
+	gd->bd->bi_dram[5].size = 0x1c000000;
 }
 
 void reset_cpu(ulong addr)
