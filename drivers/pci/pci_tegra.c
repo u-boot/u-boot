@@ -275,12 +275,17 @@ static int tegra_pcie_conf_address(struct tegra_pcie *pcie, pci_dev_t bdf,
 				return 0;
 			}
 		}
+		return -EFAULT;
 	} else {
+#ifdef CONFIG_TEGRA20
+		unsigned int dev = PCI_DEV(bdf);
+		if (dev != 0)
+			return -EFAULT;
+#endif
+
 		*address = pcie->cs.start + tegra_pcie_conf_offset(bdf, where);
 		return 0;
 	}
-
-	return -EFAULT;
 }
 
 static int pci_tegra_read_config(struct udevice *bus, pci_dev_t bdf,
@@ -299,13 +304,15 @@ static int pci_tegra_read_config(struct udevice *bus, pci_dev_t bdf,
 
 	value = readl(address);
 
+#ifdef CONFIG_TEGRA20
 	/* fixup root port class */
 	if (PCI_BUS(bdf) == 0) {
-		if (offset == PCI_CLASS_REVISION) {
+		if ((offset & ~3) == PCI_CLASS_REVISION) {
 			value &= ~0x00ff0000;
 			value |= PCI_CLASS_BRIDGE_PCI << 16;
 		}
 	}
+#endif
 
 done:
 	*valuep = pci_conv_32_to_size(value, offset, size);
@@ -1041,11 +1048,3 @@ U_BOOT_DRIVER(pci_tegra) = {
 	.probe	= pci_tegra_probe,
 	.priv_auto_alloc_size = sizeof(struct tegra_pcie),
 };
-
-int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
-{
-	if (PCI_BUS(dev) != 0 && PCI_DEV(dev) > 0)
-		return 1;
-
-	return 0;
-}
