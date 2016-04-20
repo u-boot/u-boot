@@ -22,50 +22,55 @@ Currently the u-boot port supports: -
 * SD card
 * GPIO
 
-Compile u-boot
+The HiKey U-Boot port has been tested with l-loader, booting ATF, which then boots
+U-Boot as the bl33.bin executable.
+
+Compile from source
+===================
+
+First get all the sources
+
+  > mkdir -p ~/hikey/src ~/hikey/bin
+  > cd ~/hikey/src
+  > git clone https://github.com/96boards/edk2.git
+  > git clone https://github.com/96boards/arm-trusted-firmware.git
+  > git clone https://github.com/96boards/l-loader.git
+  > git clone https://github.com/96boards/burn-boot.git
+
+Get the BL30 mcuimage.bin binary. It is shipped as part of the UEFI source.
+The latest version can be obtained from the edk2 repo.
+
+  > cp edk2/HisiPkg/HiKeyPkg/NonFree/mcuimage.bin ~/hikey/bin/
+
+Get nvme.img binary (check this link is still the latest)
+  > wget -P ~/hikey/bin https://builds.96boards.org/releases/reference-platform/debian/hikey/16.03/bootloader/nvme.img
+
+Compile U-Boot
 ==============
 
-  > mkdir -p ./aarch64/bin
-  > cd ./aarch64
-  > git clone http://git.denx.de/u-boot.git
+  > cd ~/hikey/src/u-boot
   > make CROSS_COMPILE=aarch64-linux-gnu- hikey_config
   > make CROSS_COMPILE=aarch64-linux-gnu-
-  > cp u-boot.bin ./aarch64/bin/u-boot-hikey.bin
+  > cp u-boot.bin ~/hikey/bin
 
-ARM Trusted Firmware (ATF) & l-loader
-=====================================
+Compile ARM Trusted Firmware (ATF)
+==================================
 
-This u-boot port has been tested with l-loader, booting ATF, which then boots
-u-boot as the bl33.bin executable.
+  > cd ~/hikey/src/atf
+  > make CROSS_COMPILE=aarch64-linux-gnu- all fip \
+    BL30=~/hikey/bin/mcuimage.bin \
+    BL33=~/hikey/bin/u-boot.bin DEBUG=1 PLAT=hikey
 
-Get the BL30 mcu binary.
-  > wget -P aarch64/bin https://builds.96boards.org/releases/hikey/linaro/binaries/15.05/mcuimage.bin
+Copy resulting binaries
+  > cp build/hikey/debug/bl1.bin ~/hikey/bin
+  > cp build/hikey/debug/fip.bin ~/hikey/bin
 
-1. Get ATF source code
-  > cd ./aarch64
-  > git clone https://github.com/96boards/arm-trusted-firmware.git
-  > cd ./arm-trusted-firmware
-
-2. Compile ATF, I use the build-tf.mak in the directory with this README, and copy it to ATF directory
-  > cp ../u-boot/board/hisilicon/hikey/build-tf.mak .
-  > make -f  build-tf.mak build
-
-3. Get l-loader
-  > cd ../
-  > git clone https://github.com/96boards/l-loader.git
-  > cd ./l-loader
-
-4. Make sym links to ATF bl1 / fip binaries
-  > ln -s ../bin/bl1-hikey.bin bl1.bin
-  > ln -s ../bin/fip-hikey.bin fip.bin
-
-  > arm-linux-gnueabihf-gcc -c -o start.o start.S
-  > arm-linux-gnueabihf-gcc -c -o debug.o debug.S
-  > arm-linux-gnueabihf-ld -Bstatic -Tl-loader.lds -Ttext 0xf9800800 start.o debug.o -o loader
-  > arm-linux-gnueabihf-objcopy -O binary loader temp
-  > python gen_loader.py -o ../bin/l-loader.bin --img_loader=temp --img_bl1=bl1.bin
-  > sudo bash -x generate_ptable.sh
-  > python gen_loader.py -o ../bin/ptable.img --img_prm_ptable=./prm_ptable.img --img_sec_ptable=./sec_ptable.img
+Compile l-loader
+===============
+  > cd ~/hikey/l-loader
+  > make BL1=~/hikey/bin/bl1.bin all
+  > cp *.img ~/hikey/bin
+  > cp l-loader.bin ~/hikey.bin
 
 These instructions are adapted from
 https://github.com/96boards/documentation/wiki/HiKeyUEFI
@@ -74,15 +79,12 @@ FLASHING
 ========
 
 1. Connect the second jumper on J15 BOOT SEL, to go into recovery mode and flash l-loader.bin with
-fastboot using the hisi-idt.py utility.
-
-  > cd ../
-  > git clone https://github.com/96boards/burn-boot.git
+the hisi-idt.py utility.
 
 The command below assumes HiKey enumerated as the first USB serial port
-  > sudo ./burn-boot/hisi-idt.py -d /dev/ttyUSB0 --img1=./bin/l-loader.bin
+  > sudo ~/hikey/burn_boot/hisi-idt.py -d /dev/ttyUSB0 --img1=~/hikey/bin/l-loader.bin
 
-2. Once LED 0 comes on solid, it should be detected as a fastboot device by plugging a USB A to mini B
+2. Once LED 0 comes on solid, HiKey board should be detected as a fastboot device by plugging a USB A to mini B
    cable from your PC to the USB OTG port of HiKey (on some boards I've found this to be unreliable).
 
   > sudo fastboot devices
@@ -90,10 +92,10 @@ The command below assumes HiKey enumerated as the first USB serial port
 0123456789ABCDEF	fastboot
 
 3. Flash the images
-  > wget -P aarch64/bin wget https://builds.96boards.org/releases/hikey/linaro/binaries/latest/nvme.img
-  > sudo fastboot flash ptable ./bin/ptable.img
-  > sudo fastboot flash fastboot ./bin/fip-hikey.bin
-  > sudo fastboot flash nvme ./bin/nvme.img
+
+  > sudo fastboot flash ptable ~/hikey/bin/ptable.img
+  > sudo fastboot flash fastboot ~/hikey/bin/fip.bin
+  > sudo fastboot flash nvme ~/hikey/bin/nvme.img
 
 4. Disconnect second jumper on J15 BOOT SEL, and reset the board and you will now (hopefully)
    have ATF, booting u-boot from eMMC. On 'new' boards I've had to do the
@@ -102,7 +104,8 @@ The command below assumes HiKey enumerated as the first USB serial port
    Note: To get USB host working, also disconnect the USB OTG cable used for flashing. Otherwise you
    will get 'dwc_otg_core_host_init: Timeout!' errors.
 
-See working boot trace below: -
+See working boot trace below (by default trace is now output to UART3 not UART0 on latest
+ATF, U-Boot and Kernel sources): -
 
 debug EMMC boot: send RST_N .
 debug EMMC boot: start eMMC boot......
