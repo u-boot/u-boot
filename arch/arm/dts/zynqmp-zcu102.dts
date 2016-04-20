@@ -39,6 +39,15 @@
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
 	};
+
+	leds {
+		compatible = "gpio-leds";
+		heartbeat_led {
+			label = "heartbeat";
+			gpios = <&gpio 23 0>;
+			linux,default-trigger = "heartbeat";
+		};
+	};
 };
 
 &can1 {
