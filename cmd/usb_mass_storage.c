@@ -56,7 +56,7 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 	struct blk_desc *block_dev;
 	disk_partition_t info;
 	int partnum;
-	int ret;
+	int ret = -1;
 	struct ums *ums_new;
 
 	s = strdup(devnums_part_str);
@@ -85,16 +85,12 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 			partnum = 0;
 
 		/* f_mass_storage.c assumes SECTOR_SIZE sectors */
-		if (block_dev->blksz != SECTOR_SIZE) {
-			ret = -1;
+		if (block_dev->blksz != SECTOR_SIZE)
 			goto cleanup;
-		}
 
 		ums_new = realloc(ums, (ums_count + 1) * sizeof(*ums));
-		if (!ums_new) {
-			ret = -1;
+		if (!ums_new)
 			goto cleanup;
-		}
 		ums = ums_new;
 
 		/* if partnum = 0, expose all partitions */
@@ -110,10 +106,8 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 		ums[ums_count].write_sector = ums_write_sector;
 
 		name = malloc(UMS_NAME_LEN);
-		if (!name) {
-			ret = -1;
+		if (!name)
 			goto cleanup;
-		}
 		snprintf(name, UMS_NAME_LEN, "UMS disk %d", ums_count);
 		ums[ums_count].name = name;
 		ums[ums_count].block_dev = *block_dev;
@@ -127,9 +121,7 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 		ums_count++;
 	}
 
-	if (!ums_count)
-		ret = -1;
-	else
+	if (ums_count)
 		ret = 0;
 
 cleanup:
