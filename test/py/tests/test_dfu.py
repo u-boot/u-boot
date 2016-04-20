@@ -30,6 +30,13 @@ env__usb_dev_ports = (
     },
 )
 
+# Optional entries (required only when "alt_id_test_file" and
+# "alt_id_dummy_file" are specified).
+test_file_name = "/dfu_test.bin"
+dummy_file_name = "/dfu_dummy.bin"
+# Above files are used to generate proper "alt_info" entry
+"alt_info": "/%s ext4 0 2;/%s ext4 0 2" % (test_file_name, dummy_file_name),
+
 env__dfu_configs = (
     # eMMC, partition 1
     {
@@ -52,6 +59,16 @@ env__dfu_configs = (
         # $dfu_alt_info, each time the dfu command is run, by concatenating
         # $dfu_alt_boot and $dfu_alt_system.
         "alt_info_env_name": "dfu_alt_system",
+        # This value is optional.
+        # For boards which require the "test file" alt setting number other than
+        # default (0) it is possible to specify exact file name to be used as
+        # this parameter.
+        "alt_id_test_file": test_file_name,
+        # This value is optional.
+        # For boards which require the "dummy file" alt setting number other
+        # than default (1) it is possible to specify exact file name to be used
+        # as this parameter.
+        "alt_id_dummy_file": dummy_file_name,
     },
 )
 
@@ -106,10 +123,6 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
     Returns:
         Nothing.
     """
-
-    # Default alt settings for test and dummy files
-    alt_setting_test_file = 0
-    alt_setting_dummy_file = 1
 
     def start_dfu():
         """Start U-Boot's dfu shell command.
@@ -188,7 +201,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
             Nothing.
         """
 
-        cmd = ['dfu-util', '-a', str(alt_setting), up_dn_load_arg, fn]
+        cmd = ['dfu-util', '-a', alt_setting, up_dn_load_arg, fn]
         if 'host_usb_port_path' in env__usb_dev_port:
             cmd += ['-p', env__usb_dev_port['host_usb_port_path']]
         u_boot_utils.run_and_log(u_boot_console, cmd)
@@ -275,6 +288,9 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
     dummy_f = u_boot_utils.PersistentRandomFile(u_boot_console,
         'dfu_dummy.bin', 1024)
+
+    alt_setting_test_file = env__dfu_config.get('alt_id_test_file', '0')
+    alt_setting_dummy_file = env__dfu_config.get('alt_id_dummy_file', '1')
 
     ignore_cleanup_errors = True
     try:
