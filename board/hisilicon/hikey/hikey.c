@@ -414,8 +414,8 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 }
 
-/* Use the Watchdog to cause reset */
 void reset_cpu(ulong addr)
 {
-	/* TODO program the watchdog */
+	writel(0x48698284, &ao_sc->stat0);
+	wfi();
 }
