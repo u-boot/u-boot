@@ -99,6 +99,10 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
         Nothing.
     """
 
+    # Default alt settings for test and dummy files
+    alt_setting_test_file = 0
+    alt_setting_dummy_file = 1
+
     def start_dfu():
         """Start U-Boot's dfu shell command.
 
@@ -229,15 +233,15 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         u_boot_console.log.action('Writing test data to DFU primary ' +
             'altsetting')
-        dfu_write(0, test_f.abs_fn)
+        dfu_write(alt_setting_test_file, test_f.abs_fn)
 
         u_boot_console.log.action('Writing dummy data to DFU secondary ' +
             'altsetting to clear DFU buffers')
-        dfu_write(1, dummy_f.abs_fn)
+        dfu_write(alt_setting_dummy_file, dummy_f.abs_fn)
 
         u_boot_console.log.action('Reading DFU primary altsetting for ' +
             'comparison')
-        dfu_read(0, readback_fn)
+        dfu_read(alt_setting_test_file, readback_fn)
 
         u_boot_console.log.action('Comparing written and read data')
         written_hash = test_f.content_hash
@@ -266,7 +270,7 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
 
         u_boot_console.log.action(
             'Overwriting DFU primary altsetting with dummy data')
-        dfu_write(0, dummy_f.abs_fn)
+        dfu_write(alt_setting_test_file, dummy_f.abs_fn)
 
         for size in sizes:
             with u_boot_console.log.section('Data size %d' % size):
