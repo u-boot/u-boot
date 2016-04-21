@@ -221,6 +221,7 @@ struct vcores_data beagle_x15_volts = {
 	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
 	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic		= &tps659038,
+	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
 	.eve.value		= VDD_EVE_DRA752,
 	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE_NOM,

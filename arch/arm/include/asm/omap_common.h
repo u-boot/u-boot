@@ -540,6 +540,8 @@ struct volts {
 	u32 addr;
 	struct volts_efuse_data efuse;
 	struct pmic_data *pmic;
+
+	u32 abb_tx_done_mask;
 };
 
 struct vcores_data {
