@@ -363,7 +363,6 @@ struct omap_sys_ctrl_regs {
 	u32 control_core_mac_id_0_hi;
 	u32 control_core_mac_id_1_lo;
 	u32 control_core_mac_id_1_hi;
-	u32 control_std_fuse_opp_vdd_mpu_2;
 	u32 control_phy_power_usb;
 	u32 control_core_mmr_lock1;
 	u32 control_core_mmr_lock2;

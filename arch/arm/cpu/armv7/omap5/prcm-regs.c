@@ -297,7 +297,6 @@ struct prcm_regs const omap5_es1_prcm = {
 
 struct omap_sys_ctrl_regs const omap5_ctrl = {
 	.control_status				= 0x4A002134,
-	.control_std_fuse_opp_vdd_mpu_2		= 0x4A0021B4,
 	.control_std_fuse_die_id_0		= 0x4A002200,
 	.control_std_fuse_die_id_1		= 0x4A002208,
 	.control_std_fuse_die_id_2		= 0x4A00220C,
@@ -440,7 +439,6 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_srcomp_code_latch		= 0x4A002E84,
 	.control_ddr_control_ext_0		= 0x4A002E88,
 	.control_padconf_core_base		= 0x4A003400,
-	.control_std_fuse_opp_vdd_mpu_2		= 0x4A003B20,
 	.control_port_emif1_sdram_config	= 0x4AE0C110,
 	.control_port_emif1_lpddr2_nvm_config	= 0x4AE0C114,
 	.control_port_emif2_sdram_config	= 0x4AE0C118,
