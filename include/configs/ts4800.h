@@ -96,19 +96,28 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
-	"image=uImage\0" \
+	"image=zImage\0" \
+	"fdt_file=imx51-ts4800.dtb\0" \
+	"fdt_addr=0x90fe0000\0" \
 	"mmcdev=0\0" \
-	"mmcpart=1\0" \
-	"mmcargs=setenv bootargs root=/dev/mmcblk0p2 rootwait rw\0" \
+	"mmcpart=2\0" \
+	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
+	"mmcargs=setenv bootargs root=${mmcroot}\0" \
 	"addtty=setenv bootargs ${bootargs} console=ttymxc0,${baudrate}\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image};\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs addtty; " \
-                "bootm; "
+		"if run loadfdt; then " \
+			"bootz ${loadaddr} - ${fdt_addr}; " \
+		"else " \
+			"echo ERR: cannot load FDT; " \
+		"fi; "
+
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
