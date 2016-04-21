@@ -22,13 +22,13 @@ static const unsigned i2c3_muxvals[] = {1, 1};
 static const unsigned i2c4_pins[] = {61, 62};
 static const unsigned i2c4_muxvals[] = {1, 1};
 static const unsigned nand_pins[] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-				     15, 16};
-static const unsigned nand_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					0, 0};
+				     15, 16, 17};
+static const unsigned nand_muxvals[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+					2, 2, 2};
 static const unsigned nand_cs1_pins[] = {};
 static const unsigned nand_cs1_muxvals[] = {};
 static const unsigned sd_pins[] = {10, 11, 12, 13, 14, 15, 16, 17};
-static const unsigned sd_muxvals[] = {8, 8, 8, 8, 8, 8, 8, 8};  /* No SDVOLC */
+static const unsigned sd_muxvals[] = {3, 3, 3, 3, 3, 3, 3, 3};  /* No SDVOLC */
 static const unsigned uart0_pins[] = {54, 55};
 static const unsigned uart0_muxvals[] = {0, 0};
 static const unsigned uart1_pins[] = {58, 59};
