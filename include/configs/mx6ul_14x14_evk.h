@@ -45,7 +45,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
 
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #endif
 
 /* I2C configs */
