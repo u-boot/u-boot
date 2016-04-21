@@ -85,8 +85,8 @@ int board_late_init(void)
 		setenv("bootmode", "usbboot");
 		break;
 	default:
-		printf("Unsupported Boot Mode\n");
-		return -1;
+		printf("Unknown\n");
+		break;
 	}
 
 	uniphier_set_fdt_file();
