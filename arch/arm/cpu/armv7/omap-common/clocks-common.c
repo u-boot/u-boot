@@ -632,6 +632,15 @@ void scale_vcores(struct vcores_data const *vcores)
 	val = optimize_vcore_voltage(&vcores->mm);
 	do_scale_vcore(vcores->mm.addr, val, vcores->mm.pmic);
 
+	/* Configure MM ABB LDO after scale */
+	abb_setup(vcores->mm.efuse.reg,
+		  (*ctrl)->control_wkup_ldovbb_mm_voltage_ctrl,
+		  (*prcm)->prm_abbldo_mm_setup,
+		  (*prcm)->prm_abbldo_mm_ctrl,
+		  (*prcm)->prm_irqstatus_mpu,
+		  vcores->mm.abb_tx_done_mask,
+		  OMAP_ABB_FAST_OPP);
+
 	val = optimize_vcore_voltage(&vcores->gpu);
 	do_scale_vcore(vcores->gpu.addr, val, vcores->gpu.pmic);
 

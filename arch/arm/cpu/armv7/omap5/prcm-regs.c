@@ -352,6 +352,7 @@ struct omap_sys_ctrl_regs const omap5_ctrl = {
 	.control_emif1_sdram_config_ext		= 0x4AE0C144,
 	.control_emif2_sdram_config_ext		= 0x4AE0C148,
 	.control_wkup_ldovbb_mpu_voltage_ctrl	= 0x4AE0C318,
+	.control_wkup_ldovbb_mm_voltage_ctrl	= 0x4AE0C314,
 	.control_padconf_wkup_base		= 0x4AE0C800,
 	.control_smart1nopmio_padconf_0		= 0x4AE0CDA0,
 	.control_smart1nopmio_padconf_1		= 0x4AE0CDA4,
@@ -722,6 +723,7 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm_l3init_usb_otg_ss1_clkctrl = 0x4a0096f0,
 
 	/* prm irqstatus regs */
+	.prm_irqstatus_mpu = 0x4ae06010,
 	.prm_irqstatus_mpu_2 = 0x4ae06014,
 
 	/* l4 wkup regs */
@@ -751,6 +753,8 @@ struct prcm_regs const omap5_es2_prcm = {
 
 	.prm_abbldo_mpu_setup = 0x4ae07cdc,
 	.prm_abbldo_mpu_ctrl = 0x4ae07ce0,
+	.prm_abbldo_mm_setup = 0x4ae07ce4,
+	.prm_abbldo_mm_ctrl = 0x4ae07ce8,
 
 	/* SCRM stuff, used by some boards */
 	.scrm_auxclk0 = 0x4ae0a310,

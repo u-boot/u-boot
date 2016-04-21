@@ -361,6 +361,7 @@ struct vcores_data omap5430_volts_es2 = {
 	.mm.value = VDD_MM_ES2,
 	.mm.addr = SMPS_REG_ADDR_45_IVA,
 	.mm.pmic = &palmas,
+	.mm.abb_tx_done_mask = OMAP_ABB_MM_TXDONE_MASK,
 };
 
 struct vcores_data dra752_volts = {

@@ -215,6 +215,7 @@ struct s32ktimer {
 
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK		(0x1 << 7)
+#define OMAP_ABB_MM_TXDONE_MASK			(0x1 << 31)
 
 /* ABB efuse masks */
 #define OMAP5_ABB_FUSE_VSET_MASK		(0x1F << 24)
