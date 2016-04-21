@@ -596,10 +596,34 @@ void scale_vcores(struct vcores_data const *vcores)
 
 	debug("gpu: %d\n", vcores->gpu.value);
 	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value, vcores->gpu.pmic);
+	/* Configure GPU ABB LDO after scale */
+	abb_setup(vcores->gpu.efuse.reg,
+		  (*ctrl)->control_wkup_ldovbb_gpu_voltage_ctrl,
+		  (*prcm)->prm_abbldo_gpu_setup,
+		  (*prcm)->prm_abbldo_gpu_ctrl,
+		  (*prcm)->prm_irqstatus_mpu,
+		  vcores->gpu.abb_tx_done_mask,
+		  OMAP_ABB_FAST_OPP);
 	debug("eve: %d\n", vcores->eve.value);
 	do_scale_vcore(vcores->eve.addr, vcores->eve.value, vcores->eve.pmic);
+	/* Configure EVE ABB LDO after scale */
+	abb_setup(vcores->eve.efuse.reg,
+		  (*ctrl)->control_wkup_ldovbb_eve_voltage_ctrl,
+		  (*prcm)->prm_abbldo_eve_setup,
+		  (*prcm)->prm_abbldo_eve_ctrl,
+		  (*prcm)->prm_irqstatus_mpu,
+		  vcores->eve.abb_tx_done_mask,
+		  OMAP_ABB_FAST_OPP);
 	debug("iva: %d\n", vcores->iva.value);
 	do_scale_vcore(vcores->iva.addr, vcores->iva.value, vcores->iva.pmic);
+	/* Configure IVA ABB LDO after scale */
+	abb_setup(vcores->iva.efuse.reg,
+		  (*ctrl)->control_wkup_ldovbb_iva_voltage_ctrl,
+		  (*prcm)->prm_abbldo_iva_setup,
+		  (*prcm)->prm_abbldo_iva_ctrl,
+		  (*prcm)->prm_irqstatus_mpu,
+		  vcores->iva.abb_tx_done_mask,
+		  OMAP_ABB_FAST_OPP);
 	/* Might need udelay(1000) here if debug is enabled to see all prints */
 #else
 	u32 val;

@@ -446,6 +446,9 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_emif1_sdram_config_ext		= 0x4AE0C144,
 	.control_emif2_sdram_config_ext		= 0x4AE0C148,
 	.control_wkup_ldovbb_mpu_voltage_ctrl	= 0x4AE0C158,
+	.control_wkup_ldovbb_iva_voltage_ctrl	= 0x4A002470,
+	.control_wkup_ldovbb_eve_voltage_ctrl	= 0x4A00246C,
+	.control_wkup_ldovbb_gpu_voltage_ctrl	= 0x4AE0C154,
 	.control_std_fuse_die_id_0		= 0x4AE0C200,
 	.control_std_fuse_die_id_1		= 0x4AE0C208,
 	.control_std_fuse_die_id_2		= 0x4AE0C20C,
@@ -831,6 +834,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_ipu_i2c5_clkctrl			= 0x4a005578,
 
 	/* prm irqstatus regs */
+	.prm_irqstatus_mpu			= 0x4ae06010,
 	.prm_irqstatus_mpu_2			= 0x4ae06014,
 
 	/* cm2.ckgen */
@@ -999,6 +1003,12 @@ struct prcm_regs const dra7xx_prcm = {
 
 	.prm_abbldo_mpu_setup			= 0x4AE07DDC,
 	.prm_abbldo_mpu_ctrl			= 0x4AE07DE0,
+	.prm_abbldo_iva_setup			= 0x4AE07E34,
+	.prm_abbldo_iva_ctrl			= 0x4AE07E24,
+	.prm_abbldo_eve_setup			= 0x4AE07E30,
+	.prm_abbldo_eve_ctrl			= 0x4AE07E20,
+	.prm_abbldo_gpu_setup			= 0x4AE07DE4,
+	.prm_abbldo_gpu_ctrl			= 0x4AE07DE8,
 
 	/*l3main1 edma*/
 	.cm_l3main1_tptc1_clkctrl               = 0x4a008778,

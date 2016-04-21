@@ -228,12 +228,14 @@ struct vcores_data beagle_x15_volts = {
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic		= &tps659038,
+	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
 
 	.gpu.value		= VDD_GPU_DRA752,
 	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU_NOM,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.gpu.addr		= TPS659038_REG_ADDR_SMPS45,
 	.gpu.pmic		= &tps659038,
+	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
 
 	.core.value		= VDD_CORE_DRA752,
 	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE_NOM,
@@ -246,6 +248,7 @@ struct vcores_data beagle_x15_volts = {
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.iva.addr		= TPS659038_REG_ADDR_SMPS45,
 	.iva.pmic		= &tps659038,
+	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
 };
 
 #ifdef CONFIG_SPL_BUILD
