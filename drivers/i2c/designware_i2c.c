@@ -34,6 +34,27 @@ static struct i2c_regs *i2c_get_base(struct i2c_adapter *adap)
 	return NULL;
 }
 
+static void dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
+{
+	u32 ena = enable ? IC_ENABLE_0B : 0;
+	int timeout = 100;
+
+	do {
+		writel(ena, &i2c_base->ic_enable);
+		if ((readl(&i2c_base->ic_enable_status) & IC_ENABLE_0B) == ena)
+			return;
+
+		/*
+		 * Wait 10 times the signaling period of the highest I2C
+		 * transfer supported by the driver (for 400KHz this is
+		 * 25us) as described in the DesignWare I2C databook.
+		 */
+		udelay(25);
+	} while (timeout--);
+
+	printf("timeout in %sabling I2C adapter\n", enable ? "en" : "dis");
+}
+
 /*
  * set_speed - Set the i2c speed mode (standard, high, fast)
  * @i2c_spd:	required i2c speed mode
@@ -45,12 +66,9 @@ static void set_speed(struct i2c_adapter *adap, int i2c_spd)
 	struct i2c_regs *i2c_base = i2c_get_base(adap);
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
-	unsigned int enbl;
 
 	/* to set speed cltr must be disabled */
-	enbl = readl(&i2c_base->ic_enable);
-	enbl &= ~IC_ENABLE_0B;
-	writel(enbl, &i2c_base->ic_enable);
+	dw_i2c_enable(i2c_base, false);
 
 	cntl = (readl(&i2c_base->ic_con) & (~IC_CON_SPD_MSK));
 
@@ -84,8 +102,7 @@ static void set_speed(struct i2c_adapter *adap, int i2c_spd)
 	writel(cntl, &i2c_base->ic_con);
 
 	/* Enable back i2c now speed set */
-	enbl |= IC_ENABLE_0B;
-	writel(enbl, &i2c_base->ic_enable);
+	dw_i2c_enable(i2c_base, true);
 }
 
 /*
@@ -123,12 +140,9 @@ static void dw_i2c_init(struct i2c_adapter *adap, int speed,
 			int slaveaddr)
 {
 	struct i2c_regs *i2c_base = i2c_get_base(adap);
-	unsigned int enbl;
 
 	/* Disable i2c */
-	enbl = readl(&i2c_base->ic_enable);
-	enbl &= ~IC_ENABLE_0B;
-	writel(enbl, &i2c_base->ic_enable);
+	dw_i2c_enable(i2c_base, false);
 
 	writel((IC_CON_SD | IC_CON_SPD_FS | IC_CON_MM), &i2c_base->ic_con);
 	writel(IC_RX_TL, &i2c_base->ic_rx_tl);
@@ -138,9 +152,7 @@ static void dw_i2c_init(struct i2c_adapter *adap, int speed,
 	writel(slaveaddr, &i2c_base->ic_sar);
 
 	/* Enable i2c */
-	enbl = readl(&i2c_base->ic_enable);
-	enbl |= IC_ENABLE_0B;
-	writel(enbl, &i2c_base->ic_enable);
+	dw_i2c_enable(i2c_base, true);
 }
 
 /*
@@ -152,19 +164,14 @@ static void dw_i2c_init(struct i2c_adapter *adap, int speed,
 static void i2c_setaddress(struct i2c_adapter *adap, unsigned int i2c_addr)
 {
 	struct i2c_regs *i2c_base = i2c_get_base(adap);
-	unsigned int enbl;
 
 	/* Disable i2c */
-	enbl = readl(&i2c_base->ic_enable);
-	enbl &= ~IC_ENABLE_0B;
-	writel(enbl, &i2c_base->ic_enable);
+	dw_i2c_enable(i2c_base, false);
 
 	writel(i2c_addr, &i2c_base->ic_tar);
 
 	/* Enable i2c */
-	enbl = readl(&i2c_base->ic_enable);
-	enbl |= IC_ENABLE_0B;
-	writel(enbl, &i2c_base->ic_enable);
+	dw_i2c_enable(i2c_base, true);
 }
 
 /*
