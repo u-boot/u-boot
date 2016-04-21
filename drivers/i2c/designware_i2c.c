@@ -56,16 +56,25 @@ static void dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 }
 
 /*
- * set_speed - Set the i2c speed mode (standard, high, fast)
- * @i2c_spd:	required i2c speed mode
+ * i2c_set_bus_speed - Set the i2c speed
+ * @speed:	required i2c speed
  *
- * Set the i2c speed mode (standard, high, fast)
+ * Set the i2c speed.
  */
-static void set_speed(struct i2c_adapter *adap, int i2c_spd)
+static unsigned int dw_i2c_set_bus_speed(struct i2c_adapter *adap,
+					 unsigned int speed)
 {
 	struct i2c_regs *i2c_base = i2c_get_base(adap);
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
+	int i2c_spd;
+
+	if (speed >= I2C_MAX_SPEED)
+		i2c_spd = IC_SPEED_MODE_MAX;
+	else if (speed >= I2C_FAST_SPEED)
+		i2c_spd = IC_SPEED_MODE_FAST;
+	else
+		i2c_spd = IC_SPEED_MODE_STANDARD;
 
 	/* to set speed cltr must be disabled */
 	dw_i2c_enable(i2c_base, false);
@@ -103,27 +112,7 @@ static void set_speed(struct i2c_adapter *adap, int i2c_spd)
 
 	/* Enable back i2c now speed set */
 	dw_i2c_enable(i2c_base, true);
-}
 
-/*
- * i2c_set_bus_speed - Set the i2c speed
- * @speed:	required i2c speed
- *
- * Set the i2c speed.
- */
-static unsigned int dw_i2c_set_bus_speed(struct i2c_adapter *adap,
-					 unsigned int speed)
-{
-	int i2c_spd;
-
-	if (speed >= I2C_MAX_SPEED)
-		i2c_spd = IC_SPEED_MODE_MAX;
-	else if (speed >= I2C_FAST_SPEED)
-		i2c_spd = IC_SPEED_MODE_FAST;
-	else
-		i2c_spd = IC_SPEED_MODE_STANDARD;
-
-	set_speed(adap, i2c_spd);
 	adap->speed = speed;
 
 	return 0;
