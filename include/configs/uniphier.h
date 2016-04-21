@@ -259,6 +259,8 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_NR_DRAM_BANKS		2
+/* for LD20; the last 64 byte is used for dynamic DDR PHY training */
+#define CONFIG_SYS_MEM_TOP_HIDE		64
 
 #if defined(CONFIG_ARM64)
 #define CONFIG_SPL_TEXT_BASE		0x30000000
