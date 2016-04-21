@@ -23,6 +23,11 @@ config ARCH_UNIPHIER_PRO5_PXS2_LD6B
 	bool "UniPhier PH1-Pro5/ProXstream2/PH1-LD6b SoC"
 	select CPU_V7
 
+config ARCH_UNIPHIER_LD20
+	bool "UniPhier PH1-LD20 SoC"
+	select ARM64
+	select SPL_SEPARATE_BSS
+
 endchoice
 
 config ARCH_UNIPHIER_LD4

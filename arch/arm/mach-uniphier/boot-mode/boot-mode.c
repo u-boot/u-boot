@@ -39,6 +39,10 @@ u32 spl_boot_device_raw(void)
 	case SOC_UNIPHIER_LD6B:
 		return uniphier_pxs2_boot_device();
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+	case SOC_UNIPHIER_LD20:
+		return uniphier_ld20_boot_device();
+#endif
 	default:
 		return BOOT_DEVICE_NONE;
 	}

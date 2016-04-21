@@ -71,8 +71,7 @@
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
 
-
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_ARM64)
 #define CONFIG_USE_ARCH_MEMSET
 #define CONFIG_USE_ARCH_MEMCPY
 #endif
@@ -99,8 +98,18 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
 
+#ifdef CONFIG_ARM64
+#define CONFIG_ARMV8_MULTIENTRY
+#define CPU_RELEASE_ADDR			0x80000100
+#define COUNTER_FREQUENCY			50000000
+#define CONFIG_GICV3
+#define GICD_BASE				0x5fe00000
+#define GICR_BASE				0x5fe80000
+#else
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
+#endif
+
 
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
 #define CONFIG_SYS_NAND_MAX_CHIPS			2
@@ -176,21 +185,34 @@
 		"bootm $fit_addr_r\0" \
 	"__nfsboot=run tftpboot\0"
 #else
+#ifdef CONFIG_ARM64
+#define CONFIG_CMD_BOOTI
+#define CONFIG_BOOTFILE			"Image"
+#define LINUXBOOT_CMD			"booti"
+#define KERNEL_ADDR_R			"kernel_addr_r=0x80080000\0"
+#define KERNEL_SIZE			"kernel_size=0x00c00000\0"
+#define RAMDISK_ADDR			"ramdisk_addr=0x00e00000\0"
+#else
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTFILE			"zImage"
+#define LINUXBOOT_CMD			"bootz"
+#define KERNEL_ADDR_R			"kernel_addr_r=0x80208000\0"
+#define KERNEL_SIZE			"kernel_size=0x00800000\0"
+#define RAMDISK_ADDR			"ramdisk_addr=0x00a00000\0"
+#endif
 #define LINUXBOOT_ENV_SETTINGS \
 	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x84100000\0" \
 	"fdt_size=0x00008000\0" \
 	"kernel_addr=0x00200000\0" \
-	"kernel_addr_r=0x80208000\0" \
-	"kernel_size=0x00800000\0" \
-	"ramdisk_addr=0x00a00000\0" \
+	KERNEL_ADDR_R \
+	KERNEL_SIZE \
+	RAMDISK_ADDR \
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
-		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
+		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
 	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
 		"cp.b $kernel_addr $kernel_addr_r $kernel_size &&" \
 		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
@@ -238,14 +260,21 @@
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_NR_DRAM_BANKS		2
 
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3) || defined(CONFIG_ARCH_UNIPHIER_LD4) || \
+#if defined(CONFIG_ARM64)
+#define CONFIG_SPL_TEXT_BASE		0x30000000
+#elif defined(CONFIG_ARCH_UNIPHIER_SLD3) || \
+	defined(CONFIG_ARCH_UNIPHIER_LD4) || \
 	defined(CONFIG_ARCH_UNIPHIER_SLD8)
 #define CONFIG_SPL_TEXT_BASE		0x00040000
 #else
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+#define CONFIG_SPL_STACK		(0x3001c000)
+#else
 #define CONFIG_SPL_STACK		(0x00100000)
+#endif
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
 #define CONFIG_PANIC_HANG
@@ -253,8 +282,10 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NOR_SUPPORT
+#ifndef CONFIG_ARM64
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
+#endif
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -270,5 +301,7 @@
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 #define CONFIG_SPL_MAX_SIZE			0x10000
+#define CONFIG_SPL_BSS_START_ADDR		0x30016000
+#define CONFIG_SPL_BSS_MAX_SIZE			0x2000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

@@ -9,3 +9,4 @@ obj-$(CONFIG_ARCH_UNIPHIER_SLD8)	+= early-clk-ld4.o
 obj-$(CONFIG_ARCH_UNIPHIER_PRO5)	+= early-clk-pro5.o
 obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= early-clk-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= early-clk-pxs2.o
+obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= early-clk-ld20.o

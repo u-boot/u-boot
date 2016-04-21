@@ -55,6 +55,11 @@ void spl_board_init(void)
 		uniphier_pxs2_init(param);
 		break;
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+	case SOC_UNIPHIER_LD20:
+		uniphier_ld20_init(param);
+		break;
+#endif
 	default:
 		break;
 	}

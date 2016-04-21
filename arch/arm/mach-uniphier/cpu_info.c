@@ -48,7 +48,7 @@ int print_cpuinfo(void)
 		puts("PH1-LD11 ()");
 		break;
 	case 0x32:
-		puts("PH1-LD20 ()");
+		puts("PH1-LD20 (SC1401AJ1)");
 		break;
 	default:
 		printf("Unknown Processor ID (0x%x)\n", revision);

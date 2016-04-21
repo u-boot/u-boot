@@ -49,6 +49,9 @@ int uniphier_pxs2_memconf_init(const struct uniphier_board_data *bd)
 	case SZ_512M:
 		tmp |= SG_MEMCONF_CH2_SZ_512M;
 		break;
+	case SZ_1G:
+		tmp |= SG_MEMCONF_CH2_SZ_1G;
+		break;
 	default:
 		pr_err("error: unsupported DRAM Ch2 size\n");
 		return -EINVAL;
