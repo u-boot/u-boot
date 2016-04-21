@@ -333,7 +333,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	return 0;
 
 err:
-	debug("%s: Error path, credted=%d, device '%s'\n", __func__,
+	debug("%s: Error path, created=%d, device '%s'\n", __func__,
 	      created, dev->name);
 	if (created) {
 		device_remove(dev);
