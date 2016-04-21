@@ -83,7 +83,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 end:
 	if (ret) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		puts("spl: mmc block read error\n");
+		puts("mmc_load_image_raw_sector: mmc block read error\n");
 #endif
 		return -1;
 	}
@@ -186,7 +186,7 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 		(void *) CONFIG_SYS_SPL_ARGS_ADDR);
 	if (count == 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		puts("spl: mmc block read error\n");
+		puts("mmc_load_image_raw_os: mmc block read error\n");
 #endif
 		return -1;
 	}
