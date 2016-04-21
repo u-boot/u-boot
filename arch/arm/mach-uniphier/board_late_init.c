@@ -28,38 +28,37 @@ static void nand_denali_wp_disable(void)
 #endif
 }
 
-struct uniphier_fdt_file {
-	const char *compatible;
-	const char *file_name;
-};
+#define VENDOR_PREFIX		"socionext,"
+#define DTB_FILE_PREFIX		"uniphier-"
 
-static const struct uniphier_fdt_file uniphier_fdt_files[] = {
-	{ "socionext,ph1-ld4-ref", "uniphier-ph1-ld4-ref.dtb", },
-	{ "socionext,ph1-ld6b-ref", "uniphier-ph1-ld6b-ref.dtb", },
-	{ "socionext,ph1-ld10-ref", "uniphier-ph1-ld10-ref.dtb", },
-	{ "socionext,ph1-pro4-ace", "uniphier-ph1-pro4-ace.dtb", },
-	{ "socionext,ph1-pro4-ref", "uniphier-ph1-pro4-ref.dtb", },
-	{ "socionext,ph1-pro4-sanji", "uniphier-ph1-pro4-sanji.dtb", },
-	{ "socionext,ph1-pro5-4kbox", "uniphier-ph1-pro5-4kbox.dtb", },
-	{ "socionext,ph1-sld3-ref", "uniphier-ph1-sld3-ref.dtb", },
-	{ "socionext,ph1-sld8-ref", "uniphier-ph1-sld8-ref.dtb", },
-	{ "socionext,proxstream2-gentil", "uniphier-proxstream2-gentil.dtb", },
-	{ "socionext,proxstream2-vodka", "uniphier-proxstream2-vodka.dtb", },
-};
-
-static void uniphier_set_fdt_file(void)
+static int uniphier_set_fdt_file(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	int i;
+	const char *compat;
+	char dtb_name[256];
+	int buf_len = 256;
+	int ret;
 
-	/* lookup DTB file name based on the compatible string */
-	for (i = 0; i < ARRAY_SIZE(uniphier_fdt_files); i++) {
-		if (!fdt_node_check_compatible(gd->fdt_blob, 0,
-					uniphier_fdt_files[i].compatible)) {
-			setenv("fdt_file", uniphier_fdt_files[i].file_name);
-			return;
-		}
-	}
+	ret = fdt_get_string(gd->fdt_blob, 0, "compatible", &compat);
+	if (ret)
+		return -EINVAL;
+
+	if (strncmp(compat, VENDOR_PREFIX, strlen(VENDOR_PREFIX)))
+		return -EINVAL;
+
+	compat += strlen(VENDOR_PREFIX);
+
+	strncat(dtb_name, DTB_FILE_PREFIX, buf_len);
+	buf_len -= strlen(DTB_FILE_PREFIX);
+
+	strncat(dtb_name, compat, buf_len);
+	buf_len -= strlen(compat);
+
+	strncat(dtb_name, ".dtb", buf_len);
+
+	setenv("fdt_file", dtb_name);
+
+	return 0;
 }
 
 int board_late_init(void)
@@ -89,7 +88,8 @@ int board_late_init(void)
 		break;
 	}
 
-	uniphier_set_fdt_file();
+	if (uniphier_set_fdt_file())
+		printf("fdt_file environment was not set correctly\n");
 
 	return 0;
 }
