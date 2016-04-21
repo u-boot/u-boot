@@ -214,7 +214,8 @@
 	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
 		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
 	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
-		"cp.b $kernel_addr $kernel_addr_r $kernel_size &&" \
+		"setexpr kernel_size $kernel_size / 4 &&" \
+		"cp $kernel_addr $kernel_addr_r $kernel_size &&" \
 		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
 		"setexpr fdt_addr_r $nor_base + $fdt_addr &&" \
 		"run boot_common\0" \
