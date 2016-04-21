@@ -6,9 +6,14 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include "designware_i2c.h"
+
+struct dw_i2c {
+	struct i2c_regs *regs;
+};
 
 static void dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 {
@@ -294,6 +299,36 @@ static int __dw_i2c_write(struct i2c_regs *i2c_base, u8 dev, uint addr,
 	return i2c_xfer_finish(i2c_base);
 }
 
+/*
+ * __dw_i2c_init - Init function
+ * @speed:	required i2c speed
+ * @slaveaddr:	slave address for the device
+ *
+ * Initialization function.
+ */
+static void __dw_i2c_init(struct i2c_regs *i2c_base, int speed, int slaveaddr)
+{
+	/* Disable i2c */
+	dw_i2c_enable(i2c_base, false);
+
+	writel((IC_CON_SD | IC_CON_SPD_FS | IC_CON_MM), &i2c_base->ic_con);
+	writel(IC_RX_TL, &i2c_base->ic_rx_tl);
+	writel(IC_TX_TL, &i2c_base->ic_tx_tl);
+	writel(IC_STOP_DET, &i2c_base->ic_intr_mask);
+#ifndef CONFIG_DM_I2C
+	__dw_i2c_set_bus_speed(i2c_base, speed);
+	writel(slaveaddr, &i2c_base->ic_sar);
+#endif
+
+	/* Enable i2c */
+	dw_i2c_enable(i2c_base, true);
+}
+
+#ifndef CONFIG_DM_I2C
+/*
+ * The legacy I2C functions. These need to get removed once
+ * all users of this driver are converted to DM.
+ */
 static struct i2c_regs *i2c_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
@@ -325,30 +360,9 @@ static unsigned int dw_i2c_set_bus_speed(struct i2c_adapter *adap,
 	return __dw_i2c_set_bus_speed(i2c_get_base(adap), speed);
 }
 
-/*
- * i2c_init - Init function
- * @speed:	required i2c speed
- * @slaveaddr:	slave address for the device
- *
- * Initialization function.
- */
-static void dw_i2c_init(struct i2c_adapter *adap, int speed,
-			int slaveaddr)
+static void dw_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
-	struct i2c_regs *i2c_base = i2c_get_base(adap);
-
-	/* Disable i2c */
-	dw_i2c_enable(i2c_base, false);
-
-	writel((IC_CON_SD | IC_CON_SPD_FS | IC_CON_MM), &i2c_base->ic_con);
-	writel(IC_RX_TL, &i2c_base->ic_rx_tl);
-	writel(IC_TX_TL, &i2c_base->ic_tx_tl);
-	dw_i2c_set_bus_speed(adap, speed);
-	writel(IC_STOP_DET, &i2c_base->ic_intr_mask);
-	writel(slaveaddr, &i2c_base->ic_sar);
-
-	/* Enable i2c */
-	dw_i2c_enable(i2c_base, true);
+	__dw_i2c_init(i2c_get_base(adap), speed, slaveaddr);
 }
 
 static int dw_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
@@ -363,9 +377,7 @@ static int dw_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
 	return __dw_i2c_write(i2c_get_base(adap), dev, addr, alen, buffer, len);
 }
 
-/*
- * i2c_probe - Probe the i2c chip
- */
+/* dw_i2c_probe - Probe the i2c chip */
 static int dw_i2c_probe(struct i2c_adapter *adap, u8 dev)
 {
 	struct i2c_regs *i2c_base = i2c_get_base(adap);
@@ -403,3 +415,88 @@ U_BOOT_I2C_ADAP_COMPLETE(dw_3, dw_i2c_init, dw_i2c_probe, dw_i2c_read,
 			 dw_i2c_write, dw_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_SPEED3, CONFIG_SYS_I2C_SLAVE3, 3)
 #endif
+
+#else /* CONFIG_DM_I2C */
+/* The DM I2C functions */
+
+static int designware_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+			       int nmsgs)
+{
+	struct dw_i2c *i2c = dev_get_priv(bus);
+	int ret;
+
+	debug("i2c_xfer: %d messages\n", nmsgs);
+	for (; nmsgs > 0; nmsgs--, msg++) {
+		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
+		if (msg->flags & I2C_M_RD) {
+			ret = __dw_i2c_read(i2c->regs, msg->addr, 0, 0,
+					    msg->buf, msg->len);
+		} else {
+			ret = __dw_i2c_write(i2c->regs, msg->addr, 0, 0,
+					     msg->buf, msg->len);
+		}
+		if (ret) {
+			debug("i2c_write: error sending\n");
+			return -EREMOTEIO;
+		}
+	}
+
+	return 0;
+}
+
+static int designware_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+{
+	struct dw_i2c *i2c = dev_get_priv(bus);
+
+	return __dw_i2c_set_bus_speed(i2c->regs, speed);
+}
+
+static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
+				     uint chip_flags)
+{
+	struct dw_i2c *i2c = dev_get_priv(bus);
+	struct i2c_regs *i2c_base = i2c->regs;
+	u32 tmp;
+	int ret;
+
+	/* Try to read the first location of the chip */
+	ret = __dw_i2c_read(i2c_base, chip_addr, 0, 1, (uchar *)&tmp, 1);
+	if (ret)
+		__dw_i2c_init(i2c_base, 0, 0);
+
+	return ret;
+}
+
+static int designware_i2c_probe(struct udevice *bus)
+{
+	struct dw_i2c *priv = dev_get_priv(bus);
+
+	/* Save base address from device-tree */
+	priv->regs = (struct i2c_regs *)dev_get_addr(bus);
+
+	__dw_i2c_init(priv->regs, 0, 0);
+
+	return 0;
+}
+
+static const struct dm_i2c_ops designware_i2c_ops = {
+	.xfer		= designware_i2c_xfer,
+	.probe_chip	= designware_i2c_probe_chip,
+	.set_bus_speed	= designware_i2c_set_bus_speed,
+};
+
+static const struct udevice_id designware_i2c_ids[] = {
+	{ .compatible = "snps,designware-i2c" },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_designware) = {
+	.name	= "i2c_designware",
+	.id	= UCLASS_I2C,
+	.of_match = designware_i2c_ids,
+	.probe	= designware_i2c_probe,
+	.priv_auto_alloc_size = sizeof(struct dw_i2c),
+	.ops	= &designware_i2c_ops,
+};
+
+#endif /* CONFIG_DM_I2C */
