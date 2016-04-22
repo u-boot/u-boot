@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2015 Miao Yan <yanmiaoebst@gmail.com>
+ * (C) Copyright 2015 Miao Yan <yanmiaobest@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
