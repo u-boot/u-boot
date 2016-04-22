@@ -108,11 +108,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
  * NOR flash configuration
  */
 #define CONFIG_SYS_MAX_FLASH_BANKS	3

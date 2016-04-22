@@ -56,8 +56,6 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_ENV_OVERWRITE    1 /* Overwrite ethaddr / serial# */
-#define CONFIG_SYS_HUSH_PARSER    /* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2  "> "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_AUTOLOAD "yes"
 #define CONFIG_RESET_TO_RETRY

@@ -260,7 +260,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
 #if defined(CONFIG_CMD_KGDB)

@@ -86,7 +86,6 @@
 #define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 #define CONFIG_AUTO_COMPLETE			/* Command auto complete */
 #define CONFIG_CMDLINE_EDITING			/* Command history etc */
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * Serial Driver

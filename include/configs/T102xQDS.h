@@ -510,10 +510,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-
 /* Video */
 #ifdef CONFIG_PPC_T1024		/* no DIU on T1023 */
 #define CONFIG_FSL_DIU_FB

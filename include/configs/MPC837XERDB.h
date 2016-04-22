@@ -344,9 +344,6 @@
 #define CONFIG_FSL_SERDES1	0xe3000
 #define CONFIG_FSL_SERDES2	0xe3100
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL

@@ -233,9 +233,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192
 

@@ -138,7 +138,6 @@
 #else
 #define CONFIG_SYS_MALLOC_LEN	(16 << 20)
 #endif
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_ENV_VARS_UBOOT_CONFIG	/* Strongly encouraged */

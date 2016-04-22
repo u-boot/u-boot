@@ -66,7 +66,6 @@
 	"echo"
 
 #undef	CONFIG_BOOTARGS
-/*#define CONFIG_SYS_HUSH_PARSER 0*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

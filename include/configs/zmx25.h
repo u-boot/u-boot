@@ -86,7 +86,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_USB
 
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * USB

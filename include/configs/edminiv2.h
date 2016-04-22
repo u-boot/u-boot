@@ -235,9 +235,6 @@
 #define CONFIG_SYS_RESET_ADDRESS	0xffff0000
 #define CONFIG_SYS_MAXARGS		16
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* Enable command line editing */
 #define CONFIG_CMDLINE_EDITING
 

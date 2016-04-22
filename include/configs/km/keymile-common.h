@@ -33,7 +33,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	  */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */

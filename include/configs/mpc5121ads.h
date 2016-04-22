@@ -291,10 +291,6 @@
 #define CONSOLE_FIFO_RX_ADDR	FIFOC_PSC3_RX_ADDR
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
 
 /*
  * Clocks in use

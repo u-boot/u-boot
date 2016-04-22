@@ -73,8 +73,6 @@
 #undef CONFIG_BOOTARGS
 
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/
-#define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
 

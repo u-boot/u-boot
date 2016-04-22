@@ -331,9 +331,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /*
  * I2C
  */

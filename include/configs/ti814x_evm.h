@@ -29,7 +29,6 @@
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* Use HUSH for command parsing */
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8148EVM
 

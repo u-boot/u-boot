@@ -226,11 +226,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
-
 /*
  * I2C
  */

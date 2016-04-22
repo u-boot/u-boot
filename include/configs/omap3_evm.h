@@ -41,7 +41,6 @@
  * ----------------------------------------------------------------------------
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO

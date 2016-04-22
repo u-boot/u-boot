@@ -80,11 +80,6 @@
 #define CONFIG_KIRKWOOD_GPIO
 
 /*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
  * Console configuration
  */
 #define CONFIG_CONSOLE_MUX

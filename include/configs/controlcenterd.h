@@ -365,7 +365,6 @@
  * Command line configuration.
  */
 #ifndef CONFIG_TRAILBLAZER
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */

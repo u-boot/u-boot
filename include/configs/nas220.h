@@ -54,8 +54,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

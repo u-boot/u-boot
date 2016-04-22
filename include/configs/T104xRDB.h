@@ -465,10 +465,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
 #endif
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-
 #if defined(CONFIG_T1042RDB_PI) || defined(CONFIG_T1042D4RDB)
 /* Video */
 #define CONFIG_FSL_DIU_FB

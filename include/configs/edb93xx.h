@@ -34,8 +34,6 @@
 #define CONFIG_BOOTARGS		"root=/dev/nfs console=ttyAM0,115200 ip=dhcp"
 #define CONFIG_BOOTFILE		"edb93xx.img"
 
-#define CONFIG_SYS_HUSH_PARSER		1
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 
 #define CONFIG_SYS_LDSCRIPT	"board/cirrus/edb93xx/u-boot.lds"

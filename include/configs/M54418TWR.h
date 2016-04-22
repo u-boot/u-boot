@@ -210,10 +210,6 @@
 
 #define CONFIG_PRAM			2048	/* 2048 KB */
 
-/* HUSH */
-#define CONFIG_SYS_HUSH_PARSER		1
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #if defined(CONFIG_CMD_KGDB)

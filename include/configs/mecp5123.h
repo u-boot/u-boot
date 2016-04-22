@@ -244,10 +244,6 @@
 
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef  CONFIG_SYS_HUSH_PARSER
-#endif
 
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */

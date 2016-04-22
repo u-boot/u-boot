@@ -13,7 +13,6 @@
 #define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1 */
 #define CONFIG_SYS_LOAD_ADDR		0x7fc0	/* default load address */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size*/
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */

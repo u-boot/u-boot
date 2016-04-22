@@ -498,11 +498,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
 #endif
 
-
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */

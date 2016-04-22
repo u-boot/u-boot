@@ -133,7 +133,6 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * Pull in common ADI header for remaining command/environment setup

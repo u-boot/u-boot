@@ -114,7 +114,6 @@
 /* version string, parser, etc */
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 

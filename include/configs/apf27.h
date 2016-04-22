@@ -148,8 +148,6 @@
 						/* Boot argument buffer size */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_HUSH_PARSER			/* enable the "hush" shell */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "	/* secondary prompt string */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_PREBOOT			"run check_flash check_env;"
 

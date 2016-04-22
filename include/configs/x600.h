@@ -133,8 +133,6 @@
 
 #define CONFIG_BOOTDELAY			3
 
-#define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser	*/
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * U-Boot Environment placing definitions.

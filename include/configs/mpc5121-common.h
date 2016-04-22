@@ -29,7 +29,5 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 #define CONFIG_CMDLINE_EDITING		1	/* command line history */
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
 
 #endif /* __MPC5121_COMMON_H */

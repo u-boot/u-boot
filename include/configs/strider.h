@@ -313,9 +313,6 @@
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-
 /* Pass open firmware flat tree */
 
 /* I2C */

@@ -332,7 +332,6 @@
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 
 /*
  * Size of malloc() pool

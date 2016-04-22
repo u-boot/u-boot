@@ -226,11 +226,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Use the HUSH parser
- */
-#define CONFIG_SYS_HUSH_PARSER
-
-/*
  * I2C
  */
 #define CONFIG_SYS_I2C

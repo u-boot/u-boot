@@ -79,8 +79,6 @@
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_PREBOOT
 
-#define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser	*/
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
 #define CONFIG_EXTRA_ENV_SETTINGS	\

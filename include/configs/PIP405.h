@@ -59,7 +59,6 @@
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_BSP
 
-#define	 CONFIG_SYS_HUSH_PARSER
 /**************************************************************
  * I2C Stuff:
  * the PIP405 is equiped with an Atmel 24C128/256 EEPROM at address

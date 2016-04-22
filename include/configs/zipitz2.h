@@ -98,11 +98,6 @@ unsigned char zipitz2_spi_read(void);
 #endif
 #endif
 
-/*
- * HUSH Shell Configuration
- */
-#define	CONFIG_SYS_HUSH_PARSER		1
-
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
 #define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
 #define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */

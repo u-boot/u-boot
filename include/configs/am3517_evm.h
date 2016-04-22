@@ -285,7 +285,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_PARTITION_UUIDS
 
 /* We set the max number of command args high to avoid HUSH bugs. */

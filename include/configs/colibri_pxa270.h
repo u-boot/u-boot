@@ -95,14 +95,9 @@
 #define	CONFIG_BOOTP_HOSTNAME
 #endif
 
-/*
- * HUSH Shell Configuration
- */
-#define	CONFIG_SYS_HUSH_PARSER		1
-
 #undef	CONFIG_SYS_LONGHELP		/* Saves 10 KB */
 #undef CONFIG_SYS_PROMPT
-#ifdef	CONFIG_SYS_HUSH_PARSER
+#ifdef	CONFIG_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT		"$ "
 #else
 #endif

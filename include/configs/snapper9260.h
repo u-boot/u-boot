@@ -140,7 +140,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 
 /* U-Boot memory settings */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)

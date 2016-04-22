@@ -415,10 +415,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NS16550_COM3 (CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4 (CONFIG_SYS_CCSRBAR+0x11D600)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-
 /*
  * I2C
  */

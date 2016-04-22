@@ -241,12 +241,6 @@ extern unsigned long get_sdram_size(void);
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
-
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000

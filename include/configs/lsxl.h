@@ -39,7 +39,6 @@
 #define CONFIG_KIRKWOOD_GPIO
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 
@@ -83,7 +82,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		25000000
 
 
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  *  Environment variables configurations

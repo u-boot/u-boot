@@ -425,12 +425,6 @@ combinations. this should be removed later
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR + 0x4700)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR + 0x4800)
 
-/* Use the HUSH parser */
-#define CONFIG_SYS_HUSH_PARSER    /* hush parser */
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
-
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400800 /* I2C speed and slave address*/

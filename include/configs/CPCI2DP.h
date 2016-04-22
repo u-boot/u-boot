@@ -68,7 +68,6 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 
-#undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
