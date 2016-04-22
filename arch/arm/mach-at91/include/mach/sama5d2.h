@@ -230,6 +230,18 @@
 /* No PMECC Galois table in ROM */
 #define NO_GALOIS_TABLE_IN_ROM
 
+/* Boot modes stored by BootROM in r4 */
+#define ATMEL_SAMA5D2_BOOT_FROM_OFF	0
+#define ATMEL_SAMA5D2_BOOT_FROM_MASK	0xf
+#define ATMEL_SAMA5D2_BOOT_FROM_SPI	(0 << 0)
+#define ATMEL_SAMA5D2_BOOT_FROM_MCI	(1 << 0)
+#define ATMEL_SAMA5D2_BOOT_FROM_SMC	(2 << 0)
+#define ATMEL_SAMA5D2_BOOT_FROM_TWI	(3 << 0)
+#define ATMEL_SAMA5D2_BOOT_FROM_QSPI	(4 << 0)
+
+#define ATMEL_SAMA5D2_BOOT_DEV_ID_OFF	4
+#define ATMEL_SAMA5D2_BOOT_DEV_ID_MASK	0xf
+
 #ifndef __ASSEMBLY__
 unsigned int get_chip_id(void);
 unsigned int get_extension_chip_id(void);
