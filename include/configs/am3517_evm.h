@@ -94,7 +94,6 @@
  * Enable CONFIG_USB_MUSB_GADGET for Device functionalities.
  */
 #define CONFIG_USB_MUSB_AM35X
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_USB_MUSB_PIO_ONLY
 
 #ifdef CONFIG_USB_MUSB_AM35X

@@ -198,7 +198,6 @@
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
@@ -211,7 +210,6 @@
 
 #if defined(CONFIG_SPL_BUILD)
 /* disable host part of MUSB in SPL */
-#undef CONFIG_USB_MUSB_HOST
 /* Disable CPSW SPL support so we fit within the 101KiB limit. */
 #undef CONFIG_SPL_ETH_SUPPORT
 #endif
