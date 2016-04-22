@@ -235,7 +235,7 @@ struct sdhci_ops {
 };
 
 struct sdhci_host {
-	char *name;
+	const char *name;
 	void *ioaddr;
 	unsigned int quirks;
 	unsigned int host_caps;
