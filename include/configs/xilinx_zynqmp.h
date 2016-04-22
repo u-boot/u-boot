@@ -65,6 +65,7 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
+#define CONFIG_ISO_PARTITION
 #define CONFIG_MP
 
 /* BOOTP options */
@@ -74,6 +75,19 @@
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_MAY_FAIL
 #define CONFIG_BOOTP_SERVERIP
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_PXE
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_PXE_CLIENTARCH     0x100
+
+/* Diff from config_distro_defaults.h */
+#define CONFIG_SUPPORT_RAW_INITRD
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_AUTO_COMPLETE
+
+/* PXE */
+#define CONFIG_CMD_PXE
+#define CONFIG_MENU
 
 #if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_MMC
