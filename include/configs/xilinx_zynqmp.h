@@ -146,21 +146,6 @@
 # define DFU_ALT_INFO
 #endif
 
-/* Initial environment variables */
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"kernel_addr=0x80000\0" \
-	"fdt_addr=0x7000000\0" \
-	"fdt_high=0x10000000\0" \
-	CONFIG_KERNEL_FDT_OFST_SIZE \
-	"sdbootdev=0\0"\
-	"sdboot=mmc dev $sdbootdev && mmcinfo && load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
-		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
-		"booti $kernel_addr - $fdt_addr\0" \
-	DFU_ALT_INFO
-#endif
-
-#define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	3
 
 #define CONFIG_BOARD_LATE_INIT
@@ -229,6 +214,50 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_CLOCKS
+
+#define ENV_MEM_LAYOUT_SETTINGS \
+	"fdt_high=10000000\0" \
+	"initrd_high=10000000\0" \
+	"fdt_addr_r=0x40000000\0" \
+	"pxefile_addr_r=0x10000000\0" \
+	"kernel_addr_r=0x18000000\0" \
+	"scriptaddr=0x02000000\0" \
+	"ramdisk_addr_r=0x02100000\0" \
+
+#if defined(CONFIG_ZYNQ_SDHCI)
+# define BOOT_TARGET_DEVICES_MMC(func)	func(MMC, mmc, 0) func(MMC, mmc, 1)
+#else
+# define BOOT_TARGET_DEVICES_MMC(func)
+#endif
+
+#if defined(CONFIG_SATA_CEVA)
+# define BOOT_TARGET_DEVICES_SCSI(func)	func(SCSI, scsi, 0)
+#else
+# define BOOT_TARGET_DEVICES_SCSI(func)
+#endif
+
+#if defined(CONFIG_ZYNQMP_USB)
+# define BOOT_TARGET_DEVICES_USB(func)	func(USB, usb, 0) func(USB, usb, 1)
+#else
+# define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_USB(func) \
+	BOOT_TARGET_DEVICES_SCSI(func) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+/* Initial environment variables */
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	ENV_MEM_LAYOUT_SETTINGS \
+	BOOTENV \
+	DFU_ALT_INFO
+#endif
 
 #define CONFIG_SPL_TEXT_BASE		0xfffc0000
 #define CONFIG_SPL_MAX_SIZE		0x20000

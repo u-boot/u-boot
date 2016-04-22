@@ -53,13 +53,6 @@
 #define CONFIG_ZYNQ_GEM_EEPROM_ADDR	0x54
 #define CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET	0x20
 
-#define CONFIG_KERNEL_FDT_OFST_SIZE \
-	"kernel_offset=0x180000\0" \
-	"fdt_offset=0x100000\0" \
-	"kernel_size=0x1e00000\0" \
-	"fdt_size=0x80000\0" \
-	"board=zcu102\0"
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZCU102_H */
