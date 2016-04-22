@@ -235,7 +235,7 @@ static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 		   "%s: RX DMA done : ep = %d, rx bytes = %d/%d, "
 		   "is_short = %d, DOEPTSIZ = 0x%x, remained bytes = %d\n",
 		   __func__, ep_num, req->req.actual, req->req.length,
-		   is_short, ep_tsr, xfer_size);
+		   is_short, ep_tsr, req->req.length - req->req.actual);
 
 	if (is_short || req->req.actual == req->req.length) {
 		if (ep_num == EP0_CON && dev->ep0state == DATA_STATE_RECV) {
@@ -292,7 +292,7 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 		"%s: TX DMA done : ep = %d, tx bytes = %d/%d, "
 		"is_short = %d, DIEPTSIZ = 0x%x, remained bytes = %d\n",
 		__func__, ep_num, req->req.actual, req->req.length,
-		is_short, ep_tsr, xfer_size);
+		is_short, ep_tsr, req->req.length - req->req.actual);
 
 	if (ep_num == 0) {
 		if (dev->ep0state == DATA_STATE_XMIT) {
