@@ -457,7 +457,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #endif
 
 #ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 
@@ -563,7 +562,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #endif
 
 /* SPI flash. */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */

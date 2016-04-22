@@ -69,8 +69,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
 
 /*
@@ -135,7 +133,6 @@
 #define CONFIG_USB_GADGET_AT91
 
 /* DFU class support */
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_DFU
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_NAND
@@ -147,8 +144,6 @@
 
 /* SPI EEPROM */
 #define CONFIG_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
 #define TAURUS_SPI_MASK (1 << 4)
 #define TAURUS_SPI_CS_PIN	AT91_PIN_PA3

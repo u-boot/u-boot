@@ -14,7 +14,6 @@
 #define CONFIG_CPU_SH7203	1
 #define CONFIG_RSK7203	1
 
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_CACHE
 

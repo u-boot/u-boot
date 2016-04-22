@@ -183,10 +183,7 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_PING		1
-#define CONFIG_CMD_DHCP		1
 #define CONFIG_CMD_NAND		1
-#define CONFIG_CMD_USB		1
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS			1

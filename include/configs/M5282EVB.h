@@ -48,7 +48,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
 
 #define CONFIG_MCFFEC

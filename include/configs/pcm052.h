@@ -33,8 +33,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
 
-#undef CONFIG_CMD_IMLS
-
 /* NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
@@ -83,8 +81,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -97,7 +93,6 @@
 /* QSPI Configs*/
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2
@@ -105,7 +100,6 @@
 #endif
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC_I2C3
 #define CONFIG_SYS_I2C_MXC
@@ -221,7 +215,6 @@
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80010000
 #define CONFIG_SYS_MEMTEST_END		0x87C00000
 

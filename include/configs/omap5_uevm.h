@@ -88,7 +88,6 @@
 #define CONFIG_SYS_I2C_TCA642X_ADDR 0x22
 
 /* USB UHH support options */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
@@ -107,7 +106,6 @@
 #define CONFIG_DFU_MMC
 
 /* Enabled commands */
-#define CONFIG_CMD_DHCP		/* DHCP Support			*/
 
 /* USB Networking options */
 #define CONFIG_USB_HOST_ETHER

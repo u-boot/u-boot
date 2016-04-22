@@ -409,10 +409,7 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
-#define CONFIG_CMD_I2C
-
 /* eSPI - Enhanced SPI */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 
@@ -476,7 +473,6 @@
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 /* Hash command with SHA acceleration supported in hardware */

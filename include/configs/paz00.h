@@ -38,14 +38,12 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_USB
 
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 
 /* General networking support */
-#define CONFIG_CMD_DHCP
 
 /* LCD support */
 #define CONFIG_SYS_WHITE_ON_BLACK

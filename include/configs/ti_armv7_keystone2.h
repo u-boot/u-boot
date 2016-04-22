@@ -205,14 +205,10 @@
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
 /* U-Boot command configuration */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_USB
 
 /* U-Boot general configuration */
 #define CONFIG_MISC_INIT_R

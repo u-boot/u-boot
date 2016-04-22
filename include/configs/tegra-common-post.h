@@ -112,7 +112,6 @@
 #undef CONFIG_SYS_I2C_TEGRA
 #endif
 #ifdef CONFIG_CMD_I2C
-#undef CONFIG_CMD_I2C
 #endif
 
 /* remove MMC support */
@@ -166,7 +165,6 @@
 #undef CONFIG_USB_STORAGE
 #endif
 #ifdef CONFIG_CMD_USB
-#undef CONFIG_CMD_USB
 #endif
 
 /* remove part command support */

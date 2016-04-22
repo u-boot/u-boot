@@ -47,7 +47,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -69,8 +68,6 @@
 #define CONFIG_HAS_ETH1
 #define CONFIG_MII
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 
 /* allow to overwrite serial and ethaddr */

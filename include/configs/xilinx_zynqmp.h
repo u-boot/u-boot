@@ -83,7 +83,6 @@
 
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
-# define CONFIG_CMD_SF
 #endif
 
 #if defined(CONFIG_ZYNQ_SDHCI)
@@ -118,7 +117,6 @@
 #define CONFIG_USB_XHCI
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         1
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_XHCI_ZYNQMP
 
@@ -193,7 +191,6 @@
 
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
-# define CONFIG_CMD_I2C
 # define CONFIG_SYS_I2C
 # define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
 # define CONFIG_SYS_I2C_ZYNQ_SLAVE		0

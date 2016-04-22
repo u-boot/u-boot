@@ -193,7 +193,6 @@
 
 #else
 #if defined(SPIFLASH)
-# define CONFIG_CMD_SF
 
 # if !defined(RAMENV)
 #  define CONFIG_CMD_SAVES

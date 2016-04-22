@@ -30,11 +30,8 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 
 /* ----------------------------------------------------------------------------
  * Supported U-Boot features

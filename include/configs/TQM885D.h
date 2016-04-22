@@ -123,7 +123,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
@@ -131,20 +130,15 @@
 
 #define	CONFIG_TIMESTAMP		/* but print image timestmps	*/
 
-
 /*
  * Command line configuration.
  */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_EXT2
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-
 
 /*
  * Miscellaneous configurable options
@@ -168,11 +162,6 @@
 						   memory test.*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
-
-/*
- * Enable loopw command.
- */
-#define CONFIG_LOOPW
 
 /*
  * Low Level Configuration Settings

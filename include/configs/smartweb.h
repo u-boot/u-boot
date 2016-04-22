@@ -149,7 +149,6 @@
 
 #if !defined(CONFIG_SPL_BUILD)
 /* USB configuration */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW
@@ -214,21 +213,12 @@
 	"mtdparts="MTDPARTS_DEFAULT"\0"
 
 /* Command line & features configuration */
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_LOADS
 
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_FAT
 
 #ifdef CONFIG_MACB
-# define CONFIG_CMD_PING
-# define CONFIG_CMD_DHCP
 #else
-# undef CONFIG_CMD_BOOTD
-# undef CONFIG_CMD_NET
-# undef CONFIG_CMD_NFS
 #endif /* CONFIG_MACB */
 
 #ifdef CONFIG_SPL_BUILD

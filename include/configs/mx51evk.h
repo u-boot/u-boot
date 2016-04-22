@@ -49,7 +49,6 @@
 /*
  * SPI Configs
  * */
-#define CONFIG_CMD_SPI
 
 #define CONFIG_MXC_SPI
 
@@ -87,12 +86,9 @@
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX5

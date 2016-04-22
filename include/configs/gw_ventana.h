@@ -65,7 +65,6 @@
 #ifdef CONFIG_SPI_FLASH
 
 /* SPI */
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
   #define CONFIG_MXC_SPI
   #define CONFIG_SPI_FLASH_MTD
@@ -79,7 +78,6 @@
 
 #else
 /* Enable NAND support */
-#define CONFIG_CMD_TIME
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
 #ifdef CONFIG_CMD_NAND
@@ -98,7 +96,6 @@
 #endif /* CONFIG_SPI_FLASH */
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -152,8 +149,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_BMODE         /* set eFUSE shadow for a boot dev and reset */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
@@ -172,7 +167,6 @@
 #define CONFIG_ARP_TIMEOUT       200UL
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE

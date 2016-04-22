@@ -490,8 +490,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 
@@ -670,7 +668,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_FSL_DR_USB
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL

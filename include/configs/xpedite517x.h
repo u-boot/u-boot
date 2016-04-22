@@ -513,12 +513,10 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DS4510
 #define CONFIG_CMD_DS4510_INFO
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
@@ -527,9 +525,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PCI_ENUM
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SNTP
 
 /*
  * Miscellaneous configurable options

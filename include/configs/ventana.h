@@ -36,14 +36,12 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_USB
 
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 
 /* General networking support */
-#define CONFIG_CMD_DHCP
 
 /* USB keyboard */
 #define CONFIG_USB_KEYBOARD

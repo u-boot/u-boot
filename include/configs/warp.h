@@ -63,7 +63,6 @@
 #define CONFIG_SYS_SD_VOLTAGE		0x00000080
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
@@ -86,7 +85,6 @@
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */

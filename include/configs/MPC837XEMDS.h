@@ -379,7 +379,6 @@ extern int board_pci_host_broken(void);
 #define CONFIG_PQ_MDS_PIB	1 /* PQ MDS Platform IO Board */
 
 #define CONFIG_HAS_FSL_DR_USB	1 /* fixup device tree for the DR USB */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
@@ -480,8 +479,6 @@ extern int board_pci_host_broken(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 

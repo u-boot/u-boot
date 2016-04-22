@@ -54,7 +54,6 @@
  * Supported commands
  */
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_IRQ
 
@@ -63,7 +62,6 @@
 #define CONFIG_USB_UHCI
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 /* Enable needed helper functions */
 #define CONFIG_SYS_STDIO_DEREGISTER	/* needs stdio_deregister */

@@ -343,7 +343,7 @@ config CMD_FLASH
 	    protect - enable or disable FLASH write protection
 
 config CMD_ARMFLASH
-	depends on FLASH_CFI_DRIVER
+	#depends on FLASH_CFI_DRIVER
 	bool "armflash"
 	help
 	  ARM Ltd reference designs flash partition access

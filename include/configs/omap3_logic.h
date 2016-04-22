@@ -69,8 +69,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 /* I2C */
 #define CONFIG_SYS_I2C_OMAP34XX

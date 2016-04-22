@@ -142,14 +142,12 @@
 #define CONFIG_HSMMC2_8BIT
 
 /* CPSW Ethernet */
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT		10
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
@@ -159,8 +157,6 @@
 
 /* SPI */
 #undef	CONFIG_OMAP3_SPI
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_SF_DEFAULT_SPEED                64000000
 #define CONFIG_SF_DEFAULT_MODE                 SPI_MODE_0
@@ -215,7 +211,6 @@
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* USB xHCI HOST */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_DWC3

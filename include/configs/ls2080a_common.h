@@ -89,7 +89,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
 
 /* I2C */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -214,11 +213,9 @@ unsigned long long get_qixis_addr(void);
 
 /* Command line configuration */
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)

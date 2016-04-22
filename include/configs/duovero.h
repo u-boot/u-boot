@@ -28,7 +28,6 @@
 #define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
 
 /* USB UHH support options */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
@@ -40,8 +39,6 @@
 
 #define CONFIG_SYS_ENABLE_PADS_ALL
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT

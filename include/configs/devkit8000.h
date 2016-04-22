@@ -96,11 +96,9 @@
 							/* partition */
 
 /* commands to include */
-#define CONFIG_CMD_DHCP			/* DHCP support			*/
 #define CONFIG_CMD_JFFS2		/* JFFS2 Support		*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 
-#undef CONFIG_CMD_SPI
 #undef CONFIG_CMD_ASKENV
 #undef CONFIG_CMD_BOOTZ
 #undef CONFIG_SUPPORT_RAW_INITRD

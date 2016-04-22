@@ -306,7 +306,6 @@
 #endif
 
 #ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 
@@ -431,7 +430,6 @@
 #endif
 
 /* SPI flash. */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */

@@ -47,7 +47,6 @@
  */
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
-#define CONFIG_CMD_DHCP
 
 #define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_NE2000_BASE	0xb4000300
@@ -74,14 +73,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-
-/* Monitor Command Prompt */
-#undef CONFIG_SYS_PROMPT
-#if defined(CONFIG_SYS_LITTLE_ENDIAN)
-#define CONFIG_SYS_PROMPT		"qemu-mipsel # "
-#else
-#define CONFIG_SYS_PROMPT		"qemu-mips # "
-#endif
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING

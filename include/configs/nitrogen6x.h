@@ -27,7 +27,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS  0
@@ -37,7 +36,6 @@
 #endif
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -66,8 +64,6 @@
 #define CONFIG_LIBATA
 #endif
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -80,7 +76,6 @@
 #define CONFIG_PHY_MICREL_KSZ9021
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
@@ -313,8 +308,6 @@
 
 #define CONFIG_CMD_BMP
 
-#define CONFIG_CMD_TIME
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_ALT_MEMTEST
 
 /*

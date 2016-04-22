@@ -41,7 +41,6 @@
 /* commands to include */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_TIME
 
 
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
@@ -95,7 +94,6 @@
 #define CONFIG_SPI
 #define CONFIG_OMAP3_SPI
 #define CONFIG_MTD_DEVICE
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		(75000000)
 
  /* Physical Memory Map */
@@ -124,7 +122,6 @@
 
 /* I2C Configuration */
 #define CONFIG_I2C
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
@@ -228,7 +225,6 @@
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 #ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 
@@ -273,8 +269,6 @@
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
 
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE

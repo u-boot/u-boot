@@ -96,7 +96,6 @@
  * - SIB block
  * - U-Boot environment
  */
-#define CONFIG_CMD_ARMFLASH
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
 #define CONFIG_SYS_FLASH_BASE		0x24000000

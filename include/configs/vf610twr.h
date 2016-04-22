@@ -82,8 +82,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -96,14 +94,12 @@
 /* QSPI Configs*/
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SYS_FSL_QSPI_LE
 #endif
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -231,7 +227,6 @@
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80010000
 #define CONFIG_SYS_MEMTEST_END		0x87C00000
 

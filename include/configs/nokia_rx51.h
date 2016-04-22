@@ -128,7 +128,6 @@
 #define CONFIG_CMD_EXT4			/* EXT4 Support */
 #define CONFIG_CMD_FAT			/* FAT support */
 
-#define CONFIG_CMD_I2C			/* I2C serial bus support */
 #define CONFIG_CMD_MMC			/* MMC support */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history */

@@ -236,7 +236,6 @@
 #define CONFIG_CMD_SDRAM
 
 #ifdef CONFIG_440EPX
-#define CONFIG_CMD_USB
 #endif
 
 #ifndef CONFIG_RAINIER

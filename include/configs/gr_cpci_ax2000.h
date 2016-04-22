@@ -60,7 +60,6 @@
  * Supported commands
  */
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_IRQ
 

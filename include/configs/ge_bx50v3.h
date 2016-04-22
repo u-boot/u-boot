@@ -81,7 +81,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
@@ -107,8 +106,6 @@
 #define CONFIG_G_DNL_MANUFACTURER "Advantech"
 
 /* Networking Configs */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -120,7 +117,6 @@
 #define CONFIG_PHY_ATHEROS
 
 /* Serial Flash */
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
@@ -137,7 +133,6 @@
 /* Command definition */
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_BOOTZ
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_LOADADDR	0x12000000
 #define CONFIG_SYS_TEXT_BASE	0x17800000
@@ -337,7 +332,6 @@
 #endif
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		  100000

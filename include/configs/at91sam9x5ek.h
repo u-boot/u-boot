@@ -65,13 +65,9 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_USB
 
 /*
  * define CONFIG_USB_EHCI to enable USB Hi-Speed (aka 2.0)

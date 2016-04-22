@@ -39,13 +39,9 @@
 /* Command line configuration */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
-#undef CONFIG_CMD_USB
 #undef CONFIG_CMD_BMP
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 
 #define CONFIG_HOSTNAME			M52277EVB
 #define CONFIG_SYS_UBOOT_END		0x3FFFF

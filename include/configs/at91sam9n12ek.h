@@ -68,13 +68,9 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_USB
 
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x20000000

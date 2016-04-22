@@ -130,7 +130,6 @@
 #define CONFIG_SYS_OHCI_BE_CONTROLLER
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_USB
 
 #undef CONFIG_SYS_USB_OHCI_BOARD_INIT
 #define CONFIG_SYS_USB_OHCI_CPU_INIT
@@ -167,14 +166,10 @@
  */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SNTP
 #define CONFIG_CMD_BSP
 
 #ifdef CONFIG_VIDEO
@@ -626,11 +621,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
-
-/*
- * Enable loopw command.
- */
-#define CONFIG_LOOPW
 
 /*
  * Various low-level settings

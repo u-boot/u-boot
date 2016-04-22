@@ -102,8 +102,6 @@
 #define CONFIG_CMD_IO
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_TIME
 #define CONFIG_CMD_GETTIME
 #define CONFIG_CMD_SCSI
 
@@ -161,9 +159,7 @@
  * FLASH configuration
  */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
-#define CONFIG_CMD_SPI
 #define CONFIG_SPI
 
 /*-----------------------------------------------------------------------
@@ -193,13 +189,11 @@
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_TFTP_TSIZE
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-#define CONFIG_CMD_USB
 
 /* Default environment */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"

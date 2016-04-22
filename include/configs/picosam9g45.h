@@ -83,9 +83,6 @@
 
 /* No NOR flash */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_USB
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS	2

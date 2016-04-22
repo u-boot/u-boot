@@ -20,20 +20,13 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_TIME
 
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SR1500 */

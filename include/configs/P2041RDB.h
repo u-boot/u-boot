@@ -397,7 +397,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
 
@@ -601,13 +600,10 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
@@ -620,7 +616,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_HAS_FSL_MPH_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL

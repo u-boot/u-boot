@@ -110,7 +110,6 @@
 
 /* I2C IP block */
 #define CONFIG_I2C
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 
 /* MMC/SD IP block */
@@ -120,7 +119,6 @@
 
 /* McSPI IP block */
 #define CONFIG_SPI
-#define CONFIG_CMD_SPI
 
 /* GPIO block */
 

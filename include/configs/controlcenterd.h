@@ -201,7 +201,6 @@
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
 #ifndef CONFIG_TRAILBLAZER
-#define CONFIG_CMD_I2C
 #endif
 
 #define CONFIG_PCA9698			/* NXP PCA9698 */
@@ -217,7 +216,6 @@
 #define CONFIG_HARD_SPI
 
 
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		0
 #endif
@@ -326,7 +324,6 @@
  * USB
  */
 #define CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 
 #define CONFIG_HAS_FSL_DR_USB
@@ -388,7 +385,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 /*

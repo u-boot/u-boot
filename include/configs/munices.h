@@ -28,7 +28,6 @@
  */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_CMD_KGDB)

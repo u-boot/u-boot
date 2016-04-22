@@ -102,21 +102,10 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_ENV_OVERWRITE	1
 
-#ifdef CONFIG_SMC91111
-# define CONFIG_CMD_DHCP
-# define CONFIG_CMD_PING
-#else
-#endif
-
-#ifdef CONFIG_SYS_I2C_SOFT
-# define CONFIG_CMD_I2C
-#endif
-
 #define CONFIG_CMD_BOOTLDR
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_CPLBINFO
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_SF
 
 #define CONFIG_BOOTDELAY     5
 #define CONFIG_BOOTCOMMAND   "run ramboot"

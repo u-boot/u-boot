@@ -57,12 +57,10 @@
 #define CONFIG_PHY_MICREL
 
 /* Command support defines */
-#define CONFIG_CMD_PING
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 
 #define CONFIG_SYS_MEMTEST_START               0x0000
 #define CONFIG_SYS_MEMTEST_END                 1024*1024
-#define CONFIG_CMD_MEMTEST
 
 /* Misc configuration */
 #define CONFIG_SYS_LONGHELP
@@ -77,9 +75,7 @@
 #ifdef CONFIG_OF_CONTROL		/* QSPI is controlled via DT */
 #define CONFIG_CQSPI_DECODER		0
 #define CONFIG_CQSPI_REF_CLK		((30/4)/2)*1000*1000
-#define CONFIG_CMD_SPI
 
-#define CONFIG_CMD_SF
 #endif
 
 #endif /* __CONFIG_H */

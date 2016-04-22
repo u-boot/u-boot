@@ -140,16 +140,12 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_SNTP
-
 
 #define CONFIG_NETCONSOLE
-
 
 /*
  * Miscellaneous configurable options

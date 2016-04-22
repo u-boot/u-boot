@@ -18,10 +18,7 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_VIDEO
-#define CONFIG_CMD_MEMTEST
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

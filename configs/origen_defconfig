@@ -9,6 +9,7 @@ CONFIG_SYS_PROMPT="ORIGEN # "
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_NET is not set
+CONFIG_CMD_DHCP=y
 # CONFIG_CMD_NFS is not set
 # CONFIG_CMD_MISC is not set
 CONFIG_OF_CONTROL=y

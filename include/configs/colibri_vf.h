@@ -83,8 +83,6 @@
 #define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -173,7 +171,6 @@
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80010000
 #define CONFIG_SYS_MEMTEST_END		0x87C00000
 
@@ -223,7 +220,6 @@
 #define CONFIG_SYS_CACHELINE_SIZE 32
 
 /* USB Host Support */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_VF
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2

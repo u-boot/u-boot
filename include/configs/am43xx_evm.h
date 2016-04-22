@@ -109,7 +109,6 @@
 
 #if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
-#define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_DWC3
@@ -221,8 +220,6 @@
 
 /* SPI */
 #undef CONFIG_OMAP3_SPI
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_QSPI_SEL_GPIO                   48
 #define CONFIG_SF_DEFAULT_SPEED                48000000
@@ -323,8 +320,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* CPSW Ethernet */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT

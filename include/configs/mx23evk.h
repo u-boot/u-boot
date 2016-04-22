@@ -22,7 +22,6 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_VIDEO
 

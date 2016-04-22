@@ -145,11 +145,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)
 
 /* Command line configuration */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCA953X

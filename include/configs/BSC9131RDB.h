@@ -253,12 +253,8 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
-#define CONFIG_CMD_I2C
-
-
 /* eSPI - Enhanced SPI */
 #ifdef CONFIG_FSL_ESPI
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
@@ -318,14 +314,12 @@ extern unsigned long get_sdram_size(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 /*
@@ -367,7 +361,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE

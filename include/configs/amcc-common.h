@@ -55,14 +55,11 @@
 #if defined(CONFIG_440)
 #define CONFIG_CMD_CACHE
 #endif
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 /*
@@ -86,7 +83,6 @@
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
-#define CONFIG_LOOPW			/* enable loopw command         */
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 	/* include version env variable */

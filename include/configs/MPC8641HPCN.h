@@ -613,15 +613,12 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
     #define CONFIG_CMD_SCSI
     #define CONFIG_CMD_EXT2
-    #define CONFIG_CMD_USB
 #endif
 
 

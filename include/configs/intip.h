@@ -285,8 +285,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION

@@ -52,7 +52,6 @@
 #define CONFIG_CMD_FAT
 
 /* Miscellaneous configurable options */
-#undef CONFIG_CMD_IMLS
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE

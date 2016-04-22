@@ -83,17 +83,13 @@
 /*
  * Commands
  */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 
 /*
  * Only Premium/Platinum have ethernet support right now
  */
 #if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
 	!defined(CONFIG_VCT_SMALL_IMAGE)
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SNTP
 #endif
 
 /*
@@ -101,7 +97,6 @@
  */
 #if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
 	!defined(CONFIG_VCT_SMALL_IMAGE)
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #endif
 
@@ -284,21 +279,15 @@ int vct_gpio_get(int pin);
 #undef CONFIG_CMD_ASKENV
 #undef CONFIG_CMD_BEDBUG
 #undef CONFIG_CMD_CACHE
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_FAT
-#undef CONFIG_CMD_I2C
-#undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
 #undef CONFIG_CMD_LOADY
 #undef CONFIG_CMD_MII
-#undef CONFIG_CMD_PING
 #undef CONFIG_CMD_REGINFO
-#undef CONFIG_CMD_SNTP
 #undef CONFIG_CMD_STRINGS
 #undef CONFIG_CMD_TERMINAL
-#undef CONFIG_CMD_USB
 
 #undef CONFIG_SMC911X
 #undef CONFIG_SYS_I2C_SOFT

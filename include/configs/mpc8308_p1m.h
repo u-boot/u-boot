@@ -388,11 +388,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 

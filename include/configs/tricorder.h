@@ -149,7 +149,6 @@
 /* commands to include */
 #define CONFIG_CMD_EXT2			/* EXT2 Support */
 #define CONFIG_CMD_FAT			/* FAT support */
-#define CONFIG_CMD_I2C			/* I2C serial bus support */
 #define CONFIG_CMD_MMC			/* MMC support */
 #define CONFIG_CMD_MTDPARTS		/* Enable MTD parts commands */
 #define CONFIG_CMD_NAND			/* NAND support */

@@ -372,8 +372,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
@@ -390,7 +388,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI_PCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_STORAGE

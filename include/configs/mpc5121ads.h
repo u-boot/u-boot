@@ -379,7 +379,6 @@
 /*
  * USB  Support
  */
-#define CONFIG_CMD_USB
 
 #if defined(CONFIG_CMD_USB)
 #define CONFIG_USB_EHCI				/* Enable EHCI Support	*/
@@ -412,14 +411,11 @@
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_EXT2
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #undef CONFIG_CMD_FUSE

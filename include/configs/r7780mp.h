@@ -21,7 +21,6 @@
  */
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION

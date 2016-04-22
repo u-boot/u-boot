@@ -236,7 +236,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_SNTP
 
 /* POST support */
 #define CONFIG_POST		(CONFIG_SYS_POST_CACHE		| \

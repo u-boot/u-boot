@@ -26,7 +26,6 @@
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
-#define CONFIG_CMD_I2C
 
 /* SD/MMC support */
 #define CONFIG_MMC
@@ -44,7 +43,6 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_USB
 
 /* PCI host support */
 #define CONFIG_PCI
@@ -55,7 +53,6 @@
 #define CONFIG_E1000_NO_NVM
 
 /* General networking support */
-#define CONFIG_CMD_DHCP
 #define CONFIG_IP_DEFRAG
 #define CONFIG_TFTP_BLOCKSIZE		16384
 #define CONFIG_TFTP_TSIZE

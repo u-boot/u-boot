@@ -408,9 +408,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

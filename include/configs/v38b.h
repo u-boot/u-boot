@@ -87,17 +87,13 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 
 

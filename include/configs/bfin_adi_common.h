@@ -10,15 +10,12 @@
  */
 #ifndef _CONFIG_CMD_DEFAULT_H
 # ifdef ADI_CMDS_NETWORK
-#  define CONFIG_CMD_DHCP
 #  define CONFIG_BOOTP_SUBNETMASK
 #  define CONFIG_BOOTP_GATEWAY
 #  define CONFIG_BOOTP_DNS
 #  define CONFIG_BOOTP_NTPSERVER
 #  define CONFIG_BOOTP_RANDOM_DELAY
 #  define CONFIG_KEEP_SERVERADDR
-#  define CONFIG_CMD_DNS
-#  define CONFIG_CMD_PING
 #  ifdef CONFIG_BFIN_MAC
 #   define CONFIG_CMD_MII
 #  endif
@@ -41,7 +38,6 @@
 # ifdef CONFIG_USB
 #  define CONFIG_CMD_EXT2
 #  define CONFIG_CMD_FAT
-#  define CONFIG_CMD_USB
 #  define CONFIG_CMD_USB_STORAGE
 #  define CONFIG_DOS_PARTITION
 # endif
@@ -55,20 +51,12 @@
 # ifdef CONFIG_RTC_BFIN
 #  define CONFIG_CMD_DATE
 #  ifdef ADI_CMDS_NETWORK
-#   define CONFIG_CMD_SNTP
 #  endif
 # endif
 # ifdef CONFIG_SPI
 #  define CONFIG_CMD_EEPROM
 # endif
-# if defined(CONFIG_BFIN_SPI) || defined(CONFIG_SOFT_SPI)
-#  define CONFIG_CMD_SPI
-# endif
-# ifdef CONFIG_SPI_FLASH
-#  define CONFIG_CMD_SF
-# endif
 # if defined(CONFIG_SYS_I2C) || defined(CONFIG_SYS_I2C_SOFT)
-#  define CONFIG_CMD_I2C
 #  define CONFIG_SOFT_I2C_READ_REPEATED_START
 # endif
 # ifndef CONFIG_SYS_NO_FLASH

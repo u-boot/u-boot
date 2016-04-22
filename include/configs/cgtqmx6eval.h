@@ -41,7 +41,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
 /* SPI NOR */
-#define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SST
@@ -57,7 +56,6 @@
 #define CONFIG_IMX_THERMAL
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -72,7 +70,6 @@
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
@@ -133,8 +130,6 @@
 #define CONFIG_LIBATA
 
 /* Ethernet */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII

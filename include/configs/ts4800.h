@@ -55,7 +55,6 @@
  * */
 #define CONFIG_HARD_SPI /* puts SPI: ready */
 #define CONFIG_MXC_SPI /* driver for the SPI controllers*/
-#define CONFIG_CMD_SPI /* SPI serial bus support */
 
 /*
  * MMC Configs
@@ -82,8 +81,6 @@
 #define CONFIG_ETHPRIME		"FEC"
 #define CONFIG_FEC_MXC_PHYADDR	0
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 
 /* allow to overwrite serial and ethaddr */
@@ -96,7 +93,6 @@
  ***********************************************************/
 
 #define CONFIG_CMD_BOOTZ
-#undef CONFIG_CMD_IMLS
 
 /* Environment variables */
 

@@ -80,14 +80,12 @@
 
 #ifdef CONFIG_DBAU1550
 
-#undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IDE
 #undef CONFIG_CMD_PCMCIA
 
 #else
 
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_DHCP
 
 #endif
 

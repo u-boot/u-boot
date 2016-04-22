@@ -186,7 +186,6 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_GBL_DATA_OFFSET
-#define CONFIG_CMD_ECHO
 
 #include <config_distro_defaults.h>
 

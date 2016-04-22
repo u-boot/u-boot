@@ -84,7 +84,6 @@
 		   "fi; " \
 	   "fi"
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
 
@@ -119,7 +118,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk2p2"
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX7
 #define CONFIG_USB_STORAGE

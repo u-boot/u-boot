@@ -347,9 +347,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DATE
 #define CONFIG_SYS_RTC_BUS_NUM  0x01
 #define CONFIG_SYS_I2C_RTC_ADDR	0x32

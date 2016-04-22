@@ -193,8 +193,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
 
-#define CONFIG_CMD_I2C
-
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -255,7 +253,6 @@ extern unsigned long get_clock_freq(void);
  * Command line configuration.
  */
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
 
@@ -271,7 +268,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE

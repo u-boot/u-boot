@@ -111,20 +111,16 @@
  */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_USB
 #define CONFIG_LZO
 
 /* Filesystem support (for USB key) */
@@ -153,7 +149,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_LATE_INIT
-#define CONFIG_LOOPW			/* enable loopw command         */
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 

@@ -277,7 +277,6 @@
 /*
  * I2C setup
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
@@ -291,7 +290,6 @@
  */
 #ifdef CONFIG_HARD_SPI
 #define CONFIG_MPC8XXX_SPI
-#define CONFIG_CMD_SPI
 #define CONFIG_SYS_GPIO1_PRELIM
 #define CONFIG_SYS_GPIO1_DIR		0x00000001
 #define CONFIG_SYS_GPIO1_DAT		0x00000001
@@ -416,10 +414,7 @@
 /*
  * U-Boot environment setup
  */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_SNTP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMDLINE_EDITING

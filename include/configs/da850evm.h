@@ -141,7 +141,6 @@
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 
 #define CONFIG_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
@@ -288,10 +287,8 @@
  */
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI
@@ -299,9 +296,7 @@
 #endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_MII
-#undef CONFIG_CMD_PING
 #endif
 
 #ifdef CONFIG_USE_NAND
@@ -317,7 +312,6 @@
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_CMD_SPI
 #endif
 
 #if !defined(CONFIG_USE_NAND) && \

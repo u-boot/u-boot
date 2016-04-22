@@ -211,19 +211,15 @@
  */
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_MII
-#undef CONFIG_CMD_PING
 #endif
 
 #ifdef CONFIG_USE_NAND
@@ -239,8 +235,6 @@
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 #endif
 
 #if !defined(CONFIG_USE_NAND) && \

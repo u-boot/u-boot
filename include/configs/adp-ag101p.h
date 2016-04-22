@@ -117,7 +117,6 @@
  */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_PING
 
 /*
  * Miscellaneous configurable options

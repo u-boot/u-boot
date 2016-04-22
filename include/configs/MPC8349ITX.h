@@ -151,7 +151,6 @@
 /*
  * Support USB
  */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
@@ -492,8 +491,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_SDRAM
 
 #if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114) \
@@ -517,10 +514,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #ifdef CONFIG_PCI
 	#define CONFIG_CMD_PCI
-#endif
-
-#ifdef CONFIG_SYS_I2C
-	#define CONFIG_CMD_I2C
 #endif
 
 /* Watchdog */

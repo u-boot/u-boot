@@ -27,21 +27,14 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_TFTPPUT
-#define CONFIG_CMD_TIME
 
 /* I2C */
 #define CONFIG_SYS_I2C

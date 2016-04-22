@@ -69,7 +69,6 @@
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
 /* USB UHH support options */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
@@ -81,8 +80,6 @@
 #define CONFIG_OMAP_EHCI_PHY3_RESET_GPIO	83 /* HSIC3 ETH #RESET */
 
 /* Enabled commands */
-#define CONFIG_CMD_DHCP		/* DHCP Support			*/
-#define CONFIG_CMD_PING
 
 /* USB Networking options */
 #define CONFIG_USB_HOST_ETHER

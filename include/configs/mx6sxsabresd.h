@@ -29,7 +29,6 @@
 #ifdef CONFIG_IMX_BOOTAUX
 /* Set to QSPI2 B flash at default */
 #define CONFIG_SYS_AUXCORE_BOOTDATA 0x78000000
-#define CONFIG_CMD_SETEXPR
 
 #define UPDATE_M4_ENV \
 	"m4image=m4_qspi.bin\0" \
@@ -149,7 +148,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC4_BASE_ADDR
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -164,8 +162,6 @@
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* Network */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -180,7 +176,6 @@
 #define CONFIG_PHY_ATHEROS
 
 
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
@@ -205,11 +200,9 @@
 
 #define CONFIG_IMX_THERMAL
 
-#define CONFIG_CMD_TIME
 
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SYS_FSL_QSPI_LE
 #define CONFIG_SYS_FSL_QSPI_AHB
 #ifdef CONFIG_MX6SX_SABRESD_REVA

@@ -55,14 +55,12 @@
 
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
-# define CONFIG_CMD_SF
 #endif
 
 /* QSPI */
 #ifdef CONFIG_ZYNQ_QSPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000
 # define CONFIG_SPI_FLASH_ISSI
-# define CONFIG_CMD_SF
 #endif
 
 /* NOR */
@@ -92,7 +90,6 @@
 
 #ifdef CONFIG_ZYNQ_USB
 # define CONFIG_USB_EHCI
-# define CONFIG_CMD_USB
 # define CONFIG_USB_STORAGE
 # define CONFIG_USB_EHCI_ZYNQ
 # define CONFIG_EHCI_IS_TDI
@@ -157,7 +154,6 @@
 
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
-# define CONFIG_CMD_I2C
 # define CONFIG_SYS_I2C
 # define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
 # define CONFIG_SYS_I2C_ZYNQ_SLAVE		0
@@ -307,10 +303,7 @@
 #define CONFIG_SYS_LDSCRIPT  "arch/arm/mach-zynq/u-boot.lds"
 
 /* Commands */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_TFTPPUT
 
 /* SPL part */
 #define CONFIG_CMD_SPL

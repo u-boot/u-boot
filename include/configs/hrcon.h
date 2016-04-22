@@ -534,10 +534,8 @@ void fpga_control_clear(unsigned int bus, int pin);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */

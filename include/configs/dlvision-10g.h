@@ -62,10 +62,8 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_DTT
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_DIAG
 #undef CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #undef CONFIG_CMD_IRQ
 
 /*

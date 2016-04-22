@@ -69,10 +69,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_USB
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1

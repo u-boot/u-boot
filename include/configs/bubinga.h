@@ -95,7 +95,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SNTP
 
 #define CONFIG_SPD_EEPROM      1       /* use SPD EEPROM for setup    */
 

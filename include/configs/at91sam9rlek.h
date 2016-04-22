@@ -73,7 +73,6 @@
 /*
  * Command line configuration.
  */
-#undef CONFIG_CMD_USB
 
 #define CONFIG_CMD_NAND			1
 

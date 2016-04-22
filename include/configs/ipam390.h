@@ -253,10 +253,8 @@
  */
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI
@@ -264,9 +262,7 @@
 #endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_MII
-#undef CONFIG_CMD_PING
 #endif
 
 #define CONFIG_CMD_NAND

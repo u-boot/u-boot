@@ -85,13 +85,7 @@
 /*
  * Command line configuration.
  */
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_IMLS
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 #ifdef CONFIG_SYS_USE_NANDFLASH
 #define CONFIG_CMD_NAND

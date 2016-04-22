@@ -653,15 +653,12 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_RTC_PT7C4338
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
 
-#define CONFIG_CMD_I2C
-
 /*
  * SPI interface will not be available in case of NAND boot SPI CS0 will be
  * used for SLIC
  */
 #if !defined(CONFIG_NAND) || !defined(CONFIG_NAND_SECBOOT)
 /* eSPI - Enhanced SPI */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
@@ -736,7 +733,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
@@ -796,7 +792,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */

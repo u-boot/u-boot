@@ -91,7 +91,6 @@
 #endif
 
 /* USB */
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_ATMEL

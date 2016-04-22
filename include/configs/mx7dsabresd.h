@@ -52,11 +52,7 @@
 #undef CONFIG_BOOTM_PLAN9
 #undef CONFIG_BOOTM_RTEMS
 
-#undef CONFIG_CMD_EXPORTENV
-#undef CONFIG_CMD_IMPORTENV
-
 /* I2C configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -68,7 +64,6 @@
 #ifdef CONFIG_IMX_BOOTAUX
 /* Set to QSPI1 A flash at default */
 #define CONFIG_SYS_AUXCORE_BOOTDATA 0x60000000
-#define CONFIG_CMD_SETEXPR
 
 #define UPDATE_M4_ENV \
 	"m4image=m4_qspi.bin\0" \
@@ -185,7 +180,6 @@
 		   "fi; " \
 	   "else run netboot; fi"
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
 
@@ -244,7 +238,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX7
 #define CONFIG_USB_STORAGE
@@ -285,7 +278,6 @@
 #endif
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_MACRONIX
 #define CONFIG_SPI_FLASH_BAR

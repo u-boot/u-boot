@@ -41,7 +41,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
 /* SerialFlash */
-#define CONFIG_CMD_SF
 
 #ifdef CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
@@ -76,7 +75,6 @@
 #endif
 
 /* USB */
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI

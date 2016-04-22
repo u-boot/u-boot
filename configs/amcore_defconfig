@@ -4,7 +4,9 @@ CONFIG_SYS_TEXT_BASE=0xffc00000
 CONFIG_SYS_PROMPT="amcore $ "
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_XIMG is not set
+CONFIG_LOOPW=y
 # CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NET is not set
 # CONFIG_CMD_NFS is not set
+CONFIG_CMD_TIMER=y

@@ -82,11 +82,8 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 /* SPI - enable all SPI flash types for testing purposes */
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
-#define CONFIG_CMD_SPI
 
-#define CONFIG_CMD_I2C
 #define CONFIG_I2C_EDID
 #define CONFIG_I2C_EEPROM
 
@@ -124,12 +121,7 @@
 
 #define CONFIG_KEEP_SERVERADDR
 #define CONFIG_UDP_CHECKSUM
-#define CONFIG_CMD_LINK_LOCAL
-#define CONFIG_CMD_CDP
-#define CONFIG_CMD_DNS
-#define CONFIG_CMD_SNTP
 #define CONFIG_TIMESTAMP
-#define CONFIG_CMD_RARP
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
@@ -205,7 +197,6 @@
 #define CONFIG_LZMA
 
 #define CONFIG_CMD_LZMADEC
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_DATE
 
 #endif

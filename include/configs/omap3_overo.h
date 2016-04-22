@@ -57,7 +57,6 @@
 
 /* commands to include */
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */

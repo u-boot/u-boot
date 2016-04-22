@@ -53,9 +53,7 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 
 #define CONFIG_BOOTDELAY	3
 
@@ -183,7 +181,6 @@
 
 #define CONFIG_HARD_SPI
 #define CONFIG_MXC_SPI
-#define CONFIG_CMD_SPI
 
 #define CONFIG_S6E63D6
 

@@ -100,7 +100,6 @@
 #ifdef CONFIG_USB_AM35X
 
 #ifdef CONFIG_USB_MUSB_HCD
-#define CONFIG_CMD_USB
 
 #define CONFIG_USB_STORAGE
 #define CONGIG_CMD_STORAGE
@@ -132,11 +131,8 @@
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#undef CONFIG_CMD_PING
 
 
 #define CONFIG_SYS_NO_FLASH

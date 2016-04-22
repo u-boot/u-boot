@@ -61,7 +61,6 @@
 
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #if ENABLE_JFFS
 #define CONFIG_CMD_JFFS2
 #endif

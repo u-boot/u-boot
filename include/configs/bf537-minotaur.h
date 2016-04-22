@@ -144,16 +144,9 @@
 # define CONFIG_BOOTDELAY	5
 #endif
 
-#ifdef CONFIG_BFIN_MAC
-# define CONFIG_CMD_DHCP
-# define CONFIG_CMD_PING
-#endif
-
 #define CONFIG_CMD_BOOTLDR
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_SF
 
 #define CONFIG_BOOTCOMMAND	"run ramboot"
 #define CONFIG_BOOTARGS	"root=/dev/mtdblock0 rw"

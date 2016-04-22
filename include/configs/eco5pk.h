@@ -18,7 +18,6 @@
 #undef CONFIG_USB_EHCI
 #undef CONFIG_USB_EHCI_OMAP
 #undef CONFIG_USB_OMAP3
-#undef CONFIG_CMD_USB
 
 /* Our console port is port3 */
 #undef CONFIG_CONS_INDEX

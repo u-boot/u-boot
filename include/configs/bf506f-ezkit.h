@@ -72,10 +72,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-/*
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
-*/
 
 /*
  * Env Storage Settings

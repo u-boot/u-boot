@@ -93,6 +93,5 @@
 #define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_CMD_MEM
-#define CONFIG_CMD_TIMER
 
 #endif /* __CONFIG_H */

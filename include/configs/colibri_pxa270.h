@@ -55,11 +55,9 @@
  */
 #define	CONFIG_CMD_ENV
 #define	CONFIG_CMD_MMC
-#define	CONFIG_CMD_USB
 
 /* I2C support */
 #ifdef CONFIG_SYS_I2C
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C_PXA
 #define CONFIG_PXA_STD_I2C
 #define CONFIG_PXA_PWR_I2C
@@ -80,8 +78,6 @@
  * Networking Configuration
  */
 #ifdef	CONFIG_CMD_NET
-#define	CONFIG_CMD_PING
-#define	CONFIG_CMD_DHCP
 
 #define	CONFIG_DRIVER_DM9000		1
 #define CONFIG_DM9000_BASE		0x08000000
@@ -96,11 +92,6 @@
 #endif
 
 #undef	CONFIG_SYS_LONGHELP		/* Saves 10 KB */
-#undef CONFIG_SYS_PROMPT
-#ifdef	CONFIG_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT		"$ "
-#else
-#endif
 #define	CONFIG_SYS_CBSIZE		256
 #define	CONFIG_SYS_PBSIZE		\
 	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)

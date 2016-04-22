@@ -117,7 +117,6 @@
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_USB
 
 /* commands to include */
 #define CONFIG_CMD_CACHE
@@ -131,11 +130,8 @@
 				"1920k(u-boot),256k(u-boot-env),"\
 				"4m(kernel),-(fs)"
 
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 
 
 #define CONFIG_SYS_NO_FLASH

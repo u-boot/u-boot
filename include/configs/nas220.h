@@ -44,11 +44,8 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_IDE
 #define CONFIG_SYS_LONGHELP

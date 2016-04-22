@@ -61,10 +61,8 @@
 /* Extra Commands */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GPT
 #define CONFIG_CMD_MD5SUM
-#define CONFIG_CMD_MEMINFO
 #define CONFIG_CMD_MMC
 /* Enable that for switching of boot partitions */
 /* Disabled by default as some sub-commands can brick eMMC */
@@ -72,7 +70,6 @@
 #define CONFIG_CMD_PART
 #define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_TFTP
-#define CONFIG_CMD_TIMER
 #define CONFIG_CMD_UNZIP
 
 /* Partition table support */

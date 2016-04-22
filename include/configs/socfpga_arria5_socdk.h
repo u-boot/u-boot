@@ -18,7 +18,6 @@
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DFU
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
@@ -26,8 +25,6 @@
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_USB_MASS_STORAGE
 
 /* Memory configurations */

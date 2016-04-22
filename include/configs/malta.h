@@ -53,16 +53,6 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
 #define CONFIG_SYS_BOOTM_LEN		(64 * 1024 * 1024)
 
-/*
- * Console configuration
- */
-#undef CONFIG_SYS_PROMPT
-#if defined(CONFIG_SYS_LITTLE_ENDIAN)
-#define CONFIG_SYS_PROMPT		"maltael # "
-#else
-#define CONFIG_SYS_PROMPT		"malta # "
-#endif
-
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					 sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -116,10 +106,8 @@
  * Commands
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #define CONFIG_SYS_LONGHELP		/* verbose help, undef to save memory */
 

@@ -33,7 +33,6 @@
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
 /* I2C configs */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -42,7 +41,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* Miscellaneous configurable options */
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000000)
 
@@ -82,7 +80,6 @@
 #define CONFIG_CMD_CACHE
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE

@@ -60,7 +60,6 @@
 #define CONFIG_CMD_PART
 
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_TIME
 
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 #define CONFIG_NR_DRAM_BANKS		1
@@ -68,12 +67,9 @@
 
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
 #define CONFIG_SPI_FLASH_GIGADEVICE
 #define CONFIG_SF_DEFAULT_SPEED 20000000
 
-#define CONFIG_CMD_I2C
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>

@@ -18,8 +18,6 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 
 /* Memory configuration */

@@ -24,8 +24,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -37,7 +35,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
-#define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0

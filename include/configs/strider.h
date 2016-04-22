@@ -40,7 +40,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_EXT2
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_ALT_MEMTEST
 
 #define CONFIG_CMD_FPGAD
@@ -507,10 +506,8 @@ int fpga_gpio_get(unsigned int bus, int pin);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */

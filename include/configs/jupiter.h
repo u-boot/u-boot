@@ -86,7 +86,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_SNTP
 
 #if defined(CONFIG_PCI)
 #define CODFIG_CMD_PCI

@@ -283,7 +283,6 @@ unsigned long get_board_ddr_clk(void);
 
 /* SPI */
 #ifdef CONFIG_FSL_DSPI
-#define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #endif
 
@@ -395,7 +394,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_EXT2
 

@@ -75,10 +75,6 @@
 #define CONFIG_CMD_BMP
 #endif
 
-#ifndef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT	"=> "
-#endif
-
 #ifndef CONFIG_SYS_PBSIZE
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + 128)
 #endif
@@ -100,8 +96,6 @@
 #ifndef CONFIG_CMDLINE
 #undef CONFIG_CMDLINE_EDITING
 #undef CONFIG_SYS_LONGHELP
-#undef CONFIG_CMD_BOOTD
-#undef CONFIG_CMD_RUN
 #undef CONFIG_CMD_ASKENV
 #undef CONFIG_MENU
 #endif

@@ -43,7 +43,6 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_PING
 
 #ifdef CONFIG_CMD_IDE
 /* ATA */

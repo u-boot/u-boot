@@ -30,7 +30,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* Network defines. */
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2
@@ -38,7 +37,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
-#define CONFIG_CMD_PING
 #define CONFIG_MII			/* Required in net/eth.c */
 #endif
 

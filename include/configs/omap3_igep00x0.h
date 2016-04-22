@@ -73,8 +73,6 @@
 #ifdef CONFIG_BOOT_ONENAND
 #define CONFIG_CMD_ONENAND	/* ONENAND support		*/
 #endif
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 
 #ifndef CONFIG_SPL_BUILD
 

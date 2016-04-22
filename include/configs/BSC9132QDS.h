@@ -462,7 +462,6 @@ combinations. this should be removed later
  */
 /* eSPI - Enhanced SPI */
 #ifdef CONFIG_FSL_ESPI
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
@@ -510,7 +509,6 @@ combinations. this should be removed later
 
 #define CONFIG_USB_EHCI  /* USB */
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
@@ -557,12 +555,9 @@ combinations. this should be removed later
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)

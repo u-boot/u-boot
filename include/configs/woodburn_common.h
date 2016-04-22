@@ -84,9 +84,7 @@
 /*
  * Command definition
  */
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_DNS
@@ -94,8 +92,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_CACHE
 
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_SPI
 #define CONFIG_CMD_MII
 
 #define CONFIG_CMD_MMC

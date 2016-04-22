@@ -204,7 +204,6 @@
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
 #if defined(CONFIG_USB_MUSB_HOST)
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 

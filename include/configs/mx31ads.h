@@ -63,9 +63,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_SPI
 #define CONFIG_CMD_DATE
 
 #define CONFIG_BOOTDELAY	3

@@ -56,8 +56,6 @@
 
 /* *** Command definition *** */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_MEMTEST
-#define CONFIG_CMD_TIME
 
 /* Filesystems / image support */
 #define CONFIG_EFI_PARTITION
@@ -69,8 +67,6 @@
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -118,7 +114,6 @@
 #endif
 
 /* USB */
-#define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
@@ -148,13 +143,11 @@
 /* RTC */
 #define CONFIG_CMD_DATE
 #ifdef CONFIG_CMD_DATE
-#define CONFIG_CMD_I2C
 #define CONFIG_RTC_DS1307
 #define CONFIG_SYS_RTC_BUS_NUM		2
 #endif
 
 /* I2C */
-#define CONFIG_CMD_I2C
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC

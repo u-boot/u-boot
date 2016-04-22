@@ -41,8 +41,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 
 /* MMC SPL */
 #define CONFIG_SKIP_LOWLEVEL_INIT

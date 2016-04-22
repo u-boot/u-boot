@@ -71,7 +71,6 @@
 #define CONFIG_FASTBOOT_BUF_SIZE	0x07000000
 
 /* USB EHCI */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 
 #define CONFIG_USB_EHCI_OMAP
@@ -100,7 +99,6 @@
 #define CONFIG_USB_STORAGE	/* USB storage support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_LED		/* LED support			*/
-#define CONFIG_CMD_DHCP
 
 #define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
 

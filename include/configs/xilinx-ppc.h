@@ -32,11 +32,7 @@
 #define CONFIG_CMD_REGINFO
 #undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_MTDPARTS
-#undef CONFIG_CMD_SPI
-#undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_DTT
-#undef CONFIG_CMD_PING
-#undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 
 /*Misc*/
@@ -64,7 +60,6 @@
 					/* decrementer freq: 1 ms ticks */
 #define CONFIG_CMDLINE_EDITING		/* add command line history     */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
-#define CONFIG_LOOPW			/* enable loopw command         */
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE		/* include version env variable */

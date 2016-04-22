@@ -30,9 +30,7 @@
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_TIME
 
 /*
  * The debugging version enables USB support via defconfig.
@@ -40,11 +38,7 @@
  * interfaces / features.
  */
 #ifdef CONFIG_USB
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_TFTPPUT
 #endif
 
 /* I2C */

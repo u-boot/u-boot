@@ -56,13 +56,10 @@
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 
 #undef  CONFIG_WATCHDOG			/* watchdog disabled */
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0 */
@@ -96,7 +93,6 @@
 #define CONFIG_SYS_EXTBDINFO	1	/* To use extended board_into (bd_t) */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history     */
-#define CONFIG_LOOPW		1	/* enable loopw command         */
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */

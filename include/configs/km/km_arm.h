@@ -41,7 +41,6 @@
 #include "keymile-common.h"
 
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_SF
 
 /* SPI NOR Flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		8100000

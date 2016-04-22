@@ -17,10 +17,8 @@
 #define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7752evb/u-boot.lds"
 
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_MD5SUM
 #define CONFIG_MD5
 #define CONFIG_CMD_MMC

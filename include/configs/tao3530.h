@@ -102,11 +102,8 @@
 					"1920k(u-boot),128k(u-boot-env),"\
 					"4m(kernel),-(fs)"
 
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C
@@ -276,7 +273,6 @@
  */
 
 /* USB EHCI */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	162

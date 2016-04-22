@@ -210,8 +210,6 @@
 #undef CONFIG_USE_IRQ
 
 /* Ethernet */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII

@@ -76,7 +76,6 @@
 #endif
 
 /* SerialFlash */
-#define CONFIG_CMD_SF
 
 #ifdef CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
@@ -125,7 +124,6 @@
 #endif
 
 /* USB */
-#define CONFIG_CMD_USB
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_ATMEL

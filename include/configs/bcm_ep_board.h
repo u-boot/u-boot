@@ -92,7 +92,6 @@
 #define CONFIG_SHA256
 
 /* Enable Time Command */
-#define CONFIG_CMD_TIME
 
 #define CONFIG_CMD_BOOTZ
 

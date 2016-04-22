@@ -28,16 +28,11 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SNTP
-#define CONFIG_CMD_USB
 
 /*
  * Serial console configuration
@@ -291,8 +286,6 @@
 #define CONFIG_SYS_ALT_MEMTEST		1
 #define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x03f00000	/* 1 .. 63 MiB in SDRAM */
-
-#define CONFIG_LOOPW		1
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 

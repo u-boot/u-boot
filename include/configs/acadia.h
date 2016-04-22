@@ -167,7 +167,6 @@
  */
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_USB
 
 /*-----------------------------------------------------------------------
  * NAND FLASH

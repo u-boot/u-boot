@@ -128,7 +128,6 @@
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 
 #define CONFIG_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI0_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
@@ -211,17 +210,14 @@
  * U-Boot commands
  */
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
 
-#define CONFIG_CMD_SPI
 
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_SYS_NO_FLASH

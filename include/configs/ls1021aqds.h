@@ -395,7 +395,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
@@ -431,7 +430,6 @@ unsigned long get_board_ddr_clk(void);
 
 /* DM SPI */
 #if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
-#define CONFIG_CMD_SF
 #define CONFIG_DM_SPI_FLASH
 #define CONFIG_SPI_FLASH_DATAFLASH
 #endif
@@ -461,7 +459,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_EXT2
 #endif
@@ -560,16 +557,10 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_PCI
 #endif
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
-
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#undef CONFIG_CMD_IMLS
-#endif
 
 #define CONFIG_ARMV7_NONSEC
 #define CONFIG_ARMV7_VIRT
@@ -613,8 +604,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMINFO
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
