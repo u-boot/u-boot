@@ -28,6 +28,6 @@ void ls1021x_config_caam_stream_id(struct liodn_id_table *tbl, int size)
 		else
 			liodn = tbl[i].id[0];
 
-		out_le32((uint32_t *)(tbl[i].reg_offset), liodn);
+		out_le32((u32 *)(tbl[i].reg_offset), liodn);
 	}
 }
