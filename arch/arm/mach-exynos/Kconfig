@@ -20,6 +20,14 @@ config ARCH_EXYNOS5
 	  Cortex-A7 CPU in big.LITTLE configuration). There are multiple SoCs
 	  in this family including Exynos5250, Exynos5420 and Exynos5800.
 
+config ARCH_EXYNOS7
+	bool "Exynos7 SoC family"
+	select ARM64
+	help
+	  Samsung Exynos7 SoC family are based on ARM Cortex-A57 CPU or
+	  Cortex-A53 CPU (and some in a big.LITTLE configuration). There are
+	  multiple SoCs in this family including Exynos7420.
+
 endchoice
 
 if ARCH_EXYNOS4
