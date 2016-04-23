@@ -1,8 +1,31 @@
 if ARCH_EXYNOS
 
 choice
-	prompt "EXYNOS board select"
+	prompt "EXYNOS architecture type select"
 	optional
+
+config ARCH_EXYNOS4
+	bool "Exynos4 SoC family"
+	select CPU_V7
+	help
+	  Samsung Exynos4 SoC family are based on ARM Cortex-A9 CPU. There
+	  are multiple SoCs in this family including Exynos4210, Exynos4412,
+	  and Exynos4212.
+
+config ARCH_EXYNOS5
+	bool "Exynos5 SoC family"
+	select CPU_V7
+	help
+	  Samsung Exynos5 SoC family are based on ARM Cortex-A15 CPU (and
+	  Cortex-A7 CPU in big.LITTLE configuration). There are multiple SoCs
+	  in this family including Exynos5250, Exynos5420 and Exynos5800.
+
+endchoice
+
+if ARCH_EXYNOS4
+
+choice
+	prompt "EXYNOS4 board select"
 
 config TARGET_SMDKV310
 	select SUPPORT_SPL
@@ -24,6 +47,14 @@ config TARGET_TRATS2
 
 config TARGET_ODROID
 	bool "Exynos4412 Odroid board"
+
+endchoice
+endif
+
+if ARCH_EXYNOS5
+
+choice
+	prompt "EXYNOS5 board select"
 
 config TARGET_ODROID_XU3
 	bool "Exynos5422 Odroid board"
@@ -68,6 +99,7 @@ config TARGET_PEACH_PIT
 	select OF_CONTROL
 
 endchoice
+endif
 
 config SYS_SOC
 	default "exynos"

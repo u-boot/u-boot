@@ -270,7 +270,7 @@ IS_EXYNOS_TYPE(exynos5420, 0x5420)
 IS_EXYNOS_TYPE(exynos5422, 0x5422)
 
 #define SAMSUNG_BASE(device, base)				\
-static inline unsigned int __attribute__((no_instrument_function)) \
+static inline unsigned long __attribute__((no_instrument_function)) \
 	samsung_get_base_##device(void) \
 {								\
 	if (cpu_is_exynos4()) {				\

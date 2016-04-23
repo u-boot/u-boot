@@ -11,7 +11,9 @@
 
 void reset_cpu(ulong addr)
 {
+#ifdef CONFIG_CPU_V7
 	writel(0x1, samsung_get_base_swreset());
+#endif
 }
 
 #ifndef CONFIG_SYS_DCACHE_OFF
