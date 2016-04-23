@@ -27,6 +27,8 @@
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <samsung/misc.h>
+#include <dm/pinctrl.h>
+#include <dm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -97,7 +99,7 @@ int board_init(void)
 int dram_init(void)
 {
 	unsigned int i;
-	u32 addr;
+	unsigned long addr;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		addr = CONFIG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
@@ -109,7 +111,7 @@ int dram_init(void)
 void dram_init_banksize(void)
 {
 	unsigned int i;
-	u32 addr, size;
+	unsigned long addr, size;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		addr = CONFIG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
@@ -122,6 +124,7 @@ void dram_init_banksize(void)
 
 static int board_uart_init(void)
 {
+#ifndef CONFIG_PINCTRL_EXYNOS
 	int err, uart_id, ret = 0;
 
 	for (uart_id = PERIPH_ID_UART0; uart_id <= PERIPH_ID_UART3; uart_id++) {
@@ -133,6 +136,9 @@ static int board_uart_init(void)
 		}
 	}
 	return ret;
+#else
+	return 0;
+#endif
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
