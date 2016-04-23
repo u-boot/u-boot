@@ -287,5 +287,6 @@ static int pinctrl_post_bind(struct udevice *dev)
 UCLASS_DRIVER(pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.post_bind = pinctrl_post_bind,
+	.flags = DM_UC_FLAG_SEQ_ALIAS,
 	.name = "pinctrl",
 };
