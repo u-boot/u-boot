@@ -15,7 +15,6 @@
 #define CONFIG_RSK7203	1
 
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_CACHE
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"

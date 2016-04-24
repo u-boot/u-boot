@@ -18,7 +18,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_JFFS2
 
 #define CONFIG_BOOTDELAY        -1

@@ -24,7 +24,6 @@
 
 #undef CONFIG_CMD_ONENAND
 #undef CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
 
 /* TIZEN THOR downloader support */
@@ -46,7 +45,6 @@
 
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
 
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 /* Common environment variables */

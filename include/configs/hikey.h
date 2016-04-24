@@ -82,13 +82,11 @@
 #define CONFIG_DWMMC
 #define CONFIG_HIKEY_DWMMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_MMC
 
 #define CONFIG_FS_EXT4
 
 /* Command line configuration */
 #define CONFIG_MENU
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_UNZIP
 #define CONFIG_CMD_ENV
 

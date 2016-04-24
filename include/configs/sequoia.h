@@ -230,7 +230,6 @@
  */
 #define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM

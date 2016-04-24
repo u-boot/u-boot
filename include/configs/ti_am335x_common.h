@@ -30,7 +30,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* Network defines. */
-#define CONFIG_CMD_MII
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME

@@ -26,8 +26,6 @@
 #define	CONFIG_MMC
 #define	CONFIG_GENERIC_MMC
 #define	CONFIG_PXA_MMC_GENERIC
-#define	CONFIG_CMD_FAT
-#define	CONFIG_CMD_EXT2
 #define	CONFIG_DOS_PARTITION
 #endif
 

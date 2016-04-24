@@ -43,14 +43,7 @@
 
 #ifdef CONFIG_ARM64
 #define CONFIG_CMD_BOOTI
-#else
-#define CONFIG_CMD_BOOTZ
 #endif
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PXE
 
 #define CONFIG_CMDLINE_EDITING

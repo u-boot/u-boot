@@ -41,7 +41,6 @@
 
 /* Network support */
 
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE                    ENET_BASE_ADDR

@@ -30,7 +30,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
-#define CONFIG_CMD_BOOTZ
 
 /* general purpose I/O */
 #define CONFIG_AT91_GPIO

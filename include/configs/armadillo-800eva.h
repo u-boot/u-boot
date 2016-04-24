@@ -18,8 +18,6 @@
 
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_BOOTZ
 
 #define BOARD_LATE_INIT
 

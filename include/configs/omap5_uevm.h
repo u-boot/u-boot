@@ -101,7 +101,6 @@
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
-#define CONFIG_CMD_DFU
 
 #define CONFIG_DFU_MMC
 

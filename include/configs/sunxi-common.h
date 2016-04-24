@@ -140,7 +140,6 @@
 /* mmc config */
 #ifdef CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_MMC_SUNXI
 #define CONFIG_MMC_SUNXI_SLOT		0
 #define CONFIG_ENV_IS_IN_MMC
@@ -347,7 +346,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_FUNCTION_DFU
-#define CONFIG_CMD_DFU
 #define CONFIG_DFU_RAM
 #endif
 
@@ -366,7 +364,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_FUNCTION_MASS_STORAGE
-#define CONFIG_CMD_USB_MASS_STORAGE
 #endif
 
 #ifdef CONFIG_USB_KEYBOARD

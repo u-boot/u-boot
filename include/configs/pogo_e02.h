@@ -33,7 +33,6 @@
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 
 /*
@@ -82,8 +81,6 @@
 /*
  * File system
  */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS

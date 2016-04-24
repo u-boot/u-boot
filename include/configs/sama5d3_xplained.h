@@ -77,11 +77,9 @@
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
 #define CONFIG_RGMII
-#define CONFIG_CMD_MII
 #define CONFIG_PHYLIB
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
@@ -105,10 +103,7 @@
 #endif
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
 #endif
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */

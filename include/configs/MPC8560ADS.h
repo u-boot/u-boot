@@ -378,7 +378,6 @@
 #endif
 
 #if defined(CONFIG_ETHER_ON_FCC)
-    #define CONFIG_CMD_MII
 #endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */

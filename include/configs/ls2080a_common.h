@@ -210,10 +210,7 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_PCIE_MEM_SIZE	0x40000000	/* 1G */
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MII
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)

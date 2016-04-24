@@ -77,7 +77,6 @@
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_MII
 #define CONFIG_MII		/* expose smi ove miiphy interface */
 #if !defined(CONFIG_ARMADA_375)
 #define CONFIG_MVNETA		/* Enable Marvell Gbe Controller Driver */

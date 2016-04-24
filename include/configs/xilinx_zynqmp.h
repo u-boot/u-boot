@@ -63,15 +63,9 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
 #define CONFIG_MP
-
-#define CONFIG_CMD_MII
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
@@ -89,7 +83,6 @@
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
 # define CONFIG_SDHCI
-# define CONFIG_CMD_MMC
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
 # endif
@@ -97,7 +90,6 @@
 
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQMP_USB)
 # define CONFIG_FAT_WRITE
-# define CONFIG_CMD_EXT4_WRITE
 #endif
 
 #ifdef CONFIG_NAND_ARASAN
@@ -125,7 +117,6 @@
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
 #define CONFIG_USB_CABLE_CHECK
-#define CONFIG_CMD_DFU
 #define CONFIG_CMD_THOR_DOWNLOAD
 #define CONFIG_USB_FUNCTION_THOR
 #define CONFIG_THOR_RESET_OFF

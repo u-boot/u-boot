@@ -40,7 +40,6 @@
 #define CONFIG_SDHCI
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC_SDMA
-#define CONFIG_CMD_MMC
 
 /* 10/100M Ethernet support */
 #define CONFIG_DESIGNWARE_ETH

@@ -11,7 +11,6 @@
 #define __MPR2_H
 
 /* Supported commands */
-#define CONFIG_CMD_CACHE
 
 /* Default environment variables */
 #define CONFIG_BAUDRATE		115200

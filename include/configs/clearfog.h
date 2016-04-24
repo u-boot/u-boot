@@ -25,14 +25,7 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_PCI
 
 /* I2C */

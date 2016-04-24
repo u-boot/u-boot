@@ -446,12 +446,10 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MII
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SCSI
-#define CONFIG_CMD_EXT2
 #endif
 
 #define CONFIG_WATCHDOG			/* watchdog enabled */

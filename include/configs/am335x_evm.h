@@ -348,7 +348,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_MMC
-#define CONFIG_CMD_DFU
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
 	"boot part 0 1;" \

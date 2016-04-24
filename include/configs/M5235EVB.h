@@ -35,8 +35,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_REGINFO
 

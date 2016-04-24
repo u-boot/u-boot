@@ -69,7 +69,6 @@
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"IGEP"
 
-#define CONFIG_CMD_CACHE
 #ifdef CONFIG_BOOT_ONENAND
 #define CONFIG_CMD_ONENAND	/* ONENAND support		*/
 #endif

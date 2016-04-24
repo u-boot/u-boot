@@ -56,8 +56,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_MII
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_MCFFEC

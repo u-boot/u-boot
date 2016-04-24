@@ -120,8 +120,6 @@
  * Command line configuration.
  */
 
-#undef CONFIG_CMD_MII
-
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_MII		1
 #	define CONFIG_MII_INIT		1

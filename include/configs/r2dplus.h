@@ -11,10 +11,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_SH_ZIMAGEBOOT
 

@@ -75,9 +75,7 @@
 #define CONFIG_SYS_MMC_ENV_PART		1	/* boot parition */
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC2 */
 
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_CACHE
 
 /* USB Configs */
 #define CONFIG_USB_EHCI
@@ -90,7 +88,6 @@
 
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_ENET_DEV		0
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x0

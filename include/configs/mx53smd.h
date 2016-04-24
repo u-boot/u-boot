@@ -47,9 +47,7 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
@@ -59,8 +57,6 @@
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
-
-#define CONFIG_CMD_MII
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

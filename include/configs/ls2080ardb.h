@@ -63,8 +63,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_CMD_SCSI
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 #define CONFIG_BOARD_LATE_INIT
 
@@ -306,11 +304,9 @@ unsigned long get_board_sys_clk(void);
 /*  MMC  */
 #define CONFIG_MMC
 #ifdef CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -326,7 +322,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         2
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS      2
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_EXT2
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS

@@ -124,11 +124,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* commands to include */
-#define CONFIG_CMD_EXT2			/* EXT2 Support */
-#define CONFIG_CMD_EXT4			/* EXT4 Support */
-#define CONFIG_CMD_FAT			/* FAT support */
-
-#define CONFIG_CMD_MMC			/* MMC support */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */

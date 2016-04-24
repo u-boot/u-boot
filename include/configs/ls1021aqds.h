@@ -412,11 +412,9 @@ unsigned long get_board_ddr_clk(void);
  * MMC
  */
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* SPI */
@@ -460,7 +458,6 @@ unsigned long get_board_ddr_clk(void);
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_EXT2
 #endif
 
 /*
@@ -557,8 +554,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_PCI
 #endif
 
-#define CONFIG_CMD_MII
-
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
@@ -603,7 +598,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_GREPENV
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
@@ -653,8 +647,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
 #endif
-
-#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_MISC_INIT_R
 

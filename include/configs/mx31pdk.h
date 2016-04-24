@@ -79,10 +79,8 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_BOARD_LATE_INIT
 

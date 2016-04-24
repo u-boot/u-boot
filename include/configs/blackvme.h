@@ -74,7 +74,6 @@
  */
 #define CONFIG_DRIVER_AX88180	1
 #define AX88180_BASE		0x2c000000
-#define CONFIG_CMD_MII		/* enable probing PHY */
 
 #define CONFIG_HOSTNAME	blackvme	/* Bfin board  */
 #define CONFIG_IPADDR		169.254.144.145	/* Bfin board  */
@@ -150,7 +149,6 @@
 #define CONFIG_AUTO_COMPLETE	1
 
 #define CONFIG_CMD_BOOTLDR
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_CPLBINFO
 
 /*

@@ -163,7 +163,6 @@
 
 #define CONFIG_CMD_MTDPARTS
 
-#define CONFIG_CMD_ASKENV /* monitor functions : ask for env variable */
 #define CONFIG_VERSION_VARIABLE /* monitor functions :  u-boot version */
 #define CONFIG_CMD_DIAG /* monitor functions : Diagnostics */
 
@@ -214,7 +213,6 @@
 #define CONFIG_NET_MULTI
 
 /* Network */
-#define CONFIG_CMD_MII
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_NATSEMI

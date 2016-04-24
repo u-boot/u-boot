@@ -108,13 +108,11 @@
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
 #define CONFIG_RGMII
-#define CONFIG_CMD_MII
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
 #define CONFIG_PHY_MICREL_KSZ9021
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
@@ -143,7 +141,6 @@
 #define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D3xEK"
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #endif
 

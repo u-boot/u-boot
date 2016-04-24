@@ -168,9 +168,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MII
 
-#undef CONFIG_CMD_FAT
 #undef CONFIG_CMD_IDE
 #undef CONFIG_CMD_BEDBUG
 

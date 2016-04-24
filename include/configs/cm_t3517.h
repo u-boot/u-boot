@@ -119,9 +119,6 @@
 #define CONFIG_USB_STORAGE
 
 /* commands to include */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
@@ -130,7 +127,6 @@
 				"1920k(u-boot),256k(u-boot-env),"\
 				"4m(kernel),-(fs)"
 
-#define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 
 #define CONFIG_SYS_NO_FLASH
@@ -199,7 +195,6 @@
 		"nand read ${loadaddr} 2a0000 400000; " \
 		"bootm ${loadaddr}\0" \
 
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \

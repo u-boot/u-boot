@@ -76,8 +76,6 @@
  * Supported commands
  */
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MII
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
 #endif

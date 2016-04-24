@@ -99,12 +99,8 @@
 #define CONFIG_CMD_JFFS2		/* JFFS2 Support		*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 
-#undef CONFIG_CMD_ASKENV
-#undef CONFIG_CMD_BOOTZ
 #undef CONFIG_SUPPORT_RAW_INITRD
 #undef CONFIG_FAT_WRITE
-#undef CONFIG_CMD_EXT4
-#undef CONFIG_CMD_FS_GENERIC
 
 /* BOOTP/DHCP options */
 #define CONFIG_BOOTP_SUBNETMASK

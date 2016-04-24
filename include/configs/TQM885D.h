@@ -133,12 +133,9 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_MII
 
 /*
  * Miscellaneous configurable options

@@ -65,16 +65,10 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
-#define CONFIG_CMD_CACHE	/* icache, dcache		*/
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_IMX_FUSE	/* imx iim fuse                 */
-#define CONFIG_CMD_MII		/* MII support			*/
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_MTDPARTS	/* MTD partition support	*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK

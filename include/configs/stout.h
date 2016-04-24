@@ -94,7 +94,6 @@
 
 /* MMC */
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 
 /* Module stop status bits */

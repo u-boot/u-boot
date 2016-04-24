@@ -354,7 +354,6 @@ extern unsigned long get_clock_freq(void);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 

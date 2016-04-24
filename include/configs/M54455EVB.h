@@ -39,13 +39,9 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #undef CONFIG_CMD_PCI
 #define CONFIG_CMD_REGINFO
 

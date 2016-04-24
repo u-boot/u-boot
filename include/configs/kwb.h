@@ -48,7 +48,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_OMAP_HSMMC
-#define CONFIG_CMD_MMC
 #define CONFIG_SUPPORT_EMMC_BOOT
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /*addr. 0x60000 */
@@ -115,7 +114,6 @@ BUR_COMMON_ENV \
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
-#define CONFIG_CMD_BOOTZ
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DSPS
@@ -140,9 +138,7 @@ BUR_COMMON_ENV \
  */
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_STORAGE)
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
-#define CONFIG_CMD_FS_GENERIC
 #endif /* CONFIG_MMC, ... */
 
 #endif	/* __CONFIG_KWB_H__ */

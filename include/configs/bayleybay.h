@@ -30,7 +30,6 @@
 #define CONFIG_SDHCI
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC_SDMA
-#define CONFIG_CMD_MMC
 
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000

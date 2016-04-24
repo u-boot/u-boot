@@ -35,10 +35,8 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 
 #define CONFIG_CMD_FPGAD
 #define CONFIG_CMD_IOLOOP
@@ -533,7 +531,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */

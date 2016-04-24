@@ -314,7 +314,6 @@
 #undef CONFIG_SPL_EXT_SUPPORT
 #undef CONFIG_MMC
 #undef CONFIG_GENERIC_MMC
-#undef CONFIG_CMD_MMC
 
 /* And no support for GPIO, yet.. */
 #undef CONFIG_SPL_GPIO_SUPPORT

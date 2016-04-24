@@ -56,7 +56,6 @@
 #define CONFIG_OMAP3_GPIO_6	/* GPIO160..191 is in GPIO Bank 6 */
 
 /* commands to include */
-#define CONFIG_CMD_CACHE
 
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */

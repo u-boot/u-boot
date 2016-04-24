@@ -157,7 +157,6 @@
 #define __io
 #define CONFIG_IDE_PREINIT
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 /* ED Mini V has an IDE-compatible SATA connector for port 1 */
 #define CONFIG_MVSATA_IDE
 #define CONFIG_MVSATA_IDE_USE_PORT1

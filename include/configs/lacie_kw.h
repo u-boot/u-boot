@@ -148,8 +148,6 @@
 /*
  * File systems support
  */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 /*
  * Console configuration

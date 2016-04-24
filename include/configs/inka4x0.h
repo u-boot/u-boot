@@ -80,8 +80,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_PCI
 

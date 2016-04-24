@@ -93,7 +93,6 @@
  * Command line configuration.
  */
 /* add useful commands */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_REGINFO
 

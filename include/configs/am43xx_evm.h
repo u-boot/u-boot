@@ -11,8 +11,6 @@
 
 #define CONFIG_AM43XX
 
-#define CONFIG_CMD_FAT
-
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_CACHELINE_SIZE       32
@@ -149,7 +147,6 @@
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
-#define CONFIG_CMD_DFU
 
 #define CONFIG_DFU_MMC
 #define DFU_ALT_INFO_MMC \
@@ -320,7 +317,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* CPSW Ethernet */
-#define CONFIG_CMD_MII
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS

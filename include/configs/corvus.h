@@ -39,8 +39,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_CMD_BOOTZ
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 #define CONFIG_AT91_GPIO
@@ -115,7 +113,6 @@
 #define CONFIG_MTD_PARTITIONS
 
 /* DFU class support */
-#define CONFIG_CMD_DFU
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_NAND
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(SZ_1M)

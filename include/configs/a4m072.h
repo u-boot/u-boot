@@ -92,9 +92,7 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DISPLAY
 
 #if defined(CONFIG_PCI)

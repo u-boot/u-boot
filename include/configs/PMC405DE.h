@@ -58,7 +58,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 
 #undef  CONFIG_WATCHDOG			/* watchdog disabled */

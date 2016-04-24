@@ -90,7 +90,6 @@
 
 /* SD */
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SH_SDHI_FREQ	97500000
 

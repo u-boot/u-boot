@@ -22,7 +22,6 @@
 #define CONFIG_BOOTCOMMAND		"bootm ffc20000"
 
 #undef CONFIG_CMD_AES
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DIAG
 
 /* undef to save memory	*/

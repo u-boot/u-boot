@@ -30,7 +30,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
-#define CONFIG_CMD_MMC
 
 /* USB host support */
 #define CONFIG_USB_EHCI
@@ -76,7 +75,6 @@
 #define CONFIG_ENV_SIZE			(SZ_64K)
 
 /* UBI */
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
 #define CONFIG_LZO
@@ -84,7 +82,6 @@
 #define CONFIG_RBTREE
 
 /* Debug commands */
-#define CONFIG_CMD_CACHE
 
 /* Miscellaneous commands */
 #define CONFIG_FAT_WRITE

@@ -304,7 +304,6 @@
 #define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_SMSC
 #define CONFIG_MII
-#define CONFIG_CMD_MII
 #define CONFIG_PHY_ATHEROS
 
 /* NAND support */

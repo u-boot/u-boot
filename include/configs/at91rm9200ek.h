@@ -58,8 +58,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_CMD_BOOTZ
-
 /*
  * Memory Configuration
  */
@@ -119,8 +117,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MII
 
 /*
  * Network Driver Setting

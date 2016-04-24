@@ -51,7 +51,6 @@
 #undef CONFIG_CMD_NAND
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
@@ -78,7 +77,6 @@
 #define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D2 XPlained"
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 

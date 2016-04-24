@@ -115,7 +115,6 @@
 /* MMC/SD IP block */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_MMC
 
 /* McSPI IP block */
 #define CONFIG_SPI
@@ -168,8 +167,6 @@
 #define CONFIG_CMD_MTDPARTS
 #endif
 
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 
 /*
@@ -178,11 +175,7 @@
  */
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_STORAGE)
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
 #endif
@@ -302,6 +295,5 @@
 #endif
 
 #include <config_distro_defaults.h>
-#define CONFIG_CMD_EXT4_WRITE
 
 #endif	/* __CONFIG_TI_ARMV7_COMMON_H__ */

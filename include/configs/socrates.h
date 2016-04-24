@@ -308,9 +308,7 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)

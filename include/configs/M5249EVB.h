@@ -39,7 +39,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 

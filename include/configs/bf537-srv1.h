@@ -139,7 +139,6 @@
 #endif
 
 #define CONFIG_CMD_BOOTLDR
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 
 #define CONFIG_BOOTCOMMAND	"run flashboot"

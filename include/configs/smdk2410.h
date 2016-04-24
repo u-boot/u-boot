@@ -73,7 +73,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_BSP
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_REGINFO
@@ -170,8 +169,6 @@
 /*
  * File system
  */
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_MTDPARTS

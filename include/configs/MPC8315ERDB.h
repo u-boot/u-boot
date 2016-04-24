@@ -425,7 +425,6 @@
 #define CONFIG_LBA48
 #define CONFIG_CMD_SATA
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
 #endif
 
 /*
@@ -458,7 +457,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 

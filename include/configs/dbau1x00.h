@@ -73,8 +73,6 @@
  * Command line configuration.
  */
 #undef CONFIG_CMD_BEDBUG
-#undef CONFIG_CMD_FAT
-#undef CONFIG_CMD_MII
 
 #ifdef CONFIG_DBAU1550
 

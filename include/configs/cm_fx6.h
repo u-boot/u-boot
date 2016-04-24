@@ -18,7 +18,6 @@
 #define CONFIG_MACH_TYPE		4273
 
 /* CMD */
-#define CONFIG_CMD_GREPENV
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3

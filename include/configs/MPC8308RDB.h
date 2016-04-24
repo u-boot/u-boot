@@ -31,9 +31,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 #define CONFIG_SYS_FSL_ESDHC_USE_PIO
 
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
@@ -430,7 +428,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */

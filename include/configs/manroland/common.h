@@ -26,8 +26,6 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MII
 
 /*
  * 8-symbol LED display (can be accessed with 'display' command)

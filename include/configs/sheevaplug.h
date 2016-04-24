@@ -24,7 +24,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_MMC
 
 /*
  * Standard filesystems

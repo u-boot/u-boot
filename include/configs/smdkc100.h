@@ -67,10 +67,8 @@
  ***********************************************************/
 #undef CONFIG_CMD_NAND
 
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_MTDPARTS
 
 #define CONFIG_BOOTDELAY	3

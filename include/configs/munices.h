@@ -26,7 +26,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_REGINFO
 

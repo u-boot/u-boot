@@ -80,9 +80,6 @@
 #define CONFIG_MX_CYCLIC
 
 /* Commands */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 
 /* SHA hashing */
@@ -92,8 +89,6 @@
 #define CONFIG_SHA256
 
 /* Enable Time Command */
-
-#define CONFIG_CMD_BOOTZ
 
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER

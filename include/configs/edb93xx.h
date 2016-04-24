@@ -238,7 +238,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC_SPI
-#define CONFIG_CMD_MMC
 #define CONFIG_MMC_SPI_NPOWER_EGPIO	9
 #endif
 
@@ -250,12 +249,7 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ep93xx-ohci"
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x80020000
 
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_CMD_BOOTZ
 
 /* Define to disable flash configuration*/
 /* #define CONFIG_EP93XX_NO_FLASH_CFG */

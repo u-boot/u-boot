@@ -39,9 +39,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 
 #ifdef CONFIG_CMD_IDE

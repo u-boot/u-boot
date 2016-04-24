@@ -19,8 +19,6 @@
  * Supported U-Boot commands
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_FAT
 
 /*
  * Board revision is detected by probing the Ethernet chip.

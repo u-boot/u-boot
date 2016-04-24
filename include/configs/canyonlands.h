@@ -382,8 +382,6 @@
 #elif defined(CONFIG_CANYONLANDS)
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SATA

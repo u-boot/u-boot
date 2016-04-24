@@ -64,9 +64,6 @@
 
 /* commands to include */
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 

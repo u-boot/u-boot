@@ -82,11 +82,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* U-Boot commands */
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
@@ -121,8 +116,6 @@
 #define CONFIG_CMD_DATE
 
 /* Ethernet Configs */
-
-#define CONFIG_CMD_MII
 
 #define CONFIG_BOOTDELAY	1
 

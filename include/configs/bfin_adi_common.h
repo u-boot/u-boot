@@ -17,18 +17,13 @@
 #  define CONFIG_BOOTP_RANDOM_DELAY
 #  define CONFIG_KEEP_SERVERADDR
 #  ifdef CONFIG_BFIN_MAC
-#   define CONFIG_CMD_MII
 #  endif
 # endif
 # ifdef CONFIG_LIBATA
-#  define CONFIG_CMD_FAT
 #  define CONFIG_CMD_SATA
 #  define CONFIG_DOS_PARTITION
 # endif
 # ifdef CONFIG_MMC
-#  define CONFIG_CMD_EXT2
-#  define CONFIG_CMD_FAT
-#  define CONFIG_CMD_MMC
 #  define CONFIG_DOS_PARTITION
 #  define CONFIG_SYS_MMC_MAX_BLK_COUNT 127
 # endif
@@ -36,8 +31,6 @@
 #  define CONFIG_CMD_MMC_SPI
 # endif
 # ifdef CONFIG_USB
-#  define CONFIG_CMD_EXT2
-#  define CONFIG_CMD_FAT
 #  define CONFIG_CMD_USB_STORAGE
 #  define CONFIG_DOS_PARTITION
 # endif
@@ -66,7 +59,6 @@
 #  define CONFIG_JFFS2_SUMMARY
 # endif
 # define CONFIG_CMD_BOOTLDR
-# define CONFIG_CMD_CACHE
 # define CONFIG_CMD_CPLBINFO
 # define CONFIG_CMD_KGDB
 # define CONFIG_CMD_LDRINFO

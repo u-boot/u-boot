@@ -62,7 +62,6 @@
 #endif
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
@@ -86,7 +85,6 @@
 #define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D4EK"
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 

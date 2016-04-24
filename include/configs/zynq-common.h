@@ -16,7 +16,6 @@
 #endif
 
 /* Cache options */
-#define CONFIG_CMD_CACHE
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 #define CONFIG_SYS_L2CACHE_OFF
@@ -84,7 +83,6 @@
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
 # define CONFIG_SDHCI
-# define CONFIG_CMD_MMC
 # define CONFIG_ZYNQ_SDHCI_MAX_FREQ	52000000
 #endif
 
@@ -100,7 +98,6 @@
 # define CONFIG_USB_FUNCTION_DFU
 # define CONFIG_DFU_RAM
 # define CONFIG_USB_CABLE_CHECK
-# define CONFIG_CMD_DFU
 # define CONFIG_CMD_THOR_DOWNLOAD
 # define CONFIG_THOR_RESET_OFF
 # define CONFIG_USB_FUNCTION_THOR
@@ -139,13 +136,8 @@
 
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
 # define CONFIG_SUPPORT_VFAT
-# define CONFIG_CMD_FAT
-# define CONFIG_CMD_EXT2
 # define CONFIG_FAT_WRITE
 # define CONFIG_DOS_PARTITION
-# define CONFIG_CMD_EXT4
-# define CONFIG_CMD_EXT4_WRITE
-# define CONFIG_CMD_FS_GENERIC
 #endif
 
 #if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
@@ -303,7 +295,6 @@
 #define CONFIG_SYS_LDSCRIPT  "arch/arm/mach-zynq/u-boot.lds"
 
 /* Commands */
-#define CONFIG_CMD_MII
 
 /* SPL part */
 #define CONFIG_CMD_SPL

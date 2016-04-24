@@ -41,11 +41,7 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
@@ -55,10 +51,7 @@
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
 
-#define CONFIG_CMD_MII
-
 /* USB Configs */
-#define CONFIG_CMD_FAT
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX5
 #define CONFIG_USB_STORAGE
@@ -92,7 +85,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 
 #define CONFIG_BOOTDELAY	1

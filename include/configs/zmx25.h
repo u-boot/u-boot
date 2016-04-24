@@ -75,12 +75,10 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 
 /*
  * Additional command
  */
-#define CONFIG_CMD_FAT
 
 /*
  * USB

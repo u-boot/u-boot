@@ -72,7 +72,6 @@
 #define CONFIG_PHY_ADDR		1
 #define CONFIG_DW_PORTS		1
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_CMD_MII
 #define CONFIG_MII
 
 /* i2c Settings */

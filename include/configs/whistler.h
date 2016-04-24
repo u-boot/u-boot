@@ -28,7 +28,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
-#define CONFIG_CMD_MMC
 
 /*
  * Environment in eMMC, at the end of 2nd "boot sector". Note: This assumes

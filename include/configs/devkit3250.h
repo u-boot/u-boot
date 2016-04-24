@@ -82,7 +82,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ADDR			0x1F
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#define CONFIG_CMD_MII
 
 /*
  * NOR Flash
@@ -126,7 +125,6 @@
 #define CONFIG_USB_OHCI_LPC32XX
 #define CONFIG_USB_ISP1301_I2C_ADDR		0x2d
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_FAT
 
 /*
  * U-Boot General Configurations
@@ -174,7 +172,6 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_CACHE
 
 /*
  * Boot Linux

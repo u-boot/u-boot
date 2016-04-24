@@ -137,7 +137,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
-#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_FAT_WRITE
 #endif
 

@@ -172,14 +172,11 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
 
 #if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
-# define CONFIG_CMD_CACHE
 #else
-# undef CONFIG_CMD_CACHE
 #endif
 
 #if defined(FLASH)
@@ -274,7 +271,6 @@
 
 #if defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_MII		1
-# define CONFIG_CMD_MII		1
 # define CONFIG_PHY_GIGE	1
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
 # define CONFIG_PHY_ATHEROS	1
@@ -289,7 +285,6 @@
 # define CONFIG_PHY_VITESSE	1
 #else
 # undef CONFIG_MII
-# undef CONFIG_CMD_MII
 #endif
 
 /* SPL part */

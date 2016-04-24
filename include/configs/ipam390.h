@@ -250,9 +250,7 @@
  * U-Boot commands
  */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI
@@ -260,7 +258,6 @@
 #endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_MII
 #endif
 
 #define CONFIG_CMD_NAND

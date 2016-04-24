@@ -108,15 +108,10 @@
 #define CONFIG_USB_ETHER_MCS7830
 
 /* commands to include */
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
@@ -135,7 +130,6 @@
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 
-#define CONFIG_CMD_MII
 /*
  * Board NAND Info.
  */

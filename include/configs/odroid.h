@@ -46,7 +46,6 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run autoboot"
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"

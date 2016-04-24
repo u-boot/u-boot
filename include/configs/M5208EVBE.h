@@ -22,8 +22,6 @@
 #define CONFIG_WATCHDOG_TIMEOUT		5000
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
 
 #define CONFIG_MCFFEC

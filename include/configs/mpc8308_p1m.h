@@ -388,7 +388,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */

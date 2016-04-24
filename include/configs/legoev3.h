@@ -208,9 +208,7 @@
 /*
  * U-Boot commands
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_SAVES
 
 #ifdef CONFIG_CMD_BDI
@@ -233,9 +231,6 @@
  */
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MMC
 #endif
 
 /* additions for new relocation code, must added to all boards */

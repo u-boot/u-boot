@@ -70,7 +70,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_NAND		1
 
 #define CONFIG_CMD_JFFS2		1

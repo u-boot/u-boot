@@ -36,7 +36,6 @@
 	"led5=63,0,1\0"
 
 #undef CONFIG_DOS_PARTITION
-#undef CONFIG_CMD_FAT
 
 #define CONFIG_BOARD_LATE_INIT
 

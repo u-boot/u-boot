@@ -30,8 +30,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_CMD_BOOTZ
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 #define CONFIG_AT91_GPIO
@@ -103,7 +101,6 @@
 #endif
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
@@ -112,7 +109,6 @@
 #endif
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 

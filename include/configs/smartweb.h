@@ -169,7 +169,6 @@
 #define CONFIG_USB_GADGET_AT91
 
 /* DFU class support */
-#define CONFIG_CMD_DFU
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_NAND
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_1M
@@ -215,7 +214,6 @@
 /* Command line & features configuration */
 
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_FAT
 
 #ifdef CONFIG_MACB
 #else

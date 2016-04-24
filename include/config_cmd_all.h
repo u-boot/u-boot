@@ -13,12 +13,9 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
 #define CONFIG_CMD_BMP		/* BMP support			*/
-#define CONFIG_CMD_BOOTZ	/* boot zImage			*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
-#define CONFIG_CMD_CACHE	/* icache, dcache		*/
 #define CONFIG_CMD_CLK		/* Clock support		*/
 #define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
 #define CONFIG_CMD_DIAG		/* Diagnostics			*/
@@ -26,8 +23,6 @@
 #define CONFIG_CMD_DOC		/* Disk-On-Chip Support		*/
 #define CONFIG_CMD_DTT		/* Digital Therm and Thermostat */
 #define CONFIG_CMD_EEPROM	/* EEPROM read/write support	*/
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_FDC		/* Floppy Disk Support		*/
 #define CONFIG_CMD_FUSE		/* Device fuse support		*/
 #define CONFIG_CMD_GETTIME	/* Get time since boot         */
@@ -39,8 +34,6 @@
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_KGDB		/* kgdb				*/
 #define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
-#define CONFIG_CMD_MII		/* MII support			*/
-#define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_MTDPARTS	/* mtd parts support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_ONENAND	/* OneNAND support		*/

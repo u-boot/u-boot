@@ -406,7 +406,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MII
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

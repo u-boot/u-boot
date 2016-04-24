@@ -18,11 +18,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_VIDEO
 
 /* Memory configuration */

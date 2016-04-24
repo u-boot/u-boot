@@ -45,8 +45,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 
 #define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_NE2000_BASE	0xffffffffb4000300

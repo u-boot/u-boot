@@ -180,12 +180,10 @@ extern void out32(unsigned int, unsigned long);
 /*
  * Command configuration
  */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 
 /*

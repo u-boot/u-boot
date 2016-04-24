@@ -57,7 +57,6 @@
 #define CONFIG_SERIAL3			3
 
 /* commands to include */
-#define CONFIG_CMD_CACHE	/* Cache control		*/
 
 /*
  * Board NAND Info.

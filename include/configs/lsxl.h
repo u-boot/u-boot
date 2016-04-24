@@ -49,12 +49,8 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_FS_GENERIC
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION

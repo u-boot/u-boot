@@ -31,8 +31,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MXC_GPIO
 
-#define CONFIG_CMD_BOOTZ
-
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR_AXI
 #define CONFIG_NAND_MXC
@@ -59,16 +57,12 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
 #define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
 #define CONFIG_MII
-
-#define CONFIG_CMD_MII
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

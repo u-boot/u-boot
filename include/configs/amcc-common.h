@@ -50,15 +50,11 @@
 /*
  * Commands
  */
-#define CONFIG_CMD_ASKENV
 #if defined(CONFIG_440)
-#define CONFIG_CMD_CACHE
 #endif
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
 
 /*

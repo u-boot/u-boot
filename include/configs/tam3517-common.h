@@ -96,11 +96,6 @@
 #define CONFIG_USB_STORAGE
 
 /* commands to include */
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_EEPROM
 

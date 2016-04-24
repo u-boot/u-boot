@@ -37,7 +37,6 @@
 #define CONFIG_INITRD_TAG		/* for ramdisk support */
 
 /* commands to include */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_VERSION_VARIABLE
 
 #define CONFIG_BOOTDELAY		1	/* negative for no autoboot */
@@ -122,10 +121,7 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_OMAP_HSMMC
-#define CONFIG_CMD_MMC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 
 /**
  * Physical Memory Map
@@ -210,7 +206,6 @@
 #undef CONFIG_USE_IRQ
 
 /* Ethernet */
-#define CONFIG_CMD_MII
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
 #define CONFIG_BOOTP_DNS

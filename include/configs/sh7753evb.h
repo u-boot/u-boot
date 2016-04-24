@@ -16,13 +16,10 @@
 #define CONFIG_SYS_TEXT_BASE	0x5ff80000
 #define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7753evb/u-boot.lds"
 
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_MD5SUM
 #define CONFIG_MD5
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 

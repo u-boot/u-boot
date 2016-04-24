@@ -31,8 +31,6 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_CMD_BOOTZ
-
 #define CONFIG_ATMEL_LEGACY
 #define CONFIG_AT91_GPIO		1
 #define CONFIG_AT91_GPIO_PULLUP		1
@@ -111,13 +109,11 @@
 #endif
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_GENERIC_ATMEL_MCI
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 

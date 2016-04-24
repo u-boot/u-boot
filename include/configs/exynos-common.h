@@ -26,7 +26,6 @@
 #define CONFIG_USE_ARCH_MEMSET
 
 /* Keep L2 Cache Disabled */
-#define CONFIG_CMD_CACHE
 
 /* input clock of PLL: 24MHz input clock */
 #define CONFIG_SYS_CLK_FREQ		24000000
@@ -57,10 +56,7 @@
 #define CONFIG_PWM
 
 /* Command definition*/
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_FAT_WRITE
-#define CONFIG_CMD_FS_GENERIC
 
 #define CONFIG_CMD_PART
 #define CONFIG_PARTITION_UUIDS

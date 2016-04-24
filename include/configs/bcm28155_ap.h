@@ -124,11 +124,6 @@
 #define CONFIG_BOOTCOMMAND		""
 
 /* Commands */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_FAT_WRITE
 
 /* Fastboot and USB OTG */

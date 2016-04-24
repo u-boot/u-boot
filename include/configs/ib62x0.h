@@ -35,9 +35,7 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_MII
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

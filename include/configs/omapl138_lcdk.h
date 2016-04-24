@@ -210,16 +210,13 @@
  * U-Boot commands
  */
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_SAVES
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
-#undef CONFIG_CMD_MII
 #endif
 
 #ifdef CONFIG_USE_NAND
@@ -253,9 +250,6 @@
 
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MMC
 #undef CONFIG_ENV_IS_IN_MMC
 #endif
 

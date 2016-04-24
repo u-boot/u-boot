@@ -105,8 +105,6 @@
 /*
  * Commands still not supported in Kconfig
  */
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
 
 #define CONFIG_AUTO_COMPLETE

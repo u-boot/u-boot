@@ -148,7 +148,6 @@
 #define CONFIG_APBH_DMA_BURST8
 
 /* Network */
-#define CONFIG_CMD_MII
 
 #define CONFIG_FEC_MXC
 #define CONFIG_MII

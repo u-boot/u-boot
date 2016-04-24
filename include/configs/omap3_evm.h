@@ -24,13 +24,9 @@
  * Supported U-Boot commands
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_CMD_ASKENV
 
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
 
 /* ----------------------------------------------------------------------------

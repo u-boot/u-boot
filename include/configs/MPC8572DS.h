@@ -572,13 +572,11 @@
  */
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SCSI
-#define CONFIG_CMD_EXT2
 #endif
 
 /*

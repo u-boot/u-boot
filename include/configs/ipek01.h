@@ -106,10 +106,8 @@
 #define CONFIG_CMD_BMP		/* BMP support */
 #endif
 #define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
-#define CONFIG_CMD_FAT		/* FAT support */
 #define CONFIG_CMD_IDE		/* IDE harddisk support */
 #define CONFIG_CMD_IRQ		/* irqinfo */
-#define CONFIG_CMD_MII		/* MII support */
 #define CONFIG_CMD_PCI		/* pciinfo */
 
 #define CONFIG_SYS_LOWBOOT	1

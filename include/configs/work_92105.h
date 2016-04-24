@@ -63,7 +63,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ADDR 0
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#define CONFIG_CMD_MII
 /* FIXME: remove "Waiting for PHY auto negotiation to complete..." message */
 
 /*

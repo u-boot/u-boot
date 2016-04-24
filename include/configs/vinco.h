@@ -54,7 +54,6 @@
 #endif
 
 /* MMC */
-#define CONFIG_CMD_MMC
 
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_SUPPORT_EMMC_BOOT
@@ -87,12 +86,10 @@
 #define CONFIG_USBNET_MANUFACTURER      "L+G VInCo"
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
 /* Ethernet Hardware */
-#define CONFIG_CMD_MII
 #define CONFIG_PHY_SMSC
 #define CONFIG_MACB
 #define CONFIG_RMII
