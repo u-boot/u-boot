@@ -42,7 +42,6 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
 
-
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_ROOTPATH		"/opt/eldk"
@@ -485,7 +484,6 @@
 					"512k(mtdoops)," \
 					"-(rootfs)"
 
-
 #define DFU_ALT_INFO_NAND_V2 \
 	"spl part 0 1;" \
 	"spl.backup1 part 0 2;" \
@@ -576,7 +574,6 @@
 					"300m(rootfs),"		\
 					"512k(mtdoops),"	\
 					"-(configuration)"
-
 
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_ELM

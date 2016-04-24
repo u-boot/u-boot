@@ -154,7 +154,6 @@
 		"run emmcboot; " \
 	"fi;"
 
-
 #define CONFIG_CONS_INDEX		1
 
 /* SPL defines. */

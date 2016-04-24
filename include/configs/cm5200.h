@@ -8,9 +8,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
 #define CONFIG_DISPLAY_BOARDINFO
-
 
 /*
  * High Level Configuration Options
@@ -167,12 +165,10 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	256	/* max num of sectors on one chip */
 #define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */
 
-
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT		1
 #undef CONFIG_SYS_LOWBOOT
 #endif
-
 
 /*
  * Chip selects configuration

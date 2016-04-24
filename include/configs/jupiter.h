@@ -73,7 +73,6 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-
 /*
  * BOOTP options
  */
@@ -82,7 +81,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -90,7 +88,6 @@
 #if defined(CONFIG_PCI)
 #define CODFIG_CMD_PCI
 #endif
-
 
 /*
  * Autobooting
@@ -202,7 +199,6 @@
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
-
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET

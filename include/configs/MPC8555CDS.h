@@ -33,7 +33,6 @@
 
 #define CONFIG_FSL_VIA
 
-
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
 #endif
@@ -130,7 +129,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-
 
 /*
  * SDRAM on the Local Bus
@@ -312,7 +310,6 @@ extern unsigned long get_clock_freq(void);
 
 #endif	/* CONFIG_PCI */
 
-
 #if defined(CONFIG_TSEC_ENET)
 
 #define CONFIG_MII		1	/* MII PHY management */
@@ -351,7 +348,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -362,7 +358,6 @@ extern unsigned long get_clock_freq(void);
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
 #endif
-
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 

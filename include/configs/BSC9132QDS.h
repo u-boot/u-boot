@@ -93,7 +93,6 @@
 
 #define CONFIG_CMD_PCI
 
-
 /*
  * PCI Windows
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -222,7 +221,6 @@ combinations. this should be removed later
 #define CONFIG_SYS_DDR_TIMING_4	CONFIG_SYS_DDR_TIMING_4_800
 #define CONFIG_SYS_DDR_TIMING_5	CONFIG_SYS_DDR_TIMING_5_800
 #endif
-
 
 /* relocated CCSRBAR */
 #define CONFIG_SYS_CCSRBAR	CONFIG_SYS_CCSRBAR_DEFAULT
@@ -589,7 +587,6 @@ combinations. this should be removed later
 						/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
-
 
 /*
  * For booting Linux, the board info and command line data

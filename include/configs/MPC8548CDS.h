@@ -132,7 +132,6 @@ extern unsigned long get_clock_freq(void);
  *
  */
 
-
 /*
  * Local Bus Definitions
  */
@@ -421,7 +420,6 @@ extern unsigned long get_clock_freq(void);
 
 #endif	/* CONFIG_PCI */
 
-
 #if defined(CONFIG_TSEC_ENET)
 
 #define CONFIG_MII		1	/* MII PHY management */
@@ -479,7 +477,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -490,7 +487,6 @@ extern unsigned long get_clock_freq(void);
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
 #endif
-
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -579,7 +575,6 @@ extern unsigned long get_clock_freq(void);
    "tftp $loadaddr $bootfile;"						\
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr - $fdtaddr"
-
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "					\

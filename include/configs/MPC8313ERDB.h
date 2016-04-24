@@ -276,7 +276,6 @@
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
 #define CONFIG_SYS_NAND_WINDOW_SIZE (32 * 1024)
 
-
 #define CONFIG_SYS_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE \
 				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
 				| BR_PS_8		/* 8 bit port */ \
@@ -427,7 +426,6 @@
 #define TSEC2_PHYIDX		0
 #endif
 
-
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME			"TSEC1"
 
@@ -473,7 +471,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.

@@ -7,13 +7,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf561-0.5
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
-
 
 /*
  * Clock Settings
@@ -38,7 +36,6 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			5
 
-
 /*
  * Memory Settings
  */
@@ -56,7 +53,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
 
-
 /*
  * Network Settings
  */
@@ -64,7 +60,6 @@
 #define CONFIG_DRIVER_AX88180	1
 #define AX88180_BASE		0x2c000000
 #define CONFIG_HOSTNAME		ibf-dsp561
-
 
 /*
  * Flash Settings
@@ -99,7 +94,6 @@
 	common/env_embedded.o (.text*);
 #endif
 
-
 /*
  * I2C Settings
  */
@@ -112,7 +106,6 @@
  * Misc Settings
  */
 #define CONFIG_UART_CONSOLE	0
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

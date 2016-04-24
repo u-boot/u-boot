@@ -154,13 +154,11 @@
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_FSL_DDR3
 
-
 /*
  * IFC Definitions
  */
 #define CONFIG_SYS_FLASH_BASE	0xe0000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_FLASH_BASE)
-
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SPL_TEXT_BASE
@@ -348,7 +346,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
 
 #define CONFIG_BAUDRATE	115200
 
@@ -572,7 +569,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-
 /* I2C */
 #define CONFIG_SYS_FSL_I2C_SPEED	100000	/* I2C speed */
 #define CONFIG_SYS_FSL_I2C2_SPEED	100000	/* I2C2 speed */
@@ -605,7 +601,6 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
-
 
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN
@@ -695,7 +690,6 @@ unsigned long get_board_ddr_clk(void);
 #define CORTINA_PHY_ADDR3	FM2_10GEC1_PHY_ADDR
 #define CORTINA_PHY_ADDR4	FM2_10GEC2_PHY_ADDR
 #endif
-
 
 /* SATA */
 #ifdef CONFIG_FSL_SATA_V2

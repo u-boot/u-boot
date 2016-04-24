@@ -635,7 +635,6 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-
 #define CONFIG_BOOTCOMMAND CONFIG_NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

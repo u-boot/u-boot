@@ -343,7 +343,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-
 /* I2C */
 #define CONFIG_SYS_FSL_I2C_SPEED	100000	/* I2C speed */
 #define CONFIG_SYS_FSL_I2C2_SPEED	100000	/* I2C2 speed */
@@ -403,7 +402,6 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
-
 
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN
@@ -491,7 +489,6 @@ unsigned long get_board_ddr_clk(void);
 #define FM2_10GEC1_PHY_ADDR	0x2
 #define FM2_10GEC2_PHY_ADDR	0x3
 #endif
-
 
 /* SATA */
 #ifdef CONFIG_FSL_SATA_V2

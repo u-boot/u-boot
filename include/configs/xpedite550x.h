@@ -299,7 +299,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe8000000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00800000	/* 8M */
 
-
 /*
  * Networking options
  */

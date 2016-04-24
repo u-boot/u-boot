@@ -20,7 +20,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
 /* High Level Configuration Options */
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_SBC8641D		1	/* SBC8641D board specific */
@@ -66,7 +65,6 @@
 #define PAGE_INTERLEAVING		0x21000000
 #define BANK_INTERLEAVING		0x22000000
 #define SUPER_BANK_INTERLEAVING		0x23000000
-
 
 #define CONFIG_ALTIVEC          1
 
@@ -172,7 +170,6 @@
     #define CONFIG_SYS_DDR2_DATA_INIT	0x00000000
     #define CONFIG_SYS_DDR2_CLK_CTRL	0x03800000
     #define CONFIG_SYS_DDR2_CFG_1B	0xC3008008
-
 
 #endif
 

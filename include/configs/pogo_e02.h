@@ -13,7 +13,6 @@
 #ifndef _CONFIG_POGO_E02_H
 #define _CONFIG_POGO_E02_H
 
-
 /*
  * Machine type definition and ID
  */

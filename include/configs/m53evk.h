@@ -43,7 +43,6 @@
 #define CONFIG_CMD_SATA
 #define CONFIG_VIDEO
 
-
 /*
  * Memory configurations
  */

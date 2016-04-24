@@ -464,7 +464,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-
 /*
  * BOOTP options
  */
@@ -472,7 +471,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -616,7 +614,6 @@
 	HID0_ENABLE_INSTRUCTION_CACHE |\
 	HID0_ENABLE_M_BIT |\
 	HID0_ENABLE_ADDRESS_BROADCAST) */
-
 
 #define CONFIG_SYS_HID2 HID2_HBE
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */

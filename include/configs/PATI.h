@@ -21,13 +21,11 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
-
 /* Serial Console Configuration */
 #define	CONFIG_5xx_CONS_SCI1
 #undef	CONFIG_5xx_CONS_SCI2
 
 #define CONFIG_BAUDRATE		9600
-
 
 /*
  * BOOTP options
@@ -37,7 +35,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -46,7 +43,6 @@
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
-
 
 #if 0
 #define CONFIG_BOOTDELAY	-1		/* autoboot disabled			*/
@@ -135,7 +131,6 @@
  */
 #define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux		*/
 
-
 /*-----------------------------------------------------------------------
  * FLASH organization
  *-----------------------------------------------------------------------
@@ -164,7 +159,6 @@
 #define	CONFIG_ENV_SIZE		0x00002000		/* Set whole sector as env		*/
 #define CONFIG_ENV_OFFSET		((0 - CONFIG_SYS_FLASH_BASE) - CONFIG_ENV_SIZE)		/* Environment starts at this adress	*/
 #endif
-
 
 #define CONFIG_SPI		1
 #define CONFIG_SYS_SPI_CS_USED	0x09 /* CS0 and CS3 are used */
@@ -223,7 +217,6 @@
  *
  */
 #define CONFIG_SYS_OSC_CLK	((uint)4000000)		/* Oscillator clock is 4MHz	*/
-
 
 #define CONFIG_SYS_PLPRCR	(PLPRCR_MF_9 | PLPRCR_DIVF_0)
 

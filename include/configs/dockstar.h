@@ -12,7 +12,6 @@
 #ifndef _CONFIG_DOCKSTAR_H
 #define _CONFIG_DOCKSTAR_H
 
-
 /*
  * Version number information
  */

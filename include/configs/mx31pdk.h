@@ -19,7 +19,6 @@
 /* High Level Configuration Options */
 #define CONFIG_MX31			/* This is a mx31 */
 
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -174,7 +173,6 @@
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
-
 
 /* Configuration of lowlevel_init.S (clocks and SDRAM) */
 #define CCM_CCMR_SETUP		0x074B0BF5

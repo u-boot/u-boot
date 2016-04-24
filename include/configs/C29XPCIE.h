@@ -100,7 +100,6 @@
 
 #define CONFIG_CMD_PCI
 
-
 /*
  * PCI Windows
  * Memory space is mapped 1-1, but I/O space must start from 0.

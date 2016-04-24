@@ -652,7 +652,6 @@ unsigned long get_board_ddr_clk(void);
 #define FM1_10GEC4_PHY_ADDR	0x01
 #endif
 
-
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC3"

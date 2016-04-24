@@ -20,7 +20,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
-
 /* video */
 #define CONFIG_FSL_DIU_FB
 
@@ -136,13 +135,11 @@
 
 #endif
 
-
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_ADDR     0x57
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-
 
 #define CONFIG_SYS_FLASH_BASE		0xf0000000 /* start of FLASH 128M */
 #define CONFIG_SYS_FLASH_BASE2		0xf8000000
@@ -160,7 +157,6 @@
 #endif
 #define CONFIG_SYS_BR3_PRELIM		0xe8000801 /* port size 8bit */
 #define CONFIG_SYS_OR3_PRELIM		0xfff06ff7 /* 1MB PIXIS area*/
-
 
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xe8000000	/* PIXIS registers */
@@ -277,7 +273,6 @@
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xe2000000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00100000	/* 1M */
 
-
 #if defined(CONFIG_PCI)
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -386,7 +381,6 @@
 #define CONFIG_SYS_IBAT4L	(CONFIG_SYS_PCIE2_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT4U	CONFIG_SYS_DBAT4U
 
-
 /*
  * BAT5		128K	Cacheable, non-guarded
  * 0xe400_0000	128K	Init RAM for stack in the CPU DCache (no backing memory)
@@ -424,7 +418,6 @@
 #define CONFIG_SYS_IBAT7L	(PIXIS_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT7U	CONFIG_SYS_DBAT7U
 
-
 /*
  * Environment
  */
@@ -442,7 +435,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-
 /*
  * BOOTP options
  */
@@ -450,7 +442,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -462,7 +453,6 @@
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_EXT2
 #endif
-
 
 #define CONFIG_WATCHDOG			/* watchdog enabled */
 #define CONFIG_SYS_WATCHDOG_FREQ	5000	/* Feed interval, 5s */

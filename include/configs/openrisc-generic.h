@@ -128,5 +128,4 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 #endif /* __CONFIG_H */

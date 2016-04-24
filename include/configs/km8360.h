@@ -233,7 +233,6 @@
 
 #define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
 
-
 #ifdef CONFIG_KMCOGE5NE
 /* BFTIC3:  icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT6L (\

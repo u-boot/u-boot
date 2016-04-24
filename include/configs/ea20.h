@@ -24,7 +24,6 @@
 #define CONFIG_VIDEO
 #define CONFIG_PREBOOT
 
-
 /*
  * SoC Configuration
  */
@@ -101,7 +100,6 @@
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
 #define CONFIG_SYS_NO_FLASH
 #endif
-
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX

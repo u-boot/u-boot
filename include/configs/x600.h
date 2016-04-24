@@ -129,7 +129,6 @@
 
 #define CONFIG_BOOTDELAY			3
 
-
 /*
  * U-Boot Environment placing definitions.
  */

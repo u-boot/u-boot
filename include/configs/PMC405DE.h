@@ -158,7 +158,6 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO	1 /* 'E' for empty sector (flinfo) */
 #define CONFIG_SYS_FLASH_QUIET_TEST	1 /* don't warn upon unknown flash */
 
-
 /*
  * Start addresses for the final memory configuration
  * (Set up by the startup code)

@@ -32,7 +32,6 @@
 
 #define CONFIG_UBOOT_ENABLE_PADS_ALL
 
-
 #include <configs/ti_omap4_common.h>
 
 /* GPIO */

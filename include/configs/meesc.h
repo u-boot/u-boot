@@ -86,7 +86,6 @@
  * Command line configuration.
  */
 
-
 #ifdef CONFIG_SYS_USE_NANDFLASH
 #define CONFIG_CMD_NAND
 #endif

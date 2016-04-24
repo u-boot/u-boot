@@ -712,7 +712,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FM1_10GEC1_PHY_ADDR 0x7	 /*SLOT 1*/
 #define CONFIG_SYS_FM1_10GEC2_PHY_ADDR 0x6	 /*SLOT 2*/
 
-
 #define CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR    0x1c
 #define CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR    0x1d
 #define CONFIG_SYS_FM1_DTSEC3_RISER_PHY_ADDR    0x1e

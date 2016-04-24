@@ -217,7 +217,6 @@
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
 
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
@@ -915,7 +914,6 @@ unsigned long get_board_ddr_clk(void);
 	"setenv fdtaddr 0x00c00000;"			\
 	"setenv loadaddr 0x1000000;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
 
 #define CONFIG_NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\

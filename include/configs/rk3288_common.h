@@ -88,7 +88,6 @@
 #define CONFIG_SPI
 #define CONFIG_SF_DEFAULT_SPEED 20000000
 
-
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
 

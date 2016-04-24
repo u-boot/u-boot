@@ -484,7 +484,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -709,7 +708,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #endif
-
 
 /*
  * Environment Configuration

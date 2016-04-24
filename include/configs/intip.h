@@ -309,7 +309,6 @@
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1014	/* IBM */
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever */
 
-
 /*
  * External Bus Controller (EBC) Setup
  */
@@ -323,7 +322,6 @@
  *
  * 0xfc00.0000 -> 4.cc00.0000
  */
-
 
 /* Memory Bank 0 (NOR-FLASH) initialization */
 #define CONFIG_SYS_EBC_PB0AP		0x10055e00

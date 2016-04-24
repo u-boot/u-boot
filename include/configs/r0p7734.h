@@ -45,7 +45,6 @@
 # define CONFIG_SMC911X_BASE (0x84000000)
 #endif
 
-
 /* I2C */
 #define CONFIG_SH_SH7734_I2C	1
 #define CONFIG_HARD_I2C			1

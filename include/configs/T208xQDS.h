@@ -744,7 +744,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_ESDHC_ADAPTER_IDENT
 #endif
 
-
 /*
  * Dynamic MTD Partition support with mtdparts
  */

@@ -31,7 +31,6 @@
 
 #define CONFIG_SYS_TEXT_BASE		0xc1080000
 
-
 /*
  * Memory Info
  */
@@ -217,7 +216,6 @@
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif
-
 
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_SYS_NO_FLASH

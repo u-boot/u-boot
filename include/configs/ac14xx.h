@@ -342,7 +342,6 @@
 			 CLOCK_SCCR2_DIU_EN |		\
 			 CLOCK_SCCR2_I2C_EN)
 
-
 #define CONFIG_CMDLINE_EDITING		1	/* command line history */
 
 /* I2C */

@@ -21,12 +21,10 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
-
 /***********************************************************
  * Clock
  ***********************************************************/
 #define CONFIG_SYS_CLK_FREQ	33000000 /* external frequency to pll	*/
-
 
 /*
  * BOOTP options
@@ -35,7 +33,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -81,7 +78,6 @@
 					/* last	6 bits of the address	*/
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
 
-
 /***************************************************************
  * Definitions for Serial Presence Detect EEPROM address
  * (to get SDRAM settings)
@@ -96,12 +92,10 @@
  **************************************************************/
 #define CONFIG_BAUDRATE		9600	/* STD Baudrate */
 
-
 #define CONFIG_BOOTDELAY	5
 /* autoboot (do NOT change this set environment variable "bootdelay" to -1 instead) */
 /* #define CONFIG_BOOT_RETRY_TIME	-10	/XXX* feature is available but not enabled */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check console even if bootdelay = 0 */
-
 
 #define CONFIG_BOOTCOMMAND	"diskboot 400000 0:1; bootm" /* autoboot command		*/
 #define CONFIG_BOOTARGS		"console=ttyS0,9600 root=/dev/hda5" /* boot arguments */
@@ -231,7 +225,6 @@
 #define CONFIG_PORT_ADDR	0xF4000000
 #define MULTI_PURPOSE_SOCKET_ADDR 0xF8000000
 
-
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in On Chip SRAM)
  */
@@ -352,6 +345,5 @@
 #define VERSION_TAG "released"
 #define CONFIG_ISO_STRING "MEV-10066-001"
 #define CONFIG_IDENT_STRING "\n(c) 2002 by MPL AG Switzerland, " CONFIG_ISO_STRING " " VERSION_TAG
-
 
 #endif	/* __CONFIG_H */

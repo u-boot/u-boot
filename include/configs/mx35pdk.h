@@ -48,7 +48,6 @@
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO
 
-
 /*
  * PMIC Configs
  */

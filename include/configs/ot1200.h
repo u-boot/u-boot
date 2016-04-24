@@ -78,7 +78,6 @@
 #define CONFIG_LIBATA
 #endif
 
-
 /* SPL */
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"

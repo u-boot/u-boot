@@ -450,7 +450,6 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_MUX_PCA_ADDR		0x77
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* Primary Mux*/
 
-
 /* I2C bus multiplexer */
 #define I2C_MUX_CH_DEFAULT      0x8
 #define I2C_MUX_CH_DIU		0xC

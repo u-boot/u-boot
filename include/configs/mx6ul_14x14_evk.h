@@ -8,7 +8,6 @@
 #ifndef __MX6UL_14X14_EVK_CONFIG_H
 #define __MX6UL_14X14_EVK_CONFIG_H
 
-
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 #include "mx6_common.h"

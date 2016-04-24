@@ -73,7 +73,6 @@
 #define CONFIG_USB_CLOCK	0x0001BBBB
 #define CONFIG_USB_CONFIG	0x00001000
 
-
 /*
  * BOOTP options
  */
@@ -81,7 +80,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -95,7 +93,6 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_FAT
-
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 

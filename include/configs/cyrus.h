@@ -17,7 +17,6 @@
 #error Must call Cyrus CONFIG with a specific CPU enabled.
 #endif
 
-
 #define CONFIG_MMC
 #define CONFIG_SDCARD
 #define CONFIG_FSL_SATA_V2
@@ -43,14 +42,12 @@
 #define CONFIG_SYS_FSL_PBL_RCW board/varisys/cyrus/rcw_p5040.cfg
 #endif
 
-
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
-
 
 #define CONFIG_SYS_MMC_MAX_DEVICE     1
 
@@ -172,7 +169,6 @@
 
 #define CONFIG_SYS_OR0_PRELIM	0xfff00010
 #define CONFIG_SYS_OR1_PRELIM	0xfff00010
-
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* start of monitor */
 

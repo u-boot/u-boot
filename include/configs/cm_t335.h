@@ -63,7 +63,6 @@
 		"nboot ${loadaddr} nand0 900000; " \
 		"bootm ${loadaddr}\0"
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=82000000\0" \
 	"console=ttyO0,115200n8\0" \

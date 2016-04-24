@@ -15,7 +15,6 @@
 #ifndef _CONFIG_GOFLEXHOME_H
 #define _CONFIG_GOFLEXHOME_H
 
-
 /*
  * Version number information
  */

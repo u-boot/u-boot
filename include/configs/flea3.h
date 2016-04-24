@@ -87,7 +87,6 @@
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
-
 /*
  * Ethernet on SOC (FEC)
  */

@@ -7,14 +7,12 @@
 #ifndef __LS2_COMMON_H
 #define __LS2_COMMON_H
 
-
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_FSL_LSCH3
 #define CONFIG_MP
 #define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
-
 
 #include <asm/arch/ls2080a_stream_id.h>
 #include <asm/arch/config.h>
@@ -296,6 +294,5 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
-
 
 #endif /* __LS2_COMMON_H */

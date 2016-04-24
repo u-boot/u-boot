@@ -12,7 +12,6 @@
 
 #include <asm/hardware.h>
 
-
 /* The first stage boot loader expects u-boot running at this address. */
 #define CONFIG_SYS_TEXT_BASE	0x27000000	/* 16MB available */
 

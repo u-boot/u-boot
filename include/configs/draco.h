@@ -67,7 +67,6 @@
 #define CONFIG_ENV_SIZE_REDUND      0x2000
 #define CONFIG_ENV_RANGE        (4 * CONFIG_SYS_ENV_SECT_SIZE)
 
-
 #define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V2
 
 #ifndef CONFIG_SPL_BUILD
@@ -94,7 +93,6 @@
 "run nand_boot;" \
 "run nand_boot_backup;" \
 "reset;"
-
 
 #else
 #define CONFIG_BOOTDELAY		0

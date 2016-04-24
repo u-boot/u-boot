@@ -10,7 +10,6 @@
 #ifndef _CONFIG_SHEEVAPLUG_H
 #define _CONFIG_SHEEVAPLUG_H
 
-
 /*
  * Version number information
  */

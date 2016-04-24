@@ -7,7 +7,6 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
@@ -53,7 +52,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(384 * 1024)
 
-
 /*
  * Network Settings
  */
@@ -68,7 +66,6 @@
 		SSYNC(); \
 	} while (0)
 #define CONFIG_HOSTNAME		bf533-stamp
-
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -134,7 +131,6 @@
 	common/env_embedded.o (.text*);
 #endif
 
-
 /*
  * I2C Settings
  */
@@ -177,7 +173,6 @@
 #define CONFIG_EBIU_AMBCTL1_VAL	0x99B3ffc2
 #endif
 
-
 /*
  * Misc Settings
  */
@@ -210,7 +205,6 @@
 
 /* define to enable splash screen support */
 /* #define CONFIG_VIDEO */
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

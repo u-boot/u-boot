@@ -208,7 +208,6 @@
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support */
 
-
 /*
  * I2C
  */
@@ -257,7 +256,6 @@
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #endif	/* CONFIG_PCI */
 
-
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
@@ -295,7 +293,6 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with ts	*/
 
-
 /*
  * BOOTP options
  */
@@ -303,7 +300,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -349,7 +345,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port*/
 #endif
-
 
 #define CONFIG_LOADADDR	 200000		/* default addr for tftp & bootm*/
 

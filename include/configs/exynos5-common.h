@@ -155,7 +155,6 @@
 
 /* Enable Time Command */
 
-
 /* USB */
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_XHCI_DWC3

@@ -7,13 +7,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf538-0.4
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
-
 
 /*
  * Clock Settings
@@ -38,7 +36,6 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			4
 
-
 /*
  * Memory Settings
  */
@@ -55,7 +52,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(384 * 1024)
 
-
 /*
  * Network Settings
  */
@@ -63,7 +59,6 @@
 #define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20310300
 #define CONFIG_HOSTNAME		bf538f-ezkit
-
 
 /*
  * Flash Settings
@@ -74,7 +69,6 @@
 #define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	71
-
 
 /*
  * SPI Settings
@@ -119,13 +113,11 @@
 	common/env_embedded.o (.text*);
 #endif
 
-
 /*
  * I2C Settings
  */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_ADI
-
 
 /*
  * Misc Settings

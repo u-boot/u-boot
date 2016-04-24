@@ -7,13 +7,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf537-0.2
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
-
 
 /*
  * Clock Settings
@@ -40,7 +38,6 @@
 /* Core voltage */
 #define CONFIG_VR_CTL_VAL (VLEV_110 | GAIN_20 | FREQ_1000)
 
-
 /*
  * Memory Settings
  */
@@ -56,7 +53,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN	(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
-
 
 /*
  * Network Settings
@@ -81,13 +77,11 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	35
 
-
 /*
  * SPI Settings
  */
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
-
 
 /*
  * Env Storage Settings
@@ -113,13 +107,11 @@
 	common/env_embedded.o (.text*);
 #endif
 
-
 /*
  * I2C Settings
  */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_ADI
-
 
 /*
  * SPI_MMC Settings

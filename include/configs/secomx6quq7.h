@@ -71,7 +71,6 @@
 	"stdout=serial\0"						\
 	"stderr=serial\0"
 
-
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +		\
 					 sizeof(CONFIG_SYS_PROMPT) + 16)

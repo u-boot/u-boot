@@ -80,7 +80,6 @@
 #define CONFIG_SYS_I2C_OMAP24XX
 #define CONFIG_I2C_MULTI_BUS
 
-
 /*
  * Flash
  */

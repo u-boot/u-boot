@@ -45,7 +45,6 @@
 
 #define CONFIG_FACTORYSET
 
-
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14
 

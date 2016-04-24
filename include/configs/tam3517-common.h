@@ -316,7 +316,6 @@
 		"fi;"							\
 		"else echo U-Boot not downloaded..exiting;fi\0"		\
 
-
 /*
  * this is common code for all TAM3517 boards.
  * MAC address is stored from manufacturer in

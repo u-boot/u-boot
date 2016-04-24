@@ -99,7 +99,6 @@
 "tftp $loadaddr "#file" && " \
 "mmc write $loadaddr $start $size && "
 
-
 #define CONFIG_ENV_REFLASH \
 "mmc dev 0 && "\
 "usb start && "\

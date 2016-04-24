@@ -281,7 +281,6 @@
 		"sf read ${${fdt_addr}} ${offset} ${size}; "                   \
 		"setenv size ; setenv offset\0"                                \
 
-
 #define CONFIG_BOOTCOMMAND                                                     \
 	"sf probe; run mmcboot; run netboot; run panicboot"                    \
 

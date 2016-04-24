@@ -21,7 +21,6 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
-
 /***********************************************************
  * Note that it may also be a MIP405T board which is a subset of the
  * MIP405
@@ -37,7 +36,6 @@
  ***********************************************************/
 #define CONFIG_SYS_CLK_FREQ	33000000 /* external frequency to pll   */
 
-
 /*
  * BOOTP options
  */
@@ -45,7 +43,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -65,7 +62,6 @@
 
 #if !defined(CONFIG_MIP405T)
 #endif
-
 
 /**************************************************************
  * I2C Stuff:
@@ -88,7 +84,6 @@
 					/* 64 byte page write mode using*/
 					/* last	6 bits of the address	*/
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
-
 
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CONFIG_ENV_OFFSET		0x00000	/* environment starts at the beginning of the EEPROM */
@@ -280,7 +275,6 @@
 #define MULTI_PURPOSE_SOCKET_ADDR 0xF8000000
 #define CONFIG_PORT_ADDR	PER_PLD_ADDR + 5
 
-
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in On Chip SRAM)
  */
@@ -405,6 +399,5 @@
 #else
 #define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, PCI_BOOT Version"
 #endif
-
 
 #endif	/* __CONFIG_H */

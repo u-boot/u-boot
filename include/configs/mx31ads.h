@@ -14,7 +14,6 @@
  /* High Level Configuration Options */
 #define CONFIG_MX31		1		/* This is a mx31 */
 
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -153,7 +152,6 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
-
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup

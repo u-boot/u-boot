@@ -147,7 +147,6 @@
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_PREBOOT			"run check_flash check_env;"
 
-
 /*
  * Boot Linux
  */

@@ -37,7 +37,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o      (.text)
 
-
 /*
  * BOOTP options
  */

@@ -34,7 +34,6 @@
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_DDRCS
 #define CONFIG_SYS_SDRAM_SIZE		0x4000000
 
-
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
 
@@ -53,7 +52,6 @@
 #define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 #define CONFIG_ENV_SPI_MODE		(SPI_MODE_0)
 #endif
-
 
 /* MMC */
 #define CONFIG_CMD_MMC
@@ -101,11 +99,9 @@
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
 
-
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_RNDIS
-
 
 #ifdef CONFIG_SYS_USE_SERIALFLASH
 /* bootstrap + u-boot + env + linux in serial flash */

@@ -15,7 +15,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-
 #define CONFIG_IDENT_STRING	\
 	" for Cavium Thunder CN88XX ARM v8 Multi-Core"
 #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
@@ -31,10 +30,8 @@
 /* SMP Spin Table Definitions */
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
-
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
-
 
 #define CONFIG_SYS_MEMTEST_START	MEM_BASE
 #define CONFIG_SYS_MEMTEST_END		(MEM_BASE + PHYS_SDRAM_1_SIZE)

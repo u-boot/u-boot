@@ -20,13 +20,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf537-0.2
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_SPI_MASTER
-
 
 /*
  * Clock Settings
@@ -51,7 +49,6 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			5
 
-
 /*
  * Memory Settings
  */
@@ -67,7 +64,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(128 << 10)
-
 
 /*
  * Network Settings
@@ -87,13 +83,11 @@
 #define CONFIG_SYS_AUTOLOAD	"no"
 #define CONFIG_ROOTPATH		"/romfs"
 
-
 /*
  * Flash Settings
  */
 /* We don't have a parallel flash chip there */
 #define CONFIG_SYS_NO_FLASH
-
 
 /*
  * SPI Settings
@@ -101,7 +95,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-
 
 /*
  * Env Storage Settings
@@ -112,7 +105,6 @@
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 
-
 /*
  * I2C settings
  */
@@ -120,7 +112,6 @@
 #define CONFIG_SYS_I2C_ADI
 #define CONFIG_SYS_I2C_SPEED		50000
 #define CONFIG_SYS_I2C_SLAVE		0
-
 
 /*
  * Misc Settings

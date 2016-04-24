@@ -26,7 +26,6 @@
 #define CONFIG_IDENT_STRING	" hrcon 0.01"
 #endif
 
-
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
@@ -664,6 +663,5 @@ void fpga_control_clear(unsigned int bus, int pin);
 	"bootm ${kernel_addr} - ${fdt_addr}"
 
 #define CONFIG_BOOTCOMMAND		CONFIG_MMCBOOTCOMMAND
-
 
 #endif	/* __CONFIG_H */

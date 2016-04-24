@@ -13,7 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
 #define MACH_TYPE_MPL_VCMA9	227
 
 /*
@@ -28,7 +27,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_MPL_VCMA9 /* Machine type */
 
 #define CONFIG_SYS_TEXT_BASE	0x0
-
 
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
@@ -112,7 +110,6 @@
 
 /* RTC */
 #define CONFIG_RTC_S3C24X0
-
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

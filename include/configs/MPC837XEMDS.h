@@ -475,7 +475,6 @@ extern int board_pci_host_broken(void);
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -694,7 +693,6 @@ extern int board_pci_host_broken(void);
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
 
 #define CONFIG_BOOTCOMMAND CONFIG_NFSBOOTCOMMAND
 

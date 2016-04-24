@@ -62,7 +62,6 @@
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
 #define CONFIG_RTC_MC13XXX
 
-
 /* mmc driver */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
@@ -107,7 +106,6 @@
 #define CONFIG_BOOTDELAY	3
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
-
 
 /*
  * Ethernet on SOC (FEC)

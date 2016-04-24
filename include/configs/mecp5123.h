@@ -242,7 +242,6 @@
 #define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |	\
 			 CLOCK_SCCR2_I2C_EN)
 
-
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 
 /* I2C */

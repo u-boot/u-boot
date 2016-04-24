@@ -84,7 +84,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
@@ -99,9 +98,7 @@
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
 
-
 #define CONFIG_NETCONSOLE
-
 
 /*
  * Miscellaneous configurable options

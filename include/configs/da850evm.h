@@ -20,7 +20,6 @@
 #define CONFIG_USE_SPIFLASH
 #endif
 
-
 /*
  * SoC Configuration
  */

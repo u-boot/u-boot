@@ -185,7 +185,6 @@
 
 #define CONFIG_CMD_PCI
 
-
 /*
  * PCI Windows
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -698,7 +697,6 @@ extern unsigned long get_sdram_size(void);
 		)
 
 #endif	/* CONFIG_TSEC_ENET */
-
 
 /* SATA */
 #define CONFIG_FSL_SATA

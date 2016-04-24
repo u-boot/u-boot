@@ -8,7 +8,6 @@
 #ifndef _CONFIG_LSXL_H
 #define _CONFIG_LSXL_H
 
-
 /*
  * Version number information
  */
@@ -74,8 +73,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ		25000000
 #undef CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_SF_DEFAULT_SPEED		25000000
-
-
 
 /*
  *  Environment variables configurations

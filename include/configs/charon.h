@@ -34,7 +34,6 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"
 
-
 /* additional features on charon board */
 #define CONFIG_RESET_PHY_R
 

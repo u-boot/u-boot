@@ -114,7 +114,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DOS_PARTITION
 #define CONFIG_BOARD_LATE_INIT
 
-
 /* EEPROM */
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID

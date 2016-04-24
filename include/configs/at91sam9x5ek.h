@@ -74,7 +74,6 @@
  * NB: in this case, USB 1.1 devices won't be recognized.
  */
 
-
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x20000000

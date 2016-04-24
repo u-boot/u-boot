@@ -9,7 +9,6 @@
 #ifndef _CONFIG_ICONNECT_H
 #define _CONFIG_ICONNECT_H
 
-
 /*
  * Version number information
  */

@@ -64,7 +64,6 @@
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO				/* print 'E' for empty sector on flinfo */
 
-
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)

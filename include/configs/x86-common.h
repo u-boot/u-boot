@@ -194,7 +194,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /* Default environment */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_HOSTNAME		x86

@@ -372,7 +372,6 @@
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1014	/* IBM */
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever */
 
-
 /*
  * External Bus Controller (EBC) Setup
  */

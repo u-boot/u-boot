@@ -332,7 +332,6 @@
 #define CONFIG_SYS_PCI_IO_PHYS		0x84000000
 #define CONFIG_SYS_PCI_IO_SIZE		0x01000000	/* 16M */
 
-
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -450,7 +449,6 @@
 						"1m(u-boot);"		\
 					"mpc5121.nand:-(data)"
 
-
 #if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2) || defined(CONFIG_CMD_USB)
 
 #define CONFIG_DOS_PARTITION
@@ -482,7 +480,6 @@
 #else
 	#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #endif
-
 
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16) /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */

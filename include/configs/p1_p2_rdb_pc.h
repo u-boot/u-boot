@@ -434,7 +434,6 @@
  * 0xffe0_0000 0xffef_ffff	CCSR		1M non-cacheable
  */
 
-
 /*
  * Local Bus Definitions
  */
@@ -448,7 +447,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* 16M */
 #define CONFIG_SYS_FLASH_BASE		0xef000000
 #endif
-
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_FLASH_BASE)
@@ -580,7 +578,6 @@
 #endif
 #define CONFIG_SYS_BR3_PRELIM	CONFIG_CPLD_BR_PRELIM	/* CPLD Base Address */
 #define CONFIG_SYS_OR3_PRELIM	CONFIG_CPLD_OR_PRELIM	/* CPLD Options */
-
 
 /* Vsc7385 switch */
 #ifdef CONFIG_VSC7385_ENET

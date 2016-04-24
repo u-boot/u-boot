@@ -8,7 +8,6 @@
 #ifndef _CONFIG_MARVELL_PLUG_H
 #define _CONFIG_MARVELL_PLUG_H
 
-
 /*
  * High Level Configuration Options (easy to change)
  */

@@ -23,7 +23,6 @@
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
 #define CONFIG_440		1		/* ... PPC440 family	*/
 
-
 #define CONFIG_SYS_TEXT_BASE	0xFFF80000
 #define CONFIG_HOSTNAME		lwmon5
 
@@ -424,7 +423,6 @@
 #define CONFIG_SUPPORT_VFAT
 
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	        1024	/* Console I/O Buffer Size	*/

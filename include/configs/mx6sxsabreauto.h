@@ -6,12 +6,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
 #include "mx6_common.h"
-
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
@@ -164,7 +162,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
-
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
@@ -178,7 +175,6 @@
 #endif
 
 #define CONFIG_IMX_THERMAL
-
 
 #define CONFIG_FSL_QSPI
 #ifdef CONFIG_FSL_QSPI

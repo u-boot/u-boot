@@ -23,7 +23,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x0
 
-
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
 /* input clock of PLL (the SMDK2410 has 12MHz input clock) */
@@ -59,7 +58,6 @@
  * RTC
  ************************************************************/
 #define CONFIG_RTC_S3C24X0
-
 
 #define CONFIG_BAUDRATE		115200
 

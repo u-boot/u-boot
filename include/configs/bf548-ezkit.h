@@ -7,13 +7,11 @@
 
 #include <asm/config-pre.h>
 
-
 /*
  * Processor Settings
  */
 #define CONFIG_BFIN_CPU             bf548-0.0
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_PARA
-
 
 /*
  * Clock Settings
@@ -37,7 +35,6 @@
 /* SCLK_DIV controls the system clock divider				*/
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			4
-
 
 /*
  * Memory Settings
@@ -64,7 +61,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(1024 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(768 * 1024)
 
-
 /*
  * Network Settings
  */
@@ -73,7 +69,6 @@
 #define CONFIG_SMC911X_BASE	0x24000000
 #define CONFIG_SMC911X_16_BIT
 #define CONFIG_HOSTNAME		bf548-ezkit
-
 
 /*
  * Flash Settings
@@ -85,14 +80,12 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	259
 
-
 /*
  * SPI Settings
  */
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-
 
 /*
  * Env Storage Settings
@@ -133,7 +126,6 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_ADI
 
-
 /*
  * SATA
  */
@@ -146,7 +138,6 @@
 #define CONFIG_BFIN_ATA_MODE	XFER_PIO_4
 #endif
 
-
 /*
  * SDH Settings
  */
@@ -155,7 +146,6 @@
 #define CONFIG_MMC
 #define CONFIG_BFIN_SDH
 #endif
-
 
 /*
  * USB Settings
@@ -167,7 +157,6 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_MUSB_TIMEOUT 100000
 #endif
-
 
 /*
  * Misc Settings
@@ -198,7 +187,6 @@
 #define CONFIG_SYS_POST_FLASH_START	10
 #define CONFIG_SYS_POST_FLASH_END	127
 #endif
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

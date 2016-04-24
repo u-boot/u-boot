@@ -156,7 +156,6 @@
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
-
 /*
  * Memory map -- xxx -this is wrong, needs updating
  *

@@ -25,7 +25,6 @@
 #error "no board defined"
 #endif
 
-
 /* Initial environment and monitor configuration options. */
 #define CONFIG_BOOTDELAY		2
 #define CONFIG_CMDLINE_TAG		1
@@ -33,8 +32,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_BOOTARGS		"root=/dev/nfs console=ttyAM0,115200 ip=dhcp"
 #define CONFIG_BOOTFILE		"edb93xx.img"
-
-
 
 #define CONFIG_SYS_LDSCRIPT	"board/cirrus/edb93xx/u-boot.lds"
 
@@ -160,7 +157,6 @@
 #error "no SDCS configuration for this board"
 #endif
 
-
 #if defined(CONFIG_EDB93XX_SDCS3)
 #define CONFIG_SYS_LOAD_ADDR	0x01000000	/* Default load address	*/
 #define PHYS_SDRAM_1		0x00000000
@@ -174,7 +170,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR \
     (CONFIG_SYS_SDRAM_BASE + 32*1024 - GENERATED_GBL_DATA_SIZE)
-
 
 /* Must match kernel config */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
@@ -213,7 +208,6 @@
  */
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-
 
 #define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_FLASH_CFI_DRIVER

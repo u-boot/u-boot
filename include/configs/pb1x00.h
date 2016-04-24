@@ -108,9 +108,7 @@
 
 #define CONFIG_NR_DRAM_BANKS	2
 
-
 #define CONFIG_MEMSIZE_IN_BYTES
-
 
 /*---USB -------------------------------------------*/
 #if 0
@@ -159,7 +157,6 @@
 #define CONFIG_SYS_ICACHE_SIZE		16384
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-
 /*
  * BOOTP options
  */
@@ -167,7 +164,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.

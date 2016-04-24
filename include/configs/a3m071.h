@@ -230,7 +230,6 @@
  *                                                        +- 31    0 PSC1
  */
 
-
 /*
  * Miscellaneous configurable options
  */

@@ -202,7 +202,6 @@
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
 
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
@@ -878,7 +877,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 #define __USB_PHY_TYPE		utmi
-
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,bank_intlv=cs0_cs1;\0"  \

@@ -76,7 +76,6 @@ Autobooting
 					/* even with bootdelay=0 */
 #undef	CONFIG_BOOTARGS
 
-
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run bootcmd_net\" to load Kernel over TFTP and to "\
 		"mount root filesystem over NFS;" \

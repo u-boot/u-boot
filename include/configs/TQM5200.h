@@ -117,7 +117,6 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #endif /* #ifndef CONFIG_TQM5200S */
 
-
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -151,7 +150,6 @@
 #define MPC5XXX_SRAM_POST_SIZE MPC5XXX_SRAM_SIZE-4
 #endif
 
-
 /*
  * BOOTP options
  */
@@ -159,7 +157,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -197,7 +194,6 @@
 #ifdef CONFIG_POST
     #define CONFIG_CMD_DIAG
 #endif
-
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
@@ -484,7 +480,6 @@
 #else
 #define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE
 #endif
-
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET

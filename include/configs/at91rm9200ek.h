@@ -60,7 +60,6 @@
 
 #define CONFIG_CMD_BOOTZ
 
-
 /*
  * Memory Configuration
  */

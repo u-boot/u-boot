@@ -58,5 +58,4 @@
 	"mtdparts="MTDPARTS_DEFAULT"\0" \
 	"serverip=192.168.142.60\0"
 
-
 #endif /* __CONFIG_H */

@@ -127,7 +127,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 
-
 #define CONFIG_SYS_NAND_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NAND_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 				| CSPR_PORT_SIZE_8 /* Port Size = 8 bit */ \

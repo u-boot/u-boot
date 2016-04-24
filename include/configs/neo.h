@@ -8,7 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
 #define CONFIG_405EP		1	/* this is a PPC405 CPU */
 #define CONFIG_NEO	        1	/*  on a Neo board */
 

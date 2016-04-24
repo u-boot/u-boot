@@ -69,7 +69,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x800000
 #define CONFIG_SYS_64BIT_LBA
 
-
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  * The DRAM is already setup, so do not touch the DT node later.

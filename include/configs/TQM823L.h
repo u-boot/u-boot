@@ -95,12 +95,10 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
-
 
 /*
  * Command line configuration.
@@ -114,7 +112,6 @@
 #ifdef	CONFIG_SPLASH_SCREEN
     #define CONFIG_CMD_BMP
 #endif
-
 
 #define CONFIG_NETCONSOLE
 

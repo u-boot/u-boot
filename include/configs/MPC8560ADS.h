@@ -60,7 +60,6 @@
 #define CONFIG_SYS_CLK_FREQ	33000000
 #endif
 
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
@@ -133,7 +132,6 @@
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
-
 /*
  * Local Bus Definitions
  */
@@ -197,7 +195,6 @@
 #define CONFIG_SYS_LBC_LSDMR_3	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_ARFRSH)
 #define CONFIG_SYS_LBC_LSDMR_4	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_MRW)
 #define CONFIG_SYS_LBC_LSDMR_5	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_NORMAL)
-
 
 /*
  * 32KB, 8-bit wide for ADS config reg
@@ -273,7 +270,6 @@
 
 #endif	/* CONFIG_PCI */
 
-
 #ifdef CONFIG_TSEC_ENET
 
 #ifndef CONFIG_MII
@@ -345,7 +341,6 @@
 
 #endif
 
-
 /*
  * Environment
  */
@@ -371,7 +366,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -418,7 +412,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #endif
-
 
 /*
  * Environment Configuration

@@ -14,7 +14,6 @@
 
 #define CONFIG_TRATS
 
-
 #define CONFIG_TIZEN			/* TIZEN lib */
 
 #define CONFIG_SYS_L2CACHE_OFF
@@ -183,7 +182,6 @@
 
 /* I2C */
 #include <asm/arch/gpio.h>
-
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_S3C24X0

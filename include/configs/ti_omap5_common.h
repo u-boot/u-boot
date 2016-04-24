@@ -112,7 +112,6 @@
 	DFUARGS \
 	NETARGS \
 
-
 #define CONFIG_BOOTCOMMAND \
 	"if test ${dofastboot} -eq 1; then " \
 		"echo Boot fastboot requested, resetting dofastboot ...;" \
@@ -128,7 +127,6 @@
 	"run mmcboot;" \
 	""
 #endif
-
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the

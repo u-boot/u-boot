@@ -69,7 +69,6 @@
 
 #define CONFIG_SYS_IDE_MAXDEVICE	4
 
-
 /*
  * Miscellaneous configurable options
  */

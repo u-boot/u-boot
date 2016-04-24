@@ -45,7 +45,6 @@
 #define CONFIG_CONTROLCENTERD
 #define CONFIG_MP			/* support multiple processors */
 
-
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENABLE_36BIT_PHYS
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
@@ -97,7 +96,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
 
 /*
  * Memory map
@@ -215,7 +213,6 @@
  */
 #define CONFIG_HARD_SPI
 
-
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		0
 #endif
@@ -231,7 +228,6 @@
 
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-
 
 #ifndef CONFIG_TRAILBLAZER
 

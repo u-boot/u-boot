@@ -73,7 +73,6 @@
  */
 /* #define SKIP_CONFIG_RELOCATE_UBOOT */
 
-
 /*
  * Physical Memory Map
  */

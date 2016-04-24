@@ -280,7 +280,6 @@
  */
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
 
-
 #define CONFIG_TSEC1
 #ifdef CONFIG_TSEC1
 #define CONFIG_HAS_ETH0

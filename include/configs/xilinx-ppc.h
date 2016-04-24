@@ -12,7 +12,6 @@
 #ifndef __CONFIG_XLX_H
 #define __CONFIG_XLX_H
 
-
 /*
 #define DEBUG
 #define ET_DEBUG

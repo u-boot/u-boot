@@ -179,11 +179,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VSPEED2_MASK	(PIXIS_VSPEED2_TSEC1SER|PIXIS_VSPEED2_TSEC3SER)
 #define PIXIS_VCFGEN1_MASK	(PIXIS_VCFGEN1_TSEC1SER|PIXIS_VCFGEN1_TSEC3SER)
 
-
 #define CONFIG_SYS_INIT_RAM_LOCK      1
 #define CONFIG_SYS_INIT_RAM_ADDR      0xf4010000      /* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_SIZE       0x00004000      /* Size of used area in RAM */
-
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
@@ -317,7 +315,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #endif	/* CONFIG_PCI */
 
-
 #if defined(CONFIG_TSEC_ENET)
 
 #define CONFIG_MII		1	/* MII PHY management */
@@ -367,7 +364,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.

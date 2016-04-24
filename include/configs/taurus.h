@@ -22,7 +22,6 @@
 #include <asm/hardware.h>
 #include <linux/sizes.h>
 
-
 #if defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_ICACHE_OFF
@@ -34,7 +33,6 @@
  * Since the linker has to swallow that define, we must use a pure
  * hex number here!
  */
-
 
 #define CONFIG_SYS_TEXT_BASE		0x21000000
 
@@ -298,7 +296,6 @@
 #define CONFIG_SYS_NAND_ECCPOS		{ 40, 41, 42, 43, 44, 45, 46, 47, \
 					  48, 49, 50, 51, 52, 53, 54, 55, \
 					  56, 57, 58, 59, 60, 61, 62, 63, }
-
 
 #define CONFIG_SPL_ATMEL_SIZE
 #define CONFIG_SYS_MASTER_CLOCK		132096000

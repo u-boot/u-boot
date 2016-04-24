@@ -61,7 +61,6 @@
 #undef CONFIG_FB_ADDR
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
-
 /* LED */
 #define CONFIG_AT91_LED
 #define	CONFIG_RED_LED		AT91_PIN_PD14	/* this is the power led */

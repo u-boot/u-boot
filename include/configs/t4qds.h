@@ -98,13 +98,11 @@
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_FSL_DDR3
 
-
 /*
  * IFC Definitions
  */
 #define CONFIG_SYS_FLASH_BASE	0xe0000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_FLASH_BASE)
-
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
@@ -303,7 +301,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
 
 #define CONFIG_BAUDRATE	115200
 

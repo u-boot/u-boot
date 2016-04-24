@@ -637,5 +637,4 @@ int fpga_gpio_get(unsigned int bus, int pin);
 
 #define CONFIG_BOOTCOMMAND		CONFIG_MMCBOOTCOMMAND
 
-
 #endif	/* __CONFIG_H */
