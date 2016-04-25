@@ -247,9 +247,9 @@ err:
 	return ret;
 }
 
-static void __i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+static void __i2c_init(const struct fsl_i2c_base *base, int speed, int
+		       slaveadd, int i2c_clk, int busnum)
 {
-	const struct fsl_i2c_base *base;
 	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
 	unsigned long long timeval;
 
@@ -260,11 +260,9 @@ static void __i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 	*/
 	i2c_init_board();
 #endif
-	base = (struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
-
 	writeb(0, &base->cr);		/* stop I2C controller */
 	udelay(5);			/* let it shutdown in peace */
-	set_i2c_bus_speed(base, get_i2c_clock(adap->hwadapnr), speed);
+	set_i2c_bus_speed(base, i2c_clk, speed);
 	writeb(slaveadd << 1, &base->adr);/* write slave address */
 	writeb(0x0, &base->sr);		/* clear status register */
 	writeb(I2C_CR_MEN, &base->cr);	/* start I2C controller */
@@ -276,7 +274,7 @@ static void __i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 
 		if (fsl_i2c_fixup(base))
 			debug("i2c_init: BUS#%d failed to init\n",
-			      adap->hwadapnr);
+			      busnum);
 
 		break;
 	}
@@ -292,10 +290,8 @@ static void __i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 }
 
 static int
-i2c_wait4bus(struct i2c_adapter *adap)
+i2c_wait4bus(const struct fsl_i2c_base *base)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 	unsigned long long timeval = get_ticks();
 	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
 
@@ -307,14 +303,12 @@ i2c_wait4bus(struct i2c_adapter *adap)
 	return 0;
 }
 
-static __inline__ int
-i2c_wait(struct i2c_adapter *adap, int write)
+static inline int
+i2c_wait(const struct fsl_i2c_base *base, int write)
 {
 	u32 csr;
 	unsigned long long timeval = get_ticks();
 	const unsigned long long timeout = usec2ticks(CONFIG_I2C_TIMEOUT);
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 
 	do {
 		csr = readb(&base->sr);
@@ -347,46 +341,39 @@ i2c_wait(struct i2c_adapter *adap, int write)
 	return -1;
 }
 
-static __inline__ int
-i2c_write_addr(struct i2c_adapter *adap, u8 dev, u8 dir, int rsta)
+static inline int
+i2c_write_addr(const struct fsl_i2c_base *base, u8 dev, u8 dir, int rsta)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
-
 	writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_MTX
 	       | (rsta ? I2C_CR_RSTA : 0),
 	       &base->cr);
 
 	writeb((dev << 1) | dir, &base->dr);
 
-	if (i2c_wait(adap, I2C_WRITE_BIT) < 0)
+	if (i2c_wait(base, I2C_WRITE_BIT) < 0)
 		return 0;
 
 	return 1;
 }
 
-static __inline__ int
-__i2c_write_data(struct i2c_adapter *adap, u8 *data, int length)
+static inline int
+__i2c_write_data(const struct fsl_i2c_base *base, u8 *data, int length)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 	int i;
 
 	for (i = 0; i < length; i++) {
 		writeb(data[i], &base->dr);
 
-		if (i2c_wait(adap, I2C_WRITE_BIT) < 0)
+		if (i2c_wait(base, I2C_WRITE_BIT) < 0)
 			break;
 	}
 
 	return i;
 }
 
-static __inline__ int
-__i2c_read_data(struct i2c_adapter *adap, u8 *data, int length)
+static inline int
+__i2c_read_data(const struct fsl_i2c_base *base, u8 *data, int length)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 	int i;
 
 	writeb(I2C_CR_MEN | I2C_CR_MSTA | ((length == 1) ? I2C_CR_TXAK : 0),
@@ -396,7 +383,7 @@ __i2c_read_data(struct i2c_adapter *adap, u8 *data, int length)
 	readb(&base->dr);
 
 	for (i = 0; i < length; i++) {
-		if (i2c_wait(adap, I2C_READ_BIT) < 0)
+		if (i2c_wait(base, I2C_READ_BIT) < 0)
 			break;
 
 		/* Generate ack on last next to last byte */
@@ -416,15 +403,12 @@ __i2c_read_data(struct i2c_adapter *adap, u8 *data, int length)
 }
 
 static int
-__i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+__i2c_read(const struct fsl_i2c_base *base, u8 chip_addr, u8 *offset, int olen,
 	   u8 *data, int dlen)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 	int ret = -1; /* signal error */
-	u8 *o = (u8 *)&offset;
 
-	if (i2c_wait4bus(adap) < 0)
+	if (i2c_wait4bus(base) < 0)
 		return -1;
 
 	/* Some drivers use offset lengths in excess of 4 bytes. These drivers
@@ -435,29 +419,29 @@ __i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 	 *   subsequent read operation
 	 */
 	if (olen < 0) {
-		if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0)
-			ret = __i2c_write_data(adap, data, -olen);
+		if (i2c_write_addr(base, chip_addr, I2C_WRITE_BIT, 0) != 0)
+			ret = __i2c_write_data(base, data, -olen);
 
 		if (ret != -olen)
 			return -1;
 
-		if (dlen && i2c_write_addr(adap, chip_addr,
+		if (dlen && i2c_write_addr(base, chip_addr,
 					   I2C_READ_BIT, 1) != 0)
-			ret = __i2c_read_data(adap, data, dlen);
+			ret = __i2c_read_data(base, data, dlen);
 	} else {
 		if ((!dlen || olen > 0) &&
-		    i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0  &&
-		    __i2c_write_data(adap, &o[4 - olen], olen) == olen)
+		    i2c_write_addr(base, chip_addr, I2C_WRITE_BIT, 0) != 0  &&
+		    __i2c_write_data(base, offset, olen) == olen)
 			ret = 0; /* No error so far */
 
-		if (dlen && i2c_write_addr(adap, chip_addr, I2C_READ_BIT,
+		if (dlen && i2c_write_addr(base, chip_addr, I2C_READ_BIT,
 					   olen ? 1 : 0) != 0)
-			ret = __i2c_read_data(adap, data, dlen);
+			ret = __i2c_read_data(base, data, dlen);
 	}
 
 	writeb(I2C_CR_MEN, &base->cr);
 
-	if (i2c_wait4bus(adap)) /* Wait until STOP */
+	if (i2c_wait4bus(base)) /* Wait until STOP */
 		debug("i2c_read: wait4bus timed out\n");
 
 	if (ret == dlen)
@@ -467,24 +451,21 @@ __i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 }
 
 static int
-__i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+__i2c_write(const struct fsl_i2c_base *base, u8 chip_addr, u8 *offset, int olen,
 	    u8 *data, int dlen)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 	int ret = -1; /* signal error */
-	u8 *o = (u8 *)&offset;
 
-	if (i2c_wait4bus(adap) < 0)
+	if (i2c_wait4bus(base) < 0)
 		return -1;
 
-	if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0 &&
-	    __i2c_write_data(adap, &o[4 - olen], olen) == olen) {
-		ret = __i2c_write_data(adap, data, dlen);
+	if (i2c_write_addr(base, chip_addr, I2C_WRITE_BIT, 0) != 0 &&
+	    __i2c_write_data(base, offset, olen) == olen) {
+		ret = __i2c_write_data(base, data, dlen);
 	}
 
 	writeb(I2C_CR_MEN, &base->cr);
-	if (i2c_wait4bus(adap)) /* Wait until STOP */
+	if (i2c_wait4bus(base)) /* Wait until STOP */
 		debug("i2c_write: wait4bus timed out\n");
 
 	if (ret == dlen)
@@ -494,10 +475,8 @@ __i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 }
 
 static int
-__i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
+__i2c_probe_chip(const struct fsl_i2c_base *base, uchar chip)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 	/* For unknow reason the controller will ACK when
 	 * probing for a slave with the same address, so skip
 	 * it.
@@ -505,17 +484,14 @@ __i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
 	if (chip == (readb(&base->adr) >> 1))
 		return -1;
 
-	return __i2c_read(adap, chip, 0, 0, NULL, 0);
+	return __i2c_read(base, chip, 0, 0, NULL, 0);
 }
 
-static unsigned int __i2c_set_bus_speed(struct i2c_adapter *adap,
-			unsigned int speed)
+static unsigned int __i2c_set_bus_speed(const struct fsl_i2c_base *base,
+			unsigned int speed, int i2c_clk)
 {
-	struct fsl_i2c_base *base =
-		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
-
 	writeb(0, &base->cr);		/* stop controller */
-	set_i2c_bus_speed(base, get_i2c_clock(adap->hwadapnr), speed);
+	set_i2c_bus_speed(base, i2c_clk, speed);
 	writeb(I2C_CR_MEN, &base->cr);	/* start controller */
 
 	return 0;
@@ -523,33 +499,39 @@ static unsigned int __i2c_set_bus_speed(struct i2c_adapter *adap,
 
 static void fsl_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
-	__i2c_init(adap, speed, slaveadd);
+	__i2c_init(i2c_base[adap->hwadapnr], speed, slaveadd,
+		   get_i2c_clock(adap->hwadapnr), adap->hwadapnr);
 }
 
 static int
 fsl_i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
 {
-	return __i2c_probe_chip(adap, chip);
+	return __i2c_probe_chip(i2c_base[adap->hwadapnr], chip);
 }
 
 static int
 fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 	     u8 *data, int dlen)
 {
-	return __i2c_read(adap, chip_addr, offset, olen, data, dlen);
+	u8 *o = (u8 *)&offset;
+	return __i2c_read(i2c_base[adap->hwadapnr], chip_addr, &o[4 - olen],
+			  olen, data, dlen);
 }
 
 static int
 fsl_i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 	      u8 *data, int dlen)
 {
-	return __i2c_write(adap, chip_addr, offset, olen, data, dlen);
+	u8 *o = (u8 *)&offset;
+	return __i2c_write(i2c_base[adap->hwadapnr], chip_addr, &o[4 - olen],
+			   olen, data, dlen);
 }
 
 static unsigned int fsl_i2c_set_bus_speed(struct i2c_adapter *adap,
 					  unsigned int speed)
 {
-	return __i2c_set_bus_speed(adap, speed);
+	return __i2c_set_bus_speed(i2c_base[adap->hwadapnr], speed,
+				   get_i2c_clock(adap->hwadapnr));
 }
 
 /*
