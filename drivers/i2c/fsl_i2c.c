@@ -423,7 +423,6 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
 	int ret = -1; /* signal error */
 	u8 *o = (u8 *)&offset;
-	int len = olen * -1;
 
 	if (i2c_wait4bus(adap) < 0)
 		return -1;
@@ -437,9 +436,9 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 	 */
 	if (olen < 0) {
 		if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0)
-			ret = __i2c_write(adap, data, len);
+			ret = __i2c_write(adap, data, -olen);
 
-		if (ret != len)
+		if (ret != -olen)
 			return -1;
 
 		if (dlen && i2c_write_addr(adap, chip_addr,
