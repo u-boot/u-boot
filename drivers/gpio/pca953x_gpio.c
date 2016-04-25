@@ -16,8 +16,8 @@
  *
  * TODO:
  * 1. Support PCA957X_TYPE
- * 2. Support max 40 gpio pins
- * 3. Support Plolarity Inversion
+ * 2. Support 24 gpio pins
+ * 3. Support Polarity Inversion
  */
 
 #include <common.h>
@@ -47,7 +47,7 @@ enum {
 	PCA953X_DIRECTION_OUT,
 };
 
-#define MAX_BANK 3
+#define MAX_BANK 5
 #define BANK_SZ 8
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -121,6 +121,9 @@ static int pca953x_read_regs(struct udevice *dev, int reg, u8 *val)
 		ret = dm_i2c_read(dev, reg, val, 1);
 	} else if (info->gpio_count <= 16) {
 		ret = dm_i2c_read(dev, reg << 1, val, info->bank_count);
+	} else if (info->gpio_count == 40) {
+		/* Auto increment */
+		ret = dm_i2c_read(dev, (reg << 3) | 0x80, val, info->bank_count);
 	} else {
 		dev_err(dev, "Unsupported now\n");
 		return -EINVAL;
