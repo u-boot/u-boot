@@ -494,7 +494,7 @@ fsl_i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 }
 
 static int
-fsl_i2c_probe(struct i2c_adapter *adap, uchar chip)
+fsl_i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
@@ -524,24 +524,24 @@ static unsigned int fsl_i2c_set_bus_speed(struct i2c_adapter *adap,
 /*
  * Register fsl i2c adapters
  */
-U_BOOT_I2C_ADAP_COMPLETE(fsl_0, fsl_i2c_init, fsl_i2c_probe, fsl_i2c_read,
+U_BOOT_I2C_ADAP_COMPLETE(fsl_0, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
 			 CONFIG_SYS_FSL_I2C_SPEED, CONFIG_SYS_FSL_I2C_SLAVE,
 			 0)
 #ifdef CONFIG_SYS_FSL_I2C2_OFFSET
-U_BOOT_I2C_ADAP_COMPLETE(fsl_1, fsl_i2c_init, fsl_i2c_probe, fsl_i2c_read,
+U_BOOT_I2C_ADAP_COMPLETE(fsl_1, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
 			 CONFIG_SYS_FSL_I2C2_SPEED, CONFIG_SYS_FSL_I2C2_SLAVE,
 			 1)
 #endif
 #ifdef CONFIG_SYS_FSL_I2C3_OFFSET
-U_BOOT_I2C_ADAP_COMPLETE(fsl_2, fsl_i2c_init, fsl_i2c_probe, fsl_i2c_read,
+U_BOOT_I2C_ADAP_COMPLETE(fsl_2, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
 			 CONFIG_SYS_FSL_I2C3_SPEED, CONFIG_SYS_FSL_I2C3_SLAVE,
 			 2)
 #endif
 #ifdef CONFIG_SYS_FSL_I2C4_OFFSET
-U_BOOT_I2C_ADAP_COMPLETE(fsl_3, fsl_i2c_init, fsl_i2c_probe, fsl_i2c_read,
+U_BOOT_I2C_ADAP_COMPLETE(fsl_3, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
 			 CONFIG_SYS_FSL_I2C4_SPEED, CONFIG_SYS_FSL_I2C4_SLAVE,
 			 3)
