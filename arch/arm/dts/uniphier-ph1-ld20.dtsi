@@ -226,6 +226,23 @@
 			reg = <0x59801000 0x400>;
 		};
 
+		mio: mioctrl@59810000 {
+			compatible = "socionext,ph1-ld20-mioctrl";
+			reg = <0x59810000 0x800>;
+			#clock-cells = <1>;
+		};
+
+		sd: sdhc@5a400000 {
+			compatible = "socionext,uniphier-sdhc";
+			status = "disabled";
+			reg = <0x5a400000 0x800>;
+			interrupts = <0 76 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_sd>;
+			clocks = <&mio 0>;
+			bus-width = <4>;
+		};
+
 		pinctrl: pinctrl@5f801000 {
 			compatible = "socionext,ph1-ld20-pinctrl", "syscon";
 			reg = <0x5f801000 0xe00>;

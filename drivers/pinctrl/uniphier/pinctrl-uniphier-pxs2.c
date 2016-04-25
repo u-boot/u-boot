@@ -9,7 +9,7 @@
 
 #include "pinctrl-uniphier.h"
 
-static const struct uniphier_pinctrl_pin proxstream2_pins[] = {
+static const struct uniphier_pinctrl_pin uniphier_pxs2_pins[] = {
 	UNIPHIER_PINCTRL_PIN(113, 0),
 	UNIPHIER_PINCTRL_PIN(114, 0),
 	UNIPHIER_PINCTRL_PIN(115, 0),
@@ -61,7 +61,7 @@ static const unsigned usb2_muxvals[] = {8, 8};
 static const unsigned usb3_pins[] = {62, 63};
 static const unsigned usb3_muxvals[] = {8, 8};
 
-static const struct uniphier_pinctrl_group proxstream2_groups[] = {
+static const struct uniphier_pinctrl_group uniphier_pxs2_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(emmc),
 	UNIPHIER_PINCTRL_GROUP(emmc_dat8),
 	UNIPHIER_PINCTRL_GROUP(i2c0),
@@ -85,7 +85,7 @@ static const struct uniphier_pinctrl_group proxstream2_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(usb3),
 };
 
-static const char * const proxstream2_functions[] = {
+static const char * const uniphier_pxs2_functions[] = {
 	"emmc",
 	"i2c0",
 	"i2c1",
@@ -107,30 +107,30 @@ static const char * const proxstream2_functions[] = {
 	"usb3",
 };
 
-static struct uniphier_pinctrl_socdata proxstream2_pinctrl_socdata = {
-	.pins = proxstream2_pins,
-	.pins_count = ARRAY_SIZE(proxstream2_pins),
-	.groups = proxstream2_groups,
-	.groups_count = ARRAY_SIZE(proxstream2_groups),
-	.functions = proxstream2_functions,
-	.functions_count = ARRAY_SIZE(proxstream2_functions),
+static struct uniphier_pinctrl_socdata uniphier_pxs2_pinctrl_socdata = {
+	.pins = uniphier_pxs2_pins,
+	.pins_count = ARRAY_SIZE(uniphier_pxs2_pins),
+	.groups = uniphier_pxs2_groups,
+	.groups_count = ARRAY_SIZE(uniphier_pxs2_groups),
+	.functions = uniphier_pxs2_functions,
+	.functions_count = ARRAY_SIZE(uniphier_pxs2_functions),
 };
 
-static int proxstream2_pinctrl_probe(struct udevice *dev)
+static int uniphier_pxs2_pinctrl_probe(struct udevice *dev)
 {
-	return uniphier_pinctrl_probe(dev, &proxstream2_pinctrl_socdata);
+	return uniphier_pinctrl_probe(dev, &uniphier_pxs2_pinctrl_socdata);
 }
 
-static const struct udevice_id proxstream2_pinctrl_match[] = {
+static const struct udevice_id uniphier_pxs2_pinctrl_match[] = {
 	{ .compatible = "socionext,proxstream2-pinctrl" },
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(proxstream2_pinctrl) = {
-	.name = "proxstream2-pinctrl",
+U_BOOT_DRIVER(uniphier_pxs2_pinctrl) = {
+	.name = "uniphier-pxs2-pinctrl",
 	.id = UCLASS_PINCTRL,
-	.of_match = of_match_ptr(proxstream2_pinctrl_match),
-	.probe = proxstream2_pinctrl_probe,
+	.of_match = of_match_ptr(uniphier_pxs2_pinctrl_match),
+	.probe = uniphier_pxs2_pinctrl_probe,
 	.remove = uniphier_pinctrl_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_pinctrl_priv),
 	.ops = &uniphier_pinctrl_ops,

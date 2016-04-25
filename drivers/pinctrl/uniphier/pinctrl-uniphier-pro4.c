@@ -9,7 +9,7 @@
 
 #include "pinctrl-uniphier.h"
 
-static const struct uniphier_pinctrl_pin ph1_pro4_pins[] = {
+static const struct uniphier_pinctrl_pin uniphier_pro4_pins[] = {
 };
 
 static const unsigned emmc_pins[] = {40, 41, 42, 43, 51, 52, 53};
@@ -54,7 +54,7 @@ static const unsigned usb2_muxvals[] = {0, 0};
 static const unsigned usb3_pins[] = {186, 187};
 static const unsigned usb3_muxvals[] = {0, 0};
 
-static const struct uniphier_pinctrl_group ph1_pro4_groups[] = {
+static const struct uniphier_pinctrl_group uniphier_pro4_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(emmc),
 	UNIPHIER_PINCTRL_GROUP(emmc_dat8),
 	UNIPHIER_PINCTRL_GROUP(i2c0),
@@ -76,7 +76,7 @@ static const struct uniphier_pinctrl_group ph1_pro4_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(usb3),
 };
 
-static const char * const ph1_pro4_functions[] = {
+static const char * const uniphier_pro4_functions[] = {
 	"emmc",
 	"i2c0",
 	"i2c1",
@@ -96,31 +96,31 @@ static const char * const ph1_pro4_functions[] = {
 	"usb3",
 };
 
-static struct uniphier_pinctrl_socdata ph1_pro4_pinctrl_socdata = {
-	.pins = ph1_pro4_pins,
-	.pins_count = ARRAY_SIZE(ph1_pro4_pins),
-	.groups = ph1_pro4_groups,
-	.groups_count = ARRAY_SIZE(ph1_pro4_groups),
-	.functions = ph1_pro4_functions,
-	.functions_count = ARRAY_SIZE(ph1_pro4_functions),
+static struct uniphier_pinctrl_socdata uniphier_pro4_pinctrl_socdata = {
+	.pins = uniphier_pro4_pins,
+	.pins_count = ARRAY_SIZE(uniphier_pro4_pins),
+	.groups = uniphier_pro4_groups,
+	.groups_count = ARRAY_SIZE(uniphier_pro4_groups),
+	.functions = uniphier_pro4_functions,
+	.functions_count = ARRAY_SIZE(uniphier_pro4_functions),
 	.caps = UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE,
 };
 
-static int ph1_pro4_pinctrl_probe(struct udevice *dev)
+static int uniphier_pro4_pinctrl_probe(struct udevice *dev)
 {
-	return uniphier_pinctrl_probe(dev, &ph1_pro4_pinctrl_socdata);
+	return uniphier_pinctrl_probe(dev, &uniphier_pro4_pinctrl_socdata);
 }
 
-static const struct udevice_id ph1_pro4_pinctrl_match[] = {
+static const struct udevice_id uniphier_pro4_pinctrl_match[] = {
 	{ .compatible = "socionext,ph1-pro4-pinctrl" },
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(ph1_pro4_pinctrl) = {
-	.name = "ph1-pro4-pinctrl",
+U_BOOT_DRIVER(uniphier_pro4_pinctrl) = {
+	.name = "uniphier-pro4-pinctrl",
 	.id = UCLASS_PINCTRL,
-	.of_match = of_match_ptr(ph1_pro4_pinctrl_match),
-	.probe = ph1_pro4_pinctrl_probe,
+	.of_match = of_match_ptr(uniphier_pro4_pinctrl_match),
+	.probe = uniphier_pro4_pinctrl_probe,
 	.remove = uniphier_pinctrl_remove,
 	.priv_auto_alloc_size = sizeof(struct uniphier_pinctrl_priv),
 	.ops = &uniphier_pinctrl_ops,

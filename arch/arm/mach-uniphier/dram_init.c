@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <libfdt.h>
+#include <fdtdec.h>
 #include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -40,8 +41,7 @@ int dram_init(void)
 
 	val += ac;
 
-	gd->ram_size = sc == 2 ? fdt64_to_cpu(*(fdt64_t *)val) :
-							fdt32_to_cpu(*val);
+	gd->ram_size = fdtdec_get_number(val, sc);
 
 	debug("DRAM size = %08lx\n", (unsigned long)gd->ram_size);
 
@@ -71,11 +71,9 @@ void dram_init_banksize(void)
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS && len >= cells;
 	     i++, len -= cells) {
-		gd->bd->bi_dram[i].start = ac == 2 ?
-			fdt64_to_cpu(*(fdt64_t *)val) : fdt32_to_cpu(*val);
+		gd->bd->bi_dram[i].start = fdtdec_get_number(val, ac);
 		val += ac;
-		gd->bd->bi_dram[i].size = sc == 2 ?
-			fdt64_to_cpu(*(fdt64_t *)val) : fdt32_to_cpu(*val);
+		gd->bd->bi_dram[i].size = fdtdec_get_number(val, sc);
 		val += sc;
 
 		debug("DRAM bank %d: start = %08lx, size = %08lx\n",
