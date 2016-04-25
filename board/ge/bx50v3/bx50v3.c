@@ -25,7 +25,12 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <pwm.h>
 DECLARE_GLOBAL_DATA_PTR;
+
+#define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
+	PAD_CTL_HYS)
 
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
@@ -324,6 +329,8 @@ static iomux_v3_cfg_t const backlight_pads[] = {
 	/* Backlight enable for LVDS display */
 	MX6_PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL),
 #define LVDS_BACKLIGHT_GP IMX_GPIO_NR(1, 0)
+	/* backlight PWM brightness control */
+	MX6_PAD_SD1_DAT3__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static void do_enable_hdmi(struct display_info_t const *dev)
@@ -390,55 +397,117 @@ struct display_info_t const displays[] = {{
 } } };
 size_t display_count = ARRAY_SIZE(displays);
 
-static void setup_display(void)
+static void enable_videopll(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	s32 timeout = 100000;
+
+	setbits_le32(&ccm->analog_pll_video, BM_ANADIG_PLL_VIDEO_POWERDOWN);
+
+	/* set video pll to 910MHz (24MHz * (37+11/12))
+	* video pll post div to 910/4 = 227.5MHz
+	*/
+	clrsetbits_le32(&ccm->analog_pll_video,
+			BM_ANADIG_PLL_VIDEO_DIV_SELECT |
+			BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT,
+			BF_ANADIG_PLL_VIDEO_DIV_SELECT(37) |
+			BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(0));
+
+	writel(BF_ANADIG_PLL_VIDEO_NUM_A(11), &ccm->analog_pll_video_num);
+	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(12), &ccm->analog_pll_video_denom);
+
+	clrbits_le32(&ccm->analog_pll_video, BM_ANADIG_PLL_VIDEO_POWERDOWN);
+
+	while (timeout--)
+		if (readl(&ccm->analog_pll_video) & BM_ANADIG_PLL_VIDEO_LOCK)
+			break;
+
+	if (timeout < 0)
+		printf("Warning: video pll lock timeout!\n");
+
+	clrsetbits_le32(&ccm->analog_pll_video,
+			BM_ANADIG_PLL_VIDEO_BYPASS,
+			BM_ANADIG_PLL_VIDEO_ENABLE);
+}
+
+static void setup_display_b850v3(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int reg;
 
-	enable_ipu_clock();
+	enable_videopll();
+
+	/* IPU1 D0 clock is 227.5 / 3.5 = 65MHz */
+	clrbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
+
 	imx_setup_hdmi();
 
-	reg = readl(&mxc_ccm->CCGR3);
-	reg |=  MXC_CCM_CCGR3_LDB_DI0_MASK;
-	writel(reg, &mxc_ccm->CCGR3);
+	/* Set LDB_DI0 as clock source for IPU_DI0 */
+	clrsetbits_le32(&mxc_ccm->chsccdr,
+			MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK,
+			(CHSCCDR_CLK_SEL_LDB_DI0 <<
+			 MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET));
 
-	reg = readl(&mxc_ccm->cs2cdr);
-	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK |
-		 MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
-	reg |= (3 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET) |
-	       (3 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->cs2cdr);
+	/* Turn on IPU LDB DI0 clocks */
+	setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK);
 
-	reg = readl(&mxc_ccm->cscmr2);
-	reg |= (MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
-	writel(reg, &mxc_ccm->cscmr2);
+	enable_ipu_clock();
 
-	reg = readl(&mxc_ccm->chsccdr);
-	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->chsccdr);
+	writel(IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+	       IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_LOW |
+	       IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+	       IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG |
+	       IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT |
+	       IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+	       IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT |
+	       IOMUXC_GPR2_SPLIT_MODE_EN_MASK |
+	       IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0 |
+	       IOMUXC_GPR2_LVDS_CH1_MODE_ENABLED_DI0,
+	       &iomux->gpr[2]);
 
-	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
-	     | IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH
-	     | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW
-	     | IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG
-	     | IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT
-	     | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
-	     | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
-	     | IOMUXC_GPR2_LVDS_CH1_MODE_ENABLED_DI0
-	     | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
-	writel(reg, &iomux->gpr[2]);
+	clrbits_le32(&iomux->gpr[3],
+		     IOMUXC_GPR3_LVDS0_MUX_CTL_MASK |
+		     IOMUXC_GPR3_LVDS1_MUX_CTL_MASK |
+		     IOMUXC_GPR3_HDMI_MUX_CTL_MASK);
+}
 
-	reg = readl(&iomux->gpr[3]);
-	reg = (reg & ~(IOMUXC_GPR3_LVDS0_MUX_CTL_MASK |
-		       IOMUXC_GPR3_LVDS1_MUX_CTL_MASK |
-		       IOMUXC_GPR3_HDMI_MUX_CTL_MASK))
-	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
-	       << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET)
-	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
-	       << IOMUXC_GPR3_LVDS1_MUX_CTL_OFFSET);
-	writel(reg, &iomux->gpr[3]);
+static void setup_display_bx50v3(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	/* When a reset/reboot is performed the display power needs to be turned
+	 * off for atleast 500ms. The boot time is ~300ms, we need to wait for
+	 * an additional 200ms here. Unfortunately we use external PMIC for
+	 * doing the reset, so can not differentiate between POR vs soft reset
+	 */
+	mdelay(200);
+
+	/* IPU1 DI0 clock is 480/7 = 68.5 MHz */
+	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
+
+	/* Set LDB_DI0 as clock source for IPU_DI0 */
+	clrsetbits_le32(&mxc_ccm->chsccdr,
+			MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK,
+			(CHSCCDR_CLK_SEL_LDB_DI0 <<
+			MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET));
+
+	/* Turn on IPU LDB DI0 clocks */
+	setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK);
+
+	enable_ipu_clock();
+
+	writel(IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+	       IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+	       IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+	       IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT |
+	       IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0,
+	       &iomux->gpr[2]);
+
+	clrsetbits_le32(&iomux->gpr[3],
+			IOMUXC_GPR3_LVDS0_MUX_CTL_MASK,
+		       (IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
+			IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET));
 
 	/* backlights off until needed */
 	imx_iomux_v3_setup_multiple_pads(backlight_pads,
@@ -467,6 +536,12 @@ int board_eth_init(bd_t *bis)
 
 static iomux_v3_cfg_t const misc_pads[] = {
 	MX6_PAD_KEY_ROW2__GPIO4_IO11	| MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_EIM_A25__GPIO5_IO02	| MUX_PAD_CTRL(NC_PAD_CTRL),
+	MX6_PAD_EIM_CS0__GPIO2_IO23	| MUX_PAD_CTRL(NC_PAD_CTRL),
+	MX6_PAD_EIM_CS1__GPIO2_IO24	| MUX_PAD_CTRL(NC_PAD_CTRL),
+	MX6_PAD_EIM_OE__GPIO2_IO25	| MUX_PAD_CTRL(NC_PAD_CTRL),
+	MX6_PAD_EIM_BCLK__GPIO6_IO31	| MUX_PAD_CTRL(NC_PAD_CTRL),
+	MX6_PAD_GPIO_1__GPIO1_IO01	| MUX_PAD_CTRL(NC_PAD_CTRL),
 };
 #define SUS_S3_OUT	IMX_GPIO_NR(4, 11)
 #define WIFI_EN	IMX_GPIO_NR(6, 14)
@@ -478,7 +553,14 @@ int board_early_init_f(void)
 
 	setup_iomux_uart();
 
-
+#if defined(CONFIG_VIDEO_IPUV3)
+	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
+		/* Set LDB clock to Video PLL */
+		select_ldb_di_clock_source(MXC_PLL5_CLK);
+	else
+		/* Set LDB clock to USB PLL */
+		select_ldb_di_clock_source(MXC_PLL3_SW_CLK);
+#endif
 	return 0;
 }
 
@@ -487,7 +569,10 @@ int board_init(void)
 	gpio_direction_output(SUS_S3_OUT, 1);
 	gpio_direction_output(WIFI_EN, 1);
 #if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
+	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
+		setup_display_b850v3();
+	else
+		setup_display_bx50v3();
 #endif
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
@@ -520,8 +605,16 @@ int board_late_init(void)
 	 * as per specifications from CHI MEI */
 	mdelay(250);
 
+	/* enable backlight PWM 1 */
+	pwm_init(0, 0, 0);
+
+	/* duty cycle 5000000ns, period: 5000000ns */
+	pwm_config(0, 5000000, 5000000);
+
 	/* Backlight Power */
 	gpio_direction_output(LVDS_BACKLIGHT_GP, 1);
+
+	pwm_enable(0);
 
 	return 0;
 }
