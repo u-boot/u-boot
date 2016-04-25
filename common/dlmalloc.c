@@ -1909,6 +1909,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
   * fulfill the user's request.
   */
   if (m == NULL) {
+    size_t extra, extra2;
     /*
      * Use bytes not nb, since mALLOc internally calls request2size too, and
      * each call increases the size to allocate, to account for the header.
@@ -1917,9 +1918,27 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     /* Aligned -> return it */
     if ((((unsigned long)(m)) % alignment) == 0)
       return m;
-    /* Otherwise, fail */
+    /*
+     * Otherwise, try again, requesting enough extra space to be able to
+     * acquire alignment.
+     */
     fREe(m);
-    m = NULL;
+    /* Add in extra bytes to match misalignment of unexpanded allocation */
+    extra = alignment - (((unsigned long)(m)) % alignment);
+    m  = (char*)(mALLOc(bytes + extra));
+    /*
+     * m might not be the same as before. Validate that the previous value of
+     * extra still works for the current value of m.
+     * If (!m), extra2=alignment so 
+     */
+    if (m) {
+      extra2 = alignment - (((unsigned long)(m)) % alignment);
+      if (extra2 > extra) {
+        fREe(m);
+        m = NULL;
+      }
+    }
+    /* Fall through to original NULL check and chunk splitting logic */
   }
 
   if (m == NULL) return NULL; /* propagate failure */
