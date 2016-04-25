@@ -682,7 +682,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 	found_multi = false;
 	end = PCI_BDF(bus->seq, PCI_MAX_PCI_DEVICES - 1,
 		      PCI_MAX_PCI_FUNCTIONS - 1);
-	for (bdf = PCI_BDF(bus->seq, 0, 0); bdf < end;
+	for (bdf = PCI_BDF(bus->seq, 0, 0); bdf <= end;
 	     bdf += PCI_BDF(0, 0, 1)) {
 		struct pci_child_platdata *pplat;
 		struct udevice *dev;
