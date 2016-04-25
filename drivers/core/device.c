@@ -673,6 +673,11 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 	return dev_get_addr_index(dev, 0);
 }
 
+void *dev_get_addr_ptr(struct udevice *dev)
+{
+	return (void *)(uintptr_t)dev_get_addr_index(dev, 0);
+}
+
 bool device_has_children(struct udevice *dev)
 {
 	return !list_empty(&dev->child_head);

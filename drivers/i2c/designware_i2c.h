@@ -9,39 +9,41 @@
 #define __DW_I2C_H_
 
 struct i2c_regs {
-	u32 ic_con;
-	u32 ic_tar;
-	u32 ic_sar;
-	u32 ic_hs_maddr;
-	u32 ic_cmd_data;
-	u32 ic_ss_scl_hcnt;
-	u32 ic_ss_scl_lcnt;
-	u32 ic_fs_scl_hcnt;
-	u32 ic_fs_scl_lcnt;
-	u32 ic_hs_scl_hcnt;
-	u32 ic_hs_scl_lcnt;
-	u32 ic_intr_stat;
-	u32 ic_intr_mask;
-	u32 ic_raw_intr_stat;
-	u32 ic_rx_tl;
-	u32 ic_tx_tl;
-	u32 ic_clr_intr;
-	u32 ic_clr_rx_under;
-	u32 ic_clr_rx_over;
-	u32 ic_clr_tx_over;
-	u32 ic_clr_rd_req;
-	u32 ic_clr_tx_abrt;
-	u32 ic_clr_rx_done;
-	u32 ic_clr_activity;
-	u32 ic_clr_stop_det;
-	u32 ic_clr_start_det;
-	u32 ic_clr_gen_call;
-	u32 ic_enable;
-	u32 ic_status;
-	u32 ic_txflr;
-	u32 ix_rxflr;
-	u32 reserved_1;
-	u32 ic_tx_abrt_source;
+	u32 ic_con;		/* 0x00 */
+	u32 ic_tar;		/* 0x04 */
+	u32 ic_sar;		/* 0x08 */
+	u32 ic_hs_maddr;	/* 0x0c */
+	u32 ic_cmd_data;	/* 0x10 */
+	u32 ic_ss_scl_hcnt;	/* 0x14 */
+	u32 ic_ss_scl_lcnt;	/* 0x18 */
+	u32 ic_fs_scl_hcnt;	/* 0x1c */
+	u32 ic_fs_scl_lcnt;	/* 0x20 */
+	u32 ic_hs_scl_hcnt;	/* 0x24 */
+	u32 ic_hs_scl_lcnt;	/* 0x28 */
+	u32 ic_intr_stat;	/* 0x2c */
+	u32 ic_intr_mask;	/* 0x30 */
+	u32 ic_raw_intr_stat;	/* 0x34 */
+	u32 ic_rx_tl;		/* 0x38 */
+	u32 ic_tx_tl;		/* 0x3c */
+	u32 ic_clr_intr;	/* 0x40 */
+	u32 ic_clr_rx_under;	/* 0x44 */
+	u32 ic_clr_rx_over;	/* 0x48 */
+	u32 ic_clr_tx_over;	/* 0x4c */
+	u32 ic_clr_rd_req;	/* 0x50 */
+	u32 ic_clr_tx_abrt;	/* 0x54 */
+	u32 ic_clr_rx_done;	/* 0x58 */
+	u32 ic_clr_activity;	/* 0x5c */
+	u32 ic_clr_stop_det;	/* 0x60 */
+	u32 ic_clr_start_det;	/* 0x64 */
+	u32 ic_clr_gen_call;	/* 0x68 */
+	u32 ic_enable;		/* 0x6c */
+	u32 ic_status;		/* 0x70 */
+	u32 ic_txflr;		/* 0x74 */
+	u32 ic_rxflr;		/* 0x78 */
+	u32 ic_sda_hold;	/* 0x7c */
+	u32 ic_tx_abrt_source;	/* 0x80 */
+	u8 res1[0x18];		/* 0x84 */
+	u32 ic_enable_status;	/* 0x9c */
 };
 
 #if !defined(IC_CLK)
