@@ -428,22 +428,14 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 	if (i2c_wait4bus(adap) < 0)
 		return -1;
 
-	/* To handle the need of I2C devices that require to write few bytes
-	 * (more than 4 bytes of address as in the case of else part)
-	 * of data before reading, Negative equivalent of dlen(bytes to write)
-	 * is passed, but used the +ve part of len for writing data
+	/* Some drivers use offset lengths in excess of 4 bytes. These drivers
+	 * adhere to the following convention:
+	 * - the offset length is passed as negative (that is, the absolute
+	 *   value of olen is the actual offset length)
+	 * - the offset itself is passed in data, which is overwritten by the
+	 *   subsequent read operation
 	 */
 	if (olen < 0) {
-		/* Generate a START and send the Address and
-		 * the Tx Bytes to the slave.
-		 * "START: Address: Write bytes data[len]"
-		 * IF part supports writing any number of bytes in contrast
-		 * to the else part, which supports writing address offset
-		 * of upto 4 bytes only.
-		 * bytes that need to be written are passed in
-		 * "data", which will eventually keep the data READ,
-		 * after writing the len bytes out of it
-		 */
 		if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0)
 			ret = __i2c_write(adap, data, len);
 
