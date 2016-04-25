@@ -247,7 +247,7 @@ err:
 	return ret;
 }
 
-static void fsl_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+static void __i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
 	const struct fsl_i2c_base *base;
 	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
@@ -416,8 +416,8 @@ __i2c_read_data(struct i2c_adapter *adap, u8 *data, int length)
 }
 
 static int
-fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
-	     u8 *data, int dlen)
+__i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+	   u8 *data, int dlen)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
@@ -467,8 +467,8 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 }
 
 static int
-fsl_i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
-	      u8 *data, int dlen)
+__i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+	    u8 *data, int dlen)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
@@ -494,7 +494,7 @@ fsl_i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 }
 
 static int
-fsl_i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
+__i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
@@ -505,10 +505,10 @@ fsl_i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
 	if (chip == (readb(&base->adr) >> 1))
 		return -1;
 
-	return fsl_i2c_read(adap, chip, 0, 0, NULL, 0);
+	return __i2c_read(adap, chip, 0, 0, NULL, 0);
 }
 
-static unsigned int fsl_i2c_set_bus_speed(struct i2c_adapter *adap,
+static unsigned int __i2c_set_bus_speed(struct i2c_adapter *adap,
 			unsigned int speed)
 {
 	struct fsl_i2c_base *base =
@@ -519,6 +519,37 @@ static unsigned int fsl_i2c_set_bus_speed(struct i2c_adapter *adap,
 	writeb(I2C_CR_MEN, &base->cr);	/* start controller */
 
 	return 0;
+}
+
+static void fsl_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+{
+	__i2c_init(adap, speed, slaveadd);
+}
+
+static int
+fsl_i2c_probe_chip(struct i2c_adapter *adap, uchar chip)
+{
+	return __i2c_probe_chip(adap, chip);
+}
+
+static int
+fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+	     u8 *data, int dlen)
+{
+	return __i2c_read(adap, chip_addr, offset, olen, data, dlen);
+}
+
+static int
+fsl_i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+	      u8 *data, int dlen)
+{
+	return __i2c_write(adap, chip_addr, offset, olen, data, dlen);
+}
+
+static unsigned int fsl_i2c_set_bus_speed(struct i2c_adapter *adap,
+					  unsigned int speed)
+{
+	return __i2c_set_bus_speed(adap, speed);
 }
 
 /*
