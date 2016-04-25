@@ -416,24 +416,24 @@ __i2c_read(struct i2c_adapter *adap, u8 *data, int length)
 }
 
 static int
-fsl_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr, int alen, u8 *data,
-	     int length)
+fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+	     u8 *data, int dlen)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
-	int i = -1; /* signal error */
-	u8 *a = (u8*)&addr;
-	int len = alen * -1;
+	int ret = -1; /* signal error */
+	u8 *o = (u8 *)&offset;
+	int len = olen * -1;
 
 	if (i2c_wait4bus(adap) < 0)
 		return -1;
 
 	/* To handle the need of I2C devices that require to write few bytes
 	 * (more than 4 bytes of address as in the case of else part)
-	 * of data before reading, Negative equivalent of length(bytes to write)
+	 * of data before reading, Negative equivalent of dlen(bytes to write)
 	 * is passed, but used the +ve part of len for writing data
 	 */
-	if (alen < 0) {
+	if (olen < 0) {
 		/* Generate a START and send the Address and
 		 * the Tx Bytes to the slave.
 		 * "START: Address: Write bytes data[len]"
@@ -444,23 +444,24 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr, int alen, u8 *data,
 		 * "data", which will eventually keep the data READ,
 		 * after writing the len bytes out of it
 		 */
-		if (i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0)
-			i = __i2c_write(adap, data, len);
+		if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0)
+			ret = __i2c_write(adap, data, len);
 
-		if (i != len)
+		if (ret != len)
 			return -1;
 
-		if (length && i2c_write_addr(adap, dev, I2C_READ_BIT, 1) != 0)
-			i = __i2c_read(adap, data, length);
+		if (dlen && i2c_write_addr(adap, chip_addr,
+					   I2C_READ_BIT, 1) != 0)
+			ret = __i2c_read(adap, data, dlen);
 	} else {
-		if ((!length || alen > 0) &&
-		    i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0  &&
-		    __i2c_write(adap, &a[4 - alen], alen) == alen)
-			i = 0; /* No error so far */
+		if ((!dlen || olen > 0) &&
+		    i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0  &&
+		    __i2c_write(adap, &o[4 - olen], olen) == olen)
+			ret = 0; /* No error so far */
 
-		if (length &&
-		    i2c_write_addr(adap, dev, I2C_READ_BIT, alen ? 1 : 0) != 0)
-			i = __i2c_read(adap, data, length);
+		if (dlen && i2c_write_addr(adap, chip_addr, I2C_READ_BIT,
+					   olen ? 1 : 0) != 0)
+			ret = __i2c_read(adap, data, dlen);
 	}
 
 	writeb(I2C_CR_MEN, &base->cr);
@@ -468,35 +469,35 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr, int alen, u8 *data,
 	if (i2c_wait4bus(adap)) /* Wait until STOP */
 		debug("i2c_read: wait4bus timed out\n");
 
-	if (i == length)
-	    return 0;
+	if (ret == dlen)
+		return 0;
 
 	return -1;
 }
 
 static int
-fsl_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr, int alen,
-	      u8 *data, int length)
+fsl_i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
+	      u8 *data, int dlen)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
-	int i = -1; /* signal error */
-	u8 *a = (u8*)&addr;
+	int ret = -1; /* signal error */
+	u8 *o = (u8 *)&offset;
 
 	if (i2c_wait4bus(adap) < 0)
 		return -1;
 
-	if (i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0 &&
-	    __i2c_write(adap, &a[4 - alen], alen) == alen) {
-		i = __i2c_write(adap, data, length);
+	if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0 &&
+	    __i2c_write(adap, &o[4 - olen], olen) == olen) {
+		ret = __i2c_write(adap, data, dlen);
 	}
 
 	writeb(I2C_CR_MEN, &base->cr);
 	if (i2c_wait4bus(adap)) /* Wait until STOP */
 		debug("i2c_write: wait4bus timed out\n");
 
-	if (i == length)
-	    return 0;
+	if (ret == dlen)
+		return 0;
 
 	return -1;
 }
