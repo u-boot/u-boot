@@ -12,6 +12,8 @@
 #include <i2c.h>		/* Functional interface */
 #include <asm/io.h>
 #include <asm/fsl_i2c.h>	/* HW definitions */
+#include <dm.h>
+#include <mapmem.h>
 
 /* The maximum number of microseconds we will wait until another master has
  * released the bus.  If not defined in the board header file, then use a
@@ -34,6 +36,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_DM_I2C
 static const struct fsl_i2c_base *i2c_base[4] = {
 	(struct fsl_i2c_base *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C_OFFSET),
 #ifdef CONFIG_SYS_FSL_I2C2_OFFSET
@@ -46,6 +49,7 @@ static const struct fsl_i2c_base *i2c_base[4] = {
 	(struct fsl_i2c_base *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C4_OFFSET)
 #endif
 };
+#endif
 
 /* I2C speed map for a DFSR value of 1 */
 
@@ -192,6 +196,7 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c_base *base,
 	return speed;
 }
 
+#ifndef CONFIG_DM_I2C
 static unsigned int get_i2c_clock(int bus)
 {
 	if (bus)
@@ -199,6 +204,7 @@ static unsigned int get_i2c_clock(int bus)
 	else
 		return gd->arch.i2c1_clk;	/* I2C1 clock */
 }
+#endif
 
 static int fsl_i2c_fixup(const struct fsl_i2c_base *base)
 {
@@ -497,6 +503,7 @@ static unsigned int __i2c_set_bus_speed(const struct fsl_i2c_base *base,
 	return 0;
 }
 
+#ifndef CONFIG_DM_I2C
 static void fsl_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
 	__i2c_init(i2c_base[adap->hwadapnr], speed, slaveadd,
@@ -559,3 +566,99 @@ U_BOOT_I2C_ADAP_COMPLETE(fsl_3, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 CONFIG_SYS_FSL_I2C4_SPEED, CONFIG_SYS_FSL_I2C4_SLAVE,
 			 3)
 #endif
+#else /* CONFIG_DM_I2C */
+static int fsl_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
+			      u32 chip_flags)
+{
+	struct fsl_i2c_dev *dev = dev_get_priv(bus);
+	return __i2c_probe_chip(dev->base, chip_addr);
+}
+
+static int fsl_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+{
+	struct fsl_i2c_dev *dev = dev_get_priv(bus);
+	return __i2c_set_bus_speed(dev->base, speed, dev->i2c_clk);
+}
+
+static int fsl_i2c_ofdata_to_platdata(struct udevice *bus)
+{
+	struct fsl_i2c_dev *dev = dev_get_priv(bus);
+	u64 reg;
+	u32 addr, size;
+
+	reg = fdtdec_get_addr(gd->fdt_blob, bus->of_offset, "reg");
+	addr = reg >> 32;
+	size = reg & 0xFFFFFFFF;
+
+	dev->base = map_sysmem(CONFIG_SYS_IMMR + addr, size);
+
+	if (!dev->base)
+		return -ENOMEM;
+
+	dev->index = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+				    "cell-index", -1);
+	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+				       "u-boot,i2c-slave-addr", 0x7f);
+	dev->speed = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+				    "clock-frequency", 400000);
+
+	dev->i2c_clk = dev->index ? gd->arch.i2c2_clk : gd->arch.i2c1_clk;
+
+	return 0;
+}
+
+static int fsl_i2c_probe(struct udevice *bus)
+{
+	struct fsl_i2c_dev *dev = dev_get_priv(bus);
+	__i2c_init(dev->base, dev->speed, dev->slaveadd, dev->i2c_clk,
+		   dev->index);
+	return 0;
+}
+
+static int fsl_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
+{
+	struct fsl_i2c_dev *dev = dev_get_priv(bus);
+	struct i2c_msg *dmsg, *omsg, dummy;
+
+	memset(&dummy, 0, sizeof(struct i2c_msg));
+
+	/* We expect either two messages (one with an offset and one with the
+	 * actucal data) or one message (just data) */
+	if (nmsgs > 2 || nmsgs == 0) {
+		debug("%s: Only one or two messages are supported.", __func__);
+		return -1;
+	}
+
+	omsg = nmsgs == 1 ? &dummy : msg;
+	dmsg = nmsgs == 1 ? msg : msg + 1;
+
+	if (dmsg->flags & I2C_M_RD)
+		return __i2c_read(dev->base, dmsg->addr, omsg->buf, omsg->len,
+				  dmsg->buf, dmsg->len);
+	else
+		return __i2c_write(dev->base, dmsg->addr, omsg->buf, omsg->len,
+				   dmsg->buf, dmsg->len);
+}
+
+static const struct dm_i2c_ops fsl_i2c_ops = {
+	.xfer           = fsl_i2c_xfer,
+	.probe_chip     = fsl_i2c_probe_chip,
+	.set_bus_speed  = fsl_i2c_set_bus_speed,
+};
+
+static const struct udevice_id fsl_i2c_ids[] = {
+	{ .compatible = "fsl-i2c", },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(i2c_fsl) = {
+	.name = "i2c_fsl",
+	.id = UCLASS_I2C,
+	.of_match = fsl_i2c_ids,
+	.probe = fsl_i2c_probe,
+	.ofdata_to_platdata = fsl_i2c_ofdata_to_platdata,
+	.priv_auto_alloc_size = sizeof(struct fsl_i2c_dev),
+	.ops = &fsl_i2c_ops,
+};
+
+#endif /* CONFIG_DM_I2C */

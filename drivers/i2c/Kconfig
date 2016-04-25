@@ -58,6 +58,13 @@ config DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SYS_I2C_FSL
+       bool "Freescale I2C bus driver"
+       depends on DM_I2C
+       help
+	  Add support for Freescale I2C busses as used on MPC8240, MPC8245, and
+	  MPC85xx processors.
+
 config SYS_I2C_CADENCE
 	tristate "Cadence I2C Controller"
 	depends on DM_I2C && (ARCH_ZYNQ || ARM64)
