@@ -55,7 +55,7 @@
 /* LCD Raster Ctrl Register */
 #define LCD_TFT_24BPP_MODE			(1 << 25)
 #define LCD_TFT_24BPP_UNPACK			(1 << 26)
-#define LCD_PALMODE_RAWDATA			(0x10 << 20)
+#define LCD_PALMODE_RAWDATA			(0x02 << 20)
 #define LCD_TFT_MODE				(0x01 << 7)
 #define LCD_RASTER_ENABLE			(0x01 << 0)
 
