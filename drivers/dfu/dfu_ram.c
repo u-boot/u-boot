@@ -54,19 +54,26 @@ static int dfu_read_medium_ram(struct dfu_entity *dfu, u64 offset,
 
 int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
 {
-	char *st;
+	const char *argv[3];
+	const char **parg = argv;
+
+	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
+		*parg = strsep(&s, " ");
+		if (*parg == NULL) {
+			error("Invalid number of arguments.\n");
+			return -ENODEV;
+		}
+	}
 
 	dfu->dev_type = DFU_DEV_RAM;
-	st = strsep(&s, " ");
-	if (strcmp(st, "ram")) {
-		error("unsupported device: %s\n", st);
+	if (strcmp(argv[0], "ram")) {
+		error("unsupported device: %s\n", argv[0]);
 		return -ENODEV;
 	}
 
 	dfu->layout = DFU_RAM_ADDR;
-	dfu->data.ram.start = (void *)simple_strtoul(s, &s, 16);
-	s++;
-	dfu->data.ram.size = simple_strtoul(s, &s, 16);
+	dfu->data.ram.start = (void *)simple_strtoul(argv[1], NULL, 16);
+	dfu->data.ram.size = simple_strtoul(argv[2], NULL, 16);
 
 	dfu->write_medium = dfu_write_medium_ram;
 	dfu->get_medium_size = dfu_get_medium_size_ram;
