@@ -366,7 +366,7 @@ i2c_write_addr(struct i2c_adapter *adap, u8 dev, u8 dir, int rsta)
 }
 
 static __inline__ int
-__i2c_write(struct i2c_adapter *adap, u8 *data, int length)
+__i2c_write_data(struct i2c_adapter *adap, u8 *data, int length)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
@@ -383,7 +383,7 @@ __i2c_write(struct i2c_adapter *adap, u8 *data, int length)
 }
 
 static __inline__ int
-__i2c_read(struct i2c_adapter *adap, u8 *data, int length)
+__i2c_read_data(struct i2c_adapter *adap, u8 *data, int length)
 {
 	struct fsl_i2c_base *base =
 		(struct fsl_i2c_base *)i2c_base[adap->hwadapnr];
@@ -436,23 +436,23 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 	 */
 	if (olen < 0) {
 		if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0)
-			ret = __i2c_write(adap, data, -olen);
+			ret = __i2c_write_data(adap, data, -olen);
 
 		if (ret != -olen)
 			return -1;
 
 		if (dlen && i2c_write_addr(adap, chip_addr,
 					   I2C_READ_BIT, 1) != 0)
-			ret = __i2c_read(adap, data, dlen);
+			ret = __i2c_read_data(adap, data, dlen);
 	} else {
 		if ((!dlen || olen > 0) &&
 		    i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0  &&
-		    __i2c_write(adap, &o[4 - olen], olen) == olen)
+		    __i2c_write_data(adap, &o[4 - olen], olen) == olen)
 			ret = 0; /* No error so far */
 
 		if (dlen && i2c_write_addr(adap, chip_addr, I2C_READ_BIT,
 					   olen ? 1 : 0) != 0)
-			ret = __i2c_read(adap, data, dlen);
+			ret = __i2c_read_data(adap, data, dlen);
 	}
 
 	writeb(I2C_CR_MEN, &base->cr);
@@ -479,8 +479,8 @@ fsl_i2c_write(struct i2c_adapter *adap, u8 chip_addr, uint offset, int olen,
 		return -1;
 
 	if (i2c_write_addr(adap, chip_addr, I2C_WRITE_BIT, 0) != 0 &&
-	    __i2c_write(adap, &o[4 - olen], olen) == olen) {
-		ret = __i2c_write(adap, data, dlen);
+	    __i2c_write_data(adap, &o[4 - olen], olen) == olen) {
+		ret = __i2c_write_data(adap, data, dlen);
 	}
 
 	writeb(I2C_CR_MEN, &base->cr);
