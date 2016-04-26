@@ -19,7 +19,6 @@
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
-#include <environment.h>
 #include <fsl_sec.h>
 #include "cpld.h"
 #ifdef CONFIG_U_QE
@@ -85,10 +84,6 @@ int board_init(void)
 {
 #ifdef CONFIG_FSL_IFC
 	init_final_memctl_regs();
-#endif
-
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
 #endif
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS

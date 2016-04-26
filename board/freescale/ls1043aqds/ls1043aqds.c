@@ -317,10 +317,6 @@ int board_init(void)
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 	enable_layerscape_ns_access();
 #endif
-
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
 	return 0;
 }
 
