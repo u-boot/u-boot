@@ -1201,6 +1201,9 @@ static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 static int dwc2_usb_probe(struct udevice *dev)
 {
 	struct dwc2_priv *priv = dev_get_priv(dev);
+	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
+
+	bus_priv->desc_before_addr = true;
 
 	return dwc2_init_common(priv);
 }
