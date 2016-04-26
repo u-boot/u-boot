@@ -75,10 +75,6 @@
 #define CONFIG_BOOTP_MAY_FAIL
 #define CONFIG_BOOTP_SERVERIP
 
-/* SPI */
-#ifdef CONFIG_ZYNQ_SPI
-#endif
-
 #if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
