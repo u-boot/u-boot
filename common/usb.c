@@ -1064,7 +1064,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 
 int usb_select_config(struct usb_device *dev)
 {
-	unsigned char *tmpbuf = 0;
+	unsigned char *tmpbuf = NULL;
 	int err;
 
 	err = get_descriptor_len(dev, USB_DT_DEVICE_SIZE, USB_DT_DEVICE_SIZE);
