@@ -30,12 +30,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
-	static const char *freq[3] = {"100.00MHZ", "156.25MHZ"};
+	static const char *freq[2] = {"100.00MHZ", "156.25MHZ"};
 #ifndef CONFIG_SD_BOOT
 	u8 cfg_rcw_src1, cfg_rcw_src2;
-	u32 cfg_rcw_src;
+	u16 cfg_rcw_src;
 #endif
-	u32 sd1refclk_sel;
+	u8 sd1refclk_sel;
 
 	printf("Board: LS1043ARDB, boot from ");
 
