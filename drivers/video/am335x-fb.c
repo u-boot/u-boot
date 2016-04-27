@@ -5,7 +5,7 @@
  * minimal framebuffer driver for TI's AM335x SoC to be compatible with
  * Wolfgang Denk's LCD-Framework (CONFIG_LCD, common/lcd.c)
  *
- * - supporting only 24bit RGB/TFT raster Mode (not using palette)
+ * - supporting 16/24/32bit RGB/TFT raster Mode (not using palette)
  * - sets up LCD controller as in 'am335x_lcdpanel' struct given
  * - starts output DMA from gd->fb_base buffer
  *
@@ -106,12 +106,29 @@ int lcd_get_size(int *line_length)
 
 int am335xfb_init(struct am335x_lcdpanel *panel)
 {
+	u32 raster_ctrl = 0;
+
 	if (0 == gd->fb_base) {
 		printf("ERROR: no valid fb_base stored in GLOBAL_DATA_PTR!\n");
 		return -1;
 	}
 	if (0 == panel) {
 		printf("ERROR: missing ptr to am335x_lcdpanel!\n");
+		return -1;
+	}
+
+	/* We can already set the bits for the raster_ctrl in this check */
+	switch (panel->bpp) {
+	case 16:
+		break;
+	case 32:
+		raster_ctrl |= LCD_TFT_24BPP_UNPACK;
+		/* fallthrough */
+	case 24:
+		raster_ctrl |= LCD_TFT_24BPP_MODE;
+		break;
+	default:
+		error("am335x-fb: invalid bpp value: %d\n", panel->bpp);
 		return -1;
 	}
 
@@ -157,8 +174,7 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 				LCD_HBPMSB(panel->hbp) |
 				LCD_HFPMSB(panel->hfp) |
 				0x0000FF00;	/* clk cycles for ac-bias */
-	lcdhw->raster_ctrl =	LCD_TFT_24BPP_MODE |
-				LCD_TFT_24BPP_UNPACK |
+	lcdhw->raster_ctrl =	raster_ctrl |
 				LCD_PALMODE_RAWDATA |
 				LCD_TFT_MODE |
 				LCD_RASTER_ENABLE;
