@@ -49,9 +49,6 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_LS2080A
 	arch_cpu_init();
 #endif
-#ifdef CONFIG_FSL_IFC
-	init_early_memctl_regs();
-#endif
 	board_early_init_f();
 	timer_init();
 #ifdef CONFIG_LS2080A
