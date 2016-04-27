@@ -28,6 +28,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+#include <wait_bit.h>
 #include "cadence_qspi.h"
 
 #define CQSPI_REG_POLL_US			(1) /* 1us */
@@ -214,32 +215,6 @@ static void cadence_qspi_apb_read_fifo_data(void *dest,
 	return;
 }
 
-static void cadence_qspi_apb_write_fifo_data(const void *dest_ahb_addr,
-	const void *src, unsigned int bytes)
-{
-	unsigned int temp = 0;
-	int i;
-	int remaining = bytes;
-	unsigned int *dest_ptr = (unsigned int *)dest_ahb_addr;
-	unsigned int *src_ptr = (unsigned int *)src;
-
-	while (remaining >= CQSPI_FIFO_WIDTH) {
-		for (i = CQSPI_FIFO_WIDTH/sizeof(src_ptr) - 1; i >= 0; i--)
-			writel(*(src_ptr+i), dest_ptr+i);
-		src_ptr += CQSPI_FIFO_WIDTH/sizeof(src_ptr);
-		remaining -= CQSPI_FIFO_WIDTH;
-	}
-	if (remaining) {
-		/* dangling bytes */
-		i = remaining/sizeof(dest_ptr);
-		memcpy(&temp, src_ptr+i, remaining % sizeof(dest_ptr));
-		writel(temp, dest_ptr+i);
-		for (--i; i >= 0; i--)
-			writel(*(src_ptr+i), dest_ptr+i);
-	}
-	return;
-}
-
 /* Read from SRAM FIFO with polling SRAM fill level. */
 static int qspi_read_sram_fifo_poll(const void *reg_base, void *dest_addr,
 			const void *src_addr,  unsigned int num_bytes)
@@ -273,44 +248,6 @@ static int qspi_read_sram_fifo_poll(const void *reg_base, void *dest_addr,
 		remaining -= sram_level;
 		udelay(1);
 	}
-	return 0;
-}
-
-/* Write to SRAM FIFO with polling SRAM fill level. */
-static int qpsi_write_sram_fifo_push(struct cadence_spi_platdata *plat,
-				const void *src_addr, unsigned int num_bytes)
-{
-	const void *reg_base = plat->regbase;
-	void *dest_addr = plat->ahbbase;
-	unsigned int retry = CQSPI_REG_RETRY;
-	unsigned int sram_level;
-	unsigned int wr_bytes;
-	unsigned char *src = (unsigned char *)src_addr;
-	int remaining = num_bytes;
-	unsigned int page_size = plat->page_size;
-	unsigned int sram_threshold_words = CQSPI_REG_SRAM_THRESHOLD_WORDS;
-
-	while (remaining > 0) {
-		retry = CQSPI_REG_RETRY;
-		while (retry--) {
-			sram_level = CQSPI_GET_WR_SRAM_LEVEL(reg_base);
-			if (sram_level <= sram_threshold_words)
-				break;
-		}
-		if (!retry) {
-			printf("QSPI: SRAM fill level (0x%08x) not hit lower expected level (0x%08x)",
-			       sram_level, sram_threshold_words);
-			return -1;
-		}
-		/* Write a page or remaining bytes. */
-		wr_bytes = (remaining > page_size) ?
-					page_size : remaining;
-
-		cadence_qspi_apb_write_fifo_data(dest_addr, src, wr_bytes);
-		src += wr_bytes;
-		remaining -= wr_bytes;
-	}
-
 	return 0;
 }
 
@@ -810,48 +747,45 @@ int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
 }
 
 int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
-	unsigned int txlen, const u8 *txbuf)
+	unsigned int n_tx, const u8 *txbuf)
 {
-	unsigned int reg = 0;
-	unsigned int retry;
+	unsigned int page_size = plat->page_size;
+	unsigned int remaining = n_tx;
+	unsigned int write_bytes;
+	int ret;
 
 	/* Configure the indirect read transfer bytes */
-	writel(txlen, plat->regbase + CQSPI_REG_INDIRECTWRBYTES);
+	writel(n_tx, plat->regbase + CQSPI_REG_INDIRECTWRBYTES);
 
 	/* Start the indirect write transfer */
 	writel(CQSPI_REG_INDIRECTWR_START_MASK,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
 
-	if (qpsi_write_sram_fifo_push(plat, (const void *)txbuf, txlen))
-		goto failwr;
+	while (remaining > 0) {
+		write_bytes = remaining > page_size ? page_size : remaining;
+		/* Handle non-4-byte aligned access to avoid data abort. */
+		if (((uintptr_t)txbuf % 4) || (write_bytes % 4))
+			writesb(plat->ahbbase, txbuf, write_bytes);
+		else
+			writesl(plat->ahbbase, txbuf, write_bytes >> 2);
 
-	/* Wait until last write is completed (FIFO empty) */
-	retry = CQSPI_REG_RETRY;
-	while (retry--) {
-		reg = CQSPI_GET_WR_SRAM_LEVEL(plat->regbase);
-		if (reg == 0)
-			break;
+		ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_SDRAMLEVEL,
+				   CQSPI_REG_SDRAMLEVEL_WR_MASK <<
+				   CQSPI_REG_SDRAMLEVEL_WR_LSB, 0, 10, 0);
+		if (ret) {
+			printf("Indirect write timed out (%i)\n", ret);
+			goto failwr;
+		}
 
-		udelay(1);
+		txbuf += write_bytes;
+		remaining -= write_bytes;
 	}
 
-	if (reg != 0) {
-		printf("QSPI: timeout for indirect write\n");
-		goto failwr;
-	}
-
-	/* Check flash indirect controller status */
-	retry = CQSPI_REG_RETRY;
-	while (retry--) {
-		reg = readl(plat->regbase + CQSPI_REG_INDIRECTWR);
-		if (reg & CQSPI_REG_INDIRECTWR_DONE_MASK)
-			break;
-		udelay(1);
-	}
-
-	if (!(reg & CQSPI_REG_INDIRECTWR_DONE_MASK)) {
-		printf("QSPI: indirect completion status error with reg 0x%08x\n",
-		       reg);
+	/* Check indirect done status */
+	ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_INDIRECTWR,
+			   CQSPI_REG_INDIRECTWR_DONE_MASK, 1, 10, 0);
+	if (ret) {
+		printf("Indirect write completion error (%i)\n", ret);
 		goto failwr;
 	}
 
@@ -864,7 +798,7 @@ failwr:
 	/* Cancel the indirect write */
 	writel(CQSPI_REG_INDIRECTWR_CANCEL_MASK,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
-	return -1;
+	return ret;
 }
 
 void cadence_qspi_apb_enter_xip(void *reg_base, char xip_dummy)
