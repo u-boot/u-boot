@@ -252,8 +252,9 @@ static void dwc_otg_core_host_init(struct dwc2_core_regs *regs)
  *
  * @param regs Programming view of the DWC_otg controller
  */
-static void dwc_otg_core_init(struct dwc2_core_regs *regs)
+static void dwc_otg_core_init(struct dwc2_priv *priv)
 {
+	struct dwc2_core_regs *regs = priv->regs;
 	uint32_t ahbcfg = 0;
 	uint32_t usbcfg = 0;
 	uint8_t brst_sz = CONFIG_DWC2_DMA_BURST_SIZE;
@@ -1056,7 +1057,7 @@ static int dwc2_init_common(struct dwc2_priv *priv)
 		return -ENODEV;
 	}
 
-	dwc_otg_core_init(regs);
+	dwc_otg_core_init(priv);
 	dwc_otg_core_host_init(regs);
 
 	clrsetbits_le32(&regs->hprt0, DWC2_HPRT0_PRTENA |
