@@ -39,6 +39,7 @@ struct dwc2_priv {
 	u8 out_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
+	bool ext_vbus;
 };
 
 #ifndef CONFIG_DM_USB
@@ -263,13 +264,13 @@ static void dwc_otg_core_init(struct dwc2_priv *priv)
 	usbcfg = readl(&regs->gusbcfg);
 
 	/* Program the ULPI External VBUS bit if needed */
-#ifdef CONFIG_DWC2_PHY_ULPI_EXT_VBUS
-	usbcfg |= (DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV |
-		   DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
-		   DWC2_GUSBCFG_INDICATOR_PASSTHROUGH);
-#else
-	usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
-#endif
+	if (priv->ext_vbus) {
+		usbcfg |= (DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV |
+			   DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
+			   DWC2_GUSBCFG_INDICATOR_PASSTHROUGH);
+	} else {
+		usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+	}
 
 	/* Set external TS Dline pulsing */
 #ifdef CONFIG_DWC2_TS_DLINE
@@ -1056,6 +1057,12 @@ static int dwc2_init_common(struct dwc2_priv *priv)
 		printf("SNPSID invalid (not DWC2 OTG device): %08x\n", snpsid);
 		return -ENODEV;
 	}
+
+#ifdef CONFIG_DWC2_PHY_ULPI_EXT_VBUS
+	priv->ext_vbus = 1;
+#else
+	priv->ext_vbus = 0;
+#endif
 
 	dwc_otg_core_init(priv);
 	dwc_otg_core_host_init(regs);
