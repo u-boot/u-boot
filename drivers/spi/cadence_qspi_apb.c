@@ -193,64 +193,6 @@ static unsigned int cadence_qspi_apb_cmd2addr(const unsigned char *addr_buf,
 	return addr;
 }
 
-static void cadence_qspi_apb_read_fifo_data(void *dest,
-	const void *src_ahb_addr, unsigned int bytes)
-{
-	unsigned int temp;
-	int remaining = bytes;
-	unsigned int *dest_ptr = (unsigned int *)dest;
-	unsigned int *src_ptr = (unsigned int *)src_ahb_addr;
-
-	while (remaining >= sizeof(dest_ptr)) {
-		*dest_ptr = readl(src_ptr);
-		remaining -= sizeof(src_ptr);
-		dest_ptr++;
-	}
-	if (remaining) {
-		/* dangling bytes */
-		temp = readl(src_ptr);
-		memcpy(dest_ptr, &temp, remaining);
-	}
-
-	return;
-}
-
-/* Read from SRAM FIFO with polling SRAM fill level. */
-static int qspi_read_sram_fifo_poll(const void *reg_base, void *dest_addr,
-			const void *src_addr,  unsigned int num_bytes)
-{
-	unsigned int remaining = num_bytes;
-	unsigned int retry;
-	unsigned int sram_level = 0;
-	unsigned char *dest = (unsigned char *)dest_addr;
-
-	while (remaining > 0) {
-		retry = CQSPI_REG_RETRY;
-		while (retry--) {
-			sram_level = CQSPI_GET_RD_SRAM_LEVEL(reg_base);
-			if (sram_level)
-				break;
-			udelay(1);
-		}
-
-		if (!retry) {
-			printf("QSPI: No receive data after polling for %d times\n",
-			       CQSPI_REG_RETRY);
-			return -1;
-		}
-
-		sram_level *= CQSPI_FIFO_WIDTH;
-		sram_level = sram_level > remaining ? remaining : sram_level;
-
-		/* Read data from FIFO. */
-		cadence_qspi_apb_read_fifo_data(dest, src_addr, sram_level);
-		dest += sram_level;
-		remaining -= sram_level;
-		udelay(1);
-	}
-	return 0;
-}
-
 void cadence_qspi_apb_controller_enable(void *reg_base)
 {
 	unsigned int reg;
@@ -679,40 +621,84 @@ int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 	return 0;
 }
 
-int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
-	unsigned int rxlen, u8 *rxbuf)
+static u32 cadence_qspi_get_rd_sram_level(struct cadence_spi_platdata *plat)
 {
-	unsigned int reg;
+	u32 reg = readl(plat->regbase + CQSPI_REG_SDRAMLEVEL);
+	reg >>= CQSPI_REG_SDRAMLEVEL_RD_LSB;
+	return reg & CQSPI_REG_SDRAMLEVEL_RD_MASK;
+}
 
-	writel(rxlen, plat->regbase + CQSPI_REG_INDIRECTRDBYTES);
+static int cadence_qspi_wait_for_data(struct cadence_spi_platdata *plat)
+{
+	unsigned int timeout = 10000;
+	u32 reg;
+
+	while (timeout--) {
+		reg = cadence_qspi_get_rd_sram_level(plat);
+		if (reg)
+			return reg;
+		udelay(1);
+	}
+
+	return -ETIMEDOUT;
+}
+
+int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
+	unsigned int n_rx, u8 *rxbuf)
+{
+	unsigned int remaining = n_rx;
+	unsigned int bytes_to_read = 0;
+	int ret;
+
+	writel(n_rx, plat->regbase + CQSPI_REG_INDIRECTRDBYTES);
 
 	/* Start the indirect read transfer */
 	writel(CQSPI_REG_INDIRECTRD_START_MASK,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
 
-	if (qspi_read_sram_fifo_poll(plat->regbase, (void *)rxbuf,
-				     (const void *)plat->ahbbase, rxlen))
-		goto failrd;
+	while (remaining > 0) {
+		ret = cadence_qspi_wait_for_data(plat);
+		if (ret < 0) {
+			printf("Indirect write timed out (%i)\n", ret);
+			goto failrd;
+		}
 
-	/* Check flash indirect controller */
-	reg = readl(plat->regbase + CQSPI_REG_INDIRECTRD);
-	if (!(reg & CQSPI_REG_INDIRECTRD_DONE_MASK)) {
-		reg = readl(plat->regbase + CQSPI_REG_INDIRECTRD);
-		printf("QSPI: indirect completion status error with reg 0x%08x\n",
-		       reg);
+		bytes_to_read = ret;
+
+		while (bytes_to_read != 0) {
+			bytes_to_read *= CQSPI_FIFO_WIDTH;
+			bytes_to_read = bytes_to_read > remaining ?
+					remaining : bytes_to_read;
+			/* Handle non-4-byte aligned access to avoid data abort. */
+			if (((uintptr_t)rxbuf % 4) || (bytes_to_read % 4))
+				readsb(plat->ahbbase, rxbuf, bytes_to_read);
+			else
+				readsl(plat->ahbbase, rxbuf, bytes_to_read >> 2);
+			rxbuf += bytes_to_read;
+			remaining -= bytes_to_read;
+			bytes_to_read = cadence_qspi_get_rd_sram_level(plat);
+		}
+	}
+
+	/* Check indirect done status */
+	ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_INDIRECTRD,
+			   CQSPI_REG_INDIRECTRD_DONE_MASK, 1, 10, 0);
+	if (ret) {
+		printf("Indirect read completion error (%i)\n", ret);
 		goto failrd;
 	}
 
 	/* Clear indirect completion status */
 	writel(CQSPI_REG_INDIRECTRD_DONE_MASK,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
+
 	return 0;
 
 failrd:
 	/* Cancel the indirect read */
 	writel(CQSPI_REG_INDIRECTRD_CANCEL_MASK,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
-	return -1;
+	return ret;
 }
 
 /* Opcode + Address (3/4 bytes) */
