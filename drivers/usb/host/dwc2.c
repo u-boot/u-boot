@@ -18,6 +18,8 @@
 
 #include "dwc2.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Use only HC channel 0. */
 #define DWC2_HC_CHANNEL			0
 
@@ -40,6 +42,7 @@ struct dwc2_priv {
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
 	bool ext_vbus;
+	bool oc_disable;
 };
 
 #ifndef CONFIG_DM_USB
@@ -265,9 +268,11 @@ static void dwc_otg_core_init(struct dwc2_priv *priv)
 
 	/* Program the ULPI External VBUS bit if needed */
 	if (priv->ext_vbus) {
-		usbcfg |= (DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV |
-			   DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
-			   DWC2_GUSBCFG_INDICATOR_PASSTHROUGH);
+		usbcfg |= DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+		if (!priv->oc_disable) {
+			usbcfg |= DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
+				  DWC2_GUSBCFG_INDICATOR_PASSTHROUGH;
+		}
 	} else {
 		usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
 	}
@@ -1177,12 +1182,18 @@ static int dwc2_submit_int_msg(struct udevice *dev, struct usb_device *udev,
 static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc2_priv *priv = dev_get_priv(dev);
+	const void *prop;
 	fdt_addr_t addr;
 
 	addr = dev_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 	priv->regs = (struct dwc2_core_regs *)addr;
+
+	prop = fdt_getprop(gd->fdt_blob, dev->of_offset, "disable-over-current",
+			   NULL);
+	if (prop)
+		priv->oc_disable = true;
 
 	return 0;
 }
