@@ -142,7 +142,7 @@ int cpu_init_r(void)
 	return 0;
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 }
 
