@@ -143,6 +143,8 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	/* palette default entry */
 	memset((void *)gd->fb_base, 0, 0x20);
 	*(unsigned int *)gd->fb_base = 0x4000;
+	/* point fb behind palette */
+	gd->fb_base += 0x20;
 
 	/* turn ON display through powercontrol function if accessible */
 	if (0 != panel->panel_power_ctrl)
@@ -154,9 +156,9 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	lcdhw->raster_ctrl = 0;
 	lcdhw->ctrl = LCD_CLK_DIVISOR(panel->pxl_clk_div) | LCD_RASTER_MODE;
 	lcdhw->lcddma_fb0_base = gd->fb_base;
-	lcdhw->lcddma_fb0_ceiling = gd->fb_base + FBSIZE(panel) + 0x20;
+	lcdhw->lcddma_fb0_ceiling = gd->fb_base + FBSIZE(panel);
 	lcdhw->lcddma_fb1_base = gd->fb_base;
-	lcdhw->lcddma_fb1_ceiling = gd->fb_base + FBSIZE(panel) + 0x20;
+	lcdhw->lcddma_fb1_ceiling = gd->fb_base + FBSIZE(panel);
 	lcdhw->lcddma_ctrl = LCD_DMA_BURST_SIZE(LCD_DMA_BURST_16);
 
 	lcdhw->raster_timing0 = LCD_HORLSB(panel->hactive) |
@@ -178,8 +180,6 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 				LCD_PALMODE_RAWDATA |
 				LCD_TFT_MODE |
 				LCD_RASTER_ENABLE;
-
-	gd->fb_base += 0x20;	/* point fb behind palette */
 
 	debug("am335x-fb: waiting picture to be stable.\n.");
 	mdelay(panel->pon_delay);
