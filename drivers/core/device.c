@@ -657,8 +657,8 @@ fdt_addr_t dev_get_addr_name(struct udevice *dev, const char *name)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	int index;
 
-	index = fdt_find_string(gd->fdt_blob, dev->parent->of_offset,
-				"reg-names", name);
+	index = fdt_find_string(gd->fdt_blob, dev->of_offset, "reg-names",
+				name);
 	if (index < 0)
 		return index;
 
