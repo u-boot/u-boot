@@ -73,7 +73,7 @@ void spl_set_header_raw_uboot(void)
 	spl_image.name = "U-Boot";
 }
 
-void spl_parse_image_header(const struct image_header *header)
+int spl_parse_image_header(const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
 
@@ -118,6 +118,7 @@ void spl_parse_image_header(const struct image_header *header)
 		spl_set_header_raw_uboot();
 #endif
 	}
+	return 0;
 }
 
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
