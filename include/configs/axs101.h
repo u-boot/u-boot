@@ -59,7 +59,6 @@
  * I2C configuration
  */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_DW
 #define CONFIG_I2C_ENV_EEPROM_BUS	2
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SPEED1		100000
