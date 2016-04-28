@@ -214,7 +214,9 @@ WEAK(lowlevel_init)
 	ldr	x1, =GICC_BASE
 	bl	gic_init_secure_percpu
 #endif
+#endif
 
+#ifndef CONFIG_ARMV8_MULTIENTRY
 	branch_if_master x0, x1, 2f
 
 	/*
