@@ -51,5 +51,6 @@ struct cpsw_platform_data {
 };
 
 int cpsw_register(struct cpsw_platform_data *data);
+int ti_cm_get_macid(struct udevice *dev, int slave, u8 *mac_addr);
 
 #endif /* _CPSW_H_  */

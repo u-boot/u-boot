@@ -26,6 +26,7 @@
 #include <phy.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1151,9 +1152,8 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	int node = dev->of_offset;
 	int subnode;
 	int slave_index = 0;
-	uint32_t mac_hi, mac_lo;
-	fdt32_t gmii = 0;
 	int active_slave;
+	int ret;
 
 	pdata->iobase = dev_get_addr(dev);
 	priv->data.version = CPSW_CTRL_VERSION_2;
@@ -1250,20 +1250,11 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		priv->data.slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
 	}
 
-	subnode = fdtdec_lookup_phandle(fdt, node, "syscon");
-	priv->data.mac_id = fdt_translate_address((void *)fdt, subnode, &gmii);
-	priv->data.mac_id += AM335X_GMII_SEL_OFFSET;
-	priv->data.mac_id += active_slave * 8;
-
-	/* try reading mac address from efuse */
-	mac_lo = readl(priv->data.mac_id);
-	mac_hi = readl(priv->data.mac_id + 4);
-	pdata->enetaddr[0] = mac_hi & 0xFF;
-	pdata->enetaddr[1] = (mac_hi & 0xFF00) >> 8;
-	pdata->enetaddr[2] = (mac_hi & 0xFF0000) >> 16;
-	pdata->enetaddr[3] = (mac_hi & 0xFF000000) >> 24;
-	pdata->enetaddr[4] = mac_lo & 0xFF;
-	pdata->enetaddr[5] = (mac_lo & 0xFF00) >> 8;
+	ret = ti_cm_get_macid(dev, active_slave, pdata->enetaddr);
+	if (ret < 0) {
+		error("cpsw read efuse mac failed\n");
+		return ret;
+	}
 
 	pdata->phy_interface = priv->data.slave_data[active_slave].phy_if;
 	if (pdata->phy_interface == -1) {
@@ -1284,6 +1275,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		writel(RGMII_MODE_ENABLE, priv->data.gmii_sel);
 		break;
 	}
+
 	return 0;
 }
 
