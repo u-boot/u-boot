@@ -43,7 +43,7 @@ static struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_MMC1, "eMMC (High Speed SDR, 8bit, 1.8V, Training Off)"},
 	{BOOT_DEVICE_MMC1, "eMMC (High Speed SDR, 8bit, 1.8V, Training On)"},
 	{BOOT_DEVICE_MMC1, "eMMC (Legacy,         4bit, 1.8V, Training Off)"},
-	{BOOT_DEVICE_NONE, "Reserved"},
+	{BOOT_DEVICE_NOR,  "NOR Boot (XECS1)"},
 };
 
 static int get_boot_mode_sel(void)
