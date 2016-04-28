@@ -1137,6 +1137,11 @@ static const struct eth_ops cpsw_eth_ops = {
 	.stop		= cpsw_eth_stop,
 };
 
+static inline fdt_addr_t cpsw_get_addr_by_node(const void *fdt, int node)
+{
+	return fdtdec_get_addr_size_auto_noparent(fdt, node, "reg", 0, NULL);
+}
+
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
@@ -1202,8 +1207,14 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 
 		name = fdt_get_name(fdt, subnode, &len);
 		if (!strncmp(name, "mdio", 4)) {
-			priv->data.mdio_base = fdtdec_get_addr(fdt, subnode,
-							       "reg");
+			u32 mdio_base;
+
+			mdio_base = cpsw_get_addr_by_node(fdt, subnode);
+			if (mdio_base == FDT_ADDR_T_NONE) {
+				error("Not able to get MDIO address space\n");
+				return -ENOENT;
+			}
+			priv->data.mdio_base = mdio_base;
 		}
 
 		if (!strncmp(name, "slave", 5)) {
@@ -1221,8 +1232,13 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		}
 
 		if (!strncmp(name, "cpsw-phy-sel", 12)) {
-			priv->data.gmii_sel = fdtdec_get_addr(fdt, subnode,
-							      "reg");
+			priv->data.gmii_sel = cpsw_get_addr_by_node(fdt,
+								    subnode);
+
+			if (priv->data.gmii_sel == FDT_ADDR_T_NONE) {
+				error("Not able to get gmii_sel reg address\n");
+				return -ENOENT;
+			}
 		}
 	}
 
