@@ -1411,7 +1411,7 @@
 			ti,irqs-safe-map = <0>;
 		};
 
-		mac: ethernet@4a100000 {
+		mac: ethernet@48484000 {
 			compatible = "ti,cpsw";
 			ti,hwmods = "gmac";
 			clocks = <&dpll_gmac_ck>, <&gmac_gmii_ref_clk_div>;
