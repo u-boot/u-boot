@@ -1209,10 +1209,8 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		if (!strncmp(name, "slave", 5)) {
 			u32 phy_id[2];
 
-			if (slave_index >= priv->data.slaves) {
-				printf("error: num slaves and slave nodes did not match\n");
-				return -EINVAL;
-			}
+			if (slave_index >= priv->data.slaves)
+				continue;
 			phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
 			if (phy_mode)
 				priv->data.slave_data[slave_index].phy_if =
