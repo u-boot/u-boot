@@ -140,20 +140,47 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	image_entry();
 }
 
+#ifndef CONFIG_SPL_LOAD_FIT_ADDRESS
+# define CONFIG_SPL_LOAD_FIT_ADDRESS	0
+#endif
+
 #ifdef CONFIG_SPL_RAM_DEVICE
+static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
+			       ulong count, void *buf)
+{
+	debug("%s: sector %lx, count %lx, buf %lx\n",
+	      __func__, sector, count, (ulong)buf);
+	memcpy(buf, (void *)(CONFIG_SPL_LOAD_FIT_ADDRESS + sector), count);
+	return count;
+}
+
 static int spl_ram_load_image(void)
 {
-	const struct image_header *header;
+	struct image_header *header;
 
-	/*
-	 * Get the header.  It will point to an address defined by handoff
-	 * which will tell where the image located inside the flash. For
-	 * now, it will temporary fixed to address pointed by U-Boot.
-	 */
-	header = (struct image_header *)
-		(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
+	header = (struct image_header *)CONFIG_SPL_LOAD_FIT_ADDRESS;
 
-	spl_parse_image_header(header);
+	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+	    image_get_magic(header) == FDT_MAGIC) {
+		struct spl_load_info load;
+
+		debug("Found FIT\n");
+		load.bl_len = 1;
+		load.read = spl_ram_load_read;
+		spl_load_simple_fit(&load, 0, header);
+	} else {
+		debug("Legacy image\n");
+		/*
+		 * Get the header.  It will point to an address defined by
+		 * handoff which will tell where the image located inside
+		 * the flash. For now, it will temporary fixed to address
+		 * pointed by U-Boot.
+		 */
+		header = (struct image_header *)
+			(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
+
+		spl_parse_image_header(header);
+	}
 
 	return 0;
 }
