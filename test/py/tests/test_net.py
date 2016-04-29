@@ -89,6 +89,7 @@ def test_net_dhcp(u_boot_console):
 
     u_boot_console.run_command('setenv autoload no')
     output = u_boot_console.run_command('dhcp')
+    assert 'TIMEOUT' not in output
     assert 'DHCP client bound to address ' in output
 
     global net_set_up
@@ -125,6 +126,7 @@ def test_net_ping(u_boot_console):
         pytest.skip('Network not initialized')
 
     output = u_boot_console.run_command('ping $serverip')
+    assert 'TIMEOUT' not in output
     assert 'is alive' in output
 
 @pytest.mark.buildconfigspec('cmd_net')
