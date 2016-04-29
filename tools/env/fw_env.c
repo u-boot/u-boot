@@ -1325,6 +1325,9 @@ static int parse_config ()
 	struct stat st;
 
 #if defined(CONFIG_FILE)
+	if (!common_args.config_file)
+		common_args.config_file = CONFIG_FILE;
+
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
 	if (get_config(common_args.config_file)) {
 		fprintf(stderr, "Cannot parse config file '%s': %m\n",
