@@ -69,6 +69,7 @@ struct iou_scntr_secure {
 #define SD_MODE1	0x00000005 /* sd 1 */
 #define NAND_MODE	0x00000004
 #define EMMC_MODE	0x00000006
+#define USB_MODE	0x00000007
 #define JTAG_MODE	0x00000000
 #define BOOT_MODE_USE_ALT	0x100
 #define BOOT_MODE_ALT_SHIFT	12
