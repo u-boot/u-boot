@@ -46,6 +46,7 @@ env__net_tftp_readable_file = {
     "addr": 0x10000000,
     "size": 5058624,
     "crc32": "c2244b26",
+    "timeout": 50000,
 }
 """
 
@@ -140,8 +141,12 @@ def test_net_tftpboot(u_boot_console):
     if not addr:
         addr = u_boot_utils.find_ram_base(u_boot_console)
 
+    timeout = f.get('timeout', u_boot_console.p.timeout)
+
     fn = f['fn']
-    output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+    with u_boot_console.temporary_timeout(timeout):
+        output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+
     expected_text = 'Bytes transferred = '
     sz = f.get('size', None)
     if sz:
