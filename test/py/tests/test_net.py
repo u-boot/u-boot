@@ -45,6 +45,7 @@ env__net_tftp_readable_file = {
     'addr': 0x10000000,
     'size': 5058624,
     'crc32': 'c2244b26',
+    'timeout": 50000,
 }
 
 # Details regarding a file that may be read from a NFS server. This variable
@@ -146,15 +147,20 @@ def test_net_tftpboot(u_boot_console):
 
     addr = f.get('addr', None)
 
+    timeout = f.get('timeout', u_boot_console.p.timeout)
+
     fn = f['fn']
-    if not addr:
-        output = u_boot_console.run_command('tftpboot %s' % (fn))
-    else:
-        output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+    with u_boot_console.temporary_timeout(timeout):
+        if not addr:
+            output = u_boot_console.run_command('tftpboot %s' % (fn))
+        else:
+            output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+
     expected_text = 'Bytes transferred = '
     sz = f.get('size', None)
     if sz:
         expected_text += '%d' % sz
+    assert 'TIMEOUT' not in output
     assert expected_text in output
 
     expected_crc = f.get('crc32', None)
