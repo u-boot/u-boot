@@ -11,7 +11,7 @@ endif
 arch-$(CONFIG_CPU_ARM720T)	=-march=armv4
 arch-$(CONFIG_CPU_ARM920T)	=-march=armv4t
 arch-$(CONFIG_CPU_ARM926EJS)	=-march=armv5te
-arch-$(CONFIG_CPU_ARM946ES)	=-march=armv4
+arch-$(CONFIG_CPU_ARM946ES)	=-march=armv5te
 arch-$(CONFIG_CPU_SA1100)	=-march=armv4
 arch-$(CONFIG_CPU_PXA)		=
 arch-$(CONFIG_CPU_ARM1136)	=-march=armv5
