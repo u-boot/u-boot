@@ -678,7 +678,7 @@ u32 ddr3_get_device_width(u32 cs)
 	return (device_width == 0) ? 8 : 16;
 }
 
-float ddr3_get_device_size(u32 cs)
+static int ddr3_get_device_size(u32 cs)
 {
 	u32 device_size_low, device_size_high, device_size;
 	u32 data, cs_low_offset, cs_high_offset;
@@ -695,15 +695,15 @@ float ddr3_get_device_size(u32 cs)
 
 	switch (device_size) {
 	case 0:
-		return 2;
+		return 2048;
 	case 2:
-		return 0.5;
+		return 512;
 	case 3:
-		return 1;
+		return 1024;
 	case 4:
-		return 4;
+		return 4096;
 	case 5:
-		return 8;
+		return 8192;
 	case 1:
 	default:
 		DEBUG_INIT_C("Error: Wrong device size of Cs: ", cs, 1);
@@ -711,13 +711,13 @@ float ddr3_get_device_size(u32 cs)
 		 * Small value will give wrong emem size in
 		 * ddr3_calc_mem_cs_size
 		 */
-		return 0.01;
+		return 0;
 	}
 }
 
 int ddr3_calc_mem_cs_size(u32 cs, u32 *cs_size)
 {
-	float cs_mem_size;
+	int cs_mem_size;
 
 	/* Calculate in GiB */
 	cs_mem_size = ((ddr3_get_bus_width() / ddr3_get_device_width(cs)) *
@@ -731,21 +731,12 @@ int ddr3_calc_mem_cs_size(u32 cs, u32 *cs_size)
 	 */
 	cs_mem_size *= DDR_CONTROLLER_BUS_WIDTH_MULTIPLIER;
 
-	if (cs_mem_size == 0.125) {
-		*cs_size = 128 << 20;
-	} else if (cs_mem_size == 0.25) {
-		*cs_size = 256 << 20;
-	} else if (cs_mem_size == 0.5) {
-		*cs_size = 512 << 20;
-	} else if (cs_mem_size == 1) {
-		*cs_size = 1 << 30;
-	} else if (cs_mem_size == 2) {
-		*cs_size = 2 << 30;
-	} else {
+	if (!cs_mem_size || (cs_mem_size == 64) || (cs_mem_size == 4096)) {
 		DEBUG_INIT_C("Error: Wrong Memory size of Cs: ", cs, 1);
 		return MV_BAD_VALUE;
 	}
 
+	*cs_size = cs_mem_size << 20;
 	return MV_OK;
 }
 
