@@ -12,7 +12,6 @@
 
 struct block_drvr {
 	char *name;
-	struct blk_desc* (*get_dev)(int dev);
 	int (*select_hwpart)(int dev_num, int hwpart);
 };
 
