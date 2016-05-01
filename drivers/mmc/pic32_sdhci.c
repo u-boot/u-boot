@@ -41,7 +41,12 @@ static int pic32_sdhci_probe(struct udevice *dev)
 		return ret;
 	}
 
-	return add_sdhci(host, f_min_max[1], f_min_max[0]);
+	ret = add_sdhci(host, f_min_max[1], f_min_max[0]);
+	if (ret)
+		return ret;
+	host->mmc->dev = dev;
+
+	return 0;
 }
 
 static const struct udevice_id pic32_sdhci_ids[] = {

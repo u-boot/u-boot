@@ -381,6 +381,9 @@ struct mmc {
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */
 	int ddr_mode;
+#ifdef CONFIG_DM_MMC
+	struct udevice *dev;	/* Device for this MMC controller */
+#endif
 };
 
 struct mmc_hwpart_conf {

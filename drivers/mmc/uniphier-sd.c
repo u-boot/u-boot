@@ -725,6 +725,7 @@ int uniphier_sd_probe(struct udevice *dev)
 		return -EIO;
 
 	upriv->mmc = priv->mmc;
+	priv->mmc->dev = dev;
 
 	return 0;
 }
