@@ -106,7 +106,7 @@ static uint32_t gen_true_ecc(uint8_t *ecc_buf)
 
 /*
  * omap_correct_data - Compares the ecc read from nand spare area with ECC
- * registers values and corrects one bit error if it has occured
+ * registers values and corrects one bit error if it has occurred
  * Further details can be had from OMAP TRM and the following selected links:
  * http://en.wikipedia.org/wiki/Hamming_code
  * http://www.cs.utexas.edu/users/plaxton/c/337/05f/slides/ErrorCorrection-4.pdf
@@ -479,7 +479,7 @@ static void omap_reverse_list(u8 *list, unsigned int length)
 
 /*
  * omap_correct_data_bch - Compares the ecc read from nand spare area
- * with ECC registers values and corrects one bit error if it has occured
+ * with ECC registers values and corrects one bit error if it has occurred
  *
  * @mtd:	MTD device structure
  * @dat:	page data

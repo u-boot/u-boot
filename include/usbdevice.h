@@ -438,7 +438,7 @@ typedef enum usb_device_event {
 	DEVICE_HUB_RESET,	/* bi  - bus has been unplugged */
 	DEVICE_DESTROY,		/* bi  - device instance should be destroyed */
 
-	DEVICE_HOTPLUG,		/* bi  - a hotplug event has occured */
+	DEVICE_HOTPLUG,		/* bi  - a hotplug event has occurred */
 
 	DEVICE_FUNCTION_PRIVATE,	/* function - private */
 

@@ -326,7 +326,7 @@ handle_exception (struct pt_regs *regs)
 		return (0);
 	}
 
-	/* probably should check which exception occured as well */
+	/* probably should check which exception occurred as well */
 	if (longjmp_on_fault) {
 		longjmp_on_fault = 0;
 		kgdb_longjmp(error_jmp_buf, KGDBERR_MEMFAULT);
