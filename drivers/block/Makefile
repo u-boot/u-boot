@@ -7,6 +7,10 @@
 
 obj-$(CONFIG_BLK) += blk-uclass.o
 
+ifndef CONFIG_BLK
+obj-y += blk_legacy.o
+endif
+
 obj-$(CONFIG_AHCI) += ahci-uclass.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o
 obj-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
