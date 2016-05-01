@@ -68,10 +68,6 @@ static u16 ace_readw(unsigned off)
 	return in16(base + off);
 }
 
-static unsigned long systemace_read(struct blk_desc *block_dev,
-				    unsigned long start, lbaint_t blkcnt,
-				    void *buffer);
-
 static struct blk_desc systemace_dev = { 0 };
 
 static int get_cf_lock(void)
@@ -101,33 +97,6 @@ static void release_cf_lock(void)
 	unsigned val = ace_readw(0x18);
 	val &= ~(0x0002);
 	ace_writew((val & 0xffff), 0x18);
-}
-
-static int systemace_get_dev(int dev, struct blk_desc **descp)
-{
-	/* The first time through this, the systemace_dev object is
-	   not yet initialized. In that case, fill it in. */
-	if (systemace_dev.blksz == 0) {
-		systemace_dev.if_type = IF_TYPE_UNKNOWN;
-		systemace_dev.devnum = 0;
-		systemace_dev.part_type = PART_TYPE_UNKNOWN;
-		systemace_dev.type = DEV_TYPE_HARDDISK;
-		systemace_dev.blksz = 512;
-		systemace_dev.log2blksz = LOG2(systemace_dev.blksz);
-		systemace_dev.removable = 1;
-		systemace_dev.block_read = systemace_read;
-
-		/*
-		 * Ensure the correct bus mode (8/16 bits) gets enabled
-		 */
-		ace_writew(width == 8 ? 0 : 0x0001, 0);
-
-		part_init(&systemace_dev);
-
-	}
-	*descp = &systemace_dev;
-
-	return 0;
 }
 
 /*
@@ -254,6 +223,32 @@ static unsigned long systemace_read(struct blk_desc *block_dev,
 	release_cf_lock();
 
 	return blkcnt;
+}
+
+static int systemace_get_dev(int dev, struct blk_desc **descp)
+{
+	/* The first time through this, the systemace_dev object is
+	   not yet initialized. In that case, fill it in. */
+	if (systemace_dev.blksz == 0) {
+		systemace_dev.if_type = IF_TYPE_UNKNOWN;
+		systemace_dev.devnum = 0;
+		systemace_dev.part_type = PART_TYPE_UNKNOWN;
+		systemace_dev.type = DEV_TYPE_HARDDISK;
+		systemace_dev.blksz = 512;
+		systemace_dev.log2blksz = LOG2(systemace_dev.blksz);
+		systemace_dev.removable = 1;
+		systemace_dev.block_read = systemace_read;
+
+		/*
+		 * Ensure the correct bus mode (8/16 bits) gets enabled
+		 */
+		ace_writew(width == 8 ? 0 : 0x0001, 0);
+
+		part_init(&systemace_dev);
+	}
+	*descp = &systemace_dev;
+
+	return 0;
 }
 
 U_BOOT_LEGACY_BLK(systemace) = {
