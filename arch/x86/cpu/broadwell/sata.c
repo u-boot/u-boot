@@ -261,7 +261,7 @@ static const struct udevice_id broadwell_ahci_ids[] = {
 
 U_BOOT_DRIVER(ahci_broadwell_drv) = {
 	.name		= "ahci_broadwell",
-	.id		= UCLASS_DISK,
+	.id		= UCLASS_AHCI,
 	.of_match	= broadwell_ahci_ids,
 	.ofdata_to_platdata	= broadwell_sata_ofdata_to_platdata,
 	.probe		= broadwell_sata_probe,
