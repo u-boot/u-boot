@@ -723,7 +723,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		int devno, ok = 0;
 		if (argc == 2) {
 			for (devno = 0; ; ++devno) {
-				stor_dev = usb_stor_get_dev(devno);
+				stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+								  devno);
 				if (stor_dev == NULL)
 					break;
 				if (stor_dev->type != DEV_TYPE_UNKNOWN) {
@@ -736,7 +737,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 		} else {
 			devno = simple_strtoul(argv[2], NULL, 16);
-			stor_dev = usb_stor_get_dev(devno);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, devno);
 			if (stor_dev != NULL &&
 			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
@@ -762,7 +763,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			unsigned long n;
 			printf("\nUSB read: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
-			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+							  usb_stor_curr_dev);
 			n = blk_dread(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks read: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
@@ -783,7 +785,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			unsigned long n;
 			printf("\nUSB write: device %d block # %ld, count %ld"
 				" ... ", usb_stor_curr_dev, blk, cnt);
-			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+							  usb_stor_curr_dev);
 			n = blk_dwrite(stor_dev, blk, cnt, (ulong *)addr);
 			printf("%ld blocks write: %s\n", n,
 				(n == cnt) ? "OK" : "ERROR");
@@ -796,7 +799,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 			printf("\nUSB device %d: ", dev);
-			stor_dev = usb_stor_get_dev(dev);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, dev);
 			if (stor_dev == NULL) {
 				printf("unknown device\n");
 				return 1;
@@ -810,7 +813,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 0;
 		} else {
 			printf("\nUSB device %d: ", usb_stor_curr_dev);
-			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
+							  usb_stor_curr_dev);
 			dev_print(stor_dev);
 			if (stor_dev->type == DEV_TYPE_UNKNOWN)
 				return 1;

@@ -136,23 +136,6 @@ static unsigned long usb_stor_write(struct blk_desc *block_dev, lbaint_t blknr,
 #endif
 void uhci_show_temp_int_td(void);
 
-#ifdef CONFIG_PARTITIONS
-struct blk_desc *usb_stor_get_dev(int index)
-{
-#ifdef CONFIG_BLK
-	struct udevice *dev;
-	int ret;
-
-	ret = blk_get_device(IF_TYPE_USB, index, &dev);
-	if (ret)
-		return NULL;
-	return dev_get_uclass_platdata(dev);
-#else
-	return (index < usb_max_devs) ? &usb_dev_desc[index] : NULL;
-#endif
-}
-#endif
-
 static void usb_show_progress(void)
 {
 	debug(".");

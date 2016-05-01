@@ -36,6 +36,7 @@ obj-$(CONFIG_SPL_WATCHDOG_SUPPORT) += watchdog/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += usb/host/
 obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
 obj-$(CONFIG_SPL_SATA_SUPPORT) += block/
+obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += block/
 
 else
 
