@@ -270,7 +270,8 @@ int blk_next_device(struct udevice **devp);
  * @drv_name:	Driver name to use for the block device
  * @name:	Name for the device
  * @if_type:	Interface type (enum if_type_t)
- * @devnum:	Device number, specific to the interface type
+ * @devnum:	Device number, specific to the interface type, or -1 to
+ *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
  * @size:	Total size of the device in bytes
  * @devp:	the new device (which has not been probed)
@@ -298,6 +299,18 @@ int blk_prepare_device(struct udevice *dev);
  * @return 0 if OK, -ve on error
  */
 int blk_unbind_all(int if_type);
+
+/**
+ * blk_find_max_devnum() - find the maximum device number for an interface type
+ *
+ * Finds the last allocated device number for an interface type @if_type. The
+ * next number is safe to use for a newly allocated device.
+ *
+ * @if_type:	Interface type to scan
+ * @return maximum device number found, or -ENODEV if none, or other -ve on
+ * error
+ */
+int blk_find_max_devnum(enum if_type if_type);
 
 #else
 #include <errno.h>

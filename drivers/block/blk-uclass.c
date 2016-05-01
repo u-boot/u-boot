@@ -411,6 +411,26 @@ int blk_prepare_device(struct udevice *dev)
 	return 0;
 }
 
+int blk_find_max_devnum(enum if_type if_type)
+{
+	struct udevice *dev;
+	int max_devnum = -ENODEV;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_BLK, &uc);
+	if (ret)
+		return ret;
+	uclass_foreach_dev(dev, uc) {
+		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+		if (desc->if_type == if_type && desc->devnum > max_devnum)
+			max_devnum = desc->devnum;
+	}
+
+	return max_devnum;
+}
+
 int blk_create_device(struct udevice *parent, const char *drv_name,
 		      const char *name, int if_type, int devnum, int blksz,
 		      lbaint_t size, struct udevice **devp)
@@ -428,6 +448,15 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 	desc->lba = size / blksz;
 	desc->part_type = PART_TYPE_UNKNOWN;
 	desc->bdev = dev;
+	if (devnum == -1) {
+		ret = blk_find_max_devnum(if_type);
+		if (ret == -ENODEV)
+			devnum = 0;
+		else if (ret < 0)
+			return ret;
+		else
+			devnum = ret + 1;
+	}
 	desc->devnum = devnum;
 	*devp = dev;
 
