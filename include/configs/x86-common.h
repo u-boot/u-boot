@@ -100,7 +100,7 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_GETTIME
-#define CONFIG_CMD_SCSI
+#define CONFIG_SCSI
 
 #define CONFIG_CMD_ZBOOT
 

@@ -610,7 +610,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
-    #define CONFIG_CMD_SCSI
+    #define CONFIG_SCSI
 #endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */

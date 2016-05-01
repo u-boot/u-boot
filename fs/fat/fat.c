@@ -1254,7 +1254,7 @@ int file_fat_detectfs(void)
 
 #if defined(CONFIG_CMD_IDE) || \
     defined(CONFIG_CMD_SATA) || \
-    defined(CONFIG_CMD_SCSI) || \
+    defined(CONFIG_SCSI) || \
     defined(CONFIG_CMD_USB) || \
     defined(CONFIG_MMC)
 	printf("Interface:  ");
