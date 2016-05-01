@@ -560,13 +560,9 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	return 0;
 }
 
-int mmc_switch_part(int dev_num, unsigned int part_num)
+static int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
-	struct mmc *mmc = find_mmc_device(dev_num);
 	int ret;
-
-	if (!mmc)
-		return -1;
 
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)
@@ -578,7 +574,7 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 	 */
 	if ((ret == 0) || ((ret == -ENODEV) && (part_num == 0))) {
 		ret = mmc_set_capacity(mmc, part_num);
-		mmc->block_dev.hwpart = part_num;
+		mmc_get_blk_desc(mmc)->hwpart = part_num;
 	}
 
 	return ret;
@@ -598,7 +594,7 @@ static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
 		return -EMEDIUMTYPE;
 
-	ret = mmc_switch_part(desc->devnum, hwpart);
+	ret = mmc_switch_part(mmc, hwpart);
 	if (ret)
 		return ret;
 
@@ -619,7 +615,7 @@ int mmc_select_hwpart(int dev_num, int hwpart)
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
 		return -EMEDIUMTYPE;
 
-	ret = mmc_switch_part(dev_num, hwpart);
+	ret = mmc_switch_part(mmc, hwpart);
 	if (ret)
 		return ret;
 
