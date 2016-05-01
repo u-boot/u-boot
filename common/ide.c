@@ -890,13 +890,6 @@ void ide_init(void)
 	WATCHDOG_RESET();
 }
 
-#ifdef CONFIG_PARTITIONS
-struct blk_desc *ide_get_dev(int dev)
-{
-	return (dev < CONFIG_SYS_IDE_MAXDEVICE) ? &ide_dev_desc[dev] : NULL;
-}
-#endif
-
 /* We only need to swap data if we are running on a big endian cpu. */
 #if defined(__LITTLE_ENDIAN)
 __weak void ide_input_swap_data(int dev, ulong *sect_buf, int words)

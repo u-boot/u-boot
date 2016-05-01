@@ -23,7 +23,7 @@
 
 const struct block_drvr block_drvr[] = {
 #if defined(CONFIG_CMD_IDE)
-	{ .name = "ide", .get_dev = ide_get_dev, },
+	{ .name = "ide", },
 #endif
 #if defined(CONFIG_CMD_SATA)
 	{.name = "sata", .get_dev = sata_get_dev, },
