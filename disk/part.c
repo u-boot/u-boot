@@ -41,7 +41,7 @@ const struct block_drvr block_drvr[] = {
 	},
 #endif
 #if defined(CONFIG_SYSTEMACE)
-	{ .name = "ace", .get_dev = systemace_get_dev, },
+	{ .name = "ace", },
 #endif
 #if defined(CONFIG_SANDBOX)
 	{ .name = "host", .get_dev = host_get_dev, },

@@ -104,8 +104,7 @@ static void release_cf_lock(void)
 	ace_writew((val & 0xffff), 0x18);
 }
 
-#ifdef CONFIG_PARTITIONS
-struct blk_desc *systemace_get_dev(int dev)
+static int systemace_get_dev(int dev, struct blk_desc **descp)
 {
 	/* The first time through this, the systemace_dev object is
 	   not yet initialized. In that case, fill it in. */
@@ -127,14 +126,7 @@ struct blk_desc *systemace_get_dev(int dev)
 		part_init(&systemace_dev);
 
 	}
-
-	return &systemace_dev;
-}
-#endif
-
-static int systemace_get_devp(int dev, struct blk_desc **descp)
-{
-	*descp = systemace_get_dev(dev);
+	*descp = &systemace_dev;
 
 	return 0;
 }
@@ -269,5 +261,5 @@ U_BOOT_LEGACY_BLK(systemace) = {
 	.if_typename	= "ace",
 	.if_type	= IF_TYPE_SYSTEMACE,
 	.max_devs	= 1,
-	.get_dev	= systemace_get_devp,
+	.get_dev	= systemace_get_dev,
 };

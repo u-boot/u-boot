@@ -91,7 +91,6 @@ struct blk_desc *blk_get_dev(const char *ifname, int dev);
  * @return 0 if OK, other value for an error
  */
 int mmc_select_hwpart(int dev_num, int hwpart);
-struct blk_desc *systemace_get_dev(int dev);
 struct blk_desc *mg_disk_get_dev(int dev);
 struct blk_desc *host_get_dev(int dev);
 int host_get_dev_err(int dev, struct blk_desc **blk_devp);
@@ -171,7 +170,6 @@ extern const struct block_drvr block_drvr[];
 static inline struct blk_desc *blk_get_dev(const char *ifname, int dev)
 { return NULL; }
 static inline int mmc_select_hwpart(int dev_num, int hwpart) { return -1; }
-static inline struct blk_desc *systemace_get_dev(int dev) { return NULL; }
 static inline struct blk_desc *mg_disk_get_dev(int dev) { return NULL; }
 static inline struct blk_desc *host_get_dev(int dev) { return NULL; }
 
