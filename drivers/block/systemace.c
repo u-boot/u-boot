@@ -132,6 +132,13 @@ struct blk_desc *systemace_get_dev(int dev)
 }
 #endif
 
+static int systemace_get_devp(int dev, struct blk_desc **descp)
+{
+	*descp = systemace_get_dev(dev);
+
+	return 0;
+}
+
 /*
  * This function is called (by dereferencing the block_read pointer in
  * the dev_desc) to read blocks of data. The return value is the
@@ -257,3 +264,10 @@ static unsigned long systemace_read(struct blk_desc *block_dev,
 
 	return blkcnt;
 }
+
+U_BOOT_LEGACY_BLK(systemace) = {
+	.if_typename	= "ace",
+	.if_type	= IF_TYPE_SYSTEMACE,
+	.max_devs	= 1,
+	.get_dev	= systemace_get_devp,
+};

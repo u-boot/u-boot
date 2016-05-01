@@ -30,6 +30,7 @@ enum if_type {
 	IF_TYPE_SD,
 	IF_TYPE_SATA,
 	IF_TYPE_HOST,
+	IF_TYPE_SYSTEMACE,
 
 	IF_TYPE_COUNT,			/* Number of interface types */
 };
