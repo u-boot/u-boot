@@ -439,15 +439,6 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 	struct udevice *dev;
 	int ret;
 
-	ret = device_bind_driver(parent, drv_name, name, &dev);
-	if (ret)
-		return ret;
-	desc = dev_get_uclass_platdata(dev);
-	desc->if_type = if_type;
-	desc->blksz = blksz;
-	desc->lba = size / blksz;
-	desc->part_type = PART_TYPE_UNKNOWN;
-	desc->bdev = dev;
 	if (devnum == -1) {
 		ret = blk_find_max_devnum(if_type);
 		if (ret == -ENODEV)
@@ -457,6 +448,15 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 		else
 			devnum = ret + 1;
 	}
+	ret = device_bind_driver(parent, drv_name, name, &dev);
+	if (ret)
+		return ret;
+	desc = dev_get_uclass_platdata(dev);
+	desc->if_type = if_type;
+	desc->blksz = blksz;
+	desc->lba = size / blksz;
+	desc->part_type = PART_TYPE_UNKNOWN;
+	desc->bdev = dev;
 	desc->devnum = devnum;
 	*devp = dev;
 
