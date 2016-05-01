@@ -314,12 +314,14 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 	}
 	/* Switch to the RPMB partition */
 	original_part = mmc->block_dev.hwpart;
-	if (mmc_select_hwpart(curr_device, MMC_PART_RPMB) != 0)
+	if (blk_select_hwpart_devnum(IF_TYPE_MMC, curr_device, MMC_PART_RPMB) !=
+	    0)
 		return CMD_RET_FAILURE;
 	ret = cp->cmd(cmdtp, flag, argc, argv);
 
 	/* Return to original partition */
-	if (mmc_select_hwpart(curr_device, original_part) != 0)
+	if (blk_select_hwpart_devnum(IF_TYPE_MMC, curr_device, original_part) !=
+	    0)
 		return CMD_RET_FAILURE;
 	return ret;
 }
@@ -467,7 +469,7 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	ret = mmc_select_hwpart(dev, part);
+	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part);
 	printf("switch to partitions #%d, %s\n",
 	       part, (!ret) ? "OK" : "ERROR");
 	if (ret)

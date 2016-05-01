@@ -78,7 +78,8 @@ unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
 	if (!mmc)
 		return -1;
 
-	err = mmc_select_hwpart(dev_num, block_dev->hwpart);
+	err = blk_select_hwpart_devnum(IF_TYPE_MMC, dev_num,
+				       block_dev->hwpart);
 	if (err < 0)
 		return -1;
 
@@ -182,7 +183,7 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	if (!mmc)
 		return 0;
 
-	err = mmc_select_hwpart(dev_num, block_dev->hwpart);
+	err = blk_select_hwpart_devnum(IF_TYPE_MMC, dev_num, block_dev->hwpart);
 	if (err < 0)
 		return 0;
 

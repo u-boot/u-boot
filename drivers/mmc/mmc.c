@@ -257,7 +257,7 @@ static ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start,
 	if (!mmc)
 		return 0;
 
-	err = mmc_select_hwpart(dev_num, block_dev->hwpart);
+	err = blk_dselect_hwpart(block_dev, block_dev->hwpart);
 	if (err < 0)
 		return 0;
 
