@@ -34,10 +34,18 @@ void ide_led(uchar led, uchar status);
 
 void ide_init(void);
 struct blk_desc;
+struct udevice;
+#ifdef CONFIG_BLK
+ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+	       void *buffer);
+ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		const void *buffer);
+#else
 ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	       void *buffer);
 ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
+#endif
 
 #ifdef CONFIG_IDE_PREINIT
 int ide_preinit(void);

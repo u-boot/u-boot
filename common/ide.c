@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <ata.h>
+#include <dm.h>
 #include <ide.h>
 #include <watchdog.h>
 #include <asm/io.h>
@@ -873,8 +874,10 @@ void ide_init(void)
 		ide_dev_desc[i].log2blksz =
 			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
 		ide_dev_desc[i].lba = 0;
+#ifndef CONFIG_BLK
 		ide_dev_desc[i].block_read = ide_read;
 		ide_dev_desc[i].block_write = ide_write;
+#endif
 		if (!ide_bus_ok[IDE_BUS(i)])
 			continue;
 		ide_led(led, 1);	/* LED on       */
@@ -975,9 +978,17 @@ __weak void ide_input_data(int dev, ulong *sect_buf, int words)
 
 #endif /* CONFIG_IDE_SWAP_IO */
 
+#ifdef CONFIG_BLK
+ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+	       void *buffer)
+#else
 ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	       void *buffer)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char c;
@@ -1097,9 +1108,17 @@ IDE_READ_E:
 	return n;
 }
 
+#ifdef CONFIG_BLK
+ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		const void *buffer)
+#else
 ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char c;
@@ -1191,9 +1210,22 @@ int ide_device_present(int dev)
 }
 #endif
 
+#ifdef CONFIG_BLK
+static const struct blk_ops ide_blk_ops = {
+	.read	= ide_read,
+	.write	= ide_write,
+};
+
+U_BOOT_DRIVER(ide_blk) = {
+	.name		= "ide_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &ide_blk_ops,
+};
+#else
 U_BOOT_LEGACY_BLK(ide) = {
 	.if_typename	= "ide",
 	.if_type	= IF_TYPE_IDE,
 	.max_devs	= CONFIG_SYS_IDE_MAXDEVICE,
 	.desc		= ide_dev_desc,
 };
+#endif
