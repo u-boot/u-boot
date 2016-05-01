@@ -58,13 +58,13 @@ struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_RESET
-static void  ide_reset (void);
+static void  ide_reset(void);
 #else
 #define ide_reset()	/* dummy */
 #endif
 
 static void ide_ident(struct blk_desc *dev_desc);
-static uchar ide_wait  (int dev, ulong t);
+static uchar ide_wait(int dev, ulong t);
 
 #define IDE_TIME_OUT	2000	/* 2 sec timeout */
 
@@ -72,14 +72,15 @@ static uchar ide_wait  (int dev, ulong t);
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
+static void ident_cpy(unsigned char *dest, unsigned char *src,
+		      unsigned int len);
 
 #ifndef CONFIG_SYS_ATA_PORT_ADDR
 #define CONFIG_SYS_ATA_PORT_ADDR(port) (port)
 #endif
 
 #ifdef CONFIG_ATAPI
-static void	atapi_inquiry(struct blk_desc *dev_desc);
+static void atapi_inquiry(struct blk_desc *dev_desc);
 static ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr,
 			lbaint_t blkcnt, void *buffer);
 #endif
@@ -150,7 +151,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 	case 3:
 		if (strncmp(argv[1], "dev", 3) == 0) {
-			int dev = (int) simple_strtoul(argv[2], NULL, 10);
+			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 
 			printf("\nIDE device %d: ", dev);
 			if (dev >= CONFIG_SYS_IDE_MAXDEVICE) {
@@ -169,7 +170,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 			return 0;
 		} else if (strncmp(argv[1], "part", 4) == 0) {
-			int dev = (int) simple_strtoul(argv[2], NULL, 10);
+			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 
 			if (ide_dev_desc[dev].part_type != PART_TYPE_UNKNOWN) {
 				part_print(&ide_dev_desc[dev]);
@@ -194,13 +195,13 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #ifdef CONFIG_SYS_64BIT_LBA
 			lbaint_t blk = simple_strtoull(argv[3], NULL, 16);
 
-			printf("\nIDE read: device %d block # %lld, count %ld ... ",
-				curr_device, blk, cnt);
+			printf("\nIDE read: device %d block # %lld, count %ld...",
+			       curr_device, blk, cnt);
 #else
 			lbaint_t blk = simple_strtoul(argv[3], NULL, 16);
 
-			printf("\nIDE read: device %d block # %ld, count %ld ... ",
-				curr_device, blk, cnt);
+			printf("\nIDE read: device %d block # %ld, count %ld...",
+			       curr_device, blk, cnt);
 #endif
 
 			dev_desc = &ide_dev_desc[curr_device];
@@ -223,13 +224,13 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #ifdef CONFIG_SYS_64BIT_LBA
 			lbaint_t blk = simple_strtoull(argv[3], NULL, 16);
 
-			printf("\nIDE write: device %d block # %lld, count %ld ... ",
-				curr_device, blk, cnt);
+			printf("\nIDE write: device %d block # %lld, count %ld...",
+			       curr_device, blk, cnt);
 #else
 			lbaint_t blk = simple_strtoul(argv[3], NULL, 16);
 
-			printf("\nIDE write: device %d block # %ld, count %ld ... ",
-				curr_device, blk, cnt);
+			printf("\nIDE write: device %d block # %ld, count %ld...",
+			       curr_device, blk, cnt);
 #endif
 			n = ide_write(&ide_dev_desc[curr_device], blk, cnt,
 				      (ulong *)addr);
@@ -833,7 +834,7 @@ ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	}
 IDE_READ_E:
 	ide_led(DEVICE_LED(device), 0);	/* LED off      */
-	return (n);
+	return n;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -922,7 +923,7 @@ ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	}
 WR_OUT:
 	ide_led(DEVICE_LED(device), 0);	/* LED off      */
-	return (n);
+	return n;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -974,7 +975,7 @@ static uchar ide_wait(int dev, ulong t)
 		if (delay-- == 0)
 			break;
 	}
-	return (c);
+	return c;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1098,7 +1099,7 @@ static uchar atapi_wait_mask(int dev, ulong t, uchar mask, uchar res)
 		if (delay-- == 0)
 			break;
 	}
-	return (c);
+	return c;
 }
 
 /*
@@ -1142,7 +1143,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 
 	if ((c & mask) != res) {	/* DRQ must be 1, BSY 0 */
 		printf("ATAPI_ISSUE: Error (no IRQ) before sending ccb dev %d status 0x%02x\n",
-			device, c);
+		       device, c);
 		err = 0xFF;
 		goto AI_OUT;
 	}
@@ -1166,10 +1167,10 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 		if (c & ATA_STAT_ERR) {
 			err = (ide_inb(device, ATA_ERROR_REG)) >> 4;
 			debug("atapi_issue 1 returned sense key %X status %02X\n",
-				err, c);
+			      err, c);
 		} else {
 			printf("ATAPI_ISSUE: (no DRQ) after sending ccb (%x)  status 0x%02x\n",
-				ccb[0], c);
+			       ccb[0], c);
 			err = 0xFF;
 		}
 		goto AI_OUT;
@@ -1190,7 +1191,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	}
 	if (n != buflen) {
 		debug("WARNING, transfer bytes %d not equal with requested %d\n",
-			n, buflen);
+		      n, buflen);
 	}
 	if (n != 0) {		/* data transfer */
 		debug("ATAPI_ISSUE: %d Bytes to transfer\n", n);
@@ -1220,7 +1221,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	}
 AI_OUT:
 	ide_led(DEVICE_LED(device), 0);	/* LED off      */
-	return (err);
+	return err;
 }
 
 /*
@@ -1297,7 +1298,7 @@ retry:
 	       ascq);
 error:
 	debug("ERROR Sense key %02X ASC %02X ASCQ %02X\n", key, asc, ascq);
-	return (0xFF);
+	return 0xFF;
 }
 
 
@@ -1402,8 +1403,8 @@ ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;
 
-	debug("atapi_read dev %d start " LBAF " blocks " LBAF " buffer at %lX\n",
-	      device, blknr, blkcnt, (ulong) buffer);
+	debug("atapi_read dev %d start " LBAF " blocks " LBAF
+	      " buffer at %lX\n", device, blknr, blkcnt, (ulong) buffer);
 
 	do {
 		if (blkcnt > ATAPI_READ_MAX_BLOCK)
@@ -1428,14 +1429,14 @@ ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 					(unsigned char *) buffer,
 					cnt * ATAPI_READ_BLOCK_SIZE)
 		    == 0xFF) {
-			return (n);
+			return n;
 		}
 		n += cnt;
 		blkcnt -= cnt;
 		blknr += cnt;
 		buffer += (cnt * ATAPI_READ_BLOCK_SIZE);
 	} while (blkcnt > 0);
-	return (n);
+	return n;
 }
 
 /* ------------------------------------------------------------------------- */
