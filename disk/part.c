@@ -71,9 +71,7 @@ static struct part_driver *part_driver_lookup_type(int part_type)
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	const struct block_drvr *drvr = block_drvr;
-	int (*select_hwpart)(int dev_num, int hwpart);
 	char *name;
-	int ret;
 
 	if (!ifname)
 		return NULL;
@@ -84,11 +82,8 @@ static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 #endif
 	while (drvr->name) {
 		name = drvr->name;
-		select_hwpart = drvr->select_hwpart;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 		name += gd->reloc_off;
-		if (select_hwpart)
-			select_hwpart += gd->reloc_off;
 #endif
 		if (strncmp(ifname, name, strlen(name)) == 0) {
 			struct blk_desc *dev_desc;
@@ -96,12 +91,7 @@ static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 			dev_desc = blk_get_devnum_by_typename(name, dev);
 			if (!dev_desc)
 				return NULL;
-			if (hwpart == 0 && !select_hwpart)
-				return dev_desc;
-			if (!select_hwpart)
-				return NULL;
-			ret = select_hwpart(dev_desc->devnum, hwpart);
-			if (ret < 0)
+			if (blk_dselect_hwpart(dev_desc, hwpart))
 				return NULL;
 			return dev_desc;
 		}
