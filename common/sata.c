@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <sata.h>
 
 struct blk_desc sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
@@ -22,6 +23,19 @@ struct blk_desc *sata_get_dev(int dev)
 }
 #endif
 
+#ifdef CONFIG_BLK
+static unsigned long sata_bread(struct udevice *dev, lbaint_t start,
+				lbaint_t blkcnt, void *dst)
+{
+	return -ENOSYS;
+}
+
+static unsigned long sata_bwrite(struct udevice *dev, lbaint_t start,
+				 lbaint_t blkcnt, const void *buffer)
+{
+	return -ENOSYS;
+}
+#else
 static unsigned long sata_bread(struct blk_desc *block_dev, lbaint_t start,
 				lbaint_t blkcnt, void *dst)
 {
@@ -33,6 +47,7 @@ static unsigned long sata_bwrite(struct blk_desc *block_dev, lbaint_t start,
 {
 	return sata_write(block_dev->devnum, start, blkcnt, buffer);
 }
+#endif
 
 int __sata_initialize(void)
 {
@@ -48,9 +63,10 @@ int __sata_initialize(void)
 		sata_dev_desc[i].lba = 0;
 		sata_dev_desc[i].blksz = 512;
 		sata_dev_desc[i].log2blksz = LOG2(sata_dev_desc[i].blksz);
+#ifndef CONFIG_BLK
 		sata_dev_desc[i].block_read = sata_bread;
 		sata_dev_desc[i].block_write = sata_bwrite;
-
+#endif
 		rc = init_sata(i);
 		if (!rc) {
 			rc = scan_sata(i);
@@ -78,9 +94,22 @@ __weak int __sata_stop(void)
 }
 int sata_stop(void) __attribute__((weak, alias("__sata_stop")));
 
+#ifdef CONFIG_BLK
+static const struct blk_ops sata_blk_ops = {
+	.read	= sata_bread,
+	.write	= sata_bwrite,
+};
+
+U_BOOT_DRIVER(sata_blk) = {
+	.name		= "sata_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &sata_blk_ops,
+};
+#else
 U_BOOT_LEGACY_BLK(sata) = {
 	.if_typename	= "sata",
 	.if_type	= IF_TYPE_SATA,
 	.max_devs	= CONFIG_SYS_SATA_MAX_DEVICE,
 	.desc		= sata_dev_desc,
 };
+#endif
