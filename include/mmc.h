@@ -344,7 +344,9 @@ struct mmc_config {
 
 /* TODO struct mmc should be in mmc_private but it's hard to fix right now */
 struct mmc {
+#ifndef CONFIG_BLK
 	struct list_head link;
+#endif
 	const struct mmc_config *cfg;	/* provided configuration */
 	uint version;
 	void *priv;
@@ -376,7 +378,9 @@ struct mmc {
 	u64 capacity_gp[4];
 	u64 enh_user_start;
 	u64 enh_user_size;
+#ifndef CONFIG_BLK
 	struct blk_desc block_dev;
+#endif
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */

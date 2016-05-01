@@ -25,8 +25,13 @@ void mmc_adapter_card_type_ident(void);
 unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
 
-unsigned long mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
-			 lbaint_t blkcnt, const void *src);
+#ifdef CONFIG_BLK
+ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+		 const void *src);
+#else
+ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
+		 const void *src);
+#endif
 
 #else /* CONFIG_SPL_BUILD */
 

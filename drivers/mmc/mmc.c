@@ -216,9 +216,17 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	return blkcnt;
 }
 
+#ifdef CONFIG_BLK
+static ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+		       void *dst)
+#else
 static ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start,
 		       lbaint_t blkcnt, void *dst)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int dev_num = block_dev->devnum;
 	int err;
 	lbaint_t cur, blocks_todo = blkcnt;
@@ -580,6 +588,27 @@ static int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 	return ret;
 }
 
+#ifdef CONFIG_BLK
+static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
+{
+	struct udevice *mmc_dev = dev_get_parent(bdev);
+	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+	int ret;
+
+	if (desc->hwpart == hwpart)
+		return 0;
+
+	if (mmc->part_config == MMCPART_NOAVAILABLE)
+		return -EMEDIUMTYPE;
+
+	ret = mmc_switch_part(mmc, hwpart);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+#else
 static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
 {
 	struct mmc *mmc = find_mmc_device(desc->devnum);
@@ -600,27 +629,7 @@ static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
 
 	return 0;
 }
-
-int mmc_select_hwpart(int dev_num, int hwpart)
-{
-	struct mmc *mmc = find_mmc_device(dev_num);
-	int ret;
-
-	if (!mmc)
-		return -ENODEV;
-
-	if (mmc->block_dev.hwpart == hwpart)
-		return 0;
-
-	if (mmc->part_config == MMCPART_NOAVAILABLE)
-		return -EMEDIUMTYPE;
-
-	ret = mmc_switch_part(mmc, hwpart);
-	if (ret)
-		return ret;
-
-	return 0;
-}
+#endif
 
 int mmc_hwpart_config(struct mmc *mmc,
 		      const struct mmc_hwpart_conf *conf,
@@ -1554,7 +1563,6 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	mmc->dsr_imp = 0;
 	mmc->dsr = 0xffffffff;
 	/* Setup the universal parts of the block interface just once */
-	bdesc->if_type = IF_TYPE_MMC;
 	bdesc->removable = 1;
 
 	/* setup initial part type */
@@ -1623,6 +1631,7 @@ void mmc_destroy(struct mmc *mmc)
 }
 #endif
 
+#ifndef CONFIG_BLK
 static int mmc_get_dev(int dev, struct blk_desc **descp)
 {
 	struct mmc *mmc = find_mmc_device(dev);
@@ -1638,6 +1647,7 @@ static int mmc_get_dev(int dev, struct blk_desc **descp)
 
 	return 0;
 }
+#endif
 
 /* board-specific MMC power initializations. */
 __weak void board_mmc_power_init(void)
@@ -1729,7 +1739,11 @@ int mmc_init(struct mmc *mmc)
 {
 	int err = 0;
 	unsigned start;
+#ifdef CONFIG_DM_MMC
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc->dev);
 
+	upriv->mmc = mmc;
+#endif
 	if (mmc->has_init)
 		return 0;
 
@@ -1957,6 +1971,19 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
 }
 #endif
 
+#ifdef CONFIG_BLK
+static const struct blk_ops mmc_blk_ops = {
+	.read	= mmc_bread,
+	.write	= mmc_bwrite,
+	.select_hwpart	= mmc_select_hwpart,
+};
+
+U_BOOT_DRIVER(mmc_blk) = {
+	.name		= "mmc_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &mmc_blk_ops,
+};
+#else
 U_BOOT_LEGACY_BLK(mmc) = {
 	.if_typename	= "mmc",
 	.if_type	= IF_TYPE_MMC,
@@ -1964,3 +1991,4 @@ U_BOOT_LEGACY_BLK(mmc) = {
 	.get_dev	= mmc_get_dev,
 	.select_hwpart	= mmc_select_hwpartp,
 };
+#endif

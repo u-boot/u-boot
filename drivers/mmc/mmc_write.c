@@ -9,6 +9,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <part.h>
 #include <div64.h>
 #include <linux/math64.h>
@@ -172,9 +173,17 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	return blkcnt;
 }
 
+#ifdef CONFIG_BLK
+ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+		 const void *src)
+#else
 ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int dev_num = block_dev->devnum;
 	lbaint_t cur, blocks_todo = blkcnt;
 	int err;
