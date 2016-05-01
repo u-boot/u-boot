@@ -38,7 +38,11 @@ obj-$(CONFIG_ROCKCHIP_DWMMC) += rockchip_dw_mmc.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
 obj-$(CONFIG_S3C_SDI) += s3c_sdi.o
 obj-$(CONFIG_S5P_SDHCI) += s5p_sdhci.o
+ifdef CONFIG_BLK
+ifdef CONFIG_GENERIC_MMC
 obj-$(CONFIG_SANDBOX) += sandbox_mmc.o
+endif
+endif
 obj-$(CONFIG_SDHCI) += sdhci.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
