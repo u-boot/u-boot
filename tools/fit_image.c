@@ -343,7 +343,6 @@ static int fit_build(struct image_tool_params *params, const char *fname)
 	if (ret != size) {
 		fprintf(stderr, "%s: Can't write %s: %s\n",
 			params->cmdname, fname, strerror(errno));
-		close(fd);
 		goto err;
 	}
 	close(fd);
