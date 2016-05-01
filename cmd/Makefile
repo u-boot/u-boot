@@ -155,12 +155,6 @@ obj-$(CONFIG_CMD_PMIC) += pmic.o
 obj-$(CONFIG_CMD_REGULATOR) += regulator.o
 endif # !CONFIG_SPL_BUILD
 
-ifdef CONFIG_SPL_BUILD
-ifdef CONFIG_SPL_SATA_SUPPORT
-obj-$(CONFIG_SCSI) += scsi.o
-endif
-endif # CONFIG_SPL_BUILD
-
 obj-$(CONFIG_CMD_BLOB) += blob.o
 
 # core command
