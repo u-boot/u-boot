@@ -27,7 +27,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <systemace.h>
 #include <part.h>
 #include <asm/io.h>
 
