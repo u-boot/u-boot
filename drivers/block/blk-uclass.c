@@ -165,6 +165,18 @@ static int get_desc(enum if_type if_type, int devnum, struct blk_desc **descp)
 	return found_more ? -ENOENT : -ENODEV;
 }
 
+int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = blk_get_device(if_type, devnum, &dev);
+	if (ret)
+		return ret;
+
+	return blk_select_hwpart(dev, hwpart);
+}
+
 int blk_list_part(enum if_type if_type)
 {
 	struct blk_desc *desc;
@@ -289,6 +301,23 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
 	if (ret)
 		return ret;
 	return blk_dwrite(desc, start, blkcnt, buffer);
+}
+
+int blk_select_hwpart(struct udevice *dev, int hwpart)
+{
+	const struct blk_ops *ops = blk_get_ops(dev);
+
+	if (!ops)
+		return -ENOSYS;
+	if (!ops->select_hwpart)
+		return 0;
+
+	return ops->select_hwpart(dev, hwpart);
+}
+
+int blk_dselect_hwpart(struct blk_desc *desc, int hwpart)
+{
+	return blk_select_hwpart(desc->bdev, hwpart);
 }
 
 int blk_first_device(int if_type, struct udevice **devp)

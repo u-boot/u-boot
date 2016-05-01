@@ -211,6 +211,25 @@ struct blk_ops {
 	 */
 	unsigned long (*erase)(struct udevice *dev, lbaint_t start,
 			       lbaint_t blkcnt);
+
+	/**
+	 * select_hwpart() - select a particular hardware partition
+	 *
+	 * Some devices (e.g. MMC) can support partitioning at the hardware
+	 * level. This is quite separate from the normal idea of
+	 * software-based partitions. MMC hardware partitions must be
+	 * explicitly selected. Once selected only the region of the device
+	 * covered by that partition is accessible.
+	 *
+	 * The MMC standard provides for two boot partitions (numbered 1 and 2),
+	 * rpmb (3), and up to 4 addition general-purpose partitions (4-7).
+	 *
+	 * @desc:	Block device to update
+	 * @hwpart:	Hardware partition number to select. 0 means the raw
+	 *		device, 1 is the first partition, 2 is the second, etc.
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*select_hwpart)(struct udevice *dev, int hwpart);
 };
 
 #define blk_get_ops(dev)	((struct blk_ops *)(dev)->driver->ops)
@@ -328,6 +347,17 @@ int blk_unbind_all(int if_type);
  * error
  */
 int blk_find_max_devnum(enum if_type if_type);
+
+/**
+ * blk_select_hwpart() - select a hardware partition
+ *
+ * Select a hardware partition if the device supports it (typically MMC does)
+ *
+ * @dev:	Device to update
+ * @hwpart:	Partition number to select
+ * @return 0 if OK, -ve on error
+ */
+int blk_select_hwpart(struct udevice *dev, int hwpart);
 
 #else
 #include <errno.h>
