@@ -105,25 +105,27 @@ static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 1:
 		return CMD_RET_USAGE;
 	case 2:
-		if (strncmp(argv[1],"inf", 3) == 0) {
+		if (strncmp(argv[1], "inf", 3) == 0) {
 			int i;
+
 			putc('\n');
 			for (i = 0; i < CONFIG_SYS_SATA_MAX_DEVICE; ++i) {
 				if (sata_dev_desc[i].type == DEV_TYPE_UNKNOWN)
 					continue;
-				printf ("SATA device %d: ", i);
+				printf("SATA device %d: ", i);
 				dev_print(&sata_dev_desc[i]);
 			}
 			return 0;
-		} else if (strncmp(argv[1],"dev", 3) == 0) {
-			if ((sata_curr_device < 0) || (sata_curr_device >= CONFIG_SYS_SATA_MAX_DEVICE)) {
+		} else if (strncmp(argv[1], "dev", 3) == 0) {
+			if (sata_curr_device < 0 ||
+			    sata_curr_device >= CONFIG_SYS_SATA_MAX_DEVICE) {
 				puts("\nno SATA devices available\n");
 				return 1;
 			}
 			printf("\nSATA device %d: ", sata_curr_device);
 			dev_print(&sata_dev_desc[sata_curr_device]);
 			return 0;
-		} else if (strncmp(argv[1],"part",4) == 0) {
+		} else if (strncmp(argv[1], "part", 4) == 0) {
 			int dev, ok;
 
 			for (ok = 0, dev = 0; dev < CONFIG_SYS_SATA_MAX_DEVICE; ++dev) {
