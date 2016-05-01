@@ -50,59 +50,53 @@ static int scsi_curr_dev; /* current device */
 
 static struct blk_desc scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
 
-/****************************************************************************************
- * scsi_read
- */
-
 /* almost the maximum amount of the scsi_ext command.. */
 #define SCSI_MAX_READ_BLK 0xFFFF
 #define SCSI_LBA48_READ	0xFFFFFFF
 
 #ifdef CONFIG_SYS_64BIT_LBA
-void scsi_setup_read16(ccb * pccb, lbaint_t start, unsigned long blocks)
+void scsi_setup_read16(ccb *pccb, lbaint_t start, unsigned long blocks)
 {
 	pccb->cmd[0] = SCSI_READ16;
-	pccb->cmd[1] = pccb->lun<<5;
-	pccb->cmd[2] = ((unsigned char) (start >> 56)) & 0xff;
-	pccb->cmd[3] = ((unsigned char) (start >> 48)) & 0xff;
-	pccb->cmd[4] = ((unsigned char) (start >> 40)) & 0xff;
-	pccb->cmd[5] = ((unsigned char) (start >> 32)) & 0xff;
-	pccb->cmd[6] = ((unsigned char) (start >> 24)) & 0xff;
-	pccb->cmd[7] = ((unsigned char) (start >> 16)) & 0xff;
-	pccb->cmd[8] = ((unsigned char) (start >> 8)) & 0xff;
-	pccb->cmd[9] = ((unsigned char) (start)) & 0xff;
+	pccb->cmd[1] = pccb->lun << 5;
+	pccb->cmd[2] = (unsigned char)(start >> 56) & 0xff;
+	pccb->cmd[3] = (unsigned char)(start >> 48) & 0xff;
+	pccb->cmd[4] = (unsigned char)(start >> 40) & 0xff;
+	pccb->cmd[5] = (unsigned char)(start >> 32) & 0xff;
+	pccb->cmd[6] = (unsigned char)(start >> 24) & 0xff;
+	pccb->cmd[7] = (unsigned char)(start >> 16) & 0xff;
+	pccb->cmd[8] = (unsigned char)(start >> 8) & 0xff;
+	pccb->cmd[9] = (unsigned char)start & 0xff;
 	pccb->cmd[10] = 0;
-	pccb->cmd[11] = ((unsigned char) (blocks >> 24)) & 0xff;
-	pccb->cmd[12] = ((unsigned char) (blocks >> 16)) & 0xff;
-	pccb->cmd[13] = ((unsigned char) (blocks >> 8)) & 0xff;
-	pccb->cmd[14] = (unsigned char) blocks & 0xff;
+	pccb->cmd[11] = (unsigned char)(blocks >> 24) & 0xff;
+	pccb->cmd[12] = (unsigned char)(blocks >> 16) & 0xff;
+	pccb->cmd[13] = (unsigned char)(blocks >> 8) & 0xff;
+	pccb->cmd[14] = (unsigned char)blocks & 0xff;
 	pccb->cmd[15] = 0;
 	pccb->cmdlen = 16;
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
-	debug ("scsi_setup_read16: cmd: %02X %02X "
-	       "startblk %02X%02X%02X%02X%02X%02X%02X%02X "
-	       "blccnt %02X%02X%02X%02X\n",
-		pccb->cmd[0], pccb->cmd[1],
-		pccb->cmd[2], pccb->cmd[3], pccb->cmd[4], pccb->cmd[5],
-		pccb->cmd[6], pccb->cmd[7], pccb->cmd[8], pccb->cmd[9],
-		pccb->cmd[11], pccb->cmd[12], pccb->cmd[13], pccb->cmd[14]);
+	debug("scsi_setup_read16: cmd: %02X %02X startblk %02X%02X%02X%02X%02X%02X%02X%02X blccnt %02X%02X%02X%02X\n",
+	      pccb->cmd[0], pccb->cmd[1],
+	      pccb->cmd[2], pccb->cmd[3], pccb->cmd[4], pccb->cmd[5],
+	      pccb->cmd[6], pccb->cmd[7], pccb->cmd[8], pccb->cmd[9],
+	      pccb->cmd[11], pccb->cmd[12], pccb->cmd[13], pccb->cmd[14]);
 }
 #endif
 
 void scsi_setup_read_ext(ccb * pccb, lbaint_t start, unsigned short blocks)
 {
-	pccb->cmd[0]=SCSI_READ10;
-	pccb->cmd[1]=pccb->lun<<5;
-	pccb->cmd[2]=((unsigned char) (start>>24))&0xff;
-	pccb->cmd[3]=((unsigned char) (start>>16))&0xff;
-	pccb->cmd[4]=((unsigned char) (start>>8))&0xff;
-	pccb->cmd[5]=((unsigned char) (start))&0xff;
-	pccb->cmd[6]=0;
-	pccb->cmd[7]=((unsigned char) (blocks>>8))&0xff;
-	pccb->cmd[8]=(unsigned char) blocks & 0xff;
-	pccb->cmd[6]=0;
+	pccb->cmd[0] = SCSI_READ10;
+	pccb->cmd[1] = pccb->lun << 5;
+	pccb->cmd[2] = (unsigned char)(start >> 24) & 0xff;
+	pccb->cmd[3] = (unsigned char)(start >> 16) & 0xff;
+	pccb->cmd[4] = (unsigned char)(start >> 8) & 0xff;
+	pccb->cmd[5] = (unsigned char)start & 0xff;
+	pccb->cmd[6] = 0;
+	pccb->cmd[7] = (unsigned char)(blocks >> 8) & 0xff;
+	pccb->cmd[8] = (unsigned char)blocks & 0xff;
+	pccb->cmd[6] = 0;
 	pccb->cmdlen=10;
-	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
+	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 	debug ("scsi_setup_read_ext: cmd: %02X %02X startblk %02X%02X%02X%02X blccnt %02X%02X\n",
 		pccb->cmd[0],pccb->cmd[1],
 		pccb->cmd[2],pccb->cmd[3],pccb->cmd[4],pccb->cmd[5],
@@ -113,12 +107,12 @@ void scsi_setup_write_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
 {
 	pccb->cmd[0] = SCSI_WRITE10;
 	pccb->cmd[1] = pccb->lun << 5;
-	pccb->cmd[2] = ((unsigned char) (start>>24)) & 0xff;
-	pccb->cmd[3] = ((unsigned char) (start>>16)) & 0xff;
-	pccb->cmd[4] = ((unsigned char) (start>>8)) & 0xff;
-	pccb->cmd[5] = ((unsigned char) (start)) & 0xff;
+	pccb->cmd[2] = (unsigned char)(start >> 24) & 0xff;
+	pccb->cmd[3] = (unsigned char)(start >> 16) & 0xff;
+	pccb->cmd[4] = (unsigned char)(start >> 8) & 0xff;
+	pccb->cmd[5] = (unsigned char)start & 0xff;
 	pccb->cmd[6] = 0;
-	pccb->cmd[7] = ((unsigned char) (blocks>>8)) & 0xff;
+	pccb->cmd[7] = ((unsigned char)(blocks >> 8)) & 0xff;
 	pccb->cmd[8] = (unsigned char)blocks & 0xff;
 	pccb->cmd[9] = 0;
 	pccb->cmdlen = 10;
@@ -132,33 +126,33 @@ void scsi_setup_write_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
 
 void scsi_setup_read6(ccb * pccb, lbaint_t start, unsigned short blocks)
 {
-	pccb->cmd[0]=SCSI_READ6;
-	pccb->cmd[1]=pccb->lun<<5 | (((unsigned char)(start>>16))&0x1f);
-	pccb->cmd[2]=((unsigned char) (start>>8))&0xff;
-	pccb->cmd[3]=((unsigned char) (start))&0xff;
-	pccb->cmd[4]=(unsigned char) blocks & 0xff;
-	pccb->cmd[5]=0;
+	pccb->cmd[0] = SCSI_READ6;
+	pccb->cmd[1] = pccb->lun << 5 | ((unsigned char)(start >> 16) & 0x1f);
+	pccb->cmd[2] = (unsigned char)(start >> 8) & 0xff;
+	pccb->cmd[3] = (unsigned char)start & 0xff;
+	pccb->cmd[4] = (unsigned char)blocks & 0xff;
+	pccb->cmd[5] = 0;
 	pccb->cmdlen=6;
-	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
-	debug ("scsi_setup_read6: cmd: %02X %02X startblk %02X%02X blccnt %02X\n",
-		pccb->cmd[0],pccb->cmd[1],
-		pccb->cmd[2],pccb->cmd[3],pccb->cmd[4]);
+	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
+	debug("scsi_setup_read6: cmd: %02X %02X startblk %02X%02X blccnt %02X\n",
+	      pccb->cmd[0], pccb->cmd[1],
+	      pccb->cmd[2], pccb->cmd[3], pccb->cmd[4]);
 }
 
 
 void scsi_setup_inquiry(ccb * pccb)
 {
-	pccb->cmd[0]=SCSI_INQUIRY;
-	pccb->cmd[1]=pccb->lun<<5;
-	pccb->cmd[2]=0;
-	pccb->cmd[3]=0;
-	if(pccb->datalen>255)
-		pccb->cmd[4]=255;
+	pccb->cmd[0] = SCSI_INQUIRY;
+	pccb->cmd[1] = pccb->lun << 5;
+	pccb->cmd[2] = 0;
+	pccb->cmd[3] = 0;
+	if (pccb->datalen > 255)
+		pccb->cmd[4] = 255;
 	else
-		pccb->cmd[4]=(unsigned char)pccb->datalen;
-	pccb->cmd[5]=0;
+		pccb->cmd[4] = (unsigned char)pccb->datalen;
+	pccb->cmd[5] = 0;
 	pccb->cmdlen=6;
-	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
+	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 }
 
 static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
@@ -170,18 +164,18 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 	unsigned short smallblks = 0;
 	ccb* pccb=(ccb *)&tempccb;
 	device&=0xff;
-	/* Setup  device
-	 */
-	pccb->target=scsi_dev_desc[device].target;
-	pccb->lun=scsi_dev_desc[device].lun;
-	buf_addr=(unsigned long)buffer;
-	start=blknr;
-	blks=blkcnt;
+
+	/* Setup device */
+	pccb->target = scsi_dev_desc[device].target;
+	pccb->lun = scsi_dev_desc[device].lun;
+	buf_addr = (unsigned long)buffer;
+	start = blknr;
+	blks = blkcnt;
 	debug("\nscsi_read: dev %d startblk " LBAF
 	      ", blccnt " LBAF " buffer %lx\n",
 	      device, start, blks, (unsigned long)buffer);
 	do {
-		pccb->pdata=(unsigned char *)buf_addr;
+		pccb->pdata = (unsigned char *)buf_addr;
 #ifdef CONFIG_SYS_64BIT_LBA
 		if (start > SCSI_LBA48_READ) {
 			unsigned long blocks;
@@ -193,17 +187,18 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 		} else
 #endif
 		if (blks > SCSI_MAX_READ_BLK) {
-			pccb->datalen=scsi_dev_desc[device].blksz * SCSI_MAX_READ_BLK;
-			smallblks=SCSI_MAX_READ_BLK;
-			scsi_setup_read_ext(pccb,start,smallblks);
-			start+=SCSI_MAX_READ_BLK;
-			blks-=SCSI_MAX_READ_BLK;
+			pccb->datalen = scsi_dev_desc[device].blksz *
+				SCSI_MAX_READ_BLK;
+			smallblks = SCSI_MAX_READ_BLK;
+			scsi_setup_read_ext(pccb, start, smallblks);
+			start += SCSI_MAX_READ_BLK;
+			blks -= SCSI_MAX_READ_BLK;
 		}
 		else {
-			pccb->datalen=scsi_dev_desc[device].blksz * blks;
-			smallblks=(unsigned short) blks;
-			scsi_setup_read_ext(pccb,start,smallblks);
-			start+=blks;
+			pccb->datalen = scsi_dev_desc[device].blksz * blks;
+			smallblks = (unsigned short)blks;
+			scsi_setup_read_ext(pccb, start, smallblks);
+			start += blks;
 			blks=0;
 		}
 		debug("scsi_read_ext: startblk " LBAF
@@ -211,14 +206,14 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 		      start, smallblks, buf_addr);
 		if (scsi_exec(pccb) != true) {
 			scsi_print_error(pccb);
-			blkcnt-=blks;
+			blkcnt -= blks;
 			break;
 		}
 		buf_addr+=pccb->datalen;
-	} while(blks!=0);
+	} while (blks != 0);
 	debug("scsi_read_ext: end startblk " LBAF
 	      ", blccnt %x buffer %" PRIXPTR "\n", start, smallblks, buf_addr);
-	return(blkcnt);
+	return blkcnt;
 }
 
 /*******************************************************************************
@@ -365,106 +360,106 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 
 	case 2:
-			if (strncmp(argv[1],"res",3) == 0) {
-				printf("\nReset SCSI\n");
-				scsi_bus_reset();
-				scsi_scan(1);
-				return 0;
+		if (strncmp(argv[1], "res", 3) == 0) {
+			printf("\nReset SCSI\n");
+			scsi_bus_reset();
+			scsi_scan(1);
+			return 0;
+		}
+		if (strncmp(argv[1], "inf", 3) == 0) {
+			int i;
+			for (i = 0; i < CONFIG_SYS_SCSI_MAX_DEVICE; ++i) {
+				if (scsi_dev_desc[i].type == DEV_TYPE_UNKNOWN)
+					continue; /* list only known devices */
+				printf("SCSI dev. %d:  ", i);
+				dev_print(&scsi_dev_desc[i]);
 			}
-			if (strncmp(argv[1],"inf",3) == 0) {
-				int i;
-				for (i=0; i<CONFIG_SYS_SCSI_MAX_DEVICE; ++i) {
-					if(scsi_dev_desc[i].type==DEV_TYPE_UNKNOWN)
-						continue; /* list only known devices */
-					printf ("SCSI dev. %d:  ", i);
-					dev_print(&scsi_dev_desc[i]);
-				}
-				return 0;
-			}
-			if (strncmp(argv[1],"dev",3) == 0) {
-				if ((scsi_curr_dev < 0) || (scsi_curr_dev >= CONFIG_SYS_SCSI_MAX_DEVICE)) {
-					printf("\nno SCSI devices available\n");
-					return 1;
-				}
-				printf ("\n    Device %d: ", scsi_curr_dev);
-				dev_print(&scsi_dev_desc[scsi_curr_dev]);
-				return 0;
-			}
-			if (strncmp(argv[1],"scan",4) == 0) {
-				scsi_scan(1);
-				return 0;
-			}
-			if (strncmp(argv[1],"part",4) == 0) {
-				int dev, ok;
-				for (ok=0, dev=0; dev<CONFIG_SYS_SCSI_MAX_DEVICE; ++dev) {
-					if (scsi_dev_desc[dev].type!=DEV_TYPE_UNKNOWN) {
-						ok++;
-						if (dev)
-							printf("\n");
-						debug ("print_part of %x\n",dev);
-						part_print(&scsi_dev_desc[dev]);
-					}
-				}
-				if (!ok)
-					printf("\nno SCSI devices available\n");
+			return 0;
+		}
+		if (strncmp(argv[1], "dev", 3) == 0) {
+			if (scsi_curr_dev < 0 ||
+			    scsi_curr_dev >= CONFIG_SYS_SCSI_MAX_DEVICE) {
+				printf("\nno SCSI devices available\n");
 				return 1;
 			}
-			return CMD_RET_USAGE;
-	case 3:
-			if (strncmp(argv[1],"dev",3) == 0) {
-				int dev = (int)simple_strtoul(argv[2], NULL, 10);
-				printf ("\nSCSI device %d: ", dev);
-				if (dev >= CONFIG_SYS_SCSI_MAX_DEVICE) {
-					printf("unknown device\n");
-					return 1;
-				}
-				printf ("\n    Device %d: ", dev);
-				dev_print(&scsi_dev_desc[dev]);
-				if(scsi_dev_desc[dev].type == DEV_TYPE_UNKNOWN) {
-					return 1;
-				}
-				scsi_curr_dev = dev;
-				printf("... is now current device\n");
-				return 0;
-			}
-			if (strncmp(argv[1],"part",4) == 0) {
-				int dev = (int)simple_strtoul(argv[2], NULL, 10);
-				if(scsi_dev_desc[dev].type != DEV_TYPE_UNKNOWN) {
+			printf("\n    Device %d: ", scsi_curr_dev);
+			dev_print(&scsi_dev_desc[scsi_curr_dev]);
+			return 0;
+		}
+		if (strncmp(argv[1], "scan", 4) == 0) {
+			scsi_scan(1);
+			return 0;
+		}
+		if (strncmp(argv[1], "part", 4) == 0) {
+			int dev, ok;
+			for (ok = 0, dev = 0;
+			     dev < CONFIG_SYS_SCSI_MAX_DEVICE; ++dev) {
+				if (scsi_dev_desc[dev].type !=
+				    DEV_TYPE_UNKNOWN) {
+					ok++;
+					if (dev)
+						printf("\n");
+					debug("print_part of %x\n", dev);
 					part_print(&scsi_dev_desc[dev]);
 				}
-				else {
-					printf ("\nSCSI device %d not available\n", dev);
-				}
+			}
+			if (!ok)
+				printf("\nno SCSI devices available\n");
+			return 1;
+		}
+		return CMD_RET_USAGE;
+	case 3:
+		if (strncmp(argv[1], "dev", 3) == 0) {
+			int dev = (int)simple_strtoul(argv[2], NULL, 10);
+			printf("\nSCSI device %d: ", dev);
+			if (dev >= CONFIG_SYS_SCSI_MAX_DEVICE) {
+				printf("unknown device\n");
 				return 1;
 			}
-			return CMD_RET_USAGE;
-    default:
-			/* at least 4 args */
-			if (strcmp(argv[1],"read") == 0) {
-				ulong addr = simple_strtoul(argv[2], NULL, 16);
-				ulong blk  = simple_strtoul(argv[3], NULL, 16);
-				ulong cnt  = simple_strtoul(argv[4], NULL, 16);
-				ulong n;
-				printf ("\nSCSI read: device %d block # %ld, count %ld ... ",
-						scsi_curr_dev, blk, cnt);
-				n = scsi_read(&scsi_dev_desc[scsi_curr_dev],
-					      blk, cnt, (ulong *)addr);
-				printf ("%ld blocks read: %s\n",n,(n==cnt) ? "OK" : "ERROR");
-				return 0;
-			} else if (strcmp(argv[1], "write") == 0) {
-				ulong addr = simple_strtoul(argv[2], NULL, 16);
-				ulong blk = simple_strtoul(argv[3], NULL, 16);
-				ulong cnt = simple_strtoul(argv[4], NULL, 16);
-				ulong n;
-				printf("\nSCSI write: device %d block # %ld, "
-				       "count %ld ... ",
-				       scsi_curr_dev, blk, cnt);
-				n = scsi_write(&scsi_dev_desc[scsi_curr_dev],
-					       blk, cnt, (ulong *)addr);
-				printf("%ld blocks written: %s\n", n,
-				       (n == cnt) ? "OK" : "ERROR");
-				return 0;
-			}
+			printf("\n    Device %d: ", dev);
+			dev_print(&scsi_dev_desc[dev]);
+			if (scsi_dev_desc[dev].type == DEV_TYPE_UNKNOWN)
+				return 1;
+			scsi_curr_dev = dev;
+			printf("... is now current device\n");
+			return 0;
+		}
+		if (strncmp(argv[1], "part", 4) == 0) {
+			int dev = (int)simple_strtoul(argv[2], NULL, 10);
+			if (scsi_dev_desc[dev].type != DEV_TYPE_UNKNOWN)
+				part_print(&scsi_dev_desc[dev]);
+			else
+				printf("\nSCSI device %d not available\n", dev);
+			return 1;
+		}
+		return CMD_RET_USAGE;
+	default:
+		/* at least 4 args */
+		if (strcmp(argv[1], "read") == 0) {
+			ulong addr = simple_strtoul(argv[2], NULL, 16);
+			ulong blk  = simple_strtoul(argv[3], NULL, 16);
+			ulong cnt  = simple_strtoul(argv[4], NULL, 16);
+			ulong n;
+			printf("\nSCSI read: device %d block # %ld, count %ld ... ",
+			       scsi_curr_dev, blk, cnt);
+			n = scsi_read(&scsi_dev_desc[scsi_curr_dev],
+				      blk, cnt, (ulong *)addr);
+			printf("%ld blocks read: %s\n", n,
+			       n == cnt ? "OK" : "ERROR");
+			return 0;
+		} else if (strcmp(argv[1], "write") == 0) {
+			ulong addr = simple_strtoul(argv[2], NULL, 16);
+			ulong blk = simple_strtoul(argv[3], NULL, 16);
+			ulong cnt = simple_strtoul(argv[4], NULL, 16);
+			ulong n;
+			printf("\nSCSI write: device %d block # %ld, count %ld ... ",
+			       scsi_curr_dev, blk, cnt);
+			n = scsi_write(&scsi_dev_desc[scsi_curr_dev],
+				       blk, cnt, (ulong *)addr);
+			printf("%ld blocks written: %s\n", n,
+			       n == cnt ? "OK" : "ERROR");
+			return 0;
+		}
 	} /* switch */
 	return CMD_RET_USAGE;
 }
@@ -493,25 +488,24 @@ U_BOOT_CMD(
 /* copy src to dest, skipping leading and trailing blanks
  * and null terminate the string
  */
-void scsi_ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len)
+void scsi_ident_cpy(unsigned char *dest, unsigned char *src, unsigned int len)
 {
 	int start,end;
 
-	start=0;
-	while(start<len) {
-		if(src[start]!=' ')
+	start = 0;
+	while (start < len) {
+		if (src[start] != ' ')
 			break;
 		start++;
 	}
-	end=len-1;
-	while(end>start) {
-		if(src[end]!=' ')
+	end = len-1;
+	while (end > start) {
+		if (src[end] != ' ')
 			break;
 		end--;
 	}
-	for( ; start<=end; start++) {
-		*dest++=src[start];
-	}
+	for (; start <= end; start++)
+		*dest ++= src[start];
 	*dest='\0';
 }
 
@@ -534,7 +528,7 @@ int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
 {
 	*capacity = 0;
 
-	memset(pccb->cmd, 0, sizeof(pccb->cmd));
+	memset(pccb->cmd, '\0', sizeof(pccb->cmd));
 	pccb->cmd[0] = SCSI_RD_CAPAC10;
 	pccb->cmd[1] = pccb->lun << 5;
 	pccb->cmdlen = 10;
@@ -559,8 +553,7 @@ int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
 	}
 
 	/* Read capacity (10) was insufficient. Use read capacity (16). */
-
-	memset(pccb->cmd, 0, sizeof(pccb->cmd));
+	memset(pccb->cmd, '\0', sizeof(pccb->cmd));
 	pccb->cmd[0] = SCSI_RD_CAPAC16;
 	pccb->cmd[1] = 0x10;
 	pccb->cmdlen = 16;
@@ -597,14 +590,14 @@ int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
  */
 void scsi_setup_test_unit_ready(ccb * pccb)
 {
-	pccb->cmd[0]=SCSI_TST_U_RDY;
-	pccb->cmd[1]=pccb->lun<<5;
-	pccb->cmd[2]=0;
-	pccb->cmd[3]=0;
-	pccb->cmd[4]=0;
-	pccb->cmd[5]=0;
-	pccb->cmdlen=6;
-	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
+	pccb->cmd[0] = SCSI_TST_U_RDY;
+	pccb->cmd[1] = pccb->lun << 5;
+	pccb->cmd[2] = 0;
+	pccb->cmd[3] = 0;
+	pccb->cmd[4] = 0;
+	pccb->cmd[5] = 0;
+	pccb->cmdlen = 6;
+	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 }
 
 /*********************************************************************************
@@ -618,50 +611,49 @@ void scsi_scan(int mode)
 	unsigned long blksz;
 	ccb* pccb=(ccb *)&tempccb;
 
-	if(mode==1) {
+	if (mode == 1)
 		printf("scanning bus for devices...\n");
-	}
-	for(i=0;i<CONFIG_SYS_SCSI_MAX_DEVICE;i++) {
-		scsi_dev_desc[i].target=0xff;
-		scsi_dev_desc[i].lun=0xff;
-		scsi_dev_desc[i].lba=0;
-		scsi_dev_desc[i].blksz=0;
-		scsi_dev_desc[i].log2blksz =
+	for (i = 0; i < CONFIG_SYS_SCSI_MAX_DEVICE; i++) {
+		scsi_dev_desc[i].target = 0xff;
+		scsi_dev_desc[i].lun = 0xff;
+		scsi_dev_desc[i].lba = 0;
+		scsi_dev_desc[i].blksz = 0;
+		scsi_dev_desc[i].log2blksz  =
 			LOG2_INVALID(typeof(scsi_dev_desc[i].log2blksz));
-		scsi_dev_desc[i].type=DEV_TYPE_UNKNOWN;
-		scsi_dev_desc[i].vendor[0]=0;
-		scsi_dev_desc[i].product[0]=0;
-		scsi_dev_desc[i].revision[0]=0;
+		scsi_dev_desc[i].type = DEV_TYPE_UNKNOWN;
+		scsi_dev_desc[i].vendor[0] = 0;
+		scsi_dev_desc[i].product[0] = 0;
+		scsi_dev_desc[i].revision[0] = 0;
 		scsi_dev_desc[i].removable = false;
-		scsi_dev_desc[i].if_type=IF_TYPE_SCSI;
+		scsi_dev_desc[i].if_type = IF_TYPE_SCSI;
 		scsi_dev_desc[i].devnum = i;
-		scsi_dev_desc[i].part_type=PART_TYPE_UNKNOWN;
-		scsi_dev_desc[i].block_read=scsi_read;
+		scsi_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
+		scsi_dev_desc[i].block_read = scsi_read;
 		scsi_dev_desc[i].block_write = scsi_write;
 	}
-	scsi_max_devs=0;
-	for(i=0;i<CONFIG_SYS_SCSI_MAX_SCSI_ID;i++) {
-		pccb->target=i;
-		for(lun=0;lun<CONFIG_SYS_SCSI_MAX_LUN;lun++) {
-			pccb->lun=lun;
-			pccb->pdata=(unsigned char *)&tempbuff;
-			pccb->datalen=512;
+	scsi_max_devs = 0;
+	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
+		pccb->target = i;
+		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
+			pccb->lun = lun;
+			pccb->pdata = (unsigned char *)&tempbuff;
+			pccb->datalen = 512;
 			scsi_setup_inquiry(pccb);
 			if (scsi_exec(pccb) != true) {
 				if(pccb->contr_stat==SCSI_SEL_TIME_OUT) {
-					debug ("Selection timeout ID %d\n",pccb->target);
+					debug("Selection timeout ID %d\n",
+					      pccb->target);
 					continue; /* selection timeout => assuming no device present */
 				}
 				scsi_print_error(pccb);
 				continue;
 			}
-			perq=tempbuff[0];
-			modi=tempbuff[1];
-			if((perq & 0x1f)==0x1f) {
+			perq = tempbuff[0];
+			modi = tempbuff[1];
+			if ((perq & 0x1f) == 0x1f)
 				continue; /* skip unknown devices */
-			}
-			if((modi&0x80)==0x80) /* drive is removable */
-				scsi_dev_desc[scsi_max_devs].removable=true;
+			if ((modi & 0x80) == 0x80) /* drive is removable */
+				scsi_dev_desc[scsi_max_devs].removable = true;
 			/* get info for this device */
 			scsi_ident_cpy((unsigned char *)&scsi_dev_desc[scsi_max_devs].vendor[0],
 				       &tempbuff[8], 8);
@@ -669,14 +661,15 @@ void scsi_scan(int mode)
 				       &tempbuff[16], 16);
 			scsi_ident_cpy((unsigned char *)&scsi_dev_desc[scsi_max_devs].revision[0],
 				       &tempbuff[32], 4);
-			scsi_dev_desc[scsi_max_devs].target=pccb->target;
-			scsi_dev_desc[scsi_max_devs].lun=pccb->lun;
+			scsi_dev_desc[scsi_max_devs].target = pccb->target;
+			scsi_dev_desc[scsi_max_devs].lun = pccb->lun;
 
-			pccb->datalen=0;
+			pccb->datalen = 0;
 			scsi_setup_test_unit_ready(pccb);
 			if (scsi_exec(pccb) != true) {
-				if (scsi_dev_desc[scsi_max_devs].removable == true) {
-					scsi_dev_desc[scsi_max_devs].type=perq;
+				if (scsi_dev_desc[scsi_max_devs].removable) {
+					scsi_dev_desc[scsi_max_devs].type =
+							perq;
 					goto removable;
 				}
 				scsi_print_error(pccb);
@@ -686,11 +679,11 @@ void scsi_scan(int mode)
 				scsi_print_error(pccb);
 				continue;
 			}
-			scsi_dev_desc[scsi_max_devs].lba=capacity;
-			scsi_dev_desc[scsi_max_devs].blksz=blksz;
+			scsi_dev_desc[scsi_max_devs].lba = capacity;
+			scsi_dev_desc[scsi_max_devs].blksz = blksz;
 			scsi_dev_desc[scsi_max_devs].log2blksz =
 				LOG2(scsi_dev_desc[scsi_max_devs].blksz);
-			scsi_dev_desc[scsi_max_devs].type=perq;
+			scsi_dev_desc[scsi_max_devs].type = perq;
 			part_init(&scsi_dev_desc[scsi_max_devs]);
 removable:
 			if(mode==1) {
@@ -700,8 +693,8 @@ removable:
 			scsi_max_devs++;
 		} /* next LUN */
 	}
-	if(scsi_max_devs>0)
-		scsi_curr_dev=0;
+	if (scsi_max_devs > 0)
+		scsi_curr_dev = 0;
 	else
 		scsi_curr_dev = -1;
 
