@@ -63,6 +63,11 @@ struct blk_desc {
 	char		product[20+1];	/* IDE Serial no, SCSI product */
 	char		revision[8+1];	/* firmware revision */
 #ifdef CONFIG_BLK
+	/*
+	 * For now we have a few functions which take struct blk_desc as a
+	 * parameter. This field allows them to look up the associated
+	 * device. Once these functions are removed we can drop this field.
+	 */
 	struct udevice *bdev;
 #else
 	unsigned long	(*block_read)(struct blk_desc *block_dev,
