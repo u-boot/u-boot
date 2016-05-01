@@ -606,6 +606,27 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 	return ret;
 }
 
+static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
+{
+	struct mmc *mmc = find_mmc_device(desc->devnum);
+	int ret;
+
+	if (!mmc)
+		return -ENODEV;
+
+	if (mmc->block_dev.hwpart == hwpart)
+		return 0;
+
+	if (mmc->part_config == MMCPART_NOAVAILABLE)
+		return -EMEDIUMTYPE;
+
+	ret = mmc_switch_part(desc->devnum, hwpart);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 int mmc_select_hwpart(int dev_num, int hwpart)
 {
 	struct mmc *mmc = find_mmc_device(dev_num);
@@ -1973,4 +1994,5 @@ U_BOOT_LEGACY_BLK(mmc) = {
 	.if_type	= IF_TYPE_MMC,
 	.max_devs	= -1,
 	.get_dev	= mmc_get_dev,
+	.select_hwpart	= mmc_select_hwpartp,
 };
