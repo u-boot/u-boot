@@ -217,16 +217,6 @@ int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 	return 0;
 }
 
-struct blk_desc *host_get_dev(int dev)
-{
-	struct blk_desc *blk_dev;
-
-	if (host_get_dev_err(dev, &blk_dev))
-		return NULL;
-
-	return blk_dev;
-}
-
 #ifdef CONFIG_BLK
 static const struct blk_ops sandbox_host_blk_ops = {
 	.read	= host_block_read,
