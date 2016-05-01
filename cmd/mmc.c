@@ -348,7 +348,7 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
-	n = blk_dread(&mmc->block_dev, blk, cnt, addr);
+	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
 	/* flush cache after read */
 	flush_cache((ulong)addr, cnt * 512); /* FIXME */
 	printf("%d blocks read: %s\n", n, (n == cnt) ? "OK" : "ERROR");
@@ -380,7 +380,7 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
-	n = blk_dwrite(&mmc->block_dev, blk, cnt, addr);
+	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
 	printf("%d blocks written: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -408,7 +408,7 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
-	n = blk_derase(&mmc->block_dev, blk, cnt);
+	n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
 	printf("%d blocks erased: %s\n", n, (n == cnt) ? "OK" : "ERROR");
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
@@ -480,7 +480,7 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		printf("mmc%d is current device\n", curr_device);
 	else
 		printf("mmc%d(part %d) is current device\n",
-		       curr_device, mmc->block_dev.hwpart);
+		       curr_device, mmc_get_blk_desc(mmc)->hwpart);
 
 	return CMD_RET_SUCCESS;
 }

@@ -122,9 +122,9 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	struct mmc_data data;
 	int timeout = 1000;
 
-	if ((start + blkcnt) > mmc->block_dev.lba) {
+	if ((start + blkcnt) > mmc_get_blk_desc(mmc)->lba) {
 		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
-		       start + blkcnt, mmc->block_dev.lba);
+		       start + blkcnt, mmc_get_blk_desc(mmc)->lba);
 		return 0;
 	}
 

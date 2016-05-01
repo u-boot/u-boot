@@ -7,6 +7,10 @@
 
 obj-$(CONFIG_DM_MMC) += mmc-uclass.o
 
+ifndef CONFIG_BLK
+obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
+endif
+
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
 obj-$(CONFIG_ATMEL_SDHCI) += atmel_sdhci.o
 obj-$(CONFIG_BCM2835_SDHCI) += bcm2835_sdhci.o
