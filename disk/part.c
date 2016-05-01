@@ -21,34 +21,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-const struct block_drvr block_drvr[] = {
-#if defined(CONFIG_CMD_IDE)
-	{ .name = "ide", },
-#endif
-#if defined(CONFIG_CMD_SATA)
-	{.name = "sata", },
-#endif
-#if defined(CONFIG_SCSI)
-	{ .name = "scsi", },
-#endif
-#if defined(CONFIG_CMD_USB) && defined(CONFIG_USB_STORAGE)
-	{ .name = "usb", },
-#endif
-#if defined(CONFIG_MMC)
-	{
-		.name = "mmc",
-		.select_hwpart = mmc_select_hwpart,
-	},
-#endif
-#if defined(CONFIG_SYSTEMACE)
-	{ .name = "ace", },
-#endif
-#if defined(CONFIG_SANDBOX)
-	{ .name = "host", },
-#endif
-	{ },
-};
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef HAVE_BLOCK_DEVICE
@@ -70,34 +42,23 @@ static struct part_driver *part_driver_lookup_type(int part_type)
 
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
-	const struct block_drvr *drvr = block_drvr;
-	char *name;
+	struct blk_desc *dev_desc;
+	int ret;
 
-	if (!ifname)
+	dev_desc = blk_get_devnum_by_typename(ifname, dev);
+	if (!dev_desc) {
+		debug("%s: No device for iface '%s', dev %d\n", __func__,
+		      ifname, dev);
 		return NULL;
-
-	name = drvr->name;
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	name += gd->reloc_off;
-#endif
-	while (drvr->name) {
-		name = drvr->name;
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-		name += gd->reloc_off;
-#endif
-		if (strncmp(ifname, name, strlen(name)) == 0) {
-			struct blk_desc *dev_desc;
-
-			dev_desc = blk_get_devnum_by_typename(name, dev);
-			if (!dev_desc)
-				return NULL;
-			if (blk_dselect_hwpart(dev_desc, hwpart))
-				return NULL;
-			return dev_desc;
-		}
-		drvr++;
 	}
-	return NULL;
+	ret = blk_dselect_hwpart(dev_desc, hwpart);
+	if (ret) {
+		debug("%s: Failed to select h/w partition: err-%d\n", __func__,
+		      ret);
+		return NULL;
+	}
+
+	return dev_desc;
 }
 
 struct blk_desc *blk_get_dev(const char *ifname, int dev)

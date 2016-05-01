@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <efi_loader.h>
 #include <inttypes.h>
 #include <part.h>
@@ -142,7 +143,7 @@ static const struct efi_block_io block_io_disk_template = {
 };
 
 static void efi_disk_add_dev(char *name,
-			     const struct block_drvr *cur_drvr,
+			     const struct blk_driver *cur_drvr,
 			     const struct blk_desc *desc,
 			     int dev_index,
 			     lbaint_t offset)
@@ -160,7 +161,7 @@ static void efi_disk_add_dev(char *name,
 	diskobj->parent.protocols[1].open = efi_disk_open_dp;
 	diskobj->parent.handle = diskobj;
 	diskobj->ops = block_io_disk_template;
-	diskobj->ifname = cur_drvr->name;
+	diskobj->ifname = cur_drvr->if_typename;
 	diskobj->dev_index = dev_index;
 	diskobj->offset = offset;
 
@@ -189,7 +190,7 @@ static void efi_disk_add_dev(char *name,
 }
 
 static int efi_disk_create_eltorito(struct blk_desc *desc,
-				    const struct block_drvr *cur_drvr,
+				    const struct blk_driver *cur_drvr,
 				    int diskid)
 {
 	int disks = 0;
@@ -202,8 +203,8 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 		return 0;
 
 	while (!part_get_info(desc, part, &info)) {
-		snprintf(devname, sizeof(devname), "%s%d:%d", cur_drvr->name,
-			 diskid, part);
+		snprintf(devname, sizeof(devname), "%s%d:%d",
+			 cur_drvr->if_typename, diskid, part);
 		efi_disk_add_dev(devname, cur_drvr, desc, diskid, info.start);
 		part++;
 		disks++;
@@ -222,25 +223,29 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
  */
 int efi_disk_register(void)
 {
-	const struct block_drvr *cur_drvr;
-	int i;
+	const struct blk_driver *cur_drvr;
+	int i, if_type;
 	int disks = 0;
 
 	/* Search for all available disk devices */
-	for (cur_drvr = block_drvr; cur_drvr->name; cur_drvr++) {
-		printf("Scanning disks on %s...\n", cur_drvr->name);
+	for (if_type = 0; if_type < IF_TYPE_COUNT; if_type++) {
+		cur_drvr = blk_driver_lookup_type(if_type);
+		if (!cur_drvr)
+			continue;
+
+		printf("Scanning disks on %s...\n", cur_drvr->if_typename);
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
 			char devname[32] = { 0 }; /* dp->str is u16[32] long */
 
-			desc = blk_get_dev(cur_drvr->name, i);
+			desc = blk_get_devnum_by_type(if_type, i);
 			if (!desc)
 				continue;
 			if (desc->type == DEV_TYPE_UNKNOWN)
 				continue;
 
 			snprintf(devname, sizeof(devname), "%s%d",
-				 cur_drvr->name, i);
+				 cur_drvr->if_typename, i);
 			efi_disk_add_dev(devname, cur_drvr, desc, i, 0);
 			disks++;
 
