@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_DM_MMC) += mmc-uclass.o
+ifdef CONFIG_DM_MMC
+obj-$(CONFIG_GENERIC_MMC) += mmc-uclass.o
+endif
 
 ifndef CONFIG_BLK
 obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
