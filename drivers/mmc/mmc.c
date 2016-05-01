@@ -24,6 +24,11 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
+struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
+{
+	return &mmc->block_dev;
+}
+
 __weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;

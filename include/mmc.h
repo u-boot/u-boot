@@ -498,4 +498,12 @@ int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported);
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT 65535
 #endif
 
+/**
+ * mmc_get_blk_desc() - Get the block descriptor for an MMC device
+ *
+ * @mmc:	MMC device
+ * @return block device if found, else NULL
+ */
+struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
+
 #endif /* _MMC_H_ */
