@@ -468,14 +468,22 @@ int blk_create_devicef(struct udevice *parent, const char *drv_name,
 		       lbaint_t size, struct udevice **devp)
 {
 	char dev_name[30], *str;
+	int ret;
 
 	snprintf(dev_name, sizeof(dev_name), "%s.%s", parent->name, name);
 	str = strdup(dev_name);
 	if (!str)
 		return -ENOMEM;
 
-	return blk_create_device(parent, drv_name, str, if_type, devnum,
-				 blksz, size, devp);
+	ret = blk_create_device(parent, drv_name, str, if_type, devnum,
+				blksz, size, devp);
+	if (ret) {
+		free(str);
+		return ret;
+	}
+	device_set_name_alloced(*devp);
+
+	return ret;
 }
 
 int blk_unbind_all(int if_type)
