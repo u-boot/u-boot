@@ -11,7 +11,7 @@ alias u-boot uboot
 # Maintainer aliases.  Use the same alias here as patchwork to keep
 # things simple and easy to look up/coordinate.
 alias aaribaud       Albert Aribaud <albert.u.boot@aribaud.net>
-alias abiessmann     Andreas Bießmann <andreas.devel@googlemail.com>
+alias abiessmann     Andreas Bießmann <andreas@biessmann.org>
 alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>

@@ -4,7 +4,7 @@
  * Ulf Samuelsson <ulf@atmel.com>
  *
  * (C) Copyright 2010
- * Andreas Bießmann <andreas.devel@gmail.com>
+ * Andreas Bießmann <andreas@biessmann.org>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

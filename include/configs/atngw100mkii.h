@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006 Atmel Corporation
  *
- * Copyright (C) 2012 Andreas Bießmann <andreas.devel@googlemail.com>
+ * Copyright (C) 2012 Andreas Bießmann <andreas@biessmann.org>
  *
  * Configuration settings for the AVR32 Network Gateway
  *

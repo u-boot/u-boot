@@ -2,7 +2,7 @@
  * [partely copied from arch/arm/cpu/arm926ejs/at91/arm9260_devices.c]
  *
  * (C) Copyright 2011
- * Andreas Bießmann <andreas.devel@googlemail.com>
+ * Andreas Bießmann <andreas@biessmann.org>
  *
  * (C) Copyright 2007-2008
  * Stelian Pop <stelian@popies.net>

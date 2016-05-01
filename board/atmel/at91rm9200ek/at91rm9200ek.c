@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010 Andreas Bießmann <andreas.devel@gmail.com>
+ * (C) Copyright 2010 Andreas Bießmann <andreas@biessmann.org>
  *
  * derived from previous work
  *
