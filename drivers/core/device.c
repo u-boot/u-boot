@@ -706,12 +706,18 @@ bool device_is_last_sibling(struct udevice *dev)
 	return list_is_last(&dev->sibling_node, &parent->child_head);
 }
 
+void device_set_name_alloced(struct udevice *dev)
+{
+	dev->flags |= DM_NAME_ALLOCED;
+}
+
 int device_set_name(struct udevice *dev, const char *name)
 {
 	name = strdup(name);
 	if (!name)
 		return -ENOMEM;
 	dev->name = name;
+	device_set_name_alloced(dev);
 
 	return 0;
 }
