@@ -1582,14 +1582,31 @@ void mmc_destroy(struct mmc *mmc)
 	free(mmc);
 }
 
+static int mmc_get_devp(int dev, struct blk_desc **descp)
+{
+	struct mmc *mmc = find_mmc_device(dev);
+	int ret;
+
+	if (!mmc)
+		return -ENODEV;
+	ret = mmc_init(mmc);
+	if (ret)
+		return ret;
+
+	*descp = &mmc->block_dev;
+
+	return 0;
+}
+
 #ifdef CONFIG_PARTITIONS
 struct blk_desc *mmc_get_dev(int dev)
 {
-	struct mmc *mmc = find_mmc_device(dev);
-	if (!mmc || mmc_init(mmc))
+	struct blk_desc *desc;
+
+	if (mmc_get_devp(dev, &desc))
 		return NULL;
 
-	return &mmc->block_dev;
+	return desc;
 }
 #endif
 
@@ -1965,3 +1982,10 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
 			  enable);
 }
 #endif
+
+U_BOOT_LEGACY_BLK(mmc) = {
+	.if_typename	= "mmc",
+	.if_type	= IF_TYPE_MMC,
+	.max_devs	= -1,
+	.get_dev	= mmc_get_devp,
+};
