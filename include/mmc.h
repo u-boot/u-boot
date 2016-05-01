@@ -409,7 +409,29 @@ enum mmc_hwpart_conf_mode {
 
 int mmc_register(struct mmc *mmc);
 struct mmc *mmc_create(const struct mmc_config *cfg, void *priv);
+
+/**
+ * mmc_bind() - Set up a new MMC device ready for probing
+ *
+ * A child block device is bound with the IF_TYPE_MMC interface type. This
+ * allows the device to be used with CONFIG_BLK
+ *
+ * @dev:	MMC device to set up
+ * @mmc:	MMC struct
+ * @cfg:	MMC configuration
+ * @return 0 if OK, -ve on error
+ */
+int mmc_bind(struct udevice *dev, struct mmc *mmc,
+	     const struct mmc_config *cfg);
 void mmc_destroy(struct mmc *mmc);
+
+/**
+ * mmc_unbind() - Unbind a MMC device's child block device
+ *
+ * @dev:	MMC device
+ * @return 0 if OK, -ve on error
+ */
+int mmc_unbind(struct udevice *dev);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);

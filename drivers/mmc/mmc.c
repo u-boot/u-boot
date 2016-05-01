@@ -1531,6 +1531,53 @@ int __deprecated mmc_register(struct mmc *mmc)
 	return -1;
 }
 
+#ifdef CONFIG_BLK
+int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
+{
+	struct blk_desc *bdesc;
+	struct udevice *bdev;
+	int ret;
+
+	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC, -1, 512,
+				 0, &bdev);
+	if (ret) {
+		debug("Cannot create block device\n");
+		return ret;
+	}
+	bdesc = dev_get_uclass_platdata(bdev);
+	mmc->cfg = cfg;
+	mmc->priv = dev;
+
+	/* the following chunk was from mmc_register() */
+
+	/* Setup dsr related values */
+	mmc->dsr_imp = 0;
+	mmc->dsr = 0xffffffff;
+	/* Setup the universal parts of the block interface just once */
+	bdesc->if_type = IF_TYPE_MMC;
+	bdesc->removable = 1;
+
+	/* setup initial part type */
+	bdesc->part_type = mmc->cfg->part_type;
+	mmc->dev = dev;
+
+	return 0;
+}
+
+int mmc_unbind(struct udevice *dev)
+{
+	struct udevice *bdev;
+
+	device_find_first_child(dev, &bdev);
+	if (bdev) {
+		device_remove(bdev);
+		device_unbind(bdev);
+	}
+
+	return 0;
+}
+
+#else
 struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 {
 	struct blk_desc *bdesc;
@@ -1574,6 +1621,7 @@ void mmc_destroy(struct mmc *mmc)
 	/* only freeing memory for now */
 	free(mmc);
 }
+#endif
 
 static int mmc_get_dev(int dev, struct blk_desc **descp)
 {
