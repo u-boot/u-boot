@@ -1555,4 +1555,11 @@ U_BOOT_DRIVER(usb_storage_blk) = {
 	.id		= UCLASS_BLK,
 	.ops		= &usb_storage_ops,
 };
+#else
+U_BOOT_LEGACY_BLK(usb) = {
+	.if_typename	= "usb",
+	.if_type	= IF_TYPE_USB,
+	.max_devs	= USB_MAX_STOR_DEV,
+	.desc		= usb_dev_desc,
+};
 #endif
