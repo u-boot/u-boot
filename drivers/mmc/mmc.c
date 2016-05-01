@@ -1582,7 +1582,7 @@ void mmc_destroy(struct mmc *mmc)
 	free(mmc);
 }
 
-static int mmc_get_devp(int dev, struct blk_desc **descp)
+static int mmc_get_dev(int dev, struct blk_desc **descp)
 {
 	struct mmc *mmc = find_mmc_device(dev);
 	int ret;
@@ -1597,18 +1597,6 @@ static int mmc_get_devp(int dev, struct blk_desc **descp)
 
 	return 0;
 }
-
-#ifdef CONFIG_PARTITIONS
-struct blk_desc *mmc_get_dev(int dev)
-{
-	struct blk_desc *desc;
-
-	if (mmc_get_devp(dev, &desc))
-		return NULL;
-
-	return desc;
-}
-#endif
 
 /* board-specific MMC power initializations. */
 __weak void board_mmc_power_init(void)
@@ -1987,5 +1975,5 @@ U_BOOT_LEGACY_BLK(mmc) = {
 	.if_typename	= "mmc",
 	.if_type	= IF_TYPE_MMC,
 	.max_devs	= -1,
-	.get_dev	= mmc_get_devp,
+	.get_dev	= mmc_get_dev,
 };

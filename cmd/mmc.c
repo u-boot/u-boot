@@ -432,7 +432,7 @@ static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	mmc_dev = mmc_get_dev(curr_device);
+	mmc_dev = blk_get_devnum_by_type(IF_TYPE_MMC, curr_device);
 	if (mmc_dev != NULL && mmc_dev->type != DEV_TYPE_UNKNOWN) {
 		part_print(mmc_dev);
 		return CMD_RET_SUCCESS;

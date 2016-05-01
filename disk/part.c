@@ -37,7 +37,6 @@ const struct block_drvr block_drvr[] = {
 #if defined(CONFIG_MMC)
 	{
 		.name = "mmc",
-		.get_dev = mmc_get_dev,
 		.select_hwpart = mmc_select_hwpart,
 	},
 #endif
