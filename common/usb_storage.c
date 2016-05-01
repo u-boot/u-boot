@@ -200,7 +200,6 @@ static int usb_stor_probe_device(struct usb_device *udev)
 
 #ifdef CONFIG_BLK
 	struct us_data *data;
-	char dev_name[30], *str;
 	int ret;
 #else
 	int start;
@@ -223,14 +222,12 @@ static int usb_stor_probe_device(struct usb_device *udev)
 	for (lun = 0; lun <= max_lun; lun++) {
 		struct blk_desc *blkdev;
 		struct udevice *dev;
+		char str[10];
 
-		snprintf(dev_name, sizeof(dev_name), "%s.lun%d",
-			 udev->dev->name, lun);
-		str = strdup(dev_name);
-		if (!str)
-			return -ENOMEM;
-		ret = blk_create_device(udev->dev, "usb_storage_blk", str,
-				IF_TYPE_USB, usb_max_devs, 512, 0, &dev);
+		snprintf(str, sizeof(str), "lun%d", lun);
+		ret = blk_create_devicef(udev->dev, "usb_storage_blk", str,
+					 IF_TYPE_USB, usb_max_devs, 512, 0,
+					 &dev);
 		if (ret) {
 			debug("Cannot bind driver\n");
 			return ret;

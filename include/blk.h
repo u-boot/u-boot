@@ -281,6 +281,23 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 		      lbaint_t size, struct udevice **devp);
 
 /**
+ * blk_create_devicef() - Create a new named block device
+ *
+ * @parent:	Parent of the new device
+ * @drv_name:	Driver name to use for the block device
+ * @name:	Name for the device (parent name is prepended)
+ * @if_type:	Interface type (enum if_type_t)
+ * @devnum:	Device number, specific to the interface type, or -1 to
+ *		allocate the next available number
+ * @blksz:	Block size of the device in bytes (typically 512)
+ * @size:	Total size of the device in bytes
+ * @devp:	the new device (which has not been probed)
+ */
+int blk_create_devicef(struct udevice *parent, const char *drv_name,
+		       const char *name, int if_type, int devnum, int blksz,
+		       lbaint_t size, struct udevice **devp);
+
+/**
  * blk_prepare_device() - Prepare a block device for use
  *
  * This reads partition information from the device if supported.
