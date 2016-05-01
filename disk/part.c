@@ -26,7 +26,7 @@ const struct block_drvr block_drvr[] = {
 	{ .name = "ide", },
 #endif
 #if defined(CONFIG_CMD_SATA)
-	{.name = "sata", .get_dev = sata_get_dev, },
+	{.name = "sata", },
 #endif
 #if defined(CONFIG_SCSI)
 	{ .name = "scsi", },

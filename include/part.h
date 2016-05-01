@@ -73,7 +73,6 @@ typedef struct disk_partition {
  *	   error occurred.
  */
 struct blk_desc *blk_get_dev(const char *ifname, int dev);
-struct blk_desc *sata_get_dev(int dev);
 
 /**
  * mmc_select_hwpart() - Select the MMC hardware partiion on an MMC device
@@ -171,7 +170,6 @@ extern const struct block_drvr block_drvr[];
 #else
 static inline struct blk_desc *blk_get_dev(const char *ifname, int dev)
 { return NULL; }
-static inline struct blk_desc *sata_get_dev(int dev) { return NULL; }
 static inline int mmc_select_hwpart(int dev_num, int hwpart) { return -1; }
 static inline struct blk_desc *systemace_get_dev(int dev) { return NULL; }
 static inline struct blk_desc *mg_disk_get_dev(int dev) { return NULL; }
