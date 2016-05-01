@@ -29,7 +29,7 @@ const struct block_drvr block_drvr[] = {
 	{.name = "sata", .get_dev = sata_get_dev, },
 #endif
 #if defined(CONFIG_SCSI)
-	{ .name = "scsi", .get_dev = scsi_get_dev, },
+	{ .name = "scsi", },
 #endif
 #if defined(CONFIG_CMD_USB) && defined(CONFIG_USB_STORAGE)
 	{ .name = "usb", },

@@ -327,13 +327,6 @@ void scsi_init(void)
 }
 #endif
 
-#ifdef CONFIG_PARTITIONS
-struct blk_desc *scsi_get_dev(int dev)
-{
-	return (dev < CONFIG_SYS_SCSI_MAX_DEVICE) ? &scsi_dev_desc[dev] : NULL;
-}
-#endif
-
 /* copy src to dest, skipping leading and trailing blanks
  * and null terminate the string
  */
