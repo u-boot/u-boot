@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <inttypes.h>
 #include <pci.h>
 #include <scsi.h>
@@ -149,9 +150,17 @@ void scsi_setup_inquiry(ccb *pccb)
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 }
 
+#ifdef CONFIG_BLK
+static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		       void *buffer)
+#else
 static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 		       lbaint_t blkcnt, void *buffer)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
@@ -216,9 +225,17 @@ static ulong scsi_read(struct blk_desc *block_dev, lbaint_t blknr,
 /* Almost the maximum amount of the scsi_ext command.. */
 #define SCSI_MAX_WRITE_BLK 0xFFFF
 
+#ifdef CONFIG_BLK
+static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+			const void *buffer)
+#else
 static ulong scsi_write(struct blk_desc *block_dev, lbaint_t blknr,
 			lbaint_t blkcnt, const void *buffer)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int device = block_dev->devnum;
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
@@ -469,8 +486,10 @@ void scsi_scan(int mode)
 		scsi_dev_desc[i].if_type = IF_TYPE_SCSI;
 		scsi_dev_desc[i].devnum = i;
 		scsi_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
+#ifndef CONFIG_BLK
 		scsi_dev_desc[i].block_read = scsi_read;
 		scsi_dev_desc[i].block_write = scsi_write;
+#endif
 	}
 	scsi_max_devs = 0;
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
@@ -552,9 +571,22 @@ removable:
 #endif
 }
 
+#ifdef CONFIG_BLK
+static const struct blk_ops scsi_blk_ops = {
+	.read	= scsi_read,
+	.write	= scsi_write,
+};
+
+U_BOOT_DRIVER(scsi_blk) = {
+	.name		= "scsi_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &scsi_blk_ops,
+};
+#else
 U_BOOT_LEGACY_BLK(scsi) = {
 	.if_typename	= "sata",
 	.if_type	= IF_TYPE_SCSI,
 	.max_devs	= CONFIG_SYS_SCSI_MAX_DEVICE,
 	.desc		= scsi_dev_desc,
 };
+#endif
