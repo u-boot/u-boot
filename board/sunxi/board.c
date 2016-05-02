@@ -523,6 +523,7 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_fldo(1, CONFIG_AXP_FLDO1_VOLT);
 	power_failed |= axp_set_fldo(2, CONFIG_AXP_FLDO2_VOLT);
 	power_failed |= axp_set_fldo(3, CONFIG_AXP_FLDO3_VOLT);
+	power_failed |= axp_set_sw(IS_ENABLED(CONFIG_AXP_SW_ON));
 #endif
 #endif
 	printf("DRAM:");

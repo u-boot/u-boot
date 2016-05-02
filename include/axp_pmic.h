@@ -32,6 +32,7 @@ int axp_set_aldo4(unsigned int mvolt);
 int axp_set_dldo(int dldo_num, unsigned int mvolt);
 int axp_set_eldo(int eldo_num, unsigned int mvolt);
 int axp_set_fldo(int fldo_num, unsigned int mvolt);
+int axp_set_sw(bool on);
 int axp_init(void);
 int axp_get_sid(unsigned int *sid);
 

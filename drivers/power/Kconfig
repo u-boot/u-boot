@@ -265,6 +265,13 @@ config AXP_FLDO3_VOLT
 	Set the voltage (mV) to program the axp pmic fldo3 at, set to 0 to
 	disable fldo3.
 
+config AXP_SW_ON
+	bool "axp pmic sw on"
+	depends on AXP818_POWER
+	default n
+	---help---
+	Enable to turn on axp pmic sw.
+
 config SY8106A_VOUT1_VOLT
 	int "SY8106A pmic VOUT1 voltage"
 	depends on SY8106A_POWER
