@@ -419,7 +419,7 @@ config AXP_GPIO
 
 config VIDEO
 	boolean "Enable graphical uboot console on HDMI, LCD or VGA"
-	depends on !MACH_SUN8I_A83T
+	depends on !MACH_SUN8I_A83T && !MACH_SUN8I_H3 && !MACH_SUN9I && !MACH_SUN50I_A64
 	default y
 	---help---
 	Say Y here to add support for using a cfb console on the HDMI, LCD
