@@ -278,6 +278,17 @@ int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);
  */
 int phy_get_interface_by_name(const char *str);
 
+/**
+ * phy_interface_is_rgmii - Convenience function for testing if a PHY interface
+ * is RGMII (all variants)
+ * @phydev: the phy_device struct
+ */
+static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
+{
+	return phydev->interface >= PHY_INTERFACE_MODE_RGMII &&
+		phydev->interface <= PHY_INTERFACE_MODE_RGMII_TXID;
+}
+
 /* PHY UIDs for various PHYs that are referenced in external code */
 #define PHY_UID_CS4340  0x13e51002
 #define PHY_UID_TN2020	0x00a19410

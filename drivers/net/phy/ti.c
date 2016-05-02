@@ -156,17 +156,6 @@ void phy_write_mmd_indirect(struct phy_device *phydev, int prtad,
 	phy_write(phydev, addr, MII_MMD_DATA, data);
 }
 
-/**
- * phy_interface_is_rgmii - Convenience function for testing if a PHY interface
- * is RGMII (all variants)
- * @phydev: the phy_device struct
- */
-static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
-{
-	return phydev->interface >= PHY_INTERFACE_MODE_RGMII &&
-		phydev->interface <= PHY_INTERFACE_MODE_RGMII_TXID;
-}
-
 #if defined(CONFIG_DM_ETH)
 /**
  * dp83867_data_init - Convenience function for setting PHY specific data
