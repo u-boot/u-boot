@@ -15,7 +15,8 @@ int uniphier_sld3_init(const struct uniphier_board_data *bd)
 	uniphier_sld3_bcu_init(bd);
 
 	uniphier_sbc_init_admulti(bd);
-	uniphier_sld3_sbc_init(bd);
+
+	uniphier_sld3_early_pin_init(bd);
 
 	support_card_reset();
 
@@ -33,8 +34,6 @@ int uniphier_sld3_init(const struct uniphier_board_data *bd)
 	uniphier_ld4_early_clk_init(bd);
 
 	led_puts("L2");
-
-	uniphier_sld3_early_pin_init(bd);
 
 	led_puts("L3");
 
