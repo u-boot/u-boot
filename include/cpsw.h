@@ -21,6 +21,7 @@ struct cpsw_slave_data {
 	u32		sliver_reg_ofs;
 	int		phy_addr;
 	int		phy_if;
+	int		phy_of_handle;
 };
 
 enum {

@@ -966,6 +966,11 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
 
+#ifdef CONFIG_DM_ETH
+	if (slave->data->phy_of_handle)
+		phydev->dev->of_offset = slave->data->phy_of_handle;
+#endif
+
 	priv->phydev = phydev;
 	phy_config(phydev);
 
@@ -1226,8 +1231,22 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 			if (phy_mode)
 				priv->data.slave_data[slave_index].phy_if =
 					phy_get_interface_by_name(phy_mode);
-			fdtdec_get_int_array(fdt, subnode, "phy_id", phy_id, 2);
-			priv->data.slave_data[slave_index].phy_addr = phy_id[1];
+
+			priv->data.slave_data[slave_index].phy_of_handle =
+				fdtdec_lookup_phandle(fdt, subnode,
+						      "phy-handle");
+
+			if (priv->data.slave_data[slave_index].phy_of_handle >= 0) {
+				priv->data.slave_data[slave_index].phy_addr =
+						fdtdec_get_int(gd->fdt_blob,
+							       priv->data.slave_data[slave_index].phy_of_handle,
+							       "reg", -1);
+			} else {
+				fdtdec_get_int_array(fdt, subnode, "phy_id",
+						     phy_id, 2);
+				priv->data.slave_data[slave_index].phy_addr =
+						phy_id[1];
+			}
 			slave_index++;
 		}
 
