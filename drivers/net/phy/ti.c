@@ -221,7 +221,7 @@ static int dp83867_config(struct phy_device *phydev)
 			(dp83867->fifo_depth << DP83867_PHYCR_FIFO_DEPTH_SHIFT));
 		if (ret)
 			goto err_out;
-	} else {
+	} else if (phy_interface_is_sgmii(phydev)) {
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR,
 			  (BMCR_ANENABLE | BMCR_FULLDPLX | BMCR_SPEED1000));
 
