@@ -44,6 +44,7 @@ config AXP221_POWER
 config AXP818_POWER
 	boolean "axp818 pmic support"
 	depends on MACH_SUN8I_A83T
+	select CMD_POWEROFF
 	---help---
 	Say y here to enable support for the axp818 pmic found on
 	A83T dev board.

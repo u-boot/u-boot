@@ -255,3 +255,14 @@ int axp_init(void)
 
 	return 0;
 }
+
+int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	pmic_bus_write(AXP818_SHUTDOWN, AXP818_SHUTDOWN_POWEROFF);
+
+	/* infinite loop during shutdown */
+	while (1) {}
+
+	/* not reached */
+	return 0;
+}

@@ -55,6 +55,9 @@
 #define AXP818_ALDO2_CTRL	0x29
 #define AXP818_ALDO3_CTRL	0x2a
 
+#define AXP818_SHUTDOWN		0x32
+#define AXP818_SHUTDOWN_POWEROFF	(1 << 7)
+
 /* For axp_gpio.c */
 #define AXP_POWER_STATUS		0x00
 #define AXP_POWER_STATUS_VBUS_PRESENT		(1 << 5)
