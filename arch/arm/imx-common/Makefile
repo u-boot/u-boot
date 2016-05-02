@@ -68,7 +68,7 @@ SPL: spl/u-boot-spl.bin $(IMX_CONFIG) FORCE
 	$(call if_changed,mkimage)
 
 MKIMAGEFLAGS_u-boot.uim = -A arm -O U-Boot -a $(CONFIG_SYS_TEXT_BASE) \
-		-e $(CONFIG_SYS_TEXT_BASE) -C none
+		-e $(CONFIG_SYS_TEXT_BASE) -C none -T firmware
 
 u-boot.uim: u-boot.bin FORCE
 	$(call if_changed,mkimage)
