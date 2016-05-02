@@ -249,7 +249,7 @@ config AXP_FLDO1_VOLT
 	used.
 
 config AXP_FLDO2_VOLT
-	int "axp pmic eldo2 voltage"
+	int "axp pmic fldo2 voltage"
 	depends on AXP818_POWER
 	default 900 if MACH_SUN8I_A83T
 	---help---
