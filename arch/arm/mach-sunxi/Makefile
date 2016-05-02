@@ -37,6 +37,7 @@ obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o
 obj-$(CONFIG_AXP152_POWER)	+= pmic_bus.o
 obj-$(CONFIG_AXP209_POWER)	+= pmic_bus.o
 obj-$(CONFIG_AXP221_POWER)	+= pmic_bus.o
+obj-$(CONFIG_AXP809_POWER)	+= pmic_bus.o
 obj-$(CONFIG_AXP818_POWER)	+= pmic_bus.o
 
 ifdef CONFIG_SPL_BUILD

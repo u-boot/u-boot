@@ -483,10 +483,12 @@ void sunxi_board_init(void)
 #endif
 
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-	defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+	defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed = axp_init();
 
-#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_dcdc1(CONFIG_AXP_DCDC1_VOLT);
 #endif
 	power_failed |= axp_set_dcdc2(CONFIG_AXP_DCDC2_VOLT);
@@ -494,11 +496,13 @@ void sunxi_board_init(void)
 #if !defined(CONFIG_AXP209_POWER) && !defined(CONFIG_AXP818_POWER)
 	power_failed |= axp_set_dcdc4(CONFIG_AXP_DCDC4_VOLT);
 #endif
-#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_dcdc5(CONFIG_AXP_DCDC5_VOLT);
 #endif
 
-#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
+	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_aldo1(CONFIG_AXP_ALDO1_VOLT);
 #endif
 	power_failed |= axp_set_aldo2(CONFIG_AXP_ALDO2_VOLT);
@@ -509,11 +513,14 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_aldo4(CONFIG_AXP_ALDO4_VOLT);
 #endif
 
-#if defined(CONFIG_AXP221_POWER) || defined(CONFIG_AXP818_POWER)
+#if defined(CONFIG_AXP221_POWER) || defined(CONFIG_AXP809_POWER) || \
+	defined(CONFIG_AXP818_POWER)
 	power_failed |= axp_set_dldo(1, CONFIG_AXP_DLDO1_VOLT);
 	power_failed |= axp_set_dldo(2, CONFIG_AXP_DLDO2_VOLT);
+#if !defined CONFIG_AXP809_POWER
 	power_failed |= axp_set_dldo(3, CONFIG_AXP_DLDO3_VOLT);
 	power_failed |= axp_set_dldo(4, CONFIG_AXP_DLDO4_VOLT);
+#endif
 	power_failed |= axp_set_eldo(1, CONFIG_AXP_ELDO1_VOLT);
 	power_failed |= axp_set_eldo(2, CONFIG_AXP_ELDO2_VOLT);
 	power_failed |= axp_set_eldo(3, CONFIG_AXP_ELDO3_VOLT);
@@ -523,6 +530,9 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_fldo(1, CONFIG_AXP_FLDO1_VOLT);
 	power_failed |= axp_set_fldo(2, CONFIG_AXP_FLDO2_VOLT);
 	power_failed |= axp_set_fldo(3, CONFIG_AXP_FLDO3_VOLT);
+#endif
+
+#if defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_sw(IS_ENABLED(CONFIG_AXP_SW_ON));
 #endif
 #endif
