@@ -6,6 +6,14 @@
  */
 #include <common.h>
 #include <phy.h>
+#include <linux/compat.h>
+#include <malloc.h>
+
+#include <fdtdec.h>
+#include <dm.h>
+#include <dt-bindings/net/ti-dp83867.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* TI DP83867 */
 #define DP83867_DEVADDR		0x1f
@@ -70,6 +78,17 @@
 #define MII_MMD_CTRL_NOINCR	0x4000 /* no post increment */
 #define MII_MMD_CTRL_INCR_RDWT	0x8000 /* post increment on reads & writes */
 #define MII_MMD_CTRL_INCR_ON_WT	0xC000 /* post increment on writes only */
+
+/* User setting - can be taken from DTS */
+#define DEFAULT_RX_ID_DELAY	DP83867_RGMIIDCTL_2_25_NS
+#define DEFAULT_TX_ID_DELAY	DP83867_RGMIIDCTL_2_75_NS
+#define DEFAULT_FIFO_DEPTH	DP83867_PHYCR_FIFO_DEPTH_4_B_NIB
+
+struct dp83867_private {
+	int rx_id_delay;
+	int tx_id_delay;
+	int fifo_depth;
+};
 
 /**
  * phy_read_mmd_indirect - reads data from the MMD registers
@@ -148,15 +167,59 @@ static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
 		phydev->interface <= PHY_INTERFACE_MODE_RGMII_TXID;
 }
 
-/* User setting - can be taken from DTS */
-#define RX_ID_DELAY	8
-#define TX_ID_DELAY	0xa
-#define FIFO_DEPTH	1
+#if defined(CONFIG_DM_ETH)
+/**
+ * dp83867_data_init - Convenience function for setting PHY specific data
+ *
+ * @phydev: the phy_device struct
+ */
+static int dp83867_of_init(struct phy_device *phydev)
+{
+	struct dp83867_private *dp83867 = phydev->priv;
+	struct udevice *dev = phydev->dev;
+
+	dp83867->rx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+				 "ti,rx-internal-delay", -1);
+
+	dp83867->tx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+				 "ti,tx-internal-delay", -1);
+
+	dp83867->fifo_depth = fdtdec_get_uint(gd->fdt_blob, dev->of_offset,
+				 "ti,fifo-depth", -1);
+
+	return 0;
+}
+#else
+static int dp83867_of_init(struct phy_device *phydev)
+{
+	struct dp83867_private *dp83867 = phydev->priv;
+
+	dp83867->rx_id_delay = DEFAULT_RX_ID_DELAY;
+	dp83867->tx_id_delay = DEFAULT_TX_ID_DELAY;
+	dp83867->fifo_depth = DEFAULT_FIFO_DEPTH;
+
+	return 0;
+}
+#endif
 
 static int dp83867_config(struct phy_device *phydev)
 {
+	struct dp83867_private *dp83867;
 	unsigned int val, delay, cfg2;
 	int ret;
+
+	if (!phydev->priv) {
+		dp83867 = kzalloc(sizeof(*dp83867), GFP_KERNEL);
+		if (!dp83867)
+			return -ENOMEM;
+
+		phydev->priv = dp83867;
+		ret = dp83867_of_init(phydev);
+		if (ret)
+			goto err_out;
+	} else {
+		dp83867 = (struct dp83867_private *)phydev->priv;
+	}
 
 	/* Restart the PHY.  */
 	val = phy_read(phydev, MDIO_DEVAD_NONE, DP83867_CTRL);
@@ -166,9 +229,9 @@ static int dp83867_config(struct phy_device *phydev)
 	if (phy_interface_is_rgmii(phydev)) {
 		ret = phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL,
 			(DP83867_MDI_CROSSOVER_AUTO << DP83867_MDI_CROSSOVER) |
-			(FIFO_DEPTH << DP83867_PHYCR_FIFO_DEPTH_SHIFT));
+			(dp83867->fifo_depth << DP83867_PHYCR_FIFO_DEPTH_SHIFT));
 		if (ret)
-			return ret;
+			goto err_out;
 	} else {
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR,
 			  (BMCR_ANENABLE | BMCR_FULLDPLX | BMCR_SPEED1000));
@@ -189,8 +252,8 @@ static int dp83867_config(struct phy_device *phydev)
 			  DP83867_PHYCTRL_SGMIIEN |
 			  (DP83867_MDI_CROSSOVER_MDIX <<
 			  DP83867_MDI_CROSSOVER) |
-			  (FIFO_DEPTH << DP83867_PHYCTRL_RXFIFO_SHIFT) |
-			  (FIFO_DEPTH  << DP83867_PHYCTRL_TXFIFO_SHIFT));
+			  (dp83867->fifo_depth << DP83867_PHYCTRL_RXFIFO_SHIFT) |
+			  (dp83867->fifo_depth << DP83867_PHYCTRL_TXFIFO_SHIFT));
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_BISCR, 0x0);
 	}
 
@@ -212,8 +275,8 @@ static int dp83867_config(struct phy_device *phydev)
 		phy_write_mmd_indirect(phydev, DP83867_RGMIICTL,
 				       DP83867_DEVADDR, phydev->addr, val);
 
-		delay = (RX_ID_DELAY |
-			 (TX_ID_DELAY << DP83867_RGMII_TX_CLK_DELAY_SHIFT));
+		delay = (dp83867->rx_id_delay |
+			 (dp83867->tx_id_delay << DP83867_RGMII_TX_CLK_DELAY_SHIFT));
 
 		phy_write_mmd_indirect(phydev, DP83867_RGMIIDCTL,
 				       DP83867_DEVADDR, phydev->addr, delay);
@@ -221,6 +284,10 @@ static int dp83867_config(struct phy_device *phydev)
 
 	genphy_config_aneg(phydev);
 	return 0;
+
+err_out:
+	kfree(dp83867);
+	return ret;
 }
 
 static struct phy_driver DP83867_driver = {
