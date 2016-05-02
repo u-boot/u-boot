@@ -289,6 +289,17 @@ static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
 		phydev->interface <= PHY_INTERFACE_MODE_RGMII_TXID;
 }
 
+/**
+ * phy_interface_is_sgmii - Convenience function for testing if a PHY interface
+ * is SGMII (all variants)
+ * @phydev: the phy_device struct
+ */
+static inline bool phy_interface_is_sgmii(struct phy_device *phydev)
+{
+	return phydev->interface >= PHY_INTERFACE_MODE_SGMII &&
+		phydev->interface <= PHY_INTERFACE_MODE_QSGMII;
+}
+
 /* PHY UIDs for various PHYs that are referenced in external code */
 #define PHY_UID_CS4340  0x13e51002
 #define PHY_UID_TN2020	0x00a19410
