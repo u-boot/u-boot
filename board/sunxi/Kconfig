@@ -260,6 +260,7 @@ config MMC
 
 config MMC0_CD_PIN
 	string "Card detect pin for mmc0"
+	default "PF6" if MACH_SUN8I_A83T || MACH_SUN8I_H3 || MACH_SUN50I
 	default ""
 	---help---
 	Set the card detect pin for mmc0, leave empty to not use cd. This
