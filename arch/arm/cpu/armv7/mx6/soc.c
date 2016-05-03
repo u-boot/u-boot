@@ -108,6 +108,12 @@ u32 get_cpu_rev(void)
 #define OCOTP_CFG3_SPEED_1GHZ	2
 #define OCOTP_CFG3_SPEED_1P2GHZ	3
 
+/*
+ * For i.MX6UL
+ */
+#define OCOTP_CFG3_SPEED_528MHZ 1
+#define OCOTP_CFG3_SPEED_696MHZ 2
+
 u32 get_cpu_speed_grade_hz(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -119,6 +125,15 @@ u32 get_cpu_speed_grade_hz(void)
 	val = readl(&fuse->cfg3);
 	val >>= OCOTP_CFG3_SPEED_SHIFT;
 	val &= 0x3;
+
+	if (is_cpu_type(MXC_CPU_MX6UL)) {
+		if (val == OCOTP_CFG3_SPEED_528MHZ)
+			return 528000000;
+		else if (val == OCOTP_CFG3_SPEED_696MHZ)
+			return 69600000;
+		else
+			return 0;
+	}
 
 	switch (val) {
 	/* Valid for IMX6DQ */
