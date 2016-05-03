@@ -19,6 +19,13 @@
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>
 
+/* SRAM starts at 0x40200000 and ends at 0x4020FFFF (64KB) */
+#undef CONFIG_SPL_MAX_SIZE
+#undef CONFIG_SPL_TEXT_BASE
+
+#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
+#define CONFIG_SPL_TEXT_BASE		0x40200000
+
 /*
  * Display CPU and Board information
  */
