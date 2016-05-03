@@ -133,10 +133,8 @@ static void process_args(int argc, char **argv)
 	char *ptr;
 	int type = IH_TYPE_INVALID;
 	char *datafile = NULL;
-	int expecting;
 	int opt;
 
-	expecting = IH_TYPE_COUNT;	/* Unknown */
 	while ((opt = getopt(argc, argv,
 			     "a:A:b:cC:d:D:e:Ef:Fk:K:ln:O:rR:sT:vVx")) != -1) {
 		switch (opt) {
@@ -154,8 +152,7 @@ static void process_args(int argc, char **argv)
 				usage("Invalid architecture");
 			break;
 		case 'b':
-			expecting = IH_TYPE_FLATDT;
-			if (add_content(expecting, optarg)) {
+			if (add_content(IH_TYPE_FLATDT, optarg)) {
 				fprintf(stderr,
 					"%s: Out of memory adding content '%s'",
 					params.cmdname, optarg);
@@ -238,7 +235,6 @@ static void process_args(int argc, char **argv)
 				show_image_types();
 				usage("Invalid image type");
 			}
-			expecting = type;
 			break;
 		case 'v':
 			params.vflag++;
@@ -254,7 +250,8 @@ static void process_args(int argc, char **argv)
 		}
 	}
 
-	if (optind < argc && expecting == type)
+	/* The last parameter is expected to be the imagefile */
+	if (optind < argc)
 		params.imagefile = argv[optind];
 
 	/*
