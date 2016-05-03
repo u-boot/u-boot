@@ -34,7 +34,8 @@ struct soft_spi_priv {
 
 static int soft_spi_scl(struct udevice *dev, int bit)
 {
-	struct soft_spi_platdata *plat = dev->platdata;
+	struct udevice *bus = dev_get_parent(dev);
+	struct soft_spi_platdata *plat = dev_get_platdata(bus);
 
 	dm_gpio_set_value(&plat->sclk, bit);
 
@@ -43,7 +44,8 @@ static int soft_spi_scl(struct udevice *dev, int bit)
 
 static int soft_spi_sda(struct udevice *dev, int bit)
 {
-	struct soft_spi_platdata *plat = dev->platdata;
+	struct udevice *bus = dev_get_parent(dev);
+	struct soft_spi_platdata *plat = dev_get_platdata(bus);
 
 	dm_gpio_set_value(&plat->mosi, bit);
 
@@ -52,7 +54,8 @@ static int soft_spi_sda(struct udevice *dev, int bit)
 
 static int soft_spi_cs_activate(struct udevice *dev)
 {
-	struct soft_spi_platdata *plat = dev->platdata;
+	struct udevice *bus = dev_get_parent(dev);
+	struct soft_spi_platdata *plat = dev_get_platdata(bus);
 
 	dm_gpio_set_value(&plat->cs, 0);
 	dm_gpio_set_value(&plat->sclk, 0);
@@ -63,7 +66,8 @@ static int soft_spi_cs_activate(struct udevice *dev)
 
 static int soft_spi_cs_deactivate(struct udevice *dev)
 {
-	struct soft_spi_platdata *plat = dev->platdata;
+	struct udevice *bus = dev_get_parent(dev);
+	struct soft_spi_platdata *plat = dev_get_platdata(bus);
 
 	dm_gpio_set_value(&plat->cs, 0);
 
@@ -100,8 +104,9 @@ static int soft_spi_release_bus(struct udevice *dev)
 static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			 const void *dout, void *din, unsigned long flags)
 {
-	struct soft_spi_priv *priv = dev_get_priv(dev);
-	struct soft_spi_platdata *plat = dev->platdata;
+	struct udevice *bus = dev_get_parent(dev);
+	struct soft_spi_priv *priv = dev_get_priv(bus);
+	struct soft_spi_platdata *plat = dev_get_platdata(bus);
 	uchar		tmpdin  = 0;
 	uchar		tmpdout = 0;
 	const u8	*txd = dout;
@@ -134,7 +139,7 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		if (!cpha)
 			soft_spi_scl(dev, 0);
-		soft_spi_sda(dev, tmpdout & 0x80);
+		soft_spi_sda(dev, !!(tmpdout & 0x80));
 		udelay(plat->spi_delay_us);
 		if (cpha)
 			soft_spi_scl(dev, 0);
