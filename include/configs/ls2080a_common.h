@@ -185,10 +185,10 @@ unsigned long long get_qixis_addr(void);
 #endif
 
 /* PCIe */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
-#define CONFIG_PCIE3		/* PCIE controler 3 */
-#define CONFIG_PCIE4		/* PCIE controler 4 */
+#define CONFIG_PCIE1		/* PCIE controller 1 */
+#define CONFIG_PCIE2		/* PCIE controller 2 */
+#define CONFIG_PCIE3		/* PCIE controller 3 */
+#define CONFIG_PCIE4		/* PCIE controller 4 */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #ifdef CONFIG_LS2080A
 #define FSL_PCIE_COMPAT "fsl,ls2080a-pcie"

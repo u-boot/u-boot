@@ -528,8 +528,8 @@ unsigned long get_board_ddr_clk(void);
 
 /* PCIe */
 #define CONFIG_PCI		/* Enable PCI/PCIE */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
+#define CONFIG_PCIE1		/* PCIE controller 1 */
+#define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
 
