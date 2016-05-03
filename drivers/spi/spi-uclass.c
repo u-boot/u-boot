@@ -45,12 +45,12 @@ static int spi_set_speed_mode(struct udevice *bus, int speed, int mode)
 	return 0;
 }
 
-int spi_claim_bus(struct spi_slave *slave)
+int dm_spi_claim_bus(struct udevice *dev)
 {
-	struct udevice *dev = slave->dev;
 	struct udevice *bus = dev->parent;
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 	int speed;
 	int ret;
 
@@ -73,9 +73,8 @@ int spi_claim_bus(struct spi_slave *slave)
 	return ops->claim_bus ? ops->claim_bus(dev) : 0;
 }
 
-void spi_release_bus(struct spi_slave *slave)
+void dm_spi_release_bus(struct udevice *dev)
 {
-	struct udevice *dev = slave->dev;
 	struct udevice *bus = dev->parent;
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 
@@ -83,16 +82,31 @@ void spi_release_bus(struct spi_slave *slave)
 		ops->release_bus(dev);
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-	     const void *dout, void *din, unsigned long flags)
+int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
+		const void *dout, void *din, unsigned long flags)
 {
-	struct udevice *dev = slave->dev;
 	struct udevice *bus = dev->parent;
 
 	if (bus->uclass->uc_drv->id != UCLASS_SPI)
 		return -EOPNOTSUPP;
 
 	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
+}
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	return dm_spi_claim_bus(slave->dev);
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+	dm_spi_release_bus(slave->dev);
+}
+
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+	     const void *dout, void *din, unsigned long flags)
+{
+	return dm_spi_xfer(slave->dev, bitlen, dout, din, flags);
 }
 
 static int spi_post_bind(struct udevice *dev)
