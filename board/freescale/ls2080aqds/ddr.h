@@ -28,10 +28,10 @@ static const struct board_specific_parameters udimm0[] = {
 	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
 	 */
-	{2,  1350, 0, 4,     6, 0x0708090B, 0x0C0D0E09,},
-	{2,  1666, 0, 4,     7, 0x08090A0C, 0x0D0F100B,},
-	{2,  1900, 0, 4,     7, 0x09090B0D, 0x0E10120B,},
-	{2,  2300, 0, 4,     8, 0x090A0C0F, 0x1012130C,},
+	{2,  1350, 0, 8,     6, 0x0708090B, 0x0C0D0E09,},
+	{2,  1666, 0, 8,     7, 0x08090A0C, 0x0D0F100B,},
+	{2,  1900, 0, 8,     7, 0x09090B0D, 0x0E10120B,},
+	{2,  2300, 0, 8,     8, 0x090A0C0F, 0x1012130C,},
 	{}
 };
 
@@ -42,10 +42,10 @@ static const struct board_specific_parameters udimm2[] = {
 	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
 	 */
-	{2,  1350, 0, 4,   0xd, 0x0C0A0A00, 0x00000009,},
-	{2,  1666, 0, 4,   0xd, 0x0C0A0A00, 0x00000009,},
-	{2,  1900, 0, 4,   0xe, 0x0D0C0B00, 0x0000000A,},
-	{2,  2200, 0, 4,   0xe, 0x0D0C0B00, 0x0000000A,},
+	{2,  1350, 0, 8,   0xd, 0x0C0A0A00, 0x00000009,},
+	{2,  1666, 0, 8,   0xd, 0x0C0A0A00, 0x00000009,},
+	{2,  1900, 0, 8,   0xe, 0x0D0C0B00, 0x0000000A,},
+	{2,  2200, 0, 8,   0xe, 0x0D0C0B00, 0x0000000A,},
 	{}
 };
 
@@ -55,10 +55,10 @@ static const struct board_specific_parameters rdimm0[] = {
 	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
 	 */
-	{2,  1350, 0, 4,     6, 0x0708090B, 0x0C0D0E09,},
-	{2,  1666, 0, 4,     7, 0x08090A0C, 0x0D0F100B,},
-	{2,  1900, 0, 4,     7, 0x09090B0D, 0x0E10120B,},
-	{2,  2200, 0, 4,     8, 0x090A0C0F, 0x1012130C,},
+	{2,  1350, 0, 8,     6, 0x0708090B, 0x0C0D0E09,},
+	{2,  1666, 0, 8,     7, 0x08090A0C, 0x0D0F100B,},
+	{2,  1900, 0, 8,     7, 0x09090B0D, 0x0E10120B,},
+	{2,  2200, 0, 8,     8, 0x090A0C0F, 0x1012130C,},
 	{}
 };
 
@@ -69,10 +69,10 @@ static const struct board_specific_parameters rdimm2[] = {
 	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
 	 */
-	{2,  1350, 0, 4,     6, 0x0708090B, 0x0C0D0E09,},
-	{2,  1666, 0, 4,     7, 0x0B0A090C, 0x0D0F100B,},
-	{2,  1900, 0, 4,     7, 0x09090B0D, 0x0E10120B,},
-	{2,  2200, 0, 4,     8, 0x090A0C0F, 0x1012130C,},
+	{2,  1350, 0, 8,     6, 0x0708090B, 0x0C0D0E09,},
+	{2,  1666, 0, 8,     7, 0x0B0A090C, 0x0D0F100B,},
+	{2,  1900, 0, 8,     7, 0x09090B0D, 0x0E10120B,},
+	{2,  2200, 0, 8,     8, 0x090A0C0F, 0x1012130C,},
 	{}
 };
 
