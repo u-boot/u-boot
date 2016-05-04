@@ -140,7 +140,7 @@
 #define CONFIG_PREBOOT \
 	"echo ======================NOTICE============================;"\
 	"echo \"The u-boot environment is not set.\";"			\
-	"echo \"If using a display a valid display varible for your panel\";" \
+	"echo \"If using a display a valid display variable for your panel\";" \
 	"echo \"needs to be set.\";"					\
 	"echo \"Valid display options are:\";"				\
 	"echo \"  2 == LQ121S1DG31     TFT SVGA    (12.1)  Sharp\";"	\

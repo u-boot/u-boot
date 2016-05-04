@@ -34,7 +34,7 @@ U-Boot MARUBUN MR-SHPC-01 PCMCIA controller driver
 	ex.	#define CONFIG_PCMCIA_SLOT_A    1
 
     * CONFIG_SYS_MARUBUN_MRSHPC
-	This is MR-SHPC-01 PCMCIA controler base address.
+	This is MR-SHPC-01 PCMCIA controller base address.
 	You should do the setting matched to your environment.
 	ex.  #define CONFIG_SYS_MARUBUN_MRSHPC 0xb03fffe0
 	     ( for MS7722SE01 environment )

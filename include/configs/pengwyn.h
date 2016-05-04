@@ -102,7 +102,7 @@
 	"run mmcboot;" \
 	"run nandboot;"
 
-/* NS16550 Configuration: primary UART via FDTI */
+/* NS16550 Configuration: primary UART via FTDI */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 #define CONFIG_BAUDRATE			115200
 

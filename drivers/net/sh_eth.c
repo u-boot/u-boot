@@ -1,5 +1,5 @@
 /*
- * sh_eth.c - Driver for Renesas ethernet controler.
+ * sh_eth.c - Driver for Renesas ethernet controller.
  *
  * Copyright (C) 2008, 2011 Renesas Solutions Corp.
  * Copyright (c) 2008, 2011, 2014 2014 Nobuhiro Iwamatsu

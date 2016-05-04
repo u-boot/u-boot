@@ -180,7 +180,7 @@ ulong get_ddr_freq(ulong ctrl_num)
 
 	/*
 	 * DDR controller 0 & 1 are on memory complex 0
-	 * DDR controler 2 is on memory complext 1
+	 * DDR controller 2 is on memory complext 1
 	 */
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	if (ctrl_num >= 2)

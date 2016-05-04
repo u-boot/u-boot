@@ -114,7 +114,7 @@ static int do_mmcsetn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(
 	   mmcsetn,	1,	1,	do_mmcsetn,
-	"Set the first MMC (not SD) dev number to \"mmc_first_dev\" enviroment",
+	"Set the first MMC (not SD) dev number to \"mmc_first_dev\" environment",
 	""
 );
 #endif

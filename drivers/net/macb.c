@@ -120,7 +120,7 @@ static int macb_is_gem(struct macb_device *macb)
 static int gem_is_gigabit_capable(struct macb_device *macb)
 {
 	/*
-	 * The GEM controllers embeded in SAMA5D2 and SAMA5D4 are
+	 * The GEM controllers embedded in SAMA5D2 and SAMA5D4 are
 	 * configured to support only 10/100.
 	 */
 	return macb_is_gem(macb) && !cpu_is_sama5d2() && !cpu_is_sama5d4();

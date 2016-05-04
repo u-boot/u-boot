@@ -273,12 +273,12 @@ def log_msg(color_enabled, color, defconfig, msg):
         color_text(color_enabled, color, msg) + '\n'
 
 def update_cross_compile():
-    """Update per-arch CROSS_COMPILE via enviroment variables
+    """Update per-arch CROSS_COMPILE via environment variables
 
     The default CROSS_COMPILE values are available
     in the CROSS_COMPILE list above.
 
-    You can override them via enviroment variables
+    You can override them via environment variables
     CROSS_COMPILE_{ARCH}.
 
     For example, if you want to override toolchain prefixes

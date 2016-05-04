@@ -812,9 +812,9 @@ static int calculate_cmp_img_sig(struct fsl_secboot_img_priv *img)
 }
 /* haddr - Address of the header of image to be validated.
  * arg_hash_str - Option hash string. If provided, this
- * overides the key hash in the SFP fuses.
+ * overrides the key hash in the SFP fuses.
  * img_addr_ptr - Optional pointer to address of image to be validated.
- * If non zero addr, this overides the addr of image in header,
+ * If non zero addr, this overrides the addr of image in header,
  * otherwise updated to image addr in header.
  * Acts as both input and output of function.
  * This pointer shouldn't be NULL.

@@ -1742,7 +1742,7 @@ int mtdparts_init(void)
 	debug("last_partition : %s\n", last_partition);
 	debug("env_partition  : %s\n", current_partition);
 
-	/* if mtdids varible is empty try to use defaults */
+	/* if mtdids variable is empty try to use defaults */
 	if (!ids) {
 		if (mtdids_default) {
 			debug("mtdids variable not defined, using default\n");
