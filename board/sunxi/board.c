@@ -133,15 +133,6 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_MACH_SUN50I
-void dram_init_banksize(void)
-{
-	/* We need to reserve the first 16MB of RAM for ATF */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE + (16 * 1024 * 1024);
-	gd->bd->bi_dram[0].size = get_effective_memsize() - (16 * 1024 * 1024);
-}
-#endif
-
 #if defined(CONFIG_NAND_SUNXI) && defined(CONFIG_SPL_BUILD)
 static void nand_pinmux_setup(void)
 {
