@@ -1835,10 +1835,17 @@ static void set_ddr_sdram_clk_cntl(fsl_ddr_cfg_regs_t *ddr,
 	/* Per FSL Application Note: AN2805 */
 	ss_en = 1;
 #endif
-	clk_adjust = popts->clk_adjust;
+	if (fsl_ddr_get_version(0) >= 0x40701) {
+		/* clk_adjust in 5-bits on T-series and LS-series */
+		clk_adjust = (popts->clk_adjust & 0x1F) << 22;
+	} else {
+		/* clk_adjust in 4-bits on earlier MPC85xx and P-series */
+		clk_adjust = (popts->clk_adjust & 0xF) << 23;
+	}
+
 	ddr->ddr_sdram_clk_cntl = (0
 				   | ((ss_en & 0x1) << 31)
-				   | ((clk_adjust & 0xF) << 23)
+				   | clk_adjust
 				   );
 	debug("FSLDDR: clk_cntl = 0x%08x\n", ddr->ddr_sdram_clk_cntl);
 }
