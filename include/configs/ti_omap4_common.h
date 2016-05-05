@@ -122,7 +122,10 @@
 	"loaduimage=load mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc${mmcdev} ...; " \
 		"run args_mmc; " \
-		"bootz ${loadaddr} - ${fdtaddr}\0" \
+		"if run loadimage; then " \
+			"run loadfdt; " \
+			"bootz ${loadaddr} - ${fdtaddr}; " \
+		"fi;\0" \
 	"uimageboot=echo Booting from mmc${mmcdev} ...; " \
 		"run args_mmc; " \
 		"bootm ${loadaddr}\0" \
