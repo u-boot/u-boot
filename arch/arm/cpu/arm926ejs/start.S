@@ -101,11 +101,13 @@ flush_dcache:
 #endif
 	mcr	p15, 0, r0, c1, c0, 0
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
 	mov	ip, lr		/* perserve link reg across call */
 	bl	lowlevel_init	/* go setup pll,mux,memory */
 	mov	lr, ip		/* restore link */
+#endif
 	mov	pc, lr		/* back to my caller */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
