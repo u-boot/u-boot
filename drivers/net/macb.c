@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
 
 /*
  * The u-boot networking stack is a little weird.  It seems like the
@@ -28,7 +29,9 @@
  */
 
 #include <net.h>
+#ifndef CONFIG_DM_ETH
 #include <netdev.h>
+#endif
 #include <malloc.h>
 #include <miiphy.h>
 
@@ -100,11 +103,15 @@ struct macb_device {
 	unsigned long		dummy_desc_dma;
 
 	const struct device	*dev;
+#ifndef CONFIG_DM_ETH
 	struct eth_device	netdev;
+#endif
 	unsigned short		phy_addr;
 	struct mii_dev		*bus;
 };
+#ifndef CONFIG_DM_ETH
 #define to_macb(_nd) container_of(_nd, struct macb_device, netdev)
+#endif
 
 static int macb_is_gem(struct macb_device *macb)
 {
@@ -194,8 +201,13 @@ void __weak arch_get_mdio_control(const char *name)
 
 int macb_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
 {
+#ifdef CONFIG_DM_ETH
+	struct udevice *dev = eth_get_dev_by_name(devname);
+	struct macb_device *macb = dev_get_priv(dev);
+#else
 	struct eth_device *dev = eth_get_dev_by_name(devname);
 	struct macb_device *macb = to_macb(dev);
+#endif
 
 	if (macb->phy_addr != phy_adr)
 		return -1;
@@ -208,8 +220,13 @@ int macb_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
 
 int macb_miiphy_write(const char *devname, u8 phy_adr, u8 reg, u16 value)
 {
+#ifdef CONFIG_DM_ETH
+	struct udevice *dev = eth_get_dev_by_name(devname);
+	struct macb_device *macb = dev_get_priv(dev);
+#else
 	struct eth_device *dev = eth_get_dev_by_name(devname);
 	struct macb_device *macb = to_macb(dev);
+#endif
 
 	if (macb->phy_addr != phy_adr)
 		return -1;
@@ -764,6 +781,7 @@ static void _macb_eth_initialize(struct macb_device *macb)
 	macb_writel(macb, NCFGR, ncfgr);
 }
 
+#ifndef CONFIG_DM_ETH
 static int macb_send(struct eth_device *netdev, void *packet, int length)
 {
 	struct macb_device *macb = to_macb(netdev);
@@ -849,5 +867,106 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 #endif
 	return 0;
 }
+#endif /* !CONFIG_DM_ETH */
+
+#ifdef CONFIG_DM_ETH
+
+static int macb_start(struct udevice *dev)
+{
+	struct macb_device *macb = dev_get_priv(dev);
+
+	return _macb_init(macb, dev->name);
+}
+
+static int macb_send(struct udevice *dev, void *packet, int length)
+{
+	struct macb_device *macb = dev_get_priv(dev);
+
+	return _macb_send(macb, dev->name, packet, length);
+}
+
+static int macb_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct macb_device *macb = dev_get_priv(dev);
+
+	macb->next_rx_tail = macb->rx_tail;
+	macb->wrapped = false;
+
+	return _macb_recv(macb, packetp);
+}
+
+static int macb_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct macb_device *macb = dev_get_priv(dev);
+
+	reclaim_rx_buffers(macb, macb->next_rx_tail);
+
+	return 0;
+}
+
+static void macb_stop(struct udevice *dev)
+{
+	struct macb_device *macb = dev_get_priv(dev);
+
+	_macb_halt(macb);
+}
+
+static int macb_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct macb_device *macb = dev_get_priv(dev);
+
+	return _macb_write_hwaddr(macb, plat->enetaddr);
+}
+
+static const struct eth_ops macb_eth_ops = {
+	.start	= macb_start,
+	.send	= macb_send,
+	.recv	= macb_recv,
+	.stop	= macb_stop,
+	.free_pkt	= macb_free_pkt,
+	.write_hwaddr	= macb_write_hwaddr,
+};
+
+static int macb_eth_probe(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct macb_device *macb = dev_get_priv(dev);
+
+	macb->regs = (void *)pdata->iobase;
+
+	_macb_eth_initialize(macb);
+#if defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
+	miiphy_register(dev->name, macb_miiphy_read, macb_miiphy_write);
+	macb->bus = miiphy_get_dev_by_name(dev->name);
+#endif
+
+	return 0;
+}
+
+static int macb_eth_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->iobase = dev_get_addr(dev);
+	return 0;
+}
+
+static const struct udevice_id macb_eth_ids[] = {
+	{ .compatible = "cdns,macb" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_macb) = {
+	.name	= "eth_macb",
+	.id	= UCLASS_ETH,
+	.of_match = macb_eth_ids,
+	.ofdata_to_platdata = macb_eth_ofdata_to_platdata,
+	.probe	= macb_eth_probe,
+	.ops	= &macb_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct macb_device),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+#endif
 
 #endif
