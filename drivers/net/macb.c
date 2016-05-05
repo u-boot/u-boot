@@ -84,6 +84,8 @@ struct macb_device {
 	unsigned int		rx_tail;
 	unsigned int		tx_head;
 	unsigned int		tx_tail;
+	unsigned int		next_rx_tail;
+	bool			wrapped;
 
 	void			*rx_buffer;
 	void			*tx_buffer;
@@ -255,9 +257,9 @@ static inline void macb_invalidate_rx_buffer(struct macb_device *macb)
 
 #if defined(CONFIG_CMD_NET)
 
-static int macb_send(struct eth_device *netdev, void *packet, int length)
+static int _macb_send(struct macb_device *macb, const char *name, void *packet,
+		      int length)
 {
-	struct macb_device *macb = to_macb(netdev);
 	unsigned long paddr, ctrl;
 	unsigned int tx_head = macb->tx_head;
 	int i;
@@ -298,12 +300,11 @@ static int macb_send(struct eth_device *netdev, void *packet, int length)
 
 	if (i <= MACB_TX_TIMEOUT) {
 		if (ctrl & TXBUF_UNDERRUN)
-			printf("%s: TX underrun\n", netdev->name);
+			printf("%s: TX underrun\n", name);
 		if (ctrl & TXBUF_EXHAUSTED)
-			printf("%s: TX buffers exhausted in mid frame\n",
-			       netdev->name);
+			printf("%s: TX buffers exhausted in mid frame\n", name);
 	} else {
-		printf("%s: TX timeout\n", netdev->name);
+		printf("%s: TX timeout\n", name);
 	}
 
 	/* No one cares anyway */
@@ -335,26 +336,25 @@ static void reclaim_rx_buffers(struct macb_device *macb,
 	macb->rx_tail = new_tail;
 }
 
-static int macb_recv(struct eth_device *netdev)
+static int _macb_recv(struct macb_device *macb, uchar **packetp)
 {
-	struct macb_device *macb = to_macb(netdev);
-	unsigned int rx_tail = macb->rx_tail;
+	unsigned int next_rx_tail = macb->next_rx_tail;
 	void *buffer;
 	int length;
-	int wrapped = 0;
 	u32 status;
 
+	macb->wrapped = false;
 	for (;;) {
 		macb_invalidate_ring_desc(macb, RX);
 
-		if (!(macb->rx_ring[rx_tail].addr & RXADDR_USED))
-			return -1;
+		if (!(macb->rx_ring[next_rx_tail].addr & RXADDR_USED))
+			return -EAGAIN;
 
-		status = macb->rx_ring[rx_tail].ctrl;
+		status = macb->rx_ring[next_rx_tail].ctrl;
 		if (status & RXBUF_FRAME_START) {
-			if (rx_tail != macb->rx_tail)
-				reclaim_rx_buffers(macb, rx_tail);
-			wrapped = 0;
+			if (next_rx_tail != macb->rx_tail)
+				reclaim_rx_buffers(macb, next_rx_tail);
+			macb->wrapped = false;
 		}
 
 		if (status & RXBUF_FRAME_END) {
@@ -362,7 +362,7 @@ static int macb_recv(struct eth_device *netdev)
 			length = status & RXBUF_FRMLEN_MASK;
 
 			macb_invalidate_rx_buffer(macb);
-			if (wrapped) {
+			if (macb->wrapped) {
 				unsigned int headlen, taillen;
 
 				headlen = 128 * (MACB_RX_RING_SIZE
@@ -372,34 +372,33 @@ static int macb_recv(struct eth_device *netdev)
 				       buffer, headlen);
 				memcpy((void *)net_rx_packets[0] + headlen,
 				       macb->rx_buffer, taillen);
-				buffer = (void *)net_rx_packets[0];
+				*packetp = (void *)net_rx_packets[0];
+			} else {
+				*packetp = buffer;
 			}
 
-			net_process_received_packet(buffer, length);
-			if (++rx_tail >= MACB_RX_RING_SIZE)
-				rx_tail = 0;
-			reclaim_rx_buffers(macb, rx_tail);
+			if (++next_rx_tail >= MACB_RX_RING_SIZE)
+				next_rx_tail = 0;
+			macb->next_rx_tail = next_rx_tail;
+			return length;
 		} else {
-			if (++rx_tail >= MACB_RX_RING_SIZE) {
-				wrapped = 1;
-				rx_tail = 0;
+			if (++next_rx_tail >= MACB_RX_RING_SIZE) {
+				macb->wrapped = true;
+				next_rx_tail = 0;
 			}
 		}
 		barrier();
 	}
-
-	return 0;
 }
 
-static void macb_phy_reset(struct macb_device *macb)
+static void macb_phy_reset(struct macb_device *macb, const char *name)
 {
-	struct eth_device *netdev = &macb->netdev;
 	int i;
 	u16 status, adv;
 
 	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
 	macb_mdio_write(macb, MII_ADVERTISE, adv);
-	printf("%s: Starting autonegotiation...\n", netdev->name);
+	printf("%s: Starting autonegotiation...\n", name);
 	macb_mdio_write(macb, MII_BMCR, (BMCR_ANENABLE
 					 | BMCR_ANRESTART));
 
@@ -411,10 +410,10 @@ static void macb_phy_reset(struct macb_device *macb)
 	}
 
 	if (status & BMSR_ANEGCOMPLETE)
-		printf("%s: Autonegotiation complete\n", netdev->name);
+		printf("%s: Autonegotiation complete\n", name);
 	else
 		printf("%s: Autonegotiation timed out (status=0x%04x)\n",
-		       netdev->name, status);
+		       name, status);
 }
 
 #ifdef CONFIG_MACB_SEARCH_PHY
@@ -441,9 +440,8 @@ static int macb_phy_find(struct macb_device *macb)
 #endif /* CONFIG_MACB_SEARCH_PHY */
 
 
-static int macb_phy_init(struct macb_device *macb)
+static int macb_phy_init(struct macb_device *macb, const char *name)
 {
-	struct eth_device *netdev = &macb->netdev;
 #ifdef CONFIG_PHYLIB
 	struct phy_device *phydev;
 #endif
@@ -452,7 +450,7 @@ static int macb_phy_init(struct macb_device *macb)
 	int media, speed, duplex;
 	int i;
 
-	arch_get_mdio_control(netdev->name);
+	arch_get_mdio_control(name);
 #ifdef CONFIG_MACB_SEARCH_PHY
 	/* Auto-detect phy_addr */
 	if (!macb_phy_find(macb))
@@ -462,13 +460,13 @@ static int macb_phy_init(struct macb_device *macb)
 	/* Check if the PHY is up to snuff... */
 	phy_id = macb_mdio_read(macb, MII_PHYSID1);
 	if (phy_id == 0xffff) {
-		printf("%s: No PHY present\n", netdev->name);
+		printf("%s: No PHY present\n", name);
 		return 0;
 	}
 
 #ifdef CONFIG_PHYLIB
 	/* need to consider other phy interface mode */
-	phydev = phy_connect(macb->bus, macb->phy_addr, netdev,
+	phydev = phy_connect(macb->bus, macb->phy_addr, &macb->netdev,
 			     PHY_INTERFACE_MODE_RGMII);
 	if (!phydev) {
 		printf("phy_connect failed\n");
@@ -481,7 +479,7 @@ static int macb_phy_init(struct macb_device *macb)
 	status = macb_mdio_read(macb, MII_BMSR);
 	if (!(status & BMSR_LSTATUS)) {
 		/* Try to re-negotiate if we don't have link already. */
-		macb_phy_reset(macb);
+		macb_phy_reset(macb, name);
 
 		for (i = 0; i < MACB_AUTONEG_TIMEOUT / 100; i++) {
 			status = macb_mdio_read(macb, MII_BMSR);
@@ -493,7 +491,7 @@ static int macb_phy_init(struct macb_device *macb)
 
 	if (!(status & BMSR_LSTATUS)) {
 		printf("%s: link down (status: 0x%04x)\n",
-		       netdev->name, status);
+		       name, status);
 		return 0;
 	}
 
@@ -505,7 +503,7 @@ static int macb_phy_init(struct macb_device *macb)
 			duplex = ((lpa & LPA_1000FULL) ? 1 : 0);
 
 			printf("%s: link up, 1000Mbps %s-duplex (lpa: 0x%04x)\n",
-			       netdev->name,
+			       name,
 			       duplex ? "full" : "half",
 			       lpa);
 
@@ -530,7 +528,7 @@ static int macb_phy_init(struct macb_device *macb)
 		 ? 1 : 0);
 	duplex = (media & ADVERTISE_FULL) ? 1 : 0;
 	printf("%s: link up, %sMbps %s-duplex (lpa: 0x%04x)\n",
-	       netdev->name,
+	       name,
 	       speed ? "100" : "10",
 	       duplex ? "full" : "half",
 	       lpa);
@@ -570,9 +568,8 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 	return 0;
 }
 
-static int macb_init(struct eth_device *netdev, bd_t *bd)
+static int _macb_init(struct macb_device *macb, const char *name)
 {
-	struct macb_device *macb = to_macb(netdev);
 	unsigned long paddr;
 	int i;
 
@@ -605,6 +602,7 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb->rx_tail = 0;
 	macb->tx_head = 0;
 	macb->tx_tail = 0;
+	macb->next_rx_tail = 0;
 
 	macb_writel(macb, RBQP, macb->rx_ring_dma);
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
@@ -641,7 +639,7 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 #endif /* CONFIG_RMII */
 	}
 
-	if (!macb_phy_init(macb))
+	if (!macb_phy_init(macb, name))
 		return -1;
 
 	/* Enable TX and RX */
@@ -650,9 +648,8 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	return 0;
 }
 
-static void macb_halt(struct eth_device *netdev)
+static void _macb_halt(struct macb_device *macb)
 {
-	struct macb_device *macb = to_macb(netdev);
 	u32 ncr, tsr;
 
 	/* Halt the controller and wait for any ongoing transmission to end. */
@@ -668,17 +665,16 @@ static void macb_halt(struct eth_device *netdev)
 	macb_writel(macb, NCR, MACB_BIT(CLRSTAT));
 }
 
-static int macb_write_hwaddr(struct eth_device *dev)
+static int _macb_write_hwaddr(struct macb_device *macb, unsigned char *enetaddr)
 {
-	struct macb_device *macb = to_macb(dev);
 	u32 hwaddr_bottom;
 	u16 hwaddr_top;
 
 	/* set hardware address */
-	hwaddr_bottom = dev->enetaddr[0] | dev->enetaddr[1] << 8 |
-			dev->enetaddr[2] << 16 | dev->enetaddr[3] << 24;
+	hwaddr_bottom = enetaddr[0] | enetaddr[1] << 8 |
+			enetaddr[2] << 16 | enetaddr[3] << 24;
 	macb_writel(macb, SA1B, hwaddr_bottom);
-	hwaddr_top = dev->enetaddr[4] | dev->enetaddr[5] << 8;
+	hwaddr_top = enetaddr[4] | enetaddr[5] << 8;
 	macb_writel(macb, SA1T, hwaddr_top);
 	return 0;
 }
@@ -739,21 +735,12 @@ static u32 macb_dbw(struct macb_device *macb)
 	}
 }
 
-int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
+static void _macb_eth_initialize(struct macb_device *macb)
 {
-	struct macb_device *macb;
-	struct eth_device *netdev;
+	int id = 0;	/* This is not used by functions we call */
 	u32 ncfgr;
 
-	macb = malloc(sizeof(struct macb_device));
-	if (!macb) {
-		printf("Error: Failed to allocate memory for MACB%d\n", id);
-		return -1;
-	}
-	memset(macb, 0, sizeof(struct macb_device));
-
-	netdev = &macb->netdev;
-
+	/* TODO: we need check the rx/tx_ring_dma is dcache line aligned */
 	macb->rx_buffer = dma_alloc_coherent(MACB_RX_BUFFER_SIZE,
 					     &macb->rx_buffer_dma);
 	macb->rx_ring = dma_alloc_coherent(MACB_RX_DMA_DESC_SIZE,
@@ -763,7 +750,80 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	macb->dummy_desc = dma_alloc_coherent(MACB_TX_DUMMY_DMA_DESC_SIZE,
 					   &macb->dummy_desc_dma);
 
-	/* TODO: we need check the rx/tx_ring_dma is dcache line aligned */
+	/*
+	 * Do some basic initialization so that we at least can talk
+	 * to the PHY
+	 */
+	if (macb_is_gem(macb)) {
+		ncfgr = gem_mdc_clk_div(id, macb);
+		ncfgr |= macb_dbw(macb);
+	} else {
+		ncfgr = macb_mdc_clk_div(id, macb);
+	}
+
+	macb_writel(macb, NCFGR, ncfgr);
+}
+
+static int macb_send(struct eth_device *netdev, void *packet, int length)
+{
+	struct macb_device *macb = to_macb(netdev);
+
+	return _macb_send(macb, netdev->name, packet, length);
+}
+
+static int macb_recv(struct eth_device *netdev)
+{
+	struct macb_device *macb = to_macb(netdev);
+	uchar *packet;
+	int length;
+
+	macb->wrapped = false;
+	for (;;) {
+		macb->next_rx_tail = macb->rx_tail;
+		length = _macb_recv(macb, &packet);
+		if (length >= 0) {
+			net_process_received_packet(packet, length);
+			reclaim_rx_buffers(macb, macb->next_rx_tail);
+		} else if (length < 0) {
+			return length;
+		}
+	}
+}
+
+static int macb_init(struct eth_device *netdev, bd_t *bd)
+{
+	struct macb_device *macb = to_macb(netdev);
+
+	return _macb_init(macb, netdev->name);
+}
+
+static void macb_halt(struct eth_device *netdev)
+{
+	struct macb_device *macb = to_macb(netdev);
+
+	return _macb_halt(macb);
+}
+
+static int macb_write_hwaddr(struct eth_device *netdev)
+{
+	struct macb_device *macb = to_macb(netdev);
+
+	return _macb_write_hwaddr(macb, netdev->enetaddr);
+}
+
+int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
+{
+	struct macb_device *macb;
+	struct eth_device *netdev;
+
+	macb = malloc(sizeof(struct macb_device));
+	if (!macb) {
+		printf("Error: Failed to allocate memory for MACB%d\n", id);
+		return -1;
+	}
+	memset(macb, 0, sizeof(struct macb_device));
+
+	netdev = &macb->netdev;
 
 	macb->regs = regs;
 	macb->phy_addr = phy_addr;
@@ -779,18 +839,7 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	netdev->recv = macb_recv;
 	netdev->write_hwaddr = macb_write_hwaddr;
 
-	/*
-	 * Do some basic initialization so that we at least can talk
-	 * to the PHY
-	 */
-	if (macb_is_gem(macb)) {
-		ncfgr = gem_mdc_clk_div(id, macb);
-		ncfgr |= macb_dbw(macb);
-	} else {
-		ncfgr = macb_mdc_clk_div(id, macb);
-	}
-
-	macb_writel(macb, NCFGR, ncfgr);
+	_macb_eth_initialize(macb);
 
 	eth_register(netdev);
 
