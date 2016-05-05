@@ -24,9 +24,9 @@
 
 /* Register access macros */
 #define ecc_readl(add, reg)				\
-	readl(AT91_BASE_SYS + add + ATMEL_ECC_##reg)
+	readl(add + ATMEL_ECC_##reg)
 #define ecc_writel(add, reg, value)			\
-	writel((value), AT91_BASE_SYS + add + ATMEL_ECC_##reg)
+	writel((value), add + ATMEL_ECC_##reg)
 
 #include "atmel_nand_ecc.h"	/* Hardware ECC registers */
 
