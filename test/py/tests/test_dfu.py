@@ -136,6 +136,8 @@ def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
             Nothing.
         """
 
+        u_boot_utils.wait_until_file_open_fails(
+            env__usb_dev_port['host_usb_dev_node'], True)
         fh = u_boot_utils.attempt_to_open_file(
             env__usb_dev_port['host_usb_dev_node'])
         if fh:
