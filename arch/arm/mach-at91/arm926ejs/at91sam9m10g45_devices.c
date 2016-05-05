@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
@@ -165,3 +166,20 @@ void at91_mci_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_MCI0);
 }
 #endif
+
+/* Platform data for the GPIOs */
+static const struct at91_port_platdata at91sam9260_plat[] = {
+	{ ATMEL_BASE_PIOA, "PA" },
+	{ ATMEL_BASE_PIOB, "PB" },
+	{ ATMEL_BASE_PIOC, "PC" },
+	{ ATMEL_BASE_PIOD, "PD" },
+	{ ATMEL_BASE_PIOE, "PE" },
+};
+
+U_BOOT_DEVICES(at91sam9260_gpios) = {
+	{ "gpio_at91", &at91sam9260_plat[0] },
+	{ "gpio_at91", &at91sam9260_plat[1] },
+	{ "gpio_at91", &at91sam9260_plat[2] },
+	{ "gpio_at91", &at91sam9260_plat[3] },
+	{ "gpio_at91", &at91sam9260_plat[4] },
+};
