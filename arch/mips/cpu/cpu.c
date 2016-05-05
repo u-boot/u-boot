@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/mipsregs.h>
 #include <asm/reboot.h>
