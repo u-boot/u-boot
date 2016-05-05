@@ -1170,7 +1170,7 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 	if (fdtdec_get_bool(blob, node, "doubleclk"))
 		dt->flags |= DISPLAY_FLAGS_DOUBLECLK;
 
-	return 0;
+	return ret;
 }
 
 int fdtdec_setup(void)
