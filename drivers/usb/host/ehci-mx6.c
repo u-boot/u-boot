@@ -254,7 +254,7 @@ static void usb_oc_config(int index)
 }
 
 /**
- * board_ehci_hcd_init - override usb phy mode
+ * board_usb_phy_mode - override usb phy mode
  * @port:	usb host/otg port
  *
  * Target board specific, override usb_phy_mode.
@@ -310,6 +310,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 #endif
 	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
 		(controller_spacing * index));
+	int ret;
 
 	if (index > 3)
 		return -EINVAL;
@@ -317,7 +318,9 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	mdelay(1);
 
 	/* Do board specific initialization */
-	board_ehci_hcd_init(index);
+	ret = board_ehci_hcd_init(index);
+	if (ret)
+		return ret;
 
 	usb_power_config(index);
 	usb_oc_config(index);
