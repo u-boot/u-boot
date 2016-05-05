@@ -280,7 +280,7 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	barrier();
 	macb_flush_ring_desc(macb, TX);
 	/* Do we need check paddr and length is dcache line aligned? */
-	flush_dcache_range(paddr, paddr + length);
+	flush_dcache_range(paddr, paddr + ALIGN(length, ARCH_DMA_MINALIGN));
 	macb_writel(macb, NCR, MACB_BIT(TE) | MACB_BIT(RE) | MACB_BIT(TSTART));
 
 	/*
