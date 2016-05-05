@@ -673,6 +673,15 @@ static int bootp_extended(u8 *e)
 
 	*e++ = 255;		/* End of the list */
 
+	/*
+	 * If nothing in list, remove it altogether. Some DHCP servers get
+	 * upset by this minor faux pas and do not respond at all.
+	 */
+	if (e == start + 3) {
+		printf("*** Warning: no DHCP options requested\n");
+		e -= 3;
+	}
+
 	return e - start;
 }
 #endif
