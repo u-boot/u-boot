@@ -1156,6 +1156,7 @@ int atmel_hwecc_nand_init_param(struct nand_chip *nand, struct mtd_info *mtd)
 	nand->ecc.hwctl = atmel_nand_hwctl;
 	nand->ecc.read_page = atmel_nand_read_page;
 	nand->ecc.bytes = 4;
+	nand->ecc.strength = 4;
 
 	if (nand->ecc.mode == NAND_ECC_HW) {
 		/* ECC is calculated for the whole page (1 step) */
