@@ -7,13 +7,31 @@
  */
 
 #include <common.h>
+#include <atmel_lcd.h>
+#include <dm.h>
 #include <fdtdec.h>
+#include <video.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
 #include <bmp_layout.h>
 #include <atmel_lcdc.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_DM_VIDEO
+enum {
+	/* Maximum LCD size we support */
+	LCD_MAX_WIDTH		= 1366,
+	LCD_MAX_HEIGHT		= 768,
+	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
+};
+#endif
+
+struct atmel_fb_priv {
+	struct display_timing timing;
+};
 
 /* configurable parameters */
 #define ATMEL_LCDC_CVAL_DEFAULT		0xc8
@@ -31,6 +49,7 @@
 #define lcdc_readl(mmio, reg)		__raw_readl((mmio)+(reg))
 #define lcdc_writel(mmio, reg, val)	__raw_writel((val), (mmio)+(reg))
 
+#ifndef CONFIG_DM_VIDEO
 ushort *configuration_get_cmap(void)
 {
 	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
@@ -91,6 +110,7 @@ void lcd_set_cmap(struct bmp_image *bmp, unsigned colors)
 		lcd_setcolreg(i, cte.red, cte.green, cte.blue);
 	}
 }
+#endif
 
 static void atmel_fb_init(ulong addr, struct display_timing *timing, int bpix,
 			  bool tft, bool cont_pol_low, ulong lcdbase)
@@ -190,6 +210,7 @@ static void atmel_fb_init(ulong addr, struct display_timing *timing, int bpix,
 		    (ATMEL_LCDC_GUARD_TIME << ATMEL_LCDC_GUARDT_OFFSET) | ATMEL_LCDC_PWR);
 }
 
+#ifndef CONFIG_DM_VIDEO
 void lcd_ctrl_init(void *lcdbase)
 {
 	struct display_timing timing;
@@ -221,3 +242,73 @@ ulong calc_fbsize(void)
 	return ((panel_info.vl_col * panel_info.vl_row *
 		NBITS(panel_info.vl_bpix)) / 8) + PAGE_SIZE;
 }
+#endif
+
+#ifdef CONFIG_DM_VIDEO
+static int atmel_fb_lcd_probe(struct udevice *dev)
+{
+	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct atmel_fb_priv *priv = dev_get_priv(dev);
+	struct display_timing *timing = &priv->timing;
+
+	/*
+	 * For now some values are hard-coded. We could use the device tree
+	 * bindings in simple-framebuffer.txt to specify the format/bpp and
+	 * some Atmel-specific binding for tft and cont_pol_low.
+	 */
+	atmel_fb_init(ATMEL_BASE_LCDC, timing, VIDEO_BPP16, true, false,
+		      uc_plat->base);
+	uc_priv->xsize = timing->hactive.typ;
+	uc_priv->ysize = timing->vactive.typ;
+	uc_priv->bpix = VIDEO_BPP16;
+	video_set_flush_dcache(dev, true);
+	debug("LCD frame buffer at %lx, size %x, %dx%d pixels\n", uc_plat->base,
+	      uc_plat->size, uc_priv->xsize, uc_priv->ysize);
+
+	return 0;
+}
+
+static int atmel_fb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct atmel_lcd_platdata *plat = dev_get_platdata(dev);
+	struct atmel_fb_priv *priv = dev_get_priv(dev);
+	struct display_timing *timing = &priv->timing;
+	const void *blob = gd->fdt_blob;
+
+	if (fdtdec_decode_display_timing(blob, dev->of_offset,
+					 plat->timing_index, timing)) {
+		debug("%s: Failed to decode display timing\n", __func__);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int atmel_fb_lcd_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+
+	uc_plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
+			(1 << VIDEO_BPP16) / 8;
+	debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
+
+	return 0;
+}
+
+static const struct udevice_id atmel_fb_lcd_ids[] = {
+	{ .compatible = "atmel,at91sam9g45-lcdc" },
+	{ }
+};
+
+U_BOOT_DRIVER(atmel_fb) = {
+	.name	= "atmel_fb",
+	.id	= UCLASS_VIDEO,
+	.of_match = atmel_fb_lcd_ids,
+	.bind	= atmel_fb_lcd_bind,
+	.ofdata_to_platdata	= atmel_fb_ofdata_to_platdata,
+	.probe	= atmel_fb_lcd_probe,
+	.platdata_auto_alloc_size = sizeof(struct atmel_lcd_platdata),
+	.priv_auto_alloc_size	= sizeof(struct atmel_fb_priv),
+};
+#endif
