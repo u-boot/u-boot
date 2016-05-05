@@ -31,4 +31,7 @@
 
 #include <configs/zynq-common.h>
 
+/* SERIAL in SPL is unused */
+/* #undef CONFIG_SPL_SERIAL_SUPPORT */
+
 #endif /* __CONFIG_ZYNQ_CC108_H */

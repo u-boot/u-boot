@@ -44,7 +44,6 @@ config TARGET_ZYNQ_CSE
 
 config TARGET_ZYNQ_CC108
 	bool "Zynq CC108 Board"
-	select ZYNQ_CUSTOM_INIT
 
 endchoice
 
