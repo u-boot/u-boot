@@ -80,7 +80,6 @@
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_PXE
 #define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_BOOTP_PXE_CLIENTARCH     0x100
 
 /* Diff from config_distro_defaults.h */
 #define CONFIG_SUPPORT_RAW_INITRD
