@@ -411,6 +411,17 @@ static void bootp_timeout_handler(void)
 		e += vci_strlen;				\
 	} while (0)
 
+static u8 *add_vci(u8 *e)
+{
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
+	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
+#elif defined(CONFIG_BOOTP_VCI_STRING)
+	put_vci(e, CONFIG_BOOTP_VCI_STRING);
+#endif
+
+	return e;
+}
+
 /*
  *	Initialize BOOTP extension fields in the request.
  */
@@ -508,11 +519,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	}
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
-	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
-#elif defined(CONFIG_BOOTP_VCI_STRING)
-	put_vci(e, CONFIG_BOOTP_VCI_STRING);
-#endif
+	e = add_vci(e);
 
 #if defined(CONFIG_BOOTP_VENDOREX)
 	x = dhcp_vendorex_prep(e);
@@ -598,14 +605,7 @@ static int bootp_extended(u8 *e)
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
 #endif
 
-#if defined(CONFIG_BOOTP_VCI_STRING) || \
-	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING))
-#ifdef CONFIG_SPL_BUILD
-	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
-#else
-	put_vci(e, CONFIG_BOOTP_VCI_STRING);
-#endif
-#endif
+	add_vci(e);
 
 #if defined(CONFIG_BOOTP_SUBNETMASK)
 	*e++ = 1;		/* Subnet mask request */
