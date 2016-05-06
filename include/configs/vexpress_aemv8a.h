@@ -23,7 +23,6 @@
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_IDENT_STRING		" vexpress_aemv8a"
-#define CONFIG_BOOTP_VCI_STRING		"U-Boot.armv8.vexpress_aemv8a"
 
 /* Link Definitions */
 #if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) || \
@@ -146,7 +145,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_PXE
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x10000000)

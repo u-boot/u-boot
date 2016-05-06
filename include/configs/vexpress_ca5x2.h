@@ -12,7 +12,6 @@
 #define __VEXPRESS_CA5X2_h
 
 #define CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP
-#define CONFIG_BOOTP_VCI_STRING     "U-Boot.armv7.vexpress_ca5x2"
 #include "vexpress_common.h"
 
 #endif /* __VEXPRESS_CA5X2_h */

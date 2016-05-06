@@ -12,7 +12,6 @@
 #define __VEXPRESS_CA9X4_H
 
 #define CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
-#define CONFIG_BOOTP_VCI_STRING     "U-Boot.armv7.vexpress_ca9x4"
 #include "vexpress_common.h"
 
 #endif /* VEXPRESS_CA9X4_H */
