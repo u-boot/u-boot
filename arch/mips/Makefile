@@ -26,6 +26,7 @@ arch-$(CONFIG_CPU_MIPS64_R2) += -march=mips64r2 -Wa,-mips64r2
 tune-$(CONFIG_MIPS_TUNE_4KC) += -mtune=4kc
 tune-$(CONFIG_MIPS_TUNE_14KC) += -mtune=14kc
 tune-$(CONFIG_MIPS_TUNE_24KC) += -mtune=24kc
+tune-$(CONFIG_MIPS_TUNE_74KC) += -mtune=74kc
 
 # Include default header files
 cflags-y += -I$(srctree)/arch/mips/include/asm/mach-generic
