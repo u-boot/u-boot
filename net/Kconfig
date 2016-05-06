@@ -45,4 +45,7 @@ config BOOTP_VCI_STRING
 	default "U-Boot.arm" if ARM
 	default "U-Boot"
 
+config SPL_NET_VCI_STRING
+	string
+
 endif   # if NET
