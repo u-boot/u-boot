@@ -10,6 +10,7 @@ import os.path
 import pytest
 import sys
 import time
+import pytest
 
 def md5sum_data(data):
     """Calculate the MD5 hash of some data.
