@@ -140,6 +140,7 @@ static inline int soc_is_qca956x(void)
 	return soc_is_tp9343() || soc_is_qca9561();
 }
 
+int ath79_eth_reset(void);
 int ath79_usb_reset(void);
 
 #endif /* __ASM_MACH_ATH79_H */
