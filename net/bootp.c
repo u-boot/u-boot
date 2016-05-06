@@ -413,11 +413,20 @@ static void bootp_timeout_handler(void)
 
 static u8 *add_vci(u8 *e)
 {
+	char *vci = NULL;
+	char *env_vci = getenv("bootp_vci");
+
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
-	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
+	vci = CONFIG_SPL_NET_VCI_STRING;
 #elif defined(CONFIG_BOOTP_VCI_STRING)
-	put_vci(e, CONFIG_BOOTP_VCI_STRING);
+	vci = CONFIG_BOOTP_VCI_STRING;
 #endif
+
+	if (env_vci)
+		vci = env_vci;
+
+	if (vci)
+		put_vci(e, vci);
 
 	return e;
 }
