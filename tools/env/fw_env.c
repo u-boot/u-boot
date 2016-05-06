@@ -661,8 +661,8 @@ static int flash_bad_block (int fd, uint8_t mtd_type, loff_t *blockstart)
 
 		if (badblock) {
 #ifdef DEBUG
-			fprintf (stderr, "Bad block at 0x%llx, "
-				 "skipping\n", *blockstart);
+			fprintf (stderr, "Bad block at 0x%llx, skipping\n",
+				(unsigned long long) *blockstart);
 #endif
 			return badblock;
 		}
@@ -749,7 +749,8 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 		}
 #ifdef DEBUG
 		fprintf(stderr, "Read 0x%x bytes at 0x%llx on %s\n",
-			 rc, blockstart + block_seek, DEVNAME(dev));
+			rc, (unsigned long long) blockstart + block_seek,
+			DEVNAME(dev));
 #endif
 		processed += readlen;
 		readlen = min (blocklen, count - processed);
@@ -847,8 +848,9 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		if (block_seek + count != write_total) {
 			if (block_seek != 0)
 				fprintf(stderr, " and ");
-			fprintf(stderr, "0x%lx - 0x%x",
-				block_seek + count, write_total - 1);
+			fprintf(stderr, "0x%lx - 0x%lx",
+				(unsigned long) block_seek + count,
+				(unsigned long) write_total - 1);
 		}
 		fprintf(stderr, "\n");
 #endif
@@ -911,8 +913,9 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		}
 
 #ifdef DEBUG
-		fprintf(stderr, "Write 0x%x bytes at 0x%llx\n", erasesize,
-			blockstart);
+		fprintf(stderr, "Write 0x%llx bytes at 0x%llx\n",
+			(unsigned long long) erasesize,
+			(unsigned long long) blockstart);
 #endif
 		if (write (fd, data + processed, erasesize) != erasesize) {
 			fprintf (stderr, "Write error on %s: %s\n",
