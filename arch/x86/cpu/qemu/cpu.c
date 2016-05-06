@@ -8,8 +8,8 @@
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <qemu_fw_cfg.h>
 #include <asm/cpu.h>
-#include <asm/fw_cfg.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

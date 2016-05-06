@@ -6,12 +6,12 @@
 
 #include <common.h>
 #include <pci.h>
+#include <qemu_fw_cfg.h>
 #include <asm/irq.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/arch/device.h>
 #include <asm/arch/qemu.h>
-#include <asm/fw_cfg.h>
 
 static bool i440fx;
 

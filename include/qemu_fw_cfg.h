@@ -147,6 +147,11 @@ struct bios_linker_entry {
  */
 void qemu_fwcfg_init(void);
 
+void qemu_fwcfg_read_entry(uint16_t entry, uint32_t length, void *address);
+int qemu_fwcfg_read_firmware_list(void);
+struct fw_file *qemu_fwcfg_find_file(const char *name);
+void qemu_fwcfg_free_files(void);
+
 /**
  * Get system cpu number
  *

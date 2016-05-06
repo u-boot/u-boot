@@ -303,7 +303,7 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 
 /*
  * QEMU's version of write_acpi_tables is defined in
- * arch/x86/cpu/qemu/fw_cfg.c
+ * arch/x86/cpu/qemu/acpi_table.c
  */
 u32 write_acpi_tables(u32 start)
 {

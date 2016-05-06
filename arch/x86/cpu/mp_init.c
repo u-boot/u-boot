@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <qemu_fw_cfg.h>
 #include <asm/atomic.h>
 #include <asm/cpu.h>
 #include <asm/interrupt.h>
@@ -21,7 +22,6 @@
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm/sipi.h>
-#include <asm/fw_cfg.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
