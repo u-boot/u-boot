@@ -143,4 +143,7 @@ static inline int soc_is_qca956x(void)
 int ath79_eth_reset(void);
 int ath79_usb_reset(void);
 
+void ar934x_pll_init(const u16 cpu_mhz, const u16 ddr_mhz, const u16 ahb_mhz);
+void ar934x_ddr_init(const u16 cpu_mhz, const u16 ddr_mhz, const u16 ahb_mhz);
+
 #endif /* __ASM_MACH_ATH79_H */

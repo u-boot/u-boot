@@ -13,6 +13,15 @@ config SOC_AR933X
 	help
 	  This supports QCA/Atheros ar933x family SOCs.
 
+config SOC_AR934X
+	bool
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	select MIPS_TUNE_74KC
+	help
+	  This supports QCA/Atheros ar934x family SOCs.
+
 config SOC_QCA953X
 	bool
 	select SUPPORTS_BIG_ENDIAN
