@@ -42,9 +42,14 @@ config TARGET_AP143
 	bool "AP143 Reference Board"
 	select SOC_QCA953X
 
+config BOARD_TPLINK_WDR4300
+	bool "TP-Link WDR4300 Board"
+	select SOC_AR934X
+
 endchoice
 
 source "board/qca/ap121/Kconfig"
 source "board/qca/ap143/Kconfig"
+source "board/tplink/wdr4300/Kconfig"
 
 endmenu
