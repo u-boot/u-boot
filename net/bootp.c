@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <efi_loader.h>
 #include <net.h>
 #include <net/tftp.h>
 #include "bootp.h"
@@ -1025,6 +1026,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			    strlen(CONFIG_SYS_BOOTFILE_PREFIX)) == 0) {
 #endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
 			dhcp_packet_process_options(bp);
+			efi_net_set_dhcp_ack(pkt, len);
 
 			debug("TRANSITIONING TO REQUESTING STATE\n");
 			dhcp_state = REQUESTING;

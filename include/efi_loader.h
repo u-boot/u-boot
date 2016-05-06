@@ -91,6 +91,12 @@ extern struct list_head efi_obj_list;
 int efi_disk_register(void);
 /* Called by bootefi to make GOP (graphical) interface available */
 int efi_gop_register(void);
+/* Called by bootefi to make the network interface available */
+int efi_net_register(void **handle);
+
+/* Called by networking code to memorize the dhcp ack package */
+void efi_net_set_dhcp_ack(void *pkt, int len);
+
 /*
  * Stub implementation for a protocol opener that just returns the handle as
  * interface
@@ -157,5 +163,6 @@ static inline void ascii2unicode(u16 *unicode, char *ascii)
 static inline void efi_restore_gd(void) { }
 static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path) { }
+static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 
 #endif

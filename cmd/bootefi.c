@@ -197,6 +197,13 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 #ifdef CONFIG_LCD
 	efi_gop_register();
 #endif
+#ifdef CONFIG_NET
+	void *nethandle = loaded_image_info.device_handle;
+	efi_net_register(&nethandle);
+
+	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
+		loaded_image_info.device_handle = nethandle;
+#endif
 
 	/* Call our payload! */
 #ifdef DEBUG_EFI
