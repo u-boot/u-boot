@@ -46,7 +46,7 @@ void _machine_restart(void)
 
 u32 get_bootstrap(void)
 {
-	const void __iomem *base;
+	void __iomem *base;
 	u32 reg = 0;
 
 	base = map_physmem(AR71XX_RESET_BASE, AR71XX_RESET_SIZE,
