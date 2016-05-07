@@ -2,6 +2,7 @@
  * Based on acpi.c from coreboot
  *
  * Copyright (C) 2015, Saket Sinha <saket.sinha89@gmail.com>
+ * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -11,32 +12,8 @@
 #define OEM_TABLE_ID		"U-BOOTBL"	/* U-Boot Table */
 #define ASLC_ID			"INTL"		/* Intel ASL Compiler */
 
-#define OEM_REVISION	42
-#define ASL_COMPILER_REVISION	42
-
-#define ACPI_REV_ACPI_1_0	1
-#define ACPI_REV_ACPI_2_0	1
-#define ACPI_REV_ACPI_3_0	2
-#define ACPI_REV_ACPI_4_0	3
-#define ACPI_REV_ACPI_5_0	5
-
 #define ACPI_RSDP_REV_ACPI_1_0	0
 #define ACPI_RSDP_REV_ACPI_2_0	2
-
-typedef struct acpi_gen_regaddr {
-	u8  space_id;	/* Address space ID */
-	u8  bit_width;	/* Register size in bits */
-	u8  bit_offset;	/* Register bit offset */
-	union {
-		/* Reserved in ACPI 2.0 - 2.0b */
-		u8  resv;
-		/* Access size in ACPI 2.0c/3.0/4.0/5.0 */
-		u8  access_size;
-	};
-	u32 addrl;	/* Register address, low 32 bits */
-	u32 addrh;	/* Register address, high 32 bits */
-} acpi_addr_t;
-
 
 /*
  * RSDP (Root System Description Pointer)
@@ -46,7 +23,7 @@ struct acpi_rsdp {
 	char signature[8];	/* RSDP signature */
 	u8 checksum;		/* Checksum of the first 20 bytes */
 	char oem_id[6];		/* OEM ID */
-	u8 revision;		/* 0 for ACPI 1.0, 2 for ACPI 2.0/3.0/4.0 */
+	u8 revision;		/* 0 for ACPI 1.0, others 2 */
 	u32 rsdt_address;	/* Physical address of RSDT (32 bits) */
 	u32 length;		/* Total RSDP length (incl. extended part) */
 	u64 xsdt_address;	/* Physical address of XSDT (64 bits) */
@@ -54,24 +31,11 @@ struct acpi_rsdp {
 	u8 reserved[3];
 };
 
-enum acpi_address_space_type {
-	ACPI_ADDRESS_SPACE_MEMORY = 0,	/* System memory */
-	ACPI_ADDRESS_SPACE_IO,		/* System I/O */
-	ACPI_ADDRESS_SPACE_PCI,		/* PCI config space */
-	ACPI_ADDRESS_SPACE_EC,		/* Embedded controller */
-	ACPI_ADDRESS_SPACE_SMBUS,	/* SMBus */
-	ACPI_ADDRESS_SPACE_PCC = 0x0a,	/* Platform Comm. Channel */
-	ACPI_ADDRESS_SPACE_FIXED = 0x7f	/* Functional fixed hardware */
-};
-
-/* Access size definitions for Generic address structure */
-enum acpi_address_space_size {
-	ACPI_ACCESS_SIZE_UNDEFINED = 0,	/* Undefined (legacy reasons) */
-	ACPI_ACCESS_SIZE_BYTE_ACCESS = 1,
-	ACPI_ACCESS_SIZE_WORD_ACCESS = 2,
-	ACPI_ACCESS_SIZE_DWORD_ACCESS = 3,
-	ACPI_ACCESS_SIZE_QWORD_ACCESS = 4
-};
+#define ACPI_REV_ACPI_1_0	1
+#define ACPI_REV_ACPI_2_0	1
+#define ACPI_REV_ACPI_3_0	2
+#define ACPI_REV_ACPI_4_0	3
+#define ACPI_REV_ACPI_5_0	5
 
 /* Generic ACPI header, provided by (almost) all tables */
 struct acpi_table_header {
@@ -87,7 +51,7 @@ struct acpi_table_header {
 };
 
 /* A maximum number of 32 ACPI tables ought to be enough for now */
-#define MAX_ACPI_TABLES	32
+#define MAX_ACPI_TABLES		32
 
 /* RSDT (Root System Description Table) */
 struct acpi_rsdt {
@@ -101,84 +65,80 @@ struct acpi_xsdt {
 	u64 entry[MAX_ACPI_TABLES];
 };
 
-/* MCFG (PCI Express MMIO config space BAR description table) */
-struct acpi_mcfg {
-	struct acpi_table_header header;
-	u8 reserved[8];
+/* FADT Preferred Power Management Profile */
+enum acpi_pm_profile {
+	ACPI_PM_UNSPECIFIED = 0,
+	ACPI_PM_DESKTOP,
+	ACPI_PM_MOBILE,
+	ACPI_PM_WORKSTATION,
+	ACPI_PM_ENTERPRISE_SERVER,
+	ACPI_PM_SOHO_SERVER,
+	ACPI_PM_APPLIANCE_PC,
+	ACPI_PM_PERFORMANCE_SERVER,
+	ACPI_PM_TABLET
 };
 
-struct acpi_mcfg_mmconfig {
-	u32 base_address_l;
-	u32 base_address_h;
-	u16 pci_segment_group_number;
-	u8 start_bus_number;
-	u8 end_bus_number;
-	u8 reserved[4];
+/* FADT flags for p_lvl2_lat and p_lvl3_lat */
+#define ACPI_FADT_C2_NOT_SUPPORTED	101
+#define ACPI_FADT_C3_NOT_SUPPORTED	1001
+
+/* FADT Boot Architecture Flags */
+#define ACPI_FADT_LEGACY_FREE		0x00
+#define ACPI_FADT_LEGACY_DEVICES	(1 << 0)
+#define ACPI_FADT_8042			(1 << 1)
+#define ACPI_FADT_VGA_NOT_PRESENT	(1 << 2)
+#define ACPI_FADT_MSI_NOT_SUPPORTED	(1 << 3)
+#define ACPI_FADT_NO_PCIE_ASPM_CONTROL	(1 << 4)
+
+/* FADT Feature Flags */
+#define ACPI_FADT_WBINVD		(1 << 0)
+#define ACPI_FADT_WBINVD_FLUSH		(1 << 1)
+#define ACPI_FADT_C1_SUPPORTED		(1 << 2)
+#define ACPI_FADT_C2_MP_SUPPORTED	(1 << 3)
+#define ACPI_FADT_POWER_BUTTON		(1 << 4)
+#define ACPI_FADT_SLEEP_BUTTON		(1 << 5)
+#define ACPI_FADT_FIXED_RTC		(1 << 6)
+#define ACPI_FADT_S4_RTC_WAKE		(1 << 7)
+#define ACPI_FADT_32BIT_TIMER		(1 << 8)
+#define ACPI_FADT_DOCKING_SUPPORTED	(1 << 9)
+#define ACPI_FADT_RESET_REGISTER	(1 << 10)
+#define ACPI_FADT_SEALED_CASE		(1 << 11)
+#define ACPI_FADT_HEADLESS		(1 << 12)
+#define ACPI_FADT_SLEEP_TYPE		(1 << 13)
+#define ACPI_FADT_PCI_EXPRESS_WAKE	(1 << 14)
+#define ACPI_FADT_PLATFORM_CLOCK	(1 << 15)
+#define ACPI_FADT_S4_RTC_VALID		(1 << 16)
+#define ACPI_FADT_REMOTE_POWER_ON	(1 << 17)
+#define ACPI_FADT_APIC_CLUSTER		(1 << 18)
+#define ACPI_FADT_APIC_PHYSICAL		(1 << 19)
+#define ACPI_FADT_HW_REDUCED_ACPI	(1 << 20)
+#define ACPI_FADT_LOW_PWR_IDLE_S0	(1 << 21)
+
+enum acpi_address_space_type {
+	ACPI_ADDRESS_SPACE_MEMORY = 0,	/* System memory */
+	ACPI_ADDRESS_SPACE_IO,		/* System I/O */
+	ACPI_ADDRESS_SPACE_PCI,		/* PCI config space */
+	ACPI_ADDRESS_SPACE_EC,		/* Embedded controller */
+	ACPI_ADDRESS_SPACE_SMBUS,	/* SMBus */
+	ACPI_ADDRESS_SPACE_PCC = 0x0a,	/* Platform Comm. Channel */
+	ACPI_ADDRESS_SPACE_FIXED = 0x7f	/* Functional fixed hardware */
 };
 
-/* MADT (Multiple APIC Description Table) */
-struct acpi_madt {
-	struct acpi_table_header header;
-	u32 lapic_addr;			/* Local APIC address */
-	u32 flags;			/* Multiple APIC flags */
-} acpi_madt_t;
-
-/* MADT: APIC Structure Type*/
-enum acpi_apic_types {
-	ACPI_APIC_LAPIC	= 0,		/* Processor local APIC */
-	ACPI_APIC_IOAPIC,		/* I/O APIC */
-	ACPI_APIC_IRQ_SRC_OVERRIDE,	/* Interrupt source override */
-	ACPI_APIC_NMI_SRC,		/* NMI source */
-	ACPI_APIC_LAPIC_NMI,		/* Local APIC NMI */
-	ACPI_APIC_LAPIC_ADDR_OVERRIDE,	/* Local APIC address override */
-	ACPI_APIC_IOSAPIC,		/* I/O SAPIC */
-	ACPI_APIC_LSAPIC,		/* Local SAPIC */
-	ACPI_APIC_PLATFORM_IRQ_SRC,	/* Platform interrupt sources */
-	ACPI_APIC_LX2APIC,		/* Processor local x2APIC */
-	ACPI_APIC_LX2APIC_NMI,		/* Local x2APIC NMI */
+enum acpi_address_space_size {
+	ACPI_ACCESS_SIZE_UNDEFINED = 0,
+	ACPI_ACCESS_SIZE_BYTE_ACCESS,
+	ACPI_ACCESS_SIZE_WORD_ACCESS,
+	ACPI_ACCESS_SIZE_DWORD_ACCESS,
+	ACPI_ACCESS_SIZE_QWORD_ACCESS
 };
 
-/* MADT: Processor Local APIC Structure */
-struct acpi_madt_lapic {
-	u8 type;		/* Type (0) */
-	u8 length;		/* Length in bytes (8) */
-	u8 processor_id;	/* ACPI processor ID */
-	u8 apic_id;		/* Local APIC ID */
-	u32 flags;		/* Local APIC flags */
-};
-
-#define LOCAL_APIC_FLAG_ENABLED	(1 << 0)
-/* bits 1-31: reserved */
-#define PCAT_COMPAT		(1 << 0)
-/* bits 1-31: reserved */
-
-/* MADT: Local APIC NMI Structure */
-struct __packed acpi_madt_lapic_nmi {
-	u8 type;		/* Type (4) */
-	u8 length;		/* Length in bytes (6) */
-	u8 processor_id;	/* ACPI processor ID */
-	u16 flags;		/* MPS INTI flags */
-	u8 lint;		/* Local APIC LINT# */
-};
-
-/* MADT: I/O APIC Structure */
-struct acpi_madt_ioapic {
-	u8 type;		/* Type (1) */
-	u8 length;		/* Length in bytes (12) */
-	u8 ioapic_id;		/* I/O APIC ID */
-	u8 reserved;
-	u32 ioapic_addr;	/* I/O APIC address */
-	u32 gsi_base;		/* Global system interrupt base */
-};
-
-/* MADT: Interrupt Source Override Structure */
-struct __packed acpi_madt_irqoverride {
-	u8 type;		/* Type (2) */
-	u8 length;		/* Length in bytes (10) */
-	u8 bus;			/* ISA (0) */
-	u8 source;		/* Bus-relative int. source (IRQ) */
-	u32 gsirq;		/* Global system interrupt */
-	u16 flags;		/* MPS INTI flags */
+struct acpi_gen_regaddr {
+	u8 space_id;	/* Address space ID */
+	u8 bit_width;	/* Register size in bits */
+	u8 bit_offset;	/* Register bit offset */
+	u8 access_size;	/* Access size */
+	u32 addrl;	/* Register address, low 32 bits */
+	u32 addrh;	/* Register address, high 32 bits */
 };
 
 /* FADT (Fixed ACPI Description Table) */
@@ -241,78 +201,109 @@ struct __packed acpi_fadt {
 	struct acpi_gen_regaddr x_gpe1_blk;
 };
 
-/* Flags for p_lvl2_lat and p_lvl3_lat */
-#define ACPI_FADT_C2_NOT_SUPPORTED	101
-#define ACPI_FADT_C3_NOT_SUPPORTED	1001
-
-/* FADT Feature Flags */
-#define ACPI_FADT_WBINVD		(1 << 0)
-#define ACPI_FADT_WBINVD_FLUSH		(1 << 1)
-#define ACPI_FADT_C1_SUPPORTED		(1 << 2)
-#define ACPI_FADT_C2_MP_SUPPORTED	(1 << 3)
-#define ACPI_FADT_POWER_BUTTON		(1 << 4)
-#define ACPI_FADT_SLEEP_BUTTON		(1 << 5)
-#define ACPI_FADT_FIXED_RTC		(1 << 6)
-#define ACPI_FADT_S4_RTC_WAKE		(1 << 7)
-#define ACPI_FADT_32BIT_TIMER		(1 << 8)
-#define ACPI_FADT_DOCKING_SUPPORTED	(1 << 9)
-#define ACPI_FADT_RESET_REGISTER	(1 << 10)
-#define ACPI_FADT_SEALED_CASE		(1 << 11)
-#define ACPI_FADT_HEADLESS		(1 << 12)
-#define ACPI_FADT_SLEEP_TYPE		(1 << 13)
-#define ACPI_FADT_PCI_EXPRESS_WAKE	(1 << 14)
-#define ACPI_FADT_PLATFORM_CLOCK	(1 << 15)
-#define ACPI_FADT_S4_RTC_VALID		(1 << 16)
-#define ACPI_FADT_REMOTE_POWER_ON	(1 << 17)
-#define ACPI_FADT_APIC_CLUSTER		(1 << 18)
-#define ACPI_FADT_APIC_PHYSICAL		(1 << 19)
-/* Bits 20-31: reserved ACPI 3.0 & 4.0 */
-#define ACPI_FADT_HW_REDUCED_ACPI	(1 << 20)
-#define ACPI_FADT_LOW_PWR_IDLE_S0	(1 << 21)
-/* bits 22-31: reserved ACPI 5.0 */
-
-/* FADT Boot Architecture Flags */
-#define ACPI_FADT_LEGACY_DEVICES	(1 << 0)
-#define ACPI_FADT_8042			(1 << 1)
-#define ACPI_FADT_VGA_NOT_PRESENT	(1 << 2)
-#define ACPI_FADT_MSI_NOT_SUPPORTED	(1 << 3)
-#define ACPI_FADT_NO_PCIE_ASPM_CONTROL	(1 << 4)
-/* No legacy devices (including 8042) */
-#define ACPI_FADT_LEGACY_FREE		0x00
-
-/* FADT Preferred Power Management Profile */
-enum acpi_pm_profile {
-	ACPI_PM_UNSPECIFIED = 0,
-	ACPI_PM_DESKTOP,
-	ACPI_PM_MOBILE,
-	ACPI_PM_WORKSTATION,
-	ACPI_PM_ENTERPRISE_SERVER,
-	ACPI_PM_SOHO_SERVER,
-	ACPI_PM_APPLIANCE_PC,
-	ACPI_PM_PERFORMANCE_SERVER,
-	ACPI_PM_TABLET
-};
-
-/* FACS (Firmware ACPI Control Structure) */
-struct acpi_facs {
-	char signature[4];			/* "FACS" */
-	u32 length;				/* Length in bytes (>= 64) */
-	u32 hardware_signature;			/* Hardware signature */
-	u32 firmware_waking_vector;		/* Firmware waking vector */
-	u32 global_lock;			/* Global lock */
-	u32 flags;				/* FACS flags */
-	u32 x_firmware_waking_vector_l;		/* X FW waking vector, low */
-	u32 x_firmware_waking_vector_h;		/* X FW waking vector, high */
-	u8 version;				/* ACPI 4.0: 2 */
-	u8 res1[3];
-	u32 ospm_flags;				/* OSPM enabled flags */
-	u8 res2[24];
-};
-
 /* FACS flags */
 #define ACPI_FACS_S4BIOS_F	(1 << 0)
 #define ACPI_FACS_64BIT_WAKE_F	(1 << 1)
-/* Bits 31..2: reserved */
+
+/* FACS (Firmware ACPI Control Structure) */
+struct acpi_facs {
+	char signature[4];		/* "FACS" */
+	u32 length;			/* Length in bytes (>= 64) */
+	u32 hardware_signature;		/* Hardware signature */
+	u32 firmware_waking_vector;	/* Firmware waking vector */
+	u32 global_lock;		/* Global lock */
+	u32 flags;			/* FACS flags */
+	u32 x_firmware_waking_vector_l;	/* X FW waking vector, low */
+	u32 x_firmware_waking_vector_h;	/* X FW waking vector, high */
+	u8 version;			/* Version 2 */
+	u8 res1[3];
+	u32 ospm_flags;			/* OSPM enabled flags */
+	u8 res2[24];
+};
+
+/* MADT flags */
+#define ACPI_MADT_PCAT_COMPAT	(1 << 0)
+
+/* MADT (Multiple APIC Description Table) */
+struct acpi_madt {
+	struct acpi_table_header header;
+	u32 lapic_addr;			/* Local APIC address */
+	u32 flags;			/* Multiple APIC flags */
+};
+
+/* MADT: APIC Structure Type*/
+enum acpi_apic_types {
+	ACPI_APIC_LAPIC	= 0,		/* Processor local APIC */
+	ACPI_APIC_IOAPIC,		/* I/O APIC */
+	ACPI_APIC_IRQ_SRC_OVERRIDE,	/* Interrupt source override */
+	ACPI_APIC_NMI_SRC,		/* NMI source */
+	ACPI_APIC_LAPIC_NMI,		/* Local APIC NMI */
+	ACPI_APIC_LAPIC_ADDR_OVERRIDE,	/* Local APIC address override */
+	ACPI_APIC_IOSAPIC,		/* I/O SAPIC */
+	ACPI_APIC_LSAPIC,		/* Local SAPIC */
+	ACPI_APIC_PLATFORM_IRQ_SRC,	/* Platform interrupt sources */
+	ACPI_APIC_LX2APIC,		/* Processor local x2APIC */
+	ACPI_APIC_LX2APIC_NMI,		/* Local x2APIC NMI */
+};
+
+/* MADT: Processor Local APIC Structure */
+
+#define LOCAL_APIC_FLAG_ENABLED	(1 << 0)
+
+struct acpi_madt_lapic {
+	u8 type;		/* Type (0) */
+	u8 length;		/* Length in bytes (8) */
+	u8 processor_id;	/* ACPI processor ID */
+	u8 apic_id;		/* Local APIC ID */
+	u32 flags;		/* Local APIC flags */
+};
+
+/* MADT: I/O APIC Structure */
+struct acpi_madt_ioapic {
+	u8 type;		/* Type (1) */
+	u8 length;		/* Length in bytes (12) */
+	u8 ioapic_id;		/* I/O APIC ID */
+	u8 reserved;
+	u32 ioapic_addr;	/* I/O APIC address */
+	u32 gsi_base;		/* Global system interrupt base */
+};
+
+/* MADT: Interrupt Source Override Structure */
+struct __packed acpi_madt_irqoverride {
+	u8 type;		/* Type (2) */
+	u8 length;		/* Length in bytes (10) */
+	u8 bus;			/* ISA (0) */
+	u8 source;		/* Bus-relative int. source (IRQ) */
+	u32 gsirq;		/* Global system interrupt */
+	u16 flags;		/* MPS INTI flags */
+};
+
+/* MADT: Local APIC NMI Structure */
+struct __packed acpi_madt_lapic_nmi {
+	u8 type;		/* Type (4) */
+	u8 length;		/* Length in bytes (6) */
+	u8 processor_id;	/* ACPI processor ID */
+	u16 flags;		/* MPS INTI flags */
+	u8 lint;		/* Local APIC LINT# */
+};
+
+/* MCFG (PCI Express MMIO config space BAR description table) */
+struct acpi_mcfg {
+	struct acpi_table_header header;
+	u8 reserved[8];
+};
+
+struct acpi_mcfg_mmconfig {
+	u32 base_address_l;
+	u32 base_address_h;
+	u16 pci_segment_group_number;
+	u8 start_bus_number;
+	u8 end_bus_number;
+	u8 reserved[4];
+};
+
+#define OEM_REVISION		42
+#define ASL_COMPILER_REVISION	42
 
 /* These can be used by the target port */
 
