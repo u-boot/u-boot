@@ -23,7 +23,8 @@ In this case, known as bare mode, from the fact that it runs on the
 'bare metal', U-Boot acts like a BIOS replacement. The following platforms
 are supported:
 
-   - Bayley Bay
+   - Bayley Bay CRB
+   - Congatec QEVAL 2.0 & conga-QA3/E3845
    - Cougar Canyon 2 CRB
    - Crown Bay CRB
    - Galileo
@@ -412,18 +413,19 @@ If you want to check both consoles, use '-serial stdio'.
 Multicore is also supported by QEMU via '-smp n' where n is the number of cores
 to instantiate. Note, the maximum supported CPU number in QEMU is 255.
 
-The fw_cfg interface in QEMU also provides information about kernel data, initrd,
-command-line arguments and more. U-Boot supports directly accessing these informtion
-from fw_cfg interface, this saves the time of loading them from hard disk or
-network again, through emulated devices. To use it , simply providing them in
-QEMU command line:
+The fw_cfg interface in QEMU also provides information about kernel data,
+initrd, command-line arguments and more. U-Boot supports directly accessing
+these informtion from fw_cfg interface, which saves the time of loading them
+from hard disk or network again, through emulated devices. To use it , simply
+providing them in QEMU command line:
 
 $ qemu-system-i386 -nographic -bios path/to/u-boot.rom -m 1024 -kernel /path/to/bzImage
     -append 'root=/dev/ram console=ttyS0' -initrd /path/to/initrd -smp 8
 
 Note: -initrd and -smp are both optional
 
-Then start QEMU, in U-Boot command line use the following U-Boot command to setup kernel:
+Then start QEMU, in U-Boot command line use the following U-Boot command to
+setup kernel:
 
  => qfw
 qfw - QEMU firmware interface
@@ -437,8 +439,8 @@ qfw <command>
 => qfw load
 loading kernel to address 01000000 size 5d9d30 initrd 04000000 size 1b1ab50
 
-Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then, 'zboot'
-can be used to boot the kernel:
+Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
+'zboot' can be used to boot the kernel:
 
 => zboot 02000000 - 04000000 1b1ab50
 
@@ -490,8 +492,8 @@ Booting Ubuntu
 --------------
 As an example of how to set up your boot flow with U-Boot, here are
 instructions for starting Ubuntu from U-Boot. These instructions have been
-tested on Minnowboard MAX with a SATA driver but are equally applicable on
-other platforms and other media. There are really only four steps and its a
+tested on Minnowboard MAX with a SATA drive but are equally applicable on
+other platforms and other media. There are really only four steps and it's a
 very simple script, but a more detailed explanation is provided here for
 completeness.
 
@@ -499,7 +501,7 @@ Note: It is possible to set up U-Boot to boot automatically using syslinux.
 It could also use the grub.cfg file (/efi/ubuntu/grub.cfg) to obtain the
 GUID. If you figure these out, please post patches to this README.
 
-Firstly, you will need Ubunutu installed on an available disk. It should be
+Firstly, you will need Ubuntu installed on an available disk. It should be
 possible to make U-Boot start a USB start-up disk but for now let's assume
 that you used another boot loader to install Ubuntu.
 
@@ -659,7 +661,7 @@ U-Boot:
    Loading bzImage at address 100000 (5805728 bytes)
    Magic signature found
    Initial RAM disk at linear address 0x04000000, size 19215259 bytes
-   Kernel command line: "console=ttyS0,115200 root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro"
+   Kernel command line: "root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro"
 
    Starting kernel ...
 
@@ -679,13 +681,14 @@ above commands into a script since then it will be faster.
                   240,329  ahci
                 1,422,704  vesa display
 
-Now the kernel actually starts:
+Now the kernel actually starts: (if you want to examine kernel boot up message
+on the serial console, append "console=ttyS0,115200" to the kernel command line)
 
    [    0.000000] Initializing cgroup subsys cpuset
    [    0.000000] Initializing cgroup subsys cpu
    [    0.000000] Initializing cgroup subsys cpuacct
    [    0.000000] Linux version 3.13.0-58-generic (buildd@allspice) (gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1) ) #97-Ubuntu SMP Wed Jul 8 02:56:15 UTC 2015 (Ubuntu 3.13.0-58.97-generic 3.13.11-ckt22)
-   [    0.000000] Command line: console=ttyS0,115200 root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro
+   [    0.000000] Command line: root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro console=ttyS0,115200
 
 It continues for a long time. Along the way you will see it pick up your
 ramdisk:
@@ -735,14 +738,6 @@ If you want to put this in a script you can use something like this:
 
 The \ is to tell the shell not to evaluate ${filesize} as part of the setenv
 command.
-
-You will also need to add this to your board configuration file, e.g.
-include/configs/minnowmax.h:
-
-   #define CONFIG_BOOTDELAY	2
-
-Now when you reset your board it wait a few seconds (in case you want to
-interrupt) and then should boot straight into Ubuntu.
 
 You can also bake this behaviour into your build by hard-coding the
 environment variables if you add this to minnowmax.h:
