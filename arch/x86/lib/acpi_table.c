@@ -50,7 +50,7 @@ static void acpi_add_table(struct acpi_rsdp *rsdp, void *table)
 	}
 
 	if (i >= entries_num) {
-		debug("ACPI: Error: too many tables.\n");
+		debug("ACPI: Error: too many tables\n");
 		return;
 	}
 
@@ -353,7 +353,7 @@ u32 write_acpi_tables(u32 start)
 	/* Align ACPI tables to 16byte */
 	current = ALIGN(current, 16);
 
-	debug("ACPI: Writing ACPI tables at %lx.\n", start);
+	debug("ACPI: Writing ACPI tables at %x\n", start);
 
 	/* We need at least an RSDP and an RSDT Table */
 	rsdp = (struct acpi_rsdp *)current;
@@ -432,9 +432,9 @@ u32 write_acpi_tables(u32 start)
 		current = ALIGN(current, 16);
 	}
 
-	debug("current = %lx\n", current);
+	debug("current = %x\n", current);
 
-	debug("ACPI: done.\n");
+	debug("ACPI: done\n");
 
 	return current;
 }
