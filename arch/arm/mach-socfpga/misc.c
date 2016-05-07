@@ -172,7 +172,7 @@ static int socfpga_eth_reset(void)
 #else
 static int socfpga_eth_reset(void)
 {
-	return 0
+	return 0;
 };
 #endif
 
