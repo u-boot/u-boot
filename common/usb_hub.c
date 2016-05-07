@@ -402,6 +402,7 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 			free(usb_scan);
 			return 0;
 		}
+		return 0;
 	}
 
 	portstatus = le16_to_cpu(portsts->wPortStatus);
