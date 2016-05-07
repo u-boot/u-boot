@@ -304,6 +304,7 @@ struct acpi_mcfg_mmconfig {
 
 /* These can be used by the target port */
 
+void acpi_fill_header(struct acpi_table_header *header, char *signature);
 unsigned long acpi_create_madt_lapics(unsigned long current);
 int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id, u32 addr,
 			 u32 gsi_base);

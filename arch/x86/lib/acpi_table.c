@@ -10,18 +10,13 @@
 #include <cpu.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
-#include <dm/lists.h>
 #include <asm/acpi_table.h>
-#include <asm/cpu.h>
-#include <asm/ioapic.h>
 #include <asm/lapic.h>
 #include <asm/tables.h>
-#include <asm/pci.h>
 
 /*
- * IASL compiles the dsdt entries and
- * writes the hex values to AmlCode array.
- * CamelCase cannot be handled here.
+ * IASL compiles the dsdt entries and writes the hex values
+ * to a C array AmlCode[] (see dsdt.c).
  */
 extern const unsigned char AmlCode[];
 
@@ -151,10 +146,9 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 	return lapic_nmi->length;
 }
 
-static void fill_header(struct acpi_table_header *header, char *signature,
-			int length)
+void acpi_fill_header(struct acpi_table_header *header, char *signature)
 {
-	memcpy(header->signature, signature, length);
+	memcpy(header->signature, signature, 4);
 	memcpy(header->oem_id, OEM_ID, 6);
 	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
 	memcpy(header->aslc_id, ASLC_ID, 4);
@@ -168,7 +162,7 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	memset((void *)madt, 0, sizeof(struct acpi_madt));
 
 	/* Fill out header fields */
-	fill_header(header, "APIC", 4);
+	acpi_fill_header(header, "APIC");
 	header->length = sizeof(struct acpi_madt);
 
 	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
@@ -216,7 +210,7 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	memset((void *)mcfg, 0, sizeof(struct acpi_mcfg));
 
 	/* Fill out header fields */
-	fill_header(header, "MCFG", 4);
+	acpi_fill_header(header, "MCFG");
 	header->length = sizeof(struct acpi_mcfg);
 
 	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
@@ -249,7 +243,7 @@ static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
 	struct acpi_table_header *header = &(rsdt->header);
 
 	/* Fill out header fields */
-	fill_header(header, "RSDT", 4);
+	acpi_fill_header(header, "RSDT");
 	header->length = sizeof(struct acpi_rsdt);
 
 	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
@@ -267,7 +261,7 @@ static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 	struct acpi_table_header *header = &(xsdt->header);
 
 	/* Fill out header fields */
-	fill_header(header, "XSDT", 4);
+	acpi_fill_header(header, "XSDT");
 	header->length = sizeof(struct acpi_xsdt);
 
 	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
