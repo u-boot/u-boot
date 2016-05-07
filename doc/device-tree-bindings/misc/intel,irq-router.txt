@@ -14,6 +14,11 @@ Required properties :
       "ibase": IRQ routing is in the memory-mapped IBASE register block
 - intel,ibase-offset : IBASE register offset in the interrupt router's PCI
     configuration space, required only if intel,pirq-config = "ibase".
+- intel,actl-8bit : If ACTL (ACPI control) register width is 8-bit, this must
+    be specified. The 8-bit ACTL register is seen on ICH series chipset, like
+    ICH9/Panther Point/etc. On Atom chipset it is a 32-bit register.
+- intel,actl-addr : ACTL (ACPI control) register offset. ACTL can be either
+    in the interrupt router's PCI configuration space, or IBASE.
 - intel,pirq-link : Specifies the PIRQ link information with two cells. The
     first cell is the register offset that controls the first PIRQ link routing.
     The second cell is the total number of PIRQ links the router supports.

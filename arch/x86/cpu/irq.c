@@ -147,6 +147,9 @@ static int create_pirq_routing_table(struct udevice *dev)
 		priv->ibase &= ~0xf;
 	}
 
+	priv->actl_8bit = fdtdec_get_bool(blob, node, "intel,actl-8bit");
+	priv->actl_addr = fdtdec_get_int(blob, node, "intel,actl-addr", 0);
+
 	cell = fdt_getprop(blob, node, "intel,pirq-routing", &len);
 	if (!cell || len % sizeof(struct pirq_routing))
 		return -EINVAL;
@@ -216,6 +219,22 @@ static int create_pirq_routing_table(struct udevice *dev)
 	return 0;
 }
 
+static void irq_enable_sci(struct udevice *dev)
+{
+	struct irq_router *priv = dev_get_priv(dev);
+
+	if (priv->actl_8bit) {
+		/* Bit7 must be turned on to enable ACPI */
+		dm_pci_write_config8(dev->parent, priv->actl_addr, 0x80);
+	} else {
+		/* Write 0 to enable SCI on IRQ9 */
+		if (priv->config == PIRQ_VIA_PCI)
+			dm_pci_write_config32(dev->parent, priv->actl_addr, 0);
+		else
+			writel(0, priv->ibase + priv->actl_addr);
+	}
+}
+
 int irq_router_common_init(struct udevice *dev)
 {
 	int ret;
@@ -228,6 +247,9 @@ int irq_router_common_init(struct udevice *dev)
 	/* Route PIRQ */
 	pirq_route_irqs(dev, pirq_routing_table->slots,
 			get_irq_slot_count(pirq_routing_table));
+
+	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE))
+		irq_enable_sci(dev);
 
 	return 0;
 }
