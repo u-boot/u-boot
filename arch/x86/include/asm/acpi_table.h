@@ -6,11 +6,6 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
-#include <common.h>
-#include <malloc.h>
-#include <asm/post.h>
-#include <linux/string.h>
-
 #define RSDP_SIG		"RSD PTR "	/* RSDT pointer signature */
 #define ACPI_TABLE_CREATOR	"UBOOT   "	/* Must be 8 bytes long! */
 #define OEM_ID			"UBOOT "	/* Must be 6 bytes long! */
@@ -18,42 +13,6 @@
 
 #define OEM_REVISION	42
 #define ASL_COMPILER_REVISION	42
-
-/* IO ports to generate SMIs */
-#define APM_CNT			0xb2
-#define APM_CNT_CST_CONTROL	0x85
-#define APM_CNT_PST_CONTROL	0x80
-#define APM_CNT_ACPI_DISABLE	0x1e
-#define APM_CNT_ACPI_ENABLE	0xe1
-#define APM_CNT_MBI_UPDATE	0xeb
-#define APM_CNT_GNVS_UPDATE	0xea
-#define APM_CNT_FINALIZE	0xcb
-#define APM_CNT_LEGACY		0xcc
-#define APM_ST			0xb3
-
-/* Multiple Processor Interrupts */
-#define MP_IRQ_POLARITY_DEFAULT	0x0
-#define MP_IRQ_POLARITY_HIGH	0x1
-#define MP_IRQ_POLARITY_LOW	0x3
-#define MP_IRQ_POLARITY_MASK	0x3
-#define MP_IRQ_TRIGGER_DEFAULT	0x0
-#define MP_IRQ_TRIGGER_EDGE	0x4
-#define MP_IRQ_TRIGGER_LEVEL	0xc
-#define MP_IRQ_TRIGGER_MASK	0xc
-
-/*
- * Interrupt assigned for SCI in order to
- * create the ACPI MADT IRQ override entry
- */
-#define ACTL		0x00
-#define SCIS_MASK	0x07
-#define SCIS_IRQ9	0x00
-#define SCIS_IRQ10	0x01
-#define SCIS_IRQ11	0x02
-#define SCIS_IRQ20	0x04
-#define SCIS_IRQ21	0x05
-#define SCIS_IRQ22	0x06
-#define SCIS_IRQ23	0x07
 
 #define ACPI_REV_ACPI_1_0	1
 #define ACPI_REV_ACPI_2_0	1
@@ -104,14 +63,6 @@ enum acpi_address_space_type {
 	ACPI_ADDRESS_SPACE_PCC = 0x0a,	/* Platform Comm. Channel */
 	ACPI_ADDRESS_SPACE_FIXED = 0x7f	/* Functional fixed hardware */
 };
-
-/* functional fixed hardware */
-#define ACPI_FFIXEDHW_VENDOR_INTEL	1	/* Intel */
-#define ACPI_FFIXEDHW_CLASS_HLT		0	/* C1 Halt */
-#define ACPI_FFIXEDHW_CLASS_IO_HLT	1	/* C1 I/O then Halt */
-#define ACPI_FFIXEDHW_CLASS_MWAIT	2	/* MWAIT Native C-state */
-#define ACPI_FFIXEDHW_FLAG_HW_COORD	1	/* Hardware Coordination bit */
-#define ACPI_FFIXEDHW_FLAG_BM_STS	2	/* BM_STS avoidance bit */
 
 /* Access size definitions for Generic address structure */
 enum acpi_address_space_size {
@@ -171,25 +122,6 @@ struct acpi_madt {
 	u32 lapic_addr;			/* Local APIC address */
 	u32 flags;			/* Multiple APIC flags */
 } acpi_madt_t;
-
-enum dev_scope_type {
-	SCOPE_PCI_ENDPOINT = 1,
-	SCOPE_PCI_SUB = 2,
-	SCOPE_IOAPIC = 3,
-	SCOPE_MSI_HPET = 4
-};
-
-typedef struct dev_scope {
-	u8 type;
-	u8 length;
-	u8 reserved[2];
-	u8 enumeration;
-	u8 start_bus;
-	struct {
-		u8 dev;
-		u8 fn;
-	} path[0];
-} __packed dev_scope_t;
 
 /* MADT: APIC Structure Type*/
 enum acpi_apic_types {
