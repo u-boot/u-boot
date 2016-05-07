@@ -5,3 +5,4 @@
 #
 
 obj-y	+= bayleybay.o start.o
+obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt.o
