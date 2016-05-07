@@ -58,7 +58,8 @@ static void acpi_add_table(struct acpi_rsdp *rsdp, void *table)
 	rsdt->entry[i] = (u32)table;
 
 	/* Fix RSDT length or the kernel will assume invalid entries */
-	rsdt->header.length = sizeof(acpi_header_t) + (sizeof(u32) * (i + 1));
+	rsdt->header.length = sizeof(struct acpi_table_header) +
+			      (sizeof(u32) * (i + 1));
 
 	/* Re-calculate checksum */
 	rsdt->header.checksum = 0;
@@ -74,7 +75,7 @@ static void acpi_add_table(struct acpi_rsdp *rsdp, void *table)
 		xsdt->entry[i] = (u64)(u32)table;
 
 		/* Fix XSDT length */
-		xsdt->header.length = sizeof(acpi_header_t) +
+		xsdt->header.length = sizeof(struct acpi_table_header) +
 			 (sizeof(u64) * (i + 1));
 
 		/* Re-calculate checksum */
@@ -87,7 +88,7 @@ static void acpi_add_table(struct acpi_rsdp *rsdp, void *table)
 static int acpi_create_madt_lapic(struct acpi_madt_lapic *lapic,
 			 u8 cpu, u8 apic)
 {
-	lapic->type = LOCALAPIC; /* Local APIC structure */
+	lapic->type = ACPI_APIC_LAPIC; /* Local APIC structure */
 	lapic->length = sizeof(struct acpi_madt_lapic);
 	lapic->flags = LOCAL_APIC_FLAG_ENABLED; /* Processor/LAPIC enabled */
 	lapic->processor_id = cpu;
@@ -115,7 +116,7 @@ unsigned long acpi_create_madt_lapics(unsigned long current)
 int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id, u32 addr,
 			 u32 gsi_base)
 {
-	ioapic->type = IOAPIC;
+	ioapic->type = ACPI_APIC_IOAPIC;
 	ioapic->length = sizeof(struct acpi_madt_ioapic);
 	ioapic->reserved = 0x00;
 	ioapic->gsi_base = gsi_base;
@@ -128,7 +129,7 @@ int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id, u32 addr,
 int acpi_create_madt_irqoverride(struct acpi_madt_irqoverride *irqoverride,
 			 u8 bus, u8 source, u32 gsirq, u16 flags)
 {
-	irqoverride->type = IRQSOURCEOVERRIDE;
+	irqoverride->type = ACPI_APIC_IRQ_SRC_OVERRIDE;
 	irqoverride->length = sizeof(struct acpi_madt_irqoverride);
 	irqoverride->bus = bus;
 	irqoverride->source = source;
@@ -141,7 +142,7 @@ int acpi_create_madt_irqoverride(struct acpi_madt_irqoverride *irqoverride,
 int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 			 u8 cpu, u16 flags, u8 lint)
 {
-	lapic_nmi->type = LOCALNMITYPE;
+	lapic_nmi->type = ACPI_APIC_LAPIC_NMI;
 	lapic_nmi->length = sizeof(struct acpi_madt_lapic_nmi);
 	lapic_nmi->flags = flags;
 	lapic_nmi->processor_id = cpu;
@@ -150,17 +151,18 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 	return lapic_nmi->length;
 }
 
-static void fill_header(acpi_header_t *header, char *signature, int length)
+static void fill_header(struct acpi_table_header *header, char *signature,
+			int length)
 {
 	memcpy(header->signature, signature, length);
 	memcpy(header->oem_id, OEM_ID, 6);
-	memcpy(header->oem_table_id, ACPI_TABLE_CREATOR, 8);
-	memcpy(header->asl_compiler_id, ASLC, 4);
+	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
+	memcpy(header->aslc_id, ASLC_ID, 4);
 }
 
 static void acpi_create_madt(struct acpi_madt *madt)
 {
-	acpi_header_t *header = &(madt->header);
+	struct acpi_table_header *header = &(madt->header);
 	unsigned long current = (unsigned long)madt + sizeof(struct acpi_madt);
 
 	memset((void *)madt, 0, sizeof(struct acpi_madt));
@@ -173,7 +175,7 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	header->revision = ACPI_REV_ACPI_2_0;
 
 	madt->lapic_addr = LAPIC_DEFAULT_BASE;
-	madt->flags = PCAT_COMPAT;
+	madt->flags = ACPI_MADT_PCAT_COMPAT;
 
 	current = acpi_fill_madt(current);
 
@@ -187,8 +189,8 @@ static int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig,
 			 u32 base, u16 seg_nr, u8 start, u8 end)
 {
 	memset(mmconfig, 0, sizeof(*mmconfig));
-	mmconfig->base_address = base;
-	mmconfig->base_reserved = 0;
+	mmconfig->base_address_l = base;
+	mmconfig->base_address_h = 0;
 	mmconfig->pci_segment_group_number = seg_nr;
 	mmconfig->start_bus_number = start;
 	mmconfig->end_bus_number = end;
@@ -208,7 +210,7 @@ static unsigned long acpi_fill_mcfg(unsigned long current)
 /* MCFG is defined in the PCI Firmware Specification 3.0 */
 static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 {
-	acpi_header_t *header = &(mcfg->header);
+	struct acpi_table_header *header = &(mcfg->header);
 	unsigned long current = (unsigned long)mcfg + sizeof(struct acpi_mcfg);
 
 	memset((void *)mcfg, 0, sizeof(struct acpi_mcfg));
@@ -244,7 +246,7 @@ static void acpi_create_facs(struct acpi_facs *facs)
 
 static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
 {
-	acpi_header_t *header = &(rsdt->header);
+	struct acpi_table_header *header = &(rsdt->header);
 
 	/* Fill out header fields */
 	fill_header(header, "RSDT", 4);
@@ -262,7 +264,7 @@ static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
 
 static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 {
-	acpi_header_t *header = &(xsdt->header);
+	struct acpi_table_header *header = &(xsdt->header);
 
 	/* Fill out header fields */
 	fill_header(header, "XSDT", 4);
@@ -309,12 +311,13 @@ static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 			sizeof(struct acpi_rsdp));
 }
 
-static void acpi_create_ssdt_generator(acpi_header_t *ssdt,
+static void acpi_create_ssdt_generator(struct acpi_table_header *ssdt,
 			 const char *oem_table_id)
 {
-	unsigned long current = (unsigned long)ssdt + sizeof(acpi_header_t);
+	unsigned long current = (unsigned long)ssdt +
+				sizeof(struct acpi_table_header);
 
-	memset((void *)ssdt, 0, sizeof(acpi_header_t));
+	memset((void *)ssdt, 0, sizeof(struct acpi_table_header));
 
 	memcpy(&ssdt->signature, "SSDT", 4);
 	/* Access size in ACPI 2.0c/3.0/4.0/5.0 */
@@ -322,9 +325,9 @@ static void acpi_create_ssdt_generator(acpi_header_t *ssdt,
 	memcpy(&ssdt->oem_id, OEM_ID, 6);
 	memcpy(&ssdt->oem_table_id, oem_table_id, 8);
 	ssdt->oem_revision = OEM_REVISION;
-	memcpy(&ssdt->asl_compiler_id, ASLC, 4);
-	ssdt->asl_compiler_revision = ASL_COMPILER_REVISION;
-	ssdt->length = sizeof(acpi_header_t);
+	memcpy(&ssdt->aslc_id, ASLC_ID, 4);
+	ssdt->aslc_revision = ASL_COMPILER_REVISION;
+	ssdt->length = sizeof(struct acpi_table_header);
 
 	/* (Re)calculate length and checksum */
 	ssdt->length = current - (unsigned long)ssdt;
@@ -342,11 +345,11 @@ u32 write_acpi_tables(u32 start)
 	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
 	struct acpi_facs *facs;
-	acpi_header_t *dsdt;
+	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
 	struct acpi_mcfg *mcfg;
 	struct acpi_madt *madt;
-	acpi_header_t *ssdt;
+	struct acpi_table_header *ssdt;
 
 	current = start;
 
@@ -381,14 +384,14 @@ u32 write_acpi_tables(u32 start)
 	acpi_create_facs(facs);
 
 	debug("ACPI:    * DSDT\n");
-	dsdt = (acpi_header_t *)current;
-	memcpy(dsdt, &AmlCode, sizeof(acpi_header_t));
-	if (dsdt->length >= sizeof(acpi_header_t)) {
-		current += sizeof(acpi_header_t);
+	dsdt = (struct acpi_table_header *)current;
+	memcpy(dsdt, &AmlCode, sizeof(struct acpi_table_header));
+	if (dsdt->length >= sizeof(struct acpi_table_header)) {
+		current += sizeof(struct acpi_table_header);
 		memcpy((char *)current,
-				(char *)&AmlCode + sizeof(acpi_header_t),
-				dsdt->length - sizeof(acpi_header_t));
-		current += dsdt->length - sizeof(acpi_header_t);
+			(char *)&AmlCode + sizeof(struct acpi_table_header),
+			dsdt->length - sizeof(struct acpi_table_header));
+		current += dsdt->length - sizeof(struct acpi_table_header);
 
 		/* (Re)calculate length and checksum */
 		dsdt->length = current - (unsigned long)dsdt;
@@ -424,9 +427,9 @@ u32 write_acpi_tables(u32 start)
 	current = ALIGN(current, 16);
 
 	debug("ACPI:    * SSDT\n");
-	ssdt = (acpi_header_t *)current;
-	acpi_create_ssdt_generator(ssdt, ACPI_TABLE_CREATOR);
-	if (ssdt->length > sizeof(acpi_header_t)) {
+	ssdt = (struct acpi_table_header *)current;
+	acpi_create_ssdt_generator(ssdt, OEM_TABLE_ID);
+	if (ssdt->length > sizeof(struct acpi_table_header)) {
 		current += ssdt->length;
 		acpi_add_table(rsdp, ssdt);
 		current = ALIGN(current, 16);

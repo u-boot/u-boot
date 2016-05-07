@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
-#define RSDP_SIG		"RSD PTR "	/* RSDT pointer signature */
-#define ACPI_TABLE_CREATOR	"UBOOT   "	/* Must be 8 bytes long! */
-#define OEM_ID			"UBOOT "	/* Must be 6 bytes long! */
-#define ASLC			"INTL"		/* Must be 4 bytes long! */
+#define RSDP_SIG		"RSD PTR "	/* RSDP pointer signature */
+#define OEM_ID			"U-BOOT"	/* U-Boot */
+#define OEM_TABLE_ID		"U-BOOTBL"	/* U-Boot Table */
+#define ASLC_ID			"INTL"		/* Intel ASL Compiler */
 
 #define OEM_REVISION	42
 #define ASL_COMPILER_REVISION	42
@@ -74,7 +74,7 @@ enum acpi_address_space_size {
 };
 
 /* Generic ACPI header, provided by (almost) all tables */
-typedef struct acpi_table_header {
+struct acpi_table_header {
 	char signature[4];	/* ACPI signature (4 ASCII characters) */
 	u32 length;		/* Table length in bytes (incl. header) */
 	u8 revision;		/* Table version (not ACPI version!) */
@@ -82,9 +82,9 @@ typedef struct acpi_table_header {
 	char oem_id[6];		/* OEM identification */
 	char oem_table_id[8];	/* OEM table identification */
 	u32 oem_revision;	/* OEM revision number */
-	char asl_compiler_id[4]; /* ASL compiler vendor ID */
-	u32 asl_compiler_revision; /* ASL compiler revision number */
-} acpi_header_t;
+	char aslc_id[4];	/* ASL compiler vendor ID */
+	u32 aslc_revision;	/* ASL compiler revision number */
+};
 
 /* A maximum number of 32 ACPI tables ought to be enough for now */
 #define MAX_ACPI_TABLES	32
@@ -108,8 +108,8 @@ struct acpi_mcfg {
 };
 
 struct acpi_mcfg_mmconfig {
-	u32 base_address;
-	u32 base_reserved;
+	u32 base_address_l;
+	u32 base_address_h;
 	u16 pci_segment_group_number;
 	u8 start_bus_number;
 	u8 end_bus_number;
@@ -125,17 +125,17 @@ struct acpi_madt {
 
 /* MADT: APIC Structure Type*/
 enum acpi_apic_types {
-	LOCALAPIC	= 0,	/* Processor local APIC */
-	IOAPIC,			/* I/O APIC */
-	IRQSOURCEOVERRIDE,	/* Interrupt source override */
-	NMITYPE,		/* NMI source */
-	LOCALNMITYPE, 		/* Local APIC NMI */
-	LAPICADDRESSOVERRIDE,	/* Local APIC address override */
-	IOSAPIC,		/* I/O SAPIC */
-	LOCALSAPIC,		/* Local SAPIC */
-	PLATFORMIRQSOURCES,	/* Platform interrupt sources */
-	LOCALX2SAPIC,		/* Processor local x2APIC */
-	LOCALX2APICNMI,		/* Local x2APIC NMI */
+	ACPI_APIC_LAPIC	= 0,		/* Processor local APIC */
+	ACPI_APIC_IOAPIC,		/* I/O APIC */
+	ACPI_APIC_IRQ_SRC_OVERRIDE,	/* Interrupt source override */
+	ACPI_APIC_NMI_SRC,		/* NMI source */
+	ACPI_APIC_LAPIC_NMI,		/* Local APIC NMI */
+	ACPI_APIC_LAPIC_ADDR_OVERRIDE,	/* Local APIC address override */
+	ACPI_APIC_IOSAPIC,		/* I/O SAPIC */
+	ACPI_APIC_LSAPIC,		/* Local SAPIC */
+	ACPI_APIC_PLATFORM_IRQ_SRC,	/* Platform interrupt sources */
+	ACPI_APIC_LX2APIC,		/* Processor local x2APIC */
+	ACPI_APIC_LX2APIC_NMI,		/* Local x2APIC NMI */
 };
 
 /* MADT: Processor Local APIC Structure */
@@ -153,7 +153,7 @@ struct acpi_madt_lapic {
 /* bits 1-31: reserved */
 
 /* MADT: Local APIC NMI Structure */
-struct acpi_madt_lapic_nmi {
+struct __packed acpi_madt_lapic_nmi {
 	u8 type;		/* Type (4) */
 	u8 length;		/* Length in bytes (6) */
 	u8 processor_id;	/* ACPI processor ID */
@@ -172,7 +172,7 @@ struct acpi_madt_ioapic {
 };
 
 /* MADT: Interrupt Source Override Structure */
-struct acpi_madt_irqoverride {
+struct __packed acpi_madt_irqoverride {
 	u8 type;		/* Type (2) */
 	u8 length;		/* Length in bytes (10) */
 	u8 bus;			/* ISA (0) */
@@ -186,7 +186,7 @@ struct __packed acpi_fadt {
 	struct acpi_table_header header;
 	u32 firmware_ctrl;
 	u32 dsdt;
-	u8 model;
+	u8 res1;
 	u8 preferred_pm_profile;
 	u16 sci_int;
 	u32 smi_cmd;
@@ -281,15 +281,17 @@ struct __packed acpi_fadt {
 #define ACPI_FADT_LEGACY_FREE		0x00
 
 /* FADT Preferred Power Management Profile */
-#define PM_UNSPECIFIED		0
-#define PM_DESKTOP		1
-#define PM_MOBILE		2
-#define PM_WORKSTATION		3
-#define PM_ENTERPRISE_SERVER	4
-#define PM_SOHO_SERVER		5
-#define PM_APPLIANCE_PC		6
-#define PM_PERFORMANCE_SERVER	7
-#define PM_TABLET		8	/* ACPI 5.0 */
+enum acpi_pm_profile {
+	ACPI_PM_UNSPECIFIED = 0,
+	ACPI_PM_DESKTOP,
+	ACPI_PM_MOBILE,
+	ACPI_PM_WORKSTATION,
+	ACPI_PM_ENTERPRISE_SERVER,
+	ACPI_PM_SOHO_SERVER,
+	ACPI_PM_APPLIANCE_PC,
+	ACPI_PM_PERFORMANCE_SERVER,
+	ACPI_PM_TABLET
+};
 
 /* FACS (Firmware ACPI Control Structure) */
 struct acpi_facs {
@@ -302,7 +304,9 @@ struct acpi_facs {
 	u32 x_firmware_waking_vector_l;		/* X FW waking vector, low */
 	u32 x_firmware_waking_vector_h;		/* X FW waking vector, high */
 	u8 version;				/* ACPI 4.0: 2 */
-	u8 resv[31];				/* FIXME: 4.0: ospm_flags */
+	u8 res1[3];
+	u32 ospm_flags;				/* OSPM enabled flags */
+	u8 res2[24];
 };
 
 /* FACS flags */
