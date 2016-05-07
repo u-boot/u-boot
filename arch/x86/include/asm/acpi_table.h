@@ -307,12 +307,12 @@ struct acpi_mcfg_mmconfig {
 void acpi_fill_header(struct acpi_table_header *header, char *signature);
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 		      void *dsdt);
-unsigned long acpi_create_madt_lapics(unsigned long current);
+u32 acpi_create_madt_lapics(u32 current);
 int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id,
 			    u32 addr, u32 gsi_base);
 int acpi_create_madt_irqoverride(struct acpi_madt_irqoverride *irqoverride,
 				 u8 bus, u8 source, u32 gsirq, u16 flags);
 int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 			       u8 cpu, u16 flags, u8 lint);
-unsigned long acpi_fill_madt(unsigned long current);
+u32 acpi_fill_madt(u32 current);
 u32 write_acpi_tables(u32 start);

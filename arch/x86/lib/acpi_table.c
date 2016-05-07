@@ -183,7 +183,7 @@ static int acpi_create_madt_lapic(struct acpi_madt_lapic *lapic,
 	return lapic->length;
 }
 
-unsigned long acpi_create_madt_lapics(unsigned long current)
+u32 acpi_create_madt_lapics(u32 current)
 {
 	struct udevice *dev;
 
@@ -241,7 +241,7 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 static void acpi_create_madt(struct acpi_madt *madt)
 {
 	struct acpi_table_header *header = &(madt->header);
-	unsigned long current = (unsigned long)madt + sizeof(struct acpi_madt);
+	u32 current = (u32)madt + sizeof(struct acpi_madt);
 
 	memset((void *)madt, 0, sizeof(struct acpi_madt));
 
@@ -258,7 +258,7 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	current = acpi_fill_madt(current);
 
 	/* (Re)calculate length and checksum */
-	header->length = current - (unsigned long)madt;
+	header->length = current - (u32)madt;
 
 	header->checksum = table_compute_checksum((void *)madt, header->length);
 }
@@ -276,7 +276,7 @@ static int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig,
 	return sizeof(struct acpi_mcfg_mmconfig);
 }
 
-static unsigned long acpi_fill_mcfg(unsigned long current)
+static u32 acpi_fill_mcfg(u32 current)
 {
 	current += acpi_create_mcfg_mmconfig
 		((struct acpi_mcfg_mmconfig *)current,
@@ -289,7 +289,7 @@ static unsigned long acpi_fill_mcfg(unsigned long current)
 static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 {
 	struct acpi_table_header *header = &(mcfg->header);
-	unsigned long current = (unsigned long)mcfg + sizeof(struct acpi_mcfg);
+	u32 current = (u32)mcfg + sizeof(struct acpi_mcfg);
 
 	memset((void *)mcfg, 0, sizeof(struct acpi_mcfg));
 
@@ -303,7 +303,7 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	current = acpi_fill_mcfg(current);
 
 	/* (Re)calculate length and checksum */
-	header->length = current - (unsigned long)mcfg;
+	header->length = current - (u32)mcfg;
 	header->checksum = table_compute_checksum((void *)mcfg, header->length);
 }
 
@@ -366,7 +366,7 @@ u32 write_acpi_tables(u32 start)
 		current += dsdt->length - sizeof(struct acpi_table_header);
 
 		/* (Re)calculate length and checksum */
-		dsdt->length = current - (unsigned long)dsdt;
+		dsdt->length = current - (u32)dsdt;
 		dsdt->checksum = 0;
 		dsdt->checksum = table_compute_checksum((void *)dsdt,
 				dsdt->length);
