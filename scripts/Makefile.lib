@@ -325,7 +325,7 @@ $(obj)/%.S: $(src)/%.ttf
 # ---------------------------------------------------------------------------
 quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
-	$(CPP) -x assembler-with-cpp -P -o $<.tmp $<; \
+	$(CPP) -x assembler-with-cpp -P $(UBOOTINCLUDE) -o $<.tmp $<; \
 	iasl -p $< -tc -va $<.tmp; \
 	mv $(patsubst %.asl,%.hex,$<) $@
 
