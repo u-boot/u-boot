@@ -88,6 +88,7 @@
 				compatible = "intel,irq-router";
 				intel,pirq-config = "ibase";
 				intel,ibase-offset = <0x50>;
+				intel,actl-addr = <0>;
 				intel,pirq-link = <8 8>;
 				intel,pirq-mask = <0xdee0>;
 				intel,pirq-routing = <
