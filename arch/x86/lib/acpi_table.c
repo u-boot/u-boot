@@ -339,7 +339,11 @@ u32 write_acpi_tables(u32 start)
 	current = ALIGN(current, 16);
 	xsdt = (struct acpi_xsdt *)current;
 	current += sizeof(struct acpi_xsdt);
-	current = ALIGN(current, 16);
+	/*
+	 * Per ACPI spec, the FACS table address must be aligned to a 64 byte
+	 * boundary (Windows checks this, but Linux does not).
+	 */
+	current = ALIGN(current, 64);
 
 	/* clear all table memory */
 	memset((void *)start, 0, current - start);
