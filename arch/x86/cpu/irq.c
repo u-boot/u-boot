@@ -121,6 +121,11 @@ static int create_pirq_routing_table(struct udevice *dev)
 	priv->irq_mask = fdtdec_get_int(blob, node,
 					"intel,pirq-mask", PIRQ_BITMAP);
 
+	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+		/* Reserve IRQ9 for SCI */
+		priv->irq_mask &= ~(1 << 9);
+	}
+
 	if (priv->config == PIRQ_VIA_IBASE) {
 		int ibase_off;
 
