@@ -329,7 +329,7 @@ cmd_acpi_c_asl=         \
 	iasl -p $< -tc -va $<.tmp; \
 	mv $(patsubst %.asl,%.hex,$<) $@
 
-$(obj)/%.c:    $(src)/%.asl
+$(obj)/dsdt.c:    $(src)/dsdt.asl
 	$(call cmd,acpi_c_asl)
 
 # Bzip2
