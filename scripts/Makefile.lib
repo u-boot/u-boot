@@ -323,7 +323,7 @@ $(obj)/%.S: $(src)/%.ttf
 
 # ACPI
 # ---------------------------------------------------------------------------
-quiet_cmd_acpi_c_asl= ASL     $@
+quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
 	$(CPP) -x assembler-with-cpp -P -o $<.tmp $<; \
 	iasl -p $< -tc -va $<.tmp; \
