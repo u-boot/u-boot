@@ -958,12 +958,52 @@ transformations. Remember to add attribution to coreboot for new files added
 to U-Boot. This should go at the top of each file and list the coreboot
 filename where the code originated.
 
+ACPI Support Status
+-------------------
+Advanced Configuration and Power Interface (ACPI) [16] aims to establish
+industry-standard interfaces enabling OS-directed configuration, power
+management, and thermal management of mobile, desktop, and server platforms.
+
+Linux can boot without ACPI with "acpi=off" command line parameter, but
+with ACPI the kernel gains the capabilities to handle power management.
+For Windows, ACPI is a must-have firmware feature since Windows Vista.
+CONFIG_GENERATE_ACPI_TABLE is the config option to turn on ACPI support in
+U-Boot. This requires Intel ACPI compiler to be installed on your host to
+compile ACPI DSDT table written in ASL format to AML format. You can get
+the compiler via "apt-get install iasl" if you are on Ubuntu or download
+the source from [17] to compile one by yourself.
+
+Current ACPI support in U-Boot is not complete. More features will be added
+in the future. The status as of today is:
+
+ * Support generating RSDT, XSDT, FACS, FADT, MADT, MCFG tables.
+ * Support one static DSDT table only, compiled by Intel ACPI compiler.
+ * Support S0/S5, reboot and shutdown from OS.
+ * Support booting a pre-installed Ubuntu distribution via 'zboot' command.
+ * Support ACPI interrupts with SCI only.
+
+Features not supported so far (to make it a complete ACPI solution):
+ * S3 (Suspend to RAM), S4 (Suspend to Disk).
+ * Install and boot Ubuntu 14.04 (or above) from U-Boot with legacy interface.
+ * Install and boot Windows 8.1/10 from U-Boot with legacy interface.
+
+Features that are optional:
+ * ACPI global NVS support. We may need it to simplify ASL code logic if
+   utilizing NVS variables. Most likely we will need this sooner or later.
+ * Dynamic AML bytecodes insertion at run-time. We may need this to support
+   SSDT table generation and DSDT fix up.
+ * SMI support. Since U-Boot is a modern bootloader, we don't want to bring
+   those legacy stuff into U-Boot. ACPI spec allows a system that does not
+   support SMI (a legacy-free system).
+
+So far ACPI is enabled on BayTrail based boards. Testing was done by booting
+a pre-installed Ubuntu 14.04 from a SATA drive. Most devices seem to work
+correctly and the board can respond a reboot/shutdown command from Ubuntu.
 
 TODO List
 ---------
 - Audio
 - Chrome OS verified boot
-- SMI and ACPI support, to provide platform info and facilities to Linux
 
 References
 ----------
@@ -982,3 +1022,5 @@ References
 [13] http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
 [14] http://www.seabios.org/SeaBIOS
 [15] doc/device-tree-bindings/misc/intel,irq-router.txt
+[16] http://www.acpi.info
+[17] https://www.acpica.org/downloads
