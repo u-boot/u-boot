@@ -302,9 +302,6 @@ struct acpi_mcfg_mmconfig {
 	u8 reserved[4];
 };
 
-#define OEM_REVISION		42
-#define ASL_COMPILER_REVISION	42
-
 /* These can be used by the target port */
 
 unsigned long acpi_create_madt_lapics(unsigned long current);

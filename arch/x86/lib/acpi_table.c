@@ -311,29 +311,6 @@ static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 			sizeof(struct acpi_rsdp));
 }
 
-static void acpi_create_ssdt_generator(struct acpi_table_header *ssdt,
-			 const char *oem_table_id)
-{
-	unsigned long current = (unsigned long)ssdt +
-				sizeof(struct acpi_table_header);
-
-	memset((void *)ssdt, 0, sizeof(struct acpi_table_header));
-
-	memcpy(&ssdt->signature, "SSDT", 4);
-	/* Access size in ACPI 2.0c/3.0/4.0/5.0 */
-	ssdt->revision = ACPI_REV_ACPI_3_0;
-	memcpy(&ssdt->oem_id, OEM_ID, 6);
-	memcpy(&ssdt->oem_table_id, oem_table_id, 8);
-	ssdt->oem_revision = OEM_REVISION;
-	memcpy(&ssdt->aslc_id, ASLC_ID, 4);
-	ssdt->aslc_revision = ASL_COMPILER_REVISION;
-	ssdt->length = sizeof(struct acpi_table_header);
-
-	/* (Re)calculate length and checksum */
-	ssdt->length = current - (unsigned long)ssdt;
-	ssdt->checksum = table_compute_checksum((void *)ssdt, ssdt->length);
-}
-
 /*
  * QEMU's version of write_acpi_tables is defined in
  * arch/x86/cpu/qemu/fw_cfg.c
@@ -349,7 +326,6 @@ u32 write_acpi_tables(u32 start)
 	struct acpi_fadt *fadt;
 	struct acpi_mcfg *mcfg;
 	struct acpi_madt *madt;
-	struct acpi_table_header *ssdt;
 
 	current = start;
 
@@ -425,15 +401,6 @@ u32 write_acpi_tables(u32 start)
 		acpi_add_table(rsdp, madt);
 	}
 	current = ALIGN(current, 16);
-
-	debug("ACPI:    * SSDT\n");
-	ssdt = (struct acpi_table_header *)current;
-	acpi_create_ssdt_generator(ssdt, OEM_TABLE_ID);
-	if (ssdt->length > sizeof(struct acpi_table_header)) {
-		current += ssdt->length;
-		acpi_add_table(rsdp, ssdt);
-		current = ALIGN(current, 16);
-	}
 
 	debug("current = %x\n", current);
 
