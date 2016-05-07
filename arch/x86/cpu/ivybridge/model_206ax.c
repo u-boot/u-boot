@@ -12,7 +12,6 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
-#include <asm/acpi.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
 #include <asm/lapic.h>
