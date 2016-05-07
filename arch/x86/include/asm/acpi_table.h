@@ -301,7 +301,7 @@ struct acpi_mcfg_mmconfig {
 void acpi_fill_header(struct acpi_table_header *header, char *signature);
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 		      void *dsdt);
-u32 acpi_create_madt_lapics(u32 current);
+int acpi_create_madt_lapics(u32 current);
 int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id,
 			    u32 addr, u32 gsi_base);
 int acpi_create_madt_irqoverride(struct acpi_madt_irqoverride *irqoverride,
