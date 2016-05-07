@@ -67,9 +67,7 @@ static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
 	/* Fill out header fields */
 	acpi_fill_header(header, "RSDT");
 	header->length = sizeof(struct acpi_rsdt);
-
-	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
-	header->revision = ACPI_REV_ACPI_2_0;
+	header->revision = 1;
 
 	/* Entries are filled in later, we come with an empty set */
 
@@ -85,9 +83,7 @@ static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 	/* Fill out header fields */
 	acpi_fill_header(header, "XSDT");
 	header->length = sizeof(struct acpi_xsdt);
-
-	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
-	header->revision = ACPI_REV_ACPI_2_0;
+	header->revision = 1;
 
 	/* Entries are filled in later, we come with an empty set */
 
@@ -248,9 +244,7 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	/* Fill out header fields */
 	acpi_fill_header(header, "APIC");
 	header->length = sizeof(struct acpi_madt);
-
-	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
-	header->revision = ACPI_REV_ACPI_2_0;
+	header->revision = 4;
 
 	madt->lapic_addr = LAPIC_DEFAULT_BASE;
 	madt->flags = ACPI_MADT_PCAT_COMPAT;
@@ -296,9 +290,7 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	/* Fill out header fields */
 	acpi_fill_header(header, "MCFG");
 	header->length = sizeof(struct acpi_mcfg);
-
-	/* ACPI 1.0/2.0: 1, ACPI 3.0: 2, ACPI 4.0: 3 */
-	header->revision = ACPI_REV_ACPI_2_0;
+	header->revision = 1;
 
 	current = acpi_fill_mcfg(current);
 

@@ -31,12 +31,6 @@ struct acpi_rsdp {
 	u8 reserved[3];
 };
 
-#define ACPI_REV_ACPI_1_0	1
-#define ACPI_REV_ACPI_2_0	1
-#define ACPI_REV_ACPI_3_0	2
-#define ACPI_REV_ACPI_4_0	3
-#define ACPI_REV_ACPI_5_0	5
-
 /* Generic ACPI header, provided by (almost) all tables */
 struct acpi_table_header {
 	char signature[4];	/* ACPI signature (4 ASCII characters) */
