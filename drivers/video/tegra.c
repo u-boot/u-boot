@@ -22,15 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-enum lcd_cache_t {
-	FDT_LCD_CACHE_OFF		= 0,
-	FDT_LCD_CACHE_WRITE_THROUGH	= 1 << 0,
-	FDT_LCD_CACHE_WRITE_BACK	= 1 << 1,
-	FDT_LCD_CACHE_FLUSH		= 1 << 2,
-	FDT_LCD_CACHE_WRITE_BACK_FLUSH	= FDT_LCD_CACHE_WRITE_BACK |
-						FDT_LCD_CACHE_FLUSH,
-};
-
 /* Information about the display controller */
 struct tegra_lcd_priv {
 	int width;			/* width in pixels */
@@ -41,7 +32,6 @@ struct tegra_lcd_priv {
 	struct disp_ctlr *disp;		/* Display controller to use */
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
 	unsigned pixel_clock;		/* Pixel clock in Hz */
-	enum lcd_cache_t cache_type;
 };
 
 enum {
@@ -310,7 +300,6 @@ static int tegra_lcd_probe(struct udevice *dev)
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct tegra_lcd_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	int type = DCACHE_OFF;
 	int ret;
 
 	/* Initialize the Tegra display controller */
@@ -329,15 +318,11 @@ static int tegra_lcd_probe(struct udevice *dev)
 		return ret;
 	}
 
-	/* Set up the LCD caching as requested */
-	if (priv->cache_type & FDT_LCD_CACHE_WRITE_THROUGH)
-		type = DCACHE_WRITETHROUGH;
-	else if (priv->cache_type & FDT_LCD_CACHE_WRITE_BACK)
-		type = DCACHE_WRITEBACK;
-	mmu_set_region_dcache_behaviour(priv->frame_buffer, plat->size, type);
+	mmu_set_region_dcache_behaviour(priv->frame_buffer, plat->size,
+					DCACHE_WRITETHROUGH);
 
 	/* Enable flushing after LCD writes if requested */
-	video_set_flush_dcache(dev, priv->cache_type & FDT_LCD_CACHE_FLUSH);
+	video_set_flush_dcache(dev, true);
 
 	uc_priv->xsize = priv->width;
 	uc_priv->ysize = priv->height;
