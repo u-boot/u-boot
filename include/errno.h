@@ -15,5 +15,10 @@ extern int errno;
 
 #ifdef CONFIG_ERRNO_STR
 const char *errno_str(int errno);
+#else
+static inline const char *errno_str(int errno)
+{
+	return 0;
+}
 #endif
 #endif /* _ERRNO_H */
