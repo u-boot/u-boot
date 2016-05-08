@@ -42,6 +42,22 @@
 				status = "okay";
 
 				nvidia,panel = <&panel>;
+
+				display-timings {
+					timing@0 {
+						/* Seaboard has 1366x768 */
+						clock-frequency = <70600000>;
+						hactive = <1366>;
+						vactive = <768>;
+						hback-porch = <58>;
+						hfront-porch = <58>;
+						hsync-len = <58>;
+						vback-porch = <4>;
+						vfront-porch = <4>;
+						vsync-len = <4>;
+						hsync-active = <1>;
+					};
+				};
 			};
 		};
 
@@ -852,28 +868,13 @@
 	};
 
 	panel: panel {
-		/* Seaboard has 1366x768 */
-		clock = <70600000>;
-		xres = <1366>;
-		yres = <768>;
-		left-margin = <58>;
-		right-margin = <58>;
-		hsync-len = <58>;
-		lower-margin = <4>;
-		upper-margin = <4>;
-		vsync-len = <4>;
-		hsync-active-high;
-		nvidia,bits-per-pixel = <16>;
-		nvidia,pwm = <&pwm 2 0>;
-		nvidia,backlight-enable-gpios = <&gpio TEGRA_GPIO(D, 4)
-							GPIO_ACTIVE_HIGH>;
-		nvidia,lvds-shutdown-gpios = <&gpio TEGRA_GPIO(B, 2)
-							GPIO_ACTIVE_HIGH>;
-		nvidia,backlight-vdd-gpios = <&gpio TEGRA_GPIO(W, 0)
-							GPIO_ACTIVE_HIGH>;
-		nvidia,panel-vdd-gpios = <&gpio TEGRA_GPIO(C, 6)
-							GPIO_ACTIVE_HIGH>;
-		nvidia,panel-timings = <400 4 203 17 15>;
+		compatible = "chunghwa,claa101wa01a", "simple-panel";
+
+		power-supply = <&vdd_pnl_reg>;
+		enable-gpios = <&gpio TEGRA_GPIO(B, 2) GPIO_ACTIVE_HIGH>;
+
+		backlight = <&backlight>;
+		ddc-i2c-bus = <&lvds_ddc>;
 	};
 
 	regulators {
