@@ -8,6 +8,7 @@
 #include <libfdt.h>
 #include <linux/err.h>
 #include <asm/arch/gxbb.h>
+#include <asm/arch/sm.h>
 #include <asm/armv8/mmu.h>
 #include <asm/unaligned.h>
 

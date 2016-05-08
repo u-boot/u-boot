@@ -7,8 +7,14 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/gxbb.h>
+#include <asm/arch/sm.h>
 #include <dm/platdata.h>
 #include <phy.h>
+
+#define EFUSE_SN_OFFSET		20
+#define EFUSE_SN_SIZE		16
+#define EFUSE_MAC_OFFSET	52
+#define EFUSE_MAC_SIZE		6
 
 int board_init(void)
 {
@@ -27,6 +33,9 @@ U_BOOT_DEVICE(meson_eth) = {
 
 int misc_init_r(void)
 {
+	u8 mac_addr[EFUSE_MAC_SIZE];
+	ssize_t len;
+
 	/* Select Ethernet function */
 	setbits_le32(GXBB_PINMUX(6), 0x3fff);
 
@@ -46,6 +55,13 @@ int misc_init_r(void)
 	clrbits_le32(GXBB_GPIO_OUT(3), BIT(14));
 	mdelay(10);
 	setbits_le32(GXBB_GPIO_OUT(3), BIT(14));
+
+	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
+					  mac_addr, EFUSE_MAC_SIZE);
+		if (len == EFUSE_MAC_SIZE && is_valid_ethaddr(mac_addr))
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+	}
 
 	return 0;
 }
