@@ -110,8 +110,8 @@ struct eth_dma_regs {
 struct dmamacdescr {
 	u32 txrx_status;
 	u32 dmamac_cntl;
-	void *dmamac_addr;
-	struct dmamacdescr *dmamac_next;
+	u32 dmamac_addr;
+	u32 dmamac_next;
 } __aligned(ARCH_DMA_MINALIGN);
 
 /*
