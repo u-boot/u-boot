@@ -7,6 +7,7 @@
 import hashlib
 import os
 import os.path
+import pytest
 import sys
 import time
 
