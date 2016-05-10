@@ -64,6 +64,11 @@ __weak void spl_board_prepare_for_linux(void)
 	/* Nothing to do! */
 }
 
+__weak void spl_board_prepare_for_boot(void)
+{
+	/* Nothing to do! */
+}
+
 void spl_set_header_raw_uboot(void)
 {
 	spl_image.size = CONFIG_SYS_MONITOR_LEN;
@@ -404,6 +409,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 
 	debug("loaded - jumping to U-Boot...");
+	spl_board_prepare_for_boot();
 	jump_to_image_no_args(&spl_image);
 }
 
