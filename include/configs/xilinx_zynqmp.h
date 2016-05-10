@@ -148,6 +148,7 @@
 #endif
 
 /* Initial environment variables */
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
@@ -158,6 +159,7 @@
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
 	DFU_ALT_INFO
+#endif
 
 #define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	3
