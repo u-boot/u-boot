@@ -56,7 +56,8 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	u32 vref_seq2[3] = {0xc0, 0xf0, 0x70};	/* for range 2 */
 	u32 *vref_seq = vref_seq1;
 #endif
-#ifdef CONFIG_SYS_FSL_ERRATUM_A009942
+#if defined(CONFIG_SYS_FSL_ERRATUM_A009942) | \
+	defined(CONFIG_SYS_FSL_ERRATUM_A010165)
 	ulong ddr_freq;
 	u32 tmp;
 #endif
@@ -271,6 +272,13 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		ddr_out32(&ddr->debug[28], tmp | 0x0060007b);
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A010165
+	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
+	if ((ddr_freq > 1900) && (ddr_freq < 2300)) {
+		tmp = ddr_in32(&ddr->debug[28]);
+		ddr_out32(&ddr->debug[28], tmp | 0x000a0000);
+	}
+#endif
 	/*
 	 * For RDIMMs, JEDEC spec requires clocks to be stable before reset is
 	 * deasserted. Clocks start when any chip select is enabled and clock
