@@ -241,6 +241,7 @@
 
 #define	CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
 
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" \
 					"nor0=flash-0\0"\
 					"mtdparts=mtdparts=flash-0:"\
@@ -250,6 +251,7 @@
 					"setenv stdin nc\0" \
 					"serial=setenv stdout serial;"\
 					"setenv stdin serial\0"
+#endif
 
 #define CONFIG_CMDLINE_EDITING
 
