@@ -90,3 +90,18 @@ __weak void ps7_init(void)
 	 * board/xilinx/zynq/(platform)/ps7_init_gpl.c, if it exists.
 	 */
 }
+
+__weak int ps7_post_config(void)
+{
+	/*
+	 * This function is overridden by the one in
+	 * board/xilinx/zynq/(platform)/ps7_init_gpl.c, if it exists.
+	 */
+	return 0;
+}
+
+void spl_board_prepare_for_boot(void)
+{
+	ps7_post_config();
+	debug("SPL bye\n");
+}
