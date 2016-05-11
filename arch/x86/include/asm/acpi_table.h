@@ -296,6 +296,9 @@ struct acpi_mcfg_mmconfig {
 	u8 reserved[4];
 };
 
+/* PM1_CNT bit defines */
+#define PM1_CNT_SCI_EN		(1 << 0)
+
 /* These can be used by the target port */
 
 void acpi_fill_header(struct acpi_table_header *header, char *signature);

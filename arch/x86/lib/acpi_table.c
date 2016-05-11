@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <asm/acpi_table.h>
+#include <asm/io.h>
 #include <asm/lapic.h>
 #include <asm/tables.h>
 
@@ -301,6 +302,25 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	header->checksum = table_compute_checksum((void *)mcfg, header->length);
 }
 
+static void enter_acpi_mode(int pm1_cnt)
+{
+	/*
+	 * PM1_CNT register bit0 selects the power management event to be
+	 * either an SCI or SMI interrupt. When this bit is set, then power
+	 * management events will generate an SCI interrupt. When this bit
+	 * is reset power management events will generate an SMI interrupt.
+	 *
+	 * Per ACPI spec, it is the responsibility of the hardware to set
+	 * or reset this bit. OSPM always preserves this bit position.
+	 *
+	 * U-Boot does not support SMI. And we don't have plan to support
+	 * anything running in SMM within U-Boot. To create a legacy-free
+	 * system, and expose ourselves to OSPM as working under ACPI mode
+	 * already, turn this bit on.
+	 */
+	outw(PM1_CNT_SCI_EN, pm1_cnt);
+}
+
 /*
  * QEMU's version of write_acpi_tables is defined in
  * arch/x86/cpu/qemu/acpi_table.c
@@ -399,6 +419,12 @@ u32 write_acpi_tables(u32 start)
 	debug("current = %x\n", current);
 
 	debug("ACPI: done\n");
+
+	/*
+	 * Other than waiting for OSPM to request us to switch to ACPI mode,
+	 * do it by ourselves, since SMI will not be triggered.
+	 */
+	enter_acpi_mode(fadt->pm1a_cnt_blk);
 
 	return current;
 }
