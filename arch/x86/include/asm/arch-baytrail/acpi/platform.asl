@@ -27,6 +27,9 @@ Method(_WAK, 1)
 Scope (\_SB)
 {
 	#include "southcluster.asl"
+
+	/* ACPI devices */
+	#include "gpio.asl"
 }
 
 /* Chipset specific sleep states */
