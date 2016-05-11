@@ -382,12 +382,6 @@ u32 write_acpi_tables(u32 start)
 			(char *)&AmlCode + sizeof(struct acpi_table_header),
 			dsdt->length - sizeof(struct acpi_table_header));
 		current += dsdt->length - sizeof(struct acpi_table_header);
-
-		/* (Re)calculate length and checksum */
-		dsdt->length = current - (u32)dsdt;
-		dsdt->checksum = 0;
-		dsdt->checksum = table_compute_checksum((void *)dsdt,
-				dsdt->length);
 	}
 	current = ALIGN(current, 16);
 
