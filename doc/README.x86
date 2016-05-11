@@ -1004,12 +1004,14 @@ in the future. The status as of today is:
  * Support one static DSDT table only, compiled by Intel ACPI compiler.
  * Support S0/S5, reboot and shutdown from OS.
  * Support booting a pre-installed Ubuntu distribution via 'zboot' command.
+ * Support installing and booting Ubuntu 14.04 (or above) from U-Boot with
+   the help of SeaBIOS using legacy interface (non-UEFI mode).
+ * Support installing and booting Windows 8.1/10 from U-Boot with the help
+   of SeaBIOS using legacy interface (non-UEFI mode).
  * Support ACPI interrupts with SCI only.
 
 Features not supported so far (to make it a complete ACPI solution):
  * S3 (Suspend to RAM), S4 (Suspend to Disk).
- * Install and boot Ubuntu 14.04 (or above) from U-Boot with legacy interface.
- * Install and boot Windows 8.1/10 from U-Boot with legacy interface.
 
 Features that are optional:
  * ACPI global NVS support. We may need it to simplify ASL code logic if
@@ -1021,8 +1023,10 @@ Features that are optional:
    support SMI (a legacy-free system).
 
 So far ACPI is enabled on BayTrail based boards. Testing was done by booting
-a pre-installed Ubuntu 14.04 from a SATA drive. Most devices seem to work
-correctly and the board can respond a reboot/shutdown command from Ubuntu.
+a pre-installed Ubuntu 14.04 from a SATA drive. Installing Ubuntu 14.04 and
+Windows 8.1/10 to a SATA drive and booting from there is also tested. Most
+devices seem to work correctly and the board can respond a reboot/shutdown
+command from the OS.
 
 TODO List
 ---------
