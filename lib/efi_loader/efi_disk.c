@@ -76,9 +76,6 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	int blocks;
 	unsigned long n;
 
-	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
-		  buffer_size, buffer);
-
 	diskobj = container_of(this, struct efi_disk_obj, ops);
 	if (!(desc = blk_get_dev(diskobj->ifname, diskobj->dev_index)))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
@@ -95,10 +92,11 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	if (buffer_size & (blksz - 1))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 
-	if (direction == EFI_DISK_READ)
+	if (direction == EFI_DISK_READ) {
 		n = desc->block_read(desc, lba, blocks, buffer);
-	else
+	} else {
 		n = desc->block_write(desc, lba, blocks, buffer);
+	}
 
 	/* We don't do interrupts, so check for timers cooperatively */
 	efi_timer_check();
@@ -116,16 +114,70 @@ static efi_status_t efi_disk_read_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, unsigned long buffer_size,
 			void *buffer)
 {
-	return efi_disk_rw_blocks(this, media_id, lba, buffer_size, buffer,
-				  EFI_DISK_READ);
+	void *real_buffer = buffer;
+	efi_status_t r;
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	if (buffer_size > EFI_LOADER_BOUNCE_BUFFER_SIZE) {
+		r = efi_disk_read_blocks(this, media_id, lba,
+			EFI_LOADER_BOUNCE_BUFFER_SIZE, buffer);
+		if (r != EFI_SUCCESS)
+			return r;
+		return efi_disk_read_blocks(this, media_id, lba +
+			EFI_LOADER_BOUNCE_BUFFER_SIZE / this->media->block_size,
+			buffer_size - EFI_LOADER_BOUNCE_BUFFER_SIZE,
+			buffer + EFI_LOADER_BOUNCE_BUFFER_SIZE);
+	}
+
+	real_buffer = efi_bounce_buffer;
+#endif
+
+	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
+		  buffer_size, buffer);
+
+	r = efi_disk_rw_blocks(this, media_id, lba, buffer_size, real_buffer,
+			       EFI_DISK_READ);
+
+	/* Copy from bounce buffer to real buffer if necessary */
+	if ((r == EFI_SUCCESS) && (real_buffer != buffer))
+		memcpy(buffer, real_buffer, buffer_size);
+
+	return EFI_EXIT(r);
 }
 
 static efi_status_t efi_disk_write_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, unsigned long buffer_size,
 			void *buffer)
 {
-	return efi_disk_rw_blocks(this, media_id, lba, buffer_size, buffer,
-				  EFI_DISK_WRITE);
+	void *real_buffer = buffer;
+	efi_status_t r;
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	if (buffer_size > EFI_LOADER_BOUNCE_BUFFER_SIZE) {
+		r = efi_disk_write_blocks(this, media_id, lba,
+			EFI_LOADER_BOUNCE_BUFFER_SIZE, buffer);
+		if (r != EFI_SUCCESS)
+			return r;
+		return efi_disk_write_blocks(this, media_id, lba +
+			EFI_LOADER_BOUNCE_BUFFER_SIZE / this->media->block_size,
+			buffer_size - EFI_LOADER_BOUNCE_BUFFER_SIZE,
+			buffer + EFI_LOADER_BOUNCE_BUFFER_SIZE);
+	}
+
+	real_buffer = efi_bounce_buffer;
+#endif
+
+	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
+		  buffer_size, buffer);
+
+	/* Populate bounce buffer if necessary */
+	if (real_buffer != buffer)
+		memcpy(real_buffer, buffer, buffer_size);
+
+	r = efi_disk_rw_blocks(this, media_id, lba, buffer_size, real_buffer,
+			       EFI_DISK_WRITE);
+
+	return EFI_EXIT(r);
 }
 
 static efi_status_t EFIAPI efi_disk_flush_blocks(struct efi_block_io *this)

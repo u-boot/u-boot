@@ -139,6 +139,11 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+extern void *efi_bounce_buffer;
+#define EFI_LOADER_BOUNCE_BUFFER_SIZE (64 * 1024 * 1024)
+#endif
+
 /* Convert strings from normal C strings to uEFI strings */
 static inline void ascii2unicode(u16 *unicode, char *ascii)
 {

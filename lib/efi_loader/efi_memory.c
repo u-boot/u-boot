@@ -27,6 +27,10 @@ struct efi_mem_list {
 /* This list contains all memory map items */
 LIST_HEAD(efi_mem);
 
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+void *efi_bounce_buffer;
+#endif
+
 /*
  * Sorts the memory list from highest address to lowest address
  *
@@ -348,6 +352,18 @@ int efi_memory_init(void)
 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(runtime_start, runtime_pages,
 			   EFI_RUNTIME_SERVICES_CODE, false);
+
+#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+	/* Request a 32bit 64MB bounce buffer region */
+	uint64_t efi_bounce_buffer_addr = 0xffffffff;
+
+	if (efi_allocate_pages(1, EFI_LOADER_DATA,
+			       (64 * 1024 * 1024) >> EFI_PAGE_SHIFT,
+			       &efi_bounce_buffer_addr) != EFI_SUCCESS)
+		return -1;
+
+	efi_bounce_buffer = (void*)(uintptr_t)efi_bounce_buffer_addr;
+#endif
 
 	return 0;
 }
