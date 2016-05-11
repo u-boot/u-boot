@@ -13,6 +13,7 @@
 #include <asm/irq.h>
 #include <asm/pci.h>
 #include <asm/pirq_routing.h>
+#include <asm/tables.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -213,6 +214,9 @@ static int create_pirq_routing_table(struct udevice *dev)
 	}
 
 	rt->size = irq_entries * sizeof(struct irq_info) + 32;
+
+	/* Fix up the table checksum */
+	rt->checksum = table_compute_checksum(rt, rt->size);
 
 	pirq_routing_table = rt;
 
