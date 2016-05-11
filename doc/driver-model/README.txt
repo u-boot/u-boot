@@ -606,19 +606,24 @@ methods actually defined.
 
 1. Bind stage
 
-A device and its driver are bound using one of these two methods:
+U-Boot discovers devices using one of these two methods:
 
-   - Scan the U_BOOT_DEVICE() definitions. U-Boot It looks up the
-name specified by each, to find the appropriate driver. It then calls
-device_bind() to create a new device and bind' it to its driver. This will
-call the device's bind() method.
+   - Scan the U_BOOT_DEVICE() definitions. U-Boot looks up the name specified
+by each, to find the appropriate U_BOOT_DRIVER() definition. In this case,
+there is no path by which driver_data may be provided, but the U_BOOT_DEVICE()
+may provide platdata.
 
    - Scan through the device tree definitions. U-Boot looks at top-level
 nodes in the the device tree. It looks at the compatible string in each node
-and uses the of_match part of the U_BOOT_DRIVER() structure to find the
-right driver for each node. It then calls device_bind() to bind the
-newly-created device to its driver (thereby creating a device structure).
-This will also call the device's bind() method.
+and uses the of_match table of the U_BOOT_DRIVER() structure to find the
+right driver for each node. In this case, the of_match table may provide a
+driver_data value, but platdata cannot be provided until later.
+
+For each device that is discovered, U-Boot then calls device_bind() to create a
+new device, initializes various core fields of the device object such as name,
+uclass & driver, initializes any optional fields of the device object that are
+applicable such as of_offset, driver_data & platdata, and finally calls the
+driver's bind() method if one is defined.
 
 At this point all the devices are known, and bound to their drivers. There
 is a 'struct udevice' allocated for all devices. However, nothing has been
