@@ -21,6 +21,10 @@ Scope (\)
 		PRTF, 8,
 		PRTG, 8,
 		PRTH, 8,
+		Offset (0x88),
+		    , 3,
+		UI3E, 1,
+		UI4E, 1
 	}
 }
 

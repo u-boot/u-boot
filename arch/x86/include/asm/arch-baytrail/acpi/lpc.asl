@@ -14,6 +14,15 @@ Device (LPCB)
 {
 	Name(_ADR, 0x001f0000)
 
+	OperationRegion(LPC0, PCI_Config, 0x00, 0x100)
+	Field(LPC0, AnyAcc, NoLock, Preserve) {
+		Offset(0x08),
+		SRID, 8,
+		Offset(0x80),
+		C1EN, 1,
+		Offset(0x84)
+	}
+
 	#include "irqlinks.asl"
 
 	/* Firmware Hub */
@@ -78,6 +87,57 @@ Device (LPCB)
 		Method(_STA)
 		{
 			Return (STA_VISIBLE)
+		}
+	}
+
+	/* Internal UART */
+	Device (IURT)
+	{
+		Name(_HID, EISAID("PNP0501"))
+		Name(_UID, 1)
+
+		Method(_STA, 0, Serialized)
+		{
+			/*
+			 * TODO:
+			 *
+			 * Need to hide the internal UART depending on whether
+			 * internal UART is enabled or not so that external
+			 * SuperIO UART can be exposed to system.
+			 */
+			Store(1, UI3E)
+			Store(1, UI4E)
+			Store(1, C1EN)
+			Return (STA_VISIBLE)
+
+		}
+
+		Method(_DIS, 0, Serialized)
+		{
+			Store(0, UI3E)
+			Store(0, UI4E)
+			Store(0, C1EN)
+		}
+
+		Method(_CRS, 0, Serialized)
+		{
+			Name(BUF0, ResourceTemplate()
+			{
+				IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
+				IRQNoFlags() { 3 }
+			})
+
+			Name(BUF1, ResourceTemplate()
+			{
+				IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
+				IRQNoFlags() { 4 }
+			})
+
+			If (LLessEqual(SRID, 0x04)) {
+				Return (BUF0)
+			} Else {
+				Return (BUF1)
+			}
 		}
 	}
 
