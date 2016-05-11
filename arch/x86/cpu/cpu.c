@@ -661,9 +661,19 @@ void show_boot_progress(int val)
 }
 
 #ifndef CONFIG_SYS_COREBOOT
+/*
+ * Implement a weak default function for boards that optionally
+ * need to clean up the system before jumping to the kernel.
+ */
+__weak void board_final_cleanup(void)
+{
+}
+
 int last_stage_init(void)
 {
 	write_tables();
+
+	board_final_cleanup();
 
 	return 0;
 }
