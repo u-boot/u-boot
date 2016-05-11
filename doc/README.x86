@@ -807,6 +807,30 @@ to install/boot a Windows XP OS (below for example command to install Windows).
 This is also tested on Intel Crown Bay board with a PCIe graphics card, booting
 SeaBIOS then chain-loading a GRUB on a USB drive, then Linux kernel finally.
 
+If you are using Intel Integrated Graphics Device (IGD) as the primary display
+device on your board, SeaBIOS needs to be patched manually to get its VGA ROM
+loaded and run by SeaBIOS. SeaBIOS locates VGA ROM via the PCI expansion ROM
+register, but IGD device does not have its VGA ROM mapped by this register.
+Its VGA ROM is packaged as part of u-boot.rom at a configurable flash address
+which is unknown to SeaBIOS. An example patch is needed for SeaBIOS below:
+
+diff --git a/src/optionroms.c b/src/optionroms.c
+index 65f7fe0..c7b6f5e 100644
+--- a/src/optionroms.c
++++ b/src/optionroms.c
+@@ -324,6 +324,8 @@ init_pcirom(struct pci_device *pci, int isvga, u64 *sources)
+         rom = deploy_romfile(file);
+     else if (RunPCIroms > 1 || (RunPCIroms == 1 && isvga))
+         rom = map_pcirom(pci);
++    if (pci->bdf == pci_to_bdf(0, 2, 0))
++        rom = (struct rom_header *)0xfff90000;
+     if (! rom)
+         // No ROM present.
+         return;
+
+Note: the patch above expects IGD device is at PCI b.d.f 0.2.0 and its VGA ROM
+is at 0xfff90000 which corresponds to CONFIG_VGA_BIOS_ADDR on Minnowboard MAX.
+Change these two accordingly if this is not the case on your board.
 
 Development Flow
 ----------------
