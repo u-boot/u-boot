@@ -376,13 +376,11 @@ u32 write_acpi_tables(u32 start)
 	debug("ACPI:    * DSDT\n");
 	dsdt = (struct acpi_table_header *)current;
 	memcpy(dsdt, &AmlCode, sizeof(struct acpi_table_header));
-	if (dsdt->length >= sizeof(struct acpi_table_header)) {
-		current += sizeof(struct acpi_table_header);
-		memcpy((char *)current,
-			(char *)&AmlCode + sizeof(struct acpi_table_header),
-			dsdt->length - sizeof(struct acpi_table_header));
-		current += dsdt->length - sizeof(struct acpi_table_header);
-	}
+	current += sizeof(struct acpi_table_header);
+	memcpy((char *)current,
+	       (char *)&AmlCode + sizeof(struct acpi_table_header),
+	       dsdt->length - sizeof(struct acpi_table_header));
+	current += dsdt->length - sizeof(struct acpi_table_header);
 	current = ALIGN(current, 16);
 
 	debug("ACPI:    * FADT\n");
@@ -395,20 +393,16 @@ u32 write_acpi_tables(u32 start)
 	debug("ACPI:    * MADT\n");
 	madt = (struct acpi_madt *)current;
 	acpi_create_madt(madt);
-	if (madt->header.length > sizeof(struct acpi_madt)) {
-		current += madt->header.length;
-		acpi_add_table(rsdp, madt);
-	}
+	current += madt->header.length;
+	acpi_add_table(rsdp, madt);
 	current = ALIGN(current, 16);
 
 	debug("ACPI:    * MCFG\n");
 	mcfg = (struct acpi_mcfg *)current;
 	acpi_create_mcfg(mcfg);
-	if (mcfg->header.length > sizeof(struct acpi_mcfg)) {
-		current += mcfg->header.length;
-		current = ALIGN(current, 16);
-		acpi_add_table(rsdp, mcfg);
-	}
+	current += mcfg->header.length;
+	acpi_add_table(rsdp, mcfg);
+	current = ALIGN(current, 16);
 
 	debug("current = %x\n", current);
 
