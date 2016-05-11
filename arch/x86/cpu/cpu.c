@@ -29,6 +29,7 @@
 #include <asm/lapic.h>
 #include <asm/microcode.h>
 #include <asm/mp.h>
+#include <asm/mrccache.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
@@ -751,3 +752,14 @@ int cpu_init_r(void)
 
 	return 0;
 }
+
+#ifndef CONFIG_EFI_STUB
+int reserve_arch(void)
+{
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	return mrccache_reserve();
+#else
+	return 0;
+#endif
+}
+#endif

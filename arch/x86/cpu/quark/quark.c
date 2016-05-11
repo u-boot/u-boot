@@ -360,12 +360,3 @@ void board_final_cleanup(void)
 
 	return;
 }
-
-int reserve_arch(void)
-{
-#ifdef CONFIG_ENABLE_MRC_CACHE
-	return mrccache_reserve();
-#else
-	return 0;
-#endif
-}

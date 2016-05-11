@@ -190,11 +190,6 @@ static int prepare_mrc_cache(struct pei_data *pei_data)
 	return 0;
 }
 
-int reserve_arch(void)
-{
-	return mrccache_reserve();
-}
-
 int dram_init(void)
 {
 	struct pei_data _pei_data __aligned(8);

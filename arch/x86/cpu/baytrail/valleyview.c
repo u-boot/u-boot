@@ -53,14 +53,6 @@ int arch_misc_init(void)
 	return 0;
 }
 
-int reserve_arch(void)
-{
-#ifdef CONFIG_ENABLE_MRC_CACHE
-	return mrccache_reserve();
-#else
-	return 0;
-#endif
-}
 #endif
 
 void reset_cpu(ulong addr)
