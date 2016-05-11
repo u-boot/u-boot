@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <asm/control_regs.h>
+#include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
 #include <asm/lapic.h>
 #include <asm/microcode.h>
@@ -757,9 +758,13 @@ int cpu_init_r(void)
 int reserve_arch(void)
 {
 #ifdef CONFIG_ENABLE_MRC_CACHE
-	return mrccache_reserve();
-#else
-	return 0;
+	mrccache_reserve();
 #endif
+
+#ifdef CONFIG_SEABIOS
+	high_table_reserve();
+#endif
+
+	return 0;
 }
 #endif
