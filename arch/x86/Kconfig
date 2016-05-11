@@ -531,6 +531,20 @@ config SEABIOS
 
 	  Check http://www.seabios.org/SeaBIOS for details.
 
+config HIGH_TABLE_SIZE
+	hex "Size of configuration tables which reside in high memory"
+	default 0x10000
+	depends on SEABIOS
+	help
+	  SeaBIOS itself resides in E seg and F seg, where U-Boot puts all
+	  configuration tables like PIRQ/MP/ACPI. To avoid conflicts, U-Boot
+	  puts a copy of configuration tables in high memory region which
+	  is reserved on the stack before relocation. The region size is
+	  determined by this option.
+
+	  Increse it if the default size does not fit the board's needs.
+	  This is most likely due to a large ACPI DSDT table is used.
+
 source "arch/x86/lib/efi/Kconfig"
 
 endmenu

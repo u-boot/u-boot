@@ -9,6 +9,37 @@
 #include <asm/coreboot_tables.h>
 #include <asm/e820.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+int high_table_reserve(void)
+{
+	/* adjust stack pointer to reserve space for configuration tables */
+	gd->arch.high_table_limit = gd->start_addr_sp;
+	gd->start_addr_sp -= CONFIG_HIGH_TABLE_SIZE;
+	gd->arch.high_table_ptr = gd->start_addr_sp;
+
+	/* clear the memory */
+	memset((void *)gd->arch.high_table_ptr, 0, CONFIG_HIGH_TABLE_SIZE);
+
+	gd->start_addr_sp &= ~0xf;
+
+	return 0;
+}
+
+void *high_table_malloc(size_t bytes)
+{
+	u32 new_ptr;
+	void *ptr;
+
+	new_ptr = gd->arch.high_table_ptr + bytes;
+	if (new_ptr >= gd->arch.high_table_limit)
+		return NULL;
+	ptr = (void *)gd->arch.high_table_ptr;
+	gd->arch.high_table_ptr = new_ptr;
+
+	return ptr;
+}
+
 /**
  * cb_table_init() - initialize a coreboot table header
  *
