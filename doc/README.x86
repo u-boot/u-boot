@@ -982,6 +982,12 @@ transformations. Remember to add attribution to coreboot for new files added
 to U-Boot. This should go at the top of each file and list the coreboot
 filename where the code originated.
 
+Debugging ACPI issues with Windows:
+
+Windows might cache system information and only detect ACPI changes if you
+modify the ACPI table versions. So tweak them liberally when debugging ACPI
+issues with Windows.
+
 ACPI Support Status
 -------------------
 Advanced Configuration and Power Interface (ACPI) [16] aims to establish
