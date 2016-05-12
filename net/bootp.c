@@ -440,10 +440,10 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 {
 	u8 *start = e;
 	u8 *cnt;
-#if defined(CONFIG_BOOTP_PXE)
+#ifdef CONFIG_LIB_UUID
 	char *uuid;
-	u16 clientarch;
 #endif
+	int clientarch = -1;
 
 #if defined(CONFIG_BOOTP_VENDOREX)
 	u8 *x;
@@ -499,12 +499,19 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	}
 #endif
 
-#if defined(CONFIG_BOOTP_PXE)
+#ifdef CONFIG_BOOTP_PXE_CLIENTARCH
 	clientarch = CONFIG_BOOTP_PXE_CLIENTARCH;
-	*e++ = 93;	/* Client System Architecture */
-	*e++ = 2;
-	*e++ = (clientarch >> 8) & 0xff;
-	*e++ = clientarch & 0xff;
+#endif
+
+	if (getenv("bootp_arch"))
+		clientarch = getenv_ulong("bootp_arch", 16, clientarch);
+
+	if (clientarch > 0) {
+		*e++ = 93;	/* Client System Architecture */
+		*e++ = 2;
+		*e++ = (clientarch >> 8) & 0xff;
+		*e++ = clientarch & 0xff;
+	}
 
 	*e++ = 94;	/* Client Network Interface Identifier */
 	*e++ = 3;
@@ -512,6 +519,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*e++ = 0;	/* major revision */
 	*e++ = 0;	/* minor revision */
 
+#ifdef CONFIG_LIB_UUID
 	uuid = getenv("pxeuuid");
 
 	if (uuid) {
