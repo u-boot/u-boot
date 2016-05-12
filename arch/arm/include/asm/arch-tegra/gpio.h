@@ -6,6 +6,8 @@
 #ifndef _TEGRA_GPIO_H_
 #define _TEGRA_GPIO_H_
 
+#include <dt-bindings/gpio/tegra-gpio.h>
+
 #define TEGRA_GPIOS_PER_PORT	8
 #define TEGRA_PORTS_PER_BANK	4
 #define MAX_NUM_GPIOS           (TEGRA_GPIO_PORTS * TEGRA_GPIO_BANKS * 8)
