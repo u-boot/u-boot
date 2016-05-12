@@ -54,6 +54,11 @@ config TEGRA210
 	select TEGRA_GPIO
 	select TEGRA_ARMV8_COMMON
 
+config TEGRA186
+	bool "Tegra186 family"
+	select TEGRA186_GPIO
+	select TEGRA_ARMV8_COMMON
+
 endchoice
 
 config TEGRA_DISCONNECT_UDC_ON_BOOT
@@ -77,5 +82,6 @@ source "arch/arm/mach-tegra/tegra30/Kconfig"
 source "arch/arm/mach-tegra/tegra114/Kconfig"
 source "arch/arm/mach-tegra/tegra124/Kconfig"
 source "arch/arm/mach-tegra/tegra210/Kconfig"
+source "arch/arm/mach-tegra/tegra186/Kconfig"
 
 endif
