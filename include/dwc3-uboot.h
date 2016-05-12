@@ -13,7 +13,7 @@
 #include <linux/usb/otg.h>
 
 struct dwc3_device {
-	int base;
+	unsigned long base;
 	enum usb_dr_mode dr_mode;
 	u32 maximum_speed;
 	unsigned tx_fifo_resize:1;
