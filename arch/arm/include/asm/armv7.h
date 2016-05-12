@@ -59,26 +59,7 @@
 #ifndef __ASSEMBLY__
 #include <linux/types.h>
 #include <asm/io.h>
-
-/*
- * CP15 Barrier instructions
- * Please note that we have separate barrier instructions in ARMv7
- * However, we use the CP15 based instructtions because we use
- * -march=armv5 in U-Boot
- */
-#define CP15ISB	asm volatile ("mcr     p15, 0, %0, c7, c5, 4" : : "r" (0))
-#define CP15DSB	asm volatile ("mcr     p15, 0, %0, c7, c10, 4" : : "r" (0))
-#define CP15DMB	asm volatile ("mcr     p15, 0, %0, c7, c10, 5" : : "r" (0))
-
-#ifdef __ARM_ARCH_7A__
-#define ISB	asm volatile ("isb" : : : "memory")
-#define DSB	asm volatile ("dsb" : : : "memory")
-#define DMB	asm volatile ("dmb" : : : "memory")
-#else
-#define ISB	CP15ISB
-#define DSB	CP15DSB
-#define DMB	CP15DMB
-#endif
+#include <asm/barriers.h>
 
 /*
  * Workaround for ARM errata # 798870

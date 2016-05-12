@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <asm/armv7.h>
+#include <asm/barriers.h>
 #include <asm/io.h>
 #include <asm/arch/dram.h>
 
