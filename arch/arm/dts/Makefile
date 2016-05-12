@@ -47,6 +47,7 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra124-jetson-tk1.dtb \
 	tegra124-nyan-big.dtb \
 	tegra124-venice2.dtb \
+	tegra186-p2771-0000.dtb \
 	tegra210-e2220-1170.dtb \
 	tegra210-p2371-0000.dtb \
 	tegra210-p2371-2180.dtb \
