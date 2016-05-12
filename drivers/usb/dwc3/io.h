@@ -23,7 +23,7 @@
 #define	CACHELINE_SIZE		CONFIG_SYS_CACHELINE_SIZE
 static inline u32 dwc3_readl(void __iomem *base, u32 offset)
 {
-	u32 offs = offset - DWC3_GLOBALS_REGS_START;
+	unsigned long offs = offset - DWC3_GLOBALS_REGS_START;
 	u32 value;
 
 	/*
@@ -31,23 +31,21 @@ static inline u32 dwc3_readl(void __iomem *base, u32 offset)
 	 * space, see dwc3_probe in core.c.
 	 * However, the offsets are given starting from xHCI address space.
 	 */
-	offs += (unsigned long)base;
-	value = readl((unsigned long)offs);
+	value = readl(base + offs);
 
 	return value;
 }
 
 static inline void dwc3_writel(void __iomem *base, u32 offset, u32 value)
 {
-	u32 offs = offset - DWC3_GLOBALS_REGS_START;
+	unsigned long offs = offset - DWC3_GLOBALS_REGS_START;
 
 	/*
 	 * We requested the mem region starting from the Globals address
 	 * space, see dwc3_probe in core.c.
 	 * However, the offsets are given starting from xHCI address space.
 	 */
-	offs += (unsigned long)base;
-	writel(value, (unsigned long)offs);
+	writel(value, base + offs);
 }
 
 static inline void dwc3_flush_cache(int addr, int length)
