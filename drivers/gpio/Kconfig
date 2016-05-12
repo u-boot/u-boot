@@ -109,6 +109,13 @@ config SANDBOX_GPIO_COUNT
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
 
+config TEGRA_GPIO
+	bool "Tegra20..210 GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support for the GPIO controller contained in NVIDIA Tegra20 through
+	  Tegra210.
+
 config GPIO_UNIPHIER
 	bool "UniPhier GPIO"
 	depends on ARCH_UNIPHIER
