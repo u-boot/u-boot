@@ -121,7 +121,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 
 		if (host->fifo_mode && size) {
 			if (data->flags == MMC_DATA_READ) {
-				if ((dwmci_readl(host, DWMCI_RINTSTS) &&
+				if ((dwmci_readl(host, DWMCI_RINTSTS) &
 				     DWMCI_INTMSK_RXDR)) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = (len >> DWMCI_FIFO_SHIFT) &
@@ -133,7 +133,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 						     DWMCI_INTMSK_RXDR);
 				}
 			} else {
-				if ((dwmci_readl(host, DWMCI_RINTSTS) &&
+				if ((dwmci_readl(host, DWMCI_RINTSTS) &
 				     DWMCI_INTMSK_TXDR)) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = fifo_depth - ((len >>
