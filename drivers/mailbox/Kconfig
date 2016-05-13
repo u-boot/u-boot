@@ -1,0 +1,13 @@
+menu "Mailbox Controller Support"
+
+config DM_MAILBOX
+	bool "Enable mailbox controllers using Driver Model"
+	depends on DM && OF_CONTROL
+	help
+	  Enable support for the mailbox driver class. Mailboxes provide the
+	  ability to transfer small messages and/or notifications from one
+	  CPU to another CPU, or sometimes to dedicated HW modules. They form
+	  the basis of a variety of inter-process/inter-CPU communication
+	  protocols.
+
+endmenu
