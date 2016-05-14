@@ -67,18 +67,18 @@ typedef struct at91_pmc {
 #define AT91_PMC_MOR_MOSCEN		0x01
 #define AT91_PMC_MOR_OSCBYPASS		0x02
 #define AT91_PMC_MOR_MOSCRCEN		0x08
-#define AT91_PMC_MOR_OSCOUNT(x)		((x & 0xff) << 8)
-#define AT91_PMC_MOR_KEY(x)		((x & 0xff) << 16)
+#define AT91_PMC_MOR_OSCOUNT(x)		(((x) & 0xff) << 8)
+#define AT91_PMC_MOR_KEY(x)		(((x) & 0xff) << 16)
 #define AT91_PMC_MOR_MOSCSEL		(1 << 24)
 
-#define AT91_PMC_PLLXR_DIV(x)		(x & 0xFF)
-#define AT91_PMC_PLLXR_PLLCOUNT(x)	((x & 0x3F) << 8)
-#define AT91_PMC_PLLXR_OUT(x)		((x & 0x03) << 14)
+#define AT91_PMC_PLLXR_DIV(x)		((x) & 0xFF)
+#define AT91_PMC_PLLXR_PLLCOUNT(x)	(((x) & 0x3F) << 8)
+#define AT91_PMC_PLLXR_OUT(x)		(((x) & 0x03) << 14)
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) || \
 	defined(CONFIG_SAMA5D4)
-#define AT91_PMC_PLLXR_MUL(x)		((x & 0x7F) << 18)
+#define AT91_PMC_PLLXR_MUL(x)		(((x) & 0x7F) << 18)
 #else
-#define AT91_PMC_PLLXR_MUL(x)		((x & 0x7FF) << 16)
+#define AT91_PMC_PLLXR_MUL(x)		(((x) & 0x7FF) << 16)
 #endif
 #define AT91_PMC_PLLAR_29		0x20000000
 #define AT91_PMC_PLLBR_USBDIV_1		0x00000000
@@ -158,7 +158,7 @@ typedef struct at91_pmc {
 #define AT91_PMC_PCR_CMD_WRITE		(0x1 << 12)
 #define AT91_PMC_PCR_DIV		(0x3 << 16)
 #define AT91_PMC_PCR_GCKDIV		(0xff << 20)
-#define		AT91_PMC_PCR_GCKDIV_(x)		((x & 0xff) << 20)
+#define		AT91_PMC_PCR_GCKDIV_(x)		(((x) & 0xff) << 20)
 #define		AT91_PMC_PCR_GCKDIV_OFFSET	20
 #define AT91_PMC_PCR_EN			(0x1 << 28)
 #define AT91_PMC_PCR_GCKEN		(0x1 << 29)
