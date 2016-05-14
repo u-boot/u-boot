@@ -1557,7 +1557,7 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	bdesc->removable = 1;
 
 	/* setup initial part type */
-	bdesc->part_type = mmc->cfg->part_type;
+	bdesc->part_type = cfg->part_type;
 	mmc->dev = dev;
 
 	return 0;
