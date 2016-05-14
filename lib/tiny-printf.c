@@ -16,6 +16,9 @@
 static char *bf;
 static char zs;
 
+/* Current position in sprintf() output string */
+static char *outstr;
+
 static void out(char c)
 {
 	*bf++ = c;
@@ -40,7 +43,7 @@ static void div_out(unsigned int *num, unsigned int div)
 		out_dgt(dgt);
 }
 
-int vprintf(const char *fmt, va_list va)
+int _vprintf(const char *fmt, va_list va, void (*putc)(const char ch))
 {
 	char ch;
 	char *p;
@@ -133,8 +136,28 @@ int printf(const char *fmt, ...)
 	int ret;
 
 	va_start(va, fmt);
-	ret = vprintf(fmt, va);
+	ret = _vprintf(fmt, va, putc);
 	va_end(va);
+
+	return ret;
+}
+
+static void putc_outstr(char ch)
+{
+	*outstr++ = ch;
+}
+
+/* Note that size is ignored */
+int snprintf(char *buf, size_t size, const char *fmt, ...)
+{
+	va_list va;
+	int ret;
+
+	va_start(va, fmt);
+	outstr = buf;
+	ret = _vprintf(fmt, va, putc_outstr);
+	va_end(va);
+	*outstr = '\0';
 
 	return ret;
 }
