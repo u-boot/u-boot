@@ -326,6 +326,7 @@ static int rk_vop_probe(struct udevice *dev)
 		if (!ret)
 			break;
 	}
+	video_set_flush_dcache(dev, 1);
 
 	return ret;
 }
