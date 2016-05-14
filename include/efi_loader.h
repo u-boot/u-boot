@@ -134,7 +134,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 int efi_memory_init(void);
 
 /* Convert strings from normal C strings to uEFI strings */
-static inline void ascii2unicode(u16 *unicode, char *ascii)
+static inline void ascii2unicode(u16 *unicode, const char *ascii)
 {
 	while (*ascii)
 		*(unicode++) = *(ascii++);
