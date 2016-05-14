@@ -37,6 +37,19 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 
 /* SPL will never write or erase, declare dummies to reduce code size. */
 
+#ifdef CONFIG_BLK
+static inline unsigned long mmc_berase(struct udevice *dev,
+				       lbaint_t start, lbaint_t blkcnt)
+{
+	return 0;
+}
+
+static inline ulong mmc_bwrite(struct udevice *dev, lbaint_t start,
+			       lbaint_t blkcnt, const void *src)
+{
+	return 0;
+}
+#else
 static inline unsigned long mmc_berase(struct blk_desc *block_dev,
 				       lbaint_t start, lbaint_t blkcnt)
 {
@@ -48,6 +61,7 @@ static inline ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
 {
 	return 0;
 }
+#endif
 
 #endif /* CONFIG_SPL_BUILD */
 
