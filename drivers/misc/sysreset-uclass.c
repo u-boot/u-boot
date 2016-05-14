@@ -55,7 +55,7 @@ void sysreset_walk_halt(enum sysreset_t type)
 		mdelay(100);
 
 	/* Still no reset? Give up */
-	printf("System reset not supported on this platform\n");
+	debug("System reset not supported on this platform\n");
 	hang();
 }
 
