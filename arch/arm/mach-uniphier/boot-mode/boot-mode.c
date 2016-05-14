@@ -77,7 +77,7 @@ u32 spl_boot_device(void)
 	return mode;
 }
 
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	struct mmc *mmc;
 

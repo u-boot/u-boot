@@ -526,7 +526,7 @@ u32 spl_boot_device(void)
 }
 
 #ifdef CONFIG_SPL_BUILD
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC1:

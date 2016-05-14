@@ -286,7 +286,7 @@ int spl_mmc_load_image(u32 boot_device)
 		return err;
 	}
 
-	boot_mode = spl_boot_mode();
+	boot_mode = spl_boot_mode(boot_device);
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:

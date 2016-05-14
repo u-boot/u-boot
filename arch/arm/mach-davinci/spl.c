@@ -45,7 +45,7 @@ void spl_board_init(void)
 	preloader_console_init();
 }
 
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
 }

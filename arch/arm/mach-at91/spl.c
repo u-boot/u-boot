@@ -75,7 +75,7 @@ u32 spl_boot_device(void)
 }
 #endif
 
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	switch (spl_boot_device()) {
 #ifdef CONFIG_SYS_USE_MMC

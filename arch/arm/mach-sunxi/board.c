@@ -257,7 +257,7 @@ void spl_board_announce_boot_device(void)
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */
-u32 spl_boot_mode(void)
+u32 spl_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
 }
