@@ -52,8 +52,8 @@ int vprintf(const char *fmt, va_list va)
 		if (ch != '%') {
 			putc(ch);
 		} else {
-			char lz = 0;
-			char w = 0;
+			bool lz = false;
+			int width = 0;
 
 			ch = *(fmt++);
 			if (ch == '0') {
@@ -62,9 +62,9 @@ int vprintf(const char *fmt, va_list va)
 			}
 
 			if (ch >= '0' && ch <= '9') {
-				w = 0;
+				width = 0;
 				while (ch >= '0' && ch <= '9') {
-					w = (w * 10) + ch - '0';
+					width = (width * 10) + ch - '0';
 					ch = *fmt++;
 				}
 			}
@@ -73,7 +73,7 @@ int vprintf(const char *fmt, va_list va)
 			zs = 0;
 
 			switch (ch) {
-			case 0:
+			case '\0':
 				goto abort;
 			case 'u':
 			case 'd':
@@ -112,9 +112,9 @@ int vprintf(const char *fmt, va_list va)
 
 			*bf = 0;
 			bf = p;
-			while (*bf++ && w > 0)
-				w--;
-			while (w-- > 0)
+			while (*bf++ && width > 0)
+				width--;
+			while (width-- > 0)
 				putc(lz ? '0' : ' ');
 			if (p) {
 				while ((ch = *p++))
