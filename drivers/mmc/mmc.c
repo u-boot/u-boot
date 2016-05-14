@@ -1531,15 +1531,6 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
-/* not used any more */
-int __deprecated mmc_register(struct mmc *mmc)
-{
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-	printf("%s is deprecated! use mmc_create() instead.\n", __func__);
-#endif
-	return -1;
-}
-
 #ifdef CONFIG_BLK
 int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 {
