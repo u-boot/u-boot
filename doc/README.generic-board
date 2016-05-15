@@ -5,84 +5,28 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-DEPRECATION NOTICE FOR arch/<arch>/lib/board.c
-
-For board maintainers: Please submit patches for boards you maintain before
-July 2014, to make them use generic board.
-
-For architecture maintainers: Please submit patches to remove your
-architecture-specific board.c file before October 2014.
-
-
 Background
 ----------
 
-U-Boot has traditionally had a board.c file for each architecture. This has
-introduced quite a lot of duplication, with each architecture tending to do
+U-Boot traditionally had a board.c file for each architecture. This introduced
+quite a lot of duplication, with each architecture tending to do
 initialisation slightly differently. To address this, a new 'generic board
-init' feature was introduced a year ago in March 2013 (further motivation is
+init' feature was introduced in March 2013 (further motivation is
 provided in the cover letter below).
+
+All boards and architectures have moved to this as of mid 2016.
 
 
 What has changed?
 -----------------
 
-The main change is that the arch/<arch>/lib/board.c file is being removed in
+The main change is that the arch/<arch>/lib/board.c file is removed in
 favour of common/board_f.c (for pre-relocation init) and common/board_r.c
 (for post-relocation init).
 
 Related to this, the global_data and bd_t structures now have a core set of
 fields which are common to all architectures. Architecture-specific fields
 have been moved to separate structures.
-
-
-Supported Architectures
-------------------------
-
-If you are unlucky then your architecture may not support generic board.
-The following architectures are supported now:
-
-   arc
-   arm
-   avr32
-   blackfin
-   m68k
-   microblaze
-   mips
-   nios2
-   powerpc
-   sandbox
-   x86
-
-If your architecture is not supported, you need to select
-HAVE_GENERIC_BOARD in arch/Kconfig
-and test it with a suitable board, as follows.
-
-
-Adding Support for your Board
------------------------------
-
-To enable generic board for your board, define CONFIG_SYS_GENERIC_BOARD in
-your board config header file.
-
-Test that U-Boot still functions correctly on your board, and fix any
-problems you find. Don't be surprised if there are no problems - generic
-board has had a reasonable amount of testing with common boards.
-
-
-DeadLine
---------
-
-Please don't take this the wrong way - there is no intent to make your life
-miserable, and we have the greatest respect and admiration for U-Boot users.
-However, with any migration there has to be a period where the old way is
-deprecated and removed. Every patch to the deprecated code introduces a
-potential breakage in the new unused code. Therefore:
-
-Boards or architectures not converted over to general board by the
-end of 2014 may be forcibly changed over (potentially causing run-time
-breakage) or removed.
-
 
 
 Further Background
@@ -190,3 +134,4 @@ convenience.
 
 Simon Glass, sjg@chromium.org
 March 2014
+Updated after final removal, May 2016

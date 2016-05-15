@@ -801,13 +801,6 @@ quiet_cmd_pad_cat = CAT     $@
 cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
 
 all:		$(ALL-y)
-ifneq ($(CONFIG_SYS_GENERIC_BOARD),y)
-	@echo "===================== WARNING ======================"
-	@echo "Please convert this board to generic board."
-	@echo "Otherwise it will be removed by the end of 2014."
-	@echo "See doc/README.generic-board for further information"
-	@echo "===================================================="
-endif
 ifeq ($(CONFIG_DM_I2C_COMPAT),y)
 	@echo "===================== WARNING ======================"
 	@echo "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
@@ -1257,13 +1250,6 @@ prepare2: prepare3 outputmakefile
 
 prepare1: prepare2 $(version_h) $(timestamp_h) \
                    include/config/auto.conf
-ifeq ($(CONFIG_HAVE_GENERIC_BOARD),)
-ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
-	@echo >&2 "  Your architecture does not support generic board."
-	@echo >&2 "  Please undefine CONFIG_SYS_GENERIC_BOARD in your board config file."
-	@/bin/false
-endif
-endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 	@echo >&2 "  Could not find linker script."
 	@/bin/false

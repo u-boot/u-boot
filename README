@@ -4048,16 +4048,6 @@ Configuration Settings:
 	If defined, don't allow the -f switch to env set override variable
 	access flags.
 
-- CONFIG_SYS_GENERIC_BOARD
-	This selects the architecture-generic board system instead of the
-	architecture-specific board files. It is intended to move boards
-	to this new framework over time. Defining this will disable the
-	arch/foo/lib/board.c file and use common/board_f.c and
-	common/board_r.c instead. To use this option your architecture
-	must support it (i.e. must select HAVE_GENERIC_BOARD in arch/Kconfig).
-	If you find problems enabling this option on your board please report
-	the problem and send patches!
-
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should
 	be asserted. See doc/README.omap-reset-time for details on how
