@@ -368,6 +368,7 @@ config I2C0_ENABLE
 	bool "Enable I2C/TWI controller 0"
 	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	default n if MACH_SUN6I || MACH_SUN8I
+	select CMD_I2C
 	---help---
 	This allows enabling I2C/TWI controller 0 by muxing its pins, enabling
 	its clock and setting up the bus. This is especially useful on devices
@@ -377,12 +378,14 @@ config I2C0_ENABLE
 config I2C1_ENABLE
 	bool "Enable I2C/TWI controller 1"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 
 config I2C2_ENABLE
 	bool "Enable I2C/TWI controller 2"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 
@@ -390,6 +393,7 @@ if MACH_SUN6I || MACH_SUN7I
 config I2C3_ENABLE
 	bool "Enable I2C/TWI controller 3"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 endif
@@ -399,6 +403,7 @@ config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
 	# This is used for the pmic on H3
 	default y if SY8106A_POWER
+	select CMD_I2C
 	---help---
 	Set this to y to enable the I2C controller which is part of the PRCM.
 endif
@@ -407,6 +412,7 @@ if MACH_SUN7I
 config I2C4_ENABLE
 	bool "Enable I2C/TWI controller 4"
 	default n
+	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 endif
@@ -535,6 +541,7 @@ config VIDEO_LCD_PANEL_I2C
 	bool "LCD panel needs to be configured via i2c"
 	depends on VIDEO
 	default n
+	select CMD_I2C
 	---help---
 	Say y here if the LCD panel needs to be configured via i2c. This
 	will add a bitbang i2c controller using gpios to talk to the LCD.

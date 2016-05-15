@@ -538,7 +538,16 @@ config TARGET_CM_T43
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
+	select CMD_BOOTZ
+	select CMD_DHCP
+	select CMD_EXT2
+	select CMD_EXT4
+	select CMD_FAT
+	select CMD_FS_GENERIC
 	select CMD_GPIO
+	select CMD_MII
+	select CMD_MMC if MMC
+	select CMD_PING
 	select CMD_USB
 	select DM
 	select DM_ETH
@@ -546,6 +555,7 @@ config ARCH_SUNXI
 	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_USB
+	select HUSH_PARSER
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select OF_SEPARATE
