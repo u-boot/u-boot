@@ -18,3 +18,5 @@ obj-y	+= ddr.o
 obj-y	+= emif4.o
 obj-y	+= board.o
 obj-y	+= mux.o
+
+obj-$(CONFIG_CLOCK_SYNTHESIZER)	+= clk_synthesizer.o
