@@ -4,5 +4,3 @@ S:	Maintained
 F:	board/ti/dra7xx/
 F:	include/configs/dra7xx_evm.h
 F:	configs/dra7xx_evm_defconfig
-F:	configs/dra7xx_evm_qspiboot_defconfig
-F:	configs/dra7xx_evm_uart3_defconfig
