@@ -11,6 +11,7 @@
 #include <common.h>
 #include <errno.h>
 #include <spl.h>
+#include <serial.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/omap.h>
@@ -58,6 +59,16 @@ static inline int __maybe_unused read_eeprom(void)
 {
 	return ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR);
 }
+
+#ifndef CONFIG_DM_SERIAL
+struct serial_device *default_serial_console(void)
+{
+	if (board_is_icev2())
+		return &eserial4_device;
+	else
+		return &eserial1_device;
+}
+#endif
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 static const struct ddr_data ddr2_data = {
