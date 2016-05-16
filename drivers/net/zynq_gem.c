@@ -53,16 +53,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_GEM_NWCTRL_MDEN_MASK	0x00000010 /* Enable MDIO port */
 #define ZYNQ_GEM_NWCTRL_STARTTX_MASK	0x00000200 /* Start tx (tx_go) */
 
-#define ZYNQ_GEM_NWCFG_SPEED100		0x000000001 /* 100 Mbps operation */
-#define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
-#define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
-#define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
-#define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x080000000 /* SGMII Enable */
-#define ZYNQ_GEM_NWCFG_PCS_SEL		0x000000800 /* PCS select */
+#define ZYNQ_GEM_NWCFG_SPEED100		0x00000001 /* 100 Mbps operation */
+#define ZYNQ_GEM_NWCFG_SPEED1000	0x00000400 /* 1Gbps operation */
+#define ZYNQ_GEM_NWCFG_FDEN		0x00000002 /* Full Duplex mode */
+#define ZYNQ_GEM_NWCFG_FSREM		0x00020000 /* FCS removal */
+#define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x80000000 /* SGMII Enable */
+#define ZYNQ_GEM_NWCFG_PCS_SEL		0x00000800 /* PCS select */
 #ifdef CONFIG_ARM64
-#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000100000 /* Div pclk by 64, max 160MHz */
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x00100000 /* Div pclk by 64, max 160MHz */
 #else
-#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0000c0000 /* Div pclk by 48, max 120MHz */
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000c0000 /* Div pclk by 48, max 120MHz */
 #endif
 
 #ifdef CONFIG_ARM64
