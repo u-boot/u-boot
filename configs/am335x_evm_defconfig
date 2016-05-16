@@ -48,4 +48,4 @@ CONFIG_RSA=y
 CONFIG_FIT=y
 CONFIG_SPL_OF_LIBFDT=y
 CONFIG_SPL_LOAD_FIT=y
-CONFIG_OF_LIST="am335x-evm am335x-bone am335x-boneblack am335x-evmsk"
+CONFIG_OF_LIST="am335x-evm am335x-bone am335x-boneblack am335x-evmsk am335x-bonegreen"

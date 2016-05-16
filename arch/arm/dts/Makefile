@@ -92,7 +92,8 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm016-dc2.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb am335x-evm.dtb \
-	am335x-evmsk.dtb
+	am335x-evmsk.dtb \
+	am335x-bonegreen.dtb
 dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am43x-epos-evm.dtb \
 	am437x-idk-evm.dtb
