@@ -846,3 +846,15 @@ int board_eth_init(bd_t *bis)
 	return rv;
 }
 #endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (board_is_gpevm() && !strcmp(name, "am437x-gp-evm"))
+		return 0;
+	else if (board_is_sk() && !strcmp(name, "am437x-sk-evm"))
+		return 0;
+	else
+		return -1;
+}
+#endif
