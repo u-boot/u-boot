@@ -5,8 +5,8 @@ config SYS_ARCH
 	default "mips"
 
 config SYS_CPU
-	default "mips32" if CPU_MIPS32_R1 || CPU_MIPS32_R2
-	default "mips64" if CPU_MIPS64_R1 || CPU_MIPS64_R2
+	default "mips32" if CPU_MIPS32
+	default "mips64" if CPU_MIPS64
 
 choice
 	prompt "Target select"
