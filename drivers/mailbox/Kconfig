@@ -10,4 +10,11 @@ config DM_MAILBOX
 	  the basis of a variety of inter-process/inter-CPU communication
 	  protocols.
 
+config SANDBOX_MBOX
+	bool "Enable the sandbox mailbox test driver"
+	depends on DM_MAILBOX && SANDBOX
+	help
+	  Enable support for a test mailbox implementation, which simply echos
+	  back a modified version of any message that is sent.
+
 endmenu
