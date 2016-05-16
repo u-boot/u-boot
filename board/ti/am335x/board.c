@@ -758,6 +758,8 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	else if (board_is_bbg1() && !strcmp(name, "am335x-bonegreen"))
 		return 0;
+	else if (board_is_icev2() && !strcmp(name, "am335x-icev2"))
+		return 0;
 	else
 		return -1;
 }
