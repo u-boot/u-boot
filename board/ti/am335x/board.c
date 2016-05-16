@@ -38,6 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* GPIO that controls power to DDR on EVM-SK */
 #define GPIO_DDR_VTT_EN		7
+#define ICE_GPIO_DDR_VTT_EN	18
 
 #if defined(CONFIG_SPL_BUILD) || \
 	(defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_DM_ETH))
@@ -97,6 +98,13 @@ static const struct ddr_data ddr3_evm_data = {
 	.datawrsratio0 = MT41J512M8RH125_PHY_WR_DATA,
 };
 
+static const struct ddr_data ddr3_icev2_data = {
+	.datardsratio0 = MT41J128MJT125_RD_DQS_400MHz,
+	.datawdsratio0 = MT41J128MJT125_WR_DQS_400MHz,
+	.datafwsratio0 = MT41J128MJT125_PHY_FIFO_WE_400MHz,
+	.datawrsratio0 = MT41J128MJT125_PHY_WR_DATA_400MHz,
+};
+
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41J128MJT125_RATIO,
 	.cmd0iclkout = MT41J128MJT125_INVERT_CLKOUT,
@@ -130,6 +138,17 @@ static const struct cmd_control ddr3_evm_cmd_ctrl_data = {
 	.cmd2iclkout = MT41J512M8RH125_INVERT_CLKOUT,
 };
 
+static const struct cmd_control ddr3_icev2_cmd_ctrl_data = {
+	.cmd0csratio = MT41J128MJT125_RATIO_400MHz,
+	.cmd0iclkout = MT41J128MJT125_INVERT_CLKOUT_400MHz,
+
+	.cmd1csratio = MT41J128MJT125_RATIO_400MHz,
+	.cmd1iclkout = MT41J128MJT125_INVERT_CLKOUT_400MHz,
+
+	.cmd2csratio = MT41J128MJT125_RATIO_400MHz,
+	.cmd2iclkout = MT41J128MJT125_INVERT_CLKOUT_400MHz,
+};
+
 static struct emif_regs ddr3_emif_reg_data = {
 	.sdram_config = MT41J128MJT125_EMIF_SDCFG,
 	.ref_ctrl = MT41J128MJT125_EMIF_SDREF,
@@ -159,6 +178,17 @@ static struct emif_regs ddr3_evm_emif_reg_data = {
 	.sdram_tim3 = MT41J512M8RH125_EMIF_TIM3,
 	.zq_config = MT41J512M8RH125_ZQ_CFG,
 	.emif_ddr_phy_ctlr_1 = MT41J512M8RH125_EMIF_READ_LATENCY |
+				PHY_EN_DYN_PWRDN,
+};
+
+static struct emif_regs ddr3_icev2_emif_reg_data = {
+	.sdram_config = MT41J128MJT125_EMIF_SDCFG_400MHz,
+	.ref_ctrl = MT41J128MJT125_EMIF_SDREF_400MHz,
+	.sdram_tim1 = MT41J128MJT125_EMIF_TIM1_400MHz,
+	.sdram_tim2 = MT41J128MJT125_EMIF_TIM2_400MHz,
+	.sdram_tim3 = MT41J128MJT125_EMIF_TIM3_400MHz,
+	.zq_config = MT41J128MJT125_ZQ_CFG_400MHz,
+	.emif_ddr_phy_ctlr_1 = MT41J128MJT125_EMIF_READ_LATENCY_400MHz |
 				PHY_EN_DYN_PWRDN,
 };
 
@@ -339,7 +369,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 
 	if (board_is_evm_sk())
 		return &dpll_ddr_evm_sk;
-	else if (board_is_bone_lt())
+	else if (board_is_bone_lt() || board_is_icev2())
 		return &dpll_ddr_bone_black;
 	else if (board_is_evm_15_or_later())
 		return &dpll_ddr_evm_sk;
@@ -418,6 +448,11 @@ void sdram_init(void)
 		gpio_direction_output(GPIO_DDR_VTT_EN, 1);
 	}
 
+	if (board_is_icev2()) {
+		gpio_request(ICE_GPIO_DDR_VTT_EN, "ddr_vtt_en");
+		gpio_direction_output(ICE_GPIO_DDR_VTT_EN, 1);
+	}
+
 	if (board_is_evm_sk())
 		config_ddr(303, &ioregs_evmsk, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
@@ -429,6 +464,10 @@ void sdram_init(void)
 	else if (board_is_evm_15_or_later())
 		config_ddr(303, &ioregs_evm15, &ddr3_evm_data,
 			   &ddr3_evm_cmd_ctrl_data, &ddr3_evm_emif_reg_data, 0);
+	else if (board_is_icev2())
+		config_ddr(400, &ioregs_evmsk, &ddr3_icev2_data,
+			   &ddr3_icev2_cmd_ctrl_data, &ddr3_icev2_emif_reg_data,
+			   0);
 	else
 		config_ddr(266, &ioregs, &ddr2_data,
 			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data, 0);
