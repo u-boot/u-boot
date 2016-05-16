@@ -856,6 +856,8 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	else if (board_is_eposevm() && !strcmp(name, "am43x-epos-evm"))
 		return 0;
+	else if (board_is_idk() && !strcmp(name, "am437x-idk-evm"))
+		return 0;
 	else
 		return -1;
 }
