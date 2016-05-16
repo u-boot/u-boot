@@ -632,3 +632,17 @@ int board_eth_init(bd_t *bis)
 #endif
 
 #endif /* CONFIG_DM_ETH */
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (board_is_gp_evm() && !strcmp(name, "am335x-evm"))
+		return 0;
+	else if (board_is_bone() && !strcmp(name, "am335x-bone"))
+		return 0;
+	else if (board_is_bone_lt() && !strcmp(name, "am335x-boneblack"))
+		return 0;
+	else
+		return -1;
+}
+#endif
