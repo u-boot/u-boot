@@ -24,7 +24,6 @@
 
 	.text
 	.set noreorder
-	.set mips32
 
 	.globl	lowlevel_init
 lowlevel_init:
