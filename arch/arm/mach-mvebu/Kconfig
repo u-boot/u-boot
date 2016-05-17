@@ -56,6 +56,10 @@ config TARGET_CLEARFOG
 	bool "Support ClearFog"
 	select 88F6820
 
+config TARGET_MVEBU_DB_88F3720
+	bool "Support DB-88F3720 Armada 3720"
+	select ARMADA_3700
+
 config TARGET_DB_88F6720
 	bool "Support DB-88F6720 Armada 375"
 	select ARMADA_375
@@ -88,6 +92,7 @@ endchoice
 
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
+	default "mvebu_db-88f3720" if TARGET_MVEBU_DB_88F3720
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
@@ -98,6 +103,7 @@ config SYS_BOARD
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
+	default "mvebu_db-88f3720" if TARGET_MVEBU_DB_88F3720
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
@@ -108,6 +114,7 @@ config SYS_CONFIG_NAME
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
+	default "Marvell" if TARGET_MVEBU_DB_88F3720
 	default "Marvell" if TARGET_DB_88F6720
 	default "Marvell" if TARGET_DB_88F6820_GP
 	default "Marvell" if TARGET_DB_88F6820_AMC
