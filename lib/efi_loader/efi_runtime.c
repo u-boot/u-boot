@@ -125,6 +125,22 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 		/* RTC accessors are gone */
 		.ptr = &efi_runtime_services.get_time,
 		.patchto = &efi_device_error,
+	}, {
+		/* Clean up system table */
+		.ptr = &systab.con_in,
+		.patchto = NULL,
+	}, {
+		/* Clean up system table */
+		.ptr = &systab.con_out,
+		.patchto = NULL,
+	}, {
+		/* Clean up system table */
+		.ptr = &systab.std_err,
+		.patchto = NULL,
+	}, {
+		/* Clean up system table */
+		.ptr = &systab.boottime,
+		.patchto = NULL,
 	},
 };
 
