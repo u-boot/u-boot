@@ -174,7 +174,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	/*
 	 * allow the PREP bootm subcommand, it is required for bootm to work
 	 *
-	 * TODO: Andreas Bießmann <andreas.devel@googlemail.com> refactor the
+	 * TODO: Andreas Bießmann <andreas@biessmann.org> refactor the
 	 * do_bootm_linux() for avr32
 	 */
 	if (flag & BOOTM_STATE_OS_PREP)

@@ -92,7 +92,7 @@
 
 #define CONFIG_PCI			/* Enable PCI/PCIE */
 #ifdef CONFIG_PCI
-#define CONFIG_PCIE1			/* PCIE controler 1 (slot 1) */
+#define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */

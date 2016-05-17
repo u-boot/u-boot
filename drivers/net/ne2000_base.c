@@ -582,7 +582,7 @@ dp83902a_Overflow(void)
 	/*
 	 * Read in as many packets as we can and acknowledge any and receive
 	 * interrupts. Since the buffer has overflowed, a receive event of
-	 * some kind will have occured.
+	 * some kind will have occurred.
 	 */
 	dp83902a_RxEvent();
 	DP_OUT(base, DP_ISR, DP_ISR_RxP|DP_ISR_RxE);
@@ -592,7 +592,7 @@ dp83902a_Overflow(void)
 	DP_OUT(base, DP_TCR, DP_TCR_NORMAL);
 
 	/*
-	 * If a transmit command was issued, but no transmit event has occured,
+	 * If a transmit command was issued, but no transmit event has occurred,
 	 * restart it here.
 	 */
 	DP_IN(base, DP_ISR, isr);

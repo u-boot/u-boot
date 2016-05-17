@@ -570,7 +570,7 @@ int fdtdec_check_fdt(void);
  * @param id		Compatible ID to look for
  * @param node_list	Place to put list of found nodes
  * @param maxcount	Maximum number of nodes to find
- * @return number of nodes found on success, FTD_ERR_... on error
+ * @return number of nodes found on success, FDT_ERR_... on error
  */
 int fdtdec_find_aliases_for_id(const void *blob, const char *name,
 			enum fdt_compat_id id, int *node_list, int maxcount);

@@ -777,7 +777,7 @@ void print_pip405_info (void)
 			((sysman & 0x10) == 0x10) ? "" : "not ");
 	printf ("INIT asserts %sINT1# (NMI)\n",
 			((sysman & 0x20) == 0x20) ? "" : "not ");
-	printf ("INIT occured %d\n", (sysman >> 6) & 0x1);
+	printf ("INIT occurred %d\n", (sysman >> 6) & 0x1);
 	printf ("SER1 is routed to %s\n",
 			((flashcom & 0x1) == 0x1) ? "RS485" : "RS232");
 	printf ("COM2 is routed to %s\n",

@@ -1055,7 +1055,7 @@ static char fdt_help_text[] =
 	"                                        <start> - addr of key blob\n"
 	"                                                  default gd->fdt_blob\n"
 #endif
-	"NOTE: Dereference aliases by omiting the leading '/', "
+	"NOTE: Dereference aliases by omitting the leading '/', "
 		"e.g. fdt print ethernet0.";
 #endif
 

@@ -18,6 +18,8 @@
 
 #include "dwc2.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Use only HC channel 0. */
 #define DWC2_HC_CHANNEL			0
 
@@ -39,6 +41,8 @@ struct dwc2_priv {
 	u8 out_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
+	bool ext_vbus;
+	bool oc_disable;
 };
 
 #ifndef CONFIG_DM_USB
@@ -252,8 +256,9 @@ static void dwc_otg_core_host_init(struct dwc2_core_regs *regs)
  *
  * @param regs Programming view of the DWC_otg controller
  */
-static void dwc_otg_core_init(struct dwc2_core_regs *regs)
+static void dwc_otg_core_init(struct dwc2_priv *priv)
 {
+	struct dwc2_core_regs *regs = priv->regs;
 	uint32_t ahbcfg = 0;
 	uint32_t usbcfg = 0;
 	uint8_t brst_sz = CONFIG_DWC2_DMA_BURST_SIZE;
@@ -262,13 +267,15 @@ static void dwc_otg_core_init(struct dwc2_core_regs *regs)
 	usbcfg = readl(&regs->gusbcfg);
 
 	/* Program the ULPI External VBUS bit if needed */
-#ifdef CONFIG_DWC2_PHY_ULPI_EXT_VBUS
-	usbcfg |= (DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV |
-		   DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
-		   DWC2_GUSBCFG_INDICATOR_PASSTHROUGH);
-#else
-	usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
-#endif
+	if (priv->ext_vbus) {
+		usbcfg |= DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+		if (!priv->oc_disable) {
+			usbcfg |= DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
+				  DWC2_GUSBCFG_INDICATOR_PASSTHROUGH;
+		}
+	} else {
+		usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+	}
 
 	/* Set external TS Dline pulsing */
 #ifdef CONFIG_DWC2_TS_DLINE
@@ -1056,7 +1063,13 @@ static int dwc2_init_common(struct dwc2_priv *priv)
 		return -ENODEV;
 	}
 
-	dwc_otg_core_init(regs);
+#ifdef CONFIG_DWC2_PHY_ULPI_EXT_VBUS
+	priv->ext_vbus = 1;
+#else
+	priv->ext_vbus = 0;
+#endif
+
+	dwc_otg_core_init(priv);
 	dwc_otg_core_host_init(regs);
 
 	clrsetbits_le32(&regs->hprt0, DWC2_HPRT0_PRTENA |
@@ -1074,6 +1087,15 @@ static int dwc2_init_common(struct dwc2_priv *priv)
 			priv->out_data_toggle[i][j] = DWC2_HC_PID_DATA0;
 		}
 	}
+
+	/*
+	 * Add a 1 second delay here. This gives the host controller
+	 * a bit time before the comminucation with the USB devices
+	 * is started (the bus is scanned) and  fixes the USB detection
+	 * problems with some problematic USB keys.
+	 */
+	if (readl(&regs->gintsts) & DWC2_GINTSTS_CURMODE_HOST)
+		mdelay(1000);
 
 	return 0;
 }
@@ -1169,6 +1191,7 @@ static int dwc2_submit_int_msg(struct udevice *dev, struct usb_device *udev,
 static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc2_priv *priv = dev_get_priv(dev);
+	const void *prop;
 	fdt_addr_t addr;
 
 	addr = dev_get_addr(dev);
@@ -1176,12 +1199,20 @@ static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	priv->regs = (struct dwc2_core_regs *)addr;
 
+	prop = fdt_getprop(gd->fdt_blob, dev->of_offset, "disable-over-current",
+			   NULL);
+	if (prop)
+		priv->oc_disable = true;
+
 	return 0;
 }
 
 static int dwc2_usb_probe(struct udevice *dev)
 {
 	struct dwc2_priv *priv = dev_get_priv(dev);
+	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
+
+	bus_priv->desc_before_addr = true;
 
 	return dwc2_init_common(priv);
 }

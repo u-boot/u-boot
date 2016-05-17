@@ -37,7 +37,6 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd);
 #if defined(CONFIG_MICRO_SUPPORT_CARD)
 int uniphier_sbc_init_admulti(const struct uniphier_board_data *bd);
 int uniphier_sbc_init_savepin(const struct uniphier_board_data *bd);
-int uniphier_sld3_sbc_init(const struct uniphier_board_data *bd);
 int uniphier_ld4_sbc_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_sbc_init(const struct uniphier_board_data *bd);
 #else
@@ -49,11 +48,6 @@ static inline int uniphier_sbc_init_admulti(
 
 static inline int uniphier_sbc_init_savepin(
 					const struct uniphier_board_data *bd)
-{
-	return 0;
-}
-
-static inline int uniphier_sld3_sbc_init(const struct uniphier_board_data *bd)
 {
 	return 0;
 }
@@ -90,6 +84,7 @@ int uniphier_pxs2_early_clk_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_early_clk_init(const struct uniphier_board_data *bd);
 
 int uniphier_sld3_early_pin_init(const struct uniphier_board_data *bd);
+int uniphier_ld20_early_pin_init(const struct uniphier_board_data *bd);
 
 int uniphier_ld4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_pro4_umc_init(const struct uniphier_board_data *bd);

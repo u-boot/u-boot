@@ -45,7 +45,7 @@ or
 
 or
 
-"make mx28evk_spi_config"       - store enviroment variables into SPI NOR flash
+"make mx28evk_spi_config"       - store environment variables into SPI NOR flash
 
 Choose the target accordingly.
 

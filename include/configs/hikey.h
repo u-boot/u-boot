@@ -121,7 +121,7 @@
 				"initrd_high=0xffffffffffffffff\0" \
 				BOOTENV
 
-/* Preserve enviroment on sd card */
+/* Preserve environment on sd card */
 #define CONFIG_COMMAND_HISTORY
 
 #define CONFIG_ENV_SIZE			0x1000

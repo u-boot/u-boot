@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Andreas Bießmann <andreas.devel@googlemail.com>
+ * Copyright (C) 2015 Andreas Bießmann <andreas@biessmann.org>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

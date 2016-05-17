@@ -31,6 +31,9 @@ void pinmux_init(void)
 
 	pinmux_config_drvgrp_table(jetson_tk1_drvgrps,
 				   ARRAY_SIZE(jetson_tk1_drvgrps));
+
+	pinmux_config_mipipadctrlgrp_table(jetson_tk1_mipipadctrlgrps,
+					ARRAY_SIZE(jetson_tk1_mipipadctrlgrps));
 }
 
 #ifdef CONFIG_PCI_TEGRA

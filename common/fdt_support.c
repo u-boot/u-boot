@@ -467,22 +467,30 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 
 void fdt_fixup_ethernet(void *fdt)
 {
-	int node, i, j;
+	int i, j, prop;
 	char *tmp, *end;
 	char mac[16];
 	const char *path;
 	unsigned char mac_addr[6];
 	int offset;
 
-	node = fdt_path_offset(fdt, "/aliases");
-	if (node < 0)
+	if (fdt_path_offset(fdt, "/aliases") < 0)
 		return;
 
-	for (offset = fdt_first_property_offset(fdt, node);
-	     offset > 0;
-	     offset = fdt_next_property_offset(fdt, offset)) {
+	/* Cycle through all aliases */
+	for (prop = 0; ; prop++) {
 		const char *name;
 		int len = strlen("ethernet");
+
+		/* FDT might have been edited, recompute the offset */
+		offset = fdt_first_property_offset(fdt,
+			fdt_path_offset(fdt, "/aliases"));
+		/* Select property number 'prop' */
+		for (i = 0; i < prop; i++)
+			offset = fdt_next_property_offset(fdt, offset);
+
+		if (offset < 0)
+			break;
 
 		path = fdt_getprop_by_offset(fdt, offset, &name, NULL);
 		if (!strncmp(name, "ethernet", len)) {

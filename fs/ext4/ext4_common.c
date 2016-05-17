@@ -2040,7 +2040,7 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	if (!symlink)
 		return 0;
 
-	if (__le32_to_cpu(diro->inode.size) <= 60) {
+	if (__le32_to_cpu(diro->inode.size) < sizeof(diro->inode.b.symlink)) {
 		strncpy(symlink, diro->inode.b.symlink,
 			 __le32_to_cpu(diro->inode.size));
 	} else {

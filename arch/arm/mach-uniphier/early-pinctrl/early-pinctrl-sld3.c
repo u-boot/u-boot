@@ -22,5 +22,7 @@ int uniphier_sld3_early_pin_init(const struct uniphier_board_data *bd)
 	sg_set_pinsel(102, 2, 4, 4);	/* TXD2 */
 #endif
 
+	sg_set_pinsel(99, 1, 4, 4);	/* GPIO26 -> EA24 */
+
 	return 0;
 }

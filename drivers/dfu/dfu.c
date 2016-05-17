@@ -468,8 +468,10 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 		s = strsep(&env, ";");
 		ret = dfu_fill_entity(&dfu[i], s, alt_num_cnt, interface,
 				      devstr);
-		if (ret)
+		if (ret) {
+			free(dfu);
 			return -1;
+		}
 
 		list_add_tail(&dfu[i].list, &dfu_list);
 		alt_num_cnt++;

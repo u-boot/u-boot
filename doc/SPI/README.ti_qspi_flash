@@ -31,7 +31,7 @@ Can be used in:
 Memory mapped read mode
 -----------------------
 In this, SPI controller is configured using configuration port and then
-controler is switched to memory mapped port for data read.
+controller is switched to memory mapped port for data read.
 
 Driver
 ------

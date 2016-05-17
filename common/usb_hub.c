@@ -402,6 +402,7 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 			free(usb_scan);
 			return 0;
 		}
+		return 0;
 	}
 
 	portstatus = le16_to_cpu(portsts->wPortStatus);
@@ -475,7 +476,7 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 			return 0;
 
 		/* Otherwise the device will get removed */
-		printf("Port %d over-current occured %d times\n", i + 1,
+		printf("Port %d over-current occurred %d times\n", i + 1,
 		       hub->overcurrent_count[i]);
 	}
 

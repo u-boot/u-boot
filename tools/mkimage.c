@@ -85,8 +85,8 @@ static void usage(const char *msg)
 		"          -x ==> set XIP (execute in place)\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] [-b <dtb_list>] fit-image\n"
-		"           <dtb_list> is used with -f auto, and is a space-separated list of .dtb files\n",
+		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] [-b <dtb> [-b <dtb>]] fit-image\n"
+		"           <dtb> file is used with -f auto, it may occour multiple times.\n",
 		params.cmdname);
 	fprintf(stderr,
 		"          -D => set all options for device tree compiler\n"
@@ -133,12 +133,10 @@ static void process_args(int argc, char **argv)
 	char *ptr;
 	int type = IH_TYPE_INVALID;
 	char *datafile = NULL;
-	int expecting;
 	int opt;
 
-	expecting = IH_TYPE_COUNT;	/* Unknown */
 	while ((opt = getopt(argc, argv,
-			     "-a:A:bcC:d:D:e:Ef:Fk:K:ln:O:rR:sT:vVx")) != -1) {
+			     "a:A:b:cC:d:D:e:Ef:Fk:K:ln:O:rR:sT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -154,7 +152,12 @@ static void process_args(int argc, char **argv)
 				usage("Invalid architecture");
 			break;
 		case 'b':
-			expecting = IH_TYPE_FLATDT;
+			if (add_content(IH_TYPE_FLATDT, optarg)) {
+				fprintf(stderr,
+					"%s: Out of memory adding content '%s'",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
 			break;
 		case 'c':
 			params.comment = optarg;
@@ -232,7 +235,6 @@ static void process_args(int argc, char **argv)
 				show_image_types();
 				usage("Invalid image type");
 			}
-			expecting = type;
 			break;
 		case 'v':
 			params.vflag++;
@@ -243,28 +245,14 @@ static void process_args(int argc, char **argv)
 		case 'x':
 			params.xflag++;
 			break;
-		case 1:
-			if (expecting == type || optind == argc) {
-				params.imagefile = optarg;
-				expecting = IH_TYPE_INVALID;
-			} else if (expecting == IH_TYPE_INVALID) {
-				fprintf(stderr,
-					"%s: Unknown content type: use -b before device tree files",
-					params.cmdname);
-				exit(EXIT_FAILURE);
-			} else {
-				if (add_content(expecting, optarg)) {
-					fprintf(stderr,
-						"%s: Out of memory adding content '%s'",
-						params.cmdname, optarg);
-					exit(EXIT_FAILURE);
-				}
-			}
-			break;
 		default:
 			usage("Invalid option");
 		}
 	}
+
+	/* The last parameter is expected to be the imagefile */
+	if (optind < argc)
+		params.imagefile = argv[optind];
 
 	/*
 	 * For auto-generated FIT images we need to know the image type to put

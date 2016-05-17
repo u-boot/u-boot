@@ -30,7 +30,7 @@ Take AT91SAM9X5EK as an example, the board definition file likes:
 
 How to enable PMECC header for direct programmable boot.bin
 -----------------------------------------------------------
-2014-05-19 Andreas Bießmann <andreas.devel@googlemail.com>
+2014-05-19 Andreas Bießmann <andreas@biessmann.org>
 
 The usual way to program SPL into NAND flash is to use the SAM-BA Atmel tool.
 This however is often not usable when doing field updates. To be able to

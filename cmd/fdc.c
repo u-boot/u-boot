@@ -189,7 +189,7 @@ int wait_for_fdc_int(void)
 	while((read_fdc_reg(FDC_SRA)&0x80)==0) {
 		timeout--;
 		udelay(10);
-		if(timeout==0) /* timeout occured */
+		if(timeout==0) /* timeout occurred */
 			return false;
 	}
 	return true;
@@ -205,7 +205,7 @@ int read_fdc_byte(void)
 		/* direction out and ready */
 		udelay(10);
 		timeout--;
-		if(timeout==0) /* timeout occured */
+		if(timeout==0) /* timeout occurred */
 			return -1;
 	}
 	return read_fdc_reg(FDC_FIFO);
@@ -235,7 +235,7 @@ int write_fdc_byte(unsigned char val)
 		timeout--;
 		udelay(10);
 		fdc_need_more_output();
-		if(timeout==0) /* timeout occured */
+		if(timeout==0) /* timeout occurred */
 			return false;
 	}
 	write_fdc_reg(FDC_FIFO,val);
@@ -395,7 +395,7 @@ int fdc_terminate(FDC_COMMAND_STRUCT *pCMD)
 	int i;
 	for(i=0;i<100;i++)
 		udelay(500); /* wait 500usec for fifo overrun */
-	while((read_fdc_reg(FDC_SRA)&0x80)==0x00); /* wait as long as no int has occured */
+	while((read_fdc_reg(FDC_SRA)&0x80)==0x00); /* wait as long as no int has occurred */
 	for(i=0;i<7;i++) {
 		pCMD->result[i]=(unsigned char)read_fdc_byte();
 	}

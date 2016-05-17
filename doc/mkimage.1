@@ -97,8 +97,8 @@ Set XIP (execute in place) flag.
 .B Create FIT image:
 
 .TP
-.BI "\-b
-Specifies that the following arguments are device tree binary files (.dtb).
+.BI "\-b [" "device tree file" "]
+Appends the device tree binary file (.dtb) to the FIT.
 
 .TP
 .BI "\-c [" "comment" "]"
@@ -211,7 +211,7 @@ automatic mode. No .its file is required.
 .B mkimage -f auto -A arm -O linux -T kernel -C none -a 43e00000 -e 0 \\\\
 .br
 .B -c """Kernel 4.4 image for production devices""" -d vmlinuz \\\\
-.B -b /path/to/rk3288-firefly.dtb /path/to/rk3288-jerry.dtb kernel.itb
+.B -b /path/to/rk3288-firefly.dtb -b /path/to/rk3288-jerry.dtb kernel.itb
 .fi
 
 .SH HOMEPAGE

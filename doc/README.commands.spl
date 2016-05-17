@@ -10,7 +10,7 @@ export has two subcommands:
 	fdt: exports the FDT
 
 Call is:
-spl export <ftd|atags> [kernel_addr] [initrd_addr] [fdt_addr if fdt]
+spl export <fdt|atags> [kernel_addr] [initrd_addr] [fdt_addr if fdt]
 
 
 TYPICAL CALL

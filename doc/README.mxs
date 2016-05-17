@@ -219,7 +219,7 @@ There are two possibilities when preparing an image writable to NAND flash.
 
 	   This script expects a working TFTP server containing the file
 	   "u-boot.nand" in it's root directory. This can be changed by
-	   adjusting the "update_nand_full_filename" varible.
+	   adjusting the "update_nand_full_filename" variable.
 
 	   To update the system, run the following in U-Boot prompt:
 
@@ -242,7 +242,7 @@ There are two possibilities when preparing an image writable to NAND flash.
 
 	   This script expects a working TFTP server containing the file
 	   "u-boot.sb" in it's root directory. This can be changed by
-	   adjusting the "update_nand_firmware_filename" varible.
+	   adjusting the "update_nand_firmware_filename" variable.
 
 	   To update the system, run the following in U-Boot prompt:
 

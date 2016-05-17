@@ -34,7 +34,7 @@
 
 #define CONFIG_PCI		/* enable any pci type devices */
 #define CONFIG_PCI1		/* PCI controller 1 */
-#define CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */
+#define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
 #undef CONFIG_PCI2
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */

@@ -563,11 +563,11 @@ unsigned long get_board_ddr_clk(void);
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 #define CONFIG_PCI		/* Enable PCI/PCIE */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
-#define CONFIG_PCIE3		/* PCIE controler 3 */
+#define CONFIG_PCIE1		/* PCIE controller 1 */
+#define CONFIG_PCIE2		/* PCIE controller 2 */
+#define CONFIG_PCIE3		/* PCIE controller 3 */
 #ifdef CONFIG_PPC_T1040
-#define CONFIG_PCIE4		/* PCIE controler 4 */
+#define CONFIG_PCIE4		/* PCIE controller 4 */
 #endif
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */

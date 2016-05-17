@@ -465,20 +465,14 @@ struct icmp_hdr {
 #define IP_ICMP_HDR_SIZE	(IP_HDR_SIZE + ICMP_HDR_SIZE)
 
 /*
- * Maximum packet size; used to allocate packet storage.
- * TFTP packets can be 524 bytes + IP header + ethernet header.
- * Lets be conservative, and go for 38 * 16.  (Must also be
- * a multiple of 32 bytes).
- */
-/*
- * AS.HARNOIS : Better to set PKTSIZE to maximum size because
- * traffic type is not always controlled
- * maximum packet size =  1518
+ * Maximum packet size; used to allocate packet storage. Use
+ * the maxium Ethernet frame size as specified by the Ethernet
+ * standard including the 802.1Q tag (VLAN tagging).
+ * maximum packet size =  1522
  * maximum packet size and multiple of 32 bytes =  1536
  */
-#define PKTSIZE			1518
+#define PKTSIZE			1522
 #define PKTSIZE_ALIGN		1536
-/*#define PKTSIZE		608*/
 
 /*
  * Maximum receive ring size; that is, the number of packets

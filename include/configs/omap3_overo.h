@@ -12,9 +12,9 @@
 
 #include <configs/ti_omap3_common.h>
 #undef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_MAX_SIZE	(64*1024)
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE	0x40200000
+#define CONFIG_SPL_MAX_SIZE    (SRAM_SCRATCH_SPACE_ADDR - CONFIG_SPL_TEXT_BASE)
 
 #define CONFIG_BCH
 

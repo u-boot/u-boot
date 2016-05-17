@@ -73,7 +73,7 @@ F:	arch/arm/cpu/armv7/socfpga/
 F:	board/altera/socfpga/
 
 ARM ATMEL AT91
-M:	Andreas Bießmann <andreas.devel@googlemail.com>
+M:	Andreas Bießmann <andreas@biessmann.org>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-atmel.git
 F:	arch/arm/mach-at91/
@@ -206,7 +206,7 @@ F:	arch/arm/cpu/armv8/zynqmp/
 F:	arch/arm/include/asm/arch-zynqmp/
 
 AVR32
-M:	Andreas Bießmann <andreas.devel@googlemail.com>
+M:	Andreas Bießmann <andreas@biessmann.org>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-avr32.git
 F:	arch/avr32/
