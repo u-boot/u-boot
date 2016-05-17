@@ -12,6 +12,7 @@
 
 #include "zynqmp.dtsi"
 #include "zynqmp-clk.dtsi"
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "ZynqMP ZCU102 RevA";

@@ -12,6 +12,7 @@
 
 #include "zynqmp.dtsi"
 #include "zynqmp-clk.dtsi"
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "ZynqMP zc1751-xm015-dc1 RevA";
