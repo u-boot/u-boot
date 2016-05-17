@@ -966,10 +966,29 @@ static void of_dump_addr(const char *s, const fdt32_t *addr, int na) { }
 
 /**
  * struct of_bus - Callbacks for bus specific translators
+ * @name:	A string used to identify this bus in debug output.
+ * @addresses:	The name of the DT property from which addresses are
+ *		to be read, typically "reg".
  * @match:	Return non-zero if the node whose parent is at
  *		parentoffset in the FDT blob corresponds to a bus
  *		of this type, otherwise return zero. If NULL a match
  *		is assumed.
+ * @count_cells:Count how many cells (be32 values) a node whose parent
+ *		is at parentoffset in the FDT blob will require to
+ *		represent its address (written to *addrc) & size
+ *		(written to *sizec).
+ * @map:	Map the address addr from the address space of this
+ *		bus to that of its parent, making use of the ranges
+ *		read from DT to an array at range. na and ns are the
+ *		number of cells (be32 values) used to hold and address
+ *		or size, respectively, for this bus. pna is the number
+ *		of cells used to hold an address for the parent bus.
+ *		Returns the address in the address space of the parent
+ *		bus.
+ * @translate:	Update the value of the address cells at addr within an
+ *		FDT by adding offset to it. na specifies the number of
+ *		cells used to hold the address being translated. Returns
+ *		zero on success, non-zero on error.
  *
  * Each bus type will include a struct of_bus in the of_busses array,
  * providing implementations of some or all of the functions used to
