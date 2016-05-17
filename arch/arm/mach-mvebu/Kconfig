@@ -1,14 +1,37 @@
 if ARCH_MVEBU
 
+config ARMADA_32BIT
+	bool
+	select CPU_V7
+	select SUPPORT_SPL
+	select SPL_DM
+	select SPL_DM_SEQ_ALIAS
+	select SPL_OF_CONTROL
+	select SPL_SIMPLE_BUS
+
+config ARMADA_64BIT
+	bool
+	select ARM64
+
+# ARMv7 SoCs...
 config ARMADA_375
 	bool
+	select ARMADA_32BIT
 
 config ARMADA_38X
 	bool
+	select ARMADA_32BIT
 
 config ARMADA_XP
 	bool
+	select ARMADA_32BIT
 
+# ARMv8 SoCs...
+config ARMADA_3700
+	bool
+	select ARM64
+
+# Armada XP/38x SoC types...
 config MV78230
 	bool
 	select ARMADA_XP
@@ -26,7 +49,7 @@ config 88F6820
 	select ARMADA_38X
 
 choice
-	prompt "Marvell MVEBU (Armada XP/375/38x) board select"
+	prompt "Marvell MVEBU (Armada XP/375/38x/3700) board select"
 	optional
 
 config TARGET_CLEARFOG
