@@ -247,8 +247,9 @@ struct lmb;
 #define IH_TYPE_RKSPI		25	/* Rockchip SPI image		*/
 #define IH_TYPE_ZYNQIMAGE	26	/* Xilinx Zynq Boot Image */
 #define IH_TYPE_ZYNQMPIMAGE	27	/* Xilinx ZynqMP Boot Image */
+#define IH_TYPE_FPGA		28	/* FPGA Image */
 
-#define IH_TYPE_COUNT		28	/* Number of image types */
+#define IH_TYPE_COUNT		29	/* Number of image types */
 
 /*
  * Compression Types
@@ -810,6 +811,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_LOADABLE_PROP	"loadables"
 #define FIT_DEFAULT_PROP	"default"
 #define FIT_SETUP_PROP		"setup"
+#define FIT_FPGA_PROP		"fpga"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 

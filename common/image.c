@@ -160,6 +160,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_RKSPI,      "rkspi",      "Rockchip SPI Boot Image" },
 	{	IH_TYPE_ZYNQIMAGE,  "zynqimage",  "Xilinx Zynq Boot Image" },
 	{	IH_TYPE_ZYNQMPIMAGE, "zynqmpimage", "Xilinx ZynqMP Boot Image" },
+	{	IH_TYPE_FPGA,       "fpga",       "FPGA Image" },
 	{	-1,		    "",		  "",			},
 };
 

@@ -1483,6 +1483,10 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	if (uname)
 		printf("%s  FDT:          %s\n", p, uname);
 
+	uname = (char *)fdt_getprop(fit, noffset, FIT_FPGA_PROP, NULL);
+	if (uname)
+		printf("%s  FPGA:         %s\n", p, uname);
+
 	/* Print out all of the specified loadables */
 	for (loadables_index = 0;
 	     fdt_get_string_index(fit, noffset,
