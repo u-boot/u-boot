@@ -688,6 +688,29 @@
 			interrupt-names = "alarm", "sec";
 		};
 
+		serdes: zynqmp_phy@fd400000 {
+			compatible = "xlnx,zynqmp-psgtr";
+			status = "disabled";
+			reg = <0x0 0xfd400000 0x40000>,
+			      <0x0 0xfd3d0000 0x1000>,
+			      <0x0 0xfd1a0000 0x1000>,
+			      <0x0 0xff5e0000 0x1000>;
+			reg-names = "serdes", "siou", "fpd", "lpd";
+			xlnx,tx_termination_fix;
+			lane0: lane0 {
+				#phy-cells = <4>;
+			};
+			lane1: lane1 {
+				#phy-cells = <4>;
+			};
+			lane2: lane2 {
+				#phy-cells = <4>;
+			};
+			lane3: lane3 {
+				#phy-cells = <4>;
+			};
+		};
+
 		sata: ahci@fd0c0000 {
 			compatible = "ceva,ahci-1v84";
 			status = "disabled";
