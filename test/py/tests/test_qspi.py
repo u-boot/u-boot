@@ -7,6 +7,8 @@ import re
 import random
 import u_boot_utils
 
+import test_net
+
 qspi_detected = False
 page_size = 0
 erase_size = 0
@@ -139,3 +141,53 @@ def test_qspi_erase_all(u_boot_console):
     with u_boot_console.temporary_timeout(timeout):
         output = u_boot_console.run_command('sf erase 0 ' + str(hex(total_size)))
         assert expected_erase in output
+
+# Load FIT image and write boot.bin to start of qspi to be ready for qspi boot
+@pytest.mark.buildconfigspec('cmd_sf')
+def test_qspi_boot_images(u_boot_console):
+    qspi_pre_commands(u_boot_console)
+    if not qspi_detected:
+        pytest.skip('QSPI not detected')
+
+    if not test_net.net_set_up:
+        pytest.skip('Network not initialized')
+
+    test_net.test_net_dhcp(u_boot_console)
+    test_net.test_net_setup_static(u_boot_console)
+    test_net.test_net_tftpboot(u_boot_console)
+
+    f = u_boot_console.config.env.get('env__net_tftp_readable_file', None)
+    if not f:
+        pytest.skip('No TFTP readable file to read')
+
+    addr = f.get('addr', None)
+    if not addr:
+      addr = u_boot_utils.find_ram_base(u_boot_console)
+
+    map = 0x0
+    temp = 0x50000
+    expected_write = "OK"
+    output = u_boot_console.run_command('imxtract %x boot@1 %x' % (addr, temp))
+    assert expected_write in output
+
+    expected_erase = "Erased: OK"
+    output = u_boot_console.run_command('sf erase %x +$filesize ' % map)
+    assert expected_erase in output
+
+    expected_write = "Written: OK"
+    output = u_boot_console.run_command('sf write %x %x $filesize' % (temp, map))
+    assert expected_write in output
+
+    map = u_boot_console.config.buildconfig.get('config_sys_spi_u_boot_offs', "0x1000")
+    map = int(map, 16)
+    expected_write = "OK"
+    output = u_boot_console.run_command('imxtract %x boot@2 %x' % (addr, temp))
+    assert expected_write in output
+
+    expected_erase = "Erased: OK"
+    output = u_boot_console.run_command('sf erase %x +$filesize ' % map)
+    assert expected_erase in output
+
+    expected_write = "Written: OK"
+    output = u_boot_console.run_command('sf write %x %x $filesize' % (temp, map))
+    assert expected_write in output
