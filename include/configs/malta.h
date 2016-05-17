@@ -65,13 +65,7 @@
  * Serial driver
  */
 #define CONFIG_BAUDRATE			115200
-
-#define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_PORT_MAPPED
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		(115200 * 16)
-#define CONFIG_SYS_NS16550_COM1		0x3f8
-#define CONFIG_CONS_INDEX		1
 
 /*
  * Flash configuration
