@@ -21,6 +21,8 @@
 #include <spi.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * [0]: http://www.xilinx.com/support/documentation
  *
@@ -82,6 +84,8 @@
 #define CONFIG_SYS_XILINX_SPI_LIST	{ CONFIG_SYS_SPI_BASE }
 #endif
 
+#define XILINX_SPI_QUAD_MODE	2
+
 /* xilinx spi register set */
 struct xilinx_spi_regs {
 	u32 __space0__[7];
@@ -109,6 +113,22 @@ struct xilinx_spi_priv {
 };
 
 static unsigned long xilinx_spi_base_list[] = CONFIG_SYS_XILINX_SPI_LIST;
+
+static int xilinx_spi_child_pre_probe(struct udevice *bus)
+{
+	struct spi_slave *slave = dev_get_parent_priv(bus);
+	struct udevice *dev = dev_get_parent(bus);
+	int spimode;
+
+	spimode = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "xlnx,spi-mode",
+				 -1);
+
+	if (spimode == XILINX_SPI_QUAD_MODE)
+		slave->op_mode_rx = SPI_OPM_RX_QOF;
+
+	return 0;
+}
+
 static int xilinx_spi_probe(struct udevice *bus)
 {
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
@@ -299,4 +319,5 @@ U_BOOT_DRIVER(xilinx_spi) = {
 	.ops	= &xilinx_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct xilinx_spi_priv),
 	.probe	= xilinx_spi_probe,
+	.child_pre_probe = xilinx_spi_child_pre_probe,
 };
