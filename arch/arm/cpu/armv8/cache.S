@@ -19,7 +19,7 @@
  * clean and invalidate one level cache.
  *
  * x0: cache level
- * x1: 0 flush & invalidate, 1 invalidate only
+ * x1: 0 clean & invalidate, 1 invalidate only
  * x2~x9: clobbered
  */
 ENTRY(__asm_flush_dcache_level)
@@ -62,7 +62,7 @@ ENDPROC(__asm_flush_dcache_level)
 /*
  * void __asm_flush_dcache_all(int invalidate_only)
  *
- * x0: 0 flush & invalidate, 1 invalidate only
+ * x0: 0 clean & invalidate, 1 invalidate only
  *
  * clean and invalidate all data cache by SET/WAY.
  */
