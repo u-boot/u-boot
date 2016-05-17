@@ -139,12 +139,6 @@
 #define CONFIG_SYS_FLASH_CFI           1
 #define CONFIG_FLASH_CFI_DRIVER    1
 
-/* The following #defines are needed to get flash environment right */
-/* ROM version */
-#define CONFIG_SYS_TEXT_BASE		0xbfc00000
-/* RAM version */
-/* #define CONFIG_SYS_TEXT_BASE		0x80100000 */
-
 #define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MONITOR_LEN		(192 << 10)
 

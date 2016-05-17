@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "malta"
 
+config SYS_TEXT_BASE
+	default 0xbe000000
+
 endif

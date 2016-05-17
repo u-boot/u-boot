@@ -107,7 +107,6 @@
  * FLASH and environment organization
  */
 /* The following #defines are needed to get flash environment right */
-#define CONFIG_SYS_TEXT_BASE		0xbfc00000 /* Rom version */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
