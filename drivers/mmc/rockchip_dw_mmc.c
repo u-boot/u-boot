@@ -104,6 +104,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
 	return 0;

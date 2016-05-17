@@ -84,6 +84,8 @@ obj-$(CONFIG_LCD_ROTATION) += lcd_console_rotation.o
 obj-$(CONFIG_LCD_DT_SIMPLEFB) += lcd_simplefb.o
 obj-$(CONFIG_LYNXKDI) += lynxkdi.o
 obj-$(CONFIG_MENU) += menu.o
+obj-$(CONFIG_CMD_SATA) += sata.o
+obj-$(CONFIG_SCSI) += scsi.o
 obj-$(CONFIG_UPDATE_TFTP) += update.o
 obj-$(CONFIG_DFU_TFTP) += update.o
 obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
@@ -112,6 +114,9 @@ obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 endif
+ifdef CONFIG_SPL_SATA_SUPPORT
+obj-$(CONFIG_SCSI) += scsi.o
+endif
 endif
 #environment
 obj-y += env_common.o
@@ -130,6 +135,7 @@ obj-y += dlmalloc.o
 ifdef CONFIG_SYS_MALLOC_F_LEN
 obj-y += malloc_simple.o
 endif
+obj-$(CONFIG_CMD_IDE) += ide.o
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_$(SPL_)OF_LIBFDT) += image-fdt.o

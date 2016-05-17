@@ -8,7 +8,7 @@
 #include <common.h>
 #include <dm.h>
 
-UCLASS_DRIVER(disk) = {
-	.id		= UCLASS_DISK,
-	.name		= "disk",
+UCLASS_DRIVER(ahci) = {
+	.id		= UCLASS_AHCI,
+	.name		= "ahci",
 };

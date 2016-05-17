@@ -126,21 +126,32 @@ _start:
 	move.l	%d0, (%a1)
 	move.l	%d0, (%a2)
 
-	/*
-	 * set stackpointer to internal sram end - 80
-	 * (global data struct size + some bytes)
-	 * get some stackspace for the first c-code,
-	 */
-	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
-	clr.l   %sp@-
-
 	/* put relocation table address to a5 */
 	move.l #__got_start, %a5
+
+	/* setup stack initially on top of internal static ram  */
+	move.l  #(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE), %sp
+
+	/*
+	 * if configured, malloc_f arena will be reserved first,
+	 * then (and always) gd struct space will be reserved
+	 */
+	move.l	%sp, -(%sp)
+	bsr	board_init_f_alloc_reserve
+
+	/* update stack and frame-pointers */
+	move.l  %d0, %sp
+	move.l  %sp, %fp
+
+	/* initialize reserved area */
+	move.l  %d0, -(%sp)
+	bsr     board_init_f_init_reserve
 
 	/* run low-level CPU init code (from flash) */
 	bsr cpu_init_f
 
 	/* run low-level board init code (from flash) */
+	clr.l   %sp@-
 	bsr board_init_f
 
 	/* board_init_f() does not return */

@@ -83,12 +83,12 @@ static int dm_test_blk_usb(struct unit_test_state *uts)
 	ut_asserteq_ptr(usb_dev, dev_get_parent(dev));
 
 	/* Check we have one block device for each mass storage device */
-	ut_asserteq(3, count_blk_devices());
+	ut_asserteq(4, count_blk_devices());
 
 	/* Now go around again, making sure the old devices were unbound */
 	ut_assertok(usb_stop());
 	ut_assertok(usb_init());
-	ut_asserteq(3, count_blk_devices());
+	ut_asserteq(4, count_blk_devices());
 	ut_assertok(usb_stop());
 
 	return 0;

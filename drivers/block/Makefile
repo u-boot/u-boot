@@ -7,7 +7,11 @@
 
 obj-$(CONFIG_BLK) += blk-uclass.o
 
-obj-$(CONFIG_DISK) += disk-uclass.o
+ifndef CONFIG_BLK
+obj-y += blk_legacy.o
+endif
+
+obj-$(CONFIG_AHCI) += ahci-uclass.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o
 obj-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
 obj-$(CONFIG_FSL_SATA) += fsl_sata.o
@@ -22,7 +26,7 @@ obj-$(CONFIG_SATA_MV) += sata_mv.o
 obj-$(CONFIG_SATA_SIL3114) += sata_sil3114.o
 obj-$(CONFIG_SATA_SIL) += sata_sil.o
 obj-$(CONFIG_IDE_SIL680) += sil680.o
-obj-$(CONFIG_SANDBOX) += sandbox.o
+obj-$(CONFIG_SANDBOX) += sandbox.o sandbox_scsi.o sata_sandbox.o
 obj-$(CONFIG_SCSI_SYM53C8XX) += sym53c8xx.o
 obj-$(CONFIG_SYSTEMACE) += systemace.o
 obj-$(CONFIG_BLOCK_CACHE) += blkcache.o

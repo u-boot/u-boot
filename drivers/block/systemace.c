@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <systemace.h>
+#include <dm.h>
 #include <part.h>
 #include <asm/io.h>
 
@@ -69,11 +69,9 @@ static u16 ace_readw(unsigned off)
 	return in16(base + off);
 }
 
-static unsigned long systemace_read(struct blk_desc *block_dev,
-				    unsigned long start, lbaint_t blkcnt,
-				    void *buffer);
-
+#ifndef CONFIG_BLK
 static struct blk_desc systemace_dev = { 0 };
+#endif
 
 static int get_cf_lock(void)
 {
@@ -104,42 +102,19 @@ static void release_cf_lock(void)
 	ace_writew((val & 0xffff), 0x18);
 }
 
-#ifdef CONFIG_PARTITIONS
-struct blk_desc *systemace_get_dev(int dev)
-{
-	/* The first time through this, the systemace_dev object is
-	   not yet initialized. In that case, fill it in. */
-	if (systemace_dev.blksz == 0) {
-		systemace_dev.if_type = IF_TYPE_UNKNOWN;
-		systemace_dev.devnum = 0;
-		systemace_dev.part_type = PART_TYPE_UNKNOWN;
-		systemace_dev.type = DEV_TYPE_HARDDISK;
-		systemace_dev.blksz = 512;
-		systemace_dev.log2blksz = LOG2(systemace_dev.blksz);
-		systemace_dev.removable = 1;
-		systemace_dev.block_read = systemace_read;
-
-		/*
-		 * Ensure the correct bus mode (8/16 bits) gets enabled
-		 */
-		ace_writew(width == 8 ? 0 : 0x0001, 0);
-
-		part_init(&systemace_dev);
-
-	}
-
-	return &systemace_dev;
-}
-#endif
-
 /*
  * This function is called (by dereferencing the block_read pointer in
  * the dev_desc) to read blocks of data. The return value is the
  * number of blocks read. A zero return indicates an error.
  */
+#ifdef CONFIG_BLK
+static unsigned long systemace_read(struct udevice *dev, unsigned long start,
+				    lbaint_t blkcnt, void *buffer)
+#else
 static unsigned long systemace_read(struct blk_desc *block_dev,
 				    unsigned long start, lbaint_t blkcnt,
 				    void *buffer)
+#endif
 {
 	int retry;
 	unsigned blk_countdown;
@@ -257,3 +232,72 @@ static unsigned long systemace_read(struct blk_desc *block_dev,
 
 	return blkcnt;
 }
+
+#ifdef CONFIG_BLK
+static int systemace_bind(struct udevice *dev)
+{
+	struct blk_desc *bdesc;
+	struct udevice *bdev;
+	int ret;
+
+	ret = blk_create_devicef(dev, "systemace_blk", "blk", IF_TYPE_SYSTEMACE,
+				 -1, 512, 0, &bdev);
+	if (ret) {
+		debug("Cannot create block device\n");
+		return ret;
+	}
+	bdesc = dev_get_uclass_platdata(bdev);
+	bdesc->removable = 1;
+	bdesc->part_type = PART_TYPE_UNKNOWN;
+	bdesc->log2blksz = LOG2(bdesc->blksz);
+
+	/* Ensure the correct bus mode (8/16 bits) gets enabled */
+	ace_writew(width == 8 ? 0 : 0x0001, 0);
+
+	return 0;
+}
+
+static const struct blk_ops systemace_blk_ops = {
+	.read	= systemace_read,
+};
+
+U_BOOT_DRIVER(systemace_blk) = {
+	.name		= "systemace_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &systemace_blk_ops,
+	.bind		= systemace_bind,
+};
+#else
+static int systemace_get_dev(int dev, struct blk_desc **descp)
+{
+	/* The first time through this, the systemace_dev object is
+	   not yet initialized. In that case, fill it in. */
+	if (systemace_dev.blksz == 0) {
+		systemace_dev.if_type = IF_TYPE_UNKNOWN;
+		systemace_dev.devnum = 0;
+		systemace_dev.part_type = PART_TYPE_UNKNOWN;
+		systemace_dev.type = DEV_TYPE_HARDDISK;
+		systemace_dev.blksz = 512;
+		systemace_dev.log2blksz = LOG2(systemace_dev.blksz);
+		systemace_dev.removable = 1;
+		systemace_dev.block_read = systemace_read;
+
+		/*
+		 * Ensure the correct bus mode (8/16 bits) gets enabled
+		 */
+		ace_writew(width == 8 ? 0 : 0x0001, 0);
+
+		part_init(&systemace_dev);
+	}
+	*descp = &systemace_dev;
+
+	return 0;
+}
+
+U_BOOT_LEGACY_BLK(systemace) = {
+	.if_typename	= "ace",
+	.if_type	= IF_TYPE_SYSTEMACE,
+	.max_devs	= 1,
+	.get_dev	= systemace_get_dev,
+};
+#endif

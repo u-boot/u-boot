@@ -612,6 +612,58 @@ int sandbox_spi_get_emul(struct sandbox_state *state,
 			 struct udevice *bus, struct udevice *slave,
 			 struct udevice **emulp);
 
+/**
+ * Claim the bus and prepare it for communication with a given slave.
+ *
+ * This must be called before doing any transfers with a SPI slave. It
+ * will enable and initialize any SPI hardware as necessary, and make
+ * sure that the SCK line is in the correct idle state. It is not
+ * allowed to claim the same bus for several slaves without releasing
+ * the bus in between.
+ *
+ * @dev:	The SPI slave device
+ *
+ * Returns: 0 if the bus was claimed successfully, or a negative value
+ * if it wasn't.
+ */
+int dm_spi_claim_bus(struct udevice *dev);
+
+/**
+ * Release the SPI bus
+ *
+ * This must be called once for every call to dm_spi_claim_bus() after
+ * all transfers have finished. It may disable any SPI hardware as
+ * appropriate.
+ *
+ * @slave:	The SPI slave device
+ */
+void dm_spi_release_bus(struct udevice *dev);
+
+/**
+ * SPI transfer
+ *
+ * This writes "bitlen" bits out the SPI MOSI port and simultaneously clocks
+ * "bitlen" bits in the SPI MISO port.  That's just the way SPI works.
+ *
+ * The source of the outgoing bits is the "dout" parameter and the
+ * destination of the input bits is the "din" parameter.  Note that "dout"
+ * and "din" can point to the same memory location, in which case the
+ * input data overwrites the output data (since both are buffered by
+ * temporary variables, this is OK).
+ *
+ * dm_spi_xfer() interface:
+ * @dev:	The SPI slave device which will be sending/receiving the data.
+ * @bitlen:	How many bits to write and read.
+ * @dout:	Pointer to a string of bits to send out.  The bits are
+ *		held in a byte array and are sent MSB first.
+ * @din:	Pointer to a string of bits that will be filled in.
+ * @flags:	A bitwise combination of SPI_XFER_* flags.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
+int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
+		const void *dout, void *din, unsigned long flags);
+
 /* Access the operations for a SPI device */
 #define spi_get_ops(dev)	((struct dm_spi_ops *)(dev)->driver->ops)
 #define spi_emul_get_ops(dev)	((struct dm_spi_emul_ops *)(dev)->driver->ops)

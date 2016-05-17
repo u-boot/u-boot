@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dt-bindings/gpio/gpio.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -113,19 +114,33 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
+int gpio_xlate_offs_flags(struct udevice *dev,
+					 struct gpio_desc *desc,
+					 struct fdtdec_phandle_args *args)
+{
+	if (args->args_count < 1)
+		return -EINVAL;
+
+	desc->offset = args->args[0];
+
+	if (args->args_count < 2)
+		return 0;
+
+	if (args->args[1] & GPIO_ACTIVE_LOW)
+		desc->flags = GPIOD_ACTIVE_LOW;
+
+	return 0;
+}
+
 static int gpio_find_and_xlate(struct gpio_desc *desc,
 			       struct fdtdec_phandle_args *args)
 {
 	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
 
-	/* Use the first argument as the offset by default */
-	if (args->args_count > 0)
-		desc->offset = args->args[0];
+	if (ops->xlate)
+		return ops->xlate(desc->dev, desc, args);
 	else
-		desc->offset = -1;
-	desc->flags = 0;
-
-	return ops->xlate ? ops->xlate(desc->dev, desc, args) : 0;
+		return gpio_xlate_offs_flags(desc->dev, desc, args);
 }
 
 int dm_gpio_request(struct gpio_desc *desc, const char *label)
@@ -605,6 +620,7 @@ static int _gpio_request_by_name_nodev(const void *blob, int node,
 
 	desc->dev = NULL;
 	desc->offset = 0;
+	desc->flags = 0;
 	ret = fdtdec_parse_phandle_with_args(blob, node, list_name,
 					     "#gpio-cells", 0, index, &args);
 	if (ret) {

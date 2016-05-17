@@ -162,7 +162,7 @@ static int bd82x6x_probe(struct udevice *dev)
 		return 0;
 
 	/* Cause the SATA device to do its init */
-	uclass_first_device(UCLASS_DISK, &dev);
+	uclass_first_device(UCLASS_AHCI, &dev);
 
 	ret = syscon_get_by_driver_data(X86_SYSCON_GMA, &gma_dev);
 	if (ret)

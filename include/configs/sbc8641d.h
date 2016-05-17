@@ -297,8 +297,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
-#undef CONFIG_SYS_SCSI_SCAN_BUS_REVERSE
-
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100

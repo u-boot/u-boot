@@ -25,8 +25,13 @@ void mmc_adapter_card_type_ident(void);
 unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
 
-unsigned long mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
-			 lbaint_t blkcnt, const void *src);
+#ifdef CONFIG_BLK
+ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+		 const void *src);
+#else
+ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
+		 const void *src);
+#endif
 
 #else /* CONFIG_SPL_BUILD */
 
@@ -45,5 +50,29 @@ static inline ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
 }
 
 #endif /* CONFIG_SPL_BUILD */
+
+/**
+ * mmc_get_next_devnum() - Get the next available MMC device number
+ *
+ * @return next available device number (0 = first), or -ve on error
+ */
+int mmc_get_next_devnum(void);
+
+/**
+ * mmc_do_preinit() - Get an MMC device ready for use
+ */
+void mmc_do_preinit(void);
+
+/**
+ * mmc_list_init() - Set up the list of MMC devices
+ */
+void mmc_list_init(void);
+
+/**
+ * mmc_list_add() - Add a new MMC device to the list of devices
+ *
+ * @mmc:	Device to add
+ */
+void mmc_list_add(struct mmc *mmc);
 
 #endif /* _MMC_PRIVATE_H_ */
