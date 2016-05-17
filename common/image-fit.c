@@ -422,7 +422,8 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	}
 
 	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE) ||
-	    (type == IH_TYPE_FIRMWARE) || (type == IH_TYPE_RAMDISK)) {
+	    (type == IH_TYPE_FIRMWARE) || (type == IH_TYPE_RAMDISK) ||
+	    (type == IH_TYPE_FPGA)) {
 		ret = fit_image_get_load(fit, image_noffset, &load);
 		printf("%s  Load Address: ", p);
 		if (ret)
@@ -1571,6 +1572,8 @@ static const char *fit_get_image_type_property(int type)
 		return FIT_SETUP_PROP;
 	case IH_TYPE_LOADABLE:
 		return FIT_LOADABLE_PROP;
+	case IH_TYPE_FPGA:
+		return FIT_FPGA_PROP;
 	}
 
 	return "unknown";
@@ -1685,7 +1688,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 			fit_image_check_type(fit, noffset,
 					     IH_TYPE_KERNEL_NOLOAD));
 
-	os_ok = image_type == IH_TYPE_FLATDT ||
+	os_ok = image_type == IH_TYPE_FLATDT || IH_TYPE_FPGA ||
 		fit_image_check_os(fit, noffset, IH_OS_LINUX) ||
 		fit_image_check_os(fit, noffset, IH_OS_OPENRTOS);
 
