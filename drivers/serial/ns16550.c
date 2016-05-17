@@ -100,7 +100,8 @@ static void ns16550_writeb(NS16550_t port, int offset, int value)
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
-	addr = map_physmem(plat->base, 0, MAP_NOCACHE) + offset;
+	addr = (unsigned char *)plat->base + offset;
+
 	/*
 	 * As far as we know it doesn't make sense to support selection of
 	 * these options at run-time, so use the existing CONFIG options.
@@ -114,7 +115,7 @@ static int ns16550_readb(NS16550_t port, int offset)
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
-	addr = map_physmem(plat->base, 0, MAP_NOCACHE) + offset;
+	addr = (unsigned char *)plat->base + offset;
 
 	return serial_in_shift(addr + plat->reg_offset, plat->reg_shift);
 }
@@ -400,7 +401,12 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
+#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 	plat->base = addr;
+#else
+	plat->base = (unsigned long)map_physmem(addr, 0, MAP_NOCACHE);
+#endif
+
 	plat->reg_offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				     "reg-offset", 0);
 	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
