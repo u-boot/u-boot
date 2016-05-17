@@ -147,6 +147,13 @@ config DEBUG_UART_ARM_DCC
 	  This port is available at least on ARMv6, ARMv7, ARMv8 and XScale
 	  architectures.
 
+config DEBUG_MVEBU_A3700_UART
+	bool "Marvell Armada 3700"
+	help
+	  Select this to enable a debug UART using the serial_mvebu driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 config DEBUG_UART_ZYNQ
 	bool "Xilinx Zynq"
 	help
@@ -295,6 +302,13 @@ config FSL_LPUART
 	  Select this to enable a Low Power UART for Freescale VF610 and
 	  QorIQ Layerscape devices.
 
+config MVEBU_A3700_UART
+	bool "UART support for Armada 3700"
+	default n
+	help
+	  Choose this option to add support for UART driver on the Marvell
+	  Armada 3700 SoC. The base address is configured via DT.
+
 config PIC32_SERIAL
 	bool "Support for Microchip PIC32 on-chip UART"
 	depends on DM_SERIAL && MACH_PIC32
@@ -371,4 +385,5 @@ config MSM_SERIAL
 	  It should support all Qualcomm devices with UARTDM version 1.4,
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
+
 endmenu
