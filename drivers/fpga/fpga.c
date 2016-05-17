@@ -120,7 +120,7 @@ static int fpga_dev_info(int devnum)
 }
 
 /*
- * fgpa_init is usually called from misc_init_r() and MUST be called
+ * fpga_init is usually called from misc_init_r() and MUST be called
  * before any of the other fpga functions are used.
  */
 void fpga_init(void)
