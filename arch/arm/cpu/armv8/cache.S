@@ -104,19 +104,13 @@ finished:
 ENDPROC(__asm_dcache_all)
 
 ENTRY(__asm_flush_dcache_all)
-	mov	x16, lr
 	mov	x0, #0
-	bl	__asm_dcache_all
-	mov	lr, x16
-	ret
+	b	__asm_dcache_all
 ENDPROC(__asm_flush_dcache_all)
 
 ENTRY(__asm_invalidate_dcache_all)
-	mov	x16, lr
 	mov	x0, #0x1
-	bl	__asm_dcache_all
-	mov	lr, x16
-	ret
+	b	__asm_dcache_all
 ENDPROC(__asm_invalidate_dcache_all)
 
 /*
