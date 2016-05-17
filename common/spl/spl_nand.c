@@ -32,7 +32,10 @@ static int spl_nand_load_element(int offset, struct image_header *header)
 	if (err)
 		return err;
 
-	spl_parse_image_header(header);
+	err = spl_parse_image_header(header);
+	if (err)
+		return err;
+
 	return nand_spl_load_image(offset, spl_image.size,
 				   (void *)(unsigned long)spl_image.load_addr);
 }
@@ -77,7 +80,9 @@ int spl_nand_load_image(void)
 		/* load linux */
 		nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
 			sizeof(*header), (void *)header);
-		spl_parse_image_header(header);
+		err = spl_parse_image_header(header);
+		if (err)
+			return err;
 		if (header->ih_os == IH_OS_LINUX) {
 			/* happy - was a linux */
 			err = nand_spl_load_image(

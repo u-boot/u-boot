@@ -16,7 +16,6 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_EXT_SUPPORT
 
 /* common IMX6 SPL configuration */
 #include "imx6_spl.h"

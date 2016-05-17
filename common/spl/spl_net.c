@@ -34,7 +34,5 @@ int spl_net_load_image(const char *device)
 		printf("Problem booting with BOOTP\n");
 		return rv;
 	}
-	spl_parse_image_header((struct image_header *)load_addr);
-
-	return 0;
+	return spl_parse_image_header((struct image_header *)load_addr);
 }

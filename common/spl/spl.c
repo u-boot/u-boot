@@ -73,7 +73,7 @@ void spl_set_header_raw_uboot(void)
 	spl_image.name = "U-Boot";
 }
 
-void spl_parse_image_header(const struct image_header *header)
+int spl_parse_image_header(const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
 
@@ -111,6 +111,9 @@ void spl_parse_image_header(const struct image_header *header)
 		 * is bad, and thus should be skipped silently.
 		 */
 		panic("** no mkimage signature but raw image not supported");
+#elif defined(CONFIG_SPL_ABORT_ON_RAW_IMAGE)
+		/* Signature not found, proceed to other boot methods. */
+		return -EINVAL;
 #else
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
@@ -118,6 +121,7 @@ void spl_parse_image_header(const struct image_header *header)
 		spl_set_header_raw_uboot();
 #endif
 	}
+	return 0;
 }
 
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)

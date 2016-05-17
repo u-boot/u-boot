@@ -209,7 +209,7 @@ static void set_dcd_param_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 		d = d2;
 		d->write_dcd_command.tag = DCD_CHECK_DATA_COMMAND_TAG;
 		d->write_dcd_command.length = cpu_to_be16(4);
-		d->write_dcd_command.param = DCD_CHECK_BITS_SET_PARAM;
+		d->write_dcd_command.param = DCD_CHECK_BITS_CLR_PARAM;
 		break;
 	default:
 		break;
