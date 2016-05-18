@@ -103,7 +103,7 @@ static int m88e1011s_config(struct phy_device *phydev)
 /* Parse the 88E1011's status register for speed and duplex
  * information
  */
-static uint m88e1xxx_parse_status(struct phy_device *phydev)
+static int m88e1xxx_parse_status(struct phy_device *phydev)
 {
 	unsigned int speed;
 	unsigned int mii_reg;
@@ -120,7 +120,7 @@ static uint m88e1xxx_parse_status(struct phy_device *phydev)
 			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
 				puts(" TIMEOUT !\n");
 				phydev->link = 0;
-				break;
+				return -ETIMEDOUT;
 			}
 
 			if ((i++ % 1000) == 0)
