@@ -428,7 +428,6 @@
 #  define CONFIG_RSA
 # endif
 #define CONFIG_SHA256
-#define CONFIG_CMD_ZYNQ_AES
 #endif
 
 #define CONFIG_CMD_BOOTZ
