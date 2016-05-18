@@ -360,6 +360,7 @@ static int zynq_phy_init(struct udevice *dev)
 static int zynq_gem_init(struct udevice *dev)
 {
 	u32 i, nwconfig;
+	int ret;
 	unsigned long clk_rate = 0;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
@@ -427,7 +428,9 @@ static int zynq_gem_init(struct udevice *dev)
 		priv->init++;
 	}
 
-	phy_startup(priv->phydev);
+	ret = phy_startup(priv->phydev);
+	if (ret)
+		return ret;
 
 	if (!priv->phydev->link) {
 		printf("%s: No link.\n", priv->phydev->dev->name);
