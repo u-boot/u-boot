@@ -286,6 +286,27 @@
 #define CONFIG_USB_STORAGE
 #endif
 
+/* SATA */
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_CMD_SCSI
+#ifndef CONFIG_CMD_FAT
+#define CONFIG_CMD_FAT
+#endif
+#ifndef CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT2
+#endif
+#define CONFIG_DOS_PARTITION
+#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID		2
+#define CONFIG_SYS_SCSI_MAX_LUN			2
+#define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+						CONFIG_SYS_SCSI_MAX_LUN)
+#define SCSI_VEND_ID 0x1b4b
+#define SCSI_DEV_ID  0x9170
+#define CONFIG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
+#define CONFIG_PCI
+
 #include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1043ARDB_H__ */
