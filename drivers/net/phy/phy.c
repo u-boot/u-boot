@@ -431,10 +431,13 @@ int genphy_config(struct phy_device *phydev)
 
 int genphy_startup(struct phy_device *phydev)
 {
-	genphy_update_link(phydev);
-	genphy_parse_link(phydev);
+	int ret;
 
-	return 0;
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	return genphy_parse_link(phydev);
 }
 
 int genphy_shutdown(struct phy_device *phydev)

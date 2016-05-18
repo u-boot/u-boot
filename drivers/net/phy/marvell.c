@@ -162,10 +162,13 @@ static int m88e1xxx_parse_status(struct phy_device *phydev)
 
 static int m88e1011s_startup(struct phy_device *phydev)
 {
-	genphy_update_link(phydev);
-	m88e1xxx_parse_status(phydev);
+	int ret;
 
-	return 0;
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	return m88e1xxx_parse_status(phydev);
 }
 
 /* Marvell 88E1111S */
@@ -358,13 +361,16 @@ static int m88e1118_config(struct phy_device *phydev)
 
 static int m88e1118_startup(struct phy_device *phydev)
 {
+	int ret;
+
 	/* Change Page Number */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x0000);
 
-	genphy_update_link(phydev);
-	m88e1xxx_parse_status(phydev);
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
 
-	return 0;
+	return m88e1xxx_parse_status(phydev);
 }
 
 /* Marvell 88E1121R */
@@ -421,12 +427,15 @@ static int m88e1145_config(struct phy_device *phydev)
 
 static int m88e1145_startup(struct phy_device *phydev)
 {
-	genphy_update_link(phydev);
+	int ret;
+
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1145_PHY_LED_CONTROL,
 			MIIM_88E1145_PHY_LED_DIRECT);
-	m88e1xxx_parse_status(phydev);
-
-	return 0;
+	return m88e1xxx_parse_status(phydev);
 }
 
 /* Marvell 88E1149S */
