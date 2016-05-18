@@ -879,9 +879,7 @@ __weak int board_phy_config(struct phy_device *phydev)
 int phy_config(struct phy_device *phydev)
 {
 	/* Invoke an optional board-specific helper */
-	board_phy_config(phydev);
-
-	return 0;
+	return board_phy_config(phydev);
 }
 
 int phy_shutdown(struct phy_device *phydev)
