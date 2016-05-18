@@ -111,7 +111,6 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 int efi_gop_register(void)
 {
 	struct efi_gop_obj *gopobj;
-	int line_len;
 
 	switch (panel_info.vl_bpix) {
 	case LCD_COLOR32:
@@ -136,8 +135,6 @@ int efi_gop_register(void)
 	gopobj->mode.max_mode = 1;
 	gopobj->mode.info = &gopobj->info;
 	gopobj->mode.info_size = sizeof(gopobj->info);
-	gopobj->mode.fb_base = gd->fb_base;
-	gopobj->mode.fb_size = lcd_get_size(&line_len);
 
 	gopobj->info.version = 0;
 	gopobj->info.width = panel_info.vl_col;
