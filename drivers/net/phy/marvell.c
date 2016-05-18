@@ -352,11 +352,7 @@ static int m88e1118_config(struct phy_device *phydev)
 	/* Change Page Number */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x0000);
 
-	genphy_config_aneg(phydev);
-
-	phy_reset(phydev);
-
-	return 0;
+	return genphy_config_aneg(phydev);
 }
 
 static int m88e1118_startup(struct phy_device *phydev)
