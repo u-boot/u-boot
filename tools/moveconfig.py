@@ -623,13 +623,11 @@ class Slot:
                                                 COLOR_LIGHT_CYAN, errout)
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
-            else:
-                # If --exit-on-error flag is not set,
-                # skip this board and continue.
-                # Record the failed board.
-                self.failed_boards.append(self.defconfig)
-                self.state = STATE_IDLE
-                return True
+            # If --exit-on-error flag is not set, skip this board and continue.
+            # Record the failed board.
+            self.failed_boards.append(self.defconfig)
+            self.state = STATE_IDLE
+            return True
 
         if self.state == STATE_AUTOCONF:
             self.parser.update_dotconfig(self.defconfig)
