@@ -147,6 +147,7 @@ To see the complete list of supported options, run
 
 """
 
+import filecmp
 import fnmatch
 import multiprocessing
 import optparse
@@ -685,9 +686,16 @@ class Slot:
 
         if self.state == STATE_SAVEDEFCONFIG:
             self.log += self.parser.check_defconfig()
-            if not self.options.dry_run:
-                shutil.move(os.path.join(self.build_dir, 'defconfig'),
-                            os.path.join('configs', self.defconfig))
+            orig_defconfig = os.path.join('configs', self.defconfig)
+            new_defconfig = os.path.join(self.build_dir, 'defconfig')
+            updated = not filecmp.cmp(orig_defconfig, new_defconfig)
+
+            if updated:
+                self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+                                       "defconfig was updated.\n")
+
+            if not self.options.dry_run and updated:
+                shutil.move(new_defconfig, orig_defconfig)
             self.finish(True)
             return True
 
