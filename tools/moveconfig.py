@@ -632,13 +632,7 @@ class Slot:
             if self.options.verbose:
                 self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
                                        self.ps.stderr.read())
-            self.show_log(sys.stderr)
-            if self.options.exit_on_error:
-                sys.exit("Exit on error.")
-            # If --exit-on-error flag is not set, skip this board and continue.
-            # Record the failed board.
-            self.failed_boards.append(self.defconfig)
-            self.state = STATE_IDLE
+            self.finish(False)
             return True
 
         if self.state == STATE_AUTOCONF:
@@ -656,21 +650,14 @@ class Slot:
             if not self.options.dry_run:
                 shutil.move(os.path.join(self.build_dir, 'defconfig'),
                             os.path.join('configs', self.defconfig))
-            self.show_log()
-            self.state = STATE_IDLE
+            self.finish(True)
             return True
 
         self.cross_compile = self.parser.get_cross_compile()
         if self.cross_compile is None:
             self.log += color_text(self.options.color, COLOR_YELLOW,
                                    "Compiler is missing.  Do nothing.\n")
-            self.show_log(sys.stderr)
-            if self.options.exit_on_error:
-                sys.exit("Exit on error.")
-            # If --exit-on-error flag is not set, skip this board and continue.
-            # Record the failed board.
-            self.failed_boards.append(self.defconfig)
-            self.state = STATE_IDLE
+            self.finish(False)
             return True
 
         cmd = list(self.make_cmd)
@@ -683,11 +670,12 @@ class Slot:
         self.state = STATE_AUTOCONF
         return False
 
-    def show_log(self, file=sys.stdout):
-        """Display log along with progress.
+    def finish(self, success):
+        """Display log along with progress and go to the idle state.
 
         Arguments:
-          file: A file object to which the log string is sent.
+          success: Should be True when the defconfig was processed
+                   successfully, or False when it fails.
         """
         # output at least 30 characters to hide the "* defconfigs out of *".
         log = self.defconfig.ljust(30) + '\n'
@@ -695,9 +683,18 @@ class Slot:
         log += '\n'.join([ '    ' + s for s in self.log.split('\n') ])
         # Some threads are running in parallel.
         # Print log atomically to not mix up logs from different threads.
-        print >> file, log
+        print >> (sys.stdout if success else sys.stderr), log
+
+        if not success:
+            if self.options.exit_on_error:
+                sys.exit("Exit on error.")
+            # If --exit-on-error flag is not set, skip this board and continue.
+            # Record the failed board.
+            self.failed_boards.append(self.defconfig)
+
         self.progress.inc()
         self.progress.show()
+        self.state = STATE_IDLE
 
     def get_failed_boards(self):
         """Returns a list of failed boards (defconfigs) in this slot.
