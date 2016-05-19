@@ -140,6 +140,17 @@
 				reg = <0x1d00000 0x10000>, /* GICD */
 				      <0x1d40000 0x40000>; /* GICR */
 			};
+
+			spi0: spi@10600 {
+				compatible = "marvell,armada-3700-spi";
+				reg = <0x10600 0x50>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#clock-cells = <0>;
+				clock-frequency = <160000>;
+				spi-max-frequency = <40000>;
+				status = "disabled";
+			};
 		};
 	};
 };
