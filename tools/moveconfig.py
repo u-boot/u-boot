@@ -403,7 +403,10 @@ class KconfigParser:
         self.configs = configs
         self.options = options
         self.progress = progress
-        self.build_dir = build_dir
+        self.dotconfig = os.path.join(build_dir, '.config')
+        self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
+        self.config_autoconf = os.path.join(build_dir, 'include', 'config',
+                                            'auto.conf')
 
     def get_cross_compile(self):
         """Parse .config file and return CROSS_COMPILE.
@@ -417,8 +420,7 @@ class KconfigParser:
         """
         arch = ''
         cpu = ''
-        dotconfig = os.path.join(self.build_dir, '.config')
-        for line in open(dotconfig):
+        for line in open(self.dotconfig):
             m = self.re_arch.match(line)
             if m:
                 arch = m.group(1)
@@ -495,14 +497,12 @@ class KconfigParser:
           defconfig: defconfig name.
         """
 
-        dotconfig_path = os.path.join(self.build_dir, '.config')
-        autoconf_path = os.path.join(self.build_dir, 'include', 'autoconf.mk')
         results = []
 
-        with open(dotconfig_path) as f:
+        with open(self.dotconfig) as f:
             dotconfig_lines = f.readlines()
 
-        with open(autoconf_path) as f:
+        with open(self.autoconf) as f:
             autoconf_lines = f.readlines()
 
         for config in self.configs:
@@ -533,13 +533,13 @@ class KconfigParser:
         print log,
         self.progress.show()
 
-        with open(dotconfig_path, 'a') as f:
+        with open(self.dotconfig, 'a') as f:
             for (action, value) in results:
                 if action == ACTION_MOVE:
                     f.write(value + '\n')
 
-        os.remove(os.path.join(self.build_dir, 'include', 'config', 'auto.conf'))
-        os.remove(autoconf_path)
+        os.remove(self.config_autoconf)
+        os.remove(self.autoconf)
 
 class Slot:
 
