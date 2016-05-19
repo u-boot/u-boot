@@ -496,10 +496,13 @@ class KconfigParser:
           defconfig: defconfig name.
 
         Returns:
-          Return log string
+          Return a tuple of (updated flag, log string).
+          The "updated flag" is True if the .config was updated, False
+          otherwise.  The "log string" shows what happend to the .config.
         """
 
         results = []
+        updated = False
 
         with open(self.dotconfig) as f:
             dotconfig_lines = f.readlines()
@@ -534,11 +537,12 @@ class KconfigParser:
             for (action, value) in results:
                 if action == ACTION_MOVE:
                     f.write(value + '\n')
+                    updated = True
 
         os.remove(self.config_autoconf)
         os.remove(self.autoconf)
 
-        return log
+        return (updated, log)
 
 class Slot:
 
@@ -614,8 +618,11 @@ class Slot:
         If the configuration is successfully finished, assign a new
         subprocess to build include/autoconf.mk.
         If include/autoconf.mk is generated, invoke the parser to
-        parse the .config and the include/autoconf.mk, and then set the
-        slot back to the idle state.
+        parse the .config and the include/autoconf.mk, moving
+        config options to the .config as needed.
+        If the .config was updated, run "make savedefconfig" to sync
+        it, update the original defconfig, and then set the slot back
+        to the idle state.
 
         Returns:
           Return True if the subprocess is terminated, False otherwise
@@ -636,8 +643,12 @@ class Slot:
             return True
 
         if self.state == STATE_AUTOCONF:
-            self.log += self.parser.update_dotconfig()
+            (updated, log) = self.parser.update_dotconfig()
+            self.log += log
 
+            if not updated:
+                self.finish(True)
+                return True
             """Save off the defconfig in a consistent way"""
             cmd = list(self.make_cmd)
             cmd.append('savedefconfig')
