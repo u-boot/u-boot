@@ -17,44 +17,16 @@ This tool intends to help this tremendous work.
 Usage
 -----
 
-This tool takes one input file.  (let's say 'recipe' file here.)
-The recipe describes the list of config options you want to move.
-Each line takes the form:
-<config_name> <type> <default>
-(the fields must be separated with whitespaces.)
-
-<config_name> is the name of config option.
-
-<type> is the type of the option.  It must be one of bool, tristate,
-string, int, and hex.
-
-<default> is the default value of the option.  It must be appropriate
-value corresponding to the option type.  It must be either y or n for
-the bool type.  Tristate options can also take m (although U-Boot has
-not supported the module feature).
-
-You can add two or more lines in the recipe file, so you can move
-multiple options at once.
-
-Let's say, for example, you want to move CONFIG_CMD_USB and
-CONFIG_SYS_TEXT_BASE.
-
-The type should be bool, hex, respectively.  So, the recipe file
-should look like this:
-
-  $ cat recipe
-  CONFIG_CMD_USB bool n
-  CONFIG_SYS_TEXT_BASE hex 0x00000000
-
-Next you must edit the Kconfig to add the menu entries for the configs
+First, you must edit the Kconfig to add the menu entries for the configs
 you are moving.
 
-And then run this tool giving the file name of the recipe
+And then run this tool giving CONFIG names you want to move.
+For example, if you want to move CONFIG_CMD_USB and CONFIG_SYS_TEXT_BASE,
+simply type as follows:
 
-  $ tools/moveconfig.py recipe
+  $ tools/moveconfig.py CONFIG_CMD_USB CONFIG_SYS_TEXT_BASE
 
-The tool walks through all the defconfig files to move the config
-options specified by the recipe file.
+The tool walks through all the defconfig files and move the given CONFIGs.
 
 The log is also displayed on the terminal.
 
@@ -103,19 +75,19 @@ It just uses the regex method, so you should not rely on it.
 Just in case, please do 'git diff' to see what happened.
 
 
-How does it works?
-------------------
+How does it work?
+-----------------
 
 This tool runs configuration and builds include/autoconf.mk for every
 defconfig.  The config options defined in Kconfig appear in the .config
 file (unless they are hidden because of unmet dependency.)
 On the other hand, the config options defined by board headers are seen
 in include/autoconf.mk.  The tool looks for the specified options in both
-of them to decide the appropriate action for the options.  If the option
-is found in the .config or the value is the same as the specified default,
-the option does not need to be touched.  If the option is found in
-include/autoconf.mk, but not in the .config, and the value is different
-from the default, the tools adds the option to the defconfig.
+of them to decide the appropriate action for the options.  If the given
+config option is found in the .config, but its value does not match the
+one from the board header, the config option in the .config is replaced
+with the define in the board header.  Then, the .config is synced by
+"make savedefconfig" and the defconfig is updated with it.
 
 For faster processing, this tool handles multi-threading.  It creates
 separate build directories where the out-of-tree build is run.  The
@@ -148,7 +120,7 @@ Available options
   Specify a file containing a list of defconfigs to move
 
  -n, --dry-run
-   Peform a trial run that does not make any changes.  It is useful to
+   Perform a trial run that does not make any changes.  It is useful to
    see what is going to happen before one actually runs it.
 
  -e, --exit-on-error
@@ -844,42 +816,6 @@ def move_config(configs, options):
     print ''
     slots.show_failed_boards()
 
-def bad_recipe(filename, linenum, msg):
-    """Print error message with the file name and the line number and exit."""
-    sys.exit("%s: line %d: error : " % (filename, linenum) + msg)
-
-def parse_recipe(filename):
-    """Parse the recipe file and retrieve CONFIGs to move.
-
-    This function parses the given recipe file and gets the name,
-    the type, and the default value of the target config options.
-
-    Arguments:
-      filename: path to file to be parsed.
-    Returns:
-      A list of CONFIGs to move.
-    """
-    configs = []
-    linenum = 1
-
-    for line in open(filename):
-        tokens = line.split()
-        if len(tokens) != 3:
-            bad_recipe(filename, linenum,
-                       "%d fields in this line.  Each line must contain 3 fields"
-                       % len(tokens))
-
-        (config, type, default) = tokens
-
-        # prefix the option name with CONFIG_ if missing
-        if not config.startswith('CONFIG_'):
-            config = 'CONFIG_' + config
-
-        configs.append(config)
-        linenum += 1
-
-    return configs
-
 def main():
     try:
         cpu_count = multiprocessing.cpu_count()
@@ -904,21 +840,17 @@ def main():
                       help='the number of jobs to run simultaneously')
     parser.add_option('-v', '--verbose', action='store_true', default=False,
                       help='show any build errors as boards are built')
-    parser.usage += ' recipe_file\n\n' + \
-                    'The recipe_file should describe config options you want to move.\n' + \
-                    'Each line should contain config_name, type, default_value\n\n' + \
-                    'Example:\n' + \
-                    'CONFIG_FOO bool n\n' + \
-                    'CONFIG_BAR int 100\n' + \
-                    'CONFIG_BAZ string "hello"\n'
+    parser.usage += ' CONFIG ...'
 
-    (options, args) = parser.parse_args()
+    (options, configs) = parser.parse_args()
 
-    if len(args) != 1:
+    if len(configs) == 0:
         parser.print_usage()
         sys.exit(1)
 
-    configs = parse_recipe(args[0])
+    # prefix the option name with CONFIG_ if missing
+    configs = [ config if config.startswith('CONFIG_') else 'CONFIG_' + config
+                for config in configs ]
 
     check_top_directory()
 
