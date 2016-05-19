@@ -649,7 +649,8 @@ class Slot:
             if not updated:
                 self.finish(True)
                 return True
-            """Save off the defconfig in a consistent way"""
+            self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+                                   "Syncing by savedefconfig...\n")
             cmd = list(self.make_cmd)
             cmd.append('savedefconfig')
             self.ps = subprocess.Popen(cmd, stdout=self.devnull,
