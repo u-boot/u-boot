@@ -70,13 +70,17 @@ It looks like one of the followings:
  - Move 'CONFIG_... '
    This config option was moved to the defconfig
 
- - Default value 'CONFIG_...'.  Do nothing.
-   The value of this option is the same as default.
-   We do not have to add it to the defconfig.
+ - CONFIG_... is not defined in Kconfig.  Do nothing.
+   The entry for this CONFIG was not found in Kconfig.
+   There are two common cases:
+     - You forgot to create an entry for the CONFIG before running
+       this tool, or made a typo in a CONFIG passed to this tool.
+     - The entry was hidden due to unmet 'depends on'.
+       This is correct behavior.
 
- - 'CONFIG_...' already exists in Kconfig.  Do nothing.
-   This config option is already defined in Kconfig.
-   We do not need/want to touch it.
+ - 'CONFIG_...' is the same as the define in Kconfig.  Do nothing.
+   The define in the config header matched the one in Kconfig.
+   We do not need to touch it.
 
  - Undefined.  Do nothing.
    This config option was not found in the config header.
@@ -216,9 +220,8 @@ STATE_AUTOCONF = 2
 STATE_SAVEDEFCONFIG = 3
 
 ACTION_MOVE = 0
-ACTION_DEFAULT_VALUE = 1
-ACTION_ALREADY_EXIST = 2
-ACTION_UNDEFINED = 3
+ACTION_NO_ENTRY = 1
+ACTION_NO_CHANGE = 2
 
 COLOR_BLACK        = '0;30'
 COLOR_RED          = '0;31'
@@ -464,7 +467,7 @@ class KconfigParser:
 
         return CROSS_COMPILE.get(arch, None)
 
-    def parse_one_config(self, config_attr, defconfig_lines, autoconf_lines):
+    def parse_one_config(self, config_attr, dotconfig_lines, autoconf_lines):
         """Parse .config, defconfig, include/autoconf.mk for one config.
 
         This function looks for the config options in the lines from
@@ -474,7 +477,7 @@ class KconfigParser:
         Arguments:
           config_attr: A dictionary including the name, the type,
                        and the default value of the target config.
-          defconfig_lines: lines from the original defconfig file.
+          dotconfig_lines: lines from the .config file.
           autoconf_lines: lines from the include/autoconf.mk file.
 
         Returns:
@@ -484,42 +487,40 @@ class KconfigParser:
         config = config_attr['config']
         not_set = '# %s is not set' % config
 
-        if config_attr['type'] in ('bool', 'tristate') and \
-           config_attr['default'] == 'n':
-            default = not_set
-        else:
-            default = config + '=' + config_attr['default']
-
-        for line in defconfig_lines:
+        for line in dotconfig_lines:
             line = line.rstrip()
             if line.startswith(config + '=') or line == not_set:
-                return (ACTION_ALREADY_EXIST, line)
-
-        if config_attr['type'] in ('bool', 'tristate'):
-            value = not_set
+                old_val = line
+                break
         else:
-            value = '(undefined)'
+            return (ACTION_NO_ENTRY, config)
 
         for line in autoconf_lines:
             line = line.rstrip()
             if line.startswith(config + '='):
-                value = line
+                new_val = line
                 break
-
-        if value == default:
-            action = ACTION_DEFAULT_VALUE
-        elif value == '(undefined)':
-            action = ACTION_UNDEFINED
         else:
-            action = ACTION_MOVE
+            new_val = not_set
 
-        return (action, value)
+        if old_val == new_val:
+            return (ACTION_NO_CHANGE, new_val)
+
+        # If this CONFIG is neither bool nor trisate
+        if old_val[-2:] != '=y' and old_val[-2:] != '=m' and old_val != not_set:
+            # tools/scripts/define2mk.sed changes '1' to 'y'.
+            # This is a problem if the CONFIG is int type.
+            # Check the type in Kconfig and handle it correctly.
+            if new_val[-2:] == '=y':
+                new_val = new_val[:-1] + '1'
+
+        return (ACTION_MOVE, new_val)
 
     def update_dotconfig(self, defconfig):
         """Parse files for the config options and update the .config.
 
-        This function parses the given defconfig, the generated .config
-        and include/autoconf.mk searching the target options.
+        This function parses the generated .config and include/autoconf.mk
+        searching the target options.
         Move the config option(s) to the .config as needed.
         Also, display the log to show what happened to the .config.
 
@@ -527,19 +528,18 @@ class KconfigParser:
           defconfig: defconfig name.
         """
 
-        defconfig_path = os.path.join('configs', defconfig)
         dotconfig_path = os.path.join(self.build_dir, '.config')
         autoconf_path = os.path.join(self.build_dir, 'include', 'autoconf.mk')
         results = []
 
-        with open(defconfig_path) as f:
-            defconfig_lines = f.readlines()
+        with open(dotconfig_path) as f:
+            dotconfig_lines = f.readlines()
 
         with open(autoconf_path) as f:
             autoconf_lines = f.readlines()
 
         for config_attr in self.config_attrs:
-            result = self.parse_one_config(config_attr, defconfig_lines,
+            result = self.parse_one_config(config_attr, dotconfig_lines,
                                            autoconf_lines)
             results.append(result)
 
@@ -549,15 +549,13 @@ class KconfigParser:
             if action == ACTION_MOVE:
                 actlog = "Move '%s'" % value
                 log_color = COLOR_LIGHT_GREEN
-            elif action == ACTION_DEFAULT_VALUE:
-                actlog = "Default value '%s'.  Do nothing." % value
+            elif action == ACTION_NO_ENTRY:
+                actlog = "%s is not defined in Kconfig.  Do nothing." % value
                 log_color = COLOR_LIGHT_BLUE
-            elif action == ACTION_ALREADY_EXIST:
-                actlog = "'%s' already defined in Kconfig.  Do nothing." % value
+            elif action == ACTION_NO_CHANGE:
+                actlog = "'%s' is the same as the define in Kconfig.  Do nothing." \
+                         % value
                 log_color = COLOR_LIGHT_PURPLE
-            elif action == ACTION_UNDEFINED:
-                actlog = "Undefined.  Do nothing."
-                log_color = COLOR_DARK_GRAY
             else:
                 sys.exit("Internal Error. This should not happen.")
 
