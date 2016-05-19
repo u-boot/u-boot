@@ -388,6 +388,29 @@ def cleanup_headers(config_attrs, dry_run):
                                        patterns, dry_run)
 
 ### classes ###
+class Progress:
+
+    """Progress Indicator"""
+
+    def __init__(self, total):
+        """Create a new progress indicator.
+
+        Arguments:
+          total: A number of defconfig files to process.
+        """
+        self.current = 0
+        self.total = total
+
+    def inc(self):
+        """Increment the number of processed defconfig files."""
+
+        self.current += 1
+
+    def show(self):
+        """Display the progress."""
+        print ' %d defconfigs out of %d\r' % (self.current, self.total),
+        sys.stdout.flush()
+
 class KconfigParser:
 
     """A parser of .config and include/autoconf.mk."""
@@ -395,17 +418,19 @@ class KconfigParser:
     re_arch = re.compile(r'CONFIG_SYS_ARCH="(.*)"')
     re_cpu = re.compile(r'CONFIG_SYS_CPU="(.*)"')
 
-    def __init__(self, config_attrs, options, build_dir):
+    def __init__(self, config_attrs, options, progress, build_dir):
         """Create a new parser.
 
         Arguments:
           config_attrs: A list of dictionaris, each of them includes the name,
                         the type, and the default value of the target config.
           options: option flags.
+          progress: A progress indicator
           build_dir: Build directory.
         """
         self.config_attrs = config_attrs
         self.options = options
+        self.progress = progress
         self.build_dir = build_dir
 
     def get_cross_compile(self):
@@ -541,6 +566,7 @@ class KconfigParser:
         # Some threads are running in parallel.
         # Print log in one shot to not mix up logs from different threads.
         print log,
+        self.progress.show()
 
         with open(dotconfig_path, 'a') as f:
             for (action, value) in results:
@@ -559,21 +585,24 @@ class Slot:
     for faster processing.
     """
 
-    def __init__(self, config_attrs, options, devnull, make_cmd):
+    def __init__(self, config_attrs, options, progress, devnull, make_cmd):
         """Create a new process slot.
 
         Arguments:
           config_attrs: A list of dictionaris, each of them includes the name,
                         the type, and the default value of the target config.
           options: option flags.
+          progress: A progress indicator.
           devnull: A file object of '/dev/null'.
           make_cmd: command name of GNU Make.
         """
         self.options = options
+        self.progress = progress
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
-        self.parser = KconfigParser(config_attrs, options, self.build_dir)
+        self.parser = KconfigParser(config_attrs, options, progress,
+                                    self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = []
 
@@ -592,7 +621,7 @@ class Slot:
                 pass
         shutil.rmtree(self.build_dir)
 
-    def add(self, defconfig, num, total):
+    def add(self, defconfig):
         """Assign a new subprocess for defconfig and add it to the slot.
 
         If the slot is vacant, create a new subprocess for processing the
@@ -613,8 +642,6 @@ class Slot:
                                    stderr=subprocess.PIPE)
         self.defconfig = defconfig
         self.state = STATE_DEFCONFIG
-        self.num = num
-        self.total = total
         return True
 
     def poll(self):
@@ -643,6 +670,8 @@ class Slot:
                 print >> sys.stderr, color_text(self.options.color,
                                                 COLOR_LIGHT_CYAN,
                                                 self.ps.stderr.read())
+            self.progress.inc()
+            self.progress.show()
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
             # If --exit-on-error flag is not set, skip this board and continue.
@@ -653,9 +682,6 @@ class Slot:
 
         if self.state == STATE_AUTOCONF:
             self.parser.update_dotconfig(self.defconfig)
-
-            print ' %d defconfigs out of %d\r' % (self.num + 1, self.total),
-            sys.stdout.flush()
 
             """Save off the defconfig in a consistent way"""
             cmd = list(self.make_cmd)
@@ -669,6 +695,7 @@ class Slot:
             if not self.options.dry_run:
                 shutil.move(os.path.join(self.build_dir, 'defconfig'),
                             os.path.join('configs', self.defconfig))
+            self.progress.inc()
             self.state = STATE_IDLE
             return True
 
@@ -677,6 +704,8 @@ class Slot:
             print >> sys.stderr, log_msg(self.options.color, COLOR_YELLOW,
                                          self.defconfig,
                                          "Compiler is missing.  Do nothing."),
+            self.progress.inc()
+            self.progress.show()
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
             # If --exit-on-error flag is not set, skip this board and continue.
@@ -704,22 +733,24 @@ class Slots:
 
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, config_attrs, options):
+    def __init__(self, config_attrs, options, progress):
         """Create a new slots controller.
 
         Arguments:
           config_attrs: A list of dictionaris containing the name, the type,
                         and the default value of the target CONFIG.
           options: option flags.
+          progress: A progress indicator.
         """
         self.options = options
         self.slots = []
         devnull = get_devnull()
         make_cmd = get_make_cmd()
         for i in range(options.jobs):
-            self.slots.append(Slot(config_attrs, options, devnull, make_cmd))
+            self.slots.append(Slot(config_attrs, options, progress, devnull,
+                                   make_cmd))
 
-    def add(self, defconfig, num, total):
+    def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
 
         Arguments:
@@ -729,7 +760,7 @@ class Slots:
           Return True on success or False on failure
         """
         for slot in self.slots:
-            if slot.add(defconfig, num, total):
+            if slot.add(defconfig):
                 return True
         return False
 
@@ -808,13 +839,14 @@ def move_config(config_attrs, options):
             for filename in fnmatch.filter(filenames, '*_defconfig'):
                 defconfigs.append(os.path.join(dirpath, filename))
 
-    slots = Slots(config_attrs, options)
+    progress = Progress(len(defconfigs))
+    slots = Slots(config_attrs, options, progress)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
     #  Sleep if there is no available slot.
-    for i, defconfig in enumerate(defconfigs):
-        while not slots.add(defconfig, i, len(defconfigs)):
+    for defconfig in defconfigs:
+        while not slots.add(defconfig):
             while not slots.available():
                 # No available slot: sleep for a while
                 time.sleep(SLEEP_TIME)
@@ -823,6 +855,7 @@ def move_config(config_attrs, options):
     while not slots.empty():
         time.sleep(SLEEP_TIME)
 
+    progress.show()
     print ''
     slots.show_failed_boards()
 
