@@ -131,6 +131,11 @@ Available options
    Exit immediately if Make exits with a non-zero status while processing
    a defconfig file.
 
+ -s, --force-sync
+   Do "make savedefconfig" forcibly for all the defconfig files.
+   If not specified, "make savedefconfig" only occurs for cases
+   where at least one CONFIG was moved.
+
  -H, --headers-only
    Only cleanup the headers; skip the defconfig processing
 
@@ -672,11 +677,15 @@ class Slot:
             (updated, log) = self.parser.update_dotconfig()
             self.log += log
 
-            if not updated:
+            if not self.options.force_sync and not updated:
                 self.finish(True)
                 return True
-            self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
-                                   "Syncing by savedefconfig...\n")
+            if updated:
+                self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+                                       "Syncing by savedefconfig...\n")
+            else:
+                self.log += "Syncing by savedefconfig (forced by option)...\n"
+
             cmd = list(self.make_cmd)
             cmd.append('savedefconfig')
             self.ps = subprocess.Popen(cmd, stdout=self.devnull,
@@ -887,6 +896,8 @@ def main():
     parser.add_option('-e', '--exit-on-error', action='store_true',
                       default=False,
                       help='exit immediately on any error')
+    parser.add_option('-s', '--force-sync', action='store_true', default=False,
+                      help='force sync by savedefconfig')
     parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
                       action='store_true', default=False,
                       help='only cleanup the headers')
