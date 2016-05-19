@@ -511,11 +511,10 @@ class KconfigParser:
         # Print log in one shot to not mix up logs from different threads.
         print log,
 
-        if not self.options.dry_run:
-            with open(dotconfig_path, 'a') as f:
-                for (action, value) in results:
-                    if action == ACTION_MOVE:
-                        f.write(value + '\n')
+        with open(dotconfig_path, 'a') as f:
+            for (action, value) in results:
+                if action == ACTION_MOVE:
+                    f.write(value + '\n')
 
         os.remove(os.path.join(self.build_dir, 'include', 'config', 'auto.conf'))
         os.remove(autoconf_path)
@@ -647,9 +646,9 @@ class Slot:
             return False
 
         if self.state == STATE_SAVEDEFCONFIG:
-            defconfig_path = os.path.join(self.build_dir, 'defconfig')
-            shutil.move(defconfig_path,
-                        os.path.join('configs', self.defconfig))
+            if not self.options.dry_run:
+                shutil.move(os.path.join(self.build_dir, 'defconfig'),
+                            os.path.join('configs', self.defconfig))
             self.state = STATE_IDLE
             return True
 
