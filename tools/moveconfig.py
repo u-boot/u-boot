@@ -82,7 +82,12 @@ It looks like one of the followings:
    This config option was not found in the config header.
    Nothing to do.
 
- - Failed to process.  Skip.
+ - Compiler is missing.  Do nothing.
+   The compiler specified for this architecture was not found
+   in your PATH environment.
+   (If -e option is passed, the tool exits immediately.)
+
+ - Failed to process.
    An error occurred during processing this defconfig.  Skipped.
    (If -e option is passed, the tool exits immediately on error.)
 
@@ -272,7 +277,7 @@ def log_msg(color_enabled, color, defconfig, msg):
     return defconfig[:-len('_defconfig')].ljust(37) + ': ' + \
         color_text(color_enabled, color, msg) + '\n'
 
-def update_cross_compile():
+def update_cross_compile(color_enabled):
     """Update per-arch CROSS_COMPILE via environment variables
 
     The default CROSS_COMPILE values are available
@@ -286,6 +291,9 @@ def update_cross_compile():
 
     export CROSS_COMPILE_ARM=...
     export CROSS_COMPILE_POWERPC=...
+
+    Then, this function checks if specified compilers really exist in your
+    PATH environment.
     """
     archs = []
 
@@ -299,8 +307,20 @@ def update_cross_compile():
     for arch in archs:
         env = 'CROSS_COMPILE_' + arch.upper()
         cross_compile = os.environ.get(env)
-        if cross_compile:
-            CROSS_COMPILE[arch] = cross_compile
+        if not cross_compile:
+            cross_compile = CROSS_COMPILE.get(arch, '')
+
+        for path in os.environ["PATH"].split(os.pathsep):
+            gcc_path = os.path.join(path, cross_compile + 'gcc')
+            if os.path.isfile(gcc_path) and os.access(gcc_path, os.X_OK):
+                break
+        else:
+            print >> sys.stderr, color_text(color_enabled, COLOR_YELLOW,
+                 'warning: %sgcc: not found in PATH.  %s architecture boards will be skipped'
+                                            % (cross_compile, arch))
+            cross_compile = None
+
+        CROSS_COMPILE[arch] = cross_compile
 
 def cleanup_one_header(header_path, patterns, dry_run):
     """Clean regex-matched lines away from a file.
@@ -387,6 +407,10 @@ class KconfigParser:
 
         Returns:
           A string storing the compiler prefix for the architecture.
+          Return a NULL string for architectures that do not require
+          compiler prefix (Sandbox and native build is the case).
+          Return None if the specified compiler is missing in your PATH.
+          Caller should distinguish '' and None.
         """
         arch = ''
         cpu = ''
@@ -400,13 +424,14 @@ class KconfigParser:
             if m:
                 cpu = m.group(1)
 
-        assert arch, 'Error: arch is not defined in %s' % defconfig
+        if not arch:
+            return None
 
         # fix-up for aarch64
         if arch == 'arm' and cpu == 'armv8':
             arch = 'aarch64'
 
-        return CROSS_COMPILE.get(arch, '')
+        return CROSS_COMPILE.get(arch, None)
 
     def parse_one_config(self, config_attr, defconfig_lines, autoconf_lines):
         """Parse .config, defconfig, include/autoconf.mk for one config.
@@ -606,21 +631,12 @@ class Slot:
             return False
 
         if self.ps.poll() != 0:
-            errmsg = 'Failed to process.'
-            errout = self.ps.stderr.read()
-            if errout.find('gcc: command not found') != -1:
-                errmsg = 'Compiler not found ('
-                errmsg += color_text(self.options.color, COLOR_YELLOW,
-                                     self.cross_compile)
-                errmsg += color_text(self.options.color, COLOR_LIGHT_RED,
-                                     ')')
-            print >> sys.stderr, log_msg(self.options.color,
-                                         COLOR_LIGHT_RED,
-                                         self.defconfig,
-                                         errmsg),
+            print >> sys.stderr, log_msg(self.options.color, COLOR_LIGHT_RED,
+                                         self.defconfig, "Failed to process."),
             if self.options.verbose:
                 print >> sys.stderr, color_text(self.options.color,
-                                                COLOR_LIGHT_CYAN, errout)
+                                                COLOR_LIGHT_CYAN,
+                                                self.ps.stderr.read())
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
             # If --exit-on-error flag is not set, skip this board and continue.
@@ -651,15 +667,24 @@ class Slot:
             return True
 
         self.cross_compile = self.parser.get_cross_compile()
+        if self.cross_compile is None:
+            print >> sys.stderr, log_msg(self.options.color, COLOR_YELLOW,
+                                         self.defconfig,
+                                         "Compiler is missing.  Do nothing."),
+            if self.options.exit_on_error:
+                sys.exit("Exit on error.")
+            # If --exit-on-error flag is not set, skip this board and continue.
+            # Record the failed board.
+            self.failed_boards.append(self.defconfig)
+            self.state = STATE_IDLE
+            return True
+
         cmd = list(self.make_cmd)
         if self.cross_compile:
             cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append('include/config/auto.conf')
-        """This will be screen-scraped, so be sure the expected text will be
-        returned consistently on every machine by setting LANG=C"""
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   env=dict(os.environ, LANG='C'),
                                    stderr=subprocess.PIPE)
         self.state = STATE_AUTOCONF
         return False
@@ -907,7 +932,7 @@ def main():
 
     check_top_directory()
 
-    update_cross_compile()
+    update_cross_compile(options.color)
 
     if not options.cleanup_headers_only:
         move_config(config_attrs, options)
