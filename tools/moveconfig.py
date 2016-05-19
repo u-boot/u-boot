@@ -391,18 +391,16 @@ class KconfigParser:
     re_arch = re.compile(r'CONFIG_SYS_ARCH="(.*)"')
     re_cpu = re.compile(r'CONFIG_SYS_CPU="(.*)"')
 
-    def __init__(self, configs, options, progress, build_dir):
+    def __init__(self, configs, options, build_dir):
         """Create a new parser.
 
         Arguments:
           configs: A list of CONFIGs to move.
           options: option flags.
-          progress: A progress indicator
           build_dir: Build directory.
         """
         self.configs = configs
         self.options = options
-        self.progress = progress
         self.dotconfig = os.path.join(build_dir, '.config')
         self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
         self.config_autoconf = os.path.join(build_dir, 'include', 'config',
@@ -491,10 +489,12 @@ class KconfigParser:
         This function parses the generated .config and include/autoconf.mk
         searching the target options.
         Move the config option(s) to the .config as needed.
-        Also, display the log to show what happened to the .config.
 
         Arguments:
           defconfig: defconfig name.
+
+        Returns:
+          Return log string
         """
 
         results = []
@@ -528,11 +528,6 @@ class KconfigParser:
 
             log += log_msg(self.options.color, log_color, defconfig, actlog)
 
-        # Some threads are running in parallel.
-        # Print log in one shot to not mix up logs from different threads.
-        print log,
-        self.progress.show()
-
         with open(self.dotconfig, 'a') as f:
             for (action, value) in results:
                 if action == ACTION_MOVE:
@@ -540,6 +535,8 @@ class KconfigParser:
 
         os.remove(self.config_autoconf)
         os.remove(self.autoconf)
+
+        return log
 
 class Slot:
 
@@ -565,7 +562,7 @@ class Slot:
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
-        self.parser = KconfigParser(configs, options, progress, self.build_dir)
+        self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = []
 
@@ -644,7 +641,7 @@ class Slot:
             return True
 
         if self.state == STATE_AUTOCONF:
-            self.parser.update_dotconfig(self.defconfig)
+            self.log = self.parser.update_dotconfig(self.defconfig)
 
             """Save off the defconfig in a consistent way"""
             cmd = list(self.make_cmd)
@@ -658,7 +655,11 @@ class Slot:
             if not self.options.dry_run:
                 shutil.move(os.path.join(self.build_dir, 'defconfig'),
                             os.path.join('configs', self.defconfig))
+            # Some threads are running in parallel.
+            # Print log in one shot to not mix up logs from different threads.
+            print self.log,
             self.progress.inc()
+            self.progress.show()
             self.state = STATE_IDLE
             return True
 
@@ -812,7 +813,6 @@ def move_config(configs, options):
     while not slots.empty():
         time.sleep(SLEEP_TIME)
 
-    progress.show()
     print ''
     slots.show_failed_boards()
 
