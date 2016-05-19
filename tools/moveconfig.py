@@ -360,12 +360,11 @@ def cleanup_one_header(header_path, patterns, dry_run):
             if not i in matched:
                 f.write(line)
 
-def cleanup_headers(config_attrs, dry_run):
+def cleanup_headers(configs, dry_run):
     """Delete config defines from board headers.
 
     Arguments:
-      config_attrs: A list of dictionaris, each of them includes the name,
-                    the type, and the default value of the target config.
+      configs: A list of CONFIGs to remove.
       dry_run: make no changes, but still display log.
     """
     while True:
@@ -378,8 +377,7 @@ def cleanup_headers(config_attrs, dry_run):
         return
 
     patterns = []
-    for config_attr in config_attrs:
-        config = config_attr['config']
+    for config in configs:
         patterns.append(re.compile(r'#\s*define\s+%s\W' % config))
         patterns.append(re.compile(r'#\s*undef\s+%s\W' % config))
 
@@ -421,17 +419,16 @@ class KconfigParser:
     re_arch = re.compile(r'CONFIG_SYS_ARCH="(.*)"')
     re_cpu = re.compile(r'CONFIG_SYS_CPU="(.*)"')
 
-    def __init__(self, config_attrs, options, progress, build_dir):
+    def __init__(self, configs, options, progress, build_dir):
         """Create a new parser.
 
         Arguments:
-          config_attrs: A list of dictionaris, each of them includes the name,
-                        the type, and the default value of the target config.
+          configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator
           build_dir: Build directory.
         """
-        self.config_attrs = config_attrs
+        self.configs = configs
         self.options = options
         self.progress = progress
         self.build_dir = build_dir
@@ -467,7 +464,7 @@ class KconfigParser:
 
         return CROSS_COMPILE.get(arch, None)
 
-    def parse_one_config(self, config_attr, dotconfig_lines, autoconf_lines):
+    def parse_one_config(self, config, dotconfig_lines, autoconf_lines):
         """Parse .config, defconfig, include/autoconf.mk for one config.
 
         This function looks for the config options in the lines from
@@ -475,8 +472,7 @@ class KconfigParser:
         which action should be taken for this defconfig.
 
         Arguments:
-          config_attr: A dictionary including the name, the type,
-                       and the default value of the target config.
+          config: CONFIG name to parse.
           dotconfig_lines: lines from the .config file.
           autoconf_lines: lines from the include/autoconf.mk file.
 
@@ -484,7 +480,6 @@ class KconfigParser:
           A tupple of the action for this defconfig and the line
           matched for the config.
         """
-        config = config_attr['config']
         not_set = '# %s is not set' % config
 
         for line in dotconfig_lines:
@@ -538,8 +533,8 @@ class KconfigParser:
         with open(autoconf_path) as f:
             autoconf_lines = f.readlines()
 
-        for config_attr in self.config_attrs:
-            result = self.parse_one_config(config_attr, dotconfig_lines,
+        for config in self.configs:
+            result = self.parse_one_config(config, dotconfig_lines,
                                            autoconf_lines)
             results.append(result)
 
@@ -583,12 +578,11 @@ class Slot:
     for faster processing.
     """
 
-    def __init__(self, config_attrs, options, progress, devnull, make_cmd):
+    def __init__(self, configs, options, progress, devnull, make_cmd):
         """Create a new process slot.
 
         Arguments:
-          config_attrs: A list of dictionaris, each of them includes the name,
-                        the type, and the default value of the target config.
+          configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator.
           devnull: A file object of '/dev/null'.
@@ -599,8 +593,7 @@ class Slot:
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
-        self.parser = KconfigParser(config_attrs, options, progress,
-                                    self.build_dir)
+        self.parser = KconfigParser(configs, options, progress, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = []
 
@@ -731,12 +724,11 @@ class Slots:
 
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, config_attrs, options, progress):
+    def __init__(self, configs, options, progress):
         """Create a new slots controller.
 
         Arguments:
-          config_attrs: A list of dictionaris containing the name, the type,
-                        and the default value of the target CONFIG.
+          configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator.
         """
@@ -745,7 +737,7 @@ class Slots:
         devnull = get_devnull()
         make_cmd = get_make_cmd()
         for i in range(options.jobs):
-            self.slots.append(Slot(config_attrs, options, progress, devnull,
+            self.slots.append(Slot(configs, options, progress, devnull,
                                    make_cmd))
 
     def add(self, defconfig):
@@ -803,23 +795,18 @@ class Slots:
                 for board in failed_boards:
                     f.write(board + '\n')
 
-def move_config(config_attrs, options):
+def move_config(configs, options):
     """Move config options to defconfig files.
 
     Arguments:
-      config_attrs: A list of dictionaris, each of them includes the name,
-                    the type, and the default value of the target config.
+      configs: A list of CONFIGs to move.
       options: option flags
     """
-    if len(config_attrs) == 0:
+    if len(configs) == 0:
         print 'Nothing to do. exit.'
         sys.exit(0)
 
-    print 'Move the following CONFIG options (jobs: %d)' % options.jobs
-    for config_attr in config_attrs:
-        print '  %s (type: %s, default: %s)' % (config_attr['config'],
-                                                config_attr['type'],
-                                                config_attr['default'])
+    print 'Move %s (jobs: %d)' % (', '.join(configs), options.jobs)
 
     if options.defconfigs:
         defconfigs = [line.strip() for line in open(options.defconfigs)]
@@ -838,7 +825,7 @@ def move_config(config_attrs, options):
                 defconfigs.append(os.path.join(dirpath, filename))
 
     progress = Progress(len(defconfigs))
-    slots = Slots(config_attrs, options, progress)
+    slots = Slots(configs, options, progress)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
@@ -862,7 +849,7 @@ def bad_recipe(filename, linenum, msg):
     sys.exit("%s: line %d: error : " % (filename, linenum) + msg)
 
 def parse_recipe(filename):
-    """Parse the recipe file and retrieve the config attributes.
+    """Parse the recipe file and retrieve CONFIGs to move.
 
     This function parses the given recipe file and gets the name,
     the type, and the default value of the target config options.
@@ -870,10 +857,9 @@ def parse_recipe(filename):
     Arguments:
       filename: path to file to be parsed.
     Returns:
-      A list of dictionaris, each of them includes the name,
-      the type, and the default value of the target config.
+      A list of CONFIGs to move.
     """
-    config_attrs = []
+    configs = []
     linenum = 1
 
     for line in open(filename):
@@ -889,43 +875,10 @@ def parse_recipe(filename):
         if not config.startswith('CONFIG_'):
             config = 'CONFIG_' + config
 
-        # sanity check of default values
-        if type == 'bool':
-            if not default in ('y', 'n'):
-                bad_recipe(filename, linenum,
-                           "default for bool type must be either y or n")
-        elif type == 'tristate':
-            if not default in ('y', 'm', 'n'):
-                bad_recipe(filename, linenum,
-                           "default for tristate type must be y, m, or n")
-        elif type == 'string':
-            if default[0] != '"' or default[-1] != '"':
-                bad_recipe(filename, linenum,
-                           "default for string type must be surrounded by double-quotations")
-        elif type == 'int':
-            try:
-                int(default)
-            except:
-                bad_recipe(filename, linenum,
-                           "type is int, but default value is not decimal")
-        elif type == 'hex':
-            if len(default) < 2 or default[:2] != '0x':
-                bad_recipe(filename, linenum,
-                           "default for hex type must be prefixed with 0x")
-            try:
-                int(default, 16)
-            except:
-                bad_recipe(filename, linenum,
-                           "type is hex, but default value is not hexadecimal")
-        else:
-            bad_recipe(filename, linenum,
-                       "unsupported type '%s'. type must be one of bool, tristate, string, int, hex"
-                       % type)
-
-        config_attrs.append({'config': config, 'type': type, 'default': default})
+        configs.append(config)
         linenum += 1
 
-    return config_attrs
+    return configs
 
 def main():
     try:
@@ -965,7 +918,7 @@ def main():
         parser.print_usage()
         sys.exit(1)
 
-    config_attrs = parse_recipe(args[0])
+    configs = parse_recipe(args[0])
 
     check_top_directory()
 
@@ -974,9 +927,9 @@ def main():
     update_cross_compile(options.color)
 
     if not options.cleanup_headers_only:
-        move_config(config_attrs, options)
+        move_config(configs, options)
 
-    cleanup_headers(config_attrs, options.dry_run)
+    cleanup_headers(configs, options.dry_run)
 
 if __name__ == '__main__':
     main()
