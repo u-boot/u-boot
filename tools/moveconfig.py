@@ -905,9 +905,9 @@ def main():
 
     config_attrs = parse_recipe(args[0])
 
-    update_cross_compile()
-
     check_top_directory()
+
+    update_cross_compile()
 
     if not options.cleanup_headers_only:
         move_config(config_attrs, options)
