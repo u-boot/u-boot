@@ -407,6 +407,7 @@ class KconfigParser:
         self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
         self.config_autoconf = os.path.join(build_dir, 'include', 'config',
                                             'auto.conf')
+        self.defconfig = os.path.join(build_dir, 'defconfig')
 
     def get_cross_compile(self):
         """Parse .config file and return CROSS_COMPILE.
@@ -539,10 +540,34 @@ class KconfigParser:
                     f.write(value + '\n')
                     updated = True
 
+        self.results = results
         os.remove(self.config_autoconf)
         os.remove(self.autoconf)
 
         return (updated, log)
+
+    def check_defconfig(self):
+        """Check the defconfig after savedefconfig
+
+        Returns:
+          Return additional log if moved CONFIGs were removed again by
+          'make savedefconfig'.
+        """
+
+        log = ''
+
+        with open(self.defconfig) as f:
+            defconfig_lines = f.readlines()
+
+        for (action, value) in self.results:
+            if action != ACTION_MOVE:
+                continue
+            if not value + '\n' in defconfig_lines:
+                log += color_text(self.options.color, COLOR_YELLOW,
+                                  "'%s' was removed by savedefconfig.\n" %
+                                  value)
+
+        return log
 
 class Slot:
 
@@ -659,6 +684,7 @@ class Slot:
             return False
 
         if self.state == STATE_SAVEDEFCONFIG:
+            self.log += self.parser.check_defconfig()
             if not self.options.dry_run:
                 shutil.move(os.path.join(self.build_dir, 'defconfig'),
                             os.path.join('configs', self.defconfig))
