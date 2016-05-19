@@ -839,10 +839,13 @@ def move_config(configs, options):
       options: option flags
     """
     if len(configs) == 0:
-        print 'Nothing to do. exit.'
-        sys.exit(0)
-
-    print 'Move %s (jobs: %d)' % (', '.join(configs), options.jobs)
+        if options.force_sync:
+            print 'No CONFIG is specified. You are probably syncing defconfigs.',
+        else:
+            print 'Neither CONFIG nor --force-sync is specified. Nothing will happen.',
+    else:
+        print 'Move ' + ', '.join(configs),
+    print '(jobs: %d)\n' % options.jobs
 
     if options.defconfigs:
         defconfigs = [line.strip() for line in open(options.defconfigs)]
@@ -909,7 +912,7 @@ def main():
 
     (options, configs) = parser.parse_args()
 
-    if len(configs) == 0:
+    if len(configs) == 0 and not options.force_sync:
         parser.print_usage()
         sys.exit(1)
 
@@ -926,7 +929,8 @@ def main():
     if not options.cleanup_headers_only:
         move_config(configs, options)
 
-    cleanup_headers(configs, options.dry_run)
+    if configs:
+        cleanup_headers(configs, options.dry_run)
 
 if __name__ == '__main__':
     main()
