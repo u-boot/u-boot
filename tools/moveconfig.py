@@ -30,13 +30,17 @@ The tool walks through all the defconfig files and move the given CONFIGs.
 
 The log is also displayed on the terminal.
 
-Each line is printed in the format
-<defconfig_name>   :  <action>
+The log is printed for each defconfig as follows:
 
-<defconfig_name> is the name of the defconfig
-(without the suffix _defconfig).
+<defconfig_name>
+    <action1>
+    <action2>
+    <action3>
+    ...
 
-<action> shows what the tool did for that defconfig.
+<defconfig_name> is the name of the defconfig.
+
+<action*> shows what the tool did for that defconfig.
 It looks like one of the followings:
 
  - Move 'CONFIG_... '
@@ -249,14 +253,12 @@ def get_make_cmd():
 def color_text(color_enabled, color, string):
     """Return colored string."""
     if color_enabled:
-        return '\033[' + color + 'm' + string + '\033[0m'
+        # LF should not be surrounded by the escape sequence.
+        # Otherwise, additional whitespace or line-feed might be printed.
+        return '\n'.join([ '\033[' + color + 'm' + s + '\033[0m' if s else ''
+                           for s in string.split('\n') ])
     else:
         return string
-
-def log_msg(color_enabled, color, defconfig, msg):
-    """Return the formated line for the log."""
-    return defconfig[:-len('_defconfig')].ljust(37) + ': ' + \
-        color_text(color_enabled, color, msg) + '\n'
 
 def update_cross_compile(color_enabled):
     """Update per-arch CROSS_COMPILE via environment variables
@@ -483,7 +485,7 @@ class KconfigParser:
 
         return (ACTION_MOVE, new_val)
 
-    def update_dotconfig(self, defconfig):
+    def update_dotconfig(self):
         """Parse files for the config options and update the .config.
 
         This function parses the generated .config and include/autoconf.mk
@@ -526,7 +528,7 @@ class KconfigParser:
             else:
                 sys.exit("Internal Error. This should not happen.")
 
-            log += log_msg(self.options.color, log_color, defconfig, actlog)
+            log += color_text(self.options.color, log_color, actlog) + '\n'
 
         with open(self.dotconfig, 'a') as f:
             for (action, value) in results:
@@ -602,6 +604,7 @@ class Slot:
                                    stderr=subprocess.PIPE)
         self.defconfig = defconfig
         self.state = STATE_DEFCONFIG
+        self.log = ''
         return True
 
     def poll(self):
@@ -624,14 +627,12 @@ class Slot:
             return False
 
         if self.ps.poll() != 0:
-            print >> sys.stderr, log_msg(self.options.color, COLOR_LIGHT_RED,
-                                         self.defconfig, "Failed to process."),
+            self.log += color_text(self.options.color, COLOR_LIGHT_RED,
+                                   "Failed to process.\n")
             if self.options.verbose:
-                print >> sys.stderr, color_text(self.options.color,
-                                                COLOR_LIGHT_CYAN,
-                                                self.ps.stderr.read())
-            self.progress.inc()
-            self.progress.show()
+                self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
+                                       self.ps.stderr.read())
+            self.show_log(sys.stderr)
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
             # If --exit-on-error flag is not set, skip this board and continue.
@@ -641,7 +642,7 @@ class Slot:
             return True
 
         if self.state == STATE_AUTOCONF:
-            self.log = self.parser.update_dotconfig(self.defconfig)
+            self.log += self.parser.update_dotconfig()
 
             """Save off the defconfig in a consistent way"""
             cmd = list(self.make_cmd)
@@ -655,21 +656,15 @@ class Slot:
             if not self.options.dry_run:
                 shutil.move(os.path.join(self.build_dir, 'defconfig'),
                             os.path.join('configs', self.defconfig))
-            # Some threads are running in parallel.
-            # Print log in one shot to not mix up logs from different threads.
-            print self.log,
-            self.progress.inc()
-            self.progress.show()
+            self.show_log()
             self.state = STATE_IDLE
             return True
 
         self.cross_compile = self.parser.get_cross_compile()
         if self.cross_compile is None:
-            print >> sys.stderr, log_msg(self.options.color, COLOR_YELLOW,
-                                         self.defconfig,
-                                         "Compiler is missing.  Do nothing."),
-            self.progress.inc()
-            self.progress.show()
+            self.log += color_text(self.options.color, COLOR_YELLOW,
+                                   "Compiler is missing.  Do nothing.\n")
+            self.show_log(sys.stderr)
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
             # If --exit-on-error flag is not set, skip this board and continue.
@@ -687,6 +682,22 @@ class Slot:
                                    stderr=subprocess.PIPE)
         self.state = STATE_AUTOCONF
         return False
+
+    def show_log(self, file=sys.stdout):
+        """Display log along with progress.
+
+        Arguments:
+          file: A file object to which the log string is sent.
+        """
+        # output at least 30 characters to hide the "* defconfigs out of *".
+        log = self.defconfig.ljust(30) + '\n'
+
+        log += '\n'.join([ '    ' + s for s in self.log.split('\n') ])
+        # Some threads are running in parallel.
+        # Print log atomically to not mix up logs from different threads.
+        print >> file, log
+        self.progress.inc()
+        self.progress.show()
 
     def get_failed_boards(self):
         """Returns a list of failed boards (defconfigs) in this slot.
