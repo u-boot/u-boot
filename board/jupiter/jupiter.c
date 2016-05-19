@@ -282,11 +282,11 @@ void ide_set_reset (int idereset)
 }
 #endif
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
 	return 0;
 }
-#endif
+#endif /* CONFIG_OF_BOARD_SETUP */

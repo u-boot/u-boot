@@ -284,7 +284,7 @@ void watchdog_reset (void)
 #endif /* CONFIG_WATCHDOG */
 
 /* ------------------------------------------------------------------------- */
-#if defined(CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 void ft_cpu_setup (void *blob, bd_t *bd)
 {
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
@@ -303,7 +303,7 @@ void ft_cpu_setup (void *blob, bd_t *bd)
 		"clock-frequency", bd->bi_intfreq, 1);
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
-#endif /* CONFIG_OF_LIBFDT */
+#endif /* CONFIG_OF_BOARD_SETUP */
 
 /*
  * Initializes on-chip ethernet controllers.

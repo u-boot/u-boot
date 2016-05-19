@@ -378,7 +378,7 @@ void ide_set_reset(int idereset)
 #endif /* CONFIG_IDE_RESET */
 #endif /* CONFIG_CMD_IDE */
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 static void ft_delete_node(void *fdt, const char *compat)
 {
 	int off = -1;
@@ -481,4 +481,4 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* CONFIG_OF_BOARD_SETUP */
