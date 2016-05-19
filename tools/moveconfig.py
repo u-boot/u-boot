@@ -252,6 +252,12 @@ def check_top_directory():
         if not os.path.exists(f):
             sys.exit('Please run at the top of source directory.')
 
+def check_clean_directory():
+    """Exit if the source tree is not clean."""
+    for f in ('.config', 'include/config'):
+        if os.path.exists(f):
+            sys.exit("source tree is not clean, please run 'make mrproper'")
+
 def get_make_cmd():
     """Get the command name of GNU Make.
 
@@ -931,6 +937,8 @@ def main():
     config_attrs = parse_recipe(args[0])
 
     check_top_directory()
+
+    check_clean_directory()
 
     update_cross_compile(options.color)
 
