@@ -459,13 +459,13 @@ class KconfigParser:
 
         return (action, value)
 
-    def update_defconfig(self, defconfig):
-        """Parse files for the config options and update the defconfig.
+    def update_dotconfig(self, defconfig):
+        """Parse files for the config options and update the .config.
 
         This function parses the given defconfig, the generated .config
         and include/autoconf.mk searching the target options.
-        Move the config option(s) to the defconfig or do nothing if unneeded.
-        Also, display the log to show what happened to this defconfig.
+        Move the config option(s) to the .config as needed.
+        Also, display the log to show what happened to the .config.
 
         Arguments:
           defconfig: defconfig name.
@@ -632,7 +632,7 @@ class Slot:
                 return True
 
         if self.state == STATE_AUTOCONF:
-            self.parser.update_defconfig(self.defconfig)
+            self.parser.update_dotconfig(self.defconfig)
 
             print ' %d defconfigs out of %d\r' % (self.num + 1, self.total),
             sys.stdout.flush()
