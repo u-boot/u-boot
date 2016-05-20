@@ -717,6 +717,17 @@ static inline u8 is_dra72x(void)
 #define DRA722_ES2_0	0x07220200
 
 /*
+ * silicon device type
+ * Moving to common from cpu.h, since it is shared by various omap devices
+ */
+#define DEVICE_MASK         (BIT(8) | BIT(9) | BIT(10))
+#define TST_DEVICE          0x0
+#define EMU_DEVICE          0x1
+#define HS_DEVICE           0x2
+#define GP_DEVICE           0x3
+
+
+/*
  * SRAM scratch space entries
  */
 #define OMAP_SRAM_SCRATCH_OMAP_REV	SRAM_SCRATCH_SPACE_ADDR
