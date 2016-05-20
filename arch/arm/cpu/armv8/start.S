@@ -216,7 +216,7 @@ WEAK(lowlevel_init)
 #endif
 #endif
 
-#ifndef CONFIG_ARMV8_MULTIENTRY
+#ifdef CONFIG_ARMV8_MULTIENTRY
 	branch_if_master x0, x1, 2f
 
 	/*
