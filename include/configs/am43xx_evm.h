@@ -289,6 +289,8 @@
 			"setenv fdtfile am43x-epos-evm.dtb; fi; " \
 		"if test $board_name = AM43__GP; then " \
 			"setenv fdtfile am437x-gp-evm.dtb; fi; " \
+		"if test $board_name = AM43XXHS; then " \
+			"setenv fdtfile am437x-gp-evm.dtb; fi; " \
 		"if test $board_name = AM43__SK; then " \
 			"setenv fdtfile am437x-sk-evm.dtb; fi; " \
 		"if test $board_name = AM43_IDK; then " \
