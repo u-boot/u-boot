@@ -37,17 +37,10 @@
 #define CONFIG_POWER_TPS62362
 
 /* SPL defines. */
-#ifdef CONFIG_SPL_USB_HOST_SUPPORT
-/*
- * For USB host boot, ROM uses DMA for copying MLO from USB storage
- * and ARM internal ram is not accessible for DMA, so SPL text base
- * should be in OCMC ram
- */
-#define CONFIG_SPL_TEXT_BASE		0x40300350
-#else
-#define CONFIG_SPL_TEXT_BASE		0x402F4000
-#endif
-#define CONFIG_SPL_MAX_SIZE		(220 << 10)	/* 220KB */
+#define CONFIG_SPL_TEXT_BASE		CONFIG_ISW_ENTRY_ADDR
+#define CONFIG_SPL_MAX_SIZE		(NON_SECURE_SRAM_END - \
+					CONFIG_PUB_ROM_DATA_SIZE - \
+					CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
 #define CONFIG_SPL_POWER_SUPPORT
@@ -190,7 +183,9 @@
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SYS_TEXT_BASE           0x30000000
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE		CONFIG_ISW_ENTRY_ADDR
+#endif
 #undef CONFIG_ENV_IS_IN_FAT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
