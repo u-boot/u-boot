@@ -17,6 +17,10 @@
 
 #include <efi.h>
 
+#ifdef CONFIG_EFI_LOADER
+#include <asm/setjmp.h>
+#endif
+
 /* Types and defines for EFI CreateEvent */
 enum efi_event_type {
 	EFI_TIMER_STOP = 0,
@@ -239,6 +243,12 @@ struct efi_loaded_image {
 	unsigned int image_code_type;
 	unsigned int image_data_type;
 	unsigned long unload;
+
+	/* Below are efi loader private fields */
+#ifdef CONFIG_EFI_LOADER
+	efi_status_t exit_status;
+	struct jmp_buf_data exit_jmp;
+#endif
 };
 
 #define DEVICE_PATH_GUID \

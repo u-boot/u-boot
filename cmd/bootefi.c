@@ -209,6 +209,12 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 #ifdef DEBUG_EFI
 	printf("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 #endif
+
+	if (setjmp(&loaded_image_info.exit_jmp)) {
+		efi_status_t status = loaded_image_info.exit_status;
+		return status == EFI_SUCCESS ? 0 : -EINVAL;
+	}
+
 	return entry(&loaded_image_info, &systab);
 }
 
