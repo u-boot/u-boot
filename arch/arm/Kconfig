@@ -381,12 +381,6 @@ config TARGET_AM335X_SL50
 	select DM
 	select DM_SERIAL
 
-config TARGET_AM43XX_EVM
-	bool "Support am43xx_evm"
-	select CPU_V7
-	select SUPPORT_SPL
-	select TI_I2C_BOARD_DETECT
-
 config TARGET_BAV335X
 	bool "Support bav335x"
 	select CPU_V7
@@ -513,6 +507,17 @@ config OMAP54XX
 	bool "OMAP54XX SoC"
 	select CPU_V7
 	select SUPPORT_SPL
+
+config AM43XX
+	bool "AM43XX SoC"
+	select CPU_V7
+	select SUPPORT_SPL
+	help
+	  Support for AM43xx SOC from Texas Instruments.
+	  The AM43xx high performance SOC features a Cortex-A9
+	  ARM core, a quad core PRU-ICSS for industrial Ethernet
+	  protocols, dual camera support, optional 3D graphics
+	  and an optional customer programmable secure boot.
 
 config RMOBILE
 	bool "Renesas ARM SoCs"
@@ -794,6 +799,8 @@ source "arch/arm/cpu/armv7/omap3/Kconfig"
 source "arch/arm/cpu/armv7/omap4/Kconfig"
 
 source "arch/arm/cpu/armv7/omap5/Kconfig"
+
+source "arch/arm/cpu/armv7/am33xx/Kconfig"
 
 source "arch/arm/mach-orion5x/Kconfig"
 
