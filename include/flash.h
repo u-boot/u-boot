@@ -400,6 +400,9 @@ extern flash_info_t *flash_get_info(ulong base);
 #define FLASH_STM800DT	0x00D7		/* STM M29W800DT (1M = 64K x 16, top)	*/
 #define FLASH_STM800DB	0x005B		/* STM M29W800DB (1M = 64K x 16, bottom)*/
 
+#define FLASH_MCHP100T	0x0060		/* MCHP internal (1M = 64K x 16) */
+#define FLASH_MCHP100B	0x0061		/* MCHP internal (1M = 64K x 16) */
+
 #define FLASH_28F400_T	0x0062		/* MT  28F400B3 ID (  4M = 256K x 16 )	*/
 #define FLASH_28F400_B	0x0063		/* MT  28F400B3 ID (  4M = 256K x 16 )	*/
 
@@ -486,7 +489,7 @@ extern flash_info_t *flash_get_info(ulong base);
 #define FLASH_MAN_SHARP 0x00500000
 #define FLASH_MAN_ATM	0x00600000
 #define FLASH_MAN_CFI	0x01000000
-
+#define FLASH_MAN_MCHP	0x02000000	/* Microchip Technology		*/
 
 #define FLASH_TYPEMASK	0x0000FFFF	/* extract FLASH type	information	*/
 #define FLASH_VENDMASK	0xFFFF0000	/* extract FLASH vendor information	*/

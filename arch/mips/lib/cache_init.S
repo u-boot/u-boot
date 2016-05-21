@@ -64,7 +64,7 @@
 	/* detect associativity */
 	srl	\sz, $1, \off + MIPS_CONF1_DA_SHF - MIPS_CONF1_DA_SHF
 	andi	\sz, \sz, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHF)
-	addi	\sz, \sz, 1
+	addiu	\sz, \sz, 1
 
 	/* sz *= line_sz */
 	mul	\sz, \sz, \line_sz

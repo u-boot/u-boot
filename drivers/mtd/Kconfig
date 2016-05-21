@@ -28,6 +28,13 @@ config ALTERA_QSPI
 	  NOR flash to parallel flash interface. Please find details on the
 	  "Embedded Peripherals IP User Guide" of Altera.
 
+config FLASH_PIC32
+	bool "Microchip PIC32 Flash driver"
+	depends on MACH_PIC32 && MTD
+	help
+	  This enables access to Microchip PIC32 internal non-CFI flash
+	  chips through PIC32 Non-Volatile-Memory Controller.
+
 endmenu
 
 source "drivers/mtd/nand/Kconfig"

@@ -23,6 +23,15 @@ config ALTERA_SPI
 	  IP core. Please find details on the "Embedded Peripherals IP
 	  User Guide" of Altera.
 
+config ATH79_SPI
+	bool "Atheros SPI driver"
+	depends on ARCH_ATH79
+	help
+	  Enable the Atheros ar7xxx/ar9xxx SoC SPI driver, it was used
+	  to access SPI NOR flash and other SPI peripherals. This driver
+	  uses driver model and requires a device tree binding to operate.
+	  please refer to doc/device-tree-bindings/spi/spi-ath79.txt.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help
