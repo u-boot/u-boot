@@ -124,7 +124,6 @@ int lapic_remote_read(int apicid, int reg, unsigned long *pvalue)
 
 void lapic_setup(void)
 {
-#ifdef CONFIG_SMP
 	/* Only Pentium Pro and later have those MSR stuff */
 	debug("Setting up local apic: ");
 
@@ -154,11 +153,7 @@ void lapic_setup(void)
 		    LAPIC_DELIVERY_MODE_NMI));
 
 	debug("apic_id: 0x%02lx, ", lapicid());
-#else /* !CONFIG_SMP */
-	/* Only Pentium Pro and later have those MSR stuff */
-	debug("Disabling local apic: ");
-	disable_lapic();
-#endif /* CONFIG_SMP */
+
 	debug("done.\n");
 	post_code(POST_LAPIC);
 }
