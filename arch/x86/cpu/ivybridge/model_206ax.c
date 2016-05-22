@@ -14,7 +14,6 @@
 #include <malloc.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
-#include <asm/lapic.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
 #include <asm/mtrr.h>
@@ -418,7 +417,6 @@ static int model_206ax_init(struct udevice *dev)
 
 	/* Enable the local cpu apics */
 	enable_lapic_tpr();
-	lapic_setup();
 
 	/* Enable virtualization if enabled in CMOS */
 	enable_vmx();
