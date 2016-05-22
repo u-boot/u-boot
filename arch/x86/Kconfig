@@ -464,6 +464,22 @@ config GENERATE_SMBIOS_TABLE
 
 	  Check http://www.dmtf.org/standards/smbios for details.
 
+config SMBIOS_MANUFACTURER
+	string "SMBIOS Manufacturer"
+	depends on GENERATE_SMBIOS_TABLE
+	default SYS_VENDOR
+	help
+	  The board manufacturer to store in SMBIOS structures.
+	  Change this to override the default one (CONFIG_SYS_VENDOR).
+
+config SMBIOS_PRODUCT_NAME
+	string "SMBIOS Product Name"
+	depends on GENERATE_SMBIOS_TABLE
+	default SYS_BOARD
+	help
+	  The product name to store in SMBIOS structures.
+	  Change this to override the default one (CONFIG_SYS_BOARD).
+
 endmenu
 
 config MAX_PIRQ_LINKS
