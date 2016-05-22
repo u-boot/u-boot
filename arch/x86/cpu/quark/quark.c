@@ -7,6 +7,7 @@
 #include <common.h>
 #include <mmc.h>
 #include <asm/io.h>
+#include <asm/ioapic.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
@@ -337,6 +338,9 @@ int arch_misc_init(void)
 	 */
 	mrccache_save();
 #endif
+
+	/* Assign a unique I/O APIC ID */
+	io_apic_set_id(1);
 
 	return 0;
 }
