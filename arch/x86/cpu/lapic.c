@@ -65,23 +65,27 @@ void lapic_write(unsigned long reg, unsigned long v)
 
 void enable_lapic(void)
 {
-	msr_t msr;
+	if (!IS_ENABLED(CONFIG_INTEL_QUARK)) {
+		msr_t msr;
 
-	msr = msr_read(MSR_IA32_APICBASE);
-	msr.hi &= 0xffffff00;
-	msr.lo |= MSR_IA32_APICBASE_ENABLE;
-	msr.lo &= ~MSR_IA32_APICBASE_BASE;
-	msr.lo |= LAPIC_DEFAULT_BASE;
-	msr_write(MSR_IA32_APICBASE, msr);
+		msr = msr_read(MSR_IA32_APICBASE);
+		msr.hi &= 0xffffff00;
+		msr.lo |= MSR_IA32_APICBASE_ENABLE;
+		msr.lo &= ~MSR_IA32_APICBASE_BASE;
+		msr.lo |= LAPIC_DEFAULT_BASE;
+		msr_write(MSR_IA32_APICBASE, msr);
+	}
 }
 
 void disable_lapic(void)
 {
-	msr_t msr;
+	if (!IS_ENABLED(CONFIG_INTEL_QUARK)) {
+		msr_t msr;
 
-	msr = msr_read(MSR_IA32_APICBASE);
-	msr.lo &= ~MSR_IA32_APICBASE_ENABLE;
-	msr_write(MSR_IA32_APICBASE, msr);
+		msr = msr_read(MSR_IA32_APICBASE);
+		msr.lo &= ~MSR_IA32_APICBASE_ENABLE;
+		msr_write(MSR_IA32_APICBASE, msr);
+	}
 }
 
 unsigned long lapicid(void)
