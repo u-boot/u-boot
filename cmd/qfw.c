@@ -126,18 +126,31 @@ static int qemu_fwcfg_do_load(cmd_tbl_t *cmdtp, int flag,
 	env = getenv("loadaddr");
 	load_addr = env ?
 		(void *)simple_strtoul(env, NULL, 16) :
+#ifdef CONFIG_LOADADDR
 		(void *)CONFIG_LOADADDR;
+#else
+		NULL;
+#endif
 
 	env = getenv("ramdiskaddr");
 	initrd_addr = env ?
 		(void *)simple_strtoul(env, NULL, 16) :
+#ifdef CONFIG_RAMDISK_ADDR
 		(void *)CONFIG_RAMDISK_ADDR;
+#else
+		NULL;
+#endif
 
 	if (argc == 2) {
 		load_addr = (void *)simple_strtoul(argv[0], NULL, 16);
 		initrd_addr = (void *)simple_strtoul(argv[1], NULL, 16);
 	} else if (argc == 1) {
 		load_addr = (void *)simple_strtoul(argv[0], NULL, 16);
+	}
+
+	if (!load_addr || !initrd_addr) {
+		printf("missing load or initrd address\n");
+		return CMD_RET_FAILURE;
 	}
 
 	return qemu_fwcfg_setup_kernel(load_addr, initrd_addr);
