@@ -253,7 +253,7 @@ int prt_8260_rsr (void)
 		RSR_ESRS, "External Soft"}, {
 		RSR_EHRS, "External Hard"}
 	};
-	static int n = sizeof bits / sizeof bits[0];
+	static int n = ARRAY_SIZE(bits);
 	ulong rsr = gd->arch.reset_status;
 	int i;
 	char *sep;
