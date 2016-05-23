@@ -366,34 +366,34 @@ struct vcores_data omap5430_volts_es2 = {
 
 struct vcores_data dra752_volts = {
 	.mpu.value	= VDD_MPU_DRA752,
-	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU,
 	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.mpu.addr	= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic	= &tps659038,
 	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
 	.eve.value	= VDD_EVE_DRA752,
-	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE,
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.eve.addr	= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic	= &tps659038,
 	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
 
 	.gpu.value	= VDD_GPU_DRA752,
-	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.gpu.addr	= TPS659038_REG_ADDR_SMPS6,
 	.gpu.pmic	= &tps659038,
 	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
 
 	.core.value	= VDD_CORE_DRA752,
-	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE,
 	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.core.addr	= TPS659038_REG_ADDR_SMPS7,
 	.core.pmic	= &tps659038,
 
 	.iva.value	= VDD_IVA_DRA752,
-	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA,
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.iva.addr	= TPS659038_REG_ADDR_SMPS8,
 	.iva.pmic	= &tps659038,
@@ -402,14 +402,14 @@ struct vcores_data dra752_volts = {
 
 struct vcores_data dra722_volts = {
 	.mpu.value	= VDD_MPU_DRA72x,
-	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU,
 	.mpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.mpu.addr	= TPS65917_REG_ADDR_SMPS1,
 	.mpu.pmic	= &tps659038,
 	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
 	.core.value	= VDD_CORE_DRA72x,
-	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE,
 	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.core.addr	= TPS65917_REG_ADDR_SMPS2,
 	.core.pmic	= &tps659038,
@@ -419,21 +419,21 @@ struct vcores_data dra722_volts = {
 	 * designs and powered by TPS65917 SMPS3, as on the J6Eco EVM.
 	 */
 	.gpu.value	= VDD_GPU_DRA72x,
-	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU,
 	.gpu.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.gpu.addr	= TPS65917_REG_ADDR_SMPS3,
 	.gpu.pmic	= &tps659038,
 	.gpu.abb_tx_done_mask = OMAP_ABB_GPU_TXDONE_MASK,
 
 	.eve.value	= VDD_EVE_DRA72x,
-	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE,
 	.eve.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.eve.addr	= TPS65917_REG_ADDR_SMPS3,
 	.eve.pmic	= &tps659038,
 	.eve.abb_tx_done_mask = OMAP_ABB_EVE_TXDONE_MASK,
 
 	.iva.value	= VDD_IVA_DRA72x,
-	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA,
 	.iva.efuse.reg_bits = DRA752_EFUSE_REGBITS,
 	.iva.addr	= TPS65917_REG_ADDR_SMPS3,
 	.iva.pmic	= &tps659038,
