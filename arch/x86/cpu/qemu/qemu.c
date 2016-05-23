@@ -17,6 +17,7 @@ static bool i440fx;
 
 #ifdef CONFIG_QFW
 
+/* on x86, the qfw registers are all IO ports */
 #define FW_CONTROL_PORT	0x510
 #define FW_DATA_PORT		0x511
 #define FW_DMA_PORT_LOW	0x514
@@ -31,15 +32,21 @@ static void qemu_x86_fwcfg_read_entry_pio(uint16_t entry,
 	/*
 	 * writting FW_CFG_INVALID will cause read operation to resume at
 	 * last offset, otherwise read will start at offset 0
+	 *
+	 * Note: on platform where the control register is IO port, the
+	 * endianness is little endian.
 	 */
 	if (entry != FW_CFG_INVALID)
-		outw(entry, FW_CONTROL_PORT);
+		outw(cpu_to_le16(entry), FW_CONTROL_PORT);
+
+	/* the endianness of data register is string-preserving */
 	while (size--)
 		data[i++] = inb(FW_DATA_PORT);
 }
 
 static void qemu_x86_fwcfg_read_entry_dma(struct fw_cfg_dma_access *dma)
 {
+	/* the DMA address register is big endian */
 	outl(cpu_to_be32((uint32_t)dma), FW_DMA_PORT_HIGH);
 
 	while (be32_to_cpu(dma->control) & ~FW_CFG_DMA_ERROR)
