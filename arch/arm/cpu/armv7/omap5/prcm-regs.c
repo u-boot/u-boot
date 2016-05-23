@@ -820,6 +820,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_clkmode_dpll_gmac			= 0x4a0052a8,
 	.cm_coreaon_usb_phy1_core_clkctrl	= 0x4a008640,
 	.cm_coreaon_usb_phy2_core_clkctrl	= 0x4a008688,
+	.cm_coreaon_usb_phy3_core_clkctrl	= 0x4a008698,
 	.cm_coreaon_l3init_60m_gfclk_clkctrl	= 0x4a0086c0,
 
 	/* cm1.mpu */

@@ -614,9 +614,14 @@ void enable_usb_clocks(int index)
 		setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
 			     OPTFCLKEN_REFCLK960M);
 
-		/* Enable 32 KHz clock for dwc3 */
+		/* Enable 32 KHz clock for USB_PHY1 */
 		setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
 			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Enable 32 KHz clock for USB_PHY3 */
+		if (is_dra7xx())
+			setbits_le32((*prcm)->cm_coreaon_usb_phy3_core_clkctrl,
+				     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
 	} else if (index == 1) {
 		cm_l3init_usb_otg_ss_clkctrl =
 			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
@@ -664,9 +669,14 @@ void disable_usb_clocks(int index)
 		clrbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
 			     OPTFCLKEN_REFCLK960M);
 
-		/* Disable 32 KHz clock for dwc3 */
+		/* Disable 32 KHz clock for USB_PHY1 */
 		clrbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
 			     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+		/* Disable 32 KHz clock for USB_PHY3 */
+		if (is_dra7xx())
+			clrbits_le32((*prcm)->cm_coreaon_usb_phy3_core_clkctrl,
+				     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
 	} else if (index == 1) {
 		cm_l3init_usb_otg_ss_clkctrl =
 			(*prcm)->cm_l3init_usb_otg_ss2_clkctrl;
