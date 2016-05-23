@@ -152,7 +152,7 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 	int max_ecc_strength_supported;
 
 	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
-	if (is_cpu_type(MXC_CPU_MX6SX) || is_soc_type(MXC_SOC_MX7))
+	if (is_mx6sx() || is_mx7())
 		max_ecc_strength_supported = 62;
 	else
 		max_ecc_strength_supported = 40;
