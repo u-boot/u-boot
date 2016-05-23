@@ -167,4 +167,7 @@ struct fw_file *qemu_fwcfg_file_iter_init(struct fw_cfg_file_iter *iter);
 struct fw_file *qemu_fwcfg_file_iter_next(struct fw_cfg_file_iter *iter);
 bool qemu_fwcfg_file_iter_end(struct fw_cfg_file_iter *iter);
 
+bool qemu_fwcfg_present(void);
+bool qemu_fwcfg_dma_present(void);
+
 #endif

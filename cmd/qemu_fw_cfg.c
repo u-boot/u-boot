@@ -62,23 +62,14 @@ static void qemu_fwcfg_read_entry_dma(uint16_t entry,
 		__asm__ __volatile__ ("pause");
 }
 
-static bool qemu_fwcfg_present(void)
+bool qemu_fwcfg_present(void)
 {
-	uint32_t qemu;
-
-	qemu_fwcfg_read_entry_pio(FW_CFG_SIGNATURE, 4, &qemu);
-	return be32_to_cpu(qemu) == QEMU_FW_CFG_SIGNATURE;
+	return fwcfg_present;
 }
 
-static bool qemu_fwcfg_dma_present(void)
+bool qemu_fwcfg_dma_present(void)
 {
-	uint8_t dma_enabled;
-
-	qemu_fwcfg_read_entry_pio(FW_CFG_ID, 1, &dma_enabled);
-	if (dma_enabled & FW_CFG_DMA_ENABLED)
-		return true;
-
-	return false;
+	return fwcfg_dma_present;
 }
 
 void qemu_fwcfg_read_entry(uint16_t entry, uint32_t length, void *address)
@@ -257,9 +248,21 @@ static int qemu_fwcfg_list_firmware(void)
 
 void qemu_fwcfg_init(void)
 {
-	fwcfg_present = qemu_fwcfg_present();
-	if (fwcfg_present)
-		fwcfg_dma_present = qemu_fwcfg_dma_present();
+	uint32_t qemu;
+	uint32_t dma_enabled;
+
+	fwcfg_present = false;
+	fwcfg_dma_present = false;
+
+	qemu_fwcfg_read_entry_pio(FW_CFG_SIGNATURE, 4, &qemu);
+	if (be32_to_cpu(qemu) == QEMU_FW_CFG_SIGNATURE)
+		fwcfg_present = true;
+
+	if (fwcfg_present) {
+		qemu_fwcfg_read_entry_pio(FW_CFG_ID, 1, &dma_enabled);
+		if (dma_enabled & FW_CFG_DMA_ENABLED)
+			fwcfg_dma_present = true;
+	}
 }
 
 static int qemu_fwcfg_do_list(cmd_tbl_t *cmdtp, int flag,
@@ -323,7 +326,7 @@ static int do_qemu_fw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret;
 	cmd_tbl_t *fwcfg_cmd;
 
-	if (!fwcfg_present) {
+	if (!qemu_fwcfg_present()) {
 		printf("QEMU fw_cfg interface not found\n");
 		return CMD_RET_USAGE;
 	}
