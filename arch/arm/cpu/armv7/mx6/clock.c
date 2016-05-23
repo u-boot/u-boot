@@ -1228,7 +1228,7 @@ static void disable_ldb_di_clock_sources(void)
 	/* Make sure PFDs are disabled at boot. */
 	reg = readl(&mxc_ccm->analog_pfd_528);
 	/* Cannot disable pll2_pfd2_396M, as it is the MMDC clock in iMX6DL */
-	if (is_cpu_type(MXC_CPU_MX6DL))
+	if (is_cpu_type(MXC_CPU_MX6DL) || is_cpu_type(MXC_CPU_MX6SOLO))
 		reg |= 0x80008080;
 	else
 		reg |= 0x80808080;
@@ -1251,7 +1251,7 @@ static void enable_ldb_di_clock_sources(void)
 	int reg;
 
 	reg = readl(&mxc_ccm->analog_pfd_528);
-	if (is_cpu_type(MXC_CPU_MX6DL))
+	if (is_cpu_type(MXC_CPU_MX6DL) || is_cpu_type(MXC_CPU_MX6SOLO))
 		reg &= ~(0x80008080);
 	else
 		reg &= ~(0x80808080);
