@@ -217,18 +217,6 @@ struct fw_file *qemu_fwcfg_find_file(const char *name)
 	return NULL;
 }
 
-void qemu_fwcfg_free_files(void)
-{
-	struct fw_file *file;
-	struct list_head *list;
-
-	list_for_each(list, &fw_list) {
-		file = list_entry(list, struct fw_file, list);
-		if (file->addr)
-			free((void *)file->addr);
-	}
-}
-
 struct fw_file *qemu_fwcfg_file_iter_init(struct fw_cfg_file_iter *iter)
 {
 	iter->entry = fw_list.next;

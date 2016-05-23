@@ -235,8 +235,17 @@ u32 write_acpi_tables(u32 addr)
 	}
 
 out:
-	if (ret)
-		qemu_fwcfg_free_files();
+	if (ret) {
+		struct fw_cfg_file_iter iter;
+		for (file = qemu_fwcfg_file_iter_init(&iter);
+		     !qemu_fwcfg_file_iter_end(&iter);
+		     file = qemu_fwcfg_file_iter_next(&iter)) {
+			if (file->addr) {
+				free((void *)file->addr);
+				file->addr = 0;
+			}
+		}
+	}
 
 	free(table_loader);
 	return addr;
