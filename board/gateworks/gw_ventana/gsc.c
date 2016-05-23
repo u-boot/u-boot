@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <linux/ctype.h>
 
+#include "ventana_eeprom.h"
 #include "gsc.h"
 
 /*
@@ -79,7 +80,6 @@ static void read_hwmon(const char *name, uint reg, uint size)
 
 int gsc_info(int verbose)
 {
-	const char *model = getenv("model");
 	unsigned char buf[16];
 
 	i2c_set_bus_num(0);
@@ -112,7 +112,7 @@ int gsc_info(int verbose)
 	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
 	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3);
 	read_hwmon("VDD_IO2",  GSC_HWMON_VDD_IO2, 3);
-	switch (model[3]) {
+	switch (ventana_info.model[3]) {
 	case '1': /* GW51xx */
 		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
 		break;
