@@ -229,10 +229,27 @@ void qemu_fwcfg_free_files(void)
 	}
 }
 
+struct fw_file *qemu_fwcfg_file_iter_init(struct fw_cfg_file_iter *iter)
+{
+	iter->entry = fw_list.next;
+	return list_entry(iter->entry, struct fw_file, list);
+}
+
+struct fw_file *qemu_fwcfg_file_iter_next(struct fw_cfg_file_iter *iter)
+{
+	iter->entry = iter->entry->next;
+	return list_entry(iter->entry, struct fw_file, list);
+}
+
+bool qemu_fwcfg_file_iter_end(struct fw_cfg_file_iter *iter)
+{
+	return iter->entry == &fw_list;
+}
+
 static int qemu_fwcfg_list_firmware(void)
 {
 	int ret;
-	struct list_head *entry;
+	struct fw_cfg_file_iter iter;
 	struct fw_file *file;
 
 	/* make sure fw_list is loaded */
@@ -240,8 +257,10 @@ static int qemu_fwcfg_list_firmware(void)
 	if (ret)
 		return ret;
 
-	list_for_each(entry, &fw_list) {
-		file = list_entry(entry, struct fw_file, list);
+
+	for (file = qemu_fwcfg_file_iter_init(&iter);
+	     !qemu_fwcfg_file_iter_end(&iter);
+	     file = qemu_fwcfg_file_iter_next(&iter)) {
 		printf("%-56s\n", file->cfg.name);
 	}
 

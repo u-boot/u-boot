@@ -87,6 +87,10 @@ struct fw_file {
 	struct list_head list;  /* list node to link to fw_list */
 };
 
+struct fw_cfg_file_iter {
+	struct list_head *entry; /* structure to iterate file list */
+};
+
 struct fw_cfg_dma_access {
 	__be32 control;
 	__be32 length;
@@ -158,5 +162,10 @@ void qemu_fwcfg_free_files(void);
  * @return:   cpu number in system
  */
 int qemu_fwcfg_online_cpus(void);
+
+/* helper functions to iterate firmware file list */
+struct fw_file *qemu_fwcfg_file_iter_init(struct fw_cfg_file_iter *iter);
+struct fw_file *qemu_fwcfg_file_iter_next(struct fw_cfg_file_iter *iter);
+bool qemu_fwcfg_file_iter_end(struct fw_cfg_file_iter *iter);
 
 #endif
