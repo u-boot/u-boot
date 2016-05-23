@@ -298,10 +298,10 @@
 
 	microcode {
 		update@0 {
-#include "microcode/m0130673322.dtsi"
+#include "microcode/m0130673325.dtsi"
 		};
 		update@1 {
-#include "microcode/m0130679901.dtsi"
+#include "microcode/m0130679907.dtsi"
 		};
 	};
 
