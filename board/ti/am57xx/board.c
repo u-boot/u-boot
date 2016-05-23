@@ -216,34 +216,34 @@ void emif_get_ext_phy_ctrl_const_regs(u32 emif_nr, const u32 **regs, u32 *size)
 }
 
 struct vcores_data beagle_x15_volts = {
-	.mpu.value		= VDD_MPU_DRA752,
+	.mpu.value		= VDD_MPU_DRA7,
 	.mpu.efuse.reg		= STD_FUSE_OPP_VMIN_MPU,
 	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
 	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic		= &tps659038,
 	.mpu.abb_tx_done_mask = OMAP_ABB_MPU_TXDONE_MASK,
 
-	.eve.value		= VDD_EVE_DRA752,
+	.eve.value		= VDD_EVE_DRA7,
 	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE,
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic		= &tps659038,
 	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
 
-	.gpu.value		= VDD_GPU_DRA752,
+	.gpu.value		= VDD_GPU_DRA7,
 	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.gpu.addr		= TPS659038_REG_ADDR_SMPS45,
 	.gpu.pmic		= &tps659038,
 	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
 
-	.core.value		= VDD_CORE_DRA752,
+	.core.value		= VDD_CORE_DRA7,
 	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE,
 	.core.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.core.addr		= TPS659038_REG_ADDR_SMPS6,
 	.core.pmic		= &tps659038,
 
-	.iva.value		= VDD_IVA_DRA752,
+	.iva.value		= VDD_IVA_DRA7,
 	.iva.efuse.reg		= STD_FUSE_OPP_VMIN_IVA,
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
 	.iva.addr		= TPS659038_REG_ADDR_SMPS45,
