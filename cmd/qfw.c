@@ -7,7 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <errno.h>
-#include <qemu_fw_cfg.h>
+#include <qfw.h>
 
 /*
  * This function prepares kernel for zboot. It loads kernel data

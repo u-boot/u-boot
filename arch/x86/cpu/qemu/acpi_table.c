@@ -8,7 +8,7 @@
 #include <command.h>
 #include <errno.h>
 #include <malloc.h>
-#include <qemu_fw_cfg.h>
+#include <qfw.h>
 #include <asm/io.h>
 #include <asm/tables.h>
 #include <asm/e820.h>

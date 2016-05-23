@@ -142,6 +142,6 @@ config QFW
 	bool
 	help
 	  Hidden option to enable QEMU fw_cfg interface. This will be selected by
-	  either CONFIG_CMD_QEMU_FW_CFG or CONFIG_GENERATE_ACPI_TABLE.
+	  either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
 
 endmenu

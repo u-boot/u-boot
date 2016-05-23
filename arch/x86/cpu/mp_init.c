@@ -11,7 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
-#include <qemu_fw_cfg.h>
+#include <qfw.h>
 #include <asm/atomic.h>
 #include <asm/cpu.h>
 #include <asm/interrupt.h>

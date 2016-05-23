@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <pci.h>
-#include <qemu_fw_cfg.h>
+#include <qfw.h>
 #include <asm/irq.h>
 #include <asm/post.h>
 #include <asm/processor.h>
