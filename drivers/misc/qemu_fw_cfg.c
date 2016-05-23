@@ -14,6 +14,7 @@
 
 static bool fwcfg_present;
 static bool fwcfg_dma_present;
+static struct fw_cfg_arch_ops *fwcfg_arch_ops;
 
 static LIST_HEAD(fw_list);
 
@@ -21,17 +22,10 @@ static LIST_HEAD(fw_list);
 static void qemu_fwcfg_read_entry_pio(uint16_t entry,
 		uint32_t size, void *address)
 {
-	uint32_t i = 0;
-	uint8_t *data = address;
+	debug("qemu_fwcfg_read_entry_pio: entry 0x%x, size %u address %p\n",
+	      entry, size, address);
 
-	/*
-	 * writting FW_CFG_INVALID will cause read operation to resume at
-	 * last offset, otherwise read will start at offset 0
-	 */
-	if (entry != FW_CFG_INVALID)
-		outw(entry, FW_CONTROL_PORT);
-	while (size--)
-		data[i++] = inb(FW_DATA_PORT);
+	return fwcfg_arch_ops->arch_read_pio(entry, size, address);
 }
 
 /* Read configuration item using fw_cfg DMA interface */
@@ -53,13 +47,10 @@ static void qemu_fwcfg_read_entry_dma(uint16_t entry,
 
 	barrier();
 
-	debug("qemu_fwcfg_dma_read_entry: addr %p, length %u control 0x%x\n",
-	      address, size, be32_to_cpu(dma.control));
+	debug("qemu_fwcfg_read_entry_dma: entry 0x%x, size %u address %p, control 0x%x\n",
+	      entry, size, address, be32_to_cpu(dma.control));
 
-	outl(cpu_to_be32((uint32_t)&dma), FW_DMA_PORT_HIGH);
-
-	while (be32_to_cpu(dma.control) & ~FW_CFG_DMA_ERROR)
-		__asm__ __volatile__ ("pause");
+	fwcfg_arch_ops->arch_read_dma(&dma);
 }
 
 bool qemu_fwcfg_present(void)
@@ -164,13 +155,18 @@ bool qemu_fwcfg_file_iter_end(struct fw_cfg_file_iter *iter)
 	return iter->entry == &fw_list;
 }
 
-void qemu_fwcfg_init(void)
+void qemu_fwcfg_init(struct fw_cfg_arch_ops *ops)
 {
 	uint32_t qemu;
 	uint32_t dma_enabled;
 
 	fwcfg_present = false;
 	fwcfg_dma_present = false;
+	fwcfg_arch_ops = NULL;
+
+	if (!ops || !ops->arch_read_pio || !ops->arch_read_dma)
+		return;
+	fwcfg_arch_ops = ops;
 
 	qemu_fwcfg_read_entry_pio(FW_CFG_SIGNATURE, 4, &qemu);
 	if (be32_to_cpu(qemu) == QEMU_FW_CFG_SIGNATURE)

@@ -7,11 +7,6 @@
 #ifndef __FW_CFG__
 #define __FW_CFG__
 
-#define FW_CONTROL_PORT	0x510
-#define FW_DATA_PORT		0x511
-#define FW_DMA_PORT_LOW	0x514
-#define FW_DMA_PORT_HIGH	0x518
-
 #include <linux/list.h>
 
 enum qemu_fwcfg_items {
@@ -97,6 +92,12 @@ struct fw_cfg_dma_access {
 	__be64 address;
 };
 
+struct fw_cfg_arch_ops {
+	void (*arch_read_pio)(uint16_t selector, uint32_t size,
+			void *address);
+	void (*arch_read_dma)(struct fw_cfg_dma_access *dma);
+};
+
 struct bios_linker_entry {
 	__le32 command;
 	union {
@@ -148,8 +149,10 @@ struct bios_linker_entry {
 
 /**
  * Initialize QEMU fw_cfg interface
+ *
+ * @ops: arch specific read operations
  */
-void qemu_fwcfg_init(void);
+void qemu_fwcfg_init(struct fw_cfg_arch_ops *ops);
 
 void qemu_fwcfg_read_entry(uint16_t entry, uint32_t length, void *address);
 int qemu_fwcfg_read_firmware_list(void);
