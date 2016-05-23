@@ -138,14 +138,14 @@ u32 get_cpu_speed_grade_hz(void)
 	switch (val) {
 	/* Valid for IMX6DQ */
 	case OCOTP_CFG3_SPEED_1P2GHZ:
-		if (is_mx6dq())
+		if (is_mx6dq() || is_mx6dqp())
 			return 1200000000;
 	/* Valid for IMX6SX/IMX6SDL/IMX6DQ */
 	case OCOTP_CFG3_SPEED_1GHZ:
 		return 996000000;
 	/* Valid for IMX6DQ */
 	case OCOTP_CFG3_SPEED_850MHZ:
-		if (is_mx6dq())
+		if (is_mx6dq() || is_mx6dqp())
 			return 852000000;
 	/* Valid for IMX6SX/IMX6SDL/IMX6DQ */
 	case OCOTP_CFG3_SPEED_800MHZ:
