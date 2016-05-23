@@ -32,6 +32,7 @@
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
+#undef CONFIG_SPL_EXT_SUPPORT
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
