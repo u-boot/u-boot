@@ -566,7 +566,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 
 
 	/* Do not access reserved register for i.MX6UL */
-	if (!is_cpu_type(MXC_CPU_MX6UL)) {
+	if (!is_mx6ul()) {
 		/* clear MIB RAM */
 		for (i = mib_ptr; i <= mib_ptr + 0xfc; i += 4)
 			writel(0, i);
