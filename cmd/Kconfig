@@ -595,7 +595,6 @@ config CMD_SOUND
 
 config CMD_QFW
 	bool "qfw"
-	depends on X86
 	select QFW
 	help
 	  This provides access to the QEMU firmware interface.  The main
