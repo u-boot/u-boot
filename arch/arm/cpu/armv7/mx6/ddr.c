@@ -1200,7 +1200,7 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
 
 	/* Limit mem_speed for MX6D/MX6Q */
-	if (is_mx6dq()) {
+	if (is_mx6dq() || is_mx6dqp()) {
 		if (mem_speed > 1066)
 			mem_speed = 1066; /* 1066 MT/s */
 
@@ -1219,7 +1219,7 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	 * Data rate of 1066 MT/s requires 533 MHz DDR3 clock, but MX6D/Q supports
 	 * up to 528 MHz, so reduce the clock to fit chip specs
 	 */
-	if (is_mx6dq()) {
+	if (is_mx6dq() || is_mx6dqp()) {
 		if (clock > 528)
 			clock = 528; /* 528 MHz */
 	}
