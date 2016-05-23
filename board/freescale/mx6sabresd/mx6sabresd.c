@@ -649,9 +649,9 @@ int board_late_init(void)
 
 	if (is_mx6dqp())
 		setenv("board_rev", "MX6QP");
-	else if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+	else if (is_mx6dq())
 		setenv("board_rev", "MX6Q");
-	else if (is_cpu_type(MXC_CPU_MX6DL) || is_cpu_type(MXC_CPU_MX6SOLO))
+	else if (is_mx6sdl())
 		setenv("board_rev", "MX6DL");
 #endif
 
