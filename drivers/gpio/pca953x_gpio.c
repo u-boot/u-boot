@@ -148,11 +148,13 @@ static int pca953x_get_value(struct udevice *dev, unsigned offset)
 	int ret;
 	u8 val = 0;
 
+	int off = offset % BANK_SZ;
+
 	ret = pca953x_read_single(dev, PCA953X_INPUT, &val, offset);
 	if (ret)
 		return ret;
 
-	return (val >> offset) & 0x1;
+	return (val >> off) & 0x1;
 }
 
 static int pca953x_set_value(struct udevice *dev, unsigned offset,
