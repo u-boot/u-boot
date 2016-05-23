@@ -439,64 +439,6 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.index = 1,
 };
 
-int board_usb_init(int index, enum usb_init_type init)
-{
-	enable_usb_clocks(index);
-	switch (index) {
-	case 0:
-		if (init == USB_INIT_DEVICE) {
-			printf("port %d can't be used as device\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		} else {
-			usb_otg_ss1.dr_mode = USB_DR_MODE_HOST;
-			usb_otg_ss1_glue.vbus_id_status = OMAP_DWC3_ID_GROUND;
-			setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-				     OTG_SS_CLKCTRL_MODULEMODE_HW |
-				     OPTFCLKEN_REFCLK960M);
-		}
-
-		ti_usb_phy_uboot_init(&usb_phy1_device);
-		dwc3_omap_uboot_init(&usb_otg_ss1_glue);
-		dwc3_uboot_init(&usb_otg_ss1);
-		break;
-	case 1:
-		if (init == USB_INIT_DEVICE) {
-			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
-			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
-		} else {
-			printf("port %d can't be used as host\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		}
-
-		ti_usb_phy_uboot_init(&usb_phy2_device);
-		dwc3_omap_uboot_init(&usb_otg_ss2_glue);
-		dwc3_uboot_init(&usb_otg_ss2);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-
-	return 0;
-}
-
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-	switch (index) {
-	case 0:
-	case 1:
-		ti_usb_phy_uboot_exit(index);
-		dwc3_uboot_exit(index);
-		dwc3_omap_uboot_exit(index);
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-	disable_usb_clocks(index);
-	return 0;
-}
-
 int usb_gadget_handle_interrupts(int index)
 {
 	u32 status;
@@ -507,7 +449,63 @@ int usb_gadget_handle_interrupts(int index)
 
 	return 0;
 }
+#endif /* CONFIG_USB_DWC3 */
+
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
+int board_usb_init(int index, enum usb_init_type init)
+{
+	enable_usb_clocks(index);
+	switch (index) {
+	case 0:
+		if (init == USB_INIT_DEVICE) {
+			printf("port %d can't be used as device\n", index);
+			disable_usb_clocks(index);
+			return -EINVAL;
+		}
+		break;
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+#ifdef CONFIG_USB_DWC3
+			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
+			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
+			ti_usb_phy_uboot_init(&usb_phy2_device);
+			dwc3_omap_uboot_init(&usb_otg_ss2_glue);
+			dwc3_uboot_init(&usb_otg_ss2);
 #endif
+		} else {
+			printf("port %d can't be used as host\n", index);
+			disable_usb_clocks(index);
+			return -EINVAL;
+		}
+
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+#ifdef CONFIG_USB_DWC3
+	switch (index) {
+	case 0:
+	case 1:
+		if (init == USB_INIT_DEVICE) {
+			ti_usb_phy_uboot_exit(index);
+			dwc3_uboot_exit(index);
+			dwc3_omap_uboot_exit(index);
+		}
+		break;
+	default:
+		printf("Invalid Controller Index\n");
+	}
+#endif
+	disable_usb_clocks(index);
+	return 0;
+}
+#endif /* defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP) */
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 
