@@ -80,10 +80,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
 #endif
 
-#ifndef CONFIG_SYS_XILINX_SPI_LIST
-#define CONFIG_SYS_XILINX_SPI_LIST	{ CONFIG_SYS_SPI_BASE }
-#endif
-
 #define XILINX_SPI_QUAD_MODE	2
 
 /* xilinx spi register set */
@@ -112,8 +108,6 @@ struct xilinx_spi_priv {
 	unsigned int mode;
 };
 
-static unsigned long xilinx_spi_base_list[] = CONFIG_SYS_XILINX_SPI_LIST;
-
 static int xilinx_spi_child_pre_probe(struct udevice *bus)
 {
 	struct spi_slave *slave = dev_get_parent_priv(bus);
@@ -133,8 +127,6 @@ static int xilinx_spi_probe(struct udevice *bus)
 {
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
-
-	priv->regs = (struct xilinx_spi_regs *)xilinx_spi_base_list[bus->seq];
 
 	writel(SPISSR_RESET_VALUE, &regs->srr);
 
@@ -306,6 +298,18 @@ static const struct dm_spi_ops xilinx_spi_ops = {
 	.set_mode	= xilinx_spi_set_mode,
 };
 
+
+static int xilinx_spi_ofdata_to_platdata(struct udevice *bus)
+{
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+
+	priv->regs = (struct xilinx_spi_regs *)dev_get_addr(bus);
+
+	debug("%s: regs=%p\n", __func__, priv->regs);
+
+	return 0;
+}
+
 static const struct udevice_id xilinx_spi_ids[] = {
 	{ .compatible = "xlnx,xps-spi-2.00.a" },
 	{ .compatible = "xlnx,xps-spi-2.00.b" },
@@ -317,6 +321,7 @@ U_BOOT_DRIVER(xilinx_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = xilinx_spi_ids,
 	.ops	= &xilinx_spi_ops,
+	.ofdata_to_platdata = xilinx_spi_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct xilinx_spi_priv),
 	.probe	= xilinx_spi_probe,
 	.child_pre_probe = xilinx_spi_child_pre_probe,
