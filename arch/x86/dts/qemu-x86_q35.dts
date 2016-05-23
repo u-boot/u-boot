@@ -69,6 +69,8 @@
 			irq-router {
 				compatible = "intel,irq-router";
 				intel,pirq-config = "pci";
+				intel,actl-8bit;
+				intel,actl-addr = <0x44>;
 				intel,pirq-link = <0x60 8>;
 				intel,pirq-mask = <0x0e40>;
 				intel,pirq-routing = <

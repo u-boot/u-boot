@@ -138,4 +138,10 @@ config WINBOND_W83627
 	  legacy UART or other devices in the Winbond Super IO chips
 	  on X86 platforms.
 
+config QFW
+	bool
+	help
+	  Hidden option to enable QEMU fw_cfg interface. This will be selected by
+	  either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
+
 endmenu

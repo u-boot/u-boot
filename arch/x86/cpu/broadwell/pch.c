@@ -109,7 +109,8 @@ static void pch_enable_ioapic(void)
 {
 	u32 reg32;
 
-	io_apic_set_id(0x02);
+	/* Make sure this is a unique ID within system */
+	io_apic_set_id(0x04);
 
 	/* affirm full set of redirection table entries ("write once") */
 	reg32 = io_apic_read(0x01);

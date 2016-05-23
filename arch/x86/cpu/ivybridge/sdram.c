@@ -201,11 +201,6 @@ static int recovery_mode_enabled(void)
 	return false;
 }
 
-int reserve_arch(void)
-{
-	return mrccache_reserve();
-}
-
 static int copy_spd(struct udevice *dev, struct pei_data *peid)
 {
 	const void *data;
