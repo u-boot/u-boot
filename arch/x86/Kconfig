@@ -439,7 +439,7 @@ config GENERATE_MP_TABLE
 config GENERATE_ACPI_TABLE
 	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
 	default n
-	select CMD_QEMU_FW_CFG if QEMU
+	select QFW if QEMU
 	help
 	  The Advanced Configuration and Power Interface (ACPI) specification
 	  provides an open standard for device configuration and management

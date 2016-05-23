@@ -420,7 +420,7 @@ static int init_bsp(struct udevice **devp)
 	return 0;
 }
 
-#ifdef CONFIG_QEMU
+#ifdef CONFIG_QFW
 static int qemu_cpu_fixup(void)
 {
 	int ret;
@@ -496,7 +496,7 @@ int mp_init(struct mp_params *p)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_QEMU
+#ifdef CONFIG_QFW
 	ret = qemu_cpu_fixup();
 	if (ret)
 		return ret;

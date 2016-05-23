@@ -88,7 +88,9 @@ static void qemu_chipset_init(void)
 		enable_pm_ich9();
 	}
 
+#ifdef CONFIG_QFW
 	qemu_fwcfg_init();
+#endif
 }
 
 int arch_cpu_init(void)
