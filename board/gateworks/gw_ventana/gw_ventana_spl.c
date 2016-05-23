@@ -15,6 +15,7 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <environment.h>
+#include <i2c.h>
 #include <spl.h>
 
 #include "gsc.h"
@@ -560,7 +561,7 @@ void spl_board_init(void)
 /* return 1 if we wish to boot to uboot vs os (falcon mode) */
 int spl_start_uboot(void)
 {
-	int ret = 1;
+	unsigned char ret = 1;
 
 	debug("%s\n", __func__);
 #ifdef CONFIG_SPL_ENV_SUPPORT
@@ -569,6 +570,10 @@ int spl_start_uboot(void)
 	debug("boot_os=%s\n", getenv("boot_os"));
 	if (getenv_yesno("boot_os") == 1)
 		ret = 0;
+#else
+	/* use i2c-0:0x50:0x00 for falcon boot mode (0=linux, else uboot) */
+	i2c_set_bus_num(0);
+	gsc_i2c_read(0x50, 0x0, 1, &ret, 1);
 #endif
 	debug("%s booting %s\n", __func__, ret ? "uboot" : "linux");
 	return ret;
