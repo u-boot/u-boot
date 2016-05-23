@@ -52,9 +52,6 @@
 #define CONFIG_DM_THERMAL
 #endif
 
-/* GPIO */
-#define CONFIG_MXC_GPIO
-
 /* Thermal */
 #define CONFIG_IMX_THERMAL
 
