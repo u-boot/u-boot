@@ -90,6 +90,9 @@ struct jobring {
 	/* This ring can be on the stack */
 	struct jr_info info[JR_SIZE];
 	struct op_ring *output_ring;
+	/* Offset in CCSR to the SEC engine to which this JR belongs */
+	uint32_t sec_offset;
+
 };
 
 struct result {

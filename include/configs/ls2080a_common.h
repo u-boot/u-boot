@@ -26,6 +26,8 @@
 /* We need architecture specific misc initializations */
 #define CONFIG_ARCH_MISC_INIT
 
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
+
 /* Link Definitions */
 #ifdef CONFIG_SPL
 #define CONFIG_SYS_TEXT_BASE		0x80400000
@@ -291,5 +293,11 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
+
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
 
 #endif /* __LS2_COMMON_H */

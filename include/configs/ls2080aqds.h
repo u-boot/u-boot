@@ -374,7 +374,7 @@ unsigned long get_board_ddr_clk(void);
 #define XQSGMII_CARD_PHY4_PORT3_ADDR 0xf
 
 #define CONFIG_MII		/* MII PHY management */
-#define CONFIG_ETHPRIME		"DPNI1"
+#define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 #endif

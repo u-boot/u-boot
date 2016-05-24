@@ -257,8 +257,13 @@
 
 #define CONFIG_BOOTARGS			"console=ttyS0,115200 root=/dev/ram0 " \
 					"earlycon=uart8250,mmio,0x21c0500"
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#define CONFIG_BOOTCOMMAND		"sf probe && sf read $kernel_load "    \
+					"e0000 f00000 && bootm $kernel_load"
+#else
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
 					"$kernel_size && bootm $kernel_load"
+#endif
 #define CONFIG_BOOTDELAY		10
 
 /* Monitor Command Prompt */

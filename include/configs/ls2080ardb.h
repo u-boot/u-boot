@@ -366,7 +366,7 @@ unsigned long get_board_sys_clk(void);
 #define AQR405_IRQ_MASK		0x36
 
 #define CONFIG_MII
-#define CONFIG_ETHPRIME		"DPNI1"
+#define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHY_AQUANTIA
 #endif
