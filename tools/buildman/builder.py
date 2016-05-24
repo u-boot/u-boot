@@ -205,7 +205,8 @@ class Builder:
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
                  gnu_make='make', checkout=True, show_unknown=True, step=1,
-                 no_subdirs=False, full_path=False, verbose_build=False):
+                 no_subdirs=False, full_path=False, verbose_build=False,
+                 incremental=False, per_board_out_dir=False):
         """Create a new Builder object
 
         Args:
@@ -224,6 +225,10 @@ class Builder:
             full_path: Return the full path in CROSS_COMPILE and don't set
                 PATH
             verbose_build: Run build with V=1 and don't use 'make -s'
+            incremental: Always perform incremental builds; don't run make
+                mrproper when configuring
+            per_board_out_dir: Build in a separate persistent directory per
+                board rather than a thread-specific directory
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -263,7 +268,8 @@ class Builder:
         self.queue = Queue.Queue()
         self.out_queue = Queue.Queue()
         for i in range(self.num_threads):
-            t = builderthread.BuilderThread(self, i)
+            t = builderthread.BuilderThread(self, i, incremental,
+                    per_board_out_dir)
             t.setDaemon(True)
             t.start()
             self.threads.append(t)

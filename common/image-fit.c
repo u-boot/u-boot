@@ -886,9 +886,9 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
 	ret = fdt_setprop(fit, noffset, FIT_TIMESTAMP_PROP, &t,
 				sizeof(uint32_t));
 	if (ret) {
-		printf("Can't set '%s' property for '%s' node (%s)\n",
-		       FIT_TIMESTAMP_PROP, fit_get_name(fit, noffset, NULL),
-		       fdt_strerror(ret));
+		debug("Can't set '%s' property for '%s' node (%s)\n",
+		      FIT_TIMESTAMP_PROP, fit_get_name(fit, noffset, NULL),
+		      fdt_strerror(ret));
 		return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -1;
 	}
 

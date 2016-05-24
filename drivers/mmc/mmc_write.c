@@ -9,6 +9,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <part.h>
 #include <div64.h>
 #include <linux/math64.h>
@@ -78,7 +79,8 @@ unsigned long mmc_berase(struct blk_desc *block_dev, lbaint_t start,
 	if (!mmc)
 		return -1;
 
-	err = mmc_select_hwpart(dev_num, block_dev->hwpart);
+	err = blk_select_hwpart_devnum(IF_TYPE_MMC, dev_num,
+				       block_dev->hwpart);
 	if (err < 0)
 		return -1;
 
@@ -121,9 +123,9 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	struct mmc_data data;
 	int timeout = 1000;
 
-	if ((start + blkcnt) > mmc->block_dev.lba) {
+	if ((start + blkcnt) > mmc_get_blk_desc(mmc)->lba) {
 		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
-		       start + blkcnt, mmc->block_dev.lba);
+		       start + blkcnt, mmc_get_blk_desc(mmc)->lba);
 		return 0;
 	}
 
@@ -171,9 +173,17 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	return blkcnt;
 }
 
+#ifdef CONFIG_BLK
+ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+		 const void *src)
+#else
 ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src)
+#endif
 {
+#ifdef CONFIG_BLK
+	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+#endif
 	int dev_num = block_dev->devnum;
 	lbaint_t cur, blocks_todo = blkcnt;
 	int err;
@@ -182,7 +192,7 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	if (!mmc)
 		return 0;
 
-	err = mmc_select_hwpart(dev_num, block_dev->hwpart);
+	err = blk_select_hwpart_devnum(IF_TYPE_MMC, dev_num, block_dev->hwpart);
 	if (err < 0)
 		return 0;
 

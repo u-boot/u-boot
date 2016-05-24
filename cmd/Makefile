@@ -112,7 +112,7 @@ obj-$(CONFIG_CMD_REMOTEPROC) += remoteproc.o
 obj-$(CONFIG_SANDBOX) += host.o
 obj-$(CONFIG_CMD_SATA) += sata.o
 obj-$(CONFIG_CMD_SF) += sf.o
-obj-$(CONFIG_CMD_SCSI) += scsi.o
+obj-$(CONFIG_SCSI) += scsi.o
 obj-$(CONFIG_CMD_SHA1SUM) += sha1sum.o
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
 obj-$(CONFIG_CMD_SOFTSWITCH) += softswitch.o
@@ -154,12 +154,6 @@ obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 obj-$(CONFIG_CMD_PMIC) += pmic.o
 obj-$(CONFIG_CMD_REGULATOR) += regulator.o
 endif # !CONFIG_SPL_BUILD
-
-ifdef CONFIG_SPL_BUILD
-ifdef CONFIG_SPL_SATA_SUPPORT
-obj-$(CONFIG_CMD_SCSI) += scsi.o
-endif
-endif # CONFIG_SPL_BUILD
 
 obj-$(CONFIG_CMD_BLOB) += blob.o
 

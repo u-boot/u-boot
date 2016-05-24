@@ -47,6 +47,9 @@ source "arch/x86/cpu/queensbay/Kconfig"
 
 # architecture-specific options below
 
+config AHCI
+	default y
+
 config SYS_MALLOC_F_LEN
 	default 0x800
 

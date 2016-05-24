@@ -17,4 +17,13 @@ enum usb_dr_mode {
 	USB_DR_MODE_OTG,
 };
 
+/**
+ * usb_get_dr_mode() - Get dual role mode for given device
+ * @node: Node offset to the given device
+ *
+ * The function gets phy interface string from property 'dr_mode',
+ * and returns the correspondig enum usb_dr_mode
+ */
+enum usb_dr_mode usb_get_dr_mode(int node);
+
 #endif /* __LINUX_USB_OTG_H */

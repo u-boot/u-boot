@@ -41,6 +41,9 @@ struct driver_info;
 /* Device is bound */
 #define DM_FLAG_BOUND			(1 << 6)
 
+/* Device name is allocated and should be freed on unbind() */
+#define DM_NAME_ALLOCED			(1 << 7)
+
 /**
  * struct udevice - An instance of a driver
  *
@@ -523,6 +526,9 @@ bool device_is_last_sibling(struct udevice *dev);
  * this is unnecessary but for probed devices which don't get a useful name
  * this function can be helpful.
  *
+ * The name is allocated and will be freed automatically when the device is
+ * unbound.
+ *
  * @dev:	Device to update
  * @name:	New name (this string is allocated new memory and attached to
  *		the device)
@@ -530,6 +536,16 @@ bool device_is_last_sibling(struct udevice *dev);
  * string
  */
 int device_set_name(struct udevice *dev, const char *name);
+
+/**
+ * device_set_name_alloced() - note that a device name is allocated
+ *
+ * This sets the DM_NAME_ALLOCED flag for the device, so that when it is
+ * unbound the name will be freed. This avoids memory leaks.
+ *
+ * @dev:	Device to update
+ */
+void device_set_name_alloced(struct udevice *dev);
 
 /**
  * device_is_on_pci_bus - Test if a device is on a PCI bus

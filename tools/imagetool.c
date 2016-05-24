@@ -51,7 +51,8 @@ int imagetool_verify_print_header(
 				 * successful
 				 */
 				if ((*curr)->print_header) {
-					(*curr)->print_header(ptr);
+					if (!params->quiet)
+						(*curr)->print_header(ptr);
 				} else {
 					fprintf(stderr,
 						"%s: print_header undefined for %s\n",

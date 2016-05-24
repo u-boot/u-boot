@@ -825,6 +825,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
 #endif
 
+	mmc->dev = dev;
 	upriv->mmc = mmc;
 
 	return 0;

@@ -112,47 +112,9 @@ static void cdns_i2c_debug_status(struct cdns_i2c_regs *cdns_i2c)
 
 struct i2c_cdns_bus {
 	int id;
+	unsigned int input_freq;
 	struct cdns_i2c_regs __iomem *regs;	/* register base */
 };
-
-
-/** cdns_i2c_probe() - Probe method
- * @dev: udevice pointer
- *
- * DM callback called when device is probed
- */
-static int cdns_i2c_probe(struct udevice *dev)
-{
-	struct i2c_cdns_bus *bus = dev_get_priv(dev);
-
-	bus->regs = (struct cdns_i2c_regs *)dev_get_addr(dev);
-	if (!bus->regs)
-		return -ENOMEM;
-
-	/* TODO: Calculate dividers based on CPU_CLK_1X */
-	/* 111MHz / ( (3 * 17) * 22 ) = ~100KHz */
-	writel((16 << CDNS_I2C_CONTROL_DIV_B_SHIFT) |
-		(2 << CDNS_I2C_CONTROL_DIV_A_SHIFT), &bus->regs->control);
-
-	/* Enable master mode, ack, and 7-bit addressing */
-	setbits_le32(&bus->regs->control, CDNS_I2C_CONTROL_MS |
-		CDNS_I2C_CONTROL_ACKEN | CDNS_I2C_CONTROL_NEA);
-
-	debug("%s bus %d at %p\n", __func__, dev->seq, bus->regs);
-
-	return 0;
-}
-
-static int cdns_i2c_remove(struct udevice *dev)
-{
-	struct i2c_cdns_bus *bus = dev_get_priv(dev);
-
-	debug("%s bus %d at %p\n", __func__, dev->seq, bus->regs);
-
-	unmap_sysmem(bus->regs);
-
-	return 0;
-}
 
 /* Wait for an interrupt */
 static u32 cdns_i2c_wait(struct cdns_i2c_regs *cdns_i2c, u32 mask)
@@ -172,13 +134,83 @@ static u32 cdns_i2c_wait(struct cdns_i2c_regs *cdns_i2c, u32 mask)
 	return int_status & mask;
 }
 
+#define CDNS_I2C_DIVA_MAX	4
+#define CDNS_I2C_DIVB_MAX	64
+
+static int cdns_i2c_calc_divs(unsigned long *f, unsigned long input_clk,
+		unsigned int *a, unsigned int *b)
+{
+	unsigned long fscl = *f, best_fscl = *f, actual_fscl, temp;
+	unsigned int div_a, div_b, calc_div_a = 0, calc_div_b = 0;
+	unsigned int last_error, current_error;
+
+	/* calculate (divisor_a+1) x (divisor_b+1) */
+	temp = input_clk / (22 * fscl);
+
+	/*
+	 * If the calculated value is negative or 0CDNS_I2C_DIVA_MAX,
+	 * the fscl input is out of range. Return error.
+	 */
+	if (!temp || (temp > (CDNS_I2C_DIVA_MAX * CDNS_I2C_DIVB_MAX)))
+		return -EINVAL;
+
+	last_error = -1;
+	for (div_a = 0; div_a < CDNS_I2C_DIVA_MAX; div_a++) {
+		div_b = DIV_ROUND_UP(input_clk, 22 * fscl * (div_a + 1));
+
+		if ((div_b < 1) || (div_b > CDNS_I2C_DIVB_MAX))
+			continue;
+		div_b--;
+
+		actual_fscl = input_clk / (22 * (div_a + 1) * (div_b + 1));
+
+		if (actual_fscl > fscl)
+			continue;
+
+		current_error = ((actual_fscl > fscl) ? (actual_fscl - fscl) :
+							(fscl - actual_fscl));
+
+		if (last_error > current_error) {
+			calc_div_a = div_a;
+			calc_div_b = div_b;
+			best_fscl = actual_fscl;
+			last_error = current_error;
+		}
+	}
+
+	*a = calc_div_a;
+	*b = calc_div_b;
+	*f = best_fscl;
+
+	return 0;
+}
+
 static int cdns_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 {
-	if (speed != 100000) {
-		printf("%s, failed to set clock speed to %u\n", __func__,
-		       speed);
+	struct i2c_cdns_bus *bus = dev_get_priv(dev);
+	u32 div_a = 0, div_b = 0;
+	unsigned long speed_p = speed;
+	int ret = 0;
+
+	if (speed > 400000) {
+		debug("%s, failed to set clock speed to %u\n", __func__,
+		      speed);
 		return -EINVAL;
 	}
+
+	ret = cdns_i2c_calc_divs(&speed_p, bus->input_freq, &div_a, &div_b);
+	if (ret)
+		return ret;
+
+	debug("%s: div_a: %d, div_b: %d, input freq: %d, speed: %d/%ld\n",
+	      __func__, div_a, div_b, bus->input_freq, speed, speed_p);
+
+	writel((div_b << CDNS_I2C_CONTROL_DIV_B_SHIFT) |
+	       (div_a << CDNS_I2C_CONTROL_DIV_A_SHIFT), &bus->regs->control);
+
+	/* Enable master mode, ack, and 7-bit addressing */
+	setbits_le32(&bus->regs->control, CDNS_I2C_CONTROL_MS |
+		CDNS_I2C_CONTROL_ACKEN | CDNS_I2C_CONTROL_NEA);
 
 	return 0;
 }
@@ -313,6 +345,19 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 	return 0;
 }
 
+static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
+{
+	struct i2c_cdns_bus *i2c_bus = dev_get_priv(dev);
+
+	i2c_bus->regs = (struct cdns_i2c_regs *)dev_get_addr(dev);
+	if (!i2c_bus->regs)
+		return -ENOMEM;
+
+	i2c_bus->input_freq = 100000000; /* TODO hardcode input freq for now */
+
+	return 0;
+}
+
 static const struct dm_i2c_ops cdns_i2c_ops = {
 	.xfer = cdns_i2c_xfer,
 	.probe_chip = cdns_i2c_probe_chip,
@@ -328,8 +373,7 @@ U_BOOT_DRIVER(cdns_i2c) = {
 	.name = "i2c-cdns",
 	.id = UCLASS_I2C,
 	.of_match = cdns_i2c_of_match,
-	.probe = cdns_i2c_probe,
-	.remove = cdns_i2c_remove,
+	.ofdata_to_platdata = cdns_i2c_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct i2c_cdns_bus),
 	.ops = &cdns_i2c_ops,
 };

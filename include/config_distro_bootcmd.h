@@ -165,7 +165,7 @@
 	BOOT_TARGET_DEVICES_references_SATA_without_CONFIG_CMD_SATA
 #endif
 
-#ifdef CONFIG_CMD_SCSI
+#ifdef CONFIG_SCSI
 #define BOOTENV_RUN_SCSI_INIT "run scsi_init; "
 #define BOOTENV_SET_SCSI_NEED_INIT "setenv scsi_need_init; "
 #define BOOTENV_SHARED_SCSI \
@@ -185,9 +185,9 @@
 #define BOOTENV_SET_SCSI_NEED_INIT
 #define BOOTENV_SHARED_SCSI
 #define BOOTENV_DEV_SCSI \
-	BOOT_TARGET_DEVICES_references_SCSI_without_CONFIG_CMD_SCSI
+	BOOT_TARGET_DEVICES_references_SCSI_without_CONFIG_SCSI
 #define BOOTENV_DEV_NAME_SCSI \
-	BOOT_TARGET_DEVICES_references_SCSI_without_CONFIG_CMD_SCSI
+	BOOT_TARGET_DEVICES_references_SCSI_without_CONFIG_SCSI
 #endif
 
 #ifdef CONFIG_CMD_IDE

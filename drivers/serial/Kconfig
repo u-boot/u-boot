@@ -89,6 +89,15 @@ config DEBUG_UART_ALTERA_UART
 	  You will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_AR933X
+	bool "QCA/Atheros ar933x"
+	depends on AR933X_UART
+	help
+	  Select this to enable a debug UART using the ar933x uart driver.
+	  You will need to provide parameters to make this work. The
+	  driver will be available until the real driver model serial is
+	  running.
+
 config DEBUG_UART_NS16550
 	bool "ns16550"
 	help
@@ -262,6 +271,15 @@ config ALTERA_UART
 	help
 	  Select this to enable an UART for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
+
+config AR933X_UART
+	bool "QCA/Atheros ar933x UART support"
+	depends on DM_SERIAL && SOC_AR933X
+	help
+	  Select this to enable UART support for QCA/Atheros ar933x
+	  devices. This driver uses driver model and requires a device
+	  tree binding to operate, please refer to the document at
+	  doc/device-tree-bindings/serial/qca,ar9330-uart.txt.
 
 config FSL_LPUART
 	bool "Freescale LPUART support"

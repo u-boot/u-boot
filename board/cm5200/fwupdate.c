@@ -105,7 +105,7 @@ static int load_rescue_image(ulong addr)
 
 	/* Detect storage device */
 	for (devno = 0; devno < USB_MAX_STOR_DEV; devno++) {
-		stor_dev = usb_stor_get_dev(devno);
+		stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, devno);
 		if (stor_dev->type != DEV_TYPE_UNKNOWN)
 			break;
 	}

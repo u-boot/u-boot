@@ -16,7 +16,7 @@
 
 #include <asm/types.h>
 
-typedef struct fsl_i2c {
+typedef struct fsl_i2c_base {
 
 	u8 adr;		/* I2C slave address */
 	u8 res0[3];
@@ -67,5 +67,15 @@ typedef struct fsl_i2c {
 	/* Fill out the reserved block */
 	u8 res6[0xE8];
 } fsl_i2c_t;
+
+#ifdef CONFIG_DM_I2C
+struct fsl_i2c_dev {
+	struct fsl_i2c_base __iomem *base;      /* register base */
+	u32 i2c_clk;
+	u32 index;
+	u8 slaveadd;
+	uint speed;
+};
+#endif
 
 #endif	/* _ASM_I2C_H_ */

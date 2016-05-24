@@ -136,7 +136,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-			     "a:A:b:cC:d:D:e:Ef:Fk:K:ln:O:rR:sT:vVx")) != -1) {
+			     "a:A:b:cC:d:D:e:Ef:Fk:K:ln:O:rR:qsT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -215,6 +215,9 @@ static void process_args(int argc, char **argv)
 			params.os = genimg_get_os_id(optarg);
 			if (params.os < 0)
 				usage("Invalid operating system");
+			break;
+		case 'q':
+			params.quiet = 1;
 			break;
 		case 'r':
 			params.require_keys = 1;

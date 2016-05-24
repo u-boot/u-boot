@@ -207,6 +207,16 @@ int gpio_requestf(unsigned gpio, const char *fmt, ...)
 struct fdtdec_phandle_args;
 
 /**
+ * gpio_xlate_offs_flags() - implementation for common use of dm_gpio_ops.xlate
+ *
+ * This routine sets the offset field to args[0] and the flags field to
+ * GPIOD_ACTIVE_LOW if the GPIO_ACTIVE_LOW flag is present in args[1].
+ *
+ */
+int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
+			  struct fdtdec_phandle_args *args);
+
+/**
  * struct struct dm_gpio_ops - Driver model GPIO operations
  *
  * Refer to functions above for description. These function largely copy
@@ -258,12 +268,11 @@ struct dm_gpio_ops {
 	 *
 	 *   @desc->dev to @dev
 	 *   @desc->flags to 0
-	 *   @desc->offset to the value of the first argument in args, if any,
-	 *		otherwise -1 (which is invalid)
+	 *   @desc->offset to 0
 	 *
-	 * This method is optional so if the above defaults suit it can be
-	 * omitted. Typical behaviour is to set up the GPIOD_ACTIVE_LOW flag
-	 * in desc->flags.
+	 * This method is optional and defaults to gpio_xlate_offs_flags,
+	 * which will parse offset and the GPIO_ACTIVE_LOW flag in the first
+	 * two arguments.
 	 *
 	 * Note that @dev is passed in as a parameter to follow driver model
 	 * uclass conventions, even though it is already available as

@@ -36,6 +36,14 @@ struct dw_i2c {
 	struct dw_scl_sda_cfg *scl_sda_cfg;
 };
 
+#ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
+static void dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
+{
+	u32 ena = enable ? IC_ENABLE_0B : 0;
+
+	writel(ena, &i2c_base->ic_enable);
+}
+#else
 static void dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 {
 	u32 ena = enable ? IC_ENABLE_0B : 0;
@@ -56,6 +64,7 @@ static void dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 
 	printf("timeout in %sabling I2C adapter\n", enable ? "en" : "dis");
 }
+#endif
 
 /*
  * i2c_set_bus_speed - Set the i2c speed

@@ -58,7 +58,7 @@ int spl_load_image_fat(struct blk_desc *block_dev,
 		goto end;
 
 	err = spl_parse_image_header(header);
-	if (err <= 0)
+	if (err)
 		goto end;
 
 	err = file_fat_read(filename, (u8 *)spl_image.load_addr, 0);

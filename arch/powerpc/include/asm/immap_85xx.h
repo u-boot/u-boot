@@ -120,8 +120,8 @@ typedef struct ccsr_local_ecm {
 
 /* I2C Registers */
 typedef struct ccsr_i2c {
-	struct fsl_i2c	i2c[1];
-	u8	res[4096 - 1 * sizeof(struct fsl_i2c)];
+	struct fsl_i2c_base	i2c[1];
+	u8	res[4096 - 1 * sizeof(struct fsl_i2c_base)];
 } ccsr_i2c_t;
 
 #if defined(CONFIG_MPC8540) \

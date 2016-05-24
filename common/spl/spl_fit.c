@@ -39,8 +39,13 @@ static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
 		name = fdt_getprop(fdt, node, "description", &len);
-		if (!name)
+		if (!name) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			printf("%s: Missing FDT description in DTB\n",
+			       __func__);
+#endif
 			return -EINVAL;
+		}
 		if (board_fit_config_name_match(name))
 			continue;
 

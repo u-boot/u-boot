@@ -620,7 +620,7 @@ static int initr_ambapp_print(void)
 }
 #endif
 
-#if defined(CONFIG_CMD_SCSI)
+#if defined(CONFIG_SCSI)
 static int initr_scsi(void)
 {
 	puts("SCSI:  ");
@@ -923,7 +923,7 @@ init_fnc_t init_sequence_r[] = {
 	initr_ambapp_print,
 #endif
 #endif
-#ifdef CONFIG_CMD_SCSI
+#ifdef CONFIG_SCSI
 	INIT_FUNC_WATCHDOG_RESET
 	initr_scsi,
 #endif

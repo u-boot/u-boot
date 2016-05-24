@@ -136,23 +136,6 @@ static unsigned long usb_stor_write(struct blk_desc *block_dev, lbaint_t blknr,
 #endif
 void uhci_show_temp_int_td(void);
 
-#ifdef CONFIG_PARTITIONS
-struct blk_desc *usb_stor_get_dev(int index)
-{
-#ifdef CONFIG_BLK
-	struct udevice *dev;
-	int ret;
-
-	ret = blk_get_device(IF_TYPE_USB, index, &dev);
-	if (ret)
-		return NULL;
-	return dev_get_uclass_platdata(dev);
-#else
-	return (index < usb_max_devs) ? &usb_dev_desc[index] : NULL;
-#endif
-}
-#endif
-
 static void usb_show_progress(void)
 {
 	debug(".");
@@ -217,7 +200,6 @@ static int usb_stor_probe_device(struct usb_device *udev)
 
 #ifdef CONFIG_BLK
 	struct us_data *data;
-	char dev_name[30], *str;
 	int ret;
 #else
 	int start;
@@ -240,14 +222,12 @@ static int usb_stor_probe_device(struct usb_device *udev)
 	for (lun = 0; lun <= max_lun; lun++) {
 		struct blk_desc *blkdev;
 		struct udevice *dev;
+		char str[10];
 
-		snprintf(dev_name, sizeof(dev_name), "%s.lun%d",
-			 udev->dev->name, lun);
-		str = strdup(dev_name);
-		if (!str)
-			return -ENOMEM;
-		ret = blk_create_device(udev->dev, "usb_storage_blk", str,
-				IF_TYPE_USB, usb_max_devs, 512, 0, &dev);
+		snprintf(str, sizeof(str), "lun%d", lun);
+		ret = blk_create_devicef(udev->dev, "usb_storage_blk", str,
+					 IF_TYPE_USB, usb_max_devs, 512, 0,
+					 &dev);
 		if (ret) {
 			debug("Cannot bind driver\n");
 			return ret;
@@ -1554,5 +1534,12 @@ U_BOOT_DRIVER(usb_storage_blk) = {
 	.name		= "usb_storage_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &usb_storage_ops,
+};
+#else
+U_BOOT_LEGACY_BLK(usb) = {
+	.if_typename	= "usb",
+	.if_type	= IF_TYPE_USB,
+	.max_devs	= USB_MAX_STOR_DEV,
+	.desc		= usb_dev_desc,
 };
 #endif
