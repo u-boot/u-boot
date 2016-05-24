@@ -23,8 +23,8 @@
 #define   UMC_SPCSETB_AREFMD_ARB	(0x0)	/* control by arbitor */
 #define   UMC_SPCSETB_AREFMD_CONT	(0x1)	/* control by DRAMCONT */
 #define   UMC_SPCSETB_AREFMD_REG	(0x2)	/* control by register */
-#define UMC_ACSCTLA		0x000000C0
-#define UMC_ACSSETA		0x000000C4
+#define UMC_ACSSETA		0x000000C0
+#define UMC_ACSSETB		0x000000C4
 #define UMC_MEMCONF0A		0x00000200
 #define UMC_MEMCONF0B		0x00000204
 #define UMC_MEMCONFCH		0x00000240
