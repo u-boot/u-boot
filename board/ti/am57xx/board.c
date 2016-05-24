@@ -251,6 +251,42 @@ struct vcores_data beagle_x15_volts = {
 	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
 };
 
+struct vcores_data am572x_idk_volts = {
+	.mpu.value		= VDD_MPU_DRA7,
+	.mpu.efuse.reg		= STD_FUSE_OPP_VMIN_MPU,
+	.mpu.efuse.reg_bits     = DRA752_EFUSE_REGBITS,
+	.mpu.addr		= TPS659038_REG_ADDR_SMPS12,
+	.mpu.pmic		= &tps659038,
+	.mpu.abb_tx_done_mask	= OMAP_ABB_MPU_TXDONE_MASK,
+
+	.eve.value		= VDD_EVE_DRA7,
+	.eve.efuse.reg		= STD_FUSE_OPP_VMIN_DSPEVE,
+	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.eve.addr		= TPS659038_REG_ADDR_SMPS45,
+	.eve.pmic		= &tps659038,
+	.eve.abb_tx_done_mask	= OMAP_ABB_EVE_TXDONE_MASK,
+
+	.gpu.value		= VDD_GPU_DRA7,
+	.gpu.efuse.reg		= STD_FUSE_OPP_VMIN_GPU,
+	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.gpu.addr		= TPS659038_REG_ADDR_SMPS6,
+	.gpu.pmic		= &tps659038,
+	.gpu.abb_tx_done_mask	= OMAP_ABB_GPU_TXDONE_MASK,
+
+	.core.value		= VDD_CORE_DRA7,
+	.core.efuse.reg		= STD_FUSE_OPP_VMIN_CORE,
+	.core.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.core.addr		= TPS659038_REG_ADDR_SMPS7,
+	.core.pmic		= &tps659038,
+
+	.iva.value		= VDD_IVA_DRA7,
+	.iva.efuse.reg		= STD_FUSE_OPP_VMIN_IVA,
+	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.iva.addr		= TPS659038_REG_ADDR_SMPS8,
+	.iva.pmic		= &tps659038,
+	.iva.abb_tx_done_mask	= OMAP_ABB_IVA_TXDONE_MASK,
+};
+
 #ifdef CONFIG_SPL_BUILD
 /* No env to setup for SPL */
 static inline void setup_board_eeprom_env(void) { }
@@ -315,11 +351,18 @@ invalid_eeprom:
 
 #endif	/* CONFIG_SPL_BUILD */
 
+void vcores_init(void)
+{
+	if (board_is_am572x_idk())
+		*omap_vcores = &am572x_idk_volts;
+	else
+		*omap_vcores = &beagle_x15_volts;
+}
+
 void hw_data_init(void)
 {
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
-	*omap_vcores = &beagle_x15_volts;
 	*ctrl = &dra7xx_ctrl;
 }
 
