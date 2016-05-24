@@ -160,6 +160,48 @@ int gsc_boot_wd_disable(void)
 }
 
 #ifdef CONFIG_CMD_GSC
+static int do_gsc_sleep(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	unsigned char reg;
+	unsigned long secs = 0;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	secs = simple_strtoul(argv[1], NULL, 10);
+	printf("GSC Sleeping for %ld seconds\n", secs);
+
+	i2c_set_bus_num(0);
+	reg = (secs >> 24) & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 9, 1, &reg, 1))
+		goto error;
+	reg = (secs >> 16) & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 8, 1, &reg, 1))
+		goto error;
+	reg = (secs >> 8) & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 7, 1, &reg, 1))
+		goto error;
+	reg = secs & 0xff;
+	if (gsc_i2c_write(GSC_SC_ADDR, 6, 1, &reg, 1))
+		goto error;
+	if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+		goto error;
+	reg |= (1 << 2);
+	if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+		goto error;
+	reg &= ~(1 << 2);
+	reg |= 0x3;
+	if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+		goto error;
+
+	return CMD_RET_SUCCESS;
+
+error:
+	printf("i2c error\n");
+	return CMD_RET_FAILURE;
+}
+
 static int do_gsc_wd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned char reg;
@@ -206,13 +248,15 @@ static int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (strcasecmp(argv[1], "wd") == 0)
 		return do_gsc_wd(cmdtp, flag, --argc, ++argv);
+	else if (strcasecmp(argv[1], "sleep") == 0)
+		return do_gsc_sleep(cmdtp, flag, --argc, ++argv);
 
 	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(
 	gsc, 4, 1, do_gsc, "GSC configuration",
-	"[wd enable [30|60]]|[wd disable]\n"
+	"[wd enable [30|60]]|[wd disable]|[sleep <secs>]\n"
 	);
 
 #endif /* CONFIG_CMD_GSC */
