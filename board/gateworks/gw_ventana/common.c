@@ -760,7 +760,7 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 					       ctrl);
 			gpio_requestf(cfg->gpio_param, "dio%d", i);
 			gpio_direction_input(cfg->gpio_param);
-		} else if (hwconfig_subarg_cmp("dio2", "mode", "pwm") &&
+		} else if (hwconfig_subarg_cmp(arg, "mode", "pwm") &&
 			   cfg->pwm_padmux) {
 			if (!quiet)
 				printf("DIO%d:  pwm%d\n", i, cfg->pwm_param);
