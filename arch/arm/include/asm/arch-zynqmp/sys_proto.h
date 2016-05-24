@@ -17,4 +17,6 @@ int zynq_slcr_get_mio_pin_status(const char *periph);
 
 unsigned int zynqmp_get_silicon_version(void);
 
+void psu_init(void);
+
 #endif /* _ASM_ARCH_SYS_PROTO_H */

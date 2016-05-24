@@ -198,6 +198,7 @@ enum bootstage_id {
 	BOOTSTAGE_ID_ACCUM_SCSI,
 	BOOTSTAGE_ID_ACCUM_SPI,
 	BOOTSTAGE_ID_ACCUM_DECOMP,
+	BOOTSTAGE_ID_FPGA_INIT,
 
 	/* a few spare for the user, from here */
 	BOOTSTAGE_ID_USER,

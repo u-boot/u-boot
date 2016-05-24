@@ -41,7 +41,7 @@
 # define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #endif
 
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_INIT_SP_ADDR		0xfffffffc
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
 #if !defined(COUNTER_FREQUENCY)
@@ -65,6 +65,9 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
+#ifndef CONFIG_SPL_BUILD
+# define CONFIG_ISO_PARTITION
+#endif
 #define CONFIG_MP
 
 /* BOOTP options */
@@ -74,10 +77,24 @@
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_MAY_FAIL
 #define CONFIG_BOOTP_SERVERIP
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_PXE
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_PXE_CLIENTARCH     0x100
+
+/* Diff from config_distro_defaults.h */
+#define CONFIG_SUPPORT_RAW_INITRD
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_AUTO_COMPLETE
+
+/* PXE */
+#define CONFIG_CMD_PXE
+#define CONFIG_MENU
 
 #if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
+# define CONFIG_SUPPORT_EMMC_BOOT
 # define CONFIG_SDHCI
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
@@ -133,6 +150,7 @@
 #endif
 
 /* Initial environment variables */
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
@@ -143,8 +161,8 @@
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
 	DFU_ALT_INFO
+#endif
 
-#define CONFIG_PREBOOT		"run bootargs"
 #define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	3
 
@@ -211,5 +229,42 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_CLOCKS
+
+#define CONFIG_SPL_TEXT_BASE		0xfffc0000
+#define CONFIG_SPL_MAX_SIZE		0x20000
+
+/* Just random location in OCM */
+#define CONFIG_SPL_BSS_START_ADDR	0x1000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x2000000
+
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_RAM_DEVICE
+
+#define CONFIG_SPL_OS_BOOT
+/* u-boot is like dtb */
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"u-boot.bin"
+#define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
+
+/* ATF is my kernel image */
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf.ub"
+
+/* FIT load address for RAM boot */
+#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x10000000
+
+/* MMC support */
+#ifdef CONFIG_ZYNQ_SDHCI
+# define CONFIG_SPL_MMC_SUPPORT
+# define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
+# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
+# define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
+# define CONFIG_SPL_LIBDISK_SUPPORT
+# define CONFIG_SPL_FAT_SUPPORT
+# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+#endif
 
 #endif /* __XILINX_ZYNQMP_H */

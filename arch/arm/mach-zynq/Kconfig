@@ -1,41 +1,5 @@
 if ARCH_ZYNQ
 
-config ZYNQ_CUSTOM_INIT
-	bool "Use custom ps7_init provided by Xilinx tool"
-	help
-	  U-Boot includes ps7_init_gpl.[ch] for some Zynq board variants.
-	  If you want to override them with customized ones
-	  or ps7_init code for your board is missing, please say Y here
-	  and add ones into board/xilinx/zynq/custom_hw_platform/ directory.
-
-choice
-	prompt "Xilinx Zynq board select"
-	default TARGET_ZYNQ_ZC702
-
-config TARGET_ZYNQ_ZED
-	bool "Zynq ZedBoard"
-
-config TARGET_ZYNQ_MICROZED
-	bool "Zynq MicroZed"
-
-config TARGET_ZYNQ_PICOZED
-	bool "Zynq PicoZed"
-
-config TARGET_ZYNQ_ZC702
-	bool "Zynq ZC702 Board"
-
-config TARGET_ZYNQ_ZC706
-	bool "Zynq ZC706 Board"
-
-config TARGET_ZYNQ_ZC770
-	bool "Zynq ZC770 Board"
-	select ZYNQ_CUSTOM_INIT
-
-config TARGET_ZYNQ_ZYBO
-	bool "Zynq Zybo Board"
-
-endchoice
-
 config SYS_BOARD
 	default "zynq"
 
@@ -46,11 +10,11 @@ config SYS_SOC
 	default "zynq"
 
 config SYS_CONFIG_NAME
-	default "zynq_zed" if TARGET_ZYNQ_ZED
-	default "zynq_microzed" if TARGET_ZYNQ_MICROZED
-	default "zynq_picozed" if TARGET_ZYNQ_PICOZED
-	default "zynq_zc70x" if TARGET_ZYNQ_ZC702 || TARGET_ZYNQ_ZC706
-	default "zynq_zc770" if TARGET_ZYNQ_ZC770
-	default "zynq_zybo" if TARGET_ZYNQ_ZYBO
+	string "Board configuration name"
+	default "zynq-common"
+	help
+	  This option contains information about board configuration name.
+	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
+	  will be used for board configuration.
 
 endif

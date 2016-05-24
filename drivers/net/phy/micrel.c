@@ -181,7 +181,12 @@ static struct phy_driver KS8721_driver = {
 static int ksz90xx_startup(struct phy_device *phydev)
 {
 	unsigned phy_ctl;
-	genphy_update_link(phydev);
+	int ret;
+
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
 	phy_ctl = phy_read(phydev, MDIO_DEVAD_NONE, MII_KSZ90xx_PHY_CTL);
 
 	if (phy_ctl & MIIM_KSZ90xx_PHYCTL_DUPLEX)

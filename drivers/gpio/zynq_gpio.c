@@ -299,11 +299,33 @@ static int zynq_gpio_direction_output(struct udevice *dev, unsigned gpio,
 	return 0;
 }
 
+static int zynq_gpio_get_function(struct udevice *dev, unsigned offset)
+{
+	u32 reg;
+	unsigned int bank_num, bank_pin_num;
+	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
+
+	if (check_gpio(offset, dev) < 0)
+		return -1;
+
+	zynq_gpio_get_bank_pin(offset, &bank_num, &bank_pin_num, dev);
+
+	/* set the GPIO pin as output */
+	reg = readl(priv->base + ZYNQ_GPIO_DIRM_OFFSET(bank_num));
+	reg &= BIT(bank_pin_num);
+	if (reg)
+		return GPIOF_OUTPUT;
+	else
+		return GPIOF_INPUT;
+}
+
 static const struct dm_gpio_ops gpio_zynq_ops = {
 	.direction_input	= zynq_gpio_direction_input,
 	.direction_output	= zynq_gpio_direction_output,
 	.get_value		= zynq_gpio_get_value,
 	.set_value		= zynq_gpio_set_value,
+	.get_function		= zynq_gpio_get_function,
+
 };
 
 static const struct udevice_id zynq_gpio_ids[] = {

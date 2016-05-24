@@ -98,6 +98,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			common/hash.o \
 			ublimage.o \
 			zynqimage.o \
+			zynqmpimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
 
