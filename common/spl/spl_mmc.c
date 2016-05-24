@@ -77,6 +77,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 		debug("Found FIT\n");
 		load.dev = mmc;
 		load.priv = NULL;
+		load.filename = NULL;
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(&load, sector, header);
