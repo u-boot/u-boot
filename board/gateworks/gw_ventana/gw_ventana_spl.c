@@ -527,9 +527,6 @@ void board_init_f(ulong dummy)
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	/* disable boot watchdog */
-	gsc_boot_wd_disable();
 }
 
 /* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */
@@ -575,6 +572,9 @@ int spl_start_uboot(void)
 	i2c_set_bus_num(0);
 	gsc_i2c_read(0x50, 0x0, 1, &ret, 1);
 #endif
+	if (!ret)
+		gsc_boot_wd_disable();
+
 	debug("%s booting %s\n", __func__, ret ? "uboot" : "linux");
 	return ret;
 }
