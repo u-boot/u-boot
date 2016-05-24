@@ -78,6 +78,7 @@
 #define CONFIG_DOS_PARTITION
 
 /* USB Configs */
+#ifdef CONFIG_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
@@ -99,6 +100,7 @@
 #define CONFIG_G_DNL_VENDOR_NUM   0x0525
 #define CONFIG_G_DNL_PRODUCT_NUM  0xa4a5
 #define CONFIG_G_DNL_MANUFACTURER "Advantech"
+#endif
 
 /* Networking Configs */
 #define CONFIG_FEC_MXC
@@ -221,13 +223,7 @@
 			"bootm; " \
 		"fi;\0" \
 
-#define CONFIG_BOOTCOMMAND \
-	"usb start; " \
-	"setenv dev usb; " \
-	"setenv devnum 0; " \
-	"setenv rootdev sda1; " \
-	"run tryboot; " \
-	\
+#define CONFIG_MMCBOOTCOMMAND \
 	"setenv dev mmc; " \
 	"setenv rootdev mmcblk0p1; " \
 	\
@@ -241,8 +237,22 @@
 	"if mmc dev ${devnum}; then " \
 		"run tryboot; " \
 	"fi; " \
+
+#define CONFIG_USBBOOTCOMMAND \
+	"usb start; " \
+	"setenv dev usb; " \
+	"setenv devnum 0; " \
+	"setenv rootdev sda1; " \
+	"run tryboot; " \
 	\
+	CONFIG_MMCBOOTCOMMAND \
 	"bmode usb; " \
+
+#ifdef CONFIG_CMD_USB
+#define CONFIG_BOOTCOMMAND CONFIG_USBBOOTCOMMAND
+#else
+#define CONFIG_BOOTCOMMAND CONFIG_MMCBOOTCOMMAND
+#endif
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
