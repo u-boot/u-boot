@@ -12,7 +12,7 @@
 #include "boot-device.h"
 
 static struct boot_device_info boot_device_table[] = {
-	{BOOT_DEVICE_NOR,  "NOR boot"},
+	{BOOT_DEVICE_NOR,  "NOR  (XECS0)"},
 	{BOOT_DEVICE_NONE, "External Master"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
