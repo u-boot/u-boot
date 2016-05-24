@@ -165,6 +165,23 @@ static const struct uniphier_board_data uniphier_ld6b_data = {
 };
 #endif
 
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+static const struct uniphier_board_data uniphier_ld11_data = {
+	.dram_freq = 1600,
+	.dram_nr_ch = 2,
+	.dram_ch[0] = {
+		.base = 0x80000000,
+		.size = 0x20000000,
+		.width = 16,
+	},
+	.dram_ch[1] = {
+		.base = 0xa0000000,
+		.size = 0x20000000,
+		.width = 16,
+	},
+};
+#endif
+
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 static const struct uniphier_board_data uniphier_ld20_data = {
 	.dram_freq = 1866,
@@ -215,6 +232,9 @@ static const struct uniphier_board_id uniphier_boards[] = {
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	{ "socionext,ph1-ld6b", &uniphier_ld6b_data, },
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+	{ "socionext,ph1-ld11", &uniphier_ld11_data, },
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	{ "socionext,ph1-ld20", &uniphier_ld20_data, },

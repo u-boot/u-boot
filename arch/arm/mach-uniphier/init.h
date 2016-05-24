@@ -32,6 +32,7 @@ int uniphier_pro4_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_init(const struct uniphier_board_data *bd);
 int uniphier_pro5_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_init(const struct uniphier_board_data *bd);
+int uniphier_ld11_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_init(const struct uniphier_board_data *bd);
 
 #if defined(CONFIG_MICRO_SUPPORT_CARD)
@@ -81,6 +82,7 @@ int uniphier_ld4_enable_dpll_ssc(const struct uniphier_board_data *bd);
 int uniphier_ld4_early_clk_init(const struct uniphier_board_data *bd);
 int uniphier_pro5_early_clk_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_early_clk_init(const struct uniphier_board_data *bd);
+int uniphier_ld11_early_clk_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_early_clk_init(const struct uniphier_board_data *bd);
 
 int uniphier_sld3_early_pin_init(const struct uniphier_board_data *bd);
@@ -91,6 +93,7 @@ int uniphier_pro4_umc_init(const struct uniphier_board_data *bd);
 int uniphier_sld8_umc_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_umc_init(const struct uniphier_board_data *bd);
 int uniphier_ld20_umc_init(const struct uniphier_board_data *bd);
+int uniphier_ld11_umc_init(const struct uniphier_board_data *bd);
 
 void uniphier_sld3_pin_init(void);
 void uniphier_ld4_pin_init(void);
@@ -105,6 +108,7 @@ void uniphier_ld4_clk_init(void);
 void uniphier_pro4_clk_init(void);
 void uniphier_pro5_clk_init(void);
 void uniphier_pxs2_clk_init(void);
+void uniphier_ld11_clk_init(void);
 void uniphier_ld20_clk_init(void);
 
 void cci500_init(int nr_slaves);
