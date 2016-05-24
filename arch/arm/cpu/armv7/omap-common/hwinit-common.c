@@ -112,6 +112,16 @@ void __weak do_board_detect(void)
 {
 }
 
+/**
+ * vcores_init() - Assign omap_vcores based on board
+ *
+ * Function to pick the vcores based on board. This is expected to be
+ * overridden in the SoC family board file where desired.
+ */
+void __weak vcores_init(void)
+{
+}
+
 void s_init(void)
 {
 }
@@ -149,6 +159,7 @@ void early_system_init(void)
 #endif
 	setup_early_clocks();
 	do_board_detect();
+	vcores_init();
 	prcm_init();
 }
 
