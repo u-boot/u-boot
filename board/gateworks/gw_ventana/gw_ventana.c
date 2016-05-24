@@ -60,8 +60,7 @@ static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	/* CD */
-	IOMUX_PADS(PAD_SD3_DAT5__GPIO7_IO00  | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT5__GPIO7_IO00  | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
 /* ENET */
@@ -792,6 +791,17 @@ static inline void ft_enable_path(void *blob, const char *path)
 	}
 }
 
+/* remove a property of a node if the node is found */
+static inline void ft_delprop_path(void *blob, const char *path,
+				   const char *name)
+{
+	int i = fdt_path_offset(blob, path);
+	if (i) {
+		debug("removing %s/%s\n", path, name);
+		fdt_delprop(blob, i, name);
+	}
+}
+
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command
  *
@@ -895,6 +905,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 				range[1] = cpu_to_fdt32(23);
 			}
 		}
+
+		/* these have broken usd_vsel */
+		if (strstr((const char *)info->model, "SP318-B") ||
+		    strstr((const char *)info->model, "SP331-B"))
+			gpio_cfg[board_type].usd_vsel = 0;
 	}
 
 	/*
@@ -952,6 +967,13 @@ int ft_board_setup(void *blob, bd_t *bd)
 			       cfg->pwm_param, i);
 			ft_enable_path(blob, path);
 		}
+	}
+
+	/* remove no-1-8-v if UHS-I support is present */
+	if (gpio_cfg[board_type].usd_vsel) {
+		debug("Enabling UHS-I support\n");
+		ft_delprop_path(blob, "/soc/aips-bus@02100000/usdhc@02198000",
+				"no-1-8-v");
 	}
 
 	/*

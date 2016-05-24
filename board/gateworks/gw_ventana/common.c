@@ -134,6 +134,8 @@ void setup_ventana_i2c(void)
 static iomux_v3_cfg_t const gw_gpio_pads[] = {
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
 };
 
 /* prototype */
@@ -766,6 +768,11 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		gpio_request(gpio_cfg[board].wdis, "wlan_dis");
 		gpio_direction_output(gpio_cfg[board].wdis, 1);
 	}
+
+	/* sense vselect pin to see if we support uhs-i */
+	gpio_request(GP_SD3_VSELECT, "sd3_vselect");
+	gpio_direction_input(GP_SD3_VSELECT);
+	gpio_cfg[board].usd_vsel = !gpio_get_value(GP_SD3_VSELECT);
 }
 
 /* setup GPIO pinmux and default configuration per baseboard and env */
