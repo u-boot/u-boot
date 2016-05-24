@@ -25,4 +25,8 @@ config XILINX_MICROBLAZE0_USE_HW_MUL
 	int "USE_HW_MUL values (0=NONE, 1=MUL32, 2=MUL64)"
 	default 0
 
+config XILINX_MICROBLAZE0_HW_VER
+	string "Core version number"
+	default 7.10.d
+
 endif
