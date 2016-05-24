@@ -302,6 +302,7 @@
 			"run fixfdt; " \
 		"fi\0" \
 	\
+	"fs=ext4\0" \
 	"script=6x_bootscript-ventana\0" \
 	"loadscript=" \
 		"if ${fsload} ${loadaddr} ${bootdir}/${script}; then " \
@@ -309,14 +310,14 @@
 		"fi\0" \
 	\
 	"uimage=uImage\0" \
-	"mmc_root=/dev/mmcblk0p1 rootfstype=ext4 rootwait rw\0" \
+	"mmc_root=/dev/mmcblk0p1 rootfstype=${fs} rootwait rw\0" \
 	"mmc_boot=" \
-		"setenv fsload \"ext2load mmc ${disk}:${part}\"; " \
+		"setenv fsload \"${fs}load mmc ${disk}:${part}\"; " \
 		"mmc dev ${disk} && mmc rescan && " \
 		"setenv dtype mmc; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/mmcblk0p1 rootfstype=ext4 " \
+				"root=/dev/mmcblk0p1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
 			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
@@ -326,12 +327,12 @@
 		"fi\0" \
 	\
 	"sata_boot=" \
-		"setenv fsload \"ext2load sata ${disk}:${part}\"; " \
+		"setenv fsload \"${fs}load sata ${disk}:${part}\"; " \
 		"sata init && " \
 		"setenv dtype sata; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/sda1 rootfstype=ext4 " \
+				"root=/dev/sda1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
 			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
@@ -340,12 +341,12 @@
 			"fi; " \
 		"fi\0" \
 	"usb_boot=" \
-		"setenv fsload \"ext2load usb ${disk}:${part}\"; " \
+		"setenv fsload \"${fs}load usb ${disk}:${part}\"; " \
 		"usb start && usb dev ${disk} && " \
 		"setenv dtype usb; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=/dev/sda1 rootfstype=ext4 " \
+				"root=/dev/sda1 rootfstype=${fs} " \
 				"rootwait rw ${video} ${extra}; " \
 			"if run loadfdt; then " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
