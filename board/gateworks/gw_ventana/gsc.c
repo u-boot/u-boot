@@ -71,6 +71,8 @@ static void read_hwmon(const char *name, uint reg, uint size)
 		puts("fRD\n");
 	} else {
 		ui = buf[0] | (buf[1]<<8) | (buf[2]<<16);
+		if (reg == GSC_HWMON_TEMP && ui > 0x8000)
+			ui -= 0xffff;
 		if (ui == 0xffffff)
 			puts("invalid\n");
 		else
