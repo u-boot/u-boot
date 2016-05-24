@@ -103,6 +103,7 @@
 #endif
 
 /* Networking Configs */
+#ifdef CONFIG_NET
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -111,6 +112,7 @@
 #define CONFIG_FEC_MXC_PHYADDR		4
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
+#endif
 
 /* Serial Flash */
 #ifdef CONFIG_CMD_SF
