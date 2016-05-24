@@ -281,6 +281,8 @@
 	\
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"disk=0\0" \
+	"part=1\0" \
 	\
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x18000000\0" \
@@ -304,8 +306,8 @@
 	"uimage=uImage\0" \
 	"mmc_root=/dev/mmcblk0p1 rootfstype=ext4 rootwait rw\0" \
 	"mmc_boot=" \
-		"setenv fsload 'ext2load mmc 0:1'; " \
-		"mmc dev 0 && mmc rescan && " \
+		"setenv fsload \"ext2load mmc ${disk}:${part}\"; " \
+		"mmc dev ${disk} && mmc rescan && " \
 		"setenv dtype mmc; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
@@ -319,7 +321,8 @@
 		"fi\0" \
 	\
 	"sata_boot=" \
-		"setenv fsload 'ext2load sata 0:1'; sata init && " \
+		"setenv fsload \"ext2load sata ${disk}:${part}\"; " \
+		"sata init && " \
 		"setenv dtype sata; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
@@ -332,7 +335,8 @@
 			"fi; " \
 		"fi\0" \
 	"usb_boot=" \
-		"setenv fsload 'ext2load usb 0:1'; usb start && usb dev 0 && " \
+		"setenv fsload \"ext2load usb ${disk}:${part}\"; " \
+		"usb start && usb dev ${disk} && " \
 		"setenv dtype usb; run loadscript; " \
 		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
