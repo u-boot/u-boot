@@ -190,6 +190,20 @@ static struct mx6_ddr3_cfg mt41k256m16ha_125 = {
 	.trasmin = 3500,
 };
 
+/* MT41K512M16HA-125 (8Gb density) */
+static struct mx6_ddr3_cfg mt41k512m16ha_125 = {
+	.mem_speed = 1600,
+	.density = 8,
+	.width = 16,
+	.banks = 8,
+	.rowaddr = 16,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1375,
+	.trcmin = 4875,
+	.trasmin = 3500,
+};
+
 /*
  * calibration - these are the various CPU/DDR3 combinations we support
  */
@@ -341,6 +355,19 @@ static struct mx6_mmdc_calibration mx6dq_256x64_mmdc_calib = {
 	.p1_mpwrdlctl = 0X40304239,
 };
 
+static struct mx6_mmdc_calibration mx6dq_512x32_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x002A0025,
+	.p0_mpwldectrl1 = 0x003A002A,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x43430356,
+	.p0_mpdgctrl1 = 0x033C0335,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x4B373F42,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x303E3C36,
+};
+
 static void spl_dram_init(int width, int size_mb, int board_model)
 {
 	struct mx6_ddr3_cfg *mem = NULL;
@@ -420,6 +447,11 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		else
 			calib = &mx6sdl_256x32_mmdc_calib;
 		debug("4gB density\n");
+	} else if (width == 32 && size_mb == 2048) {
+		mem = &mt41k512m16ha_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_512x32_mmdc_calib;
+		debug("8gB density\n");
 	} else if (width == 64 && size_mb == 512) {
 		mem = &mt41k64m16jt_125;
 		debug("1gB density\n");
