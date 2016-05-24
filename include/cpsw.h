@@ -21,6 +21,7 @@ struct cpsw_slave_data {
 	u32		sliver_reg_ofs;
 	int		phy_addr;
 	int		phy_if;
+	int		phy_of_handle;
 };
 
 enum {
@@ -51,5 +52,6 @@ struct cpsw_platform_data {
 };
 
 int cpsw_register(struct cpsw_platform_data *data);
+int ti_cm_get_macid(struct udevice *dev, int slave, u8 *mac_addr);
 
 #endif /* _CPSW_H_  */

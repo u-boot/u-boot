@@ -1411,7 +1411,7 @@
 			ti,irqs-safe-map = <0>;
 		};
 
-		mac: ethernet@4a100000 {
+		mac: ethernet@48484000 {
 			compatible = "ti,cpsw";
 			ti,hwmods = "gmac";
 			clocks = <&dpll_gmac_ck>, <&gmac_gmii_ref_clk_div>;
@@ -1426,6 +1426,7 @@
 			active_slave = <0>;
 			cpts_clock_mult = <0x80000000>;
 			cpts_clock_shift = <29>;
+			syscon = <&scm_conf>;
 			reg = <0x48484000 0x1000
 			       0x48485200 0x2E00>;
 			#address-cells = <1>;

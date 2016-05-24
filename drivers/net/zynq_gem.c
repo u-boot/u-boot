@@ -179,6 +179,7 @@ struct zynq_gem_priv {
 	struct zynq_gem_regs *iobase;
 	phy_interface_t interface;
 	struct phy_device *phydev;
+	int phy_of_handle;
 	struct mii_dev *bus;
 };
 
@@ -352,6 +353,9 @@ static int zynq_phy_init(struct udevice *dev)
 	priv->phydev->supported = supported | ADVERTISED_Pause |
 				  ADVERTISED_Asym_Pause;
 	priv->phydev->advertising = priv->phydev->supported;
+
+	if (priv->phy_of_handle > 0)
+		priv->phydev->dev->of_offset = priv->phy_of_handle;
 
 	return phy_config(priv->phydev);
 }
@@ -677,7 +681,6 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
-	int offset = 0;
 	const char *phy_mode;
 
 	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
@@ -686,10 +689,11 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	priv->emio = 0;
 	priv->phyaddr = -1;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
-				       "phy-handle");
-	if (offset > 0)
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
+	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob,
+					dev->of_offset, "phy-handle");
+	if (priv->phy_of_handle > 0)
+		priv->phyaddr = fdtdec_get_int(gd->fdt_blob,
+					priv->phy_of_handle, "reg", -1);
 
 	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
 	if (phy_mode)

@@ -134,64 +134,6 @@ static inline int pci_eth_init(bd_t *bis)
 	return num;
 }
 
-/*
- * Boards with mv88e61xx switch can use this by defining
- * CONFIG_MV88E61XX_SWITCH in respective board configheader file
- * the stuct and enums here are used to specify switch configuration params
- */
-#if defined(CONFIG_MV88E61XX_SWITCH)
-
-/* constants for any 88E61xx switch */
-#define MV88E61XX_MAX_PORTS_NUM	6
-
-enum mv88e61xx_cfg_mdip {
-	MV88E61XX_MDIP_NOCHANGE,
-	MV88E61XX_MDIP_REVERSE
-};
-
-enum mv88e61xx_cfg_ledinit {
-	MV88E61XX_LED_INIT_DIS,
-	MV88E61XX_LED_INIT_EN
-};
-
-enum mv88e61xx_cfg_rgmiid {
-	MV88E61XX_RGMII_DELAY_DIS,
-	MV88E61XX_RGMII_DELAY_EN
-};
-
-enum mv88e61xx_cfg_prtstt {
-	MV88E61XX_PORTSTT_DISABLED,
-	MV88E61XX_PORTSTT_BLOCKING,
-	MV88E61XX_PORTSTT_LEARNING,
-	MV88E61XX_PORTSTT_FORWARDING
-};
-
-struct mv88e61xx_config {
-	char *name;
-	u8 vlancfg[MV88E61XX_MAX_PORTS_NUM];
-	enum mv88e61xx_cfg_rgmiid rgmii_delay;
-	enum mv88e61xx_cfg_prtstt portstate;
-	enum mv88e61xx_cfg_ledinit led_init;
-	enum mv88e61xx_cfg_mdip mdip;
-	u32 ports_enabled;
-	u8 cpuport;
-};
-
-/*
- * Common mappings for Internal VLANs
- * These mappings consider that all ports are useable; the driver
- * will mask inexistent/unused ports.
- */
-
-/* Switch mode : routes any port to any port */
-#define MV88E61XX_VLANCFG_SWITCH { 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F }
-
-/* Router mode: routes only CPU port 5 to/from non-CPU ports 0-4 */
-#define MV88E61XX_VLANCFG_ROUTER { 0x20, 0x20, 0x20, 0x20, 0x20, 0x1F }
-
-int mv88e61xx_switch_initialize(struct mv88e61xx_config *swconfig);
-#endif /* CONFIG_MV88E61XX_SWITCH */
-
 struct mii_dev *fec_get_miibus(uint32_t base_addr, int dev_id);
 #ifdef CONFIG_PHYLIB
 struct phy_device;
