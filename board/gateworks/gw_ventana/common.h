@@ -76,6 +76,7 @@ struct ventana {
 	int pcie_sson;
 	int usb_sel;
 	int wdis;
+	int msata_en;
 };
 
 extern struct ventana gpio_cfg[GW_UNKNOWN];
