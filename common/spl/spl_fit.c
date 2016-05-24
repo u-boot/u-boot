@@ -67,9 +67,7 @@ static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
 
 		*fdt_offsetp = fdt_getprop_u32(fdt, fdt_node, "data-offset");
 		len = fdt_getprop_u32(fdt, fdt_node, "data-size");
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("FIT: Selected '%s'\n", name);
-#endif
+		debug("FIT: Selected '%s'\n", name);
 
 		return len;
 	}
