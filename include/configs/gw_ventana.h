@@ -291,14 +291,14 @@
 		"fdt addr ${fdt_addr}\0" \
 	"bootdir=boot\0" \
 	"loadfdt=" \
-		"if ${fsload} ${fdt_addr} boot/${fdt_file}; then " \
-			"echo Loaded DTB from boot/${fdt_file}; " \
+		"if ${fsload} ${fdt_addr} ${bootdir}/${fdt_file}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file}; " \
 			"run fixfdt; " \
-		"elif ${fsload} ${fdt_addr} boot/${fdt_file1}; then " \
-			"echo Loaded DTB from boot/${fdt_file1}; " \
+		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file1}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file1}; " \
 			"run fixfdt; " \
-		"elif ${fsload} ${fdt_addr} boot/${fdt_file2}; then " \
-			"echo Loaded DTB from boot/${fdt_file2}; " \
+		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file2}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file2}; " \
 			"run fixfdt; " \
 		"fi\0" \
 	\
