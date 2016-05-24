@@ -15,7 +15,7 @@
 
 #include "../init.h"
 #include "ddrphy-ld20-regs.h"
-#include "umc-ld20-regs.h"
+#include "umc64-regs.h"
 
 #define DRAM_CH_NR	3
 
