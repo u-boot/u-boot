@@ -173,7 +173,7 @@ static int nand_read_page(int block, int page, void *dst)
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 {
 	unsigned int block, lastblock;
-	unsigned int page;
+	unsigned int page, page_offset;
 
 	/*
 	 * offs has to be aligned to a page address!
@@ -181,6 +181,7 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 	block = offs / CONFIG_SYS_NAND_BLOCK_SIZE;
 	lastblock = (offs + size - 1) / CONFIG_SYS_NAND_BLOCK_SIZE;
 	page = (offs % CONFIG_SYS_NAND_BLOCK_SIZE) / CONFIG_SYS_NAND_PAGE_SIZE;
+	page_offset = offs % CONFIG_SYS_NAND_PAGE_SIZE;
 
 	while (block <= lastblock) {
 		if (!nand_is_bad_block(block)) {
@@ -189,6 +190,18 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 			 */
 			while (page < CONFIG_SYS_NAND_PAGE_COUNT) {
 				nand_read_page(block, page, dst);
+				/*
+				 * When offs is not aligned to page address the
+				 * extra offset is copied to dst as well. Copy
+				 * the image such that its first byte will be
+				 * at the dst.
+				 */
+				if (unlikely(page_offset)) {
+					memmove(dst, dst + page_offset,
+						CONFIG_SYS_NAND_PAGE_SIZE);
+					dst = (void *)((int)dst - page_offset);
+					page_offset = 0;
+				}
 				dst += CONFIG_SYS_NAND_PAGE_SIZE;
 				page++;
 			}
