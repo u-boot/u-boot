@@ -762,6 +762,11 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 			gpio_direction_input(cfg->gpio_param);
 		} else if (hwconfig_subarg_cmp(arg, "mode", "pwm") &&
 			   cfg->pwm_padmux) {
+			if (!cfg->pwm_param) {
+				printf("DIO%d:  Error: pwm config invalid\n",
+					i);
+				continue;
+			}
 			if (!quiet)
 				printf("DIO%d:  pwm%d\n", i, cfg->pwm_param);
 			imx_iomux_v3_setup_pad(cfg->pwm_padmux[cputype] |

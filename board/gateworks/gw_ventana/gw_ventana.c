@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
+#include <hwconfig.h>
 #include <i2c.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
@@ -777,6 +778,16 @@ static int ft_sethdmiinfmt(void *blob, char *mode)
 	return 0;
 }
 
+/* enable a property of a node if the node is found */
+static inline void ft_enable_path(void *blob, const char *path)
+{
+	int i = fdt_path_offset(blob, path);
+	if (i >= 0) {
+		debug("enabling %s\n", path);
+		fdt_status_okay(blob, i);
+	}
+}
+
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command
  *
@@ -918,6 +929,25 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 		/* set BT656 video format */
 		ft_sethdmiinfmt(blob, "yuv422bt656");
+	}
+
+	/* Configure DIO */
+	for (i = 0; i < gpio_cfg[board_type].num_gpios; i++) {
+		struct dio_cfg *cfg = &gpio_cfg[board_type].dio_cfg[i];
+		char arg[10];
+
+		sprintf(arg, "dio%d", i);
+		if (!hwconfig(arg))
+			continue;
+		if (hwconfig_subarg_cmp(arg, "mode", "pwm") && cfg->pwm_param)
+		{
+			char path[48];
+			sprintf(path, "/soc/aips-bus@02000000/pwm@%08x",
+				0x02080000 + (0x4000 * (cfg->pwm_param - 1)));
+			printf("   Enabling pwm%d for DIO%d\n",
+			       cfg->pwm_param, i);
+			ft_enable_path(blob, path);
+		}
 	}
 
 	/*
