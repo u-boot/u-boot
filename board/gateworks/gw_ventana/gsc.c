@@ -98,6 +98,12 @@ int gsc_info(int verbose)
 		gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1,
 			      &buf[GSC_SC_STATUS], 1);
 	}
+	if (!gsc_i2c_read(GSC_HWMON_ADDR, GSC_HWMON_TEMP, 1, buf, 2)) {
+		int ui = buf[0] | buf[1]<<8;
+		if (ui > 0x8000)
+			ui -= 0xffff;
+		printf(" board temp at %dC", ui / 10);
+	}
 	puts("\n");
 	if (!verbose)
 		return CMD_RET_SUCCESS;
