@@ -165,6 +165,10 @@ static const struct udevice_id uniphier_mio_clk_match[] = {
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
 	{
+		.compatible = "socionext,ph1-ld11-mioctrl",
+		.data = (ulong)&uniphier_mio_clk_data,
+	},
+	{
 		.compatible = "socionext,ph1-ld20-mioctrl",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},
