@@ -182,6 +182,7 @@ int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
 	 */
 	dst = load_ptr + data_size;
 	fdt_offset += base_offset;
+	sectors = (fdt_len + info->bl_len - 1) / info->bl_len;
 	count = info->read(info, sector + fdt_offset / info->bl_len, sectors,
 			   dst);
 	debug("fit read %x sectors to %x, dst %p, data_offset %x\n",
