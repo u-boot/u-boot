@@ -87,6 +87,9 @@ read_eeprom(int bus, struct ventana_board_info *info)
 		} else if (info->model[4] == '2') {
 			type = GW552x;
 			break;
+		} else if (info->model[4] == '3') {
+			type = GW553x;
+			break;
 		}
 		/* fall through */
 	default:

@@ -117,7 +117,8 @@ int gsc_info(int verbose)
 	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3);
 	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3);
 	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3);
-	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
+	if (strncasecmp((const char*) ventana_info.model, "GW553", 5))
+		read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
 	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3);
 	read_hwmon("VDD_IO2",  GSC_HWMON_VDD_IO2, 3);
 	switch (ventana_info.model[3]) {

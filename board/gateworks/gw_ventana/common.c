@@ -316,6 +316,20 @@ static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
+	/* PANLEDG# */
+	IOMUX_PADS(PAD_KEY_COL2__GPIO4_IO10 | DIO_PAD_CFG),
+	/* PANLEDR# */
+	IOMUX_PADS(PAD_KEY_ROW2__GPIO4_IO11 | DIO_PAD_CFG),
+
+	/* VID_PWR */
+	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+};
+
 
 /*
  * Board Specific GPIO
@@ -612,6 +626,46 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.usb_sel = IMX_GPIO_NR(1, 7),
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
+	},
+
+	/* GW553x */
+	{
+		.gpio_pads = gw553x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw553x_gpio_pads)/2,
+		.dio_cfg = {
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+				IMX_GPIO_NR(1, 16),
+				{ 0, 0 },
+				0
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+				IMX_GPIO_NR(1, 19),
+				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+				2
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+				IMX_GPIO_NR(1, 17),
+				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+				3
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+				IMX_GPIO_NR(1, 18),
+				{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+				4
+			},
+		},
+		.num_gpios = 4,
+		.leds = {
+			IMX_GPIO_NR(4, 10),
+			IMX_GPIO_NR(4, 11),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 0),
+		.vidin_en = IMX_GPIO_NR(5, 20),
+		.wdis = IMX_GPIO_NR(7, 12),
 	},
 };
 
