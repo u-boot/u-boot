@@ -1,0 +1,7 @@
+SAMA5D2 PTC Engineering BOARD
+M:	Wenyou Yang <wenyou.yang@atmel.com>
+S:	Maintained
+F:	board/atmel/sama5d2_ptc/
+F:	include/configs/sama5d2_ptc.h
+F:	configs/sama5d2_ptc_spiflash_defconfig
+F:	configs/sama5d2_ptc_nandflash_defconfig

@@ -171,10 +171,11 @@ static void board_sdhci0_hw_init(void)
 	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 9, 0);	/* SDMMC0_DAT7 */
 	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 10, 0);	/* SDMMC0_RSTN */
 	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 11, 0);	/* SDMMC0_VDDSEL */
+	atmel_pio4_set_a_periph(AT91_PIO_PORTA, 13, 0);	/* SDMMC0_CD */
 
 	at91_periph_clk_enable(ATMEL_ID_SDMMC0);
 	at91_enable_periph_generated_clk(ATMEL_ID_SDMMC0,
-					 GCK_CSS_PLLA_CLK, 1);
+					 GCK_CSS_UPLL_CLK, 1);
 }
 
 static void board_sdhci1_hw_init(void)
@@ -190,7 +191,7 @@ static void board_sdhci1_hw_init(void)
 
 	at91_periph_clk_enable(ATMEL_ID_SDMMC1);
 	at91_enable_periph_generated_clk(ATMEL_ID_SDMMC1,
-					 GCK_CSS_PLLA_CLK, 1);
+					 GCK_CSS_UPLL_CLK, 1);
 }
 
 int board_mmc_init(bd_t *bis)
