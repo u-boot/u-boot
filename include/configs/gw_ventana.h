@@ -306,7 +306,7 @@
 	"script=6x_bootscript-ventana\0" \
 	"loadscript=" \
 		"if ${fsload} ${loadaddr} ${bootdir}/${script}; then " \
-			"source; " \
+			"source ${loadaddr}; " \
 		"fi\0" \
 	\
 	"uimage=uImage\0" \
