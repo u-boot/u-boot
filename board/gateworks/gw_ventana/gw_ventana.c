@@ -317,6 +317,8 @@ static void enable_lvds(struct display_info_t const *dev)
 	writel(reg, &iomux->gpr[2]);
 
 	/* Enable Backlight */
+	gpio_request(IMX_GPIO_NR(1, 10), "bklt_gpio");
+	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
 	gpio_request(IMX_GPIO_NR(1, 18), "bklt_en");
 	SETUP_IOMUX_PAD(PAD_SD1_CMD__GPIO1_IO18 | DIO_PAD_CFG);
 	gpio_direction_output(IMX_GPIO_NR(1, 18), 1);
@@ -456,8 +458,7 @@ static void setup_display(void)
 	       <<IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
 	writel(reg, &iomux->gpr[3]);
 
-	/* Backlight CABEN on LVDS connector */
-	gpio_request(IMX_GPIO_NR(1, 10), "bklt_gpio");
+	/* LVDS Backlight GPIO on LVDS connector - output low */
 	SETUP_IOMUX_PAD(PAD_SD2_CLK__GPIO1_IO10 | DIO_PAD_CFG);
 	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
 }
