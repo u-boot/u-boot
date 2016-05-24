@@ -228,12 +228,12 @@
 
 #define CONFIG_MMCBOOTCOMMAND \
 	"setenv dev mmc; " \
-	"setenv rootdev mmcblk0p1; " \
+	"setenv rootdev mmcblk0p${partnum}; " \
 	\
 	"setenv devnum ${sddev}; " \
 	"if mmc dev ${devnum}; then " \
 		"run tryboot; " \
-		"setenv rootdev mmcblk1p1; " \
+		"setenv rootdev mmcblk1p${partnum}; " \
 	"fi; " \
 	\
 	"setenv devnum ${emmcdev}; " \
@@ -245,7 +245,7 @@
 	"usb start; " \
 	"setenv dev usb; " \
 	"setenv devnum 0; " \
-	"setenv rootdev sda1; " \
+	"setenv rootdev sda${partnum}; " \
 	"run tryboot; " \
 	\
 	CONFIG_MMCBOOTCOMMAND \
