@@ -42,10 +42,6 @@
 	};
 };
 
-&serdes {
-	status = "okay";
-};
-
 &can1 {
 	status = "okay";
 };
@@ -581,6 +577,10 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 &sdhci1 {
 	status = "okay";
 	no-1-8-v;	/* for 1.0 silicon */
+};
+
+&serdes {
+	status = "okay";
 };
 
 &uart0 {

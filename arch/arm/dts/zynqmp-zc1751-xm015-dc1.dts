@@ -41,10 +41,6 @@
 	};
 };
 
-&serdes {
-	status = "okay";
-};
-
 /* fpd_dma clk 667MHz, lpd_dma 500MHz */
 &fpd_dma_chan1 {
 	status = "okay";
@@ -170,6 +166,10 @@
 &sdhci1 {
 	status = "okay";
 	no-1-8-v;       /* for 1.0 silicon */
+};
+
+&serdes {
+	status = "okay";
 };
 
 &uart0 {
