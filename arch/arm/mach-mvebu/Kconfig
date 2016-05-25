@@ -31,6 +31,11 @@ config ARMADA_3700
 	bool
 	select ARM64
 
+# Armada 7K and 8K are very similar - use only one Kconfig symbol for both
+config ARMADA_8K
+	bool
+	select ARM64
+
 # Armada XP/38x SoC types...
 config MV78230
 	bool
@@ -49,7 +54,7 @@ config 88F6820
 	select ARMADA_38X
 
 choice
-	prompt "Marvell MVEBU (Armada XP/375/38x/3700) board select"
+	prompt "Armada XP/375/38x/3700/7K/8K board select"
 	optional
 
 config TARGET_CLEARFOG
