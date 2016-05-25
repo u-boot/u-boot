@@ -202,6 +202,7 @@
 				reg-io-width = <1>;
 				clocks = <&ap_syscon 3>;
 				status = "disabled";
+				clock-frequency = <200000000>;
 			};
 
 			uart1: serial@512100 {
