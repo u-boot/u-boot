@@ -192,6 +192,9 @@ int spl_init(void)
 
 	debug("spl_init()\n");
 #if defined(CONFIG_SYS_MALLOC_F_LEN)
+#ifdef CONFIG_MALLOC_F_ADDR
+	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+#endif
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
 #endif
