@@ -213,7 +213,7 @@
 			"echo Loaded environment from ${bootenv}; " \
 			"run importbootenv; " \
 		"fi\0" \
-	"sdboot=mmc dev $sdbootdev && mmcinfo && run uenvboot && " \
+	"sdboot=mmc dev $sdbootdev && mmcinfo && run uenvboot; " \
 		"load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
