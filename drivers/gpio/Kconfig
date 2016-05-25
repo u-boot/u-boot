@@ -173,4 +173,30 @@ config DM_PCA953X
 
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
+
+config MPC85XX_GPIO
+	bool "Freescale MPC85XX GPIO driver"
+	depends on DM_GPIO
+	help
+	  This driver supports the built-in GPIO controller of MPC85XX CPUs.
+	  Each GPIO bank is identified by its own entry in the device tree,
+	  i.e.
+
+	  gpio-controller@fc00 {
+		#gpio-cells = <2>;
+		compatible = "fsl,pq3-gpio";
+		reg = <0xfc00 0x100>
+	  }
+
+	  By default, each bank is assumed to have 32 GPIOs, but the ngpios
+	  setting is honored, so the number of GPIOs for each bank is
+	  configurable to match the actual GPIO count of the SoC (e.g. the
+	  32/32/23 banks of the P1022 SoC).
+
+	  The standard functions of input/output mode, and output value setting
+	  are supported; the open-drain capability of the controller is not
+	  supported yet.
+
+	  The driver has been tested on MPC85XX, but it is likely that other
+	  PowerQUICC III devices will work as well.
 endmenu

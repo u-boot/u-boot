@@ -35,6 +35,7 @@ obj-$(CONFIG_DA8XX_GPIO)	+= da8xx_gpio.o
 obj-$(CONFIG_DM644X_GPIO)	+= da8xx_gpio.o
 obj-$(CONFIG_ALTERA_PIO)	+= altera_pio.o
 obj-$(CONFIG_MPC83XX_GPIO)	+= mpc83xx_gpio.o
+obj-$(CONFIG_MPC85XX_GPIO)	+= mpc85xx_gpio.o
 obj-$(CONFIG_SH_GPIO_PFC)	+= sh_pfc.o
 obj-$(CONFIG_OMAP_GPIO)	+= omap_gpio.o
 obj-$(CONFIG_DB8500_GPIO)	+= db8500_gpio.o
