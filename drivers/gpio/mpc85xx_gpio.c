@@ -73,6 +73,25 @@ static inline void mpc85xx_gpio_set_high(struct ccsr_gpio *base, u32 gpios)
 	setbits_be32(&base->gpdir, gpios);
 }
 
+static inline int mpc85xx_gpio_open_drain_val(struct ccsr_gpio *base, u32 mask)
+{
+	return in_be32(&base->gpodr) & mask;
+}
+
+static inline void mpc85xx_gpio_open_drain_on(struct ccsr_gpio *base, u32
+					      gpios)
+{
+	/* GPODR register 1 -> open drain on */
+	setbits_be32(&base->gpodr, gpios);
+}
+
+static inline void mpc85xx_gpio_open_drain_off(struct ccsr_gpio *base,
+					       u32 gpios)
+{
+	/* GPODR register 0 -> open drain off (actively driven) */
+	clrbits_be32(&base->gpodr, gpios);
+}
+
 static int mpc85xx_gpio_direction_input(struct udevice *dev, unsigned gpio)
 {
 	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
@@ -113,6 +132,26 @@ static int mpc85xx_gpio_get_value(struct udevice *dev, unsigned gpio)
 		/* Input -> read value from GPDAT register */
 		return !!mpc85xx_gpio_get_val(data->base, gpio_mask(gpio));
 	}
+}
+
+static int mpc85xx_gpio_get_open_drain(struct udevice *dev, unsigned gpio)
+{
+	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+
+	return !!mpc85xx_gpio_open_drain_val(data->base, gpio_mask(gpio));
+}
+
+static int mpc85xx_gpio_set_open_drain(struct udevice *dev, unsigned gpio,
+				       int value)
+{
+	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+
+	if (value) {
+		mpc85xx_gpio_open_drain_on(data->base, gpio_mask(gpio));
+	} else {
+		mpc85xx_gpio_open_drain_off(data->base, gpio_mask(gpio));
+	}
+	return 0;
 }
 
 static int mpc85xx_gpio_get_function(struct udevice *dev, unsigned gpio)
@@ -168,6 +207,8 @@ static const struct dm_gpio_ops gpio_mpc85xx_ops = {
 	.direction_output	= mpc85xx_gpio_direction_output,
 	.get_value		= mpc85xx_gpio_get_value,
 	.set_value		= mpc85xx_gpio_set_value,
+	.get_open_drain		= mpc85xx_gpio_get_open_drain,
+	.set_open_drain		= mpc85xx_gpio_set_open_drain,
 	.get_function 		= mpc85xx_gpio_get_function,
 };
 
