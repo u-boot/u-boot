@@ -189,14 +189,14 @@
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 
 #if defined(CONFIG_MACH_SUN9I)
-#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x5fe0		/* ? KiB on sun9i */
+#define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fc0		/* ? KiB on sun9i */
 #elif defined(CONFIG_MACH_SUN50I)
-#define CONFIG_SPL_TEXT_BASE		0x10020		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x7fe0		/* 32 KiB on sun50i */
+#define CONFIG_SPL_TEXT_BASE		0x10040		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x7fc0		/* 32 KiB on sun50i */
 #else
-#define CONFIG_SPL_TEXT_BASE		0x20		/* sram start+header */
-#define CONFIG_SPL_MAX_SIZE		0x5fe0		/* 24KB on sun4i/sun7i */
+#define CONFIG_SPL_TEXT_BASE		0x40		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fc0		/* 24KB on sun4i/sun7i */
 #endif
 
 #define CONFIG_SPL_LIBDISK_SUPPORT
@@ -390,6 +390,23 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PRE_CONSOLE_BUFFER
 #define CONFIG_PRE_CON_BUF_SZ		4096 /* Aprox 2 80*25 screens */
 
+#ifdef CONFIG_ARM64
+/*
+ * Boards seem to come with at least 512MB of DRAM.
+ * The kernel should go at 512K, which is the default text offset (that will
+ * be adjusted at runtime if needed).
+ * There is no compression for arm64 kernels (yet), so leave some space
+ * for really big kernels, say 256MB for now.
+ * Scripts, PXE and DTBs should go afterwards, leaving the rest for the initrd.
+ * Align the initrd to a 2MB page.
+ */
+#define KERNEL_ADDR_R	__stringify(SDRAM_OFFSET(0080000))
+#define FDT_ADDR_R	__stringify(SDRAM_OFFSET(FA00000))
+#define SCRIPT_ADDR_R	__stringify(SDRAM_OFFSET(FC00000))
+#define PXEFILE_ADDR_R	__stringify(SDRAM_OFFSET(FD00000))
+#define RAMDISK_ADDR_R	__stringify(SDRAM_OFFSET(FE00000))
+
+#else
 /*
  * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
  * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
@@ -401,6 +418,7 @@ extern int soft_i2c_gpio_scl;
 #define SCRIPT_ADDR_R  __stringify(SDRAM_OFFSET(3100000))
 #define PXEFILE_ADDR_R __stringify(SDRAM_OFFSET(3200000))
 #define RAMDISK_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+#endif
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0xa000000\0" \

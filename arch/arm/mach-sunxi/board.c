@@ -247,6 +247,15 @@ u32 spl_boot_device(void)
 	return -1;		/* Never reached */
 }
 
+/*
+ * Properly announce BOOT_DEVICE_BOARD as "FEL".
+ * Overrides weak function from common/spl/spl.c
+ */
+void spl_board_announce_boot_device(void)
+{
+	printf("FEL");
+}
+
 /* No confirmation data available in SPL yet. Hardcode bootmode */
 u32 spl_boot_mode(void)
 {

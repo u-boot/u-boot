@@ -16,6 +16,9 @@
 #ifdef CONFIG_AXP221_POWER
 #include <axp221.h>
 #endif
+#ifdef CONFIG_AXP809_POWER
+#include <axp809.h>
+#endif
 #ifdef CONFIG_AXP818_POWER
 #include <axp818.h>
 #endif
@@ -32,6 +35,7 @@ int axp_set_aldo4(unsigned int mvolt);
 int axp_set_dldo(int dldo_num, unsigned int mvolt);
 int axp_set_eldo(int eldo_num, unsigned int mvolt);
 int axp_set_fldo(int fldo_num, unsigned int mvolt);
+int axp_set_sw(bool on);
 int axp_init(void);
 int axp_get_sid(unsigned int *sid);
 

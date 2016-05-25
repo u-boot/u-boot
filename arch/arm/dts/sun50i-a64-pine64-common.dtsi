@@ -40,7 +40,23 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "a64.dtsi"
+#include "sun50i-a64.dtsi"
+
+/ {
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	soc {
+		reg_vcc3v3: vcc3v3 {
+			compatible = "regulator-fixed";
+			regulator-name = "vcc3v3";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+		};
+	};
+};
 
 &mmc0 {
 	pinctrl-names = "default";
@@ -57,20 +73,8 @@
 	status = "okay";
 };
 
-&uart2 {
+&i2c1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart2_pins>;
-	status = "okay";
-};
-
-&uart3 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart3_pins_a>;
-	status = "okay";
-};
-
-&uart4 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart4_pins>;
+	pinctrl-0 = <&i2c1_pins>;
 	status = "okay";
 };

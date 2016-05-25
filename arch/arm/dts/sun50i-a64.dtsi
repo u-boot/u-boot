@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 ARM Ltd.
  * based on the Allwinner H3 dtsi:
- * 	Copyright (C) 2015 Jens Kuske <jenskuske@gmail.com>
+ *    Copyright (C) 2015 Jens Kuske <jenskuske@gmail.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -46,18 +46,9 @@
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 
 / {
-	compatible = "allwinner,a64";
 	interrupt-parent = <&gic>;
 	#address-cells = <1>;
 	#size-cells = <1>;
-
-	aliases {
-		serial0 = &uart0;
-		serial1 = &uart1;
-		serial2 = &uart2;
-		serial3 = &uart3;
-		serial4 = &uart4;
-	};
 
 	cpus {
 		#address-cells = <1>;
@@ -93,16 +84,27 @@
 	};
 
 	psci {
-		compatible = "arm,psci-0.2", "arm,psci";
+		compatible = "arm,psci-0.2";
 		method = "smc";
-		cpu_suspend = <0xc4000001>;
-		cpu_off = <0x84000002>;
-		cpu_on = <0xc4000003>;
 	};
 
-        memory {
+	memory {
 		device_type = "memory";
 		reg = <0x40000000 0>;
+	};
+
+	gic: interrupt-controller@1c81000 {
+		compatible = "arm,gic-400";
+		interrupt-controller;
+		#interrupt-cells = <3>;
+		#address-cells = <0>;
+
+		reg = <0x01c81000 0x1000>,
+		      <0x01c82000 0x2000>,
+		      <0x01c84000 0x2000>,
+		      <0x01c86000 0x2000>;
+		interrupts = <GIC_PPI 9
+		      (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
 	};
 
 	timer {
@@ -136,7 +138,7 @@
 			clock-output-names = "osc32k";
 		};
 
-		pll1: clk@01c20000 {
+		pll1: pll1_clk@1c20000 {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun8i-a23-pll1-clk";
 			reg = <0x01c20000 0x4>;
@@ -144,7 +146,7 @@
 			clock-output-names = "pll1";
 		};
 
-		pll6: clk@01c20028 {
+		pll6: pll6_clk@1c20028 {
 			#clock-cells = <1>;
 			compatible = "allwinner,sun6i-a31-pll6-clk";
 			reg = <0x01c20028 0x4>;
@@ -161,23 +163,24 @@
 			clock-output-names = "pll6d2";
 		};
 
-		/* dummy clock until pll6 can be reused */
-		pll8: pll8_clk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <1>;
-			clock-output-names = "pll8";
+		pll7: pll7_clk@1c2002c {
+			#clock-cells = <1>;
+			compatible = "allwinner,sun6i-a31-pll6-clk";
+			reg = <0x01c2002c 0x4>;
+			clocks = <&osc24M>;
+			clock-output-names = "pll7", "pll7x2";
 		};
 
-		cpu: cpu_clk@01c20050 {
+		cpu: cpu_clk@1c20050 {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun4i-a10-cpu-clk";
 			reg = <0x01c20050 0x4>;
 			clocks = <&osc32k>, <&osc24M>, <&pll1>, <&pll1>;
 			clock-output-names = "cpu";
+			critical-clocks = <0>;
 		};
 
-		axi: axi_clk@01c20050 {
+		axi: axi_clk@1c20050 {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun4i-a10-axi-clk";
 			reg = <0x01c20050 0x4>;
@@ -185,7 +188,7 @@
 			clock-output-names = "axi";
 		};
 
-		ahb1: ahb1_clk@01c20054 {
+		ahb1: ahb1_clk@1c20054 {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun6i-a31-ahb1-clk";
 			reg = <0x01c20054 0x4>;
@@ -193,7 +196,7 @@
 			clock-output-names = "ahb1";
 		};
 
-		ahb2: ahb2_clk@01c2005c {
+		ahb2: ahb2_clk@1c2005c {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun8i-h3-ahb2-clk";
 			reg = <0x01c2005c 0x4>;
@@ -201,7 +204,7 @@
 			clock-output-names = "ahb2";
 		};
 
-		apb1: apb1_clk@01c20054 {
+		apb1: apb1_clk@1c20054 {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun4i-a10-apb0-clk";
 			reg = <0x01c20054 0x4>;
@@ -209,7 +212,7 @@
 			clock-output-names = "apb1";
 		};
 
-		apb2: apb2_clk@01c20058 {
+		apb2: apb2_clk@1c20058 {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun4i-a10-apb1-clk";
 			reg = <0x01c20058 0x4>;
@@ -217,92 +220,95 @@
 			clock-output-names = "apb2";
 		};
 
-		bus_gates: clk@01c20060 {
+		bus_gates: bus_gates_clk@1c20060 {
 			#clock-cells = <1>;
-			compatible = "allwinner,a64-bus-gates-clk",
-				     "allwinner,sun8i-h3-bus-gates-clk";
+			compatible = "allwinner,sun50i-a64-bus-gates-clk",
+				     "allwinner,sunxi-multi-bus-gates-clk";
 			reg = <0x01c20060 0x14>;
-			clocks = <&ahb1>, <&ahb2>, <&apb1>, <&apb2>;
-			clock-names = "ahb1", "ahb2", "apb1", "apb2";
-			clock-indices = <1>,
-					<5>, <6>, <8>,
-					<9>, <10>, <13>,
-					<14>, <17>, <18>,
-					<19>, <20>,
-					<21>, <23>,
-					<24>, <25>,
-					<28>, <29>,
-					<32>, <35>,
-					<36>, <37>,
-					<40>, <43>,
-					<44>, <52>, <53>,
-					<54>, <64>,
-					<65>, <69>, <72>,
-					<76>, <77>, <78>,
-					<96>, <97>, <98>,
-					<101>,
-					<112>, <113>,
-					<114>, <115>,
-					<116>, <135>;
-			clock-output-names = "bus_mipidsi",
-					     "bus_ce", "bus_dma", "bus_mmc0",
-					     "bus_mmc1", "bus_mmc2", "bus_nand",
-					     "bus_sdram", "bus_gmac", "bus_ts",
-					     "bus_hstimer", "bus_spi0",
-					     "bus_spi1", "bus_otg",
-					     "bus_otg_ehci0", "bus_ehci0",
-					     "bus_otg_ohci0", "bus_ohci0",
-					     "bus_ve", "bus_lcd0",
-					     "bus_lcd1", "bus_deint",
-					     "bus_csi", "bus_hdmi",
-					     "bus_de", "bus_gpu", "bus_msgbox",
-					     "bus_spinlock", "bus_codec",
-					     "bus_spdif", "bus_pio", "bus_ths",
-					     "bus_i2s0", "bus_i2s1", "bus_i2s2",
-					     "bus_i2c0", "bus_i2c1", "bus_i2c2",
-					     "bus_scr",
-					     "bus_uart0", "bus_uart1",
-					     "bus_uart2", "bus_uart3",
-					     "bus_uart4", "bus_dbg";
+			ahb1_parent {
+				clocks = <&ahb1>;
+				clock-indices = <1>, <5>,
+						<6>, <8>,
+						<9>, <10>,
+						<13>, <14>,
+						<18>, <19>,
+						<20>, <21>,
+						<23>, <24>,
+						<25>, <28>,
+						<32>, <35>,
+						<36>, <37>,
+						<40>, <43>,
+						<44>, <52>,
+						<53>, <54>,
+						<135>;
+				clock-output-names = "bus_mipidsi", "bus_ce",
+						"bus_dma", "bus_mmc0",
+						"bus_mmc1", "bus_mmc2",
+						"bus_nand", "bus_sdram",
+						"bus_ts", "bus_hstimer",
+						"bus_spi0", "bus_spi1",
+						"bus_otg", "bus_otg_ehci0",
+						"bus_ehci0", "bus_otg_ohci0",
+						"bus_ve", "bus_lcd0",
+						"bus_lcd1", "bus_deint",
+						"bus_csi", "bus_hdmi",
+						"bus_de", "bus_gpu",
+						"bus_msgbox", "bus_spinlock",
+						"bus_dbg";
+			};
+			ahb2_parent {
+				clocks = <&ahb2>;
+				clock-indices = <17>, <29>;
+				clock-output-names = "bus_gmac", "bus_ohci0";
+			};
+			apb1_parent {
+				clocks = <&apb1>;
+				clock-indices = <64>, <65>,
+						<69>, <72>,
+						<76>, <77>,
+						<78>;
+				clock-output-names = "bus_codec", "bus_spdif",
+						"bus_pio", "bus_ths",
+						"bus_i2s0", "bus_i2s1",
+						"bus_i2s2";
+			};
+			abp2_parent {
+				clocks = <&apb2>;
+				clock-indices = <96>, <97>,
+						<98>, <101>,
+						<112>, <113>,
+						<114>, <115>,
+						<116>;
+				clock-output-names = "bus_i2c0", "bus_i2c1",
+						"bus_i2c2", "bus_scr",
+						"bus_uart0", "bus_uart1",
+						"bus_uart2", "bus_uart3",
+						"bus_uart4";
+			};
 		};
 
-		mmc0_clk: clk@01c20088 {
-			#clock-cells = <1>;
-			compatible = "allwinner,sun4i-a10-mmc-clk";
+		mmc0_clk: mmc0_clk@1c20088 {
+			#clock-cells = <0>;
+			compatible = "allwinner,sun4i-a10-mod0-clk";
 			reg = <0x01c20088 0x4>;
-			clocks = <&osc24M>, <&pll6 0>, <&pll8>;
-			clock-output-names = "mmc0",
-					     "mmc0_output",
-					     "mmc0_sample";
-		};
+			clocks = <&osc24M>, <&pll6 1>, <&pll7 1>;
+			clock-output-names = "mmc0";
+                };
 
-		mmc1_clk: clk@01c2008c {
-			#clock-cells = <1>;
-			compatible = "allwinner,sun4i-a10-mmc-clk";
+		mmc1_clk: mmc1_clk@1c2008c {
+			#clock-cells = <0>;
+			compatible = "allwinner,sun4i-a10-mod0-clk";
 			reg = <0x01c2008c 0x4>;
-			clocks = <&osc24M>, <&pll6 0>, <&pll8>;
-			clock-output-names = "mmc1",
-					     "mmc1_output",
-					     "mmc1_sample";
+			clocks = <&osc24M>, <&pll6 1>, <&pll7 1>;
+			clock-output-names = "mmc1";
 		};
 
-		mmc2_clk: clk@01c20090 {
-			#clock-cells = <1>;
-			compatible = "allwinner,sun4i-a10-mmc-clk";
+		mmc2_clk: mmc2_clk@1c20090 {
+			#clock-cells = <0>;
+			compatible = "allwinner,sun4i-a10-mod0-clk";
 			reg = <0x01c20090 0x4>;
-			clocks = <&osc24M>, <&pll6 0>, <&pll8>;
-			clock-output-names = "mmc2",
-					     "mmc2_output",
-					     "mmc2_sample";
-		};
-	};
-
-	regulators {
-		reg_vcc3v3: vcc3v3 {
-			compatible = "regulator-fixed";
-			regulator-name = "vcc3v3";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
+			clocks = <&osc24M>, <&pll6 1>, <&pll7 1>;
+			clock-output-names = "mmc2";
 		};
 	};
 
@@ -312,17 +318,14 @@
 		#size-cells = <1>;
 		ranges;
 
-		mmc0: mmc@01c0f000 {
-			compatible = "allwinner,sun5i-a13-mmc";
+		mmc0: mmc@1c0f000 {
+			compatible = "allwinner,sun50i-a64-mmc",
+				     "allwinner,sun5i-a13-mmc";
 			reg = <0x01c0f000 0x1000>;
-			clocks = <&bus_gates 8>,
-				 <&mmc0_clk 0>,
-				 <&mmc0_clk 1>,
-				 <&mmc0_clk 2>;
-			clock-names = "ahb",
-				      "mmc",
-				      "output",
-				      "sample";
+			clocks = <&bus_gates 8>, <&mmc0_clk>,
+				 <&mmc0_clk>, <&mmc0_clk>;
+			clock-names = "ahb", "mmc",
+				      "output", "sample";
 			resets = <&ahb_rst 8>;
 			reset-names = "ahb";
 			interrupts = <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
@@ -331,17 +334,14 @@
 			#size-cells = <0>;
 		};
 
-		mmc1: mmc@01c10000 {
-			compatible = "allwinner,sun5i-a13-mmc";
+		mmc1: mmc@1c10000 {
+			compatible = "allwinner,sun50i-a64-mmc",
+				     "allwinner,sun5i-a13-mmc";
 			reg = <0x01c10000 0x1000>;
-			clocks = <&bus_gates 9>,
-				 <&mmc1_clk 0>,
-				 <&mmc1_clk 1>,
-				 <&mmc1_clk 2>;
-			clock-names = "ahb",
-				      "mmc",
-				      "output",
-				      "sample";
+			clocks = <&bus_gates 9>, <&mmc1_clk>,
+				 <&mmc1_clk>, <&mmc1_clk>;
+			clock-names = "ahb", "mmc",
+				      "output", "sample";
 			resets = <&ahb_rst 9>;
 			reset-names = "ahb";
 			interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
@@ -350,17 +350,14 @@
 			#size-cells = <0>;
 		};
 
-		mmc2: mmc@01c11000 {
-			compatible = "allwinner,sun5i-a13-mmc";
+		mmc2: mmc@1c11000 {
+			compatible = "allwinner,sun50i-a64-mmc",
+				     "allwinner,sun5i-a13-mmc";
 			reg = <0x01c11000 0x1000>;
-			clocks = <&bus_gates 10>,
-				 <&mmc2_clk 0>,
-				 <&mmc2_clk 1>,
-				 <&mmc2_clk 2>;
-			clock-names = "ahb",
-				      "mmc",
-				      "output",
-				      "sample";
+			clocks = <&bus_gates 10>, <&mmc2_clk>,
+				 <&mmc2_clk>, <&mmc2_clk>;
+			clock-names = "ahb", "mmc",
+				      "output", "sample";
 			resets = <&ahb_rst 10>;
 			reset-names = "ahb";
 			interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
@@ -369,8 +366,8 @@
 			#size-cells = <0>;
 		};
 
-		pio: pinctrl@01c20800 {
-			compatible = "allwinner,a64-pinctrl";
+		pio: pinctrl@1c20800 {
+			compatible = "allwinner,sun50i-a64-pinctrl";
 			reg = <0x01c20800 0x400>;
 			interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
@@ -395,14 +392,28 @@
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
-			uart1_pins: uart1@0 {
+			uart1_2pins: uart1_2@0 {
+				allwinner,pins = "PG6", "PG7";
+				allwinner,function = "uart1";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			uart1_4pins: uart1_4@0 {
 				allwinner,pins = "PG6", "PG7", "PG8", "PG9";
 				allwinner,function = "uart1";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
-			uart2_pins: uart2@0 {
+			uart2_2pins: uart2_2@0 {
+				allwinner,pins = "PB0", "PB1";
+				allwinner,function = "uart2";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			uart2_4pins: uart2_4@0 {
 				allwinner,pins = "PB0", "PB1", "PB2", "PB3";
 				allwinner,function = "uart2";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
@@ -416,14 +427,28 @@
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
-			uart3_pins_b: uart3@1 {
+			uart3_2pins_b: uart3_2@1 {
+				allwinner,pins = "PH4", "PH5";
+				allwinner,function = "uart3";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			uart3_4pins_b: uart3_4@1 {
 				allwinner,pins = "PH4", "PH5", "PH6", "PH7";
 				allwinner,function = "uart3";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
-			uart4_pins: uart4@0 {
+			uart4_2pins: uart4_2@0 {
+				allwinner,pins = "PD2", "PD3";
+				allwinner,function = "uart4";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			uart4_4pins: uart4_4@0 {
 				allwinner,pins = "PD2", "PD3", "PD4", "PD5";
 				allwinner,function = "uart4";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
@@ -460,27 +485,48 @@
 				allwinner,drive = <SUN4I_PINCTRL_30_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
+
+			i2c0_pins: i2c0_pins {
+				allwinner,pins = "PH0", "PH1";
+				allwinner,function = "i2c0";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			i2c1_pins: i2c1_pins {
+				allwinner,pins = "PH2", "PH3";
+				allwinner,function = "i2c1";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			i2c2_pins: i2c2_pins {
+				allwinner,pins = "PE14", "PE15";
+				allwinner,function = "i2c2";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
 		};
 
-		ahb_rst: reset@01c202c0 {
+		ahb_rst: reset@1c202c0 {
 			#reset-cells = <1>;
-			compatible = "allwinner,sun6i-a31-ahb1-reset";
+			compatible = "allwinner,sun6i-a31-clock-reset";
 			reg = <0x01c202c0 0xc>;
 		};
 
-		apb1_rst: reset@01c202d0 {
+		apb1_rst: reset@1c202d0 {
 			#reset-cells = <1>;
 			compatible = "allwinner,sun6i-a31-clock-reset";
 			reg = <0x01c202d0 0x4>;
 		};
 
-		apb2_rst: reset@01c202d8 {
+		apb2_rst: reset@1c202d8 {
 			#reset-cells = <1>;
 			compatible = "allwinner,sun6i-a31-clock-reset";
 			reg = <0x01c202d8 0x4>;
 		};
 
-		uart0: serial@01c28000 {
+		uart0: serial@1c28000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x01c28000 0x400>;
 			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
@@ -488,11 +534,10 @@
 			reg-io-width = <4>;
 			clocks = <&bus_gates 112>;
 			resets = <&apb2_rst 16>;
-			reset-names = "apb2";
 			status = "disabled";
 		};
 
-		uart1: serial@01c28400 {
+		uart1: serial@1c28400 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x01c28400 0x400>;
 			interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
@@ -500,11 +545,10 @@
 			reg-io-width = <4>;
 			clocks = <&bus_gates 113>;
 			resets = <&apb2_rst 17>;
-			reset-names = "apb2";
 			status = "disabled";
 		};
 
-		uart2: serial@01c28800 {
+		uart2: serial@1c28800 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x01c28800 0x400>;
 			interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
@@ -512,11 +556,10 @@
 			reg-io-width = <4>;
 			clocks = <&bus_gates 114>;
 			resets = <&apb2_rst 18>;
-			reset-names = "apb2";
 			status = "disabled";
 		};
 
-		uart3: serial@01c28c00 {
+		uart3: serial@1c28c00 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x01c28c00 0x400>;
 			interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
@@ -524,11 +567,10 @@
 			reg-io-width = <4>;
 			clocks = <&bus_gates 115>;
 			resets = <&apb2_rst 19>;
-			reset-names = "apb2";
 			status = "disabled";
 		};
 
-		uart4: serial@01c29000 {
+		uart4: serial@1c29000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x01c29000 0x400>;
 			interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
@@ -536,29 +578,47 @@
 			reg-io-width = <4>;
 			clocks = <&bus_gates 116>;
 			resets = <&apb2_rst 20>;
-			reset-names = "apb2";
 			status = "disabled";
 		};
 
-		rtc: rtc@01f00000 {
+		rtc: rtc@1f00000 {
 			compatible = "allwinner,sun6i-a31-rtc";
 			reg = <0x01f00000 0x54>;
 			interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
 		};
-	};
 
-	gic: interrupt-controller@{
-		compatible = "arm,gic-400";
-		interrupt-controller;
-		#interrupt-cells = <3>;
-		#address-cells = <0>;
+		i2c0: i2c@1c2ac00 {
+			compatible = "allwinner,sun6i-a31-i2c";
+			reg = <0x01c2ac00 0x400>;
+			interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&bus_gates 96>;
+			resets = <&apb2_rst 0>;
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
 
-		reg = <0x01C81000 0x1000>,
-		      <0x01C82000 0x2000>,
-		      <0x01C84000 0x2000>,
-		      <0x01C86000 0x2000>;
-		interrupts = <GIC_PPI 9
-		      (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+		i2c1: i2c@1c2b000 {
+			compatible = "allwinner,sun6i-a31-i2c";
+			reg = <0x01c2b000 0x400>;
+			interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&bus_gates 97>;
+			resets = <&apb2_rst 1>;
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c2: i2c@1c2b400 {
+			compatible = "allwinner,sun6i-a31-i2c";
+			reg = <0x01c2b400 0x400>;
+			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&bus_gates 98>;
+			resets = <&apb2_rst 2>;
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
 	};
 };

@@ -42,15 +42,11 @@
 
 /dts-v1/;
 
-/memreserve/ 0x45000000 0x00200000;
-/memreserve/ 0x41010000 0x00010800;
-/memreserve/ 0x40100000 0x00006000;
-
-#include "pine64_common.dtsi"
+#include "sun50i-a64-pine64-common.dtsi"
 
 / {
 	model = "Pine64";
-	compatible = "pine64,pine64", "allwinner,a64";
+	compatible = "pine64,pine64", "allwinner,sun50i-a64";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
