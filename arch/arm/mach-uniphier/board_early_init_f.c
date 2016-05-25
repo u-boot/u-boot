@@ -62,6 +62,13 @@ int board_early_init_f(void)
 		uniphier_pxs2_clk_init();
 		break;
 #endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+	case SOC_UNIPHIER_LD11:
+		uniphier_ld20_pin_init();
+		led_puts("U1");
+		uniphier_ld11_clk_init();
+		break;
+#endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	case SOC_UNIPHIER_LD20:
 		uniphier_ld20_pin_init();

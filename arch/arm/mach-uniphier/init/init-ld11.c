@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2016 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,7 +11,7 @@
 #include "../init.h"
 #include "../micro-support-card.h"
 
-int uniphier_ld20_init(const struct uniphier_board_data *bd)
+int uniphier_ld11_init(const struct uniphier_board_data *bd)
 {
 	uniphier_sbc_init_savepin(bd);
 	uniphier_pxs2_sbc_init(bd);
@@ -23,11 +24,10 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 	led_puts("L0");
 
 	memconf_init(bd);
-	uniphier_pxs2_memconf_init(bd);
 
 	led_puts("L1");
 
-	uniphier_ld20_early_clk_init(bd);
+	uniphier_ld11_early_clk_init(bd);
 
 	led_puts("L2");
 
@@ -42,7 +42,7 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 	{
 		int res;
 
-		res = uniphier_ld20_umc_init(bd);
+		res = uniphier_ld11_umc_init(bd);
 		if (res < 0) {
 			while (1)
 				;
@@ -52,6 +52,8 @@ int uniphier_ld20_init(const struct uniphier_board_data *bd)
 	led_puts("L5");
 
 	dcache_disable();
+
+	led_puts("L6");
 
 	return 0;
 }
