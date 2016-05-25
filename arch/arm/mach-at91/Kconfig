@@ -122,6 +122,10 @@ config TARGET_CORVUS
 	bool "Support corvus"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_ETH
 
 config TARGET_TAURUS
 	bool "Support taurus"

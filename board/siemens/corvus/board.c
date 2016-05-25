@@ -11,21 +11,23 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9g45_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_rstc.h>
+#include <asm/arch/atmel_serial.h>
 #include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/clk.h>
-#include <lcd.h>
-#include <atmel_lcdc.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
+#ifndef CONFIG_DM_ETH
 #include <netdev.h>
+#endif
 #include <spi.h>
 
 #ifdef CONFIG_USB_GADGET_ATMEL_USBA
@@ -33,6 +35,24 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static void corvus_request_gpio(void)
+{
+	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand ena");
+	gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand rdy");
+	gpio_request(AT91_PIN_PD7, "d0");
+	gpio_request(AT91_PIN_PD8, "d1");
+	gpio_request(AT91_PIN_PA12, "d2");
+	gpio_request(AT91_PIN_PA13, "d3");
+	gpio_request(AT91_PIN_PA15, "d4");
+	gpio_request(AT91_PIN_PB7, "recovery button");
+	gpio_request(AT91_PIN_PD1, "USB0");
+	gpio_request(AT91_PIN_PD3, "USB1");
+	gpio_request(AT91_PIN_PB18, "SPICS1");
+	gpio_request(AT91_PIN_PB3, "SPICS0");
+	gpio_request(CONFIG_RED_LED, "red led");
+	gpio_request(CONFIG_GREEN_LED, "green led");
+}
 
 static void corvus_nand_hw_init(void)
 {
@@ -78,6 +98,7 @@ static void corvus_nand_hw_init(void)
 
 void spl_board_init(void)
 {
+	corvus_request_gpio();
 	/*
 	 * For on the sam9m10g45ek board, the chip wm9711 stay in the test
 	 * mode, so it need do some action to exit mode.
@@ -200,6 +221,7 @@ static void corvus_macb_hw_init(void)
 int board_early_init_f(void)
 {
 	at91_seriald_hw_init();
+	corvus_request_gpio();
 	return 0;
 }
 
@@ -220,6 +242,8 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
+	/* we have to request the gpios again after relocation */
+	corvus_request_gpio();
 #ifdef CONFIG_CMD_NAND
 	corvus_nand_hw_init();
 #endif
@@ -249,6 +273,7 @@ int dram_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_ETH
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
@@ -257,6 +282,7 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
+#endif
 
 /* SPI chip select control */
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
@@ -289,3 +315,12 @@ void spi_cs_deactivate(struct spi_slave *slave)
 			break;
 	}
 }
+
+static struct atmel_serial_platdata at91sam9260_serial_plat = {
+	.base_addr = ATMEL_BASE_DBGU,
+};
+
+U_BOOT_DEVICE(at91sam9260_serial) = {
+	.name	= "serial_atmel",
+	.platdata = &at91sam9260_serial_plat,
+};
