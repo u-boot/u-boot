@@ -54,12 +54,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_NS16550_IER  0x00
 #endif /* CONFIG_SYS_NS16550_IER */
 
-#ifdef CONFIG_DM_SERIAL
-
-#ifndef CONFIG_SYS_NS16550_CLK
-#define CONFIG_SYS_NS16550_CLK  0
-#endif
-
 static inline void serial_out_shift(void *addr, int shift, int value)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
@@ -93,6 +87,12 @@ static inline int serial_in_shift(void *addr, int shift)
 	return readb(addr);
 #endif
 }
+
+#ifdef CONFIG_DM_SERIAL
+
+#ifndef CONFIG_SYS_NS16550_CLK
+#define CONFIG_SYS_NS16550_CLK  0
+#endif
 
 static void ns16550_writeb(NS16550_t port, int offset, int value)
 {
