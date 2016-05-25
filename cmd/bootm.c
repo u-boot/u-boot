@@ -655,6 +655,7 @@ static int booti_setup(bootm_headers_t *images)
 {
 	struct Image_header *ih;
 	uint64_t dst;
+	uint64_t image_size;
 
 	ih = (struct Image_header *)map_sysmem(images->ep, 0);
 
@@ -665,14 +666,16 @@ static int booti_setup(bootm_headers_t *images)
 	
 	if (ih->image_size == 0) {
 		puts("Image lacks image_size field, assuming 16MiB\n");
-		ih->image_size = (16 << 20);
+		image_size = 16 << 20;
+	} else {
+		image_size = le64_to_cpu(ih->image_size);
 	}
 
 	/*
 	 * If we are not at the correct run-time location, set the new
 	 * correct location and then move the image there.
 	 */
-	dst = gd->bd->bi_dram[0].start + le32_to_cpu(ih->text_offset);
+	dst = gd->bd->bi_dram[0].start + le64_to_cpu(ih->text_offset);
 
 	unmap_sysmem(ih);
 
@@ -683,7 +686,7 @@ static int booti_setup(bootm_headers_t *images)
 
 		src = (void *)images->ep;
 		images->ep = dst;
-		memmove((void *)dst, src, le32_to_cpu(ih->image_size));
+		memmove((void *)dst, src, image_size);
 	}
 
 	return 0;
