@@ -8,7 +8,6 @@
  */
 
 #include <common.h>
-#include <clk.h>
 #include <dm.h>
 #include <syscon.h>
 #include <asm/errno.h>

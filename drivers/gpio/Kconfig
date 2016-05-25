@@ -116,6 +116,14 @@ config TEGRA_GPIO
 	  Support for the GPIO controller contained in NVIDIA Tegra20 through
 	  Tegra210.
 
+config TEGRA186_GPIO
+	bool "Tegra186 GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support for the GPIO controller contained in NVIDIA Tegra186. This
+	  covers both the "main" and "AON" controller instances, even though
+	  they have slightly different register layout.
+
 config GPIO_UNIPHIER
 	bool "UniPhier GPIO"
 	depends on ARCH_UNIPHIER
