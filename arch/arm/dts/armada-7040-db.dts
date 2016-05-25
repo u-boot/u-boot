@@ -146,3 +146,43 @@
 &cpm_usb3_1 {
 	status = "okay";
 };
+
+&comphy_cp110 {
+	phy0 {
+		phy-type = <PHY_TYPE_SGMII2>;
+		phy-speed = <PHY_SPEED_3_125G>;
+	};
+
+	phy1 {
+		phy-type = <PHY_TYPE_USB3_HOST0>;
+		phy-speed = <PHY_SPEED_5G>;
+	};
+
+	phy2 {
+		phy-type = <PHY_TYPE_SGMII0>;
+		phy-speed = <PHY_SPEED_1_25G>;
+	};
+
+	phy3 {
+		phy-type = <PHY_TYPE_SATA1>;
+		phy-speed = <PHY_SPEED_5G>;
+	};
+
+	phy4 {
+		phy-type = <PHY_TYPE_USB3_HOST1>;
+		phy-speed = <PHY_SPEED_5G>;
+	};
+
+	phy5 {
+		phy-type = <PHY_TYPE_PEX2>;
+		phy-speed = <PHY_SPEED_5G>;
+	};
+};
+
+&utmi0 {
+	status = "okay";
+};
+
+&utmi1 {
+	status = "okay";
+};
