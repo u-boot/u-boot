@@ -1058,20 +1058,20 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	if (found < 0)
 		return 1;
 
-	regval = ecc_matrix[i].eccaddr |
-		 (ecc_matrix[i].eccsize << ARASAN_NAND_ECC_SIZE_SHIFT) |
-		 (ecc_matrix[i].bch << ARASAN_NAND_ECC_BCH_SHIFT);
+	regval = ecc_matrix[found].eccaddr |
+		 (ecc_matrix[found].eccsize << ARASAN_NAND_ECC_SIZE_SHIFT) |
+		 (ecc_matrix[found].bch << ARASAN_NAND_ECC_BCH_SHIFT);
 	writel(regval, &arasan_nand_base->ecc_reg);
 
-	if (ecc_matrix[i].bch) {
+	if (ecc_matrix[found].bch) {
 		regval = readl(&arasan_nand_base->memadr_reg2);
 		regval &= ~ARASAN_NAND_MEM_ADDR2_BCH_MASK;
-		regval |= (ecc_matrix[i].bchval <<
+		regval |= (ecc_matrix[found].bchval <<
 			   ARASAN_NAND_MEM_ADDR2_BCH_SHIFT);
 		writel(regval, &arasan_nand_base->memadr_reg2);
 	}
 
-	nand_oob.eccbytes = ecc_matrix[i].eccsize;
+	nand_oob.eccbytes = ecc_matrix[found].eccsize;
 	eccpos_start = mtd->oobsize - nand_oob.eccbytes;
 
 	for (i = 0; i < nand_oob.eccbytes; i++)
@@ -1080,9 +1080,9 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	nand_oob.oobfree[0].offset = 2;
 	nand_oob.oobfree[0].length = eccpos_start - 2;
 
-	nand_chip->ecc.size = ecc_matrix[i].ecc_codeword_size;
-	nand_chip->ecc.strength = ecc_matrix[i].eccbits;
-	nand_chip->ecc.bytes = ecc_matrix[i].eccsize;
+	nand_chip->ecc.size = ecc_matrix[found].ecc_codeword_size;
+	nand_chip->ecc.strength = ecc_matrix[found].eccbits;
+	nand_chip->ecc.bytes = ecc_matrix[found].eccsize;
 	nand_chip->ecc.layout = &nand_oob;
 
 	return 0;
