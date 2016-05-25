@@ -12,6 +12,7 @@
 
 #include "zynqmp.dtsi"
 #include "zynqmp-clk.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "ZynqMP ZCU102 RevA";
@@ -38,6 +39,20 @@
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		autorepeat;
+		sw19 {
+			label = "sw19";
+			gpios = <&gpio 22 GPIO_ACTIVE_HIGH>;
+			linux,code = <108>; /* down */
+			gpio-key,wakeup;
+			autorepeat;
+		};
 	};
 
 	leds {
