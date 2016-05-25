@@ -129,25 +129,11 @@ static int ns16550_readb(NS16550_t port, int offset)
 		(unsigned char *)addr - (unsigned char *)com_port)
 #endif
 
-static inline int calc_divisor(NS16550_t port, int clock, int baudrate)
+int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate)
 {
 	const unsigned int mode_x_div = 16;
 
 	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
-}
-
-int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate)
-{
-#ifdef CONFIG_OMAP1510
-	/* If can't cleanly clock 115200 set div to 1 */
-	if ((clock == 12000000) && (baudrate == 115200)) {
-		port->osc_12m_sel = OSC_12M_SEL;  /* enable 6.5 * divisor */
-		return 1;			/* return 1 for base divisor */
-	}
-	port->osc_12m_sel = 0;			/* clear if previsouly set */
-#endif
-
-	return calc_divisor(port, clock, baudrate);
 }
 
 static void NS16550_setbrg(NS16550_t com_port, int baud_divisor)
@@ -272,8 +258,8 @@ static inline void _debug_uart_init(void)
 	 * feasible. The better fix is to move all users of this driver to
 	 * driver model.
 	 */
-	baud_divisor = calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
-				    CONFIG_BAUDRATE);
+	baud_divisor = ns16550_calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
+					    CONFIG_BAUDRATE);
 	serial_dout(&com_port->ier, CONFIG_SYS_NS16550_IER);
 	serial_dout(&com_port->mcr, UART_MCRVAL);
 	serial_dout(&com_port->fcr, UART_FCRVAL);
