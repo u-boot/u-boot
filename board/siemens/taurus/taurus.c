@@ -14,6 +14,7 @@
 
 #include <command.h>
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -21,16 +22,27 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/at91sam9_sdramc.h>
+#include <asm/arch/atmel_serial.h>
 #include <asm/arch/clk.h>
+#include <asm/gpio.h>
 #include <linux/mtd/nand.h>
 #include <atmel_mci.h>
 #include <asm/arch/at91_spi.h>
 #include <spi.h>
 
 #include <net.h>
+#ifndef CONFIG_DM_ETH
 #include <netdev.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static void taurus_request_gpio(void)
+{
+	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand ena");
+	gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand rdy");
+	gpio_request(AT91_PIN_PA25, "ena PHY");
+}
 
 static void taurus_nand_hw_init(void)
 {
@@ -265,6 +277,7 @@ int board_early_init_f(void)
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
 	at91_seriald_hw_init();
+	taurus_request_gpio();
 
 	return 0;
 }
@@ -308,6 +321,7 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
+	taurus_request_gpio();
 #ifdef CONFIG_CMD_NAND
 	taurus_nand_hw_init();
 #endif
@@ -330,6 +344,7 @@ int dram_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_ETH
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
@@ -338,6 +353,7 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
+#endif
 
 #if !defined(CONFIG_SPL_BUILD)
 #if defined(CONFIG_BOARD_AXM)
@@ -432,3 +448,12 @@ U_BOOT_CMD(
 );
 #endif
 #endif
+
+static struct atmel_serial_platdata at91sam9260_serial_plat = {
+	.base_addr = ATMEL_BASE_DBGU,
+};
+
+U_BOOT_DEVICE(at91sam9260_serial) = {
+	.name   = "serial_atmel",
+	.platdata = &at91sam9260_serial_plat,
+};

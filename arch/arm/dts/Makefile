@@ -3,6 +3,7 @@
 #
 
 dtb-$(CONFIG_AT91FAMILY) += at91sam9260-smartweb.dtb \
+	at91sam9g20-taurus.dtb \
 	at91sam9g45-corvus.dtb \
 	at91sam9g45-gurnard.dtb
 
