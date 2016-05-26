@@ -349,3 +349,56 @@ UNWIND(.save {lr})
 	ldr	pc, [sp], #8
 UNWIND(.fnend)
 ENDPROC(Ldiv0)
+
+/* Thumb-1 specialities */
+#if defined(CONFIG_SYS_THUMB_BUILD) && !defined(CONFIG_HAS_THUMB2)
+ENTRY(__gnu_thumb1_case_sqi)
+	push	{r1}
+	mov	r1, lr
+	lsrs	r1, r1, #1
+	lsls	r1, r1, #1
+	ldrsb	r1, [r1, r0]
+	lsls	r1, r1, #1
+	add	lr, lr, r1
+	pop	{r1}
+	bx	lr
+ENDPROC(__gnu_thumb1_case_sqi)
+
+ENTRY(__gnu_thumb1_case_uqi)
+	push	{r1}
+	mov	r1, lr
+	lsrs	r1, r1, #1
+	lsls	r1, r1, #1
+	ldrb	r1, [r1, r0]
+	lsls	r1, r1, #1
+	add	lr, lr, r1
+	pop	{r1}
+	bx	lr
+ENDPROC(__gnu_thumb1_case_uqi)
+
+ENTRY(__gnu_thumb1_case_shi)
+	push	{r0, r1}
+	mov	r1, lr
+	lsrs	r1, r1, #1
+	lsls	r0, r0, #1
+	lsls	r1, r1, #1
+	ldrsh	r1, [r1, r0]
+	lsls	r1, r1, #1
+	add	lr, lr, r1
+	pop	{r0, r1}
+	bx	lr
+ENDPROC(__gnu_thumb1_case_shi)
+
+ENTRY(__gnu_thumb1_case_uhi)
+	push	{r0, r1}
+	mov	r1, lr
+	lsrs	r1, r1, #1
+	lsls	r0, r0, #1
+	lsls	r1, r1, #1
+	ldrh	r1, [r1, r0]
+	lsls	r1, r1, #1
+	add	lr, lr, r1
+	pop	{r0, r1}
+	bx	lr
+ENDPROC(__gnu_thumb1_case_uhi)
+#endif
