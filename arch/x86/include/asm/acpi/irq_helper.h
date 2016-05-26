@@ -108,4 +108,4 @@ Device (prefix_ ## 0 ## func_) \
 }
 
 /* SoC specific PIRQ route configuration */
-#include "irqroute.h"
+#include <asm/arch/acpi/irqroute.h>

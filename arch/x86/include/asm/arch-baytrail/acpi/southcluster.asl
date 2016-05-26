@@ -207,5 +207,5 @@ Device (PCI0)
 	#include "xhci.asl"
 
 	/* IRQ routing for each PCI device */
-	#include "irqroute.asl"
+	#include <asm/acpi/irqroute.asl>
 }
