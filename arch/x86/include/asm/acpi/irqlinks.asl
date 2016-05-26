@@ -7,26 +7,19 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-Scope (\)
-{
-	/* Intel Legacy Block */
-	OperationRegion(ILBS, SystemMemory, ILB_BASE_ADDRESS, ILB_BASE_SIZE)
-	Field(ILBS, AnyAcc, NoLock, Preserve) {
-		Offset (0x8),
-		PRTA, 8,
-		PRTB, 8,
-		PRTC, 8,
-		PRTD, 8,
-		PRTE, 8,
-		PRTF, 8,
-		PRTG, 8,
-		PRTH, 8,
-		Offset (0x88),
-		    , 3,
-		UI3E, 1,
-		UI4E, 1
-	}
-}
+/*
+ * Intel chipset PIRQ routing control ASL description
+ *
+ * The programming interface is common to most Intel chipsets. But the PRTx
+ * registers may be mapped to different blocks. Some chipsets map them to LPC
+ * device (00:1f:00) PCI configuration space (like TunnelCreek, Quark), while
+ * some newer Atom SoCs (like BayTrail, Braswell) map them to Intel Legacy
+ * Block (ILB) memory space.
+ *
+ * This file defines 8 PCI IRQ link devices which corresponds to 8 PIRQ lines
+ * PIRQ A/B/C/D/E/F/G/H. To incorperate this file, the PRTx registers must be
+ * defined somewhere else in the platform's ASL files.
+ */
 
 Device (LNKA)
 {

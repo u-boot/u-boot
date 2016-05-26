@@ -10,6 +10,27 @@
 
 /* Intel LPC Bus Device - 0:1f.0 */
 
+Scope (\)
+{
+	/* Intel Legacy Block */
+	OperationRegion(ILBS, SystemMemory, ILB_BASE_ADDRESS, ILB_BASE_SIZE)
+	Field(ILBS, AnyAcc, NoLock, Preserve) {
+		Offset (0x8),
+		PRTA, 8,
+		PRTB, 8,
+		PRTC, 8,
+		PRTD, 8,
+		PRTE, 8,
+		PRTF, 8,
+		PRTG, 8,
+		PRTH, 8,
+		Offset (0x88),
+		    , 3,
+		UI3E, 1,
+		UI4E, 1
+	}
+}
+
 Device (LPCB)
 {
 	Name(_ADR, 0x001f0000)
@@ -23,7 +44,7 @@ Device (LPCB)
 		Offset(0x84)
 	}
 
-	#include "irqlinks.asl"
+	#include <asm/acpi/irqlinks.asl>
 
 	/* Firmware Hub */
 	Device (FWH)
