@@ -64,6 +64,20 @@ config SYS_CPU
         default "sa1100" if CPU_SA1100
 	default "armv8" if ARM64
 
+config SYS_ARM_ARCH
+	int
+	default 4 if CPU_ARM720T
+	default 4 if CPU_ARM920T
+	default 5 if CPU_ARM926EJS
+	default 5 if CPU_ARM946ES
+	default 6 if CPU_ARM1136
+	default 6 if CPU_ARM1176
+	default 7 if CPU_V7
+	default 7 if CPU_V7M
+	default 5 if CPU_PXA
+	default 4 if CPU_SA1100
+	default 8 if ARM64
+
 config SEMIHOSTING
 	bool "support boot from semihosting"
 	help
