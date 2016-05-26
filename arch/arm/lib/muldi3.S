@@ -25,6 +25,7 @@
 
 ENTRY(__muldi3)
 ENTRY(__aeabi_lmul)
+.pushsection .text.__muldi3, "ax"
 
 	mul	xh, yl, xh
 	mla	xh, xl, yh, xh
@@ -42,5 +43,6 @@ ENTRY(__aeabi_lmul)
 	adc	xh, xh, ip, lsr #16
 	ret	lr
 
+.popsection
 ENDPROC(__muldi3)
 ENDPROC(__aeabi_lmul)

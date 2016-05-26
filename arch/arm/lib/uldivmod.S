@@ -34,6 +34,8 @@ TMP	.req	r8
 )
 
 ENTRY(__aeabi_uldivmod)
+.pushsection .text.__aeabi_uldivmod, "ax"
+
 	stmfd	sp!, {r4, r5, r6, r7, THUMB(TMP,) lr}
 	@ Test if B == 0
 	orrs	ip, B_0, B_1		@ Z set -> B == 0
@@ -240,4 +242,5 @@ L_div_by_0:
 	mov	R_0, #0
 	mov	R_1, #0
 	ldmfd	sp!, {r4, r5, r6, r7, THUMB(TMP,) pc}
+.popsection
 ENDPROC(__aeabi_uldivmod)

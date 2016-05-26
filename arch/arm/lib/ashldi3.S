@@ -17,6 +17,7 @@
 
 ENTRY(__ashldi3)
 ENTRY(__aeabi_llsl)
+.pushsection .text.__ashldi3, "ax"
 
 	subs	r3, r2, #32
 	rsb	ip, r2, #32
@@ -28,5 +29,6 @@ ENTRY(__aeabi_llsl)
 	mov	al, al, lsl r2
 	ret	lr
 
+.popsection
 ENDPROC(__ashldi3)
 ENDPROC(__aeabi_llsl)

@@ -47,6 +47,7 @@
 
 ENTRY(__do_div64)
 UNWIND(.fnstart)
+.pushsection .text.__do_div64, "ax"
 
 	@ Test for easy paths first.
 	subs	ip, r4, #1
@@ -192,6 +193,7 @@ UNWIND(.fnstart)
 	moveq	yh, xh
 	moveq	xh, #0
 	reteq	lr
+.popsection
 UNWIND(.fnend)
 
 UNWIND(.fnstart)
