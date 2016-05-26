@@ -62,9 +62,17 @@ ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
 extra-y	+= eabi_compat.o
 endif
 
+asflags-y += -DCONFIG_ARM_ASM_UNIFIED
+ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TEGRA),yy)
+asflags-y += -D__LINUX_ARM_ARCH__=4
+else
+asflags-y += -D__LINUX_ARM_ARCH__=$(CONFIG_SYS_ARM_ARCH)
+endif
+
 # some files can only build in ARM or THUMB2, not THUMB1
 
 ifdef CONFIG_SYS_THUMB_BUILD
+asflags-$(CONFIG_HAS_THUMB2) += -DCONFIG_THUMB2_KERNEL
 ifndef CONFIG_HAS_THUMB2
 
 # for C files, just apend -marm, which will override previous -mthumb*
@@ -82,6 +90,5 @@ AFLAGS_REMOVE_memset.o := -mthumb -mthumb-interwork
 AFLAGS_REMOVE_memcpy.o := -mthumb -mthumb-interwork
 AFLAGS_memset.o := -DMEMSET_NO_THUMB_BUILD
 AFLAGS_memcpy.o := -DMEMCPY_NO_THUMB_BUILD
-
 endif
 endif
