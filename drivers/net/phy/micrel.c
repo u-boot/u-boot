@@ -487,6 +487,31 @@ static struct phy_driver ksz9031_driver = {
 	.readext = &ksz9031_phy_extread,
 };
 
+int ksz886x_config(struct phy_device *phydev)
+{
+	/* we are connected directly to the switch without
+	 * dedicated PHY. */
+	phydev->link = 1;
+	phydev->duplex = DUPLEX_FULL;
+	phydev->speed = SPEED_100;
+	return 0;
+}
+
+static int ksz886x_startup(struct phy_device *phydev)
+{
+	return 0;
+}
+
+static struct phy_driver ksz886x_driver = {
+	.name = "Micrel KSZ886x Switch",
+	.uid  = 0x00221430,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &ksz886x_config,
+	.startup = &ksz886x_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_micrel_init(void)
 {
 	phy_register(&KSZ804_driver);
@@ -500,5 +525,6 @@ int phy_micrel_init(void)
 #endif
 	phy_register(&ksz9031_driver);
 	phy_register(&ksz8895_driver);
+	phy_register(&ksz886x_driver);
 	return 0;
 }
