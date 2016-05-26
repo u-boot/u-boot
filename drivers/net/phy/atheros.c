@@ -31,6 +31,22 @@ static int ar8035_config(struct phy_device *phydev)
 	regval = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, (regval|0x0100));
 
+	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
+	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)) {
+		/* select debug reg 5 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1D, 0x5);
+		/* enable tx delay */
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1E, 0x0100);
+	}
+
+	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
+	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID)) {
+		/* select debug reg 0 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1D, 0x0);
+		/* enable rx delay */
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1E, 0x8000);
+	}
+
 	phydev->supported = phydev->drv->features;
 
 	genphy_config_aneg(phydev);
