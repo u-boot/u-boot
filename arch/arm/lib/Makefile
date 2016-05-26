@@ -6,7 +6,7 @@
 #
 
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += ashldi3.o ashrdi3.o lshrdi3.o \
-				    lib1funcs.o uldivmod.o div0.o
+				    lib1funcs.o uldivmod.o div0.o div64.o
 
 ifdef CONFIG_CPU_V7M
 obj-y	+= vectors_m.o crt0.o
