@@ -5,6 +5,7 @@
  */
 
 #include <linux/linkage.h>
+#include <asm/assembler.h>
 
 #ifdef __ARMEB__
 #define al r1
@@ -14,15 +15,18 @@
 #define ah r1
 #endif
 
-.globl __ashldi3
-__ashldi3:
+ENTRY(__ashldi3)
 ENTRY(__aeabi_llsl)
 
 	subs	r3, r2, #32
 	rsb	ip, r2, #32
 	movmi	ah, ah, lsl r2
 	movpl	ah, al, lsl r3
-	orrmi	ah, ah, al, lsr ip
+ ARM(	orrmi	ah, ah, al, lsr ip	)
+ THUMB(	lsrmi	r3, al, ip		)
+ THUMB(	orrmi	ah, ah, r3		)
 	mov	al, al, lsl r2
-	mov	pc, lr
+	ret	lr
+
+ENDPROC(__ashldi3)
 ENDPROC(__aeabi_llsl)
