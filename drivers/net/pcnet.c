@@ -137,7 +137,7 @@ static int pcnet_probe (struct eth_device *dev, bd_t * bis, int dev_num);
 static inline pci_addr_t pcnet_virt_to_mem(const struct eth_device *dev,
 						void *addr)
 {
-	pci_dev_t devbusfn = (pci_dev_t)dev->priv;
+	pci_dev_t devbusfn = (pci_dev_t)(unsigned long)dev->priv;
 	void *virt_addr = addr;
 
 	return pci_virt_to_mem(devbusfn, virt_addr);
@@ -176,7 +176,7 @@ int pcnet_initialize(bd_t *bis)
 			break;
 		}
 		memset(dev, 0, sizeof(*dev));
-		dev->priv = (void *)devbusfn;
+		dev->priv = (void *)(unsigned long)devbusfn;
 		sprintf(dev->name, "pcnet#%d", dev_nr);
 
 		/*
@@ -187,8 +187,8 @@ int pcnet_initialize(bd_t *bis)
 		dev->iobase = pci_io_to_phys(devbusfn, dev->iobase);
 		dev->iobase &= ~0xf;
 
-		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%x: ",
-			     dev->name, devbusfn, dev->iobase);
+		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%lx: ",
+			     dev->name, devbusfn, (unsigned long)dev->iobase);
 
 		command = PCI_COMMAND_IO | PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, command);
@@ -295,7 +295,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 {
 	struct pcnet_uncached_priv *uc;
 	int i, val;
-	u32 addr;
+	unsigned long addr;
 
 	PCNET_DEBUG1("%s: pcnet_init...\n", dev->name);
 
@@ -333,16 +333,18 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * must be aligned on 16-byte boundaries.
 	 */
 	if (lp == NULL) {
-		addr = (u32)malloc(sizeof(pcnet_priv_t) + 0x10);
+		addr = (unsigned long)malloc(sizeof(pcnet_priv_t) + 0x10);
 		addr = (addr + 0xf) & ~0xf;
 		lp = (pcnet_priv_t *)addr;
 
-		addr = (u32)memalign(ARCH_DMA_MINALIGN, sizeof(*lp->uc));
+		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
+					       sizeof(*lp->uc));
 		flush_dcache_range(addr, addr + sizeof(*lp->uc));
 		addr = UNCACHED_SDRAM(addr);
 		lp->uc = (struct pcnet_uncached_priv *)addr;
 
-		addr = (u32)memalign(ARCH_DMA_MINALIGN, sizeof(*lp->rx_buf));
+		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
+					       sizeof(*lp->rx_buf));
 		flush_dcache_range(addr, addr + sizeof(*lp->rx_buf));
 		lp->rx_buf = (void *)addr;
 	}
