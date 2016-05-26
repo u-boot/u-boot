@@ -5,9 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-lib-$(CONFIG_USE_PRIVATE_LIBGCC) += _ashldi3.o _ashrdi3.o _divsi3.o \
-			_lshrdi3.o _modsi3.o _udivsi3.o _umodsi3.o div0.o \
-			_uldivmod.o
+lib-$(CONFIG_USE_PRIVATE_LIBGCC) += ashldi3.o ashrdi3.o divsi3.o \
+			lshrdi3.o modsi3.o udivsi3.o umodsi3.o div0.o \
+			uldivmod.o
 
 ifdef CONFIG_CPU_V7M
 obj-y	+= vectors_m.o crt0.o
