@@ -9,6 +9,9 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "dbau1x00"
 
+config SYS_TEXT_BASE
+	default 0xbfc00000
+
 menu "dbau1x00 board options"
 
 choice

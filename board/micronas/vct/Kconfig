@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "vct"
 
+config SYS_TEXT_BASE
+	default 0x87000000
+
 menu "vct board options"
 
 choice

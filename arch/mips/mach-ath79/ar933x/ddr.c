@@ -268,6 +268,8 @@ void ddr_tap_tuning(void)
 	dir = 1;
 	tap = readl(regs + AR71XX_DDR_REG_TAP_CTRL0);
 	val = tap;
+	upper = tap;
+	lower = tap;
 	while (!done) {
 		err = 0;
 

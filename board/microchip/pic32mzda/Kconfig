@@ -10,4 +10,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "pic32mzdask"
 
+config SYS_TEXT_BASE
+	default 0x9d004000
+
 endif

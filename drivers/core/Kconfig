@@ -178,4 +178,27 @@ config SPL_OF_TRANSLATE
 	  used for the address translation. This function is faster and
 	  smaller in size than fdt_translate_address().
 
+config OF_ISA_BUS
+	bool
+	depends on OF_TRANSLATE
+	help
+	  Is this option is enabled then support for the ISA bus will
+	  be included for addresses read from DT. This is something that
+	  should be known to be required or not based upon the board
+	  being targetted, and whether or not it makes use of an ISA bus.
+
+	  The bus is matched based upon its node name equalling "isa". The
+	  busses #address-cells should equal 2, with the first cell being
+	  used to hold flags & flag 0x1 indicating that the address range
+	  should be accessed using I/O port in/out accessors. The second
+	  cell holds the offset into ISA bus address space. The #size-cells
+	  property should equal 1, and of course holds the size of the
+	  address range used by a device.
+
+	  If this option is not enabled then support for the ISA bus is
+	  not included and any such busses used in DT will be treated as
+	  typical simple-bus compatible busses. This will lead to
+	  mistranslation of device addresses, so ensure that this is
+	  enabled if your board does include an ISA bus.
+
 endmenu

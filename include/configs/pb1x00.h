@@ -80,12 +80,6 @@
 #define PHYS_FLASH_1		0xbec00000 /* Flash Bank #1 */
 #define PHYS_FLASH_2		0xbfc00000 /* Flash Bank #2 */
 
-/* The following #defines are needed to get flash environment right */
-/* ROM version */
-/* #define CONFIG_SYS_TEXT_BASE		0xbfc00000 */
-/* SDRAM version */
-#define CONFIG_SYS_TEXT_BASE		0x83800000
-
 #define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MONITOR_LEN		(192 << 10)
 

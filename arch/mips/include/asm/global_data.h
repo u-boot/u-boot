@@ -15,14 +15,6 @@ struct arch_global_data {
 #ifdef CONFIG_DYNAMIC_IO_PORT_BASE
 	unsigned long io_port_base;
 #endif
-#ifdef CONFIG_JZSOC
-	/* There are other clocks in the jz4740 */
-	unsigned long per_clk;	/* Peripheral bus clock */
-	unsigned long dev_clk;	/* Device clock */
-	unsigned long sys_clk;
-	unsigned long tbl;
-	unsigned long lastinc;
-#endif
 #ifdef CONFIG_ARCH_ATH79
 	unsigned long id;
 	unsigned long soc;

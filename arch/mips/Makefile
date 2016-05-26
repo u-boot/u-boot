@@ -4,6 +4,12 @@
 
 head-y := arch/mips/cpu/start.o
 
+ifeq ($(CONFIG_SPL_BUILD),y)
+ifneq ($(CONFIG_SPL_START_S_PATH),)
+head-y := $(CONFIG_SPL_START_S_PATH:"%"=%)/start.o
+endif
+endif
+
 libs-y += arch/mips/cpu/
 libs-y += arch/mips/lib/
 

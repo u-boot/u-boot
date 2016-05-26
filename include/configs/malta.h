@@ -37,7 +37,6 @@
 /*
  * Memory map
  */
-#define CONFIG_SYS_TEXT_BASE		0xbe000000 /* Rom version */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000 /* Cached addr */
@@ -65,13 +64,7 @@
  * Serial driver
  */
 #define CONFIG_BAUDRATE			115200
-
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		(115200 * 16)
-#define CONFIG_SYS_NS16550_COM1		0xb80003f8
-#define CONFIG_SYS_NS16550_COM2		0xbb0003f8
-#define CONFIG_CONS_INDEX		1
+#define CONFIG_SYS_NS16550_PORT_MAPPED
 
 /*
  * Flash configuration

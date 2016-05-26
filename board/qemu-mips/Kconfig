@@ -7,4 +7,8 @@ config SYS_CONFIG_NAME
 	default "qemu-mips" if 32BIT
 	default "qemu-mips64" if 64BIT
 
+config SYS_TEXT_BASE
+	default 0xbfc00000 if 32BIT
+	default 0xffffffffbfc00000 if 64BIT
+
 endif
