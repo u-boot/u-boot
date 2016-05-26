@@ -9,10 +9,6 @@
 #include <linux/linkage.h>
 #include <asm/assembler.h>
 
-/* We don't use Thumb instructions for now */
-#define ARM(x...)	x
-#define THUMB(x...)
-
 /*
  * A, Q = r0 + (r1 << 32)
  * B, R = r2 + (r3 << 32)
@@ -226,7 +222,9 @@ THUMB(	orrpl	A_0, A_0, TMP		)
 	@ Shift A to the right by the appropriate amount.
 	rsb	D_1, D_0, #32
 	mov	Q_0, A_0, lsr D_0
-	orr	Q_0, A_1, lsl D_1
+ ARM(   orr     Q_0, Q_0, A_1, lsl D_1	)
+ THUMB(	lsl	A_1, D_1		)
+ THUMB(	orr	Q_0, A_1		)
 	mov	Q_1, A_1, lsr D_0
 	@ Move C to R
 	mov	R_0, C_0
