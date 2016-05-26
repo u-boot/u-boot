@@ -155,7 +155,7 @@ u32 acpi_fill_madt(u32 current)
 	current += acpi_create_madt_lapics(current);
 
 	current += acpi_create_madt_ioapic((struct acpi_madt_ioapic *)current,
-			2, IO_APIC_ADDR, 0);
+			io_apic_read(IO_APIC_ID) >> 24, IO_APIC_ADDR, 0);
 
 	current += acpi_create_madt_irq_overrides(current);
 
