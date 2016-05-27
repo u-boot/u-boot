@@ -204,13 +204,6 @@
 #endif /* CONFIG_VCT_ONENAND */
 
 /*
- * Cache Configuration
- */
-#define CONFIG_SYS_DCACHE_SIZE		16384
-#define CONFIG_SYS_ICACHE_SIZE		16384
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
-/*
  * I2C/EEPROM
  */
 #define CONFIG_SYS_I2C

@@ -11,4 +11,13 @@ config SYS_TEXT_BASE
 	default 0xbfc00000 if 32BIT
 	default 0xffffffffbfc00000 if 64BIT
 
+config SYS_DCACHE_SIZE
+	default 16384
+
+config SYS_ICACHE_SIZE
+	default 16384
+
+config SYS_CACHELINE_SIZE
+	default 32
+
 endif

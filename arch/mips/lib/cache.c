@@ -9,7 +9,7 @@
 #include <asm/cacheops.h>
 #include <asm/mipsregs.h>
 
-#ifdef CONFIG_SYS_CACHELINE_SIZE
+#ifndef CONFIG_SYS_CACHE_SIZE_AUTO
 
 static inline unsigned long icache_line_size(void)
 {

@@ -246,6 +246,34 @@ config SWAP_IO_SPACE
 config SYS_MIPS_CACHE_INIT_RAM_LOAD
 	bool
 
+config SYS_DCACHE_SIZE
+	int
+	default 0
+	help
+	  The total size of the L1 Dcache, if known at compile time.
+
+config SYS_ICACHE_SIZE
+	int
+	default 0
+	help
+	  The total size of the L1 ICache, if known at compile time.
+
+config SYS_CACHELINE_SIZE
+	int
+	default 0
+	help
+	  The size of L1 cache lines, if known at compile time.
+
+config SYS_CACHE_SIZE_AUTO
+	def_bool y if SYS_DCACHE_SIZE = 0 && SYS_ICACHE_SIZE = 0 && \
+		SYS_CACHELINE_SIZE = 0
+	help
+	  Select this (or let it be auto-selected by not defining any cache
+	  sizes) in order to allow U-Boot to automatically detect the sizes
+	  of caches at runtime. This has a small cost in code size & runtime
+	  so if you know the cache configuration for your system at compile
+	  time it would be beneficial to configure it.
+
 config MIPS_L1_CACHE_SHIFT_4
 	bool
 

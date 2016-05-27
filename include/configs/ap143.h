@@ -15,11 +15,6 @@
 #define CONFIG_SYS_MHZ                  325
 #define CONFIG_SYS_MIPS_TIMER_FREQ      (CONFIG_SYS_MHZ * 1000000)
 
-/* Cache Configuration */
-#define CONFIG_SYS_DCACHE_SIZE          0x8000
-#define CONFIG_SYS_ICACHE_SIZE          0x10000
-#define CONFIG_SYS_CACHELINE_SIZE       32
-
 #define CONFIG_SYS_MONITOR_BASE         CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_MALLOC_LEN           0x40000
