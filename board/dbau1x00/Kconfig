@@ -15,10 +15,13 @@ config SYS_TEXT_BASE
 config SYS_DCACHE_SIZE
 	default 16384
 
+config SYS_DCACHE_LINE_SIZE
+	default 32
+
 config SYS_ICACHE_SIZE
 	default 16384
 
-config SYS_CACHELINE_SIZE
+config SYS_ICACHE_LINE_SIZE
 	default 32
 
 menu "dbau1x00 board options"

@@ -9,23 +9,13 @@
 #include <asm/cacheops.h>
 #include <asm/mipsregs.h>
 
-#ifndef CONFIG_SYS_CACHE_SIZE_AUTO
-
-static inline unsigned long icache_line_size(void)
-{
-	return CONFIG_SYS_CACHELINE_SIZE;
-}
-
-static inline unsigned long dcache_line_size(void)
-{
-	return CONFIG_SYS_CACHELINE_SIZE;
-}
-
-#else /* !CONFIG_SYS_CACHELINE_SIZE */
-
 static inline unsigned long icache_line_size(void)
 {
 	unsigned long conf1, il;
+
+	if (!config_enabled(CONFIG_SYS_CACHE_SIZE_AUTO))
+		return CONFIG_SYS_ICACHE_LINE_SIZE;
+
 	conf1 = read_c0_config1();
 	il = (conf1 & MIPS_CONF1_IL) >> MIPS_CONF1_IL_SHF;
 	if (!il)
@@ -36,14 +26,16 @@ static inline unsigned long icache_line_size(void)
 static inline unsigned long dcache_line_size(void)
 {
 	unsigned long conf1, dl;
+
+	if (!config_enabled(CONFIG_SYS_CACHE_SIZE_AUTO))
+		return CONFIG_SYS_DCACHE_LINE_SIZE;
+
 	conf1 = read_c0_config1();
 	dl = (conf1 & MIPS_CONF1_DL) >> MIPS_CONF1_DL_SHF;
 	if (!dl)
 		return 0;
 	return 2 << dl;
 }
-
-#endif /* !CONFIG_SYS_CACHELINE_SIZE */
 
 void flush_cache(ulong start_addr, ulong size)
 {
