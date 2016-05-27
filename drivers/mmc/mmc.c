@@ -984,7 +984,7 @@ static const int fbase[] = {
 /* Multiplier values for TRAN_SPEED.  Multiplied by 10 to be nice
  * to platforms without floating point.
  */
-static const int multipliers[] = {
+static const u8 multipliers[] = {
 	0,	/* reserved */
 	10,
 	12,
@@ -1531,15 +1531,6 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
-/* not used any more */
-int __deprecated mmc_register(struct mmc *mmc)
-{
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-	printf("%s is deprecated! use mmc_create() instead.\n", __func__);
-#endif
-	return -1;
-}
-
 #ifdef CONFIG_BLK
 int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 {
@@ -1566,7 +1557,7 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	bdesc->removable = 1;
 
 	/* setup initial part type */
-	bdesc->part_type = mmc->cfg->part_type;
+	bdesc->part_type = cfg->part_type;
 	mmc->dev = dev;
 
 	return 0;

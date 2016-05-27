@@ -7,7 +7,7 @@
 #define __SANDBOX_STATE_H
 
 #include <config.h>
-#include <reset.h>
+#include <sysreset.h>
 #include <stdbool.h>
 #include <linux/stringify.h>
 
@@ -60,8 +60,8 @@ struct sandbox_state {
 	bool write_state;		/* Write sandbox state on exit */
 	bool ignore_missing_state_on_read;	/* No error if state missing */
 	bool show_lcd;			/* Show LCD on start-up */
-	enum reset_t last_reset;	/* Last reset type */
-	bool reset_allowed[RESET_COUNT];	/* Allowed reset types */
+	enum sysreset_t last_sysreset;	/* Last system reset type */
+	bool sysreset_allowed[SYSRESET_COUNT];	/* Allowed system reset types */
 	enum state_terminal_raw term_raw;	/* Terminal raw/cooked */
 	bool skip_delays;		/* Ignore any time delays (for test) */
 	bool show_test_output;		/* Don't suppress stdout in tests */

@@ -145,7 +145,7 @@ extern void *efi_bounce_buffer;
 #endif
 
 /* Convert strings from normal C strings to uEFI strings */
-static inline void ascii2unicode(u16 *unicode, char *ascii)
+static inline void ascii2unicode(u16 *unicode, const char *ascii)
 {
 	while (*ascii)
 		*(unicode++) = *(ascii++);

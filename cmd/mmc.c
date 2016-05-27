@@ -11,66 +11,6 @@
 #include <mmc.h>
 
 static int curr_device = -1;
-#ifndef CONFIG_GENERIC_MMC
-int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	int dev;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	if (strcmp(argv[1], "init") == 0) {
-		if (argc == 2) {
-			if (curr_device < 0)
-				dev = 1;
-			else
-				dev = curr_device;
-		} else if (argc == 3) {
-			dev = (int)simple_strtoul(argv[2], NULL, 10);
-		} else {
-			return CMD_RET_USAGE;
-		}
-
-		if (mmc_legacy_init(dev) != 0) {
-			puts("No MMC card found\n");
-			return 1;
-		}
-
-		curr_device = dev;
-		printf("mmc%d is available\n", curr_device);
-	} else if (strcmp(argv[1], "device") == 0) {
-		if (argc == 2) {
-			if (curr_device < 0) {
-				puts("No MMC device available\n");
-				return 1;
-			}
-		} else if (argc == 3) {
-			dev = (int)simple_strtoul(argv[2], NULL, 10);
-
-#ifdef CONFIG_SYS_MMC_SET_DEV
-			if (mmc_set_dev(dev) != 0)
-				return 1;
-#endif
-			curr_device = dev;
-		} else {
-			return CMD_RET_USAGE;
-		}
-
-		printf("mmc%d is current device\n", curr_device);
-	} else {
-		return CMD_RET_USAGE;
-	}
-
-	return 0;
-}
-
-U_BOOT_CMD(
-	mmc, 3, 1, do_mmc,
-	"MMC sub-system",
-	"init [dev] - init MMC sub system\n"
-	"mmc device [dev] - show or set current device"
-);
-#else /* !CONFIG_GENERIC_MMC */
 
 static void print_mmcinfo(struct mmc *mmc)
 {
@@ -881,5 +821,3 @@ U_BOOT_CMD(
 	"display MMC info",
 	"- display info of the current MMC device"
 );
-
-#endif /* !CONFIG_GENERIC_MMC */

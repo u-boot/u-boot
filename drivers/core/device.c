@@ -26,9 +26,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int device_bind(struct udevice *parent, const struct driver *drv,
-		const char *name, void *platdata, int of_offset,
-		struct udevice **devp)
+static int device_bind_common(struct udevice *parent, const struct driver *drv,
+			      const char *name, void *platdata,
+			      ulong driver_data, int of_offset,
+			      struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -56,6 +57,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	INIT_LIST_HEAD(&dev->devres_head);
 #endif
 	dev->platdata = platdata;
+	dev->driver_data = driver_data;
 	dev->name = name;
 	dev->of_offset = of_offset;
 	dev->parent = parent;
@@ -191,6 +193,23 @@ fail_alloc1:
 	free(dev);
 
 	return ret;
+}
+
+int device_bind_with_driver_data(struct udevice *parent,
+				 const struct driver *drv, const char *name,
+				 ulong driver_data, int of_offset,
+				 struct udevice **devp)
+{
+	return device_bind_common(parent, drv, name, NULL, driver_data,
+				  of_offset, devp);
+}
+
+int device_bind(struct udevice *parent, const struct driver *drv,
+		const char *name, void *platdata, int of_offset,
+		struct udevice **devp)
+{
+	return device_bind_common(parent, drv, name, platdata, 0, of_offset,
+				  devp);
 }
 
 int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,

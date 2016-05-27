@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <dm.h>
 #include <efi_loader.h>
 #include <inttypes.h>
 #include <part.h>
@@ -92,11 +93,10 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	if (buffer_size & (blksz - 1))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 
-	if (direction == EFI_DISK_READ) {
-		n = desc->block_read(desc, lba, blocks, buffer);
-	} else {
-		n = desc->block_write(desc, lba, blocks, buffer);
-	}
+	if (direction == EFI_DISK_READ)
+		n = blk_dread(desc, lba, blocks, buffer);
+	else
+		n = blk_dwrite(desc, lba, blocks, buffer);
 
 	/* We don't do interrupts, so check for timers cooperatively */
 	efi_timer_check();
@@ -194,8 +194,8 @@ static const struct efi_block_io block_io_disk_template = {
 	.flush_blocks = &efi_disk_flush_blocks,
 };
 
-static void efi_disk_add_dev(char *name,
-			     const struct blk_driver *cur_drvr,
+static void efi_disk_add_dev(const char *name,
+			     const char *if_typename,
 			     const struct blk_desc *desc,
 			     int dev_index,
 			     lbaint_t offset)
@@ -213,7 +213,7 @@ static void efi_disk_add_dev(char *name,
 	diskobj->parent.protocols[1].open = efi_disk_open_dp;
 	diskobj->parent.handle = diskobj;
 	diskobj->ops = block_io_disk_template;
-	diskobj->ifname = cur_drvr->if_typename;
+	diskobj->ifname = if_typename;
 	diskobj->dev_index = dev_index;
 	diskobj->offset = offset;
 
@@ -242,7 +242,7 @@ static void efi_disk_add_dev(char *name,
 }
 
 static int efi_disk_create_eltorito(struct blk_desc *desc,
-				    const struct blk_driver *cur_drvr,
+				    const char *if_typename,
 				    int diskid)
 {
 	int disks = 0;
@@ -255,9 +255,10 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 		return 0;
 
 	while (!part_get_info(desc, part, &info)) {
-		snprintf(devname, sizeof(devname), "%s%d:%d",
-			 cur_drvr->if_typename, diskid, part);
-		efi_disk_add_dev(devname, cur_drvr, desc, diskid, info.start);
+		snprintf(devname, sizeof(devname), "%s%d:%d", if_typename,
+			 diskid, part);
+		efi_disk_add_dev(devname, if_typename, desc, diskid,
+				 info.start);
 		part++;
 		disks++;
 	}
@@ -271,21 +272,49 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
  * EFI payload, we scan through all of the potentially available ones and
  * store them in our object pool.
  *
+ * TODO(sjg@chromium.org): Actually with CONFIG_BLK, U-Boot does have this.
+ * Consider converting the code to look up devices as needed. The EFI device
+ * could be a child of the UCLASS_BLK block device, perhaps.
+ *
  * This gets called from do_bootefi_exec().
  */
 int efi_disk_register(void)
 {
-	const struct blk_driver *cur_drvr;
-	int i, if_type;
 	int disks = 0;
+#ifdef CONFIG_BLK
+	struct udevice *dev;
+
+	for (uclass_first_device(UCLASS_BLK, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+		const char *if_typename = dev->driver->name;
+
+		printf("Scanning disk %s...\n", dev->name);
+		efi_disk_add_dev(dev->name, if_typename, desc, desc->devnum, 0);
+		disks++;
+
+		/*
+		* El Torito images show up as block devices in an EFI world,
+		* so let's create them here
+		*/
+		disks += efi_disk_create_eltorito(desc, if_typename,
+						  desc->devnum);
+	}
+#else
+	int i, if_type;
 
 	/* Search for all available disk devices */
 	for (if_type = 0; if_type < IF_TYPE_COUNT; if_type++) {
+		const struct blk_driver *cur_drvr;
+		const char *if_typename;
+
 		cur_drvr = blk_driver_lookup_type(if_type);
 		if (!cur_drvr)
 			continue;
 
-		printf("Scanning disks on %s...\n", cur_drvr->if_typename);
+		if_typename = cur_drvr->if_typename;
+		printf("Scanning disks on %s...\n", if_typename);
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
 			char devname[32] = { 0 }; /* dp->str is u16[32] long */
@@ -297,17 +326,18 @@ int efi_disk_register(void)
 				continue;
 
 			snprintf(devname, sizeof(devname), "%s%d",
-				 cur_drvr->if_typename, i);
-			efi_disk_add_dev(devname, cur_drvr, desc, i, 0);
+				 if_typename, i);
+			efi_disk_add_dev(devname, if_typename, desc, i, 0);
 			disks++;
 
 			/*
 			 * El Torito images show up as block devices
 			 * in an EFI world, so let's create them here
 			 */
-			disks += efi_disk_create_eltorito(desc, cur_drvr, i);
+			disks += efi_disk_create_eltorito(desc, if_typename, i);
 		}
 	}
+#endif
 	printf("Found %d disks\n", disks);
 
 	return 0;
