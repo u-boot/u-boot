@@ -228,6 +228,9 @@ config MIPS_TUNE_14KC
 config MIPS_TUNE_24KC
 	bool
 
+config MIPS_TUNE_34KC
+	bool
+
 config MIPS_TUNE_74KC
 	bool
 
