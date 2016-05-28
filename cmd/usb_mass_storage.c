@@ -44,7 +44,7 @@ static void ums_fini(void)
 	for (i = 0; i < ums_count; i++)
 		free((void *)ums[i].name);
 	free(ums);
-	ums = 0;
+	ums = NULL;
 	ums_count = 0;
 }
 
