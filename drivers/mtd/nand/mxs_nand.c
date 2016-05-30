@@ -961,7 +961,7 @@ static int mxs_nand_ecc_write_oob(struct mtd_info *mtd, struct nand_chip *nand,
  * Thus, this function is only called when we want *all* blocks to look good,
  * so it *always* return success.
  */
-static int mxs_nand_block_bad(struct mtd_info *mtd, loff_t ofs, int getchip)
+static int mxs_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 {
 	return 0;
 }

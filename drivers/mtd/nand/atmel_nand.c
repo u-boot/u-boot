@@ -513,7 +513,7 @@ normal_check:
 			if (err_nbr == -1) {
 				dev_err(host->dev, "PMECC: Too many errors\n");
 				mtd->ecc_stats.failed++;
-				return -EIO;
+				return -EBADMSG;
 			} else {
 				pmecc_correct_data(mtd, buf_pos, ecc, i,
 					host->pmecc_bytes_per_sector, err_nbr);
@@ -562,7 +562,7 @@ static int atmel_nand_pmecc_read_page(struct mtd_info *mtd,
 	stat = pmecc_readl(host->pmecc, isr);
 	if (stat != 0)
 		if (pmecc_correction(mtd, stat, buf, &oob[eccpos[0]]) != 0)
-			return -EIO;
+			return -EBADMSG;
 
 	return 0;
 }
@@ -1112,7 +1112,7 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		 * We can't correct so many errors */
 		dev_warn(host->dev, "atmel_nand : multiple errors detected."
 				" Unable to correct.\n");
-		return -EIO;
+		return -EBADMSG;
 	}
 
 	/* if there's a single bit error : we can correct it */

@@ -1,6 +1,4 @@
 /*
- *  drivers/mtd/nand_bbt.c
- *
  *  Overview:
  *   Bad block table support for the NAND driver
  *
@@ -65,7 +63,6 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/bbm.h>
 #include <linux/mtd/nand.h>
-#include <linux/mtd/nand_ecc.h>
 #include <linux/bitops.h>
 #include <linux/string.h>
 
@@ -718,7 +715,7 @@ static int write_bbt(struct mtd_info *mtd, uint8_t *buf,
 		/* Must we save the block contents? */
 		if (td->options & NAND_BBT_SAVECONTENT) {
 			/* Make it block aligned */
-			to &= ~((loff_t)((1 << this->bbt_erase_shift) - 1));
+			to &= ~(((loff_t)1 << this->bbt_erase_shift) - 1);
 			len = 1 << this->bbt_erase_shift;
 			res = mtd_read(mtd, to, len, &retlen, buf);
 			if (res < 0) {
@@ -1073,15 +1070,15 @@ static void verify_bbt_descr(struct mtd_info *mtd, struct nand_bbt_descr *bd)
  * The bad block table memory is allocated here. It must be freed by calling
  * the nand_free_bbt function.
  */
-int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
+static int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
-	int len, res = 0;
+	int len, res;
 	uint8_t *buf;
 	struct nand_bbt_descr *td = this->bbt_td;
 	struct nand_bbt_descr *md = this->bbt_md;
 
-	len = mtd->size >> (this->bbt_erase_shift + 2);
+	len = (mtd->size >> (this->bbt_erase_shift + 2)) ? : 1;
 	/*
 	 * Allocate memory (2bit per block) and clear the memory bad block
 	 * table.
@@ -1097,10 +1094,9 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 	if (!td) {
 		if ((res = nand_memory_bbt(mtd, bd))) {
 			pr_err("nand_bbt: can't scan flash and build the RAM-based BBT\n");
-			kfree(this->bbt);
-			this->bbt = NULL;
+			goto err;
 		}
-		return res;
+		return 0;
 	}
 	verify_bbt_descr(mtd, td);
 	verify_bbt_descr(mtd, md);
@@ -1110,9 +1106,8 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 	len += (len >> this->page_shift) * mtd->oobsize;
 	buf = vmalloc(len);
 	if (!buf) {
-		kfree(this->bbt);
-		this->bbt = NULL;
-		return -ENOMEM;
+		res = -ENOMEM;
+		goto err;
 	}
 
 	/* Is the bbt at a given page? */
@@ -1124,6 +1119,8 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 	}
 
 	res = check_create(mtd, buf, bd);
+	if (res)
+		goto err;
 
 	/* Prevent the bbt regions from erasing / writing */
 	mark_bbt_region(mtd, td);
@@ -1131,6 +1128,11 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 		mark_bbt_region(mtd, md);
 
 	vfree(buf);
+	return 0;
+
+err:
+	kfree(this->bbt);
+	this->bbt = NULL;
 	return res;
 }
 
@@ -1369,5 +1371,3 @@ int nand_markbad_bbt(struct mtd_info *mtd, loff_t offs)
 
 	return ret;
 }
-
-EXPORT_SYMBOL(nand_scan_bbt);

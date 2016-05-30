@@ -1,6 +1,6 @@
 /*
  * Overview:
- *   Platform independend driver for NDFC (NanD Flash Controller)
+ *   Platform independent driver for NDFC (NanD Flash Controller)
  *   integrated into IBM/AMCC PPC4xx cores
  *
  * (C) Copyright 2006-2009

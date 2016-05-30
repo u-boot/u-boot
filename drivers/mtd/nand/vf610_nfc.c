@@ -146,7 +146,6 @@ enum vf610_nfc_alt_buf {
 };
 
 struct vf610_nfc {
-	struct mtd_info *mtd;
 	struct nand_chip chip;
 	void __iomem *regs;
 	uint buf_offset;

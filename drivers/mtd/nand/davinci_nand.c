@@ -243,7 +243,7 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat,
 					 "%d\n", find_byte, find_bit);
 				return 1;
 			} else {
-				return -1;
+				return -EBADMSG;
 			}
 		} else if (!(diff & (diff - 1))) {
 			/* Single bit ECC error in the ECC itself,
@@ -254,7 +254,7 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat,
 		} else {
 			/* Uncorrectable error */
 			MTDDEBUG(MTD_DEBUG_LEVEL0, "ECC UNCORRECTED_ERROR 1\n");
-			return -1;
+			return -EBADMSG;
 		}
 	}
 	return 0;
@@ -701,7 +701,7 @@ static int nand_davinci_4bit_correct_data(struct mtd_info *mtd, uint8_t *dat,
 		return 0;
 	} else if (iserror == ECC_STATE_TOO_MANY_ERRS) {
 		val = __raw_readl(&davinci_emif_regs->nanderrval1);
-		return -1;
+		return -EBADMSG;
 	}
 
 	numerrors = ((__raw_readl(&davinci_emif_regs->nandfsr) >> 16)

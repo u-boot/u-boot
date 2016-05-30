@@ -163,7 +163,7 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 				return 0;
 			printf("Error: Bad compare! failed\n");
 			/* detected 2 bit error */
-			return -1;
+			return -EBADMSG;
 		}
 	}
 	return 0;

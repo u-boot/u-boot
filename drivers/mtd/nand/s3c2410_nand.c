@@ -104,7 +104,7 @@ static int s3c24x0_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 		return 0;
 
 	printf("s3c24x0_nand_correct_data: not implemented\n");
-	return -1;
+	return -EBADMSG;
 }
 #endif
 

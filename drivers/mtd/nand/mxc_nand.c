@@ -19,7 +19,6 @@
 #define DRIVER_NAME "mxc_nand"
 
 struct mxc_nand_host {
-	struct mtd_info			mtd;
 	struct nand_chip		*nand;
 
 	struct mxc_nand_regs __iomem	*regs;
@@ -681,7 +680,7 @@ static int mxc_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 				       mtd->writesize / nand_chip->subpagesize
 					    - subpages);
 			}
-			return -1;
+			return -EBADMSG;
 		}
 		ecc_status >>= 4;
 		subpages--;
@@ -713,7 +712,7 @@ static int mxc_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 	if (((ecc_status & 0x3) == 2) || ((ecc_status >> 2) == 2)) {
 		MTDDEBUG(MTD_DEBUG_LEVEL0,
 		      "MXC_NAND: HWECC uncorrectable 2-bit ECC error\n");
-		return -1;
+		return -EBADMSG;
 	}
 
 	return 0;

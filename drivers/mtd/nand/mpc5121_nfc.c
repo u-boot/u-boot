@@ -100,7 +100,6 @@
 #define NFC_WPC_UNLOCK		(1 << 2)
 
 struct mpc5121_nfc_prv {
-	struct mtd_info mtd;
 	struct nand_chip chip;
 	int irq;
 	void __iomem *regs;
