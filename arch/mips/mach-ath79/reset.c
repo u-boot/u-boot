@@ -45,7 +45,7 @@ void _machine_restart(void)
 		/* NOP */;
 }
 
-u32 get_bootstrap(void)
+u32 ath79_get_bootstrap(void)
 {
 	void __iomem *base;
 	u32 reg = 0;
