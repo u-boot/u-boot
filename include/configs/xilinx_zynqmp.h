@@ -189,6 +189,8 @@
 # define CONFIG_PHY_NATSEMI
 # define CONFIG_PHY_TI
 # define CONFIG_PHY_GIGE
+# define CONFIG_PHY_VITESSE
+# define CONFIG_PHY_REALTEK
 # define PHY_ANEG_TIMEOUT       20000
 #endif
 
