@@ -75,7 +75,7 @@
 			};
 
 			gmac0: eth@0x19000000 {
-				compatible = "qca,ag7240-mac";
+				compatible = "qca,ag933x-mac";
 				reg = <0x19000000 0x200>;
 				phy = <&phy0>;
 				phy-mode = "rmii";
@@ -92,7 +92,7 @@
 			};
 
 			gmac1: eth@0x1a000000 {
-				compatible = "qca,ag7240-mac";
+				compatible = "qca,ag933x-mac";
 				reg = <0x1a000000 0x200>;
 				phy = <&phy0>;
 				phy-mode = "rgmii";

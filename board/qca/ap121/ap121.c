@@ -10,6 +10,7 @@
 #include <asm/types.h>
 #include <mach/ar71xx_regs.h>
 #include <mach/ddr.h>
+#include <mach/ath79.h>
 #include <debug_uart.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -46,5 +47,6 @@ int board_early_init_f(void)
 	debug_uart_init();
 #endif
 	ddr_init();
+	ath79_eth_reset();
 	return 0;
 }
