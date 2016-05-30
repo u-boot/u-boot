@@ -66,7 +66,6 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	3000
 #define CONFIG_SYS_FLASH_LOCK_TOUT	3000
 #define CONFIG_SYS_FLASH_UNLOCK_TOUT	3000
-#define CONFIG_CMD_FLASH
 #undef  CONFIG_CMD_SF
 #undef  CONFIG_CMD_SPI
 #endif
@@ -99,9 +98,6 @@
 /* USB */
 #undef CONFIG_CMD_USB
 
-/* MMC */
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 
 /* Module stop status bits */
@@ -120,5 +116,6 @@
 
 /* SDHI */
 #define CONFIG_SH_SDHI_FREQ	97500000
+#define HAVE_BLOCK_DEVICE
 
 #endif	/* __BLANCHE_H */
