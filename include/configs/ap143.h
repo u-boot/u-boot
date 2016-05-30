@@ -44,14 +44,14 @@
 					"rootfstype=squashfs"
 #define CONFIG_BOOTCOMMAND              "sf probe;" \
 					"mtdparts default;" \
-					"bootm 0x9f300000"
+					"bootm 0x9f680000"
 #define CONFIG_LZMA
 
 #define MTDIDS_DEFAULT                  "nor0=spi-flash.0"
 #define MTDPARTS_DEFAULT                "mtdparts=spi-flash.0:" \
 					"256k(u-boot),64k(u-boot-env)," \
-					"2752k(rootfs),896k(uImage)," \
-					"64k(NVRAM),64k(ART)"
+					"6336k(rootfs),1472k(uImage)," \
+					"64k(ART)"
 
 #define CONFIG_ENV_SPI_MAX_HZ           25000000
 #define CONFIG_ENV_IS_IN_SPI_FLASH
