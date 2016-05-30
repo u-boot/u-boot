@@ -100,7 +100,7 @@
  * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x10000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x08000	/* FIXME: 40 KiB ? */
+#define CONFIG_SYS_INIT_RAM_SIZE	0xA000	/* 40 KiB */
 #else
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
@@ -213,8 +213,7 @@
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
 #if defined(CONFIG_MACH_SUN9I) || defined(CONFIG_MACH_SUN50I)
-/* FIXME: 40 KiB instead of 32 KiB ? */
-#define LOW_LEVEL_SRAM_STACK		0x00018000
+#define LOW_LEVEL_SRAM_STACK		0x0001A000
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 #else
 /* end of 32 KiB in sram */
