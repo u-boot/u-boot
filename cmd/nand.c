@@ -159,7 +159,7 @@ static void do_nand_status(struct mtd_info *mtd)
 	ulong off;
 	int last_status = -1;
 
-	struct nand_chip *nand_chip = mtd->priv;
+	struct nand_chip *nand_chip = mtd_to_nand(mtd);
 	/* check the WP bit */
 	nand_chip->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
 	printf("device is %swrite protected\n",
@@ -285,7 +285,7 @@ usage:
 static void nand_print_and_set_info(int idx)
 {
 	struct mtd_info *mtd = nand_info[idx];
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	printf("Device %d: ", idx);
 	if (chip->numchips > 1)

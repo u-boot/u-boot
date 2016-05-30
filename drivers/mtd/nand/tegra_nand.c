@@ -143,10 +143,10 @@ static int nand_waitfor_cmd_completion(struct nand_ctlr *reg)
  */
 static uint8_t read_byte(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct nand_drv *info;
 
-	info = (struct nand_drv *)chip->priv;
+	info = (struct nand_drv *)nand_get_controller_data(chip);
 
 	writel(CMD_GO | CMD_PIO | CMD_RX | CMD_CE0 | CMD_A_VALID,
 	       &info->reg->command);
@@ -169,8 +169,8 @@ static void read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	int i, s;
 	unsigned int reg;
-	struct nand_chip *chip = mtd->priv;
-	struct nand_drv *info = (struct nand_drv *)chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct nand_drv *info = (struct nand_drv *)nand_get_controller_data(chip);
 
 	for (i = 0; i < len; i += 4) {
 		s = (len - i) > 4 ? 4 : len - i;
@@ -194,11 +194,11 @@ static void read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
  */
 static int nand_dev_ready(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	int reg_val;
 	struct nand_drv *info;
 
-	info = (struct nand_drv *)chip->priv;
+	info = (struct nand_drv *)nand_get_controller_data(chip);
 
 	reg_val = readl(&info->reg->status);
 	if (reg_val & STATUS_RBSY0)
@@ -245,10 +245,10 @@ static void nand_clear_interrupt_status(struct nand_ctlr *reg)
 static void nand_command(struct mtd_info *mtd, unsigned int command,
 	int column, int page_addr)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct nand_drv *info;
 
-	info = (struct nand_drv *)chip->priv;
+	info = (struct nand_drv *)nand_get_controller_data(chip);
 
 	/*
 	 * Write out the command to the device.
@@ -512,7 +512,7 @@ static int nand_rw_page(struct mtd_info *mtd, struct nand_chip *chip,
 		return -EINVAL;
 	}
 
-	info = (struct nand_drv *)chip->priv;
+	info = (struct nand_drv *)nand_get_controller_data(chip);
 	config = &info->config;
 	if (set_bus_width_page_size(config, &reg_val))
 		return -EINVAL;
@@ -662,7 +662,7 @@ static int nand_write_page_hwecc(struct mtd_info *mtd,
 	int page;
 	struct nand_drv *info;
 
-	info = (struct nand_drv *)chip->priv;
+	info = (struct nand_drv *)nand_get_controller_data(chip);
 
 	page = (readl(&info->reg->addr_reg1) >> 16) |
 		(readl(&info->reg->addr_reg2) << 16);
@@ -702,7 +702,7 @@ static int nand_write_page_raw(struct mtd_info *mtd,
 	int page;
 	struct nand_drv *info;
 
-	info = (struct nand_drv *)chip->priv;
+	info = (struct nand_drv *)nand_get_controller_data(chip);
 	page = (readl(&info->reg->addr_reg1) >> 16) |
 		(readl(&info->reg->addr_reg2) << 16);
 
@@ -734,7 +734,7 @@ static int nand_rw_oob(struct mtd_info *mtd, struct nand_chip *chip,
 
 	if (((int)chip->oob_poi) & 0x03)
 		return -EINVAL;
-	info = (struct nand_drv *)chip->priv;
+	info = (struct nand_drv *)nand_get_controller_data(chip);
 	if (set_bus_width_page_size(&info->config, &reg_val))
 		return -EINVAL;
 
@@ -963,7 +963,7 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 	nand->ecc.strength = 1;
 	nand->select_chip = nand_select_chip;
 	nand->dev_ready  = nand_dev_ready;
-	nand->priv = &nand_ctrl;
+	nand_set_controller_data(nand, &nand_ctrl);
 
 	/* Disable subpage writes as we do not provide ecc->hwctl */
 	nand->options |= NAND_NO_SUBPAGE_WRITE;
@@ -976,8 +976,7 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 
 	dm_gpio_set_value(&config->wp_gpio, 1);
 
-	our_mtd = &nand->mtd;
-	our_mtd->priv = nand;
+	our_mtd = nand_to_mtd(nand);
 	ret = nand_scan_ident(our_mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL);
 	if (ret)
 		return ret;

@@ -59,7 +59,7 @@ int nand_erase_opts(struct mtd_info *mtd,
 	int percent_complete = -1;
 	const char *mtd_device = mtd->name;
 	struct mtd_oob_ops oob_opts;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	if ((opts->offset & (mtd->erasesize - 1)) != 0) {
 		printf("Attempt to erase non block-aligned data\n");
@@ -217,7 +217,7 @@ int nand_lock(struct mtd_info *mtd, int tight)
 {
 	int ret = 0;
 	int status;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	/* select the NAND device */
 	chip->select_chip(mtd, 0);
@@ -267,7 +267,7 @@ int nand_get_lock_status(struct mtd_info *mtd, loff_t offset)
 	int ret = 0;
 	int chipnr;
 	int page;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	/* select the NAND device */
 	chipnr = (int)(offset >> chip->chip_shift);
@@ -314,7 +314,7 @@ int nand_unlock(struct mtd_info *mtd, loff_t start, size_t length,
 	int chipnr;
 	int status;
 	int page;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	debug("nand_unlock%s: start: %08llx, length: %zd!\n",
 		allexcept ? " (allexcept)" : "", start, length);

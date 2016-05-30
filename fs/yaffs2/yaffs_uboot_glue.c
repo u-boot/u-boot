@@ -190,7 +190,7 @@ void cmd_yaffs_devconfig(char *_mp, int flash_dev,
 		goto err;
 	}
 
-	chip =  mtd->priv;
+	chip =  mtd_to_nand(mtd);
 
 	/* Check for any conflicts */
 	yaffs_dev_rewind();

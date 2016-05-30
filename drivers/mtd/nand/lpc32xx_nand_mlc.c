@@ -542,8 +542,6 @@ void board_nand_init(void)
 	struct mtd_info *mtd = &lpc32xx_chip.mtd;
 	int ret;
 
-	mtd->priv = &lpc32xx_chip;
-
 	/* Set all BOARDSPECIFIC (actually core-specific) fields  */
 
 	lpc32xx_chip.IO_ADDR_R = &lpc32xx_nand_mlc_registers->buff;

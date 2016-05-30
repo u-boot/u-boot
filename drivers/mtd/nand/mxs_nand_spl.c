@@ -14,7 +14,7 @@ static struct nand_chip nand_chip;
 static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 			     int column, int page_addr)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	u32 timeo, time_start;
 
 	/* write out the command to the device */
@@ -51,7 +51,7 @@ static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 
 static int mxs_flash_ident(struct mtd_info *mtd)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	int i;
 	u8 mfg_id, dev_id;
 	u8 id_data[8];
@@ -111,7 +111,7 @@ static int mxs_flash_ident(struct mtd_info *mtd)
 
 static int mxs_read_page_ecc(struct mtd_info *mtd, void *buf, unsigned int page)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	int ret;
 
 	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x0, page);
@@ -125,7 +125,7 @@ static int mxs_read_page_ecc(struct mtd_info *mtd, void *buf, unsigned int page)
 
 static int is_badblock(struct mtd_info *mtd, loff_t offs, int allowbbt)
 {
-	register struct nand_chip *chip = mtd->priv;
+	register struct nand_chip *chip = mtd_to_nand(mtd);
 	unsigned int block = offs >> chip->phys_erase_shift;
 	unsigned int page = offs >> chip->page_shift;
 
@@ -148,7 +148,6 @@ static int mxs_nand_init(void)
 	/* init mxs nand driver */
 	board_nand_init(&nand_chip);
 	mtd = &nand_chip.mtd;
-	mtd->priv = &nand_chip;
 	/* set mtd functions */
 	nand_chip.cmdfunc = mxs_nand_command;
 	nand_chip.numchips = 1;
@@ -181,7 +180,7 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 
 	if (mxs_nand_init())
 		return -ENODEV;
-	chip = mtd->priv;
+	chip = mtd_to_nand(mtd);
 	page = offs >> chip->page_shift;
 	nand_page_per_block = mtd->erasesize / mtd->writesize;
 

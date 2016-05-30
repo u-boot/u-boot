@@ -291,7 +291,7 @@ static void lpc32xx_nand_dma_configure(struct nand_chip *chip,
 static void lpc32xx_nand_xfer(struct mtd_info *mtd, const u8 *buf,
 			      int len, int read)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	u32 config;
 	int ret;
 

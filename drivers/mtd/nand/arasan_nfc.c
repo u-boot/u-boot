@@ -230,7 +230,7 @@ static void arasan_nand_enable_ecc(void)
 static u8 arasan_nand_get_addrcycle(struct mtd_info *mtd)
 {
 	u8 addrcycles;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	switch (curr_cmd->addr_cycles) {
 	case NAND_ADDR_CYCL_NONE:
@@ -264,7 +264,7 @@ static u8 arasan_nand_get_addrcycle(struct mtd_info *mtd)
 
 static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	u32 reg_val, i, pktsize, pktnum;
 	u32 *bufptr = (u32 *)buf;
 	u32 timeout;
@@ -441,7 +441,7 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 	u32 size = mtd->writesize;
 	u32 rdcount = 0;
 	u8 column_addr_cycles;
-	struct arasan_nand_info *nand = chip->priv;
+	struct arasan_nand_info *nand = nand_get_controller_data(chip);
 
 	if (chip->ecc_step_ds >= ARASAN_NAND_PKTSIZE_1K)
 		pktsize = ARASAN_NAND_PKTSIZE_1K;
@@ -944,7 +944,7 @@ static void arasan_nand_read_buf(struct mtd_info *mtd, u8 *buf, int size)
 
 static u8 arasan_nand_read_byte(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	u32 size;
 	u8 val;
 	struct nand_onfi_params *p;
@@ -976,8 +976,8 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 				     int column, int page_addr)
 {
 	u32 i, ret = 0;
-	struct nand_chip *chip = mtd->priv;
-	struct arasan_nand_info *nand = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct arasan_nand_info *nand = nand_get_controller_data(chip);
 
 	curr_cmd = NULL;
 	writel(ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
@@ -1033,7 +1033,7 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 {
 	int found = -1;
 	u32 regval, eccpos_start, i;
-	struct nand_chip *nand_chip = mtd->priv;
+	struct nand_chip *nand_chip = mtd_to_nand(mtd);
 
 	nand_chip->ecc.mode = NAND_ECC_HW;
 	nand_chip->ecc.hwctl = NULL;
@@ -1101,9 +1101,8 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 	}
 
 	nand->nand_base = arasan_nand_base;
-	mtd = &nand_chip->mtd;
-	nand_chip->priv = nand;
-	mtd->priv = nand_chip;
+	mtd = nand_to_mtd(nand_chip);
+	nand_set_controller_data(nand_chip, nand);
 
 	/* Set the driver entry points for MTD */
 	nand_chip->cmdfunc = arasan_nand_cmd_function;

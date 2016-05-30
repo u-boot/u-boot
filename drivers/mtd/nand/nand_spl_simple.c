@@ -26,7 +26,7 @@ static struct nand_chip nand_chip;
 static int nand_command(int block, int page, uint32_t offs,
 	u8 cmd)
 {
-	struct nand_chip *this = mtd->priv();
+	struct nand_chip *this = mtd_to_nand(mtd);
 	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
 
 	while (!this->dev_ready(mtd))
@@ -63,7 +63,7 @@ static int nand_command(int block, int page, uint32_t offs,
 static int nand_command(int block, int page, uint32_t offs,
 	u8 cmd)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
@@ -114,7 +114,7 @@ static int nand_command(int block, int page, uint32_t offs,
 
 static int nand_is_bad_block(int block)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	u_char bb_data[2];
 
 	nand_command(block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS,
@@ -139,7 +139,7 @@ static int nand_is_bad_block(int block)
 #if defined(CONFIG_SYS_NAND_HW_ECC_OOBFIRST)
 static int nand_read_page(int block, int page, uchar *dst)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	u_char ecc_calc[ECCTOTAL];
 	u_char ecc_code[ECCTOTAL];
 	u_char oob_data[CONFIG_SYS_NAND_OOBSIZE];
@@ -170,7 +170,7 @@ static int nand_read_page(int block, int page, uchar *dst)
 #else
 static int nand_read_page(int block, int page, void *dst)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	u_char ecc_calc[ECCTOTAL];
 	u_char ecc_code[ECCTOTAL];
 	u_char oob_data[CONFIG_SYS_NAND_OOBSIZE];
@@ -250,7 +250,6 @@ void nand_init(void)
 	 * Init board specific nand support
 	 */
 	mtd = &nand_chip.mtd;
-	mtd->priv = &nand_chip;
 	nand_chip.IO_ADDR_R = nand_chip.IO_ADDR_W =
 		(void  __iomem *)CONFIG_SYS_NAND_BASE;
 	board_nand_init(&nand_chip);

@@ -165,7 +165,7 @@ static int count_written_bits(uint8_t *buff, int size, int max_bits)
 
 static void fsmc_nand_hwcontrol(struct mtd_info *mtd, int cmd, uint ctrl)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	ulong IO_ADDR_W;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
@@ -410,7 +410,7 @@ int fsmc_nand_switch_ecc(uint32_t eccstrength)
 	 * function, as it doesn't need to switch to a different ECC layout.
 	 */
 	mtd = nand_info[nand_curr_device];
-	nand = mtd->priv;
+	nand = mtd_to_nand(mtd);
 
 	/* Setup the ecc configurations again */
 	if (eccstrength == 1) {
@@ -479,8 +479,7 @@ int fsmc_nand_init(struct nand_chip *nand)
 		(void  __iomem *)CONFIG_SYS_NAND_BASE;
 	nand->badblockbits = 7;
 
-	mtd = &nand->mtd;
-	mtd->priv = nand;
+	mtd = nand_to_mtd(nand);
 
 	switch (fsmc_version) {
 	case FSMC_VER8:

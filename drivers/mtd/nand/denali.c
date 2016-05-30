@@ -48,7 +48,8 @@ static int onfi_timing_mode = NAND_DEFAULT_TIMINGS;
  * this macro allows us to convert from an MTD structure to our own
  * device context (denali) structure.
  */
-#define mtd_to_denali(m) container_of(m->priv, struct denali_nand_info, nand)
+#define mtd_to_denali(m) \
+	container_of(mtd_to_nand(m), struct denali_nand_info, nand)
 
 /*
  * These constants are defined by the driver to enable common driver
@@ -1179,7 +1180,6 @@ static int denali_init(struct denali_nand_info *denali)
 
 	denali->mtd->name = "denali-nand";
 	denali->mtd->owner = THIS_MODULE;
-	denali->mtd->priv = &denali->nand;
 
 	/* register the driver with the NAND core subsystem */
 	denali->nand.select_chip = denali_select_chip;

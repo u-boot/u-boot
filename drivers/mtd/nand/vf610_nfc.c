@@ -155,8 +155,7 @@ struct vf610_nfc {
 	enum vf610_nfc_alt_buf alt_buf;
 };
 
-#define mtd_to_nfc(_mtd) \
-	(struct vf610_nfc *)((struct nand_chip *)_mtd->priv)->priv
+#define mtd_to_nfc(_mtd) nand_get_controller_data(mtd_to_nand(_mtd))
 
 #if defined(CONFIG_SYS_NAND_VF610_NFC_45_ECC_BYTES)
 #define ECC_HW_MODE ECC_45_BYTE
@@ -653,9 +652,8 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 	chip = &nfc->chip;
 	nfc->regs = addr;
 
-	mtd = &chip->mtd;
-	mtd->priv = chip;
-	chip->priv = nfc;
+	mtd = nand_to_mtd(chip);
+	nand_set_controller_data(chip, nfc);
 
 	if (cfg.width == 16)
 		chip->options |= NAND_BUSWIDTH_16;

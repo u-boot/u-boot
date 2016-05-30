@@ -54,7 +54,7 @@
  */
 static void nand_davinci_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	const u32 *nand = chip->IO_ADDR_R;
 
 	/* Make sure that buf is 32 bit aligned */
@@ -99,7 +99,7 @@ static void nand_davinci_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 static void nand_davinci_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 				   int len)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	const u32 *nand = chip->IO_ADDR_W;
 
 	/* Make sure that buf is 32 bit aligned */
@@ -144,7 +144,7 @@ static void nand_davinci_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd,
 		unsigned int ctrl)
 {
-	struct		nand_chip *this = mtd->priv;
+	struct		nand_chip *this = mtd_to_nand(mtd);
 	u_int32_t	IO_ADDR_W = (u_int32_t)this->IO_ADDR_W;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
@@ -223,7 +223,7 @@ static int nand_davinci_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat,
 		u_char *read_ecc, u_char *calc_ecc)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	u_int32_t ecc_nand = read_ecc[0] | (read_ecc[1] << 8) |
 					  (read_ecc[2] << 16);
 	u_int32_t ecc_calc = calc_ecc[0] | (calc_ecc[1] << 8) |

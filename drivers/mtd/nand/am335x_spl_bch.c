@@ -30,7 +30,7 @@ static struct nand_chip nand_chip;
 static int nand_command(int block, int page, uint32_t offs,
 	u8 cmd)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
@@ -100,7 +100,7 @@ static int nand_command(int block, int page, uint32_t offs,
 
 static int nand_is_bad_block(int block)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 
 	nand_command(block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS,
 		NAND_CMD_READOOB);
@@ -121,7 +121,7 @@ static int nand_is_bad_block(int block)
 
 static int nand_read_page(int block, int page, void *dst)
 {
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 	u_char ecc_calc[ECCTOTAL];
 	u_char ecc_code[ECCTOTAL];
 	u_char oob_data[CONFIG_SYS_NAND_OOBSIZE];

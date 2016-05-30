@@ -73,14 +73,13 @@ int nand_register(int devnum, struct mtd_info *mtd)
 static void nand_init_chip(int i)
 {
 	struct nand_chip *nand = &nand_chip[i];
-	struct mtd_info *mtd = &nand->mtd;
+	struct mtd_info *mtd = nand_to_mtd(nand);
 	ulong base_addr = base_address[i];
 	int maxchips = CONFIG_SYS_NAND_MAX_CHIPS;
 
 	if (maxchips < 1)
 		maxchips = 1;
 
-	mtd->priv = nand;
 	nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
 
 	if (board_nand_init(nand))
@@ -110,7 +109,7 @@ void nand_init(void)
 	/*
 	 * Select the chip in the board/cpu specific driver
 	 */
-	board_nand_select_device(nand_info[nand_curr_device]->priv,
+	board_nand_select_device(mtd_to_nand(nand_info[nand_curr_device]),
 				 nand_curr_device);
 #endif
 }
