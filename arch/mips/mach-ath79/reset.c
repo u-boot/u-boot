@@ -89,7 +89,7 @@ static int eth_init_ar933x(void)
 	mdelay(10);
 
 	/* Get Atheros S26 PHY out of reset. */
-	clrsetbits_be32(pregs + AR934X_PLL_SWITCH_CLOCK_CONTROL_REG,
+	clrsetbits_be32(pregs + AR933X_PLL_SWITCH_CLOCK_CONTROL_REG,
 			0x1f, 0x10);
 	mdelay(10);
 
