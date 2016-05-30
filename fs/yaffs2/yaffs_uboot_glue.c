@@ -141,7 +141,7 @@ static const char *yaffs_error_str(void)
 	}
 }
 
-extern nand_info_t nand_info[];
+extern struct mtd_info nand_info[];
 
 void cmd_yaffs_tracemask(unsigned set, unsigned mask)
 {

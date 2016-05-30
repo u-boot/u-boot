@@ -1238,7 +1238,7 @@ static int at91_nand_ready(struct mtd_info *mtd)
 
 #ifdef CONFIG_SPL_BUILD
 /* The following code is for SPL */
-static nand_info_t mtd;
+static struct mtd_info mtd;
 static struct nand_chip nand_chip;
 
 static int nand_command(int block, int page, uint32_t offs, u8 cmd)

@@ -276,7 +276,7 @@ static int readenv(size_t offset, u_char *buf)
 #endif /* #if defined(CONFIG_SPL_BUILD) */
 
 #ifdef CONFIG_ENV_OFFSET_OOB
-int get_nand_env_oob(nand_info_t *nand, unsigned long *result)
+int get_nand_env_oob(struct mtd_info *mtd, unsigned long *result)
 {
 	struct mtd_oob_ops ops;
 	uint32_t oob_buf[ENV_OFFSET_SIZE / sizeof(uint32_t)];
@@ -288,14 +288,14 @@ int get_nand_env_oob(nand_info_t *nand, unsigned long *result)
 	ops.ooblen	= ENV_OFFSET_SIZE;
 	ops.oobbuf	= (void *)oob_buf;
 
-	ret = nand->read_oob(nand, ENV_OFFSET_SIZE, &ops);
+	ret = mtd->read_oob(mtd, ENV_OFFSET_SIZE, &ops);
 	if (ret) {
 		printf("error reading OOB block 0\n");
 		return ret;
 	}
 
 	if (oob_buf[0] == ENV_OOB_MARKER) {
-		*result = oob_buf[1] * nand->erasesize;
+		*result = oob_buf[1] * mtd->erasesize;
 	} else if (oob_buf[0] == ENV_OOB_MARKER_OLD) {
 		*result = oob_buf[1];
 	} else {

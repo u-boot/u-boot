@@ -16,7 +16,7 @@
 #include <linux/mtd/nand_ecc.h>
 
 static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
-nand_info_t nand_info[1];
+struct mtd_info nand_info[1];
 static struct nand_chip nand_chip;
 
 #define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / \

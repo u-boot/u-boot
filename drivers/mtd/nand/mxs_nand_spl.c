@@ -8,7 +8,7 @@
 #include <nand.h>
 #include <malloc.h>
 
-static nand_info_t mtd;
+static struct mtd_info mtd;
 static struct nand_chip nand_chip;
 
 static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
