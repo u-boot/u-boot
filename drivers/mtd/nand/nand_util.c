@@ -847,7 +847,7 @@ int nand_torture(struct mtd_info *mtd, loff_t offset)
 	}
 
 	for (i = 0; i < patt_count; i++) {
-		err = mtd->erase(mtd, &instr);
+		err = mtd_erase(mtd, &instr);
 		if (err) {
 			printf("%s: erase() failed for block at 0x%llx: %d\n",
 				mtd->name, instr.addr, err);
@@ -855,7 +855,7 @@ int nand_torture(struct mtd_info *mtd, loff_t offset)
 		}
 
 		/* Make sure the block contains only 0xff bytes */
-		err = mtd->read(mtd, offset, mtd->erasesize, &retlen, buf);
+		err = mtd_read(mtd, offset, mtd->erasesize, &retlen, buf);
 		if ((err && err != -EUCLEAN) || retlen != mtd->erasesize) {
 			printf("%s: read() failed for block at 0x%llx: %d\n",
 				mtd->name, instr.addr, err);
@@ -872,14 +872,14 @@ int nand_torture(struct mtd_info *mtd, loff_t offset)
 
 		/* Write a pattern and check it */
 		memset(buf, patterns[i], mtd->erasesize);
-		err = mtd->write(mtd, offset, mtd->erasesize, &retlen, buf);
+		err = mtd_write(mtd, offset, mtd->erasesize, &retlen, buf);
 		if (err || retlen != mtd->erasesize) {
 			printf("%s: write() failed for block at 0x%llx: %d\n",
 				mtd->name, instr.addr, err);
 			goto out;
 		}
 
-		err = mtd->read(mtd, offset, mtd->erasesize, &retlen, buf);
+		err = mtd_read(mtd, offset, mtd->erasesize, &retlen, buf);
 		if ((err && err != -EUCLEAN) || retlen != mtd->erasesize) {
 			printf("%s: read() failed for block at 0x%llx: %d\n",
 				mtd->name, instr.addr, err);
