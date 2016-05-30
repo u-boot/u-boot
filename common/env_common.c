@@ -123,6 +123,7 @@ void set_default_env(const char *s)
 		error("Environment import failed: errno = %d\n", errno);
 
 	gd->flags |= GD_FLG_ENV_READY;
+	gd->flags |= GD_FLG_ENV_DEFAULT;
 }
 
 
