@@ -1,21 +1,17 @@
 /*
- * Copyright (C) 2007-2009 coresystems GmbH
- * Copyright (C) 2013 Google Inc.
- * Copyright (C) 2016 Bin Meng <bmeng.cn@gmail.com>
- *
- * Modified from coreboot src/soc/intel/baytrail/acpi/lpc.asl
+ * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Intel LPC Bus Device - 0:1f.0 */
 
-Scope (\)
+Device (LPCB)
 {
-	/* Intel Legacy Block */
-	OperationRegion(ILBS, SystemMemory, ILB_BASE_ADDRESS, ILB_BASE_SIZE)
-	Field(ILBS, AnyAcc, NoLock, Preserve) {
-		Offset (0x8),
+	Name(_ADR, 0x001f0000)
+
+	OperationRegion(PRTX, PCI_Config, 0x60, 8)
+	Field(PRTX, AnyAcc, NoLock, Preserve) {
 		PRTA, 8,
 		PRTB, 8,
 		PRTC, 8,
@@ -24,24 +20,6 @@ Scope (\)
 		PRTF, 8,
 		PRTG, 8,
 		PRTH, 8,
-		Offset (0x88),
-		    , 3,
-		UI3E, 1,
-		UI4E, 1
-	}
-}
-
-Device (LPCB)
-{
-	Name(_ADR, 0x001f0000)
-
-	OperationRegion(LPC0, PCI_Config, 0x00, 0x100)
-	Field(LPC0, AnyAcc, NoLock, Preserve) {
-		Offset(0x08),
-		SRID, 8,
-		Offset(0x80),
-		C1EN, 1,
-		Offset(0x84)
 	}
 
 	#include <asm/acpi/irqlinks.asl>
@@ -111,57 +89,6 @@ Device (LPCB)
 		}
 	}
 
-	/* Internal UART */
-	Device (IURT)
-	{
-		Name(_HID, EISAID("PNP0501"))
-		Name(_UID, 1)
-
-		Method(_STA, 0, Serialized)
-		{
-			/*
-			 * TODO:
-			 *
-			 * Need to hide the internal UART depending on whether
-			 * internal UART is enabled or not so that external
-			 * SuperIO UART can be exposed to system.
-			 */
-			Store(1, UI3E)
-			Store(1, UI4E)
-			Store(1, C1EN)
-			Return (STA_VISIBLE)
-
-		}
-
-		Method(_DIS, 0, Serialized)
-		{
-			Store(0, UI3E)
-			Store(0, UI4E)
-			Store(0, C1EN)
-		}
-
-		Method(_CRS, 0, Serialized)
-		{
-			Name(BUF0, ResourceTemplate()
-			{
-				IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
-				IRQNoFlags() { 3 }
-			})
-
-			Name(BUF1, ResourceTemplate()
-			{
-				IO(Decode16, 0x03f8, 0x03f8, 0x01, 0x08)
-				IRQNoFlags() { 4 }
-			})
-
-			If (LLessEqual(SRID, 0x04)) {
-				Return (BUF0)
-			} Else {
-				Return (BUF1)
-			}
-		}
-	}
-
 	/* Real Time Clock */
 	Device (RTC)
 	{
@@ -169,11 +96,7 @@ Device (LPCB)
 		Name(_CRS, ResourceTemplate()
 		{
 			IO(Decode16, 0x70, 0x70, 1, 8)
-			/*
-			 * Disable as Windows doesn't like it, and systems
-			 * don't seem to use it
-			 */
-			/* IRQNoFlags() { 8 } */
+			IRQNoFlags() { 8 }
 		})
 	}
 

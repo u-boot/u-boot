@@ -1028,11 +1028,14 @@ Features that are optional:
    those legacy stuff into U-Boot. ACPI spec allows a system that does not
    support SMI (a legacy-free system).
 
-So far ACPI is enabled on BayTrail based boards. Testing was done by booting
+ACPI was initially enabled on BayTrail based boards. Testing was done by booting
 a pre-installed Ubuntu 14.04 from a SATA drive. Installing Ubuntu 14.04 and
 Windows 8.1/10 to a SATA drive and booting from there is also tested. Most
 devices seem to work correctly and the board can respond a reboot/shutdown
 command from the OS.
+
+For other platform boards, ACPI support status can be checked by examining their
+board defconfig files to see if CONFIG_GENERATE_ACPI_TABLE is set to y.
 
 TODO List
 ---------

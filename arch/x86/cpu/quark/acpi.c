@@ -15,7 +15,7 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 		      void *dsdt)
 {
 	struct acpi_table_header *header = &(fadt->header);
-	u16 pmbase = ACPI_BASE_ADDRESS;
+	u16 pmbase = ACPI_PM1_BASE_ADDRESS;
 
 	memset((void *)fadt, 0, sizeof(struct acpi_fadt));
 
@@ -25,7 +25,7 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 
 	fadt->firmware_ctrl = (u32)facs;
 	fadt->dsdt = (u32)dsdt;
-	fadt->preferred_pm_profile = ACPI_PM_MOBILE;
+	fadt->preferred_pm_profile = ACPI_PM_UNSPECIFIED;
 	fadt->sci_int = 9;
 	fadt->smi_cmd = 0;
 	fadt->acpi_enable = 0;
@@ -36,13 +36,13 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	fadt->pm1b_evt_blk = 0x0;
 	fadt->pm1a_cnt_blk = pmbase + 0x4;
 	fadt->pm1b_cnt_blk = 0x0;
-	fadt->pm2_cnt_blk = pmbase + 0x50;
+	fadt->pm2_cnt_blk = 0x0;
 	fadt->pm_tmr_blk = pmbase + 0x8;
-	fadt->gpe0_blk = pmbase + 0x20;
+	fadt->gpe0_blk = ACPI_GPE0_BASE_ADDRESS;
 	fadt->gpe1_blk = 0;
 	fadt->pm1_evt_len = 4;
 	fadt->pm1_cnt_len = 2;
-	fadt->pm2_cnt_len = 1;
+	fadt->pm2_cnt_len = 0;
 	fadt->pm_tmr_len = 4;
 	fadt->gpe0_blk_len = 8;
 	fadt->gpe1_blk_len = 0;
@@ -53,13 +53,13 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	fadt->flush_size = 0;
 	fadt->flush_stride = 0;
 	fadt->duty_offset = 1;
-	fadt->duty_width = 0;
-	fadt->day_alrm = 0x0d;
+	fadt->duty_width = 3;
+	fadt->day_alrm = 0x00;
 	fadt->mon_alrm = 0x00;
 	fadt->century = 0x00;
-	fadt->iapc_boot_arch = ACPI_FADT_LEGACY_DEVICES | ACPI_FADT_8042;
+	fadt->iapc_boot_arch = ACPI_FADT_LEGACY_DEVICES;
 	fadt->flags = ACPI_FADT_WBINVD | ACPI_FADT_C1_SUPPORTED |
-		ACPI_FADT_C2_MP_SUPPORTED | ACPI_FADT_SLEEP_BUTTON |
+		ACPI_FADT_POWER_BUTTON | ACPI_FADT_SLEEP_BUTTON |
 		ACPI_FADT_S4_RTC_WAKE | ACPI_FADT_RESET_REGISTER |
 		ACPI_FADT_PLATFORM_CLOCK;
 

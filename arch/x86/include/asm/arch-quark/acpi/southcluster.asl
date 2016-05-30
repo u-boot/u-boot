@@ -1,8 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
- * Copyright (C) 2016 Bin Meng <bmeng.cn@gmail.com>
- *
- * Modified from coreboot src/soc/intel/baytrail/acpi/southcluster.asl
+ * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -121,12 +118,6 @@ Device (PCI0)
 				Cacheable, ReadWrite,
 				0x00000000, 0x00000000, 0x00000000, 0x00000000,
 				0x00000000, , , PMEM)
-
-		/* High PCI Memory Region */
-		QwordMemory(ResourceProducer, PosDecode, MinFixed, MaxFixed,
-				Cacheable, ReadWrite,
-				0x00000000, 0x00000000, 0x00000000, 0x00000000,
-				0x00000000, , , UMEM)
 	})
 
 	Method(_CRS, 0, Serialized)
@@ -137,7 +128,7 @@ Device (PCI0)
 		CreateDwordField(MCRS, ^PMEM._LEN, PLEN)
 
 		/*
-		 * Hardcode TOLM to 2GB for now as BayTrail FSP uses this value.
+		 * Hardcode TOLM to 2GB for now (see DRAM_MAX_SIZE in quark.h)
 		 *
 		 * TODO: for generic usage, read TOLM value from register, or
 		 * from global NVS (not implemented by U-Boot yet).
@@ -145,16 +136,6 @@ Device (PCI0)
 		Store(0x80000000, PMIN)
 		Store(Subtract(MCFG_BASE_ADDRESS, 1), PMAX)
 		Add(Subtract(PMAX, PMIN), 1, PLEN)
-
-		/* Update High PCI resource area */
-		CreateQwordField(MCRS, ^UMEM._MIN, UMIN)
-		CreateQwordField(MCRS, ^UMEM._MAX, UMAX)
-		CreateQwordField(MCRS, ^UMEM._LEN, ULEN)
-
-		/* Set base address to 48GB and allocate 16GB for PCI space */
-		Store(0xc00000000, UMIN)
-		Store(0x400000000, ULEN)
-		Add(UMIN, Subtract(ULEN, 1), UMAX)
 
 		Return (MCRS)
 	}
@@ -166,14 +147,12 @@ Device (PCI0)
 		Name(_UID, 1)
 
 		Name(PDRS, ResourceTemplate() {
+			Memory32Fixed(ReadWrite, CONFIG_ESRAM_BASE, 0x80000)
 			Memory32Fixed(ReadWrite, MCFG_BASE_ADDRESS, MCFG_BASE_SIZE)
-			Memory32Fixed(ReadWrite, ABORT_BASE_ADDRESS, ABORT_BASE_SIZE)
-			Memory32Fixed(ReadWrite, SPI_BASE_ADDRESS, SPI_BASE_SIZE)
-			Memory32Fixed(ReadWrite, PMC_BASE_ADDRESS, PMC_BASE_SIZE)
-			Memory32Fixed(ReadWrite, PUNIT_BASE_ADDRESS, PUNIT_BASE_SIZE)
-			Memory32Fixed(ReadWrite, ILB_BASE_ADDRESS, ILB_BASE_SIZE)
 			Memory32Fixed(ReadWrite, RCBA_BASE_ADDRESS, RCBA_BASE_SIZE)
-			Memory32Fixed(ReadWrite, MPHY_BASE_ADDRESS, MPHY_BASE_SIZE)
+			IO(Decode16, SPI_DMA_BASE_ADDRESS, SPI_DMA_BASE_ADDRESS, 0x0010, SPI_DMA_BASE_SIZE)
+			IO(Decode16, GPIO_BASE_ADDRESS, GPIO_BASE_ADDRESS, 0x0080, GPIO_BASE_SIZE)
+			IO(Decode16, WDT_BASE_ADDRESS, WDT_BASE_ADDRESS, 0x0040, WDT_BASE_SIZE)
 		})
 
 		/* Current Resource Settings */
@@ -199,12 +178,6 @@ Device (PCI0)
 
 	/* LPC Bridge 0:1f.0 */
 	#include "lpc.asl"
-
-	/* USB EHCI 0:1d.0 */
-	#include "usb.asl"
-
-	/* USB XHCI 0:14.0 */
-	#include "xhci.asl"
 
 	/* IRQ routing for each PCI device */
 	#include <asm/acpi/irqroute.asl>
