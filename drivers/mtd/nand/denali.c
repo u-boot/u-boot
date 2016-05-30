@@ -1263,7 +1263,7 @@ static int denali_init(struct denali_nand_info *denali)
 		goto fail;
 	}
 
-	ret = nand_register(0);
+	ret = nand_register(0, denali->mtd);
 
 fail:
 	return ret;
@@ -1282,7 +1282,7 @@ static int __board_nand_init(void)
 	 * for instantiating struct nand_chip, while drivers/mtd/nand/nand.c
 	 * still provides a "struct mtd_info nand_info" instance.
 	 */
-	denali->mtd = &nand_info[0];
+	denali->mtd = &denali->nand.mtd;
 
 	/*
 	 * In the future, these base addresses should be taken from

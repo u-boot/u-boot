@@ -656,7 +656,7 @@ static void fsl_elbc_ctrl_init(void)
 
 static int fsl_elbc_chip_init(int devnum, u8 *addr)
 {
-	struct mtd_info *mtd = &nand_info[devnum];
+	struct mtd_info *mtd;
 	struct nand_chip *nand;
 	struct fsl_elbc_mtd *priv;
 	uint32_t br = 0, or = 0;
@@ -697,6 +697,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	}
 
 	nand = &priv->chip;
+	mtd = &nand->mtd;
 	mtd->priv = nand;
 
 	elbc_ctrl->chips[priv->bank] = priv;
@@ -787,7 +788,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	if (ret)
 		return ret;
 
-	ret = nand_register(devnum);
+	ret = nand_register(devnum, mtd);
 	if (ret)
 		return ret;
 

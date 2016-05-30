@@ -132,15 +132,15 @@ static int writeenv(size_t offset, u_char *buf)
 	size_t blocksize, len;
 	u_char *char_ptr;
 
-	blocksize = nand_info[0].erasesize;
+	blocksize = nand_info[0]->erasesize;
 	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_saved < CONFIG_ENV_SIZE && offset < end) {
-		if (nand_block_isbad(&nand_info[0], offset)) {
+		if (nand_block_isbad(nand_info[0], offset)) {
 			offset += blocksize;
 		} else {
 			char_ptr = &buf[amount_saved];
-			if (nand_write(&nand_info[0], offset, &len, char_ptr))
+			if (nand_write(nand_info[0], offset, &len, char_ptr))
 				return 1;
 
 			offset += blocksize;
@@ -164,7 +164,7 @@ static int erase_and_write_env(const struct env_location *location,
 	int ret = 0;
 
 	printf("Erasing %s...\n", location->name);
-	if (nand_erase_opts(&nand_info[0], &location->erase_opts))
+	if (nand_erase_opts(nand_info[0], &location->erase_opts))
 		return 1;
 
 	printf("Writing to %s... ", location->name);
@@ -247,20 +247,20 @@ static int readenv(size_t offset, u_char *buf)
 	size_t blocksize, len;
 	u_char *char_ptr;
 
-	blocksize = nand_info[0].erasesize;
+	blocksize = nand_info[0]->erasesize;
 	if (!blocksize)
 		return 1;
 
 	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_loaded < CONFIG_ENV_SIZE && offset < end) {
-		if (nand_block_isbad(&nand_info[0], offset)) {
+		if (nand_block_isbad(nand_info[0], offset)) {
 			offset += blocksize;
 		} else {
 			char_ptr = &buf[amount_loaded];
-			if (nand_read_skip_bad(&nand_info[0], offset,
+			if (nand_read_skip_bad(nand_info[0], offset,
 					       &len, NULL,
-					       nand_info[0].size, char_ptr))
+					       nand_info[0]->size, char_ptr))
 				return 1;
 
 			offset += blocksize;
@@ -387,7 +387,7 @@ void env_relocate_spec(void)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 
 #if defined(CONFIG_ENV_OFFSET_OOB)
-	ret = get_nand_env_oob(&nand_info[0], &nand_env_oob_offset);
+	ret = get_nand_env_oob(nand_info[0], &nand_env_oob_offset);
 	/*
 	 * If unable to read environment offset from NAND OOB then fall through
 	 * to the normal environment reading code below

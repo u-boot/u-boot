@@ -62,7 +62,7 @@ static int fb_nand_lookup(const char *partname, char *response,
 		return -EINVAL;
 	}
 
-	*mtd = &nand_info[dev->id->num];
+	*mtd = nand_info[dev->id->num];
 
 	return 0;
 }

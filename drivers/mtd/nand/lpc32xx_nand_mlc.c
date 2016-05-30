@@ -539,12 +539,10 @@ static struct nand_chip lpc32xx_chip;
 
 void board_nand_init(void)
 {
-	/* we have only one device anyway */
-	struct mtd_info *mtd = &nand_info[0];
-	/* chip is struct nand_chip, and is now provided by the driver. */
-	mtd->priv = &lpc32xx_chip;
-	/* to store return status in case we need to print it */
+	struct mtd_info *mtd = &lpc32xx_chip.mtd;
 	int ret;
+
+	mtd->priv = &lpc32xx_chip;
 
 	/* Set all BOARDSPECIFIC (actually core-specific) fields  */
 
@@ -597,7 +595,7 @@ void board_nand_init(void)
 	}
 
 	/* chip is good, register it */
-	ret = nand_register(0);
+	ret = nand_register(0, mtd);
 	if (ret)
 		error("nand_register returned %i", ret);
 }

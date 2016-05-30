@@ -796,7 +796,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 counterN = 0;
 
 	struct mtdids *id = part->dev->id;
-	mtd = nand_info + id->num;
+	mtd = nand_info[id->num];
 
 	/* if we are building a list we need to refresh the cache. */
 	jffs_init_1pass_list(part);

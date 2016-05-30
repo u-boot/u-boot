@@ -39,12 +39,12 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	if (nand_curr_device < 0 ||
 	    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[nand_curr_device].name) {
+	    !nand_info[nand_curr_device]->name) {
 		printf("%s: invalid nand device\n", __func__);
 		return -1;
 	}
 
-	mtd = &nand_info[nand_curr_device];
+	mtd = nand_info[nand_curr_device];
 
 	if (op == DFU_OP_READ) {
 		ret = nand_read_skip_bad(mtd, start, &count, &actual,
@@ -147,12 +147,12 @@ static int dfu_flush_medium_nand(struct dfu_entity *dfu)
 
 		if (nand_curr_device < 0 ||
 		    nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
-		    !nand_info[nand_curr_device].name) {
+		    !nand_info[nand_curr_device]->name) {
 			printf("%s: invalid nand device\n", __func__);
 			return -1;
 		}
 
-		mtd = &nand_info[nand_curr_device];
+		mtd = nand_info[nand_curr_device];
 
 		memset(&opts, 0, sizeof(opts));
 		opts.offset = dfu->data.nand.start + dfu->offset +

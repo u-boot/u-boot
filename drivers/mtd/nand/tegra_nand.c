@@ -976,7 +976,7 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 
 	dm_gpio_set_value(&config->wp_gpio, 1);
 
-	our_mtd = &nand_info[devnum];
+	our_mtd = &nand->mtd;
 	our_mtd->priv = nand;
 	ret = nand_scan_ident(our_mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL);
 	if (ret)
@@ -989,7 +989,7 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 	if (ret)
 		return ret;
 
-	ret = nand_register(devnum);
+	ret = nand_register(devnum, our_mtd);
 	if (ret)
 		return ret;
 

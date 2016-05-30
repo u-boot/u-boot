@@ -33,15 +33,17 @@ extern void nand_init(void);
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 
+int nand_mtd_to_devnum(struct mtd_info *mtd);
+
 #ifdef CONFIG_SYS_NAND_SELF_INIT
 void board_nand_init(void);
-int nand_register(int devnum);
+int nand_register(int devnum, struct mtd_info *mtd);
 #else
 extern int board_nand_init(struct nand_chip *nand);
 #endif
 
 extern int nand_curr_device;
-extern struct mtd_info nand_info[];
+extern struct mtd_info *nand_info[];
 
 static inline int nand_read(struct mtd_info *info, loff_t ofs, size_t *len,
 			    u_char *buf)

@@ -630,7 +630,7 @@ struct vf610_nfc_config {
 
 static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 {
-	struct mtd_info *mtd = &nand_info[devnum];
+	struct mtd_info *mtd;
 	struct nand_chip *chip;
 	struct vf610_nfc *nfc;
 	int err = 0;
@@ -653,6 +653,7 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 	chip = &nfc->chip;
 	nfc->regs = addr;
 
+	mtd = &chip->mtd;
 	mtd->priv = chip;
 	chip->priv = nfc;
 
@@ -753,7 +754,7 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 	if (err)
 		return err;
 
-	err = nand_register(devnum);
+	err = nand_register(devnum, mtd);
 	if (err)
 		return err;
 

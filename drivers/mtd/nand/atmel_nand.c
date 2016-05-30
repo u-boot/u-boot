@@ -1238,17 +1238,17 @@ static int at91_nand_ready(struct mtd_info *mtd)
 
 #ifdef CONFIG_SPL_BUILD
 /* The following code is for SPL */
-static struct mtd_info mtd;
+static struct mtd_info *mtd;
 static struct nand_chip nand_chip;
 
 static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = mtd->priv;
 	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
 
-	while (!this->dev_ready(&mtd))
+	while (!this->dev_ready(mtd))
 		;
 
 	if (cmd == NAND_CMD_READOOB) {
@@ -1256,24 +1256,24 @@ static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 		cmd = NAND_CMD_READ0;
 	}
 
-	hwctrl(&mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 
 	if ((this->options & NAND_BUSWIDTH_16) && !nand_opcode_8bits(cmd))
 		offs >>= 1;
 
-	hwctrl(&mtd, offs & 0xff, NAND_CTRL_ALE | NAND_CTRL_CHANGE);
-	hwctrl(&mtd, (offs >> 8) & 0xff, NAND_CTRL_ALE);
-	hwctrl(&mtd, (page_addr & 0xff), NAND_CTRL_ALE);
-	hwctrl(&mtd, ((page_addr >> 8) & 0xff), NAND_CTRL_ALE);
+	hwctrl(mtd, offs & 0xff, NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, (offs >> 8) & 0xff, NAND_CTRL_ALE);
+	hwctrl(mtd, (page_addr & 0xff), NAND_CTRL_ALE);
+	hwctrl(mtd, ((page_addr >> 8) & 0xff), NAND_CTRL_ALE);
 #ifdef CONFIG_SYS_NAND_5_ADDR_CYCLE
-	hwctrl(&mtd, (page_addr >> 16) & 0x0f, NAND_CTRL_ALE);
+	hwctrl(mtd, (page_addr >> 16) & 0x0f, NAND_CTRL_ALE);
 #endif
-	hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
-	hwctrl(&mtd, NAND_CMD_READSTART, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
-	hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, NAND_CMD_READSTART, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
-	while (!this->dev_ready(&mtd))
+	while (!this->dev_ready(mtd))
 		;
 
 	return 0;
@@ -1281,7 +1281,7 @@ static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 
 static int nand_is_bad_block(int block)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = mtd->priv;
 
 	nand_command(block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS, NAND_CMD_READOOB);
 
@@ -1304,7 +1304,7 @@ static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
 
 static int nand_read_page(int block, int page, void *dst)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = mtd->priv;
 	u_char ecc_calc[ECCTOTAL];
 	u_char ecc_code[ECCTOTAL];
 	u_char oob_data[CONFIG_SYS_NAND_OOBSIZE];
@@ -1317,11 +1317,11 @@ static int nand_read_page(int block, int page, void *dst)
 
 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
 		if (this->ecc.mode != NAND_ECC_SOFT)
-			this->ecc.hwctl(&mtd, NAND_ECC_READ);
-		this->read_buf(&mtd, p, eccsize);
-		this->ecc.calculate(&mtd, p, &ecc_calc[i]);
+			this->ecc.hwctl(mtd, NAND_ECC_READ);
+		this->read_buf(mtd, p, eccsize);
+		this->ecc.calculate(mtd, p, &ecc_calc[i]);
 	}
-	this->read_buf(&mtd, oob_data, CONFIG_SYS_NAND_OOBSIZE);
+	this->read_buf(mtd, oob_data, CONFIG_SYS_NAND_OOBSIZE);
 
 	for (i = 0; i < ECCTOTAL; i++)
 		ecc_code[i] = oob_data[nand_ecc_pos[i]];
@@ -1330,35 +1330,35 @@ static int nand_read_page(int block, int page, void *dst)
 	p = dst;
 
 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize)
-		this->ecc.correct(&mtd, p, &ecc_code[i], &ecc_calc[i]);
+		this->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
 
 	return 0;
 }
 
 int spl_nand_erase_one(int block, int page)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = mtd->priv;
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
 	int page_addr;
 
 	if (nand_chip.select_chip)
-		nand_chip.select_chip(&mtd, 0);
+		nand_chip.select_chip(mtd, 0);
 
 	page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
-	hwctrl(&mtd, NAND_CMD_ERASE1, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, NAND_CMD_ERASE1, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	/* Row address */
-	hwctrl(&mtd, (page_addr & 0xff), NAND_CTRL_ALE | NAND_CTRL_CHANGE);
-	hwctrl(&mtd, ((page_addr >> 8) & 0xff),
+	hwctrl(mtd, (page_addr & 0xff), NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, ((page_addr >> 8) & 0xff),
 	       NAND_CTRL_ALE | NAND_CTRL_CHANGE);
 #ifdef CONFIG_SYS_NAND_5_ADDR_CYCLE
 	/* One more address cycle for devices > 128MiB */
-	hwctrl(&mtd, (page_addr >> 16) & 0x0f,
+	hwctrl(mtd, (page_addr >> 16) & 0x0f,
 	       NAND_CTRL_ALE | NAND_CTRL_CHANGE);
 #endif
-	hwctrl(&mtd, NAND_CMD_ERASE2, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, NAND_CMD_ERASE2, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 
-	while (!this->dev_ready(&mtd))
+	while (!this->dev_ready(mtd))
 		;
 
 	nand_deselect();
@@ -1368,10 +1368,10 @@ int spl_nand_erase_one(int block, int page)
 #else
 static int nand_read_page(int block, int page, void *dst)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = mtd->priv;
 
 	nand_command(block, page, 0, NAND_CMD_READ0);
-	atmel_nand_pmecc_read_page(&mtd, this, dst, 0, page);
+	atmel_nand_pmecc_read_page(mtd, this, dst, 0, page);
 
 	return 0;
 }
@@ -1438,7 +1438,7 @@ int board_nand_init(struct nand_chip *nand)
 
 #ifdef CONFIG_ATMEL_NAND_HWECC
 #ifdef CONFIG_ATMEL_NAND_HW_PMECC
-	ret = atmel_pmecc_nand_init_params(nand, &mtd);
+	ret = atmel_pmecc_nand_init_params(nand, mtd);
 #endif
 #endif
 
@@ -1447,9 +1447,10 @@ int board_nand_init(struct nand_chip *nand)
 
 void nand_init(void)
 {
-	mtd.writesize = CONFIG_SYS_NAND_PAGE_SIZE;
-	mtd.oobsize = CONFIG_SYS_NAND_OOBSIZE;
-	mtd.priv = &nand_chip;
+	mtd = &nand_chip.mtd;
+	mtd->writesize = CONFIG_SYS_NAND_PAGE_SIZE;
+	mtd->oobsize = CONFIG_SYS_NAND_OOBSIZE;
+	mtd->priv = &nand_chip;
 	nand_chip.IO_ADDR_R = (void __iomem *)CONFIG_SYS_NAND_BASE;
 	nand_chip.IO_ADDR_W = (void __iomem *)CONFIG_SYS_NAND_BASE;
 	board_nand_init(&nand_chip);
@@ -1462,13 +1463,13 @@ void nand_init(void)
 #endif
 
 	if (nand_chip.select_chip)
-		nand_chip.select_chip(&mtd, 0);
+		nand_chip.select_chip(mtd, 0);
 }
 
 void nand_deselect(void)
 {
 	if (nand_chip.select_chip)
-		nand_chip.select_chip(&mtd, -1);
+		nand_chip.select_chip(mtd, -1);
 }
 
 #else
@@ -1482,8 +1483,8 @@ static ulong base_addr[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIST;
 int atmel_nand_chip_init(int devnum, ulong base_addr)
 {
 	int ret;
-	struct mtd_info *mtd = &nand_info[devnum];
 	struct nand_chip *nand = &nand_chip[devnum];
+	struct mtd_info *mtd = &nand->mtd;
 
 	mtd->priv = nand;
 	nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
@@ -1521,7 +1522,7 @@ int atmel_nand_chip_init(int devnum, ulong base_addr)
 
 	ret = nand_scan_tail(mtd);
 	if (!ret)
-		nand_register(devnum);
+		nand_register(devnum, mtd);
 
 	return ret;
 }

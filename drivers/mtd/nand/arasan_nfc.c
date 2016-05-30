@@ -1101,7 +1101,7 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 	}
 
 	nand->nand_base = arasan_nand_base;
-	mtd = &nand_info[0];
+	mtd = &nand_chip->mtd;
 	nand_chip->priv = nand;
 	mtd->priv = nand_chip;
 
@@ -1134,7 +1134,7 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 		goto fail;
 	}
 
-	if (nand_register(devnum)) {
+	if (nand_register(devnum, mtd)) {
 		printf("Nand Register Fail\n");
 		goto fail;
 	}

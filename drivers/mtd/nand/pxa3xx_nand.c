@@ -1477,9 +1477,9 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 
 	info->variant = pxa3xx_nand_get_variant();
 	for (cs = 0; cs < pdata->num_cs; cs++) {
-		mtd = &nand_info[cs];
 		chip = (struct nand_chip *)
 			((u8 *)&info[1] + sizeof(*host) * cs);
+		mtd = &chip->mtd;
 		host = (struct pxa3xx_nand_host *)chip;
 		info->host[cs] = host;
 		host->mtd = mtd;
@@ -1573,8 +1573,10 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 			continue;
 		}
 
-		if (!ret)
-			probe_success = 1;
+		if (nand_register(cs, mtd))
+			continue;
+
+		probe_success = 1;
 	}
 
 	if (!probe_success)
@@ -1601,6 +1603,4 @@ void board_nand_init(void)
 	ret = pxa3xx_nand_probe(info);
 	if (ret)
 		return;
-
-	nand_register(0);
 }

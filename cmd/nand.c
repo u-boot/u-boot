@@ -116,7 +116,7 @@ free_dat:
 static int set_dev(int dev)
 {
 	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[dev].name) {
+	    !nand_info[dev]->name) {
 		puts("No such device\n");
 		return -1;
 	}
@@ -124,12 +124,12 @@ static int set_dev(int dev)
 	if (nand_curr_device == dev)
 		return 0;
 
-	printf("Device %d: %s", dev, nand_info[dev].name);
+	printf("Device %d: %s", dev, nand_info[dev]->name);
 	puts("... is now current device\n");
 	nand_curr_device = dev;
 
 #ifdef CONFIG_SYS_NAND_SELECT_DEVICE
-	board_nand_select_device(nand_info[dev].priv, dev);
+	board_nand_select_device(nand_info[dev]->priv, dev);
 #endif
 
 	return 0;
@@ -189,7 +189,7 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, int argc, char *const argv[])
 {
 	int ret;
 	uint32_t oob_buf[ENV_OFFSET_SIZE/sizeof(uint32_t)];
-	struct mtd_info *mtd = &nand_info[0];
+	struct mtd_info *mtd = nand_info[0];
 	char *cmd = argv[1];
 
 	if (CONFIG_SYS_MAX_NAND_DEVICE == 0 || !mtd->name) {
@@ -216,7 +216,7 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, int argc, char *const argv[])
 
 		/* We don't care about size, or maxsize. */
 		if (mtd_arg_off(argv[2], &idx, &addr, &maxsize, &maxsize,
-				MTD_DEV_TYPE_NAND, nand_info[idx].size)) {
+				MTD_DEV_TYPE_NAND, nand_info[idx]->size)) {
 			puts("Offset or partition name expected\n");
 			return 1;
 		}
@@ -284,7 +284,7 @@ usage:
 
 static void nand_print_and_set_info(int idx)
 {
-	struct mtd_info *mtd = &nand_info[idx];
+	struct mtd_info *mtd = nand_info[idx];
 	struct nand_chip *chip = mtd->priv;
 
 	printf("Device %d: ", idx);
@@ -349,7 +349,7 @@ static void adjust_size_for_badblocks(loff_t *size, loff_t offset, int dev)
 	/* We grab the nand info object here fresh because this is usually
 	 * called after arg_off_size() which can change the value of dev.
 	 */
-	struct mtd_info *mtd = &nand_info[dev];
+	struct mtd_info *mtd = nand_info[dev];
 	loff_t maxoffset = offset + *size;
 	int badblocks = 0;
 
@@ -399,7 +399,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		putc('\n');
 		for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
-			if (nand_info[i].name)
+			if (nand_info[i]->name)
 				nand_print_and_set_info(i);
 		}
 		return 0;
@@ -434,11 +434,11 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * for another device is to be used.
 	 */
 	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE ||
-	    !nand_info[dev].name) {
+	    !nand_info[dev]->name) {
 		puts("\nno devices available\n");
 		return 1;
 	}
-	mtd = &nand_info[dev];
+	mtd = nand_info[dev];
 
 	if (strcmp(cmd, "bad") == 0) {
 		printf("\nDevice %d bad blocks:\n", dev);
@@ -497,13 +497,13 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* skip first two or three arguments, look for offset and size */
 		if (mtd_arg_off_size(argc - o, argv + o, &dev, &off, &size,
 				     &maxsize, MTD_DEV_TYPE_NAND,
-				     nand_info[dev].size) != 0)
+				     nand_info[dev]->size) != 0)
 			return 1;
 
 		if (set_dev(dev))
 			return 1;
 
-		mtd = &nand_info[dev];
+		mtd = nand_info[dev];
 
 		memset(&opts, 0, sizeof(opts));
 		opts.offset = off;
@@ -562,13 +562,13 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			if (mtd_arg_off(argv[3], &dev, &off, &size, &maxsize,
 					MTD_DEV_TYPE_NAND,
-					nand_info[dev].size))
+					nand_info[dev]->size))
 				return 1;
 
 			if (set_dev(dev))
 				return 1;
 
-			mtd = &nand_info[dev];
+			mtd = nand_info[dev];
 
 			if (argc > 4 && !str2long(argv[4], &pagecount)) {
 				printf("'%s' is not a number\n", argv[4]);
@@ -585,7 +585,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (mtd_arg_off_size(argc - 3, argv + 3, &dev, &off,
 					     &size, &maxsize,
 					     MTD_DEV_TYPE_NAND,
-					     nand_info[dev].size) != 0)
+					     nand_info[dev]->size) != 0)
 				return 1;
 
 			if (set_dev(dev))
@@ -597,7 +597,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			rwsize = size;
 		}
 
-		mtd = &nand_info[dev];
+		mtd = nand_info[dev];
 
 		if (!s || !strcmp(s, ".jffs2") ||
 		    !strcmp(s, ".e") || !strcmp(s, ".i")) {
@@ -728,13 +728,13 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		if (mtd_arg_off_size(argc - 2, argv + 2, &dev, &off, &size,
 				     &maxsize, MTD_DEV_TYPE_NAND,
-				     nand_info[dev].size) < 0)
+				     nand_info[dev]->size) < 0)
 			return 1;
 
 		if (set_dev(dev))
 			return 1;
 
-		if (!nand_unlock(&nand_info[dev], off, size, allexcept)) {
+		if (!nand_unlock(nand_info[dev], off, size, allexcept)) {
 			puts("NAND flash successfully unlocked\n");
 		} else {
 			puts("Error unlocking NAND flash, "
@@ -915,7 +915,7 @@ static int do_nandboot(cmd_tbl_t *cmdtp, int flag, int argc,
 				addr = simple_strtoul(argv[1], NULL, 16);
 			else
 				addr = CONFIG_SYS_LOAD_ADDR;
-			return nand_load_image(cmdtp, &nand_info[dev->id->num],
+			return nand_load_image(cmdtp, nand_info[dev->id->num],
 					       part->offset, addr, argv[0]);
 		}
 	}
@@ -958,14 +958,14 @@ usage:
 
 	idx = simple_strtoul(boot_device, NULL, 16);
 
-	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx].name) {
+	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx]->name) {
 		printf("\n** Device %d not available\n", idx);
 		bootstage_error(BOOTSTAGE_ID_NAND_AVAILABLE);
 		return 1;
 	}
 	bootstage_mark(BOOTSTAGE_ID_NAND_AVAILABLE);
 
-	return nand_load_image(cmdtp, &nand_info[idx], offset, addr, argv[0]);
+	return nand_load_image(cmdtp, nand_info[idx], offset, addr, argv[0]);
 }
 
 U_BOOT_CMD(nboot, 4, 1, do_nandboot,

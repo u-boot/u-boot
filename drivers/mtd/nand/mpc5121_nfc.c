@@ -549,7 +549,6 @@ int board_nand_init(struct nand_chip *chip)
 	int resettime = 0;
 	int retval = 0;
 	int rev;
-	static int chip_nr = 0;
 
 	/*
 	 * Check SoC revision. This driver supports only NFC
@@ -568,7 +567,7 @@ int board_nand_init(struct nand_chip *chip)
 		return -ENOMEM;
 	}
 
-	mtd = &nand_info[chip_nr++];
+	mtd = &chip->mtd;
 	mtd->priv = chip;
 	chip->priv = prv;
 

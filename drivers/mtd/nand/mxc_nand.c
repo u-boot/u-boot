@@ -1164,7 +1164,7 @@ int board_nand_init(struct nand_chip *this)
 #endif
 
 	/* structures must be linked */
-	mtd = &host->mtd;
+	mtd = &this->mtd;
 	mtd->priv = this;
 	host->nand = this;
 

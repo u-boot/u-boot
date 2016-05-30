@@ -659,6 +659,7 @@ struct nand_buffers {
  */
 
 struct nand_chip {
+	struct mtd_info mtd;
 	void __iomem *IO_ADDR_R;
 	void __iomem *IO_ADDR_W;
 

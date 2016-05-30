@@ -880,7 +880,7 @@ static int fsl_ifc_sram_init(uint32_t ver)
 
 static int fsl_ifc_chip_init(int devnum, u8 *addr)
 {
-	struct mtd_info *mtd = &nand_info[devnum];
+	struct mtd_info *mtd;
 	struct nand_chip *nand;
 	struct fsl_ifc_mtd *priv;
 	struct nand_ecclayout *layout;
@@ -925,6 +925,7 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 	}
 
 	nand = &priv->chip;
+	mtd = &nand->mtd;
 	mtd->priv = nand;
 
 	ifc_ctrl->chips[priv->bank] = priv;
@@ -1044,7 +1045,7 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 	if (ret)
 		return ret;
 
-	ret = nand_register(devnum);
+	ret = nand_register(devnum, mtd);
 	if (ret)
 		return ret;
 	return 0;

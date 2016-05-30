@@ -45,9 +45,9 @@ static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 #ifdef CONFIG_CMD_NAND
 static int splash_nand_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 {
-	return nand_read_skip_bad(&nand_info[nand_curr_device], offset,
+	return nand_read_skip_bad(nand_info[nand_curr_device], offset,
 				  &read_size, NULL,
-				  nand_info[nand_curr_device].size,
+				  nand_info[nand_curr_device]->size,
 				  (u_char *)bmp_load_addr);
 }
 #else

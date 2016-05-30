@@ -212,7 +212,7 @@ void lcd_show_board_info(void)
 		dram_size += gd->bd->bi_dram[i].size;
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i].size;
+		nand_size += nand_info[i]->size;
 	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
 		dram_size >> 20,
 		nand_size >> 20 );
