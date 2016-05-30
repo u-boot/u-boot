@@ -569,7 +569,7 @@ static int atmel_nand_pmecc_read_page(struct mtd_info *mtd,
 
 static int atmel_nand_pmecc_write_page(struct mtd_info *mtd,
 		struct nand_chip *chip, const uint8_t *buf,
-		int oob_required)
+		int oob_required, int page)
 {
 	struct atmel_nand_host *host = nand_get_controller_data(chip);
 	uint32_t *eccpos = chip->ecc.layout->eccpos;

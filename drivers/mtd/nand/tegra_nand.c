@@ -657,16 +657,9 @@ static int nand_read_page_hwecc(struct mtd_info *mtd,
  * @param buf	data buffer
  */
 static int nand_write_page_hwecc(struct mtd_info *mtd,
-	struct nand_chip *chip, const uint8_t *buf, int oob_required)
+	struct nand_chip *chip, const uint8_t *buf, int oob_required,
+	int page)
 {
-	int page;
-	struct nand_drv *info;
-
-	info = (struct nand_drv *)nand_get_controller_data(chip);
-
-	page = (readl(&info->reg->addr_reg1) >> 16) |
-		(readl(&info->reg->addr_reg2) << 16);
-
 	nand_rw_page(mtd, chip, (uint8_t *)buf, page, 1, 1);
 	return 0;
 }
@@ -697,15 +690,9 @@ static int nand_read_page_raw(struct mtd_info *mtd,
  * @param buf	data buffer
  */
 static int nand_write_page_raw(struct mtd_info *mtd,
-		struct nand_chip *chip,	const uint8_t *buf, int oob_required)
+		struct nand_chip *chip,	const uint8_t *buf,
+		int oob_required, int page)
 {
-	int page;
-	struct nand_drv *info;
-
-	info = (struct nand_drv *)nand_get_controller_data(chip);
-	page = (readl(&info->reg->addr_reg1) >> 16) |
-		(readl(&info->reg->addr_reg2) << 16);
-
 	nand_rw_page(mtd, chip, (uint8_t *)buf, page, 0, 1);
 	return 0;
 }

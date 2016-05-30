@@ -380,10 +380,13 @@ static int nand_davinci_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 	chip->cmdfunc(mtd, NAND_CMD_SEQIN, 0x00, page);
 
-	if (unlikely(raw))
-		status = chip->ecc.write_page_raw(mtd, chip, buf, oob_required);
-	else
-		status = chip->ecc.write_page(mtd, chip, buf, oob_required);
+	if (unlikely(raw)) {
+		status = chip->ecc.write_page_raw(mtd, chip, buf,
+						  oob_required, page);
+	} else {
+		status = chip->ecc.write_page(mtd, chip, buf,
+					      oob_required, page);
+	}
 
 	if (status < 0) {
 		ret = status;

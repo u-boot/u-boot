@@ -433,7 +433,8 @@ static void arasan_nand_fill_tx(const u8 *buf, int len)
 }
 
 static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
-		struct nand_chip *chip, const u8 *buf, int oob_required)
+		struct nand_chip *chip, const u8 *buf, int oob_required,
+		int page)
 {
 	u32 reg_val, i, pktsize, pktnum;
 	const u32 *bufptr = (const u32 *)buf;

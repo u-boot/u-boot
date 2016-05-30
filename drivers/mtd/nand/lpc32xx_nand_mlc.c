@@ -378,7 +378,8 @@ static int lpc32xx_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
  */
 
 static int lpc32xx_write_page_hwecc(struct mtd_info *mtd,
-	struct nand_chip *chip, const uint8_t *buf, int oob_required)
+	struct nand_chip *chip, const uint8_t *buf, int oob_required,
+	int page)
 {
 	unsigned int i, status, timeout;
 	struct lpc32xx_oob *oob = (struct lpc32xx_oob *)chip->oob_poi;
@@ -435,7 +436,8 @@ static int lpc32xx_write_page_hwecc(struct mtd_info *mtd,
  */
 
 static int lpc32xx_write_page_raw(struct mtd_info *mtd,
-	struct nand_chip *chip, const uint8_t *buf, int oob_required)
+	struct nand_chip *chip, const uint8_t *buf, int oob_required,
+	int page)
 {
 	unsigned int i;
 	struct lpc32xx_oob *oob = (struct lpc32xx_oob *)chip->oob_poi;

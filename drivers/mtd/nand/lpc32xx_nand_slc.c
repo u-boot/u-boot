@@ -486,7 +486,8 @@ static int lpc32xx_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
 /* Reuse the logic from "nand_write_page_hwecc()" */
 static int lpc32xx_write_page_hwecc(struct mtd_info *mtd,
 				    struct nand_chip *chip,
-				    const uint8_t *buf, int oob_required)
+				    const uint8_t *buf, int oob_required,
+				    int page)
 {
 	int i;
 	uint8_t *ecc_calc = chip->buffers->ecccalc;

@@ -707,7 +707,7 @@ rtn:
  */
 static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 				struct nand_chip *nand, const uint8_t *buf,
-				int oob_required)
+				int oob_required, int page)
 {
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
 	struct mxs_dma_desc *d;

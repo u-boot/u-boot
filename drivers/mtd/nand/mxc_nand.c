@@ -576,7 +576,7 @@ static int mxc_nand_write_oob_syndrome(struct mtd_info *mtd,
 static int mxc_nand_write_page_raw_syndrome(struct mtd_info *mtd,
 					     struct nand_chip *chip,
 					     const uint8_t *buf,
-					     int oob_required)
+					     int oob_required, int page)
 {
 	struct mxc_nand_host *host = nand_get_controller_data(chip);
 	int eccsize = chip->ecc.size;
@@ -616,7 +616,7 @@ static int mxc_nand_write_page_raw_syndrome(struct mtd_info *mtd,
 static int mxc_nand_write_page_syndrome(struct mtd_info *mtd,
 					 struct nand_chip *chip,
 					 const uint8_t *buf,
-					 int oob_required)
+					 int oob_required, int page)
 {
 	struct mxc_nand_host *host = nand_get_controller_data(chip);
 	int i, n, eccsize = chip->ecc.size;
