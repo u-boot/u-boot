@@ -45,7 +45,7 @@ void _machine_restart(void)
 		/* NOP */;
 }
 
-u32 get_bootstrap(void)
+u32 ath79_get_bootstrap(void)
 {
 	void __iomem *base;
 	u32 reg = 0;
@@ -89,7 +89,7 @@ static int eth_init_ar933x(void)
 	mdelay(10);
 
 	/* Get Atheros S26 PHY out of reset. */
-	clrsetbits_be32(pregs + AR934X_PLL_SWITCH_CLOCK_CONTROL_REG,
+	clrsetbits_be32(pregs + AR933X_PLL_SWITCH_CLOCK_CONTROL_REG,
 			0x1f, 0x10);
 	mdelay(10);
 
@@ -136,6 +136,23 @@ static int eth_init_ar934x(void)
 	return 0;
 }
 
+static int eth_init_qca953x(void)
+{
+	void __iomem *rregs = map_physmem(AR71XX_RESET_BASE, AR71XX_RESET_SIZE,
+					  MAP_NOCACHE);
+	const u32 mask = QCA953X_RESET_GE0_MAC | QCA953X_RESET_GE0_MDIO |
+			 QCA953X_RESET_GE1_MAC | QCA953X_RESET_GE1_MDIO |
+			 QCA953X_RESET_ETH_SWITCH_ANALOG |
+			 QCA953X_RESET_ETH_SWITCH;
+
+	setbits_be32(rregs + AR934X_RESET_REG_RESET_MODULE, mask);
+	mdelay(1);
+	clrbits_be32(rregs + AR934X_RESET_REG_RESET_MODULE, mask);
+	mdelay(1);
+
+	return 0;
+}
+
 int ath79_eth_reset(void)
 {
 	/*
@@ -146,6 +163,8 @@ int ath79_eth_reset(void)
 		return eth_init_ar933x();
 	if (soc_is_ar934x())
 		return eth_init_ar934x();
+	if (soc_is_qca953x())
+		return eth_init_qca953x();
 
 	return -EINVAL;
 }
@@ -185,6 +204,35 @@ static int usb_reset_ar934x(void __iomem *reset_regs)
 	return 0;
 }
 
+static int usb_reset_qca953x(void __iomem *reset_regs)
+{
+	void __iomem *pregs = map_physmem(AR71XX_PLL_BASE, AR71XX_PLL_SIZE,
+					  MAP_NOCACHE);
+
+	clrsetbits_be32(pregs + QCA953X_PLL_SWITCH_CLOCK_CONTROL_REG,
+			0xf00, 0x200);
+	mdelay(10);
+
+	/* Ungate the USB block */
+	setbits_be32(reset_regs + QCA953X_RESET_REG_RESET_MODULE,
+		     QCA953X_RESET_USBSUS_OVERRIDE);
+	mdelay(1);
+	clrbits_be32(reset_regs + QCA953X_RESET_REG_RESET_MODULE,
+		     QCA953X_RESET_USB_PHY);
+	mdelay(1);
+	clrbits_be32(reset_regs + QCA953X_RESET_REG_RESET_MODULE,
+		     QCA953X_RESET_USB_PHY_ANALOG);
+	mdelay(1);
+	clrbits_be32(reset_regs + QCA953X_RESET_REG_RESET_MODULE,
+		     QCA953X_RESET_USB_HOST);
+	mdelay(1);
+	clrbits_be32(reset_regs + QCA953X_RESET_REG_RESET_MODULE,
+		     QCA953X_RESET_USB_PHY_PLL_PWD_EXT);
+	mdelay(1);
+
+	return 0;
+}
+
 int ath79_usb_reset(void)
 {
 	void __iomem *usbc_regs = map_physmem(AR71XX_USB_CTRL_BASE,
@@ -204,6 +252,8 @@ int ath79_usb_reset(void)
 		return usb_reset_ar933x(reset_regs);
 	if (soc_is_ar934x())
 		return usb_reset_ar934x(reset_regs);
+	if (soc_is_qca953x())
+		return usb_reset_qca953x(reset_regs);
 
 	return -EINVAL;
 }

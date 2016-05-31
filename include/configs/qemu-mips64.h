@@ -132,11 +132,4 @@
 
 #define CONFIG_LZMA
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CONFIG_SYS_DCACHE_SIZE		16384
-#define CONFIG_SYS_ICACHE_SIZE		16384
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #endif /* __CONFIG_H */

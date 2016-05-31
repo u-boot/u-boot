@@ -202,11 +202,4 @@
 #define CONFIG_SYS_ATA_ALT_OFFSET      0x0100
 #endif /* CONFIG_DBAU1550 */
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CONFIG_SYS_DCACHE_SIZE		16384
-#define CONFIG_SYS_ICACHE_SIZE		16384
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #endif	/* __CONFIG_H */

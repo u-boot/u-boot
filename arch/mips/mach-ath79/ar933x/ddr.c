@@ -10,7 +10,7 @@
 #include <asm/addrspace.h>
 #include <asm/types.h>
 #include <mach/ar71xx_regs.h>
-#include <mach/reset.h>
+#include <mach/ath79.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -114,7 +114,7 @@ void ddr_init(void)
 	writel(DDR_CONF_REG_VAL, regs + AR71XX_DDR_REG_CONFIG);
 	writel(DDR_CONF2_REG_VAL, regs + AR71XX_DDR_REG_CONFIG2);
 
-	val = get_bootstrap();
+	val = ath79_get_bootstrap();
 	if (val & AR933X_BOOTSTRAP_DDR2) {
 		/* AHB maximum timeout */
 		writel(0xfffff, regs + AR933X_DDR_REG_TIMEOUT_MAX);

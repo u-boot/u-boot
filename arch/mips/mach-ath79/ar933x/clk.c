@@ -9,7 +9,7 @@
 #include <asm/addrspace.h>
 #include <asm/types.h>
 #include <mach/ar71xx_regs.h>
-#include <mach/reset.h>
+#include <mach/ath79.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -17,7 +17,7 @@ static u32 ar933x_get_xtal(void)
 {
 	u32 val;
 
-	val = get_bootstrap();
+	val = ath79_get_bootstrap();
 	if (val & AR933X_BOOTSTRAP_REF_CLK_40)
 		return 40000000;
 	else

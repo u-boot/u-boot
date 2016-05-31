@@ -100,7 +100,6 @@
  * USB Configuration
  */
 #define CONFIG_USB_MUSB_PIO_ONLY
-#define CONFIG_SYS_CACHELINE_SIZE	16
 
 /*-----------------------------------------------------------------------
  * File System Configuration
