@@ -21,6 +21,16 @@
 _start:
 	b	reset
 
+#ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
+/*
+ * Various SoCs need something special and SoC-specific up front in
+ * order to boot, allow them to set that in their boot0.h file and then
+ * use it here.
+ */
+#include <asm/arch/boot0.h>
+ARM_SOC_BOOT0_HOOK
+#endif
+
 	.align 3
 
 .globl	_TEXT_BASE

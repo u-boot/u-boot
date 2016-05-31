@@ -91,6 +91,14 @@ config SYS_L2CACHE_OFF
 	  If SoC does not support L2CACHE or one do not want to enable
 	  L2CACHE, choose this option.
 
+config ENABLE_ARM_SOC_BOOT0_HOOK
+	bool "prepare BOOT0 header"
+	help
+	  If the SoC's BOOT0 requires a header area filled with (magic)
+	  values, then choose this option, and create a define called
+	  ARM_SOC_BOOT0_HOOK which contains the required assembler
+	  preprocessor code.
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY
