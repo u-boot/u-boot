@@ -147,8 +147,7 @@ static void putc_outstr(char ch)
 	*outstr++ = ch;
 }
 
-/* Note that size is ignored */
-int snprintf(char *buf, size_t size, const char *fmt, ...)
+int sprintf(char *buf, const char *fmt, ...)
 {
 	va_list va;
 	int ret;
@@ -158,6 +157,19 @@ int snprintf(char *buf, size_t size, const char *fmt, ...)
 	ret = _vprintf(fmt, va, putc_outstr);
 	va_end(va);
 	*outstr = '\0';
+
+	return ret;
+}
+
+/* Note that size is ignored */
+int snprintf(char *buf, size_t size, const char *fmt, ...)
+{
+	va_list va;
+	int ret;
+
+	va_start(va, fmt);
+	ret = sprintf(buf, fmt, va);
+	va_end(va);
 
 	return ret;
 }
