@@ -35,6 +35,12 @@
 
 #include "fw_env.h"
 
+struct env_opts default_opts = {
+#ifdef CONFIG_FILE
+	.config_file = CONFIG_FILE
+#endif
+};
+
 #define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
 
 #define min(x, y) ({				\
@@ -229,6 +235,9 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 	char *env, *nxt;
 	int i, rc = 0;
 
+	if (!opts)
+		opts = &default_opts;
+
 	if (fw_env_open(opts))
 		return -1;
 
@@ -288,6 +297,9 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 int fw_env_close(struct env_opts *opts)
 {
 	int ret;
+
+	if (!opts)
+		opts = &default_opts;
 
 	if (opts->aes_flag) {
 		ret = env_aes_cbc_crypt(environment.data, 1,
@@ -452,6 +464,9 @@ int fw_setenv(int argc, char *argv[], struct env_opts *opts)
 	char *value = NULL;
 	int valc;
 
+	if (!opts)
+		opts = &default_opts;
+
 	if (argc < 1) {
 		fprintf(stderr, "## Error: variable name missing\n");
 		errno = EINVAL;
@@ -523,6 +538,9 @@ int fw_parse_script(char *fname, struct env_opts *opts)
 	int lineno = 0;
 	int len;
 	int ret = 0;
+
+	if (!opts)
+		opts = &default_opts;
 
 	if (fw_env_open(opts)) {
 		fprintf(stderr, "Error: environment not initialized\n");
@@ -1139,6 +1157,9 @@ int fw_env_open(struct env_opts *opts)
 	struct env_image_single *single;
 	struct env_image_redundant *redundant;
 
+	if (!opts)
+		opts = &default_opts;
+
 	if (parse_config(opts))		/* should fill envdevices */
 		return -1;
 
@@ -1312,10 +1333,10 @@ static int parse_config(struct env_opts *opts)
 {
 	struct stat st;
 
-#if defined(CONFIG_FILE)
-	if (!common_args.config_file)
-		common_args.config_file = CONFIG_FILE;
+	if (!opts)
+		opts = &default_opts;
 
+#if defined(CONFIG_FILE)
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
 	if (get_config(opts->config_file)) {
 		fprintf(stderr, "Cannot parse config file '%s': %m\n",
