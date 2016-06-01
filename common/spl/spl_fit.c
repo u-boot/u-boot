@@ -156,8 +156,8 @@ int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fit)
 	 * In fact the FIT has its own load address, but we assume it cannot
 	 * be before CONFIG_SYS_TEXT_BASE.
 	 */
-	fit = (void *)(CONFIG_SYS_TEXT_BASE - size - info->bl_len);
-	fit = (void *)ALIGN((ulong)fit, 8);
+	fit = (void *)((CONFIG_SYS_TEXT_BASE - size - info->bl_len -
+			align_len) & ~align_len);
 	sectors = get_aligned_image_size(info, size, 0);
 	count = info->read(info, sector, sectors, fit);
 	debug("fit read sector %lx, sectors=%d, dst=%p, count=%lu\n",
