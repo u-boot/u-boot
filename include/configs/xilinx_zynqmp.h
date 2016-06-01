@@ -211,7 +211,8 @@
 # define CONFIG_SYS_EEPROM_SIZE			(64 * 1024)
 #endif
 
-#ifdef CONFIG_AHCI
+#ifdef CONFIG_SATA_CEVA
+#define CONFIG_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
