@@ -766,6 +766,7 @@ config ARCH_ROCKCHIP
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
+	select ARM64
 	select OF_CONTROL
 
 endchoice
