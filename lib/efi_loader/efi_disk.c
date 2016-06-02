@@ -84,10 +84,8 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	blocks = buffer_size / blksz;
 	lba += diskobj->offset;
 
-#ifdef DEBUG_EFI
-	printf("EFI: %s:%d blocks=%x lba=%"PRIx64" blksz=%x dir=%d\n", __func__,
-	       __LINE__, blocks, lba, blksz, direction);
-#endif
+	debug("EFI: %s:%d blocks=%x lba=%"PRIx64" blksz=%x dir=%d\n", __func__,
+	      __LINE__, blocks, lba, blksz, direction);
 
 	/* We only support full block access */
 	if (buffer_size & (blksz - 1))
@@ -101,9 +99,8 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	/* We don't do interrupts, so check for timers cooperatively */
 	efi_timer_check();
 
-#ifdef DEBUG_EFI
-	printf("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
-#endif
+	debug("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
+
 	if (n != blocks)
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 

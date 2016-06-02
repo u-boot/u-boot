@@ -6,8 +6,6 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
-/* #define DEBUG_EFI */
-
 #include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>
@@ -76,9 +74,7 @@ efi_status_t efi_exit_func(efi_status_t ret)
 
 static efi_status_t efi_unsupported(const char *funcname)
 {
-#ifdef DEBUG_EFI
-	printf("EFI: App called into unimplemented function %s\n", funcname);
-#endif
+	debug("EFI: App called into unimplemented function %s\n", funcname);
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 

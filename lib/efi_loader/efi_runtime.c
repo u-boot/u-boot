@@ -165,9 +165,7 @@ static void efi_runtime_detach(ulong offset)
 		ulong *p = efi_runtime_detach_list[i].ptr;
 		ulong newaddr = patchto ? (patchto + patchoff) : 0;
 
-#ifdef DEBUG_EFI
-		printf("%s: Setting %p to %lx\n", __func__, p, newaddr);
-#endif
+		debug("%s: Setting %p to %lx\n", __func__, p, newaddr);
 		*p = newaddr;
 	}
 }
@@ -182,10 +180,7 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 	static ulong lastoff = CONFIG_SYS_TEXT_BASE;
 #endif
 
-#ifdef DEBUG_EFI
-	printf("%s: Relocating to offset=%lx\n", __func__, offset);
-#endif
-
+	debug("%s: Relocating to offset=%lx\n", __func__, offset);
 	for (; (ulong)rel < (ulong)&__efi_runtime_rel_stop; rel++) {
 		ulong base = CONFIG_SYS_TEXT_BASE;
 		ulong *p;
@@ -212,10 +207,7 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 			continue;
 		}
 
-#ifdef DEBUG_EFI
-		printf("%s: Setting %p to %lx\n", __func__, p, newaddr);
-#endif
-
+		debug("%s: Setting %p to %lx\n", __func__, p, newaddr);
 		*p = newaddr;
 		flush_dcache_range((ulong)p & ~(EFI_CACHELINE_SIZE - 1),
 			ALIGN((ulong)&p[1], EFI_CACHELINE_SIZE));

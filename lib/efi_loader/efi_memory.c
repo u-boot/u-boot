@@ -6,8 +6,6 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
-/* #define DEBUG_EFI */
-
 #include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>

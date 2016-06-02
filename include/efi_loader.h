@@ -15,18 +15,10 @@
 
 #include <linux/list.h>
 
-/* #define DEBUG_EFI */
-
-#ifdef DEBUG_EFI
 #define EFI_ENTRY(format, ...) do { \
 	efi_restore_gd(); \
-	printf("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
+	debug("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
 	} while(0)
-#else
-#define EFI_ENTRY(format, ...) do { \
-	efi_restore_gd(); \
-	} while(0)
-#endif
 
 #define EFI_EXIT(ret) efi_exit_func(ret);
 

@@ -206,9 +206,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 #endif
 
 	/* Call our payload! */
-#ifdef DEBUG_EFI
-	printf("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
-#endif
+	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 
 	if (setjmp(&loaded_image_info.exit_jmp)) {
 		efi_status_t status = loaded_image_info.exit_status;
