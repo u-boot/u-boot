@@ -16,3 +16,4 @@ obj-$(CONFIG_HRCON) += osd.o mclink.o dp501.o phy.o ioep-fpga.o fanctrl.o
 obj-$(CONFIG_STRIDER) += mclink.o dp501.o phy.o ioep-fpga.o adv7611.o ch7301.o
 obj-$(CONFIG_STRIDER) += fanctrl.o
 obj-$(CONFIG_STRIDER_CON) += osd.o
+obj-$(CONFIG_STRIDER_CON_DP) += osd.o
