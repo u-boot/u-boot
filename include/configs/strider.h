@@ -20,7 +20,9 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#ifdef CONFIG_STRIDER_CPU
+#ifdef CONFIG_STRIDER_CPU_DP
+#define CONFIG_IDENT_STRING	" strider cpu dp 0.01"
+#elif defined(CONFIG_STRIDER_CPU)
 #define CONFIG_IDENT_STRING	" strider cpu 0.01"
 #elif defined(CONFIG_STRIDER_CON_DP)
 #define CONFIG_IDENT_STRING	" strider con dp 0.01"
@@ -414,6 +416,12 @@
 #define CONFIG_SYS_DP501_I2C			{1, 3, 5, 7, 2, 4, 6, 8}
 #define CONFIG_STRIDER_FANS			{ {10, 0x4c}, {11, 0x4c}, \
 						  {12, 0x4c} }
+#elif defined(CONFIG_STRIDER_CPU_DP)
+#define CONFIG_SYS_CH7301_I2C			{1, 2, 3, 4}
+#define CONFIG_SYS_ADV7611_I2C			{1, 2, 3, 4}
+#define CONFIG_SYS_DP501_I2C			{1, 2, 3, 4}
+#define CONFIG_STRIDER_FANS			{ {6, 0x4c}, {7, 0x4c}, \
+						  {8, 0x4c} }
 #else
 #define CONFIG_SYS_CH7301_I2C			{1, 2, 3, 4}
 #define CONFIG_SYS_ADV7611_I2C			{1, 2, 3, 4}
