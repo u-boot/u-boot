@@ -75,6 +75,14 @@ config ICH_SPI
 	  access the SPI NOR flash on platforms embedding this Intel
 	  ICH IP core.
 
+config PIC32_SPI
+	bool "Microchip PIC32 SPI driver"
+	depends on MACH_PIC32
+	help
+	  Enable the Microchip PIC32 SPI driver. This driver can be used
+	  to access the SPI NOR flash, MMC-over-SPI on platforms based on
+	  Microchip PIC32 family devices.
+
 config ROCKCHIP_SPI
 	bool "Rockchip SPI driver"
 	help
