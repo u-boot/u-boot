@@ -441,6 +441,10 @@ config TARGET_TI816X_EVM
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_BCM23550_W1D
+	bool "Support bcm23550_w1d"
+	select CPU_V7
+
 config TARGET_BCM28155_AP
 	bool "Support bcm28155_ap"
 	select CPU_V7
@@ -898,6 +902,7 @@ source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
+source "board/broadcom/bcm23550_w1d/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
