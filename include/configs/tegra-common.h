@@ -111,7 +111,6 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_TEGRA_GPIO
 #define CONFIG_CMD_ENTERRCM
 
 /* Defines for SPL */

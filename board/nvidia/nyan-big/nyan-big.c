@@ -36,8 +36,9 @@ void pinmux_init(void)
 
 int tegra_board_id(void)
 {
-	static const int vector[] = {GPIO_PQ3, GPIO_PT1, GPIO_PX1,
-					GPIO_PX4, -1};
+	static const int vector[] = {TEGRA_GPIO(Q, 3), TEGRA_GPIO(T, 1),
+					TEGRA_GPIO(X, 1), TEGRA_GPIO(X, 4),
+					-1};
 
 	gpio_claim_vector(vector, "board_id%d");
 	return gpio_get_values_as_int(vector);
