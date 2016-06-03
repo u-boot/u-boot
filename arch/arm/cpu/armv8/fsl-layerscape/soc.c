@@ -224,7 +224,7 @@ int sata_init(void)
 }
 #endif
 
-#elif defined(CONFIG_LS1043A)
+#elif defined(CONFIG_FSL_LSCH2)
 #ifdef CONFIG_SCSI_AHCI_PLAT
 int sata_init(void)
 {
