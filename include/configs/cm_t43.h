@@ -61,7 +61,6 @@
 
 /* USB support */
 #define CONFIG_USB_HOST
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_OMAP
 #define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_STORAGE

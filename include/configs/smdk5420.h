@@ -31,7 +31,6 @@
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 /* USB */
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_EXYNOS
 
 /* DRAM Memory Banks */
