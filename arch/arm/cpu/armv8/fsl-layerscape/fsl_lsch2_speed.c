@@ -25,7 +25,10 @@ void get_sys_info(struct sys_info *sys_info)
 	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
-#if defined(CONFIG_FSL_ESDHC) || defined(CONFIG_SYS_DPAA_FMAN)
+#if (defined(CONFIG_FSL_ESDHC) &&\
+	defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)) ||\
+	defined(CONFIG_SYS_DPAA_FMAN)
+
 	u32 rcw_tmp;
 #endif
 	struct ccsr_clk *clk = (void *)(CONFIG_SYS_FSL_CLK_ADDR);
