@@ -122,7 +122,8 @@ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1043a-qds-lpuart.dtb \
 	fsl-ls1043a-rdb.dtb \
 	fsl-ls1012a-qds.dtb \
-	fsl-ls1012a-rdb.dtb
+	fsl-ls1012a-rdb.dtb \
+	fsl-ls1012a-frdm.dtb
 
 dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb
 
