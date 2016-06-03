@@ -183,6 +183,7 @@ ENTRY(lowlevel_init)
 	ret
 ENDPROC(lowlevel_init)
 
+#ifdef CONFIG_FSL_LSCH3
 hnf_pstate_poll:
 	/* x0 has the desired status, return 0 for success, 1 for timeout
 	 * clobber x1, x2, x3, x4, x6, x7
@@ -260,6 +261,7 @@ ENTRY(__asm_flush_l3_cache)
 	mov	lr, x29
 	ret
 ENDPROC(__asm_flush_l3_cache)
+#endif
 
 #ifdef CONFIG_MP
 	/* Keep literals not used by the secondary boot code outside it */

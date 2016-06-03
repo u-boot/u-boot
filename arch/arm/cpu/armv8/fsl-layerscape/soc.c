@@ -12,8 +12,10 @@
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/arch-fsl-layerscape/config.h>
+#ifdef CONFIG_SYS_FSL_DDR
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
+#endif
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif

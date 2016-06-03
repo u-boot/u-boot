@@ -41,6 +41,7 @@ struct cpu_type {
 	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc)}
 
 #define SVR_WO_E		0xFFFFFE
+#define SVR_LS1012		0x870400
 #define SVR_LS1043		0x879200
 #define SVR_LS1023		0x879208
 #define SVR_LS2045		0x870120

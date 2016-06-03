@@ -14,8 +14,11 @@
 #else
 #define CONFIG_SYS_FSL_DDRC_ARM_GEN3	/* Enable Freescale ARM DDR3 driver */
 #endif
+
+#ifndef CONFIG_LS1012A
 #define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
 #define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_5_0
+#endif
 
 /*
  * Reserve secure memory
@@ -200,6 +203,32 @@
 #define CONFIG_SYS_FSL_ERRATUM_A009942
 #define CONFIG_SYS_FSL_ERRATUM_A009660
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
+#elif defined(CONFIG_LS1012A)
+#define CONFIG_MAX_CPUS                         1
+#define CONFIG_SYS_CACHELINE_SIZE		64
+#define CONFIG_NUM_DDR_CONTROLLERS		1
+#define CONFIG_SYS_CCSRBAR_DEFAULT		0x01000000
+#define CONFIG_SYS_FSL_SEC_COMPAT		5
+#undef	CONFIG_SYS_FSL_DDRC_ARM_GEN3
+
+#define CONFIG_SYS_FSL_OCRAM_BASE		0x10000000 /* initial RAM */
+#define CONFIG_SYS_FSL_OCRAM_SIZE		0x200000 /* 2 MiB */
+
+#define GICD_BASE		0x01401000
+#define GICC_BASE		0x01402000
+
+#define CONFIG_SYS_FSL_CCSR_GUR_BE
+#define CONFIG_SYS_FSL_CCSR_SCFG_BE
+#define CONFIG_SYS_FSL_ESDHC_BE
+#define CONFIG_SYS_FSL_WDOG_BE
+#define CONFIG_SYS_FSL_DSPI_BE
+#define CONFIG_SYS_FSL_QSPI_BE
+#define CONFIG_SYS_FSL_PEX_LUT_BE
+
+#define SRDS_MAX_LANES		4
+#define CONFIG_SYS_FSL_SRDS_1
+#define CONFIG_SYS_FSL_PCIE_COMPAT		"fsl,qoriq-pcie-v2.4"
+#define CONFIG_SYS_FSL_SEC_BE
 #else
 #error SoC not defined
 #endif

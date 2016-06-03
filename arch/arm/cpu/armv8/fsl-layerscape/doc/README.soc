@@ -2,6 +2,7 @@ SoC overview
 
 	1. LS1043A
 	2. LS2080A
+	3. LS1012A
 
 LS1043A
 ---------
@@ -84,3 +85,45 @@ The LS2080A SoC includes the following function and features:
  - QorIQ platform's trust architecture 3.0
  - Service processor (SP) provides pre-boot initialization and secure-boot
   capabilities
+
+LS1012A
+--------
+The LS1012A features an advanced 64-bit ARM v8 Cortex-
+A53 processor, with 32 KB of parity protected L1-I cache,
+32 KB of ECC protected L1-D cache, as well as 256 KB of
+ECC protected L2 cache.
+
+The LS1012A SoC includes the following function and features:
+ - One 64-bit ARM v8 Cortex-A53 core with the following capabilities:
+ - ARM v8 cryptography extensions
+ - One 16-bit DDR3L SDRAM memory controller, Up to 1.0 GT/s, Supports
+    16-/8-bit operation (no ECC support)
+ - ARM core-link CCI-400 cache coherent interconnect
+ - Packet Forwarding Engine (PFE)
+ - Cryptography acceleration (SEC)
+ - Ethernet interfaces supported by PFE:
+ - One Configurable x3 SerDes:
+    Two Serdes PLLs supported for usage by any SerDes data lane
+    Support for up to 6 GBaud operation
+ - High-speed peripheral interfaces:
+     - One PCI Express Gen2 controller, supporting x1 operation
+     - One serial ATA (SATA Gen 3.0) controller
+     - One USB 3.0/2.0 controller with integrated PHY
+     - One USB 2.0 controller with ULPI interface. .
+ - Additional peripheral interfaces:
+    - One quad serial peripheral interface (QuadSPI) controller
+    - One serial peripheral interface (SPI) controller
+    - Two enhanced secure digital host controllers
+    - Two I2C controllers
+    - One 16550 compliant DUART (two UART interfaces)
+    - Two general purpose IOs (GPIO)
+    - Two FlexTimers
+    - Five synchronous audio interfaces (SAI)
+    - Pre-boot loader (PBL) provides pre-boot initialization and RCW loading
+    - Single-source clocking solution enabling generation of core, platform,
+    DDR, SerDes, and USB clocks from a single external crystal and internal
+    crystaloscillator
+    - Thermal monitor unit (TMU) with +/- 3C accuracy
+    - Two WatchDog timers
+    - ARM generic timer
+ - QorIQ platform's trust architecture 2.1
