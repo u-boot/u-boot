@@ -191,7 +191,6 @@
 					"-(ubifs)"
 
 /* USB Configuration */
-#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_XHCI_KEYSTONE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE
