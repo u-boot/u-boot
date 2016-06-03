@@ -15,9 +15,9 @@
 #define ah r1
 #endif
 
+.pushsection .text.__ashrdi3, "ax"
 ENTRY(__ashrdi3)
 ENTRY(__aeabi_lasr)
-.pushsection .text.__ashrdi3, "ax"
 
 	subs	r3, r2, #32
 	rsb	ip, r2, #32
@@ -29,6 +29,6 @@ ENTRY(__aeabi_lasr)
 	mov	ah, ah, asr r2
 	ret	lr
 
-.popsection
 ENDPROC(__ashrdi3)
 ENDPROC(__aeabi_lasr)
+.popsection

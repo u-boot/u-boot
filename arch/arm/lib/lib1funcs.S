@@ -193,10 +193,10 @@
 .endm
 
 
+.pushsection .text.__udivsi3, "ax"
 ENTRY(__udivsi3)
 ENTRY(__aeabi_uidiv)
 UNWIND(.fnstart)
-.pushsection .text.__udivsi3, "ax"
 
 	subs	r2, r1, #1
 	reteq	lr
@@ -220,14 +220,14 @@ UNWIND(.fnstart)
 	mov	r0, r0, lsr r2
 	ret	lr
 
-.popsection
 UNWIND(.fnend)
 ENDPROC(__udivsi3)
 ENDPROC(__aeabi_uidiv)
+.popsection
 
+.pushsection .text.__umodsi3, "ax"
 ENTRY(__umodsi3)
 UNWIND(.fnstart)
-.pushsection .text.__umodsi3, "ax"
 
 	subs	r2, r1, #1			@ compare divisor with 1
 	bcc	Ldiv0
@@ -241,14 +241,14 @@ UNWIND(.fnstart)
 
 	ret	lr
 
-.popsection
 UNWIND(.fnend)
 ENDPROC(__umodsi3)
+.popsection
 
+.pushsection .text.__divsi3, "ax"
 ENTRY(__divsi3)
 ENTRY(__aeabi_idiv)
 UNWIND(.fnstart)
-.pushsection .text.__divsi3, "ax"
 
 	cmp	r1, #0
 	eor	ip, r0, r1			@ save the sign of the result.
@@ -285,14 +285,14 @@ UNWIND(.fnstart)
 	rsbmi	r0, r0, #0
 	ret	lr
 
-.popsection
 UNWIND(.fnend)
 ENDPROC(__divsi3)
 ENDPROC(__aeabi_idiv)
+.popsection
 
+.pushsection .text.__modsi3, "ax"
 ENTRY(__modsi3)
 UNWIND(.fnstart)
-.pushsection .text.__modsi3, "ax"
 
 	cmp	r1, #0
 	beq	Ldiv0
@@ -312,16 +312,16 @@ UNWIND(.fnstart)
 	rsbmi	r0, r0, #0
 	ret	lr
 
-.popsection
 UNWIND(.fnend)
 ENDPROC(__modsi3)
+.popsection
 
 #ifdef CONFIG_AEABI
 
+.pushsection .text.__aeabi_uidivmod, "ax"
 ENTRY(__aeabi_uidivmod)
 UNWIND(.fnstart)
 UNWIND(.save {r0, r1, ip, lr}	)
-.pushsection .text.__aeabi_uidivmod, "ax"
 
 	stmfd	sp!, {r0, r1, ip, lr}
 	bl	__aeabi_uidiv
@@ -330,14 +330,14 @@ UNWIND(.save {r0, r1, ip, lr}	)
 	sub	r1, r1, r3
 	ret	lr
 
-.popsection
 UNWIND(.fnend)
 ENDPROC(__aeabi_uidivmod)
+.popsection
 
+.pushsection .text.__aeabi_uidivmod, "ax"
 ENTRY(__aeabi_idivmod)
 UNWIND(.fnstart)
 UNWIND(.save {r0, r1, ip, lr}	)
-.pushsection .text.__aeabi_uidivmod, "ax"
 
 	stmfd	sp!, {r0, r1, ip, lr}
 	bl	__aeabi_idiv
@@ -346,31 +346,31 @@ UNWIND(.save {r0, r1, ip, lr}	)
 	sub	r1, r1, r3
 	ret	lr
 
-.popsection
 UNWIND(.fnend)
 ENDPROC(__aeabi_idivmod)
+.popsection
 
 #endif
 
+.pushsection .text.Ldiv0, "ax"
 Ldiv0:
 UNWIND(.fnstart)
 UNWIND(.pad #4)
 UNWIND(.save {lr})
-.pushsection .text.Ldiv0, "ax"
 
 	str	lr, [sp, #-8]!
 	bl	__div0
 	mov	r0, #0			@ About as wrong as it could be.
 	ldr	pc, [sp], #8
 
-.popsection
 UNWIND(.fnend)
 ENDPROC(Ldiv0)
+.popsection
 
+.pushsection .text.__gnu_thumb1_case_sqi, "ax"
 /* Thumb-1 specialities */
 #if defined(CONFIG_SYS_THUMB_BUILD) && !defined(CONFIG_HAS_THUMB2)
 ENTRY(__gnu_thumb1_case_sqi)
-.pushsection .text.__gnu_thumb1_case_sqi, "ax"
 	push	{r1}
 	mov	r1, lr
 	lsrs	r1, r1, #1
@@ -380,11 +380,11 @@ ENTRY(__gnu_thumb1_case_sqi)
 	add	lr, lr, r1
 	pop	{r1}
 	bx	lr
-.popsection
 ENDPROC(__gnu_thumb1_case_sqi)
+.popsection
 
+_.pushsection .text.__gnu_thumb1_case_uqi, "ax"
 ENTRY(__gnu_thumb1_case_uqi)
-.pushsection .text.__gnu_thumb1_case_uqi, "ax"
 	push	{r1}
 	mov	r1, lr
 	lsrs	r1, r1, #1
@@ -394,11 +394,11 @@ ENTRY(__gnu_thumb1_case_uqi)
 	add	lr, lr, r1
 	pop	{r1}
 	bx	lr
-.popsection
 ENDPROC(__gnu_thumb1_case_uqi)
+.popsection
 
-ENTRY(__gnu_thumb1_case_shi)
 .pushsection .text.__gnu_thumb1_case_shi, "ax"
+ENTRY(__gnu_thumb1_case_shi)
 	push	{r0, r1}
 	mov	r1, lr
 	lsrs	r1, r1, #1
@@ -409,11 +409,11 @@ ENTRY(__gnu_thumb1_case_shi)
 	add	lr, lr, r1
 	pop	{r0, r1}
 	bx	lr
-.popsection
 ENDPROC(__gnu_thumb1_case_shi)
+.popsection
 
-ENTRY(__gnu_thumb1_case_uhi)
 .pushsection .text.__gnu_thumb1_case_uhi, "ax"
+ENTRY(__gnu_thumb1_case_uhi)
 	push	{r0, r1}
 	mov	r1, lr
 	lsrs	r1, r1, #1
@@ -424,6 +424,6 @@ ENTRY(__gnu_thumb1_case_uhi)
 	add	lr, lr, r1
 	pop	{r0, r1}
 	bx	lr
-.popsection
 ENDPROC(__gnu_thumb1_case_uhi)
+.popsection
 #endif
