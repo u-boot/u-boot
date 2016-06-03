@@ -476,10 +476,7 @@ static int m88e1310_config(struct phy_device *phydev)
 	/* Ensure to return to page 0 */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1310_PHY_PAGE, 0x0000);
 
-	genphy_config_aneg(phydev);
-	phy_reset(phydev);
-
-	return 0;
+	return genphy_config_aneg(phydev);
 }
 
 static struct phy_driver M88E1011S_driver = {
