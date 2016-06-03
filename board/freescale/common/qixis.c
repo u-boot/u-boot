@@ -27,6 +27,7 @@ void qixis_write_i2c(unsigned int reg, u8 value)
 }
 #endif
 
+#ifdef QIXIS_BASE
 u8 qixis_read(unsigned int reg)
 {
 	void *p = (void *)QIXIS_BASE;
@@ -40,6 +41,7 @@ void qixis_write(unsigned int reg, u8 value)
 
 	out_8(p + reg, value);
 }
+#endif
 
 u16 qixis_read_minor(void)
 {
