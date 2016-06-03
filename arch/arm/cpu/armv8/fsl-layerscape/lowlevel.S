@@ -94,11 +94,13 @@ ENTRY(lowlevel_init)
 	bl	ccn504_set_qos
 #endif
 
+#ifdef SMMU_BASE
 	/* Set the SMMU page size in the sACR register */
 	ldr	x1, =SMMU_BASE
 	ldr	w0, [x1, #0x10]
 	orr	w0, w0, #1 << 16  /* set sACR.pagesize to indicate 64K page */
 	str	w0, [x1, #0x10]
+#endif
 
 	/* Initialize GIC Secure Bank Status */
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
