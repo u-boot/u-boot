@@ -77,7 +77,7 @@ static int spl_fit_select_fdt(const void *fdt, int images, int *fdt_offsetp)
 	for (node = fdt_first_subnode(fdt, conf);
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
-		name = fdt_getprop(fdt, node, "name", &len);
+		name = fdt_getprop(fdt, node, "description", &len);
 		printf("   %s\n", name);
 	}
 #endif
