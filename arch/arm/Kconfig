@@ -705,6 +705,15 @@ config TARGET_LS1012AQDS
 	  development platform that supports the QorIQ LS1012A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1012ARDB
+	bool "Support ls1012ardb"
+	select ARM64
+	help
+	  Support for Freescale LS1012ARDB platform.
+	  The LS1012A Reference design board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS1012A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
@@ -862,6 +871,7 @@ source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"
 source "board/freescale/ls1012aqds/Kconfig"
+source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
 source "board/freescale/mx25pdk/Kconfig"
 source "board/freescale/mx28evk/Kconfig"
