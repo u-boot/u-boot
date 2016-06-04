@@ -206,12 +206,14 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009803
 	/* part 1 of 2 */
-	if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) { /* for RDIMM */
-		ddr_out32(&ddr->ddr_sdram_rcw_2,
-			  regs->ddr_sdram_rcw_2 & ~0x0f000000);
+	if (regs->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+		if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) { /* for RDIMM */
+			ddr_out32(&ddr->ddr_sdram_rcw_2,
+				  regs->ddr_sdram_rcw_2 & ~0x0f000000);
+		}
+		ddr_out32(&ddr->err_disable, regs->err_disable |
+			  DDR_ERR_DISABLE_APED);
 	}
-
-	ddr_out32(&ddr->err_disable, regs->err_disable | DDR_ERR_DISABLE_APED);
 #else
 	ddr_out32(&ddr->err_disable, regs->err_disable);
 #endif
@@ -395,22 +397,24 @@ step2:
 #endif /* CONFIG_SYS_FSL_ERRATUM_A008511 */
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009803
-		/* if it's RDIMM */
-		if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) {
-			for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-				if (!(regs->cs[i].config & SDRAM_CS_CONFIG_EN))
-					continue;
-				set_wait_for_bits_clear(&ddr->sdram_md_cntl,
-							MD_CNTL_MD_EN |
-							MD_CNTL_CS_SEL(i) |
-							0x070000ed,
-							MD_CNTL_MD_EN);
-				udelay(1);
+		if (regs->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+			/* if it's RDIMM */
+			if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) {
+				for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+					if (!(regs->cs[i].config & SDRAM_CS_CONFIG_EN))
+						continue;
+					set_wait_for_bits_clear(&ddr->sdram_md_cntl,
+								MD_CNTL_MD_EN |
+								MD_CNTL_CS_SEL(i) |
+								0x070000ed,
+								MD_CNTL_MD_EN);
+					udelay(1);
+				}
 			}
-		}
 
-		ddr_out32(&ddr->err_disable,
-			  regs->err_disable & ~DDR_ERR_DISABLE_APED);
+			ddr_out32(&ddr->err_disable,
+				  regs->err_disable & ~DDR_ERR_DISABLE_APED);
+		}
 #endif
 	}
 #endif

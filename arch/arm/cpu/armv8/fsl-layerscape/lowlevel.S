@@ -94,11 +94,13 @@ ENTRY(lowlevel_init)
 	bl	ccn504_set_qos
 #endif
 
+#ifdef SMMU_BASE
 	/* Set the SMMU page size in the sACR register */
 	ldr	x1, =SMMU_BASE
 	ldr	w0, [x1, #0x10]
 	orr	w0, w0, #1 << 16  /* set sACR.pagesize to indicate 64K page */
 	str	w0, [x1, #0x10]
+#endif
 
 	/* Initialize GIC Secure Bank Status */
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
@@ -181,6 +183,7 @@ ENTRY(lowlevel_init)
 	ret
 ENDPROC(lowlevel_init)
 
+#ifdef CONFIG_FSL_LSCH3
 hnf_pstate_poll:
 	/* x0 has the desired status, return 0 for success, 1 for timeout
 	 * clobber x1, x2, x3, x4, x6, x7
@@ -258,6 +261,7 @@ ENTRY(__asm_flush_l3_cache)
 	mov	lr, x29
 	ret
 ENDPROC(__asm_flush_l3_cache)
+#endif
 
 #ifdef CONFIG_MP
 	/* Keep literals not used by the secondary boot code outside it */
