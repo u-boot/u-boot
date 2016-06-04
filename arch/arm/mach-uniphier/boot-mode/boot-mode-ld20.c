@@ -9,6 +9,7 @@
 #include <linux/io.h>
 
 #include "../sg-regs.h"
+#include "../soc-info.h"
 #include "boot-device.h"
 
 static struct boot_device_info boot_device_table[] = {
@@ -54,8 +55,24 @@ static int get_boot_mode_sel(void)
 u32 uniphier_ld20_boot_device(void)
 {
 	int boot_mode;
+	u32 usb_boot_mask;
 
-	if (~readl(SG_PINMON0) & 0x00000780)
+	switch (uniphier_get_soc_type()) {
+#if defined(CONFIG_ARCH_UNIPHIER_LD11)
+	case SOC_UNIPHIER_LD11:
+		usb_boot_mask = 0x00000080;
+		break;
+#endif
+#if defined(CONFIG_ARCH_UNIPHIER_LD20)
+	case SOC_UNIPHIER_LD20:
+		usb_boot_mask = 0x00000780;
+		break;
+#endif
+	default:
+		BUG();
+	}
+
+	if (~readl(SG_PINMON0) & usb_boot_mask)
 		return BOOT_DEVICE_USB;
 
 	boot_mode = get_boot_mode_sel();
