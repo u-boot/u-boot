@@ -19,7 +19,7 @@
 static char *response_str;
 
 struct fb_nand_sparse {
-	nand_info_t		*nand;
+	struct mtd_info		*nand;
 	struct part_info	*part;
 };
 
@@ -34,7 +34,7 @@ __weak int board_fastboot_write_partition_setup(char *name)
 }
 
 static int fb_nand_lookup(const char *partname, char *response,
-			  nand_info_t **nand,
+			  struct mtd_info **nand,
 			  struct part_info **part)
 {
 	struct mtd_device *dev;
@@ -62,12 +62,12 @@ static int fb_nand_lookup(const char *partname, char *response,
 		return -EINVAL;
 	}
 
-	*nand = &nand_info[dev->id->num];
+	*mtd = nand_info[dev->id->num];
 
 	return 0;
 }
 
-static int _fb_nand_erase(nand_info_t *nand, struct part_info *part)
+static int _fb_nand_erase(struct mtd_info *mtd, struct part_info *part)
 {
 	nand_erase_options_t opts;
 	int ret;
@@ -80,7 +80,7 @@ static int _fb_nand_erase(nand_info_t *nand, struct part_info *part)
 	printf("Erasing blocks 0x%llx to 0x%llx\n",
 	       part->offset, part->offset + part->size);
 
-	ret = nand_erase_opts(nand, &opts);
+	ret = nand_erase_opts(mtd, &opts);
 	if (ret)
 		return ret;
 
@@ -90,7 +90,7 @@ static int _fb_nand_erase(nand_info_t *nand, struct part_info *part)
 	return 0;
 }
 
-static int _fb_nand_write(nand_info_t *nand, struct part_info *part,
+static int _fb_nand_write(struct mtd_info *mtd, struct part_info *part,
 			  void *buffer, unsigned int offset,
 			  unsigned int length, size_t *written)
 {
@@ -100,7 +100,7 @@ static int _fb_nand_write(nand_info_t *nand, struct part_info *part,
 	flags |= WITH_DROP_FFS;
 #endif
 
-	return nand_write_skip_bad(nand, offset, &length, written,
+	return nand_write_skip_bad(mtd, offset, &length, written,
 				   part->size - (offset - part->offset),
 				   buffer, flags);
 }
@@ -131,13 +131,13 @@ void fb_nand_flash_write(const char *partname, unsigned int session_id,
 			 char *response)
 {
 	struct part_info *part;
-	nand_info_t *nand = NULL;
+	struct mtd_info *mtd = NULL;
 	int ret;
 
 	/* initialize the response buffer */
 	response_str = response;
 
-	ret = fb_nand_lookup(partname, response, &nand, &part);
+	ret = fb_nand_lookup(partname, response, &mtd, &part);
 	if (ret) {
 		error("invalid NAND device");
 		fastboot_fail(response_str, "invalid NAND device");
@@ -152,10 +152,10 @@ void fb_nand_flash_write(const char *partname, unsigned int session_id,
 		struct fb_nand_sparse sparse_priv;
 		sparse_storage_t sparse;
 
-		sparse_priv.nand = nand;
+		sparse_priv.nand = mtd;
 		sparse_priv.part = part;
 
-		sparse.block_sz = nand->writesize;
+		sparse.block_sz = mtd->writesize;
 		sparse.start = part->offset / sparse.block_sz;
 		sparse.size = part->size  / sparse.block_sz;
 		sparse.name = part->name;
@@ -167,7 +167,7 @@ void fb_nand_flash_write(const char *partname, unsigned int session_id,
 		printf("Flashing raw image at offset 0x%llx\n",
 		       part->offset);
 
-		ret = _fb_nand_write(nand, part, download_buffer, part->offset,
+		ret = _fb_nand_write(mtd, part, download_buffer, part->offset,
 				     download_bytes, NULL);
 
 		printf("........ wrote %u bytes to '%s'\n",
@@ -185,13 +185,13 @@ void fb_nand_flash_write(const char *partname, unsigned int session_id,
 void fb_nand_erase(const char *partname, char *response)
 {
 	struct part_info *part;
-	nand_info_t *nand = NULL;
+	struct mtd_info *mtd = NULL;
 	int ret;
 
 	/* initialize the response buffer */
 	response_str = response;
 
-	ret = fb_nand_lookup(partname, response, &nand, &part);
+	ret = fb_nand_lookup(partname, response, &mtd, &part);
 	if (ret) {
 		error("invalid NAND device");
 		fastboot_fail(response_str, "invalid NAND device");
@@ -202,9 +202,9 @@ void fb_nand_erase(const char *partname, char *response)
 	if (ret)
 		return;
 
-	ret = _fb_nand_erase(nand, part);
+	ret = _fb_nand_erase(mtd, part);
 	if (ret) {
-		error("failed erasing from device %s", nand->name);
+		error("failed erasing from device %s", mtd->name);
 		fastboot_fail(response_str, "failed erasing from device");
 		return;
 	}

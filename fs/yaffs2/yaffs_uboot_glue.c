@@ -141,8 +141,6 @@ static const char *yaffs_error_str(void)
 	}
 }
 
-extern nand_info_t nand_info[];
-
 void cmd_yaffs_tracemask(unsigned set, unsigned mask)
 {
 	if (set)
@@ -171,7 +169,7 @@ void cmd_yaffs_devconfig(char *_mp, int flash_dev,
 	dev = calloc(1, sizeof(*dev));
 	mp = strdup(_mp);
 
-	mtd = &nand_info[flash_dev];
+	mtd = nand_info[flash_dev];
 
 	if (!dev || !mp) {
 		/* Alloc error */
@@ -192,7 +190,7 @@ void cmd_yaffs_devconfig(char *_mp, int flash_dev,
 		goto err;
 	}
 
-	chip =  mtd->priv;
+	chip =  mtd_to_nand(mtd);
 
 	/* Check for any conflicts */
 	yaffs_dev_rewind();
@@ -260,9 +258,7 @@ void cmd_yaffs_dev_ls(void)
 		dev = yaffs_next_dev();
 		if (!dev)
 			return;
-		flash_dev =
-			((unsigned) dev->driver_context - (unsigned) nand_info)/
-				sizeof(nand_info[0]);
+		flash_dev = nand_mtd_to_devnum(dev->driver_context);
 		printf("%-10s %5d 0x%05x 0x%05x %s",
 			dev->param.name, flash_dev,
 			dev->param.start_block, dev->param.end_block,

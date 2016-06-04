@@ -48,7 +48,10 @@ static int onfi_timing_mode = NAND_DEFAULT_TIMINGS;
  * this macro allows us to convert from an MTD structure to our own
  * device context (denali) structure.
  */
-#define mtd_to_denali(m) container_of(m->priv, struct denali_nand_info, nand)
+static inline struct denali_nand_info *mtd_to_denali(struct mtd_info *mtd)
+{
+	return container_of(mtd_to_nand(mtd), struct denali_nand_info, nand);
+}
 
 /*
  * These constants are defined by the driver to enable common driver
@@ -865,7 +868,7 @@ static int write_page(struct mtd_info *mtd, struct nand_chip *chip,
  * by write_page above.
  */
 static int denali_write_page(struct mtd_info *mtd, struct nand_chip *chip,
-				const uint8_t *buf, int oob_required)
+				const uint8_t *buf, int oob_required, int page)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
 
@@ -889,7 +892,8 @@ static int denali_write_page(struct mtd_info *mtd, struct nand_chip *chip,
  * write_page() function above.
  */
 static int denali_write_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
-					const uint8_t *buf, int oob_required)
+				 const uint8_t *buf, int oob_required,
+				 int page)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
 
@@ -988,7 +992,7 @@ static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 			debug("  ECC error cause by erased block\n");
 			/* false alarm, return the 0xFF */
 		} else {
-			return -EIO;
+			return -EBADMSG;
 		}
 	}
 	memcpy(buf, denali->buf.dma_buf, mtd->writesize);
@@ -1173,13 +1177,13 @@ static struct nand_ecclayout nand_oob;
 
 static int denali_init(struct denali_nand_info *denali)
 {
+	struct mtd_info *mtd = nand_to_mtd(&denali->nand);
 	int ret;
 
 	denali_hw_init(denali);
 
-	denali->mtd->name = "denali-nand";
-	denali->mtd->owner = THIS_MODULE;
-	denali->mtd->priv = &denali->nand;
+	mtd->name = "denali-nand";
+	mtd->owner = THIS_MODULE;
 
 	/* register the driver with the NAND core subsystem */
 	denali->nand.select_chip = denali_select_chip;
@@ -1193,7 +1197,7 @@ static int denali_init(struct denali_nand_info *denali)
 	 * this is the first stage in a two step process to register
 	 * with the nand subsystem
 	 */
-	if (nand_scan_ident(denali->mtd, denali->max_banks, NULL)) {
+	if (nand_scan_ident(mtd, denali->max_banks, NULL)) {
 		ret = -ENXIO;
 		goto fail;
 	}
@@ -1239,13 +1243,13 @@ static int denali_init(struct denali_nand_info *denali)
 	nand_oob.eccbytes = denali->nand.ecc.bytes;
 	denali->nand.ecc.layout = &nand_oob;
 
-	writel(denali->mtd->erasesize / denali->mtd->writesize,
+	writel(mtd->erasesize / mtd->writesize,
 	       denali->flash_reg + PAGES_PER_BLOCK);
 	writel(denali->nand.options & NAND_BUSWIDTH_16 ? 1 : 0,
 	       denali->flash_reg + DEVICE_WIDTH);
-	writel(denali->mtd->writesize,
+	writel(mtd->writesize,
 	       denali->flash_reg + DEVICE_MAIN_AREA_SIZE);
-	writel(denali->mtd->oobsize,
+	writel(mtd->oobsize,
 	       denali->flash_reg + DEVICE_SPARE_AREA_SIZE);
 	if (readl(denali->flash_reg + DEVICES_CONNECTED) == 0)
 		writel(1, denali->flash_reg + DEVICES_CONNECTED);
@@ -1258,12 +1262,12 @@ static int denali_init(struct denali_nand_info *denali)
 	denali->nand.ecc.read_oob = denali_read_oob;
 	denali->nand.ecc.write_oob = denali_write_oob;
 
-	if (nand_scan_tail(denali->mtd)) {
+	if (nand_scan_tail(mtd)) {
 		ret = -ENXIO;
 		goto fail;
 	}
 
-	ret = nand_register(0);
+	ret = nand_register(0, mtd);
 
 fail:
 	return ret;
@@ -1276,13 +1280,6 @@ static int __board_nand_init(void)
 	denali = kzalloc(sizeof(*denali), GFP_KERNEL);
 	if (!denali)
 		return -ENOMEM;
-
-	/*
-	 * If CONFIG_SYS_NAND_SELF_INIT is defined, each driver is responsible
-	 * for instantiating struct nand_chip, while drivers/mtd/nand/nand.c
-	 * still provides a "struct mtd_info nand_info" instance.
-	 */
-	denali->mtd = &nand_info[0];
 
 	/*
 	 * In the future, these base addresses should be taken from

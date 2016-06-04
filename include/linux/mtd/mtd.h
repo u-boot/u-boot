@@ -278,6 +278,11 @@ struct mtd_info {
 	int usecount;
 };
 
+static inline int mtd_oobavail(struct mtd_info *mtd, struct mtd_oob_ops *ops)
+{
+	return ops->mode == MTD_OPS_AUTO_OOB ? mtd->oobavail : mtd->oobsize;
+}
+
 int mtd_erase(struct mtd_info *mtd, struct erase_info *instr);
 #ifndef __UBOOT__
 int mtd_point(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen,
