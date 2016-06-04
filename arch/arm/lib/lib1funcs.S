@@ -367,9 +367,9 @@ UNWIND(.fnend)
 ENDPROC(Ldiv0)
 .popsection
 
-.pushsection .text.__gnu_thumb1_case_sqi, "ax"
 /* Thumb-1 specialities */
 #if defined(CONFIG_SYS_THUMB_BUILD) && !defined(CONFIG_HAS_THUMB2)
+.pushsection .text.__gnu_thumb1_case_sqi, "ax"
 ENTRY(__gnu_thumb1_case_sqi)
 	push	{r1}
 	mov	r1, lr
@@ -383,7 +383,7 @@ ENTRY(__gnu_thumb1_case_sqi)
 ENDPROC(__gnu_thumb1_case_sqi)
 .popsection
 
-_.pushsection .text.__gnu_thumb1_case_uqi, "ax"
+.pushsection .text.__gnu_thumb1_case_uqi, "ax"
 ENTRY(__gnu_thumb1_case_uqi)
 	push	{r1}
 	mov	r1, lr
