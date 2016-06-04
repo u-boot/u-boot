@@ -15,6 +15,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Flags for each GPIO */
 #define GPIOF_OUTPUT	(1 << 0)	/* Currently set as an output */
 #define GPIOF_HIGH	(1 << 1)	/* Currently set high */
+#define GPIOF_ODR	(1 << 2)	/* Currently set to open drain mode */
 
 struct gpio_state {
 	const char *label;	/* label given by requester */
@@ -68,6 +69,16 @@ int sandbox_gpio_get_value(struct udevice *dev, unsigned offset)
 int sandbox_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 {
 	return set_gpio_flag(dev, offset, GPIOF_HIGH, value);
+}
+
+int sandbox_gpio_get_open_drain(struct udevice *dev, unsigned offset)
+{
+	return get_gpio_flag(dev, offset, GPIOF_ODR);
+}
+
+int sandbox_gpio_set_open_drain(struct udevice *dev, unsigned offset, int value)
+{
+	return set_gpio_flag(dev, offset, GPIOF_ODR, value);
 }
 
 int sandbox_gpio_get_direction(struct udevice *dev, unsigned offset)
@@ -124,6 +135,28 @@ static int sb_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 	return sandbox_gpio_set_value(dev, offset, value);
 }
 
+/* read GPIO ODR value of port 'offset' */
+static int sb_gpio_get_open_drain(struct udevice *dev, unsigned offset)
+{
+	debug("%s: offset:%u\n", __func__, offset);
+
+	return sandbox_gpio_get_open_drain(dev, offset);
+}
+
+/* write GPIO ODR value to port 'offset' */
+static int sb_gpio_set_open_drain(struct udevice *dev, unsigned offset, int value)
+{
+	debug("%s: offset:%u, value = %d\n", __func__, offset, value);
+
+	if (!sandbox_gpio_get_direction(dev, offset)) {
+		printf("sandbox_gpio: error: set_open_drain on input gpio %u\n",
+		       offset);
+		return -1;
+	}
+
+	return sandbox_gpio_set_open_drain(dev, offset, value);
+}
+
 static int sb_gpio_get_function(struct udevice *dev, unsigned offset)
 {
 	if (get_gpio_flag(dev, offset, GPIOF_OUTPUT))
@@ -154,6 +187,8 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.direction_output	= sb_gpio_direction_output,
 	.get_value		= sb_gpio_get_value,
 	.set_value		= sb_gpio_set_value,
+	.get_open_drain		= sb_gpio_get_open_drain,
+	.set_open_drain		= sb_gpio_set_open_drain,
 	.get_function		= sb_gpio_get_function,
 	.xlate			= sb_gpio_xlate,
 };

@@ -5,7 +5,7 @@
 #
 
 ifdef CONFIG_SPL_BUILD
-obj-y += spl.o
+obj-y	+= spl.o
 else
 obj-y   += t102xrdb.o
 obj-$(CONFIG_T1024RDB)   += cpld.o

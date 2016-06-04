@@ -70,7 +70,7 @@ long int fixed_sdram(ddr512x_config_t *mddrc_config,
 		mddrc_config = &default_mddrc_config;
 	if (dram_init_seq == NULL) {
 		dram_init_seq = default_init_seq;
-		seq_sz = sizeof(default_init_seq)/sizeof(u32);
+		seq_sz = ARRAY_SIZE(default_init_seq);
 	}
 
 	/* Initialize IO Control */
