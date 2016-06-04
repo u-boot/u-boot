@@ -302,6 +302,17 @@ config SWAP_IO_SPACE
 config SYS_MIPS_CACHE_INIT_RAM_LOAD
 	bool
 
+config MIPS_INIT_STACK_IN_SRAM
+	bool
+	default n
+	help
+	  Select this if the initial stack frame could be setup in SRAM.
+	  Normally the initial stack frame is set up in DRAM which is often
+	  only available after lowlevel_init. With this option the initial
+	  stack frame and the early C environment is set up before
+	  lowlevel_init. Thus lowlevel_init does not need to be implemented
+	  in assembler.
+
 config SYS_DCACHE_SIZE
 	int
 	default 0

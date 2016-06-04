@@ -234,6 +234,11 @@ wr_done:
 	 nop
 #endif
 
+#ifdef CONFIG_MIPS_INIT_STACK_IN_SRAM
+	/* Set up initial stack and global data */
+	setup_stack_gd
+#endif
+
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 # ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* Initialize any external memory */
@@ -255,8 +260,10 @@ wr_done:
 # endif
 #endif
 
+#ifndef CONFIG_MIPS_INIT_STACK_IN_SRAM
 	/* Set up initial stack and global data */
 	setup_stack_gd
+#endif
 
 	move	a0, zero		# a0 <-- boot_flags = 0
 	PTR_LA	t9, board_init_f
