@@ -340,8 +340,15 @@ int musb_usb_probe(struct udevice *dev)
 int musb_usb_remove(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	musb_stop(host->host);
+
+	sunxi_usb_phy_exit(0);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+#endif
+	clrbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
 
 	return 0;
 }
