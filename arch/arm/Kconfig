@@ -561,6 +561,10 @@ config RMOBILE
 	bool "Renesas ARM SoCs"
 	select CPU_V7
 
+config TARGET_S32V234EVB
+	bool "Support s32v234evb"
+	select ARM64
+
 config ARCH_SNAPDRAGON
 	bool "Qualcomm Snapdragon SoCs"
 	select ARM64
@@ -934,6 +938,7 @@ source "board/freescale/mx53ard/Kconfig"
 source "board/freescale/mx53evk/Kconfig"
 source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
+source "board/freescale/s32v234evb/Kconfig"
 source "board/freescale/vf610twr/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"

@@ -208,7 +208,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	int timeout;
 	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 	dma_addr_t addr;
 #endif
 	uint wml_value;
@@ -221,7 +221,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 		addr = virt_to_phys((void *)(data->dest));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -247,7 +247,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
 					wml_value << 16);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 		addr = virt_to_phys((void *)(data->src));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -312,7 +312,7 @@ static void check_and_invalidate_dcache_range
 	unsigned end = 0;
 	unsigned size = roundup(ARCH_DMA_MINALIGN,
 				data->blocks*data->blocksize);
-#ifdef CONFIG_FSL_LAYERSCAPE
+#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 	dma_addr_t addr;
 
 	addr = virt_to_phys((void *)(data->dest));
