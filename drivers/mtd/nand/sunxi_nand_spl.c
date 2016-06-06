@@ -119,9 +119,6 @@ const uint16_t random_seed[128] = {
 	0x7c57, 0x0fbe, 0x46ce, 0x4939, 0x6b17, 0x37bb, 0x3e91, 0x76db,
 };
 
-/* random seed used for syndrome calls */
-const uint16_t random_seed_syndrome = 0x4a80;
-
 #define MAX_RETRIES 10
 
 static int check_value_inner(int offset, int expected_bits,
@@ -183,7 +180,7 @@ void nand_init(void)
 }
 
 static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
-	int addr_cycles, uint32_t real_addr, dma_addr_t dst, int syndrome)
+	int addr_cycles, uint32_t real_addr, dma_addr_t dst)
 {
 	uint32_t val;
 	int i, ecc_off = 0;
@@ -209,17 +206,11 @@ static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
 	page = real_addr / page_size;
 	column = real_addr % page_size;
 
-	if (syndrome)
-		column += (column / ecc_page_size) * ecc_off;
-
 	/* clear ecc status */
 	writel(0, SUNXI_NFC_BASE + NFC_ECC_ST);
 
 	/* Choose correct seed */
-	if (syndrome)
-		rand_seed = random_seed_syndrome;
-	else
-		rand_seed = random_seed[page % 128];
+	rand_seed = random_seed[page % 128];
 
 	writel((rand_seed << 16) | NFC_ECC_RANDOM_EN | NFC_ECC_EN
 		| NFC_ECC_PIPELINE | (ecc_mode << 12),
@@ -228,9 +219,8 @@ static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
 	val = readl(SUNXI_NFC_BASE + NFC_CTL);
 	writel(val | NFC_CTL_RAM_METHOD, SUNXI_NFC_BASE + NFC_CTL);
 
-	if (!syndrome)
-		writel(page_size + (column / ecc_page_size) * ecc_off,
-		       SUNXI_NFC_BASE + NFC_SPARE_AREA);
+	writel(page_size + (column / ecc_page_size) * ecc_off,
+	       SUNXI_NFC_BASE + NFC_SPARE_AREA);
 
 	flush_dcache_range(dst, ALIGN(dst + ecc_page_size, ARCH_DMA_MINALIGN));
 
@@ -266,7 +256,7 @@ static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
 	writel(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_DATA_TRANS |
 		NFC_PAGE_CMD | NFC_WAIT_FLAG |
 		((addr_cycles - 1) << NFC_ADDR_NUM_OFFSET) |
-		NFC_SEND_ADR | NFC_DATA_SWAP_METHOD | (syndrome ? NFC_SEQ : 0),
+		NFC_SEND_ADR | NFC_DATA_SWAP_METHOD,
 		SUNXI_NFC_BASE + NFC_CMD);
 
 	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_DMA_INT_FLAG,
@@ -292,7 +282,7 @@ static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
 }
 
 static int nand_read_ecc(int page_size, int ecc_strength, int ecc_page_size,
-	int addr_cycles, uint32_t offs, uint32_t size, void *dest, int syndrome)
+	int addr_cycles, uint32_t offs, uint32_t size, void *dest)
 {
 	void *end = dest + size;
 
@@ -301,16 +291,14 @@ static int nand_read_ecc(int page_size, int ecc_strength, int ecc_page_size,
 
 	for ( ;dest < end; dest += ecc_page_size, offs += ecc_page_size) {
 		if (nand_read_page(page_size, ecc_strength, ecc_page_size,
-				   addr_cycles, offs, (dma_addr_t)dest,
-				   syndrome))
+				   addr_cycles, offs, (dma_addr_t)dest))
 			return -1;
 	}
 
 	return 0;
 }
 
-static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest,
-			    int syndrome)
+static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest)
 {
 	const struct {
 		int page_size;
@@ -337,7 +325,7 @@ static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest,
 					  nand_configs[i].ecc_strength,
 					  nand_configs[i].ecc_page_size,
 					  nand_configs[i].addr_cycles,
-					  offs, size, dest, syndrome) == 0) {
+					  offs, size, dest) == 0) {
 				debug("success\n");
 				nand_config = i;
 				return 0;
@@ -351,48 +339,32 @@ static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest,
 			     nand_configs[nand_config].ecc_strength,
 			     nand_configs[nand_config].ecc_page_size,
 			     nand_configs[nand_config].addr_cycles,
-			     offs, size, dest, syndrome);
+			     offs, size, dest);
 }
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 {
-#if CONFIG_SYS_NAND_U_BOOT_OFFS == CONFIG_SPL_PAD_TO
 	/*
-	 * u-boot-dtb.bin appended to SPL, use syndrome (like the BROM does)
-	 * and try different erase block sizes to find the backup.
-	 */
-	const uint32_t boot_offsets[] = {
-		0 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-		1 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-		2 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-		4 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-	};
-	const int syndrome = 1;
-#else
-	/*
-	 * u-boot-dtb.bin on its own partition, do not use syndrome, u-boot
-	 * partition sits after 2 eraseblocks (spl, spl-backup), look for
-	 * backup u-boot 1 erase block further.
+	 * u-boot partition sits after 2 eraseblocks (spl, spl-backup), look
+	 * for backup u-boot 1 erase block further.
 	 */
 	const uint32_t eraseblock_size = CONFIG_SYS_NAND_U_BOOT_OFFS / 2;
 	const uint32_t boot_offsets[] = {
 		CONFIG_SYS_NAND_U_BOOT_OFFS,
 		CONFIG_SYS_NAND_U_BOOT_OFFS + eraseblock_size,
 	};
-	const int syndrome = 0;
-#endif
 	int i;
 
 	if (offs == CONFIG_SYS_NAND_U_BOOT_OFFS) {
 		for (i = 0; i < ARRAY_SIZE(boot_offsets); i++) {
 			if (nand_read_buffer(boot_offsets[i], size,
-					     dest, syndrome) == 0)
+					     dest) == 0)
 				return 0;
 		}
 		return -1;
 	}
 
-	return nand_read_buffer(offs, size, dest, syndrome);
+	return nand_read_buffer(offs, size, dest);
 }
 
 void nand_deselect(void)
