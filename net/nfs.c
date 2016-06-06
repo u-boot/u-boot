@@ -481,8 +481,23 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
 	    rpc_pkt.u.reply.astatus  ||
-	    rpc_pkt.u.reply.data[0])
+	    rpc_pkt.u.reply.data[0]) {
+		switch (ntohl(rpc_pkt.u.reply.astatus)) {
+		case 0: /* Not an error */
+			break;
+		case 2: /* Remote can't support NFS version */
+			printf("*** ERROR: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
+			       2,
+			       ntohl(rpc_pkt.u.reply.data[0]),
+			       ntohl(rpc_pkt.u.reply.data[1]));
+			break;
+		default: /* Unknown error on 'accept state' flag */
+			printf("*** ERROR: accept state error (%d)\n",
+			       ntohl(rpc_pkt.u.reply.astatus));
+			break;
+		}
 		return -1;
+	}
 
 	memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
 
