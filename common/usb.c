@@ -1182,7 +1182,7 @@ int usb_new_device(struct usb_device *dev)
 	 * with the device. So a get_descriptor will fail before any
 	 * of that is done for XHCI unlike EHCI.
 	 */
-#ifdef CONFIG_USB_XHCI
+#ifdef CONFIG_USB_XHCI_HCD
 	do_read = false;
 #endif
 	err = usb_setup_device(dev, do_read, dev->parent);
