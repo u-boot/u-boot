@@ -134,6 +134,13 @@ int spl_nand_load_image(void)
 #endif
 	/* Load u-boot */
 	err = spl_nand_load_element(CONFIG_SYS_NAND_U_BOOT_OFFS, header);
+#ifdef CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
+#if CONFIG_SYS_NAND_U_BOOT_OFFS != CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
+	if (err)
+		err = spl_nand_load_element(CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND,
+					    header);
+#endif
+#endif
 	nand_deselect();
 	return err;
 }
