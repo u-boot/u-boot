@@ -119,35 +119,31 @@ const uint16_t random_seed[128] = {
 	0x7c57, 0x0fbe, 0x46ce, 0x4939, 0x6b17, 0x37bb, 0x3e91, 0x76db,
 };
 
-#define MAX_RETRIES 10
+#define DEFAULT_TIMEOUT_US	100000
 
 static int check_value_inner(int offset, int expected_bits,
-				int max_number_of_retries, int negation)
+			     int timeout_us, int negation)
 {
-	int retries = 0;
 	do {
 		int val = readl(offset) & expected_bits;
 		if (negation ? !val : val)
 			return 1;
-		mdelay(1);
-		retries++;
-	} while (retries < max_number_of_retries);
+		udelay(1);
+	} while (--timeout_us);
 
 	return 0;
 }
 
 static inline int check_value(int offset, int expected_bits,
-				int max_number_of_retries)
+			      int timeout_us)
 {
-	return check_value_inner(offset, expected_bits,
-					max_number_of_retries, 0);
+	return check_value_inner(offset, expected_bits, timeout_us, 0);
 }
 
 static inline int check_value_negated(int offset, int unexpected_bits,
-					int max_number_of_retries)
+				      int timeout_us)
 {
-	return check_value_inner(offset, unexpected_bits,
-					max_number_of_retries, 1);
+	return check_value_inner(offset, unexpected_bits, timeout_us, 1);
 }
 
 void nand_init(void)
@@ -162,7 +158,7 @@ void nand_init(void)
 	       SUNXI_NFC_BASE + NFC_CTL);
 
 	if (!check_value_negated(SUNXI_NFC_BASE + NFC_CTL,
-				 NFC_CTL_RESET, MAX_RETRIES)) {
+				 NFC_CTL_RESET, DEFAULT_TIMEOUT_US)) {
 		printf("Couldn't initialize nand\n");
 	}
 
@@ -172,7 +168,7 @@ void nand_init(void)
 	       SUNXI_NFC_BASE + NFC_CMD);
 
 	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
-			 MAX_RETRIES)) {
+			 DEFAULT_TIMEOUT_US)) {
 		printf("Error timeout waiting for nand reset\n");
 		return;
 	}
@@ -260,14 +256,15 @@ static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
 		SUNXI_NFC_BASE + NFC_CMD);
 
 	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_DMA_INT_FLAG,
-			 MAX_RETRIES)) {
+			 DEFAULT_TIMEOUT_US)) {
 		printf("Error while initializing dma interrupt\n");
 		return -1;
 	}
 	writel(NFC_ST_DMA_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 
 	if (!check_value_negated(SUNXI_DMA_BASE + SUNXI_DMA_CFG_REG0,
-				 SUNXI_DMA_DDMA_CFG_REG_LOADING, MAX_RETRIES)) {
+				 SUNXI_DMA_DDMA_CFG_REG_LOADING,
+				 DEFAULT_TIMEOUT_US)) {
 		printf("Error while waiting for dma transfer to finish\n");
 		return -1;
 	}
