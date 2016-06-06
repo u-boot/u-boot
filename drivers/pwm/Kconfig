@@ -9,6 +9,15 @@ config DM_PWM
 	  frequency/period can be controlled along with the proportion of that
 	  time that the signal is high.
 
+config PWM_EXYNOS
+	bool "Enable support for the Exynos PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on Samsung Exynos 5250 and other Samsung SoCs. It
+	  supports a programmable period and duty cycle. A 32-bit counter is
+	  used. It provides 5 channels which can be independently
+	  programmed. Channel 4 (the last) is normally used as a timer.
+
 config PWM_ROCKCHIP
 	bool "Enable support for the Rockchip PWM"
 	depends on DM_PWM

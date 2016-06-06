@@ -465,7 +465,7 @@ int exynos_mipi_dsi_enable_frame_done_int(struct mipi_dsim_device *dsim,
 }
 
 static void convert_to_fb_videomode(struct fb_videomode *mode1,
-				vidinfo_t *mode2)
+				    struct vidinfo *mode2)
 {
 	mode1->xres = mode2->vl_width;
 	mode1->yres = mode2->vl_height;
@@ -482,10 +482,10 @@ int exynos_mipi_dsi_set_display_mode(struct mipi_dsim_device *dsim,
 {
 	struct exynos_platform_mipi_dsim *dsim_pd;
 	struct fb_videomode lcd_video;
-	vidinfo_t *vid;
+	struct vidinfo *vid;
 
 	dsim_pd = (struct exynos_platform_mipi_dsim *)dsim->pd;
-	vid = (vidinfo_t *)dsim_pd->lcd_panel_info;
+	vid = (struct vidinfo *)dsim_pd->lcd_panel_info;
 
 	convert_to_fb_videomode(&lcd_video, vid);
 

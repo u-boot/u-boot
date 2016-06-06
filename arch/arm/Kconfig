@@ -442,7 +442,6 @@ config TARGET_BCMNSP
 
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
-	select CPU_V7
 	select DM
 	select DM_SPI_FLASH
 	select DM_SERIAL

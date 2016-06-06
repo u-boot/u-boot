@@ -27,13 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct exynos_platform_mipi_dsim *dsim_pd;
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-static struct mipi_dsim_config dsim_config_dt;
-static struct exynos_platform_mipi_dsim dsim_platform_data_dt;
-static struct mipi_dsim_lcd_device mipi_lcd_device_dt;
-#endif
-
 struct mipi_dsim_ddi {
 	int				bus_id;
 	struct list_head		list;
@@ -178,7 +171,7 @@ static struct mipi_dsim_master_ops master_ops = {
 	.clear_dsim_frame_done		= exynos_mipi_dsi_clear_frame_done,
 };
 
-int exynos_mipi_dsi_init(void)
+int exynos_mipi_dsi_init(struct exynos_platform_mipi_dsim *dsim_pd)
 {
 	struct mipi_dsim_device *dsim;
 	struct mipi_dsim_config *dsim_config;
@@ -239,18 +232,8 @@ int exynos_mipi_dsi_init(void)
 	return 0;
 }
 
-void exynos_set_dsim_platform_data(struct exynos_platform_mipi_dsim *pd)
-{
-	if (pd == NULL) {
-		debug("pd is NULL\n");
-		return;
-	}
-
-	dsim_pd = pd;
-}
-
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-int exynos_dsim_config_parse_dt(const void *blob)
+int exynos_dsim_config_parse_dt(const void *blob, struct mipi_dsim_config *dt,
+				struct mipi_dsim_lcd_device *lcd_dt)
 {
 	int node;
 
@@ -260,59 +243,59 @@ int exynos_dsim_config_parse_dt(const void *blob)
 		return -ENODEV;
 	}
 
-	dsim_config_dt.e_interface = fdtdec_get_int(blob, node,
+	dt->e_interface = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-e-interface", 0);
 
-	dsim_config_dt.e_virtual_ch = fdtdec_get_int(blob, node,
+	dt->e_virtual_ch = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-e-virtual-ch", 0);
 
-	dsim_config_dt.e_pixel_format = fdtdec_get_int(blob, node,
+	dt->e_pixel_format = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-e-pixel-format", 0);
 
-	dsim_config_dt.e_burst_mode = fdtdec_get_int(blob, node,
+	dt->e_burst_mode = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-e-burst-mode", 0);
 
-	dsim_config_dt.e_no_data_lane = fdtdec_get_int(blob, node,
+	dt->e_no_data_lane = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-e-no-data-lane", 0);
 
-	dsim_config_dt.e_byte_clk = fdtdec_get_int(blob, node,
+	dt->e_byte_clk = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-e-byte-clk", 0);
 
-	dsim_config_dt.hfp = fdtdec_get_int(blob, node,
+	dt->hfp = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-hfp", 0);
 
-	dsim_config_dt.p = fdtdec_get_int(blob, node,
+	dt->p = fdtdec_get_int(blob, node,
 					  "samsung,dsim-config-p", 0);
-	dsim_config_dt.m = fdtdec_get_int(blob, node,
+	dt->m = fdtdec_get_int(blob, node,
 					  "samsung,dsim-config-m", 0);
-	dsim_config_dt.s = fdtdec_get_int(blob, node,
+	dt->s = fdtdec_get_int(blob, node,
 					  "samsung,dsim-config-s", 0);
 
-	dsim_config_dt.pll_stable_time = fdtdec_get_int(blob, node,
+	dt->pll_stable_time = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-pll-stable-time", 0);
 
-	dsim_config_dt.esc_clk = fdtdec_get_int(blob, node,
+	dt->esc_clk = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-esc-clk", 0);
 
-	dsim_config_dt.stop_holding_cnt = fdtdec_get_int(blob, node,
+	dt->stop_holding_cnt = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-stop-holding-cnt", 0);
 
-	dsim_config_dt.bta_timeout = fdtdec_get_int(blob, node,
+	dt->bta_timeout = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-bta-timeout", 0);
 
-	dsim_config_dt.rx_timeout = fdtdec_get_int(blob, node,
+	dt->rx_timeout = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-rx-timeout", 0);
 
-	mipi_lcd_device_dt.name = fdtdec_get_config_string(blob,
+	lcd_dt->name = fdtdec_get_config_string(blob,
 				"samsung,dsim-device-name");
 
-	mipi_lcd_device_dt.id = fdtdec_get_int(blob, node,
+	lcd_dt->id = fdtdec_get_int(blob, node,
 				"samsung,dsim-device-id", 0);
 
-	mipi_lcd_device_dt.bus_id = fdtdec_get_int(blob, node,
+	lcd_dt->bus_id = fdtdec_get_int(blob, node,
 				"samsung,dsim-device-bus_id", 0);
 
-	mipi_lcd_device_dt.reverse_panel = fdtdec_get_int(blob, node,
+	lcd_dt->reverse_panel = fdtdec_get_int(blob, node,
 				"samsung,dsim-device-reverse-panel", 0);
 
 	return 0;
@@ -320,7 +303,12 @@ int exynos_dsim_config_parse_dt(const void *blob)
 
 void exynos_init_dsim_platform_data(vidinfo_t *vid)
 {
-	if (exynos_dsim_config_parse_dt(gd->fdt_blob))
+	static struct mipi_dsim_config dsim_config_dt;
+	static struct exynos_platform_mipi_dsim dsim_platform_data_dt;
+	static struct mipi_dsim_lcd_device mipi_lcd_device_dt;
+
+	if (exynos_dsim_config_parse_dt(gd->fdt_blob, &dsim_config_dt,
+					&mipi_lcd_device_dt))
 		debug("Can't get proper dsim config.\n");
 
 	strcpy(dsim_platform_data_dt.lcd_panel_name, mipi_lcd_device_dt.name);
@@ -332,6 +320,5 @@ void exynos_init_dsim_platform_data(vidinfo_t *vid)
 	mipi_lcd_device_dt.platform_data = (void *)&dsim_platform_data_dt;
 	exynos_mipi_dsi_register_lcd_device(&mipi_lcd_device_dt);
 
-	dsim_pd = &dsim_platform_data_dt;
+	vid->dsim_platform_data_dt = &dsim_platform_data_dt;
 }
-#endif
