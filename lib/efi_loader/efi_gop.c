@@ -129,6 +129,7 @@ int efi_gop_register(void)
 {
 	struct efi_gop_obj *gopobj;
 	u32 bpix, col, row;
+	u64 fb_base, fb_size;
 
 #ifdef CONFIG_DM_VIDEO
 	struct udevice *vdev;
@@ -141,11 +142,16 @@ int efi_gop_register(void)
 	bpix = priv->bpix;
 	col = video_get_xsize(vdev);
 	row = video_get_ysize(vdev);
+	fb_base = (uintptr_t)priv->fb;
+	fb_size = priv->fb_size;
 #else
+	int line_len;
 
 	bpix = panel_info.vl_bpix;
 	col = panel_info.vl_col;
 	row = panel_info.vl_row;
+	fb_base = gd->fb_base;
+	fb_size = lcd_get_size(&line_len);
 #endif
 
 	switch (bpix) {
@@ -176,6 +182,16 @@ int efi_gop_register(void)
 	gopobj->mode.max_mode = 1;
 	gopobj->mode.info = &gopobj->info;
 	gopobj->mode.info_size = sizeof(gopobj->info);
+
+#ifdef CONFIG_DM_VIDEO
+	if (bpix == VIDEO_BPP32) {
+#else
+	if (bpix == LCD_COLOR32) {
+#endif
+		/* With 32bit color space we can directly expose the fb */
+		gopobj->mode.fb_base = fb_base;
+		gopobj->mode.fb_size = fb_size;
+	}
 
 	gopobj->info.version = 0;
 	gopobj->info.width = col;
