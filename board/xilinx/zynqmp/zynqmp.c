@@ -9,6 +9,7 @@
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
+#include <malloc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -214,6 +215,13 @@ int board_late_init(void)
 {
 	u32 reg = 0;
 	u8 bootmode;
+	const char *mode;
+	char *new_targets;
+
+	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+		debug("Saved variables - Skipping\n");
+		return 0;
+	}
 
 	reg = readl(&crlapb_base->boot_mode);
 	bootmode = reg & BOOT_MODES_MASK;
@@ -222,36 +230,48 @@ int board_late_init(void)
 	switch (bootmode) {
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
-		setenv("modeboot", "jtagboot");
+		mode = "pxe dhcp";
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
-		setenv("modeboot", "qspiboot");
+		mode = "qspi0";
 		puts("QSPI_MODE\n");
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
-		setenv("modeboot", "sdboot");
+		mode = "mmc0";
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
-		setenv("modeboot", "sdboot");
+		mode = "mmc0";
 		break;
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
-		setenv("sdbootdev", "1");
+		mode = "mmc1";
+#else
+		mode = "mmc0";
 #endif
-		setenv("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
 		puts("NAND_MODE\n");
-		setenv("modeboot", "nandboot");
+		mode = "nand0";
 		break;
 	default:
+		mode = "";
 		printf("Invalid Boot Mode:0x%x\n", bootmode);
 		break;
 	}
+
+	/*
+	 * One terminating char + one byte for space between mode
+	 * and default boot_targets
+	 */
+	new_targets = calloc(1, strlen(mode) +
+				strlen(getenv("boot_targets")) + 2);
+
+	sprintf(new_targets, "%s %s", mode, getenv("boot_targets"));
+	setenv("boot_targets", new_targets);
 
 	return 0;
 }
