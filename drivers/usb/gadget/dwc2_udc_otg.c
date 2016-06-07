@@ -415,7 +415,11 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 		|0<<7		/* Ulpi DDR sel*/
 		|0<<6		/* 0: high speed utmi+, 1: full speed serial*/
 		|0<<4		/* 0: utmi+, 1:ulpi*/
+#ifdef CONFIG_USB_GADGET_DWC2_OTG_PHY_BUS_WIDTH_8
+		|0<<3		/* phy i/f  0:8bit, 1:16bit*/
+#else
 		|1<<3		/* phy i/f  0:8bit, 1:16bit*/
+#endif
 		|0x7<<0;	/* HS/FS Timeout**/
 
 	if (dev->pdata->usb_gusbcfg)
