@@ -36,6 +36,11 @@ struct spl_image_info spl_image;
 static bd_t bdata __attribute__ ((section(".data")));
 
 /*
+ * Board-specific Platform code can reimplement show_boot_progress () if needed
+ */
+__weak void show_boot_progress(int val) {}
+
+/*
  * Default function to determine if u-boot or the OS should
  * be started. This implementation always returns 1.
  *
