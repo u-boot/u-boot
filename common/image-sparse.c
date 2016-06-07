@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2009, Google Inc.
  * All rights reserved.
@@ -46,6 +45,10 @@
 
 #include <linux/math64.h>
 
+#ifndef CONFIG_FASTBOOT_FLASH_FILLBUF_SIZE
+#define CONFIG_FASTBOOT_FLASH_FILLBUF_SIZE (1024 * 512)
+#endif
+
 void write_sparse_image(
 		struct sparse_storage *info, const char *part_name,
 		void *data, unsigned sz)
@@ -62,7 +65,11 @@ void write_sparse_image(
 	sparse_header_t *sparse_header;
 	chunk_header_t *chunk_header;
 	uint32_t total_blocks = 0;
+	int fill_buf_num_blks;
 	int i;
+	int j;
+
+	fill_buf_num_blks = CONFIG_FASTBOOT_FLASH_FILLBUF_SIZE / info->blksz;
 
 	/* Read and skip over sparse image header */
 	sparse_header = (sparse_header_t *)data;
@@ -169,8 +176,9 @@ void write_sparse_image(
 
 			fill_buf = (uint32_t *)
 				   memalign(ARCH_DMA_MINALIGN,
-					    ROUNDUP(info->blksz,
-						    ARCH_DMA_MINALIGN));
+					    ROUNDUP(
+						info->blksz * fill_buf_num_blks,
+						ARCH_DMA_MINALIGN));
 			if (!fill_buf) {
 				fastboot_fail(
 					"Malloc failed for: CHUNK_TYPE_FILL");
@@ -180,7 +188,10 @@ void write_sparse_image(
 			fill_val = *(uint32_t *)data;
 			data = (char *)data + sizeof(uint32_t);
 
-			for (i = 0; i < (info->blksz / sizeof(fill_val)); i++)
+			for (i = 0;
+			     i < (info->blksz * fill_buf_num_blks /
+				  sizeof(fill_val));
+			     i++)
 				fill_buf[i] = fill_val;
 
 			if (blk + blkcnt > info->start + info->size) {
@@ -192,18 +203,24 @@ void write_sparse_image(
 				return;
 			}
 
-			for (i = 0; i < blkcnt; i++) {
-				blks = info->write(info, blk, 1, fill_buf);
-				/* blks might be > 1 (eg. NAND bad-blocks) */
-				if (blks < 1) {
-					printf("%s: %s, block # " LBAFU "\n",
-					       __func__, "Write failed", blk);
+			for (i = 0; i < blkcnt;) {
+				j = blkcnt - i;
+				if (j > fill_buf_num_blks)
+					j = fill_buf_num_blks;
+				blks = info->write(info, blk, j, fill_buf);
+				/* blks might be > j (eg. NAND bad-blocks) */
+				if (blks < j) {
+					printf("%s: %s " LBAFU " [%d]\n",
+					       __func__,
+					       "Write failed, block #",
+					       blk, j);
 					fastboot_fail(
 						      "flash write failure");
 					free(fill_buf);
 					return;
 				}
 				blk += blks;
+				i += j;
 			}
 			bytes_written += blkcnt * info->blksz;
 			total_blocks += chunk_data_sz / sparse_header->blk_sz;
