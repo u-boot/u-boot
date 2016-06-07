@@ -119,7 +119,6 @@
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
 #define CONFIG_BOOTCOMMAND	"run nandboot"
-#define CONFIG_BOOTDELAY	2
 #define CONFIG_LOADADDR		0x2000000
 
 /*

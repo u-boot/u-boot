@@ -103,7 +103,6 @@ BUR_COMMON_ENV \
 
 #define CONFIG_BOOTCOMMAND \
 	"run usbscript;"
-#define CONFIG_BOOTDELAY		0
 
 /* undefine command which we not need here */
 #undef CONFIG_BOOTM_NETBSD

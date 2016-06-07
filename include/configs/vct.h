@@ -240,7 +240,6 @@ int vct_gpio_get(int pin);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 
 #define CONFIG_BOOTCOMMAND	"run test3"
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 /*
  * UBI configuration

@@ -144,7 +144,6 @@
 # define DFU_ALT_INFO
 #endif
 
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_BOARD_LATE_INIT
 

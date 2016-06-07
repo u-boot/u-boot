@@ -57,7 +57,6 @@
 #define CONFIG_RED_LED		GPIO_PIN_PD(31) /* this is the user1 led */
 #define CONFIG_GREEN_LED	GPIO_PIN_PD(0)  /* this is the user2 led */
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * BOOTP options

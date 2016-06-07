@@ -111,7 +111,6 @@
 #define CONFIG_SYS_PCI_CFG_SIZE	0x01000000
 #endif
 
-#define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
 #define CONFIG_UDP_CHECKSUM
 
 #define CONFIG_HOSTNAME		M548xEVB

@@ -225,6 +225,5 @@
 	"tftpboot $loadaddr $bootfile;"			\
 	"zboot $loadaddr"
 
-#define CONFIG_BOOTDELAY	2
 
 #endif	/* __CONFIG_H */

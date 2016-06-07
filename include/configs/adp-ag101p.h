@@ -97,7 +97,6 @@
  */
 #define CONFIG_FTMAC100
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * SD (MMC) controller

@@ -41,7 +41,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
-#define CONFIG_BOOTDELAY	5   /* autoboot after 5 seconds */
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_PREBOOT	"echo;"	\

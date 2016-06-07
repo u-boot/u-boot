@@ -205,7 +205,6 @@
 #define CONFIG_RBTREE
 
 /* Boot command */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

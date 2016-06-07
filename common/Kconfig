@@ -97,6 +97,15 @@ config BOOTSTAGE_STASH_SIZE
 
 endmenu
 
+config BOOTDELAY
+	int "delay in seconds before automatically booting"
+	default 0
+	help
+	  Delay before automatically running bootcmd;
+	  set to -1 to disable autoboot.
+	  set to -2 to autoboot with no delay and not check for abort
+	  (even when CONFIG_ZERO_BOOTDELAY_CHECK is defined).
+
 config CONSOLE_RECORD
 	bool "Console recording"
 	help

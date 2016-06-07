@@ -17,7 +17,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_BOOTDELAY	10	/* autoboot after 10 seconds */
 
 #define CONFIG_BAUDRATE		115200
 

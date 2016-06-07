@@ -9,7 +9,6 @@
 #ifndef __WARP7_CONFIG_H
 #define __WARP7_CONFIG_H
 
-#define CONFIG_BOOTDELAY                1
 #include "mx7_common.h"
 
 #define PHYS_SDRAM_SIZE			SZ_512M

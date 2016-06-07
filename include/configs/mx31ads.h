@@ -64,7 +64,6 @@
  ***********************************************************/
 #define CONFIG_CMD_DATE
 
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 

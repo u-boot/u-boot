@@ -38,7 +38,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{9600, 19200, 38400, 57600, 115200}
 
-#define CONFIG_BOOTDELAY                3
 #define CONFIG_BOOTARGS                 "console=ttyS0,115200 " \
 					"root=/dev/mtdblock2 " \
 					"rootfstype=squashfs"

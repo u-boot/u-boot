@@ -379,7 +379,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"run attachboot;" \
 	"echo"
 
-#define CONFIG_BOOTDELAY 30
 #define CONFIG_MENU
 #define CONFIG_MENU_SHOW
 

@@ -542,7 +542,6 @@
 
 #define CONFIG_LOADADDR		800000	/* def location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* boot command will set bootargs */
 
 #define CONFIG_BAUDRATE	 9600

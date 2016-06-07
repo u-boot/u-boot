@@ -462,7 +462,6 @@
 /* default load addr for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
-#define CONFIG_BOOTDELAY	2	/* -1 disables auto-boot */
 
 /* the builtin environment and standard greeting */
 #define CONFIG_PREBOOT	"echo;"	\

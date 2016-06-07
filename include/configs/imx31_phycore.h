@@ -54,7 +54,6 @@
  ***********************************************************/
 #define CONFIG_CMD_EEPROM
 
-#define CONFIG_BOOTDELAY	3
 
 #define MTDPARTS_DEFAULT	"mtdparts=physmap-flash.0:128k(uboot)ro," \
 					"1536k(kernel),-(root)"

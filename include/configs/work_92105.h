@@ -175,7 +175,6 @@
 #define CONFIG_INITRD_TAG
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_BOOTARGS			"console=ttyS2,115200n8"

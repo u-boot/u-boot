@@ -31,7 +31,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS	"root=/dev/mtdblock0 console=ttyAMA0 console=tty ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0"
 #define CONFIG_BOOTCOMMAND "tftpboot ; bootm"
 #define CONFIG_SERVERIP 192.168.1.100

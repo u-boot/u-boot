@@ -125,7 +125,6 @@
 #define CONFIG_BOOTCOMMAND		"sf probe 0:0; sf read $kernel_load "\
 					"$kernel_start $kernel_size && "\
 					"bootm $kernel_load"
-#define CONFIG_BOOTDELAY		10
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */

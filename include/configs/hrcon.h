@@ -621,7 +621,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 
 #define CONFIG_HOSTNAME		hrcon
 #define CONFIG_ROOTPATH		"/opt/nfsroot"

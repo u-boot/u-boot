@@ -21,7 +21,6 @@
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on VINING_FPGA */
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOTFILE		"openwrt-socfpga-socfpga_cyclone5_vining_fpga-fit-uImage.itb"
 #define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #define CONFIG_BOOTCOMMAND	"run selboot"

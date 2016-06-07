@@ -36,7 +36,6 @@
 
 #define CONFIG_SUPPORT_EMMC_BOOT
 
-#define CONFIG_BOOTDELAY               1
 
 #include "mx6_common.h"
 #include <linux/sizes.h>

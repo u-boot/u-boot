@@ -90,7 +90,6 @@
 
 /* Environment variables */
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_LOADADDR		0x91000000	/* loadaddr env var */
 

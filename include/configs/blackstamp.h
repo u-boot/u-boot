@@ -106,7 +106,6 @@
 #define CONFIG_CMD_CPLBINFO
 #define CONFIG_CMD_DATE
 
-#define CONFIG_BOOTDELAY     5
 #define CONFIG_BOOTCOMMAND   "run ramboot"
 #define CONFIG_BOOTARGS \
 	"root=/dev/mtdblock0 rw " \

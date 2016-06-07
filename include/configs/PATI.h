@@ -44,11 +44,6 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
 
-#if 0
-#define CONFIG_BOOTDELAY	-1		/* autoboot disabled			*/
-#else
-#define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds		*/
-#endif
 #define CONFIG_BOOTCOMMAND	""	/* autoboot command			*/
 
 #define CONFIG_BOOTARGS		""		/* */

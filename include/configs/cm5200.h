@@ -64,7 +64,6 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_PREBOOT	"echo;" \
 	"echo Type \"run net_nfs_fdt\" to mount root filesystem over NFS;" \
 	"echo"

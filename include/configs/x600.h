@@ -124,7 +124,6 @@
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_BOOTDELAY			3
 
 /*
  * U-Boot Environment placing definitions.

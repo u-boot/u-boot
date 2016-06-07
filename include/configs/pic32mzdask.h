@@ -125,7 +125,6 @@
  * Board boot configuration
  */
 #define CONFIG_TIMESTAMP	/* Print image info with timestamp */
-#define CONFIG_BOOTDELAY	5
 
 #define MEM_LAYOUT_ENV_SETTINGS					\
 	"kernel_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"	\

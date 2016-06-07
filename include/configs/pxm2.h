@@ -92,7 +92,6 @@
 
 #ifndef CONFIG_RESTORE_FLASH
 /* set to negative value for no autoboot */
-#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_BOOTCOMMAND \
 	"if dfubutton; then " \
@@ -118,7 +117,6 @@
 	"reset;"
 
 #else
-#define CONFIG_BOOTDELAY		0
 
 #define CONFIG_BOOTCOMMAND			\
 	"setenv autoload no; "			\

@@ -659,7 +659,6 @@ extern int board_pci_host_broken(void);
 
 #define CONFIG_LOADADDR 800000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY 6	/* -1 disables auto-boot */
 #undef CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\

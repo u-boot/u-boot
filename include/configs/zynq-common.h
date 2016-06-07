@@ -236,7 +236,6 @@
 #endif
 
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
-#define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 /* Miscellaneous configurable options */

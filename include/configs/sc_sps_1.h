@@ -52,7 +52,6 @@
 #endif
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_BOOTARGS		"console=ttyAMA0,115200"
 #define CONFIG_BOOTCOMMAND	"bootm"

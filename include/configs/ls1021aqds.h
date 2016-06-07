@@ -567,7 +567,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_FSL_DEVICE_DISABLE
 
-#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_SYS_QE_FW_ADDR     0x600c0000
 

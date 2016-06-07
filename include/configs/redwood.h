@@ -132,7 +132,6 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #define	CONFIG_IBM_EMAC4_V4	1
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/

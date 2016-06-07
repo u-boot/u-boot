@@ -84,7 +84,6 @@
 					"earlycon=pl011,0x87e024000000 " \
 					"debug maxcpus=48 rootwait rw "\
 					"root=/dev/sda2 coherent_pool=16M"
-#define CONFIG_BOOTDELAY		5
 
 /* Do not preserve environment */
 #define CONFIG_ENV_IS_NOWHERE		1

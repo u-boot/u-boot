@@ -216,7 +216,6 @@
 				"fi ; " \
 				"booti ${kernel_addr} ${initrd_param} ${fdt_addr}"
 
-#define CONFIG_BOOTDELAY		1
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
@@ -241,7 +240,6 @@
 				"fdt chosen ${initrd_addr} ${initrd_end}; " \
 				"booti $kernel_addr - $fdt_addr"
 
-#define CONFIG_BOOTDELAY		1
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM
 #define CONFIG_EXTRA_ENV_SETTINGS	\
@@ -260,7 +258,6 @@
 
 #define CONFIG_BOOTCOMMAND	"booti $kernel_addr $initrd_addr $fdt_addr"
 
-#define CONFIG_BOOTDELAY		1
 
 #endif
 

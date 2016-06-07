@@ -195,7 +195,6 @@ MMCARGS
 
 #define CONFIG_BOOTCOMMAND \
 	"run defboot;"
-#define CONFIG_BOOTDELAY		0
 
 #ifdef CONFIG_NAND
 /*

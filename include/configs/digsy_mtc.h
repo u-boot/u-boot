@@ -117,7 +117,6 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	1
 
 #undef	CONFIG_BOOTARGS
 

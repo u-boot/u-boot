@@ -37,7 +37,6 @@
 #endif
 #endif
 
-#define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds	*/
 
 #define CONFIG_BAUDRATE		115200
 
