@@ -255,7 +255,7 @@ static char bootefi_help_text[] =
 
 U_BOOT_CMD(
 	bootefi, 3, 0, do_bootefi,
-	"Boots an EFI payload from memory\n",
+	"Boots an EFI payload from memory",
 	bootefi_help_text
 );
 
