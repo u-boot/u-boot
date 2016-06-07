@@ -42,8 +42,8 @@
 
 #define	ONE_MS			(CONFIG_TIMER_CLK_FREQ / 1000)
 #define	TEN_MS			(10 * ONE_MS)
-#define	GICD_BASE		0x1c81000
-#define	GICC_BASE		0x1c82000
+#define	GICD_BASE		(SUNXI_GIC400_BASE +  0x1000)
+#define	GICC_BASE		(SUNXI_GIC400_BASE +  0x2000)
 
 .globl	psci_fiq_enter
 psci_fiq_enter:

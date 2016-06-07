@@ -143,6 +143,8 @@
 #define SUNXI_DRAM_PHY0_BASE		0x01c65000
 #define SUNXI_DRAM_PHY1_BASE		0x01c66000
 
+#define SUNXI_GIC400_BASE		0x01c80000
+
 /* module sram */
 #define SUNXI_SRAM_C_BASE		0x01d00000
 
