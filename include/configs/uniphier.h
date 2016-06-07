@@ -245,7 +245,6 @@
 		"tftpboot $tmp_addr u-boot.bin\0"		\
 	"emmcupdate=mmcsetn &&"					\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
-		"mmc erase 0 800 &&"				\
 		"tftpboot u-boot-spl.bin &&"			\
 		"mmc write $loadaddr 0 80 &&"			\
 		"tftpboot u-boot.bin &&"			\
