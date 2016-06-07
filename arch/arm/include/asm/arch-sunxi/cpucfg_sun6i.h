@@ -9,6 +9,8 @@
 #ifndef _SUNXI_CPUCFG_H
 #define _SUNXI_CPUCFG_H
 
+#include <linux/types.h>
+
 #ifndef __ASSEMBLY__
 
 struct sunxi_cpucfg_reg {
