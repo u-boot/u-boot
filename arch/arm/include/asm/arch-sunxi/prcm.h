@@ -197,7 +197,9 @@
 #define PRCM_CPU3_PWR_CLAMP_MASK PRCM_CPU3_PWR_CLAMP(0xff)
 
 #ifndef __ASSEMBLY__
-struct sunxi_prcm_reg {
+#include <linux/compiler.h>
+
+struct __packed sunxi_prcm_reg {
 	u32 cpus_cfg;		/* 0x000 */
 	u8 res0[0x8];		/* 0x004 */
 	u32 apb0_ratio;		/* 0x00c */
