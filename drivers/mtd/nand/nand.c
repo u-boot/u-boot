@@ -9,6 +9,7 @@
 #include <common.h>
 #include <nand.h>
 #include <errno.h>
+#include <linux/mtd/concat.h>
 
 #ifndef CONFIG_SYS_NAND_BASE_LIST
 #define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
@@ -92,6 +93,44 @@ static void nand_init_chip(int i)
 }
 #endif
 
+#ifdef CONFIG_MTD_CONCAT
+static void create_mtd_concat(void)
+{
+	struct mtd_info *nand_info_list[CONFIG_SYS_MAX_NAND_DEVICE];
+	int nand_devices_found = 0;
+	int i;
+
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
+		if (nand_info[i] != NULL) {
+			nand_info_list[nand_devices_found] = nand_info[i];
+			nand_devices_found++;
+		}
+	}
+	if (nand_devices_found > 1) {
+		struct mtd_info *mtd;
+		char c_mtd_name[16];
+
+		/*
+		 * We detected multiple devices. Concatenate them together.
+		 */
+		sprintf(c_mtd_name, "nand%d", nand_devices_found);
+		mtd = mtd_concat_create(nand_info_list, nand_devices_found,
+					c_mtd_name);
+
+		if (mtd == NULL)
+			return;
+
+		nand_register(nand_devices_found, mtd);
+	}
+
+	return;
+}
+#else
+static void create_mtd_concat(void)
+{
+}
+#endif
+
 void nand_init(void)
 {
 #ifdef CONFIG_SYS_NAND_SELF_INIT
@@ -112,4 +151,6 @@ void nand_init(void)
 	board_nand_select_device(mtd_to_nand(nand_info[nand_curr_device]),
 				 nand_curr_device);
 #endif
+
+	create_mtd_concat();
 }
