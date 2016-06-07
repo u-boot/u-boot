@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2009, Google Inc.
  * All rights reserved.
@@ -210,10 +211,8 @@ void write_sparse_image(
 			break;
 
 		case CHUNK_TYPE_DONT_CARE:
-#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-			blk += blkcnt;
+			blk += info->reserve(info, blk, blkcnt);
 			total_blocks += chunk_header->chunk_sz;
-#endif
 			break;
 
 		case CHUNK_TYPE_CRC32:

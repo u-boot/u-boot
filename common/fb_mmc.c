@@ -53,6 +53,12 @@ static lbaint_t fb_mmc_sparse_write(struct sparse_storage *info,
 	return blk_dwrite(dev_desc, blk, blkcnt, buffer);
 }
 
+static lbaint_t fb_mmc_sparse_reserve(struct sparse_storage *info,
+		lbaint_t blk, lbaint_t blkcnt)
+{
+	return blkcnt;
+}
+
 static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 		const char *part_name, void *buffer,
 		unsigned int download_bytes)
@@ -131,6 +137,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		sparse.start = info.start;
 		sparse.size = info.size;
 		sparse.write = fb_mmc_sparse_write;
+		sparse.reserve = fb_mmc_sparse_reserve;
 
 		printf("Flashing sparse image at offset " LBAFU "\n",
 		       sparse.start);

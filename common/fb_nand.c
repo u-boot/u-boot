@@ -126,6 +126,25 @@ static lbaint_t fb_nand_sparse_write(struct sparse_storage *info,
 	return written / info->blksz;
 }
 
+static lbaint_t fb_nand_sparse_reserve(struct sparse_storage *info,
+		lbaint_t blk, lbaint_t blkcnt)
+{
+	int bad_blocks = 0;
+
+/*
+ * TODO - implement a function to determine the total number
+ * of blocks which must be used in order to reserve the specified
+ * number ("blkcnt") of "good-blocks", starting at "blk"...
+ * ( possibly something like the "check_skip_len()" function )
+ */
+
+	/*
+	 * the return value must be 'blkcnt' ("good-blocks") plus the
+	 * number of "bad-blocks" encountered within this space...
+	 */
+	return blkcnt + bad_blocks;
+}
+
 void fb_nand_flash_write(const char *cmd, void *download_buffer,
 			 unsigned int download_bytes)
 {
@@ -155,6 +174,7 @@ void fb_nand_flash_write(const char *cmd, void *download_buffer,
 		sparse.start = part->offset / sparse.blksz;
 		sparse.size = part->size / sparse.blksz;
 		sparse.write = fb_nand_sparse_write;
+		sparse.reserve = fb_nand_sparse_reserve;
 
 		printf("Flashing sparse image at offset " LBAFU "\n",
 		       sparse.start);

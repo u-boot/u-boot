@@ -19,6 +19,10 @@ struct sparse_storage {
 				 lbaint_t blk,
 				 lbaint_t blkcnt,
 				 const void *buffer);
+
+	lbaint_t	(*reserve)(struct sparse_storage *info,
+				 lbaint_t blk,
+				 lbaint_t blkcnt);
 };
 
 static inline int is_sparse_image(void *buf)
