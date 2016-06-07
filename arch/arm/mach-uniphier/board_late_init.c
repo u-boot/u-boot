@@ -39,6 +39,9 @@ static int uniphier_set_fdt_file(void)
 	int buf_len = 256;
 	int ret;
 
+	if (getenv("fdt_file"))
+		return 0;	/* do nothing if it is already set */
+
 	ret = fdt_get_string(gd->fdt_blob, 0, "compatible", &compat);
 	if (ret)
 		return -EINVAL;
