@@ -361,6 +361,11 @@ config TARGET_RASTABAN
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_ETAMIN
+        bool "Support etamin"
+        select CPU_V7
+        select SUPPORT_SPL
+
 config TARGET_PXM2
 	bool "Support pxm2"
 	select CPU_V7

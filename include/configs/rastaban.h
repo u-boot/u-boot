@@ -76,6 +76,7 @@
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"hostname=rastaban\0" \
+	"ubi_off=2048\0"\
 	"nand_img_size=0x400000\0" \
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
