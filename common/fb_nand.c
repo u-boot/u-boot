@@ -10,7 +10,6 @@
 
 #include <fastboot.h>
 #include <image-sparse.h>
-#include <sparse_format.h>
 
 #include <linux/mtd/mtd.h>
 #include <jffs2/jffs2.h>
@@ -19,7 +18,7 @@
 static char *response_str;
 
 struct fb_nand_sparse {
-	struct mtd_info		*nand;
+	struct mtd_info		*mtd;
 	struct part_info	*part;
 };
 
@@ -105,30 +104,32 @@ static int _fb_nand_write(struct mtd_info *mtd, struct part_info *part,
 				   buffer, flags);
 }
 
-static int fb_nand_sparse_write(struct sparse_storage *storage,
-				void *priv,
-				unsigned int offset,
-				unsigned int size,
-				char *data)
+static lbaint_t fb_nand_sparse_write(struct sparse_storage *info,
+		lbaint_t blk, lbaint_t blkcnt, const void *buffer)
 {
-	struct fb_nand_sparse *sparse = priv;
+	struct fb_nand_sparse *sparse = info->priv;
 	size_t written;
 	int ret;
 
-	ret = _fb_nand_write(sparse->nand, sparse->part, data,
-			     offset * storage->block_sz,
-			     size * storage->block_sz, &written);
+	ret = _fb_nand_write(sparse->mtd, sparse->part, (void *)buffer,
+			     blk * info->blksz,
+			     blkcnt * info->blksz, &written);
 	if (ret < 0) {
 		printf("Failed to write sparse chunk\n");
 		return ret;
 	}
 
-	return written / storage->block_sz;
+/* TODO - verify that the value "written" includes the "bad-blocks" ... */
+
+	/*
+	 * the return value must be 'blkcnt' ("good-blocks") plus the
+	 * number of "bad-blocks" encountered within this space...
+	 */
+	return written / info->blksz;
 }
 
-void fb_nand_flash_write(const char *partname,
-			 void *download_buffer, unsigned int download_bytes,
-			 char *response)
+void fb_nand_flash_write(const char *cmd, void *download_buffer,
+			 unsigned int download_bytes, char *response)
 {
 	struct part_info *part;
 	struct mtd_info *mtd = NULL;
@@ -137,7 +138,7 @@ void fb_nand_flash_write(const char *partname,
 	/* initialize the response buffer */
 	response_str = response;
 
-	ret = fb_nand_lookup(partname, response, &mtd, &part);
+	ret = fb_nand_lookup(cmd, response, &mtd, &part);
 	if (ret) {
 		error("invalid NAND device");
 		fastboot_fail(response_str, "invalid NAND device");
@@ -150,19 +151,22 @@ void fb_nand_flash_write(const char *partname,
 
 	if (is_sparse_image(download_buffer)) {
 		struct fb_nand_sparse sparse_priv;
-		sparse_storage_t sparse;
+		struct sparse_storage sparse;
 
-		sparse_priv.nand = mtd;
+		sparse_priv.mtd = mtd;
 		sparse_priv.part = part;
 
-		sparse.block_sz = mtd->writesize;
-		sparse.start = part->offset / sparse.block_sz;
-		sparse.size = part->size  / sparse.block_sz;
-		sparse.name = part->name;
+		sparse.blksz = mtd->writesize;
+		sparse.start = part->offset / sparse.blksz;
+		sparse.size = part->size / sparse.blksz;
 		sparse.write = fb_nand_sparse_write;
 
-		ret = store_sparse_image(&sparse, &sparse_priv,
-					 download_buffer);
+		printf("Flashing sparse image at offset " LBAFU "\n",
+		       sparse.start);
+
+		sparse.priv = &sparse_priv;
+		write_sparse_image(&sparse, cmd, download_buffer,
+				   download_bytes, response_str);
 	} else {
 		printf("Flashing raw image at offset 0x%llx\n",
 		       part->offset);
@@ -182,7 +186,7 @@ void fb_nand_flash_write(const char *partname,
 	fastboot_okay(response_str, "");
 }
 
-void fb_nand_erase(const char *partname, char *response)
+void fb_nand_erase(const char *cmd, char *response)
 {
 	struct part_info *part;
 	struct mtd_info *mtd = NULL;
@@ -191,7 +195,7 @@ void fb_nand_erase(const char *partname, char *response)
 	/* initialize the response buffer */
 	response_str = response;
 
-	ret = fb_nand_lookup(partname, response, &mtd, &part);
+	ret = fb_nand_lookup(cmd, response, &mtd, &part);
 	if (ret) {
 		error("invalid NAND device");
 		fastboot_fail(response_str, "invalid NAND device");

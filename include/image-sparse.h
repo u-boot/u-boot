@@ -9,16 +9,17 @@
 
 #define ROUNDUP(x, y)	(((x) + ((y) - 1)) & ~((y) - 1))
 
-typedef struct sparse_storage {
-	unsigned int	block_sz;
-	unsigned int	start;
-	unsigned int	size;
-	const char	*name;
+struct sparse_storage {
+	lbaint_t	blksz;
+	lbaint_t	start;
+	lbaint_t	size;
+	void		*priv;
 
-	int	(*write)(struct sparse_storage *storage, void *priv,
-			 unsigned int offset, unsigned int size,
-			 char *data);
-} sparse_storage_t;
+	lbaint_t	(*write)(struct sparse_storage *info,
+				 lbaint_t blk,
+				 lbaint_t blkcnt,
+				 const void *buffer);
+};
 
 static inline int is_sparse_image(void *buf)
 {
@@ -31,5 +32,5 @@ static inline int is_sparse_image(void *buf)
 	return 0;
 }
 
-int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
-		       void *data);
+void write_sparse_image(struct sparse_storage *info, const char *part_name,
+			void *data, unsigned sz, char *response_str);
