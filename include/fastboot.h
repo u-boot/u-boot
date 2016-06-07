@@ -16,7 +16,7 @@
 /* The 64 defined bytes plus \0 */
 #define FASTBOOT_RESPONSE_LEN	(64 + 1)
 
-void fastboot_fail(char *response, const char *reason);
-void fastboot_okay(char *response, const char *reason);
+void fastboot_fail(const char *reason);
+void fastboot_okay(const char *reason);
 
 #endif /* _FASTBOOT_H_ */

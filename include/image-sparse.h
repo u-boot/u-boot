@@ -33,4 +33,4 @@ static inline int is_sparse_image(void *buf)
 }
 
 void write_sparse_image(struct sparse_storage *info, const char *part_name,
-			void *data, unsigned sz, char *response_str);
+			void *data, unsigned sz);
