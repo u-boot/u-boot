@@ -139,6 +139,7 @@ static int dfu_read_medium_nand(struct dfu_entity *dfu, u64 offset, void *buf,
 static int dfu_flush_medium_nand(struct dfu_entity *dfu)
 {
 	int ret = 0;
+	u64 off;
 
 	/* in case of ubi partition, erase rest of the partition */
 	if (dfu->data.nand.ubi) {
@@ -155,7 +156,16 @@ static int dfu_flush_medium_nand(struct dfu_entity *dfu)
 		mtd = nand_info[nand_curr_device];
 
 		memset(&opts, 0, sizeof(opts));
-		opts.offset = dfu->data.nand.start + dfu->offset +
+		off = dfu->offset;
+		if ((off & (mtd->erasesize - 1)) != 0) {
+			/*
+			 * last write ended with unaligned length
+			 * sector is erased, jump to next
+			 */
+			off = off & ~((mtd->erasesize - 1));
+			off += mtd->erasesize;
+		}
+		opts.offset = dfu->data.nand.start + off +
 				dfu->bad_skip;
 		opts.length = dfu->data.nand.start +
 				dfu->data.nand.size - opts.offset;
