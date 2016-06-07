@@ -917,6 +917,10 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 			err = omap_select_ecc_scheme(nand,
 					OMAP_ECC_BCH8_CODE_HW,
 					mtd->writesize, mtd->oobsize);
+		} else if (eccstrength == 16) {
+			err = omap_select_ecc_scheme(nand,
+					OMAP_ECC_BCH16_CODE_HW,
+					mtd->writesize, mtd->oobsize);
 		} else {
 			printf("nand: error: unsupported ECC scheme\n");
 			return -EINVAL;
