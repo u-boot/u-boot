@@ -33,7 +33,12 @@ struct __packed sunxi_cpucfg_reg {
 	u32 super_standy_flag;	/* 0x1a0 */
 	u32 priv0;		/* 0x1a4 */
 	u32 priv1;		/* 0x1a8 */
-	u8 res4[0x54];		/* 0x1ac */
+	u8 res4[0x4];		/* 0x1ac */
+	u32 cpu1_pwr_clamp;	/* 0x1b0 sun7i only */
+	u32 cpu1_pwroff;	/* 0x1b4 sun7i only */
+	u8 res5[0x2c];		/* 0x1b8 */
+	u32 dbg_ctrl1;		/* 0x1e4 */
+	u8 res6[0x18];		/* 0x1e8 */
 	u32 idle_cnt0_low;	/* 0x200 */
 	u32 idle_cnt0_high;	/* 0x204 */
 	u32 idle_cnt0_ctrl;	/* 0x208 */
