@@ -117,4 +117,5 @@ void enable_basic_clocks(void);
 void do_enable_clocks(u32 *const *, u32 *const *, u8);
 void do_disable_clocks(u32 *const *, u32 *const *, u8);
 
+void set_mpu_spreadspectrum(int permille);
 #endif

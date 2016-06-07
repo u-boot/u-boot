@@ -99,7 +99,8 @@ struct cm_wkuppll {
 	unsigned int timer0clkctrl;	/* offset 0x10 */
 	unsigned int resv2[3];
 	unsigned int idlestdpllmpu;	/* offset 0x20 */
-	unsigned int resv3[2];
+	unsigned int sscdeltamstepdllmpu; /* off  0x24 */
+	unsigned int sscmodfreqdivdpllmpu; /* off 0x28 */
 	unsigned int clkseldpllmpu;	/* offset 0x2c */
 	unsigned int resv4[1];
 	unsigned int idlestdpllddr;	/* offset 0x34 */
