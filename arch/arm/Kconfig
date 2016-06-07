@@ -396,6 +396,14 @@ config TARGET_AM335X_EVM
 	select DM_GPIO
 	select TI_I2C_BOARD_DETECT
 
+config TARGET_AM335X_SHC
+	bool "Support am335x based shc board from bosch"
+	select CPU_V7
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"
 	select CPU_V7
@@ -875,6 +883,7 @@ source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/imx-common/Kconfig"
 
+source "board/bosch/shc/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
