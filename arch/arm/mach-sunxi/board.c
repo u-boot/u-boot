@@ -223,6 +223,11 @@ u32 spl_boot_device(void)
 	if (!is_boot0_magic(SPL_ADDR + 4)) /* eGON.BT0 */
 		return BOOT_DEVICE_BOARD;
 
+#ifdef CONFIG_SPL_SPI_SUNXI
+	if (readb(SPL_ADDR + 0x28) == SUNXI_BOOTED_FROM_SPI)
+		return BOOT_DEVICE_SPI;
+#endif
+
 	/* The BROM will try to boot from mmc0 first, so try that first. */
 #ifdef CONFIG_MMC
 	mmc_initialize(gd->bd);

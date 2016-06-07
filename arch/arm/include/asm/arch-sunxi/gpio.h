@@ -141,6 +141,7 @@ enum sunxi_gpio_number {
 /* GPIO pin function config */
 #define SUNXI_GPIO_INPUT	0
 #define SUNXI_GPIO_OUTPUT	1
+#define SUNXI_GPIO_DISABLE	7
 
 #define SUNXI_GPA_EMAC		2
 #define SUN6I_GPA_GMAC		2
@@ -162,8 +163,10 @@ enum sunxi_gpio_number {
 #define SUN50I_GPB_UART0	4
 
 #define SUNXI_GPC_NAND		2
+#define SUNXI_GPC_SPI0		3
 #define SUNXI_GPC_SDC2		3
 #define SUN6I_GPC_SDC3		4
+#define SUN50I_GPC_SPI0		4
 
 #define SUN8I_GPD_SDC1		3
 #define SUNXI_GPD_LCD0		2

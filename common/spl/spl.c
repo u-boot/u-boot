@@ -270,7 +270,7 @@ struct boot_device_name boot_name_table[] = {
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
 	{ BOOT_DEVICE_UART, "UART" },
 #endif
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#if defined(CONFIG_SPL_SPI_SUPPORT) || defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 	{ BOOT_DEVICE_SPI, "SPI" },
 #endif
 #ifdef CONFIG_SPL_ETH_SUPPORT
@@ -346,7 +346,7 @@ static int spl_load_image(u32 boot_device)
 	case BOOT_DEVICE_UART:
 		return spl_ymodem_load_image();
 #endif
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#if defined(CONFIG_SPL_SPI_SUPPORT) || defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 	case BOOT_DEVICE_SPI:
 		return spl_spi_load_image();
 #endif

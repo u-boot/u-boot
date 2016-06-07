@@ -137,6 +137,11 @@
 #define CONFIG_SPL_NAND_SUPPORT 1
 #endif
 
+#ifdef CONFIG_SPL_SPI_SUNXI
+#define CONFIG_SPL_SPI_FLASH_SUPPORT	1
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
+#endif
+
 /* mmc config */
 #ifdef CONFIG_MMC
 #define CONFIG_GENERIC_MMC
