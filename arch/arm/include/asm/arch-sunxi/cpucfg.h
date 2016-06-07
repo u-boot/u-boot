@@ -9,37 +9,31 @@
 #ifndef _SUNXI_CPUCFG_H
 #define _SUNXI_CPUCFG_H
 
+#include <linux/compiler.h>
 #include <linux/types.h>
 
 #ifndef __ASSEMBLY__
 
-struct sunxi_cpucfg_reg {
+struct __packed sunxi_cpucfg_cpu {
+	u32 rst;		/* base + 0x0 */
+	u32 ctrl;		/* base + 0x4 */
+	u32 status;		/* base + 0x8 */
+	u8 res[0x34];		/* base + 0xc */
+};
+
+struct __packed sunxi_cpucfg_reg {
 	u8 res0[0x40];		/* 0x000 */
-	u32 cpu0_rst;		/* 0x040 */
-	u32 cpu0_ctrl;		/* 0x044 */
-	u32 cpu0_status;	/* 0x048 */
-	u8 res1[0x34];		/* 0x04c */
-	u32 cpu1_rst;		/* 0x080 */
-	u32 cpu1_ctrl;		/* 0x084 */
-	u32 cpu1_status;	/* 0x088 */
-	u8 res2[0x34];		/* 0x08c */
-	u32 cpu2_rst;		/* 0x0c0 */
-	u32 cpu2_ctrl;		/* 0x0c4 */
-	u32 cpu2_status;	/* 0x0c8 */
-	u8 res3[0x34];		/* 0x0cc */
-	u32 cpu3_rst;		/* 0x100 */
-	u32 cpu3_ctrl;		/* 0x104 */
-	u32 cpu3_status;	/* 0x108 */
-	u8 res4[0x78];		/* 0x10c */
+	struct sunxi_cpucfg_cpu cpu[4];		/* 0x040 */
+	u8 res1[0x44];		/* 0x140 */
 	u32 gen_ctrl;		/* 0x184 */
 	u32 l2_status;		/* 0x188 */
-	u8 res5[0x4];		/* 0x18c */
+	u8 res2[0x4];		/* 0x18c */
 	u32 event_in;		/* 0x190 */
-	u8 res6[0xc];		/* 0x194 */
+	u8 res3[0xc];		/* 0x194 */
 	u32 super_standy_flag;	/* 0x1a0 */
 	u32 priv0;		/* 0x1a4 */
 	u32 priv1;		/* 0x1a8 */
-	u8 res7[0x54];		/* 0x1ac */
+	u8 res4[0x54];		/* 0x1ac */
 	u32 idle_cnt0_low;	/* 0x200 */
 	u32 idle_cnt0_high;	/* 0x204 */
 	u32 idle_cnt0_ctrl;	/* 0x208 */
