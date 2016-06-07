@@ -56,9 +56,7 @@ static int uniphier_set_fdt_file(void)
 
 	strncat(dtb_name, ".dtb", buf_len);
 
-	setenv("fdt_file", dtb_name);
-
-	return 0;
+	return setenv("fdt_file", dtb_name);
 }
 
 int board_late_init(void)
