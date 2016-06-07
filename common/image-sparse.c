@@ -52,8 +52,6 @@ typedef struct sparse_buffer {
 	u16	type;
 } sparse_buffer_t;
 
-static uint32_t last_offset;
-
 static unsigned int sparse_get_chunk_data_size(sparse_header_t *sparse,
 					       chunk_header_t *chunk)
 {
@@ -267,8 +265,8 @@ static void sparse_put_data_buffer(sparse_buffer_t *buffer)
 	free(buffer);
 }
 
-int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
-		       unsigned int session_id, void *data)
+int store_sparse_image(sparse_storage_t *storage,
+		       void *storage_priv, void *data)
 {
 	unsigned int chunk, offset;
 	sparse_header_t *sparse_header;
@@ -303,19 +301,10 @@ int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
 		return -EINVAL;
 	}
 
-	/*
-	 * If it's a new flashing session, start at the beginning of
-	 * the partition. If not, then simply resume where we were.
-	 */
-	if (session_id > 0)
-		start = last_offset;
-	else
-		start = storage->start;
-
-	printf("Flashing sparse image on partition %s at offset 0x%x (ID: %d)\n",
-	       storage->name, start * storage->block_sz, session_id);
+	puts("Flashing Sparse Image\n");
 
 	/* Start processing chunks */
+	start = storage->start;
 	for (chunk = 0; chunk < sparse_header->total_chunks; chunk++) {
 		uint32_t blkcnt;
 
@@ -389,8 +378,6 @@ int store_sparse_image(sparse_storage_t *storage, void *storage_priv,
 		printf("sparse image write failure\n");
 		return -EIO;
 	}
-
-	last_offset = start + total_blocks;
 
 	return 0;
 }

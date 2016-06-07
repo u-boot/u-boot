@@ -126,7 +126,7 @@ static int fb_nand_sparse_write(struct sparse_storage *storage,
 	return written / storage->block_sz;
 }
 
-void fb_nand_flash_write(const char *partname, unsigned int session_id,
+void fb_nand_flash_write(const char *partname,
 			 void *download_buffer, unsigned int download_bytes,
 			 char *response)
 {
@@ -161,7 +161,7 @@ void fb_nand_flash_write(const char *partname, unsigned int session_id,
 		sparse.name = part->name;
 		sparse.write = fb_nand_sparse_write;
 
-		ret = store_sparse_image(&sparse, &sparse_priv, session_id,
+		ret = store_sparse_image(&sparse, &sparse_priv,
 					 download_buffer);
 	} else {
 		printf("Flashing raw image at offset 0x%llx\n",
