@@ -110,6 +110,7 @@ ENDPROC(psci_get_cpu_id)
 
 /* Imported from Linux kernel */
 LENTRY(v7_flush_dcache_all)
+	stmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	dmb					@ ensure ordering with previous memory accesses
 	mrc	p15, 1, r0, c0, c0, 1		@ read clidr
 	ands	r3, r0, #0x7000000		@ extract loc from clidr
@@ -153,6 +154,7 @@ finished:
 	mcr	p15, 2, r10, c0, c0, 0		@ select current cache level in cssr
 	dsb	st
 	isb
+	ldmfd	sp!, {r4-r5, r7, r9-r11, lr}
 	bx	lr
 ENDPROC(v7_flush_dcache_all)
 
