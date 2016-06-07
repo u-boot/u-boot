@@ -105,6 +105,40 @@ static void print_chip_data(void)
 }
 #endif /* CONFIG_SPL_BUILD */
 
+#define AM335X_NAND_ECC_MASK 0x0f
+#define AM335X_NAND_ECC_TYPE_16 0x02
+
+static int ecc_type;
+
+struct am335x_nand_geometry {
+	u32 magic;
+	u8 nand_geo_addr;
+	u8 nand_geo_page;
+	u8 nand_bus;
+};
+
+static int draco_read_nand_geometry(void)
+{
+	struct am335x_nand_geometry geo;
+
+	/* Read NAND geometry */
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0x80, 2,
+		     (uchar *)&geo, sizeof(struct am335x_nand_geometry))) {
+		printf("Could not read the NAND geomtery; something fundamentally wrong on the I2C bus.\n");
+		return -EIO;
+	}
+	if (geo.magic != 0xa657b310) {
+		printf("%s: bad magic: %x\n", __func__, geo.magic);
+		return -EFAULT;
+	}
+	if ((geo.nand_bus & AM335X_NAND_ECC_MASK) == AM335X_NAND_ECC_TYPE_16)
+		ecc_type = 16;
+	else
+		ecc_type = 8;
+
+	return 0;
+}
+
 /*
  * Read header information from EEPROM into global structure.
  */
@@ -147,6 +181,8 @@ static int read_eeprom(void)
 		printf("Warning: No chip data in eeprom\n");
 
 	print_ddr3_timings();
+
+	return draco_read_nand_geometry();
 #endif
 	return 0;
 }
@@ -207,7 +243,14 @@ static void spl_siemens_board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-	omap_nand_switch_ecc(1, 8);
+	int ret;
+
+	ret = draco_read_nand_geometry();
+	if (ret != 0)
+		return ret;
+
+	nand_curr_device = 0;
+	omap_nand_switch_ecc(1, ecc_type);
 #ifdef CONFIG_FACTORYSET
 	/* Set ASN in environment*/
 	if (factory_dat.asn[0] != 0) {
