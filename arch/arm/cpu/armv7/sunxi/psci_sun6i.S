@@ -73,8 +73,8 @@ psci_fiq_enter:
 	lsr	r9, r9, #10
 	and	r9, r9, #0xf
 
-	movw	r8, #(SUN6I_CPUCFG_BASE & 0xffff)
-	movt	r8, #(SUN6I_CPUCFG_BASE >> 16)
+	movw	r8, #(SUNXI_CPUCFG_BASE & 0xffff)
+	movt	r8, #(SUNXI_CPUCFG_BASE >> 16)
 
 	@ Wait for the core to enter WFI
 	lsl	r11, r9, #6		@ x64
@@ -114,8 +114,8 @@ psci_fiq_enter:
 	str	r10, [r12, #0x140]
 #endif
 
-	movw	r8, #(SUN6I_CPUCFG_BASE & 0xffff)
-	movt	r8, #(SUN6I_CPUCFG_BASE >> 16)
+	movw	r8, #(SUNXI_CPUCFG_BASE & 0xffff)
+	movt	r8, #(SUNXI_CPUCFG_BASE >> 16)
 
 	@ Unlock CPU
 	ldr	r10, [r8, #0x1e4]
@@ -139,8 +139,8 @@ psci_cpu_on:
 	str	r2, [r0]		@ store target PC at stack top
 	dsb
 
-	movw	r0, #(SUN6I_CPUCFG_BASE & 0xffff)
-	movt	r0, #(SUN6I_CPUCFG_BASE >> 16)
+	movw	r0, #(SUNXI_CPUCFG_BASE & 0xffff)
+	movt	r0, #(SUNXI_CPUCFG_BASE >> 16)
 
 	@ CPU mask
 	and	r1, r1, #3	@ only care about first cluster
@@ -189,8 +189,8 @@ psci_cpu_on:
 	str	r6, [r0, #0x100]
 
 	@ re-calculate CPU control register address
-	movw	r0, #(SUN6I_CPUCFG_BASE & 0xffff)
-	movt	r0, #(SUN6I_CPUCFG_BASE >> 16)
+	movw	r0, #(SUNXI_CPUCFG_BASE & 0xffff)
+	movt	r0, #(SUNXI_CPUCFG_BASE >> 16)
 
 	@ Deassert reset on target CPU
 	mov	r6, #3

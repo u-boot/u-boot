@@ -73,8 +73,8 @@ psci_fiq_enter:
 	lsr	r9, r9, #10
 	and	r9, r9, #0xf
 
-	movw	r8, #(SUN7I_CPUCFG_BASE & 0xffff)
-	movt	r8, #(SUN7I_CPUCFG_BASE >> 16)
+	movw	r8, #(SUNXI_CPUCFG_BASE & 0xffff)
+	movt	r8, #(SUNXI_CPUCFG_BASE >> 16)
 
 	@ Wait for the core to enter WFI
 	lsl	r11, r9, #6		@ x64
@@ -128,8 +128,8 @@ psci_cpu_on:
 	str	r2, [r0]		@ store target PC at stack top
 	dsb
 
-	movw	r0, #(SUN7I_CPUCFG_BASE & 0xffff)
-	movt	r0, #(SUN7I_CPUCFG_BASE >> 16)
+	movw	r0, #(SUNXI_CPUCFG_BASE & 0xffff)
+	movt	r0, #(SUNXI_CPUCFG_BASE >> 16)
 
 	@ CPU mask
 	and	r1, r1, #3	@ only care about first cluster
