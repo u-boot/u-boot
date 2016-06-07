@@ -200,7 +200,7 @@ void spl_board_init(void)
 #endif
 }
 
-int board_mmc_init(bd_t *bis)
+__weak int board_mmc_init(bd_t *bis)
 {
 	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC1:
