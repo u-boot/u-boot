@@ -701,6 +701,9 @@ extern struct i2c_bus_hose	i2c_bus[];
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
  */
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+void i2c_early_init_f(void);
+#endif
 void i2c_init(int speed, int slaveaddr);
 void i2c_init_board(void);
 #ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
