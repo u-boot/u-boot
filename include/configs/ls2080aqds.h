@@ -17,6 +17,16 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_FSL_CLK
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SYS_NO_FLASH
+#undef CONFIG_CMD_IMLS
+#define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_I2C_EARLY_INIT
+#define CONFIG_SYS_I2C_IFDR_DIV		0x7e
+#endif
+
+#define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
