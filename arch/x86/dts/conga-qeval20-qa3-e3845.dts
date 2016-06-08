@@ -30,6 +30,7 @@
 
 	pch_pinctrl {
 		compatible = "intel,x86-pinctrl";
+		reg = <0 0>;
 	};
 
 	chosen {

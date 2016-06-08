@@ -65,6 +65,11 @@
 		};
 	};
 
+	pch_pinctrl {
+		compatible = "intel,x86-pinctrl";
+		reg = <0 0>;
+	};
+
 	pci {
 		compatible = "pci-x86";
 		#address-cells = <3>;
