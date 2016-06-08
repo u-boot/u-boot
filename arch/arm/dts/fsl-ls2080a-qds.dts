@@ -15,6 +15,7 @@
 	compatible = "fsl,ls2080a-qds", "fsl,ls2080a";
 
 	aliases {
+		spi0 = &qspi;
 		spi1 = &dspi;
 	};
 };
@@ -49,5 +50,18 @@
 		spi-cpol;
 		spi-cpha;
 		reg = <2>;
+	};
+};
+
+&qspi {
+	bus-num = <0>;
+	status = "okay";
+
+	qflash0: s25fs256s@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <20000000>;
+		reg = <0>;
 	};
 };
