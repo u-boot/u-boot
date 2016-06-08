@@ -54,7 +54,7 @@ void smp_set_core_boot_addr(unsigned long addr, int corenr)
 	writel(addr, (void __iomem *)RESET_VECTOR_ADDR);
 
 	/* Make sure other cores see written value in memory */
-	flush_dcache_range(RESET_VECTOR_ADDR, RESET_VECTOR_ADDR + sizeof(int));
+	flush_dcache_all();
 }
 
 void smp_kick_all_cpus(void)
