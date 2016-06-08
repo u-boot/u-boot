@@ -24,6 +24,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <syscon.h>
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
@@ -750,6 +751,10 @@ int cpu_init_r(void)
 	uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
 	uclass_first_device(UCLASS_PCH, &dev);
 	uclass_first_device(UCLASS_LPC, &dev);
+
+	/* Set up pin control if available */
+	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &dev);
+	debug("%s, pinctrl=%p, ret=%d\n", __func__, dev, ret);
 
 	return 0;
 }
