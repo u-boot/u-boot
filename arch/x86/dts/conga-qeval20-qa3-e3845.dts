@@ -31,6 +31,21 @@
 	pch_pinctrl {
 		compatible = "intel,x86-pinctrl";
 		reg = <0 0>;
+
+		/*
+		 * As of today, the latest version FSP (gold4) for BayTrail
+		 * misses the PAD configuration of the SD controller's Card
+		 * Detect signal. The default PAD value for the CD pin sets
+		 * the pin to work in GPIO mode, which causes card detect
+		 * status cannot be reflected by the Present State register
+		 * in the SD controller (bit 16 & bit 18 are always zero).
+		 *
+		 * Configure this pin to function 1 (SD controller).
+		 */
+		sdmmc3_cd@0 {
+			pad-offset = <0x3a0>;
+			mode-func = <1>;
+		};
 	};
 
 	chosen {
