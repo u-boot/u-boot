@@ -26,6 +26,7 @@
 
 #define PIN_MUX_SEL_SDHC	0x00
 #define PIN_MUX_SEL_DSPI	0x0a
+#define SCFG_QSPICLKCTRL_DIV_20	(5 << 27)
 
 #define SET_SDHC_MUX_SEL(reg, value)	((reg & 0xf0) | value)
 
@@ -219,6 +220,10 @@ int board_init(void)
 int board_early_init_f(void)
 {
 	fsl_lsch3_early_init_f();
+#ifdef CONFIG_FSL_QSPI
+	/* input clk: 1/2 platform clk, output: input/20 */
+	out_le32(SCFG_BASE + SCFG_QSPICLKCTLR, SCFG_QSPICLKCTRL_DIV_20);
+#endif
 	return 0;
 }
 
