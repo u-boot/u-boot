@@ -209,6 +209,9 @@ void cache_init(void)
 	read_decode_cache_bcr_arcv2();
 
 	if (ioc_exists) {
+		flush_dcache_all();
+		invalidate_dcache_all();
+
 		/* IO coherency base - 0x8z */
 		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, 0x80000);
 		/* IO coherency aperture size - 512Mb: 0x8z-0xAz */
