@@ -218,7 +218,7 @@
 		fsp,mrc-init-mmio-size = <0x800>;
 		fsp,mrc-init-spd-addr1 = <0xa0>;
 		fsp,mrc-init-spd-addr2 = <0xa2>;
-		fsp,emmc-boot-mode = <2>;
+		fsp,emmc-boot-mode = <1>;
 		fsp,enable-sdio;
 		fsp,enable-sdcard;
 		fsp,enable-hsuart1;
