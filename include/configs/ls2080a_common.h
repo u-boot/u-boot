@@ -138,13 +138,6 @@
 #define CONFIG_SYS_FLASH1_BASE_PHYS		0xC0000000
 #define CONFIG_SYS_FLASH1_BASE_PHYS_EARLY	0x8000000
 
-#ifndef CONFIG_SYS_NO_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#define CONFIG_SYS_FLASH_QUIET_TEST
-#endif
-
 #ifndef __ASSEMBLY__
 unsigned long long get_qixis_addr(void);
 #endif
