@@ -245,7 +245,6 @@
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
-	"mem_reserve=512M\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"name_kern=zImage\0"						\
