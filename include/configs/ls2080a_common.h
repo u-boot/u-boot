@@ -29,10 +29,12 @@
 #define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 
 /* Link Definitions */
+#ifndef CONFIG_QSPI_BOOT
 #ifdef CONFIG_SPL
 #define CONFIG_SYS_TEXT_BASE		0x80400000
 #else
 #define CONFIG_SYS_TEXT_BASE		0x30100000
+#endif
 #endif
 
 #ifdef CONFIG_EMU
