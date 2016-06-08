@@ -9,7 +9,6 @@
 #include <fdtdec.h>
 #include <pch.h>
 #include <pci.h>
-#include <syscon.h>
 #include <asm/cpu.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -119,12 +118,6 @@ static int broadwell_gpio_probe(struct udevice *dev)
 	struct broadwell_bank_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct broadwell_bank_priv *priv = dev_get_priv(dev);
-	struct udevice *pinctrl;
-	int ret;
-
-	/* Set up pin control if available */
-	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &pinctrl);
-	debug("%s, pinctrl=%p, ret=%d\n", __func__, pinctrl, ret);
 
 	uc_priv->gpio_count = GPIO_PER_BANK;
 	uc_priv->bank_name = plat->bank_name;
