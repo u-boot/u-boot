@@ -10,6 +10,46 @@
 #include <linux/types.h>
 #include <asm/byteorder.h>
 
+#ifdef CONFIG_ISA_ARCV2
+
+/*
+ * ARCv2 based HS38 cores are in-order issue, but still weakly ordered
+ * due to micro-arch buffering/queuing of load/store, cache hit vs. miss ...
+ *
+ * Explicit barrier provided by DMB instruction
+ *  - Operand supports fine grained load/store/load+store semantics
+ *  - Ensures that selected memory operation issued before it will complete
+ *    before any subsequent memory operation of same type
+ *  - DMB guarantees SMP as well as local barrier semantics
+ *    (asm-generic/barrier.h ensures sane smp_*mb if not defined here, i.e.
+ *    UP: barrier(), SMP: smp_*mb == *mb)
+ *  - DSYNC provides DMB+completion_of_cache_bpu_maintenance_ops hence not needed
+ *    in the general case. Plus it only provides full barrier.
+ */
+
+#define mb()	asm volatile("dmb 3\n" : : : "memory")
+#define rmb()	asm volatile("dmb 1\n" : : : "memory")
+#define wmb()	asm volatile("dmb 2\n" : : : "memory")
+
+#else
+
+/*
+ * ARCompact based cores (ARC700) only have SYNC instruction which is super
+ * heavy weight as it flushes the pipeline as well.
+ * There are no real SMP implementations of such cores.
+ */
+
+#define mb()	asm volatile("sync\n" : : : "memory")
+#endif
+
+#ifdef CONFIG_ISA_ARCV2
+#define __iormb()		rmb()
+#define __iowmb()		wmb()
+#else
+#define __iormb()		do { } while (0)
+#define __iowmb()		do { } while (0)
+#endif
+
 /*
  * Given a physical address and a length, return a virtual address
  * that can be used to access the memory range with the caching
@@ -72,18 +112,6 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
 	return w;
 }
 
-#define readb __raw_readb
-
-static inline u16 readw(const volatile void __iomem *addr)
-{
-	return __le16_to_cpu(__raw_readw(addr));
-}
-
-static inline u32 readl(const volatile void __iomem *addr)
-{
-	return __le32_to_cpu(__raw_readl(addr));
-}
-
 static inline void __raw_writeb(u8 b, volatile void __iomem *addr)
 {
 	__asm__ __volatile__("stb%U1	%0, %1\n"
@@ -107,10 +135,6 @@ static inline void __raw_writel(u32 w, volatile void __iomem *addr)
 			     : "r" (w), "m" (*(volatile u32 __force *)addr)
 			     : "memory");
 }
-
-#define writeb __raw_writeb
-#define writew(b, addr) __raw_writew(__cpu_to_le16(b), addr)
-#define writel(b, addr) __raw_writel(__cpu_to_le32(b), addr)
 
 static inline int __raw_readsb(unsigned int addr, void *data, int bytelen)
 {
@@ -183,6 +207,45 @@ static inline int __raw_writesl(unsigned int addr, void *data, int longlen)
 			      : "r8");
 	return longlen;
 }
+
+/*
+ * MMIO can also get buffered/optimized in micro-arch, so barriers needed
+ * Based on ARM model for the typical use case
+ *
+ *	<ST [DMA buffer]>
+ *	<writel MMIO "go" reg>
+ *  or:
+ *	<readl MMIO "status" reg>
+ *	<LD [DMA buffer]>
+ *
+ * http://lkml.kernel.org/r/20150622133656.GG1583@arm.com
+ */
+#define readb(c)		({ u8  __v = readb_relaxed(c); __iormb(); __v; })
+#define readw(c)		({ u16 __v = readw_relaxed(c); __iormb(); __v; })
+#define readl(c)		({ u32 __v = readl_relaxed(c); __iormb(); __v; })
+
+#define writeb(v,c)		({ __iowmb(); writeb_relaxed(v,c); })
+#define writew(v,c)		({ __iowmb(); writew_relaxed(v,c); })
+#define writel(v,c)		({ __iowmb(); writel_relaxed(v,c); })
+
+/*
+ * Relaxed API for drivers which can handle barrier ordering themselves
+ *
+ * Also these are defined to perform little endian accesses.
+ * To provide the typical device register semantics of fixed endian,
+ * swap the byte order for Big Endian
+ *
+ * http://lkml.kernel.org/r/201603100845.30602.arnd@arndb.de
+ */
+#define readb_relaxed(c)	__raw_readb(c)
+#define readw_relaxed(c) ({ u16 __r = le16_to_cpu((__force __le16) \
+					__raw_readw(c)); __r; })
+#define readl_relaxed(c) ({ u32 __r = le32_to_cpu((__force __le32) \
+					__raw_readl(c)); __r; })
+
+#define writeb_relaxed(v,c)	__raw_writeb(v,c)
+#define writew_relaxed(v,c)	__raw_writew((__force u16) cpu_to_le16(v),c)
+#define writel_relaxed(v,c)	__raw_writel((__force u32) cpu_to_le32(v),c)
 
 #define out_arch(type, endian, a, v)	__raw_write##type(cpu_to_##endian(v), a)
 #define in_arch(type, endian, a)	endian##_to_cpu(__raw_read##type(a))
