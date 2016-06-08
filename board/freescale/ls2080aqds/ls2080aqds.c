@@ -208,6 +208,15 @@ int board_init(void)
 	else
 		config_board_mux(MUX_TYPE_SDHC);
 
+#if defined(CONFIG_NAND) && defined(CONFIG_FSL_QSPI)
+	val = in_le32(dcfg_ccsr + DCFG_RCWSR15 / 4);
+
+	if (DCFG_RCWSR15_IFCGRPABASE_QSPI == (val & (u32)0x3))
+		QIXIS_WRITE(brdcfg[9],
+			    (QIXIS_READ(brdcfg[9]) & 0xf8) |
+			     FSL_QIXIS_BRDCFG9_QSPI);
+#endif
+
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
