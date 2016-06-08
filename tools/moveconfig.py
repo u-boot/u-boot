@@ -633,13 +633,10 @@ class Slot:
         """
         if self.state != STATE_IDLE:
             return False
-        cmd = list(self.make_cmd)
-        cmd.append(defconfig)
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE)
+
         self.defconfig = defconfig
-        self.state = STATE_DEFCONFIG
         self.log = ''
+        self.do_defconfig()
         return True
 
     def poll(self):
@@ -665,55 +662,46 @@ class Slot:
             return False
 
         if self.ps.poll() != 0:
-            self.log += color_text(self.options.color, COLOR_LIGHT_RED,
-                                   "Failed to process.\n")
-            if self.options.verbose:
-                self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
-                                       self.ps.stderr.read())
-            self.finish(False)
-            return True
+            self.handle_error()
+        elif self.state == STATE_DEFCONFIG:
+            self.do_autoconf()
+        elif self.state == STATE_AUTOCONF:
+            self.do_savedefconfig()
+        elif self.state == STATE_SAVEDEFCONFIG:
+            self.update_defconfig()
+        else:
+            sys.exit("Internal Error. This should not happen.")
 
-        if self.state == STATE_AUTOCONF:
-            (updated, log) = self.parser.update_dotconfig()
-            self.log += log
+        return True if self.state == STATE_IDLE else False
 
-            if not self.options.force_sync and not updated:
-                self.finish(True)
-                return True
-            if updated:
-                self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
-                                       "Syncing by savedefconfig...\n")
-            else:
-                self.log += "Syncing by savedefconfig (forced by option)...\n"
+    def handle_error(self):
+        """Handle error cases."""
 
-            cmd = list(self.make_cmd)
-            cmd.append('savedefconfig')
-            self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                       stderr=subprocess.PIPE)
-            self.state = STATE_SAVEDEFCONFIG
-            return False
+        self.log += color_text(self.options.color, COLOR_LIGHT_RED,
+                               "Failed to process.\n")
+        if self.options.verbose:
+            self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
+                                   self.ps.stderr.read())
+        self.finish(False)
 
-        if self.state == STATE_SAVEDEFCONFIG:
-            self.log += self.parser.check_defconfig()
-            orig_defconfig = os.path.join('configs', self.defconfig)
-            new_defconfig = os.path.join(self.build_dir, 'defconfig')
-            updated = not filecmp.cmp(orig_defconfig, new_defconfig)
+    def do_defconfig(self):
+        """Run 'make <board>_defconfig' to create the .config file."""
 
-            if updated:
-                self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
-                                       "defconfig was updated.\n")
+        cmd = list(self.make_cmd)
+        cmd.append(self.defconfig)
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+                                   stderr=subprocess.PIPE)
+        self.state = STATE_DEFCONFIG
 
-            if not self.options.dry_run and updated:
-                shutil.move(new_defconfig, orig_defconfig)
-            self.finish(True)
-            return True
+    def do_autoconf(self):
+        """Run 'make include/config/auto.conf'."""
 
         self.cross_compile = self.parser.get_cross_compile()
         if self.cross_compile is None:
             self.log += color_text(self.options.color, COLOR_YELLOW,
                                    "Compiler is missing.  Do nothing.\n")
             self.finish(False)
-            return True
+            return
 
         cmd = list(self.make_cmd)
         if self.cross_compile:
@@ -723,7 +711,43 @@ class Slot:
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
                                    stderr=subprocess.PIPE)
         self.state = STATE_AUTOCONF
-        return False
+
+    def do_savedefconfig(self):
+        """Update the .config and run 'make savedefconfig'."""
+
+        (updated, log) = self.parser.update_dotconfig()
+        self.log += log
+
+        if not self.options.force_sync and not updated:
+            self.finish(True)
+            return
+        if updated:
+            self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+                                   "Syncing by savedefconfig...\n")
+        else:
+            self.log += "Syncing by savedefconfig (forced by option)...\n"
+
+        cmd = list(self.make_cmd)
+        cmd.append('savedefconfig')
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+                                   stderr=subprocess.PIPE)
+        self.state = STATE_SAVEDEFCONFIG
+
+    def update_defconfig(self):
+        """Update the input defconfig and go back to the idle state."""
+
+        self.log += self.parser.check_defconfig()
+        orig_defconfig = os.path.join('configs', self.defconfig)
+        new_defconfig = os.path.join(self.build_dir, 'defconfig')
+        updated = not filecmp.cmp(orig_defconfig, new_defconfig)
+
+        if updated:
+            self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+                                   "defconfig was updated.\n")
+
+        if not self.options.dry_run and updated:
+            shutil.move(new_defconfig, orig_defconfig)
+        self.finish(True)
 
     def finish(self, success):
         """Display log along with progress and go to the idle state.
