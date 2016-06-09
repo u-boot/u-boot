@@ -573,6 +573,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 #if !defined(CONFIG_SPL_BUILD)
 #include <asm/arch/spl.h>
+#include <environment.h>
 
 /*
  * Check the SPL header for the "sunxi" variant. If found: parse values
@@ -582,17 +583,29 @@ void get_board_serial(struct tag_serialnr *serialnr)
 static void parse_spl_header(const uint32_t spl_addr)
 {
 	struct boot_file_head *spl = (void *)(ulong)spl_addr;
-	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) == 0) {
-		uint8_t spl_header_version = spl->spl_signature[3];
-		if (spl_header_version == SPL_HEADER_VERSION) {
-			if (spl->fel_script_address)
-				setenv_hex("fel_scriptaddr",
-					   spl->fel_script_address);
-			return;
-		}
+	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) != 0)
+		return; /* signature mismatch, no usable header */
+
+	uint8_t spl_header_version = spl->spl_signature[3];
+	if (spl_header_version != SPL_HEADER_VERSION) {
 		printf("sunxi SPL version mismatch: expected %u, got %u\n",
 		       SPL_HEADER_VERSION, spl_header_version);
+		return;
 	}
+	if (!spl->fel_script_address)
+		return;
+
+	if (spl->fel_uEnv_length != 0) {
+		/*
+		 * data is expected in uEnv.txt compatible format, so "env
+		 * import -t" the string(s) at fel_script_address right away.
+		 */
+		himport_r(&env_htab, (char *)spl->fel_script_address,
+			  spl->fel_uEnv_length, '\n', H_NOCLEAR, 0, 0, NULL);
+		return;
+	}
+	/* otherwise assume .scr format (mkimage-type script) */
+	setenv_hex("fel_scriptaddr", spl->fel_script_address);
 }
 #endif
 
