@@ -168,8 +168,10 @@ int snprintf(char *buf, size_t size, const char *fmt, ...)
 	int ret;
 
 	va_start(va, fmt);
-	ret = sprintf(buf, fmt, va);
+	outstr = buf;
+	ret = _vprintf(fmt, va, putc_outstr);
 	va_end(va);
+	*outstr = '\0';
 
 	return ret;
 }
