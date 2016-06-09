@@ -61,7 +61,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
