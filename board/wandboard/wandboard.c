@@ -345,6 +345,12 @@ int board_early_init_f(void)
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_display();
 #endif
+#ifdef CONFIG_CMD_SATA
+	/* Only mx6q wandboard has SATA */
+	if (is_cpu_type(MXC_CPU_MX6Q))
+		setup_sata();
+#endif
+
 	return 0;
 }
 
