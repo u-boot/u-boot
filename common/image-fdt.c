@@ -460,6 +460,9 @@ __weak int ft_verify_fdt(void *fdt)
 
 __weak int arch_fixup_fdt(void *blob)
 {
+#ifdef CONFIG_DISABLE_ARCH_FIXUP_FDT
+	printf("## Disable arch_fixup_fdt()\n");
+#endif
 	return 0;
 }
 
