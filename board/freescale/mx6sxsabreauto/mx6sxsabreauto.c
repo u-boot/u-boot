@@ -106,7 +106,7 @@ static int port_exp_direction_output(unsigned gpio, int value)
 
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_SIZE;
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
