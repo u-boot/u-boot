@@ -26,6 +26,6 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
-source "board/hardkernel/odroid-c2/Kconfig"
+source "board/amlogic/odroid-c2/Kconfig"
 
 endif
