@@ -742,7 +742,7 @@ class Slot:
         updated = not filecmp.cmp(orig_defconfig, new_defconfig)
 
         if updated:
-            self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+            self.log += color_text(self.options.color, COLOR_LIGHT_BLUE,
                                    "defconfig was updated.\n")
 
         if not self.options.dry_run and updated:
