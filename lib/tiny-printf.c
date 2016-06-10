@@ -130,6 +130,11 @@ abort:
 	return 0;
 }
 
+int vprintf(const char *fmt, va_list va)
+{
+	return _vprintf(fmt, va, putc);
+}
+
 int printf(const char *fmt, ...)
 {
 	va_list va;
