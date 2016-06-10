@@ -608,7 +608,7 @@ class Slot:
 
         This function makes sure the temporary directory is cleaned away
         even if Python suddenly dies due to error.  It should be done in here
-        because it is guranteed the destructor is always invoked when the
+        because it is guaranteed the destructor is always invoked when the
         instance of the class gets unreferenced.
 
         If the subprocess is still running, wait until it finishes.
