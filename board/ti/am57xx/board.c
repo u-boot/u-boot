@@ -744,6 +744,8 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	else if (board_is_am572x_evm() && !strcmp(name, "am57xx-beagle-x15"))
 		return 0;
+	else if (board_is_am572x_idk() && !strcmp(name, "am572x-idk"))
+		return 0;
 	else
 		return -1;
 }
