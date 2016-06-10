@@ -143,6 +143,14 @@ Available options
    Specify the number of threads to run simultaneously.  If not specified,
    the number of threads is the same as the number of CPU cores.
 
+ -r, --git-ref
+   Specify the git ref to clone for building the autoconf.mk. If unspecified
+   use the CWD. This is useful for when changes to the Kconfig affect the
+   default values and you want to capture the state of the defconfig from
+   before that change was in effect. If in doubt, specify a ref pre-Kconfig
+   changes (use HEAD if Kconfig changes are not committed). Worst case it will
+   take a bit longer to run, but will always do the right thing.
+
  -v, --verbose
    Show any build errors as boards are built
 
@@ -584,7 +592,7 @@ class Slot:
     for faster processing.
     """
 
-    def __init__(self, configs, options, progress, devnull, make_cmd):
+    def __init__(self, configs, options, progress, devnull, make_cmd, reference_src_dir):
         """Create a new process slot.
 
         Arguments:
@@ -593,12 +601,15 @@ class Slot:
           progress: A progress indicator.
           devnull: A file object of '/dev/null'.
           make_cmd: command name of GNU Make.
+          reference_src_dir: Determine the true starting config state from this
+                             source tree.
         """
         self.options = options
         self.progress = progress
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
+        self.reference_src_dir = reference_src_dir
         self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = []
@@ -636,6 +647,7 @@ class Slot:
 
         self.defconfig = defconfig
         self.log = ''
+        self.use_git_ref = True if self.options.git_ref else False
         self.do_defconfig()
         return True
 
@@ -664,9 +676,16 @@ class Slot:
         if self.ps.poll() != 0:
             self.handle_error()
         elif self.state == STATE_DEFCONFIG:
-            self.do_autoconf()
+            if self.options.git_ref and not self.use_git_ref:
+                self.do_savedefconfig()
+            else:
+                self.do_autoconf()
         elif self.state == STATE_AUTOCONF:
-            self.do_savedefconfig()
+            if self.use_git_ref:
+                self.use_git_ref = False
+                self.do_defconfig()
+            else:
+                self.do_savedefconfig()
         elif self.state == STATE_SAVEDEFCONFIG:
             self.update_defconfig()
         else:
@@ -689,6 +708,9 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append(self.defconfig)
+        if self.use_git_ref:
+            cmd.append('-C')
+            cmd.append(self.reference_src_dir)
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
                                    stderr=subprocess.PIPE)
         self.state = STATE_DEFCONFIG
@@ -708,6 +730,9 @@ class Slot:
             cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append('include/config/auto.conf')
+        if self.use_git_ref:
+            cmd.append('-C')
+            cmd.append(self.reference_src_dir)
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
                                    stderr=subprocess.PIPE)
         self.state = STATE_AUTOCONF
@@ -784,13 +809,15 @@ class Slots:
 
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, configs, options, progress):
+    def __init__(self, configs, options, progress, reference_src_dir):
         """Create a new slots controller.
 
         Arguments:
           configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator.
+          reference_src_dir: Determine the true starting config state from this
+                             source tree.
         """
         self.options = options
         self.slots = []
@@ -798,7 +825,7 @@ class Slots:
         make_cmd = get_make_cmd()
         for i in range(options.jobs):
             self.slots.append(Slot(configs, options, progress, devnull,
-                                   make_cmd))
+                                   make_cmd, reference_src_dir))
 
     def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
@@ -855,6 +882,24 @@ class Slots:
                 for board in failed_boards:
                     f.write(board + '\n')
 
+class WorkDir:
+    def __init__(self):
+        """Create a new working directory."""
+        self.work_dir = tempfile.mkdtemp()
+
+    def __del__(self):
+        """Delete the working directory
+
+        This function makes sure the temporary directory is cleaned away
+        even if Python suddenly dies due to error.  It should be done in here
+        because it is guaranteed the destructor is always invoked when the
+        instance of the class gets unreferenced.
+        """
+        shutil.rmtree(self.work_dir)
+
+    def get(self):
+        return self.work_dir
+
 def move_config(configs, options):
     """Move config options to defconfig files.
 
@@ -870,6 +915,21 @@ def move_config(configs, options):
     else:
         print 'Move ' + ', '.join(configs),
     print '(jobs: %d)\n' % options.jobs
+
+    reference_src_dir = ''
+
+    if options.git_ref:
+        work_dir = WorkDir()
+        reference_src_dir = work_dir.get()
+        print "Cloning git repo to a separate work directory..."
+        subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
+                                cwd=reference_src_dir)
+        print "Checkout '%s' to build the original autoconf.mk." % \
+            subprocess.check_output(['git', 'rev-parse', '--short',
+                                    options.git_ref]).strip()
+        subprocess.check_output(['git', 'checkout', options.git_ref],
+                                stderr=subprocess.STDOUT,
+                                cwd=reference_src_dir)
 
     if options.defconfigs:
         defconfigs = [line.strip() for line in open(options.defconfigs)]
@@ -888,7 +948,7 @@ def move_config(configs, options):
                 defconfigs.append(os.path.join(dirpath, filename))
 
     progress = Progress(len(defconfigs))
-    slots = Slots(configs, options, progress)
+    slots = Slots(configs, options, progress, reference_src_dir)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
@@ -930,6 +990,8 @@ def main():
                       help='only cleanup the headers')
     parser.add_option('-j', '--jobs', type='int', default=cpu_count,
                       help='the number of jobs to run simultaneously')
+    parser.add_option('-r', '--git-ref', type='string',
+                      help='the git ref to clone for building the autoconf.mk')
     parser.add_option('-v', '--verbose', action='store_true', default=False,
                       help='show any build errors as boards are built')
     parser.usage += ' CONFIG ...'
