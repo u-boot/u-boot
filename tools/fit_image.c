@@ -416,7 +416,13 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 			ret = -EPERM;
 			goto err_munmap;
 		}
-		fdt_setprop_u32(fdt, node, "data-offset", buf_ptr);
+		if (params->external_offset > 0) {
+			/* An external offset positions the data absolutely. */
+			fdt_setprop_u32(fdt, node, "data-position",
+					params->external_offset + buf_ptr);
+		} else {
+			fdt_setprop_u32(fdt, node, "data-offset", buf_ptr);
+		}
 		fdt_setprop_u32(fdt, node, "data-size", len);
 
 		buf_ptr += (len + 3) & ~3;
@@ -436,6 +442,17 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		      strerror(errno));
 		ret = -EIO;
 		goto err;
+	}
+
+	/* Check if an offset for the external data was set. */
+	if (params->external_offset > 0) {
+		if (params->external_offset < new_size) {
+			debug("External offset %x overlaps FIT length %x",
+			      params->external_offset, new_size);
+			ret = -EINVAL;
+			goto err;
+		}
+		new_size = params->external_offset;
 	}
 	if (lseek(fd, new_size, SEEK_SET) < 0) {
 		debug("%s: Failed to seek to end of file: %s\n", __func__,

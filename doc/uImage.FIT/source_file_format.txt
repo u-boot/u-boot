@@ -282,6 +282,9 @@ In this case the 'data' property is omitted. Instead you can use:
     aligned to a 4-byte boundary.
   - data-size : size of the data in bytes
 
+The 'data-offset' property can be substituted with 'data-position', which
+defines an absolute position or address as the offset. This is helpful when
+booting U-Boot proper before performing relocation.
 
 9) Examples
 -----------

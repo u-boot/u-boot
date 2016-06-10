@@ -74,6 +74,7 @@ struct image_tool_params {
 	struct content_info *content_tail;
 	bool external_data;	/* Store data outside the FIT */
 	bool quiet;		/* Don't output text in normal operation */
+	unsigned int external_offset;	/* Add padding to external data */
 };
 
 /*

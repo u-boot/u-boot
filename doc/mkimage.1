@@ -152,6 +152,12 @@ verification. Typically the file here is the device tree binary used by
 CONFIG_OF_CONTROL in U-Boot.
 
 .TP
+.BI "\-p [" "external position" "]"
+Place external data at a static external position. See \-E. Instead of writing
+a 'data-offset' property defining the offset from the end of the FIT, \-p will
+use 'data-position' as the absolute position from the base of the FIT.
+
+.TP
 .BI "\-r
 Specifies that keys used to sign the FIT are required. This means that they
 must be verified for the image to boot. Without this option, the verification
