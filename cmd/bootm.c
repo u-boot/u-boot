@@ -275,6 +275,12 @@ static int image_info(ulong addr)
 		puts("OK\n");
 		return 0;
 #endif
+#if defined(CONFIG_ANDROID_BOOT_IMAGE)
+	case IMAGE_FORMAT_ANDROID:
+		puts("   Android image found\n");
+		android_print_contents(hdr);
+		return 0;
+#endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		puts("   FIT image found\n");
