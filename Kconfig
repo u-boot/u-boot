@@ -183,6 +183,11 @@ config FIT
 	  verified boot (secure boot using RSA). This option enables that
 	  feature.
 
+config SPL_FIT
+	bool "Support Flattened Image Tree within SPL"
+	depends on FIT
+	depends on SPL
+
 config FIT_VERBOSE
 	bool "Display verbose messages on FIT boot"
 	depends on FIT
@@ -204,6 +209,12 @@ config FIT_SIGNATURE
 	  unsigned images cannot be loaded. If a board needs the legacy image
 	  format support in this case, enable it using
 	  CONFIG_IMAGE_FORMAT_LEGACY.
+
+config SPL_FIT_SIGNATURE
+	bool "Enable signature verification of FIT firmware within SPL"
+	depends on SPL_FIT
+	depends on SPL_DM
+	select SPL_RSA
 
 config FIT_BEST_MATCH
 	bool "Select the best match for the kernel device tree"

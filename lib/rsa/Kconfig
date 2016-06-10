@@ -13,6 +13,10 @@ config RSA
 	  option. The software based modular exponentiation is built into
 	  mkimage irrespective of this option.
 
+config SPL_RSA
+	bool "Use RSA Library within SPL"
+	depends on RSA
+
 if RSA
 config RSA_SOFTWARE_EXP
 	bool "Enable driver for RSA Modular Exponentiation in software"
