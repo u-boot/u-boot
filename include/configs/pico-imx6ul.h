@@ -17,6 +17,16 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+/* Network support */
+
+#define CONFIG_FEC_MXC
+#define CONFIG_MII
+#define IMX_FEC_BASE			ENET2_BASE_ADDR
+#define CONFIG_FEC_MXC_PHYADDR		0x1
+#define CONFIG_FEC_XCV_TYPE		RMII
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MICREL
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
 
