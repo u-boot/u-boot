@@ -637,6 +637,7 @@ config ARCH_SUNXI
 	select USB
 	select USB_STORAGE
 	select USB_KEYBOARD
+	select USE_TINY_PRINTF
 
 config TARGET_TS4800
 	bool "Support TS4800"
