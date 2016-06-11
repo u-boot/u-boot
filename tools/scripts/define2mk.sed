@@ -22,6 +22,8 @@
 	s/=\(..*\)/="\1"/;
 	# but remove again from decimal numbers
 	s/="\([0-9][0-9]*\)"/=\1/;
+	# ... and from negative decimal numbers
+	s/="\(-[1-9][0-9]*\)"/=\1/;
 	# ... and from hex numbers
 	s/="\(0[Xx][0-9a-fA-F][0-9a-fA-F]*\)"/=\1/;
 	# ... and from configs defined from other configs
