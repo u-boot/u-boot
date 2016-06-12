@@ -54,6 +54,7 @@ F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
+F:	configs/inet86dz_defconfig
 F:	configs/orangepi_2_defconfig
 F:	configs/orangepi_one_defconfig
 F:	configs/orangepi_pc_defconfig
