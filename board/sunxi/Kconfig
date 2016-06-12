@@ -18,6 +18,7 @@ config SUNXI_GEN_SUN6I
 
 choice
 	prompt "Sunxi SoC Variant"
+	optional
 
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
