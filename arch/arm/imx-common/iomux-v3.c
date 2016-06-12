@@ -83,7 +83,7 @@ void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 
 #if defined(CONFIG_MX6QDL)
 	stride = 2;
-	if (!is_cpu_type(MXC_CPU_MX6Q) && !is_cpu_type(MXC_CPU_MX6D))
+	if (!is_mx6dq())
 		p += 1;
 #else
 	stride = 1;

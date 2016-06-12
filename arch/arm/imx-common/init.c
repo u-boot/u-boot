@@ -44,7 +44,7 @@ void init_aips(void)
 	writel(0x00000000, &aips2->opacr3);
 	writel(0x00000000, &aips2->opacr4);
 
-	if (is_cpu_type(MXC_CPU_MX6SX) || is_soc_type(MXC_SOC_MX7)) {
+	if (is_mx6sx() || is_mx7()) {
 		/*
 		 * Set all MPROTx to be non-bufferable, trusted for R/W,
 		 * not forced to user-mode.
@@ -78,8 +78,7 @@ void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog1->wmcr);
 	writew(enable, &wdog2->wmcr);
 
-	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL) ||
-			is_soc_type(MXC_SOC_MX7))
+	if (is_mx6sx() || is_mx6ul() || is_mx7())
 		writew(enable, &wdog3->wmcr);
 #ifdef CONFIG_MX7D
 	writew(enable, &wdog4->wmcr);

@@ -601,6 +601,8 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
+
+#ifdef CONFIG_VIDEO_IPUV3
 	/* We need at least 200ms between power on and backlight on
 	 * as per specifications from CHI MEI */
 	mdelay(250);
@@ -615,6 +617,7 @@ int board_late_init(void)
 	gpio_direction_output(LVDS_BACKLIGHT_GP, 1);
 
 	pwm_enable(0);
+#endif
 
 	return 0;
 }

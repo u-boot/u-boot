@@ -173,13 +173,8 @@ OS load time which defeats the purpose of Falcon mode in the first place.
 The SPL decides to boot either U-Boot (u-boot.img) or the OS (args + kernel)
 based on the return value of the spl_start_uboot() function. While often
 this can simply be the state of a GPIO based pushbutton or DIP switch, for
-Gateworks Ventana, we use the U-Boot environment 'boot_os' variable which if
-set to '1' will choose to boot the OS rather than U-Boot. While the choice
-of adding env support to the SPL adds a little bit of time to the boot
-process as well as (significant really) SPL code space this was deemed most
-flexible as within the large variety of Gateworks Ventana boards not all of
-them have a user pushbutton and that pushbutton may be configured as a hard
-reset per user configuration.
+Gateworks Ventana, we use an EEPROM register on i2c-0 at 0x50:0x00:
+set to '0' will choose to boot to U-Boot and otherwise it will boot to OS.
 
 To use Falcon mode it is required that you first 'prepare' the 'args' data
 that is stored on your boot medium along with the kernel (which can be any
@@ -235,8 +230,8 @@ using rootfs (ubi), kernel (uImage), and dtb from the network:
  # flash args (at 17MB)
  Ventana > nand erase.part args && nand write 18000000 args 100000
 
- # set boot_os env var to enable booting to Linux
- Ventana > setenv boot_os 1 && saveenv
+ # set i2c register 0x50:0x00=0 to boot to Linux
+ Ventana > i2c dev 0 && i2c mw 0x50 0x00.0 0 1
 
 Be sure to adjust 'bootargs' above to your OS needs (this will be different
 for various distros such as OpenWrt, Yocto, Android, etc). You can use the
@@ -309,8 +304,8 @@ out in U-Boot and use the following to enable Falcon mode:
  # write args 1MB data (0x800 sectors) to 1MB offset (0x800 sectors)
  Ventana > mmc write 18000000 0x800 0x800
 
- # set boot_os to enable falcon mode
- Ventana > setenv boot_os 1 && saveenv
+ # set i2c register 0x50:0x00=0 to boot to Linux
+ Ventana > i2c dev 0 && i2c mw 0x50 0x00.0 0 1
 
 Be sure to adjust 'bootargs' above to your OS needs (this will be different
 for various distros such as OpenWrt, Yocto, Android, etc). You can use the

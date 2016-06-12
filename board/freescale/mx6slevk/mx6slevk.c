@@ -230,14 +230,14 @@ int board_mmc_init(bd_t *bis)
 			printf("Warning: you configured more USDHC controllers"
 				"(%d) than supported by the board\n", i + 1);
 			return -EINVAL;
-			}
+		}
 
-			ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-			if (ret) {
-				printf("Warning: failed to initialize "
-					"mmc dev %d\n", i);
-				return ret;
-			}
+		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
+		if (ret) {
+			printf("Warning: failed to initialize "
+				"mmc dev %d\n", i);
+			return ret;
+		}
 	}
 
 	return 0;
