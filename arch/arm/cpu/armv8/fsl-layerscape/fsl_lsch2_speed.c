@@ -11,6 +11,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/soc.h>
 #include <fsl_ifc.h>
+#include "cpu.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,7 +48,7 @@ void get_sys_info(struct sys_info *sys_info)
 		[5] = 2,	/* CC2 PPL / 2 */
 	};
 
-	uint i;
+	uint i, cluster;
 	uint freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
@@ -80,8 +81,9 @@ void get_sys_info(struct sys_info *sys_info)
 			freq_c_pll[i] = sys_info->freq_systembus * ratio[i];
 	}
 
-	for (cpu = 0; cpu < CONFIG_MAX_CPUS; cpu++) {
-		u32 c_pll_sel = (in_be32(&clk->clkcsr[cpu].clkcncsr) >> 27)
+	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
+		cluster = fsl_qoriq_core_to_cluster(cpu);
+		u32 c_pll_sel = (in_be32(&clk->clkcsr[cluster].clkcncsr) >> 27)
 				& 0xf;
 		u32 cplx_pll = core_cplx_pll[c_pll_sel];
 
