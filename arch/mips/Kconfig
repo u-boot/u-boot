@@ -253,7 +253,7 @@ config SYS_DCACHE_SIZE
 	  The total size of the L1 Dcache, if known at compile time.
 
 config SYS_DCACHE_LINE_SIZE
-	hex
+	int
 	default 0
 	help
 	  The size of L1 Dcache lines, if known at compile time.

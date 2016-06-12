@@ -91,5 +91,5 @@ void invalidate_dcache_range(ulong start_addr, ulong stop)
 	if (start_addr == stop)
 		return;
 
-	cache_loop(start_addr, stop, lsize, HIT_INVALIDATE_I);
+	cache_loop(start_addr, stop, lsize, HIT_INVALIDATE_D);
 }
