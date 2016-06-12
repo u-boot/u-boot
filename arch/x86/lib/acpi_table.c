@@ -183,20 +183,20 @@ static int acpi_create_madt_lapic(struct acpi_madt_lapic *lapic,
 int acpi_create_madt_lapics(u32 current)
 {
 	struct udevice *dev;
-	int length = 0;
+	int total_length = 0;
 
 	for (uclass_find_first_device(UCLASS_CPU, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
 		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
-
-		length += acpi_create_madt_lapic(
-			(struct acpi_madt_lapic *)current,
-			plat->cpu_id, plat->cpu_id);
+		int length = acpi_create_madt_lapic(
+				(struct acpi_madt_lapic *)current,
+				plat->cpu_id, plat->cpu_id);
 		current += length;
+		total_length += length;
 	}
 
-	return length;
+	return total_length;
 }
 
 int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id,
