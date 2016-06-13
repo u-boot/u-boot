@@ -87,9 +87,7 @@ static int msm_sdc_clk_init(struct udevice *dev)
 static int msm_sdc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-#ifdef CONFIG_BLK
 	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
-#endif
 	struct msm_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
 	u32 core_version, core_minor, core_major;
@@ -145,26 +143,17 @@ static int msm_sdc_probe(struct udevice *dev)
 	/* Set host controller version */
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
-#ifdef CONFIG_BLK
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 	ret = sdhci_setup_cfg(&plat->cfg, dev->name, host->bus_width,
 			      caps, 0, 0, host->version, host->quirks, 0);
 	host->mmc = &plat->mmc;
-#else
-	/* automatically detect max and min speed */
-	ret = add_sdhci(host, 0, 0);
-#endif
 	if (ret)
 		return ret;
 	host->mmc->priv = &prv->host;
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
-#ifdef CONFIG_DM_MMC_OPS
 	return sdhci_probe(dev);
-#else
-	return 0;
-#endif
 }
 
 static int msm_sdc_remove(struct udevice *dev)
@@ -201,14 +190,12 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 
 static int msm_sdc_bind(struct udevice *dev)
 {
-#ifdef CONFIG_BLK
 	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
 	int ret;
 
 	ret = sdhci_bind(dev, &plat->mmc, &plat->cfg);
 	if (ret)
 		return ret;
-#endif
 
 	return 0;
 }
@@ -223,9 +210,7 @@ U_BOOT_DRIVER(msm_sdc_drv) = {
 	.id		= UCLASS_MMC,
 	.of_match	= msm_mmc_ids,
 	.ofdata_to_platdata = msm_ofdata_to_platdata,
-#ifdef CONFIG_DM_MMC_OPS
 	.ops		= &sdhci_ops,
-#endif
 	.bind		= msm_sdc_bind,
 	.probe		= msm_sdc_probe,
 	.remove		= msm_sdc_remove,

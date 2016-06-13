@@ -27,7 +27,7 @@ config DM_MMC_OPS
 
 config MSM_SDHCI
 	bool "Qualcomm SDHCI controller"
-	depends on DM_MMC
+	depends on DM_MMC && BLK && DM_MMC_OPS
 	help
 	  Enables support for SDHCI 2.0 controller present on some Qualcomm
           Snapdragon devices. This device is compatible with eMMC v4.5 and
