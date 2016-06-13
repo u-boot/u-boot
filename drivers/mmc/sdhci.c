@@ -130,9 +130,17 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #define CONFIG_SDHCI_CMD_DEFAULT_TIMEOUT	100
 #define SDHCI_READ_STATUS_TIMEOUT		1000
 
-static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
-		       struct mmc_data *data)
+#ifdef CONFIG_DM_MMC_OPS
+static int sdhci_send_command(struct udevice *dev, struct mmc_cmd *cmd,
+			      struct mmc_data *data)
 {
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+
+#else
+static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
+			      struct mmc_data *data)
+{
+#endif
 	struct sdhci_host *host = mmc->priv;
 	unsigned int stat = 0;
 	int ret = 0;
@@ -390,8 +398,14 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 	sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
 }
 
+#ifdef CONFIG_DM_MMC_OPS
+static int sdhci_set_ios(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+#else
 static void sdhci_set_ios(struct mmc *mmc)
 {
+#endif
 	u32 ctrl;
 	struct sdhci_host *host = mmc->priv;
 
@@ -427,6 +441,9 @@ static void sdhci_set_ios(struct mmc *mmc)
 		ctrl &= ~SDHCI_CTRL_HISPD;
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
+#ifdef CONFIG_DM_MMC_OPS
+	return 0;
+#endif
 }
 
 static int sdhci_init(struct mmc *mmc)
@@ -473,12 +490,25 @@ static int sdhci_init(struct mmc *mmc)
 	return 0;
 }
 
+#ifdef CONFIG_DM_MMC_OPS
+int sdhci_probe(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
 
+	return sdhci_init(mmc);
+}
+
+const struct dm_mmc_ops sdhci_ops = {
+	.send_cmd	= sdhci_send_command,
+	.set_ios	= sdhci_set_ios,
+};
+#else
 static const struct mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
 	.init		= sdhci_init,
 };
+#endif
 
 int sdhci_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 		    uint caps, u32 max_clk, u32 min_clk, uint version,
@@ -529,11 +559,18 @@ int sdhci_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 	if (host_caps)
 		cfg->host_caps |= host_caps;
 
+
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	return 0;
 }
 
+#ifdef CONFIG_BLK
+int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
+{
+	return mmc_bind(dev, mmc, cfg);
+}
+#else
 int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 {
 	unsigned int caps;
@@ -568,3 +605,4 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 
 	return 0;
 }
+#endif
