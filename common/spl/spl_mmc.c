@@ -184,7 +184,7 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 	unsigned long count;
 	int ret;
 
-	count = mmc->block_dev.block_read(&mmc->block_dev,
+	count = blk_dread(mmc_get_blk_desc(mmc),
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS,
 		(void *) CONFIG_SYS_SPL_ARGS_ADDR);
@@ -225,13 +225,13 @@ int spl_mmc_do_fs_boot(struct mmc *mmc)
 
 #ifdef CONFIG_SPL_FAT_SUPPORT
 	if (!spl_start_uboot()) {
-		err = spl_load_image_fat_os(&mmc->block_dev,
+		err = spl_load_image_fat_os(mmc_get_blk_desc(mmc),
 			CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
 		if (!err)
 			return err;
 	}
 #ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-	err = spl_load_image_fat(&mmc->block_dev,
+	err = spl_load_image_fat(mmc_get_blk_desc(mmc),
 				 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
 				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 	if (!err)
