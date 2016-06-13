@@ -230,6 +230,10 @@ int board_early_init_f(void)
 #ifdef CONFIG_LPUART
 	u8 uart;
 #endif
+
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+	i2c_early_init_f();
+#endif
 	fsl_lsch2_early_init_f();
 
 #ifdef CONFIG_HAS_FSL_XHCI_USB
