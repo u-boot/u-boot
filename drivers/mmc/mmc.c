@@ -215,11 +215,10 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 }
 
 #ifdef CONFIG_BLK
-static ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
-		       void *dst)
+ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *dst)
 #else
-static ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start,
-		       lbaint_t blkcnt, void *dst)
+ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
+		void *dst)
 #endif
 {
 #ifdef CONFIG_BLK
@@ -566,7 +565,7 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	return 0;
 }
 
-static int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
+int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
 	int ret;
 
