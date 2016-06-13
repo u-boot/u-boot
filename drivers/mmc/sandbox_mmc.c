@@ -25,7 +25,7 @@ struct sandbox_mmc_plat {
  * This emulate an SD card version 2. Single-block reads result in zero data.
  * Multiple-block reads return a test string.
  */
-static int sandbox_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int sandbox_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				struct mmc_data *data)
 {
 	switch (cmd->cmdidx) {
@@ -85,25 +85,20 @@ static int sandbox_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-static void sandbox_mmc_set_ios(struct mmc *mmc)
-{
-}
-
-static int sandbox_mmc_init(struct mmc *mmc)
+static int sandbox_mmc_set_ios(struct udevice *dev)
 {
 	return 0;
 }
 
-static int sandbox_mmc_getcd(struct mmc *mmc)
+static int sandbox_mmc_get_cd(struct udevice *dev)
 {
 	return 1;
 }
 
-static const struct mmc_ops sandbox_mmc_ops = {
+static const struct dm_mmc_ops sandbox_mmc_ops = {
 	.send_cmd = sandbox_mmc_send_cmd,
 	.set_ios = sandbox_mmc_set_ios,
-	.init = sandbox_mmc_init,
-	.getcd = sandbox_mmc_getcd,
+	.get_cd = sandbox_mmc_get_cd,
 };
 
 int sandbox_mmc_probe(struct udevice *dev)
@@ -120,7 +115,6 @@ int sandbox_mmc_bind(struct udevice *dev)
 	int ret;
 
 	cfg->name = dev->name;
-	cfg->ops = &sandbox_mmc_ops;
 	cfg->host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_8BIT;
 	cfg->voltages = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->f_min = 1000000;
@@ -150,6 +144,7 @@ U_BOOT_DRIVER(mmc_sandbox) = {
 	.name		= "mmc_sandbox",
 	.id		= UCLASS_MMC,
 	.of_match	= sandbox_mmc_ids,
+	.ops		= &sandbox_mmc_ops,
 	.bind		= sandbox_mmc_bind,
 	.unbind		= sandbox_mmc_unbind,
 	.probe		= sandbox_mmc_probe,
