@@ -17,33 +17,6 @@ config ROCKCHIP_RK3036
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
 
-config SYS_MALLOC_F
-	default y
-
-config SPL_SYS_MALLOC_SIMPLE
-	default y
-
-config SPL_DM
-	default y
-
-config DM_SERIAL
-	default y
-
-config DM_SPI
-	default y
-
-config DM_SPI_FLASH
-	default y
-
-config DM_I2C
-	default y
-
-config DM_GPIO
-	default y
-
-config BLK
-	default y
-
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 endif

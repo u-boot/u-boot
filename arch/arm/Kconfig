@@ -842,7 +842,17 @@ config ARCH_ROCKCHIP
 	select SPL
 	select OF_CONTROL
 	select CPU_V7
+	select BLK
 	select DM
+	select SPL_DM
+	select SYS_MALLOC_F
+	select SPL_SYS_MALLOC_SIMPLE
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_SERIAL
+	select DM_SPI
+	select DM_SPI_FLASH
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
