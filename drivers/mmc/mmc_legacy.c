@@ -6,7 +6,9 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <mmc.h>
+#include "mmc_private.h"
 
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
@@ -106,3 +108,92 @@ void print_mmc_devices(char separator)
 #else
 void print_mmc_devices(char separator) { }
 #endif
+
+struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
+{
+	struct blk_desc *bdesc;
+	struct mmc *mmc;
+
+	/* quick validation */
+	if (cfg == NULL || cfg->ops == NULL || cfg->ops->send_cmd == NULL ||
+	    cfg->f_min == 0 || cfg->f_max == 0 || cfg->b_max == 0)
+		return NULL;
+
+	mmc = calloc(1, sizeof(*mmc));
+	if (mmc == NULL)
+		return NULL;
+
+	mmc->cfg = cfg;
+	mmc->priv = priv;
+
+	/* the following chunk was mmc_register() */
+
+	/* Setup dsr related values */
+	mmc->dsr_imp = 0;
+	mmc->dsr = 0xffffffff;
+	/* Setup the universal parts of the block interface just once */
+	bdesc = mmc_get_blk_desc(mmc);
+	bdesc->if_type = IF_TYPE_MMC;
+	bdesc->removable = 1;
+	bdesc->devnum = mmc_get_next_devnum();
+	bdesc->block_read = mmc_bread;
+	bdesc->block_write = mmc_bwrite;
+	bdesc->block_erase = mmc_berase;
+
+	/* setup initial part type */
+	bdesc->part_type = mmc->cfg->part_type;
+	mmc_list_add(mmc);
+
+	return mmc;
+}
+
+void mmc_destroy(struct mmc *mmc)
+{
+	/* only freeing memory for now */
+	free(mmc);
+}
+
+static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
+{
+	struct mmc *mmc = find_mmc_device(desc->devnum);
+	int ret;
+
+	if (!mmc)
+		return -ENODEV;
+
+	if (mmc->block_dev.hwpart == hwpart)
+		return 0;
+
+	if (mmc->part_config == MMCPART_NOAVAILABLE)
+		return -EMEDIUMTYPE;
+
+	ret = mmc_switch_part(mmc, hwpart);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int mmc_get_dev(int dev, struct blk_desc **descp)
+{
+	struct mmc *mmc = find_mmc_device(dev);
+	int ret;
+
+	if (!mmc)
+		return -ENODEV;
+	ret = mmc_init(mmc);
+	if (ret)
+		return ret;
+
+	*descp = &mmc->block_dev;
+
+	return 0;
+}
+
+U_BOOT_LEGACY_BLK(mmc) = {
+	.if_typename	= "mmc",
+	.if_type	= IF_TYPE_MMC,
+	.max_devs	= -1,
+	.get_dev	= mmc_get_dev,
+	.select_hwpart	= mmc_select_hwpartp,
+};

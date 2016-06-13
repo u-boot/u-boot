@@ -585,29 +585,6 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 	return ret;
 }
 
-#ifndef CONFIG_BLK
-static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
-{
-	struct mmc *mmc = find_mmc_device(desc->devnum);
-	int ret;
-
-	if (!mmc)
-		return -ENODEV;
-
-	if (mmc->block_dev.hwpart == hwpart)
-		return 0;
-
-	if (mmc->part_config == MMCPART_NOAVAILABLE)
-		return -EMEDIUMTYPE;
-
-	ret = mmc_switch_part(mmc, hwpart);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-#endif
-
 int mmc_hwpart_config(struct mmc *mmc,
 		      const struct mmc_hwpart_conf *conf,
 		      enum mmc_hwpart_conf_mode mode)
@@ -1511,68 +1488,6 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
-#ifndef CONFIG_BLK
-struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
-{
-	struct blk_desc *bdesc;
-	struct mmc *mmc;
-
-	/* quick validation */
-	if (cfg == NULL || cfg->ops == NULL || cfg->ops->send_cmd == NULL ||
-			cfg->f_min == 0 || cfg->f_max == 0 || cfg->b_max == 0)
-		return NULL;
-
-	mmc = calloc(1, sizeof(*mmc));
-	if (mmc == NULL)
-		return NULL;
-
-	mmc->cfg = cfg;
-	mmc->priv = priv;
-
-	/* the following chunk was mmc_register() */
-
-	/* Setup dsr related values */
-	mmc->dsr_imp = 0;
-	mmc->dsr = 0xffffffff;
-	/* Setup the universal parts of the block interface just once */
-	bdesc = mmc_get_blk_desc(mmc);
-	bdesc->if_type = IF_TYPE_MMC;
-	bdesc->removable = 1;
-	bdesc->devnum = mmc_get_next_devnum();
-	bdesc->block_read = mmc_bread;
-	bdesc->block_write = mmc_bwrite;
-	bdesc->block_erase = mmc_berase;
-
-	/* setup initial part type */
-	bdesc->part_type = mmc->cfg->part_type;
-	mmc_list_add(mmc);
-
-	return mmc;
-}
-
-void mmc_destroy(struct mmc *mmc)
-{
-	/* only freeing memory for now */
-	free(mmc);
-}
-
-static int mmc_get_dev(int dev, struct blk_desc **descp)
-{
-	struct mmc *mmc = find_mmc_device(dev);
-	int ret;
-
-	if (!mmc)
-		return -ENODEV;
-	ret = mmc_init(mmc);
-	if (ret)
-		return ret;
-
-	*descp = &mmc->block_dev;
-
-	return 0;
-}
-#endif
-
 /* board-specific MMC power initializations. */
 __weak void board_mmc_power_init(void)
 {
@@ -1893,14 +1808,4 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
 	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_RST_N_FUNCTION,
 			  enable);
 }
-#endif
-
-#ifndef CONFIG_BLK
-U_BOOT_LEGACY_BLK(mmc) = {
-	.if_typename	= "mmc",
-	.if_type	= IF_TYPE_MMC,
-	.max_devs	= -1,
-	.get_dev	= mmc_get_dev,
-	.select_hwpart	= mmc_select_hwpartp,
-};
 #endif
