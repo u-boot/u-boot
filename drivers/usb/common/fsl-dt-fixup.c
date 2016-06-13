@@ -12,6 +12,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <hwconfig.h>
+#include <fsl_errata.h>
 #include <fsl_usb.h>
 #include <fdt_support.h>
 
