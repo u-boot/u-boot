@@ -47,17 +47,18 @@ __weak int board_mmc_getcd(struct mmc *mmc)
 	return -1;
 }
 
-int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
-{
-	int ret;
-
 #ifdef CONFIG_MMC_TRACE
+void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd)
+{
+	printf("CMD_SEND:%d\n", cmd->cmdidx);
+	printf("\t\tARG\t\t\t 0x%08X\n", cmd->cmdarg);
+}
+
+void mmmc_trace_after_send(struct mmc *mmc, struct mmc_cmd *cmd, int ret)
+{
 	int i;
 	u8 *ptr;
 
-	printf("CMD_SEND:%d\n", cmd->cmdidx);
-	printf("\t\tARG\t\t\t 0x%08X\n", cmd->cmdarg);
-	ret = mmc->cfg->ops->send_cmd(mmc, cmd, data);
 	if (ret) {
 		printf("\t\tRET\t\t\t %d\n", ret);
 	} else {
@@ -103,9 +104,25 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			break;
 		}
 	}
-#else
-	ret = mmc->cfg->ops->send_cmd(mmc, cmd, data);
+}
+
+void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
+{
+	int status;
+
+	status = (cmd->response[0] & MMC_STATUS_CURR_STATE) >> 9;
+	printf("CURR STATE:%d\n", status);
+}
 #endif
+
+int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
+{
+	int ret;
+
+	mmmc_trace_before_send(mmc, cmd);
+	ret = mmc->cfg->ops->send_cmd(mmc, cmd, data);
+	mmmc_trace_after_send(mmc, cmd, ret);
+
 	return ret;
 }
 
@@ -113,9 +130,6 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 {
 	struct mmc_cmd cmd;
 	int err, retries = 5;
-#ifdef CONFIG_MMC_TRACE
-	int status;
-#endif
 
 	cmd.cmdidx = MMC_CMD_SEND_STATUS;
 	cmd.resp_type = MMC_RSP_R1;
@@ -145,10 +159,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 		udelay(1000);
 	}
 
-#ifdef CONFIG_MMC_TRACE
-	status = (cmd.response[0] & MMC_STATUS_CURR_STATE) >> 9;
-	printf("CURR STATE:%d\n", status);
-#endif
+	mmc_trace_state(mmc, &cmd);
 	if (timeout <= 0) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("Timeout waiting card ready\n");

@@ -73,6 +73,25 @@ static inline ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
 
 #endif /* CONFIG_SPL_BUILD */
 
+#ifdef CONFIG_MMC_TRACE
+void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd);
+void mmmc_trace_after_send(struct mmc *mmc, struct mmc_cmd *cmd, int ret);
+void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd);
+#else
+static inline void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd)
+{
+}
+
+static inline void mmmc_trace_after_send(struct mmc *mmc, struct mmc_cmd *cmd,
+					 int ret)
+{
+}
+
+static inline void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
+{
+}
+#endif
+
 /**
  * mmc_get_next_devnum() - Get the next available MMC device number
  *
