@@ -21,6 +21,7 @@
 #include <div64.h>
 #include "mmc_private.h"
 
+#ifndef CONFIG_DM_MMC_OPS
 __weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;
@@ -46,6 +47,7 @@ __weak int board_mmc_getcd(struct mmc *mmc)
 {
 	return -1;
 }
+#endif
 
 #ifdef CONFIG_MMC_TRACE
 void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd)
@@ -115,6 +117,7 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 }
 #endif
 
+#ifndef CONFIG_DM_MMC_OPS
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	int ret;
@@ -125,6 +128,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	return ret;
 }
+#endif
 
 int mmc_send_status(struct mmc *mmc, int timeout)
 {
@@ -789,6 +793,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC_OPS
 int mmc_getcd(struct mmc *mmc)
 {
 	int cd;
@@ -804,6 +809,7 @@ int mmc_getcd(struct mmc *mmc)
 
 	return cd;
 }
+#endif
 
 static int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u8 *resp)
 {
@@ -967,11 +973,13 @@ static const u8 multipliers[] = {
 	80,
 };
 
+#ifndef CONFIG_DM_MMC_OPS
 static void mmc_set_ios(struct mmc *mmc)
 {
 	if (mmc->cfg->ops->set_ios)
 		mmc->cfg->ops->set_ios(mmc);
 }
+#endif
 
 void mmc_set_clock(struct mmc *mmc, uint clock)
 {
@@ -1505,10 +1513,15 @@ __weak void board_mmc_power_init(void)
 
 int mmc_start_init(struct mmc *mmc)
 {
+	bool no_card;
 	int err;
 
 	/* we pretend there's no card when init is NULL */
-	if (mmc_getcd(mmc) == 0 || mmc->cfg->ops->init == NULL) {
+	no_card = mmc_getcd(mmc) == 0;
+#ifndef CONFIG_DM_MMC_OPS
+	no_card = no_card || (mmc->cfg->ops->init == NULL);
+#endif
+	if (no_card) {
 		mmc->has_init = 0;
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("MMC: no card present\n");
@@ -1524,12 +1537,14 @@ int mmc_start_init(struct mmc *mmc)
 #endif
 	board_mmc_power_init();
 
+#ifdef CONFIG_DM_MMC_OPS
+	/* The device has already been probed ready for use */
+#else
 	/* made sure it's not NULL earlier */
 	err = mmc->cfg->ops->init(mmc);
-
 	if (err)
 		return err;
-
+#endif
 	mmc->ddr_mode = 0;
 	mmc_set_bus_width(mmc, 1);
 	mmc_set_clock(mmc, 1);

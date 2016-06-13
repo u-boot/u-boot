@@ -16,6 +16,15 @@ config DM_MMC
 	  appear as block devices in U-Boot and can support filesystems such
 	  as EXT4 and FAT.
 
+config DM_MMC_OPS
+	bool "Support MMC controller operations using Driver Model"
+	depends on DM_MMC
+	help
+	  Driver model provides a means of supporting device operations. This
+	  option moves MMC operations under the control of driver model. The
+	  option will be removed as soon as all DM_MMC drivers use it, as it
+	  will the only supported behaviour.
+
 config MSM_SDHCI
 	bool "Qualcomm SDHCI controller"
 	depends on DM_MMC

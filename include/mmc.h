@@ -323,6 +323,58 @@ struct mmc_data {
 /* forward decl. */
 struct mmc;
 
+#ifdef CONFIG_DM_MMC_OPS
+struct dm_mmc_ops {
+	/**
+	 * send_cmd() - Send a command to the MMC device
+	 *
+	 * @dev:	Device to receive the command
+	 * @cmd:	Command to send
+	 * @data:	Additional data to send/receive
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*send_cmd)(struct udevice *dev, struct mmc_cmd *cmd,
+			struct mmc_data *data);
+
+	/**
+	 * set_ios() - Set the I/O speed/width for an MMC device
+	 *
+	 * @dev:	Device to update
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_ios)(struct udevice *dev);
+
+	/**
+	 * get_cd() - See whether a card is present
+	 *
+	 * @dev:	Device to check
+	 * @return 0 if not present, 1 if present, -ve on error
+	 */
+	int (*get_cd)(struct udevice *dev);
+
+	/**
+	 * get_wp() - See whether a card has write-protect enabled
+	 *
+	 * @dev:	Device to check
+	 * @return 0 if write-enabled, 1 if write-protected, -ve on error
+	 */
+	int (*get_wp)(struct udevice *dev);
+};
+
+#define mmc_get_ops(dev)        ((struct dm_mmc_ops *)(dev)->driver->ops)
+
+int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+		    struct mmc_data *data);
+int dm_mmc_set_ios(struct udevice *dev);
+int dm_mmc_get_cd(struct udevice *dev);
+int dm_mmc_get_wp(struct udevice *dev);
+
+/* Transition functions for compatibility */
+int mmc_set_ios(struct mmc *mmc);
+int mmc_getcd(struct mmc *mmc);
+int mmc_getwp(struct mmc *mmc);
+
+#else
 struct mmc_ops {
 	int (*send_cmd)(struct mmc *mmc,
 			struct mmc_cmd *cmd, struct mmc_data *data);
@@ -331,10 +383,13 @@ struct mmc_ops {
 	int (*getcd)(struct mmc *mmc);
 	int (*getwp)(struct mmc *mmc);
 };
+#endif
 
 struct mmc_config {
 	const char *name;
+#ifndef CONFIG_DM_MMC_OPS
 	const struct mmc_ops *ops;
+#endif
 	uint host_caps;
 	uint voltages;
 	uint f_min;
@@ -343,7 +398,12 @@ struct mmc_config {
 	unsigned char part_type;
 };
 
-/* TODO struct mmc should be in mmc_private but it's hard to fix right now */
+/*
+ * With CONFIG_DM_MMC enabled, struct mmc can be accessed from the MMC device
+ * with mmc_get_mmc_dev().
+ *
+ * TODO struct mmc should be in mmc_private but it's hard to fix right now
+ */
 struct mmc {
 #ifndef CONFIG_BLK
 	struct list_head link;
@@ -446,10 +506,14 @@ void print_mmc_devices(char separator);
 int get_mmc_num(void);
 int mmc_hwpart_config(struct mmc *mmc, const struct mmc_hwpart_conf *conf,
 		      enum mmc_hwpart_conf_mode mode);
+
+#ifndef CONFIG_DM_MMC_OPS
 int mmc_getcd(struct mmc *mmc);
 int board_mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
 int board_mmc_getwp(struct mmc *mmc);
+#endif
+
 int mmc_set_dsr(struct mmc *mmc, u16 val);
 /* Function to change the size of boot partition and rpmb partitions */
 int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,

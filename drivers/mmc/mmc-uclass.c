@@ -13,6 +13,72 @@
 #include <dm/root.h>
 #include "mmc_private.h"
 
+#ifdef CONFIG_DM_MMC_OPS
+int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+		    struct mmc_data *data)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+	int ret;
+
+	mmmc_trace_before_send(mmc, cmd);
+	if (ops->send_cmd)
+		ret = ops->send_cmd(dev, cmd, data);
+	else
+		ret = -ENOSYS;
+	mmmc_trace_after_send(mmc, cmd, ret);
+
+	return ret;
+}
+
+int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
+{
+	return dm_mmc_send_cmd(mmc->dev, cmd, data);
+}
+
+int dm_mmc_set_ios(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->set_ios)
+		return -ENOSYS;
+	return ops->set_ios(dev);
+}
+
+int mmc_set_ios(struct mmc *mmc)
+{
+	return dm_mmc_set_ios(mmc->dev);
+}
+
+int dm_mmc_get_wp(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->get_wp)
+		return -ENOSYS;
+	return ops->get_wp(dev);
+}
+
+int mmc_getwp(struct mmc *mmc)
+{
+	return dm_mmc_get_wp(mmc->dev);
+}
+
+int dm_mmc_get_cd(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->get_cd)
+		return -ENOSYS;
+	return ops->get_cd(dev);
+}
+
+int mmc_getcd(struct mmc *mmc)
+{
+	return dm_mmc_get_cd(mmc->dev);
+}
+#endif
+
 struct mmc *mmc_get_mmc_dev(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv;
