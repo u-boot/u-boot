@@ -66,9 +66,7 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int rockchip_dwmmc_probe(struct udevice *dev)
 {
-#ifdef CONFIG_BLK
 	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
-#endif
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -106,16 +104,9 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 			return ret;
 	}
 #endif
-#ifdef CONFIG_BLK
 	dwmci_setup_cfg(&plat->cfg, dev->name, host->buswidth, host->caps,
 			minmax[1], minmax[0]);
 	host->mmc = &plat->mmc;
-#else
-	ret = add_dwmci(host, minmax[1], minmax[0]);
-	if (ret)
-		return ret;
-
-#endif
 	host->mmc->priv = &priv->host;
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
@@ -125,14 +116,12 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 
 static int rockchip_dwmmc_bind(struct udevice *dev)
 {
-#ifdef CONFIG_BLK
 	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
 	int ret;
 
 	ret = dwmci_bind(dev, &plat->mmc, &plat->cfg);
 	if (ret)
 		return ret;
-#endif
 
 	return 0;
 }
