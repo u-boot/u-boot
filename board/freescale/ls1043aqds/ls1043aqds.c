@@ -47,7 +47,7 @@ enum {
 int checkboard(void)
 {
 	char buf[64];
-#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_QSPI_BOOT)
+#ifndef CONFIG_SD_BOOT
 	u8 sw;
 #endif
 
@@ -55,8 +55,6 @@ int checkboard(void)
 
 #ifdef CONFIG_SD_BOOT
 	puts("SD\n");
-#elif defined(CONFIG_QSPI_BOOT)
-	puts("QSPI\n");
 #else
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
@@ -67,8 +65,8 @@ int checkboard(void)
 		puts("PromJet\n");
 	else if (sw == 0x9)
 		puts("NAND\n");
-	else if (sw == 0x15)
-		printf("IFCCard\n");
+	else if (sw == 0xF)
+		printf("QSPI\n");
 	else
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
 #endif
