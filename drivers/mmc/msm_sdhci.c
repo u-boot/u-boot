@@ -36,6 +36,11 @@
 /* Non standard (?) SDHCI register */
 #define SDHCI_VENDOR_SPEC_CAPABILITIES0  0x11c
 
+struct msm_sdhc_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
 struct msm_sdhc {
 	struct sdhci_host host;
 	void *base;
@@ -81,9 +86,14 @@ static int msm_sdc_clk_init(struct udevice *dev)
 
 static int msm_sdc_probe(struct udevice *dev)
 {
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+#ifdef CONFIG_BLK
+	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+#endif
 	struct msm_sdhc *prv = dev_get_priv(dev);
 	struct sdhci_host *host = &prv->host;
 	u32 core_version, core_minor, core_major;
+	u32 caps;
 	int ret;
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_BROKEN_R1B;
@@ -127,7 +137,7 @@ static int msm_sdc_probe(struct udevice *dev)
 	 * controller versions and must be explicitly enabled.
 	 */
 	if (core_major >= 1 && core_minor != 0x11 && core_minor != 0x12) {
-		u32 caps = readl(host->ioaddr + SDHCI_CAPABILITIES);
+		caps = readl(host->ioaddr + SDHCI_CAPABILITIES);
 		caps |= SDHCI_CAN_VDD_300 | SDHCI_CAN_DO_8BIT;
 		writel(caps, host->ioaddr + SDHCI_VENDOR_SPEC_CAPABILITIES0);
 	}
@@ -135,13 +145,26 @@ static int msm_sdc_probe(struct udevice *dev)
 	/* Set host controller version */
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
+#ifdef CONFIG_BLK
+	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
+	ret = sdhci_setup_cfg(&plat->cfg, dev->name, host->bus_width,
+			      caps, 0, 0, host->version, host->quirks, 0);
+	host->mmc = &plat->mmc;
+#else
 	/* automatically detect max and min speed */
-	ret =  add_sdhci(host, 0, 0);
+	ret = add_sdhci(host, 0, 0);
+#endif
 	if (ret)
 		return ret;
+	host->mmc->priv = &prv->host;
 	host->mmc->dev = dev;
+	upriv->mmc = host->mmc;
 
+#ifdef CONFIG_DM_MMC_OPS
+	return sdhci_probe(dev);
+#else
 	return 0;
+#endif
 }
 
 static int msm_sdc_remove(struct udevice *dev)
@@ -176,6 +199,20 @@ static int msm_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int msm_sdc_bind(struct udevice *dev)
+{
+#ifdef CONFIG_BLK
+	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+	int ret;
+
+	ret = sdhci_bind(dev, &plat->mmc, &plat->cfg);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
+}
+
 static const struct udevice_id msm_mmc_ids[] = {
 	{ .compatible = "qcom,sdhci-msm-v4" },
 	{ }
@@ -186,7 +223,12 @@ U_BOOT_DRIVER(msm_sdc_drv) = {
 	.id		= UCLASS_MMC,
 	.of_match	= msm_mmc_ids,
 	.ofdata_to_platdata = msm_ofdata_to_platdata,
+#ifdef CONFIG_DM_MMC_OPS
+	.ops		= &sdhci_ops,
+#endif
+	.bind		= msm_sdc_bind,
 	.probe		= msm_sdc_probe,
 	.remove		= msm_sdc_remove,
 	.priv_auto_alloc_size = sizeof(struct msm_sdhc),
+	.platdata_auto_alloc_size = sizeof(struct msm_sdhc_plat),
 };
