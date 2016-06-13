@@ -94,5 +94,6 @@ bool has_erratum_a007798(void);
 bool has_erratum_a007792(void);
 bool has_erratum_a005697(void);
 bool has_erratum_a004477(void);
+bool has_erratum_a008751(void);
 #endif
 #endif /*_ASM_FSL_USB_H_ */

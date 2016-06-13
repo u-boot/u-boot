@@ -139,6 +139,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 	int usb_erratum_a007075_off = -1;
 	int usb_erratum_a007792_off = -1;
 	int usb_erratum_a005697_off = -1;
+	int usb_erratum_a008751_off = -1;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
 	char str[5];
@@ -217,5 +218,11 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 					has_erratum_a005697);
 		if (ret == -ENOSPC)
 			return;
+		ret = fdt_fixup_erratum(&usb_erratum_a008751_off, blob,
+					SNPS_DWC3, "a008751",
+					has_erratum_a008751);
+		if (ret == -ENOSPC)
+			return;
+
 	}
 }

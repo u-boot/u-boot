@@ -298,6 +298,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
 
+	fdt_fixup_dr_usb(blob, bd);
+
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
 	err = fsl_mc_ldpaa_exit(bd);

@@ -175,4 +175,19 @@ bool has_erratum_a004477(void)
 	return false;
 }
 
+bool has_erratum_a008751(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+#ifdef CONFIG_ARM64
+	case SVR_LS2080:
+	case SVR_LS2085:
+		return IS_SVR_REV(svr, 1, 0);
+#endif
+	}
+	return false;
+}
+
 #endif
