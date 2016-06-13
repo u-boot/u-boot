@@ -97,11 +97,6 @@
 /*
  * Env Settings
  */
-#ifndef CONFIG_BOOTDELAY
-# if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
-# else
-# endif
-#endif
 #ifndef CONFIG_BOOTCOMMAND
 # define CONFIG_BOOTCOMMAND	"run ramboot"
 #endif

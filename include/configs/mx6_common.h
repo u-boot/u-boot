@@ -59,9 +59,6 @@
 #endif
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
-#ifndef CONFIG_BOOTDELAY
-#endif
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX       1
