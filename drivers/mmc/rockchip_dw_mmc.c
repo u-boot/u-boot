@@ -111,7 +111,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
-	return 0;
+	return dwmci_probe(dev);
 }
 
 static int rockchip_dwmmc_bind(struct udevice *dev)
@@ -136,6 +136,7 @@ U_BOOT_DRIVER(rockchip_dwmmc_drv) = {
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
 	.ofdata_to_platdata = rockchip_dwmmc_ofdata_to_platdata,
+	.ops		= &dm_dwmci_ops,
 	.bind		= rockchip_dwmmc_bind,
 	.probe		= rockchip_dwmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct rockchip_dwmmc_priv),
