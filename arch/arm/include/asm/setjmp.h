@@ -43,13 +43,14 @@ static inline int setjmp(jmp_buf jmp)
 #else
 	asm volatile(
 #ifdef CONFIG_SYS_THUMB_BUILD
-		"adr r0, jmp_target + 1\n"
+		"adr r0, jmp_target\n"
+		"add r0, r0, $1\n"
 #else
 		"adr r0, jmp_target\n"
 #endif
 		"mov r1, %1\n"
 		"mov r2, sp\n"
-		"stm r1, {r0, r2, r4, r5, r6, r7}\n"
+		"stm r1!, {r0, r2, r4, r5, r6, r7}\n"
 		"b 2f\n"
 		"jmp_target: "
 		"mov %0, #1\n"
@@ -60,8 +61,6 @@ static inline int setjmp(jmp_buf jmp)
 		  "r8", "r9", "r10", "r11", /* sp, */ "ip", "lr",
 		  "cc", "memory");
 #endif
-
-printf("%s:%d target=%#lx\n", __func__, __LINE__, jmp->target);
 
 	return r;
 }
@@ -84,7 +83,7 @@ static inline __noreturn void longjmp(jmp_buf jmp)
 #else
 	asm volatile(
 		"mov r1, %0\n"
-		"ldm r1, {r0, r2, r4, r5, r6, r7}\n"
+		"ldm r1!, {r0, r2, r4, r5, r6, r7}\n"
 		"mov sp, r2\n"
 		"bx r0\n"
 		:
