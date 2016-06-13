@@ -209,6 +209,9 @@ void cache_init(void)
 	read_decode_cache_bcr_arcv2();
 
 	if (ioc_exists) {
+		flush_dcache_all();
+		invalidate_dcache_all();
+
 		/* IO coherency base - 0x8z */
 		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, 0x80000);
 		/* IO coherency aperture size - 512Mb: 0x8z-0xAz */
@@ -417,13 +420,10 @@ void flush_cache(unsigned long start, unsigned long size)
 
 void invalidate_dcache_all(void)
 {
-#ifdef CONFIG_ISA_ARCV2
-	if (!ioc_exists)
-#endif
-		__dc_entire_op(OP_INV);
+	__dc_entire_op(OP_INV);
 
 #ifdef CONFIG_ISA_ARCV2
-	if (slc_exists && !ioc_exists)
+	if (slc_exists)
 		__slc_entire_op(OP_INV);
 #endif
 }
