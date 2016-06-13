@@ -191,16 +191,35 @@ static int atmel_serial_probe(struct udevice *dev)
 {
 	struct atmel_serial_platdata *plat = dev->platdata;
 	struct atmel_serial_priv *priv = dev_get_priv(dev);
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	fdt_addr_t addr_base;
 
+	addr_base = dev_get_addr(dev);
+	if (addr_base == FDT_ADDR_T_NONE)
+		return -ENODEV;
+
+	plat->base_addr = (uint32_t)addr_base;
+#endif
 	priv->usart = (atmel_usart3_t *)plat->base_addr;
 	atmel_serial_init_internal(priv->usart);
 
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id atmel_serial_ids[] = {
+	{ .compatible = "atmel,at91sam9260-usart" },
+	{ }
+};
+#endif
+
 U_BOOT_DRIVER(serial_atmel) = {
 	.name	= "serial_atmel",
 	.id	= UCLASS_SERIAL,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.of_match = atmel_serial_ids,
+	.platdata_auto_alloc_size = sizeof(struct atmel_serial_platdata),
+#endif
 	.probe = atmel_serial_probe,
 	.ops	= &atmel_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,

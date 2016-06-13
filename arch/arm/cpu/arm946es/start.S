@@ -90,11 +90,13 @@ cpu_init_crit:
 	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
 	mcr	p15, 0, r0, c1, c0, 0
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
 	mov	ip, lr		/* perserve link reg across call */
 	bl	lowlevel_init	/* go setup memory */
 	mov	lr, ip		/* restore link */
+#endif
 	mov	pc, lr		/* back to my caller */
 #endif

@@ -7,12 +7,31 @@
  */
 
 #include <common.h>
+#include <atmel_lcd.h>
+#include <dm.h>
+#include <fdtdec.h>
+#include <video.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
 #include <bmp_layout.h>
 #include <atmel_lcdc.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_DM_VIDEO
+enum {
+	/* Maximum LCD size we support */
+	LCD_MAX_WIDTH		= 1366,
+	LCD_MAX_HEIGHT		= 768,
+	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
+};
+#endif
+
+struct atmel_fb_priv {
+	struct display_timing timing;
+};
 
 /* configurable parameters */
 #define ATMEL_LCDC_CVAL_DEFAULT		0xc8
@@ -30,6 +49,7 @@
 #define lcdc_readl(mmio, reg)		__raw_readl((mmio)+(reg))
 #define lcdc_writel(mmio, reg, val)	__raw_writel((val), (mmio)+(reg))
 
+#ifndef CONFIG_DM_VIDEO
 ushort *configuration_get_cmap(void)
 {
 	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
@@ -90,40 +110,43 @@ void lcd_set_cmap(struct bmp_image *bmp, unsigned colors)
 		lcd_setcolreg(i, cte.red, cte.green, cte.blue);
 	}
 }
+#endif
 
-void lcd_ctrl_init(void *lcdbase)
+static void atmel_fb_init(ulong addr, struct display_timing *timing, int bpix,
+			  bool tft, bool cont_pol_low, ulong lcdbase)
 {
 	unsigned long value;
+	void *reg = (void *)addr;
 
 	/* Turn off the LCD controller and the DMA controller */
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_PWRCON,
+	lcdc_writel(reg, ATMEL_LCDC_PWRCON,
 		    ATMEL_LCDC_GUARD_TIME << ATMEL_LCDC_GUARDT_OFFSET);
 
 	/* Wait for the LCDC core to become idle */
-	while (lcdc_readl(panel_info.mmio, ATMEL_LCDC_PWRCON) & ATMEL_LCDC_BUSY)
+	while (lcdc_readl(reg, ATMEL_LCDC_PWRCON) & ATMEL_LCDC_BUSY)
 		udelay(10);
 
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_DMACON, 0);
+	lcdc_writel(reg, ATMEL_LCDC_DMACON, 0);
 
 	/* Reset LCDC DMA */
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_DMACON, ATMEL_LCDC_DMARST);
+	lcdc_writel(reg, ATMEL_LCDC_DMACON, ATMEL_LCDC_DMARST);
 
 	/* ...set frame size and burst length = 8 words (?) */
-	value = (panel_info.vl_col * panel_info.vl_row *
-		 NBITS(panel_info.vl_bpix)) / 32;
+	value = (timing->hactive.typ * timing->vactive.typ *
+		 (1 << bpix)) / 32;
 	value |= ((ATMEL_LCDC_DMA_BURST_LEN - 1) << ATMEL_LCDC_BLENGTH_OFFSET);
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_DMAFRMCFG, value);
+	lcdc_writel(reg, ATMEL_LCDC_DMAFRMCFG, value);
 
 	/* Set pixel clock */
-	value = get_lcdc_clk_rate(0) / panel_info.vl_clk;
-	if (get_lcdc_clk_rate(0) % panel_info.vl_clk)
+	value = get_lcdc_clk_rate(0) / timing->pixelclock.typ;
+	if (get_lcdc_clk_rate(0) % timing->pixelclock.typ)
 		value++;
 	value = (value / 2) - 1;
 
 	if (!value) {
-		lcdc_writel(panel_info.mmio, ATMEL_LCDC_LCDCON1, ATMEL_LCDC_BYPASS);
+		lcdc_writel(reg, ATMEL_LCDC_LCDCON1, ATMEL_LCDC_BYPASS);
 	} else
-		lcdc_writel(panel_info.mmio, ATMEL_LCDC_LCDCON1,
+		lcdc_writel(reg, ATMEL_LCDC_LCDCON1,
 			    value << ATMEL_LCDC_CLKVAL_OFFSET);
 
 	/* Initialize control register 2 */
@@ -132,54 +155,86 @@ void lcd_ctrl_init(void *lcdbase)
 #else
 	value = ATMEL_LCDC_MEMOR_LITTLE | ATMEL_LCDC_CLKMOD_ALWAYSACTIVE;
 #endif
-	if (panel_info.vl_tft)
+	if (tft)
 		value |= ATMEL_LCDC_DISTYPE_TFT;
 
-	value |= panel_info.vl_sync;
-	value |= (panel_info.vl_bpix << 5);
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_LCDCON2, value);
+	if (!(timing->flags & DISPLAY_FLAGS_HSYNC_HIGH))
+		value |= ATMEL_LCDC_INVLINE_INVERTED;
+	if (!(timing->flags & DISPLAY_FLAGS_VSYNC_HIGH))
+		value |= ATMEL_LCDC_INVFRAME_INVERTED;
+	value |= bpix << 5;
+	lcdc_writel(reg, ATMEL_LCDC_LCDCON2, value);
 
 	/* Vertical timing */
-	value = (panel_info.vl_vsync_len - 1) << ATMEL_LCDC_VPW_OFFSET;
-	value |= panel_info.vl_upper_margin << ATMEL_LCDC_VBP_OFFSET;
-	value |= panel_info.vl_lower_margin;
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_TIM1, value);
+	value = (timing->vsync_len.typ - 1) << ATMEL_LCDC_VPW_OFFSET;
+	value |= timing->vback_porch.typ << ATMEL_LCDC_VBP_OFFSET;
+	value |= timing->vfront_porch.typ;
+	/* Magic! (Datasheet says "Bit 31 must be written to 1") */
+	value |= 1U << 31;
+	lcdc_writel(reg, ATMEL_LCDC_TIM1, value);
 
 	/* Horizontal timing */
-	value = (panel_info.vl_right_margin - 1) << ATMEL_LCDC_HFP_OFFSET;
-	value |= (panel_info.vl_hsync_len - 1) << ATMEL_LCDC_HPW_OFFSET;
-	value |= (panel_info.vl_left_margin - 1);
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_TIM2, value);
+	value = (timing->hfront_porch.typ - 1) << ATMEL_LCDC_HFP_OFFSET;
+	value |= (timing->hsync_len.typ - 1) << ATMEL_LCDC_HPW_OFFSET;
+	value |= (timing->hback_porch.typ - 1);
+	lcdc_writel(reg, ATMEL_LCDC_TIM2, value);
 
 	/* Display size */
-	value = (panel_info.vl_col - 1) << ATMEL_LCDC_HOZVAL_OFFSET;
-	value |= panel_info.vl_row - 1;
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_LCDFRMCFG, value);
+	value = (timing->hactive.typ - 1) << ATMEL_LCDC_HOZVAL_OFFSET;
+	value |= timing->vactive.typ - 1;
+	lcdc_writel(reg, ATMEL_LCDC_LCDFRMCFG, value);
 
 	/* FIFO Threshold: Use formula from data sheet */
 	value = ATMEL_LCDC_FIFO_SIZE - (2 * ATMEL_LCDC_DMA_BURST_LEN + 3);
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_FIFO, value);
+	lcdc_writel(reg, ATMEL_LCDC_FIFO, value);
 
 	/* Toggle LCD_MODE every frame */
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_MVAL, 0);
+	lcdc_writel(reg, ATMEL_LCDC_MVAL, 0);
 
 	/* Disable all interrupts */
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_IDR, ~0UL);
+	lcdc_writel(reg, ATMEL_LCDC_IDR, ~0UL);
 
 	/* Set contrast */
 	value = ATMEL_LCDC_PS_DIV8 |
 		ATMEL_LCDC_ENA_PWMENABLE;
-	if (!panel_info.vl_cont_pol_low)
+	if (!cont_pol_low)
 		value |= ATMEL_LCDC_POL_POSITIVE;
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_CONTRAST_CTR, value);
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_CONTRAST_VAL, ATMEL_LCDC_CVAL_DEFAULT);
+	lcdc_writel(reg, ATMEL_LCDC_CONTRAST_CTR, value);
+	lcdc_writel(reg, ATMEL_LCDC_CONTRAST_VAL, ATMEL_LCDC_CVAL_DEFAULT);
 
 	/* Set framebuffer DMA base address and pixel offset */
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_DMABADDR1, (u_long)lcdbase);
+	lcdc_writel(reg, ATMEL_LCDC_DMABADDR1, lcdbase);
 
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_DMACON, ATMEL_LCDC_DMAEN);
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_PWRCON,
+	lcdc_writel(reg, ATMEL_LCDC_DMACON, ATMEL_LCDC_DMAEN);
+	lcdc_writel(reg, ATMEL_LCDC_PWRCON,
 		    (ATMEL_LCDC_GUARD_TIME << ATMEL_LCDC_GUARDT_OFFSET) | ATMEL_LCDC_PWR);
+}
+
+#ifndef CONFIG_DM_VIDEO
+void lcd_ctrl_init(void *lcdbase)
+{
+	struct display_timing timing;
+
+	timing.flags = 0;
+	if (!(panel_info.vl_sync & ATMEL_LCDC_INVLINE_INVERTED))
+		timing.flags |= DISPLAY_FLAGS_HSYNC_HIGH;
+	if (!(panel_info.vl_sync & ATMEL_LCDC_INVFRAME_INVERTED))
+		timing.flags |= DISPLAY_FLAGS_VSYNC_LOW;
+	timing.pixelclock.typ = panel_info.vl_clk;
+
+	timing.hactive.typ = panel_info.vl_col;
+	timing.hfront_porch.typ = panel_info.vl_right_margin;
+	timing.hback_porch.typ = panel_info.vl_left_margin;
+	timing.hsync_len.typ = panel_info.vl_hsync_len;
+
+	timing.vactive.typ = panel_info.vl_row;
+	timing.vfront_porch.typ = panel_info.vl_clk;
+	timing.vback_porch.typ = panel_info.vl_clk;
+	timing.vsync_len.typ = panel_info.vl_clk;
+
+	atmel_fb_init(panel_info.mmio, &timing, panel_info.vl_bpix,
+		      panel_info.vl_tft, panel_info.vl_cont_pol_low,
+		      (ulong)lcdbase);
 }
 
 ulong calc_fbsize(void)
@@ -187,3 +242,73 @@ ulong calc_fbsize(void)
 	return ((panel_info.vl_col * panel_info.vl_row *
 		NBITS(panel_info.vl_bpix)) / 8) + PAGE_SIZE;
 }
+#endif
+
+#ifdef CONFIG_DM_VIDEO
+static int atmel_fb_lcd_probe(struct udevice *dev)
+{
+	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct atmel_fb_priv *priv = dev_get_priv(dev);
+	struct display_timing *timing = &priv->timing;
+
+	/*
+	 * For now some values are hard-coded. We could use the device tree
+	 * bindings in simple-framebuffer.txt to specify the format/bpp and
+	 * some Atmel-specific binding for tft and cont_pol_low.
+	 */
+	atmel_fb_init(ATMEL_BASE_LCDC, timing, VIDEO_BPP16, true, false,
+		      uc_plat->base);
+	uc_priv->xsize = timing->hactive.typ;
+	uc_priv->ysize = timing->vactive.typ;
+	uc_priv->bpix = VIDEO_BPP16;
+	video_set_flush_dcache(dev, true);
+	debug("LCD frame buffer at %lx, size %x, %dx%d pixels\n", uc_plat->base,
+	      uc_plat->size, uc_priv->xsize, uc_priv->ysize);
+
+	return 0;
+}
+
+static int atmel_fb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct atmel_lcd_platdata *plat = dev_get_platdata(dev);
+	struct atmel_fb_priv *priv = dev_get_priv(dev);
+	struct display_timing *timing = &priv->timing;
+	const void *blob = gd->fdt_blob;
+
+	if (fdtdec_decode_display_timing(blob, dev->of_offset,
+					 plat->timing_index, timing)) {
+		debug("%s: Failed to decode display timing\n", __func__);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int atmel_fb_lcd_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+
+	uc_plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
+			(1 << VIDEO_BPP16) / 8;
+	debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
+
+	return 0;
+}
+
+static const struct udevice_id atmel_fb_lcd_ids[] = {
+	{ .compatible = "atmel,at91sam9g45-lcdc" },
+	{ }
+};
+
+U_BOOT_DRIVER(atmel_fb) = {
+	.name	= "atmel_fb",
+	.id	= UCLASS_VIDEO,
+	.of_match = atmel_fb_lcd_ids,
+	.bind	= atmel_fb_lcd_bind,
+	.ofdata_to_platdata	= atmel_fb_ofdata_to_platdata,
+	.probe	= atmel_fb_lcd_probe,
+	.platdata_auto_alloc_size = sizeof(struct atmel_lcd_platdata),
+	.priv_auto_alloc_size	= sizeof(struct atmel_fb_priv),
+};
+#endif

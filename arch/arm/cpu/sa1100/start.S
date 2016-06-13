@@ -96,6 +96,7 @@ cpu_init_crit:
 	ldr	r1, cpuspeed
 	str	r1, [r0, #PPCR]
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 	/*
 	 * before relocating, we have to setup RAM timing
 	 * because memory timing is board-dependend, you will
@@ -104,6 +105,7 @@ cpu_init_crit:
 	mov	ip,	lr
 	bl	lowlevel_init
 	mov	lr,	ip
+#endif
 
 	/*
 	 * disable MMU stuff and enable I-cache
