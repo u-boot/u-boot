@@ -106,4 +106,15 @@ void mmc_list_add(struct mmc *mmc);
  */
 int mmc_switch_part(struct mmc *mmc, unsigned int part_num);
 
+/**
+ * mmc_switch() - Issue and MMC switch mode command
+ *
+ * @mmc:	MMC device
+ * @set:	Unused
+ * @index:	Cmdarg index
+ * @value:	Cmdarg value
+ * @return 0 if OK, -ve on error
+ */
+int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value);
+
 #endif /* _MMC_PRIVATE_H_ */
