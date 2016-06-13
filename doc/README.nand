@@ -307,7 +307,7 @@ Miscellaneous and testing commands:
   DANGEROUS!!! Factory set bad blocks will be lost. Use only
   to remove artificial bad blocks created with the "markbad" command.
 
-  "torture offset"
+  "torture offset [size]"
   Torture block to determine if it is still reliable.
   Enabled by the CONFIG_CMD_NAND_TORTURE configuration option.
   This command returns 0 if the block is still reliable, else 1.
@@ -324,6 +324,10 @@ Miscellaneous and testing commands:
   automate actions following a nand->write() error. This would e.g. be required
   in order to program or update safely firmware to NAND, especially for the UBI
   part of such firmware.
+  Optionally, a second parameter size can be given to test multiple blocks with
+  one call. If size is not a multiple of the NAND's erase size, then the block
+  that contains offset + size will be tested in full. If used with size, this
+  command returns 0 if all tested blocks have been found reliable, else 1.
 
 
 NAND locking command (for chips with active LOCKPRE pin)
