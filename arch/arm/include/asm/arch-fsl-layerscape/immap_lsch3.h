@@ -319,4 +319,7 @@ struct ccsr_reset {
 	u32 ip_rev1;			/* 0xbf8 */
 	u32 ip_rev2;			/* 0xbfc */
 };
+
+uint get_svr(void);
+
 #endif /* __ARCH_FSL_LSCH3_IMMAP_H_ */
