@@ -585,27 +585,7 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 	return ret;
 }
 
-#ifdef CONFIG_BLK
-static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
-{
-	struct udevice *mmc_dev = dev_get_parent(bdev);
-	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
-	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
-	int ret;
-
-	if (desc->hwpart == hwpart)
-		return 0;
-
-	if (mmc->part_config == MMCPART_NOAVAILABLE)
-		return -EMEDIUMTYPE;
-
-	ret = mmc_switch_part(mmc, hwpart);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-#else
+#ifndef CONFIG_BLK
 static int mmc_select_hwpartp(struct blk_desc *desc, int hwpart)
 {
 	struct mmc *mmc = find_mmc_device(desc->devnum);
@@ -1531,52 +1511,7 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_BLK
-int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
-{
-	struct blk_desc *bdesc;
-	struct udevice *bdev;
-	int ret;
-
-	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC, -1, 512,
-				 0, &bdev);
-	if (ret) {
-		debug("Cannot create block device\n");
-		return ret;
-	}
-	bdesc = dev_get_uclass_platdata(bdev);
-	mmc->cfg = cfg;
-	mmc->priv = dev;
-
-	/* the following chunk was from mmc_register() */
-
-	/* Setup dsr related values */
-	mmc->dsr_imp = 0;
-	mmc->dsr = 0xffffffff;
-	/* Setup the universal parts of the block interface just once */
-	bdesc->removable = 1;
-
-	/* setup initial part type */
-	bdesc->part_type = cfg->part_type;
-	mmc->dev = dev;
-
-	return 0;
-}
-
-int mmc_unbind(struct udevice *dev)
-{
-	struct udevice *bdev;
-
-	device_find_first_child(dev, &bdev);
-	if (bdev) {
-		device_remove(bdev);
-		device_unbind(bdev);
-	}
-
-	return 0;
-}
-
-#else
+#ifndef CONFIG_BLK
 struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 {
 	struct blk_desc *bdesc;
@@ -1620,9 +1555,7 @@ void mmc_destroy(struct mmc *mmc)
 	/* only freeing memory for now */
 	free(mmc);
 }
-#endif
 
-#ifndef CONFIG_BLK
 static int mmc_get_dev(int dev, struct blk_desc **descp)
 {
 	struct mmc *mmc = find_mmc_device(dev);
@@ -1962,19 +1895,7 @@ int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
 }
 #endif
 
-#ifdef CONFIG_BLK
-static const struct blk_ops mmc_blk_ops = {
-	.read	= mmc_bread,
-	.write	= mmc_bwrite,
-	.select_hwpart	= mmc_select_hwpart,
-};
-
-U_BOOT_DRIVER(mmc_blk) = {
-	.name		= "mmc_blk",
-	.id		= UCLASS_BLK,
-	.ops		= &mmc_blk_ops,
-};
-#else
+#ifndef CONFIG_BLK
 U_BOOT_LEGACY_BLK(mmc) = {
 	.if_typename	= "mmc",
 	.if_type	= IF_TYPE_MMC,
