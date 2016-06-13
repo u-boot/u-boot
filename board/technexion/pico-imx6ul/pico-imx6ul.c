@@ -142,6 +142,9 @@ static iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_NAND_CLE__USDHC1_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
+#define USB_OTHERREGS_OFFSET	0x800
+#define UCTRL_PWR_POL		(1 << 9)
+
 static iomux_v3_cfg_t const usb_otg_pad[] = {
 	MX6_PAD_GPIO1_IO00__ANATOP_OTG1_ID | MUX_PAD_CTRL(OTG_ID_PAD_CTRL),
 };
@@ -181,7 +184,26 @@ int board_early_init_f(void)
 
 int board_usb_phy_mode(int port)
 {
-	return USB_INIT_DEVICE;
+	if (port == 1)
+		return USB_INIT_HOST;
+	else
+		return USB_INIT_DEVICE;
+}
+
+int board_ehci_hcd_init(int port)
+{
+	u32 *usbnc_usb_ctrl;
+
+	if (port > 1)
+		return -EINVAL;
+
+	usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
+				 port * 4);
+
+	/* Set Power polarity */
+	setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
+
+	return 0;
 }
 
 int board_init(void)
