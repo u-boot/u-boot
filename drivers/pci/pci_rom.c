@@ -41,8 +41,6 @@ __weak bool board_should_run_oprom(struct udevice *dev)
 
 static bool should_load_oprom(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_ALWAYS_LOAD_OPROM))
-		return 1;
 	if (board_should_run_oprom(dev))
 		return 1;
 
