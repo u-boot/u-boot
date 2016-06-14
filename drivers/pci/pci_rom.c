@@ -41,10 +41,7 @@ __weak bool board_should_run_oprom(struct udevice *dev)
 
 static bool should_load_oprom(struct udevice *dev)
 {
-	if (board_should_run_oprom(dev))
-		return 1;
-
-	return 0;
+	return true;
 }
 
 __weak uint32_t board_map_oprom_vendev(uint32_t vendev)
