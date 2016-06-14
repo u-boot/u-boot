@@ -74,23 +74,27 @@
 #ifdef CONFIG_BOOTSCRIPT_COPY_RAM
 #define CONFIG_BS_COPY_ENV \
 	"setenv bs_hdr_ram " __stringify(CONFIG_BS_HDR_ADDR_RAM)";" \
-	"setenv bs_hdr_flash " __stringify(CONFIG_BS_HDR_ADDR_FLASH)";" \
+	"setenv bs_hdr_device " __stringify(CONFIG_BS_HDR_ADDR_DEVICE)";" \
 	"setenv bs_hdr_size " __stringify(CONFIG_BS_HDR_SIZE)";" \
 	"setenv bs_ram " __stringify(CONFIG_BS_ADDR_RAM)";" \
-	"setenv bs_flash " __stringify(CONFIG_BS_ADDR_FLASH)";" \
+	"setenv bs_device " __stringify(CONFIG_BS_ADDR_DEVICE)";" \
 	"setenv bs_size " __stringify(CONFIG_BS_SIZE)";"
 
 /* For secure boot flow, default environment used will be used */
 #if defined(CONFIG_SYS_RAMBOOT)
 #if defined(CONFIG_RAMBOOT_NAND)
 #define CONFIG_BS_COPY_CMD \
-	"nand read $bs_hdr_ram $bs_hdr_flash $bs_hdr_size ;" \
-	"nand read $bs_ram $bs_flash $bs_size ;"
+	"nand read $bs_hdr_ram $bs_hdr_device $bs_hdr_size ;" \
+	"nand read $bs_ram $bs_device $bs_size ;"
 #endif /* CONFIG_RAMBOOT_NAND */
-#else
+#elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BS_COPY_CMD \
-	"cp.b $bs_hdr_flash $bs_hdr_ram  $bs_hdr_size ;" \
-	"cp.b $bs_flash $bs_ram  $bs_size ;"
+	"mmc read $bs_hdr_ram $bs_hdr_device $bs_hdr_size ;" \
+	"mmc read $bs_ram $bs_device $bs_size ;"
+#else /* CONFIG_SD_BOOT */
+#define CONFIG_BS_COPY_CMD \
+	"cp.b $bs_hdr_device $bs_hdr_ram  $bs_hdr_size ;" \
+	"cp.b $bs_device $bs_ram  $bs_size ;"
 #endif
 #endif /* CONFIG_BOOTSCRIPT_COPY_RAM */
 
