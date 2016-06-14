@@ -271,7 +271,7 @@ Platform specific options
 
 		However, for 4K pagesize NAND
 		NAND_PAGESIZE = 4096
-		NAND_OOBSIZE = 64
+		NAND_OOBSIZE = 224
 		ECC_BYTES = 26
 		2 + (4096 / 512) * 26 = 210 < NAND_OOBSIZE
 		Thus BCH16 can be supported on 4K page NAND.
