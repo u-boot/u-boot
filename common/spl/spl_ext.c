@@ -88,8 +88,7 @@ int spl_load_image_ext_os(struct blk_desc *block_dev, int partition)
 #endif
 		return -1;
 	}
-
-#if defined(CONFIG_SPL_ENV_SUPPORT) && defined(CONFIG_SPL_OS_BOOT)
+#if defined(CONFIG_SPL_ENV_SUPPORT)
 	file = getenv("falcon_args_file");
 	if (file) {
 		err = ext4fs_open(file, &filelen);
