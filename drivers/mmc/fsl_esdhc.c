@@ -538,7 +538,7 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	clk = (pre_div << 8) | (div << 4);
 
 #ifdef CONFIG_FSL_USDHC
-	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_CKEN);
 #else
 	esdhc_clrbits32(&regs->sysctl, SYSCTL_CKEN);
 #endif
@@ -548,7 +548,7 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	udelay(10000);
 
 #ifdef CONFIG_FSL_USDHC
-	esdhc_clrbits32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN | VENDORSPEC_CKEN);
 #else
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 #endif
@@ -643,6 +643,8 @@ static int esdhc_init(struct mmc *mmc)
 
 #ifndef CONFIG_FSL_USDHC
 	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
+#else
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_HCKEN | VENDORSPEC_IPGEN);
 #endif
 
 	/* Set the initial clock speed */
@@ -740,6 +742,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 #ifndef CONFIG_FSL_USDHC
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_HCKEN
 				| SYSCTL_IPGEN | SYSCTL_CKEN);
+#else
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN |
+			VENDORSPEC_HCKEN | VENDORSPEC_IPGEN | VENDORSPEC_CKEN);
 #endif
 
 	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
