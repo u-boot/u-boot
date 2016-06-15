@@ -28,7 +28,7 @@
 #define CONFIG_PHY_MICREL
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
+#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -63,6 +63,11 @@
 #define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 
+#define CONFIG_USB_FUNCTION_DFU
+#define CONFIG_DFU_MMC
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_16M
+#define DFU_DEFAULT_POLL_TIMEOUT 300
+
 #define CONFIG_G_DNL_VENDOR_NUM		0x0525
 #define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
 #define CONFIG_G_DNL_MANUFACTURER	"FSL"
@@ -86,6 +91,7 @@
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
+	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
