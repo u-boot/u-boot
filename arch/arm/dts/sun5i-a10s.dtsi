@@ -241,6 +241,20 @@
 		allwinner,drive = <SUN4I_PINCTRL_30_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
+
+	nand_cs2_pins_a: nand_cs@2 {
+		allwinner,pins = "PC17";
+		allwinner,function = "nand0";
+		allwinner,drive = <0>;
+		allwinner,pull = <0>;
+	};
+
+	nand_cs3_pins_a: nand_cs@3 {
+		allwinner,pins = "PC18";
+		allwinner,function = "nand0";
+		allwinner,drive = <0>;
+		allwinner,pull = <0>;
+	};
 };
 
 &sram_a {
