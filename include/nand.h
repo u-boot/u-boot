@@ -142,3 +142,6 @@ __attribute__((noreturn)) void nand_boot(void);
 int get_nand_env_oob(struct mtd_info *mtd, unsigned long *result);
 #endif
 int spl_nand_erase_one(int block, int page);
+
+/* platform specific init functions */
+void sunxi_nand_init(void);
