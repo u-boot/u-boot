@@ -880,23 +880,39 @@ class Slots:
                 for board in failed_boards:
                     f.write(board + '\n')
 
-class WorkDir:
-    def __init__(self):
-        """Create a new working directory."""
-        self.work_dir = tempfile.mkdtemp()
+class ReferenceSource:
+
+    """Reference source against which original configs should be parsed."""
+
+    def __init__(self, commit):
+        """Create a reference source directory based on a specified commit.
+
+        Arguments:
+          commit: commit to git-clone
+        """
+        self.src_dir = tempfile.mkdtemp()
+        print "Cloning git repo to a separate work directory..."
+        subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
+                                cwd=self.src_dir)
+        print "Checkout '%s' to build the original autoconf.mk." % \
+            subprocess.check_output(['git', 'rev-parse', '--short', commit]).strip()
+        subprocess.check_output(['git', 'checkout', commit],
+                                stderr=subprocess.STDOUT, cwd=self.src_dir)
 
     def __del__(self):
-        """Delete the working directory
+        """Delete the reference source directory
 
         This function makes sure the temporary directory is cleaned away
         even if Python suddenly dies due to error.  It should be done in here
         because it is guaranteed the destructor is always invoked when the
         instance of the class gets unreferenced.
         """
-        shutil.rmtree(self.work_dir)
+        shutil.rmtree(self.src_dir)
 
-    def get(self):
-        return self.work_dir
+    def get_dir(self):
+        """Return the absolute path to the reference source directory."""
+
+        return self.src_dir
 
 def move_config(configs, options):
     """Move config options to defconfig files.
@@ -914,20 +930,11 @@ def move_config(configs, options):
         print 'Move ' + ', '.join(configs),
     print '(jobs: %d)\n' % options.jobs
 
-    reference_src_dir = ''
-
     if options.git_ref:
-        work_dir = WorkDir()
-        reference_src_dir = work_dir.get()
-        print "Cloning git repo to a separate work directory..."
-        subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
-                                cwd=reference_src_dir)
-        print "Checkout '%s' to build the original autoconf.mk." % \
-            subprocess.check_output(['git', 'rev-parse', '--short',
-                                    options.git_ref]).strip()
-        subprocess.check_output(['git', 'checkout', options.git_ref],
-                                stderr=subprocess.STDOUT,
-                                cwd=reference_src_dir)
+        reference_src = ReferenceSource(options.git_ref)
+        reference_src_dir = reference_src.get_dir()
+    else:
+        reference_src_dir = ''
 
     if options.defconfigs:
         defconfigs = [line.strip() for line in open(options.defconfigs)]
