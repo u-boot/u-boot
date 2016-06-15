@@ -645,7 +645,7 @@ class Slot:
 
         self.defconfig = defconfig
         self.log = ''
-        self.use_git_ref = True if self.options.git_ref else False
+        self.current_src_dir = self.reference_src_dir
         self.do_defconfig()
         return True
 
@@ -674,13 +674,13 @@ class Slot:
         if self.ps.poll() != 0:
             self.handle_error()
         elif self.state == STATE_DEFCONFIG:
-            if self.options.git_ref and not self.use_git_ref:
+            if self.reference_src_dir and not self.current_src_dir:
                 self.do_savedefconfig()
             else:
                 self.do_autoconf()
         elif self.state == STATE_AUTOCONF:
-            if self.use_git_ref:
-                self.use_git_ref = False
+            if self.current_src_dir:
+                self.current_src_dir = None
                 self.do_defconfig()
             else:
                 self.do_savedefconfig()
@@ -706,11 +706,9 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append(self.defconfig)
-        if self.use_git_ref:
-            cmd.append('-C')
-            cmd.append(self.reference_src_dir)
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE)
+                                   stderr=subprocess.PIPE,
+                                   cwd=self.current_src_dir)
         self.state = STATE_DEFCONFIG
 
     def do_autoconf(self):
@@ -728,11 +726,9 @@ class Slot:
             cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append('include/config/auto.conf')
-        if self.use_git_ref:
-            cmd.append('-C')
-            cmd.append(self.reference_src_dir)
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE)
+                                   stderr=subprocess.PIPE,
+                                   cwd=self.current_src_dir)
         self.state = STATE_AUTOCONF
 
     def do_savedefconfig(self):
@@ -934,7 +930,7 @@ def move_config(configs, options):
         reference_src = ReferenceSource(options.git_ref)
         reference_src_dir = reference_src.get_dir()
     else:
-        reference_src_dir = ''
+        reference_src_dir = None
 
     if options.defconfigs:
         defconfigs = [line.strip() for line in open(options.defconfigs)]
