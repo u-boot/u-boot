@@ -611,6 +611,7 @@ class Slot:
         self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = []
+        self.suspicious_boards = []
 
     def __del__(self):
         """Delete the working directory
@@ -755,7 +756,10 @@ class Slot:
     def update_defconfig(self):
         """Update the input defconfig and go back to the idle state."""
 
-        self.log += self.parser.check_defconfig()
+        log = self.parser.check_defconfig()
+        if log:
+            self.suspicious_boards.append(self.defconfig)
+            self.log += log
         orig_defconfig = os.path.join('configs', self.defconfig)
         new_defconfig = os.path.join(self.build_dir, 'defconfig')
         updated = not filecmp.cmp(orig_defconfig, new_defconfig)
@@ -798,6 +802,11 @@ class Slot:
         """Returns a list of failed boards (defconfigs) in this slot.
         """
         return self.failed_boards
+
+    def get_suspicious_boards(self):
+        """Returns a list of boards (defconfigs) with possible misconversion.
+        """
+        return self.suspicious_boards
 
 class Slots:
 
@@ -872,6 +881,26 @@ class Slots:
             msg += boards
             msg += "(the list has been saved in %s)\n" % output_file
             print >> sys.stderr, color_text(self.options.color, COLOR_LIGHT_RED,
+                                            msg)
+
+            with open(output_file, 'w') as f:
+                f.write(boards)
+
+    def show_suspicious_boards(self):
+        """Display all boards (defconfigs) with possible misconversion."""
+        boards = []
+        output_file = 'moveconfig.suspicious'
+
+        for slot in self.slots:
+            boards += slot.get_suspicious_boards()
+
+        if boards:
+            boards = '\n'.join(boards) + '\n'
+            msg = "The following boards might have been converted incorrectly.\n"
+            msg += "It is highly recommended to check them manually:\n"
+            msg += boards
+            msg += "(the list has been saved in %s)\n" % output_file
+            print >> sys.stderr, color_text(self.options.color, COLOR_YELLOW,
                                             msg)
 
             with open(output_file, 'w') as f:
@@ -967,6 +996,7 @@ def move_config(configs, options):
 
     print ''
     slots.show_failed_boards()
+    slots.show_suspicious_boards()
 
 def main():
     try:
