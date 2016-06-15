@@ -1448,7 +1448,7 @@ int board_nand_init(struct nand_chip *nand)
 
 void nand_init(void)
 {
-	mtd = &nand_chip.mtd;
+	mtd = nand_to_mtd(&nand_chip);
 	mtd->writesize = CONFIG_SYS_NAND_PAGE_SIZE;
 	mtd->oobsize = CONFIG_SYS_NAND_OOBSIZE;
 	nand_chip.IO_ADDR_R = (void __iomem *)CONFIG_SYS_NAND_BASE;

@@ -137,7 +137,7 @@ Configuration Options:
       init:
 
 	/* chip is struct nand_chip, and is now provided by the driver. */
-	mtd = &chip.mtd;
+	mtd = nand_to_mtd(&chip);
 
 	/*
 	 * Fill in appropriate values if this driver uses these fields,

@@ -541,7 +541,7 @@ static struct nand_chip lpc32xx_chip;
 
 void board_nand_init(void)
 {
-	struct mtd_info *mtd = &lpc32xx_chip.mtd;
+	struct mtd_info *mtd = nand_to_mtd(&lpc32xx_chip);
 	int ret;
 
 	/* Set all BOARDSPECIFIC (actually core-specific) fields  */
