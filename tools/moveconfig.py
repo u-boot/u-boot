@@ -860,21 +860,22 @@ class Slots:
 
     def show_failed_boards(self):
         """Display all of the failed boards (defconfigs)."""
-        failed_boards = []
+        boards = []
+        output_file = 'moveconfig.failed'
 
         for slot in self.slots:
-            failed_boards += slot.get_failed_boards()
+            boards += slot.get_failed_boards()
 
-        if len(failed_boards) > 0:
-            msg = [ "The following boards were not processed due to error:" ]
-            msg += failed_boards
-            for line in msg:
-                print >> sys.stderr, color_text(self.options.color,
-                                                COLOR_LIGHT_RED, line)
+        if boards:
+            boards = '\n'.join(boards) + '\n'
+            msg = "The following boards were not processed due to error:\n"
+            msg += boards
+            msg += "(the list has been saved in %s)\n" % output_file
+            print >> sys.stderr, color_text(self.options.color, COLOR_LIGHT_RED,
+                                            msg)
 
-            with open('moveconfig.failed', 'w') as f:
-                for board in failed_boards:
-                    f.write(board + '\n')
+            with open(output_file, 'w') as f:
+                f.write(boards)
 
 class ReferenceSource:
 
