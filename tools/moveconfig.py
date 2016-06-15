@@ -487,9 +487,6 @@ class KconfigParser:
         else:
             new_val = not_set
 
-        if old_val == new_val:
-            return (ACTION_NO_CHANGE, new_val)
-
         # If this CONFIG is neither bool nor trisate
         if old_val[-2:] != '=y' and old_val[-2:] != '=m' and old_val != not_set:
             # tools/scripts/define2mk.sed changes '1' to 'y'.
@@ -498,7 +495,8 @@ class KconfigParser:
             if new_val[-2:] == '=y':
                 new_val = new_val[:-1] + '1'
 
-        return (ACTION_MOVE, new_val)
+        return (ACTION_NO_CHANGE if old_val == new_val else ACTION_MOVE,
+                new_val)
 
     def update_dotconfig(self):
         """Parse files for the config options and update the .config.
