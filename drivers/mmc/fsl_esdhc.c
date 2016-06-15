@@ -91,7 +91,9 @@ struct fsl_esdhc {
  * Following is used when Driver Model is enabled for MMC
  * @dev: pointer for the device
  * @non_removable: 0: removable; 1: non-removable
+ * @wp_enable: 1: enable checking wp; 0: no check
  * @cd_gpio: gpio for card detection
+ * @wp_gpio: gpio for write protection
  */
 struct fsl_esdhc_priv {
 	struct fsl_esdhc *esdhc_regs;
@@ -101,7 +103,9 @@ struct fsl_esdhc_priv {
 	struct mmc *mmc;
 	struct udevice *dev;
 	int non_removable;
+	int wp_enable;
 	struct gpio_desc cd_gpio;
+	struct gpio_desc wp_gpio;
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
@@ -245,9 +249,12 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 #endif
 		if (wml_value > WML_WR_WML_MAX)
 			wml_value = WML_WR_WML_MAX_VAL;
-		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
-			printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
-			return TIMEOUT;
+		if (priv->wp_enable) {
+			if ((esdhc_read32(&regs->prsstat) &
+			    PRSSTAT_WPSPL) == 0) {
+				printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
+				return TIMEOUT;
+			}
 		}
 
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
@@ -721,6 +728,7 @@ static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
 	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
 	priv->bus_width = cfg->max_bus_width;
 	priv->sdhc_clk = cfg->sdhc_clk;
+	priv->wp_enable  = cfg->wp_enable;
 
 	return 0;
 };
@@ -962,6 +970,13 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		gpio_request_by_name_nodev(fdt, node, "cd-gpios", 0,
 					   &priv->cd_gpio, GPIOD_IS_IN);
 	}
+
+	priv->wp_enable = 1;
+
+	ret = gpio_request_by_name_nodev(fdt, node, "wp-gpios", 0,
+					 &priv->wp_gpio, GPIOD_IS_IN);
+	if (ret)
+		priv->wp_enable = 0;
 
 	/*
 	 * TODO:
