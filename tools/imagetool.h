@@ -206,6 +206,22 @@ int imagetool_save_subimage(
  */
 int imagetool_get_filesize(struct image_tool_params *params, const char *fname);
 
+/**
+ * imagetool_get_source_date() - Get timestamp for build output.
+ *
+ * Gets a timestamp for embedding it in a build output. If set
+ * SOURCE_DATE_EPOCH is used. Else the given fallback value is returned. Prints
+ * an error message if SOURCE_DATE_EPOCH contains an invalid value and returns
+ * 0.
+ *
+ * @params:	mkimage parameters
+ * @fallback:	timestamp to use if SOURCE_DATE_EPOCH isn't set
+ * @return timestamp based on SOURCE_DATE_EPOCH
+ */
+time_t imagetool_get_source_date(
+	struct image_tool_params *params,
+	time_t fallback);
+
 /*
  * There is a c file associated with supported image type low level code
  * for ex. default_image.c, fit_image.c
