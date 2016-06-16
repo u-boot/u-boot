@@ -610,7 +610,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		fdt_shrink_to_minimum(blob); /* Make room for new properties */
 		nodeoffset = fdt_path_offset(blob, USDHC3_PATH);
 		fdt_delprop(blob, nodeoffset, "cd-gpios");
-		fdt_find_and_setprop(blob, USDHC3_PATH, "non-removable",
+		fdt_find_and_setprop(blob, USDHC3_PATH, "broken-cd",
 				     NULL, 0, 1);
 		fdt_find_and_setprop(blob, USDHC3_PATH, "keep-power-in-suspend",
 				     NULL, 0, 1);
