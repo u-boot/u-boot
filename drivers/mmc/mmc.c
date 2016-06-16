@@ -1227,6 +1227,9 @@ static int mmc_startup(struct mmc *mmc)
 		case 7:
 			mmc->version = MMC_VERSION_5_0;
 			break;
+		case 8:
+			mmc->version = MMC_VERSION_5_1;
+			break;
 		}
 
 		/* The partition data may be non-zero but it is only
