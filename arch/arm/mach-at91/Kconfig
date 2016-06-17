@@ -74,6 +74,7 @@ config TARGET_AT91SAM9X5EK
 config TARGET_SAMA5D2_XPLAINED
 	bool "SAMA5D2 Xplained board"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D3_XPLAINED
 	bool "SAMA5D3 Xplained board"
@@ -92,6 +93,11 @@ config TARGET_SAMA5D4_XPLAINED
 
 config TARGET_SAMA5D4EK
 	bool "SAMA5D4 Evaluation Kit"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_MA5D4EVK
+	bool "DENX MA5D4EVK Evaluation Kit"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -114,6 +120,11 @@ config TARGET_SMARTWEB
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
+config TARGET_VINCO
+	bool "Support VINCO"
+	select CPU_V7
+	select SUPPORT_SPL
+
 endchoice
 
 config SYS_SOC
@@ -134,8 +145,10 @@ source "board/atmel/sama5d4_xplained/Kconfig"
 source "board/atmel/sama5d4ek/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
+source "board/denx/ma5d4evk/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
+source "board/l+g/vinco/Kconfig"
 source "board/mini-box/picosam9g45/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"

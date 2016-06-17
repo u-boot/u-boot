@@ -1,5 +1,5 @@
 /*
- * U-boot - stub functions for common kgdb code,
+ * U-Boot - stub functions for common kgdb code,
  *          can be overridden in board specific files
  *
  * Copyright 2009 Analog Devices Inc.

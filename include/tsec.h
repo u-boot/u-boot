@@ -3,15 +3,12 @@
  *
  *  Driver for the Motorola Triple Speed Ethernet Controller
  *
- *  This software may be used and distributed according to the
- *  terms of the GNU Public License, Version 2, incorporated
- *  herein by reference.
- *
  * Copyright 2004, 2007, 2009, 2011, 2013 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * maintained by Xianghua Xiao (x.xiao@motorola.com)
  * author Andy Fleming
  *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TSEC_H
@@ -20,6 +17,8 @@
 #include <net.h>
 #include <config.h>
 #include <phy.h>
+
+#ifndef CONFIG_DM_ETH
 
 #ifdef CONFIG_LS102XA
 #define TSEC_SIZE		0x40000
@@ -67,11 +66,13 @@
 	x.mii_devname = DEFAULT_MII_NAME;\
 }
 
-#define MAC_ADDR_LEN 6
+#endif /* CONFIG_DM_ETH */
+
+#define MAC_ADDR_LEN		6
 
 /* #define TSEC_TIMEOUT	1000000 */
-#define TSEC_TIMEOUT 1000
-#define TOUT_LOOP	1000000
+#define TSEC_TIMEOUT		1000
+#define TOUT_LOOP		1000000
 
 /* TBI register addresses */
 #define TBI_CR			0x00
@@ -83,8 +84,8 @@
 
 /* TBI MDIO register bit fields*/
 #define TBICON_CLK_SELECT	0x0020
-#define TBIANA_ASYMMETRIC_PAUSE 0x0100
-#define TBIANA_SYMMETRIC_PAUSE  0x0080
+#define TBIANA_ASYMMETRIC_PAUSE	0x0100
+#define TBIANA_SYMMETRIC_PAUSE	0x0080
 #define TBIANA_HALF_DUPLEX	0x0040
 #define TBIANA_FULL_DUPLEX	0x0020
 #define TBICR_PHY_RESET		0x8000
@@ -93,13 +94,12 @@
 #define TBICR_FULL_DUPLEX	0x0100
 #define TBICR_SPEED1_SET	0x0040
 
-
 /* MAC register bits */
 #define MACCFG1_SOFT_RESET	0x80000000
 #define MACCFG1_RESET_RX_MC	0x00080000
 #define MACCFG1_RESET_TX_MC	0x00040000
 #define MACCFG1_RESET_RX_FUN	0x00020000
-#define	MACCFG1_RESET_TX_FUN	0x00010000
+#define MACCFG1_RESET_TX_FUN	0x00010000
 #define MACCFG1_LOOPBACK	0x00000100
 #define MACCFG1_RX_FLOW		0x00000020
 #define MACCFG1_TX_FLOW		0x00000010
@@ -122,7 +122,7 @@
 #define ECNTRL_SGMII_MODE	0x00000002
 
 #ifndef CONFIG_SYS_TBIPA_VALUE
-    #define CONFIG_SYS_TBIPA_VALUE	0x1f
+# define CONFIG_SYS_TBIPA_VALUE	0x1f
 #endif
 
 #define MRBLR_INIT_SETTINGS	PKTSIZE_ALIGN
@@ -136,7 +136,6 @@
 
 #define TSTAT_CLEAR_THALT	0x80000000
 #define RSTAT_CLEAR_RHALT	0x00800000
-
 
 #define IEVENT_INIT_CLEAR	0xffffffff
 #define IEVENT_BABR		0x80000000
@@ -164,11 +163,9 @@
 #define IMASK_TXFEN		0x00100000
 #define IMASK_RXFEN0		0x00000080
 
-
 /* Default Attribute fields */
-#define ATTR_INIT_SETTINGS     0x000000c0
-#define ATTRELI_INIT_SETTINGS  0x00000000
-
+#define ATTR_INIT_SETTINGS	0x000000c0
+#define ATTRELI_INIT_SETTINGS	0x00000000
 
 /* TxBD status field bits */
 #define TXBD_READY		0x8000
@@ -181,7 +178,7 @@
 #define TXBD_HUGEFRAME		0x0080
 #define TXBD_LATECOLLISION	0x0080
 #define TXBD_RETRYLIMIT		0x0040
-#define	TXBD_RETRYCOUNTMASK	0x003c
+#define TXBD_RETRYCOUNTMASK	0x003c
 #define TXBD_UNDERRUN		0x0002
 #define TXBD_STATS		0x03ff
 
@@ -204,15 +201,15 @@
 #define RXBD_STATS		0x003f
 
 struct txbd8 {
-	uint16_t     status;	     /* Status Fields */
-	uint16_t     length;	     /* Buffer length */
-	uint32_t     bufptr;	     /* Buffer Pointer */
+	uint16_t status;	/* Status Fields */
+	uint16_t length;	/* Buffer length */
+	uint32_t bufptr;	/* Buffer Pointer */
 };
 
 struct rxbd8 {
-	uint16_t     status;	     /* Status Fields */
-	uint16_t     length;	     /* Buffer Length */
-	uint32_t     bufptr;	     /* Buffer Pointer */
+	uint16_t status;	/* Status Fields */
+	uint16_t length;	/* Buffer Length */
+	uint32_t bufptr;	/* Buffer Pointer */
 };
 
 struct tsec_rmon_mib {
@@ -336,15 +333,15 @@ struct tsec {
 	u32	rbdlen;		/* RxBD Data Length */
 	u32	res310[4];
 	u32	res320;
-	u32	crbptr;	/* Current Receive Buffer Pointer */
+	u32	crbptr;		/* Current Receive Buffer Pointer */
 	u32	res328[6];
-	u32	mrblr;	/* Maximum Receive Buffer Length */
+	u32	mrblr;		/* Maximum Receive Buffer Length */
 	u32	res344[16];
-	u32	rbptr;	/* RxBD Pointer */
+	u32	rbptr;		/* RxBD Pointer */
 	u32	res388[30];
 	/* (0x2_n400) */
 	u32	res400;
-	u32	rbase;	/* RxBD Base Address */
+	u32	rbase;		/* RxBD Base Address */
 	u32	res408[62];
 
 	/* MAC Registers (0x2_n500) */
@@ -388,21 +385,33 @@ struct tsec {
 	u32	resc00[256];
 };
 
-#define TSEC_GIGABIT (1 << 0)
+#define TSEC_GIGABIT	(1 << 0)
 
 /* These flags currently only have meaning if we're using the eTSEC */
 #define TSEC_REDUCED	(1 << 1)	/* MAC-PHY interface uses RGMII */
 #define TSEC_SGMII	(1 << 2)	/* MAC-PHY interface uses SGMII */
 
+#define TX_BUF_CNT	2
+
 struct tsec_private {
+	struct txbd8 __iomem txbd[TX_BUF_CNT];
+	struct rxbd8 __iomem rxbd[PKTBUFSRX];
 	struct tsec __iomem *regs;
 	struct tsec_mii_mng __iomem *phyregs_sgmii;
 	struct phy_device *phydev;
 	phy_interface_t interface;
 	struct mii_dev *bus;
 	uint phyaddr;
+	uint tbiaddr;
 	char mii_devname[16];
 	u32 flags;
+	uint rx_idx;	/* index of the current RX buffer */
+	uint tx_idx;	/* index of the current TX buffer */
+#ifndef CONFIG_DM_ETH
+	struct eth_device *dev;
+#else
+	struct udevice *dev;
+#endif
 };
 
 struct tsec_info_struct {
@@ -415,7 +424,9 @@ struct tsec_info_struct {
 	u32 flags;
 };
 
+#ifndef CONFIG_DM_ETH
 int tsec_standard_init(bd_t *bis);
 int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsec_info, int num);
+#endif
 
 #endif /* __TSEC_H */

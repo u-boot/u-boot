@@ -1,5 +1,5 @@
 /*
- * U-boot - setup.h
+ * U-Boot - setup.h
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

@@ -20,19 +20,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 __weak void show_boot_progress(int val) {}
 
-static void modem_init(void)
-{
-#ifdef CONFIG_MODEM_SUPPORT
-	debug("DEBUG: main_loop:   gd->do_mdm_init=%lu\n", gd->do_mdm_init);
-	if (gd->do_mdm_init) {
-		char *str = getenv("mdm_cmd");
-
-		setenv("preboot", str);  /* set or delete definition */
-		mdm_init(); /* wait for modem connection */
-	}
-#endif  /* CONFIG_MODEM_SUPPORT */
-}
-
 static void run_preboot_environment_command(void)
 {
 #ifdef CONFIG_PREBOOT
@@ -66,7 +53,6 @@ void main_loop(void)
 	puts("upgraded by the late 2014 may break or be removed.\n");
 #endif
 
-	modem_init();
 #ifdef CONFIG_VERSION_VARIABLE
 	setenv("ver", version_string);  /* set version variable */
 #endif /* CONFIG_VERSION_VARIABLE */

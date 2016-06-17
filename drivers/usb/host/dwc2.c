@@ -13,6 +13,7 @@
 #include <memalign.h>
 #include <phys2bus.h>
 #include <usbroothubdes.h>
+#include <wait_bit.h>
 #include <asm/io.h>
 
 #include "dwc2.h"
@@ -34,7 +35,8 @@ struct dwc2_priv {
 	uint8_t *aligned_buffer;
 	uint8_t *status_buffer;
 #endif
-	int bulk_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
+	u8 in_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
+	u8 out_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
 };
@@ -52,27 +54,6 @@ static struct dwc2_priv local;
 /*
  * DWC2 IP interface
  */
-static int wait_for_bit(void *reg, const uint32_t mask, bool set)
-{
-	unsigned int timeout = 1000000;
-	uint32_t val;
-
-	while (--timeout) {
-		val = readl(reg);
-		if (!set)
-			val = ~val;
-
-		if ((val & mask) == mask)
-			return 0;
-
-		udelay(1);
-	}
-
-	debug("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
-	      __func__, reg, mask, set);
-
-	return -ETIMEDOUT;
-}
 
 /*
  * Initializes the FSLSPClkSel field of the HCFG register
@@ -117,7 +98,8 @@ static void dwc_otg_flush_tx_fifo(struct dwc2_core_regs *regs, const int num)
 
 	writel(DWC2_GRSTCTL_TXFFLSH | (num << DWC2_GRSTCTL_TXFNUM_OFFSET),
 	       &regs->grstctl);
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_TXFFLSH, 0);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_TXFFLSH,
+			   false, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
@@ -135,7 +117,8 @@ static void dwc_otg_flush_rx_fifo(struct dwc2_core_regs *regs)
 	int ret;
 
 	writel(DWC2_GRSTCTL_RXFFLSH, &regs->grstctl);
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_RXFFLSH, 0);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_RXFFLSH,
+			   false, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
@@ -152,13 +135,15 @@ static void dwc_otg_core_reset(struct dwc2_core_regs *regs)
 	int ret;
 
 	/* Wait for AHB master IDLE state. */
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_AHBIDLE, 1);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_AHBIDLE,
+			   true, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
 	/* Core Soft Reset */
 	writel(DWC2_GRSTCTL_CSFTRST, &regs->grstctl);
-	ret = wait_for_bit(&regs->grstctl, DWC2_GRSTCTL_CSFTRST, 0);
+	ret = wait_for_bit(__func__, &regs->grstctl, DWC2_GRSTCTL_CSFTRST,
+			   false, 1000, false);
 	if (ret)
 		printf("%s: Timeout!\n", __func__);
 
@@ -243,8 +228,8 @@ static void dwc_otg_core_host_init(struct dwc2_core_regs *regs)
 		clrsetbits_le32(&regs->hc_regs[i].hcchar,
 				DWC2_HCCHAR_EPDIR,
 				DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS);
-		ret = wait_for_bit(&regs->hc_regs[i].hcchar,
-				   DWC2_HCCHAR_CHEN, 0);
+		ret = wait_for_bit(__func__, &regs->hc_regs[i].hcchar,
+				   DWC2_HCCHAR_CHEN, false, 1000, false);
 		if (ret)
 			printf("%s: Timeout!\n", __func__);
 	}
@@ -278,7 +263,9 @@ static void dwc_otg_core_init(struct dwc2_core_regs *regs)
 
 	/* Program the ULPI External VBUS bit if needed */
 #ifdef CONFIG_DWC2_PHY_ULPI_EXT_VBUS
-	usbcfg |= DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+	usbcfg |= (DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV |
+		   DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
+		   DWC2_GUSBCFG_INDICATOR_PASSTHROUGH);
 #else
 	usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
 #endif
@@ -426,17 +413,27 @@ static void dwc_otg_hc_init(struct dwc2_core_regs *regs, uint8_t hc_num,
 	if (dev->speed == USB_SPEED_LOW)
 		hcchar |= DWC2_HCCHAR_LSPDDEV;
 
-	/* Clear old interrupt conditions for this host channel. */
-	writel(0x3fff, &hc_regs->hcint);
-
 	/*
 	 * Program the HCCHARn register with the endpoint characteristics
 	 * for the current transfer.
 	 */
 	writel(hcchar, &hc_regs->hcchar);
 
-	/* Program the HCSPLIT register for SPLITs */
+	/* Program the HCSPLIT register, default to no SPLIT */
 	writel(0, &hc_regs->hcsplt);
+}
+
+static void dwc_otg_hc_init_split(struct dwc2_hc_regs *hc_regs,
+				  uint8_t hub_devnum, uint8_t hub_port)
+{
+	uint32_t hcsplt = 0;
+
+	hcsplt = DWC2_HCSPLT_SPLTENA;
+	hcsplt |= hub_devnum << DWC2_HCSPLT_HUBADDR_OFFSET;
+	hcsplt |= hub_port << DWC2_HCSPLT_PRTADDR_OFFSET;
+
+	/* Program the HCSPLIT register for SPLITs */
+	writel(hcsplt, &hc_regs->hcsplt);
 }
 
 /*
@@ -729,38 +726,33 @@ static int dwc_otg_submit_rh_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	return stat;
 }
 
-int wait_for_chhltd(struct dwc2_core_regs *regs, uint32_t *sub, int *toggle,
-		    bool ignore_ack)
+int wait_for_chhltd(struct dwc2_hc_regs *hc_regs, uint32_t *sub, u8 *toggle)
 {
-	uint32_t hcint_comp_hlt_ack = DWC2_HCINT_XFERCOMP | DWC2_HCINT_CHHLTD;
-	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
 	int ret;
 	uint32_t hcint, hctsiz;
 
-	ret = wait_for_bit(&hc_regs->hcint, DWC2_HCINT_CHHLTD, true);
+	ret = wait_for_bit(__func__, &hc_regs->hcint, DWC2_HCINT_CHHLTD, true,
+			   1000, false);
 	if (ret)
 		return ret;
 
 	hcint = readl(&hc_regs->hcint);
-	if (hcint & (DWC2_HCINT_NAK | DWC2_HCINT_FRMOVRUN))
-		return -EAGAIN;
-	if (ignore_ack)
-		hcint &= ~DWC2_HCINT_ACK;
-	else
-		hcint_comp_hlt_ack |= DWC2_HCINT_ACK;
-	if (hcint != hcint_comp_hlt_ack) {
-		debug("%s: Error (HCINT=%08x)\n", __func__, hcint);
-		return -EINVAL;
-	}
-
 	hctsiz = readl(&hc_regs->hctsiz);
 	*sub = (hctsiz & DWC2_HCTSIZ_XFERSIZE_MASK) >>
 		DWC2_HCTSIZ_XFERSIZE_OFFSET;
 	*toggle = (hctsiz & DWC2_HCTSIZ_PID_MASK) >> DWC2_HCTSIZ_PID_OFFSET;
 
-	debug("%s: sub=%u toggle=%d\n", __func__, *sub, *toggle);
+	debug("%s: HCINT=%08x sub=%u toggle=%d\n", __func__, hcint, *sub,
+	      *toggle);
 
-	return 0;
+	if (hcint & DWC2_HCINT_XFERCOMP)
+		return 0;
+
+	if (hcint & (DWC2_HCINT_NAK | DWC2_HCINT_FRMOVRUN))
+		return -EAGAIN;
+
+	debug("%s: Error (HCINT=%08x)\n", __func__, hcint);
+	return -EINVAL;
 }
 
 static int dwc2_eptype[] = {
@@ -770,96 +762,176 @@ static int dwc2_eptype[] = {
 	DWC2_HCCHAR_EPTYPE_BULK,
 };
 
+static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
+			  u8 *pid, int in, void *buffer, int num_packets,
+			  int xfer_len, int *actual_len, int odd_frame)
+{
+	int ret = 0;
+	uint32_t sub;
+
+	debug("%s: chunk: pid %d xfer_len %u pkts %u\n", __func__,
+	      *pid, xfer_len, num_packets);
+
+	writel((xfer_len << DWC2_HCTSIZ_XFERSIZE_OFFSET) |
+	       (num_packets << DWC2_HCTSIZ_PKTCNT_OFFSET) |
+	       (*pid << DWC2_HCTSIZ_PID_OFFSET),
+	       &hc_regs->hctsiz);
+
+	if (!in && xfer_len) {
+		memcpy(aligned_buffer, buffer, xfer_len);
+
+		flush_dcache_range((unsigned long)aligned_buffer,
+				   (unsigned long)aligned_buffer +
+				   roundup(xfer_len, ARCH_DMA_MINALIGN));
+	}
+
+	writel(phys_to_bus((unsigned long)aligned_buffer), &hc_regs->hcdma);
+
+	/* Clear old interrupt conditions for this host channel. */
+	writel(0x3fff, &hc_regs->hcint);
+
+	/* Set host channel enable after all other setup is complete. */
+	clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
+			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS |
+			DWC2_HCCHAR_ODDFRM,
+			(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
+			(odd_frame << DWC2_HCCHAR_ODDFRM_OFFSET) |
+			DWC2_HCCHAR_CHEN);
+
+	ret = wait_for_chhltd(hc_regs, &sub, pid);
+	if (ret < 0)
+		return ret;
+
+	if (in) {
+		xfer_len -= sub;
+
+		invalidate_dcache_range((unsigned long)aligned_buffer,
+					(unsigned long)aligned_buffer +
+					roundup(xfer_len, ARCH_DMA_MINALIGN));
+
+		memcpy(buffer, aligned_buffer, xfer_len);
+	}
+	*actual_len = xfer_len;
+
+	return ret;
+}
+
 int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
-	      unsigned long pipe, int *pid, int in, void *buffer, int len,
-	      bool ignore_ack)
+	      unsigned long pipe, u8 *pid, int in, void *buffer, int len)
 {
 	struct dwc2_core_regs *regs = priv->regs;
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
+	struct dwc2_host_regs *host_regs = &regs->host_regs;
 	int devnum = usb_pipedevice(pipe);
 	int ep = usb_pipeendpoint(pipe);
 	int max = usb_maxpacket(dev, pipe);
 	int eptype = dwc2_eptype[usb_pipetype(pipe)];
 	int done = 0;
 	int ret = 0;
-	uint32_t sub;
+	int do_split = 0;
+	int complete_split = 0;
 	uint32_t xfer_len;
 	uint32_t num_packets;
 	int stop_transfer = 0;
+	uint32_t max_xfer_len;
+	int ssplit_frame_num = 0;
 
 	debug("%s: msg: pipe %lx pid %d in %d len %d\n", __func__, pipe, *pid,
 	      in, len);
 
-	do {
-		/* Initialize channel */
-		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, dev, devnum, ep, in,
-				eptype, max);
+	max_xfer_len = CONFIG_DWC2_MAX_PACKET_COUNT * max;
+	if (max_xfer_len > CONFIG_DWC2_MAX_TRANSFER_SIZE)
+		max_xfer_len = CONFIG_DWC2_MAX_TRANSFER_SIZE;
+	if (max_xfer_len > DWC2_DATA_BUF_SIZE)
+		max_xfer_len = DWC2_DATA_BUF_SIZE;
 
-		xfer_len = len - done;
-		if (xfer_len > CONFIG_DWC2_MAX_TRANSFER_SIZE)
-			xfer_len = CONFIG_DWC2_MAX_TRANSFER_SIZE - max + 1;
-		if (xfer_len > DWC2_DATA_BUF_SIZE)
-			xfer_len = DWC2_DATA_BUF_SIZE - max + 1;
+	/* Make sure that max_xfer_len is a multiple of max packet size. */
+	num_packets = max_xfer_len / max;
+	max_xfer_len = num_packets * max;
 
-		/* Make sure that xfer_len is a multiple of max packet size. */
-		if (xfer_len > 0) {
-			num_packets = (xfer_len + max - 1) / max;
-			if (num_packets > CONFIG_DWC2_MAX_PACKET_COUNT) {
-				num_packets = CONFIG_DWC2_MAX_PACKET_COUNT;
-				xfer_len = num_packets * max;
-			}
-		} else {
+	/* Initialize channel */
+	dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, dev, devnum, ep, in,
+			eptype, max);
+
+	/* Check if the target is a FS/LS device behind a HS hub */
+	if (dev->speed != USB_SPEED_HIGH) {
+		uint8_t hub_addr;
+		uint8_t hub_port;
+		uint32_t hprt0 = readl(&regs->hprt0);
+		if ((hprt0 & DWC2_HPRT0_PRTSPD_MASK) ==
+		     DWC2_HPRT0_PRTSPD_HIGH) {
+			usb_find_usb2_hub_address_port(dev, &hub_addr,
+						       &hub_port);
+			dwc_otg_hc_init_split(hc_regs, hub_addr, hub_port);
+
+			do_split = 1;
 			num_packets = 1;
+			max_xfer_len = max;
+		}
+	}
+
+	do {
+		int actual_len = 0;
+		uint32_t hcint;
+		int odd_frame = 0;
+		xfer_len = len - done;
+
+		if (xfer_len > max_xfer_len)
+			xfer_len = max_xfer_len;
+		else if (xfer_len > max)
+			num_packets = (xfer_len + max - 1) / max;
+		else
+			num_packets = 1;
+
+		if (complete_split)
+			setbits_le32(&hc_regs->hcsplt, DWC2_HCSPLT_COMPSPLT);
+		else if (do_split)
+			clrbits_le32(&hc_regs->hcsplt, DWC2_HCSPLT_COMPSPLT);
+
+		if (eptype == DWC2_HCCHAR_EPTYPE_INTR) {
+			int uframe_num = readl(&host_regs->hfnum);
+			if (!(uframe_num & 0x1))
+				odd_frame = 1;
 		}
 
-		if (in)
-			xfer_len = num_packets * max;
+		ret = transfer_chunk(hc_regs, priv->aligned_buffer, pid,
+				     in, (char *)buffer + done, num_packets,
+				     xfer_len, &actual_len, odd_frame);
 
-		debug("%s: chunk: pid %d xfer_len %u pkts %u\n", __func__,
-		      *pid, xfer_len, num_packets);
-
-		writel((xfer_len << DWC2_HCTSIZ_XFERSIZE_OFFSET) |
-		       (num_packets << DWC2_HCTSIZ_PKTCNT_OFFSET) |
-		       (*pid << DWC2_HCTSIZ_PID_OFFSET),
-		       &hc_regs->hctsiz);
-
-		if (!in && xfer_len) {
-			memcpy(priv->aligned_buffer, (char *)buffer + done,
-			       xfer_len);
-
-			flush_dcache_range((unsigned long)priv->aligned_buffer,
-				(unsigned long)((void *)priv->aligned_buffer +
-				roundup(xfer_len, ARCH_DMA_MINALIGN)));
+		hcint = readl(&hc_regs->hcint);
+		if (complete_split) {
+			stop_transfer = 0;
+			if (hcint & DWC2_HCINT_NYET) {
+				ret = 0;
+				int frame_num = DWC2_HFNUM_MAX_FRNUM &
+						readl(&host_regs->hfnum);
+				if (((frame_num - ssplit_frame_num) &
+				    DWC2_HFNUM_MAX_FRNUM) > 4)
+					ret = -EAGAIN;
+			} else
+				complete_split = 0;
+		} else if (do_split) {
+			if (hcint & DWC2_HCINT_ACK) {
+				ssplit_frame_num = DWC2_HFNUM_MAX_FRNUM &
+						   readl(&host_regs->hfnum);
+				ret = 0;
+				complete_split = 1;
+			}
 		}
 
-		writel(phys_to_bus((unsigned long)priv->aligned_buffer),
-		       &hc_regs->hcdma);
-
-		/* Set host channel enable after all other setup is complete. */
-		clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
-				DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
-				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
-				DWC2_HCCHAR_CHEN);
-
-		ret = wait_for_chhltd(regs, &sub, pid, ignore_ack);
 		if (ret)
 			break;
 
-		if (in) {
-			xfer_len -= sub;
+		if (actual_len < xfer_len)
+			stop_transfer = 1;
 
-			invalidate_dcache_range((unsigned long)priv->aligned_buffer,
-				(unsigned long)((void *)priv->aligned_buffer +
-				roundup(xfer_len, ARCH_DMA_MINALIGN)));
+		done += actual_len;
 
-			memcpy(buffer + done, priv->aligned_buffer, xfer_len);
-			if (sub)
-				stop_transfer = 1;
-		}
-
-		done += xfer_len;
-
-	} while ((done < len) && !stop_transfer);
+	/* Transactions are done when when either all data is transferred or
+	 * there is a short transfer. In case of a SPLIT make sure the CSPLIT
+	 * is executed.
+	 */
+	} while (((done < len) && !stop_transfer) || complete_split);
 
 	writel(0, &hc_regs->hcintmsk);
 	writel(0xFFFFFFFF, &hc_regs->hcint);
@@ -876,14 +948,19 @@ int _submit_bulk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 {
 	int devnum = usb_pipedevice(pipe);
 	int ep = usb_pipeendpoint(pipe);
+	u8* pid;
 
-	if (devnum == priv->root_hub_devnum) {
+	if ((devnum >= MAX_DEVICE) || (devnum == priv->root_hub_devnum)) {
 		dev->status = 0;
 		return -EINVAL;
 	}
 
-	return chunk_msg(priv, dev, pipe, &priv->bulk_data_toggle[devnum][ep],
-			 usb_pipein(pipe), buffer, len, true);
+	if (usb_pipein(pipe))
+		pid = &priv->in_data_toggle[devnum][ep];
+	else
+		pid = &priv->out_data_toggle[devnum][ep];
+
+	return chunk_msg(priv, dev, pipe, pid, usb_pipein(pipe), buffer, len);
 }
 
 static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
@@ -891,7 +968,8 @@ static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
 			       struct devrequest *setup)
 {
 	int devnum = usb_pipedevice(pipe);
-	int pid, ret, act_len;
+	int ret, act_len;
+	u8 pid;
 	/* For CONTROL endpoint pid should start with DATA1 */
 	int status_direction;
 
@@ -902,31 +980,39 @@ static int _submit_control_msg(struct dwc2_priv *priv, struct usb_device *dev,
 					     setup);
 	}
 
+	/* SETUP stage */
 	pid = DWC2_HC_PID_SETUP;
-	ret = chunk_msg(priv, dev, pipe, &pid, 0, setup, 8, true);
+	do {
+		ret = chunk_msg(priv, dev, pipe, &pid, 0, setup, 8);
+	} while (ret == -EAGAIN);
 	if (ret)
 		return ret;
 
+	/* DATA stage */
+	act_len = 0;
 	if (buffer) {
 		pid = DWC2_HC_PID_DATA1;
-		ret = chunk_msg(priv, dev, pipe, &pid, usb_pipein(pipe), buffer,
-				len, false);
+		do {
+			ret = chunk_msg(priv, dev, pipe, &pid, usb_pipein(pipe),
+					buffer, len);
+			act_len += dev->act_len;
+			buffer += dev->act_len;
+			len -= dev->act_len;
+		} while (ret == -EAGAIN);
 		if (ret)
 			return ret;
-		act_len = dev->act_len;
-	} /* End of DATA stage */
-	else
-		act_len = 0;
+		status_direction = usb_pipeout(pipe);
+	} else {
+		/* No-data CONTROL always ends with an IN transaction */
+		status_direction = 1;
+	}
 
 	/* STATUS stage */
-	if ((len == 0) || usb_pipeout(pipe))
-		status_direction = 1;
-	else
-		status_direction = 0;
-
 	pid = DWC2_HC_PID_DATA1;
-	ret = chunk_msg(priv, dev, pipe, &pid, status_direction,
-			priv->status_buffer, 0, false);
+	do {
+		ret = chunk_msg(priv, dev, pipe, &pid, status_direction,
+				priv->status_buffer, 0);
+	} while (ret == -EAGAIN);
 	if (ret)
 		return ret;
 
@@ -983,8 +1069,10 @@ static int dwc2_init_common(struct dwc2_priv *priv)
 		     DWC2_HPRT0_PRTRST);
 
 	for (i = 0; i < MAX_DEVICE; i++) {
-		for (j = 0; j < MAX_ENDPOINT; j++)
-			priv->bulk_data_toggle[i][j] = DWC2_HC_PID_DATA0;
+		for (j = 0; j < MAX_ENDPOINT; j++) {
+			priv->in_data_toggle[i][j] = DWC2_HC_PID_DATA0;
+			priv->out_data_toggle[i][j] = DWC2_HC_PID_DATA0;
+		}
 	}
 
 	return 0;

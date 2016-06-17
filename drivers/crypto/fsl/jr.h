@@ -72,6 +72,8 @@ struct jobring {
 	int write_idx;
 	/* Size of the rings. */
 	int size;
+	/* Op ring size aligned to cache line size */
+	int op_size;
 	/* The ip and output rings have to be accessed by SEC. So the
 	 * pointers will ahve to point to the housekeeping region provided
 	 * by SEC

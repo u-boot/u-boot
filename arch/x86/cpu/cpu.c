@@ -688,7 +688,7 @@ static int x86_mp_init(void)
 }
 #endif
 
-__weak int x86_init_cpus(void)
+static int x86_init_cpus(void)
 {
 #ifdef CONFIG_SMP
 	debug("Init additional CPUs\n");
@@ -709,8 +709,24 @@ __weak int x86_init_cpus(void)
 
 int cpu_init_r(void)
 {
-	if (ll_boot_init())
-		return x86_init_cpus();
+	struct udevice *dev;
+	int ret;
+
+	if (!ll_boot_init())
+		return 0;
+
+	ret = x86_init_cpus();
+	if (ret)
+		return ret;
+
+	/*
+	 * Set up the northbridge, PCH and LPC if available. Note that these
+	 * may have had some limited pre-relocation init if they were probed
+	 * before relocation, but this is post relocation.
+	 */
+	uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
+	uclass_first_device(UCLASS_PCH, &dev);
+	uclass_first_device(UCLASS_LPC, &dev);
 
 	return 0;
 }

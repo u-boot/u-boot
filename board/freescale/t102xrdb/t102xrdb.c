@@ -14,7 +14,6 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
-#include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
 #include "t102xrdb.h"
@@ -151,10 +150,6 @@ int board_early_init_r(void)
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);
 #endif
 
-	set_liodns();
-#ifdef CONFIG_SYS_DPAA_QBMAN
-	setup_portals();
-#endif
 #ifdef CONFIG_T1024RDB
 	board_mux_lane();
 #endif

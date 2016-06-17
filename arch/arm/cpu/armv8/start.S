@@ -43,6 +43,9 @@ _bss_end_ofs:
 	.quad	__bss_end - _start
 
 reset:
+#ifdef CONFIG_SYS_RESET_SCTRL
+	bl reset_sctrl
+#endif
 	/*
 	 * Could be EL3/EL2/EL1, Initial State:
 	 * Little Endian, MMU Disabled, i/dCache Disabled
@@ -99,6 +102,39 @@ master_cpu:
 
 	bl	_main
 
+#ifdef CONFIG_SYS_RESET_SCTRL
+reset_sctrl:
+	switch_el x1, 3f, 2f, 1f
+3:
+	mrs	x0, sctlr_el3
+	b	0f
+2:
+	mrs	x0, sctlr_el2
+	b	0f
+1:
+	mrs	x0, sctlr_el1
+
+0:
+	ldr	x1, =0xfdfffffa
+	and	x0, x0, x1
+
+	switch_el x1, 6f, 5f, 4f
+6:
+	msr	sctlr_el3, x0
+	b	7f
+5:
+	msr	sctlr_el2, x0
+	b	7f
+4:
+	msr	sctlr_el1, x0
+
+7:
+	dsb	sy
+	isb
+	b	__asm_invalidate_tlb_all
+	ret
+#endif
+
 /*-----------------------------------------------------------------------*/
 
 WEAK(apply_core_errata)
@@ -129,6 +165,25 @@ apply_a57_core_errata:
 	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
 	/* Disable speculative load execution ahead of a DMB */
 	orr	x0, x0, #1 << 59
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_833471
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* FPSCR write flush.
+	 * Note that in some cases where a flush is unnecessary this
+	    could impact performance. */
+	orr	x0, x0, #1 << 38
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_829520
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* Disable Indirect Predictor bit will prevent this erratum
+	    from occurring
+	 * Note that in some cases where a flush is unnecessary this
+	    could impact performance. */
+	orr	x0, x0, #1 << 4
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
 #endif
 

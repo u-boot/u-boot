@@ -13,7 +13,7 @@
 #include <asm/arch/orion5x.h>
 #elif defined(CONFIG_KIRKWOOD)
 #include <asm/arch/soc.h>
-#elif defined(CONFIG_ARMADA_XP)
+#elif defined(CONFIG_ARCH_MVEBU)
 #include <linux/mbus.h>
 #endif
 
@@ -83,7 +83,7 @@ struct mvsata_port_registers {
  * Status codes to return to client callers. Currently, callers ignore
  * exact value and only care for zero or nonzero, so no need to make this
  * public, it is only #define'd for clarity.
- * If/when standard negative codes are implemented in U-boot, then these
+ * If/when standard negative codes are implemented in U-Boot, then these
  * #defines should be moved to, or replaced by ones from, the common list
  * of status codes.
  */
@@ -102,7 +102,7 @@ struct mvsata_port_registers {
  * Initialize SATA memory windows for Armada XP
  */
 
-#ifdef CONFIG_ARMADA_XP
+#ifdef CONFIG_ARCH_MVEBU
 static void mvsata_ide_conf_mbus_windows(void)
 {
 	const struct mbus_dram_target_info *dram;
@@ -174,7 +174,7 @@ int ide_preinit(void)
 	int ret = MVSATA_STATUS_TIMEOUT;
 	int status;
 
-#ifdef CONFIG_ARMADA_XP
+#ifdef CONFIG_ARCH_MVEBU
 	mvsata_ide_conf_mbus_windows();
 #endif
 

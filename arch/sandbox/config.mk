@@ -16,7 +16,7 @@ PLATFORM_CPPFLAGS += $(shell sdl-config --cflags)
 endif
 endif
 
-cmd_u-boot__ = $(CC) -o $@ -T u-boot.lds \
+cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds \
 	-Wl,--start-group $(u-boot-main) -Wl,--end-group \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map
 

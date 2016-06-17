@@ -566,9 +566,4 @@ enum {
 #define DC_N_WINDOWS			5
 #define DC_REG_SAVE_SPACE		(DC_N_WINDOWS + 5)
 
-struct display_timing;
-
-int display_init(void *lcdbase, int fb_bits_per_pixel,
-		 struct display_timing *timing);
-
 #endif /* __ASM_ARCH_TEGRA_DC_H */

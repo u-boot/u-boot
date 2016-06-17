@@ -172,7 +172,6 @@ static int m88e1011s_startup(struct phy_device *phydev)
 static int m88e1111s_config(struct phy_device *phydev)
 {
 	int reg;
-	int timeout;
 
 	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII) ||
 			(phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
@@ -236,16 +235,7 @@ static int m88e1111s_config(struct phy_device *phydev)
 			MIIM_88E1111_PHY_EXT_SR, reg);
 
 		/* soft reset */
-		timeout = 1000;
-		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
-		udelay(1000);
-		reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
-		while ((reg & BMCR_RESET) && --timeout) {
-			udelay(1000);
-			reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
-		}
-		if (!timeout)
-			printf("%s: phy soft reset timeout\n", __func__);
+		phy_reset(phydev);
 
 		reg = phy_read(phydev, MDIO_DEVAD_NONE,
 			MIIM_88E1111_PHY_EXT_SR);
@@ -258,20 +248,10 @@ static int m88e1111s_config(struct phy_device *phydev)
 	}
 
 	/* soft reset */
-	timeout = 1000;
-	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
-	udelay(1000);
-	reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
-	while ((reg & BMCR_RESET) && --timeout) {
-		udelay(1000);
-		reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
-	}
-	if (!timeout)
-		printf("%s: phy soft reset timeout\n", __func__);
+	phy_reset(phydev);
 
 	genphy_config_aneg(phydev);
-
-	phy_reset(phydev);
+	genphy_restart_aneg(phydev);
 
 	return 0;
 }

@@ -493,6 +493,16 @@ int get_device(const char *ifname, const char *dev_hwpart_str,
 		goto cleanup;
 	}
 
+#ifdef HAVE_BLOCK_DEVICE
+	/*
+	 * Updates the partition table for the specified hw partition.
+	 * Does not need to be done for hwpart 0 since it is default and
+	 * already loaded.
+	 */
+	if(hwpart != 0)
+		init_part(*dev_desc);
+#endif
+
 cleanup:
 	free(dup_str);
 	return dev;

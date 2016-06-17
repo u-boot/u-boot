@@ -4,6 +4,103 @@
 
 menu "Graphics support"
 
+config DM_VIDEO
+	bool "Enable driver model support for LCD/video"
+	depends on DM
+	help
+	  This enables driver model for LCD and video devices. These support
+	  a bitmap display of various sizes and depths which can be drawn on
+	  to display a command-line console or splash screen. Enabling this
+	  option compiles in the video uclass and routes all LCD/video access
+	  through this.
+
+config VIDEO_BPP8
+	bool "Support 8-bit-per-pixel displays"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text and bitmaps onto a 8-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config VIDEO_BPP16
+	bool "Support 16-bit-per-pixel displays"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text and bitmaps onto a 16-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config VIDEO_BPP32
+	bool "Support 32-bit-per-pixel displays"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text and bitmaps onto a 32-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config CONSOLE_NORMAL
+	bool "Support a simple text console"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Support drawing text on the frame buffer console so that it can be
+	  used as a console. Rotation is not supported by this driver (see
+	  CONFIG_CONSOLE_ROTATION for that). A built-in 8x16 font is used
+	  for the display.
+
+config CONSOLE_ROTATION
+	bool "Support rotated displays"
+	depends on DM_VIDEO
+	help
+	  Sometimes, for example if the display is mounted in portrait
+	  mode or even if it's mounted landscape but rotated by 180degree,
+	  we need to rotate our content of the display relative to the
+	  framebuffer, so that user can read the messages which are
+	  printed out. Enable this option to include a text driver which can
+	  support this. The rotation is set by the 'rot' parameter in
+	  struct video_priv: 0=unrotated, 1=90 degrees clockwise, 2=180
+	  degrees, 3=270 degrees.
+
+config CONSOLE_TRUETYPE
+	bool "Support a console that uses TrueType fonts"
+	depends on DM_VIDEO
+	help
+	  TrueTrype fonts can provide outline-drawing capability rather than
+	  needing to provide a bitmap for each font and size that is needed.
+	  With this option you can adjust the text size and use a variety of
+	  fonts. Note that this is noticeably slower than with normal console.
+
+config CONSOLE_TRUETYPE_SIZE
+	int "TrueType font size"
+	depends on CONSOLE_TRUETYPE
+	default 18
+	help
+	  This sets the font size for the console. The size is measured in
+	  pixels and is the nominal height of a character. Note that fonts
+	  are commonly measured in 'points', being 1/72 inch (about 3.52mm).
+	  However that measurement depends on the size of your display and
+	  there is no standard display density. At present there is not a
+	  method to select the display's physical size, which would allow
+	  U-Boot to calculate the correct font size.
+
+source "drivers/video/fonts/Kconfig"
+
+config VIDCONSOLE_AS_LCD
+	bool "Use 'vidconsole' when 'lcd' is seen in stdout"
+	depends on DM_VIDEO
+	help
+	  This is a work-around for boards which have 'lcd' in their stdout
+	  environment variable, but have moved to use driver model for video.
+	  In this case the console will no-longer work. While it is possible
+	  to update the environment, the breakage may be confusing for users.
+	  This option will be removed around the end of 2016.
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
@@ -240,15 +337,62 @@ config VIDEO_LCD_SPI_MISO
 	option takes a string in the format understood by 'name_to_gpio'
 	function, e.g. PH1 for pin 1 of port H.
 
-config DISPLAY_PORT
-	bool "Enable DisplayPort support"
+config VIDEO_MVEBU
+	bool "Armada XP LCD controller"
+	default n
+	---help---
+	Support for the LCD controller integrated in the Marvell
+	Armada XP SoC.
+
+config I2C_EDID
+	bool "Enable EDID library"
+	depends on DM_I2C
+	default n
 	help
-	   eDP (Embedded DisplayPort) is a standard widely used in laptops
-	   to drive LCD panels. This framework provides support for enabling
-	   these displays where supported by the video hardware.
+	   This enables library for accessing EDID data from an LCD panel.
+
+config DISPLAY
+	bool "Enable Display support"
+	depends on DM
+	default n
+	select I2C_EDID
+	help
+	   This supports drivers that provide a display, such as eDP (Embedded
+	   DisplayPort) and HDMI (High Definition Multimedia Interface).
+	   The devices provide a simple interface to start up the display,
+	   read display information and enable it.
+
+config VIDEO_ROCKCHIP
+	bool "Enable Rockchip video support"
+	depends on DM_VIDEO
+	help
+	   Rockchip SoCs provide video output capabilities for High-Definition
+	   Multimedia Interface (HDMI), Low-voltage Differential Signalling
+	   (LVDS), embedded DisplayPort (eDP) and Display Serial Interface
+	   (DSI). This driver supports the on-chip video output device, and
+	   targets the Rockchip RK3288.
+
+config VIDEO_SANDBOX_SDL
+	bool "Enable sandbox video console using SDL"
+	depends on SANDBOX
+	help
+	  When using sandbox you can enable an emulated LCD display which
+	  appears as an SDL (Simple DirectMedia Layer) window. This is a
+	  console device and can display stdout output. Within U-Boot is is
+	  a normal bitmap display and can display images as well as text.
+
+config VIDEO_TEGRA20
+	bool "Enable LCD support on Tegra20"
+	depends on OF_CONTROL
+	help
+	   Tegra20 supports video output to an attached LCD panel as well as
+	   other options such as HDMI. Only the LCD is supported in U-Boot.
+	   This option enables this support which can be used on devices which
+	   have an LCD display connected.
 
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
+	depends on DM_VIDEO
 	help
 	   Tegra124 supports many video output options including eDP and
 	   HDMI. At present only eDP is supported by U-Boot. This option

@@ -16,6 +16,23 @@ config TARGET_CHROMEBOOK_JERRY
 	  WiFi. It includes a Chrome OS EC (Cortex-M3) to provide access to
 	  the keyboard and battery functions.
 
+config TARGET_ROCK2
+	bool "Radxa Rock 2"
+	help
+	  Rock 2 is a SOM and base-board combination based on RK3288. It
+	  includes Ethernet, HDMI, 3 USB, micro-SD, audio, SATA, WiFi and
+	  space for a real-time-clock battery. There is also an expansion
+	  interface which provides access to many pins.
+
+config ROCKCHIP_FAST_SPL
+	bool "Change the CPU to full speed in SPL"
+	depends on TARGET_CHROMEBOOK_JERRY
+	help
+	  Some boards want to boot as fast as possible. We can increase the
+	  CPU frequency in SPL if the power supply is configured to the correct
+	  voltage. This option is only available on boards which support it
+	  and have the required PMIC code.
+
 config SYS_SOC
 	default "rockchip"
 
@@ -25,5 +42,7 @@ config SYS_MALLOC_F_LEN
 source "board/google/chromebook_jerry/Kconfig"
 
 source "board/firefly/firefly-rk3288/Kconfig"
+
+source "board/radxa/rock2/Kconfig"
 
 endif

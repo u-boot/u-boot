@@ -117,6 +117,7 @@
 	};
 
 	lcd {
+		u-boot,dm-pre-reloc;
 		compatible = "sandbox,lcd-sdl";
 		xres = <1366>;
 		yres = <768>;

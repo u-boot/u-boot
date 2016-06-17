@@ -4,9 +4,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <mach/init.h>
-#include <mach/micro-support-card.h>
-#include <mach/soc_info.h>
+#include "init.h"
+#include "micro-support-card.h"
+#include "soc-info.h"
 
 int board_early_init_f(void)
 {

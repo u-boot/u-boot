@@ -567,7 +567,7 @@ static void cpsw_mdio_init(const char *name, u32 mdio_base, u32 div)
 
 	bus->read = cpsw_mdio_read;
 	bus->write = cpsw_mdio_write;
-	sprintf(bus->name, name);
+	strcpy(bus->name, name);
 
 	mdio_register(bus);
 }

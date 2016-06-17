@@ -141,7 +141,6 @@ static noinline char *put_dec(char *buf, uint64_t num)
 #define SMALL	32		/* Must be 32 == 0x20 */
 #define SPECIAL	64		/* 0x */
 
-#ifdef CONFIG_SYS_VSNPRINTF
 /*
  * Macro to add a new character to our output string, but only if it will
  * fit. The macro moves to the next character position in the output string.
@@ -151,9 +150,6 @@ static noinline char *put_dec(char *buf, uint64_t num)
 		*(str) = (ch); \
 	++str; \
 	} while (0)
-#else
-#define ADDCH(str, ch)	(*(str)++ = (ch))
-#endif
 
 static char *number(char *buf, char *end, u64 num,
 		int base, int size, int precision, int type)
@@ -441,13 +437,11 @@ static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
 				/* 't' added for ptrdiff_t */
 	char *end = buf + size;
 
-#ifdef CONFIG_SYS_VSNPRINTF
 	/* Make sure end is always >= buf - do we want this in U-Boot? */
 	if (end < buf) {
 		end = ((void *)-1);
 		size = end - buf;
 	}
-#endif
 	str = buf;
 
 	for (; *fmt ; ++fmt) {
@@ -609,21 +603,16 @@ repeat:
 			     flags);
 	}
 
-#ifdef CONFIG_SYS_VSNPRINTF
 	if (size > 0) {
 		ADDCH(str, '\0');
 		if (str > end)
 			end[-1] = '\0';
 		--str;
 	}
-#else
-	*str = '\0';
-#endif
 	/* the trailing null byte doesn't count towards the total */
 	return str - buf;
 }
 
-#ifdef CONFIG_SYS_VSNPRINTF
 int vsnprintf(char *buf, size_t size, const char *fmt,
 			      va_list args)
 {
@@ -666,7 +655,6 @@ int scnprintf(char *buf, size_t size, const char *fmt, ...)
 
 	return i;
 }
-#endif /* CONFIG_SYS_VSNPRINT */
 
 /**
  * Format a string and place it in a buffer (va_list version)

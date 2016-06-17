@@ -20,7 +20,7 @@
 		reg = <0x00000000 0x40000000>;
 	};
 
-	host1x {
+	host1x@50000000 {
 		status = "okay";
 		dc@54200000 {
 			status = "okay";
@@ -35,28 +35,8 @@
 		clock-frequency = < 216000000 >;
 	};
 
-	i2c@7000c000 {
-		status = "disabled";
-	};
-
-	i2c@7000c400 {
-		status = "disabled";
-	};
-
-	i2c@7000c500 {
-		status = "disabled";
-	};
-
-	i2c@7000d000 {
-		status = "disabled";
-	};
-
-	usb@c5000000 {
-		status = "disabled";
-	};
-
-	usb@c5004000 {
-		status = "disabled";
+	usb@c5008000 {
+		status = "okay";
 	};
 
 	sdhci@c8000400 {
@@ -70,6 +50,23 @@
 	sdhci@c8000600 {
 		status = "okay";
 		bus-width = <8>;
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		clk32k_in: clock@0 {
+			compatible = "fixed-clock";
+			reg=<0>;
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+		};
+	};
+
+	pwm: pwm@7000a000 {
+		status = "okay";
 	};
 
 	lcd_panel: panel {

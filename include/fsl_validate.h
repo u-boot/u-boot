@@ -193,14 +193,18 @@ struct fsl_secboot_img_priv {
 						 */
 
 	struct fsl_secboot_sg_table sgtbl[MAX_SG_ENTRIES];	/* SG table */
-	u32 ehdrloc;		/* ESBC client location */
+	uintptr_t ehdrloc;	/* ESBC Header location */
+	uintptr_t img_addr;	/* ESBC Image Location */
+	uint32_t img_size;	/* ESBC Image Size */
 };
 
-int fsl_secboot_validate(cmd_tbl_t *cmdtp, int flag, int argc,
-		char * const argv[]);
+int fsl_secboot_validate(uintptr_t haddr, char *arg_hash_str,
+	uintptr_t img_loc);
 int fsl_secboot_blob_encap(cmd_tbl_t *cmdtp, int flag, int argc,
 	char * const argv[]);
 int fsl_secboot_blob_decap(cmd_tbl_t *cmdtp, int flag, int argc,
 	char * const argv[]);
 
+int fsl_check_boot_mode_secure(void);
+int fsl_setenv_chain_of_trust(void);
 #endif

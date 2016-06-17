@@ -981,11 +981,11 @@ static void *video_logo (void)
 		 U_BOOT_VERSION, U_BOOT_DATE, U_BOOT_TIME);
 	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y, info);
 
-	sprintf (info, "(C) 2002 DENX Software Engineering");
+	strcpy(info, "(C) 2002 DENX Software Engineering");
 	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y + VIDEO_FONT_HEIGHT,
 					info);
 
-	sprintf (info, "    Wolfgang DENK, wd@denx.de");
+	strcpy(info, "    Wolfgang DENK, wd@denx.de");
 	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y + VIDEO_FONT_HEIGHT * 2,
 					info);
 

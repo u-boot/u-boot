@@ -54,24 +54,24 @@
 	mfc0	$1, CP0_CONFIG, 1
 
 	/* detect line size */
-	srl	\line_sz, $1, \off + MIPS_CONF1_DL_SHIFT - MIPS_CONF1_DA_SHIFT
-	andi	\line_sz, \line_sz, (MIPS_CONF1_DL >> MIPS_CONF1_DL_SHIFT)
+	srl	\line_sz, $1, \off + MIPS_CONF1_DL_SHF - MIPS_CONF1_DA_SHF
+	andi	\line_sz, \line_sz, (MIPS_CONF1_DL >> MIPS_CONF1_DL_SHF)
 	move	\sz, zero
 	beqz	\line_sz, 10f
 	li	\sz, 2
 	sllv	\line_sz, \sz, \line_sz
 
 	/* detect associativity */
-	srl	\sz, $1, \off + MIPS_CONF1_DA_SHIFT - MIPS_CONF1_DA_SHIFT
-	andi	\sz, \sz, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHIFT)
+	srl	\sz, $1, \off + MIPS_CONF1_DA_SHF - MIPS_CONF1_DA_SHF
+	andi	\sz, \sz, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHF)
 	addi	\sz, \sz, 1
 
 	/* sz *= line_sz */
 	mul	\sz, \sz, \line_sz
 
 	/* detect log32(sets) */
-	srl	$1, $1, \off + MIPS_CONF1_DS_SHIFT - MIPS_CONF1_DA_SHIFT
-	andi	$1, $1, (MIPS_CONF1_DS >> MIPS_CONF1_DS_SHIFT)
+	srl	$1, $1, \off + MIPS_CONF1_DS_SHF - MIPS_CONF1_DA_SHF
+	andi	$1, $1, (MIPS_CONF1_DS >> MIPS_CONF1_DS_SHF)
 	addiu	$1, $1, 1
 	andi	$1, $1, 0x7
 
@@ -103,14 +103,14 @@ LEAF(mips_cache_reset)
 	li	t2, CONFIG_SYS_ICACHE_SIZE
 	li	t8, CONFIG_SYS_CACHELINE_SIZE
 #else
-	l1_info	t2, t8, MIPS_CONF1_IA_SHIFT
+	l1_info	t2, t8, MIPS_CONF1_IA_SHF
 #endif
 
 #ifdef CONFIG_SYS_DCACHE_SIZE
 	li	t3, CONFIG_SYS_DCACHE_SIZE
 	li	t9, CONFIG_SYS_CACHELINE_SIZE
 #else
-	l1_info	t3, t9, MIPS_CONF1_DA_SHIFT
+	l1_info	t3, t9, MIPS_CONF1_DA_SHF
 #endif
 
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD

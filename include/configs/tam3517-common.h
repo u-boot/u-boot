@@ -384,7 +384,7 @@ do {								\
 		if (i)						\
 			sprintf(ethname, "eth%daddr", i);	\
 		else						\
-			sprintf(ethname, "ethaddr");		\
+			strcpy(ethname, "ethaddr");		\
 		printf("Setting %s from EEPROM with %s\n", ethname, buf);\
 		setenv(ethname, buf);				\
 	}							\

@@ -110,6 +110,7 @@ extern int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 			   char *const argv[]);
 
 extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 /*
  * Error codes that commands return to cmd_process(). We use the standard 0

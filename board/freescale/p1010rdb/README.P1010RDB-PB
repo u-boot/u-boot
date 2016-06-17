@@ -112,14 +112,14 @@ To enable FlexCAN:
 
 To enable SDHC in case of NOR/NAND/SPI boot
    a) For temporary use case in runtime without reboot system
-      run 'mux sdhc' in u-boot to validate SDHC with invalidating IFC.
+      run 'mux sdhc' in U-Boot to validate SDHC with invalidating IFC.
 
    b) For long-term use case
       set 'esdhc' in hwconfig and save it.
 
 To enable IFC in case of SD boot
    a) For temporary use case in runtime without reboot system
-      run 'mux ifc' in u-boot to validate IFC with invalidating SDHC.
+      run 'mux ifc' in U-Boot to validate IFC with invalidating SDHC.
 
    b) For long-term use case
       set 'ifc' in hwconfig and save it.

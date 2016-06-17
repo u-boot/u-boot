@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for CSP Minotaur board
+ * U-Boot - Configuration file for CSP Minotaur board
  *
  * Thu Oct 25 15:30:44 CEST 2007 <hackfin@section5.ch>
  *    Minotaur config, brushed up for official uClinux dist.

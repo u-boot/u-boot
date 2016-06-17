@@ -43,7 +43,7 @@
 #include <net.h>
 #include <command.h>
 #include <asm/io.h>
-#include <asm/au1x00.h>
+#include <mach/au1x00.h>
 
 #if defined(CONFIG_CMD_MII)
 #include <miiphy.h>
@@ -279,7 +279,7 @@ int au1x00_enet_initialize(bd_t *bis){
 
 	memset(dev, 0, sizeof *dev);
 
-	sprintf(dev->name, "Au1X00 ethernet");
+	strcpy(dev->name, "Au1X00 ethernet");
 	dev->iobase = 0;
 	dev->priv   = 0;
 	dev->init   = au1x00_init;

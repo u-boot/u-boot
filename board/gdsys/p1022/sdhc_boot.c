@@ -43,7 +43,7 @@ int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 		return 1;
 
 	/* read out the first block, get the config data information */
-	n = mmc->block_dev.block_read(mmc->block_dev.dev, 0, 1, tmp_buf);
+	n = mmc->block_dev.block_read(&mmc->block_dev, 0, 1, tmp_buf);
 	if (!n) {
 		free(tmp_buf);
 		return 1;

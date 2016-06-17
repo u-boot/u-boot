@@ -1,5 +1,5 @@
 /*
- * U-boot - flash.c Flash driver for PSD4256GV
+ * U-Boot - flash.c Flash driver for PSD4256GV
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  * This file is based on BF533EzFlash.c originally written by Analog Devices, Inc.

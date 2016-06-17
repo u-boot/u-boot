@@ -38,8 +38,13 @@ tested on both gig copper and gig fiber boards
 
 #define TOUT_LOOP   100000
 
+#ifdef CONFIG_DM_ETH
+#define virt_to_bus(devno, v)	dm_pci_virt_to_mem(devno, (void *) (v))
+#define bus_to_phys(devno, a)	dm_pci_mem_to_phys(devno, a)
+#else
 #define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
 #define bus_to_phys(devno, a)	pci_mem_to_phys(devno, a)
+#endif
 
 #define E1000_DEFAULT_PCI_PBA	0x00000030
 #define E1000_DEFAULT_PCIE_PBA	0x000a0026
@@ -551,43 +556,6 @@ static int32_t e1000_init_eeprom_params(struct e1000_hw *hw)
 		eeprom->use_eerd = true;
 		eeprom->use_eewr = false;
 		break;
-
-	/* ich8lan does not support currently. if needed, please
-	 * add corresponding code and functions.
-	 */
-#if 0
-	case e1000_ich8lan:
-		{
-		int32_t  i = 0;
-
-		eeprom->type = e1000_eeprom_ich8;
-		eeprom->use_eerd = false;
-		eeprom->use_eewr = false;
-		eeprom->word_size = E1000_SHADOW_RAM_WORDS;
-		uint32_t flash_size = E1000_READ_ICH_FLASH_REG(hw,
-				ICH_FLASH_GFPREG);
-		/* Zero the shadow RAM structure. But don't load it from NVM
-		 * so as to save time for driver init */
-		if (hw->eeprom_shadow_ram != NULL) {
-			for (i = 0; i < E1000_SHADOW_RAM_WORDS; i++) {
-				hw->eeprom_shadow_ram[i].modified = false;
-				hw->eeprom_shadow_ram[i].eeprom_word = 0xFFFF;
-			}
-		}
-
-		hw->flash_base_addr = (flash_size & ICH_GFPREG_BASE_MASK) *
-				ICH_FLASH_SECTOR_SIZE;
-
-		hw->flash_bank_size = ((flash_size >> 16)
-				& ICH_GFPREG_BASE_MASK) + 1;
-		hw->flash_bank_size -= (flash_size & ICH_GFPREG_BASE_MASK);
-
-		hw->flash_bank_size *= ICH_FLASH_SECTOR_SIZE;
-
-		hw->flash_bank_size /= 2 * sizeof(uint16_t);
-		break;
-		}
-#endif
 	default:
 		break;
 	}
@@ -838,14 +806,6 @@ e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
 	if (eeprom->use_eerd == true)
 		return e1000_read_eeprom_eerd(hw, offset, words, data);
 
-	/* ich8lan does not support currently. if needed, please
-	 * add corresponding code and functions.
-	 */
-#if 0
-	/* ICH EEPROM access is done via the ICH flash controller */
-	if (eeprom->type == e1000_eeprom_ich8)
-		return e1000_read_eeprom_ich8(hw, offset, words, data);
-#endif
 	/* Set up the SPI or Microwire EEPROM for bit-bang reading.  We have
 	 * acquired the EEPROM at this point, so any returns should relase it */
 	if (eeprom->type == e1000_eeprom_spi) {
@@ -1440,8 +1400,13 @@ e1000_reset_hw(struct e1000_hw *hw)
 	/* For 82542 (rev 2.0), disable MWI before issuing a device reset */
 	if (hw->mac_type == e1000_82542_rev2_0) {
 		DEBUGOUT("Disabling MWI on 82542 rev 2.0\n");
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND,
+				hw->pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND,
 				hw->pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#endif
 	}
 
 	/* Clear interrupt mask to stop board from generating interrupts */
@@ -1514,7 +1479,11 @@ e1000_reset_hw(struct e1000_hw *hw)
 
 	/* If MWI was previously enabled, reenable it. */
 	if (hw->mac_type == e1000_82542_rev2_0) {
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#endif
 	}
 	if (hw->mac_type != e1000_igb)
 		E1000_WRITE_REG(hw, PBA, pba);
@@ -1700,9 +1669,15 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 	/* For 82542 (rev 2.0), disable MWI and put the receiver into reset */
 	if (hw->mac_type == e1000_82542_rev2_0) {
 		DEBUGOUT("Disabling MWI on 82542 rev 2.0\n");
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND,
+				      hw->
+				      pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND,
 				      hw->
 				      pci_cmd_word & ~PCI_COMMAND_INVALIDATE);
+#endif
 		E1000_WRITE_REG(hw, RCTL, E1000_RCTL_RST);
 		E1000_WRITE_FLUSH(hw);
 		mdelay(5);
@@ -1718,7 +1693,11 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 		E1000_WRITE_REG(hw, RCTL, 0);
 		E1000_WRITE_FLUSH(hw);
 		mdelay(1);
+#ifdef CONFIG_DM_ETH
+		dm_pci_write_config16(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#else
 		pci_write_config_word(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
+#endif
 	}
 
 	/* Zero out the Multicast HASH table */
@@ -1732,17 +1711,7 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 		 * occuring when accessing our register space */
 		E1000_WRITE_FLUSH(hw);
 	}
-#if 0
-	/* Set the PCI priority bit correctly in the CTRL register.  This
-	 * determines if the adapter gives priority to receives, or if it
-	 * gives equal priority to transmits and receives.  Valid only on
-	 * 82542 and 82543 silicon.
-	 */
-	if (hw->dma_fairness && hw->mac_type <= e1000_82543) {
-		ctrl = E1000_READ_REG(hw, CTRL);
-		E1000_WRITE_REG(hw, CTRL, ctrl | E1000_CTRL_PRIOR);
-	}
-#endif
+
 	switch (hw->mac_type) {
 	case e1000_82545_rev_3:
 	case e1000_82546_rev_3:
@@ -1751,10 +1720,17 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 	default:
 	/* Workaround for PCI-X problem when BIOS sets MMRBC incorrectly. */
 	if (hw->bus_type == e1000_bus_type_pcix) {
+#ifdef CONFIG_DM_ETH
+		dm_pci_read_config16(hw->pdev, PCIX_COMMAND_REGISTER,
+				     &pcix_cmd_word);
+		dm_pci_read_config16(hw->pdev, PCIX_STATUS_REGISTER_HI,
+				     &pcix_stat_hi_word);
+#else
 		pci_read_config_word(hw->pdev, PCIX_COMMAND_REGISTER,
 				     &pcix_cmd_word);
 		pci_read_config_word(hw->pdev, PCIX_STATUS_REGISTER_HI,
 				     &pcix_stat_hi_word);
+#endif
 		cmd_mmrbc =
 		    (pcix_cmd_word & PCIX_COMMAND_MMRBC_MASK) >>
 		    PCIX_COMMAND_MMRBC_SHIFT;
@@ -1766,8 +1742,13 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 		if (cmd_mmrbc > stat_mmrbc) {
 			pcix_cmd_word &= ~PCIX_COMMAND_MMRBC_MASK;
 			pcix_cmd_word |= stat_mmrbc << PCIX_COMMAND_MMRBC_SHIFT;
+#ifdef CONFIG_DM_ETH
+			dm_pci_write_config16(hw->pdev, PCIX_COMMAND_REGISTER,
+					      pcix_cmd_word);
+#else
 			pci_write_config_word(hw->pdev, PCIX_COMMAND_REGISTER,
 					      pcix_cmd_word);
+#endif
 		}
 	}
 		break;
@@ -1841,20 +1822,6 @@ e1000_init_hw(struct e1000_hw *hw, unsigned char enetaddr[6])
 	case e1000_igb:
 		break;
 	}
-
-#if 0
-	/* Clear all of the statistics registers (clear on read).  It is
-	 * important that we do this after we have tried to establish link
-	 * because the symbol error count will increment wildly if there
-	 * is no link.
-	 */
-	e1000_clear_hw_cntrs(hw);
-
-	/* ICH8 No-snoop bits are opposite polarity.
-	 * Set to snoop by default after reset. */
-	if (hw->mac_type == e1000_ich8lan)
-		e1000_set_pci_ex_no_snoop(hw, PCI_EX_82566_SNOOP_ALL);
-#endif
 
 	if (hw->device_id == E1000_DEV_ID_82546GB_QUAD_COPPER ||
 		hw->device_id == E1000_DEV_ID_82546GB_QUAD_COPPER_KSP3) {
@@ -4878,6 +4845,16 @@ e1000_sw_init(struct e1000_hw *hw)
 	int result;
 
 	/* PCI config space info */
+#ifdef CONFIG_DM_ETH
+	dm_pci_read_config16(hw->pdev, PCI_VENDOR_ID, &hw->vendor_id);
+	dm_pci_read_config16(hw->pdev, PCI_DEVICE_ID, &hw->device_id);
+	dm_pci_read_config16(hw->pdev, PCI_SUBSYSTEM_VENDOR_ID,
+			     &hw->subsystem_vendor_id);
+	dm_pci_read_config16(hw->pdev, PCI_SUBSYSTEM_ID, &hw->subsystem_id);
+
+	dm_pci_read_config8(hw->pdev, PCI_REVISION_ID, &hw->revision_id);
+	dm_pci_read_config16(hw->pdev, PCI_COMMAND, &hw->pci_cmd_word);
+#else
 	pci_read_config_word(hw->pdev, PCI_VENDOR_ID, &hw->vendor_id);
 	pci_read_config_word(hw->pdev, PCI_DEVICE_ID, &hw->device_id);
 	pci_read_config_word(hw->pdev, PCI_SUBSYSTEM_VENDOR_ID,
@@ -4886,6 +4863,7 @@ e1000_sw_init(struct e1000_hw *hw)
 
 	pci_read_config_byte(hw->pdev, PCI_REVISION_ID, &hw->revision_id);
 	pci_read_config_word(hw->pdev, PCI_COMMAND, &hw->pci_cmd_word);
+#endif
 
 	/* identify the MAC */
 	result = e1000_set_mac_type(hw);
@@ -5230,10 +5208,6 @@ _e1000_disable(struct e1000_hw *hw)
 	E1000_WRITE_REG(hw, RDH, 0);
 	E1000_WRITE_REG(hw, RDT, 0);
 
-	/* put the card in its initial state */
-#if 0
-	E1000_WRITE_REG(hw, CTRL, E1000_CTRL_RST);
-#endif
 	mdelay(10);
 }
 
@@ -5305,25 +5279,46 @@ void e1000_get_bus_type(struct e1000_hw *hw)
 static LIST_HEAD(e1000_hw_list);
 #endif
 
+#ifdef CONFIG_DM_ETH
+static int e1000_init_one(struct e1000_hw *hw, int cardnum,
+			  struct udevice *devno, unsigned char enetaddr[6])
+#else
 static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 			  unsigned char enetaddr[6])
+#endif
 {
 	u32 val;
 
 	/* Assign the passed-in values */
+#ifdef CONFIG_DM_ETH
 	hw->pdev = devno;
+#else
+	hw->pdev = devno;
+#endif
 	hw->cardnum = cardnum;
 
 	/* Print a debug message with the IO base address */
+#ifdef CONFIG_DM_ETH
+	dm_pci_read_config32(devno, PCI_BASE_ADDRESS_0, &val);
+#else
 	pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &val);
+#endif
 	E1000_DBG(hw, "iobase 0x%08x\n", val & 0xfffffff0);
 
 	/* Try to enable I/O accesses and bus-mastering */
 	val = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+#ifdef CONFIG_DM_ETH
+	dm_pci_write_config32(devno, PCI_COMMAND, val);
+#else
 	pci_write_config_dword(devno, PCI_COMMAND, val);
+#endif
 
 	/* Make sure it worked */
+#ifdef CONFIG_DM_ETH
+	dm_pci_read_config32(devno, PCI_COMMAND, &val);
+#else
 	pci_read_config_dword(devno, PCI_COMMAND, &val);
+#endif
 	if (!(val & PCI_COMMAND_MEMORY)) {
 		E1000_ERR(hw, "Can't enable I/O memory\n");
 		return -ENOSPC;
@@ -5342,8 +5337,13 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 #ifndef CONFIG_E1000_NO_NVM
 	hw->eeprom_semaphore_present = true;
 #endif
+#ifdef CONFIG_DM_ETH
+	hw->hw_addr = dm_pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
+						PCI_REGION_MEM);
+#else
 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
 						PCI_REGION_MEM);
+#endif
 	hw->mac_type = e1000_undefined;
 
 	/* MAC and Phy settings */
@@ -5359,7 +5359,6 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 
 #ifndef CONFIG_E1000_NO_NVM
 	/* Validate the EEPROM and get chipset information */
-#if !defined(CONFIG_MVBC_1G)
 	if (e1000_init_eeprom_params(hw)) {
 		E1000_ERR(hw, "EEPROM is invalid!\n");
 		return -EINVAL;
@@ -5367,7 +5366,6 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 	if ((E1000_READ_REG(hw, I210_EECD) & E1000_EECD_FLUPD) &&
 	    e1000_validate_eeprom_checksum(hw))
 		return -ENXIO;
-#endif
 	e1000_read_mac_addr(hw, enetaddr);
 #endif
 	e1000_get_bus_type(hw);
@@ -5455,7 +5453,7 @@ e1000_initialize(bd_t * bis)
 	for (i = 0; (devno = pci_find_devices(e1000_supported, i)) >= 0; i++) {
 		/*
 		 * These will never get freed due to errors, this allows us to
-		 * perform SPI EEPROM programming from U-boot, for example.
+		 * perform SPI EEPROM programming from U-Boot, for example.
 		 */
 		struct eth_device *nic = malloc(sizeof(*nic));
 		struct e1000_hw *hw = malloc(sizeof(*hw));
@@ -5628,8 +5626,8 @@ static int e1000_eth_probe(struct udevice *dev)
 	int ret;
 
 	hw->name = dev->name;
-	ret = e1000_init_one(hw, trailing_strtol(dev->name), pci_get_bdf(dev),
-			     plat->enetaddr);
+	ret = e1000_init_one(hw, trailing_strtol(dev->name),
+			     dev, plat->enetaddr);
 	if (ret < 0) {
 		printf(pr_fmt("failed to initialize card: %d\n"), ret);
 		return ret;

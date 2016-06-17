@@ -24,7 +24,102 @@ DECLARE_GLOBAL_DATA_PTR;
 struct rk3288_pinctrl_priv {
 	struct rk3288_grf *grf;
 	struct rk3288_pmu *pmu;
+	int num_banks;
 };
+
+/**
+ * Encode variants of iomux registers into a type variable
+ */
+#define IOMUX_GPIO_ONLY		BIT(0)
+#define IOMUX_WIDTH_4BIT	BIT(1)
+#define IOMUX_SOURCE_PMU	BIT(2)
+#define IOMUX_UNROUTED		BIT(3)
+
+/**
+ * @type: iomux variant using IOMUX_* constants
+ * @offset: if initialized to -1 it will be autocalculated, by specifying
+ *	    an initial offset value the relevant source offset can be reset
+ *	    to a new value for autocalculating the following iomux registers.
+ */
+struct rockchip_iomux {
+	u8 type;
+	s16 offset;
+};
+
+/**
+ * @reg: register offset of the gpio bank
+ * @nr_pins: number of pins in this bank
+ * @bank_num: number of the bank, to account for holes
+ * @name: name of the bank
+ * @iomux: array describing the 4 iomux sources of the bank
+ */
+struct rockchip_pin_bank {
+	u16 reg;
+	u8 nr_pins;
+	u8 bank_num;
+	char *name;
+	struct rockchip_iomux iomux[4];
+};
+
+#define PIN_BANK(id, pins, label)			\
+	{						\
+		.bank_num	= id,			\
+		.nr_pins	= pins,			\
+		.name		= label,		\
+		.iomux		= {			\
+			{ .offset = -1 },		\
+			{ .offset = -1 },		\
+			{ .offset = -1 },		\
+			{ .offset = -1 },		\
+		},					\
+	}
+
+#define PIN_BANK_IOMUX_FLAGS(id, pins, label, iom0, iom1, iom2, iom3)	\
+	{								\
+		.bank_num	= id,					\
+		.nr_pins	= pins,					\
+		.name		= label,				\
+		.iomux		= {					\
+			{ .type = iom0, .offset = -1 },			\
+			{ .type = iom1, .offset = -1 },			\
+			{ .type = iom2, .offset = -1 },			\
+			{ .type = iom3, .offset = -1 },			\
+		},							\
+	}
+
+#ifndef CONFIG_SPL_BUILD
+static struct rockchip_pin_bank rk3288_pin_banks[] = {
+	PIN_BANK_IOMUX_FLAGS(0, 24, "gpio0", IOMUX_SOURCE_PMU,
+					     IOMUX_SOURCE_PMU,
+					     IOMUX_SOURCE_PMU,
+					     IOMUX_UNROUTED
+			    ),
+	PIN_BANK_IOMUX_FLAGS(1, 32, "gpio1", IOMUX_UNROUTED,
+					     IOMUX_UNROUTED,
+					     IOMUX_UNROUTED,
+					     0
+			    ),
+	PIN_BANK_IOMUX_FLAGS(2, 32, "gpio2", 0, 0, 0, IOMUX_UNROUTED),
+	PIN_BANK_IOMUX_FLAGS(3, 32, "gpio3", 0, 0, 0, IOMUX_WIDTH_4BIT),
+	PIN_BANK_IOMUX_FLAGS(4, 32, "gpio4", IOMUX_WIDTH_4BIT,
+					     IOMUX_WIDTH_4BIT,
+					     0,
+					     0
+			    ),
+	PIN_BANK_IOMUX_FLAGS(5, 32, "gpio5", IOMUX_UNROUTED,
+					     0,
+					     0,
+					     IOMUX_UNROUTED
+			    ),
+	PIN_BANK_IOMUX_FLAGS(6, 32, "gpio6", 0, 0, 0, IOMUX_UNROUTED),
+	PIN_BANK_IOMUX_FLAGS(7, 32, "gpio7", 0,
+					     0,
+					     IOMUX_WIDTH_4BIT,
+					     IOMUX_UNROUTED
+			    ),
+	PIN_BANK(8, 16, "gpio8"),
+};
+#endif
 
 static void pinctrl_rk3288_pwm_config(struct rk3288_grf *grf, int pwm_id)
 {
@@ -56,13 +151,14 @@ static void pinctrl_rk3288_i2c_config(struct rk3288_grf *grf,
 {
 	switch (i2c_id) {
 	case PERIPH_ID_I2C0:
-		clrsetbits_le32(&pmu->gpio0b_iomux,
+		clrsetbits_le32(&pmu->gpio0_iomux[PMU_GPIO0_B],
 				GPIO0_B7_MASK << GPIO0_B7_SHIFT,
 				GPIO0_B7_I2C0PMU_SDA << GPIO0_B7_SHIFT);
-		clrsetbits_le32(&pmu->gpio0b_iomux,
+		clrsetbits_le32(&pmu->gpio0_iomux[PMU_GPIO0_C],
 				GPIO0_C0_MASK << GPIO0_C0_SHIFT,
 				GPIO0_C0_I2C0PMU_SCL << GPIO0_C0_SHIFT);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_I2C1:
 		rk_clrsetreg(&grf->gpio8a_iomux,
 			     GPIO8A4_MASK << GPIO8A4_SHIFT |
@@ -99,12 +195,14 @@ static void pinctrl_rk3288_i2c_config(struct rk3288_grf *grf,
 			     GPIO7C4_MASK << GPIO7C4_SHIFT,
 			     GPIO7C4_I2C5HDMI_SCL << GPIO7C4_SHIFT);
 		break;
+#endif
 	default:
 		debug("i2c id = %d iomux error!\n", i2c_id);
 		break;
 	}
 }
 
+#ifndef CONFIG_SPL_BUILD
 static void pinctrl_rk3288_lcdc_config(struct rk3288_grf *grf, int lcd_id)
 {
 	switch (lcd_id) {
@@ -124,11 +222,13 @@ static void pinctrl_rk3288_lcdc_config(struct rk3288_grf *grf, int lcd_id)
 		break;
 	}
 }
+#endif
 
 static int pinctrl_rk3288_spi_config(struct rk3288_grf *grf,
 				     enum periph_id spi_id, int cs)
 {
 	switch (spi_id) {
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_SPI0:
 		switch (cs) {
 		case 0:
@@ -165,6 +265,7 @@ static int pinctrl_rk3288_spi_config(struct rk3288_grf *grf,
 			     GPIO7B5_SPI1_CSN0 << GPIO7B5_SHIFT |
 			     GPIO7B4_SPI1_CLK << GPIO7B4_SHIFT);
 		break;
+#endif
 	case PERIPH_ID_SPI2:
 		switch (cs) {
 		case 0:
@@ -202,6 +303,7 @@ err:
 static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 {
 	switch (uart_id) {
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_UART_BT:
 		rk_clrsetreg(&grf->gpio4c_iomux,
 			     GPIO4C3_MASK << GPIO4C3_SHIFT |
@@ -224,6 +326,7 @@ static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 			     GPIO5B1_UART1BB_SOUT << GPIO5B1_SHIFT |
 			     GPIO5B0_UART1BB_SIN << GPIO5B0_SHIFT);
 		break;
+#endif
 	case PERIPH_ID_UART_DBG:
 		rk_clrsetreg(&grf->gpio7ch_iomux,
 			     GPIO7C7_MASK << GPIO7C7_SHIFT |
@@ -231,6 +334,7 @@ static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 			     GPIO7C7_UART2DBG_SOUT << GPIO7C7_SHIFT |
 			     GPIO7C6_UART2DBG_SIN << GPIO7C6_SHIFT);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_UART_GPS:
 		rk_clrsetreg(&grf->gpio7b_iomux,
 			     GPIO7B2_MASK << GPIO7B2_SHIFT |
@@ -254,6 +358,7 @@ static void pinctrl_rk3288_uart_config(struct rk3288_grf *grf, int uart_id)
 			     GPIO5B6_UART4EXP_SOUT << GPIO5B6_SHIFT |
 			     GPIO5B7_UART4EXP_SIN << GPIO5B7_SHIFT);
 		break;
+#endif
 	default:
 		debug("uart id = %d iomux error!\n", uart_id);
 		break;
@@ -298,6 +403,7 @@ static void pinctrl_rk3288_sdmmc_config(struct rk3288_grf *grf, int mmc_id)
 	}
 }
 
+#ifndef CONFIG_SPL_BUILD
 static void pinctrl_rk3288_hdmi_config(struct rk3288_grf *grf, int hdmi_id)
 {
 	switch (hdmi_id) {
@@ -312,6 +418,7 @@ static void pinctrl_rk3288_hdmi_config(struct rk3288_grf *grf, int hdmi_id)
 		break;
 	}
 }
+#endif
 
 static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
 {
@@ -346,16 +453,18 @@ static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_UART4:
 		pinctrl_rk3288_uart_config(priv->grf, func);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case PERIPH_ID_LCDC0:
 	case PERIPH_ID_LCDC1:
 		pinctrl_rk3288_lcdc_config(priv->grf, func);
 		break;
+	case PERIPH_ID_HDMI:
+		pinctrl_rk3288_hdmi_config(priv->grf, func);
+		break;
+#endif
 	case PERIPH_ID_SDMMC0:
 	case PERIPH_ID_SDMMC1:
 		pinctrl_rk3288_sdmmc_config(priv->grf, func);
-		break;
-	case PERIPH_ID_HDMI:
-		pinctrl_rk3288_hdmi_config(priv->grf, func);
 		break;
 	default:
 		return -EINVAL;
@@ -394,6 +503,8 @@ static int rk3288_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_I2C4;
 	case 65:
 		return PERIPH_ID_I2C5;
+	case 103:
+		return PERIPH_ID_HDMI;
 	}
 
 	return -ENOENT;
@@ -410,7 +521,142 @@ static int rk3288_pinctrl_set_state_simple(struct udevice *dev,
 	return rk3288_pinctrl_request(dev, func, 0);
 }
 
+#ifndef CONFIG_SPL_BUILD
+int rk3288_pinctrl_get_pin_info(struct rk3288_pinctrl_priv *priv,
+				int banknum, int ind, u32 **addrp, uint *shiftp,
+				uint *maskp)
+{
+	struct rockchip_pin_bank *bank = &rk3288_pin_banks[banknum];
+	uint muxnum;
+	u32 *addr;
+
+	for (muxnum = 0; muxnum < 4; muxnum++) {
+		struct rockchip_iomux *mux = &bank->iomux[muxnum];
+
+		if (ind >= 8) {
+			ind -= 8;
+			continue;
+		}
+
+		if (mux->type & IOMUX_SOURCE_PMU)
+			addr = priv->pmu->gpio0_iomux;
+		else
+			addr = (u32 *)priv->grf - 4;
+		addr += mux->offset;
+		*shiftp = ind & 7;
+		if (mux->type & IOMUX_WIDTH_4BIT) {
+			*maskp = 0xf;
+			*shiftp *= 4;
+			if (*shiftp >= 16) {
+				*shiftp -= 16;
+				addr++;
+			}
+		} else {
+			*maskp = 3;
+			*shiftp *= 2;
+		}
+
+		debug("%s: addr=%p, mask=%x, shift=%x\n", __func__, addr,
+		      *maskp, *shiftp);
+		*addrp = addr;
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+static int rk3288_pinctrl_get_gpio_mux(struct udevice *dev, int banknum,
+				       int index)
+{
+	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
+	uint shift;
+	uint mask;
+	u32 *addr;
+	int ret;
+
+	ret = rk3288_pinctrl_get_pin_info(priv, banknum, index, &addr, &shift,
+					  &mask);
+	if (ret)
+		return ret;
+	return (readl(addr) & mask) >> shift;
+}
+
+static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
+				   int muxval, int flags)
+{
+	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
+	uint shift, ind = index;
+	uint mask;
+	u32 *addr;
+	int ret;
+
+	debug("%s: %x %x %x %x\n", __func__, banknum, index, muxval, flags);
+	ret = rk3288_pinctrl_get_pin_info(priv, banknum, index, &addr, &shift,
+					  &mask);
+	if (ret)
+		return ret;
+	rk_clrsetreg(addr, mask << shift, muxval << shift);
+
+	/* Handle pullup/pulldown */
+	if (flags) {
+		uint val = 0;
+
+		if (flags & (1 << PIN_CONFIG_BIAS_PULL_UP))
+			val = 1;
+		else if (flags & (1 << PIN_CONFIG_BIAS_PULL_DOWN))
+			val = 2;
+		shift = (index & 7) * 2;
+		ind = index >> 3;
+		if (banknum == 0)
+			addr = &priv->pmu->gpio0pull[ind];
+		else
+			addr = &priv->grf->gpio1_p[banknum - 1][ind];
+		debug("%s: addr=%p, val=%x, shift=%x\n", __func__, addr, val,
+		      shift);
+		rk_clrsetreg(addr, 3 << shift, val << shift);
+	}
+
+	return 0;
+}
+
+static int rk3288_pinctrl_set_state(struct udevice *dev, struct udevice *config)
+{
+	const void *blob = gd->fdt_blob;
+	int pcfg_node, ret, flags, count, i;
+	u32 cell[40], *ptr;
+
+	debug("%s: %s %s\n", __func__, dev->name, config->name);
+	ret = fdtdec_get_int_array_count(blob, config->of_offset,
+					 "rockchip,pins", cell,
+					 ARRAY_SIZE(cell));
+	if (ret < 0) {
+		debug("%s: bad array %d\n", __func__, ret);
+		return -EINVAL;
+	}
+	count = ret;
+	for (i = 0, ptr = cell; i < count; i += 4, ptr += 4) {
+		pcfg_node = fdt_node_offset_by_phandle(blob, ptr[3]);
+		if (pcfg_node < 0)
+			return -EINVAL;
+		flags = pinctrl_decode_pin_config(blob, pcfg_node);
+		if (flags < 0)
+			return flags;
+
+		ret = rk3288_pinctrl_set_pins(dev, ptr[0], ptr[1], ptr[2],
+					      flags);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+#endif
+
 static struct pinctrl_ops rk3288_pinctrl_ops = {
+#ifndef CONFIG_SPL_BUILD
+	.set_state	= rk3288_pinctrl_set_state,
+	.get_gpio_mux	= rk3288_pinctrl_get_gpio_mux,
+#endif
 	.set_state_simple	= rk3288_pinctrl_set_state_simple,
 	.request	= rk3288_pinctrl_request,
 	.get_periph_id	= rk3288_pinctrl_get_periph_id,
@@ -422,15 +668,49 @@ static int rk3288_pinctrl_bind(struct udevice *dev)
 	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
 }
 
+#ifndef CONFIG_SPL_BUILD
+static int rk3288_pinctrl_parse_tables(struct rk3288_pinctrl_priv *priv,
+				       struct rockchip_pin_bank *banks,
+				       int count)
+{
+	struct rockchip_pin_bank *bank;
+	uint reg, muxnum, banknum;
+
+	reg = 0;
+	for (banknum = 0; banknum < count; banknum++) {
+		bank = &banks[banknum];
+		bank->reg = reg;
+		debug("%s: bank %d, reg %x\n", __func__, banknum, reg * 4);
+		for (muxnum = 0; muxnum < 4; muxnum++) {
+			struct rockchip_iomux *mux = &bank->iomux[muxnum];
+
+			if (!(mux->type & IOMUX_UNROUTED))
+				mux->offset = reg;
+			if (mux->type & IOMUX_WIDTH_4BIT)
+				reg += 2;
+			else
+				reg += 1;
+		}
+	}
+
+	return 0;
+}
+#endif
+
 static int rk3288_pinctrl_probe(struct udevice *dev)
 {
 	struct rk3288_pinctrl_priv *priv = dev_get_priv(dev);
+	int ret = 0;
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
 	debug("%s: grf=%p, pmu=%p\n", __func__, priv->grf, priv->pmu);
+#ifndef CONFIG_SPL_BUILD
+	ret = rk3288_pinctrl_parse_tables(priv, rk3288_pin_banks,
+					  ARRAY_SIZE(rk3288_pin_banks));
+#endif
 
-	return 0;
+	return ret;
 }
 
 static const struct udevice_id rk3288_pinctrl_ids[] = {

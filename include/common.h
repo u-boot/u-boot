@@ -146,9 +146,6 @@ void __assert_fail(const char *assertion, const char *file, unsigned line,
 #define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
 #endif /* BUG */
 
-/* Force a compilation error if condition is true */
-#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
-
 typedef void (interrupt_handler_t)(void *);
 
 #include <asm/u-boot.h> /* boot information for Linux kernel */
@@ -224,32 +221,26 @@ void board_init_f(ulong);
 void board_init_r(gd_t *, ulong) __attribute__ ((noreturn));
 
 /**
- * board_init_f_mem() - Allocate global data and set stack position
+ * ulong board_init_f_alloc_reserve - allocate reserved area
  *
  * This function is called by each architecture very early in the start-up
- * code to set up the environment for board_init_f(). It allocates space for
- * global_data (see include/asm-generic/global_data.h) and places the stack
- * below this.
+ * code to allow the C runtime to reserve space on the stack for writable
+ * 'globals' such as GD and the malloc arena.
  *
- * This function requires a stack[1] Normally this is at @top. The function
- * starts allocating space from 64 bytes below @top. First it creates space
- * for global_data. Then it calls arch_setup_gd() which sets gd to point to
- * the global_data space and can reserve additional bytes of space if
- * required). Finally it allocates early malloc() memory
- * (CONFIG_SYS_MALLOC_F_LEN). The new top of the stack is just below this,
- * and it returned by this function.
- *
- * [1] Strictly speaking it would be possible to implement this function
- * in C on many archs such that it does not require a stack. However this
- * does not seem hugely important as only 64 byte are wasted. The 64 bytes
- * are used to handle the calling standard which generally requires pushing
- * addresses or registers onto the stack. We should be able to get away with
- * less if this becomes important.
- *
- * @top:	Top of available memory, also normally the top of the stack
- * @return:	New stack location
+ * @top:	top of the reserve area, growing down.
+ * @return:	bottom of reserved area
  */
-ulong board_init_f_mem(ulong top);
+ulong board_init_f_alloc_reserve(ulong top);
+
+/**
+ * board_init_f_init_reserve - initialize the reserved area(s)
+ *
+ * This function is called once the C runtime has allocated the reserved
+ * area on the stack. It must initialize the GD at the base of that area.
+ *
+ * @base:	top from which reservation was done
+ */
+void board_init_f_init_reserve(ulong base);
 
 /**
  * arch_setup_gd() - Set up the global_data pointer

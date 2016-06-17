@@ -7,8 +7,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <asm/pci.h>
+#include <asm/cpu.h>
 #include <asm/processor.h>
 #include <asm/arch/me.h>
 #include <asm/arch/pch.h>
@@ -25,33 +27,36 @@ static const char *const me_ack_values[] = {
 	[ME_HFS_ACK_CONTINUE]	= "Continue to boot"
 };
 
-static inline void pci_read_dword_ptr(void *ptr, int offset)
+static inline void pci_read_dword_ptr(struct udevice *me_dev, void *ptr,
+				      int offset)
 {
 	u32 dword;
 
-	dword = x86_pci_read_config32(PCH_ME_DEV, offset);
+	dm_pci_read_config32(me_dev, offset, &dword);
 	memcpy(ptr, &dword, sizeof(dword));
 }
 
-static inline void pci_write_dword_ptr(void *ptr, int offset)
+static inline void pci_write_dword_ptr(struct udevice *me_dev, void *ptr,
+				       int offset)
 {
 	u32 dword = 0;
+
 	memcpy(&dword, ptr, sizeof(dword));
-	x86_pci_write_config32(PCH_ME_DEV, offset, dword);
+	dm_pci_write_config32(me_dev, offset, dword);
 }
 
-void intel_early_me_status(void)
+void intel_early_me_status(struct udevice *me_dev)
 {
 	struct me_hfs hfs;
 	struct me_gmes gmes;
 
-	pci_read_dword_ptr(&hfs, PCI_ME_HFS);
-	pci_read_dword_ptr(&gmes, PCI_ME_GMES);
+	pci_read_dword_ptr(me_dev, &hfs, PCI_ME_HFS);
+	pci_read_dword_ptr(me_dev, &gmes, PCI_ME_GMES);
 
 	intel_me_status(&hfs, &gmes);
 }
 
-int intel_early_me_init(void)
+int intel_early_me_init(struct udevice *me_dev)
 {
 	int count;
 	struct me_uma uma;
@@ -61,7 +66,7 @@ int intel_early_me_init(void)
 
 	/* Wait for ME UMA SIZE VALID bit to be set */
 	for (count = ME_RETRY; count > 0; --count) {
-		pci_read_dword_ptr(&uma, PCI_ME_UMA);
+		pci_read_dword_ptr(me_dev, &uma, PCI_ME_UMA);
 		if (uma.valid)
 			break;
 		udelay(ME_DELAY);
@@ -72,7 +77,7 @@ int intel_early_me_init(void)
 	}
 
 	/* Check for valid firmware */
-	pci_read_dword_ptr(&hfs, PCI_ME_HFS);
+	pci_read_dword_ptr(me_dev, &hfs, PCI_ME_HFS);
 	if (hfs.fpt_bad) {
 		printf("WARNING: ME has bad firmware\n");
 		return -EBADF;
@@ -83,11 +88,11 @@ int intel_early_me_init(void)
 	return 0;
 }
 
-int intel_early_me_uma_size(void)
+int intel_early_me_uma_size(struct udevice *me_dev)
 {
 	struct me_uma uma;
 
-	pci_read_dword_ptr(&uma, PCI_ME_UMA);
+	pci_read_dword_ptr(me_dev, &uma, PCI_ME_UMA);
 	if (uma.valid) {
 		debug("ME: Requested %uMB UMA\n", uma.size);
 		return uma.size;
@@ -97,11 +102,11 @@ int intel_early_me_uma_size(void)
 	return -EINVAL;
 }
 
-static inline void set_global_reset(int enable)
+static inline void set_global_reset(struct udevice *dev, int enable)
 {
 	u32 etr3;
 
-	etr3 = x86_pci_read_config32(PCH_LPC_DEV, ETR3);
+	dm_pci_read_config32(dev, ETR3, &etr3);
 
 	/* Clear CF9 Without Resume Well Reset Enable */
 	etr3 &= ~ETR3_CWORWRE;
@@ -112,10 +117,11 @@ static inline void set_global_reset(int enable)
 	else
 		etr3 &= ~ETR3_CF9GR;
 
-	x86_pci_write_config32(PCH_LPC_DEV, ETR3, etr3);
+	dm_pci_write_config32(dev, ETR3, etr3);
 }
 
-int intel_early_me_init_done(u8 status)
+int intel_early_me_init_done(struct udevice *dev, struct udevice *me_dev,
+			     uint status)
 {
 	int count;
 	u32 mebase_l, mebase_h;
@@ -126,8 +132,8 @@ int intel_early_me_init_done(u8 status)
 	};
 
 	/* MEBASE from MESEG_BASE[35:20] */
-	mebase_l = x86_pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_L);
-	mebase_h = x86_pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_H);
+	dm_pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_L, &mebase_l);
+	dm_pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_H, &mebase_h);
 	mebase_h &= 0xf;
 	did.uma_base = (mebase_l >> 20) | (mebase_h << 12);
 
@@ -135,25 +141,25 @@ int intel_early_me_init_done(u8 status)
 	debug("ME: Sending Init Done with status: %d, UMA base: 0x%04x\n",
 	      status, did.uma_base);
 
-	pci_write_dword_ptr(&did, PCI_ME_H_GS);
+	pci_write_dword_ptr(me_dev, &did, PCI_ME_H_GS);
 
 	/* Must wait for ME acknowledgement */
 	for (count = ME_RETRY; count > 0; --count) {
-		pci_read_dword_ptr(&hfs, PCI_ME_HFS);
+		pci_read_dword_ptr(me_dev, &hfs, PCI_ME_HFS);
 		if (hfs.bios_msg_ack)
 			break;
 		udelay(ME_DELAY);
 	}
 	if (!count) {
 		printf("ERROR: ME failed to respond\n");
-		return -1;
+		return -ETIMEDOUT;
 	}
 
 	/* Return the requested BIOS action */
 	debug("ME: Requested BIOS Action: %s\n", me_ack_values[hfs.ack_data]);
 
 	/* Check status after acknowledgement */
-	intel_early_me_status();
+	intel_early_me_status(me_dev);
 
 	switch (hfs.ack_data) {
 	case ME_HFS_ACK_CONTINUE:
@@ -161,17 +167,17 @@ int intel_early_me_init_done(u8 status)
 		return 0;
 	case ME_HFS_ACK_RESET:
 		/* Non-power cycle reset */
-		set_global_reset(0);
+		set_global_reset(dev, 0);
 		reset_cpu(0);
 		break;
 	case ME_HFS_ACK_PWR_CYCLE:
 		/* Power cycle reset */
-		set_global_reset(0);
+		set_global_reset(dev, 0);
 		x86_full_reset();
 		break;
 	case ME_HFS_ACK_GBL_RESET:
 		/* Global reset */
-		set_global_reset(1);
+		set_global_reset(dev, 1);
 		x86_full_reset();
 		break;
 	case ME_HFS_ACK_S3:
@@ -180,5 +186,17 @@ int intel_early_me_init_done(u8 status)
 		break;
 	}
 
-	return -1;
+	return -EINVAL;
 }
+
+static const struct udevice_id ivybridge_syscon_ids[] = {
+	{ .compatible = "intel,me", .data = X86_SYSCON_ME },
+	{ .compatible = "intel,gma", .data = X86_SYSCON_GMA },
+	{ }
+};
+
+U_BOOT_DRIVER(syscon_intel_me) = {
+	.name = "intel_me_syscon",
+	.id = UCLASS_SYSCON,
+	.of_match = ivybridge_syscon_ids,
+};

@@ -14,7 +14,6 @@
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91sam9_matrix.h>
 #include <asm/arch/at91_pit.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_wdt.h>
 #include <asm/arch/clk.h>
@@ -77,8 +76,6 @@ void __weak spl_board_init(void)
 
 void board_init_f(ulong dummy)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	lowlevel_clock_init();
 	at91_disable_wdt();
 
@@ -86,7 +83,7 @@ void board_init_f(ulong dummy)
 	 * At this stage the main oscillator is supposed to be enabled
 	 * PCK = MCK = MOSC
 	 */
-	writel(0x00, &pmc->pllicpr);
+	at91_pllicpr_init(0x00);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	at91_plla_init(CONFIG_SYS_AT91_PLLA);

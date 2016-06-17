@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2014-2016 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <ahci.h>
 #include <linux/mbus.h>
 #include <asm/io.h>
@@ -50,25 +49,106 @@ int mvebu_soc_family(void)
 {
 	u16 devid = (readl(MVEBU_REG_PCIE_DEVID) >> 16) & 0xffff;
 
-	if (devid == SOC_MV78460_ID)
+	switch (devid) {
+	case SOC_MV78230_ID:
+	case SOC_MV78260_ID:
+	case SOC_MV78460_ID:
 		return MVEBU_SOC_AXP;
-
-	if (devid == SOC_88F6810_ID || devid == SOC_88F6820_ID ||
-	    devid == SOC_88F6828_ID)
+	case SOC_88F6810_ID:
+	case SOC_88F6820_ID:
+	case SOC_88F6828_ID:
 		return MVEBU_SOC_A38X;
-
+	}
 	return MVEBU_SOC_UNKNOWN;
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
+
+#if defined(CONFIG_ARMADA_38X)
+/* SAR frequency values for Armada 38x */
+static const struct sar_freq_modes sar_freq_tab[] = {
+	{  0x0,  0x0,  666, 333, 333 },
+	{  0x2,  0x0,  800, 400, 400 },
+	{  0x4,  0x0, 1066, 533, 533 },
+	{  0x6,  0x0, 1200, 600, 600 },
+	{  0x8,  0x0, 1332, 666, 666 },
+	{  0xc,  0x0, 1600, 800, 800 },
+	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
+};
+#else
+/* SAR frequency values for Armada XP */
+static const struct sar_freq_modes sar_freq_tab[] = {
+	{  0xa,  0x5,  800, 400, 400 },
+	{  0x1,  0x5, 1066, 533, 533 },
+	{  0x2,  0x5, 1200, 600, 600 },
+	{  0x2,  0x9, 1200, 600, 400 },
+	{  0x3,  0x5, 1333, 667, 667 },
+	{  0x4,  0x5, 1500, 750, 750 },
+	{  0x4,  0x9, 1500, 750, 500 },
+	{  0xb,  0x9, 1600, 800, 533 },
+	{  0xb,  0xa, 1600, 800, 640 },
+	{  0xb,  0x5, 1600, 800, 800 },
+	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
+};
+#endif
+
+void get_sar_freq(struct sar_freq_modes *sar_freq)
+{
+	u32 val;
+	u32 freq;
+	int i;
+
+	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+	freq = (val & SAR_CPU_FREQ_MASK) >> SAR_CPU_FREQ_OFFS;
+#if !defined(CONFIG_ARMADA_38X)
+	/*
+	 * Shift CPU0 clock frequency select bit from SAR2 register
+	 * into correct position
+	 */
+	freq |= ((readl(CONFIG_SAR2_REG) & SAR2_CPU_FREQ_MASK)
+		 >> SAR2_CPU_FREQ_OFFS) << 3;
+#endif
+	for (i = 0; sar_freq_tab[i].val != 0xff; i++) {
+		if (sar_freq_tab[i].val == freq) {
+#if defined(CONFIG_ARMADA_38X)
+			*sar_freq = sar_freq_tab[i];
+			return;
+#else
+			int k;
+			u8 ffc;
+
+			ffc = (val & SAR_FFC_FREQ_MASK) >>
+				SAR_FFC_FREQ_OFFS;
+			for (k = i; sar_freq_tab[k].ffc != 0xff; k++) {
+				if (sar_freq_tab[k].ffc == ffc) {
+					*sar_freq = sar_freq_tab[k];
+					return;
+				}
+			}
+			i = k;
+#endif
+		}
+	}
+
+	/* SAR value not found, return 0 for frequencies */
+	*sar_freq = sar_freq_tab[i - 1];
+}
+
 int print_cpuinfo(void)
 {
 	u16 devid = (readl(MVEBU_REG_PCIE_DEVID) >> 16) & 0xffff;
 	u8 revid = readl(MVEBU_REG_PCIE_REVID) & 0xff;
+	struct sar_freq_modes sar_freq;
 
 	puts("SoC:   ");
 
 	switch (devid) {
+	case SOC_MV78230_ID:
+		puts("MV78230-");
+		break;
+	case SOC_MV78260_ID:
+		puts("MV78260-");
+		break;
 	case SOC_MV78460_ID:
 		puts("MV78460-");
 		break;
@@ -89,13 +169,13 @@ int print_cpuinfo(void)
 	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
 		switch (revid) {
 		case 1:
-			puts("A0\n");
+			puts("A0");
 			break;
 		case 2:
-			puts("B0\n");
+			puts("B0");
 			break;
 		default:
-			printf("?? (%x)\n", revid);
+			printf("?? (%x)", revid);
 			break;
 		}
 	}
@@ -103,16 +183,19 @@ int print_cpuinfo(void)
 	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
 		switch (revid) {
 		case MV_88F68XX_Z1_ID:
-			puts("Z1\n");
+			puts("Z1");
 			break;
 		case MV_88F68XX_A0_ID:
-			puts("A0\n");
+			puts("A0");
 			break;
 		default:
-			printf("?? (%x)\n", revid);
+			printf("?? (%x)", revid);
 			break;
 		}
 	}
+
+	get_sar_freq(&sar_freq);
+	printf(" at %d MHz\n", sar_freq.p_clk);
 
 	return 0;
 }
@@ -199,10 +282,10 @@ static void setup_usb_phys(void)
 	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0x3ff, 0x605);
 
 	/* Power up PLL and PHY channel */
-	clrsetbits_le32(MV_USB_PHY_PLL_REG(2), 0, BIT(9));
+	setbits_le32(MV_USB_PHY_PLL_REG(2), BIT(9));
 
 	/* Assert VCOCAL_START */
-	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0, BIT(21));
+	setbits_le32(MV_USB_PHY_PLL_REG(1), BIT(21));
 
 	mdelay(1);
 
@@ -211,18 +294,20 @@ static void setup_usb_phys(void)
 	 */
 
 	for (dev = 0; dev < 3; dev++) {
-		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 3), 0, BIT(15));
+		setbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 3), BIT(15));
 
 		/* Assert REG_RCAL_START in channel REG 1 */
-		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), 0, BIT(12));
+		setbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12));
 		udelay(40);
-		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12), 0);
+		clrbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12));
 	}
 }
 
+/*
+ * This function is not called from the SPL U-Boot version
+ */
 int arch_cpu_init(void)
 {
-#if !defined(CONFIG_SPL_BUILD)
 	struct pl310_regs *const pl310 =
 		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
@@ -233,27 +318,26 @@ int arch_cpu_init(void)
 	 * still locked to cache.
 	 */
 	mmu_disable();
-#endif
 
 	/* Linux expects the internal registers to be at 0xf1000000 */
 	writel(SOC_REGS_PHY_BASE, INTREG_BASE_ADDR_REG);
 	set_cbar(SOC_REGS_PHY_BASE + 0xC000);
 
-#if !defined(CONFIG_SPL_BUILD)
 	/*
 	 * From this stage on, the SoC detection is working. As we have
 	 * configured the internal register base to the value used
 	 * in the macros / defines in the U-Boot header (soc.h).
 	 */
 
-	/*
-	 * To fully release / unlock this area from cache, we need
-	 * to flush all caches and disable the L2 cache.
-	 */
-	icache_disable();
-	dcache_disable();
-	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-#endif
+	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
+		/*
+		 * To fully release / unlock this area from cache, we need
+		 * to flush all caches and disable the L2 cache.
+		 */
+		icache_disable();
+		dcache_disable();
+		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+	}
 
 	/*
 	 * We need to call mvebu_mbus_probe() before calling
@@ -326,30 +410,6 @@ int arch_misc_init(void)
 }
 #endif /* CONFIG_ARCH_MISC_INIT */
 
-#ifdef CONFIG_MVNETA
-int cpu_eth_init(bd_t *bis)
-{
-	u32 enet_base[] = { MVEBU_EGIGA0_BASE, MVEBU_EGIGA1_BASE,
-			    MVEBU_EGIGA2_BASE, MVEBU_EGIGA3_BASE };
-	u8 phy_addr[] = CONFIG_PHY_ADDR;
-	int i;
-
-	/*
-	 * Only Armada XP supports all 4 ethernet interfaces. A38x has
-	 * slightly different base addresses for its 2-3 interfaces.
-	 */
-	if (mvebu_soc_family() != MVEBU_SOC_AXP) {
-		enet_base[1] = MVEBU_EGIGA2_BASE;
-		enet_base[2] = MVEBU_EGIGA3_BASE;
-	}
-
-	for (i = 0; i < ARRAY_SIZE(phy_addr); i++)
-		mvneta_initialize(bis, enet_base[i], i, phy_addr[i]);
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_MV_SDHCI
 int board_mmc_init(bd_t *bis)
 {
@@ -413,20 +473,43 @@ void scsi_init(void)
 }
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
-	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
-
-	/* First disable L2 cache - may still be enable from BootROM */
-	if (mvebu_soc_family() == MVEBU_SOC_A38X)
-		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-
 	/* Avoid problem with e.g. neta ethernet driver */
 	invalidate_dcache_all();
 
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }
-#endif
+
+void v7_outer_cache_enable(void)
+{
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		struct pl310_regs *const pl310 =
+			(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+		u32 u;
+
+		/* The L2 cache is already disabled at this point */
+
+		/*
+		 * For Aurora cache in no outer mode, enable via the CP15
+		 * coprocessor broadcasting of cache commands to L2.
+		 */
+		asm volatile("mrc p15, 1, %0, c15, c2, 0" : "=r" (u));
+		u |= BIT(8);		/* Set the FW bit */
+		asm volatile("mcr p15, 1, %0, c15, c2, 0" : : "r" (u));
+
+		isb();
+
+		/* Enable the L2 cache */
+		setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+	}
+}
+
+void v7_outer_cache_disable(void)
+{
+	struct pl310_regs *const pl310 =
+		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}

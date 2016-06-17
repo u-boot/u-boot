@@ -10,6 +10,8 @@
 #include <command.h>
 #include <console.h>
 
+#include <dm.h>
+
 #include <net.h>
 #include <phy.h>
 #include <errno.h>
@@ -18,10 +20,15 @@
 #include <asm/ti-common/keystone_nav.h>
 #include <asm/ti-common/keystone_net.h>
 #include <asm/ti-common/keystone_serdes.h>
+#include <asm/arch/psc_defs.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifndef CONFIG_DM_ETH
 unsigned int emac_open;
 static struct mii_dev *mdio_bus;
 static unsigned int sys_has_mdio = 1;
+#endif
 
 #ifdef KEYSTONE2_EMAC_GIG_ENABLE
 #define emac_gigabit_enable(x)	keystone2_eth_gigabit_enable(x)
@@ -36,40 +43,74 @@ static unsigned int sys_has_mdio = 1;
 
 static u8 rx_buffs[RX_BUFF_NUMS * RX_BUFF_LEN] __aligned(16);
 
+#ifndef CONFIG_DM_ETH
 struct rx_buff_desc net_rx_buffs = {
 	.buff_ptr	= rx_buffs,
 	.num_buffs	= RX_BUFF_NUMS,
 	.buff_len	= RX_BUFF_LEN,
 	.rx_flow	= 22,
 };
-
-#ifndef CONFIG_SOC_K2G
-static void keystone2_net_serdes_setup(void);
 #endif
 
-int keystone2_eth_read_mac_addr(struct eth_device *dev)
-{
-	struct eth_priv_t *eth_priv;
-	u32 maca = 0;
-	u32 macb = 0;
+#ifdef CONFIG_DM_ETH
 
-	eth_priv = (struct eth_priv_t *)dev->priv;
+enum link_type {
+	LINK_TYPE_MAC_TO_MAC_AUTO = 0,
+	LINK_TYPE_MAC_TO_PHY_MODE = 1,
+	LINK_TYPE_MAC_TO_MAC_FORCED_MODE = 2,
+	LINK_TYPE_MAC_TO_FIBRE_MODE = 3,
+	LINK_TYPE_MAC_TO_PHY_NO_MDIO_MODE = 4,
+	LINK_TYPE_10G_MAC_TO_PHY_MODE = 10,
+	LINK_TYPE_10G_MAC_TO_MAC_FORCED_MODE = 11,
+};
 
-	/* Read the e-fuse mac address */
-	if (eth_priv->slave_port == 1) {
-		maca = __raw_readl(MAC_ID_BASE_ADDR);
-		macb = __raw_readl(MAC_ID_BASE_ADDR + 4);
-	}
+#define mac_hi(mac)     (((mac)[0] << 0) | ((mac)[1] << 8) |    \
+			 ((mac)[2] << 16) | ((mac)[3] << 24))
+#define mac_lo(mac)     (((mac)[4] << 0) | ((mac)[5] << 8))
 
-	dev->enetaddr[0] = (macb >>  8) & 0xff;
-	dev->enetaddr[1] = (macb >>  0) & 0xff;
-	dev->enetaddr[2] = (maca >> 24) & 0xff;
-	dev->enetaddr[3] = (maca >> 16) & 0xff;
-	dev->enetaddr[4] = (maca >>  8) & 0xff;
-	dev->enetaddr[5] = (maca >>  0) & 0xff;
+#ifdef CONFIG_KSNET_NETCP_V1_0
 
-	return 0;
-}
+#define EMAC_EMACSW_BASE_OFS		0x90800
+#define EMAC_EMACSW_PORT_BASE_OFS	(EMAC_EMACSW_BASE_OFS + 0x60)
+
+/* CPSW Switch slave registers */
+#define CPGMACSL_REG_SA_LO		0x10
+#define CPGMACSL_REG_SA_HI		0x14
+
+#define DEVICE_EMACSW_BASE(base, x)	((base) + EMAC_EMACSW_PORT_BASE_OFS +  \
+					 (x) * 0x30)
+
+#elif defined CONFIG_KSNET_NETCP_V1_5
+
+#define EMAC_EMACSW_PORT_BASE_OFS	0x222000
+
+/* CPSW Switch slave registers */
+#define CPGMACSL_REG_SA_LO		0x308
+#define CPGMACSL_REG_SA_HI		0x30c
+
+#define DEVICE_EMACSW_BASE(base, x)	((base) + EMAC_EMACSW_PORT_BASE_OFS +  \
+					 (x) * 0x1000)
+
+#endif
+
+
+struct ks2_eth_priv {
+	struct udevice			*dev;
+	struct phy_device		*phydev;
+	struct mii_dev			*mdio_bus;
+	int				phy_addr;
+	phy_interface_t			phy_if;
+	int				sgmii_link_type;
+	void				*mdio_base;
+	struct rx_buff_desc		net_rx_buffs;
+	struct pktdma_cfg		*netcp_pktdma;
+	void				*hd;
+	int				slave_port;
+	enum link_type			link_type;
+	bool				emac_open;
+	bool				has_mdio;
+};
+#endif
 
 /* MDIO */
 
@@ -140,6 +181,7 @@ static int keystone2_mdio_write(struct mii_dev *bus,
 	return 0;
 }
 
+#ifndef CONFIG_DM_ETH
 static void  __attribute__((unused))
 	keystone2_eth_gigabit_enable(struct eth_device *dev)
 {
@@ -163,6 +205,31 @@ static void  __attribute__((unused))
 	       EMAC_MACCONTROL_GIGFORCE | EMAC_MACCONTROL_GIGABIT_ENABLE,
 	       DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) + CPGMACSL_REG_CTL);
 }
+#else
+static void  __attribute__((unused))
+	keystone2_eth_gigabit_enable(struct udevice *dev)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+	u_int16_t data;
+
+	if (priv->has_mdio) {
+		data = keystone2_mdio_read(priv->mdio_bus, priv->phy_addr,
+					   MDIO_DEVAD_NONE, 0);
+		/* speed selection MSB */
+		if (!(data & (1 << 6)))
+			return;
+	}
+
+	/*
+	 * Check if link detected is giga-bit
+	 * If Gigabit mode detected, enable gigbit in MAC
+	 */
+	writel(readl(DEVICE_EMACSL_BASE(priv->slave_port - 1) +
+		     CPGMACSL_REG_CTL) |
+	       EMAC_MACCONTROL_GIGFORCE | EMAC_MACCONTROL_GIGABIT_ENABLE,
+	       DEVICE_EMACSL_BASE(priv->slave_port - 1) + CPGMACSL_REG_CTL);
+}
+#endif
 
 #ifdef CONFIG_SOC_K2G
 int keystone_rgmii_config(struct phy_device *phy_dev)
@@ -401,6 +468,58 @@ int ethss_stop(void)
 	return 0;
 }
 
+struct ks2_serdes ks2_serdes_sgmii_156p25mhz = {
+	.clk = SERDES_CLOCK_156P25M,
+	.rate = SERDES_RATE_5G,
+	.rate_mode = SERDES_QUARTER_RATE,
+	.intf = SERDES_PHY_SGMII,
+	.loopback = 0,
+};
+
+#ifndef CONFIG_SOC_K2G
+static void keystone2_net_serdes_setup(void)
+{
+	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII_BASE,
+			&ks2_serdes_sgmii_156p25mhz,
+			CONFIG_KSNET_SERDES_LANES_PER_SGMII);
+
+#if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
+	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII2_BASE,
+			&ks2_serdes_sgmii_156p25mhz,
+			CONFIG_KSNET_SERDES_LANES_PER_SGMII);
+#endif
+
+	/* wait till setup */
+	udelay(5000);
+}
+#endif
+
+#ifndef CONFIG_DM_ETH
+
+int keystone2_eth_read_mac_addr(struct eth_device *dev)
+{
+	struct eth_priv_t *eth_priv;
+	u32 maca = 0;
+	u32 macb = 0;
+
+	eth_priv = (struct eth_priv_t *)dev->priv;
+
+	/* Read the e-fuse mac address */
+	if (eth_priv->slave_port == 1) {
+		maca = __raw_readl(MAC_ID_BASE_ADDR);
+		macb = __raw_readl(MAC_ID_BASE_ADDR + 4);
+	}
+
+	dev->enetaddr[0] = (macb >>  8) & 0xff;
+	dev->enetaddr[1] = (macb >>  0) & 0xff;
+	dev->enetaddr[2] = (maca >> 24) & 0xff;
+	dev->enetaddr[3] = (maca >> 16) & 0xff;
+	dev->enetaddr[4] = (maca >>  8) & 0xff;
+	dev->enetaddr[5] = (maca >>  0) & 0xff;
+
+	return 0;
+}
+
 int32_t cpmac_drv_send(u32 *buffer, int num_bytes, int slave_port_num)
 {
 	if (num_bytes < EMAC_MIN_ETHERNET_PKT_SIZE)
@@ -556,6 +675,7 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 	int res;
 	struct eth_device *dev;
 	struct phy_device *phy_dev;
+	struct mdio_regs *adap_mdio = (struct mdio_regs *)EMAC_MDIO_BASE_ADDR;
 
 	dev = malloc(sizeof(struct eth_device));
 	if (dev == NULL)
@@ -586,7 +706,7 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 		mdio_bus->write	= keystone2_mdio_write;
 		mdio_bus->reset	= keystone2_mdio_reset;
 		mdio_bus->priv	= (void *)EMAC_MDIO_BASE_ADDR;
-		sprintf(mdio_bus->name, "ethernet-mdio");
+		strcpy(mdio_bus->name, "ethernet-mdio");
 
 		res = mdio_register(mdio_bus);
 		if (res)
@@ -612,28 +732,301 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 	return 0;
 }
 
-struct ks2_serdes ks2_serdes_sgmii_156p25mhz = {
-	.clk = SERDES_CLOCK_156P25M,
-	.rate = SERDES_RATE_5G,
-	.rate_mode = SERDES_QUARTER_RATE,
-	.intf = SERDES_PHY_SGMII,
-	.loopback = 0,
-};
+#else
 
-#ifndef CONFIG_SOC_K2G
-static void keystone2_net_serdes_setup(void)
+static int ks2_eth_start(struct udevice *dev)
 {
-	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII_BASE,
-			&ks2_serdes_sgmii_156p25mhz,
-			CONFIG_KSNET_SERDES_LANES_PER_SGMII);
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
 
-#if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
-	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII2_BASE,
-			&ks2_serdes_sgmii_156p25mhz,
-			CONFIG_KSNET_SERDES_LANES_PER_SGMII);
+#ifdef CONFIG_SOC_K2G
+	keystone_rgmii_config(priv->phydev);
+#else
+	keystone_sgmii_config(priv->phydev, priv->slave_port - 1,
+			      priv->sgmii_link_type);
 #endif
 
-	/* wait till setup */
-	udelay(5000);
+	udelay(10000);
+
+	/* On chip switch configuration */
+	ethss_config(target_get_switch_ctl(), SWITCH_MAX_PKT_SIZE);
+
+	qm_init();
+
+	if (ksnav_init(priv->netcp_pktdma, &priv->net_rx_buffs)) {
+		error("ksnav_init failed\n");
+		goto err_knav_init;
+	}
+
+	/*
+	 * Streaming switch configuration. If not present this
+	 * statement is defined to void in target.h.
+	 * If present this is usually defined to a series of register writes
+	 */
+	hw_config_streaming_switch();
+
+	if (priv->has_mdio) {
+		phy_startup(priv->phydev);
+		if (priv->phydev->link == 0) {
+			error("phy startup failed\n");
+			goto err_phy_start;
+		}
+	}
+
+	emac_gigabit_enable(dev);
+
+	ethss_start();
+
+	priv->emac_open = true;
+
+	return 0;
+
+err_phy_start:
+	ksnav_close(priv->netcp_pktdma);
+err_knav_init:
+	qm_close();
+
+	return -EFAULT;
 }
+
+static int ks2_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+
+	genphy_update_link(priv->phydev);
+	if (priv->phydev->link == 0)
+		return -1;
+
+	if (length < EMAC_MIN_ETHERNET_PKT_SIZE)
+		length = EMAC_MIN_ETHERNET_PKT_SIZE;
+
+	return ksnav_send(priv->netcp_pktdma, (u32 *)packet,
+			  length, (priv->slave_port) << 16);
+}
+
+static int ks2_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+	int  pkt_size;
+	u32 *pkt = NULL;
+
+	priv->hd = ksnav_recv(priv->netcp_pktdma, &pkt, &pkt_size);
+	if (priv->hd == NULL)
+		return -EAGAIN;
+
+	*packetp = (uchar *)pkt;
+
+	return pkt_size;
+}
+
+static int ks2_eth_free_pkt(struct udevice *dev, uchar *packet,
+				   int length)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+
+	ksnav_release_rxhd(priv->netcp_pktdma, priv->hd);
+
+	return 0;
+}
+
+static void ks2_eth_stop(struct udevice *dev)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+
+	if (!priv->emac_open)
+		return;
+	ethss_stop();
+
+	ksnav_close(priv->netcp_pktdma);
+	qm_close();
+	phy_shutdown(priv->phydev);
+	priv->emac_open = false;
+}
+
+int ks2_eth_read_rom_hwaddr(struct udevice *dev)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	u32 maca = 0;
+	u32 macb = 0;
+
+	/* Read the e-fuse mac address */
+	if (priv->slave_port == 1) {
+		maca = __raw_readl(MAC_ID_BASE_ADDR);
+		macb = __raw_readl(MAC_ID_BASE_ADDR + 4);
+	}
+
+	pdata->enetaddr[0] = (macb >>  8) & 0xff;
+	pdata->enetaddr[1] = (macb >>  0) & 0xff;
+	pdata->enetaddr[2] = (maca >> 24) & 0xff;
+	pdata->enetaddr[3] = (maca >> 16) & 0xff;
+	pdata->enetaddr[4] = (maca >>  8) & 0xff;
+	pdata->enetaddr[5] = (maca >>  0) & 0xff;
+
+	return 0;
+}
+
+int ks2_eth_write_hwaddr(struct udevice *dev)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	writel(mac_hi(pdata->enetaddr),
+	       DEVICE_EMACSW_BASE(pdata->iobase, priv->slave_port - 1) +
+				  CPGMACSL_REG_SA_HI);
+	writel(mac_lo(pdata->enetaddr),
+	       DEVICE_EMACSW_BASE(pdata->iobase, priv->slave_port - 1) +
+				  CPGMACSL_REG_SA_LO);
+
+	return 0;
+}
+
+static int ks2_eth_probe(struct udevice *dev)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+	struct mii_dev *mdio_bus;
+	int ret;
+
+	priv->dev = dev;
+
+	/* These clock enables has to be moved to common location */
+	if (cpu_is_k2g())
+		writel(KS2_ETHERNET_RGMII, KS2_ETHERNET_CFG);
+
+	/* By default, select PA PLL clock as PA clock source */
+#ifndef CONFIG_SOC_K2G
+	if (psc_enable_module(KS2_LPSC_PA))
+		return -EACCES;
+#endif
+	if (psc_enable_module(KS2_LPSC_CPGMAC))
+		return -EACCES;
+	if (psc_enable_module(KS2_LPSC_CRYPTO))
+		return -EACCES;
+
+	if (cpu_is_k2e() || cpu_is_k2l())
+		pll_pa_clk_sel();
+
+
+	priv->net_rx_buffs.buff_ptr = rx_buffs,
+	priv->net_rx_buffs.num_buffs = RX_BUFF_NUMS,
+	priv->net_rx_buffs.buff_len = RX_BUFF_LEN,
+
+	/* Register MDIO bus */
+	mdio_bus = mdio_alloc();
+	if (!mdio_bus) {
+		error("MDIO alloc failed\n");
+		return -ENOMEM;
+	}
+	priv->mdio_bus = mdio_bus;
+	mdio_bus->read	= keystone2_mdio_read;
+	mdio_bus->write	= keystone2_mdio_write;
+	mdio_bus->reset	= keystone2_mdio_reset;
+	mdio_bus->priv	= priv->mdio_base;
+	sprintf(mdio_bus->name, "ethernet-mdio");
+
+	ret = mdio_register(mdio_bus);
+	if (ret) {
+		error("MDIO bus register failed\n");
+		return ret;
+	}
+
+#ifndef CONFIG_SOC_K2G
+	keystone2_net_serdes_setup();
+#endif
+
+	priv->netcp_pktdma = &netcp_pktdma;
+
+	priv->phydev = phy_connect(mdio_bus, priv->phy_addr, dev, priv->phy_if);
+	phy_config(priv->phydev);
+
+	return 0;
+}
+
+int ks2_eth_remove(struct udevice *dev)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+
+	free(priv->phydev);
+	mdio_unregister(priv->mdio_bus);
+	mdio_free(priv->mdio_bus);
+
+	return 0;
+}
+
+static const struct eth_ops ks2_eth_ops = {
+	.start			= ks2_eth_start,
+	.send			= ks2_eth_send,
+	.recv			= ks2_eth_recv,
+	.free_pkt		= ks2_eth_free_pkt,
+	.stop			= ks2_eth_stop,
+	.read_rom_hwaddr	= ks2_eth_read_rom_hwaddr,
+	.write_hwaddr		= ks2_eth_write_hwaddr,
+};
+
+
+static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ks2_eth_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	const void *fdt = gd->fdt_blob;
+	int interfaces;
+	int interface_0;
+	int netcp_gbe_0;
+	int phy;
+	int mdio;
+	u32 dma_channel[6];
+
+	interfaces = fdt_subnode_offset(fdt, dev->of_offset,
+					"netcp-interfaces");
+	interface_0 = fdt_subnode_offset(fdt, interfaces, "interface-0");
+
+	netcp_gbe_0 = fdtdec_lookup_phandle(fdt, interface_0, "netcp-gbe");
+	priv->link_type = fdtdec_get_int(fdt, netcp_gbe_0,
+					 "link-interface", -1);
+	priv->slave_port = fdtdec_get_int(fdt, netcp_gbe_0, "slave-port", -1);
+	/* U-Boot slave port number starts with 1 instead of 0 */
+	priv->slave_port += 1;
+
+	phy = fdtdec_lookup_phandle(fdt, netcp_gbe_0, "phy-handle");
+	priv->phy_addr = fdtdec_get_int(fdt, phy, "reg", -1);
+
+	mdio = fdt_parent_offset(fdt, phy);
+	if (mdio < 0) {
+		error("mdio dt not found\n");
+		return -ENODEV;
+	}
+	priv->mdio_base = (void *)fdtdec_get_addr(fdt, mdio, "reg");
+
+	if (priv->link_type == LINK_TYPE_MAC_TO_PHY_MODE) {
+		priv->phy_if = PHY_INTERFACE_MODE_SGMII;
+		pdata->phy_interface = priv->phy_if;
+		priv->sgmii_link_type = SGMII_LINK_MAC_PHY;
+		priv->has_mdio = true;
+	}
+	pdata->iobase = dev_get_addr(dev);
+
+	fdtdec_get_int_array(fdt, dev->of_offset, "ti,navigator-dmas",
+			     dma_channel, 6);
+	priv->net_rx_buffs.rx_flow = dma_channel[1];
+
+	return 0;
+}
+
+static const struct udevice_id ks2_eth_ids[] = {
+	{ .compatible = "ti,netcp-1.0" },
+	{ }
+};
+
+
+U_BOOT_DRIVER(eth_ks2) = {
+	.name	= "eth_ks2",
+	.id	= UCLASS_ETH,
+	.of_match = ks2_eth_ids,
+	.ofdata_to_platdata = ks2_eth_ofdata_to_platdata,
+	.probe	= ks2_eth_probe,
+	.remove	= ks2_eth_remove,
+	.ops	= &ks2_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct ks2_eth_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+};
 #endif

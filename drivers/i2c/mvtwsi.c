@@ -20,7 +20,7 @@
 
 #if defined(CONFIG_ORION5X)
 #include <asm/arch/orion5x.h>
-#elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARMADA_XP))
+#elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
 #include <asm/arch/soc.h>
 #elif defined(CONFIG_SUNXI)
 #include <asm/arch/i2c.h>
@@ -73,6 +73,17 @@ struct  mvtwsi_registers {
 #define	MVTWSI_CONTROL_INTEN	0x00000080
 
 /*
+ * On sun6i and newer IFLG is a write-clear bit which is cleared by writing 1,
+ * on other platforms it is a normal r/w bit which is cleared by writing 0.
+ */
+
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+#define	MVTWSI_CONTROL_CLEAR_IFLG	0x00000008
+#else
+#define	MVTWSI_CONTROL_CLEAR_IFLG	0x00000000
+#endif
+
+/*
  * Status register values -- only those expected in normal master
  * operation on non-10-bit-address devices; whatever status we don't
  * expect in nominal conditions (bus errors, arbitration losses,
@@ -116,6 +127,10 @@ static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 #ifdef CONFIG_I2C_MVTWSI_BASE4
 	case 4:
 		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE4;
+#endif
+#ifdef CONFIG_I2C_MVTWSI_BASE5
+	case 5:
+		return (struct mvtwsi_registers *) CONFIG_I2C_MVTWSI_BASE5;
 #endif
 	default:
 		printf("Missing mvtwsi controller %d base\n", adap->hwadapnr);
@@ -189,7 +204,8 @@ static int twsi_start(struct i2c_adapter *adap, int expected_status)
 	/* globally set TWSIEN in case it was not */
 	twsi_control_flags |= MVTWSI_CONTROL_TWSIEN;
 	/* assert START */
-	writel(twsi_control_flags | MVTWSI_CONTROL_START, &twsi->control);
+	writel(twsi_control_flags | MVTWSI_CONTROL_START |
+				    MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to process START */
 	return twsi_wait(adap, expected_status);
 }
@@ -204,7 +220,7 @@ static int twsi_send(struct i2c_adapter *adap, u8 byte, int expected_status)
 	/* put byte in data register for sending */
 	writel(byte, &twsi->data);
 	/* clear any pending interrupt -- that'll cause sending */
-	writel(twsi_control_flags, &twsi->control);
+	writel(twsi_control_flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to receive byte and check ACK */
 	return twsi_wait(adap, expected_status);
 }
@@ -224,7 +240,7 @@ static int twsi_recv(struct i2c_adapter *adap, u8 *byte)
 	else
 		expected_status = MVTWSI_STATUS_DATA_R_NAK;
 	/* acknowledge *previous state* and launch receive */
-	writel(twsi_control_flags, &twsi->control);
+	writel(twsi_control_flags | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for controller to receive byte and assert ACK or NAK */
 	status = twsi_wait(adap, expected_status);
 	/* if we did receive expected byte then store it */
@@ -246,7 +262,7 @@ static int twsi_stop(struct i2c_adapter *adap, int status)
 
 	/* assert STOP */
 	control = MVTWSI_CONTROL_TWSIEN | MVTWSI_CONTROL_STOP;
-	writel(control, &twsi->control);
+	writel(control | MVTWSI_CONTROL_CLEAR_IFLG, &twsi->control);
 	/* wait for IDLE; IFLG won't rise so twsi_wait() is no use. */
 	do {
 		stop_status = readl(&twsi->status);
@@ -473,5 +489,12 @@ U_BOOT_I2C_ADAP_COMPLETE(twsi4, twsi_i2c_init, twsi_i2c_probe,
 			 twsi_i2c_read, twsi_i2c_write,
 			 twsi_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 4)
+
+#endif
+#ifdef CONFIG_I2C_MVTWSI_BASE5
+U_BOOT_I2C_ADAP_COMPLETE(twsi5, twsi_i2c_init, twsi_i2c_probe,
+			 twsi_i2c_read, twsi_i2c_write,
+			 twsi_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 5)
 
 #endif

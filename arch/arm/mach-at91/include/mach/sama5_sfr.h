@@ -25,6 +25,7 @@ struct atmel_sfr {
 	u32 sn0;		/* 0x4c */
 	u32 sn1;		/* 0x50 */
 	u32 aicredir;	/* 0x54 */
+	u32 l2cc_hramc;	/* 0x58 */
 };
 
 /* Bit field in DDRCFG */

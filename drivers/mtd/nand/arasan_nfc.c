@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2014 - 2015 Xilinx, Inc.
  *
- * SPDX-License-Identifier:     GPL-2.0
+ * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -19,10 +19,7 @@
 #include <nand.h>
 
 struct arasan_nand_info {
-#ifdef CONFIG_MTD_PARTITIONS
-	struct mtd_partition    *parts;
-#endif
-	void __iomem            *nand_base;
+	void __iomem *nand_base;
 	u32 page;
 };
 
@@ -56,7 +53,8 @@ struct nand_regs {
 	u32 errcnt_8bitreg;
 	u32 data_if_reg;
 };
-#define arasan_nand_base ((struct nand_regs *)ARASAN_NAND_BASEADDR)
+
+#define arasan_nand_base ((struct nand_regs __iomem *)ARASAN_NAND_BASEADDR)
 
 struct arasan_nand_command_format {
 	u8 cmd1;
@@ -108,21 +106,27 @@ struct arasan_nand_command_format {
 #define ARASAN_NAND_COL_ADDR_CYCL_MASK		0xF0
 #define ARASAN_NAND_COL_ADDR_CYCL_SHIFT		4
 
+#define ARASAN_NAND_ECC_SIZE_SHIFT		16
+#define ARASAN_NAND_ECC_BCH_SHIFT		27
+
 #define ARASAN_NAND_PKTSIZE_1K			1024
 #define ARASAN_NAND_PKTSIZE_512			512
 
 #define ARASAN_NAND_POLL_TIMEOUT		1000000
 #define ARASAN_NAND_INVALID_ADDR_CYCL		0xFF
 
-struct arasan_nand_command_format *curr_cmd;
+#define ERR_ADDR_CYCLE				-1
+#define READ_BUFF_SIZE				0x4000
 
-typedef enum {
+static struct arasan_nand_command_format *curr_cmd;
+
+enum addr_cycles {
 	NAND_ADDR_CYCL_NONE,
 	NAND_ADDR_CYCL_ONE,
 	NAND_ADDR_CYCL_ROW,
 	NAND_ADDR_CYCL_COL,
 	NAND_ADDR_CYCL_BOTH,
-} addr_cycles_t;
+};
 
 static struct arasan_nand_command_format arasan_nand_commands[] = {
 	{NAND_CMD_READ0, NAND_CMD_READSTART, NAND_ADDR_CYCL_BOTH,
@@ -152,59 +156,62 @@ static struct arasan_nand_command_format arasan_nand_commands[] = {
 
 struct arasan_ecc_matrix {
 	u32 pagesize;
-	u8 ecc_codeword_size;
+	u32 ecc_codeword_size;
 	u8 eccbits;
-	u8 slcmlc;
+	u8 bch;
+	u8 bchval;
 	u16 eccaddr;
 	u16 eccsize;
 };
 
 static const struct arasan_ecc_matrix ecc_matrix[] = {
-	{512, 9, 1, 0, 0x20D, 0x3},
-	{512, 9, 4, 1, 0x209, 0x7},
-	{512, 9, 8, 1, 0x203, 0xD},
+	{512, 512, 1, 0, 0, 0x20D, 0x3},
+	{512, 512, 4, 1, 3, 0x209, 0x7},
+	{512, 512, 8, 1, 2, 0x203, 0xD},
 	/*
 	 * 2K byte page
 	 */
-	{2048, 9, 1, 0, 0x834, 0xC},
-	{2048, 9, 4, 1, 0x826, 0x1A},
-	{2048, 9, 8, 1, 0x80c, 0x34},
-	{2048, 9, 12, 1, 0x822, 0x4E},
-	{2048, 9, 16, 1, 0x808, 0x68},
-	{2048, 10, 24, 1, 0x81c, 0x54},
+	{2048, 512, 1, 0, 0, 0x834, 0xC},
+	{2048, 512, 4, 1, 3, 0x826, 0x1A},
+	{2048, 512, 8, 1, 2, 0x80c, 0x34},
+	{2048, 512, 12, 1, 1, 0x822, 0x4E},
+	{2048, 512, 16, 1, 0, 0x808, 0x68},
+	{2048, 1024, 24, 1, 4, 0x81c, 0x54},
 	/*
 	 * 4K byte page
 	 */
-	{4096, 9, 1, 0, 0x1068, 0x18},
-	{4096, 9, 4, 1, 0x104c, 0x34},
-	{4096, 9, 8, 1, 0x1018, 0x68},
-	{4096, 9, 12, 1, 0x1044, 0x9C},
-	{4096, 9, 16, 1, 0x1010, 0xD0},
-	{4096, 10, 24, 1, 0x1038, 0xA8},
+	{4096, 512, 1, 0, 0, 0x1068, 0x18},
+	{4096, 512, 4, 1, 3, 0x104c, 0x34},
+	{4096, 512, 8, 1, 2, 0x1018, 0x68},
+	{4096, 512, 12, 1, 1, 0x1044, 0x9C},
+	{4096, 512, 16, 1, 0, 0x1010, 0xD0},
+	{4096, 1024, 24, 1, 4, 0x1038, 0xA8},
 	/*
 	 * 8K byte page
 	 */
-	{8192, 9, 1, 0, 0x20d0, 0x30},
-	{8192, 9, 4, 1, 0x2098, 0x68},
-	{8192, 9, 8, 1, 0x2030, 0xD0},
-	{8192, 9, 12, 1, 0x2088, 0x138},
-	{8192, 9, 16, 1, 0x2020, 0x1A0},
-	{8192, 24, 10, 1, 0x2070, 0x150},
+	{8192, 512, 1, 0, 0, 0x20d0, 0x30},
+	{8192, 512, 4, 1, 3, 0x2098, 0x68},
+	{8192, 512, 8, 1, 2, 0x2030, 0xD0},
+	{8192, 512, 12, 1, 1, 0x2088, 0x138},
+	{8192, 512, 16, 1, 0, 0x2020, 0x1A0},
+	{8192, 1024, 24, 1, 4, 0x2070, 0x150},
 	/*
 	 * 16K byte page
 	 */
-	{16384, 9, 1, 0, 0x4460, 0x60},
-	{16384, 9, 4, 1, 0x43f0, 0xD0},
-	{16384, 9, 8, 1, 0x4320, 0x1A0},
-	{16384, 9, 12, 1, 0x4250, 0x270},
-	{16384, 9, 16, 1, 0x4180, 0x340},
-	{16384, 10, 24, 1, 0x4220, 0x2A0}
+	{16384, 512, 1, 0, 0, 0x4460, 0x60},
+	{16384, 512, 4, 1, 3, 0x43f0, 0xD0},
+	{16384, 512, 8, 1, 2, 0x4320, 0x1A0},
+	{16384, 512, 12, 1, 1, 0x4250, 0x270},
+	{16384, 512, 16, 1, 0, 0x4180, 0x340},
+	{16384, 1024, 24, 1, 4, 0x4220, 0x2A0}
 };
 
-u32 buf_data[16384];
-u32 buf_index = 0;
+static u8 buf_data[READ_BUFF_SIZE];
+static u32 buf_index;
 
 static struct nand_ecclayout nand_oob;
+
+static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
 
 static void arasan_nand_select_chip(struct mtd_info *mtd, int chip)
 {
@@ -260,7 +267,7 @@ static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 	struct nand_chip *chip = mtd->priv;
 	u32 reg_val, i, pktsize, pktnum;
 	u32 *bufptr = (u32 *)buf;
-	u32 timeout = ARASAN_NAND_POLL_TIMEOUT;
+	u32 timeout;
 	u32  rdcount = 0;
 	u8 addr_cycles;
 
@@ -269,7 +276,7 @@ static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 	else
 		pktsize = ARASAN_NAND_PKTSIZE_512;
 
-	if (size%pktsize)
+	if (size % pktsize)
 		pktnum = size/pktsize + 1;
 	else
 		pktnum = size/pktsize;
@@ -288,19 +295,25 @@ static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 
 	arasan_nand_enable_ecc();
 	addr_cycles = arasan_nand_get_addrcycle(mtd);
-	writel((NAND_CMD_RNDOUTSTART << 8) | NAND_CMD_RNDOUT |
-		(addr_cycles << 28), &arasan_nand_base->ecc_sprcmd_reg);
+	if (addr_cycles == ARASAN_NAND_INVALID_ADDR_CYCL)
+		return ERR_ADDR_CYCLE;
+
+	writel((NAND_CMD_RNDOUTSTART << ARASAN_NAND_CMD_CMD2_SHIFT) |
+	       NAND_CMD_RNDOUT | (addr_cycles <<
+	       ARASAN_NAND_CMD_ADDR_CYCL_SHIFT),
+	       &arasan_nand_base->ecc_sprcmd_reg);
 	writel(curr_cmd->pgm, &arasan_nand_base->pgm_reg);
 
 	while (rdcount < pktnum) {
 		timeout = ARASAN_NAND_POLL_TIMEOUT;
 		while (!(readl(&arasan_nand_base->intsts_reg) &
 			ARASAN_NAND_INT_STS_BUF_RD_RDY_MASK) && timeout) {
+			udelay(1);
 			timeout--;
 		}
 		if (!timeout) {
 			puts("arasan_read_page: timedout:Buff RDY\n");
-			return -1;
+			return -ETIMEDOUT;
 		}
 
 		rdcount++;
@@ -335,11 +348,12 @@ static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
 	if (!timeout) {
 		puts("arasan rd_page timedout:Xfer CMPLT\n");
-		return -1;
+		return -ETIMEDOUT;
 	}
 
 	reg_val = readl(&arasan_nand_base->intsts_enr);
@@ -380,7 +394,7 @@ static int arasan_nand_read_page_hwecc(struct mtd_info *mtd,
 
 static void arasan_nand_fill_tx(const u8 *buf, int len)
 {
-	u32 *nand = &arasan_nand_base->buf_dataport;
+	u32 __iomem *nand = &arasan_nand_base->buf_dataport;
 
 	if (((unsigned long)buf & 0x3) != 0) {
 		if (((unsigned long)buf & 0x1) != 0) {
@@ -422,12 +436,12 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 		struct nand_chip *chip, const u8 *buf, int oob_required)
 {
 	u32 reg_val, i, pktsize, pktnum;
-	u32 *bufptr = (u32 *)buf;
+	const u32 *bufptr = (const u32 *)buf;
 	u32 timeout = ARASAN_NAND_POLL_TIMEOUT;
 	u32 size = mtd->writesize;
 	u32 rdcount = 0;
 	u8 column_addr_cycles;
-	struct arasan_nand_info *xnand = chip->priv;
+	struct arasan_nand_info *nand = chip->priv;
 
 	if (chip->ecc_step_ds >= ARASAN_NAND_PKTSIZE_1K)
 		pktsize = ARASAN_NAND_PKTSIZE_1K;
@@ -457,12 +471,13 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 		timeout = ARASAN_NAND_POLL_TIMEOUT;
 		while (!(readl(&arasan_nand_base->intsts_reg) &
 			ARASAN_NAND_INT_STS_BUF_WR_RDY_MASK) && timeout) {
+			udelay(1);
 			timeout--;
 		}
 
 		if (!timeout) {
 			puts("arasan_write_page: timedout:Buff RDY\n");
-			return -1;
+			return -ETIMEDOUT;
 		}
 
 		rdcount++;
@@ -497,22 +512,23 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
 	if (!timeout) {
 		puts("arasan write_page timedout:Xfer CMPLT\n");
-		return -1;
+		return -ETIMEDOUT;
 	}
 
 	reg_val = readl(&arasan_nand_base->intsts_enr);
 	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
 	       &arasan_nand_base->intsts_enr);
 	reg_val = readl(&arasan_nand_base->intsts_reg);
-	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK ,
+	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
 	       &arasan_nand_base->intsts_reg);
 
 	if (oob_required)
-		chip->ecc.write_oob(mtd, chip, xnand->page);
+		chip->ecc.write_oob(mtd, chip, nand->page);
 
 	return 0;
 }
@@ -533,12 +549,12 @@ static int arasan_nand_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 	const u8 *buf = chip->oob_poi;
 
 	chip->cmdfunc(mtd, NAND_CMD_SEQIN, mtd->writesize, page);
-	chip->write_buf(mtd, buf, (mtd->oobsize));
+	chip->write_buf(mtd, buf, mtd->oobsize);
 
 	return status;
 }
 
-static void arasan_nand_reset(struct arasan_nand_command_format *curr_cmd)
+static int arasan_nand_reset(struct arasan_nand_command_format *curr_cmd)
 {
 	u32 timeout = ARASAN_NAND_POLL_TIMEOUT;
 	u32 cmd_reg = 0;
@@ -555,16 +571,21 @@ static void arasan_nand_reset(struct arasan_nand_command_format *curr_cmd)
 
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
-	if (!timeout)
-		puts("ERROR:arasan_nand_reset timedout\n");
+	if (!timeout) {
+		printf("ERROR:%s timedout\n", __func__);
+		return -ETIMEDOUT;
+	}
 
 	writel(ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
 	       &arasan_nand_base->intsts_enr);
 
 	writel(ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
 	       &arasan_nand_base->intsts_reg);
+
+	return 0;
 }
 
 static u8 arasan_nand_page(struct mtd_info *mtd)
@@ -591,13 +612,14 @@ static u8 arasan_nand_page(struct mtd_info *mtd)
 		page_val = 5;
 		break;
 	default:
+		printf("%s:Pagesize>16K\n", __func__);
 		break;
 	}
 
 	return page_val;
 }
 
-static void arasan_nand_send_wrcmd(struct arasan_nand_command_format *curr_cmd,
+static int arasan_nand_send_wrcmd(struct arasan_nand_command_format *curr_cmd,
 			int column, int page_addr, struct mtd_info *mtd)
 {
 	u32 reg_val, page;
@@ -617,6 +639,10 @@ static void arasan_nand_send_wrcmd(struct arasan_nand_command_format *curr_cmd,
 
 	reg_val &= ~ARASAN_NAND_CMD_ADDR_CYCL_MASK;
 	addr_cycles = arasan_nand_get_addrcycle(mtd);
+
+	if (addr_cycles == ARASAN_NAND_INVALID_ADDR_CYCL)
+		return ERR_ADDR_CYCLE;
+
 	reg_val |= (addr_cycles <<
 		   ARASAN_NAND_CMD_ADDR_CYCL_SHIFT);
 	writel(reg_val, &arasan_nand_base->cmd_reg);
@@ -636,6 +662,8 @@ static void arasan_nand_send_wrcmd(struct arasan_nand_command_format *curr_cmd,
 	reg_val = readl(&arasan_nand_base->memadr_reg2);
 	reg_val &= ~ARASAN_NAND_MEM_ADDR2_CS_MASK;
 	writel(reg_val, &arasan_nand_base->memadr_reg2);
+
+	return 0;
 }
 
 static void arasan_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
@@ -653,6 +681,7 @@ static void arasan_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
 
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_BUF_WR_RDY_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
 
@@ -673,6 +702,7 @@ static void arasan_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
 	timeout = ARASAN_NAND_POLL_TIMEOUT;
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
 	if (!timeout)
@@ -686,7 +716,7 @@ static void arasan_nand_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
 	       &arasan_nand_base->intsts_reg);
 }
 
-static void arasan_nand_erase(struct arasan_nand_command_format *curr_cmd,
+static int arasan_nand_erase(struct arasan_nand_command_format *curr_cmd,
 			      int column, int page_addr, struct mtd_info *mtd)
 {
 	u32 reg_val, page;
@@ -700,6 +730,10 @@ static void arasan_nand_erase(struct arasan_nand_command_format *curr_cmd,
 	reg_val |= curr_cmd->cmd1 |
 		   (curr_cmd->cmd2 << ARASAN_NAND_CMD_CMD2_SHIFT);
 	row_addr_cycles = arasan_nand_get_addrcycle(mtd);
+
+	if (row_addr_cycles == ARASAN_NAND_INVALID_ADDR_CYCL)
+		return ERR_ADDR_CYCLE;
+
 	reg_val &= ~ARASAN_NAND_CMD_ADDR_CYCL_MASK;
 	reg_val |= (row_addr_cycles <<
 		    ARASAN_NAND_CMD_ADDR_CYCL_SHIFT);
@@ -722,10 +756,13 @@ static void arasan_nand_erase(struct arasan_nand_command_format *curr_cmd,
 
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
-	if (!timeout)
-		puts("ERROR:arasan_nand_erase timedout:Xfer CMPLT\n");
+	if (!timeout) {
+		printf("ERROR:%s timedout:Xfer CMPLT\n", __func__);
+		return -ETIMEDOUT;
+	}
 
 	reg_val = readl(&arasan_nand_base->intsts_enr);
 	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
@@ -733,9 +770,11 @@ static void arasan_nand_erase(struct arasan_nand_command_format *curr_cmd,
 	reg_val = readl(&arasan_nand_base->intsts_reg);
 	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
 	       &arasan_nand_base->intsts_reg);
+
+	return 0;
 }
 
-static void arasan_nand_read_status(struct arasan_nand_command_format *curr_cmd,
+static int arasan_nand_read_status(struct arasan_nand_command_format *curr_cmd,
 				int column, int page_addr, struct mtd_info *mtd)
 {
 	u32 reg_val;
@@ -749,6 +788,10 @@ static void arasan_nand_read_status(struct arasan_nand_command_format *curr_cmd,
 	reg_val |= curr_cmd->cmd1 |
 		   (curr_cmd->cmd2 << ARASAN_NAND_CMD_CMD2_SHIFT);
 	addr_cycles = arasan_nand_get_addrcycle(mtd);
+
+	if (addr_cycles == ARASAN_NAND_INVALID_ADDR_CYCL)
+		return ERR_ADDR_CYCLE;
+
 	reg_val &= ~ARASAN_NAND_CMD_ADDR_CYCL_MASK;
 	reg_val |= (addr_cycles <<
 		    ARASAN_NAND_CMD_ADDR_CYCL_SHIFT);
@@ -768,11 +811,14 @@ static void arasan_nand_read_status(struct arasan_nand_command_format *curr_cmd,
 	writel(curr_cmd->pgm, &arasan_nand_base->pgm_reg);
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
 
-	if (!timeout)
-		puts("ERROR:arasan_nand_read_status timedout:Xfer CMPLT\n");
+	if (!timeout) {
+		printf("ERROR:%s: timedout:Xfer CMPLT\n", __func__);
+		return -ETIMEDOUT;
+	}
 
 	reg_val = readl(&arasan_nand_base->intsts_enr);
 	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
@@ -780,9 +826,11 @@ static void arasan_nand_read_status(struct arasan_nand_command_format *curr_cmd,
 	reg_val = readl(&arasan_nand_base->intsts_reg);
 	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
 	       &arasan_nand_base->intsts_reg);
+
+	return 0;
 }
 
-static void arasan_nand_send_rdcmd(struct arasan_nand_command_format *curr_cmd,
+static int arasan_nand_send_rdcmd(struct arasan_nand_command_format *curr_cmd,
 			       int column, int page_addr, struct mtd_info *mtd)
 {
 	u32 reg_val, addr_cycles, page;
@@ -807,6 +855,10 @@ static void arasan_nand_send_rdcmd(struct arasan_nand_command_format *curr_cmd,
 	reg_val &= ~ARASAN_NAND_CMD_ADDR_CYCL_MASK;
 
 	addr_cycles = arasan_nand_get_addrcycle(mtd);
+
+	if (addr_cycles == ARASAN_NAND_INVALID_ADDR_CYCL)
+		return ERR_ADDR_CYCLE;
+
 	reg_val |= (addr_cycles << 28);
 	writel(reg_val, &arasan_nand_base->cmd_reg);
 
@@ -827,17 +879,8 @@ static void arasan_nand_send_rdcmd(struct arasan_nand_command_format *curr_cmd,
 	reg_val &= ~ARASAN_NAND_MEM_ADDR2_CS_MASK;
 	writel(reg_val, &arasan_nand_base->memadr_reg2);
 	buf_index = 0;
-}
 
-static u8 arasan_read_byte(void)
-{
-	u8 *bufptr = (u8 *)&buf_data[0];
-	u8 val;
-
-	val = *(bufptr + buf_index);
-	buf_index++;
-
-	return val;
+	return 0;
 }
 
 static void arasan_nand_read_buf(struct mtd_info *mtd, u8 *buf, int size)
@@ -856,6 +899,7 @@ static void arasan_nand_read_buf(struct mtd_info *mtd, u8 *buf, int size)
 
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_BUF_RD_RDY_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
 
@@ -883,6 +927,7 @@ static void arasan_nand_read_buf(struct mtd_info *mtd, u8 *buf, int size)
 
 	while (!(readl(&arasan_nand_base->intsts_reg) &
 		ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
+		udelay(1);
 		timeout--;
 	}
 
@@ -901,6 +946,7 @@ static u8 arasan_nand_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd->priv;
 	u32 size;
+	u8 val;
 	struct nand_onfi_params *p;
 
 	if (buf_index == 0) {
@@ -917,21 +963,25 @@ static u8 arasan_nand_read_byte(struct mtd_info *mtd)
 			return readb(&arasan_nand_base->flash_sts_reg);
 		else
 			size = 8;
-		chip->read_buf(mtd, (u8 *)&buf_data[0], size);
+		chip->read_buf(mtd, &buf_data[0], size);
 	}
 
-	return arasan_read_byte();
+	val = *(&buf_data[0] + buf_index);
+	buf_index++;
+
+	return val;
 }
 
 static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 				     int column, int page_addr)
 {
-	u32 i;
+	u32 i, ret = 0;
 	struct nand_chip *chip = mtd->priv;
-	struct arasan_nand_info *xnand = chip->priv;
+	struct arasan_nand_info *nand = chip->priv;
 
 	curr_cmd = NULL;
-	writel(0x4, &arasan_nand_base->intsts_enr);
+	writel(ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
+	       &arasan_nand_base->intsts_enr);
 
 	if ((command == NAND_CMD_READOOB) &&
 	    (mtd->writesize > 512)) {
@@ -954,128 +1004,106 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	}
 
 	if (curr_cmd->cmd1 == NAND_CMD_RESET)
-		arasan_nand_reset(curr_cmd);
+		ret = arasan_nand_reset(curr_cmd);
 
 	if ((curr_cmd->cmd1 == NAND_CMD_READID) ||
 	    (curr_cmd->cmd1 == NAND_CMD_PARAM) ||
 	    (curr_cmd->cmd1 == NAND_CMD_RNDOUT) ||
 	    (curr_cmd->cmd1 == NAND_CMD_GET_FEATURES) ||
 	    (curr_cmd->cmd1 == NAND_CMD_READ0))
-		arasan_nand_send_rdcmd(curr_cmd, column, page_addr, mtd);
+		ret = arasan_nand_send_rdcmd(curr_cmd, column, page_addr, mtd);
 
 	if ((curr_cmd->cmd1 == NAND_CMD_SET_FEATURES) ||
 	    (curr_cmd->cmd1 == NAND_CMD_SEQIN)) {
-		xnand->page = page_addr;
-		arasan_nand_send_wrcmd(curr_cmd, column, page_addr, mtd);
+		nand->page = page_addr;
+		ret = arasan_nand_send_wrcmd(curr_cmd, column, page_addr, mtd);
 	}
 
 	if (curr_cmd->cmd1 == NAND_CMD_ERASE1)
-		arasan_nand_erase(curr_cmd, column, page_addr, mtd);
+		ret = arasan_nand_erase(curr_cmd, column, page_addr, mtd);
 
 	if (curr_cmd->cmd1 == NAND_CMD_STATUS)
-		arasan_nand_read_status(curr_cmd, column, page_addr, mtd);
+		ret = arasan_nand_read_status(curr_cmd, column, page_addr, mtd);
+
+	if (ret != 0)
+		printf("ERROR:%s:command:0x%x\n", __func__, curr_cmd->cmd1);
 }
 
-static void arasan_nand_ecc_init(struct mtd_info *mtd)
+static int arasan_nand_ecc_init(struct mtd_info *mtd)
 {
-	u32 found = 0;
-	u8 bchmodeval = 0;
+	int found = -1;
 	u32 regval, eccpos_start, i;
 	struct nand_chip *nand_chip = mtd->priv;
 
-	for (i = 0; i < sizeof(ecc_matrix)/sizeof(struct arasan_ecc_matrix);
-	     i++) {
+	nand_chip->ecc.mode = NAND_ECC_HW;
+	nand_chip->ecc.hwctl = NULL;
+	nand_chip->ecc.read_page = arasan_nand_read_page_hwecc;
+	nand_chip->ecc.write_page = arasan_nand_write_page_hwecc;
+	nand_chip->ecc.read_oob = arasan_nand_read_oob;
+	nand_chip->ecc.write_oob = arasan_nand_write_oob;
+
+	for (i = 0; i < ARRAY_SIZE(ecc_matrix); i++) {
 		if ((ecc_matrix[i].pagesize == mtd->writesize) &&
-		    ((1 << ecc_matrix[i].ecc_codeword_size) >=
+		    (ecc_matrix[i].ecc_codeword_size >=
 		     nand_chip->ecc_step_ds)) {
 			if (ecc_matrix[i].eccbits >=
 			    nand_chip->ecc_strength_ds) {
 				found = i;
 				break;
-			} else {
-				found = i;
 			}
+			found = i;
 		}
 	}
 
-	if (found) {
-		regval = ecc_matrix[found].eccaddr |
-			 (ecc_matrix[found].eccsize << 16) |
-			 (ecc_matrix[found].slcmlc << 27);
-		writel(regval, &arasan_nand_base->ecc_reg);
+	if (found < 0)
+		return 1;
 
-		if (ecc_matrix[found].slcmlc) {
-			switch (ecc_matrix[found].eccbits) {
-			case 16:
-				bchmodeval = 0x0;
-				break;
-			case 12:
-				bchmodeval = 0x1;
-				break;
-			case 8:
-				bchmodeval = 0x2;
-				break;
-			case 4:
-				bchmodeval = 0x3;
-				break;
-			case 24:
-				bchmodeval = 0x4;
-				break;
-			default:
-				bchmodeval = 0x0;
-			}
-			regval = readl(&arasan_nand_base->memadr_reg2);
-			regval &= ~ARASAN_NAND_MEM_ADDR2_BCH_MASK;
-			regval |= (bchmodeval <<
-				   ARASAN_NAND_MEM_ADDR2_BCH_SHIFT);
-			writel(regval, &arasan_nand_base->memadr_reg2);
-		}
+	regval = ecc_matrix[i].eccaddr |
+		 (ecc_matrix[i].eccsize << ARASAN_NAND_ECC_SIZE_SHIFT) |
+		 (ecc_matrix[i].bch << ARASAN_NAND_ECC_BCH_SHIFT);
+	writel(regval, &arasan_nand_base->ecc_reg);
 
-		nand_oob.eccbytes = ecc_matrix[found].eccsize;
-		eccpos_start = mtd->oobsize - nand_oob.eccbytes;
-
-		for (i = 0; i < nand_oob.eccbytes; i++)
-			nand_oob.eccpos[i] = eccpos_start + i;
-
-		nand_oob.oobfree[0].offset = 2;
-		nand_oob.oobfree[0].length = eccpos_start - 2;
-
-		if (ecc_matrix[found].eccbits == 24)
-			nand_chip->ecc.size = 1024;
-		else
-			nand_chip->ecc.size = 512;
-
-		nand_chip->ecc.bytes = ecc_matrix[found].eccsize;
-		nand_chip->ecc.layout = &nand_oob;
+	if (ecc_matrix[i].bch) {
+		regval = readl(&arasan_nand_base->memadr_reg2);
+		regval &= ~ARASAN_NAND_MEM_ADDR2_BCH_MASK;
+		regval |= (ecc_matrix[i].bchval <<
+			   ARASAN_NAND_MEM_ADDR2_BCH_SHIFT);
+		writel(regval, &arasan_nand_base->memadr_reg2);
 	}
+
+	nand_oob.eccbytes = ecc_matrix[i].eccsize;
+	eccpos_start = mtd->oobsize - nand_oob.eccbytes;
+
+	for (i = 0; i < nand_oob.eccbytes; i++)
+		nand_oob.eccpos[i] = eccpos_start + i;
+
+	nand_oob.oobfree[0].offset = 2;
+	nand_oob.oobfree[0].length = eccpos_start - 2;
+
+	nand_chip->ecc.size = ecc_matrix[i].ecc_codeword_size;
+	nand_chip->ecc.strength = ecc_matrix[i].eccbits;
+	nand_chip->ecc.bytes = ecc_matrix[i].eccsize;
+	nand_chip->ecc.layout = &nand_oob;
+
+	return 0;
 }
 
 static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 {
-	struct arasan_nand_info *xnand;
+	struct arasan_nand_info *nand;
 	struct mtd_info *mtd;
-	u8 maf_id, dev_id;
 	int err = -1;
-	u8 get_feature[4];
-	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
-	int ondie_ecc_enabled = 0;
-	u32 timeout = ARASAN_NAND_POLL_TIMEOUT;
-	u32 i;
 
-	xnand = calloc(1, sizeof(struct arasan_nand_info));
-	if (!xnand) {
+	nand = calloc(1, sizeof(struct arasan_nand_info));
+	if (!nand) {
 		printf("%s: failed to allocate\n", __func__);
-		return -1;
+		return err;
 	}
 
-	xnand->nand_base = (void *)ARASAN_NAND_BASEADDR;
+	nand->nand_base = arasan_nand_base;
 	mtd = &nand_info[0];
-	nand_chip->priv = xnand;
+	nand_chip->priv = nand;
 	mtd->priv = nand_chip;
-
-	/* Set address of NAND IO lines */
-	nand_chip->IO_ADDR_R = (void *)&arasan_nand_base->buf_dataport;
-	nand_chip->IO_ADDR_W = (void *)&arasan_nand_base->buf_dataport;
 
 	/* Set the driver entry points for MTD */
 	nand_chip->cmdfunc = arasan_nand_cmd_function;
@@ -1096,77 +1124,16 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 		goto fail;
 	}
 
-	mtd->size = nand_chip->chipsize;
-
-	/* Send the command for reading device ID */
-	nand_chip->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
-	nand_chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);
-
-	/* Read manufacturer and device IDs */
-	maf_id = nand_chip->read_byte(mtd);
-	dev_id = nand_chip->read_byte(mtd);
-
-	if ((maf_id == 0x2c) && ((dev_id == 0xf1) ||
-				 (dev_id == 0xa1) || (dev_id == 0xb1) ||
-				 (dev_id == 0xaa) || (dev_id == 0xba) ||
-				 (dev_id == 0xda) || (dev_id == 0xca) ||
-				 (dev_id == 0xac) || (dev_id == 0xbc) ||
-				 (dev_id == 0xdc) || (dev_id == 0xcc) ||
-				 (dev_id == 0xa3) || (dev_id == 0xb3) ||
-				 (dev_id == 0xd3) || (dev_id == 0xc3))) {
-		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
-				   ONDIE_ECC_FEATURE_ADDR, -1);
-
-		for (i = 0; i < 4; i++)
-			writeb(set_feature[i], nand_chip->IO_ADDR_W);
-
-		while (!(readl(&arasan_nand_base->intsts_reg) &
-			ARASAN_NAND_INT_STS_XFR_CMPLT_MASK) && timeout) {
-			timeout--;
-		}
-
-		if (!timeout) {
-			puts("ERROR:arasan_nand_init timedout:Xfer CMPLT\n");
-			goto fail;
-		}
-
-		writel(readl(&arasan_nand_base->intsts_enr) |
-		       ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
-		       &arasan_nand_base->intsts_enr);
-		writel(readl(&arasan_nand_base->intsts_reg) |
-		       ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
-		       &arasan_nand_base->intsts_reg);
-
-		nand_chip->cmdfunc(mtd, NAND_CMD_GET_FEATURES,
-				   ONDIE_ECC_FEATURE_ADDR, -1);
-
-		for (i = 0; i < 4; i++)
-			get_feature[i] = nand_chip->read_byte(mtd);
-
-		if (get_feature[0] & 0x08) {
-			debug("%s: OnDie ECC flash\n", __func__);
-			ondie_ecc_enabled = 1;
-		} else {
-			printf("%s: Unable to detect OnDie ECC\n", __func__);
-		}
-	}
-
-	if (!ondie_ecc_enabled) {
-		nand_chip->ecc.mode = NAND_ECC_HW;
-		nand_chip->ecc.strength = 1;
-		nand_chip->ecc.hwctl = NULL;
-		nand_chip->ecc.read_page = arasan_nand_read_page_hwecc;
-		nand_chip->ecc.write_page = arasan_nand_write_page_hwecc;
-		nand_chip->ecc.read_oob = arasan_nand_read_oob;
-		nand_chip->ecc.write_oob = arasan_nand_write_oob;
-	}
-
-	arasan_nand_ecc_init(mtd);
-
-	if (nand_scan_tail(mtd)) {
-		printf("%s: nand_scan_tailfailed\n", __func__);
+	if (arasan_nand_ecc_init(mtd)) {
+		printf("%s: nand_ecc_init failed\n", __func__);
 		goto fail;
 	}
+
+	if (nand_scan_tail(mtd)) {
+		printf("%s: nand_scan_tail failed\n", __func__);
+		goto fail;
+	}
+
 	if (nand_register(devnum)) {
 		printf("Nand Register Fail\n");
 		goto fail;
@@ -1174,10 +1141,9 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 
 	return 0;
 fail:
-	kfree(xnand);
+	free(nand);
 	return err;
 }
-static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
 
 void board_nand_init(void)
 {

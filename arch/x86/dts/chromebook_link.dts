@@ -11,32 +11,47 @@
 	compatible = "google,link", "intel,celeron-ivybridge";
 
 	aliases {
-		spi0 = "/pci/pch/spi";
+		spi0 = &spi;
+		usb0 = &usb_0;
+		usb1 = &usb_1;
 	};
 
 	config {
 	       silent_console = <0>;
 	};
 
-	gpioa {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0 0x10>;
-		bank-name = "A";
-	};
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
 
-	gpiob {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x30 0x10>;
-		bank-name = "B";
-	};
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "intel,core-gen3";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
 
-	gpioc {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x40 0x10>;
-		bank-name = "C";
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "intel,core-gen3";
+			reg = <1>;
+			intel,apic-id = <1>;
+		};
+
+		cpu@2 {
+			device_type = "cpu";
+			compatible = "intel,core-gen3";
+			reg = <2>;
+			intel,apic-id = <2>;
+		};
+
+		cpu@3 {
+			device_type = "cpu";
+			compatible = "intel,core-gen3";
+			reg = <3>;
+			intel,apic-id = <3>;
+		};
+
 	};
 
 	chosen {
@@ -159,21 +174,22 @@
 	};
 
 	pci {
-		compatible = "intel,pci-ivybridge", "pci-x86";
+		compatible = "pci-x86";
 		#address-cells = <3>;
 		#size-cells = <2>;
 		u-boot,dm-pre-reloc;
 		ranges = <0x02000000 0x0 0xe0000000 0xe0000000 0 0x10000000
 			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
 			0x01000000 0x0 0x1000 0x1000 0 0xefff>;
-		sata {
-			compatible = "intel,pantherpoint-ahci";
-			intel,sata-mode = "ahci";
-			intel,sata-port-map = <1>;
-			intel,sata-port0-gen3-tx = <0x00880a7f>;
+
+		northbridge@0,0 {
+			reg = <0x00000000 0 0 0 0>;
+			compatible = "intel,bd82x6x-northbridge";
+			u-boot,dm-pre-reloc;
 		};
 
-		gma {
+		gma@2,0 {
+			reg = <0x00001000 0 0 0 0>;
 			compatible = "intel,gma";
 			intel,dp_hotplug = <0 0 0x06>;
 			intel,panel-port-select = <1>;
@@ -186,24 +202,39 @@
 			intel,pch-backlight = <0x04000000>;
 		};
 
-		pch {
+		me@16,0 {
+			reg = <0x0000b000 0 0 0 0>;
+			compatible = "intel,me";
+			u-boot,dm-pre-reloc;
+		};
+
+		usb_1: usb@1a,0 {
+			reg = <0x0000d000 0 0 0 0>;
+			compatible = "ehci-pci";
+		};
+
+		usb_0: usb@1d,0 {
+			reg = <0x0000e800 0 0 0 0>;
+			compatible = "ehci-pci";
+		};
+
+		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
-			compatible = "intel,bd82x6x", "intel,pch";
+			compatible = "intel,bd82x6x", "intel,pch9";
 			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
-			gen-dec = <0x800 0xfc 0x900 0xfc>;
-			intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
 			intel,pirq-routing = <0x8b 0x8a 0x8b 0x8b
 						0x80 0x80 0x80 0x80>;
 			intel,gpi-routing = <0 0 0 0 0 0 0 2
 						1 0 0 0 0 0 0 0>;
 			/* Enable EC SMI source */
 			intel,alt-gp-smi-enable = <0x0100>;
-			spi {
+
+			spi: spi {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				compatible = "intel,ich-spi";
+				compatible = "intel,ich9-spi";
 				spi-flash@0 {
 					#size-cells = <1>;
 					#address-cells = <1>;
@@ -218,10 +249,33 @@
 				};
 			};
 
+			gpioa {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0 0x10>;
+				bank-name = "A";
+			};
+
+			gpiob {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x30 0x10>;
+				bank-name = "B";
+			};
+
+			gpioc {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x40 0x10>;
+				bank-name = "C";
+			};
+
 			lpc {
 				compatible = "intel,bd82x6x-lpc";
 				#address-cells = <1>;
 				#size-cells = <0>;
+				u-boot,dm-pre-reloc;
+				intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
 				cros-ec@200 {
 					compatible = "google,cros-ec";
 					reg = <0x204 1 0x200 1 0x880 0x80>;
@@ -238,6 +292,21 @@
 					};
 				};
 			};
+		};
+
+		sata@1f,2 {
+			compatible = "intel,pantherpoint-ahci";
+			reg = <0x0000fa00 0 0 0 0>;
+			u-boot,dm-pre-reloc;
+			intel,sata-mode = "ahci";
+			intel,sata-port-map = <1>;
+			intel,sata-port0-gen3-tx = <0x00880a7f>;
+		};
+
+		smbus: smbus@1f,3 {
+			compatible = "intel,ich-i2c";
+			reg = <0x0000fb00 0 0 0 0>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 

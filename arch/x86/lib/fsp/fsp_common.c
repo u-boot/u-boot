@@ -90,8 +90,8 @@ int x86_fsp_init(void)
 		/*
 		 * The second time we enter here, adjust the size of malloc()
 		 * pool before relocation. Given gd->malloc_base was adjusted
-		 * after the call to board_init_f_mem() in arch/x86/cpu/start.S,
-		 * we should fix up gd->malloc_limit here.
+		 * after the call to board_init_f_init_reserve() in arch/x86/
+		 * cpu/start.S, we should fix up gd->malloc_limit here.
 		 */
 		gd->malloc_limit += CONFIG_FSP_SYS_MALLOC_F_LEN;
 	}

@@ -31,7 +31,11 @@ typedef struct {
 	int bus;
 	u32 VendorID;
 	u32 DeviceID;
+#ifdef CONFIG_DM_PCI
+	struct udevice *pcidev;
+#else
 	pci_dev_t pcidev;
+#endif
 	void *BIOSImage;
 	u32 BIOSImageLen;
 	u8 LowMem[1536];
@@ -39,10 +43,15 @@ typedef struct {
 
 struct vbe_mode_info;
 
-int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo **pVGAInfo, int cleanUp);
+#ifdef CONFIG_DM_PCI
+int BootVideoCardBIOS(struct udevice *pcidev, BE_VGAInfo **pVGAInfo,
+		      int clean_up);
+#else
+int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo **pVGAInfo, int clean_up);
+#endif
 
 /* Run a BIOS ROM natively (only supported on x86 machines) */
-void bios_run_on_x86(pci_dev_t pcidev, unsigned long addr, int vesa_mode,
+void bios_run_on_x86(struct udevice *dev, unsigned long addr, int vesa_mode,
 		     struct vbe_mode_info *mode_info);
 
 /**
@@ -57,10 +66,18 @@ void bios_set_interrupt_handler(int intnum, int (*int_handler_func)(void));
 
 void biosemu_set_interrupt_handler(int intnum, int (*int_func)(void));
 
+#ifdef CONFIG_DM_PCI
+int biosemu_setup(struct udevice *pcidev, BE_VGAInfo **pVGAInfo);
+
+int biosemu_run(struct udevice *dev, uchar *bios_rom, int bios_len,
+		BE_VGAInfo *vga_info, int clean_up, int vesa_mode,
+		struct vbe_mode_info *mode_info);
+#else
 int biosemu_setup(pci_dev_t pcidev, BE_VGAInfo **pVGAInfo);
 
 int biosemu_run(pci_dev_t pcidev, uchar *bios_rom, int bios_len,
 		BE_VGAInfo *vga_info, int clean_up, int vesa_mode,
 		struct vbe_mode_info *mode_info);
+#endif
 
 #endif

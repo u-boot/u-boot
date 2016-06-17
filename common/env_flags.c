@@ -15,6 +15,7 @@
 #include <env_attr.h>
 #include <env_flags.h>
 #define getenv fw_getenv
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #else
 #include <common.h>
 #include <environment.h>
@@ -152,7 +153,7 @@ enum env_flags_varaccess env_flags_parse_varaccess_from_binflags(int binflags)
 {
 	int i;
 
-	for (i = 0; i < sizeof(env_flags_varaccess_mask); i++)
+	for (i = 0; i < ARRAY_SIZE(env_flags_varaccess_mask); i++)
 		if (env_flags_varaccess_mask[i] ==
 		    (binflags & ENV_FLAGS_VARACCESS_BIN_MASK))
 			return (enum env_flags_varaccess)i;
@@ -373,21 +374,21 @@ int env_flags_validate_varaccess(const char *name, int check_mask)
 /*
  * Validate the parameters to "env set" directly
  */
-int env_flags_validate_env_set_params(int argc, char * const argv[])
+int env_flags_validate_env_set_params(char *name, char * const val[], int count)
 {
-	if ((argc >= 3) && argv[2] != NULL) {
-		enum env_flags_vartype type = env_flags_get_type(argv[1]);
+	if ((count >= 1) && val[0] != NULL) {
+		enum env_flags_vartype type = env_flags_get_type(name);
 
 		/*
 		 * we don't currently check types that need more than
 		 * one argument
 		 */
-		if (type != env_flags_vartype_string && argc > 3) {
-			printf("## Error: too many parameters for setting "
-				"\"%s\"\n", argv[1]);
+		if (type != env_flags_vartype_string && count > 1) {
+			printf("## Error: too many parameters for setting \"%s\"\n",
+			       name);
 			return -1;
 		}
-		return env_flags_validate_type(argv[1], argv[2]);
+		return env_flags_validate_type(name, val[0]);
 	}
 	/* ok */
 	return 0;

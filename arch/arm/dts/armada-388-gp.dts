@@ -51,6 +51,12 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	aliases {
+		ethernet0 = &eth0;
+		ethernet1 = &eth1;
+		spi0 = &spi0;
+	};
+
 	memory {
 		device_type = "memory";
 		reg = <0x00000000 0x80000000>; /* 2 GB */
@@ -65,8 +71,10 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&spi0_pins>;
 				status = "okay";
+				u-boot,dm-pre-reloc;
 
 				spi-flash@0 {
+					u-boot,dm-pre-reloc;
 					#address-cells = <1>;
 					#size-cells = <1>;
 					compatible = "st,m25p128", "jedec,spi-nor";
@@ -122,6 +130,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&uart0_pins>;
 				status = "okay";
+				u-boot,dm-pre-reloc;
 			};
 
 			/* GE1 CON15 */

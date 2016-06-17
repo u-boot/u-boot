@@ -93,12 +93,14 @@ F:	arch/arm/include/asm/arch-mx*/
 F:	arch/arm/include/asm/arch-vf610/
 F:	arch/arm/include/asm/imx-common/
 
-ARM MARVELL KIRKWOOD
+ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X
 M:	Prafulla Wadaskar <prafulla@marvell.com>
 M:	Luka Perkov <luka.perkov@sartura.hr>
+M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
+F:	arch/arm/mach-mvebu/
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
@@ -106,6 +108,12 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-pxa.git
 F:	arch/arm/cpu/pxa/
 F:	arch/arm/include/asm/arch-pxa/
+
+ARM ROCKCHIP
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-rockchip.git
+F:	arch/arm/mach-rockchip/
 
 ARM SAMSUNG
 M:	Minkyu Kang <mk7.kang@samsung.com>
@@ -118,8 +126,8 @@ F:	arch/arm/cpu/armv7/s5p-common/
 F:	arch/arm/include/asm/arch-s3c24x0/
 
 ARM STM SPEAR
-M:	Vipin Kumar <vipin.kumar@st.com>
-S:	Maintained
+#M:	Vipin Kumar <vipin.kumar@st.com>
+S:	Orphaned (Since 2016-02)
 T:	git git://git.denx.de/u-boot-stm.git
 F:	arch/arm/cpu/arm926ejs/spear/
 F:	arch/arm/include/asm/arch-spear/
@@ -301,8 +309,8 @@ T:	git git://git.denx.de/u-boot-mpc82xx.git
 F:	arch/powerpc/cpu/mpc82*/
 
 POWERPC MPC83XX
-M:	Kim Phillips <kim.phillips@freescale.com>
-S:	Maintained
+#M:	Kim Phillips <kim.phillips@freescale.com>
+S:	Orphaned (Since 2016-02)
 T:	git git://git.denx.de/u-boot-mpc83xx.git
 F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
@@ -368,8 +376,8 @@ T:	git git://git.denx.de/u-boot-sh.git
 F:	arch/sh/
 
 SPARC
-M:	Francois Retief <fgretief@spaceteq.co.za>
-S:	Maintained
+#M:	Francois Retief <fgretief@spaceteq.co.za>
+S:	Orphaned (Since 2016-02)
 T:	git git://git.denx.de/u-boot-sparc.git
 F:	arch/sparc/
 
@@ -382,8 +390,8 @@ F:	drivers/spi/
 F:	include/spi*
 
 TQ GROUP
-M:	Martin Krause <martin.krause@tq-systems.de>
-S:	Maintained
+#M:	Martin Krause <martin.krause@tq-systems.de>
+S:	Orphaned (Since 2016-02)
 T:	git git://git.denx.de/u-boot-tq-group.git
 
 UBI

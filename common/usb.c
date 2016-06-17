@@ -456,7 +456,7 @@ static int usb_parse_config(struct usb_device *dev,
 			}
 			epno = dev->config.if_desc[ifno].no_of_ep;
 			if_desc = &dev->config.if_desc[ifno];
-			if (epno > USB_MAXENDPOINTS) {
+			if (epno >= USB_MAXENDPOINTS) {
 				printf("Interface %d has too many endpoints!\n",
 					if_desc->desc.bInterfaceNumber);
 				return -EINVAL;

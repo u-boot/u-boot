@@ -7,7 +7,6 @@
 #define _X86_GPIO_H_
 
 #include <linux/compiler.h>
-#include <asm/arch/gpio.h>
 #include <asm-generic/gpio.h>
 
 struct ich6_bank_platdata {

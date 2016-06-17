@@ -2,11 +2,6 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:     GPL-2.0+ or X11
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
  */
 /include/ "skeleton.dtsi"
 
@@ -17,6 +12,12 @@
 		gpio2 = &gpio2;
 		gpio3 = &gpio3;
 		gpio4 = &gpio4;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+		serial5 = &uart5;
 		spi0 = &dspi0;
 		spi1 = &dspi1;
 	};
@@ -32,6 +33,30 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
+
+			uart0: serial@40027000 {
+				compatible = "fsl,vf610-lpuart";
+				reg = <0x40027000 0x1000>;
+				status = "disabled";
+			};
+
+			uart1: serial@40028000 {
+				compatible = "fsl,vf610-lpuart";
+				reg = <0x40028000 0x1000>;
+				status = "disabled";
+			};
+
+			uart2: serial@40029000 {
+				compatible = "fsl,vf610-lpuart";
+				reg = <0x40029000 0x1000>;
+				status = "disabled";
+			};
+
+			uart3: serial@4002a000 {
+				compatible = "fsl,vf610-lpuart";
+				reg = <0x4002a000 0x1000>;
+				status = "disabled";
+			};
 
 			dspi0: dspi0@4002c000 {
 				#address-cells = <1>;
@@ -95,6 +120,19 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
+
+			uart4: serial@400a9000 {
+				compatible = "fsl,vf610-lpuart";
+				reg = <0x400a9000 0x1000>;
+				status = "disabled";
+			};
+
+			uart5: serial@400aa000 {
+				compatible = "fsl,vf610-lpuart";
+				reg = <0x400aa000 0x1000>;
+				status = "disabled";
+			};
+
 		};
 	};
 };

@@ -113,7 +113,7 @@ static int ls1021a_mdio_init(char *realbusname, char *fakebusname)
 	bus->read = ls1021a_mdio_read;
 	bus->write = ls1021a_mdio_write;
 	bus->reset = ls1021a_mdio_reset;
-	sprintf(bus->name, fakebusname);
+	strcpy(bus->name, fakebusname);
 
 	lsmdio->realbus = miiphy_get_dev_by_name(realbusname);
 

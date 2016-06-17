@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <mach/init.h>
+#include "../init.h"
 
 int ph1_sld3_pll_init(const struct uniphier_board_data *bd)
 {

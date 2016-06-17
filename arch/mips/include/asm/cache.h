@@ -7,15 +7,9 @@
 #ifndef __MIPS_CACHE_H__
 #define __MIPS_CACHE_H__
 
-/*
- * The maximum L1 data cache line size on MIPS seems to be 128 bytes.  We use
- * that as a default for aligning DMA buffers unless the board config has
- * specified another cache line size.
- */
-#ifdef CONFIG_SYS_CACHELINE_SIZE
-#define ARCH_DMA_MINALIGN	CONFIG_SYS_CACHELINE_SIZE
-#else
-#define ARCH_DMA_MINALIGN	128
-#endif
+#define L1_CACHE_SHIFT		CONFIG_MIPS_L1_CACHE_SHIFT
+#define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
+
+#define ARCH_DMA_MINALIGN	(L1_CACHE_BYTES)
 
 #endif /* __MIPS_CACHE_H__ */

@@ -16,7 +16,7 @@ config USE_PRIVATE_LIBGCC
 	depends on HAVE_PRIVATE_LIBGCC
 	help
 	  This option allows you to use the built-in libgcc implementation
-	  of U-boot instead of the one privided by the compiler.
+	  of U-Boot instead of the one privided by the compiler.
 	  If unsure, say N.
 
 config SYS_HZ
@@ -26,15 +26,6 @@ config SYS_HZ
 	  The frequency of the timer returned by get_timer().
 	  get_timer() must operate in milliseconds and this option must be
 	  set to 1000.
-
-config SYS_VSNPRINTF
-	bool "Enable safe version of sprintf()"
-	help
-	  Since sprintf() can overflow its buffer, it is common to use
-	  snprintf() instead, which knows the buffer size and can avoid
-	  overflow. However, this does increase code size slightly (for
-	  Thumb-2, about 420 bytes). Enable this option for safety when
-	  using sprintf() with data you do not control.
 
 config USE_TINY_PRINTF
 	bool "Enable tiny printf() version"

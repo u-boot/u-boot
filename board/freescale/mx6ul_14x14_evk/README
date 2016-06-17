@@ -1,7 +1,7 @@
-How to use U-boot on Freescale MX6UL 14x14 EVK
+How to use U-Boot on Freescale MX6UL 14x14 EVK
 -----------------------------------------------
 
-- Build U-boot for MX6UL 14x14 EVK:
+- Build U-Boot for MX6UL 14x14 EVK:
 
 $ make mrproper
 $ make mx6ul_14x14_evk_defconfig
@@ -28,5 +28,5 @@ switch label numbers reference).
 - Connect the USB cable between the EVK and the PC for the console.
 (The USB console connector is the one close the push buttons)
 
-- Insert the micro SD card in the board, power it up and U-boot messages should
+- Insert the micro SD card in the board, power it up and U-Boot messages should
 come up.

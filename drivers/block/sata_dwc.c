@@ -626,7 +626,7 @@ int scan_sata(int dev)
 			if (id[162] & 1)
 				printf("supports DRM functions and may "
 					"not be fully accessable.\n");
-			sprintf(revbuf, "%s", "CFA");
+			strcpy(revbuf, "CFA");
 		} else {
 			if (ata_id_has_tpm(id))
 				printf("supports DRM functions and may "
@@ -653,7 +653,7 @@ int scan_sata(int dev)
 				ncq_desc[0] = '\0';
 
 			if (ata_dev->horkage & ATA_HORKAGE_NONCQ)
-				sprintf(ncq_desc, "%s", "NCQ (not used)");
+				strcpy(ncq_desc, "NCQ (not used)");
 
 			if (ap.flags & ATA_FLAG_NCQ)
 				ata_dev->flags |= ATA_DFLAG_NCQ;

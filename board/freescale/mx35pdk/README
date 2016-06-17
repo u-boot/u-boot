@@ -71,7 +71,7 @@ exec -c "noinitrd console=ttymxc0,115200 root=/dev/nfsroot rootfstype=nfsroot nf
 Flashing U-Boot
 --------------------------------
 
-U-boot should be stored on the NOR flash.
+U-Boot should be stored on the NOR flash.
 
 The boot storage can be select using the switches on the personality board
 (SW1-SW2) and on the DEBUG board (SW4-SW10).
@@ -96,7 +96,7 @@ Creating 6 MTD partitions on "mxc_nor_flash.0":
 To erase the whole partition:
 $ flash_eraseall /dev/mtd0
 
-Writing u-boot:
+Writing U-Boot:
 dd if=u-boot.bin of=/dev/mtd0
 
 To boot from NOR, you have to select the switches as follows:

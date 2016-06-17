@@ -120,6 +120,8 @@ struct ccsr_gur {
 	u32	brrl;		/* Boot release */
 	u8      res_0e8[0x100-0xe8];
 	u32     rcwsr[16];      /* Reset control word status */
+#define RCW_SB_EN_REG_INDEX	7
+#define RCW_SB_EN_MASK		0x00200000
 	u8      res_140[0x200-0x140];
 	u32     scratchrw[4];  /* Scratch Read/Write */
 	u8      res_210[0x300-0x210];

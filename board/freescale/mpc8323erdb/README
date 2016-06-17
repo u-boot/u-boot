@@ -22,10 +22,10 @@ Freescale MPC8323ERDB Board
 
 3.	Downloading and Flashing Images
 
-3.1	Reflash U-boot Image using U-boot
+3.1	Reflash U-Boot Image using U-Boot
 
 	N.b, have an alternate means of programming
-	the flash available if the new u-boot doesn't boot.
+	the flash available if the new U-Boot doesn't boot.
 
 	First try a:
 
@@ -44,7 +44,7 @@ Freescale MPC8323ERDB Board
 	erase fe000000 +$filesize
 	cp.b $loadaddr fe000000 $filesize
 
-	To keep your old u-boot's environment variables, do a:
+	To keep your old U-Boot's environment variables, do a:
 
 	saveenv
 

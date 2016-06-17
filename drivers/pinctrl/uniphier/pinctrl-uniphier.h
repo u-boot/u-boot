@@ -7,9 +7,7 @@
 #ifndef __PINCTRL_UNIPHIER_H__
 #define __PINCTRL_UNIPHIER_H__
 
-/* TODO: move this to include/linux/bug.h */
-#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
-
+#include <linux/bug.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
 

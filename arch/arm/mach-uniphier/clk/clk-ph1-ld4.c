@@ -5,8 +5,9 @@
  */
 
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sc-regs.h>
+
+#include "../init.h"
+#include "../sc-regs.h"
 
 void ph1_ld4_clk_init(void)
 {
@@ -17,7 +18,7 @@ void ph1_ld4_clk_init(void)
 #ifdef CONFIG_UNIPHIER_ETH
 	tmp |= SC_RSTCTRL_NRST_ETHER;
 #endif
-#ifdef CONFIG_USB_EHCI_UNIPHIER
+#ifdef CONFIG_USB_EHCI
 	tmp |= SC_RSTCTRL_NRST_STDMAC;
 #endif
 #ifdef CONFIG_NAND_DENALI
@@ -31,7 +32,7 @@ void ph1_ld4_clk_init(void)
 #ifdef CONFIG_UNIPHIER_ETH
 	tmp |= SC_CLKCTRL_CEN_ETHER;
 #endif
-#ifdef CONFIG_USB_EHCI_UNIPHIER
+#ifdef CONFIG_USB_EHCI
 	tmp |= SC_CLKCTRL_CEN_MIO | SC_CLKCTRL_CEN_STDMAC;
 #endif
 #ifdef CONFIG_NAND_DENALI

@@ -155,6 +155,14 @@ static void mvebu_get_port_lane(struct mvebu_pcie *pcie, int pex_idx,
 }
 #endif
 
+static int mvebu_pex_unit_is_x4(int pex_idx)
+{
+	int pex_unit = pex_idx < 9 ? pex_idx >> 2 : 3;
+	u32 mask = (0x0f << (pex_unit * 8));
+
+	return (readl(COMPHY_REFCLK_ALIGNMENT) & mask) == mask;
+}
+
 static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
 {
 	u32 val;
@@ -419,5 +427,11 @@ void pci_init_board(void)
 		writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
 
 		bus = hose->last_busno + 1;
+
+		/* need to skip more for X4 links, otherwise scan will hang */
+		if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+			if (mvebu_pex_unit_is_x4(i))
+				i += 3;
+		}
 	}
 }

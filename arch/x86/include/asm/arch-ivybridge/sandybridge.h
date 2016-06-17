@@ -108,12 +108,15 @@
 
 #define DMIBAR_REG(x)	(DEFAULT_DMIBAR + x)
 
-int bridge_silicon_revision(void);
+/**
+ * bridge_silicon_revision() - Get the Northbridge revision
+ *
+ * @dev:	Northbridge device
+ * @return revision ID (bits 3:0) and bridge ID (bits 7:4)
+ */
+int bridge_silicon_revision(struct udevice *dev);
 
-void northbridge_enable(pci_dev_t dev);
-void northbridge_init(pci_dev_t dev);
-
-void report_platform_info(void);
+void report_platform_info(struct udevice *dev);
 
 void sandybridge_early_init(int chipset_type);
 

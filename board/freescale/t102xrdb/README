@@ -145,8 +145,8 @@ Start Address  End Address      Description			Size
 128MB NOR Flash Memory Layout
 -----------------------------
 Start Address   End Address     Definition			Max size
-0xEFF40000      0xEFFFFFFF      u-boot (current bank)		768KB
-0xEFF20000      0xEFF3FFFF      u-boot env (current bank)	128KB
+0xEFF40000      0xEFFFFFFF      U-Boot (current bank)		768KB
+0xEFF20000      0xEFF3FFFF      U-Boot env (current bank)	128KB
 0xEFF00000      0xEFF1FFFF      FMAN Ucode (current bank)	128KB
 0xEFE00000      0xEFE3FFFF      QE firmware (current bank)	256KB
 0xED300000      0xEFDFFFFF      rootfs (alt bank)		44MB
@@ -158,8 +158,8 @@ Start Address   End Address     Definition			Max size
 0xEC700000	0xEC7FFFFF	HV.uImage (alternate bank)	1MB
 0xEC020000      0xEC6FFFFF      Linux.uImage (alt bank)		~7MB
 0xEC000000      0xEC01FFFF      RCW (alt bank)			128KB
-0xEBF40000      0xEBFFFFFF      u-boot (alt bank)		768KB
-0xEBF20000      0xEBF3FFFF      u-boot env (alt bank)		128KB
+0xEBF40000      0xEBFFFFFF      U-Boot (alt bank)		768KB
+0xEBF20000      0xEBF3FFFF      U-Boot env (alt bank)		128KB
 0xEBF00000      0xEBF1FFFF      FMAN ucode (alt bank)		128KB
 0xEBE00000      0xEBE3FFFF      QE firmware (alt bank)		256KB
 0xE9300000      0xEBDFFFFF      rootfs (current bank)		44MB
@@ -198,18 +198,18 @@ Software configurations and board settings
    Switching between default bank0 and alternate bank4 on NOR flash
    To change boot source to vbank4:
    on T1024RDB:
-	via software:   run command 'cpld reset altbank' in u-boot.
+	via software:   run command 'cpld reset altbank' in U-Boot.
 	via DIP-switch: set SW3[5:7] = '100'
    on T1023RDB:
-	via software:   run command 'switch bank4' in u-boot.
+	via software:   run command 'switch bank4' in U-Boot.
 	via DIP-switch: set SW3[5:7] = '100'
 
    To change boot source to vbank0:
    on T1024RDB:
-	via software:   run command 'cpld reset' in u-boot.
+	via software:   run command 'cpld reset' in U-Boot.
 	via DIP-Switch: set SW3[5:7] = '000'
    on T1023RDB:
-	via software:   run command 'switch bank0' in u-boot.
+	via software:   run command 'switch bank0' in U-Boot.
 	via DIP-switch: set SW3[5:7] = '000'
 
 2. NAND Boot:
@@ -255,8 +255,8 @@ Software configurations and board settings
 -------------------------------
 PBL initializes the internal CPC-SRAM and copy SPL(160K) to SRAM.
 SPL further initializes DDR using SPD and environment variables
-and copy u-boot(768 KB) from NAND/SPI/SD device to DDR.
-Finally SPL transers control to u-boot for futher booting.
+and copy U-Boot(768 KB) from NAND/SPI/SD device to DDR.
+Finally SPL transers control to U-Boot for futher booting.
 
 SPL has following features:
  - Executes within 256K
@@ -276,14 +276,14 @@ Run time view of SPL framework
 -------------------------------------------------
 |STACK		   | 0xFFFD8000 (22KB)		|
 -------------------------------------------------
-|U-boot SPL	   | 0xFFFD8000 (160KB)		|
+|U-Boot SPL	   | 0xFFFD8000 (160KB)		|
 -------------------------------------------------
 
 NAND Flash memory Map on T1024RDB
 -------------------------------------------------------------
 Start		End		Definition	Size
-0x000000	0x0FFFFF	u-boot		1MB(2 block)
-0x100000	0x17FFFF	u-boot env	512KB(1 block)
+0x000000	0x0FFFFF	U-Boot		1MB(2 block)
+0x100000	0x17FFFF	U-Boot env	512KB(1 block)
 0x180000	0x1FFFFF	FMAN Ucode	512KB(1 block)
 0x200000	0x27FFFF	QE Firmware	512KB(1 block)
 
@@ -291,16 +291,16 @@ Start		End		Definition	Size
 NAND Flash memory Map on T1023RDB
 ----------------------------------------------------
 Start		End		Definition	Size
-0x000000	0x0FFFFF	u-boot		1MB
-0x100000	0x15FFFF	u-boot env	8KB
+0x000000	0x0FFFFF	U-Boot		1MB
+0x100000	0x15FFFF	U-Boot env	8KB
 0x160000	0x17FFFF	FMAN Ucode	128KB
 
 
 SD Card memory Map on T102xRDB
 ----------------------------------------------------
 Block		#blocks		Definition	Size
-0x008		2048		u-boot img	1MB
-0x800		0016		u-boot env	8KB
+0x008		2048		U-Boot img	1MB
+0x800		0016		U-Boot env	8KB
 0x820		0256		FMAN Ucode	128KB
 0x920		0256		QE Firmware	128KB(only T1024RDB)
 
@@ -308,8 +308,8 @@ Block		#blocks		Definition	Size
 64MB SPI Flash memory Map on T102xRDB
 ----------------------------------------------------
 Start		End		Definition	Size
-0x000000	0x0FFFFF	u-boot img	1MB
-0x100000	0x101FFF	u-boot env	8KB
+0x000000	0x0FFFFF	U-Boot img	1MB
+0x100000	0x101FFF	U-Boot env	8KB
 0x110000	0x12FFFF	FMAN Ucode	128KB
 0x130000	0x14FFFF	QE Firmware	128KB(only T1024RDB)
 0x300000	0x3FFFFF	device tree	128KB

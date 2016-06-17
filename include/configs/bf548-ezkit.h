@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF548 STAMP board
+ * U-Boot - Configuration file for BF548 STAMP board
  */
 
 #ifndef __CONFIG_BF548_EZKIT_H__

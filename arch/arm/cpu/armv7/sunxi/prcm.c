@@ -33,3 +33,15 @@ void prcm_apb0_enable(u32 flags)
 	/* deassert reset for module */
 	setbits_le32(&prcm->apb0_reset, flags);
 }
+
+void prcm_apb0_disable(u32 flags)
+{
+	struct sunxi_prcm_reg *prcm =
+		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
+
+	/* assert reset for module */
+	clrbits_le32(&prcm->apb0_reset, flags);
+
+	/* close the clock for module */
+	clrbits_le32(&prcm->apb0_gate, flags);
+}

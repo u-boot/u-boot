@@ -564,7 +564,8 @@ static struct usb_gadget_strings	fsg_stringtab = {
  * the caller must own fsg->filesem for writing.
  */
 
-static int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
+static int fsg_lun_open(struct fsg_lun *curlun, unsigned int num_sectors,
+			const char *filename)
 {
 	int				ro;
 
@@ -572,8 +573,8 @@ static int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 	ro = curlun->initially_ro;
 
 	curlun->ro = ro;
-	curlun->file_length = ums->num_sectors << 9;
-	curlun->num_sectors = ums->num_sectors;
+	curlun->file_length = num_sectors << 9;
+	curlun->num_sectors = num_sectors;
 	debug("open backing file: %s\n", filename);
 
 	return 0;

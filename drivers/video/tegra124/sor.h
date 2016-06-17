@@ -873,44 +873,37 @@ struct tegra_dp_link_config {
 	u8	tps3_supported;
 };
 
-struct tegra_dc_sor_data {
-	void *base;
-	void *pmc_base;
-	u8  portnum;	/* 0 or 1 */
-	int power_is_up;
-};
-
 #define TEGRA_SOR_TIMEOUT_MS		1000
 #define TEGRA_SOR_ATTACH_TIMEOUT_MS	1000
 
-int tegra_dc_sor_enable_dp(struct tegra_dc_sor_data *sor,
+int tegra_dc_sor_enable_dp(struct udevice *sor,
 			   const struct tegra_dp_link_config *link_cfg);
-int tegra_dc_sor_set_power_state(struct tegra_dc_sor_data *sor, int pu_pd);
-void tegra_dc_sor_set_dp_linkctl(struct tegra_dc_sor_data *sor, int ena,
+int tegra_dc_sor_set_power_state(struct udevice *sor, int pu_pd);
+void tegra_dc_sor_set_dp_linkctl(struct udevice *dev, int ena,
 	u8 training_pattern, const struct tegra_dp_link_config *link_cfg);
-void tegra_dc_sor_set_link_bandwidth(struct tegra_dc_sor_data *sor, u8 link_bw);
-void tegra_dc_sor_set_lane_count(struct tegra_dc_sor_data *sor, u8 lane_count);
-void tegra_dc_sor_set_panel_power(struct tegra_dc_sor_data *sor,
+void tegra_dc_sor_set_link_bandwidth(struct udevice *dev, u8 link_bw);
+void tegra_dc_sor_set_lane_count(struct udevice *dev, u8 lane_count);
+void tegra_dc_sor_set_panel_power(struct udevice *sor,
 				  int power_up);
-void tegra_dc_sor_set_internal_panel(struct tegra_dc_sor_data *sor, int is_int);
-void tegra_dc_sor_read_link_config(struct tegra_dc_sor_data *sor, u8 *link_bw,
+void tegra_dc_sor_set_internal_panel(struct udevice *dev, int is_int);
+void tegra_dc_sor_read_link_config(struct udevice *dev, u8 *link_bw,
 				   u8 *lane_count);
-void tegra_dc_sor_set_lane_parm(struct tegra_dc_sor_data *sor,
+void tegra_dc_sor_set_lane_parm(struct udevice *dev,
+		const struct tegra_dp_link_config *link_cfg);
+void tegra_dc_sor_power_down_unused_lanes(struct udevice *sor,
 			const struct tegra_dp_link_config *link_cfg);
-void tegra_dc_sor_power_down_unused_lanes(struct tegra_dc_sor_data *sor,
-			const struct tegra_dp_link_config *link_cfg);
-int tegra_dc_sor_set_voltage_swing(struct tegra_dc_sor_data *sor,
+int tegra_dc_sor_set_voltage_swing(struct udevice *sor,
 				const struct tegra_dp_link_config *link_cfg);
-int tegra_sor_precharge_lanes(struct tegra_dc_sor_data *sor,
+int tegra_sor_precharge_lanes(struct udevice *dev,
 			      const struct tegra_dp_link_config *cfg);
-void tegra_dp_disable_tx_pu(struct tegra_dc_sor_data *sor);
-void tegra_dp_set_pe_vs_pc(struct tegra_dc_sor_data *sor, u32 mask,
-			   u32 pe_reg, u32 vs_reg, u32 pc_reg, u8 pc_supported);
+void tegra_dp_disable_tx_pu(struct udevice *sor);
+void tegra_dp_set_pe_vs_pc(struct udevice *dev, u32 mask, u32 pe_reg,
+			   u32 vs_reg, u32 pc_reg, u8 pc_supported);
 
-int tegra_dc_sor_attach(struct tegra_dc_sor_data *sor,
+int tegra_dc_sor_attach(struct udevice *dc_dev, struct udevice *sor,
 			const struct tegra_dp_link_config *link_cfg,
 			const struct display_timing *timing);
-int tegra_dc_sor_detach(struct tegra_dc_sor_data *sor);
+int tegra_dc_sor_detach(struct udevice *dc_dev, struct udevice *sor);
 
 void tegra_dc_sor_disable_win_short_raster(struct dc_ctlr *disp_ctrl,
 					   int *dc_reg_ctx);
@@ -918,5 +911,5 @@ int tegra_dc_sor_general_act(struct dc_ctlr *disp_ctrl);
 void tegra_dc_sor_restore_win_and_raster(struct dc_ctlr *disp_ctrl,
 					 int *dc_reg_ctx);
 
-int tegra_dc_sor_init(struct tegra_dc_sor_data **sorp);
+int tegra_dc_sor_init(struct udevice **sorp);
 #endif

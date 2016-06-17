@@ -150,6 +150,17 @@ struct bcm2835_mbox_tag_get_mac_address {
 	} body;
 };
 
+#define BCM2835_MBOX_TAG_GET_BOARD_SERIAL	0x00010004
+
+struct bcm2835_mbox_tag_get_board_serial {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct __packed {
+			u64 serial;
+		} resp;
+	} body;
+};
+
 #define BCM2835_MBOX_TAG_GET_ARM_MEMORY		0x00010005
 
 struct bcm2835_mbox_tag_get_arm_mem {

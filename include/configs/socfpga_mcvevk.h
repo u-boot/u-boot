@@ -56,7 +56,7 @@
 	"netdev=eth0\0"							\
 	"hostname=mcvevk\0"						\
 	"kernel_addr_r=0x10000000\0"					\
-	"update_filename=u-boot-with-spl-dtb.sfp\0"			\
+	"update_filename=u-boot-with-spl.sfp\0"				\
 	"update_sd_offset=0x800\0"					\
 	"update_sd="		/* Update the SD firmware partition */	\
 		"if mmc rescan ; then "					\

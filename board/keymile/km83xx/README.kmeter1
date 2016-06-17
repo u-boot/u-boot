@@ -60,7 +60,7 @@ Keymile kmeter1 Board
     Bytes transferred = 204204 (31dac hex)
     =>
 
-4.1 Reflash U-boot Image using U-boot
+4.1 Reflash U-Boot Image using U-Boot
 
     => run update
     ..... done

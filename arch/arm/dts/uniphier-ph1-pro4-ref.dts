@@ -54,6 +54,14 @@
 	status = "okay";
 };
 
+&sd {
+	status = "okay";
+};
+
+&sd1 {
+	status = "okay";
+};
+
 &usb0 {
 	status = "okay";
 };
@@ -66,7 +74,7 @@
 	status = "okay";
 };
 
-/* for U-boot only */
+/* for U-Boot only */
 / {
 	soc {
 		u-boot,dm-pre-reloc;

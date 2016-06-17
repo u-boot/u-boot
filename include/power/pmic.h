@@ -12,7 +12,6 @@
 #define __CORE_PMIC_H_
 
 #include <i2c.h>
-#include <spi.h>
 #include <linux/list.h>
 #include <power/power_chrg.h>
 

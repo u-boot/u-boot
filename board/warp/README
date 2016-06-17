@@ -1,4 +1,4 @@
-How to Update U-boot on Warp board
+How to Update U-Boot on Warp board
 ----------------------------------
 
 Required software on the host PC:
@@ -7,13 +7,13 @@ Required software on the host PC:
 
 - dfu-util: http://dfu-util.sourceforge.net/releases/
 
-Build U-boot for Warp:
+Build U-Boot for Warp:
 
 $ make mrproper
 $ make warp_config
 $ make
 
-This will generate the U-boot binary called u-boot.imx.
+This will generate the U-Boot binary called u-boot.imx.
 
 Put warp board in USB download mode
 
@@ -29,7 +29,7 @@ Load u-boot.imx via USB:
 
 $ sudo ./imx_usb u-boot.imx
 
-Then U-boot should start and its messages will appear in the console program.
+Then U-Boot should start and its messages will appear in the console program.
 
 Use the default environment variables:
 
@@ -43,7 +43,7 @@ Transfer u-boot.imx that will be flashed into the eMMC:
 
 $ sudo dfu-util -D u-boot.imx -a boot
 
-Then on the U-boot prompt the following message should be seen after a
+Then on the U-Boot prompt the following message should be seen after a
 successful upgrade:
 
 #DOWNLOAD ... OK
@@ -53,4 +53,4 @@ Remove power from the warp board.
 
 Put warp board into normal boot mode
 
-Power up the board and the new updated U-boot should boot from eMMC
+Power up the board and the new updated U-Boot should boot from eMMC

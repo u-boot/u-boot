@@ -5,6 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_DISK) += disk-uclass.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o
 obj-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
 obj-$(CONFIG_FSL_SATA) += fsl_sata.o
@@ -15,6 +16,7 @@ obj-$(CONFIG_MX51_PATA) += mxc_ata.o
 obj-$(CONFIG_PATA_BFIN) += pata_bfin.o
 obj-$(CONFIG_SATA_CEVA) += sata_ceva.o
 obj-$(CONFIG_SATA_DWC) += sata_dwc.o
+obj-$(CONFIG_SATA_MV) += sata_mv.o
 obj-$(CONFIG_SATA_SIL3114) += sata_sil3114.o
 obj-$(CONFIG_SATA_SIL) += sata_sil.o
 obj-$(CONFIG_IDE_SIL680) += sil680.o

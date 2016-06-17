@@ -223,6 +223,7 @@ struct dw_eth_dev {
 	char rxbuffs[RX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 
 	u32 interface;
+	u32 max_speed;
 	u32 tx_currdescnum;
 	u32 rx_currdescnum;
 

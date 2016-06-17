@@ -1,5 +1,5 @@
 /*
- * U-boot - bitops.h Routines for bit operations
+ * U-Boot - bitops.h Routines for bit operations
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

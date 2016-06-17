@@ -55,9 +55,10 @@ int zfs_devread(int sector, int byte_offset, int byte_len, char *buf)
 
 	if (byte_offset != 0) {
 		/* read first part which isn't aligned with start of sector */
-		if (zfs_block_dev_desc->block_read(zfs_block_dev_desc->dev,
-			part_info->start + sector, 1,
-			(unsigned long *)sec_buf) != 1) {
+		if (zfs_block_dev_desc->block_read(zfs_block_dev_desc,
+						   part_info->start + sector, 1,
+						   (void *)sec_buf)
+		    != 1) {
 			printf(" ** zfs_devread() read error **\n");
 			return 1;
 		}
@@ -78,16 +79,18 @@ int zfs_devread(int sector, int byte_offset, int byte_len, char *buf)
 		u8 p[SECTOR_SIZE];
 
 		block_len = SECTOR_SIZE;
-		zfs_block_dev_desc->block_read(zfs_block_dev_desc->dev,
-			part_info->start + sector,
-			1, (unsigned long *)p);
+		zfs_block_dev_desc->block_read(zfs_block_dev_desc,
+					       part_info->start + sector,
+					       1, (void *)p);
 		memcpy(buf, p, byte_len);
 		return 0;
 	}
 
-	if (zfs_block_dev_desc->block_read(zfs_block_dev_desc->dev,
-		part_info->start + sector, block_len / SECTOR_SIZE,
-		(unsigned long *) buf) != block_len / SECTOR_SIZE) {
+	if (zfs_block_dev_desc->block_read(zfs_block_dev_desc,
+					   part_info->start + sector,
+					   block_len / SECTOR_SIZE,
+					   (void *)buf)
+	    != block_len / SECTOR_SIZE) {
 		printf(" ** zfs_devread() read error - block\n");
 		return 1;
 	}
@@ -99,10 +102,9 @@ int zfs_devread(int sector, int byte_offset, int byte_len, char *buf)
 
 	if (byte_len != 0) {
 		/* read rest of data which are not in whole sector */
-		if (zfs_block_dev_desc->
-			block_read(zfs_block_dev_desc->dev,
-					   part_info->start + sector, 1,
-					   (unsigned long *) sec_buf) != 1) {
+		if (zfs_block_dev_desc->block_read(zfs_block_dev_desc,
+						   part_info->start + sector,
+						   1, (void *)sec_buf) != 1) {
 			printf(" ** zfs_devread() read error - last part\n");
 			return 1;
 		}

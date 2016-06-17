@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for CM-BF561 board
+ * U-Boot - Configuration file for CM-BF561 board
  */
 
 #ifndef __CONFIG_CM_BF561_H__

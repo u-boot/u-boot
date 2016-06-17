@@ -1,20 +1,20 @@
-U-boot for arm64
+U-Boot for arm64
 
 Summary
 =======
-No hardware platform of arm64 is available now. The u-boot is
+No hardware platform of arm64 is available now. The U-Boot is
 simulated on Foundation Model and Fast Model for ARMv8.
 
 Notes
 =====
 
-1. Currenly, u-boot run at the highest exception level processor
+1. Currenly, U-Boot run at the highest exception level processor
    supported and jump to EL2 or optionally EL1 before enter OS.
 
-2. U-boot for arm64 is compiled with AArch64-gcc. AArch64-gcc
+2. U-Boot for arm64 is compiled with AArch64-gcc. AArch64-gcc
    use rela relocation format, a tool(tools/relocate-rela) by Scott Wood
    is used to encode the initial addend of rela to u-boot.bin. After running,
-   the u-boot will be relocated to destination again.
+   the U-Boot will be relocated to destination again.
 
 3. Fdt should be placed at a 2-megabyte boundary and within the first 512
    megabytes from the start of the kernel image. So, fdt_high should be
@@ -36,11 +36,34 @@ Notes
 6. CONFIG_ARM64 instead of CONFIG_ARMV8 is used to distinguish aarch64 and
    aarch32 specific codes.
 
+7. CONFIG_SYS_FULL_VA is used to enable 2-level page tables. For cores
+   supporting 64k pages it allows usage of full 48+ virtual/physical addresses
+
+   Enabling this option requires the following ones to be defined:
+       - CONFIG_SYS_MEM_MAP - an array of 'struct mm_region' describing the
+         system memory map (start, length, attributes)
+       - CONFIG_SYS_MEM_MAP_SIZE - number of entries in CONFIG_SYS_MEM_MAP
+       - CONFIG_SYS_PTL1_ENTRIES - number of 1st level page table entries
+       - CONFIG_SYS_PTL2_ENTRIES - number of 1nd level page table entries
+         for the largest CONFIG_SYS_MEM_MAP entry
+       - CONFIG_COREID_MASK - the mask value used to get the core from the
+         MPIDR_EL1 register
+       - CONFIG_SYS_PTL2_BITS - number of bits addressed by the 2nd level
+         page tables
+       - CONFIG_SYS_BLOCK_SHIFT - number of bits addressed by a single block
+         entry from L2 page tables
+       - CONFIG_SYS_PGTABLE_SIZE - total size of the page table
+       - CONFIG_SYS_TCR_EL{1,2,3}_IPS_BITS - the IPS field of the TCR_EL{1,2,3}
+
+
+
+
 Contributor
 ===========
-   Tom Rini       <trini@ti.com>
-   Scott Wood     <scottwood@freescale.com>
-   York Sun       <yorksun@freescale.com>
-   Simon Glass    <sjg@chromium.org>
-   Sharma Bhupesh <bhupesh.sharma@freescale.com>
-   Rob Herring    <robherring2@gmail.com>
+   Tom Rini            <trini@ti.com>
+   Scott Wood          <scottwood@freescale.com>
+   York Sun            <yorksun@freescale.com>
+   Simon Glass         <sjg@chromium.org>
+   Sharma Bhupesh      <bhupesh.sharma@freescale.com>
+   Rob Herring         <robherring2@gmail.com>
+   Sergey Temerkhanov  <s.temerkhanov@gmail.com>

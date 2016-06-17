@@ -201,7 +201,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 		images.ep += images.os.load;
 	}
 
-	images.os.start = (ulong)os_hdr;
+	images.os.start = map_to_sysmem(os_hdr);
 
 	return 0;
 }
@@ -435,7 +435,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
-	flush_cache(load, (*load_end - load) * sizeof(ulong));
+	flush_cache(load, *load_end - load);
 
 	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);

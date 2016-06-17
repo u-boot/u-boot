@@ -292,19 +292,19 @@ static int mptable_add_intsrc(struct mp_config_table *mc,
 	struct mpc_config_intsrc *intsrc_base;
 	int intsrc_entries = 0;
 	const void *blob = gd->fdt_blob;
-	int node;
+	struct udevice *dev;
 	int len, count;
 	const u32 *cell;
-	int i;
+	int i, ret;
 
-	/* Get I/O interrupt information from device tree */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_IRQ_ROUTER);
-	if (node < 0) {
+	ret = uclass_first_device(UCLASS_IRQ, &dev);
+	if (ret && ret != -ENODEV) {
 		debug("%s: Cannot find irq router node\n", __func__);
-		return -ENOENT;
+		return ret;
 	}
 
-	cell = fdt_getprop(blob, node, "intel,pirq-routing", &len);
+	/* Get I/O interrupt information from device tree */
+	cell = fdt_getprop(blob, dev->of_offset, "intel,pirq-routing", &len);
 	if (!cell)
 		return -ENOENT;
 

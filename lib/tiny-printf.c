@@ -82,13 +82,21 @@ int vprintf(const char *fmt, va_list va)
 					num = -(int)num;
 					out('-');
 				}
-				for (div = 1000000000; div; div /= 10)
-					div_out(&num, div);
+				if (!num) {
+					out_dgt(0);
+				} else {
+					for (div = 1000000000; div; div /= 10)
+						div_out(&num, div);
+				}
 				break;
 			case 'x':
 				num = va_arg(va, unsigned int);
-				for (div = 0x10000000; div; div /= 0x10)
-					div_out(&num, div);
+				if (!num) {
+					out_dgt(0);
+				} else {
+					for (div = 0x10000000; div; div /= 0x10)
+						div_out(&num, div);
+				}
 				break;
 			case 'c':
 				out((char)(va_arg(va, int)));
@@ -108,8 +116,10 @@ int vprintf(const char *fmt, va_list va)
 				w--;
 			while (w-- > 0)
 				putc(lz ? '0' : ' ');
-			while ((ch = *p++))
-				putc(ch);
+			if (p) {
+				while ((ch = *p++))
+					putc(ch);
+			}
 		}
 	}
 

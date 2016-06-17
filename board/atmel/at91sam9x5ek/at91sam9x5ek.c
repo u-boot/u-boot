@@ -9,10 +9,9 @@
 #include <asm/arch/at91sam9x5_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/gpio.h>
 #include <lcd.h>
 #include <atmel_hlcdc.h>
 #include <atmel_mci.h>
@@ -39,7 +38,6 @@ static void at91sam9x5ek_nand_hw_init(void)
 {
 	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
 	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	unsigned long csa;
 
 	/* Enable CS3 */
@@ -72,7 +70,7 @@ static void at91sam9x5ek_nand_hw_init(void)
 		AT91_SMC_MODE_TDF_CYCLE(1),
 		&smc->cs[3].mode);
 
-	writel(1 << ATMEL_ID_PIOCD, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOCD);
 
 	/* Configure RDY/BSY */
 	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
@@ -141,8 +139,6 @@ void lcd_disable(void)
 
 static void at91sam9x5ek_lcd_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	if (has_lcdc()) {
 		at91_set_a_periph(AT91_PIO_PORTC, 26, 0);	/* LCDPWM */
 		at91_set_a_periph(AT91_PIO_PORTC, 27, 0);	/* LCDVSYNC */
@@ -176,7 +172,7 @@ static void at91sam9x5ek_lcd_hw_init(void)
 		at91_set_a_periph(AT91_PIO_PORTC, 22, 0);	/* LCDD22 */
 		at91_set_a_periph(AT91_PIO_PORTC, 23, 0);	/* LCDD23 */
 
-		writel(1 << ATMEL_ID_LCDC, &pmc->pcer);
+		at91_periph_clk_enable(ATMEL_ID_LCDC);
 	}
 }
 
@@ -310,7 +306,7 @@ void at91_spl_board_init(void)
 }
 
 #include <asm/arch/atmel_mpddrc.h>
-static void ddr2_conf(struct atmel_mpddr *ddr2)
+static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 {
 	ddr2->md = (ATMEL_MPDDRC_MD_DBW_16_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
 
@@ -347,7 +343,7 @@ void mem_init(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
-	struct atmel_mpddr ddr2;
+	struct atmel_mpddrc_config ddr2;
 	unsigned long csa;
 
 	ddr2_conf(&ddr2);

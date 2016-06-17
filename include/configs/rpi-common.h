@@ -68,6 +68,7 @@
 #define CONFIG_FB_ADDR			0
 #define CONFIG_VIDEO_BCM2835
 #define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CONSOLE_SCROLL_LINES	10
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC
@@ -88,6 +89,9 @@
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_MISC_INIT_R
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_SYS_STDIO_DEREGISTER
 #endif
 
 /* Console UART */
@@ -111,9 +115,10 @@
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_PREBOOT			"usb start"
 
 /* Shell */
-#define CONFIG_SYS_MAXARGS		8
+#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */
@@ -133,15 +138,21 @@
 /* Environment */
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define ENV_DEVICE_SETTINGS \
-	"stdin=serial,lcd\0" \
+	"stdin=serial,usbkbd\0" \
 	"stdout=serial,lcd\0" \
 	"stderr=serial,lcd\0"
 
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
- * scriptaddr can be pretty much anywhere that doesn't conflict with something
- *   else. Put it low in memory to avoid conflicts.
+ * I suspect address 0 is used as the SMP pen on the RPi2, so avoid this.
+ *
+ * fdt_addr_r simply shouldn't overlap anything else. However, the RPi's
+ *   binary firmware loads a DT to address 0x100, so we choose this address to
+ *   match it. This allows custom boot scripts to pass this DT on to Linux
+ *   simply by not over-writing the data at this address. When using U-Boot,
+ *   U-Boot (and scripts it executes) typicaly ignore the DT loaded by the FW
+ *   and loads its own DT from disk (triggered by boot.scr or extlinux.conf).
  *
  * pxefile_addr_r can be pretty much anywhere that doesn't conflict with
  *   something else. Put it low in memory to avoid conflicts.
@@ -155,13 +166,15 @@
  *   this up to 16M allows for a sizable kernel to be decompressed below the
  *   compressed load address.
  *
- * fdt_addr_r simply shouldn't overlap anything else. Choosing 32M allows for
- *   the compressed kernel to be up to 16M too.
+ * scriptaddr can be pretty much anywhere that doesn't conflict with something
+ *   else. Choosing 32M allows for the compressed kernel to be up to 16M.
  *
  * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
- *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
+ *   for any boot script to be up to 1M, which is hopefully plenty.
  */
 #define ENV_MEM_LAYOUT_SETTINGS \
+	"fdt_high=ffffffff\0" \
+	"initrd_high=ffffffff\0" \
 	"fdt_addr_r=0x00000100\0" \
 	"pxefile_addr_r=0x00100000\0" \
 	"kernel_addr_r=0x01000000\0" \

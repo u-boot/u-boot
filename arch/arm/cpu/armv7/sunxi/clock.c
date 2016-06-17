@@ -14,12 +14,17 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/sys_proto.h>
 
+__weak void clock_init_sec(void)
+{
+}
+
 int clock_init(void)
 {
 #ifdef CONFIG_SPL_BUILD
 	clock_init_safe();
 #endif
 	clock_init_uart();
+	clock_init_sec();
 
 	return 0;
 }

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-U-boot provides a set of interfaces for creating and using simple, text
+U-Boot provides a set of interfaces for creating and using simple, text
 based menus. Menus are displayed as lists of labeled entries on the
 console, and an entry can be selected by entering its label.
 

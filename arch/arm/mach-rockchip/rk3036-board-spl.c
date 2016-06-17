@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
 #include <asm/io.h>
 #include <asm/arch/grf_rk3036.h>
 #include <asm/arch/hardware.h>
@@ -34,7 +35,7 @@ void board_init_f(ulong dummy)
 		     GPIO1C2_MASK << GPIO1C2_SHIFT,
 		     GPIO1C3_UART2_SOUT << GPIO1C3_SHIFT |
 		     GPIO1C2_UART2_SIN << GPIO1C2_SHIFT);
-	rk_uart_init((void *)DEBUG_UART_BASE);
+	debug_uart_init();
 #endif
 	rockchip_timer_init();
 	sdram_init();
@@ -50,6 +51,12 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	 * Function attribute is no-return
 	 * This Function never executes
 	 */
+	while (1)
+		;
+}
+
+void hang(void)
+{
 	while (1)
 		;
 }

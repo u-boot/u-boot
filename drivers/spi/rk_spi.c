@@ -27,23 +27,23 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEBUG_RK_SPI	0
 
 struct rockchip_spi_platdata {
-	enum periph_id periph_id;
-	struct udevice *pinctrl;
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	fdt_addr_t base;
 	uint deactivate_delay_us;	/* Delay to wait after deactivate */
+	uint activate_delay_us;		/* Delay to wait after activate */
 };
 
 struct rockchip_spi_priv {
 	struct rockchip_spi *regs;
-	struct udevice *clk_gpll;
+	struct udevice *clk;
+	int clk_id;
 	unsigned int max_freq;
 	unsigned int mode;
-	enum periph_id periph_id;	/* Peripheral ID for this device */
 	ulong last_transaction_us;	/* Time of last transaction end */
 	u8 bits_per_word;		/* max 16 bits per word */
 	u8 n_bytes;
 	unsigned int speed_hz;
+	unsigned int last_speed_hz;
 	unsigned int tmode;
 	uint input_rate;
 };
@@ -82,6 +82,7 @@ static void rkspi_set_clk(struct rockchip_spi_priv *priv, uint speed)
 	debug("spi speed %u, div %u\n", speed, clk_div);
 
 	writel(clk_div, &priv->regs->baudr);
+	priv->last_speed_hz = speed;
 }
 
 static int rkspi_wait_till_not_busy(struct rockchip_spi *regs)
@@ -99,44 +100,60 @@ static int rkspi_wait_till_not_busy(struct rockchip_spi *regs)
 	return 0;
 }
 
-static void spi_cs_activate(struct rockchip_spi *regs, uint cs)
+static void spi_cs_activate(struct udevice *dev, uint cs)
 {
+	struct udevice *bus = dev->parent;
+	struct rockchip_spi_platdata *plat = bus->platdata;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+	struct rockchip_spi *regs = priv->regs;
+
 	debug("activate cs%u\n", cs);
 	writel(1 << cs, &regs->ser);
+	if (plat->activate_delay_us)
+		udelay(plat->activate_delay_us);
 }
 
-static void spi_cs_deactivate(struct rockchip_spi *regs, uint cs)
+static void spi_cs_deactivate(struct udevice *dev, uint cs)
 {
+	struct udevice *bus = dev->parent;
+	struct rockchip_spi_platdata *plat = bus->platdata;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+	struct rockchip_spi *regs = priv->regs;
+
 	debug("deactivate cs%u\n", cs);
 	writel(0, &regs->ser);
+
+	/* Remember time of this transaction so we can honour the bus delay */
+	if (plat->deactivate_delay_us)
+		priv->last_transaction_us = timer_get_us();
 }
 
 static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct rockchip_spi_platdata *plat = bus->platdata;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
 	int node = bus->of_offset;
 	int ret;
 
 	plat->base = dev_get_addr(bus);
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &plat->pinctrl);
-	if (ret)
-		return ret;
-	ret = pinctrl_get_periph_id(plat->pinctrl, bus);
 
+	ret = clk_get_by_index(bus, 0, &priv->clk);
 	if (ret < 0) {
-		debug("%s: Could not get peripheral ID for %s: %d\n", __func__,
+		debug("%s: Could not get clock for %s: %d\n", __func__,
 		      bus->name, ret);
-		return -FDT_ERR_NOTFOUND;
+		return ret;
 	}
-	plat->periph_id = ret;
+	priv->clk_id = ret;
 
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					50000000);
+					 50000000);
 	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
 					"spi-deactivate-delay", 0);
-	debug("%s: base=%x, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
-	      __func__, plat->base, plat->periph_id, plat->frequency,
+	plat->activate_delay_us = fdtdec_get_int(blob, node,
+						 "spi-activate-delay", 0);
+	debug("%s: base=%x, max-frequency=%d, deactivate_delay=%d\n",
+	      __func__, (uint)plat->base, plat->frequency,
 	      plat->deactivate_delay_us);
 
 	return 0;
@@ -153,18 +170,12 @@ static int rockchip_spi_probe(struct udevice *bus)
 
 	priv->last_transaction_us = timer_get_us();
 	priv->max_freq = plat->frequency;
-	priv->periph_id = plat->periph_id;
-	ret = uclass_get_device(UCLASS_CLK, CLK_GENERAL, &priv->clk_gpll);
-	if (ret) {
-		debug("%s: Failed to find CLK_GENERAL: %d\n", __func__, ret);
-		return ret;
-	}
 
 	/*
 	 * Use 99 MHz as our clock since it divides nicely into 594 MHz which
 	 * is the assumed speed for CLK_GENERAL.
 	 */
-	ret = clk_set_periph_rate(priv->clk_gpll, plat->periph_id, 99000000);
+	ret = clk_set_periph_rate(priv->clk, priv->clk_id, 99000000);
 	if (ret < 0) {
 		debug("%s: Failed to set clock: %d\n", __func__, ret);
 		return ret;
@@ -180,13 +191,10 @@ static int rockchip_spi_probe(struct udevice *bus)
 static int rockchip_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct rockchip_spi_platdata *plat = dev_get_platdata(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	u8 spi_dfs, spi_tf;
 	uint ctrlr0;
-	int ret;
 
 	/* Disable the SPI hardware */
 	rkspi_enable_chip(regs, 0);
@@ -208,13 +216,14 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 		return -EPROTONOSUPPORT;
 	}
 
-	rkspi_set_clk(priv, priv->speed_hz);
+	if (priv->speed_hz != priv->last_speed_hz)
+		rkspi_set_clk(priv, priv->speed_hz);
 
 	/* Operation Mode */
 	ctrlr0 = OMOD_MASTER << OMOD_SHIFT;
 
 	/* Data Frame Size */
-	ctrlr0 |= spi_dfs & DFS_MASK << DFS_SHIFT;
+	ctrlr0 |= spi_dfs << DFS_SHIFT;
 
 	/* set SPI mode 0..3 */
 	if (priv->mode & SPI_CPOL)
@@ -235,7 +244,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= FBM_MSB << FBM_SHIFT;
 
 	/* Byte and Halfword Transform */
-	ctrlr0 |= (spi_tf & HALF_WORD_MASK) << HALF_WORD_TX_SHIFT;
+	ctrlr0 |= spi_tf << HALF_WORD_TX_SHIFT;
 
 	/* Rxd Sample Delay */
 	ctrlr0 |= 0 << RXDSD_SHIFT;
@@ -248,17 +257,16 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 
 	writel(ctrlr0, &regs->ctrlr0);
 
-	ret = pinctrl_request(plat->pinctrl, priv->periph_id, slave_plat->cs);
-	if (ret) {
-		debug("%s: Cannot request pinctrl: %d\n", __func__, ret);
-		return ret;
-	}
-
 	return 0;
 }
 
 static int rockchip_spi_release_bus(struct udevice *dev)
 {
+	struct udevice *bus = dev->parent;
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+
+	rkspi_enable_chip(priv->regs, false);
+
 	return 0;
 }
 
@@ -282,12 +290,12 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Assert CS before transfer */
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(regs, slave_plat->cs);
+		spi_cs_activate(dev, slave_plat->cs);
 
 	while (len > 0) {
 		int todo = min(len, 0xffff);
 
-		rkspi_enable_chip(regs, true);
+		rkspi_enable_chip(regs, false);
 		writel(todo - 1, &regs->ctrlr1);
 		rkspi_enable_chip(regs, true);
 
@@ -316,7 +324,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Deassert CS after transfer */
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(regs, slave_plat->cs);
+		spi_cs_deactivate(dev, slave_plat->cs);
 
 	rkspi_enable_chip(regs, false);
 

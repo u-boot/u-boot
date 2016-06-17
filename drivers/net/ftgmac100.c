@@ -562,7 +562,7 @@ int ftgmac100_initialize(bd_t *bd)
 	memset(dev, 0, sizeof(*dev));
 	memset(priv, 0, sizeof(*priv));
 
-	sprintf(dev->name, "FTGMAC100");
+	strcpy(dev->name, "FTGMAC100");
 	dev->iobase	= CONFIG_FTGMAC100_BASE;
 	dev->init	= ftgmac100_init;
 	dev->halt	= ftgmac100_halt;

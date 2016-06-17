@@ -15,9 +15,6 @@
 #define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
 
-/* Errata fixes */
-#define CONFIG_ARM_ERRATA_828024
-#define CONFIG_ARM_ERRATA_826974
 
 #include <asm/arch/ls2080a_stream_id.h>
 #include <asm/arch/config.h>
@@ -196,7 +193,7 @@ unsigned long long get_qixis_addr(void);
  */
 #if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
 #define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(254UL * 1024 * 1024)
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(256UL * 1024 * 1024)
+#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
 #define CONFIG_SYS_MC_RSV_MEM_ALIGN			(512UL * 1024 * 1024)
 #endif
 
@@ -267,14 +264,17 @@ unsigned long long get_qixis_addr(void);
 	"kernel_start=0x581200000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
-	"console=ttyAMA0,38400n8\0"
+	"console=ttyAMA0,38400n8\0"		\
+	"mcinitcmd=fsl_mc start mc 0x580300000"	\
+	" 0x580800000 \0"
 
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0500" \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
-				" hugepagesz=2m hugepages=16"
-#define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
-					"$kernel_size && bootm $kernel_load"
+				" hugepagesz=2m hugepages=256"
+#define CONFIG_BOOTCOMMAND	"fsl_mc apply dpl 0x580700000 &&" \
+				" cp.b $kernel_start $kernel_load" \
+				" $kernel_size && bootm $kernel_load"
 #define CONFIG_BOOTDELAY		10
 
 /* Monitor Command Prompt */

@@ -379,7 +379,7 @@ static void lcd_cfg_ac_bias(int period, int transitions_per_int)
 {
 	u32 reg;
 
-	/* Set the AC Bias Period and Number of Transisitons per Interrupt */
+	/* Set the AC Bias Period and Number of Transitions per Interrupt */
 	reg = lcdc_read(&da8xx_fb_reg_base->raster_timing_2) & 0xFFF00000;
 	reg |= LCD_AC_BIAS_FREQUENCY(period) |
 		LCD_AC_BIAS_TRANSITIONS_PER_INT(transitions_per_int);
@@ -487,7 +487,7 @@ static int lcd_cfg_frame_buffer(struct da8xx_fb_par *par, u32 width, u32 height,
 	/* Pixels per line = (PPL + 1)*16 */
 	if (lcd_revision == LCD_VERSION_1) {
 		/*
-		 * 0x3F in bits 4..9 gives max horisontal resolution = 1024
+		 * 0x3F in bits 4..9 gives max horizontal resolution = 1024
 		 * pixels
 		 */
 		width &= 0x3f0;
@@ -695,7 +695,7 @@ static int lcd_init(struct da8xx_fb_par *par, const struct lcd_ctrl_config *cfg,
 	lcd_cfg_vertical_sync(panel->vbp, panel->vsw, panel->vfp);
 	lcd_cfg_horizontal_sync(panel->hbp, panel->hsw, panel->hfp);
 
-	/* Configure for disply */
+	/* Configure for display */
 	ret = lcd_cfg_display(cfg);
 	if (ret < 0)
 		return ret;
@@ -761,7 +761,7 @@ static u32 lcdc_irq_handler_rev01(void)
 
 		lcdc_write(stat, &da8xx_fb_reg_base->stat);
 
-		/* Disable PL completion inerrupt */
+		/* Disable PL completion interrupt */
 		reg_ras  = lcdc_read(&da8xx_fb_reg_base->raster_ctrl);
 		reg_ras &= ~LCD_V1_PL_INT_ENA;
 		lcdc_write(reg_ras, &da8xx_fb_reg_base->raster_ctrl);
@@ -810,7 +810,7 @@ static u32 lcdc_irq_handler_rev02(void)
 
 		lcdc_write(stat, &da8xx_fb_reg_base->masked_stat);
 
-		/* Disable PL completion inerrupt */
+		/* Disable PL completion interrupt */
 		reg_int  = lcdc_read(&da8xx_fb_reg_base->int_ena_clr) |
 			(LCD_V2_PL_INT_ENA);
 		lcdc_write(reg_int, &da8xx_fb_reg_base->int_ena_clr);

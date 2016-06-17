@@ -182,22 +182,21 @@ static int e1000_spi_eeprom_enable_wr(struct e1000_hw *hw, bool intr)
  * These have been tested to perform correctly, but they are not used by any
  * of the EEPROM commands at this time.
  */
-#if 0
-static int e1000_spi_eeprom_disable_wr(struct e1000_hw *hw, bool intr)
+static __maybe_unused int e1000_spi_eeprom_disable_wr(struct e1000_hw *hw,
+						      bool intr)
 {
 	u8 op[] = { SPI_EEPROM_DISABLE_WR };
 	e1000_standby_eeprom(hw);
 	return e1000_spi_xfer(hw, 8*sizeof(op), op, NULL, intr);
 }
 
-static int e1000_spi_eeprom_write_status(struct e1000_hw *hw,
-		u8 status, bool intr)
+static __maybe_unused int e1000_spi_eeprom_write_status(struct e1000_hw *hw,
+							u8 status, bool intr)
 {
 	u8 op[] = { SPI_EEPROM_WRITE_STATUS, status };
 	e1000_standby_eeprom(hw);
 	return e1000_spi_xfer(hw, 8*sizeof(op), op, NULL, intr);
 }
-#endif
 
 static int e1000_spi_eeprom_read_status(struct e1000_hw *hw, bool intr)
 {

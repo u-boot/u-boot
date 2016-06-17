@@ -35,24 +35,6 @@ struct stm32_usart {
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MAX_SERIAL_PORTS		4
-
-/*
- * RCC USART specific definitions
- */
-#define RCC_ENR_USART1EN		(1 << 4)
-#define RCC_ENR_USART2EN		(1 << 17)
-#define RCC_ENR_USART3EN		(1 << 18)
-#define RCC_ENR_USART6EN		(1 <<  5)
-
-/* Array used to figure out which RCC bit needs to be set */
-static const unsigned long usart_port_rcc_pairs[MAX_SERIAL_PORTS][2] = {
-	{ STM32_USART1_BASE, RCC_ENR_USART1EN },
-	{ STM32_USART2_BASE, RCC_ENR_USART2EN },
-	{ STM32_USART3_BASE, RCC_ENR_USART3EN },
-	{ STM32_USART6_BASE, RCC_ENR_USART6EN }
-};
-
 static int stm32_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct stm32_serial_platdata *plat = dev->platdata;
@@ -114,28 +96,6 @@ static int stm32_serial_probe(struct udevice *dev)
 {
 	struct stm32_serial_platdata *plat = dev->platdata;
 	struct stm32_usart *const usart = plat->base;
-	int usart_port = -1;
-	int i;
-
-	for (i = 0; i < MAX_SERIAL_PORTS; i++) {
-		if ((u32)usart == usart_port_rcc_pairs[i][0]) {
-			usart_port = i;
-			break;
-		}
-	}
-
-	if (usart_port == -1)
-		return -EINVAL;
-
-	if (((u32)usart & STM32_BUS_MASK) == STM32_APB1PERIPH_BASE)
-		setbits_le32(&STM32_RCC->apb1enr,
-			     usart_port_rcc_pairs[usart_port][1]);
-	else if (((u32)usart & STM32_BUS_MASK) == STM32_APB2PERIPH_BASE)
-		setbits_le32(&STM32_RCC->apb2enr,
-			     usart_port_rcc_pairs[usart_port][1]);
-	else
-		return -EINVAL;
-
 	setbits_le32(&usart->cr1, USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
 
 	return 0;

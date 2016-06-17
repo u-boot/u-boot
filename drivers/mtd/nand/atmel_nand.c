@@ -80,6 +80,7 @@ static struct nand_ecclayout atmel_pmecc_oobinfo;
  *                8-bits                13-bytes                 14-bytes
  *               12-bits                20-bytes                 21-bytes
  *               24-bits                39-bytes                 42-bytes
+ *               32-bits                52-bytes                 56-bytes
  */
 static int pmecc_get_ecc_bytes(int cap, int sector_size)
 {
@@ -638,6 +639,9 @@ static void atmel_pmecc_core_init(struct mtd_info *mtd)
 	case 24:
 		val = PMECC_CFG_BCH_ERR24;
 		break;
+	case 32:
+		val = PMECC_CFG_BCH_ERR32;
+		break;
 	}
 
 	if (host->pmecc_sector_size == 512)
@@ -677,34 +681,6 @@ static void atmel_pmecc_core_init(struct mtd_info *mtd)
 
 #ifdef CONFIG_SYS_NAND_ONFI_DETECTION
 /*
- * get_onfi_ecc_param - Get ECC requirement from ONFI parameters
- * @ecc_bits: store the ONFI ECC correct bits capbility
- * @sector_size: in how many bytes that ONFI require to correct @ecc_bits
- *
- * Returns -1 if ONFI parameters is not supported. In this case @ecc_bits,
- * @sector_size are initialize to 0.
- * Return 0 if success to get the ECC requirement.
- */
-static int get_onfi_ecc_param(struct nand_chip *chip,
-		int *ecc_bits, int *sector_size)
-{
-	*ecc_bits = *sector_size = 0;
-
-	if (chip->onfi_params.ecc_bits == 0xff)
-		/* TODO: the sector_size and ecc_bits need to be find in
-		 * extended ecc parameter, currently we don't support it.
-		 */
-		return -1;
-
-	*ecc_bits = chip->onfi_params.ecc_bits;
-
-	/* The default sector size (ecc codeword size) is 512 */
-	*sector_size = 512;
-
-	return 0;
-}
-
-/*
  * pmecc_choose_ecc - Get ecc requirement from ONFI parameters. If
  *                    pmecc_corr_cap or pmecc_sector_size is 0, then set it as
  *                    ONFI ECC parameters.
@@ -724,17 +700,15 @@ static int pmecc_choose_ecc(struct atmel_nand_host *host,
 	/* Get ECC requirement from ONFI parameters */
 	*cap = *sector_size = 0;
 	if (chip->onfi_version) {
-		if (!get_onfi_ecc_param(chip, cap, sector_size)) {
-			MTDDEBUG(MTD_DEBUG_LEVEL1, "ONFI params, minimum required ECC: %d bits in %d bytes\n",
-				*cap, *sector_size);
-		} else {
-			dev_info(host->dev, "NAND chip ECC reqirement is in Extended ONFI parameter, we don't support yet.\n");
-		}
-	} else {
-		dev_info(host->dev, "NAND chip is not ONFI compliant, assume ecc_bits is 2 in 512 bytes");
+		*cap = chip->ecc_strength_ds;
+		*sector_size = chip->ecc_step_ds;
+		MTDDEBUG(MTD_DEBUG_LEVEL1, "ONFI params, minimum required ECC: %d bits in %d bytes\n",
+			 *cap, *sector_size);
 	}
+
 	if (*cap == 0 && *sector_size == 0) {
-		/* Non-ONFI compliant or use extended ONFI parameters */
+		/* Non-ONFI compliant */
+		dev_info(host->dev, "NAND chip is not ONFI compliant, assume ecc_bits is 2 in 512 bytes\n");
 		*cap = 2;
 		*sector_size = 512;
 	}
@@ -753,7 +727,11 @@ static int pmecc_choose_ecc(struct atmel_nand_host *host,
 		else if (*cap <= 24)
 			host->pmecc_corr_cap = 24;
 		else
-			return -EINVAL;
+#ifdef CONFIG_SAMA5D2
+			host->pmecc_corr_cap = 32;
+#else
+			host->pmecc_corr_cap = 24;
+#endif
 	}
 	if (host->pmecc_sector_size == 0) {
 		/* use the most fitable sector size (the near smaller one ) */
@@ -851,8 +829,8 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	 * from ONFI.
 	 */
 	if (pmecc_choose_ecc(host, nand, &cap, &sector_size)) {
-		dev_err(host->dev, "The NAND flash's ECC requirement(ecc_bits: %d, sector_size: %d) are not support!",
-				cap, sector_size);
+		dev_err(host->dev, "Required ECC %d bits in %d bytes not supported!\n",
+			cap, sector_size);
 		return -EINVAL;
 	}
 
@@ -931,7 +909,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 			return -EINVAL;
 		}
 
-		if (nand->ecc.bytes > mtd->oobsize - 2) {
+		if (nand->ecc.bytes > mtd->oobsize - PMECC_OOB_RESERVED_BYTES) {
 			dev_err(host->dev, "No room for ECC bytes\n");
 			return -EINVAL;
 		}

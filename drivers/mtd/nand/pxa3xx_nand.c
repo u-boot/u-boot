@@ -1486,8 +1486,8 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 	info->variant = pxa3xx_nand_get_variant();
 	for (cs = 0; cs < pdata->num_cs; cs++) {
 		mtd = &nand_info[cs];
-		chip = (struct nand_chip *)info +
-			sizeof(struct pxa3xx_nand_host);
+		chip = (struct nand_chip *)
+			((u8 *)&info[1] + sizeof(*host) * cs);
 		host = (struct pxa3xx_nand_host *)chip;
 		info->host[cs] = host;
 		host->mtd = mtd;
@@ -1600,18 +1600,11 @@ void board_nand_init(void)
 	struct pxa3xx_nand_host *host;
 	int ret;
 
-	info = kzalloc(sizeof(*info) + (sizeof(struct mtd_info) +
-					sizeof(*host)) *
-		       CONFIG_SYS_MAX_NAND_DEVICE, GFP_KERNEL);
+	info = kzalloc(sizeof(*info) +
+				sizeof(*host) * CONFIG_SYS_MAX_NAND_DEVICE,
+			GFP_KERNEL);
 	if (!info)
 		return;
-
-	/*
-	 * If CONFIG_SYS_NAND_SELF_INIT is defined, each driver is responsible
-	 * for instantiating struct nand_chip, while drivers/mtd/nand/nand.c
-	 * still provides a "struct mtd_info nand_info" instance.
-	 */
-	info->host[0]->mtd = &nand_info[0];
 
 	ret = pxa3xx_nand_probe(info);
 	if (ret)

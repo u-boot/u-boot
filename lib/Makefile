@@ -67,6 +67,7 @@ obj-$(CONFIG_ADDR_MAP) += addr_map.o
 obj-y += hashtable.o
 obj-y += errno.o
 obj-y += display_options.o
+CFLAGS_display_options.o := $(if $(BUILD_TAG),-DBUILD_TAG='"$(BUILD_TAG)"')
 obj-$(CONFIG_BCH) += bch.o
 obj-y += crc32.o
 obj-y += ctype.o

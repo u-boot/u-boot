@@ -162,7 +162,7 @@ int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
 		* boot_params structure, and then jump to the kernel. We
 		* assume that %cs is 0x10, 4GB flat, and read/execute, and
 		* the data segments are 0x18, 4GB flat, and read/write.
-		* U-boot is setting them up that way for itself in
+		* U-Boot is setting them up that way for itself in
 		* arch/i386/cpu/cpu.c.
 		*
 		* Note that we cannot currently boot a kernel while running as

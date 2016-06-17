@@ -105,13 +105,15 @@ int int1a_handler(void)
 	unsigned short func = (unsigned short)M.x86.R_EAX;
 	int retval = 1;
 	unsigned short devid, vendorid, devfn;
+	struct udevice *dev;
 	/* Use short to get rid of gabage in upper half of 32-bit register */
 	short devindex;
 	unsigned char bus;
-	pci_dev_t dev;
+	pci_dev_t bdf;
 	u32 dword;
 	u16 word;
 	u8 byte, reg;
+	int ret;
 
 	switch (func) {
 	case 0xb101: /* PCIBIOS Check */
@@ -131,17 +133,20 @@ int int1a_handler(void)
 		devid = M.x86.R_ECX;
 		vendorid = M.x86.R_EDX;
 		devindex = M.x86.R_ESI;
-		dev = pci_find_device(vendorid, devid, devindex);
-		if (dev != -1) {
+		bdf = -1;
+		ret = dm_pci_find_device(vendorid, devid, devindex, &dev);
+		if (!ret) {
 			unsigned short busdevfn;
+
+			bdf = dm_pci_get_bdf(dev);
 			M.x86.R_EAX &= 0xffff00ff; /* Clear AH */
 			M.x86.R_EAX |= PCIBIOS_SUCCESSFUL;
 			/*
 			 * busnum is an unsigned char;
 			 * devfn is an int, so we mask it off.
 			 */
-			busdevfn = (PCI_BUS(dev) << 8) | PCI_DEV(dev) << 3 |
-				PCI_FUNC(dev);
+			busdevfn = (PCI_BUS(bdf) << 8) | PCI_DEV(bdf) << 3 |
+				PCI_FUNC(bdf);
 			debug("0x%x: return 0x%x\n", func, busdevfn);
 			M.x86.R_EBX = busdevfn;
 			retval = 1;
@@ -160,35 +165,40 @@ int int1a_handler(void)
 		devfn = M.x86.R_EBX & 0xff;
 		bus = M.x86.R_EBX >> 8;
 		reg = M.x86.R_EDI;
-		dev = PCI_BDF(bus, devfn >> 3, devfn & 7);
+		bdf = PCI_BDF(bus, devfn >> 3, devfn & 7);
+
+		ret = dm_pci_bus_find_bdf(bdf, &dev);
+		if (ret) {
+			debug("%s: Device %x not found\n", __func__, bdf);
+			break;
+		}
 
 		switch (func) {
 		case 0xb108: /* Read Config Byte */
-			byte = x86_pci_read_config8(dev, reg);
+			dm_pci_read_config8(dev, reg, &byte);
 			M.x86.R_ECX = byte;
 			break;
 		case 0xb109: /* Read Config Word */
-			word = x86_pci_read_config16(dev, reg);
+			dm_pci_read_config16(dev, reg, &word);
 			M.x86.R_ECX = word;
 			break;
 		case 0xb10a: /* Read Config Dword */
-			dword = x86_pci_read_config32(dev, reg);
+			dm_pci_read_config32(dev, reg, &dword);
 			M.x86.R_ECX = dword;
 			break;
 		case 0xb10b: /* Write Config Byte */
 			byte = M.x86.R_ECX;
-			x86_pci_write_config8(dev, reg, byte);
+			dm_pci_write_config8(dev, reg, byte);
 			break;
 		case 0xb10c: /* Write Config Word */
 			word = M.x86.R_ECX;
-			x86_pci_write_config16(dev, reg, word);
+			dm_pci_write_config16(dev, reg, word);
 			break;
 		case 0xb10d: /* Write Config Dword */
 			dword = M.x86.R_ECX;
-			x86_pci_write_config32(dev, reg, dword);
+			dm_pci_write_config32(dev, reg, dword);
 			break;
 		}
-
 #ifdef CONFIG_REALMODE_DEBUG
 		debug("0x%x: bus %d devfn 0x%x reg 0x%x val 0x%x\n", func,
 		      bus, devfn, reg, M.x86.R_ECX);

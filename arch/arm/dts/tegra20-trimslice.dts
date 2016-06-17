@@ -26,25 +26,9 @@
 		clock-frequency = <216000000>;
 	};
 
-	i2c@7000c000 {
-		status = "disabled";
-	};
-
 	spi@7000c380 {
 		status = "okay";
 		spi-max-frequency = <25000000>;
-	};
-
-	i2c@7000c400 {
-		status = "disabled";
-	};
-
-	i2c@7000c500 {
-		status = "disabled";
-	};
-
-	i2c@7000d000 {
-		status = "disabled";
 	};
 
 	pcie-controller@80003000 {
@@ -62,11 +46,8 @@
 	};
 
 	usb@c5000000 {
+		status = "okay";
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
-	};
-
-	usb@c5004000 {
-		status = "disabled";
 	};
 
 	sdhci@c8000000 {
@@ -79,6 +60,19 @@
 		cd-gpios = <&gpio TEGRA_GPIO(P, 1) GPIO_ACTIVE_LOW>;
 		wp-gpios = <&gpio TEGRA_GPIO(P, 2) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		clk32k_in: clock@0 {
+			compatible = "fixed-clock";
+			reg=<0>;
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+		};
 	};
 
 	regulators {

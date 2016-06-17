@@ -5,8 +5,9 @@
  */
 
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sg-regs.h>
+
+#include "../init.h"
+#include "../sg-regs.h"
 
 void ph1_ld6b_pin_init(void)
 {

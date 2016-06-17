@@ -30,6 +30,12 @@
 	};
 
 	clocks {
+		refclk: ref {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <24576000>;
+		};
+
 		arm_timer_clk: arm_timer_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -55,12 +61,6 @@
 		#size-cells = <1>;
 		ranges;
 		interrupt-parent = <&intc>;
-
-		extbus: extbus {
-			compatible = "simple-bus";
-			#address-cells = <2>;
-			#size-cells = <1>;
-		};
 
 		timer@20000200 {
 			compatible = "arm,cortex-a9-global-timer";
@@ -109,6 +109,118 @@
 			interrupts = <0 37 4>;
 			clocks = <&uart_clk>;
 			clock-frequency = <36864000>;
+		};
+
+		port0x: gpio@55000008 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000008 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port1x: gpio@55000010 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000010 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port2x: gpio@55000018 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000018 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port3x: gpio@55000020 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000020 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port4: gpio@55000028 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000028 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port5x: gpio@55000030 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000030 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port6x: gpio@55000038 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000038 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port7x: gpio@55000040 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000040 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port8x: gpio@55000048 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000048 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port9x: gpio@55000050 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000050 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port10x: gpio@55000058 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000058 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port11x: gpio@55000060 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000060 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port12x: gpio@55000068 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000068 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port13x: gpio@55000070 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000070 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port14x: gpio@55000078 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000078 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		port16x: gpio@55000088 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000088 0x8>;
+			gpio-controller;
+			#gpio-cells = <2>;
 		};
 
 		i2c0: i2c@58400000 {
@@ -166,10 +278,43 @@
 			clock-frequency = <400000>;
 		};
 
-		system-bus-controller-misc@59800000 {
-			compatible = "socionext,uniphier-system-bus-controller-misc",
-				     "syscon";
-			reg = <0x59800000 0x2000>;
+		system_bus: system-bus@58c00000 {
+			compatible = "socionext,uniphier-system-bus";
+			reg = <0x58c00000 0x400>;
+			#address-cells = <2>;
+			#size-cells = <1>;
+		};
+
+		smpctrl@59800000 {
+			compatible = "socionext,uniphier-smpctrl";
+			reg = <0x59801000 0x400>;
+		};
+
+		mio: mioctrl@59810000 {
+			compatible = "socionext,ph1-sld3-mioctrl";
+			reg = <0x59810000 0x800>;
+			#clock-cells = <1>;
+			clock-names = "stdmac", "ehci";
+			clocks = <&sysctrl 10>, <&sysctrl 18>;
+		};
+
+		emmc: sdhc@5a400000 {
+			compatible = "socionext,uniphier-sdhc";
+			status = "disabled";
+			reg = <0x5a400000 0x200>;
+			interrupts = <0 78 4>;
+			clocks = <&mio 1>;
+			bus-width = <8>;
+			non-removable;
+		};
+
+		sd: sdhc@5a500000 {
+			compatible = "socionext,uniphier-sdhc";
+			status = "disabled";
+			reg = <0x5a500000 0x200>;
+			interrupts = <0 76 4>;
+			clocks = <&mio 0>;
+			bus-width = <4>;
 		};
 
 		usb0: usb@5a800100 {
@@ -177,6 +322,7 @@
 			status = "disabled";
 			reg = <0x5a800100 0x100>;
 			interrupts = <0 80 4>;
+			clocks = <&mio 3>, <&mio 6>;
 		};
 
 		usb1: usb@5a810100 {
@@ -184,6 +330,7 @@
 			status = "disabled";
 			reg = <0x5a810100 0x100>;
 			interrupts = <0 81 4>;
+			clocks = <&mio 4>, <&mio 6>;
 		};
 
 		usb2: usb@5a820100 {
@@ -191,6 +338,7 @@
 			status = "disabled";
 			reg = <0x5a820100 0x100>;
 			interrupts = <0 82 4>;
+			clocks = <&mio 5>, <&mio 6>;
 		};
 
 		usb3: usb@5a830100 {
@@ -198,6 +346,15 @@
 			status = "disabled";
 			reg = <0x5a830100 0x100>;
 			interrupts = <0 83 4>;
+			clocks = <&mio 7>, <&mio 6>;
+		};
+
+		sysctrl: sysctrl@f1840000 {
+			compatible = "socionext,ph1-sld3-sysctrl";
+			reg = <0xf1840000 0x4000>;
+			#clock-cells = <1>;
+			clock-names = "ref";
+			clocks = <&refclk>;
 		};
 
 		nand: nand@f8000000 {

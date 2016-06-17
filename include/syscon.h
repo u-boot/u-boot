@@ -37,6 +37,20 @@ struct regmap *syscon_get_regmap(struct udevice *dev);
  *
  * Each system controller can be accessed by its driver data, which is
  * assumed to be unique through the scope of all system controllers that
+ * are in use. This function looks up the controller given this driver data.
+ *
+ * @driver_data:	Driver data value to look up
+ * @devp:		Returns the controller correponding to @driver_data
+ * @return 0 on success, -ENODEV if the ID was not found, or other -ve error
+ *	   code
+ */
+int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp);
+
+/**
+ * syscon_get_regmap_by_driver_data() - Look up a controller by its ID
+ *
+ * Each system controller can be accessed by its driver data, which is
+ * assumed to be unique through the scope of all system controllers that
  * are in use. This function looks up the regmap given this driver data.
  *
  * @driver_data:	Driver data value to look up

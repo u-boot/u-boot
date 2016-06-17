@@ -30,7 +30,7 @@
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE		512
-#if defined(CONFIG_MX6)
+#if (defined(CONFIG_MX6) || defined(CONFIG_MX7))
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	2
 #else
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	0
@@ -152,7 +152,7 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 	int max_ecc_strength_supported;
 
 	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
-	if (is_cpu_type(MXC_CPU_MX6SX))
+	if (is_cpu_type(MXC_CPU_MX6SX) || is_soc_type(MXC_SOC_MX7))
 		max_ecc_strength_supported = 62;
 	else
 		max_ecc_strength_supported = 40;
@@ -1090,24 +1090,29 @@ int mxs_nand_init(struct mxs_nand_info *info)
 		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	struct mxs_bch_regs *bch_regs =
 		(struct mxs_bch_regs *)MXS_BCH_BASE;
-	int i = 0, j;
+	int i = 0, j, ret = 0;
 
 	info->desc = malloc(sizeof(struct mxs_dma_desc *) *
 				MXS_NAND_DMA_DESCRIPTOR_COUNT);
-	if (!info->desc)
+	if (!info->desc) {
+		ret = -ENOMEM;
 		goto err1;
+	}
 
 	/* Allocate the DMA descriptors. */
 	for (i = 0; i < MXS_NAND_DMA_DESCRIPTOR_COUNT; i++) {
 		info->desc[i] = mxs_dma_desc_alloc();
-		if (!info->desc[i])
+		if (!info->desc[i]) {
+			ret = -ENOMEM;
 			goto err2;
+		}
 	}
 
 	/* Init the DMA controller. */
 	for (j = MXS_DMA_CHANNEL_AHB_APBH_GPMI0;
 		j <= MXS_DMA_CHANNEL_AHB_APBH_GPMI7; j++) {
-		if (mxs_dma_init_channel(j))
+		ret = mxs_dma_init_channel(j);
+		if (ret)
 			goto err3;
 	}
 
@@ -1127,15 +1132,16 @@ int mxs_nand_init(struct mxs_nand_info *info)
 	return 0;
 
 err3:
-	for (--j; j >= 0; j--)
+	for (--j; j >= MXS_DMA_CHANNEL_AHB_APBH_GPMI0; j--)
 		mxs_dma_release(j);
 err2:
-	free(info->desc);
-err1:
 	for (--i; i >= 0; i--)
 		mxs_dma_desc_free(info->desc[i]);
-	printf("MXS NAND: Unable to allocate DMA descriptors\n");
-	return -ENOMEM;
+	free(info->desc);
+err1:
+	if (ret == -ENOMEM)
+		printf("MXS NAND: Unable to allocate DMA descriptors\n");
+	return ret;
 }
 
 /*!

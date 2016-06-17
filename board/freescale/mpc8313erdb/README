@@ -70,7 +70,7 @@ Freescale MPC8313ERDB Board
 
 5.	Downloading and Flashing Images
 
-5.1	Reflash U-boot Image using U-boot
+5.1	Reflash U-Boot Image using U-Boot
 
 	NOR flash:
 
@@ -81,7 +81,7 @@ Freescale MPC8313ERDB Board
 	first, to make sure that the TFTP load will succeed before it
 	goes ahead and wipes out your current firmware.  And of course,
 	have an alternate means of programming the flash available
-	if the new u-boot doesn't boot.
+	if the new U-Boot doesn't boot.
 
 	NAND flash:
 

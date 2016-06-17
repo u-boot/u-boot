@@ -19,59 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct pci_controller *get_hose(void)
-{
-	if (gd->hose)
-		return gd->hose;
-
-	return pci_bus_to_hose(0);
-}
-
-unsigned int x86_pci_read_config8(pci_dev_t dev, unsigned where)
-{
-	uint8_t value;
-
-	if (pci_hose_read_config_byte(get_hose(), dev, where, &value))
-		return -1U;
-
-	return value;
-}
-
-unsigned int x86_pci_read_config16(pci_dev_t dev, unsigned where)
-{
-	uint16_t value;
-
-	if (pci_hose_read_config_word(get_hose(), dev, where, &value))
-		return -1U;
-
-	return value;
-}
-
-unsigned int x86_pci_read_config32(pci_dev_t dev, unsigned where)
-{
-	uint32_t value;
-
-	if (pci_hose_read_config_dword(get_hose(), dev, where, &value))
-		return -1U;
-
-	return value;
-}
-
-void x86_pci_write_config8(pci_dev_t dev, unsigned where, unsigned value)
-{
-	pci_hose_write_config_byte(get_hose(), dev, where, value);
-}
-
-void x86_pci_write_config16(pci_dev_t dev, unsigned where, unsigned value)
-{
-	pci_hose_write_config_word(get_hose(), dev, where, value);
-}
-
-void x86_pci_write_config32(pci_dev_t dev, unsigned where, unsigned value)
-{
-	pci_hose_write_config_dword(get_hose(), dev, where, value);
-}
-
 int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 			ulong *valuep, enum pci_size_t size)
 {
@@ -119,11 +66,11 @@ void pci_assign_irqs(int bus, int device, u8 irq[4])
 
 	for (func = 0; func < 8; func++) {
 		bdf = PCI_BDF(bus, device, func);
-		vendor = x86_pci_read_config16(bdf, PCI_VENDOR_ID);
+		pci_read_config16(bdf, PCI_VENDOR_ID, &vendor);
 		if (vendor == 0xffff || vendor == 0x0000)
 			continue;
 
-		pin = x86_pci_read_config8(bdf, PCI_INTERRUPT_PIN);
+		pci_read_config8(bdf, PCI_INTERRUPT_PIN, &pin);
 
 		/* PCI spec says all values except 1..4 are reserved */
 		if ((pin < 1) || (pin > 4))
@@ -136,6 +83,6 @@ void pci_assign_irqs(int bus, int device, u8 irq[4])
 		debug("Assigning IRQ %d to PCI device %d.%x.%d (INT%c)\n",
 		      line, bus, device, func, 'A' + pin - 1);
 
-		x86_pci_write_config8(bdf, PCI_INTERRUPT_LINE, line);
+		pci_write_config8(bdf, PCI_INTERRUPT_LINE, line);
 	}
 }

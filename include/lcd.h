@@ -18,6 +18,12 @@
 #include <asm/byteorder.h>
 #endif
 
+int bmp_display(ulong addr, int x, int y);
+struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
+			     void **alloc_addr);
+
+#ifndef CONFIG_DM_VIDEO
+
 extern char lcd_is_enabled;
 extern int lcd_line_length;
 extern struct vidinfo panel_info;
@@ -25,10 +31,6 @@ extern struct vidinfo panel_info;
 void lcd_ctrl_init(void *lcdbase);
 void lcd_enable(void);
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue);
-
-struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
-			     void **alloc_addr);
-int bmp_display(ulong addr, int x, int y);
 
 /**
  * Set whether we need to flush the dcache when changing the LCD image. This
@@ -193,8 +195,15 @@ void lcd_sync(void);
 #define CONSOLE_COLOR_WHITE	0x00ffffff	/* Must remain last / highest */
 #define NBYTES(bit_code)	(NBITS(bit_code) >> 3)
 #else /* 16bpp color definitions */
-#define CONSOLE_COLOR_BLACK	0x0000
-#define CONSOLE_COLOR_WHITE	0xffff		/* Must remain last / highest */
+# define CONSOLE_COLOR_BLACK	0x0000
+# define CONSOLE_COLOR_RED	0xF800
+# define CONSOLE_COLOR_GREEN	0x07E0
+# define CONSOLE_COLOR_YELLOW	0xFFE0
+# define CONSOLE_COLOR_BLUE	0x001F
+# define CONSOLE_COLOR_MAGENTA	0xF81F
+# define CONSOLE_COLOR_CYAN	0x07FF
+# define CONSOLE_COLOR_GREY	0xC618
+# define CONSOLE_COLOR_WHITE	0xffff		/* Must remain last / highest */
 #endif /* color definitions */
 
 #if LCD_BPP == LCD_COLOR16
@@ -208,5 +217,7 @@ void lcd_sync(void);
 #ifndef PAGE_SIZE
 #define PAGE_SIZE	4096
 #endif
+
+#endif /* !CONFIG_DM_VIDEO */
 
 #endif	/* _LCD_H_ */

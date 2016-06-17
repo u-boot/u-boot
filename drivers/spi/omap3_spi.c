@@ -336,7 +336,6 @@ int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	ulong start;
 	int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
-	int irqstatus = readl(&ds->regs->irqstatus);
 	int i=0;
 
 	/*Enable SPI channel*/
@@ -351,7 +350,6 @@ int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
 	/*Shift in and out 1 byte at time*/
 	for (i=0; i < len; i++){
 		/* Write: wait for TX empty (TXS == 1)*/
-		irqstatus |= (1<< (4*(ds->slave.bus)));
 		start = get_timer(0);
 		while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
 			 OMAP3_MCSPI_CHSTAT_TXS)) {

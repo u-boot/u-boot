@@ -142,6 +142,9 @@
  */
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_MMC
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
+#undef CONFIG_TIMER
 #endif
 
 #ifndef CONFIG_SPL_BUILD
@@ -224,7 +227,7 @@
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_QSPI_SEL_GPIO                   48
 #define CONFIG_SF_DEFAULT_SPEED                48000000
-#define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
+#define CONFIG_SF_DEFAULT_MODE                 SPI_MODE_3
 #define CONFIG_QSPI_QUAD_SUPPORT
 #define CONFIG_TI_EDMA3
 

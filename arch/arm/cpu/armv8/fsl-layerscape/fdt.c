@@ -14,6 +14,9 @@
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
+#ifdef CONFIG_SYS_DPAA_FMAN
+#include <fsl_fman.h>
+#endif
 #ifdef CONFIG_MP
 #include <asm/arch/mp.h>
 #endif
@@ -190,6 +193,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 
+	do_fixup_by_compat_u32(blob, "fixed-clock",
+			       "clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
+
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
@@ -200,5 +206,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_FSL_LSCH3
 	fdt_fixup_smmu(blob);
+#endif
+
+#ifdef CONFIG_SYS_DPAA_FMAN
+	fdt_fixup_fman_firmware(blob);
 #endif
 }

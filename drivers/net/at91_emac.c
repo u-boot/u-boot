@@ -12,7 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_emac.h>
-#include <asm/arch/at91_pmc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/at91_pio.h>
 #include <net.h>
 #include <netdev.h>
@@ -321,7 +321,6 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 	emac_device *dev;
 	at91_emac_t *emac;
 	at91_pio_t *pio = (at91_pio_t *) ATMEL_BASE_PIO;
-	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	emac = (at91_emac_t *) netdev->iobase;
 	dev = (emac_device *) netdev->priv;
@@ -347,7 +346,8 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 	writel(value, &pio->piob.pdr);
 	writel(value, &pio->piob.bsr);
 
-	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC);
+
 	writel(readl(&emac->ctl) | AT91_EMAC_CTL_CSR, &emac->ctl);
 
 	/* Init Ethernet buffers */
@@ -452,10 +452,10 @@ static int at91emac_recv(struct eth_device *netdev)
 static int at91emac_write_hwaddr(struct eth_device *netdev)
 {
 	at91_emac_t *emac;
-	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 	emac = (at91_emac_t *) netdev->iobase;
 
-	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC);
+
 	debug_cond(DEBUG_AT91EMAC,
 		"init MAC-ADDR %02x:%02x:%02x:%02x:%02x:%02x\n",
 		netdev->enetaddr[5], netdev->enetaddr[4], netdev->enetaddr[3],
@@ -490,7 +490,7 @@ int at91emac_register(bd_t *bis, unsigned long iobase)
 	memset(emacfix, 0, sizeof(emac_device));
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "emac");
+	strcpy(dev->name, "emac");
 	dev->iobase = iobase;
 	dev->priv = emacfix;
 	dev->init = at91emac_init;

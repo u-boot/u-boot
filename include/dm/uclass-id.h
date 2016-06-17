@@ -29,7 +29,9 @@ enum uclass_id {
 	UCLASS_CLK,		/* Clock source, e.g. used by peripherals */
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */
-	UCLASS_DISPLAY_PORT,	/* Display port video */
+	UCLASS_DISK,		/* Disk controller, e.g. SATA */
+	UCLASS_DISPLAY,		/* Display (e.g. DisplayPort, HDMI) */
+	UCLASS_DMA,		/* Direct Memory Access */
 	UCLASS_RAM,		/* RAM controller */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
@@ -37,6 +39,7 @@ enum uclass_id {
 	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
 	UCLASS_I2C_MUX,		/* I2C multiplexer */
+	UCLASS_IRQ,		/* Interrupt controller */
 	UCLASS_KEYBOARD,	/* Keyboard input device */
 	UCLASS_LED,		/* Light-emitting diode (LED) */
 	UCLASS_LPC,		/* x86 'low pin count' interface */
@@ -45,12 +48,17 @@ enum uclass_id {
 	UCLASS_MMC,		/* SD / MMC card or chip */
 	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
 	UCLASS_MTD,		/* Memory Technology Device (MTD) device */
+	UCLASS_NORTHBRIDGE,	/* Intel Northbridge / SDRAM controller */
+	UCLASS_PANEL,		/* Display panel, such as an LCD */
+	UCLASS_PANEL_BACKLIGHT,	/* Backlight controller for panel */
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */
 	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
 	UCLASS_PINCTRL,		/* Pinctrl (pin muxing/configuration) device */
 	UCLASS_PINCONFIG,	/* Pin configuration node device */
 	UCLASS_PMIC,		/* PMIC I/O device */
+	UCLASS_PWM,		/* Pulse-width modulator */
+	UCLASS_PWRSEQ,		/* Power sequence device */
 	UCLASS_REGULATOR,	/* Regulator device */
 	UCLASS_RESET,		/* Reset device */
 	UCLASS_REMOTEPROC,	/* Remote Processor device */
@@ -66,7 +74,9 @@ enum uclass_id {
 	UCLASS_USB,		/* USB bus */
 	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
 	UCLASS_USB_HUB,		/* USB hub */
+	UCLASS_VIDEO,		/* Video or LCD device */
 	UCLASS_VIDEO_BRIDGE,	/* Video bridge, e.g. DisplayPort to LVDS */
+	UCLASS_VIDEO_CONSOLE,	/* Text console driver for video device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

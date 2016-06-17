@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/lists.h>
+#include <dm/device-internal.h>
 #include <errno.h>
 #include <timer.h>
 
@@ -20,7 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * tick, and no timer interrupt.
  */
 
-int timer_get_count(struct udevice *dev, u64 *count)
+int notrace timer_get_count(struct udevice *dev, u64 *count)
 {
 	const struct timer_ops *ops = device_get_ops(dev);
 
@@ -30,9 +32,9 @@ int timer_get_count(struct udevice *dev, u64 *count)
 	return ops->get_count(dev, count);
 }
 
-unsigned long timer_get_rate(struct udevice *dev)
+unsigned long notrace timer_get_rate(struct udevice *dev)
 {
-	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct timer_dev_priv *uc_priv = dev->uclass_priv;
 
 	return uc_priv->clock_rate;
 }
@@ -47,6 +49,16 @@ static int timer_pre_probe(struct udevice *dev)
 	return 0;
 }
 
+static int timer_post_probe(struct udevice *dev)
+{
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (!uc_priv->clock_rate)
+		return -EINVAL;
+
+	return 0;
+}
+
 u64 timer_conv_64(u32 count)
 {
 	/* increment tbh if tbl has rolled over */
@@ -56,9 +68,53 @@ u64 timer_conv_64(u32 count)
 	return ((u64)gd->timebase_h << 32) | gd->timebase_l;
 }
 
+int notrace dm_timer_init(void)
+{
+	const void *blob = gd->fdt_blob;
+	struct udevice *dev = NULL;
+	int node;
+	int ret;
+
+	if (gd->timer)
+		return 0;
+
+	/* Check for a chosen timer to be used for tick */
+	node = fdtdec_get_chosen_node(blob, "tick-timer");
+	if (node < 0) {
+		/* No chosen timer, trying first available timer */
+		ret = uclass_first_device(UCLASS_TIMER, &dev);
+		if (ret)
+			return ret;
+		if (!dev)
+			return -ENODEV;
+	} else {
+		if (uclass_get_device_by_of_offset(UCLASS_TIMER, node, &dev)) {
+			/*
+			 * If the timer is not marked to be bound before
+			 * relocation, bind it anyway.
+			 */
+			if (node > 0 &&
+			    !lists_bind_fdt(gd->dm_root, blob, node, &dev)) {
+				ret = device_probe(dev);
+				if (ret)
+					return ret;
+			}
+		}
+	}
+
+	if (dev) {
+		gd->timer = dev;
+		return 0;
+	}
+
+	return -ENODEV;
+}
+
 UCLASS_DRIVER(timer) = {
 	.id		= UCLASS_TIMER,
 	.name		= "timer",
 	.pre_probe	= timer_pre_probe,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+	.post_probe	= timer_post_probe,
 	.per_device_auto_alloc_size = sizeof(struct timer_dev_priv),
 };

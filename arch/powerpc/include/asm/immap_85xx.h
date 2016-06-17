@@ -1749,6 +1749,8 @@ typedef struct ccsr_gur {
 	u32	brrl;		/* Boot release */
 	u8	res17[24];
 	u32	rcwsr[16];	/* Reset control word status */
+#define RCW_SB_EN_REG_INDEX	7
+#define RCW_SB_EN_MASK		0x00200000
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	16
@@ -1933,7 +1935,6 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 	u8	res24[64];
 	u32	pblsr;		/* Preboot loader status */
 	u32	pamubypenr;	/* PAMU bypass enable */
-#define FSL_CORENET_PAMU_BYPASS		0xffff0000
 	u32	dmacr1;		/* DMA control */
 	u8	res25[4];
 	u32	gensr1;		/* General status */
@@ -2194,6 +2195,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR2_DDR_SPD_0	0x00000008
 #define MPC85xx_PORDEVSR2_DDR_SPD_0_SHIFT	3
 #endif
+#define MPC85xx_PORDEVSR2_SBC_MASK	0x10000000
 /* The 8544 RM says this is bit 26, but it's really bit 24 */
 #define MPC85xx_PORDEVSR2_SEC_CFG	0x00000080
 	u8	res1[8];
@@ -2771,6 +2773,21 @@ typedef struct ccsr_pme {
 	u8	res4[0x400];
 } ccsr_pme_t;
 
+struct ccsr_pamu {
+	u32 ppbah;
+	u32 ppbal;
+	u32 pplah;
+	u32 pplal;
+	u32 spbah;
+	u32 spbal;
+	u32 splah;
+	u32 splal;
+	u32 obah;
+	u32 obal;
+	u32 olah;
+	u32 olal;
+};
+
 #ifdef CONFIG_SYS_FSL_RAID_ENGINE
 struct ccsr_raide {
 	u8	res0[0x543];
@@ -2851,6 +2868,7 @@ struct ccsr_pman {
 #define CONFIG_SYS_FSL_CORENET_SERDES4_OFFSET	0xED000
 #define CONFIG_SYS_FSL_CPC_OFFSET		0x10000
 #define CONFIG_SYS_FSL_SCFG_OFFSET		0xFC000
+#define CONFIG_SYS_FSL_PAMU_OFFSET		0x20000
 #define CONFIG_SYS_MPC85xx_DMA1_OFFSET		0x100000
 #define CONFIG_SYS_MPC85xx_DMA2_OFFSET		0x101000
 #define CONFIG_SYS_MPC85xx_DMA3_OFFSET		0x102000
@@ -3064,6 +3082,8 @@ struct ccsr_pman {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_FM2_OFFSET)
 #define CONFIG_SYS_FSL_SRIO_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_SRIO_OFFSET)
+#define CONFIG_SYS_PAMU_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_PAMU_OFFSET)
 
 #define CONFIG_SYS_PCI1_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PCI1_OFFSET)

@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF526 EZBrd board
+ * U-Boot - Configuration file for BF526 EZBrd board
  */
 
 #ifndef __CONFIG_BF526_EZBRD_H__

@@ -4,12 +4,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <mach/init.h>
-#include <mach/sg-regs.h>
+#include "../init.h"
+#include "../sg-regs.h"
 
 void ph1_sld3_pin_init(void)
 {
-#ifdef CONFIG_USB_EHCI_UNIPHIER
+#ifdef CONFIG_USB_EHCI
 	sg_set_pinsel(13, 0, 4, 4);	/* USB0OC */
 	sg_set_pinsel(14, 1, 4, 4);	/* USB0VBUS */
 

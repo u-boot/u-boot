@@ -9,6 +9,16 @@ config TIMER
 	  will be used. The timer is usually a 32 bits free-running up
 	  counter. There may be no real tick, and no timer interrupt.
 
+config TIMER_EARLY
+	bool "Allow timer to be used early in U-Boot"
+	depends on TIMER
+	help
+	  In some cases the timer must be accessible before driver model is
+	  active. Examples include when using CONFIG_TRACE to trace U-Boot's
+	  execution before driver model is set up. Enable this option to
+	  use an early timer. These functions must be supported by your timer
+	  driver: timer_early_get_count() and timer_early_get_rate().
+
 config ALTERA_TIMER
 	bool "Altera timer support"
 	depends on TIMER
@@ -29,5 +39,11 @@ config X86_TSC_TIMER
 	default y if X86
 	help
 	  Select this to enable Time-Stamp Counter (TSC) timer for x86.
+
+config OMAP_TIMER
+	bool "Omap timer support"
+	depends on TIMER
+	help
+	  Select this to enable an timer for Omap devices.
 
 endmenu

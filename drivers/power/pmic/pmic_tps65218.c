@@ -11,6 +11,20 @@
 #include <power/pmic.h>
 #include <power/tps65218.h>
 
+int tps65218_reg_read(uchar dest_reg, uchar *dest_val)
+{
+	uchar read_val;
+	int ret;
+
+	ret = i2c_read(TPS65218_CHIP_PM, dest_reg, 1, &read_val, 1);
+	if (ret)
+		return ret;
+
+	*dest_val = read_val;
+
+	return 0;
+}
+
 /**
  *  tps65218_reg_write() - Generic function that can write a TPS65218 PMIC
  *			   register or bit field regardless of protection
@@ -94,6 +108,48 @@ int tps65218_voltage_update(uchar dc_cntrl_reg, uchar volt_sel)
 	if (tps65218_reg_write(TPS65218_PROT_LEVEL_2, TPS65218_SLEW,
 			       TPS65218_DCDC_GO, TPS65218_DCDC_GO))
 		return 1;
+
+	return 0;
+}
+
+/**
+ * tps65218_toggle_fseal() - Perform the sequence that toggles the FSEAL bit.
+ *
+ * @return:		     0 on success, -EBADE if the sequence was broken
+ */
+int tps65218_toggle_fseal(void)
+{
+	if (tps65218_reg_write(TPS65218_PROT_LEVEL_NONE, TPS65218_PASSWORD,
+			       0xb1, TPS65218_MASK_ALL_BITS))
+		return -EBADE;
+
+	if (tps65218_reg_write(TPS65218_PROT_LEVEL_NONE, TPS65218_PASSWORD,
+			       0xfe, TPS65218_MASK_ALL_BITS))
+		return -EBADE;
+
+	if (tps65218_reg_write(TPS65218_PROT_LEVEL_NONE, TPS65218_PASSWORD,
+			       0xa3, TPS65218_MASK_ALL_BITS))
+		return -EBADE;
+
+	return 0;
+}
+
+/**
+ * tps65218_lock_fseal() - Perform the sequence that locks the FSEAL bit to 1.
+ *
+ * The FSEAL bit prevents the PMIC from turning off DCDC5 and DCDC6. It can be
+ * toggled at most 3 times: 0->1, 1->0, and finally 0->1. After the third switch
+ * its value is locked and can only be reset by powering off the PMIC entirely.
+ *
+ * @return:		   0 on success, -EBADE if the sequence was broken
+ */
+int tps65218_lock_fseal(void)
+{
+	int i;
+
+	for (i = 0; i < 3; i++)
+		if (tps65218_toggle_fseal())
+			return -EBADE;
 
 	return 0;
 }

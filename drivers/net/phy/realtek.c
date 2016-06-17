@@ -203,6 +203,14 @@ static int rtl8211x_startup(struct phy_device *phydev)
 	return 0;
 }
 
+static int rtl8211e_startup(struct phy_device *phydev)
+{
+	genphy_update_link(phydev);
+	genphy_parse_link(phydev);
+
+	return 0;
+}
+
 static int rtl8211f_startup(struct phy_device *phydev)
 {
 	/* Read the Status (2x to make sure link is right) */
@@ -230,7 +238,7 @@ static struct phy_driver RTL8211E_driver = {
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
 	.config = &rtl8211x_config,
-	.startup = &rtl8211x_startup,
+	.startup = &rtl8211e_startup,
 	.shutdown = &genphy_shutdown,
 };
 

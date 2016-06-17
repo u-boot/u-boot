@@ -10,6 +10,8 @@
 #include <timer.h>
 #include <os.h>
 
+#define SANDBOX_TIMER_RATE	1000000
+
 /* system timer offset in ms */
 static unsigned long sandbox_timer_offset;
 
@@ -18,15 +20,30 @@ void sandbox_timer_add_offset(unsigned long offset)
 	sandbox_timer_offset += offset;
 }
 
-static int sandbox_timer_get_count(struct udevice *dev, u64 *count)
+u64 notrace timer_early_get_count(void)
 {
-	*count = os_get_nsec() / 1000 + sandbox_timer_offset * 1000;
+	return os_get_nsec() / 1000 + sandbox_timer_offset * 1000;
+}
+
+unsigned long notrace timer_early_get_rate(void)
+{
+	return SANDBOX_TIMER_RATE;
+}
+
+static notrace int sandbox_timer_get_count(struct udevice *dev, u64 *count)
+{
+	*count = timer_early_get_count();
 
 	return 0;
 }
 
 static int sandbox_timer_probe(struct udevice *dev)
 {
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (!uc_priv->clock_rate)
+		uc_priv->clock_rate = SANDBOX_TIMER_RATE;
+
 	return 0;
 }
 
@@ -46,4 +63,9 @@ U_BOOT_DRIVER(sandbox_timer) = {
 	.probe = sandbox_timer_probe,
 	.ops	= &sandbox_timer_ops,
 	.flags = DM_FLAG_PRE_RELOC,
+};
+
+/* This is here in case we don't have a device tree */
+U_BOOT_DEVICE(sandbox_timer_non_fdt) = {
+	.name = "sandbox_timer",
 };

@@ -1,6 +1,6 @@
 /*
  *  (C) Copyright 2008
- *  Ricado Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@uam.es
+ *  Ricado Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@gmail.com
  *  This work has been supported by: QTechnology  http://qtec.com/
  *
  * SPDX-License-Identifier:	GPL-2.0+

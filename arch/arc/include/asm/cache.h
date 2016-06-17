@@ -9,13 +9,13 @@
 
 #include <config.h>
 
-#ifdef CONFIG_ARC_CACHE_LINE_SHIFT
-#define CONFIG_SYS_CACHELINE_SIZE	(1 << CONFIG_ARC_CACHE_LINE_SHIFT)
-#define ARCH_DMA_MINALIGN		CONFIG_SYS_CACHELINE_SIZE
-#else
-/* Satisfy users of ARCH_DMA_MINALIGN */
-#define ARCH_DMA_MINALIGN		128
-#endif
+/*
+ * As of today we may handle any L1 cache line length right in software.
+ * For that essentially cache line length is a variable not constant.
+ * And to satisfy users of ARCH_DMA_MINALIGN we just use largest line length
+ * that may exist in either L1 or L2 (AKA SLC) caches on ARC.
+ */
+#define ARCH_DMA_MINALIGN	128
 
 #if defined(ARC_MMU_ABSENT)
 #define CONFIG_ARC_MMU_VER 0

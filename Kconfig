@@ -208,7 +208,8 @@ config SYS_EXTRA_OPTIONS
 	  new boards should not use this option.
 
 config SYS_TEXT_BASE
-	depends on SPARC || ARC || X86 || ARCH_UNIPHIER || ARCH_ZYNQMP
+	depends on SPARC || ARC || X86 || ARCH_UNIPHIER || ARCH_ZYNQMP || \
+		(M68K && !TARGET_ASTRO_MCF5373L) || MICROBLAZE
 	depends on !EFI_APP
 	hex "Text Base"
 	help
@@ -223,6 +224,8 @@ config SYS_CLK_FREQ
 endmenu		# Boot images
 
 source "common/Kconfig"
+
+source "cmd/Kconfig"
 
 source "dts/Kconfig"
 

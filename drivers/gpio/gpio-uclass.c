@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/gpio.h>
+#include <linux/bug.h>
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -154,6 +155,7 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 
 static int dm_gpio_requestf(struct gpio_desc *desc, const char *fmt, ...)
 {
+#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 
@@ -161,6 +163,9 @@ static int dm_gpio_requestf(struct gpio_desc *desc, const char *fmt, ...)
 	vscnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 	return dm_gpio_request(desc, buf);
+#else
+	return dm_gpio_request(desc, fmt);
+#endif
 }
 
 /**
@@ -199,6 +204,7 @@ int gpio_request(unsigned gpio, const char *label)
  */
 int gpio_requestf(unsigned gpio, const char *fmt, ...)
 {
+#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 
@@ -206,6 +212,9 @@ int gpio_requestf(unsigned gpio, const char *fmt, ...)
 	vscnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 	return gpio_request(gpio, buf);
+#else
+	return gpio_request(gpio, fmt);
+#endif
 }
 
 int _dm_gpio_free(struct udevice *dev, uint offset)

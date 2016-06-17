@@ -8,6 +8,7 @@
 #include <common.h>
 #include <usb.h>
 #include <errno.h>
+#include <wait_bit.h>
 #include <linux/compiler.h>
 #include <usb/ehci-fsl.h>
 #include <asm/io.h>
@@ -117,32 +118,6 @@ static void usb_power_config(int index)
 		     pll_480_ctrl_set);
 }
 
-static int wait_for_bit(u32 *reg, const u32 mask, bool set)
-{
-	u32 val;
-	const unsigned int timeout = 10000;
-	unsigned long start = get_timer(0);
-
-	while(1) {
-		val = readl(reg);
-		if (!set)
-			val = ~val;
-
-		if ((val & mask) == mask)
-			return 0;
-
-		if (get_timer(start) > timeout)
-			break;
-
-		udelay(1);
-	}
-
-	debug("%s: Timeout (reg=%p mask=%08x wait_set=%i)\n",
-			__func__, reg, mask, set);
-
-	return -ETIMEDOUT;
-}
-
 /* Return 0 : host node, <>0 : device mode */
 static int usb_phy_enable(int index, struct usb_ehci *ehci)
 {
@@ -160,12 +135,13 @@ static int usb_phy_enable(int index, struct usb_ehci *ehci)
 
 	/* Stop then Reset */
 	clrbits_le32(usb_cmd, UCMD_RUN_STOP);
-	ret = wait_for_bit(usb_cmd, UCMD_RUN_STOP, 0);
+	ret = wait_for_bit(__func__, usb_cmd, UCMD_RUN_STOP, false, 10000,
+			   false);
 	if (ret)
 		return ret;
 
 	setbits_le32(usb_cmd, UCMD_RESET);
-	ret = wait_for_bit(usb_cmd, UCMD_RESET, 0);
+	ret = wait_for_bit(__func__, usb_cmd, UCMD_RESET, false, 10000, false);
 	if (ret)
 		return ret;
 

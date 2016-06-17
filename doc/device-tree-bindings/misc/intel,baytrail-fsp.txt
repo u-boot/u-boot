@@ -74,12 +74,41 @@ discovered by the FSP and used to setup main memory.
 
 	# Integer properties:
 
-	- fsp,dram-speed
+	- fsp,dram-speed:
+	  0x0: "800 MHz"
+	  0x1: "1066 MHz"
+	  0x2: "1333 MHz"
+	  0x3: "1600 MHz"
+
 	- fsp,dram-type
+	  0x0: "DDR3"
+	  0x1: "DDR3L"
+	  0x2: "DDR3U"
+	  0x4: "LPDDR2"
+	  0x5: "LPDDR3"
+	  0x6: "DDR4"
+
 	- fsp,dimm-width
+	  0x0: "x8"
+	  0x1: "x16"
+	  0x2: "x32"
+
 	- fsp,dimm-density
+	  0x0: "1 Gbit"
+	  0x1: "2 Gbit"
+	  0x2: "4 Gbit"
+	  0x3: "8 Gbit"
+
 	- fsp,dimm-bus-width
+	  0x0: "8 bits"
+	  0x1: "16 bits"
+	  0x2: "32 bits"
+	  0x3: "64 bits"
+
 	- fsp,dimm-sides
+	  0x0: "1 rank"
+	  0x1: "2 ranks"
+
 	- fsp,dimm-tcl
 	- fsp,dimm-trpt-rcd
 	- fsp,dimm-twr

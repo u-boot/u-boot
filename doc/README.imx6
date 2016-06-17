@@ -7,7 +7,10 @@ SoC.
 -----------------------------------
 
 1.1 MAC Address: It is stored in fuse bank 4, with the 32 lsbs in word 2 and the
-    16 msbs in word 3.
+    16 msbs in word 3[15:0].
+    For i.MX6SX and i.MX6UL, they have two MAC addresses. The second MAC address
+    is stored in fuse bank 4, with the 16 lsb in word 3[31:16] and the 32 msbs in 
+    word 4.
 
 Example:
 
@@ -34,7 +37,7 @@ As the fuses are arranged in banks of 8 words:
 bank = 4
 word = 2
 
-And the U-boot command would be:
+And the U-Boot command would be:
 
 => fuse read 4 2
 Reading bank 4:
@@ -55,7 +58,7 @@ As the fuses are arranged in banks of 8 words:
 bank = 4
 word = 3
 
-And the U-boot command would be:
+And the U-Boot command would be:
 
 => fuse read 4 3
 Reading bank 4:

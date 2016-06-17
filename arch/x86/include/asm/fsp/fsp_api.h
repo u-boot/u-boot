@@ -11,6 +11,16 @@
 #include <linux/linkage.h>
 
 /*
+ * FSP common configuration structure.
+ * This needs to be included in the platform-specific struct fsp_config_data.
+ */
+struct fsp_cfg_common {
+	struct fsp_header	*fsp_hdr;
+	u32			stack_top;
+	u32			boot_mode;
+};
+
+/*
  * FspInit continuation function prototype.
  * Control will be returned to this callback function after FspInit API call.
  */
@@ -30,7 +40,7 @@ struct common_buf {
 	 * Stack top pointer used by the bootloader. The new stack frame will be
 	 * set up at this location after FspInit API call.
 	 */
-	u32	*stack_top;
+	u32	stack_top;
 	u32	boot_mode;	/* Current system boot mode */
 	void	*upd_data;	/* User platform configuraiton data region */
 	u32	reserved[7];	/* Reserved */

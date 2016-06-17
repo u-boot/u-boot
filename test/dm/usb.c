@@ -50,7 +50,7 @@ static int dm_test_usb_flash(struct unit_test_state *uts)
 	/* Read a few blocks and look for the string we expect */
 	ut_asserteq(512, dev_desc->blksz);
 	memset(cmp, '\0', sizeof(cmp));
-	ut_asserteq(2, dev_desc->block_read(dev_desc->dev, 0, 2, cmp));
+	ut_asserteq(2, dev_desc->block_read(dev_desc, 0, 2, cmp));
 	ut_assertok(strcmp(cmp, "this is a test"));
 
 	return 0;

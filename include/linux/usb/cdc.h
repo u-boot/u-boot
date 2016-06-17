@@ -5,7 +5,7 @@
  * notably ethernet adapters and various modems.  It's used mostly with
  * firmware based USB peripherals.
  *
- * Ported to U-boot by: Thomas Smits <ts.smits@gmail.com> and
+ * Ported to U-Boot by: Thomas Smits <ts.smits@gmail.com> and
  *                      Remy Bohmer <linux@bohmer.net>
  */
 

@@ -42,7 +42,7 @@ unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
 #endif
 
-#ifdef CONFIG_QSPI_BOOT
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 #define CONFIG_QIXIS_I2C_ACCESS
@@ -56,7 +56,13 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW	board/freescale/ls1021aqds/ls102xa_rcw_sd.cfg
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_SYS_FSL_PBL_RCW	\
+	board/freescale/ls1021aqds/ls102xa_rcw_sd_qspi.cfg
+#else
+#define CONFIG_SYS_FSL_PBL_RCW	\
+	board/freescale/ls1021aqds/ls102xa_rcw_sd_ifc.cfg
+#endif
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -87,6 +93,9 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_SYS_TEXT_BASE		0x40010000
+#endif
+
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SYS_NO_FLASH
 #endif
 
@@ -162,7 +171,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * IFC Definitions
  */
-#ifndef CONFIG_QSPI_BOOT
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_FSL_IFC
 #define CONFIG_SYS_FLASH_BASE		0x60000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
@@ -371,12 +380,13 @@ unsigned long get_board_ddr_clk(void);
  * Serial Port
  */
 #ifdef CONFIG_LPUART
-#define CONFIG_FSL_LPUART
 #define CONFIG_LPUART_32B_REG
 #else
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
+#ifndef CONFIG_DM_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
+#endif
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #endif
 
@@ -411,7 +421,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DOS_PARTITION
 
 /* SPI */
-#ifdef CONFIG_QSPI_BOOT
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 /* QSPI */
 #define QSPI0_AMBA_BASE			0x40000000
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
@@ -556,6 +566,10 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#undef CONFIG_CMD_IMLS
+#endif
+
 #define CONFIG_ARMV7_NONSEC
 #define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
@@ -660,12 +674,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_MISC_INIT_R
 
 /* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
 #define CONFIG_CMD_HASH
 #define CONFIG_SHA_HW_ACCEL
-
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_CMD_BLOB
-#include <asm/fsl_secure_boot.h>
 #endif
+
+#include <asm/fsl_secure_boot.h>
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */
 
 #endif

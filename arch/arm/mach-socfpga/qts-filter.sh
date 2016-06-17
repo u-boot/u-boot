@@ -3,13 +3,15 @@
 #
 # Process iocsr_config_*.[ch]
 # $1:	SoC type
-# $2:	Input directory
-# $3:	Output directory
+# $2:	Input handoff directory
+# $3:	Input BSP Generated directory
+# $4:	Output directory
 #
 process_iocsr_config() {
 	soc="$1"
-	in_dir="$2"
-	out_dir="$3"
+	in_qts_dir="$2"
+	in_bsp_dir="$3"
+	out_dir="$4"
 
 	(
 	cat << EOF
@@ -26,13 +28,13 @@ EOF
 
 	# Retrieve the scan chain lengths
 	grep 'CONFIG_HPS_IOCSR_SCANCHAIN[0-9]\+_LENGTH'			\
-		${in_dir}/generated/iocsr_config_${soc}.h | tr -d "()"
+		${in_bsp_dir}/generated/iocsr_config_${soc}.h | tr -d "()"
 
 	echo ""
 
 	# Retrieve the scan chain config and zap the ad-hoc length encoding
 	sed -n '/^const/ !b; :next {/^const/ s/(.*)//;p;n;b next}'	\
-		${in_dir}/generated/iocsr_config_${soc}.c
+		${in_bsp_dir}/generated/iocsr_config_${soc}.c
 
 	cat << EOF
 
@@ -49,8 +51,9 @@ EOF
 #
 process_pinmux_config() {
 	soc="$1"
-	in_dir="$2"
-	out_dir="$3"
+	in_qts_dir="$2"
+	in_bsp_dir="$3"
+	out_dir="$4"
 
 	(
 	cat << EOF
@@ -67,7 +70,7 @@ EOF
 
 	# Retrieve the pinmux config and zap the ad-hoc length encoding
 	sed -n '/^unsigned/ !b; :next {/^unsigned/ {s/\[.*\]/[]/;s/unsigned long/const u8/};p;n;b next}' \
-		${in_dir}/generated/pinmux_config_${soc}.c
+		${in_bsp_dir}/generated/pinmux_config_${soc}.c
 
 	cat << EOF
 
@@ -84,8 +87,9 @@ EOF
 #
 process_pll_config() {
 	soc="$1"
-	in_dir="$2"
-	out_dir="$3"
+	in_qts_dir="$2"
+	in_bsp_dir="$3"
+	out_dir="$4"
 
 	(
 	cat << EOF
@@ -102,7 +106,7 @@ EOF
 
 	# Retrieve the pll config and zap parenthesis
 	sed -n '/CONFIG_HPS/ !b; :next {/CONFIG_HPS/ s/[()]//g;/endif/ b;p;n;b next}' \
-		${in_dir}/generated/pll_config.h
+		${in_bsp_dir}/generated/pll_config.h
 
 	cat << EOF
 
@@ -126,8 +130,9 @@ grep_sdram_config() {
 #
 process_sdram_config() {
 	soc="$1"
-	in_dir="$2"
-	out_dir="$3"
+	in_qts_dir="$2"
+	in_bsp_dir="$3"
+	out_dir="$4"
 
 	(
 	cat << EOF
@@ -144,29 +149,32 @@ EOF
 
 	echo "/* SDRAM configuration */"
 	# Retrieve the sdram config, zap broken lines and zap parenthesis
-	sed -n "/\\\\$/ {N;s/ \\\\\n/\t/};p" ${in_dir}/generated/sdram/sdram_config.h |
+	sed -n "/\\\\$/ {N;s/ \\\\\n/\t/};p"		\
+		${in_bsp_dir}/generated/sdram/sdram_config.h |
 	sed -n '/CONFIG_HPS/ !b; :next {/CONFIG_HPS/ s/[()]//g;/endif/ b;p;n;b next}' |
 		sort -u | grep_sdram_config
 
 	echo ""
 	echo "/* Sequencer auto configuration */"
 	sed -n "/__RW_MGR/ {s/__//;s/ \+\([^ ]\+\)$/\t\1/p}"		\
-		${in_dir}/hps_isw_handoff/*/sequencer_auto.h | sort -u | grep_sdram_config
+		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto.h |
+		sort -u | grep_sdram_config
 
 	echo ""
 	echo "/* Sequencer defines configuration */"
 	sed -n "/^#define [^_]/ {s/__//;s/ \+\([^ ]\+\)$/\t\1/p}"	\
-		${in_dir}/hps_isw_handoff/*/sequencer_defines.h | sort -u | grep_sdram_config
+		${in_qts_dir}/hps_isw_handoff/*/sequencer_defines.h |
+		sort -u | grep_sdram_config
 
 	echo ""
 	echo "/* Sequencer ac_rom_init configuration */"
 	sed -n '/^const.*\[/ !b; :next {/^const.*\[/ {N;s/\n//;s/alt_u32/u32/;s/\[.*\]/[]/};/endif/ b;p;n;b next}'\
-		${in_dir}/hps_isw_handoff/*/sequencer_auto_ac_init.c
+		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto_ac_init.c
 
 	echo ""
 	echo "/* Sequencer inst_rom_init configuration */"
 	sed -n '/^const.*\[/ !b; :next {/^const.*\[/ {N;s/\n//;s/alt_u32/u32/;s/\[.*\]/[]/};/endif/ b;p;n;b next}'\
-		${in_dir}/hps_isw_handoff/*/sequencer_auto_inst_init.c
+		${in_qts_dir}/hps_isw_handoff/*/sequencer_auto_inst_init.c
 
 	cat << EOF
 
@@ -176,30 +184,36 @@ EOF
 }
 
 usage() {
-	echo "$0 [soc_type] [input_dir] [output_dir]"
+	echo "$0 [soc_type] [input_qts_dir] [input_bsp_dir] [output_dir]"
 	echo "Process QTS-generated headers into U-Boot compatible ones."
 	echo ""
-	echo "  soc_type\t\tType of SoC, either 'cyclone5' or 'arria5',"
-	echo "  input_dir\t\tDirectory with the QTS project."
-	echo "  output_dir\t\tDirectory to store the U-Boot compatible headers."
+	echo "  soc_type      - Type of SoC, either 'cyclone5' or 'arria5'."
+	echo "  input_qts_dir - Directory with compiled Quartus project"
+	echo "                  and containing the Quartus project file (QPF)."
+	echo "  input_bsp_dir - Directory with generated bsp containing"
+	echo "                  the settings.bsp file."
+	echo "  output_dir    - Directory to store the U-Boot compatible"
+	echo "                  headers."
 	echo ""
 }
 
 soc="$1"
-in_dir="$2"
-out_dir="$3"
+in_qts_dir="$2"
+in_bsp_dir="$3"
+out_dir="$4"
 
-if [ "$#" -ne 3 ] ; then
+if [ "$#" -ne 4 ] ; then
 	usage
 	exit 1
 fi
 
-if [ ! -d "${in_dir}" -o ! -d "${out_dir}" -o -z "${soc}" ] ; then
+if [ ! -d "${in_qts_dir}" -o ! -d "${in_bsp_dir}" -o \
+	! -d "${out_dir}" -o -z "${soc}" ] ; then
 	usage
 	exit 3
 fi
 
-process_iocsr_config  "${soc}" "${in_dir}" "${out_dir}"
-process_pinmux_config "${soc}" "${in_dir}" "${out_dir}"
-process_pll_config    "${soc}" "${in_dir}" "${out_dir}"
-process_sdram_config  "${soc}" "${in_dir}" "${out_dir}"
+process_iocsr_config  "${soc}" "${in_qts_dir}" "${in_bsp_dir}" "${out_dir}"
+process_pinmux_config "${soc}" "${in_qts_dir}" "${in_bsp_dir}" "${out_dir}"
+process_pll_config    "${soc}" "${in_qts_dir}" "${in_bsp_dir}" "${out_dir}"
+process_sdram_config  "${soc}" "${in_qts_dir}" "${in_bsp_dir}" "${out_dir}"

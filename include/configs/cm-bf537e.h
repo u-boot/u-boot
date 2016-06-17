@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for CM-BF537E board
+ * U-Boot - Configuration file for CM-BF537E board
  */
 
 #ifndef __CONFIG_CM_BF537E_H__

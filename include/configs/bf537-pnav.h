@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF537 PNAV board
+ * U-Boot - Configuration file for BF537 PNAV board
  */
 
 #ifndef __CONFIG_BF537_PNAV_H__

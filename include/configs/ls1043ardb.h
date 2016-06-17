@@ -222,16 +222,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
-/* DSPI */
-#define CONFIG_FSL_DSPI
-#ifdef CONFIG_FSL_DSPI
-#define CONFIG_CMD_SF
-#define CONFIG_DM_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SF_DEFAULT_BUS		1
-#define CONFIG_SF_DEFAULT_CS		0
-#endif
-
 /*
  * Environment
  */
@@ -278,6 +268,13 @@
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
 
+/* QE */
+#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
+	!defined(CONFIG_QSPI_BOOT)
+#define CONFIG_U_QE
+#endif
+#define CONFIG_SYS_QE_FW_ADDR     0x60600000
+
 /* USB */
 #define CONFIG_HAS_FSL_XHCI_USB
 #ifdef CONFIG_HAS_FSL_XHCI_USB
@@ -289,14 +286,6 @@
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_EXT2
-#endif
-
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_CMD_HASH
-#define CONFIG_SHA_HW_ACCEL
-#define CONFIG_CMD_BLOB
-/* For LS1043 (ARMv8), ESBC image Address in Header is 64 bit */
-#define CONFIG_ESBC_ADDR_64BIT
 #endif
 
 #include <asm/fsl_secure_boot.h>

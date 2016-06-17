@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <wait_bit.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>
@@ -80,30 +81,6 @@ struct otg_regs {
 static struct otg_regs *otg = (struct otg_regs *)USB_BASE;
 static struct clk_pm_regs *clk_pwr = (struct clk_pm_regs *)CLK_PM_BASE;
 
-static int wait_for_bit(void *reg, const u32 mask, bool set)
-{
-	u32 val;
-	unsigned long start = get_timer(0);
-
-	while (1) {
-		val = readl(reg);
-		if (!set)
-			val = ~val;
-
-		if ((val & mask) == mask)
-			return 0;
-
-		if (get_timer(start) > CONFIG_SYS_HZ)
-			break;
-
-		udelay(1);
-	}
-
-	error("Timeout (reg=%p mask=%08x wait_set=%i)\n", reg, mask, set);
-
-	return -ETIMEDOUT;
-}
-
 static int isp1301_set_value(int reg, u8 value)
 {
 	return i2c_write(ISP1301_I2C_ADDR, reg, 1, &value, 1);
@@ -158,7 +135,8 @@ static int usbpll_setup(void)
 	setbits_le32(&clk_pwr->usb_ctrl, CLK_USBCTRL_POSTDIV_2POW(0x01));
 	setbits_le32(&clk_pwr->usb_ctrl, CLK_USBCTRL_PLL_PWRUP);
 
-	ret = wait_for_bit(&clk_pwr->usb_ctrl, CLK_USBCTRL_PLL_STS, 1);
+	ret = wait_for_bit(__func__, &clk_pwr->usb_ctrl, CLK_USBCTRL_PLL_STS,
+			   true, CONFIG_SYS_HZ, false);
 	if (ret)
 		return ret;
 
@@ -183,7 +161,8 @@ int usb_cpu_init(void)
 
 	/* enable I2C clock */
 	writel(OTG_CLK_I2C_EN, &otg->otg_clk_ctrl);
-	ret = wait_for_bit(&otg->otg_clk_sts, OTG_CLK_I2C_EN, 1);
+	ret = wait_for_bit(__func__, &otg->otg_clk_sts, OTG_CLK_I2C_EN, true,
+			   CONFIG_SYS_HZ, false);
 	if (ret)
 		return ret;
 
@@ -203,7 +182,8 @@ int usb_cpu_init(void)
 			 OTG_CLK_I2C_EN | OTG_CLK_HOST_EN;
 	writel(mask, &otg->otg_clk_ctrl);
 
-	ret = wait_for_bit(&otg->otg_clk_sts, mask, 1);
+	ret = wait_for_bit(__func__, &otg->otg_clk_sts, mask, true,
+			   CONFIG_SYS_HZ, false);
 	if (ret)
 		return ret;
 

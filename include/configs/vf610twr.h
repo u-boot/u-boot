@@ -9,6 +9,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_CACHELINE_SIZE	32
+
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_VF610
@@ -34,12 +36,8 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_FSL_LPUART
-#define LPUART_BASE			UART1_BASE
-
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SYS_UART_PORT		(1)
 #define CONFIG_BAUDRATE			115200
 
 /* NAND support */

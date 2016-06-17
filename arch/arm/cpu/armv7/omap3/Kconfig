@@ -89,6 +89,7 @@ config TARGET_OMAP3_LOGIC
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select SUPPORT_SPL
 
 config TARGET_NOKIA_RX51
 	bool "Nokia RX51"
@@ -109,7 +110,7 @@ config TARGET_OMAP3_CAIRO
 	select DM_GPIO
 
 config TARGET_SNIPER
-	bool "Sniper"
+	bool "LG Optimus Black"
 	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL

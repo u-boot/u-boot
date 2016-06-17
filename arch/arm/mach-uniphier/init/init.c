@@ -6,8 +6,9 @@
 
 #include <common.h>
 #include <spl.h>
-#include <mach/init.h>
-#include <mach/soc_info.h>
+
+#include "../init.h"
+#include "../soc-info.h"
 
 void spl_board_init(void)
 {

@@ -14,23 +14,24 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
+#if defined(CONFIG_ARMV7_SECURE_BASE) && defined(CONFIG_ARMV7_NONSEC)
 	/*
-	 * Discard the relocation entries for secure text.
-	 * The secure code is bundled with u-boot image, so there will
-	 * be relocations entries for the secure code, since we use
-	 * "-mword-relocations" to compile and "-pie" to link into the
-	 * final image. We do not need the relocation entries for secure
-	 * code, because secure code will not be relocated, it only needs
-	 * to be copied from loading address to CONFIG_ARMV7_SECURE_BASE,
-	 * which is the linking and running address for secure code.
-	 * If keep the relocation entries in .rel.dyn section,
-	 * "relocation offset + linking address" may locates into an
-	 * address that is reserved by SoC, then will trigger data abort.
+	 * If CONFIG_ARMV7_SECURE_BASE is true, secure code will not
+	 * bundle with u-boot, and code offsets are fixed. Secure zone
+	 * only needs to be copied from the loading address to
+	 * CONFIG_ARMV7_SECURE_BASE, which is the linking and running
+	 * address for secure code.
 	 *
-	 * The reason that move .rel._secure at the beginning, is to
-	 * avoid hole in the final image.
+	 * If CONFIG_ARMV7_SECURE_BASE is undefined, the secure zone will
+	 * be included in u-boot address space, and some absolute address
+	 * were used in secure code. The absolute addresses of the secure
+	 * code also needs to be relocated along with the accompanying u-boot
+	 * code.
+	 *
+	 * So DISCARD is only for CONFIG_ARMV7_SECURE_BASE.
 	 */
 	/DISCARD/ : { *(.rel._secure*) }
+#endif
 	. = 0x00000000;
 
 	. = ALIGN(4);

@@ -290,7 +290,7 @@ struct pch_gbe_priv {
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 	struct pch_gbe_regs *mac_regs;
-	pci_dev_t bdf;
+	struct udevice *dev;
 	int rx_idx;
 	int tx_idx;
 };

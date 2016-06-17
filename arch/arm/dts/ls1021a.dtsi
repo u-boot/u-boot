@@ -218,7 +218,6 @@
 			compatible = "fsl,16550-FIFO64", "ns16550a";
 			reg = <0x21c0500 0x100>;
 			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
-			clock-frequency = <0>;
 			fifo-size = <15>;
 			status = "disabled";
 		};
@@ -227,7 +226,6 @@
 			compatible = "fsl,16550-FIFO64", "ns16550a";
 			reg = <0x21c0600 0x100>;
 			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
-			clock-frequency = <0>;
 			fifo-size = <15>;
 			status = "disabled";
 		};
@@ -236,7 +234,6 @@
 			compatible = "fsl,16550-FIFO64", "ns16550a";
 			reg = <0x21d0500 0x100>;
 			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
-			clock-frequency = <0>;
 			fifo-size = <15>;
 			status = "disabled";
 		};
@@ -245,7 +242,6 @@
 			compatible = "fsl,16550-FIFO64", "ns16550a";
 			reg = <0x21d0600 0x100>;
 			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
-			clock-frequency = <0>;
 			fifo-size = <15>;
 			status = "disabled";
 		};

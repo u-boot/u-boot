@@ -31,7 +31,7 @@
 		reg = < 0x00000000 0x40000000 >;
 	};
 
-	host1x {
+	host1x@50000000 {
 		status = "okay";
 		dc@54200000 {
 			status = "okay";
@@ -40,10 +40,15 @@
 				nvidia,panel = <&lcd_panel>;
 			};
 		};
+
+		dc@54240000 {
+			status = "disabled";
+		};
 	};
 
 	/* This is not used in U-Boot, but is expected to be in kernel .dts */
 	i2c@7000d000 {
+		status = "okay";
 		clock-frequency = <100000>;
 		pmic@34 {
 			compatible = "ti,tps6586x";
@@ -75,18 +80,21 @@
 	};
 
 	i2c@7000c000 {
+		status = "okay";
 		clock-frequency = <100000>;
 	};
 
 	i2c@7000c400 {
-		status = "disabled";
+		status = "okay";
 	};
 
 	i2c@7000c500 {
+		status = "okay";
 		clock-frequency = <100000>;
 	};
 
 	kbc@7000e200 {
+		status = "okay";
 		linux,keymap = <0x00020011 0x0003001f 0x0004001e 0x0005002c
 			0x000701d0 0x0107007d 0x02060064 0x02070038 0x03000006
 			0x03010005 0x03020013 0x03030012 0x03040021 0x03050020
@@ -114,6 +122,8 @@
 	};
 
 	emc@7000f400 {
+		#address-cells = <1>;
+		#size-cells = <0>;
 		emc-table@190000 {
 			reg = < 190000 >;
 			compatible = "nvidia,tegra20-emc-table";
@@ -151,12 +161,17 @@
 	};
 
 	usb@c5000000 {
+		status = "okay";
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(D, 0) GPIO_ACTIVE_HIGH>;
 		dr_mode = "otg";
 	};
 
 	usb@c5004000 {
 		status = "disabled";
+	};
+
+	usb@c5008000 {
+		status = "okay";
 	};
 
 	sdhci@c8000400 {
@@ -170,6 +185,23 @@
 	sdhci@c8000600 {
 		status = "okay";
 		bus-width = <8>;
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		clk32k_in: clock@0 {
+			compatible = "fixed-clock";
+			reg=<0>;
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+		};
+	};
+
+	pwm: pwm@7000a000 {
+		status = "okay";
 	};
 
 	lcd_panel: panel {

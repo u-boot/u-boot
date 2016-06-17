@@ -40,11 +40,14 @@ enum {
 #define CFG_SD_MUX3_MUX4	0x1 /* MUX4 */
 #define CFG_SD_MUX4_SLOT3	0x0 /* SLOT3 TX/RX1 */
 #define CFG_SD_MUX4_SLOT1	0x1 /* SLOT1 TX/RX3 */
+#define CFG_UART_MUX_MASK	0x6
+#define CFG_UART_MUX_SHIFT	1
+#define CFG_LPUART_EN		0x1
 
 int checkboard(void)
 {
 	char buf[64];
-#ifndef CONFIG_SD_BOOT
+#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_QSPI_BOOT)
 	u8 sw;
 #endif
 
@@ -52,6 +55,8 @@ int checkboard(void)
 
 #ifdef CONFIG_SD_BOOT
 	puts("SD\n");
+#elif defined(CONFIG_QSPI_BOOT)
+	puts("QSPI\n");
 #else
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
@@ -218,7 +223,32 @@ void board_retimer_init(void)
 
 int board_early_init_f(void)
 {
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	u32 usb_pwrfault;
+#endif
+#ifdef CONFIG_LPUART
+	u8 uart;
+#endif
 	fsl_lsch2_early_init_f();
+
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+	out_be32(&scfg->rcwpmuxcr0, 0x3333);
+	out_be32(&scfg->usbdrvvbus_selcr, SCFG_USBDRVVBUS_SELCR_USB1);
+	usb_pwrfault =
+		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB3_SHIFT) |
+		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB2_SHIFT) |
+		(SCFG_USBPWRFAULT_SHARED << SCFG_USBPWRFAULT_USB1_SHIFT);
+	out_be32(&scfg->usbpwrfault_selcr, usb_pwrfault);
+#endif
+
+#ifdef CONFIG_LPUART
+	/* We use lpuart0 as system console */
+	uart = QIXIS_READ(brdcfg[14]);
+	uart &= ~CFG_UART_MUX_MASK;
+	uart |= CFG_LPUART_EN << CFG_UART_MUX_SHIFT;
+	QIXIS_WRITE(brdcfg[14], uart);
+#endif
 
 	return 0;
 }
@@ -303,6 +333,16 @@ int board_init(void)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	u64 base[CONFIG_NR_DRAM_BANKS];
+	u64 size[CONFIG_NR_DRAM_BANKS];
+
+	/* fixup DT for the two DDR banks */
+	base[0] = gd->bd->bi_dram[0].start;
+	size[0] = gd->bd->bi_dram[0].size;
+	base[1] = gd->bd->bi_dram[1].start;
+	size[1] = gd->bd->bi_dram[1].size;
+
+	fdt_fixup_memory_banks(blob, base, size, 2);
 	ft_cpu_setup(blob, bd);
 
 #ifdef CONFIG_SYS_DPAA_FMAN

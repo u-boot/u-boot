@@ -3,7 +3,7 @@
  *
  * common parts used by B&R AM335x based boards
  *
- * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at> -
+ * Copyright (C) 2016 Hannes Schmelzer <oe5hpm@oevsv.at> -
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:        GPL-2.0+
@@ -12,25 +12,9 @@
 #ifndef __BUR_AM335X_COMMON_H__
 #define __BUR_AM335X_COMMON_H__
 /* ------------------------------------------------------------------------- */
-#define BUR_COMMON_ENV \
-"usbscript=usb start && fatload usb 0 0x80000000 usbscript.img && source\0" \
-"brdefaultip=if test -r ${ipaddr}; then; else" \
-" setenv ipaddr 192.168.60.1; setenv serverip 192.168.60.254;" \
-" setenv gatewayip 192.168.60.254; setenv netmask 255.255.255.0; fi;\0" \
-"netconsole=echo switching to network console ...; " \
-"if dhcp; then; else run brdefaultip; fi; setenv ncip ${serverip}; " \
-"setcurs 1 9; lcdputs myip; setcurs 10 9; lcdputs ${ipaddr};" \
-"setcurs 1 10;lcdputs serverip; setcurs 10 10; lcdputs ${serverip};" \
-"setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
-
-#define CONFIG_PREBOOT			"run brdefaultip"
-#define CONFIG_CMD_TIME
-
-
 #define CONFIG_AM33XX
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
@@ -53,24 +37,11 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Network defines */
-#define CONFIG_CMD_DHCP
-#define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
-#define CONFIG_BOOTP_SEND_HOSTNAME
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_NET_RETRY_COUNT		2
-#define CONFIG_CMD_PING
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
-#define CONFIG_SPL_ETH_SUPPORT
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_NATSEMI
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT		/* used for a fetching MAC-Address */
-#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
-/* Network console */
-#define CONFIG_NETCONSOLE			1
-#define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
+
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
  * area between 0x402F0400 and 0x4030B800 as a download area and
@@ -109,42 +80,8 @@
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 #define CONFIG_SYS_I2C_OMAP24XX
-#define CONFIG_CMD_I2C
 /* GPIO */
 #define CONFIG_OMAP_GPIO
-/*
- * ----------------------------------------------------------------------------
- * The following are general good-enough settings for U-Boot.  We set a
- * large malloc pool as we generally have a lot of DDR, and we opt for
- * function over binary size in the main portion of U-Boot as this is
- * generally easily constrained later if needed.  We enable the config
- * options that give us information in the environment about what board
- * we are on so we do not need to rely on the command prompt.  We set a
- * console baudrate of 115200 and use the default baud rate table.
- */
-#define CONFIG_SYS_MALLOC_LEN		(5120 << 10)
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-
-/* As stated above, the following choices are optional. */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_VERSION_VARIABLE
-
-/* We set the max number of command args high to avoid HUSH bugs. */
-#define CONFIG_SYS_MAXARGS		64
-
-/* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		512
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +\
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily

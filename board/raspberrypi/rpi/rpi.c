@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <inttypes.h>
 #include <config.h>
 #include <dm.h>
 #include <fdt_support.h>
@@ -56,6 +57,12 @@ struct msg_get_board_rev {
 	u32 end_tag;
 };
 
+struct msg_get_board_serial {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_get_board_serial get_board_serial;
+	u32 end_tag;
+};
+
 struct msg_get_mac_address {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_get_mac_address get_mac_address;
@@ -78,6 +85,11 @@ struct msg_get_clock_rate {
  * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
  * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733
  * http://git.drogon.net/?p=wiringPi;a=blob;f=wiringPi/wiringPi.c;h=503151f61014418b9c42f4476a6086f75cd4e64b;hb=refs/heads/master#l922
+ *
+ * In http://lists.denx.de/pipermail/u-boot/2016-January/243752.html
+ * ("[U-Boot] [PATCH] rpi: fix up Model B entries") Dom Cobley at the RPi
+ * Foundation stated that the following source was accurate:
+ * https://github.com/AndrewFromMelbourne/raspberry_pi_revision
  */
 struct rpi_model {
 	const char *name;
@@ -110,28 +122,28 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 
 static const struct rpi_model rpi_models_old_scheme[] = {
 	[0x2] = {
-		"Model B (no P5)",
-		"bcm2835-rpi-b-i2c0.dtb",
+		"Model B",
+		"bcm2835-rpi-b.dtb",
 		true,
 	},
 	[0x3] = {
-		"Model B (no P5)",
-		"bcm2835-rpi-b-i2c0.dtb",
+		"Model B",
+		"bcm2835-rpi-b.dtb",
 		true,
 	},
 	[0x4] = {
-		"Model B",
-		"bcm2835-rpi-b.dtb",
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
 	[0x5] = {
-		"Model B",
-		"bcm2835-rpi-b.dtb",
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
 	[0x6] = {
-		"Model B",
-		"bcm2835-rpi-b.dtb",
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
 		true,
 	},
 	[0x7] = {
@@ -254,6 +266,9 @@ static void set_usbethaddr(void)
 
 	eth_setenv_enetaddr("usbethaddr", msg->get_mac_address.body.resp.mac);
 
+	if (!getenv("ethaddr"))
+		setenv("ethaddr", getenv("usbethaddr"));
+
 	return;
 }
 
@@ -273,6 +288,30 @@ static void set_board_info(void)
 }
 #endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
 
+static void set_serial_number(void)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_board_serial, msg, 1);
+	int ret;
+	char serial_string[17] = { 0 };
+
+	if (getenv("serial#"))
+		return;
+
+	BCM2835_MBOX_INIT_HDR(msg);
+	BCM2835_MBOX_INIT_TAG_NO_REQ(&msg->get_board_serial, GET_BOARD_SERIAL);
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query board serial\n");
+		/* Ignore error; not critical */
+		return;
+	}
+
+	snprintf(serial_string, sizeof(serial_string), "%016" PRIx64,
+		 msg->get_board_serial.body.resp.serial);
+	setenv("serial#", serial_string);
+}
+
 int misc_init_r(void)
 {
 	set_fdtfile();
@@ -280,6 +319,8 @@ int misc_init_r(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
 #endif
+	set_serial_number();
+
 	return 0;
 }
 

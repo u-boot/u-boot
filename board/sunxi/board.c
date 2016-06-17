@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <nand.h>
 #include <net.h>
+#include <sy8106a.h>
 
 #if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
 /* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
@@ -422,6 +423,12 @@ void i2c_init_board(void)
 	clock_twi_onoff(4, 1);
 #endif
 #endif
+
+#ifdef CONFIG_R_I2C_ENABLE
+	clock_twi_onoff(5, 1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN8I_H3_GPL_R_TWI);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN8I_H3_GPL_R_TWI);
+#endif
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -429,6 +436,10 @@ void sunxi_board_init(void)
 {
 	int power_failed = 0;
 	unsigned long ramsize;
+
+#ifdef CONFIG_SY8106A_POWER
+	power_failed = sy8106a_set_vout1(CONFIG_SY8106A_VOUT1_VOLT);
+#endif
 
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
 	defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
@@ -446,24 +457,22 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_dcdc5(CONFIG_AXP_DCDC5_VOLT);
 #endif
 
-#ifdef CONFIG_AXP221_POWER
+#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_aldo1(CONFIG_AXP_ALDO1_VOLT);
 #endif
-#ifndef CONFIG_AXP818_POWER
 	power_failed |= axp_set_aldo2(CONFIG_AXP_ALDO2_VOLT);
-#endif
-#if !defined(CONFIG_AXP152_POWER) && !defined(CONFIG_AXP818_POWER)
+#if !defined(CONFIG_AXP152_POWER)
 	power_failed |= axp_set_aldo3(CONFIG_AXP_ALDO3_VOLT);
 #endif
 #ifdef CONFIG_AXP209_POWER
 	power_failed |= axp_set_aldo4(CONFIG_AXP_ALDO4_VOLT);
 #endif
 
-#ifdef CONFIG_AXP221_POWER
-	power_failed |= axp_set_dldo1(CONFIG_AXP_DLDO1_VOLT);
-	power_failed |= axp_set_dldo2(CONFIG_AXP_DLDO2_VOLT);
-	power_failed |= axp_set_dldo3(CONFIG_AXP_DLDO3_VOLT);
-	power_failed |= axp_set_dldo4(CONFIG_AXP_DLDO4_VOLT);
+#if defined(CONFIG_AXP221_POWER) || defined(CONFIG_AXP818_POWER)
+	power_failed |= axp_set_dldo(1, CONFIG_AXP_DLDO1_VOLT);
+	power_failed |= axp_set_dldo(2, CONFIG_AXP_DLDO2_VOLT);
+	power_failed |= axp_set_dldo(3, CONFIG_AXP_DLDO3_VOLT);
+	power_failed |= axp_set_dldo(4, CONFIG_AXP_DLDO4_VOLT);
 	power_failed |= axp_set_eldo(1, CONFIG_AXP_ELDO1_VOLT);
 	power_failed |= axp_set_eldo(2, CONFIG_AXP_ELDO2_VOLT);
 	power_failed |= axp_set_eldo(3, CONFIG_AXP_ELDO3_VOLT);

@@ -18,6 +18,8 @@ enum pll_clocks {
 	PLL_BUS,	/* System Bus PLL*/
 	PLL_USBOTG,	/* OTG USB PLL */
 	PLL_ENET,	/* ENET PLL */
+	PLL_AUDIO,	/* AUDIO PLL */
+	PLL_VIDEO,	/* AUDIO PLL */
 };
 
 struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -204,7 +206,7 @@ int enable_spi_clk(unsigned char enable, unsigned spi_num)
 }
 static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 {
-	u32 div;
+	u32 div, test_div, pll_num, pll_denom;
 
 	switch (pll) {
 	case PLL_SYS:
@@ -227,6 +229,44 @@ static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 		div &= BM_ANADIG_PLL_ENET_DIV_SELECT;
 
 		return 25000000 * (div + (div >> 1) + 1);
+	case PLL_AUDIO:
+		div = __raw_readl(&imx_ccm->analog_pll_audio);
+		if (!(div & BM_ANADIG_PLL_AUDIO_ENABLE))
+			return 0;
+		/* BM_ANADIG_PLL_AUDIO_BYPASS_CLK_SRC is ignored */
+		if (div & BM_ANADIG_PLL_AUDIO_BYPASS)
+			return MXC_HCLK;
+		pll_num = __raw_readl(&imx_ccm->analog_pll_audio_num);
+		pll_denom = __raw_readl(&imx_ccm->analog_pll_audio_denom);
+		test_div = (div & BM_ANADIG_PLL_AUDIO_TEST_DIV_SELECT) >>
+			BP_ANADIG_PLL_AUDIO_TEST_DIV_SELECT;
+		div &= BM_ANADIG_PLL_AUDIO_DIV_SELECT;
+		if (test_div == 3) {
+			debug("Error test_div\n");
+			return 0;
+		}
+		test_div = 1 << (2 - test_div);
+
+		return infreq * (div + pll_num / pll_denom) / test_div;
+	case PLL_VIDEO:
+		div = __raw_readl(&imx_ccm->analog_pll_video);
+		if (!(div & BM_ANADIG_PLL_VIDEO_ENABLE))
+			return 0;
+		/* BM_ANADIG_PLL_AUDIO_BYPASS_CLK_SRC is ignored */
+		if (div & BM_ANADIG_PLL_VIDEO_BYPASS)
+			return MXC_HCLK;
+		pll_num = __raw_readl(&imx_ccm->analog_pll_video_num);
+		pll_denom = __raw_readl(&imx_ccm->analog_pll_video_denom);
+		test_div = (div & BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT) >>
+			BP_ANADIG_PLL_VIDEO_POST_DIV_SELECT;
+		div &= BM_ANADIG_PLL_VIDEO_DIV_SELECT;
+		if (test_div == 3) {
+			debug("Error test_div\n");
+			return 0;
+		}
+		test_div = 1 << (2 - test_div);
+
+		return infreq * (div + pll_num / pll_denom) / test_div;
 	default:
 		return 0;
 	}
@@ -437,7 +477,7 @@ static u32 get_mmdc_ch0_clk(void)
 	u32 cbcmr = __raw_readl(&imx_ccm->cbcmr);
 	u32 cbcdr = __raw_readl(&imx_ccm->cbcdr);
 
-	u32 freq, podf, per2_clk2_podf;
+	u32 freq, podf, per2_clk2_podf, pmu_misc2_audio_div;
 
 	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL) ||
 	    is_cpu_type(MXC_CPU_MX6SL)) {
@@ -472,8 +512,21 @@ static u32 get_mmdc_ch0_clk(void)
 				freq = mxc_get_pll_pfd(PLL_BUS, 0);
 				break;
 			case 3:
-				/* static / 2 divider */
-				freq =  mxc_get_pll_pfd(PLL_BUS, 2) / 2;
+				pmu_misc2_audio_div = PMU_MISC2_AUDIO_DIV(__raw_readl(&imx_ccm->pmu_misc2));
+				switch (pmu_misc2_audio_div) {
+				case 0:
+				case 2:
+					pmu_misc2_audio_div = 1;
+					break;
+				case 1:
+					pmu_misc2_audio_div = 2;
+					break;
+				case 3:
+					pmu_misc2_audio_div = 4;
+					break;
+				}
+				freq = decode_pll(PLL_AUDIO, MXC_HCLK) /
+					pmu_misc2_audio_div;
 				break;
 			}
 		}
@@ -585,10 +638,6 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 	}
 
 	temp = freq * max_pred * max_postd;
-	if (temp > max) {
-		puts("Please decrease freq, too large!\n");
-		return;
-	}
 	if (temp < min) {
 		/*
 		 * Register: PLL_VIDEO
@@ -689,8 +738,8 @@ int enable_lcdif_clock(u32 base_addr)
 	u32 lcdif_clk_sel_mask, lcdif_ccgr3_mask;
 
 	if (is_cpu_type(MXC_CPU_MX6SX)) {
-		if ((base_addr == LCDIF1_BASE_ADDR) ||
-		    (base_addr == LCDIF2_BASE_ADDR)) {
+		if ((base_addr != LCDIF1_BASE_ADDR) &&
+		    (base_addr != LCDIF2_BASE_ADDR)) {
 			puts("Wrong LCD interface!\n");
 			return -EINVAL;
 		}

@@ -7,8 +7,8 @@
 obj-$(CONFIG_DM_I2C) += i2c-uclass.o
 obj-$(CONFIG_DM_I2C_COMPAT) += i2c-uclass-compat.o
 obj-$(CONFIG_DM_I2C_GPIO) += i2c-gpio.o
-obj-$(CONFIG_I2C_CROS_EC_TUNNEL) += cros_ec_tunnel.o
-obj-$(CONFIG_I2C_CROS_EC_LDO) += cros_ec_ldo.o
+obj-$(CONFIG_$(SPL_)I2C_CROS_EC_TUNNEL) += cros_ec_tunnel.o
+obj-$(CONFIG_$(SPL_)I2C_CROS_EC_LDO) += cros_ec_ldo.o
 
 obj-$(CONFIG_SYS_I2C_ADI) += adi_i2c.o
 obj-$(CONFIG_I2C_MV) += mv_i2c.o
@@ -21,6 +21,7 @@ obj-$(CONFIG_SYS_I2C_DW) += designware_i2c.o
 obj-$(CONFIG_SYS_I2C_FSL) += fsl_i2c.o
 obj-$(CONFIG_SYS_I2C_FTI2C010) += fti2c010.o
 obj-$(CONFIG_SYS_I2C_IHS) += ihs_i2c.o
+obj-$(CONFIG_SYS_I2C_INTEL) += intel_i2c.o
 obj-$(CONFIG_SYS_I2C_KONA) += kona_i2c.o
 obj-$(CONFIG_SYS_I2C_LPC32XX) += lpc32xx_i2c.o
 obj-$(CONFIG_SYS_I2C_MVTWSI) += mvtwsi.o

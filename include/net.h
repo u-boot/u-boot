@@ -86,11 +86,13 @@ enum eth_state_t {
  * @iobase: The base address of the hardware registers
  * @enetaddr: The Ethernet MAC address that is loaded from EEPROM or env
  * @phy_interface: PHY interface to use - see PHY_INTERFACE_MODE_...
+ * @max_speed: Maximum speed of Ethernet connection supported by MAC
  */
 struct eth_pdata {
 	phys_addr_t iobase;
 	unsigned char enetaddr[6];
 	int phy_interface;
+	int max_speed;
 };
 
 enum eth_recv_flags {
@@ -181,8 +183,7 @@ int eth_unregister(struct eth_device *dev);/* Remove network device */
 
 extern struct eth_device *eth_current;
 
-static inline __attribute__((always_inline))
-struct eth_device *eth_get_dev(void)
+static __always_inline struct eth_device *eth_get_dev(void)
 {
 	return eth_current;
 }
@@ -200,14 +201,14 @@ static inline unsigned char *eth_get_ethaddr(void)
 /* Used only when NetConsole is enabled */
 int eth_is_active(struct eth_device *dev); /* Test device for active state */
 /* Set active state */
-static inline __attribute__((always_inline)) int eth_init_state_only(void)
+static __always_inline int eth_init_state_only(void)
 {
 	eth_get_dev()->state = ETH_STATE_ACTIVE;
 
 	return 0;
 }
 /* Set passive state */
-static inline __attribute__((always_inline)) void eth_halt_state_only(void)
+static __always_inline void eth_halt_state_only(void)
 {
 	eth_get_dev()->state = ETH_STATE_PASSIVE;
 }
@@ -657,7 +658,7 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	unsigned src_port, unsigned len);
 #endif
 
-static inline __attribute__((always_inline)) int eth_is_on_demand_init(void)
+static __always_inline int eth_is_on_demand_init(void)
 {
 #ifdef CONFIG_NETCONSOLE
 	extern enum proto_t net_loop_last_protocol;

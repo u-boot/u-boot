@@ -6,16 +6,18 @@
  */
 
 #include <common.h>
-#include <displayport.h>
+#include <display.h>
 #include <dm.h>
 #include <div64.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <video_bridge.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/dc.h>
-#include "displayport.h"
+#include "display.h"
 #include "edid.h"
 #include "sor.h"
+#include "displayport.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -25,9 +27,15 @@ struct tegra_dp_plat {
 	ulong base;
 };
 
+/**
+ * struct tegra_dp_priv - private displayport driver info
+ *
+ * @dc_dev:	Display controller device that is sending the video feed
+ */
 struct tegra_dp_priv {
+	struct udevice *sor;
+	struct udevice *dc_dev;
 	struct dpaux_ctlr *regs;
-	struct tegra_dc_sor_data *sor;
 	u8 revision;
 	int enabled;
 };
@@ -709,8 +717,8 @@ static int tegra_dc_dp_init_max_link_cfg(
 	return 0;
 }
 
-static int tegra_dc_dp_set_assr(struct tegra_dp_priv *dp,
-				struct tegra_dc_sor_data *sor, int ena)
+static int tegra_dc_dp_set_assr(struct tegra_dp_priv *priv,
+				struct udevice *sor, int ena)
 {
 	int ret;
 
@@ -718,7 +726,7 @@ static int tegra_dc_dp_set_assr(struct tegra_dp_priv *dp,
 		DP_MAIN_LINK_CHANNEL_CODING_SET_ASC_RESET_ENABLE :
 		DP_MAIN_LINK_CHANNEL_CODING_SET_ASC_RESET_DISABLE;
 
-	ret = tegra_dc_dp_dpcd_write(dp, DP_EDP_CONFIGURATION_SET,
+	ret = tegra_dc_dp_dpcd_write(priv, DP_EDP_CONFIGURATION_SET,
 				     dpcd_data);
 	if (ret)
 		return ret;
@@ -729,7 +737,7 @@ static int tegra_dc_dp_set_assr(struct tegra_dp_priv *dp,
 }
 
 static int tegra_dp_set_link_bandwidth(struct tegra_dp_priv *dp,
-				       struct tegra_dc_sor_data *sor,
+				       struct udevice *sor,
 				       u8 link_bw)
 {
 	tegra_dc_sor_set_link_bandwidth(sor, link_bw);
@@ -740,7 +748,7 @@ static int tegra_dp_set_link_bandwidth(struct tegra_dp_priv *dp,
 
 static int tegra_dp_set_lane_count(struct tegra_dp_priv *dp,
 		const struct tegra_dp_link_config *link_cfg,
-		struct tegra_dc_sor_data *sor)
+		struct udevice *sor)
 {
 	u8	dpcd_data;
 	int	ret;
@@ -1001,7 +1009,7 @@ fail:
 static int tegra_dp_lt_config(struct tegra_dp_priv *dp, u32 pe[4], u32 vs[4],
 			      u32 pc[4], const struct tegra_dp_link_config *cfg)
 {
-	struct tegra_dc_sor_data *sor = dp->sor;
+	struct udevice *sor = dp->sor;
 	u32 n_lanes = cfg->lane_count;
 	u8 pc_supported = cfg->tps3_supported;
 	u32 cnt;
@@ -1185,7 +1193,7 @@ static int tegra_dc_dp_full_link_training(struct tegra_dp_priv *dp,
 					  const struct display_timing *timing,
 					  struct tegra_dp_link_config *cfg)
 {
-	struct tegra_dc_sor_data *sor = dp->sor;
+	struct udevice *sor = dp->sor;
 	int err;
 	u32 pe[4], vs[4], pc[4];
 
@@ -1228,7 +1236,7 @@ fail:
  */
 static int tegra_dc_dp_fast_link_training(struct tegra_dp_priv *dp,
 		const struct tegra_dp_link_config *link_cfg,
-		struct tegra_dc_sor_data *sor)
+		struct udevice *sor)
 {
 	u8	link_bw;
 	u8	lane_count;
@@ -1300,7 +1308,7 @@ static int tegra_dc_dp_fast_link_training(struct tegra_dp_priv *dp,
 static int tegra_dp_do_link_training(struct tegra_dp_priv *dp,
 		struct tegra_dp_link_config *link_cfg,
 		const struct display_timing *timing,
-		struct tegra_dc_sor_data *sor)
+		struct udevice *sor)
 {
 	u8	link_bw;
 	u8	lane_count;
@@ -1343,7 +1351,7 @@ static int tegra_dp_do_link_training(struct tegra_dp_priv *dp,
 
 static int tegra_dc_dp_explore_link_cfg(struct tegra_dp_priv *dp,
 			struct tegra_dp_link_config *link_cfg,
-			struct tegra_dc_sor_data *sor,
+			struct udevice *sor,
 			const struct display_timing *timing)
 {
 	struct tegra_dp_link_config temp_cfg;
@@ -1443,7 +1451,7 @@ static int tegra_dc_dp_check_sink(struct tegra_dp_priv *dp,
 			printf("DP: Out of sync after %d retries\n", max_retry);
 			return -EIO;
 		}
-		ret = tegra_dc_sor_detach(dp->sor);
+		ret = tegra_dc_sor_detach(dp->dc_dev, dp->sor);
 		if (ret)
 			return ret;
 		if (tegra_dc_dp_explore_link_cfg(dp, link_cfg, dp->sor,
@@ -1453,7 +1461,7 @@ static int tegra_dc_dp_check_sink(struct tegra_dp_priv *dp,
 		}
 
 		tegra_dc_sor_set_power_state(dp->sor, 1);
-		tegra_dc_sor_attach(dp->sor, link_cfg, timing);
+		tegra_dc_sor_attach(dp->dc_dev, dp->sor, link_cfg, timing);
 
 		/* Increase delay_frame for next try in case the sink is
 		   skipping more frames */
@@ -1466,7 +1474,7 @@ int tegra_dp_enable(struct udevice *dev, int panel_bpp,
 {
 	struct tegra_dp_priv *priv = dev_get_priv(dev);
 	struct tegra_dp_link_config slink_cfg, *link_cfg = &slink_cfg;
-	struct tegra_dc_sor_data *sor;
+	struct udevice *sor;
 	int data;
 	int retry;
 	int ret;
@@ -1488,9 +1496,11 @@ int tegra_dp_enable(struct udevice *dev, int panel_bpp,
 		return -ENOLINK;
 	}
 
-	ret = tegra_dc_sor_init(&sor);
-	if (ret)
+	ret = uclass_first_device(UCLASS_VIDEO_BRIDGE, &sor);
+	if (ret || !sor) {
+		debug("dp: failed to find SOR device: ret=%d\n", ret);
 		return ret;
+	}
 	priv->sor = sor;
 	ret = tegra_dc_sor_enable_dp(sor, link_cfg);
 	if (ret)
@@ -1530,7 +1540,7 @@ int tegra_dp_enable(struct udevice *dev, int panel_bpp,
 	}
 
 	tegra_dc_sor_set_power_state(sor, 1);
-	ret = tegra_dc_sor_attach(sor, link_cfg, timing);
+	ret = tegra_dc_sor_attach(priv->dc_dev, sor, link_cfg, timing);
 	if (ret && ret != -EEXIST)
 		return ret;
 
@@ -1546,6 +1556,12 @@ int tegra_dp_enable(struct udevice *dev, int panel_bpp,
 
 	/* Power down the unused lanes to save power - a few hundred mW */
 	tegra_dc_sor_power_down_unused_lanes(sor, link_cfg);
+
+	ret = video_bridge_set_backlight(sor, 80);
+	if (ret) {
+		debug("dp: failed to set backlight\n");
+		return ret;
+	}
 
 	priv->enabled = true;
 error_enable:
@@ -1573,7 +1589,7 @@ static int tegra_dp_read_edid(struct udevice *dev, u8 *buf, int buf_size)
 				     buf_size, &aux_stat);
 }
 
-static const struct dm_display_port_ops dp_tegra_ops = {
+static const struct dm_display_ops dp_tegra_ops = {
 	.read_edid = tegra_dp_read_edid,
 	.enable = tegra_dp_enable,
 };
@@ -1582,9 +1598,13 @@ static int dp_tegra_probe(struct udevice *dev)
 {
 	struct tegra_dp_plat *plat = dev_get_platdata(dev);
 	struct tegra_dp_priv *priv = dev_get_priv(dev);
+	struct display_plat *disp_uc_plat = dev_get_uclass_platdata(dev);
 
 	priv->regs = (struct dpaux_ctlr *)plat->base;
 	priv->enabled = false;
+
+	/* Remember the display controller that is sending us video */
+	priv->dc_dev = disp_uc_plat->src_dev;
 
 	return 0;
 }
@@ -1596,7 +1616,7 @@ static const struct udevice_id tegra_dp_ids[] = {
 
 U_BOOT_DRIVER(dp_tegra) = {
 	.name	= "dpaux_tegra",
-	.id	= UCLASS_DISPLAY_PORT,
+	.id	= UCLASS_DISPLAY,
 	.of_match = tegra_dp_ids,
 	.ofdata_to_platdata = tegra_dp_ofdata_to_platdata,
 	.probe	= dp_tegra_probe,

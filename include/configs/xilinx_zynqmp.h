@@ -38,8 +38,8 @@
 /* Cache Definitions */
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
-#ifndef CONFIG_IDENT_STRING
-#define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
+#if !defined(CONFIG_IDENT_STRING)
+# define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #endif
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.Xilinx_ZynqMP"
 
@@ -50,7 +50,7 @@
 #define CONFIG_OF_LIBFDT
 
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
-#ifndef COUNTER_FREQUENCY
+#if !defined(COUNTER_FREQUENCY)
 # define COUNTER_FREQUENCY		100000000
 #endif
 
@@ -115,11 +115,10 @@
 # define CONFIG_MTD_DEVICE
 #endif
 
-#if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+#if defined(CONFIG_ZYNQ_SDHCI)
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
 # define CONFIG_SDHCI
-# define CONFIG_ZYNQ_SDHCI
 # define CONFIG_CMD_MMC
 # define CONFIG_SUPPORT_EMMC_BOOT
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
@@ -130,6 +129,15 @@
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
 # define CONFIG_FAT_WRITE
 # define CONFIG_CMD_EXT4_WRITE
+#endif
+
+#ifdef CONFIG_NAND_ARASAN
+# define CONFIG_CMD_NAND
+# define CONFIG_CMD_NAND_LOCK_UNLOCK
+# define CONFIG_SYS_MAX_NAND_DEVICE	1
+# define CONFIG_SYS_NAND_SELF_INIT
+# define CONFIG_SYS_NAND_ONFI_DETECTION
+# define CONFIG_MTD_DEVICE
 #endif
 
 /* Miscellaneous configurable options */

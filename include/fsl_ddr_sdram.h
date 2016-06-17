@@ -1,9 +1,7 @@
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * Version 2 as published by the Free Software Foundation.
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef FSL_DDR_MEMCTL_H
@@ -131,6 +129,7 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 #define SDRAM_CFG2_ODT_ONLY_READ	2
 #define SDRAM_CFG2_ODT_ALWAYS		3
 
+#define SDRAM_INTERVAL_BSTOPRE	0x3FFF
 #define TIMING_CFG_2_CPO_MASK	0x0F800000
 
 #if defined(CONFIG_SYS_FSL_DDR_VER) && \

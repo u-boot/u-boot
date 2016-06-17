@@ -6,6 +6,7 @@
 
 obj-y += dtsec.o
 obj-y += eth.o
+obj-y += fdt.o
 obj-y += fm.o
 obj-y += init.o
 obj-y += tgec.o

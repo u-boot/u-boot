@@ -23,6 +23,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct root_priv {
+	fdt_addr_t translation_offset;	/* optional translation offset */
+};
+
 static const struct driver_info root_info = {
 	.name		= "root_driver",
 };
@@ -35,6 +39,22 @@ struct udevice *dm_root(void)
 	}
 
 	return gd->dm_root;
+}
+
+fdt_addr_t dm_get_translation_offset(void)
+{
+	struct udevice *root = dm_root();
+	struct root_priv *priv = dev_get_priv(root);
+
+	return priv->translation_offset;
+}
+
+void dm_set_translation_offset(fdt_addr_t offs)
+{
+	struct udevice *root = dm_root();
+	struct root_priv *priv = dev_get_priv(root);
+
+	priv->translation_offset = offs;
 }
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
@@ -228,6 +248,7 @@ int dm_init_and_scan(bool pre_reloc_only)
 U_BOOT_DRIVER(root_driver) = {
 	.name	= "root_driver",
 	.id	= UCLASS_ROOT,
+	.priv_auto_alloc_size = sizeof(struct root_priv),
 };
 
 /* This is the root uclass */

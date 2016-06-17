@@ -157,7 +157,7 @@ aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 x86: i386
 blackfin: bfin
 nds32: nds32le
-openrisc: or32
+openrisc: or1k
 
 
 This selects the available toolchain paths. Add the base directory for
@@ -361,6 +361,10 @@ nios2: http://sourcery.mentor.com/public/gnu_toolchain/nios2-linux-gnu/
     sourceryg++-2015.11-27-nios2-linux-gnu-i686-pc-linux-gnu.tar.bz2
 sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu/
     renesas-4.4-200-sh-linux-gnu-i686-pc-linux-gnu.tar.bz2
+
+Note openrisc kernel.org toolchain is out of date, download latest one from
+http://opencores.org/or1k/OpenRISC_GNU_tool_chain#Prebuilt_versions, eg:
+ftp://ocuser:ocuser@openrisc.opencores.org/toolchain/gcc-or1k-elf-4.8.1-x86.tar.bz2.
 
 Buildman should now be set up to use your new toolchain.
 

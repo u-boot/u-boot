@@ -56,6 +56,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_DRIVER_TI_KEYSTONE_NET
+#ifndef CONFIG_DM_ETH
 int get_eth_env_param(char *env_name)
 {
 	char *env;
@@ -104,6 +105,7 @@ int board_eth_init(bd_t *bis)
 
 	return 0;
 }
+#endif
 #endif
 
 #ifdef CONFIG_SPL_BUILD

@@ -25,37 +25,24 @@ pre {
     color: #808080;
 }
 
-.section {
+.block {
     border-style: solid;
     border-color: #303030;
     border-width: 0px 0px 0px 5px;
     padding-left: 5px
 }
 
-.section-header {
+.block-header {
     background-color: #303030;
     margin-left: -5px;
     margin-top: 5px;
 }
 
-.section-trailer {
-    display: none;
+.block-header:hover {
+    text-decoration: underline;
 }
 
-.stream {
-    border-style: solid;
-    border-color: #303030;
-    border-width: 0px 0px 0px 5px;
-    padding-left: 5px
-}
-
-.stream-header {
-    background-color: #303030;
-    margin-left: -5px;
-    margin-top: 5px;
-}
-
-.stream-trailer {
+.block-trailer {
     display: none;
 }
 
@@ -83,6 +70,32 @@ pre {
     color: #ffff00
 }
 
+.status-xfail {
+    color: #ff7f00
+}
+
+.status-xpass {
+    color: #ff7f00
+}
+
 .status-fail {
     color: #ff0000
+}
+
+.hidden {
+    display: none;
+}
+
+a:link {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+a:visited {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
 }

@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF506F EZ-Kit board
+ * U-Boot - Configuration file for BF506F EZ-Kit board
  */
 
 #ifndef __CONFIG_BF506F_EZKIT_H__

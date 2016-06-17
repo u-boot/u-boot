@@ -379,7 +379,7 @@ static void update_text(char *buf, size_t start, size_t end, void *_data)
 				data->targets[k] = pos->target;
 				k++;
 			} else {
-				sprintf(header, "   ");
+				strcpy(header, "   ");
 			}
 
 			memcpy(buf + pos->offset, header, sizeof(header) - 1);

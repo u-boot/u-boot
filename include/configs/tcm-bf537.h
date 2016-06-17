@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for TCM-BF537 board
+ * U-Boot - Configuration file for TCM-BF537 board
  */
 
 #ifndef __CONFIG_TCM_BF537_H__

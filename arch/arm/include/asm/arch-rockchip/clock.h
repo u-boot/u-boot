@@ -62,4 +62,21 @@ static inline u32 clk_get_divisor(ulong input_rate, uint output_rate)
  */
 void *rockchip_get_cru(void);
 
+/**
+ * rkclk_get_clk() - get a pointer to a given clock
+ *
+ * This is an internal function - use outside the clock subsystem indicates
+ * that work is needed!
+ *
+ * @clk_id:	Clock requested
+ * @devp:	Returns a pointer to that clock
+ * @return 0 if OK, -ve on error
+ */
+int rkclk_get_clk(enum rk_clk_id clk_id, struct udevice **devp);
+
+struct rk3288_cru;
+struct rk3288_grf;
+
+void rkclk_configure_cpu(struct rk3288_cru *cru, struct rk3288_grf *grf);
+
 #endif

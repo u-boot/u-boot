@@ -84,8 +84,10 @@
 
 &qspi {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 
 	flash0: n25q00@0 {
+		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "n25q00";

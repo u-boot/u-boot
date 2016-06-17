@@ -17,11 +17,21 @@
 
 #include <asm/arch/soc.h>
 
-#if defined(CONFIG_ARMADA_XP)
+#if defined(CONFIG_ARMADA_XP) || defined(CONFIG_ARMADA_38X)
+/*
+ * Set this for the common xor register definitions needed in dram.c
+ * for A38x as well here.
+ */
 #define MV88F78X60 /* for the DDR training bin_hdr code */
 #endif
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
+
+#define CONFIG_SYS_L2_PL310
+
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
+#endif
 
 /*
  * By default kwbimage.cfg from board specific folder is used
@@ -47,8 +57,7 @@
  * SPI Flash configuration
  */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_HARD_SPI			1
-#define CONFIG_KIRKWOOD_SPI		1
+#define CONFIG_KIRKWOOD_SPI
 #ifndef CONFIG_ENV_SPI_BUS
 # define CONFIG_ENV_SPI_BUS		0
 #endif
@@ -59,6 +68,9 @@
 # define CONFIG_ENV_SPI_MAX_HZ		50000000
 #endif
 #endif
+
+/* Needed for SPI NOR booting in SPL */
+#define CONFIG_DM_SEQ_ALIAS		1
 
 /*
  * Ethernet Driver configuration
@@ -85,9 +97,9 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
-/* Common SPL configuration */
-#ifndef CONFIG_SPL_LDSCRIPT
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-mvebu/u-boot-spl.lds"
-#endif
+/* Use common timer */
+#define CONFIG_SYS_TIMER_COUNTS_DOWN
+#define CONFIG_SYS_TIMER_COUNTER	(MVEBU_TIMER_BASE + 0x14)
+#define CONFIG_SYS_TIMER_RATE		25000000
 
 #endif /* __MVEBU_CONFIG_H */

@@ -5,8 +5,9 @@
  */
 
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sg-regs.h>
+
+#include "../init.h"
+#include "../sg-regs.h"
 
 void ph1_ld4_pin_init(void)
 {
@@ -32,15 +33,6 @@ void ph1_ld4_pin_init(void)
 	sg_set_pinsel(29, 0, 8, 4);	/* MMCDAT5 -> NFD5_GB */
 	sg_set_pinsel(30, 0, 8, 4);	/* MMCDAT6 -> NFD6_GB */
 	sg_set_pinsel(31, 0, 8, 4);	/* MMCDAT7 -> NFD7_GB */
-#endif
-
-#ifdef CONFIG_USB_EHCI_UNIPHIER
-	sg_set_pinsel(53, 0, 8, 4);	/* USB0VBUS -> USB0VBUS */
-	sg_set_pinsel(54, 0, 8, 4);	/* USB0OD   -> USB0OD */
-	sg_set_pinsel(55, 0, 8, 4);	/* USB1VBUS -> USB1VBUS */
-	sg_set_pinsel(56, 0, 8, 4);	/* USB1OD   -> USB1OD */
-	/* sg_set_pinsel(67, 23, 8, 4); */ /* PCOE -> USB2VBUS */
-	/* sg_set_pinsel(68, 23, 8, 4); */ /* PCWAIT -> USB2OD */
 #endif
 
 	tmp = readl(SG_IECTRL);

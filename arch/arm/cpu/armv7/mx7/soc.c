@@ -12,6 +12,8 @@
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/dma.h>
 #include <asm/imx-common/hab.h>
+#include <asm/imx-common/rdc-sema.h>
+#include <asm/arch/imx-rdc.h>
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
 #include <imx_thermal.h>
@@ -27,6 +29,65 @@ U_BOOT_DEVICE(imx7_thermal) = {
 	.name = "imx_thermal",
 	.platdata = &imx7_thermal_plat,
 };
+#endif
+
+#ifdef CONFIG_IMX_RDC
+/*
+ * In current design, if any peripheral was assigned to both A7 and M4,
+ * it will receive ipg_stop or ipg_wait when any of the 2 platforms enter
+ * low power mode. So M4 sleep will cause some peripherals fail to work
+ * at A7 core side. At default, all resources are in domain 0 - 3.
+ *
+ * There are 26 peripherals impacted by this IC issue:
+ * SIM2(sim2/emvsim2)
+ * SIM1(sim1/emvsim1)
+ * UART1/UART2/UART3/UART4/UART5/UART6/UART7
+ * SAI1/SAI2/SAI3
+ * WDOG1/WDOG2/WDOG3/WDOG4
+ * GPT1/GPT2/GPT3/GPT4
+ * PWM1/PWM2/PWM3/PWM4
+ * ENET1/ENET2
+ * Software Workaround:
+ * Here we setup some resources to domain 0 where M4 codes will move
+ * the M4 out of this domain. Then M4 is not able to access them any longer.
+ * This is a workaround for ic issue. So the peripherals are not shared
+ * by them. This way requires the uboot implemented the RDC driver and
+ * set the 26 IPs above to domain 0 only. M4 code will assign resource
+ * to its own domain, if it want to use the resource.
+ */
+static rdc_peri_cfg_t const resources[] = {
+	(RDC_PER_SIM1 | RDC_DOMAIN(0)),
+	(RDC_PER_SIM2 | RDC_DOMAIN(0)),
+	(RDC_PER_UART1 | RDC_DOMAIN(0)),
+	(RDC_PER_UART2 | RDC_DOMAIN(0)),
+	(RDC_PER_UART3 | RDC_DOMAIN(0)),
+	(RDC_PER_UART4 | RDC_DOMAIN(0)),
+	(RDC_PER_UART5 | RDC_DOMAIN(0)),
+	(RDC_PER_UART6 | RDC_DOMAIN(0)),
+	(RDC_PER_UART7 | RDC_DOMAIN(0)),
+	(RDC_PER_SAI1 | RDC_DOMAIN(0)),
+	(RDC_PER_SAI2 | RDC_DOMAIN(0)),
+	(RDC_PER_SAI3 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG1 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG2 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG3 | RDC_DOMAIN(0)),
+	(RDC_PER_WDOG4 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT1 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT2 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT3 | RDC_DOMAIN(0)),
+	(RDC_PER_GPT4 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM1 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM2 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM3 | RDC_DOMAIN(0)),
+	(RDC_PER_PWM4 | RDC_DOMAIN(0)),
+	(RDC_PER_ENET1 | RDC_DOMAIN(0)),
+	(RDC_PER_ENET2 | RDC_DOMAIN(0)),
+};
+
+static void isolate_resource(void)
+{
+	imx_rdc_setup_peripherals(resources, ARRAY_SIZE(resources));
+}
 #endif
 
 #if defined(CONFIG_SECURE_BOOT)
@@ -130,6 +191,24 @@ static void init_csu(void)
 		writel(CSU_INIT_SEC_LEVEL0, CSU_IPS_BASE_ADDR + i * 4);
 }
 
+static void imx_enet_mdio_fixup(void)
+{
+	struct iomuxc_gpr_base_regs *gpr_regs =
+		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
+
+	/*
+	 * The management data input/output (MDIO) requires open-drain,
+	 * i.MX7D TO1.0 ENET MDIO pin has no open drain, but TO1.1 supports
+	 * this feature. So to TO1.1, need to enable open drain by setting
+	 * bits GPR0[8:7].
+	 */
+
+	if (soc_rev() >= CHIP_REV_1_1) {
+		setbits_le32(&gpr_regs->gpr[0],
+			     IOMUXC_GPR_GPR0_ENET_MDIO_OPEN_DRAIN_MASK);
+	}
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
@@ -138,10 +217,15 @@ int arch_cpu_init(void)
 	/* Disable PDE bit of WMCR register */
 	imx_set_wdog_powerdown(false);
 
+	imx_enet_mdio_fixup();
+
 #ifdef CONFIG_APBH_DMA
 	/* Start APBH DMA */
 	mxs_dma_init();
 #endif
+
+	if (IS_ENABLED(CONFIG_IMX_RDC))
+		isolate_resource();
 
 	return 0;
 }
@@ -188,6 +272,42 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 		mac[4] = value >> 24;
 		mac[5] = value >> 16;
 	}
+}
+#endif
+
+#ifdef CONFIG_IMX_BOOTAUX
+int arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
+{
+	u32 stack, pc;
+	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
+
+	if (!boot_private_data)
+		return 1;
+
+	stack = *(u32 *)boot_private_data;
+	pc = *(u32 *)(boot_private_data + 4);
+
+	/* Set the stack and pc to M4 bootROM */
+	writel(stack, M4_BOOTROM_BASE_ADDR);
+	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
+
+	/* Enable M4 */
+	clrsetbits_le32(&src_reg->m4rcr, SRC_M4RCR_M4C_NON_SCLR_RST_MASK,
+			SRC_M4RCR_ENABLE_M4_MASK);
+
+	return 0;
+}
+
+int arch_auxiliary_core_check_up(u32 core_id)
+{
+	uint32_t val;
+	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
+
+	val = readl(&src_reg->m4rcr);
+	if (val & 0x00000001)
+		return 0; /* assert in reset */
+
+	return 1;
 }
 #endif
 
@@ -267,6 +387,27 @@ enum boot_device get_boot_device(void)
 
 	return boot_dev;
 }
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+__weak int board_mmc_get_env_dev(int devno)
+{
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
+int mmc_get_env_dev(void)
+{
+	struct bootrom_sw_info **p =
+		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR;
+	int devno = (*p)->boot_dev_instance;
+	u8 boot_type = (*p)->boot_dev_type;
+
+	/* If not boot from sd/mmc, use default value */
+	if ((boot_type != BOOT_TYPE_SD) && (boot_type != BOOT_TYPE_MMC))
+		return CONFIG_SYS_MMC_ENV_DEV;
+
+	return board_mmc_get_env_dev(devno);
+}
+#endif
 
 void s_init(void)
 {

@@ -106,14 +106,25 @@ _reloc:
 	stw	r0, 4(sp)
 	mov	fp, sp
 
-	/* Allocate and zero GD, update SP */
+#ifdef CONFIG_DEBUG_UART
+	/* Set up the debug UART */
+	movhi	r2, %hi(debug_uart_init@h)
+	ori	r2, r2, %lo(debug_uart_init@h)
+	callr	r2
+#endif
+
+	/* Allocate and initialize reserved area, update SP */
 	mov	r4, sp
-	movhi	r2, %hi(board_init_f_mem@h)
-	ori	r2, r2, %lo(board_init_f_mem@h)
+	movhi	r2, %hi(board_init_f_alloc_reserve@h)
+	ori	r2, r2, %lo(board_init_f_alloc_reserve@h)
+	callr	r2
+	mov	sp, r2
+	mov	r4, sp
+	movhi	r2, %hi(board_init_f_init_reserve@h)
+	ori	r2, r2, %lo(board_init_f_init_reserve@h)
 	callr	r2
 
-	/* Update stack- and frame-pointers */
-	mov	sp, r2
+	/* Update frame-pointer */
 	mov	fp, sp
 
 	/* Call board_init_f -- never returns */

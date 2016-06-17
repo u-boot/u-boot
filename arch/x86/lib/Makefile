@@ -19,12 +19,9 @@ obj-y	+= lpc-uclass.o
 obj-y	+= mpspec.o
 obj-$(CONFIG_ENABLE_MRC_CACHE) += mrccache.o
 obj-y += cmd_mtrr.o
+obj-y	+= northbridge-uclass.o
 obj-$(CONFIG_I8259_PIC) += i8259.o
 obj-$(CONFIG_I8254_TIMER) += i8254.o
-ifndef CONFIG_DM_PCI
-obj-$(CONFIG_PCI) += pci_type1.o
-endif
-obj-y	+= pch-uclass.o
 obj-y	+= pirq_routing.o
 obj-y	+= relocate.o
 obj-y += physmem.o
@@ -32,7 +29,9 @@ obj-$(CONFIG_X86_RAMTEST) += ramtest.o
 obj-y += sfi.o
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y	+= string.o
+ifndef CONFIG_QEMU_ACPI_TABLE
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
+endif
 obj-y	+= tables.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 obj-$(CONFIG_HAVE_FSP) += fsp/

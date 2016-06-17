@@ -146,7 +146,7 @@ int fm_memac_mdio_init(bd_t *bis, struct memac_mdio_info *info)
 	bus->read = memac_mdio_read;
 	bus->write = memac_mdio_write;
 	bus->reset = memac_mdio_reset;
-	sprintf(bus->name, info->name);
+	strcpy(bus->name, info->name);
 
 	bus->priv = info->regs;
 

@@ -44,7 +44,7 @@ static void exynos_dp_enable_video_input(unsigned int enable)
 	reg = readl(&dp_regs->video_ctl1);
 	reg &= ~VIDEO_EN_MASK;
 
-	/* enable video input*/
+	/* enable video input */
 	if (enable)
 		reg |= VIDEO_EN_MASK;
 
@@ -55,13 +55,13 @@ static void exynos_dp_enable_video_input(unsigned int enable)
 
 void exynos_dp_enable_video_bist(unsigned int enable)
 {
-	/*enable video bist*/
+	/* enable video bist */
 	unsigned int reg;
 
 	reg = readl(&dp_regs->video_ctl4);
 	reg &= ~VIDEO_BIST_MASK;
 
-	/*enable video bist*/
+	/* enable video bist */
 	if (enable)
 		reg |= VIDEO_BIST_MASK;
 
@@ -112,7 +112,7 @@ static void exynos_dp_init_analog_param(void)
 	/*
 	 * Set AUX TX terminal resistor to 102 ohm
 	 * Set AUX channel amplitude control
-	*/
+	 */
 	reg = PD_RING_OSC | AUX_TERMINAL_CTRL_52_OHM | TX_CUR1_2X | TX_CUR_4_MA;
 	writel(reg, &dp_regs->pll_filter_ctl1);
 
@@ -146,7 +146,7 @@ static void exynos_dp_init_interrupt(void)
 	 */
 	writel(INT_POL, &dp_regs->int_ctl);
 
-	/* Clear pending regisers */
+	/* Clear pending registers */
 	writel(0xff, &dp_regs->common_int_sta1);
 	writel(0xff, &dp_regs->common_int_sta2);
 	writel(0xff, &dp_regs->common_int_sta3);
@@ -165,7 +165,7 @@ void exynos_dp_reset(void)
 {
 	unsigned int reg_func_1;
 
-	/*dp tx sw reset*/
+	/* dp tx sw reset */
 	writel(RESET_DP_TX, &dp_regs->tx_sw_reset);
 
 	exynos_dp_enable_video_input(DP_DISABLE);
@@ -287,7 +287,7 @@ int exynos_dp_init_analog_func(void)
 	unsigned int retry_cnt = 10;
 	unsigned int reg;
 
-	/*Power On All Analog block */
+	/* Power On All Analog block */
 	exynos_dp_set_analog_power_down(POWER_ALL, DP_DISABLE);
 
 	reg = PLL_LOCK_CHG;
@@ -297,14 +297,14 @@ int exynos_dp_init_analog_func(void)
 	reg &= ~(F_PLL_LOCK | PLL_LOCK_CTRL);
 	writel(reg, &dp_regs->debug_ctl);
 
-	/*Assert DP PLL Reset*/
+	/* Assert DP PLL Reset */
 	reg = readl(&dp_regs->pll_ctl);
 	reg |= DP_PLL_RESET;
 	writel(reg, &dp_regs->pll_ctl);
 
 	mdelay(1);
 
-	/*Deassert DP PLL Reset*/
+	/* Deassert DP PLL Reset */
 	reg = readl(&dp_regs->pll_ctl);
 	reg &= ~(DP_PLL_RESET);
 	writel(reg, &dp_regs->pll_ctl);
@@ -336,7 +336,7 @@ void exynos_dp_init_hpd(void)
 {
 	unsigned int reg;
 
-	/* Clear interrupts releated to Hot Plug Dectect */
+	/* Clear interrupts related to Hot Plug Detect */
 	reg = HOTPLUG_CHG | HPD_LOST | PLUG;
 	writel(reg, &dp_regs->common_int_sta4);
 
@@ -366,7 +366,7 @@ void exynos_dp_init_aux(void)
 {
 	unsigned int reg;
 
-	/* Clear inerrupts related to AUX channel */
+	/* Clear interrupts related to AUX channel */
 	reg = RPLY_RECEIV | AUX_ERR;
 	writel(reg, &dp_regs->int_sta);
 
@@ -377,7 +377,7 @@ void exynos_dp_init_aux(void)
 		AUX_HW_RETRY_INTERVAL_600_MICROSECONDS;
 	writel(reg, &dp_regs->aux_hw_retry_ctl);
 
-	/* Receive AUX Channel DEFER commands equal to DEFFER_COUNT*64 */
+	/* Receive AUX Channel DEFER commands equal to DEFER_COUNT*64 */
 	reg = DEFER_CTRL_EN | DEFER_COUNT(1);
 	writel(reg, &dp_regs->aux_ch_defer_ctl);
 
@@ -1040,7 +1040,7 @@ void exynos_dp_config_video_slave_mode(struct edp_video_info *video_info)
 	reg |= (video_info->h_sync_polarity << H_S_POLARITY_CFG_SHIFT);
 	writel(reg, &dp_regs->video_ctl10);
 
-	/*Set video mode to slave mode */
+	/* Set video mode to slave mode */
 	reg = AUDIO_MODE_SPDIF_MODE | VIDEO_MODE_SLAVE_MODE;
 	writel(reg, &dp_regs->soc_general_ctl);
 }

@@ -62,8 +62,8 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 
 	/* the first sector (sector 0x10) must be a primary volume desc */
 	blkaddr=PVD_OFFSET;
-	if (dev_desc->block_read (dev_desc->dev, PVD_OFFSET, 1, (ulong *) tmpbuf) != 1)
-	return (-1);
+	if (dev_desc->block_read(dev_desc, PVD_OFFSET, 1, (ulong *)tmpbuf) != 1)
+		return -1;
 	if(ppr->desctype!=0x01) {
 		if(verb)
 			printf ("** First descriptor is NOT a primary desc on %d:%d **\n",
@@ -84,8 +84,8 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	PRINTF(" Lastsect:%08lx\n",lastsect);
 	for(i=blkaddr;i<lastsect;i++) {
 		PRINTF("Reading block %d\n", i);
-		if (dev_desc->block_read (dev_desc->dev, i, 1, (ulong *) tmpbuf) != 1)
-		return (-1);
+		if (dev_desc->block_read(dev_desc, i, 1, (ulong *)tmpbuf) != 1)
+			return -1;
 		if(ppr->desctype==0x00)
 			break; /* boot entry found */
 		if(ppr->desctype==0xff) {
@@ -104,7 +104,7 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	}
 	bootaddr=le32_to_int(pbr->pointer);
 	PRINTF(" Boot Entry at: %08lX\n",bootaddr);
-	if (dev_desc->block_read (dev_desc->dev, bootaddr, 1, (ulong *) tmpbuf) != 1) {
+	if (dev_desc->block_read(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
 		if(verb)
 			printf ("** Can't read Boot Entry at %lX on %d:%d **\n",
 				bootaddr,dev_desc->dev, part_num);
@@ -137,7 +137,7 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	/* the validation entry seems to be ok, now search the "partition" */
 	entry_num=0;
 	offset=0x20;
-	sprintf ((char *)info->type, "U-Boot");
+	strcpy((char *)info->type, "U-Boot");
 	switch(dev_desc->if_type) {
 		case IF_TYPE_IDE:
 		case IF_TYPE_SATA:

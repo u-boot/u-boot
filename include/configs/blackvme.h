@@ -1,4 +1,4 @@
-/* U-boot for BlackVME. (C) Wojtek Skulski 2010.
+/* U-Boot for BlackVME. (C) Wojtek Skulski 2010.
  * The board includes ADSP-BF561 rev. 0.5,
  * 32-bit SDRAM (2 * MT48LC16M16A2TG or MT48LC32M16A2TG),
  * Gigabit Ether AX88180 (ASIX) + 88E1111 rev. B2 (Marvell),

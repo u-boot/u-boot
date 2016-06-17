@@ -5,8 +5,9 @@
  */
 
 #include <linux/io.h>
-#include <mach/bcu-regs.h>
-#include <mach/init.h>
+
+#include "../init.h"
+#include "bcu-regs.h"
 
 #define ch(x) ((x) >= 32 ? 0 : (x) < 0 ? 0x11111111 : 0x11111111 << (x))
 
@@ -25,7 +26,7 @@ int ph1_sld3_bcu_init(const struct uniphier_board_data *bd)
 	writel(0x24440000, BCSCR5);
 
 	/* Specify DDR channel */
-	shift = (bd->dram_ch1_base - bd->dram_ch0_base) / 0x04000000 * 4;
+	shift = (bd->dram_ch[1].base - bd->dram_ch[0].base) / 0x04000000 * 4;
 	writel(ch(shift), BCIPPCCHR2); /* 0x80000000-0x9fffffff */
 
 	shift -= 32;

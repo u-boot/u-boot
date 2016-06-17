@@ -337,7 +337,7 @@ void nand_boot(void)
 	if (!nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
 			CONFIG_SYS_NAND_U_BOOT_SIZE,
 			(uchar *)CONFIG_SYS_NAND_U_BOOT_DST)) {
-		/* Copy from NAND successful, start U-boot */
+		/* Copy from NAND successful, start U-Boot */
 		uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
 		uboot();
 	} else {

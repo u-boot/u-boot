@@ -364,7 +364,6 @@ struct mmc {
 	u8 part_attr;
 	u8 wr_rel_set;
 	char part_config;
-	char part_num;
 	uint tran_speed;
 	uint read_bl_len;
 	uint write_bl_len;
@@ -480,6 +479,7 @@ void board_mmc_power_init(void);
 int board_mmc_init(bd_t *bis);
 int cpu_mmc_init(bd_t *bis);
 int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr);
+int mmc_get_env_dev(void);
 
 struct pci_device_id;
 
@@ -489,11 +489,9 @@ struct pci_device_id;
  * This finds all the matching PCI IDs and sets them up as MMC devices.
  *
  * @name:		Name to use for devices
- * @mmc_supported:	PCI IDs to search for
- * @num_ids:		Number of elements in @mmc_supported
+ * @mmc_supported:	PCI IDs to search for, terminated by {0, 0}
  */
-int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported,
-		 int num_ids);
+int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT

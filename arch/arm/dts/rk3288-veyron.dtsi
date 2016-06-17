@@ -106,6 +106,13 @@
 		priority = /bits/ 8 <200>;
 	};
 
+	emmc_pwrseq: emmc-pwrseq {
+		compatible = "mmc-pwrseq-emmc";
+		pinctrl-0 = <&emmc_reset>;
+		pinctrl-names = "default";
+		reset-gpios = <&gpio2 9 GPIO_ACTIVE_HIGH>;
+	};
+
 	sound {
 		compatible = "rockchip,rockchip-audio-max98090";
 		rockchip,model = "ROCKCHIP-I2S";
@@ -239,7 +246,7 @@
 		666000 1200000
 	>;
 	rockchip,num-channels = <2>;
-	rockchip,pctl-timing = <0x29a 0xc8 0x1f8 0x42 0x4e 0x4 0xea 0xa
+	rockchip,pctl-timing = <0x29a 0xc8 0x1f4 0x42 0x4e 0x4 0xea 0xa
 		0x5 0x0 0xa 0x7 0x19 0x24 0xa 0x7
 		0x5 0xa 0x5 0x200 0x5 0x10 0x40 0x0
 		0x1 0x7 0x7 0x4 0xc 0x43 0x100 0x0
@@ -259,11 +266,12 @@
 	bus-width = <8>;
 	cap-mmc-highspeed;
 	mmc-hs200-1_8v;
+	mmc-pwrseq = <&emmc_pwrseq>;
 	disable-wp;
 	non-removable;
 	num-slots = <1>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus8 &emmc_deassert_reset>;
+	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus8 &emmc_pwr>;
 	status = "okay";
 };
 
@@ -324,6 +332,7 @@
 	clock-frequency = <400000>;
 	i2c-scl-falling-time-ns = <50>;		/* 2.5ns measured */
 	i2c-scl-rising-time-ns = <100>;		/* 45ns measured */
+	u-boot,dm-pre-reloc;
 
 	rk808: pmic@1b {
 		compatible = "rockchip,rk808";
@@ -336,6 +345,7 @@
 		rockchip,system-power-controller;
 		wakeup-source;
 		#clock-cells = <1>;
+		u-boot,dm-pre-reloc;
 
 		vcc1-supply = <&vcc33_sys>;
 		vcc2-supply = <&vcc33_sys>;
@@ -671,9 +681,8 @@
 	};
 
 	emmc {
-		/* Make sure eMMC is not in reset */
-		emmc_deassert_reset: emmc-deassert-reset {
-			rockchip,pins = <7 12 RK_FUNC_GPIO &pcfg_pull_up>;
+		emmc_reset: emmc-reset {
+			rockchip,pins = <2 9 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		/*
@@ -708,7 +717,10 @@
 
 	pmic {
 		pmic_int_l: pmic-int-l {
-			rockchip,pins = <RK_GPIO0 4 RK_FUNC_GPIO &pcfg_pull_up>;
+			/*
+			 * Causes jerry to hang when probing bus 0
+			 * rockchip,pins = <RK_GPIO0 4 RK_FUNC_GPIO &pcfg_pull_up>;
+			 */
 		};
 	};
 

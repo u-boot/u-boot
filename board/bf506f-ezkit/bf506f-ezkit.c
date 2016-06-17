@@ -1,5 +1,5 @@
 /*
- * U-boot - main board file
+ * U-Boot - main board file
  *
  * Copyright (c) 2008-2010 Analog Devices Inc.
  *

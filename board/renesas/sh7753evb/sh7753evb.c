@@ -113,6 +113,7 @@ static void set_mac_to_sh_giga_eth_register(int channel, char *mac_string)
 	writel(val, &ether->malr);
 }
 
+#if defined(CONFIG_SH_32BIT)
 /*****************************************************************
  * This PMB must be set on this timing. The lowlevel_init is run on
  * Area 0(phys 0x00000000), so we have to map it.
@@ -154,13 +155,16 @@ static void set_pmb_on_board_init(void)
 	writel(mk_pmb_addr_val(0x98), PMB_ADDR_BASE(7));
 	writel(mk_pmb_data_val(0x58, 0, 1, 1, 0, 1, 1), PMB_DATA_BASE(7));
 }
+#endif
 
 int board_init(void)
 {
 	struct gether_control_regs *gether = GETHER_CONTROL_BASE;
 
 	init_gpio();
+#if defined(CONFIG_SH_32BIT)
 	set_pmb_on_board_init();
+#endif
 
 	/* Sets TXnDLY to B'010 */
 	writel(0x00000202, &gether->gbecont);

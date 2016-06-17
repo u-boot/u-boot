@@ -77,7 +77,7 @@ int scc_initialize(bd_t *bis)
 	dev = (struct eth_device*) malloc(sizeof *dev);
 	memset(dev, 0, sizeof *dev);
 
-	sprintf(dev->name, "SCC");
+	strcpy(dev->name, "SCC");
 	dev->iobase = 0;
 	dev->priv   = 0;
 	dev->init   = scc_init;

@@ -206,13 +206,14 @@
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 /* I2C */
-#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER
+#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
+    defined CONFIG_SY8106A_POWER
 #define CONFIG_SPL_I2C_SUPPORT
 #endif
 
 #if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
     defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
-    defined CONFIG_I2C4_ENABLE
+    defined CONFIG_I2C4_ENABLE || defined CONFIG_R_I2C_ENABLE
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_SYS_I2C_SPEED		400000
@@ -240,7 +241,8 @@ extern int soft_i2c_gpio_scl;
 
 /* PMU */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
-    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER
+    defined CONFIG_AXP221_POWER || defined CONFIG_AXP818_POWER || \
+    defined CONFIG_SY8106A_POWER
 #define CONFIG_SPL_POWER_SUPPORT
 #endif
 

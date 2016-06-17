@@ -10,6 +10,27 @@ config DM_PMIC
 	- 'drivers/power/pmic/pmic-uclass.c'
 	- 'include/power/pmic.h'
 
+config PMIC_CHILDREN
+	bool "Allow child devices for PMICs"
+	depends on DM_PMIC
+	default y
+	---help---
+	This allows PMICs to support child devices (such as regulators) in
+	SPL. This adds quite a bit of code so if you are not using this
+	feature you can turn it off. Most likely you should turn it on for
+	U-Boot proper.
+
+config SPL_PMIC_CHILDREN
+	bool "Allow child devices for PMICs in SPL"
+	depends on DM_PMIC
+	default y
+	---help---
+	This allows PMICs to support child devices (such as regulators) in
+	SPL. This adds quite a bit of code so if you are not using this
+	feature you can turn it off. In this case you may need a 'back door'
+	to call your regulator code (e.g. see rk808.c for direct functions
+	for use in SPL).
+
 config PMIC_ACT8846
 	bool "Enable support for the active-semi 8846 PMIC"
 	depends on DM_PMIC && DM_I2C
@@ -32,6 +53,15 @@ config DM_PMIC_MAX77686
 	---help---
 	This config enables implementation of driver-model pmic uclass features
 	for PMIC MAX77686. The driver implements read/write operations.
+
+config PMIC_RK808
+	bool "Enable support for Rockchip PMIC RK808"
+	depends on DM_PMIC
+	---help---
+	The Rockchip RK808 PMIC provides four buck DC-DC convertors, 8 LDOs,
+	an RTC and two low Rds (resistance (drain to source)) switches. It is
+	accessed via an I2C interface. The device is used with Rockchip SoCs.
+	This driver implements register read/write operations.
 
 config PMIC_S2MPS11
 	bool "Enable Driver Model for PMIC Samsung S2MPS11"

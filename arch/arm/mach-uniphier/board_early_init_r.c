@@ -5,7 +5,8 @@
  */
 
 #include <common.h>
-#include <mach/micro-support-card.h>
+
+#include "micro-support-card.h"
 
 int board_early_init_r(void)
 {

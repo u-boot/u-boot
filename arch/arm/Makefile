@@ -9,7 +9,7 @@ endif
 
 # This selects which instruction set is used.
 arch-$(CONFIG_CPU_ARM720T)	=-march=armv4
-arch-$(CONFIG_CPU_ARM920T)	=-march=armv4
+arch-$(CONFIG_CPU_ARM920T)	=-march=armv4t
 arch-$(CONFIG_CPU_ARM926EJS)	=-march=armv5te
 arch-$(CONFIG_CPU_ARM946ES)	=-march=armv4
 arch-$(CONFIG_CPU_SA1100)	=-march=armv4
@@ -49,13 +49,14 @@ machine-$(CONFIG_ARCH_HIGHBANK)		+= highbank
 machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
 # TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
-machine-$(CONFIG_ARMADA_XP)		+= mvebu
+machine-$(CONFIG_ARCH_MVEBU)		+= mvebu
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
 # TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
 machine-$(CONFIG_ORION5X)		+= orion5x
 machine-$(CONFIG_ARCH_S5PC1XX)		+= s5pc1xx
 machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
 machine-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip
+machine-$(CONFIG_STM32)			+= stm32
 machine-$(CONFIG_TEGRA)			+= tegra
 machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
 machine-$(CONFIG_ARCH_ZYNQ)		+= zynq

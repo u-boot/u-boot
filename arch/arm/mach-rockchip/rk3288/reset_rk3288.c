@@ -22,11 +22,11 @@ int rk3288_reset_request(struct udevice *dev, enum reset_t type)
 		return PTR_ERR(cru);
 	switch (type) {
 	case RESET_WARM:
-		writel(RK_CLRBITS(0xffff), &cru->cru_mode_con);
+		rk_clrreg(&cru->cru_mode_con, 0xffff);
 		writel(0xeca8, &cru->cru_glb_srst_snd_value);
 		break;
 	case RESET_COLD:
-		writel(RK_CLRBITS(0xffff), &cru->cru_mode_con);
+		rk_clrreg(&cru->cru_mode_con, 0xffff);
 		writel(0xfdb9, &cru->cru_glb_srst_fst_value);
 		break;
 	default:

@@ -9,7 +9,7 @@
 
 /* DPIO Version */
 #define DPIO_VER_MAJOR				3
-#define DPIO_VER_MINOR				1
+#define DPIO_VER_MINOR				2
 
 /* Command IDs */
 #define DPIO_CMDID_CLOSE					0x800
@@ -45,6 +45,7 @@ do { \
 	MC_RSP_OP(cmd, 2, 0,  64, uint64_t, attr->qbman_portal_ci_offset);\
 	MC_RSP_OP(cmd, 3, 0,  16, uint16_t, attr->version.major);\
 	MC_RSP_OP(cmd, 3, 16, 16, uint16_t, attr->version.minor);\
+	MC_RSP_OP(cmd, 3, 32, 32, uint32_t, attr->qbman_version);\
 } while (0)
 
 /* Data Path I/O Portal API
@@ -195,6 +196,7 @@ int dpio_reset(struct fsl_mc_io	*mc_io,
  * @channel_mode: Notification channel mode
  * @num_priorities: Number of priorities for the notification channel (1-8);
  *			relevant only if 'channel_mode = DPIO_LOCAL_CHANNEL'
+ * @qbman_version: QBMAN version
  */
 struct dpio_attr {
 	int id;
@@ -212,6 +214,7 @@ struct dpio_attr {
 	uint16_t qbman_portal_id;
 	enum dpio_channel_mode channel_mode;
 	uint8_t num_priorities;
+	uint32_t		qbman_version;
 };
 
 /**

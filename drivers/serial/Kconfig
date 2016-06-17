@@ -15,6 +15,26 @@ config REQUIRE_SERIAL_CONSOLE
 	  during serial port initialization (default y). Set this to n on
 	  boards which have no debug serial port whatsoever.
 
+config SERIAL_PRESENT
+	bool "Provide a serial driver"
+	depends on DM_SERIAL
+	default y
+	help
+	  In very space-constrained devices even the full UART driver is too
+	  large. In this case the debug UART can still be used in some cases.
+	  This option enables the full UART in U-Boot, so if is it disabled,
+	  the full UART driver will be omitted, thus saving space.
+
+config SPL_SERIAL_PRESENT
+	bool "Provide a serial driver in SPL"
+	depends on DM_SERIAL
+	default y
+	help
+	  In very space-constrained devices even the full UART driver is too
+	  large. In this case the debug UART can still be used in some cases.
+	  This option enables the full UART in SPL, so if is it disabled,
+	  the full UART driver will be omitted, thus saving space.
+
 config DM_SERIAL
 	bool "Enable Driver Model for serial drivers"
 	depends on DM
@@ -125,6 +145,30 @@ config DEBUG_UART_APBUART
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_PL010
+	bool "pl010"
+	help
+	  Select this to enable a debug UART using the pl01x driver with the
+	  PL010 UART type. You will need to provide parameters to make this
+	  work. The driver will be available until the real driver model
+	  serial is running.
+
+config DEBUG_UART_PL011
+	bool "pl011"
+	help
+	  Select this to enable a debug UART using the pl01x driver with the
+	  PL011 UART type. You will need to provide parameters to make this
+	  work. The driver will be available until the real driver model
+	  serial is running.
+
+config DEBUG_UART_PIC32
+	bool "Microchip PIC32"
+	depends on PIC32_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_pic32 driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -178,6 +222,12 @@ config DEBUG_UART_ANNOUNCE
 	  debug_uart_init()). This can be useful just as a check that
 	  everything is working.
 
+config DEBUG_UART_SKIP_INIT
+	bool "Skip UART initialization"
+	help
+	  Select this if the UART you want to use for debug output is already
+	  initialized by the time U-Boot starts its execution.
+
 config ALTERA_JTAG_UART
 	bool "Altera JTAG UART support"
 	depends on DM_SERIAL
@@ -203,6 +253,19 @@ config ALTERA_UART
 	help
 	  Select this to enable an UART for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
+
+config FSL_LPUART
+	bool "Freescale LPUART support"
+	help
+	  Select this to enable a Low Power UART for Freescale VF610 and
+	  QorIQ Layerscape devices.
+
+config PIC32_SERIAL
+	bool "Support for Microchip PIC32 on-chip UART"
+	depends on DM_SERIAL && MACH_PIC32
+	default y
+	help
+	  Support for the UART found on Microchip PIC32 SoC's.
 
 config SYS_NS16550
 	bool "NS16550 UART or compatible"
@@ -243,7 +306,7 @@ config UNIPHIER_SERIAL
 
 config XILINX_UARTLITE
 	bool "Xilinx Uarlite support"
-	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || 4xx)
 	help
 	  If you have a Xilinx based board and want to use the uartlite
 	  serial ports, say Y to this option. If unsure, say N.

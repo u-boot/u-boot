@@ -2,20 +2,7 @@
  * (C) Copyright 2013
  * Reinhard Pfau, Guntermann & Drunck GmbH, reinhard.pfau@gdsys.cc
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* TODO: some more #ifdef's to avoid unneeded code for stage 1 / stage 2 */
@@ -232,7 +219,7 @@ static int ccdm_mmc_read(struct mmc *mmc, u64 src, u8 *dst, int size)
 	ofs = src % blk_len;
 
 	if (ofs) {
-		n = mmc->block_dev.block_read(mmc->block_dev.dev, block_no++, 1,
+		n = mmc->block_dev.block_read(&mmc->block_dev, block_no++, 1,
 			tmp_buf);
 		if (!n)
 			goto failure;
@@ -243,7 +230,7 @@ static int ccdm_mmc_read(struct mmc *mmc, u64 src, u8 *dst, int size)
 	}
 	cnt = size / blk_len;
 	if (cnt) {
-		n = mmc->block_dev.block_read(mmc->block_dev.dev, block_no, cnt,
+		n = mmc->block_dev.block_read(&mmc->block_dev, block_no, cnt,
 			dst);
 		if (n != cnt)
 			goto failure;
@@ -253,7 +240,7 @@ static int ccdm_mmc_read(struct mmc *mmc, u64 src, u8 *dst, int size)
 		block_no += cnt;
 	}
 	if (size) {
-		n = mmc->block_dev.block_read(mmc->block_dev.dev, block_no++, 1,
+		n = mmc->block_dev.block_read(&mmc->block_dev, block_no++, 1,
 			tmp_buf);
 		if (!n)
 			goto failure;

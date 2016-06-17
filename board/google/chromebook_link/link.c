@@ -14,14 +14,6 @@
 
 int arch_early_init_r(void)
 {
-	struct udevice *dev;
-	int ret;
-
-	/* Make sure the platform controller hub is up and running */
-	ret = uclass_get_device(UCLASS_PCH, 0, &dev);
-	if (ret)
-		return ret;
-
 	return 0;
 }
 

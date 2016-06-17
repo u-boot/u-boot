@@ -5,6 +5,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <aes.h>
+#include <stdint.h>
+
 /* Pull in the current config to define the default environment */
 #include <linux/kconfig.h>
 
@@ -53,6 +56,27 @@
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 #endif
+
+struct common_args {
+#ifdef CONFIG_FILE
+	char *config_file;
+#endif
+	uint8_t aes_key[AES_KEY_LENGTH];
+	int aes_flag; /* Is AES encryption used? */
+};
+extern struct common_args common_args;
+
+struct printenv_args {
+	int name_suppress;
+};
+extern struct printenv_args printenv_args;
+
+struct setenv_args {
+	char *script_file;
+};
+extern struct setenv_args setenv_args;
+
+int parse_aes_key(char *key, uint8_t *bin_key);
 
 extern int   fw_printenv(int argc, char *argv[]);
 extern char *fw_getenv  (char *name);

@@ -106,6 +106,7 @@
 #define ATMEL_BASE_MPDDRC	0xf000c000
 #define ATMEL_BASE_XDMAC0	0xf0010000
 #define ATMEL_BASE_PMC		0xf0014000
+#define ATMEL_BASE_MATRIX0	0xf0018000
 #define ATMEL_BASE_QSPI0	0xf0020000
 #define ATMEL_BASE_QSPI1	0xf0024000
 #define ATMEL_BASE_SPI0		0xf8000000
@@ -117,6 +118,7 @@
 #define ATMEL_BASE_UART1	0xf8020000
 #define ATMEL_BASE_UART2	0xf8024000
 #define ATMEL_BASE_TWI0		0xf8028000
+#define ATMEL_BASE_SFR		0xf8030000
 #define ATMEL_BASE_SYSC		0xf8048000
 #define ATMEL_BASE_SPI1		0xfc000000
 #define ATMEL_BASE_UART3	0xfc008000
@@ -125,6 +127,7 @@
 #define ATMEL_BASE_UDPHS	0xfc02c000
 
 #define ATMEL_BASE_PIOA		0xfc038000
+#define ATMEL_BASE_MATRIX1	0xfc03c000
 
 #define ATMEL_CHIPID_CIDR	0xfc069000
 #define ATMEL_CHIPID_EXID	0xfc069004
@@ -170,6 +173,35 @@
 #define ATMEL_PIO_PORTS		4
 #define CPU_HAS_PCR
 #define CPU_HAS_H32MXDIV
+
+/* AICREDIR Unlock Key */
+#define ATMEL_SFR_AICREDIR_KEY		0xB6D81C4D
+
+/* MATRIX0(H64MX) slave id definitions */
+#define H64MX_SLAVE_AXIMX_BRIDGE	0	/* Bridge from H64MX to AXIMX */
+#define H64MX_SLAVE_PERIPH_BRIDGE	1	/* H64MX Peripheral Bridge */
+#define H64MX_SLAVE_DDRC_PORT0		2	/* DDR2 Port0-AESOTF */
+#define H64MX_SLAVE_DDRC_PORT1		3	/* DDR2 Port1 */
+#define H64MX_SLAVE_DDRC_PORT2		4	/* DDR2 Port2 */
+#define H64MX_SLAVE_DDRC_PORT3		5	/* DDR2 Port3 */
+#define H64MX_SLAVE_DDRC_PORT4		6	/* DDR2 Port4 */
+#define H64MX_SLAVE_DDRC_PORT5		7	/* DDR2 Port5 */
+#define H64MX_SLAVE_DDRC_PORT6		8	/* DDR2 Port6 */
+#define H64MX_SLAVE_DDRC_PORT7		9	/* DDR2 Port7 */
+#define H64MX_SLAVE_SRAM		10	/* Internal SRAM 128K */
+#define H64MX_SLAVE_CACHE_L2		11	/* Internal SRAM 128K(L2) */
+#define H64MX_SLAVE_QSPI0		12	/* QSPI0 */
+#define H64MX_SLAVE_QSPI1		13	/* QSPI1 */
+#define H64MX_SLAVE_AESB		14	/* AESB */
+
+/* MATRIX1(H32MX) slave id definitions */
+#define H32MX_SLAVE_H64MX_BRIDGE	0	/* Bridge from H32MX to H64MX */
+#define H32MX_SLAVE_PERIPH_BRIDGE0	1	/* H32MX Peripheral Bridge 0 */
+#define H32MX_SLAVE_PERIPH_BRIDGE1	2	/* H32MX Peripheral Bridge 1 */
+#define H32MX_SLAVE_EBI			3	/* External Bus Interface */
+#define H32MX_SLAVE_NFC_CMD		3	/* NFC command Register */
+#define H32MX_SLAVE_NFC_SRAM		4	/* NFC SRAM */
+#define H32MX_SLAVE_USB			5	/* USB Device & Host */
 
 /* SAMA5D2 series chip id definitions */
 #define ARCH_ID_SAMA5D2		0x8a5c08c0

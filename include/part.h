@@ -10,12 +10,13 @@
 #include <ide.h>
 #include <common.h>
 
-typedef struct block_dev_desc {
+struct block_dev_desc {
 	int		if_type;	/* type of the interface */
 	int		dev;		/* device number */
 	unsigned char	part_type;	/* partition type */
 	unsigned char	target;		/* target SCSI ID */
 	unsigned char	lun;		/* target LUN */
+	unsigned char	hwpart;		/* HW partition, e.g. for eMMC */
 	unsigned char	type;		/* device type */
 	unsigned char	removable;	/* removable device */
 #ifdef CONFIG_LBA48
@@ -27,19 +28,19 @@ typedef struct block_dev_desc {
 	char		vendor [40+1];	/* IDE model, SCSI Vendor */
 	char		product[20+1];	/* IDE Serial no, SCSI product */
 	char		revision[8+1];	/* firmware revision */
-	unsigned long	(*block_read)(int dev,
+	unsigned long	(*block_read)(block_dev_desc_t *block_dev,
 				      lbaint_t start,
 				      lbaint_t blkcnt,
 				      void *buffer);
-	unsigned long	(*block_write)(int dev,
+	unsigned long	(*block_write)(block_dev_desc_t *block_dev,
 				       lbaint_t start,
 				       lbaint_t blkcnt,
 				       const void *buffer);
-	unsigned long   (*block_erase)(int dev,
+	unsigned long	(*block_erase)(block_dev_desc_t *block_dev,
 				       lbaint_t start,
 				       lbaint_t blkcnt);
 	void		*priv;		/* driver private struct pointer */
-}block_dev_desc_t;
+};
 
 #define BLOCK_CNT(size, block_dev_desc) (PAD_COUNT(size, block_dev_desc->blksz))
 #define PAD_TO_BLOCKSIZE(size, block_dev_desc) \

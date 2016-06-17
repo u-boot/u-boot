@@ -8,7 +8,7 @@
 #include <asm/immap_85xx.h>
 #include "sleep.h"
 #ifdef CONFIG_U_QE
-#include "../../../drivers/qe/qe.h"
+#include <fsl_qe.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;

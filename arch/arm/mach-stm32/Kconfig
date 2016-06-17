@@ -1,0 +1,16 @@
+if STM32
+
+config STM32F4
+	bool "stm32f4 family"
+
+config STM32F1
+	bool "stm32f1 family"
+
+config STM32F7
+	bool "stm32f7 family"
+
+source "arch/arm/mach-stm32/stm32f4/Kconfig"
+source "arch/arm/mach-stm32/stm32f1/Kconfig"
+source "arch/arm/mach-stm32/stm32f7/Kconfig"
+
+endif

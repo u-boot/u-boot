@@ -1,4 +1,4 @@
- U-boot for Odroid X2/U3/XU3
+ U-Boot for Odroid X2/U3/XU3
 ========================
 
 1. Summary
@@ -36,7 +36,7 @@ https://github.com/hardkernel/u-boot/tree/odroidxu3-v2012.07/sd_fuse/hardkernel
 
 4. Boot media layout
 ====================
-The table below shows SD/eMMC cards layout for U-boot.
+The table below shows SD/eMMC cards layout for U-Boot.
 The block offset is starting from 0 and the block size is 512B.
  -------------------------------------
 |  Binary   | Block offset| part type |
@@ -44,7 +44,7 @@ The block offset is starting from 0 and the block size is 512B.
  -------------------------------------
 | Bl1       | 1    | 0    |  1 (boot) |
 | Bl2       | 31   | 30   |  1 (boot) |
-| U-boot    | 63   | 62   |  1 (boot) |
+| U-Boot    | 63   | 62   |  1 (boot) |
 | Tzsw      | 2111 | 2110 |  1 (boot) |
 | Uboot Env | 2560 | 2560 |  0 (user) |
  -------------------------------------
@@ -62,18 +62,18 @@ From the downloaded files, You can find:
 without problem)
 
 This is all you need to boot this board. But if you want to use your custom
-u-boot then you need to change u-boot.bin with your own u-boot binary*
+U-Boot then you need to change u-boot.bin with your own U-Boot binary*
 and run the script "sd_fusing.sh" - this script is valid only for SD card.
 
 *note:
-The proper binary file of current U-boot is u-boot-dtb.bin.
+The proper binary file of current U-Boot is u-boot-dtb.bin.
 
 quick steps for Linux:
 - Download all files from the link at point 3 and extract it if needed.
 - put any SD card into the SD reader
 - check the device with "dmesg"
 - run ./sd_fusing.sh /dev/sdX - where X is SD card device (but not a partition)
-Check if Hardkernel U-boot is booting, and next do the same with your U-boot.
+Check if Hardkernel U-Boot is booting, and next do the same with your U-Boot.
 
 6. Prepare the eMMC boot card
    with a eMMC card reader (boot from eMMC card slot)
@@ -92,19 +92,19 @@ eMMC partition - its size is usually very small, about 1-4 MiB.
 If you have an eMMC->microSD adapter you can prepare the card as in point 5.
 But then the device can boot only from the SD card slot.
 
-8. Prepare the boot media using Hardkernel U-boot
+8. Prepare the boot media using Hardkernel U-Boot
 =================================================
-You can update the U-boot to the custom one if you have a working bootloader
+You can update the U-Boot to the custom one if you have a working bootloader
 delivered with the board on the eMMC/SD card. Then follow the steps:
 - install the android fastboot tool
 - connect a micro usb cable to the board
-- on the U-boot prompt, run command: fastboot (as a root)
+- on the U-Boot prompt, run command: fastboot (as a root)
 - on the host, run command: "fastboot flash bootloader u-boot-dtb.bin"
-- the custom U-boot should start after the board resets.
+- the custom U-Boot should start after the board resets.
 
 9. Partition layout
 ====================
-Default U-boot environment is setup for fixed partition layout.
+Default U-Boot environment is setup for fixed partition layout.
 
 Partition table: MSDOS. Disk layout and files as listed in the table below.
  ----- ------ ------ ------ -------- ---------------------------------

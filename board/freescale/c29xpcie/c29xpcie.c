@@ -83,9 +83,9 @@ void pci_init_board(void)
 }
 #endif /* ifdef CONFIG_PCI */
 
-#ifdef CONFIG_TSEC_ENET
 int board_eth_init(bd_t *bis)
 {
+#ifdef CONFIG_TSEC_ENET
 	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[2];
 	int num = 0;
@@ -110,10 +110,10 @@ int board_eth_init(bd_t *bis)
 	fsl_pq_mdio_init(bis, &mdio_info);
 
 	tsec_eth_init(bis, tsec_info, num);
+#endif
 
 	return pci_eth_init(bis);
 }
-#endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void fdt_del_sec(void *blob, int offset)

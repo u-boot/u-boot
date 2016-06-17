@@ -1,24 +1,16 @@
 How to port a serial driver to driver model
 ===========================================
 
-About 16 of 33 serial drivers have been converted as at September 2015. It
-is time for maintainers to start converting over the remaining serial drivers:
+Almost all of the serial drivers have been converted as at January 2016. These
+ones remain:
 
-   arm_dcc.c
-   lpc32xx_hsuart.c
    mcfuart.c
-   mxs_auart.c
-   opencores_yanu.c
    serial_bfin.c
-   serial_imx.c
-   serial_lpuart.c
-   serial_max3100.c
    serial_pxa.c
    serial_s3c24x0.c
-   serial_sa1100.c
-   usbtty.c
 
-You should complete this by the end of January 2016.
+The deadline for this work was the end of January 2016. If no one steps
+forward to convert these, at some point there may come a patch to remove them!
 
 Here is a suggested approach for converting your serial driver over to driver
 model. Please feel free to update this file with your ideas and suggestions.

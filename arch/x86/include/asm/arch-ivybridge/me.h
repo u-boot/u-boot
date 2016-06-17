@@ -345,12 +345,47 @@ struct __packed me_fwcaps {
 	u8 reserved[3];
 };
 
-/* Defined in me_status.c for both romstage and ramstage */
+/**
+ * intel_me_status() - Check Intel Management Engine status
+ *
+ * struct hfs:	Firmware status
+ * struct gmes:	Management engine status
+ */
 void intel_me_status(struct me_hfs *hfs, struct me_gmes *gmes);
 
-void intel_early_me_status(void);
-int intel_early_me_init(void);
-int intel_early_me_uma_size(void);
-int intel_early_me_init_done(u8 status);
+/**
+ * intel_early_me_status() - Check early Management Engine Status
+ *
+ * @me_dev:	Management engine PCI device
+ */
+void intel_early_me_status(struct udevice *me_dev);
+
+/**
+ * intel_early_me_init() - Early Intel Management Engine init
+ *
+ * @me_dev:	Management engine PCI device
+ * @return 0 if OK, -ve on error
+ */
+int intel_early_me_init(struct udevice *me_dev);
+
+/**
+ * intel_early_me_uma_size() - Get UMA size from the Intel Management Engine
+ *
+ * @me_dev:	Management engine PCI device
+ * @return UMA size if OK, -EINVAL on error
+ */
+int intel_early_me_uma_size(struct udevice *me_dev);
+
+/**
+ * intel_early_me_init_done() - Complete Intel Management Engine init
+ *
+ * @dev:	Northbridge device
+ * @me_dev:	Management engine PCI device
+ * @status:	Status result (ME_INIT_...)
+ * @return 0 to continue to boot, -EINVAL on unknown result data, -ETIMEDOUT
+ * if ME did not respond
+ */
+int intel_early_me_init_done(struct udevice *dev, struct udevice *me_dev,
+			     uint status);
 
 #endif

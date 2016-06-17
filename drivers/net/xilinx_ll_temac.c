@@ -303,7 +303,8 @@ int xilinx_ll_temac_initialize(bd_t *bis, struct ll_temac_info *devinf)
 	if (devinf->devname) {
 		strncpy(dev->name, devinf->devname, sizeof(dev->name));
 	} else {
-		snprintf(dev->name, sizeof(dev->name), "lltemac.%lx", devinf->base_addr);
+		snprintf(dev->name, sizeof(dev->name), "ll_tem.%lx",
+			 devinf->base_addr);
 		devinf->devname = dev->name;
 	}
 

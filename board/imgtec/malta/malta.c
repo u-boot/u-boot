@@ -53,8 +53,9 @@ static void malta_lcd_puts(const char *str)
 static enum core_card malta_core_card(void)
 {
 	u32 corid, rev;
+	const void *reg = (const void *)CKSEG1ADDR(MALTA_REVISION);
 
-	rev = __raw_readl(CKSEG1ADDR(MALTA_REVISION));
+	rev = __raw_readl(reg);
 	corid = (rev & MALTA_REVISION_CORID_MSK) >> MALTA_REVISION_CORID_SHF;
 
 	switch (corid) {
@@ -92,7 +93,7 @@ int checkboard(void)
 {
 	enum core_card core;
 
-	malta_lcd_puts("U-boot");
+	malta_lcd_puts("U-Boot");
 	puts("Board: MIPS Malta");
 
 	core = malta_core_card();
@@ -129,24 +130,26 @@ void _machine_restart(void)
 
 int board_early_init_f(void)
 {
-	void *io_base;
+	ulong io_base;
 
 	/* choose correct PCI I/O base */
 	switch (malta_sys_con()) {
 	case SYSCON_GT64120:
-		io_base = (void *)CKSEG1ADDR(MALTA_GT_PCIIO_BASE);
+		io_base = CKSEG1ADDR(MALTA_GT_PCIIO_BASE);
 		break;
 
 	case SYSCON_MSC01:
-		io_base = (void *)CKSEG1ADDR(MALTA_MSC01_PCIIO_BASE);
+		io_base = CKSEG1ADDR(MALTA_MSC01_PCIIO_BASE);
 		break;
 
 	default:
 		return -1;
 	}
 
+	set_io_port_base(io_base);
+
 	/* setup FDC37M817 super I/O controller */
-	malta_superio_init(io_base);
+	malta_superio_init();
 
 	return 0;
 }
@@ -178,8 +181,6 @@ void pci_init_board(void)
 
 	switch (malta_sys_con()) {
 	case SYSCON_GT64120:
-		set_io_port_base(CKSEG1ADDR(MALTA_GT_PCIIO_BASE));
-
 		gt64120_pci_init((void *)CKSEG1ADDR(MALTA_GT_BASE),
 				 0x00000000, 0x00000000, CONFIG_SYS_MEM_SIZE,
 				 0x10000000, 0x10000000, 128 * 1024 * 1024,
@@ -188,8 +189,6 @@ void pci_init_board(void)
 
 	default:
 	case SYSCON_MSC01:
-		set_io_port_base(CKSEG1ADDR(MALTA_MSC01_PCIIO_BASE));
-
 		msc01_pci_init((void *)CKSEG1ADDR(MALTA_MSC01_PCI_BASE),
 			       0x00000000, 0x00000000, CONFIG_SYS_MEM_SIZE,
 			       MALTA_MSC01_PCIMEM_MAP,

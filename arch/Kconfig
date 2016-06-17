@@ -55,6 +55,7 @@ config MIPS
 	select HAVE_PRIVATE_LIBGCC
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
+	select SUPPORT_OF_CONTROL
 
 config NDS32
 	bool "NDS32 architecture"

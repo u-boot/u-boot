@@ -54,6 +54,11 @@ __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 	return 0;
 }
 
+__weak int mmc_get_env_dev(void)
+{
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
 int env_init(void)
 {
 	/* use default */
@@ -69,21 +74,22 @@ __weak uint mmc_get_env_part(struct mmc *mmc)
 	return CONFIG_SYS_MMC_ENV_PART;
 }
 
+static unsigned char env_mmc_orig_hwpart;
+
 static int mmc_set_env_part(struct mmc *mmc)
 {
 	uint part = mmc_get_env_part(mmc);
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = mmc_get_env_dev();
 	int ret = 0;
 
 #ifdef CONFIG_SPL_BUILD
 	dev = 0;
 #endif
 
-	if (part != mmc->part_num) {
-		ret = mmc_switch_part(dev, part);
-		if (ret)
-			puts("MMC partition switch failed\n");
-	}
+	env_mmc_orig_hwpart = mmc->block_dev.hwpart;
+	ret = mmc_select_hwpart(dev, part);
+	if (ret)
+		puts("MMC partition switch failed\n");
 
 	return ret;
 }
@@ -108,13 +114,12 @@ static const char *init_mmc_for_env(struct mmc *mmc)
 static void fini_mmc_for_env(struct mmc *mmc)
 {
 #ifdef CONFIG_SYS_MMC_ENV_PART
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = mmc_get_env_dev();
 
 #ifdef CONFIG_SPL_BUILD
 	dev = 0;
 #endif
-	if (mmc_get_env_part(mmc) != mmc->part_num)
-		mmc_switch_part(dev, mmc->part_num);
+	mmc_select_hwpart(dev, env_mmc_orig_hwpart);
 #endif
 }
 
@@ -127,7 +132,7 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 	blk_start	= ALIGN(offset, mmc->write_bl_len) / mmc->write_bl_len;
 	blk_cnt		= ALIGN(size, mmc->write_bl_len) / mmc->write_bl_len;
 
-	n = mmc->block_dev.block_write(CONFIG_SYS_MMC_ENV_DEV, blk_start,
+	n = mmc->block_dev.block_write(&mmc->block_dev, blk_start,
 					blk_cnt, (u_char *)buffer);
 
 	return (n == blk_cnt) ? 0 : -1;
@@ -140,7 +145,8 @@ static unsigned char env_flags;
 int saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
-	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	int dev = mmc_get_env_dev();
+	struct mmc *mmc = find_mmc_device(dev);
 	u32	offset;
 	int	ret, copy = 0;
 	const char *errmsg;
@@ -167,8 +173,7 @@ int saveenv(void)
 		goto fini;
 	}
 
-	printf("Writing to %sMMC(%d)... ", copy ? "redundant " : "",
-	       CONFIG_SYS_MMC_ENV_DEV);
+	printf("Writing to %sMMC(%d)... ", copy ? "redundant " : "", dev);
 	if (write_env(mmc, CONFIG_ENV_SIZE, offset, (u_char *)env_new)) {
 		puts("failed\n");
 		ret = 1;
@@ -192,16 +197,12 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 			   unsigned long offset, const void *buffer)
 {
 	uint blk_start, blk_cnt, n;
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
-
-#ifdef CONFIG_SPL_BUILD
-	dev = 0;
-#endif
 
 	blk_start	= ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt		= ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
 
-	n = mmc->block_dev.block_read(dev, blk_start, blk_cnt, (uchar *)buffer);
+	n = mmc->block_dev.block_read(&mmc->block_dev, blk_start, blk_cnt,
+				      (uchar *)buffer);
 
 	return (n == blk_cnt) ? 0 : -1;
 }
@@ -216,7 +217,7 @@ void env_relocate_spec(void)
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *ep;
 	int ret;
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = mmc_get_env_dev();
 	const char *errmsg = NULL;
 
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env1, 1);
@@ -302,7 +303,7 @@ void env_relocate_spec(void)
 	struct mmc *mmc;
 	u32 offset;
 	int ret;
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = mmc_get_env_dev();
 	const char *errmsg;
 
 #ifdef CONFIG_SPL_BUILD

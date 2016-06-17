@@ -12,6 +12,7 @@
 #include <asm/arch/device.h>
 #include <asm/arch/mrc.h>
 #include <asm/arch/msg_port.h>
+#include <asm/arch/quark.h>
 #include "mrc_util.h"
 #include "hte.h"
 #include "smc.h"
@@ -106,8 +107,8 @@ void select_hte(void)
  */
 void dram_init_command(uint32_t data)
 {
-	pci_write_config_dword(QUARK_HOST_BRIDGE, MSG_DATA_REG, data);
-	pci_write_config_dword(QUARK_HOST_BRIDGE, MSG_CTRL_EXT_REG, 0);
+	qrk_pci_write_config_dword(QUARK_HOST_BRIDGE, MSG_DATA_REG, data);
+	qrk_pci_write_config_dword(QUARK_HOST_BRIDGE, MSG_CTRL_EXT_REG, 0);
 	msg_port_setup(MSG_OP_DRAM_INIT, MEM_CTLR, 0);
 
 	DPF(D_REGWR, "WR32 %03X %08X %08X\n", MEM_CTLR, 0, data);

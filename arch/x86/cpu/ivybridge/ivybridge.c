@@ -1,0 +1,22 @@
+/*
+ * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include <common.h>
+#include <asm/post.h>
+#include <asm/processor.h>
+
+int arch_cpu_init(void)
+{
+	int ret;
+
+	post_code(POST_CPU_INIT);
+
+	ret = x86_cpu_init_f();
+	if (ret)
+		return ret;
+
+	return 0;
+}

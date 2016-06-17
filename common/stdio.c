@@ -281,12 +281,26 @@ int stdio_add_devices(void)
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 #endif
-#ifdef CONFIG_LCD
+#ifdef CONFIG_DM_VIDEO
+	struct udevice *vdev;
+# ifndef CONFIG_DM_KEYBOARD
+	int ret;
+# endif
+
+	for (ret = uclass_first_device(UCLASS_VIDEO, &vdev);
+	     vdev;
+	     ret = uclass_next_device(&vdev))
+		;
+	if (ret)
+		printf("%s: Video device failed (ret=%d)\n", __func__, ret);
+#else
+# if defined(CONFIG_LCD)
 	drv_lcd_init ();
-#endif
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
+# endif
+# if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 	drv_video_init ();
-#endif
+# endif
+#endif /* CONFIG_DM_VIDEO */
 #if defined(CONFIG_KEYBOARD) && !defined(CONFIG_DM_KEYBOARD)
 	drv_keyboard_init ();
 #endif

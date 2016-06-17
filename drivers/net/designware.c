@@ -81,7 +81,7 @@ static int dw_mdio_init(const char *name, struct eth_mac_regs *mac_regs_p)
 
 	bus->read = dw_mdio_read;
 	bus->write = dw_mdio_write;
-	snprintf(bus->name, sizeof(bus->name), name);
+	snprintf(bus->name, sizeof(bus->name), "%s", name);
 
 	bus->priv = (void *)mac_regs_p;
 
@@ -196,6 +196,8 @@ static void dw_adjust_link(struct eth_mac_regs *mac_p,
 
 	if (phydev->speed != 1000)
 		conf |= MII_PORTSELECT;
+	else
+		conf &= ~MII_PORTSELECT;
 
 	if (phydev->speed == 100)
 		conf |= FES_100;
@@ -404,7 +406,7 @@ static int _dw_free_pkt(struct dw_eth_dev *priv)
 static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 {
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
+	int mask = 0xffffffff, ret;
 
 #ifdef CONFIG_PHY_ADDR
 	mask = 1 << CONFIG_PHY_ADDR;
@@ -417,6 +419,11 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 	phy_connect_dev(phydev, dev);
 
 	phydev->supported &= PHY_GBIT_FEATURES;
+	if (priv->max_speed) {
+		ret = phy_set_supported(phydev, priv->max_speed);
+		if (ret)
+			return ret;
+	}
 	phydev->advertising = phydev->supported;
 
 	priv->phydev = phydev;
@@ -584,11 +591,9 @@ static int designware_eth_probe(struct udevice *dev)
 	 * or via a PCI bridge, fill in platdata before we probe the hardware.
 	 */
 	if (device_is_on_pci_bus(dev)) {
-		pci_dev_t bdf = pci_get_bdf(dev);
-
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-		iobase = pci_mem_to_phys(bdf, iobase);
+		iobase = dm_pci_mem_to_phys(dev, iobase);
 
 		pdata->iobase = iobase;
 		pdata->phy_interface = PHY_INTERFACE_MODE_RMII;
@@ -599,6 +604,7 @@ static int designware_eth_probe(struct udevice *dev)
 	priv->mac_regs_p = (struct eth_mac_regs *)iobase;
 	priv->dma_regs_p = (struct eth_dma_regs *)(iobase + DW_DMA_BASE_OFFSET);
 	priv->interface = pdata->phy_interface;
+	priv->max_speed = pdata->max_speed;
 
 	dw_mdio_init(dev->name, priv->mac_regs_p);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
@@ -633,6 +639,7 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const char *phy_mode;
+	const fdt32_t *cell;
 
 	pdata->iobase = dev_get_addr(dev);
 	pdata->phy_interface = -1;
@@ -643,6 +650,11 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
+
+	pdata->max_speed = 0;
+	cell = fdt_getprop(gd->fdt_blob, dev->of_offset, "max-speed", NULL);
+	if (cell)
+		pdata->max_speed = fdt32_to_cpu(*cell);
 
 	return 0;
 }

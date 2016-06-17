@@ -1,5 +1,5 @@
 /*
- * LG Optimus Black (P970) codename sniper board
+ * LG Optimus Black codename sniper board
  *
  * Copyright (C) 2015 Paul Kocialkowski <contact@paulk.fr>
  *
@@ -24,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 const omap3_sysinfo sysinfo = {
 	.mtype = DDR_STACKED,
-	.board_string = "Sniper",
+	.board_string = "sniper",
 	.nand_string = "MMC"
 };
 
@@ -58,6 +58,11 @@ static struct musb_hdrc_platform_data musb_platform_data = {
 	.board_data = &musb_board_data,
 };
 
+void set_muxconf_regs(void)
+{
+	MUX_SNIPER();
+}
+
 #ifdef CONFIG_SPL_BUILD
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
@@ -68,12 +73,6 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 	timings->mr = MICRON_V_MR_165;
 }
 #endif
-
-u32 get_board_rev(void)
-{
-	/* Sold devices are expected to be at least revision F. */
-	return 6;
-}
 
 int board_init(void)
 {
@@ -147,6 +146,12 @@ int misc_init_r(void)
 	return 0;
 }
 
+u32 get_board_rev(void)
+{
+	/* Sold devices are expected to be at least revision F. */
+	return 6;
+}
+
 void get_board_serial(struct tag_serialnr *serialnr)
 {
 	omap_die_id_get_board_serial(serialnr);
@@ -160,11 +165,6 @@ void reset_misc(void)
 int fb_set_reboot_flag(void)
 {
 	return omap_reboot_mode_store('b');
-}
-
-void set_muxconf_regs(void)
-{
-	MUX_SNIPER();
 }
 
 #ifndef CONFIG_SPL_BUILD

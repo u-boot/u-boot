@@ -12,7 +12,6 @@
 #include <asm/arch/at91sam9261_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
@@ -35,7 +34,6 @@ static void at91sam9261ek_nand_hw_init(void)
 {
 	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
 	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	unsigned long csa;
 
 	/* Enable CS3 */
@@ -74,7 +72,7 @@ static void at91sam9261ek_nand_hw_init(void)
 		       AT91_SMC_MODE_TDF_CYCLE(2),
 		       &smc->cs[3].mode);
 
-	writel(1 << ATMEL_ID_PIOC, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
 	/* Configure RDY/BSY */
 	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
@@ -161,8 +159,6 @@ void lcd_disable(void)
 
 static void at91sam9261ek_lcd_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	at91_set_A_periph(AT91_PIN_PB1, 0);	/* LCDHSYNC */
 	at91_set_A_periph(AT91_PIN_PB2, 0);	/* LCDDOTCK */
 	at91_set_A_periph(AT91_PIN_PB3, 0);	/* LCDDEN */
@@ -186,7 +182,7 @@ static void at91sam9261ek_lcd_hw_init(void)
 	at91_set_B_periph(AT91_PIN_PB27, 0);	/* LCDD22 */
 	at91_set_B_periph(AT91_PIN_PB28, 0);	/* LCDD23 */
 
-	writel(AT91_PMC_HCK1, &pmc->scer);
+	at91_system_clk_enable(AT91_PMC_HCK1);
 
 	/* For 9G10EK, let U-Boot allocate the framebuffer in SDRAM */
 #ifdef CONFIG_AT91SAM9261EK

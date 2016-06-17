@@ -480,7 +480,7 @@ int board_late_init(void)
 		sprintf(tmp, "%s_%s", factory_dat.asn,
 			factory_dat.comp_version);
 	else
-		sprintf(tmp, "QMX7.E38_4.0");
+		strcpy(tmp, "QMX7.E38_4.0");
 
 	ret = setenv("boardid", tmp);
 	if (ret)

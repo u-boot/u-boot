@@ -246,7 +246,7 @@ int ftmac100_initialize (bd_t *bd)
 	memset (dev, 0, sizeof (*dev));
 	memset (priv, 0, sizeof (*priv));
 
-	sprintf (dev->name, "FTMAC100");
+	strcpy(dev->name, "FTMAC100");
 	dev->iobase	= CONFIG_FTMAC100_BASE;
 	dev->init	= ftmac100_init;
 	dev->halt	= ftmac100_halt;

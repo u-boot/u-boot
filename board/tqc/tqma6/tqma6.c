@@ -77,7 +77,7 @@ static iomux_v3_cfg_t const tqma6_usdhc3_pads[] = {
 
 /*
  * According to board_mmc_init() the following map is done:
- * (U-boot device node)    (Physical Port)
+ * (U-Boot device node)    (Physical Port)
  * mmc0                    eMMC (SD3) on TQMa6
  * mmc1 .. n               optional slots used on baseboard
  */

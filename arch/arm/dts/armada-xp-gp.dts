@@ -68,6 +68,10 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	aliases {
+		spi0 = &spi0;
+	};
+
 	memory {
 		device_type = "memory";
 		/*
@@ -148,6 +152,7 @@
 		internal-regs {
 			serial@12000 {
 				status = "okay";
+				u-boot,dm-pre-reloc;
 			};
 			serial@12100 {
 				status = "okay";
@@ -223,8 +228,10 @@
 
 			spi0: spi@10600 {
 				status = "okay";
+				u-boot,dm-pre-reloc;
 
 				spi-flash@0 {
+					u-boot,dm-pre-reloc;
 					#address-cells = <1>;
 					#size-cells = <1>;
 					compatible = "n25q128a13", "jedec,spi-nor";

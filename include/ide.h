@@ -28,21 +28,23 @@ void ide_led(uchar led, uchar status);
 
 #ifdef CONFIG_SYS_64BIT_LBA
 typedef uint64_t lbaint_t;
-#define LBAF "%llx"
-#define LBAFU "%llu"
+#define LBAFlength "ll"
 #else
 typedef ulong lbaint_t;
-#define LBAF "%lx"
-#define LBAFU "%lu"
+#define LBAFlength "l"
 #endif
+#define LBAF "%" LBAFlength "x"
+#define LBAFU "%" LBAFlength "u"
 
 /*
  * Function Prototypes
  */
 
 void ide_init(void);
-ulong ide_read(int device, lbaint_t blknr, lbaint_t blkcnt, void *buffer);
-ulong ide_write(int device, lbaint_t blknr, lbaint_t blkcnt,
+typedef struct block_dev_desc block_dev_desc_t;
+ulong ide_read(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+	       void *buffer);
+ulong ide_write(block_dev_desc_t *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
 
 #ifdef CONFIG_IDE_PREINIT

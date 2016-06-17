@@ -6,7 +6,8 @@
 
 #include <common.h>
 #include <linux/io.h>
-#include <mach/sc-regs.h>
+
+#include "sc-regs.h"
 
 void reset_cpu(unsigned long ignored)
 {

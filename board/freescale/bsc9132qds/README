@@ -87,9 +87,9 @@ Default Boot Method
 --------------------
 NOR boot
 
-Building U-boot
+Building U-Boot
 --------------
-To build the u-boot for BSC9132QDS:
+To build the U-Boot for BSC9132QDS:
 1. NOR Flash
 	make BSC9132QDS_NOR_DDRCLK100 : For 100MHZ DDR CLK
 	make BSC9132QDS_NOR_DDRCLK133 : For 133MHZ DDR CLK
@@ -122,7 +122,7 @@ Memory map
 
 Flashing Images
 ---------------
-To place a new u-boot image in the NAND flash and then boot
+To place a new U-Boot image in the NAND flash and then boot
 with that new image temporarily, use this:
 	tftp 1000000 u-boot-nand.bin
 	nand erase 0 100000

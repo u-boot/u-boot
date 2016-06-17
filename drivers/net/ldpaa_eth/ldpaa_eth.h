@@ -24,7 +24,7 @@ enum ldpaa_eth_type {
 };
 
 /* Arbitrary values for now, but we'll need to tune */
-#define LDPAA_ETH_NUM_BUFS		(2 * 7)
+#define LDPAA_ETH_NUM_BUFS		(7 * 7)
 #define LDPAA_ETH_REFILL_THRESH		(LDPAA_ETH_NUM_BUFS/2)
 #define LDPAA_ETH_RX_BUFFER_SIZE	2048
 

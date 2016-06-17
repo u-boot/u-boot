@@ -100,6 +100,7 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_DATE
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IO
 #define CONFIG_CMD_IRQ
@@ -208,6 +209,7 @@
 #define CONFIG_HOSTNAME		x86
 #define CONFIG_BOOTFILE		"bzImage"
 #define CONFIG_LOADADDR		0x1000000
+#define CONFIG_RAMDISK_ADDR		0x4000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	CONFIG_STD_DEVICES_SETTINGS			\
@@ -215,7 +217,7 @@
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\
 	"othbootargs=acpi=off\0"			\
-	"ramdiskaddr=0x2000000\0"			\
+	"ramdiskaddr=0x4000000\0"			\
 	"ramdiskfile=initramfs.gz\0"
 
 #define CONFIG_RAMBOOTCOMMAND				\
@@ -233,5 +235,7 @@
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftpboot $loadaddr $bootfile;"			\
 	"zboot $loadaddr"
+
+#define CONFIG_BOOTDELAY	2
 
 #endif	/* __CONFIG_H */

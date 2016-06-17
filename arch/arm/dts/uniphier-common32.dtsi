@@ -9,18 +9,19 @@
 /include/ "skeleton.dtsi"
 
 / {
+	clocks {
+		refclk: ref {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+		};
+	};
+
 	soc: soc {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
 		interrupt-parent = <&intc>;
-
-		extbus: extbus {
-			compatible = "simple-bus";
-			#address-cells = <2>;
-			#size-cells = <1>;
-		};
 
 		serial0: serial@54006800 {
 			compatible = "socionext,uniphier-uart";
@@ -62,9 +63,28 @@
 			clocks = <&uart_clk>;
 		};
 
-		system-bus-controller@58c00000 {
-			compatible = "socionext,uniphier-system-bus-controller";
-			reg = <0x58c00000 0x400>, <0x59800000 0x2000>;
+		system_bus: system-bus@58c00000 {
+			compatible = "socionext,uniphier-system-bus";
+			reg = <0x58c00000 0x400>;
+			#address-cells = <2>;
+			#size-cells = <1>;
+		};
+
+		smpctrl@59800000 {
+			compatible = "socionext,uniphier-smpctrl";
+			reg = <0x59801000 0x400>;
+		};
+
+		mio: mioctrl@59810000 {
+			/* specify compatible in each SoC DTSI */
+			reg = <0x59810000 0x800>;
+			#clock-cells = <1>;
+		};
+
+		peri: perictrl@59820000 {
+			/* specify compatible in each SoC DTSI */
+			reg = <0x59820000 0x200>;
+			#clock-cells = <1>;
 		};
 
 		timer@60000200 {
@@ -92,6 +112,14 @@
 		pinctrl: pinctrl@5f801000 {
 			/* specify compatible in each SoC DTSI */
 			reg = <0x5f801000 0xe00>;
+		};
+
+		sysctrl: sysctrl@61840000 {
+			/* specify compatible in each SoC DTSI */
+			reg = <0x61840000 0x4000>;
+			#clock-cells = <1>;
+			clock-names = "ref";
+			clocks = <&refclk>;
 		};
 
 		nand: nand@68000000 {

@@ -1,31 +1,80 @@
 if ARCH_MVEBU
 
+config ARMADA_38X
+	bool
+
+config ARMADA_XP
+	bool
+
+config MV78230
+	bool
+	select ARMADA_XP
+
+config MV78260
+	bool
+	select ARMADA_XP
+
+config MV78460
+	bool
+	select ARMADA_XP
+
+config DB_88F6820_GP
+	bool
+	select ARMADA_38X
+
 choice
 	prompt "Marvell MVEBU (Armada XP/38x) board select"
 	optional
 
+config TARGET_CLEARFOG
+	bool "Support ClearFog"
+	select DB_88F6820_GP
+
 config TARGET_DB_88F6820_GP
 	bool "Support DB-88F6820-GP"
+	select DB_88F6820_GP
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
+	select MV78460
+
+config TARGET_DS414
+	bool "Support Synology DS414"
+	select MV78230
 
 config TARGET_MAXBCM
 	bool "Support maxbcm"
+	select MV78460
+
+config TARGET_THEADORABLE
+	bool "Support theadorable Armada XP"
+	select MV78260
 
 endchoice
 
+config SYS_BOARD
+	default "clearfog" if TARGET_CLEARFOG
+	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
+	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "ds414" if TARGET_DS414
+	default "maxbcm" if TARGET_MAXBCM
+	default "theadorable" if TARGET_THEADORABLE
+
+config SYS_CONFIG_NAME
+	default "clearfog" if TARGET_CLEARFOG
+	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
+	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "ds414" if TARGET_DS414
+	default "maxbcm" if TARGET_MAXBCM
+	default "theadorable" if TARGET_THEADORABLE
+
+config SYS_VENDOR
+	default "Marvell" if TARGET_DB_MV784MP_GP
+	default "Marvell" if TARGET_DB_88F6820_GP
+	default "solidrun" if TARGET_CLEARFOG
+	default "Synology" if TARGET_DS414
+
 config SYS_SOC
 	default "mvebu"
-
-config MVEBU_BOOTROM_UARTBOOT
-	bool "Use kwboot to boot via BootROM xmodem protocol"
-	help
-	  This option provides support for booting via the Marvell
-	  xmodem protocol, used by the kwboot tool.
-
-	  Please don't forget to configure the boot device in
-	  the board specific kwbimage.cfg file this way:
-	      BOOT_FROM uart
 
 endif

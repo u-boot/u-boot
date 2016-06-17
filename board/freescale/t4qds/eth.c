@@ -153,7 +153,7 @@ static int t4240qds_mdio_init(char *realbusname, u8 muxval)
 	bus->read = t4240qds_mdio_read;
 	bus->write = t4240qds_mdio_write;
 	bus->reset = t4240qds_mdio_reset;
-	sprintf(bus->name, t4240qds_mdio_name_for_muxval(muxval));
+	strcpy(bus->name, t4240qds_mdio_name_for_muxval(muxval));
 
 	pmdio->realbus = miiphy_get_dev_by_name(realbusname);
 
@@ -658,7 +658,7 @@ int board_eth_init(bd_t *bis)
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_XGMII:
 			if ((srds_prtcl_s2 == 55) || (srds_prtcl_s2 == 57)) {
-				/* A fake PHY address to make U-boot happy */
+				/* A fake PHY address to make U-Boot happy */
 				fm_info_set_phy_address(i, i);
 			} else {
 				lane = serdes_get_first_lane(FSL_SRDS_1,
@@ -839,7 +839,7 @@ int board_eth_init(bd_t *bis)
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_XGMII:
 			if ((srds_prtcl_s2 == 55) || (srds_prtcl_s2 == 57)) {
-				/* A fake PHY address to make U-boot happy */
+				/* A fake PHY address to make U-Boot happy */
 				fm_info_set_phy_address(i, i);
 			} else {
 				lane = serdes_get_first_lane(FSL_SRDS_2,

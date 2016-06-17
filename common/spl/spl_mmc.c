@@ -26,13 +26,12 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 	unsigned long count;
 	u32 image_size_sectors;
 	struct image_header *header;
-	int dev_num = mmc->block_dev.dev;
 
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
 					 sizeof(struct image_header));
 
 	/* read image header to find the image size & load address */
-	count = mmc->block_dev.block_read(dev_num, sector, 1, header);
+	count = mmc->block_dev.block_read(&mmc->block_dev, sector, 1, header);
 	debug("read sector %lx, count=%lu\n", sector, count);
 	if (count == 0)
 		goto end;
@@ -49,7 +48,8 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 			     mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
-	count = mmc->block_dev.block_read(dev_num, sector, image_size_sectors,
+	count = mmc->block_dev.block_read(&mmc->block_dev, sector,
+					  image_size_sectors,
 					  (void *)(ulong)spl_image.load_addr);
 	debug("read %x sectors to %x\n", image_size_sectors,
 	      spl_image.load_addr);
@@ -153,8 +153,7 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 {
 	unsigned long count;
 
-	count = mmc->block_dev.block_read(
-		mmc->block_dev.dev,
+	count = mmc->block_dev.block_read(&mmc->block_dev,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS,
 		(void *) CONFIG_SYS_SPL_ARGS_ADDR);
@@ -317,7 +316,7 @@ int spl_mmc_load_image(u32 boot_device)
 		if (!err)
 			return err;
 #endif
-		break;
+		/* If RAW mode fails, try FS mode. */
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
 

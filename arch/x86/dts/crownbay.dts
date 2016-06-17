@@ -19,7 +19,7 @@
 	compatible = "intel,crownbay", "intel,queensbay";
 
 	aliases {
-		spi0 = "/spi";
+		spi0 = &spi;
 	};
 
 	config {
@@ -46,20 +46,6 @@
 
 	};
 
-	gpioa {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0 0x20>;
-		bank-name = "A";
-	};
-
-	gpiob {
-		compatible = "intel,ich6-gpio";
-		u-boot,dm-pre-reloc;
-		reg = <0x20 0x20>;
-		bank-name = "B";
-	};
-
 	chosen {
 		/*
 		 * By default the legacy superio serial port is used as the
@@ -70,17 +56,6 @@
 		 * UART on Topcliff PCH.
 		 */
 		stdout-path = "/serial";
-	};
-
-	spi {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "intel,ich-spi";
-		spi-flash@0 {
-			reg = <0>;
-			compatible = "sst,25vf016b", "spi-flash";
-			memory-map = <0xffe00000 0x00200000>;
-		};
 	};
 
 	microcode {
@@ -170,68 +145,101 @@
 			};
 		};
 
-		irq-router@1f,0 {
+		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
-			compatible = "intel,irq-router";
-			intel,pirq-config = "pci";
-			intel,pirq-link = <0x60 8>;
-			intel,pirq-mask = <0xcee0>;
-			intel,pirq-routing = <
-				/* TunnelCreek PCI devices */
-				PCI_BDF(0, 2, 0) INTA PIRQE
-				PCI_BDF(0, 3, 0) INTA PIRQF
-				PCI_BDF(0, 23, 0) INTA PIRQA
-				PCI_BDF(0, 23, 0) INTB PIRQB
-				PCI_BDF(0, 23, 0) INTC PIRQC
-				PCI_BDF(0, 23, 0) INTD PIRQD
-				PCI_BDF(0, 24, 0) INTA PIRQB
-				PCI_BDF(0, 24, 0) INTB PIRQC
-				PCI_BDF(0, 24, 0) INTC PIRQD
-				PCI_BDF(0, 24, 0) INTD PIRQA
-				PCI_BDF(0, 25, 0) INTA PIRQC
-				PCI_BDF(0, 25, 0) INTB PIRQD
-				PCI_BDF(0, 25, 0) INTC PIRQA
-				PCI_BDF(0, 25, 0) INTD PIRQB
-				PCI_BDF(0, 26, 0) INTA PIRQD
-				PCI_BDF(0, 26, 0) INTB PIRQA
-				PCI_BDF(0, 26, 0) INTC PIRQB
-				PCI_BDF(0, 26, 0) INTD PIRQC
-				PCI_BDF(0, 27, 0) INTA PIRQG
-				/*
-				 * Topcliff PCI devices
-				 *
-				 * Note on the Crown Bay board, Topcliff chipset
-				 * is connected to TunnelCreek PCIe port 0, so
-				 * its bus number is 1 for its PCIe port and 2
-				 * for its PCI devices per U-Boot current PCI
-				 * bus enumeration algorithm.
-				 */
-				PCI_BDF(1, 0, 0) INTA PIRQA
-				PCI_BDF(2, 0, 1) INTA PIRQA
-				PCI_BDF(2, 0, 2) INTA PIRQA
-				PCI_BDF(2, 2, 0) INTB PIRQD
-				PCI_BDF(2, 2, 1) INTB PIRQD
-				PCI_BDF(2, 2, 2) INTB PIRQD
-				PCI_BDF(2, 2, 3) INTB PIRQD
-				PCI_BDF(2, 2, 4) INTB PIRQD
-				PCI_BDF(2, 4, 0) INTC PIRQC
-				PCI_BDF(2, 4, 1) INTC PIRQC
-				PCI_BDF(2, 6, 0) INTD PIRQB
-				PCI_BDF(2, 8, 0) INTA PIRQA
-				PCI_BDF(2, 8, 1) INTA PIRQA
-				PCI_BDF(2, 8, 2) INTA PIRQA
-				PCI_BDF(2, 8, 3) INTA PIRQA
-				PCI_BDF(2, 10, 0) INTB PIRQD
-				PCI_BDF(2, 10, 1) INTB PIRQD
-				PCI_BDF(2, 10, 2) INTB PIRQD
-				PCI_BDF(2, 10, 3) INTB PIRQD
-				PCI_BDF(2, 10, 4) INTB PIRQD
-				PCI_BDF(2, 12, 0) INTC PIRQC
-				PCI_BDF(2, 12, 1) INTC PIRQC
-				PCI_BDF(2, 12, 2) INTC PIRQC
-				PCI_BDF(2, 12, 3) INTC PIRQC
-				PCI_BDF(2, 12, 4) INTC PIRQC
-			>;
+			compatible = "intel,pch7";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			irq-router {
+				compatible = "intel,queensbay-irq-router";
+				intel,pirq-config = "pci";
+				intel,pirq-link = <0x60 8>;
+				intel,pirq-mask = <0xcee0>;
+				intel,pirq-routing = <
+					/* TunnelCreek PCI devices */
+					PCI_BDF(0, 2, 0) INTA PIRQE
+					PCI_BDF(0, 3, 0) INTA PIRQF
+					PCI_BDF(0, 23, 0) INTA PIRQA
+					PCI_BDF(0, 23, 0) INTB PIRQB
+					PCI_BDF(0, 23, 0) INTC PIRQC
+					PCI_BDF(0, 23, 0) INTD PIRQD
+					PCI_BDF(0, 24, 0) INTA PIRQB
+					PCI_BDF(0, 24, 0) INTB PIRQC
+					PCI_BDF(0, 24, 0) INTC PIRQD
+					PCI_BDF(0, 24, 0) INTD PIRQA
+					PCI_BDF(0, 25, 0) INTA PIRQC
+					PCI_BDF(0, 25, 0) INTB PIRQD
+					PCI_BDF(0, 25, 0) INTC PIRQA
+					PCI_BDF(0, 25, 0) INTD PIRQB
+					PCI_BDF(0, 26, 0) INTA PIRQD
+					PCI_BDF(0, 26, 0) INTB PIRQA
+					PCI_BDF(0, 26, 0) INTC PIRQB
+					PCI_BDF(0, 26, 0) INTD PIRQC
+					PCI_BDF(0, 27, 0) INTA PIRQG
+					/*
+					* Topcliff PCI devices
+					*
+					* Note on the Crown Bay board, Topcliff
+					* chipset is connected to TunnelCreek
+					* PCIe port 0, so its bus number is 1
+					* for its PCIe port and 2 for its PCI
+					* devices per U-Boot current PCI bus
+					* enumeration algorithm.
+					*/
+					PCI_BDF(1, 0, 0) INTA PIRQA
+					PCI_BDF(2, 0, 1) INTA PIRQA
+					PCI_BDF(2, 0, 2) INTA PIRQA
+					PCI_BDF(2, 2, 0) INTB PIRQD
+					PCI_BDF(2, 2, 1) INTB PIRQD
+					PCI_BDF(2, 2, 2) INTB PIRQD
+					PCI_BDF(2, 2, 3) INTB PIRQD
+					PCI_BDF(2, 2, 4) INTB PIRQD
+					PCI_BDF(2, 4, 0) INTC PIRQC
+					PCI_BDF(2, 4, 1) INTC PIRQC
+					PCI_BDF(2, 6, 0) INTD PIRQB
+					PCI_BDF(2, 8, 0) INTA PIRQA
+					PCI_BDF(2, 8, 1) INTA PIRQA
+					PCI_BDF(2, 8, 2) INTA PIRQA
+					PCI_BDF(2, 8, 3) INTA PIRQA
+					PCI_BDF(2, 10, 0) INTB PIRQD
+					PCI_BDF(2, 10, 1) INTB PIRQD
+					PCI_BDF(2, 10, 2) INTB PIRQD
+					PCI_BDF(2, 10, 3) INTB PIRQD
+					PCI_BDF(2, 10, 4) INTB PIRQD
+					PCI_BDF(2, 12, 0) INTC PIRQC
+					PCI_BDF(2, 12, 1) INTC PIRQC
+					PCI_BDF(2, 12, 2) INTC PIRQC
+					PCI_BDF(2, 12, 3) INTC PIRQC
+					PCI_BDF(2, 12, 4) INTC PIRQC
+				>;
+			};
+
+			spi: spi {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "intel,ich7-spi";
+				spi-flash@0 {
+					reg = <0>;
+					compatible = "sst,25vf016b",
+						"spi-flash";
+					memory-map = <0xffe00000 0x00200000>;
+				};
+			};
+
+			gpioa {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0 0x20>;
+				bank-name = "A";
+			};
+
+			gpiob {
+				compatible = "intel,ich6-gpio";
+				u-boot,dm-pre-reloc;
+				reg = <0x20 0x20>;
+				bank-name = "B";
+			};
 		};
 	};
 

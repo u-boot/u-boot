@@ -55,12 +55,6 @@ config TARGET_YOSEMITE
 config TARGET_YUCCA
 	bool "Support yucca"
 
-config TARGET_FX12MM
-	bool "Support fx12mm"
-
-config TARGET_V5FX30TEVAL
-	bool "Support v5fx30teval"
-
 config TARGET_CPCI2DP
 	bool "Support CPCI2DP"
 
@@ -115,14 +109,19 @@ config TARGET_PIP405
 config TARGET_XPEDITE1000
 	bool "Support xpedite1000"
 
-config TARGET_ML507
-	bool "Support ml507"
-
 config TARGET_XILINX_PPC405_GENERIC
 	bool "Support xilinx-ppc405-generic"
+	select SUPPORT_SPL
+	select OF_CONTROL
+	select DM
+	select DM_SERIAL
 
 config TARGET_XILINX_PPC440_GENERIC
 	bool "Support xilinx-ppc440-generic"
+	select SUPPORT_SPL
+	select OF_CONTROL
+	select DM
+	select DM_SERIAL
 
 endchoice
 
@@ -139,8 +138,6 @@ source "board/amcc/sequoia/Kconfig"
 source "board/amcc/walnut/Kconfig"
 source "board/amcc/yosemite/Kconfig"
 source "board/amcc/yucca/Kconfig"
-source "board/avnet/fx12mm/Kconfig"
-source "board/avnet/v5fx30teval/Kconfig"
 source "board/esd/cpci2dp/Kconfig"
 source "board/esd/cpci405/Kconfig"
 source "board/esd/plu405/Kconfig"
@@ -158,7 +155,6 @@ source "board/mpl/mip405/Kconfig"
 source "board/mpl/pip405/Kconfig"
 source "board/t3corp/Kconfig"
 source "board/xes/xpedite1000/Kconfig"
-source "board/xilinx/ml507/Kconfig"
 source "board/xilinx/ppc405-generic/Kconfig"
 source "board/xilinx/ppc440-generic/Kconfig"
 

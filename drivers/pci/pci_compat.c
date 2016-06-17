@@ -12,6 +12,7 @@
 #include <pci.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include "pci_internal.h"
 
 #define PCI_HOSE_OP(rw, name, size, type)				\
 int pci_hose_##rw##_config_##name(struct pci_controller *hose,		\
@@ -34,5 +35,19 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 
 	if (pci_find_device_id(ids, index, &dev))
 		return -1;
-	return pci_get_bdf(dev);
+	return dm_pci_get_bdf(dev);
+}
+
+struct pci_controller *pci_bus_to_hose(int busnum)
+{
+	struct udevice *bus;
+	int ret;
+
+	ret = pci_get_bus(busnum, &bus);
+	if (ret) {
+		debug("%s: Cannot get bus %d: ret=%d\n", __func__, busnum, ret);
+		return NULL;
+	}
+
+	return dev_get_uclass_priv(bus);
 }

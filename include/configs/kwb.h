@@ -12,6 +12,7 @@
 #ifndef __CONFIG_KWB_H__
 #define __CONFIG_KWB_H__
 
+#include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
@@ -26,6 +27,9 @@
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_24BMP
 #define CONFIG_BMP_32BPP
+
+/* memory */
+#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
@@ -103,10 +107,9 @@ BUR_COMMON_ENV \
 #define CONFIG_BOOTDELAY		0
 
 /* undefine command which we not need here */
-#undef	CONFIG_BOOTM_NETBSD
-#undef	CONFIG_BOOTM_PLAN9
-#undef	CONFIG_BOOTM_RTEMS
-#undef CONFIG_CMD_CRC32
+#undef CONFIG_BOOTM_NETBSD
+#undef CONFIG_BOOTM_PLAN9
+#undef CONFIG_BOOTM_RTEMS
 
 /* Support both device trees and ATAGs. */
 #define CONFIG_OF_LIBFDT
@@ -122,16 +125,10 @@ BUR_COMMON_ENV \
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 /* attention! not only for gadget, enables also highspeed in hostmode */
 #define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE	MUSB_HOST
-
-#ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#endif /* CONFIG_USB_MUSB_HOST */
 
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_MMC
@@ -151,4 +148,4 @@ BUR_COMMON_ENV \
 #define CONFIG_CMD_FS_GENERIC
 #endif /* CONFIG_MMC, ... */
 
-#endif	/* ! __CONFIG_TSERIES_H__ */
+#endif	/* __CONFIG_KWB_H__ */

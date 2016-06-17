@@ -9,7 +9,7 @@ performance changes:
 
 
 ----------------------------------------
-SDRAM0_CFG0[PMU] = 1 (U-boot default for Bamboo, Yosemite and Yellowstone)
+SDRAM0_CFG0[PMU] = 1 (U-Boot default for Bamboo, Yosemite and Yellowstone)
 ----------------------------------------
 Stream benchmark results
 -------------------------------------------------------------

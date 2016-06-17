@@ -1,5 +1,5 @@
 /*
- * U-boot - io.h IO routines
+ * U-Boot - io.h IO routines
  *
  * Copyright 2004-2009 Analog Devices Inc.
  *

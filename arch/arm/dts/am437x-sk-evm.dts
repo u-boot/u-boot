@@ -26,6 +26,7 @@
 
 	chosen {
 		stdout-path = &uart0;
+		tick-timer = &timer2;
 	};
 
 	backlight {
@@ -567,7 +568,7 @@
 
 	spi-max-frequency = <48000000>;
 	m25p80@0 {
-		compatible = "mx66l51235l";
+		compatible = "mx66l51235l","spi-flash";
 		spi-max-frequency = <48000000>;
 		reg = <0>;
 		spi-cpol;

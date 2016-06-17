@@ -20,7 +20,7 @@
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SYS_NO_FLASH		/* No NOR Flash */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* U-boot is a 2nd stage bootloader */
+#define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage bootloader */
 
 #define CONFIG_HW_WATCHDOG
 

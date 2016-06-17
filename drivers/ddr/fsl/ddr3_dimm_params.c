@@ -6,9 +6,7 @@
  * from ddr3 spd, please refer to the spec
  * JEDEC standard No.21-C 4_01_02_11R18.pdf
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * Version 2 as published by the Free Software Foundation.
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

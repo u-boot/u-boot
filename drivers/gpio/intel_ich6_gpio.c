@@ -30,6 +30,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <pch.h>
 #include <pci.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -60,91 +61,6 @@ struct ich6_bank_priv {
 void ich_gpio_set_gpio_map(const struct pch_gpio_map *map)
 {
 	gd->arch.gpio_map = map;
-}
-
-static int gpio_ich6_get_base(unsigned long base)
-{
-	pci_dev_t pci_dev;			/* handle for 0:1f:0 */
-	u8 tmpbyte;
-	u16 tmpword;
-	u32 tmplong;
-
-	/* Where should it be? */
-	pci_dev = PCI_BDF(0, 0x1f, 0);
-
-	/* Is the device present? */
-	tmpword = x86_pci_read_config16(pci_dev, PCI_VENDOR_ID);
-	if (tmpword != PCI_VENDOR_ID_INTEL) {
-		debug("%s: wrong VendorID %x\n", __func__, tmpword);
-		return -ENODEV;
-	}
-
-	tmpword = x86_pci_read_config16(pci_dev, PCI_DEVICE_ID);
-	debug("Found %04x:%04x\n", PCI_VENDOR_ID_INTEL, tmpword);
-	/*
-	 * We'd like to validate the Device ID too, but pretty much any
-	 * value is either a) correct with slight differences, or b)
-	 * correct but undocumented. We'll have to check a bunch of other
-	 * things instead...
-	 */
-
-	/* I/O should already be enabled (it's a RO bit). */
-	tmpword = x86_pci_read_config16(pci_dev, PCI_COMMAND);
-	if (!(tmpword & PCI_COMMAND_IO)) {
-		debug("%s: device IO not enabled\n", __func__);
-		return -ENODEV;
-	}
-
-	/* Header Type must be normal (bits 6-0 only; see spec.) */
-	tmpbyte = x86_pci_read_config8(pci_dev, PCI_HEADER_TYPE);
-	if ((tmpbyte & 0x7f) != PCI_HEADER_TYPE_NORMAL) {
-		debug("%s: invalid Header type\n", __func__);
-		return -ENODEV;
-	}
-
-	/* Base Class must be a bridge device */
-	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_CODE);
-	if (tmpbyte != PCI_CLASS_CODE_BRIDGE) {
-		debug("%s: invalid class\n", __func__);
-		return -ENODEV;
-	}
-	/* Sub Class must be ISA */
-	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_SUB_CODE);
-	if (tmpbyte != PCI_CLASS_SUB_CODE_BRIDGE_ISA) {
-		debug("%s: invalid subclass\n", __func__);
-		return -ENODEV;
-	}
-
-	/* Programming Interface must be 0x00 (no others exist) */
-	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_PROG);
-	if (tmpbyte != 0x00) {
-		debug("%s: invalid interface type\n", __func__);
-		return -ENODEV;
-	}
-
-	/*
-	 * GPIOBASE moved to its current offset with ICH6, but prior to
-	 * that it was unused (or undocumented). Check that it looks
-	 * okay: not all ones or zeros.
-	 *
-	 * Note we don't need check bit0 here, because the Tunnel Creek
-	 * GPIO base address register bit0 is reserved (read returns 0),
-	 * while on the Ivybridge the bit0 is used to indicate it is an
-	 * I/O space.
-	 */
-	tmplong = x86_pci_read_config32(pci_dev, base);
-	if (tmplong == 0x00000000 || tmplong == 0xffffffff) {
-		debug("%s: unexpected BASE value\n", __func__);
-		return -ENODEV;
-	}
-
-	/*
-	 * Okay, I guess we're looking at the right device. The actual
-	 * GPIO registers are in the PCI device's I/O space, starting
-	 * at the offset that we just read. Bit 0 indicates that it's
-	 * an I/O address, not a memory address, so mask that off.
-	 */
-	return tmplong & 1 ? tmplong & ~3 : tmplong & ~15;
 }
 
 static int _ich6_gpio_set_value(uint16_t base, unsigned offset, int value)
@@ -288,20 +204,26 @@ static int _gpio_ich6_pinctrl_cfg_pin(s32 gpiobase, s32 iobase, int pin_node)
 
 int gpio_ich6_pinctrl_init(void)
 {
+	struct udevice *pch;
 	int pin_node;
 	int node;
 	int ret;
-	int gpiobase;
-	int iobase_offset;
-	int iobase = -1;
+	u32 gpiobase;
+	u32 iobase = -1;
+
+	ret = uclass_first_device(UCLASS_PCH, &pch);
+	if (ret)
+		return ret;
+	if (!pch)
+		return -ENODEV;
 
 	/*
 	 * Get the memory/io base address to configure every pins.
 	 * IOBASE is used to configure the mode/pads
 	 * GPIOBASE is used to configure the direction and default value
 	 */
-	gpiobase = gpio_ich6_get_base(PCI_CFG_GPIOBASE);
-	if (gpiobase < 0) {
+	ret = pch_get_gpio_base(pch, &gpiobase);
+	if (ret) {
 		debug("%s: invalid GPIOBASE address (%08x)\n", __func__,
 		      gpiobase);
 		return -EINVAL;
@@ -319,16 +241,11 @@ int gpio_ich6_pinctrl_init(void)
 	 * Get the IOBASE, this is not mandatory as this is not
 	 * supported by all the CPU
 	 */
-	iobase_offset = fdtdec_get_int(gd->fdt_blob, node, "io-base", -1);
-	if (iobase_offset == -1) {
-		debug("%s: io-base offset not present\n", __func__);
-	} else {
-		iobase = gpio_ich6_get_base(iobase_offset);
-		if (IS_ERR_VALUE(iobase)) {
-			debug("%s: invalid IOBASE address (%08x)\n", __func__,
-			      iobase);
-			return -EINVAL;
-		}
+	ret = pch_get_io_base(pch, &iobase);
+	if (ret && ret != -ENOSYS) {
+		debug("%s: invalid IOBASE address (%08x)\n", __func__,
+		      iobase);
+		return -EINVAL;
 	}
 
 	for (pin_node = fdt_first_subnode(gd->fdt_blob, node);
@@ -349,10 +266,14 @@ int gpio_ich6_pinctrl_init(void)
 static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
-	u16 gpiobase;
+	u32 gpiobase;
 	int offset;
+	int ret;
 
-	gpiobase = gpio_ich6_get_base(PCI_CFG_GPIOBASE);
+	ret = pch_get_gpio_base(dev->parent, &gpiobase);
+	if (ret)
+		return ret;
+
 	offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
 	if (offset == -1) {
 		debug("%s: Invalid register offset %d\n", __func__, offset);

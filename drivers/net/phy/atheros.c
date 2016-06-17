@@ -33,6 +33,9 @@ static int ar8035_config(struct phy_device *phydev)
 
 	phydev->supported = phydev->drv->features;
 
+	genphy_config_aneg(phydev);
+	genphy_restart_aneg(phydev);
+
 	return 0;
 }
 

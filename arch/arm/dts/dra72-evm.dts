@@ -16,6 +16,7 @@
 
 	chosen {
 		stdout-path = &uart1;
+		tick-timer = &timer2;
 	};
 
 	memory {
@@ -604,7 +605,7 @@
 
 	spi-max-frequency = <48000000>;
 	m25p80@0 {
-		compatible = "s25fl256s1";
+		compatible = "s25fl256s1","spi-flash";
 		spi-max-frequency = <48000000>;
 		reg = <0>;
 		spi-tx-bus-width = <1>;

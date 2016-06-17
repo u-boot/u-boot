@@ -23,6 +23,8 @@
 #define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
 #define CONFIG_SYS_FSL_CLK
 
+#define CONFIG_SYS_BOOTM_LEN	0x1000000
+
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR
 #define CONFIG_IMX_FIXED_IVT_OFFSET

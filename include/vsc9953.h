@@ -126,6 +126,7 @@
 #define VSC9953_PORT_CFG_LEARN_AUTO	0x00000100
 #define VSC9953_PORT_CFG_LEARN_CPU	0x00000200
 #define VSC9953_PORT_CFG_LEARN_DROP	0x00000400
+#define VSC9953_PORT_CFG_PORTID_MASK	0x0000003c
 
 /* Macros for vsc9953_qsys_sys.switch_port_mode register */
 #define VSC9953_PORT_ENA		0x00002000
@@ -135,6 +136,9 @@
 
 /* Macros for vsc9953_ana_ana.adv_learn register */
 #define VSC9953_VLAN_CHK		0x00000400
+
+/* Macros for vsc9953_ana_ana.auto_age register */
+#define VSC9953_AUTOAGE_PERIOD_MASK	0x001ffffe
 
 /* Macros for vsc9953_rew_port.port_tag_cfg register */
 #define VSC9953_TAG_CFG_MASK		0x00000180
@@ -153,6 +157,19 @@
 /* Macros for vsc9953_ana_ana_tables.mach_data register */
 #define VSC9953_MACHDATA_VID_MASK	0x1fff0000
 
+/* Macros for vsc9953_ana_common.aggr_cfg register */
+#define VSC9953_AC_RND_ENA		0x00000080
+#define VSC9953_AC_DMAC_ENA		0x00000040
+#define VSC9953_AC_SMAC_ENA		0x00000020
+#define VSC9953_AC_IP6_LBL_ENA		0x00000010
+#define VSC9953_AC_IP6_TCPUDP_ENA	0x00000008
+#define VSC9953_AC_IP4_SIPDIP_ENA	0x00000004
+#define VSC9953_AC_IP4_TCPUDP_ENA	0x00000002
+#define VSC9953_AC_MASK			0x000000fe
+
+/* Macros for vsc9953_ana_pgid.port_grp_id[] registers */
+#define VSC9953_PGID_PORT_MASK		0x000003ff
+
 #define VSC9953_MAX_PORTS		10
 #define VSC9953_PORT_CHECK(port)	\
 	(((port) < 0 || (port) >= VSC9953_MAX_PORTS) ? 0 : 1)
@@ -164,6 +181,7 @@
 #define VSC9953_MAX_VLAN		4096
 #define VSC9953_VLAN_CHECK(vid)	\
 	(((vid) < 0 || (vid) >= VSC9953_MAX_VLAN) ? 0 : 1)
+#define VSC9953_DEFAULT_AGE_TIME	300
 
 #define DEFAULT_VSC9953_MDIO_NAME	"VSC9953_MDIO0"
 
@@ -235,6 +253,10 @@ struct vsc9953_ana_ana {
 	u32	port_mode[12];
 };
 
+#define PGID_DST_START		0
+#define PGID_AGGR_START		64
+#define PGID_SRC_START		80
+
 struct vsc9953_ana_pgid {
 	u32	port_grp_id[91];
 };
@@ -269,7 +291,7 @@ struct vsc9953_analyzer {
 	struct vsc9953_ana_ana_tables	ana_tables;
 	u32	reserved2[14];
 	struct vsc9953_ana_ana	ana;
-	u32	reserved3[22];
+	u32	reserved3[21];
 	struct vsc9953_ana_pgid	port_id_tbl;
 	u32	reserved4[549];
 	struct vsc9953_ana_pfc	pfc[10];

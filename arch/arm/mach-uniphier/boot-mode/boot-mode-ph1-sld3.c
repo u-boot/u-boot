@@ -7,9 +7,9 @@
 #include <common.h>
 #include <spl.h>
 #include <linux/io.h>
-#include <mach/boot-device.h>
-#include <mach/sg-regs.h>
-#include <mach/sbc-regs.h>
+
+#include "../sg-regs.h"
+#include "boot-device.h"
 
 static struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NONE, "Reserved"},

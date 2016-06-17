@@ -1,0 +1,370 @@
+# Copyright (c) 2016 DENX Software Engineering GmbH
+# Heiko Schocher <hs@denx.de>
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+install tbot on your PC (linux only tested):
+============================================
+
+- get the source code:
+
+$ git clone https://github.com/hsdenx/tbot.git
+[...]
+$
+
+  cd into the tbot directory.
+
+- you need the for running tbot the python paramiko module, see:
+  http://www.paramiko.org/installing.html
+
+  paramiko is used for handling ssh sessions, and open filedescriptors
+  on a ssh connection. Tbot open a ssh connection to a "lab PC" and
+  opens on that connection 2 filehandles, one for control functions
+  and one for the connection to the boards console. May it is worth
+  to think about to open more filehandles and use them in tbot, but
+  thats a point in the Todo list ...
+
+  See [1] for more infos about tbot principles.
+
+- prepare a directory for storing the logfiles
+  and pass it with the commandline option "-l"
+  to tbot. Default is the directory "log" in the tbot
+  root (don;t forget to create it, if you want to use it)
+
+- If your VL is not yet in tbot source, integrate it
+  (This task has only to be done once for your VL):
+
+  A VL has, as described in [2] "necessary tasks for a Lab PC" explained,
+  3 tasks:
+
+  a) power on/off the board
+  b) get power state of the board
+  c) connect to the boards console
+
+  As tbot sends only shell commands (also to the Lab PC)
+  this tasks must be executable through shell commands on your
+  Lab PC:
+
+  Task a) power on/off board:
+    default TC for this task is:
+    https://github.com/hsdenx/tbot/blob/master/src/tc/tc_lab_denx_power.py
+
+    - now copy this file to for example
+      cp src/tc/tc_lab_denx_power.py src/tc/tc_lab_denx_power_XXX.py
+      (replace XXX to a proper value)
+      and adapt the "remote_power" command from the denx lab to your needs.
+
+      As this TC powers on the board for all your boards in your VL,
+      you can differ between the boards through the tbot class
+      variable "tb.boardlabpowername" (which is in the default case the
+      same as "tb.boardname"), but you may need to name the power target
+      with an other name than boardname, so you can configure this case.
+      The power state "tb.power_state" which the TC has to set
+      is "on" for power on, or "off" for power off.
+
+      If switching on the power is successful, call "tb.end_tc(True)"
+      else "tb.end_tc(False)"
+
+    - set in your board config file:
+      self.tc_lab_denx_power_tc = 'tc_lab_denx_power_XXX.py'
+
+  Task b) power on/off board:
+    default TC for this task is:
+    https://github.com/hsdenx/tbot/blob/master/src/tc/tc_lab_denx_get_power_state.py
+
+    - now copy this file to for example
+      (replace XXX to a proper value)
+      cp src/tc/tc_lab_denx_get_power_state.py src/tc/tc_lab_denx_get_power_state_XXX.py
+      and adapt the commands to your needs.
+
+      If the power of the board is on, call "tb.end_tc(True)"
+      else "tb.end_tc(False)"
+
+    - set in your board config file:
+      self.tc_lab_denx_get_power_state_tc = 'tc_lab_denx_get_power_state_XXX.py'
+
+  Task c) connect to the boards console:
+    default TC for this task is:
+    https://github.com/hsdenx/tbot/blob/master/src/tc/tc_lab_denx_connect_to_board.py
+
+    - now copy this file to for example
+      (replace XXX to a proper value)
+      cp src/tc/tc_lab_denx_connect_to_board.py src/tc/tc_lab_denx_connect_to_board_XXX.py
+      and adapt the commands to your needs.
+
+      As this TC powers on the board for all your boards in your VL,
+      you can differ between the boards through the tbot class
+      variable "tb.boardlabname" (which is in the default case the
+      same as "tb.boardname"), but you may need to name the power target
+      with an other name than boardname, so you can configure this case.
+
+      If connect fails end this TC with "tb.end_tc(False)"
+      else call "tb.end_tc(True)"
+
+      If you want to use kermit for connecting to the boards console, you
+      can use:
+
+      https://github.com/hsdenx/tbot/blob/master/src/tc/tc_workfd_connect_with_kermit.py
+
+      Example for such a board in the VL from denx:
+      self.tc_lab_denx_connect_to_board_tc = 'tc_workfd_connect_with_kermit.py'
+      https://github.com/hsdenx/tbot/blob/master/tbot_dxr2.cfg#L24
+
+      Hopefully this works for you too.
+
+    - set in your board config file:
+      self.tc_lab_denx_connect_to_board_tc = 'tc_lab_denx_connect_to_board_XXX.py'
+
+  remarks while writting this:
+  - Currently there is only the denx VL. Original idea was to include
+    other VL through a seperate class/file in
+    https://github.com/hsdenx/tbot/tree/master/src/lab_api
+    but it turned out, that if we say "ssh" is the standard way to connect
+    to a VL, we can integrate the VL specific tasks through testcases, see
+    above, so we should do:
+    - rename the "denx" API to a more general name.
+      This is a point on my ToDo list ... done, renamed to 'ssh_std'
+
+  - the VL specific configuration may moved from the board config files
+    and should be collected in VL specific config files, which boards
+    config file simple include.
+
+- prepare password.py file:
+  This file contains all passwords tbot needs (for example for
+  linux login on the boards)
+  tbot searches this file in the tbot root directory.
+  It is a simple python file, for example:
+
+  # passwords for the lab
+  if (board == 'lab'):
+      if (user == 'hs'):
+          password = 'passwordforuserhs'
+      if (user == 'root'):
+          password = 'passwordforrootuser'
+  # passwords for the boards
+  elif (board == 'mcx'):
+      if (user == 'root'):
+          password = 'passwordformcxrootfs'
+  else:
+      if (user == 'root'):
+          password = ''
+
+  In the above example passwords for logging into the Lab PC tbot finds
+  through:
+  if (board == 'lab'):
+     user = 'name':
+         password = 'gnlmpf' # password 'gnlmpf' for login of user 'name'
+
+- prepare board config file
+  Each board which is found in the VL needs a tbot configuration file
+  pass the config file name with the option '-c' to tbot, tbot searches
+  in the root dir for them.
+
+  board Example (dxr2 board):
+  https://github.com/hsdenx/tbot/blob/master/tbot_dxr2.cfg
+
+  Necessary variables:
+
+  line  3: boardname, here it is the "etamin" board
+             no default value, must be set.
+  line  4: boardlabname: name used for connecting to the board
+             may differ from tb.boardname, default tb.boardname
+  line  5: boardlabpowername: name used for power on/off
+             may differ from tb.boardname, default tb.boardname
+  line  6: tftpboardname: name used for tftp subdir (from where
+             U-Boot loads images for example).
+             may differ from tb.boardname, default tb.boardname
+  line  7: labprompt: linux prompt tbot sets
+             no defaultvalue, must be set (maybe we should introduce
+             "ttbott" as default ...
+  line  8: debug: If True, adds debug output on the tbot shell
+  line  9: debugstatus: enable status debug output on the shell
+  line 10: ip: Where tbot finds the Lab PC
+  line 11: user: As which user does tbot logs into the Lab PC
+  line 12: accept_all: passed to paramiko, accept all connections
+  line 13: keepalivetimout: passed to paramiko, timeout for sending
+             keepalive message.
+  line 14: channel_timeout: passed to paramiko
+  line 15: loglevel: tbots loglevel for adding entries into the logfile.
+  line 16: lap_api: used lap API (currently only 'ssh_std')
+             Should be declared as standard -> this line would be not needed
+             longer.
+  line 17: wdt_timeout: timeout in seconds for tbots watchdog.
+             Watchdog gets triggered if prompt get read.
+  line 20,21: include 'ssh_std' api
+             should be removed.
+  line 24: tc_lab_denx_connect_to_board_tc: Which TC is used for
+             connecting to the boards console the TC, here:
+             https://github.com/hsdenx/tbot/blob/master/src/tc/tc_workfd_connect_with_kermit.py
+  line 27: uboot_prompt: boards U-Boot prompt
+  line 28: linux_prompt: boards linux prompt
+
+  Now comes a list of variables TC needs, this vary from which TC
+  you start on the board.
+
+Thats it ... you now can call tbot and hopefully, it works ;-)
+Find an example log [3] for calling simple U-Boot TC for setting
+an U-Boot Environmentvariable.
+
+If you have problems in setting tbot up, please contact me
+(and may give me ssh access to your Lab PC ;-)
+
+If you have running your first TC [3], you may want to write now your own
+TC (and hopefully share them), so continue with:
+u-boot:tools/tbot/README.create_a_new_testcase
+
+Heiko Schocher <hs@denx.de>
+v1 2016.01.22
+
+--------------
+
+[1] tbot Dokumentation:
+    [2] u-boot:/tools/tbot/README
+    https://github.com/hsdenx/tbot/blob/master/README.md
+
+[3] Example for a first U-Boot TC which should always work:
+    (with commandline option "-v" for verbose output):
+
+hs@localhost:tbot  [master] $ python2.7 src/common/tbot.py -c tbot_dxr2.cfg -t tc_ub_setenv.py -v -l log/tbot.log
+**** option cfg: tbot_dxr2.cfg log: log/tbot.log tc: tc_ub_setenv.py v 1
+('CUR WORK PATH: ', '/home/hs/data/Entwicklung/tbot')
+('CFGFILE ', 'tbot_dxr2.cfg')
+('LOGFILE ', '/home/hs/data/Entwicklung/tbot/log/tbot.log')
+(<denx.tbot_lab_api object at 0x7f53ac1808d0>, <tbotlib.tbot object at 0x7f53a45fd410>, True)
+(<denx.tbot_lab_api object at 0x7f53ac1808d0>, <tbotlib.tbot object at 0x7f53a45fd410>, True)
+read 0: Last login: Fri Jan 22 12:20:12 2016 from 87.97.28.177
+read 0:
+read 0: *************************************************************
+read 0: BDI2000 Assignment:    (last updated:  2015-11-20 12:30 MET)
+read 0: bdi1  => techem     bdi2  => cetec_mx25   bdi3  => lpc3250
+read 0: bdi4  => -          bdi5  => --Rev.B!--   bdi6  => tqm5200s
+read 0: bdi7  => [stefano]  bdi8  => smartweb     bdi9  => sigmatek-nand
+read 0: bdi10 => pcm052     bdi11 => socrates     bdi12 => aristainetos
+read 0: bdi13 => imx53      bdi14 => ib8315       bdi15 => cairo
+read 0: bdi16 => g2c1       bdi17 => lwe090       bdi18 => symphony
+read 0: bdi19 => dxr2       bdi20 => ima3-mx6     bdi21 => sama5d3
+read 0: bdi98 => -          bdi99 => -            bdi0  => -
+read 0: Please power off unused systems when you leave!   Thanks, wd.
+read 0: *************************************************************
+read no ret 0:
+pollux:~ hs $
+write 0: export PS1="\u@\h [\$(date +%k:%M:%S)] ttbott >"
+read 0: export PS1="\u@\h [\$(date +%k:%M:%S)] ttbott >"
+read 0: hs@pollux [12:21:00] ttbott >
+read 1: Last login: Fri Jan 22 12:20:59 2016 from 87.97.28.177
+read 1:
+read 1: *************************************************************
+read 1: BDI2000 Assignment:    (last updated:  2015-11-20 12:30 MET)
+read 1: bdi1  => techem     bdi2  => cetec_mx25   bdi3  => lpc3250
+read 1: bdi4  => -          bdi5  => --Rev.B!--   bdi6  => tqm5200s
+read 1: bdi7  => [stefano]  bdi8  => smartweb     bdi9  => sigmatek-nand
+read 1: bdi10 => pcm052     bdi11 => socrates     bdi12 => aristainetos
+read 1: bdi13 => imx53      bdi14 => ib8315       bdi15 => cairo
+read 1: bdi16 => g2c1       bdi17 => lwe090       bdi18 => symphony
+read 1: bdi19 => dxr2       bdi20 => ima3-mx6     bdi21 => sama5d3
+read 1: bdi98 => -          bdi99 => -            bdi0  => -
+read 1: Please power off unused systems when you leave!   Thanks, wd.
+read 1: *************************************************************
+read no ret 1:
+pollux:~ hs $
+write 1: export PS1="\u@\h [\$(date +%k:%M:%S)] ttbott >"
+read 1: export PS1="\u@\h [\$(date +%k:%M:%S)] ttbott >"
+read 1: hs@pollux [12:21:02] ttbott >
+write 0: remote_power dxr2 -l
+read 0: hs@pollux [12:21:00] ttbott >remote_power dxr2 -l
+read 0: dxr2            ON
+read 0: hs@pollux [12:21:02] ttbott >
+read no ret 1:
+hs@pollux [12:21:02] ttbott >
+write 1: ssh hs@lena
+read 1: ssh hs@lena
+read no ret 1:
+hs@lena's password:
+read 1:
+read 1: Last login: Fri Jan 22 12:20:17 2016 from 192.168.1.1
+read 1:
+read no ret 1:
+[hs@lena ~]$
+write 1: export PS1="\u@\h [\$(date +%k:%M:%S)] ttbott >"
+read 1: export PS1="\u@\h [\$(date +%k:%M:%S)] ttbott >"
+read 1: hs@lena [12:21:07] ttbott >
+read no ret 1:
+hs@lena [12:21:07] ttbott >
+write 1: stty cols 200
+read 1: stty cols 200
+read 1: hs@lena [12:21:08] ttbott >
+write 1: export TERM=vt200
+read 1: hs@lena [12:21:08] ttbott >export TERM=vt200
+read 1: hs@lena [12:21:08] ttbott >
+write 1: echo $COLUMNS
+read 1: hs@lena [12:21:08] ttbott >echo $COLUMNS
+read 1: 200
+read 1: hs@lena [12:21:08] ttbott >
+write 1: kermit
+read 1: hs@lena [12:21:08] ttbott >kermit
+read 1: C-Kermit 8.0.211, 10 Apr 2004, for Linux
+read 1:
+read 1:  Copyright (C) 1985, 2004,
+read 1:   Trustees of Columbia University in the City of New York.
+read 1: Type ? or HELP for help.
+read 1:
+read 1: (/home/hs/) C-Kermit>
+read 1:
+read no ret 1: (/home/hs/) C-Kermit>
+write 1: set line /dev/ttyUSB0
+read 1: set line /dev/ttyUSB0
+read 1:
+read 1: (/home/hs/) C-Kermit>
+write 1: set speed 115200
+read 1:
+read 1: (/home/hs/) C-Kermit>set speed 115200
+read 1: /dev/ttyUSB0, 115200 bps
+read 1:
+read 1: (/home/hs/) C-Kermit>
+write 1: set flow-control none
+read 1:
+read 1: (/home/hs/) C-Kermit>set flow-control none
+read 1:
+read 1: (/home/hs/) C-Kermit>
+write 1: set carrier-watch off
+read 1:
+read 1: (/home/hs/) C-Kermit>set carrier-watch off
+read 1:
+read 1: (/home/hs/) C-Kermit>
+write 1: connect
+read 1:
+read 1: (/home/hs/) C-Kermit>connect
+read 1: Connecting to /dev/ttyUSB0, speed 115200
+read 1:
+read 1:  Escape character: Ctrl-\ (ASCII 28, FS): enabled
+read 1:
+read 1: Type the escape character followed by C to get back,
+read 1:
+read 1: or followed by ? to see other options.
+read 1:
+read 1: ----------------------------------------------------
+read no ret 1:
+
+write no ret 1:
+
+read 1:
+read 1: Heiko=Schocher
+read no ret 1:
+U-Boot#
+write no ret 1:
+write no ret 1:
+
+read 1: <INTERRUPT>
+read 1: U-Boot#
+write 1: setenv Heiko Schocher
+read 1: U-Boot# setenv Heiko Schocher
+read no ret 1:
+U-Boot#
+write 1: printenv Heiko
+read 1: printenv Heiko
+read 1: Heiko=Schocher
+read no ret 1:
+U-Boot#
+End of TBOT: success
+hs@localhost:tbot  [master] $

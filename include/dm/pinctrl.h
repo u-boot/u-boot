@@ -114,6 +114,22 @@ struct pinctrl_ops {
 	* @return peripheral ID of @periph, or -ENOENT on error
 	*/
 	int (*get_periph_id)(struct udevice *dev, struct udevice *periph);
+
+	/**
+	 * get_gpio_mux() - get the mux value for a particular GPIO
+	 *
+	 * This allows the raw mux value for a GPIO to be obtained. It is
+	 * useful for displaying the function being used by that GPIO, such
+	 * as with the 'gpio' command. This function is internal to the GPIO
+	 * subsystem and should not be used by generic code. Typically it is
+	 * used by a GPIO driver with knowledge of the SoC pinctrl setup.
+	 *
+	* @dev:		Pinctrl device to use
+	* @banknum:	GPIO bank number
+	* @index:	GPIO index within the bank
+	* @return mux value (SoC-specific, e.g. 0 for input, 1 for output)
+	 */
+	int (*get_gpio_mux)(struct udevice *dev, int banknum, int index);
 };
 
 #define pinctrl_get_ops(dev)	((struct pinctrl_ops *)(dev)->driver->ops)
@@ -283,5 +299,34 @@ int pinctrl_request_noflags(struct udevice *dev, int func);
  * @return peripheral ID of @periph, or -ENOENT on error
  */
 int pinctrl_get_periph_id(struct udevice *dev, struct udevice *periph);
+
+/**
+ * pinctrl_decode_pin_config() - decode pin configuration flags
+ *
+ * This decodes some of the PIN_CONFIG values into flags, with each value
+ * being (1 << pin_cfg). This does not support things with values like the
+ * slew rate.
+ *
+ * @blob:	Device tree blob
+ * @node:	Node containing the PIN_CONFIG values
+ * @return decoded flag value, or -ve on error
+ */
+int pinctrl_decode_pin_config(const void *blob, int node);
+
+/**
+ * pinctrl_get_gpio_mux() - get the mux value for a particular GPIO
+ *
+ * This allows the raw mux value for a GPIO to be obtained. It is
+ * useful for displaying the function being used by that GPIO, such
+ * as with the 'gpio' command. This function is internal to the GPIO
+ * subsystem and should not be used by generic code. Typically it is
+ * used by a GPIO driver with knowledge of the SoC pinctrl setup.
+ *
+ * @dev:	Pinctrl device to use
+ * @banknum:	GPIO bank number
+ * @index:	GPIO index within the bank
+ * @return mux value (SoC-specific, e.g. 0 for input, 1 for output)
+*/
+int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index);
 
 #endif /* __PINCTRL_H */

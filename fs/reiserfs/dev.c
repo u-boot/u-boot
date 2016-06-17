@@ -59,9 +59,11 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 
 	if (byte_offset != 0) {
 		/* read first part which isn't aligned with start of sector */
-		if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc->dev,
-		    part_info->start + sector, 1,
-		    (unsigned long *)sec_buf) != 1) {
+		if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc,
+							part_info->start +
+								sector,
+							1, (void *)sec_buf)
+		    != 1) {
 			printf (" ** reiserfs_devread() read error\n");
 			return 0;
 		}
@@ -73,9 +75,11 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 
 	/* read sector aligned part */
 	block_len = byte_len & ~(SECTOR_SIZE-1);
-	if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc->dev,
-	    part_info->start + sector, block_len/SECTOR_SIZE,
-	    (unsigned long *)buf) != block_len/SECTOR_SIZE) {
+	if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc,
+						part_info->start + sector,
+						block_len / SECTOR_SIZE,
+						(void *)buf)
+	    != block_len/SECTOR_SIZE) {
 		printf (" ** reiserfs_devread() read error - block\n");
 		return 0;
 	}
@@ -85,9 +89,11 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 
 	if ( byte_len != 0 ) {
 		/* read rest of data which are not in whole sector */
-		if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc->dev,
-		    part_info->start + sector, 1,
-		    (unsigned long *)sec_buf) != 1) {
+		if (reiserfs_block_dev_desc->block_read(reiserfs_block_dev_desc,
+							part_info->start +
+							    sector,
+							1, (void *)sec_buf)
+		    != 1) {
 			printf (" ** reiserfs_devread() read error - last part\n");
 			return 0;
 		}

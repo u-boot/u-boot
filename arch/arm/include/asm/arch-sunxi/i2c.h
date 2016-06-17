@@ -23,6 +23,9 @@
 #ifdef CONFIG_I2C4_ENABLE
 #define CONFIG_I2C_MVTWSI_BASE4	SUNXI_TWI4_BASE
 #endif
+#ifdef CONFIG_R_I2C_ENABLE
+#define CONFIG_I2C_MVTWSI_BASE5 SUNXI_R_TWI_BASE
+#endif
 
 /* This is abp0-clk on sun4i/5i/7i / abp1-clk on sun6i/sun8i which is 24MHz */
 #define CONFIG_SYS_TCLK		24000000

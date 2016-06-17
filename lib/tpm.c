@@ -262,7 +262,7 @@ int tpm_init(void)
 	struct udevice *dev;
 
 	err = uclass_first_device(UCLASS_TPM, &dev);
-	if (err)
+	if (err || !dev)
 		return err;
 	return tpm_open(dev);
 }

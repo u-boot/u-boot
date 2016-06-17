@@ -32,7 +32,7 @@ static int syscon_pre_probe(struct udevice *dev)
 	return regmap_init_mem(dev, &priv->regmap);
 }
 
-struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data)
+int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -40,22 +40,29 @@ struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data)
 
 	ret = uclass_get(UCLASS_SYSCON, &uc);
 	if (ret)
-		return ERR_PTR(ret);
+		return ret;
 	uclass_foreach_dev(dev, uc) {
 		if (dev->driver_data == driver_data) {
-			struct syscon_uc_info *priv;
-			int ret;
-
-			ret = device_probe(dev);
-			if (ret)
-				return ERR_PTR(ret);
-			priv = dev_get_uclass_priv(dev);
-
-			return priv->regmap;
+			*devp = dev;
+			return device_probe(dev);
 		}
 	}
 
-	return ERR_PTR(-ENODEV);
+	return -ENODEV;
+}
+
+struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data)
+{
+	struct syscon_uc_info *priv;
+	struct udevice *dev;
+	int ret;
+
+	ret = syscon_get_by_driver_data(driver_data, &dev);
+	if (ret)
+		return ERR_PTR(ret);
+	priv = dev_get_uclass_priv(dev);
+
+	return priv->regmap;
 }
 
 void *syscon_get_first_range(ulong driver_data)

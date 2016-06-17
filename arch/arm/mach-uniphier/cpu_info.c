@@ -6,7 +6,8 @@
 
 #include <common.h>
 #include <linux/io.h>
-#include <mach/sg-regs.h>
+
+#include "sg-regs.h"
 
 int print_cpuinfo(void)
 {
@@ -44,10 +45,10 @@ int print_cpuinfo(void)
 		puts("PH1-LD6b (MN2WS0320)");
 		break;
 	case 0x31:
-		puts("PH1-sLD11 ()");
+		puts("PH1-LD11 ()");
 		break;
 	case 0x32:
-		puts("PH1-LD10 ()");
+		puts("PH1-LD20 ()");
 		break;
 	default:
 		printf("Unknown Processor ID (0x%x)\n", revision);

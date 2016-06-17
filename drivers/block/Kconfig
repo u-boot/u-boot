@@ -1,0 +1,9 @@
+config DISK
+	bool "Support disk controllers with driver model"
+	depends on DM
+	default y if DM
+	help
+	  This enables a uclass for disk controllers in U-Boot. Various driver
+	  types can use this, such as AHCI/SATA. It does not provide any standard
+	  operations at present. The block device interface has not been converted
+	  to driver model.

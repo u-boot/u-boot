@@ -526,7 +526,7 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 	opc = sh_sdhi_set_cmd(host, data, opc);
 
 	/*
-	 *  U-boot cannot use interrupt.
+	 *  U-Boot cannot use interrupt.
 	 *  So this flag may not be clear by timing
 	 */
 	sh_sdhi_writew(host, SDHI_INFO1, ~INFO1_RESP_END);

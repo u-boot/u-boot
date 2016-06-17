@@ -1,0 +1,185 @@
+# Copyright (c) 2016 DENX Software Engineering GmbH
+# Heiko Schocher <hs@denx.de>
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+What is tbot ?
+==============
+
+tbot is a tool for executing testcases on boards.
+Source code found on [1]
+Based on DUTS [2]
+written in python
+
+Basic Ideas of tbot
+===================
+(see also the figure:
+https://github.com/hsdenx/tbot/blob/master/doc/tbot_structure.png )
+
+- Virtual laboratory (VL)
+   VL is the basic environment that groups:
+  - [a number of] boards - target devices on which tbot executes testcases.
+  - one Lab PC
+
+- Test case (TC):
+  A piece of python code, which uses the tbot class from [1].
+  Tbot provides functions for sending shell commands and parsing the
+  shell commands output.
+  Tbot waits endless for a shell commands end (detected through reading
+  the consoles prompt).
+  A TC can also call other TC-es.
+
+  remark:
+  Tbot not really waits endless, for a shell commands end, instead
+  tbot starts a watchdog in the background, and if it triggers, tbot
+  ends the TC as failed. In the tbot beginning there was a lot of
+  timeouts / retry cases, but it turned out, that waiting endless
+  is robust and easy ...
+
+- Host PC (where tbot runs, currently only linux host tested)
+  must not a powerful machine (For example [3], I use a
+  raspberry pi for running tbot and buildbot)
+
+- Lab PC:
+  - Host PC connects through ssh to the Lab PC
+    -> so it is possible to test boards, which
+       are not at the same place as the Host PC.
+       (Lab PC and Host PC can be the same of course)
+       -> maybe we can setup a Testsystem, which does nightly
+          U-Boot/Linux builds and test from current mainline U-Boot
+          on boards wherever they are accessible.
+
+  - necessary tasks a Lab PC must deliver:
+    - connect to boards console through a shell command.
+    - power on/off boards through a shell command
+    - detect the current power state of a board through
+      a shell command
+
+  - optional tasks:
+    - tftp server (for example loading images)
+    - nfs server (used as rootfs for linux kernels)
+    - Internet access for example for downloading
+      U-Boot source with git.
+    - toolchains installed for compiling source code
+
+      -> a linux machine is preffered.
+
+  - currently only Lab PC with an installed linux supported/tested.
+
+- Boards(s):
+  the boards on which shell commands are executed.
+
+- Board state:
+  equals to the software, the board is currently running.
+
+  Currently tbot supports 2 board states:
+    - "u-boot", if the board is running U-Boot
+    - "linux", if the board is running a linux kernel
+
+  It should be easy to add other board states to tbot, see
+  https://github.com/hsdenx/tbot/tree/master/src/lab_api/state_[u-boot/linux].py
+
+  A board state is detected through analysing the boards
+  shell prompt. In linux, tbot sets a special tbot prompt,
+  in U-Boot the prompt is static, and configurable in tbot through
+  a board config file.
+
+  A TC can say in which board state it want to send shell commands.
+  Tbot tries to detect the current board state, if board is not in
+  the requested  board state, tbot tries to switch into the correct
+  state. If this fails, the TC fails.
+
+  It is possible to switch in a single TC between board states.
+
+- tbot cmdline parameters:
+
+$ python2.7 src/common/tbot.py --help
+Usage: tbot.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -c CFGFILE, --cfgfile=CFGFILE
+                        the tbot common configfilename
+  -l LOGFILE, --logfile=LOGFILE
+                        the tbot logfilename, if default, tbot creates a
+                        defaultnamelogfile
+  -t TC, --testcase=TC  the testcase which should be run
+  -v, --verbose         be verbose, print all read/write to stdout
+  -w WORKDIR, --workdir=WORKDIR
+                        set workdir, default os.getcwd()
+$
+
+tbot needs the following files for proper execution:
+
+  - tbot board configuration file (option -c):
+    A board configuration file contains settings tbot needs to
+    connect to the Lab PC and board specific variable settings
+    for testcases.
+
+  - name of the logfile tbot creates (option -l)
+    defaultname: 'log/' + now.strftime("%Y-%m-%d-%H-%M") + '.log'
+
+  - tbots working directory (option -w)
+
+  - the testcasename tbot executes (option -t)
+
+You are interested and want to use tbot?
+If so, please read on the file:
+tools/tbot/README.install
+
+If not read [3] ;-)
+
+Heiko Schocher <hs@denx.de>
+v1 2016.01.22
+
+--------------
+[1] https://github.com/hsdenx/tbot
+[2] http://www.denx.de/wiki/DUTS/DUTSDocs
+[3] automated Testsetup with buildbot and tbot doing cyclic tests
+    (buildbot used for starting tbot TC and web presentation of the
+     results, all testing done through tbot):
+    http://xeidos.ddns.net/buildbot/tgrid
+    Host PC in Letkes/hungary
+    VL in munich/germany
+
+    Fancy things are done here, for example:
+    - http://xeidos.ddns.net/buildbot/builders/smartweb_dfu/builds/43/steps/shell/logs/tbotlog
+      (I try to cleanup the logfile soon, so it is not so filled with crap ;-)
+      A first step see here:
+      http://xeidos.ddns.net/buildbot/builders/smartweb_dfu/builds/45/steps/shell/logs/tbotlog
+      (same TC now with the new loglevel = 'CON' ... not yet perfect)
+      Executed steps:
+      - clone u-boot.git
+      - set toolchain
+      - get a list of patchwork patches from my U-Boots ToDo list
+      - download all of them, and check them with checkpatch
+        and apply them to u-boot.git
+      - compile U-Boot for the smartweb board
+      - install the resulting images on the smartweb board
+      - boot U-boot
+      - test DFU
+      - more TC should be added here for testing U-Boot
+
+    - automatic "git bisect"
+      https://github.com/hsdenx/tbot/blob/master/src/tc/tc_board_git_bisect.py
+      http://xeidos.ddns.net/buildbot/builders/tqm5200s/builds/3/steps/shell/logs/tbotlog
+
+      If a current U-Boot image not works on the tqm5200 board
+      this TC can be started. It starts a "git bisect" session,
+      and compiles for each step U-Boot, install it on the tqm5200
+      board, and tests if U-Boot works !
+
+      At the end, it detects the commit, which breaks the board
+
+      This TC is not dependend on U-Boot nor on a special board. It
+      needs only 3 variables:
+      tb.board_git_bisect_get_source_tc: TC which gets the source tree, in which
+        "git bisect" should be executed
+      tb.board_git_bisect_call_tc: TC which gets called every "git bisect" step,
+        which executes commands for detecting if current source code is OK or not.
+        This could be a TC which compiles U-Boot, install it on the board and
+        executes TC on the new booted U-Boot image. ! Board maybe gets borken,
+        as not all U-Boot images work, so you must have a TC which install U-Boot
+        image for example through a debugger.
+      tb.board_git_bisect_good_commit: last nown good commit id

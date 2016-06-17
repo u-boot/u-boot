@@ -43,16 +43,9 @@
 
 		cpu@0 {
 			device_type = "cpu";
-			compatible = "cpu-x86";
+			compatible = "cpu-qemu";
 			reg = <0>;
 			intel,apic-id = <0>;
-		};
-
-		cpu@1 {
-			device_type = "cpu";
-			compatible = "cpu-x86";
-			reg = <1>;
-			intel,apic-id = <1>;
 		};
 	};
 
@@ -69,24 +62,28 @@
 			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
 			0x01000000 0x0 0x2000 0x2000 0 0xe000>;
 
-		irq-router@1f,0 {
+		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
-			compatible = "intel,irq-router";
-			intel,pirq-config = "pci";
-			intel,pirq-link = <0x60 8>;
-			intel,pirq-mask = <0x0e40>;
-			intel,pirq-routing = <
-				/* e1000 NIC */
-				PCI_BDF(0, 2, 0) INTA PIRQG
-				/* ICH9 UHCI */
-				PCI_BDF(0, 29, 0) INTA PIRQA
-				PCI_BDF(0, 29, 1) INTB PIRQB
-				PCI_BDF(0, 29, 2) INTC PIRQC
-				/* ICH9 EHCI */
-				PCI_BDF(0, 29, 7) INTD PIRQD
-				/* ICH9 SATA */
-				PCI_BDF(0, 31, 2) INTA PIRQA
-			>;
+			compatible = "intel,pch9";
+
+			irq-router {
+				compatible = "intel,irq-router";
+				intel,pirq-config = "pci";
+				intel,pirq-link = <0x60 8>;
+				intel,pirq-mask = <0x0e40>;
+				intel,pirq-routing = <
+					/* e1000 NIC */
+					PCI_BDF(0, 2, 0) INTA PIRQG
+					/* ICH9 UHCI */
+					PCI_BDF(0, 29, 0) INTA PIRQA
+					PCI_BDF(0, 29, 1) INTB PIRQB
+					PCI_BDF(0, 29, 2) INTC PIRQC
+					/* ICH9 EHCI */
+					PCI_BDF(0, 29, 7) INTD PIRQD
+					/* ICH9 SATA */
+					PCI_BDF(0, 31, 2) INTA PIRQA
+				>;
+			};
 		};
 	};
 

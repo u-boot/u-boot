@@ -1,0 +1,43 @@
+The chosen node
+---------------
+The chosen node does not represent a real device, but serves as a place
+for passing data like which serial device to used to print the logs etc
+
+
+stdout-path property
+--------------------
+Device trees may specify the device to be used for boot console output
+with a stdout-path property under /chosen.
+
+Example
+-------
+/ {
+	chosen {
+		stdout-path = "/serial@f00:115200";
+	};
+
+	serial@f00 {
+		compatible = "vendor,some-uart";
+		reg = <0xf00 0x10>;
+	};
+};
+
+tick-timer property
+-------------------
+In a system there are multiple timers, specify which timer to be used
+as the tick-timer. Earlier it was hardcoded in the timer driver now
+since device tree has all the timer nodes. Specify which timer to be
+used as tick timer.
+
+Example
+-------
+/ {
+	chosen {
+		tick-timer = "/timer2@f00";
+	};
+
+	timer2@f00 {
+		compatible = "vendor,some-timer";
+		reg = <0xf00 0x10>;
+	};
+};

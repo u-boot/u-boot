@@ -35,12 +35,6 @@ PLATFORM_LDFLAGS	+= -m$(64bit-emul)
 OBJCOPYFLAGS		+= -O $(64bit-bfd)
 endif
 
-cpuflags-$(CONFIG_CPU_MIPS32_R1) += -march=mips32 -Wa,-mips32
-cpuflags-$(CONFIG_CPU_MIPS32_R2) += -march=mips32r2 -Wa,-mips32r2
-cpuflags-$(CONFIG_CPU_MIPS64_R1) += -march=mips64 -Wa,-mips64
-cpuflags-$(CONFIG_CPU_MIPS64_R2) += -march=mips64r2 -Wa,-mips64r2
-PLATFORM_CPPFLAGS += $(cpuflags-y)
-
 PLATFORM_CPPFLAGS += -D__MIPS__
 
 #
@@ -63,10 +57,21 @@ PLATFORM_CPPFLAGS += -D__MIPS__
 # On the other hand, we want PIC in the U-Boot code to relocate it from ROM
 # to RAM. $28 is always used as gp.
 #
-PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic
+ifdef CONFIG_SPL_BUILD
+PF_ABICALLS			:= -mno-abicalls
+PF_PIC				:= -fno-pic
+PF_PIE				:=
+else
+PF_ABICALLS			:= -mabicalls
+PF_PIC				:= -fpic
+PF_PIE				:= -pie
+PF_OBJCOPY			:= -j .got -j .u_boot_list -j .rel.dyn -j .padding
+PF_OBJCOPY			+= -j .dtb.init.rodata
+endif
+
+PLATFORM_CPPFLAGS		+= -G 0 $(PF_ABICALLS) $(PF_PIC)
 PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
-LDFLAGS_FINAL			+= --gc-sections -pie
-OBJCOPYFLAGS			+= -j .text -j .rodata -j .data -j .got
-OBJCOPYFLAGS			+= -j .u_boot_list -j .rel.dyn -j .padding
+LDFLAGS_FINAL			+= --gc-sections $(PF_PIE)
+OBJCOPYFLAGS			+= -j .text -j .rodata -j .data $(PF_OBJCOPY)

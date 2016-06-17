@@ -1,5 +1,5 @@
 /*
- * U-boot - psd4256.h
+ * U-Boot - psd4256.h
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *

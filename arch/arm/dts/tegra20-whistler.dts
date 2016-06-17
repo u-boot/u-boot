@@ -26,19 +26,8 @@
 		clock-frequency = < 216000000 >;
 	};
 
-	i2c@7000c000 {
-		status = "disabled";
-	};
-
-	i2c@7000c400 {
-		status = "disabled";
-	};
-
-	i2c@7000c500 {
-		status = "disabled";
-	};
-
 	i2c@7000d000 {
+		status = "okay";
 		clock-frequency = <100000>;
 
 		pmic@3c {
@@ -56,12 +45,8 @@
 		};
 	};
 
-	usb@c5000000 {
-		status = "disabled";
-	};
-
-	usb@c5004000 {
-		status = "disabled";
+	usb@c5008000 {
+		status = "okay";
 	};
 
 	sdhci@c8000400 {
@@ -74,4 +59,18 @@
 		status = "okay";
 		bus-width = <8>;
 	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		clk32k_in: clock@0 {
+			compatible = "fixed-clock";
+			reg=<0>;
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+		};
+	};
+
 };

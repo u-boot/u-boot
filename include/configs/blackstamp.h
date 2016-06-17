@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BlackStamp board
+ * U-Boot - Configuration file for BlackStamp board
  * Configuration by Ben Matthews for UR LLE using bf533-stamp.h
  * as a template
  * See http://blackfin.uclinux.org/gf/project/blackstamp/

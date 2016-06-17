@@ -30,16 +30,31 @@
 #include <linux/types.h>
 #include <linux/unaligned/be_byteshift.h>
 
-#include "tpm_tis_infineon.h"
+#include "tpm_tis.h"
 #include "tpm_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+enum i2c_chip_type {
+	SLB9635,
+	SLB9645,
+	UNKNOWN,
+};
+
+/* expected value for DIDVID register */
+#define TPM_TIS_I2C_DID_VID_9635 0x000b15d1L
+#define TPM_TIS_I2C_DID_VID_9645 0x001a15d1L
 
 static const char * const chip_name[] = {
 	[SLB9635] = "slb9635tt",
 	[SLB9645] = "slb9645tt",
 	[UNKNOWN] = "unknown/fallback to slb9635",
 };
+
+#define	TPM_ACCESS(l)			(0x0000 | ((l) << 4))
+#define	TPM_STS(l)			(0x0001 | ((l) << 4))
+#define	TPM_DATA_FIFO(l)		(0x0005 | ((l) << 4))
+#define	TPM_DID_VID(l)			(0x0006 | ((l) << 4))
 
 /*
  * tpm_tis_i2c_read() - read from TPM register

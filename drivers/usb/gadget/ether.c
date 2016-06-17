@@ -256,7 +256,7 @@ static inline int BITRATE(struct usb_gadget *g)
 #if defined(CONFIG_USBNET_MANUFACTURER)
 static char *iManufacturer = CONFIG_USBNET_MANUFACTURER;
 #else
-static char *iManufacturer = "U-boot";
+static char *iManufacturer = "U-Boot";
 #endif
 
 /* These probably need to be configurable. */

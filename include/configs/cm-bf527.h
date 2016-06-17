@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for CM-BF527 board
+ * U-Boot - Configuration file for CM-BF527 board
  */
 
 #ifndef __CONFIG_CM_BF527_H__

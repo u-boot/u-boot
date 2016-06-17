@@ -9,7 +9,7 @@
  * Travis B. Sawyer, Sandburst Corporation, tsawyer@sandburst.com
  *
  * (C) Copyright 2008 (PPC440X05 port for Virtex 5 FX)
- * Ricardo Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@uam.es
+ * Ricardo Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@gmail.com
  * Work supported by Qtechnology (htpp://qtec.com)
  *
  * SPDX-License-Identifier:	GPL-2.0+

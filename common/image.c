@@ -458,24 +458,29 @@ ulong getenv_bootm_low(void)
 
 phys_size_t getenv_bootm_size(void)
 {
-	phys_size_t tmp;
+	phys_size_t tmp, size;
+	phys_addr_t start;
 	char *s = getenv("bootm_size");
 	if (s) {
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 		return tmp;
 	}
+
+#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
+	start = gd->bd->bi_dram[0].start;
+	size = gd->bd->bi_dram[0].size;
+#else
+	start = gd->bd->bi_memstart;
+	size = gd->bd->bi_memsize;
+#endif
+
 	s = getenv("bootm_low");
 	if (s)
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 	else
-		tmp = 0;
+		tmp = start;
 
-
-#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
-	return gd->bd->bi_dram[0].size - tmp;
-#else
-	return gd->bd->bi_memsize - tmp;
-#endif
+	return size - (tmp - start);
 }
 
 phys_size_t getenv_bootm_mapsize(void)
@@ -1113,8 +1118,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		if (initrd_high == ~0)
 			initrd_copy_to_ram = 0;
 	} else {
-		/* not set, no restrictions to load high */
-		initrd_high = ~0;
+		initrd_high = getenv_bootm_mapsize() + getenv_bootm_low();
 	}
 
 
@@ -1266,7 +1270,7 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
  *
  * boot_get_cmdline() allocates space for kernel command line below
- * BOOTMAPSZ + getenv_bootm_low() address. If "bootargs" U-boot environemnt
+ * BOOTMAPSZ + getenv_bootm_low() address. If "bootargs" U-Boot environemnt
  * variable is present its contents is copied to allocated kernel
  * command line.
  *

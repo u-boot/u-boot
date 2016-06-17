@@ -110,7 +110,6 @@ int checkboard(void)
 }
 #endif
 
-
 #if !defined(CONFIG_SYS_SDRAM_BASE) && !defined(CONFIG_SYS_SDRAM_SIZE)
 /*
  * fdt_get_reg - Fill buffer by information from DT

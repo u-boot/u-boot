@@ -17,7 +17,6 @@
 #include <asm/arch/at91sam9g45_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
@@ -114,7 +113,7 @@ void spl_board_init(void)
 }
 
 #include <asm/arch/atmel_mpddrc.h>
-static void ddr2_conf(struct atmel_mpddr *ddr2)
+static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 {
 	ddr2->md = (ATMEL_MPDDRC_MD_DBW_16_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
 
@@ -147,13 +146,11 @@ static void ddr2_conf(struct atmel_mpddr *ddr2)
 
 void mem_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	struct atmel_mpddr ddr2;
+	struct atmel_mpddrc_config ddr2;
 
 	ddr2_conf(&ddr2);
 
-	/* enable DDR2 clock */
-	writel(AT91_PMC_DDR, &pmc->scer);
+	at91_system_clk_enable(AT91_PMC_DDR);
 
 	/* DDRAM2 Controller initialize */
 	ddr2_init(ATMEL_BASE_DDRSDRC0, ATMEL_BASE_CS6, &ddr2);
@@ -210,10 +207,9 @@ int board_early_init_f(void)
 /* from ./arch/arm/mach-at91/armv7/sama5d3_devices.c */
 void at91_udp_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	/* Enable UPLL clock */
-	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	at91_upll_clk_enable();
+
 	/* Enable UDPHS clock */
 	at91_periph_clk_enable(ATMEL_ID_UDPHS);
 }

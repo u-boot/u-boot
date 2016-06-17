@@ -16,13 +16,13 @@ The i.MX6 has a BOOT ROM PPL (Primary Program Loader) which supports loading
 an executable image from various boot devices.
 
 The Gateworks Ventana board config uses an SPL build configuration. This
-will build the following artifacts from u-boot source:
+will build the following artifacts from U-Boot source:
  - SPL - Secondary Program Loader that the i.MX6 BOOT ROM (Primary Program
          Loader) boots.  This detects CPU/DRAM configuration, configures
          The DRAM controller, loads u-boot.img from the detected boot device,
          and jumps to it.  As this is booted from the PPL, it has an IVT/DCD
          table.
- - u-boot.img - The main u-boot core which is u-boot.bin with a image header.
+ - u-boot.img - The main U-Boot core which is u-boot.bin with a image header.
 
 
 2. Build
@@ -71,15 +71,15 @@ kobs-ng init -v -x --search_exponent=1 SPL
 The kobs-ng application uses an imximage which contains the Image Vector Table
 (IVT) and Device Configuration Data (DCD) structures that the i.MX6 BOOT ROM
 requires to boot.  The kobs-ng adds the Firmware Configuration Block (FCB) and
-Discovered Bad Block Table (DBBT).  The SPL build artifact from u-boot is
+Discovered Bad Block Table (DBBT).  The SPL build artifact from U-Boot is
 an imximage.
 
-The u-boot.img, which is the non SPL u-boot binary appended to a u-boot image
+The u-boot.img, which is the non SPL U-Boot binary appended to a U-Boot image
 header must be programmed in the NAND flash boot device at an offset hard
 coded in the SPL. For the Ventana boards, this has been chosen to be 14MB.
-The image can be programmed from either u-boot or Linux:
+The image can be programmed from either U-Boot or Linux:
 
-u-boot:
+U-Boot:
 Ventana > setenv mtdparts mtdparts=nand:14m(spl),2m(uboot),1m(env),-(rootfs)
 Ventana > tftp ${loadaddr} u-boot.img && nand erase.part uboot && \
           nand write ${loadaddr} uboot ${filesize}
@@ -104,7 +104,7 @@ More details about the i.MX6 BOOT ROM can be found in the IMX6 reference manual.
 
 When the IMX6 eFUSE settings have been factory programmed to boot from
 micro-SD the SPL will be loaded from offset 0x400 (1KB). Once the SPL is
-booted, it will load and execute U-boot (u-boot.img) from offset 69KB
+booted, it will load and execute U-Boot (u-boot.img) from offset 69KB
 on the micro-SD (defined by CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR).
 
 While it is technically possible to enable the SPL to be able to load

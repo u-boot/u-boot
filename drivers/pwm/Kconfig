@@ -1,0 +1,28 @@
+config DM_PWM
+	bool "Enable support for pulse-width modulation devices (PWM)"
+	depends on DM
+	help
+	  A pulse-width modulator emits a pulse of varying width and provides
+	  control over the duty cycle (high and low time) of the signal. This
+	  is often used to control a voltage level. The more time the PWM
+	  spends in the 'high' state, the higher the voltage. The PWM's
+	  frequency/period can be controlled along with the proportion of that
+	  time that the signal is high.
+
+config PWM_ROCKCHIP
+	bool "Enable support for the Rockchip PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on RK3288 and other Rockchip SoCs. It supports a
+	  programmable period and duty cycle. A 32-bit counter is used.
+	  Various options provided in the hardware (such as capture mode and
+	  continuous/single-shot) are not supported by the driver.
+
+config PWM_TEGRA
+	bool "Enable support for the Tegra PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on Tegra 20 and other Nvidia SoCs. It supports
+	  four channels with a programmable period and duty cycle. Only a
+	  32KHz clock is supported by the driver but the duty cycle is
+	  configurable.

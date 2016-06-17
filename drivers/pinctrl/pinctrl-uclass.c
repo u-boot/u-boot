@@ -15,6 +15,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int pinctrl_decode_pin_config(const void *blob, int node)
+{
+	int flags = 0;
+
+	if (fdtdec_get_bool(blob, node, "bias-pull-up"))
+		flags |= 1 << PIN_CONFIG_BIAS_PULL_UP;
+	else if (fdtdec_get_bool(blob, node, "bias-pull-down"))
+		flags |= 1 << PIN_CONFIG_BIAS_PULL_DOWN;
+
+	return flags;
+}
+
 #if CONFIG_IS_ENABLED(PINCTRL_FULL)
 /**
  * pinctrl_config_one() - apply pinctrl settings for a single node
@@ -111,12 +123,16 @@ static int pinconfig_post_bind(struct udevice *dev)
 {
 	const void *fdt = gd->fdt_blob;
 	int offset = dev->of_offset;
+	bool pre_reloc_only = !(gd->flags & GD_FLG_RELOC);
 	const char *name;
 	int ret;
 
 	for (offset = fdt_first_subnode(fdt, offset);
 	     offset > 0;
 	     offset = fdt_next_subnode(fdt, offset)) {
+		if (pre_reloc_only &&
+		    !fdt_getprop(fdt, offset, "u-boot,dm-pre-reloc", NULL))
+			continue;
 		/*
 		 * If this node has "compatible" property, this is not
 		 * a pin configuration node, but a normal device. skip.
@@ -228,6 +244,16 @@ int pinctrl_get_periph_id(struct udevice *dev, struct udevice *periph)
 		return -ENOSYS;
 
 	return ops->get_periph_id(dev, periph);
+}
+
+int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_gpio_mux)
+		return -ENOSYS;
+
+	return ops->get_gpio_mux(dev, banknum, index);
 }
 
 /**

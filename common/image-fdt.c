@@ -450,7 +450,7 @@ error:
  * addresses of some of the devices in the device tree are compared with the
  * actual addresses at which U-Boot has placed them.
  *
- * Returns 1 on success, 0 on failure.  If 0 is returned, U-boot will halt the
+ * Returns 1 on success, 0 on failure.  If 0 is returned, U-Boot will halt the
  * boot process.
  */
 __weak int ft_verify_fdt(void *fdt)

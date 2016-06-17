@@ -121,6 +121,11 @@ static void usb_oc_config(int index)
 	setbits_le32(ctrl, UCTRL_OVER_CUR_DIS);
 }
 
+int __weak board_usb_phy_mode(int port)
+{
+	return 0;
+}
+
 int __weak board_ehci_hcd_init(int port)
 {
 	return 0;
@@ -130,14 +135,10 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
+	enum usb_init_type type;
 
 	if (index >= ARRAY_SIZE(nc_reg_bases))
 		return -EINVAL;
-
-	if (init == USB_INIT_DEVICE && index == 1)
-		return -ENODEV;
-	if (init == USB_INIT_HOST && index == 0)
-		return -ENODEV;
 
 	ehci = (struct usb_ehci *)nc_reg_bases[index];
 
@@ -152,6 +153,10 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
 			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+
+	type = board_usb_phy_mode(index);
+	if (type != init)
+		return -ENODEV;
 
 	if (init == USB_INIT_DEVICE) {
 		setbits_le32(&ehci->usbmode, CM_DEVICE);

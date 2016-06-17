@@ -100,7 +100,7 @@ function compile_sandbox() {
 # We save time by not deleting and recreating the file system images
 function prepare_env() {
 	rm -f ${MD5_FILE}.* ${OUT}.*
-	mkdir ${OUT_DIR}
+	mkdir -p ${OUT_DIR}
 }
 
 # 1st parameter is the name of the image file to be created
@@ -115,10 +115,22 @@ function create_image() {
 	fi
 	if [ ! -f "$1" ]; then
 		fallocate -l 3G "$1" &> /dev/null
+		if [ $? -ne 0 ]; then
+			echo fallocate failed - using dd instead
+			dd if=/dev/zero of=$1 bs=1024 count=$((3 * 1024 * 1024))
+			if [ $? -ne 0 ]; then
+				echo Could not create empty disk image
+				exit $?
+			fi
+		fi
 		mkfs -t "$2" $MKFS_OPTION "$1" &> /dev/null
 		if [ $? -ne 0 -a "$2" = "fat" ]; then
 			# If we fail and we did fat, try vfat.
 			mkfs -t vfat $MKFS_OPTION "$1" &> /dev/null
+		fi
+		if [ $? -ne 0 ]; then
+			echo Could not create filesystem
+			exit $?
 		fi
 	fi
 }

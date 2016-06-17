@@ -71,6 +71,13 @@ config NAND_SUNXI
 	Enable support for NAND. This option allows SPL to read from
 	sunxi NAND using DMA transfers.
 
+config NAND_ARASAN
+	bool "Configure Arasan Nand"
+	help
+	  This enables Nand driver support for Arasan nand flash
+	  controller. This uses the hardware ECC for read and
+	  write operations.
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config

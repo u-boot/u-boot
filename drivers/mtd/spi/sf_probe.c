@@ -77,10 +77,8 @@ static int spi_flash_probe_slave(struct spi_flash *flash)
 #endif
 
 	ret = spi_flash_scan(flash);
-	if (ret) {
-		ret = -EINVAL;
+	if (ret)
 		goto err_read_id;
-	}
 
 #ifdef CONFIG_SPI_FLASH_MTD
 	ret = spi_flash_mtd_register(flash);
@@ -163,7 +161,7 @@ static int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
 
 #if defined(CONFIG_SPI_FLASH_SST)
 	if (flash->flags & SNOR_F_SST_WR) {
-		if (flash->spi->op_mode_tx & SPI_OPM_TX_BP)
+		if (flash->spi->mode & SPI_TX_BYTE)
 			return sst_write_bp(flash, offset, len, buf);
 		else
 			return sst_write_wp(flash, offset, len, buf);

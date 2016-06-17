@@ -368,7 +368,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 
 	/* try Processor Local Bus device first */
 	addr = dev_get_addr(dev);
-#ifdef CONFIG_PCI
+#if defined(CONFIG_PCI) && defined(CONFIG_DM_PCI)
 	if (addr == FDT_ADDR_T_NONE) {
 		/* then try pci device */
 		struct fdt_pci_addr pci_addr;
@@ -389,8 +389,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 				return ret;
 		}
 
-		ret = fdtdec_get_pci_bar32(gd->fdt_blob, dev->of_offset,
-					   &pci_addr, &bar);
+		ret = fdtdec_get_pci_bar32(dev, &pci_addr, &bar);
 		if (ret)
 			return ret;
 
@@ -426,11 +425,15 @@ const struct dm_serial_ops ns16550_serial_ops = {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+/*
+ * Please consider existing compatible strings before adding a new
+ * one to keep this table compact. Or you may add a generic "ns16550"
+ * compatible string to your dts.
+ */
 static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "nvidia,tegra20-uart" },
-	{ .compatible = "rockchip,rk3036-uart" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "ti,omap2-uart" },
 	{ .compatible = "ti,omap3-uart" },
@@ -442,6 +445,7 @@ static const struct udevice_id ns16550_serial_ids[] = {
 };
 #endif
 
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 U_BOOT_DRIVER(ns16550_serial) = {
 	.name	= "ns16550_serial",
 	.id	= UCLASS_SERIAL,
@@ -455,4 +459,5 @@ U_BOOT_DRIVER(ns16550_serial) = {
 	.ops	= &ns16550_serial_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
 };
+#endif
 #endif /* CONFIG_DM_SERIAL */

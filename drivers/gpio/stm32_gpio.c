@@ -19,17 +19,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_STM32F4)
-#define STM32_GPIOA_BASE	(STM32_AHB1PERIPH_BASE + 0x0000)
-#define STM32_GPIOB_BASE	(STM32_AHB1PERIPH_BASE + 0x0400)
-#define STM32_GPIOC_BASE	(STM32_AHB1PERIPH_BASE + 0x0800)
-#define STM32_GPIOD_BASE	(STM32_AHB1PERIPH_BASE + 0x0C00)
-#define STM32_GPIOE_BASE	(STM32_AHB1PERIPH_BASE + 0x1000)
-#define STM32_GPIOF_BASE	(STM32_AHB1PERIPH_BASE + 0x1400)
-#define STM32_GPIOG_BASE	(STM32_AHB1PERIPH_BASE + 0x1800)
-#define STM32_GPIOH_BASE	(STM32_AHB1PERIPH_BASE + 0x1C00)
-#define STM32_GPIOI_BASE	(STM32_AHB1PERIPH_BASE + 0x2000)
-
+#if defined(CONFIG_STM32F4) || defined(CONFIG_STM32F7)
 static const unsigned long io_base[] = {
 	STM32_GPIOA_BASE, STM32_GPIOB_BASE, STM32_GPIOC_BASE,
 	STM32_GPIOD_BASE, STM32_GPIOE_BASE, STM32_GPIOF_BASE,
@@ -70,8 +60,6 @@ int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
 
-	setbits_le32(&STM32_RCC->ahb1enr, 1 << dsc->port);
-
 	i = (dsc->pin & 0x07) * 4;
 	clrsetbits_le32(&gpio_regs->afr[dsc->pin >> 3], 0xF << i, ctl->af << i);
 
@@ -87,14 +75,6 @@ out:
 	return rv;
 }
 #elif defined(CONFIG_STM32F1)
-#define STM32_GPIOA_BASE	(STM32_APB2PERIPH_BASE + 0x0800)
-#define STM32_GPIOB_BASE	(STM32_APB2PERIPH_BASE + 0x0C00)
-#define STM32_GPIOC_BASE	(STM32_APB2PERIPH_BASE + 0x1000)
-#define STM32_GPIOD_BASE	(STM32_APB2PERIPH_BASE + 0x1400)
-#define STM32_GPIOE_BASE	(STM32_APB2PERIPH_BASE + 0x1800)
-#define STM32_GPIOF_BASE	(STM32_APB2PERIPH_BASE + 0x1C00)
-#define STM32_GPIOG_BASE	(STM32_APB2PERIPH_BASE + 0x2000)
-
 static const unsigned long io_base[] = {
 	STM32_GPIOA_BASE, STM32_GPIOB_BASE, STM32_GPIOC_BASE,
 	STM32_GPIOD_BASE, STM32_GPIOE_BASE, STM32_GPIOF_BASE,
@@ -140,9 +120,6 @@ int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 	p = dsc->pin;
 
 	gpio_regs = (struct stm32_gpio_regs *)io_base[dsc->port];
-
-	/* Enable clock for GPIO port */
-	setbits_le32(&STM32_RCC->apb2enr, 0x04 << dsc->port);
 
 	if (p < 8) {
 		cr = &gpio_regs->crl;
@@ -230,7 +207,7 @@ int gpio_direction_input(unsigned gpio)
 
 	dsc.port = stm32_gpio_to_port(gpio);
 	dsc.pin = stm32_gpio_to_pin(gpio);
-#if defined(CONFIG_STM32F4)
+#if defined(CONFIG_STM32F4) || defined(CONFIG_STM32F7)
 	ctl.af = STM32_GPIO_AF0;
 	ctl.mode = STM32_GPIO_MODE_IN;
 	ctl.otype = STM32_GPIO_OTYPE_PP;
@@ -256,7 +233,7 @@ int gpio_direction_output(unsigned gpio, int value)
 
 	dsc.port = stm32_gpio_to_port(gpio);
 	dsc.pin = stm32_gpio_to_pin(gpio);
-#if defined(CONFIG_STM32F4)
+#if defined(CONFIG_STM32F4) || defined(CONFIG_STM32F7)
 	ctl.af = STM32_GPIO_AF0;
 	ctl.mode = STM32_GPIO_MODE_OUT;
 	ctl.pupd = STM32_GPIO_PUPD_NO;

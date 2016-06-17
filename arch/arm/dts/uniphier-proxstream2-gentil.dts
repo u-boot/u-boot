@@ -27,6 +27,7 @@
 		serial1 = &serial1;
 		serial2 = &serial2;
 		i2c0 = &i2c0;
+		i2c2 = &i2c2;
 		i2c4 = &i2c4;
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
@@ -39,6 +40,20 @@
 
 &i2c0 {
 	status = "okay";
+
+	eeprom {
+		compatible = "24c64", "i2c-eeprom";
+		reg = <0x54>;
+		u-boot,i2c-offset-len = <2>;
+	};
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&emmc {
+	status = "okay";
 };
 
 &usb0 {
@@ -49,7 +64,7 @@
 	status = "okay";
 };
 
-/* for U-boot only */
+/* for U-Boot only */
 / {
 	soc {
 		u-boot,dm-pre-reloc;
@@ -60,10 +75,22 @@
 	u-boot,dm-pre-reloc;
 };
 
+&mio {
+	u-boot,dm-pre-reloc;
+};
+
+&emmc {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };
 
 &pinctrl_uart2 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_emmc {
 	u-boot,dm-pre-reloc;
 };

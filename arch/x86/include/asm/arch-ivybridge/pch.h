@@ -30,11 +30,6 @@
 
 #define SMBUS_IO_BASE		0x0400
 
-int pch_silicon_revision(void);
-int pch_silicon_type(void);
-int pch_silicon_supported(int type, int rev);
-void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
-
 #define MAINBOARD_POWER_OFF	0
 #define MAINBOARD_POWER_ON	1
 #define MAINBOARD_POWER_KEEP	2
@@ -105,6 +100,8 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 #define GPIO_ROUT		0xb8
 
 #define LPC_IO_DEC		0x80 /* IO Decode Ranges Register */
+#define  COMB_DEC_RANGE		(1 << 4)  /* 0x2f8-0x2ff (COM2) */
+#define  COMA_DEC_RANGE		(0 << 0)  /* 0x3f8-0x3ff (COM1) */
 #define LPC_EN			0x82 /* LPC IF Enables Register */
 #define  CNF2_LPC_EN		(1 << 13) /* 0x4e/0x4f */
 #define  CNF1_LPC_EN		(1 << 12) /* 0x2e/0x2f */
@@ -121,6 +118,14 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 #define LPC_GEN3_DEC		0x8c /* LPC IF Generic Decode Range 3 */
 #define LPC_GEN4_DEC		0x90 /* LPC IF Generic Decode Range 4 */
 #define LPC_GENX_DEC(x)		(0x84 + 4 * (x))
+#define  GEN_DEC_RANGE_256B	0xfc0000  /* 256 Bytes */
+#define  GEN_DEC_RANGE_128B	0x7c0000  /* 128 Bytes */
+#define  GEN_DEC_RANGE_64B	0x3c0000  /* 64 Bytes */
+#define  GEN_DEC_RANGE_32B	0x1c0000  /* 32 Bytes */
+#define  GEN_DEC_RANGE_16B	0x0c0000  /* 16 Bytes */
+#define  GEN_DEC_RANGE_8B	0x040000  /* 8 Bytes */
+#define  GEN_DEC_RANGE_4B	0x000000  /* 4 Bytes */
+#define  GEN_DEC_RANGE_EN	(1 << 0)  /* Range Enable */
 
 /* PCI Configuration Space (D31:F1): IDE */
 #define PCH_IDE_DEV		PCI_BDF(0, 0x1f, 1)
@@ -460,17 +465,23 @@ void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
 #define   DMISCI_STS	(1 << 9)
 #define TCO2_STS	0x66
 
-int lpc_init(struct pci_controller *hose, pci_dev_t dev);
-void lpc_enable(pci_dev_t dev);
+/**
+ * pch_silicon_revision() - Read silicon device ID from the PCH
+ *
+ * @dev:	PCH device
+ * @return silicon device ID
+ */
+int pch_silicon_type(struct udevice *dev);
 
 /**
- * lpc_early_init() - set up LPC serial ports and other early things
+ * pch_pch_iobp_update() - Update a pch register
  *
- * @blob:	Device tree blob
- * @node:	Offset of LPC node
- * @dev:	PCH PCI device containing the LPC
- * @return 0 if OK, -ve on error
+ * @dev:	PCH device
+ * @address:	Address to update
+ * @andvalue:	Value to AND with existing value
+ * @orvalue:	Value to OR with existing value
  */
-int lpc_early_init(const void *blob, int node, pci_dev_t dev);
+void pch_iobp_update(struct udevice *dev, u32 address, u32 andvalue,
+			     u32 orvalue);
 
 #endif

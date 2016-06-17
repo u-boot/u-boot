@@ -12,8 +12,8 @@
 #include "asm/errno.h"
 #include "asm/io.h"
 #include "linux/immap_qe.h"
-#include "qe.h"
 #include "uccf.h"
+#include <fsl_qe.h>
 
 void ucc_fast_transmit_on_demand(ucc_fast_private_t *uccf)
 {

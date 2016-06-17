@@ -45,7 +45,7 @@ void dram_init_banksize(void);
 int default_print_cpuinfo(void);
 
 /* Set up a UART which can be used with printch(), printhex8(), etc. */
-int setup_early_uart(void);
+int setup_internal_uart(int enable);
 
 void setup_pcat_compatibility(void);
 
@@ -76,8 +76,6 @@ void timer_set_tsc_base(uint64_t new_base);
 uint64_t timer_get_tsc(void);
 
 void quick_ram_check(void);
-
-int x86_init_cpus(void);
 
 #define PCI_VGA_RAM_IMAGE_START		0xc0000
 

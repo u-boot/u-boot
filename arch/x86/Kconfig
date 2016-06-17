@@ -93,9 +93,6 @@ config SYS_X86_START16
 	depends on X86_RESET_VECTOR
 	default 0xfffff800
 
-config DM_PCI_COMPAT
-	default y	# Until we finish moving over to the new API
-
 config BOARD_ROMSIZE_KB_512
 	bool
 config BOARD_ROMSIZE_KB_1024
@@ -242,6 +239,25 @@ config FSP_SYS_MALLOC_F_LEN
 	help
 	  Additional size of malloc() pool before relocation.
 
+config FSP_USE_UPD
+	bool
+	depends on HAVE_FSP
+	default y
+	help
+	  Most FSPs use UPD data region for some FSP customization. But there
+	  are still some FSPs that might not even have UPD. For such FSPs,
+	  override this to n in their platform Kconfig files.
+
+config FSP_BROKEN_HOB
+	bool
+	depends on HAVE_FSP
+	help
+	  Indicate some buggy FSPs that does not report memory used by FSP
+	  itself as reserved in the resource descriptor HOB. Select this to
+	  tell U-Boot to do some additional work to ensure U-Boot relocation
+	  do not overwrite the important boot service data which is used by
+	  FSP, otherwise the subsequent call to fsp_notify() will fail.
+
 config ENABLE_MRC_CACHE
 	bool "Enable MRC cache"
 	depends on !EFI && !SYS_COREBOOT
@@ -348,6 +364,15 @@ config GENERATE_ACPI_TABLE
 	  provides an open standard for device configuration and management
 	  by the operating system. It defines platform-independent interfaces
 	  for configuration and power management monitoring.
+
+config QEMU_ACPI_TABLE
+	bool "Load ACPI table from QEMU fw_cfg interface"
+	depends on GENERATE_ACPI_TABLE && QEMU
+	default y
+	help
+	  By default, U-Boot generates its own ACPI tables. This option, if
+	  enabled, disables U-Boot's version and loads ACPI tables generated
+	  by QEMU.
 
 config GENERATE_SMBIOS_TABLE
 	bool "Generate an SMBIOS (System Management BIOS) table"

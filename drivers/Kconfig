@@ -46,6 +46,8 @@ source "drivers/pinctrl/Kconfig"
 
 source "drivers/power/Kconfig"
 
+source "drivers/pwm/Kconfig"
+
 source "drivers/ram/Kconfig"
 
 source "drivers/remoteproc/Kconfig"

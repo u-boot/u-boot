@@ -68,5 +68,18 @@
 			interrupts = <GIC_SPI 164 IRQ_TYPE_EDGE_RISING>;
 		};
 
+		mdio: mdio@4200f00 {
+			compatible	= "ti,keystone_mdio", "ti,davinci_mdio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			/* power-domains = <&k2g_pds K2G_DEV_NSS0>; */
+			/* clocks = <&k2g_clks K2G_DEV_NSS0 K2G_DEV_NSS_ESW_CLK>; */
+			clock-names = "fck";
+			reg = <0x04200f00 0x100>;
+			status = "disabled";
+			bus_freq = <2500000>;
+		};
+
+		#include "k2g-netcp.dtsi"
 	};
 };

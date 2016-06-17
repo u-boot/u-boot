@@ -12,7 +12,7 @@
 #include "asm/errno.h"
 #include "asm/io.h"
 #include "linux/immap_qe.h"
-#include "qe.h"
+#include <fsl_qe.h>
 #ifdef CONFIG_LS102XA
 #include <asm/arch/immap_ls102xa.h>
 #endif
@@ -20,7 +20,9 @@
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
 
 qe_map_t		*qe_immr = NULL;
+#ifdef CONFIG_QE
 static qe_snum_t	snums[QE_NUM_OF_SNUM];
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -81,6 +83,7 @@ void *qe_muram_addr(uint offset)
 	return (void *)&qe_immr->muram[offset];
 }
 
+#ifdef CONFIG_QE
 static void qe_sdma_init(void)
 {
 	volatile sdma_t	*p;
@@ -184,12 +187,12 @@ void qe_init(uint qe_base)
 	qe_sdma_init();
 	qe_snums_init();
 }
+#endif
 
 #ifdef CONFIG_U_QE
 void u_qe_init(void)
 {
-	uint qe_base = CONFIG_SYS_IMMR + 0x01400000; /* QE immr base */
-	qe_immr = (qe_map_t *)qe_base;
+	qe_immr = (qe_map_t *)(CONFIG_SYS_IMMR + QE_IMMR_OFFSET);
 
 	u_qe_upload_firmware((const void *)CONFIG_SYS_QE_FW_ADDR);
 	out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
@@ -200,9 +203,8 @@ void u_qe_init(void)
 void u_qe_resume(void)
 {
 	qe_map_t *qe_immrr;
-	uint qe_base = CONFIG_SYS_IMMR + QE_IMMR_OFFSET; /* QE immr base */
-	qe_immrr = (qe_map_t *)qe_base;
 
+	qe_immrr = (qe_map_t *)(CONFIG_SYS_IMMR + QE_IMMR_OFFSET);
 	u_qe_firmware_resume((const void *)CONFIG_SYS_QE_FW_ADDR, qe_immrr);
 	out_be32(&qe_immrr->iram.iready, QE_IRAM_READY);
 }
@@ -214,6 +216,7 @@ void qe_reset(void)
 			 (u8) QE_CR_PROTOCOL_UNSPECIFIED, 0);
 }
 
+#ifdef CONFIG_QE
 void qe_assign_page(uint snum, uint para_ram_base)
 {
 	u32	cecr;
@@ -229,6 +232,7 @@ void qe_assign_page(uint snum, uint para_ram_base)
 
 	return;
 }
+#endif
 
 /*
  * brg: 0~15 as BRG1~BRG16

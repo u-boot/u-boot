@@ -1,7 +1,7 @@
 /*
  *
  * (C) Copyright 2008
- * Ricado Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@uam.es
+ * Ricado Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@gmail.com
  * This work has been supported by: QTechnology http://qtec.com/
  *
  * (C) Copyright 2008
@@ -13,6 +13,9 @@
 #define __CONFIG_GEN_H
 
 #include "../board/xilinx/ppc405-generic/xparameters.h"
+
+#define CONFIG_405		1
+#define CONFIG_XILINX_405	1
 
 /* sdram */
 #define CONFIG_SYS_SDRAM_SIZE_MB	256
@@ -26,16 +29,16 @@
 #define CONFIG_ENV_OVERWRITE		1
 
 /*Misc*/
-#define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
+#define CONFIG_PREBOOT		"echo U-Boot is up and running;"
 
 /*Flash*/
-#define CONFIG_SYS_FLASH_BASE			XPAR_FLASH_MEM0_BASEADDR
-#define CONFIG_SYS_FLASH_SIZE		(32*1024*1024)
-#define CONFIG_SYS_MAX_FLASH_SECT	71
+#define CONFIG_SYS_FLASH_BASE		XPAR_FLASH_MEM0_BASEADDR
+#define CONFIG_SYS_FLASH_SIZE		(128*1024*1024)
+#define CONFIG_SYS_MAX_FLASH_SECT	1024
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
-#define MTDIDS_DEFAULT			"nor0=ppc405-flash"
-#define MTDPARTS_DEFAULT		"mtdpartsa=ppc405-flash:-(user)"
+#define MTDIDS_DEFAULT			"nor0=flash"
+#define MTDPARTS_DEFAULT		"mtdparts=flash:-(user)"
 
-#include <configs/xilinx-ppc405.h>
+#include <configs/xilinx-ppc.h>
 #endif			/* __CONFIG_H */

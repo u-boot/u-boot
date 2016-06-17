@@ -18,6 +18,14 @@ config TARGET_BAYLEYBAY
 	  4GB memory, HDMI/DP/VGA display, HD audio, SATA, USB2, USB3, SD, eMMC,
 	  PCIe and some other sensor interfaces.
 
+config TARGET_COUGARCANYON2
+	bool "Cougar Canyon 2"
+	help
+	  This is the Intel Cougar Canyon 2 Customer Reference Board. It
+	  is built on the Chief River platform with Intel Ivybridge Processor
+	  and Panther Point chipset. The board has 4GB RAM, with some other
+	  peripheral connectors for PCIe/SATA/USB2/USB3/LAN/UART/PS2/VGA/HDMI.
+
 config TARGET_CROWNBAY
 	bool "Crown Bay"
 	help
@@ -54,6 +62,7 @@ config TARGET_MINNOWMAX
 endchoice
 
 source "board/intel/bayleybay/Kconfig"
+source "board/intel/cougarcanyon2/Kconfig"
 source "board/intel/crownbay/Kconfig"
 source "board/intel/galileo/Kconfig"
 source "board/intel/minnowmax/Kconfig"

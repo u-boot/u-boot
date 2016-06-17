@@ -8,9 +8,42 @@
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
-#include <mach/init.h>
-#include <mach/umc-regs.h>
-#include <mach/ddrphy-regs.h>
+#include <asm/processor.h>
+
+#include "../init.h"
+#include "ddrphy-regs.h"
+#include "umc-regs.h"
+
+#define DRAM_CH_NR	2
+
+enum dram_freq {
+	DRAM_FREQ_1333M,
+	DRAM_FREQ_1600M,
+	DRAM_FREQ_NR,
+};
+
+enum dram_size {
+	DRAM_SZ_128M,
+	DRAM_SZ_256M,
+	DRAM_SZ_512M,
+	DRAM_SZ_NR,
+};
+
+static u32 umc_cmdctla[DRAM_FREQ_NR] = {0x55990b11, 0x66bb0f17};
+static u32 umc_cmdctla_plus[DRAM_FREQ_NR] = {0x45990b11, 0x46bb0f17};
+static u32 umc_cmdctlb[DRAM_FREQ_NR] = {0x16958944, 0x18c6ab44};
+static u32 umc_cmdctlb_plus[DRAM_FREQ_NR] = {0x16958924, 0x18c6ab24};
+static u32 umc_spcctla[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+	{0x00240512, 0x00350512, 0x00000000}, /* no data for 1333MHz,128MB */
+	{0x002b0617, 0x003f0617, 0x00670617},
+};
+static u32 umc_spcctlb[DRAM_FREQ_NR] = {0x00ff0006, 0x00ff0008};
+static u32 umc_rdatactl[DRAM_FREQ_NR] = {0x000a00ac, 0x000c00ac};
+
+static int umc_get_rank(int ch)
+{
+	return ch;	/* ch0: rank0, ch1: rank1 for this SoC */
+}
 
 static void umc_start_ssif(void __iomem *ssif_base)
 {
@@ -46,110 +79,116 @@ static void umc_start_ssif(void __iomem *ssif_base)
 	writel(0x00000001, ssif_base + UMC_DMDRST);
 }
 
-static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
-			      int size, int freq)
+static int umc_dramcont_init(void __iomem *dc_base, void __iomem *ca_base,
+			     int freq, unsigned long size, bool ddr3plus)
 {
-#ifdef CONFIG_DDR_STANDARD
-	writel(0x55990b11, dramcont + UMC_CMDCTLA);
-	writel(0x16958944, dramcont + UMC_CMDCTLB);
-#else
-	writel(0x45990b11, dramcont + UMC_CMDCTLA);
-	writel(0x16958924, dramcont + UMC_CMDCTLB);
-#endif
+	enum dram_freq freq_e;
+	enum dram_size size_e;
 
-	writel(0x5101046A, dramcont + UMC_INITCTLA);
+	switch (freq) {
+	case 1333:
+		freq_e = DRAM_FREQ_1333M;
+		break;
+	case 1600:
+		freq_e = DRAM_FREQ_1600M;
+		break;
+	default:
+		pr_err("unsupported DRAM frequency %d MHz\n", freq);
+		return -EINVAL;
+	}
 
-	if (size == 1)
-		writel(0x27028B0A, dramcont + UMC_INITCTLB);
-	else if (size == 2)
-		writel(0x38028B0A, dramcont + UMC_INITCTLB);
+	switch (size) {
+	case 0:
+		return 0;
+	case SZ_128M:
+		size_e = DRAM_SZ_128M;
+		break;
+	case SZ_256M:
+		size_e = DRAM_SZ_256M;
+		break;
+	case SZ_512M:
+		size_e = DRAM_SZ_512M;
+		break;
+	default:
+		pr_err("unsupported DRAM size 0x%08lx\n", size);
+		return -EINVAL;
+	}
 
-	writel(0x00FF00FF, dramcont + UMC_INITCTLC);
-	writel(0x00000b51, dramcont + UMC_DRMMR0);
-	writel(0x00000006, dramcont + UMC_DRMMR1);
-	writel(0x00000290, dramcont + UMC_DRMMR2);
-
-#ifdef CONFIG_DDR_STANDARD
-	writel(0x00000000, dramcont + UMC_DRMMR3);
-#else
-	writel(0x00000800, dramcont + UMC_DRMMR3);
-#endif
-
-	if (size == 1)
-		writel(0x00240512, dramcont + UMC_SPCCTLA);
-	else if (size == 2)
-		writel(0x00350512, dramcont + UMC_SPCCTLA);
-
-	writel(0x00ff0006, dramcont + UMC_SPCCTLB);
-	writel(0x000a00ac, dramcont + UMC_RDATACTL_D0);
-	writel(0x04060806, dramcont + UMC_WDATACTL_D0);
-	writel(0x04a02000, dramcont + UMC_DATASET);
+	writel((ddr3plus ? umc_cmdctla_plus : umc_cmdctla)[freq_e],
+	       dc_base + UMC_CMDCTLA);
+	writel((ddr3plus ? umc_cmdctlb_plus : umc_cmdctlb)[freq_e],
+	       dc_base + UMC_CMDCTLB);
+	writel(umc_spcctla[freq_e][size_e], dc_base + UMC_SPCCTLA);
+	writel(umc_spcctlb[freq_e], dc_base + UMC_SPCCTLB);
+	writel(umc_rdatactl[freq_e], dc_base + UMC_RDATACTL_D0);
+	writel(0x04060806, dc_base + UMC_WDATACTL_D0);
+	writel(0x04a02000, dc_base + UMC_DATASET);
 	writel(0x00000000, ca_base + 0x2300);
-	writel(0x00400020, dramcont + UMC_DCCGCTL);
-	writel(0x00000003, dramcont + 0x7000);
-	writel(0x0000004f, dramcont + 0x8000);
-	writel(0x000000c3, dramcont + 0x8004);
-	writel(0x00000077, dramcont + 0x8008);
-	writel(0x0000003b, dramcont + UMC_DICGCTLA);
-	writel(0x020a0808, dramcont + UMC_DICGCTLB);
-	writel(0x00000004, dramcont + UMC_FLOWCTLG);
+	writel(0x00400020, dc_base + UMC_DCCGCTL);
+	writel(0x00000003, dc_base + 0x7000);
+	writel(0x0000004f, dc_base + 0x8000);
+	writel(0x000000c3, dc_base + 0x8004);
+	writel(0x00000077, dc_base + 0x8008);
+	writel(0x0000003b, dc_base + UMC_DICGCTLA);
+	writel(0x020a0808, dc_base + UMC_DICGCTLB);
+	writel(0x00000004, dc_base + UMC_FLOWCTLG);
 	writel(0x80000201, ca_base + 0xc20);
-	writel(0x0801e01e, dramcont + UMC_FLOWCTLA);
-	writel(0x00200000, dramcont + UMC_FLOWCTLB);
-	writel(0x00004444, dramcont + UMC_FLOWCTLC);
-	writel(0x200a0a00, dramcont + UMC_SPCSETB);
-	writel(0x00000000, dramcont + UMC_SPCSETD);
-	writel(0x00000520, dramcont + UMC_DFICUPDCTLA);
-}
-
-static int umc_init_sub(int freq, int size_ch0, int size_ch1)
-{
-	void __iomem *ssif_base = (void __iomem *)UMC_SSIF_BASE;
-	void __iomem *ca_base0 = (void __iomem *)UMC_CA_BASE(0);
-	void __iomem *ca_base1 = (void __iomem *)UMC_CA_BASE(1);
-	void __iomem *dramcont0 = (void __iomem *)UMC_DRAMCONT_BASE(0);
-	void __iomem *dramcont1 = (void __iomem *)UMC_DRAMCONT_BASE(1);
-	void __iomem *phy0_0 = (void __iomem *)DDRPHY_BASE(0, 0);
-	void __iomem *phy1_0 = (void __iomem *)DDRPHY_BASE(1, 0);
-
-	umc_dram_init_start(dramcont0);
-	umc_dram_init_start(dramcont1);
-	umc_dram_init_poll(dramcont0);
-	umc_dram_init_poll(dramcont1);
-
-	writel(0x00000101, dramcont0 + UMC_DIOCTLA);
-
-	ph1_sld8_ddrphy_init(phy0_0, freq, size_ch0);
-
-	ddrphy_prepare_training(phy0_0, 0);
-	ddrphy_training(phy0_0);
-
-	writel(0x00000101, dramcont1 + UMC_DIOCTLA);
-
-	ph1_sld8_ddrphy_init(phy1_0, freq, size_ch1);
-
-	ddrphy_prepare_training(phy1_0, 1);
-	ddrphy_training(phy1_0);
-
-	umc_dramcont_init(dramcont0, ca_base0, size_ch0, freq);
-	umc_dramcont_init(dramcont1, ca_base1, size_ch1, freq);
-
-	umc_start_ssif(ssif_base);
+	writel(0x0801e01e, dc_base + UMC_FLOWCTLA);
+	writel(0x00200000, dc_base + UMC_FLOWCTLB);
+	writel(0x00004444, dc_base + UMC_FLOWCTLC);
+	writel(0x200a0a00, dc_base + UMC_SPCSETB);
+	writel(0x00000000, dc_base + UMC_SPCSETD);
+	writel(0x00000520, dc_base + UMC_DFICUPDCTLA);
 
 	return 0;
 }
 
+static int umc_ch_init(void __iomem *dc_base, void __iomem *ca_base,
+		       int freq, unsigned long size, bool ddr3plus, int ch)
+{
+	void __iomem *phy_base = dc_base + 0x00001000;
+	int ret;
+
+	writel(UMC_INITSET_INIT1EN, dc_base + UMC_INITSET);
+	while (readl(dc_base + UMC_INITSET) & UMC_INITSTAT_INIT1ST)
+		cpu_relax();
+
+	writel(0x00000101, dc_base + UMC_DIOCTLA);
+
+	ret = ph1_ld4_ddrphy_init(phy_base, freq, ddr3plus);
+	if (ret)
+		return ret;
+
+	ddrphy_prepare_training(phy_base, umc_get_rank(ch));
+	ret = ddrphy_training(phy_base);
+	if (ret)
+		return ret;
+
+	return umc_dramcont_init(dc_base, ca_base, freq, size, ddr3plus);
+}
+
 int ph1_sld8_umc_init(const struct uniphier_board_data *bd)
 {
-	if ((bd->dram_ch0_size == SZ_128M || bd->dram_ch0_size == SZ_256M) &&
-	    (bd->dram_ch1_size == SZ_128M || bd->dram_ch1_size == SZ_256M) &&
-	    bd->dram_freq == 1333 &&
-	    bd->dram_ch0_width == 16 && bd->dram_ch1_width == 16) {
-		return umc_init_sub(bd->dram_freq,
-				    bd->dram_ch0_size / SZ_128M,
-				    bd->dram_ch1_size / SZ_128M);
-	} else {
-		pr_err("Unsupported DDR configuration\n");
-		return -EINVAL;
+	void __iomem *umc_base = (void __iomem *)0x5b800000;
+	void __iomem *ca_base = umc_base + 0x00001000;
+	void __iomem *dc_base = umc_base + 0x00400000;
+	void __iomem *ssif_base = umc_base;
+	int ch, ret;
+
+	for (ch = 0; ch < DRAM_CH_NR; ch++) {
+		ret = umc_ch_init(dc_base, ca_base, bd->dram_freq,
+				  bd->dram_ch[ch].size,
+				  bd->dram_ddr3plus, ch);
+		if (ret) {
+			pr_err("failed to initialize UMC ch%d\n", ch);
+			return ret;
+		}
+
+		ca_base += 0x00001000;
+		dc_base += 0x00200000;
 	}
+
+	umc_start_ssif(ssif_base);
+
+	return 0;
 }

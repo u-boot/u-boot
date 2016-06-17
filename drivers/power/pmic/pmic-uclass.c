@@ -18,6 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_IS_ENABLED(PMIC_CHILDREN)
 int pmic_bind_children(struct udevice *pmic, int offset,
 		       const struct pmic_child_info *child_info)
 {
@@ -84,6 +85,7 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 	debug("Bound: %d childs for PMIC: '%s'\n", bind_count, pmic->name);
 	return bind_count;
 }
+#endif
 
 int pmic_get(const char *name, struct udevice **devp)
 {
@@ -131,8 +133,9 @@ int pmic_reg_read(struct udevice *dev, uint reg)
 	u8 byte;
 	int ret;
 
+	debug("%s: reg=%x", __func__, reg);
 	ret = pmic_read(dev, reg, &byte, 1);
-	debug("%s: reg=%x, value=%x\n", __func__, reg, byte);
+	debug(", value=%x, ret=%d\n", byte, ret);
 
 	return ret ? ret : byte;
 }
@@ -140,9 +143,13 @@ int pmic_reg_read(struct udevice *dev, uint reg)
 int pmic_reg_write(struct udevice *dev, uint reg, uint value)
 {
 	u8 byte = value;
+	int ret;
 
-	debug("%s: reg=%x, value=%x\n", __func__, reg, value);
-	return pmic_write(dev, reg, &byte, 1);
+	debug("%s: reg=%x, value=%x", __func__, reg, value);
+	ret = pmic_write(dev, reg, &byte, 1);
+	debug(", ret=%d\n", ret);
+
+	return ret;
 }
 
 int pmic_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)

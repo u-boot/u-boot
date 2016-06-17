@@ -5,8 +5,9 @@
  */
 
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sc-regs.h>
+
+#include "../init.h"
+#include "../sc-regs.h"
 
 void ph1_pro5_clk_init(void)
 {

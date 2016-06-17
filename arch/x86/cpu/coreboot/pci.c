@@ -14,7 +14,8 @@
 #include <pci.h>
 
 static const struct udevice_id generic_pch_ids[] = {
-	{ .compatible = "intel,pch" },
+	{ .compatible = "intel,pch7" },
+	{ .compatible = "intel,pch9" },
 	{ }
 };
 

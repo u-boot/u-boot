@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF561 Acvilon System On Module
+ * U-Boot - Configuration file for BF561 Acvilon System On Module
  * For more information please go to http://www.niistt.ru/
  */
 

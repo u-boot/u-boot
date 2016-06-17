@@ -117,15 +117,15 @@ static void pch_gbe_rx_descs_init(struct udevice *dev)
 
 	memset(rx_desc, 0, sizeof(struct pch_gbe_rx_desc) * PCH_GBE_DESC_NUM);
 	for (i = 0; i < PCH_GBE_DESC_NUM; i++)
-		rx_desc->buffer_addr = pci_phys_to_mem(priv->bdf,
+		rx_desc->buffer_addr = dm_pci_phys_to_mem(priv->dev,
 			(u32)(priv->rx_buff[i]));
 
-	writel(pci_phys_to_mem(priv->bdf, (u32)rx_desc),
+	writel(dm_pci_phys_to_mem(priv->dev, (u32)rx_desc),
 	       &mac_regs->rx_dsc_base);
 	writel(sizeof(struct pch_gbe_rx_desc) * (PCH_GBE_DESC_NUM - 1),
 	       &mac_regs->rx_dsc_size);
 
-	writel(pci_phys_to_mem(priv->bdf, (u32)(rx_desc + 1)),
+	writel(dm_pci_phys_to_mem(priv->dev, (u32)(rx_desc + 1)),
 	       &mac_regs->rx_dsc_sw_p);
 }
 
@@ -137,11 +137,11 @@ static void pch_gbe_tx_descs_init(struct udevice *dev)
 
 	memset(tx_desc, 0, sizeof(struct pch_gbe_tx_desc) * PCH_GBE_DESC_NUM);
 
-	writel(pci_phys_to_mem(priv->bdf, (u32)tx_desc),
+	writel(dm_pci_phys_to_mem(priv->dev, (u32)tx_desc),
 	       &mac_regs->tx_dsc_base);
 	writel(sizeof(struct pch_gbe_tx_desc) * (PCH_GBE_DESC_NUM - 1),
 	       &mac_regs->tx_dsc_size);
-	writel(pci_phys_to_mem(priv->bdf, (u32)(tx_desc + 1)),
+	writel(dm_pci_phys_to_mem(priv->dev, (u32)(tx_desc + 1)),
 	       &mac_regs->tx_dsc_sw_p);
 }
 
@@ -251,7 +251,7 @@ static int pch_gbe_send(struct udevice *dev, void *packet, int length)
 	if (length < 64)
 		frame_ctrl |= PCH_GBE_TXD_CTRL_APAD;
 
-	tx_desc->buffer_addr = pci_phys_to_mem(priv->bdf, (u32)packet);
+	tx_desc->buffer_addr = dm_pci_phys_to_mem(priv->dev, (u32)packet);
 	tx_desc->length = length;
 	tx_desc->tx_words_eob = length + 3;
 	tx_desc->tx_frame_ctrl = frame_ctrl;
@@ -262,7 +262,7 @@ static int pch_gbe_send(struct udevice *dev, void *packet, int length)
 	if (++priv->tx_idx >= PCH_GBE_DESC_NUM)
 		priv->tx_idx = 0;
 
-	writel(pci_phys_to_mem(priv->bdf, (u32)(tx_head + priv->tx_idx)),
+	writel(dm_pci_phys_to_mem(priv->dev, (u32)(tx_head + priv->tx_idx)),
 	       &mac_regs->tx_dsc_sw_p);
 
 	start = get_timer(0);
@@ -294,7 +294,7 @@ static int pch_gbe_recv(struct udevice *dev, int flags, uchar **packetp)
 	if ((u32)rx_desc == hw_desc)
 		return -EAGAIN;
 
-	buffer_addr = pci_mem_to_phys(priv->bdf, rx_desc->buffer_addr);
+	buffer_addr = dm_pci_mem_to_phys(priv->dev, rx_desc->buffer_addr);
 	*packetp = (uchar *)buffer_addr;
 	length = rx_desc->rx_words_eob - 3 - ETH_FCS_LEN;
 
@@ -315,7 +315,7 @@ static int pch_gbe_free_pkt(struct udevice *dev, uchar *packet, int length)
 	if (++rx_swp >= PCH_GBE_DESC_NUM)
 		rx_swp = 0;
 
-	writel(pci_phys_to_mem(priv->bdf, (u32)(rx_head + rx_swp)),
+	writel(dm_pci_phys_to_mem(priv->dev, (u32)(rx_head + rx_swp)),
 	       &mac_regs->rx_dsc_sw_p);
 
 	return 0;
@@ -386,7 +386,7 @@ static int pch_gbe_mdio_init(const char *name, struct pch_gbe_regs *mac_regs)
 
 	bus->read = pch_gbe_mdio_read;
 	bus->write = pch_gbe_mdio_write;
-	sprintf(bus->name, name);
+	strcpy(bus->name, name);
 
 	bus->priv = (void *)mac_regs;
 
@@ -421,10 +421,7 @@ int pch_gbe_probe(struct udevice *dev)
 {
 	struct pch_gbe_priv *priv;
 	struct eth_pdata *plat = dev_get_platdata(dev);
-	pci_dev_t devno;
 	u32 iobase;
-
-	devno = pci_get_bdf(dev);
 
 	/*
 	 * The priv structure contains the descriptors and frame buffers which
@@ -433,11 +430,11 @@ int pch_gbe_probe(struct udevice *dev)
 	 */
 	priv = dev_get_priv(dev);
 
-	priv->bdf = devno;
+	priv->dev = dev;
 
-	pci_read_config_dword(devno, PCI_BASE_ADDRESS_1, &iobase);
+	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_1, &iobase);
 	iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-	iobase = pci_mem_to_phys(devno, iobase);
+	iobase = dm_pci_mem_to_phys(dev, iobase);
 
 	plat->iobase = iobase;
 	priv->mac_regs = (struct pch_gbe_regs *)iobase;

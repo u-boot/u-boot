@@ -1,10 +1,7 @@
-/* $Id: posix_types.h,v 1.6 2000/02/04 23:32:54 ralf Exp $
- *
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING" in the main directory of this archive
- * for more details.
- *
+/*
  * Copyright (C) 1996, 1997, 1998, 2000 by Ralf Baechle
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_POSIX_TYPES_H
 #define _ASM_POSIX_TYPES_H

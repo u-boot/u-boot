@@ -454,7 +454,7 @@ int sunxi_mmc_has_egon_boot_signature(struct mmc *mmc)
 		panic("Failed to allocate memory\n");
 
 	if (mmc_getcd(mmc) && mmc_init(mmc) == 0 &&
-	    mmc->block_dev.block_read(mmc->block_dev.dev, 16, 1, buf) == 1 &&
+	    mmc->block_dev.block_read(&mmc->block_dev, 16, 1, buf) == 1 &&
 	    strncmp(&buf[4], "eGON.BT0", 8) == 0)
 		valid_signature = 1;
 

@@ -12,7 +12,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/at91_pmc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/at91_pio.h>
 #include <status_led.h>
 
@@ -59,11 +59,9 @@ void	red_led_off(void)
 
 void coloured_LED_init (void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
 	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 
-	/* Enable PIOB clock */
-	writel(1 << ATMEL_ID_PIOB, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOB);
 
 	/* Disable peripherals on LEDs */
 	writel(GREEN_LED | YELLOW_LED | RED_LED, &pio->piob.per);

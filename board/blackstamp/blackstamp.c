@@ -1,5 +1,5 @@
 /*
- * U-boot - blackstamp.c BlackStamp board specific routines
+ * U-Boot - blackstamp.c BlackStamp board specific routines
  * Most code stolen from boards/bf533-stamp/bf533-stamp.c
  * Edited to the BlackStamp by Ben Matthews for UR LLE
  *

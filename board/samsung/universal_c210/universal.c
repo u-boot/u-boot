@@ -355,10 +355,10 @@ int exynos_init(void)
 	}
 
 	/* Request soft I2C gpios */
-	sprintf(buf, "soft_i2c_scl");
+	strcpy(buf, "soft_i2c_scl");
 	gpio_request(CONFIG_SOFT_I2C_GPIO_SCL, buf);
 
-	sprintf(buf, "soft_i2c_sda");
+	strcpy(buf, "soft_i2c_sda");
 	gpio_request(CONFIG_SOFT_I2C_GPIO_SDA, buf);
 
 	check_hw_revision();

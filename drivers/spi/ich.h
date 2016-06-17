@@ -6,6 +6,9 @@
  * This file is derived from the flashrom project.
  */
 
+#ifndef _ICH_H_
+#define _ICH_H_
+
 struct ich7_spi_regs {
 	uint16_t spis;
 	uint16_t spic;
@@ -19,34 +22,34 @@ struct ich7_spi_regs {
 } __packed;
 
 struct ich9_spi_regs {
-	uint32_t bfpr;			/* 0x00 */
+	uint32_t bfpr;		/* 0x00 */
 	uint16_t hsfs;
 	uint16_t hsfc;
 	uint32_t faddr;
 	uint32_t _reserved0;
-	uint32_t fdata[16];		/* 0x10 */
-	uint32_t frap;			/* 0x50 */
+	uint32_t fdata[16];	/* 0x10 */
+	uint32_t frap;		/* 0x50 */
 	uint32_t freg[5];
 	uint32_t _reserved1[3];
-	uint32_t pr[5];			/* 0x74 */
+	uint32_t pr[5];		/* 0x74 */
 	uint32_t _reserved2[2];
-	uint8_t ssfs;			/* 0x90 */
+	uint8_t ssfs;		/* 0x90 */
 	uint8_t ssfc[3];
-	uint16_t preop;			/* 0x94 */
+	uint16_t preop;		/* 0x94 */
 	uint16_t optype;
-	uint8_t opmenu[8];		/* 0x98 */
+	uint8_t opmenu[8];	/* 0x98 */
 	uint32_t bbar;
 	uint8_t _reserved3[12];
-	uint32_t fdoc;			/* 0xb0 */
+	uint32_t fdoc;		/* 0xb0 */
 	uint32_t fdod;
 	uint8_t _reserved4[8];
-	uint32_t afc;			/* 0xc0 */
+	uint32_t afc;		/* 0xc0 */
 	uint32_t lvscc;
 	uint32_t uvscc;
 	uint8_t _reserved5[4];
-	uint32_t fpb;			/* 0xd0 */
+	uint32_t fpb;		/* 0xd0 */
 	uint8_t _reserved6[28];
-	uint32_t srdl;			/* 0xf0 */
+	uint32_t srdl;		/* 0xf0 */
 	uint32_t srdc;
 	uint32_t scs;
 	uint32_t bcr;
@@ -121,8 +124,38 @@ struct spi_trans {
 	uint32_t offset;
 };
 
-struct ich_spi_slave {
-	struct spi_slave slave;
-	struct spi_trans trans;	/* current transaction in progress */
-	int speed;		/* SPI speed in Hz */
+#define SPI_OPCODE_WREN		0x06
+#define SPI_OPCODE_FAST_READ	0x0b
+
+enum ich_version {
+	ICHV_7,
+	ICHV_9,
 };
+
+struct ich_spi_platdata {
+	enum ich_version ich_version;	/* Controller version, 7 or 9 */
+};
+
+struct ich_spi_priv {
+	int ichspi_lock;
+	int locked;
+	int opmenu;
+	int menubytes;
+	void *base;		/* Base of register set */
+	int preop;
+	int optype;
+	int addr;
+	int data;
+	unsigned databytes;
+	int status;
+	int control;
+	int bbar;
+	int bcr;
+	uint32_t *pr;		/* only for ich9 */
+	int speed;		/* pointer to speed control */
+	ulong max_speed;	/* Maximum bus speed in MHz */
+	ulong cur_speed;	/* Current bus speed */
+	struct spi_trans trans;	/* current transaction in progress */
+};
+
+#endif /* _ICH_H_ */

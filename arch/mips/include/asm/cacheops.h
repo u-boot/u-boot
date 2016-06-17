@@ -1,12 +1,10 @@
 /*
  * Cache operations for the cache instruction.
  *
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING" in the main directory of this archive
- * for more details.
- *
  * (C) Copyright 1996, 97, 99, 2002, 03 Ralf Baechle
  * (C) Copyright 1999 Silicon Graphics, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef	__ASM_CACHEOPS_H
 #define	__ASM_CACHEOPS_H
@@ -18,7 +16,7 @@ static inline void mips_cache(int op, const volatile void *addr)
 #ifdef __GCC_HAVE_BUILTIN_MIPS_CACHE
 	__builtin_mips_cache(op, addr);
 #else
-	__asm__ __volatile__("cache %0, %1" : : "i"(op), "R"(addr));
+	__asm__ __volatile__("cache %0, 0(%1)" : : "i"(op), "r"(addr));
 #endif
 }
 

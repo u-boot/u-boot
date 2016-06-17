@@ -18,8 +18,9 @@
 
 #include <div64.h>
 #include <linux/types.h>
+#include <linux/compiler.h>
 
-uint32_t __div64_32(uint64_t *n, uint32_t base)
+uint32_t notrace __div64_32(uint64_t *n, uint32_t base)
 {
 	uint64_t rem = *n;
 	uint64_t b = base;

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/* U-boot - Common settings for UniPhier Family */
+/* U-Boot - Common settings for UniPhier Family */
 
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
@@ -99,15 +99,15 @@
 
 #define CONFIG_CONS_INDEX		1
 
-/*
- * For NAND booting the environment is embedded in the U-Boot image. Please take
- * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.
- */
+/* #define CONFIG_ENV_IS_NOWHERE */
 /* #define CONFIG_ENV_IS_IN_NAND */
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET			0x80000
 #define CONFIG_ENV_SIZE				0x2000
-#define CONFIG_ENV_OFFSET			0x0
 /* #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
+
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		1
 
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
@@ -146,6 +146,11 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
 
+/* SD/MMC */
+#define CONFIG_CMD_MMC
+#define CONFIG_SUPPORT_EMMC_BOOT
+#define CONFIG_GENERIC_MMC
+
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x01000000)
@@ -173,7 +178,7 @@
 	"setenv bootargs $bootargs root=/dev/nfs rw "			\
 	"nfsroot=$serverip:$rootpath "					\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \
-	"tftpboot; bootm;"
+		"run __nfsboot"
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
@@ -186,7 +191,8 @@
 	"nandboot=nand read $fit_addr_r $fit_addr $fit_size &&" \
 		"bootm $fit_addr_r\0" \
 	"tftpboot=tftpboot $fit_addr_r $bootfile &&" \
-		"bootm $fit_addr_r\0"
+		"bootm $fit_addr_r\0" \
+	"__nfsboot=run tftpboot\0"
 #else
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTFILE			"zImage"
@@ -201,30 +207,47 @@
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
+	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 &&" \
+		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
 	"norboot=setexpr kernel_addr $nor_base + $kernel_addr &&" \
-		"setexpr ramdisk_addr $nor_base + $ramdisk_addr &&" \
-		"setexpr fdt_addr $nor_base + $fdt_addr &&" \
-		"bootz $kernel_addr $ramdisk_addr $fdt_addr\0" \
+		"cp.b $kernel_addr $kernel_addr_r $kernel_size &&" \
+		"setexpr ramdisk_addr_r $nor_base + $ramdisk_addr &&" \
+		"setexpr fdt_addr_r $nor_base + $fdt_addr &&" \
+		"run boot_common\0" \
 	"nandboot=nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
-		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
+		"run boot_common\0" \
 	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
 		"tftpboot $fdt_addr_r $fdt_file &&" \
-		"bootz $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
+		"run boot_common\0" \
+	"__nfsboot=tftpboot $kernel_addr_r $bootfile &&" \
+		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"setenv ramdisk_addr_r - &&" \
+		"run boot_common\0"
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
-	"norbase=0x42000000\0"					\
+	"nor_base=0x42000000\0"					\
+	"emmcupdate=mmcsetn &&"					\
+		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
+		"mmc erase 0 800 &&"				\
+		"tftpboot u-boot-spl.bin &&"			\
+		"mmc write $loadaddr 0 80 &&"			\
+		"tftpboot u-boot.img &&"			\
+		"mmc write $loadaddr 80 780\0"			\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
-		"tftpboot u-boot-spl-dtb.bin &&"		\
+		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
-		"tftpboot u-boot-dtb.img &&"			\
+		"tftpboot u-boot.img &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
 	LINUXBOOT_ENV_SETTINGS
+
+#define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT
@@ -240,7 +263,7 @@
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
-#define CONFIG_SPL_STACK		(0x0ff08000)
+#define CONFIG_SPL_STACK		(0x00100000)
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
 #define CONFIG_PANIC_HANG
@@ -248,6 +271,7 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -255,6 +279,7 @@
 #define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80
 
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 

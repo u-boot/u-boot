@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <bios_emul.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <pci_rom.h>
@@ -352,14 +353,13 @@ static int gtt_poll(void *bar, u32 reg, u32 mask, u32 value)
 	return 0;
 }
 
-static int gma_pm_init_pre_vbios(void *gtt_bar)
+static int gma_pm_init_pre_vbios(void *gtt_bar, int rev)
 {
 	u32 reg32;
 
-	debug("GT Power Management Init, silicon = %#x\n",
-	      bridge_silicon_revision());
+	debug("GT Power Management Init, silicon = %#x\n", rev);
 
-	if (bridge_silicon_revision() < IVB_STEP_C0) {
+	if (rev < IVB_STEP_C0) {
 		/* 1: Enable force wake */
 		gtt_write(gtt_bar, 0xa18c, 0x00000001);
 		gtt_poll(gtt_bar, 0x130090, (1 << 0), (1 << 0));
@@ -369,14 +369,14 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 		gtt_poll(gtt_bar, 0x130040, (1 << 0), (1 << 0));
 	}
 
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_SNB) {
 		/* 1d: Set GTT+0x42004 [15:14]=11 (SnB C1+) */
 		reg32 = gtt_read(gtt_bar, 0x42004);
 		reg32 |= (1 << 14) | (1 << 15);
 		gtt_write(gtt_bar, 0x42004, reg32);
 	}
 
-	if (bridge_silicon_revision() >= IVB_STEP_A0) {
+	if (rev >= IVB_STEP_A0) {
 		/* Display Reset Acknowledge Settings */
 		reg32 = gtt_read(gtt_bar, 0x45010);
 		reg32 |= (1 << 1) | (1 << 0);
@@ -385,7 +385,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 
 	/* 2: Get GT SKU from GTT+0x911c[13] */
 	reg32 = gtt_read(gtt_bar, 0x911c);
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_SNB) {
 		if (reg32 & (1 << 13)) {
 			debug("SNB GT1 Power Meter Weights\n");
 			gtt_write_powermeter(gtt_bar, snb_pm_gt1);
@@ -434,13 +434,13 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 	reg32 = gtt_read(gtt_bar, 0xa180);
 	reg32 |= (1 << 26) | (1 << 31);
 	/* (bit 20=1 for SNB step D1+ / IVB A0+) */
-	if (bridge_silicon_revision() >= SNB_STEP_D1)
+	if (rev >= SNB_STEP_D1)
 		reg32 |= (1 << 20);
 	gtt_write(gtt_bar, 0xa180, reg32);
 
 	/* 6a: for SnB step D2+ only */
-	if (((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) &&
-	    (bridge_silicon_revision() >= SNB_STEP_D2)) {
+	if (((rev & BASE_REV_MASK) == BASE_REV_SNB) &&
+	    (rev >= SNB_STEP_D2)) {
 		reg32 = gtt_read(gtt_bar, 0x9400);
 		reg32 |= (1 << 7);
 		gtt_write(gtt_bar, 0x9400, reg32);
@@ -452,7 +452,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 		gtt_poll(gtt_bar, 0x941c, (1 << 1), (0 << 1));
 	}
 
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_IVB) {
 		reg32 = gtt_read(gtt_bar, 0x907c);
 		reg32 |= (1 << 16);
 		gtt_write(gtt_bar, 0x907c, reg32);
@@ -504,7 +504,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 	gtt_write(gtt_bar, 0xa070, 0x0000000a); /* RP Idle Hysteresis */
 
 	/* 11a: Enable Render Standby (RC6) */
-	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
+	if ((rev & BASE_REV_MASK) == BASE_REV_IVB) {
 		/*
 		 * IvyBridge should also support DeepRenderStandby.
 		 *
@@ -538,14 +538,16 @@ static int gma_pm_init_pre_vbios(void *gtt_bar)
 	return 0;
 }
 
-int gma_pm_init_post_vbios(void *gtt_bar, const void *blob, int node)
+int gma_pm_init_post_vbios(struct udevice *dev, int rev, void *gtt_bar)
 {
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
 	u32 reg32, cycle_delay;
 
 	debug("GT Power Management Init (post VBIOS)\n");
 
 	/* 15: Deassert Force Wake */
-	if (bridge_silicon_revision() < IVB_STEP_C0) {
+	if (rev < IVB_STEP_C0) {
 		gtt_write(gtt_bar, 0xa18c, gtt_read(gtt_bar, 0xa18c) & ~1);
 		gtt_poll(gtt_bar, 0x130090, (1 << 0), (0 << 0));
 	} else {
@@ -728,41 +730,118 @@ static int int15_handler(void)
 	return res;
 }
 
-int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
-		   const void *blob, int node)
+void sandybridge_setup_graphics(struct udevice *dev, struct udevice *video_dev)
+{
+	u32 reg32;
+	u16 reg16;
+	u8 reg8;
+
+	dm_pci_read_config16(video_dev, PCI_DEVICE_ID, &reg16);
+	switch (reg16) {
+	case 0x0102: /* GT1 Desktop */
+	case 0x0106: /* GT1 Mobile */
+	case 0x010a: /* GT1 Server */
+	case 0x0112: /* GT2 Desktop */
+	case 0x0116: /* GT2 Mobile */
+	case 0x0122: /* GT2 Desktop >=1.3GHz */
+	case 0x0126: /* GT2 Mobile >=1.3GHz */
+	case 0x0156: /* IvyBridge */
+	case 0x0166: /* IvyBridge */
+		break;
+	default:
+		debug("Graphics not supported by this CPU/chipset\n");
+		return;
+	}
+
+	debug("Initialising Graphics\n");
+
+	/* Setup IGD memory by setting GGC[7:3] = 1 for 32MB */
+	dm_pci_read_config16(dev, GGC, &reg16);
+	reg16 &= ~0x00f8;
+	reg16 |= 1 << 3;
+	/* Program GTT memory by setting GGC[9:8] = 2MB */
+	reg16 &= ~0x0300;
+	reg16 |= 2 << 8;
+	/* Enable VGA decode */
+	reg16 &= ~0x0002;
+	dm_pci_write_config16(dev, GGC, reg16);
+
+	/* Enable 256MB aperture */
+	dm_pci_read_config8(video_dev, MSAC, &reg8);
+	reg8 &= ~0x06;
+	reg8 |= 0x02;
+	dm_pci_write_config8(video_dev, MSAC, reg8);
+
+	/* Erratum workarounds */
+	reg32 = readl(MCHBAR_REG(0x5f00));
+	reg32 |= (1 << 9) | (1 << 10);
+	writel(reg32, MCHBAR_REG(0x5f00));
+
+	/* Enable SA Clock Gating */
+	reg32 = readl(MCHBAR_REG(0x5f00));
+	writel(reg32 | 1, MCHBAR_REG(0x5f00));
+
+	/* GPU RC6 workaround for sighting 366252 */
+	reg32 = readl(MCHBAR_REG(0x5d14));
+	reg32 |= (1 << 31);
+	writel(reg32, MCHBAR_REG(0x5d14));
+
+	/* VLW */
+	reg32 = readl(MCHBAR_REG(0x6120));
+	reg32 &= ~(1 << 0);
+	writel(reg32, MCHBAR_REG(0x6120));
+
+	reg32 = readl(MCHBAR_REG(0x5418));
+	reg32 |= (1 << 4) | (1 << 5);
+	writel(reg32, MCHBAR_REG(0x5418));
+}
+
+int gma_func0_init(struct udevice *dev)
 {
 #ifdef CONFIG_VIDEO
 	ulong start;
 #endif
+	struct udevice *nbridge;
 	void *gtt_bar;
 	ulong base;
 	u32 reg32;
 	int ret;
+	int rev;
+
+	/* Enable PCH Display Port */
+	writew(0x0010, RCB_REG(DISPBDF));
+	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
+
+	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &nbridge);
+	if (!nbridge)
+		return -ENODEV;
+	rev = bridge_silicon_revision(nbridge);
+	sandybridge_setup_graphics(nbridge, dev);
 
 	/* IGD needs to be Bus Master */
-	reg32 = x86_pci_read_config32(dev, PCI_COMMAND);
+	dm_pci_read_config32(dev, PCI_COMMAND, &reg32);
 	reg32 |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY | PCI_COMMAND_IO;
-	x86_pci_write_config32(dev, PCI_COMMAND, reg32);
+	dm_pci_write_config32(dev, PCI_COMMAND, reg32);
 
 	/* Use write-combining for the graphics memory, 256MB */
-	base = pci_read_bar32(hose, dev, 2);
+	base = dm_pci_read_bar32(dev, 2);
 	mtrr_add_request(MTRR_TYPE_WRCOMB, base, 256 << 20);
 	mtrr_commit(true);
 
-	gtt_bar = (void *)pci_read_bar32(pci_bus_to_hose(0), dev, 0);
+	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
 	debug("GT bar %p\n", gtt_bar);
-	ret = gma_pm_init_pre_vbios(gtt_bar);
+	ret = gma_pm_init_pre_vbios(gtt_bar, rev);
 	if (ret)
 		return ret;
 
 #ifdef CONFIG_VIDEO
 	start = get_timer(0);
-	ret = pci_run_vga_bios(dev, int15_handler, PCI_ROM_USE_NATIVE |
-			       PCI_ROM_ALLOW_FALLBACK);
+	ret = dm_pci_run_vga_bios(dev, int15_handler,
+				  PCI_ROM_USE_NATIVE | PCI_ROM_ALLOW_FALLBACK);
 	debug("BIOS ran in %lums\n", get_timer(start));
 #endif
 	/* Post VBIOS init */
-	ret = gma_pm_init_post_vbios(gtt_bar, blob, node);
+	ret = gma_pm_init_post_vbios(dev, rev, gtt_bar);
 	if (ret)
 		return ret;
 

@@ -133,18 +133,49 @@ $ make all
 
 ---
 
-Intel Minnowboard Max instructions for bare mode:
+Intel Cougar Canyon 2 specific instructions for bare mode:
+
+This uses Intel FSP for 3rd generation Intel Core and Intel Celeron processors
+with mobile Intel HM76 and QM77 chipsets platform. Download it from Intel FSP
+website and put the .fd file (CHIEFRIVER_FSP_GOLD_001_09-OCTOBER-2013.fd at the
+time of writing) in the board directory and rename it to fsp.bin.
+
+Now build U-Boot and obtain u-boot.rom
+
+$ make cougarcanyon2_defconfig
+$ make all
+
+The board has two 8MB SPI flashes mounted, which are called SPI-0 and SPI-1 in
+the board manual. The SPI-0 flash should have flash descriptor plus ME firmware
+and SPI-1 flash is used to store U-Boot. For convenience, the complete 8MB SPI-0
+flash image is included in the FSP package (named Rom00_8M_MB_PPT.bin). Program
+this image to the SPI-0 flash according to the board manual just once and we are
+all set. For programming U-Boot we just need to program SPI-1 flash.
+
+---
+
+Intel Bay Trail based board instructions for bare mode:
 
 This uses as FSP as with Crown Bay, except it is for the Atom E3800 series.
+Two boards that use this configuration are Bayley Bay and Minnowboard MAX.
 Download this and get the .fd file (BAYTRAIL_FSP_GOLD_003_16-SEP-2014.fd at
-the time of writing). Put it in the board directory:
-board/intel/minnowmax/fsp.bin
+the time of writing). Put it in the corresponding board directory and rename
+it to fsp.bin.
 
 Obtain the VGA RAM (Vga.dat at the time of writing) and put it into the same
-directory: board/intel/minnowmax/vga.bin
+board directory as vga.bin.
 
-You still need two more binary blobs. The first comes from the original
-firmware image available from:
+You still need two more binary blobs. For Bayley Bay, they can be extracted
+from the sample SPI image provided in the FSP (SPI.bin at the time of writing).
+
+   $ ./tools/ifdtool -x BayleyBay/SPI.bin
+   $ cp flashregion_0_flashdescriptor.bin board/intel/bayleybay/descriptor.bin
+   $ cp flashregion_2_intel_me.bin board/intel/bayleybay/me.bin
+
+For Minnowboard MAX, we can reuse the same ME firmware above, but for flash
+descriptor, we need get that somewhere else, as the one above does not seem to
+work, probably because it is not designed for the Minnowboard MAX. Now download
+the original firmware image for this board from:
 
 http://firmware.intel.com/sites/default/files/2014-WW42.4-MinnowBoardMax.73-64-bit.bin_Release.zip
 
@@ -161,16 +192,8 @@ This will provide the descriptor file - copy this into the correct place:
 
    $ cp flashregion_0_flashdescriptor.bin board/intel/minnowmax/descriptor.bin
 
-Then do the same with the sample SPI image provided in the FSP (SPI.bin at
-the time of writing) to obtain the last image. Note that this will also
-produce a flash descriptor file, but it does not seem to work, probably
-because it is not designed for the Minnowmax. That is why you need to get
-the flash descriptor from the original firmware as above.
-
-   $ ./tools/ifdtool -x BayleyBay/SPI.bin
-   $ cp flashregion_2_intel_me.bin board/intel/minnowmax/me.bin
-
 Now you can build U-Boot and obtain u-boot.rom
+Note: below are examples/information for Minnowboard MAX.
 
 $ make minnowmax_defconfig
 $ make all
@@ -221,7 +244,9 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make galileo_defconfig
 $ make all
 
-QEMU x86 target instructions:
+---
+
+QEMU x86 target instructions for bare mode:
 
 To build u-boot.rom for QEMU x86 targets, just simply run
 
@@ -295,9 +320,37 @@ show QEMU's VGA console window. Note this will disable QEMU's serial output.
 If you want to check both consoles, use '-serial stdio'.
 
 Multicore is also supported by QEMU via '-smp n' where n is the number of cores
-to instantiate. Currently the default U-Boot built for QEMU supports 2 cores.
-In order to support more cores, you need add additional cpu nodes in the device
-tree and change CONFIG_MAX_CPUS accordingly.
+to instantiate. Note, the maximum supported CPU number in QEMU is 255.
+
+The fw_cfg interface in QEMU also provides information about kernel data, initrd,
+command-line arguments and more. U-Boot supports directly accessing these informtion
+from fw_cfg interface, this saves the time of loading them from hard disk or
+network again, through emulated devices. To use it , simply providing them in
+QEMU command line:
+
+$ qemu-system-i386 -nographic -bios path/to/u-boot.rom -m 1024 -kernel /path/to/bzImage
+    -append 'root=/dev/ram console=ttyS0' -initrd /path/to/initrd -smp 8
+
+Note: -initrd and -smp are both optional
+
+Then start QEMU, in U-Boot command line use the following U-Boot command to setup kernel:
+
+ => qfw
+qfw - QEMU firmware interface
+
+Usage:
+qfw <command>
+    - list                             : print firmware(s) currently loaded
+    - cpus                             : print online cpu number
+    - load <kernel addr> <initrd addr> : load kernel and initrd (if any) and setup for zboot
+
+=> qfw load
+loading kernel to address 01000000 size 5d9d30 initrd 04000000 size 1b1ab50
+
+Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then, 'zboot'
+can be used to boot the kernel:
+
+=> zboot 02000000 - 04000000 1b1ab50
 
 CPU Microcode
 -------------
@@ -678,7 +731,7 @@ the board, then you can use post_code() calls from C or assembler to monitor
 boot progress. This can be good for debugging.
 
 If not, you can try to get serial working as early as possible. The early
-debug serial port may be useful here. See setup_early_uart() for an example.
+debug serial port may be useful here. See setup_internal_uart() for an example.
 
 During the U-Boot porting, one of the important steps is to write correct PIRQ
 routing information in the board device tree. Without it, device drivers in the

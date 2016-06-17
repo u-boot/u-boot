@@ -174,7 +174,8 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		printf("MMC read: dev # %u, block # %u, count %u ...\n",
 		       dev, blk, cnt);
 		mmc_init(mmc);
-		(void)mmc->block_dev.block_read(dev, blk, cnt, addr);
+		(void)mmc->block_dev.block_read(&mmc->block_dev, blk, cnt,
+						addr);
 		/* flush cache after read */
 		flush_cache((ulong)addr, cnt * 512);
 	}
@@ -256,6 +257,12 @@ int cs4340_config(struct phy_device *phydev)
 	return 0;
 }
 
+int cs4340_probe(struct phy_device *phydev)
+{
+	phydev->flags = PHY_FLAG_BROKEN_RESET;
+	return 0;
+}
+
 int cs4340_startup(struct phy_device *phydev)
 {
 	phydev->link = 1;
@@ -275,6 +282,7 @@ struct phy_driver cs4340_driver = {
 		 MDIO_DEVS_PHYXS | MDIO_DEVS_AN |
 		 MDIO_DEVS_VEND1 | MDIO_DEVS_VEND2),
 	.config = &cs4340_config,
+	.probe	= &cs4340_probe,
 	.startup = &cs4340_startup,
 	.shutdown = &gen10g_shutdown,
 };

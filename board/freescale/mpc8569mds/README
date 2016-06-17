@@ -3,7 +3,7 @@ Overview
 MPC8569MDS is composed of two boards - PB (Processor Board) and PIB (Platform
 I/O Board). The mpc8569 PowerTM processor is mounted on PB board.
 
-Building U-boot
+Building U-Boot
 -----------
 	make MPC8569MDS_config
 	make
@@ -22,10 +22,10 @@ Memory Map
 0xfe00_0000   0xffff_ffff     Flash                   32MB
 
 
-Flashing u-boot Images
+Flashing U-Boot Images
 ---------------
 
-Use the following commands to program u-boot image into flash:
+Use the following commands to program U-Boot image into flash:
 
 	=> tftp 1000000 u-boot.bin
 	=> protect off all

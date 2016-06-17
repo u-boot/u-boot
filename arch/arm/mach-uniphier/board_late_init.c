@@ -11,6 +11,8 @@
 #include <linux/io.h>
 #include <../drivers/mtd/nand/denali.h>
 
+#include "boot-mode/boot-device.h"
+
 static void nand_denali_wp_disable(void)
 {
 #ifdef CONFIG_NAND_DENALI
@@ -35,7 +37,9 @@ static const struct uniphier_fdt_file uniphier_fdt_files[] = {
 	{ "socionext,ph1-ld4-ref", "uniphier-ph1-ld4-ref.dtb", },
 	{ "socionext,ph1-ld6b-ref", "uniphier-ph1-ld6b-ref.dtb", },
 	{ "socionext,ph1-ld10-ref", "uniphier-ph1-ld10-ref.dtb", },
+	{ "socionext,ph1-pro4-ace", "uniphier-ph1-pro4-ace.dtb", },
 	{ "socionext,ph1-pro4-ref", "uniphier-ph1-pro4-ref.dtb", },
+	{ "socionext,ph1-pro4-sanji", "uniphier-ph1-pro4-sanji.dtb", },
 	{ "socionext,ph1-pro5-4kbox", "uniphier-ph1-pro5-4kbox.dtb", },
 	{ "socionext,ph1-sld3-ref", "uniphier-ph1-sld3-ref.dtb", },
 	{ "socionext,ph1-sld8-ref", "uniphier-ph1-sld8-ref.dtb", },
@@ -62,7 +66,7 @@ int board_late_init(void)
 {
 	puts("MODE:  ");
 
-	switch (spl_boot_device()) {
+	switch (spl_boot_device_raw()) {
 	case BOOT_DEVICE_MMC1:
 		printf("eMMC Boot\n");
 		setenv("bootmode", "emmcboot");
@@ -75,6 +79,10 @@ int board_late_init(void)
 	case BOOT_DEVICE_NOR:
 		printf("NOR Boot\n");
 		setenv("bootmode", "norboot");
+		break;
+	case BOOT_DEVICE_USB:
+		printf("USB Boot\n");
+		setenv("bootmode", "usbboot");
 		break;
 	default:
 		printf("Unsupported Boot Mode\n");

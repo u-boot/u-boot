@@ -55,7 +55,8 @@ static int video_bridge_pre_probe(struct udevice *dev)
 				   &uc_priv->sleep, GPIOD_IS_OUT);
 	if (ret) {
 		debug("%s: Could not decode sleep-gpios (%d)\n", __func__, ret);
-		return ret;
+		if (ret != -ENOENT)
+			return ret;
 	}
 	/*
 	 * Drop this for now as we do not have driver model pinctrl support
@@ -70,7 +71,8 @@ static int video_bridge_pre_probe(struct udevice *dev)
 				   GPIOD_IS_OUT);
 	if (ret) {
 		debug("%s: Could not decode reset-gpios (%d)\n", __func__, ret);
-		return ret;
+		if (ret != -ENOENT)
+			return ret;
 	}
 	/*
 	 * Drop this for now as we do not have driver model pinctrl support
@@ -83,9 +85,10 @@ static int video_bridge_pre_probe(struct udevice *dev)
 	 */
 	ret = gpio_request_by_name(dev, "hotplug-gpios", 0, &uc_priv->hotplug,
 				   GPIOD_IS_IN);
-	if (ret && ret != -ENOENT) {
+	if (ret) {
 		debug("%s: Could not decode hotplug (%d)\n", __func__, ret);
-		return ret;
+		if (ret != -ENOENT)
+			return ret;
 	}
 
 	return 0;

@@ -111,8 +111,10 @@ static void configure_l2ctlr(void)
 	write_l2ctlr(l2ctlr);
 }
 
+#ifdef CONFIG_SPL_MMC_SUPPORT
 static int configure_emmc(struct udevice *pinctrl)
 {
+#if !defined(CONFIG_TARGET_ROCK2) && !defined(CONFIG_TARGET_FIREFLY_RK3288)
 	struct gpio_desc desc;
 	int ret;
 
@@ -142,9 +144,11 @@ static int configure_emmc(struct udevice *pinctrl)
 		debug("gpio value ret=%d\n", ret);
 		return ret;
 	}
+#endif
 
 	return 0;
 }
+#endif
 
 void board_init_f(ulong dummy)
 {
@@ -242,6 +246,7 @@ void spl_board_init(void)
 		debug("%s: Cannot find pinctrl device\n", __func__);
 		goto err;
 	}
+#ifdef CONFIG_SPL_MMC_SUPPORT
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_SDCARD);
 	if (ret) {
 		debug("%s: Failed to set up SD card\n", __func__);
@@ -252,6 +257,7 @@ void spl_board_init(void)
 		debug("%s: Failed to set up eMMC\n", __func__);
 		goto err;
 	}
+#endif
 
 	/* Enable debug UART */
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
@@ -267,4 +273,8 @@ err:
 
 	/* No way to report error here */
 	hang();
+}
+
+void lowlevel_init(void)
+{
 }

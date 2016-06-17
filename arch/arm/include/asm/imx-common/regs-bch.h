@@ -123,7 +123,7 @@ struct mxs_bch_regs {
 #define	BCH_FLASHLAYOUT0_NBLOCKS_OFFSET			24
 #define	BCH_FLASHLAYOUT0_META_SIZE_MASK			(0xff << 16)
 #define	BCH_FLASHLAYOUT0_META_SIZE_OFFSET		16
-#if defined(CONFIG_MX6)
+#if (defined(CONFIG_MX6) || defined(CONFIG_MX7))
 #define	BCH_FLASHLAYOUT0_ECC0_MASK			(0x1f << 11)
 #define	BCH_FLASHLAYOUT0_ECC0_OFFSET			11
 #else
@@ -154,7 +154,7 @@ struct mxs_bch_regs {
 
 #define	BCH_FLASHLAYOUT1_PAGE_SIZE_MASK			(0xffff << 16)
 #define	BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET		16
-#if defined(CONFIG_MX6)
+#if (defined(CONFIG_MX6) || defined(CONFIG_MX7))
 #define	BCH_FLASHLAYOUT1_ECCN_MASK			(0x1f << 11)
 #define	BCH_FLASHLAYOUT1_ECCN_OFFSET			11
 #else

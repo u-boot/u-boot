@@ -1,7 +1,0 @@
-ML507 BOARD
-M:	Ricardo Ribalda <ricardo.ribalda@uam.es>
-S:	Maintained
-F:	board/xilinx/ml507/
-F:	include/configs/ml507.h
-F:	configs/ml507_defconfig
-F:	configs/ml507_flash_defconfig

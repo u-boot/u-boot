@@ -32,16 +32,9 @@
 
 		cpu@0 {
 			device_type = "cpu";
-			compatible = "cpu-x86";
+			compatible = "cpu-qemu";
 			reg = <0>;
 			intel,apic-id = <0>;
-		};
-
-		cpu@1 {
-			device_type = "cpu";
-			compatible = "cpu-x86";
-			reg = <1>;
-			intel,apic-id = <1>;
 		};
 	};
 
@@ -58,18 +51,22 @@
 			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
 			0x01000000 0x0 0x2000 0x2000 0 0xe000>;
 
-		irq-router@1,0 {
+		pch@1,0 {
 			reg = <0x00000800 0 0 0 0>;
-			compatible = "intel,irq-router";
-			intel,pirq-config = "pci";
-			intel,pirq-link = <0x60 4>;
-			intel,pirq-mask = <0x0e40>;
-			intel,pirq-routing = <
-				/* PIIX UHCI */
-				PCI_BDF(0, 1, 2) INTD PIRQD
-				/* e1000 NIC */
-				PCI_BDF(0, 3, 0) INTA PIRQC
-			>;
+			compatible = "intel,pch7";
+
+			irq-router {
+				compatible = "intel,irq-router";
+				intel,pirq-config = "pci";
+				intel,pirq-link = <0x60 4>;
+				intel,pirq-mask = <0x0e40>;
+				intel,pirq-routing = <
+					/* PIIX UHCI */
+					PCI_BDF(0, 1, 2) INTD PIRQD
+					/* e1000 NIC */
+					PCI_BDF(0, 3, 0) INTA PIRQC
+				>;
+			};
 		};
 	};
 

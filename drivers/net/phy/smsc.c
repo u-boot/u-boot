@@ -69,11 +69,21 @@ static struct phy_driver lan8710_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver lan8740_driver = {
+	.name = "SMSC LAN8740",
+	.uid = 0x0007c110,
+	.mask = 0xffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &genphy_config_aneg,
+	.startup = &genphy_startup,
+	.shutdown = &genphy_shutdown,
+};
 int phy_smsc_init(void)
 {
 	phy_register(&lan8710_driver);
 	phy_register(&lan911x_driver);
 	phy_register(&lan8700_driver);
+	phy_register(&lan8740_driver);
 
 	return 0;
 }

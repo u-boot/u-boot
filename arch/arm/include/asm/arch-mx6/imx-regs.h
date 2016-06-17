@@ -356,6 +356,30 @@ extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 #define SRC_SCR_CORE_3_ENABLE_OFFSET    24
 #define SRC_SCR_CORE_3_ENABLE_MASK      (1<<SRC_SCR_CORE_3_ENABLE_OFFSET)
 
+struct rdc_regs {
+	u32	vir;		/* Version information */
+	u32	reserved1[8];
+	u32	stat;		/* Status */
+	u32	intctrl;	/* Interrupt and Control */
+	u32	intstat;	/* Interrupt Status */
+	u32	reserved2[116];
+	u32	mda[32];	/* Master Domain Assignment */
+	u32	reserved3[96];
+	u32	pdap[104];	/* Peripheral Domain Access Permissions */
+	u32	reserved4[88];
+	struct {
+		u32 mrsa;	/* Memory Region Start Address */
+		u32 mrea;	/* Memory Region End Address */
+		u32 mrc;	/* Memory Region Control */
+		u32 mrvs;	/* Memory Region Violation Status */
+	} mem_region[55];
+};
+
+struct rdc_sema_regs {
+	u8	gate[64];	/* Gate */
+	u16	rstgt;		/* Reset Gate */
+};
+
 /* WEIM registers */
 struct weim {
 	u32 cs0gcr1;
@@ -413,6 +437,11 @@ struct src {
 	u32     gpr9;
 	u32     gpr10;
 };
+
+#define SRC_SCR_M4_ENABLE_OFFSET                22
+#define SRC_SCR_M4_ENABLE_MASK                  (1 << 22)
+#define SRC_SCR_M4C_NON_SCLR_RST_OFFSET         4
+#define SRC_SCR_M4C_NON_SCLR_RST_MASK           (1 << 4)
 
 /* GPR1 bitfields */
 #define IOMUXC_GPR1_APP_CLK_REQ_N		BIT(30)
@@ -715,39 +744,22 @@ struct fuse_bank1_regs {
 	u32	rsvd7[3];
 };
 
-#if (defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL))
 struct fuse_bank4_regs {
 	u32 sjc_resp_low;
 	u32 rsvd0[3];
 	u32 sjc_resp_high;
 	u32 rsvd1[3];
-	u32 mac_addr_low;
+	u32 mac_addr0;
 	u32 rsvd2[3];
-	u32 mac_addr_high;
+	u32 mac_addr1;
 	u32 rsvd3[3];
-	u32 mac_addr2;
+	u32 mac_addr2; /*For i.MX6SX and i.MX6UL*/
 	u32 rsvd4[7];
 	u32 gp1;
 	u32 rsvd5[3];
 	u32 gp2;
 	u32 rsvd6[3];
 };
-#else
-struct fuse_bank4_regs {
-	u32	sjc_resp_low;
-	u32     rsvd0[3];
-	u32     sjc_resp_high;
-	u32     rsvd1[3];
-	u32	mac_addr_low;
-	u32     rsvd2[3];
-	u32     mac_addr_high;
-	u32	rsvd3[0xb];
-	u32	gp1;
-	u32	rsvd4[3];
-	u32	gp2;
-	u32	rsvd5[3];
-};
-#endif
 
 struct aipstz_regs {
 	u32	mprot0;

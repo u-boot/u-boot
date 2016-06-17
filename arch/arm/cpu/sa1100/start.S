@@ -112,7 +112,7 @@ cpu_init_crit:
 	bic	r0, r0, #0x00002000	@ clear bit 13 (X)
 	bic	r0, r0, #0x0000000f	@ clear bits 3-0 (WCAM)
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) Icache
-	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
+	orr	r0, r0, #0x00000002	@ set bit 1 (A) Align
 	mcr	p15,0,r0,c1,c0
 
 	/*

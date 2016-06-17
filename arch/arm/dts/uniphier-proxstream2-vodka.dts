@@ -41,11 +41,15 @@
 	status = "okay";
 };
 
+&emmc {
+	status = "okay";
+};
+
 &usb0 {
 	status = "okay";
 };
 
-/* for U-boot only */
+/* for U-Boot only */
 / {
 	soc {
 		u-boot,dm-pre-reloc;
@@ -56,10 +60,22 @@
 	u-boot,dm-pre-reloc;
 };
 
+&mio {
+	u-boot,dm-pre-reloc;
+};
+
+&emmc {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };
 
 &pinctrl_uart2 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_emmc {
 	u-boot,dm-pre-reloc;
 };

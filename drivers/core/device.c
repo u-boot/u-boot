@@ -135,6 +135,11 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 		if (ret)
 			goto fail_child_post_bind;
 	}
+	if (uc->uc_drv->post_bind) {
+		ret = uc->uc_drv->post_bind(dev);
+		if (ret)
+			goto fail_uclass_post_bind;
+	}
 
 	if (parent)
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
@@ -145,6 +150,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	return 0;
 
+fail_uclass_post_bind:
+	/* There is no child unbind() method, so no clean-up required */
 fail_child_post_bind:
 	if (CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)) {
 		if (drv->unbind && drv->unbind(dev)) {
@@ -216,7 +223,7 @@ static void *alloc_priv(int size, uint flags)
 	return priv;
 }
 
-int device_probe_child(struct udevice *dev, void *parent_priv)
+int device_probe(struct udevice *dev)
 {
 	const struct driver *drv;
 	int size = 0;
@@ -263,8 +270,6 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 				ret = -ENOMEM;
 				goto fail;
 			}
-			if (parent_priv)
-				memcpy(dev->parent_priv, parent_priv, size);
 		}
 
 		ret = device_probe(dev->parent);
@@ -292,9 +297,11 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 
 	/*
 	 * Process pinctrl for everything except the root device, and
-	 * continue regardless of the result of pinctrl.
+	 * continue regardless of the result of pinctrl. Don't process pinctrl
+	 * settings for pinctrl devices since the device may not yet be
+	 * probed.
 	 */
-	if (dev->parent)
+	if (dev->parent && device_get_uclass_id(dev) != UCLASS_PINCTRL)
 		pinctrl_select_state(dev, "default");
 
 	ret = uclass_pre_probe_device(dev);
@@ -338,11 +345,6 @@ fail:
 	device_free(dev);
 
 	return ret;
-}
-
-int device_probe(struct udevice *dev)
-{
-	return device_probe_child(dev, NULL);
 }
 
 void *dev_get_platdata(struct udevice *dev)
@@ -581,43 +583,75 @@ const char *dev_get_uclass_name(struct udevice *dev)
 	return dev->uclass->uc_drv->name;
 }
 
-fdt_addr_t dev_get_addr(struct udevice *dev)
+fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	fdt_addr_t addr;
 
 	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {
 		const fdt32_t *reg;
+		int len = 0;
+		int na, ns;
 
-		reg = fdt_getprop(gd->fdt_blob, dev->of_offset, "reg", NULL);
-		if (!reg)
+		na = fdt_address_cells(gd->fdt_blob, dev->parent->of_offset);
+		if (na < 1) {
+			debug("bad #address-cells\n");
 			return FDT_ADDR_T_NONE;
+		}
+
+		ns = fdt_size_cells(gd->fdt_blob, dev->parent->of_offset);
+		if (ns < 0) {
+			debug("bad #size-cells\n");
+			return FDT_ADDR_T_NONE;
+		}
+
+		reg = fdt_getprop(gd->fdt_blob, dev->of_offset, "reg", &len);
+		if (!reg || (len <= (index * sizeof(fdt32_t) * (na + ns)))) {
+			debug("Req index out of range\n");
+			return FDT_ADDR_T_NONE;
+		}
+
+		reg += index * (na + ns);
 
 		/*
 		 * Use the full-fledged translate function for complex
 		 * bus setups.
 		 */
-		return fdt_translate_address((void *)gd->fdt_blob,
+		addr = fdt_translate_address((void *)gd->fdt_blob,
 					     dev->of_offset, reg);
+	} else {
+		/*
+		 * Use the "simple" translate function for less complex
+		 * bus setups.
+		 */
+		addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
+							dev->parent->of_offset,
+							dev->of_offset, "reg",
+							index, NULL);
+		if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
+			if (device_get_uclass_id(dev->parent) ==
+			    UCLASS_SIMPLE_BUS)
+				addr = simple_bus_translate(dev->parent, addr);
+		}
 	}
 
 	/*
-	 * Use the "simple" translate function for less complex
-	 * bus setups.
+	 * Some platforms need a special address translation. Those
+	 * platforms (e.g. mvebu in SPL) can configure a translation
+	 * offset in the DM by calling dm_set_translation_offset() that
+	 * will get added to all addresses returned by dev_get_addr().
 	 */
-	addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
-						dev->parent->of_offset,
-						dev->of_offset, "reg",
-						0, NULL);
-	if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
-		if (device_get_uclass_id(dev->parent) == UCLASS_SIMPLE_BUS)
-			addr = simple_bus_translate(dev->parent, addr);
-	}
+	addr += dm_get_translation_offset();
 
 	return addr;
 #else
 	return FDT_ADDR_T_NONE;
 #endif
+}
+
+fdt_addr_t dev_get_addr(struct udevice *dev)
+{
+	return dev_get_addr_index(dev, 0);
 }
 
 bool device_has_children(struct udevice *dev)

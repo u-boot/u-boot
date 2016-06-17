@@ -52,6 +52,10 @@
 	status = "okay";
 };
 
+&sd {
+	status = "okay";
+};
+
 &usb0 {
 	status = "okay";
 };
@@ -68,7 +72,7 @@
 	status = "okay";
 };
 
-/* for U-boot only */
+/* for U-Boot only */
 &serial0 {
        u-boot,dm-pre-reloc;
 };

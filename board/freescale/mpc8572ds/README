@@ -3,7 +3,7 @@ Overview
 MPC8572DS is a high-performance computing, evaluation and development platform
 supporting the mpc8572 PowerTM processor.
 
-Building U-boot
+Building U-Boot
 -----------
 	make MPC8572DS_config
 	make
@@ -22,14 +22,14 @@ Memory Map
 0xe800_0000 - 0xebff_ffff	Alternate bank		64MB
 0xec00_0000 - 0xefff_ffff	Boot bank		64MB
 
-0xebf8_0000 - 0xebff_ffff	Alternate u-boot address	512KB
-0xeff8_0000 - 0xefff_ffff	Boot u-boot address		512KB
+0xebf8_0000 - 0xebff_ffff	Alternate U-Boot address	512KB
+0xeff8_0000 - 0xefff_ffff	Boot U-Boot address		512KB
 
 
 Flashing Images
 ---------------
 
-To place a new u-boot image in the alternate flash bank and then reset with that
+To place a new U-Boot image in the alternate flash bank and then reset with that
  new image temporarily, use this:
 
 	tftp 1000000 u-boot.bin
@@ -135,7 +135,7 @@ Implementing AMP(Asymmetric MultiProcessing)
 
 5. Bring up two cores separately:
 
-	a. Power on the board, under u-boot prompt:
+	a. Power on the board, under U-Boot prompt:
 		=> setenv <serverip>
 		=> setenv <ipaddr>
 		=> setenv bootargs root=/dev/ram rw console=ttyS0,115200
@@ -154,7 +154,7 @@ Implementing AMP(Asymmetric MultiProcessing)
 		=> fdt chosen $initrd_start $initrd_end
 		=> bootm prep
 		=> cpu 1 release $bootm_low - $fdtaddr -
-	c. Bring up core0's kernel(on the same u-boot console):
+	c. Bring up core0's kernel(on the same U-Boot console):
 		=> setenv bootm_low 0
 		=> setenv bootm_size 0x20000000
 		=> tftp 1000000 8572/uImage.core0
@@ -162,5 +162,5 @@ Implementing AMP(Asymmetric MultiProcessing)
 		=> tftp c00000 8572/mpc8572ds_core0.dtb
 		=> bootm 1000000 2000000 c00000
 
-Please note only core0 will run u-boot, core1 starts kernel directly after
+Please note only core0 will run U-Boot, core1 starts kernel directly after
 "cpu release" command is issued.

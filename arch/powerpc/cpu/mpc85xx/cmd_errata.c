@@ -326,6 +326,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_SYS_FSL_B4860QDS_XFI_ERR) && defined(CONFIG_B4860QDS)
 	puts("Work-around for Erratum XFI on B4860QDS enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009663
+	puts("Work-around for Erratum A009663 enabled\n");
+#endif
 
 	return 0;
 }

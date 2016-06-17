@@ -29,6 +29,9 @@
 #define CONFIG_HOSTNAME		bamboo
 #include "amcc-common.h"
 
+/* Reclaim some space. */
+#undef CONFIG_SYS_LONGHELP
+
 #define CONFIG_BOARD_EARLY_INIT_F 1     /* Call board_early_init_f	*/
 
 /*

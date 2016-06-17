@@ -7,4 +7,3 @@
 #
 
 obj-y	:= mx25pdk.o
-obj-y	+= lowlevel_init.o

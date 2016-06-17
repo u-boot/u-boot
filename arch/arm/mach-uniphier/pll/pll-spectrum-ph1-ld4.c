@@ -5,8 +5,9 @@
  */
 
 #include <linux/io.h>
-#include <mach/init.h>
-#include <mach/sc-regs.h>
+
+#include "../init.h"
+#include "../sc-regs.h"
 
 int ph1_ld4_enable_dpll_ssc(const struct uniphier_board_data *bd)
 {

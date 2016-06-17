@@ -20,7 +20,7 @@
 		sdhci0 = "/sdhci@c8000600";
 	};
 
-	host1x {
+	host1x@50000000 {
 		status = "okay";
 		dc@54200000 {
 			status = "okay";
@@ -32,16 +32,19 @@
 	};
 
 	usb@c5000000 {
+		statuc = "okay";
 		dr_mode = "otg";
 	};
 
 	usb@c5004000 {
+		statuc = "okay";
 		/* VBUS_LAN */
 		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
 	};
 
 	usb@c5008000 {
+		statuc = "okay";
 		/* USBH_PEN */
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
@@ -86,6 +89,23 @@
 		status = "okay";
 		bus-width = <4>;
 		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		clk32k_in: clock@0 {
+			compatible = "fixed-clock";
+			reg=<0>;
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+		};
+	};
+
+	pwm: pwm@7000a000 {
+		status = "okay";
 	};
 
 	lcd_panel: panel {

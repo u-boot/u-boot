@@ -304,6 +304,13 @@ static int mii_reg_write(const char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 		return -EFAULT;
 	}
 
+	/* write the phy and reg addressse into the MII address reg */
+	writel((phy_adr << MADR_PHY_OFFSET) | (reg_ofs << MADR_REG_OFFSET),
+	       &regs->madr);
+
+	/* write data to the MII write register */
+	writel(data, &regs->mwtd);
+
 	/* wait till the MII is not busy */
 	timeout = MII_TIMEOUT;
 	do {
@@ -318,13 +325,6 @@ static int mii_reg_write(const char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 		       __LINE__);
 		return -EFAULT;
 	}
-
-	/* write the phy and reg addressse into the MII address reg */
-	writel((phy_adr << MADR_PHY_OFFSET) | (reg_ofs << MADR_REG_OFFSET),
-	       &regs->madr);
-
-	/* write data to the MII write register */
-	writel(data, &regs->mwtd);
 
 	/*debug("%s:(adr %d, off %d) <= %04x\n", __func__, phy_adr,
 		reg_ofs, data);*/
@@ -582,7 +582,7 @@ int lpc32xx_eth_phylib_init(struct eth_device *dev, int phyid)
 	}
 	bus->read = lpc32xx_eth_phy_read;
 	bus->write = lpc32xx_eth_phy_write;
-	sprintf(bus->name, dev->name);
+	strcpy(bus->name, dev->name);
 
 	ret = mdio_register(bus);
 	if (ret) {

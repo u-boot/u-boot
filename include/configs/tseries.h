@@ -12,6 +12,7 @@
 #ifndef __CONFIG_TSERIES_H__
 #define __CONFIG_TSERIES_H__
 
+#include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
@@ -30,6 +31,10 @@
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_AM33XX
+
+/* memory */
+#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
+
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -204,7 +209,6 @@ MMCARGS
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x8000000
 #define CONFIG_NAND_OMAP_GPMC
-#define CONFIG_CMD_NAND
 /* don't change OMAP_ELM, ECCSCHEME. ROM code only supports this */
 #define CONFIG_NAND_OMAP_ELM
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
@@ -249,23 +253,15 @@ MMCARGS
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 /* attention! not only for gadget, enables also highspeed in hostmode */
 #define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#ifdef CONFIG_USB_MUSB_HOST
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#endif /* CONFIG_USB_MUSB_HOST */
-
 #if defined(CONFIG_SPI_BOOT)
 /* McSPI IP block */
 #define CONFIG_SPI
 #define CONFIG_OMAP3_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 #define CONFIG_SPL_SPI_SUPPORT

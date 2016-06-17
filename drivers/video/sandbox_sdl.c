@@ -5,75 +5,69 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
-#include <lcd.h>
-#include <malloc.h>
+#include <video.h>
 #include <asm/sdl.h>
 #include <asm/u-boot-sandbox.h>
+#include <dm/test.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
-	/* Maximum LCD size we support */
+	/* Default LCD size we support */
 	LCD_MAX_WIDTH		= 1366,
 	LCD_MAX_HEIGHT		= 768,
-	LCD_MAX_LOG2_BPP	= 4,		/* 2^4 = 16 bpp */
 };
 
-vidinfo_t panel_info;
-
-void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
+static int sandbox_sdl_probe(struct udevice *dev)
 {
-}
+	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	int ret;
 
-void lcd_ctrl_init(void *lcdbase)
-{
-	/*
-	 * Allocate memory to keep BMP color conversion map. This is required
-	 * for 8 bit BMPs only (hence 256 colors). If malloc fails - keep
-	 * going, it is not even clear if displyaing the bitmap will be
-	 * required on the way up.
-	 */
-	panel_info.cmap = malloc(256 * NBITS(panel_info.vl_bpix) / 8);
-}
-
-void lcd_enable(void)
-{
-	if (sandbox_sdl_init_display(panel_info.vl_col, panel_info.vl_row,
-				     panel_info.vl_bpix))
+	ret = sandbox_sdl_init_display(plat->xres, plat->yres, plat->bpix);
+	if (ret) {
 		puts("LCD init failed\n");
+		return ret;
+	}
+	uc_priv->xsize = plat->xres;
+	uc_priv->ysize = plat->yres;
+	uc_priv->bpix = plat->bpix;
+	uc_priv->rot = plat->rot;
+	uc_priv->vidconsole_drv_name = plat->vidconsole_drv_name;
+	uc_priv->font_size = plat->font_size;
+
+	return 0;
 }
 
-int sandbox_lcd_sdl_early_init(void)
+static int sandbox_sdl_bind(struct udevice *dev)
 {
+	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
 	const void *blob = gd->fdt_blob;
-	int xres = LCD_MAX_WIDTH, yres = LCD_MAX_HEIGHT;
-	int node;
+	int node = dev->of_offset;
 	int ret = 0;
 
-	/*
-	 * The code in common/lcd.c does not cope with not being able to
-	 * set up a frame buffer. It will just happily keep writing to
-	 * invalid memory. So here we make sure that at least some buffer
-	 * is available even if it actually won't be displayed.
-	 */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SANDBOX_LCD_SDL);
-	if (node >= 0) {
-		xres = fdtdec_get_int(blob, node, "xres", LCD_MAX_WIDTH);
-		yres = fdtdec_get_int(blob, node, "yres", LCD_MAX_HEIGHT);
-		if (xres < 0 || xres > LCD_MAX_WIDTH) {
-			xres = LCD_MAX_WIDTH;
-			ret = -EINVAL;
-		}
-		if (yres < 0 || yres > LCD_MAX_HEIGHT) {
-			yres = LCD_MAX_HEIGHT;
-			ret = -EINVAL;
-		}
-	}
-
-	panel_info.vl_col = xres;
-	panel_info.vl_row = yres;
-	panel_info.vl_bpix = LCD_COLOR16;
+	plat->xres = fdtdec_get_int(blob, node, "xres", LCD_MAX_WIDTH);
+	plat->yres = fdtdec_get_int(blob, node, "yres", LCD_MAX_HEIGHT);
+	plat->bpix = VIDEO_BPP16;
+	uc_plat->size = plat->xres * plat->yres * (1 << plat->bpix) / 8;
+	debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
 
 	return ret;
 }
+
+static const struct udevice_id sandbox_sdl_ids[] = {
+	{ .compatible = "sandbox,lcd-sdl" },
+	{ }
+};
+
+U_BOOT_DRIVER(sdl_sandbox) = {
+	.name	= "sdl_sandbox",
+	.id	= UCLASS_VIDEO,
+	.of_match = sandbox_sdl_ids,
+	.bind	= sandbox_sdl_bind,
+	.probe	= sandbox_sdl_probe,
+	.platdata_auto_alloc_size	= sizeof(struct sandbox_sdl_plat),
+};

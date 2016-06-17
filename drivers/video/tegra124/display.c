@@ -10,15 +10,17 @@
 #include <dm.h>
 #include <edid.h>
 #include <errno.h>
-#include <displayport.h>
+#include <display.h>
 #include <edid.h>
 #include <fdtdec.h>
 #include <lcd.h>
+#include <video.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pwm.h>
 #include <asm/arch-tegra/dc.h>
+#include <dm/uclass-internal.h>
 #include "displayport.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -324,101 +326,60 @@ static int display_update_config_from_edid(struct udevice *dp_dev,
 					   int *panel_bppp,
 					   struct display_timing *timing)
 {
-	u8 buf[EDID_SIZE];
-	int bpc, ret;
-
-	ret = display_port_read_edid(dp_dev, buf, sizeof(buf));
-	if (ret < 0)
-		return ret;
-	ret = edid_get_timing(buf, ret, timing, &bpc);
-	if (ret)
-		return ret;
-
-	/* Use this information if valid */
-	if (bpc != -1)
-		*panel_bppp = bpc * 3;
-
-	return 0;
-}
-
-/* Somewhat torturous method */
-static int get_backlight_info(const void *blob, struct gpio_desc *vdd,
-			      struct gpio_desc *enable, int *pwmp)
-{
-	int sor, panel, backlight, power;
-	const u32 *prop;
-	int len;
 	int ret;
 
-	*pwmp = 0;
-	sor = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_SOR);
-	if (sor < 0)
-		return -ENOENT;
-	panel = fdtdec_lookup_phandle(blob, sor, "nvidia,panel");
-	if (panel < 0)
-		return -ENOENT;
-	backlight = fdtdec_lookup_phandle(blob, panel, "backlight");
-	if (backlight < 0)
-		return -ENOENT;
-	ret = gpio_request_by_name_nodev(blob, backlight, "enable-gpios", 0,
-					 enable, GPIOD_IS_OUT);
+	ret = display_read_timing(dp_dev, timing);
 	if (ret)
 		return ret;
-	prop = fdt_getprop(blob, backlight, "pwms", &len);
-	if (!prop || len != 3 * sizeof(u32))
-		return -EINVAL;
-	*pwmp = fdt32_to_cpu(prop[1]);
-
-	power = fdtdec_lookup_phandle(blob, backlight, "power-supply");
-	if (power < 0)
-		return -ENOENT;
-	ret = gpio_request_by_name_nodev(blob, power, "gpio", 0, vdd,
-					 GPIOD_IS_OUT);
-	if (ret)
-		goto err;
 
 	return 0;
-
-err:
-	dm_gpio_free(NULL, enable);
-	return ret;
 }
 
-int display_init(void *lcdbase, int fb_bits_per_pixel,
-		 struct display_timing *timing)
+static int display_init(struct udevice *dev, void *lcdbase,
+			int fb_bits_per_pixel, struct display_timing *timing)
 {
+	struct display_plat *disp_uc_plat;
 	struct dc_ctlr *dc_ctlr;
 	const void *blob = gd->fdt_blob;
 	struct udevice *dp_dev;
 	const int href_to_sync = 1, vref_to_sync = 1;
 	int panel_bpp = 18;	/* default 18 bits per pixel */
 	u32 plld_rate;
-	struct gpio_desc vdd_gpio, enable_gpio;
-	int pwm;
-	int node;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_DISPLAY_PORT, 0, &dp_dev);
-	if (ret)
+	/*
+	 * Before we probe the display device (eDP), tell it that this device
+	 * is are the source of the display data.
+	 */
+	ret = uclass_find_first_device(UCLASS_DISPLAY, &dp_dev);
+	if (ret) {
+		debug("%s: device '%s' display not found (ret=%d)\n", __func__,
+		      dev->name, ret);
 		return ret;
+	}
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_NVIDIA_TEGRA124_DC);
-	if (node < 0)
-		return -ENOENT;
-	dc_ctlr = (struct dc_ctlr *)fdtdec_get_addr(blob, node, "reg");
-	if (fdtdec_decode_display_timing(blob, node, 0, timing))
+	disp_uc_plat = dev_get_uclass_platdata(dp_dev);
+	debug("Found device '%s', disp_uc_priv=%p\n", dp_dev->name,
+	      disp_uc_plat);
+	disp_uc_plat->src_dev = dev;
+
+	ret = uclass_get_device(UCLASS_DISPLAY, 0, &dp_dev);
+	if (ret) {
+		debug("%s: Failed to probe eDP, ret=%d\n", __func__, ret);
+		return ret;
+	}
+
+	dc_ctlr = (struct dc_ctlr *)fdtdec_get_addr(blob, dev->of_offset,
+						    "reg");
+	if (fdtdec_decode_display_timing(blob, dev->of_offset, 0, timing)) {
+		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;
+	}
 
 	ret = display_update_config_from_edid(dp_dev, &panel_bpp, timing);
 	if (ret) {
 		debug("%s: Failed to decode EDID, using defaults\n", __func__);
 		dump_config(panel_bpp, timing);
-	}
-
-	if (!get_backlight_info(blob, &vdd_gpio, &enable_gpio, &pwm)) {
-		dm_gpio_set_value(&vdd_gpio, 1);
-		debug("%s: backlight vdd setting gpio %08x to %d\n",
-		      __func__, gpio_get_number(&vdd_gpio), 1);
 	}
 
 	/*
@@ -450,23 +411,100 @@ int display_init(void *lcdbase, int fb_bits_per_pixel,
 	}
 
 	/* Enable dp */
-	ret = display_port_enable(dp_dev, panel_bpp, timing);
-	if (ret)
+	ret = display_enable(dp_dev, panel_bpp, timing);
+	if (ret) {
+		debug("dc: failed to enable display: ret=%d\n", ret);
 		return ret;
+	}
 
 	ret = update_window(dc_ctlr, (ulong)lcdbase, fb_bits_per_pixel, timing);
-	if (ret)
+	if (ret) {
+		debug("dc: failed to update window\n");
 		return ret;
-
-	/* Set up Tegra PWM to drive the panel backlight */
-	pwm_enable(pwm, 0, 220, 0x2e);
-	udelay(10 * 1000);
-
-	if (dm_gpio_is_valid(&enable_gpio)) {
-		dm_gpio_set_value(&enable_gpio, 1);
-		debug("%s: backlight enable setting gpio %08x to %d\n",
-		      __func__, gpio_get_number(&enable_gpio), 1);
 	}
 
 	return 0;
 }
+
+enum {
+	/* Maximum LCD size we support */
+	LCD_MAX_WIDTH		= 1920,
+	LCD_MAX_HEIGHT		= 1200,
+	LCD_MAX_LOG2_BPP	= 4,		/* 2^4 = 16 bpp */
+};
+
+static int tegra124_lcd_init(struct udevice *dev, void *lcdbase,
+			     enum video_log2_bpp l2bpp)
+{
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct display_timing timing;
+	int ret;
+
+	clock_set_up_plldp();
+	clock_start_periph_pll(PERIPH_ID_HOST1X, CLOCK_ID_PERIPH, 408000000);
+
+	clock_enable(PERIPH_ID_HOST1X);
+	clock_enable(PERIPH_ID_DISP1);
+	clock_enable(PERIPH_ID_PWM);
+	clock_enable(PERIPH_ID_DPAUX);
+	clock_enable(PERIPH_ID_SOR0);
+	udelay(2);
+
+	reset_set_enable(PERIPH_ID_HOST1X, 0);
+	reset_set_enable(PERIPH_ID_DISP1, 0);
+	reset_set_enable(PERIPH_ID_PWM, 0);
+	reset_set_enable(PERIPH_ID_DPAUX, 0);
+	reset_set_enable(PERIPH_ID_SOR0, 0);
+
+	ret = display_init(dev, lcdbase, 1 << l2bpp, &timing);
+	if (ret)
+		return ret;
+
+	uc_priv->xsize = roundup(timing.hactive.typ, 16);
+	uc_priv->ysize = timing.vactive.typ;
+	uc_priv->bpix = l2bpp;
+
+	video_set_flush_dcache(dev, 1);
+	debug("%s: done\n", __func__);
+
+	return 0;
+}
+
+static int tegra124_lcd_probe(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	ulong start;
+	int ret;
+
+	start = get_timer(0);
+	ret = tegra124_lcd_init(dev, (void *)plat->base, VIDEO_BPP16);
+	debug("LCD init took %lu ms\n", get_timer(start));
+	if (ret)
+		printf("%s: Error %d\n", __func__, ret);
+
+	return 0;
+}
+
+static int tegra124_lcd_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+
+	uc_plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
+			(1 << VIDEO_BPP16) / 8;
+	debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
+
+	return 0;
+}
+
+static const struct udevice_id tegra124_lcd_ids[] = {
+	{ .compatible = "nvidia,tegra124-dc" },
+	{ }
+};
+
+U_BOOT_DRIVER(tegra124_dc) = {
+	.name	= "tegra124-dc",
+	.id	= UCLASS_VIDEO,
+	.of_match = tegra124_lcd_ids,
+	.bind	= tegra124_lcd_bind,
+	.probe	= tegra124_lcd_probe,
+};

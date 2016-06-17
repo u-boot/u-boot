@@ -74,6 +74,9 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 	unsigned reg, reg_end, shift, mask;
 	u32 tmp;
 
+	/* some pins need input-enabling */
+	uniphier_pinconf_input_enable(dev, pin);
+
 	reg = UNIPHIER_PINCTRL_PINMUX_BASE + pin * mux_bits / 32 * reg_stride;
 	reg_end = reg + reg_stride;
 	shift = pin * mux_bits % 32;
@@ -94,9 +97,6 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 
 	if (priv->socdata->load_pinctrl)
 		writel(1, priv->base + UNIPHIER_PINCTRL_LOAD_PINMUX);
-
-	/* some pins need input-enabling */
-	uniphier_pinconf_input_enable(dev, pin);
 }
 
 static int uniphier_pinmux_group_set(struct udevice *dev,

@@ -1,5 +1,5 @@
 /*
- * U-boot - cache.c
+ * U-Boot - cache.c
  *
  * Copyright (c) 2005-2008 Analog Devices Inc.
  *

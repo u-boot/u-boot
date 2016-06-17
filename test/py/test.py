@@ -16,17 +16,18 @@ import sys
 sys.argv.pop(0)
 
 # argv; py.test test_directory_name user-supplied-arguments
-args = ["py.test", os.path.dirname(__file__) + "/tests"]
+args = ['py.test', os.path.dirname(__file__) + '/tests']
 args.extend(sys.argv)
 
 try:
-    os.execvp("py.test", args)
+    os.execvp('py.test', args)
 except:
     # Log full details of any exception for detailed analysis
     import traceback
     traceback.print_exc()
     # Hint to the user that they likely simply haven't installed the required
     # dependencies.
-    print >>sys.stderr, """
+    print >>sys.stderr, '''
 exec(py.test) failed; perhaps you are missing some dependencies?
-See test/py/README.md for the list."""
+See test/py/README.md for the list.'''
+    sys.exit(1)

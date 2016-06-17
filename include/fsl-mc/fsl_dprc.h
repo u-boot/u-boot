@@ -11,7 +11,7 @@
 
 /* DPRC Version */
 #define DPRC_VER_MAJOR				5
-#define DPRC_VER_MINOR				0
+#define DPRC_VER_MINOR				1
 
 /* Command IDs */
 #define DPRC_CMDID_CLOSE			0x800
@@ -110,6 +110,74 @@ do { \
 	MC_RSP_OP(cmd, 1, 32, 32, uint32_t, obj_desc->state);\
 	MC_RSP_OP(cmd, 2, 0,  16, uint16_t, obj_desc->ver_major);\
 	MC_RSP_OP(cmd, 2, 16, 16, uint16_t, obj_desc->ver_minor);\
+	MC_RSP_OP(cmd, 2, 32, 16, uint16_t, obj_desc->flags); \
+	MC_RSP_OP(cmd, 3, 0,  8,  char,	    obj_desc->type[0]);\
+	MC_RSP_OP(cmd, 3, 8,  8,  char,	    obj_desc->type[1]);\
+	MC_RSP_OP(cmd, 3, 16, 8,  char,	    obj_desc->type[2]);\
+	MC_RSP_OP(cmd, 3, 24, 8,  char,	    obj_desc->type[3]);\
+	MC_RSP_OP(cmd, 3, 32, 8,  char,	    obj_desc->type[4]);\
+	MC_RSP_OP(cmd, 3, 40, 8,  char,	    obj_desc->type[5]);\
+	MC_RSP_OP(cmd, 3, 48, 8,  char,	    obj_desc->type[6]);\
+	MC_RSP_OP(cmd, 3, 56, 8,  char,	    obj_desc->type[7]);\
+	MC_RSP_OP(cmd, 4, 0,  8,  char,	    obj_desc->type[8]);\
+	MC_RSP_OP(cmd, 4, 8,  8,  char,	    obj_desc->type[9]);\
+	MC_RSP_OP(cmd, 4, 16, 8,  char,	    obj_desc->type[10]);\
+	MC_RSP_OP(cmd, 4, 24, 8,  char,	    obj_desc->type[11]);\
+	MC_RSP_OP(cmd, 4, 32, 8,  char,	    obj_desc->type[12]);\
+	MC_RSP_OP(cmd, 4, 40, 8,  char,	    obj_desc->type[13]);\
+	MC_RSP_OP(cmd, 4, 48, 8,  char,	    obj_desc->type[14]);\
+	MC_RSP_OP(cmd, 4, 56, 8,  char,	    obj_desc->type[15]);\
+	MC_RSP_OP(cmd, 5, 0,  8,  char,	    obj_desc->label[0]);\
+	MC_RSP_OP(cmd, 5, 8,  8,  char,	    obj_desc->label[1]);\
+	MC_RSP_OP(cmd, 5, 16, 8,  char,	    obj_desc->label[2]);\
+	MC_RSP_OP(cmd, 5, 24, 8,  char,	    obj_desc->label[3]);\
+	MC_RSP_OP(cmd, 5, 32, 8,  char,	    obj_desc->label[4]);\
+	MC_RSP_OP(cmd, 5, 40, 8,  char,	    obj_desc->label[5]);\
+	MC_RSP_OP(cmd, 5, 48, 8,  char,	    obj_desc->label[6]);\
+	MC_RSP_OP(cmd, 5, 56, 8,  char,	    obj_desc->label[7]);\
+	MC_RSP_OP(cmd, 6, 0,  8,  char,	    obj_desc->label[8]);\
+	MC_RSP_OP(cmd, 6, 8,  8,  char,	    obj_desc->label[9]);\
+	MC_RSP_OP(cmd, 6, 16, 8,  char,	    obj_desc->label[10]);\
+	MC_RSP_OP(cmd, 6, 24, 8,  char,	    obj_desc->label[11]);\
+	MC_RSP_OP(cmd, 6, 32, 8,  char,	    obj_desc->label[12]);\
+	MC_RSP_OP(cmd, 6, 40, 8,  char,	    obj_desc->label[13]);\
+	MC_RSP_OP(cmd, 6, 48, 8,  char,	    obj_desc->label[14]);\
+	MC_RSP_OP(cmd, 6, 56, 8,  char,	    obj_desc->label[15]);\
+} while (0)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPRC_CMD_GET_OBJ_DESC(cmd, obj_type, obj_id) \
+do { \
+	MC_CMD_OP(cmd, 0, 0,  32, int,	    obj_id);\
+	MC_CMD_OP(cmd, 1, 0,  8,  char,     obj_type[0]);\
+	MC_CMD_OP(cmd, 1, 8,  8,  char,	    obj_type[1]);\
+	MC_CMD_OP(cmd, 1, 16, 8,  char,	    obj_type[2]);\
+	MC_CMD_OP(cmd, 1, 24, 8,  char,	    obj_type[3]);\
+	MC_CMD_OP(cmd, 1, 32, 8,  char,	    obj_type[4]);\
+	MC_CMD_OP(cmd, 1, 40, 8,  char,	    obj_type[5]);\
+	MC_CMD_OP(cmd, 1, 48, 8,  char,	    obj_type[6]);\
+	MC_CMD_OP(cmd, 1, 56, 8,  char,	    obj_type[7]);\
+	MC_CMD_OP(cmd, 2, 0,  8,  char,	    obj_type[8]);\
+	MC_CMD_OP(cmd, 2, 8,  8,  char,	    obj_type[9]);\
+	MC_CMD_OP(cmd, 2, 16, 8,  char,	    obj_type[10]);\
+	MC_CMD_OP(cmd, 2, 24, 8,  char,	    obj_type[11]);\
+	MC_CMD_OP(cmd, 2, 32, 8,  char,	    obj_type[12]);\
+	MC_CMD_OP(cmd, 2, 40, 8,  char,	    obj_type[13]);\
+	MC_CMD_OP(cmd, 2, 48, 8,  char,     obj_type[14]);\
+	MC_CMD_OP(cmd, 2, 56, 8,  char,	    obj_type[15]);\
+} while (0)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPRC_RSP_GET_OBJ_DESC(cmd, obj_desc) \
+do { \
+	MC_RSP_OP(cmd, 0, 32, 32, int,	    obj_desc->id); \
+	MC_RSP_OP(cmd, 1, 0,  16, uint16_t, obj_desc->vendor); \
+	MC_RSP_OP(cmd, 1, 16, 8,  uint8_t,  obj_desc->irq_count); \
+	MC_RSP_OP(cmd, 1, 24, 8,  uint8_t,  obj_desc->region_count); \
+	MC_RSP_OP(cmd, 1, 32, 32, uint32_t, obj_desc->state);\
+	MC_RSP_OP(cmd, 2, 0,  16, uint16_t, obj_desc->ver_major);\
+	MC_RSP_OP(cmd, 2, 16, 16, uint16_t, obj_desc->ver_minor);\
+	MC_RSP_OP(cmd, 2, 32, 16, uint16_t, obj_desc->flags); \
 	MC_RSP_OP(cmd, 3, 0,  8,  char,	    obj_desc->type[0]);\
 	MC_RSP_OP(cmd, 3, 8,  8,  char,	    obj_desc->type[1]);\
 	MC_RSP_OP(cmd, 3, 16, 8,  char,	    obj_desc->type[2]);\
@@ -480,13 +548,12 @@ int dprc_close(struct fsl_mc_io	*mc_io,
  */
 #define DPRC_CFG_OPT_TOPOLOGY_CHANGES_ALLOWED	0x00000008
 
-/* IOMMU bypass - indicates whether objects of this container are permitted
- * to bypass the IOMMU.
- */
-#define DPRC_CFG_OPT_IOMMU_BYPASS		0x00000010
 
-/* AIOP - Indicates that container belongs to AIOP.  */
+/* AIOP - Indicates that container belongs to AIOP. */
 #define DPRC_CFG_OPT_AIOP			0x00000020
+
+/* IRQ Config - Indicates that the container allowed to configure its IRQs.*/
+#define DPRC_CFG_OPT_IRQ_CFG_ALLOWED		0x00000040
 
 /**
  * struct dprc_cfg - Container configuration options
@@ -637,6 +704,14 @@ int dprc_get_obj_count(struct fsl_mc_io	*mc_io,
 #define DPRC_OBJ_STATE_PLUGGED		0x00000002
 
 /**
+ * Shareability flag - Object flag indicating no memory shareability.
+ *  the object generates memory accesses that are non coherent with other
+ *  masters;
+ *  user is responsible for proper memory handling through IOMMU configuration.
+ */
+#define DPRC_OBJ_FLAG_NO_MEM_SHAREABILITY		0x0001
+
+/**
  * struct dprc_obj_desc - Object descriptor, returned from dprc_get_obj()
  * @type: Type of object: NULL terminated string
  * @id: ID of logical object resource
@@ -647,6 +722,7 @@ int dprc_get_obj_count(struct fsl_mc_io	*mc_io,
  * @region_count: Number of mappable regions supported by the object
  * @state: Object state: combination of DPRC_OBJ_STATE_ states
  * @label: Object label
+ * @flags: Object's flags
  */
 struct dprc_obj_desc {
 	char type[16];
@@ -658,6 +734,7 @@ struct dprc_obj_desc {
 	uint8_t region_count;
 	uint32_t state;
 	char label[16];
+	uint16_t	flags;
 };
 
 /**
@@ -859,7 +936,10 @@ int dprc_disconnect(struct fsl_mc_io		*mc_io,
 * @token:	Token of DPRC object
 * @endpoint1:	Endpoint 1 configuration parameters
 * @endpoint2:	Returned endpoint 2 configuration parameters
-* @state:	Returned link state: 1 - link is up, 0 - link is down
+* @state:	Returned link state:
+*           1 - link is up;
+*           0 - link is down;
+*           -1 - no connection (endpoint2 information is irrelevant)
 *
 * Return:     '0' on Success; -ENAVAIL if connection does not exist.
 */

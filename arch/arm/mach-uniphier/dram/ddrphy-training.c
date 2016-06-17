@@ -7,7 +7,8 @@
 #include <common.h>
 #include <linux/err.h>
 #include <linux/io.h>
-#include <mach/ddrphy-regs.h>
+
+#include "ddrphy-regs.h"
 
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank)
 {

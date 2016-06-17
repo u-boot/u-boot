@@ -3,25 +3,35 @@
 
 # build U-Boot on Travis CI - https://travis-ci.org/
 
+sudo: true
+
 language: c
+
+addons:
+  apt:
+    packages:
+    - cppcheck
+    - sloccount
+    - sparse
+    - bc
+    - build-essential
+    - libsdl1.2-dev
+    - python
+    - python-virtualenv
 
 cache:
  - apt
 
 install:
- # install U-Boot build dependencies
- - sudo apt-get install -qq cppcheck sloccount sparse bc libsdl-dev build-essential
  # install latest device tree compiler
  - git clone --depth=1 https://git.kernel.org/pub/scm/utils/dtc/dtc.git /tmp/dtc
  - make -j4 -C /tmp/dtc
  # prepare buildman environment
  - export BUILDMAN_ROOT="root:"
- - export BUILDMAN_MIPS="mips:"
  - export BUILDMAN_PPC="ppc:"
  - export BUILDMAN_ARM="arm:"
  - export BUILDMAN_SANDBOX="sandbox:"
  - echo -e "[toolchain]\n${BUILDMAN_ROOT} /\n" > ~/.buildman
- - echo -e "${BUILDMAN_MIPS} /opt/eldk-5.4/mips/sysroots/i686-eldk-linux/usr/bin/mips32-linux/\n" >> ~/.buildman
  - echo -e "${BUILDMAN_PPC} /opt/eldk-5.4/powerpc/sysroots/i686-eldk-linux/usr/bin/powerpc-linux/\n" >> ~/.buildman
  - echo -e "${BUILDMAN_ARM} /opt/eldk-5.4/armv5te/sysroots/i686-eldk-linux/usr/bin/armv5te-linux-gnueabi/\n" >> ~/.buildman
  - echo -e "${BUILDMAN_SANDBOX} /usr/bin/gcc\n" >> ~/.buildman
@@ -30,170 +40,129 @@ install:
  - echo -e "\n\n[toolchain-alias]\n${BUILDMAN_ALIAS} i386\n" >> ~/.buildman
  - echo -e "${BUILDMAN_ALIAS_ARM} armv5te\n" >> ~/.buildman
  - cat ~/.buildman
+ - virtualenv /tmp/venv
+ - . /tmp/venv/bin/activate
+ - pip install pytest
 
 env:
   global:
     - PATH=/tmp/dtc:$PATH
     - BUILD_DIR=build
-    - CROSS_COMPILE=""
     - HOSTCC="cc"
     - HOSTCXX="c++"
-    - TEST_CONFIG_CMD=""
 
 before_script:
-  # install toolchains based on INSTALL_TOOLCHAIN} variable
-  - if [[ "${INSTALL_TOOLCHAIN}" == *arm* ]]; then wget ftp://ftp.denx.de/pub/eldk/5.4/targets/armv5te/eldk-eglibc-i686-arm-toolchain-gmae-5.4.sh ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *arm* ]]; then sh eldk-eglibc-i686-arm-toolchain-gmae-5.4.sh -y ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *arm* ]]; then ls -al /opt/eldk-5.4/armv5te/sysroots/i686-eldk-linux/usr/bin/armv5te-linux-gnueabi ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *avr32* ]]; then ./tools/buildman/buildman --fetch-arch avr32 ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *i386* ]]; then ./tools/buildman/buildman sandbox --fetch-arch i386 ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *m68k* ]]; then ./tools/buildman/buildman --fetch-arch m68k ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *mips* ]]; then wget ftp://ftp.denx.de/pub/eldk/5.4/targets/mips/eldk-eglibc-i686-mips-toolchain-gmae-5.4.sh ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *mips* ]]; then sh eldk-eglibc-i686-mips-toolchain-gmae-5.4.sh -y ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *ppc* ]]; then wget ftp://ftp.denx.de/pub/eldk/5.4/targets/powerpc/eldk-eglibc-i686-powerpc-toolchain-gmae-5.4.sh ; fi
-  - if [[ "${INSTALL_TOOLCHAIN}" == *ppc* ]]; then sh eldk-eglibc-i686-powerpc-toolchain-gmae-5.4.sh -y ; fi
+  # install toolchains based on TOOLCHAIN} variable
+  - if [[ "${TOOLCHAIN}" == *aarch64* ]]; then ./tools/buildman/buildman --fetch-arch aarch64 ; fi
+  - if [[ "${TOOLCHAIN}" == *arm* ]]; then wget ftp://ftp.denx.de/pub/eldk/5.4/targets/armv5te/eldk-eglibc-i686-arm-toolchain-gmae-5.4.sh ; fi
+  - if [[ "${TOOLCHAIN}" == *arm* ]]; then sh eldk-eglibc-i686-arm-toolchain-gmae-5.4.sh -y ; fi
+  - if [[ "${TOOLCHAIN}" == *avr32* ]]; then ./tools/buildman/buildman --fetch-arch avr32 ; fi
+  - if [[ "${TOOLCHAIN}" == *i386* ]]; then ./tools/buildman/buildman sandbox --fetch-arch i386 ; fi
+  - if [[ "${TOOLCHAIN}" == *m68k* ]]; then ./tools/buildman/buildman --fetch-arch m68k ; fi
+  - if [[ "${TOOLCHAIN}" == *mips* ]]; then ./tools/buildman/buildman --fetch-arch mips ; fi
+  - if [[ "${TOOLCHAIN}" == *ppc* ]]; then wget ftp://ftp.denx.de/pub/eldk/5.4/targets/powerpc/eldk-eglibc-i686-powerpc-toolchain-gmae-5.4.sh ; fi
+  - if [[ "${TOOLCHAIN}" == *ppc* ]]; then sh eldk-eglibc-i686-powerpc-toolchain-gmae-5.4.sh -y ; fi
 
 script:
  # the execution sequence for each test
- - echo ${TEST_CONFIG_CMD}
- - ${TEST_CONFIG_CMD}
- - echo ${TEST_CMD}
- - ${TEST_CMD}
+ - if [[ "${TEST_CMD}" != "" ]]; then
+     ${TEST_CMD};
+   fi
+ - if [[ "${BUILDMAN}" != "" ]]; then
+     tools/buildman/buildman ${BUILDMAN};
+   fi
 
 matrix:
   include:
   # we need to build by vendor due to 50min time limit for builds
   # each env setting here is a dedicated build
     - env:
-        - TEST_CMD="./MAKEALL -a arm -v atmel"
-          INSTALL_TOOLCHAIN="arm"
-          CROSS_COMPILE="/opt/eldk-5.4/armv5te/sysroots/i686-eldk-linux/usr/bin/armv5te-linux-gnueabi/arm-linux-gnueabi-"
+        - BUILDMAN="arm1136"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CMD="./MAKEALL -a arm -v denx"
-          INSTALL_TOOLCHAIN="arm"
-          CROSS_COMPILE="/opt/eldk-5.4/armv5te/sysroots/i686-eldk-linux/usr/bin/armv5te-linux-gnueabi/arm-linux-gnueabi-"
+        - BUILDMAN="arm1136"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CMD="./MAKEALL -a arm -v freescale"
-          INSTALL_TOOLCHAIN="arm"
-          CROSS_COMPILE="/opt/eldk-5.4/armv5te/sysroots/i686-eldk-linux/usr/bin/armv5te-linux-gnueabi/arm-linux-gnueabi-"
+        - BUILDMAN="arm1176"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CMD="./MAKEALL -a arm -v siemens"
-          INSTALL_TOOLCHAIN="arm"
-          CROSS_COMPILE="/opt/eldk-5.4/armv5te/sysroots/i686-eldk-linux/usr/bin/armv5te-linux-gnueabi/arm-linux-gnueabi-"
+        - BUILDMAN="arm720t"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CMD="./MAKEALL -a arm -v ti"
-          INSTALL_TOOLCHAIN="arm"
-          CROSS_COMPILE="/opt/eldk-5.4/armv5te/sysroots/i686-eldk-linux/usr/bin/armv5te-linux-gnueabi/arm-linux-gnueabi-"
+        - BUILDMAN="arm920t"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="make sandbox_defconfig"
-          TEST_CMD="make -j4"
-          HOSTCC  = "gcc"
-          HOSTCXX  = "g++"
+        - BUILDMAN="atmel -x avr32"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="make sandbox_defconfig"
-          TEST_CMD="make -j4"
-          HOSTCC  = "clang"
-          HOSTCXX  = "clang++"
+        - BUILDMAN="avr32"
+          TOOLCHAIN="avr32"
     - env:
-        - TEST_CMD="./MAKEALL -a mips"
-          INSTALL_TOOLCHAIN="mips"
-          CROSS_COMPILE="/opt/eldk-5.4/mips/sysroots/i686-eldk-linux/usr/bin/mips32-linux/mips-linux-"
+        - BUILDMAN="davinci"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards arm1136"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="denx"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards arm1176"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="freescale -x powerpc,m68k,aarch64"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards arm720t"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="sandbox x86"
+          TOOLCHAIN="i386"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards arm920t"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="kirkwood"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards atmel -x avr32"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="m68k"
+          TOOLCHAIN="m68k"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards avr32"
-          INSTALL_TOOLCHAIN="avr32"
+        - BUILDMAN="mips"
+          TOOLCHAIN="mips"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards davinci"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="mpc512x"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards denx"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="mpc5xx"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards freescale -x powerpc,m68k,aarch64"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="mpc5xxx"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards freescale -x arm,m68k,aarch64"
-          INSTALL_TOOLCHAIN="ppc"
+        - BUILDMAN="mpc8260"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards sandbox x86"
-          INSTALL_TOOLCHAIN="i386"
+        - BUILDMAN="mpc83xx"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards kirkwood"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="mpc85xx -x freescale"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards m68k"
-          INSTALL_TOOLCHAIN="m68k"
+        - BUILDMAN="mpc85xx -x t208xrdb -x t4qds -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x b4860qds -x sbc8548 -x bsc91*"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mips"
-          INSTALL_TOOLCHAIN="mips"
+        - BUILDMAN="t208xrdb t4qds t102*"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc512x"
-          INSTALL_TOOLCHAIN="ppc"
+        - BUILDMAN="p1_p2_rdb_pc p1010rdb"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc5xx"
-          INSTALL_TOOLCHAIN="ppc"
+        - BUILDMAN="corenet_ds b4860qds sbc8548 bsc91*"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc5xxx"
-          INSTALL_TOOLCHAIN="ppc"
+        - BUILDMAN="mpc86xx"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc8260"
-          INSTALL_TOOLCHAIN="ppc"
+        - BUILDMAN="mpc8xx"
+          TOOLCHAIN="ppc"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc83xx"
-          INSTALL_TOOLCHAIN="ppc"
+        - BUILDMAN="siemens"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc85xx"
-          INSTALL_TOOLCHAIN="ppc"
+        - BUILDMAN="ti"
+          TOOLCHAIN="arm"
     - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc86xx"
-          INSTALL_TOOLCHAIN="ppc"
-    - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman mpc8xx"
-          INSTALL_TOOLCHAIN="ppc"
-    - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards siemens"
-          INSTALL_TOOLCHAIN="arm"
-    - env:
-        - TEST_CONFIG_CMD="tools/buildman/buildman --list-tool-chains"
-          TEST_CMD="tools/buildman/buildman --list-error-boards ti"
-          INSTALL_TOOLCHAIN="arm"
+        - BUILDMAN="aarch64"
+          TOOLCHAIN="aarch64"
 
     # QA jobs for code analytics
     # static code analysis with cppcheck (we can add --enable=all later)
@@ -213,8 +182,8 @@ matrix:
     # some statistics about the code base
     - env:
         - TEST_CMD="sloccount ."
-
-notifications:
-  email: false
+    # test/py
+    - env:
+        - TEST_CMD="./test/py/test.py --bd sandbox --build"
 
 # TODO make it perfect ;-r

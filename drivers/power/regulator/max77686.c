@@ -515,25 +515,19 @@ static int max77686_ldo_enable(struct udevice *dev, int op, bool *enable)
 
 		switch (on_off) {
 		case OPMODE_OFF:
-			*enable = 0;
+			*enable = false;
 			break;
 		case OPMODE_ON:
-			*enable = 1;
+			*enable = true;
 			break;
 		default:
 			return -EINVAL;
 		}
 	} else if (op == PMIC_OP_SET) {
-		switch (*enable) {
-		case 0:
-			on_off = OPMODE_OFF;
-			break;
-		case 1:
+		if (*enable)
 			on_off = OPMODE_ON;
-			break;
-		default:
-			return -EINVAL;
-		}
+		else
+			on_off = OPMODE_OFF;
 
 		ret = max77686_ldo_mode(dev, op, &on_off);
 		if (ret)
@@ -651,16 +645,10 @@ static int max77686_buck_enable(struct udevice *dev, int op, bool *enable)
 			return -EINVAL;
 		}
 	} else if (op == PMIC_OP_SET) {
-		switch (*enable) {
-		case 0:
-			on_off = OPMODE_OFF;
-			break;
-		case 1:
+		if (*enable)
 			on_off = OPMODE_ON;
-			break;
-		default:
-			return -EINVAL;
-		}
+		else
+			on_off = OPMODE_OFF;
 
 		ret = max77686_buck_mode(dev, op, &on_off);
 		if (ret)

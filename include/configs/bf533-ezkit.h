@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF533 EZKIT board
+ * U-Boot - Configuration file for BF533 EZKIT board
  */
 
 #ifndef __CONFIG_BF533_EZKIT_H__

@@ -75,16 +75,24 @@ static u32 board_id_get(void)
 #endif
 }
 
-static u8 board_sat_r_get(u8 dev_num, u8 reg)
+__weak u8 board_sat_r_get(u8 dev_num, u8 reg)
 {
 	u8 data;
 	u8 *dev;
 	u32 board_id = board_id_get();
 	int ret;
 
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
 	switch (board_id) {
+	case DB_78X60_AMC_ID:
+	case DB_78X60_PCAC_REV2_ID:
+	case RD_78460_CUSTOMER_ID:
+	case RD_78460_SERVER_ID:
+	case RD_78460_SERVER_REV2_ID:
+	case DB_78X60_PCAC_ID:
+		return (0x1 << 1) | 1;
+	case FPGA_88F78XX0_ID:
+	case RD_78460_NAS_ID:
+		return (0x0 << 1) | 1;
 	case DB_784MP_GP_ID:
 		dev = rd78460gp_twsi_dev;
 
@@ -94,15 +102,12 @@ static u8 board_sat_r_get(u8 dev_num, u8 reg)
 		dev = db88f78xx0rev2_twsi_dev;
 		break;
 
-	case DB_78X60_PCAC_ID:
-	case FPGA_88F78XX0_ID:
-	case DB_78X60_PCAC_REV2_ID:
-	case RD_78460_SERVER_REV2_ID:
 	default:
 		return 0;
 	}
 
 	/* Read MPP module ID */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	ret = i2c_read(dev[dev_num], 0, 1, (u8 *)&data, 1);
 	if (ret)
 		return MV_ERROR;
@@ -190,8 +195,17 @@ __weak MV_BIN_SERDES_CFG *board_serdes_cfg_get(u8 pex_mode)
 
 u16 ctrl_model_get(void)
 {
-	/* Right now only MV78460 supported */
+	/*
+	 * SoC version can't be autodetected. So we need to rely on a define
+	 * from the config system here.
+	 */
+#if defined(CONFIG_MV78230)
+	return MV_78230_DEV_ID;
+#elif defined(CONFIG_MV78260)
+	return MV_78260_DEV_ID;
+#else
 	return MV_78460_DEV_ID;
+#endif
 }
 
 u32 get_line_cfg(u32 line_num, MV_BIN_SERDES_CFG *info)
@@ -200,6 +214,20 @@ u32 get_line_cfg(u32 line_num, MV_BIN_SERDES_CFG *info)
 		return (info->line0_7 >> (line_num << 2)) & 0xF;
 	else
 		return (info->line8_15 >> ((line_num - 8) << 2)) & 0xF;
+}
+
+static int serdes_max_lines_get(void)
+{
+	switch (ctrl_model_get()) {
+	case MV_78230_DEV_ID:
+		return 7;
+	case MV_78260_DEV_ID:
+		return 12;
+	case MV_78460_DEV_ID:
+		return 16;
+	}
+
+	return 0;
 }
 
 int serdes_phy_config(void)
@@ -221,39 +249,19 @@ int serdes_phy_config(void)
 	u8 device_rev;
 	u32 rx_high_imp_mode;
 	u16 ctrl_mode;
-	u32 board_id = board_id_get();
 	u32 pex_if;
 	u32 pex_if_num;
 
 	/*
-	 * TODO:
-	 * Right now we only support the MV78460 with 16 serdes lines
+	 * Get max. serdes lines count
 	 */
-	max_serdes_lines = 16;
+	max_serdes_lines = serdes_max_lines_get();
 	if (max_serdes_lines == 0)
 		return MV_OK;
 
-	switch (board_id) {
-	case DB_78X60_AMC_ID:
-	case DB_78X60_PCAC_REV2_ID:
-	case RD_78460_CUSTOMER_ID:
-	case RD_78460_SERVER_ID:
-	case RD_78460_SERVER_REV2_ID:
-	case DB_78X60_PCAC_ID:
-		satr11 = (0x1 << 1) | 1;
-		break;
-	case FPGA_88F78XX0_ID:
-	case RD_78460_NAS_ID:
-		satr11 = (0x0 << 1) | 1;
-		break;
-	case DB_88F78XX0_BP_REV2_ID:
-	case DB_784MP_GP_ID:
-	case DB_88F78XX0_BP_ID:
-		satr11 = board_sat_r_get(1, 1);
-		if ((u8) MV_ERROR == (u8) satr11)
-			return MV_ERROR;
-		break;
-	}
+	satr11 = board_sat_r_get(1, 1);
+	if ((u8) MV_ERROR == (u8) satr11)
+		return MV_ERROR;
 
 	board_modules_scan();
 	memset(addr, 0, sizeof(addr));
@@ -1356,19 +1364,19 @@ int serdes_phy_config(void)
 						 pex_if, PEX_DEVICE_AND_VENDOR_ID));
 			devId &= 0xFFFF;
 			devId |= ((ctrl_mode << 16) & 0xffff0000);
-			DEBUG_INIT_S("Update Device ID PEX");
-			DEBUG_INIT_D(pex_if, 1);
-			DEBUG_INIT_D(devId, 8);
-			DEBUG_INIT_S("\n");
+			DEBUG_INIT_FULL_S("Update Device ID PEX");
+			DEBUG_INIT_FULL_D(pex_if, 1);
+			DEBUG_INIT_FULL_D(devId, 8);
+			DEBUG_INIT_FULL_S("\n");
 			reg_write(PEX_CFG_DIRECT_ACCESS
 				  (pex_if, PEX_DEVICE_AND_VENDOR_ID), devId);
 			if ((pex_if < 8) &&
 			    (info->pex_mode[pex_unit] == PEX_BUS_MODE_X4))
 				pex_if += 3;
 		}
-		DEBUG_INIT_S("Update PEX Device ID 0x");
-		DEBUG_INIT_D(ctrl_mode, 4);
-		DEBUG_INIT_S("0\n");
+		DEBUG_INIT_FULL_S("Update PEX Device ID 0x");
+		DEBUG_INIT_FULL_D(ctrl_mode, 4);
+		DEBUG_INIT_FULL_S("0\n");
 	}
 	tmp = reg_read(PEX_DBG_STATUS_REG(0));
 	DEBUG_RD_REG(PEX_DBG_STATUS_REG(0), tmp);

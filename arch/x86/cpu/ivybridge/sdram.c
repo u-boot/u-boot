@@ -18,6 +18,8 @@
 #include <rtc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <syscon.h>
+#include <asm/cpu.h>
 #include <asm/processor.h>
 #include <asm/gpio.h>
 #include <asm/global_data.h>
@@ -283,22 +285,24 @@ static int recovery_mode_enabled(void)
 /**
  * Find the PEI executable in the ROM and execute it.
  *
- * @param pei_data: configuration data for UEFI PEI reference code
+ * @dev: Northbridge device
+ * @pei_data: configuration data for UEFI PEI reference code
  */
-int sdram_initialise(struct pei_data *pei_data)
+int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
+		     struct pei_data *pei_data)
 {
 	unsigned version;
 	const char *data;
 	uint16_t done;
 	int ret;
 
-	report_platform_info();
+	report_platform_info(dev);
 
 	/* Wait for ME to be ready */
-	ret = intel_early_me_init();
+	ret = intel_early_me_init(me_dev);
 	if (ret)
 		return ret;
-	ret = intel_early_me_uma_size();
+	ret = intel_early_me_uma_size(me_dev);
 	if (ret < 0)
 		return ret;
 
@@ -374,12 +378,12 @@ int sdram_initialise(struct pei_data *pei_data)
 	 * Send ME init done for SandyBridge here.  This is done inside the
 	 * SystemAgent binary on IvyBridge
 	 */
-	done = x86_pci_read_config32(PCH_DEV, PCI_DEVICE_ID);
+	dm_pci_read_config16(dev, PCI_DEVICE_ID, &done);
 	done &= BASE_REV_MASK;
 	if (BASE_REV_SNB == done)
-		intel_early_me_init_done(ME_INIT_STATUS_SUCCESS);
+		intel_early_me_init_done(dev, me_dev, ME_INIT_STATUS_SUCCESS);
 	else
-		intel_early_me_status();
+		intel_early_me_status(me_dev);
 
 	post_system_agent_init(pei_data);
 	report_memory_config();
@@ -495,8 +499,10 @@ static int add_memory_area(struct memory_info *info,
  *
  * This is a bit complicated since on x86 there are system memory holes all
  * over the place. We create a list of available memory blocks
+ *
+ * @dev:	Northbridge device
  */
-static int sdram_find(pci_dev_t dev)
+static int sdram_find(struct udevice *dev)
 {
 	struct memory_info *info = &gd->arch.meminfo;
 	uint32_t tseg_base, uma_size, tolud;
@@ -505,6 +511,7 @@ static int sdram_find(pci_dev_t dev)
 	uint64_t uma_memory_size;
 	unsigned long long tomk;
 	uint16_t ggc;
+	u32 val;
 
 	/* Total Memory 2GB example:
 	 *
@@ -533,24 +540,27 @@ static int sdram_find(pci_dev_t dev)
 	 */
 
 	/* Top of Upper Usable DRAM, including remap */
-	touud = x86_pci_read_config32(dev, TOUUD+4);
-	touud <<= 32;
-	touud |= x86_pci_read_config32(dev, TOUUD);
+	dm_pci_read_config32(dev, TOUUD + 4, &val);
+	touud = (uint64_t)val << 32;
+	dm_pci_read_config32(dev, TOUUD, &val);
+	touud |= val;
 
 	/* Top of Lower Usable DRAM */
-	tolud = x86_pci_read_config32(dev, TOLUD);
+	dm_pci_read_config32(dev, TOLUD, &tolud);
 
 	/* Top of Memory - does not account for any UMA */
-	tom = x86_pci_read_config32(dev, 0xa4);
-	tom <<= 32;
-	tom |= x86_pci_read_config32(dev, 0xa0);
+	dm_pci_read_config32(dev, 0xa4, &val);
+	tom = (uint64_t)val << 32;
+	dm_pci_read_config32(dev, 0xa0, &val);
+	tom |= val;
 
 	debug("TOUUD %llx TOLUD %08x TOM %llx\n", touud, tolud, tom);
 
 	/* ME UMA needs excluding if total memory <4GB */
-	me_base = x86_pci_read_config32(dev, 0x74);
-	me_base <<= 32;
-	me_base |= x86_pci_read_config32(dev, 0x70);
+	dm_pci_read_config32(dev, 0x74, &val);
+	me_base = (uint64_t)val << 32;
+	dm_pci_read_config32(dev, 0x70, &val);
+	me_base |= val;
 
 	debug("MEBASE %llx\n", me_base);
 
@@ -568,7 +578,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Graphics memory comes next */
-	ggc = x86_pci_read_config16(dev, GGC);
+	dm_pci_read_config16(dev, GGC, &ggc);
 	if (!(ggc & 2)) {
 		debug("IGD decoded, subtracting ");
 
@@ -588,7 +598,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Calculate TSEG size from its base which must be below GTT */
-	tseg_base = x86_pci_read_config32(dev, 0xb8);
+	dm_pci_read_config32(dev, 0xb8, &tseg_base);
 	uma_size = (uma_memory_base - tseg_base) >> 10;
 	tomk -= uma_size;
 	uma_memory_base = tomk * 1024ULL;
@@ -723,15 +733,23 @@ int dram_init(void)
 			{ 0, 4, 0x0000 }, /* P13= Empty */
 		},
 	};
-	pci_dev_t dev = PCI_BDF(0, 0, 0);
+	struct udevice *dev, *me_dev;
 	int ret;
 
+	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
+	if (ret)
+		return ret;
+	if (!dev)
+		return -ENODEV;
+	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
+	if (ret)
+		return ret;
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
 	debug("mrc_input %p\n", pei_data.mrc_input);
 	pei_data.boot_mode = gd->arch.pei_boot_mode;
 	ret = copy_spd(&pei_data);
 	if (!ret)
-		ret = sdram_initialise(&pei_data);
+		ret = sdram_initialise(dev, me_dev, &pei_data);
 	if (ret)
 		return ret;
 

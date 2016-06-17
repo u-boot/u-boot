@@ -8,6 +8,15 @@
 #define _TIMER_H_
 
 /*
+ * dm_timer_init - initialize a timer for time keeping. On success
+ * initializes gd->timer so that lib/timer can use it for future
+ * referrence.
+ *
+ * @return - 0 on success or error number
+ */
+int dm_timer_init(void);
+
+/*
  * timer_conv_64 - convert 32-bit counter value to 64-bit
  *
  * @count: 32-bit counter value
@@ -57,5 +66,26 @@ struct timer_ops {
 struct timer_dev_priv {
 	unsigned long clock_rate;
 };
+
+/**
+ * timer_early_get_count() - Implement timer_get_count() before driver model
+ *
+ * If CONFIG_TIMER_EARLY is enabled, this function wil be called to return
+ * the current timer value before the proper driver model timer is ready.
+ * It should be implemented by one of the timer values. This is mostly useful
+ * for tracing.
+ */
+u64 timer_early_get_count(void);
+
+/**
+ * timer_early_get_rate() - Get the timer rate before driver model
+ *
+ * If CONFIG_TIMER_EARLY is enabled, this function wil be called to return
+ * the current timer rate in Hz before the proper driver model timer is ready.
+ * It should be implemented by one of the timer values. This is mostly useful
+ * for tracing. This corresponds to the clock_rate value in struct
+ * timer_dev_priv.
+ */
+unsigned long timer_early_get_rate(void);
 
 #endif	/* _TIMER_H_ */

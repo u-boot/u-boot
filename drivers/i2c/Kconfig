@@ -58,6 +58,15 @@ config DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SYS_I2C_INTEL
+	bool "Intel I2C/SMBUS driver"
+	depends on DM_I2C
+	help
+	  Add support for the Intel SMBUS driver. So far this driver is just
+	  a stub which perhaps some basic init. There is no implementation of
+	  the I2C API meaning that any I2C operations will immediately fail
+	  for now.
+
 config SYS_I2C_ROCKCHIP
 	bool "Rockchip I2C driver"
 	depends on DM_I2C

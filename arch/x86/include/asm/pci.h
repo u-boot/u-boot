@@ -18,25 +18,6 @@
 
 #ifndef __ASSEMBLY__
 
-#define DEFINE_PCI_DEVICE_TABLE(_table) \
-	const struct pci_device_id _table[]
-
-struct pci_controller;
-
-void pci_setup_type1(struct pci_controller *hose);
-
-/*
- * Simple PCI access routines - these work from either the early PCI hose
- * or the 'real' one, created after U-Boot has memory available
- */
-unsigned int x86_pci_read_config8(pci_dev_t dev, unsigned where);
-unsigned int x86_pci_read_config16(pci_dev_t dev, unsigned where);
-unsigned int x86_pci_read_config32(pci_dev_t dev, unsigned where);
-
-void x86_pci_write_config8(pci_dev_t dev, unsigned where, unsigned value);
-void x86_pci_write_config16(pci_dev_t dev, unsigned where, unsigned value);
-void x86_pci_write_config32(pci_dev_t dev, unsigned where, unsigned value);
-
 int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 			ulong *valuep, enum pci_size_t size);
 

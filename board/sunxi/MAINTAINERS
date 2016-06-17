@@ -183,6 +183,11 @@ S:	Maintained
 F:	configs/Sinlinx_SinA33_defconfig
 W:	http://linux-sunxi.org/Sinlinx_SinA33
 
+SINOVOIP BPI M3 A83T BOARD
+M:	VishnuPatekar <vishnupatekar0510@gmail.com>
+S:	Maintained
+F:	configs/Sinovoip_BPI_M3_defconfig
+
 WEXLER-TAB7200 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained

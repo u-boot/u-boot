@@ -7,34 +7,18 @@
 #include <common.h>
 #include <mmc.h>
 #include <asm/io.h>
-#include <asm/irq.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/post.h>
-#include <asm/processor.h>
 #include <asm/arch/device.h>
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
 
 static struct pci_device_id mmc_supported[] = {
 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_QRK_SDIO },
+	{},
 };
-
-/*
- * TODO:
- *
- * This whole routine should be removed until we fully convert the ICH SPI
- * driver to DM and make use of DT to pass the bios control register offset
- */
-static void unprotect_spi_flash(void)
-{
-	u32 bc;
-
-	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, &bc);
-	bc |= 0x1;	/* unprotect the flash */
-	qrk_pci_write_config_dword(QUARK_LEGACY_BRIDGE, 0xd8, bc);
-}
 
 static void quark_setup_mtrr(void)
 {
@@ -251,6 +235,20 @@ int arch_cpu_init(void)
 	 */
 	quark_setup_bars();
 
+	/* Initialize USB2 PHY */
+	quark_usb_early_init();
+
+	/* Initialize thermal sensor */
+	quark_thermal_early_init();
+
+	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
+	quark_enable_legacy_seg();
+
+	return 0;
+}
+
+int arch_cpu_init_dm(void)
+{
 	/*
 	 * Initialize PCIe controller
 	 *
@@ -261,17 +259,6 @@ int arch_cpu_init(void)
 	 * system hang while it is held in reset.
 	 */
 	quark_pcie_early_init();
-
-	/* Initialize USB2 PHY */
-	quark_usb_early_init();
-
-	/* Initialize thermal sensor */
-	quark_thermal_early_init();
-
-	/* Turn on legacy segments (A/B/E/F) decode to system RAM */
-	quark_enable_legacy_seg();
-
-	unprotect_spi_flash();
 
 	return 0;
 }
@@ -337,31 +324,7 @@ int arch_early_init_r(void)
 
 int cpu_mmc_init(bd_t *bis)
 {
-	return pci_mmc_init("Quark SDHCI", mmc_supported,
-			    ARRAY_SIZE(mmc_supported));
-}
-
-void cpu_irq_init(void)
-{
-	struct quark_rcba *rcba;
-	u32 base;
-
-	qrk_pci_read_config_dword(QUARK_LEGACY_BRIDGE, LB_RCBA, &base);
-	base &= ~MEM_BAR_EN;
-	rcba = (struct quark_rcba *)base;
-
-	/*
-	 * Route Quark PCI device interrupt pin to PIRQ
-	 *
-	 * Route device#23's INTA/B/C/D to PIRQA/B/C/D
-	 * Route device#20,21's INTA/B/C/D to PIRQE/F/G/H
-	 */
-	writew(PIRQC, &rcba->rmu_ir);
-	writew(PIRQA | (PIRQB << 4) | (PIRQC << 8) | (PIRQD << 12),
-	       &rcba->d23_ir);
-	writew(PIRQD, &rcba->core_ir);
-	writew(PIRQE | (PIRQF << 4) | (PIRQG << 8) | (PIRQH << 12),
-	       &rcba->d20d21_ir);
+	return pci_mmc_init("Quark SDHCI", mmc_supported);
 }
 
 int arch_misc_init(void)
@@ -375,7 +338,7 @@ int arch_misc_init(void)
 	mrccache_save();
 #endif
 
-	return pirq_init();
+	return 0;
 }
 
 void board_final_cleanup(void)

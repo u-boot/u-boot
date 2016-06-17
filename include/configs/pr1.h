@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for PR1 Appliance
+ * U-Boot - Configuration file for PR1 Appliance
  *
  * based on bf537-stamp.h
  * Copyright (c) Switchfin Org. <dpn@switchfin.org>

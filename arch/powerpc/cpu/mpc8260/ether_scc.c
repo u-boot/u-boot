@@ -355,7 +355,7 @@ int mpc82xx_scc_enet_initialize(bd_t *bis)
 	dev = (struct eth_device *) malloc(sizeof *dev);
 	memset(dev, 0, sizeof *dev);
 
-	sprintf(dev->name, "SCC");
+	strcpy(dev->name, "SCC");
 	dev->init   = sec_init;
 	dev->halt   = sec_halt;
 	dev->send   = sec_send;

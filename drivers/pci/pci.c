@@ -9,7 +9,10 @@
  */
 
 /*
- * PCI routines
+ * Old PCI routines
+ *
+ * Do not change this file. Instead, convert your board to use CONFIG_DM_PCI
+ * and change pci-uclass.c.
  */
 
 #include <common.h>

@@ -102,12 +102,14 @@ struct qbman_swp *qbman_swp_init(const struct qbman_swp_desc *d)
 void *qbman_swp_mc_start(struct qbman_swp *p)
 {
 	void *ret;
+	int *return_val;
 #ifdef QBMAN_CHECKING
 	BUG_ON(p->mc.check != swp_mc_can_start);
 #endif
 	ret = qbman_cena_write_start(&p->sys, QBMAN_CENA_SWP_CR);
 #ifdef QBMAN_CHECKING
-	if (!ret)
+	return_val = (int *)ret;
+	if (!(*return_val))
 		p->mc.check = swp_mc_can_submit;
 #endif
 	return ret;

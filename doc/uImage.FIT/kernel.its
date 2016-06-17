@@ -1,5 +1,5 @@
 /*
- * Simple U-boot uImage source file containing a single kernel
+ * Simple U-Boot uImage source file containing a single kernel
  */
 
 /dts-v1/;
