@@ -1020,8 +1020,6 @@ Features not supported so far (to make it a complete ACPI solution):
  * S3 (Suspend to RAM), S4 (Suspend to Disk).
 
 Features that are optional:
- * ACPI global NVS support. We may need it to simplify ASL code logic if
-   utilizing NVS variables. Most likely we will need this sooner or later.
  * Dynamic AML bytecodes insertion at run-time. We may need this to support
    SSDT table generation and DSDT fix up.
  * SMI support. Since U-Boot is a modern bootloader, we don't want to bring
