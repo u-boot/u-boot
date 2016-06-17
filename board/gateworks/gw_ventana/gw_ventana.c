@@ -995,6 +995,32 @@ int fdt_fixup_gw16082(void *blob, int np, struct pci_dev *dev)
 	return 0;
 }
 
+/* The sky2 GigE MAC obtains it's MAC addr from device-tree by default */
+int fdt_fixup_sky2(void *blob, int np, struct pci_dev *dev)
+{
+	char *tmp, *end;
+	char mac[16];
+	unsigned char mac_addr[6];
+	int j;
+
+	sprintf(mac, "eth1addr");
+	tmp = getenv(mac);
+	if (tmp) {
+		for (j = 0; j < 6; j++) {
+			mac_addr[j] = tmp ?
+				      simple_strtoul(tmp, &end,16) : 0;
+			if (tmp)
+				tmp = (*end) ? end+1 : end;
+		}
+		fdt_setprop(blob, np, "local-mac-address", mac_addr,
+			    sizeof(mac_addr));
+		printf("   Added mac addr for eth1\n");
+		return 0;
+	}
+
+	return -1;
+}
+
 /*
  * PCI DT nodes must be nested therefore if we need to apply a DT fixup
  * we will walk the PCI bus and add bridge nodes up to the device receiving
@@ -1020,6 +1046,15 @@ void ft_board_pci_fixup(void *blob, bd_t *bd)
 			np = fdt_add_pci_path(blob, dev);
 			if (np > 0)
 				fdt_fixup_gw16082(blob, np, dev);
+		}
+
+		/* ethernet1 mac address */
+		else if ((dev->vendor == PCI_VENDOR_ID_MARVELL) &&
+		         (dev->device == 0x4380))
+		{
+			np = fdt_add_pci_path(blob, dev);
+			if (np > 0)
+				fdt_fixup_sky2(blob, np, dev);
 		}
 	}
 }
