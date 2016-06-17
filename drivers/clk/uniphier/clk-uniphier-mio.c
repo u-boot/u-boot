@@ -4,7 +4,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <clk.h>
 #include <dm/device.h>
 
 #include "clk-uniphier.h"

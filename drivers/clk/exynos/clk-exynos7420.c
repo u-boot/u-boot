@@ -9,7 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <clk.h>
+#include <clk-uclass.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/exynos7420-clk.h>
 #include "clk-pll.h"
@@ -67,11 +67,11 @@ struct exynos7420_clk_top0_priv {
 	unsigned long sclk_uart2;
 };
 
-static ulong exynos7420_topc_get_periph_rate(struct udevice *dev, int periph)
+static ulong exynos7420_topc_get_rate(struct clk *clk)
 {
-	struct exynos7420_clk_topc_priv *priv = dev_get_priv(dev);
+	struct exynos7420_clk_topc_priv *priv = dev_get_priv(clk->dev);
 
-	switch (periph) {
+	switch (clk->id) {
 	case DOUT_SCLK_BUS0_PLL:
 	case SCLK_BUS0_PLL_A:
 	case SCLK_BUS0_PLL_B:
@@ -86,14 +86,14 @@ static ulong exynos7420_topc_get_periph_rate(struct udevice *dev, int periph)
 }
 
 static struct clk_ops exynos7420_clk_topc_ops = {
-	.get_periph_rate	= exynos7420_topc_get_periph_rate,
+	.get_rate	= exynos7420_topc_get_rate,
 };
 
 static int exynos7420_clk_topc_probe(struct udevice *dev)
 {
 	struct exynos7420_clk_topc_priv *priv = dev_get_priv(dev);
 	struct exynos7420_clk_cmu_topc *topc;
-	struct udevice *clk_dev;
+	struct clk in_clk;
 	unsigned long rate;
 	fdt_addr_t base;
 	int ret;
@@ -105,9 +105,9 @@ static int exynos7420_clk_topc_probe(struct udevice *dev)
 	topc = (struct exynos7420_clk_cmu_topc *)base;
 	priv->topc = topc;
 
-	ret = clk_get_by_index(dev, 0, &clk_dev);
+	ret = clk_get_by_index(dev, 0, &in_clk);
 	if (ret >= 0)
-		priv->fin_freq = clk_get_rate(clk_dev);
+		priv->fin_freq = clk_get_rate(&in_clk);
 
 	rate = pll145x_get_rate(&topc->bus0_pll_con[0], priv->fin_freq);
 	if (readl(&topc->mux_sel[1]) & (1 << 16))
@@ -122,12 +122,12 @@ static int exynos7420_clk_topc_probe(struct udevice *dev)
 	return 0;
 }
 
-static ulong exynos7420_top0_get_periph_rate(struct udevice *dev, int periph)
+static ulong exynos7420_top0_get_rate(struct clk *clk)
 {
-	struct exynos7420_clk_top0_priv *priv = dev_get_priv(dev);
+	struct exynos7420_clk_top0_priv *priv = dev_get_priv(clk->dev);
 	struct exynos7420_clk_cmu_top0 *top0 = priv->top0;
 
-	switch (periph) {
+	switch (clk->id) {
 	case CLK_SCLK_UART2:
 		return priv->mout_top0_bus0_pll_half /
 			DIVIDER(&top0->div_peric[3], 8, 0xf);
@@ -137,14 +137,14 @@ static ulong exynos7420_top0_get_periph_rate(struct udevice *dev, int periph)
 }
 
 static struct clk_ops exynos7420_clk_top0_ops = {
-	.get_periph_rate	= exynos7420_top0_get_periph_rate,
+	.get_rate	= exynos7420_top0_get_rate,
 };
 
 static int exynos7420_clk_top0_probe(struct udevice *dev)
 {
 	struct exynos7420_clk_top0_priv *priv;
 	struct exynos7420_clk_cmu_top0 *top0;
-	struct udevice *clk_dev;
+	struct clk in_clk;
 	fdt_addr_t base;
 	int ret;
 
@@ -159,10 +159,10 @@ static int exynos7420_clk_top0_probe(struct udevice *dev)
 	top0 = (struct exynos7420_clk_cmu_top0 *)base;
 	priv->top0 = top0;
 
-	ret = clk_get_by_index(dev, 1, &clk_dev);
+	ret = clk_get_by_index(dev, 1, &in_clk);
 	if (ret >= 0) {
 		priv->mout_top0_bus0_pll_half =
-			clk_get_periph_rate(clk_dev, ret);
+			clk_get_rate(&in_clk);
 		if (readl(&top0->mux_sel[1]) & (1 << 16))
 			priv->mout_top0_bus0_pll_half >>= 1;
 	}
@@ -170,18 +170,18 @@ static int exynos7420_clk_top0_probe(struct udevice *dev)
 	return 0;
 }
 
-static ulong exynos7420_peric1_get_periph_rate(struct udevice *dev, int periph)
+static ulong exynos7420_peric1_get_rate(struct clk *clk)
 {
-	struct udevice *clk_dev;
+	struct clk in_clk;
 	unsigned int ret;
 	unsigned long freq = 0;
 
-	switch (periph) {
+	switch (clk->id) {
 	case SCLK_UART2:
-		ret = clk_get_by_index(dev, 3, &clk_dev);
+		ret = clk_get_by_index(clk->dev, 3, &in_clk);
 		if (ret < 0)
 			return ret;
-		freq = clk_get_periph_rate(clk_dev, ret);
+		freq = clk_get_rate(&in_clk);
 		break;
 	}
 
@@ -189,7 +189,7 @@ static ulong exynos7420_peric1_get_periph_rate(struct udevice *dev, int periph)
 }
 
 static struct clk_ops exynos7420_clk_peric1_ops = {
-	.get_periph_rate	= exynos7420_peric1_get_periph_rate,
+	.get_rate	= exynos7420_peric1_get_rate,
 };
 
 static const struct udevice_id exynos7420_clk_topc_compat[] = {
