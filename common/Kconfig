@@ -108,6 +108,54 @@ config NOR_BOOT
 	  as the ROM only partially sets up pinmux.  We also default to using
 	  NOR for environment.
 
+config NAND_BOOT
+	bool "Support for booting from NAND flash"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via NAND flash. This is not a must, some SoCs need this,
+	  somes not.
+
+config ONENAND_BOOT
+	bool "Support for booting from ONENAND"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via ONENAND. This is not a must, some SoCs need this,
+	  somes not.
+
+config QSPI_BOOT
+	bool "Support for booting from QSPI flash"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via QSPI flash. This is not a must, some SoCs need this,
+	  somes not.
+
+config SATA_BOOT
+	bool "Support for booting from SATA"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SATA. This is not a must, some SoCs need this,
+	  somes not.
+
+config SD_BOOT
+	bool "Support for booting from SD/EMMC"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SD/EMMC. This is not a must, some SoCs need this,
+	  somes not.
+
+config SPI_BOOT
+	bool "Support for booting from SPI flash"
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SPI flash. This is not a must, some SoCs need this,
+	  somes not.
+
 endmenu
 
 config BOOTDELAY
