@@ -491,14 +491,54 @@ int imx6_pcie_toggle_reset(void)
  * GPIO's as PERST# signals for its downstream ports - configure the GPIO's
  * properly and assert reset for 100ms.
  */
+#define MAX_PCI_DEVS	32
+struct pci_dev {
+	pci_dev_t devfn;
+	unsigned short vendor;
+	unsigned short device;
+	unsigned short class;
+	unsigned short busno; /* subbordinate busno */
+	struct pci_dev *ppar;
+};
+struct pci_dev pci_devs[MAX_PCI_DEVS];
+int pci_devno;
+int pci_bridgeno;
+
 void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
 			 unsigned short vendor, unsigned short device,
 			 unsigned short class)
 {
+	int i;
 	u32 dw;
+	struct pci_dev *pdev = &pci_devs[pci_devno++];
 
 	debug("%s: %02d:%02d.%02d: %04x:%04x\n", __func__,
 	      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), vendor, device);
+
+	/* store array of devs for later use in device-tree fixup */
+	pdev->devfn = dev;
+	pdev->vendor = vendor;
+	pdev->device = device;
+	pdev->class = class;
+	pdev->ppar = NULL;
+	if (class == PCI_CLASS_BRIDGE_PCI)
+		pdev->busno = ++pci_bridgeno;
+	else
+		pdev->busno = 0;
+
+	/* fixup RC - it should be 00:00.0 not 00:01.0 */
+	if (PCI_BUS(dev) == 0)
+		pdev->devfn = 0;
+
+	/* find dev's parent */
+	for (i = 0; i < pci_devno; i++) {
+		if (pci_devs[i].busno == PCI_BUS(pdev->devfn)) {
+			pdev->ppar = &pci_devs[i];
+			break;
+		}
+	}
+
+	/* assert downstream PERST# */
 	if (vendor == PCI_VENDOR_ID_PLX &&
 	    (device & 0xfff0) == 0x8600 &&
 	    PCI_DEV(dev) == 0 && PCI_FUNC(dev) == 0) {
@@ -802,6 +842,189 @@ static inline void ft_delprop_path(void *blob, const char *path,
 	}
 }
 
+#if defined(CONFIG_CMD_PCI)
+#define PCI_ID(x) ( \
+	(PCI_BUS(x->devfn)<<16)| \
+	(PCI_DEV(x->devfn)<<11)| \
+	(PCI_FUNC(x->devfn)<<8) \
+	)
+#define PCIE_PATH	"/soc/pcie@0x01000000"
+int fdt_add_pci_node(void *blob, int par, struct pci_dev *dev)
+{
+	uint32_t reg[5];
+	char node[32];
+	int np;
+
+	sprintf(node, "pcie@%d,%d,%d", PCI_BUS(dev->devfn),
+		PCI_DEV(dev->devfn), PCI_FUNC(dev->devfn));
+
+	np = fdt_subnode_offset(blob, par, node);
+	if (np >= 0)
+		return np;
+	np = fdt_add_subnode(blob, par, node);
+	if (np < 0) {
+		printf("   %s failed: no space\n", __func__);
+		return np;
+	}
+
+	memset(reg, 0, sizeof(reg));
+	reg[0] = cpu_to_fdt32(PCI_ID(dev));
+	fdt_setprop(blob, np, "reg", reg, sizeof(reg));
+
+	return np;
+}
+
+/* build a path of nested PCI devs for all bridges passed through */
+int fdt_add_pci_path(void *blob, struct pci_dev *dev)
+{
+	struct pci_dev *bridges[MAX_PCI_DEVS];
+	int k, np;
+
+	/* build list of parents */
+	np = fdt_path_offset(blob, PCIE_PATH);
+	if (np < 0)
+		return np;
+
+	k = 0;
+	while (dev) {
+		bridges[k++] = dev;
+		dev = dev->ppar;
+	};
+
+	/* now add them the to DT in reverse order */
+	while (k--) {
+		np = fdt_add_pci_node(blob, np, bridges[k]);
+		if (np < 0)
+			break;
+	}
+
+	return np;
+}
+
+/*
+ * The GW16082 has a hardware errata errata such that it's
+ * INTA/B/C/D are mis-mapped to its four slots (slot12-15). Because
+ * of this normal PCI interrupt swizzling will not work so we will
+ * provide an irq-map via device-tree.
+ */
+int fdt_fixup_gw16082(void *blob, int np, struct pci_dev *dev)
+{
+	int len;
+	int host;
+	uint32_t imap_new[8*4*4];
+	const uint32_t *imap;
+	uint32_t irq[4];
+	uint32_t reg[4];
+	int i;
+
+	/* build irq-map based on host controllers map */
+	host = fdt_path_offset(blob, PCIE_PATH);
+	if (host < 0) {
+		printf("   %s failed: missing host\n", __func__);
+		return host;
+	}
+
+	/* use interrupt data from root complex's node */
+	imap = fdt_getprop(blob, host, "interrupt-map", &len);
+	if (!imap || len != 128) {
+		printf("   %s failed: invalid interrupt-map\n",
+		       __func__);
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	/* obtain irq's of host controller in pin order */
+	for (i = 0; i < 4; i++)
+		irq[(fdt32_to_cpu(imap[(i*8)+3])-1)%4] = imap[(i*8)+6];
+
+	/*
+	 * determine number of swizzles necessary:
+	 *   For each bridge we pass through we need to swizzle
+	 *   the number of the slot we are on.
+	 */
+	struct pci_dev *d;
+	int b;
+	b = 0;
+	d = dev->ppar;
+	while(d && d->ppar) {
+		b += PCI_DEV(d->devfn);
+		d = d->ppar;
+	}
+
+	/* create new irq mappings for slots12-15
+	 * <skt> <idsel> <slot> <skt-inta> <skt-intb>
+	 * J3    AD28    12     INTD      INTA
+	 * J4    AD29    13     INTC      INTD
+	 * J5    AD30    14     INTB      INTC
+	 * J2    AD31    15     INTA      INTB
+	 */
+	for (i = 0; i < 4; i++) {
+		/* addr matches bus:dev:func */
+		u32 addr = dev->busno << 16 | (12+i) << 11;
+
+		/* default cells from root complex */
+		memcpy(&imap_new[i*32], imap, 128);
+		/* first cell is PCI device address (BDF) */
+		imap_new[(i*32)+(0*8)+0] = cpu_to_fdt32(addr);
+		imap_new[(i*32)+(1*8)+0] = cpu_to_fdt32(addr);
+		imap_new[(i*32)+(2*8)+0] = cpu_to_fdt32(addr);
+		imap_new[(i*32)+(3*8)+0] = cpu_to_fdt32(addr);
+		/* third cell is pin */
+		imap_new[(i*32)+(0*8)+3] = cpu_to_fdt32(1);
+		imap_new[(i*32)+(1*8)+3] = cpu_to_fdt32(2);
+		imap_new[(i*32)+(2*8)+3] = cpu_to_fdt32(3);
+		imap_new[(i*32)+(3*8)+3] = cpu_to_fdt32(4);
+		/* sixth cell is relative interrupt */
+		imap_new[(i*32)+(0*8)+6] = irq[(15-(12+i)+b+0)%4];
+		imap_new[(i*32)+(1*8)+6] = irq[(15-(12+i)+b+1)%4];
+		imap_new[(i*32)+(2*8)+6] = irq[(15-(12+i)+b+2)%4];
+		imap_new[(i*32)+(3*8)+6] = irq[(15-(12+i)+b+3)%4];
+	}
+	fdt_setprop(blob, np, "interrupt-map", imap_new,
+		    sizeof(imap_new));
+	reg[0] = cpu_to_fdt32(0xfff00);
+	reg[1] = 0;
+	reg[2] = 0;
+	reg[3] = cpu_to_fdt32(0x7);
+	fdt_setprop(blob, np, "interrupt-map-mask", reg, sizeof(reg));
+	fdt_setprop_cell(blob, np, "#interrupt-cells", 1);
+	fdt_setprop_string(blob, np, "device_type", "pci");
+	fdt_setprop_cell(blob, np, "#address-cells", 3);
+	fdt_setprop_cell(blob, np, "#size-cells", 2);
+	printf("   Added custom interrupt-map for GW16082\n");
+
+	return 0;
+}
+
+/*
+ * PCI DT nodes must be nested therefore if we need to apply a DT fixup
+ * we will walk the PCI bus and add bridge nodes up to the device receiving
+ * the fixup.
+ */
+void ft_board_pci_fixup(void *blob, bd_t *bd)
+{
+	int i, np;
+	struct pci_dev *dev;
+
+	for (i = 0; i < pci_devno; i++) {
+		dev = &pci_devs[i];
+
+		/*
+		 * The GW16082 consists of a TI XIO2001 PCIe-to-PCI bridge and
+		 * an EEPROM at i2c1-0x50.
+		 */
+		if ((dev->vendor == PCI_VENDOR_ID_TI) &&
+		    (dev->device == 0x8240) &&
+		    (i2c_set_bus_num(1) == 0) &&
+		    (i2c_probe(0x50) == 0))
+		{
+			np = fdt_add_pci_path(blob, dev);
+			if (np > 0)
+				fdt_fixup_gw16082(blob, np, dev);
+		}
+	}
+}
+#endif /* if defined(CONFIG_CMD_PCI) */
+
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command
  *
@@ -975,6 +1198,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 		ft_delprop_path(blob, "/soc/aips-bus@02100000/usdhc@02198000",
 				"no-1-8-v");
 	}
+
+#if defined(CONFIG_CMD_PCI)
+	if (!getenv("nopcifixup"))
+		ft_board_pci_fixup(blob, bd);
+#endif
 
 	/*
 	 * Peripheral Config:
