@@ -577,7 +577,6 @@ config AM43XX
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
-	select CPU_V7
 	select DM
 	select DM_SERIAL
 
