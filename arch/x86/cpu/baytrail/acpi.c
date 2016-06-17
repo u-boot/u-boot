@@ -5,10 +5,14 @@
  */
 
 #include <common.h>
+#include <cpu.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
 #include <asm/acpi_table.h>
 #include <asm/ioapic.h>
 #include <asm/mpspec.h>
 #include <asm/tables.h>
+#include <asm/arch/global_nvs.h>
 #include <asm/arch/iomap.h>
 
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
@@ -160,4 +164,26 @@ u32 acpi_fill_madt(u32 current)
 	current += acpi_create_madt_irq_overrides(current);
 
 	return current;
+}
+
+void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
+{
+	struct udevice *dev;
+	int ret;
+
+	/* at least we have one processor */
+	gnvs->pcnt = 1;
+	/* override the processor count with actual number */
+	ret = uclass_find_first_device(UCLASS_CPU, &dev);
+	if (ret == 0 && dev != NULL) {
+		ret = cpu_get_count(dev);
+		if (ret > 0)
+			gnvs->pcnt = ret;
+	}
+
+	/* determine whether internal uart is on */
+	if (IS_ENABLED(CONFIG_INTERNAL_UART))
+		gnvs->iuart_en = 1;
+	else
+		gnvs->iuart_en = 0;
 }
