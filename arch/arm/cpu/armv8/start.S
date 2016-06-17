@@ -258,12 +258,10 @@ ENDPROC(lowlevel_init)
 
 WEAK(smp_kick_all_cpus)
 	/* Kick secondary cpus up by SGI 0 interrupt */
-	mov	x29, lr			/* Save LR */
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	ldr	x0, =GICD_BASE
-	bl	gic_kick_secondary_cpus
+	b	gic_kick_secondary_cpus
 #endif
-	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(smp_kick_all_cpus)
 
