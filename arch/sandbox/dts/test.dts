@@ -259,6 +259,17 @@
 		compatible = "sandbox,reset";
 	};
 
+	resetc: reset-ctl {
+		compatible = "sandbox,reset-ctl";
+		#reset-cells = <1>;
+	};
+
+	reset-ctl-test {
+		compatible = "sandbox,reset-ctl-test";
+		resets = <&resetc 100>, <&resetc 2>;
+		reset-names = "other", "test";
+	};
+
 	rproc_1: rproc@1 {
 		compatible = "sandbox,test-processor";
 		remoteproc-name = "remoteproc-test-dev1";

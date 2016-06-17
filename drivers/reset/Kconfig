@@ -12,4 +12,12 @@ config DM_RESET
 	  although driving such reset isgnals using GPIOs may be more
 	  appropriate in this case.
 
+config SANDBOX_RESET
+	bool "Enable the sandbox reset test driver"
+	depends on DM_MAILBOX && SANDBOX
+	help
+	  Enable support for a test reset controller implementation, which
+	  simply accepts requests to reset various HW modules without actually
+	  doing anything beyond a little error checking.
+
 endmenu
