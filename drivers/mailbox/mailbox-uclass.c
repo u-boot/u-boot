@@ -7,8 +7,8 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <mailbox_client.h>
-#include <mailbox_uclass.h>
+#include <mailbox.h>
+#include <mailbox-uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

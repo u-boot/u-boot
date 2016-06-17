@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-2.0
  */
 
-#ifndef _MAILBOX_CLIENT_H
-#define _MAILBOX_CLIENT_H
+#ifndef _MAILBOX_H
+#define _MAILBOX_H
 
 /**
  * A mailbox is a hardware mechanism for transferring small fixed-size messages
@@ -26,7 +26,7 @@
  *
  * A driver that implements UCLASS_MAILBOX is a mailbox provider. A provider
  * will often implement multiple separate mailbox channels, since the hardware
- * it manages often has this capability. mailbox_uclass.h describes the
+ * it manages often has this capability. mailbox-uclass.h describes the
  * interface which mailbox providers must implement.
  *
  * Mailbox consumers/clients generate and send, or receive and process,
