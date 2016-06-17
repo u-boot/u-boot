@@ -15,6 +15,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <dm.h>
 
 #include "ehci.h"
 
@@ -307,21 +308,10 @@ int __weak board_ehci_power(int port, int on)
 	return 0;
 }
 
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_mx6_common_init(struct usb_ehci *ehci, int index)
 {
-	enum usb_init_type type;
-#if defined(CONFIG_MX6)
-	u32 controller_spacing = 0x200;
-#elif defined(CONFIG_MX7)
-	u32 controller_spacing = 0x10000;
-#endif
-	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
-		(controller_spacing * index));
 	int ret;
 
-	if (index > 3)
-		return -EINVAL;
 	enable_usboh3_clk(1);
 	mdelay(1);
 
@@ -337,11 +327,38 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	usb_internal_phy_clock_gate(index, 1);
 	usb_phy_enable(index, ehci);
 #endif
+
+	return 0;
+}
+
+#ifndef CONFIG_DM_USB
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
+	enum usb_init_type type;
+#if defined(CONFIG_MX6)
+	u32 controller_spacing = 0x200;
+#elif defined(CONFIG_MX7)
+	u32 controller_spacing = 0x10000;
+#endif
+	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
+		(controller_spacing * index));
+	int ret;
+
+	if (index > 3)
+		return -EINVAL;
+
+	ret = ehci_mx6_common_init(ehci, index);
+	if (ret)
+		return ret;
+
 	type = board_usb_phy_mode(index);
 
-	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
-			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+	if (hccr && hcor) {
+		*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
+		*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
+				HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+	}
 
 	if ((type == init) || (type == USB_INIT_DEVICE))
 		board_ehci_power(index, (type == USB_INIT_DEVICE) ? 0 : 1);
@@ -363,3 +380,102 @@ int ehci_hcd_stop(int index)
 {
 	return 0;
 }
+#else
+struct ehci_mx6_priv_data {
+	struct ehci_ctrl ctrl;
+	struct usb_ehci *ehci;
+	enum usb_init_type init_type;
+	int portnr;
+};
+
+static int mx6_init_after_reset(struct ehci_ctrl *dev)
+{
+	struct ehci_mx6_priv_data *priv = dev->priv;
+	enum usb_init_type type = priv->init_type;
+	struct usb_ehci *ehci = priv->ehci;
+	int ret;
+
+	ret = ehci_mx6_common_init(priv->ehci, priv->portnr);
+	if (ret)
+		return ret;
+
+	board_ehci_power(priv->portnr, (type == USB_INIT_DEVICE) ? 0 : 1);
+
+	if (type == USB_INIT_DEVICE)
+		return 0;
+
+	setbits_le32(&ehci->usbmode, CM_HOST);
+	writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
+	setbits_le32(&ehci->portsc, USB_EN);
+
+	mdelay(10);
+
+	return 0;
+}
+
+static const struct ehci_ops mx6_ehci_ops = {
+	.init_after_reset = mx6_init_after_reset
+};
+
+static int ehci_usb_probe(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_ehci *ehci = (struct usb_ehci *)dev_get_addr(dev);
+	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
+	int ret;
+
+	priv->ehci = ehci;
+	priv->portnr = dev->seq;
+	priv->init_type = plat->init_type;
+
+	ret = ehci_mx6_common_init(ehci, priv->portnr);
+	if (ret)
+		return ret;
+
+	board_ehci_power(priv->portnr, (priv->init_type == USB_INIT_DEVICE) ? 0 : 1);
+
+	if (priv->init_type == USB_INIT_HOST) {
+		setbits_le32(&ehci->usbmode, CM_HOST);
+		writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
+		setbits_le32(&ehci->portsc, USB_EN);
+	}
+
+	mdelay(10);
+
+	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
+	hcor = (struct ehci_hcor *)((uint32_t)hccr +
+			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
+
+	return ehci_register(dev, hccr, hcor, &mx6_ehci_ops, 0, priv->init_type);
+}
+
+static int ehci_usb_remove(struct udevice *dev)
+{
+	int ret;
+
+	ret = ehci_deregister(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct udevice_id mx6_usb_ids[] = {
+	{ .compatible = "fsl,imx27-usb" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_mx6) = {
+	.name	= "ehci_mx6",
+	.id	= UCLASS_USB,
+	.of_match = mx6_usb_ids,
+	.probe	= ehci_usb_probe,
+	.remove = ehci_usb_remove,
+	.ops	= &ehci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct ehci_mx6_priv_data),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif
