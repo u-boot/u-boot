@@ -827,6 +827,7 @@ config ARCH_UNIPHIER
 	select SPL
 	select OF_CONTROL
 	select SPL_OF_CONTROL
+	select OF_LIBFDT
 	select DM
 	select SPL_DM
 	select DM_GPIO
