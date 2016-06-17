@@ -274,6 +274,7 @@
 	"dio0:mode=gpio;dio1:mode=gpio;dio2:mode=gpio;dio3:mode=gpio\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
+	"pcidisable=1\0" \
 	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"bootdevs=usb mmc sata flash\0" \
