@@ -70,7 +70,6 @@ Serial console configuration
 /*-----------------------------------------------------------------------------
 Autobooting
 -----------------------------------------------------------------------------*/
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow stopping of boot process */
 					/* even with bootdelay=0 */
 #undef	CONFIG_BOOTARGS

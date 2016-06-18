@@ -140,6 +140,7 @@ static inline int soc_is_qca956x(void)
 	return soc_is_tp9343() || soc_is_qca9561();
 }
 
+u32 ath79_get_bootstrap(void);
 int ath79_eth_reset(void);
 int ath79_usb_reset(void);
 

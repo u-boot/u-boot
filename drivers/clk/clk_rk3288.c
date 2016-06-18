@@ -326,6 +326,17 @@ static int pll_para_config(ulong freq_hz, struct pll_div *div, uint *ext_div)
 	return 0;
 }
 
+static int rockchip_mac_set_clk(struct rk3288_cru *cru,
+				  int periph, uint freq)
+{
+	/* Assuming mac_clk is fed by an external clock */
+	rk_clrsetreg(&cru->cru_clksel_con[21],
+		     RMII_EXTCLK_MASK << RMII_EXTCLK_SHIFT,
+		     RMII_EXTCLK_SELECT_EXT_CLK << RMII_EXTCLK_SHIFT);
+
+	 return 0;
+}
+
 static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
 				int periph, unsigned int rate_hz)
 {
@@ -759,6 +770,9 @@ static ulong rk3288_set_periph_rate(struct udevice *dev, int periph, ulong rate)
 		new_rate = rockchip_spi_set_clk(cru, gclk_rate, periph, rate);
 		break;
 #ifndef CONFIG_SPL_BUILD
+	case SCLK_MAC:
+		new_rate = rockchip_mac_set_clk(priv->cru, periph, rate);
+		break;
 	case DCLK_VOP0:
 	case DCLK_VOP1:
 		new_rate = rockchip_vop_set_clk(cru, priv->grf, periph, rate);
@@ -877,7 +891,7 @@ static int rk3288_clk_bind(struct udevice *dev)
 	}
 
 	/* The reset driver does not have a device node, so bind it here */
-	ret = device_bind_driver(gd->dm_root, "rk3288_reset", "reset", &dev);
+	ret = device_bind_driver(gd->dm_root, "rk3288_sysreset", "reset", &dev);
 	if (ret)
 		debug("Warning: No RK3288 reset driver: ret=%d\n", ret);
 

@@ -134,7 +134,9 @@ struct mmc_host {
 	int id;			/* device id/number, 0-3 */
 	int enabled;		/* 1 to enable, 0 to disable */
 	int width;		/* Bus Width, 1, 4 or 8 */
+#ifndef CONFIG_TEGRA186
 	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
+#endif
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
 	struct gpio_desc pwr_gpio;	/* Power GPIO */
 	struct gpio_desc wp_gpio;	/* Write Protect GPIO */

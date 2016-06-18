@@ -60,6 +60,16 @@ _start:
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
+#ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
+/*
+ * Various SoCs need something special and SoC-specific up front in
+ * order to boot, allow them to set that in their boot0.h file and then
+ * use it here.
+ */
+#include <asm/arch/boot0.h>
+ARM_SOC_BOOT0_HOOK
+#endif
+
 /*
  *************************************************************************
  *

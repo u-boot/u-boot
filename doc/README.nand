@@ -136,15 +136,8 @@ Configuration Options:
       Example of new init to be added to the end of an existing driver
       init:
 
-	/*
-	 * devnum is the device number to be used in nand commands
-	 * and in mtd->name.  Must be less than
-	 * CONFIG_SYS_NAND_MAX_DEVICE.
-	 */
-	mtd = &nand_info[devnum];
-
 	/* chip is struct nand_chip, and is now provided by the driver. */
-	mtd->priv = &chip;
+	mtd = &chip.mtd;
 
 	/*
 	 * Fill in appropriate values if this driver uses these fields,
@@ -165,7 +158,11 @@ Configuration Options:
 	if (nand_scan_tail(mtd))
 		error out
 
-	if (nand_register(devnum))
+	/*
+	 * devnum is the device number to be used in nand commands
+	 * and in mtd->name.  Must be less than CONFIG_SYS_NAND_MAX_DEVICE.
+	 */
+	if (nand_register(devnum, mtd))
 		error out
 
       In addition to providing more flexibility to the driver, it reduces

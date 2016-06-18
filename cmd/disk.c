@@ -13,7 +13,8 @@
 int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 		    char *const argv[])
 {
-	int dev, part;
+	__maybe_unused int dev;
+	int part;
 	ulong addr = CONFIG_SYS_LOAD_ADDR;
 	ulong cnt;
 	disk_partition_t info;

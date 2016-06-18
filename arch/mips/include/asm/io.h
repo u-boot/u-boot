@@ -92,11 +92,8 @@ static inline unsigned long virt_to_phys(volatile const void *address)
 #ifdef CONFIG_64BIT
 	if (addr < CKSEG0)
 		return XPHYSADDR(addr);
-
-	return CPHYSADDR(addr);
-#else
-	return addr - PAGE_OFFSET + PHYS_OFFSET;
 #endif
+	return CPHYSADDR(addr);
 }
 
 /*

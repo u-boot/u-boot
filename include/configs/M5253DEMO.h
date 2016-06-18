@@ -17,7 +17,6 @@
 
 #undef CONFIG_WATCHDOG		/* disable watchdog */
 
-#define CONFIG_BOOTDELAY	5
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash

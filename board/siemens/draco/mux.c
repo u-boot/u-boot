@@ -51,6 +51,7 @@ static struct module_pin_mux nand_pin_mux[] = {
 	{OFFSET(gpmc_wait0), (MODE(0) | RXACTIVE | PULLUP_EN)}, /* NAND WAIT */
 	{OFFSET(gpmc_wpn), (MODE(7) | PULLUP_EN | RXACTIVE)},	/* NAND_WPN */
 	{OFFSET(gpmc_csn0), (MODE(0) | PULLUDEN)},	/* NAND_CS0 */
+	{OFFSET(gpmc_csn1), MODE(0) | PULLUDEN | PULLUP_EN},    /* NAND_CS1 */
 	{OFFSET(gpmc_advn_ale), (MODE(0) | PULLUDEN)}, /* NAND_ADV_ALE */
 	{OFFSET(gpmc_oen_ren), (MODE(0) | PULLUDEN)},	/* NAND_OE */
 	{OFFSET(gpmc_wen), (MODE(0) | PULLUDEN)},	/* NAND_WEN */
@@ -68,7 +69,6 @@ static struct module_pin_mux gpios_pin_mux[] = {
 	{OFFSET(mmc0_dat1), MODE(7) | PULLUDDIS | RXACTIVE},	/* Y3 GPIO2_28*/
 	{OFFSET(mmc0_dat2), MODE(7) | PULLUDDIS | RXACTIVE},	/* Y7 GPIO2_27*/
 	/* Triacs initial HW Rev */
-	{OFFSET(gpmc_csn1), MODE(7) | RXACTIVE | PULLUDDIS},	/* 1_30 Y0 */
 	{OFFSET(gpmc_be1n), MODE(7) | RXACTIVE | PULLUDDIS},	/* 1_28 Y1 */
 	{OFFSET(gpmc_csn2), MODE(7) | RXACTIVE | PULLUDDIS},	/* 1_31 Y2 */
 	{OFFSET(lcd_data15), MODE(7) | RXACTIVE | PULLUDDIS},	/* 0_11 Y3 */

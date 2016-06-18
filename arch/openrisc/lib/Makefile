@@ -5,6 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= board.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= timer.o

@@ -253,9 +253,9 @@
 			compatible = "arm,gic-400", "arm,cortex-a15-gic";
 			#interrupt-cells = <3>;
 			reg = <0x0 0xf9010000 0x10000>,
-			      <0x0 0xf902f000 0x2000>,
+			      <0x0 0xf9020000 0x20000>,
 			      <0x0 0xf9040000 0x20000>,
-			      <0x0 0xf906f000 0x2000>;
+			      <0x0 0xf9060000 0x20000>;
 			interrupt-controller;
 			interrupt-parent = <&gic>;
 			interrupts = <1 9 0xf04>;
@@ -264,6 +264,7 @@
 
 	amba: amba {
 		compatible = "simple-bus";
+		u-boot,dm-pre-reloc;
 		#address-cells = <2>;
 		#size-cells = <1>;
 		ranges = <0 0 0 0 0xffffffff>;
@@ -674,6 +675,7 @@
 		};
 
 		sdhci0: sdhci@ff160000 {
+			u-boot,dm-pre-reloc;
 			compatible = "arasan,sdhci-8.9a";
 			status = "disabled";
 			interrupt-parent = <&gic>;
@@ -685,6 +687,7 @@
 		};
 
 		sdhci1: sdhci@ff170000 {
+			u-boot,dm-pre-reloc;
 			compatible = "arasan,sdhci-8.9a";
 			status = "disabled";
 			interrupt-parent = <&gic>;
@@ -776,6 +779,7 @@
 		};
 
 		uart0: serial@ff000000 {
+			u-boot,dm-pre-reloc;
 			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
 			status = "disabled";
 			interrupt-parent = <&gic>;
@@ -786,6 +790,7 @@
 		};
 
 		uart1: serial@ff010000 {
+			u-boot,dm-pre-reloc;
 			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
 			status = "disabled";
 			interrupt-parent = <&gic>;

@@ -15,7 +15,7 @@
 
 #include "../init.h"
 #include "ddrphy-ld20-regs.h"
-#include "umc-ld20-regs.h"
+#include "umc64-regs.h"
 
 #define DRAM_CH_NR	3
 
@@ -200,9 +200,9 @@ static int umc_dc_init(void __iomem *dc_base, enum dram_freq freq,
 	writel(umc_dataset[freq], dc_base + UMC_DATASET);
 
 	writel(0x00400020, dc_base + UMC_DCCGCTL);
-	writel(0x00000003, dc_base + UMC_ACSCTLA);
+	writel(0x00000003, dc_base + UMC_ACSSETA);
 	writel(0x00000103, dc_base + UMC_FLOWCTLG);
-	writel(0x00010200, dc_base + UMC_ACSSETA);
+	writel(0x00010200, dc_base + UMC_ACSSETB);
 
 	writel(umc_flowctla[freq], dc_base + UMC_FLOWCTLA);
 	writel(0x00004444, dc_base + UMC_FLOWCTLC);

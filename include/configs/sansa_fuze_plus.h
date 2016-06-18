@@ -28,7 +28,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 "
 #define CONFIG_LOADADDR		0x42000000

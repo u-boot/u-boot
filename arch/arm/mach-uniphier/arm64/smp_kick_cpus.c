@@ -21,11 +21,11 @@ void uniphier_smp_kick_all_cpus(void)
 	rom_boot_rsv0 = map_sysmem(UNIPHIER_SMPCTRL_ROM_RSV0, SZ_8);
 
 	writeq((u64)uniphier_secondary_startup, rom_boot_rsv0);
-	readq(rom_boot_rsv0);	/* relax */
 
 	unmap_sysmem(rom_boot_rsv0);
 
 	uniphier_smp_setup();
 
-	asm("sev"); /* Bring up all secondary CPUs from Boot ROM into U-Boot */
+	asm("dsb	ishst\n" /* Ensure the write to ROM_RSV0 is visible */
+	    "sev"); /* Bring up all secondary CPUs from Boot ROM into U-Boot */
 }

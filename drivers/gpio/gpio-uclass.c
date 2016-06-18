@@ -367,6 +367,38 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 	return 0;
 }
 
+int dm_gpio_get_open_drain(struct gpio_desc *desc)
+{
+	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
+	int ret;
+
+	ret = check_reserved(desc, "get_open_drain");
+	if (ret)
+		return ret;
+
+	if (ops->set_open_drain)
+		return ops->get_open_drain(desc->dev, desc->offset);
+	else
+		return -ENOSYS;
+}
+
+int dm_gpio_set_open_drain(struct gpio_desc *desc, int value)
+{
+	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
+	int ret;
+
+	ret = check_reserved(desc, "set_open_drain");
+	if (ret)
+		return ret;
+
+	if (ops->set_open_drain)
+		ret = ops->set_open_drain(desc->dev, desc->offset, value);
+	else
+		return 0; /* feature not supported -> ignore setting */
+
+	return ret;
+}
+
 int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 {
 	struct udevice *dev = desc->dev;

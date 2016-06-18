@@ -106,7 +106,6 @@
  * Default environment
  * -----------------------------------------------------------------------------
  */
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \

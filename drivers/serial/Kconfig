@@ -121,6 +121,14 @@ config DEBUG_UART_S5P
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver-model serial is running.
 
+config DEBUG_UART_MESON
+	bool "Amlogic Meson"
+	depends on MESON_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_meson driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 config DEBUG_UART_UARTLITE
 	bool "Xilinx Uartlite"
 	help
@@ -336,6 +344,13 @@ config XILINX_UARTLITE
 	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || 4xx)
 	help
 	  If you have a Xilinx based board and want to use the uartlite
+	  serial ports, say Y to this option. If unsure, say N.
+
+config MESON_SERIAL
+	bool "Support for Amlogic Meson UART"
+	depends on DM_SERIAL && ARCH_MESON
+	help
+	  If you have an Amlogic Meson based board and want to use the on-chip
 	  serial ports, say Y to this option. If unsure, say N.
 
 config MSM_SERIAL

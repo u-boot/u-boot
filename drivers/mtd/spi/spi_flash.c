@@ -971,6 +971,43 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 }
 #endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
+#ifdef CONFIG_SPI_FLASH_SPANSION
+static int spansion_s25fss_disable_4KB_erase(struct spi_slave *spi)
+{
+	u8 cmd[4];
+	u32 offset = 0x800004; /* CR3V register offset */
+	u8 cr3v;
+	int ret;
+
+	cmd[0] = CMD_SPANSION_RDAR;
+	cmd[1] = offset >> 16;
+	cmd[2] = offset >> 8;
+	cmd[3] = offset >> 0;
+
+	ret = spi_flash_cmd_read(spi, cmd, 4, &cr3v, 1);
+	if (ret)
+		return -EIO;
+	/* CR3V bit3: 4-KB Erase */
+	if (cr3v & 0x8)
+		return 0;
+
+	cmd[0] = CMD_SPANSION_WRAR;
+	cr3v |= 0x8;
+	ret = spi_flash_cmd_write(spi, cmd, 4, &cr3v, 1);
+	if (ret)
+		return -EIO;
+
+	cmd[0] = CMD_SPANSION_RDAR;
+	ret = spi_flash_cmd_read(spi, cmd, 4, &cr3v, 1);
+	if (ret)
+		return -EIO;
+	if (!(cr3v & 0x8))
+		return -EFAULT;
+
+	return 0;
+}
+#endif
+
 int spi_flash_scan(struct spi_flash *flash)
 {
 	struct spi_slave *spi = flash->spi;
@@ -1021,6 +1058,42 @@ int spi_flash_scan(struct spi_flash *flash)
 		return -EPROTONOSUPPORT;
 	}
 
+#ifdef CONFIG_SPI_FLASH_SPANSION
+	/*
+	 * The S25FS-S family physical sectors may be configured as a
+	 * hybrid combination of eight 4-kB parameter sectors
+	 * at the top or bottom of the address space with all
+	 * but one of the remaining sectors being uniform size.
+	 * The Parameter Sector Erase commands (20h or 21h) must
+	 * be used to erase the 4-kB parameter sectors individually.
+	 * The Sector (uniform sector) Erase commands (D8h or DCh)
+	 * must be used to erase any of the remaining
+	 * sectors, including the portion of highest or lowest address
+	 * sector that is not overlaid by the parameter sectors.
+	 * The uniform sector erase command has no effect on parameter sectors.
+	 */
+	if ((jedec == 0x0219 || (jedec == 0x0220)) &&
+	    (ext_jedec & 0xff00) == 0x4d00) {
+		int ret;
+		u8 id[6];
+
+		/* Read the ID codes again, 6 bytes */
+		ret = spi_flash_cmd(flash->spi, CMD_READ_ID, id, sizeof(id));
+		if (ret)
+			return -EIO;
+
+		ret = memcmp(id, idcode, 5);
+		if (ret)
+			return -EIO;
+
+		/* 0x81: S25FS-S family 0x80: S25FL-S family */
+		if (id[5] == 0x81) {
+			ret = spansion_s25fss_disable_4KB_erase(spi);
+			if (ret)
+				return ret;
+		}
+	}
+#endif
 	/* Flash powers up read-only, so clear BP# bits */
 	if (idcode[0] == SPI_FLASH_CFI_MFR_ATMEL ||
 	    idcode[0] == SPI_FLASH_CFI_MFR_MACRONIX ||
@@ -1074,7 +1147,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	 * have 256b pages.
 	 */
 	if (ext_jedec == 0x4d00) {
-		if ((jedec == 0x0215) || (jedec == 0x216))
+		if ((jedec == 0x0215) || (jedec == 0x216) || (jedec == 0x220))
 			flash->page_size = 256;
 		else
 			flash->page_size = 512;

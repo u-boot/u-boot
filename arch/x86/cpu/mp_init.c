@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <qfw.h>
 #include <asm/atomic.h>
 #include <asm/cpu.h>
 #include <asm/interrupt.h>
@@ -21,7 +22,6 @@
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm/sipi.h>
-#include <asm/fw_cfg.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
@@ -408,8 +408,6 @@ static int init_bsp(struct udevice **devp)
 	cpu_get_name(processor_name);
 	debug("CPU: %s\n", processor_name);
 
-	lapic_setup();
-
 	apic_id = lapicid();
 	ret = find_cpu_by_apic_id(apic_id, devp);
 	if (ret) {
@@ -420,7 +418,7 @@ static int init_bsp(struct udevice **devp)
 	return 0;
 }
 
-#ifdef CONFIG_QEMU
+#ifdef CONFIG_QFW
 static int qemu_cpu_fixup(void)
 {
 	int ret;
@@ -496,7 +494,7 @@ int mp_init(struct mp_params *p)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_QEMU
+#ifdef CONFIG_QFW
 	ret = qemu_cpu_fixup();
 	if (ret)
 		return ret;

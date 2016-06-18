@@ -832,7 +832,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_rcw.cfg
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BOOTDELAY	10	/*-1 disables auto-boot*/
 
 #define CONFIG_BAUDRATE	115200
 

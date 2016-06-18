@@ -11,6 +11,11 @@ obj-$(CONFIG_ARCH_UNIPHIER_SLD8)	+= boot-mode-ld4.o
 obj-$(CONFIG_ARCH_UNIPHIER_PRO5)	+= boot-mode-pro5.o
 obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= boot-mode-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= boot-mode-pxs2.o
+obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= boot-mode-ld20.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= boot-mode-ld20.o
 
+ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_SPL_BOARD_LOAD_IMAGE)	+= spl_board.o
+else
 obj-$(CONFIG_CMD_PINMON) += cmd_pinmon.o
+endif

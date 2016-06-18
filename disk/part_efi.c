@@ -439,7 +439,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 			gpt_e[i].starting_lba = cpu_to_le64(offset);
 			offset += partitions[i].size;
 		}
-		if (offset >= last_usable_lba) {
+		if (offset > (last_usable_lba + 1)) {
 			printf("Partitions layout exceds disk size\n");
 			return -1;
 		}

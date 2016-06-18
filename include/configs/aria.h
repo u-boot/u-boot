@@ -510,7 +510,6 @@
 
 #define CONFIG_LOADADDR			400000	/* default load addr */
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE		115200

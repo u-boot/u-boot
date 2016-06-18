@@ -33,12 +33,6 @@ the features of each board in the device tree file, and have a single
 generic source base.
 
 To enable this feature, add CONFIG_OF_CONTROL to your board config file.
-It is currently supported on ARM, x86 and Microblaze - other architectures
-will need to add code to their arch/xxx/lib/board.c file to locate the
-FDT. Alternatively you can enable generic board support on your board
-(with CONFIG_SYS_GENERIC_BOARD) if this is available (as it is for
-PowerPC). For ARM, Tegra and Exynos5 have device trees available for
-common devices.
 
 
 What is a Flat Device Tree?

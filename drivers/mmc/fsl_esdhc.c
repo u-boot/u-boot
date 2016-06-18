@@ -308,14 +308,10 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 static void check_and_invalidate_dcache_range
 	(struct mmc_cmd *cmd,
 	 struct mmc_data *data) {
-#ifdef CONFIG_FSL_LAYERSCAPE
 	unsigned start = 0;
-#else
-	unsigned start = (unsigned)data->dest ;
-#endif
+	unsigned end = 0;
 	unsigned size = roundup(ARCH_DMA_MINALIGN,
 				data->blocks*data->blocksize);
-	unsigned end = start+size ;
 #ifdef CONFIG_FSL_LAYERSCAPE
 	dma_addr_t addr;
 
@@ -324,7 +320,10 @@ static void check_and_invalidate_dcache_range
 		printf("Error found for upper 32 bits\n");
 	else
 		start = lower_32_bits(addr);
+#else
+	start = (unsigned)data->dest;
 #endif
+	end = start + size;
 	invalidate_dcache_range(start, end);
 }
 

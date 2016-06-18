@@ -33,7 +33,7 @@ sdram_conf_t mb0cf[] = {
 sdram_conf_t mb0cf[] = CONFIG_SYS_SDRAM_TABLE;
 #endif
 
-#define N_MB0CF (sizeof(mb0cf) / sizeof(mb0cf[0]))
+#define N_MB0CF (ARRAY_SIZE(mb0cf))
 
 #ifdef CONFIG_SYS_SDRAM_CASL
 static ulong ns2clks(ulong ns)
@@ -266,7 +266,7 @@ sdram_conf_t mb0cf[] = CONFIG_SYS_SDRAM_TABLE;
 #define CONFIG_SYS_SDRAM0_CFG0		0x82000000 /* DCEN=1, PMUD=0, 64-bit */
 #endif
 
-#define N_MB0CF (sizeof(mb0cf) / sizeof(mb0cf[0]))
+#define N_MB0CF (ARRAY_SIZE(mb0cf))
 
 #define NUM_TRIES 64
 #define NUM_READS 10

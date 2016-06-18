@@ -225,6 +225,16 @@ int axp_set_fldo(int fldo_num, unsigned int mvolt)
 				AXP818_OUTPUT_CTRL3_FLDO1_EN << (fldo_num - 1));
 }
 
+int axp_set_sw(bool on)
+{
+	if (on)
+		return pmic_bus_setbits(AXP818_OUTPUT_CTRL2,
+					AXP818_OUTPUT_CTRL2_SW_EN);
+
+	return pmic_bus_clrbits(AXP818_OUTPUT_CTRL2,
+				AXP818_OUTPUT_CTRL2_SW_EN);
+}
+
 int axp_init(void)
 {
 	u8 axp_chip_id;
@@ -243,5 +253,16 @@ int axp_init(void)
 	else
 		return ret;
 
+	return 0;
+}
+
+int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	pmic_bus_write(AXP818_SHUTDOWN, AXP818_SHUTDOWN_POWEROFF);
+
+	/* infinite loop during shutdown */
+	while (1) {}
+
+	/* not reached */
 	return 0;
 }

@@ -12,7 +12,6 @@
 #include <pci_gt64120.h>
 #include <pci_msc01.h>
 #include <rtc.h>
-#include <serial.h>
 
 #include <asm/addrspace.h>
 #include <asm/io.h>
@@ -159,18 +158,6 @@ int misc_init_r(void)
 	rtc_reset();
 
 	return 0;
-}
-
-struct serial_device *default_serial_console(void)
-{
-	switch (malta_sys_con()) {
-	case SYSCON_GT64120:
-		return &eserial1_device;
-
-	default:
-	case SYSCON_MSC01:
-		return &eserial2_device;
-	}
 }
 
 void pci_init_board(void)

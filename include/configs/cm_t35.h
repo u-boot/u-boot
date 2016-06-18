@@ -145,7 +145,6 @@
 							/* devices */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

@@ -26,6 +26,7 @@
 #include <phy.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -965,6 +966,11 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
 
+#ifdef CONFIG_DM_ETH
+	if (slave->data->phy_of_handle)
+		phydev->dev->of_offset = slave->data->phy_of_handle;
+#endif
+
 	priv->phydev = phydev;
 	phy_config(phydev);
 
@@ -1137,6 +1143,11 @@ static const struct eth_ops cpsw_eth_ops = {
 	.stop		= cpsw_eth_stop,
 };
 
+static inline fdt_addr_t cpsw_get_addr_by_node(const void *fdt, int node)
+{
+	return fdtdec_get_addr_size_auto_noparent(fdt, node, "reg", 0, NULL);
+}
+
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
@@ -1146,9 +1157,8 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	int node = dev->of_offset;
 	int subnode;
 	int slave_index = 0;
-	uint32_t mac_hi, mac_lo;
-	fdt32_t gmii = 0;
 	int active_slave;
+	int ret;
 
 	pdata->iobase = dev_get_addr(dev);
 	priv->data.version = CPSW_CTRL_VERSION_2;
@@ -1202,29 +1212,52 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 
 		name = fdt_get_name(fdt, subnode, &len);
 		if (!strncmp(name, "mdio", 4)) {
-			priv->data.mdio_base = fdtdec_get_addr(fdt, subnode,
-							       "reg");
+			u32 mdio_base;
+
+			mdio_base = cpsw_get_addr_by_node(fdt, subnode);
+			if (mdio_base == FDT_ADDR_T_NONE) {
+				error("Not able to get MDIO address space\n");
+				return -ENOENT;
+			}
+			priv->data.mdio_base = mdio_base;
 		}
 
 		if (!strncmp(name, "slave", 5)) {
 			u32 phy_id[2];
 
-			if (slave_index >= priv->data.slaves) {
-				printf("error: num slaves and slave nodes did not match\n");
-				return -EINVAL;
-			}
+			if (slave_index >= priv->data.slaves)
+				continue;
 			phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
 			if (phy_mode)
 				priv->data.slave_data[slave_index].phy_if =
 					phy_get_interface_by_name(phy_mode);
-			fdtdec_get_int_array(fdt, subnode, "phy_id", phy_id, 2);
-			priv->data.slave_data[slave_index].phy_addr = phy_id[1];
+
+			priv->data.slave_data[slave_index].phy_of_handle =
+				fdtdec_lookup_phandle(fdt, subnode,
+						      "phy-handle");
+
+			if (priv->data.slave_data[slave_index].phy_of_handle >= 0) {
+				priv->data.slave_data[slave_index].phy_addr =
+						fdtdec_get_int(gd->fdt_blob,
+							       priv->data.slave_data[slave_index].phy_of_handle,
+							       "reg", -1);
+			} else {
+				fdtdec_get_int_array(fdt, subnode, "phy_id",
+						     phy_id, 2);
+				priv->data.slave_data[slave_index].phy_addr =
+						phy_id[1];
+			}
 			slave_index++;
 		}
 
 		if (!strncmp(name, "cpsw-phy-sel", 12)) {
-			priv->data.gmii_sel = fdtdec_get_addr(fdt, subnode,
-							      "reg");
+			priv->data.gmii_sel = cpsw_get_addr_by_node(fdt,
+								    subnode);
+
+			if (priv->data.gmii_sel == FDT_ADDR_T_NONE) {
+				error("Not able to get gmii_sel reg address\n");
+				return -ENOENT;
+			}
 		}
 	}
 
@@ -1236,20 +1269,11 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		priv->data.slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
 	}
 
-	subnode = fdtdec_lookup_phandle(fdt, node, "syscon");
-	priv->data.mac_id = fdt_translate_address((void *)fdt, subnode, &gmii);
-	priv->data.mac_id += AM335X_GMII_SEL_OFFSET;
-	priv->data.mac_id += active_slave * 8;
-
-	/* try reading mac address from efuse */
-	mac_lo = readl(priv->data.mac_id);
-	mac_hi = readl(priv->data.mac_id + 4);
-	pdata->enetaddr[0] = mac_hi & 0xFF;
-	pdata->enetaddr[1] = (mac_hi & 0xFF00) >> 8;
-	pdata->enetaddr[2] = (mac_hi & 0xFF0000) >> 16;
-	pdata->enetaddr[3] = (mac_hi & 0xFF000000) >> 24;
-	pdata->enetaddr[4] = mac_lo & 0xFF;
-	pdata->enetaddr[5] = (mac_lo & 0xFF00) >> 8;
+	ret = ti_cm_get_macid(dev, active_slave, pdata->enetaddr);
+	if (ret < 0) {
+		error("cpsw read efuse mac failed\n");
+		return ret;
+	}
 
 	pdata->phy_interface = priv->data.slave_data[active_slave].phy_if;
 	if (pdata->phy_interface == -1) {
@@ -1270,6 +1294,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		writel(RGMII_MODE_ENABLE, priv->data.gmii_sel);
 		break;
 	}
+
 	return 0;
 }
 

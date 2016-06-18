@@ -129,7 +129,12 @@ endif
 boot.bin: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 else
+ifdef CONFIG_ARCH_ZYNQ
 MKIMAGEFLAGS_boot.bin = -T zynqimage
+endif
+ifdef CONFIG_ARCH_ZYNQMP
+MKIMAGEFLAGS_boot.bin = -T zynqmpimage
+endif
 
 spl/boot.bin: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
@@ -153,9 +158,8 @@ ifeq ($(CONFIG_SYS_SOC),"at91")
 ALL-y	+= boot.bin
 endif
 
-ifdef CONFIG_ARCH_ZYNQ
-ALL-y	+= $(obj)/boot.bin
-endif
+ALL-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
+ALL-$(CONFIG_ARCH_ZYNQMP)	+= $(obj)/boot.bin
 
 all:	$(ALL-y)
 

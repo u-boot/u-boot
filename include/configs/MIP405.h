@@ -97,7 +97,6 @@
  * Environment definitions
  **************************************************************/
 #define CONFIG_BAUDRATE		9600	/* STD Baudrate */
-#define CONFIG_BOOTDELAY	5
 /* autoboot (do NOT change this set environment variable "bootdelay" to -1 instead) */
 /* #define CONFIG_BOOT_RETRY_TIME	-10	/XXX* feature is available but not enabled */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check console even if bootdelay = 0 */

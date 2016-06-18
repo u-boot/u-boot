@@ -104,12 +104,6 @@
 /*
  * Default Environment Varible definitions
  */
-#if defined(CONFIG_SPEAR_USBTTY)
-#define CONFIG_BOOTDELAY			-1
-#else
-#define CONFIG_BOOTDELAY			1
-#endif
-
 #define CONFIG_ENV_OVERWRITE
 
 /*

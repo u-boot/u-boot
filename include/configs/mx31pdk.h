@@ -84,7 +84,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_BOOTDELAY	1
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootargs_base=setenv bootargs console=ttymxc0,115200\0"	\

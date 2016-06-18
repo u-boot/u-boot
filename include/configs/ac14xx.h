@@ -449,14 +449,6 @@
 
 #define CONFIG_HIGH_BATS		1	/* High BATs supported */
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD			0x01
-#define BOOTFLAG_WARM			0x02
-
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE		230400	/* speed of kgdb serial port */
 #endif
@@ -470,7 +462,6 @@
 /* default load addr for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
-#define CONFIG_BOOTDELAY	2	/* -1 disables auto-boot */
 
 /* the builtin environment and standard greeting */
 #define CONFIG_PREBOOT	"echo;"	\

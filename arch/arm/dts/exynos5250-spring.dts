@@ -158,6 +158,27 @@
 		samsung,ycbcr-coeff = <0>;
 		samsung,color-depth = <1>;
 	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 0 1000000 0>;
+		brightness-levels = <0 100 500 1000 1500 2000 2500 2800>;
+		default-brightness-level = <1>;
+		enable-gpios = <&gpx3 0 GPIO_ACTIVE_HIGH>;
+		power-supply = <&fet1>;
+	};
+
+	panel: panel {
+		compatible = "auo,b116xw03";
+		power-supply = <&fet6>;
+		backlight = <&backlight>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&bridge_out>;
+			};
+		};
+	};
 };
 
 &i2c_0 {
@@ -385,6 +406,25 @@
 	};
 };
 
+&dp {
+	status = "okay";
+	samsung,color-space = <0>;
+	samsung,dynamic-range = <0>;
+	samsung,ycbcr-coeff = <0>;
+	samsung,color-depth = <1>;
+	samsung,link-rate = <0x0a>;
+	samsung,lane-count = <1>;
+	samsung,hpd-gpio = <&gpc3 0 GPIO_ACTIVE_HIGH>;
+
+	ports {
+		port@0 {
+			dp_out: endpoint {
+				remote-endpoint = <&bridge_in>;
+			};
+		};
+	};
+};
+
 &i2c_1 {
 	status = "okay";
 	samsung,i2c-sda-delay = <100>;
@@ -585,6 +625,19 @@
 			0x04 0x59 0x60 /* MPU Clock source: LC => RCO */
 			0x04 0x54 0x14 /* LC -> RCO */
 			0x02 0xa1 0x91>; /* HPD high */
+		ports {
+			port@0 {
+				bridge_out: endpoint {
+					remote-endpoint = <&panel_in>;
+				};
+			};
+
+			port@1 {
+				bridge_in: endpoint {
+					remote-endpoint = <&dp_out>;
+				};
+			};
+		};
 	};
 
 	soundcodec@20 {

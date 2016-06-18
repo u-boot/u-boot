@@ -122,7 +122,7 @@ void fdt_del_sec(void *blob, int offset)
 
 	while ((nodeoff = fdt_node_offset_by_compat_reg(blob, "fsl,sec-v6.0",
 			CONFIG_SYS_CCSRBAR_PHYS + CONFIG_SYS_FSL_SEC_OFFSET
-			+ offset * 0x20000)) >= 0) {
+			+ offset * CONFIG_SYS_FSL_SEC_IDX_OFFSET)) >= 0) {
 		fdt_del_node(blob, nodeoff);
 		offset++;
 	}

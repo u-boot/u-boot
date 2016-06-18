@@ -65,13 +65,13 @@ static long evalexp(char *s, int w)
 		}
 		switch (w) {
 		case 1:
-			l = (long)(*(unsigned char *)buf);
+			l = (long)(*(u8 *)buf);
 			break;
 		case 2:
-			l = (long)(*(unsigned short *)buf);
+			l = (long)(*(u16 *)buf);
 			break;
 		case 4:
-			l = (long)(*(unsigned long *)buf);
+			l = (long)(*(u32 *)buf);
 			break;
 		}
 		unmap_physmem(buf, w);

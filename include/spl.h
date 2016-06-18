@@ -35,16 +35,28 @@ struct spl_image_info {
  * @dev: Pointer to the device, e.g. struct mmc *
  * @priv: Private data for the device
  * @bl_len: Block length for reading in bytes
+ * @filename: Name of the fit image file.
  * @read: Function to call to read from the device
  */
 struct spl_load_info {
 	void *dev;
 	void *priv;
 	int bl_len;
+	const char *filename;
 	ulong (*read)(struct spl_load_info *load, ulong sector, ulong count,
 		      void *buf);
 };
 
+/**
+ * spl_load_simple_fit() - Loads a fit image from a device.
+ * @info:	Structure containing the information required to load data.
+ * @sector:	Sector number where FIT image is located in the device
+ * @fdt:	Pointer to the copied FIT header.
+ *
+ * Reads the FIT image @sector in the device. Loads u-boot image to
+ * specified load address and copies the dtb to end of u-boot image.
+ * Returns 0 on success.
+ */
 int spl_load_simple_fit(struct spl_load_info *info, ulong sector, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
@@ -58,6 +70,7 @@ u32 spl_boot_mode(void);
 void spl_set_header_raw_uboot(void);
 int spl_parse_image_header(const struct image_header *header);
 void spl_board_prepare_for_linux(void);
+void spl_board_prepare_for_boot(void);
 void __noreturn jump_to_image_linux(void *arg);
 int spl_start_uboot(void);
 void spl_display_print(void);

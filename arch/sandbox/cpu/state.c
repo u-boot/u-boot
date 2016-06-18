@@ -360,8 +360,8 @@ int state_init(void)
 	assert(state->ram_buf);
 
 	/* No reset yet, so mark it as such. Always allow power reset */
-	state->last_reset = RESET_COUNT;
-	state->reset_allowed[RESET_POWER] = true;
+	state->last_sysreset = SYSRESET_COUNT;
+	state->sysreset_allowed[SYSRESET_POWER] = true;
 
 	/*
 	 * Example of how to use GPIOs:

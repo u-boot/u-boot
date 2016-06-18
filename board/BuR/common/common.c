@@ -259,7 +259,7 @@ static int load_devicetree(void)
 	}
 #ifdef CONFIG_NAND
 	dtbsize = 0x20000;
-	rc = nand_read_skip_bad(&nand_info[0], 0x40000, (size_t *)&dtbsize,
+	rc = nand_read_skip_bad(nand_info[0], 0x40000, (size_t *)&dtbsize,
 				NULL, 0x20000, (u_char *)dtbaddr);
 #else
 	char *dtbname = getenv("dtb");

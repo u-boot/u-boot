@@ -229,7 +229,6 @@
 		"cp.b 200000 fff90000 70000\0"				\
 	""
 
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds     */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download  */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change        */

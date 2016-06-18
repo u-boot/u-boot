@@ -548,6 +548,29 @@ int device_set_name(struct udevice *dev, const char *name);
 void device_set_name_alloced(struct udevice *dev);
 
 /**
+ * of_device_is_compatible() - check if the device is compatible with the compat
+ *
+ * This allows to check whether the device is comaptible with the compat.
+ *
+ * @dev:	udevice pointer for which compatible needs to be verified.
+ * @compat:	Compatible string which needs to verified in the given
+ *		device
+ * @return true if OK, false if the compatible is not found
+ */
+bool of_device_is_compatible(struct udevice *dev, const char *compat);
+
+/**
+ * of_machine_is_compatible() - check if the machine is compatible with
+ *				the compat
+ *
+ * This allows to check whether the machine is comaptible with the compat.
+ *
+ * @compat:	Compatible string which needs to verified
+ * @return true if OK, false if the compatible is not found
+ */
+bool of_machine_is_compatible(const char *compat);
+
+/**
  * device_is_on_pci_bus - Test if a device is on a PCI bus
  *
  * @dev:	device to test

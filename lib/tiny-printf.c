@@ -16,6 +16,9 @@
 static char *bf;
 static char zs;
 
+/* Current position in sprintf() output string */
+static char *outstr;
+
 static void out(char c)
 {
 	*bf++ = c;
@@ -40,7 +43,7 @@ static void div_out(unsigned int *num, unsigned int div)
 		out_dgt(dgt);
 }
 
-int vprintf(const char *fmt, va_list va)
+int _vprintf(const char *fmt, va_list va, void (*putc)(const char ch))
 {
 	char ch;
 	char *p;
@@ -52,8 +55,8 @@ int vprintf(const char *fmt, va_list va)
 		if (ch != '%') {
 			putc(ch);
 		} else {
-			char lz = 0;
-			char w = 0;
+			bool lz = false;
+			int width = 0;
 
 			ch = *(fmt++);
 			if (ch == '0') {
@@ -62,9 +65,9 @@ int vprintf(const char *fmt, va_list va)
 			}
 
 			if (ch >= '0' && ch <= '9') {
-				w = 0;
+				width = 0;
 				while (ch >= '0' && ch <= '9') {
-					w = (w * 10) + ch - '0';
+					width = (width * 10) + ch - '0';
 					ch = *fmt++;
 				}
 			}
@@ -73,7 +76,7 @@ int vprintf(const char *fmt, va_list va)
 			zs = 0;
 
 			switch (ch) {
-			case 0:
+			case '\0':
 				goto abort;
 			case 'u':
 			case 'd':
@@ -112,9 +115,9 @@ int vprintf(const char *fmt, va_list va)
 
 			*bf = 0;
 			bf = p;
-			while (*bf++ && w > 0)
-				w--;
-			while (w-- > 0)
+			while (*bf++ && width > 0)
+				width--;
+			while (width-- > 0)
 				putc(lz ? '0' : ' ');
 			if (p) {
 				while ((ch = *p++))
@@ -133,8 +136,42 @@ int printf(const char *fmt, ...)
 	int ret;
 
 	va_start(va, fmt);
-	ret = vprintf(fmt, va);
+	ret = _vprintf(fmt, va, putc);
 	va_end(va);
+
+	return ret;
+}
+
+static void putc_outstr(char ch)
+{
+	*outstr++ = ch;
+}
+
+int sprintf(char *buf, const char *fmt, ...)
+{
+	va_list va;
+	int ret;
+
+	va_start(va, fmt);
+	outstr = buf;
+	ret = _vprintf(fmt, va, putc_outstr);
+	va_end(va);
+	*outstr = '\0';
+
+	return ret;
+}
+
+/* Note that size is ignored */
+int snprintf(char *buf, size_t size, const char *fmt, ...)
+{
+	va_list va;
+	int ret;
+
+	va_start(va, fmt);
+	outstr = buf;
+	ret = _vprintf(fmt, va, putc_outstr);
+	va_end(va);
+	*outstr = '\0';
 
 	return ret;
 }

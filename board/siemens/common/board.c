@@ -83,8 +83,12 @@ int board_init(void)
 #ifdef CONFIG_FACTORYSET
 	factoryset_read_eeprom(CONFIG_SYS_I2C_EEPROM_ADDR);
 #endif
+
 	gpmc_init();
 
+#ifdef CONFIG_NAND_CS_INIT
+	board_nand_cs_init();
+#endif
 #ifdef CONFIG_VIDEO
 	board_video_init();
 #endif

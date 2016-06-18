@@ -822,14 +822,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
 
 /*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
-
-/*
  * For booting Linux, the board info and command line data
  * have to be in the first 64 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
@@ -858,7 +850,6 @@ extern unsigned long get_sdram_size(void);
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE		115200

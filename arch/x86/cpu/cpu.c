@@ -25,10 +25,12 @@
 #include <errno.h>
 #include <malloc.h>
 #include <asm/control_regs.h>
+#include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
 #include <asm/lapic.h>
 #include <asm/microcode.h>
 #include <asm/mp.h>
+#include <asm/mrccache.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
@@ -661,9 +663,19 @@ void show_boot_progress(int val)
 }
 
 #ifndef CONFIG_SYS_COREBOOT
+/*
+ * Implement a weak default function for boards that optionally
+ * need to clean up the system before jumping to the kernel.
+ */
+__weak void board_final_cleanup(void)
+{
+}
+
 int last_stage_init(void)
 {
 	write_tables();
+
+	board_final_cleanup();
 
 	return 0;
 }
@@ -741,3 +753,18 @@ int cpu_init_r(void)
 
 	return 0;
 }
+
+#ifndef CONFIG_EFI_STUB
+int reserve_arch(void)
+{
+#ifdef CONFIG_ENABLE_MRC_CACHE
+	mrccache_reserve();
+#endif
+
+#ifdef CONFIG_SEABIOS
+	high_table_reserve();
+#endif
+
+	return 0;
+}
+#endif

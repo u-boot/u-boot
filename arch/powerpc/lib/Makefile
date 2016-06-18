@@ -29,11 +29,6 @@ obj-y	+= ticks.o
 obj-y	+= reloc.o
 
 obj-$(CONFIG_BAT_RW) += bat_rw.o
-ifndef CONFIG_SPL_BUILD
-ifndef CONFIG_SYS_GENERIC_BOARD
-obj-y	+= board.o
-endif
-endif
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= cache.o
 obj-y	+= extable.o

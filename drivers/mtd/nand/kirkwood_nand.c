@@ -33,7 +33,7 @@ static u32 nand_mpp_backup[9] = { 0 };
 static void kw_nand_hwcontrol(struct mtd_info *mtd, int cmd,
 			      unsigned int ctrl)
 {
-	struct nand_chip *nc = mtd->priv;
+	struct nand_chip *nc = mtd_to_nand(mtd);
 	u32 offs;
 
 	if (cmd == NAND_CMD_NONE)

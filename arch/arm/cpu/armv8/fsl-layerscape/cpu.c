@@ -396,9 +396,6 @@ static inline void final_mmu_setup(void)
 	flush_dcache_range((ulong)level0_table,
 			   (ulong)level0_table + gd->arch.tlb_size);
 
-#ifdef CONFIG_SYS_DPAA_FMAN
-	flush_dcache_all();
-#endif
 	/* point TTBR to the new table */
 	set_ttbr_tcr_mair(el, (u64)level0_table, LAYERSCAPE_TCR_FINAL,
 			  MEMORY_ATTRIBUTES);

@@ -8,6 +8,8 @@
 #ifndef _DW_ETH_H
 #define _DW_ETH_H
 
+#include <asm/gpio.h>
+
 #define CONFIG_TX_DESCR_NUM	16
 #define CONFIG_RX_DESCR_NUM	16
 #define CONFIG_ETH_BUFSIZE	2048
@@ -110,8 +112,8 @@ struct eth_dma_regs {
 struct dmamacdescr {
 	u32 txrx_status;
 	u32 dmamac_cntl;
-	void *dmamac_addr;
-	struct dmamacdescr *dmamac_next;
+	u32 dmamac_addr;
+	u32 dmamac_next;
 } __aligned(ARCH_DMA_MINALIGN);
 
 /*
@@ -232,8 +234,16 @@ struct dw_eth_dev {
 #ifndef CONFIG_DM_ETH
 	struct eth_device *dev;
 #endif
+	struct gpio_desc reset_gpio;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };
+
+#ifdef CONFIG_DM_ETH
+struct dw_eth_pdata {
+	struct eth_pdata eth_pdata;
+	u32 reset_delays[3];
+};
+#endif
 
 #endif

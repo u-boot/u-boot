@@ -23,8 +23,8 @@
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 void gpio_early_init(void)
 {
-	gpio_request(GPIO_PI4, NULL);
-	gpio_direction_output(GPIO_PI4, 1);
+	gpio_request(TEGRA_GPIO(I, 4), NULL);
+	gpio_direction_output(TEGRA_GPIO(I, 4), 1);
 }
 #endif
 

@@ -12,4 +12,5 @@ obj-y	+= sdram.o
 obj-y	+= prcm-regs.o
 obj-y	+= hw_data.o
 obj-y	+= abb.o
+obj-y	+= fdt.o
 obj-$(CONFIG_IODELAY_RECALIBRATION) += dra7xx_iodelay.o

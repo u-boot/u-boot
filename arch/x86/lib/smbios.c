@@ -105,8 +105,8 @@ static int smbios_write_type1(u32 *current, int handle)
 
 	memset(t, 0, sizeof(struct smbios_type1));
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
-	t->manufacturer = smbios_add_string(t->eos, CONFIG_SYS_VENDOR);
-	t->product_name = smbios_add_string(t->eos, CONFIG_SYS_BOARD);
+	t->manufacturer = smbios_add_string(t->eos, CONFIG_SMBIOS_MANUFACTURER);
+	t->product_name = smbios_add_string(t->eos, CONFIG_SMBIOS_PRODUCT_NAME);
 
 	len = t->length + smbios_string_table_len(t->eos);
 	*current += len;
@@ -121,8 +121,8 @@ static int smbios_write_type2(u32 *current, int handle)
 
 	memset(t, 0, sizeof(struct smbios_type2));
 	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
-	t->manufacturer = smbios_add_string(t->eos, CONFIG_SYS_VENDOR);
-	t->product_name = smbios_add_string(t->eos, CONFIG_SYS_BOARD);
+	t->manufacturer = smbios_add_string(t->eos, CONFIG_SMBIOS_MANUFACTURER);
+	t->product_name = smbios_add_string(t->eos, CONFIG_SMBIOS_PRODUCT_NAME);
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
 
@@ -139,7 +139,7 @@ static int smbios_write_type3(u32 *current, int handle)
 
 	memset(t, 0, sizeof(struct smbios_type3));
 	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, handle);
-	t->manufacturer = smbios_add_string(t->eos, CONFIG_SYS_VENDOR);
+	t->manufacturer = smbios_add_string(t->eos, CONFIG_SMBIOS_MANUFACTURER);
 	t->chassis_type = SMBIOS_ENCLOSURE_DESKTOP;
 	t->bootup_state = SMBIOS_STATE_SAFE;
 	t->power_supply_state = SMBIOS_STATE_SAFE;

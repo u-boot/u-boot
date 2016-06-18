@@ -223,7 +223,6 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTDELAY	2
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"defbootargs=setenv bootargs mem=128M console=ttyS0,115200n8 " \
 		"root=/dev/mtdblock5 rw noinitrd " \

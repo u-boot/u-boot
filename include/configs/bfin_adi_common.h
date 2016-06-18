@@ -99,9 +99,7 @@
  */
 #ifndef CONFIG_BOOTDELAY
 # if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
-#  define CONFIG_BOOTDELAY	-1
 # else
-#  define CONFIG_BOOTDELAY	5
 # endif
 #endif
 #ifndef CONFIG_BOOTCOMMAND

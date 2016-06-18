@@ -448,7 +448,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
-#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo PDM360NG SAMPLE;" \

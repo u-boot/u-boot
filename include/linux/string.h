@@ -20,10 +20,6 @@ extern __kernel_size_t strspn(const char *,const char *);
  */
 #include <asm/string.h>
 
-#ifndef __HAVE_ARCH_BCOPY
-char *bcopy(const char *src, char *dest, int count);
-#endif
-
 #ifndef __HAVE_ARCH_STRCPY
 extern char * strcpy(char *,const char *);
 #endif

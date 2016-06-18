@@ -28,10 +28,18 @@ void cpld_write(unsigned int reg, u8 value)
 /* Set the boot bank to the alternate bank */
 void cpld_set_altbank(void)
 {
+	u16 reg = CPLD_CFG_RCW_SRC_NOR;
 	u8 reg4 = CPLD_READ(soft_mux_on);
+	u8 reg5 = (u8)(reg >> 1);
+	u8 reg6 = (u8)(reg & 1);
 	u8 reg7 = CPLD_READ(vbank);
 
-	CPLD_WRITE(soft_mux_on, reg4 | CPLD_SW_MUX_BANK_SEL);
+	cpld_rev_bit(&reg5);
+
+	CPLD_WRITE(soft_mux_on, reg4 | CPLD_SW_MUX_BANK_SEL | 1);
+
+	CPLD_WRITE(cfg_rcw_src1, reg5);
+	CPLD_WRITE(cfg_rcw_src2, reg6);
 
 	reg7 = (reg7 & ~CPLD_BANK_SEL_MASK) | CPLD_BANK_SEL_ALTBANK;
 	CPLD_WRITE(vbank, reg7);
@@ -42,7 +50,21 @@ void cpld_set_altbank(void)
 /* Set the boot bank to the default bank */
 void cpld_set_defbank(void)
 {
-	CPLD_WRITE(global_rst, 1);
+	u16 reg = CPLD_CFG_RCW_SRC_NOR;
+	u8 reg4 = CPLD_READ(soft_mux_on);
+	u8 reg5 = (u8)(reg >> 1);
+	u8 reg6 = (u8)(reg & 1);
+
+	cpld_rev_bit(&reg5);
+
+	CPLD_WRITE(soft_mux_on, reg4 | CPLD_SW_MUX_BANK_SEL | 1);
+
+	CPLD_WRITE(cfg_rcw_src1, reg5);
+	CPLD_WRITE(cfg_rcw_src2, reg6);
+
+	CPLD_WRITE(vbank, 0);
+
+	CPLD_WRITE(system_rst, 1);
 }
 
 void cpld_set_nand(void)

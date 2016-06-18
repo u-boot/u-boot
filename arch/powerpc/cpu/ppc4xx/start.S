@@ -760,7 +760,6 @@ _start:
 #endif
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
-#ifdef CONFIG_SYS_GENERIC_BOARD
 	mr	r3, r1
 	bl	board_init_f_alloc_reserve
 	mr	r1, r3
@@ -768,7 +767,6 @@ _start:
 	li	r0,0
 	stwu	r0, -4(r1)
 	stwu	r0, -4(r1)
-#endif
 	li	r3, 0
 	bl	board_init_f
 	/* NOTREACHED - board_init_f() does not return */
@@ -1037,14 +1035,12 @@ _start:
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
-#ifdef CONFIG_SYS_GENERIC_BOARD
 	mr	r3, r1
 	bl	board_init_f_alloc_reserve
 	mr	r1, r3
 	bl	board_init_f_init_reserve
 	stwu	r0, -4(r1)
 	stwu	r0, -4(r1)
-#endif
 	li	r3, 0
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
 	/* NOTREACHED - board_init_f() does not return */

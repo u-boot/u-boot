@@ -593,6 +593,13 @@ config CMD_SOUND
 	     sound init   - set up sound system
 	     sound play   - play a sound
 
+config CMD_QFW
+	bool "qfw"
+	select QFW
+	help
+	  This provides access to the QEMU firmware interface.  The main
+	  feature is to allow easy loading of files passed to qemu-system
+	  via -kernel / -initrd
 endmenu
 
 config CMD_BOOTSTAGE

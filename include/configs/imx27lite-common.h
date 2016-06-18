@@ -175,7 +175,6 @@
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NAND
 
-#define CONFIG_BOOTDELAY	5
 
 #define CONFIG_LOADADDR		0xa0800000	/* loadaddr env var */
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR

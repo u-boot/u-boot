@@ -958,6 +958,15 @@ int cpu_init_r(void)
 
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
+
+#if defined(CONFIG_PPC_C29X)
+	if ((SVR_SOC_VER(svr) == SVR_C292) ||
+	    (SVR_SOC_VER(svr) == SVR_C293))
+		sec_init_idx(1);
+
+	if (SVR_SOC_VER(svr) == SVR_C293)
+		sec_init_idx(2);
+#endif
 #endif
 
 #if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)

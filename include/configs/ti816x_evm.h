@@ -34,7 +34,6 @@
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_BOOTDELAY		3 /* set negative for no autoboot */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"loadaddr=0x81000000\0"		\
 

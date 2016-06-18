@@ -718,3 +718,24 @@ int board_early_init_f(void)
 	return 0;
 }
 #endif
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (is_dra72x() && !strcmp(name, "dra72-evm"))
+		return 0;
+	else if (!is_dra72x() && !strcmp(name, "dra7-evm"))
+		return 0;
+	else
+		return -1;
+}
+#endif

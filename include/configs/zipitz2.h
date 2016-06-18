@@ -40,7 +40,6 @@
 #define	CONFIG_BOOTARGS							\
 	"console=tty0 console=ttyS2,115200 fbcon=rotate:3"
 #define	CONFIG_TIMESTAMP
-#define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_SYS_TEXT_BASE		0x0

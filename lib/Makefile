@@ -42,7 +42,6 @@ obj-y += rc4.o
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
 obj-$(CONFIG_SHA256) += sha256.o
-obj-y	+= strmhz.o
 obj-$(CONFIG_TPM) += tpm.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
@@ -85,11 +84,11 @@ ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_USE_TINY_PRINTF
 obj-$(CONFIG_SPL_SERIAL_SUPPORT) += tiny-printf.o panic.o strto.o
 else
-obj-$(CONFIG_SPL_SERIAL_SUPPORT) += vsprintf.o panic.o strto.o
+obj-$(CONFIG_SPL_SERIAL_SUPPORT) += vsprintf.o panic.o strto.o strmhz.o
 endif
 else
 # Main U-Boot always uses the full printf support
-obj-y += vsprintf.o panic.o strto.o
+obj-y += vsprintf.o panic.o strto.o strmhz.o
 endif
 
 subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2

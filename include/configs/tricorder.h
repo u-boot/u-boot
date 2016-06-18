@@ -162,7 +162,6 @@
 
 /* Environment information (this is the common part) */
 
-#define CONFIG_BOOTDELAY		0
 
 /* hang() the board on panic() */
 #define CONFIG_PANIC_HANG

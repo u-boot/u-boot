@@ -35,9 +35,11 @@
 
 #include "fw_env.h"
 
-struct common_args common_args;
-struct printenv_args printenv_args;
-struct setenv_args setenv_args;
+struct env_opts default_opts = {
+#ifdef CONFIG_FILE
+	.config_file = CONFIG_FILE
+#endif
+};
 
 #define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
 
@@ -75,7 +77,8 @@ static int dev_current;
 
 #define CUR_ENVSIZE ENVSIZE(dev_current)
 
-#define ENV_SIZE      getenvsize()
+static unsigned long usable_envsize;
+#define ENV_SIZE      usable_envsize
 
 struct env_image_single {
 	uint32_t	crc;	/* CRC32 over data bytes    */
@@ -106,7 +109,7 @@ static struct environment environment = {
 	.flag_scheme = FLAG_NONE,
 };
 
-static int env_aes_cbc_crypt(char *data, const int enc);
+static int env_aes_cbc_crypt(char *data, const int enc, uint8_t *key);
 
 static int HaveRedundEnv = 0;
 
@@ -119,23 +122,11 @@ static unsigned char obsolete_flag = 0;
 
 static int flash_io (int mode);
 static char *envmatch (char * s1, char * s2);
-static int parse_config (void);
+static int parse_config(struct env_opts *opts);
 
 #if defined(CONFIG_FILE)
 static int get_config (char *);
 #endif
-static inline ulong getenvsize (void)
-{
-	ulong rc = CUR_ENVSIZE - sizeof(uint32_t);
-
-	if (HaveRedundEnv)
-		rc -= sizeof (char);
-
-	if (common_args.aes_flag)
-		rc &= ~(AES_KEY_LENGTH - 1);
-
-	return rc;
-}
 
 static char *skip_chars(char *s)
 {
@@ -239,12 +230,15 @@ int parse_aes_key(char *key, uint8_t *bin_key)
  * Print the current definition of one, or more, or all
  * environment variables
  */
-int fw_printenv (int argc, char *argv[])
+int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 {
 	char *env, *nxt;
 	int i, rc = 0;
 
-	if (fw_env_open())
+	if (!opts)
+		opts = &default_opts;
+
+	if (fw_env_open(opts))
 		return -1;
 
 	if (argc == 0) {		/* Print all env variables  */
@@ -262,7 +256,7 @@ int fw_printenv (int argc, char *argv[])
 		return 0;
 	}
 
-	if (printenv_args.name_suppress && argc != 1) {
+	if (value_only && argc != 1) {
 		fprintf(stderr,
 			"## Error: `-n' option requires exactly one argument\n");
 		return -1;
@@ -283,7 +277,7 @@ int fw_printenv (int argc, char *argv[])
 			}
 			val = envmatch (name, env);
 			if (val) {
-				if (!printenv_args.name_suppress) {
+				if (!value_only) {
 					fputs (name, stdout);
 					putc ('=', stdout);
 				}
@@ -300,11 +294,16 @@ int fw_printenv (int argc, char *argv[])
 	return rc;
 }
 
-int fw_env_close(void)
+int fw_env_close(struct env_opts *opts)
 {
 	int ret;
-	if (common_args.aes_flag) {
-		ret = env_aes_cbc_crypt(environment.data, 1);
+
+	if (!opts)
+		opts = &default_opts;
+
+	if (opts->aes_flag) {
+		ret = env_aes_cbc_crypt(environment.data, 1,
+					opts->aes_key);
 		if (ret) {
 			fprintf(stderr,
 				"Error: can't encrypt env for flash\n");
@@ -457,7 +456,7 @@ int fw_env_write(char *name, char *value)
  *	    modified or deleted
  *
  */
-int fw_setenv(int argc, char *argv[])
+int fw_setenv(int argc, char *argv[], struct env_opts *opts)
 {
 	int i;
 	size_t len;
@@ -465,13 +464,16 @@ int fw_setenv(int argc, char *argv[])
 	char *value = NULL;
 	int valc;
 
+	if (!opts)
+		opts = &default_opts;
+
 	if (argc < 1) {
 		fprintf(stderr, "## Error: variable name missing\n");
 		errno = EINVAL;
 		return -1;
 	}
 
-	if (fw_env_open()) {
+	if (fw_env_open(opts)) {
 		fprintf(stderr, "Error: environment not initialized\n");
 		return -1;
 	}
@@ -507,7 +509,7 @@ int fw_setenv(int argc, char *argv[])
 
 	free(value);
 
-	return fw_env_close();
+	return fw_env_close(opts);
 }
 
 /*
@@ -527,7 +529,7 @@ int fw_setenv(int argc, char *argv[])
  * 0	  - OK
  * -1     - Error
  */
-int fw_parse_script(char *fname)
+int fw_parse_script(char *fname, struct env_opts *opts)
 {
 	FILE *fp;
 	char dump[1024];	/* Maximum line length in the file */
@@ -537,7 +539,10 @@ int fw_parse_script(char *fname)
 	int len;
 	int ret = 0;
 
-	if (fw_env_open()) {
+	if (!opts)
+		opts = &default_opts;
+
+	if (fw_env_open(opts)) {
 		fprintf(stderr, "Error: environment not initialized\n");
 		return -1;
 	}
@@ -625,10 +630,9 @@ int fw_parse_script(char *fname)
 	if (strcmp(fname, "-") != 0)
 		fclose(fp);
 
-	ret |= fw_env_close();
+	ret |= fw_env_close(opts);
 
 	return ret;
-
 }
 
 /*
@@ -949,15 +953,15 @@ static int flash_flag_obsolete (int dev, int fd, off_t offset)
 }
 
 /* Encrypt or decrypt the environment before writing or reading it. */
-static int env_aes_cbc_crypt(char *payload, const int enc)
+static int env_aes_cbc_crypt(char *payload, const int enc, uint8_t *key)
 {
 	uint8_t *data = (uint8_t *)payload;
-	const int len = getenvsize();
+	const int len = usable_envsize;
 	uint8_t key_exp[AES_EXPAND_KEY_LENGTH];
 	uint32_t aes_blocks;
 
 	/* First we expand the key. */
-	aes_expand_key(common_args.aes_key, key_exp);
+	aes_expand_key(key, key_exp);
 
 	/* Calculate the number of AES blocks to encrypt. */
 	aes_blocks = DIV_ROUND_UP(len, AES_KEY_LENGTH);
@@ -1138,7 +1142,7 @@ static char *envmatch (char * s1, char * s2)
 /*
  * Prevent confusion if running from erased flash memory
  */
-int fw_env_open(void)
+int fw_env_open(struct env_opts *opts)
 {
 	int crc0, crc0_ok;
 	unsigned char flag0;
@@ -1153,7 +1157,10 @@ int fw_env_open(void)
 	struct env_image_single *single;
 	struct env_image_redundant *redundant;
 
-	if (parse_config ())		/* should fill envdevices */
+	if (!opts)
+		opts = &default_opts;
+
+	if (parse_config(opts))		/* should fill envdevices */
 		return -1;
 
 	addr0 = calloc(1, CUR_ENVSIZE);
@@ -1185,8 +1192,9 @@ int fw_env_open(void)
 
 	crc0 = crc32 (0, (uint8_t *) environment.data, ENV_SIZE);
 
-	if (common_args.aes_flag) {
-		ret = env_aes_cbc_crypt(environment.data, 0);
+	if (opts->aes_flag) {
+		ret = env_aes_cbc_crypt(environment.data, 0,
+					opts->aes_key);
 		if (ret)
 			return ret;
 	}
@@ -1242,8 +1250,9 @@ int fw_env_open(void)
 
 		crc1 = crc32 (0, (uint8_t *) redundant->data, ENV_SIZE);
 
-		if (common_args.aes_flag) {
-			ret = env_aes_cbc_crypt(redundant->data, 0);
+		if (opts->aes_flag) {
+			ret = env_aes_cbc_crypt(redundant->data, 0,
+						opts->aes_key);
 			if (ret)
 				return ret;
 		}
@@ -1320,18 +1329,18 @@ int fw_env_open(void)
 }
 
 
-static int parse_config ()
+static int parse_config(struct env_opts *opts)
 {
 	struct stat st;
 
-#if defined(CONFIG_FILE)
-	if (!common_args.config_file)
-		common_args.config_file = CONFIG_FILE;
+	if (!opts)
+		opts = &default_opts;
 
+#if defined(CONFIG_FILE)
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
-	if (get_config(common_args.config_file)) {
+	if (get_config(opts->config_file)) {
 		fprintf(stderr, "Cannot parse config file '%s': %m\n",
-			common_args.config_file);
+			opts->config_file);
 		return -1;
 	}
 #else
@@ -1379,6 +1388,21 @@ static int parse_config ()
 			DEVNAME (1), strerror (errno));
 		return -1;
 	}
+
+	if (HaveRedundEnv && ENVSIZE(0) != ENVSIZE(1)) {
+		ENVSIZE(0) = ENVSIZE(1) = min(ENVSIZE(0), ENVSIZE(1));
+		fprintf(stderr,
+			"Redundant environments have inequal size, set to 0x%08lx\n",
+			ENVSIZE(1));
+	}
+
+	usable_envsize = CUR_ENVSIZE - sizeof(uint32_t);
+	if (HaveRedundEnv)
+		usable_envsize -= sizeof(char);
+
+	if (opts->aes_flag)
+		usable_envsize &= ~(AES_KEY_LENGTH - 1);
+
 	return 0;
 }
 

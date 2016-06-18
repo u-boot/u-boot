@@ -74,7 +74,6 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_BOOTDELAY		1
 
 /*
  * After booting the board for the first time, new ethernet addresses

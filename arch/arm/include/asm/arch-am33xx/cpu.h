@@ -99,7 +99,8 @@ struct cm_wkuppll {
 	unsigned int timer0clkctrl;	/* offset 0x10 */
 	unsigned int resv2[3];
 	unsigned int idlestdpllmpu;	/* offset 0x20 */
-	unsigned int resv3[2];
+	unsigned int sscdeltamstepdllmpu; /* off  0x24 */
+	unsigned int sscmodfreqdivdpllmpu; /* off 0x28 */
 	unsigned int clkseldpllmpu;	/* offset 0x2c */
 	unsigned int resv4[1];
 	unsigned int idlestdpllddr;	/* offset 0x34 */
@@ -497,6 +498,8 @@ struct ctrl_stat {
 #define OMAP_GPIO_SYSSTATUS		0x0114
 #define OMAP_GPIO_IRQSTATUS1		0x002c
 #define OMAP_GPIO_IRQSTATUS2		0x0030
+#define OMAP_GPIO_IRQSTATUS_SET_0	0x0034
+#define OMAP_GPIO_IRQSTATUS_SET_1	0x0038
 #define OMAP_GPIO_CTRL			0x0130
 #define OMAP_GPIO_OE			0x0134
 #define OMAP_GPIO_DATAIN		0x0138

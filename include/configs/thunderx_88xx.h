@@ -17,7 +17,6 @@
 
 #define CONFIG_IDENT_STRING	\
 	" for Cavium Thunder CN88XX ARM v8 Multi-Core"
-#define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
 
 #define MEM_BASE			0x00500000
 
@@ -62,7 +61,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_PXE
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
@@ -86,7 +84,6 @@
 					"earlycon=pl011,0x87e024000000 " \
 					"debug maxcpus=48 rootwait rw "\
 					"root=/dev/sda2 coherent_pool=16M"
-#define CONFIG_BOOTDELAY		5
 
 /* Do not preserve environment */
 #define CONFIG_ENV_IS_NOWHERE		1

@@ -69,7 +69,6 @@
 
 #define CONFIG_MCFTMR
 
-#define CONFIG_BOOTDELAY	5
 #define	CONFIG_SYS_LONGHELP	1
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/

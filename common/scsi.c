@@ -584,7 +584,7 @@ U_BOOT_DRIVER(scsi_blk) = {
 };
 #else
 U_BOOT_LEGACY_BLK(scsi) = {
-	.if_typename	= "sata",
+	.if_typename	= "scsi",
 	.if_type	= IF_TYPE_SCSI,
 	.max_devs	= CONFIG_SYS_SCSI_MAX_DEVICE,
 	.desc		= scsi_dev_desc,

@@ -230,7 +230,7 @@ static void arasan_nand_enable_ecc(void)
 static u8 arasan_nand_get_addrcycle(struct mtd_info *mtd)
 {
 	u8 addrcycles;
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	switch (curr_cmd->addr_cycles) {
 	case NAND_ADDR_CYCL_NONE:
@@ -264,7 +264,7 @@ static u8 arasan_nand_get_addrcycle(struct mtd_info *mtd)
 
 static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	u32 reg_val, i, pktsize, pktnum;
 	u32 *bufptr = (u32 *)buf;
 	u32 timeout;
@@ -433,7 +433,8 @@ static void arasan_nand_fill_tx(const u8 *buf, int len)
 }
 
 static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
-		struct nand_chip *chip, const u8 *buf, int oob_required)
+		struct nand_chip *chip, const u8 *buf, int oob_required,
+		int page)
 {
 	u32 reg_val, i, pktsize, pktnum;
 	const u32 *bufptr = (const u32 *)buf;
@@ -441,7 +442,7 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 	u32 size = mtd->writesize;
 	u32 rdcount = 0;
 	u8 column_addr_cycles;
-	struct arasan_nand_info *nand = chip->priv;
+	struct arasan_nand_info *nand = nand_get_controller_data(chip);
 
 	if (chip->ecc_step_ds >= ARASAN_NAND_PKTSIZE_1K)
 		pktsize = ARASAN_NAND_PKTSIZE_1K;
@@ -944,7 +945,7 @@ static void arasan_nand_read_buf(struct mtd_info *mtd, u8 *buf, int size)
 
 static u8 arasan_nand_read_byte(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	u32 size;
 	u8 val;
 	struct nand_onfi_params *p;
@@ -976,8 +977,8 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 				     int column, int page_addr)
 {
 	u32 i, ret = 0;
-	struct nand_chip *chip = mtd->priv;
-	struct arasan_nand_info *nand = chip->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct arasan_nand_info *nand = nand_get_controller_data(chip);
 
 	curr_cmd = NULL;
 	writel(ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
@@ -1033,7 +1034,7 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 {
 	int found = -1;
 	u32 regval, eccpos_start, i;
-	struct nand_chip *nand_chip = mtd->priv;
+	struct nand_chip *nand_chip = mtd_to_nand(mtd);
 
 	nand_chip->ecc.mode = NAND_ECC_HW;
 	nand_chip->ecc.hwctl = NULL;
@@ -1058,20 +1059,20 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	if (found < 0)
 		return 1;
 
-	regval = ecc_matrix[i].eccaddr |
-		 (ecc_matrix[i].eccsize << ARASAN_NAND_ECC_SIZE_SHIFT) |
-		 (ecc_matrix[i].bch << ARASAN_NAND_ECC_BCH_SHIFT);
+	regval = ecc_matrix[found].eccaddr |
+		 (ecc_matrix[found].eccsize << ARASAN_NAND_ECC_SIZE_SHIFT) |
+		 (ecc_matrix[found].bch << ARASAN_NAND_ECC_BCH_SHIFT);
 	writel(regval, &arasan_nand_base->ecc_reg);
 
-	if (ecc_matrix[i].bch) {
+	if (ecc_matrix[found].bch) {
 		regval = readl(&arasan_nand_base->memadr_reg2);
 		regval &= ~ARASAN_NAND_MEM_ADDR2_BCH_MASK;
-		regval |= (ecc_matrix[i].bchval <<
+		regval |= (ecc_matrix[found].bchval <<
 			   ARASAN_NAND_MEM_ADDR2_BCH_SHIFT);
 		writel(regval, &arasan_nand_base->memadr_reg2);
 	}
 
-	nand_oob.eccbytes = ecc_matrix[i].eccsize;
+	nand_oob.eccbytes = ecc_matrix[found].eccsize;
 	eccpos_start = mtd->oobsize - nand_oob.eccbytes;
 
 	for (i = 0; i < nand_oob.eccbytes; i++)
@@ -1080,9 +1081,9 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	nand_oob.oobfree[0].offset = 2;
 	nand_oob.oobfree[0].length = eccpos_start - 2;
 
-	nand_chip->ecc.size = ecc_matrix[i].ecc_codeword_size;
-	nand_chip->ecc.strength = ecc_matrix[i].eccbits;
-	nand_chip->ecc.bytes = ecc_matrix[i].eccsize;
+	nand_chip->ecc.size = ecc_matrix[found].ecc_codeword_size;
+	nand_chip->ecc.strength = ecc_matrix[found].eccbits;
+	nand_chip->ecc.bytes = ecc_matrix[found].eccsize;
 	nand_chip->ecc.layout = &nand_oob;
 
 	return 0;
@@ -1101,9 +1102,8 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 	}
 
 	nand->nand_base = arasan_nand_base;
-	mtd = &nand_info[0];
-	nand_chip->priv = nand;
-	mtd->priv = nand_chip;
+	mtd = nand_to_mtd(nand_chip);
+	nand_set_controller_data(nand_chip, nand);
 
 	/* Set the driver entry points for MTD */
 	nand_chip->cmdfunc = arasan_nand_cmd_function;
@@ -1134,7 +1134,7 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 		goto fail;
 	}
 
-	if (nand_register(devnum)) {
+	if (nand_register(devnum, mtd)) {
 		printf("Nand Register Fail\n");
 		goto fail;
 	}

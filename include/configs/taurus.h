@@ -60,7 +60,6 @@
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * Command line configuration.

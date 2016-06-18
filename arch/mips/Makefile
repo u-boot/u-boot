@@ -4,6 +4,12 @@
 
 head-y := arch/mips/cpu/start.o
 
+ifeq ($(CONFIG_SPL_BUILD),y)
+ifneq ($(CONFIG_SPL_START_S_PATH),)
+head-y := $(CONFIG_SPL_START_S_PATH:"%"=%)/start.o
+endif
+endif
+
 libs-y += arch/mips/cpu/
 libs-y += arch/mips/lib/
 
@@ -28,6 +34,7 @@ arch-$(CONFIG_CPU_MIPS64_R6) += -march=mips64r6 -Wa,-mips64r6
 tune-$(CONFIG_MIPS_TUNE_4KC) += -mtune=4kc
 tune-$(CONFIG_MIPS_TUNE_14KC) += -mtune=14kc
 tune-$(CONFIG_MIPS_TUNE_24KC) += -mtune=24kc
+tune-$(CONFIG_MIPS_TUNE_34KC) += -mtune=34kc
 tune-$(CONFIG_MIPS_TUNE_74KC) += -mtune=74kc
 
 # Include default header files

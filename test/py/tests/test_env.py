@@ -39,7 +39,11 @@ class StateTestEnv(object):
             Nothing.
         """
 
-        response = self.u_boot_console.run_command('printenv')
+        if self.u_boot_console.config.buildconfig['config_version_variable'] == 'y':
+            with self.u_boot_console.disable_check('main_signon'):
+                response = self.u_boot_console.run_command('printenv')
+        else:
+            response = self.u_boot_console.run_command('printenv')
         self.env = {}
         for l in response.splitlines():
             if not '=' in l:

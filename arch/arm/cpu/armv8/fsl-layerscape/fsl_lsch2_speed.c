@@ -25,7 +25,10 @@ void get_sys_info(struct sys_info *sys_info)
 	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
-#if defined(CONFIG_FSL_ESDHC) || defined(CONFIG_SYS_DPAA_FMAN)
+#if (defined(CONFIG_FSL_ESDHC) &&\
+	defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)) ||\
+	defined(CONFIG_SYS_DPAA_FMAN)
+
 	u32 rcw_tmp;
 #endif
 	struct ccsr_clk *clk = (void *)(CONFIG_SYS_FSL_CLK_ADDR);
@@ -56,12 +59,18 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_ddrbus = sysclk;
 #endif
 
+#ifdef CONFIG_LS1012A
+	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
+			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_SHIFT) &
+			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_MASK;
+#else
 	sys_info->freq_systembus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_SHIFT) &
 			FSL_CHASSIS2_RCWSR0_SYS_PLL_RAT_MASK;
 	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS2_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS2_RCWSR0_MEM_PLL_RAT_MASK;
+#endif
 
 	for (i = 0; i < CONFIG_SYS_FSL_NUM_CC_PLLS; i++) {
 		ratio[i] = (in_be32(&clk->pllcgsr[i].pllcngsr) >> 1) & 0xff;
@@ -79,6 +88,11 @@ void get_sys_info(struct sys_info *sys_info)
 		sys_info->freq_processor[cpu] =
 			freq_c_pll[cplx_pll] / core_cplx_pll_div[c_pll_sel];
 	}
+
+#ifdef CONFIG_LS1012A
+	sys_info->freq_systembus = sys_info->freq_ddrbus / 2;
+	sys_info->freq_ddrbus *= 2;
+#endif
 
 #define HWA_CGA_M1_CLK_SEL	0xe0000000
 #define HWA_CGA_M1_CLK_SHIFT	29

@@ -32,4 +32,20 @@ config NET_TFTP_VARS
 	  If unset, timeout and maximum are hard-defined as 1 second
 	  and 10 timouts per TFTP transfer.
 
+config BOOTP_PXE_CLIENTARCH
+	hex
+        default 0x16 if ARM64
+        default 0x15 if ARM
+        default 0 if X86
+
+config BOOTP_VCI_STRING
+	string
+	default "U-Boot.armv7" if CPU_V7 || CPU_V7M
+	default "U-Boot.armv8" if ARM64
+	default "U-Boot.arm" if ARM
+	default "U-Boot"
+
+config SPL_NET_VCI_STRING
+	string
+
 endif   # if NET

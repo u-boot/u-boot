@@ -295,6 +295,25 @@ struct cbmem_entry {
 #define CBMEM_ID_NONE			0x00000000
 
 /**
+ * high_table_reserve() - reserve configuration table in high memory
+ *
+ * This reserves configuration table in high memory.
+ *
+ * @return:	always 0
+ */
+int high_table_reserve(void);
+
+/**
+ * high_table_malloc() - allocate configuration table in high memory
+ *
+ * This allocates configuration table in high memory.
+ *
+ * @bytes:	size of configuration table to be allocated
+ * @return:	pointer to configuration table in high memory
+ */
+void *high_table_malloc(size_t bytes);
+
+/**
  * write_coreboot_table() - write coreboot table
  *
  * This writes coreboot table at a given address.

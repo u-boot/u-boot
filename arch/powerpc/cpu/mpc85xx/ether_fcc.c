@@ -424,7 +424,7 @@ int fec_initialize(bd_t *bis)
 	struct eth_device* dev;
 	int i;
 
-	for (i = 0; i < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); i++)
+	for (i = 0; i < ARRAY_SIZE(ether_fcc_info); i++)
 	{
 		dev = (struct eth_device*) malloc(sizeof *dev);
 		memset(dev, 0, sizeof *dev);

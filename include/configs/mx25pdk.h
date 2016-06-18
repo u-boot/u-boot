@@ -117,7 +117,6 @@
 
 /* Ethernet Configs */
 
-#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_LOADADDR		0x81000000	/* loadaddr env var */
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR

@@ -450,8 +450,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 #define CONFIG_USB_XHCI_FSL
-#define CONFIG_USB_XHCI_DWC3
-#define CONFIG_USB_XHCI
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		1
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #endif
@@ -569,7 +567,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_FSL_DEVICE_DISABLE
 
-#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_SYS_QE_FW_ADDR     0x600c0000
 

@@ -547,6 +547,7 @@
 			active_slave = <0>;
 			cpts_clock_mult = <0x80000000>;
 			cpts_clock_shift = <29>;
+			syscon = <&scm_conf>;
 			ranges;
 
 			davinci_mdio: mdio@4a101000 {

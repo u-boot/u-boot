@@ -31,7 +31,7 @@
 static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	int i;
-	struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd_to_nand(mtd);
 
 	for (i = 0; i < len; i++)
 		buf[i] = readb(this->IO_ADDR_R);
@@ -40,7 +40,7 @@ static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 
 static void s3c24x0_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct s3c24x0_nand *nand = s3c24x0_get_base_nand();
 
 	debug("hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
@@ -104,7 +104,7 @@ static int s3c24x0_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 		return 0;
 
 	printf("s3c24x0_nand_correct_data: not implemented\n");
-	return -1;
+	return -EBADMSG;
 }
 #endif
 

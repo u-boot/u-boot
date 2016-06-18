@@ -709,7 +709,7 @@ static void set_timing_cfg_2(const unsigned int ctrl_num,
 		| ((add_lat_mclk & 0xf) << 28)
 		| ((cpo & 0x1f) << 23)
 		| ((wr_lat & 0xf) << 19)
-		| ((wr_lat & 0x10) << 14)
+		| ((wr_lat & 0x10) << 18)
 		| ((rd_to_pre & RD_TO_PRE_MASK) << RD_TO_PRE_SHIFT)
 		| ((wr_data_delay & WR_DATA_DELAY_MASK) << WR_DATA_DELAY_SHIFT)
 		| ((cke_pls & 0x7) << 6)
@@ -1835,10 +1835,17 @@ static void set_ddr_sdram_clk_cntl(fsl_ddr_cfg_regs_t *ddr,
 	/* Per FSL Application Note: AN2805 */
 	ss_en = 1;
 #endif
-	clk_adjust = popts->clk_adjust;
+	if (fsl_ddr_get_version(0) >= 0x40701) {
+		/* clk_adjust in 5-bits on T-series and LS-series */
+		clk_adjust = (popts->clk_adjust & 0x1F) << 22;
+	} else {
+		/* clk_adjust in 4-bits on earlier MPC85xx and P-series */
+		clk_adjust = (popts->clk_adjust & 0xF) << 23;
+	}
+
 	ddr->ddr_sdram_clk_cntl = (0
 				   | ((ss_en & 0x1) << 31)
-				   | ((clk_adjust & 0xF) << 23)
+				   | clk_adjust
 				   );
 	debug("FSLDDR: clk_cntl = 0x%08x\n", ddr->ddr_sdram_clk_cntl);
 }

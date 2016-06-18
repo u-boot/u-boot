@@ -216,6 +216,17 @@
 		};
 	};
 
+	mbox: mbox {
+		compatible = "sandbox,mbox";
+		#mbox-cells = <1>;
+	};
+
+	mbox-test {
+		compatible = "sandbox,mbox-test";
+		mboxes = <&mbox 100>, <&mbox 1>;
+		mbox-names = "other", "test";
+	};
+
 	mmc {
 		compatible = "sandbox,mmc";
 	};

@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_TEXT_BASE            0x9f000000
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -16,11 +14,6 @@
 #define CONFIG_SYS_HZ                   1000
 #define CONFIG_SYS_MHZ                  200
 #define CONFIG_SYS_MIPS_TIMER_FREQ      (CONFIG_SYS_MHZ * 1000000)
-
-/* Cache Configuration */
-#define CONFIG_SYS_DCACHE_SIZE          0x8000
-#define CONFIG_SYS_ICACHE_SIZE          0x10000
-#define CONFIG_SYS_CACHELINE_SIZE       32
 
 #define CONFIG_SYS_MONITOR_BASE         CONFIG_SYS_TEXT_BASE
 
@@ -41,19 +34,18 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{9600, 19200, 38400, 57600, 115200}
 
-#define CONFIG_BOOTDELAY                3
 #define CONFIG_BOOTARGS                 "console=ttyS0,115200 " \
 					"root=/dev/mtdblock2 " \
 					"rootfstype=squashfs"
 #define CONFIG_BOOTCOMMAND              "sf probe;" \
 					"mtdparts default;" \
-					"bootm 0x9f300000"
+					"bootm 0x9f650000"
 #define CONFIG_LZMA
 
 #define MTDIDS_DEFAULT                  "nor0=spi-flash.0"
 #define MTDPARTS_DEFAULT                "mtdparts=spi-flash.0:" \
 					"256k(u-boot),64k(u-boot-env)," \
-					"2752k(rootfs),896k(uImage)," \
+					"6144k(rootfs),1600k(uImage)," \
 					"64k(NVRAM),64k(ART)"
 
 #define CONFIG_ENV_SPI_MAX_HZ           25000000

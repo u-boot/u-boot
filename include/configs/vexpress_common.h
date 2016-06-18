@@ -168,7 +168,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x8000)
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
-#define CONFIG_BOOTDELAY		2
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		2

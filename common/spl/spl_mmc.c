@@ -34,9 +34,8 @@ static int mmc_load_legacy(struct mmc *mmc, ulong sector,
 			     mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
-	count = mmc->block_dev.block_read(&mmc->block_dev, sector,
-					  image_size_sectors,
-					  (void *)(ulong)spl_image.load_addr);
+	count = blk_dread(mmc_get_blk_desc(mmc), sector, image_size_sectors,
+			  (void *)(ulong)spl_image.load_addr);
 	debug("read %x sectors to %x\n", image_size_sectors,
 	      spl_image.load_addr);
 	if (count != image_size_sectors)
@@ -50,7 +49,7 @@ static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 {
 	struct mmc *mmc = load->dev;
 
-	return mmc->block_dev.block_read(&mmc->block_dev, sector, count, buf);
+	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
 }
 
 static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
@@ -63,7 +62,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 					 sizeof(struct image_header));
 
 	/* read image header to find the image size & load address */
-	count = mmc->block_dev.block_read(&mmc->block_dev, sector, 1, header);
+	count = blk_dread(mmc_get_blk_desc(mmc), sector, 1, header);
 	debug("hdr read sector %lx, count=%lu\n", sector, count);
 	if (count == 0) {
 		ret = -EIO;
@@ -77,6 +76,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 		debug("Found FIT\n");
 		load.dev = mmc;
 		load.priv = NULL;
+		load.filename = NULL;
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(&load, sector, header);

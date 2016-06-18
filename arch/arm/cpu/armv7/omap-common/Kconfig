@@ -1,0 +1,17 @@
+config TI_SECURE_DEVICE
+	bool "HS Device Type Support"
+	depends on OMAP54XX || AM43XX
+	help
+	  If a high secure (HS) device type is being used, this config
+	  must be set. This option impacts various aspects of the
+	  build system (to create signed boot images that can be
+	  authenticated) and the code. See the doc/README.ti-secure
+	  file for further details.
+
+source "arch/arm/cpu/armv7/omap3/Kconfig"
+
+source "arch/arm/cpu/armv7/omap4/Kconfig"
+
+source "arch/arm/cpu/armv7/omap5/Kconfig"
+
+source "arch/arm/cpu/armv7/am33xx/Kconfig"

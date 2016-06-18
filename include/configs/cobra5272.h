@@ -149,7 +149,6 @@
 
 /*AUTOBOOT settings - booting images automatically by u-boot after power on*/
 
-#define CONFIG_BOOTDELAY	5		/* used for autoboot, delay in
 seconds u-boot will wait before starting defined (auto-)boot command, setting
 to -1 disables delay, setting to 0 will too prevent access to u-boot command
 interface: u-boot then has to reflashed */

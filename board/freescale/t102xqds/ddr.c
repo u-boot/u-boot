@@ -35,18 +35,18 @@ static const struct board_specific_parameters udimm0[] = {
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |
 	 */
 #if defined(CONFIG_SYS_FSL_DDR4)
-	{2,  1666,  0,  4,  7,  0x0808090B,  0x0C0D0E0A,},
-	{2,  1900,  0,  4,  6,  0x08080A0C,  0x0D0E0F0A,},
-	{1,  1666,  0,  4,  6,  0x0708090B,  0x0C0D0E09,},
-	{1,  1900,  0,  4,  6,  0x08080A0C,  0x0D0E0F0A,},
-	{1,  2200,  0,  4,  7,  0x08090A0D,  0x0F0F100C,},
+	{2,  1666,  0,  8,  7,  0x0808090B,  0x0C0D0E0A,},
+	{2,  1900,  0,  8,  6,  0x08080A0C,  0x0D0E0F0A,},
+	{1,  1666,  0,  8,  6,  0x0708090B,  0x0C0D0E09,},
+	{1,  1900,  0,  8,  6,  0x08080A0C,  0x0D0E0F0A,},
+	{1,  2200,  0,  8,  7,  0x08090A0D,  0x0F0F100C,},
 #elif defined(CONFIG_SYS_FSL_DDR3)
-	{2,  833,   0,  4,  6,  0x06060607,  0x08080807,},
-	{2,  1350,  0,  4,  7,  0x0708080A,  0x0A0B0C09,},
-	{2,  1666,  0,  4,  7,  0x0808090B,  0x0C0D0E0A,},
-	{1,  833,   0,  4,  6,  0x06060607,  0x08080807,},
-	{1,  1350,  0,  4,  7,  0x0708080A,  0x0A0B0C09,},
-	{1,  1666,  0,  4,  7,  0x0808090B,  0x0C0D0E0A,},
+	{2,  833,   0,  8,  6,  0x06060607,  0x08080807,},
+	{2,  1350,  0,  8,  7,  0x0708080A,  0x0A0B0C09,},
+	{2,  1666,  0,  8,  7,  0x0808090B,  0x0C0D0E0A,},
+	{1,  833,   0,  8,  6,  0x06060607,  0x08080807,},
+	{1,  1350,  0,  8,  7,  0x0708080A,  0x0A0B0C09,},
+	{1,  1666,  0,  8,  7,  0x0808090B,  0x0C0D0E0A,},
 #else
 #error DDR type not defined
 #endif
@@ -172,14 +172,13 @@ phys_size_t initdram(int board_type)
 
 #if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
 	puts("Initializing....using SPD\n");
-
 	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
 #else
 	/* DDR has been initialised by first stage boot loader */
 	dram_size =  fsl_ddr_sdram_size();
 #endif
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
 
 #if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_SPL_BUILD)
 	fsl_dp_resume();

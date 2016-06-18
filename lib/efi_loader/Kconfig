@@ -7,3 +7,12 @@ config EFI_LOADER
 	  on top of U-Boot. If this option is enabled, U-Boot will expose EFI
 	  interfaces to a loaded EFI application, enabling it to reuse U-Boot's
 	  device drivers.
+
+config EFI_LOADER_BOUNCE_BUFFER
+	bool "EFI Applications use bounce buffers for DMA operations"
+	depends on EFI_LOADER && ARM64
+	default n
+	help
+	  Some hardware does not support DMA to full 64bit addresses. For this
+	  hardware we can create a bounce buffer so that payloads don't have to
+	  worry about platform details.

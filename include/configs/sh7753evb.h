@@ -24,7 +24,6 @@
 #define CONFIG_MAC_PARTITION
 
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttySC2,115200 root=/dev/nfs ip=dhcp"
 
 #define CONFIG_VERSION_VARIABLE

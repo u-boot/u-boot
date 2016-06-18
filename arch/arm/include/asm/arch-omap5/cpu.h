@@ -116,4 +116,16 @@ struct watchdog {
 #define CPSW_BASE			0x48484000
 #define CPSW_MDIO_BASE			0x48485000
 
+/* gmii_sel register defines */
+#define GMII1_SEL_MII		0x0
+#define GMII1_SEL_RMII		0x1
+#define GMII1_SEL_RGMII		0x2
+#define GMII2_SEL_MII		(GMII1_SEL_MII << 4)
+#define GMII2_SEL_RMII		(GMII1_SEL_RMII << 4)
+#define GMII2_SEL_RGMII		(GMII1_SEL_RGMII << 4)
+
+#define MII_MODE_ENABLE		(GMII1_SEL_MII | GMII2_SEL_MII)
+#define RMII_MODE_ENABLE        (GMII1_SEL_RMII | GMII2_SEL_RMII)
+#define RGMII_MODE_ENABLE	(GMII1_SEL_RGMII | GMII2_SEL_RGMII)
+
 #endif /* _CPU_H */

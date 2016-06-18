@@ -6,8 +6,6 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
-/* #define DEBUG_EFI */
-
 #include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>
@@ -76,9 +74,7 @@ efi_status_t efi_exit_func(efi_status_t ret)
 
 static efi_status_t efi_unsupported(const char *funcname)
 {
-#ifdef DEBUG_EFI
-	printf("EFI: App called into unimplemented function %s\n", funcname);
-#endif
+	debug("EFI: App called into unimplemented function %s\n", funcname);
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
@@ -458,19 +454,30 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	efi_is_direct_boot = false;
 
 	/* call the image! */
+	if (setjmp(&info->exit_jmp)) {
+		/* We returned from the child image */
+		return EFI_EXIT(info->exit_status);
+	}
+
 	entry(image_handle, &systab);
 
 	/* Should usually never get here */
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI efi_exit(void *image_handle, long exit_status,
-				    unsigned long exit_data_size,
-				    uint16_t *exit_data)
+static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+			efi_status_t exit_status, unsigned long exit_data_size,
+			int16_t *exit_data)
 {
+	struct efi_loaded_image *loaded_image_info = (void*)image_handle;
+
 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
-	return EFI_EXIT(efi_unsupported(__func__));
+
+	loaded_image_info->exit_status = exit_status;
+	longjmp(&loaded_image_info->exit_jmp);
+
+	panic("EFI application exited");
 }
 
 static struct efi_object *efi_search_obj(void *handle)
@@ -746,7 +753,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.install_configuration_table = efi_install_configuration_table,
 	.load_image = efi_load_image,
 	.start_image = efi_start_image,
-	.exit = (void*)efi_exit,
+	.exit = efi_exit,
 	.unload_image = efi_unload_image,
 	.exit_boot_services = efi_exit_boot_services,
 	.get_next_monotonic_count = efi_get_next_monotonic_count,

@@ -265,6 +265,7 @@ typedef struct ccsr_pcix {
 #define PIWAR_WRITE_SNOOP	0x00005000
 #define PIWAR_MEM_2G		0x0000001e
 
+#ifndef CONFIG_MPC85XX_GPIO
 typedef struct ccsr_gpio {
 	u32	gpdir;
 	u32	gpodr;
@@ -273,6 +274,7 @@ typedef struct ccsr_gpio {
 	u32	gpimr;
 	u32	gpicr;
 } ccsr_gpio_t;
+#endif
 
 /* L2 Cache Registers */
 typedef struct ccsr_l2cache {

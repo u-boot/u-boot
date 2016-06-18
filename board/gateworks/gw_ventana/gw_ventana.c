@@ -743,7 +743,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 
 static int ft_sethdmiinfmt(void *blob, char *mode)
 {
@@ -996,7 +996,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* CONFIG_OF_BOARD_SETUP */
 
 static struct mxc_serial_platdata ventana_mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART2_BASE,
