@@ -48,15 +48,19 @@ SECTIONS
 
 #ifdef CONFIG_ARMV7_NONSEC
 
+	/* Align the secure section only if we're going to use it in situ */
+	.__secure_start :
+#ifndef CONFIG_ARMV7_SECURE_BASE
+		ALIGN(CONSTANT(COMMONPAGESIZE))
+#endif
+	{
+		KEEP(*(.__secure_start))
+	}
+
 #ifndef CONFIG_ARMV7_SECURE_BASE
 #define CONFIG_ARMV7_SECURE_BASE
 #define __ARMV7_PSCI_STACK_IN_RAM
 #endif
-
-	.__secure_start : {
-		. = ALIGN(0x1000);
-		*(.__secure_start)
-	}
 
 	.secure_text CONFIG_ARMV7_SECURE_BASE :
 		AT(ADDR(.__secure_start) + SIZEOF(.__secure_start))
