@@ -19,6 +19,11 @@ DECLARE_GLOBAL_DATA_PTR;
  * Here are the type we know about. One day we might allow drivers to
  * register. For now we just put them here. The COMPAT macro allows us to
  * turn this into a sparse list later, and keeps the ID with the name.
+ *
+ * NOTE: This list is basically a TODO list for things that need to be
+ * converted to driver model. So don't add new things here unless there is a
+ * good reason why driver-model conversion is infeasible. Examples include
+ * things which are used before driver model is available.
  */
 #define COMPAT(id, name) name
 static const char * const compat_names[COMPAT_COUNT] = {
