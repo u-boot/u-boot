@@ -86,6 +86,17 @@ SECTIONS
 		. = ALIGN(CONSTANT(COMMONPAGESIZE));
 
 		KEEP(*(.__secure_stack_end))
+
+#ifdef CONFIG_ARMV7_SECURE_MAX_SIZE
+		/*
+		 * We are not checking (__secure_end - __secure_start) here,
+		 * as these are the load addresses, and do not include the
+		 * stack section. Instead, use the end of the stack section
+		 * and the start of the text section.
+		 */
+		ASSERT((. - ADDR(.secure_text)) <= CONFIG_ARMV7_SECURE_MAX_SIZE,
+		       "Error: secure section exceeds secure memory size");
+#endif
 	}
 
 #ifndef __ARMV7_PSCI_STACK_IN_RAM
