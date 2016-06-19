@@ -250,7 +250,7 @@ void __secure psci_cpu_off(void)
 		wfi();
 }
 
-void __secure sunxi_gic_init(void)
+void __secure psci_arch_init(void)
 {
 	u32 reg;
 
@@ -270,4 +270,9 @@ void __secure sunxi_gic_init(void)
 	reg |= BIT(2);  /* Enable FIQ in monitor mode */
 	reg &= ~BIT(0); /* Secure mode */
 	cp15_write_scr(reg);
+}
+
+/* dummy entry for end of psci text */
+void __secure psci_text_end(void)
+{
 }
