@@ -124,15 +124,6 @@ void erratum_a009635(void)
 }
 #endif	/* CONFIG_SYS_FSL_ERRATUM_A009635 */
 
-static void erratum_a008751(void)
-{
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008751
-	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
-
-	writel(0x27672b2a, scfg + SCFG_USB3PRM1CR / 4);
-#endif
-}
-
 static void erratum_rcw_src(void)
 {
 #if defined(CONFIG_SPL)
@@ -189,7 +180,6 @@ void bypass_smmu(void)
 }
 void fsl_lsch3_early_init_f(void)
 {
-	erratum_a008751();
 	erratum_rcw_src();
 	init_early_memctl_regs();	/* tighten IFC timing */
 	erratum_a009203();

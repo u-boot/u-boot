@@ -12,6 +12,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <hwconfig.h>
+#include <fsl_errata.h>
 #include <fsl_usb.h>
 #include <fdt_support.h>
 
@@ -19,10 +20,16 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 #endif
 
+/* USB Controllers */
+#define FSL_USB2_MPH	"fsl-usb2-mph"
+#define FSL_USB2_DR	"fsl-usb2-dr"
+#define CHIPIDEA_USB2	"chipidea,usb2"
+#define SNPS_DWC3	"snps,dwc3"
+
 static const char * const compat_usb_fsl[] = {
-	"fsl-usb2-mph",
-	"fsl-usb2-dr",
-	"snps,dwc3",
+	FSL_USB2_MPH,
+	FSL_USB2_DR,
+	SNPS_DWC3,
 	NULL
 };
 
@@ -80,14 +87,22 @@ static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 }
 
 static int fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
-				 int start_offset)
+				 const char *controller_type, int start_offset)
 {
 	int node_offset, err;
 	const char *node_type = NULL;
+	const char *node_name = NULL;
 
 	err = fdt_usb_get_node_type(blob, start_offset,
 				    &node_offset, &node_type);
 	if (err < 0)
+		return err;
+
+	if (!strcmp(node_type, FSL_USB2_MPH) || !strcmp(node_type, FSL_USB2_DR))
+		node_name = CHIPIDEA_USB2;
+	else
+		node_name = node_type;
+	if (strcmp(node_name, controller_type))
 		return err;
 
 	err = fdt_setprop(blob, node_offset, prop_erratum, NULL, 0);
@@ -99,6 +114,23 @@ static int fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
 	return node_offset;
 }
 
+static int fdt_fixup_erratum(int *usb_erratum_off, void *blob,
+			     const char *controller_type, char *str,
+			     bool (*has_erratum)(void))
+{
+	char buf[32] = {0};
+
+	snprintf(buf, sizeof(buf), "fsl,usb-erratum-%s", str);
+	if (!has_erratum())
+		return -EINVAL;
+	*usb_erratum_off = fdt_fixup_usb_erratum(blob, buf, controller_type,
+						 *usb_erratum_off);
+	if (*usb_erratum_off < 0)
+		return -ENOSPC;
+	debug("Adding USB erratum %s\n", str);
+	return 0;
+}
+
 void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	static const char * const modes[] = { "host", "peripheral", "otg" };
@@ -107,10 +139,12 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 	int usb_erratum_a007075_off = -1;
 	int usb_erratum_a007792_off = -1;
 	int usb_erratum_a005697_off = -1;
+	int usb_erratum_a008751_off = -1;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
 	char str[5];
 	int i, j;
+	int ret;
 
 	for (i = 1; i <= CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
 		const char *dr_mode_type = NULL;
@@ -164,39 +198,31 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 		if (usb_phy_off < 0)
 			return;
 
-		if (has_erratum_a006261()) {
-			usb_erratum_a006261_off =  fdt_fixup_usb_erratum
-						   (blob,
-						    "fsl,usb-erratum-a006261",
-						    usb_erratum_a006261_off);
-			if (usb_erratum_a006261_off < 0)
-				return;
-		}
+		ret = fdt_fixup_erratum(&usb_erratum_a006261_off, blob,
+					CHIPIDEA_USB2, "a006261",
+					has_erratum_a006261);
+		if (ret == -ENOSPC)
+			return;
+		ret = fdt_fixup_erratum(&usb_erratum_a007075_off, blob,
+					CHIPIDEA_USB2, "a007075",
+					has_erratum_a007075);
+		if (ret == -ENOSPC)
+			return;
+		ret = fdt_fixup_erratum(&usb_erratum_a007792_off, blob,
+					CHIPIDEA_USB2, "a007792",
+					has_erratum_a007792);
+		if (ret == -ENOSPC)
+			return;
+		ret = fdt_fixup_erratum(&usb_erratum_a005697_off, blob,
+					CHIPIDEA_USB2, "a005697",
+					has_erratum_a005697);
+		if (ret == -ENOSPC)
+			return;
+		ret = fdt_fixup_erratum(&usb_erratum_a008751_off, blob,
+					SNPS_DWC3, "a008751",
+					has_erratum_a008751);
+		if (ret == -ENOSPC)
+			return;
 
-		if (has_erratum_a007075()) {
-			usb_erratum_a007075_off =  fdt_fixup_usb_erratum
-						   (blob,
-						    "fsl,usb-erratum-a007075",
-						    usb_erratum_a007075_off);
-			if (usb_erratum_a007075_off < 0)
-				return;
-		}
-
-		if (has_erratum_a007792()) {
-			usb_erratum_a007792_off =  fdt_fixup_usb_erratum
-						   (blob,
-						    "fsl,usb-erratum-a007792",
-						    usb_erratum_a007792_off);
-			if (usb_erratum_a007792_off < 0)
-				return;
-		}
-		if (has_erratum_a005697()) {
-			usb_erratum_a005697_off =  fdt_fixup_usb_erratum
-						   (blob,
-						    "fsl,usb-erratum-a005697",
-						    usb_erratum_a005697_off);
-			if (usb_erratum_a005697_off < 0)
-				return;
-		}
 	}
 }

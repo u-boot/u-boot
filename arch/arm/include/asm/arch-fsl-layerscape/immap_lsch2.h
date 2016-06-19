@@ -596,4 +596,6 @@ struct ccsr_cci400 {
 #define SCR0_CLIENTPD_MASK		0x00000001
 #define SCR0_USFCFG_MASK		0x00000400
 
+uint get_svr(void);
+
 #endif	/* __ARCH_FSL_LSCH2_IMMAP_H__*/

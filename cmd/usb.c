@@ -800,7 +800,8 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 			printf("\nUSB device %d: ", dev);
 			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, dev);
-			if (stor_dev == NULL) {
+			if ((stor_dev == NULL) ||
+			    (stor_dev->if_type == IF_TYPE_UNKNOWN)) {
 				printf("unknown device\n");
 				return 1;
 			}

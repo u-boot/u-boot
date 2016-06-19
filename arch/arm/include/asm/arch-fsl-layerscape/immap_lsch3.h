@@ -142,6 +142,7 @@
 /* Supplemental Configuration */
 #define SCFG_BASE		0x01fc0000
 #define SCFG_USB3PRM1CR			0x000
+#define SCFG_USB3PRM1CR_INIT		0x27672b2a
 #define SCFG_QSPICLKCTLR	0x10
 
 #define TP_ITYP_AV		0x00000001	/* Initiator available */
@@ -323,4 +324,7 @@ struct ccsr_reset {
 	u32 ip_rev1;			/* 0xbf8 */
 	u32 ip_rev2;			/* 0xbfc */
 };
+
+uint get_svr(void);
+
 #endif /* __ARCH_FSL_LSCH3_IMMAP_H_ */
