@@ -126,6 +126,8 @@ void _smp_pen(void);
 
 extern char __secure_start[];
 extern char __secure_end[];
+extern char __secure_stack_start[];
+extern char __secure_stack_end[];
 
 #endif /* CONFIG_ARMV7_NONSEC */
 

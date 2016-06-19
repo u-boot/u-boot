@@ -47,6 +47,10 @@
 #define ARM_PSCI_0_2_FN_SYSTEM_OFF		ARM_PSCI_0_2_FN(8)
 #define ARM_PSCI_0_2_FN_SYSTEM_RESET		ARM_PSCI_0_2_FN(9)
 
+/* 1KB stack per core */
+#define ARM_PSCI_STACK_SHIFT	10
+#define ARM_PSCI_STACK_SIZE	(1 << ARM_PSCI_STACK_SHIFT)
+
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 

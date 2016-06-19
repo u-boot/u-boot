@@ -8,6 +8,7 @@
  */
 
 #include <config.h>
+#include <asm/psci.h>
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
@@ -68,18 +69,31 @@ SECTIONS
 		*(._secure.text)
 	}
 
-	. = LOADADDR(.__secure_start) +
-		SIZEOF(.__secure_start) +
-		SIZEOF(.secure_text);
-
+	.secure_stack ALIGN(ADDR(.secure_text) + SIZEOF(.secure_text),
+			    CONSTANT(COMMONPAGESIZE)) (NOLOAD) :
 #ifdef __ARMV7_PSCI_STACK_IN_RAM
-	/* Align to page boundary and skip 2 pages */
-	. = (. & ~ 0xfff) + 0x2000;
-#undef __ARMV7_PSCI_STACK_IN_RAM
+		AT(ADDR(.secure_stack))
+#else
+		AT(LOADADDR(.secure_text) + SIZEOF(.secure_text))
+#endif
+	{
+		KEEP(*(.__secure_stack_start))
+
+		/* Skip addreses for stack */
+		. = . + CONFIG_ARMV7_PSCI_NR_CPUS * ARM_PSCI_STACK_SIZE;
+
+		/* Align end of stack section to page boundary */
+		. = ALIGN(CONSTANT(COMMONPAGESIZE));
+
+		KEEP(*(.__secure_stack_end))
+	}
+
+#ifndef __ARMV7_PSCI_STACK_IN_RAM
+	/* Reset VMA but don't allocate space if we have secure SRAM */
+	. = LOADADDR(.secure_stack);
 #endif
 
-	__secure_end_lma = .;
-	.__secure_end : AT(__secure_end_lma) {
+	.__secure_end : AT(ADDR(.__secure_end)) {
 		*(.__secure_end)
 		LONG(0x1d1071c);	/* Must output something to reset LMA */
 	}
