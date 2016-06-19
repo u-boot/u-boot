@@ -129,7 +129,7 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	BOOTENV
 
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_SYS_NO_FLASH
 
