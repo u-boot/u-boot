@@ -17,11 +17,11 @@
 #include <asm/gic.h>
 #include <asm/io.h>
 #include <asm/psci.h>
+#include <asm/secure.h>
 #include <asm/system.h>
 
 #include <linux/bitops.h>
 
-#define __secure	__attribute__ ((section ("._secure.text")))
 #define __irq		__attribute__ ((interrupt ("IRQ")))
 
 #define	GICD_BASE	(SUNXI_GIC400_BASE + GIC_DIST_OFFSET)

@@ -3,6 +3,8 @@
 
 #include <config.h>
 
+#define __secure __attribute__ ((section ("._secure.text")))
+
 #ifdef CONFIG_ARMV7_SECURE_BASE
 /*
  * Warning, horror ahead.

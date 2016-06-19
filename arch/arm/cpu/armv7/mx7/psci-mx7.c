@@ -1,9 +1,9 @@
 #include <asm/io.h>
 #include <asm/psci.h>
+#include <asm/secure.h>
 #include <asm/arch/imx-regs.h>
 #include <common.h>
 
-#define __secure __attribute__((section("._secure.text")))
 
 #define GPC_CPU_PGC_SW_PDN_REQ	0xfc
 #define GPC_CPU_PGC_SW_PUP_REQ	0xf0
