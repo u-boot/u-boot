@@ -271,8 +271,3 @@ void __secure psci_arch_init(void)
 	reg &= ~BIT(0); /* Secure mode */
 	cp15_write_scr(reg);
 }
-
-/* dummy entry for end of psci text */
-void __secure psci_text_end(void)
-{
-}

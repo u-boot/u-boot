@@ -106,6 +106,4 @@ ENTRY(psci_cpu_on)
 	pop	{pc}
 ENDPROC(psci_cpu_on)
 
-	.globl psci_text_end
-psci_text_end:
 	.popsection

@@ -33,6 +33,4 @@ psci_cpu_off:
 1: 	wfi
 	b 1b
 
-	.globl psci_text_end
-psci_text_end:
 	.popsection
