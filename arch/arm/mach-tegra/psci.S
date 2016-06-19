@@ -61,9 +61,6 @@ ENTRY(psci_arch_init)
 	ldrne	r7, [r5]
 	mcrne	p15, 0, r7, c14, c0, 0	@ write CNTFRQ to CPU1..3
 
-	bl	psci_get_cpu_stack_top	@ stack top => r0
-	mov	sp, r0
-
 	bx	r6
 ENDPROC(psci_arch_init)
 

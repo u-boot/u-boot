@@ -111,16 +111,6 @@ psci_cpu_off:
 1:	wfi
 	b	1b
 
-.globl	psci_arch_init
-psci_arch_init:
-	mov	r6, lr
-
-	bl	psci_get_cpu_id
-	bl	psci_get_cpu_stack_top
-	mov	sp, r0
-
-	bx	r6
-
 	.globl psci_text_end
 psci_text_end:
 	.popsection

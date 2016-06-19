@@ -44,22 +44,8 @@
 #define	GICD_BASE		(SUNXI_GIC400_BASE +  0x1000)
 #define	GICC_BASE		(SUNXI_GIC400_BASE +  0x2000)
 
-@ {r0, r1, r2, ip} from _do_nonsec_entry(kernel_entry, 0, machid, r2) in
-@ arch/arm/lib/bootm.c:boot_jump_linux() must remain unchanged across
-@ this function.
 ENTRY(psci_arch_init)
-	mov	r6, lr
-	mov	r7, r0
-	bl	psci_get_cpu_id		@ CPU ID => r0
-	bl	psci_get_cpu_stack_top	@ stack top => r0
-	sub	r0, r0, #4		@ Save space for target PC
-	mov	sp, r0
-	mov	r0, r7
-	mov	lr, r6
-
-	push	{r0, r1, r2, ip, lr}
-	bl	sunxi_gic_init
-	pop	{r0, r1, r2, ip, pc}
+	b	sunxi_gic_init
 ENDPROC(psci_arch_init)
 
 ENTRY(psci_text_end)

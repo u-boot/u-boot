@@ -49,8 +49,13 @@ _secure_monitor:
 	mcr	p15, 0, r5, c12, c0, 1
 	isb
 
-	@ Obtain a secure stack, and configure the PSCI backend
+	@ Obtain a secure stack
+	bl	psci_stack_setup
+
+	@ Configure the PSCI backend
+	push	{r0, r1, r2, ip}
 	bl	psci_arch_init
+	pop	{r0, r1, r2, ip}
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_773022

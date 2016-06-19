@@ -9,22 +9,6 @@
 
 	.arch_extension sec
 
-	@ r1 = target CPU
-	@ r2 = target PC
-
-.globl	psci_arch_init
-psci_arch_init:
-	mov	r6, lr
-
-	bl	psci_get_cpu_id
-	bl	psci_get_cpu_stack_top
-	mov	sp, r0
-
-	bx	r6
-
-	@ r1 = target CPU
-	@ r2 = target PC
-
 .globl psci_cpu_on
 psci_cpu_on:
 	push	{lr}

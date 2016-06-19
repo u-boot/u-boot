@@ -211,6 +211,24 @@ ENTRY(psci_get_cpu_stack_top)
 	bx	lr
 ENDPROC(psci_get_cpu_stack_top)
 
+@ {r0, r1, r2, ip} from _do_nonsec_entry(kernel_entry, 0, machid, r2) in
+@ arch/arm/lib/bootm.c:boot_jump_linux() must remain unchanged across
+@ this function.
+ENTRY(psci_stack_setup)
+	mov	r6, lr
+	mov	r7, r0
+	bl	psci_get_cpu_id		@ CPU ID => r0
+	bl	psci_get_cpu_stack_top	@ stack top => r0
+	mov	sp, r0
+	mov	r0, r7
+	bx	r6
+ENDPROC(psci_stack_setup)
+
+ENTRY(psci_arch_init)
+	mov	pc, lr
+ENDPROC(psci_arch_init)
+.weak psci_arch_init
+
 ENTRY(psci_cpu_entry)
 	bl	psci_enable_smp
 
