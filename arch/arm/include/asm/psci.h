@@ -60,7 +60,6 @@ void psci_save_target_pc(int cpu, u32 pc);
 
 void psci_cpu_entry(void);
 u32 psci_get_cpu_id(void);
-u32 psci_get_cpu_stack_top(int cpu);
 void psci_cpu_off_common(void);
 
 int psci_update_dt(void *fdt);

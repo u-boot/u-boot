@@ -213,7 +213,7 @@ ENDPROC(psci_cpu_off_common)
 @ --------------------  __secure_stack_start
 @
 @ This expects CPU ID in r0 and returns stack top in r0
-ENTRY(psci_get_cpu_stack_top)
+LENTRY(psci_get_cpu_stack_top)
 	@ stack top = __secure_stack_end - (cpuid << ARM_PSCI_STACK_SHIFT)
 	ldr	r3, =__secure_stack_end
 	sub	r0, r3, r0, LSL #ARM_PSCI_STACK_SHIFT
