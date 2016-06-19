@@ -66,7 +66,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IOX_SDI IMX_GPIO_NR(5, 10)
 #define IOX_STCP IMX_GPIO_NR(5, 7)
 #define IOX_SHCP IMX_GPIO_NR(5, 11)
-#define IOX_OE IMX_GPIO_NR(5, 18)
+#define IOX_OE IMX_GPIO_NR(5, 8)
 
 static iomux_v3_cfg_t const iox_pads[] = {
 	/* IOX_SDI */
@@ -117,7 +117,7 @@ static enum qn_level seq[3][2] = {
 
 static enum qn_func qn_output[8] = {
 	qn_reset, qn_reset, qn_reset, qn_enable, qn_disable, qn_reset,
-	qn_disable, qn_enable
+	qn_disable, qn_disable
 };
 
 static void iox74lv_init(void)
@@ -154,8 +154,6 @@ static void iox74lv_init(void)
 	 * shift register will be output to pins
 	 */
 	gpio_direction_output(IOX_STCP, 1);
-
-	gpio_direction_output(IOX_OE, 1);
 };
 
 #ifdef CONFIG_SYS_I2C_MXC
@@ -305,7 +303,7 @@ static void setup_iomux_uart(void)
 
 #define QSPI_PAD_CTRL1	\
 	(PAD_CTL_SRE_FAST | PAD_CTL_SPEED_MED | \
-	 PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_47K_UP | PAD_CTL_DSE_60ohm)
+	 PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_47K_UP | PAD_CTL_DSE_120ohm)
 
 static iomux_v3_cfg_t const quadspi_pads[] = {
 	MX6_PAD_NAND_WP_B__QSPI_A_SCLK | MUX_PAD_CTRL(QSPI_PAD_CTRL1),
