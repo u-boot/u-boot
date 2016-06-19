@@ -245,8 +245,7 @@ ENTRY(psci_cpu_entry)
 	bl	_nonsec_init
 
 	bl	psci_get_cpu_id			@ CPU ID => r0
-	bl	psci_get_cpu_stack_top		@ stack top => r0
-	ldr	r0, [r0]			@ target PC at stack top
+	bl	psci_get_target_pc		@ target PC => r0
 	b	_do_nonsec_entry
 ENDPROC(psci_cpu_entry)
 

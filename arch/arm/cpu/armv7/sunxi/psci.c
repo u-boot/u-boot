@@ -209,9 +209,8 @@ int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc)
 		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 	u32 cpu = (mpidr & 0x3);
 
-	/* store target PC at target CPU stack top */
-	writel(pc, psci_get_cpu_stack_top(cpu));
-	DSB;
+	/* store target PC */
+	psci_save_target_pc(cpu, pc);
 
 	/* Set secondary core power on PC */
 	writel((u32)&psci_cpu_entry, &cpucfg->priv0);
