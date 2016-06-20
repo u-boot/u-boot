@@ -208,8 +208,11 @@ static void usb_power_config(int index)
 			(0x10000 * index) + USBNC_OFFSET);
 	void __iomem *phy_cfg2 = (void __iomem *)(&usbnc->phy_cfg2);
 
-	/* Enable usb_otg_id detection */
-	setbits_le32(phy_cfg2, USBNC_PHYCFG2_ACAENB);
+	/*
+	 * Clear the ACAENB to enable usb_otg_id detection,
+	 * otherwise it is the ACA detection enabled.
+	 */
+	clrbits_le32(phy_cfg2, USBNC_PHYCFG2_ACAENB);
 }
 
 int usb_phy_mode(int port)
