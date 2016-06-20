@@ -100,6 +100,7 @@ endmenu
 config BOOTDELAY
 	int "delay in seconds before automatically booting"
 	default 2
+	depends on AUTOBOOT
 	help
 	  Delay before automatically running bootcmd;
 	  set to -1 to disable autoboot.

@@ -15,10 +15,7 @@ ifdef CONFIG_SYS_HUSH_PARSER
 obj-y += cli_hush.o
 endif
 
-# This option is not just y/n - it can have a numeric value
-ifdef CONFIG_BOOTDELAY
-obj-y += autoboot.o
-endif
+obj-$(CONFIG_AUTOBOOT) += autoboot.o
 
 # This option is not just y/n - it can have a numeric value
 ifdef CONFIG_BOOT_RETRY_TIME

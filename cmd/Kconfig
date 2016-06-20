@@ -38,6 +38,12 @@ config SYS_PROMPT
 
 menu "Autoboot options"
 
+config AUTOBOOT
+	bool "Autoboot"
+	default y
+	help
+	  This enables the autoboot.  See doc/README.autoboot for detail.
+
 config AUTOBOOT_KEYED
 	bool "Stop autobooting via specific input key / string"
 	default n

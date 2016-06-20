@@ -1,5 +1,6 @@
 CONFIG_SH=y
 CONFIG_TARGET_RSK7203=y
+# CONFIG_AUTOBOOT is not set
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_BOOTD is not set
