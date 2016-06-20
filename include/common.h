@@ -101,6 +101,12 @@ typedef volatile unsigned char	vu_char;
 #define _DEBUG	0
 #endif
 
+#ifdef CONFIG_SPL_BUILD
+#define _SPL_BUILD	1
+#else
+#define _SPL_BUILD	0
+#endif
+
 /* Define this at the top of a file to add a prefix to debug messages */
 #ifndef pr_fmt
 #define pr_fmt(fmt) fmt
@@ -120,6 +126,10 @@ typedef volatile unsigned char	vu_char;
 /* Show a message if DEBUG is defined in a file */
 #define debug(fmt, args...)			\
 	debug_cond(_DEBUG, fmt, ##args)
+
+/* Show a message if not in SPL */
+#define warn_non_spl(fmt, args...)			\
+	debug_cond(!_SPL_BUILD, fmt, ##args)
 
 /*
  * An assertion is run-time check done in debug mode only. If DEBUG is not
