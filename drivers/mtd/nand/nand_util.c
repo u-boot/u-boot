@@ -820,7 +820,7 @@ int nand_torture(struct mtd_info *mtd, loff_t offset)
 {
 	u_char patterns[] = {0xa5, 0x5a, 0x00};
 	struct erase_info instr = {
-		.mtd = nand,
+		.mtd = mtd,
 		.addr = offset,
 		.len = mtd->erasesize,
 	};

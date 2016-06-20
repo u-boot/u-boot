@@ -147,7 +147,7 @@ static int mxs_nand_init(void)
 
 	/* init mxs nand driver */
 	board_nand_init(&nand_chip);
-	mtd = &nand_chip.mtd;
+	mtd = nand_to_mtd(&nand_chip);
 	/* set mtd functions */
 	nand_chip.cmdfunc = mxs_nand_command;
 	nand_chip.numchips = 1;

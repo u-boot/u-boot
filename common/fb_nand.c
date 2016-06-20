@@ -34,7 +34,7 @@ __weak int board_fastboot_write_partition_setup(char *name)
 }
 
 static int fb_nand_lookup(const char *partname, char *response,
-			  struct mtd_info **nand,
+			  struct mtd_info **mtd,
 			  struct part_info **part)
 {
 	struct mtd_device *dev;

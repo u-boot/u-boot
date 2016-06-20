@@ -99,16 +99,31 @@ config SYS_NAND_BUSWIDTH_16BIT
 	    not available while configuring controller. So a static CONFIG_NAND_xx
 	    is needed to know the device's bus-width in advance.
 
-# Enhance depends when converting drivers to Kconfig which use this config
+if SPL
+
+config SYS_NAND_U_BOOT_LOCATIONS
+	bool "Define U-boot binaries locations in NAND"
+	help
+	Enable CONFIG_SYS_NAND_U_BOOT_OFFS though Kconfig.
+	This option should not be enabled when compiling U-boot for boards
+	defining CONFIG_SYS_NAND_U_BOOT_OFFS in their include/configs/<board>.h
+	file.
+
 config SYS_NAND_U_BOOT_OFFS
 	hex "Location in NAND to read U-Boot from"
 	default 0x8000 if NAND_SUNXI
-	depends on NAND_SUNXI
+	depends on SYS_NAND_U_BOOT_LOCATIONS
 	help
 	Set the offset from the start of the nand where u-boot should be
 	loaded from.
 
-if SPL
+config SYS_NAND_U_BOOT_OFFS_REDUND
+	hex "Location in NAND to read U-Boot from"
+	default SYS_NAND_U_BOOT_OFFS
+	depends on SYS_NAND_U_BOOT_LOCATIONS
+	help
+	Set the offset from the start of the nand where the redundant u-boot
+	should be loaded from.
 
 config SPL_NAND_DENALI
 	bool "Support Denali NAND controller for SPL"

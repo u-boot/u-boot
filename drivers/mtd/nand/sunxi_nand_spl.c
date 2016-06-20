@@ -66,6 +66,8 @@
 #define NFC_ROW_AUTO_INC           (1 << 27)
 #define NFC_SEND_CMD3              (1 << 28)
 #define NFC_SEND_CMD4              (1 << 29)
+#define NFC_RAW_CMD                (0 << 30)
+#define NFC_PAGE_CMD               (2 << 30)
 
 #define NFC_ST_CMD_INT_FLAG        (1 << 1)
 #define NFC_ST_DMA_INT_FLAG        (1 << 2)
@@ -77,9 +79,6 @@
 #define NFC_CMD_RNDOUTSTART        0xE0
 #define NFC_CMD_RNDOUT             0x05
 #define NFC_CMD_READSTART          0x30
-
-
-#define NFC_PAGE_CMD               (2 << 30)
 
 #define SUNXI_DMA_CFG_REG0              0x300
 #define SUNXI_DMA_SRC_START_ADDR_REG0   0x304
@@ -96,6 +95,16 @@
 
 #define SUNXI_DMA_DDMA_PARA_REG_SRC_WAIT_CYC (0x0F << 0)
 #define SUNXI_DMA_DDMA_PARA_REG_SRC_BLK_SIZE (0x7F << 8)
+
+struct nfc_config {
+	int page_size;
+	int ecc_strength;
+	int ecc_size;
+	int addr_cycles;
+	int nseeds;
+	bool randomize;
+	bool valid;
+};
 
 /* minimal "boot0" style NAND support for Allwinner A20 */
 
@@ -119,38 +128,31 @@ const uint16_t random_seed[128] = {
 	0x7c57, 0x0fbe, 0x46ce, 0x4939, 0x6b17, 0x37bb, 0x3e91, 0x76db,
 };
 
-/* random seed used for syndrome calls */
-const uint16_t random_seed_syndrome = 0x4a80;
-
-#define MAX_RETRIES 10
+#define DEFAULT_TIMEOUT_US	100000
 
 static int check_value_inner(int offset, int expected_bits,
-				int max_number_of_retries, int negation)
+			     int timeout_us, int negation)
 {
-	int retries = 0;
 	do {
 		int val = readl(offset) & expected_bits;
 		if (negation ? !val : val)
 			return 1;
-		mdelay(1);
-		retries++;
-	} while (retries < max_number_of_retries);
+		udelay(1);
+	} while (--timeout_us);
 
 	return 0;
 }
 
 static inline int check_value(int offset, int expected_bits,
-				int max_number_of_retries)
+			      int timeout_us)
 {
-	return check_value_inner(offset, expected_bits,
-					max_number_of_retries, 0);
+	return check_value_inner(offset, expected_bits, timeout_us, 0);
 }
 
 static inline int check_value_negated(int offset, int unexpected_bits,
-					int max_number_of_retries)
+				      int timeout_us)
 {
-	return check_value_inner(offset, unexpected_bits,
-					max_number_of_retries, 1);
+	return check_value_inner(offset, unexpected_bits, timeout_us, 1);
 }
 
 void nand_init(void)
@@ -165,7 +167,7 @@ void nand_init(void)
 	       SUNXI_NFC_BASE + NFC_CTL);
 
 	if (!check_value_negated(SUNXI_NFC_BASE + NFC_CTL,
-				 NFC_CTL_RESET, MAX_RETRIES)) {
+				 NFC_CTL_RESET, DEFAULT_TIMEOUT_US)) {
 		printf("Couldn't initialize nand\n");
 	}
 
@@ -175,64 +177,97 @@ void nand_init(void)
 	       SUNXI_NFC_BASE + NFC_CMD);
 
 	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
-			 MAX_RETRIES)) {
+			 DEFAULT_TIMEOUT_US)) {
 		printf("Error timeout waiting for nand reset\n");
 		return;
 	}
 	writel(NFC_ST_CMD_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 }
 
-static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
-	int addr_cycles, uint32_t real_addr, dma_addr_t dst, int syndrome)
+static void nand_apply_config(const struct nfc_config *conf)
 {
-	uint32_t val;
-	int i, ecc_off = 0;
-	uint16_t ecc_mode = 0;
-	uint16_t rand_seed;
-	uint32_t page;
-	uint16_t column;
-	static const u8 strengths[] = { 16, 24, 28, 32, 40, 48, 56, 60, 64 };
+	u32 val;
 
-	for (i = 0; i < ARRAY_SIZE(strengths); i++) {
-		if (ecc_strength == strengths[i]) {
-			ecc_mode = i;
-			break;
-		}
+	val = readl(SUNXI_NFC_BASE + NFC_CTL);
+	val &= ~NFC_CTL_PAGE_SIZE_MASK;
+	writel(val | NFC_CTL_RAM_METHOD | NFC_CTL_PAGE_SIZE(conf->page_size),
+	       SUNXI_NFC_BASE + NFC_CTL);
+	writel(conf->ecc_size, SUNXI_NFC_BASE + NFC_CNT);
+	writel(conf->page_size, SUNXI_NFC_BASE + NFC_SPARE_AREA);
+}
+
+static int nand_load_page(const struct nfc_config *conf, u32 offs)
+{
+	int page = offs / conf->page_size;
+
+	writel((NFC_CMD_RNDOUTSTART << NFC_RANDOM_READ_CMD1_OFFSET) |
+	       (NFC_CMD_RNDOUT << NFC_RANDOM_READ_CMD0_OFFSET) |
+	       (NFC_CMD_READSTART << NFC_READ_CMD_OFFSET),
+	       SUNXI_NFC_BASE + NFC_RCMD_SET);
+	writel(((page & 0xFFFF) << 16), SUNXI_NFC_BASE + NFC_ADDR_LOW);
+	writel((page >> 16) & 0xFF, SUNXI_NFC_BASE + NFC_ADDR_HIGH);
+	writel(NFC_ST_CMD_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
+	writel(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_RAW_CMD | NFC_WAIT_FLAG |
+	       ((conf->addr_cycles - 1) << NFC_ADDR_NUM_OFFSET) | NFC_SEND_ADR,
+	       SUNXI_NFC_BASE + NFC_CMD);
+
+	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
+			 DEFAULT_TIMEOUT_US)) {
+		printf("Error while initializing dma interrupt\n");
+		return -EIO;
 	}
 
-	/* HW ECC always request ECC bytes for 1024 bytes blocks */
-	ecc_off = DIV_ROUND_UP(ecc_strength * fls(8 * 1024), 8);
-	/* HW ECC always work with even numbers of ECC bytes */
-	ecc_off += (ecc_off & 1);
-	ecc_off += 4; /* prepad */
+	return 0;
+}
 
-	page = real_addr / page_size;
-	column = real_addr % page_size;
+static int nand_reset_column(void)
+{
+	writel((NFC_CMD_RNDOUTSTART << NFC_RANDOM_READ_CMD1_OFFSET) |
+	       (NFC_CMD_RNDOUT << NFC_RANDOM_READ_CMD0_OFFSET) |
+	       (NFC_CMD_RNDOUTSTART << NFC_READ_CMD_OFFSET),
+	       SUNXI_NFC_BASE + NFC_RCMD_SET);
+	writel(0, SUNXI_NFC_BASE + NFC_ADDR_LOW);
+	writel(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_RAW_CMD |
+	       (1 << NFC_ADDR_NUM_OFFSET) | NFC_SEND_ADR | NFC_CMD_RNDOUT,
+	       SUNXI_NFC_BASE + NFC_CMD);
 
-	if (syndrome)
-		column += (column / ecc_page_size) * ecc_off;
+	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
+			 DEFAULT_TIMEOUT_US)) {
+		printf("Error while initializing dma interrupt\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+static int nand_read_page(const struct nfc_config *conf, u32 offs,
+			  void *dest, int len)
+{
+	dma_addr_t dst = (dma_addr_t)dest;
+	int nsectors = len / conf->ecc_size;
+	u16 rand_seed;
+	u32 val;
+	int page;
+
+	page = offs / conf->page_size;
+
+	if (offs % conf->page_size || len % conf->ecc_size ||
+	    len > conf->page_size || len < 0)
+		return -EINVAL;
 
 	/* clear ecc status */
 	writel(0, SUNXI_NFC_BASE + NFC_ECC_ST);
 
 	/* Choose correct seed */
-	if (syndrome)
-		rand_seed = random_seed_syndrome;
-	else
-		rand_seed = random_seed[page % 128];
+	rand_seed = random_seed[page % conf->nseeds];
 
-	writel((rand_seed << 16) | NFC_ECC_RANDOM_EN | NFC_ECC_EN
-		| NFC_ECC_PIPELINE | (ecc_mode << 12),
+	writel((rand_seed << 16) | (conf->ecc_strength << 12) |
+		(conf->randomize ? NFC_ECC_RANDOM_EN : 0) |
+		(conf->ecc_size == 512 ? NFC_ECC_BLOCK_SIZE : 0) |
+		NFC_ECC_EN | NFC_ECC_PIPELINE | NFC_ECC_EXCEPTION,
 		SUNXI_NFC_BASE + NFC_ECC_CTL);
 
-	val = readl(SUNXI_NFC_BASE + NFC_CTL);
-	writel(val | NFC_CTL_RAM_METHOD, SUNXI_NFC_BASE + NFC_CTL);
-
-	if (!syndrome)
-		writel(page_size + (column / ecc_page_size) * ecc_off,
-		       SUNXI_NFC_BASE + NFC_SPARE_AREA);
-
-	flush_dcache_range(dst, ALIGN(dst + ecc_page_size, ARCH_DMA_MINALIGN));
+	flush_dcache_range(dst, ALIGN(dst + conf->ecc_size, ARCH_DMA_MINALIGN));
 
 	/* SUNXI_DMA */
 	writel(0x0, SUNXI_DMA_BASE + SUNXI_DMA_CFG_REG0); /* clr dma cmd */
@@ -241,158 +276,261 @@ static int nand_read_page(int page_size, int ecc_strength, int ecc_page_size,
 	       SUNXI_DMA_BASE + SUNXI_DMA_SRC_START_ADDR_REG0);
 	/* read to RAM */
 	writel(dst, SUNXI_DMA_BASE + SUNXI_DMA_DEST_START_ADDRR_REG0);
-	writel(SUNXI_DMA_DDMA_PARA_REG_SRC_WAIT_CYC
-			| SUNXI_DMA_DDMA_PARA_REG_SRC_BLK_SIZE,
-			SUNXI_DMA_BASE + SUNXI_DMA_DDMA_PARA_REG0);
-	writel(ecc_page_size,
-	       SUNXI_DMA_BASE + SUNXI_DMA_DDMA_BC_REG0); /* 1kB */
-	writel(SUNXI_DMA_DDMA_CFG_REG_LOADING
-		| SUNXI_DMA_DDMA_CFG_REG_DMA_DEST_DATA_WIDTH_32
-		| SUNXI_DMA_DDMA_CFG_REG_DDMA_DST_DRQ_TYPE_DRAM
-		| SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_DATA_WIDTH_32
-		| SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_ADDR_MODE_IO
-		| SUNXI_DMA_DDMA_CFG_REG_DDMA_SRC_DRQ_TYPE_NFC,
-		SUNXI_DMA_BASE + SUNXI_DMA_CFG_REG0);
+	writel(SUNXI_DMA_DDMA_PARA_REG_SRC_WAIT_CYC |
+	       SUNXI_DMA_DDMA_PARA_REG_SRC_BLK_SIZE,
+	       SUNXI_DMA_BASE + SUNXI_DMA_DDMA_PARA_REG0);
+	writel(len, SUNXI_DMA_BASE + SUNXI_DMA_DDMA_BC_REG0);
+	writel(SUNXI_DMA_DDMA_CFG_REG_LOADING |
+	       SUNXI_DMA_DDMA_CFG_REG_DMA_DEST_DATA_WIDTH_32 |
+	       SUNXI_DMA_DDMA_CFG_REG_DDMA_DST_DRQ_TYPE_DRAM |
+	       SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_DATA_WIDTH_32 |
+	       SUNXI_DMA_DDMA_CFG_REG_DMA_SRC_ADDR_MODE_IO |
+	       SUNXI_DMA_DDMA_CFG_REG_DDMA_SRC_DRQ_TYPE_NFC,
+	       SUNXI_DMA_BASE + SUNXI_DMA_CFG_REG0);
 
-	writel((NFC_CMD_RNDOUTSTART << NFC_RANDOM_READ_CMD1_OFFSET)
-		| (NFC_CMD_RNDOUT << NFC_RANDOM_READ_CMD0_OFFSET)
-		| (NFC_CMD_READSTART | NFC_READ_CMD_OFFSET), SUNXI_NFC_BASE
-			+ NFC_RCMD_SET);
-	writel(1, SUNXI_NFC_BASE + NFC_SECTOR_NUM);
-	writel(((page & 0xFFFF) << 16) | column,
-	       SUNXI_NFC_BASE + NFC_ADDR_LOW);
-	writel((page >> 16) & 0xFF, SUNXI_NFC_BASE + NFC_ADDR_HIGH);
+	writel(nsectors, SUNXI_NFC_BASE + NFC_SECTOR_NUM);
 	writel(NFC_ST_DMA_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
-	writel(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_DATA_TRANS |
-		NFC_PAGE_CMD | NFC_WAIT_FLAG |
-		((addr_cycles - 1) << NFC_ADDR_NUM_OFFSET) |
-		NFC_SEND_ADR | NFC_DATA_SWAP_METHOD | (syndrome ? NFC_SEQ : 0),
-		SUNXI_NFC_BASE + NFC_CMD);
+	writel(NFC_DATA_TRANS |	NFC_PAGE_CMD | NFC_DATA_SWAP_METHOD,
+	       SUNXI_NFC_BASE + NFC_CMD);
 
 	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_DMA_INT_FLAG,
-			 MAX_RETRIES)) {
+			 DEFAULT_TIMEOUT_US)) {
 		printf("Error while initializing dma interrupt\n");
-		return -1;
+		return -EIO;
 	}
 	writel(NFC_ST_DMA_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 
 	if (!check_value_negated(SUNXI_DMA_BASE + SUNXI_DMA_CFG_REG0,
-				 SUNXI_DMA_DDMA_CFG_REG_LOADING, MAX_RETRIES)) {
+				 SUNXI_DMA_DDMA_CFG_REG_LOADING,
+				 DEFAULT_TIMEOUT_US)) {
 		printf("Error while waiting for dma transfer to finish\n");
-		return -1;
+		return -EIO;
 	}
 
 	invalidate_dcache_range(dst,
-			        ALIGN(dst + ecc_page_size, ARCH_DMA_MINALIGN));
+				ALIGN(dst + conf->ecc_size, ARCH_DMA_MINALIGN));
 
-	if (readl(SUNXI_NFC_BASE + NFC_ECC_ST))
-		return -1;
+	val = readl(SUNXI_NFC_BASE + NFC_ECC_ST);
 
-	return 0;
+	/* ECC error detected. */
+	if (val & 0xffff)
+		return -EIO;
+
+	/*
+	 * Return 1 if the page is empty.
+	 * We consider the page as empty if the first ECC block is marked
+	 * empty.
+	 */
+	return (val & 0x10000) ? 1 : 0;
 }
 
-static int nand_read_ecc(int page_size, int ecc_strength, int ecc_page_size,
-	int addr_cycles, uint32_t offs, uint32_t size, void *dest, int syndrome)
+static int nand_max_ecc_strength(struct nfc_config *conf)
 {
-	void *end = dest + size;
-
-	clrsetbits_le32(SUNXI_NFC_BASE + NFC_CTL, NFC_CTL_PAGE_SIZE_MASK,
-			NFC_CTL_PAGE_SIZE(page_size));
-
-	for ( ;dest < end; dest += ecc_page_size, offs += ecc_page_size) {
-		if (nand_read_page(page_size, ecc_strength, ecc_page_size,
-				   addr_cycles, offs, (dma_addr_t)dest,
-				   syndrome))
-			return -1;
-	}
-
-	return 0;
-}
-
-static int nand_read_buffer(uint32_t offs, unsigned int size, void *dest,
-			    int syndrome)
-{
-	const struct {
-		int page_size;
-		int ecc_strength;
-		int ecc_page_size;
-		int addr_cycles;
-	} nand_configs[] = {
-		{  8192, 40, 1024, 5 },
-		{ 16384, 56, 1024, 5 },
-		{  8192, 24, 1024, 5 },
-		{  4096, 24, 1024, 5 },
-	};
-	static int nand_config = -1;
+	static const int ecc_bytes[] = { 32, 46, 54, 60, 74, 88, 102, 110, 116 };
+	int max_oobsize, max_ecc_bytes;
+	int nsectors = conf->page_size / conf->ecc_size;
 	int i;
 
-	if (nand_config == -1) {
-		for (i = 0; i < ARRAY_SIZE(nand_configs); i++) {
-			debug("nand: trying page %d ecc %d / %d addr %d: ",
-			      nand_configs[i].page_size,
-			      nand_configs[i].ecc_strength,
-			      nand_configs[i].ecc_page_size,
-			      nand_configs[i].addr_cycles);
-			if (nand_read_ecc(nand_configs[i].page_size,
-					  nand_configs[i].ecc_strength,
-					  nand_configs[i].ecc_page_size,
-					  nand_configs[i].addr_cycles,
-					  offs, size, dest, syndrome) == 0) {
-				debug("success\n");
-				nand_config = i;
-				return 0;
-			}
-			debug("failed\n");
-		}
-		return -1;
+	/*
+	 * ECC strength is limited by the size of the OOB area which is
+	 * correlated with the page size.
+	 */
+	switch (conf->page_size) {
+	case 2048:
+		max_oobsize = 64;
+		break;
+	case 4096:
+		max_oobsize = 256;
+		break;
+	case 8192:
+		max_oobsize = 640;
+		break;
+	case 16384:
+		max_oobsize = 1664;
+		break;
+	default:
+		return -EINVAL;
 	}
 
-	return nand_read_ecc(nand_configs[nand_config].page_size,
-			     nand_configs[nand_config].ecc_strength,
-			     nand_configs[nand_config].ecc_page_size,
-			     nand_configs[nand_config].addr_cycles,
-			     offs, size, dest, syndrome);
+	max_ecc_bytes = max_oobsize / nsectors;
+
+	for (i = 0; i < ARRAY_SIZE(ecc_bytes); i++) {
+		if (ecc_bytes[i] > max_ecc_bytes)
+			break;
+	}
+
+	if (!i)
+		return -EINVAL;
+
+	return i - 1;
+}
+
+static int nand_detect_ecc_config(struct nfc_config *conf, u32 offs,
+				  void *dest)
+{
+	/* NAND with pages > 4k will likely require 1k sector size. */
+	int min_ecc_size = conf->page_size > 4096 ? 1024 : 512;
+	int page = offs / conf->page_size;
+	int ret;
+
+	/*
+	 * In most cases, 1k sectors are preferred over 512b ones, start
+	 * testing this config first.
+	 */
+	for (conf->ecc_size = 1024; conf->ecc_size >= min_ecc_size;
+	     conf->ecc_size >>= 1) {
+		int max_ecc_strength = nand_max_ecc_strength(conf);
+
+		nand_apply_config(conf);
+
+		/*
+		 * We are starting from the maximum ECC strength because
+		 * most of the time NAND vendors provide an OOB area that
+		 * barely meets the ECC requirements.
+		 */
+		for (conf->ecc_strength = max_ecc_strength;
+		     conf->ecc_strength >= 0;
+		     conf->ecc_strength--) {
+			conf->randomize = false;
+			if (nand_reset_column())
+				return -EIO;
+
+			/*
+			 * Only read the first sector to speedup detection.
+			 */
+			ret = nand_read_page(conf, offs, dest, conf->ecc_size);
+			if (!ret) {
+				return 0;
+			} else if (ret > 0) {
+				/*
+				 * If page is empty we can't deduce anything
+				 * about the ECC config => stop the detection.
+				 */
+				return -EINVAL;
+			}
+
+			conf->randomize = true;
+			conf->nseeds = ARRAY_SIZE(random_seed);
+			do {
+				if (nand_reset_column())
+					return -EIO;
+
+				if (!nand_read_page(conf, offs, dest,
+						    conf->ecc_size))
+					return 0;
+
+				/*
+				 * Find the next ->nseeds value that would
+				 * change the randomizer seed for the page
+				 * we're trying to read.
+				 */
+				while (conf->nseeds >= 16) {
+					int seed = page % conf->nseeds;
+
+					conf->nseeds >>= 1;
+					if (seed != page % conf->nseeds)
+						break;
+				}
+			} while (conf->nseeds >= 16);
+		}
+	}
+
+	return -EINVAL;
+}
+
+static int nand_detect_config(struct nfc_config *conf, u32 offs, void *dest)
+{
+	if (conf->valid)
+		return 0;
+
+	/*
+	 * Modern NANDs are more likely than legacy ones, so we start testing
+	 * with 5 address cycles.
+	 */
+	for (conf->addr_cycles = 5;
+	     conf->addr_cycles >= 4;
+	     conf->addr_cycles--) {
+		int max_page_size = conf->addr_cycles == 4 ? 2048 : 16384;
+
+		/*
+		 * Ignoring 1k pages cause I'm not even sure this case exist
+		 * in the real world.
+		 */
+		for (conf->page_size = 2048; conf->page_size <= max_page_size;
+		     conf->page_size <<= 1) {
+			if (nand_load_page(conf, offs))
+				return -1;
+
+			if (!nand_detect_ecc_config(conf, offs, dest)) {
+				conf->valid = true;
+				return 0;
+			}
+		}
+	}
+
+	return -EINVAL;
+}
+
+static int nand_read_buffer(struct nfc_config *conf, uint32_t offs,
+			    unsigned int size, void *dest)
+{
+	int first_seed, page, ret;
+
+	size = ALIGN(size, conf->page_size);
+	page = offs / conf->page_size;
+	first_seed = page % conf->nseeds;
+
+	for (; size; size -= conf->page_size) {
+		if (nand_load_page(conf, offs))
+			return -1;
+
+		ret = nand_read_page(conf, offs, dest, conf->page_size);
+		/*
+		 * The ->nseeds value should be equal to the number of pages
+		 * in an eraseblock. Since we don't know this information in
+		 * advance we might have picked a wrong value.
+		 */
+		if (ret < 0 && conf->randomize) {
+			int cur_seed = page % conf->nseeds;
+
+			/*
+			 * We already tried all the seed values => we are
+			 * facing a real corruption.
+			 */
+			if (cur_seed < first_seed)
+				return -EIO;
+
+			/* Try to adjust ->nseeds and read the page again... */
+			conf->nseeds = cur_seed;
+
+			if (nand_reset_column())
+				return -EIO;
+
+			/* ... it still fails => it's a real corruption. */
+			if (nand_read_page(conf, offs, dest, conf->page_size))
+				return -EIO;
+		} else if (ret && conf->randomize) {
+			memset(dest, 0xff, conf->page_size);
+		}
+
+		page++;
+		offs += conf->page_size;
+		dest += conf->page_size;
+	}
+
+	return 0;
 }
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 {
-#if CONFIG_SYS_NAND_U_BOOT_OFFS == CONFIG_SPL_PAD_TO
-	/*
-	 * u-boot-dtb.bin appended to SPL, use syndrome (like the BROM does)
-	 * and try different erase block sizes to find the backup.
-	 */
-	const uint32_t boot_offsets[] = {
-		0 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-		1 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-		2 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-		4 * 1024 * 1024 + CONFIG_SYS_NAND_U_BOOT_OFFS,
-	};
-	const int syndrome = 1;
-#else
-	/*
-	 * u-boot-dtb.bin on its own partition, do not use syndrome, u-boot
-	 * partition sits after 2 eraseblocks (spl, spl-backup), look for
-	 * backup u-boot 1 erase block further.
-	 */
-	const uint32_t eraseblock_size = CONFIG_SYS_NAND_U_BOOT_OFFS / 2;
-	const uint32_t boot_offsets[] = {
-		CONFIG_SYS_NAND_U_BOOT_OFFS,
-		CONFIG_SYS_NAND_U_BOOT_OFFS + eraseblock_size,
-	};
-	const int syndrome = 0;
-#endif
-	int i;
+	static struct nfc_config conf = { };
+	int ret;
 
-	if (offs == CONFIG_SYS_NAND_U_BOOT_OFFS) {
-		for (i = 0; i < ARRAY_SIZE(boot_offsets); i++) {
-			if (nand_read_buffer(boot_offsets[i], size,
-					     dest, syndrome) == 0)
-				return 0;
-		}
-		return -1;
-	}
+	ret = nand_detect_config(&conf, offs, dest);
+	if (ret)
+		return ret;
 
-	return nand_read_buffer(offs, size, dest, syndrome);
+	return nand_read_buffer(&conf, offs, size, dest);
 }
 
 void nand_deselect(void)
