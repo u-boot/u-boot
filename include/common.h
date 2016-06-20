@@ -101,6 +101,7 @@ typedef volatile unsigned char	vu_char;
 #define _DEBUG	0
 #endif
 
+/* Define this at the top of a file to add a prefix to debug messages */
 #ifndef pr_fmt
 #define pr_fmt(fmt) fmt
 #endif
@@ -116,6 +117,7 @@ typedef volatile unsigned char	vu_char;
 			printf(pr_fmt(fmt), ##args);	\
 	} while (0)
 
+/* Show a message if DEBUG is defined in a file */
 #define debug(fmt, args...)			\
 	debug_cond(_DEBUG, fmt, ##args)
 
