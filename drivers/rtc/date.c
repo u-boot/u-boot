@@ -5,10 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/*
- * Date & Time support for Philips PCF8563 RTC
- */
-
 #include <common.h>
 #include <command.h>
 #include <errno.h>
@@ -28,53 +24,52 @@ static int month_days[12] = {
 	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 };
 
+static int month_offset[] = {
+	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+};
+
 /*
  * This only works for the Gregorian calendar - i.e. after 1752 (in the UK)
  */
 int rtc_calc_weekday(struct rtc_time *tm)
 {
-	int leapsToDate;
-	int lastYear;
+	int leaps_to_date;
+	int last_year;
 	int day;
-	int MonthOffset[] = { 0,31,59,90,120,151,181,212,243,273,304,334 };
 
 	if (tm->tm_year < 1753)
-		return -EINVAL;
-	lastYear=tm->tm_year-1;
+		return -1;
+	last_year = tm->tm_year - 1;
 
-	/*
-	 * Number of leap corrections to apply up to end of last year
-	 */
-	leapsToDate = lastYear/4 - lastYear/100 + lastYear/400;
+	/* Number of leap corrections to apply up to end of last year */
+	leaps_to_date = last_year / 4 - last_year / 100 + last_year / 400;
 
 	/*
 	 * This year is a leap year if it is divisible by 4 except when it is
 	 * divisible by 100 unless it is divisible by 400
 	 *
-	 * e.g. 1904 was a leap year, 1900 was not, 1996 is, and 2000 will be
+	 * e.g. 1904 was a leap year, 1900 was not, 1996 is, and 2000 is.
 	 */
-	if((tm->tm_year%4==0) &&
-	   ((tm->tm_year%100!=0) || (tm->tm_year%400==0)) &&
-	   (tm->tm_mon>2)) {
-		/*
-		 * We are past Feb. 29 in a leap year
-		 */
-		day=1;
+	if (tm->tm_year % 4 == 0 &&
+	    ((tm->tm_year % 100 != 0) || (tm->tm_year % 400 == 0)) &&
+	    tm->tm_mon > 2) {
+		/* We are past Feb. 29 in a leap year */
+		day = 1;
 	} else {
-		day=0;
+		day = 0;
 	}
 
-	day += lastYear*365 + leapsToDate + MonthOffset[tm->tm_mon-1] + tm->tm_mday;
-
-	tm->tm_wday=day%7;
+	day += last_year * 365 + leaps_to_date + month_offset[tm->tm_mon - 1] +
+			tm->tm_mday;
+	tm->tm_wday = day % 7;
 
 	return 0;
 }
 
 int rtc_to_tm(int tim, struct rtc_time *tm)
 {
-	register int    i;
-	register long   hms, day;
+	register int i;
+	register long hms, day;
 
 	day = tim / SECDAY;
 	hms = tim % SECDAY;
@@ -85,22 +80,19 @@ int rtc_to_tm(int tim, struct rtc_time *tm)
 	tm->tm_sec = (hms % 3600) % 60;
 
 	/* Number of years in days */
-	for (i = STARTOFTIME; day >= days_in_year(i); i++) {
+	for (i = STARTOFTIME; day >= days_in_year(i); i++)
 		day -= days_in_year(i);
-	}
 	tm->tm_year = i;
 
 	/* Number of months in days left */
-	if (leapyear(tm->tm_year)) {
+	if (leapyear(tm->tm_year))
 		days_in_month(FEBRUARY) = 29;
-	}
-	for (i = 1; day >= days_in_month(i); i++) {
+	for (i = 1; day >= days_in_month(i); i++)
 		day -= days_in_month(i);
-	}
 	days_in_month(FEBRUARY) = 28;
 	tm->tm_mon = i;
 
-	/* Days are what is left over (+1) from all that. */
+	/* Days are what is left over (+1) from all that */
 	tm->tm_mday = day + 1;
 
 	/* Zero unused fields */
@@ -113,19 +105,20 @@ int rtc_to_tm(int tim, struct rtc_time *tm)
 	return rtc_calc_weekday(tm);
 }
 
-/* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
+/*
+ * Converts Gregorian date to seconds since 1970-01-01 00:00:00.
  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
  * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
  *
  * [For the Julian calendar (which was used in Russia before 1917,
  * Britain & colonies before 1752, anywhere else before 1582,
  * and is still in use by some communities) leave out the
- * -year/100+year/400 terms, and add 10.]
+ * -year / 100 + year / 400 terms, and add 10.]
  *
  * This algorithm was first published by Gauss (I think).
  *
  * WARNING: this function will overflow on 2106-02-07 06:28:16 on
- * machines were long is 32-bit! (However, as time_t is signed, we
+ * machines where long is 32-bit! (However, as time_t is signed, we
  * will already get problems at other places on 2038-01-19 03:14:08)
  */
 unsigned long rtc_mktime(const struct rtc_time *tm)
@@ -135,8 +128,8 @@ unsigned long rtc_mktime(const struct rtc_time *tm)
 	int days, hours;
 
 	mon -= 2;
-	if (0 >= (int)mon) {	/* 1..12 -> 11,12,1..10 */
-		mon += 12;		/* Puts Feb last since it has leap day */
+	if (0 >= (int)mon) {	/* 1..12 -> 11, 12, 1..10 */
+		mon += 12;	/* Puts Feb last since it has leap day */
 		year -= 1;
 	}
 
