@@ -53,6 +53,23 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
+config DISTRO_DEFAULTS
+	bool "Select defaults suitable for booting general purpose Linux distributions"
+	default y if ARCH_SUNXI
+	default n
+	select CMD_BOOTZ
+	select CMD_DHCP
+	select CMD_EXT2
+	select CMD_EXT4
+	select CMD_FAT
+	select CMD_FS_GENERIC
+	select CMD_MII
+	select CMD_PING
+	select HUSH_PARSER
+	help
+	  Select this to enable various options and commands which are suitable
+	  for building u-boot for booting general purpose Linux distributions.
+
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
 	default y if DM
