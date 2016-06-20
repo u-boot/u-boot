@@ -13,7 +13,6 @@ config CMDLINE
 
 config HUSH_PARSER
 	bool "Use hush shell"
-	select SYS_HUSH_PARSER
 	depends on CMDLINE
 	help
 	  This option enables the "hush" shell (from Busybox) as command line
@@ -23,11 +22,6 @@ config HUSH_PARSER
 
 	  If disabled, you get the old, much simpler behaviour with a somewhat
 	  smaller memory footprint.
-
-config SYS_HUSH_PARSER
-	bool
-	help
-	  Backward compatibility.
 
 config SYS_PROMPT
 	string "Shell prompt"

@@ -11,10 +11,7 @@ obj-y += init/
 obj-y += main.o
 obj-y += exports.o
 obj-y += hash.o
-ifdef CONFIG_SYS_HUSH_PARSER
-obj-y += cli_hush.o
-endif
-
+obj-$(CONFIG_HUSH_PARSER) += cli_hush.o
 obj-$(CONFIG_AUTOBOOT) += autoboot.o
 
 # This option is not just y/n - it can have a numeric value
