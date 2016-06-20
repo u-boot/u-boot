@@ -69,17 +69,19 @@
 #define CONFIG_CMD_FUSE
 #define CONFIG_FSL_IIM
 
-/* Linux boot */
+/* U-Boot memory offsets */
 #define CONFIG_LOADADDR		0x72000000
 #define CONFIG_SYS_TEXT_BASE	0x77800000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+
+/* Linux boot */
 #define CONFIG_HOSTNAME		usbarmory
 #define CONFIG_BOOTCOMMAND						\
 	"run distro_bootcmd; "						\
 	"setenv bootargs console=${console} ${bootargs_default}; "	\
-	"ext2load mmc 0:1 ${kernel_addr_r} /boot/uImage; "		\
+	"ext2load mmc 0:1 ${kernel_addr_r} /boot/zImage; "		\
 	"ext2load mmc 0:1 ${fdt_addr_r} /boot/${fdtfile}; "		\
-	"bootm ${kernel_addr_r} - ${fdt_addr_r}"
+	"bootz ${kernel_addr_r} - ${fdt_addr_r}"
 
 #define BOOT_TARGET_DEVICES(func) func(MMC, mmc, 0)
 
