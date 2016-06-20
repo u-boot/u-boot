@@ -29,23 +29,6 @@ void flush_dcache_all(void)
 	);
 }
 
-static int check_cache_range(unsigned long start, unsigned long stop)
-{
-	int ok = 1;
-
-	if (start & (CONFIG_SYS_CACHELINE_SIZE - 1))
-		ok = 0;
-
-	if (stop & (CONFIG_SYS_CACHELINE_SIZE - 1))
-		ok = 0;
-
-	if (!ok)
-		debug("CACHE: Misaligned operation at range [%08lx, %08lx]\n",
-			start, stop);
-
-	return ok;
-}
-
 void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
 	if (!check_cache_range(start, stop))

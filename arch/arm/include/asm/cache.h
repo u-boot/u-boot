@@ -29,6 +29,8 @@ static inline void invalidate_l2_cache(void)
 }
 #endif
 
+int check_cache_range(unsigned long start, unsigned long stop);
+
 void l2_cache_enable(void);
 void l2_cache_disable(void);
 void set_section_dcache(int section, enum dcache_option option);

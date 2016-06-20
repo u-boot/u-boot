@@ -10,6 +10,10 @@
 #include <common.h>
 #include <malloc.h>
 
+#ifndef CONFIG_SYS_CACHELINE_SIZE
+#define CONFIG_SYS_CACHELINE_SIZE 32
+#endif
+
 /*
  * Flush range from all levels of d-cache/unified-cache.
  * Affects the range [start, start + size - 1].
@@ -44,6 +48,24 @@ __weak void invalidate_dcache_range(unsigned long start, unsigned long stop)
 __weak void flush_dcache_range(unsigned long start, unsigned long stop)
 {
 	/* An empty stub, real implementation should be in platform code */
+}
+
+int check_cache_range(unsigned long start, unsigned long stop)
+{
+	int ok = 1;
+
+	if (start & (CONFIG_SYS_CACHELINE_SIZE - 1))
+		ok = 0;
+
+	if (stop & (CONFIG_SYS_CACHELINE_SIZE - 1))
+		ok = 0;
+
+	if (!ok) {
+		debug("CACHE: Misaligned operation at range [%08lx, %08lx]\n",
+		      start, stop);
+	}
+
+	return ok;
 }
 
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
