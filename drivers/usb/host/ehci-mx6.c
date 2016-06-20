@@ -194,8 +194,9 @@ struct usbnc_regs {
 	u32 reserve1[10];
 	u32 phy_cfg1;
 	u32 phy_cfg2;
+	u32 reserve2;
 	u32 phy_status;
-	u32 reserve2[4];
+	u32 reserve3[4];
 	u32 adp_cfg1;
 	u32 adp_cfg2;
 	u32 adp_status;
