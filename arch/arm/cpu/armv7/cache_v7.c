@@ -44,27 +44,8 @@ static void v7_dcache_inval_range(u32 start, u32 stop, u32 line_len)
 {
 	u32 mva;
 
-	/*
-	 * If start address is not aligned to cache-line do not
-	 * invalidate the first cache-line
-	 */
-	if (start & (line_len - 1)) {
-		printf("ERROR: %s - start address is not aligned - 0x%08x\n",
-			__func__, start);
-		/* move to next cache line */
-		start = (start + line_len - 1) & ~(line_len - 1);
-	}
-
-	/*
-	 * If stop address is not aligned to cache-line do not
-	 * invalidate the last cache-line
-	 */
-	if (stop & (line_len - 1)) {
-		printf("ERROR: %s - stop address is not aligned - 0x%08x\n",
-			__func__, stop);
-		/* align to the beginning of this cache line */
-		stop &= ~(line_len - 1);
-	}
+	if (!check_cache_range(start, stop))
+		return;
 
 	for (mva = start; mva < stop; mva = mva + line_len) {
 		/* DCIMVAC - Invalidate data cache by MVA to PoC */
