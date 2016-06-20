@@ -68,6 +68,7 @@ obj-$(CONFIG_U_QE) += qe/
 obj-y += mailbox/
 obj-y += memory/
 obj-y += pwm/
+obj-y += reset/
 obj-y += input/
 # SOC specific infrastructure drivers.
 obj-y += soc/

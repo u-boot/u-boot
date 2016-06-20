@@ -7,9 +7,9 @@
 #ifndef _MAILBOX_UCLASS_H
 #define _MAILBOX_UCLASS_H
 
-/* See mailbox_client.h for background documentation. */
+/* See mailbox.h for background documentation. */
 
-#include <mailbox_client.h>
+#include <mailbox.h>
 
 struct udevice;
 

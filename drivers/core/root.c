@@ -122,6 +122,20 @@ void fix_uclass(void)
 			entry->ops += gd->reloc_off;
 	}
 }
+
+void fix_devices(void)
+{
+	struct driver_info *dev =
+		ll_entry_start(struct driver_info, driver_info);
+	const int n_ents = ll_entry_count(struct driver_info, driver_info);
+	struct driver_info *entry;
+
+	for (entry = dev; entry != dev + n_ents; entry++) {
+		if (entry->platdata)
+			entry->platdata += gd->reloc_off;
+	}
+}
+
 #endif
 
 int dm_init(void)
@@ -137,6 +151,7 @@ int dm_init(void)
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	fix_drivers();
 	fix_uclass();
+	fix_devices();
 #endif
 
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);

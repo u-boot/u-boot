@@ -859,15 +859,15 @@ static int rk_hdmi_probe(struct udevice *dev)
 {
 	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
-	struct udevice *reg, *clk;
-	int periph;
+	struct udevice *reg;
+	struct clk clk;
 	int ret;
 	int vop_id = uc_plat->source_id;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret >= 0) {
-		periph = ret;
-		ret = clk_set_periph_rate(clk, periph, 0);
+		ret = clk_set_rate(&clk, 0);
+		clk_free(&clk);
 	}
 	if (ret) {
 		debug("%s: Failed to set EDP clock: ret=%d\n", __func__, ret);
@@ -880,8 +880,8 @@ static int rk_hdmi_probe(struct udevice *dev)
 	 */
 	ret = clk_get_by_index(uc_plat->src_dev, 0, &clk);
 	if (ret >= 0) {
-		periph = ret;
-		ret = clk_set_periph_rate(clk, periph, 384000000);
+		ret = clk_set_rate(&clk, 384000000);
+		clk_free(&clk);
 	}
 	if (ret < 0) {
 		debug("%s: Failed to set clock in source device '%s': ret=%d\n",

@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <mailbox_client.h>
+#include <mailbox.h>
 #include <asm/io.h>
 
 struct sandbox_mbox_test {

@@ -26,15 +26,15 @@ static int ehci_usb_probe(struct udevice *dev)
 	int i;
 
 	for (i = 0; ; i++) {
-		struct udevice *clk_dev;
-		int clk_id;
+		struct clk clk;
+		int ret;
 
-		clk_id = clk_get_by_index(dev, i, &clk_dev);
-		if (clk_id < 0)
+		ret = clk_get_by_index(dev, i, &clk);
+		if (ret < 0)
 			break;
-		if (clk_enable(clk_dev, clk_id))
-			printf("failed to enable clock (dev=%s, id=%d)\n",
-			       clk_dev->name, clk_id);
+		if (clk_enable(&clk))
+			printf("failed to enable clock %d\n", i);
+		clk_free(&clk);
 	}
 
 	hccr = map_physmem(dev_get_addr(dev), 0x100, MAP_NOCACHE);

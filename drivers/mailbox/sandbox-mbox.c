@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <mailbox_uclass.h>
+#include <mailbox-uclass.h>
 #include <asm/io.h>
 #include <asm/mbox.h>
 

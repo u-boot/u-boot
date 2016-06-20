@@ -24,8 +24,7 @@ struct rockchip_mmc_plat {
 };
 
 struct rockchip_dwmmc_priv {
-	struct udevice *clk;
-	int periph;
+	struct clk clk;
 	struct dwmci_host host;
 };
 
@@ -35,7 +34,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = clk_set_periph_rate(priv->clk, priv->periph, freq);
+	ret = clk_set_rate(&priv->clk, freq);
 	if (ret < 0) {
 		debug("%s: err=%d\n", __func__, ret);
 		return ret;
@@ -81,7 +80,6 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
-	priv->periph = ret;
 
 	if (fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
 				 "clock-freq-min-max", minmax, 2))
