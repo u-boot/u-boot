@@ -17,16 +17,13 @@
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MXC_GPIO
+#define CONFIG_SYS_NO_FLASH
 
 #include <asm/arch/imx-regs.h>
 
 #include <config_distro_defaults.h>
 
-/* U-Boot commands */
-
 /* U-Boot environment */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_OFFSET	(6 * 64 * 1024)
 #define CONFIG_ENV_SIZE		(8 * 1024)
 #define CONFIG_ENV_IS_IN_MMC
@@ -100,6 +97,12 @@
 	"fdtfile=imx53-usbarmory.dtb\0"				\
 	"console=ttymxc0,115200\0"				\
 	BOOTENV
+
+#ifndef CONFIG_CMDLINE
+#define CONFIG_BOOTARGS "console=ttymxc0,115200 root=/dev/mmcblk0p1 rootwait rw"
+#define USBARMORY_FIT_PATH	"/boot/usbarmory.itb"
+#define USBARMORY_FIT_ADDR	"0x70800000"
+#endif
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1

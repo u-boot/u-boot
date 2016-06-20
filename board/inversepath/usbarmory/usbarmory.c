@@ -415,3 +415,34 @@ int checkboard(void)
 	puts("Board: Inverse Path USB armory MkI\n");
 	return 0;
 }
+
+#ifndef CONFIG_CMDLINE
+static char *ext2_argv[] = {
+	"ext2load",
+	"mmc",
+	"0:1",
+	USBARMORY_FIT_ADDR,
+	USBARMORY_FIT_PATH
+};
+
+static char *bootm_argv[] = {
+	"bootm",
+	USBARMORY_FIT_ADDR
+};
+
+int board_run_command(const char *cmdline)
+{
+	printf("%s %s %s %s %s\n", ext2_argv[0], ext2_argv[1], ext2_argv[2],
+	       ext2_argv[3], ext2_argv[4]);
+
+	if (do_ext2load(NULL, 0, 5, ext2_argv) != 0) {
+		udelay(5*1000*1000);
+		return 1;
+	}
+
+	printf("%s %s\n", bootm_argv[0], bootm_argv[1]);
+	do_bootm(NULL, 0, 2, bootm_argv);
+
+	return 1;
+}
+#endif
