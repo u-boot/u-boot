@@ -229,6 +229,10 @@
 			     <1 10 0xf01>;
 	};
 
+	edac {
+		compatible = "arm,cortex-a53-edac";
+	};
+
 	amba_apu: amba_apu@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
