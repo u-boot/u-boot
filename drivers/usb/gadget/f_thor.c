@@ -891,6 +891,7 @@ static void thor_func_disable(struct usb_function *f)
 	}
 
 	if (dev->out_ep->driver_data) {
+		free(dev->out_req->buf);
 		dev->out_req->buf = NULL;
 		usb_ep_free_request(dev->out_ep, dev->out_req);
 		usb_ep_disable(dev->out_ep);
