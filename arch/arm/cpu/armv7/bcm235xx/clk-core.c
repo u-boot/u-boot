@@ -449,10 +449,9 @@ int clk_enable(struct clk *c)
 	if (ret)
 		return ret;
 
-	if (!c->use_cnt) {
-		c->use_cnt++;
+	if (!c->use_cnt)
 		ret = c->ops->enable(c, 1);
-	}
+	c->use_cnt++;
 
 	return ret;
 }
@@ -464,9 +463,10 @@ void clk_disable(struct clk *c)
 	if (!c->ops || !c->ops->enable)
 		return;
 
-	if (c->use_cnt) {
+	if (c->use_cnt > 0) {
 		c->use_cnt--;
-		c->ops->enable(c, 0);
+		if (c->use_cnt == 0)
+			c->ops->enable(c, 0);
 	}
 
 	/* disable parent */
