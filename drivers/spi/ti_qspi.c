@@ -45,7 +45,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define QSPI_XFER_DONE                  QSPI_WC
 #define MM_SWITCH                       0x01
 #define MEM_CS(cs)                      ((cs + 1) << 8)
-#define MEM_CS_UNSELECT                 0xfffff0ff
+#define MEM_CS_UNSELECT                 0xfffff8ff
 #define MMAP_START_ADDR_DRA		0x5c000000
 #define MMAP_START_ADDR_AM43x		0x30000000
 #define CORE_CTRL_IO                    0x4a002558
