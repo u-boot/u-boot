@@ -19,7 +19,7 @@ static ulong sandbox_clk_get_rate(struct clk *clk)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
 
-	if (clk->id < 0 || clk->id >= SANDBOX_CLK_ID_COUNT)
+	if (clk->id >= SANDBOX_CLK_ID_COUNT)
 		return -EINVAL;
 
 	return priv->rate[clk->id];
@@ -30,7 +30,7 @@ static ulong sandbox_clk_set_rate(struct clk *clk, ulong rate)
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
 	ulong old_rate;
 
-	if (clk->id < 0 || clk->id >= SANDBOX_CLK_ID_COUNT)
+	if (clk->id >= SANDBOX_CLK_ID_COUNT)
 		return -EINVAL;
 
 	if (!rate)
@@ -46,7 +46,7 @@ static int sandbox_clk_enable(struct clk *clk)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
 
-	if (clk->id < 0 || clk->id >= SANDBOX_CLK_ID_COUNT)
+	if (clk->id >= SANDBOX_CLK_ID_COUNT)
 		return -EINVAL;
 
 	priv->enabled[clk->id] = true;
@@ -58,7 +58,7 @@ static int sandbox_clk_disable(struct clk *clk)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
 
-	if (clk->id < 0 || clk->id >= SANDBOX_CLK_ID_COUNT)
+	if (clk->id >= SANDBOX_CLK_ID_COUNT)
 		return -EINVAL;
 
 	priv->enabled[clk->id] = false;
