@@ -311,10 +311,6 @@
 		DFU_ALT_INFO
 #endif
 
-/* Default environment */
-#define CONFIG_IPADDR	10.10.70.102
-#define CONFIG_SERVERIP	10.10.70.101
-
 /* default boot is according to the bootmode switch settings */
 #if defined(CONFIG_CMD_ZYNQ_RSA)
 #define CONFIG_BOOTCOMMAND		"run rsa_$modeboot"
