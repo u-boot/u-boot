@@ -1,5 +1,5 @@
 /*
- * tseries.h
+ * brtpp1.h
  *
  * specific parts for B&R T-Series Motherboard
  *
@@ -9,8 +9,8 @@
  * SPDX-License-Identifier:        GPL-2.0+
  */
 
-#ifndef __CONFIG_TSERIES_H__
-#define __CONFIG_TSERIES_H__
+#ifndef __CONFIG_BRPPT1_H__
+#define __CONFIG_BRPPT1_H__
 
 #include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
@@ -301,4 +301,4 @@ MMCARGS
 #define CONFIG_EXT4_WRITE
 #endif /* CONFIG_MMC, ... */
 
-#endif	/* ! __CONFIG_TSERIES_H__ */
+#endif	/* ! __CONFIG_BRPPT1_H__ */

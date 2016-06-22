@@ -309,8 +309,8 @@ config TARGET_KWB
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_TSERIES
-	bool "Support tseries"
+config TARGET_BRPPT1
+	bool "Support BRPPT1"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -909,7 +909,7 @@ source "arch/arm/imx-common/Kconfig"
 
 source "board/bosch/shc/Kconfig"
 source "board/BuR/kwb/Kconfig"
-source "board/BuR/tseries/Kconfig"
+source "board/BuR/brppt1/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"

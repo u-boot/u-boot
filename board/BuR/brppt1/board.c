@@ -1,7 +1,7 @@
 /*
  * board.c
  *
- * Board functions for B&R LEIT Board
+ * Board functions for B&R BRPPT1
  *
  * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com

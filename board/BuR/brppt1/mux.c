@@ -1,7 +1,7 @@
 /*
  * mux.c
  *
- * Pinmux Setting for B&R LEIT Board(s)
+ * Pinmux Setting for B&R BRPPT1 Board(s)
  *
  * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com

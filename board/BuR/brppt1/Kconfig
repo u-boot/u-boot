@@ -1,7 +1,7 @@
-if TARGET_TSERIES
+if TARGET_BRPPT1
 
 config SYS_BOARD
-	default "tseries"
+	default "brppt1"
 
 config SYS_VENDOR
 	default "BuR"
@@ -10,6 +10,6 @@ config SYS_SOC
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	default "tseries"
+	default "brppt1"
 
 endif
