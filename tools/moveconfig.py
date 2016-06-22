@@ -487,9 +487,6 @@ class KconfigParser:
         else:
             new_val = not_set
 
-        if old_val == new_val:
-            return (ACTION_NO_CHANGE, new_val)
-
         # If this CONFIG is neither bool nor trisate
         if old_val[-2:] != '=y' and old_val[-2:] != '=m' and old_val != not_set:
             # tools/scripts/define2mk.sed changes '1' to 'y'.
@@ -498,7 +495,8 @@ class KconfigParser:
             if new_val[-2:] == '=y':
                 new_val = new_val[:-1] + '1'
 
-        return (ACTION_MOVE, new_val)
+        return (ACTION_NO_CHANGE if old_val == new_val else ACTION_MOVE,
+                new_val)
 
     def update_dotconfig(self):
         """Parse files for the config options and update the .config.
@@ -613,6 +611,7 @@ class Slot:
         self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = []
+        self.suspicious_boards = []
 
     def __del__(self):
         """Delete the working directory
@@ -647,7 +646,7 @@ class Slot:
 
         self.defconfig = defconfig
         self.log = ''
-        self.use_git_ref = True if self.options.git_ref else False
+        self.current_src_dir = self.reference_src_dir
         self.do_defconfig()
         return True
 
@@ -676,13 +675,13 @@ class Slot:
         if self.ps.poll() != 0:
             self.handle_error()
         elif self.state == STATE_DEFCONFIG:
-            if self.options.git_ref and not self.use_git_ref:
+            if self.reference_src_dir and not self.current_src_dir:
                 self.do_savedefconfig()
             else:
                 self.do_autoconf()
         elif self.state == STATE_AUTOCONF:
-            if self.use_git_ref:
-                self.use_git_ref = False
+            if self.current_src_dir:
+                self.current_src_dir = None
                 self.do_defconfig()
             else:
                 self.do_savedefconfig()
@@ -708,11 +707,9 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append(self.defconfig)
-        if self.use_git_ref:
-            cmd.append('-C')
-            cmd.append(self.reference_src_dir)
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE)
+                                   stderr=subprocess.PIPE,
+                                   cwd=self.current_src_dir)
         self.state = STATE_DEFCONFIG
 
     def do_autoconf(self):
@@ -730,11 +727,9 @@ class Slot:
             cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append('include/config/auto.conf')
-        if self.use_git_ref:
-            cmd.append('-C')
-            cmd.append(self.reference_src_dir)
         self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE)
+                                   stderr=subprocess.PIPE,
+                                   cwd=self.current_src_dir)
         self.state = STATE_AUTOCONF
 
     def do_savedefconfig(self):
@@ -761,7 +756,10 @@ class Slot:
     def update_defconfig(self):
         """Update the input defconfig and go back to the idle state."""
 
-        self.log += self.parser.check_defconfig()
+        log = self.parser.check_defconfig()
+        if log:
+            self.suspicious_boards.append(self.defconfig)
+            self.log += log
         orig_defconfig = os.path.join('configs', self.defconfig)
         new_defconfig = os.path.join(self.build_dir, 'defconfig')
         updated = not filecmp.cmp(orig_defconfig, new_defconfig)
@@ -804,6 +802,11 @@ class Slot:
         """Returns a list of failed boards (defconfigs) in this slot.
         """
         return self.failed_boards
+
+    def get_suspicious_boards(self):
+        """Returns a list of boards (defconfigs) with possible misconversion.
+        """
+        return self.suspicious_boards
 
 class Slots:
 
@@ -866,39 +869,76 @@ class Slots:
 
     def show_failed_boards(self):
         """Display all of the failed boards (defconfigs)."""
-        failed_boards = []
+        boards = []
+        output_file = 'moveconfig.failed'
 
         for slot in self.slots:
-            failed_boards += slot.get_failed_boards()
+            boards += slot.get_failed_boards()
 
-        if len(failed_boards) > 0:
-            msg = [ "The following boards were not processed due to error:" ]
-            msg += failed_boards
-            for line in msg:
-                print >> sys.stderr, color_text(self.options.color,
-                                                COLOR_LIGHT_RED, line)
+        if boards:
+            boards = '\n'.join(boards) + '\n'
+            msg = "The following boards were not processed due to error:\n"
+            msg += boards
+            msg += "(the list has been saved in %s)\n" % output_file
+            print >> sys.stderr, color_text(self.options.color, COLOR_LIGHT_RED,
+                                            msg)
 
-            with open('moveconfig.failed', 'w') as f:
-                for board in failed_boards:
-                    f.write(board + '\n')
+            with open(output_file, 'w') as f:
+                f.write(boards)
 
-class WorkDir:
-    def __init__(self):
-        """Create a new working directory."""
-        self.work_dir = tempfile.mkdtemp()
+    def show_suspicious_boards(self):
+        """Display all boards (defconfigs) with possible misconversion."""
+        boards = []
+        output_file = 'moveconfig.suspicious'
+
+        for slot in self.slots:
+            boards += slot.get_suspicious_boards()
+
+        if boards:
+            boards = '\n'.join(boards) + '\n'
+            msg = "The following boards might have been converted incorrectly.\n"
+            msg += "It is highly recommended to check them manually:\n"
+            msg += boards
+            msg += "(the list has been saved in %s)\n" % output_file
+            print >> sys.stderr, color_text(self.options.color, COLOR_YELLOW,
+                                            msg)
+
+            with open(output_file, 'w') as f:
+                f.write(boards)
+
+class ReferenceSource:
+
+    """Reference source against which original configs should be parsed."""
+
+    def __init__(self, commit):
+        """Create a reference source directory based on a specified commit.
+
+        Arguments:
+          commit: commit to git-clone
+        """
+        self.src_dir = tempfile.mkdtemp()
+        print "Cloning git repo to a separate work directory..."
+        subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
+                                cwd=self.src_dir)
+        print "Checkout '%s' to build the original autoconf.mk." % \
+            subprocess.check_output(['git', 'rev-parse', '--short', commit]).strip()
+        subprocess.check_output(['git', 'checkout', commit],
+                                stderr=subprocess.STDOUT, cwd=self.src_dir)
 
     def __del__(self):
-        """Delete the working directory
+        """Delete the reference source directory
 
         This function makes sure the temporary directory is cleaned away
         even if Python suddenly dies due to error.  It should be done in here
         because it is guaranteed the destructor is always invoked when the
         instance of the class gets unreferenced.
         """
-        shutil.rmtree(self.work_dir)
+        shutil.rmtree(self.src_dir)
 
-    def get(self):
-        return self.work_dir
+    def get_dir(self):
+        """Return the absolute path to the reference source directory."""
+
+        return self.src_dir
 
 def move_config(configs, options):
     """Move config options to defconfig files.
@@ -916,20 +956,11 @@ def move_config(configs, options):
         print 'Move ' + ', '.join(configs),
     print '(jobs: %d)\n' % options.jobs
 
-    reference_src_dir = ''
-
     if options.git_ref:
-        work_dir = WorkDir()
-        reference_src_dir = work_dir.get()
-        print "Cloning git repo to a separate work directory..."
-        subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
-                                cwd=reference_src_dir)
-        print "Checkout '%s' to build the original autoconf.mk." % \
-            subprocess.check_output(['git', 'rev-parse', '--short',
-                                    options.git_ref]).strip()
-        subprocess.check_output(['git', 'checkout', options.git_ref],
-                                stderr=subprocess.STDOUT,
-                                cwd=reference_src_dir)
+        reference_src = ReferenceSource(options.git_ref)
+        reference_src_dir = reference_src.get_dir()
+    else:
+        reference_src_dir = None
 
     if options.defconfigs:
         defconfigs = [line.strip() for line in open(options.defconfigs)]
@@ -965,6 +996,7 @@ def move_config(configs, options):
 
     print ''
     slots.show_failed_boards()
+    slots.show_suspicious_boards()
 
 def main():
     try:
