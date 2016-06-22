@@ -144,4 +144,9 @@ config QFW
 	  Hidden option to enable QEMU fw_cfg interface. This will be selected by
 	  either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
 
+config I2C_EEPROM
+	bool "Enable driver for generic I2C-attached EEPROMs"
+	depends on MISC
+	help
+	  Enable a generic driver for EEPROMs attached via I2C.
 endmenu
