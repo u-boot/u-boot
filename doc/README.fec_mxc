@@ -27,6 +27,11 @@ CONFIG_FEC_MXC_PHYADDR
 	Optional, selects the exact phy address that should be connected
 	and function fecmxc_initialize will try to initialize it.
 
+CONFIG_FEC_FIXED_SPEED
+	Optional, selects a fixed speed on the MAC interface without asking some
+	phy. This is usefull if there is a direct MAC <-> MAC connection, for
+	example if the CPU is connected directly via the RGMII interface to a
+	ethernet-switch.
 
 Reading the ethaddr from the SoC eFuses:
 if CONFIG_FEC_MXC is defined and the U-Boot environment does not contain the

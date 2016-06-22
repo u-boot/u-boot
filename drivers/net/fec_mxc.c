@@ -233,6 +233,7 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	return ret;
 }
 
+#ifndef CONFIG_FEC_FIXED_SPEED
 static int miiphy_wait_aneg(struct eth_device *dev)
 {
 	uint32_t start;
@@ -260,6 +261,7 @@ static int miiphy_wait_aneg(struct eth_device *dev)
 
 	return 0;
 }
+#endif /* CONFIG_FEC_FIXED_SPEED */
 #endif
 
 static int fec_rx_task_enable(struct fec_priv *fec)
@@ -502,6 +504,8 @@ static int fec_open(struct eth_device *edev)
 		}
 		speed = fec->phydev->speed;
 	}
+#elif CONFIG_FEC_FIXED_SPEED
+	speed = CONFIG_FEC_FIXED_SPEED;
 #else
 	miiphy_wait_aneg(edev);
 	speed = miiphy_speed(edev->name, fec->phy_id);
