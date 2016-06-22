@@ -1,7 +1,7 @@
 /*
  * board.c
  *
- * Board functions for B&R KWB Board
+ * Board functions for B&R BRXRE1 Board
  *
  * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
@@ -101,7 +101,7 @@ void am33xx_spl_board_init(void)
 	 */
 	u32 *const clk_domains[] = { 0 };
 
-	u32 *const clk_modules_kwbspecific[] = {
+	u32 *const clk_modules_xre1specific[] = {
 		&cmwkup->wkup_adctscctrl,
 		&cmper->spi1clkctrl,
 		&cmper->dcan0clkctrl,
@@ -113,7 +113,7 @@ void am33xx_spl_board_init(void)
 		&cmper->lcdcclkstctrl,
 		0
 	};
-	do_enable_clocks(clk_domains, clk_modules_kwbspecific, 1);
+	do_enable_clocks(clk_domains, clk_modules_xre1specific, 1);
 	/* setup LCD-Pixel Clock */
 	writel(0x2, CM_DPLL + 0x34);
 	/* power-OFF LCD-Display */

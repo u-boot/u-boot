@@ -304,8 +304,8 @@ config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
 	select CPU_V7
 
-config TARGET_KWB
-	bool "Support kwb"
+config TARGET_BRXRE1
+	bool "Support BRXRE1"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -908,7 +908,7 @@ source "arch/arm/cpu/armv8/Kconfig"
 source "arch/arm/imx-common/Kconfig"
 
 source "board/bosch/shc/Kconfig"
-source "board/BuR/kwb/Kconfig"
+source "board/BuR/brxre1/Kconfig"
 source "board/BuR/brppt1/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"

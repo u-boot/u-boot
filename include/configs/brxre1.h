@@ -1,5 +1,5 @@
 /*
- * kwb.h
+ * brxre1.h
  *
  * specific parts for B&R KWB Motherboard
  *
@@ -9,8 +9,8 @@
  * SPDX-License-Identifier:        GPL-2.0+
  */
 
-#ifndef __CONFIG_KWB_H__
-#define __CONFIG_KWB_H__
+#ifndef __CONFIG_BRXRE1_H__
+#define __CONFIG_BRXRE1_H__
 
 #include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
@@ -140,4 +140,4 @@ BUR_COMMON_ENV \
 #define CONFIG_FAT_WRITE
 #endif /* CONFIG_MMC, ... */
 
-#endif	/* __CONFIG_KWB_H__ */
+#endif	/* __CONFIG_BRXRE1_H__ */

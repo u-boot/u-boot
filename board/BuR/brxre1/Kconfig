@@ -1,7 +1,7 @@
-if TARGET_KWB
+if TARGET_BRXRE1
 
 config SYS_BOARD
-	default "kwb"
+	default "brxre1"
 
 config SYS_VENDOR
 	default "BuR"
@@ -10,6 +10,6 @@ config SYS_SOC
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	default "kwb"
+	default "brxre1"
 
 endif
