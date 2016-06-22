@@ -120,7 +120,7 @@
 			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
 		"if fdt addr ${fdt_addr_r}; then "                        \
 			"bootefi ${kernel_addr_r} ${fdt_addr_r};"         \
-		"else"                                                    \
+		"else "                                                    \
 			"bootefi ${kernel_addr_r} ${fdtcontroladdr};"     \
 		"fi\0"                                                    \
 	\
