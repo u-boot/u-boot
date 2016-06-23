@@ -346,7 +346,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #else
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	3
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	1
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x200 /* offset 512 sect (256k) */
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #endif
