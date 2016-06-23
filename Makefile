@@ -810,7 +810,9 @@ ifeq ($(CONFIG_DM_I2C_COMPAT),y)
 endif
 
 PHONY += dtbs
-dtbs dts/dt.dtb: checkdtc u-boot
+dtbs: dts/dt.dtb
+	@:
+dts/dt.dtb: checkdtc u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
 
 quiet_cmd_copy = COPY    $@
