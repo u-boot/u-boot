@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *    off:          FFF
  */
 
-static u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
+u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 {
 	u64 max_addr = 0;
 	u64 ips, va_bits;
@@ -349,9 +349,12 @@ __weak u64 get_page_table_size(void)
 	return size;
 }
 
-static void setup_pgtables(void)
+void setup_pgtables(void)
 {
 	int i;
+
+	if (!gd->arch.tlb_fillptr || !gd->arch.tlb_addr)
+		panic("Page table pointer not setup.");
 
 	/*
 	 * Allocate the first level we're on with invalidate entries.
@@ -363,9 +366,6 @@ static void setup_pgtables(void)
 	/* Now add all MMU table entries one after another to the table */
 	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++)
 		add_map(&mem_map[i]);
-
-	/* Create the same thing once more for our emergency page table */
-	create_table();
 }
 
 static void setup_all_pgtables(void)
@@ -526,6 +526,9 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	u64 real_size = size;
 
 	debug("start=%lx size=%lx\n", (ulong)start, (ulong)size);
+
+	if (!gd->arch.tlb_emerg)
+		panic("Emergency page table not setup.");
 
 	/*
 	 * We can not modify page tables that we're currently running on,

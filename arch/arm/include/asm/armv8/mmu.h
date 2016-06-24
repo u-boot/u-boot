@@ -141,6 +141,8 @@ struct mm_region {
 };
 
 extern struct mm_region *mem_map;
+void setup_pgtables(void);
+u64 get_tcr(int el, u64 *pips, u64 *pva_bits);
 #endif
 
 #endif /* _ASM_ARMV8_MMU_H_ */
