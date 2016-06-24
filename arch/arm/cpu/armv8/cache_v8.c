@@ -167,49 +167,6 @@ static void set_pte_table(u64 *pte, u64 *table)
 	*pte = PTE_TYPE_TABLE | (ulong)table;
 }
 
-/* Add one mm_region map entry to the page tables */
-static void add_map(struct mm_region *map)
-{
-	u64 *pte;
-	u64 addr = map->base;
-	u64 size = map->size;
-	u64 attrs = map->attrs | PTE_TYPE_BLOCK | PTE_BLOCK_AF;
-	u64 blocksize;
-	int level;
-	u64 *new_table;
-
-	while (size) {
-		pte = find_pte(addr, 0);
-		if (pte && (pte_type(pte) == PTE_TYPE_FAULT)) {
-			debug("Creating table for addr 0x%llx\n", addr);
-			new_table = create_table();
-			set_pte_table(pte, new_table);
-		}
-
-		for (level = 1; level < 4; level++) {
-			pte = find_pte(addr, level);
-			blocksize = 1ULL << level2shift(level);
-			debug("Checking if pte fits for addr=%llx size=%llx "
-			      "blocksize=%llx\n", addr, size, blocksize);
-			if (size >= blocksize && !(addr & (blocksize - 1))) {
-				/* Page fits, create block PTE */
-				debug("Setting PTE %p to block addr=%llx\n",
-				      pte, addr);
-				*pte = addr | attrs;
-				addr += blocksize;
-				size -= blocksize;
-				break;
-			} else if ((pte_type(pte) == PTE_TYPE_FAULT)) {
-				/* Page doesn't fit, create subpages */
-				debug("Creating subtable for addr 0x%llx "
-				      "blksize=%llx\n", addr, blocksize);
-				new_table = create_table();
-				set_pte_table(pte, new_table);
-			}
-		}
-	}
-}
-
 /* Splits a block PTE into table with subpages spanning the old block */
 static void split_block(u64 *pte, int level)
 {
@@ -239,6 +196,55 @@ static void split_block(u64 *pte, int level)
 
 	/* Set the new table into effect */
 	set_pte_table(pte, new_table);
+}
+
+/* Add one mm_region map entry to the page tables */
+static void add_map(struct mm_region *map)
+{
+	u64 *pte;
+	u64 addr = map->base;
+	u64 size = map->size;
+	u64 attrs = map->attrs | PTE_TYPE_BLOCK | PTE_BLOCK_AF;
+	u64 blocksize;
+	int level;
+	u64 *new_table;
+
+	while (size) {
+		pte = find_pte(addr, 0);
+		if (pte && (pte_type(pte) == PTE_TYPE_FAULT)) {
+			debug("Creating table for addr 0x%llx\n", addr);
+			new_table = create_table();
+			set_pte_table(pte, new_table);
+		}
+
+		for (level = 1; level < 4; level++) {
+			pte = find_pte(addr, level);
+			if (!pte)
+				panic("pte not found\n");
+			blocksize = 1ULL << level2shift(level);
+			debug("Checking if pte fits for addr=%llx size=%llx "
+			      "blocksize=%llx\n", addr, size, blocksize);
+			if (size >= blocksize && !(addr & (blocksize - 1))) {
+				/* Page fits, create block PTE */
+				debug("Setting PTE %p to block addr=%llx\n",
+				      pte, addr);
+				*pte = addr | attrs;
+				addr += blocksize;
+				size -= blocksize;
+				break;
+			} else if (pte_type(pte) == PTE_TYPE_FAULT) {
+				/* Page doesn't fit, create subpages */
+				debug("Creating subtable for addr 0x%llx "
+				      "blksize=%llx\n", addr, blocksize);
+				new_table = create_table();
+				set_pte_table(pte, new_table);
+			} else if (pte_type(pte) == PTE_TYPE_BLOCK) {
+				debug("Split block into subtable for addr 0x%llx blksize=0x%llx\n",
+				      addr, blocksize);
+				split_block(pte, level);
+			}
+		}
+	}
 }
 
 enum pte_type {
