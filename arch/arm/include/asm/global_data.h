@@ -57,6 +57,7 @@ struct arch_global_data {
 	 *             0x2 maintained
 	 */
 	phys_addr_t secure_ram;
+	unsigned long tlb_allocated;
 #endif
 
 #ifdef CONFIG_OMAP_COMMON
