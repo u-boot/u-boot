@@ -234,12 +234,14 @@ static const struct rpi_model *model;
 #ifdef CONFIG_ARM64
 static struct mm_region bcm2837_mem_map[] = {
 	{
-		.base = 0x00000000UL,
+		.virt = 0x00000000UL,
+		.phys = 0x00000000UL,
 		.size = 0x3f000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.base = 0x3f000000UL,
+		.virt = 0x3f000000UL,
+		.phys = 0x3f000000UL,
 		.size = 0x01000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |

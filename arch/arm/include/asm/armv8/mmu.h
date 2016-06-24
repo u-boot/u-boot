@@ -135,7 +135,8 @@ static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
 }
 
 struct mm_region {
-	u64 base;
+	u64 virt;
+	u64 phys;
 	u64 size;
 	u64 attrs;
 };

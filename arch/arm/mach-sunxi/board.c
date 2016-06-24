@@ -46,13 +46,15 @@ struct fel_stash fel_stash __attribute__((section(".data")));
 static struct mm_region sunxi_mem_map[] = {
 	{
 		/* SRAM, MMIO regions */
-		.base = 0x0UL,
+		.virt = 0x0UL,
+		.phys = 0x0UL,
 		.size = 0x40000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE
 	}, {
 		/* RAM */
-		.base = 0x40000000UL,
+		.virt = 0x40000000UL,
+		.phys = 0x40000000UL,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE

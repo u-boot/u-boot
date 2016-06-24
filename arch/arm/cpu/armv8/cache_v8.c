@@ -44,7 +44,7 @@ u64 get_tcr(int el, u64 *pips, u64 *pva_bits)
 
 	/* Find the largest address we need to support */
 	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++)
-		max_addr = max(max_addr, mem_map[i].base + mem_map[i].size);
+		max_addr = max(max_addr, mem_map[i].virt + mem_map[i].size);
 
 	/* Calculate the maximum physical (and thus virtual) address */
 	if (max_addr > (1ULL << 44)) {
@@ -202,7 +202,8 @@ static void split_block(u64 *pte, int level)
 static void add_map(struct mm_region *map)
 {
 	u64 *pte;
-	u64 addr = map->base;
+	u64 virt = map->virt;
+	u64 phys = map->phys;
 	u64 size = map->size;
 	u64 attrs = map->attrs | PTE_TYPE_BLOCK | PTE_BLOCK_AF;
 	u64 blocksize;
@@ -210,37 +211,39 @@ static void add_map(struct mm_region *map)
 	u64 *new_table;
 
 	while (size) {
-		pte = find_pte(addr, 0);
+		pte = find_pte(virt, 0);
 		if (pte && (pte_type(pte) == PTE_TYPE_FAULT)) {
-			debug("Creating table for addr 0x%llx\n", addr);
+			debug("Creating table for virt 0x%llx\n", virt);
 			new_table = create_table();
 			set_pte_table(pte, new_table);
 		}
 
 		for (level = 1; level < 4; level++) {
-			pte = find_pte(addr, level);
+			pte = find_pte(virt, level);
 			if (!pte)
 				panic("pte not found\n");
+
 			blocksize = 1ULL << level2shift(level);
-			debug("Checking if pte fits for addr=%llx size=%llx "
-			      "blocksize=%llx\n", addr, size, blocksize);
-			if (size >= blocksize && !(addr & (blocksize - 1))) {
+			debug("Checking if pte fits for virt=%llx size=%llx blocksize=%llx\n",
+			      virt, size, blocksize);
+			if (size >= blocksize && !(virt & (blocksize - 1))) {
 				/* Page fits, create block PTE */
-				debug("Setting PTE %p to block addr=%llx\n",
-				      pte, addr);
-				*pte = addr | attrs;
-				addr += blocksize;
+				debug("Setting PTE %p to block virt=%llx\n",
+				      pte, virt);
+				*pte = phys | attrs;
+				virt += blocksize;
+				phys += blocksize;
 				size -= blocksize;
 				break;
 			} else if (pte_type(pte) == PTE_TYPE_FAULT) {
 				/* Page doesn't fit, create subpages */
-				debug("Creating subtable for addr 0x%llx "
-				      "blksize=%llx\n", addr, blocksize);
+				debug("Creating subtable for virt 0x%llx blksize=%llx\n",
+				      virt, blocksize);
 				new_table = create_table();
 				set_pte_table(pte, new_table);
 			} else if (pte_type(pte) == PTE_TYPE_BLOCK) {
-				debug("Split block into subtable for addr 0x%llx blksize=0x%llx\n",
-				      addr, blocksize);
+				debug("Split block into subtable for virt 0x%llx blksize=0x%llx\n",
+				      virt, blocksize);
 				split_block(pte, level);
 			}
 		}
@@ -271,7 +274,7 @@ static int count_required_pts(u64 addr, int level, u64 maxaddr)
 
 	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++) {
 		struct mm_region *map = &mem_map[i];
-		u64 start = map->base;
+		u64 start = map->virt;
 		u64 end = start + map->size;
 
 		/* Check if the PTE would overlap with the map */
