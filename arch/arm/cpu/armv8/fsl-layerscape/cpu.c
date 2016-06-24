@@ -289,8 +289,8 @@ static inline int final_secure_ddr(u64 *level0_table,
  * These tables are in DRAM. Sub tables are added to enable cache for
  * QBMan and OCRAM.
  *
- * Put the MMU table in secure memory if gd->secure_ram is valid.
- * OCRAM will be not used for this purpose so gd->secure_ram can't be 0.
+ * Put the MMU table in secure memory if gd->arch.secure_ram is valid.
+ * OCRAM will be not used for this purpose so gd->arch.secure_ram can't be 0.
  *
  * Level 1 table 0 contains 512 entries for each 1GB from 0 to 512GB.
  * Level 1 table 1 contains 512 entries for each 1GB from 512GB to 1TB.
@@ -321,13 +321,13 @@ static inline void final_mmu_setup(void)
 
 	if (el == 3) {
 		/*
-		 * Only use gd->secure_ram if the address is recalculated
+		 * Only use gd->arch.secure_ram if the address is recalculated
 		 * Align to 4KB for MMU table
 		 */
-		if (gd->secure_ram & MEM_RESERVE_SECURE_MAINTAINED)
-			level0_table = (u64 *)(gd->secure_ram & ~0xfff);
+		if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED)
+			level0_table = (u64 *)(gd->arch.secure_ram & ~0xfff);
 		else
-			printf("MMU warning: gd->secure_ram is not maintained, disabled.\n");
+			printf("MMU warning: gd->arch.secure_ram is not maintained, disabled.\n");
 	}
 #endif
 	level1_table0 = level0_table + 512;
@@ -374,7 +374,7 @@ static inline void final_mmu_setup(void)
 	}
 	/* Set the secure memory to secure in MMU */
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-	if (el == 3 && gd->secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
+	if (el == 3 && gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
 #ifdef CONFIG_FSL_LSCH3
 		level2_table_secure = level2_table1 + 512;
 #elif defined(CONFIG_FSL_LSCH2)
@@ -382,10 +382,10 @@ static inline void final_mmu_setup(void)
 #endif
 		if (!final_secure_ddr(level0_table,
 				      level2_table_secure,
-				      gd->secure_ram & ~0x3)) {
-			gd->secure_ram |= MEM_RESERVE_SECURE_SECURED;
+				      gd->arch.secure_ram & ~0x3)) {
+			gd->arch.secure_ram |= MEM_RESERVE_SECURE_SECURED;
 			debug("Now MMU table is in secured memory at 0x%llx\n",
-			      gd->secure_ram & ~0x3);
+			      gd->arch.secure_ram & ~0x3);
 		} else {
 			printf("MMU warning: Failed to secure DDR\n");
 		}

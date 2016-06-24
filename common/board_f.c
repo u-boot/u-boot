@@ -339,7 +339,7 @@ static int setup_dest_addr(void)
 	 * Record secure memory location. Need recalcuate if memory splits
 	 * into banks, or the ram base is not zero.
 	 */
-	gd->secure_ram = gd->ram_size;
+	gd->arch.secure_ram = gd->ram_size;
 #endif
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
