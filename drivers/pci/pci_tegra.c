@@ -620,11 +620,6 @@ static int tegra_pcie_phy_enable(struct tegra_pcie *pcie)
 	value |= PADS_PLL_CTL_RST_B4SM;
 	pads_writel(pcie, value, soc->pads_pll_ctl);
 
-	/* configure the reference clock driver */
-	pads_writel(pcie, soc->pads_refclk_cfg0, PADS_REFCLK_CFG0);
-	if (soc->num_ports > 2)
-		pads_writel(pcie, soc->pads_refclk_cfg1, PADS_REFCLK_CFG1);
-
 	/* wait for the PLL to lock */
 	err = tegra_pcie_pll_wait(pcie, 500);
 	if (err < 0) {
@@ -818,20 +813,21 @@ static void tegra_pcie_port_reset(struct tegra_pcie_port *port)
 
 static void tegra_pcie_port_enable(struct tegra_pcie_port *port)
 {
-	const struct tegra_pcie_soc *soc = port->pcie->soc;
+	struct tegra_pcie *pcie = port->pcie;
+	const struct tegra_pcie_soc *soc = pcie->soc;
 	unsigned long ctrl = tegra_pcie_port_get_pex_ctrl(port);
 	unsigned long value;
 
 	/* enable reference clock */
-	value = afi_readl(port->pcie, ctrl);
+	value = afi_readl(pcie, ctrl);
 	value |= AFI_PEX_CTRL_REFCLK_EN;
 
-	if (port->pcie->soc->has_pex_clkreq_en)
+	if (pcie->soc->has_pex_clkreq_en)
 		value |= AFI_PEX_CTRL_CLKREQ_EN;
 
 	value |= AFI_PEX_CTRL_OVERRIDE_EN;
 
-	afi_writel(port->pcie, value, ctrl);
+	afi_writel(pcie, value, ctrl);
 
 	tegra_pcie_port_reset(port);
 
@@ -840,6 +836,11 @@ static void tegra_pcie_port_enable(struct tegra_pcie_port *port)
 		value |= RP_VEND_CTL2_PCA_ENABLE;
 		rp_writel(port, value, RP_VEND_CTL2);
 	}
+
+	/* configure the reference clock driver */
+	pads_writel(pcie, soc->pads_refclk_cfg0, PADS_REFCLK_CFG0);
+	if (soc->num_ports > 2)
+		pads_writel(pcie, soc->pads_refclk_cfg1, PADS_REFCLK_CFG1);
 }
 
 static bool tegra_pcie_port_check_link(struct tegra_pcie_port *port)
