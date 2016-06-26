@@ -136,7 +136,12 @@ static int msm_sdc_probe(struct udevice *dev)
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	/* automatically detect max and min speed */
-	return add_sdhci(host, 0, 0);
+	ret =  add_sdhci(host, 0, 0);
+	if (ret)
+		return ret;
+	host->mmc->dev = dev;
+
+	return 0;
 }
 
 static int msm_sdc_remove(struct udevice *dev)
