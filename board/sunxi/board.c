@@ -26,6 +26,7 @@
 #endif
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <libfdt.h>
 #include <nand.h>
 #include <net.h>
 #include <sy8106a.h>
@@ -609,13 +610,57 @@ static void parse_spl_header(const uint32_t spl_addr)
 }
 #endif
 
-#ifdef CONFIG_MISC_INIT_R
-int misc_init_r(void)
+/*
+ * Note this function gets called multiple times.
+ * It must not make any changes to env variables which already exist.
+ */
+static void setup_environment(const void *fdt)
 {
 	char serial_string[17] = { 0 };
 	unsigned int sid[4];
 	uint8_t mac_addr[6];
-	int ret;
+	char ethaddr[16];
+	int i, ret;
+
+	ret = sunxi_get_sid(sid);
+	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {
+		for (i = 0; i < 4; i++) {
+			sprintf(ethaddr, "ethernet%d", i);
+			if (!fdt_get_alias(fdt, ethaddr))
+				continue;
+
+			if (i == 0)
+				strcpy(ethaddr, "ethaddr");
+			else
+				sprintf(ethaddr, "eth%daddr", i);
+
+			if (getenv(ethaddr))
+				continue;
+
+			/* Non OUI / registered MAC address */
+			mac_addr[0] = (i << 4) | 0x02;
+			mac_addr[1] = (sid[0] >>  0) & 0xff;
+			mac_addr[2] = (sid[3] >> 24) & 0xff;
+			mac_addr[3] = (sid[3] >> 16) & 0xff;
+			mac_addr[4] = (sid[3] >>  8) & 0xff;
+			mac_addr[5] = (sid[3] >>  0) & 0xff;
+
+			eth_setenv_enetaddr(ethaddr, mac_addr);
+		}
+
+		if (!getenv("serial#")) {
+			snprintf(serial_string, sizeof(serial_string),
+				"%08x%08x", sid[0], sid[3]);
+
+			setenv("serial#", serial_string);
+		}
+	}
+}
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+	__maybe_unused int ret;
 
 #if !defined(CONFIG_SPL_BUILD)
 	setenv("fel_booted", NULL);
@@ -627,27 +672,7 @@ int misc_init_r(void)
 	}
 #endif
 
-	ret = sunxi_get_sid(sid);
-	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {
-		if (!getenv("ethaddr")) {
-			/* Non OUI / registered MAC address */
-			mac_addr[0] = 0x02;
-			mac_addr[1] = (sid[0] >>  0) & 0xff;
-			mac_addr[2] = (sid[3] >> 24) & 0xff;
-			mac_addr[3] = (sid[3] >> 16) & 0xff;
-			mac_addr[4] = (sid[3] >>  8) & 0xff;
-			mac_addr[5] = (sid[3] >>  0) & 0xff;
-
-			eth_setenv_enetaddr("ethaddr", mac_addr);
-		}
-
-		if (!getenv("serial#")) {
-			snprintf(serial_string, sizeof(serial_string),
-				"%08x%08x", sid[0], sid[3]);
-
-			setenv("serial#", serial_string);
-		}
-	}
+	setup_environment(gd->fdt_blob);
 
 #ifndef CONFIG_MACH_SUN9I
 	ret = sunxi_usb_phy_probe();
@@ -663,6 +688,12 @@ int misc_init_r(void)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	int __maybe_unused r;
+
+	/*
+	 * Call setup_environment again in case the boot fdt has
+	 * ethernet aliases the u-boot copy does not have.
+	 */
+	setup_environment(blob);
 
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB
 	r = sunxi_simplefb_setup(blob);
