@@ -112,6 +112,14 @@ class PatchStream:
         if self.commit and self.is_log:
             self.series.AddCommit(self.commit)
             self.commit = None
+        # If 'END' is missing in a 'Cover-letter' section, and that section
+        # happens to show up at the very end of the commit message, this is
+        # the chance for us to fix it up.
+        if self.in_section == 'cover' and self.is_log:
+            self.series.cover = self.section
+            self.in_section = None
+            self.skip_blank = True
+            self.section = []
 
     def ProcessLine(self, line):
         """Process a single line of a patch file or commit log
