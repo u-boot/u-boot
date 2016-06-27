@@ -46,7 +46,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SILENT_CONSOLE
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* Clock Defines */
 #define V_OSCK				26000000 /* Clock output from T2 */

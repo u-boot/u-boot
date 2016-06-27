@@ -322,7 +322,6 @@
  */
 
 #undef  CONFIG_BOOTARGS
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_SYS_AUTOLOAD	"n"
 

@@ -132,14 +132,6 @@ What they do
 	provides an escape sequence from the limited "password"
 	strings.
 
-
-  CONFIG_ZERO_BOOTDELAY_CHECK
-
-	If this option is defined, you can stop the autoboot process
-	by hitting a key even in that case when "bootdelay" has been
-	set to 0. You can set "bootdelay" to a negative value to
-	prevent the check for console input.
-
   CONFIG_RESET_TO_RETRY
 
 	(Only effective when CONFIG_BOOT_RETRY_TIME is also set)

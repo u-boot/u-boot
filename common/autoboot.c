@@ -187,10 +187,8 @@ static int abortboot_keyed(int bootdelay)
 	int abort;
 	uint64_t etime = endtick(bootdelay);
 
-#ifndef CONFIG_ZERO_BOOTDELAY_CHECK
-	if (bootdelay == 0)
+	if (bootdelay < 0)
 		return 0;
-#endif
 
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	/*
@@ -230,7 +228,6 @@ static int abortboot_normal(int bootdelay)
 		printf("Hit any key to stop autoboot: %2d ", bootdelay);
 #endif
 
-#if defined CONFIG_ZERO_BOOTDELAY_CHECK
 	/*
 	 * Check if key already pressed
 	 * Don't check if bootdelay < 0
@@ -242,7 +239,6 @@ static int abortboot_normal(int bootdelay)
 			abort = 1;	/* don't auto boot	*/
 		}
 	}
-#endif
 
 	while ((bootdelay > 0) && (!abort)) {
 		--bootdelay;

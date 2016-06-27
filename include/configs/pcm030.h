@@ -67,11 +67,6 @@ Serial console configuration
 #define MTDPARTS_DEFAULT   	"mtdparts=physmap-flash.0:256k(ubootl)," \
 	"1792k(kernel),13312k(jffs2),256k(uboot)ro,256k(oftree),-(space)"
 
-/*-----------------------------------------------------------------------------
-Autobooting
------------------------------------------------------------------------------*/
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow stopping of boot process */
-					/* even with bootdelay=0 */
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_PREBOOT	"echo;"	\

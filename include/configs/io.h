@@ -33,8 +33,6 @@
 #define PLLMR0_DEFAULT PLLMR0_266_133_66
 #define PLLMR1_DEFAULT PLLMR1_266_133_66
 
-#undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
-
 /* new uImage format support */
 #define CONFIG_FIT_DISABLE_SHA256
 

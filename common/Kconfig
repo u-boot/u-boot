@@ -164,9 +164,9 @@ config BOOTDELAY
 	depends on AUTOBOOT
 	help
 	  Delay before automatically running bootcmd;
+	  set to 0 to autoboot with no delay, but you can stop it by key input.
 	  set to -1 to disable autoboot.
 	  set to -2 to autoboot with no delay and not check for abort
-	  (even when CONFIG_ZERO_BOOTDELAY_CHECK is defined).
 
 	  See doc/README.autoboot for details.
 

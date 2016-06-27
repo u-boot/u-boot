@@ -150,6 +150,5 @@
 	"bootdelay=0\0"
 
 #endif
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #endif

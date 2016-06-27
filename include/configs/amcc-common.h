@@ -78,7 +78,6 @@
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 	/* include version env variable */
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup*/
 

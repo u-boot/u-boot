@@ -48,8 +48,6 @@
 #define CONFIG_BOARD_TYPES		1	/* support board types */
 #define CFG_ALT_MEMTEST
 
-#undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
-
 /*
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)

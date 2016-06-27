@@ -47,7 +47,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING		/* cmd line edit/history */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check keypress w/no delay */
 
 /* Hardware drivers */
 

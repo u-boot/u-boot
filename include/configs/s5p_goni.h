@@ -94,8 +94,6 @@
 				",12m(modem)"\
 				",60m(qboot)\0"
 
-#define CONFIG_ZERO_BOOTDELAY_CHECK
-
 /* partitions definitions */
 #define PARTS_CSA			"csa-mmc"
 #define PARTS_BOOTLOADER	"u-boot"
