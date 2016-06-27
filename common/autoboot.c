@@ -187,9 +187,6 @@ static int __abortboot(int bootdelay)
 	int abort;
 	uint64_t etime = endtick(bootdelay);
 
-	if (bootdelay < 0)
-		return 0;
-
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	/*
 	 * CONFIG_AUTOBOOT_PROMPT includes the %d for all boards.
@@ -219,20 +216,16 @@ static int __abortboot(int bootdelay)
 #ifdef CONFIG_MENUPROMPT
 	printf(CONFIG_MENUPROMPT);
 #else
-	if (bootdelay >= 0)
-		printf("Hit any key to stop autoboot: %2d ", bootdelay);
+	printf("Hit any key to stop autoboot: %2d ", bootdelay);
 #endif
 
 	/*
 	 * Check if key already pressed
-	 * Don't check if bootdelay < 0
 	 */
-	if (bootdelay >= 0) {
-		if (tstc()) {	/* we got a key press	*/
-			(void) getc();  /* consume input	*/
-			puts("\b\b\b 0");
-			abort = 1;	/* don't auto boot	*/
-		}
+	if (tstc()) {	/* we got a key press	*/
+		(void) getc();  /* consume input	*/
+		puts("\b\b\b 0");
+		abort = 1;	/* don't auto boot	*/
 	}
 
 	while ((bootdelay > 0) && (!abort)) {
@@ -264,9 +257,10 @@ static int __abortboot(int bootdelay)
 
 static int abortboot(int bootdelay)
 {
-	int abort;
+	int abort = 0;
 
-	abort = __abortboot(bootdelay);
+	if (bootdelay >= 0)
+		abort = __abortboot(bootdelay);
 
 #ifdef CONFIG_SILENT_CONSOLE
 	if (abort)
