@@ -1173,4 +1173,21 @@ void android_print_contents(const struct andr_img_hdr *hdr);
  */
 int board_fit_config_name_match(const char *name);
 
+#ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
+/**
+ * board_fit_image_post_process() - Do any post-process on FIT binary data
+ *
+ * This is used to do any sort of image manipulation, verification, decryption
+ * etc. in a platform or board specific way. Obviously, anything done here would
+ * need to be comprehended in how the images were prepared before being injected
+ * into the FIT creation (i.e. the binary blobs would have been pre-processed
+ * before being added to the FIT image).
+ *
+ * @image: pointer to the image start pointer
+ * @size: pointer to the image size
+ * @return no return value (failure should be handled internally)
+ */
+void board_fit_image_post_process(void **p_image, size_t *p_size);
+#endif /* CONFIG_SPL_FIT_IMAGE_POST_PROCESS */
+
 #endif	/* __IMAGE_H__ */
