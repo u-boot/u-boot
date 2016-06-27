@@ -177,9 +177,10 @@ class PatchStream:
         elif commit_match:
             self.state = STATE_MSG_HEADER
 
-        # If a tag is detected
+        # If a tag is detected, or a new commit starts
         if series_tag_match or commit_tag_match or \
-           cover_match or cover_cc_match or signoff_match:
+           cover_match or cover_cc_match or signoff_match or \
+           self.state == STATE_MSG_HEADER:
             # but we are already in a section, this means 'END' is missing
             # for that section, fix it up.
             if self.in_section:
