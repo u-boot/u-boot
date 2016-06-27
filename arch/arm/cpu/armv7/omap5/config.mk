@@ -15,5 +15,8 @@ else
 ALL-y	+= MLO
 endif
 else
+ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
+ALL-y   += u-boot_HS.img
+endif
 ALL-y	+= u-boot.img
 endif
