@@ -94,7 +94,11 @@ reset:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
-#ifdef CONFIG_ARMV8_MULTIENTRY
+#if CONFIG_IS_ENABLED(ARMV8_SPIN_TABLE)
+	branch_if_master x0, x1, master_cpu
+	b	spin_table_secondary_jump
+	/* never return */
+#elif defined(CONFIG_ARMV8_MULTIENTRY)
 	branch_if_master x0, x1, master_cpu
 
 	/*
@@ -106,10 +110,8 @@ slave_cpu:
 	ldr	x0, [x1]
 	cbz	x0, slave_cpu
 	br	x0			/* branch to the given address */
-master_cpu:
-	/* On the master CPU */
 #endif /* CONFIG_ARMV8_MULTIENTRY */
-
+master_cpu:
 	bl	_main
 
 #ifdef CONFIG_SYS_RESET_SCTRL
