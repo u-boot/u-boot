@@ -19,7 +19,6 @@
 #define PHYS_SDRAM_1_SIZE		0x10000000
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"zImage"
 #define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #define CONFIG_LOADADDR		0x01000000
