@@ -182,7 +182,7 @@ static int passwd_abort(uint64_t etime)
  * Watch for 'delay' seconds for autoboot stop or autoboot delay string.
  * returns: 0 -  no key string, allow autoboot 1 - got key string, abort
  */
-static int abortboot_keyed(int bootdelay)
+static int __abortboot(int bootdelay)
 {
 	int abort;
 	uint64_t etime = endtick(bootdelay);
@@ -216,7 +216,7 @@ static int abortboot_keyed(int bootdelay)
 static int menukey;
 #endif
 
-static int abortboot_normal(int bootdelay)
+static int __abortboot(int bootdelay)
 {
 	int abort = 0;
 	unsigned long ts;
@@ -274,11 +274,7 @@ static int abortboot_normal(int bootdelay)
 
 static int abortboot(int bootdelay)
 {
-#ifdef CONFIG_AUTOBOOT_KEYED
-	return abortboot_keyed(bootdelay);
-#else
-	return abortboot_normal(bootdelay);
-#endif
+	return __abortboot(bootdelay);
 }
 
 static void process_fdt_options(const void *blob)
