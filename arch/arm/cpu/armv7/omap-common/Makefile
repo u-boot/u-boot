@@ -36,3 +36,5 @@ obj-y	+= boot-common.o
 obj-y	+= lowlevel_init.o
 
 obj-y	+= mem-common.o
+
+obj-$(CONFIG_TI_SECURE_DEVICE) += sec-common.o
