@@ -169,6 +169,26 @@ class PatchStream:
         elif commit_match:
             self.state = STATE_MSG_HEADER
 
+        # If a tag is detected, but we are already in a section,
+        # this means 'END' is missing for that section, fix it up.
+        if series_tag_match or commit_tag_match or \
+           cover_match or cover_cc_match or signoff_match:
+            if self.in_section:
+                self.warn.append("Missing 'END' in section '%s'" % self.in_section)
+                if self.in_section == 'cover':
+                    self.series.cover = self.section
+                elif self.in_section == 'notes':
+                    if self.is_log:
+                        self.series.notes += self.section
+                elif self.in_section == 'commit-notes':
+                    if self.is_log:
+                        self.commit.notes += self.section
+                else:
+                    self.warn.append("Unknown section '%s'" % self.in_section)
+                self.in_section = None
+                self.skip_blank = True
+                self.section = []
+
         # If we are in a section, keep collecting lines until we see END
         if self.in_section:
             if line == 'END':
