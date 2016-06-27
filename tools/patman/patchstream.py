@@ -150,6 +150,7 @@ class PatchStream:
         # Handle state transition and skipping blank lines
         series_tag_match = re_series_tag.match(line)
         commit_tag_match = re_commit_tag.match(line)
+        cover_match = re_cover.match(line)
         cover_cc_match = re_cover_cc.match(line)
         signoff_match = re_signoff.match(line)
         tag_match = None
@@ -203,7 +204,7 @@ class PatchStream:
             self.skip_blank = False
 
         # Detect the start of a cover letter section
-        elif re_cover.match(line):
+        elif cover_match:
             self.in_section = 'cover'
             self.skip_blank = False
 
