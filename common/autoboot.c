@@ -202,11 +202,6 @@ static int __abortboot(int bootdelay)
 	if (!abort)
 		debug_bootkeys("key timeout\n");
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (abort)
-		gd->flags &= ~GD_FLG_SILENT;
-#endif
-
 	return abort;
 }
 
@@ -263,18 +258,22 @@ static int __abortboot(int bootdelay)
 
 	putc('\n');
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (abort)
-		gd->flags &= ~GD_FLG_SILENT;
-#endif
-
 	return abort;
 }
 # endif	/* CONFIG_AUTOBOOT_KEYED */
 
 static int abortboot(int bootdelay)
 {
-	return __abortboot(bootdelay);
+	int abort;
+
+	abort = __abortboot(bootdelay);
+
+#ifdef CONFIG_SILENT_CONSOLE
+	if (abort)
+		gd->flags &= ~GD_FLG_SILENT;
+#endif
+
+	return abort;
 }
 
 static void process_fdt_options(const void *blob)
