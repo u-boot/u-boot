@@ -12,8 +12,8 @@ cmd_mkomapsecimg = $(TI_SECURE_DEV_PKG)/scripts/create-boot-image.sh \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 else
 cmd_mkomapsecimg = $(TI_SECURE_DEV_PKG)/scripts/create-boot-image.sh \
-    $(patsubst u-boot_HS_%,%,$(@F)) $< $@ $(CONFIG_ISW_ENTRY_ADDR) \
-    $(if $(KBUILD_VERBOSE:1=), >/dev/null)
+	$(patsubst u-boot_HS_%,%,$(@F)) $< $@ $(CONFIG_ISW_ENTRY_ADDR) \
+	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 endif
 else
 cmd_mkomapsecimg = echo "WARNING:" \
@@ -25,14 +25,33 @@ cmd_mkomapsecimg = echo "WARNING: TI_SECURE_DEV_PKG environment" \
 	"variable must be defined for TI secure devices. $@ was NOT created!"
 endif
 
+ifdef CONFIG_SPL_LOAD_FIT
+quiet_cmd_omapsecureimg = SECURE  $@
+ifneq ($(TI_SECURE_DEV_PKG),)
+ifneq ($(wildcard $(TI_SECURE_DEV_PKG)/scripts/secure-binary-image.sh),)
+cmd_omapsecureimg = $(TI_SECURE_DEV_PKG)/scripts/secure-binary-image.sh \
+	$< $@ \
+	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
+else
+cmd_omapsecureimg = echo "WARNING:" \
+	"$(TI_SECURE_DEV_PKG)/scripts/secure-binary-image.sh not found." \
+	"$@ was NOT created!"; cp $< $@
+endif
+else
+cmd_omapsecureimg = echo "WARNING: TI_SECURE_DEV_PKG environment" \
+	"variable must be defined for TI secure devices." \
+	"$@ was NOT created!"; cp $< $@
+endif
+endif
+
+
 # Standard X-LOADER target (QPSI, NOR flash)
 u-boot-spl_HS_X-LOADER: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkomapsecimg)
 
-# For MLO targets (SD card boot) the final file name
-# that is copied to the SD card fAT partition must
-# be MLO, so we make a copy of the output file to a
-# new file with that name
+# For MLO targets (SD card boot) the final file name that is copied to the SD
+# card FAT partition must be MLO, so we make a copy of the output file to a new
+# file with that name
 u-boot-spl_HS_MLO: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkomapsecimg)
 	@if [ -f $@ ]; then \
@@ -51,16 +70,44 @@ u-boot-spl_HS_ULO: $(obj)/u-boot-spl.bin
 u-boot-spl_HS_ISSW: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkomapsecimg)
 
-# For SPI flash on AM335x and AM43xx, these
-# require special byte swap handling so we use
-# the SPI_X-LOADER target instead of X-LOADER
-# and let the create-boot-image.sh script handle
-# that
+# For SPI flash on AM335x and AM43xx, these require special byte swap handling
+# so we use the SPI_X-LOADER target instead of X-LOADER and let the
+# create-boot-image.sh script handle that
 u-boot-spl_HS_SPI_X-LOADER: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkomapsecimg)
 
-# For supporting single stage XiP QSPI on AM43xx, the
-# image is a full u-boot file, not an SPL. In this case
-# the mkomapsecimg command looks for a u-boot-HS_* prefix
+# For supporting single stage XiP QSPI on AM43xx, the image is a full u-boot
+# file, not an SPL. In this case the mkomapsecimg command looks for a
+# u-boot-HS_* prefix
 u-boot_HS_XIP_X-LOADER: $(obj)/u-boot.bin
 	$(call if_changed,mkomapsecimg)
+
+# For supporting the SPL loading and interpreting of FIT images whose
+# components are pre-processed before being integrated into the FIT image in
+# order to secure them in some way
+ifdef CONFIG_SPL_LOAD_FIT
+
+MKIMAGEFLAGS_u-boot_HS.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" -E \
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
+
+OF_LIST_TARGETS = $(patsubst %,arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
+$(OF_LIST_TARGETS): dtbs
+
+%_HS.dtb: %.dtb
+	$(call if_changed,omapsecureimg)
+	$(Q)if [ -f $@ ]; then \
+		cp -f $@ $<; \
+	fi
+
+u-boot-nodtb_HS.bin: u-boot-nodtb.bin
+	$(call if_changed,omapsecureimg)
+
+u-boot_HS.img: u-boot-nodtb_HS.bin u-boot.img $(patsubst %.dtb,%_HS.dtb,$(OF_LIST_TARGETS))
+	$(call if_changed,mkimage)
+	$(Q)if [ -f $@ ]; then \
+		cp -f $@ u-boot.img; \
+	fi
+
+endif
