@@ -80,7 +80,7 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	return ret;
 }
 
-#if CONFIG_DM_ETH
+#if defined(CONFIG_DM_ETH) && defined(CONFIG_DM_GPIO)
 static int dw_mdio_reset(struct mii_dev *bus)
 {
 	struct udevice *dev = bus->priv;
@@ -126,7 +126,7 @@ static int dw_mdio_init(const char *name, void *priv)
 	bus->read = dw_mdio_read;
 	bus->write = dw_mdio_write;
 	snprintf(bus->name, sizeof(bus->name), "%s", name);
-#ifdef CONFIG_DM_ETH
+#if defined(CONFIG_DM_ETH) && defined(CONFIG_DM_GPIO)
 	bus->reset = dw_mdio_reset;
 #endif
 
@@ -690,11 +690,15 @@ static const struct eth_ops designware_eth_ops = {
 static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
+#ifdef CONFIG_DM_GPIO
 	struct dw_eth_dev *priv = dev_get_priv(dev);
+#endif
 	struct eth_pdata *pdata = &dw_pdata->eth_pdata;
 	const char *phy_mode;
 	const fdt32_t *cell;
+#ifdef CONFIG_DM_GPIO
 	int reset_flags = GPIOD_IS_OUT;
+#endif
 	int ret = 0;
 
 	pdata->iobase = dev_get_addr(dev);
@@ -712,6 +716,7 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 	if (cell)
 		pdata->max_speed = fdt32_to_cpu(*cell);
 
+#ifdef CONFIG_DM_GPIO
 	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
 			    "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
@@ -724,6 +729,7 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 	} else if (ret == -ENOENT) {
 		ret = 0;
 	}
+#endif
 
 	return ret;
 }
