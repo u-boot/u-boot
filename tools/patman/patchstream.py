@@ -177,10 +177,11 @@ class PatchStream:
         elif commit_match:
             self.state = STATE_MSG_HEADER
 
-        # If a tag is detected, but we are already in a section,
-        # this means 'END' is missing for that section, fix it up.
+        # If a tag is detected
         if series_tag_match or commit_tag_match or \
            cover_match or cover_cc_match or signoff_match:
+            # but we are already in a section, this means 'END' is missing
+            # for that section, fix it up.
             if self.in_section:
                 self.warn.append("Missing 'END' in section '%s'" % self.in_section)
                 if self.in_section == 'cover':
@@ -196,6 +197,11 @@ class PatchStream:
                 self.in_section = None
                 self.skip_blank = True
                 self.section = []
+            # but we are already in a change list, that means a blank line
+            # is missing, fix it up.
+            if self.in_change:
+                self.warn.append("Missing 'blank line' in section 'Series-changes'")
+                self.in_change = 0
 
         # If we are in a section, keep collecting lines until we see END
         if self.in_section:
