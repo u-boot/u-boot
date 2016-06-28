@@ -1,6 +1,9 @@
 config CREATE_ARCH_SYMLINK
 	bool
 
+config HAVE_ARCH_IOREMAP
+	bool
+
 choice
 	prompt "Architecture select"
 	default SANDBOX
@@ -33,6 +36,7 @@ config MICROBLAZE
 
 config MIPS
 	bool "MIPS architecture"
+	select HAVE_ARCH_IOREMAP
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
 
