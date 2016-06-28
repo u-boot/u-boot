@@ -164,15 +164,21 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+void mmu_setup(void)
+{
+	final_mmu_setup();
+}
+
 /*
- * This function is called from lib/board.c.
- * It recreates MMU table in main memory. MMU and d-cache are enabled earlier.
- * There is no need to disable d-cache for this operation.
+ * This function is called from common/board_r.c.
+ * It recreates MMU table in main memory.
  */
 void enable_caches(void)
 {
-	final_mmu_setup();
+	mmu_setup();
 	__asm_invalidate_tlb_all();
+	icache_enable();
+	dcache_enable();
 }
 #endif
 
