@@ -28,7 +28,7 @@ bool soc_has_dp_ddr(void)
 	u32 svr = gur_in32(&gur->svr);
 
 	/* LS2085A has DP_DDR */
-	if (SVR_SOC_VER(svr) == SVR_LS2085)
+	if (SVR_SOC_VER(svr) == SVR_LS2085A)
 		return true;
 
 	return false;
@@ -40,7 +40,7 @@ bool soc_has_aiop(void)
 	u32 svr = gur_in32(&gur->svr);
 
 	/* LS2085A has AIOP */
-	if (SVR_SOC_VER(svr) == SVR_LS2085)
+	if (SVR_SOC_VER(svr) == SVR_LS2085A)
 		return true;
 
 	return false;

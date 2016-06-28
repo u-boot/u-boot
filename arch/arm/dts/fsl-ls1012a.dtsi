@@ -9,18 +9,6 @@
 / {
 	compatible = "fsl,ls1012a";
 	interrupt-parent = <&gic>;
-	cpus {
-		#address-cells = <2>;
-		#size-cells = <0>;
-
-		cpu0: cpu@0 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a53";
-			reg = <0x0 0x0>;
-			clocks = <&clockgen 1 0>;
-		};
-
-	};
 
 	sysclk: sysclk {
 		compatible = "fixed-clock";

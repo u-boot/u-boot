@@ -10,11 +10,7 @@
 #include "ls1043a_common.h"
 
 #define CONFIG_DISPLAY_CPUINFO
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-#else
 #define CONFIG_DISPLAY_BOARDINFO
-#endif
 
 #if defined(CONFIG_NAND_BOOT) || defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_TEXT_BASE		0x82000000
@@ -29,8 +25,8 @@ unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
 #endif
 
-#define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
+#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
+#define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -225,6 +221,7 @@ unsigned long get_board_ddr_clk(void);
 
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_I2C_EARLY_INIT
 #define CONFIG_SYS_NO_FLASH
 #endif
 

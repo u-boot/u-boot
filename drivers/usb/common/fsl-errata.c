@@ -182,8 +182,8 @@ bool has_erratum_a008751(void)
 
 	switch (soc) {
 #ifdef CONFIG_ARM64
-	case SVR_LS2080:
-	case SVR_LS2085:
+	case SVR_LS2080A:
+	case SVR_LS2085A:
 		return IS_SVR_REV(svr, 1, 0);
 #endif
 	}
