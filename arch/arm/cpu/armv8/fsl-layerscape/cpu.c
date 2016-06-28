@@ -23,6 +23,9 @@
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+#include <asm/armv8/sec_firmware.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -364,6 +367,7 @@ int arch_early_init_r(void)
 {
 #ifdef CONFIG_MP
 	int rv = 1;
+	u32 psci_ver = 0xffffffff;
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
@@ -371,9 +375,15 @@ int arch_early_init_r(void)
 #endif
 
 #ifdef CONFIG_MP
-	rv = fsl_layerscape_wake_seconday_cores();
-	if (rv)
-		printf("Did not wake secondary cores\n");
+#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && defined(CONFIG_ARMV8_PSCI)
+	/* Check the psci version to determine if the psci is supported */
+	psci_ver = sec_firmware_support_psci_version();
+#endif
+	if (psci_ver == 0xffffffff) {
+		rv = fsl_layerscape_wake_seconday_cores();
+		if (rv)
+			printf("Did not wake secondary cores\n");
+	}
 #endif
 
 #ifdef CONFIG_SYS_HAS_SERDES
