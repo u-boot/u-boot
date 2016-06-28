@@ -292,40 +292,6 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define readsb(a, d, s)		__raw_readsb((unsigned long)a, d, s)
 
 /*
- * ioremap and friends.
- *
- * ioremap takes a PCI memory address, as specified in
- * linux/Documentation/IO-mapping.txt.  If you want a
- * physical address, use __ioremap instead.
- */
-extern void * __ioremap(unsigned long offset, size_t size, unsigned long flags);
-extern void __iounmap(void *addr);
-
-/*
- * Generic ioremap support.
- *
- * Define:
- *  iomem_valid_addr(off,size)
- *  iomem_to_phys(off)
- */
-#ifdef iomem_valid_addr
-#define __arch_ioremap(off,sz,nocache)					\
- ({									\
-	unsigned long _off = (off), _size = (sz);			\
-	void *_ret = (void *)0;						\
-	if (iomem_valid_addr(_off, _size))				\
-		_ret = __ioremap(iomem_to_phys(_off),_size,nocache);	\
-	_ret;								\
- })
-
-#define __arch_iounmap __iounmap
-#endif
-
-#define ioremap(off,sz)			__arch_ioremap((off),(sz),0)
-#define ioremap_nocache(off,sz)		__arch_ioremap((off),(sz),1)
-#define iounmap(_addr)			__arch_iounmap(_addr)
-
-/*
  * DMA-consistent mapping functions.  These allocate/free a region of
  * uncached, unwrite-buffered mapped memory space for use with DMA
  * devices.  This is the "generic" version.  The PCI specific version
