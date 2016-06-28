@@ -295,9 +295,6 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk);
 
 #ifdef CONFIG_DM_MMC_OPS
 /* Export the operations to drivers */
-int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
-		   struct mmc_data *data);
-int dwmci_set_ios(struct udevice *dev);
 int dwmci_probe(struct udevice *dev);
 extern const struct dm_mmc_ops dm_dwmci_ops;
 #endif

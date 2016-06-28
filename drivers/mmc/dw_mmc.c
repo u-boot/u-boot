@@ -182,7 +182,7 @@ static int dwmci_set_transfer_mode(struct dwmci_host *host,
 }
 
 #ifdef CONFIG_DM_MMC_OPS
-int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+static int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		   struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -381,7 +381,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 }
 
 #ifdef CONFIG_DM_MMC_OPS
-int dwmci_set_ios(struct udevice *dev)
+static int dwmci_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 #else
