@@ -15,6 +15,7 @@ obj-y	+= cache.o
 obj-y	+= tlb.o
 obj-y	+= transition.o
 obj-y	+= fwcall.o
+obj-$(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) += sec_firmware.o sec_firmware_asm.o
 
 obj-$(CONFIG_FSL_LAYERSCAPE) += fsl-layerscape/
 obj-$(CONFIG_S32V234) += s32v234/
