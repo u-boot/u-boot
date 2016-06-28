@@ -46,6 +46,17 @@
 			pad-offset = <0x3a0>;
 			mode-func = <1>;
 		};
+
+		/* Add SMBus PAD configuration */
+		smbus_clk@0 {
+			pad-offset = <0x580>;
+			mode-func = <1>;
+		};
+
+		smbus_data@0 {
+			pad-offset = <0x5a0>;
+			mode-func = <1>;
+		};
 	};
 
 	chosen {
@@ -244,13 +255,6 @@
 		fsp,lpss-sio-enable-pci-mode;
 		fsp,enable-dma0;
 		fsp,enable-dma1;
-		fsp,enable-i2c0;
-		fsp,enable-i2c1;
-		fsp,enable-i2c2;
-		fsp,enable-i2c3;
-		fsp,enable-i2c4;
-		fsp,enable-i2c5;
-		fsp,enable-i2c6;
 		fsp,enable-pwm0;
 		fsp,enable-pwm1;
 		fsp,igd-dvmt50-pre-alloc = <2>;
