@@ -71,5 +71,4 @@ typedef u32 dma_addr_t;
 
 #endif /* __KERNEL__ */
 
-typedef unsigned long resource_size_t;
 #endif
