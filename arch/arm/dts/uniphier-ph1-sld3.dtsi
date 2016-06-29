@@ -349,6 +349,11 @@
 			clocks = <&mio 7>, <&mio 6>;
 		};
 
+		aidet@f1830000 {
+			compatible = "simple-mfd", "syscon";
+			reg = <0xf1830000 0x200>;
+		};
+
 		sysctrl: sysctrl@f1840000 {
 			compatible = "socionext,ph1-sld3-sysctrl";
 			reg = <0xf1840000 0x4000>;
