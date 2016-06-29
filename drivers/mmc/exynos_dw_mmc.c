@@ -122,7 +122,6 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
 
 static int do_dwmci_init(struct dwmci_host *host)
@@ -250,4 +249,3 @@ int exynos_dwmmc_init(const void *blob)
 
 	return err;
 }
-#endif
