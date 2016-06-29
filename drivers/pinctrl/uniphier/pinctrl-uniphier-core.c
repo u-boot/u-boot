@@ -91,7 +91,7 @@ static void uniphier_pinconf_input_enable(struct udevice *dev, unsigned pin)
 }
 
 static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
-				    unsigned muxval)
+				    int muxval)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
 	unsigned mux_bits, reg_stride, reg, reg_end, shift, mask;
@@ -100,6 +100,9 @@ static void uniphier_pinmux_set_one(struct udevice *dev, unsigned pin,
 
 	/* some pins need input-enabling */
 	uniphier_pinconf_input_enable(dev, pin);
+
+	if (muxval < 0)
+		return;		/* dedicated pin; nothing to do for pin-mux */
 
 	if (priv->socdata->caps & UNIPHIER_PINCTRL_CAPS_DBGMUX_SEPARATE) {
 		/*

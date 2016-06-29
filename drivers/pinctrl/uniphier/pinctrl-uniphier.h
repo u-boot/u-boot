@@ -46,7 +46,7 @@ struct uniphier_pinctrl_group {
 	const char *name;
 	const unsigned *pins;
 	unsigned num_pins;
-	const unsigned *muxvals;
+	const int *muxvals;
 };
 
 /**

@@ -11,35 +11,34 @@
 #include "pinctrl-uniphier.h"
 
 static const unsigned emmc_pins[] = {18, 19, 20, 21, 22, 23, 24, 25};
-static const unsigned emmc_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0};
+static const int emmc_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned emmc_dat8_pins[] = {26, 27, 28, 29};
-static const unsigned emmc_dat8_muxvals[] = {0, 0, 0, 0};
+static const int emmc_dat8_muxvals[] = {0, 0, 0, 0};
 static const unsigned i2c0_pins[] = {63, 64};
-static const unsigned i2c0_muxvals[] = {0, 0};
+static const int i2c0_muxvals[] = {0, 0};
 static const unsigned i2c1_pins[] = {65, 66};
-static const unsigned i2c1_muxvals[] = {0, 0};
+static const int i2c1_muxvals[] = {0, 0};
 static const unsigned i2c3_pins[] = {67, 68};
-static const unsigned i2c3_muxvals[] = {1, 1};
+static const int i2c3_muxvals[] = {1, 1};
 static const unsigned i2c4_pins[] = {61, 62};
-static const unsigned i2c4_muxvals[] = {1, 1};
+static const int i2c4_muxvals[] = {1, 1};
 static const unsigned nand_pins[] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 				     15, 16, 17};
-static const unsigned nand_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					0, 0, 0};
+static const int nand_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned uart0_pins[] = {54, 55};
-static const unsigned uart0_muxvals[] = {0, 0};
+static const int uart0_muxvals[] = {0, 0};
 static const unsigned uart1_pins[] = {58, 59};
-static const unsigned uart1_muxvals[] = {1, 1};
+static const int uart1_muxvals[] = {1, 1};
 static const unsigned uart2_pins[] = {90, 91};
-static const unsigned uart2_muxvals[] = {1, 1};
+static const int uart2_muxvals[] = {1, 1};
 static const unsigned uart3_pins[] = {94, 95};
-static const unsigned uart3_muxvals[] = {1, 1};
+static const int uart3_muxvals[] = {1, 1};
 static const unsigned usb0_pins[] = {46, 47};
-static const unsigned usb0_muxvals[] = {0, 0};
+static const int usb0_muxvals[] = {0, 0};
 static const unsigned usb1_pins[] = {48, 49};
-static const unsigned usb1_muxvals[] = {0, 0};
+static const int usb1_muxvals[] = {0, 0};
 static const unsigned usb2_pins[] = {50, 51};
-static const unsigned usb2_muxvals[] = {0, 0};
+static const int usb2_muxvals[] = {0, 0};
 
 static const struct uniphier_pinctrl_group uniphier_ld11_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(emmc),

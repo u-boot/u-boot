@@ -13,46 +13,45 @@ static const struct uniphier_pinctrl_pin uniphier_pro4_pins[] = {
 };
 
 static const unsigned emmc_pins[] = {40, 41, 42, 43, 51, 52, 53};
-static const unsigned emmc_muxvals[] = {1, 1, 1, 1, 1, 1, 1};
+static const int emmc_muxvals[] = {1, 1, 1, 1, 1, 1, 1};
 static const unsigned emmc_dat8_pins[] = {44, 45, 46, 47};
-static const unsigned emmc_dat8_muxvals[] = {1, 1, 1, 1};
+static const int emmc_dat8_muxvals[] = {1, 1, 1, 1};
 static const unsigned i2c0_pins[] = {142, 143};
-static const unsigned i2c0_muxvals[] = {0, 0};
+static const int i2c0_muxvals[] = {0, 0};
 static const unsigned i2c1_pins[] = {144, 145};
-static const unsigned i2c1_muxvals[] = {0, 0};
+static const int i2c1_muxvals[] = {0, 0};
 static const unsigned i2c2_pins[] = {146, 147};
-static const unsigned i2c2_muxvals[] = {0, 0};
+static const int i2c2_muxvals[] = {0, 0};
 static const unsigned i2c3_pins[] = {148, 149};
-static const unsigned i2c3_muxvals[] = {0, 0};
+static const int i2c3_muxvals[] = {0, 0};
 static const unsigned i2c6_pins[] = {308, 309};
-static const unsigned i2c6_muxvals[] = {6, 6};
+static const int i2c6_muxvals[] = {6, 6};
 static const unsigned nand_pins[] = {40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
 				     50, 51, 52, 53, 54};
-static const unsigned nand_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					0, 0};
+static const int nand_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned nand_cs1_pins[] = {131, 132};
-static const unsigned nand_cs1_muxvals[] = {1, 1};
+static const int nand_cs1_muxvals[] = {1, 1};
 static const unsigned sd_pins[] = {150, 151, 152, 153, 154, 155, 156, 157, 158};
-static const unsigned sd_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+static const int sd_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned sd1_pins[] = {319, 320, 321, 322, 323, 324, 325, 326,
 				    327};
-static const unsigned sd1_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+static const int sd1_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned uart0_pins[] = {127, 128};
-static const unsigned uart0_muxvals[] = {0, 0};
+static const int uart0_muxvals[] = {0, 0};
 static const unsigned uart1_pins[] = {129, 130};
-static const unsigned uart1_muxvals[] = {0, 0};
+static const int uart1_muxvals[] = {0, 0};
 static const unsigned uart2_pins[] = {131, 132};
-static const unsigned uart2_muxvals[] = {0, 0};
+static const int uart2_muxvals[] = {0, 0};
 static const unsigned uart3_pins[] = {88, 89};
-static const unsigned uart3_muxvals[] = {2, 2};
+static const int uart3_muxvals[] = {2, 2};
 static const unsigned usb0_pins[] = {180, 181};
-static const unsigned usb0_muxvals[] = {0, 0};
+static const int usb0_muxvals[] = {0, 0};
 static const unsigned usb1_pins[] = {182, 183};
-static const unsigned usb1_muxvals[] = {0, 0};
+static const int usb1_muxvals[] = {0, 0};
 static const unsigned usb2_pins[] = {184, 185};
-static const unsigned usb2_muxvals[] = {0, 0};
+static const int usb2_muxvals[] = {0, 0};
 static const unsigned usb3_pins[] = {186, 187};
-static const unsigned usb3_muxvals[] = {0, 0};
+static const int usb3_muxvals[] = {0, 0};
 
 static const struct uniphier_pinctrl_group uniphier_pro4_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(emmc),
