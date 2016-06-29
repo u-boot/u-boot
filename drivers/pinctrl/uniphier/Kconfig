@@ -39,9 +39,15 @@ config PINCTRL_UNIPHIER_LD6B
 	default y
 	select PINCTRL_UNIPHIER
 
+config PINCTRL_UNIPHIER_LD11
+	bool "UniPhier PH1-LD11 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_LD11
+	default y
+	select PINCTRL_UNIPHIER
+
 config PINCTRL_UNIPHIER_LD20
-	bool "UniPhier PH1-LD11/PH1-LD20 SoC pinctrl driver"
-	depends on ARCH_UNIPHIER_LD11 || ARCH_UNIPHIER_LD20
+	bool "UniPhier PH1-LD20 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_LD20
 	default y
 	select PINCTRL_UNIPHIER
 
