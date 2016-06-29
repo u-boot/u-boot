@@ -147,7 +147,7 @@ struct spi_slave {
 	u8 option;
 	u8 dio;
 	u32 bytemode;
-	u8 flags;
+	u32 flags;
 #define SPI_XFER_BEGIN		BIT(0)	/* Assert CS before transfer */
 #define SPI_XFER_END		BIT(1)	/* Deassert CS after transfer */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
