@@ -27,6 +27,14 @@ static const unsigned emmc_pins[] = {21, 22, 23, 24, 25, 26, 27};
 static const int emmc_muxvals[] = {0, 1, 1, 1, 1, 1, 1};
 static const unsigned emmc_dat8_pins[] = {28, 29, 30, 31};
 static const int emmc_dat8_muxvals[] = {1, 1, 1, 1};
+static const unsigned ether_mii_pins[] = {32, 33, 34, 35, 36, 37, 38, 39, 40,
+					  41, 42, 43, 136, 137, 138, 139, 140,
+					  141, 142};
+static const int ether_mii_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					4, 4, 4, 4, 4, 4, 4};
+static const unsigned ether_rmii_pins[] = {32, 33, 34, 35, 36, 37, 38, 39, 40,
+					   41, 42, 43};
+static const int ether_rmii_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static const unsigned i2c0_pins[] = {102, 103};
 static const int i2c0_muxvals[] = {0, 0};
 static const unsigned i2c1_pins[] = {104, 105};
@@ -64,6 +72,8 @@ static const int usb2b_muxvals[] = {23, 23};
 static const struct uniphier_pinctrl_group uniphier_ld4_groups[] = {
 	UNIPHIER_PINCTRL_GROUP_SPL(emmc),
 	UNIPHIER_PINCTRL_GROUP_SPL(emmc_dat8),
+	UNIPHIER_PINCTRL_GROUP(ether_mii),
+	UNIPHIER_PINCTRL_GROUP(ether_rmii),
 	UNIPHIER_PINCTRL_GROUP(i2c0),
 	UNIPHIER_PINCTRL_GROUP(i2c1),
 	UNIPHIER_PINCTRL_GROUP(i2c2),
@@ -84,6 +94,8 @@ static const struct uniphier_pinctrl_group uniphier_ld4_groups[] = {
 
 static const char * const uniphier_ld4_functions[] = {
 	UNIPHIER_PINMUX_FUNCTION_SPL(emmc),
+	UNIPHIER_PINMUX_FUNCTION(ether_mii),
+	UNIPHIER_PINMUX_FUNCTION(ether_rmii),
 	UNIPHIER_PINMUX_FUNCTION(i2c0),
 	UNIPHIER_PINMUX_FUNCTION(i2c1),
 	UNIPHIER_PINMUX_FUNCTION(i2c2),
