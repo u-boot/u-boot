@@ -154,12 +154,8 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 		return -EINVAL;
 	}
 
-	/* Get the bus width from the device node */
-	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
-	if (host->buswidth <= 0) {
-		printf("DWMMC%d: Can't get bus-width\n", host->dev_index);
-		return -EINVAL;
-	}
+	/* Get the bus width from the device node (Default is 4bit buswidth) */
+	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 4);
 
 	/* Set the base address from the device node */
 	base = fdtdec_get_addr(blob, node, "reg");
