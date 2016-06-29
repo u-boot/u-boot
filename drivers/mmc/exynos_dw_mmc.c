@@ -122,42 +122,6 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 	return 0;
 }
 
-/*
- * This function adds the mmc channel to be registered with mmc core.
- * index -	mmc channel number.
- * regbase -	register base address of mmc channel specified in 'index'.
- * bus_width -	operating bus width of mmc channel specified in 'index'.
- * clksel -	value to be written into CLKSEL register in case of FDT.
- *		NULL in case od non-FDT.
- */
-int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
-{
-	struct dwmci_host *host = NULL;
-	struct dwmci_exynos_priv_data *priv;
-
-	host = malloc(sizeof(struct dwmci_host));
-	if (!host) {
-		error("dwmci_host malloc fail!\n");
-		return -ENOMEM;
-	}
-
-	priv = malloc(sizeof(struct dwmci_exynos_priv_data));
-	if (!priv) {
-		error("dwmci_exynos_priv_data malloc fail!\n");
-		return -ENOMEM;
-	}
-
-	host->ioaddr = (void *)regbase;
-	host->buswidth = bus_width;
-
-	if (clksel)
-		priv->sdr_timing = clksel;
-
-	host->priv = priv;
-
-	return exynos_dwmci_core_init(host, index);
-}
-
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
 
