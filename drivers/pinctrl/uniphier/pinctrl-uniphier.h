@@ -80,7 +80,7 @@ struct uniphier_pinctrl_socdata {
 	.data = UNIPHIER_PIN_ATTR_PACKED(b),				\
 }
 
-#define UNIPHIER_PINCTRL_GROUP(grp)					\
+#define __UNIPHIER_PINCTRL_GROUP(grp)					\
 	{								\
 		.name = #grp,						\
 		.pins = grp##_pins,					\
@@ -89,6 +89,19 @@ struct uniphier_pinctrl_socdata {
 			BUILD_BUG_ON_ZERO(ARRAY_SIZE(grp##_pins) !=	\
 					  ARRAY_SIZE(grp##_muxvals)),	\
 	}
+
+#define __UNIPHIER_PINMUX_FUNCTION(func)	#func
+
+#ifdef CONFIG_SPL_BUILD
+#define UNIPHIER_PINCTRL_GROUP(grp)		{ .name = NULL }
+#define UNIPHIER_PINMUX_FUNCTION(func)		NULL
+#else
+#define UNIPHIER_PINCTRL_GROUP(grp)		__UNIPHIER_PINCTRL_GROUP(grp)
+#define UNIPHIER_PINMUX_FUNCTION(func)		__UNIPHIER_PINMUX_FUNCTION(func)
+#endif
+
+#define UNIPHIER_PINCTRL_GROUP_SPL(grp)		__UNIPHIER_PINCTRL_GROUP(grp)
+#define UNIPHIER_PINMUX_FUNCTION_SPL(func)	__UNIPHIER_PINMUX_FUNCTION(func)
 
 /**
  * struct uniphier_pinctrl_priv - private data for UniPhier pinctrl driver

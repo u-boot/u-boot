@@ -14,6 +14,8 @@
 
 #include "pinctrl-uniphier.h"
 
+static const char *uniphier_pinctrl_dummy_name = "_dummy";
+
 static int uniphier_pinctrl_get_groups_count(struct udevice *dev)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
@@ -25,6 +27,9 @@ static const char *uniphier_pinctrl_get_group_name(struct udevice *dev,
 						   unsigned selector)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (!priv->socdata->groups[selector].name)
+		return uniphier_pinctrl_dummy_name;
 
 	return priv->socdata->groups[selector].name;
 }
@@ -40,6 +45,9 @@ static const char *uniphier_pinmux_get_function_name(struct udevice *dev,
 						     unsigned selector)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (!priv->socdata->functions[selector])
+		return uniphier_pinctrl_dummy_name;
 
 	return priv->socdata->functions[selector];
 }

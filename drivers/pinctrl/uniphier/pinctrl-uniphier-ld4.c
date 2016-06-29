@@ -62,8 +62,8 @@ static const unsigned usb2b_pins[] = {67, 68};
 static const int usb2b_muxvals[] = {23, 23};
 
 static const struct uniphier_pinctrl_group uniphier_ld4_groups[] = {
-	UNIPHIER_PINCTRL_GROUP(emmc),
-	UNIPHIER_PINCTRL_GROUP(emmc_dat8),
+	UNIPHIER_PINCTRL_GROUP_SPL(emmc),
+	UNIPHIER_PINCTRL_GROUP_SPL(emmc_dat8),
 	UNIPHIER_PINCTRL_GROUP(i2c0),
 	UNIPHIER_PINCTRL_GROUP(i2c1),
 	UNIPHIER_PINCTRL_GROUP(i2c2),
@@ -71,11 +71,11 @@ static const struct uniphier_pinctrl_group uniphier_ld4_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(nand),
 	UNIPHIER_PINCTRL_GROUP(nand_cs1),
 	UNIPHIER_PINCTRL_GROUP(sd),
-	UNIPHIER_PINCTRL_GROUP(uart0),
-	UNIPHIER_PINCTRL_GROUP(uart1),
-	UNIPHIER_PINCTRL_GROUP(uart1b),
-	UNIPHIER_PINCTRL_GROUP(uart2),
-	UNIPHIER_PINCTRL_GROUP(uart3),
+	UNIPHIER_PINCTRL_GROUP_SPL(uart0),
+	UNIPHIER_PINCTRL_GROUP_SPL(uart1),
+	UNIPHIER_PINCTRL_GROUP_SPL(uart1b),
+	UNIPHIER_PINCTRL_GROUP_SPL(uart2),
+	UNIPHIER_PINCTRL_GROUP_SPL(uart3),
 	UNIPHIER_PINCTRL_GROUP(usb0),
 	UNIPHIER_PINCTRL_GROUP(usb1),
 	UNIPHIER_PINCTRL_GROUP(usb2),
@@ -83,20 +83,20 @@ static const struct uniphier_pinctrl_group uniphier_ld4_groups[] = {
 };
 
 static const char * const uniphier_ld4_functions[] = {
-	"emmc",
-	"i2c0",
-	"i2c1",
-	"i2c2",
-	"i2c3",
-	"nand",
-	"sd",
-	"uart0",
-	"uart1",
-	"uart2",
-	"uart3",
-	"usb0",
-	"usb1",
-	"usb2",
+	UNIPHIER_PINMUX_FUNCTION_SPL(emmc),
+	UNIPHIER_PINMUX_FUNCTION(i2c0),
+	UNIPHIER_PINMUX_FUNCTION(i2c1),
+	UNIPHIER_PINMUX_FUNCTION(i2c2),
+	UNIPHIER_PINMUX_FUNCTION(i2c3),
+	UNIPHIER_PINMUX_FUNCTION(nand),
+	UNIPHIER_PINMUX_FUNCTION(sd),
+	UNIPHIER_PINMUX_FUNCTION_SPL(uart0),
+	UNIPHIER_PINMUX_FUNCTION_SPL(uart1),
+	UNIPHIER_PINMUX_FUNCTION_SPL(uart2),
+	UNIPHIER_PINMUX_FUNCTION_SPL(uart3),
+	UNIPHIER_PINMUX_FUNCTION(usb0),
+	UNIPHIER_PINMUX_FUNCTION(usb1),
+	UNIPHIER_PINMUX_FUNCTION(usb2),
 };
 
 static struct uniphier_pinctrl_socdata uniphier_ld4_pinctrl_socdata = {
