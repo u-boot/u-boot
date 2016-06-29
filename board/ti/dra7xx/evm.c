@@ -413,10 +413,14 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	char *name = "unknown";
 
-	if (is_dra72x())
-		name = "dra72x";
-	else
+	if (is_dra72x()) {
+		if (board_is_dra72x_revc_or_later())
+			name = "dra72x-revc";
+		else
+			name = "dra72x";
+	} else {
 		name = "dra7xx";
+	}
 
 	set_board_info_env(name);
 

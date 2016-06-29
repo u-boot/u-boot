@@ -100,6 +100,8 @@
 			"setenv fdtfile omap5-uevm.dtb; fi; " \
 		"if test $board_name = dra7xx; then " \
 			"setenv fdtfile dra7-evm.dtb; fi;" \
+		"if test $board_name = dra72x-revc; then " \
+			"setenv fdtfile dra72-evm-revc.dtb; fi;" \
 		"if test $board_name = dra72x; then " \
 			"setenv fdtfile dra72-evm.dtb; fi;" \
 		"if test $board_name = beagle_x15; then " \
