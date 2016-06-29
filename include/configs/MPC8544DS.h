@@ -209,7 +209,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3100
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
 
