@@ -160,6 +160,11 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	if (host->dev_index == host->dev_id)
 		host->dev_index = host->dev_id - PERIPH_ID_SDMMC0;
 
+	if (host->dev_index > 4) {
+		printf("DWMMC%d: Can't get the dev index\n", host->dev_index);
+		return -EINVAL;
+	}
+
 	/* Get the bus width from the device node */
 	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
 	if (host->buswidth <= 0) {
