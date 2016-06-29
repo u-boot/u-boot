@@ -80,11 +80,10 @@ static void exynos_dwmci_board_init(struct dwmci_host *host)
 		exynos_dwmci_clksel(host);
 }
 
-static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
+static int exynos_dwmci_core_init(struct dwmci_host *host)
 {
 	unsigned int div;
 	unsigned long freq, sclk;
-	struct dwmci_exynos_priv_data *priv = host->priv;
 
 	if (host->bus_hz)
 		freq = host->bus_hz;
@@ -92,10 +91,10 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 		freq = DWMMC_MAX_FREQ;
 
 	/* request mmc clock vlaue of 52MHz.  */
-	sclk = get_mmc_clk(index);
+	sclk = get_mmc_clk(host->dev_index);
 	div = DIV_ROUND_UP(sclk, freq);
 	/* set the clock divisor for mmc */
-	set_mmc_clk(index, div);
+	set_mmc_clk(host->dev_index, div);
 
 	host->name = "EXYNOS DWMMC";
 #ifdef CONFIG_EXYNOS5420
@@ -103,20 +102,12 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 #endif
 	host->board_init = exynos_dwmci_board_init;
 
-	if (!priv->sdr_timing) {
-		if (index == 0)
-			priv->sdr_timing = DWMMC_MMC0_SDR_TIMING_VAL;
-		else if (index == 2)
-			priv->sdr_timing = DWMMC_MMC2_SDR_TIMING_VAL;
-	}
-
 	host->caps = MMC_MODE_DDR_52MHz;
 	host->clksel = exynos_dwmci_clksel;
-	host->dev_index = index;
 	host->get_mmc_clk = exynos_dwmci_get_clk;
 	/* Add the mmc channel to be registered with mmc core */
 	if (add_dwmci(host, DWMMC_MAX_FREQ, DWMMC_MIN_FREQ)) {
-		printf("DWMMC%d registration failed\n", index);
+		printf("DWMMC%d registration failed\n", host->dev_index);
 		return -1;
 	}
 	return 0;
@@ -126,18 +117,16 @@ static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
 
 static int do_dwmci_init(struct dwmci_host *host)
 {
-	int index, flag, err;
-
-	index = host->dev_index;
+	int flag, err;
 
 	flag = host->buswidth == 8 ? PINMUX_FLAG_8BIT_MODE : PINMUX_FLAG_NONE;
 	err = exynos_pinmux_config(host->dev_id, flag);
 	if (err) {
-		printf("DWMMC%d not configure\n", index);
+		printf("DWMMC%d not configure\n", host->dev_index);
 		return err;
 	}
 
-	return exynos_dwmci_core_init(host, index);
+	return exynos_dwmci_core_init(host);
 }
 
 static int exynos_dwmci_get_config(const void *blob, int node,
@@ -233,15 +222,13 @@ static int exynos_dwmci_process_node(const void *blob,
 
 int exynos_dwmmc_init(const void *blob)
 {
-	int compat_id;
 	int node_list[DWMMC_MAX_CH_NUM];
 	int boot_dev_node;
 	int err = 0, count;
 
-	compat_id = COMPAT_SAMSUNG_EXYNOS_DWMMC;
-
 	count = fdtdec_find_aliases_for_id(blob, "mmc",
-				compat_id, node_list, DWMMC_MAX_CH_NUM);
+			COMPAT_SAMSUNG_EXYNOS_DWMMC, node_list,
+			DWMMC_MAX_CH_NUM);
 
 	/* For DWMMC always set boot device as mmc 0 */
 	if (count >= 3 && get_boot_mode() == BOOT_MODE_SD) {
