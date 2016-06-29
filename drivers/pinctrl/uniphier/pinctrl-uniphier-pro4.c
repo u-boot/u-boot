@@ -112,7 +112,7 @@ static int uniphier_pro4_pinctrl_probe(struct udevice *dev)
 }
 
 static const struct udevice_id uniphier_pro4_pinctrl_match[] = {
-	{ .compatible = "socionext,ph1-pro4-pinctrl" },
+	{ .compatible = "socionext,uniphier-pro4-pinctrl" },
 	{ /* sentinel */ }
 };
 

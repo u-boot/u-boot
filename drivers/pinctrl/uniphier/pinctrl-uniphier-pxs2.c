@@ -120,7 +120,7 @@ static int uniphier_pxs2_pinctrl_probe(struct udevice *dev)
 }
 
 static const struct udevice_id uniphier_pxs2_pinctrl_match[] = {
-	{ .compatible = "socionext,proxstream2-pinctrl" },
+	{ .compatible = "socionext,uniphier-pxs2-pinctrl" },
 	{ /* sentinel */ }
 };
 
