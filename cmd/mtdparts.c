@@ -1493,7 +1493,7 @@ static int spread_partitions(void)
 			part = list_entry(pentry, struct part_info, link);
 
 			debug("spread_partitions: device = %s%d, partition %d ="
-				" (%s) 0x%08x@0x%08x\n",
+				" (%s) 0x%08llx@0x%08llx\n",
 				MTD_DEV_TYPE(dev->id->type), dev->id->num,
 				part_num, part->name, part->size,
 				part->offset);
@@ -2025,7 +2025,7 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		if (!strcmp(&argv[1][3], ".spread")) {
 			spread_partition(mtd, p, &next_offset);
-			debug("increased %s to %d bytes\n", p->name, p->size);
+			debug("increased %s to %llu bytes\n", p->name, p->size);
 		}
 #endif
 
