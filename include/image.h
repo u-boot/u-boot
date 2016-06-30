@@ -478,6 +478,40 @@ const char *genimg_get_comp_name(uint8_t comp);
  */
 const char *genimg_get_comp_short_name(uint8_t comp);
 
+/**
+ * genimg_get_cat_name() - Get the name of an item in a category
+ *
+ * @category:	Category of item
+ * @id:		Item ID
+ * @return name of item, or "Unknown ..." if unknown
+ */
+const char *genimg_get_cat_name(enum ih_category category, uint id);
+
+/**
+ * genimg_get_cat_short_name() - Get the short name of an item in a category
+ *
+ * @category:	Category of item
+ * @id:		Item ID
+ * @return short name of item, or "Unknown ..." if unknown
+ */
+const char *genimg_get_cat_short_name(enum ih_category category, uint id);
+
+/**
+ * genimg_get_cat_count() - Get the number of items in a category
+ *
+ * @category:	Category to check
+ * @return the number of items in the category (IH_xxx_COUNT)
+ */
+int genimg_get_cat_count(enum ih_category category);
+
+/**
+ * genimg_get_cat_desc() - Get the description of a category
+ *
+ * @return the description of a category, e.g. "architecture". This
+ * effectively converts the enum to a string.
+ */
+const char *genimg_get_cat_desc(enum ih_category category);
+
 int genimg_get_os_id(const char *name);
 int genimg_get_arch_id(const char *name);
 int genimg_get_type_id(const char *name);

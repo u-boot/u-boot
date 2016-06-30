@@ -583,6 +583,74 @@ const table_entry_t *get_table_entry(const table_entry_t *table, int id)
 	return NULL;
 }
 
+static const char *unknown_msg(enum ih_category category)
+{
+	static char msg[30];
+
+	strcpy(msg, "Unknown ");
+	strcat(msg, table_info[category].desc);
+
+	return msg;
+}
+
+/**
+ * get_cat_table_entry_name - translate entry id to long name
+ * @category: category to look up (enum ih_category)
+ * @id: entry id to be translated
+ *
+ * This will scan the translation table trying to find the entry that matches
+ * the given id.
+ *
+ * @retur long entry name if translation succeeds; error string on failure
+ */
+const char *genimg_get_cat_name(enum ih_category category, uint id)
+{
+	const table_entry_t *entry;
+
+	entry = get_table_entry(table_info[category].table, id);
+	if (!entry)
+		return unknown_msg(category);
+#if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
+	return entry->lname;
+#else
+	return entry->lname + gd->reloc_off;
+#endif
+}
+
+/**
+ * get_cat_table_entry_short_name - translate entry id to short name
+ * @category: category to look up (enum ih_category)
+ * @id: entry id to be translated
+ *
+ * This will scan the translation table trying to find the entry that matches
+ * the given id.
+ *
+ * @retur short entry name if translation succeeds; error string on failure
+ */
+const char *genimg_get_cat_short_name(enum ih_category category, uint id)
+{
+	const table_entry_t *entry;
+
+	entry = get_table_entry(table_info[category].table, id);
+	if (!entry)
+		return unknown_msg(category);
+#if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
+	return entry->sname;
+#else
+	return entry->sname + gd->reloc_off;
+#endif
+}
+
+int genimg_get_cat_count(enum ih_category category)
+{
+	return table_info[category].count;
+}
+
+const char *genimg_get_cat_desc(enum ih_category category)
+{
+	return table_info[category].desc;
+}
+
 /**
  * get_table_entry_name - translate entry id to long name
  * @table: pointer to a translation table for entries of a specific type
