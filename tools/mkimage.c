@@ -197,7 +197,6 @@ static void process_args(int argc, char **argv)
 			 * The flattened image tree (FIT) format
 			 * requires a flattened device tree image type
 			 */
-			params.fit_image_type = params.type;
 			params.type = IH_TYPE_FLATDT;
 			params.fflag = 1;
 			break;
