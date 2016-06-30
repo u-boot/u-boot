@@ -273,6 +273,7 @@ static void process_args(int argc, char **argv)
 	 */
 	if (params.type == IH_TYPE_FLATDT) {
 		params.fit_image_type = type ? type : IH_TYPE_KERNEL;
+		/* For auto_its, datafile is always 'auto' */
 		if (!params.auto_its)
 			params.datafile = datafile;
 	} else if (type != IH_TYPE_INVALID) {
