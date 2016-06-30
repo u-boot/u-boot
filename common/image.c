@@ -176,6 +176,19 @@ static const table_entry_t uimage_comp[] = {
 	{	-1,		"",		"",			},
 };
 
+struct table_info {
+	const char *desc;
+	int count;
+	const table_entry_t *table;
+};
+
+static const struct table_info table_info[IH_COUNT] = {
+	{ "architecture", IH_ARCH_COUNT, uimage_arch },
+	{ "compression", IH_COMP_COUNT, uimage_comp },
+	{ "operating system", IH_OS_COUNT, uimage_os },
+	{ "image type", IH_TYPE_COUNT, uimage_type },
+};
+
 /*****************************************************************************/
 /* Legacy format routines */
 /*****************************************************************************/

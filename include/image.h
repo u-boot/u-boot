@@ -123,6 +123,15 @@ struct lmb;
 # define IMAGE_OF_SYSTEM_SETUP	0
 #endif
 
+enum ih_category {
+	IH_ARCH,
+	IH_COMP,
+	IH_OS,
+	IH_TYPE,
+
+	IH_COUNT,
+};
+
 /*
  * Operating System Codes
  */
