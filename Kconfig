@@ -114,6 +114,15 @@ if EXPERT
 	  Warning:
 	  When disabling this, please check if malloc calls, maybe
 	  should be replaced by calloc - if one expects zeroed memory.
+
+config TOOLS_DEBUG
+	bool "Enable debug information for tools"
+	help
+	  Enable generation of debug information for tools such as mkimage.
+	  This can be used for debugging purposes. With debug information
+	  it is possible to set breakpoints on particular lines, single-step
+	  debug through the source code, etc.
+
 endif
 endmenu		# General setup
 
