@@ -276,6 +276,8 @@ static void process_args(int argc, char **argv)
 		/* For auto_its, datafile is always 'auto' */
 		if (!params.auto_its)
 			params.datafile = datafile;
+		else if (!params.datafile)
+			usage("Missing data file for auto-FIT (use -d)");
 	} else if (type != IH_TYPE_INVALID) {
 		params.type = type;
 	}
