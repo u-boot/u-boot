@@ -152,8 +152,10 @@ static void process_args(int argc, char **argv)
 			break;
 		case 'A':
 			params.arch = genimg_get_arch_id(optarg);
-			if (params.arch < 0)
+			if (params.arch < 0) {
+				show_valid_options(IH_ARCH);
 				usage("Invalid architecture");
+			}
 			break;
 		case 'b':
 			if (add_content(IH_TYPE_FLATDT, optarg)) {
@@ -168,8 +170,10 @@ static void process_args(int argc, char **argv)
 			break;
 		case 'C':
 			params.comp = genimg_get_comp_id(optarg);
-			if (params.comp < 0)
+			if (params.comp < 0) {
+				show_valid_options(IH_COMP);
 				usage("Invalid compression type");
+			}
 			break;
 		case 'd':
 			params.datafile = optarg;
@@ -216,8 +220,10 @@ static void process_args(int argc, char **argv)
 			break;
 		case 'O':
 			params.os = genimg_get_os_id(optarg);
-			if (params.os < 0)
+			if (params.os < 0) {
+				show_valid_options(IH_OS);
 				usage("Invalid operating system");
+			}
 			break;
 		case 'p':
 			params.external_offset = strtoull(optarg, &ptr, 16);
