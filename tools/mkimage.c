@@ -25,6 +25,49 @@ static struct image_tool_params params = {
 	.imagename2 = "",
 };
 
+static enum ih_category cur_category;
+
+static int h_compare_category_name(const void *vtype1, const void *vtype2)
+{
+	const int *type1 = vtype1;
+	const int *type2 = vtype2;
+	const char *name1 = genimg_get_cat_short_name(cur_category, *type1);
+	const char *name2 = genimg_get_cat_short_name(cur_category, *type2);
+
+	return strcmp(name1, name2);
+}
+
+int show_valid_options(enum ih_category category)
+{
+	int *order;
+	int count;
+	int item;
+	int i;
+
+	count = genimg_get_cat_count(category);
+	order = calloc(count, sizeof(*order));
+	if (!order)
+		return -ENOMEM;
+
+	/* Sort the names in order of short name for easier reading */
+	for (item = 0; item < count; item++)
+		order[item] = item;
+	cur_category = category;
+	qsort(order, count, sizeof(int), h_compare_category_name);
+
+	fprintf(stderr, "\nInvalid %s, supported are:\n",
+		genimg_get_cat_desc(category));
+	for (i = 0; i < count; i++) {
+		item = order[i];
+		fprintf(stderr, "\t%-15s  %s\n",
+			genimg_get_cat_short_name(category, item),
+			genimg_get_cat_name(category, item));
+	}
+	fprintf(stderr, "\n");
+
+	return 0;
+}
+
 static int h_compare_image_name(const void *vtype1, const void *vtype2)
 {
 	const int *type1 = vtype1;
