@@ -285,7 +285,6 @@ static void process_args(int argc, char **argv)
 		usage("Missing output filename");
 }
 
-
 int main(int argc, char **argv)
 {
 	int ifd = -1;
