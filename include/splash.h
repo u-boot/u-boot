@@ -47,7 +47,16 @@ struct splash_location {
 	char *ubivol;	/* UBI volume-name for ubifsmount */
 };
 
+#ifdef CONFIG_SPLASH_SOURCE
 int splash_source_load(struct splash_location *locations, uint size);
+#else
+static inline int splash_source_load(struct splash_location *locations,
+				     uint size)
+{
+	return 0;
+}
+#endif
+
 int splash_screen_prepare(void);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
