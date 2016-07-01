@@ -200,6 +200,9 @@
 
 &xlnx_dp {
 	status = "okay";
+	phy-names = "dp-phy0", "dp-phy1";
+	phys = <&lane1 PHY_TYPE_DP 0 0 27000000>,
+	       <&lane0 PHY_TYPE_DP 1 1 27000000>;
 };
 
 &xlnx_dp_sub {
