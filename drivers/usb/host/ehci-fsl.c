@@ -24,6 +24,8 @@
 #endif
 
 static void set_txfifothresh(struct usb_ehci *, u32);
+static int ehci_fsl_init(int index, struct usb_ehci *ehci,
+			 struct ehci_hccr *hccr, struct ehci_hcor *hcor);
 
 /* Check USB PHY clock valid */
 static int usb_phy_clk_valid(struct usb_ehci *ehci)
@@ -47,6 +49,38 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci = NULL;
+
+	switch (index) {
+	case 0:
+		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
+		break;
+	case 1:
+		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB2_ADDR;
+		break;
+	default:
+		printf("ERROR: wrong controller index!!\n");
+		return -EINVAL;
+	};
+
+	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
+	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
+			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+
+	return ehci_fsl_init(index, ehci, *hccr, *hcor);
+}
+
+/*
+ * Destroy the appropriate control structures corresponding
+ * the the EHCI host controller.
+ */
+int ehci_hcd_stop(int index)
+{
+	return 0;
+}
+
+static int ehci_fsl_init(int index, struct usb_ehci *ehci,
+			 struct ehci_hccr *hccr, struct ehci_hcor *hcor)
+{
 	const char *phy_type = NULL;
 	size_t len;
 	char current_usb_controller[5];
@@ -67,22 +101,6 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	memset(current_usb_controller, '\0', 5);
 	snprintf(current_usb_controller, sizeof(current_usb_controller),
 		 "usb%d", index+1);
-
-	switch (index) {
-	case 0:
-		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
-		break;
-	case 1:
-		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB2_ADDR;
-		break;
-	default:
-		printf("ERROR: wrong controller index!!\n");
-		return -EINVAL;
-	};
-
-	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
-			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	/* Set to Host mode */
 	setbits_le32(&ehci->usbmode, CM_HOST);
@@ -116,7 +134,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 				UTMI_PHY_EN);
 		udelay(1000); /* delay required for PHY Clk to appear */
 #endif
-		out_le32(&(*hcor)->or_portsc[0], PORT_PTS_UTMI);
+		out_le32(&(hcor)->or_portsc[0], PORT_PTS_UTMI);
 		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
 				USB_EN);
 	} else {
@@ -127,7 +145,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		udelay(1000); /* delay required for PHY Clk to appear */
 		if (!usb_phy_clk_valid(ehci))
 			return -EINVAL;
-		out_le32(&(*hcor)->or_portsc[0], PORT_PTS_ULPI);
+		out_le32(&(hcor)->or_portsc[0], PORT_PTS_ULPI);
 	}
 
 	out_be32(&ehci->prictrl, 0x0000000c);
@@ -149,15 +167,6 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		 */
 		udelay(1);
 	}
-	return 0;
-}
-
-/*
- * Destroy the appropriate control structures corresponding
- * the the EHCI host controller.
- */
-int ehci_hcd_stop(int index)
-{
 	return 0;
 }
 
