@@ -666,12 +666,12 @@ static int rtl_send_common(pci_dev_t dev, unsigned long dev_iobase,
 		puts("tx timeout/error\n");
 		printf("%s elapsed time : %lu\n", __func__, currticks()-stime);
 #endif
-		ret = 0;
+		ret = -ETIMEDOUT;
 	} else {
 #ifdef DEBUG_RTL8169_TX
 		puts("tx done\n");
 #endif
-		ret = length;
+		ret = 0;
 	}
 	/* Delay to make net console (nc) work properly */
 	udelay(20);
