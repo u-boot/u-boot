@@ -7,7 +7,7 @@
  */
 
 &i2c0 {
-	eeprom {
+	eeprom@50 {
 		compatible = "microchip,24lc128", "i2c-eeprom";
 		reg = <0x50>;
 		u-boot,i2c-offset-len = <2>;

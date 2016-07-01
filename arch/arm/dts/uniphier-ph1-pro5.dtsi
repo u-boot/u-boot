@@ -355,6 +355,11 @@
 		clock-frequency = <400000>;
 	};
 
+	aidet@5fc20000 {
+		compatible = "simple-mfd", "syscon";
+		reg = <0x5fc20000 0x200>;
+	};
+
 	emmc: sdhc@68400000 {
 		compatible = "socionext,uniphier-sdhc";
 		status = "disabled";
@@ -431,7 +436,7 @@
 };
 
 &pinctrl {
-	compatible = "socionext,ph1-pro5-pinctrl", "syscon";
+	compatible = "socionext,uniphier-pro5-pinctrl";
 };
 
 &sysctrl {

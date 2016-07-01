@@ -400,6 +400,11 @@
 		clocks = <&mio 4>, <&mio 6>;
 	};
 
+	aidet@5fc20000 {
+		compatible = "simple-mfd", "syscon";
+		reg = <0x5fc20000 0x200>;
+	};
+
 	usb0: usb@65a00000 {
 		compatible = "socionext,uniphier-xhci", "generic-xhci";
 		status = "disabled";
@@ -452,7 +457,7 @@
 };
 
 &pinctrl {
-	compatible = "socionext,ph1-pro4-pinctrl", "syscon";
+	compatible = "socionext,uniphier-pro4-pinctrl";
 };
 
 &sysctrl {

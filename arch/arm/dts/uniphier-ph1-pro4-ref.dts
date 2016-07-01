@@ -80,17 +80,7 @@
 };
 
 /* for U-Boot only */
-/ {
-	soc {
-		u-boot,dm-pre-reloc;
-	};
-};
-
 &serial0 {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl {
 	u-boot,dm-pre-reloc;
 };
 

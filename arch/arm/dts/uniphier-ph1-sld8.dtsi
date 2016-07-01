@@ -274,6 +274,11 @@
 		pinctrl-0 = <&pinctrl_usb2>;
 		clocks = <&mio 5>, <&mio 6>;
 	};
+
+	aidet@61830000 {
+		compatible = "simple-mfd", "syscon";
+		reg = <0x61830000 0x200>;
+	};
 };
 
 &refclk {
@@ -310,7 +315,7 @@
 };
 
 &pinctrl {
-	compatible = "socionext,ph1-sld8-pinctrl", "syscon";
+	compatible = "socionext,uniphier-sld8-pinctrl";
 };
 
 &sysctrl {
