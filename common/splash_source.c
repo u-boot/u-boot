@@ -146,7 +146,11 @@ static int splash_init_usb(void)
 	if (err)
 		return err;
 
-	return usb_stor_scan(1) < 0 ? -ENODEV : 0;
+#ifndef CONFIG_DM_USB
+	err = usb_stor_scan(1) < 0 ? -ENODEV : 0;
+#endif
+
+	return err;
 }
 #else
 static inline int splash_init_usb(void)
