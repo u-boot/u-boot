@@ -529,7 +529,7 @@ void sunxi_board_init(void)
 #endif
 	printf("DRAM:");
 	ramsize = sunxi_dram_init();
-	printf(" %lu MiB\n", ramsize >> 20);
+	printf(" %d MiB\n", (int)(ramsize >> 20));
 	if (!ramsize)
 		hang();
 

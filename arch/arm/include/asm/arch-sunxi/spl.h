@@ -20,6 +20,8 @@
 
 /* The low 8-bits of the 'boot_media' field in the SPL header */
 #define SUNXI_BOOTED_FROM_MMC0	0
+#define SUNXI_BOOTED_FROM_NAND	1
+#define SUNXI_BOOTED_FROM_MMC2	2
 #define SUNXI_BOOTED_FROM_SPI	3
 
 /* boot head definition from sun4i boot code */

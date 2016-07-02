@@ -202,6 +202,11 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
+R16 EVB PARROT BOARD
+M:	Quentin Schulz <quentin.schulz@free-electrons.com>
+S:	Maintained
+F:	configs/parrot_r16_defconfig
+
 SINLINX SINA31s BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
