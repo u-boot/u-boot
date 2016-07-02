@@ -65,7 +65,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		mdelay(5);
 	}
 	memset(current_usb_controller, '\0', 5);
-	snprintf(current_usb_controller, 4, "usb%d", index+1);
+	snprintf(current_usb_controller, sizeof(current_usb_controller),
+		 "usb%d", index+1);
 
 	switch (index) {
 	case 0:
