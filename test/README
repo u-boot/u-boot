@@ -5,6 +5,17 @@ U-Boot has a large amount of code. This file describes how this code is
 tested and what tests you should write when adding a new feature.
 
 
+Running tests
+-------------
+
+To run most tests on sandbox, type this:
+
+    test/run
+
+in the U-Boot directory. Note that only the pytest suite is run using this
+comment.
+
+
 Sandbox
 -------
 U-Boot can be built as a user-space application (e.g. for Linux). This
