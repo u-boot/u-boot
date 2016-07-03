@@ -165,12 +165,13 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
             problems occur.
 
     Returns:
-        Nothing.
+        The output as a string.
     """
 
     runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
-    runner.run(cmd, ignore_errors=ignore_errors)
+    output = runner.run(cmd, ignore_errors=ignore_errors)
     runner.close()
+    return output
 
 ram_base = None
 def find_ram_base(u_boot_console):
