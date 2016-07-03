@@ -38,7 +38,7 @@ static int fit_set_hash_value(void *fit, int noffset, uint8_t *value,
 		printf("Can't set hash '%s' property for '%s' node(%s)\n",
 		       FIT_VALUE_PROP, fit_get_name(fit, noffset, NULL),
 		       fdt_strerror(ret));
-		return -1;
+		return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
 	}
 
 	return 0;
@@ -64,25 +64,27 @@ static int fit_image_process_hash(void *fit, const char *image_name,
 	const char *node_name;
 	int value_len;
 	char *algo;
+	int ret;
 
 	node_name = fit_get_name(fit, noffset, NULL);
 
 	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
 		printf("Can't get hash algo property for '%s' hash node in '%s' image node\n",
 		       node_name, image_name);
-		return -1;
+		return -ENOENT;
 	}
 
 	if (calculate_hash(data, size, algo, value, &value_len)) {
 		printf("Unsupported hash algorithm (%s) for '%s' hash node in '%s' image node\n",
 		       algo, node_name, image_name);
-		return -1;
+		return -EPROTONOSUPPORT;
 	}
 
-	if (fit_set_hash_value(fit, noffset, value, value_len)) {
+	ret = fit_set_hash_value(fit, noffset, value, value_len);
+	if (ret) {
 		printf("Can't set hash value for '%s' hash node in '%s' image node\n",
 		       node_name, image_name);
-		return -1;
+		return ret;
 	}
 
 	return 0;
@@ -322,7 +324,7 @@ int fit_image_add_verification_data(const char *keydir, void *keydest,
 				comment, require_keys);
 		}
 		if (ret)
-			return -1;
+			return ret;
 	}
 
 	return 0;
