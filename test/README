@@ -58,7 +58,6 @@ There are several ad-hoc tests which run outside the pytest environment:
    test/image	- FIT and lagacy image tests (shell script and Python)
    test/stdint	- A test that stdint.h can be used in U-Boot (shell script)
    trace	- Test for the tracing feature (shell script)
-   vboot	- Test for verified boot (shell script)
 
 The above should be converted to run as part of the pytest suite.
 
