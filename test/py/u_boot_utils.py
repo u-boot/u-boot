@@ -173,6 +173,18 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
     runner.close()
     return output
 
+def cmd(u_boot_console, cmd_str):
+    """Run a single command string and log its output.
+
+    Args:
+        u_boot_console: A console connection to U-Boot.
+        cmd: The command to run, as a string.
+
+    Returns:
+        The output as a string.
+    """
+    return run_and_log(u_boot_console, cmd_str.split())
+
 ram_base = None
 def find_ram_base(u_boot_console):
     """Find the running U-Boot's RAM location.
