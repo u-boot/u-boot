@@ -651,8 +651,8 @@ static int fit_handle_file(struct image_tool_params *params)
 	}
 
 	if (ret) {
-		fprintf(stderr, "%s Can't add hashes to FIT blob\n",
-			params->cmdname);
+		fprintf(stderr, "%s Can't add hashes to FIT blob: %d\n",
+			params->cmdname, ret);
 		goto err_system;
 	}
 
