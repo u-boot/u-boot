@@ -119,7 +119,7 @@ class RunAndLog(object):
                 raised if such problems occur.
 
         Returns:
-            Nothing.
+            The output as a string.
         """
 
         msg = '+' + ' '.join(cmd) + '\n'
@@ -161,6 +161,7 @@ class RunAndLog(object):
             self.chained_file.write(output)
         if exception:
             raise exception
+        return output
 
 class SectionCtxMgr(object):
     """A context manager for Python's "with" statement, which allows a certain
