@@ -438,9 +438,11 @@ static void usb_show_subtree(struct usb_device *dev)
 	usb_show_tree_graph(dev, &preamble[0]);
 }
 
-void usb_show_tree(void)
-{
 #ifdef CONFIG_DM_USB
+typedef void (*usb_dev_func_t)(struct usb_device *udev);
+
+static void usb_for_each_root_dev(usb_dev_func_t func)
+{
 	struct udevice *bus;
 
 	for (uclass_find_first_device(UCLASS_USB, &bus);
@@ -455,9 +457,16 @@ void usb_show_tree(void)
 		device_find_first_child(bus, &dev);
 		if (dev && device_active(dev)) {
 			udev = dev_get_parent_priv(dev);
-			usb_show_subtree(udev);
+			func(udev);
 		}
 	}
+}
+#endif
+
+void usb_show_tree(void)
+{
+#ifdef CONFIG_DM_USB
+	usb_for_each_root_dev(usb_show_subtree);
 #else
 	struct usb_device *udev;
 	int i;
