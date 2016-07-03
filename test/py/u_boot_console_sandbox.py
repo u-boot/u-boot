@@ -46,7 +46,7 @@ class ConsoleSandbox(ConsoleBase):
             self.config.build_dir + '/u-boot',
             '-v',
             '-d',
-            self.config.build_dir + '/arch/sandbox/dts/test.dtb'
+            self.config.dtb
         ]
         return Spawn(cmd, cwd=self.config.source_dir)
 
