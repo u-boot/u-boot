@@ -216,6 +216,22 @@ class ConsoleBase(object):
             self.cleanup_spawn()
             raise
 
+    def run_command_list(self, cmds):
+        """Run a list of commands.
+
+        This is a helper function to call run_command() with default arguments
+        for each command in a list.
+
+        Args:
+            cmd: List of commands (each a string)
+        Returns:
+            Combined output of all commands, as a string
+        """
+        output = ''
+        for cmd in cmds:
+            output += self.run_command(cmd)
+        return output
+
     def ctrlc(self):
         """Send a CTRL-C character to U-Boot.
 
