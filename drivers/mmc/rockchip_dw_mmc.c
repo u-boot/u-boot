@@ -7,8 +7,10 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <dwmmc.h>
 #include <errno.h>
+#include <mapmem.h>
 #include <pwrseq.h>
 #include <syscon.h>
 #include <asm/gpio.h>
@@ -19,6 +21,9 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct rockchip_mmc_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_rockchip_rk3288_dw_mshc dtplat;
+#endif
 	struct mmc_config cfg;
 	struct mmc mmc;
 };
@@ -48,6 +53,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 
 static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
 
@@ -73,7 +79,7 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	if (fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
 				 "clock-freq-min-max", priv->minmax, 2))
 		return -EINVAL;
-
+#endif
 	return 0;
 }
 
@@ -86,10 +92,27 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	struct udevice *pwr_dev __maybe_unused;
 	int ret;
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_rockchip_rk3288_dw_mshc *dtplat = &plat->dtplat;
+
+	host->name = dev->name;
+	host->ioaddr = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
+	host->buswidth = dtplat->bus_width;
+	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;
+	host->priv = dev;
+	host->dev_index = 0;
+	priv->fifo_depth = dtplat->fifo_depth;
+	priv->fifo_mode = 0;
+	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
+
+	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	if (ret < 0)
+		return ret;
+#else
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
-
+#endif
 	host->fifoth_val = MSIZE(0x2) |
 		RX_WMARK(priv->fifo_depth / 2 - 1) |
 		TX_WMARK(priv->fifo_depth / 2);
@@ -134,7 +157,7 @@ static const struct udevice_id rockchip_dwmmc_ids[] = {
 };
 
 U_BOOT_DRIVER(rockchip_dwmmc_drv) = {
-	.name		= "rockchip_dwmmc",
+	.name		= "rockchip_rk3288_dw_mshc",
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
 	.ofdata_to_platdata = rockchip_dwmmc_ofdata_to_platdata,
