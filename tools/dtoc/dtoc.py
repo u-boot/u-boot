@@ -40,6 +40,7 @@ PROP_IGNORE_LIST = [
     'linux,phandle',
     "status",
     'phandle',
+    'u-boot,dm-pre-reloc',
 ]
 
 # C type declarations for the tyues we support
