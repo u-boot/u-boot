@@ -26,6 +26,9 @@ struct rockchip_mmc_plat {
 struct rockchip_dwmmc_priv {
 	struct clk clk;
 	struct dwmci_host host;
+	int fifo_depth;
+	bool fifo_mode;
+	u32 minmax[2];
 };
 
 static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
@@ -61,6 +64,16 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	else
 		host->dev_index = 1;
 
+	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				    "fifo-depth", 0);
+	if (priv->fifo_depth < 0)
+		return -EINVAL;
+	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+					  "fifo-mode");
+	if (fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
+				 "clock-freq-min-max", priv->minmax, 2))
+		return -EINVAL;
+
 	return 0;
 }
 
@@ -71,28 +84,17 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
 	struct udevice *pwr_dev __maybe_unused;
-	u32 minmax[2];
 	int ret;
-	int fifo_depth;
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
 
-	if (fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
-				 "clock-freq-min-max", minmax, 2))
-		return -EINVAL;
-
-	fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-				    "fifo-depth", 0);
-	if (fifo_depth < 0)
-		return -EINVAL;
-
 	host->fifoth_val = MSIZE(0x2) |
-		RX_WMARK(fifo_depth / 2 - 1) | TX_WMARK(fifo_depth / 2);
+		RX_WMARK(priv->fifo_depth / 2 - 1) |
+		TX_WMARK(priv->fifo_depth / 2);
 
-	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "fifo-mode"))
-		host->fifo_mode = true;
+	host->fifo_mode = priv->fifo_mode;
 
 #ifdef CONFIG_PWRSEQ
 	/* Enable power if needed */
@@ -105,7 +107,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	}
 #endif
 	dwmci_setup_cfg(&plat->cfg, dev->name, host->buswidth, host->caps,
-			minmax[1], minmax[0]);
+			priv->minmax[1], priv->minmax[0]);
 	host->mmc = &plat->mmc;
 	host->mmc->priv = &priv->host;
 	host->mmc->dev = dev;
