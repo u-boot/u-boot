@@ -541,6 +541,57 @@ int os_jump_to_image(const void *dest, int size)
 	return unlink(fname);
 }
 
+int os_find_u_boot(char *fname, int maxlen)
+{
+	struct sandbox_state *state = state_get_current();
+	const char *progname = state->argv[0];
+	int len = strlen(progname);
+	char *p;
+	int fd;
+
+	if (len >= maxlen || len < 4)
+		return -ENOSPC;
+
+	/* Look for 'u-boot' in the same directory as 'u-boot-spl' */
+	strcpy(fname, progname);
+	if (!strcmp(fname + len - 4, "-spl")) {
+		fname[len - 4] = '\0';
+		fd = os_open(fname, O_RDONLY);
+		if (fd >= 0) {
+			close(fd);
+			return 0;
+		}
+	}
+
+	/* Look for 'u-boot' in the parent directory of spl/ */
+	p = strstr(fname, "/spl/");
+	if (p) {
+		strcpy(p, p + 4);
+		fd = os_open(fname, O_RDONLY);
+		if (fd >= 0) {
+			close(fd);
+			return 0;
+		}
+	}
+
+	return -ENOENT;
+}
+
+int os_spl_to_uboot(const char *fname)
+{
+	struct sandbox_state *state = state_get_current();
+	char *argv[state->argc + 1];
+	int ret;
+
+	memcpy(argv, state->argv, sizeof(char *) * (state->argc + 1));
+	argv[0] = (char *)fname;
+	ret = execv(fname, argv);
+	if (ret)
+		return ret;
+
+	return unlink(fname);
+}
+
 void os_localtime(struct rtc_time *rt)
 {
 	time_t t = time(NULL);
