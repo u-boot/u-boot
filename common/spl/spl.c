@@ -210,7 +210,8 @@ int spl_init(void)
 		}
 	}
 	if (IS_ENABLED(CONFIG_SPL_DM)) {
-		ret = dm_init_and_scan(true);
+		/* With CONFIG_OF_PLATDATA, bring in all devices */
+		ret = dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA));
 		if (ret) {
 			debug("dm_init_and_scan() returned error %d\n", ret);
 			return ret;
