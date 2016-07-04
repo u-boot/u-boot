@@ -4,6 +4,8 @@
  */
 #define DEBUG
 #include <common.h>
+#include <errno.h>
+#include <libfdt.h>
 #include <os.h>
 #include <asm/io.h>
 #include <asm/state.h>
