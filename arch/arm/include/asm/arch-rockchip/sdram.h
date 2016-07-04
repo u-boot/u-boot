@@ -87,12 +87,4 @@ struct rk3288_base_params {
 	u32 odt;
 };
 
-struct rk3288_sdram_params {
-	struct rk3288_sdram_channel ch[2];
-	struct rk3288_sdram_pctl_timing pctl_timing;
-	struct rk3288_sdram_phy_timing phy_timing;
-	struct rk3288_base_params base;
-	int num_channels;
-};
-
 #endif
