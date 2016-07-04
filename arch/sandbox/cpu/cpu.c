@@ -4,10 +4,10 @@
  */
 #define DEBUG
 #include <common.h>
-#include <dm/root.h>
 #include <os.h>
 #include <asm/io.h>
 #include <asm/state.h>
+#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
