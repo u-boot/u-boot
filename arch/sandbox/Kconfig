@@ -10,8 +10,13 @@ config SYS_BOARD
 config SYS_CPU
 	default "sandbox"
 
+config SANDBOX_SPL
+	bool "Enable SPL for sandbox"
+	select SUPPORT_SPL
+
 config SYS_CONFIG_NAME
-	default "sandbox"
+	default "sandbox_spl" if SANDBOX_SPL
+	default "sandbox" if !SANDBOX_SPL
 
 config PCI
 	bool "PCI support"
