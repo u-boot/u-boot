@@ -329,7 +329,7 @@ class ConsoleBase(object):
                 m = self.p.expect([pattern_u_boot_spl_signon] +
                                   self.bad_patterns)
                 if m != 0:
-                    raise Exception('Bad pattern found on console: ' +
+                    raise Exception('Bad pattern found on SPL console: ' +
                                     self.bad_pattern_ids[m - 1])
             m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
             if m != 0:
