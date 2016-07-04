@@ -8,6 +8,8 @@
 
 #include <configs/sandbox.h>
 
+#define CONFIG_SPL_BOARD_INIT
+
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_FRAMEWORK

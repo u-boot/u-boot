@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <os.h>
+#include <spl.h>
 #include <asm/spl.h>
 #include <asm/state.h>
 
@@ -48,4 +49,20 @@ int spl_board_load_image(void)
 
 	/* Hopefully this will not return */
 	return os_spl_to_uboot(fname);
+}
+
+void spl_board_init(void)
+{
+	struct udevice *dev;
+
+	preloader_console_init();
+
+	/*
+	* Scan all the devices so that we can output their platform data. See
+	* sandbox_spl_probe().
+	*/
+	for (uclass_first_device(UCLASS_MISC, &dev);
+	dev;
+	uclass_next_device(&dev))
+		;
 }
