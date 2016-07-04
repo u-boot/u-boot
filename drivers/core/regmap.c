@@ -15,6 +15,27 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static struct regmap *regmap_alloc_count(int count)
+{
+	struct regmap *map;
+
+	map = malloc(sizeof(struct regmap));
+	if (!map)
+		return NULL;
+	if (count <= 1) {
+		map->range = &map->base_range;
+	} else {
+		map->range = malloc(count * sizeof(struct regmap_range));
+		if (!map->range) {
+			free(map);
+			return NULL;
+		}
+	}
+	map->range_count = count;
+
+	return map;
+}
+
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 int regmap_init_mem_platdata(struct udevice *dev, fdt32_t *reg, int size,
 			     struct regmap **mapp)
@@ -45,22 +66,11 @@ int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 	if (!cell || !count)
 		return -EINVAL;
 
-	map = malloc(sizeof(struct regmap));
+	map = regmap_alloc_count(count);
 	if (!map)
 		return -ENOMEM;
 
-	if (count <= 1) {
-		map->range = &map->base_range;
-	} else {
-		map->range = malloc(count * sizeof(struct regmap_range));
-		if (!map->range) {
-			free(map);
-			return -ENOMEM;
-		}
-	}
-
 	map->base = fdtdec_get_number(cell, addr_len);
-	map->range_count = count;
 
 	for (range = map->range; count > 0;
 	     count--, cell += both_len, range++) {
