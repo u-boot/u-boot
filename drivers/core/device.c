@@ -608,7 +608,7 @@ const char *dev_get_uclass_name(struct udevice *dev)
 
 fdt_addr_t dev_get_addr_index(struct udevice *dev, int index)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	fdt_addr_t addr;
 
 	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {

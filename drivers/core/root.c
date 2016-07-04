@@ -188,7 +188,7 @@ int dm_scan_platdata(bool pre_reloc_only)
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 		     bool pre_reloc_only)
 {
@@ -244,7 +244,7 @@ int dm_init_and_scan(bool pre_reloc_only)
 		return ret;
 	}
 
-	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
 		if (ret) {
 			debug("dm_scan_fdt() failed: %d\n", ret);
