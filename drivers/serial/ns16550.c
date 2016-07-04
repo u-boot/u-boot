@@ -347,7 +347,7 @@ int ns16550_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ns16550_platdata *plat = dev->platdata;
@@ -416,6 +416,7 @@ const struct dm_serial_ops ns16550_serial_ops = {
 	.setbrg = ns16550_serial_setbrg,
 };
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 /*
  * Please consider existing compatible strings before adding a new
@@ -452,4 +453,5 @@ U_BOOT_DRIVER(ns16550_serial) = {
 	.flags	= DM_FLAG_PRE_RELOC,
 };
 #endif
+#endif /* !OF_PLATDATA */
 #endif /* CONFIG_DM_SERIAL */
