@@ -57,7 +57,7 @@ int cleanup_before_linux_select(int flags)
 
 void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
-#ifdef CONFIG_PCI
+#if defined(CONFIG_PCI) && !defined(CONFIG_SPL_BUILD)
 	unsigned long plen = len;
 	void *ptr;
 
