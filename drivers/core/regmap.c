@@ -37,10 +37,24 @@ static struct regmap *regmap_alloc_count(int count)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-int regmap_init_mem_platdata(struct udevice *dev, fdt32_t *reg, int size,
+int regmap_init_mem_platdata(struct udevice *dev, u32 *reg, int count,
 			     struct regmap **mapp)
 {
-	/* TODO(sjg@chromium.org): Implement this when needed */
+	struct regmap_range *range;
+	struct regmap *map;
+
+	map = regmap_alloc_count(count);
+	if (!map)
+		return -ENOMEM;
+
+	map->base = *reg;
+	for (range = map->range; count > 0; reg += 2, range++, count--) {
+		range->start = *reg;
+		range->size = reg[1];
+	}
+
+	*mapp = map;
+
 	return 0;
 }
 #else
