@@ -346,6 +346,8 @@ class DtbPlatdata:
             self.Buf('U_BOOT_DEVICE(%s) = {\n' % var_name)
             self.Buf('\t.name\t\t= "%s",\n' % struct_name)
             self.Buf('\t.platdata\t= &%s%s,\n' % (VAL_PREFIX, var_name))
+            self.Buf('\t.platdata_size\t= sizeof(%s%s),\n' %
+                     (VAL_PREFIX, var_name))
             self.Buf('};\n')
             self.Buf('\n')
 

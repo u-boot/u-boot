@@ -44,6 +44,8 @@ struct driver_info;
 /* Device name is allocated and should be freed on unbind() */
 #define DM_FLAG_NAME_ALLOCED		(1 << 7)
 
+#define DM_FLAG_OF_PLATDATA		(1 << 8)
+
 /**
  * struct udevice - An instance of a driver
  *
