@@ -377,6 +377,16 @@ class ConsoleBase(object):
             pass
         self.p = None
 
+    def get_spawn_output(self):
+        """Return the start-up output from U-Boot
+
+        Returns:
+            The output produced by ensure_spawed(), as a string.
+        """
+        if self.p:
+            return self.p.get_expect_output()
+        return None
+
     def validate_version_string_in_text(self, text):
         """Assert that a command's output includes the U-Boot signon message.
 
