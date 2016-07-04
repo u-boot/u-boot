@@ -115,7 +115,9 @@ static int sandbox_serial_pending(struct udevice *dev, bool input)
 		return 0;
 
 	os_usleep(100);
+#ifndef CONFIG_SPL_BUILD
 	video_sync_all();
+#endif
 	if (next_index == serial_buf_read)
 		return 1;	/* buffer full */
 
