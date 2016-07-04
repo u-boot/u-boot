@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 spl_boot_device(void)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	const void *blob = gd->fdt_blob;
 	struct udevice *dev;
 	const char *bootdev;
@@ -63,6 +64,7 @@ u32 spl_boot_device(void)
 	}
 
 fallback:
+#endif
 	return BOOT_DEVICE_MMC1;
 }
 
