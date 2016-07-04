@@ -3835,9 +3835,6 @@ Configuration Settings:
 		The memory will be freed (or in fact just forgotten) when
 		U-Boot relocates itself.
 
-		Pre-relocation malloc() is only supported on ARM and sandbox
-		at present but is fairly easy to enable for other archs.
-
 - CONFIG_SYS_MALLOC_SIMPLE
 		Provides a simple and small malloc() and calloc() for those
 		boards which do not use the full malloc in SPL (which is
