@@ -23,6 +23,17 @@ struct syscon_ops {
 
 #define syscon_get_ops(dev)        ((struct syscon_ops *)(dev)->driver->ops)
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+/*
+ * We don't support 64-bit machines. If they are so resource-contrained that
+ * they need to use OF_PLATDATA, something is horribly wrong with the
+ * education of our hardware engineers.
+ */
+struct syscon_base_platdata {
+	u32 reg[2];
+};
+#endif
+
 /**
  * syscon_get_regmap() - Get access to a register map
  *
