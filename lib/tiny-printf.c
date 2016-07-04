@@ -185,3 +185,12 @@ int snprintf(char *buf, size_t size, const char *fmt, ...)
 
 	return ret;
 }
+
+void __assert_fail(const char *assertion, const char *file, unsigned line,
+		   const char *function)
+{
+	/* This will not return */
+	printf("%s:%u: %s: Assertion `%s' failed.", file, line, function,
+	       assertion);
+	hang();
+}
