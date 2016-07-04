@@ -56,6 +56,9 @@ int regmap_read(struct regmap *map, uint offset, uint *valp);
  */
 int regmap_init_mem(struct udevice *dev, struct regmap **mapp);
 
+int regmap_init_mem_platdata(struct udevice *dev, fdt32_t *reg, int size,
+			     struct regmap **mapp);
+
 /**
  * regmap_get_range() - Obtain the base memory address of a regmap range
  *

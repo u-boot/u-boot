@@ -15,6 +15,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+int regmap_init_mem_platdata(struct udevice *dev, fdt32_t *reg, int size,
+			     struct regmap **mapp)
+{
+	/* TODO(sjg@chromium.org): Implement this when needed */
+	return 0;
+}
+#else
 int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 {
 	const void *blob = gd->fdt_blob;
@@ -64,6 +72,7 @@ int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 
 	return 0;
 }
+#endif
 
 void *regmap_get_range(struct regmap *map, unsigned int range_num)
 {
