@@ -42,7 +42,7 @@ struct driver_info;
 #define DM_FLAG_BOUND			(1 << 6)
 
 /* Device name is allocated and should be freed on unbind() */
-#define DM_NAME_ALLOCED			(1 << 7)
+#define DM_FLAG_NAME_ALLOCED		(1 << 7)
 
 /**
  * struct udevice - An instance of a driver
@@ -553,7 +553,7 @@ int device_set_name(struct udevice *dev, const char *name);
 /**
  * device_set_name_alloced() - note that a device name is allocated
  *
- * This sets the DM_NAME_ALLOCED flag for the device, so that when it is
+ * This sets the DM_FLAG_NAME_ALLOCED flag for the device, so that when it is
  * unbound the name will be freed. This avoids memory leaks.
  *
  * @dev:	Device to update

@@ -738,7 +738,7 @@ bool device_is_last_sibling(struct udevice *dev)
 
 void device_set_name_alloced(struct udevice *dev)
 {
-	dev->flags |= DM_NAME_ALLOCED;
+	dev->flags |= DM_FLAG_NAME_ALLOCED;
 }
 
 int device_set_name(struct udevice *dev, const char *name)
