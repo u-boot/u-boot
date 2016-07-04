@@ -13,7 +13,6 @@
 #include <nand.h>
 #include <fat.h>
 #include <version.h>
-#include <i2c.h>
 #include <image.h>
 #include <malloc.h>
 #include <dm/root.h>
