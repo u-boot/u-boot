@@ -783,12 +783,22 @@ static struct clk_ops rk3288_clk_ops = {
 	.set_rate	= rk3288_clk_set_rate,
 };
 
-static int rk3288_clk_probe(struct udevice *dev)
+static int rk3288_clk_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(dev);
 
 	priv->cru = (struct rk3288_cru *)dev_get_addr(dev);
+
+	return 0;
+}
+
+static int rk3288_clk_probe(struct udevice *dev)
+{
+	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	if (IS_ERR(priv->grf))
+		return PTR_ERR(priv->grf);
 #ifdef CONFIG_SPL_BUILD
 	rkclk_init(priv->cru, priv->grf);
 #endif
@@ -820,5 +830,6 @@ U_BOOT_DRIVER(clk_rk3288) = {
 	.priv_auto_alloc_size = sizeof(struct rk3288_clk_priv),
 	.ops		= &rk3288_clk_ops,
 	.bind		= rk3288_clk_bind,
+	.ofdata_to_platdata	= rk3288_clk_ofdata_to_platdata,
 	.probe		= rk3288_clk_probe,
 };
