@@ -10,6 +10,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <errno.h>
 #include <ram.h>
 #include <regmap.h>
@@ -45,6 +46,9 @@ struct dram_info {
 };
 
 struct rk3288_sdram_params {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_rockchip_rk3288_dmc of_plat;
+#endif
 	struct rk3288_sdram_channel ch[2];
 	struct rk3288_sdram_pctl_timing pctl_timing;
 	struct rk3288_sdram_phy_timing phy_timing;
@@ -806,6 +810,7 @@ static int setup_sdram(struct udevice *dev)
 
 static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3288_sdram_params *params = dev_get_platdata(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev->of_offset;
@@ -853,10 +858,38 @@ static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
 	ret = regmap_init_mem(dev, &params->map);
 	if (ret)
 		return ret;
+#endif
 
 	return 0;
 }
 #endif /* CONFIG_SPL_BUILD */
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+static int conv_of_platdata(struct udevice *dev)
+{
+	struct rk3288_sdram_params *plat = dev_get_platdata(dev);
+	struct dtd_rockchip_rk3288_dmc *of_plat = &plat->of_plat;
+	int i, ret;
+
+	for (i = 0; i < 2; i++) {
+		memcpy(&plat->ch[i], of_plat->rockchip_sdram_channel,
+		       sizeof(plat->ch[i]));
+	}
+	memcpy(&plat->pctl_timing, of_plat->rockchip_pctl_timing,
+	       sizeof(plat->pctl_timing));
+	memcpy(&plat->phy_timing, of_plat->rockchip_phy_timing,
+	       sizeof(plat->phy_timing));
+	memcpy(&plat->base, of_plat->rockchip_sdram_params, sizeof(plat->base));
+	plat->num_channels = of_plat->rockchip_num_channels;
+	ret = regmap_init_mem_platdata(dev, of_plat->reg,
+				       ARRAY_SIZE(of_plat->reg) / 2,
+				       &plat->map);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+#endif
 
 static int rk3288_dmc_probe(struct udevice *dev)
 {
@@ -868,6 +901,11 @@ static int rk3288_dmc_probe(struct udevice *dev)
 	int ret;
 	struct udevice *dev_clk;
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = conv_of_platdata(dev);
+	if (ret)
+		return ret;
+#endif
 	map = syscon_get_regmap_by_driver_data(ROCKCHIP_SYSCON_NOC);
 	if (IS_ERR(map))
 		return PTR_ERR(map);
@@ -926,7 +964,7 @@ static const struct udevice_id rk3288_dmc_ids[] = {
 };
 
 U_BOOT_DRIVER(dmc_rk3288) = {
-	.name = "rk3288_dmc",
+	.name = "rockchip_rk3288_dmc",
 	.id = UCLASS_RAM,
 	.of_match = rk3288_dmc_ids,
 	.ops = &rk3288_dmc_ops,
