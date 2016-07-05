@@ -19,7 +19,7 @@ endif
 endif
 
 obj-$(CONFIG_ARMV7_NONSEC)	+= nonsec_virt.o virt-v7.o virt-dt.o
-obj-$(CONFIG_ARMV7_PSCI)	+= psci.o
+obj-$(CONFIG_ARMV7_PSCI)	+= psci.o psci-common.o
 
 obj-$(CONFIG_IPROC) += iproc-common/
 obj-$(CONFIG_KONA) += kona-common/
