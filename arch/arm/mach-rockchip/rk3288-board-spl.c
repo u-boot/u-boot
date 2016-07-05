@@ -251,7 +251,8 @@ void spl_board_init(void)
 	}
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	if (!IS_ENABLED(CONFIG_TARGET_ROCK2) &&
-	    !IS_ENABLED(CONFIG_TARGET_FIREFLY_RK3288)) {
+	    !IS_ENABLED(CONFIG_TARGET_FIREFLY_RK3288) &&
+	    !IS_ENABLED(CONFIG_TARGET_EVB_RK3288)) {
 		ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_SDCARD);
 		if (ret) {
 			debug("%s: Failed to set up SD card\n", __func__);

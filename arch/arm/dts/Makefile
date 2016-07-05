@@ -31,6 +31,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3288-firefly.dtb \
 	rk3288-jerry.dtb \
 	rk3288-rock2-square.dtb \
+	rk3288-evb.dtb \
 	rk3036-sdk.dtb
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxbb-odroidc2.dtb
