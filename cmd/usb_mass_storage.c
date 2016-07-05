@@ -22,7 +22,7 @@ static int ums_read_sector(struct ums *ums_dev,
 	struct blk_desc *block_dev = &ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 
-	return block_dev->block_read(block_dev, blkstart, blkcnt, buf);
+	return blk_dread(block_dev, blkstart, blkcnt, buf);
 }
 
 static int ums_write_sector(struct ums *ums_dev,
@@ -31,7 +31,7 @@ static int ums_write_sector(struct ums *ums_dev,
 	struct blk_desc *block_dev = &ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 
-	return block_dev->block_write(block_dev, blkstart, blkcnt, buf);
+	return blk_dwrite(block_dev, blkstart, blkcnt, buf);
 }
 
 static struct ums *ums;
