@@ -145,10 +145,10 @@ int fdt_subnode_offset(const void *fdt, int parentoffset,
  * "foo/bar:option" and "bar:option/otheroption", both of which happen, so
  * first searching for either ':' or '/' does not work.
  */
-static const char *fdt_path_next_separator(const char *path)
+static const char *fdt_path_next_separator(const char *path, int len)
 {
-	const char *sep1 = strchr(path, '/');
-	const char *sep2 = strchr(path, ':');
+	const void *sep1 = memchr(path, '/', len);
+	const void *sep2 = memchr(path, ':', len);
 
 	if (sep1 && sep2)
 		return (sep1 < sep2) ? sep1 : sep2;
@@ -158,9 +158,9 @@ static const char *fdt_path_next_separator(const char *path)
 		return sep2;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
 {
-	const char *end = path + strlen(path);
+	const char *end = path + namelen;
 	const char *p = path;
 	int offset = 0;
 
@@ -168,7 +168,7 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 	/* see if we have an alias */
 	if (*path != '/') {
-		const char *q = fdt_path_next_separator(path);
+		const char *q = fdt_path_next_separator(path, namelen);
 
 		if (!q)
 			q = end;
@@ -181,14 +181,16 @@ int fdt_path_offset(const void *fdt, const char *path)
 		p = q;
 	}
 
-	while (*p) {
+	while (*p && (p < end)) {
 		const char *q;
 
 		while (*p == '/')
 			p++;
+
 		if (*p == '\0' || *p == ':')
 			return offset;
-		q = fdt_path_next_separator(p);
+
+		q = fdt_path_next_separator(p, end - p);
 		if (!q)
 			q = end;
 
