@@ -661,6 +661,7 @@ config ARCH_ZYNQ
 	select DM_SERIAL
 	select DM_SPI_FLASH
 	select SPL_SEPARATE_BSS if SPL
+	select DM_USB if USB
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
@@ -671,6 +672,7 @@ config ARCH_ZYNQMP
 	select SUPPORT_SPL
 	select CLK
 	select SPL_CLK
+	select DM_USB if USB
 
 config TEGRA
 	bool "NVIDIA Tegra"
