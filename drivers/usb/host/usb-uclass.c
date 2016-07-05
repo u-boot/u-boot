@@ -348,11 +348,6 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index)
 }
 #endif
 
-int usb_post_bind(struct udevice *dev)
-{
-	return dm_scan_fdt_dev(dev);
-}
-
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 {
 	struct usb_platdata *plat;
@@ -766,7 +761,7 @@ UCLASS_DRIVER(usb) = {
 	.id		= UCLASS_USB,
 	.name		= "usb",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.post_bind	= usb_post_bind,
+	.post_bind	= dm_scan_fdt_dev,
 	.priv_auto_alloc_size = sizeof(struct usb_uclass_priv),
 	.per_child_auto_alloc_size = sizeof(struct usb_device),
 	.per_device_auto_alloc_size = sizeof(struct usb_bus_priv),

@@ -340,12 +340,6 @@ static int pic32_pinctrl_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pic32_pinctrl_bind(struct udevice *dev)
-{
-	/* scan child GPIO banks */
-	return dm_scan_fdt_dev(dev);
-}
-
 static const struct udevice_id pic32_pinctrl_ids[] = {
 	{ .compatible = "microchip,pic32mzda-pinctrl" },
 	{ }
@@ -357,6 +351,6 @@ U_BOOT_DRIVER(pinctrl_pic32) = {
 	.of_match	= pic32_pinctrl_ids,
 	.ops		= &pic32_pinctrl_ops,
 	.probe		= pic32_pinctrl_probe,
-	.bind		= pic32_pinctrl_bind,
+	.bind		= dm_scan_fdt_dev,
 	.priv_auto_alloc_size = sizeof(struct pic32_pinctrl_priv),
 };

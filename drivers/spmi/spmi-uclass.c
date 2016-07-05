@@ -35,13 +35,8 @@ int spmi_reg_write(struct udevice *dev, int usid, int pid, int reg,
 	return ops->write(dev, usid, pid, reg, value);
 }
 
-static int spmi_post_bind(struct udevice *dev)
-{
-	return dm_scan_fdt_dev(dev);
-}
-
 UCLASS_DRIVER(spmi) = {
 	.id		= UCLASS_SPMI,
 	.name		= "spmi",
-	.post_bind	= spmi_post_bind,
+	.post_bind	= dm_scan_fdt_dev,
 };

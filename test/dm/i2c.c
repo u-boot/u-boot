@@ -31,8 +31,8 @@ static int dm_test_i2c_find(struct unit_test_state *uts)
 						       false, &bus));
 
 	/*
-	 * i2c_post_bind() will bind devices to chip selects. Check this then
-	 * remove the emulation and the slave device.
+	 * The post_bind() method will bind devices to chip selects. Check
+	 * this then remove the emulation and the slave device.
 	 */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
 	ut_assertok(dm_i2c_probe(bus, chip, 0, &dev));

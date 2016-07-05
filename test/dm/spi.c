@@ -30,8 +30,8 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 						       false, &bus));
 
 	/*
-	 * spi_post_bind() will bind devices to chip selects. Check this then
-	 * remove the emulation and the slave device.
+	 * The post_bind() method will bind devices to chip selects. Check
+	 * this then remove the emulation and the slave device.
 	 */
 	ut_asserteq(0, uclass_get_device_by_seq(UCLASS_SPI, busnum, &bus));
 	ut_assertok(spi_cs_info(bus, cs, &info));
